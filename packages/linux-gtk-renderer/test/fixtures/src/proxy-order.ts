@@ -51,11 +51,29 @@ try {
 		{ op: 'create', id: 4, type: 'label', props: { text: 'B' } },
 		{ op: 'insert', id: 4, parent: 2, before: null },
 	] as UniversalHostCommand[])
+	const actual = labels()
+	const proxyChild = container.nodes.get(2)?.children.map((node: ElementNode) => node.props.text)
+	apply([
+		{ op: 'create', id: 5, type: 'proxyviewcontainer', props: {} },
+		{ op: 'insert', id: 5, parent: 2, before: 4 },
+		{ op: 'create', id: 6, type: 'label', props: { text: 'D' } },
+		{ op: 'insert', id: 6, parent: 5, before: null },
+		{ op: 'create', id: 7, type: 'label', props: { text: 'E' } },
+		{ op: 'insert', id: 7, parent: 5, before: 6 },
+	] as UniversalHostCommand[])
+	const nestedBefore = labels()
+	apply([{ op: 'remove', id: 6 }] as UniversalHostCommand[])
+	const removedChild = labels()
+	apply([{ op: 'move', id: 2, parent: null, before: null }] as UniversalHostCommand[])
+	const movedProxy = labels()
+	apply([{ op: 'remove', id: 2 }] as UniversalHostCommand[])
+	const removedProxy = labels()
+	apply([{ op: 'insert', id: 2, parent: null, before: 3 }] as UniversalHostCommand[])
+	const reinsertedProxy = labels()
 	print(`GTK_PROXY_ORDER ${JSON.stringify({
 		gtk: `${runtimeGtk.get_major_version()}.${runtimeGtk.get_minor_version()}.${runtimeGtk.get_micro_version()}`,
 		initial,
-		actual: labels(),
-		proxyChild: container.nodes.get(2)?.children.map((node: ElementNode) => node.props.text),
+		actual, proxyChild, nestedBefore, removedChild, movedProxy, removedProxy, reinsertedProxy,
 	})}`)
 } finally {
 	for (const node of [...container.nodes.values()].reverse()) {

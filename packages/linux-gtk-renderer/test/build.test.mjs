@@ -137,10 +137,13 @@ test('the proxy ordering fixture builds and exercises real GTK when available', 
 	t.diagnostic(`${process.platform}; ${gjsVersion}; GTK ${result.gtk}; no window or input`)
 	assert.deepEqual(result.initial, ['A', 'C'], 'setup mounted the surrounding native siblings')
 	assert.deepEqual(result.proxyChild, ['B'], 'the logical proxy owns the inserted child')
-	await t.test('inserting into a mounted proxy preserves surrounding native sibling order', {
-		todo: 'Known audit bug: GTK proxy insertion ignores preceding outer siblings',
-	}, () => {
+	await t.test('inserting into a mounted proxy preserves surrounding native sibling order', () => {
 		assert.deepEqual(result.actual, ['A', 'B', 'C'])
+		assert.deepEqual(result.nestedBefore, ['A', 'E', 'D', 'B', 'C'])
+		assert.deepEqual(result.removedChild, ['A', 'E', 'B', 'C'])
+		assert.deepEqual(result.movedProxy, ['A', 'C', 'E', 'B'])
+		assert.deepEqual(result.removedProxy, ['A', 'C'])
+		assert.deepEqual(result.reinsertedProxy, ['A', 'E', 'B', 'C'])
 	})
 }, 120000)
 

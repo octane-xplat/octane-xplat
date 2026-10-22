@@ -1319,7 +1319,10 @@ function hostViewOf(container: GtkContainer, parent: ElementNode | null): GtkVie
  *  view-bearing descendants of preceding siblings. */
 function viewIndexOf(container: GtkContainer, parent: ElementNode | null, node: ElementNode): number {
 	const siblings = parent === null ? container.children : parent.children
-	let index = 0
+	// A viewless parent occupies a slice of its own effective parent.
+	let index = parent !== null && parent.view === null
+		? viewIndexOf(container, parent.parent, parent)
+		: 0
 	for (const sibling of siblings) {
 		if (sibling === node) {
 			break
