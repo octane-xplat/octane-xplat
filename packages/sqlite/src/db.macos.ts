@@ -1,3 +1,4 @@
+import { isolateDatabase } from './operation-queue'
 /**
  * macOS (AppKit/JSC host) backend: system libsqlite3 via C-function interop.
  *
@@ -320,7 +321,7 @@ export const openDatabase = async (
 
 	const db = ref.value
 	host.sqlite3_busy_timeout(db, 5000)
-	return new MacosSqliteDb(db, path != null)
+	return isolateDatabase(new MacosSqliteDb(db, path != null))
 }
 
 export const deleteDatabase = async (name: string): Promise<boolean> => {

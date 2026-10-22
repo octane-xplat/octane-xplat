@@ -97,7 +97,7 @@ export function ChatToolCalls(props: ChatToolCallsProps) @{
 
 	if (props.calls.length === 1) {
 		return (
-			<masonview id={props.id} className={cx('vx-chattools', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style))}>
+			<masonview id={props.id} className={cx('vx-chattools', props.className)} style={mergeStyle({display: "flex"}, props.style)}>
 				<CallRow call={props.calls[0]} />
 			</masonview>
 		);
@@ -106,7 +106,7 @@ export function ChatToolCalls(props: ChatToolCallsProps) @{
 	const latest = props.calls[props.calls.length - 1];
 	const latestStatus = latest.status ?? 'complete';
 
-	<masonview id={props.id} className={cx('vx-chattools', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style))}>
+	<masonview id={props.id} className={cx('vx-chattools', props.className)} style={mergeStyle({display: "flex"}, props.style)}>
 		<masonview className="vx-chattools-header" accessibilityRole={nativeAccessibilityRole('button')} accessibilityState={nativeAccessibilityState({ expanded: isExpanded })} onTap={toggle} style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex"})}>
 			{isExpanded ? (
 				<>

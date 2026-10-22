@@ -31,6 +31,7 @@ export function ChatLayout(props: ChatLayoutProps) @{
 	const rootRef = useRef<HTMLDivElement | null>(null)
 	const [root, setRoot] = useState<HTMLDivElement | null>(null)
 	const [dock, setDock] = useState<HTMLDivElement | null>(null)
+	const [dockPad, setDockPad] = useState<HTMLDivElement | null>(null)
 	const [content, setContent] = useState<HTMLDivElement | null>(null)
 	const attachRoot = useCallback((view: HTMLDivElement | null) => {
 		rootRef.current = view
@@ -38,6 +39,7 @@ export function ChatLayout(props: ChatLayoutProps) @{
 	}, [])
 
 	const attachDock = useCallback((view: HTMLDivElement | null) => setDock(view), [])
+	const attachDockPad = useCallback((view: HTMLDivElement | null) => setDockPad(view), [])
 	const attachContent = useCallback((view: HTMLDivElement | null) => setContent(view), [])
 	checkChatPanelHeight(props.bottomPanelHeight)
 	const options = useRef({
@@ -55,17 +57,17 @@ export function ChatLayout(props: ChatLayoutProps) @{
 	const binding = useRef<ChatKeyboardBinding | null>(null)
 	const viewport = (props.scrollRef?.current as HTMLElement | null | undefined) ?? root
 	useEffect(() => {
-		if (!root || !viewport || !dock || !content) {
+		if (!root || !viewport || !dock || !dockPad || !content) {
 			return
 		}
 
-		const own = bindChatKeyboard(root, viewport, dock, content, () => options.current)
+		const own = bindChatKeyboard(root, viewport, dock, dockPad, content, () => options.current)
 		binding.current = own
 		return () => {
 			binding.current = null
 			own()
 		}
-	}, [root, viewport, dock, content])
+	}, [root, viewport, dock, dockPad, content])
 
 	useEffect(() => {
 		binding.current?.update()
@@ -132,7 +134,7 @@ export function ChatLayout(props: ChatLayoutProps) @{
 			>
 				{props.scrollButton === undefined ? defaultScrollButton : props.scrollButton}
 				<div className={['vx-chatlayout-blur', `vx-chatlayout-blur--${density}`]} />
-				<div className={['vx-chatlayout-dockpad', `vx-chatlayout-dockpad--${density}`]}>
+				<div ref={attachDockPad} className={['vx-chatlayout-dockpad', `vx-chatlayout-dockpad--${density}`]}>
 					<div className="vx-chatlayout-dockinner">{props.composer}</div>
 				</div>
 			</div>

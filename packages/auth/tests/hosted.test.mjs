@@ -541,8 +541,9 @@ test('a signOut landing mid-refresh is not resurrected by the refresh result', a
 	)
 
 	let releaseRefresh
+	const entered = deferred()
 	const flow = ticketFlow({
-		overrides: { refresh: () => new Promise((resolve) => (releaseRefresh = resolve)) },
+		overrides: { refresh: () => new Promise((resolve) => { releaseRefresh = resolve; entered.resolve() }) },
 	})
 
 	const { fetch } = fakeFetch(() => response(200, {}))
@@ -550,6 +551,7 @@ test('a signOut landing mid-refresh is not resurrected by the refresh result', a
 
 	await auth.restore()
 	const token = auth.getAccessToken() // starts the in-flight refresh
+	await entered.promise
 	await auth.signOut() // clears the slot while the refresh is pending
 	releaseRefresh({
 		expiresAt: Date.now() + 3_600_000,
@@ -571,8 +573,9 @@ test('a fresh signIn landing mid-refresh survives a dead-session refresh result'
 	)
 
 	let releaseRefresh
+	const entered = deferred()
 	const flow = ticketFlow({
-		overrides: { refresh: () => new Promise((resolve) => (releaseRefresh = resolve)) },
+		overrides: { refresh: () => new Promise((resolve) => { releaseRefresh = resolve; entered.resolve() }) },
 	})
 
 	const { fetch, session } = attemptThenGrant()
@@ -580,6 +583,7 @@ test('a fresh signIn landing mid-refresh survives a dead-session refresh result'
 
 	await auth.restore()
 	const token = auth.getAccessToken() // pending refresh on the old session
+	await entered.promise
 	assert.equal((await auth.signIn()).status, 'success')
 	releaseRefresh(null) // the old session reports dead
 
@@ -622,4 +626,109 @@ test('a non-replayable body surfaces the original challenge instead of a replay 
 	assert.equal(res.status, 401)
 	assert.equal(apiCalls, 2)
 	assert.equal(requests[2].init?.headers?.authorization, 'Bearer fresh-token')
+})
+
+function deferred() {
+	let resolve, reject
+	const promise = new Promise((res, rej) => { resolve = res; reject = rej })
+	return { promise, resolve, reject }
+}
+
+function lifecycleConfig(storage, overrides = {}) {
+	return {
+		apiOrigin: ORIGIN,
+		storage,
+		authSession: { supported: true, open: async () => ({ type: 'success', url: 'testapp://cb' }) },
+		flow: { begin: async () => ({ url: `${ORIGIN}/login`, callbackScheme: 'testapp' }),
+			complete: async () => JSON.parse(storedCreds()) },
+		...overrides,
+	}
+}
+
+for (const stage of ['begin', 'open', 'complete']) {
+	test(`sign-out retires a pending ${stage} and permits a subsequent sign-in`, async () => {
+		const { createHostedAuth } = loadHosted()
+		const storage = memoryStore()
+		const entered = deferred()
+		const finish = deferred()
+		const config = lifecycleConfig(storage)
+		const owner = stage === 'open' ? config.authSession : config.flow
+		const original = owner[stage]
+		let calls = 0
+		owner[stage] = async (...args) => {
+			if (++calls === 1) { entered.resolve(); await finish.promise }
+			return original(...args)
+		}
+		const auth = createHostedAuth(config)
+		const stale = auth.signIn()
+		await entered.promise
+		await auth.signOut()
+		assert.equal(await auth.restore(), 'unauthenticated')
+		assert.equal((await auth.signIn()).status, 'success')
+		finish.resolve()
+		assert.equal((await stale).status, 'cancelled')
+		assert.equal(await auth.restore(), 'authenticated')
+		assert.equal(storage.map.size, 1)
+	})
+}
+
+test('sign-out waits for an earlier save and removes it before a restart', async () => {
+	const { createHostedAuth } = loadHosted()
+	const storage = memoryStore()
+	const entered = deferred()
+	const finish = deferred()
+	const config = lifecycleConfig({ ...storage, set: async (key, value) => {
+		entered.resolve()
+		await finish.promise
+		await storage.set(key, value)
+	} })
+	const auth = createHostedAuth(config)
+	const signingIn = auth.signIn()
+	await entered.promise
+	let signedOut = false
+	const signingOut = auth.signOut().then(() => { signedOut = true })
+	await Promise.resolve()
+	assert.equal(await auth.restore(), 'unauthenticated')
+	assert.equal(signedOut, false)
+	finish.resolve()
+	await signingOut
+	assert.equal((await signingIn).status, 'cancelled')
+	assert.equal(storage.map.size, 0)
+	assert.equal(await createHostedAuth(config).restore(), 'unauthenticated')
+})
+
+test('sign-out clears and revokes credentials without requiring an earlier restore', async () => {
+	const { createHostedAuth } = loadHosted()
+	const storage = memoryStore()
+	storage.map.set('hosted-auth', storedCreds())
+	let revoked
+	const config = lifecycleConfig(storage)
+	config.flow.revoke = async (creds) => { revoked = creds.sessionToken }
+	const auth = createHostedAuth(config)
+	await auth.signOut()
+	assert.equal(revoked, 'session-token')
+	assert.equal(storage.map.size, 0)
+	assert.equal(await auth.restore(), 'unauthenticated')
+})
+
+test('a delayed refresh save cannot return or restore a token after sign-out', async () => {
+	const { createHostedAuth } = loadHosted()
+	const storage = memoryStore()
+	storage.map.set('hosted-auth', storedCreds({ expiresAt: 0 }))
+	const entered = deferred()
+	const finish = deferred()
+	const config = lifecycleConfig({ ...storage, set: async (key, value) => {
+		entered.resolve()
+		await finish.promise
+		await storage.set(key, value)
+	} })
+	config.flow.refresh = async () => JSON.parse(storedCreds({ token: 'fresh' }))
+	const auth = createHostedAuth(config)
+	const token = auth.getAccessToken()
+	await entered.promise
+	const signingOut = auth.signOut()
+	finish.resolve()
+	await signingOut
+	assert.equal(await token, null)
+	assert.equal(await createHostedAuth(config).restore(), 'unauthenticated')
 })

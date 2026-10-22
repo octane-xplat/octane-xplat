@@ -11,8 +11,7 @@
  * — createListData supplies it.
  */
 import {
-	createListData,
-	defaultItemKey,
+	createListDataController,
 	type Key,
 	type ListData,
 	type Selection,
@@ -87,6 +86,8 @@ export interface AsyncListSnapshot<T> {
 
 /**
  * React Aria `useAsyncList`-compatible store — paged `load`, optional client `sort`, filter text, selection, and `reload`/`loadMore`. The reactive read is `useAsyncList`/`useStore`.
+ * Complete replacements retain selection for surviving keys and prune removed
+ * keys; an explicit loader `selectedKeys` overrides the retained selection.
  */
 export interface AsyncListData<T>
 	extends
@@ -143,13 +144,13 @@ interface AsyncListOperation {
 export function createAsyncListData<T, C = string>(
 	options: AsyncListOptions<T, C>,
 ): AsyncListData<T> {
-	const getKey = options.getKey ?? defaultItemKey
-	const base = createListData<T>({
+	const collection = createListDataController<T>({
 		initialSelectedKeys: options.initialSelectedKeys,
 		initialFilterText: options.initialFilterText,
 		getKey: options.getKey,
 	})
 
+	const base = collection.list
 	let sortDescriptor = options.initialSortDescriptor
 	let loadingState: LoadingState = 'idle'
 	let error: Error | undefined
@@ -240,14 +241,10 @@ export function createAsyncListData<T, C = string>(
 				const items =
 					nextCursor === undefined ? result.items : [...base.getSnapshot().items, ...result.items]
 
-				replaceItems(items)
 				cursor = result.cursor
-				if (result.selectedKeys !== undefined) {
-					base.setSelectedKeys(result.selectedKeys)
-				}
-
 				error = undefined
-				phase('idle')
+				loadingState = 'idle'
+				collection.replace(items, result.selectedKeys)
 			} catch (e) {
 				if (mine !== ticket || signal.aborted) {
 					return
@@ -260,14 +257,6 @@ export function createAsyncListData<T, C = string>(
 
 		return completed
 	}
-
-	// createListData owns item mutation; wholesale replacement goes through
-	// remove()+append() so selection pruning stays in one place.
-	const replaceItems = (items: T[]) => {
-		base.remove(...base.getSnapshot().items.map(getKey))
-		base.append(...items)
-	}
-
 	return {
 		getSnapshot: () => snap,
 		subscribe(notify) {
@@ -328,7 +317,7 @@ export function createAsyncListData<T, C = string>(
 			return run('loading')
 		},
 		loadMore() {
-			if (loadingState !== 'idle' || cursor === undefined) {
+			if (ACTIVE.has(loadingState) || cursor === undefined) {
 				return Promise.resolve()
 			}
 
@@ -351,9 +340,9 @@ export function createAsyncListData<T, C = string>(
 								return
 							}
 
-							replaceItems(result.items)
 							error = undefined
-							phase('idle')
+							loadingState = 'idle'
+							collection.replace(result.items)
 						},
 						(e) => {
 							if (mine !== ticket) {

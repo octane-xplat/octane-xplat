@@ -342,7 +342,8 @@ export interface HostedAuth {
 	restore(): Promise<HostedAuthStatus>
 	/**
 	 * Run the hosted sign-in ceremony: `flow.begin` → `authSession` →
-	 * `flow.complete`. Stores the credential record on success.
+	 * `flow.complete`. Stores the credential record on success. A sign-out
+	 * during the ceremony supersedes it and resolves this call as cancelled.
 	 */
 	signIn(): Promise<HostedAuthSignInResult>
 	/**
@@ -359,6 +360,11 @@ export interface HostedAuth {
 	 * response. Other URLs pass through.
 	 */
 	fetch(url: string, init?: HostedAuthRequestInit): Promise<HostedAuthResponse>
-	/** Revoke the durable session via `flow.revoke` and clear stored credentials. */
+	/**
+	 * Retire pending sign-in/refresh work, clear memory immediately, and remove
+	 * stored credentials after earlier saves finish. Then revoke the previous
+	 * durable session via `flow.revoke` when provided. Storage and revocation
+	 * failures remain best-effort. A later explicit sign-in starts a new session.
+	 */
 	signOut(): Promise<void>
 }

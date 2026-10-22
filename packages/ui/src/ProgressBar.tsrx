@@ -99,7 +99,7 @@ export function ProgressBar(props: ProgressBarProps) @{
 
 	const forwardedRef = useMemo(() => refList((v: any) => applyEscapeProps(v, props), props.ref), [props.ref, props.ios, props.android, props.web]);
 
-	<masonview ref={forwardedRef} id={props.id} className={cx('vx-progressbar', `vx-progressbar--${variant}`, props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { flexDirection: 'column', ...(isDisabled ? { opacity: 0.38 } : {}), ...styleRecord(props.style) }))}>
+	<masonview ref={forwardedRef} id={props.id} className={cx('vx-progressbar', `vx-progressbar--${variant}`, props.className)} style={mergeStyle({display: "flex"}, { ...(isDisabled ? { opacity: 0.38 } : {}), ...styleRecord(props.style) })}>
 		{showHead ? (
 			<masonview className="vx-progressbar-head" style={mergeStyle({flexDirection: "row", justifyContent: "space-between"}, {display: "flex"})}>
 				<label

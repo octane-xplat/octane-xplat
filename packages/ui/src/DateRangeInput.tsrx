@@ -64,7 +64,7 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 				props.size && `vx-daterangeinput--size-${props.size}`,
 				open && 'vx-daterangeinput--open',
 				props.className,
-			)} style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, props.style))}>
+			)} style={mergeStyle({display: "flex"}, props.style)}>
 			<Pressable
 				id={inputId}
 				className={cx('vx-daterangeinput-trigger', !shown && 'vx-daterangeinput-trigger--placeholder')}

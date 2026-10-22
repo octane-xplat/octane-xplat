@@ -1,6 +1,7 @@
 // @octane-xplat/ui/nativescript — NativeScript integration plumbing shared by iOS
 // and Android. This is not part of the cross-platform component barrel.
 
+export { prepareFullScreenPage } from '../full-screen-page'
 export { rootLayoutFor, topRootLayout, findInRootLayouts } from '../root-layout'
 export { bottomSheetHost } from '../bottom-sheet-service'
 export { defineNativeTransition } from '../native-route-transition'

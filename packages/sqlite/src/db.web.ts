@@ -1,3 +1,4 @@
+import { isolateDatabase } from './operation-queue'
 import type { OpenDatabaseOptions, SqliteDb, SqliteParams, SqliteRow } from './types'
 
 export const supported = true
@@ -123,8 +124,7 @@ class WebSqliteDb implements SqliteDb {
 		this.ensureOpen()
 		return call<any[] | null>('getArray', this.databaseId, sql, params ?? null)
 	}
-	// Messages are serialized on the single worker-side connection, so the
-	// BEGIN…COMMIT window can span several RPC calls safely.
+	// The exported handle queues unrelated calls outside this window.
 	transaction = async <T>(action: (db: SqliteDb) => Promise<T>): Promise<T> => {
 		this.ensureOpen()
 		await call('begin', this.databaseId)
@@ -185,7 +185,7 @@ export const openDatabase = async (
 
 	const db = new WebSqliteDb(result.databaseId, result.persistent, generation)
 	openDatabases.set(result.databaseId, db)
-	return db
+	return isolateDatabase(db)
 }
 
 export const deleteDatabase = async (name: string) => {

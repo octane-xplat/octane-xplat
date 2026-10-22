@@ -73,3 +73,19 @@ test('strict codec rejects missing/extra paths, opaque data, invalid encodings, 
 	assert.throws(() => parseRouteLocation('/application', '/app'), /outside/)
 	assert.throws(() => parseRouteLocation('//other.test/path'), /application-relative/)
 })
+
+test('static segments round-trip Unicode, spaces and literal URL punctuation exactly once', () => {
+	for (const name of ['café', '旅行', 'a b', '100%', 'a#b', '%2F', 'a/b']) {
+		const pattern = [name, ':id']
+		const href = buildRouteLocation(pattern, { id: 'a/b' }, { q: 'c+d' }, 'section', '/app')
+		const parsed = parseRouteLocation(href, '/app')
+		assert.deepEqual(matchRouteSegments(pattern, parsed.segments), { id: 'a/b' }, name)
+		assert.deepEqual(parsed.search, { q: 'c+d' })
+		assert.equal(parsed.hash, 'section')
+	}
+	assert.deepEqual(matchRouteSegments([':locale?', 'café'], ['caf%C3%A9']), {})
+	assert.equal(matchRouteSegments(['café'], ['caf%C3%A9', 'extra']), null)
+	assert.equal(matchRouteSegments(['a', 'b'], ['a%2Fb']), null)
+	assert.equal(matchRouteSegments(['%2F'], ['%2F']), null)
+	assert.throws(() => matchRouteSegments(['café'], ['%ZZ']), URIError)
+})

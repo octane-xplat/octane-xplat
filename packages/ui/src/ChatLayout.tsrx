@@ -6,6 +6,7 @@ import type { ChatKeyboardBinding } from './chat-keyboard-types'
 import { checkChatPanelHeight } from './chat-keyboard-types'
 import { KeyboardAvoidanceContext } from './keyboard-avoidance-context'
 import { ConsumedInsetsContext } from './inset-consumption'
+import { useSafeAreaInsets } from './safeAreaInsets'
 import type { ChatLayoutProps } from './props'
 import { cx } from '@octane-xplat/lib'
 import { useChatStreamScroll } from './useChatStreamScroll.tsrx'
@@ -37,9 +38,11 @@ export function ChatLayout(props: ChatLayoutProps) @{
 	const [root, setRoot] = useState<any>(null)
 	const [viewport, setViewport] = useState<any>(null)
 	const [dock, setDock] = useState<any>(null)
+	const [dockPad, setDockPad] = useState<any>(null)
 	const [content, setContent] = useState<any>(null)
 	const attachRoot = useCallback((view: any) => setRoot(view), [])
 	const attachDock = useCallback((view: any) => setDock(view), [])
+	const attachDockPad = useCallback((view: any) => setDockPad(view), [])
 	const attachContent = useCallback((view: any) => setContent(view), [])
 	const attachViewport = useCallback(
 		(view: any) => {
@@ -54,12 +57,14 @@ export function ChatLayout(props: ChatLayoutProps) @{
 	)
 
 	const safe = useContext(ConsumedInsetsContext)
+	const homeInset = Math.max(0, useSafeAreaInsets().bottom - safe.bottom)
 	const ancestor = useContext(KeyboardAvoidanceContext)
 	checkChatPanelHeight(props.bottomPanelHeight)
 	const options = useRef({
 		keyboardFollow: props.keyboardFollow,
 		bottomPanelHeight: props.bottomPanelHeight,
 		safeBottom: safe.bottom,
+		homeInset,
 		ancestorWindow: ancestor.window,
 		ancestorBottom: ancestor.bottom,
 	})
@@ -68,27 +73,28 @@ export function ChatLayout(props: ChatLayoutProps) @{
 		keyboardFollow: props.keyboardFollow,
 		bottomPanelHeight: props.bottomPanelHeight,
 		safeBottom: safe.bottom,
+		homeInset,
 		ancestorWindow: ancestor.window,
 		ancestorBottom: ancestor.bottom,
 	}
 
 	const binding = useRef<ChatKeyboardBinding | null>(null)
 	useEffect(() => {
-		if (!root || !viewport || !dock || !content) {
+		if (!root || !viewport || !dock || !dockPad || !content) {
 			return
 		}
 
-		const own = bindChatKeyboard(root, viewport, dock, content, () => options.current)
+		const own = bindChatKeyboard(root, viewport, dock, dockPad, content, () => options.current)
 		binding.current = own
 		return () => {
 			binding.current = null
 			own()
 		}
-	}, [root, viewport, dock, content])
+	}, [root, viewport, dock, dockPad, content])
 
 	useEffect(() => {
 		binding.current?.update()
-	}, [props.keyboardFollow, props.bottomPanelHeight, safe.bottom, ancestor.window, ancestor.bottom])
+	}, [props.keyboardFollow, props.bottomPanelHeight, safe.bottom, homeInset, ancestor.window, ancestor.bottom])
 
 	// Expose the scroller through the caller's scrollRef (in/out handle).
 	const scrollContainerRef = props.scrollRef ?? scrollViewRef
@@ -151,7 +157,7 @@ export function ChatLayout(props: ChatLayoutProps) @{
 				) : (
 					props.scrollButton
 				)}
-				<masonview className={cx('vx-chatlayout-dockpad', `vx-chatlayout-dockpad--${density}`)} style={{ display: "flex" }}>
+				<masonview ref={attachDockPad} className={cx('vx-chatlayout-dockpad', `vx-chatlayout-dockpad--${density}`)} style={{ display: "flex" }}>
 					<masonview className="vx-chatlayout-dockinner" style={{ display: "flex" }}>{props.composer}</masonview>
 				</masonview>
 			</masonview>

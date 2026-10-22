@@ -27,7 +27,7 @@ export function Overlay(props: OverlayProps) @{
 
 	@if (open) {
 		<>{createPortal(
-			<div ref={layer} className={cx('vx-overlay', dark && 'dark', props.className)} style={{ ...styleRecord(props.style), position: 'fixed', inset: 0 }} {...(props.web)}>
+			<div ref={layer} data-vx-modal-layer={props.shadeCover ? '' : undefined} className={cx('vx-overlay', dark && 'dark', props.className)} style={{ ...styleRecord(props.style), position: 'fixed', inset: 0 }} {...(props.web)}>
 				@if (props.shadeCover) {
 					<div className="vx-overlay-shade" onClick={requestDismiss} />
 				}

@@ -31,6 +31,12 @@ export function Welcome() {
 | Shells                | `Screen`, `Tabs`                                                              |
 | Theme and measurement | `useColorScheme`, `useSafeAreaInsets`, `useMeasure`                           |
 
+Native pages start full-screen: app content extends under the status bar
+and home indicator, and `SafeArea` is the only source of safe-area padding —
+wrap screen content that must stay clear of the system bars. A custom
+NativeScript page needs `prepareFullScreenPage(page)` from
+`@octane-xplat/ui/nativescript` before its content renders.
+
 For images, prefer the `Image` from `@octane-xplat/image` — it has the exact
 same props as `@octane-xplat/ui`'s `Image` but loads through a real image
 engine on native (Glide on Android, SDWebImage on iOS) with a sized memory +

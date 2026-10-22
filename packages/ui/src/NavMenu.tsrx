@@ -36,7 +36,7 @@ export function NavHeadingMenu(props: NavHeadingMenuProps) @{
 	const minWidth = props.minWidth != null ? (typeof props.minWidth === 'number' ? props.minWidth : undefined) : MIN_WIDTHS[size];
 
 	<NavHeadingMenuProvider value={ctx}>
-		<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-navmenu', 'vx-navmenu--' + size, props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { ...styleRecord(props.style), minWidth }))}>
+		<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-navmenu', 'vx-navmenu--' + size, props.className)} style={mergeStyle({display: "flex"}, { ...styleRecord(props.style), minWidth })}>
 			{props.children}
 		</masonview>
 	</NavHeadingMenuProvider>

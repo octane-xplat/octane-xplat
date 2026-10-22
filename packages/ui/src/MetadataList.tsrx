@@ -49,7 +49,7 @@ export function MetadataList(props: MetadataListProps) @{
 	<MetadataListProvider
 		value={{ labelPosition, labelWidth: props.label?.width, orientation }}
 	>
-		<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-metadatalist', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { flexDirection: 'column', ...styleRecord(props.style) }))}>
+		<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-metadatalist', props.className)} style={mergeStyle({display: "flex"}, { ...styleRecord(props.style) })}>
 			{props.title != null ? (
 				<masonview className="vx-metadatalist-title" style={mergeStyle({display: "flex"}, { marginBottom: 12 })}>
 					{typeof props.title === 'string' || typeof props.title === 'number'

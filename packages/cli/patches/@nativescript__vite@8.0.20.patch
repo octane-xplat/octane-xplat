@@ -1,5 +1,5 @@
 diff --git a/helpers/project.js b/helpers/project.js
-index f6777fa..fdc1f97 100644
+index f6777fa5e64e667cbc56c7e76c4c32c5ab76a911..fdc1f974884e26030c0084d75c1e51a1e5968db2 100644
 --- a/helpers/project.js
 +++ b/helpers/project.js
 @@ -73,7 +73,11 @@ function denoConfigHasWorkspace(dir) {
@@ -32,7 +32,7 @@ index f6777fa..fdc1f97 100644
                  return current;
          }
 diff --git a/helpers/ts-config-paths.js b/helpers/ts-config-paths.js
-index 27013b5..53a2e7d 100644
+index 27013b5c8f78a72b6e6df903ac36f72fc0d75c1a..53a2e7d489ab91593cbec47ee6fb640fc56c786f 100644
 --- a/helpers/ts-config-paths.js
 +++ b/helpers/ts-config-paths.js
 @@ -113,15 +113,20 @@ function resolveTsConfigPath(fullPath, platform, verbose, debugId) {
@@ -84,7 +84,7 @@ index 27013b5..53a2e7d 100644
          const basePath = `${fullPath}${ext}`;
          if (fs.existsSync(basePath)) {
 diff --git a/helpers/typescript-check.js b/helpers/typescript-check.js
-index a05696b..0664806 100644
+index a05696b679b3feecd1bafa267de44b59db559162..06648067a3fcf7f8c74437a82b94ec01e74a541c 100644
 --- a/helpers/typescript-check.js
 +++ b/helpers/typescript-check.js
 @@ -7,14 +7,16 @@ import { getProjectRootPath, getProjectTSConfigPath } from './project.js';
@@ -108,7 +108,7 @@ index a05696b..0664806 100644
      return ['.native', ''];
  }
 diff --git a/hmr/helpers/ast-normalizer.js b/hmr/helpers/ast-normalizer.js
-index 77f5533..5c1d57f 100644
+index 77f5533a289902b644f2dba4c8a558f5a00c8314..5c1d57f34a5e863ae3e684012a99f9bb8796e974 100644
 --- a/hmr/helpers/ast-normalizer.js
 +++ b/hmr/helpers/ast-normalizer.js
 @@ -86,9 +86,10 @@ export function astNormalizeModuleImportsAndHelpers(code, opts) {
@@ -124,7 +124,7 @@ index 77f5533..5c1d57f 100644
              if (!src || !src.startsWith('/@id/'))
                  return null;
 diff --git a/hmr/server/css-device-module.js b/hmr/server/css-device-module.js
-index 0d7cd96..98094d6 100644
+index 0d7cd968eac690a85411cf3d6a24323a3d3a3992..98094d6ccfb918d00249d8087aebdd994b64244d 100644
 --- a/hmr/server/css-device-module.js
 +++ b/hmr/server/css-device-module.js
 @@ -41,4 +41,15 @@ export function buildCssRegisterSnippet(tag, cssText) {
@@ -145,7 +145,7 @@ index 0d7cd96..98094d6 100644
  //# sourceMappingURL=css-device-module.js.map
 \ No newline at end of file
 diff --git a/hmr/server/deps-bundle.js b/hmr/server/deps-bundle.js
-index 395c29e..ca4d7be 100644
+index 395c29e9b9b552fbf30c4a7131121a0d841df116..ca4d7beaf4ae0444ea947a8c97aa9d7fb1a254ef 100644
 --- a/hmr/server/deps-bundle.js
 +++ b/hmr/server/deps-bundle.js
 @@ -53,6 +53,7 @@
@@ -187,7 +187,7 @@ index 395c29e..ca4d7be 100644
          createNativeClassEsbuildPlugin(platform),
          createVendorEsbuildPlugin(projectRoot),
 diff --git a/hmr/server/device-transform-helpers.js b/hmr/server/device-transform-helpers.js
-index 71574c4..0061d9c 100644
+index 71574c48f655183af0c9601b020fd1febd63ccb3..0061d9c9e9fe9c6034576eae8449831d19f8ace7 100644
 --- a/hmr/server/device-transform-helpers.js
 +++ b/hmr/server/device-transform-helpers.js
 @@ -79,7 +79,11 @@ function bareSpecifierFromFlatDepPath(depPath) {
@@ -204,7 +204,7 @@ index 71574c4..0061d9c 100644
          return code;
      }
 diff --git a/hmr/server/process-code-for-device.js b/hmr/server/process-code-for-device.js
-index 1f02ba5..4be192c 100644
+index 1f02ba5ebb7e89d40eff58d1c395b5ec838f45fe..4be192cda6ce213c8a9e8f482949ce930aa391e4 100644
 --- a/hmr/server/process-code-for-device.js
 +++ b/hmr/server/process-code-for-device.js
 @@ -1,3 +1,4 @@
@@ -229,7 +229,7 @@ index 1f02ba5..4be192c 100644
          result = `// [hmr-sanitize] stripped virtual /@id/ side-effect imports\n${result}`;
      }
 diff --git a/hmr/server/rewrite-imports.js b/hmr/server/rewrite-imports.js
-index 51ad398..235b7cd 100644
+index 51ad398cefe75c918e887bd9506d9152259b957e..235b7cd49cbfb18c8cca87edf62e53c4771b304e 100644
 --- a/hmr/server/rewrite-imports.js
 +++ b/hmr/server/rewrite-imports.js
 @@ -1,3 +1,4 @@
@@ -397,7 +397,7 @@ index 51ad398..235b7cd 100644
              if (httpOriginSafe) {
                  return `${prefix}${httpOriginSafe}${spec}${suffix}`;
 diff --git a/hmr/server/websocket-module-specifiers.js b/hmr/server/websocket-module-specifiers.js
-index 0081819..562bd0f 100644
+index 0081819906b9df7480408697b1afadb149e26e31..562bd0f7f982cd90d22c945f369d2581201597a2 100644
 --- a/hmr/server/websocket-module-specifiers.js
 +++ b/hmr/server/websocket-module-specifiers.js
 @@ -328,6 +328,24 @@ export function resolveVendorFromCandidate(specifier) {
@@ -435,7 +435,7 @@ index 0081819..562bd0f 100644
      // Only packages the app's own install lacks may come from them: each
      // extension/index variant is resolved separately, so a variant missing
 diff --git a/hmr/server/websocket-ns-m-request.js b/hmr/server/websocket-ns-m-request.js
-index 0879633..71f621b 100644
+index 0879633dc5ee172f16de82d5d24bebe2f6f7878f..71f621bd1870fefc16ac95b4c32968d7a7069429 100644
 --- a/hmr/server/websocket-ns-m-request.js
 +++ b/hmr/server/websocket-ns-m-request.js
 @@ -27,10 +27,15 @@ const MODULE_CANDIDATE_EXTS = ['ts', 'js', 'tsx', 'jsx', 'mjs', 'mts', 'cts', 'v
@@ -457,7 +457,7 @@ index 0879633..71f621b 100644
          candidates.push(...MODULE_CANDIDATE_EXTS.map((ext) => `${base}.${ext}`));
      }
 diff --git a/hmr/server/websocket-ns-m.js b/hmr/server/websocket-ns-m.js
-index fcdcd69..bf4de8d 100644
+index fcdcd69776b3f82d3fc7d8dd26e03856177c933e..ca29a505a19aafc26397505b88d4fbf19586cda7 100644
 --- a/hmr/server/websocket-ns-m.js
 +++ b/hmr/server/websocket-ns-m.js
 @@ -98,7 +98,7 @@ export function registerNsModuleServerRoute(server, options) {
@@ -530,8 +530,27 @@ index fcdcd69..bf4de8d 100644
                                      // Resolve the import target through the SAME
                                      // canonical pipeline the /ns/m route itself uses
                                      // (websocket-ns-m-request.ts) instead of a third
+@@ -546,7 +571,17 @@ export function registerNsModuleServerRoute(server, options) {
+                             catch { }
+                             if (!targetCode)
+                                 continue;
+-                            const hasDefault = /\bexport\s+default\b/.test(targetCode) || /export\s*\{\s*default\s*(?:as\s*default)?\s*\}/.test(targetCode);
++                            // Inspect exports, not source text: compilers emit aliases such as
++                            // `export { Screen as default }`, and comments/strings are not exports.
++                            const targetAst = babelParse(targetCode, {
++                                sourceType: 'module',
++                                plugins: MODULE_IMPORT_ANALYSIS_PLUGINS,
++                            });
++                            const hasDefault = targetAst.program.body.some((node) =>
++                                node.type === 'ExportDefaultDeclaration' ||
++                                (node.type === 'ExportNamedDeclaration' && node.exportKind !== 'type' &&
++                                    node.specifiers.some((specifier) => specifier.exportKind !== 'type' &&
++                                        (specifier.exported?.name === 'default' || specifier.exported?.value === 'default'))));
+                             if (!hasDefault) {
+                                 // CJS/UMD modules won't have `export default` — they get CJS-wrapped
+                                 // by the serving pipeline. Only warn, don't fatally block the importer.
 diff --git a/hmr/server/websocket-served-module-helpers.js b/hmr/server/websocket-served-module-helpers.js
-index b9e3ab6..f857f4a 100644
+index b9e3ab67eb4ae7c9b12bc4b02b9aa3660d712644..f857f4a5a5956af229e447ed04bf1a52a90c6399 100644
 --- a/hmr/server/websocket-served-module-helpers.js
 +++ b/hmr/server/websocket-served-module-helpers.js
 @@ -105,8 +105,8 @@ export function classifyServedRequest(spec, resolvedId) {
@@ -555,7 +574,7 @@ index b9e3ab6..f857f4a 100644
              start: node.start,
              end: node.end,
 diff --git a/hmr/server/websocket.js b/hmr/server/websocket.js
-index e6a1443..2b9fb45 100644
+index e6a14437f8990e2c631f23eb8db21aa0b28b5759..2b9fb450511b6e114b6e7e7ac8a48831b4a09dc9 100644
 --- a/hmr/server/websocket.js
 +++ b/hmr/server/websocket.js
 @@ -1,3 +1,5 @@

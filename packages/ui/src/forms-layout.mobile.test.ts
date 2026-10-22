@@ -100,12 +100,13 @@ describe('native flow Stack', () => {
 })
 
 describe('native layout leaves', () => {
-	it('Center centers both axes on a row flex', () => {
-		const { container, root } = mount(Center as any)
+	it('Center emits its CSS class and explicit axis overrides', () => {
+		const { container, root } = mount(Center as any, { axis: 'vertical' })
 		const view = container.children[0]
-		expect(view.props.style?.flexDirection).toBe('row')
-		expect(view.props.style?.justifyContent).toBe('center')
-		expect(view.props.style?.alignItems).toBe('center')
+		expect(String(view.props.className)).toContain('vx-center')
+		expect(view.props.style?.justifyContent).toBe('flex-start')
+		expect(view.props.style?.flexDirection).toBeUndefined()
+		expect(view.props.style?.alignItems).toBeUndefined()
 		root.unmount()
 	})
 

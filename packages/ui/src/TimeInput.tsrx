@@ -133,7 +133,7 @@ function TimeInputControl(inputProps: CoreProps) @{
 				props.size && `vx-timeinput--size-${props.size}`,
 				!isPendingValid && 'vx-timeinput--invalid',
 				props.className,
-			)} style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, props.style))}>
+			)} style={mergeStyle({display: "flex"}, props.style)}>
 			<Pressable
 				className="vx-timeinput-toggle"
 				accessibilityLabel={messages.openTimePicker}

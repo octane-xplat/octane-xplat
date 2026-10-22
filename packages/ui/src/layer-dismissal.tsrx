@@ -15,8 +15,10 @@ export function useLayerDismissal(options: {
 	restoreFocus?: boolean
 	getFocusTarget?(): any
 	getHost?(): any
+	/** Internal portal ownership can cross a separately mounted service root. */
+	minimumDepth?: number
 }) {
-	const depth = useContext(LayerDepthContext)
+	const depth = Math.max(useContext(LayerDepthContext), options.minimumDepth ?? 0)
 	const latest = useRef(options)
 	latest.current = options
 	const token = useRef<object>({})

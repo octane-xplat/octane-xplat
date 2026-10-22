@@ -99,6 +99,22 @@ experience of agents writing Octane-xplat code effectively.
   ```json
   { "exports": { "./feature": "./dist/feature.js" } }
   ```
+- NativeScript Vite 8.0.20's dev link check rejects valid named-to-default
+  exports and can mistake comments or strings for exports
+  ([NativeScript#11566](https://github.com/NativeScript/NativeScript/issues/11566)).
+  The canonical Vite patch now uses its existing Babel parser to inspect
+  default declarations and exported specifier names. It retains missing-default
+  rejection and the existing CJS handling; it does not change app source or
+  disable link checking. Remove this hunk when an adopted upstream release
+  recognizes these exports. The real HTTP regression in
+  `packages/cli/test/vite-default-export.test.mjs` compares the link check with
+  Node's ESM namespace and exercises target edits, including loss of a default.
+  HTTP checks alone do not qualify device startup or HMR.
+
+  ```js
+  const Screen = () => null
+  export { Screen as default }
+  ```
 - **TSRX generic syntax limitation (observed with the installed, locally patched
   `@tsrx/typescript-plugin@0.4.11`).** The valid TSX generic arrow
   `const identity = <Value,>(value: Value): Value => value` fails `tsrx-tsc`
@@ -282,6 +298,25 @@ UI tarball; a workspace-only check cannot catch this missing-parent failure.
 		"noEmitHelpers": true
 	}
 }
+```
+
+## Empty build target arguments (`@alloc/cmd-ts` 0.17.1)
+
+The upstream tokenizer emits characters and argument dividers, so an empty
+argv string has no value token. With a defaulted option, `--targets ''` was
+therefore indistinguishable from omission at the build handler and selected
+every target. This is verified by the real CLI subprocess regression and by
+the [v0.17.1 tokenizer](https://github.com/alloc/cmd-ts/blob/v0.17.1/src/newparser/tokenizer.ts)
+and [option parser](https://github.com/alloc/cmd-ts/blob/v0.17.1/src/option.ts).
+
+The build command uses the documented `implicitValue: ''` option to preserve
+explicit presence, then rejects the empty selection before side effects. The
+workaround is limited to `build --targets`; it neither patches the dependency
+nor changes other commands. Recheck it when cmd-ts retains empty argv values
+or distinguishes an option without a value from an absent option.
+
+```sh
+pnpm xplat build --targets '' # exits with an unavailable/empty target error
 ```
 
 ## TSX dependency-scan warning

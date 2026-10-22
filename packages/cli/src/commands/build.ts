@@ -21,13 +21,16 @@ export const build = command({
 			long: 'targets',
 			short: 't',
 			type: optional(string),
-			description: 'Comma list (web,ios,android,macos,linux) — skips the prompt',
+			// cmd-ts drops empty argv strings; preserve explicit option presence
+			// so both --targets '' and a bare --targets fail validation below.
+			implicitValue: '',
+			description: 'Comma list (web,ios,android,macos,linux) — every requested kind must be declared',
 		}),
 	},
 	handler: async (args) => {
 		const cwd = process.cwd()
 		const all = buildTargets(cwd)
-		if (all.length === 0) {
+		if (all.length === 0 && args.targets === undefined) {
 			p.log.error(
 				'Nothing to build — no web, NativeScript, macOS AppKit/WKWebView, or Linux target is declared.',
 			)
@@ -36,16 +39,19 @@ export const build = command({
 		}
 
 		let chosen
-		if (args.targets) {
+		if (args.targets !== undefined) {
 			const kinds = args.targets.split(',').map((s) => s.trim())
-			chosen = all.filter((t) => kinds.includes(t.kind))
-			if (chosen.length === 0) {
+			const available = new Set(all.map((target) => target.kind))
+			const invalid = [...new Set(kinds.filter((kind) => !available.has(kind)))]
+			if (invalid.length > 0) {
 				p.log.error(
-					`No targets matched "${args.targets}". Available: ${all.map((t) => t.kind).join(', ')}`,
+					`Unavailable build target(s): ${invalid.map((kind) => kind || '<empty>').join(', ')}. Available: ${[...available].join(', ') || '(none)'}`,
 				)
 
 				process.exit(1)
 			}
+
+			chosen = all.filter((t) => kinds.includes(t.kind))
 		} else if (!process.stdout.isTTY) {
 			chosen = all
 		} else {

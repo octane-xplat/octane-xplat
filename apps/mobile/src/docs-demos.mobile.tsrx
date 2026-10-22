@@ -3,6 +3,7 @@ import { Application, Frame, Page } from '@nativescript/core';
 import { renderNativeScriptApp } from '@nativescript-community/octane';
 import { useState } from 'octane';
 import { Screen, ScrollableArea, View, Pressable, Text } from '@octane-xplat/ui';
+import { prepareFullScreenPage } from '@octane-xplat/ui/nativescript';
 import { GoalCounter } from '@xplat/demos/GoalCounter.tsrx';
 import { PackingList } from '@xplat/demos/PackingList.tsrx';
 import '@octane-xplat/ui/theme/tokens.css';
@@ -30,7 +31,7 @@ function DocsDemos() @{
 }
 
 Application.run({ create: () => {
-	const page = new Page();
+	const page = prepareFullScreenPage(new Page());
 	page.actionBarHidden = true;
 	renderNativeScriptApp(page, DocsDemos);
 	const frame = new Frame();

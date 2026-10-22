@@ -8,6 +8,7 @@ export function bindChatKeyboard(
 	_root: any,
 	viewport: any,
 	dock: any,
+	_dockPad: any,
 	content: any,
 	options: () => ChatKeyboardOptions,
 ): ChatKeyboardBinding {

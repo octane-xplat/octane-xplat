@@ -2248,7 +2248,7 @@ export interface MeterProps {
 	accessibilityLabel?: string
 }
 
-/** Value slider — `value` clamped to [`minValue`,`maxValue`] (defaults 0–100), `onValueChange` reports user drags. Shared contract for the self-drawn `Slider` and the OS widgets `UISlider`/`SeekBar`.
+/** Value slider — `value` clamped to [`minValue`,`maxValue`] (defaults 0–100), `onValueChange` reports user changes. Web Slider supports Tab, Arrow keys (1% of the range), Home and End; disabled controls are skipped. Shared value contract for the self-drawn `Slider` and the OS widgets `UISlider`/`SeekBar`.
  *
  * @example
  * ```tsx

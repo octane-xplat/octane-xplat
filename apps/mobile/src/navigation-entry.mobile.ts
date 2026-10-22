@@ -1,6 +1,7 @@
 import { Application, File, Frame, GridLayout, Page, knownFolders } from '@nativescript/core'
 import { createNativeScriptRoot } from '@nativescript-community/octane'
 import { addBackInterceptor, getStack, registerStack } from '@octane-xplat/ui/routing'
+import { prepareFullScreenPage } from '@octane-xplat/ui/nativescript'
 import { bindRouterFlow } from '../../../packages/ui/src/router-instance'
 import { createNativeModalRouterHost } from '../../../packages/ui/src/native-modal-router-host'
 // oxlint-disable-next-line xplat/no-ts-imports-tsrx — isolated compiled fixture
@@ -38,7 +39,7 @@ import '@octane-xplat/ui/theme/chrome.css'
 
 const results: { name: string; pass: boolean; detail?: string }[] = []
 const frame = new Frame()
-const page = new Page()
+const page = prepareFullScreenPage(new Page())
 page.id = 'navigation-base-page'
 const host = new GridLayout()
 let appRoot: ReturnType<typeof createNativeScriptRoot>

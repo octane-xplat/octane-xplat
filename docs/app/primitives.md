@@ -338,6 +338,23 @@ The older `ignoreSafeArea` prop still works as `edges={[]}` and is
 deprecated; `edges` wins when both are set. macOS windows have no
 safe-area insets, so `SafeArea` stays a neutral wrapper there.
 
+Native pages Xplat creates start full-screen: content outside a `SafeArea`
+extends under the status bar and home indicator, and `SafeArea` is the only
+source of safe-area padding. A custom NativeScript page opts into the same
+contract with `prepareFullScreenPage(page)` from
+`@octane-xplat/ui/nativescript`, called before the page's content renders.
+
+```ts
+import { Page } from '@nativescript/core'
+import { renderNativeScriptApp } from '@nativescript-community/octane'
+import { prepareFullScreenPage } from '@octane-xplat/ui/nativescript'
+import { App } from './App.tsrx'
+
+const page = prepareFullScreenPage(new Page())
+page.actionBarHidden = true
+renderNativeScriptApp(page, App)
+```
+
 ### Text and keyboard actions
 
 `TextArea` keeps Return as a newline. On web, Cmd/Ctrl+Enter submits it.
@@ -1720,8 +1737,25 @@ closes, rather than when the request is sent. `Dialog.finalFocusRef` can select
 a return target with a `focus()` method. Removing a lower layer does not move
 focus away from a layer that is still open above it.
 
-`Popover.finalFocusRef` chooses where to return focus after its content
-receives focus on web (the anchor is the default).
+On web, keep a child `Popover`'s anchor inside its owning modal. Its portal
+stays in that modal's layer, so the popover remains interactive while background
+content stays inert. `Popover.finalFocusRef` chooses where to return focus after
+its content receives focus (the anchor is the default).
+
+```tsx
+// NestedChoice.web.tsx
+import { useRef } from 'octane'
+import { Overlay, Popover } from '@octane-xplat/ui'
+
+export function NestedChoice() {
+	const anchor = useRef<HTMLButtonElement | null>(null)
+	return <Overlay open shadeCover accessibilityLabel="Choose a bag">
+		<button ref={anchor}>Bag options</button>
+		<Popover anchor={anchor} open><button>Carry-on</button></Popover>
+	</Overlay>
+}
+```
+
 `Popover.dismissOnEscape={false}` blocks Escape while that popover is on top.
 For `useLayer`, Escape follows `lightDismiss` by default. Set
 `dismissOnEscape: true` to allow Escape without an outside-tap backdrop.

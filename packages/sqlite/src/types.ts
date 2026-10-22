@@ -35,7 +35,14 @@ export interface SqliteDb {
 	get<T = SqliteRow>(sql: string, params?: SqliteParams): Promise<T | null>
 	/** First row as an array, or null. */
 	getArray(sql: string, params?: SqliteParams): Promise<SqliteParam[] | null>
-	/** Runs `action` inside a transaction; a throw rolls everything back. */
+	/**
+	 * Runs `action` with a transaction-scoped handle; a throw rolls its writes
+	 * back. Use that handle and await its operations inside the callback.
+	 * Main-handle calls and other transactions queue until this one ends;
+	 * awaiting a main-handle call inside the callback would wait on itself.
+	 * The scoped handle expires on callback completion and rejects nesting or
+	 * close. Close the main handle after the transaction instead.
+	 */
 	transaction<T>(action: (db: SqliteDb) => Promise<T>): Promise<T>
 	each(
 		sql: string,

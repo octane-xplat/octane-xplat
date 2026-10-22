@@ -350,7 +350,10 @@ part of the composer; it is not extra padding. On mobile, the panel replaces
 that much keyboard space. Matching the current keyboard height allows the
 keyboard to close without shifting the composer or conversation end. Your app
 owns showing the panel and dismissing the editing field. Destination-only
-tracking and the first iOS transition limit above still apply.
+tracking and the first iOS transition limit above still apply. `ChatLayout`
+keeps the composer clear of the home indicator itself — do not wrap it in a
+bottom `SafeArea`. If you do, the composer shifts by the home-indicator height
+when a keyboard-height panel replaces the keyboard.
 
 ```tsx
 import { View, TextInput } from '@octane-xplat/ui'

@@ -11,6 +11,9 @@ installGestureHandler()
 export function mobileAdapter() {
 	const page = new Page()
 	page.actionBarHidden = true
+	// Same as prepareFullScreenPage() in @octane-xplat/ui/nativescript (not importable here).
+	page.iosIgnoreSafeArea = true
+	page.androidOverflowEdge = 'ignore'
 	const frame = new Frame()
 	frame.navigate({ create: () => page, animated: false })
 	const entry = { create: () => frame }

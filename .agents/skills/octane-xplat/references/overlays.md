@@ -17,6 +17,24 @@ export function BagDetails() {
 }
 ```
 
+On web, a `Popover` anchored inside a modal stays within that modal's layer.
+Keep the anchor inside the intended owner so focus, inert background isolation,
+and nested Escape dismissal agree.
+
+```tsx
+// ModalChoice.web.tsx
+import { useRef } from 'octane'
+import { Overlay, Popover } from '@octane-xplat/ui'
+
+export function ModalChoice() {
+	const anchor = useRef<HTMLButtonElement | null>(null)
+	return <Overlay open shadeCover accessibilityLabel="Choose">
+		<button ref={anchor}>Options</button>
+		<Popover anchor={anchor} open><button>Pick</button></Popover>
+	</Overlay>
+}
+```
+
 ## Platform modal widgets
 
 `UIModal` + `openModal` are exported from `@octane-xplat/ui/ios`;

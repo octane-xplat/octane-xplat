@@ -1646,7 +1646,8 @@ export function IncomingLinks() {
 }
 ```
 
-Generate addresses with the same destination contract. Path values are encoded,
+Generate addresses with the same destination contract. Static names, including
+Unicode names such as `café`, and path values are encoded,
 search has its own field, and an unknown pattern or undeclared stack fails
 validation. Configure a route base separately from an asset base.
 
