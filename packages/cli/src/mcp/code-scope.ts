@@ -386,6 +386,36 @@ export function parseCodeRef(ref) {
 	return m ? { corpus: m[1], key: m[2] } : null
 }
 
+function resolveCorpusFile(corpus, abs, key) {
+	if (!within(abs, corpus.root)) {
+		return { error: 'out-of-scope' }
+	}
+
+	const exclusionRoot = corpus.packageRoot ?? corpus.root
+	const excluded = exclusionReason(posix(relative(exclusionRoot, abs)))
+	if (excluded) {
+		return { error: 'excluded', detail: `${key} is excluded (${excluded})` }
+	}
+
+	// Check both names: an allowed alias must not expose an excluded target,
+	// and symlinked corpus roots must still support ordinary in-scope reads.
+	const real = safeRealpath(abs)
+	const root = safeRealpath(corpus.root)
+	const realExclusionRoot = safeRealpath(exclusionRoot)
+	if (!real || !root || !realExclusionRoot) {
+		return { error: 'unavailable' }
+	}
+	if (!within(real, root)) {
+		return { error: 'out-of-scope' }
+	}
+	const targetExcluded = exclusionReason(posix(relative(realExclusionRoot, real)))
+	if (targetExcluded) {
+		return { error: 'excluded', detail: `${key} is excluded (${targetExcluded})` }
+	}
+
+	return { abs: real, rel: posix(relative(corpus.root, abs)), corpus }
+}
+
 /**
  * Resolve a hit reference or explicit path to an absolute file, enforcing the
  * scope boundary: app paths must stay inside the bound app root; framework
@@ -405,17 +435,7 @@ export function resolveCodePath({ corpora, corpus, key }) {
 
 		// Keys are workspace-relative; the app root may be nested inside it.
 		const abs = resolve(c.base ?? c.root, key)
-		if (!within(abs, c.root)) {
-			return { error: 'out-of-scope' }
-		}
-
-		const rel = posix(relative(c.root, abs))
-		const excluded = exclusionReason(rel)
-		if (excluded) {
-			return { error: 'excluded', detail: `${key} is excluded (${excluded})` }
-		}
-
-		return { abs, rel, corpus: c }
+		return resolveCorpusFile(c, abs, key)
 	}
 
 	// Package names are scoped (`@octane-xplat/ui`): match the longest known
@@ -434,17 +454,7 @@ export function resolveCodePath({ corpora, corpus, key }) {
 	const inner = key.slice(c.package.length + 1)
 
 	const abs = resolve(c.root, inner)
-	if (!within(abs, c.root)) {
-		return { error: 'out-of-scope' }
-	}
-
-	const relToPkg = posix(relative(c.packageRoot ?? c.root, abs))
-	const excluded = exclusionReason(relToPkg)
-	if (excluded) {
-		return { error: 'excluded', detail: `${key} is excluded (${excluded})` }
-	}
-
-	return { abs, rel: posix(relative(c.root, abs)), corpus: c }
+	return resolveCorpusFile(c, abs, key)
 }
 
 /** The corpus key for a file (inverse of resolveCodePath). */

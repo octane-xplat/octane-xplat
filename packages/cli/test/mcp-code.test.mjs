@@ -107,9 +107,7 @@ test('secrets, generated output, and node_modules stay out of results and reads'
 	)
 })
 
-test('direct code reads reject symlinks outside the bound app', {
-	todo: 'Known audit bug: code reads validate lexical paths before following symlinks',
-}, (t) => {
+test('direct code reads reject symlinks outside the bound app', (t) => {
 	const dir = makeConsumer(t)
 	const outside = mkdtempSync(join(tmpdir(), 'xplat-mcp-outside-'))
 	t.after(() => rmSync(outside, { recursive: true, force: true }))
@@ -121,9 +119,7 @@ test('direct code reads reject symlinks outside the bound app', {
 	assert.equal(result.content, undefined)
 })
 
-test('direct code reads apply secret exclusions to symlink destinations', {
-	todo: 'Known audit bug: an innocent symlink name bypasses secret-file exclusions',
-}, (t) => {
+test('direct code reads apply secret exclusions to symlink destinations', (t) => {
 	const dir = makeConsumer(t)
 	write(dir, 'secrets/private.ts', 'APP_PRIVATE_SENTINEL')
 	symlinkSync(join(dir, 'secrets/private.ts'), join(dir, 'src/linked.ts'))
@@ -131,6 +127,43 @@ test('direct code reads apply secret exclusions to symlink destinations', {
 	const result = service(dir).read({ app: appRef(dir), path: 'src/linked.ts' })
 	assert.equal(result.status, 'excluded')
 	assert.equal(result.content, undefined)
+})
+
+test('direct code reads preserve safe aliases and enforce directory and framework boundaries', (t) => {
+	const dir = makeConsumer(t)
+	const svc = service(dir)
+	const app = appRef(dir)
+	write(dir, 'src/safe.ts', 'export const safe = true\n')
+	symlinkSync(join(dir, 'src/safe.ts'), join(dir, 'src/alias.ts'))
+	assert.equal(svc.read({ app, path: 'src/alias.ts' }).content, 'export const safe = true\n')
+
+	write(dir, 'secrets/private.ts', 'PRIVATE_SENTINEL')
+	symlinkSync(join(dir, 'secrets'), join(dir, 'src/alias-dir'))
+	assert.equal(svc.read({ app, path: 'src/alias-dir/private.ts' }).status, 'excluded')
+	symlinkSync(join(dir, 'missing.ts'), join(dir, 'src/broken.ts'))
+	assert.equal(svc.read({ app, path: 'src/broken.ts' }).status, 'unavailable')
+
+	const framework = join(dir, 'node_modules/@octane-xplat/ui/src')
+	symlinkSync(join(dir, 'src/safe.ts'), join(framework, 'escape.ts'))
+	write(framework, 'private/hidden.ts', 'FRAMEWORK_PRIVATE_SENTINEL')
+	symlinkSync(join(framework, 'private/hidden.ts'), join(framework, 'alias.ts'))
+	for (const [path, status] of [
+		['escape.ts', 'out-of-scope'],
+		['alias.ts', 'excluded'],
+	]) {
+		const result = svc.read({ app, corpus: 'framework', package: '@octane-xplat/ui', path })
+		assert.equal(result.status, status)
+		assert.equal(result.content, undefined)
+	}
+
+	// macOS /var -> /private/var and explicitly linked app roots are valid roots.
+	const aliasRoot = `${dir}-alias`
+	t.after(() => rmSync(aliasRoot, { force: true }))
+	symlinkSync(dir, aliasRoot)
+	assert.equal(
+		service(aliasRoot).read({ app: appRef(aliasRoot), path: 'src/alias.ts' }).content,
+		'export const safe = true\n',
+	)
 })
 
 test('platform filter includes shared and platform-marked files only', async (t) => {
