@@ -191,7 +191,10 @@ The first extraction in the
 private `packages/nativescript-mason-core` helper package. Its source provenance
 and path mapping live in `tools/mason-core/README.md` in that repository. Five
 portable styling helpers and three existing tests moved unchanged, followed by
-27 unchanged layout/style/view/scroll source files. A separate core-only iOS
+27 unchanged layout/style/view/scroll source files. Another 25 Swift and 86
+Kotlin/Java modules moved unchanged into core, with only full-build source
+references and projection resolvers adjusted. The native mapping records every
+original/destination root and baseline hash. A separate core-only iOS
 host now builds and runs on an arm64 simulator. A core-only Android AAR and
 isolated Java client also compile. Both isolated NativeScript applications pass
 bridge, geometry and ownership assertions, and core has independent bridge
@@ -228,9 +231,10 @@ foreign-label intrinsic invalidation, percentages and reset, nested roots,
 release, and programmatic scroll clamping. These are native UIKit tests, not
 NativeScript bridge or OS-input qualification.
 
-The temporary Swift projection keeps the full native sources and Xcode project
-unchanged. Move unchanged native modules with `git mv` after qualifying their
-full-build references and native regressions. The projection is not the final
+The 25 unchanged Swift modules moved with `git mv`; full Xcode edits only
+redirect those source references. Fourteen adapted modules stay in the full
+tree, with core transformations outside their preserved source. Full Swift
+implementation bytes and test bodies remain unchanged. The projection is not the final
 upstream module structure. Core retains FontManager for styling/font metrics
 and SDWebImage for backgrounds/nine-slice painting. A small glyph-provider
 protocol replaces the background painter's direct dependency on MasonKit's text
@@ -254,7 +258,9 @@ explicit engine scale; removing only its cache correction fails the same test.
 The final 17-test suite also passes on the API 35 emulator, with no skips. These results do not qualify OS input or the full package's native
 behavior.
 See the [recorded Android findings](../docs/notes/masonkit-layout-evaluation.md#core-extraction-android-style-synchronization-2026-10-22).
-The tracked full Kotlin sources and Gradle project remain unchanged.
+The 86 unchanged Kotlin/Java modules moved with `git mv`; the full Gradle
+project adds only their shared source set. Full implementation bytes, Rust
+crates and JNI binding remain unchanged.
 
 Android retains Glide, Gson, FontManager and AndroidX Core; the transitive graph
 still contains AppCompat and Fragment. JNI initialization also requires the
@@ -369,7 +375,10 @@ The full Swift baseline also compiles unchanged source/test bodies. Two existing
 test files are missing from the upstream Xcode target; the temporary baseline
 registers them so all 28 selected tests execute. Twenty-seven pass; the full
 text-node uppercase/whitespace test fails its substring assertion. Preserve this
-nonzero baseline and compare it after native relocation rather than skipping
+nonzero baseline rather than skipping
 the test or editing full text internals. This is an existing full-source test
-failure; core excludes that renderer. See the
+failure; core excludes that renderer. After the native moves, all 28 execute
+with exactly the same one failing test identifier and zero skips; core remains
+15/15 on iOS and 17/17 on Android. Both compiled consumers pass actual OS input.
+The move commit is `6a51ad04` in the Mason fork. See the
 [full iOS baseline finding](../docs/notes/masonkit-layout-evaluation.md#core-extraction-full-ios-baseline-2026-10-22).

@@ -1108,3 +1108,28 @@ image assertions are used.
 The complete rerun with verbose diagnostics disabled repeats the same 27/28
 full result and separately passes all 15 core native tests through the updated
 runner. The full result summary preserves one failure and zero skips.
+
+## Core extraction native source moves (2026-10-22)
+
+Twenty-five Swift and 86 Kotlin/Java modules move into core with `git mv`, all
+with 100% source similarity. The native path manifest records original and new
+roots plus baseline hashes. Full Xcode edits change only those source references;
+full Gradle adds their shared source set. Neither full package acquires a core
+runtime dependency. The remaining adapted source files stay in the full tree,
+with core transformations outside their bodies. Rust/JNI implementations and
+full native implementation bytes remain unchanged.
+
+All four full/core native source inventories exactly match saved pre-move
+controls. Both hosts and full native baselines rebuild. The actual original
+full Gradle project also compiles its relocated Kotlin/Java source set, excluding
+the separately qualified Rust build. iOS bridge declarations retain their
+contents; their provenance is refreshed to the rebuilt simulator binary hash.
+
+Core native tests pass 15/15 on iOS Simulator and 17/17 on Android emulator.
+Full Android passes 72/72. Full iOS retains exactly its pre-move 27-pass, one-fail
+result, including the same text-node test identifier and zero skips. Core's six
+runtime regression tests also pass. The compiled core consumer builds on both
+platforms and passes actual HID input on iOS Simulator and adb input on the
+Android emulator. No screenshot/image
+analysis is used. Commands and source mapping are recorded in
+`tools/mason-core/README.md` and `native-relocations.json` in the Mason fork.
