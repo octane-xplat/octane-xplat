@@ -12,11 +12,12 @@ export function routeRenderContent(
 		? catalog.screens[match.name]
 		: undefined
 	if (!screen) {throw new Error('Prepared route has no registered screen')}
+	const props = { params: match.params, search: match.search, context: match.context, data: match.data }
 	return {
 		screen,
 		layouts: layoutChain(catalog.layouts, match.name),
 		boundary: meta?.errorBoundary,
-		head: typeof meta?.head === 'function' ? meta.head(match.params) : meta?.head,
-		props: { params: match.params, search: match.search, context: match.context, data: match.data },
+		head: typeof meta?.head === 'function' ? meta.head(props) : meta?.head,
+		props,
 	}
 }

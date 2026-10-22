@@ -305,6 +305,29 @@ const catalog = defineRoutes({
 })
 ```
 
+Head callbacks receive `{ params, search, context, data }` from the prepared
+snapshot. Access path values through `params`; derive titles from awaited loader
+data without another fetch. Keep callbacks synchronous. Programmatic head
+callbacks follow the loader in dependency order for inference. File callbacks
+use the generated local `RouteHeadArgs<Path>` type, including baked data and
+parent context. Static head objects remain supported.
+
+```ts
+import { defineRoute } from '@octane-xplat/ui/routing/core'
+const item = defineRoute({
+	path: '/items/:id',
+	loader: ({ params }) => ({ title: params.id }),
+	head: ({ data }) => ({ title: data.title }),
+})
+```
+
+```ts
+import type { RouteHeadArgs } from '../../routes.gen.contracts'
+export function head({ data }: RouteHeadArgs<'/items/:id'>) {
+	return { title: data.title }
+}
+```
+
 For current-screen filters, bind `getRouteApi(path, instance?).useUpdateSearch()`
 inside the screen. A synchronous pure callback receives validated search output
 and returns the whole navigation search input. Omit fields to remove them;

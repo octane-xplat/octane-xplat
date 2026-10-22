@@ -1036,7 +1036,7 @@ it('focuses committed content, preserves refresh and restores entry focus throug
 	const { router, mount } = fixture()
 	router.addRoutes(defineRuntimeRoutes([defineRoute({ path: '/focus/:id',
 		loader: ({ params }) => ({ title: params.id }),
-		head: ({ id }) => ({ title: 'Focus ' + id }),
+		head: ({ params: { id } }) => ({ title: 'Focus ' + id }),
 	}).screen(FocusPage)]), { id: 'page-focus' })
 	mount()
 	await router.push({ to: '/focus/:id', params: { id: 'first' } })
@@ -1060,7 +1060,7 @@ it('focuses a decoded fragment and prevents cancelled loaders from changing focu
 	let finish!: () => void
 	const wait = new Promise<void>((resolve) => { finish = resolve })
 	router.addRoutes(defineRuntimeRoutes([defineRoute({ path: '/focus/:id',
-		loader: async ({ params }) => { if (params.id === 'slow') await wait; return { title: params.id } }, head: ({ id }) => ({ title: 'Focus ' + id }),
+		loader: async ({ params }) => { if (params.id === 'slow') await wait; return { title: params.id } }, head: ({ params: { id } }) => ({ title: 'Focus ' + id }),
 	}).screen(FocusPage)]), { id: 'page-focus' })
 	mount()
 	await router.push({ to: '/focus/:id', params: { id: 'first' }, hash: 'part one' })

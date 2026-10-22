@@ -13,9 +13,6 @@ export const docRoutes = defineRoutes([
 
 			return doc
 		},
-		head: ({ slug }) => {
-			const doc = DOCS.find((page) => page.slug === (slug ?? 'README'))
-			return { title: !doc || doc.title === 'Xplat' ? 'Xplat docs' : doc.title + ' — Xplat' }
-		},
+		head: ({ data }) => ({ title: data.title === 'Xplat' ? 'Xplat docs' : data.title + ' — Xplat' }),
 	}).screen(DocRouteScreen),
 ])

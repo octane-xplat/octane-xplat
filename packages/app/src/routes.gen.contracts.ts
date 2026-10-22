@@ -49,7 +49,7 @@ type RouteExportShapes = {
  loader: ((...args: never[]) => unknown) | undefined
  beforeLoad: ((...args: never[]) => import('@octane-xplat/ui/routing/core').RouteGuardResult | Promise<import('@octane-xplat/ui/routing/core').RouteGuardResult>) | undefined
  validateSearch: (((...args: never[]) => import('@octane-xplat/ui/routing/core').RouteSearchRecord | Promise<import('@octane-xplat/ui/routing/core').RouteSearchRecord>) & { readonly '~standard'?: never }) | import('@octane-xplat/ui/routing/core').RouteSearchSchema<unknown, import('@octane-xplat/ui/routing/core').RouteSearchRecord> | undefined
- head: import('@octane-xplat/ui/routing/core').RouteHeadExport | undefined
+ head: import('@octane-xplat/ui/routing/core').RouteHeadExport<any, any, any, any> | undefined
  ErrorBoundary: ((...args: never[]) => unknown) | undefined
 }
 type CheckRouteExport<Field extends keyof RouteExportShapes, Value extends RouteExportShapes[Field], SearchCheck extends true = true> = Value
@@ -74,6 +74,7 @@ export type RouteExportChecks = [
 export type RouteContracts = MergeRouteContracts<[FileRouteContracts, ContractsOf<typeof import("./guides.tsrx")["guideRoutes"]>]>
 export type RouteContractsFor<Platform extends "web" | "ios" | "android" | "mobile" | "macos" | "windows" | "linux"> = MergeRouteContracts<[FileRouteContractsFor<Platform>, ContractsOf<typeof import("./guides.tsrx")["guideRoutes"]>]>
 export type RouteProps<Path extends keyof FileRouteContracts> = RouteScreenProps<FileRouteContracts[Path]>
+export type RouteHeadArgs<Path extends keyof FileRouteContracts> = RouteProps<Path>
 type Guard_0 = FileRouteGuardArgs<"/about", typeof import("./app/about+modal.tsrx"), RootContext>
 type Loader_0 = FileRouteLoaderArgs<"/about", typeof import("./app/about+modal.tsrx"), RootContext>
 type Guard_1 = FileRouteGuardArgs<"/broken", typeof import("./app/broken.tsrx"), RootContext>

@@ -83,6 +83,7 @@ defineRoute({ path: '/bad-search', validateSearch: () => 42 }).screen(() => null
 			['loader', '42'],
 			['ErrorBoundary', '{}'],
 			['head', '{ title: 42 }'],
+			['head', '() => ({ title: 42 })'],
 			[
 				'validateSearch',
 				'{ "~standard": { version: 2, vendor: "fixture", validate: () => ({ value: {} }) } }',
@@ -569,12 +570,23 @@ test('generated file routes inherit parent group data without requiring it as ro
 export const account = defineRouteGroup({ id: 'account', loader: () => ({ name: 'Alex' }) })
 export const project = account.group({ id: 'project', loader: ({ context }) => ({ owner: context.account.name }) })`)
 		await put(root, 'app/item.tsx', `export { project as group } from '../scopes'
-import type { RouteGuardArgs, RouteLoaderArgs, RouteProps } from '../routes.gen.contracts'
+import type { RouteHeadArgs, RouteGuardArgs, RouteLoaderArgs, RouteProps } from '../routes.gen.contracts'
 export function beforeLoad({ context }: RouteGuardArgs<'/item'>) {
  const owner: string = context.project.owner
  return { owner }
 }
 export function loader({ context }: RouteLoaderArgs<'/item'>) { return context.account.name + context.owner }
+export function head({ params, search, context, data }: RouteHeadArgs<'/item'>) {
+ const title: string = data
+ const owner: string = context.project.owner
+ // @ts-expect-error Metadata keeps precise loader output.
+ data.invented
+ // @ts-expect-error This route declares no path values.
+ params.invented
+ // @ts-expect-error This route declares no search fields.
+ search.invented
+ return { title, meta: { owner } }
+}
 export default function Screen(props: RouteProps<'/item'>) {
  const owner: string = props.context.project.owner
  const title: string = props.data

@@ -71,6 +71,7 @@ export type {
 	FileRouteLoaderArgs,
 	RouteRootContext,
 	RouteHeadExport,
+	RouteHeadArgs,
 	DefinedRoute,
 	Destination,
 	DestinationFor,

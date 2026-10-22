@@ -396,3 +396,33 @@ it('stops child preparation on parent denial or cancellation', async () => {
 	expect(loader).not.toHaveBeenCalled()
 	engine.dispose()
 })
+
+it('computes head from the prepared params, search, parent context and awaited loader data', async () => {
+	const calls: string[] = []
+	const owner = defineRouteGroup({ id: 'owner', loader: () => ({ name: 'Alex' }) })
+	const definition = owner.route({
+		path: '/items/:id',
+		validateSearch: (raw: { tab?: unknown }) => ({ tab: String(raw.tab ?? 'details') }),
+		beforeLoad: ({ context }) => ({ checked: context.owner.name }),
+		loader: async ({ params, search, context }) => {
+			calls.push('loader')
+			return { title: context.checked + ':' + params.id + ':' + search.tab }
+		},
+		head: ({ params, search, context, data }) => {
+			calls.push('head')
+			return { title: data.title, meta: { item: params.id, tab: search.tab, owner: context.owner.name } }
+		},
+	}).screen(() => null)
+	const catalog = defineRoutes([definition])
+	const engine = createRoutePreparation({ catalog })
+	const prepared = await engine.prepare('/items/coat?tab=activity')
+	expect(calls).toEqual(['loader'])
+	expect(prepared.status).toBe('ready')
+	if (prepared.status === 'ready') {
+		const content = routeRenderContent(catalog, prepared.match)
+		expect(content.head).toEqual({ title: 'Alex:coat:activity', meta: { item: 'coat', tab: 'activity', owner: 'Alex' } })
+		expect(content.props.data).toBe(prepared.match.data)
+	}
+	expect(calls).toEqual(['loader', 'head'])
+	engine.dispose()
+})

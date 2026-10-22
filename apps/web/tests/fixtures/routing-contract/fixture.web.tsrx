@@ -345,7 +345,7 @@ export const catalog = mergeRouteManifests(
 	defineRoutes([
 		defineRoute({ path: '/focus/:id',
 			loader: ({ params }) => ({ title: 'Focus ' + params.id }),
-			head: ({ id }) => ({ title: 'Focus ' + id, meta: { description: 'Page ' + id } }),
+			head: ({ params: { id } }) => ({ title: 'Focus ' + id, meta: { description: 'Page ' + id } }),
 		}).screen(FocusPage),
 		defineRoute({ path: '/settings' }).screen(Settings),
 		defineRoute({

@@ -84,7 +84,7 @@ export const guideRoutes = defineRoutes({
 		guideLibrary.route({
 			path: '/guides/:slug',
 			loader: ({ params, context }) => context.guideLibrary.docs[params.slug],
-			head: (params: Record<string, unknown>) => ({ title: GUIDE_BY_SLUG[params.slug as string]?.title ?? 'Guide' }),
+			head: ({ data }) => ({ title: data?.title ?? 'Guide' }),
 		}).screen(GuideScreen),
 	],
 	layouts: { guides: GuideShell },

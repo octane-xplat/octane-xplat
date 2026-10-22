@@ -4119,7 +4119,10 @@ export interface RouteDefinitionInput<Path extends string, Validator, Context, A
 	) => Data
 	presentation?: 'push' | 'modal'
 	transition?: RouteTransitionName
-	head?: RouteHeadExport<RouteSpecParams<Path>>
+	head?: RouteHeadExport<
+		RouteSpecParams<Path>, NoInfer<RouteSearchOutput<Validator>>,
+		MergedRouteContext<Context, NoInfer<Added>>, Awaited<NoInfer<Data>>
+	>
 	errorBoundary?: (props: RouteErrorBoundaryProps) => Renderable
 	source?: string
 }
@@ -4988,18 +4991,24 @@ export interface RouteHead {
 	meta?: Record<string, string>
 }
 
-/** Function form of a route `head` export — a call signature (not a
- *  function-typed property) so a `RouteHeadFn` narrowed to a spec's path
- *  params stays assignable to the loose form under strictFunctionTypes. */
-export interface RouteHeadFn<Params extends Record<string, unknown> = Record<string, unknown>> {
-	(params: Params): RouteHead
+/** Prepared inputs shared with the screen. Head functions run synchronously
+ * after validation, guards and loading; load asynchronous metadata in a loader. */
+export interface RouteHeadArgs<Params = Record<string, unknown>, Search = Record<string, unknown>, Context = RouteContext, Data = unknown> {
+	readonly params: Params
+	readonly search: Search
+	readonly context: Context
+	readonly data: Data
 }
 
-/** A route module's `head` export — a static `RouteHead` or a `RouteHeadFn` computed from the route's params.
- */
-export type RouteHeadExport<Params extends Record<string, unknown> = Record<string, unknown>> =
+/** Compute title and metadata from the prepared route snapshot. */
+export interface RouteHeadFn<Params = Record<string, unknown>, Search = Record<string, unknown>, Context = RouteContext, Data = unknown> {
+	(args: RouteHeadArgs<Params, Search, Context, Data>): RouteHead
+}
+
+/** A static head declaration or a synchronous prepared-input callback. */
+export type RouteHeadExport<Params = Record<string, unknown>, Search = Record<string, unknown>, Context = RouteContext, Data = unknown> =
 	| RouteHead
-	| RouteHeadFn<Params>
+	| RouteHeadFn<Params, Search, Context, Data>
 
 /** Props the framework passes to a route's `ErrorBoundary` export when the
  *  route's rendered subtree throws. `reset` clears the caught error and
@@ -5201,8 +5210,8 @@ export interface RouteMeta {
 	/** Optional guard awaited before a push commits. A thrown `redirect(...)`
 	 * short-circuits the attempted route. */
 	beforeLoad?: RoutePreparationBehavior['beforeLoad']
-	/** Optional route title/meta declaration, or a params-only function. */
-	head?: RouteHeadExport
+	/** Optional route title/meta declaration computed from prepared inputs. */
+	head?: RouteHeadExport<any, any, any, any>
 }
 
 /** How a route's data is produced — `'live'` runs the loader at navigation,
@@ -5252,7 +5261,7 @@ export interface RouteSpec<Path extends string = string> {
 	beforeLoad?(
 		args: RouteDefinitionArgs<Path, undefined, RouteContext>,
 	): RouteGuardResult | Promise<RouteGuardResult>
-	head?: RouteHeadExport<RouteSpecParams<Path>>
+	head?: RouteHeadExport<RouteSpecParams<Path>, any, any, any>
 	/** Component receiving `RouteErrorBoundaryProps` — the spec form of a
 	 *  route file's `ErrorBoundary` export. */
 	errorBoundary?: (props: RouteErrorBoundaryProps) => Renderable

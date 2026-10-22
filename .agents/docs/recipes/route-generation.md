@@ -2,7 +2,7 @@
 
 ID: route-generation
 Targets: web, ios, android, macos
-Related APIs: xplat routes, xplat dev, xplat.routes.json, routes.gen.contracts.ts, routes.gen.types.ts
+Related APIs: xplat routes, xplat dev, xplat.routes.json, routes.gen.contracts.ts, routes.gen.types.ts, RouteHeadArgs
 
 ## Starting point
 
@@ -43,6 +43,8 @@ without executing screen modules or publishing failed/obsolete build results.
   Named search output interfaces work without an index signature for both plain
   parsers and Standard Schema. Malformed named callbacks have generated compiler checks and fatal catalog
   diagnostics; an invalid guard cannot be discarded before a loader runs.
+  Generated head arguments retain prepared params, validated search, inherited
+  context and awaited/baked loader data without depending on the head return type.
 
 ## Documentation
 
@@ -51,4 +53,4 @@ without executing screen modules or publishing failed/obsolete build results.
 - AC3: [Keep contracts current](../../../docs/app/navigation.md#keep-contracts-current-while-developing) and the controlled baking publication regression.
 - AC4: [Watch qualification](../navigation-checks.md#qualify-route-generation-watching) separates Node/dev-process, real Chromium/Vite rendering, unqualified native HMR and unavailable Windows evidence.
 - AC5: [Large route catalogs](../navigation-checks.md#check-large-route-catalogs) provides the maintained generator/compiler/editor benchmark and its measured limits.
-- AC6: [Share routes across targets](../../../docs/app/navigation.md#share-routes-across-targets) and the maintained `packages/cli/test/route-platform-contracts.test.mjs` consumer/generation fixtures.
+- AC6: [Prepared head metadata](../../../docs/app/navigation.md#set-the-route-title-and-metadata), [Share routes across targets](../../../docs/app/navigation.md#share-routes-across-targets) and the maintained `packages/cli/test/route-platform-contracts.test.mjs` consumer/generation fixtures.

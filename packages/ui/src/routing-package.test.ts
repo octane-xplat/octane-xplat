@@ -456,6 +456,25 @@ const namedSearchRouter = createRouter({ catalog: defineRoutes([namedSearchRoute
 namedSearchRouter.push({ to: '/named-search', search: { tab: 'activity', page: 2 } })
 // @ts-expect-error Named interfaces retain their finite field values.
 namedSearchRouter.push({ to: '/named-search', search: { tab: 'invented' } })
+// @ts-expect-error Head callbacks no longer receive flat path values.
+defineRoute({ path: '/old-head/:id', head: ({ id }) => ({ title: id }) })
+const headed = defineRoute.withContext<{ session: string }>()({
+ path: '/headed/:id',
+ validateSearch: (raw: { tab?: unknown }) => ({ tab: String(raw.tab ?? 'details') }),
+ beforeLoad: ({ context }) => ({ owner: context.session }),
+ loader: async ({ params, search, context }) => ({ title: context.owner + params.id + search.tab }),
+ head: ({ params, search, context, data }) => {
+  const id: string = params.id
+  const tab: string = search.tab
+  const owner: string = context.owner
+  const title: string = data.title
+  // @ts-expect-error Head data is inferred from the awaited loader result.
+  data.invented
+  // @ts-expect-error Head receives structured inputs, not a flat params bag.
+  const flat: string = params.missing
+  return { title, meta: { id, tab, owner } }
+ },
+})
 const authorityProps: import('@octane-xplat/ui').RouteOutletProps = {
  authority: 'account-a:2', resumeUrl: '/items/coat', onResume(result) { const status: string = result.status },
 }

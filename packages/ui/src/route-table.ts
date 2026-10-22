@@ -393,7 +393,7 @@ export function deriveRouteManifest(
 		) {
 			meta.head = head
 		} else if (head !== undefined) {
-			issues.push(invalidExport(key, 'head', head, 'a RouteHead object or (params) => RouteHead'))
+			issues.push(invalidExport(key, 'head', head, 'a RouteHead object or (args) => RouteHead'))
 		}
 
 		const prev = seen.get(name)
@@ -745,8 +745,8 @@ function assembleRoutes(
 				code: 'route/invalid-spec',
 				path: `${at}.head`,
 				detail: `received ${typeof spec.head}`,
-				expected: 'a RouteHead object or (params) => RouteHead',
-				hint: 'pass { title, meta } or a params function, or remove the field',
+				expected: 'a RouteHead object or (args) => RouteHead',
+				hint: 'pass { title, meta } or a prepared-input function, or remove the field',
 			})
 		}
 

@@ -688,6 +688,7 @@ export type {
 	RouteErrorBoundaryProps,
 	RouteHead,
 	RouteHeadExport,
+	RouteHeadArgs,
 	RouteHeadFn,
 	RouteMeta,
 	RouteManifest,

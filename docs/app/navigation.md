@@ -1522,15 +1522,22 @@ export function NativeNotes() {
 }
 ```
 
-A `head` export sets browser title and named metadata after commit. NativeScript
-Pages receive the title in their action bar; the app decides whether that bar
-is visible. AppKit document/window metadata integration is not implemented.
+## Set the route title and metadata
+
+A `head` export receives the prepared `params`, validated `search`, inherited
+`context`, and awaited loader `data`. Use these values to compute metadata
+synchronously; load asynchronous information in the loader. The browser applies
+title and named metadata after commit. NativeScript Pages receive the title in
+their action bar; the app decides whether that bar is visible. AppKit
+document/window metadata integration is not implemented.
 
 ```tsx
-// src/app/items/[id].tsrx
-export const head = (params: { id: string }) => ({
-	title: params.id + ' · My collection',
-	meta: { description: 'Item ' + params.id },
+// src/app/items/[id].tsrx, using the item loader above.
+import type { RouteHeadArgs } from '../../routes.gen.contracts'
+
+export const head = ({ params, search, data }: RouteHeadArgs<'/items/:id'>) => ({
+	title: data.title + ' · My collection',
+	meta: { description: 'Item ' + params.id + ' · ' + search.tab },
 })
 ```
 
@@ -1551,6 +1558,7 @@ import { defineRoute, defineRoutes, type RouteScreenProps } from '@octane-xplat/
 const guide = defineRoute({
 	path: '/guides/:slug',
 	loader: ({ params }) => ({ title: params.slug }),
+	head: ({ data }) => ({ title: data.title }),
 })
 function Guide(props: RouteScreenProps<typeof guide>) {
 	return <Text>{props.params.slug + ': ' + props.data.title}</Text>

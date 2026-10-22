@@ -14,7 +14,7 @@ export function beforeLoad({ search, context }: RouteGuardArgs<'/detail'>) {
 	return { loadedFrom: search.from, guardSawRoute: context.previousRouteName };
 }
 
-export const head = (params: Record<string, unknown>): RouteHead => ({
+export const head = (): RouteHead => ({
 	title: 'Detail · Octane Xplat',
 	meta: { description: 'Detail screen' },
 });

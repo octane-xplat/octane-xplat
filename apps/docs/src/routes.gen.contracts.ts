@@ -24,6 +24,7 @@ export type RouteExportChecks = [
 export type RouteContracts = MergeRouteContracts<[FileRouteContracts, ContractsOf<typeof import("./doc-routes.tsrx")["docRoutes"]>]>
 export type RouteContractsFor<Platform extends "web" | "ios" | "android" | "mobile" | "macos" | "windows" | "linux"> = MergeRouteContracts<[FileRouteContractsFor<Platform>, ContractsOf<typeof import("./doc-routes.tsrx")["docRoutes"]>]>
 export type RouteProps<Path extends keyof FileRouteContracts> = RouteScreenProps<FileRouteContracts[Path]>
+export type RouteHeadArgs<Path extends keyof FileRouteContracts> = RouteProps<Path>
 
 export interface RouteGuardInputs {
 

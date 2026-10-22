@@ -41,6 +41,8 @@ database, a content directory, or a host framework's own route model.
   plain/async parsers and Standard Schema; invalid non-record results stop before loading.
   Schemas requiring non-string inputs use an explicit URL decoder; typed object
   destinations, direct URLs and validated destinations receive the same parsed values.
+  Head callbacks infer prepared params, search, context and awaited loader data;
+  static metadata declarations remain valid.
 - AC2: A programmatic route participates in named stacks and picks up both
   file `_layout` wraps and `defineRoutes` `layouts` entries like a file
   route does. Named-stack URLs round-trip independently of root dynamic and

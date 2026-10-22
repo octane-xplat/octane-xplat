@@ -882,7 +882,7 @@ describe('schema-inferred routes', () => {
 			screen: C('Doc'),
 			loader: ({ params }) => params.doc,
 			beforeLoad: (args) => ({ doc: args.params.doc }),
-			head: (params) => ({ title: params.doc }),
+			head: ({ params }) => ({ title: params.doc }),
 		} satisfies RouteSpec<'guides/:doc'>
 
 		// The narrowed spec still feeds the loose RouteSpec the manifest consumes.

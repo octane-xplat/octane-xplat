@@ -449,7 +449,7 @@ export { useImperativeBottomSheet } from './use-imperative-bottom-sheet.macos.ts
 
 export { RouteOutlet } from './RouteOutlet.macos.tsrx'
 
-export type { ImperativeBottomSheetReturn, RouteOutletProps } from './props'
+export type { ImperativeBottomSheetReturn, RouteOutletProps, RouteHeadArgs } from './props'
 
 // Registry interfaces must share the props symbol for generated augmentation.
 export type {

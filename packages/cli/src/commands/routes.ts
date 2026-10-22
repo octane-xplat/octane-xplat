@@ -620,7 +620,7 @@ ${
  loader: ((...args: never[]) => unknown) | undefined
  beforeLoad: ((...args: never[]) => import('@octane-xplat/ui/routing/core').RouteGuardResult | Promise<import('@octane-xplat/ui/routing/core').RouteGuardResult>) | undefined
  validateSearch: (((...args: never[]) => import('@octane-xplat/ui/routing/core').RouteSearchRecord | Promise<import('@octane-xplat/ui/routing/core').RouteSearchRecord>) & { readonly '~standard'?: never }) | import('@octane-xplat/ui/routing/core').RouteSearchSchema<unknown, import('@octane-xplat/ui/routing/core').RouteSearchRecord> | undefined
- head: import('@octane-xplat/ui/routing/core').RouteHeadExport | undefined
+ head: import('@octane-xplat/ui/routing/core').RouteHeadExport<any, any, any, any> | undefined
  ErrorBoundary: ((...args: never[]) => unknown) | undefined
 }
 type CheckRouteExport<Field extends keyof RouteExportShapes, Value extends RouteExportShapes[Field], SearchCheck extends true = true> = Value`
@@ -632,6 +632,7 @@ ${exportChecks.join('\n')}
 export type RouteContracts = MergeRouteContracts<[FileRouteContracts${(config?.manifests ?? []).map((ref) => `, ContractsOf<${exportType(ref)}>`).join('')}]>
 export type RouteContractsFor<Platform extends ${targets.map((target) => JSON.stringify(target)).join(' | ')}> = MergeRouteContracts<[FileRouteContractsFor<Platform>${(config?.manifests ?? []).map((ref) => `, ContractsOf<${exportType(ref)}>`).join('')}]>
 export type RouteProps<Path extends keyof FileRouteContracts> = RouteScreenProps<FileRouteContracts[Path]>
+export type RouteHeadArgs<Path extends keyof FileRouteContracts> = RouteProps<Path>
 ${list
 	.filter((r) => !r.md)
 	.map((r) => {
