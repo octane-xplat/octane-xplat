@@ -31,6 +31,19 @@ import { random } from '@octane-xplat/platform'
 const nonce = random.bytes(16)
 ```
 
+## SQLite transactions
+
+Use the callback's handle for every awaited transaction operation. Main-handle
+calls queue until it ends; awaiting them inside the callback would deadlock.
+The callback handle expires afterward and rejects nesting and close. See the
+[database guide](../../../../packages/sqlite/README.md).
+
+```ts
+await db.transaction(async (tx) => {
+	await tx.execute('INSERT INTO items(name) VALUES (?)', ['Passport'])
+})
+```
+
 ## Hosted authentication
 
 Use the [hosted auth client](../../../../packages/auth/README.md#hosted-sign-in-ceremonies)

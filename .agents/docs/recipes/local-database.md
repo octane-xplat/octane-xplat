@@ -27,7 +27,9 @@ ORM layers (e.g. Drizzle over the seam) are outside this recipe's scope.
   `openDatabase` rejects there rather than crashing at import.
 - AC2: `execute`, `select`, `selectArray`, `get`, `getArray`, `each`, and
   `transaction` behave the same on every supported target; a throwing
-  transaction rolls back its writes.
+  transaction rolls back its writes without consuming unrelated main-handle
+  writes. Callback handles expire afterward; other calls queue until the
+  transaction ends.
 - AC3: `getUserVersion`/`setUserVersion` round-trips `PRAGMA user_version`
   and supports a shared migration routine.
 - AC4: `db.persistent` is true on native and on web under OPFS access, and
