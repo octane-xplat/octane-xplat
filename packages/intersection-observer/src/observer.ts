@@ -181,14 +181,18 @@ export class IntersectionObserver implements IntersectionObserverShape {
 			}
 		}
 
-		const seen = new Set<View>()
+		const seen = new Map<View, Set<string>>()
 		const listeners: Array<[View, string]> = []
 		const on = (view: View, event: string) => {
-			if (seen.has(view)) {
+			if (seen.get(view)?.has(event)) {
 				return
 			}
 
-			seen.add(view)
+			let events = seen.get(view)
+			if (!events) {
+				seen.set(view, (events = new Set()))
+			}
+			events.add(event)
 			listeners.push([view, event])
 			view.on(event, reevaluate)
 		}
