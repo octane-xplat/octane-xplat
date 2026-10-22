@@ -9,5 +9,10 @@
 		"skipLibCheck": true
 	},
 	"include": [],
-	"files": ["src/routing.gtk.tsx", "src/routing-types.gtk.ts"]
+	"files": [
+		"../../src/gi.d.ts",
+		"src/routing.gtk.tsx",
+		"src/routing-types.gtk.ts",
+		"src/proxy-order.ts"
+	]
 }
