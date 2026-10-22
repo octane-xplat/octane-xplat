@@ -46,14 +46,16 @@ test('dev exits unsuccessfully when its web target fails', {
 	assert.notEqual(result.status, 0, 'a failed development target must fail the CLI')
 })
 
-test('clean preserves authored native plugin platform sources', {
-	todo: 'Known audit bug: clean classifies authored plugin platform directories as generated',
-}, (t) => {
+test('clean preserves authored native plugin platform sources', (t) => {
 	const root = project(t)
-	write(root, 'package.json', JSON.stringify({
-		name: 'native-plugin-fixture',
-		nativescript: { platforms: { android: '9.1.0', ios: '9.1.0' } },
-	}))
+	write(
+		root,
+		'package.json',
+		JSON.stringify({
+			name: 'native-plugin-fixture',
+			nativescript: { platforms: { android: '9.1.0', ios: '9.1.0' } },
+		}),
+	)
 	const sources = {
 		'platforms/android/java/Fixture.java': 'public class Fixture {}\n',
 		'platforms/ios/src/Fixture.swift': 'public class Fixture {}\n',
@@ -61,14 +63,41 @@ test('clean preserves authored native plugin platform sources', {
 	for (const [path, contents] of Object.entries(sources)) {
 		write(root, path, contents)
 	}
+	write(root, 'dist/plugin.js', 'generated output')
 	const result = run(root, ['clean'])
 	assert.ifError(result.error)
 	assert.equal(result.signal, null, result.stdout + result.stderr)
 	assert.equal(result.status, 0, result.stdout + result.stderr)
+	assert.equal(existsSync(join(root, 'dist')), false)
 	for (const [path, contents] of Object.entries(sources)) {
 		assert.ok(existsSync(join(root, path)), `authored plugin source was deleted: ${path}`)
 		assert.equal(readFileSync(join(root, path), 'utf8'), contents)
 	}
+})
+
+test('clean removes generated app platforms and caches while preserving authored macOS source', (t) => {
+	const root = project(t)
+	write(root, 'package.json', JSON.stringify({ private: true }))
+	write(root, 'nativescript.config.ts', 'export default { id: "org.example.fixture" }')
+	const outputs = [
+		'platforms/android',
+		'platforms/ios',
+		'dist',
+		'.ns-vite-build',
+		'node_modules/.vite',
+		'node_modules/.cache/xplat',
+	]
+	for (const path of outputs) {
+		write(root, `${path}/generated.txt`, 'generated output')
+	}
+	write(root, 'platforms/macos/main.swift', 'authored source')
+	const result = run(root, ['clean'])
+	assert.ifError(result.error)
+	assert.equal(result.status, 0, result.stdout + result.stderr)
+	for (const path of outputs) {
+		assert.equal(existsSync(join(root, path)), false, path)
+	}
+	assert.equal(readFileSync(join(root, 'platforms/macos/main.swift'), 'utf8'), 'authored source')
 })
 
 test('add ios updates the enclosing workspace catalog and patch configuration', {
