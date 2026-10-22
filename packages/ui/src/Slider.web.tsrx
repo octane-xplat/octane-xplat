@@ -16,9 +16,25 @@ export function Slider(props: SliderProps) @{
 
 	const min = props.minValue ?? 0;
 	const max = props.maxValue ?? 100;
-	const value = dragValue ?? props.value ?? min;
-	const ratio = Math.min(1, Math.max(0, (value - min) / (max - min)));
+	const value = Math.min(max, Math.max(min, dragValue ?? props.value ?? min));
+	const ratio = max === min ? 0 : (value - min) / (max - min);
 	const width = measure.bounds?.width ?? 0;
+	const onKeyDown = (event: KeyboardEvent) => {
+		if (props.disabled || event.defaultPrevented) return;
+		let next: number;
+		switch (event.key) {
+			case 'ArrowRight':
+			case 'ArrowUp': next = value + (max - min) / 100; break;
+			case 'ArrowLeft':
+			case 'ArrowDown': next = value - (max - min) / 100; break;
+			case 'Home': next = min; break;
+			case 'End': next = max; break;
+			default: return;
+		}
+		event.preventDefault();
+		next = Math.min(max, Math.max(min, next));
+		if (next !== value) props.onValueChange?.(next);
+	};
 
 	usePan(host, (e: PanEvent) => {
 		if (props.disabled) return;
@@ -41,6 +57,8 @@ export function Slider(props: SliderProps) @{
 	<div
 		id={props.id}
 		role="slider"
+		tabIndex={props.disabled ? -1 : 0}
+		onKeyDown={onKeyDown}
 		aria-valuemin={min}
 		aria-valuemax={max}
 		aria-valuenow={value}

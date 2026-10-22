@@ -1,5 +1,5 @@
 import { createRoot, useState, useRef } from 'octane';
-import { BottomSheet, CommandPalette, Overlay, Popover, Pressable, TextArea, TextInput } from '@octane-xplat/ui';
+import { BottomSheet, CommandPalette, Overlay, Popover, Slider, Pressable, TextArea, TextInput } from '@octane-xplat/ui';
 import { motion, Presence } from '../../../packages/motion/src/index.web';
 
 function ModalPopoverButton(props: { name: string }) @{
@@ -17,6 +17,7 @@ function ModalPopoverButton(props: { name: string }) @{
 
 function InputReadiness() @{
 	const [count, setCount] = useState(0);
+	const [volume, setVolume] = useState(0.5);
 	const [value, setValue] = useState('hello');
 	const [changes, setChanges] = useState(0);
 	const [sheet, setSheet] = useState(false);
@@ -43,6 +44,10 @@ function InputReadiness() @{
 			<button id="overlay-first">First</button><ModalPopoverButton name="overlay" /><button id="overlay-last" onClick={() => setOverlay(false)}>Close</button>
 		</Overlay>
 		<CommandPalette open={commandPalette} onOpenChange={setCommandPalette} items={[]} />
+		<button id="slider-before" tabIndex={0}>Before volume</button>
+		<Slider id="volume" value={volume} minValue={0} maxValue={1} onValueChange={setVolume} web={{ 'aria-label': 'Volume' }} />
+		<Slider id="disabled-volume" value={0.5} disabled onValueChange={() => { throw new Error('disabled slider changed') }} />
+		<button id="slider-after" tabIndex={0}>After volume</button>
 		<button id="exit" onClick={() => setPresent(false)}>Exit</button>
 		<button id="reverse" onClick={() => setPresent(true)}>Reverse</button>
 		<Presence present={present}>

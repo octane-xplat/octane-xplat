@@ -34,7 +34,9 @@ visual components stay at the root.
 `Switch`, `Slider`, `Spinner`, `Tabs`, and `Drawer` are
 self-drawn shared components: their shared props produce the same component
 design across targets, rather than exposing OS chrome. `Slider` follows pan
-deltas and does not jump to a tapped track position. `Drawer` has no edge-swipe
+deltas and does not jump to a tapped track position. On web it is a Tab stop:
+Arrow keys change 1% of its range, and Home/End choose the bounds. Pair
+`value` with `onValueChange` to display the change. `Drawer` has no edge-swipe
 gesture on web; provide a visible toggle. `TextInput`, `TextArea`, and
 `ScrollableArea` remain OS-backed with normalized chrome because text editing and
 scroll behavior belong to the platform.
@@ -45,10 +47,11 @@ import { Drawer, Switch, Slider, Spinner, TextInput } from '@octane-xplat/ui'
 
 export function Controls() {
 	const [packed, setPacked] = useState(false)
+	const [volume, setVolume] = useState(50)
 	return (
 		<>
 			<Switch checked={packed} onCheckedChange={setPacked} />
-			<Slider value={50} onValueChange={console.log} />
+			<Slider value={volume} onValueChange={setVolume} />
 			<Spinner />
 			<TextInput label="Bag name" />
 			<Drawer

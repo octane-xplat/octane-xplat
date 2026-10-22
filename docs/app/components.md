@@ -251,6 +251,20 @@ export function Example() {
 | `Field`, `FieldGroup` | Labeled field wrapper / labeled field group | `label`, `description`, `inputID`, `isRequired`, `isOptional`, `status` |
 | `Item` | Settings-style row | `label`, `description`, `startContent`, `endContent`, `isDisabled`, `onPress` |
 
+Web `Slider` supports Tab focus, Arrow keys in increments of 1% of its range,
+and Home/End to select its bounds. Disabled sliders are skipped. Keep its
+controlled value in state so keyboard and drag changes appear on screen.
+
+```tsx
+import { useState } from 'octane'
+import { Slider } from '@octane-xplat/ui'
+
+export function Volume() {
+	const [volume, setVolume] = useState(0.5)
+	return <Slider value={volume} minValue={0} maxValue={1} onValueChange={setVolume} />
+}
+```
+
 Date controls use portable ISO strings: `YYYY-MM-DD`, `HH:MM[:SS]`, and
 `YYYY-MM-DDTHH:MM[:SS]`. Date-time strings have no timezone suffix; they
 represent local wall-clock values. Empty values and clear callbacks use
