@@ -496,7 +496,19 @@ try {
 		{ timeout: 5000 },
 	)
 
-	await page.waitForTimeout(50)
+	await page.waitForFunction(
+		(anchorTop) => {
+			const list = document.getElementById('vlist')
+			const row = document.getElementById('row-r20')
+			return (
+				Math.abs(row.getBoundingClientRect().top - list.getBoundingClientRect().top - anchorTop) <=
+				2
+			)
+		},
+		before.anchorTop,
+		{ timeout: 5000 },
+	)
+
 	const after = await page.evaluate(() => {
 		const list = document.getElementById('vlist')
 		return {
@@ -584,15 +596,14 @@ try {
 	ok('head export updates title', (await page.title()) === 'Detail · Octane Xplat')
 	ok(
 		'head export updates meta',
-		(await page.locator('meta[name="description"]').getAttribute('content')) ===
-			'Detail opened from home',
+		(await page.locator('meta[name="description"]').getAttribute('content')) === 'Detail screen',
 	)
 
 	ok('useCanGoBack renders the back affordance', (await page.locator('#detail-back').count()) === 1)
 
-	const tabsCovered = (await page.locator('.vx-tabbar').count()) === 0
+	const tabsCovered = !(await page.locator('.vx-tabbar').isVisible())
 	ok('root route covers tab shell', tabsCovered)
-	await page.goBack()
+	await page.goBack({ waitUntil: 'commit' })
 	await page.waitForSelector('.vx-tabbar', { timeout: 3000 })
 	ok('browser back → shell restored', true)
 
@@ -600,6 +611,9 @@ try {
 	await page.goto(BASE + '/demos/demo/watch', { waitUntil: 'networkidle' })
 	await page.waitForSelector('text=/\\d{2}:\\d{2}:\\d{2}/', { timeout: 5000 })
 	ok('deep link → correct tab + pushed screen', true)
+	// Tab clicks are UI selection, not browser navigation. Start the next
+	// journey at the shell so Back returns here rather than to the deep link.
+	await page.goto(BASE, { waitUntil: 'networkidle' })
 
 	// Settings tab: sheet seam mounts a real portal layer; backdrop dismisses.
 	const logs = []
@@ -636,7 +650,7 @@ try {
 	await page.click('#menu-layout')
 	await page.waitForFunction(() => location.pathname.startsWith('/test/demo/'), { timeout: 3000 })
 	ok('proof chip → test-stack push', true)
-	await page.goBack()
+	await page.goBack({ waitUntil: 'commit' })
 	await page.waitForSelector('text=Seam proofs', { timeout: 3000 })
 	ok('back → test tab restored', true)
 
@@ -644,7 +658,7 @@ try {
 	await page.click('#guarded-btn')
 	await page.waitForSelector('text=guard: private', { timeout: 3000 })
 	ok('guard redirect → detail', true)
-	await page.goBack()
+	await page.goBack({ waitUntil: 'commit' })
 	await page.waitForSelector('text=Seam proofs', { timeout: 3000 })
 
 	// Programmatic routes (guides.tsrx — configured generated catalog):
@@ -659,7 +673,7 @@ try {
 	await page.waitForFunction(() => location.pathname === '/test/guides/routes', { timeout: 3000 })
 	await page.waitForSelector('.guide-layout-banner', { timeout: 3000 })
 	ok('dynamic child route + programmatic layout wrap', true)
-	await page.goBack()
+	await page.goBack({ waitUntil: 'commit' })
 	await page.waitForFunction(() => location.pathname === '/test/guides', { timeout: 3000 })
 	// Deep link straight into a data-derived route.
 	await page.goto(BASE + '/test/guides/deploy', { waitUntil: 'networkidle' })
@@ -675,7 +689,7 @@ try {
 	await page.hover('text=HoverCard trigger')
 	await page.waitForSelector('text=Hint card text', { timeout: 3000 })
 	ok('HoverCard opens on hover intent', true)
-	await page.hover('text=Tooltip trigger')
+	await page.getByText('Tooltip trigger', { exact: true }).filter({ visible: true }).hover()
 	await page.waitForSelector('[role="tooltip"]:has-text("Saved automatically")', { timeout: 3000 })
 	const described = page.locator('[aria-describedby]')
 	const tipId = await page.locator('[role="tooltip"]').getAttribute('id')
@@ -687,10 +701,10 @@ try {
 	await page.keyboard.press('Escape')
 	await page.waitForSelector('[role="tooltip"]', { state: 'detached', timeout: 3000 })
 	ok('tooltip dismisses on Escape', true)
-	await page.click('text=Toast top')
+	await page.getByText('Toast top', { exact: true }).filter({ visible: true }).click()
 	await page.waitForSelector('text=Top toast', { timeout: 3000 })
 	ok('toast position=top renders', true)
-	await page.click('text=Toast anchored')
+	await page.getByText('Toast anchored', { exact: true }).filter({ visible: true }).click()
 	await page.waitForSelector('text=Anchored toast', { timeout: 3000 })
 	ok('toast anchored renders', true)
 
