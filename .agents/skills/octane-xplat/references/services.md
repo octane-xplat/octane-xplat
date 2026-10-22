@@ -31,6 +31,19 @@ import { random } from '@octane-xplat/platform'
 const nonce = random.bytes(16)
 ```
 
+## Hosted authentication
+
+Use the [hosted auth client](../../../../packages/auth/README.md#hosted-sign-in-ceremonies)
+for app-owned credential persistence and refresh. Await sign-out before treating
+durable credentials as cleared; it retires pending login/refresh and orders
+removal after earlier saves. A superseded login reports `cancelled`.
+
+```ts
+import { auth } from './auth'
+
+await auth.signOut()
+```
+
 ## Color scheme
 
 `getColorScheme()` / `useColorScheme()` — `ColorScheme = 'light'|'dark'`.

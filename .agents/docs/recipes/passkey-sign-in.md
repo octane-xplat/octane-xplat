@@ -2,7 +2,7 @@
 
 ID: passkey-sign-in
 Targets: web, ios, android, macos
-Related APIs: webAuthn, authSession, onDeepLink
+Related APIs: webAuthn, authSession, onDeepLink, createHostedAuth
 
 ## Starting point
 
@@ -33,3 +33,5 @@ build each target.
 - AC2: [Passkeys and auth ceremonies](../../../docs/platform/platform-services.md#passkeys-and-auth-ceremonies). Gap: The hosted page callback/session exchange contract remains backend-owned; `createHostedAuth` in `@octane-xplat/auth` runs the client-side ceremony and credential lifecycle against an app-supplied `HostedAuthFlow`, while the [maintained exchange boundary](../../../examples/auth/README.md) covers server-side verification. Coverage is unit-level (mocked transport/session), not device-qualified.
 - AC3: [authSession platform notes](../../../docs/platform/platform-services.md#passkeys-and-auth-ceremonies) and [scheme registration](incoming-links.md). [Hosted callback registration and checks](../../../docs/platform/platform-services.md#register-and-check-a-hosted-callback) provide the activity filter and callback/cancel/error procedure.
 - AC4: [Capability shape and fallbacks](../../../docs/platform/platform-services.md#optional-capabilities). [Hosted callback checks](../../../docs/platform/platform-services.md#register-and-check-a-hosted-callback) and [adapter regressions](../../../packages/platform/tests/auth-session.test.mjs) and [macOS lifecycle regressions](../../../packages/platform/tests/auth-session.macos.test.mjs). Runtime verification: configured system-browser and relying-party checks remain pending; this is separate from documentation coverage.
+
+For client-owned credential lifecycle, see [hosted sign-in and sign-out](../../../packages/auth/README.md#hosted-sign-in-ceremonies) and [race regressions](../../../packages/auth/tests/hosted.test.mjs). Sign-out supersedes pending login/refresh and orders removal after earlier saves; these tests use mocked transport, session, and storage rather than an OS ceremony.
