@@ -117,7 +117,7 @@ it('binds configured tab panes to owned flows while retaining shell state and ac
 		const panel = document.getElementById(rightTab.getAttribute('aria-controls')!)!
 		expect(panel.getAttribute('aria-labelledby')).toBe(rightTab.id)
 		expect(rightTab.getAttribute('aria-selected')).toBe('true')
-		expect((await router.navigateUrl('/left/items/coat')).status).toBe('committed')
+		expect((await router.navigateUrl('/@left/items/coat')).status).toBe('committed')
 		expect(visible(container.querySelector('#tab-item'))).toBe(true)
 		expect(screenPerson).toBe('Avery')
 		expect(screenStack).toBe('left')
@@ -192,7 +192,7 @@ it('selects incoming panes through the explicitly owning browser host', async ()
 
 	try {
 		act(() => root.render(Owned))
-		expect((await navigation.forStack('right').navigateUrl('/right/owned')).status).toBe(
+		expect((await navigation.forStack('right').navigateUrl('/@right/owned')).status).toBe(
 			'committed',
 		)
 

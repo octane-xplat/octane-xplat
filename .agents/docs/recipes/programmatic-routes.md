@@ -41,7 +41,8 @@ database, a content directory, or a host framework's own route model.
   plain/async parsers and Standard Schema; invalid non-record results stop before loading.
 - AC2: A programmatic route participates in named stacks and picks up both
   file `_layout` wraps and `defineRoutes` `layouts` entries like a file
-  route does.
+  route does. Named-stack URLs round-trip independently of root dynamic and
+  catch-all patterns, including with a configured base path.
 - AC3: The reader can state the startup precedence rule (a later declared manifest wins, with a
   warning; runtime catalogs cannot replace declared contracts), configure a manifest export in `xplat.routes.json` so generated
   registration checks literal-path destinations and links, and reach computed-path destinations through runtime URL/object validation. Checked objects work with navigation, href and link to; cloning, serializing or crossing instance ownership cannot manufacture a proof.
@@ -103,12 +104,15 @@ database, a content directory, or a host framework's own route model.
 - AC2: [layouts map and outlet resolution](../../../docs/app/navigation.md#register-routes-from-data);
   `packages/app/src/app/_layout.tsrx` mounts canonical root and named outlets;
   layouts are composed from the instance catalog at render selection.
+  [Share a pane URL](../../../docs/app/navigation.md#share-a-pane-url) explains
+  the explicit stack marker and generated hrefs; `routing-core.test.ts` covers
+  root collisions, encoded names and base paths.
 - AC3: [precedence and the typing boundary](../../../docs/app/navigation.md#register-routes-from-data)
   and [validate a destination from data](../../../docs/app/navigation.md#validate-a-destination-from-data)
   and [edit a rendering entry's search](../../../docs/app/navigation.md#edit-the-current-screens-filters)
   and the [Navigation limits row](../../../docs/testing/known-limits.md#navigation).
 - AC4: [Register routes from data](../../../docs/app/navigation.md#register-routes-from-data);
-  web smoke in `apps/web/scripts/smoke.ts` deep-links `/test/guides/deploy`.
+  web smoke in `apps/web/scripts/smoke.ts` deep-links `/@test/guides/deploy`.
 
 - AC5: [Flow-owned loading and recovery](../../../docs/app/navigation.md#handle-pending-work-and-failures), [Loader and presentation behavior](../../../docs/app/navigation.md#present-a-route-modally)
   and [guard behavior](../../../docs/app/navigation.md#guard-a-route-and-supply-context).

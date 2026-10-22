@@ -86,7 +86,7 @@ it('keeps anchor behavior and routes ordinary activation within the owning pane'
 
 	try {
 		act(() => root.render(Links, {}))
-		expect(container.querySelector('#coat')?.getAttribute('href')).toBe('/catalog/items/coat')
+		expect(container.querySelector('#coat')?.getAttribute('href')).toBe('/@catalog/items/coat')
 		for (const init of [
 			{ ctrlKey: true },
 			{ metaKey: true },
@@ -111,7 +111,7 @@ it('keeps anchor behavior and routes ordinary activation within the owning pane'
 			await new Promise((resolve) => setTimeout(resolve, 30))
 		})
 
-		expect(location.pathname).toBe('/catalog/items/coat')
+		expect(location.pathname).toBe('/@catalog/items/coat')
 		expect(navigation.forStack('catalog').getSnapshot().route?.params.id).toBe('coat')
 		expect(container.querySelector('#coat')?.classList.contains('selected')).toBe(true)
 		expect(container.querySelector('#coat')?.getAttribute('aria-current')).toBe('page')

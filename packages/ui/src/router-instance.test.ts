@@ -468,17 +468,17 @@ it('binds named and modal flows without guessing an active stack', async () => {
 	const platform = host()
 	const router = createRouter({ catalog, host: platform.adapter, stacks: ['catalog'] })
 	const named = bindRouterFlow(router, 'catalog')
-	expect(named.href({ to: '/items/:id', params: { id: 'named' } })).toBe('/catalog/items/named')
+	expect(named.href({ to: '/items/:id', params: { id: 'named' } })).toBe('/@catalog/items/named')
 	expect(await named.validateDestination({ to: '/settings' })).toMatchObject({
 		status: 'valid',
-		href: '/catalog/settings',
+		href: '/@catalog/settings',
 	})
 	await named.push({ to: '/items/:id', params: { id: 'named' } })
-	expect(named.getSnapshot().route?.href).toBe('/catalog/items/named')
+	expect(named.getSnapshot().route?.href).toBe('/@catalog/items/named')
 	expect(router.getSnapshot().route).toBeNull()
 	platform.flows.set('modal:1', [{ ...platform.entries('catalog').at(-1)!, presentation: 'modal' }])
 	const modal = bindRouterFlow(router, 'modal:1')
-	expect(modal.href({ to: '/settings' })).toBe('/catalog/settings')
+	expect(modal.href({ to: '/settings' })).toBe('/@catalog/settings')
 	await modal.push({ to: '/settings' })
 	expect(modal.getSnapshot().route?.stack).toBe('catalog')
 	await modal.back()
@@ -497,7 +497,7 @@ it.each(['root', 'catalog'] as const)(
 			{ ...platform.entries(stack).at(-1)!, presentation: 'modal' },
 		])
 		const modal = bindRouterFlow(router, 'modal:owned')
-		const url = (stack === 'root' ? '' : '/catalog') + '/items/next'
+		const url = router.forStack(stack).href({ to: '/items/:id', params: { id: 'next' } })
 		expect((await modal.navigateUrl(url)).status).toBe('committed')
 		expect(platform.entries('modal:owned').at(-1)?.params.id).toBe('next')
 		expect(router.forStack(stack).getSnapshot().route?.params.id).toBe('presenter')
@@ -1092,7 +1092,7 @@ it('keeps omitted stacks relative to the consuming named or modal navigator', as
 	if (checked.status !== 'valid') {
 		throw new Error('Expected checked destination')
 	}
-	expect(checked.href).toBe('/library/items/coat')
+	expect(checked.href).toBe('/@library/items/coat')
 	expect(await named.push(checked.destination)).toMatchObject({
 		status: 'committed',
 		route: { stack: 'library' },
@@ -1105,7 +1105,7 @@ it('keeps omitted stacks relative to the consuming named or modal navigator', as
 	if (inside.status !== 'valid') {
 		throw new Error('Expected checked destination')
 	}
-	expect(modal.href(inside.destination)).toBe('/library/items/hat')
+	expect(modal.href(inside.destination)).toBe('/@library/items/hat')
 	expect(await modal.push(inside.destination)).toMatchObject({ status: 'committed' })
 	expect(platform.entries('modal:checked').at(-1)?.params.id).toBe('hat')
 	expect(named.getSnapshot().route?.params.id).toBe('coat')
@@ -1195,7 +1195,7 @@ it('uses checked redirect destinations without escaping a named flow or borrowin
 	expect(await navigation.forStack('library').push({ to: '/source' })).toMatchObject({
 		status: 'committed',
 		redirected: true,
-		route: { to: '/target', stack: 'library', href: '/library/target', data: 'ready' },
+		route: { to: '/target', stack: 'library', href: '/@library/target', data: 'ready' },
 	})
 	expect(navigation.getSnapshot().route).toBeNull()
 	const foreign = createRouter({ catalog: routes, host: host().adapter })

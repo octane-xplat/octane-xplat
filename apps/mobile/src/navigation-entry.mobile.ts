@@ -152,7 +152,7 @@ type ItemPath = '/nav/:id' | '/runtime/:id' | '/loaded/:id' | '/broken/:id' | '/
 const push = (stack: FixtureStack, id: string, to: ItemPath = '/nav/:id') =>
 	to === '/runtime/:id'
 		? refined.navigation.navigateUrl(
-				(stack === 'root' ? '' : '/' + stack) + '/runtime/' + encodeURIComponent(id),
+				(stack === 'root' ? '' : '/@' + encodeURIComponent(stack)) + '/runtime/' + encodeURIComponent(id),
 			)
 		: refined.navigation.push({ stack, to, params: { id }, transition: 'none' })
 
@@ -1928,7 +1928,7 @@ async function run(): Promise<void> {
 	await wait('default tab selection left', () => defaultClientObservations.selectedTab === 'left')
 	check(
 		'default Tabs pane modal opens with its source presenter',
-		(await client.navigation.navigateUrl('/left/client-modal/tab-modal')).status === 'committed' &&
+		(await client.navigation.navigateUrl('/@left/client-modal/tab-modal')).status === 'committed' &&
 			client.platform.modals.getSnapshot().at(-1)?.presenterFlow === 'left' &&
 			frame.currentPage === page,
 	)

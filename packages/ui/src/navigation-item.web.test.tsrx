@@ -59,7 +59,7 @@ for (const kind of kinds) {
 				})
 			}
 
-			const href = `/app/library/from-data/${kind}?page=2`
+			const href = `/app/@library/from-data/${kind}?page=2`
 			let link = document.querySelector<HTMLAnchorElement>(`a[href="${href}"]`)!
 			expect(link, kind).not.toBeNull()
 			let prevented = false
@@ -241,7 +241,7 @@ it('keeps a prevented menu link open without loading its route', async () => {
 		})
 
 		const link = document.querySelector<HTMLAnchorElement>(
-			'a[href="/app/library/from-data/cancelled-menu?page=2"]',
+			'a[href="/app/@library/from-data/cancelled-menu?page=2"]',
 		)!
 
 		await act(async () => {

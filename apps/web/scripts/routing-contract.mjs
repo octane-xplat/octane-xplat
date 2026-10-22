@@ -291,7 +291,7 @@ try {
 			stack: window.__routing.currentStack,
 			text: document.getElementById('item')?.textContent,
 		})),
-		{ status: 'committed', path: '/right/items/tabbed', stack: 'right', text: 'tabbed:tabbed1:0' },
+		{ status: 'committed', path: '/@right/items/tabbed', stack: 'right', text: 'tabbed:tabbed1:0' },
 	)
 
 	check(

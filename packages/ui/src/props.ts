@@ -3812,6 +3812,7 @@ export interface RoutePreparationOptions {
 	allowedOrigins?: readonly string[]
 	/** Application schemes whose authority is the first route segment. */
 	allowedSchemes?: readonly string[]
+	/** Named flows use /@name/... URLs, separate from root route patterns. */
 	stacks?: readonly string[]
 	history?: 'linear' | 'independent'
 	createCancellationController?: () => RouteCancellationController

@@ -228,7 +228,7 @@ describe('host-independent routing preparation', () => {
 		expect(router.resolveUrl('/items/new').status).toBe('matched')
 	})
 
-	it('identifies named-stack URL collisions without exposing path values or preparing data', () => {
+	it('keeps named stacks separate from root patterns and catch-alls', () => {
 		let loads = 0
 		const loader = () => {
 			loads++
@@ -237,23 +237,42 @@ describe('host-independent routing preparation', () => {
 		const catalog = defineRoutes([
 			{ path: '/retention/:id', loader, screen: Screen },
 			{ path: '/retention-late', loader, screen: Screen },
+			{ path: '/*rest', loader, screen: Screen },
 		])
 		const engine = createRoutePreparation({ catalog, stacks: ['retention', 'retention-controls'] })
 		try {
-			const conflict = engine.resolveDestination({ to: '/retention-late', stack: 'retention' })
-			expect(conflict.status).toBe('invalid-input')
-			if (conflict.status !== 'invalid-input') {
-				throw new Error('Expected stack conflict')
-			}
-			expect(conflict.path).toBe('stack')
-			expect(String(conflict.error)).toContain('Stack "retention" URL prefix')
-			expect(String(conflict.error)).toContain('root route "/retention/:id"')
-			expect(String(conflict.error)).toContain('choose a different stack name')
-			expect(String(conflict.error)).not.toContain('/retention/retention-late')
+			expect(engine.resolveDestination({ to: '/retention-late', stack: 'retention' })).toMatchObject({
+				status: 'matched', href: '/@retention/retention-late',
+				destination: { to: '/retention-late', stack: 'retention' },
+			})
+			expect(engine.resolveUrl('/@retention/retention-late')).toMatchObject({
+				status: 'matched', destination: { to: '/retention-late', stack: 'retention' },
+			})
+			expect(engine.resolveUrl('/retention/retention-late')).toMatchObject({
+				status: 'matched', destination: { to: '/retention/:id', stack: 'root' },
+			})
+			expect(engine.resolveUrl('/@missing/retention-late')).toMatchObject({ status: 'invalid-input', path: 'stack' })
 			expect(
 				engine.resolveDestination({ to: '/retention-late', stack: 'retention-controls' }).status,
 			).toBe('matched')
 			expect(loads).toBe(0)
+		} finally {
+			engine.dispose()
+		}
+	})
+
+	it('round-trips stack markers, root @ paths, base paths and encoded stack names', () => {
+		const engine = createRoutePreparation({
+			catalog: defineRoutes([{ path: '/*rest', screen: Screen }]),
+			stacks: ['café/one'], base: '/app',
+		})
+		try {
+			for (const stack of ['root', 'café/one']) {
+				const destination = { to: '/*rest', params: { rest: '@café/one' }, stack }
+				const href = engine.href(destination)
+				expect(href).toBe(stack === 'root' ? '/app/%40caf%C3%A9/one' : '/app/@caf%C3%A9%2Fone/%40caf%C3%A9/one')
+				expect(engine.resolveUrl(href)).toMatchObject({ status: 'matched', destination })
+			}
 		} finally {
 			engine.dispose()
 		}
@@ -517,7 +536,7 @@ describe('host-independent routing preparation', () => {
 			stacks: ['catalog'],
 			behaviors: { '/items/:id': { loader: () => wait.promise } },
 		})
-		const pending = router.prepare('/catalog/items/coat')
+		const pending = router.prepare('/@catalog/items/coat')
 		expect((await router.prepare('/login')).status).toBe('ready')
 		router.dispose()
 		expect(await pending).toEqual({ status: 'cancelled', reason: 'disposed' })
@@ -647,7 +666,7 @@ it('keeps relative redirects in the selected stack and validates current motion 
 	})
 	expect(await router.prepare({ to: '/source', stack: 'library' })).toMatchObject({
 		status: 'ready',
-		match: { to: '/target', stack: 'library', href: '/library/target' },
+		match: { to: '/target', stack: 'library', href: '/@library/target' },
 	})
 	expect(await router.validateDestination({ to: '/target', transition: 'invented' })).toMatchObject(
 		{ status: 'invalid-input', path: 'transition' },

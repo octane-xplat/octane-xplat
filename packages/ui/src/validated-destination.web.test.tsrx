@@ -22,7 +22,7 @@ it('renders a checked runtime destination as a real anchor and preserves ownersh
 		act(() => root.render(CheckedLinks, props))
 		const link = container.querySelector('a')!
 		expect(link.textContent).toBe('Open checked')
-		expect(link.getAttribute('href')).toBe('/app/library/from-data/coat?page=2')
+		expect(link.getAttribute('href')).toBe('/app/@library/from-data/coat?page=2')
 		let prevented = false
 		container.addEventListener('click', (event) => {
 			prevented = event.defaultPrevented
@@ -71,7 +71,7 @@ it('renders a checked runtime destination as a real anchor and preserves ownersh
 			root.render(CheckedLinks, props)
 		})
 
-		expect(link.getAttribute('href')).toBe('/app/library/from-data/coat?page=2')
+		expect(link.getAttribute('href')).toBe('/app/@library/from-data/coat?page=2')
 		await act(async () => {
 			link.click()
 			await new Promise((resolve) => setTimeout(resolve, 0))

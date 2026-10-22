@@ -54,7 +54,7 @@ try {
 	await page.getByRole('tab', { name: 'Apps', exact: true }).click()
 	await page.getByRole('button', { name: 'Counter', exact: true }).click()
 	await page.getByText('Demo count: 0', { exact: true }).waitFor()
-	check('named push with real path', new URL(page.url()).pathname === '/demos/demo/counter')
+	check('named push with real path', new URL(page.url()).pathname === '/@demos/demo/counter')
 	check('named push keeps tab strip', await page.locator('.vx-tabbar').isVisible())
 	await page.getByText('← Back', { exact: true }).click()
 	await page.getByText('Last opened: counter', { exact: true }).waitFor()
@@ -81,13 +81,13 @@ try {
 	await page.getByRole('link', { name: 'Guides →' }).click()
 	await page.getByRole('link', { name: 'Routes from data →' }).click()
 	await page.locator('.guide-layout-banner').waitFor()
-	check('addRoutes named outlet and layout', new URL(page.url()).pathname === '/test/guides/routes')
+	check('addRoutes named outlet and layout', new URL(page.url()).pathname === '/@test/guides/routes')
 	check(
 		'programmatic layout applied once',
 		(await page.locator('.guide-layout-banner').count()) === 1,
 	)
 
-	await page.goto(base + '/test/guides/deploy')
+	await page.goto(base + '/@test/guides/deploy')
 	await page.getByText('guides/deploy', { exact: true }).waitFor()
 	check('cold programmatic link', true)
 	await page.goto(base + '/about')

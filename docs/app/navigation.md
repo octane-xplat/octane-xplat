@@ -954,16 +954,19 @@ await router.forStack('catalog').push({ to: '/items/:id', params: { id: 'coat' }
 await router.forStack('catalog').back()
 ```
 
-### Avoid a pane URL collision
+### Share a pane URL
 
-Pane names become URL prefixes. Root route patterns match first, so a root
-`/catalog/:id` pattern would claim `/catalog/items` before a pane named
-`catalog` could use it. Choose a distinct pane name, or narrow the root pattern.
-A root catch-all also needs a narrower prefix when using named-pane URLs.
-Ambiguous requests return `invalid-input` with `path: 'stack'` before loading.
+Named panes use an explicit `@` segment in their URLs. Root routes and catch-all
+routes can use the same names without taking over a pane's destination. Let
+`href` encode the stack, path and search values; a literal `@` in a root path is
+encoded as `%40`. Unknown stack markers return `invalid-input` before loading.
+Existing links using the old `/catalog/...` prefix must use `/@catalog/...`.
 
-```json
-{ "directory": "src/app", "stacks": ["catalog-pane", "account-pane"] }
+```ts
+import { router } from '@octane-xplat/ui/routing'
+
+const href = router.forStack('catalog').href({ to: '/items/:id', params: { id: 'coat' } })
+// /@catalog/items/coat
 ```
 
 ## Present a route modally

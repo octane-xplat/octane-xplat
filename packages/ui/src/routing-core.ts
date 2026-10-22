@@ -1,5 +1,6 @@
 import { resolveValidatedDestination } from './validated-destination'
 import { createRouteUrlPolicy } from './route-url-policy'
+import { routeStackBase } from './route-stack-url'
 import {
 	buildRouteLocation,
 	matchRouteSegments,
@@ -155,22 +156,26 @@ export function createRoutePreparation(options: RoutePreparationOptions) {
 			throw new TypeError('Unknown route stack')
 		}
 		return buildRouteLocation(
-			stack === 'root' ? meta.segments : [stack, ...meta.segments],
+			meta.segments,
 			destination.params,
 			destination.search as RouteSearchInput,
 			destination.hash,
-			options.base,
+			routeStackBase(options.base, stack),
 		)
 	}
 	const resolveUrl = (url: string): RouteResolution => {
 		try {
 			const parsed = parseRouteLocation(routeUrl(url), options.base)
 			let stack = 'root'
-			let found = find(parsed.segments)
-			if (!found && stacks.has(parsed.segments[0]) && parsed.segments[0] !== 'root') {
-				stack = parsed.segments[0]
-				found = find(parsed.segments.slice(1))
+			let segments = parsed.segments
+			if (segments[0]?.startsWith('@')) {
+				stack = decodeURIComponent(segments[0].slice(1))
+				if (stack === 'root' || !stacks.has(stack)) {
+					return invalid('stack', new TypeError('Unknown named route stack'))
+				}
+				segments = segments.slice(1)
 			}
+			const found = find(segments)
 
 			if (!found) {
 				return { status: 'not-found', reason: 'pattern' }
@@ -263,15 +268,6 @@ export function createRoutePreparation(options: RoutePreparationOptions) {
 			const resolved = resolveUrl(href(destination))
 			if (resolved.status !== 'matched') {
 				return resolved
-			}
-
-			if (resolved.destination.stack !== (destination.stack ?? 'root')) {
-				return invalid(
-					'stack',
-					new TypeError(
-						`Stack "${destination.stack}" URL prefix is shadowed by root route "${resolved.destination.to}"; choose a different stack name or narrow the root route pattern`,
-					),
-				)
 			}
 
 			if (resolved.destination.to !== destination.to) {

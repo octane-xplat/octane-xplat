@@ -392,6 +392,17 @@ const paused = <SideNavItem label="Coat" to="/items/:id" params={{ id: 'coat' }}
 
 ## Keep panes and ownership explicit
 
+A named stack has a distinct URL marker: `/@library/items/coat`. Generate links
+with the bound navigator's `href`; ordinary root patterns and catch-alls cannot
+claim a marked stack URL. Literal `@` route segments are percent-encoded. Use
+three slashes for a custom-scheme link such as `pack:///@library/items/coat`,
+so the stack marker is in the path, not the URL authority.
+
+```ts
+import { router } from '@octane-xplat/ui/routing'
+const href = router.forStack('library').href({ to: '/items/:id', params: { id: 'coat' } })
+```
+
 A named `Tabs` pane owns its route outlet. Stackless tabs are ordinary UI.
 Retain tab render functions and keys; place the outer root outlet explicitly.
 Native activity Back targets the visible flow rather than stealing hidden-tab

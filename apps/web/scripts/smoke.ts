@@ -368,7 +368,7 @@ try {
 	await page.getByRole('button', { name: 'Counter', exact: true }).click()
 	await page.waitForFunction(() => location.pathname.includes('demo'), null, { timeout: 3000 })
 	const path = await page.evaluate(() => location.pathname + location.search)
-	ok('chip → router.push writes real path', path === '/demos/demo/counter', path)
+	ok('chip → router.push writes real path', path === '/@demos/demo/counter', path)
 	await page.waitForSelector('text=Demo count: 0', { timeout: 3000 })
 	ok('pushed screen renders inside pane', true)
 	const tabbarVisible = await page.locator('.vx-tabbar').isVisible()
@@ -385,7 +385,7 @@ try {
 
 	// Lottie is a shipped Web leaf; exercise lottie-web's real SVG renderer,
 	// load event, and playback completion in each browser smoke engine.
-	await page.goto(BASE + '/test/demo/lottie', { waitUntil: 'networkidle' })
+	await page.goto(BASE + '/@test/demo/lottie', { waitUntil: 'networkidle' })
 	await page.waitForFunction(
 		() => document.querySelector('.lottie-demo-status')?.textContent?.startsWith('loaded '),
 		null,
@@ -415,7 +415,7 @@ try {
 	// a visible anchor when a measured row above it grows, and retain keyed row
 	// state when items are prepended.
 	await page.click('#menu-vlist')
-	await page.waitForFunction(() => location.pathname === '/demos/demo/vlist', null, {
+	await page.waitForFunction(() => location.pathname === '/@demos/demo/vlist', null, {
 		timeout: 5000,
 	})
 
@@ -607,8 +607,8 @@ try {
 	await page.waitForSelector('.vx-tabbar', { timeout: 3000 })
 	ok('browser back → shell restored', true)
 
-	// Deep link: fresh page load at /demos/demo renders demo in Demos pane.
-	await page.goto(BASE + '/demos/demo/watch', { waitUntil: 'networkidle' })
+	// Deep link: fresh page load at /@demos/demo renders demo in Demos pane.
+	await page.goto(BASE + '/@demos/demo/watch', { waitUntil: 'networkidle' })
 	await page.waitForSelector('text=/\\d{2}:\\d{2}:\\d{2}/', { timeout: 5000 })
 	ok('deep link → correct tab + pushed screen', true)
 	// Tab clicks are UI selection, not browser navigation. Start the next
@@ -646,9 +646,9 @@ try {
 	const sqliteResult = await page.locator('#sqlite-probe').innerText()
 	ok('built SQLite worker and WASM complete the Services round-trip', true, sqliteResult)
 
-	// Seam-proof chips push into the Test pane's own stack (/test/...).
+	// Seam-proof chips push into the Test pane's own stack (/@test/...).
 	await page.click('#menu-layout')
-	await page.waitForFunction(() => location.pathname.startsWith('/test/demo/'), { timeout: 3000 })
+	await page.waitForFunction(() => location.pathname.startsWith('/@test/demo/'), { timeout: 3000 })
 	ok('proof chip → test-stack push', true)
 	await page.goBack({ waitUntil: 'commit' })
 	await page.waitForSelector('text=Seam proofs', { timeout: 3000 })
@@ -662,27 +662,27 @@ try {
 	await page.waitForSelector('text=Seam proofs', { timeout: 3000 })
 
 	// Programmatic routes (guides.tsrx — configured generated catalog):
-	// NavLink in the Test pane pushes /test/guides, per-doc routes render
+	// NavLink in the Test pane pushes /@test/guides, per-doc routes render
 	// under the programmatic layout, and the URL is real + deep-linkable.
 	await page.click('a:has-text("Guides →")')
-	await page.waitForFunction(() => location.pathname === '/test/guides', { timeout: 3000 })
+	await page.waitForFunction(() => location.pathname === '/@test/guides', { timeout: 3000 })
 	ok('dynamic route → test-stack push', true)
 	await page.waitForSelector('text=Registered from a 3-record data array', { timeout: 3000 })
 	ok('dynamic index screen renders', true)
 	await page.click('a:has-text("Routes from data")')
-	await page.waitForFunction(() => location.pathname === '/test/guides/routes', { timeout: 3000 })
+	await page.waitForFunction(() => location.pathname === '/@test/guides/routes', { timeout: 3000 })
 	await page.waitForSelector('.guide-layout-banner', { timeout: 3000 })
 	ok('dynamic child route + programmatic layout wrap', true)
 	await page.goBack({ waitUntil: 'commit' })
-	await page.waitForFunction(() => location.pathname === '/test/guides', { timeout: 3000 })
+	await page.waitForFunction(() => location.pathname === '/@test/guides', { timeout: 3000 })
 	// Deep link straight into a data-derived route.
-	await page.goto(BASE + '/test/guides/deploy', { waitUntil: 'networkidle' })
+	await page.goto(BASE + '/@test/guides/deploy', { waitUntil: 'networkidle' })
 	await page.waitForSelector('.guide-layout-banner', { timeout: 5000 })
 	ok('deep link → dynamic route', true)
 
 	// Overlay demo: useMeasure readout, HoverCard on hover-intent,
 	// positional + anchored toasts.
-	await page.goto(BASE + '/test/demo/overlay', { waitUntil: 'networkidle' })
+	await page.goto(BASE + '/@test/demo/overlay', { waitUntil: 'networkidle' })
 	await page.waitForSelector('text=Overlay primitives', { timeout: 5000 })
 	const echo = await page.locator('#measure-echo').innerText()
 	ok('useMeasure reports bounds', /^Bounds \d+×\d+ @ \d+,\d+$/.test(echo), echo)

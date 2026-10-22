@@ -1,4 +1,5 @@
 import { buildRouteLocation, routePatternSegments } from '@octane-xplat/lib/route-pattern'
+import { routeStackBase } from './route-stack-url'
 import type { RouteDestinationInput, ValidatedDestination } from './props'
 
 // A weak identity proof has no router/context/services reference. Symbols make
@@ -77,10 +78,10 @@ export function validatedDestinationHref(
 	const segments = routePatternSegments(destination.to)
 	const stack = destination.stack ?? options.stack
 	return buildRouteLocation(
-		stack === 'root' ? segments : [stack, ...segments],
+		segments,
 		destination.params,
 		destination.search as import('@octane-xplat/lib/route-pattern').RouteSearchInput,
 		destination.hash,
-		options.base,
+		routeStackBase(options.base, stack),
 	)
 }
