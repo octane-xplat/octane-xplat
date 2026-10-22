@@ -18,6 +18,9 @@ platform example. Platform divergence belongs at file boundaries.
   renderer include glob. Keep runtime imports from `octane`; the native preset
   retargets them. In `.tsrx`, effect dependencies are inferred from closure reads;
   an effect that only writes needs explicit dependencies.
+- Octane is not React. Read [Octane semantics](references/octane.md) before
+  relying on React habits for hooks, state, context, refs, error boundaries, or
+  `children`; native targets accept only a subset of `octane` runtime imports.
 - Keep one intrinsic vocabulary per file, with no DOM globals in shared/native
   implementations. Import unsuffixed basenames so the resolver selects the leaf.
   The unsuffixed file is the native default; `.web`, `.mobile`, and OS suffixes
@@ -76,6 +79,7 @@ limitations. Do not load the entire reference tree by default.
 | Discover or operate the installed CLI              | [CLI workflow](references/cli.md)                                                                                                                |
 | Add app actions for deterministic verification     | [Development actions](references/development-actions.md)                                                                                        |
 | Create, run, or upgrade an app                     | [Getting started](references/getting-started.md)                                                                                                 |
+| Hooks, state, context, refs, boundaries, children  | [Octane semantics](references/octane.md)                                                                                                         |
 | Choose/use a component                             | [Primitives](references/primitives.md)                                                                                                           |
 | Implement/debug a native leaf                      | [Driver semantics](references/primitives/driver-semantics.md)                                                                                    |
 | Platform filenames, imports, JSX types             | [Platform leaves](references/platform-leaves.md)                                                                                                 |
