@@ -52,7 +52,18 @@ try {
 				join(hostBundle, 'metadata.nsmd'),
 				join(hostRoot, 'shim.js'),
 			],
-			{ cwd: directory, env: { ...process.env, OCTANE_MACOS_AUTOMATION: '1' } },
+			{
+				cwd: directory,
+				env: {
+					...process.env,
+					OCTANE_MACOS_AUTOMATION: '1',
+					XPLAT_MASON_LIB:
+						process.env.XPLAT_MASON_LIB ??
+						fileURLToPath(
+							new URL('../../macos-renderer/native/xplatmason/libxplatmason.dylib', import.meta.url),
+						),
+				},
+			},
 		)
 
 		let output = ''

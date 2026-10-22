@@ -86,7 +86,13 @@ export async function runRollingText() {
 		render('9')
 		check(cells()[0] === original, 'equal value preserves cell')
 		render('10')
-		await wait(45)
+		const animationDeadline = Date.now() + 1000
+		while (
+			!cells().some((cell) => Number(cell.alphaValue) > 0 && Number(cell.alphaValue) < 1) &&
+			Date.now() < animationDeadline
+		) {
+			await wait(8)
+		}
 		check(text() === '910', 'outgoing and incoming cells coexist')
 		check(
 			cells().some((cell) => Math.abs(y(cell)) > 0),
