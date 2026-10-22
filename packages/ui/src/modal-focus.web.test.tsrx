@@ -6,6 +6,7 @@ vi.mock('./theme/theme-scheme', () => ({ useThemeScheme: () => 'light' }));
 import { BottomSheet } from './BottomSheet.web.tsrx';
 import { Overlay } from './Overlay.web.tsrx';
 import { isolateModalFocus } from './modal-focus.web';
+import { useLayer } from './use-layer.web.tsrx';
 
 describe('modal focus isolation', () => {
 	const BottomSheetCompat = (p: any) => (
@@ -160,3 +161,46 @@ it('derives popover dismissal depth from a separately mounted modal owner', () =
 		layer.remove()
 	}
 })
+
+function CustomLayerContent() @{
+	const layer = useLayer({ mode: 'context', isOpen: true })
+	<>
+		<button ref={layer.ref} id="floating-anchor">Choose</button>
+		{layer.render(<button id="floating-option">Option</button>, {
+			positioning: 'custom', style: { right: 12, bottom: 18 },
+		})}
+	</>
+}
+
+function FixedLayerContent() @{
+	const layer = useLayer({ mode: 'fixed', isOpen: true })
+	<>{layer.render(<button id="floating-option">Option</button>, { x: 12, y: 18 })}</>
+}
+
+function ModalFloatingLayer(props: { custom: boolean }) @{
+	<Overlay open shadeCover>
+		{props.custom ? <CustomLayerContent /> : <FixedLayerContent />}
+	</Overlay>
+}
+
+for (const custom of [false, true]) {
+	it.fails(`keeps a ${custom ? 'custom-positioned' : 'fixed'} child layer interactive inside its modal`, async () => {
+		const host = document.createElement('div')
+		document.body.append(host)
+		const root = createRoot(host)
+		try {
+			await act(async () => root.render(ModalFloatingLayer, { custom }))
+			// Allow the modal's MutationObserver to isolate newly appended portals.
+			await Promise.resolve()
+			const option = document.querySelector('#floating-option') as HTMLElement
+			expect(option).not.toBeNull()
+			expect(host.hasAttribute('inert')).toBe(true)
+			expect(option.closest('[inert]')).toBeNull()
+			option.focus()
+			expect(document.activeElement).toBe(option)
+		} finally {
+			act(() => root.unmount())
+			host.remove()
+		}
+	})
+}

@@ -107,6 +107,32 @@ test('secrets, generated output, and node_modules stay out of results and reads'
 	)
 })
 
+test('direct code reads reject symlinks outside the bound app', {
+	todo: 'Known audit bug: code reads validate lexical paths before following symlinks',
+}, (t) => {
+	const dir = makeConsumer(t)
+	const outside = mkdtempSync(join(tmpdir(), 'xplat-mcp-outside-'))
+	t.after(() => rmSync(outside, { recursive: true, force: true }))
+	write(outside, 'private.txt', 'OUTSIDE_APP_PRIVATE_SENTINEL')
+	symlinkSync(join(outside, 'private.txt'), join(dir, 'src/linked.ts'))
+
+	const result = service(dir).read({ app: appRef(dir), path: 'src/linked.ts' })
+	assert.equal(result.status, 'out-of-scope')
+	assert.equal(result.content, undefined)
+})
+
+test('direct code reads apply secret exclusions to symlink destinations', {
+	todo: 'Known audit bug: an innocent symlink name bypasses secret-file exclusions',
+}, (t) => {
+	const dir = makeConsumer(t)
+	write(dir, 'secrets/private.ts', 'APP_PRIVATE_SENTINEL')
+	symlinkSync(join(dir, 'secrets/private.ts'), join(dir, 'src/linked.ts'))
+
+	const result = service(dir).read({ app: appRef(dir), path: 'src/linked.ts' })
+	assert.equal(result.status, 'excluded')
+	assert.equal(result.content, undefined)
+})
+
 test('platform filter includes shared and platform-marked files only', async (t) => {
 	const dir = makeConsumer(t)
 	write(dir, 'src/shared.ts', 'export const sharedToggleHelper = 1\n')

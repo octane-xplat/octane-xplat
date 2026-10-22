@@ -12,6 +12,8 @@ const bridge = vi.hoisted(() => ({
 	visibleVC: null as any,
 	keyWindow: true,
 	writeAtomic: true,
+	textWriteError: null as Error | null,
+	textWrites: [] as { path: string; text: string }[],
 	removedPaths: [] as string[],
 	channelWrites: [] as any[],
 	presented: [] as any[],
@@ -30,6 +32,23 @@ vi.mock('@nativescript/core', () => ({
 				bridge.removedPaths.push(p)
 			},
 			readText: async () => '',
+			// NativeScript's synchronous text API reports I/O failures only to
+			// its optional callback. The async variant rejects the same failure.
+			writeTextSync: (text: string, onError?: (error: Error) => void) => {
+				if (bridge.textWriteError) {
+					onError?.(bridge.textWriteError)
+					return
+				}
+
+				bridge.textWrites.push({ path: p, text })
+			},
+			writeText: async (text: string) => {
+				if (bridge.textWriteError) {
+					throw bridge.textWriteError
+				}
+
+				bridge.textWrites.push({ path: p, text })
+			},
 		}),
 	},
 	knownFolders: {
@@ -137,6 +156,8 @@ beforeEach(() => {
 	bridge.dataCalls = []
 	bridge.keyWindow = true
 	bridge.writeAtomic = true
+	bridge.textWriteError = null
+	bridge.textWrites = []
 	bridge.resolver = null
 	bridge.activity = null
 	lastPicker = null
@@ -257,6 +278,28 @@ afterEach(() => {
 	vi.unstubAllGlobals()
 	vi.restoreAllMocks()
 })
+
+for (const platform of ['ios', 'android']) {
+	describe(`files.writeText (${platform} bridge)`, () => {
+		beforeEach(() => {
+			if (platform === 'android') {
+				stubAndroid()
+			}
+		})
+
+		it('returns a sandbox reference after writing the text', async () => {
+			await expect(files.writeText('note.txt', 'Saved note')).resolves.toEqual({
+				name: 'note.txt', uri: '/docs/note.txt',
+			})
+			expect(bridge.textWrites).toEqual([{ path: '/docs/note.txt', text: 'Saved note' }])
+		})
+
+		it.fails('rejects a storage error instead of returning an unsaved reference (known audit bug)', async () => {
+			bridge.textWriteError = new Error('storage is full')
+			await expect(files.writeText('note.txt', 'Unsaved note')).rejects.toThrow('storage is full')
+		})
+	})
+}
 
 describe('files.writeBytes (ios bridge)', () => {
 	it('rejects when the atomic write reports failure instead of returning a dead ref', async () => {

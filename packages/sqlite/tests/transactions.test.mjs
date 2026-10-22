@@ -66,6 +66,40 @@ const native = load('db.ts', {
 	'@nativescript-community/sqlite': { openOrCreate: nativeBackend },
 })
 
+test('native adapter: user_version survives a successful version write', async () => {
+	const db = await native.openDatabase(':memory:')
+	try {
+		await db.setUserVersion(3)
+		assert.equal(await db.getUserVersion(), 3)
+	} finally {
+		await db.close()
+	}
+})
+
+test('native adapter: version-write failures reject the public operation', {
+	todo: 'Known audit bug: setUserVersion discards the Android plugin promise',
+}, async () => {
+	const backend = nativeBackend()
+	backend.setVersion = () => {
+		// Android's plugin method is async. Observe its rejected promise here
+		// so the current adapter's lost rejection does not abort the test host.
+		const write = Promise.reject(new Error('version write failed'))
+		void write.catch(() => {})
+		return write
+	}
+	const api = load('db.ts', {
+		'./operation-queue': ownership,
+		'@nativescript/core': { knownFolders: { documents: () => ({ getFile: (name) => ({ path: name }) }) } },
+		'@nativescript-community/sqlite': { openOrCreate: () => backend },
+	})
+	const db = await api.openDatabase(':memory:')
+	try {
+		await assert.rejects(db.setUserVersion(3), /version write failed/)
+	} finally {
+		await db.close()
+	}
+})
+
 // AppKit's C bridge is modeled with node:sqlite. This checks adapter wiring;
 // actual C interop and device behavior remain separate platform qualification.
 const host = {
