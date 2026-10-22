@@ -86,6 +86,8 @@ defineRoute({ path: '/bad-search', validateSearch: () => 42 }).screen(() => null
 				'validateSearch',
 				'{ "~standard": { version: 2, vendor: "fixture", validate: () => ({ value: {} }) } }',
 			],
+			['validateSearch', '(raw: { page: number }) => raw'],
+			['validateSearch', '{} as import("@octane-xplat/ui/routing/core").RouteSearchSchema<{ page: number }, { page: number }>'],
 			['validateSearch', '() => 42'],
 			['validateSearch', '() => []'],
 			['validateSearch', 'async () => []'],
@@ -456,12 +458,12 @@ test('callable schemas retain protocol search types through generated file contr
 		await put(
 			root,
 			'app/index.tsx',
-			`import type { RouteSearchSchema } from '@octane-xplat/ui/routing/core'
+			`import { withSearchDecoder, type RouteSearchSchema } from '@octane-xplat/ui/routing/core'
 import type { RouteLoaderArgs, RouteProps } from '../routes.gen.contracts'
 const schema: RouteSearchSchema<{ page?: number }, { page: number }> = {
  '~standard': { version: 1, vendor: 'fixture', validate: () => ({ value: { page: 1 } }) },
 }
-export const validateSearch = Object.assign(() => 42, schema)
+export const validateSearch = Object.assign(() => 42, withSearchDecoder(schema, raw => ({ page: Number(raw.page ?? 1) })))
 export function loader({ search }: RouteLoaderArgs<'/'>) {
  const page: number = search.page
  // @ts-expect-error A scalar ordinary call does not erase validated search fields.
@@ -516,9 +518,10 @@ export default function Item() { return null }
 			root,
 			'app/schema.tsx',
 			`
-import type { RouteSearchSchema } from '@octane-xplat/ui/routing/core'
+import { withSearchDecoder, type RouteSearchSchema } from '@octane-xplat/ui/routing/core'
 import type { Search } from './items/[id]'
-export const validateSearch: RouteSearchSchema<{ tab?: 'details' | 'activity'; page?: number }, Search> = { '~standard': { version: 1, vendor: 'named', validate: () => ({ value: { tab: 'details', page: 1 } }) } }
+const schema: RouteSearchSchema<{ tab?: 'details' | 'activity'; page?: number }, Search> = { '~standard': { version: 1, vendor: 'named', validate: () => ({ value: { tab: 'details', page: 1 } }) } }
+export const validateSearch = withSearchDecoder(schema, raw => ({ tab: raw.tab === 'activity' ? 'activity' : 'details', page: Number(raw.page ?? 1) } as const))
 export default function Screen() { return null }
 `,
 		)

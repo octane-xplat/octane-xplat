@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { expect, it } from 'vitest'
-import { defineRoute, RouteSearchValidationError } from './define-route'
+import { defineRoute, withSearchDecoder, RouteSearchValidationError } from './define-route'
 import { defineRoutes, deriveRouteManifest } from './route-table'
 import { createRoutePreparation, RouteForbidden } from './routing-core'
 import { routeRenderContent } from './route-render-content'
@@ -23,7 +23,7 @@ it('programmatic definitions carry inferred behavior through ordinary manifest a
 })
 
 it('accepts Standard Schema validation without importing a validator dependency', async () => {
-	const validator: RouteSearchSchema<{ page?: number }, { page: number }> = {
+	const validator: RouteSearchSchema<{ page?: unknown }, { page: number }> = {
 		'~standard': {
 			version: 1,
 			vendor: 'fixture',
@@ -46,6 +46,43 @@ it('accepts Standard Schema validation without importing a validator dependency'
 	expect(invalid.status).toBe('invalid-input')
 	if (invalid.status === 'invalid-input')
 		{expect(invalid.error).toBeInstanceOf(RouteSearchValidationError)}
+})
+
+it('decodes strict numeric schemas consistently for object destinations, URLs and checked values', async () => {
+	const schema: RouteSearchSchema<{ page: number }, { page: number }> = {
+		'~standard': {
+			version: 1, vendor: 'strict-number',
+			validate(raw) {
+				const page = (raw as { page: unknown }).page
+				return typeof page === 'number' && Number.isInteger(page) && page > 0
+					? { value: { page } } : { issues: [{ message: 'Expected a positive integer' }] }
+			},
+		},
+	}
+	const validateSearch = withSearchDecoder(schema, raw => ({ page: Number(raw.page) }))
+	const loader = ({ search }: { search: { page: number } }) => search.page
+	for (const catalog of [
+		defineRoutes([defineRoute({ path: '/pages', validateSearch, loader }).screen(() => null)]),
+		deriveRouteManifest({ './app/pages.tsx': { validateSearch, loader, screen: () => null } }, ['web']),
+	]) {
+		const engine = createRoutePreparation({ catalog })
+		try {
+			const destination = { to: '/pages', search: { page: 2 } }
+			const href = engine.href(destination)
+			expect(href).toBe('/pages?page=2')
+			for (const input of [destination, href]) {
+				expect(await engine.prepare(input)).toMatchObject({ status: 'ready', match: { search: { page: 2 }, data: 2 } })
+			}
+			const checked = await engine.validateDestination(destination)
+			expect(checked.status).toBe('valid')
+			if (checked.status === 'valid') {
+				expect(await engine.prepare(checked.destination)).toMatchObject({ status: 'ready', match: { data: 2 } })
+			}
+			expect(await engine.prepare('/pages?page=no')).toMatchObject({ status: 'invalid-input', path: 'search' })
+		} finally {
+			engine.dispose()
+		}
+	}
 })
 
 it.each([false, true])('uses the Standard Schema protocol of a callable validator (async: %s)', async (async) => {
@@ -188,7 +225,7 @@ it('named route files prepare the same structured contract on each platform', as
 })
 
 it('named file Standard Schema failures prevent guards and loaders', async () => {
-	const validator: RouteSearchSchema<{ page?: number }, { page: number }> = {
+	const validator: RouteSearchSchema<{ page?: unknown }, { page: number }> = {
 		'~standard': {
 			version: 1,
 			vendor: 'fixture',

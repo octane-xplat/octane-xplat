@@ -30,7 +30,7 @@ it('connects package-root registration to consumer destination types', async () 
 			`
 import type {} from '@octane-xplat/ui'
 import { router, configureRouter, redirect, useRouter, useNavigation, useNavigationBlocker, getRouteApi, RouterProvider, RouterPane, createPaneRouterHost } from '@octane-xplat/ui/routing'
-import { createRouter, defineRoute, defineRoutes, defineRuntimeRoutes, mergeRouteManifests } from '@octane-xplat/ui/routing/core'
+import { createRouter, defineRoute, withSearchDecoder, defineRoutes, defineRuntimeRoutes, mergeRouteManifests } from '@octane-xplat/ui/routing/core'
 import type { Destination, DestinationFor, ContractsOf, RouterHost, RouteCatalog, RouteContract } from '@octane-xplat/ui/routing/core'
 import { NavLink } from '@octane-xplat/ui'
 import { NavigationMenu, SideNavItem, TopNavItem, TopNavMenu, TopNavMegaMenuItem, NavHeadingMenuItem, Tab, Breadcrumbs, DropdownMenuLink, DropdownMenu, ContextMenu } from '@octane-xplat/ui'
@@ -459,7 +459,11 @@ namedSearchRouter.push({ to: '/named-search', search: { tab: 'invented' } })
 const namedSchema: import('@octane-xplat/ui/routing/core').RouteSearchSchema<{ tab?: 'details' | 'activity'; page?: number }, NamedSearch> = {
   '~standard': { version: 1, vendor: 'named', validate: () => ({ value: { tab: 'details', page: 1 } }) },
 }
-const namedSchemaRoute = defineRoute({ path: '/named-schema', validateSearch: namedSchema, loader: ({ search }) => search.page })
+// @ts-expect-error Search input must be a field object, not an array.
+withSearchDecoder({} as import('@octane-xplat/ui/routing/core').RouteSearchSchema<string[], NamedSearch>, () => [])
+// @ts-expect-error A numeric input cannot bypass URL decoding.
+defineRoute({ path: '/raw-named-schema', validateSearch: namedSchema })
+const namedSchemaRoute = defineRoute({ path: '/named-schema', validateSearch: withSearchDecoder(namedSchema, raw => ({ tab: raw.tab === 'activity' ? 'activity' : 'details', page: Number(raw.page ?? 1) } as const)), loader: ({ search }) => search.page })
 namedSchemaRoute.screen(({ search, data }) => { const output: NamedSearch = search; const page: number = data; return null })
 const asyncNamedRoute = defineRoute({ path: '/named-async', validateSearch: async (raw: { page?: unknown }): Promise<NamedSearch> => namedSearch(raw), loader: ({ search }) => search.page })
 asyncNamedRoute.screen(({ search, data }) => { const output: NamedSearch = search; const page: number = data; return null })

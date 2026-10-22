@@ -88,6 +88,21 @@ export function screen(props: RouteProps<'/items/:id'>) {
 }
 ```
 
+URL validation always starts with strings or repeated-key arrays. A schema
+requiring number/boolean input must use `withSearchDecoder`; bare incompatible
+schemas and parser parameter types fail programmatic and generated checks.
+Keep the decoder pure and let the schema reject invalid values. Navigation
+retains the schema's input types; typed objects and direct URLs share decoding.
+Only scalar fields and arrays of scalars can be encoded in destinations.
+
+```ts
+import { withSearchDecoder } from '@octane-xplat/ui/routing/core'
+import { pageSchema } from './schemas'
+export const validateSearch = withSearchDecoder(pageSchema, raw => ({
+	page: raw.page === undefined ? undefined : Number(raw.page),
+}))
+```
+
 Programmatic definitions infer preparation with `defineRoute(options)`, then
 attach a module-level component with `.screen(component)` before `defineRoutes`.
 The flat `screen` option is removed; do not add a compatibility overload or cast

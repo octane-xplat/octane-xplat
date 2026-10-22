@@ -587,7 +587,7 @@ export async function generateRoutes(cwd, dir, out, opts = {}) {
 				.filter(([, flag]) => leaf[flag])
 				.map(
 					([field]) =>
-						`\t// ${leaf.file}: ${field}\n\tCheckRouteExport<${JSON.stringify(field)}, typeof import(${JSON.stringify(moduleRef(join(cwd, dir, leaf.file)))})[${JSON.stringify(field)}]>,`,
+						`\t// ${leaf.file}: ${field}\n\tCheckRouteExport<${JSON.stringify(field)}, typeof import(${JSON.stringify(moduleRef(join(cwd, dir, leaf.file)))})[${JSON.stringify(field)}]${field === 'validateSearch' ? `, import('@octane-xplat/ui/routing/core').RouteSearchValidationCheck<typeof import(${JSON.stringify(moduleRef(join(cwd, dir, leaf.file)))})[${JSON.stringify(field)}]>` : ''}>,`,
 				),
 		),
 	)
@@ -620,7 +620,7 @@ ${
  head: import('@octane-xplat/ui/routing/core').RouteHeadExport | undefined
  ErrorBoundary: ((...args: never[]) => unknown) | undefined
 }
-type CheckRouteExport<Field extends keyof RouteExportShapes, Value extends RouteExportShapes[Field]> = Value`
+type CheckRouteExport<Field extends keyof RouteExportShapes, Value extends RouteExportShapes[Field], SearchCheck extends true = true> = Value`
 		: ''
 }
 export type RouteExportChecks = [

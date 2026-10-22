@@ -523,6 +523,34 @@ export const validateSearch: RouteSearchSchema<
 }
 ```
 
+A schema that requires numbers or booleans needs an explicit URL decoder.
+Wrap it with `withSearchDecoder`: the decoder converts URL strings into the
+schema's input, and the schema checks the result. Both typed destinations and
+pasted URLs use this path. A bare number-only schema is a type error; a schema
+that already accepts strings or unknown input can be used directly.
+
+```ts
+// src/app/pages.tsrx: use with your page screen.
+import { withSearchDecoder, type RouteSearchSchema } from '@octane-xplat/ui/routing/core'
+
+const pageSchema: RouteSearchSchema<{ page?: number }, { page: number }> = {
+	'~standard': {
+		version: 1,
+		vendor: 'app',
+		validate(raw) {
+			const page = (raw as { page?: unknown }).page ?? 1
+			return typeof page === 'number' && Number.isInteger(page) && page > 0
+				? { value: { page } }
+				: { issues: [{ message: 'Choose a positive page number.' }] }
+		},
+	},
+}
+export const validateSearch = withSearchDecoder(pageSchema, raw => ({
+	page: raw.page === undefined ? undefined : Number(raw.page),
+}))
+// Navigation accepts search: { page: 2 }; /pages?page=2 produces search.page === 2.
+```
+
 Navigation supplies search separately from path parameters. A defaulted field
 may be omitted from navigation input while the screen receives its validated
 value. Repeated URL search keys reach validation as arrays; numbers and objects

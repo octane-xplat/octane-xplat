@@ -44,7 +44,7 @@ export type {
 	ScreenTable,
 } from '../props'
 
-export { defineRoute, RouteSearchValidationError } from '../define-route'
+export { defineRoute, withSearchDecoder, RouteSearchValidationError } from '../define-route'
 export { defineTransitions } from '../route-transitions'
 export { createPaneRouterHost } from '../pane-router-client'
 export { RouterPane } from '../RouterPane.tsrx'
@@ -111,6 +111,9 @@ export type {
 	RouteSearchInputOf,
 	RouteSearchOutput,
 	RouteSearchSchema,
+	DecodedRouteSearchSchema,
+	RawRouteSearch,
+	RouteSearchValidationCheck,
 	RouteSearchValidator,
 	RouteSearchRecord,
 	RouteTransitionName,

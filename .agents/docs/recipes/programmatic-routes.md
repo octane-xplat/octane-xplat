@@ -2,7 +2,7 @@
 
 ID: programmatic-routes
 Targets: web, ios, android, macos
-Related APIs: defineRoute, defineRoutes, defineRuntimeRoutes, configureRouter, router.addRoutes, router, RouteOutlet, createRouter, RouterProvider, useRouter, getRouteApi, RouteRegistration, mergeRouteManifests,
+Related APIs: withSearchDecoder, defineRoute, defineRoutes, defineRuntimeRoutes, configureRouter, router.addRoutes, router, RouteOutlet, createRouter, RouterProvider, useRouter, getRouteApi, RouteRegistration, mergeRouteManifests,
 RouteSpec, RouteSpecSet, RouteManifest, xplat.routes.json, Destination,
 NavLink, validateDestination, ValidatedDestination, DestinationValidationResult,
 getRouteApi.useUpdateSearch, RouteSearchUpdater, useNavigation, RouterNavigationState, clearFailure
@@ -39,6 +39,8 @@ database, a content directory, or a host framework's own route model.
   incompatible named screens, and flat screen options are rejected. Named search
   output interfaces preserve inferred fields without an index signature, for
   plain/async parsers and Standard Schema; invalid non-record results stop before loading.
+  Schemas requiring non-string inputs use an explicit URL decoder; typed object
+  destinations, direct URLs and validated destinations receive the same parsed values.
 - AC2: A programmatic route participates in named stacks and picks up both
   file `_layout` wraps and `defineRoutes` `layouts` entries like a file
   route does. Named-stack URLs round-trip independently of root dynamic and

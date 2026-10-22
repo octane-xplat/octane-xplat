@@ -1,4 +1,4 @@
-import { defineRoute } from './define-route'
+import { defineRoute, withSearchDecoder } from './define-route'
 import { defineRoutes, mergeRouteManifests } from './route-table'
 import { createRouter } from './router-instance'
 import type {
@@ -161,9 +161,13 @@ function checkRouteContracts() {
 	const schema: RouteSearchSchema<{ page?: number }, { page: number }> = {
 		'~standard': { version: 1, vendor: 'fixture', validate: () => ({ value: { page: 1 } }) },
 	}
+	// @ts-expect-error Number-only schemas need an explicit decoder for URL strings.
+	defineRoute({ path: '/raw-number', validateSearch: schema })
+	// @ts-expect-error Parser arguments also receive URL strings.
+	defineRoute({ path: '/raw-parser', validateSearch: (raw: { page: number }) => raw })
 	const paged = defineRoute({
 		path: '/pages',
-		validateSearch: schema,
+		validateSearch: withSearchDecoder(schema, raw => ({ page: Number(raw.page ?? 1) })),
 		loader: ({ search }) => search.page,
 	}).screen((props) => {
 		const page: number = props.data

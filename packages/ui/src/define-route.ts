@@ -8,7 +8,34 @@ import type {
 	RoutePreparationArgs,
 	RoutePreparationBehavior,
 	RouteSearchValidator,
+	RouteSearchSchema,
+	RouteSearchRecord,
+	DecodedRouteSearchSchema,
+	RawRouteSearch,
 } from './props'
+
+/** Adapt a scalar-input schema to decoded URL strings on every navigation path.
+ * The decoder runs for links, direct URLs, history and search updates. It must
+ * be pure; validation and defaults remain the schema's responsibility.
+ * @example
+ * import { withSearchDecoder } from '@octane-xplat/ui/routing'
+ * import { pageSchema } from './schemas' // Application-owned scalar schema.
+ * const validateSearch = withSearchDecoder(pageSchema, raw => ({ page: Number(raw.page ?? 1) }))
+ */
+export function withSearchDecoder<Input extends RouteSearchRecord, Output extends RouteSearchRecord>(
+	schema: RouteSearchSchema<Input, Output> & (NoInfer<Input> extends {
+		[Key in keyof Input]: string | number | boolean | null | undefined | readonly (string | number | boolean)[]
+	} ? unknown : never),
+	decode: (raw: RawRouteSearch) => NoInfer<Input>,
+): DecodedRouteSearchSchema<Input, Output> {
+	const standard = schema['~standard']
+	return Object.freeze({
+		'~standard': Object.freeze({
+			...standard,
+			validate: (raw: unknown) => standard.validate(decode(raw as RawRouteSearch)),
+		}),
+	}) as DecodedRouteSearchSchema<Input, Output>
+}
 
 /** Search diagnostics retain validation issues locally without logging raw input. */
 export class RouteSearchValidationError extends Error {

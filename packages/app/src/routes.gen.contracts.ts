@@ -51,18 +51,18 @@ type RouteExportShapes = {
  head: import('@octane-xplat/ui/routing/core').RouteHeadExport | undefined
  ErrorBoundary: ((...args: never[]) => unknown) | undefined
 }
-type CheckRouteExport<Field extends keyof RouteExportShapes, Value extends RouteExportShapes[Field]> = Value
+type CheckRouteExport<Field extends keyof RouteExportShapes, Value extends RouteExportShapes[Field], SearchCheck extends true = true> = Value
 export type RouteExportChecks = [
 	// broken.tsrx: loader
 	CheckRouteExport<"loader", typeof import("./app/broken.tsrx")["loader"]>,
 	// broken.tsrx: validateSearch
-	CheckRouteExport<"validateSearch", typeof import("./app/broken.tsrx")["validateSearch"]>,
+	CheckRouteExport<"validateSearch", typeof import("./app/broken.tsrx")["validateSearch"], import('@octane-xplat/ui/routing/core').RouteSearchValidationCheck<typeof import("./app/broken.tsrx")["validateSearch"]>>,
 	// broken.tsrx: ErrorBoundary
 	CheckRouteExport<"ErrorBoundary", typeof import("./app/broken.tsrx")["ErrorBoundary"]>,
 	// detail.tsrx: beforeLoad
 	CheckRouteExport<"beforeLoad", typeof import("./app/detail.tsrx")["beforeLoad"]>,
 	// detail.tsrx: validateSearch
-	CheckRouteExport<"validateSearch", typeof import("./app/detail.tsrx")["validateSearch"]>,
+	CheckRouteExport<"validateSearch", typeof import("./app/detail.tsrx")["validateSearch"], import('@octane-xplat/ui/routing/core').RouteSearchValidationCheck<typeof import("./app/detail.tsrx")["validateSearch"]>>,
 	// detail.tsrx: head
 	CheckRouteExport<"head", typeof import("./app/detail.tsrx")["head"]>,
 	// navigation-blocking.tsrx: head

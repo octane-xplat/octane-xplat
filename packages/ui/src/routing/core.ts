@@ -1,6 +1,6 @@
 // Renderer/host-free route definitions, contracts, and preparation. Server builds
 // can import this entry without evaluating the default client/native registry.
-export { defineRoute, RouteSearchValidationError } from '../define-route'
+export { defineRoute, withSearchDecoder, RouteSearchValidationError } from '../define-route'
 export { defineTransitions } from '../route-transitions'
 export {
 	defineRoutes,
@@ -95,6 +95,9 @@ export type {
 	RouteSearchInputOf,
 	RouteSearchOutput,
 	RouteSearchSchema,
+	DecodedRouteSearchSchema,
+	RawRouteSearch,
+	RouteSearchValidationCheck,
 	RouteSearchValidator,
 	RouteSearchRecord,
 	RouteTransitionName,

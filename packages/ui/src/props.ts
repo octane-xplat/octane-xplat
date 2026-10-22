@@ -3846,6 +3846,41 @@ export interface RouteSearchSchema<Input = unknown, Output = unknown> {
 	}
 }
 
+declare const decodedRouteSearch: unique symbol
+/** A schema with an explicit decoder from URL strings to its navigation input.
+ * Created by withSearchDecoder; numeric/boolean schema inputs require this
+ * adapter unless the schema already accepts decoded URL strings. */
+export interface DecodedRouteSearchSchema<Input, Output> extends RouteSearchSchema<Input, Output> {
+	readonly [decodedRouteSearch]: true
+}
+
+/** Decoded URL fields before validation. Repeated keys remain arrays. */
+export type RawRouteSearch = Readonly<Record<string, string | readonly string[] | undefined>>
+
+type SearchFieldAcceptsUrl<Value> = unknown extends Value ? true
+	: [Exclude<Value, undefined>] extends [string | readonly string[]] ? true
+	: string extends Value ? true : false
+type SearchInputAcceptsUrl<Input> = unknown extends Input ? true
+	: Input extends object ? false extends {
+		[Key in keyof Input]-?: SearchFieldAcceptsUrl<Input[Key]>
+	}[keyof Input] ? false : true : false
+
+/** Generated and programmatic checks keep schema inputs aligned with URL decoding.
+ * A decoder is necessary when a validator requires numbers, booleans or other
+ * values that the URL parser does not produce. */
+export type RouteSearchValidationCheck<Validator> =
+	Validator extends { readonly [decodedRouteSearch]: true } ? true
+	: Validator extends RouteSearchSchema<infer Input, unknown>
+		? SearchInputAcceptsUrl<Input> extends true ? true : 'Use withSearchDecoder for non-string search inputs'
+		: Validator extends (raw: infer Input) => unknown
+			? SearchInputAcceptsUrl<Input> extends true ? true : 'Search parsers receive decoded URL strings'
+			: true
+
+type CheckedSearchValidator<Validator> = Validator & (
+	RouteSearchValidationCheck<NoInfer<Validator>> extends true ? unknown
+	: { readonly 'Search input requires an explicit URL decoder': never }
+)
+
 /** A validated search field bag. Ordinary interfaces need no string index
  * signature. Collection/coercion/function protocols cannot establish that bag;
  * runtime validation also rejects non-record objects from JavaScript callers. */
@@ -4061,7 +4096,7 @@ type RouteDefinitionCallbackArgs<Path extends string, Validator, Context> = {
  * after these contracts have been inferred. Use withContext for root services. */
 export interface RouteDefinitionInput<Path extends string, Validator, Context, Added, Data> {
 	path: Path
-	validateSearch?: Validator
+	validateSearch?: CheckedSearchValidator<Validator>
 	beforeLoad?: (
 		args: RouteDefinitionCallbackArgs<Path, Validator, Context>,
 	) => Added | Promise<Added>
