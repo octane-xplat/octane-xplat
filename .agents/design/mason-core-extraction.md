@@ -191,7 +191,7 @@ The first extraction in the
 private `packages/nativescript-mason-core` helper package. Its source provenance
 and path mapping live in `tools/mason-core/README.md` in that repository. Five
 portable styling helpers and three existing tests moved unchanged; native
-hosts, scrolling, and native artifact separation remain unimplemented.
+hosts, scrolling, and full host-artifact separation remain unimplemented.
 
 Full MasonKit builds the relocated helpers through a generated source overlay
 at `tmp/nativescript-masonkit`. This preserves its relative imports and emitted
@@ -204,6 +204,21 @@ The implementation baseline is fork commit
 `623114b070896a21315fcff9a3a6349bdd091cc4` (beta.126), including merged upstream
 revision `2324b8ee52a1f22cf18dc684aa053e92b64a6451`. The helper-only package is not
 a replacement for MasonKit in Xplat and does not establish native size savings.
+
+The next native foundation packages the existing shared `mason-c` crate as
+independent static engine archives, with a C consumer exercising callback-based
+measurement and layout outside NativeScript. Its implementation and platform
+qualification boundaries live in
+`packages/nativescript-mason-core/src-native/README.md` in the Mason fork.
+The shared Rust implementation remains unchanged; this step does not require
+moving it or creating a second engine crate. Native artifacts are separate
+from the helper package's tarball and ordinary build target.
+
+The current C measurement callbacks are excluded on Android, which uses the
+existing JNI binding instead. Do not infer Android foreign-view support from
+the host C consumer. The staged C header also needs platform guards that the
+existing Apple-oriented generated header omits; see the
+[recorded source limitations](../docs/notes/masonkit-layout-evaluation.md#core-extraction-c-interface-boundaries-2026-10-22).
 
 The initial review examined the fork pinned at `1.0.0-beta.125` and the local
 [renderer patch](../../packages/cli/patches/@nativescript-community__octane@0.2.5.patch).

@@ -852,3 +852,34 @@ regressions, affected-package/dependent typechecks, lint, patch synchronization,
 and recipe structure checks passed. Android and desktop runtimes were not run.
 No public workflow or recipe contract changes; the Octane skill's styling
 guidance remains applicable. No visual analysis was performed.
+
+## Core extraction: C interface boundaries (2026-10-22)
+
+Source examined: the `octane-xplat/nativescript-mason` fork at
+`623114b070896a21315fcff9a3a6349bdd091cc4` (beta.126), including upstream
+`2324b8ee52a1f22cf18dc684aa053e92b64a6451`. These findings concern the
+independent core prototype; Xplat's existing MasonKit integration is unchanged.
+
+- **Android foreign measurement is not exposed through the generic C callback
+  API.** The constructors and context setters in
+  [`crates/mason-c/src/node.rs`](https://github.com/octane-xplat/nativescript-mason/blob/623114b070896a21315fcff9a3a6349bdd091cc4/crates/mason-c/src/node.rs)
+  are guarded by `cfg(not(target_os = "android"))`. Android uses the JNI path.
+  Core leaves that C callback interface unsupported on Android; a successful
+  host callback test or Android engine archive compilation does not qualify
+  foreign-view measurement. An extracted JNI host or a deliberately supported
+  Android C callback boundary must be proved before adopting core there.
+- **The checked-in generated Apple header overstates the non-Apple surface.**
+  [`mason_native.h`](https://github.com/octane-xplat/nativescript-mason/blob/623114b070896a21315fcff9a3a6349bdd091cc4/packages/nativescript-masonkit/src-native/mason-ios/Mason/Mason/include/mason_native.h)
+  declares Apple-only buffer/node functions without guards matching Rust's
+  `cfg(target_vendor = "apple")`. Its non-Android callback guards also depend
+  on `TARGET_OS_ANDROID`, rather than deriving it from the C compiler target.
+  Core's build stages a header with explicit guards and verifies declarations
+  against archive symbols for each target. It does not edit MasonKit's header
+  or claim that the existing package supports those declarations on Android.
+  Replace this staging adapter when canonical C header generation emits the
+  matching platform guards.
+
+Evidence is source inspection and the prototype's isolated engine checks,
+not NativeScript application or OS-input qualification. The extraction design
+and its remaining host/artifact gates are in
+[Mason core extraction](../../design/mason-core-extraction.md).
