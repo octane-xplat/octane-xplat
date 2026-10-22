@@ -312,19 +312,18 @@ try {
 		},
 	)
 
-	// ---- repoint @octane-xplat/* at the tarballs ---------------------------
+	// ---- repoint lockstep workspace packages at the tarballs --------------
 	const consumerManifestPath = join(appDir, 'package.json')
 	await gate('consumer manifest rewritten to file: tarballs', 60 * 1000, () => {
 		const manifest = JSON.parse(readFileSync(consumerManifestPath, 'utf8'))
 		let rewritten = 0
 		for (const section of ['dependencies', 'devDependencies']) {
 			for (const dep of Object.keys(manifest[section] ?? {})) {
-				if (!dep.startsWith('@octane-xplat/')) {
+				if (!tarballs.has(dep)) {
 					continue
 				}
 
 				const tarball = tarballs.get(dep)
-				assert.ok(tarball, `no tarball for consumer dep ${dep}`)
 				manifest[section][dep] = `file:${tarball}`
 				rewritten++
 			}
