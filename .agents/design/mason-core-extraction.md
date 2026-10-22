@@ -207,7 +207,7 @@ also pass on both simulator/emulator targets.
 | Patched Xplat renderer and Octane host-plan component | arm64 iOS 27 simulator passes | API 35 arm64 emulator passes; phone run pending |
 | Compiled TSRX component, hooks, class styles, programmatic scroll | arm64 simulator passes | API 35 emulator passes |
 | OS input: button hit testing and touch scrolling | arm64 simulator passes via HID | API 35 emulator passes via adb input; phone pending |
-| Device host artifact | Swift device framework unbuilt | arm64-v8a AAR and debug app build |
+| Device host artifact | arm64 device framework and unsigned NativeScript app build; runtime unverified | arm64-v8a AAR and debug app build |
 | Matched release app sizes | Unmeasured | Unmeasured |
 
 Full MasonKit builds the relocated helpers through a generated source overlay
@@ -235,7 +235,8 @@ and SDWebImage for backgrounds/nine-slice painting. A small glyph-provider
 protocol replaces the background painter's direct dependency on MasonKit's text
 renderer; it does not add glyph outlines to ordinary foreign labels. The
 shared Rust engine still includes inline-layout code and convenience node
-constructors. Device slices and matched release app measurements remain gates. Commands and source
+constructors. Physical-device application behavior and matched release app
+measurements remain gates. Commands and source
 hashes are documented in `tools/mason-core/ios-host-README.md` in the Mason fork.
 
 The Android build proof (`70a1fbba` in the Mason fork) compiles 96 source files:
@@ -264,8 +265,12 @@ measurements before any size claim. Commands and source hashes live in
 The separate `build.plugin.prototype` target assembles the container-only runtime,
 native host artifacts, dependency headers/licenses, Android Maven declarations,
 and the iOS SDWebImage resource/privacy bundle. It does not change the ordinary
-helper build or make full MasonKit depend on core. Its current native coverage is
-arm64 iOS Simulator and Android arm64-v8a only. Packed files retain their hashes,
+helper build or make full MasonKit depend on core. Its native artifacts cover
+arm64 iOS device/Simulator and Android arm64-v8a. The two Apple slices have
+matching projected sources and public headers and are packaged as an
+XCFramework, each with its own platform-specific SDWebImage privacy bundle.
+An unsigned NativeScript device app builds with the device slice, core bridge
+metadata and device resource metadata. This does not qualify device runtime. Packed files retain their hashes,
 including independent bridge declarations tied to the native artifact hashes.
 Both isolated NativeScript apps pass bridge, geometry and ownership assertions
 with only core and NativeScript core as runtime dependencies. They generate
@@ -280,8 +285,9 @@ compiler's optional parser is fixture development tooling; core gains no
 dependency. The ordinary scenario uses synthetic notifications. A separate
 OS-input mode passes HID taps/swipes on iOS Simulator and adb taps/swipes on
 Android emulator, requiring matching native row movement and scroll offset
-plus the hook update and cleanup. No screenshots are used. Physical-device
-input and iOS device packaging remain gates.
+plus the hook update and cleanup. The simulator also discovers its privacy
+bundle through the core framework at runtime. No screenshots are used.
+Physical-device input remains a gate.
 
 The separate `build.runtime` target now tests a container-only TypeScript
 boundary at `dist/prototypes/nativescript-mason-core`; the ordinary package

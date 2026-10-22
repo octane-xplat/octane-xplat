@@ -1041,3 +1041,19 @@ Android. These are OS-input and geometry assertions; no screenshots or visual
 analysis were used. Physical-device input remains unqualified. Reproduction
 targets are `test.consumer.ios.input` and
 `test.consumer.android.input.emulator` in the Mason fork.
+
+## Core extraction iOS device artifact (2026-10-22)
+
+The separate core projection builds an unsigned arm64 `iphoneos` framework.
+Isolated Swift and Objective-C device clients link against it; all 99 C
+declarations are exported and optional HTML/text/widget classes stay excluded.
+The full tracked native project and sources remain unchanged.
+
+The device and simulator slices have matching source hashes, public headers and
+dependency locks. An XCFramework embeds each platform's SDWebImage privacy bundle
+in its matching framework. The compiled simulator app discovers that resource
+at runtime and passes actual HID input again. A separately prepared unsigned
+NativeScript device app selects the IOS framework slice, embeds a bundle marked
+`iPhoneOS`, and generates the core bridge classes. No certificates, provisioning
+updates or device installation are used. These are build/metadata checks, not
+physical iOS device runtime qualification or release-size measurements.
