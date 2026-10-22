@@ -149,7 +149,11 @@ export function createImageBinding(options: {
 		 *  evaluates; idempotent. */
 		update(imageView: any, hostView: any) {
 			// Explicit null clears a view — refs fire with null on detach.
-			if (imageView !== undefined) {
+			if (imageView !== undefined && imageView !== view) {
+				// Requests and intrinsic measurements belong to this image host.
+				applied = false
+				appliedSrc = undefined
+				width = height = imageWidth = imageHeight = 0
 				view = imageView
 			}
 
