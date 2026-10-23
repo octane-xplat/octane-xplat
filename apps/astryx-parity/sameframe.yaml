@@ -1,0 +1,13 @@
+reference:
+  baseUrl: http://127.0.0.1:4310
+candidate:
+  baseUrl: http://127.0.0.1:4311
+routes:
+  - path: /button
+viewports:
+  - width: 1024
+    height: 720
+output: ./artifacts/sameframe
+capture:
+  waitUntil: load
+  stabilizationTimeoutMs: 30000

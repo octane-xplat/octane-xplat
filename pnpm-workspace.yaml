@@ -78,6 +78,9 @@ overrides:
   '@tiptap/extension-strike': 3.28.0
   '@tiptap/extension-text': 3.28.0
   '@tiptap/extension-underline': 3.28.0
+  # sameframe 0.2.2 pins playwright 1.55.0; the repo standardizes on the
+  # 1.63.0 Chromium already used by apps/visual so one browser build serves both.
+  sameframe>playwright: 1.63.0
 # Exact pins in package.json — no caret/tilde drift on fresh installs.
 saveExact: true
 minimumReleaseAgeExclude:
@@ -130,6 +133,8 @@ allowBuilds:
   # bundling shim, protobufjs's prints a deprecation banner — neither needed.
   '@firebase/util': false
   protobufjs: false
+  # @astryxdesign/core's postinstall only prints an `astryx init` nudge.
+  '@astryxdesign/core': false
 # Canonical copies live in packages/cli/patches/ — manifest.json there carries
 # why/dropWhen per entry and feeds `xplat patches apply`. Regenerate a patch with `pnpm
 # patch`/`pnpm patch-commit` (it writes to the configured path), then `pnpm sync:patches`

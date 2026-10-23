@@ -1,0 +1,22 @@
+/* Harness stage — identical on both sides. Owns only the page, the grid,
+   and the fixed cells; component styling stays with each library. */
+html,
+body {
+	margin: 0;
+	background: #fff;
+}
+
+.parity-grid {
+	display: grid;
+	grid-template-columns: repeat(4, 240px);
+	grid-auto-rows: 72px;
+}
+
+.parity-cell {
+	box-sizing: border-box;
+	width: 240px;
+	height: 72px;
+	padding: 16px;
+	display: flex;
+	align-items: flex-start;
+}

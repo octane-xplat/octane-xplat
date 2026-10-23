@@ -1,0 +1,9 @@
+{
+	"extends": "../../../tsconfig.base.json",
+	"compilerOptions": {
+		"jsxImportSource": "octane",
+		"types": ["vite/client"],
+		"lib": ["ESNext", "DOM", "DOM.Iterable"]
+	},
+	"include": ["main.web.tsx", "../scenarios", "../../packages/ui/type-support/**/*.d.ts"]
+}
