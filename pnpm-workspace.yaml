@@ -106,11 +106,9 @@ minimumReleaseAgeExclude:
   - '@octane-xplat/fmt-linux-x64-musl@0.1.0'
   - '@octane-xplat/fmt-win32-arm64@0.1.0'
   - '@octane-xplat/fmt-win32-x64@0.1.0'
-  # Same-day releases of our Mason core package; the mobile proving harnesses
-  # explicitly select the newest beta.
-  - '@octane-xplat/nativescript-mason-core@1.0.0-beta.0'
+  # Same-day release of our Mason core package — the only mobile engine.
   - '@octane-xplat/nativescript-mason-core@1.0.0-beta.1'
-  # same-day release of our MasonKit fork
+  # same-day release of our MasonKit fork (Windows preview only)
   - '@octane-xplat/nativescript-masonkit@1.0.0-beta.126'
   - '@nativescript/canvas@3.0.0-alpha.15'
   # Windows spike: prerelease runtime + dev-tag CLI carrying the unreleased

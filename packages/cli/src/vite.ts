@@ -24,7 +24,7 @@ import { pathToFileURL } from 'node:url'
 import { unwrapCssLayers } from './css-layers.ts'
 import { xplatCss } from './css-platform.ts'
 import { xplatDevBridge } from './mcp/dev-bridge.ts'
-import { masonCorePackage, selectMasonEngine, hasMasonSafeAreaEnvironment } from './mason-engine.ts'
+import { masonCorePackage, masonEngine } from './mason-engine.ts'
 
 export { xplatCss } from './css-platform.ts'
 export { xplatDevBridge } from './mcp/dev-bridge.ts'
@@ -823,11 +823,16 @@ export async function xplatNative(env, opts = {}) {
 		pkg.optionalDependencies,
 		pkg.peerDependencies,
 	)
-	const engine = selectMasonEngine(
+	const engine = masonEngine(
 		declared,
 		nativePlatform() === 'windows' ||
 			Boolean(pkg.xplat?.targets?.windows || declared['@nativescript/windows']),
 	)
+	if (engine === masonCorePackage && !declared[masonCorePackage]) {
+		throw new Error(
+			`${masonCorePackage} is required for iOS/Android container layout; run xplat upgrade to add it.`,
+		)
+	}
 	// NS_VENDOR_EXCLUDE is @nativescript/vite's documented opt-out for its
 	// HMR vendor bundle. Upstream handles source entries; merge only deps
 	// without a root export, keeping user-provided entries intact.
@@ -886,10 +891,7 @@ export async function xplatNative(env, opts = {}) {
 			},
 			plugins: [
 				xplatCss(nativePlatform() ?? 'native'),
-				pxToDip({
-					masonSafeAreaEnvironment:
-						engine === masonCorePackage && hasMasonSafeAreaEnvironment(process.cwd()),
-				}),
+				pxToDip({ masonSafeAreaEnvironment: engine === masonCorePackage }),
 				nsHmrClientWatchdog(),
 				xplatBoundary(nativePlatform() ?? 'native'),
 				nativeExtensionOrder(),
@@ -954,8 +956,9 @@ export async function xplatNative(env, opts = {}) {
 				alias: [
 					{ find: /^octane$/, replacement: 'octane/universal/native' },
 					// The canonical renderer patch keeps full MasonKit imports.
-					// Resolve their core equivalents through the opting-in app,
-					// including /style, under pnpm's isolated dependency layout.
+					// On mobile they always resolve to the app's core
+					// installation, including /style, under pnpm's isolated
+					// dependency layout.
 					...(engine === masonCorePackage
 						? [
 								{

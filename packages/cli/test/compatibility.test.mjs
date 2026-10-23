@@ -315,7 +315,7 @@ test('doctor permits omitted optional tools but reports missing required managed
 	assert.ok(inspectCompatibility(root, tools).every((row) => row.ok))
 })
 
-test('upgrade replaces the legacy @triniwiz masonkit pin with the fork', (t) => {
+test('upgrade replaces the legacy @triniwiz masonkit pin with core', (t) => {
 	const root = project(t, {
 		dependencies: {
 			octane: managedSpecifier('octane'),
@@ -327,17 +327,17 @@ test('upgrade replaces the legacy @triniwiz masonkit pin with the fork', (t) => 
 	assert.ok(
 		plan.updates.some((line) =>
 			line.includes(
-				'replace @triniwiz/nativescript-masonkit with @octane-xplat/nativescript-masonkit',
+				'replace @triniwiz/nativescript-masonkit with @octane-xplat/nativescript-mason-core',
 			),
 		),
 	)
 	applyUpgrade(plan)
 	const pkg = json(join(root, 'package.json'))
 	assert.equal(pkg.devDependencies['@triniwiz/nativescript-masonkit'], undefined)
-	assert.equal(pkg.dependencies['@octane-xplat/nativescript-masonkit'], 'catalog:xplat')
+	assert.equal(pkg.dependencies['@octane-xplat/nativescript-mason-core'], 'catalog:xplat')
 	assert.equal(
-		yaml(root).catalogs.xplat['@octane-xplat/nativescript-masonkit'],
-		managedSpecifier('@octane-xplat/nativescript-masonkit'),
+		yaml(root).catalogs.xplat['@octane-xplat/nativescript-mason-core'],
+		managedSpecifier('@octane-xplat/nativescript-mason-core'),
 	)
 	assert.equal(planUpgrade(root).files.length, 0, 'upgrade must be idempotent')
 })
@@ -371,21 +371,30 @@ test('upgrade and doctor preserve an explicit private core choice', (t) => {
 	assert.equal(planUpgrade(root).files.length, 0)
 })
 
-for (const full of ['@octane-xplat/nativescript-masonkit', '@triniwiz/nativescript-masonkit']) {
-	test(`core rejects declared ${full} before an upgrade writes`, (t) => {
+for (const replaced of ['@octane-xplat/nativescript-masonkit', '@triniwiz/nativescript-masonkit']) {
+	test(`upgrade replaces declared ${replaced} with core`, (t) => {
+		const core = '@octane-xplat/nativescript-mason-core'
 		const root = project(t, {
-			dependencies: { '@octane-xplat/nativescript-mason-core': 'file:./core.tgz' },
-			devDependencies: { [full]: '1.0.0' },
+			dependencies: { [core]: 'file:./core.tgz' },
+			devDependencies: { [replaced]: '1.0.0' },
 		})
-		const before = readFileSync(join(root, 'package.json'), 'utf8')
-		assert.throws(() => planUpgrade(root), /native classes and libraries overlap/)
-		assert.equal(readFileSync(join(root, 'package.json'), 'utf8'), before)
-		assert.ok(!existsSync(join(root, 'pnpm-workspace.yaml')))
-		const row = inspectCompatibility(root, tools).find(
-			(row) => row.name === 'compatibility mason engine selection',
+		const flagged = inspectCompatibility(root, tools).find(
+			(row) => row.name === `compatibility mason engine ${replaced}`,
 		)
-		assert.equal(row.ok, false)
-		assert.match(row.detail, /Keep one Mason engine/)
+		assert.equal(flagged.ok, false)
+		assert.match(flagged.detail, /was replaced by @octane-xplat\/nativescript-mason-core/)
+		const plan = planUpgrade(root)
+		assert.ok(plan.updates.some((line) => line.includes(`replace ${replaced} with ${core}`)))
+		applyUpgrade(plan)
+		const pkg = json(join(root, 'package.json'))
+		assert.equal(pkg.devDependencies[replaced], undefined)
+		assert.equal(pkg.dependencies[core], 'file:./core.tgz')
+		assert.equal(
+			inspectCompatibility(root, tools).some(
+				(row) => row.name === `compatibility mason engine ${replaced}`,
+			),
+			false,
+		)
 	})
 }
 
@@ -405,17 +414,28 @@ test('doctor detects full MasonKit or duplicate core through a reachable depende
 	}
 })
 
-test('core cannot be selected for the Windows preview', (t) => {
+test('the Windows preview moves a declared core pin back to full MasonKit', (t) => {
 	const root = project(t, {
 		dependencies: { '@octane-xplat/nativescript-mason-core': 'file:./core.tgz' },
 		xplat: { targets: { windows: {} } },
 	})
-	assert.throws(() => planUpgrade(root), /Windows is unqualified/)
-	const row = inspectCompatibility(root, tools).find(
-		(row) => row.name === 'compatibility mason engine selection',
+	const flagged = inspectCompatibility(root, tools).find(
+		(row) => row.name === 'compatibility mason engine @octane-xplat/nativescript-mason-core',
 	)
-	assert.equal(row.ok, false)
-	assert.match(row.detail, /iOS and Android only/)
+	assert.equal(flagged.ok, false)
+	assert.match(flagged.detail, /was replaced by @octane-xplat\/nativescript-masonkit/)
+	const plan = planUpgrade(root)
+	assert.ok(
+		plan.updates.some((line) =>
+			line.includes(
+				'replace @octane-xplat/nativescript-mason-core with @octane-xplat/nativescript-masonkit',
+			),
+		),
+	)
+	applyUpgrade(plan)
+	const pkg = json(join(root, 'package.json'))
+	assert.equal(pkg.dependencies['@octane-xplat/nativescript-mason-core'], undefined)
+	assert.equal(pkg.dependencies['@octane-xplat/nativescript-masonkit'], 'catalog:xplat-windows')
 })
 
 test('doctor fails when the legacy @triniwiz masonkit pin is declared', (t) => {
@@ -446,7 +466,7 @@ test('doctor fails when the legacy @triniwiz masonkit pin is declared', (t) => {
 		(row) => row.name === 'compatibility mason engine @triniwiz/nativescript-masonkit',
 	)
 	assert.equal(row.ok, false)
-	assert.match(row.detail, /replaced by @octane-xplat\/nativescript-masonkit/)
+	assert.match(row.detail, /replaced by @octane-xplat\/nativescript-mason-core/)
 })
 
 test('a private nested copy of a managed package is not the app contract', (t) => {

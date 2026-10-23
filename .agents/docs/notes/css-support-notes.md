@@ -225,3 +225,14 @@ engines retain the unresolved-value warning. No native device or simulator
 run qualifies this new resolver. Ordinary NativeScript controls still need
 inline `useSafeAreaInsets()` values. The core package README describes explicit
 sources for custom presentation viewports.
+
+### Mason core cutover (2026-10-23)
+
+Engine selection was removed: iOS/Android always builds with core and the
+`nativescript-masonkit` renderer imports alias to it unconditionally. Full and
+legacy MasonKit pins are replaced by `xplat upgrade`, rejected by doctor, and
+rejected by `xplatNative` and the probe runner. The Windows preview keeps full
+MasonKit (core ships no Windows artifacts); `xplatNative` derives the engine
+from platform alone — there is no installed-capability probe. Mobile builds
+keep the headless-qualification `env()` warning; Windows keeps the
+unresolved-value warning.

@@ -35,7 +35,7 @@ support ([upstream PR](https://github.com/gajus/bamboocss/pull/125)).
 
 - AC5: Platform conditions generate types and apply only on matching targets, preserve final output validation, and explain the boundary for nonportable utilities and SSR.
 
-- AC6: Native diagnostics distinguish resolver-capable Mason core from unsupported engines for safe-area `env()` values in generated CSS, preserving the device-qualification limit and inline-inset guidance.
+- AC6: Native diagnostics warn for safe-area `env()` values in generated CSS — the device-qualification limit on mobile, the unresolved-value warning on the Windows engine — with guidance for live native insets.
 
 - AC7: On web, custom builders can declare their actual build environments without disabling pruning; an unused configured SSR target causes no false warning, real SSR-only styles survive either build order, and excluded builds fail.
 

@@ -147,18 +147,18 @@ pnpm xplat doctor
 | NativeScript CLI, platform runtimes/types, known starter plugins    | User catalogs, custom patch files, unrelated overrides and scripts    |
 | Vitest, jsdom, and NativeScript's test runner, when enabled         | Application tests and platform qualification                          |
 
-New scaffolded apps default to full MasonKit. To try the published Mason core
-beta in an isolated iOS/Android app, declare only core. Upgrade preserves that
-choice and its version or local specifier. Doctor rejects core alongside full
-MasonKit, duplicate installed core copies, and Windows use. The repository's
-mobile proving harnesses use core; Windows retains full MasonKit. See the
+Mason core is the only supported iOS/Android layout engine; full MasonKit and
+the legacy `@triniwiz` package were replaced. Scaffolded apps declare the core
+beta in `catalog:xplat`; upgrade migrates replaced engine pins and doctor
+rejects them until it runs. The Windows preview retains full MasonKit because
+core ships no Windows artifacts. See the
 [extraction design](../../.agents/design/mason-core-extraction.md) for
 qualification limits.
 
 ```json
 {
 	"dependencies": {
-		"@octane-xplat/nativescript-mason-core": "1.0.0-beta.0"
+		"@octane-xplat/nativescript-mason-core": "catalog:xplat"
 	}
 }
 ```

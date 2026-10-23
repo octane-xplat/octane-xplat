@@ -20,7 +20,7 @@ import {
 } from 'create-octane-xplat/compatibility'
 
 import { canonicalPatchesDir, loadPatchManifest, specifierPackage } from './patches.ts'
-import { masonCorePackage, selectMasonEngine } from './mason-engine.ts'
+import { masonCorePackage, masonFullPackage, masonLegacyPackage } from './mason-engine.ts'
 
 export { compatibility, managedPackage, managedSpecifier }
 
@@ -135,46 +135,44 @@ export function planUpgrade(dir: string): UpgradePlan {
 		const label = relative(root, path) || '.'
 		// Octane's compiler peer must stay visible to pnpm; it is not hidden in the CLI.
 		const deps = Object.assign({}, ...dependencySections.map((section) => pkg[section]))
-		const engine = selectMasonEngine(deps, profile === 'windows')
 		if (deps.octane && !deps['@tsrx/oxc'] && !localSpecifier(deps.octane)) {
 			pkg.devDependencies ??= {}
 			pkg.devDependencies['@tsrx/oxc'] = managedSpecifier('@tsrx/oxc', profile)
 			plan.updates.push(`${label}: add @tsrx/oxc compiler peer`)
 		}
 
-		// Full MasonKit remains the default; preserve an explicit core choice.
+		// Core is the only mobile Mason engine; the Windows preview still needs
+		// full MasonKit. Upgrade migrates the pins the core cutover replaced.
+		const engine = profile === 'windows' ? masonFullPackage : masonCorePackage
+		const replacedEngines = [masonCorePackage, masonFullPackage, masonLegacyPackage].filter(
+			(name) => name !== engine,
+		)
+
 		if (
 			deps['@nativescript-community/octane'] &&
-			engine !== masonCorePackage &&
-			!deps['@octane-xplat/nativescript-masonkit'] &&
-			!deps['@triniwiz/nativescript-masonkit'] &&
+			!deps[engine] &&
+			!replacedEngines.some((name) => deps[name]) &&
 			!localSpecifier(deps['@nativescript-community/octane'])
 		) {
 			pkg.dependencies ??= {}
-			pkg.dependencies['@octane-xplat/nativescript-masonkit'] = managedSpecifier(
-				'@octane-xplat/nativescript-masonkit',
-				profile,
-			)
+			pkg.dependencies[engine] = managedSpecifier(engine, profile)
 
-			plan.updates.push(`${label}: add @octane-xplat/nativescript-masonkit mason engine`)
+			plan.updates.push(`${label}: add ${engine} mason engine`)
 		}
 
-		// The fork renamed the package; both ship the same native Mason framework,
-		// so a leftover @triniwiz pin would collide in native builds.
-		if (deps['@triniwiz/nativescript-masonkit']) {
+		for (const name of replacedEngines) {
+			if (!deps[name]) {
+				continue
+			}
+
 			for (const section of dependencySections) {
-				delete pkg[section]?.['@triniwiz/nativescript-masonkit']
+				delete pkg[section]?.[name]
 			}
 
 			pkg.dependencies ??= {}
-			pkg.dependencies['@octane-xplat/nativescript-masonkit'] = managedSpecifier(
-				'@octane-xplat/nativescript-masonkit',
-				profile,
-			)
+			pkg.dependencies[engine] ??= managedSpecifier(engine, profile)
 
-			plan.updates.push(
-				`${label}: replace @triniwiz/nativescript-masonkit with @octane-xplat/nativescript-masonkit`,
-			)
+			plan.updates.push(`${label}: replace ${name} with ${engine}`)
 		}
 
 		for (const section of dependencySections) {

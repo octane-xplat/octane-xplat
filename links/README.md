@@ -1,8 +1,8 @@
 # Develop this workspace against a local MasonKit fork checkout
 
-The default install uses the published `@octane-xplat/nativescript-masonkit`
-package. To use a local checkout of the `octane-xplat/nativescript-mason` fork,
-run from this repository root:
+The Windows preview package uses the published `@octane-xplat/nativescript-masonkit`
+package (mobile apps use Mason core instead). To use a local checkout of the
+`octane-xplat/nativescript-mason` fork, run from this repository root:
 
 ```sh
 pnpm -C /path/to/nativescript-mason install

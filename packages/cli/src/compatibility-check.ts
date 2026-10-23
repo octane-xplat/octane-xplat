@@ -3,12 +3,7 @@ import { createRequire } from 'node:module'
 import { join, relative, resolve } from 'node:path'
 import { execFileSync } from 'node:child_process'
 import { dependencySections, projectProfile } from 'create-octane-xplat/compatibility'
-import {
-	masonCorePackage,
-	masonFullPackage,
-	masonLegacyPackage,
-	selectMasonEngine,
-} from './mason-engine.ts'
+import { masonCorePackage, masonFullPackage, masonLegacyPackage } from './mason-engine.ts'
 
 import {
 	compatibility,
@@ -102,15 +97,21 @@ export function inspectCompatibility(
 
 	const local = new Set<string>()
 	const declared = Object.assign({}, ...dependencySections.map((section) => pkg[section]))
-	try {
-		selectMasonEngine(declared, profile === 'windows')
-	} catch (error) {
-		row(
-			'compatibility mason engine selection',
-			false,
-			(error as Error).message,
-			'keep one supported Mason engine in this app',
-		)
+	// Core is the only mobile Mason engine; the Windows preview still needs
+	// full MasonKit. Report the pins the core cutover replaced.
+	const engine = profile === 'windows' ? masonFullPackage : masonCorePackage
+	const replacedEngines = [masonCorePackage, masonFullPackage, masonLegacyPackage].filter(
+		(name) => name !== engine,
+	)
+	for (const name of replacedEngines) {
+		if (declared[name]) {
+			row(
+				`compatibility mason engine ${name}`,
+				false,
+				`${name} was replaced by ${engine}; both ship the native Mason framework`,
+				'run pnpm xplat upgrade',
+			)
+		}
 	}
 	for (const [name, spec] of Object.entries(declared) as [string, string][]) {
 		if (!managedPackage(name, profile)) {
@@ -137,26 +138,15 @@ export function inspectCompatibility(
 	// layout — apps using it must declare the package.
 	if (
 		declared['@nativescript-community/octane'] &&
-		!declared[masonCorePackage] &&
-		!declared['@octane-xplat/nativescript-masonkit'] &&
-		!declared['@triniwiz/nativescript-masonkit'] &&
+		!declared[engine] &&
+		!replacedEngines.some((name) => declared[name]) &&
 		!local.has('@nativescript-community/octane')
 	) {
 		row(
-			'compatibility mason engine @octane-xplat/nativescript-masonkit',
+			`compatibility mason engine ${engine}`,
 			false,
-			'the NativeScript driver requires @octane-xplat/nativescript-masonkit for container layout',
+			`the NativeScript driver requires ${engine} for container layout`,
 			'run pnpm xplat upgrade (or add the catalog pin)',
-		)
-	}
-	// Both packages ship the same native Mason framework; a leftover legacy pin
-	// would collide with the fork in native builds.
-	if (declared['@triniwiz/nativescript-masonkit']) {
-		row(
-			'compatibility mason engine @triniwiz/nativescript-masonkit',
-			false,
-			'@triniwiz/nativescript-masonkit was replaced by @octane-xplat/nativescript-masonkit; both ship the native Mason framework',
-			'run pnpm xplat upgrade',
 		)
 	}
 
@@ -241,12 +231,12 @@ export function inspectCompatibility(
 			queue.push({ from: location, name: child, required })
 		}
 	}
-	if ([...masonEngines.values()].includes(masonCorePackage)) {
+	if (masonEngines.size) {
 		row(
 			'compatibility installed mason engines',
-			masonEngines.size === 1,
+			masonEngines.size === 1 && [...masonEngines.values()][0] === engine,
 			[...masonEngines].map(([path, name]) => `${name} (${relative(dir, path)})`).join(', '),
-			'remove full MasonKit and duplicate core copies from the app dependency graph',
+			`keep exactly one ${engine} copy in the app dependency graph`,
 		)
 	}
 	for (const [name, copies] of singletons) {

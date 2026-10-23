@@ -1,37 +1,26 @@
-import { readFileSync } from 'node:fs'
-import { join } from 'node:path'
-
-/** Private core prototype; an explicit dependency opts into the mobile build. */
+/** The only supported Mason engine on mobile; the old packages ship overlapping native classes. */
 export const masonCorePackage = '@octane-xplat/nativescript-mason-core'
 export const masonFullPackage = '@octane-xplat/nativescript-masonkit'
 export const masonLegacyPackage = '@triniwiz/nativescript-masonkit'
 
-/** Preserve the app's engine choice and reject overlapping native owners. */
-export function selectMasonEngine(declared: Record<string, unknown>, windows = false) {
-	if (!declared[masonCorePackage]) {
+/**
+ * The engine the app must build with: core on iOS/Android, full MasonKit in
+ * the Windows preview (core ships no Windows artifacts). Rejects engine pins
+ * the core cutover replaced.
+ */
+export function masonEngine(declared: Record<string, unknown>, windows = false) {
+	if (windows) {
+		if (declared[masonCorePackage]) {
+			throw new Error(`${masonCorePackage} supports iOS and Android only; Windows is unqualified.`)
+		}
+
 		return masonFullPackage
 	}
-	const conflicts = [masonFullPackage, masonLegacyPackage].filter((name) => declared[name])
-	if (conflicts.length) {
+	const replaced = [masonFullPackage, masonLegacyPackage].filter((name) => declared[name])
+	if (replaced.length) {
 		throw new Error(
-			`${masonCorePackage} cannot be installed with ${conflicts.join(' or ')}; their native classes and libraries overlap. Keep one Mason engine.`,
+			`${replaced.join(' and ')} was replaced by ${masonCorePackage}; their native classes and libraries overlap. Remove the replaced engine and run xplat upgrade.`,
 		)
-	}
-	if (windows) {
-		throw new Error(`${masonCorePackage} supports iOS and Android only; Windows is unqualified.`)
 	}
 	return masonCorePackage
-}
-
-/** Inspect the installed runtime, rather than assuming declared semver enables the window binding. */
-export function hasMasonSafeAreaEnvironment(projectRoot: string): boolean {
-	try {
-		const manifest = JSON.parse(
-			readFileSync(join(projectRoot, 'node_modules', masonCorePackage, 'package.json'), 'utf8'),
-		)
-
-		return manifest.masonCoreCapabilities?.safeAreaEnvironment === 'owning-window-v1'
-	} catch {
-		return false
-	}
 }

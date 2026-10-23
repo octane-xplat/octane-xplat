@@ -26,7 +26,7 @@
 		"@octane-xplat/jsx": "catalog:xplat",
 		"@octane-xplat/platform": "catalog:xplat",
 		"@octane-xplat/ui": "catalog:xplat",
-		"@octane-xplat/nativescript-masonkit": "catalog:xplat",
+		"@octane-xplat/nativescript-mason-core": "catalog:xplat",
 		"@valor/nativescript-websockets": "catalog:xplat",
 		"octane": "catalog:xplat"
 	},

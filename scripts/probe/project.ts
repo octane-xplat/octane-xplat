@@ -9,7 +9,6 @@ import {
 	masonCorePackage,
 	masonFullPackage,
 	masonLegacyPackage,
-	selectMasonEngine,
 } from '../../packages/cli/src/mason-engine.ts'
 
 export const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
@@ -94,22 +93,19 @@ export async function dependencies(target, caseFile, extra) {
 	}
 
 	if (['ios', 'android'].includes(target)) {
-		const declared = { ...pkg.dependencies, ...pkg.devDependencies }
-		// An explicit --deps core overrides the proving app's default full engine.
-		if (extra.includes(masonCorePackage)) {
-			delete declared['@octane-xplat/nativescript-masonkit']
+		// Mobile probes always run core; the replaced engines collide natively.
+		const conflicts = [masonFullPackage, masonLegacyPackage].filter((name) => extra.includes(name))
+		if (conflicts.length) {
+			throw new Error(
+				`${conflicts.join(' and ')} was replaced by ${masonCorePackage}; their native classes and libraries overlap.`,
+			)
 		}
-
-		const engine = selectMasonEngine({
-			...declared,
-			...Object.fromEntries(extra.map((name) => [name, true])),
-		})
 
 		for (const name of [
 			'@nativescript/core',
 			'@nativescript-community/octane',
 			// NativeScript collects plugin binaries from runtime dependencies.
-			engine,
+			masonCorePackage,
 			'@nativescript-community/gesturehandler',
 			'@valor/nativescript-websockets',
 		]) {

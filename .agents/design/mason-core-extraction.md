@@ -631,3 +631,23 @@ invalid-length/diagnostic path still applies; this seam does not implement
 general CSS invalid-at-computed-value inheritance. Parser substitution follows
 the CSS environment draft's available-value/fallback distinction:
 <https://drafts.csswg.org/css-env-1/#env-function>.
+## Mason core mobile cutover (2026-10-23)
+
+Engine selection was removed entirely — there is no opt-in. iOS/Android always
+builds with core: `xplatNative` resolves the canonical renderer's unchanged
+`nativescript-masonkit` imports to the app's core installation without an
+installed-capability probe, and doctor/upgrade treat the full and legacy
+packages as replaced engines. `xplat upgrade` migrates their pins to the core
+catalog entry; `xplatNative`, doctor, and the probe runner reject them until
+it runs. New scaffolds declare the core beta through `catalog:xplat`.
+
+The Windows preview is a platform constraint, not an engine choice: core
+ships no Windows artifacts, so windows-profile packages stay on full MasonKit
+and upgrade replaces a stray core pin there. The `env()` warning split follows
+the same platform line — mobile keeps the headless-qualification warning,
+Windows keeps the unresolved-value warning.
+
+Earlier paragraphs describing engine selection as opt-in (`selectMasonEngine`,
+"defaults and production dependencies remain full") are superseded by this
+cutover. The upstream contribution goal and the moved-source discipline are
+unchanged.

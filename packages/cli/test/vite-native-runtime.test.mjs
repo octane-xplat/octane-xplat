@@ -18,7 +18,19 @@ test('native preset loads without alien-signals in the app or Octane dependency 
 		writeFileSync(join(dir, 'index.js'), source)
 	}
 	try {
-		writeFileSync(join(root, 'package.json'), JSON.stringify({ name: 'app' }))
+		// Mobile always builds against core; an app without it fails early.
+		writeFileSync(
+			join(root, 'package.json'),
+			JSON.stringify({
+				name: 'app',
+				dependencies: { '@octane-xplat/nativescript-mason-core': 'file:./core.tgz' },
+			}),
+		)
+		makePackage(
+			'@octane-xplat/nativescript-mason-core',
+			{ version: '0.0.0', main: 'index.js' },
+			'export {}',
+		)
 		// Octane 0.14 no longer depends on alien-signals. Keep this fixture
 		// isolated from workspace dependencies so a stale lookup must fail.
 		makePackage('octane', { version: '0.14.0', main: 'index.js' }, 'export {}')

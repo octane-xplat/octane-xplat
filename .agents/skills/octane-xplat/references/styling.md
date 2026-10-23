@@ -61,19 +61,20 @@ hosts, read [driver semantics](primitives/driver-semantics.md#leaf-shape).
 
 ## Safe-area CSS
 
-Mason core `1.0.0-beta.1` automatically supplies owning-window safe-area
-`env()` values to loaded Mason container roots and re-evaluates styles when
-insets change. The installed package advertises `owning-window-v1`; the preset
+On iOS and Android, Mason container roots automatically resolve owning-window
+safe-area `env()` values and re-evaluate styles when insets change. The preset
 keeps a qualification warning because native dispatch/layout has only headless
 adapter coverage. Do not describe that as device-tested. Ordinary NativeScript
-controls and older/full engines still need `useSafeAreaInsets()` inline styles.
-See [safe-area styling](../../../../docs/app/styling.md#safe-area-insets).
+controls and the Windows preview still need `useSafeAreaInsets()` inline
+styles; there `env()` stays unresolved. See
+[safe-area styling](../../../../docs/app/styling.md#safe-area-insets).
 
 ```css
 .chrome { padding-top: env(safe-area-inset-top, 0px); }
 ```
 
-For engines without the resolver, keep browser-only `env()` rules conditional:
+For controls without the Mason resolver, keep browser-only `env()` rules
+conditional:
 
 ```css
 @platform web {

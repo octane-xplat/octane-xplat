@@ -42,19 +42,20 @@ pnpm xplat doctor
 pnpm dlx @octane-xplat/cli@latest upgrade --check
 ```
 
-The repository's mobile proving harnesses use the core beta. New scaffolded
-apps still default to full MasonKit; Windows requires full MasonKit. An
-app opting into core declares only the core beta: upgrade preserves it, doctor
-rejects overlapping native engines, and `xplatNative` resolves the canonical
-renderer imports to core. Do not add full MasonKit to satisfy an older CLI's
-missing-engine check. Core has an independent beta release track; Windows is
-unqualified. Read the
-[extraction design](../../../design/mason-core-extraction.md) before opting in.
+Mason core is the only supported iOS/Android layout engine. Scaffolded apps
+declare the core beta through `catalog:xplat`; `xplat upgrade` replaces full
+MasonKit and legacy `@triniwiz` pins, and doctor rejects them until it runs.
+`xplatNative` resolves the canonical renderer's unchanged `nativescript-masonkit`
+imports to the app's core installation. The Windows preview still requires
+full MasonKit — core ships no Windows artifacts and `xplat upgrade` keeps
+windows-profile packages on it. Core has an independent beta release track;
+see the
+[extraction design](../../../design/mason-core-extraction.md) for limits.
 
 ```json
 {
 	"dependencies": {
-		"@octane-xplat/nativescript-mason-core": "1.0.0-beta.0"
+		"@octane-xplat/nativescript-mason-core": "catalog:xplat"
 	}
 }
 ```
