@@ -1,14 +1,15 @@
+import { serverBoundary } from '@octane-xplat/lib/server-boundary'
 import { fileURLToPath } from 'node:url'
 import { normalizePath, type Plugin } from 'vite'
 
 /** Use alongside octane() for paired browser/server builds. This binds the
  * browser root factory to an explicit unsupported server implementation; it
- * does not strip application server exports or implement a server-code boundary. */
-export function webHost(): Plugin {
+ * also enforces explicit .server module boundaries in browser builds. */
+export function webHost(): Plugin[] {
 	const entry = import.meta.resolve('@octane-xplat/ui/routing/web-host')
 	const browserRoot = normalizePath(fileURLToPath(new URL('../browser-root.web.ts', entry)))
 	const serverRoot = fileURLToPath(new URL('../browser-root.server.web.ts', entry))
-	return {
+	return [serverBoundary(), {
 		name: 'xplat-web-host',
 		enforce: 'pre',
 		config: () => ({
@@ -42,5 +43,8 @@ export function webHost(): Plugin {
 			const resolved = await this.resolve(source, importer, { skipSelf: true })
 			return resolved && normalizePath(resolved.id) === browserRoot ? serverRoot : null
 		},
-	}
+	}]
 }
+
+/** Add to custom non-SSR builds to enforce the same boundary as Xplat presets. */
+export { serverBoundary }

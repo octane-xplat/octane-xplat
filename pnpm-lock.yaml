@@ -2895,6 +2895,9 @@ importers:
 
   packages/web-host:
     dependencies:
+      '@octane-xplat/lib':
+        specifier: workspace:*
+        version: link:../lib
       '@octane-xplat/ui':
         specifier: workspace:*
         version: link:../ui

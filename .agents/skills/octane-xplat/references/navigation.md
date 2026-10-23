@@ -830,3 +830,17 @@ import { routes } from './routes.gen.catalog.web'
 const metadata = manifestToJson(routes)
 const deferred = metadata.routes.filter(route => route.moduleLoaded === false)
 ```
+
+### Server-only modules
+
+Use `.server.ts` or `.server/` for private web-host services. Shared modules can
+expose explicit named re-exports; webHost/xplatBoundary erase those exports in
+client graphs and reject residual imports, dynamic imports or export-star paths.
+No local callback stripping or automatic RPC is implied: ordinary loaders stay
+cross-platform. Custom bundlers must install the boundary plugin. See
+[server code](../../../../docs/platform/web-rendering.md#keep-server-code-out-of-clients).
+
+```ts
+// Shared catalog: server-only entry points may consume this export.
+export { requestContext } from './context.server'
+```

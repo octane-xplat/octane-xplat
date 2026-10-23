@@ -81,7 +81,7 @@ module before hydration, without repeating transferred preparation.
 Layouts remain eager because the root shell is consumed before navigation.
 Markdown/baked content and explicitly imported programmatic catalogs retain their
 existing behavior. Importing a route through another eager module also makes it
-eager; this feature is not a server-code boundary. `manifestToJson` does not import
+eager; lazy loading itself is not a server-code boundary; the explicit boundary below is separate. `manifestToJson` does not import
 code: unloaded routes report `moduleLoaded: false` and omit unknown callback flags.
 Generated build-time JSON still has complete static discovery metadata.
 
@@ -98,3 +98,16 @@ evaluation or smaller startup bundles on every host. The macOS harness bundle bu
 the Tiptap, Lexical and richtext `build:assets` tasks through Turbo. Its output
 is one `app.js` bundle. New native device runtime qualification has not been
 performed for this feature.
+
+## Explicit server-code boundary
+
+The shared build utility `@octane-xplat/lib/server-boundary` runs after source
+compilation in `webHost()` and `xplatBoundary()`. It removes named re-exports whose
+resolved source is a `.server` module/directory. Direct or dynamic imports and
+export-star paths fail closed in clients, while SSR preserves the module graph.
+This explicit syntax avoids treating Xplat's ordinary cross-platform loaders as
+server callbacks or inferring which authored side effects can be deleted. It is
+not an RPC layer. Residual uses of removed exports fail normal module linking.
+Production maps omit authored sources; maps for transformed dev modules break
+the original-source chain. Build and Vite development regressions inspect both
+emitted code and maps for fixture sentinels. No actual credentials are fixtures.

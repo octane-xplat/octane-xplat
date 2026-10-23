@@ -42,7 +42,8 @@
 		"pack:check": "tsrx-typegen --pack-check"
 	},
 	"dependencies": {
-		"@octane-xplat/ui": "workspace:*"
+		"@octane-xplat/ui": "workspace:*",
+		"@octane-xplat/lib": "workspace:*"
 	},
 	"peerDependencies": {
 		"octane": ">=0.14.0 <1",

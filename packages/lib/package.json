@@ -25,6 +25,10 @@
 		"./route-pattern": {
 			"types": "./types/generated/route-pattern.d.ts",
 			"default": "./dist/route-pattern.js"
+		},
+		"./server-boundary": {
+			"types": "./types/generated/server-boundary.d.ts",
+			"default": "./dist/server-boundary.js"
 		}
 	},
 	"publishConfig": {

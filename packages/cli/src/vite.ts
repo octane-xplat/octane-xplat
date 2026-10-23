@@ -16,6 +16,7 @@
 // The preset calls octaneConfig itself — consumers only merge in
 // app-specific extras via the `extra` option or a vite mergeConfig wrapper.
 
+import { serverBoundary } from '@octane-xplat/lib/server-boundary'
 import { createRequire } from 'node:module'
 import { existsSync, readFileSync, realpathSync, statSync } from 'node:fs'
 import { dirname, join, relative, resolve } from 'node:path'
@@ -531,6 +532,7 @@ export function xplatBoundary(platform = 'native') {
 	}
 
 	return {
+		...serverBoundary(),
 		name: 'xplat-platform-boundary',
 		configResolved(config) {
 			command = config.command

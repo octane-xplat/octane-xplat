@@ -19,3 +19,6 @@ export const catalog = defineRoutes([
 		head: ({ data }) => ({ title: data.name }),
 	}).screen(Product),
 ])
+
+// The browser/native boundary removes this export and its dependency.
+export { requestContext } from './context.server'

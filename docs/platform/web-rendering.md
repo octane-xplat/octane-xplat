@@ -60,6 +60,52 @@ import { webHost } from '@octane-xplat/web-host/vite'
 export default defineConfig({ plugins: [webHost(), octane()] })
 ```
 
+## Keep server code out of clients
+
+Put request services and private dependencies in a `.server.ts` file (or a
+`.server/` directory). A shared module can expose them through explicit named
+re-exports. `webHost()` removes those exports from browser builds; the server
+build keeps them. The maintained store example uses this pattern for context.
+
+```ts
+// context.server.ts
+export function requestContext(request: Request) {
+  return { sessionCookie: request.headers.get('Cookie') }
+}
+
+// routes.web.tsrx — alongside the catalog export
+export { requestContext } from './context.server'
+
+// server.web.ts
+import { catalog, requestContext } from './routes.web.tsrx'
+// Pass context: requestContext to createWebHandler.
+```
+
+Direct imports, dynamic imports and `export *` from server modules fail in client
+builds, including resolved aliases and transitive imports. Use named re-exports
+only for values consumed by the server entry. They do not create local bindings
+or remote functions. Ordinary route `loader` callbacks remain cross-platform;
+use an HTTP API inside a client loader when it needs server data.
+
+```ts
+// This belongs in a .server.ts module, never in a shared screen:
+import { database } from './database.server'
+export const findProduct = (id: string) => database.products.find(id)
+
+// A shared module may expose it to server consumers:
+export { findProduct } from './products.server'
+```
+
+The same boundary is included in `xplatBoundary` and the native presets. Custom
+client builds can add `serverBoundary()`. Build source maps omit authored source
+text, and transformed development maps do not retain removed re-exports. Keep
+secrets in server modules rather than comments or unrelated shared declarations.
+
+```ts
+import { serverBoundary } from '@octane-xplat/web-host/vite'
+export default { plugins: [serverBoundary()] }
+```
+
 ## Create the request handler
 
 A Fetch handler accepts a `Request` and returns a `Response`. Give it the
