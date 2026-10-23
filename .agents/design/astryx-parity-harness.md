@@ -1,7 +1,7 @@
 # Astryx parity harness
 
-> Status: accepted for a Button spike, 2026-10-23. Decide the `chrome.css`
-> palette question below before widening beyond Button.
+> Status: accepted, 2026-10-23. `chrome.css` adopts Astryx's default theme
+> (decided 2026-10-23, GH#57); every harness finding is a defect to fix.
 
 Render the same scenarios with Astryx and with Octane Xplat in Chromium, then
 compare geometry, computed style, semantics, pixels and scripted behavior. The
@@ -64,7 +64,7 @@ expected to fail until the reported gaps close.
   metrics are host-dependent; results are qualified for the macOS host that
   produced them.
 
-## Open decision: what `chrome.css` should look like
+## Decision: `chrome.css` adopts Astryx's default theme
 
 `chrome.css` is currently a minimal skin — black primary (`#171717`),
 `system-ui`, and no Button size geometry (`vx-button--size-*` classes are
@@ -73,13 +73,11 @@ emitted but have no rules). Astryx's defaults are a blue accent (`#0064E0`),
 against stock therefore reports palette, typography and geometry gaps
 together.
 
-Choices:
+Decided 2026-10-23 (GH#57): `chrome.css` adopts Astryx's default theme, so
+every finding is a defect. The rejected alternative kept the current palette
+and applied an Astryx-matched token override to the candidate.
 
-1. `chrome.css` adopts Astryx's default theme. Every finding is a defect.
-2. `chrome.css` keeps its palette; the harness applies an Astryx-matched token
-   override to the candidate so findings isolate geometry and behavior.
-
-Either way, fixes must stay NativeScript-CSS compatible (for example no
+Fixes must stay NativeScript-CSS compatible (for example no
 `light-dark()`), because `chrome.css` also styles native targets; this
 harness proves web only. Native parity stays chained through `apps/visual`
 and the shared parity fixtures.
