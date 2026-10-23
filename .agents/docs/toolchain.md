@@ -246,6 +246,11 @@ found` — and reinstalls stay "Already up to date" (GH#16). Heal by
   `brew install --cask temurin@21` and set `JAVA_HOME` per build; on macOS,
   resolve it with `/usr/libexec/java_home -v 21`. Android Studio's JBR is 25
   on this machine, so do not rely on its default.
+- Keep checked-in Android AARs aligned with their Java sources. The audio
+  prepack hook does not rebuild its AAR; an Android harness build regenerates
+  it. A build-produced binary diff can therefore contain missing source fixes,
+  not just timestamps. Its packed-consumer check verifies the compiled command
+  validator and queue-handoff references without requiring an Android SDK.
 - Verified: `vite build` + dev transform on web; `ns build ios` + app boots on
   iPhone 17 Pro sim (`running-active-Visible`, no JS errors); `ns run android`
   on physical device — HTTP-ESM boot, `.tsrx` edits apply in place via

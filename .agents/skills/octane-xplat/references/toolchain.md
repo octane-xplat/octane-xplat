@@ -53,6 +53,11 @@ for the app compiler. Check each package's export map rather than
 assuming one publish format for the repository. Packed-consumer checks establish
 installed-package behavior that workspace source checks cannot.
 
+For repository Android plugins, keep Java sources and checked-in AARs aligned.
+Inspect an AAR changed by a native build before discarding it; the audio
+package's packed-consumer check catches known stale bridge methods. See the
+[artifact maintenance note](../../../../.agents/docs/toolchain.md).
+
 ```sh
 # Repository root: prepare declared package outputs and check exports.
 pnpm build:packages

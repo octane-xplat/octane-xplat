@@ -15,6 +15,7 @@ import {
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { inflateRawSync } from 'node:zlib'
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const repoRoot = resolve(packageRoot, '../..')
@@ -41,6 +42,33 @@ function run(command, args, cwd) {
 	if (result.status !== 0) {
 		throw new Error(`${command} exited with ${result.status}`)
 	}
+}
+
+// Inspect the shipped AAR/JAR without requiring an Android SDK or Java tools.
+function zipEntry(archive, name) {
+	const end = archive.lastIndexOf(Buffer.from([0x50, 0x4b, 0x05, 0x06]))
+	assert.ok(end >= 0, 'ZIP central directory exists')
+	const count = archive.readUInt16LE(end + 10)
+	let offset = archive.readUInt32LE(end + 16)
+	for (let index = 0; index < count; index++) {
+		assert.equal(archive.readUInt32LE(offset), 0x02014b50, 'valid ZIP directory entry')
+		const nameLength = archive.readUInt16LE(offset + 28)
+		const extraLength = archive.readUInt16LE(offset + 30)
+		const commentLength = archive.readUInt16LE(offset + 32)
+		if (archive.toString('utf8', offset + 46, offset + 46 + nameLength) === name) {
+			const method = archive.readUInt16LE(offset + 10)
+			const size = archive.readUInt32LE(offset + 20)
+			const local = archive.readUInt32LE(offset + 42)
+			assert.equal(archive.readUInt32LE(local), 0x04034b50, 'valid ZIP local entry')
+			const start = local + 30 + archive.readUInt16LE(local + 26) + archive.readUInt16LE(local + 28)
+			assert.ok(start + size <= archive.length, 'ZIP entry is complete')
+			assert.ok(method === 0 || method === 8, 'ZIP entry uses stored or deflate compression')
+			const data = archive.subarray(start, start + size)
+			return method === 8 ? inflateRawSync(data) : data
+		}
+		offset += 46 + nameLength + extraLength + commentLength
+	}
+	assert.fail(`ZIP entry ${name} is present`)
 }
 
 // Deps the consumer needs in scope — the package's declared dependencies and
@@ -186,6 +214,16 @@ try {
 	const packedRoot = join(extractedRoot, 'package')
 	const packedManifest = JSON.parse(readFileSync(join(packedRoot, 'package.json'), 'utf8'))
 	const workspaceManifest = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf8'))
+	const androidClasses = zipEntry(
+		readFileSync(join(packedRoot, 'platforms/android/audio.aar')),
+		'classes.jar',
+	)
+	const bridge = zipEntry(androidClasses, 'com/xplat/audio/AudioBridge.class')
+	const service = zipEntry(androidClasses, 'com/xplat/audio/AudioPlaybackService.class')
+	for (const method of ['isCommandIntent', 'takeQueue']) {
+		assert.ok(bridge.includes(Buffer.from(method)), `packed AudioBridge declares ${method}; rebuild the Android artifact`)
+		assert.ok(service.includes(Buffer.from(method)), `packed AudioPlaybackService calls ${method}; rebuild the Android artifact`)
+	}
 
 	const exportMaps = [
 		workspaceManifest.exports,
