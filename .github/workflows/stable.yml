@@ -65,7 +65,7 @@ jobs:
       - run: pnpm build:packages
       # Workshop's Playwright journey remains local; no browser installation.
       - name: Check declared non-browser packed consumer suites
-        run: pnpm -r --filter './packages/**' --filter='!@octane-xplat/workshop' --if-present run test:packed
+        run: pnpm exec turbo run test:packed --filter='./packages/*' --filter='!@octane-xplat/workshop' --concurrency=2
       - name: Verify complete packed app and library starter workflows
         run: pnpm check:consumer --no-build
 
@@ -97,6 +97,11 @@ jobs:
       # Produces a simulator-debug .app from the packed artifacts and proves
       # it installs + launches on a booted iPhone sim (simctl install/launch
       # on an already-booted device — ns run ios reboots and fails).
+      - name: Prepare and validate packed consumer packages
+        run: |
+          pnpm build:packages
+          pnpm check:pack
+
       - name: Packed consumer iOS build + simulator smoke
         run: node scripts/with-target-lock.ts ios -- node scripts/verify-consumer.ts --no-build --native ios --smoke-ios
 
@@ -146,7 +151,7 @@ jobs:
       # (OOM before emit → the .app has no bundle.js and the worker never
       # connects). macos runners have ~14GB; give the build headroom.
       - name: On-device Vitest suite (apps/mobile)
-        run: node scripts/with-target-lock.ts ios -- pnpm --filter @xplat/mobile test:ios -- --device "$SIM_UDID"
+        run: node scripts/with-target-lock.ts ios -- pnpm exec turbo run test:ios --filter=@xplat/mobile --env-mode=loose -- --device "$SIM_UDID"
         env:
           NODE_OPTIONS: '--max-old-space-size=6144'
 
@@ -181,6 +186,11 @@ jobs:
       # Produces a debug .apk from the packed artifacts. Debug-signed artifact
       # — this is a build check, not Play-store distribution evidence. No
       # emulator runtime smoke yet (documented gap).
+      - name: Prepare and validate packed consumer packages
+        run: |
+          pnpm build:packages
+          pnpm check:pack
+
       - name: Packed consumer Android build
         run: node scripts/with-target-lock.ts android -- node scripts/verify-consumer.ts --no-build --native android
         env:
