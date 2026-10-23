@@ -485,8 +485,9 @@ typechecks, generated-source checks, Rust tests and the independent core
 package release checks. These are host/CI checks, not additional device runs.
 
 
-The Xplat mobile proving harnesses now explicitly select the published
-`@octane-xplat/nativescript-mason-core@1.0.0-beta.0`: mobile (including the
+The Xplat mobile proving harnesses explicitly selected the published
+`@octane-xplat/nativescript-mason-core@1.0.0-beta.0` (since moved to beta.1
+for the environment resolver): mobile (including the
 navigation fixture), Maestro, Workshop demo, and the demos/media-probe
 development dependencies. Default mobile probes inherit that engine and verify
 its native file fingerprint. Vite uses the existing app-local alias for the
@@ -612,14 +613,18 @@ shared modules and full MasonKit behavior remain unchanged. Packed shared
 emissions are compared after applying those explicit adapters, and both
 platform import graphs still exclude full MasonKit and optional HTML/widgets.
 
-This implementation is **unreleased** and has **headless evidence only**. It
-has not qualified OS inset observation or actual iOS/Android layout. Published
-`1.0.0-beta.0` does not contain it. The native `env()` warning from issue #48
-must remain until Xplat installs a resolver-capable release and binds a source
-for its actual window/presentation host. Existing `useSafeAreaInsets()` inline
-styling remains the consumer path in the meantime. No public Xplat workflow
-or recipe changed here; the Octane styling guidance was reviewed without
-advertising the unreleased core API as installed support.
+This implementation shipped as
+[`core-v1.0.0-beta.1`](https://github.com/octane-xplat/nativescript-mason/releases/tag/core-v1.0.0-beta.1)
+from fork commit `27281f97`, published to npm `next` with provenance through
+the same trusted-publishing workflow. Evidence remains **headless only**: OS
+inset observation and actual iOS/Android layout are still unqualified. Xplat
+adopted the beta in its mobile harnesses and the create compatibility set; the
+installed package advertises `masonCoreCapabilities.safeAreaEnvironment`
+`owning-window-v1`, which the native preset reads to distinguish engines. The
+issue #48 warning did not disappear — capable core now warns that inset
+dispatch and layout await device qualification, while unsupported engines
+keep the unresolved-`env()` warning. Ordinary NativeScript controls still
+need `useSafeAreaInsets()` inline styling.
 
 Unknown environment names may use fallbacks. Without one, the existing
 invalid-length/diagnostic path still applies; this seam does not implement
