@@ -47,17 +47,19 @@ patchedDependencies:
   # _populateRules. Adds atlayer() covering block and statement forms. Applies to a
   # transitive dep — no app declares it directly.
   css@3.0.0: node_modules/.pnpm-config/@octane-xplat/patches/patches/css@3.0.0.patch
-  # Remaining dev-server fixes on @nativescript/vite 8.0.20: collect re-export specifiers in
-  # the .vite/deps rewrite; route outside-roots /@fs paths through /ns/m; probe non-active
-  # platform and native suffixes; redirect bare octane to octane/universal/native in
-  # deps-bundle esbuild passes; add .mobile to tsconfig-paths and generated checker
-  # suffixes; scan the app-local pnpm virtual store for served node_modules URLs; ignore
-  # per-package turbo.json as workspace markers; resolve # package-imports specifiers in
-  # served-module rewrites; preserve, compile, and hot-update virtual stylesheets
-  # (NativeScript#11551); and inspect ESM export declarations/specifiers for native
-  # default-import validation instead of matching comments, strings, or a narrow export
-  # syntax (NativeScript#11566). Shared-source graph and hot-context IDs now use the same
-  # app/workspace/@fs paths as served imports, preserving distinct roots
+  # Remaining dev-server fixes on @nativescript/vite 8.0.20: classify only the requested
+  # vendor entry under active native ESM conditions, keeping mixed
+  # source-root/compiled-subpath packages on the Vite transform path; collect re-export
+  # specifiers in the .vite/deps rewrite; route outside-roots /@fs paths through /ns/m;
+  # probe non-active platform and native suffixes; redirect bare octane to
+  # octane/universal/native in deps-bundle esbuild passes; add .mobile to tsconfig-paths and
+  # generated checker suffixes; scan the app-local pnpm virtual store for served
+  # node_modules URLs; ignore per-package turbo.json as workspace markers; resolve #
+  # package-imports specifiers in served-module rewrites; preserve, compile, and hot-update
+  # virtual stylesheets (NativeScript#11551); and inspect ESM export declarations/specifiers
+  # for native default-import validation instead of matching comments, strings, or a narrow
+  # export syntax (NativeScript#11566). Shared-source graph and hot-context IDs now use the
+  # same app/workspace/@fs paths as served imports, preserving distinct roots
   # (NativeScript#11569); extensionless workspace requests probe filesystem-anchored
   # extension/platform candidates so hot reimports can fetch shared modules
   # (NativeScript#11570). Linked-checkout discovery and candidate anchoring shipped in

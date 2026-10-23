@@ -1,0 +1,226 @@
+diff --git a/packages/vite/hmr/shared/vendor/manifest-collect.ts b/packages/vite/hmr/shared/vendor/manifest-collect.ts
+--- a/packages/vite/hmr/shared/vendor/manifest-collect.ts
++++ b/packages/vite/hmr/shared/vendor/manifest-collect.ts
+@@ -516,7 +516,7 @@
+ 			const addRootDeps = (deps: Record<string, unknown> | undefined) => {
+ 				if (!deps) return;
+ 				for (const [name, spec] of Object.entries(deps)) {
+-					if (isUnvendorableLocalSource(name, spec, projectRequire, platform)) continue;
++					if (typeof spec === 'string' && (spec.startsWith('link:') || spec.startsWith('workspace:'))) continue;
+ 					// Policy exclusions match PACKAGE NAMES (`@prisma/client` in
+ 					// ALWAYS_EXCLUDE / NS_VENDOR_EXCLUDE); check here so subpath specs
+ 					// (`@prisma/client/runtime/…`) can't route around an excluded name.
+@@ -537,7 +537,7 @@
+ 							if (debug) console.log(`[vendor] skipping root dependency ${name} (no resolvable bare entry)`);
+ 							continue;
+ 						}
+-						addCandidate(name);
++						if (!isUnvendorableLocalSource(name, spec, projectRequire, platform)) addCandidate(name);
+ 						continue;
+ 					}
+ 					// Subpath-only evidence: the app never imports the package ROOT, and
+@@ -554,7 +554,7 @@
+ 							continue;
+ 						}
+ 						if (debug) console.log(`[vendor] vendoring subpath ${subpath} (root ${name} has subpath-only evidence)`);
+-						addCandidate(subpath);
++						if (!isUnvendorableLocalSource(subpath, spec, projectRequire, platform)) addCandidate(subpath);
+ 					}
+ 				}
+ 			};
+@@ -632,7 +632,7 @@
+ 
+ 		const peerDependencies = Object.keys(dependencyPkg.peerDependencies ?? {});
+ 		for (const peer of peerDependencies) {
+-			if (shouldSkipDependency(peer) || localSourceNames.has(peer)) {
++			if (shouldSkipDependency(peer) || localSourceNames.has(peer) || classifyPackageEntry(peer, projectRequire, platform) === 'source') {
+ 				continue;
+ 			}
+ 			if (projectDeps.dependencies.has(peer) || projectDeps.optional.has(peer) || projectDeps.dev.has(peer)) {
+@@ -791,6 +791,43 @@
+ 	return false;
+ }
+ 
++// These are the explicit conditions used by manifest.ts and deps-bundle.ts.
++// Object insertion order, rather than the order of this set, selects a branch.
++const VENDOR_ENTRY_CONDITIONS = new Set(['module', 'react-native', 'import', 'browser', 'default']);
++
++function selectVendorExport(exports: unknown, subpath: string): string | null | undefined {
++	const selectCondition = (node: unknown): string | null | undefined => {
++		if (node === null || typeof node === 'string') return node;
++		if (Array.isArray(node)) {
++			for (const item of node) {
++				const selected = selectCondition(item);
++				if (selected !== undefined) return selected;
++			}
++		} else if (node && typeof node === 'object') {
++			for (const [condition, value] of Object.entries(node)) {
++				if (!VENDOR_ENTRY_CONDITIONS.has(condition)) continue;
++				const selected = selectCondition(value);
++				if (selected !== undefined) return selected;
++			}
++		}
++		return undefined;
++	};
++	if (exports && typeof exports === 'object' && !Array.isArray(exports) && Object.keys(exports).some((key) => key.startsWith('.'))) {
++		const paths = exports as Record<string, unknown>;
++		if (Object.hasOwn(paths, subpath)) return selectCondition(paths[subpath]);
++		// Exact matches win; patterns prefer the longest prefix then suffix.
++		const patterns = Object.keys(paths).filter((key) => key.includes('*')).sort((a, b) => b.indexOf('*') - a.indexOf('*') || b.length - a.length);
++		for (const pattern of patterns) {
++			const [prefix, suffix] = pattern.split('*');
++			if (!subpath.startsWith(prefix) || !subpath.endsWith(suffix) || subpath.length < prefix.length + suffix.length) continue;
++			const selected = selectCondition(paths[pattern]);
++			return typeof selected === 'string' ? selected.replaceAll('*', subpath.slice(prefix.length, subpath.length - suffix.length)) : selected;
++		}
++		return undefined;
++	}
++	return subpath === '.' ? selectCondition(exports) : undefined;
++}
++
+ /**
+  * Classify an installed package's entry point:
+  *  - `'compiled'` — a `.js`/`.mjs`/`.cjs` entry file (or its platform
+@@ -803,15 +840,18 @@
+  *    its subpaths may still be vendored as monorepo root deps.
+  */
+ function classifyPackageEntry(name: string, projectRequire: ReturnType<typeof createRequire>, platform?: string): 'compiled' | 'source' | 'unknown' {
++	const packageName = bareSpecifierToPackageName(name);
++	if (!packageName) return 'unknown';
++	const subpath = name === packageName ? '.' : `.${name.slice(packageName.length)}`;
+ 	let pkgJsonPath: string | null = null;
+ 	try {
+-		pkgJsonPath = projectRequire.resolve(`${name}/package.json`);
++		pkgJsonPath = projectRequire.resolve(`${packageName}/package.json`);
+ 	} catch {
+ 		// `exports` maps that omit `./package.json` refuse the subpath
+ 		// resolve — fall back to a direct path probe over the require
+ 		// resolution dirs.
+-		for (const dir of projectRequire.resolve.paths(name) ?? []) {
+-			const candidate = path.join(dir, name, 'package.json');
++		for (const dir of projectRequire.resolve.paths(packageName) ?? []) {
++			const candidate = path.join(dir, packageName, 'package.json');
+ 			if (fs.existsSync(candidate)) {
+ 				pkgJsonPath = candidate;
+ 				break;
+@@ -830,32 +870,20 @@
+ 	const pushCandidate = (value: unknown) => {
+ 		if (typeof value === 'string' && value) candidates.push(value);
+ 	};
+-	pushCandidate(pkg.module);
+-	pushCandidate(pkg.main);
+-	// Recursively flatten conditional `exports` maps to surface concrete
+-	// file paths. We only need `string` leaves; anything else (function-
+-	// based exports, etc.) doesn't apply to esbuild's resolution.
+-	const visitExports = (node: any) => {
+-		if (!node) return;
+-		if (typeof node === 'string') {
+-			pushCandidate(node);
+-			return;
+-		}
+-		if (Array.isArray(node)) {
+-			for (const item of node) visitExports(item);
+-			return;
+-		}
+-		if (typeof node === 'object') {
+-			for (const value of Object.values(node)) visitExports(value);
+-		}
+-	};
+-	visitExports(pkg.exports);
+-	if (candidates.length === 0) {
+-		// node's default lookup falls back to `index.js`.
+-		candidates.push('index');
++	if (pkg.exports != null) {
++		// Match the specifier and the conditions of the native ESM vendor build.
++		// An unrelated subpath, inactive branch, or legacy main is not evidence
++		// about the entry esbuild will actually load. Keep exports encapsulation.
++		pushCandidate(selectVendorExport(pkg.exports, subpath));
++	} else if (subpath !== '.') {
++		pushCandidate(subpath);
++	} else {
++		pushCandidate(pkg.module);
++		pushCandidate(typeof pkg.browser === 'string' ? pkg.browser : undefined);
++		pushCandidate(pkg.main);
++		if (candidates.length === 0) candidates.push('index');
+ 	}
+ 	const extensionsToTry = compiledJsExtensionsForPlatform(platform);
+-	let sourceEntryFound = false;
+ 	for (const cand of candidates) {
+ 		const abs = path.resolve(pkgDir, cand);
+ 		const ext = path.extname(cand);
+@@ -873,22 +901,24 @@
+ 			continue;
+ 		}
+ 		if (!ext) {
+-			// Extensionless main — try plain JS variants AND the
+-			// platform-specific variants NativeScript plugins commonly use
+-			// (`index.ios.js`, `index.android.js`, `index.visionos.js`), as
+-			// both a file (`<abs>.js`) and a directory (`<abs>/index.js`).
+-			for (const e of extensionsToTry) {
+-				if (fs.existsSync(abs + e) || fs.existsSync(path.join(abs, `index${e}`))) return 'compiled';
+-			}
+-			if (['.ts', '.tsx', '.mts', '.cts'].some((e) => fs.existsSync(abs + e) || fs.existsSync(path.join(abs, `index${e}`)))) sourceEntryFound = true;
++			// Match the vendor bundler's file-before-directory lookup and extension
++			// order. Only the active platform is eligible; a foreign JS leaf must
++			// not hide the source entry that this platform will actually load.
++			const suffixes = platform === 'android' ? ['android'] : platform === 'visionos' ? ['visionos', 'ios'] : ['ios', 'visionos'];
++			const extensions = ['.tsx', '.jsx', '.ts', '.js', '.mjs', '.cjs', '.json', ...suffixes.flatMap((suffix) => ['.tsx', '.jsx', '.ts', '.js'].map((e) => `.${suffix}${e}`)), '.tsrx', '.mts', '.cts'];
++			for (const base of [abs, path.join(abs, 'index')]) {
++				for (const extension of extensions) {
++					if (fs.existsSync(base + extension)) return COMPILED_JS_ENTRY_REGEX.test(extension) ? 'compiled' : 'source';
++				}
++			}
+ 			continue;
+ 		}
+ 		// A non-JS extension (typically `.ts`/`.tsx`) means the package
+ 		// only ships TS source — esbuild's vendor pipeline can't resolve
+ 		// any tsconfig-aliased imports inside it.
+-		if (fs.existsSync(abs)) sourceEntryFound = true;
+-	}
+-	return sourceEntryFound ? 'source' : 'unknown';
++		if (fs.existsSync(abs)) return 'source';
++	}
++	return 'unknown';
+ }
+ 
+ function canResolveDependencyPackageJson(specifier: string, projectRequire: ReturnType<typeof createRequire>): boolean {
+diff --git a/packages/vite/hmr/shared/vendor/manifest.spec.ts b/packages/vite/hmr/shared/vendor/manifest.spec.ts
+--- a/packages/vite/hmr/shared/vendor/manifest.spec.ts
++++ b/packages/vite/hmr/shared/vendor/manifest.spec.ts
+@@ -344,4 +344,36 @@
+ 		expect(entries).toContain('subpath-lib/a.js');
+ 		expect(entries).toContain('wildcard-lib/w');
+ 	});
++	for (const platform of ['android', 'ios']) {
++		for (const [label, exports, expected] of [
++			['mixed root/subpath', { '.': './index.ts', './parity': './parity.js' }, false],
++			['inactive conditions', { android: './parity.js', ios: './parity.js', native: './parity.js', node: './parity.js', require: './parity.js', development: './parity.js', default: './index.ts' }, false],
++			['nested active conditions', { 'react-native': { types: './parity.js', import: './index.ts', default: './parity.js' }, default: './parity.js' }, false],
++			['condition order', { default: './index.ts', import: './parity.js' }, false],
++			['first array target', ['./index.ts', './parity.js'], false],
++			['compiled native entry', { 'react-native': './parity.js', default: './index.ts' }, true],
++		] as const) {
++			it(`${platform}: classifies the requested entry (${label})`, () => {
++				const root = makeApp({ mixed: '1.0.0' });
++				installPackage(root, 'mixed', { exports, main: './parity.js' }, { 'index.ts': 'export const x = 1;', 'parity.js': 'export const x = 2;' });
++				expect(collectVendorModules(root, platform, 'typescript').entries.includes('mixed')).toBe(expected);
++			});
++		}
++	}
++	it('classifies imported subpaths rather than the source root or a sibling export', () => {
++		const workspace = makeApp({ mixed: '1.0.0', rootless: '1.0.0' });
++		writeFileSync(join(workspace, 'nx.json'), '{}');
++		installPackage(workspace, 'mixed', { exports: { '.': './index.ts', './compiled': './parity.js', './source': './index.ts' } }, { 'index.ts': '', 'parity.js': '' });
++		installPackage(workspace, 'rootless', { exports: { './source': './index.ts', './*': './dist/*.js' } }, { 'index.ts': '', 'dist/compiled.js': '' });
++		const app = join(workspace, 'apps', 'app');
++		mkdirSync(join(app, 'src'), { recursive: true });
++		writeFileSync(join(app, 'package.json'), '{"name":"app"}');
++		writeFileSync(join(app, 'src', 'main.ts'), "import 'mixed/compiled'; import 'mixed/source'; import 'rootless/compiled'; import 'rootless/source';");
++		const { entries } = collectVendorModules(app, 'android', 'typescript');
++		expect(entries).toContain('mixed/compiled');
++		expect(entries).toContain('rootless/compiled');
++		expect(entries).not.toContain('mixed/source');
++		expect(entries).not.toContain('rootless/source');
++	});
++
+ });

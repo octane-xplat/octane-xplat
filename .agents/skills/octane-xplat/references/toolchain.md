@@ -93,6 +93,21 @@ The generic declaration gate pairs runtime and type exports. Keep separate
 packed-consumer checks for pure type facades or Node tooling with mixed export
 formats; see the [checker boundary](../../../../packages/tsrx-typegen/README.md#publish-checks).
 
+## Linked native source packages
+
+Keep the canonical NativeScript Vite patch set when developing against source
+packages that also expose compiled tooling subpaths. The vendor collector must
+classify the requested entry under the native bundler's conditions; a compiled
+sibling export does not make the source root vendorable. Keep those roots in
+the framework transform pipeline. See the
+[mixed-export limitation](../../../../.agents/docs/toolchain.md) and its
+maintained collector/bundler regression before removing the patch or adding
+vendor exclusions.
+
+```json
+{ "exports": { ".": "./src/index.ts", "./parity": "./dist/parity/index.js" } }
+```
+
 ## CI evidence and publishing
 
 Nightly readiness uses `CI`; stable qualification uses `Stable CI` for the same

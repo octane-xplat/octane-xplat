@@ -109,6 +109,38 @@ experience of agents writing Octane-xplat code effectively.
   ```json
   { "exports": { "./feature": "./dist/feature.js" } }
   ```
+- **Mixed exports need the canonical collector patch on NativeScript Vite
+  8.0.20.** Its source-only check flattens every export, so a compiled
+  `./parity` subpath incorrectly makes a TypeScript root vendorable. In a
+  linked consumer, Android's actual dev vendor build failed with 160 esbuild
+  resolution errors for extensionless `.tsrx` and `.mobile.ts` leaves. This
+  follows [NativeScript#11560](https://github.com/NativeScript/NativeScript/pull/11560);
+  the consumer report is tracked by relay retryKey
+  `upstream-xplat-linked-ios-vendor-tsrx-mixed-exports-android`.
+
+  ```json
+  { "exports": { ".": "./src/index.ts", "./parity": "./dist/parity/index.js" } }
+  ```
+
+  The canonical patch classifies the requested root/subpath under the native
+  vendor build's `module`, `react-native`, `import`, `browser`, and `default`
+  conditions in export-map order. Inactive conditions, sibling exports, and
+  legacy entry fields cannot override the selected export. Platform plugin
+  probing and rootless compiled subpaths remain supported; source peers are
+  excluded too. Xplat retains only its rootless-package fallback. The repair
+  leaves source in the framework's Vite transform pipeline and does not add
+  esbuild loaders or another runtime realm.
+
+  The [upstream source repair and tests](../patches/native-vendor-entry-source.patch)
+  are retained locally against NativeScript Vite 8.0.20; no follow-up PR has
+  been submitted from this task. The installed-patch regressions live in
+  `packages/cli/test/vite-vendor-exclude.test.mjs`, including the Android dev
+  vendor build hook. Remove this hunk when an adopted upstream release
+  classifies the requested entry under the same conditions as its bundler.
+  The patched Android dev vendor hook and first-boot deps bundle (188 modules)
+  pass against the linked consumer; the unpatched vendor hook reproduces the
+  160 errors. These host checks do not establish device startup.
+
 - NativeScript Vite 8.0.20's dev link check rejects valid named-to-default
   exports and can mistake comments or strings for exports
   ([NativeScript#11566](https://github.com/NativeScript/NativeScript/issues/11566)).
