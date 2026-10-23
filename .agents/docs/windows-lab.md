@@ -205,6 +205,19 @@ are ready in `lab-ui.ps1` but produced no runtime results yet.
   substitution and loose DLL copies next to the exe did not help; both were
   reverted before the clean registration.
 
+  Follow-up: a **real MSIX install resolves activation** where `-Register` did
+  not. `ns build windows --release` produces
+  `AppPackages\windows_1.0.0.0_x64_Test\windows_1.0.0.0_x64.msix` (unsigned by
+  default; sign with a self-signed `CN=ui` cert in `LocalMachine\TrustedPeople`
+  using the SDK buildtools `signtool.exe`). After `Remove-AppxPackage` of the
+  loose registration, `Add-AppxPackage -Path` on the signed MSIX launched
+  `windows.exe` and JS boot reached `console.log`. The remaining failure is a
+  bundle error, not host plumbing: `Uncaught TypeError: Cannot read properties
+  of undefined (reading 'setNative')` inside `app\vendor.mjs` — a symbol-keyed
+  property descriptor (`[FP.setNative]`) whose imported symbol evaluates to
+  `undefined`, consistent with a patched/preview core–bundle export mismatch.
+  No window or test output yet; the four checks are still queued behind this.
+
 Next: resolve the launch crash (debugger/WER capture in session 1), then run
 `lab-ui.ps1` for the four checks. The kitchen sink remains blocked separately
 on the command-palette accessibility mobile import.
