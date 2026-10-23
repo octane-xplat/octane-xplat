@@ -293,11 +293,131 @@ const response = () => ({ headers: { 'Cache-Control': 'public, max-age=60' } })
 // Pass response to createWebHandler; report unexpected errors through onError.
 ```
 
-Static path enumeration and incremental HTML generation are separate work. Baked
-route data alone does not produce HTML files. These checks qualify buffered
-rendering, hydration in a DOM harness, and local HTTP through srvx. Streaming
-and hosting-provider deployments need separate qualification:
+Baked route data alone does not produce HTML files; use the prerendering workflow
+below for that. These checks qualify buffered rendering, hydration in a DOM
+harness, and local HTTP through srvx. Streaming and hosting-provider deployments
+need separate qualification:
 
 ```sh
 pnpm exec turbo run test typecheck --filter=@octane-xplat/web-host
+```
+
+
+## Generate static pages
+
+Build the maintained example to produce ready-to-serve product pages in
+`packages/web-host/example/dist/static`. Run the same build again: its result
+reports `reused: 2` when the server bundle and content keys are unchanged.
+Use `STATIC=1` to serve those files before falling back to request-time rendering.
+
+```sh
+pnpm exec turbo run build:example --filter=@octane-xplat/web-host --force
+STATIC=1 node packages/web-host/example/serve.mjs
+# Open http://localhost:4174/products/coat
+```
+
+Export a `createWebRenderer` from your server entry for public pages. It uses the
+same catalog, public projection and document options as `createWebHandler`.
+Static output requires a successful HTML page explicitly marked `public`;
+redirects, failures, private responses and cookies stop the build.
+
+```ts
+// static.web.ts — compile this as a server entry with webHost() and octane().
+import { createWebRenderer } from '@octane-xplat/web-host/server'
+import { catalog } from './routes.web.tsrx'
+
+export const renderer = createWebRenderer({
+  catalog,
+  buildId: 'store-v1',
+  assets: { scripts: ['/assets/client.abc123.js'] },
+  transfer: match => ({ data: match.data as { name: string }, context: {} }),
+  response: () => ({ headers: { 'Cache-Control': 'public, max-age=60' } }),
+})
+```
+
+In a Node build script, import that compiled server entry and enumerate concrete
+route destinations. Each `key` identifies the content used by that page; use
+`null` when the page must render on every build. Enumeration can fetch records
+from your content service before returning its list. Required parameters are
+checked against the renderer's catalog when this script is typed.
+
+```js
+// prerender.mjs — run after compiling the server and browser entries.
+import { prerender } from '@octane-xplat/web-host/prerender'
+import { renderer } from './dist/server/static.web.js'
+
+const result = await prerender(renderer, {
+  origin: 'https://shop.example.com',
+  outDir: 'dist/static',
+  cacheFile: '.cache/static-pages.json',
+  revision: 'product-renderer-v1',
+  paths: async () => [
+    { destination: { to: '/products/:id', params: { id: 'coat' } }, key: 'coat-v3' },
+    { destination: { to: '/products/:id', params: { id: 'hat' } }, key: 'hat-v2' },
+  ],
+})
+console.log(result) // { rendered: 2, reused: 0, paths: [...] } on the first build
+```
+
+Reuse skips preparation, guards, loaders and app rendering. Include every data
+dependency in the content key, and change `revision` whenever route code, guards,
+loaders, public projection, app markup or rendering dependencies change. A hash
+of the complete server bundle is a conservative revision, as the maintained
+example demonstrates. For multiple chunks, hash every server chunk. Keep the
+cache private to the build even though it contains only projected public data.
+
+```js
+import { createHash } from 'node:crypto'
+import { readFile } from 'node:fs/promises'
+
+// For a single-file server bundle; pass this value as revision.
+const revision = createHash('sha256')
+  .update(await readFile('dist/server/static.web.js'))
+  .digest('hex')
+```
+
+Every build assembles the document again using current asset URLs and `buildId`,
+even for reused content. Cached app markup, CSS and route metadata stay unchanged;
+if they contain build-specific image URLs or other assets, include those changes
+in `revision` too. The document's build ID must match browser startup as usual.
+
+```ts
+const buildId = 'store-v2' // use in both server rendering and startWebApp
+const assets = { scripts: ['/assets/client.new.js'], styles: ['/assets/app.new.css'] }
+// Pass these to createWebRenderer for the next build.
+```
+
+`outDir` belongs exclusively to prerendering. A successful build replaces its old
+pages, removing paths no longer enumerated; a rendering failure leaves the old
+output intact. Keep browser assets and the cache outside it. Existing directories
+without the ownership marker are refused. Paths cannot contain query strings,
+fragments, traversal segments or conflicting filenames.
+
+```text
+dist/
+  client/                     browser assets (separate build)
+  static/
+    .xplat-prerender           ownership marker; retain between local builds
+    products/coat/index.html
+    products/hat/index.html
+.cache/static-pages.json      reusable public content
+```
+
+Deploy the static directory alongside your browser assets, with directory-index
+serving enabled. File output does not carry HTTP headers: configure caching and
+security headers on the static host. Extra response headers are rejected to
+avoid silently dropping behavior. srvx can serve the files locally; deployment
+to a particular hosting provider remains a separate integration.
+
+```js
+import { serve } from 'srvx'
+import { staticMiddleware } from 'srvx/static'
+
+serve({
+  middleware: [
+    staticMiddleware({ dir: 'dist/client' }),
+    staticMiddleware({ dir: 'dist/static' }),
+  ],
+  fetch: () => new Response('Not Found', { status: 404 }),
+})
 ```

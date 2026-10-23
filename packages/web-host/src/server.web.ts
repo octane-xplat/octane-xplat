@@ -5,6 +5,9 @@ import {
 	createRouter,
 	type PreparedRouteMatch,
 	type ContractRouteManifest,
+	type ContractsOf,
+	type DestinationFor,
+	type RouteDestinationInput,
 } from '@octane-xplat/ui/routing/core'
 
 import {
@@ -15,10 +18,11 @@ import {
 
 import { AppContainer, DefaultDocument, DocumentHead, DocumentScripts } from './document.web.tsrx'
 import { identifierPrefix, serializePublic } from './transfer'
-import type { WebBootstrap, WebHandlerOptions } from './props'
+import type { WebBootstrap, WebHandlerOptions, WebRenderedPage } from './props'
 
 export type {
 	WebHandlerOptions,
+	WebRenderedPage,
 	WebDocumentProps,
 	PublicRouteData,
 	WebAssets,
@@ -40,26 +44,18 @@ function renderTemplate(template: string, slots: Record<'head' | 'app' | 'script
 	)
 }
 
-/** Optional web transport. Every invocation owns its preparation, router and
- * render state. It does not register routes in the process-global client. */
-export function createWebHandler<const Catalog extends ContractRouteManifest>(
+/** Prepare reusable public page content separately from the current document and assets.
+ * Cache users must invalidate content when route code, App or preparation behavior changes. */
+export function createWebRenderer<const Catalog extends ContractRouteManifest>(
 	options: WebHandlerOptions<Catalog>,
-): (request: Request) => Promise<Response> {
+) {
 	if (!options.buildId) {
 		throw new TypeError('A web host requires a buildId')
 	}
 	if (options.template && options.Document) {
 		throw new TypeError('Choose template or Document')
 	}
-	return async (request) => {
-		const finish = (response: Response) =>
-			request.method === 'HEAD'
-				? new Response(null, {
-						status: response.status,
-						statusText: response.statusText,
-						headers: response.headers,
-					})
-				: response
+	const render = async (request: Request): Promise<WebRenderedPage | Response> => {
 		if (request.method !== 'GET' && request.method !== 'HEAD') {
 			return new Response('Method Not Allowed', { status: 405, headers: { Allow: 'GET, HEAD' } })
 		}
@@ -93,24 +89,22 @@ export function createWebHandler<const Catalog extends ContractRouteManifest>(
 				const result = await engine.prepare(path, { signal: request.signal, redirects: 'return' })
 				request.signal.throwIfAborted()
 				if (result.status === 'redirect') {
-					return finish(
-						new Response(null, {
-							status: 302,
-							headers: { Location: engine.href(result.destination) },
-						}),
-					)
+					return new Response(null, {
+						status: 302,
+						headers: { Location: engine.href(result.destination) },
+					})
 				}
 
 				if (result.status === 'not-found') {
-					return finish(new Response('Not Found', { status: 404 }))
+					return new Response('Not Found', { status: 404 })
 				}
 
 				if (result.status === 'forbidden') {
-					return finish(new Response('Forbidden', { status: 403 }))
+					return new Response('Forbidden', { status: 403 })
 				}
 
 				if (result.status === 'invalid-input') {
-					return finish(new Response('Bad Request', { status: 400 }))
+					return new Response('Bad Request', { status: 400 })
 				}
 
 				if (result.status === 'failed') {
@@ -175,48 +169,6 @@ export function createWebHandler<const Catalog extends ContractRouteManifest>(
 				head = rendered.head ?? ''
 			}
 
-			const bootstrap: WebBootstrap = {
-				version: 1,
-				buildId: options.buildId,
-				url: path,
-				mode,
-				...(match ? { match } : {}),
-			}
-
-			const assets =
-				typeof options.assets === 'function' ? await options.assets(request) : options.assets
-
-			const headProps = { ...metadata, styles: assets.styles }
-			const scriptProps = { bootstrap: serializePublic(bootstrap), scripts: assets.scripts }
-			let documentHtml: string
-			if (options.template !== undefined) {
-				documentHtml = renderTemplate(options.template, {
-					head: renderToStaticMarkup(DocumentHead, headProps).html + head + css,
-					app: renderToStaticMarkup(AppContainer, { html }).html,
-					scripts: renderToStaticMarkup(DocumentScripts, scriptProps).html,
-				})
-			} else {
-				const rendered = renderToStaticMarkup(
-					options.Document ?? DefaultDocument,
-					{
-						request,
-						head: createElement(DocumentHead, headProps),
-						children: createElement(AppContainer, { html }),
-						scripts: createElement(DocumentScripts, scriptProps),
-					},
-					{ signal: request.signal },
-				)
-
-				if (!/<\/head\s*>/i.test(rendered.html)) {
-					throw new Error('Document must render an HTML head')
-				}
-
-				documentHtml =
-					'<!doctype html>' +
-					rendered.html.replace(/<\/head\s*>/i, () => head + css + rendered.css + '</head>')
-			}
-
-			request.signal.throwIfAborted()
 			const headers = new Headers(init.headers)
 			if (!headers.has('Content-Type')) {
 				headers.set('Content-Type', 'text/html; charset=utf-8')
@@ -227,7 +179,135 @@ export function createWebHandler<const Catalog extends ContractRouteManifest>(
 				headers.set('Cache-Control', 'private, no-store')
 			}
 
-			return finish(new Response(documentHtml, { ...init, headers }))
+			const headerEntries: [string, string][] = []
+			headers.forEach((value, name) => {
+				if (name !== 'set-cookie') {
+					headerEntries.push([name, value])
+				}
+			})
+
+			for (const cookie of headers.getSetCookie()) {
+				headerEntries.push(['set-cookie', cookie])
+			}
+
+			return {
+				version: 1,
+				url: path,
+				mode,
+				...(match ? { match } : {}),
+				html,
+				css,
+				head,
+				...(metadata ? { metadata } : {}),
+				status: init.status ?? 200,
+				statusText: init.statusText ?? '',
+				headers: headerEntries,
+			}
+		} finally {
+			router?.dispose()
+			engine.dispose()
+		}
+	}
+
+	const document = async (page: WebRenderedPage, request: Request): Promise<Response> => {
+		if (
+			page.version !== 1 ||
+			page.url !== new URL(request.url).pathname + new URL(request.url).search
+		) {
+			throw new TypeError('Rendered page does not match the document request')
+		}
+		const { mode, match, html, css, head, metadata } = page
+
+		const bootstrap: WebBootstrap = {
+			version: 1,
+			buildId: options.buildId,
+			url: page.url,
+			mode,
+			...(match ? { match } : {}),
+		}
+
+		const assets =
+			typeof options.assets === 'function' ? await options.assets(request) : options.assets
+
+		const headProps = { ...metadata, styles: assets.styles }
+		const scriptProps = { bootstrap: serializePublic(bootstrap), scripts: assets.scripts }
+		let documentHtml: string
+		if (options.template !== undefined) {
+			documentHtml = renderTemplate(options.template, {
+				head: renderToStaticMarkup(DocumentHead, headProps).html + head + css,
+				app: renderToStaticMarkup(AppContainer, { html }).html,
+				scripts: renderToStaticMarkup(DocumentScripts, scriptProps).html,
+			})
+		} else {
+			const rendered = renderToStaticMarkup(
+				options.Document ?? DefaultDocument,
+				{
+					request,
+					head: createElement(DocumentHead, headProps),
+					children: createElement(AppContainer, { html }),
+					scripts: createElement(DocumentScripts, scriptProps),
+				},
+				{ signal: request.signal },
+			)
+
+			if (!/<\/head\s*>/i.test(rendered.html)) {
+				throw new Error('Document must render an HTML head')
+			}
+
+			documentHtml =
+				'<!doctype html>' +
+				rendered.html.replace(/<\/head\s*>/i, () => head + css + rendered.css + '</head>')
+		}
+
+		request.signal.throwIfAborted()
+		return new Response(documentHtml, {
+			status: page.status,
+			statusText: page.statusText,
+			headers: page.headers,
+		})
+	}
+
+	return {
+		render,
+		document,
+		href(
+			destination: DestinationFor<
+				ContractsOf<Catalog>,
+				keyof ContractsOf<Catalog> & string,
+				string
+			>,
+		) {
+			const engine = createRoutePreparation({
+				catalog: options.catalog,
+				base: options.base,
+				stacks: options.stacks,
+			})
+			try {
+				return engine.href(destination as RouteDestinationInput)
+			} finally {
+				engine.dispose()
+			}
+		},
+	}
+}
+
+/** Fetch adapter with request-local state, preserved HTTP outcomes and private caching by default. */
+export function createWebHandler<const Catalog extends ContractRouteManifest>(
+	options: WebHandlerOptions<Catalog>,
+): (request: Request) => Promise<Response> {
+	const renderer = createWebRenderer(options)
+	return async (request) => {
+		const finish = (response: Response) =>
+			request.method === 'HEAD'
+				? new Response(null, {
+						status: response.status,
+						statusText: response.statusText,
+						headers: response.headers,
+					})
+				: response
+		try {
+			const page = await renderer.render(request)
+			return finish(page instanceof Response ? page : await renderer.document(page, request))
 		} catch (error) {
 			if (request.signal.aborted) {
 				throw request.signal.reason
@@ -239,9 +319,6 @@ export function createWebHandler<const Catalog extends ContractRouteManifest>(
 
 			options.onError?.(error, request)
 			return finish(new Response('Internal Server Error', { status: 500 }))
-		} finally {
-			router?.dispose()
-			engine.dispose()
 		}
 	}
 }

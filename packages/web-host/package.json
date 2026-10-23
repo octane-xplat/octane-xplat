@@ -30,6 +30,10 @@
 		"./vite": {
 			"types": "./types/build/vite.d.ts",
 			"default": "./dist/vite.js"
+		},
+		"./prerender": {
+			"types": "./types/build/prerender.d.ts",
+			"default": "./dist/prerender.js"
 		}
 	},
 	"scripts": {

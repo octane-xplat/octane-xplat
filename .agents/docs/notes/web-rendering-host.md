@@ -10,8 +10,8 @@ refresh and traversal continue through guards and loaders.
 The document is a server-authored shell. Its app container hydrates; document
 hooks do not acquire a browser lifetime. Component and template documents share
 asset and transfer handling. Rendering mode (`server`/`client`) does not change
-route data provenance (`live`/`baked`). No server-loader RPC, server-export
-stripping, lazy loading or static-path generation is implied.
+route data provenance (`live`/`baked`). Server-loader RPC remains outside this host. The lazy loading, server-code boundary
+and static-generation extensions are described below.
 
 ## Octane 0.14.0 outlet hydration constraint
 
@@ -111,3 +111,31 @@ not an RPC layer. Residual uses of removed exports fail normal module linking.
 Production maps omit authored sources; maps for transformed dev modules break
 the original-source chain. Build and Vite development regressions inspect both
 emitted code and maps for fixture sentinels. No actual credentials are fixtures.
+
+
+## Static path enumeration and incremental rendering
+
+`createWebRenderer` separates request preparation/rendering from document assembly;
+`createWebHandler` remains the Fetch transport. Public page artifacts contain only
+projected match data, rendered HTML/CSS/head, metadata and HTTP response fields.
+The Node `prerender` entry enumerates typed destinations and persists these artifacts
+under a hash of format version, origin, concrete path, renderer revision and content
+key. Missing/corrupt cache entries rerender; null keys always rerender. Apps own
+invalidation: the example hashes its single server bundle and assigns content keys.
+Cache hits bypass guards and loaders and therefore require public, invariant content.
+Every output build assembles current Document/template, scripts/styles and bootstrap
+buildId. Cached markup's own asset references require a revision change.
+
+Output uses a dedicated ownership-marked directory, a sibling staging directory,
+exclusive build lock and rename/rollback at publication. Render failures leave prior
+output intact; crashes during the two renames can leave a recoverable `.previous`
+directory and lock. This is build publication, not an online deployment transaction.
+Non-200 responses, cookies, private/no-store caching and extra HTTP headers are
+rejected; static hosts must configure their own cache/security response headers.
+Query/hash paths and unsafe or colliding filesystem destinations are rejected.
+Tests cover real compiled Octane content reuse and hydration, current asset/build-ID
+assembly, invalidation, removal, failures, cache corruption and output ownership.
+
+Flamefront's `src/lifecycle.ts` and `src/prerender.ts` informed the content/artifact
+split. No implementation was copied. HTTP serving remains srvx; no provider-specific
+adapter or automatic runtime revalidation is introduced.

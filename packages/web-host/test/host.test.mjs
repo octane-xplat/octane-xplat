@@ -1,13 +1,14 @@
 import { after, before, test } from 'node:test'
 import assert from 'node:assert/strict'
 import { build } from 'vite'
-import { mkdtemp, writeFile, rm } from 'node:fs/promises'
+import { mkdtemp, writeFile, readFile, rm } from 'node:fs/promises'
 import { pathToFileURL } from 'node:url'
 import { octane } from 'octane/compiler/vite'
 import { webHost } from '../src/build/vite.ts'
 import { JSDOM } from 'jsdom'
 import { serve } from 'srvx'
 import { staticMiddleware } from 'srvx/static'
+import { prerender } from '../src/build/prerender.ts'
 
 let fixture, clientBundle, serverDirectory
 const root = new URL('..', import.meta.url).pathname
@@ -302,4 +303,120 @@ test('custom app scopes and named-stack deep links hydrate through the public ou
 		app?.dispose()
 		dom.window.close()
 	}
+})
+
+test('incremental prerender reuses public content with fresh assets, document and hydration identity', async () => {
+	const directory = await mkdtemp(serverDirectory + '/static-')
+	const options = {
+		origin: 'http://localhost',
+		outDir: directory + '/html',
+		cacheFile: directory + '/cache.json',
+		revision: 'code-v1',
+		paths: async () =>
+			['coat', 'hat'].map((id) => ({
+				destination: { to: '/items/:id', params: { id } },
+				key: 'content-v1',
+			})),
+	}
+	const first = fixture.renderer()
+	const before = fixture.loads
+	assert.deepEqual(await prerender(first, options), {
+		rendered: 2,
+		reused: 0,
+		paths: ['/items/coat', '/items/hat'],
+	})
+	assert.equal(fixture.loads, before + 2)
+	const template =
+		'<!doctype html><html><head><!--xplat:head--></head><body><nav>New document</nav><!--xplat:app--><!--xplat:scripts--></body></html>'
+	const second = fixture.renderer({
+		buildId: 'test',
+		assets: { scripts: ['/current.js'], styles: ['/current.css'] },
+		template,
+	})
+	assert.equal((await prerender(second, options)).reused, 2)
+	assert.equal(fixture.loads, before + 2)
+	const html = await readFile(directory + '/html/items/coat/index.html', 'utf8')
+	assert.match(html, /New document/)
+	assert.match(html, /current.js/)
+	assert.match(html, /current.css/)
+	assert.doesNotMatch(html, /client.js|private-secret/)
+	const staticServer = serve({
+		port: 0,
+		hostname: '127.0.0.1',
+		silent: true,
+		middleware: [staticMiddleware({ dir: options.outDir })],
+		fetch: () => new Response('Not Found', { status: 404 }),
+	})
+	try {
+		await staticServer.ready()
+		const served = await fetch(new URL('/items/coat', staticServer.url))
+		assert.equal(served.status, 200)
+		assert.equal(await served.text(), html)
+	} finally {
+		await staticServer.close(true)
+	}
+
+	const { dom, browser, document } = await browserFor(html)
+	let app
+	try {
+		const node = document.getElementById('item')
+		const errors = []
+		app = await browser.start({ onRecoverableError: (error) => errors.push(error) })
+		assert.equal(document.getElementById('item'), node)
+		assert.deepEqual(errors, [])
+		assert.equal(browser.loads, 0)
+	} finally {
+		app?.dispose()
+		dom.window.close()
+	}
+	const nextBuild = fixture.renderer({ buildId: 'next-build' })
+	assert.equal((await prerender(nextBuild, options)).reused, 2)
+	assert.match(
+		await readFile(directory + '/html/items/coat/index.html', 'utf8'),
+		/"buildId":"next-build"/,
+	)
+	const changed = await options.paths()
+	changed[0].key = 'content-v2'
+	assert.deepEqual(await prerender(second, { ...options, paths: changed }), {
+		rendered: 1,
+		reused: 1,
+		paths: ['/items/coat', '/items/hat'],
+	})
+	assert.equal(
+		(await prerender(second, { ...options, paths: changed, revision: 'code-v2' })).rendered,
+		2,
+	)
+	assert.equal(
+		(await prerender(second, { ...options, paths: [{ ...changed[0], key: null }] })).rendered,
+		1,
+	)
+	await assert.rejects(readFile(directory + '/html/items/hat/index.html'), { code: 'ENOENT' })
+	const previous = await readFile(directory + '/html/items/coat/index.html', 'utf8')
+	for (const path of ['/redirect', '/error', '/forbidden']) {
+		await assert.rejects(
+			prerender(second, { ...options, paths: [{ destination: { to: path }, key: null }] }),
+		)
+
+		assert.equal(await readFile(directory + '/html/items/coat/index.html', 'utf8'), previous)
+	}
+	await assert.rejects(
+		prerender(fixture.renderer({ response: () => ({}) }), {
+			...options,
+			paths: changed,
+			revision: 'private',
+		}),
+		/Cache-Control: public/,
+	)
+	await assert.rejects(
+		prerender(
+			fixture.renderer({
+				response: () => ({ headers: { 'Cache-Control': 'public', 'Set-Cookie': 'private=1' } }),
+			}),
+			{ ...options, paths: changed, revision: 'cookie' },
+		),
+		/set-cookie/,
+	)
+	assert.equal(await readFile(directory + '/html/items/coat/index.html', 'utf8'), previous)
+	await writeFile(options.cacheFile, '{broken')
+	assert.equal((await prerender(second, options)).rendered, 2)
 })

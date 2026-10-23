@@ -2,7 +2,7 @@
 
 ID: web-rendering
 Targets: web
-Related APIs: createWebHandler, startWebApp, Document, RouteOutlet, createRoutePreparation
+Related APIs: createWebHandler, startWebApp, Document, RouteOutlet, createRoutePreparation, createWebRenderer, prerender
 
 ## Starting point
 
@@ -21,9 +21,11 @@ The app owner can compile and deploy separate server and browser entries.
 - AC1: The reader can build the maintained example, connect the Fetch handler, and hydrate the same catalog with matching build and asset identifiers.
 - AC2: The reader can author a document or template, distinguish server-only shell state from interactive app state, and retain the normal router for later navigation.
 - AC3: The reader can project public data, keep private services out of rendering and transfer, handle HTTP outcomes, and select explicit cache behavior.
-- AC4: The reader can choose server or client rendering per request and identify the separate native, streaming, static-generation scope.
+- AC4: The reader can choose server or client rendering per request and identify the separate native and streaming scope.
 
 - AC5: The reader isolates private services with named server-only re-exports, understands rejection of residual imports on browser/native builds, and distinguishes this boundary from RPC and shared loaders.
+
+- AC6: The reader enumerates parameterized static paths, sets complete cache invalidation inputs, refreshes build assets, and preserves previous output on failure.
 
 ## Documentation
 
@@ -33,3 +35,5 @@ The app owner can compile and deploy separate server and browser entries.
 - AC4: [Rendering mode and limits](../../../docs/platform/web-rendering.md#mix-server-and-client-rendering), [implementation evidence](../notes/web-rendering-host.md).
 
 - AC5: [Keep server code out of clients](../../../docs/platform/web-rendering.md#keep-server-code-out-of-clients), maintained `example/context.server.ts`, and `test/server-boundary.test.mjs`.
+
+- AC6: [Generate static pages](../../../docs/platform/web-rendering.md#generate-static-pages), maintained `example/build.mjs` and `example/serve.mjs`, `test/host.test.mjs` and `test/prerender.test.mjs`.

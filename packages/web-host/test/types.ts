@@ -5,7 +5,7 @@ import {
 } from '@octane-xplat/ui/routing/core'
 
 import { startWebApp } from '../src/client.web'
-import { createWebHandler } from '../src/server.web'
+import { createWebHandler, createWebRenderer } from '../src/server.web'
 const route = defineRoute.withContext<{ viewer: string }>()
 const catalog = defineRoutes([
 	route({ path: '/items/:id', loader: ({ context }) => ({ name: context.viewer }) }).screen(
@@ -41,4 +41,31 @@ createWebHandler({
 	buildId: 'test',
 	assets: { scripts: [] },
 	transfer: () => ({ data: null, context: {} }),
+})
+
+const renderer = createWebRenderer({
+	catalog,
+	buildId: 'test',
+	assets: { scripts: [] },
+	context: () => ({ viewer: 'public' }),
+	transfer: () => ({ data: null, context: {} }),
+})
+
+renderer.href({ to: '/items/:id', params: { id: 'coat' } })
+// @ts-expect-error Static paths retain required route parameters.
+renderer.href({ to: '/items/:id' })
+import { prerender } from '../src/build/prerender'
+void prerender(renderer, {
+	origin: 'https://example.com',
+	outDir: 'dist/static',
+	revision: 'v1',
+	paths: [{ destination: { to: '/items/:id', params: { id: 'coat' } }, key: 'v1' }],
+})
+
+void prerender(renderer, {
+	origin: 'https://example.com',
+	outDir: 'dist/static',
+	revision: 'v1',
+	// @ts-expect-error Enumeration cannot widen the catalog's destinations.
+	paths: [{ destination: { to: '/unknown' }, key: 'v1' }],
 })

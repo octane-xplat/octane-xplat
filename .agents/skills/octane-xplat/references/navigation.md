@@ -844,3 +844,26 @@ cross-platform. Custom bundlers must install the boundary plugin. See
 // Shared catalog: server-only entry points may consume this export.
 export { requestContext } from './context.server'
 ```
+
+
+### Static HTML and incremental builds
+
+Use the Web-only `createWebRenderer` in a compiled server entry, then call Node's
+`@octane-xplat/web-host/prerender` with typed destinations, a renderer revision,
+and per-page content keys. Only explicit public 200 HTML responses qualify.
+Cache hits skip guards/loaders/rendering: include all data inputs in keys and all
+rendering/preparation code changes in revision. `null` keys disable reuse.
+Documents, assets and build IDs refresh on every build; URLs embedded inside
+cached app markup require invalidation. Keep outDir dedicated and cacheFile outside
+it. Do not use this cache for personalized pages or confuse static HTML with baked
+cross-platform data. See [static pages](../../../../docs/platform/web-rendering.md#generate-static-pages).
+
+```ts
+import { prerender } from '@octane-xplat/web-host/prerender'
+import { renderer } from './dist/server/static.web.js'
+await prerender(renderer, {
+  origin: 'https://example.com', outDir: 'dist/static', cacheFile: '.cache/pages.json',
+  revision: 'renderer-v2',
+  paths: [{ destination: { to: '/products/:id', params: { id: 'coat' } }, key: 'coat-v3' }],
+})
+```

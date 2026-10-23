@@ -95,3 +95,19 @@ export interface WebBootstrap {
 	mode: WebRenderMode
 	match?: PreparedRouteMatch
 }
+
+/** Serializable public page content. Documents, asset URLs and build IDs are assembled afresh.
+ * Persist only for public routes; never reuse across viewers or incompatible renderer revisions. */
+export interface WebRenderedPage {
+	version: 1
+	url: string
+	mode: WebRenderMode
+	match?: PreparedRouteMatch
+	html: string
+	css: string
+	head: string
+	metadata?: import('@octane-xplat/ui').RouteHead
+	status: number
+	statusText: string
+	headers: [string, string][]
+}

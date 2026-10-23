@@ -24,6 +24,11 @@
 					"source": "src/build/vite.ts",
 					"runtime": "./dist/vite.js",
 					"types": "./types/build/vite.d.ts"
+				},
+				"./prerender": {
+					"source": "src/build/prerender.ts",
+					"runtime": "./dist/prerender.js",
+					"types": "./types/build/prerender.d.ts"
 				}
 			}
 		}
