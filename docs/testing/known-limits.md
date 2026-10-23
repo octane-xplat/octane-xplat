@@ -16,8 +16,8 @@ The [target guide](../start/spec.md#choose-your-targets) explains desktop setup.
 OTA bundle updates are optional and available only in iOS/Android release
 binaries with the startup hook. They activate on cold launch and recover
 unconfirmed startup failures before JavaScript runs. iOS simulator and Android
-emulator release lifecycle checks passed; signed physical iOS, hosted HTTPS
-and npm publication remain pending. Bundle integrity uses SHA-256 over TLS,
+emulator release lifecycle checks passed; signed physical iOS and hosted HTTPS
+remain pending. Bundle integrity uses SHA-256 over TLS,
 without a detached signature or automatic native dependency fingerprint.
 Browser and desktop clients report unsupported. See the
 [phone update guide](../app/updates.md).

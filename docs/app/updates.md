@@ -3,9 +3,8 @@
 > Deliver a JavaScript or image update to an installed phone app, then activate
 > it the next time the user opens the app from a fully closed state.
 
-This optional workflow supports iOS and Android release builds. The client is
-implemented in the repository but its first npm release is pending. The
-release lifecycle is tested on a simulator/emulator; signed physical iOS
+This optional workflow supports iOS and Android release builds. The release
+lifecycle is tested on a simulator/emulator; signed physical iOS
 qualification remains a gap. Store policies still govern which changes you
 may distribute. Adding a native plugin, changing permissions or upgrading the
 native runtime needs a new binary through your normal release process.
@@ -17,7 +16,7 @@ You need a working phone app and a deployed update server. The maintained
 how to create storage and deploy the server. Framework installation does not
 create a Cloudflare account or deploy a service.
 
-Once this package is released, run these commands in your app directory. The
+Run these commands in your app directory. The
 second command creates a hook that adds native startup recovery during builds.
 Commit that hook alongside the dependency change.
 
