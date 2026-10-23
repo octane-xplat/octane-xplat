@@ -5,8 +5,9 @@
 // Vite+octane-plugin pipeline — no .tsrx transforms remain in the graph.
 import { build } from 'esbuild'
 import { mkdir, writeFile } from 'node:fs/promises'
+import { basename } from 'node:path'
 
-const richtext = process.cwd().endsWith('/richtext')
+const richtext = basename(process.cwd()) === 'richtext'
 const result = await build({
 	entryPoints: [richtext ? 'src/BrowserEditor.web.ts' : 'src/browser-entry.web.ts'],
 	bundle: true,

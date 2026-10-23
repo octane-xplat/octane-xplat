@@ -14,12 +14,41 @@ import {
 } from 'node:fs/promises'
 
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { createRequire } from 'node:module'
 import { spawnSync } from 'node:child_process'
 import { generateRoutes } from '../dist/commands/routes.js'
 import { routePatternPath } from '@octane-xplat/lib/route-pattern'
+
+test('generated sibling imports resolve from default and nested output directories', async () => {
+	const root = await mkdtemp(join(tmpdir(), 'xplat-route-paths-'))
+	try {
+		await mkdir(join(root, 'src/app'), { recursive: true })
+		await writeFile(
+			join(root, 'src/app/index.tsx'),
+			'export default function Screen() { return null }',
+		)
+
+		for (const [out, base] of [
+			[undefined, join('src', 'routes.gen')],
+			[join('src', 'generated', 'catalog.ts'), join('src', 'generated', 'catalog')],
+		]) {
+			await generateRoutes(root, join('src', 'app'), out, { bake: false })
+			for (const suffix of ['types', 'web', 'catalog.web', 'windows', 'catalog.windows']) {
+				const source = await readFile(join(root, `${base}.${suffix}.ts`), 'utf8')
+				const references = [...source.matchAll(/\bfrom\s+['"](\.[^'"]+)['"]/g)]
+				assert.ok(references.length > 0, suffix)
+				for (const [, reference] of references) {
+					assert.ok(!reference.includes('\\'), reference)
+					assert.ok((await stat(join(root, dirname(base), `${reference}.ts`))).isFile(), reference)
+				}
+			}
+		}
+	} finally {
+		await rm(root, { recursive: true, force: true })
+	}
+})
 
 test('route metadata follows actual value exports without executing source', async () => {
 	const root = await mkdtemp(join(tmpdir(), 'xplat-route-exports-'))
