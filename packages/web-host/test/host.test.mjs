@@ -258,6 +258,123 @@ test('client-only documents prepare on startup and reject stale hydration before
 	}
 })
 
+const craftedDocument = (bootstrap, appHtml = '<main>server output</main>') =>
+	'<!doctype html><html><body>' +
+	`<div id="__xplat_app">${appHtml}</div>` +
+	`<script id="__xplat_document" type="application/json">${bootstrap}</script>` +
+	'</body></html>'
+
+test('rejects malformed or mismatched bootstrap data before mutating DOM or history', async () => {
+	const rendered = await (await fixture.handler()(request('/items/coat'))).text()
+	const bootstrap = /<script id="__xplat_document"[^>]*>([\s\S]*?)<\/script>/.exec(rendered)[1]
+	const staleRoute = JSON.parse(bootstrap)
+	staleRoute.match.params = { id: 'forged' }
+	for (const [document_, error] of [
+		[
+			craftedDocument(
+				'{"version":2,"buildId":"test","url":"/items/coat","mode":"client"}',
+			),
+			/does not match/,
+		],
+		[
+			craftedDocument(
+				'{"version":1,"buildId":"test","url":"/elsewhere","mode":"client"}',
+			),
+			/does not match/,
+		],
+		[
+			craftedDocument(
+				'{"version":1,"buildId":"test","url":"/items/coat","mode":"bogus"}',
+			),
+			/does not match/,
+		],
+		[craftedDocument('{not json'), /SyntaxError|JSON/],
+		[
+			craftedDocument(
+				'{"version":1,"buildId":"test","url":"/items/coat","mode":"server",' +
+					'"match":{"to":"/items/:id","name":"items/:id","stack":"root","params":{"id":"coat"},' +
+					'"search":{},"href":"/items/coat","context":{}}}',
+			),
+			/Invalid prepared document route/,
+		],
+		[craftedDocument(JSON.stringify(staleRoute)), /does not match the catalog/],
+		[
+			'<!doctype html><html><body><div id="__xplat_app"></div></body></html>',
+			/Missing Xplat document bootstrap or app container/,
+		],
+		[
+			craftedDocument('{"version":1,"buildId":"test","url":"/items/coat","mode":"client"}').replace(
+				'id="__xplat_app"',
+				'id="other"',
+			),
+			/Missing Xplat document bootstrap or app container/,
+		],
+	]) {
+		const { dom, browser, document } = await browserFor(document_)
+		try {
+			const body = document.body.innerHTML
+			await assert.rejects(browser.start(), error, document_)
+			assert.equal(document.body.innerHTML, body)
+			assert.equal(dom.window.location.pathname, '/items/coat')
+		} finally {
+			dom.window.close()
+		}
+	}
+})
+
+test('fails hydration before DOM or history mutation when the route module cannot load', async () => {
+	const html = await (await fixture.handler()(request('/items/coat'))).text()
+	const { dom, browser, document } = await browserFor(html)
+	try {
+		const node = document.getElementById('item')
+		await assert.rejects(
+			browser.start({ catalog: browser.failingCatalog }),
+			/Could not load the prepared document route module/,
+		)
+		assert.equal(browser.moduleFailures, 1)
+		assert.equal(document.getElementById('item'), node)
+		assert.ok(
+			document.getElementById('__xplat_document'),
+			'the payload stays so a reload can retry',
+		)
+	} finally {
+		dom.window.close()
+	}
+})
+
+test('rejected initial navigation releases the root, listeners and the consumed payload', async () => {
+	const html = await (
+		await fixture.handler({ mode: 'client' })(request('/forbidden'))
+	).text()
+	const { dom, browser, document } = await browserFor(html, 'http://localhost/forbidden')
+	try {
+		await assert.rejects(browser.start(), /Initial client navigation failed/)
+		assert.equal(document.getElementById('__xplat_app').innerHTML, '')
+		assert.equal(dom.window.location.pathname, '/forbidden')
+		assert.ok(!document.getElementById('__xplat_document'), 'the payload is consumed once')
+		await assert.rejects(browser.start(), /Missing Xplat document bootstrap/)
+	} finally {
+		dom.window.close()
+	}
+})
+
+test('a failing initial route module releases the client root', async () => {
+	const html = await (
+		await fixture.handler({ mode: 'client' })(request('/items/coat'))
+	).text()
+	const { dom, browser, document } = await browserFor(html)
+	try {
+		await assert.rejects(
+			browser.start({ catalog: browser.failingCatalog }),
+			/Initial client navigation failed/,
+		)
+		assert.equal(browser.moduleFailures, 1)
+		assert.equal(document.getElementById('__xplat_app').innerHTML, '')
+	} finally {
+		dom.window.close()
+	}
+})
+
 test('aborts preparation when the request disconnects', async () => {
 	const controller = new AbortController()
 	let started

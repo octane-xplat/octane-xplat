@@ -100,6 +100,23 @@ const lazyItems = sealGeneratedRouteCatalog(
 
 export const catalog = mergeRouteManifests(eagerCatalog, lazyItems)
 
+// Identical route table with a module import that always fails — exercises
+// startup paths where the prepared document's route chunk cannot load.
+export let moduleFailures = 0
+const failingItems = sealGeneratedRouteCatalog(
+	deriveLazyRouteManifest(
+		{
+			'./app/items/[id].web.tsx': async () => {
+				moduleFailures++
+				throw new Error('route module unavailable')
+			},
+		},
+		['web'],
+	),
+)
+
+export const failingCatalog = mergeRouteManifests(eagerCatalog, failingItems)
+
 export function Document(props: any): any {
 	return (
 		<html lang={props.request.headers.get('X-Lang') ?? 'en'}>
