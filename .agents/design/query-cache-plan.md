@@ -1,6 +1,6 @@
 # Query cache commit plan
 
-Status: steps 1–11 implemented. [Engine decision 121](query-cache-engine.md)
+Status: steps 1–11 implemented; step 12 headless scope completed. [Engine decision 121](query-cache-engine.md)
 selects native signal authority. The cache now has explicit ownership,
 bounded retention, retry/network scheduling, lifecycle refresh, typed writes,
 prefetch, shared native optimistic actions, cached cursor pagination, and opt-in
@@ -14,7 +14,8 @@ and packed web/native/macOS type contracts in Bundler/NodeNext modes. Packed
 builds prove the development gate removes inspection from production output.
 
 Step 12 is limited to headless qualification at the user's request on
-2026-10-23. Run one check at a time with Turbo concurrency 1; preserve passing
+2026-10-23. The [qualification record](query-cache-qualification.md) records
+31 passing browser assertions and the remaining platform evidence gaps. Run one check at a time with Turbo concurrency 1; preserve passing
 results instead of repeating broad suites. Actual OS lifecycle/device
 qualification is deferred, and source/typecheck/mock evidence must not be
 reported as platform runtime parity.
@@ -65,7 +66,7 @@ they do not postpone those obligations.
 | 9 | `feat(data): add shared cursor query pagination` | Paged feeds share caching, invalidation, and persistence | 4–8 |
 | 10 | `feat(cli): expose query cache inspection` | People and agents can explain query behavior | 5–9 |
 | 11 | `docs(data): make the official cache the shared data default` | One maintained app workflow and clear API selection | 5–10 |
-| 12 | `test(data): qualify shared query workflows across platforms` | End-to-end evidence for the supported workflows | 11 |
+| 12 | `test(data): qualify shared query workflows headlessly` | Headless workflow evidence; OS/device qualification deferred | 11 |
 
 Land in numbered order. Commits 1–5 form the first useful milestone;
 commits 6–9 remove application-level glue; commits 10–12 improve diagnosis,
@@ -309,7 +310,8 @@ instead of concealing it in the comparison.
 Promote the proved scenarios into maintained browser/native harness checks.
 Use deterministic transport fixtures with controlled latency, failure, and
 response order. Preserve focused regressions in every earlier commit; this
-commit verifies integration through the public installed package.
+commit verifies integration through public workspace entrypoints. Packed
+consumer compilation remains separate from installed-package runtime evidence.
 
 | Scenario | Observable acceptance |
 | --- | --- |

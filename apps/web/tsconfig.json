@@ -24,6 +24,7 @@
 	},
 	"include": [
 		"src/**/*",
+		"tests/fixtures/query-cache/main.tsrx",
 		"../../packages/*/src/**/*.d.ts",
 		"../../packages/ui/type-support/**/*.d.ts"
 	],

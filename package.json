@@ -5,6 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"probe": "node scripts/probe.ts",
+		"test:query-cache-runtime": "node scripts/query-cache-runtime.ts",
 		"dev:web": "pnpm --filter @xplat/web dev",
 		"build:web": "turbo run build --filter=@xplat/web",
 		"dev:ios": "pnpm --filter @xplat/mobile ios",

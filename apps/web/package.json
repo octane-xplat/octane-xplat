@@ -8,6 +8,7 @@
 		"build": "pnpm -w gen:app && vite build",
 		"preview": "vite preview",
 		"test": "vitest run",
+		"test:query-cache-runtime": "node scripts/query-cache-runtime.ts",
 		"smoke:routing": "node scripts/routing-contract.mjs",
 		"smoke:routing-auth": "node scripts/routing-auth.mjs",
 		"smoke:routing-watch": "node scripts/routing-watch.mjs",

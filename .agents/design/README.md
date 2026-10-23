@@ -37,3 +37,4 @@ Implementation investigations and evidence are indexed in the
 [prior-art references](../references/prior-art/README.md).
 
 - [Query cache engine](query-cache-engine.md) — engine decision, ownership contract and qualification limits.
+- [Query cache qualification](query-cache-qualification.md) — focused headless checks and deferred platform evidence.

@@ -82,6 +82,10 @@
 		"test:comparator": {
 			"outputs": []
 		},
+		"//#test:query-cache-runtime": {
+			"dependsOn": ["@octane-xplat/ui#typegen", "@octane-xplat/cli#build"],
+			"cache": false
+		},
 		"//#test:scripts": {
 			"dependsOn": ["@octane-xplat/cli#build"],
 			"cache": false
