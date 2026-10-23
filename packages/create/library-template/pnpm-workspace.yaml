@@ -9,9 +9,9 @@ catalogs:
     "@nativescript-community/octane": 0.2.5
     "@nativescript/core": 9.1.3
     "@nativescript/types": 9.1.4
-    "@octane-xplat/cli": 0.16.1
-    "@octane-xplat/jsx": 0.16.1
-    "@octane-xplat/ui": 0.16.1
+    "@octane-xplat/cli": 0.17.0
+    "@octane-xplat/jsx": 0.17.0
+    "@octane-xplat/ui": 0.17.0
     "@octanejs/vite-plugin": 0.1.61
     "@tsrx/oxc": 0.20.0
     "@tsrx/typescript-plugin": 0.4.11
@@ -25,7 +25,7 @@ overrides:
   "@nativescript-community/vite-octane>esbuild": 0.27.7
   vite>esbuild: 0.27.7
 configDependencies:
-  "@octane-xplat/patches": 0.16.1
+  "@octane-xplat/patches": 0.17.0
 allowUnusedPatches: true
 # Framework patches are supplied by the @octane-xplat/patches config dependency and
 # applied via pnpm patchedDependencies. Managed upstream by @octane-xplat/cli (`xplat

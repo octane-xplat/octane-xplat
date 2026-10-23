@@ -1,5 +1,123 @@
 # Changelog
 
+## [0.17.0] - 2026-10-23
+
+### Breaking Changes
+
+- *(ui)* [**breaking**] Replace ClassName with upstream ClassValue
+- *(routing)* [**breaking**] Replace the routing API with a generated, typed router
+- *(cli)* [**breaking**] Unify logs and native reports under diagnostics
+- *(cli)* [**breaking**] Unify durable sessions and simplify launch selection
+- *(scripts)* [**breaking**] Clarify task scope and remove duplicate work
+- *(sqlite)* [**breaking**] Isolate asynchronous transaction ownership
+- *(ui)* [**breaking**] Start Xplat-created native pages full-screen
+
+### Features
+
+- *(keyboard)* Synchronize host movement with keyboard transitions
+- *(keyboard)* Track focused inputs and caret geometry
+- *(keyboard)* Add focused-input-aware scrolling
+- *(keyboard)* Add keyboard-sticky positioning
+- *(chat)* Coordinate keyboard movement and message anchoring
+- *(workshop)* Polish adaptive navigation and controls
+- *(lint)* Detect routing migration mistakes
+- *(create)* Teach canonical routing in the starter
+- *(cli)* Retain development logs for agent reads
+- *(platform)* Attach dev actions and effects from components
+- *(dev-actions)* Return structured handler failures to agents
+- *(dev-actions)* Resolve web failure stacks to source positions
+- *(dev-actions)* Resolve NativeScript device stacks to source positions
+- *(ui)* Keep the ChatLayout composer clear of the home indicator
+
+### Bug Fixes
+
+- *(ui)* Constrain native Screen width and preserve CSS Grid tracks
+- *(keyboard)* Measure host overlap and avoid duplicate compensation
+- *(keyboard)* Coordinate sheets and overlays with window avoidance
+- *(keyboard)* Preserve Mason integration after rebase
+- Finish migrating examples, tests, and docs off the removed layout tags
+- *(camera,richtext,pager)* Repair style-only migration artifacts
+- *(ui)* Allow classes to override native View direction
+- *(cli)* Sync native prop resets and CSS cascade restoration
+- *(cli)* Complete command discovery and contextual help
+- *(ui)* Keep class name types compatible across renderers
+- *(camera)* Admit onReady-triggered recording on Android (#35)
+- *(cli)* Keep source-only deps out of the NativeScript HMR vendor bundle
+- Publish JavaScript for Node-loaded configuration exports
+- *(cli)* Allow installed linked source roots in native dev
+- *(cli)* Discover native plugins in hook-linked workspaces
+- *(native)* Keep class-sized Mason leaves and SVG ratios
+- *(native)* Reach Mason's internal dirty setter on Android foreign leaves
+- *(android)* Size width-only SVGs from their intrinsic ratio
+- *(native)* Invalidate Mason layout for Android foreign leaves after style sync
+- *(lib)* Emit route-pattern JavaScript during typegen
+- *(bamboo)* Emit config JavaScript during typegen
+- *(keyboard)* Align manifest with compatibility version
+- *(ui)* Measure padded iOS LiquidGlass content inside its padding
+- *(cli,lint,tsrx-typegen)* Run in-repo bins from source
+- *(share)* Give the Android FileProvider a unique class name
+- *(platform)* Find the dev-bridge token on NativeScript devices
+- *(ui)* Load native images after the first layout, not after both axes (#36)
+- *(ui)* Pick native srcset sources with one measured axis
+- *(ui)* Request the post-load image layout on iOS only
+- *(cli)* Retire released NativeScript Vite workarounds
+- *(ui)* Drive native VirtualList through MasonKit's web scroll API
+- *(native)* Use MasonKit's scroll API across native scroll consumers
+- *(keyboard)* Treat MasonKit's Android scroller as a focus scroll owner
+- *(ui)* Write native keyboard padding through MasonKit style
+- *(ui)* Overlay the native ChatLayout dock in the scroller's grid cell
+- *(ui)* Page the native Carousel on MasonKit
+- *(ui)* Read MasonKit padding back as a Length when leasing it
+- *(keyboard)* Scroll MasonKit's iOS scroller to the focused input
+- *(shaders)* Patch shaders@4.0.0 regexes for ICU-less NativeScript V8
+- *(ui)* Let classes override native component layout defaults
+- *(cli)* Remove obsolete alien-signals native aliases
+- *(ui)* Move web-inert native layout defaults into classes
+- *(docs)* Fit articles and navigation on mobile
+- *(cli)* Recognize aliased native default exports
+- *(data)* Retire stale query cache operations
+- *(auth)* Make sign-out supersede credential operations
+- *(data)* Preserve collection integrity during updates
+- *(ui)* Preserve modal ownership for child popovers
+- *(routing)* Round-trip encoded static route segments
+- *(ui)* Support keyboard operation of Slider
+- *(cli)* Reject incomplete explicit build target selections
+- *(cli)* Preserve shared native module identities during HMR
+- *(auth)* Retire requests across hosted session changes
+- *(recorder)* Keep web disposal terminal during startup
+- *(files)* Reject native text write failures
+- *(sqlite)* Await native version writes
+- *(lingui)* Retain the latest locale activation
+- *(lexical)* Normalize imported inline HTML at the root
+- *(ui)* Keep fixed and custom layers inside their modal owner
+- *(image)* Reset source ownership when the image host changes
+- *(intersection-observer)* Subscribe to every view event
+- *(motion)* Preserve translation when sampling web transforms
+- *(lottie)* Read current playback intent when loading completes
+- *(linux-gtk)* Include outer siblings in proxy child placement
+- *(ui)* Avoid keyboard type cycles with platform suffixes
+- *(ui)* Keep web bottom sheets within the viewport
+- *(cli)* Enforce real-path boundaries for MCP code reads
+- *(cli)* Preserve native plugin sources during clean
+- *(workshop)* Confine asset reads to their real directory
+- *(cli)* Preserve failed dev target exit statuses
+- *(create)* Keep platform additions in the owning workspace
+- *(image)* Align source selection before layout
+- *(ui)* Mark full-screen page setup as mobile code
+- *(macos)* Keep Mason layout in logical points during resize
+- *(macos)* Resolve projected CSS placement before native layout
+
+### Performance
+
+- *(editors)* Build WKWebView documents without the Octane runtime
+
+### Refactoring
+
+- *(keyboard)* Centralize window state and subscription lifecycle
+- *(ui)* Replace unnecessary as-any casts with typed helpers
+- *(ui)* Narrow remaining as-any casts to typed reads
+- *(ui)* Remove remaining unnecessary casts in primitives and tests
+
 ## [0.16.1] - 2026-10-20
 
 ### Bug Fixes

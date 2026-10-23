@@ -1,5 +1,17 @@
 # Changelog
 
+## [tsrx-typegen-v0.4.0] - 2026-10-23
+
+### Breaking Changes
+
+- *(scripts)* [**breaking**] Clarify task scope and remove duplicate work
+
+### Bug Fixes
+
+- *(typegen)* Preserve type-only aliases through star barrels
+- *(cli,lint,tsrx-typegen)* Run in-repo bins from source
+
+
 ## [tsrx-typegen-v0.3.1] - 2026-10-19
 
 ### Refactoring

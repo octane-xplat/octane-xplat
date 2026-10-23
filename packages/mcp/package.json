@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/mcp",
-	"version": "0.16.1",
+	"version": "0.17.0",
 	"description": "MCP server for Octane Xplat consumer apps — project identity, capability discovery, permission and evidence contracts.",
 	"license": "MIT",
 	"repository": {

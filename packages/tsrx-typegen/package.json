@@ -1,6 +1,6 @@
 {
 	"name": "tsrx-typegen",
-	"version": "0.3.1",
+	"version": "0.4.0",
 	"description": "Generate consumer-ready TypeScript declarations for TSRX libraries",
 	"keywords": [
 		"build-tool",

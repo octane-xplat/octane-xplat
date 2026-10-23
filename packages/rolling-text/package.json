@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/rolling-text",
-	"version": "0.16.1",
+	"version": "0.17.0",
 	"description": "Rolling/slot-machine text label for Octane xplat — per-unit roll with survivor matching on web, iOS and Android",
 	"keywords": [
 		"android",

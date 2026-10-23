@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/richtext",
-	"version": "0.16.1",
+	"version": "0.17.0",
 	"description": "Native rich-text editing leaf for Octane xplat — Android Aztec and AppKit WKWebView StarterKit",
 	"keywords": [
 		"android",

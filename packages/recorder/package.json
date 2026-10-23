@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/recorder",
-	"version": "0.16.1",
+	"version": "0.17.0",
 	"description": "Microphone recording to WAV for Octane xplat",
 	"keywords": [
 		"android",

@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/notifications",
-	"version": "0.16.1",
+	"version": "0.17.0",
 	"description": "Local notifications for Octane xplat — matching web + NativeScript implementations",
 	"keywords": [
 		"android",

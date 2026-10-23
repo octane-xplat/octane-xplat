@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/workshop",
-	"version": "0.16.1",
+	"version": "0.17.0",
 	"description": "Development-only component workshop for Octane Xplat — typed stories, metadata discovery, adaptive shell, lifecycle and warm reload",
 	"keywords": [
 		"components",
