@@ -175,3 +175,14 @@ export function Remove() {
 	)
 }
 ```
+
+For custom Vite builders (including Cloudflare SPA + Worker builds) that leave
+configured environments unused, declare every actual build target with `buildEnvironments`. Never remove real SSR targets merely because
+they emit no CSS. See the [participation example](../../../../packages/bamboo/README.md#custom-builders-with-unused-environments)
+and [upstream limitation](../../../docs/bamboo-build-environments.md).
+
+```ts
+import { xplatBamboo } from '@octane-xplat/bamboo/vite'
+
+const plugins = xplatBamboo({ buildEnvironments: ['api', 'client'] })
+```

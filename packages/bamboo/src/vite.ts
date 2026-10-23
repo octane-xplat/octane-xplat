@@ -1,5 +1,6 @@
 import { bamboocss, type BambooVitePluginOptions } from '@bamboocss/vite'
 import type { Plugin } from 'vite'
+import { buildEnvironments as adaptBuildEnvironments } from './build-environments.ts'
 import { platformOutput } from './platform-output.ts'
 
 function runBeforeNativeCss(plugin: Plugin | undefined, anchor: string) {
@@ -18,6 +19,8 @@ function runBeforeNativeCss(plugin: Plugin | undefined, anchor: string) {
 export interface XplatBambooOptions extends BambooVitePluginOptions {
 	/** NativeScript consumes CSS assets in its own generateBundle hook. */
 	native?: boolean
+	/** All environments the custom Vite builder will run, including real SSR targets. */
+	buildEnvironments?: readonly string[]
 }
 
 /**
@@ -26,8 +29,15 @@ export interface XplatBambooOptions extends BambooVitePluginOptions {
  * Pass `cwd` and `configPath` when Bamboo's source/config root differs from
  * Vite's app root, as it does in the shared harness.
  */
-export function xplatBamboo({ native = false, ...options }: XplatBambooOptions = {}) {
+export function xplatBamboo({
+	native = false,
+	buildEnvironments,
+	...options
+}: XplatBambooOptions = {}) {
 	const plugins = bamboocss(options)
+	if (buildEnvironments) {
+		adaptBuildEnvironments(plugins, buildEnvironments)
+	}
 
 	if (native) {
 		// Let Bamboo prune and validate the emitted asset before NativeScript's

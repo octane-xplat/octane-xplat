@@ -40,3 +40,6 @@ framework; the app-building guides for downstream users live in `docs/`.
 - [External prior art](../references/prior-art/README.md) — source systems used for comparison.
 
 - [Query cache engine evidence](../design/query-cache-engine.md) — Octane wrapper and AppKit action limitations.
+
+- [Bamboo build participation](bamboo-build-environments.md) — custom Vite
+  builders, unused SSR environments, and the upstream accounting contract.

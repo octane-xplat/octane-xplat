@@ -37,6 +37,8 @@ support ([upstream PR](https://github.com/gajus/bamboocss/pull/125)).
 
 - AC6: Native diagnostics warn for safe-area `env()` values in generated CSS, with guidance for live native insets.
 
+- AC7: On web, custom builders can declare their actual build environments without disabling pruning; an unused configured SSR target causes no false warning, real SSR-only styles survive either build order, and excluded builds fail.
+
 ## Documentation
 
 - AC1: [Styling screens — Use Bamboo CSS utilities](../../../docs/app/styling.md#use-bamboo-css-utilities) and the maintained [harness probe](../../../packages/app/src/bamboo-styles.ts).
@@ -47,3 +49,5 @@ support ([upstream PR](https://github.com/gajus/bamboocss/pull/125)).
 - AC5: [Styling screens — Use Bamboo CSS utilities](../../../docs/app/styling.md#use-bamboo-css-utilities) and the maintained [Bamboo platform pipeline test](../../../packages/bamboo/tests/platform.test.mjs).
 
 - AC6: [Safe-area insets](../../../docs/app/styling.md#safe-area-insets) and the maintained [native CSS warning regression](../../../packages/cli/test/vite-safe-area-css.test.mjs).
+
+- AC7: [Custom builders with unused environments](../../../packages/bamboo/README.md#custom-builders-with-unused-environments) and the maintained [build participation regression](../../../packages/bamboo/tests/build-environments.test.mjs).

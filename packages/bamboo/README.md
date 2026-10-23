@@ -53,3 +53,32 @@ const card = css({
 ```
 
 Guide: [Styling screens](../../docs/app/styling.md).
+
+## Custom builders with unused environments
+
+A Vite environment is a named build target. Some Cloudflare setups configure
+`ssr` but only build a Worker and a browser client. With Bamboo 1.56.2, pass
+`buildEnvironments` containing every target your builder actually runs to avoid
+an incorrect incomplete-run warning. Use your Worker's environment name:
+
+```ts
+import { xplatBamboo } from '@octane-xplat/bamboo/vite'
+
+const plugins = xplatBamboo({
+  buildEnvironments: ['api', 'client'],
+})
+```
+
+Keep real server-rendering targets in the list, even when they emit no CSS
+asset: their reachable styles must remain in the browser stylesheet. An
+excluded target that starts building causes an error; a listed target that
+never completes still triggers Bamboo's warning. Omit the option for builders
+that build all configured environments. Pruning stays enabled.
+
+```ts
+const plugins = xplatBamboo({ buildEnvironments: ['client', 'ssr'] })
+```
+
+This option declares participation; it does not schedule builds. It adapts
+Bamboo 1.56.2's environment accounting and requires Vite's environment builder.
+Platform conditions with real SSR remain unsupported, as described above.

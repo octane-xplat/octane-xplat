@@ -145,3 +145,40 @@ describe('native plugin compatibility', () => {
 		expect(context.error).not.toHaveBeenCalled()
 	})
 })
+
+describe('build participation compatibility', () => {
+	it('requires the pinned Bamboo accounting hooks and a nonempty plan', () => {
+		expect(() => xplatBamboo({ buildEnvironments: [] })).toThrow('must contain environment names')
+		upstream.plugins = [cssPlugin()]
+		expect(() => xplatBamboo({ buildEnvironments: ['client'] })).toThrow(
+			'requires Bamboo CSS configResolved and buildApp hooks',
+		)
+	})
+
+	it('projects only Bamboo views, preserves hook metadata, and leaves dev untouched', () => {
+		const resolved = vi.fn()
+		const app = vi.fn()
+		const css = {
+			...cssPlugin(),
+			configResolved: { order: 'post', handler: resolved },
+			buildApp: { order: 'pre', handler: app },
+		}
+		upstream.plugins = [css]
+		xplatBamboo({ buildEnvironments: ['client'] })
+		const environments = { client: {}, ssr: {} }
+		const config = { command: 'build', environments }
+		const builder = { environments }
+		css.configResolved.handler(config)
+		css.buildApp.handler(builder)
+		expect(resolved.mock.calls[0][0].environments).toEqual({ client: environments.client })
+		expect(app.mock.calls[0][0].environments).toEqual({ client: environments.client })
+		expect(config.environments).toBe(environments)
+		expect(builder.environments).toBe(environments)
+		expect(Object.keys(environments)).toEqual(['client', 'ssr'])
+		expect(css.configResolved.order).toBe('post')
+		expect(css.buildApp.order).toBe('pre')
+		const dev = { command: 'serve', environments }
+		css.configResolved.handler(dev)
+		expect(resolved.mock.calls[1][0]).toBe(dev)
+	})
+})
