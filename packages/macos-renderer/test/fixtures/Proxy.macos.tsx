@@ -50,7 +50,18 @@ export default function Proxy() {
 				display: 'flex',
 			}}
 		>
-			<masonview id="proxy-wrap" style={{ width: 200, height: 40 }}>
+			<masonview
+				id="proxy-wrap"
+				style={{
+					width: 200,
+					height: 40,
+					display: 'grid',
+					gridTemplateColumns: '40px 40px 40px 40px',
+					gridAutoRows: '20px',
+					justifyItems: 'center',
+					alignContent: 'start',
+				}}
+			>
 				<contentview id="proxy-before" style={{ width: 40, height: 20 }} />
 				{phase < 5 ? (
 					<proxyviewcontainer key="logical" id="proxy" ref={refs}>
@@ -76,7 +87,17 @@ export default function Proxy() {
 				) : null}
 				<contentview id="proxy-after" style={{ width: 40, height: 20 }} />
 			</masonview>
-			<masonview id="proxy-other" style={{ width: 100, height: 40 }}>
+			<masonview
+				id="proxy-other"
+				style={{
+					width: 100,
+					height: 40,
+					display: 'grid',
+					gridTemplateColumns: '40px',
+					gridAutoRows: '20px',
+					alignContent: 'start',
+				}}
+			>
 				{phase === 7 ? <ReturnedGroup /> : null}
 			</masonview>
 			<masonview
@@ -118,13 +139,23 @@ export default function Proxy() {
 					<label id="proxy-single-child" text="Single" />
 				</proxyviewcontainer>
 			</contentview>
-			<masonview id="proxy-dock" style={{ width: 100, height: 60 }}>
-				<proxyviewcontainer
-					style={{ position: 'absolute', ...(phase === 1 ? { top: 0, left: 0, right: 0 } : {}) }}
-				>
+			<masonview
+				id="proxy-dock"
+				style={{
+					width: 100,
+					height: 60,
+					display: 'grid',
+					gridTemplateColumns: phase === 1 ? '100px' : '40px 60px',
+					gridTemplateRows: phase === 1 ? '20px 40px' : '60px',
+				}}
+			>
+				<proxyviewcontainer style={{ gridRow: '1', gridColumn: '1' }}>
 					<contentview id="proxy-dock-child" style={{ width: 40, height: 20 }} />
 				</proxyviewcontainer>
-				<contentview id="proxy-dock-rest" />
+				<contentview
+					id="proxy-dock-rest"
+					style={{ gridRow: phase === 1 ? '2' : '1', gridColumn: phase === 1 ? '1' : '2' }}
+				/>
 			</masonview>
 			<contentview id="proxy-natural">
 				<proxyviewcontainer>

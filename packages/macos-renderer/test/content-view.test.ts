@@ -211,6 +211,26 @@ test('default content stretches; explicit sizes center; alignment and margins up
 	assert.deepEqual(rect(a), [0, 0, 300, 150])
 })
 
+test('CSS self-alignment overrides legacy placement and removal restores stretch', () => {
+	const fx = fixture(),
+		a = fx.child(2, {
+			horizontalAlignment: 'left',
+			verticalAlignment: 'top',
+			style: { width: 40, height: 20, justifySelf: 'end', alignSelf: 'end' },
+		})
+
+	a.marginInsets = { right: 5, bottom: 7 } as any
+	fx.insert(a)
+	assert.deepEqual(rect(a), [155, 73, 40, 20])
+	a.props = { style: { width: 40, height: 20, justifySelf: 'start', alignSelf: 'center' } }
+	a.marginInsets = {} as any
+	fx.layout()
+	assert.deepEqual(rect(a), [0, 40, 40, 20])
+	a.props = {}
+	fx.layout()
+	assert.deepEqual(rect(a), [0, 0, 200, 100])
+})
+
 test('percentage child size resolves against the current host bounds', () => {
 	const fx = fixture(),
 		a = fx.child(2, { style: { width: '50%', height: '40%' } })

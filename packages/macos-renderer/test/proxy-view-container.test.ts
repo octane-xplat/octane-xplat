@@ -177,6 +177,35 @@ test('inherited layout props update and restore; authored child values win', () 
 	assert.equal(a.view.superview, f.other.view)
 })
 
+test('CSS placement inherits, updates, and restores without overriding authored child styles', () => {
+	const f = fixture(),
+		proxy = f.node(2, 'proxyviewcontainer', {
+			style: { gridRow: '2', position: 'absolute', left: 12, color: 'red' },
+		}),
+		a = f.node(3, 'label', { style: { width: 40 } }),
+		b = f.node(4, 'label', { style: { gridRow: '3', height: 20 } })
+
+	f.insert(proxy, 1)
+	f.insert(a, 2)
+	f.insert(b, 2)
+	assert.equal(a.props.style.gridRow, '2')
+	assert.equal(a.props.style.position, 'absolute')
+	assert.equal(a.props.style.left, 12)
+	assert.equal(a.props.style.width, 40)
+	assert.equal(a.props.style.color, undefined, 'non-placement styles stay on their author')
+	assert.equal(b.props.style.gridRow, '3')
+	proxy.props = { style: { gridRow: '4' } }
+	f.api.syncProxyProjection(f.parent)
+	assert.equal(a.props.style.gridRow, '4')
+	assert.equal(a.props.style.position, undefined)
+	assert.equal(a.props.style.left, undefined)
+	assert.equal(b.props.style.gridRow, '3')
+	f.insert(a, 9)
+	assert.equal(a.props.style.gridRow, undefined)
+	assert.equal(a.props.style.width, 40)
+	assert.equal(a.view.superview, f.other.view)
+})
+
 test('collapse excludes recursively projected layout children and restoration preserves identity', () => {
 	const f = fixture(),
 		proxy = f.node(2, 'proxyviewcontainer'),

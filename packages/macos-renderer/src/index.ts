@@ -2221,11 +2221,34 @@ function layoutContentChild(parent: ElementNode | undefined) {
 	const height = Number(parent.view.bounds.size.height)
 	const style = child.props.style ?? {}
 	const intrinsic = layoutView(child).intrinsicContentSize ?? { width: 0, height: 0 }
-	const horizontal =
-		child.props.horizontalAlignment ?? (parent.type === 'actionbar' ? 'center' : 'stretch')
+	const alignment = (value: any, start: string, end: string, fallback: string) => {
+		if (value == null || value === 'auto' || value === 'normal') {
+			return fallback
+		}
 
-	const vertical =
-		child.props.verticalAlignment ?? (parent.type === 'actionbar' ? 'middle' : 'stretch')
+		if (['start', 'self-start', 'flex-start'].includes(value)) {
+			return start
+		}
+
+		if (['end', 'self-end', 'flex-end'].includes(value)) {
+			return end
+		}
+
+		return value
+	}
+	const horizontal = alignment(
+		style.justifySelf,
+		'left',
+		'right',
+		child.props.horizontalAlignment ?? (parent.type === 'actionbar' ? 'center' : 'stretch'),
+	)
+
+	const vertical = alignment(
+		style.alignSelf,
+		'top',
+		'bottom',
+		child.props.verticalAlignment ?? (parent.type === 'actionbar' ? 'middle' : 'stretch'),
+	)
 
 	const margins = child.marginInsets ?? {}
 	const axis = (
@@ -4959,6 +4982,27 @@ const PROXY_LAYOUT_PROPS = [
 	'rowSpan',
 ] as const
 
+const PROXY_LAYOUT_STYLES = [
+	'position',
+	'left',
+	'right',
+	'top',
+	'bottom',
+	'gridRow',
+	'gridColumn',
+	'gridRowStart',
+	'gridRowEnd',
+	'gridColumnStart',
+	'gridColumnEnd',
+	'gridArea',
+	'order',
+	'alignSelf',
+	'justifySelf',
+	'flexGrow',
+	'flexShrink',
+	'flexBasis',
+] as const
+
 function projectedViews(parent: ElementNode): ElementNode[] {
 	const children = ['contentview', 'actionbar'].includes(parent.type ?? '')
 		? parent.contentChild
@@ -4996,6 +5040,7 @@ function releaseProjectedView(node: ElementNode) {
 				node.props[name] = node.authoredProps[name]
 			}
 		}
+		node.props.style = node.authoredProps.style
 	}
 }
 
@@ -5030,13 +5075,20 @@ function syncProxyProjection(parent: ElementNode) {
 		}
 
 		const forwarded: PropBag = {}
+		const forwardedStyle: PropBag = {}
 		for (const owner of chain.reverse()) {
 			for (const name of PROXY_LAYOUT_PROPS) {
 				if (owner.props[name] != null) {
 					forwarded[name] = owner.props[name]
 				}
 			}
+			for (const name of PROXY_LAYOUT_STYLES) {
+				if (owner.props.style?.[name] != null) {
+					forwardedStyle[name] = owner.props.style[name]
+				}
+			}
 		}
+		child.props.style = { ...forwardedStyle, ...child.authoredProps.style }
 
 		const changes: PropBag = {}
 		for (const name of PROXY_LAYOUT_PROPS) {
@@ -6301,6 +6353,16 @@ const macOSDriver: UniversalHostDriver<RootContainer, any> = {
 					container.layoutDirty = null
 					flushTabViews(container)
 					if (dirty) {
+						// Ancestor Mason passes traverse their whole subtree. Attach
+						// every pending projection before any pass can pin its views.
+						for (const parent of dirty) {
+							if (
+								parent.projectedChildren ||
+								parent.children.some((child) => child.type === 'proxyviewcontainer')
+							) {
+								syncProxyProjection(parent)
+							}
+						}
 						for (const parent of dirty) {
 							reconcileLayoutParent(parent)
 						}
