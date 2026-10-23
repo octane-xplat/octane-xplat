@@ -465,3 +465,20 @@ bridge manifests and the packed inventory check the native artifacts and
 shipped files. npm provenance identifies the assembling/publishing workflow,
 not a reproducible native build. Maintainers follow the Mason fork's
 `RELEASING.md` for asset preparation, validation and publication.
+
+
+The first independent beta is
+[`core-v1.0.0-beta.0`](https://github.com/octane-xplat/nativescript-mason/releases/tag/core-v1.0.0-beta.0),
+from fork commit `26b1c9a9`. npm accepted the `0.0.1` bootstrap stub and
+`1.0.0-beta.0` beta through the configured trust binding; beta publication uses
+`next` and includes provenance. Select the beta explicitly in an isolated app:
+
+```sh
+pnpm add @octane-xplat/nativescript-mason-core@1.0.0-beta.0
+```
+
+Full-package CI now resolves native enum drift checks through the relocation
+manifest and typechecks the same generated source overlay as its build.
+The release revision passes the full TypeScript unit suite, plugin/consumer
+typechecks, generated-source checks, Rust tests and the independent core
+package release checks. These are host/CI checks, not additional device runs.

@@ -43,7 +43,7 @@ pnpm dlx @octane-xplat/cli@latest upgrade --check
 ```
 
 Full MasonKit remains the mobile default. An isolated Mason core experiment
-declares only the built core tarball: upgrade preserves it, doctor
+declares only the core beta: upgrade preserves it, doctor
 rejects overlapping native engines, and `xplatNative` resolves the canonical
 renderer imports to core. Do not add full MasonKit to satisfy an older CLI's
 missing-engine check. Core has an independent beta release track; Windows is
@@ -53,7 +53,7 @@ unqualified. Read the
 ```json
 {
 	"dependencies": {
-		"@octane-xplat/nativescript-mason-core": "file:./artifacts/octane-xplat-nativescript-mason-core-1.0.0-beta.0.tgz"
+		"@octane-xplat/nativescript-mason-core": "1.0.0-beta.0"
 	}
 }
 ```
