@@ -174,3 +174,33 @@ The maintained regression is `packages/cli/test/vite-safe-area-css.test.mjs`.
 It tests host-side conversion and diagnostics, not device layout. Remove this
 warning only when the adopted native runtime resolves these functions against
 live safe-area values and device tests establish the behavior.
+
+### Runtime ownership (source verification, 2026-10-23)
+
+The missing runtime support spans NativeScript and the Xplat MasonKit fork:
+
+- NativeScript core 9.1.3 ([publish commit](https://github.com/NativeScript/NativeScript/blob/45b3b99afd89f19e799da84203aa19d673f7b20a/packages/core/ui/core/properties/index.ts)) recognizes
+  `var(--...)` and `calc(...)` for expression evaluation; it has no safe-area
+  environment substitution. Its `evaluateCssExpressions` path in
+  [style-scope.ts](https://github.com/NativeScript/NativeScript/blob/45b3b99afd89f19e799da84203aa19d673f7b20a/packages/core/ui/styling/style-scope.ts)
+  runs variable substitution followed by calculation.
+- MasonKit beta.126 ([tag commit](https://github.com/octane-xplat/nativescript-mason/blob/623114b070896a21315fcff9a3a6349bdd091cc4/packages/nativescript-masonkit/style.ts))
+  sends string padding through `lengthPercentageFromString` and
+  `tokenToDevicePx`. Its math resolver handles `calc`, `min`, `max`, and
+  `clamp`, not environment variables. An unresolved function reaches an
+  explicit `return 0` before the padding value is written into the native
+  style buffer. This locates the zero in the JavaScript style adapter, before
+  native layout.
+- That branch reports a `not-implemented` diagnostic, but
+  [diagnostics.ts](https://github.com/octane-xplat/nativescript-mason/blob/623114b070896a21315fcff9a3a6349bdd091cc4/packages/nativescript-masonkit/diagnostics.ts)
+  initializes reporting as disabled. It does not provide the requested build
+  warning. The CLI warning remains necessary until resolution is supported.
+
+There is no demonstrated platform blocker. A runtime implementation can live
+in the Xplat MasonKit fork: substitute environment values before length/math
+parsing, supply safe-area values for the correct window, and re-evaluate
+dependent styles when those values change. It must cover nested math,
+fallbacks, and shorthand expansion; a build-time numeric replacement cannot
+provide this lifecycle. NativeScript-wide support would also benefit ordinary
+core views, but is not a prerequisite for supporting Mason views in the fork.
+These conclusions are source evidence, not a new simulator or device run.
