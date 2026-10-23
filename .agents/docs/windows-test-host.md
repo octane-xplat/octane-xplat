@@ -45,9 +45,14 @@ From the repository root, the intended checks are:
 ```powershell
 pnpm install
 pnpm --filter @xplat/windows exec xplat doctor
-pnpm gen:app
-pnpm --dir apps/windows run build:windows
+$env:NODE_OPTIONS = '--max-old-space-size=4096'
+pnpm exec turbo run build:windows typecheck --filter=@xplat/windows --concurrency=1 --continue=dependencies-successful
 ```
+
+Turbo generates the app before building. The 4 GB Node heap and sequential
+tasks let the standalone Windows typecheck complete on the 8 GB test host;
+the default heap exhausted memory. The native build is uncached and passes
+the Windows program-directory variables needed by NativeScript startup checks.
 
 The workspace pins the matching NativeScript Windows packages. Do not upgrade
 `@nativescript/windows`, core, or Vite independently while testing this
@@ -82,9 +87,11 @@ Package comparison and patch application are host evidence. Earlier Windows
 runtime results do not qualify this preview: rerun build, launch, pointer,
 keyboard, and percentage-layout checks on a Windows host before claiming it.
 
-The documented SSH route refused the forwarded connection during this upgrade;
-no guest state was changed. Windows build and OS-input verification remain
-blocked until the test host is reachable.
+The documented SSH route refused the forwarded connection during the initial
+upgrade. A subsequent physical-host attempt installed this preview successfully
+and passed the standalone Windows typecheck, but the kitchen sink bundle failed
+because `full-screen-page.mobile.ts` is reachable from shared native routing.
+No app launched in that attempt; see the [physical-host lab record](windows-lab.md#kitchen-sink-attempt-with-preview-abae298).
 
 Host checks for this pin pass: installation with the frozen lockfile, patch and
 compatibility synchronization, recipe structure, focused compatibility/upgrade

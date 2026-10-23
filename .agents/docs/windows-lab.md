@@ -83,6 +83,45 @@ Recommended first tests, in order:
    component sweep. The pinned runtime has a known formatting failure; the
    repaired DLL was qualified on the older VM but is not in the pinned release.
 
+### Kitchen sink attempt with preview abae298
+
+After merging `origin/main` at `f80c49c3`, frozen installation passed with the
+new URL pins: core `9.1.4-next.0` and Vite `8.0.21` from `abae298`. The Windows
+runtime remains `0.1.0-alpha.144`. Installation included the workspace hooks
+and generation.
+
+The private harness needed a registered Turbo `build:windows` task. Its
+NativeScript startup also requires `CommonProgramFiles(x86)` on x64 Windows:
+`@nativescript/doctor@2.0.18` reads it in `SysInfo.isITunesInstalled` before
+joining an Apple directory path. Turbo's filtered environment omitted it,
+causing an undefined-path error. The task now passes the Windows program
+paths and `LOCALAPPDATA` used by those startup checks, plus `NODE_OPTIONS`.
+No dependency source was patched for this integration fix.
+
+The standalone Windows typecheck exhausted its default roughly 2 GB heap.
+With `NODE_OPTIONS=--max-old-space-size=4096` and sequential tasks, it passed.
+The combined build/typecheck run completed 37 of 38 tasks; only the native
+build failed. Follow the commands in the [host runbook](windows-test-host.md).
+
+The build reached Vite bundling, then the platform-boundary plugin rejected
+`packages/ui/src/full-screen-page.mobile.ts` in the Windows bundle.
+`native-router-host.ts` imports that leaf directly, and `nativescript/index.ts`
+re-exports it. There is no `full-screen-page.windows.ts`. The guard remains
+intact: resolving the shared page setup versus mobile safe-area behavior is
+required before this kitchen sink can build.
+
+Vite's delegated checker also reported 15 errors across 12 files, including
+platform-relative bridge/focus imports, missing `keyboard-overlay-host`, and
+mobile NativeScript API/type mismatches. These remain unresolved even though
+the standalone Windows check passed. The full retry log is retained on the
+host at `%TEMP%\octane-kitchen-sink-preview-retry.log`.
+
+No native app was produced or launched by this attempt. There is no new
+rendering, OS-input, or public recipe evidence. The runner changes concern
+only the private harness and do not change public support claims. The build
+boundary failure is recorded in local Silo observation
+`552873e8-729a-4469-8abe-e1fb17e501d1`.
+
 ### Prevent idle sleep during a development session
 
 PowerToys Awake is already installed on this host. Start it from the Windows

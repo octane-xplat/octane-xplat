@@ -2,10 +2,24 @@
 	"$schema": "https://turborepo.dev/schema.json",
 	"extends": ["//"],
 	"tasks": {
+		"build:windows": {
+			"dependsOn": ["^typegen", "@octane-xplat/cli#build", "@xplat/app#gen"],
+			// NativeScript's startup checks read the Windows shared-program paths.
+			"passThroughEnv": [
+				"CommonProgramFiles",
+				"CommonProgramFiles(x86)",
+				"ProgramFiles",
+				"ProgramFiles(x86)",
+				"LOCALAPPDATA",
+				"NODE_OPTIONS"
+			],
+			"cache": false
+		},
 		// Same whole-repo `include` as the mobile program — hash all package
 		// sources, not just declared dependencies.
 		"typecheck": {
 			"dependsOn": ["^typegen", "@xplat/app#gen"],
+			"passThroughEnv": ["NODE_OPTIONS"],
 			"inputs": [
 				"$TURBO_DEFAULT$",
 				"../../packages/**/*.ts",
