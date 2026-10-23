@@ -90,6 +90,29 @@ a way to recognize success. Phone development tools belong at the point
 where the reader chooses to run on a phone; signing belongs with release
 instructions.
 
+## Glossary
+
+Maintain the root [GLOSSARY.md](../../GLOSSARY.md) as a lookup for necessary
+technical language used in guides and release notes. Add or update an entry
+when a change introduces a term or changes its meaning. Keep entries
+alphabetical, expand abbreviations, give a short plain-language definition,
+and link to the official documentation that explains the concept in context.
+For example:
+
+```md
+| Platform variant | A version of a file chosen for a particular platform, such as `Card.ios.tsrx` for iOS. | [Sharing files across platforms](docs/platform/module-resolution.md) |
+```
+
+Define concepts here; keep API instructions and examples in their canonical
+guides. Explain unfamiliar words where a reader first needs them, and prefer
+plain language when it is equally precise. Glossary links are optional help,
+not a prerequisite for understanding a guide or release note. Use an absolute
+official repository link to the glossary in pending release notes, since
+the same Markdown also appears on GitHub Releases.
+
+For choosing and writing release notes, follow the
+[release-note authoring contract](releases.md#write-a-release-note).
+
 ## Show every API capability in code
 
 Every paragraph that explains an API capability must have an accompanying

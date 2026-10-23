@@ -26,6 +26,7 @@ working agreements and detail moved out of this entry point.
 | Work with Octane signals                                | Read the [upstream signals guide](https://raw.githubusercontent.com/octanejs/octane/refs/heads/main/docs/signals.md) |
 | Add or publish a package                                | [Releases](.agents/docs/releases.md)                                                                                 |
 | Prepare a release, packaging change, or docs deployment | [Releases](.agents/docs/releases.md)                                                                                 |
+| Write release notes or explain new terminology          | [Release-note authoring](.agents/docs/releases.md#write-a-release-note); [glossary guidance](.agents/docs/documentation.md#glossary) |
 
 ## Framework principles
 
@@ -143,8 +144,17 @@ Standing criteria for judgment calls; the critical rules encode the mechanics.
   another worktree's in-flight rows to satisfy a local check.
 - Proceed autonomously within scope and commit completed work in focused
   Conventional Commits. Docs carry conclusions; Silo carries exploration state.
-- `CHANGELOG.md` is generated. Do not edit it during feature/fix work; commit
-  messages are the changelog source.
+- Select release notes by user impact, not commit count. Add `.changelog/*.md`
+  for meaningful user-facing features and breaking changes, or
+  `.changelog/fixes/*.md` for user-facing bug fixes. Follow the
+  [authoring contract](.agents/docs/releases.md#write-a-release-note): concise
+  plain language, a minimal usage/fix snippet for API changes, and official
+  documentation links. Internal-only work needs no note. Conventional Commits
+  determine versions; the Markdown files determine release notes.
+- `CHANGELOG.md` and `FIXLOG.md` are assembled at release time. Do not edit
+  them during feature/fix work. Maintain [GLOSSARY.md](GLOSSARY.md) when new or
+  changed jargon needs a plain definition and documentation links; prefer
+  familiar words in release notes even when a glossary entry exists.
 - PR CI stays lightweight: the `checks` job must not install browser engines
   (Playwright/Chromium) or run device emulation. Browser-driven tests
   (`@xplat/visual`, workshop's `test:packed`, `verify-consumer` smoke,

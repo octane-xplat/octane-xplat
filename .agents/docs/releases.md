@@ -59,10 +59,12 @@ commit, so the publisher uses the verified artifact SHA. A failed or missing
 required gate cannot promote to that track. Browser journeys remain local and
 are not implied by either release track.
 
-For stable releases, `git-cliff` (`cliff.toml`) infers the next version from
-conventional commits and generates the changelog. The workflow aligns package
-and starter versions, commits, tags `vX.Y.Z`, publishes, and creates the GitHub
-Release. Manual `workflow_dispatch` selects `track` (default `stable`) and
+For stable releases, `scripts/release-version.ts` infers the next version from
+Conventional Commits. Separately, `scripts/release-notes.ts` assembles selected
+Markdown notes into the root `CHANGELOG.md` and `FIXLOG.md`. The workflow aligns
+package and starter versions, commits, tags `vX.Y.Z`, publishes, and creates the
+GitHub Release with both kinds of notes. Manual `workflow_dispatch` selects
+`track` (default `stable`) and
 accepts optional version overrides; it still requires evidence for the exact
 revision. Publishing stays in `release.yml` for the existing npm trust binding.
 
@@ -145,17 +147,156 @@ Declare dependencies in the package manifest and verify the packed consumer
 surface with `pnpm check:consumer`. Do not hand-publish real releases or bump
 package versions: CI builds, aligns lockstep versions, and publishes them.
 
-`tsrx-typegen` releases on its own cadence: `cliff.tsrx-typegen.toml`,
-`tsrx-typegen-v*` tags, `packages/tsrx-typegen/CHANGELOG.md`, and only
-`packages/tsrx-typegen/**` commits move its version.
+`tsrx-typegen` releases on its own cadence with `tsrx-typegen-v*` tags. Only
+`packages/tsrx-typegen/**` commits move its version. Its new release notes use
+the same root logs, under headings labeled `tsrx-typegen` and its version.
+`packages/tsrx-typegen/CHANGELOG.md` preserves its earlier published history.
 
 The docs site deploys to Cloudflare Pages on every checks-green `main` CI
 run (same workflow, `docs` job) — `llms.txt` regeneration is automatic.
 Manual pre-release task that remains: re-verify `docs/testing/known-limits.md`
 entries stamped older than the releasing version.
 
-`CHANGELOG.md` is generated — **do not edit it as part of feature/fix work.**
-Write commit messages for app developers; they are the changelog source.
-Bump/changelog inference only counts commits touching `packages/**`
-(excluding `app`, `demos`, `media-probe`, `typegen-fixture`, `tsrx-typegen`), and skips
-`docs:`/`test:`/`chore:`/`ci:`/`build:`/`style:` types.
+## Write a release note
+
+Write for app builders deciding what is useful or what they need to change.
+One file describes one meaningful user-facing change; several related commits
+can share a file. Add the note in the same change as the implementation and
+its documentation. Do not create a note just because a commit exists.
+
+| Change | Pending file | Published destination |
+| --- | --- | --- |
+| Useful new feature or improvement | `.changelog/<short-description>.md` | `CHANGELOG.md` |
+| Breaking public API change, including a removal | `.changelog/<short-description>.md` | `CHANGELOG.md` |
+| User-facing bug fix | `.changelog/fixes/<short-description>.md` | `FIXLOG.md` |
+| Internal refactor, tests, CI, formatting, or routine dependency maintenance with no user-visible effect | No file | Neither log |
+
+A breaking fix belongs in the changelog with a clear **Breaking change**
+label and the smallest useful migration example. Do not duplicate it in the
+fixlog. Prefer outcomes such as “Keep your place when new messages arrive”
+over implementation terms. State affected platforms when the difference
+matters to the reader.
+
+Every file begins with a YAML header containing only `release: lockstep` or
+`release: tsrx-typegen`, followed by a level-three title and a short description.
+Most packages use `lockstep`: they share one version. For a change spanning
+both release streams, write a separate file for each stream so either can
+publish independently. Choose a descriptive filename that does not collide
+with another pending note; do not include an anticipated version or date.
+
+This is a format example for a hypothetical button fix, not a pending release
+announcement. Save a real fix in `.changelog/fixes/disabled-save-button.md`:
+
+````md
+---
+release: lockstep
+---
+
+### Keep disabled buttons inactive
+
+Disabled buttons no longer start their action when pressed.
+
+```tsx
+import { Button } from '@octane-xplat/ui'
+
+export function SaveButton() {
+  return <Button label="Save" isDisabled clickAction={() => console.log('Saved')} />
+}
+```
+
+[Button documentation](https://octane-xplat.goddardai.org/components#inputs)
+````
+
+For an API addition, change, or fix, include one or more minimal, valid usage
+snippets that demonstrate the added or corrected behavior. APIs include
+components, props, functions, types, commands, and configuration. For a fix,
+state the previous symptom and the corrected result; for a breaking change,
+show the replacement or a small before/after example. Validate the snippet
+against the affected API. A purely visible fix with no API change can use a
+short explanation without code.
+
+Link to the official documentation for the affected feature, preferably its
+specific section. Use absolute HTTPS links so notes work in both root logs
+and GitHub Releases. Prefer the Xplat docs site; use the official repository
+documentation or an upstream project's official docs when that is the
+canonical source. Check published page URLs against the site's `llms.txt`;
+they do not necessarily match the source file's directory. Update the docs
+in the same change if they do not yet cover
+the behavior. Keep full explanations, option lists, and tutorials in those
+docs; the release note needs only the basic explanation and useful snippet.
+
+Use short, concrete titles and paragraphs. Avoid jargon where plain words
+work. When a technical term is necessary, follow the
+[glossary guidance](documentation.md#glossary) and link to its definition when
+helpful. The glossary supplements an understandable note; it does not excuse
+an unexplained title.
+
+Validate pending files and preview one release without editing the logs:
+
+```sh
+pnpm check:changelog
+node scripts/release-notes.ts preview lockstep 0.18.0
+node scripts/release-notes.ts preview tsrx-typegen 0.3.0
+```
+
+The versions above are preview examples. The checker validates file headers,
+release names, title structure, and closed code fences; authors and reviewers
+must still check user relevance, snippet correctness, documentation links, and
+plain language. It does not require an entry for every commit or guess whether
+a change affects an API.
+
+## Assemble notes at release time
+
+Only versioned releases consume pending files. The release script groups the
+selected stream's files by features and fixes, sorts filenames for stable
+ordering, removes the YAML headers, and prepends a dated, linked release heading
+to each nonempty destination. Entry bodies, including snippets and links, are
+preserved. Empty categories add no heading; a release without notes can still
+ship and gets a short “No user-facing release notes” message on GitHub.
+
+For example, CI prepares one selected release with:
+
+```sh
+node scripts/release-notes.ts prepare lockstep 0.18.0
+```
+
+This writes `.release-notes.md` for GitHub, updates the relevant root logs, and
+deletes only that stream's consumed files. These changes and version updates
+belong to one release commit. Do not run `prepare` during feature/fix work;
+use `preview`. Existing published history stays intact, including fixes in
+older combined changelogs. Nightlies neither consume files nor update the logs.
+
+The independent package releases first. Before editing the shared logs, each
+stable job fast-forwards over preceding release-bot commits only. An intervening
+ordinary commit or a later concurrent push stops the release; qualify the new
+revision rather than rebasing generated notes over untested code. A repeated
+version already recorded in a log is rejected before any file is consumed.
+
+## Version policy
+
+Conventional Commits determine versions independently of pending notes.
+Inference uses the latest reachable version tag for the selected stream and
+only its package paths. The lockstep paths are `packages/**`, excluding
+`app`, `demos`, `media-probe`, `typegen-fixture`, and `tsrx-typegen`.
+
+| Commit | Version effect |
+| --- | --- |
+| `feat:` | Minor bump, such as `0.17.1` to `0.18.0` |
+| `fix:`, `perf:`, `refactor:`, `revert:` | Patch bump, such as `0.17.1` to `0.17.2` |
+| `!` after the type/scope, or a `BREAKING CHANGE:` / `BREAKING-CHANGE:` footer | Minor while below `1.0.0`; major from `1.0.0` onward |
+| `docs:`, `doc:`, `test:`, `chore:`, `ci:`, `build:`, `style:` | No bump unless marked breaking |
+| Other conventional types | No bump unless marked breaking |
+| Any commit scoped `(ci)`, or a non-conventional message | No bump |
+
+The largest applicable bump wins. A stream with no previous version starts at
+`0.1.0` when an eligible commit exists. No eligible commits means no automatic
+versioned release. Editing a pending note alone does not trigger a release.
+Manual version overrides remain available, including prereleases; an existing
+tag is skipped. Nightly version names and qualification requirements are unchanged.
+
+Check version selection without publishing, and run the tooling regressions:
+
+```sh
+node scripts/release-version.ts lockstep
+pnpm exec turbo run test:release --filter=//
+```

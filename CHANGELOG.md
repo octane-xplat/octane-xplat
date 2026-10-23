@@ -1,5 +1,10 @@
 # Changelog
 
+Selected features and breaking changes, newest release first. Bug fixes appear
+in the [fixlog](FIXLOG.md). See the [glossary](GLOSSARY.md) for technical terms.
+Earlier releases retain their original combined notes; older independent
+releases remain in the [tsrx-typegen changelog](packages/tsrx-typegen/CHANGELOG.md).
+
 ## [0.17.1] - 2026-10-23
 
 ### Bug Fixes

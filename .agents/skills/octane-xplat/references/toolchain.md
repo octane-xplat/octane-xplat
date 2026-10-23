@@ -86,9 +86,15 @@ The [release reference](../../../docs/releases.md) owns the current gate list,
 evidence requirements, trusted publishing, and new-package bootstrap procedure.
 
 Do not hand-bump versions, hand-publish real releases, or edit the generated
-changelog. Use Conventional Commit messages that describe the change for app
-builders. The one-time package stub/trust bootstrap is an explicit exception
-covered by the release reference; it is not a general release workflow.
+`CHANGELOG.md` / `FIXLOG.md`. Conventional Commits determine version bumps;
+selected Markdown files determine release notes. For meaningful user-facing
+features or breaking changes, add `.changelog/*.md`; use
+`.changelog/fixes/*.md` for bug fixes. Internal-only work needs no entry.
+Follow the [authoring contract](../../../docs/releases.md#write-a-release-note)
+for the release header, plain wording, minimal API snippets, and official docs
+links. Maintain the [glossary](../../../../GLOSSARY.md) for necessary new terms.
+The one-time package stub/trust bootstrap is an explicit exception covered by
+the release reference; it is not a general release workflow.
 
 ## Task graph
 

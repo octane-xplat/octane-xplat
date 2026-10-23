@@ -90,6 +90,9 @@
 			"dependsOn": ["@octane-xplat/cli#build"],
 			"cache": false
 		},
+		"//#test:release": {
+			"cache": false
+		},
 		"//#check:optional-services": {
 			"cache": false
 		},

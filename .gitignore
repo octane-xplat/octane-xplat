@@ -37,6 +37,7 @@ apps/macos/test/default-routes.gen.*
 # Native Maestro smoke app build outputs.
 apps/maestro/platforms/
 .turbo/
+.release-notes.md
 
 # Wrangler (Cloudflare) local state and secret files.
 .wrangler/

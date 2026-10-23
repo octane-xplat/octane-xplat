@@ -17,11 +17,11 @@ on:
         options: [stable, nightly]
         default: stable
       version:
-        description: Lockstep version override, e.g. 0.7.0 (blank = git-cliff inference)
+        description: Lockstep version override, e.g. 0.7.0 (blank = Conventional Commit inference)
         required: false
         type: string
       typegen_version:
-        description: tsrx-typegen version override (blank = git-cliff inference)
+        description: tsrx-typegen version override (blank = Conventional Commit inference)
         required: false
         type: string
 
@@ -38,18 +38,6 @@ concurrency:
         (github.event.workflow_run.name == 'CI' && 'nightly' || 'stable') ||
         inputs.track || 'stable') }}
   cancel-in-progress: false
-
-# git-cliff path filters for the lockstep track: only shipped packages count
-# for bump inference and changelog entries. Harness, fixtures, and
-# tsrx-typegen (own cadence) are excluded.
-env:
-  LOCKSTEP_PATHS: >-
-    --include-path 'packages/**'
-    --exclude-path 'packages/app/**'
-    --exclude-path 'packages/demos/**'
-    --exclude-path 'packages/media-probe/**'
-    --exclude-path 'packages/typegen-fixture/**'
-    --exclude-path 'packages/tsrx-typegen/**'
 
 jobs:
   # Fast CI completion publishes nightly; Stable CI completion publishes stable.
@@ -123,7 +111,7 @@ jobs:
     needs: [gate, tsrx-typegen]
     runs-on: ubuntu-latest
     # always() so a failed typegen run doesn't hold the lockstep release
-    # hostage — the rebase-before-push handles ordering regardless.
+    # hostage. Stable jobs sync preceding release commits before editing the logs.
     if: >-
       always() &&
       (needs.gate.outputs.channel == 'stable' ||
@@ -149,38 +137,27 @@ jobs:
         with:
           node-version: 24
 
-      - name: Install git-cliff
+      - name: Sync preceding release commits
         if: needs.gate.outputs.channel == 'stable'
-        uses: taiki-e/install-action@git-cliff
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git merge-base --is-ancestor "$TESTED_SHA" origin/main
+          intervening_authors="$(git log "$TESTED_SHA..origin/main" --format='%ae' | sort -u)"
+          if [ -n "$intervening_authors" ] && [ "$intervening_authors" != "41898282+github-actions[bot]@users.noreply.github.com" ]; then
+            echo "main advanced past tested revision $TESTED_SHA with non-release commits — rerun release after CI on the new HEAD" >&2
+            exit 1
+          fi
+          # Both streams prepend to the root logs. Start from the previous
+          # release commit so those insertions never need a content rebase.
+          git merge --ff-only origin/main
 
       - name: Resolve release version
         id: version
         if: needs.gate.outputs.channel == 'stable'
         env:
           VERSION_OVERRIDE: ${{ github.event.inputs.version || '' }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-          if [ -n "$VERSION_OVERRIDE" ]; then
-            next_version="${VERSION_OVERRIDE#v}"
-            node -e "process.exit(/^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?$/.test(process.argv[1]) ? 0 : 1)" "$next_version" || {
-              echo "Invalid version override: $VERSION_OVERRIDE" >&2; exit 1; }
-            echo "Using explicit version override: $next_version"
-          else
-            next_version="$(eval "git-cliff --bumped-version $LOCKSTEP_PATHS" | sed 's/^v//')"
-          fi
-          [ -n "$next_version" ] || { echo "git-cliff did not infer a version" >&2; exit 1; }
-
-          if git rev-parse --verify --quiet "refs/tags/v$next_version" >/dev/null; then
-            echo "Tag v$next_version already exists — nothing to release."
-            echo "should_release=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          {
-            echo "should_release=true"
-            echo "version=$next_version"
-            echo "tag=v$next_version"
-          } >> "$GITHUB_OUTPUT"
+        run: node scripts/release-version.ts lockstep >> "$GITHUB_OUTPUT"
 
       # Check before any version bumps or publishes, reusing successful checks
       # for up to 24 hours. npm still authorizes every actual publish.
@@ -212,23 +189,9 @@ jobs:
         if: steps.version.outputs.should_release == 'true'
         run: node scripts/bump-versions.ts "${{ steps.version.outputs.version }}"
 
-      - name: Generate changelog
-        id: changelog
+      - name: Prepare release notes
         if: steps.version.outputs.should_release == 'true'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-          eval "git-cliff --unreleased --tag ${{ steps.version.outputs.tag }} $LOCKSTEP_PATHS --strip all -o .release-notes.md"
-          node - <<'EOF'
-          const fs = require('fs')
-          const notes = fs.readFileSync('.release-notes.md', 'utf8').trim()
-          const file = 'CHANGELOG.md'
-          const lines = fs.readFileSync(file, 'utf8').split('\n')
-          const insertAt = lines.findIndex((l) => l.startsWith('## '))
-          lines.splice(insertAt === -1 ? lines.length : insertAt, 0, notes, '')
-          fs.writeFileSync(file, lines.join('\n'))
-          EOF
+        run: node scripts/release-notes.ts prepare lockstep "${{ steps.version.outputs.version }}"
 
       - name: Commit and tag release
         if: steps.version.outputs.should_release == 'true'
@@ -243,19 +206,9 @@ jobs:
             packages/create/library-template/package.json \
             packages/create/template/pnpm-workspace.yaml \
             packages/create/library-template/pnpm-workspace.yaml \
-            CHANGELOG.md
+            CHANGELOG.md FIXLOG.md .changelog
           git commit -m "chore(release): align packages at ${{ steps.version.outputs.version }}"
-          # Publishing consumes the tested revision only. If main moved past
-          # it, every intervening commit must be a release-bot commit (e.g.
-          # the tsrx-typegen job that ran before this one) — a normal push
-          # would ship untested code, so abort instead of rebasing over it.
-          git fetch origin main
-          intervening_authors="$(git log "$TESTED_SHA..origin/main" --format='%ae' | sort -u)"
-          if [ -n "$intervening_authors" ] && [ "$intervening_authors" != "41898282+github-actions[bot]@users.noreply.github.com" ]; then
-            echo "main advanced past tested revision $TESTED_SHA with non-release commits — rerun release after CI on the new HEAD" >&2
-            exit 1
-          fi
-          git pull --rebase origin main
+          # Refuse a concurrent main update; never rebase generated log edits.
           git tag "${{ steps.version.outputs.tag }}"
           git push origin HEAD:main
           git push origin "${{ steps.version.outputs.tag }}"
@@ -341,39 +294,27 @@ jobs:
         with:
           node-version: 24
 
-      - name: Install git-cliff
+      - name: Sync preceding release commits
         if: needs.gate.outputs.channel == 'stable'
-        uses: taiki-e/install-action@git-cliff
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git merge-base --is-ancestor "$TESTED_SHA" origin/main
+          intervening_authors="$(git log "$TESTED_SHA..origin/main" --format='%ae' | sort -u)"
+          if [ -n "$intervening_authors" ] && [ "$intervening_authors" != "41898282+github-actions[bot]@users.noreply.github.com" ]; then
+            echo "main advanced past tested revision $TESTED_SHA with non-release commits — rerun release after CI on the new HEAD" >&2
+            exit 1
+          fi
+          # Both streams prepend to the root logs. Start from the previous
+          # release commit so those insertions never need a content rebase.
+          git merge --ff-only origin/main
 
       - name: Resolve release version
         id: version
         if: needs.gate.outputs.channel == 'stable'
         env:
           VERSION_OVERRIDE: ${{ github.event.inputs.typegen_version || '' }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-          if [ -n "$VERSION_OVERRIDE" ]; then
-            next_version="${VERSION_OVERRIDE#v}"
-            node -e "process.exit(/^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?$/.test(process.argv[1]) ? 0 : 1)" "$next_version" || {
-              echo "Invalid version override: $VERSION_OVERRIDE" >&2; exit 1; }
-            echo "Using explicit version override: $next_version"
-          else
-            next_version="$(git-cliff --config cliff.tsrx-typegen.toml --bumped-version \
-              --include-path 'packages/tsrx-typegen/**' | sed 's/^tsrx-typegen-v//;s/^v//')"
-          fi
-          [ -n "$next_version" ] || { echo "git-cliff did not infer a version" >&2; exit 1; }
-
-          if git rev-parse --verify --quiet "refs/tags/tsrx-typegen-v$next_version" >/dev/null; then
-            echo "Tag tsrx-typegen-v$next_version already exists — nothing to release."
-            echo "should_release=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          {
-            echo "should_release=true"
-            echo "version=$next_version"
-            echo "tag=tsrx-typegen-v$next_version"
-          } >> "$GITHUB_OUTPUT"
+        run: node scripts/release-version.ts tsrx-typegen >> "$GITHUB_OUTPUT"
 
       - name: Restore trusted-publisher checks
         id: trusted-publishers-cache
@@ -405,27 +346,9 @@ jobs:
         working-directory: packages/tsrx-typegen
         run: npm pkg set version="${{ steps.version.outputs.version }}"
 
-      - name: Generate changelog
+      - name: Prepare release notes
         if: steps.version.outputs.should_release == 'true'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-          git-cliff --config cliff.tsrx-typegen.toml --unreleased \
-            --include-path 'packages/tsrx-typegen/**' \
-            --tag "${{ steps.version.outputs.tag }}" \
-            --strip all -o .release-notes.md
-          touch packages/tsrx-typegen/CHANGELOG.md
-          node - <<'EOF'
-          const fs = require('fs')
-          const notes = fs.readFileSync('.release-notes.md', 'utf8').trim()
-          const file = 'packages/tsrx-typegen/CHANGELOG.md'
-          const existing = fs.readFileSync(file, 'utf8')
-          const body = existing.startsWith('# Changelog')
-            ? existing.replace(/^# Changelog\n/, `# Changelog\n\n${notes}\n\n`)
-            : `# Changelog\n\n${notes}\n\n${existing}`
-          fs.writeFileSync(file, body)
-          EOF
+        run: node scripts/release-notes.ts prepare tsrx-typegen "${{ steps.version.outputs.version }}"
 
       - name: Commit and tag release
         if: steps.version.outputs.should_release == 'true'
@@ -433,17 +356,9 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add packages/tsrx-typegen/package.json packages/tsrx-typegen/CHANGELOG.md
+          git add -A -- packages/tsrx-typegen/package.json CHANGELOG.md FIXLOG.md .changelog
           git commit -m "chore(release): tsrx-typegen ${{ steps.version.outputs.version }}"
-          # Same tested-revision guard as the lockstep job: refuse to rebase
-          # over a main that advanced with anything but release-bot commits.
-          git fetch origin main
-          intervening_authors="$(git log "$TESTED_SHA..origin/main" --format='%ae' | sort -u)"
-          if [ -n "$intervening_authors" ] && [ "$intervening_authors" != "41898282+github-actions[bot]@users.noreply.github.com" ]; then
-            echo "main advanced past tested revision $TESTED_SHA with non-release commits — rerun release after CI on the new HEAD" >&2
-            exit 1
-          fi
-          git pull --rebase origin main
+          # Refuse a concurrent main update; never rebase generated log edits.
           git tag "${{ steps.version.outputs.tag }}"
           git push origin HEAD:main
           git push origin "${{ steps.version.outputs.tag }}"

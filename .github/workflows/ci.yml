@@ -57,7 +57,7 @@ jobs:
       - name: Repo checks
         run: >-
           pnpm check:compatibility && pnpm check:patches && pnpm check:ui-barrels && pnpm check:css &&
-          pnpm check:suffix-resolution
+          pnpm check:suffix-resolution && pnpm check:changelog
 
       - name: Typecheck web
         run: pnpm typecheck:web
