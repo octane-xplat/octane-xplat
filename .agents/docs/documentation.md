@@ -90,29 +90,19 @@ a way to recognize success. Phone development tools belong at the point
 where the reader chooses to run on a phone; signing belongs with release
 instructions.
 
-## Glossary
+## Terminology
 
-Reserve the root [GLOSSARY.md](../../GLOSSARY.md) for bespoke project terms
-and familiar terms whose local meaning differs from what an agent would
-normally assume. Add or update an entry when a change introduces or alters
-such a meaning. Standard terms such as API, CLI, component, and prop do not
-belong there when used in their usual sense.
+Give each project-specific term or unusual meaning a canonical explanation
+in the topic that owns it. Public guides explain unfamiliar language where
+readers first need it. Relevant Octane skill references carry distinctions
+that change agent behavior and link to the guides for detail. Contributor-only
+concepts, such as [documentation recipes](recipes/README.md), belong in
+`.agents/docs/`.
 
-Keep entries alphabetical. Give a short, plain definition that makes the
-local distinction clear, and link to the official documentation explaining
-it in context. For example:
-
-```md
-| Recipe | An internal specification of what documentation must enable an app developer to accomplish, with explicit acceptance criteria. | [Documentation recipes](.agents/docs/recipes/README.md) |
-```
-
-Keep glossary entries focused on meaning; API instructions and examples belong
-in their canonical guides. Continue explaining unfamiliar words where a reader
-first needs them, including standard terms that a beginner may not know.
-Prefer plain language when it is equally precise. Glossary links are optional help,
-not a prerequisite for understanding a guide or release note. Use an absolute
-official repository link to the glossary in pending release notes, since
-the same Markdown also appears on GitHub Releases.
+Use existing topic references and links instead of a standalone glossary or
+parallel definition table. When a meaning changes, update its canonical
+explanation and affected skill guidance in the same change. Prefer plain
+language when it is equally precise, including in release notes.
 
 For choosing and writing release notes, follow the
 [release-note authoring contract](releases.md#write-a-release-note).

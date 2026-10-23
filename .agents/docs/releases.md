@@ -226,12 +226,11 @@ the behavior. Keep full explanations, option lists, and tutorials in those
 docs; the release note needs only the basic explanation and useful snippet.
 
 Use short, concrete titles and paragraphs. Avoid jargon where plain words
-work, and explain necessary technical language in context. Add a term to the
-glossary only when it is bespoke to the project or its meaning differs from
-what an agent would normally assume; follow the
-[glossary guidance](documentation.md#glossary). Link to a relevant entry when
-helpful. The glossary supplements an understandable note; it does not excuse
-an unexplained title.
+work, and explain necessary technical language in context. Keep project-specific
+definitions in the topic that owns the behavior, following the
+[terminology guidance](documentation.md#terminology), and link directly to
+that documentation. The note and its title should make sense without requiring
+a separate terminology lookup.
 
 Validate pending files and preview one release without editing the logs:
 

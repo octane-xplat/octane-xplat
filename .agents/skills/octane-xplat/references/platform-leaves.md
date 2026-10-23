@@ -1,5 +1,8 @@
 # Platform files — the file-boundary system
 
+A **platform leaf** is one implementation of a module, selected for a target
+through the same import as its sibling implementations.
+
 ## Resolution order
 
 The unsuffixed module is the native default. Platform-specific files override
@@ -99,6 +102,8 @@ pragma. `pnpm typecheck` checks `.tsrx` and every platform variant together.
 A combined program uses opaque native host handles; a target-specific consumer
 can bind concrete handles through `customConditions: ["native"]` or `["macos"]`.
 Conditions bind host types only, never the intrinsic vocabulary.
+For the JSX facade's type-only boundary and configuration examples, see
+[JSX and host types](../../../../docs/platform/module-resolution.md#typescript).
 
 ## Platform constants
 

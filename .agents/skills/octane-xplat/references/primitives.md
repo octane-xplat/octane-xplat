@@ -31,6 +31,9 @@ component, and the public declarations/export map for exact names and props.
 State and routing operations have dedicated `/data` and `/routing` entrypoints;
 visual components stay at the root.
 
+Check the [normalization contract](../../../../docs/start/architecture.md#normalization-classes)
+when deciding which appearance and behavior must match across targets.
+
 `Switch`, `Slider`, `Spinner`, `Tabs`, and `Drawer` are
 self-drawn shared components: their shared props produce the same component
 design across targets, rather than exposing OS chrome. `Slider` follows pan

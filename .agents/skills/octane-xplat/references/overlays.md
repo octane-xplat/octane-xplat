@@ -72,9 +72,10 @@ export function Details() {
 On iOS/Android, declarative `Dialog`, `BottomSheet`, `Overlay`, `Popover`,
 and OS modal content portal from their declaring tree. For imperative sheets,
 use `useImperativeBottomSheet` and keep its returned `element` mounted below
-all required providers. Removing the owner closes its owned content; a removed
-owner cannot reopen it. The hook does not capture providers merely because
-an event handler calls it.
+all required providers. That mounted element is the **source owner**: it
+supplies context and controls the content's lifetime. Removing it closes its
+owned content; a removed owner cannot reopen it. Provider inheritance follows
+the mounted element even when `open` is called elsewhere.
 
 ```tsx
 import { useImperativeBottomSheet, Button, Text } from '@octane-xplat/ui'
