@@ -6,6 +6,7 @@ export {
 	devActionsRevision,
 	listDevActions,
 	registerDevAction,
+	setDevActionNavigator,
 	startDevActionBridge,
 	type DevActionAvailability,
 	type DevActionBridge,
@@ -17,10 +18,12 @@ export {
 	type DevActionExecution,
 	type DevActionFailure,
 	type DevActionHandle,
+	type DevActionNavigator,
 	type DevActionRun,
 	type DevActionSpec,
 	type DevEffectDeclaration,
 	type DevEffectDefinition,
+	type DevNavigationResult,
 	type DevPlatform,
 } from './dev-actions-registry'
 

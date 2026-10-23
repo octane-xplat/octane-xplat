@@ -120,6 +120,15 @@ export function validateActionDeclaration(action: unknown): string[] {
 		problems.push('effects.summary: required')
 	}
 
+	const route = (action as { route?: unknown }).route
+	if (
+		route !== undefined &&
+		typeof route !== 'function' &&
+		(typeof route !== 'string' || !route.trim())
+	) {
+		problems.push('route: must be a non-empty URL string or an input-derived function')
+	}
+
 	validateFields(action.input as DevActionFields | undefined, 'input', problems)
 	validateFields(action.result as DevActionFields | undefined, 'result', problems)
 	return problems

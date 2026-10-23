@@ -62,7 +62,7 @@ export interface DevActionExecution {
 	cancellable?: boolean
 	/** Idempotent — safe for a retry after an uncertain outcome. */
 	retryable?: boolean
-	/** Execution deadline enforced by the caller; bounded server-side. */
+	/** Execution deadline enforced by the caller; bounded server-side. Route-declared actions spend at most half of it navigating and waiting for the handler. */
 	timeoutMs?: number
 }
 
@@ -85,6 +85,13 @@ export interface DevActionSpec {
 	effects: DevActionEffects
 	availability?: DevActionAvailability
 	execution?: DevActionExecution
+	/**
+	 * URL (e.g. '/checkout') — or an input-derived URL — the framework
+	 * navigates to when this action is invoked without an attached handler.
+	 * Screen-owned actions declare this so agents can reach them without
+	 * knowing app route structure. Dev actions only.
+	 */
+	route?: string | ((input: Record<string, unknown>) => string)
 	run(input: Record<string, unknown>, context: DevActionContext): unknown
 }
 
@@ -169,6 +176,65 @@ interface RegistryState {
 	bridge?: BridgeRuntime
 	appLabel?: string
 	announceScheduled: boolean
+	navigator?: { impl: DevActionNavigator; unsubscribe?: () => void }
+}
+
+/** The result a router navigator reports to the dev-actions registry. @internal */
+export type DevNavigationResult =
+	| { ok: true; route: string | null }
+	| {
+			ok: false
+			code: 'navigation_blocked' | 'navigation_failed'
+			status: string
+			message: string
+	  }
+
+/**
+ * The seam a UI router installs so route-declared dev actions can navigate to
+ * their screen before running. Implemented by
+ * `@octane-xplat/ui/routing/dev`. @internal
+ */
+export interface DevActionNavigator {
+	navigate(url: string, signal: AbortSignal): Promise<DevNavigationResult>
+	location(): { route: string | null; modal: boolean } | undefined
+	subscribe(listener: () => void): () => void
+}
+
+/**
+ * Install (or clear) the router navigator used by route-declared dev actions.
+ * Returns a restore function that uninstalls this navigator. Realm-singleton:
+ * the announcement picks up `location` immediately; re-announces on every
+ * route change without bumping the registry revision. @internal
+ */
+export function setDevActionNavigator(navigator: DevActionNavigator | undefined): () => void {
+	const state = registry()
+	const previous = state.navigator
+	previous?.unsubscribe?.()
+	let unsubscribe: (() => void) | undefined
+	if (navigator) {
+		try {
+			unsubscribe = navigator.subscribe(() => scheduleAnnounce(state))
+		} catch {
+			unsubscribe = undefined
+		}
+	}
+
+	state.navigator = navigator ? { impl: navigator, unsubscribe } : undefined
+	scheduleAnnounce(state)
+
+	let restored = false
+	return () => {
+		if (restored) {
+			return
+		}
+
+		restored = true
+		if (state.navigator?.impl === navigator) {
+			unsubscribe?.()
+			state.navigator = previous
+			scheduleAnnounce(state)
+		}
+	}
 }
 
 interface DevActionOutcome {
@@ -261,16 +327,23 @@ const declarations = (state: RegistryState) =>
 	[...state.actions.values()].map((entry) => {
 		const spec = entry.spec
 		const live = liveAvailability(state, entry)
+		const routed = entry.kind === 'action' && spec.route !== undefined
 		return {
 			id: spec.id,
 			title: spec.title,
 			description: spec.description,
 			input: spec.input,
 			result: spec.result,
-			effects: spec.effects,
+			effects: routed ? { ...spec.effects, navigation: true } : spec.effects,
 			availability: {
 				...(spec.availability?.platforms ? { platforms: spec.availability.platforms } : {}),
 				...(spec.availability?.readyWhen ? { readyWhen: spec.availability.readyWhen } : {}),
+				...(routed
+					? {
+							route:
+								typeof spec.route === 'string' ? { url: spec.route } : { fromInput: true },
+						}
+					: {}),
 				ready: live.ready,
 				...(live.reason ? { reason: live.reason } : {}),
 			},
@@ -278,16 +351,26 @@ const declarations = (state: RegistryState) =>
 		}
 	})
 
-const snapshot = (state: RegistryState, appLabel?: string) => ({
-	protocol: 'xplat-dev-actions',
-	version: 1,
-	appInstanceId: state.instanceId,
-	...(appLabel ? { appLabel } : {}),
-	platform: devBridgePlatform(),
-	revision: state.revision,
-	announcedAt: new Date().toISOString(),
-	actions: declarations(state),
-})
+const snapshot = (state: RegistryState, appLabel?: string) => {
+	let location: { route: string | null; modal: boolean } | undefined
+	try {
+		location = state.navigator?.impl.location()
+	} catch {
+		location = undefined
+	}
+
+	return {
+		protocol: 'xplat-dev-actions',
+		version: 1,
+		appInstanceId: state.instanceId,
+		...(appLabel ? { appLabel } : {}),
+		platform: devBridgePlatform(),
+		revision: state.revision,
+		announcedAt: new Date().toISOString(),
+		...(location !== undefined ? { location } : {}),
+		actions: declarations(state),
+	}
+}
 
 const EFFECT_RESULT: DevActionFields = {
 	fields: { handlerCount: { type: 'integer', minimum: 0 } },
@@ -298,6 +381,10 @@ function defineDeclaration(
 	kind: 'action' | 'effect',
 ): DevActionDefinition | DevEffectDefinition {
 	const problems = validateActionDeclaration(declaration)
+	if (kind === 'effect' && (declaration as DevActionDeclaration).route !== undefined) {
+		problems.push('route is only supported for dev actions')
+	}
+
 	if (problems.length) {
 		throw new Error(`Invalid dev ${kind} "${declaration?.id ?? '?'}": ${problems.join('; ')}`)
 	}
@@ -871,20 +958,6 @@ async function dispatchInvocation(rt: BridgeRuntime, request: InvocationRequest)
 	}
 
 	const spec = entry.spec
-	const handlers = [...(state.handlers.get(spec.id) ?? [])]
-	if (entry.kind === 'action' && handlers.length === 0) {
-		await postOutcome(
-			rt,
-			failOutcome(
-				request.requestId,
-				'unavailable',
-				`action "${spec.id}" is unavailable: ${NO_HANDLER_REASON}`,
-			),
-		)
-
-		return
-	}
-
 	const platforms = spec.availability?.platforms
 	const platform = devBridgePlatform()
 	if (platforms && !platforms.includes(platform)) {
@@ -900,20 +973,7 @@ async function dispatchInvocation(rt: BridgeRuntime, request: InvocationRequest)
 		return
 	}
 
-	const availability = liveAvailability(state, entry)
-	if (!availability.ready) {
-		await postOutcome(
-			rt,
-			failOutcome(
-				request.requestId,
-				'unavailable',
-				`action "${spec.id}" is unavailable: ${availability.reason ?? 'reported unavailable'}`,
-			),
-		)
-
-		return
-	}
-
+	// Validated early: a function route derives its URL from this input.
 	const input = validateActionInput(spec.input, request.input)
 	if (!input.ok) {
 		await postOutcome(
@@ -926,6 +986,54 @@ async function dispatchInvocation(rt: BridgeRuntime, request: InvocationRequest)
 		)
 
 		return
+	}
+
+	const handlers = [...(state.handlers.get(spec.id) ?? [])]
+	if (entry.kind === 'action' && handlers.length === 0) {
+		// A route-declared action defers to the serialized work chain, which
+		// navigates to its screen and waits for a handler to attach. Without a
+		// declared route or an installed navigator, it stays unavailable.
+		if (spec.route === undefined) {
+			await postOutcome(
+				rt,
+				failOutcome(
+					request.requestId,
+					'unavailable',
+					`action "${spec.id}" is unavailable: ${NO_HANDLER_REASON}`,
+				),
+			)
+
+			return
+		}
+
+		if (!state.navigator) {
+			await postOutcome(
+				rt,
+				failOutcome(
+					request.requestId,
+					'unavailable',
+					`action "${spec.id}" is unavailable: ${NO_HANDLER_REASON}; route "${
+						typeof spec.route === 'string' ? spec.route : 'input-derived'
+					}" is declared but no router navigator is installed`,
+				),
+			)
+
+			return
+		}
+	} else {
+		const availability = liveAvailability(state, entry)
+		if (!availability.ready) {
+			await postOutcome(
+				rt,
+				failOutcome(
+					request.requestId,
+					'unavailable',
+					`action "${spec.id}" is unavailable: ${availability.reason ?? 'reported unavailable'}`,
+				),
+			)
+
+			return
+		}
 	}
 
 	const running: RunningInvocation = {
@@ -959,6 +1067,102 @@ async function dispatchInvocation(rt: BridgeRuntime, request: InvocationRequest)
 
 		let invocationFailures: DevActionFailure[] | undefined
 		try {
+			let handlers = [...(state.handlers.get(spec.id) ?? [])]
+			if (entry.kind === 'action' && handlers.length === 0 && spec.route !== undefined) {
+				// Screen not mounted: navigate to the declared route, then wait for
+				// its handler to attach and report ready. The navigator was checked
+				// before dispatch; it could have been uninstalled since.
+				const navigator = state.navigator?.impl
+				if (!navigator) {
+					await postOutcome(
+						rt,
+						failOutcome(
+							request.requestId,
+							'unavailable',
+							`action "${spec.id}" is unavailable: ${NO_HANDLER_REASON}; route "${
+								typeof spec.route === 'string' ? spec.route : 'input-derived'
+							}" is declared but no router navigator is installed`,
+						),
+					)
+
+					return
+				}
+
+				// Route-declared actions spend at most half of the caller's
+				// deadline navigating and waiting, so the handler and the outcome
+				// post still fit inside the caller's bound. Measured from the
+				// start of navigation, not from its commit.
+				const waitDeadline =
+					spec.execution?.timeoutMs !== undefined
+						? Date.now() + Math.min(10_000, Math.floor(spec.execution.timeoutMs / 2))
+						: Date.now() + 10_000
+
+				// A throwing route function is an ordinary execution failure.
+				const url = typeof spec.route === 'function' ? spec.route(input.value) : spec.route
+				const navigation = await navigator.navigate(url, running.controller.signal)
+				if (running.controller.signal.aborted) {
+					throw new Error('cancelled')
+				}
+
+				if (!navigation.ok) {
+					await postOutcome(rt, {
+						requestId: request.requestId,
+						status: 'failed',
+						error: {
+							code: navigation.code,
+							message: `navigation to "${url}" did not commit (status "${navigation.status}"): ${navigation.message}`,
+						},
+						completedAt: new Date().toISOString(),
+					})
+
+					return
+				}
+
+				partialEffects.push(`navigated to ${url}`)
+
+				// Mounting the target screen attaches the handler — possibly under a
+				// new registry revision; the in-flight call is not re-checked.
+				let pendingReason = NO_HANDLER_REASON
+				for (;;) {
+					handlers = [...(state.handlers.get(spec.id) ?? [])]
+					const availability = handlers.length
+						? evaluateAvailability(spec)
+						: { ready: false, reason: NO_HANDLER_REASON }
+					if (handlers.length && availability.ready) {
+						break
+					}
+
+					pendingReason = availability.reason ?? 'reported unavailable'
+					if (running.controller.signal.aborted || state.cancelRequested.has(request.requestId)) {
+						await postOutcome(rt, {
+							requestId: request.requestId,
+							status: 'cancelled',
+							partialEffects,
+							completedAt: new Date().toISOString(),
+						})
+
+						return
+					}
+
+					if (Date.now() >= waitDeadline) {
+						await postOutcome(rt, {
+							requestId: request.requestId,
+							status: 'failed',
+							error: {
+								code: 'unavailable',
+								message: `navigated to ${url} but action "${spec.id}" is still unavailable: ${pendingReason}`,
+							},
+							partialEffects,
+							completedAt: new Date().toISOString(),
+						})
+
+						return
+					}
+
+					await sleep(50)
+				}
+			}
+
 			let result: Record<string, unknown> | undefined
 			if (entry.kind === 'effect') {
 				// Broadcast: every handler attached at dispatch start runs, in

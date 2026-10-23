@@ -891,3 +891,302 @@ test('failure stacks are truncated to their bound', async (t) => {
 	assert.equal(outcome.error.failures[0].stack.length, 4097)
 	assert.ok(outcome.error.failures[0].stack.endsWith('…'))
 })
+
+// ---------- route-declared actions (Layer 2: navigate-then-run) ----------
+
+const makeNavigator = (over = {}) => {
+	const navigator = {
+		navigated: [],
+		listeners: new Set(),
+		locationValue: { route: '/home', modal: false },
+		async navigate(url) {
+			navigator.navigated.push(url)
+			return { ok: true, route: url }
+		},
+		location() {
+			return navigator.locationValue
+		},
+		subscribe(listener) {
+			navigator.listeners.add(listener)
+			return () => navigator.listeners.delete(listener)
+		},
+		emit() {
+			for (const listener of [...navigator.listeners]) {
+				listener()
+			}
+		},
+		...over,
+	}
+	return navigator
+}
+
+const invokeRouteAction = async (bridge, instance, requestId, actionId, input = {}) => {
+	await bridge.call('POST', '/invoke', {
+		requestId,
+		appInstanceId: instance.appInstanceId,
+		actionId,
+		registryRevision: instance.revision,
+		input,
+	})
+
+	return until(async () => (await bridge.call('GET', `/invoke/${requestId}?wait=500`)).outcome)
+}
+
+test('a route-declared action navigates, waits for the screen handler, then runs it', async (t) => {
+	const bridge = await makeBridge(t)
+	const { exports: api } = await loadDevActions({ origin: bridge.origin, token: bridge.token })
+	const definition = api.defineDevAction(
+		declaration({
+			id: 'checkout.confirm',
+			route: '/checkout',
+			result: { fields: { ok: { type: 'boolean' } } },
+		}),
+	)
+	t.after(() => definition.dispose())
+	t.after(() => api.startDevActionBridge().stop())
+
+	let ran = 0
+	const navigator = makeNavigator({
+		async navigate(url) {
+			navigator.navigated.push(url)
+			await sleep(20)
+			// The mounted screen attaches its handler while navigation settles.
+			api.attachDevActionHandler(definition, async () => {
+				ran++
+				return { ok: true }
+			})
+			return { ok: true, route: url }
+		},
+	})
+	t.after(api.setDevActionNavigator(navigator))
+
+	const instance = await until(async () => (await bridge.call('GET', '/registry')).instances[0])
+	const outcome = await invokeRouteAction(bridge, instance, 'req_route', 'checkout.confirm')
+	assert.equal(outcome.status, 'succeeded', JSON.stringify(outcome))
+	assert.equal(ran, 1)
+	assert.deepEqual(navigator.navigated, ['/checkout'])
+	assert.ok(outcome.partialEffects.includes('navigated to /checkout'))
+})
+
+test('a function route derives its URL from the validated input', async (t) => {
+	const bridge = await makeBridge(t)
+	const { exports: api } = await loadDevActions({ origin: bridge.origin, token: bridge.token })
+	const definition = api.defineDevAction(
+		declaration({
+			id: 'orders.open',
+			route: (input) => `/orders/${input.order}`,
+			input: { fields: { order: { type: 'integer', default: 5 } } },
+		}),
+	)
+	t.after(() => definition.dispose())
+	t.after(() => api.startDevActionBridge().stop())
+
+	const navigator = makeNavigator({
+		async navigate(url) {
+			navigator.navigated.push(url)
+			api.attachDevActionHandler(definition, async () => ({}))
+			return { ok: true, route: url }
+		},
+	})
+	t.after(api.setDevActionNavigator(navigator))
+
+	const instance = await until(async () => (await bridge.call('GET', '/registry')).instances[0])
+	const outcome = await invokeRouteAction(bridge, instance, 'req_routefn', 'orders.open')
+	assert.equal(outcome.status, 'succeeded', JSON.stringify(outcome))
+	assert.deepEqual(navigator.navigated, ['/orders/5'])
+})
+
+test('an already-attached handler runs immediately without navigating', async (t) => {
+	const bridge = await makeBridge(t)
+	const { exports: api } = await loadDevActions({ origin: bridge.origin, token: bridge.token })
+	const definition = api.defineDevAction(
+		declaration({ id: 'checkout.confirm', route: '/checkout' }),
+	)
+	t.after(() => definition.dispose())
+	t.after(() => api.startDevActionBridge().stop())
+	t.after(api.attachDevActionHandler(definition, async () => ({})))
+
+	const navigator = makeNavigator()
+	t.after(api.setDevActionNavigator(navigator))
+
+	const instance = await until(async () => {
+		const value = (await bridge.call('GET', '/registry')).instances[0]
+		return value?.actions.find((a) => a.id === 'checkout.confirm')?.availability.ready === true
+			? value
+			: null
+	})
+
+	const outcome = await invokeRouteAction(bridge, instance, 'req_attached', 'checkout.confirm')
+	assert.equal(outcome.status, 'succeeded', JSON.stringify(outcome))
+	assert.equal(navigator.navigated.length, 0)
+})
+
+test('a blocked navigation fails with its code and never runs the handler', async (t) => {
+	const bridge = await makeBridge(t)
+	const { exports: api } = await loadDevActions({ origin: bridge.origin, token: bridge.token })
+	const definition = api.defineDevAction(
+		declaration({ id: 'checkout.confirm', route: '/checkout' }),
+	)
+	t.after(() => definition.dispose())
+	t.after(() => api.startDevActionBridge().stop())
+
+	const navigator = makeNavigator({
+		async navigate(url) {
+			navigator.navigated.push(url)
+			return {
+				ok: false,
+				code: 'navigation_blocked',
+				status: 'pending',
+				message: 'a navigation blocker held the attempt',
+			}
+		},
+	})
+	t.after(api.setDevActionNavigator(navigator))
+
+	const instance = await until(async () => (await bridge.call('GET', '/registry')).instances[0])
+	const outcome = await invokeRouteAction(bridge, instance, 'req_blocked', 'checkout.confirm')
+	assert.equal(outcome.status, 'failed')
+	assert.equal(outcome.error.code, 'navigation_blocked')
+	assert.match(outcome.error.message, /pending/)
+})
+
+test('navigating without an ever-attaching handler fails unavailable past the deadline', async (t) => {
+	const bridge = await makeBridge(t)
+	const { exports: api } = await loadDevActions({ origin: bridge.origin, token: bridge.token })
+	const definition = api.defineDevAction(
+		declaration({
+			id: 'checkout.confirm',
+			route: '/checkout',
+			execution: { timeoutMs: 200 },
+		}),
+	)
+	t.after(() => definition.dispose())
+	t.after(() => api.startDevActionBridge().stop())
+	t.after(api.setDevActionNavigator(makeNavigator()))
+
+	const instance = await until(async () => (await bridge.call('GET', '/registry')).instances[0])
+	const outcome = await invokeRouteAction(bridge, instance, 'req_timeout', 'checkout.confirm')
+	assert.equal(outcome.status, 'failed')
+	assert.equal(outcome.error.code, 'unavailable')
+	assert.match(outcome.error.message, /navigated to \/checkout/)
+	assert.ok(outcome.partialEffects.includes('navigated to /checkout'))
+})
+
+test('an unreachable handler outcome posts within half the caller deadline', async (t) => {
+	const bridge = await makeBridge(t)
+	const { exports: api } = await loadDevActions({ origin: bridge.origin, token: bridge.token })
+	const definition = api.defineDevAction(
+		declaration({
+			id: 'checkout.confirm',
+			route: '/checkout',
+			execution: { timeoutMs: 400 },
+		}),
+	)
+	t.after(() => definition.dispose())
+	t.after(() => api.startDevActionBridge().stop())
+	t.after(api.setDevActionNavigator(makeNavigator()))
+
+	const instance = await until(async () => (await bridge.call('GET', '/registry')).instances[0])
+	const started = Date.now()
+	const outcome = await invokeRouteAction(bridge, instance, 'req_halfbudget', 'checkout.confirm')
+	const elapsed = Date.now() - started
+	assert.equal(outcome.status, 'failed')
+	assert.equal(outcome.error.code, 'unavailable')
+	assert.match(outcome.error.message, /navigated to \/checkout but action "checkout\.confirm" is still unavailable/)
+	// Half of the 400ms bound is spent navigating + waiting so the caller's
+	// deadline still fits the remaining handler execution and outcome post.
+	assert.ok(elapsed < 400, `expected the unavailable outcome under 400ms, took ${elapsed}ms`)
+})
+
+test('a declared route without an installed navigator stays unavailable without dispatch', async (t) => {
+	const bridge = await makeBridge(t)
+	const { exports: api } = await loadDevActions({ origin: bridge.origin, token: bridge.token })
+	const definition = api.defineDevAction(
+		declaration({ id: 'checkout.confirm', route: '/checkout' }),
+	)
+	t.after(() => definition.dispose())
+	t.after(() => api.startDevActionBridge().stop())
+
+	const instance = await until(async () => (await bridge.call('GET', '/registry')).instances[0])
+	const outcome = await invokeRouteAction(bridge, instance, 'req_nosnav', 'checkout.confirm')
+	assert.equal(outcome.status, 'failed')
+	assert.equal(outcome.error.code, 'unavailable')
+	assert.match(outcome.error.message, /route "\/checkout" is declared but no router navigator is installed/)
+})
+
+test('the announcement discloses route, navigation effect, location, and re-announces on location change', async (t) => {
+	const bridge = await makeBridge(t)
+	const { exports: api } = await loadDevActions({ origin: bridge.origin, token: bridge.token })
+	const fixed = api.defineDevAction(declaration({ id: 'checkout.confirm', route: '/checkout' }))
+	const derived = api.defineDevAction(
+		declaration({ id: 'orders.open', route: (input) => `/orders/${input.order}` }),
+	)
+	t.after(() => {
+		fixed.dispose()
+		derived.dispose()
+	})
+	t.after(() => api.startDevActionBridge().stop())
+
+	const navigator = makeNavigator()
+	t.after(api.setDevActionNavigator(navigator))
+
+	const instance = await until(async () => {
+		const value = (await bridge.call('GET', '/registry')).instances[0]
+		return value?.location?.route === '/home' ? value : null
+	})
+
+	const byId = Object.fromEntries(instance.actions.map((a) => [a.id, a]))
+	assert.deepEqual(byId['checkout.confirm'].availability.route, { url: '/checkout' })
+	assert.deepEqual(byId['orders.open'].availability.route, { fromInput: true })
+	assert.equal(byId['checkout.confirm'].effects.navigation, true)
+	assert.equal(byId['orders.open'].effects.navigation, true)
+	// A route function is never serialized into the announcement.
+	assert.equal(byId['orders.open'].route, undefined)
+	assert.deepEqual(instance.location, { route: '/home', modal: false })
+
+	const revision = api.devActionsRevision()
+	navigator.locationValue = { route: '/checkout', modal: true }
+	navigator.emit()
+	const moved = await until(async () => {
+		const value = (await bridge.call('GET', '/registry')).instances[0]
+		return value?.location?.route === '/checkout' ? value : null
+	})
+	assert.equal(moved.location.modal, true)
+	assert.equal(moved.revision, revision)
+})
+
+test('dev effects reject a route declaration', async () => {
+	const { exports: api } = await loadDevActions()
+	assert.throws(
+		() => api.defineDevEffect(declaration({ id: 'fixtures.navigate', route: '/x' })),
+		/route is only supported for dev actions/,
+	)
+})
+
+test('a revision bump during navigation does not fail the in-flight call', async (t) => {
+	const bridge = await makeBridge(t)
+	const { exports: api } = await loadDevActions({ origin: bridge.origin, token: bridge.token })
+	const definition = api.defineDevAction(
+		declaration({ id: 'checkout.confirm', route: '/checkout' }),
+	)
+	t.after(() => definition.dispose())
+	t.after(() => api.startDevActionBridge().stop())
+
+	let extra
+	const navigator = makeNavigator({
+		async navigate(url) {
+			navigator.navigated.push(url)
+			// Mounting the screen registers a new declaration (revision bump) and
+			// attaches this action's handler — both are legal mid-invocation.
+			extra = api.defineDevAction(declaration({ id: 'checkout.helper' }))
+			api.attachDevActionHandler(definition, async () => ({}))
+			return { ok: true, route: url }
+		},
+	})
+	t.after(api.setDevActionNavigator(navigator))
+	t.after(() => extra?.dispose())
+
+	const instance = await until(async () => (await bridge.call('GET', '/registry')).instances[0])
+	const outcome = await invokeRouteAction(bridge, instance, 'req_revbump', 'checkout.confirm')
+	assert.equal(outcome.status, 'succeeded', JSON.stringify(outcome))
+})
