@@ -273,6 +273,21 @@ savings or transitive dependency download costs. These retained costs need match
 measurements before any size claim. Commands and source hashes live in
 `tools/mason-core/android-host-README.md` in the Mason fork.
 
+The packaged plugin artifacts show where the remaining savings do and do not
+come from. The packed tarballs are 7,471,480 bytes for core versus
+50,265,067 for the full package, and unpacked installs are 29,301,549 versus
+189,992,482 bytes. Those headline gaps are dominated by packaging, not code
+removal: the full XCFramework ships xros and x86_64 simulator slices plus
+about 89 MB of dSYM DWARF that core does not yet ship, and the full release
+AAR carries four JNI ABIs where core carries arm64-v8a alone. The like-for-like
+per-slice deltas are smaller: the arm64 device framework binary is 8,497,568
+versus 10,848,392 bytes (about 22% smaller), classes.jar drops 30%, and the
+arm64-v8a `libmasonnative.so` is essentially unchanged (1,146,832 versus
+1,147,256 bytes) because both link the same shared Rust engine. Widget
+resources (color picker, seekbar drawables) leave the core AAR entirely.
+These are install/download and per-artifact numbers measured on the same dist
+builds; matched release IPA/APK sizes remain unmeasured.
+
 The normal core `build` target now assembles the container-only runtime,
 native host artifacts, dependency headers/licenses, Android Maven declarations,
 and the iOS SDWebImage resource/privacy bundle. It does not change the ordinary
