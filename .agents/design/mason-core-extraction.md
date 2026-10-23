@@ -410,10 +410,21 @@ All 343 CLI checks, 107 repository script checks and the required dependent
 typechecks pass. Those are host checks, including real Vite resolution for both
 mobile suffixes, rather than device-runtime qualification.
 
-The separate actual-Vite fixture compiles authored TSRX with the canonical
-patches and builds an Android APK. Its debug startup currently fails before
-the component mounts: NativeScript Vite imports Core's inspector modules,
-which call the unavailable `__registerDomainDispatcher` runtime global.
-That Vite startup investigation remains open; the passing Webpack consumer
-does not establish Vite runtime support. The upstream Mason issue remains open
-without maintainer comments at the latest check.
+The separate actual-Vite fixture compiles authored TSRX with canonical patches
+and passes real taps, hook/geometry updates, touch scrolling and cleanup on
+iOS Simulator (`c7326b01` in the Mason fork). Android builds too. Its initial
+debug startup failure was a fixture prerequisite error: the minimal manifest
+omitted `INTERNET`, so the inspector server threw socket `EPERM` before
+installing its runtime globals. Restoring the permission makes the canonical
+Vite app accept a real inspector connection; Runtime evaluation and the
+NativeScript DOM dispatcher both respond. An experimental separate inspector
+entry is not needed and must not be promoted as an upstream workaround.
+
+Android input diagnostics then caught stale coordinates published before
+window insets finished applying: the single tap targeted y=224 pixels while
+the button's final center was about y=286. The fixture now waits for native
+window readiness and stable geometry before publishing coordinates. Its
+combined inspector/OS-input rerun remains pending. The earlier Webpack tap
+timeout lacks these diagnostics and is not proven to share this cause.
+The upstream Mason issue remains open without maintainer comments at the
+latest check.
