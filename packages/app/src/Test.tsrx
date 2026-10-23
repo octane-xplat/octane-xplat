@@ -38,6 +38,9 @@ export function Test() @{
 		<View className="sink-section">
 			<Text className="section-label">Navigation seams</Text>
 			<HStack className="demo-menu">
+				<Pressable id="menu-cached-users" onPress={() => router.push({ to: '/cached-users', stack: 'test' })} className="chip">
+					<Text>Shared query workflow →</Text>
+				</Pressable>
 				<Pressable
 					id="menu-navigation-blocking"
 					onPress={() => router.push({ to: '/navigation-blocking', stack: 'test' })}

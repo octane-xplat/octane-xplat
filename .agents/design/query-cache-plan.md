@@ -1,26 +1,23 @@
 # Query cache commit plan
 
-Status: implementation started, 2026-10-22. [Engine decision 121](query-cache-engine.md)
-selects native signal authority. Steps 1–10 are implemented: explicit ownership,
+Status: steps 1–11 implemented. [Engine decision 121](query-cache-engine.md)
+selects native signal authority. The cache now has explicit ownership,
 bounded retention, retry/network scheduling, lifecycle refresh, typed writes,
-prefetch, shared native optimistic actions, cached cursor pagination, and opt-in metadata
-inspection over existing development actions. Steps 11–12 remain: composed
-guidance/example and final qualification.
+prefetch, shared native optimistic actions, cached cursor pagination, and opt-in
+metadata inspection. The maintained list/detail/edit/account workflow and guide
+make the official cache the shared-data default.
 
-Current focused evidence: 58 cache tests, seven inspection tests, nine universal object-driver tests,
-five environment adapter tests, and 350 CLI tests pass. UI/CLI dependent
-checks pass (55 tasks); the prepared-user route also passed its 54-task
-UI/app check. Packed web/native/macOS consumers check result/selection types
-and reject incorrectly typed writes and receipts in Bundler/NodeNext modes.
-Packed checks also prove the development gate removes the inspection collector
-and action from production output. Recipe links and purpose barrels pass their checks.
+Current focused evidence: 60 cache tests, seven inspection tests, and two
+composed workflow tests pass. The docs build passes. Earlier commits also
+qualified nine universal object-driver tests, five environment adapter tests,
+and packed web/native/macOS type contracts in Bundler/NodeNext modes. Packed
+builds prove the development gate removes inspection from production output.
 
-Real AppKit probes pass three native authority assertions and four replacement
-cache assertions after installing host UUID and abort-event capabilities.
-These are headless state/action checks, not OS lifecycle or input evidence.
-Browser/device composed qualification and the final docs build remain in
-steps 11–12. Earlier source, typecheck, and mock results do not qualify those
-remaining runtime workflows.
+Step 12 is limited to headless qualification at the user's request on
+2026-10-23. Run one check at a time with Turbo concurrency 1; preserve passing
+results instead of repeating broad suites. Actual OS lifecycle/device
+qualification is deferred, and source/typecheck/mock evidence must not be
+reported as platform runtime parity.
 
 Make the official cache the easiest reliable choice for an Octane Xplat app
 that loads shared data, edits it, navigates between screens, and recovers from

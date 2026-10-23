@@ -51,8 +51,9 @@ Definitions are reusable immutable objects. Clients reject another definition
 using an already registered family instead of silently choosing its loader.
 Selections are canonical JSON values. A reader's selection change releases the
 old lease, and account change disposes the old client. Disposal fences pending
-fetches, restores, actions and durable writes; explicit durable purge is
-awaitable. Server code creates a client per request.
+fetches, restores, actions and new durable writes. Already queued confirmed
+snapshots drain in the original namespace before disposal resolves; explicit
+durable purge queues after those writes and is awaitable. Server code creates a client per request.
 
 An alternative core integration could route every Octane adoption synchronously
 through core. That would need a supported mutation protocol beyond the tested

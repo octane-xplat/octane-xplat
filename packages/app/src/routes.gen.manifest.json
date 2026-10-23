@@ -8,6 +8,7 @@
 		"about",
 		"broken",
 		"cached-user",
+		"cached-users",
 		"changelog",
 		"demo/:id",
 		"detail",
@@ -82,6 +83,28 @@
 				""
 			],
 			"source": "src/app/cached-user.tsrx",
+			"loader": true,
+			"guard": false,
+			"head": false,
+			"errorBoundary": false
+		},
+		{
+			"name": "cached-users",
+			"platforms": [
+				"web",
+				"ios",
+				"android",
+				"mobile",
+				"macos",
+				"windows",
+				"linux"
+			],
+			"path": "cached-users",
+			"params": [],
+			"layouts": [
+				""
+			],
+			"source": "src/app/cached-users.tsrx",
 			"loader": true,
 			"guard": false,
 			"head": false,

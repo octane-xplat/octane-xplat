@@ -21,7 +21,7 @@ start at the [public docs](../../docs/README.md).
 - [UI API design audit](ui-api/README.md) — proposed public surface and approved design directions.
 - [Charts package](charts.md)
 - [Command palette plan](command-palette-plan.md)
-- [Query cache commit plan](query-cache-plan.md) — proposed sequence for recovery, shared updates, pagination, and inspection.
+- [Query cache commit plan](query-cache-plan.md) — implementation sequence for recovery, shared updates, pagination, and inspection.
 - [Showcase and demos](demos.md)
 - [expo-image study](expo-image-study.md)
 - [iOS editor backing surface](ios-editor-backing-surface.md)
