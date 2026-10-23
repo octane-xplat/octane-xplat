@@ -350,7 +350,7 @@ this prototype before the native and application gates below are satisfied.
 The implementation baseline is fork commit
 `623114b070896a21315fcff9a3a6349bdd091cc4` (beta.126), including merged upstream
 revision `2324b8ee52a1f22cf18dc684aa053e92b64a6451`. The initial helper-only
-proof remains separate; the current normal output is the private native plugin.
+proof remains separate; the current normal output is the independent native plugin.
 No production Xplat dependency has been switched.
 
 The next native foundation packages the existing shared `mason-c` crate as
@@ -403,7 +403,7 @@ The move commit is `6a51ad04` in the Mason fork. See the
 The normal build requires explicit native artifact preparation; it does not
 silently compile native projects. Pinned SDK generators install independently
 through `prepare.native.sdk`, so bridge regeneration no longer requires an
-already prepared consumer. The private core project has no `build.all` release
+already prepared consumer. The independent core project has no `build.all` release
 target; full-package release defaults remain independent. Native output retains
 NativeScript's ES-module auto-detection; the portable helper proof alone uses
 CommonJS metadata. Public installation steps live in the Mason core README.
@@ -415,7 +415,7 @@ the tap, swipe, matching row movement and cleanup. The cause remains unproven;
 failure-state diagnostics are retained in `00e79792`. A retry pass does not
 establish that the intermittent failure is fixed.
 
-Xplat doctor and upgrade now preserve an explicit private core dependency.
+Xplat doctor and upgrade now preserve an explicit experimental core dependency.
 They reject core alongside full MasonKit, duplicate installed core copies, and
 Windows selection. The native Vite preset resolves the canonical renderer's
 unchanged Mason imports to the app's core installation. Explicit core probes
@@ -449,3 +449,19 @@ diagnostics now record the last window gate and observed native touch
 actions. The earlier Webpack tap timeout is not proven to share a cause.
 The upstream Mason issue remains open without maintainer comments at the
 latest check.
+
+
+Core has an independent beta release path in the Mason fork's `release.yml`
+(`91f7edd8`, with draft-asset access corrected in `19a09a83`). Core versions use
+`core-v<version>` GitHub tags and npm's `next` tag; full MasonKit keeps its
+existing version and release path. A minimal `0.0.1` stub under `bootstrap`
+establishes the package before npm trust can be configured. Publishing does
+not switch Xplat's defaults or clear the remaining runtime/size gates.
+
+The core workflow compiles TypeScript from the selected revision and assembles
+it with locally built native inputs from a release asset. The archive checksum
+and native source baseline are committed in `tools/mason-core/release-native.json`;
+bridge manifests and the packed inventory check the native artifacts and
+shipped files. npm provenance identifies the assembling/publishing workflow,
+not a reproducible native build. Maintainers follow the Mason fork's
+`RELEASING.md` for asset preparation, validation and publication.
