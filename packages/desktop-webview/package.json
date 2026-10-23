@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/desktop-webview",
-	"version": "0.16.1",
+	"version": "0.17.0",
 	"description": "System WebView host adapters for desktop Octane applications",
 	"license": "MIT",
 	"repository": {

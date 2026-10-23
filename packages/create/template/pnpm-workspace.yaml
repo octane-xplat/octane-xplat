@@ -134,7 +134,7 @@ patchedDependencies:
   # unreachable from `shaders/js` and left unpatched.
   shaders@4.0.0: node_modules/.pnpm-config/@octane-xplat/patches/patches/shaders@4.0.0.patch
 configDependencies:
-  "@octane-xplat/patches": 0.16.1
+  "@octane-xplat/patches": 0.17.0
 catalogs:
   xplat:
     "@nativescript-community/octane": 0.2.5
@@ -145,11 +145,11 @@ catalogs:
     "@nativescript/types": 9.1.4
     "@nativescript/unit-test-runner": 5.0.0
     "@nativescript/vite": 8.0.20
-    "@octane-xplat/cli": 0.16.1
-    "@octane-xplat/jsx": 0.16.1
+    "@octane-xplat/cli": 0.17.0
+    "@octane-xplat/jsx": 0.17.0
     "@octane-xplat/nativescript-masonkit": 1.0.0-beta.126
-    "@octane-xplat/platform": 0.16.1
-    "@octane-xplat/ui": 0.16.1
+    "@octane-xplat/platform": 0.17.0
+    "@octane-xplat/ui": 0.17.0
     "@octanejs/vite-plugin": 0.1.61
     "@tsrx/oxc": 0.20.0
     "@tsrx/typescript-plugin": 0.4.11
