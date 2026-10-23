@@ -697,8 +697,11 @@ open. This raw-host unit changes no recipe workflow.
 ## ListView host
 
 ListView uses a scrolling AppKit table. `renderItem` is the primary template
-path: each recycled cell owns an Octane root, and rebinding diffs that root in
-place. Items accept arrays or an ItemsSource with `length` and `getItem(index)`;
+path: the compiler wrapper owns a portal into each physical cell, and
+same-count rebinding updates its retained content in place. Binding generations
+reject obsolete release events without remounting content on each item update.
+Uncompiled manual hosts retain the legacy per-cell root fallback. Items accept
+arrays or an ItemsSource with `length` and `getItem(index)`;
 observable sources with `on`/`off` refresh on `change`. Removing items empties
 the table. Item-loading and tap payloads contain the list host, row index and
 read-only cell view; `onItemLoading` observes cells without replacing them.

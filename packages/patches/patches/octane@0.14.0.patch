@@ -1,5 +1,5 @@
 diff --git a/dist/cjs/runtime/hooks.cjs b/dist/cjs/runtime/hooks.cjs
-index ee8fd63..9026e11 100644
+index ee8fd631679c2d614a44fe185ac8d38c83a478ec..9026e119cb1569b7e717878b72d8b28c08556669 100644
 --- a/dist/cjs/runtime/hooks.cjs
 +++ b/dist/cjs/runtime/hooks.cjs
 @@ -1,4 +1,5 @@
@@ -17,7 +17,7 @@ index ee8fd63..9026e11 100644
    return reducer !== null ? reducer(state, action) : typeof action === "function" ? action(state) : action;
  }
 diff --git a/dist/cjs/runtime/templates.cjs b/dist/cjs/runtime/templates.cjs
-index 94e2ab9..e51a764 100644
+index 94e2ab9bf9f7cd756e19cd8b7053d797668b8f04..e51a764a80ba9c707efa54b382fe5d23046cf7ed 100644
 --- a/dist/cjs/runtime/templates.cjs
 +++ b/dist/cjs/runtime/templates.cjs
 @@ -440,6 +440,7 @@ function bag16(s, r, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, $ = 0, next
@@ -29,7 +29,7 @@ index 94e2ab9..e51a764 100644
  }
  function coerceText(value) {
 diff --git a/dist/cjs/signals/client.cjs b/dist/cjs/signals/client.cjs
-index 28e2844..af40518 100644
+index 28e28444192dee7af64351cfe02d5dde96658832..af40518defca21eb88707eb76bb6fe10c1d266e7 100644
 --- a/dist/cjs/signals/client.cjs
 +++ b/dist/cjs/signals/client.cjs
 @@ -23,13 +23,13 @@ __export(client_exports, {
@@ -49,7 +49,7 @@ index 28e2844..af40518 100644
      () => {
        const value = typeof initial === "function" ? initial() : initial;
 diff --git a/dist/cjs/signals/document-owner.cjs b/dist/cjs/signals/document-owner.cjs
-index bfa5529..a106df1 100644
+index bfa55295a64fbcdbf872b2717b54a641cdfe6bd4..a106df17a03d9e50b47f68c774fa79e5f5ceae9b 100644
 --- a/dist/cjs/signals/document-owner.cjs
 +++ b/dist/cjs/signals/document-owner.cjs
 @@ -53,9 +53,9 @@ function enableSignalDocument(abi = 1) {
@@ -66,7 +66,7 @@ index bfa5529..a106df1 100644
  function installStreamedSignalOwnerActivator(activate) {
    if (streamedSignalOwnerActivator !== void 0) {
 diff --git a/dist/cjs/signals/facade.cjs b/dist/cjs/signals/facade.cjs
-index a425c5f..e81719a 100644
+index a425c5fd3a08dcf7c9ade5618e9aa883565cacbf..e81719a7493011577ea78c6306e32cfb1ccb832e 100644
 --- a/dist/cjs/signals/facade.cjs
 +++ b/dist/cjs/signals/facade.cjs
 @@ -330,7 +330,7 @@ class Descriptor {
@@ -79,7 +79,7 @@ index a425c5f..e81719a 100644
    [import_types.SIGNAL_OWNER_RESOLVE](owner) {
      requireSite(this.site);
 diff --git a/dist/cjs/signals/index.cjs b/dist/cjs/signals/index.cjs
-index 4b2efde..a487b50 100644
+index 4b2efde8f96aa222d3e4395bdda991f5509a0c94..a487b5027dcaac6e8d3222c8b747396d8f1237c7 100644
 --- a/dist/cjs/signals/index.cjs
 +++ b/dist/cjs/signals/index.cjs
 @@ -35,6 +35,7 @@ __export(signals_exports, {
@@ -108,7 +108,7 @@ index 4b2efde..a487b50 100644
    __signalAt,
 diff --git a/dist/cjs/signals/local-hook.cjs b/dist/cjs/signals/local-hook.cjs
 new file mode 100644
-index 0000000..4858595
+index 0000000000000000000000000000000000000000..4858595ce50e97284f18daa94c3b5ce6ab041dd4
 --- /dev/null
 +++ b/dist/cjs/signals/local-hook.cjs
 @@ -0,0 +1,44 @@
@@ -158,7 +158,7 @@ index 0000000..4858595
 +});
 diff --git a/dist/cjs/signals/universal-owner.cjs b/dist/cjs/signals/universal-owner.cjs
 new file mode 100644
-index 0000000..00c323a
+index 0000000000000000000000000000000000000000..00c323a8bd4453d566dbd002ab1222f03def2760
 --- /dev/null
 +++ b/dist/cjs/signals/universal-owner.cjs
 @@ -0,0 +1,46 @@
@@ -209,7 +209,7 @@ index 0000000..00c323a
 +  universalSignalDocument
 +});
 diff --git a/dist/compiler/compile.js b/dist/compiler/compile.js
-index 4ef283f..d3f3e0a 100644
+index 4ef283f6bb72fcd9d61aeb356fea4967421096fd..d3f3e0acbdac4a429aacdc9f7d32011719111135 100644
 --- a/dist/compiler/compile.js
 +++ b/dist/compiler/compile.js
 @@ -2599,7 +2599,7 @@ function classifyViewTransitionOwnership(astBody, production, ownComponents) {
@@ -286,7 +286,7 @@ index 4ef283f..d3f3e0a 100644
  			if (isBuiltin || isServerUse) {
  				if (isBuiltin) {
 diff --git a/dist/compiler/native-read-diagnostics.js b/dist/compiler/native-read-diagnostics.js
-index 7b2acff..d3356b4 100644
+index 7b2acff601c49a8589ee395d22047493d8aff3d1..d3356b4d4c513c7df61ad861e9c227f9409447ae 100644
 --- a/dist/compiler/native-read-diagnostics.js
 +++ b/dist/compiler/native-read-diagnostics.js
 @@ -149,9 +149,12 @@ export function assertNativeReadOptions(options) {
@@ -322,7 +322,7 @@ index 7b2acff..d3356b4 100644
  			return [
  				nativeReadDiagnostic(
 diff --git a/dist/compiler/slot-hooks.js b/dist/compiler/slot-hooks.js
-index e4c9bfb..7ca6112 100644
+index e4c9bfbc6f46bb70bd8a84e0ff25f6024fc6f12e..7ca61123365265d394cf26b09012e716d3758296 100644
 --- a/dist/compiler/slot-hooks.js
 +++ b/dist/compiler/slot-hooks.js
 @@ -1044,12 +1044,12 @@ function walk(node, owner, st) {
@@ -371,7 +371,7 @@ index e4c9bfb..7ca6112 100644
  		const local = allocSlotName(st, `_$${imported}`);
  		let specifiers = signalHelperImports.get(request);
 diff --git a/dist/node/runtime/hooks.js b/dist/node/runtime/hooks.js
-index 76f5deb..96fd3ac 100644
+index 76f5deb523f61530623d7abee92ea8bd22e1bb4d..96fd3ac9a6ede1cb2ea070fe722a3d688c3f179e 100644
 --- a/dist/node/runtime/hooks.js
 +++ b/dist/node/runtime/hooks.js
 @@ -1,3 +1,4 @@
@@ -388,7 +388,7 @@ index 76f5deb..96fd3ac 100644
    return reducer !== null ? reducer(state, action) : typeof action === "function" ? action(state) : action;
  }
 diff --git a/dist/node/runtime/templates.js b/dist/node/runtime/templates.js
-index 860aacd..af91a29 100644
+index 860aacd13857b348cf4258e9f12582c87dbcb16e..af91a29fe2b593eec33aeac19e83701c23aec635 100644
 --- a/dist/node/runtime/templates.js
 +++ b/dist/node/runtime/templates.js
 @@ -388,6 +388,7 @@ function bag16(s, r, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, $ = 0, next
@@ -400,7 +400,7 @@ index 860aacd..af91a29 100644
  }
  function coerceText(value) {
 diff --git a/dist/node/signals/client.js b/dist/node/signals/client.js
-index 21a39c3..3f85700 100644
+index 21a39c3ce9a28d2095e276fd647fd795e939a0bf..3f85700b57cbc3084c2df776ab3e6b5365f091a8 100644
 --- a/dist/node/signals/client.js
 +++ b/dist/node/signals/client.js
 @@ -1,11 +1,11 @@
@@ -418,7 +418,7 @@ index 21a39c3..3f85700 100644
      () => {
        const value = typeof initial === "function" ? initial() : initial;
 diff --git a/dist/node/signals/document-owner.js b/dist/node/signals/document-owner.js
-index 3b50394..e809030 100644
+index 3b50394eb46776d2f6de379670dfeec569c145ac..e80903037547814e3437d39c99cfa103f7b4057c 100644
 --- a/dist/node/signals/document-owner.js
 +++ b/dist/node/signals/document-owner.js
 @@ -30,9 +30,8 @@ function enableSignalDocument(abi = 1) {
@@ -434,7 +434,7 @@ index 3b50394..e809030 100644
  function installStreamedSignalOwnerActivator(activate) {
    if (streamedSignalOwnerActivator !== void 0) {
 diff --git a/dist/node/signals/facade.js b/dist/node/signals/facade.js
-index 5b5554e..1deabb0 100644
+index 5b5554ee296ea345f42c5291059d8ab2e71fe0d4..1deabb0f5ab62f7cd6534c4e7ed13b75126341db 100644
 --- a/dist/node/signals/facade.js
 +++ b/dist/node/signals/facade.js
 @@ -326,7 +326,7 @@ class Descriptor {
@@ -447,7 +447,7 @@ index 5b5554e..1deabb0 100644
    [SIGNAL_OWNER_RESOLVE](owner) {
      requireSite(this.site);
 diff --git a/dist/node/signals/index.js b/dist/node/signals/index.js
-index d657064..01a81cf 100644
+index d65706400fb00c9dd9caf5b35f50f8baacf77184..01a81cf177242b7aa1d3923095c7dd49adcf3612 100644
 --- a/dist/node/signals/index.js
 +++ b/dist/node/signals/index.js
 @@ -1,6 +1,7 @@
@@ -468,7 +468,7 @@ index d657064..01a81cf 100644
    __signalAt,
 diff --git a/dist/node/signals/local-hook.js b/dist/node/signals/local-hook.js
 new file mode 100644
-index 0000000..77c63f5
+index 0000000000000000000000000000000000000000..77c63f5e2d931eb8dbd384ae027ee0f09935f9ce
 --- /dev/null
 +++ b/dist/node/signals/local-hook.js
 @@ -0,0 +1,19 @@
@@ -493,7 +493,7 @@ index 0000000..77c63f5
 +};
 diff --git a/dist/node/signals/universal-owner.js b/dist/node/signals/universal-owner.js
 new file mode 100644
-index 0000000..ff5eb43
+index 0000000000000000000000000000000000000000..ff5eb43e8f0ddcadbcf8e861f42788b389b4d99b
 --- /dev/null
 +++ b/dist/node/signals/universal-owner.js
 @@ -0,0 +1,20 @@
@@ -518,7 +518,7 @@ index 0000000..ff5eb43
 +  universalSignalDocument
 +};
 diff --git a/dist/node/universal-core.js b/dist/node/universal-core.js
-index 8c89dbd..ff1defa 100644
+index 8c89dbddb47cc86cdb0b727d0d80fe4ff89c3ac0..bb9dd40f2b3c7775c24a828db72055b588cec8d8 100644
 --- a/dist/node/universal-core.js
 +++ b/dist/node/universal-core.js
 @@ -17,6 +17,10 @@ import {
@@ -532,7 +532,20 @@ index 8c89dbd..ff1defa 100644
  import { resolveLazyDefaultProps } from "./shared-value-helpers.js";
  import {
    deactivateEffectEventCells,
-@@ -495,6 +499,133 @@ function universalComponent(renderer, component, props = null, key = NO_KEY) {
+@@ -364,7 +368,11 @@ function universalList(items, render, empty) {
+ }
+ function renderableKey(value) {
+   if (value?.$$kind === UNIVERSAL_VALUE) {
+-    return value.key;
++    if (value.key !== null) return value.key;
++    // A compiler-generated root slot is transparent to keyed ownership.
++    // Do not look through ranges: authored fragment boundaries remain distinct.
++    const node = value.plan.root;
++    return node.kind === "slot" ? renderableKey(value.values[node.slot]) : null;
+   }
+   if (value?.$$kind === UNIVERSAL_KEYED) {
+     return value.key;
+@@ -495,6 +503,133 @@ function universalComponent(renderer, component, props = null, key = NO_KEY) {
      hasKey: key !== NO_KEY || normalized.hasKey
    };
  }
@@ -666,7 +679,7 @@ index 8c89dbd..ff1defa 100644
  function universalChildren(renderer, render) {
    assertRendererId(renderer, "universalChildren renderer");
    if (typeof render !== "function") throw new TypeError("universalChildren expected a function.");
-@@ -856,6 +987,7 @@ function draftOwner(record, parent, replayPath) {
+@@ -856,6 +991,7 @@ function draftOwner(record, parent, replayPath) {
      boundaryThenable: record.boundaryThenable,
      isBoundary: record.isBoundary,
      canHandleSuspense: record.canHandleSuspense,
@@ -674,7 +687,7 @@ index 8c89dbd..ff1defa 100644
      visibility: parent?.visibility ?? record.visibility,
      contextStable: null
    };
-@@ -1066,6 +1198,7 @@ function executeOwner(owner, build, initialRenderCount = 0) {
+@@ -1066,6 +1202,7 @@ function executeOwner(owner, build, initialRenderCount = 0) {
      owner.contextStable = null;
      owner.needsRender = false;
      owner.implicitSlot = 0;
@@ -682,7 +695,7 @@ index 8c89dbd..ff1defa 100644
      const previousOwner = CURRENT_OWNER;
      const previousAttemptOwner = attempt.owner;
      CURRENT_OWNER = owner;
-@@ -1077,13 +1210,18 @@ function executeOwner(owner, build, initialRenderCount = 0) {
+@@ -1077,13 +1214,18 @@ function executeOwner(owner, build, initialRenderCount = 0) {
      const profileFrame = typeof __OCTANE_PROFILE_ENABLED__ !== "undefined" && __OCTANE_PROFILE_ENABLED__ && component !== null ? __profileBeginRender(owner.record, component, owner.record.mounted) : null;
      let didThrow = false;
      let thrown;
@@ -704,7 +717,7 @@ index 8c89dbd..ff1defa 100644
        if (typeof __OCTANE_PROFILE_ENABLED__ !== "undefined" && __OCTANE_PROFILE_ENABLED__) {
          __profileEndRender(profileFrame, didThrow, thrown);
        }
-@@ -1247,6 +1385,8 @@ function disposeUncommittedDraft(owner) {
+@@ -1247,6 +1389,8 @@ function disposeUncommittedDraft(owner) {
      owner.record.componentProps = null;
      owner.record.range = null;
      owner.record.updates.clear();
@@ -713,7 +726,7 @@ index 8c89dbd..ff1defa 100644
      for (const hook of owner.hooks.values()) {
        if (hook.kind === "effect-event") hook.cell.active = false;
      }
-@@ -3081,6 +3221,7 @@ function tryCreateCompactTemplateUpdateTransaction(root, blueprint, attempt, com
+@@ -3081,6 +3225,7 @@ function tryCreateCompactTemplateUpdateTransaction(root, blueprint, attempt, com
        owner.componentProps = draftOwner2.componentProps;
        owner.componentRevision = draftOwner2.componentRevision;
        owner.hooks = draftOwner2.hooks;
@@ -721,7 +734,7 @@ index 8c89dbd..ff1defa 100644
        for (const [slot, applied] of draftOwner2.appliedUpdates) {
          const queue = owner.updates.get(slot);
          if (queue !== applied.queue || applied.lane) continue;
-@@ -3628,6 +3769,86 @@ function scheduleOwner(owner, slot) {
+@@ -3628,6 +3773,86 @@ function scheduleOwner(owner, slot) {
    }
    owner.root.scheduleOwned(owner);
  }
@@ -808,7 +821,7 @@ index 8c89dbd..ff1defa 100644
  function currentDraftOwner() {
    currentAttempt();
    const owner = activateLazyLeafOwner();
-@@ -4742,15 +4963,35 @@ function use(usable) {
+@@ -4742,15 +4967,35 @@ function use(usable) {
  function useImperativeHandle(ref, create, deps, slot) {
    useLayoutEffect(
      () => {
@@ -851,7 +864,7 @@ index 8c89dbd..ff1defa 100644
      slot
    );
  }
-@@ -5745,9 +5986,9 @@ class UniversalRootImpl {
+@@ -5745,9 +5990,9 @@ class UniversalRootImpl {
      }
      let result;
      try {
@@ -863,7 +876,7 @@ index 8c89dbd..ff1defa 100644
      }
      return result;
    }
-@@ -6318,6 +6559,8 @@ class UniversalRootImpl {
+@@ -6318,6 +6563,8 @@ class UniversalRootImpl {
        draft.record.componentProps = null;
        draft.record.range = null;
        draft.record.updates.clear();
@@ -872,7 +885,7 @@ index 8c89dbd..ff1defa 100644
        for (const hook of draft.hooks.values()) {
          if (hook.kind === "effect-event") hook.cell.active = false;
        }
-@@ -6836,6 +7079,7 @@ class UniversalRootImpl {
+@@ -6836,6 +7083,7 @@ class UniversalRootImpl {
        record.componentRevision = draft.componentRevision;
        record.parent = draft.parent?.record ?? null;
        record.hooks = draft.hooks;
@@ -880,7 +893,7 @@ index 8c89dbd..ff1defa 100644
        record.effectOrder = [...draft.seenEffects];
        for (let index = 0; index < draft.seenEffects.length; index++) {
          draft.seenEffects[index].previous = null;
-@@ -8484,6 +8728,8 @@ class UniversalRootImpl {
+@@ -8484,6 +8732,8 @@ class UniversalRootImpl {
            owner.componentProps = null;
            owner.range = null;
            owner.updates.clear();
@@ -889,7 +902,7 @@ index 8c89dbd..ff1defa 100644
          }
          for (const draft of draftOwnersParentFirst) {
            const record = draft.record;
-@@ -8493,6 +8739,7 @@ class UniversalRootImpl {
+@@ -8493,6 +8743,7 @@ class UniversalRootImpl {
              record.parent = draft.parent?.record ?? null;
            }
            record.hooks = draft.hooks;
@@ -897,7 +910,7 @@ index 8c89dbd..ff1defa 100644
            record.effectOrder = [...draft.seenEffects];
            for (let index = 0; index < draft.seenEffects.length; index++) {
              draft.seenEffects[index].previous = null;
-@@ -9004,6 +9251,8 @@ class UniversalRootImpl {
+@@ -9004,6 +9255,8 @@ class UniversalRootImpl {
            owner.componentProps = null;
            owner.range = null;
            owner.updates.clear();
@@ -906,7 +919,7 @@ index 8c89dbd..ff1defa 100644
          }
          const deactivatedRegionCells = /* @__PURE__ */ new Set();
          for (const bridge of regionBridges) {
-@@ -10220,6 +10469,7 @@ function createObjectDriver(renderer = "object") {
+@@ -10220,6 +10473,7 @@ function createObjectDriver(renderer = "object") {
    };
  }
  export {
@@ -915,7 +928,7 @@ index 8c89dbd..ff1defa 100644
    UNIVERSAL_HMR,
    UNIVERSAL_TRANSPORT_PROTOCOL_VERSION,
 diff --git a/dist/node/universal-native.js b/dist/node/universal-native.js
-index 55ac9b6..399633e 100644
+index 55ac9b640dc8bbfd977bb2cbe0b7993c8ddb425a..399633e4e8cc9d6b098ba819f443d94bc30999f1 100644
 --- a/dist/node/universal-native.js
 +++ b/dist/node/universal-native.js
 @@ -6,9 +6,12 @@ import {
@@ -932,7 +945,7 @@ index 55ac9b6..399633e 100644
  function createContext(defaultValue) {
    const context = ((props, scope) => scope === void 0 ? universalContext(context, props.value, props.children) : renderRendererContextProvider(context, props, scope));
 diff --git a/dist/node/universal.js b/dist/node/universal.js
-index 6427a01..8049b78 100644
+index 6427a0190c072e7e4629c379e42bedc03669dc6e..8049b7880824de607157091004a46c9d33a23484 100644
 --- a/dist/node/universal.js
 +++ b/dist/node/universal.js
 @@ -8,6 +8,9 @@ import {
@@ -946,7 +959,7 @@ index 6427a01..8049b78 100644
    createContext,
    createSubSlot,
 diff --git a/dist/runtime/hooks.js b/dist/runtime/hooks.js
-index 3365680..b369f2d 100644
+index 3365680750d7e21c966c307ca87a05edee8e6474..b369f2d350b003904a37f7a944937e57bc7f628c 100644
 --- a/dist/runtime/hooks.js
 +++ b/dist/runtime/hooks.js
 @@ -1,3 +1,4 @@
@@ -963,7 +976,7 @@ index 3365680..b369f2d 100644
    return reducer !== null ? reducer(state, action) : typeof action === "function" ? action(state) : action;
  }
 diff --git a/dist/runtime/templates.js b/dist/runtime/templates.js
-index 5aa86e8..b700681 100644
+index 5aa86e8dd741cf85aeb9c0efa6b74c82af1ac3e8..b700681bca250957de0df85e6255096274407490 100644
 --- a/dist/runtime/templates.js
 +++ b/dist/runtime/templates.js
 @@ -387,6 +387,7 @@ function bag16(s, r, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, $ = 0, next
@@ -975,7 +988,7 @@ index 5aa86e8..b700681 100644
  }
  function coerceText(value) {
 diff --git a/dist/signals/client.d.ts b/dist/signals/client.d.ts
-index 6388c2f..f9e9862 100644
+index 6388c2f98517884a13af720687fb81c1f18357be..f9e98624f159cccf02a379d79201751fc07694d8 100644
 --- a/dist/signals/client.d.ts
 +++ b/dist/signals/client.d.ts
 @@ -1,4 +1,4 @@
@@ -985,7 +998,7 @@ index 6388c2f..f9e9862 100644
  import type { WritableSignal } from './types.js';
  /** A writable signal owned by this compiler-assigned component hook slot. */
 diff --git a/dist/signals/client.js b/dist/signals/client.js
-index 21a39c3..3f85700 100644
+index 21a39c3ce9a28d2095e276fd647fd795e939a0bf..3f85700b57cbc3084c2df776ab3e6b5365f091a8 100644
 --- a/dist/signals/client.js
 +++ b/dist/signals/client.js
 @@ -1,11 +1,11 @@
@@ -1003,7 +1016,7 @@ index 21a39c3..3f85700 100644
      () => {
        const value = typeof initial === "function" ? initial() : initial;
 diff --git a/dist/signals/document-owner.js b/dist/signals/document-owner.js
-index 6f2891f..557d6cc 100644
+index 6f2891ffb1116f083478bfbe9cb007b6461a855f..557d6cc1406c4188257b290cf8a02a36df615dc1 100644
 --- a/dist/signals/document-owner.js
 +++ b/dist/signals/document-owner.js
 @@ -29,9 +29,8 @@ function enableSignalDocument(abi = 1) {
@@ -1019,7 +1032,7 @@ index 6f2891f..557d6cc 100644
  function installStreamedSignalOwnerActivator(activate) {
    if (streamedSignalOwnerActivator !== void 0) {
 diff --git a/dist/signals/facade.js b/dist/signals/facade.js
-index 808e4ec..0ab799a 100644
+index 808e4ec01428d4cf6e3938667642847f2590f1b8..0ab799afc337793f3270a02003e6fe6a4ff08f47 100644
 --- a/dist/signals/facade.js
 +++ b/dist/signals/facade.js
 @@ -325,7 +325,7 @@ class Descriptor {
@@ -1032,7 +1045,7 @@ index 808e4ec..0ab799a 100644
    [SIGNAL_OWNER_RESOLVE](owner) {
      requireSite(this.site);
 diff --git a/dist/signals/index.d.ts b/dist/signals/index.d.ts
-index ed08619..acccb75 100644
+index ed086195a3e8e63de4a5b26d5bf6aaa392bd5d32..acccb752a2c46f14a97e07de3a00df0fa24d8cf7 100644
 --- a/dist/signals/index.d.ts
 +++ b/dist/signals/index.d.ts
 @@ -3,6 +3,7 @@ export { createScope } from './engine.js';
@@ -1044,7 +1057,7 @@ index ed08619..acccb75 100644
  export { ActionUncertainError, action$, isActionUncertain, optimistic$ } from './actions.js';
  export { __derivedAt, derived$ } from './derived-facade.js';
 diff --git a/dist/signals/index.js b/dist/signals/index.js
-index d657064..01a81cf 100644
+index d65706400fb00c9dd9caf5b35f50f8baacf77184..01a81cf177242b7aa1d3923095c7dd49adcf3612 100644
 --- a/dist/signals/index.js
 +++ b/dist/signals/index.js
 @@ -1,6 +1,7 @@
@@ -1065,7 +1078,7 @@ index d657064..01a81cf 100644
    __signalAt,
 diff --git a/dist/signals/local-hook.d.ts b/dist/signals/local-hook.d.ts
 new file mode 100644
-index 0000000..d6c1770
+index 0000000000000000000000000000000000000000..d6c1770fc22b738e0e107b6616f60eaf676d853e
 --- /dev/null
 +++ b/dist/signals/local-hook.d.ts
 @@ -0,0 +1,16 @@
@@ -1087,7 +1100,7 @@ index 0000000..d6c1770
 +export declare function localSignalHook<T>(name: string, initialize: () => T, dispose: (value: T) => void, slot?: symbol | number): T;
 diff --git a/dist/signals/local-hook.js b/dist/signals/local-hook.js
 new file mode 100644
-index 0000000..77c63f5
+index 0000000000000000000000000000000000000000..77c63f5e2d931eb8dbd384ae027ee0f09935f9ce
 --- /dev/null
 +++ b/dist/signals/local-hook.js
 @@ -0,0 +1,19 @@
@@ -1112,7 +1125,7 @@ index 0000000..77c63f5
 +};
 diff --git a/dist/signals/universal-owner.d.ts b/dist/signals/universal-owner.d.ts
 new file mode 100644
-index 0000000..0e57f3a
+index 0000000000000000000000000000000000000000..0e57f3a79115c858355f863434c6e3423570067b
 --- /dev/null
 +++ b/dist/signals/universal-owner.d.ts
 @@ -0,0 +1,10 @@
@@ -1128,7 +1141,7 @@ index 0000000..0e57f3a
 +export declare function enableUniversalSignalDocument(abi?: number): void;
 diff --git a/dist/signals/universal-owner.js b/dist/signals/universal-owner.js
 new file mode 100644
-index 0000000..ff5eb43
+index 0000000000000000000000000000000000000000..ff5eb43e8f0ddcadbcf8e861f42788b389b4d99b
 --- /dev/null
 +++ b/dist/signals/universal-owner.js
 @@ -0,0 +1,20 @@
@@ -1153,7 +1166,7 @@ index 0000000..ff5eb43
 +  universalSignalDocument
 +};
 diff --git a/dist/universal-core.d.ts b/dist/universal-core.d.ts
-index 15ecadf..716ac7f 100644
+index 15ecadf70593d2f1027bd872a376af79036396bc..716ac7ff5c68e090f9420a957f13250e53cc5678 100644
 --- a/dist/universal-core.d.ts
 +++ b/dist/universal-core.d.ts
 @@ -791,9 +791,8 @@ export declare function lazy<C extends UniversalComponent<any>>(load: () => Prom
@@ -1175,7 +1188,7 @@ index 15ecadf..716ac7f 100644
 +
 +export declare const Children: { toArray(children: UniversalRenderable): UniversalRenderable[]; map(children: UniversalRenderable, fn: (child: UniversalRenderable, index: number) => UniversalRenderable): UniversalRenderable[]; };
 diff --git a/dist/universal-core.js b/dist/universal-core.js
-index 8c89dbd..ff1defa 100644
+index 8c89dbddb47cc86cdb0b727d0d80fe4ff89c3ac0..bb9dd40f2b3c7775c24a828db72055b588cec8d8 100644
 --- a/dist/universal-core.js
 +++ b/dist/universal-core.js
 @@ -17,6 +17,10 @@ import {
@@ -1189,7 +1202,20 @@ index 8c89dbd..ff1defa 100644
  import { resolveLazyDefaultProps } from "./shared-value-helpers.js";
  import {
    deactivateEffectEventCells,
-@@ -495,6 +499,133 @@ function universalComponent(renderer, component, props = null, key = NO_KEY) {
+@@ -364,7 +368,11 @@ function universalList(items, render, empty) {
+ }
+ function renderableKey(value) {
+   if (value?.$$kind === UNIVERSAL_VALUE) {
+-    return value.key;
++    if (value.key !== null) return value.key;
++    // A compiler-generated root slot is transparent to keyed ownership.
++    // Do not look through ranges: authored fragment boundaries remain distinct.
++    const node = value.plan.root;
++    return node.kind === "slot" ? renderableKey(value.values[node.slot]) : null;
+   }
+   if (value?.$$kind === UNIVERSAL_KEYED) {
+     return value.key;
+@@ -495,6 +503,133 @@ function universalComponent(renderer, component, props = null, key = NO_KEY) {
      hasKey: key !== NO_KEY || normalized.hasKey
    };
  }
@@ -1323,7 +1349,7 @@ index 8c89dbd..ff1defa 100644
  function universalChildren(renderer, render) {
    assertRendererId(renderer, "universalChildren renderer");
    if (typeof render !== "function") throw new TypeError("universalChildren expected a function.");
-@@ -856,6 +987,7 @@ function draftOwner(record, parent, replayPath) {
+@@ -856,6 +991,7 @@ function draftOwner(record, parent, replayPath) {
      boundaryThenable: record.boundaryThenable,
      isBoundary: record.isBoundary,
      canHandleSuspense: record.canHandleSuspense,
@@ -1331,7 +1357,7 @@ index 8c89dbd..ff1defa 100644
      visibility: parent?.visibility ?? record.visibility,
      contextStable: null
    };
-@@ -1066,6 +1198,7 @@ function executeOwner(owner, build, initialRenderCount = 0) {
+@@ -1066,6 +1202,7 @@ function executeOwner(owner, build, initialRenderCount = 0) {
      owner.contextStable = null;
      owner.needsRender = false;
      owner.implicitSlot = 0;
@@ -1339,7 +1365,7 @@ index 8c89dbd..ff1defa 100644
      const previousOwner = CURRENT_OWNER;
      const previousAttemptOwner = attempt.owner;
      CURRENT_OWNER = owner;
-@@ -1077,13 +1210,18 @@ function executeOwner(owner, build, initialRenderCount = 0) {
+@@ -1077,13 +1214,18 @@ function executeOwner(owner, build, initialRenderCount = 0) {
      const profileFrame = typeof __OCTANE_PROFILE_ENABLED__ !== "undefined" && __OCTANE_PROFILE_ENABLED__ && component !== null ? __profileBeginRender(owner.record, component, owner.record.mounted) : null;
      let didThrow = false;
      let thrown;
@@ -1361,7 +1387,7 @@ index 8c89dbd..ff1defa 100644
        if (typeof __OCTANE_PROFILE_ENABLED__ !== "undefined" && __OCTANE_PROFILE_ENABLED__) {
          __profileEndRender(profileFrame, didThrow, thrown);
        }
-@@ -1247,6 +1385,8 @@ function disposeUncommittedDraft(owner) {
+@@ -1247,6 +1389,8 @@ function disposeUncommittedDraft(owner) {
      owner.record.componentProps = null;
      owner.record.range = null;
      owner.record.updates.clear();
@@ -1370,7 +1396,7 @@ index 8c89dbd..ff1defa 100644
      for (const hook of owner.hooks.values()) {
        if (hook.kind === "effect-event") hook.cell.active = false;
      }
-@@ -3081,6 +3221,7 @@ function tryCreateCompactTemplateUpdateTransaction(root, blueprint, attempt, com
+@@ -3081,6 +3225,7 @@ function tryCreateCompactTemplateUpdateTransaction(root, blueprint, attempt, com
        owner.componentProps = draftOwner2.componentProps;
        owner.componentRevision = draftOwner2.componentRevision;
        owner.hooks = draftOwner2.hooks;
@@ -1378,7 +1404,7 @@ index 8c89dbd..ff1defa 100644
        for (const [slot, applied] of draftOwner2.appliedUpdates) {
          const queue = owner.updates.get(slot);
          if (queue !== applied.queue || applied.lane) continue;
-@@ -3628,6 +3769,86 @@ function scheduleOwner(owner, slot) {
+@@ -3628,6 +3773,86 @@ function scheduleOwner(owner, slot) {
    }
    owner.root.scheduleOwned(owner);
  }
@@ -1465,7 +1491,7 @@ index 8c89dbd..ff1defa 100644
  function currentDraftOwner() {
    currentAttempt();
    const owner = activateLazyLeafOwner();
-@@ -4742,15 +4963,35 @@ function use(usable) {
+@@ -4742,15 +4967,35 @@ function use(usable) {
  function useImperativeHandle(ref, create, deps, slot) {
    useLayoutEffect(
      () => {
@@ -1508,7 +1534,7 @@ index 8c89dbd..ff1defa 100644
      slot
    );
  }
-@@ -5745,9 +5986,9 @@ class UniversalRootImpl {
+@@ -5745,9 +5990,9 @@ class UniversalRootImpl {
      }
      let result;
      try {
@@ -1520,7 +1546,7 @@ index 8c89dbd..ff1defa 100644
      }
      return result;
    }
-@@ -6318,6 +6559,8 @@ class UniversalRootImpl {
+@@ -6318,6 +6563,8 @@ class UniversalRootImpl {
        draft.record.componentProps = null;
        draft.record.range = null;
        draft.record.updates.clear();
@@ -1529,7 +1555,7 @@ index 8c89dbd..ff1defa 100644
        for (const hook of draft.hooks.values()) {
          if (hook.kind === "effect-event") hook.cell.active = false;
        }
-@@ -6836,6 +7079,7 @@ class UniversalRootImpl {
+@@ -6836,6 +7083,7 @@ class UniversalRootImpl {
        record.componentRevision = draft.componentRevision;
        record.parent = draft.parent?.record ?? null;
        record.hooks = draft.hooks;
@@ -1537,7 +1563,7 @@ index 8c89dbd..ff1defa 100644
        record.effectOrder = [...draft.seenEffects];
        for (let index = 0; index < draft.seenEffects.length; index++) {
          draft.seenEffects[index].previous = null;
-@@ -8484,6 +8728,8 @@ class UniversalRootImpl {
+@@ -8484,6 +8732,8 @@ class UniversalRootImpl {
            owner.componentProps = null;
            owner.range = null;
            owner.updates.clear();
@@ -1546,7 +1572,7 @@ index 8c89dbd..ff1defa 100644
          }
          for (const draft of draftOwnersParentFirst) {
            const record = draft.record;
-@@ -8493,6 +8739,7 @@ class UniversalRootImpl {
+@@ -8493,6 +8743,7 @@ class UniversalRootImpl {
              record.parent = draft.parent?.record ?? null;
            }
            record.hooks = draft.hooks;
@@ -1554,7 +1580,7 @@ index 8c89dbd..ff1defa 100644
            record.effectOrder = [...draft.seenEffects];
            for (let index = 0; index < draft.seenEffects.length; index++) {
              draft.seenEffects[index].previous = null;
-@@ -9004,6 +9251,8 @@ class UniversalRootImpl {
+@@ -9004,6 +9255,8 @@ class UniversalRootImpl {
            owner.componentProps = null;
            owner.range = null;
            owner.updates.clear();
@@ -1563,7 +1589,7 @@ index 8c89dbd..ff1defa 100644
          }
          const deactivatedRegionCells = /* @__PURE__ */ new Set();
          for (const bridge of regionBridges) {
-@@ -10220,6 +10469,7 @@ function createObjectDriver(renderer = "object") {
+@@ -10220,6 +10473,7 @@ function createObjectDriver(renderer = "object") {
    };
  }
  export {
@@ -1572,7 +1598,7 @@ index 8c89dbd..ff1defa 100644
    UNIVERSAL_HMR,
    UNIVERSAL_TRANSPORT_PROTOCOL_VERSION,
 diff --git a/dist/universal-native.js b/dist/universal-native.js
-index 55ac9b6..399633e 100644
+index 55ac9b640dc8bbfd977bb2cbe0b7993c8ddb425a..399633e4e8cc9d6b098ba819f443d94bc30999f1 100644
 --- a/dist/universal-native.js
 +++ b/dist/universal-native.js
 @@ -6,9 +6,12 @@ import {
@@ -1589,7 +1615,7 @@ index 55ac9b6..399633e 100644
  function createContext(defaultValue) {
    const context = ((props, scope) => scope === void 0 ? universalContext(context, props.value, props.children) : renderRendererContextProvider(context, props, scope));
 diff --git a/dist/universal.js b/dist/universal.js
-index 6427a01..8049b78 100644
+index 6427a0190c072e7e4629c379e42bedc03669dc6e..8049b7880824de607157091004a46c9d33a23484 100644
 --- a/dist/universal.js
 +++ b/dist/universal.js
 @@ -8,6 +8,9 @@ import {

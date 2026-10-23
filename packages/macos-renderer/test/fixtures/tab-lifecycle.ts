@@ -38,6 +38,7 @@ export async function checkTabLifecycle(root: any, nativeWindow: any) {
 
 	root.render(Tabs, {})
 	await settle()
+	const windowHeight = Number(nativeWindow.frame.size.height)
 	const tabs = tabRef.current,
 		item = itemRef.current,
 		content = childRef.current,
@@ -105,6 +106,10 @@ export async function checkTabLifecycle(root: any, nativeWindow: any) {
 
 	await advance()
 	check(
+		Math.abs(Number(nativeWindow.frame.size.height) - windowHeight) < 1,
+		'TabView reorder changed the host window height',
+	)
+	check(
 		tabRef.current === tabs &&
 			itemRef.current === item &&
 			childRef.current === content &&
@@ -112,7 +117,15 @@ export async function checkTabLifecycle(root: any, nativeWindow: any) {
 			labels(tabs) === 'Same|Updated|Same' &&
 			tabs.selectedTabViewItem === tabs.tabViewItemAtIndex(2) &&
 			String(content.stringValue) === 'a-1',
-		'TabView reorder/update/retained content identity failed',
+		'TabView reorder/update/retained content identity failed: ' + JSON.stringify({
+			tab: tabRef.current === tabs,
+			item: itemRef.current === item,
+			child: childRef.current === content,
+			root: item.contentRoot === contentRoot,
+			labels: labels(tabs),
+			selected: Number(tabs.indexOfTabViewItem(tabs.selectedTabViewItem)),
+			text: String(content.stringValue),
+		}),
 	)
 
 	check(tabs.tabViewItemAtIndex(2).image, 'TabView font-glyph icon failed')

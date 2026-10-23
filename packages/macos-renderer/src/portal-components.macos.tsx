@@ -24,7 +24,6 @@ interface CellBinding {
 }
 
 function CellContent(props: {
-	key?: number
 	render: (item: any, index: number) => any
 	item: any
 	index: number
@@ -38,10 +37,11 @@ function CellPortal(props: {
 	render: (item: any, index: number) => any
 }) {
 	const cell = props.cell
+	// Generations reject stale release callbacks; the physical cell retains
+	// its content identity when a same-count update changes the bound item.
 	return createPortal(
 		(
 			<CellContent
-				key={cell.generation}
 				render={props.render}
 				item={cell.item}
 				index={cell.index}
@@ -78,9 +78,11 @@ export function __PortalList(props: any) {
 	return (
 		<>
 			<listview {...props} __onCellTarget={props.renderItem ? onTarget : undefined} />
-			{cells.map((cell) => (
-				<CellPortal key={cell.id} cell={cell} render={props.renderItem} />
-			))}
+			{props.renderItem
+				? cells.map((cell) => (
+						<CellPortal key={cell.id} cell={cell} render={props.renderItem} />
+					))
+				: null}
 		</>
 	)
 }

@@ -239,14 +239,18 @@ const ListDelegate = NSObject.extend(
 			return cellFor(state, row).host
 		},
 		['tableView:didAddRowView:forRow:'](table: NSView, rowView: NSView, row: number) {
+			const state = states.get(table)
+			if (!state || state.closed || row < 0 || row >= state.count) {
+				return
+			}
+
 			const host = (rowView as any).viewAtColumn?.(0)
 			const cell = host && cellsByHost.get(host)
 			if (cell) {
 				cell.rowView = rowView
 			}
 
-			const state = states.get(table)
-			if (state && !state.closed && row >= 0 && row === state.count - 1) {
+			if (row === state.count - 1) {
 				state.props.onLoadMoreItems?.({ eventName: 'loadMoreItems', object: state.view })
 			}
 		},

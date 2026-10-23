@@ -763,7 +763,10 @@ function makeMasonLayout(node: any) {
 			null,
 			() => {
 				if (masonLayoutNodesByView.get(view) === node) {
-					deps!.queueLayoutReconcile(node.container, node)
+					// Geometry is a layout input, not a content mutation. Invalidating
+					// intrinsic size here feeds AppKit's constraint solve back into
+					// itself, which can repeatedly grow a window around native leaves.
+					layoutMasonChildren(node, deps!.layoutView, deps!.pinLayoutChild)
 				}
 			},
 		)

@@ -116,7 +116,9 @@ list refs still expose native list views. Props, keys, children, and refs pass
 through. Keep the standard `xplatMacOS` compiler setup when using raw controls.
 Tab content mounts on assignment, retains identity during reorder/transfer,
 and releases on unassignment. List slots follow physical cells with binding
-generations so old release events cannot remove a newer portal. Uncompiled
+generations so old release events cannot remove a newer portal. Generations
+do not key the content component: same-count rebinds update its props while
+retaining the cell's hosts. Uncompiled
 manual host construction retains the legacy driver fallback. Native string
 templates, native view factories, and default string rows retain their existing
 driver protocol; the source-owned list wrapper handles `renderItem` content.
@@ -135,6 +137,26 @@ export function NativeTabs() {
 ```
 
 ## Evidence and limits
+
+Octane 0.14.0's universal runtime loses keyed component ownership when the
+compiler wraps a component in a transparent root slot. `renderableKey` reads
+only the wrapper's null key, so a plain JSX `.map()` reorder remounts the
+component. The AppKit tab lifecycle fixture reproduced replaced item/content
+handles; the object-driver regression also reproduced lost state. Xplat's
+existing Octane patch now follows root slots to their child's key. Explicit
+outer keys still win, and fragment/range boundaries remain distinct. Remove
+this hunk when upstream preserves those keys; it is a local runtime fix,
+not unpatched Octane support. Evidence:
+[runtime source](https://github.com/octanejs/octane/blob/octane%400.14.0/packages/octane/src/universal-core.ts),
+[compiled-map regression](../../../packages/ui/src/keyed-component.mobile.test.tsrx),
+and [AppKit lifecycle fixture](../../../packages/macos-renderer/test/fixtures/tab-lifecycle.ts).
+
+```tsx
+// Reordering ids retains each keyed component's state and native host.
+<masonview>
+	{ids.map((id) => <Row key={id} id={id} />)}
+</masonview>
+```
 
 Maintained native runtime fixtures exercise real NativeScript/AppKit hosts;
 object-driver tests cover ownership and callback contracts separately.

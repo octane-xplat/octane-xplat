@@ -33,6 +33,10 @@ would otherwise double only the track lengths. The packed wrap fixture checks
 80-point columns and 30-point rows, including resize and style removal.
 Logical proxies forward CSS placement before ancestor layout runs; child-authored
 styles take precedence, and reparenting restores the child's own style.
+Mason frame notifications recompute placement without invalidating intrinsic
+size. Content mutations still invalidate it. This prevents an AppKit constraint
+feedback loop that grew the tab fixture's window to 44,793 points; the packed
+tab regression checks that reorder retains the host window's height.
 
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */

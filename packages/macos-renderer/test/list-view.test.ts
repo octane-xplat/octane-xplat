@@ -335,3 +335,18 @@ test('portal cells publish bindings without roots and ignore an obsolete row rem
 	assert.equal(events.at(-1).type, 'release')
 	assert.equal(f.roots.length, 0)
 })
+
+test('obsolete row-add callbacks never inspect removed native columns', () => {
+	const f = fixture()
+	const events: any[] = []
+	f.update({ items: ['A'], onLoadMoreItems: (event: any) => events.push(event) })
+	const didAdd = f.table.delegate['tableView:didAddRowView:forRow:']
+	const removedRow = { viewAtColumn() { throw new Error('native row has no columns') } }
+	assert.doesNotThrow(() => didAdd(f.table, removedRow, -1))
+	assert.doesNotThrow(() => didAdd(f.table, removedRow, 1))
+	f.update({ items: [] })
+	assert.doesNotThrow(() => didAdd(f.table, removedRow, 0))
+	f.api.disposeListView(f.view)
+	assert.doesNotThrow(() => didAdd(f.table, removedRow, 0))
+	assert.deepEqual(events, [])
+})
