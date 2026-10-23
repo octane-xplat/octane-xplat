@@ -352,6 +352,14 @@ Replace `JOB_ID` with the returned job ID and poll until terminal. Require
 jobs; they do not deduplicate arbitrary later runs. For an uncertain outcome,
 inspect the existing job before submitting another invocation.
 
+Treat the registry as a live view, not a stable snapshot. An app instance that
+just stopped can still announce `ready` briefly before the registry reaps it,
+and the listing can lag that reap — an instance can list as ready while an
+invoke against it already answers `not_found`. Re-announcing bumps `revision`
+too, so an instance and revision pair cached more than a moment goes
+`stale_identity` quickly. Run `actions list` and read the instance and revision
+immediately before each invoke instead of caching them.
+
 A successful action proves its handler completed. Check the resulting screen
 separately. For a supported owned Chromium session, replace `SESSION_ID` with
 its CLI session ID and inspect the mounted counter until its text is `3`; fail
@@ -364,11 +372,160 @@ pnpm exec xplat inspect SESSION_ID --testid counter.value --json
 pnpm exec xplat session end SESSION_ID --json
 ```
 
+## Choose what your actions cover
+
+An action runs one of your app's functions — it never delivers input. A
+submit action proves your submit handler produces the right result; it says
+nothing about the tap, swipe, or keyboard path that reaches that handler in
+the real UI. Cover what a handler can reach: prepared fixtures, state reads,
+submit/save/dismiss paths, and a way out of every stuck state. Taps, swipes,
+pull-to-dismiss gestures, long-presses, and IME suggestions exercise the input
+layer itself — those need real-input tooling such as `adb input`, `simctl`,
+or browser automation, plus separate interaction tests. A complete action list
+is not UI coverage.
+
+### Stay on the fixture side of your data
+
+Actions run inside the app with its privileges, and anything connected to the
+dev channel can invoke every listed action. Never let an action accept real
+credentials, mutate remote or account data, or cause OS side effects. A
+practical pattern scopes destructive actions to fixture entities and refuses
+fixture writes while a real backend session exists — this action deletes only
+`dev-`-prefixed notes, and only while the app points at its fixture backend.
+
+```ts
+import { registerDevAction } from '@octane-xplat/platform/dev-actions'
+import { createStore } from '@octane-xplat/ui/data'
+
+// True only while the app is pointed at the fixture backend.
+export const fixtureSession = createStore(false)
+export const notes = createStore<Record<string, string>>({})
+
+if (import.meta.env.DEV) {
+	const action = registerDevAction({
+		id: 'fixtures.delete-note',
+		title: 'Delete a fixture note',
+		description: 'Removes a dev-fixture note so a fresh-list check starts empty.',
+		input: { fields: { noteId: { type: 'string' } } },
+		effects: { summary: 'Deletes a fixture note', appState: true, testData: true },
+		run(input) {
+			if (!fixtureSession.getSnapshot()) {
+				throw new Error('fixture actions are off while a real account is signed in')
+			}
+			const noteId = String(input.noteId)
+			if (!noteId.startsWith('dev-')) {
+				throw new Error(`"${noteId}" is not a dev- fixture id`)
+			}
+			notes.update((all) => {
+				const next = { ...all }
+				delete next[noteId]
+				return next
+			})
+			return {}
+		},
+	})
+	import.meta.hot?.dispose(() => action.dispose())
+}
+```
+
+### Register actions where their state lives
+
+A composer, sheet, or capture panel that is only sometimes mounted should
+attach its own actions while it is open — save draft, submit, dismiss —
+through the component hooks in
+[Attach actions from components](#attach-actions-from-components). The actions
+appear in the registry exactly when the state they operate on exists, and they
+disappear with that state instead of running a stale closure. Reserve
+module-level `registerDevAction` for what is always relevant: global state
+reads, navigation, and escape hatches.
+
+```tsx
+import { useDevAction } from '@octane-xplat/platform/dev-actions'
+
+export function Composer() {
+	if (import.meta.env.DEV) {
+		useDevAction({
+			id: 'composer.discard-draft',
+			title: 'Discard the open draft',
+			description: 'Closes the composer without sending; listed only while it is open.',
+			effects: { summary: 'Discards the composer draft', appState: true },
+			run: () => {
+				draftState.set(emptyDraft)
+				return {}
+			},
+		})
+	}
+	return <ComposerFields />
+}
+```
+
+### Keep an escape hatch
+
+`availability.ready` gates an action on live app state: a probe that reports
+whether the action is safe to run right now, so an agent sees `unavailable`
+instead of a handler failing mid-operation. Gates compose into a trap when one
+app state can lock all of them at once — a capture screen that starts
+recording the moment it opens flips `recording: true`, every action gated on
+"app is idle" goes unavailable, and until an ungated stop or dismiss action
+exists the only recovery is force-stopping the app. Keep at least one action
+that can leave or reset the blocking state deliberately ungated, or gate it on
+the blocking state itself like this stop action that is ready *because* a
+capture is running.
+
+```ts
+import { registerDevAction } from '@octane-xplat/platform/dev-actions'
+import { createStore } from '@octane-xplat/ui/data'
+import { counterState } from './counter-state'
+
+const recording = createStore(false)
+
+if (import.meta.env.DEV) {
+	// Most fixture actions gate on the app being idle.
+	const reset = registerDevAction({
+		id: 'fixtures.reset-counter',
+		title: 'Reset counter',
+		description: 'Sets the counter to zero while the app is idle.',
+		input: {},
+		result: { fields: { count: { type: 'integer' } } },
+		effects: { summary: 'Resets the counter', appState: true },
+		availability: {
+			ready: () =>
+				recording.getSnapshot()
+					? { ready: false, reason: 'a capture is in progress' }
+					: { ready: true },
+		},
+		run() {
+			counterState.set(0)
+			return { count: 0 }
+		},
+	})
+
+	// The escape hatch is ready because a capture is running, so the blocking
+	// state always has a way out.
+	const stop = registerDevAction({
+		id: 'capture.stop',
+		title: 'Stop capture',
+		description: 'Stops an in-progress capture so idle-gated actions answer again.',
+		effects: { summary: 'Stops the current capture', appState: true },
+		availability: { ready: () => recording.getSnapshot() },
+		run() {
+			recording.set(false)
+			return {}
+		},
+	})
+	import.meta.hot?.dispose(() => {
+		reset.dispose()
+		stop.dispose()
+	})
+}
+```
+
 ## Keep the boundary clear
 
-Actions prepare state and expose app-defined operations. They do not prove
-coordinate hit-testing, OS input, or that a user can complete the same journey.
-Use separate interaction tests for those claims.
+Actions prepare state and expose app-defined operations; they do not prove
+coordinate hit-testing, OS input, or that a user can complete the same
+journey — [Choose what your actions cover](#choose-what-your-actions-cover)
+shows where each kind of check belongs.
 
 Keep privileged fixture imports inside the development-only path, never return
 secrets, and check that fixture declarations and handlers are absent from

@@ -78,6 +78,36 @@ sessions; NativeScript frames match by line text, so an occasional frame may
 stay raw). Keep secrets out
 of thrown errors — they cross the dev channel verbatim.
 
+## Choose what to cover
+
+Actions invoke handlers; they never deliver input. Cover reachable behaviors
+and escape hatches — fixture setup, state reads, submit/dismiss paths, a way
+out of every stuck state — and leave taps, swipes, pull-to-dismiss,
+long-presses, and IME/keyboard paths to real-input tooling (`adb input`,
+`simctl`, browser automation). Action coverage is not UI coverage; the guide's
+[coverage contract](../../../../docs/testing/development-actions.md#choose-what-your-actions-cover)
+carries the full rationale and examples.
+
+- Keep a real-data boundary: no real credentials as input, no remote/account
+  mutation, no OS side effects. Scope destructive actions to fixture entities
+  (`dev-`-prefixed ids) and refuse fixture writes while a real backend session
+  exists.
+- Register where the state lives: a sometimes-mounted composer or panel
+  attaches its own draft/submit/dismiss actions while open, so they are listed
+  exactly when their state exists. Reserve module-level registration for
+  always-relevant reads, navigation, and escape hatches.
+- `availability.ready` gates are contracts; deadlock is a real failure mode.
+  If one app state can lock every gated action — a capture screen that
+  auto-starts a recording blocks every idle-gated action behind
+  `recording: true` — ship an escape action that is deliberately not gated on
+  that state.
+- The registry is a live view, not a snapshot: a just-stopped instance can
+  announce `ready` briefly before the registry reaps it, `actions list` can
+  lag the reap (listed `ready` while invoke returns `not_found`), and
+  re-announces bump `revision`, so cached instance/revision pairs go
+  `stale_identity` quickly. Rediscover the instance and revision before each
+  invoke rather than caching them.
+
 ## Reaching screen-owned actions
 
 Prefer actions that declare `route`: the app navigates to that URL itself when
