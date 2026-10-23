@@ -35,6 +35,8 @@ export function ModalChoice() {
 }
 ```
 
+For retained full-screen siblings, follow [retained screen layers](primitives.md#retained-screen-layers). A native overlay host does not make its own Screen an overlay.
+
 ## Platform modal widgets
 
 `UIModal` + `openModal` are exported from `@octane-xplat/ui/ios`;

@@ -1,0 +1,24 @@
+.screen-layers-host {
+	width: 100%;
+	height: 100%;
+}
+.screen-layers-library {
+	flex: 1;
+	min-height: 539px;
+}
+.screen-layers-screen {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	height: 100%;
+	flex: 1;
+}
+.screen-layers-stage {
+	flex: 1;
+}
+.screen-layers-confirmation {
+	width: 240px;
+	height: 200px;
+	align-self: center;
+	justify-self: center;
+}

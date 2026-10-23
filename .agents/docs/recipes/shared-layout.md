@@ -2,7 +2,7 @@
 
 ID: shared-layout
 Targets: web, ios, android
-Related APIs: Grid, LayoutChildProps, Stack, HStack, VStack, StackItem, Absolute, Center, Section, AspectRatio, FormLayout, InputGroup, InputGroupText
+Related APIs: Screen, Grid, LayoutChildProps, Stack, HStack, VStack, StackItem, Absolute, Center, Section, AspectRatio, FormLayout, InputGroup, InputGroupText
 
 ## Starting point
 
@@ -24,6 +24,8 @@ the behavior differences between DOM and NativeScript.
 
 - AC5: Grid documents intrinsic track minimums and the explicit bounded-track CSS option, preserves explicit zero-based placement and spans on composite roots, flows automatic cells, and reflows reactive insertion/removal/reorder. State the NativeScript patch requirement and evidence limits.
 
+- AC6: Retained screens overlap through same-cell View layers in a bounded Grid; explain that Screen remains in parent flow and does not provide modal isolation.
+
 ## Documentation
 
 - AC1: [Flow layout](../../../docs/app/primitives.md#the-components-you-reach-for-first) and maintained [LayoutDemo](../../../packages/demos/src/LayoutDemo.tsrx).
@@ -32,3 +34,5 @@ the behavior differences between DOM and NativeScript.
 - AC4: [Grouped fields](../../../docs/app/primitives.md#grouped-fields) and maintained [ComponentsDemo](../../../packages/demos/src/ComponentsDemo.tsrx).
 
 - AC5: [Grid placement](../../../docs/app/primitives.md#grid-placement), [native Screen/Grid width regression](../../../apps/mobile/src/tests/screen-grid-width.spec.tsrx), and maintained [Grid driver fixture](../../../packages/ui/tests/grid-placement.fixture.mobile.tsrx).
+
+- AC6: [Retained screen layers](../../../docs/app/primitives.md#layer-a-screen-over-retained-content), [agent guidance](../../skills/octane-xplat/references/primitives.md#retained-screen-layers), and maintained [geometry fixture](../../../examples/probes/screen-layers.tsrx).

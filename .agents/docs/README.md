@@ -25,6 +25,8 @@ framework; the app-building guides for downstream users live in `docs/`.
 
 ## Working records
 
+- [Screen layers](screen-layers.md) — retained-screen composition, consumer evidence, and geometry fixture.
+
 - [Workshop chrome](workshop-chrome.md) — presentation boundaries, references and verification limits.
 
 - [Software keyboard handling](keyboard.md) — native movement and focused-input feasibility boundaries.

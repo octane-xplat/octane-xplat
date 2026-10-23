@@ -143,6 +143,40 @@ export function PackingToggle() {
   different engine behavior per target. Check `docs/testing/known-limits.md`
   before promising parity.
 
+## Retained screen layers
+
+`Screen` stays in its parent's flow. To cover retained content, wrap each
+layer in `View row={0} col={0}` inside one full-bounds, single-cell `Grid`.
+Put `Screen` inside the later wrapper; `Screen` itself has no row/col props.
+Do not use flex-column siblings, `flex: 1`, or z-index as a substitute for
+layer placement. See [the complete example and host prerequisites](../../../../docs/app/primitives.md#layer-a-screen-over-retained-content).
+
+```tsx
+import { Grid, Screen, Text, View } from '@octane-xplat/ui'
+import './screen-layers.css'
+
+export function RetainedLayers() {
+	return <Grid rows="*" columns="*" className="screen-layers-host">
+		<View row={0} col={0}><Text>Library</Text></View>
+		<View row={0} col={0}>
+			<Screen className="screen-layers-screen"><Text>Player</Text></Screen>
+		</View>
+	</Grid>
+}
+```
+
+```css
+/* screen-layers.css */
+.screen-layers-host { width: 100%; height: 100%; }
+.screen-layers-screen {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	height: 100%;
+	flex: 1;
+}
+```
+
 ## Conventions
 
 - `className` composes with each leaf's own `vx-*` class. Pass arrays directly

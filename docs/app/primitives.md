@@ -310,6 +310,53 @@ export function AirplaneRow() {
 }
 ```
 
+### Layer a screen over retained content
+
+To open a player while keeping a library mounted underneath, give both layers
+cell `0,0` in a full-size `Grid`. Each layer needs a `View` wrapper to carry
+`row` and `col`; `Screen` does not accept those placement props. The parent
+must already have the bounds you want to cover. On native, start from a
+full-window app host: layers do not correct offsets introduced by a custom
+Page/Frame shell. Here `playing` controls whether the player layer is mounted.
+
+```tsx
+import { Grid, Screen, Text, View } from '@octane-xplat/ui'
+import './screen-layers.css'
+
+export function LibraryPlayer(props: { playing: boolean }) {
+	return <Grid className="screen-layers-host" rows="*" columns="*">
+		<View row={0} col={0}>
+			<Text>Retained library</Text>
+		</View>
+		{props.playing && <View row={0} col={0}>
+			<Screen className="screen-layers-screen">
+				<Text>Player</Text>
+			</Screen>
+		</View>}
+	</Grid>
+}
+```
+
+```css
+/* screen-layers.css */
+.screen-layers-host { width: 100%; height: 100%; }
+.screen-layers-screen {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	height: 100%;
+	flex: 1;
+}
+```
+
+`Screen` is a screen shell, not an instruction to overlay its siblings. A
+column-sibling Screen stays in normal flow; on iOS its content can extend
+below the viewport from that slot. Increasing `zIndex` or setting `flex: 1`
+does not give it a full-bounds slot. Use the same-cell composition above for
+retained screens. It does not supply modal focus management or make the
+background inaccessible; use [shared temporary surfaces](#own-temporary-surfaces)
+when those behaviors are needed.
+
 ### Safe-area edges
 
 `SafeArea` keeps content clear of the system bars, notch, and home
