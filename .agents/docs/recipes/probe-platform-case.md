@@ -20,7 +20,7 @@ platform evidence without changing the kitchen-sink harness.
 - AC2: Run maintained script and component cases with assertions and actual host inspection, including coordinate-bearing touch sequences on iOS/Android.
 - AC3: Rerun edited cases with a fresh component root and optionally a fresh process.
 - AC4: Isolate generated entries, build artifacts, app identities, and owned session cleanup from other work.
-- AC5: Supply installed extra dependencies and native resources, and understand build invalidation and custom integration limits.
+- AC5: Supply installed extra dependencies and native resources, and understand build invalidation and custom integration limits. An explicit private Mason core experiment excludes the default full engine and rejects conflicting runtime dependencies.
 - AC6: Interpret JSON results, timeout/error behavior, and the difference between handler dispatch and OS input evidence.
 
 ## Documentation

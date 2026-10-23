@@ -4,6 +4,13 @@ import { join, relative, resolve } from 'node:path'
 import { execFileSync } from 'node:child_process'
 import { dependencySections, projectProfile } from 'create-octane-xplat/compatibility'
 import {
+	masonCorePackage,
+	masonFullPackage,
+	masonLegacyPackage,
+	selectMasonEngine,
+} from './mason-engine.ts'
+
+import {
 	compatibility,
 	localSpecifier,
 	managedPackage,
@@ -95,6 +102,16 @@ export function inspectCompatibility(
 
 	const local = new Set<string>()
 	const declared = Object.assign({}, ...dependencySections.map((section) => pkg[section]))
+	try {
+		selectMasonEngine(declared, profile === 'windows')
+	} catch (error) {
+		row(
+			'compatibility mason engine selection',
+			false,
+			(error as Error).message,
+			'keep one supported Mason engine in this app',
+		)
+	}
 	for (const [name, spec] of Object.entries(declared) as [string, string][]) {
 		if (!managedPackage(name, profile)) {
 			continue
@@ -120,6 +137,7 @@ export function inspectCompatibility(
 	// layout — apps using it must declare the package.
 	if (
 		declared['@nativescript-community/octane'] &&
+		!declared[masonCorePackage] &&
 		!declared['@octane-xplat/nativescript-masonkit'] &&
 		!declared['@triniwiz/nativescript-masonkit'] &&
 		!local.has('@nativescript-community/octane')
@@ -150,12 +168,17 @@ export function inspectCompatibility(
 	const visited = new Set<string>()
 	const checked = new Set<string>()
 	const singletons = new Map<string, Map<string, string>>()
+	const masonEngines = new Map<string, string>()
 	for (let index = 0; index < queue.length; index++) {
 		const { from, name, required } = queue[index]
 		const installed = installedPackage(from, name)
 		if (!installed) {
 			const key = `${from}:${name}`
-			if (required && managedPackage(name, profile) && !checked.has(key)) {
+			if (
+				required &&
+				(managedPackage(name, profile) || name === masonCorePackage) &&
+				!checked.has(key)
+			) {
 				checked.add(key)
 				row(
 					`compatibility installed ${name}`,
@@ -170,6 +193,10 @@ export function inspectCompatibility(
 
 		const { dir: location, pkg: dependency } = installed
 		const identity = dependency.name ?? name
+		if ([masonCorePackage, masonFullPackage, masonLegacyPackage].includes(identity)) {
+			masonEngines.set(location, identity)
+		}
+
 		const managed = managedPackage(identity, profile)
 		if (managed?.singleton) {
 			const copies = singletons.get(identity) ?? new Map<string, string>()
@@ -213,6 +240,14 @@ export function inspectCompatibility(
 
 			queue.push({ from: location, name: child, required })
 		}
+	}
+	if ([...masonEngines.values()].includes(masonCorePackage)) {
+		row(
+			'compatibility installed mason engines',
+			masonEngines.size === 1,
+			[...masonEngines].map(([path, name]) => `${name} (${relative(dir, path)})`).join(', '),
+			'remove full MasonKit and duplicate core copies from the app dependency graph',
+		)
 	}
 	for (const [name, copies] of singletons) {
 		row(

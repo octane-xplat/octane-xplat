@@ -224,13 +224,64 @@ test('native probe collects required layout/gesture plugins and their pnpm runti
 
 	assert.equal(deps.names.has('@nativescript-community/gesturehandler'), true)
 	assert.equal(deps.names.has('@octane-xplat/nativescript-masonkit'), true)
-	assert.ok(deps.nativeFiles.includes(join(deps.resolved.get('@octane-xplat/nativescript-masonkit'), 'package.json')))
-	assert.ok(deps.nativeFiles.some(path => path.startsWith(join(deps.resolved.get('@octane-xplat/nativescript-masonkit'), 'platforms') + '/')))
+	assert.ok(
+		deps.nativeFiles.includes(
+			join(deps.resolved.get('@octane-xplat/nativescript-masonkit'), 'package.json'),
+		),
+	)
+	assert.ok(
+		deps.nativeFiles.some((path) =>
+			path.startsWith(
+				join(deps.resolved.get('@octane-xplat/nativescript-masonkit'), 'platforms') + '/',
+			),
+		),
+	)
 	assert.ok(deps.resolved.get('@nativescript-community/observable'))
 	assert.ok(
 		deps.nativeFiles.includes(
 			join(deps.resolved.get('@nativescript-community/observable'), 'package.json'),
 		),
+	)
+})
+
+test('an explicit core probe excludes the default full engine and fingerprints its native files', async (t) => {
+	const { mkdtemp, mkdir, writeFile, rm, realpath } = await import('node:fs/promises')
+	const { tmpdir } = await import('node:os')
+	const { join } = await import('node:path')
+	const { dependencies, fingerprint } = await import('./probe/project.ts')
+	const work = await realpath(await mkdtemp(join(tmpdir(), 'xplat-probe-mason-core-')))
+	t.after(() => rm(work, { recursive: true, force: true }))
+	const core = '@octane-xplat/nativescript-mason-core'
+	const full = '@octane-xplat/nativescript-masonkit'
+	const directory = join(work, 'node_modules', core)
+	await mkdir(join(directory, 'platforms/android'), { recursive: true })
+	await writeFile(join(directory, 'package.json'), JSON.stringify({ name: core, version: '0.0.0' }))
+	const nativeFile = join(directory, 'platforms/android/include.gradle')
+	await writeFile(nativeFile, 'before')
+	const deps = await dependencies('android', join(work, 'case.tsrx'), [core])
+	assert.ok(deps.names.has(core))
+	assert.ok(!deps.names.has(full))
+	assert.ok(!deps.resolved.has(full))
+	assert.ok(deps.nativeFiles.includes(nativeFile))
+	const before = await fingerprint(deps)
+	await writeFile(nativeFile, 'after')
+	assert.notEqual((await fingerprint(deps)).key, before.key)
+	await assert.rejects(
+		dependencies('android', join(work, 'case.tsrx'), [core, full]),
+		/native classes and libraries overlap/,
+	)
+	await mkdir(join(work, 'node_modules', full), { recursive: true })
+	await writeFile(
+		join(work, 'node_modules', full, 'package.json'),
+		JSON.stringify({ name: full, version: '0.0.0' }),
+	)
+	await writeFile(
+		join(directory, 'package.json'),
+		JSON.stringify({ name: core, version: '0.0.0', dependencies: { [full]: '0.0.0' } }),
+	)
+	await assert.rejects(
+		dependencies('android', join(work, 'case.tsrx'), [core]),
+		/conflicting runtime dependency/,
 	)
 })
 

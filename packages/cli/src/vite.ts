@@ -23,6 +23,7 @@ import { pathToFileURL } from 'node:url'
 import { unwrapCssLayers } from './css-layers.ts'
 import { xplatCss } from './css-platform.ts'
 import { xplatDevBridge } from './mcp/dev-bridge.ts'
+import { masonCorePackage, selectMasonEngine } from './mason-engine.ts'
 
 export { xplatCss } from './css-platform.ts'
 export { xplatDevBridge } from './mcp/dev-bridge.ts'
@@ -801,6 +802,19 @@ export const xplatNodeEnvDefine = (mode) => ({
  */
 export async function xplatNative(env, opts = {}) {
 	const mode = typeof env === 'string' ? env : env.mode
+	const pkg = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf8'))
+	const declared = Object.assign(
+		{},
+		pkg.dependencies,
+		pkg.devDependencies,
+		pkg.optionalDependencies,
+		pkg.peerDependencies,
+	)
+	const engine = selectMasonEngine(
+		declared,
+		nativePlatform() === 'windows' ||
+			Boolean(pkg.xplat?.targets?.windows || declared['@nativescript/windows']),
+	)
 	// NS_VENDOR_EXCLUDE is @nativescript/vite's documented opt-out for its
 	// HMR vendor bundle. Upstream handles source entries; merge only deps
 	// without a root export, keeping user-provided entries intact.
@@ -912,10 +926,7 @@ export async function xplatNative(env, opts = {}) {
 				// Flattened optimizeDeps chunks get mangled by the /ns/m device
 				// transform (`import import "/ns/core/utils"`) and miss the vendor
 				// manifest — serve @nativescript plugins per-module instead.
-				exclude: [
-					...collectNsPluginDeps(process.cwd()),
-					...(opts.deps ?? []),
-				],
+				exclude: [...collectNsPluginDeps(process.cwd()), ...(opts.deps ?? [])],
 			},
 			resolve: {
 				conditions: ['native'],
@@ -924,7 +935,20 @@ export async function xplatNative(env, opts = {}) {
 				// first — without this it vendors octane/dist/index.js (the full
 				// DOM runtime). Exact-match only: 'octane/universal/native' itself
 				// must not be rewritten.
-				alias: [{ find: /^octane$/, replacement: 'octane/universal/native' }],
+				alias: [
+					{ find: /^octane$/, replacement: 'octane/universal/native' },
+					// The canonical renderer patch keeps full MasonKit imports.
+					// Resolve their core equivalents through the opting-in app,
+					// including /style, under pnpm's isolated dependency layout.
+					...(engine === masonCorePackage
+						? [
+								{
+									find: /^@octane-xplat\/nativescript-masonkit(?=\/|$)/,
+									replacement: dirname(appRequire.resolve(`${masonCorePackage}/package.json`)),
+								},
+							]
+						: []),
+				],
 				// ns-vite sets preserveSymlinks:true; under pnpm's isolated layout
 				// that resolves a dep's imports from the symlink path instead of
 				// its real .pnpm dir, so declared transitive deps can't be found.

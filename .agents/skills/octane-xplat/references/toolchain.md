@@ -42,6 +42,21 @@ pnpm xplat doctor
 pnpm dlx @octane-xplat/cli@latest upgrade --check
 ```
 
+Full MasonKit remains the mobile default. An isolated Mason core experiment
+declares only the built private core tarball: upgrade preserves it, doctor
+rejects overlapping native engines, and `xplatNative` resolves the canonical
+renderer imports to core. Do not add full MasonKit to satisfy an older CLI's
+missing-engine check. Core is unpublished and Windows is unqualified; read the
+[extraction design](../../../design/mason-core-extraction.md) before opting in.
+
+```json
+{
+	"dependencies": {
+		"@octane-xplat/nativescript-mason-core": "file:./artifacts/octane-xplat-nativescript-mason-core-0.0.0.tgz"
+	}
+}
+```
+
 ## Package validation in the framework repository
 
 UI runtime exports ship authored source with generated declaration entrypoints;

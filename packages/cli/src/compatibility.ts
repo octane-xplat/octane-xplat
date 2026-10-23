@@ -20,6 +20,7 @@ import {
 } from 'create-octane-xplat/compatibility'
 
 import { canonicalPatchesDir, loadPatchManifest, specifierPackage } from './patches.ts'
+import { masonCorePackage, selectMasonEngine } from './mason-engine.ts'
 
 export { compatibility, managedPackage, managedSpecifier }
 
@@ -134,16 +135,17 @@ export function planUpgrade(dir: string): UpgradePlan {
 		const label = relative(root, path) || '.'
 		// Octane's compiler peer must stay visible to pnpm; it is not hidden in the CLI.
 		const deps = Object.assign({}, ...dependencySections.map((section) => pkg[section]))
+		const engine = selectMasonEngine(deps, profile === 'windows')
 		if (deps.octane && !deps['@tsrx/oxc'] && !localSpecifier(deps.octane)) {
 			pkg.devDependencies ??= {}
 			pkg.devDependencies['@tsrx/oxc'] = managedSpecifier('@tsrx/oxc', profile)
 			plan.updates.push(`${label}: add @tsrx/oxc compiler peer`)
 		}
-		// The mason layout cutover: the patched NativeScript driver resolves the
-		// container intrinsics to MasonKit views, so every octane-driven app needs
-		// the engine package declared.
+
+		// Full MasonKit remains the default; preserve an explicit core choice.
 		if (
 			deps['@nativescript-community/octane'] &&
+			engine !== masonCorePackage &&
 			!deps['@octane-xplat/nativescript-masonkit'] &&
 			!deps['@triniwiz/nativescript-masonkit'] &&
 			!localSpecifier(deps['@nativescript-community/octane'])
@@ -153,19 +155,23 @@ export function planUpgrade(dir: string): UpgradePlan {
 				'@octane-xplat/nativescript-masonkit',
 				profile,
 			)
+
 			plan.updates.push(`${label}: add @octane-xplat/nativescript-masonkit mason engine`)
 		}
+
 		// The fork renamed the package; both ship the same native Mason framework,
 		// so a leftover @triniwiz pin would collide in native builds.
 		if (deps['@triniwiz/nativescript-masonkit']) {
 			for (const section of dependencySections) {
 				delete pkg[section]?.['@triniwiz/nativescript-masonkit']
 			}
+
 			pkg.dependencies ??= {}
 			pkg.dependencies['@octane-xplat/nativescript-masonkit'] = managedSpecifier(
 				'@octane-xplat/nativescript-masonkit',
 				profile,
 			)
+
 			plan.updates.push(
 				`${label}: replace @triniwiz/nativescript-masonkit with @octane-xplat/nativescript-masonkit`,
 			)

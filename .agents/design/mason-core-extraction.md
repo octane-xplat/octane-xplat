@@ -400,8 +400,20 @@ the tap, swipe, matching row movement and cleanup. The cause remains unproven;
 failure-state diagnostics are retained in `00e79792`. A retry pass does not
 establish that the intermittent failure is fixed.
 
-A source audit also found Xplat CLI adoption work still required: doctor and
-upgrade currently insist on full MasonKit, and the mobile probe collector
-hardcodes it. They must preserve an explicit core choice and reject conflicting
-native engines before core can be considered ready for Xplat. This does not
-authorize changing the default engine or switching production dependencies.
+Xplat doctor and upgrade now preserve an explicit private core dependency.
+They reject core alongside full MasonKit, duplicate installed core copies, and
+Windows selection. The native Vite preset resolves the canonical renderer's
+unchanged Mason imports to the app's core installation. Explicit core probes
+exclude the harness's full engine and fingerprint core's native files. These
+are opt-in tooling changes; defaults and production dependencies remain full.
+All 343 CLI checks, 107 repository script checks and the required dependent
+typechecks pass. Those are host checks, including real Vite resolution for both
+mobile suffixes, rather than device-runtime qualification.
+
+The separate actual-Vite fixture compiles authored TSRX with the canonical
+patches and builds an Android APK. Its debug startup currently fails before
+the component mounts: NativeScript Vite imports Core's inspector modules,
+which call the unavailable `__registerDomainDispatcher` runtime global.
+That Vite startup investigation remains open; the passing Webpack consumer
+does not establish Vite runtime support. The upstream Mason issue remains open
+without maintainer comments at the latest check.

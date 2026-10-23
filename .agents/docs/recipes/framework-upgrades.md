@@ -25,6 +25,7 @@ may have app-specific dependencies, library consumer peers, or custom patches.
 - AC4: User catalogs, unrelated dependencies/scripts, local development links and library consumer peer ranges survive; Windows preview and mobile pins remain separate and unsupported mixed packages fail preflight.
 - AC5: Doctor compares declarations and reachable installed versions, reports physical duplicate runtime paths including equal-version copies, checks Node/pnpm, and exits nonzero for managed compatibility failures without changing project files.
 - AC6: The reader runs their own tests and target builds after alignment; host checks and simulated Windows metadata tests do not establish browser/device/native runtime support.
+- AC7: An isolated mobile app's explicit private Mason core dependency survives upgrades without adding full MasonKit; doctor reports conflicting native engines, duplicate core installations, or unsupported Windows selection.
 
 ## Documentation
 
@@ -34,3 +35,4 @@ may have app-specific dependencies, library consumer peers, or custom patches.
 - AC4: [Ownership and Windows profiles](../../../packages/cli/README.md#compatible-versions), [library development](../../../packages/create/library-template/README.md#develop-and-check), and [workspace/profile tests](../../../packages/cli/test/compatibility.test.mjs).
 - AC5: [Installed checks and duplicate runtime paths](../../../packages/cli/README.md#compatible-versions) and [installed-graph tests](../../../packages/cli/test/compatibility.test.mjs).
 - AC6: [Post-upgrade checks](../../../docs/start/toolchain.md#upgrade-framework-packages) and [target support](../../../docs/start/spec.md#choose-your-targets).
+- AC7: [Private core choice](../../../packages/cli/README.md#compatible-versions), [native preset](../../../packages/cli/README.md#native-vite-preset), and [compatibility regressions](../../../packages/cli/test/compatibility.test.mjs).

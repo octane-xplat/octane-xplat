@@ -5,6 +5,12 @@ import { cp, mkdir, readFile, readdir, realpath, symlink, writeFile } from 'node
 import { createRequire } from 'node:module'
 import { basename, dirname, join, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
+import {
+	masonCorePackage,
+	masonFullPackage,
+	masonLegacyPackage,
+	selectMasonEngine,
+} from '../../packages/cli/src/mason-engine.ts'
 
 export const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
 export const directory = dirname(fileURLToPath(import.meta.url))
@@ -88,15 +94,23 @@ export async function dependencies(target, caseFile, extra) {
 	}
 
 	if (['ios', 'android'].includes(target)) {
+		const declared = { ...pkg.dependencies, ...pkg.devDependencies }
+		// An explicit --deps core overrides the proving app's default full engine.
+		if (extra.includes(masonCorePackage)) {
+			delete declared['@octane-xplat/nativescript-masonkit']
+		}
+
+		const engine = selectMasonEngine({
+			...declared,
+			...Object.fromEntries(extra.map((name) => [name, true])),
+		})
+
 		for (const name of [
 			'@nativescript/core',
 			'@nativescript-community/octane',
-			// The locally patched renderer imports MasonKit for container layout.
-			'@octane-xplat/nativescript-masonkit',
+			// NativeScript collects plugin binaries from runtime dependencies.
+			engine,
 			'@nativescript-community/gesturehandler',
-			// UI primitives import MasonKit at runtime. NativeScript only collects
-			// plugin binaries from dependencies, not the tooling/dev dependency bag.
-			'@octane-xplat/nativescript-masonkit',
 			'@valor/nativescript-websockets',
 		]) {
 			names.add(name)
@@ -115,7 +129,11 @@ export async function dependencies(target, caseFile, extra) {
 	)
 
 	const resolved = new Map()
-	for (const name of new Set([...names, ...Object.keys(pkg.devDependencies ?? {})])) {
+	const development = Object.keys(pkg.devDependencies ?? {}).filter(
+		(name) =>
+			!names.has(masonCorePackage) || ![masonFullPackage, masonLegacyPackage].includes(name),
+	)
+	for (const name of new Set([...names, ...development])) {
 		resolved.set(name, await packageRoot(name, roots))
 	}
 
@@ -128,6 +146,14 @@ export async function dependencies(target, caseFile, extra) {
 
 		visited.add(root)
 		const manifest = await json(join(root, 'package.json'))
+		if (
+			names.has(masonCorePackage) &&
+			[masonFullPackage, masonLegacyPackage].includes(manifest.name)
+		) {
+			throw new Error(
+				`Core probe also resolves ${manifest.name}; remove the conflicting runtime dependency.`,
+			)
+		}
 		nativeFiles.push(join(root, 'package.json'))
 		nativeFiles.push(...(await filesUnder(join(root, 'platforms'))))
 		for (const name of Object.keys({
