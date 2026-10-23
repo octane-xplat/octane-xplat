@@ -15,6 +15,8 @@ export const CONTRACT_ERROR_CODES = [
 	'cancelled',
 	'timeout',
 	'unavailable',
+	'navigation_blocked',
+	'navigation_failed',
 ]
 
 export function contractError(code, message, options = {}) {

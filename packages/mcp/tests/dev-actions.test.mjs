@@ -144,10 +144,10 @@ async function makeBridge(t, appRoot) {
 }
 
 /** Simulated dev app: announces a registry, polls for work, posts outcomes. */
-function makeApp(bridge, { instanceId, platform = 'web', actions = [], handle }) {
+function makeApp(bridge, { instanceId, platform = 'web', actions = [], handle, announce = {} }) {
 	const state = { revision: 1, actions, running: new Map(), stop: false, calls: [] }
 
-	const announce = () =>
+	const announceNow = () =>
 		bridge.call('POST', '/registry', {
 			protocol: 'xplat-dev-actions',
 			version: 1,
@@ -155,6 +155,7 @@ function makeApp(bridge, { instanceId, platform = 'web', actions = [], handle })
 			platform,
 			revision: state.revision,
 			announcedAt: new Date().toISOString(),
+			...announce,
 			actions: state.actions,
 		})
 
@@ -202,10 +203,10 @@ function makeApp(bridge, { instanceId, platform = 'web', actions = [], handle })
 	const app = {
 		state,
 		async start() {
-			await announce()
+			await announceNow()
 			void poll()
 		},
-		announce,
+		announce: announceNow,
 		stop() {
 			state.stop = true
 		},
@@ -467,6 +468,94 @@ test('multiple instances never share an invocation target silently', async (t) =
 	assert.equal(invoked.error.code, 'ambiguous_selection')
 	assert.equal(invoked.error.context.candidates.length, 2)
 	assert.equal(a.state.calls.length + b.state.calls.length, 0)
+})
+
+test('a route-declared action dispatches while unready; platform-inapplicable stays rejected', async (t) => {
+	const root = makeWorkspace()
+	makeConsumerApp(root, '.', { name: 'actions-app' })
+	const bridge = await makeBridge(t, root)
+	const app = makeApp(bridge, {
+		instanceId: 'inst_main',
+		actions: [
+			actionDeclaration({
+				id: 'checkout.confirm',
+				availability: {
+					ready: false,
+					reason: 'no handler attached; its owning component is not mounted',
+					route: { url: '/checkout' },
+				},
+			}),
+			actionDeclaration({
+				id: 'plain.unready',
+				availability: { ready: false, reason: 'fixture service offline' },
+			}),
+			actionDeclaration({
+				id: 'ios.only',
+				availability: {
+					platforms: ['ios'],
+					ready: false,
+					reason: 'not mounted',
+					route: { url: '/settings' },
+				},
+			}),
+		],
+		handle: async (request) => ({
+			requestId: request.requestId,
+			status: 'succeeded',
+			result: { role: 'admin' },
+			completedAt: new Date().toISOString(),
+		}),
+	})
+
+	await app.start()
+
+	const { client } = await connect(root)
+	const list = await callTool(client, 'xplat_dev_actions')
+	const listed = list.data.instances[0].actions.find((a) => a.id === 'checkout.confirm')
+	assert.equal(listed.liveAvailability.ready, false)
+	assert.deepEqual(listed.availability.route, { url: '/checkout' })
+
+	// Not ready but route-declared: the app navigates itself — dispatch anyway.
+	const routed = await callTool(client, 'xplat_dev_action_invoke', {
+		actionId: 'checkout.confirm',
+		registryRevision: list.data.instances[0].revision,
+	})
+	assert.equal(routed.ok, true, JSON.stringify(routed))
+	const job = await jobDone(client, routed.data.job.jobId)
+	assert.equal(job.state, 'succeeded')
+
+	// Unready without a route is still rejected pre-dispatch.
+	const plain = await callTool(client, 'xplat_dev_action_invoke', {
+		actionId: 'plain.unready',
+	})
+	assert.equal(plain.error.code, 'unavailable')
+	assert.match(plain.error.message, /fixture service offline/)
+
+	// A route never overrides platform applicability.
+	const wrongPlatform = await callTool(client, 'xplat_dev_action_invoke', {
+		actionId: 'ios.only',
+	})
+	assert.equal(wrongPlatform.error.code, 'unavailable')
+	assert.match(wrongPlatform.error.message, /not applicable on web/)
+
+	assert.equal(app.state.calls.length, 1)
+})
+
+test('an announced location is surfaced per instance in the listing', async (t) => {
+	const root = makeWorkspace()
+	makeConsumerApp(root, '.', { name: 'actions-app' })
+	const bridge = await makeBridge(t, root)
+	const app = makeApp(bridge, {
+		instanceId: 'inst_main',
+		actions: [actionDeclaration()],
+		announce: { location: { route: '/home', modal: false } },
+		handle: async () => ({}),
+	})
+	await app.start()
+
+	const { client } = await connect(root)
+	const list = await callTool(client, 'xplat_dev_actions')
+	assert.deepEqual(list.data.instances[0].location, { route: '/home', modal: false })
 })
 
 test('request identity dedupes: a retried call returns the live job', async (t) => {

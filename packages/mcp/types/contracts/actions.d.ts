@@ -122,6 +122,12 @@ export interface DevActionListing extends DevActionDeclaration {
 	availability?: {
 		platforms?: Platform[]
 		readyWhen?: string
+		/**
+		 * The app navigates to this URL when the action is invoked without an
+		 * attached handler: a fixed URL, or one derived from validated input.
+		 * Such actions may be invoked while their `ready` is false.
+		 */
+		route?: { url: string } | { fromInput: true }
 		/** Live readiness verdict from the app. */
 		ready: boolean
 		/** Why it is unavailable right now. */
@@ -141,6 +147,8 @@ export interface DevActionRegistryAnnouncement {
 	platform: Platform
 	revision: number
 	announcedAt: string
+	/** Current app location, when the app has an installed router navigator. */
+	location?: { route: string | null; modal: boolean }
 	actions: DevActionListing[]
 }
 

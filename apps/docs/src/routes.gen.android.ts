@@ -6,3 +6,9 @@ export * from "./routes.gen.catalog.android"
 configureRouter({
 	catalog: routes,
 })
+// import.meta.env.DEV is statically false in production builds — the
+// router dev-actions chunk is never emitted. The cast keeps this file
+// typechecking without vite/client ambient types.
+if ((import.meta as unknown as { env: { DEV: boolean } }).env.DEV) {
+	void import('@octane-xplat/ui/routing/dev').then(({ registerRouterDevActions }) => registerRouterDevActions())
+}

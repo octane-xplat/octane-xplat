@@ -875,6 +875,12 @@ ${config?.context ? '\tcontext: routeContext,\n' : ''}${config?.transitions ? '\
 				.filter((key) => config?.[key] !== undefined)
 				.map((key) => `\t${key}: ${JSON.stringify(config[key])},\n`)
 				.join('')}})
+// import.meta.env.DEV is statically false in production builds — the
+// router dev-actions chunk is never emitted. The cast keeps this file
+// typechecking without vite/client ambient types.
+if ((import.meta as unknown as { env: { DEV: boolean } }).env.DEV) {
+\tvoid import('@octane-xplat/ui/routing/dev').then(({ registerRouterDevActions }) => registerRouterDevActions())
+}
 `,
 		)
 	}

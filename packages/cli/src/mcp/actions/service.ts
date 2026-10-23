@@ -52,6 +52,8 @@ const APP_ERROR_CODES = new Set([
 	'cancelled',
 	'unavailable',
 	'target_busy',
+	'navigation_blocked',
+	'navigation_failed',
 ])
 
 const appError = (code, message, options = {}) =>
@@ -154,6 +156,7 @@ export function createDevActionsService({ jobs, policy, endpoints = scanBridgeEn
 			revision: a.revision,
 			announcedAt: a.announcedAt,
 			state: entry.gone ? 'disconnected' : stale ? 'stale' : 'ready',
+			location: a.location ?? null,
 			actions: a.actions.map((action) => ({
 				...action,
 				liveAvailability: actionAvailability(action, a.platform),
@@ -329,13 +332,21 @@ export function createDevActionsService({ jobs, policy, endpoints = scanBridgeEn
 
 		const availability = actionAvailability(action, announcement.platform)
 		if (!availability.ready) {
-			return fail(
-				contractError(
-					'unavailable',
-					`Action "${action.id}" is unavailable: ${availability.reason}.`,
-					{ retryable: true },
-				),
-			)
+			// Platform applicability is decided here — a route-declared action is
+			// still dispatched while merely unmounted: the app navigates to its
+			// route and waits for the handler to attach.
+			const inapplicable =
+				action.availability?.platforms !== undefined &&
+				!action.availability.platforms.includes(announcement.platform)
+			if (inapplicable || !action.availability?.route) {
+				return fail(
+					contractError(
+						'unavailable',
+						`Action "${action.id}" is unavailable: ${availability.reason}.`,
+						{ retryable: true },
+					),
+				)
+			}
 		}
 
 		if (action.effects?.externalEffects) {

@@ -36,6 +36,10 @@ export type ContractErrorCode =
 	| 'timeout'
 	/** An optional subsystem (docs index, code index, embeddings) is not provided or offline. */
 	| 'unavailable'
+	/** A dev action's route navigation was held by a navigation blocker and cancelled. */
+	| 'navigation_blocked'
+	/** A dev action's route navigation did not commit. */
+	| 'navigation_failed'
 
 /** The smallest corrective step a developer or agent can take. */
 export interface Recovery {
