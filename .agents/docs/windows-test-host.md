@@ -90,8 +90,10 @@ keyboard, and percentage-layout checks on a Windows host before claiming it.
 The documented SSH route refused the forwarded connection during the initial
 upgrade. A subsequent physical-host attempt installed this preview successfully
 and passed the standalone Windows typecheck, but the kitchen sink bundle failed
-because `full-screen-page.mobile.ts` is reachable from shared native routing.
-No app launched in that attempt; see the [physical-host lab record](windows-lab.md#kitchen-sink-attempt-with-preview-abae298).
+because `full-screen-page.mobile.ts` was reachable from shared native routing.
+The page split cleared that boundary; the next build stopped on the mobile-only
+command-palette accessibility helper. Neither attempt launched an app; see the
+[physical-host lab record](windows-lab.md#page-preparation-split).
 
 Host checks for this pin pass: installation with the frozen lockfile, patch and
 compatibility synchronization, recipe structure, focused compatibility/upgrade

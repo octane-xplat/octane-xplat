@@ -38,6 +38,17 @@ const page = prepareFullScreenPage(new Page())
 page.actionBarHidden = true
 ```
 
+For the experimental Windows host, `prepareFullScreenPage` preserves the Page
+unchanged: NativeScript uses a WinUI Grid without the phone-specific safe-area
+adjustments. Framework imports must use the unsuffixed basename so Windows
+selects its own implementation; keep the mobile measurement workaround in the
+`.mobile` leaf. This does not qualify the complete Windows routing stack.
+
+```ts
+// Inside packages/ui: let the target resolver select the implementation.
+import { prepareFullScreenPage } from './full-screen-page'
+```
+
 ## Lifecycle ordering (iOS — solved, still load-bearing)
 
 - A `frame.navigate()` issued **before the frame is `loaded`** leaves

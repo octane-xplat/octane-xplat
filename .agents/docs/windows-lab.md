@@ -122,6 +122,37 @@ only the private harness and do not change public support claims. The build
 boundary failure is recorded in local Silo observation
 `552873e8-729a-4469-8abe-e1fb17e501d1`.
 
+### Page preparation split
+
+Shared routing and the NativeScript integration barrel now import
+`full-screen-page` without a platform suffix. iOS/Android retain the existing
+`.mobile` implementation. The new `.windows` leaf returns the same Page without
+changing its properties, measurement, or content.
+
+The installed `abae298` preview's `ui/page/index.windows.js` creates a WinUI
+Grid and appends content to it; its Windows View measures the native host and
+leaves child positioning to native panels. There is no mobile safe-area
+measurement override in that Page. This supports preserving the Windows host
+behavior rather than applying phone-specific properties or the UIKit bounds
+workaround. It is implementation evidence, not on-device layout qualification.
+
+Local validation passed: UI tests (983), native Vitest tests (435), their
+preceding native Node tests, affected-package/dependent typechecks (53 Turbo
+tasks), focused lint, and recipe structure. The Windows regression uses a
+frozen page fixture to reject property writes and checks that page identity,
+content, and measurement dispatch are preserved. Existing mobile page tests
+remain unchanged and pass. No public recipe acceptance criteria changed.
+
+The physical Windows retry passed the page boundary and its standalone
+Windows typecheck (37 of 38 Turbo tasks passed). Bundling then rejected
+`command-palette-accessibility.mobile.ts`, imported directly by
+`CommandPalette.tsrx`. That helper calls iOS or Android announcement APIs;
+it needs a platform-resolved Windows accessibility implementation, not a
+silent no-op. The delegated checker still reported 15 errors. No app launched.
+The host log is `%TEMP%\octane-kitchen-sink-page-split.log`; the remaining
+boundary is recorded in local Silo observation
+`7987f28d-e4e2-4b3f-b4b6-ba47686fe1f4`.
+
 ### Prevent idle sleep during a development session
 
 PowerToys Awake is already installed on this host. Start it from the Windows
