@@ -80,7 +80,12 @@ function BrowserRouteModal(props: {
 
 /** Internal browser outlet. Public RouteOutlet wiring follows after adapters
  * expose the same instance/owner behavior on native targets. */
-type BrowserOutletProps = Omit<ClientRouteOutletProps, 'host'> & { host: BrowserRouterHost }
+export type BrowserOutletHost = Pick<
+	BrowserRouterHost,
+	'host' | 'scope' | 'views' | 'mount' | 'entryElement' | 'attach'
+>
+
+type BrowserOutletProps = Omit<ClientRouteOutletProps, 'host'> & { host: BrowserOutletHost }
 
 function OwnedClientRouteOutlet(props: BrowserOutletProps): any {
 	const flow = props.flow ?? 'root'
@@ -125,31 +130,42 @@ function OwnedClientRouteOutlet(props: BrowserOutletProps): any {
 
 	return (
 		<RouterRenderScopeProvider scope={scope}>
-			<RouteOutletResume resumeUrl={props.resumeUrl} onResume={props.onResume} />
-			<div
-				ref={(element: HTMLDivElement | null) => host.entryElement('base:' + flow, element)}
-				style={{ display: entry ? 'none' : 'contents' }}
-			>
-				{props.children}
-			</div>
-			@for (const item of entries; key item.entry.id) {
+			// A stable host root lets Octane 0.14 hydrate these provider children.
+			// The fragment form replaces server DOM; see web-rendering-host notes.
+			<div style={{ display: 'contents' }}>
+				<RouteOutletResume resumeUrl={props.resumeUrl} onResume={props.onResume} />
 				<div
-					ref={(element: HTMLDivElement | null) => host.entryElement(item.entry.id, element)}
-					style={{ display: item.staged ? 'none' : 'contents' }}
+					ref={(element: HTMLDivElement | null) => host.entryElement('base:' + flow, element)}
+					style={{ display: entry ? 'none' : 'contents' }}
 				>
-					<ClientRouteView entry={item.entry} />
+					{props.children}
 				</div>
-			}
-			@for (const modal of modals; key modal.key) {
-				<BrowserRouteModal entry={modal.entry} staged={modal.staged} />
-			}
+				@for (const item of entries; key item.entry.id) {
+					<div
+						ref={(element: HTMLDivElement | null) =>
+							host.entryElement(item.entry.id, element)
+						}
+						style={{ display: item.staged ? 'none' : 'contents' }}
+					>
+						<ClientRouteView entry={item.entry} />
+					</div>
+				}
+				@for (const modal of modals; key modal.key) {
+					<BrowserRouteModal entry={modal.entry} staged={modal.staged} />
+				}
+			</div>
 		</RouterRenderScopeProvider>
 	)
 }
 
 export function ClientRouteOutlet(props: BrowserOutletProps): any {
 	return (
-		<RouterOutletBoundary key={routeAuthorityKey(props.authority)} host={props.host} flow={props.flow ?? 'root'} base={props.children}>
+		<RouterOutletBoundary
+			key={routeAuthorityKey(props.authority)}
+			host={props.host}
+			flow={props.flow ?? 'root'}
+			base={props.children}
+		>
 			<OwnedClientRouteOutlet {...props} />
 		</RouterOutletBoundary>
 	)

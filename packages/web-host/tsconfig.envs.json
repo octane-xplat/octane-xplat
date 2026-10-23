@@ -1,0 +1,22 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"target": "ESNext"
+	},
+	"environments": {
+		"web": {
+			"include": [
+				"src/**/*.ts",
+				"src/**/*.tsrx",
+				"test/types.ts",
+				"example/*.ts",
+				"example/*.tsrx"
+			],
+			"compilerOptions": {
+				"types": [
+					"node"
+				]
+			}
+		}
+	}
+}

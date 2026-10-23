@@ -1,5 +1,5 @@
 import { afterContentCommit, type ContentOwner } from './owned-content'
-import { createRoot } from 'octane'
+import { createRoot } from './browser-root.web'
 import type { BottomSheetHandle, ModalOpenResult, OpenBottomSheet } from './props'
 import { applyThemeClasses } from './theme/theme-host'
 import { normalizeSnapPoints } from './sheet-snap'

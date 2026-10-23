@@ -61,6 +61,7 @@
 		"@octane-xplat/ui",
 		"@octane-xplat/updates",
 		"@octane-xplat/video",
+		"@octane-xplat/web-host",
 		"@octane-xplat/workshop",
 		"create-octane-xplat"
 	],

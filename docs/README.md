@@ -89,6 +89,7 @@ If a native screen stutters or eats memory while scrolling images, see
 ## When you're ready to go further
 
 To try your app on a phone, follow [iOS and Android setup](start/toolchain.md#run-on-ios-and-android).
+For ready-to-read HTML on the Web, see [server rendering](platform/web-rendering.md).
 For desktop apps, start with [platform support and limits](start/spec.md#choose-your-targets).
 
 If you want to understand how screens and device features connect, read

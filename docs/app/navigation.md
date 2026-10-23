@@ -2195,17 +2195,18 @@ export async function openHelp(workspace: ReturnType<typeof createPaneNavigation
 }
 ```
 
-## CSR and future server hosts
+## Browser and server rendering
 
 Browser startup uses client-side rendering (CSR): it prepares the current URL
 once and renders it through the browser outlet. Route declarations do not turn
-an app into a server-rendered site. A future SSR host must create isolated
-request instances, render HTML, and transfer a validated initial state.
+an app into a server-rendered site. The optional
+[Web rendering host](../platform/web-rendering.md) prepares request-local HTML
+and transfers explicit public data into browser startup.
 
 ```ts
 // Client startup generated from xplat.routes.json:
 import './routes.gen'
-// Request-time SSR requires a separate server host; this import does not provide one.
+// For request-time HTML, use @octane-xplat/web-host/server with the catalog.
 ```
 
 For native Frame debugging, read the [Frame lifecycle reference](../../.agents/skills/octane-xplat/references/navigation/native-frames.md).

@@ -43,3 +43,4 @@ framework; the app-building guides for downstream users live in `docs/`.
 
 - [Bamboo build participation](bamboo-build-environments.md) — custom Vite
   builders, unused SSR environments, and the upstream accounting contract.
+- [Optional Web rendering host and hydration evidence](notes/web-rendering-host.md)

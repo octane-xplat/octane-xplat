@@ -111,6 +111,11 @@
 					"runtime": ["./src/nativescript/keyboard.ts"],
 					"types": "./types/generated/nativescript/keyboard.d.ts"
 				},
+				"./routing/web-host": {
+					"source": "src/routing/web-host.web.ts",
+					"runtime": ["./src/routing/web-host.web.ts"],
+					"types": "./types/generated/routing/web-host.web.d.ts"
+				},
 				"./routing/core": {
 					"source": "src/routing/core.ts",
 					"runtime": ["./src/routing/core.ts"],

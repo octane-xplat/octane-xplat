@@ -36,7 +36,8 @@
 		"src/nativescript/keyboard.ts",
 		"src/*/index.*.ts",
 		"src/routing/core.ts",
-		"src/data/dev.ts"
+		"src/data/dev.ts",
+		"src/routing/web-host.web.ts"
 	],
 	"exclude": ["**/*.test.*"]
 }

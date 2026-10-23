@@ -173,6 +173,10 @@
 		"./nativescript/keyboard": {
 			"types": "./types/generated/nativescript/keyboard.d.ts",
 			"native": "./src/nativescript/keyboard.ts"
+		},
+		"./routing/web-host": {
+			"types": "./types/generated/routing/web-host.web.d.ts",
+			"default": "./src/routing/web-host.web.ts"
 		}
 	},
 	"scripts": {

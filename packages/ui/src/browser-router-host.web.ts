@@ -11,6 +11,8 @@ import type {
 	RouterHostCommand,
 	RouterHostResult,
 	RouterInstance,
+	PreparedRouteMatch,
+	RouterHostContent,
 	TransitionDefinition,
 } from './props'
 
@@ -788,6 +790,20 @@ export function createBrowserRouterHost() {
 	return {
 		host,
 		views,
+		/** @internal One-time adoption of a server-prepared document. Never a
+		 * navigation API: subsequent entries must pass the preparation pipeline. */
+		initialize(route: PreparedRouteMatch, content: RouterHostContent) {
+			if (!instance || disposed || stamped || outlets.size || current.main) {
+				throw new Error('Initial route must be installed before mounting the browser host')
+			}
+			const entry = createClientRouteEntry(instance, route.stack, 'initial', route, content)
+			void entry.committed.catch(() => {})
+			current = { main: entry, modals: [] }
+			stamp(current, true)
+			stamped = true
+			views.set(current)
+			notify()
+		},
 		entryElement(id: string, element: HTMLElement | null) {
 			if (element && !disposed) {
 				entryElements.set(id, element)

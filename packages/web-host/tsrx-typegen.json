@@ -1,0 +1,35 @@
+{
+	"targets": {
+		"web": {
+			"renderer": "octane",
+			"project": "tsconfig.types.json",
+			"outDir": "types",
+			"entrypoints": {
+				"./server": {
+					"source": "src/server.web.ts",
+					"runtime": "./src/server.web.ts",
+					"types": "./types/server.web.d.ts"
+				},
+				"./client": {
+					"source": "src/client.web.ts",
+					"runtime": "./src/client.web.ts",
+					"types": "./types/client.web.d.ts"
+				},
+				"./types": {
+					"source": "src/props.ts",
+					"runtime": "./src/props.ts",
+					"types": "./types/props.d.ts"
+				},
+				"./vite": {
+					"source": "src/build/vite.ts",
+					"runtime": "./dist/vite.js",
+					"types": "./types/build/vite.d.ts"
+				}
+			}
+		}
+	},
+	"sourceExtensions": {
+		".ts": ".js",
+		".tsrx": ".js"
+	}
+}

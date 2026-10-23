@@ -732,7 +732,7 @@ Do not configure a shared default client for an account on a server request.
 ```ts
 // Client entry only:
 import './routes.gen'
-// Server rendering needs the separately designed request host and safe transfer.
+// Optional server HTML uses @octane-xplat/web-host/server, not this startup.
 ```
 
 ```ts
@@ -759,4 +759,45 @@ return `invalid-input`; malformed links never create fallback routes.
 
 ```json
 { "allowedSchemes": ["pack"], "allowedOrigins": ["https://app.example"] }
+```
+
+
+## Optional Web document host
+
+Use `@octane-xplat/web-host` for request-time HTML over an executable catalog.
+Read the [Web rendering guide](../../../../docs/platform/web-rendering.md) for
+paired server/browser builds and the maintained example. Keep request context
+local, require an explicit public projection, and keep server dependencies in
+the server entry. The public projection is also the server screen's props;
+screens cannot rely on private preparation services. Use the passed router with
+typed hooks, never the shared default client in a request.
+
+```ts
+import { createWebHandler } from '@octane-xplat/web-host/server'
+import { catalog } from './routes.web.tsrx'
+export const handle = createWebHandler({
+  catalog, buildId: 'store-v1', assets: { scripts: ['/client.js'] },
+  transfer: match => ({ data: match.data as { name: string }, context: {} }),
+})
+```
+
+A component `Document` is a server-only shell; only its app container hydrates.
+Place interactive persistent UI in the same `App` supplied on both sides.
+`mode: 'client'` skips server preparation, whereas `live`/`baked` still describes
+portable data provenance. This package provides neither remote loaders nor
+server-import stripping, streaming, or static-path enumeration.
+
+```ts
+import { startWebApp } from '@octane-xplat/web-host/client'
+await startWebApp({ catalog, buildId: 'store-v1' })
+```
+
+Use `srvx` for the listening server instead of implementing Node HTTP conversion.
+Serve built browser assets with `srvx/static` on Node-compatible runtimes. A
+Fetch-native deployment can call the same handler directly; provider deployment
+and asset storage still need their own qualification.
+
+```ts
+import { serve } from 'srvx'
+serve({ fetch: handle })
 ```

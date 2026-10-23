@@ -1,0 +1,66 @@
+{
+	"name": "@octane-xplat/web-host",
+	"version": "0.17.1",
+	"description": "Optional Fetch, HTML rendering and hydration host for Octane Xplat routes",
+	"type": "module",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/octane-xplat/octane-xplat",
+		"directory": "packages/web-host"
+	},
+	"files": [
+		"src",
+		"types",
+		"dist"
+	],
+	"exports": {
+		"./server": {
+			"types": "./types/server.web.d.ts",
+			"default": "./src/server.web.ts"
+		},
+		"./client": {
+			"types": "./types/client.web.d.ts",
+			"default": "./src/client.web.ts"
+		},
+		"./types": {
+			"types": "./types/props.d.ts",
+			"default": "./src/props.ts"
+		},
+		"./vite": {
+			"types": "./types/build/vite.d.ts",
+			"default": "./dist/vite.js"
+		}
+	},
+	"scripts": {
+		"typegen": "tsrx-typegen --project tsconfig.types.json",
+		"typecheck": "node ../../scripts/typecheck.ts",
+		"test": "node --test test/*.test.mjs",
+		"prepack": "pnpm build && pnpm typegen && tsrx-typegen --pack-check",
+		"build:example": "node example/build.mjs",
+		"build": "tsc -p tsconfig.node.json",
+		"pack:check": "tsrx-typegen --pack-check"
+	},
+	"dependencies": {
+		"@octane-xplat/ui": "workspace:*"
+	},
+	"peerDependencies": {
+		"octane": ">=0.14.0 <1",
+		"vite": ">=8 <9"
+	},
+	"devDependencies": {
+		"@tsrx/typescript-plugin": "catalog:",
+		"@types/node": "24.10.1",
+		"jsdom": "catalog:",
+		"octane": "catalog:",
+		"srvx": "1.0.6",
+		"tsrx-typegen": "workspace:*",
+		"typescript": "catalog:",
+		"vite": "catalog:"
+	},
+	"peerDependenciesMeta": {
+		"vite": {
+			"optional": true
+		}
+	}
+}

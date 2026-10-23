@@ -1,6 +1,6 @@
 import { useCallback, useContext } from 'octane';
 import type { ComponentBody } from 'octane'
-import { createRoot } from 'octane';
+import { createRoot } from './browser-root.web';
 import type { ShowToastFn, ToastOptions } from './props';
 import { ToastViewportContext } from './toast-context';
 import {

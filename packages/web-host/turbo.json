@@ -1,0 +1,21 @@
+{
+	"extends": [
+		"//"
+	],
+	"tasks": {
+		"build:example": {
+			"dependsOn": [
+				"^typegen"
+			],
+			"outputs": [
+				"example/dist/**"
+			]
+		},
+		"typecheck": {
+			"dependsOn": [
+				"typegen",
+				"build"
+			]
+		}
+	}
+}
