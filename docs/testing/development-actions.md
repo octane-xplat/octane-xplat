@@ -198,6 +198,77 @@ useDevEffect(resetUi, () => setFilters(initialFilters), { label: 'FilterPanel' }
 Messages and stacks are returned as-is over the development-only channel, so
 keep secrets and credentials out of thrown errors.
 
+## Reach screen-owned actions by route
+
+An action whose handler lives inside a screen is listed as soon as it is
+declared, but it stays `unavailable` until that screen mounts and attaches a
+handler — an agent has no way to get there on its own. Declare `route` on the
+action and the app navigates itself first: on invoke, it pushes the route,
+waits for the screen's handler to attach and report ready, then runs it.
+
+```ts
+import { defineDevAction } from '@octane-xplat/platform/dev-actions'
+
+export const saveDraft = defineDevAction({
+	id: 'form.save-draft',
+	title: 'Save form draft',
+	description: 'Persists the checkout form state that only exists in the screen.',
+	effects: { summary: 'Writes the form draft', appState: true },
+	route: '/checkout',
+})
+```
+
+The URL can also come from the validated input — useful when the destination
+depends on an argument, like opening a specific order.
+
+```ts
+export const openOrder = defineDevAction({
+	id: 'orders.open',
+	title: 'Open order',
+	description: 'Navigates to the order detail screen for the given order id.',
+	input: { fields: { orderId: { type: 'string' } } },
+	effects: { summary: 'Shows an order', navigation: true },
+	route: (input) => `/orders/${input.orderId}`,
+})
+```
+
+A listed route looks like `availability.route: { "url": "/checkout" }` (or
+`{ "fromInput": true }` for a function) and declares `effects.navigation`. The
+agent can invoke the action while it is unavailable; the dispatch still fails
+`unavailable` if no router is installed, if the navigation is refused
+(`navigation_blocked`/`navigation_failed`), or if nothing attaches before the
+deadline — so a wrong route fails honestly instead of hanging. When
+`execution.timeoutMs` is set, route-declared actions spend at most half of it
+navigating and waiting for the handler, leaving the rest for the run itself.
+Automatic navigation does not navigate back afterwards.
+
+The built-in `xplat.navigate` action covers the other direction — an agent
+navigating explicitly before calling an action that has no route. Generated
+routes register it in development builds; it reports the committed route.
+
+```sh
+pnpm exec xplat actions invoke --action xplat.navigate \
+  --instance INSTANCE_ID --revision REVISION \
+  --input '{"url":"/checkout"}' --json
+```
+
+Each listed instance also reports `location` — the app's current route — so
+agents can check where the app is before deciding to navigate.
+
+```json
+{
+	"appInstanceId": "inst_abc123",
+	"location": { "route": "/checkout", "modal": false }
+}
+```
+
+Inline `useDevAction` actions are the exception: they are declared by the
+component itself, so nothing is listed until that component mounts — a
+`route` on them cannot help because nothing is announced to route toward.
+Actions that need navigation should be declared at module scope with
+`defineDevAction` and `route`, with the screen attaching the handler through
+`useDevActionHandler` as usual.
+
 ## Connect the running app
 
 Web is the qualified action transport, and Android was verified on one physical

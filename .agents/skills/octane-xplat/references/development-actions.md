@@ -78,6 +78,15 @@ sessions; NativeScript frames match by line text, so an occasional frame may
 stay raw). Keep secrets out
 of thrown errors — they cross the dev channel verbatim.
 
+## Reaching screen-owned actions
+
+Prefer actions that declare `route`: the app navigates to that URL itself when
+the handler's screen is not mounted, waits for attach + readiness, then runs.
+Check the listing's `location` first to see where the app is. If the needed
+action has no `availability.route`, fall back to invoking `xplat.navigate`
+(registered in dev builds by generated routes) with `{ "url": "/path" }`
+before the target action — and remember it never navigates back.
+
 ## Connect and verify
 
 Registration automatically starts the app-side bridge; a separate startup call
