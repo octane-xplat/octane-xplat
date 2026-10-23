@@ -15,7 +15,7 @@
 		"@nativescript-community/octane": "catalog:",
 		"@nativescript/core": "catalog:",
 		"octane": "catalog:",
-		"@octane-xplat/nativescript-mason-core": "1.0.0-beta.0"
+		"@octane-xplat/nativescript-mason-core": "1.0.0-beta.1"
 	},
 	"nativescript": {
 		"platforms": {

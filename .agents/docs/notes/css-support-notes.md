@@ -204,3 +204,24 @@ fallbacks, and shorthand expansion; a build-time numeric replacement cannot
 provide this lifecycle. NativeScript-wide support would also benefit ordinary
 core views, but is not a prerequisite for supporting Mason views in the fork.
 These conclusions are source evidence, not a new simulator or device run.
+
+
+### Core beta.1 automatic window binding (2026-10-23)
+
+Core `1.0.0-beta.1` adds the runtime resolver and automatically binds loaded
+Mason roots to their owning UIWindow/native Android root when a subtree first
+uses `env()`. Window observers are shared and stop on unload. Android reads
+system-bar/cutout types through its existing AndroidX dependency, excludes IME
+and converts with that root's density; it does not replace other inset listeners.
+
+```css
+.chrome { padding-top: env(safe-area-inset-top, 0px); }
+```
+
+The earlier pinned-source conclusions remain correct for beta.0/full MasonKit.
+The CLI inspects the installed core capability marker rather than requested
+semver: capable core gets a native-layout-qualification warning; unsupported
+engines retain the unresolved-value warning. No native device or simulator
+run qualifies this new resolver. Ordinary NativeScript controls still need
+inline `useSafeAreaInsets()` values. The core package README describes explicit
+sources for custom presentation viewports.

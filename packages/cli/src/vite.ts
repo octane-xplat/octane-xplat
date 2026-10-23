@@ -24,7 +24,7 @@ import { pathToFileURL } from 'node:url'
 import { unwrapCssLayers } from './css-layers.ts'
 import { xplatCss } from './css-platform.ts'
 import { xplatDevBridge } from './mcp/dev-bridge.ts'
-import { masonCorePackage, selectMasonEngine } from './mason-engine.ts'
+import { masonCorePackage, selectMasonEngine, hasMasonSafeAreaEnvironment } from './mason-engine.ts'
 
 export { xplatCss } from './css-platform.ts'
 export { xplatDevBridge } from './mcp/dev-bridge.ts'
@@ -142,7 +142,7 @@ const CSS_DIVERGENCES = [
  * (b) warns once per file on declarations NS silently ignores, so the
  * divergence is loud at build time.
  */
-export function pxToDip() {
+export function pxToDip(options: { masonSafeAreaEnvironment?: boolean } = {}) {
 	const warned = new Set()
 	let isBuild = false
 	const process = (code, id, warn) => {
@@ -175,7 +175,12 @@ export function pxToDip() {
 
 		// Comments and quoted content are not CSS function calls.
 		const declarations = code.replace(/\/\*[\s\S]*?\*\/|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'/g, '')
-		for (const [re, hint] of CSS_DIVERGENCES) {
+		for (const [re, unsupportedHint] of CSS_DIVERGENCES) {
+			const hint =
+				options.masonSafeAreaEnvironment && String(unsupportedHint).startsWith('env(')
+					? 'env(safe-area-inset-*) uses the owning window on Mason containers; native inset dispatch/layout is not yet device-qualified. Ordinary NativeScript controls still need useSafeAreaInsets() with inline styles'
+					: unsupportedHint
+
 			const key = id + '|' + hint
 			if (re.test(declarations) && !warned.has(key)) {
 				warned.add(key)
@@ -881,7 +886,10 @@ export async function xplatNative(env, opts = {}) {
 			},
 			plugins: [
 				xplatCss(nativePlatform() ?? 'native'),
-				pxToDip(),
+				pxToDip({
+					masonSafeAreaEnvironment:
+						engine === masonCorePackage && hasMasonSafeAreaEnvironment(process.cwd()),
+				}),
 				nsHmrClientWatchdog(),
 				xplatBoundary(nativePlatform() ?? 'native'),
 				nativeExtensionOrder(),

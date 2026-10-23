@@ -61,10 +61,19 @@ hosts, read [driver semantics](primitives/driver-semantics.md#leaf-shape).
 
 ## Safe-area CSS
 
-Native CSS warns for `env(safe-area-inset-*)`, including Bamboo classes;
-it does not resolve the inset. Keep browser `env()` declarations in a web
-condition and supply native insets through `useSafeAreaInsets()` and an inline
-style. See [safe-area styling](../../../../docs/app/styling.md#safe-area-insets).
+Mason core `1.0.0-beta.1` automatically supplies owning-window safe-area
+`env()` values to loaded Mason container roots and re-evaluates styles when
+insets change. The installed package advertises `owning-window-v1`; the preset
+keeps a qualification warning because native dispatch/layout has only headless
+adapter coverage. Do not describe that as device-tested. Ordinary NativeScript
+controls and older/full engines still need `useSafeAreaInsets()` inline styles.
+See [safe-area styling](../../../../docs/app/styling.md#safe-area-insets).
+
+```css
+.chrome { padding-top: env(safe-area-inset-top, 0px); }
+```
+
+For engines without the resolver, keep browser-only `env()` rules conditional:
 
 ```css
 @platform web {

@@ -4,6 +4,8 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
 import { build } from 'vite'
+import { hasMasonSafeAreaEnvironment } from '../dist/mason-engine.js'
+import { mkdirSync } from 'node:fs'
 import { pxToDip, xplatCss } from '../dist/vite.js'
 
 for (const edge of ['top', 'right', 'bottom', 'left']) {
@@ -106,6 +108,43 @@ test('native Vite builds warn for shared CSS while web-only rules and web builds
 				}
 			}
 		}
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
+})
+
+test('new core keeps a qualification warning without claiming its resolver is absent', () => {
+	const warnings = []
+	pxToDip({ masonSafeAreaEnvironment: true }).transform.call(
+		{ warn: (message) => warnings.push(message) },
+		'.chrome { padding-top: env(safe-area-inset-top, 0px); }',
+		'/style.css',
+	)
+	assert.equal(warnings.length, 1)
+	assert.match(warnings[0], /owning window.*Mason containers.*not yet device-qualified/)
+	assert.doesNotMatch(warnings[0], /unsupported on native/)
+})
+
+test('checks the installed core capability rather than a requested version', () => {
+	const root = mkdtempSync(join(tmpdir(), 'xplat-safe-area-runtime-'))
+	try {
+		assert.equal(hasMasonSafeAreaEnvironment(root), false)
+		const directory = join(root, 'node_modules/@octane-xplat/nativescript-mason-core')
+		mkdirSync(directory, { recursive: true })
+		const manifest = join(directory, 'package.json')
+		writeFileSync(manifest, JSON.stringify({ version: '1.0.0-beta.0' }))
+		assert.equal(hasMasonSafeAreaEnvironment(root), false)
+		writeFileSync(
+			manifest,
+			JSON.stringify({
+				version: '1.0.0-beta.1',
+				masonCoreCapabilities: { safeAreaEnvironment: 'owning-window-v1' },
+			}),
+		)
+
+		assert.equal(hasMasonSafeAreaEnvironment(root), true)
+		writeFileSync(manifest, '{broken')
+		assert.equal(hasMasonSafeAreaEnvironment(root), false)
 	} finally {
 		rmSync(root, { recursive: true, force: true })
 	}

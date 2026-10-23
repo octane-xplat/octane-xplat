@@ -329,9 +329,24 @@ the portable preset and review any warnings before extending it.
 ## Safe-area insets
 
 A safe-area inset is the space needed to avoid a screen cutout or system bar.
-Native CSS does not resolve `env(safe-area-inset-*)`; the native preset warns
-for these values in stylesheets and generated Bamboo classes, including values
-inside `max()` or with a fallback. Keep the browser rule in a web condition:
+Apps using `@octane-xplat/nativescript-mason-core` `1.0.0-beta.1` or newer
+resolve the four safe-area `env()` values on Mason containers from their owning
+native window. Loaded container roots bind automatically, and changed insets
+re-evaluate dependent styles. This also covers generated Bamboo classes.
+
+```css
+.chrome {
+  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px)
+    env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+}
+```
+
+This beta has headless parser, adapter and lifecycle coverage; native inset
+callback dispatch and layout are still awaiting device qualification. Its
+preset warning reports that limit. Older core versions, full MasonKit and
+ordinary NativeScript controls still need inline native insets; their preset
+warning explains that `env()` may contribute zero. For those cases, keep the
+browser rule in a web condition:
 
 ```css
 @platform web {
@@ -339,7 +354,7 @@ inside `max()` or with a fallback. Keep the browser rule in a web condition:
 }
 ```
 
-For native screens, read the live inset and pass it through an inline style.
+For native controls without the core resolver, read the live inset and pass it through an inline style.
 Using `undefined` when the inset is zero leaves the browser class in control.
 
 ```tsx
