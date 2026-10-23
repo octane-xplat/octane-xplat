@@ -9,6 +9,9 @@ sheet, overlay, and demosweep seams live in `packages/app/src/platform/`.
 
 `packages/platform/src/storage.ts` → `ApplicationSettings`;
 `storage.web.ts` → `localStorage`. Import through `@octane-xplat/platform`.
+Use it for nonsecret preferences and drafts. For session tokens, follow
+[secure storage](../../../../docs/platform/platform-services.md#store-a-session-token);
+never fall back to ordinary storage.
 
 ```ts
 import { storage } from '@octane-xplat/platform'

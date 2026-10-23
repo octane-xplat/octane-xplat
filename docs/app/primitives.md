@@ -77,6 +77,47 @@ Save the file with the development server running. Press Add one twice and
 check that the text says “Count: 2.” Reloading starts at zero again.
 [Styling](styling.md) explains how to add spacing and button decoration.
 
+### Layout and platform controls
+
+`Stack` arranges its contents in a row or column. `HStack` fixes the direction
+to horizontal; `VStack` fixes it to vertical. `gap` and padding use spacing
+steps: one step is 4 device-independent pixels (dips) on native and 4 CSS
+pixels on web. A dip is a size unit that accounts for a phone's pixel density.
+Use `Absolute` when children need to overlap. `StackItem size="fill"` grows
+into remaining space, and `crossAlignSelf` changes an item's alignment across
+the row or column.
+
+```tsx
+import { Stack, HStack, VStack, StackItem, Absolute, Text } from '@octane-xplat/ui'
+
+export function Example() {
+	return (
+		<VStack gap={2} padding={4}>
+			<HStack gap={1}>
+				<Text>Bag</Text>
+				<StackItem size="fill" crossAlignSelf="center">
+					<Text>Ready</Text>
+				</StackItem>
+			</HStack>
+			<Stack direction="horizontal">
+				<Text>Next item</Text>
+			</Stack>
+			<Absolute>
+				<Text left={0} top={0}>
+					Badge
+				</Text>
+			</Absolute>
+		</VStack>
+	)
+}
+```
+
+You can now build a simple screen with text, actions, and rows or columns.
+Continue with [text entry](text-entry.md) for a form,
+[styling](styling.md) for colors and fonts, or
+[grouped fields](#grouped-fields) for a settings screen. The sections below
+cover more specialized layouts and platform behavior; read them when needed.
+
 ### Grid placement
 
 `Grid` puts children in cells. `row` and `col` are zero-based track
@@ -214,40 +255,7 @@ pnpm exec xplat patches apply
 pnpm install
 ```
 
-### Layout and platform controls
-
-`Stack` arranges its contents in a row or column. `HStack` fixes the direction
-to horizontal; `VStack` fixes it to vertical. `gap` and padding use spacing
-steps: one step is 4 device-independent pixels (dips) on native and 4 CSS
-pixels on web. A dip is a size unit that accounts for a phone's pixel density.
-Use `Absolute` when children need to overlap. `StackItem size="fill"` grows
-into remaining space, and `crossAlignSelf` changes an item's alignment across
-the row or column.
-
-```tsx
-import { Stack, HStack, VStack, StackItem, Absolute, Text } from '@octane-xplat/ui'
-
-export function Example() {
-	return (
-		<VStack gap={2} padding={4}>
-			<HStack gap={1}>
-				<Text>Bag</Text>
-				<StackItem size="fill" crossAlignSelf="center">
-					<Text>Ready</Text>
-				</StackItem>
-			</HStack>
-			<Stack direction="horizontal">
-				<Text>Next item</Text>
-			</Stack>
-			<Absolute>
-				<Text left={0} top={0}>
-					Badge
-				</Text>
-			</Absolute>
-		</VStack>
-	)
-}
-```
+### Platform controls
 
 On web, `Stack as="section"` selects an HTML tag. Native cannot create that
 tag. Native `isScrollable` puts the layout inside a `ScrollView`.
@@ -479,7 +487,12 @@ enters or leaves a group. On web, their callbacks receive a typed
 an event. Only web tracks focus moving between descendants, so check
 `isSubtreeTrackingSupported` before relying on group behavior elsewhere.
 
+This example uses browser elements. Save it as `FocusExample.web.tsx` and
+import it only from a web screen; see [platform files](../platform/module-resolution.md)
+when a shared screen needs a separate native implementation.
+
 ```tsx
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useFocus, useFocusWithin } from '@octane-xplat/ui'
 
 export function FocusExample() {

@@ -67,19 +67,21 @@ Writes show up in `getString` immediately, but on iOS, Android, and macOS the
 hand-off to the platform's disk layer happens in the background — an app
 killed in between can lose the last write. The leaf flushes pending writes
 automatically when the app suspends or exits. Call `storage.flush()` after a
-write that must survive a hard stop at any moment, like a session token or a
-saved draft. It is synchronous and returns `true` when the platform confirmed
+write that must survive a hard stop at any moment, like a saved draft. It is synchronous and returns `true` when the platform confirmed
 the write is durable; web storage already commits on every write, so `flush()`
 is a no-op there.
 
 ```ts
 import { storage } from '@octane-xplat/platform'
 
-storage.setString('session-token', token)
+storage.setString('packing-draft', 'Passport, charger')
 if (!storage.flush()) {
 	// The value is readable now but may not survive a hard kill — retry or warn.
 }
 ```
+
+Keep tokens and other secrets out of ordinary storage; follow
+[Store a session token](#store-a-session-token) for the secure-storage setup.
 
 Other services cover permissions, clipboard, haptics, files, media
 picking, notifications, safe-area insets, screen size, and app lifecycle.

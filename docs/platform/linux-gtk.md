@@ -142,7 +142,7 @@ the enclosing host. Generated GTK startup, incoming links, physical input and
 native Mason geometry need separate qualification. The maintained check passed
 13 assertions in GJS 1.82.3 / GTK 4.18.6 using Gtk.Box emulation; it does not
 establish the optional Mason typelib's layout behavior. See
-[native GTK routing checks](../verify/navigation-checks.md#native-gtk-retained-panes).
+[native GTK routing checks](../../.agents/docs/navigation-checks.md#native-gtk-retained-panes).
 
 ## Check the runtime
 

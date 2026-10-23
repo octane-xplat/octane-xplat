@@ -258,7 +258,14 @@ The maintained [Chromium fixture](../../apps/web/test/input-readiness.web.tsrx)
 and [runner](../../apps/web/scripts/input-readiness.ts) exercise real browser
 keyboard typing, selection replacement, controlled callback counts, modal
 focus, accessibility-tree exclusion, and exiting Presence input/reversal.
-Run `pnpm --filter @xplat/web exec node scripts/input-readiness.mjs`.
+Framework contributors can run it from the Octane Xplat repository root
+with dependencies and the Playwright Chromium browser installed:
+
+```sh
+pnpm exec turbo run input:readiness --filter=@xplat/web
+```
+
+This is a repository harness check, not a command included in a created app.
 It uses an OS-assigned port and captures no images.
 
 Native object-driver tests cover controlled echoes, blur handles, disabled

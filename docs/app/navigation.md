@@ -32,12 +32,13 @@ The development and build commands also generate routes.
 pnpm exec xplat routes --dir src/app
 ```
 
-Import the generated client once in your entry module. Place `RouteOutlet`
-under the providers your screens should inherit. Its children form the initial
+Replace the starter’s `src/App.tsrx` with the following component; both starter
+entry modules already load that file. Import the generated client once here.
+Place `RouteOutlet` under the providers your screens should inherit. Its children form the initial
 screen; navigation displays routed screens through that outlet.
 
 ```tsx
-// src/App.tsx
+// src/App.tsrx
 import './routes.gen'
 import { NavLink, RouteOutlet, Text } from '@octane-xplat/ui'
 
@@ -61,6 +62,60 @@ void router.push({ to: '/items/:id', params: { id: 'coat' } })
 // router.push({ to: '/items/:id' })
 // router.push({ to: '/invented' })
 ```
+
+## Choose the right navigation operation
+
+Use `useRouter()` inside an outlet or routed screen. It follows that screen's
+flow, including a retained tab, native Page, or modal. The imported `router`
+facade starts from the application's root flow.
+
+```tsx
+import { Pressable, Text } from '@octane-xplat/ui'
+import { useCanGoBack, useRouter } from '@octane-xplat/ui/routing'
+
+export function BackButton() {
+	const navigation = useRouter()
+	const available = useCanGoBack()
+	return <Pressable disabled={!available} onPress={() => navigation.back()}>
+		<Text>Back</Text>
+	</Pressable>
+}
+```
+
+`push` adds an entry. `replace` substitutes the current entry. `navigate` chooses
+push unless `replace` is requested. Native and rendered pane hosts support
+`reset`; browser history cannot erase earlier entries and returns `unsupported`.
+
+```ts
+import { router } from '@octane-xplat/ui/routing'
+
+void router.push({ to: '/items/:id', params: { id: 'coat' } })
+void router.replace({ to: '/items/:id', params: { id: 'hat' } })
+void router.navigate({ to: '/items/:id', params: { id: 'cap' }, replace: true })
+void router.reset({ to: '/items/:id', params: { id: 'glove' } })
+```
+
+Back at a flow's base returns `at-base`. Supply a typed fallback when returning
+to another screen is appropriate. Dismissal closes an entire modal presentation;
+Back inside a native modal walks its internal history.
+
+```tsx
+import { useRouter } from '@octane-xplat/ui/routing'
+import { Pressable, Text } from '@octane-xplat/ui'
+
+export function CloseActions() {
+	const navigation = useRouter()
+	return <>
+		<Pressable onPress={() => navigation.back({ fallback: { to: '/items/:id', params: { id: 'coat' } } })}><Text>Back</Text></Pressable>
+		<Pressable onPress={() => navigation.dismiss()}><Text>Close presentation</Text></Pressable>
+	</>
+}
+```
+
+For your next step, choose [loading and error feedback](#handle-pending-work-and-failures),
+[route data](#separate-path-search-and-loaded-data), or
+[sign-in routing](#return-after-sign-in). The generator details below explain
+the generated files and help diagnose contract errors.
 
 ## What the route generator writes
 
@@ -279,55 +334,6 @@ screen updates still use the selected platform's dev-server reload mechanism.
 
 ```sh
 pnpm exec xplat routes
-```
-
-## Choose the right navigation operation
-
-Use `useRouter()` inside an outlet or routed screen. It follows that screen's
-flow, including a retained tab, native Page, or modal. The imported `router`
-facade starts from the application's root flow.
-
-```tsx
-import { Pressable, Text } from '@octane-xplat/ui'
-import { useCanGoBack, useRouter } from '@octane-xplat/ui/routing'
-
-export function BackButton() {
-	const navigation = useRouter()
-	const available = useCanGoBack()
-	return <Pressable disabled={!available} onPress={() => navigation.back()}>
-		<Text>Back</Text>
-	</Pressable>
-}
-```
-
-`push` adds an entry. `replace` substitutes the current entry. `navigate` chooses
-push unless `replace` is requested. Native and rendered pane hosts support
-`reset`; browser history cannot erase earlier entries and returns `unsupported`.
-
-```ts
-import { router } from '@octane-xplat/ui/routing'
-
-void router.push({ to: '/items/:id', params: { id: 'coat' } })
-void router.replace({ to: '/items/:id', params: { id: 'hat' } })
-void router.navigate({ to: '/items/:id', params: { id: 'cap' }, replace: true })
-void router.reset({ to: '/items/:id', params: { id: 'glove' } })
-```
-
-Back at a flow's base returns `at-base`. Supply a typed fallback when returning
-to another screen is appropriate. Dismissal closes an entire modal presentation;
-Back inside a native modal walks its internal history.
-
-```tsx
-import { useRouter } from '@octane-xplat/ui/routing'
-import { Pressable, Text } from '@octane-xplat/ui'
-
-export function CloseActions() {
-	const navigation = useRouter()
-	return <>
-		<Pressable onPress={() => navigation.back({ fallback: { to: '/items/:id', params: { id: 'coat' } } })}><Text>Back</Text></Pressable>
-		<Pressable onPress={() => navigation.dismiss()}><Text>Close presentation</Text></Pressable>
-	</>
-}
 ```
 
 ## Recheck history after account changes

@@ -4,7 +4,8 @@ Use the canonical routing client on every target. Generated startup configures
 its catalog, context source, and declared stacks. Mount the root outlet below
 the providers screens should inherit; routed screens then use their own navigator.
 Keep that outlet in the long-lived shell: removing it releases owned Pages,
-modals, and pending loads.
+modals, and pending loads. In the starter, edit `src/App.tsrx`; both entry
+modules explicitly import it, so adding `App.tsx` does not replace it.
 
 ```tsx
 import './routes.gen'

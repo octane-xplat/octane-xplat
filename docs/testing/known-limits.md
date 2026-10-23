@@ -226,7 +226,7 @@ for the embedded component and its separate app-shell boundary.
 The canonical client uses typed destinations and structured screen props. The
 hard cutover is in progress; previous legacy-adapter runtime results do not
 qualify the changed implementation. Use the [navigation guide](../app/navigation.md)
-and [maintained checks](navigation-checks.md) for current contracts and commands.
+and [maintained checks](../../.agents/docs/navigation-checks.md) for current contracts and commands.
 
 ```ts
 import { router } from '@octane-xplat/ui/routing'
