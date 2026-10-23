@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.17.1] - 2026-10-23
+
+### Bug Fixes
+
+- *(native)* Preserve tab and list content across updates
+- *(ui)* Size fixed mobile layers through CSS
+- *(audio)* Ship the current Android command bridge
+
 ## [0.17.0] - 2026-10-23
 
 ### Breaking Changes

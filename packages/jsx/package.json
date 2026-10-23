@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/jsx",
-	"version": "0.17.0",
+	"version": "0.17.1",
 	"description": "Shared native JSX type contract for Octane xplat — one intrinsic element vocabulary for the NativeScript and AppKit drivers, with DOM types exposed separately",
 	"keywords": [
 		"android",

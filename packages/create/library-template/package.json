@@ -73,8 +73,8 @@
 	"peerDependencies": {
 		"@nativescript-community/octane": ">=0.2.1 <1",
 		"@nativescript/core": ">=9.1.0 <10",
-		"@octane-xplat/jsx": "^0.17.0",
-		"@octane-xplat/ui": "^0.17.0",
+		"@octane-xplat/jsx": "^0.17.1",
+		"@octane-xplat/ui": "^0.17.1",
 		"octane": ">=0.6.3 <1"
 	},
 	"peerDependenciesMeta": {
