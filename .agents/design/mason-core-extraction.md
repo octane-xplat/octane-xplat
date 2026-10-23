@@ -207,10 +207,10 @@ also pass on both simulator/emulator targets.
 | --- | --- | --- |
 | Native host regressions | 15 UIKit simulator tests pass | 17 instrumentation tests pass on API 36 phone and API 35 emulator |
 | Plain NativeScript consumer | arm64 simulator passes | API 36 phone passes; current-SDK control also passes on API 35 emulator |
-| Patched Xplat renderer and Octane host-plan component | arm64 iOS 27 simulator passes | API 35 arm64 emulator passes; phone run pending |
-| Compiled TSRX component, hooks, class styles, programmatic scroll | arm64 simulator passes | API 35 emulator passes |
-| OS input: button hit testing and touch scrolling | arm64 simulator passes via HID | API 35 emulator passes via adb input; phone pending |
-| Device host artifact | arm64 device framework and unsigned NativeScript app build; runtime unverified | arm64-v8a AAR and debug app build |
+| Patched Xplat renderer and Octane host-plan component | arm64 iOS 27 simulator passes | API 35 arm64 emulator and API 36 phone pass |
+| Compiled TSRX component, hooks, class styles, scrolling | arm64 simulator passes | API 35 emulator and API 36 physical phone pass (actual Vite, published beta) |
+| OS input: button hit testing and touch scrolling | arm64 simulator passes via HID | API 35 emulator and API 36 physical phone pass via adb input |
+| Device host artifact | arm64 device framework, signed NativeScript app and native UI-test runner build; physical runtime unqualified | arm64-v8a AAR and debug app build |
 | Full MasonKit native regression baseline | 28 selected tests execute: 27 pass, one existing full-text test fails | 72 selected unchanged HTML/text/widget tests pass on API 35 emulator |
 | Matched release app sizes | Unmeasured | Unmeasured |
 
@@ -509,3 +509,60 @@ counter probe builds and passes on the dedicated arm64 iOS Simulator
 handler dispatch. This does not add OS-input or layout-geometry qualification,
 and Android runtime was not rerun for this adoption. Local logs are in
 `research/mason-core-adoption/`; the simulator was shut down after verification.
+
+## Published-beta device qualification (2026-10-23)
+
+The actual-Vite fixture now installs registry
+`@octane-xplat/nativescript-mason-core@1.0.0-beta.0`, with the canonical patches
+from Xplat `74ddcb9ba`. On the API 36 physical CPH2551 Android phone, the
+combined inspector and OS-input run passes: Runtime evaluation and the
+NativeScript DOM dispatcher answer through a real inspector WebSocket; a real
+tap changes the label width from 89.85 to 129.85 logical pixels; and a real
+swipe produces `scrollTop = rowMovement = 99.3846`. Mount and disposal counts
+are both one, and the fixture verifies ref clearing and host release. The
+consumer runtime graph excludes full MasonKit.
+
+Evidence in the Mason fork is
+`tmp/mason-core-nativescript-android-tests/1792770970049/{result,device,inspector,input-actions}.json`.
+The registry selection, current patch fingerprints and build/run log are in
+`tmp/mason-core-physical-qualification/`. The maintained runner command is:
+
+```sh
+MASON_CORE_ANDROID_SERIAL=DEVICE_SERIAL pnpm exec nx run \
+  nativescript-mason-core:test.consumer.android.input.device --inspector
+```
+
+Run from the Mason fork after preparing its actual-Vite fixture, substituting
+the authorized phone's adb serial and holding its native-build/device resource
+reservation. This physical pass does not establish a fix for the separate
+cold-boot Android emulator intermittency.
+
+For iOS, the same published-core Vite fixture builds a development-signed
+arm64 app and a native XCTest UI runner. The signed app verifies and installs
+on the paired physical iPhone. The temporary UI test passes its tap/count and
+row checks, then fails waiting for the button to disappear after its drag;
+no passing consumer JSON was collected. This does not identify a core defect
+or qualify physical iOS behavior. The user requested simulator qualification
+instead. Signed artifacts and the failed test log remain in
+`tmp/mason-core-physical-qualification/` in the Mason fork.
+
+The dedicated arm64 iOS 27 Simulator passes the same registry-beta actual-Vite
+fixture using native HID tap/swipe input. The label width changes from 90 to
+130 points; `scrollTop` and native row movement both equal 169.2874 points;
+mount and disposal counts are one, with ref clearing and host release verified.
+The first run exposed a fixture-only bug: Android window diagnostic methods
+were called before the iOS bypass. Guarding those diagnostics by platform
+allows the maintained input runner to pass. No package runtime change was
+required. Evidence is in
+`tmp/mason-core-nativescript-ios-tests/1792772156997/{result,input-actions}.json`
+and `tmp/mason-core-physical-qualification/ios-simulator-rerun.log` in the Mason
+fork. The runner shuts down its dedicated simulator after completion.
+
+```sh
+pnpm exec nx run nativescript-mason-core:build.consumer.ios
+pnpm exec nx run nativescript-mason-core:test.consumer.ios.input
+```
+
+Run these targets in the Mason fork with its dedicated simulator initially
+shut down and its native-build/simulator reservation held. This simulator pass
+does not qualify physical iOS runtime behavior.
