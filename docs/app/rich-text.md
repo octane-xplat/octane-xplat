@@ -538,9 +538,11 @@ export function Notes() {
 }
 ```
 
-`@octanejs/lexical` pins to `0.2.0` — `0.2.1` only bumps the `octane` peer
-(`^0.7.0`) and `@octanejs/floating-ui`; the sources are byte-identical, and
-`0.2.0` accepts the workspace's `octane@0.6.3`. The `@lexical/*` family pins
+`@octanejs/lexical` pins to `0.2.0`, a choice that predates the workspace's
+`octane@0.14.0`: its declared `^0.6.0` octane peer does not cover 0.14.0, so
+pnpm resolves it with a peer warning and the lexical probe exercises the real
+combination. `0.2.1` ships identical sources with a `^0.7.0` peer;
+`0.2.10` is the first release declaring `^0.14.0`. The `@lexical/*` family pins
 to `0.51.0` (upstream's catalog version); mixed copies break node identity,
 so do not widen. `@lexical/link@0.51.0` carries a workspace patch —
 its module-scope `/\p{L}\p{N}/u` URL matcher is a parse-time SyntaxError on

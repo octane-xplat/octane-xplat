@@ -332,16 +332,16 @@ failures.
 
 From the repo root, install with `pnpm install --frozen-lockfile`, then:
 
-1. Build the harness: `pnpm --filter @xplat/web build`.
-2. From `apps/web`, run `node scripts/bench-virtual-list-contract.mjs`.
+1. Build the harness: `pnpm exec turbo run build --filter=@xplat/web`.
+2. From `apps/web`, run `node scripts/bench-virtual-list-contract.ts`.
    It fails on anchor drift greater than 2 pixels, lost keyed state, unbounded
    mounts, or failed empty/disposal checks.
-3. From `apps/web`, run `XPLAT_VLIST_INPUT_MS=180000 node scripts/bench-virtual-list-input.mjs variable`.
+3. From `apps/web`, run `XPLAT_VLIST_INPUT_MS=180000 node scripts/bench-virtual-list-input.ts variable`.
    The JSON separates sampled row geometry, rAF callback intervals, live-list
    collected heap, and collected heap after route disposal. rAF alone does not
    prove compositor presentation timing.
 4. From `apps/mobile`, run
-   `XPLAT_VLIST_DEVICE=<simulator-UDID> XPLAT_VLIST_INPUT_MS=180000 node scripts/bench-virtual-list-input.mjs ios variable`,
+   `XPLAT_VLIST_DEVICE=<simulator-UDID> XPLAT_VLIST_INPUT_MS=180000 node scripts/bench-virtual-list-input.ts ios variable`,
    or replace `ios` with `android` and supply an ADB serial. Android requires
    Temurin JDK 21 on `JAVA_HOME`. Use `fixed48` as a measurement control and
    `demo500` for the actual List ×500 demo, including its slots and row state.

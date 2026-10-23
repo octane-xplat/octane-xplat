@@ -40,7 +40,7 @@ Glass). It's what we've been dreaming of for a long time and we've finally
 cracked the code thanks to AI, Octane.js, and NativeScript.
 
 ==Save tokens/usage.== Write once. Deploy everywhere. Be part of the future and
-help contribute on Github.
+help contribute on GitHub.
 
 Grab the agent prompt and send it to your coding agent to easily get started.
 
