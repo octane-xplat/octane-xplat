@@ -566,3 +566,63 @@ pnpm exec nx run nativescript-mason-core:test.consumer.ios.input
 Run these targets in the Mason fork with its dedicated simulator initially
 shut down and its native-build/simulator reservation held. This simulator pass
 does not qualify physical iOS runtime behavior.
+
+## Host-scoped CSS environment resolver (2026-10-23)
+
+Mason fork commit `f44f0497` adds resolution of
+`env(safe-area-inset-top/right/bottom/left)` from a
+host-owned window context. The host supplies device-independent pixels through
+`bindCssEnvironment(root, source)` (`read` plus `subscribe`) or pushes changes
+with `setCssEnvironment(root, insets)`. It owns native window selection, inset
+observation and subscription disposal. Core owns expression preservation,
+substitution and style re-evaluation. No global screen value or new platform
+dependency supplies the insets.
+
+```ts
+import {
+  bindCssEnvironment, type View, type CssEnvironmentSource,
+} from '@octane-xplat/nativescript-mason-core';
+
+export function connectWindow(root: View, source: CssEnvironmentSource) {
+  return bindCssEnvironment(root, source);
+}
+```
+
+The nearest host boundary supplies values to descendants; an unavailable
+boundary uses fallbacks instead of inheriting a different window's values.
+Genuine zero insets remain zero. Headless coverage includes nested math,
+NativeScript-expanded variables, box shorthands and their multi-value
+fallbacks, local precedence, expression removal, density conversion, window
+isolation, unload/reload/reparenting, style transport scheduling and observer
+teardown. Host recreation without a load transition requires an explicit
+`refreshCssEnvironment(root)`.
+
+```css
+.safe-content {
+  --safe-top: env(safe-area-inset-top, 0px);
+  padding: calc(var(--safe-top) + 8px) env(safe-area-inset-right, 0px)
+    env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+}
+```
+
+The new `css-environment.ts` is core-owned. Generated adapters in
+`tools/mason-core/runtime-sources.mjs` integrate it with core style setters,
+size conversion, shorthand expansion and foreign-view release. The tracked
+shared modules and full MasonKit behavior remain unchanged. Packed shared
+emissions are compared after applying those explicit adapters, and both
+platform import graphs still exclude full MasonKit and optional HTML/widgets.
+
+This implementation is **unreleased** and has **headless evidence only**. It
+has not qualified OS inset observation or actual iOS/Android layout. Published
+`1.0.0-beta.0` does not contain it. The native `env()` warning from issue #48
+must remain until Xplat installs a resolver-capable release and binds a source
+for its actual window/presentation host. Existing `useSafeAreaInsets()` inline
+styling remains the consumer path in the meantime. No public Xplat workflow
+or recipe changed here; the Octane styling guidance was reviewed without
+advertising the unreleased core API as installed support.
+
+Unknown environment names may use fallbacks. Without one, the existing
+invalid-length/diagnostic path still applies; this seam does not implement
+general CSS invalid-at-computed-value inheritance. Parser substitution follows
+the CSS environment draft's available-value/fallback distinction:
+<https://drafts.csswg.org/css-env-1/#env-function>.
