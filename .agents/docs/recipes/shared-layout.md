@@ -2,7 +2,7 @@
 
 ID: shared-layout
 Targets: web, ios, android
-Related APIs: Screen, Grid, LayoutChildProps, Stack, HStack, VStack, StackItem, Absolute, Center, Section, AspectRatio, FormLayout, InputGroup, InputGroupText
+Related APIs: Screen, SafeArea, prepareFullScreenPage, Grid, LayoutChildProps, Stack, HStack, VStack, StackItem, Absolute, Center, Section, AspectRatio, FormLayout, InputGroup, InputGroupText
 
 ## Starting point
 
@@ -26,6 +26,8 @@ the behavior differences between DOM and NativeScript.
 
 - AC6: Retained screens overlap through same-cell View layers in a bounded Grid; explain that Screen remains in parent flow and does not provide modal isolation.
 
+- AC7: Native Screens use their assigned host bounds from first mount; a prepared Frame-navigated Page fills its native bounds and SafeArea alone supplies system-bar padding. Explain embedded-host limits and avoid compensating margins.
+
 ## Documentation
 
 - AC1: [Flow layout](../../../docs/app/primitives.md#the-components-you-reach-for-first) and maintained [LayoutDemo](../../../packages/demos/src/LayoutDemo.tsrx).
@@ -36,3 +38,5 @@ the behavior differences between DOM and NativeScript.
 - AC5: [Grid placement](../../../docs/app/primitives.md#grid-placement), [native Screen/Grid width regression](../../../apps/mobile/src/tests/screen-grid-width.spec.tsrx), and maintained [Grid driver fixture](../../../packages/ui/tests/grid-placement.fixture.mobile.tsrx).
 
 - AC6: [Retained screen layers](../../../docs/app/primitives.md#layer-a-screen-over-retained-content), [agent guidance](../../skills/octane-xplat/references/primitives.md#retained-screen-layers), and maintained [geometry fixture](../../../examples/probes/screen-layers.tsrx).
+
+- AC7: [Safe-area edges and the native Page host](../../../docs/app/primitives.md#safe-area-edges), [Page measurement tests](../../../packages/ui/src/full-screen-page.mobile.test.ts), and [native first-mount fixture](../../../examples/probes/screen-safe-area.ios.tsrx).

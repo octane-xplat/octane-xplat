@@ -22,13 +22,20 @@ export function Sections() {
   `prepareFullScreenPage` before its content renders. A plain `new Page()`
   keeps its Mason root inside the safe area on iOS and inside the system bars
   on Android, and a `SafeArea` inside it then pads those edges a second time.
-  Modal content and `UITabBar` tab pages have not been converted yet.
+  The helper works inside a Frame: on iOS it measures against the Page's
+  actual bounds; the Page's ignore-safe-area setting is inherited by content.
+  Hide the native action bar for a window-covering Page. An embedded Frame
+  still limits the Page to its containing host; do not compensate with
+  negative safe-area margins. `Screen` uses its assigned bounds without
+  adding padding. Modal content and `UITabBar` tab pages have not been
+  converted yet.
 
 ```ts
 import { Page } from '@nativescript/core'
 import { prepareFullScreenPage } from '@octane-xplat/ui/nativescript'
 
 const page = prepareFullScreenPage(new Page())
+page.actionBarHidden = true
 ```
 
 ## Lifecycle ordering (iOS — solved, still load-bearing)

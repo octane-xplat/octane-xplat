@@ -385,21 +385,40 @@ The older `ignoreSafeArea` prop still works as `edges={[]}` and is
 deprecated; `edges` wins when both are set. macOS windows have no
 safe-area insets, so `SafeArea` stays a neutral wrapper there.
 
-Native pages Xplat creates start full-screen: content outside a `SafeArea`
-extends under the status bar and home indicator, and `SafeArea` is the only
-source of safe-area padding. A custom NativeScript page opts into the same
-contract with `prepareFullScreenPage(page)` from
-`@octane-xplat/ui/nativescript`, called before the page's content renders.
+For edge-to-edge phone content, prepare the NativeScript Page before rendering
+into it. This works with a Frame-navigated Page: the app root fills the Page,
+and `SafeArea` supplies padding for the status bar and home indicator. Hide
+the native action bar when the Page should cover the whole window.
 
 ```ts
-import { Page } from '@nativescript/core'
+import { Application, Frame, Page } from '@nativescript/core'
 import { renderNativeScriptApp } from '@nativescript-community/octane'
 import { prepareFullScreenPage } from '@octane-xplat/ui/nativescript'
 import { App } from './App.tsrx'
 
-const page = prepareFullScreenPage(new Page())
-page.actionBarHidden = true
-renderNativeScriptApp(page, App)
+Application.run({ create: () => {
+	const frame = new Frame()
+	const page = prepareFullScreenPage(new Page())
+	page.actionBarHidden = true
+	renderNativeScriptApp(page, App)
+	frame.navigate({ create: () => page })
+	return frame
+} })
+```
+
+`Screen` fills the space its parent gives it; it does not require a
+window-origin host or add safe-area padding itself. With the prepared Page
+above, put `SafeArea` inside the Screen to keep controls clear of the system
+bars. A Frame embedded in another native view still occupies that view's
+bounds; preparing its Page does not enlarge the containing host. Avoid adding
+negative inset margins to compensate for a prepared Page.
+
+```tsx
+import { SafeArea, Screen, Text } from '@octane-xplat/ui'
+
+export function App() {
+	return <Screen><SafeArea><Text>Inside the safe area</Text></SafeArea></Screen>
+}
 ```
 
 ### Text and keyboard actions

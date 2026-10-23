@@ -118,7 +118,7 @@ const native = vi.hoisted(() => {
 	return { Frame, Page, GridLayout: class {}, Application, activity, backEvents }
 })
 
-vi.mock('@nativescript/core', () => native)
+vi.mock('@nativescript/core', () => ({ ...native, isIOS: false }))
 vi.mock('./native-portal', () => ({ createPortal: (children: any) => children }))
 import { createNativeRouterHost } from './native-router-host'
 import { ClientRouteOutlet } from './ClientRouteOutlet.tsrx'

@@ -80,7 +80,7 @@ const native = vi.hoisted(() => {
 	return { Frame, Page, GridLayout, View: GridLayout, Animation, animations, surfaces, Application, activity, backEvents }
 })
 const theme = vi.hoisted(() => ({ unbound: vi.fn() }))
-vi.mock('@nativescript/core', () => native)
+vi.mock('@nativescript/core', () => ({ ...native, isIOS: false }))
 vi.mock('./theme/theme-host', () => ({ applyThemeClasses: () => theme.unbound }))
 function TestView(props: any) { return <stacklayout ref={props.ref} style={props.style}>{props.children}</stacklayout> }
 vi.mock('./View', () => ({ get View() { return TestView } }))
