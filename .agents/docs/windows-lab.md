@@ -52,11 +52,20 @@ Typechecks passed for the CLI, richtext, and their dependents. Focused lint and
 `pnpm check:recipes` passed. No public API, recipe acceptance criteria, or
 supported-platform claim changed; Windows runtime coverage remains separate.
 
-The Windows host doctor exits 1: no .NET SDK is installed and Developer Mode
-is unset. It also reports harness compatibility/HMR findings and the existing
-false `pnpm — missing` result despite successful pnpm commands. Follow the
-[host runbook](windows-test-host.md) before native validation; the package build
-does not establish native host readiness.
+The initial Windows host doctor found no .NET SDK and Developer Mode unset.
+Both prerequisites were then configured: Microsoft's signed
+[.NET SDK 10.0.402 x64 installer](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-10.0.402-windows-x64-installer)
+completed with exit 0 and no restart required, and
+`AllowDevelopmentWithoutDevLicense` was set to DWORD `1` using the
+[documented Developer Mode setting](https://learn.microsoft.com/en-us/windows/advanced-settings/developer-mode#use-powershell-to-enable-your-device).
+A fresh SSH session resolves `dotnet --version` to `10.0.402`, and Xplat's
+Windows SDK and Developer Mode checks pass. The supplemental `ns doctor windows`
+result was not recovered: SSH became unreachable after Xplat reported its results.
+
+The broader Xplat doctor still exits 1 with harness compatibility/HMR findings
+and the existing false `pnpm — missing` result despite successful pnpm commands.
+Follow the [host runbook](windows-test-host.md) for native validation; successful
+prerequisite checks and package builds do not establish native app behavior.
 
 Recommended first tests, in order:
 
