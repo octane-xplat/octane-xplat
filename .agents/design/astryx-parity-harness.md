@@ -69,7 +69,7 @@ expected to fail until the reported gaps close.
 `chrome.css` is currently a minimal skin — black primary (`#171717`),
 `system-ui`, and no Button size geometry (`vx-button--size-*` classes are
 emitted but have no rules). Astryx's defaults are a blue accent (`#0064E0`),
-32/36/40px control heights, and a `-apple-system` stack. Comparing stock
+28/32/36px control heights, and a `-apple-system` stack. Comparing stock
 against stock therefore reports palette, typography and geometry gaps
 together.
 
@@ -99,7 +99,7 @@ behavior diffs. Sameframe: `fail`, 332 findings (10 high). Controls pair by
 Candidate gaps the run surfaced:
 
 - **No size geometry.** Candidate buttons size to their text (44×18 at `sm`)
-  at 16px/400/`normal`, against Astryx's 32/36/40px heights at 14px/500/20px.
+  at 16px/400/`normal`, against Astryx's 28/32/36px heights at 14px/500/20px.
 - **`title="undefined"` on every Button without `tooltip`.** `Button.web`
   passes `web={{ title: props.tooltip }}` and `applyWebProps` assigns
   `el.title = undefined`, which the DOM stringifies. Pointer users see an
