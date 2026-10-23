@@ -108,6 +108,29 @@ export function LocalActions() {
 }
 ```
 
+## Fixed mobile layers
+
+The fixed layer surface and its light-dismiss backdrop receive full-size
+geometry through CSS classes. Raw Mason layout props are not used for their
+size. The maintained iOS fixture checks matching 402×778-point surface/backdrop
+sizes and closure cleanup. It does not establish OS tap hit-testing.
+
+```tsx
+import { Button, Screen, Text, useLayer } from '@octane-xplat/ui'
+
+export function Actions() {
+	const layer = useLayer({ mode: 'fixed', lightDismiss: true })
+	return <Screen>
+		<Button clickAction={layer.show}>Open</Button>
+		{layer.render(<Text>Menu</Text>, { x: 12, y: 20 })}
+	</Screen>
+}
+```
+
+```sh
+pnpm probe run packages/ui/tests/fixtures/fixed-layer.ios.tsrx --target ios --device SIMULATOR_UDID
+```
+
 ## Raw AppKit controls
 
 The standard macOS compiler rewrites raw `tabviewitem` and `listview` tags to

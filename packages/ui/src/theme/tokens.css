@@ -172,6 +172,16 @@
 	/* web press feedback */
 	/* native press feedback (NS pseudo — dead rule on web, and vice versa) */
 
+	.vx-fixed-layer-surface {
+		width: 100%;
+		height: 100%;
+	}
+	.vx-fixed-layer-backdrop {
+		width: 100%;
+		height: 100%;
+		background-color: transparent;
+	}
+
 	/* xplat-web-only:start — overlays/toasts/popovers render through RootLayout
    or showModal on native; these portal/positioning rules are web-only */
 	.vx-overlay {
