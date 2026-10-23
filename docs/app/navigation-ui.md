@@ -139,6 +139,7 @@ import { TabList, Tab, TabMenu, View, Text } from '@octane-xplat/ui'
 
 export function Panels() {
 	const [selected, setSelected] = useState('summary')
+
 	return (
 		<>
 			<TabList role="tablist" value={selected} onChange={setSelected}>
@@ -312,6 +313,7 @@ export function Example() {
 			},
 		},
 	})
+
 	return (
 		<View>
 			<View style={{ width: panels.sidebar.size }}>
@@ -340,6 +342,7 @@ import { View, Text, ResizeHandle, useResizable } from '@octane-xplat/ui'
 
 export function Example() {
 	const sidebar = useResizable({ direction: 'horizontal', defaultSize: 280, autoSaveId: 'sidebar' })
+
 	return (
 		<View>
 			<View style={{ width: sidebar.size }}>

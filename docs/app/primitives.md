@@ -57,6 +57,7 @@ import { View, Text, Pressable } from '@octane-xplat/ui'
 
 export function App() {
 	const [count, setCount] = useState(0)
+
 	return (
 		<View>
 			<Text>Count: {count}</Text>
@@ -138,6 +139,7 @@ function Card(props: LayoutChildProps) {
 		</View>
 	)
 }
+
 export function GridExample() {
 	return (
 		<Grid columns="*,*,*">
@@ -230,6 +232,7 @@ import { Grid, Pressable, Text, View } from '@octane-xplat/ui'
 
 export function LateGridExample() {
 	const [show, setShow] = useState(false)
+
 	return (
 		<View>
 			<Pressable onPress={() => setShow((current) => !current)}>
@@ -290,6 +293,7 @@ import { useState } from 'octane'
 
 export function Settings() {
 	const [checked, setChecked] = useState(false)
+
 	return <UISwitch checked={checked} onCheckedChange={setChecked} />
 }
 ```
@@ -410,6 +414,7 @@ Application.run({ create: () => {
 	page.actionBarHidden = true
 	renderNativeScriptApp(page, App)
 	frame.navigate({ create: () => page })
+
 	return frame
 } })
 ```
@@ -443,6 +448,7 @@ import { useState } from 'octane'
 
 export function Example() {
 	const [note, setNote] = useState('')
+
 	return (
 		<TextArea
 			label="Note"
@@ -520,6 +526,7 @@ import { FocusScope, Text, getFocusScopeCapabilities, useFocusVisible } from '@o
 export function ScopedContent() {
 	const scope = getFocusScopeCapabilities()
 	const modality = useFocusVisible()
+
 	return (
 		<FocusScope
 			contain={scope.contain}
@@ -641,6 +648,7 @@ import { useState } from 'octane'
 
 export function Example() {
 	const [name, setName] = useState('')
+
 	return (
 		<FormLayout defaultOptionality="required">
 			<Field label="Name" isOptional>
@@ -788,6 +796,7 @@ import { ScrollableArea, List, ListItem, Text, VirtualList } from '@octane-xplat
 
 export function Example() {
 	const items = [{ id: 'coat', title: 'Coat' }]
+
 	return (
 		<>
 			<ScrollableArea>
@@ -826,7 +835,9 @@ import { UITableView } from '@octane-xplat/ui/ios'
 import { ScrollableArea, Text } from '@octane-xplat/ui'
 
 const items = [{ id: 'coat', title: 'Coat' }]
+
 const renderItem = (item: (typeof items)[number]) => <Text>{item.title}</Text>
+
 export function Items() {
 	return (
 		<ScrollableArea axis="both">
@@ -853,7 +864,9 @@ import { Pager } from '@octane-xplat/pager'
 import { Text } from '@octane-xplat/ui'
 
 const pages = ['Welcome', 'Pack a bag']
+
 const renderPage = (page: string) => <Text>{page}</Text>
+
 export function Onboarding() {
 	return (
 		<Pager
@@ -881,6 +894,7 @@ import { useState } from 'octane'
 
 export function Example() {
 	const [filter, setFilter] = useState('all')
+
 	return (
 		<SegmentedControl
 			label="Items"
@@ -908,6 +922,7 @@ import { useState } from 'octane'
 
 export function Example() {
 	const [query, setQuery] = useState('')
+
 	return (
 		<SearchInput
 			label="Find items"
@@ -945,6 +960,7 @@ import { useState, useRef } from 'octane'
 export function Example() {
 	const [open, setOpen] = useState(false)
 	const anchor = useRef(null)
+
 	return (
 		<Screen>
 			<View
@@ -1001,6 +1017,7 @@ export function Example() {
 			setRefreshing(false)
 		}
 	}
+
 	return (
 		<ScrollableArea refreshing={refreshing} refreshThreshold={64} onRefresh={reload}>
 			<Text>Items</Text>
@@ -1069,6 +1086,7 @@ import { View, Text, useMeasure } from '@octane-xplat/ui'
 
 export function Example() {
 	const { ref, bounds } = useMeasure({ observe: false })
+
 	return (
 		<View ref={ref}>
 			<Text>Width: {bounds?.width ?? 0}</Text>
@@ -1089,6 +1107,7 @@ import { ToastViewport, Pressable, Text, useToast } from '@octane-xplat/ui'
 
 export function Example() {
 	const toast = useToast()
+
 	return (
 		<ToastViewport position="bottomEnd">
 			<Pressable onPress={() => toast({ body: 'Saved' })}>
@@ -1123,6 +1142,7 @@ import { SafeArea, WebView, Pressable, Text } from '@octane-xplat/ui'
 
 export function Example() {
 	const browser = useRef<import('@octane-xplat/ui').WebViewHandle | null>(null)
+
 	return (
 		<SafeArea>
 			<WebView
@@ -1401,6 +1421,7 @@ const caps = await session.capabilities()
 if (!caps.supported) {
 	return // hide capture UI on this host
 }
+
 const permission = await session.requestPermission('camera')
 ```
 
@@ -1427,6 +1448,7 @@ import { Button, ScrollableArea, Text, View, type ScrollableAreaHandle } from '@
 
 export function LongNotes() {
 	const viewport = useRef<ScrollableAreaHandle | null>(null)
+
 	return <View>
 		<Button clickAction={() => viewport.current?.scrollToOffset({ block: 0 }, { animated: true })}>
 			Back to the start
@@ -1456,6 +1478,7 @@ import type { ScrollableAreaHandle } from '@octane-xplat/ui'
 
 export function WideDetails() {
 	const viewport = useRef<ScrollableAreaHandle | null>(null)
+
 	return (
 		<ScrollableArea ref={viewport} axis="both" width={320} height={240} label="Trip details">
 			<View style={{ width: 640, height: 480 }}>
@@ -1483,6 +1506,7 @@ import { useScrollableArea } from '@octane-xplat/ui'
 
 export function Details(props: { onScrolled: (atEnd: boolean, event: any) => void }) {
 	const area = useScrollableArea({ axis: 'both' })
+
 	return (
 		<scrollview
 			{...area.getViewportProps({
@@ -1527,6 +1551,7 @@ export function RefreshableRows(props: { loadRows: () => Promise<string[]> }) {
 			setRefreshing(false)
 		}
 	}
+
 	return (
 		<View>
 			<Pressable disabled={refreshing} accessibilityLabel="Refresh rows" onPress={refresh}>
@@ -1561,6 +1586,7 @@ export function FocusField() {
 	const host = useRef<any>(null)
 	const measurement = useMeasure()
 	const refs = useMemo(() => [host, measurement.ref], [host, measurement.ref])
+
 	return (
 		<View ref={refs}>
 			<TextInput label="Name" ref={input} />
@@ -1638,6 +1664,7 @@ import { Screen, BottomSheet, Pressable, Text } from '@octane-xplat/ui'
 
 export function Example() {
 	const [open, setOpen] = useState(false)
+
 	return (
 		<Screen>
 			<Pressable onPress={() => setOpen(true)}>
@@ -1694,8 +1721,10 @@ import { Screen, Button, Text, useImperativeBottomSheet } from '@octane-xplat/ui
 function Picker(props: { params: { title: string }; close: (value?: string) => void }) {
 	return <Button clickAction={() => props.close('saved')}>{props.params.title}</Button>
 }
+
 export function SheetAction() {
 	const sheet = useImperativeBottomSheet()
+
 	return (
 		<Screen>
 			<Button
@@ -1724,8 +1753,10 @@ import { Button } from '@octane-xplat/ui'
 function Picker(props: { close: (value?: string) => void }) {
 	return <Button clickAction={() => props.close('saved')}>Save</Button>
 }
+
 export function ModalAction() {
 	const modal = useImperativeModal()
+
 	return (
 		<>
 			<Button
@@ -1784,6 +1815,7 @@ export function ContactEditors() {
 	const [active, setActive] = useState<string | null>(null)
 	const [name, setName] = useState('')
 	const [email, setEmail] = useState('')
+
 	return <Screen>
 		<Button clickAction={() => setActive('name')}>Edit name</Button>
 		<Button clickAction={() => setActive('email')}>Edit email</Button>
@@ -1828,6 +1860,7 @@ import { Overlay, Popover } from '@octane-xplat/ui'
 
 export function NestedChoice() {
 	const anchor = useRef<HTMLButtonElement | null>(null)
+
 	return <Overlay open shadeCover accessibilityLabel="Choose a bag">
 		<button ref={anchor}>Bag options</button>
 		<Popover anchor={anchor} open><button>Carry-on</button></Popover>
@@ -1888,6 +1921,7 @@ import { Screen, Dialog, Text, TextInput } from '@octane-xplat/ui'
 
 export function EditName(props: { open: boolean; setOpen: (open: boolean) => void }) {
 	const returnFocus = useRef<any>(null)
+
 	return (
 		<Screen>
 			<TextInput ref={returnFocus} placeholder="Name" />
@@ -1906,6 +1940,7 @@ import { useImperativeDialog, Button, Text } from '@octane-xplat/ui'
 
 export function SaveButton() {
 	const dialog = useImperativeDialog()
+
 	return (
 		<>
 			<Button clickAction={() => dialog.show(<Text>Saved changes</Text>)}>Save</Button>
@@ -1932,6 +1967,7 @@ const media = [{ src: '/trip.jpg', alt: 'A lake beside the campsite' }]
 export function GalleryActions() {
 	const alert = useImperativeAlertDialog()
 	const lightbox = useLightbox({ media })
+
 	return (
 		<>
 			<Button
@@ -1990,6 +2026,7 @@ import { ToastViewport, Button, useToast } from '@octane-xplat/ui'
 
 function SaveNotice() {
 	const toast = useToast()
+
 	return <Button clickAction={() => toast({ body: 'Saved' })}>Save</Button>
 }
 
@@ -2029,6 +2066,7 @@ import { Pressable, Text, View, useLayer } from '@octane-xplat/ui'
 
 export function Example() {
 	const layer = useLayer({ mode: 'context', lightDismiss: true })
+
 	return (
 		<>
 			<View ref={layer.ref}>
@@ -2076,6 +2114,7 @@ import { View, Text, Pressable, useLayer } from '@octane-xplat/ui'
 
 export function Example() {
 	const layer = useLayer({ mode: 'context', lightDismiss: true })
+
 	return (
 		<>
 			<View ref={layer.ref}>
@@ -2107,6 +2146,7 @@ export function Example() {
 		onShow: () => console.log('Open'),
 		onHide: () => console.log('Closed'),
 	})
+
 	return (
 		<>
 			<Pressable onPress={layer.show}>
@@ -2144,6 +2184,7 @@ function Details(props: { title: string }) {
 
 export function Example() {
 	const layer = useLayer({ mode: 'fixed' })
+
 	return <>{layer.render(<Details title="Help" />, { x: 20, y: 40 })}</>
 }
 ```
@@ -2162,6 +2203,7 @@ import { useState } from 'octane'
 
 export function Example() {
 	const [pin, setPin] = useState('')
+
 	return (
 		<Field label="Security code" description="Enter all four digits" isRequired>
 			<PinInput
@@ -2198,6 +2240,7 @@ import { useState } from 'octane'
 
 export function Example() {
 	const [note, setNote] = useState('')
+
 	return <TextArea label="Note" autoGrow value={note} onChange={setNote} />
 }
 ```

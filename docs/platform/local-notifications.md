@@ -26,6 +26,7 @@ export async function sendReminder() {
 	if (result === 'granted') {
 		notifications.impl?.notify('Reminder', 'Your break starts now.')
 	}
+
 	return result
 }
 ```

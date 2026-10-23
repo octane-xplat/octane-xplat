@@ -87,6 +87,7 @@ import { Pressable, Text } from '@octane-xplat/ui'
 
 export function Destination() {
 	const moved$ = useSignal$(false)
+
 	return (
 		<>
 			<Pressable onPress={() => moved$.set(!moved$.get())}>
@@ -242,6 +243,7 @@ import { Pressable, Text } from '@octane-xplat/ui'
 
 export function ValueControls() {
 	const x = useMotionValue(0)
+
 	return (
 		<>
 			<motion.View style={{ x }} />
@@ -287,6 +289,7 @@ export function DerivedValue() {
 	const opacity = useTransform(x, [0, 100], [1, 0])
 	const smoothX = useSpring(x, { stiffness: 200, damping: 30 })
 	useMotionValueEvent(x, 'change', (value) => console.log(value))
+
 	return (
 		<>
 			<motion.View style={{ x: smoothX, opacity }} />
@@ -314,6 +317,7 @@ import { motion, useMotionValue } from '@octane-xplat/motion'
 
 export function PanCard() {
 	const x = useMotionValue(0)
+
 	return (
 		<motion.View
 			style={{ x }}
@@ -410,6 +414,7 @@ import { motion, useMotionValue } from '@octane-xplat/motion'
 
 export function DragValue() {
 	const x = useMotionValue(0)
+
 	return (
 		<motion.View
 			drag="x"
@@ -449,6 +454,7 @@ import { MotionConfig, motion, useReducedMotion, useMotionValue } from '@octane-
 function Card() {
 	const reduced = useReducedMotion()
 	const x = useMotionValue(0)
+
 	return (
 		<motion.View
 			style={{ x }}
@@ -462,6 +468,7 @@ function Card() {
 		/>
 	)
 }
+
 export function App() {
 	return (
 		<MotionConfig reducedMotion="user" transition={{ duration: 0.2 }}>
@@ -676,6 +683,7 @@ through the visitor's Next action.
 useEffect(() => {
 	if (!playing || reduced || phrases.length < 2) return
 	const timer = setInterval(() => setIndex((i) => (i + 1) % phrases.length), 3200)
+
 	return () => clearInterval(timer)
 }, [playing, reduced, phrases.length])
 ```
@@ -712,6 +720,7 @@ useEffect(() => {
 	if (!span || reduced) return
 	x.jump(0)
 	x.animate(-span, { duration: span / speed, ease: 'linear', repeat: Infinity })
+
 	return () => x.stop()
 }, [span, speed, reduced])
 ```
@@ -739,6 +748,7 @@ useEffect(() => {
 	const full = phrases[index % phrases.length]
 	const delay = !deleting ? (len < full.length ? typeMs : waitMs) : len > 0 ? deleteMs : waitMs
 	const timer = setTimeout(step, delay)
+
 	return () => clearTimeout(timer)
 }, [len, deleting, index, reduced])
 ```
@@ -758,6 +768,7 @@ passes the string length plus the window size.
 useEffect(() => {
 	if (reduced || step >= text.length + trailing) return
 	const timer = setInterval(() => setStep((s) => s + 1), speedMs)
+
 	return () => clearInterval(timer)
 }, [step, reduced])
 ```
@@ -821,6 +832,7 @@ useEffect(() => {
 			.finished.then((result) => {
 				if (result === 'finished') loop()
 			})
+
 	return () => progress.stop()
 }, [playing, period, reduced])
 ```
@@ -872,6 +884,7 @@ function RingImpl(props: { children?: any }) @{
 	const items = Children.toArray(props.children)
 	// …render one orbiting motion.View per item
 }
+
 const Ring = descriptorChildren(RingImpl)
 ```
 
@@ -962,6 +975,7 @@ import { Pressable, Text, View, useAnimation } from '@octane-xplat/ui'
 
 export function MovingCard() {
 	const x = useAnimation(0, 'translateX')
+
 	return (
 		<View>
 			<Pressable

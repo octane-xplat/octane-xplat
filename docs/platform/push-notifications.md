@@ -124,6 +124,7 @@ export async function registerPush(sendTokenToYourServer: (token: string) => Pro
 	const offRefresh = push.onTokenRefresh((next) => {
 		void sendTokenToYourServer(next).catch(() => console.log('Token registration failed'))
 	})
+
 	return () => {
 		offMessage()
 		offOpen()
@@ -142,6 +143,7 @@ import { push } from '@octane-xplat/push'
 const offMessage = push.onMessage((message) => console.log(message.title))
 const offOpen = push.onNotificationOpen((message) => console.log(message.data?.route))
 const offRefresh = push.onTokenRefresh(() => console.log('Token changed'))
+
 export function stopListeners() {
 	offMessage()
 	offOpen()
@@ -215,6 +217,7 @@ import { push } from '@octane-xplat/push'
 export async function enablePush() {
 	if (!push.supported) return 'Push is unavailable on this platform'
 	await push.configure()
+
 	return await push.requestPermission()
 }
 ```
@@ -226,6 +229,7 @@ import { push } from '@octane-xplat/push'
 
 export async function clearPushRegistration() {
 	await push.deleteToken()
+
 	return await push.getToken() // null on macOS
 }
 ```
@@ -241,6 +245,7 @@ import { push } from '@octane-xplat/push'
 const offMessage = push.onMessage((message) => console.log(message.title))
 const offOpen = push.onNotificationOpen((message) => console.log(message.data?.route))
 const offRefresh = push.onTokenRefresh(() => console.log('Token changed'))
+
 export function stopPushListeners() {
 	offMessage()
 	offOpen()

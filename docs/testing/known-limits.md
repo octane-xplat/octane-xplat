@@ -230,6 +230,7 @@ and [maintained checks](../../.agents/docs/navigation-checks.md) for current con
 
 ```ts
 import { router } from '@octane-xplat/ui/routing'
+
 // In an app declaring this route:
 const result = await router.push({ to: '/items/:id', params: { id: 'coat' } })
 if (result.status === 'committed') await result.finished
@@ -519,8 +520,10 @@ import { motion, useAnimate } from '@octane-xplat/motion'
 import { View, Pressable, Text } from '@octane-xplat/ui'
 
 const MotionCard = motion.create(View)
+
 export function Card() {
 	const [scope, animate] = useAnimate()
+
 	return (
 		<>
 			<MotionCard
@@ -636,6 +639,7 @@ import { useSignal$ } from 'octane/signals/client'
 
 export function Notes() {
 	const html$ = useSignal$('<p>Packing list</p>')
+
 	return <RichTextEditor value={html$.get()} onChange={(html) => html$.set(html)} />
 }
 ```
@@ -671,6 +675,7 @@ import { useSignal$ } from 'octane/signals/client'
 
 export function Notes() {
 	const html$ = useSignal$('<p>Packing list</p>')
+
 	return <TiptapEditor value={html$.get()} onChange={(html) => html$.set(html)} />
 }
 ```
@@ -711,6 +716,7 @@ import { useSignal$ } from 'octane/signals/client'
 
 export function Notes() {
 	const html$ = useSignal$('<p>Packing list</p>')
+
 	return <LexicalEditor value={html$.get()} onChange={(html) => html$.set(html)} />
 }
 ```

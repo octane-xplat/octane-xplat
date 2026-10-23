@@ -73,9 +73,11 @@ async function canRecord() {
 	const capabilities = await session.capabilities()
 	if (!capabilities.supported || !capabilities.available) {
 		console.log(capabilities.reason)
+
 		return false
 	}
 	console.log(capabilities.output.mimeType, capabilities.output.container)
+
 	return true
 }
 ```

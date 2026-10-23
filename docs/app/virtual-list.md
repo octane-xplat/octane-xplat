@@ -46,6 +46,7 @@ export function Example() {
 	const items = [{ id: 'coat', title: 'Coat' }]
 	const keyFor = (item: (typeof items)[number]) => item.id
 	const renderRow = (item: (typeof items)[number]) => <Text>{item.title}</Text>
+
 	return (
 		<VirtualList
 			className="item-viewport"
@@ -73,6 +74,7 @@ export function Example() {
 		{ id: 'coat', title: 'Coat', kind: 'note' },
 		{ id: 'shoes', title: 'Shoes', kind: 'note' },
 	])
+
 	return (
 		<>
 			<Pressable onPress={() => setItems([...items].reverse())}>
@@ -107,8 +109,10 @@ import { createStore, useStore } from '@octane-xplat/ui/data'
 
 const selected = createStore<Record<string, boolean>>({})
 const items = [{ id: 'coat', title: 'Coat' }]
+
 function Row(props: { id: string; title: string }) {
 	const selections = useStore(selected)
+
 	return (
 		<Pressable onPress={() => selected.update((s) => ({ ...s, [props.id]: !s[props.id] }))}>
 			<Text>
@@ -118,7 +122,9 @@ function Row(props: { id: string; title: string }) {
 		</Pressable>
 	)
 }
+
 const renderRow = (item: (typeof items)[number]) => <Row id={item.id} title={item.title} />
+
 export function Items() {
 	return (
 		<VirtualList
@@ -147,6 +153,7 @@ import { useState } from 'octane'
 
 export function Example() {
 	const [items, setItems] = useState([{ id: 'coat', title: 'Coat' }])
+
 	return (
 		<>
 			<Pressable onPress={() => setItems([{ id: 'shoes', title: 'Shoes' }, ...items])}>
@@ -181,6 +188,7 @@ import { useRef } from 'octane'
 export function Example() {
 	const list = useRef<VirtualListHandle | null>(null)
 	const items = [{ id: 'coat', title: 'Coat' }]
+
 	return (
 		<>
 			<Pressable onPress={() => list.current?.scrollToOffset(0, { animated: true })}>
@@ -219,6 +227,7 @@ import { useRef } from 'octane'
 export function Example() {
 	const list = useRef<VirtualListHandle | null>(null)
 	const items = [{ id: 'coat', title: 'Coat' }]
+
 	return (
 		<>
 			<Pressable onPress={() => list.current?.scrollToItem('coat', { align: 'center' })}>

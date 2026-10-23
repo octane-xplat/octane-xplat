@@ -44,6 +44,7 @@ const source = '# Release notes\n\n## Highlights\n\n## Fixes'
 
 function ArticleSummary() {
 	const items = useOutlineFromMarkdown(source)
+
 	return (
 		<>
 			<Blockquote cite="Release notes">A portable quotation.</Blockquote>
@@ -163,6 +164,7 @@ import { createMarkdownStreamParser } from '@octane-xplat/ui/markdown'
 
 const parser = createMarkdownStreamParser()
 let previous = ''
+
 function update(source: string) {
 	if (!source.startsWith(previous)) {
 		parser.reset()
@@ -170,6 +172,7 @@ function update(source: string) {
 	}
 	const document = parser.append(source.slice(previous.length))
 	previous = source
+
 	return document
 }
 ```
@@ -184,6 +187,7 @@ that cross line boundaries; unknown languages return no highlighted tokens.
 import { flatTokensToLines, tokenize, type CodeTokenizer } from '@octane-xplat/ui/markdown'
 
 const custom: CodeTokenizer = (code) => [{ type: 'comment', start: 0, end: code.length }]
+
 const lines = flatTokensToLines(custom('hello', 'text'), 'hello')
 const highlighted = tokenize('const ready = true', 'typescript')
 ```
@@ -210,6 +214,7 @@ import { useRef } from 'octane'
 export function WebExample() {
 	const root = useRef(null)
 	const items = useOutlineFromDOM(root)
+
 	return (
 		<>
 			<View
@@ -240,6 +245,7 @@ import { useRef } from 'octane'
 export function Example() {
 	const root = useRef(null)
 	const items = useOutlineFromView(root)
+
 	return (
 		<>
 			<View
@@ -268,6 +274,7 @@ import { getOutlineFromViewCapabilities } from '@octane-xplat/ui/macos'
 
 export function supportsViewDiscovery() {
 	const { isSupported, mode } = getOutlineFromViewCapabilities()
+
 	return isSupported && mode === 'snapshot'
 }
 // macOS returns false.
@@ -282,6 +289,7 @@ import { useOutlineFromDoc } from '@octane-xplat/ui/markdown'
 
 export function MacOutline(props: { doc: Parameters<typeof useOutlineFromDoc>[0] }) {
 	const items = useOutlineFromDoc(props.doc)
+
 	return <Outline items={items} hasScrollOnClick={false} />
 }
 ```
@@ -368,6 +376,7 @@ import { Timestamp, Timer } from '@octane-xplat/ui'
 export function Example() {
 	const createdAtMs = Date.now()
 	const startedAtMs = Date.now()
+
 	return (
 		<>
 			<Timestamp

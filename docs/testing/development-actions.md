@@ -34,6 +34,7 @@ if (import.meta.env.DEV) {
 		run(input) {
 			const count = Number(input.count)
 			counterState.set(count)
+
 			return { count }
 		},
 	})
@@ -60,6 +61,7 @@ import { counterState } from './counter-state'
 
 export function CounterStatus() {
 	const count = useStore(counterState)
+
 	return <Text testID="counter.value">{count}</Text>
 }
 ```
@@ -97,9 +99,11 @@ export function CheckoutForm() {
 	if (import.meta.env.DEV) {
 		useDevActionHandler(saveDraft, async () => {
 			await persist(draft)
+
 			return {}
 		})
 	}
+
 	return <CheckoutFields />
 }
 ```
@@ -399,6 +403,7 @@ import { createStore } from '@octane-xplat/ui/data'
 
 // True only while the app is pointed at the fixture backend.
 export const fixtureSession = createStore(false)
+
 export const notes = createStore<Record<string, string>>({})
 
 if (import.meta.env.DEV) {
@@ -419,8 +424,10 @@ if (import.meta.env.DEV) {
 			notes.update((all) => {
 				const next = { ...all }
 				delete next[noteId]
+
 				return next
 			})
+
 			return {}
 		},
 	})
@@ -451,10 +458,12 @@ export function Composer() {
 			effects: { summary: 'Discards the composer draft', appState: true },
 			run: () => {
 				draftState.set(emptyDraft)
+
 				return {}
 			},
 		})
 	}
+
 	return <ComposerFields />
 }
 ```
@@ -496,6 +505,7 @@ if (import.meta.env.DEV) {
 		},
 		run() {
 			counterState.set(0)
+
 			return { count: 0 }
 		},
 	})
@@ -510,6 +520,7 @@ if (import.meta.env.DEV) {
 		availability: { ready: () => recording.getSnapshot() },
 		run() {
 			recording.set(false)
+
 			return {}
 		},
 	})

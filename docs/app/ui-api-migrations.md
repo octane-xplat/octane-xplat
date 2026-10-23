@@ -16,6 +16,7 @@ export function RegionPicker() {
 	const [region, setRegion] = useState<string | null>(null)
 	const [regions, setRegions] = useState<string[]>([])
 	const options = [{ value: 'sfo', label: 'San Francisco' }]
+
 	return (
 		<>
 			<Selector selectionMode="single" options={options} value={region} onValueChange={setRegion} />
@@ -133,6 +134,7 @@ const queries = createQueryClient({ namespace: 'public-users' })
 const users = defineQuery(['users'], async (id: string, { signal }) => {
 	const response = await fetch(`/api/users/${encodeURIComponent(id)}`, { signal })
 	if (!response.ok) throw new Error('Could not load user')
+
 	return response.json() as Promise<{ name: string }>
 }, { staleTimeMs: 60_000 })
 // Components call useQuery$(queries, users, props.userId).
@@ -175,10 +177,13 @@ TypeScript inference.
 
 ```ts
 import { defineQuery, type QueryLoadContext } from '@octane-xplat/ui/data'
+
 type User = { name: string; revision: number }
+
 const users = defineQuery(['users'], async (id: string, { signal, previous }: QueryLoadContext<User>) => {
 	const response = await fetch(`https://api.example.com/users/${encodeURIComponent(id)}`, { signal })
 	if (!response.ok) throw new Error('Could not load user')
+
 	return response.json() as Promise<User>
 }, { compareAuthority: (incoming, current) => incoming.revision - current.revision })
 ```

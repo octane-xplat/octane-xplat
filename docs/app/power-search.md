@@ -18,6 +18,7 @@ export function Example() {
 	const [filters, setFilters] = useState<
 		ReadonlyArray<import('@octane-xplat/ui').PowerSearchFilterFor<typeof config>>
 	>([])
+
 	return <PowerSearch config={config} filters={filters} onChange={setFilters} />
 }
 ```
@@ -134,6 +135,7 @@ export function Example() {
 	const [filters, setFilters] = useState<
 		ReadonlyArray<import('@octane-xplat/ui').PowerSearchFilterFor<typeof config>>
 	>([])
+
 	return (
 		<PowerSearch
 			config={config}
@@ -174,6 +176,7 @@ export function Example() {
 		ReadonlyArray<import('@octane-xplat/ui').PowerSearchFilterFor<typeof config>>
 	>([])
 	const input = useRef<import('@octane-xplat/ui').PowerSearchHandle | null>(null)
+
 	return (
 		<>
 			<PowerSearch

@@ -170,6 +170,7 @@ Put this pragma on the first line of each browser JSX file, such as
 
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx/dom */
+
 export function Card() {
 	return <div>Ready</div>
 }
@@ -180,6 +181,7 @@ A renderer-specific pragma overrides the app default, so use the facade:
 
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
+
 export function Card() {
 	return (
 		<masonview style={{ display: 'grid' }}>

@@ -94,6 +94,7 @@ export function observeNativeHost(host: object) {
 		const measuredTop = state.currentFrame?.y
 		if (measuredTop !== undefined) updateNativeMeasurement(measuredTop)
 	})
+
 	return () => { stopMovement(); stopState() }
 }
 
@@ -110,6 +111,7 @@ import { KeyboardController } from '@octane-xplat/keyboard'
 
 export function inspectNativeHost(host: object) {
 	const state = KeyboardController.getSnapshot(host)
+
 	return {
 		measured: state.currentFrame,
 		destination: state.targetFrame,
@@ -149,6 +151,7 @@ import { FocusedInputController } from '@octane-xplat/keyboard'
 
 export function inspectCaret(host: object) {
 	const state = FocusedInputController.getSnapshot(host)
+
 	return { rect: state.caretRect, precision: state.capabilities.caretBounds }
 }
 ```
@@ -219,6 +222,7 @@ import { Button, TextInput } from '@octane-xplat/ui'
 
 export function RecheckedForm() {
 	const scrolling = useRef<KeyboardScrollBinding | null>(null)
+
 	return <KeyboardAwareScrollView
 		manualScroll="pause"
 		keyboardClose="preserve"
@@ -240,6 +244,7 @@ import { KeyboardScrollController } from '@octane-xplat/keyboard'
 
 export function attachFormViewport(host: object) {
 	const binding = KeyboardScrollController.bind(host, { clearance: 12 })
+
 	return () => binding.release()
 }
 ```
@@ -386,6 +391,7 @@ import { BottomSheet, Button, Screen, TextInput } from '@octane-xplat/ui'
 
 export function SheetForm() {
 	const [open, setOpen] = useState(false)
+
 	return <Screen>
 		<Button clickAction={() => setOpen(true)}>Edit contact</Button>
 		<BottomSheet isOpen={open} onOpenChange={setOpen}
@@ -411,6 +417,7 @@ import { BottomSheet, Button, Screen, TextInput } from '@octane-xplat/ui'
 export function ReturnToSearch() {
 	const [open, setOpen] = useState(false)
 	const search = useRef<any>(null)
+
 	return <Screen>
 		<TextInput ref={search} placeholder="Search contacts" />
 		<Button clickAction={() => setOpen(true)}>Edit contact</Button>

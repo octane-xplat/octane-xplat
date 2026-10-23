@@ -78,6 +78,7 @@ export { requestContext } from './context.server'
 
 // server.web.ts
 import { catalog, requestContext } from './routes.web.tsrx'
+
 // Pass context: requestContext to createWebHandler.
 ```
 
@@ -90,6 +91,7 @@ use an HTTP API inside a client loader when it needs server data.
 ```ts
 // This belongs in a .server.ts module, never in a shared screen:
 import { database } from './database.server'
+
 export const findProduct = (id: string) => database.products.find(id)
 
 // A shared module may expose it to server consumers:
@@ -103,6 +105,7 @@ secrets in server modules rather than comments or unrelated shared declarations.
 
 ```ts
 import { serverBoundary } from '@octane-xplat/web-host/vite'
+
 export default { plugins: [serverBoundary()] }
 ```
 
@@ -261,6 +264,7 @@ import type { WebAppProps } from '@octane-xplat/web-host/client'
 
 export function App(props: WebAppProps) {
   const navigation = useRouter(props.router)
+
   return <main>
     <button onClick={() => navigation.back()}>Back</button>
     <RouteOutlet />

@@ -121,6 +121,7 @@ import {
 export function frontend(transport: HostTransport) {
 	const client = createHostClient<AppServices, AppEvents>(transport)
 	const off = client.on('account.changed', (event) => console.log(event.id))
+
 	return {
 		load: (id: string) => client.call('account', 'load', id),
 		capabilities: () => client.capabilities(),
@@ -130,9 +131,11 @@ export function frontend(transport: HostTransport) {
 		},
 	}
 }
+
 export function host(services: AppServices, port: HostReplyPort) {
 	const dispatcher = createHostDispatcher<AppServices, AppEvents>(services, port)
 	dispatcher.emit('account.changed', { id: '42' })
+
 	return dispatcher
 }
 ```

@@ -20,6 +20,7 @@ import { useState } from 'octane'
 
 export function Example() {
 	const [name, setName] = useState('')
+
 	return <TextInput label="Name" value={name} onChange={setName} />
 }
 ```
@@ -37,6 +38,7 @@ import type { TextInputHandle } from '@octane-xplat/ui'
 export function NameForm() {
 	const [name, setName] = useState('')
 	const input = useRef<TextInputHandle | null>(null)
+
 	return (
 		<KeyboardAvoiding>
 			<Field label="Name" isOptional>
@@ -88,6 +90,7 @@ import { useState } from 'octane'
 
 export function Example() {
 	const [name, setName] = useState('')
+
 	return (
 		<Field
 			label="Name"
@@ -125,6 +128,7 @@ import { useState } from 'octane'
 
 export function Example() {
 	const [name, setName] = useState('')
+
 	return (
 		<>
 			<TextInput
@@ -161,6 +165,7 @@ import { useState, useRef } from 'octane'
 export function Example() {
 	const [name, setName] = useState('')
 	const input = useRef<import('@octane-xplat/ui').TextInputHandle | null>(null)
+
 	return (
 		<>
 			<TextInput
@@ -204,6 +209,7 @@ import { useState } from 'octane'
 
 export function Example() {
 	const [note, setNote] = useState('')
+
 	return (
 		<KeyboardAvoiding keyboardVerticalOffset={8}>
 			<TextInput label="Note" value={note} onChange={setNote} />
@@ -232,6 +238,7 @@ import { useState } from 'octane'
 
 export function Example() {
 	const [open, setOpen] = useState(false)
+
 	return (
 		<Screen>
 			<Pressable onPress={() => setOpen(true)}>
@@ -289,6 +296,7 @@ import { Text, View, useKeyboardInset } from '@octane-xplat/ui'
 
 export function KeyboardSpace() {
 	const inset = useKeyboardInset()
+
 	return (
 		<View>
 			<Text>Keyboard space: {inset}</Text>
@@ -339,6 +347,7 @@ import { KeyboardAvoiding, Text, TextInput, useKeyboardInset } from '@octane-xpl
 
 export function Composer() {
 	const inset = useKeyboardInset()
+
 	return (
 		<KeyboardAvoiding>
 			<Text>Keyboard space: {inset}</Text>

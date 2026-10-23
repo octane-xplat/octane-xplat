@@ -78,6 +78,7 @@ import { Pressable, Text } from '@octane-xplat/ui'
 export function SaveFeedback() {
 	const [haptics] = useState(() => createHaptics())
 	useEffect(() => () => haptics.dispose(), [])
+
 	return (
 		<Pressable
 			onPress={() => {
@@ -111,6 +112,7 @@ export function patternExample() {
 			],
 		})
 	}
+
 	return () => {
 		haptics.stop()
 		haptics.dispose()
@@ -121,9 +123,11 @@ export function realtimeExample() {
 	const haptics = createHaptics()
 	if (!haptics.capabilities().realtime) {
 		haptics.dispose()
+
 		return null
 	}
 	const session = haptics.startRealtime(0.2)
+
 	return {
 		move: (intensity: number) => session.update(intensity),
 		end: () => {
@@ -161,6 +165,7 @@ export async function prepareSounds(source: string) {
 		bank.dispose()
 		throw error
 	}
+
 	return {
 		play: () => bank.play('saved', { volume: 0.5 }),
 		stopSaved: () => bank.stop('saved'),
@@ -200,9 +205,11 @@ export async function prepareAppKitEffect(source: string) {
 	try {
 		if (!bank.capabilities().supported) {
 			bank.dispose()
+
 			return undefined
 		}
 		await bank.load('saved', source)
+
 		return bank // keep until the screen or service ends
 	} catch (error) {
 		bank.dispose()
@@ -241,6 +248,7 @@ export async function preparePlayer(source: string) {
 		player.dispose()
 		throw error
 	}
+
 	return {
 		play: async () => {
 			try {
@@ -308,6 +316,7 @@ export async function loadMacAudio(source: string) {
 	const player = createAudioPlayer()
 	try {
 		await player.setQueue([{ id: 'first', source }])
+
 		return player
 	} catch (error) {
 		player.dispose()

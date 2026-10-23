@@ -66,6 +66,7 @@ const source: SearchSource<CommandPaletteItem> = {
 	async search(query) {
 		const response = await fetch(`/api/commands?q=${encodeURIComponent(query)}`)
 		if (!response.ok) throw new Error('Command search failed')
+
 		return await response.json()
 	},
 }

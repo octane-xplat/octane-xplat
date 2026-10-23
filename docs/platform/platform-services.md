@@ -21,6 +21,7 @@ import { media } from '@octane-xplat/media'
 export async function attachPhoto() {
 	const image = await media.capturePhoto()
 	if (!image) console.log('No photo attached')
+
 	return image
 }
 ```
@@ -120,6 +121,7 @@ import { Text } from '@octane-xplat/ui'
 
 export function ReadingScreen() {
 	useKeepAwake()
+
 	return <Text>Reading</Text>
 }
 ```
@@ -173,6 +175,7 @@ import { secureStorage } from '@octane-xplat/secure-storage'
 
 async function rememberSession(token: string): Promise<boolean> {
 	if ((await secureStorage.ensure()) !== 'granted' || !secureStorage.impl) return false
+
 	return secureStorage.impl.set('session-token', token)
 }
 
@@ -182,12 +185,14 @@ async function restoreSession(): Promise<string | null> {
 		return await secureStorage.impl.get('session-token')
 	} catch {
 		// Tell the user that restoring the session failed; do not log the error.
+
 		return null
 	}
 }
 
 async function forgetSession(): Promise<boolean> {
 	if ((await secureStorage.ensure()) !== 'granted' || !secureStorage.impl) return false
+
 	return secureStorage.impl.remove('session-token')
 }
 ```
@@ -289,6 +294,7 @@ import {
 export function frontend(transport: HostTransport) {
 	const client = createHostClient<InvoiceServices, InvoiceEvents>(transport)
 	const off = client.on('invoices.changed', (event) => console.log(event.id))
+
 	return {
 		load: (id: string) => client.call('invoices', 'load', id),
 		capabilities: () => client.capabilities(),
@@ -298,9 +304,11 @@ export function frontend(transport: HostTransport) {
 		},
 	}
 }
+
 export function host(services: InvoiceServices, port: HostReplyPort) {
 	const dispatcher = createHostDispatcher<InvoiceServices, InvoiceEvents>(services, port)
 	dispatcher.emit('invoices.changed', { id: 'invoice-42' })
+
 	return dispatcher // adapter forwards incoming JSON to dispatcher.dispatch(message)
 }
 ```
@@ -378,6 +386,7 @@ import { media } from '@octane-xplat/media'
 export async function webCapture() {
 	const status = await media.ensure('camera')
 	if (status === 'denied') return null
+
 	return media.capturePhoto()
 }
 ```
@@ -517,6 +526,7 @@ export async function chooseImage() {
 	if (!image) return null
 	try {
 		// Bytes outlive the released temporary file; the uri does not.
+
 		return await files.readBytes(image)
 	} finally {
 		files.release(image)
@@ -577,6 +587,7 @@ export async function readSelection() {
 		}
 	} catch {
 		console.log('Could not read the selection')
+
 		return []
 	}
 }
@@ -638,6 +649,7 @@ import type { PickedImage } from '@octane-xplat/media'
 // Call from your app's capture button, not during screen mount.
 export async function takePhoto(current: PickedImage | null) {
 	const next = await media.capturePhoto({ saveToGallery: false })
+
 	return next ?? current
 }
 ```
@@ -745,9 +757,11 @@ export async function hostedSignIn(url: string) {
 	if (!result) return 'unavailable'
 	if (result.type === 'error') {
 		console.log(result.message)
+
 		return 'retry'
 	}
 	if (result.type === 'cancel') return 'signed-out'
+
 	return result.url // app backend must validate and redeem this callback
 }
 ```
@@ -855,6 +869,7 @@ export async function providerSignIn(clientId: string, nonce: string) {
 		// result.credential = { idToken, authorizationCode?, user: { id, email?, name? } }
 		// hand it to your backend — verification stays app-side
 	}
+
 	return result
 }
 ```

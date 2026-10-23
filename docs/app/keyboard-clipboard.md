@@ -22,6 +22,7 @@ export function CopyGreeting() {
 			if (!success) console.log('Copy unavailable')
 		},
 	})
+
 	return (
 		<Pressable {...clipboardProps}>
 			<Text>{isCopied ? 'Copied' : 'Copy greeting'}</Text>
@@ -60,6 +61,7 @@ import { Pressable, Text, useClipboard } from '@octane-xplat/ui'
 
 export function RowCopy({ text }: { text: string }) {
 	const { copy } = useClipboard({ announce: 'Copied' })
+
 	return (
 		<Pressable onPress={() => void copy(text)}>
 			<Text>Copy row</Text>
@@ -86,6 +88,7 @@ export function KeyButton() {
 			if (!event.isComposing) console.log(event.key, event.code)
 		},
 	})
+
 	return (
 		<button {...keyboardProps} disabled={!isSupported}>
 			Press a key
@@ -130,6 +133,7 @@ import { Text, useClipboard, useKeyboard } from '@octane-xplat/ui'
 export function InteractionBar() {
 	const keyboard = useKeyboard({ onKeyUp: (event) => console.log(event.code) })
 	const clipboard = useClipboard({ getItems: () => 'Hello' })
+
 	return <Text>{clipboard.isCopied ? 'Copied' : 'Ready'}</Text>
 }
 ```

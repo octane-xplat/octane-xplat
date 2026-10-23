@@ -98,6 +98,7 @@ import { useState } from 'octane'
 
 export function Example() {
 	const [name, setName] = useState('')
+
 	return (
 		<KeyboardAvoiding>
 			<TextInput label="Name" value={name} onChange={setName} />
@@ -211,8 +212,10 @@ import { Text } from '@octane-xplat/ui'
 import { createStore, useStore } from '@octane-xplat/ui/data'
 
 const count = createStore(0)
+
 export function Count() {
 	const value = useStore(count)
+
 	return <Text>{value}</Text>
 }
 ```

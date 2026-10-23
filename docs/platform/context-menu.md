@@ -15,6 +15,7 @@ import { useState } from 'octane'
 
 export function Actions() {
 	const [selected, setSelected] = useState('')
+
 	return (
 		<ContextMenu
 			items={[{ id: 'rename', title: 'Rename' }]}
@@ -102,6 +103,7 @@ import { useState } from 'octane'
 
 export function Actions() {
 	const [selected, setSelected] = useState('')
+
 	return (
 		<MaterialContextMenu
 			items={[{ id: 'rename', title: 'Rename' }]}
@@ -133,6 +135,7 @@ import { useState } from 'octane'
 
 export function Actions() {
 	const [selected, setSelected] = useState('')
+
 	return (
 		<MaterialContextMenu
 			items={[

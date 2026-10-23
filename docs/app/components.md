@@ -34,6 +34,7 @@ import { useState } from 'octane'
 
 export function Example() {
 	const [name, setName] = useState('')
+
 	return (
 		<KeyboardAvoiding>
 			<TextInput label="Name" value={name} onChange={setName} />
@@ -164,6 +165,7 @@ import { Switch } from '@octane-xplat/ui'
 
 export function Example() {
 	// Uncontrolled — the switch owns its on state and reports each toggle.
+
 	return <Switch defaultChecked onCheckedChange={(next) => console.log(next)} />
 }
 ```
@@ -174,6 +176,7 @@ import { useState } from 'octane'
 
 export function Example() {
 	const [name, setName] = useState('')
+
 	return (
 		<Field
 			label="Name"
@@ -261,6 +264,7 @@ import { Slider } from '@octane-xplat/ui'
 
 export function Volume() {
 	const [volume, setVolume] = useState(0.5)
+
 	return <Slider value={volume} minValue={0} maxValue={1} onValueChange={setVolume} />
 }
 ```
@@ -320,6 +324,7 @@ import { useState } from 'octane'
 
 export function Attachments() {
 	const [files, setFiles] = useState<FileInputFile | FileInputFile[] | null>(null)
+
 	return <FileInput label="Attachments" value={files} onChange={setFiles} isMultiple />
 }
 ```
@@ -505,6 +510,7 @@ type Product = { name: string; stock: number }
 
 export function Example() {
 	const rows: Product[] = [{ name: 'Notebook', stock: 4 }]
+
 	return (
 		<Table
 			columns={[{ key: 'name' }, { key: 'stock' }]}
@@ -539,6 +545,7 @@ import { useState } from 'octane'
 
 export function Example() {
 	const [expanded, setExpanded] = useState<ReadonlySet<string | number>>(new Set(['src']))
+
 	return (
 		<TreeList
 			nodes={[{ key: 'src', label: 'src', children: [{ key: 'app', label: 'App.tsrx' }] }]}
@@ -586,6 +593,7 @@ import { useState } from 'octane'
 
 export function Example() {
 	const [message, setMessage] = useState('')
+
 	return (
 		<ChatLayout
 			composer={
@@ -639,6 +647,7 @@ import { useState, useRef } from 'octane'
 export function Example() {
 	const [message, setMessage] = useState('')
 	const composer = useRef<import('@octane-xplat/ui/chat').ChatComposerInputHandle | null>(null)
+
 	return (
 		<>
 			<ChatComposerInput
@@ -703,6 +712,7 @@ import { useState } from 'octane'
 
 export function Example() {
 	const [open, setOpen] = useState(false)
+
 	return (
 		<Screen>
 			<Dialog isOpen={open} onOpenChange={setOpen}>

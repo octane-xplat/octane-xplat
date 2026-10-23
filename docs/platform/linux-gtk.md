@@ -108,6 +108,7 @@ const detail = defineRoute({
 
 function Detail(props: RouteScreenProps<typeof detail>) {
 	const [count, setCount] = useState(0)
+
 	return (
 		<masonview style={{ display: 'flex', flexDirection: 'column' }}>
 			<label text={`${props.data.id}:${count}`} />
@@ -119,6 +120,7 @@ function Detail(props: RouteScreenProps<typeof detail>) {
 const host = createPaneRouterHost()
 const navigation = createRouter({ host: host.host, catalog: defineRoutes([detail.screen(Detail)]) })
 host.attach(navigation)
+
 export function App() {
 	return (
 		<masonview style={{ display: 'flex', flexDirection: 'column' }}>

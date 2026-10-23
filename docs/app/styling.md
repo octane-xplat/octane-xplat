@@ -65,7 +65,9 @@ import { View, type ClassValue, type StyleProp } from '@octane-xplat/ui'
 
 const count: number = 0
 const classes: ClassValue = ['card', count && 'has-items', { selected: true }]
+
 const style: StyleProp = { opacity: 0.8 }
+
 const card = <View className={classes} style={style} />
 ```
 
@@ -361,6 +363,7 @@ import { Text, View, useSafeAreaInsets } from '@octane-xplat/ui'
 
 export function Chrome() {
   const insets = useSafeAreaInsets()
+
   return (
     <View className="chrome" style={{ paddingTop: insets.top || undefined }}>
       <Text>Player controls</Text>
@@ -608,6 +611,7 @@ import { Text, useColorScheme } from '@octane-xplat/ui'
 
 export function AppearanceStatus() {
 	const scheme = useColorScheme()
+
 	return <Text>{scheme === 'dark' ? 'Dark appearance' : 'Light appearance'}</Text>
 }
 ```
@@ -621,6 +625,7 @@ import { Text, useThemeScheme, setThemePreference } from '@octane-xplat/ui'
 
 export function ThemeStatus() {
 	const scheme = useThemeScheme()
+
 	return <Text>{scheme}</Text>
 }
 
@@ -654,6 +659,7 @@ import {
 export function ThemePicker() {
 	const preference = useThemePreference() // 'system' | 'light' | 'dark'
 	const scheme = useThemeScheme() // 'light' | 'dark'
+
 	return (
 		<>
 			<Text>{`Mode: ${preference}, appearance: ${scheme}`}</Text>

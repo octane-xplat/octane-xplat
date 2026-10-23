@@ -12,6 +12,7 @@ import { Selector, MultiSelector } from '@octane-xplat/ui'
 
 export function Example() {
 	const options = [{ value: 'sfo', label: 'San Francisco' }]
+
 	return (
 		<>
 			<Selector selectionMode="single" label="Region" options={options} defaultValue="sfo" />
@@ -63,6 +64,7 @@ export function Example() {
 		{ value: 'sfo', label: 'San Francisco', group: 'West', description: 'California' },
 		{ value: 'nyc', label: 'New York', group: 'East' },
 	]
+
 	return (
 		<Selector
 			selectionMode="single"
@@ -123,6 +125,7 @@ import { MultiSelector } from '@octane-xplat/ui'
 
 export function Example() {
 	const [regions, setRegions] = useState<string[]>([])
+
 	return (
 		<MultiSelector
 			selectionMode="multiple"
@@ -228,11 +231,14 @@ const remote: SearchSource = {
 			signal: request?.signal,
 		})
 		if (!response.ok) throw new Error('Search failed')
+
 		return (await response.json()) as SearchableItem[]
 	},
 }
+
 export function People() {
 	const [person, setPerson] = useState<SearchableItem | null>(null)
+
 	return (
 		<Typeahead
 			label="Person"
@@ -256,6 +262,7 @@ import { Typeahead } from '@octane-xplat/ui'
 
 export function Example() {
 	const [assignee, setAssignee] = useState<import('@octane-xplat/ui').SearchableItem | null>(null)
+
 	return (
 		<Typeahead
 			label="Assignee"
@@ -284,6 +291,7 @@ import { Tokenizer } from '@octane-xplat/ui'
 
 export function Example() {
 	const [regions, setRegions] = useState<import('@octane-xplat/ui').SearchableItem[]>([])
+
 	return (
 		<Tokenizer
 			label="Regions"
@@ -320,6 +328,7 @@ import { Tokenizer } from '@octane-xplat/ui'
 
 export function Example() {
 	const [regions, setRegions] = useState<import('@octane-xplat/ui').SearchableItem[]>([])
+
 	return (
 		<Tokenizer
 			label="Regions"
@@ -346,6 +355,7 @@ import { useState } from 'octane'
 
 export function Example() {
 	const [color, setColor] = useState('red')
+
 	return (
 		<ComplexSelector
 			label="Color"
@@ -388,6 +398,7 @@ import { useState, useRef } from 'octane'
 export function Example() {
 	const [color, setColor] = useState('red')
 	const picker = useRef<import('@octane-xplat/ui').ComplexSelectorHandle | null>(null)
+
 	return (
 		<ComplexSelector
 			label="Color"
@@ -433,6 +444,7 @@ import { Typeahead, Pressable, Text } from '@octane-xplat/ui'
 export function Example() {
 	const [region, setRegion] = useState<import('@octane-xplat/ui').SearchableItem | null>(null)
 	const input = useRef<import('@octane-xplat/ui').TypeaheadInputHandle | null>(null)
+
 	return (
 		<>
 			<Typeahead

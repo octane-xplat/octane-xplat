@@ -53,6 +53,7 @@ import { Text } from '@octane-xplat/ui'
 
 export function InboxTitle() {
 	useLingui()
+
 	return <Text>{t`Inbox`}</Text>
 }
 ```
@@ -169,6 +170,7 @@ import { i18n } from '@octane-xplat/lingui'
 
 export function saveLabel() {
 	const save = msg`Save`
+
 	return i18n._(save)
 }
 ```
@@ -231,6 +233,7 @@ import { Text } from '@octane-xplat/ui'
 
 export function Header() @{
 	useLingui()
+
 	return <Text accessibilityRole="heading">{t`Inbox`}</Text>
 }
 ```
@@ -245,6 +248,7 @@ import { Text } from '@octane-xplat/ui'
 export function LocaleLabel() {
 	return <Text>{useLocale()}</Text>
 }
+
 export function logLocale() {
 	console.log(getLocale())
 }

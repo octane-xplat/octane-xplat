@@ -21,6 +21,7 @@ import { useState } from 'octane'
 
 export function Example() {
 	const [date, setDate] = useState<import('@octane-xplat/ui').ISODateString | null>('2026-10-02')
+
 	return (
 		<Field label="Travel date">
 			<DateInput value={date} onChange={setDate} />
@@ -79,6 +80,7 @@ import { useState } from 'octane'
 
 export function Example() {
 	const [date, setDate] = useState<import('@octane-xplat/ui').ISODateString | null>('2026-10-02')
+
 	return (
 		<Field label="Travel date">
 			<DateInput value={date} onChange={setDate} />
@@ -98,6 +100,7 @@ import { Calendar, Pressable, Text } from '@octane-xplat/ui'
 
 export function Example() {
 	const calendar = useRef<import('@octane-xplat/ui').CalendarHandle | null>(null)
+
 	return (
 		<>
 			<Calendar
@@ -140,6 +143,7 @@ import { useState } from 'octane'
 export function Example() {
 	const [date, setDate] = useState<import('@octane-xplat/ui').ISODateString | null>('2026-10-02')
 	const [time, setTime] = useState<import('@octane-xplat/ui').ISOTimeString | null>('14:30')
+
 	return (
 		<>
 			<DateInput label="Date" presentation="native" value={date} onChange={setDate} />
@@ -167,6 +171,7 @@ import { useState } from 'octane'
 
 export function Attachments() {
 	const [files, setFiles] = useState<FileInputFile | FileInputFile[] | null>(null)
+
 	return (
 		<FileInput
 			label="Attachments"
@@ -313,6 +318,7 @@ bounds, `displayedComponents` (`'date'` and/or `'hourAndMinute'`), a
 import { SwiftUIDatePicker } from '@octane-xplat/date-picker/ios'
 
 const initial = new Date(2026, 9, 2)
+
 export function TravelDate() {
 	return (
 		<SwiftUIDatePicker
@@ -346,6 +352,7 @@ import { MaterialDatePicker } from '@octane-xplat/date-picker/android'
 
 const initial = new Date(2026, 9, 2)
 const bounds = { start: initial, end: new Date(2026, 11, 31) }
+
 export function TravelDate() {
 	return (
 		<MaterialDatePicker
@@ -399,6 +406,7 @@ needs an explicit size — the picker is pinned to its edges.
 import { AppKitDatePicker } from '@octane-xplat/date-picker/macos'
 
 const initial = new Date(2026, 9, 2)
+
 export function TravelDate() {
 	return (
 		<AppKitDatePicker

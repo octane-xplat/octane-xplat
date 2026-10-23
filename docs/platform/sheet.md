@@ -13,6 +13,7 @@ import { useState } from 'octane'
 
 export function Actions() {
 	const [open, setOpen] = useState(false)
+
 	return (
 		<>
 			<Pressable onPress={() => setOpen(true)}>
@@ -60,6 +61,7 @@ import { useState } from 'octane'
 
 export function Actions() {
 	const [open, setOpen] = useState(false)
+
 	return (
 		<>
 			<Pressable onPress={() => setOpen(true)}>
@@ -101,6 +103,7 @@ function AccountLabel() {
 
 export function Actions() {
 	const [open, setOpen] = useState(false)
+
 	return (
 		<AccountNameProvider value="Avery">
 			<MaterialBottomSheet
@@ -145,6 +148,7 @@ import { useState } from 'octane'
 
 export function Actions() {
 	const [open, setOpen] = useState(false)
+
 	return (
 		<MaterialBottomSheet
 			open={open}
@@ -178,6 +182,7 @@ import { useState } from 'octane'
 
 export function Actions() {
 	const [open, setOpen] = useState(false)
+
 	return (
 		<MaterialBottomSheet
 			open={open}
@@ -221,6 +226,7 @@ import { SwiftUIBottomSheet } from '@octane-xplat/sheet/ios'
 export function EditorSheet() {
 	const [open, setOpen] = useState(false)
 	const editing = useRef<TextInputHandle | null>(null)
+
 	return <View>
 		<TextInput ref={editing} placeholder="Draft outside the sheet" />
 		<Button clickAction={() => setOpen(true)}>Edit in a sheet</Button>
@@ -251,6 +257,7 @@ export function AndroidEditorSheet({ open, close, editing }: {
 	editing: { current: TextInputHandle | null }
 }) {
 	const finish = () => { close(); editing.current?.focus() }
+
 	return <MaterialBottomSheet open={open} onDismissed={finish}
 		content={() => <View>
 			<TextInput placeholder="Message in the sheet" />

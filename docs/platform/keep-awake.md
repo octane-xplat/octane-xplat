@@ -20,6 +20,7 @@ import { Text } from '@octane-xplat/ui'
 
 export function ReadingScreen() {
 	useKeepAwake()
+
 	return <Text>Your reading screen stays awake while it is open.</Text>
 }
 ```
@@ -78,6 +79,7 @@ import { keepAwake } from '@octane-xplat/platform'
 export async function monitorReading() {
 	const stop = keepAwake.onRelease?.((tag) => console.log('Released:', tag))
 	await keepAwake.activate('reading')
+
 	return async () => {
 		stop?.()
 		await keepAwake.deactivate('reading')
@@ -98,6 +100,7 @@ export function PresentationScreen() {
 		suppressDeactivateWarnings: true,
 		onRelease: (tag) => console.log('Screen lock released:', tag),
 	})
+
 	return <Text>Presentation</Text>
 }
 ```

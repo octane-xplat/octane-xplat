@@ -45,6 +45,7 @@ import { useState } from 'octane'
 
 export function Notes() {
 	const [html, setHTML] = useState('<p>Travel notes</p>')
+
 	return supported ? (
 		<TiptapEditor value={html} onChange={setHTML} placeholder="Write a note" editable />
 	) : (
@@ -119,6 +120,7 @@ import { useRef, useState } from 'octane'
 export function Notes() {
 	const [html, setHTML] = useState('<p>Travel notes</p>')
 	const editor = useRef<TiptapEditorHandle | null>(null)
+
 	return (
 		<>
 			<TiptapEditor
@@ -324,6 +326,7 @@ import { TiptapEditor } from '@octane-xplat/tiptap'
 
 export function Notes() {
 	// StarterKit minus the link mark, plus whatever the app adds.
+
 	return <TiptapEditor web={{ starterKit: { link: false } }} />
 }
 ```
@@ -429,6 +432,7 @@ import { TiptapEditor, ensureJSONBridge } from '@octane-xplat/tiptap'
 export async function prepareEditor() {
 	return await ensureJSONBridge()
 }
+
 export function Notes() {
 	return (
 		<TiptapEditor

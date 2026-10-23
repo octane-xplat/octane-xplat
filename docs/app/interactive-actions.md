@@ -26,6 +26,7 @@ import { useState } from 'octane'
 
 export function Example() {
 	const [pinned, setPinned] = useState(false)
+
 	return (
 		<ButtonGroup label="Document actions" size="sm">
 			<Button
@@ -60,6 +61,7 @@ import { useState } from 'octane'
 
 export function Example() {
 	const [selected, setSelected] = useState(false)
+
 	return (
 		<>
 			<ClickableCard label="Open project" href="https://example.com" padding={4} variant="outlined">

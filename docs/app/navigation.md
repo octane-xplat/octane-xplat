@@ -18,6 +18,7 @@ import type { RouteProps } from '../../routes.gen.contracts'
 
 export function screen(props: RouteProps<'/items/:id'>) {
 	const navigation = useRouter()
+
 	return <Screen>
 		<Text>{'Item: ' + props.params.id}</Text>
 		<Pressable onPress={() => navigation.back()}><Text>Back</Text></Pressable>
@@ -76,6 +77,7 @@ import { useCanGoBack, useRouter } from '@octane-xplat/ui/routing'
 export function BackButton() {
 	const navigation = useRouter()
 	const available = useCanGoBack()
+
 	return <Pressable disabled={!available} onPress={() => navigation.back()}>
 		<Text>Back</Text>
 	</Pressable>
@@ -105,6 +107,7 @@ import { Pressable, Text } from '@octane-xplat/ui'
 
 export function CloseActions() {
 	const navigation = useRouter()
+
 	return <>
 		<Pressable onPress={() => navigation.back({ fallback: { to: '/items/:id', params: { id: 'coat' } } })}><Text>Back</Text></Pressable>
 		<Pressable onPress={() => navigation.dismiss()}><Text>Close presentation</Text></Pressable>
@@ -138,6 +141,7 @@ loaders or rendering host.
 // Custom browser host: importing definitions does not configure the client.
 import { routes } from './routes.gen.catalog.web'
 import type { ContractsOf } from '@octane-xplat/ui/routing/core'
+
 type ApplicationContracts = ContractsOf<typeof routes>
 ```
 
@@ -220,6 +224,7 @@ import type { RouteLoaderArgs } from '../../routes.gen.contracts'
 export async function loader({ params }: RouteLoaderArgs<'/items/:id'>) {
 	const response = await fetch(`/api/items/${encodeURIComponent(params.id)}`)
 	if (!response.ok) throw new Error('Could not load the item')
+
 	return response.json()
 }
 ```
@@ -253,6 +258,7 @@ screen's appearance needs to differ.
 ```tsx
 // src/app/items/[id].web.tsx — same loader contract as [id].tsrx.
 export { loader, validateSearch } from '../../item-data'
+
 export { WebItem as default } from '../../screens/web-item'
 ```
 
@@ -284,6 +290,7 @@ import type { RouterHost } from '@octane-xplat/ui/routing/core'
 
 export function createWebNavigation(host: RouterHost) {
 	const navigation = createRouter({ catalog: routes, host })
+
 	return {
 		navigation, // Its creator calls navigation.dispose() when the host closes.
 		openCamera: () => navigation.push({ to: '/camera' }), // camera.web.tsx exists.
@@ -367,6 +374,7 @@ import { useNavigation, useRouter } from '@octane-xplat/ui/routing'
 export function RetryHistory() {
 	const navigation = useRouter()
 	const state = useNavigation()
+
 	return state.status === 'failed'
 		? <Button label="Try again" clickAction={() => { void navigation.retry() }} />
 		: null
@@ -393,6 +401,7 @@ import { useRouter } from '@octane-xplat/ui/routing'
 
 export function PaneBack() {
 	const navigation = useRouter()
+
 	return <Button label="Back" clickAction={() => { void navigation.back() }} />
 }
 ```
@@ -436,6 +445,7 @@ export function DraftScreen() {
 	const [dirty, setDirty] = useState(false)
 	const navigation = useRouter()
 	const blocker = useNavigationBlocker({ when: dirty })
+
 	return <View>
 		<Button label="Edit draft" clickAction={() => setDirty(true)} />
 		<Button label="Back" clickAction={() => { void navigation.back() }} />
@@ -499,6 +509,7 @@ that tab's confirmation panel.
 // Inside a tab whose editor receives these values from the application:
 function TabConfirmation(props: { dirty: boolean; visible: boolean }) {
 	const blocker = useNavigationBlocker({ when: props.dirty && props.visible })
+
 	return blocker.status === 'blocked'
 		? <Button label="Keep editing" clickAction={blocker.reset} />
 		: null
@@ -537,6 +548,7 @@ narrow with `as const`, so navigation accepts only the validated tab names.
 export function validateSearch(raw: { tab?: unknown }) {
 	const tab = raw.tab ?? 'details'
 	if (tab !== 'details' && tab !== 'activity') throw new TypeError('Invalid tab')
+
 	return { tab } as const
 }
 ```
@@ -549,9 +561,11 @@ needed. Return the validated fields in a plain object.
 ```ts
 // src/app/items/[id].tsrx
 export interface ItemSearch { tab: 'details' | 'activity' }
+
 export function validateSearch(raw: { tab?: unknown }): ItemSearch {
 	const tab = raw.tab ?? 'details'
 	if (tab !== 'details' && tab !== 'activity') throw new TypeError('Invalid tab')
+
 	return { tab }
 }
 ```
@@ -576,6 +590,7 @@ export const validateSearch: RouteSearchSchema<
 		vendor: 'app',
 		validate(raw) {
 			const tab = (raw as { tab?: unknown }).tab ?? 'details'
+
 			return tab === 'details' || tab === 'activity'
 				? { value: { tab } }
 				: { issues: [{ message: 'Choose details or activity.' }] }
@@ -600,12 +615,14 @@ const pageSchema: RouteSearchSchema<{ page?: number }, { page: number }> = {
 		vendor: 'app',
 		validate(raw) {
 			const page = (raw as { page?: unknown }).page ?? 1
+
 			return typeof page === 'number' && Number.isInteger(page) && page > 0
 				? { value: { page } }
 				: { issues: [{ message: 'Choose a positive page number.' }] }
 		},
 	},
 }
+
 export const validateSearch = withSearchDecoder(pageSchema, raw => ({
 	page: raw.page === undefined ? undefined : Number(raw.page),
 }))
@@ -650,11 +667,13 @@ An accessor throws if used outside its matching route.
 ```tsx
 import { Text } from '@octane-xplat/ui'
 import { getRouteApi } from '@octane-xplat/ui/routing'
+
 const item = getRouteApi('/items/:id')
 
 export function ItemSummary() {
 	const params = item.useParams()
 	const data = item.useLoaderData()
+
 	return <Text>{params.id + ': ' + data.title}</Text>
 }
 ```
@@ -669,10 +688,12 @@ history by default and rerun guards and loaders through normal navigation.
 ```tsx
 import { Button } from '@octane-xplat/ui'
 import { getRouteApi } from '@octane-xplat/ui/routing'
+
 const item = getRouteApi('/items/:id')
 
 export function ActivityFilter() {
 	const updateSearch = item.useUpdateSearch()
+
 	return <Button label="Show activity" clickAction={() => {
 		void updateSearch(previous => ({ ...previous, tab: 'activity' }))
 	}} />
@@ -690,6 +711,7 @@ callback returns `cancelled` without calling your updater function.
 ```tsx
 export function ClearFilter() {
 	const updateSearch = item.useUpdateSearch()
+
 	return <Button label="Clear filter" clickAction={() => {
 		void updateSearch({}, { replace: false })
 	}} />
@@ -709,6 +731,7 @@ import type { RouteGuardArgs } from '../../routes.gen.contracts'
 
 export function beforeLoad({ params }: RouteGuardArgs<'/items/:id'>) {
 	if (params.id === 'old-coat') redirect({ to: '/items/:id', params: { id: 'coat' } })
+
 	return { checked: true }
 }
 ```
@@ -761,10 +784,12 @@ export const account = defineRouteGroup.withContext<{ account: { id: string } | 
 	id: 'profile',
 	beforeLoad({ context }) {
 		if (!context.account) throw new RouteForbidden()
+
 		return { user: context.account }
 	},
 	loader: ({ context }) => ({ id: context.user.id }),
 })
+
 export const project = account.group({
 	id: 'project',
 	loader: ({ context }) => ({ owner: context.profile.id }),
@@ -779,11 +804,13 @@ alone do not add lifecycle behavior; membership is explicit.
 // src/app/projects/[id].tsrx
 import { Text } from '@octane-xplat/ui'
 import type { RouteLoaderArgs, RouteProps } from '../../routes.gen.contracts'
+
 export { project as group } from '../../route-groups'
 
 export function loader({ params, context }: RouteLoaderArgs<'/projects/:id'>) {
 	return { title: params.id, owner: context.project.owner }
 }
+
 export default function Project(props: RouteProps<'/projects/:id'>) {
 	return <Text>{props.data.title}: {props.context.profile.id}</Text>
 }
@@ -801,6 +828,7 @@ import { project } from './route-groups'
 function ProjectSettings(props: { data: { owner: string } }) {
 	return <Text>{props.data.owner}</Text>
 }
+
 export const projectRoutes = defineRoutes([
 	project.route({
 		path: '/project-settings',
@@ -816,6 +844,7 @@ is prepared again rather than cached across navigations.
 
 ```ts
 import { router } from '@octane-xplat/ui/routing'
+
 await router.navigateUrl('/projects/coat') // Prepares account, project, then the route.
 await router.refresh() // Checks those dependencies again.
 ```
@@ -851,6 +880,7 @@ export async function returnMessage(returnUrl: string) {
 	if (result.status === 'invalid-input') {
 		return 'Choose a screen in this app to continue.'
 	}
+
 	return null
 }
 ```
@@ -864,8 +894,10 @@ attempt. Asynchronous sources must supply a consistent snapshot when they resolv
 ```ts
 // src/routing-context.ts — readSession belongs to your authentication service.
 import { readSession } from './session'
+
 export function routingContext() {
 	const session = readSession()
+
 	return { account: session.account ? { ...session.account } : null }
 }
 ```
@@ -878,6 +910,7 @@ Application services and caches keep their own cleanup policy.
 
 ```tsx
 import { RouteOutlet, Text } from '@octane-xplat/ui'
+
 export function SessionApp(props: { authorityVersion: number }) {
 	return <RouteOutlet authority={props.authorityVersion}>
 		<Text>Choose a screen.</Text>
@@ -898,6 +931,7 @@ import { RouteOutlet, Text } from '@octane-xplat/ui'
 
 export function SessionApp(props: { authorityVersion: number; returnUrl?: string }) {
 	const [message, setMessage] = useState('Choose a screen.')
+
 	return <RouteOutlet
 		authority={props.authorityVersion}
 		resumeUrl={props.returnUrl}
@@ -922,6 +956,7 @@ import { useNavigation } from '@octane-xplat/ui/routing'
 
 export function NavigationStatus() {
 	const state = useNavigation()
+
 	return <Text>{state.status === 'pending' ? 'Opening…' : 'Ready'}</Text>
 }
 ```
@@ -964,6 +999,7 @@ export function NavigationFeedback() {
 		: state.result.status === 'forbidden' ? 'You do not have access.'
 		: state.result.status === 'invalid-input' ? 'Check this link.'
 		: 'Could not open this screen.'
+
 	return <View>
 		<Text>{message}</Text>
 		<Pressable onPress={() => { void navigation.retry() }}><Text>Try again</Text></Pressable>
@@ -1015,6 +1051,7 @@ import { router } from '@octane-xplat/ui/routing'
 export async function openItem(id: string) {
 	const result = await router.push({ to: '/items/:id', params: { id } })
 	if (result.status === 'blocked') console.warn(result.reason ?? 'Navigation blocked')
+
 	return result
 }
 ```
@@ -1030,6 +1067,7 @@ import { RouteForbidden, RouteResourceNotFound } from '@octane-xplat/ui/routing/
 export function requireItem(item: { title: string } | null, allowed: boolean) {
 	if (!allowed) throw new RouteForbidden()
 	if (!item) throw new RouteResourceNotFound()
+
 	return item
 }
 ```
@@ -1045,12 +1083,14 @@ export function navigationMessage(result: NavigationFailure): string {
 	if (result.status === 'not-found') {
 		if (result.reason === 'unavailable') return 'This screen is unavailable on this device.'
 		if (result.reason === 'resource') return 'This item no longer exists.'
+
 		return 'Page not found.'
 	}
 	if (result.status === 'forbidden') return 'You do not have access.'
 	if (result.status === 'invalid-input') return 'Check this link.'
 	if (result.status === 'blocked') return 'Navigation is not ready. Try again.'
 	if (result.status === 'unsupported') return 'This navigation is unavailable here.'
+
 	return 'Could not open this screen. Try again.'
 }
 ```
@@ -1086,11 +1126,14 @@ import { RouteOutlet, Tabs, Text } from '@octane-xplat/ui'
 import type { TabSpec } from '@octane-xplat/ui'
 
 function CatalogBase() { return <Text>Choose an item</Text> }
+
 function AccountBase() { return <Text>Account</Text> }
+
 const tabs: readonly TabSpec[] = [
 	{ key: 'catalog', title: 'Catalog', stack: 'catalog', render: CatalogBase },
 	{ key: 'account', title: 'Account', stack: 'account', render: AccountBase },
 ]
+
 export function Sections() {
 	return <RouteOutlet><Tabs tabs={tabs} defaultSelectedKey="catalog" /></RouteOutlet>
 }
@@ -1166,6 +1209,7 @@ import { useRouter } from '@octane-xplat/ui/routing'
 
 export function EditTrigger() {
 	const navigation = useRouter()
+
 	return <button id="edit-item" onClick={() => navigation.push({
 		to: '/items/:id/edit', params: { id: 'coat' }, presentation: 'modal',
 	})}>Edit item</button>
@@ -1184,6 +1228,7 @@ import { useRouter } from '@octane-xplat/ui/routing'
 
 function EditActions() {
 	const navigation = useRouter()
+
 	return <View>
 		<Button label="Back" clickAction={() => { void navigation.back() }} />
 		<Button label="Close" clickAction={() => { void navigation.dismiss() }} />
@@ -1274,6 +1319,7 @@ export const transitions = defineTransitions({ detail: { kind: 'skip' } })
 ```ts
 // After regenerating routes:
 import { router } from '@octane-xplat/ui/routing'
+
 await router.push({ to: '/items/:id', params: { id: 'coat' }, transition: 'detail' })
 ```
 
@@ -1356,6 +1402,7 @@ export function createDetailNavigation(host: RouterHost) {
 		transitions: defineTransitions({ detail }),
 		host,
 	})
+
 	return {
 		navigation,
 		open: (id: string) => navigation.push({ to: '/detail/:id', params: { id }, transition: 'detail' }),
@@ -1396,6 +1443,7 @@ report `skipped` for it.
 
 ```ts
 import { router } from '@octane-xplat/ui/routing'
+
 // With the detail transition configured and route contracts generated:
 const result = await router.push({
 	to: '/items/:id', params: { id: 'coat' }, transition: 'detail',
@@ -1462,6 +1510,7 @@ const ancestors = [
 	{ label: 'Coat', to: '/items/:id', params: { id: 'coat' } },
 	{ label: 'Activity' },
 ] as const satisfies readonly BreadcrumbItem[]
+
 const trail = <Breadcrumbs items={ancestors} />
 const menu = <DropdownMenu trigger="Open" items={[
 	{ type: 'link', key: 'coat', label: 'Coat', to: '/items/:id', params: { id: 'coat' } },
@@ -1574,6 +1623,7 @@ import { useRouter } from '@octane-xplat/ui/routing'
 export function NativeNotes() {
 	const navigation = useRouter()
 	const editor = useRef<TextInputHandle | null>(null)
+
 	return <View>
 		<Button clickAction={() => { void navigation.back() }}>Back</Button>
 		<TextInput ref={editor} defaultValue="Trip notes" />
@@ -1623,9 +1673,11 @@ const guide = defineRoute({
 	loader: ({ params }) => ({ title: params.slug }),
 	head: ({ data }) => ({ title: data.title }),
 })
+
 function Guide(props: RouteScreenProps<typeof guide>) {
 	return <Text>{props.params.slug + ': ' + props.data.title}</Text>
 }
+
 export const guideRoutes = defineRoutes({
 	routes: [guide.screen(Guide)],
 })
@@ -1653,14 +1705,17 @@ const pagedGuide = defineRoute({
 	validateSearch(raw: { page?: unknown }) {
 		const page = Number(raw.page ?? 1)
 		if (!Number.isInteger(page) || page < 1) throw new TypeError('Invalid page')
+
 		return { page }
 	},
 	beforeLoad: ({ params }) => ({ section: params.slug }),
 	loader: ({ search, context }) => ({ title: context.section, page: search.page }),
 })
+
 function Guide(props: RouteScreenProps<typeof pagedGuide>) {
 	return <Text>{props.data.title + ' · Page ' + props.data.page}</Text>
 }
+
 export const guideRoutes = defineRoutes([pagedGuide.screen(Guide)])
 ```
 
@@ -1675,7 +1730,9 @@ import { defineRoute, defineRoutes } from '@octane-xplat/ui/routing/core'
 function GuideLayout(props: { children?: unknown }) {
 	return <View><Text>Guides</Text>{props.children}</View>
 }
+
 function Help() { return <Text>Help</Text> }
+
 export const otherGuides = defineRoutes({
 	routes: [defineRoute({ path: '/guides/help' }).screen(Help)],
 	layouts: { guides: GuideLayout },
@@ -1694,6 +1751,7 @@ explains how to retain the literal or choose runtime-only routes.
 import { defineRoutes, type RouteSpec } from '@octane-xplat/ui/routing/core'
 
 const help = { path: '/help', screen: () => null } as const satisfies RouteSpec
+
 export const routes = defineRoutes([help])
 ```
 
@@ -1757,6 +1815,7 @@ import { Text } from '@octane-xplat/ui'
 import { getRouteApi } from '@octane-xplat/ui/routing'
 
 const item = getRouteApi('/items/:id')
+
 export function ItemTitle() {
 	return <Text>{item.useLoaderData().title}</Text>
 }
@@ -1767,6 +1826,7 @@ route pattern narrows its params, search, context and data together.
 
 ```ts
 import { router } from '@octane-xplat/ui/routing'
+
 const match = router.getSnapshot().route
 if (match?.contract === 'declared' && match.to === '/items/:id') {
 	const title: string = match.data.title
@@ -1784,6 +1844,7 @@ import { router } from '@octane-xplat/ui/routing'
 export async function openIncoming(url: string) {
 	const result = await router.navigateUrl(url)
 	if (result.status === 'not-found') console.warn('No screen at this address')
+
 	return result
 }
 ```
@@ -1804,8 +1865,10 @@ export function IncomingLinks() {
 		const unsubscribe = onDeepLink(url => { void router.navigateUrl(url) })
 		const initial = consumeInitialUrl()
 		if (initial) void router.navigateUrl(initial)
+
 		return unsubscribe
 	}, [])
+
 	return null
 }
 ```
@@ -1880,6 +1943,7 @@ export async function tryIncoming(url: string) {
 	if (result.status === 'not-found' || result.status === 'invalid-input') {
 		return 'This link does not open a screen in this app.'
 	}
+
 	return null
 }
 ```
@@ -1905,6 +1969,7 @@ import { Text } from '@octane-xplat/ui'
 import type { RouteProps } from '../routes.gen.contracts'
 
 export const dataMode = 'baked'
+
 export default function Changelog(props: RouteProps<'/changelog'>) {
 	return <Text>{props.data.text}</Text>
 }
@@ -1939,9 +2004,12 @@ route accessor.
 ```tsx
 import { Text } from '@octane-xplat/ui'
 import { getRouteApi } from '@octane-xplat/ui/routing'
+
 const changelog = getRouteApi('/changelog')
+
 export function ChangelogText() {
 	const data = changelog.useLoaderData()
+
 	return <Text>{data.text}</Text>
 }
 ```
@@ -1976,11 +2044,14 @@ import { defineRoutes } from '@octane-xplat/ui/routing/core'
 const documents: Record<string, { title: string }> = {
 	intro: { title: 'Your first trip' },
 }
+
 function BakedGuide(): Renderable {
 	const route = getRouteApi('/guides/:slug')
 	const document = route.useLoaderData()[route.useParams().slug]
+
 	return <Text>{document?.title ?? 'Guide not found'}</Text>
 }
+
 export const guideRoutes = defineRoutes({
 	routes: [{ path: '/guides/:slug', dataMode: 'baked', screen: BakedGuide }],
 	baked: { 'guides/:slug': documents },
@@ -2035,6 +2106,7 @@ import { RouteOutlet, Text } from '@octane-xplat/ui'
 
 const Account = createContext('Avery')
 const Provider: any = Account
+
 export function AccountApp() {
 	return <Provider value="Avery"><RouteOutlet><Text>Home</Text></RouteOutlet></Provider>
 }
@@ -2071,6 +2143,7 @@ import { RouteOutlet, Text } from '@octane-xplat/ui'
 function OwnedScreens() {
 	return <RouteOutlet><Text>Choose a screen.</Text></RouteOutlet>
 }
+
 export function App(props: { ownershipVersion: number }) {
 	return <OwnedScreens key={props.ownershipVersion} />
 }
@@ -2090,6 +2163,7 @@ import { router } from '@octane-xplat/ui/routing'
 export async function openSuggestion(value: unknown) {
 	const checked = await router.validateDestination(value)
 	if (checked.status !== 'valid') return checked
+
 	return router.push(checked.destination)
 }
 // Example input:
@@ -2110,8 +2184,10 @@ import type { ValidatedDestination } from '@octane-xplat/ui/routing'
 export function SuggestedLink(props: { destination: ValidatedDestination }) {
 	return <NavLink to={props.destination}>Open suggestion</NavLink>
 }
+
 export async function suggestionUrl(value: unknown) {
 	const checked = await router.validateDestination(value)
+
 	return checked.status === 'valid' ? router.href(checked.destination) : null
 }
 ```
@@ -2125,6 +2201,7 @@ its selected target.
 
 ```ts
 import { router } from '@octane-xplat/ui/routing'
+
 const checked = await router.validateDestination({
 	to: '/items/:id',
 	params: { id: 'coat' },
@@ -2144,6 +2221,7 @@ supersede an unrelated navigation.
 
 ```ts
 import { router } from '@octane-xplat/ui/routing'
+
 export function checkSuggestion(value: unknown, signal: AbortSignal) {
 	return router.validateDestination(value, { signal })
 }
@@ -2170,9 +2248,11 @@ const help = defineRoute({
 	path: '/help/:topic',
 	loader: ({ params }) => ({ title: 'Help: ' + params.topic }),
 })
+
 function Help(props: RouteScreenProps<typeof help>) {
 	return <Text>{props.data.title}</Text>
 }
+
 export function createPaneNavigation() {
 	const host = createPaneRouterHost()
 	const navigation = createRouter({
@@ -2181,6 +2261,7 @@ export function createPaneNavigation() {
 		stacks: ['library', 'settings'],
 	})
 	host.attach(navigation)
+
 	return { host, navigation, dispose: () => navigation.dispose() }
 }
 ```
@@ -2200,8 +2281,10 @@ import { RouterPane, RouterProvider, useRouter } from '@octane-xplat/ui/routing'
 import type { createPaneNavigation } from './pane-navigation'
 
 type WorkspaceNavigation = ReturnType<typeof createPaneNavigation>
+
 function Toolbar(props: { navigation: WorkspaceNavigation['navigation']; topic: string }) {
 	const navigation = useRouter(props.navigation)
+
 	return <View className="flex-row gap-2">
 		<Button label="Open help" clickAction={() => {
 			void navigation.push({ to: '/help/:topic', params: { topic: props.topic } })
@@ -2209,8 +2292,10 @@ function Toolbar(props: { navigation: WorkspaceNavigation['navigation']; topic: 
 		<Button label="Back" clickAction={() => { void navigation.back() }} />
 	</View>
 }
+
 export function PaneWorkspace(props: { workspace: WorkspaceNavigation }) {
 	const { host, navigation } = props.workspace
+
 	return <View className="flex-1">
 		<RouterProvider router={navigation} stack="library">
 			<Toolbar navigation={navigation} topic="library" />
@@ -2235,6 +2320,7 @@ import { createPaneNavigation } from './pane-navigation'
 import { PaneWorkspace } from './PaneWorkspace'
 
 const workspace = createPaneNavigation()
+
 export function App() { return <PaneWorkspace workspace={workspace} /> }
 // Call from this app/window's close handler, after unmounting its root.
 export function disposeApp() { workspace.dispose() }
@@ -2248,10 +2334,12 @@ with this host.
 ```ts
 // src/pane-motion.ts
 import type { createPaneNavigation } from './pane-navigation'
+
 export async function openHelp(workspace: ReturnType<typeof createPaneNavigation>) {
 	const result = await workspace.navigation.forStack('library').push({
 		to: '/help/:topic', params: { topic: 'library' }, transition: 'fade',
 	})
+
 	return result.status === 'committed' ? (await result.finished).status : result.status
 }
 ```
@@ -2267,6 +2355,7 @@ and transfers explicit public data into browser startup.
 ```ts
 // Client startup generated from xplat.routes.json:
 import './routes.gen'
+
 // For request-time HTML, use @octane-xplat/web-host/server with the catalog.
 ```
 
