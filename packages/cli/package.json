@@ -68,6 +68,8 @@
 		"build": "vite build",
 		"prepack": "pnpm build",
 		"test": "node --test --test-concurrency=2 test/*.test.mjs test/*.test.ts",
+		"test:css-platform": "node --test test/css-platform.test.mjs",
+		"test:postcss-consumer": "node test/postcss-consumer.mjs",
 		"typecheck": "tsc -p tsconfig.json"
 	},
 	"dependencies": {

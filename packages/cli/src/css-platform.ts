@@ -11,17 +11,8 @@ import postcss, {
 import loadPostcssConfig from 'postcss-load-config'
 import type { Alias, Plugin, UserConfig, ResolverFunction } from 'vite'
 
-/** Renderer targets accepted by platform CSS selection and `@platform` blocks. */
-export type CssPlatform =
-	| 'web'
-	| 'ios'
-	| 'android'
-	| 'visionos'
-	| 'macos'
-	| 'windows'
-	| 'linux'
-	| 'gtk'
-	| 'native'
+import type { CssPlatform } from './css-platform.types.ts'
+export type { CssPlatform } from './css-platform.types.ts'
 
 const buildTargets = new Set([
 	'web',

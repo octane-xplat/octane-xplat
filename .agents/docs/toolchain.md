@@ -82,6 +82,24 @@ experience of agents writing Octane-xplat code effectively.
   copy of the community renderer breaks type-level augmentations — e.g.
   `ui/type-support/svg-element.d.ts` only extends the `intrinsics` module it
   resolves.
+- Keep the CLI's public Vite declarations independent of its PostCSS
+  implementation. With TypeScript 5.9.3, CLI PostCSS 8.5.28 and Vite 8.3.0
+  resolving PostCSS 8.5.31, re-exporting `xplatCss` from `css-platform.ts`
+  causes TS2321/TS2322 while comparing recursive PostCSS types. This is
+  consumer typecheck evidence, not evidence of a runtime API difference.
+  `src/vite.d.ts` declares the public function and shares only `CssPlatform`
+  with the implementation through `css-platform.types.ts`. Keep the small function
+  declaration explicit rather than re-exporting the implementation. The focused
+  [consumer regression](../../packages/cli/test/postcss-consumer.mjs) installs
+  both patches, checks the real public declaration entry with
+  `skipLibCheck: false`, and verifies that the implementation stays outside the program.
+  Reassess the compiler limitation when upgrading TypeScript or PostCSS;
+  the declaration boundary remains appropriate even if the comparison improves.
+
+  ```sh
+  pnpm exec turbo run test:postcss-consumer --filter=@octane-xplat/cli
+  ```
+
 - Native dev CSS imports from linked checkouts need their workspace in Vite's
   `server.fs.allow`. `linkedDepFsRoots` inspects installed external source
   directories as well as explicit `link:`/`file:`/`portal:` specs: pnpm

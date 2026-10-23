@@ -279,3 +279,58 @@ for (const condition of [
 		await assert.rejects(bundle(root, 'web'), /Expected @platform/)
 	})
 }
+
+for (const mode of ['inline', 'discovered', 'directory']) {
+	test(`preserves PostCSS options and plugin order from ${mode} configuration`, async () => {
+		const root = fixture({})
+		const plugin = {
+			postcssPlugin: 'consumer',
+			Once(css) {
+				assert.doesNotMatch(css.toString(), /@platform|excluded/)
+				css.walkDecls((decl) => {
+					decl.value = 'blue'
+				})
+			},
+		}
+		const options = { map: { inline: false, annotation: false }, from: join(root, 'input.css') }
+		let configured = { ...options, plugins: [plugin] }
+		if (mode !== 'inline') {
+			const configRoot = mode === 'directory' ? join(root, 'config') : root
+			mkdirSync(configRoot, { recursive: true })
+			writeFileSync(
+				join(configRoot, 'postcss.config.cjs'),
+				`module.exports = {
+				...${JSON.stringify(options)},
+				plugins: [{ postcssPlugin: 'consumer', Once(root) {
+					if (/@platform|excluded/.test(root.toString())) throw new Error('Wrong plugin order')
+					root.walkDecls(d => { d.value = 'blue' })
+				} }]
+			}`,
+			)
+
+			configured = mode === 'directory' ? configRoot : undefined
+		}
+		const config = { root, css: { postcss: configured } }
+		await xplatCss('web').config(config)
+		const { plugins, ...actualOptions } = config.css.postcss
+		assert.equal(actualOptions.from, options.from)
+		assert.deepEqual(actualOptions.map, options.map)
+		assert.deepEqual(
+			plugins.map((entry) => entry.postcssPlugin),
+			['xplat-platform', 'consumer'],
+		)
+		if (mode === 'inline') {
+			assert.equal(plugins[1], plugin)
+			assert.equal(actualOptions.map, options.map)
+			assert.deepEqual(configured.plugins, [plugin])
+		}
+		const { default: postcss } = await import('postcss')
+		const result = await postcss(plugins).process(
+			'@platform web { .card { color: red } } @platform ios { .excluded { color: red } }',
+			actualOptions,
+		)
+		assert.match(result.css, /blue/)
+		assert.doesNotMatch(result.css, /@platform|excluded|red/)
+		assert.ok(result.map)
+	})
+}
