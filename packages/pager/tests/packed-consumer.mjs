@@ -46,6 +46,7 @@ function run(command, args, cwd) {
 // Deps the consumer needs in scope — the package's declared dependencies and
 // peers plus the renderer's jsx-runtime source.
 const dependencies = [
+	'@octane-xplat/lib',
 	'octane',
 	'@nativescript-community/octane',
 	'@nativescript/core',

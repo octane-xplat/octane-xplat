@@ -1,5 +1,11 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { memo, useCallback, useEffect, useRef, useState } from 'octane'
+import {
+	pickAccessibilityProps,
+	equalAccessibilityProps,
+	pickLayoutChildProps,
+	equalLayoutChildProps,
+} from '@octane-xplat/lib'
 import { registerElement } from '@nativescript-community/octane'
 
 import type { Attributes } from '@nativescript-community/octane/intrinsics'
@@ -231,24 +237,8 @@ const MemoPager = memo(
 		a.onPageChange === b.onPageChange &&
 		a.ios === b.ios &&
 		a.android === b.android &&
-		a.row === b.row &&
-		a.col === b.col &&
-		a.rowSpan === b.rowSpan &&
-		a.colSpan === b.colSpan &&
-		a.dock === b.dock &&
-		a.left === b.left &&
-		a.top === b.top &&
-		a.flexGrow === b.flexGrow &&
-		a.flexShrink === b.flexShrink &&
-		a.alignSelf === b.alignSelf &&
-		a.order === b.order &&
-		a.accessible === b.accessible &&
-		a.accessibilityRole === b.accessibilityRole &&
-		a.accessibilityLabel === b.accessibilityLabel &&
-		a.accessibilityHint === b.accessibilityHint &&
-		a.accessibilityValue === b.accessibilityValue &&
-		a.accessibilityState === b.accessibilityState &&
-		a.accessibilityLiveRegion === b.accessibilityLiveRegion,
+		equalLayoutChildProps(a, b) &&
+		equalAccessibilityProps(a, b),
 )
 
 /** Pager — paged horizontal swiping via @nativescript-community/ui-pager
@@ -259,13 +249,7 @@ const MemoPager = memo(
 export function Pager(props: PagerProps) @{
 	@if (props.items.length > 0) {
 		<MemoPager
-			accessible={props.accessible}
-			accessibilityRole={props.accessibilityRole}
-			accessibilityLabel={props.accessibilityLabel}
-			accessibilityHint={props.accessibilityHint}
-			accessibilityValue={props.accessibilityValue}
-			accessibilityState={props.accessibilityState}
-			accessibilityLiveRegion={props.accessibilityLiveRegion}
+			{...pickAccessibilityProps(props)}
 			id={props.id}
 			className={props.className}
 			items={props.items}
@@ -275,7 +259,8 @@ export function Pager(props: PagerProps) @{
 			onPageChange={props.onPageChange}
 			ios={props.ios}
 			android={props.android}
-			{...layoutChildProps(props)}
+			{...pickLayoutChildProps(props)}
+			style={props.style}
 		/>
 	} @else {
 		<>{props.renderEmpty?.()}</>

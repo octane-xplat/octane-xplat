@@ -53,7 +53,8 @@
 		"pack:check": "tsrx-typegen --pack-check"
 	},
 	"dependencies": {
-		"@nativescript-community/ui-pager": "14.1.42"
+		"@nativescript-community/ui-pager": "14.1.42",
+		"@octane-xplat/lib": "workspace:*"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "catalog:",

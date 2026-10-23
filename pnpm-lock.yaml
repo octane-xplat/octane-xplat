@@ -2197,6 +2197,9 @@ importers:
       '@nativescript-community/ui-pager':
         specifier: 14.1.42
         version: 14.1.42
+      '@octane-xplat/lib':
+        specifier: workspace:*
+        version: link:../lib
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
