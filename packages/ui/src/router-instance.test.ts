@@ -1,7 +1,8 @@
 // @vitest-environment node
+import { sealGeneratedRouteCatalog } from './route-contract-scope'
 import { expect, it } from 'vitest'
 import { defineRoute } from './define-route'
-import { defineRuntimeRoutes, defineRoutes } from './route-table'
+import { defineRuntimeRoutes, defineRoutes, deriveLazyRouteManifest } from './route-table'
 import { createRouter, bindRouterFlow, readRouterMatch } from './router-instance'
 import { createSearchUpdater } from './route-search-updater'
 import { DestinationRedirect, RouteForbidden } from './routing-core'
@@ -1836,4 +1837,29 @@ it('bounds a cycling host handoff and retains the original context snapshot', as
 		expect(reads).toBe(1)
 		expect(router.getSnapshot().route).toBeNull()
 	} finally { router.dispose() }
+})
+
+it('preloads in the selected stack without changing host state, and cancels on registry replacement', async () => {
+	const code = deferred<unknown>()
+	const routes = sealGeneratedRouteCatalog<{ '/slow': { params: {}; searchInput: {} } }>(
+		deriveLazyRouteManifest({ './app/slow.tsx': () => code.promise }, ['web']),
+	)
+	const platform = host()
+	const navigation = createRouter({ catalog: routes, host: platform.adapter, stacks: ['library'] })
+	const named = navigation.forStack('library')
+	const before = navigation.getSnapshot()
+	const waiting = named.preload({ to: '/slow' })
+	expect(navigation.getSnapshot()).toBe(before)
+	navigation.addRoutes(defineRoutes([defineRoute({ path: '/extra' }).screen(() => null)]), {
+		id: 'extra',
+	})
+	expect(await waiting).toEqual({ status: 'cancelled', reason: 'registry-changed' })
+	code.resolve({ default: () => null })
+	expect(await named.preload({ to: '/slow' })).toEqual({
+		status: 'preloaded',
+		href: '/@library/slow',
+	})
+	expect(navigation.getSnapshot().route).toBeNull()
+	navigation.dispose()
+	expect(await named.preload({ to: '/slow' })).toEqual({ status: 'cancelled', reason: 'disposed' })
 })

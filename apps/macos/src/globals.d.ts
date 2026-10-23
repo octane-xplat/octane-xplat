@@ -13,7 +13,11 @@ declare function setInterval(callback: (...args: unknown[]) => void, delay?: num
 declare function clearInterval(handle?: number): void
 
 interface ImportMeta {
-	glob<T = unknown>(patterns: string | string[], options?: { eager?: boolean }): Record<string, T>
+	glob<T = unknown>(patterns: string | string[], options: { eager: true }): Record<string, T>
+	glob<T = unknown>(
+		patterns: string | string[],
+		options?: { eager?: false },
+	): Record<string, () => Promise<T>>
 }
 
 // Vite `define` constants carrying the bundled Geist font (see vite.shared.mjs).

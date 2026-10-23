@@ -65,3 +65,36 @@ compatibility and is not an edge storage abstraction.
 The new package needs the one-time npm stub and trusted-publisher setup from
 [releases](../releases.md#add-a-publishable-package) before automated publishing.
 Local implementation and package validation do not provision npm publishing.
+
+## Lazy route preparation and hydration
+
+Generated file-route catalogs carry a module loader identity rather than eagerly
+imported screens. Preparation imports and normalizes the module before search,
+guards and data. The shared weak cache stores module definitions only; snapshots
+retain its identity, while replacement catalogs receive independent identities.
+Cancellation settles individual callers without aborting a shared import. Failures
+are evicted so a later navigation can retry (the JS runtime may itself cache
+module evaluation failures). Rendering resolves the loaded screen without wrapping
+or directly calling its component function. Browser bootstrap warms the initial
+module before hydration, without repeating transferred preparation.
+
+Layouts remain eager because the root shell is consumed before navigation.
+Markdown/baked content and explicitly imported programmatic catalogs retain their
+existing behavior. Importing a route through another eager module also makes it
+eager; this feature is not a server-code boundary. `manifestToJson` does not import
+code: unloaded routes report `moduleLoaded: false` and omit unknown callback flags.
+Generated build-time JSON still has complete static discovery metadata.
+
+Flamefront's `src/vite.ts` route preloader and `src/route-prefetch.ts` informed the
+separation of code warming from data fetching. Xplat deliberately adds no data
+prefetch cache or freshness/authorization policy in this feature.
+
+Platform source evidence: NativeScript Vite 8.0.20 uses its
+`helpers/dynamic-import-plugin.ts` to replace browser preload handling and rewrite
+chunk imports for the device loader. AppKit's Xplat preset sets
+`codeSplitting: false` for its single-bundle JavaScriptCore host; GTK similarly
+inlines imports. These are bundler policies, not guarantees of deferred module
+evaluation or smaller startup bundles on every host. The macOS harness bundle builds with the generated lazy catalog after preparing
+the Tiptap, Lexical and richtext `build:assets` tasks through Turbo. Its output
+is one `app.js` bundle. New native device runtime qualification has not been
+performed for this feature.

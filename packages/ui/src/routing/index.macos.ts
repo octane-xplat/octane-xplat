@@ -71,6 +71,7 @@ export type {
 	NavigationDestination,
 	ValidatedDestination,
 	DestinationValidationResult,
+	RoutePreloadResult,
 	RouteTransitionResult,
 	RouteTransitionContext,
 	TransitionDefinition,

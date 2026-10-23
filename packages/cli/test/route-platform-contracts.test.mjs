@@ -607,3 +607,46 @@ createRouter({ catalog: routes, host: undefined as unknown as RouterHost })`)
 		await rm(root, { recursive: true, force: true })
 	}
 })
+
+test('generated catalogs split route code, keep layouts eager, and preload without running callbacks', async () => {
+	const root = await fixture()
+	try {
+		await put(root, 'app/_layout.web.tsx', `globalThis.routeEvents.push('layout'); export default function Layout() { return null }`)
+		await put(root, 'app/index.web.tsx', `globalThis.routeEvents.push('index'); export default function Home() { return null }`)
+		await put(root, 'app/item.web.tsx', `
+ globalThis.routeEvents.push('item-module');
+ export const beforeLoad = () => { globalThis.routeEvents.push('guard') };
+ export const loader = () => { globalThis.routeEvents.push('loader'); return 'loaded' };
+ export default function Item() { return null }
+`)
+		await put(root, 'app/item.tsx', `throw new Error('wrong platform'); export default function Item() { return null }`)
+		await generateRoutes(root)
+		await put(root, 'runtime.ts', `
+ import { routes } from './routes.gen.catalog.web';
+ import { createRoutePreparation } from '@octane-xplat/ui/routing/core';
+ export const engine = createRoutePreparation({ catalog: routes });
+`)
+		const bundle = await build({
+			root, configFile: false, logLevel: 'silent', resolve: { conditions: ['web'] },
+			build: { outDir: join(root, 'out'), minify: false, lib: { entry: join(root, 'runtime.ts'), formats: ['es'], fileName: () => 'runtime.mjs' } },
+		})
+		const entry = (Array.isArray(bundle) ? bundle[0] : bundle).output.find((item) => item.type === 'chunk' && item.isEntry)
+		assert.ok(entry.dynamicImports.length >= 2, 'route files have separate import chunks')
+		assert.ok(!entry.code.includes('item-module'), 'route code is absent from initial entry')
+		globalThis.routeEvents = []
+		const { engine } = await import(pathToFileURL(join(root, 'out/runtime.mjs')).href)
+		assert.deepEqual(globalThis.routeEvents, ['layout'])
+		assert.equal(engine.resolveUrl('/item').status, 'matched')
+		assert.deepEqual(globalThis.routeEvents, ['layout'])
+		assert.equal((await engine.preload('/item')).status, 'preloaded')
+		assert.deepEqual(globalThis.routeEvents, ['layout', 'item-module'])
+		assert.equal((await engine.prepare('/item')).match.data, 'loaded')
+		assert.deepEqual(globalThis.routeEvents, ['layout', 'item-module', 'guard', 'loader'])
+		assert.equal((await engine.prepare('/item')).match.data, 'loaded')
+		assert.deepEqual(globalThis.routeEvents.slice(-2), ['guard', 'loader'])
+		engine.dispose()
+	} finally {
+		delete globalThis.routeEvents
+		await rm(root, { recursive: true, force: true })
+	}
+})

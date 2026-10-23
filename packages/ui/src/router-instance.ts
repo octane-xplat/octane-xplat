@@ -1028,6 +1028,32 @@ function constructRouter<
 				return resolved.href
 			},
 			resolveUrl: (url) => preparation.resolveUrl(url),
+			preload: async (value, settings) => {
+				if (disposed || scope.disposed) {
+					return { status: 'cancelled', reason: 'disposed' }
+				}
+				if (registryChanging) {
+					return { status: 'cancelled', reason: 'registry-changed' }
+				}
+				let input: unknown
+				try {
+					input = scopedDestination(value)
+				} catch (error) {
+					return { status: 'invalid-input', path: 'destination', error }
+				}
+				const source = preparation
+				const result = await source.preload(input, settings)
+				if (disposed || scope.disposed) {
+					return { status: 'cancelled', reason: 'disposed' }
+				}
+				if (source !== preparation) {
+					return { status: 'cancelled', reason: 'registry-changed' }
+				}
+				if (settings?.signal?.aborted) {
+					return { status: 'cancelled', reason: 'aborted' }
+				}
+				return result
+			},
 			validateDestination: async (value, settings) => {
 				if (disposed || scope.disposed) {
 					return { status: 'cancelled', reason: 'disposed' }

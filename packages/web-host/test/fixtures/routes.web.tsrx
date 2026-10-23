@@ -5,6 +5,9 @@ import { useRouter } from '@octane-xplat/ui/routing'
 import {
 	defineRoute,
 	defineRoutes,
+	deriveLazyRouteManifest,
+	sealGeneratedRouteCatalog,
+	mergeRouteManifests,
 	redirect,
 	RouteForbidden,
 	RouteResourceNotFound,
@@ -25,7 +28,7 @@ export function Item(props: any): any {
 	)
 }
 
-export const catalog = defineRoutes([
+const eagerCatalog = defineRoutes([
 	defineRoute({
 		path: '/items/:id',
 		beforeLoad: () => {
@@ -79,6 +82,23 @@ export const catalog = defineRoutes([
 		},
 	}).screen(Item),
 ])
+
+// Exercise the same deferred module boundary used by generated catalogs.
+export let moduleLoads = 0
+const item = eagerCatalog.routes.find((route) => route.name === 'items/:id')!
+const lazyItems = sealGeneratedRouteCatalog(
+	deriveLazyRouteManifest(
+		{
+			'./app/items/[id].web.tsx': async () => {
+				moduleLoads++
+				return { default: Item, ...item.preparation, head: item.head }
+			},
+		},
+		['web'],
+	),
+)
+
+export const catalog = mergeRouteManifests(eagerCatalog, lazyItems)
 
 export function Document(props: any): any {
 	return (

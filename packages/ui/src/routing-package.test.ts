@@ -291,10 +291,17 @@ router.push({ to: '/items/:id', params: { id: 'coat' }, transition: 'ambient-mot
 createRouter({ catalog: literalCatalog, host: undefined as unknown as RouterHost, behaviors: {} })
 async function runtimeDestinations() {
   const controller = new AbortController()
+  const warmed = await local.preload({ to: '/local' }, { signal: controller.signal })
+  if (warmed.status === 'preloaded') { const href: string = warmed.href }
+  // @ts-expect-error Preloading keeps the instance's finite route contract.
+  local.preload({ to: '/unknown' })
+  // @ts-expect-error Parameterized routes still require their params.
+  router.preload({ to: '/items/:id' })
   const checked = await local.validateDestination({ to: '/local' }, { signal: controller.signal })
   // @ts-expect-error Validation is async because schemas may be async.
   local.validateDestination({ to: '/local' }).status
   if (checked.status !== 'valid') return
+  local.preload(checked.destination)
   local.push(checked.destination)
   local.replace(checked.destination)
   local.navigate(checked.destination)

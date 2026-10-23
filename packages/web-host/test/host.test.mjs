@@ -215,6 +215,7 @@ test('adopts server DOM without rerunning preparation, then uses the ordinary cl
 		await new Promise((resolve) => setTimeout(resolve, 30))
 		assert.equal(document.getElementById('item'), button, 'hydration must preserve DOM identity')
 		assert.equal(button.getAttribute('data-id'), id)
+		assert.equal(browser.moduleLoads, 1)
 		assert.equal(browser.loads, 0)
 		assert.equal(browser.guards, 0)
 		button.click()

@@ -3,7 +3,7 @@
  *  pass the module map here; the suffix seam applies to directories the
  *  same way it does to imports:
  *
- *    // route-manifest.web.ts — generated globs also omit a plain route when
+ *    // A manually eager catalog — generated lazy catalogs also omit a plain route when
  *    // a `.web` twin exists, so native-default modules are never evaluated.
  *    const files = import.meta.glob(
  *      ['./app/**\/*.{tsrx,tsx}', '!./app/**\/*.mobile.{tsrx,tsx}',
@@ -38,6 +38,7 @@ import {
 	routePatternSegments as specSegments,
 } from '@octane-xplat/lib/route-pattern'
 
+import { loadedRouteMeta, loadedRouteModule } from './route-module'
 import { routeGroupPreparation, routeSearchValidation } from './define-route'
 import {
 	declareRouteContract,
@@ -196,6 +197,44 @@ function invalidExport(
 		expected,
 		hint: `fix or remove the '${field}' export before constructing the route catalog`,
 	}
+}
+
+/** Generated file routes load on demand. Layouts stay eager so the application
+ * shell is available before its initial navigation. Baked data is captured per
+ * catalog, not supplied by a request or a preloading call. */
+export function deriveLazyRouteManifest(
+	files: Record<string, () => Promise<unknown>>,
+	prefer: readonly string[],
+	dir = 'app',
+	layoutFiles: Record<string, unknown> = {},
+	baked?: Record<string, unknown>,
+): RouteManifest {
+	const placeholder = () => {
+		throw new Error('Route module has not been loaded')
+	}
+	const definitions = Object.fromEntries(
+		Object.keys(files).map((key) => [key, { default: placeholder }]),
+	)
+	const manifest = deriveRouteManifest({ ...definitions, ...layoutFiles }, prefer, dir)
+	manifest.baked = baked
+	if (Object.values(manifest.layouts).includes(placeholder)) {
+		throw new TypeError('Lazy route catalogs require eager layout modules')
+	}
+	for (const meta of manifest.routes) {
+		const load = files[meta.file]
+		meta.loadModule = async () => {
+			const module = await load()
+			const resolved = deriveRouteManifest({ [meta.file]: module }, prefer, dir)
+			resolved.baked = baked
+			const route = resolved.routes.find((candidate) => candidate.name === meta.name)
+			const screen = resolved.screens[meta.name]
+			if (!route || !screen) {
+				throw new TypeError(`Route ${meta.file} exports no screen`)
+			}
+			return { meta: route, screen }
+		}
+	}
+	return manifest
 }
 
 /**
@@ -924,7 +963,9 @@ export function manifestToJson(manifest: RouteManifest): RouteManifestJson {
 		version: 1,
 		layouts: Object.keys(manifest.layouts).sort(),
 		screens: Object.keys(manifest.screens).sort(),
-		routes: manifest.routes.map((meta) => {
+		routes: manifest.routes.map((definition) => {
+			const meta = loadedRouteMeta(definition)
+			const unloaded = !!definition.loadModule && !loadedRouteModule(definition)
 			const segs = meta.name.split('/')
 			const layoutDirs: string[] = manifest.layouts[''] ? [''] : []
 			for (let i = 1; i < segs.length; i++) {
@@ -936,6 +977,7 @@ export function manifestToJson(manifest: RouteManifest): RouteManifestJson {
 
 			return {
 				name: meta.name,
+				...(definition.loadModule ? { moduleLoaded: !unloaded } : {}),
 				...(meta.platforms ? { platforms: [...meta.platforms] } : {}),
 				path: meta.name === 'index' ? '' : meta.segments.join('/'),
 				params: [...meta.params],
@@ -944,10 +986,22 @@ export function manifestToJson(manifest: RouteManifest): RouteManifestJson {
 				...(meta.dataMode ? { dataMode: meta.dataMode } : {}),
 				layouts: layoutDirs,
 				source: meta.file,
-				loader: !!(meta.loader || meta.preparation?.loader || meta.preparation?.groups?.some(group => group.loader)),
-				guard: !!(meta.beforeLoad || meta.preparation?.beforeLoad || meta.preparation?.groups?.some(group => group.beforeLoad)),
-				head: !!meta.head,
-				errorBoundary: !!meta.errorBoundary,
+				loader: unloaded
+					? undefined
+					: !!(
+							meta.loader ||
+							meta.preparation?.loader ||
+							meta.preparation?.groups?.some((group) => group.loader)
+						),
+				guard: unloaded
+					? undefined
+					: !!(
+							meta.beforeLoad ||
+							meta.preparation?.beforeLoad ||
+							meta.preparation?.groups?.some((group) => group.beforeLoad)
+						),
+				head: unloaded ? undefined : !!meta.head,
+				errorBoundary: unloaded ? undefined : !!meta.errorBoundary,
 			}
 		}),
 	}

@@ -3771,7 +3771,11 @@ export type RoutePreparationResult =
 	| { status: 'not-found'; reason: 'pattern' | 'resource' | 'unavailable' }
 	| { status: 'forbidden' }
 	| { status: 'invalid-input'; path: string; error: unknown }
-	| { status: 'failed'; phase: 'context' | 'guard' | 'loader' | 'redirect'; error: unknown }
+	| {
+			status: 'failed'
+			phase: 'module' | 'context' | 'guard' | 'loader' | 'redirect'
+			error: unknown
+	  }
 	| { status: 'cancelled'; reason: 'superseded' | 'disposed' | 'aborted' | 'registry-changed' }
 
 /** A strict URL/destination match without executing guards or loading data. */
@@ -3794,11 +3798,18 @@ export type NavigationDestination<
 	Transitions extends string = RouteTransitionName,
 > = DestinationFor<Contracts, keyof Contracts & string, Stacks, Transitions> | ValidatedDestination
 
-/** Search/schema validation without guards, context or loading. Success is
+/** Search/schema validation without guards, context or loading data. Success is
  * a destination snapshot, never permission to skip preparation on navigation. */
 export type DestinationValidationResult<Value = ValidatedDestination> =
 	| { status: 'valid'; destination: Value; href: string }
 	| Extract<RoutePreparationResult, { status: 'not-found' | 'invalid-input' | 'cancelled' }>
+	| { status: 'failed'; phase: 'module'; error: unknown }
+
+/** Code warming only: no validation, request context, guards, data or host effects. */
+export type RoutePreloadResult =
+	| { status: 'preloaded'; href: string }
+	| Extract<RoutePreparationResult, { status: 'not-found' | 'invalid-input' | 'cancelled' }>
+	| { status: 'failed'; phase: 'module'; error: unknown }
 
 /** Instance-local preparation settings. Definitions are snapshotted; context is
  * read once per attempt. Linear clients supersede all pending navigation, while
@@ -4639,7 +4650,12 @@ export interface RouterNavigator<
 	clearFailure(): void
 	href(destination: NavigationDestination<Contracts, Stacks, Transitions>): string
 	resolveUrl(url: string): RouteResolution
-	/** Check raw values and the route's async search schema without loading.
+	/** Import route code without preparing data or changing navigation state. */
+	preload(
+		destination: NavigationDestination<Contracts, Stacks, Transitions>,
+		options?: { signal?: RouteCancellationSignal },
+	): Promise<RoutePreloadResult>
+	/** Check raw values and the route's async search schema without loading data.
 	 * Successful navigation always rechecks the current catalog and guards.
 	 * @example
 	 * import { router } from '@octane-xplat/ui/routing'
@@ -5178,6 +5194,8 @@ type RoutePlatform = 'web' | 'ios' | 'android' | 'mobile' | 'macos' | 'windows' 
  *  `:param` (`app/demo/[id].tsrx` → `demo/:id`); `segments` is the URL
  *  pattern used for web path matching/substitution. */
 export interface RouteMeta {
+	/** @internal Generated module identity; caches code only, never prepared inputs. */
+	loadModule?: () => Promise<{ meta: RouteMeta; screen: ScreenComponent }>
 	name: string
 	/** Generated file availability; platform readiness and authorization remain runtime checks. */
 	platforms?: readonly RoutePlatform[]
@@ -5298,6 +5316,8 @@ export interface RouteManifestJson {
 /** Serializable catalog metadata used by `manifestToJson` and external tooling. Contains no prepared data or executable route behavior.
  */
 export interface RouteJson {
+	/** Present for lazy routes. Callback flags are unknown/omitted until loaded. */
+	moduleLoaded?: boolean
 	name: string
 	/** Optional generated target availability, including missing-screen metadata. */
 	platforms?: readonly RoutePlatform[]
@@ -5311,10 +5331,10 @@ export interface RouteJson {
 	layouts: string[]
 	/** Source label — file path or `programmatic:<path>`. */
 	source: string
-	loader: boolean
-	guard: boolean
-	head: boolean
-	errorBoundary: boolean
+	loader?: boolean
+	guard?: boolean
+	head?: boolean
+	errorBoundary?: boolean
 }
 
 // ---------- route diagnostics ----------

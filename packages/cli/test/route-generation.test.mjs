@@ -453,13 +453,18 @@ export default function Screen(props: RouteProps<'/items/:id'>) {
 }
 `,
 		)
+
 		await writeFile(
 			join(root, 'env.d.ts'),
 			`
 export {}
-declare global { interface ImportMeta { glob(...args: unknown[]): Record<string, unknown> } }
+declare global { interface ImportMeta {
+ glob(patterns: string[], options: { eager: true }): Record<string, unknown>
+ glob(patterns: string[]): Record<string, () => Promise<unknown>>
+} }
 `,
 		)
+
 		await generateRoutes(root, 'src/app', undefined, { bake: false })
 		await writeFile(
 			join(root, 'pure.ts'),
@@ -566,40 +571,97 @@ test('emits OS catalogs that exclude shadowed and unavailable route modules', as
 	const root = await mkdtemp(join(tmpdir(), 'xplat-route-platforms-'))
 	try {
 		await mkdir(join(root, 'src/screens'), { recursive: true })
-		for (const path of ['detail.tsx', 'detail.mobile.tsrx', 'detail.ios.tsx', 'detail.android.tsx', 'detail.web.tsx', 'detail.linux.tsrx']) {
-			await writeFile(join(root, 'src/screens', path), 'globalThis.__xplatRouteGraphHits.push(' + JSON.stringify(path) + '); export function Screen() { return null }')
+		for (const path of [
+			'detail.tsx',
+			'detail.mobile.tsrx',
+			'detail.ios.tsx',
+			'detail.android.tsx',
+			'detail.web.tsx',
+			'detail.linux.tsrx',
+		]) {
+			await writeFile(
+				join(root, 'src/screens', path),
+				'globalThis.__xplatRouteGraphHits.push(' +
+					JSON.stringify(path) +
+					'); export function Screen() { return null }',
+			)
 		}
+
 		await generateRoutes(root, 'src/screens', undefined, { bake: false })
-		const catalog = (target) => readFile(join(root, 'src/routes.gen.catalog.' + target + '.ts'), 'utf8')
+		const catalog = (target) =>
+			readFile(join(root, 'src/routes.gen.catalog.' + target + '.ts'), 'utf8')
+
 		const ios = await catalog('ios')
 		assert.match(ios, /!\.\/screens\/\*\*\/\*\.android/)
 		assert.match(ios, /!\.\/screens\/detail\.tsx/)
 		assert.match(ios, /!\.\/screens\/detail\.mobile\.tsrx/)
-		assert.match(ios, /deriveRouteManifest\(files, \["ios","mobile"\], "\.\/screens"\)/)
+		assert.match(
+			ios,
+			/deriveLazyRouteManifest\(files, \["ios","mobile"\], "\.\/screens", layouts, bakedRouteData\)/,
+		)
+
 		const android = await catalog('android')
 		assert.match(android, /!\.\/screens\/\*\*\/\*\.ios/)
 		assert.match(android, /!\.\/screens\/detail\.mobile\.tsrx/)
 		const linux = await catalog('linux')
 		assert.match(linux, /!\.\/screens\/detail\.web\.tsx/)
-		assert.match(linux, /deriveRouteManifest\(files, \["linux","web"\], "\.\/screens"\)/)
+		assert.match(
+			linux,
+			/deriveLazyRouteManifest\(files, \["linux","web"\], "\.\/screens", layouts, bakedRouteData\)/,
+		)
+
 		const mobile = await catalog('mobile')
 		assert.doesNotMatch(mobile, /Device/)
 		assert.match(mobile, /!\.\/screens\/\*\*\/\*\.ios/)
 		assert.match(mobile, /!\.\/screens\/\*\*\/\*\.android/)
 		const workspace = fileURLToPath(new URL('../../../', import.meta.url))
 		await mkdir(join(root, 'node_modules/@octane-xplat'), { recursive: true })
-		await symlink(join(workspace, 'packages/ui'), join(root, 'node_modules/@octane-xplat/ui'), 'dir')
+		await symlink(
+			join(workspace, 'packages/ui'),
+			join(root, 'node_modules/@octane-xplat/ui'),
+			'dir',
+		)
+
 		const { build } = await import('vite')
-		for (const [target, expected] of Object.entries({ ios: 'detail.ios.tsx', android: 'detail.android.tsx', mobile: 'detail.mobile.tsrx', web: 'detail.web.tsx', linux: 'detail.linux.tsrx', macos: 'detail.tsx', windows: 'detail.tsx' })) {
+		for (const [target, expected] of Object.entries({
+			ios: 'detail.ios.tsx',
+			android: 'detail.android.tsx',
+			mobile: 'detail.mobile.tsrx',
+			web: 'detail.web.tsx',
+			linux: 'detail.linux.tsrx',
+			macos: 'detail.tsx',
+			windows: 'detail.tsx',
+		})) {
 			const outDir = join(root, 'dist', target)
 			await build({
-				root, configFile: false, logLevel: 'silent',
-				build: { outDir, lib: { entry: join(root, 'src/routes.gen.catalog.' + target + '.ts'), formats: ['es'], fileName: () => 'catalog.mjs' } },
+				root,
+				configFile: false,
+				logLevel: 'silent',
+				build: {
+					outDir,
+					lib: {
+						entry: join(root, 'src/routes.gen.catalog.' + target + '.ts'),
+						formats: ['es'],
+						fileName: () => 'catalog.mjs',
+					},
+				},
 			})
+
 			globalThis.__xplatRouteGraphHits = []
 			const { routes } = await import(pathToFileURL(join(outDir, 'catalog.mjs')).href)
-			assert.deepEqual(globalThis.__xplatRouteGraphHits, [expected], target + ' must evaluate only its selected screen')
-			assert.deepEqual(routes.routes.map((route) => route.name), ['detail'], target + ' preserves the public path in a custom directory')
+			assert.deepEqual(globalThis.__xplatRouteGraphHits, [], target + ' defers screen evaluation')
+			await routes.routes[0].loadModule()
+			assert.deepEqual(
+				globalThis.__xplatRouteGraphHits,
+				[expected],
+				target + ' must evaluate only its selected screen',
+			)
+
+			assert.deepEqual(
+				routes.routes.map((route) => route.name),
+				['detail'],
+				target + ' preserves the public path in a custom directory',
+			)
 		}
 	} finally {
 		delete globalThis.__xplatRouteGraphHits

@@ -1,3 +1,4 @@
+import { loadRouteModule, loadedRouteMeta } from './route-module'
 import { resolveValidatedDestination } from './validated-destination'
 import { createRouteUrlPolicy } from './route-url-policy'
 import { routeStackBase } from './route-stack-url'
@@ -12,6 +13,7 @@ import type { RouteSearchInput } from '@octane-xplat/lib/route-pattern'
 import type {
 	Destination,
 	DestinationValidationResult,
+	RoutePreloadResult,
 	ValidatedDestination,
 	RouteDestinationInput,
 	RouteMeta,
@@ -173,8 +175,10 @@ export function createRoutePreparation(options: RoutePreparationOptions) {
 				if (stack === 'root' || !stacks.has(stack)) {
 					return invalid('stack', new TypeError('Unknown named route stack'))
 				}
+
 				segments = segments.slice(1)
 			}
+
 			const found = find(segments)
 
 			if (!found) {
@@ -313,7 +317,7 @@ export function createRoutePreparation(options: RoutePreparationOptions) {
 	const validateSearch = async (
 		destination: RouteDestinationInput,
 	): Promise<Record<string, unknown>> => {
-		const meta = metaFor(destination.to)!
+		const meta = loadedRouteMeta(metaFor(destination.to)!)
 		const behavior = behaviors.get(meta.name) ?? behaviors.get(destination.to) ?? meta.preparation
 		if (!behavior?.validateSearch && Object.keys(destination.search ?? {}).length) {
 			throw new TypeError('This route declares no search parameters')
@@ -332,17 +336,19 @@ export function createRoutePreparation(options: RoutePreparationOptions) {
 		}
 		return search
 	}
-	const validateDestination = async (
+	const inspectDestination = async (
 		input: unknown,
 		settings: { signal?: RouteCancellationSignal } = {},
-	): Promise<DestinationValidationResult<RouteDestinationInput>> => {
+		codeOnly = false,
+	): Promise<DestinationValidationResult<RouteDestinationInput> | RoutePreloadResult> => {
 		if (disposed) {
 			return { status: 'cancelled', reason: 'disposed' }
 		}
 		if (settings.signal?.aborted) {
 			return { status: 'cancelled', reason: 'aborted' }
 		}
-		const resolved = resolveDestination(input)
+		const resolved =
+			codeOnly && typeof input === 'string' ? resolveUrl(input) : resolveDestination(input)
 		if (resolved.status !== 'matched') {
 			return resolved
 		}
@@ -351,12 +357,14 @@ export function createRoutePreparation(options: RoutePreparationOptions) {
 			return transition
 		}
 		let cancelled: CancelReason | undefined
-		let finishCancellation!: (result: DestinationValidationResult<RouteDestinationInput>) => void
-		const cancellation = new Promise<DestinationValidationResult<RouteDestinationInput>>(
-			(resolve) => {
-				finishCancellation = resolve
-			},
-		)
+		let finishCancellation!: (
+			result: DestinationValidationResult<RouteDestinationInput> | RoutePreloadResult,
+		) => void
+		const cancellation = new Promise<
+			DestinationValidationResult<RouteDestinationInput> | RoutePreloadResult
+		>((resolve) => {
+			finishCancellation = resolve
+		})
 		const attempt = {
 			cancel(reason: CancelReason) {
 				if (cancelled) {
@@ -372,10 +380,29 @@ export function createRoutePreparation(options: RoutePreparationOptions) {
 		if (settings.signal?.aborted) {
 			abort()
 		}
-		const work = async (): Promise<DestinationValidationResult<RouteDestinationInput>> => {
+		const work = async (): Promise<
+			DestinationValidationResult<RouteDestinationInput> | RoutePreloadResult
+		> => {
 			try {
 				if (cancelled) {
 					return { status: 'cancelled', reason: cancelled }
+				}
+
+				try {
+					const meta = metaFor(resolved.destination.to)!
+					if (meta.loadModule) {
+						await loadRouteModule(meta)
+					}
+				} catch (error) {
+					return { status: 'failed', phase: 'module', error }
+				}
+
+				if (cancelled) {
+					return { status: 'cancelled', reason: cancelled }
+				}
+
+				if (codeOnly) {
+					return { status: 'preloaded', href: resolved.href }
 				}
 
 				await validateSearch(resolved.destination)
@@ -473,10 +500,23 @@ export function createRoutePreparation(options: RoutePreparationOptions) {
 				}
 
 				const destination = current.destination
-				const meta = metaFor(destination.to)!
 				if (!claim(destination.stack ?? 'root')) {
 					return { status: 'cancelled', reason: 'superseded' }
 				}
+				try {
+					const definition = metaFor(destination.to)!
+					if (definition.loadModule) {
+						await loadRouteModule(definition)
+					}
+				} catch (error) {
+					return { status: 'failed', phase: 'module', error }
+				}
+
+				if (cancelled) {
+					return { status: 'cancelled', reason: cancelled }
+				}
+
+				const meta = loadedRouteMeta(metaFor(destination.to)!)
 
 				const behavior =
 					behaviors.get(meta.name) ?? behaviors.get(destination.to) ?? meta.preparation
@@ -513,17 +553,21 @@ export function createRoutePreparation(options: RoutePreparationOptions) {
 						if (additional !== undefined && !dependencyRecord(additional)) {
 							throw new TypeError('Guard context must be a plain dependency object')
 						}
+
 						args.context = { ...args.context, ...additional }
 						if (cancelled) {
 							return { status: 'cancelled', reason: cancelled }
 						}
+
 						phase = 'loader'
 						const parentData = await group.loader?.(args)
 						if (cancelled) {
 							return { status: 'cancelled', reason: cancelled }
 						}
+
 						args.context = { ...args.context, [group.id]: parentData }
 					}
+
 					phase = 'guard'
 					const additional = await behavior?.beforeLoad?.(args)
 					if (additional !== undefined && !dependencyRecord(additional)) {
@@ -623,7 +667,12 @@ export function createRoutePreparation(options: RoutePreparationOptions) {
 		href,
 		resolveUrl,
 		resolveDestination: (input: unknown) => resolveDestination(input),
-		validateDestination,
+		validateDestination: (input: unknown, settings?: { signal?: RouteCancellationSignal }) =>
+			inspectDestination(input, settings) as Promise<
+				DestinationValidationResult<RouteDestinationInput>
+			>,
+		preload: (input: unknown, settings?: { signal?: RouteCancellationSignal }) =>
+			inspectDestination(input, settings, true) as Promise<RoutePreloadResult>,
 		prepare: (input: unknown, settings?: PrepareSettings) => prepare(input, settings),
 		cancel(stack = 'root') {
 			pending.get(keyFor(stack))?.cancel('aborted')

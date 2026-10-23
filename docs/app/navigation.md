@@ -132,6 +132,61 @@ src/app/settings.web.tsrx      /settings on web
 src/app/settings.mobile.tsrx   /settings on iOS and Android
 ```
 
+### Warm a screen before opening it
+
+Generated `.tsx` and `.tsrx` routes load their code when first needed. To warm
+an expected destination earlier, call `preload`. It leaves the current screen
+alone and returns a result you can inspect. The destination uses the same typed
+path and parameters as `push`.
+
+```ts
+import { router } from '@octane-xplat/ui/routing'
+
+const destination = { to: '/items/:id', params: { id: 'coat' } } as const
+const warmed = await router.preload(destination)
+if (warmed.status === 'failed') {
+	console.error('Could not download the screen', warmed.error)
+}
+// Later, when the user chooses the item:
+await router.push(destination)
+```
+
+Preloading imports the module, including its top-level JavaScript, but does not
+run search validation, context factories, guards, data loaders or head callbacks.
+Keep request work in those callbacks. Navigation still runs them normally;
+preloading is neither a data cache nor permission to enter a protected screen.
+Layouts, Markdown content and explicitly imported programmatic catalogs remain
+eager. Importing a screen yourself also makes that screen eager.
+
+```ts
+// src/app/items/[id].tsrx: keep request work inside callbacks.
+import type { RouteLoaderArgs } from '../../routes.gen.contracts'
+
+export async function loader({ params }: RouteLoaderArgs<'/items/:id'>) {
+	const response = await fetch(`/api/items/${encodeURIComponent(params.id)}`)
+	if (!response.ok) throw new Error('Could not load the item')
+	return response.json()
+}
+```
+
+An abort signal stops waiting for the preload without cancelling another caller's
+shared import. Failed imports can be attempted again; the runtime may still cache
+some module failures. On web, the build creates separate route chunks. Native
+bundling follows its host: NativeScript supports dynamic imports, while AppKit's
+single-bundle host inlines them. The same method is safe to call on either host;
+it does not promise a smaller initial native bundle.
+
+```ts
+import { router } from '@octane-xplat/ui/routing'
+
+const controller = new AbortController()
+const pending = router.preload({ to: '/items/:id', params: { id: 'coat' } }, {
+	signal: controller.signal,
+})
+controller.abort()
+const result = await pending // { status: 'cancelled', reason: 'aborted' }
+```
+
 ### Share routes across targets
 
 An unsuffixed screen provides a shared destination. Every platform variant of

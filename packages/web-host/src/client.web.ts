@@ -70,6 +70,10 @@ export async function startWebApp<const Catalog extends ContractRouteManifest>(
 			) {
 				throw new Error('Prepared document route does not match the catalog')
 			}
+			const warmed = await engine.preload(payload.url)
+			if (warmed.status !== 'preloaded') {
+				throw new Error('Could not load the prepared document route module')
+			}
 		} finally {
 			engine.dispose()
 		}

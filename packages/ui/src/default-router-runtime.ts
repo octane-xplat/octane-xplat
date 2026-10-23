@@ -82,6 +82,7 @@ export function createDefaultRouterRuntime<Platform extends ClientRouterHost>(
 		clearFailure: () => client?.instance.clearFailure(),
 		href: (destination) => getClient().instance.href(destination),
 		resolveUrl: (url) => getClient().instance.resolveUrl(url),
+		preload: (value, options) => getClient().instance.preload(value, options),
 		validateDestination: (value, options) =>
 			getClient().instance.validateDestination(value, options),
 		getSnapshot: () => getClient().instance.getSnapshot(),

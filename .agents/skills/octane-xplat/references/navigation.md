@@ -60,7 +60,7 @@ File routes export a screen plus optional `validateSearch`, `beforeLoad`,
 types inside that route. Path, validated search, guard context, and loader data
 remain separate; no `_stack`, flattened parameter bag, or injected close callback.
 Malformed callback exports are compiler errors in generated `RouteExportChecks`
-and fatal `route/invalid-export` errors at catalog construction. Repair the
+and fatal `route/invalid-export` errors when the route module is loaded. Repair the
 source export; never cast generated checks away. Invalid guards are not ignored.
 Guard callbacks return an added context object or void; parsers return a search
 object, with async equivalents. Returning boolean permission flags or scalar
@@ -800,4 +800,33 @@ and asset storage still need their own qualification.
 ```ts
 import { serve } from 'srvx'
 serve({ fetch: handle })
+```
+
+### Lazy route code
+
+Generated file routes defer module loading until preparation or `router.preload`.
+Use preloading for code only; it runs module top-level code but no search validator,
+context factory, guard, loader or head callback. Do not cache authorization or move
+request work into module scope. Layouts, Markdown and explicit programmatic imports
+stay eager; host bundlers decide whether dynamic imports produce separate chunks.
+Web hydration warms the initial module before adopting transferred data, without
+repeating preparation. Import failures return `failed` with phase `module`.
+
+```ts
+import { router } from '@octane-xplat/ui/routing'
+const destination = { to: '/items/:id', params: { id: 'coat' } } as const
+await router.preload(destination)
+await router.push(destination) // guards and loaders still run
+```
+
+See [warm a screen](../../../../docs/app/navigation.md#warm-a-screen-before-opening-it)
+for cancellation and bundling limits. `manifestToJson` does not import modules:
+`moduleLoaded: false` means callback flags are unknown, not absent; static generated
+JSON remains the complete build-time discovery source.
+
+```ts
+import { manifestToJson } from '@octane-xplat/ui/routing/core'
+import { routes } from './routes.gen.catalog.web'
+const metadata = manifestToJson(routes)
+const deferred = metadata.routes.filter(route => route.moduleLoaded === false)
 ```
