@@ -1,5 +1,4 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { mergeStyle } from './style-merge'
 import { useSignal$ } from 'octane/signals/client'
 
 export const glassRefs = { host: { current: null as any }, child: { current: null as any } }
@@ -15,8 +14,23 @@ const refs = [glassRefs.child, [callback]]
 
 function Moving() {
 	return (
-		<liquidglass id="glass-moving" ref={refs} style={{ width: 40, height: 20 }}>
-			<label id="glass-descendant" text="Nested glass" />
+		<liquidglass
+			id="glass-moving"
+			ref={refs}
+			style={{
+				width: 40,
+				height: 20,
+				gridRow: '1',
+				gridColumn: '1',
+				justifySelf: 'start',
+				alignSelf: 'end',
+			}}
+		>
+			<label
+				id="glass-descendant"
+				text="Nested glass"
+				style={{ width: '100%', height: '100%', minWidth: 0, minHeight: 0 }}
+			/>
 		</liquidglass>
 	)
 }
@@ -44,8 +58,16 @@ export default function Glass() {
 							id={'glass-' + id}
 							style={
 								phase === 1
-									? { width: 40, height: 20, margin: 5, justifySelf: 'end', alignSelf: 'end' }
-									: undefined
+									? {
+											gridRow: '1',
+											gridColumn: '1',
+											width: 40,
+											height: 20,
+											margin: 5,
+											justifySelf: 'end',
+											alignSelf: 'end',
+										}
+									: { gridRow: '1', gridColumn: '1' }
 							}
 						>
 							<label id={'glass-text-' + id} text={phase === 1 ? 'Updated ' + id : id} />
@@ -58,7 +80,7 @@ export default function Glass() {
 						key="replacement"
 						id="glass-moving"
 						ref={refs}
-						style={{ width: 60, height: 30 }}
+						style={{ width: 60, height: 30, gridRow: '1', gridColumn: '1' }}
 					>
 						<label id="glass-replacement" text="Replacement" />
 					</contentview>
@@ -66,7 +88,15 @@ export default function Glass() {
 					<Moving />
 				) : null}
 			</liquidglass>
-			<liquidglass id="glass-tracks" style={{ width: 160, height: 60 }}>
+			<liquidglass
+				id="glass-tracks"
+				style={{
+					width: 160,
+					height: 60,
+					gridTemplateColumns: '80px 80px',
+					gridTemplateRows: '30px 30px',
+				}}
+			>
 				<contentview
 					id="glass-fill"
 					style={{

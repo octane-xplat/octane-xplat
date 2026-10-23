@@ -2,9 +2,8 @@
 import { mergeStyle } from './style-merge'
 import { useSignal$ } from 'octane/signals/client'
 
-/** Dock emulation under the CSS-only model — a docked edge is absolute
- *  positioning plus three zero insets; the last child fills what the docked
- *  siblings leave. */
+/** CSS positioned edges share their containing block. Insets do not consume
+ *  space for siblings; a fill child explicitly pins all four edges. */
 const DOCK_INSETS: Record<string, Record<string, number>> = {
 	top: { top: 0, left: 0, right: 0 },
 	bottom: { bottom: 0, left: 0, right: 0 },
@@ -28,7 +27,7 @@ function Fill() {
 		<contentview
 			id="dock-fill"
 			ref={fillRefs}
-			style={{ position: 'absolute', left: 0, top: 0, bottom: 0 }}
+			style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }}
 		>
 			<label id="dock-descendant" text="Fill" style={{ width: 60, height: 18 }} />
 		</contentview>
@@ -85,12 +84,17 @@ export default function Dock() {
 						key="fill"
 						id="dock-fill"
 						ref={fillRefs}
-						style={{ position: 'absolute', left: 0, top: 0, bottom: 0 }}
+						style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }}
 					>
 						<label id="dock-descendant" text="Fill" style={{ width: 60, height: 18 }} />
 					</contentview>
 				) : phase === 5 ? (
-					<masonview key="replacement" id="dock-fill" ref={fillRefs} style={{ display: 'flex' }}>
+					<masonview
+						key="replacement"
+						id="dock-fill"
+						ref={fillRefs}
+						style={{ display: 'flex', position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }}
+					>
 						<label id="dock-descendant" text="Replacement" />
 					</masonview>
 				) : null}
@@ -109,7 +113,10 @@ export default function Dock() {
 						width: '50%',
 					}}
 				/>
-				<contentview id="percentage-fill" />
+				<contentview
+					id="percentage-fill"
+					style={{ position: 'absolute', left: '50%', right: 0, top: 0, bottom: 0 }}
+				/>
 			</masonview>
 			<masonview id="natural-dock">
 				<contentview

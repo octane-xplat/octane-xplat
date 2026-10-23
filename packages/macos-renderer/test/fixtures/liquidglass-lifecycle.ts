@@ -93,7 +93,7 @@ export async function checkLiquidGlassLifecycle(root: any, nativeWindow: any) {
 		'Glass descendant update failed',
 	)
 
-	expectRect('glass-a', [200, 80, 40, 20])
+	expectRect('glass-a', [195, 75, 40, 20])
 	expectRect('glass-moving', [0, 80, 40, 20])
 
 	await advance()

@@ -17,6 +17,8 @@ For a boundary or workaround investigation, read the applicable internal record:
   fallbacks, platform exceptions, owner lifetime, and qualified fixtures.
 - [Mason cutover](../../../docs/notes/masonkit-layout-evaluation.md): native
   layout implementation, migration boundaries, and remaining qualification gaps.
+- [AppKit verification](../../../docs/appkit-verification.md): geometry and
+  lifecycle evidence, including CSS positioned edges after the layout cutover.
 - [Upstream limitations](../../../docs/upstream-limitations.md): how to verify
   and record upstream scope and local workarounds.
 - [NativeScript runtimes: V8 without ICU](../../../docs/notes/nativescript-no-icu.md):

@@ -17,6 +17,35 @@ pnpm --filter @xplat/macos test:layout-placement
 system fonts, rendering updates, and the CLI's AppKit packaging contract. This
 coverage does not establish OS input delivery or general UI-package parity.
 
+The packed renderer's `Dock.macos.tsx` fixture checks CSS absolute edge
+placement, percentages, resizing, keyed identity, and subtree cleanup. Its
+siblings share the containing block; they do not consume space sequentially
+like the removed native DockLayout. The fill view pins all four edges
+explicitly. This fixture must not be reported as sequential docking coverage.
+
+```sh
+pnpm exec turbo run test:packed --filter=@octane-xplat/macos-renderer
+```
+
+AppKit layout uses points for numeric lengths, native measurements, and CSS
+grid tracks. Keep Mason's CSS parsing scale at 1; a Retina backing scale
+would otherwise double only the track lengths. The packed wrap fixture checks
+80-point columns and 30-point rows, including resize and style removal.
+Logical proxies forward CSS placement before ancestor layout runs; child-authored
+styles take precedence, and reparenting restores the child's own style.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+export function FixedCells() {
+	return <masonview style={{ display: 'grid', gridTemplateColumns: '80px 80px', gridAutoRows: '30px' }}>
+		<label text="One" />
+		<proxyviewcontainer style={{ gridColumn: '2' }}>
+			<label text="Two" />
+		</proxyviewcontainer>
+	</masonview>
+}
+```
+
 Shared AppKit dialogs, alert dialogs, bottom sheets, lightboxes, and toast
 stacks have dedicated presentation and cleanup. The renderer's 88 native-state
 tests pass, and the bounded packed overlay consumer typechecks JSX and

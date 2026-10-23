@@ -50,15 +50,15 @@ export async function checkDockLifecycle(root: any, nativeWindow: any) {
 	)
 
 	check(Number(host.subviews.count) === 5 && fill.superview === host, 'DockLayout nesting failed')
-	expectRect('dock-top', [10, 10, 280, 20])
-	expectRect('dock-right', [250, 35, 40, 115])
-	expectRect('dock-bottom', [10, 120, 240, 30])
-	expectRect('dock-left', [10, 35, 50, 85])
-	expectRect('dock-fill', [60, 35, 190, 85])
-	expectRect('percentage-edge', [10, 10, 100, 80])
-	expectRect('percentage-fill', [110, 10, 80, 80])
+	expectRect('dock-top', [0, 0, 300, 20])
+	expectRect('dock-right', [260, 0, 40, 160])
+	expectRect('dock-bottom', [0, 130, 300, 30])
+	expectRect('dock-left', [0, 0, 50, 160])
+	expectRect('dock-fill', [0, 0, 300, 160])
+	expectRect('percentage-edge', [0, 0, 100, 100])
+	expectRect('percentage-fill', [100, 0, 100, 100])
 	check(
-		Math.abs(Number(debug.findId('natural-dock').frame.size.height) - 60) < 1,
+		Math.abs(Number(debug.findId('natural-dock').frame.size.height) - 20) < 1,
 		'DockLayout natural host height failed',
 	)
 
@@ -69,15 +69,15 @@ export async function checkDockLifecycle(root: any, nativeWindow: any) {
 		'DockLayout update recreated views',
 	)
 
-	expectRect('dock-top', [10, 145, 340, 25])
-	expectRect('dock-right', [310, 10, 40, 135])
-	expectRect('dock-bottom', [10, 115, 300, 30])
-	expectRect('dock-left', [10, 10, 50, 105])
-	expectRect('dock-fill', [60, 10, 60, 105])
+	expectRect('dock-top', [0, 155, 360, 25])
+	expectRect('dock-right', [320, 0, 40, 180])
+	expectRect('dock-bottom', [0, 150, 360, 30])
+	expectRect('dock-left', [0, 0, 50, 180])
+	expectRect('dock-fill', [0, 0, 360, 180])
 	debug.pressId('advance-dock')
 	await settle()
-	expectRect('dock-top', [0, 70, 40, 20])
-	expectRect('dock-fill', [90, 0, 170, 130])
+	expectRect('dock-top', [0, 0, 40, 20])
+	expectRect('dock-fill', [0, 0, 300, 160])
 	check(dockEvents.join(',') === 'attach', 'DockLayout update reassigned refs')
 	debug.pressId('advance-dock')
 	await settle()
@@ -89,12 +89,12 @@ export async function checkDockLifecycle(root: any, nativeWindow: any) {
 	)
 
 	expectRect('dock-left', [0, 0, 50, 160])
-	expectRect('dock-top', [50, 70, 40, 20])
-	expectRect('dock-fill', [90, 0, 170, 130])
+	expectRect('dock-top', [0, 0, 40, 20])
+	expectRect('dock-fill', [0, 0, 300, 160])
 	debug.pressId('advance-dock')
 	await settle()
 	check(!edges[1].superview, 'DockLayout removal retained right child')
-	expectRect('dock-fill', [90, 0, 210, 130])
+	expectRect('dock-fill', [0, 0, 300, 160])
 	debug.pressId('advance-dock')
 	await settle()
 	const replacement = debug.findId('dock-fill'),
@@ -113,7 +113,7 @@ export async function checkDockLifecycle(root: any, nativeWindow: any) {
 		'DockLayout replacement ref cleanup failed',
 	)
 
-	expectRect('dock-fill', [90, 0, 210, 130])
+	expectRect('dock-fill', [0, 0, 300, 160])
 	debug.pressId('advance-dock')
 	await settle()
 	check(
@@ -150,7 +150,7 @@ export async function checkDockLifecycle(root: any, nativeWindow: any) {
 		'DockLayout return to original parent retained old ownership',
 	)
 
-	expectRect('dock-fill', [90, 0, 210, 130])
+	expectRect('dock-fill', [0, 0, 300, 160])
 	check(
 		dockEvents.join(',') === 'attach,cleanup,attach,cleanup,attach,cleanup,attach',
 		'DockLayout parent change callback lifecycle failed',
