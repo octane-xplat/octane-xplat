@@ -167,6 +167,48 @@ Awake exits when that PowerShell process exits and lets the display turn off.
 It does not change the power plan or override deliberate sleep; keep the lid
 open during remote work. See [Microsoft's Awake CLI reference](https://learn.microsoft.com/en-us/windows/powertoys/awake#command-line-interface-cli).
 
+### Native lab app: registration and launch findings
+
+An isolated lab app (menu page plus smoke-nav, input-contract, layout/scroll,
+and Intl screens; fixtures under `research/windy-setup/lab-*`) was built to
+test the host without the kitchen sink's blocked component barrel. Findings
+below are host-setup evidence plus one repository fix; the four driver checks
+are ready in `lab-ui.ps1` but produced no runtime results yet.
+
+- **NuGet sources were empty.** `%APPDATA%\NuGet\NuGet.Config` contained an
+  empty `<packageSources/>`, so `dotnet restore` failed NU1100 for every
+  package. Adding the standard `nuget.org` feed fixed restore (~19 s).
+- **Turbo env scrubbing broke MSIX tooling.** `PROCESSOR_ARCHITECTURE` selects
+  the `Microsoft.Windows.SDK.BuildTools` arch folder (`x64`/`arm64`/`x86`).
+  Filtered out, it defaulted to `x86`, and the recipe task loaded the x86
+  `MrmSupport.dll` into the x64 MSBuild process (error 193). Added to
+  `build:windows` `passThroughEnv` in `apps/windows/turbo.json`; the lab build
+  then completed all 37 tasks and produced `windows.exe`.
+- **Per-user AppX registration needs the interactive session.** Package Add /
+  Register operations (framework registration, `Add-AppxPackage -Register`,
+  and the WinAppRuntime installer) failed `0x80070005` /
+  `PackagesInUseClosed` when run from the SSH session-0 virtual token. The
+  same commands succeed inside a scheduled task running interactively in
+  session 1 (`schtasks /it`). Driver: `research/windy-setup/invoke-interactive.ps1`.
+- `Microsoft.WindowsAppRuntime.1.6` 6000.519.329.0 is now registered for the
+  desktop user (it had been registered only for a deleted profile SID), and
+  `org.nativescript.xplat` is registered
+  (`org.nativescript.xplat_8w7k1f04p0kxp`).
+- **Launch is still blocked.** Packaged activation is attempted but the
+  process dies before a window or `console.log` exists. Before the framework
+  was registered, crashes logged `0x80040154` / `0xc000027b` in
+  `Microsoft.UI.Xaml.dll` — the same signature recorded for session-0 and
+  unpackaged launches on the VM. After framework registration no new crash
+  events appear; the process exits silently. The cause is unresolved —
+  `apps/windows/App_Resources` manifest, runtime bootstrap, or a remaining
+  host-state gap all remain suspects. Local `WindowsAppRuntime.CBS.1.6`
+  substitution and loose DLL copies next to the exe did not help; both were
+  reverted before the clean registration.
+
+Next: resolve the launch crash (debugger/WER capture in session 1), then run
+`lab-ui.ps1` for the four checks. The kitchen sink remains blocked separately
+on the command-palette accessibility mobile import.
+
 ## 2026-10-01: VM baseline
 
 The following records the earlier VM run. Its install/build failures are
