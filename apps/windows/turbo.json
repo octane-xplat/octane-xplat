@@ -5,13 +5,17 @@
 		"build:windows": {
 			"dependsOn": ["^typegen", "@octane-xplat/cli#build", "@xplat/app#gen"],
 			// NativeScript's startup checks read the Windows shared-program paths.
+			// PROCESSOR_ARCHITECTURE selects the Microsoft.Windows.SDK.BuildTools
+			// arch folder — without it the x86 MrmSupport.dll is loaded into an
+			// x64 MSBuild process and packaging fails (error 193).
 			"passThroughEnv": [
 				"CommonProgramFiles",
 				"CommonProgramFiles(x86)",
 				"ProgramFiles",
 				"ProgramFiles(x86)",
 				"LOCALAPPDATA",
-				"NODE_OPTIONS"
+				"NODE_OPTIONS",
+				"PROCESSOR_ARCHITECTURE"
 			],
 			"cache": false
 		},
