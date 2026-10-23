@@ -226,8 +226,10 @@ the behavior. Keep full explanations, option lists, and tutorials in those
 docs; the release note needs only the basic explanation and useful snippet.
 
 Use short, concrete titles and paragraphs. Avoid jargon where plain words
-work. When a technical term is necessary, follow the
-[glossary guidance](documentation.md#glossary) and link to its definition when
+work, and explain necessary technical language in context. Add a term to the
+glossary only when it is bespoke to the project or its meaning differs from
+what an agent would normally assume; follow the
+[glossary guidance](documentation.md#glossary). Link to a relevant entry when
 helpful. The glossary supplements an understandable note; it does not excuse
 an unexplained title.
 

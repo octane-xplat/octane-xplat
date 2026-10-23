@@ -1,19 +1,11 @@
 # Glossary
 
-Plain definitions of technical terms used in Octane Xplat guides and release
-notes. Follow each link for examples and details.
+Terms bespoke to Octane Xplat, or whose meaning here differs from what an
+agent would normally assume. Each entry explains the local distinction and
+links to its documentation. Standard programming vocabulary is outside this
+glossary's scope.
 
-| Term                                     | Plain definition                                                                                                                       | Documentation                                                                                        |
-| ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| API (application programming interface)  | The functions, components, and options your code can use to work with a library or service.                                            | [Components](docs/app/components.md), [Device services](docs/platform/platform-services.md)          |
-| Breaking change                          | A change that requires you to update existing code or setup to keep it working.                                                        | [Upgrading framework packages](docs/start/toolchain.md#upgrade-framework-packages)                   |
-| CLI (command-line interface)             | A tool you operate by typing commands in a terminal.                                                                                   | [Create and run an app](docs/start/toolchain.md#create-and-run)                                      |
-| Component                                | A reusable piece of a screen, such as a button or text label.                                                                          | [How an app fits together](docs/start/architecture.md#the-three-layers)                              |
-| Hot reload (HMR, hot module replacement) | Updating parts of a running app after a code edit without doing a full restart. Which state survives depends on the edit and platform. | [See a shared edit in running targets](docs/start/toolchain.md#see-a-shared-edit-in-running-targets) |
-| Lockstep release                         | A release in which a group of packages shares the same version number.                                                                 | [Framework releases](.agents/docs/releases.md#version-policy)                                        |
-| Native                                   | Using the operating system's own views or capabilities, such as iOS controls or Android device APIs.                                   | [How an app fits together](docs/start/architecture.md)                                               |
-| Platform variant                         | A version of a file chosen for a particular platform, such as `Card.ios.tsrx` for iOS.                                                 | [Sharing files across platforms](docs/platform/module-resolution.md)                                 |
-| Prop                                     | An input passed to a component, such as a button's label or disabled state.                                                            | [Component options](docs/app/components.md)                                                          |
-| Renderer                                 | The part of the framework that turns components into browser elements or native views.                                                 | [How an app fits together](docs/start/architecture.md)                                               |
-| Signal                                   | A value that notifies its readers when it changes, so the app can update what it shows.                                                | [Fetching data](docs/app/data.md)                                                                    |
-| Workspace                                | A project containing related packages that can be developed together.                                                                  | [Repository layout](.agents/docs/repository.md#layout)                                               |
+| Term            | Meaning in Octane Xplat                                                                                                                                                                         | Documentation                                                     |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Recipe          | An internal specification of what documentation must enable an app developer to accomplish, with explicit acceptance criteria. The tutorial and runtime verification are maintained separately. | [Documentation recipes](.agents/docs/recipes/README.md)           |
+| Unsuffixed file | In a set of platform variants, the file without a platform suffix, such as `Card.tsrx`, is the native default. A `.web` sibling supplies the browser or DOM webview implementation.             | [File variants](docs/platform/module-resolution.md#file-variants) |

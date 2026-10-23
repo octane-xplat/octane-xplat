@@ -7,8 +7,9 @@ the repository and links the working agreements for each kind of task, and the
 For meaningful user-facing changes, include a short Markdown
 [release note](.agents/docs/releases.md#write-a-release-note) with the change.
 Features and breaking changes go in `.changelog/`; bug fixes go in
-`.changelog/fixes/`. Internal-only work needs no note. Keep API examples brief,
-link to official docs, and add necessary new terms to [GLOSSARY.md](GLOSSARY.md).
+`.changelog/fixes/`. Internal-only work needs no note. Keep API examples brief
+and link to official docs. Reserve [GLOSSARY.md](GLOSSARY.md) for bespoke
+terms or local meanings that differ from what an agent would normally assume.
 Validate pending notes with `pnpm check:changelog`.
 
 ## Framework workspace commands

@@ -92,20 +92,24 @@ instructions.
 
 ## Glossary
 
-Maintain the root [GLOSSARY.md](../../GLOSSARY.md) as a lookup for necessary
-technical language used in guides and release notes. Add or update an entry
-when a change introduces a term or changes its meaning. Keep entries
-alphabetical, expand abbreviations, give a short plain-language definition,
-and link to the official documentation that explains the concept in context.
-For example:
+Reserve the root [GLOSSARY.md](../../GLOSSARY.md) for bespoke project terms
+and familiar terms whose local meaning differs from what an agent would
+normally assume. Add or update an entry when a change introduces or alters
+such a meaning. Standard terms such as API, CLI, component, and prop do not
+belong there when used in their usual sense.
+
+Keep entries alphabetical. Give a short, plain definition that makes the
+local distinction clear, and link to the official documentation explaining
+it in context. For example:
 
 ```md
-| Platform variant | A version of a file chosen for a particular platform, such as `Card.ios.tsrx` for iOS. | [Sharing files across platforms](docs/platform/module-resolution.md) |
+| Recipe | An internal specification of what documentation must enable an app developer to accomplish, with explicit acceptance criteria. | [Documentation recipes](.agents/docs/recipes/README.md) |
 ```
 
-Define concepts here; keep API instructions and examples in their canonical
-guides. Explain unfamiliar words where a reader first needs them, and prefer
-plain language when it is equally precise. Glossary links are optional help,
+Keep glossary entries focused on meaning; API instructions and examples belong
+in their canonical guides. Continue explaining unfamiliar words where a reader
+first needs them, including standard terms that a beginner may not know.
+Prefer plain language when it is equally precise. Glossary links are optional help,
 not a prerequisite for understanding a guide or release note. Use an absolute
 official repository link to the glossary in pending release notes, since
 the same Markdown also appears on GitHub Releases.

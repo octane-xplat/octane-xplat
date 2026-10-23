@@ -130,7 +130,7 @@ start with [what you can build](docs/start/spec.md), then
 and [tailor the experience](docs/platform/module-resolution.md).
 
 See selected [features and breaking changes](CHANGELOG.md), [bug fixes](FIXLOG.md),
-and plain definitions in the [glossary](GLOSSARY.md).
+and project-specific meanings in the [glossary](GLOSSARY.md).
 
 For agents: [llms.txt](https://octane-xplat.goddardai.org/llms.txt) indexes the
 docs; [llms-full.txt](https://octane-xplat.goddardai.org/llms-full.txt) includes

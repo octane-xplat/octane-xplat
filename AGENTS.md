@@ -153,9 +153,11 @@ Standing criteria for judgment calls; the critical rules encode the mechanics.
   documentation links. Internal-only work needs no note. Conventional Commits
   determine versions; the Markdown files determine release notes.
 - `CHANGELOG.md` and `FIXLOG.md` are assembled at release time. Do not edit
-  them during feature/fix work. Maintain [GLOSSARY.md](GLOSSARY.md) when new or
-  changed jargon needs a plain definition and documentation links; prefer
-  familiar words in release notes even when a glossary entry exists.
+  them during feature/fix work. Reserve [GLOSSARY.md](GLOSSARY.md) for bespoke
+  terms or meanings that differ from what an agent would normally assume.
+  Explain the local meaning plainly and link to its documentation; omit
+  standard programming vocabulary used in its usual sense. Prefer familiar
+  words in release notes even when a glossary entry exists.
 - PR CI stays lightweight: the `checks` job must not install browser engines
   (Playwright/Chromium) or run device emulation. Browser-driven tests
   (`@xplat/visual`, workshop's `test:packed`, `verify-consumer` smoke,

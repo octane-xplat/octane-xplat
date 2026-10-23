@@ -109,7 +109,8 @@ features or breaking changes, add `.changelog/*.md`; use
 `.changelog/fixes/*.md` for bug fixes. Internal-only work needs no entry.
 Follow the [authoring contract](../../../docs/releases.md#write-a-release-note)
 for the release header, plain wording, minimal API snippets, and official docs
-links. Maintain the [glossary](../../../../GLOSSARY.md) for necessary new terms.
+links. Reserve the [glossary](../../../../GLOSSARY.md) for bespoke terms or
+local meanings that differ from what an agent would normally assume.
 The one-time package stub/trust bootstrap is an explicit exception covered by
 the release reference; it is not a general release workflow.
 
