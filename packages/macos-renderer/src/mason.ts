@@ -17,8 +17,8 @@ import {
 	NativeClass,
 	NSFileManager,
 	NSNotificationCenter,
-	NSScreen,
 	NSThread,
+	NSUserInterfaceLayoutOrientation,
 	NSView,
 	NSViewFrameDidChangeNotification,
 } from '@octane-xplat/platform/macos'
@@ -66,7 +66,10 @@ function masonHost(): any {
 		return null
 	}
 
-	invoke('scale', [Number(NSScreen.mainScreen?.backingScaleFactor) || 1])
+	// AppKit frames, measurements, and numeric lengths use points. Mason's
+	// CSS track parser applies this scale to px/dip strings, so using the
+	// screen's backing scale would enlarge only grid tracks on Retina hosts.
+	invoke('scale', [1])
 	return host
 }
 
@@ -745,6 +748,12 @@ function makeMasonLayout(node: any) {
 	})
 
 	view.translatesAutoresizingMaskIntoConstraints = false
+	// Mason owns compression and wrapping. A max-content intrinsic width
+	// must not become an AppKit window's minimum width.
+	view.setContentCompressionResistancePriorityForOrientation(
+		1,
+		NSUserInterfaceLayoutOrientation.Horizontal,
+	)
 	masonLayoutNodesByView.set(view, node)
 	view.postsFrameChangedNotifications = true
 	node.masonGeometryObserver =
