@@ -59,6 +59,19 @@ export function Columns() {
 For driver work and the distinction between JSX tags and imperative native
 hosts, read [driver semantics](primitives/driver-semantics.md#leaf-shape).
 
+## Safe-area CSS
+
+Native CSS warns for `env(safe-area-inset-*)`, including Bamboo classes;
+it does not resolve the inset. Keep browser `env()` declarations in a web
+condition and supply native insets through `useSafeAreaInsets()` and an inline
+style. See [safe-area styling](../../../../docs/app/styling.md#safe-area-insets).
+
+```css
+@platform web {
+  .chrome { padding-top: env(safe-area-inset-top); }
+}
+```
+
 ## Native leaf sizes
 
 On iOS/Android, class-authored dimensions and centering use the same cascade

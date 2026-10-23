@@ -148,3 +148,29 @@ that's what the measured parity lane is for.
 	color: #222;
 }
 ```
+
+## Safe-area environment functions (issue #48)
+
+`env(safe-area-inset-*)` is not resolved by the native CSS converter. The
+[consumer report](https://github.com/octane-xplat/octane-xplat/issues/48)
+measured a zero contribution on iOS 27 (iPhone 18 Pro simulator), with
+NativeScript core 9.1.3 and MasonKit beta.126; inline native insets restored
+62pt of padding. This is reported consumer runtime evidence, not a new device
+qualification. Android behavior has not been measured here.
+
+The preset now warns once per stylesheet in dev and emitted build assets,
+including Bamboo output and the shared `tokens.css` safe-area class. Nested
+functions and fallbacks still warn; the converter does not replace the value
+with a guessed inset. Toast rules wrapped in `xplat-web-only` are removed
+before diagnosis. The build-time converter has no window or view lifecycle
+from which to obtain changing insets.
+
+```css
+/* Warns in the native pipeline; stays available for browser evaluation. */
+.chrome { padding-top: env(safe-area-inset-top, 0px); }
+```
+
+The maintained regression is `packages/cli/test/vite-safe-area-css.test.mjs`.
+It tests host-side conversion and diagnostics, not device layout. Remove this
+warning only when the adopted native runtime resolves these functions against
+live safe-area values and device tests establish the behavior.

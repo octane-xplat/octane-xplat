@@ -326,6 +326,35 @@ show the complete wiring. Native builds still run the xplat CSS checks, but
 arbitrary custom CSS declarations are not rewritten into supported ones; use
 the portable preset and review any warnings before extending it.
 
+## Safe-area insets
+
+A safe-area inset is the space needed to avoid a screen cutout or system bar.
+Native CSS does not resolve `env(safe-area-inset-*)`; the native preset warns
+for these values in stylesheets and generated Bamboo classes, including values
+inside `max()` or with a fallback. Keep the browser rule in a web condition:
+
+```css
+@platform web {
+  .chrome { padding-top: env(safe-area-inset-top); }
+}
+```
+
+For native screens, read the live inset and pass it through an inline style.
+Using `undefined` when the inset is zero leaves the browser class in control.
+
+```tsx
+import { Text, View, useSafeAreaInsets } from '@octane-xplat/ui'
+
+export function Chrome() {
+  const insets = useSafeAreaInsets()
+  return (
+    <View className="chrome" style={{ paddingTop: insets.top || undefined }}>
+      <Text>Player controls</Text>
+    </View>
+  )
+}
+```
+
 ## Font-family tokens
 
 `chrome.css` provides `--font-sans` and `--font-mono` as portable fallback

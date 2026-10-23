@@ -35,6 +35,8 @@ support ([upstream PR](https://github.com/gajus/bamboocss/pull/125)).
 
 - AC5: Platform conditions generate types and apply only on matching targets, preserve final output validation, and explain the boundary for nonportable utilities and SSR.
 
+- AC6: Native diagnostics warn for safe-area `env()` values in generated CSS, with guidance for live native insets.
+
 ## Documentation
 
 - AC1: [Styling screens — Use Bamboo CSS utilities](../../../docs/app/styling.md#use-bamboo-css-utilities) and the maintained [harness probe](../../../packages/app/src/bamboo-styles.ts).
@@ -43,3 +45,5 @@ support ([upstream PR](https://github.com/gajus/bamboocss/pull/125)).
 - AC4: [Styling screens — Use Bamboo CSS utilities](../../../docs/app/styling.md#use-bamboo-css-utilities). The [packed consumer check](../../../packages/bamboo/tests/packed-consumer.mjs) verifies installed configuration exports under Node and Vite config loaders.
 
 - AC5: [Styling screens — Use Bamboo CSS utilities](../../../docs/app/styling.md#use-bamboo-css-utilities) and the maintained [Bamboo platform pipeline test](../../../packages/bamboo/tests/platform.test.mjs).
+
+- AC6: [Safe-area insets](../../../docs/app/styling.md#safe-area-insets) and the maintained [native CSS warning regression](../../../packages/cli/test/vite-safe-area-css.test.mjs).

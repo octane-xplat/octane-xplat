@@ -107,6 +107,10 @@ const collectNsPluginDeps = (rootDir) => {
  *  portable alternative. */
 const CSS_DIVERGENCES = [
 	[
+		/(?<![\w-])env\(\s*safe-area-inset-(?:top|right|bottom|left)\s*[,)]/i,
+		'env(safe-area-inset-*) is unsupported on native and may contribute 0 — use useSafeAreaInsets() from @octane-xplat/ui with an inline style for native insets',
+	],
+	[
 		/margin-(?:left|right|top|bottom)\s*:\s*auto|margin\s*:[^;{}]*\bauto\b/,
 		'auto margins are ignored on native — use justify-content, alignSelf, or a <Spacer/>',
 	],
@@ -168,9 +172,11 @@ export function pxToDip() {
 			)
 		}
 
+		// Comments and quoted content are not CSS function calls.
+		const declarations = code.replace(/\/\*[\s\S]*?\*\/|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'/g, '')
 		for (const [re, hint] of CSS_DIVERGENCES) {
 			const key = id + '|' + hint
-			if (re.test(code) && !warned.has(key)) {
+			if (re.test(declarations) && !warned.has(key)) {
 				warned.add(key)
 				warn(`${id}: ${hint}`)
 			}
