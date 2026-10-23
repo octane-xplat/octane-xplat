@@ -794,3 +794,61 @@ the node and recompute — keep Taffy's assigned height instead of
 `view.measuredHeight`; reserve the measured-height fallback for an empty
 axis (`fallbackHeight`). The path lives in the Kotlin AAR, which the JS
 patch set cannot change.
+
+## iOS collapsed Text investigation (#45)
+
+**Status: reproduced and corrected on the iOS 27 iPhone 18 Pro simulator.** The
+consumer reports a main-thread freeze with one collapsed `Text` inside
+`Screen > Grid(rows="*", columns="*,*")` on iOS 27, with MasonKit beta.110
+and `@octane-xplat/nativescript-masonkit` beta.126. Hidden Text and a collapsed
+View containing visible Text keep timers running. See
+[issue #45](https://github.com/octane-xplat/octane-xplat/issues/45).
+
+Source inspection of beta.126 and NativeScript core 9.1.3 identifies an
+inconsistent layout contract. Xplat Text hosts a core Label. Core's
+`ViewHelper.measureChild` skips collapsed children, leaving the foreign
+measurement at zero. Mason still includes the leaf in its layout tree because
+the renderer bridge previously copied neither `display` nor `visibility`.
+In `MasonElement.swift`, `MasonElementHelpers.applyBox` treats an empty
+auto-sized axis as a reason to call UIKit's `sizeThatFits`. The label returns
+its nonzero text size. Mason marks the node dirty and requests another root
+layout, which measures the collapsed label as zero again. This continually
+repeats through `MasonUIView.layoutSubviews` and `autoComputeIfRoot`.
+
+The original renderer reproduced the stall with the isolated single-label
+probe. A native sample captured repeated Taffy flexbox computation and
+`applyBox → requestLayout`; an LLDB breakpoint on `MasonElement.requestLayout`
+confirmed the caller chain `applyBox → applyToView → computeWithSize →
+autoComputeIfRoot → layoutSubviews`. The process used approximately one CPU
+core and delivered no heartbeat result; it was terminated after collecting
+the trace. This is runtime evidence of the invalidation edge, not an inference
+from the sampled Taffy frame alone.
+
+The canonical renderer patch forwards effective `display` and
+observes `visibilityChange`: collapse selects Mason `display: none`, while
+hidden/visible restore the effective display. It leaves the authored
+NativeScript style intact, batches the write before requesting parent layout,
+and avoids another request for an unchanged effective value. Mason's
+`applyToView` skips `display: none`, so the collapsed leaf never reaches the
+nonzero-size fallback. Existing leaf binding teardown and native-view
+recreation apply to these properties too.
+The patch can be removed when the adopted upstream foreign-child bridge
+implements the same layout omission and restoration semantics.
+
+The temporary reproduction is `research/issue45/collapsed-text.tsrx`.
+Maintained host regressions live in `packages/cli/test/mason-layout.test.mjs`;
+the device regression in `apps/mobile/src/tests/collapsed-text.spec.tsrx`
+checks timer liveness with the exact single-leaf structure and grid-slot
+restoration through collapse/hidden/visible transitions.
+
+The patched probe passed on 2026-10-23 with MasonKit beta.126 and core 9.1.3:
+five 200 ms heartbeats each for collapsed Text, hidden Text, and a collapsed
+View containing visible Text. A fixed-width two-item grid placed the following
+item at x=0 when collapsed, x=80 when hidden, x=0 when collapsed again, and
+x=80 when visible. Evidence is in `research/issue45/controls-retry.log`,
+`layout-loop-sample.txt`, and `baseline-lldb.log`. The maintained device spec
+was typechecked; runtime verification used the probe runner. Focused host
+regressions, affected-package/dependent typechecks, lint, patch synchronization,
+and recipe structure checks passed. Android and desktop runtimes were not run.
+No public workflow or recipe contract changes; the Octane skill's styling
+guidance remains applicable. No visual analysis was performed.

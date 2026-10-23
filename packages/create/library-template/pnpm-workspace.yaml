@@ -95,7 +95,8 @@ patchedDependencies:
   # stretch default without a local style override, allowing class-authored centering.
   # Inline style resets reapply the matching CSS cascade. Re-exports Octane's ClassValue
   # unchanged and stringifies truthy numeric class values while omitting 0 and NaN, matching
-  # Octane 0.11.
+  # Octane 0.11. Maps collapsed foreign native leaves to Mason display:none, restoring
+  # effective display on visibility changes so both layout hosts omit the same item (#45).
   "@nativescript-community/octane@0.2.5": node_modules/.pnpm-config/@octane-xplat/patches/patches/@nativescript-community__octane@0.2.5.patch
   # octaneServerStrategy's SCRIPT_FILE_RE only covers [jt]sx? — .tsrx edits never emit the
   # deferred ns:hmr-delta broadcast, so component HMR silently never reaches the device.

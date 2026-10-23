@@ -13,7 +13,7 @@ index 80e30299c44e889e3a066ce2c9a8feb6b7ceaa42..b17dc120c5c00ba4be701233fb95b6d2
  /**
   * A command `parent`: a host node id's node, the root container (`null`), or a
 diff --git a/dist/driver.js b/dist/driver.js
-index 8bc563add4cb675a12651184b63805b10224274d..ca251841c91abdd8c254fb6307e5af09f0707c0f 100644
+index 8bc563add4cb675a12651184b63805b10224274d..bb6406235d469868b52d66f0ea61b8b3e5019458 100644
 --- a/dist/driver.js
 +++ b/dist/driver.js
 @@ -1,8 +1,11 @@
@@ -144,7 +144,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..ca251841c91abdd8c254fb6307e5af09
      if (typeof value === 'string')
          return value;
      if (Array.isArray(value))
-@@ -147,16 +190,298 @@ function normalizeClass(value) {
+@@ -147,16 +190,306 @@ function normalizeClass(value) {
              .join(' ');
      return '';
  }
@@ -262,6 +262,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..ca251841c91abdd8c254fb6307e5af09
 +// Only leaf layout longhands: core expands shorthands before notifying.
 +// Read the effective NS style, never copy authored values into another tier.
 +const MASON_LEAF_STYLE_KEYS = [
++    'display',
 +    'width', 'height', 'minWidth', 'minHeight', 'maxWidth', 'maxHeight',
 +    'marginTop', 'marginRight', 'marginBottom', 'marginLeft',
 +    'flexGrow', 'flexShrink', 'flexBasis', 'alignSelf', 'justifySelf',
@@ -370,11 +371,17 @@ index 8bc563add4cb675a12651184b63805b10224274d..ca251841c91abdd8c254fb6307e5af09
 -        Object.assign(view.style, value);
 +    let native;
 +    let leaf;
++    let defaultDisplay;
 +    const applied = new Map();
 +    const syncKey = (key) => {
 +        if (!leaf)
 +            return;
 +        let value = view.style[key];
++        // Core omits collapsed children from measurement. Mason must omit the
++        // same leaf from layout, otherwise the two hosts disagree on its box.
++        // Keep the cascade intact so uncollapsing restores authored display.
++        if (key === 'display')
++            value = view.style.visibility === 'collapse' ? 'none' : value ?? defaultDisplay;
 +        if (value === undefined || value === unsetValue) {
 +            // Plain/unregistered fields can vanish without a CssProperty
 +            // default. Mason requires an explicit grid reset (undefined is
@@ -405,6 +412,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..ca251841c91abdd8c254fb6307e5af09
 +        if (native !== view.nativeViewProtected || !leaf) {
 +            native = view.nativeViewProtected;
 +            leaf = masonChildStyle(view);
++            defaultDisplay = leaf?.display;
 +            applied.clear();
 +        }
 +        let changed = false;
@@ -422,7 +430,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..ca251841c91abdd8c254fb6307e5af09
 +        if (changed)
 +            parent.view?.requestLayout?.();
 +    };
-+    const handlers = MASON_LEAF_STYLE_KEYS.map(key => {
++    const handlers = [...MASON_LEAF_STYLE_KEYS, 'visibility'].map(key => {
 +        const handler = () => sync();
 +        view.style.on?.(key + 'Change', handler);
 +        return [key + 'Change', handler];
@@ -448,7 +456,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..ca251841c91abdd8c254fb6307e5af09
  /** Recompute a text host's `text` from its `#text` children. */
  function syncText(parent) {
      if (parent === null || isPortalTarget(parent))
-@@ -190,6 +515,15 @@ function addViewChild(parentView, view, index) {
+@@ -190,6 +523,15 @@ function addViewChild(parentView, view, index) {
          parentView.insertChild(view, Math.min(index, parentView.getChildrenCount()));
          return;
      }
@@ -464,7 +472,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..ca251841c91abdd8c254fb6307e5af09
      if (parentView instanceof ContentView) {
          parentView.content = view;
          return;
-@@ -234,6 +568,13 @@ function removeViewChild(parentView, view) {
+@@ -234,6 +576,13 @@ function removeViewChild(parentView, view) {
              parentView.removeChild(view);
          return;
      }
@@ -478,7 +486,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..ca251841c91abdd8c254fb6307e5af09
      if (parentView instanceof ContentView) {
          if (parentView.content === view)
              parentView.content = CLEARED;
-@@ -315,6 +656,7 @@ function tabViewOwning(node) {
+@@ -315,6 +664,7 @@ function tabViewOwning(node) {
      return null;
  }
  function detach(container, node) {
@@ -486,7 +494,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..ca251841c91abdd8c254fb6307e5af09
      const parent = node.parent;
      const siblings = childrenOf(container, parent);
      const index = siblings.indexOf(node);
-@@ -370,6 +712,12 @@ function attach(container, node) {
+@@ -370,6 +720,12 @@ function attach(container, node) {
          }
      }
      addViewChild(parentView, node.view, index);
@@ -499,7 +507,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..ca251841c91abdd8c254fb6307e5af09
      markTabView(tabViewOwning(node));
  }
  function insert(container, parent, node, before) {
-@@ -429,6 +777,7 @@ function setEvent(container, node, type, listener) {
+@@ -429,6 +785,7 @@ function setEvent(container, node, type, listener) {
      view.on(type, handler);
  }
  function disposeListeners(node) {
@@ -507,7 +515,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..ca251841c91abdd8c254fb6307e5af09
      const view = node.view;
      if (view !== null) {
          for (const [type, handler] of node.listeners)
-@@ -460,6 +809,7 @@ function recreateView(container, node) {
+@@ -460,6 +817,7 @@ function recreateView(container, node) {
          // no longer host them.
          throw new Error(`NativeScript driver: re-registered <${node.type}> is a <${view.typeName}>, which cannot host portal children; the registration stays on the previous view.`);
      }
@@ -515,7 +523,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..ca251841c91abdd8c254fb6307e5af09
      const parentView = hostViewOf(container, node.parent);
      for (const child of node.children) {
          if (child.view !== null)
-@@ -480,6 +830,9 @@ function recreateView(container, node) {
+@@ -480,6 +838,9 @@ function recreateView(container, node) {
      viewOwners.set(view, { container, node });
      node.view = view;
      node.textApplied = false;
@@ -525,7 +533,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..ca251841c91abdd8c254fb6307e5af09
      applyProps(node, node.props);
      for (const [type, handler] of node.listeners)
          view.on(type, handler);
-@@ -500,6 +853,12 @@ function recreateView(container, node) {
+@@ -500,6 +861,12 @@ function recreateView(container, node) {
                  addViewChild(view, child.view, index++);
          }
      }
@@ -538,7 +546,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..ca251841c91abdd8c254fb6307e5af09
      syncText(node);
      markTabView(node);
      attach(container, node);
-@@ -548,7 +907,7 @@ function preparePortalTarget(context) {
+@@ -548,7 +915,7 @@ function preparePortalTarget(context) {
      }
      const target = owner?.node.view ?? suppliedTarget;
      if (!(target instanceof LayoutBase)) {
@@ -547,7 +555,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..ca251841c91abdd8c254fb6307e5af09
      }
      let id = portalTargetIds.get(target);
      if (id === undefined) {
-@@ -641,7 +1000,7 @@ function applyCommand(container, command) {
+@@ -641,7 +1008,7 @@ function applyCommand(container, command) {
  }
  export const nativeScriptDriver = {
      id: NATIVESCRIPT_RENDERER_ID,
@@ -557,7 +565,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..ca251841c91abdd8c254fb6307e5af09
          classify(name) {
              if (!EVENT_PROP.test(name))
 diff --git a/dist/elements.js b/dist/elements.js
-index a13bcea75176146f58f047be1d9c7b0cdda1120a..e9988e174d0b89dcd70220d3014ca6b9bb1820e5 100644
+index a13bcea75176146f58f047be1d9c7b0cdda1120a..cecfae898004a6257a13be68bb39ae7d1307d0b4 100644
 --- a/dist/elements.js
 +++ b/dist/elements.js
 @@ -1,4 +1,7 @@

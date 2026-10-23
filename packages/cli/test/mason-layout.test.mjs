@@ -42,6 +42,7 @@ const api = runInNewContext(
 		// removal restores via unsetValue (the cascade path), not the captured
 		// default reserved for plain fields.
 		_getStyleProperties: () => [
+			'display', 'visibility',
 			'width', 'height', 'minWidth', 'minHeight', 'maxWidth', 'maxHeight',
 			'marginTop', 'marginRight', 'marginBottom', 'marginLeft',
 			'flexGrow', 'flexShrink', 'flexBasis', 'alignSelf', 'justifySelf',
@@ -85,6 +86,8 @@ function observable() {
 
 function foreign() {
 	const defaults = {
+		display: 'flex',
+		visibility: 'visible',
 		width: 'auto',
 		height: 'auto',
 		minWidth: 0,
@@ -267,3 +270,49 @@ test('foreign style commits finish before requesting the Mason parent layout', (
 	assert.equal(calls.includes('layout'), false)
 })
 
+test('collapsed foreign leaves leave Mason layout and restore the effective display', () => {
+	const f = foreign()
+	f.classStyle({ display: 'block', visibility: 'collapse' })
+	let requests = 0
+	api.applyMasonChildLayout(f.node, { view: { requestLayout: () => requests++ } })
+	assert.equal(f.leaf().display, 'none')
+	assert.equal(f.view.style.display, 'block')
+
+	// Repeated cascade notifications must not create another invalidation.
+	requests = 0
+	f.view.style.emit('visibilityChange')
+	assert.equal(requests, 0)
+
+	f.classStyle({ display: 'grid', visibility: 'collapse' })
+	assert.equal(f.leaf().display, 'none')
+	assert.equal(requests, 0)
+	f.classStyle({ display: 'grid', visibility: 'hidden' })
+	assert.equal(f.leaf().display, 'grid')
+	assert.equal(requests, 1)
+
+	api.applyStyle(f.node, f.view, { visibility: 'collapse' })
+	assert.equal(f.leaf().display, 'none')
+	api.applyStyle(f.node, f.view, {})
+	assert.equal(f.leaf().display, 'grid')
+	f.classStyle({})
+	assert.equal(f.leaf().display, 'flex')
+})
+
+test('visibility never overrides authored display none and survives native recreation', () => {
+	const f = foreign()
+	f.classStyle({ display: 'none', visibility: 'hidden' })
+	api.applyMasonChildLayout(f.node, {})
+	assert.equal(f.leaf().display, 'none')
+	f.classStyle({ display: 'none', visibility: 'visible' })
+	assert.equal(f.leaf().display, 'none')
+
+	f.classStyle({ visibility: 'collapse' })
+	f.view.nativeViewProtected = {}
+	f.view.emit('loaded')
+	assert.equal(f.leaf().display, 'none')
+	api.releaseMasonChildLayout(f.view)
+	assert.equal(f.view.style.listenerCount(), 0)
+	f.classStyle({ visibility: 'visible' })
+	api.applyMasonChildLayout(f.node, {})
+	assert.equal(f.leaf().display, 'flex')
+})
