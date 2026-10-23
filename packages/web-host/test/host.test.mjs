@@ -277,6 +277,26 @@ test('aborts preparation when the request disconnects', async () => {
 	await assert.rejects(pending, /disconnected/)
 })
 
+test('aborts a pending transfer or pending document assets when the request disconnects', async () => {
+	for (const option of ['transfer', 'assets']) {
+		const controller = new AbortController()
+		let started
+		const ready = new Promise((resolve) => {
+			started = resolve
+		})
+		const pending = fixture.handler({
+			[option]() {
+				started()
+				return new Promise(() => {})
+			},
+		})(request('/items/coat', { signal: controller.signal }))
+		await ready
+		controller.abort(new Error('disconnected'))
+		await assert.rejects(pending, /disconnected/, option)
+	}
+	assert.equal((await fixture.handler()(request('/items/coat'))).status, 200)
+})
+
 test('custom app scopes and named-stack deep links hydrate through the public outlet', async () => {
 	const response = await fixture.handler({ App: fixture.App, stacks: ['side'] })(
 		request('/@side/items/coat'),

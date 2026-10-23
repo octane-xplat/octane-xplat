@@ -30,6 +30,18 @@ export type {
 	WebRenderMode,
 } from './props'
 
+/** A disconnect must win over a pending callback that ignores the signal. */
+function untilAborted<T>(work: Promise<T>, signal: AbortSignal): Promise<T> {
+	if (signal.aborted) {
+		return Promise.reject(signal.reason)
+	}
+	return new Promise((resolve, reject) => {
+		const fail = () => reject(signal.reason)
+		signal.addEventListener('abort', fail, { once: true })
+		work.then(resolve, reject).finally(() => signal.removeEventListener('abort', fail))
+	})
+}
+
 function renderTemplate(template: string, slots: Record<'head' | 'app' | 'scripts', string>) {
 	for (const name of Object.keys(slots)) {
 		const marker = `<!--xplat:${name}-->`
@@ -116,7 +128,10 @@ export function createWebRenderer<const Catalog extends ContractRouteManifest>(
 				}
 
 				init = options.response?.(result.match, request) ?? {}
-				const projection = await options.transfer(result.match, request)
+				const projection = await untilAborted(
+					Promise.resolve(options.transfer(result.match, request)),
+					request.signal,
+				)
 				// Validate and detach the projection before rendering; server and browser
 				// see the same public values, including group-loader context.
 				const publicData = JSON.parse(serializePublic(projection))
@@ -226,8 +241,12 @@ export function createWebRenderer<const Catalog extends ContractRouteManifest>(
 			...(match ? { match } : {}),
 		}
 
-		const assets =
-			typeof options.assets === 'function' ? await options.assets(request) : options.assets
+		const assets = await untilAborted(
+			Promise.resolve(
+				typeof options.assets === 'function' ? options.assets(request) : options.assets,
+			),
+			request.signal,
+		)
 
 		const headProps = { ...metadata, styles: assets.styles }
 		const scriptProps = { bootstrap: serializePublic(bootstrap), scripts: assets.scripts }
