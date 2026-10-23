@@ -423,8 +423,14 @@ entry is not needed and must not be promoted as an upstream workaround.
 Android input diagnostics then caught stale coordinates published before
 window insets finished applying: the single tap targeted y=224 pixels while
 the button's final center was about y=286. The fixture now waits for native
-window readiness and stable geometry before publishing coordinates. Its
-combined inspector/OS-input rerun remains pending. The earlier Webpack tap
-timeout lacks these diagnostics and is not proven to share this cause.
+window readiness and stable geometry before publishing coordinates, and the
+combined inspector/OS-input run passes on the API 35 emulator (`043dda2c` in
+the Mason fork): a real inspector WebSocket answers Runtime evaluation and
+the NativeScript DOM dispatcher, and OS tap/swipe drive the hook update,
+matching row movement and cleanup. Cold-boot runs remain intermittent — one
+rerun lost its injected tap despite correct coordinates and verified window
+focus, and another timed out inside the readiness gate — so failure
+diagnostics now record the last window gate and observed native touch
+actions. The earlier Webpack tap timeout is not proven to share a cause.
 The upstream Mason issue remains open without maintainer comments at the
 latest check.
