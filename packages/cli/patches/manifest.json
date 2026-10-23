@@ -60,15 +60,15 @@
 			"file": "@nativescript__vite@8.0.21.patch",
 			"scope": "dev",
 			"why": "Windows preview abae298 from NativeScript#11272 uses Vite 8.0.21. Retains /ns/m re-export records, outside-root /@fs routing through the device transform, and .mobile-aware tsconfig-paths probing. Vendor-manifest gating and percent-decoded module paths are now upstream and no longer patched.",
-			"dropWhen": "windows moves off the preview pin — the real fix lands upstream with the windows platform merge (NativeScript#11272/#11468)",
+			"dropWhen": "windows moves off the preview pin \u2014 the real fix lands upstream with the windows platform merge (NativeScript#11272/#11468)",
 			"template": false
 		},
 		{
 			"specifier": "@nativescript/core@9.1.4-next.0",
 			"file": "@nativescript__core@9.1.4-next.0.patch",
 			"scope": "runtime",
-			"why": "Windows preview abae298 from NativeScript#11272 retains CSS @layer cascade machinery and explicit-size flex alignment, Windows pointer subscription and hover ownership, cancellation/capture-loss handling and gesture separation, parent-driven percentage sizing lifecycle and padded content-box updates, input focus/blur ownership, IsEnabled forwarding, accessible names, secure readonly, and literal non-CSS property values. The #11446 frame/tab fixes are now upstream and removed. Preserves upstream transparent-background hit testing and contact-only pointer moves. Registry core 9.1.4-next.0 has no Windows implementation; this patch targets the commit-pinned preview with that version.",
-			"dropWhen": "A published Windows-capable core contains the retained cascade, layout, pointer, and input repairs. Source repairs remain in .agents/patches/windows-pointer-core.patch, .agents/patches/windows-layout/core-percent-source.patch, and .agents/patches/windows-input-core.patch.",
+			"why": "Windows preview abae298 from NativeScript#11272 retains CSS @layer cascade machinery and explicit-size flex alignment, Windows pointer subscription and hover ownership, cancellation/capture-loss handling and gesture separation, parent-driven percentage sizing lifecycle and padded content-box updates, input focus/blur ownership, IsEnabled forwarding, accessible names, secure readonly, and literal non-CSS property values. Also moves _ensureNativeTransforms into a leaf module to break the view-common/animation import cycle that crashed ESM bundle evaluation at startup. The #11446 frame/tab fixes are now upstream and removed. Preserves upstream transparent-background hit testing and contact-only pointer moves. Registry core 9.1.4-next.0 has no Windows implementation; this patch targets the commit-pinned preview with that version.",
+			"dropWhen": "A published Windows-capable core contains the retained cascade, layout, pointer, and input repairs. Source repairs remain in .agents/patches/windows-pointer-core.patch, .agents/patches/windows-layout/core-percent-source.patch, .agents/patches/windows-input-core.patch, and .agents/patches/windows-module-cycle.patch.",
 			"template": false
 		},
 		{
@@ -113,7 +113,7 @@
 			"file": "shaders@4.0.0.patch",
 			"upstreamPR": "https://github.com/software-mansion/TypeGPU/pull/3255",
 			"scope": "runtime",
-			"why": "shaders@4.0.0 inlines TypeGPU 0.12.3 into dist/core/std-ClftfWpF.js, which declares /\\p{XID_Start}/ and /\\p{XID_Continue}/ regex literals at module scope (WGSL identifier validation, external prop-chain matching, minify separator check). NativeScript's embedded V8 on iOS (@nativescript/ios 9.1.0) and Android (@nativescript/android 9.1.1, V8 14.9.207.39) is built without ICU — every \\p{…} escape is a SyntaxError, even in a never-called function, so a literal fails the whole module at parse time and any bundled app importing `shaders/js` dies on boot. Rewriting to \\p{ID_Start}/\\p{L} would not help — all property escapes are rejected. The patch builds the regexes via try/catch new RegExp with ASCII/non-ASCII-range fallbacks — byte-identical .source where ICU exists. dist/js/bundle.js, react/bundle.js, and cli.js carry the same escapes but are unreachable from `shaders/js` and left unpatched.",
+			"why": "shaders@4.0.0 inlines TypeGPU 0.12.3 into dist/core/std-ClftfWpF.js, which declares /\\p{XID_Start}/ and /\\p{XID_Continue}/ regex literals at module scope (WGSL identifier validation, external prop-chain matching, minify separator check). NativeScript's embedded V8 on iOS (@nativescript/ios 9.1.0) and Android (@nativescript/android 9.1.1, V8 14.9.207.39) is built without ICU \u2014 every \\p{\u2026} escape is a SyntaxError, even in a never-called function, so a literal fails the whole module at parse time and any bundled app importing `shaders/js` dies on boot. Rewriting to \\p{ID_Start}/\\p{L} would not help \u2014 all property escapes are rejected. The patch builds the regexes via try/catch new RegExp with ASCII/non-ASCII-range fallbacks \u2014 byte-identical .source where ICU exists. dist/js/bundle.js, react/bundle.js, and cli.js carry the same escapes but are unreachable from `shaders/js` and left unpatched.",
 			"dropWhen": "TypeGPU ships ICU-free identifier regexes and a `shaders` release bundles that TypeGPU, or NativeScript runtimes ship ICU"
 		}
 	]
