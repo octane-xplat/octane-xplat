@@ -344,14 +344,15 @@ Windows facade checks inactive shared branches and is not shipped. The pinned
 Android declaration-generator adaptation and iOS generation provenance live in
 `tools/mason-core/native-types-README.md` in the Mason fork. These are type/build
 checks, separate from runtime and ABI evidence. Verification commands live in
-`tools/mason-core/runtime-README.md` in the Mason fork. Do not switch Xplat to
-this prototype before the native and application gates below are satisfied.
+`tools/mason-core/runtime-README.md` in the Mason fork. The proving harnesses
+now exercise the beta as described below; remaining native and application
+gates still limit broader adoption.
 
 The implementation baseline is fork commit
 `623114b070896a21315fcff9a3a6349bdd091cc4` (beta.126), including merged upstream
 revision `2324b8ee52a1f22cf18dc684aa053e92b64a6451`. The initial helper-only
 proof remains separate; the current normal output is the independent native plugin.
-No production Xplat dependency has been switched.
+At that extraction baseline, no production Xplat dependency had been switched.
 
 The next native foundation packages the existing shared `mason-c` crate as
 independent static engine archives, with a C consumer exercising callback-based
@@ -482,3 +483,29 @@ manifest and typechecks the same generated source overlay as its build.
 The release revision passes the full TypeScript unit suite, plugin/consumer
 typechecks, generated-source checks, Rust tests and the independent core
 package release checks. These are host/CI checks, not additional device runs.
+
+
+The Xplat mobile proving harnesses now explicitly select the published
+`@octane-xplat/nativescript-mason-core@1.0.0-beta.0`: mobile (including the
+navigation fixture), Maestro, Workshop demo, and the demos/media-probe
+development dependencies. Default mobile probes inherit that engine and verify
+its native file fingerprint. Vite uses the existing app-local alias for the
+canonical renderer's full-MasonKit imports; the renderer patch is unchanged.
+Windows retains full MasonKit because core has no Windows artifacts. The
+scaffolder and compatibility manifest still default new apps to full MasonKit;
+this worktree adoption does not clear the physical-device, cold-input or
+matched release-size qualification gaps.
+
+The upstream issue now has an
+[update linking the source, tooling and first beta](https://github.com/triniwiz/nativescript-mason/issues/160#issuecomment-6368257363).
+
+
+The adoption passes a frozen registry install, all 343 CLI tests, all 110
+repository script/probe-host tests, and the 47-task targeted typecheck run for
+touched packages and their dependents. The actual mobile Vite preset resolves
+the renderer's MasonKit import prefix to the installed core beta. The default
+counter probe builds and passes on the dedicated arm64 iOS Simulator
+(`0e4bd387-6f83-4c1d-b0e2-4ba206920cf3`): initial count `0`, then `1` after
+handler dispatch. This does not add OS-input or layout-geometry qualification,
+and Android runtime was not rerun for this adoption. Local logs are in
+`research/mason-core-adoption/`; the simulator was shut down after verification.

@@ -223,16 +223,18 @@ test('native probe collects required layout/gesture plugins and their pnpm runti
 	])
 
 	assert.equal(deps.names.has('@nativescript-community/gesturehandler'), true)
-	assert.equal(deps.names.has('@octane-xplat/nativescript-masonkit'), true)
+	assert.equal(deps.names.has('@octane-xplat/nativescript-masonkit'), false)
+	assert.equal(deps.resolved.has('@octane-xplat/nativescript-masonkit'), false)
+	assert.equal(deps.names.has('@octane-xplat/nativescript-mason-core'), true)
 	assert.ok(
 		deps.nativeFiles.includes(
-			join(deps.resolved.get('@octane-xplat/nativescript-masonkit'), 'package.json'),
+			join(deps.resolved.get('@octane-xplat/nativescript-mason-core'), 'package.json'),
 		),
 	)
 	assert.ok(
 		deps.nativeFiles.some((path) =>
 			path.startsWith(
-				join(deps.resolved.get('@octane-xplat/nativescript-masonkit'), 'platforms') + '/',
+				join(deps.resolved.get('@octane-xplat/nativescript-mason-core'), 'platforms') + '/',
 			),
 		),
 	)

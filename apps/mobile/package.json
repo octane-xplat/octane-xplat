@@ -50,7 +50,7 @@
 		"@octane-xplat/sheet": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
 		"@octane-xplat/video": "workspace:*",
-		"@octane-xplat/nativescript-masonkit": "1.0.0-beta.126",
+		"@octane-xplat/nativescript-mason-core": "1.0.0-beta.0",
 		"@valor/nativescript-websockets": "2.0.3",
 		"@xplat/app": "workspace:*",
 		"@xplat/demos": "workspace:*",

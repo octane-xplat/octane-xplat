@@ -42,8 +42,9 @@ pnpm xplat doctor
 pnpm dlx @octane-xplat/cli@latest upgrade --check
 ```
 
-Full MasonKit remains the mobile default. An isolated Mason core experiment
-declares only the core beta: upgrade preserves it, doctor
+The repository's mobile proving harnesses use the core beta. New scaffolded
+apps still default to full MasonKit; Windows requires full MasonKit. An
+app opting into core declares only the core beta: upgrade preserves it, doctor
 rejects overlapping native engines, and `xplatNative` resolves the canonical
 renderer imports to core. Do not add full MasonKit to satisfy an older CLI's
 missing-engine check. Core has an independent beta release track; Windows is

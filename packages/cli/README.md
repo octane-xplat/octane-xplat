@@ -147,17 +147,18 @@ pnpm xplat doctor
 | NativeScript CLI, platform runtimes/types, known starter plugins    | User catalogs, custom patch files, unrelated overrides and scripts    |
 | Vitest, jsdom, and NativeScript's test runner, when enabled         | Application tests and platform qualification                          |
 
-Full MasonKit remains the default layout engine. For the private Mason core
-experiment, declare only the built core tarball in an isolated mobile app.
-Upgrade preserves that choice and its local specifier. Doctor rejects core
-alongside full MasonKit, duplicate installed core copies, and Windows use.
-See the [extraction design](../../.agents/design/mason-core-extraction.md) for
-build prerequisites and qualification limits; core is not published.
+New scaffolded apps default to full MasonKit. To try the published Mason core
+beta in an isolated iOS/Android app, declare only core. Upgrade preserves that
+choice and its version or local specifier. Doctor rejects core alongside full
+MasonKit, duplicate installed core copies, and Windows use. The repository's
+mobile proving harnesses use core; Windows retains full MasonKit. See the
+[extraction design](../../.agents/design/mason-core-extraction.md) for
+qualification limits.
 
 ```json
 {
 	"dependencies": {
-		"@octane-xplat/nativescript-mason-core": "file:./artifacts/octane-xplat-nativescript-mason-core-0.0.0.tgz"
+		"@octane-xplat/nativescript-mason-core": "1.0.0-beta.0"
 	}
 }
 ```
@@ -350,7 +351,7 @@ import { xplatNative } from '@octane-xplat/cli/vite'
 export default defineConfig(({ mode }) => xplatNative(mode))
 ```
 
-When the app explicitly declares the private Mason core package, this same
+When the app explicitly declares the Mason core package, this same
 preset resolves the canonical renderer patch's MasonKit imports to that app's
 core installation, including the style subpath. Keep the canonical renderer
 patch; no edited renderer copy is needed. Core and full MasonKit cannot share

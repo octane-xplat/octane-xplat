@@ -141,12 +141,12 @@ available in the isolated project:
 pnpm probe run examples/probes/signals.ts --target android --deps @octane-xplat/platform
 ```
 
-For the private Mason core experiment, install the built core package where the
-case can resolve it, then select it explicitly. The generated mobile host uses
-core in place of the harness's full engine and fingerprints its native files.
-It rejects full MasonKit in that runtime graph. The
+Mobile probes now inherit `@octane-xplat/nativescript-mason-core@1.0.0-beta.0`
+from the mobile harness. The generated host fingerprints core's native files
+and rejects full MasonKit in that runtime graph. An explicit core dependency
+can select a locally built core for an isolated experiment. The
 [extraction design](../design/mason-core-extraction.md) records prerequisites
-and target limits; this does not change ordinary probe defaults.
+and target limits.
 
 ```sh
 pnpm probe run research/core.case.tsrx --target android --deps @octane-xplat/nativescript-mason-core
