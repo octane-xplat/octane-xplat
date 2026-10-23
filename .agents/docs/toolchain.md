@@ -51,6 +51,16 @@ experience of agents writing Octane-xplat code effectively.
   combined programs have opaque native host handles; target conditions bind
   concrete hosts without changing intrinsic membership. See
   [the app JSX setup](../../docs/platform/module-resolution.md#typescript).
+- NativeScript Vite 8.0.20's delegated checker narrows module suffixes to the
+  phone target but filters only iOS/Android/visionOS file tags. The mobile
+  harness deliberately includes desktop source too, so its iOS build can report
+  unresolved `./focus-clock` in macOS keyboard files and `./bridge` in Linux
+  platform files. The standalone combined package/harness typechecks pass;
+  the iOS runtime suite also passes. This is a checker-context limitation,
+  not runtime qualification for those desktop files. Keep the combined
+  typecheck gate and assess actual mobile diagnostics separately. Source:
+  [upstream checker at the 8.0.20 publish commit](https://github.com/NativeScript/NativeScript/blob/1fe745085ed609783355c51488ddc236aef0c0e1/packages/vite/helpers/typescript-check.ts).
+  Recheck when upstream filters desktop roots or supports their resolver context.
 - **pnpm, not npm** (user preference). `pnpm-workspace.yaml` carries
   `nodeLinker: isolated` — `@nativescript/vite`'s vendor-manifest code needs it.
   Consequence: every package must declare what it imports (no transitive-dep
