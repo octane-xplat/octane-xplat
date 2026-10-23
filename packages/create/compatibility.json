@@ -180,12 +180,12 @@
 	"profiles": {
 		"windows": {
 			"@nativescript/core": {
-				"version": "9.1.3-next.2",
-				"specifier": "https://pkg.pr.new/@nativescript/core@7d0adce"
+				"version": "9.1.4-next.0",
+				"specifier": "https://pkg.pr.new/@nativescript/core@abae298"
 			},
 			"@nativescript/vite": {
-				"version": "8.0.13",
-				"specifier": "https://pkg.pr.new/@nativescript/vite@7d0adce"
+				"version": "8.0.21",
+				"specifier": "https://pkg.pr.new/@nativescript/vite@abae298"
 			},
 			"nativescript": {
 				"version": "9.1.2-dev.2026-09-24-36031892256"

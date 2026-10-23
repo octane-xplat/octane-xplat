@@ -1,8 +1,8 @@
 diff --git a/application/application.windows.js b/application/application.windows.js
-index 599c126890de6173fbfadc4cca4bb061e311f749..21b1b14884cc61d2e931416c4121883c1ffba4e5 100644
+index 601e7a526..fd4e45ee0 100644
 --- a/application/application.windows.js
 +++ b/application/application.windows.js
-@@ -338,6 +338,7 @@ function updateAccessibilityProperties(view) {
+@@ -360,6 +360,7 @@ function updateAccessibilityProperties(view) {
      if (!view || !view.nativeViewProtected) {
          return;
      }
@@ -11,10 +11,10 @@ index 599c126890de6173fbfadc4cca4bb061e311f749..21b1b14884cc61d2e931416c4121883c
  setA11yUpdatePropertiesCallback(updateAccessibilityProperties);
  const applicationEvents = [Application.orientationChangedEvent, Application.systemAppearanceChangedEvent];
 diff --git a/css/css-tree-parser.js b/css/css-tree-parser.js
-index 0c13e7e67a8eb306248d738bb73189b772b4a409..7ce38a9ba8f1f9aef709136b46f8e5b2435ba714 100644
+index ee888000b..6098f60b5 100644
 --- a/css/css-tree-parser.js
 +++ b/css/css-tree-parser.js
-@@ -66,6 +66,10 @@ function transformAst(node, css, type = null) {
+@@ -70,6 +70,10 @@ function transformAst(node, css, type = null) {
              atrule.keyframes = transformAst(node.block, css, 'keyframe');
              atrule.vendor = undefined;
          }
@@ -26,7 +26,7 @@ index 0c13e7e67a8eb306248d738bb73189b772b4a409..7ce38a9ba8f1f9aef709136b46f8e5b2
              atrule.rules = transformAst(node.block, css);
          }
 diff --git a/css/reworkcss.d.ts b/css/reworkcss.d.ts
-index 3ac4f618f307864cb95b70cd01f4ecdc42c9d9e4..1906ed1457de195a799c9e938136f078e7ed6307 100644
+index 3ac4f618f..1906ed145 100644
 --- a/css/reworkcss.d.ts
 +++ b/css/reworkcss.d.ts
 @@ -10,7 +10,7 @@ export interface Position {
@@ -60,7 +60,7 @@ index 3ac4f618f307864cb95b70cd01f4ecdc42c9d9e4..1906ed1457de195a799c9e938136f078
      rules: Rule[];
  }
 diff --git a/ui/core/properties/index.js b/ui/core/properties/index.js
-index 333ac76a172c54da8049ed6807439fa52d09a0aa..0974c33b80b8f25d0542487c7f231bdf2d6ec682 100644
+index 333ac76a1..0974c33b8 100644
 --- a/ui/core/properties/index.js
 +++ b/ui/core/properties/index.js
 @@ -280,7 +280,7 @@ export class Property {
@@ -91,7 +91,7 @@ index 333ac76a172c54da8049ed6807439fa52d09a0aa..0974c33b80b8f25d0542487c7f231bdf
                  // If value is not initial or unset and view has a parent that has non-default value, use it as the reset value.
                  if (value !== 'initial' && parent && parent[sourceKey] !== 0 /* ValueSource.Default */) {
 diff --git a/ui/core/view/index.windows.d.ts b/ui/core/view/index.windows.d.ts
-index 8c55d09f9cf58714b8981ebbe33d5989e295a8b9..81555e90bee14d3b3ed47c925f3dc1b1de92300b 100644
+index 1366081b8..f55fae684 100644
 --- a/ui/core/view/index.windows.d.ts
 +++ b/ui/core/view/index.windows.d.ts
 @@ -1,7 +1,8 @@
@@ -102,9 +102,9 @@ index 8c55d09f9cf58714b8981ebbe33d5989e295a8b9..81555e90bee14d3b3ed47c925f3dc1b1
 +import { ViewCommon, originXProperty, originYProperty, isEnabledProperty } from './view-common';
 +import { accessibilityLabelProperty } from '../../../accessibility/accessibility-properties';
  import type { CoreTypes } from '../../../core-types';
+ import type { Point } from './view-interfaces';
  import { visibilityProperty, opacityProperty, backgroundInternalProperty, translateXProperty, translateYProperty, scaleXProperty, scaleYProperty, rotateProperty, rotateXProperty, rotateYProperty, perspectiveProperty, horizontalAlignmentProperty, verticalAlignmentProperty, paddingTopProperty, paddingRightProperty, paddingBottomProperty, paddingLeftProperty } from '../../styling/style-properties';
- import { widthProperty, heightProperty, minWidthProperty, minHeightProperty, marginLeftProperty, marginTopProperty, marginRightProperty, marginBottomProperty } from '../../styling/style-properties';
-@@ -13,6 +14,8 @@ export declare function _ensureNativeTransforms(native: any): {
+@@ -14,6 +15,8 @@ export declare function _ensureNativeTransforms(native: any): {
      translate: any;
  } | null;
  export declare class View extends ViewCommon {
@@ -114,7 +114,7 @@ index 8c55d09f9cf58714b8981ebbe33d5989e295a8b9..81555e90bee14d3b3ed47c925f3dc1b1
      [backgroundInternalProperty.setNative]: (value: any) => void;
      [widthProperty.setNative]: (value: CoreTypes.PercentLengthType) => void;
 diff --git a/ui/core/view/index.windows.js b/ui/core/view/index.windows.js
-index 9adf9e78c4714b02c8fa53b45fc7c53e7f93a72d..20826905d88ff7a7634ae6f20325a3c2e0097ada 100644
+index e6dce0dfc..287fb0d93 100644
 --- a/ui/core/view/index.windows.js
 +++ b/ui/core/view/index.windows.js
 @@ -1,7 +1,9 @@
@@ -128,7 +128,7 @@ index 9adf9e78c4714b02c8fa53b45fc7c53e7f93a72d..20826905d88ff7a7634ae6f20325a3c2
  import { visibilityProperty, opacityProperty, backgroundInternalProperty, translateXProperty, translateYProperty, scaleXProperty, scaleYProperty, rotateProperty, rotateXProperty, rotateYProperty, perspectiveProperty, horizontalAlignmentProperty, verticalAlignmentProperty, paddingTopProperty, paddingRightProperty, paddingBottomProperty, paddingLeftProperty } from '../../styling/style-properties';
  import { widthProperty, heightProperty, minWidthProperty, minHeightProperty, marginLeftProperty, marginTopProperty, marginRightProperty, marginBottomProperty } from '../../styling/style-properties';
  import { layout } from '../../../utils';
-@@ -645,6 +647,10 @@ export class View extends ViewCommon {
+@@ -649,6 +651,10 @@ export class View extends ViewCommon {
          this._nativeBackgroundState = 'invalid';
          this._percentWidth = null; // null = not set
          this._percentHeight = null;
@@ -139,7 +139,7 @@ index 9adf9e78c4714b02c8fa53b45fc7c53e7f93a72d..20826905d88ff7a7634ae6f20325a3c2
          // Held SizeChanged delegate (prevents GC; see _ensureSizeWatch).
          this._sizeChangedDelegate = null;
          this._sizeWatchWired = false;
-@@ -1164,6 +1170,15 @@ export class View extends ViewCommon {
+@@ -1168,6 +1174,15 @@ export class View extends ViewCommon {
          })
              .catch(() => { });
      }
@@ -155,7 +155,7 @@ index 9adf9e78c4714b02c8fa53b45fc7c53e7f93a72d..20826905d88ff7a7634ae6f20325a3c2
      initNativeView() {
          super.initNativeView();
          // Size-dependent work (percent sizing, border/shadow/clip redraw) is wired ON DEMAND via
-@@ -1173,6 +1188,56 @@ export class View extends ViewCommon {
+@@ -1177,6 +1192,56 @@ export class View extends ViewCommon {
              this._ensureSizeWatch();
          }
      }
@@ -212,7 +212,7 @@ index 9adf9e78c4714b02c8fa53b45fc7c53e7f93a72d..20826905d88ff7a7634ae6f20325a3c2
      // XAML lays views out natively, so core's own layout pass (and the bounds it records) never runs:
      // read the bounds off the element. In device pixels relative to the parent, as on Android.
      _getCurrentLayoutBounds() {
-@@ -1477,6 +1542,7 @@ export class View extends ViewCommon {
+@@ -1504,6 +1569,7 @@ export class View extends ViewCommon {
          step();
      }
      disposeNativeView() {
@@ -220,7 +220,7 @@ index 9adf9e78c4714b02c8fa53b45fc7c53e7f93a72d..20826905d88ff7a7634ae6f20325a3c2
          const nativeView = this.nativeViewProtected;
          if (nativeView && this._sizeWatchWired) {
              nativeView.SizeChanged = null;
-@@ -1484,6 +1550,8 @@ export class View extends ViewCommon {
+@@ -1511,6 +1577,8 @@ export class View extends ViewCommon {
          // Reset so a recycled view re-wires on the next size-dependent property set.
          this._sizeWatchWired = false;
          this._sizeChangedDelegate = null;
@@ -229,7 +229,7 @@ index 9adf9e78c4714b02c8fa53b45fc7c53e7f93a72d..20826905d88ff7a7634ae6f20325a3c2
          // Its shadow and border overlays are siblings in the old parent.
          this._viewCompositionHandler?.Free();
          this._viewCompositionHandler = null;
-@@ -1554,18 +1622,22 @@ export class View extends ViewCommon {
+@@ -1581,18 +1649,22 @@ export class View extends ViewCommon {
          }
          try {
              const parentNative = this.parent?.nativeViewProtected;
@@ -258,7 +258,7 @@ index 9adf9e78c4714b02c8fa53b45fc7c53e7f93a72d..20826905d88ff7a7634ae6f20325a3c2
              }
          }
          catch (_e) { }
-@@ -1586,10 +1658,12 @@ export class View extends ViewCommon {
+@@ -1613,10 +1685,12 @@ export class View extends ViewCommon {
              const pct = value.value;
              if (this.parent instanceof View && this.parent._setChildPercentSize(this, true, pct)) {
                  this._percentWidth = null;
@@ -271,7 +271,7 @@ index 9adf9e78c4714b02c8fa53b45fc7c53e7f93a72d..20826905d88ff7a7634ae6f20325a3c2
              this._ensureSizeWatch(); // re-apply percent when the parent resizes
              this.nativeViewProtected.Width = NaN;
              if (pct >= 1) {
-@@ -1613,6 +1687,7 @@ export class View extends ViewCommon {
+@@ -1640,6 +1714,7 @@ export class View extends ViewCommon {
              return;
          }
          this._percentWidth = null;
@@ -279,7 +279,7 @@ index 9adf9e78c4714b02c8fa53b45fc7c53e7f93a72d..20826905d88ff7a7634ae6f20325a3c2
          if (this.parent instanceof View)
              this.parent._setChildPercentSize(this, true, null);
          // Clear any previously set flex-basis so the C++ widget falls back to DesiredSize.
-@@ -1631,10 +1706,12 @@ export class View extends ViewCommon {
+@@ -1658,10 +1733,12 @@ export class View extends ViewCommon {
              const pct = value.value;
              if (this.parent instanceof View && this.parent._setChildPercentSize(this, false, pct)) {
                  this._percentHeight = null;
@@ -292,7 +292,7 @@ index 9adf9e78c4714b02c8fa53b45fc7c53e7f93a72d..20826905d88ff7a7634ae6f20325a3c2
              this._ensureSizeWatch(); // re-apply percent when the parent resizes
              this.nativeViewProtected.Height = NaN;
              if (pct >= 1) {
-@@ -1657,6 +1734,7 @@ export class View extends ViewCommon {
+@@ -1684,6 +1761,7 @@ export class View extends ViewCommon {
              return;
          }
          this._percentHeight = null;
@@ -300,44 +300,8 @@ index 9adf9e78c4714b02c8fa53b45fc7c53e7f93a72d..20826905d88ff7a7634ae6f20325a3c2
          if (this.parent instanceof View)
              this.parent._setChildPercentSize(this, false, null);
          this.nativeViewProtected.Height = toXamlLength(value);
-diff --git a/ui/core/view-base/index.d.ts b/ui/core/view-base/index.d.ts
-index 170ceb1c65bbf17cffb1c648f2cc5c7c21065115..6941110802e2ade9b4d48a172dbb95801bba96d1 100644
---- a/ui/core/view-base/index.d.ts
-+++ b/ui/core/view-base/index.d.ts
-@@ -498,6 +498,12 @@ export declare abstract class ViewBase extends Observable {
-      * @param view to unload.
-      */
-     unloadView(view: ViewBase): void;
-+    /**
-+     * Whether a child is the one currently shown. Containers that keep several children
-+     * alive but show one at a time (a TabView's items) override it for the hidden ones.
-+     * @param child A direct child of this view.
-+     */
-+    _isChildPresented(child: ViewBase): boolean;
-     /**
-      * Core logic for removing a child view from this instance. Used by the framework to handle lifecycle events more centralized. Do not use outside the UI Stack implementation.
-      */
-diff --git a/ui/core/view-base/index.js b/ui/core/view-base/index.js
-index 5f54440b3a3e0a36ddc0139d49db5cbcd6695b75..580061c78ae9326f733f7ea5ebd0dbf92382d031 100644
---- a/ui/core/view-base/index.js
-+++ b/ui/core/view-base/index.js
-@@ -633,6 +633,14 @@ export class ViewBase extends Observable {
-             view.callUnloaded();
-         }
-     }
-+    /**
-+     * Whether a child is the one currently shown. Containers that keep several children
-+     * alive but show one at a time (a TabView's items) override it for the hidden ones.
-+     * @param child A direct child of this view.
-+     */
-+    _isChildPresented(child) {
-+        return true;
-+    }
-     /**
-      * Core logic for removing a child view from this instance. Used by the framework to handle lifecycle events more centralized. Do not use outside the UI Stack implementation.
-      */
 diff --git a/ui/editable-text-base/index.windows.d.ts b/ui/editable-text-base/index.windows.d.ts
-index 33d2058f382c3c83512209b2e18623a8c653454b..79f0f50310533b9d681fc14017db49909e01c653 100644
+index 33d2058f3..79f0f5031 100644
 --- a/ui/editable-text-base/index.windows.d.ts
 +++ b/ui/editable-text-base/index.windows.d.ts
 @@ -2,8 +2,10 @@ export * from './editable-text-base-common';
@@ -371,7 +335,7 @@ index 33d2058f382c3c83512209b2e18623a8c653454b..79f0f50310533b9d681fc14017db4990
      dismissSoftInput(): void;
      focus(): boolean;
 diff --git a/ui/editable-text-base/index.windows.js b/ui/editable-text-base/index.windows.js
-index 1ea9d7502e405266a5369b10eee7b5ce971c7649..0496d481a8bfc9570ca591d8376b2a802f0227dc 100644
+index 1ea9d7502..0496d481a 100644
 --- a/ui/editable-text-base/index.windows.js
 +++ b/ui/editable-text-base/index.windows.js
 @@ -2,47 +2,83 @@ export * from './editable-text-base-common';
@@ -520,88 +484,8 @@ index 1ea9d7502e405266a5369b10eee7b5ce971c7649..0496d481a8bfc9570ca591d8376b2a80
      }
      [autocapitalizationTypeProperty.setNative](_value) { }
      [autocorrectProperty.setNative](_value) { }
-diff --git a/ui/frame/frame-common.js b/ui/frame/frame-common.js
-index 8637cacf417baebce945c58681daa86ca83dce46..c06da239d58b6174652b120e024f853f58d2c13f 100644
---- a/ui/frame/frame-common.js
-+++ b/ui/frame/frame-common.js
-@@ -3,7 +3,7 @@ import { NavigationType } from './frame-interfaces';
- import { CustomLayoutView, CSSType } from '../core/view';
- import { Property } from '../core/properties';
- import { Trace } from '../../trace';
--import { frameStack, topmost as frameStackTopmost, _pushInFrameStack, _popFromFrameStack, _removeFromFrameStack, _isFrameStackEmpty } from './frame-stack';
-+import { frameStack, topmost as frameStackTopmost, _pushInFrameStack, _insertAtFrameStackBottom, _popFromFrameStack, _removeFromFrameStack, _isFrameStackEmpty } from './frame-stack';
- import { viewMatchesModuleContext } from '../core/view/view-common';
- import { getAncestor } from '../core/view-base';
- import { Builder } from '../builder';
-@@ -12,6 +12,19 @@ import { profile } from '../../profiling';
- import { FRAME_SYMBOL } from './frame-helpers';
- import { SharedTransition } from '../transition/shared-transition';
- export { NavigationType } from './frame-interfaces';
-+/**
-+ * A view is presented while every ancestor shows the child leading to it; a frame in an
-+ * unselected tab is loaded on Android but must never outrank the tab that is shown.
-+ */
-+function isPresented(view) {
-+    while (view.parent) {
-+        if (!view.parent._isChildPresented(view)) {
-+            return false;
-+        }
-+        view = view.parent;
-+    }
-+    return true;
-+}
- function buildEntryFromArgs(arg) {
-     let entry;
-     if (typeof arg === 'string') {
-@@ -463,7 +476,12 @@ let FrameBase = FrameBase_1 = class FrameBase extends CustomLayoutView {
-         return _isFrameStackEmpty();
-     }
-     _pushInFrameStack() {
--        _pushInFrameStack(this);
-+        if (isPresented(this)) {
-+            _pushInFrameStack(this);
-+        }
-+        else {
-+            _insertAtFrameStackBottom(this);
-+        }
-     }
-     _popFromFrameStack() {
-         _popFromFrameStack(this);
-diff --git a/ui/frame/frame-stack.d.ts b/ui/frame/frame-stack.d.ts
-index 8387e6202380ec502adbc577c8de73e354ced9a9..0c874161af12d69ea4ced8f43d3e8a4d92032dcd 100644
---- a/ui/frame/frame-stack.d.ts
-+++ b/ui/frame/frame-stack.d.ts
-@@ -19,5 +19,6 @@ export declare function topmostForWindow(window: WindowBase): FrameBase | undefi
- export declare function topmost(window?: WindowBase): FrameBase;
- export declare function _isFrameStackEmpty(): boolean;
- export declare function _pushInFrameStack(frame: FrameBase): void;
-+export declare function _insertAtFrameStackBottom(frame: FrameBase): void;
- export declare function _popFromFrameStack(frame: FrameBase): void;
- export declare function _removeFromFrameStack(frame: FrameBase): void;
-diff --git a/ui/frame/frame-stack.js b/ui/frame/frame-stack.js
-index 9ded225f53e4c4af92166a3e019671a1a65a2db2..9a9f5d5f9f891c9bcf6035b0345f4bb21c72831c 100644
---- a/ui/frame/frame-stack.js
-+++ b/ui/frame/frame-stack.js
-@@ -46,6 +46,17 @@ export function _pushInFrameStack(frame) {
-     frameStack.push(frame);
-     frame._isInFrameStack = true;
- }
-+/**
-+ * Keeps a frame in the stack without making it topmost: the frame stays findable by id,
-+ * while every frame that is actually shown outranks it.
-+ */
-+export function _insertAtFrameStackBottom(frame) {
-+    if (frame._isInFrameStack) {
-+        return;
-+    }
-+    frameStack.unshift(frame);
-+    frame._isInFrameStack = true;
-+}
- export function _popFromFrameStack(frame) {
-     if (!frame._isInFrameStack) {
-         return;
 diff --git a/ui/gestures/index.windows.d.ts b/ui/gestures/index.windows.d.ts
-index bf1d68d4b7c014d2bc129ca6cea0bc26c722ea9f..cbb3c5109305730bc3ad82513be86794f8e471d3 100644
+index bf1d68d4b..cbb3c5109 100644
 --- a/ui/gestures/index.windows.d.ts
 +++ b/ui/gestures/index.windows.d.ts
 @@ -8,15 +8,7 @@ export declare function isHovered(view: View): boolean;
@@ -630,7 +514,7 @@ index bf1d68d4b7c014d2bc129ca6cea0bc26c722ea9f..cbb3c5109305730bc3ad82513be86794
      private _onPointerPressed;
      private _onPointerMoved;
 diff --git a/ui/gestures/index.windows.js b/ui/gestures/index.windows.js
-index ba8319e96ef61748380875267b797e52cdfba252..fccc5ef84929e8c5fc10c2377eb68c5ab9245055 100644
+index a47c8fb9f..9d3b6f0c5 100644
 --- a/ui/gestures/index.windows.js
 +++ b/ui/gestures/index.windows.js
 @@ -3,6 +3,7 @@ export * from './gestures-types';
@@ -869,7 +753,7 @@ index ba8319e96ef61748380875267b797e52cdfba252..fccc5ef84929e8c5fc10c2377eb68c5a
              timer.clearTimeout(this._tapTimeoutId);
              this._tapTimeoutId = null;
          }
-@@ -258,70 +204,56 @@ export class GesturesObserver extends GesturesObserverBase {
+@@ -258,73 +204,59 @@ export class GesturesObserver extends GesturesObserverBase {
      _attach(target, type) {
          this._detach();
          const native = target.nativeViewProtected;
@@ -926,6 +810,9 @@ index ba8319e96ef61748380875267b797e52cdfba252..fccc5ef84929e8c5fc10c2377eb68c5a
 +            this._detach();
 +            throw error;
          }
+         if (native.Background === null) {
+             native.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush({ A: 0, R: 0, G: 0, B: 0 });
+         }
 -        // RightTapped (mouse right-click) fires longPress for mouse/touchpad users.
 -        if (type === GestureTypes.longPress) {
 -            if (!this._rightTappedDelegate) {
@@ -981,7 +868,7 @@ index ba8319e96ef61748380875267b797e52cdfba252..fccc5ef84929e8c5fc10c2377eb68c5a
          try {
              const relativeTo = this.target?.nativeViewProtected ?? null;
              const id = extractPointerId(e);
-@@ -333,6 +265,9 @@ export class GesturesObserver extends GesturesObserverBase {
+@@ -336,6 +268,9 @@ export class GesturesObserver extends GesturesObserverBase {
              this._pointerDownMap.set(id, { x: pt.x, y: pt.y, t: Date.now(), nativeTs });
              if (this.type === GestureTypes.longPress) {
                  const timeoutId = timer.setTimeout(() => {
@@ -991,7 +878,7 @@ index ba8319e96ef61748380875267b797e52cdfba252..fccc5ef84929e8c5fc10c2377eb68c5a
                      const args = {
                          type: GestureTypes.longPress,
                          view: this.target,
-@@ -349,6 +284,7 @@ export class GesturesObserver extends GesturesObserverBase {
+@@ -352,6 +287,7 @@ export class GesturesObserver extends GesturesObserverBase {
                  const args = {
                      type: GestureTypes.touch,
                      view: this.target,
@@ -999,7 +886,7 @@ index ba8319e96ef61748380875267b797e52cdfba252..fccc5ef84929e8c5fc10c2377eb68c5a
                      ios: undefined,
                      android: undefined,
                      object: this.target,
-@@ -370,10 +306,20 @@ export class GesturesObserver extends GesturesObserverBase {
+@@ -376,10 +312,20 @@ export class GesturesObserver extends GesturesObserverBase {
              const relativeTo = this.target?.nativeViewProtected ?? null;
              const id = extractPointerId(e);
              const pt = extractPoint(e, relativeTo);
@@ -1020,7 +907,7 @@ index ba8319e96ef61748380875267b797e52cdfba252..fccc5ef84929e8c5fc10c2377eb68c5a
                      ios: undefined,
                      android: undefined,
                      object: this.target,
-@@ -396,6 +342,12 @@ export class GesturesObserver extends GesturesObserverBase {
+@@ -402,6 +348,12 @@ export class GesturesObserver extends GesturesObserverBase {
              const id = extractPointerId(e);
              const pt = extractPoint(e, relativeTo);
              const start = this._pointerDownMap.get(id);
@@ -1033,7 +920,7 @@ index ba8319e96ef61748380875267b797e52cdfba252..fccc5ef84929e8c5fc10c2377eb68c5a
              const now = Date.now();
              // Use WinRT hardware timestamps when available so the tap-duration check reflects the actual
              // gesture time, not V8 scheduling latency. When JS is busy (e.g. processing a navigation),
-@@ -426,56 +378,39 @@ export class GesturesObserver extends GesturesObserverBase {
+@@ -432,56 +384,39 @@ export class GesturesObserver extends GesturesObserverBase {
                  };
                  _executeCallback(this, args);
              }
@@ -1118,7 +1005,7 @@ index ba8319e96ef61748380875267b797e52cdfba252..fccc5ef84929e8c5fc10c2377eb68c5a
                      }
                  }
              }
-@@ -484,6 +419,8 @@ export class GesturesObserver extends GesturesObserverBase {
+@@ -490,6 +425,8 @@ export class GesturesObserver extends GesturesObserverBase {
          catch (_e) { }
      }
      _onRightTapped(e) {
@@ -1127,7 +1014,7 @@ index ba8319e96ef61748380875267b797e52cdfba252..fccc5ef84929e8c5fc10c2377eb68c5a
          try {
              const relativeTo = this.target?.nativeViewProtected ?? null;
              const pt = extractPoint(e, relativeTo);
-@@ -507,4 +444,3 @@ export function observe(target, type, callback, context) {
+@@ -513,4 +450,3 @@ export function observe(target, type, callback, context) {
      observer.observe(type);
      return observer;
  }
@@ -1135,7 +1022,7 @@ index ba8319e96ef61748380875267b797e52cdfba252..fccc5ef84929e8c5fc10c2377eb68c5a
 \ No newline at end of file
 diff --git a/ui/gestures/pointer-events.windows.d.ts b/ui/gestures/pointer-events.windows.d.ts
 new file mode 100644
-index 0000000000000000000000000000000000000000..a355a6930792b05c64f66f9051ad927ba3784dde
+index 000000000..a355a6930
 --- /dev/null
 +++ b/ui/gestures/pointer-events.windows.d.ts
 @@ -0,0 +1,4 @@
@@ -1145,7 +1032,7 @@ index 0000000000000000000000000000000000000000..a355a6930792b05c64f66f9051ad927b
 +export {};
 diff --git a/ui/gestures/pointer-events.windows.js b/ui/gestures/pointer-events.windows.js
 new file mode 100644
-index 0000000000000000000000000000000000000000..f19ca9970f8f8f7ce8224f516a6bdcea740210bc
+index 000000000..f19ca9970
 --- /dev/null
 +++ b/ui/gestures/pointer-events.windows.js
 @@ -0,0 +1,66 @@
@@ -1216,7 +1103,7 @@ index 0000000000000000000000000000000000000000..f19ca9970f8f8f7ce8224f516a6bdcea
 +    };
 +}
 diff --git a/ui/layouts/flexbox-layout/flexbox-layout-common.js b/ui/layouts/flexbox-layout/flexbox-layout-common.js
-index 50c747a85135d761c1a646a007c4930f790fb0a3..8f3a627224cf903555574480a0cdeba74b1c3e35 100644
+index 50c747a85..8f3a62722 100644
 --- a/ui/layouts/flexbox-layout/flexbox-layout-common.js
 +++ b/ui/layouts/flexbox-layout/flexbox-layout-common.js
 @@ -195,7 +195,21 @@ let FlexboxLayoutBase = class FlexboxLayoutBase extends LayoutBase {
@@ -1243,10 +1130,10 @@ index 50c747a85135d761c1a646a007c4930f790fb0a3..8f3a627224cf903555574480a0cdeba7
      static setFlexWrapBefore(view, wrap) {
          validateArgs(view).style.flexWrapBefore = wrap;
 diff --git a/ui/styling/css-selector.d.ts b/ui/styling/css-selector.d.ts
-index 734d886877b867e69b36fd75785b0a4372008f0f..d90f0e4fcf0f136bf4e9b10f9b08cc14f9b73e32 100644
+index a51358a17..a7e08e04c 100644
 --- a/ui/styling/css-selector.d.ts
 +++ b/ui/styling/css-selector.d.ts
-@@ -222,6 +222,8 @@ export declare class RuleSet {
+@@ -226,6 +226,8 @@ export declare class RuleSet {
      mediaQueryString: string | string[];
      tag?: string | number;
      scopedTag?: string;
@@ -1256,10 +1143,10 @@ index 734d886877b867e69b36fd75785b0a4372008f0f..d90f0e4fcf0f136bf4e9b10f9b08cc14
      toString(): string;
      lookupSort(sorter: LookupSorter): void;
 diff --git a/ui/styling/css-selector.js b/ui/styling/css-selector.js
-index 702ca508f27ace527938860dfe4b13dbcbb93c2f..b6fa55a9570d4ed0714f053301bbe69efbd6900c 100644
+index 151db5f0a..ca615dcf4 100644
 --- a/ui/styling/css-selector.js
 +++ b/ui/styling/css-selector.js
-@@ -1081,9 +1081,27 @@ export class StyleSheetSelectorScope extends SelectorScope {
+@@ -1086,9 +1086,27 @@ export class StyleSheetSelectorScope extends SelectorScope {
          return matchSelectorCandidates(node, this.collectCandidates(node));
      }
  }
@@ -1290,7 +1177,7 @@ index 702ca508f27ace527938860dfe4b13dbcbb93c2f..b6fa55a9570d4ed0714f053301bbe69e
  /**
   * Resolve collected candidates against a node, compacting the array in place.
 diff --git a/ui/styling/style-scope.d.ts b/ui/styling/style-scope.d.ts
-index d6f026616cc33cf02f312a5e4f3b6effd71b5dda..321217d036b2fc726c88bf2076d82dcc62e6917e 100644
+index d6f026616..321217d03 100644
 --- a/ui/styling/style-scope.d.ts
 +++ b/ui/styling/style-scope.d.ts
 @@ -8,7 +8,7 @@ import { Keyframes, KeyframeAnimationInfo, KeyframeAnimation } from '../animatio
@@ -1303,7 +1190,7 @@ index d6f026616cc33cf02f312a5e4f3b6effd71b5dda..321217d036b2fc726c88bf2076d82dcc
  export declare function addTaggedAdditionalCSS(cssText: string, tag?: string | number): boolean;
  export declare const loadAppCSS: any;
 diff --git a/ui/styling/style-scope.js b/ui/styling/style-scope.js
-index 0dbbb309924858ab2b435a004f562c808168b1d9..37495df5a3e0c452ddad493493c12f42d25fba68 100644
+index 0dbbb3099..37495df5a 100644
 --- a/ui/styling/style-scope.js
 +++ b/ui/styling/style-scope.js
 @@ -399,6 +399,33 @@ __decorate([
@@ -1426,60 +1313,8 @@ index 0dbbb309924858ab2b435a004f562c808168b1d9..37495df5a3e0c452ddad493493c12f42
  function isRule(node) {
      return node.type === 'rule';
  }
-diff --git a/ui/tab-view/tab-view-common.d.ts b/ui/tab-view/tab-view-common.d.ts
-index 35d1ba1f2479bbbf64cd4b1acb9563e0f823fd4e..e96b3085d75549d06d2c2e9cae183887e8e1adcc 100644
---- a/ui/tab-view/tab-view-common.d.ts
-+++ b/ui/tab-view/tab-view-common.d.ts
-@@ -66,6 +66,7 @@ export declare class TabViewBase extends View implements TabViewDefinition, AddC
-     eachChild(callback: (child: ViewBase) => boolean): void;
-     eachChildView(callback: (child: View) => boolean): void;
-     onItemsChanged(oldItems: TabViewItemDefinition[], newItems: TabViewItemDefinition[]): void;
-+    _isChildPresented(child: ViewBase): boolean;
-     onSelectedIndexChanged(oldIndex: number, newIndex: number): void;
- }
- export interface TabViewBase {
-diff --git a/ui/tab-view/tab-view-common.js b/ui/tab-view/tab-view-common.js
-index 66672f1fa5ccb31f06a83a2a21bfe1e5c668712f..1eb3676f0346d7ee21ab7ff1c1b78292da641463 100644
---- a/ui/tab-view/tab-view-common.js
-+++ b/ui/tab-view/tab-view-common.js
-@@ -144,21 +144,33 @@ let TabViewBase = TabViewBase_1 = class TabViewBase extends View {
-     }
-     onItemsChanged(oldItems, newItems) {
-         if (oldItems) {
--            oldItems.forEach((item) => this._removeView(item));
-+            oldItems.forEach((item) => {
-+                if (!newItems || newItems.indexOf(item) < 0) {
-+                    this._removeView(item);
-+                }
-+            });
-         }
-         if (newItems) {
-             newItems.forEach((item) => {
-                 if (!item.view) {
-                     throw new Error(`TabViewItem must have a view.`);
-                 }
-+                // An item kept across the change stays loaded; tearing it down would unload its view.
-+                if (item.parent === this) {
-+                    return;
-+                }
-                 // A view can only have one parent, and _addView throws if it already has one.
--                if (item.parent && item.parent !== this) {
-+                if (item.parent) {
-                     item.parent._removeView(item);
-                 }
-                 this._addView(item);
-             });
-         }
-     }
-+    _isChildPresented(child) {
-+        const items = this.items;
-+        return !items || items[this.selectedIndex] === child;
-+    }
-     onSelectedIndexChanged(oldIndex, newIndex) {
-         // to be overridden in platform specific files
-         this.notify({
 diff --git a/ui/text-field/index.windows.d.ts b/ui/text-field/index.windows.d.ts
-index a88815c17ff87271143e457f7e81e3c651ef0ab3..9c0c2a7db4dcd4bcb185e1e1c0f42cfa1aba53bb 100644
+index a88815c17..9c0c2a7db 100644
 --- a/ui/text-field/index.windows.d.ts
 +++ b/ui/text-field/index.windows.d.ts
 @@ -14,10 +14,16 @@ export declare class TextField extends TextFieldBase {
@@ -1501,7 +1336,7 @@ index a88815c17ff87271143e457f7e81e3c651ef0ab3..9c0c2a7db4dcd4bcb185e1e1c0f42cfa
      _attachReturnKeyListener(): void;
  }
 diff --git a/ui/text-field/index.windows.js b/ui/text-field/index.windows.js
-index 1dcaa390d7ad1a37fecc5e0edfaa0cd38380146e..be96ae1b112f9d084c2f9ef0db48fc3de84e4bb1 100644
+index 1dcaa390d..be96ae1b1 100644
 --- a/ui/text-field/index.windows.js
 +++ b/ui/text-field/index.windows.js
 @@ -1,8 +1,10 @@

@@ -144,7 +144,7 @@ test('a workspace upgrade visits nested packages and honors exclusions, local li
 	)
 	assert.equal(yaml(root).configDependencies['my-config'], '1.0.0')
 	assert.equal(readFileSync(join(root, 'packages/ignored/package.json'), 'utf8'), ignored)
-	assert.ok(yaml(root).patchedDependencies['@nativescript/core@9.1.3-next.2'])
+	assert.ok(yaml(root).patchedDependencies['@nativescript/core@9.1.4-next.0'])
 	assert.ok(!yaml(root).patchedDependencies['@nativescript/core@9.1.3'])
 })
 

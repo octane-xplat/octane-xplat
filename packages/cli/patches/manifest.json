@@ -56,19 +56,19 @@
 			"dropWhen": "vite-octane release adds .tsrx matching and uses canonical graph IDs with filesystem transform URLs for external sources"
 		},
 		{
-			"specifier": "@nativescript/vite@8.0.13",
-			"file": "@nativescript__vite@8.0.13.patch",
+			"specifier": "@nativescript/vite@8.0.21",
+			"file": "@nativescript__vite@8.0.21.patch",
 			"scope": "dev",
-			"why": "apps/windows pins the @7d0adce pkg.pr.new preview based on @nativescript/vite 8.0.13, so its separate patch carries /ns/m re-export records, vendor-manifest gating for plugin-patterned packages, percent-decoding (the preview predates 8.0.17/#11483), and .mobile-aware tsconfig-paths probing.",
-			"dropWhen": "windows moves off the preview pin \u2014 the real fix lands upstream with the windows platform merge (NativeScript#11272/#11468)",
+			"why": "Windows preview abae298 from NativeScript#11272 uses Vite 8.0.21. Retains /ns/m re-export records, outside-root /@fs routing through the device transform, and .mobile-aware tsconfig-paths probing. Vendor-manifest gating and percent-decoded module paths are now upstream and no longer patched.",
+			"dropWhen": "windows moves off the preview pin — the real fix lands upstream with the windows platform merge (NativeScript#11272/#11468)",
 			"template": false
 		},
 		{
-			"specifier": "@nativescript/core@9.1.3-next.2",
-			"file": "@nativescript__core@9.1.3-next.2.patch",
+			"specifier": "@nativescript/core@9.1.4-next.0",
+			"file": "@nativescript__core@9.1.4-next.0.patch",
 			"scope": "runtime",
-			"why": "Windows spike: the shared-file subset of the 9.1.2 patch \u2014 @layer cascade machinery (css-tree parser, css-selector, style-scope), the #11446 frame/tab-view common fixes, and the flexbox common measure-spec \u2014 applied to the @7d0adce preview. iOS/Android impl-file hunks are dead code on windows and were dropped. Repairs Windows replacement-only pointer event registration with independently owned subscribers, ref-counted hover, unload/reload cleanup, cancellation/capture-loss handling, disabled guards, and separated tap/double/long-press delivery. Repairs parent-driven percentage sizing initialization, resize/reparent/load/unload ownership, and padded content-box updates. Restores Windows input focus/blur events and lifecycle ownership, IsEnabled forwarding, explicit accessible names, fail-closed secure readonly, and literal non-CSS property values. Published 9.1.3 has no Windows implementation files, so apps/windows intentionally retains the @7d0adce preview and this separate patch when mobile consumers upgrade to 9.1.3.",
-			"dropWhen": "upstream ships the fixes and windows moves off the preview pin (NativeScript#11462, #11446, core windows merge); pointer observer source fix is retained in .agents/patches/windows-pointer-core.patch until an upstream release contains it. Percentage sizing source fix is retained in .agents/patches/windows-layout/core-percent-source.patch until upstream includes it. Input source repair is retained in .agents/patches/windows-input-core.patch until upstream includes it.",
+			"why": "Windows preview abae298 from NativeScript#11272 retains CSS @layer cascade machinery and explicit-size flex alignment, Windows pointer subscription and hover ownership, cancellation/capture-loss handling and gesture separation, parent-driven percentage sizing lifecycle and padded content-box updates, input focus/blur ownership, IsEnabled forwarding, accessible names, secure readonly, and literal non-CSS property values. The #11446 frame/tab fixes are now upstream and removed. Preserves upstream transparent-background hit testing and contact-only pointer moves. Registry core 9.1.4-next.0 has no Windows implementation; this patch targets the commit-pinned preview with that version.",
+			"dropWhen": "A published Windows-capable core contains the retained cascade, layout, pointer, and input repairs. Source repairs remain in .agents/patches/windows-pointer-core.patch, .agents/patches/windows-layout/core-percent-source.patch, and .agents/patches/windows-input-core.patch.",
 			"template": false
 		},
 		{

@@ -2,7 +2,7 @@
 
 Path A of the windows investigation ([.agents/design/windows-notes.md](../../.agents/design/windows-notes.md),
 decision #65): this scaffold is intended to run the shared harness on upstream's in-flight
-`@nativescript/core` windows platform ([NativeScript#11468](https://github.com/NativeScript/NativeScript/pull/11468)
+`@nativescript/core` windows platform ([NativeScript#11272](https://github.com/NativeScript/NativeScript/pull/11272)
 preview builds) inside the `@nativescript/windows` WinUI 3 host. No custom
 renderer — `@nativescript-community/octane` drives core views as on
 iOS/Android, and `.windows.*` leaves sit ahead of the unsuffixed native default in
@@ -10,26 +10,30 @@ the suffix chain.
 
 ## Status
 
-Scaffolded and bundle-verified on macOS (2026-09-28): `vite build` targeting
-windows emits `.ns-vite-build/bundle.mjs` + `vendor.mjs`. Nothing has run on
-a Windows host yet — the runtime is win32-only.
+The harness remains experimental. Earlier Windows build and input evidence is
+recorded in the [test-host runbook](../../.agents/docs/windows-test-host.md).
+The October 23 preview upgrade below has host-side verification only; Windows
+build, launch, and input/layout checks must be repeated for this pin.
 
 Pins, all deliberate:
 
 - `@nativescript/core` / `@nativescript/vite` come from
-  `pkg.pr.new/...@7d0adce` (the original revision of PR #11468, adding a
-  percentage-size fix to `feat/windows`). Use the commit pin: the PR-number
+  `pkg.pr.new/...@abae298` (the October 23 revision of PR #11272,
+  including the percentage-size hook from PR #11468). Use the commit pin: the PR-number
   URL moves when upstream pushes, invalidating the lockfile checksums.
 - `@nativescript/windows` is exact `0.1.0-alpha.144` — ranges match
   incompatible older prereleases.
 - `nativescript` CLI is the dev tag `9.1.2-dev.2026-09-24-*`, which already
   carries the windows platform (`ns run windows`, `ns doctor windows`);
   released CLI waits on `nativescript-cli#6065`.
-- The workspace carries preview-specific patches for `core@9.1.3-next.2`
-  and `vite@8.0.13`; the commit pin preserves the versions they target.
+- The workspace carries preview-specific patches for `core@9.1.4-next.0`
+  and `vite@8.0.21`; the commit pin preserves the versions they target.
+  Registry core with the same version has no Windows implementation.
+  The patches retain Windows input/pointer/layout repairs and CSS layers;
+  upstream now supplies the nested tab/frame and vendor-routing/path-decoding fixes.
 - The app dedupes `@nativescript/core` to the PR build in vite config and
   tsconfig `paths`; workspace packages' devDeps would otherwise resolve
-  `9.1.2` from inside `packages/*`.
+  the mobile core version from inside `packages/*`.
 
 ## Standalone WebView2 bridge host
 

@@ -24,6 +24,7 @@ function setup() {
 	}
 
 	const native = {
+		Background: null,
 		AddHandler() {
 			throw new Error('E_NOINTERFACE')
 		},
@@ -86,7 +87,20 @@ function setup() {
 				timers.delete(id)
 			},
 		},
-		Microsoft: { UI: { Xaml: { UIElement: {} } } },
+		Microsoft: {
+			UI: {
+				Xaml: {
+					UIElement: {},
+					Media: {
+						SolidColorBrush: class {
+							constructor(color) {
+								this.Color = color
+							}
+						},
+					},
+				},
+			},
+		},
 		NSWinRT: { asDelegate: (name, fn) => fn },
 		subscribeNativeEvent,
 		Date,
@@ -105,9 +119,9 @@ function setup() {
 		return observer
 	}
 
-	const emit = (name, x = 0) => {
+	const emit = (name, x = 0, inContact = true) => {
 		native[name]?.(native, {
-			Pointer: { PointerId: 1 },
+			Pointer: { PointerId: 1, IsInContact: inContact },
 			Timestamp: name === 'PointerReleased' ? 110000 : 100000,
 			GetCurrentPoint: () => ({ Position: { X: x, Y: 0 } }),
 		})
@@ -125,6 +139,31 @@ function setup() {
 		hovered: () => context.hovered(target),
 	}
 }
+
+test('gesture attachment preserves backgrounds and supplies a transparent hit-test surface', () => {
+	const s = setup()
+	s.add(types.tap, () => {})
+	assert.equal(s.native.Background.Color.A, 0)
+	const background = { authored: true }
+	s.native.Background = background
+	s.add(types.touch, () => {})
+	assert.equal(s.native.Background, background)
+})
+
+test('touch movement requires contact while hover remains independent', () => {
+	const s = setup()
+	const actions = []
+	s.add(types.touch, (args) => actions.push(args.action))
+	s.emit('PointerEntered', 0, false)
+	assert.equal(s.hovered(), true)
+	s.emit('PointerPressed')
+	s.emit('PointerMoved', 5, false)
+	assert.deepEqual(actions, ['down'])
+	s.emit('PointerMoved', 10, true)
+	assert.deepEqual(actions, ['down', 'move'])
+	s.emit('PointerReleased')
+	assert.deepEqual(actions, ['down', 'move', 'up'])
+})
 
 test('tap and touch coexist; disconnect and reload retain independent ownership', () => {
 	const s = setup()

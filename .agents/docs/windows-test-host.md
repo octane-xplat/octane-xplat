@@ -63,3 +63,32 @@ not establish desktop rendering; activate the registered app from a signed-in
 Windows desktop session.
 See [Windows target notes](../design/windows-notes.md) for the current
 implementation blockers.
+
+## October 23 preview upgrade
+
+The workspace now pins core and Vite to `abae298` from
+[NativeScript#11272](https://github.com/NativeScript/NativeScript/pull/11272).
+The preview identifies itself as core `9.1.4-next.0` and Vite `8.0.21`;
+registry core `9.1.4-next.0` lacks the Windows files, so preserve the URL pin.
+The Windows runtime and CLI pins remain unchanged.
+
+The rebase removes the upstreamed nested tab/frame fixes and Vite vendor
+routing/path decoding. Local CSS layers, flex alignment, Windows pointer/input
+and percentage-layout lifecycle repairs, re-export handling, and `.mobile`
+resolution remain. The gesture rebase preserves upstream transparent-background
+hit testing and contact-only pointer movement alongside local event ownership.
+
+Package comparison and patch application are host evidence. Earlier Windows
+runtime results do not qualify this preview: rerun build, launch, pointer,
+keyboard, and percentage-layout checks on a Windows host before claiming it.
+
+The documented SSH route refused the forwarded connection during this upgrade;
+no guest state was changed. Windows build and OS-input verification remain
+blocked until the test host is reachable.
+
+Host checks for this pin pass: installation with the frozen lockfile, patch and
+compatibility synchronization, recipe structure, focused compatibility/upgrade
+tests, touched-package and dependent typechecks (including Windows), and the
+installed-package Windows pointer, input, and percentage-layout regressions. The pointer suite also covers preserved authored backgrounds and
+contact-only touch movement from upstream. These exercise JavaScript with host
+fixtures, not WinUI hit testing or OS input.

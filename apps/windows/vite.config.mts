@@ -10,7 +10,7 @@ export default defineConfig(({ mode }) =>
 	xplatNative(mode, {
 		extra: {
 			resolve: {
-				// This app runs the PR-preview core (9.1.3-next.2) while workspace
+				// This app runs the PR-preview core (9.1.4-next.0) while workspace
 				// packages' devDeps carry 9.1.2 — importers inside packages/* would
 				// otherwise resolve a second core copy and split view identity.
 				// Peer contexts can also duplicate the renderer's element registry.
