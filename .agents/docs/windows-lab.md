@@ -59,8 +59,10 @@ completed with exit 0 and no restart required, and
 `AllowDevelopmentWithoutDevLicense` was set to DWORD `1` using the
 [documented Developer Mode setting](https://learn.microsoft.com/en-us/windows/advanced-settings/developer-mode#use-powershell-to-enable-your-device).
 A fresh SSH session resolves `dotnet --version` to `10.0.402`, and Xplat's
-Windows SDK and Developer Mode checks pass. The supplemental `ns doctor windows`
-result was not recovered: SSH became unreachable after Xplat reported its results.
+Windows SDK and Developer Mode checks pass. After SSH access resumed, the
+supplemental `pnpm --filter @xplat/windows exec ns doctor windows` log and exit
+file confirmed exit 0 and "No issues were detected." Its version-update notices
+do not change the workspace's pinned NativeScript dependencies.
 
 The broader Xplat doctor still exits 1 with harness compatibility/HMR findings
 and the existing false `pnpm — missing` result despite successful pnpm commands.
