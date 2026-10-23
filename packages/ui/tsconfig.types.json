@@ -37,6 +37,10 @@
 		"src/*/index.*.ts",
 		"src/routing/core.ts",
 		"src/data/dev.ts",
+		"src/routing/dev.ts",
+		"src/routing/dev.web.ts",
+		"src/routing/dev.macos.ts",
+		"src/routing/dev-shared.ts",
 		"src/routing/web-host.web.ts"
 	],
 	"exclude": ["**/*.test.*"]

@@ -96,6 +96,26 @@
 			"types": "./types/generated/data/dev.d.ts",
 			"default": "./src/data/dev.ts"
 		},
+		"./routing/dev": {
+			"macos": {
+				"types": "./types/generated/routing/dev.macos.d.ts",
+				"default": "./src/routing/dev.macos.ts"
+			},
+			"linux": {
+				"types": "./types/generated/routing/dev.web.d.ts",
+				"default": "./src/routing/dev.web.ts"
+			},
+			"web": {
+				"types": "./types/generated/routing/dev.web.d.ts",
+				"default": "./src/routing/dev.web.ts"
+			},
+			"native": {
+				"types": "./types/generated/routing/dev.d.ts",
+				"default": "./src/routing/dev.ts"
+			},
+			"types": "./types/generated/routing/dev.d.ts",
+			"default": "./src/routing/dev.ts"
+		},
 		"./markdown": {
 			"web": {
 				"types": "./types/generated/markdown/index.d.ts",

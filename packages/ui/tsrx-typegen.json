@@ -52,6 +52,19 @@
 					"runtime": ["./src/data/dev.ts"],
 					"types": "./types/generated/data/dev.d.ts"
 				},
+				"./routing/dev": {
+					"source": "src/routing/dev.ts",
+					"runtime": [
+						"./src/routing/dev.macos.ts",
+						"./src/routing/dev.web.ts",
+						"./src/routing/dev.ts"
+					],
+					"types": [
+						"./types/generated/routing/dev.d.ts",
+						"./types/generated/routing/dev.web.d.ts",
+						"./types/generated/routing/dev.macos.d.ts"
+					]
+				},
 				"./markdown": {
 					"source": "src/markdown/index.ts",
 					"runtime": [

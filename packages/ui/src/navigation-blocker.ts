@@ -147,6 +147,15 @@ export function hasNavigationBlockers(navigator: object): boolean {
 	return [...(bindings.get(navigator) ?? [])].some((binding) => binding.shouldBlock())
 }
 
+/** @internal Cancel every blocker-held attempt on this flow: held requests
+ * settle as cancelled and each blocker's 'blocked' state clears. Dev tooling
+ * uses this to close confirmations an unattended navigation cannot answer. */
+export function resetNavigationBlockers(navigator: object): void {
+	for (const binding of bindings.get(navigator) ?? []) {
+		binding.blocker.reset()
+	}
+}
+
 export async function admitNavigationBlockers(
 	navigator: object,
 	attempt: NavigationBlockerAttempt,
