@@ -24,7 +24,7 @@ export function ControlsDemo() @{
 		<View className="controls-section">
 			<HStack className="items-center gap-2">
 				<Text>Activity indicator</Text>
-				<Switch checked={busy} onCheckedChange={setBusy} />
+				<Switch value={busy} onChange={setBusy} />
 				<Spinner busy={busy} className="controls-spinner" />
 			</HStack>
 		</View>

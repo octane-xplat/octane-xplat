@@ -75,7 +75,7 @@ names on every target.
 import { UISwitch } from '@octane-xplat/ui/ios'
 
 export function PackedToggle() {
-	return <UISwitch checked={false} onCheckedChange={console.log} />
+	return <UISwitch value={false} onChange={console.log} />
 }
 ```
 

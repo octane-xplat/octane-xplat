@@ -12,12 +12,12 @@ import { FieldContext, useFieldControlProps } from './field-context';
  *  in `ui/ios` + `ui/android`. */
 function SwitchControl(inputProps: SwitchProps) @{
 	const props = useFieldControlProps(inputProps);
-	const [internal, setInternal] = useState(props.defaultChecked ?? false);
-	const checked = props.checked ?? internal;
+	const [internal, setInternal] = useState(props.defaultValue ?? false);
+	const checked = props.value ?? internal;
 	const isBlocked = props.isDisabled || props.isReadOnly;
 	const toggle = () => {
-		if (props.checked === undefined) setInternal(!checked);
-		props.onCheckedChange?.(!checked);
+		if (props.value === undefined) setInternal(!checked);
+		props.onChange?.(!checked);
 	};
 
 	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} testID={props.testID ?? ''} className={cx('vx-switch', checked ? 'vx-switch--on' : undefined, props.isDisabled && 'vx-switch--disabled', props.isReadOnly && 'vx-switch--readonly', props.isLoading && 'vx-switch--loading', props.status && `vx-switch--status-${props.status.type}`, props.size && `vx-switch--size-${props.size}`, props.className)} style={mergeStyle({display: "flex"}, props.style)} accessibilityRole={nativeAccessibilityRole('switch')} accessibilityLabel={props.ariaLabel ?? props.fieldLabel ?? props.label} accessibilityHint={props.accessibilityHint} accessibilityState={nativeAccessibilityState({ checked, disabled: props.isDisabled })} onTap={isBlocked ? undefined : toggle}>
@@ -32,19 +32,19 @@ export function Switch(inputProps: SwitchProps) @{
 	const props = useFieldControlProps(inputProps);
 	const inField = useContext(FieldContext) != null;
 	const needsChrome = !inField && (props.label != null || props.description != null || props.status != null);
-	const [internal, setInternal] = useState(props.defaultChecked ?? false);
-	const checked = props.checked ?? internal;
+	const [internal, setInternal] = useState(props.defaultValue ?? false);
+	const checked = props.value ?? internal;
 	const isBlocked = props.isDisabled || props.isReadOnly;
 	// One owner for the state: the wrapped control is driven as controlled so
 	// a tap on the track and a tap on the label stay in sync.
 	const setChecked = (next: boolean) => {
-		if (props.checked === undefined) setInternal(next);
-		props.onCheckedChange?.(next);
+		if (props.value === undefined) setInternal(next);
+		props.onChange?.(next);
 	};
 	@if (needsChrome) {
 		<masonview style={{display: "flex", flexDirection: "column"}}>
 			<masonview style={{display: "flex", flexDirection: "row", alignItems: "center", gap: 8}}>
-				<SwitchControl {...inputProps} checked={checked} onCheckedChange={setChecked} />
+				<SwitchControl {...inputProps} value={checked} onChange={setChecked} />
 				{props.label != null || props.description != null ? (
 					<masonview style={{display: "flex", flexDirection: "column", flexGrow: 1}} onTap={isBlocked ? undefined : () => setChecked(!checked)}>
 						{props.label != null ? <label className="vx-field-label" text={props.label} /> : null}

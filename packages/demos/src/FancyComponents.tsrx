@@ -608,8 +608,8 @@ function ReducedMotionControl(props: {
 	<HStack className="items-center gap-3 flex-wrap">
 		<Switch
 			id={props.id}
-			checked={props.preview}
-			onCheckedChange={props.onChange}
+			value={props.preview}
+			onChange={props.onChange}
 			accessibilityLabel="Preview reduced motion"
 		/>
 		<Text className="text-sm">Reduce motion</Text>

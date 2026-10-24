@@ -38,11 +38,11 @@ export function CheckboxGroup(inputProps: CheckboxGroupProps) @{
 		{props.options.map((opt: any) => (
 			<Checkbox
 				key={opt.value}
-				checked={selected.includes(opt.value)}
+				value={selected.includes(opt.value)}
 				isDisabled={props.isDisabled || opt.isDisabled}
 				isReadOnly={isReadOnly}
 				label={opt.label}
-				onCheckedChange={(on: boolean) => toggle(opt.value, on)}
+				onChange={(on: boolean) => toggle(opt.value, on)}
 			/>
 		))}
 	</div>

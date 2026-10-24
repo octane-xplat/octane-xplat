@@ -13,8 +13,8 @@ describe('native checkbox selection semantics', () => {
 		const container = createObjectContainer('nativescript')
 		const root = createUniversalRoot(container, createObjectDriver('nativescript'))
 		const change = vi.fn()
-		const props = { accessibilityLabel: 'Select current page', onCheckedChange: change }
-		root.render(Checkbox, { ...props, checked: false, indeterminate: true })
+		const props = { accessibilityLabel: 'Select current page', onChange: change }
+		root.render(Checkbox, { ...props, value: 'indeterminate' })
 		const host = container.children[0]
 		expect(host.props.accessibilityRole).toBe('checkbox')
 		expect(host.props.accessibilityLabel).toBe('Select current page')
@@ -22,10 +22,10 @@ describe('native checkbox selection semantics', () => {
 		expect(host.props.accessibilityState).toBeUndefined()
 		container.dispatchEvent(host, 'tap', {})
 		expect(change).toHaveBeenLastCalledWith(true)
-		root.render(Checkbox, { ...props, checked: true, indeterminate: false })
+		root.render(Checkbox, { ...props, value: true })
 		expect(host.props.accessibilityValue).toBeUndefined()
 		expect(host.props.accessibilityState).toBe('checked')
-		root.render(Checkbox, { ...props, checked: false, indeterminate: true, isDisabled: true })
+		root.render(Checkbox, { ...props, value: 'indeterminate', isDisabled: true })
 		expect(host.props.accessibilityState).toBe('disabled')
 		expect(() => container.dispatchEvent(host, 'tap', {})).toThrow('no "tap" listener')
 		root.render(Checkbox, { ...props, checked: false })

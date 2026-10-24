@@ -17,7 +17,7 @@ export default function TestID() {
 		<Text testID="message.value">{'Message: ' + message}</Text>
 		<TextArea testID="message.notes" accessibilityLabel="Notes" value="notes" rows={1} />
 		<SearchInput testID="message.search" accessibilityLabel="Search messages" icon={false} hasClear={false} />
-		<Switch testID="settings.enabled" label="Enable setting" checked={checked} onCheckedChange={setChecked} />
+		<Switch testID="settings.enabled" label="Enable setting" value={checked} onChange={setChecked} />
 		<Text testID="settings.value">{'Enabled: ' + checked}</Text>
 		<Pressable testID={item ? 'item.' + item + '.open' : undefined} accessibilityLabel="Reusable item" accessibilityRole="button" onPress={() => setCount(count + 1)}><Text>Reusable item</Text></Pressable>
 		<Button testID="items.rebind" label="Rebind item" accessibilityLabel="Rebind item" clickAction={() => setItem(item === 'a' ? 'b' : undefined)} />

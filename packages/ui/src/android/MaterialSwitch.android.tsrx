@@ -15,14 +15,14 @@ import { useFieldControlProps } from '../field-context';
 export function MaterialSwitch(inputProps: MaterialSwitchProps) @{
 	const props = useFieldControlProps(inputProps);
 	const el = useRef<any>(null);
-	// Last confirmed value for the `isReadOnly` revert — `checked` when
+	// Last confirmed value for the `isReadOnly` revert — `value` when
 	// controlled, the widget's own state otherwise.
-	const lastChecked = useRef(props.checked ?? props.defaultChecked ?? false);
+	const lastChecked = useRef(props.value ?? props.defaultValue ?? false);
 	// Uncontrolled widgets own their checked state — seed it once; a bound
-	// `checked` write would fight the user's next toggle on re-render.
+	// `value` write would fight the user's next toggle on re-render.
 	useEffect(() => {
-		if (el.current && props.checked === undefined && props.defaultChecked !== undefined) {
-			el.current.checked = props.defaultChecked;
+		if (el.current && props.value === undefined && props.defaultValue !== undefined) {
+			el.current.checked = props.defaultValue;
 		}
 	}, []);
 
@@ -32,7 +32,7 @@ export function MaterialSwitch(inputProps: MaterialSwitchProps) @{
 		testID={props.testID ?? ''}
 		className={cx(props.className)}
 		style={props.style}
-		checked={props.checked}
+		checked={props.value}
 		isEnabled={!props.isDisabled}
 		isUserInteractionEnabled={!props.isReadOnly}
 		accessibilityRole={nativeAccessibilityRole('switch')}
@@ -43,13 +43,13 @@ export function MaterialSwitch(inputProps: MaterialSwitchProps) @{
 			// Assistive activation can still fire on a non-interactive view —
 			// revert so `isReadOnly` means the value truly cannot change.
 			if (props.isReadOnly) {
-				const expected = props.checked ?? lastChecked.current;
+				const expected = props.value ?? lastChecked.current;
 				if (e.value !== expected) e.object.checked = expected;
 				return;
 			}
 
 			lastChecked.current = e.value;
-			props.onCheckedChange?.(e.value);
+			props.onChange?.(e.value);
 		}}
 	/>
 }

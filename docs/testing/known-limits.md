@@ -89,7 +89,7 @@ importing them fails the other platform's build on purpose:
 import { UISwitch } from '@octane-xplat/ui/ios'
 
 export function PackedToggle(props: { packed: boolean; onChange: (value: boolean) => void }) {
-	return <UISwitch checked={props.packed} onCheckedChange={props.onChange} />
+	return <UISwitch value={props.packed} onChange={props.onChange} />
 }
 ```
 

@@ -152,11 +152,11 @@ disabling edits by itself. `status` uses `{ type: 'warning' | 'error' |
 of the control, including `TextInput`, `SearchInput`, and `Selector`.
 
 Controls that hold user state follow one ownership contract. The controlled
-prop carries the current value — `value`, `checked`, `isOpen`, or `open` —
+prop carries the current value — `value`, `isOpen`, or `open` —
 and its callback reports each requested change: `onChange` and
-`onValueChange` carry the next value, `onCheckedChange` the next boolean,
+`onValueChange` carry the next value, `onChange` the next text or boolean,
 and `onOpenChange`/`onDismiss` the requested visibility. Pass the matching
-`defaultValue`, `defaultChecked`, or `defaultOpen` instead and the control
+`defaultValue` or `defaultOpen` instead and the control
 owns that state — user actions update it internally and still call the
 callback. When both are set, the controlled prop wins.
 
@@ -166,7 +166,7 @@ import { Switch } from '@octane-xplat/ui'
 export function Example() {
 	// Uncontrolled — the switch owns its on state and reports each toggle.
 
-	return <Switch defaultChecked onCheckedChange={(next) => console.log(next)} />
+	return <Switch defaultValue onChange={(next) => console.log(next)} />
 }
 ```
 
@@ -233,8 +233,8 @@ export function Example() {
 | `Calendar`                                              | Single-date or inclusive range calendar                          | `mode`, `value`, `numberOfMonths`, `dateConstraints`                                          |
 | `DateRangeInput`                                        | Labeled range trigger with calendar and presets                  | `value`, `onChange`, `presets`, `minRangeSpan`, `maxRangeSpan`                                |
 | `FileInput`                                             | `@octane-xplat/files` picker with input and dropzone modes       | `value`, `onChange`, `accept`, `isMultiple`, `maxSize`                                        |
-| `Switch`                                                | On/off toggle (self-drawn)                                       | `checked`, `defaultChecked`, `onCheckedChange`, `isDisabled`                                  |
-| `CheckboxInput`                                         | Self-drawn checkbox                                              | `checked`, `defaultChecked`, `onCheckedChange`, `isDisabled`                                  |
+| `Switch`                                                | On/off toggle (self-drawn)                                       | `value`, `defaultValue`, `onChange`, `isDisabled`                                  |
+| `CheckboxInput`                                         | Self-drawn checkbox                                              | `value`, `defaultValue`, `onChange`, `isDisabled`                                  |
 | `CheckboxIndicator`, `CheckIndicator`, `RadioIndicator` | Decorative selection marks                                       | `state`, `size`, `isDisabled`                                                                 |
 | `CheckboxList`                                          | Self-drawn multi-select list                                     | `options`, `value`, `defaultValue`, `onValueChange`, `isDisabled`                             |
 | `RadioList`                                             | Self-drawn radio options                                         | `options`, `value`, `defaultValue`, `onValueChange`, `isDisabled`                             |

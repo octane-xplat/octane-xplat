@@ -98,17 +98,17 @@ function FieldGrid({ prefix, scenarios, render }: { prefix: string; scenarios: {
 
 // Scenario props are written in Astryx's vocabulary; map them here.
 const tiProps = (p: any, key: string) => ({ ...p, testID: `text-input/${key}/control` })
-const cbProps = (p: any, key: string) => ({ ...p, checked: p.value === true, indeterminate: p.value === 'indeterminate', value: undefined, testID: `checkbox/${key}/control` })
-const swProps = (p: any, key: string) => ({ ...p, checked: p.value, value: undefined, testID: `switch/${key}/control` })
+const cbProps = (p: any, key: string) => ({ ...p, testID: `checkbox/${key}/control` })
+const swProps = (p: any, key: string) => ({ ...p, testID: `switch/${key}/control` })
 
 function TextInputGrid() {
 	return <FieldGrid prefix="text-input" scenarios={textInputScenarios} render={(s) => <TextInput {...tiProps(s.props, s.key)} onChange={() => {}} />} />
 }
 function CheckboxGrid() {
-	return <FieldGrid prefix="checkbox" scenarios={checkboxScenarios} render={(s) => <CheckboxInput {...cbProps(s.props, s.key)} onCheckedChange={() => {}} />} />
+	return <FieldGrid prefix="checkbox" scenarios={checkboxScenarios} render={(s) => <CheckboxInput {...cbProps(s.props, s.key)} onChange={() => {}} />} />
 }
 function SwitchGrid() {
-	return <FieldGrid prefix="switch" scenarios={switchScenarios} render={(s) => <Switch {...swProps(s.props, s.key)} onCheckedChange={() => {}} />} />
+	return <FieldGrid prefix="switch" scenarios={switchScenarios} render={(s) => <Switch {...swProps(s.props, s.key)} onChange={() => {}} />} />
 }
 
 function TextInputBehavior() {
@@ -134,13 +134,13 @@ function CheckboxBehavior() {
 		<>
 			<button data-parity-key="before">Before</button>
 			<span data-parity-key="box">
-				<CheckboxInput label="Accept terms" checked={checked} onCheckedChange={(v: boolean) => { setChecked(v); window.__parity.events.push(`check:${v}`) }} />
+				<CheckboxInput label="Accept terms" value={checked} onChange={(v: boolean) => { setChecked(v); window.__parity.events.push(`check:${v}`) }} />
 			</span>
 			<span data-parity-key="indeterminate-box">
-				<CheckboxInput label="Partial" checked={false} indeterminate={mixed === 'indeterminate'} onCheckedChange={(v: boolean) => { setMixed(v); window.__parity.events.push(`check:${v}`) }} />
+				<CheckboxInput label="Partial" value={mixed} onChange={(v: boolean) => { setMixed(v); window.__parity.events.push(`check:${v}`) }} />
 			</span>
 			<span data-parity-key="disabled-box">
-				<CheckboxInput label="Locked" checked={false} isDisabled onCheckedChange={() => {}} />
+				<CheckboxInput label="Locked" value={false} isDisabled onChange={() => {}} />
 			</span>
 			<button data-parity-key="after">After</button>
 		</>
@@ -153,10 +153,10 @@ function SwitchBehavior() {
 		<>
 			<button data-parity-key="before">Before</button>
 			<span data-parity-key="switch">
-				<Switch label="Notifications" checked={on} onCheckedChange={(v: boolean) => { setOn(v); window.__parity.events.push(`switch:${v}`) }} />
+				<Switch label="Notifications" value={on} onChange={(v: boolean) => { setOn(v); window.__parity.events.push(`switch:${v}`) }} />
 			</span>
 			<span data-parity-key="disabled-switch">
-				<Switch label="Locked" checked={true} isDisabled onCheckedChange={() => {}} />
+				<Switch label="Locked" value={true} isDisabled onChange={() => {}} />
 			</span>
 			<button data-parity-key="after">After</button>
 		</>

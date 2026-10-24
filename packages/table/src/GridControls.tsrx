@@ -70,13 +70,13 @@ export function GridControls(props: {
 						<Row key={column.id} className="vx-datagrid-controls">
 							<Checkbox
 								id={props.id ? `${props.id}-visible-${column.id}` : undefined}
-								checked={column.getIsVisible()}
+								value={column.getIsVisible()}
 								isDisabled={!column.getCanHide()}
 								label={
 									typeof column.columnDef.header === 'string' ? column.columnDef.header : column.id
 								}
 								accessibilityLabel={`Show ${column.id}`}
-								onCheckedChange={(checked) => column.toggleVisibility(checked)}
+								onChange={(checked) => column.toggleVisibility(checked)}
 							/>
 							<Action
 								id={props.id ? `${props.id}-earlier-${column.id}` : undefined}

@@ -13,13 +13,13 @@ import { STATUS_ICON_PATHS } from './status-icons';
  *  FormField the field owns label/description/status. */
 export function Switch(inputProps: SwitchProps) @{
 	const { props, inField } = useFieldControl(inputProps);
-	const [internal, setInternal] = useState(props.defaultChecked ?? false);
-	const checked = props.checked ?? internal;
+	const [internal, setInternal] = useState(props.defaultValue ?? false);
+	const checked = props.value ?? internal;
 	const isBlocked = props.isDisabled || props.isReadOnly;
 	const toggle = () => {
 		if (isBlocked) return;
-		if (props.checked === undefined) setInternal(!checked);
-		props.onCheckedChange?.(!checked);
+		if (props.value === undefined) setInternal(!checked);
+		props.onChange?.(!checked);
 	};
 
 	const generatedId = useId();

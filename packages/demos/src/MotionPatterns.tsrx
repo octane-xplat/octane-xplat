@@ -137,8 +137,8 @@ function ReducedMotionControl(props: {
 	<HStack className="items-center gap-3 flex-wrap">
 		<Switch
 			id={props.id}
-			checked={props.preview}
-			onCheckedChange={props.onChange}
+			value={props.preview}
+			onChange={props.onChange}
 			accessibilityLabel="Preview reduced motion"
 		/>
 		<Text className="text-sm">Reduce motion</Text>
@@ -414,8 +414,8 @@ function FocusPanels() @{
 			<HStack className="items-center gap-3">
 				<Switch
 					id="fp-empty"
-					checked={empty}
-					onCheckedChange={setEmpty}
+					value={empty}
+					onChange={setEmpty}
 					accessibilityLabel="Simulate an empty range"
 				/>
 				<Text className="text-sm">Simulate empty range</Text>

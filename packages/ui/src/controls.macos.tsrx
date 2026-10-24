@@ -56,18 +56,20 @@ export function Button(props: ButtonProps) @{
 
 export function Checkbox(inputProps: CheckboxProps) @{
 	const props = useFieldControlProps(inputProps)
-	const [internal, setInternal] = useState(props.defaultChecked ?? false)
-	const checked = props.checked ?? internal
-	const marked = checked || props.indeterminate
+	const [internal, setInternal] = useState(props.defaultValue ?? false)
+	const resolved = props.value ?? internal
+	const indeterminate = resolved === 'indeterminate'
+	const checked = resolved === true
+	const marked = checked || indeterminate
 	const isBlocked = props.isDisabled || props.isReadOnly
 	const colors = controlColors(useThemeScheme() === 'dark')
 	const toggle = () => {
-		const next = props.indeterminate ? true : !checked
-		if (props.checked === undefined) setInternal(next)
-		props.onCheckedChange?.(next)
+		const next = indeterminate ? true : !checked
+		if (props.value === undefined) setInternal(next)
+		props.onChange?.(next)
 	}
 
-	<masonview id={props.id} className={cx('vx-checkbox-row', checked && 'vx-checkbox--on', props.isDisabled && 'vx-checkbox--disabled', props.isReadOnly && 'vx-checkbox--readonly', props.isLoading && 'vx-checkbox--loading', props.status && `vx-checkbox--status-${props.status.type}`, props.size && `vx-checkbox--size-${props.size}`, props.className)} style={mergeStyle({flexDirection: "row", alignItems: "center", gap: props.label == null ? 0 : 8}, mergeStyle({display: "flex"}, { opacity: props.isDisabled ? 0.5 : 1, ...styleRecord(props.style) }))} accessibilityRole="checkbox" accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label} accessibilityHint={props.accessibilityHint} accessibilityValue={props.indeterminate ? 'Partially selected' : undefined} accessibilityState={{ checked: props.indeterminate ? 'mixed' : checked, disabled: props.isDisabled, readonly: props.isReadOnly, busy: props.isLoading, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' }} onTap={isBlocked ? undefined : toggle}>
+	<masonview id={props.id} className={cx('vx-checkbox-row', checked && 'vx-checkbox--on', props.isDisabled && 'vx-checkbox--disabled', props.isReadOnly && 'vx-checkbox--readonly', props.isLoading && 'vx-checkbox--loading', props.status && `vx-checkbox--status-${props.status.type}`, props.size && `vx-checkbox--size-${props.size}`, props.className)} style={mergeStyle({flexDirection: "row", alignItems: "center", gap: props.label == null ? 0 : 8}, mergeStyle({display: "flex"}, { opacity: props.isDisabled ? 0.5 : 1, ...styleRecord(props.style) }))} accessibilityRole="checkbox" accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label} accessibilityHint={props.accessibilityHint} accessibilityValue={indeterminate ? 'Partially selected' : undefined} accessibilityState={{ checked: indeterminate ? 'mixed' : checked, disabled: props.isDisabled, readonly: props.isReadOnly, busy: props.isLoading, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' }} onTap={isBlocked ? undefined : toggle}>
 		<masonview className="vx-checkbox" style={mergeStyle({alignItems: "center", justifyContent: "center"}, mergeStyle({display: "flex"}, {
 				width: 20,
 				height: 20,
@@ -76,7 +78,7 @@ export function Checkbox(inputProps: CheckboxProps) @{
 				borderRadius: 6,
 				...(marked ? { backgroundColor: colors.primary } : {}),
 			}))}>
-			{marked ? <Text className="vx-checkbox-check" style={{ fontFamily: 'system-ui', fontSize: 14, lineHeight: '20px', color: colors.onPrimary }}>{props.indeterminate ? '−' : '✓'}</Text> : null}
+			{marked ? <Text className="vx-checkbox-check" style={{ fontFamily: 'system-ui', fontSize: 14, lineHeight: '20px', color: colors.onPrimary }}>{indeterminate ? '−' : '✓'}</Text> : null}
 		</masonview>
 		{props.label != null ? <Text className="vx-checkbox-label">{props.label}</Text> : null}
 	</masonview>
@@ -84,13 +86,13 @@ export function Checkbox(inputProps: CheckboxProps) @{
 
 export function Switch(inputProps: SwitchProps) @{
 	const props = useFieldControlProps(inputProps)
-	const [internal, setInternal] = useState(props.defaultChecked ?? false)
-	const checked = props.checked ?? internal
+	const [internal, setInternal] = useState(props.defaultValue ?? false)
+	const checked = props.value ?? internal
 	const isBlocked = props.isDisabled || props.isReadOnly
 	const colors = controlColors(useThemeScheme() === 'dark')
 	const toggle = () => {
-		if (props.checked === undefined) setInternal(!checked)
-		props.onCheckedChange?.(!checked)
+		if (props.value === undefined) setInternal(!checked)
+		props.onChange?.(!checked)
 	}
 
 	<masonview id={props.id} className={cx('vx-switch', checked && 'vx-switch--on', props.isDisabled && 'vx-switch--disabled', props.isReadOnly && 'vx-switch--readonly', props.isLoading && 'vx-switch--loading', props.status && `vx-switch--status-${props.status.type}`, props.size && `vx-switch--size-${props.size}`, props.className)} style={mergeStyle({flexDirection: "row", justifyContent: checked ? 'end' : 'start', alignItems: "center"}, mergeStyle({display: "flex"}, {

@@ -2108,13 +2108,13 @@ export type SideDrawerProps = PlatformWidgetProps<DrawerProps>
 /** Props accepted by `DrawerLayout` (`@octane-xplat/ui/android`). */
 export type DrawerLayoutProps = PlatformWidgetProps<DrawerProps>
 
-/** Shared self-drawn switch — identical pixels on every target (the `Switch` parity class). Controlled `checked`+`onCheckedChange`, or uncontrolled `defaultChecked`; field vocabulary (`label`, `status`, `isDisabled`) via `FieldControlProps`. For the OS widget use `UISwitch`/`MaterialSwitch`.
+/** Shared self-drawn switch — identical pixels on every target (the `Switch` parity class). Controlled `value`+`onChange`, or uncontrolled `defaultValue`; field vocabulary (`label`, `status`, `isDisabled`) via `FieldControlProps`. For the OS widget use `UISwitch`/`MaterialSwitch`.
  *
  * @example
  * ```tsx
  * import { Switch } from '@octane-xplat/ui'
  *
- * <Switch label="Notifications" checked={enabled} onCheckedChange={setEnabled} />
+ * <Switch label="Notifications" value={enabled} onChange={setEnabled} />
  * ```
  * @see PlatformSwitchProps.
  */
@@ -2124,13 +2124,13 @@ export interface SwitchProps extends FieldControlProps, TestIDProps {
 	id?: string
 	/** Optional explicit accessible name override for the switch. */
 	accessibilityLabel?: string
-	/** Controlled checked state — pair with `onCheckedChange`. */
-	checked?: boolean
-	/** Initial checked state for uncontrolled use; `checked` wins when both
+	/** Controlled checked state — pair with `onChange`. */
+	value?: boolean
+	/** Initial checked state for uncontrolled use; `value` wins when both
 	 *  are set. */
-	defaultChecked?: boolean
+	defaultValue?: boolean
 	/** Called with the requested next state when the user toggles. */
-	onCheckedChange?: (checked: boolean) => void
+	onChange?: (checked: boolean) => void
 	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
 	android?: PlatformProps
@@ -2151,7 +2151,7 @@ export interface SwitchProps extends FieldControlProps, TestIDProps {
  * ```tsx
  * import { UISwitch } from '@octane-xplat/ui/ios'
  *
- * <UISwitch checked={on} onCheckedChange={setOn} label="Wi-Fi" />
+ * <UISwitch value={on} onChange={setOn} label="Wi-Fi" />
  * ```
  * @see SwitchProps for the self-drawn shared switch.
  */
@@ -2159,13 +2159,13 @@ export interface PlatformSwitchProps extends TestIDProps {
 	className?: ClassValue
 	style?: StyleProp
 	id?: string
-	/** Controlled checked state — pair with `onCheckedChange`. */
-	checked?: boolean
-	/** Initial checked state for uncontrolled use; `checked` wins when both
-	 *  are set. Without `checked` the OS widget owns its state. */
-	defaultChecked?: boolean
+	/** Controlled checked state — pair with `onChange`. */
+	value?: boolean
+	/** Initial checked state for uncontrolled use; `value` wins when both
+	 *  are set. Without `value` the OS widget owns its state. */
+	defaultValue?: boolean
 	/** Called with the requested next state when the user toggles. */
-	onCheckedChange?: (checked: boolean) => void
+	onChange?: (checked: boolean) => void
 	isDisabled?: boolean
 	isReadOnly?: boolean
 	/** Spoken name source — the platform widget renders no visible label. */
@@ -5821,7 +5821,7 @@ export type AccordionProps = AccordionSingleProps | AccordionMultipleProps
  * ```tsx
  * import { CheckboxInput } from '@octane-xplat/ui'
  *
- * <CheckboxInput label="Subscribe" checked={subscribed} onCheckedChange={setSubscribed} />
+ * <CheckboxInput label="Subscribe" value={subscribed} onChange={setSubscribed} />
  * ```
  * @see CheckboxGroupProps (`CheckboxList`) for multi-choice lists.
  */
@@ -5829,19 +5829,17 @@ export interface CheckboxProps extends FieldControlProps, TestIDProps {
 	className?: ClassValue
 	style?: StyleProp
 	id?: string
-	/** Controlled checked state — pair with `onCheckedChange`. */
-	checked?: boolean
-	/** Initial checked state for uncontrolled use; `checked` wins when both
-	 *  are set. */
-	defaultChecked?: boolean
-	/** Partial-selection state (parent-of-a-tree semantics). Renders the
-	 *  indicator's `indeterminate` mark and `aria-checked="mixed"` on web;
-	 *  NativeScript reports `Partially selected` (no mixed state enum);
-	 *  AppKit exposes the semantic mixed checkbox value. */
-	indeterminate?: boolean
+	/** Controlled state — pair with `onChange`. `'indeterminate'` is the
+	 *  partial-selection state (parent-of-a-tree semantics): it renders the
+	 *  indicator's `indeterminate` mark and the DOM `indeterminate` property
+	 *  on web; NativeScript reports `Partially selected` (no mixed state
+	 *  enum); AppKit exposes the semantic mixed checkbox value. */
+	value?: boolean | 'indeterminate'
+	/** Initial state for uncontrolled use; `value` wins when both are set. */
+	defaultValue?: boolean | 'indeterminate'
 	/** Called with the requested next state when the user toggles (always
-	 *  `true` when leaving `indeterminate`). */
-	onCheckedChange?: (checked: boolean) => void
+	 *  `true` when leaving `'indeterminate'`). */
+	onChange?: (checked: boolean) => void
 	accessibilityLabel?: string
 	accessibilityHint?: string
 	/** Platform-specific properties are applied after shared props. */

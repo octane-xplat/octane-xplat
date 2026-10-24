@@ -7,7 +7,7 @@ export function SwitchStage(props: { checked: boolean; stageId: string; displace
 	<masonview width="100%" height="100%" iosOverflowSafeArea={false} style={{display: "grid"}}>
 		<masonview style={{display: "flex", ...({justifySelf: 'center', alignSelf: 'center'})}} id={props.stageId} className="visual-stage" width={96} height={64} iosOverflowSafeArea={false}>
 			<masonview translateX={props.displacement ?? 0} style={{display: "grid"}}>
-				<Switch checked={props.checked} testID="visual-switch" label="Visual capture switch" />
+				<Switch value={props.checked} testID="visual-switch" label="Visual capture switch" />
 			</masonview>
 		</masonview>
 	</masonview>

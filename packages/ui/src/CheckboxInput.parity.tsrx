@@ -3,7 +3,7 @@ import { CheckboxInput } from './index.shared'
 import type { ParityFixture } from './parity'
 
 function CheckboxFixture(props: { checked: boolean }) @{
-	<CheckboxInput checked={props.checked} />
+	<CheckboxInput value={props.checked} />
 }
 
 export const PARITY: ParityFixture[] = [

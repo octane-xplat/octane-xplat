@@ -175,7 +175,7 @@ describe('native indicators + list', () => {
 	})
 
 	it('indeterminate renders the dash state', () => {
-		const { container, root } = mount(Checkbox as any, { indeterminate: true })
+		const { container, root } = mount(Checkbox as any, { value: 'indeterminate' })
 		expect(findByClass(container.children[0], 'vx-ind-checkbox--indeterminate')).not.toBeNull()
 		expect(findByClass(container.children[0], 'vx-ind-dash')).not.toBeNull()
 		root.unmount()

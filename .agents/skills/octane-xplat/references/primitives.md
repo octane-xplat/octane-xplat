@@ -53,7 +53,7 @@ export function Controls() {
 	const [volume, setVolume] = useState(50)
 	return (
 		<>
-			<Switch checked={packed} onCheckedChange={setPacked} />
+			<Switch value={packed} onChange={setPacked} />
 			<Slider value={volume} onValueChange={setVolume} />
 			<Spinner />
 			<TextInput label="Bag name" />
@@ -83,7 +83,7 @@ For example, an iOS switch belongs in an `.ios` leaf:
 import { UISwitch } from '@octane-xplat/ui/ios'
 
 export function PackingToggle() {
-	return <UISwitch checked={false} onCheckedChange={console.log} />
+	return <UISwitch value={false} onChange={console.log} />
 }
 ```
 

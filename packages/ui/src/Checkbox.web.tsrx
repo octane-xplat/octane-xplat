@@ -15,16 +15,18 @@ import { useIndicator } from './use-indicator';
  *  field owns label/description/status, so the control renders bare. */
 export function Checkbox(inputProps: CheckboxProps) @{
 	const { props, inField } = useFieldControl(inputProps);
-	const [internal, setInternal] = useState(props.defaultChecked ?? false);
-	const checked = props.checked ?? internal;
+	const [internal, setInternal] = useState(props.defaultValue ?? false);
+	const resolved = props.value ?? internal;
+	const indeterminate = resolved === 'indeterminate';
+	const checked = resolved === true;
 	const isBlocked = props.isDisabled || props.isReadOnly;
 	const Ind = useIndicator('checkbox') ?? CheckboxIndicator;
-	const indState = props.indeterminate ? 'indeterminate' : checked ? 'checked' : 'unchecked';
+	const indState = indeterminate ? 'indeterminate' : checked ? 'checked' : 'unchecked';
 	const toggle = () => {
 		if (isBlocked) return;
-		const next = props.indeterminate ? true : !checked;
-		if (props.checked === undefined) setInternal(next);
-		props.onCheckedChange?.(next);
+		const next = indeterminate ? true : !checked;
+		if (props.value === undefined) setInternal(next);
+		props.onChange?.(next);
 	};
 
 	const generatedId = useId();
@@ -57,7 +59,7 @@ export function Checkbox(inputProps: CheckboxProps) @{
 				<input
 					ref={(el: any) => {
 						if (el) applyEscapeProps(el, props);
-						if (el) el.indeterminate = !!props.indeterminate;
+						if (el) el.indeterminate = indeterminate;
 					}}
 					id={controlId}
 					data-testid={props.testID}
