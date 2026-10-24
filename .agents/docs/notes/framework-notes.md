@@ -199,7 +199,7 @@ export function Home() {
 ## Upstream: array `className` on a stored element inside an `@if` branch
 
 **Owner/version:** `octane` 0.14.0 (with the local patch), web runtime. **Evidence:** a local jsdom
-runtime repro (2026-10-24); no upstream issue has been filed yet.
+runtime repro (2026-10-24); filed upstream as octanejs/octane#2233.
 
 **Limitation:** a component crashes on its *second* render, inside `commitInScope` → `applyDeoptOrder`, with
 `TypeError: Cannot read properties of undefined (reading 'idState')`, and leaves the stale DOM in place. Three
