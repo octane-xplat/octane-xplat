@@ -56,8 +56,10 @@ expected to fail until the reported gaps close.
 
 - **Reference:** `@astryxdesign/core` **0.7.1** (published 2026-10-15; the
   newest release past the seven-day age bar on 2026-10-23), core default
-  tokens, no theme package. The component audits still cite 0.6.4; rebase
-  them on this pin when they are next touched.
+  tokens, no theme package. This is the single Astryx pin for all parity
+  work; the export inventory was rebased onto it (see the pin section of
+  [astryx-parity.md](../docs/parity/astryx-parity.md)). Bump the harness and the
+  inventory together.
 - **Candidate:** stock `tokens.css` + `chrome.css`, no token overrides.
 - **Capture:** Chromium, 1× scale, light scheme, `en-US`, `UTC`, reduced
   motion. Fonts are each library's default system stack, so pixel and text
