@@ -85,9 +85,8 @@ const PHRASES = ['Review today', 'Track this week', 'Explore trends'];
 
 const TOTAL_SAMPLES = [0, -120, 98765];
 
-const TOTAL_FORMAT = new Intl.NumberFormat();
 const formatTotal = (value: number) =>
-	Number.isFinite(value) ? TOTAL_FORMAT.format(Math.round(value)) : '—';
+	Number.isFinite(value) ? String(Math.round(value)).replace(/\B(?=(\d{3})+(?!\d))/g, ',') : '—';
 
 const PATTERNS: { key: PatternKey; label: string; recipe: string; when: string }[] = [
 	{ key: 'panels', label: 'Switch views', recipe: 'TransitionPanel', when: 'Keeps one active view while a selection settles — the outgoing view leaves before the incoming one enters.' },

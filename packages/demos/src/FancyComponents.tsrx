@@ -251,7 +251,7 @@ function ScrambleIn(props: {
 	</Text>
 }
 
-const TICKER_FORMAT = new Intl.NumberFormat();
+const TICKER_FORMAT = { format: (value: number) => String(Math.round(value)).replace(/\B(?=(\d{3})+(?!\d))/g, ',') };
 
 /** Counts a value toward `to` through a MotionValue, rendering each change
  *  and settling on the exact target; reduced motion jumps there directly. */
