@@ -43,6 +43,7 @@ export function Pressable(props: PressableProps) @{
 		aria-label={props.accessibilityLabel}
 		aria-description={props.accessibilityHint}
 		aria-valuetext={props.accessibilityValue}
+		aria-busy={props.accessibilityState?.busy || undefined}
 		aria-disabled={props.disabled || props.accessibilityState?.disabled || undefined}
 		aria-selected={props.accessibilityState?.selected}
 		aria-checked={props.accessibilityState?.checked}

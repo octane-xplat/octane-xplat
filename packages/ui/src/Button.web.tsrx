@@ -3,6 +3,7 @@ import type { ButtonProps } from "./props";
 import { applyWebProps } from './platformProps.web';
 import { Pressable } from './Pressable.web.tsrx';
 import { ActivityIndicator } from './ActivityIndicator.web.tsrx';
+import { VisuallyHidden } from './VisuallyHidden.web.tsrx';
 import { Icon } from './Icon.web.tsrx';
 import { useButtonGroup } from './button-group-context';
 import { useSize } from './size-context';
@@ -20,16 +21,27 @@ import { reportActionError } from './action-error';
 export function Button(props: ButtonProps) @{
 	const group = useButtonGroup();
 	const [actionPending, setActionPending] = useState(false);
-	const disabled = !!(props.isDisabled || props.isLoading || group?.isDisabled);
-	const loading = !!(props.isLoading || actionPending);
+	// Busy = isLoading or an in-flight clickAction: aria-busy + hidden content +
+	// spinner overlay + live "Loading" status. Interruptible buttons stay
+	// enabled (a re-click lands a fresh action) but still report busy.
+	const busy = !!(props.isLoading || actionPending);
+	const disabled = !!(props.isDisabled || group?.isDisabled || (busy && !props.isInterruptible));
+	const loading = busy;
 	const size = useSize(props.size ?? group?.size, 'md');
 	const icon = typeof props.icon === 'string' ? <Icon name={props.icon} /> : props.icon;
 	const labelEl = props.label != null ? <span className="vx-button-label">{props.label}</span> : null;
-	const content = loading
-		? <ActivityIndicator />
-		: props.isIconOnly
-			? icon ?? props.children ?? labelEl
-			: <>{icon}{props.children ?? labelEl}{props.endContent}</>;
+	// The content stays mounted while busy — hidden (transparent + aria-hidden)
+	// under the spinner overlay — so the button keeps its width and, via the
+	// aria-label below, its accessible name.
+	const content = <>
+		{busy && <span className="vx-button-spinner" aria-hidden="true"><ActivityIndicator /></span>}
+		<span className={['vx-button-content', busy && 'vx-button-content--hidden']} aria-hidden={busy || undefined}>
+			{props.isIconOnly
+				? icon ?? props.children ?? labelEl
+				: <>{icon}{props.children ?? labelEl}{props.endContent}</>}
+		</span>
+		<VisuallyHidden accessibilityRole="status" accessibilityLiveRegion="polite">{busy ? 'Loading' : null}</VisuallyHidden>
+	</>;
 
 	const cls = [
 		'vx-button',
@@ -79,7 +91,8 @@ export function Button(props: ButtonProps) @{
 			target={props.target}
 			rel={props.target === '_blank' ? 'noreferrer' : undefined}
 			title={props.tooltip}
-			aria-label={props.accessibilityLabel ?? (props.isIconOnly ? props.label : undefined)}
+			aria-label={props.accessibilityLabel ?? ((props.isIconOnly || busy || (props.children != null && props.children !== props.label)) ? props.label : undefined)}
+			aria-busy={busy || undefined}
 			aria-disabled={disabled || undefined}
 			tabIndex={disabled ? -1 : undefined}
 			onClick={runPress}
@@ -94,7 +107,8 @@ export function Button(props: ButtonProps) @{
 			onPress={runPress}
 			className={cls}
 			accessibilityRole={props.accessibilityRole ?? 'button'}
-			accessibilityLabel={props.accessibilityLabel ?? (props.isIconOnly ? props.label : undefined)}
+			accessibilityLabel={props.accessibilityLabel ?? ((props.isIconOnly || busy || (props.children != null && props.children !== props.label)) ? props.label : undefined)}
+			accessibilityState={{ ...props.accessibilityState, busy: busy || undefined }}
 			web={{ title: props.tooltip, ...props.web }}
 		>
 			{content}

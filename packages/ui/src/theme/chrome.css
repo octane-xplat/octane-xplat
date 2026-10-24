@@ -2,24 +2,30 @@
 @layer xplat-chrome {
 	:root,
 	.ns-root {
-		--color-primary: #171717;
+		/* Astryx default theme (core 0.7.1 tokens, light half of each
+	   light-dark pair). Semantic mapping: primary=accent, onprimary=on-accent,
+	   surface=background-surface, surface-secondary=neutral (secondary
+	   control fill), text=text-primary, text-secondary=text-secondary,
+	   border=border, border-strong=border-emphasized, danger=error,
+	   warning=warning, success=success. */
+		--color-primary: #0064e0;
 		/* Token names double as the future Tailwind theme keys: text-onprimary
 	   resolves --color-onprimary, bg-danger resolves --color-danger. Keep
 	   class-name segments and var-name segments identical. */
-		--color-onprimary: #fafafa;
+		--color-onprimary: #ffffff;
 		--color-surface: #ffffff;
-		--color-surface-secondary: #fafafa;
-		--color-text: #0a0a0a;
-		--color-text-secondary: #666666;
-		--color-border: #eaeaea;
-		--color-border-strong: #d4d4d4;
-		--color-danger: #dc2626;
-		--color-warning: #b45309;
-		--color-success: #15803d;
-		/* Family lists are deliberately generic. Apps override these with their
-	   web @font-face family and the platform's registered native name. */
-		--font-sans: system-ui, sans-serif;
-		--font-mono: ui-monospace, monospace;
+		--color-surface-secondary: rgba(5, 54, 89, 0.1);
+		--color-text: #0a1317;
+		--color-text-secondary: #4e606f;
+		--color-border: #05365919;
+		--color-border-strong: #ccd3db;
+		--color-danger: #e3193b;
+		--color-warning: #e9af08;
+		--color-success: #0d8626;
+		/* Astryx body stack. Apps override these with their web @font-face
+	   family and the platform's registered native name. */
+		--font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+		--font-mono: "SF Mono", Monaco, Consolas, monospace;
 
 		/* Syntax highlighting palette (CodeBlock) — the --color-syntax-* names are
 	   Astryx's; values approximate a GitHub-style scheme. `syntaxTheme` on the
@@ -51,14 +57,18 @@
 
 	.ns-dark,
 	.dark {
-		--color-primary: #ededed;
-		--color-onprimary: #171717;
-		--color-surface: #0a0a0a;
-		--color-surface-secondary: #141414;
-		--color-text: #ededed;
-		--color-text-secondary: #a1a1a1;
-		--color-border: #2e2e2e;
-		--color-border-strong: #4a4a4a;
+		/* Astryx default theme, dark half of each light-dark pair. */
+		--color-primary: #2694fe;
+		--color-onprimary: #ffffff;
+		--color-surface: #1f1f22;
+		--color-surface-secondary: rgba(223, 226, 229, 0.2);
+		--color-text: #dfe2e5;
+		--color-text-secondary: #aaafb5;
+		--color-border: #f2f4f619;
+		--color-border-strong: #494d53;
+		--color-danger: #f5394f;
+		--color-warning: #f2c00b;
+		--color-success: #0d8626;
 
 		--color-syntax-keyword: #ff7b72;
 		--color-syntax-string: #a5d6ff;
@@ -2247,7 +2257,14 @@
 }
 
 @layer xplat-chrome {
-	/* Astryx action family: optional visual skin over always-on token geometry. */
+	/* Astryx action family: optional visual skin over always-on token geometry.
+   Label type follows Astryx's --text-label scale (14px / medium / 20px line). */
+	.vx-button {
+		font-family: var(--font-sans);
+		font-size: 14px;
+		font-weight: 500;
+		line-height: 20px;
+	}
 	.vx-button--primary {
 		background-color: var(--color-primary);
 		color: var(--color-onprimary);

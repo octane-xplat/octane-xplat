@@ -545,12 +545,71 @@
    visual design is the app's job. */
 
 	/* Button — row-direction pressable (vx-pressable already supplies display
-   and press feedback). */
+   and press feedback). Geometry follows Astryx's element scale: 28/32/36px
+   heights, 8px block / 12px inline padding, 8px gap, --radius-md corners.
+   nowrap + min-width:0/max-width:100% let a crowded row shrink the button
+   instead of overflowing; the label truncates with an ellipsis. */
 	.vx-button {
 		flex-direction: row;
 		align-items: center;
 		justify-content: center;
+		gap: 8px;
+		padding-top: 8px;
+		padding-bottom: 8px;
+		padding-left: 12px;
+		padding-right: 12px;
+		border-radius: var(--radius-md);
+		corner-shape: squircle;
+		white-space: nowrap;
+		min-width: 0;
+		max-width: 100%;
 	}
+	.vx-button--size-sm {
+		height: 28px;
+	}
+	.vx-button--size-md {
+		height: 32px;
+	}
+	.vx-button--size-lg {
+		height: 36px;
+	}
+	.vx-button-label {
+		white-space: nowrap;
+		text-overflow: ellipsis;
+		min-width: 0;
+	}
+
+	/* Loading: content stays mounted but transparent + aria-hidden under the
+	   centered spinner overlay, preserving the button's width and accessible
+	   name. DOM positioning/display rules are web-only — the native leaf swaps
+	   content instead. */
+	/* xplat-web-only:start */
+	.vx-button {
+		position: relative;
+	}
+	.vx-button-spinner {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+	.vx-button-content {
+		display: contents;
+	}
+	/* xplat-web-only:end */
+	.vx-button-content--hidden {
+		color: transparent;
+	}
+	/* xplat-web-only:start — NS labels clip intrinsically; the DOM needs the
+	   explicit clip for the ellipsis to engage. */
+	.vx-button-label {
+		overflow: hidden;
+	}
+	/* xplat-web-only:end */
 
 	/* Collapsible/Accordion — column stacks. */
 	.vx-collapsible,

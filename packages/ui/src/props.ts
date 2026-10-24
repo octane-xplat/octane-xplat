@@ -618,6 +618,7 @@ export type Role =
 	| 'menuitemcheckbox'
 	| 'menuitemradio'
 	| 'meter'
+	| 'status'
 
 /** Text label — a `span`-class text host (NS `Label`/`TextView` on native). `numberOfLines` truncates with an ellipsis (web uses line-clamp); `ellipsize` shrinks the box instead of wrapping. Typography comes from `className`/theme tokens; use `Heading` for semantic levels and `RichText`/`RichTextSpan` for mixed-format runs.
  *

@@ -23,8 +23,11 @@ import { reportActionError } from './action-error';
 export function Button(props: ButtonProps) @{
 	const group = useButtonGroup();
 	const [actionPending, setActionPending] = useState(false);
-	const disabled = !!(props.isDisabled || props.isLoading || group?.isDisabled);
-	const loading = !!(props.isLoading || actionPending);
+	// Mirror the web leaf: busy (isLoading or in-flight action) disables unless
+	// interruptible, and reports the busy accessibility state.
+	const busy = !!(props.isLoading || actionPending);
+	const disabled = !!(props.isDisabled || group?.isDisabled || (busy && !props.isInterruptible));
+	const loading = busy;
 	const size = useSize(props.size ?? group?.size, 'md');
 	const icon = typeof props.icon === 'string' ? <Icon name={props.icon} /> : props.icon;
 	const children = props.children == null ? null : <TextSlot className="vx-button-label">{props.children}</TextSlot>;
@@ -79,6 +82,7 @@ export function Button(props: ButtonProps) @{
 		)}
 		accessibilityRole={props.accessibilityRole ?? 'button'}
 		accessibilityLabel={props.accessibilityLabel ?? (props.isIconOnly ? props.label : undefined)}
+		accessibilityState={{ ...props.accessibilityState, busy: busy || undefined }}
 	>
 		{content}
 	</Pressable>
