@@ -802,11 +802,14 @@ shipped files. Runtime checks used the identical JavaScript/native payload
 before the version and README changed. Physical-device and desktop runtime
 qualification remain separate.
 
-**Adoption boundary:** the correction must be released in the Mason native
-artifacts before Xplat can depend on it. The checked-in Xplat dependency remains
-`1.0.0-beta.1`; a source correction in a separate Mason checkout does not fix an
-installed application's native binary. Keep zero-minimum tracks as the explicit
-screen-fitting option until the corrected package is adopted.
+**Adopted in Mason core `1.0.0-beta.2`:** Xplat's workspace and starter pins
+now use the [published release](https://github.com/octane-xplat/nativescript-mason/releases/tag/core-v1.0.0-beta.2).
+All 194 files installed from npm match the qualified local candidate byte for
+byte. The maintained mobile regression covers nested wrappers, direct image
+children and image grid items. Existing apps must install the corrected
+version and rebuild their native application; a JavaScript reload does not
+replace its native engine. Zero-minimum tracks remain an explicit way to fit
+other content within the screen, without changing star-track defaults.
 
 ## Android: a foreign leaf with a pending layout request loses its flex height
 

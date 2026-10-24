@@ -50,7 +50,7 @@
 		"@nativescript/core": "catalog:",
 		"@octane-xplat/macos-renderer": "workspace:*",
 		"octane": "catalog:",
-		"@octane-xplat/nativescript-mason-core": "1.0.0-beta.1"
+		"@octane-xplat/nativescript-mason-core": "1.0.0-beta.2"
 	},
 	"peerDependencies": {
 		"octane": ">=0.6.3 <1"

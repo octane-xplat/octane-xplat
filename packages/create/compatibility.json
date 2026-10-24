@@ -170,7 +170,7 @@
 			"group": "plugin"
 		},
 		"@octane-xplat/nativescript-mason-core": {
-			"version": "1.0.0-beta.1",
+			"version": "1.0.0-beta.2",
 			"group": "runtime"
 		},
 		"@octane-xplat/nativescript-masonkit": {
