@@ -781,7 +781,9 @@ minimum still produces 250-point tracks.
 
 Evidence: 64 focused Rust library/grid/measurement tests pass. The iOS 27
 native core suite passes all 16 tests, including track positions and 201×402
-image frames. The fixture installs the foreign measurement callback used by
+image frames. The API 35 Android core suite passes all 18 tests with no skips,
+including the same image frames and the existing foreign flex/stretch controls.
+The iOS fixture installs the foreign measurement callback used by
 NativeScript; UIKit's raw `UIImageView.sizeThatFits` ignores the proposed
 constraint and is not the NativeScript measurement contract. A nonvisual
 Chromium control, including Xplat's `flex-shrink: 0` normalization, also produces
