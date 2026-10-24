@@ -1052,6 +1052,65 @@ tarball repeats those checks, and all 194 files installed from npm match the
 qualified candidate. The maintained layered collapse regression is in
 `apps/mobile/src/tests/collapsed-text.spec.tsrx`.
 
+## Maintained mobile harness follow-up (2026-10-24)
+
+The focused harness selection contains `image-percentage-grid.spec.tsrx`,
+`collapsed-text.spec.tsrx` and `foreign-screen-height.spec.tsrx`. NativeScript
+CLI 9.1.1 starts `vitest run` without forwarding file filters (source:
+`VitestExecutionService.startTestRun`, lines 34–88). The local supervisor
+temporarily selects those files in `vitest.config.mts` and restores the file
+after each run; the device registry still bundles the complete maintained test
+glob.
+
+The first iOS build retained both beta.1 and beta.2 framework paths in its
+generated Xcode project, producing duplicate `MasonCore.framework` output tasks.
+The ignored `apps/mobile/platforms/ios` directory was preserved under `research/`
+and regenerated from the installed dependency graph. The regenerated project
+references beta.2 alone.
+
+The fresh project exposes a separate integration blocker: the harness's
+`@nativescript/font-manager@1.0.18` adds a FontManager Swift package, while core
+beta.2 supplies its own FontManager header module map. Swift bridging-header
+compilation rejects the two definitions with `redefinition of module
+'FontManager'`. This prevents the ordinary iOS harness from reaching the tests.
+Evidence is `research/maintained-regressions/fresh-project-ios.log`; both the
+plugin module map and Xcode's copied Swift-package module map appear in the
+diagnostic. The standalone-plugin combination needs separate integration work.
+The core header module map and `build.xcconfig` are byte-identical to the
+installed beta.1 inputs; this conflict is not newly introduced by the beta.2
+layout corrections.
+
+An iOS 27 arm64 Simulator diagnostic passes all seven applicable tests, with
+the Android-only foreign-grow control skipped. It runs the same maintained
+files and npm-installed beta.2 through `turbo run test:ios --filter=@xplat/mobile`,
+with only the standalone FontManager plugin temporarily omitted from native
+preparation:
+
+```ts
+// Temporary nativescript.config.ts override for this regression run.
+export default {
+	ignoredNativeDependencies: ['@nativescript/font-manager'],
+}
+```
+
+This establishes image geometry, collapsed-screen timer liveness and same-cell
+400→300→500pt resize behavior under that diagnostic configuration. It does not
+qualify coinstallation with the standalone plugin. The configuration and normal
+generated project were restored afterward. Evidence:
+`research/maintained-regressions/ios.log`, `ios-command.json` and `ios-result.json`.
+
+The ordinary Android harness passes the selected maintained files on the
+task-owned API 35 arm64 emulator: five tests pass and the three iOS-only tests
+skip. This runs the three image cases, the foreign grow/resize control and the
+same-cell intrinsic-content resize case against the npm-installed beta.2.
+The command runs through `turbo run test:android --filter=@xplat/mobile` with
+the selected device. The harness's configured application ID is required by
+its Google Services build step; the emulator is reserved exclusively for this
+task. Evidence: `research/maintained-regressions/android.log` and
+`android-result.json`. The temporary file selection was restored afterward.
+Both runs stopped their task-owned devices. They do not qualify the complete
+mobile suite, physical devices, actual media-player content or OS input.
+
 ## Core extraction: C interface boundaries (2026-10-22)
 
 Source examined: the `octane-xplat/nativescript-mason` fork at
