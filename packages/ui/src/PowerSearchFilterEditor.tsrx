@@ -49,7 +49,7 @@ export function PowerSearchFilterEditor(props: PowerSearchFilterEditorProps) @{
 
 	<masonview className="vx-power-search-editor" style={{display: "flex"}}>
 		<label className="vx-power-search-editor-heading" text={field ? `${field.label} · ${operator ? resolveOperatorLabel(operator) : ''}` : powerSearchTranslate('@astryx.powersearch.editor.field')} />
-		{unsupported ? <label className="vx-power-search-editor-note" text="Add a custom editor for this value type." /> : operator && operator.value.type !== 'empty' ? <TextInput className="vx-power-search-editor-value" label="Value" value={valueText} onChange={setValueText} keyboardType={operator.value.type==='integer'||operator.value.type==='float'?'number':'default'} isDisabled={props.isReadOnly} /> : null}
+		{unsupported ? <label className="vx-power-search-editor-note" text="Add a custom editor for this value type." /> : operator && operator.value.type !== 'empty' ? <TextInput className="vx-power-search-editor-value" accessibilityLabel="Value" value={valueText} onChange={setValueText} keyboardType={operator.value.type==='integer'||operator.value.type==='float'?'number':'default'} isDisabled={props.isReadOnly} /> : null}
 		<masonview className="vx-power-search-editor-actions" style={{display: "flex"}}><Button label="Cancel" variant="ghost" clickAction={props.onCancel} /><Button label={props.saveButtonLabel ?? 'Apply'} variant="primary" clickAction={save} isDisabled={props.isReadOnly||unsupported} /></masonview>
 	</masonview>
 }
