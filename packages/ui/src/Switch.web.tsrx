@@ -1,13 +1,18 @@
-import { useState } from 'octane';
+import { useEffect, useState, useId } from 'octane';
+import { cx } from '@octane-xplat/lib';
 import type { SwitchProps } from "./props";
 import { applyEscapeProps } from "./escape-props";
-import { useFieldControlProps } from './field-context';
+import { useFieldControl } from './field-context';
+import { announce } from './announce.web';
+import { STATUS_ICON_PATHS } from './status-icons';
 
-/** Self-drawn switch — track + thumb, identical pixels across targets.
- *  The platform widget (UISwitch/MaterialSwitch) lives in `ui/ios` +
- *  `ui/android`. Toggles on click, Space, and Enter. */
+/** Self-drawn switch following Astryx's Switch: a visually hidden native
+ *  `input[type=checkbox][role=switch]` over the drawn track and thumb, the
+ *  label beside it and a detached status below. The platform widget
+ *  (UISwitch/MaterialSwitch) lives in `ui/ios` + `ui/android`. Inside a
+ *  FormField the field owns label/description/status. */
 export function Switch(inputProps: SwitchProps) @{
-	const props = useFieldControlProps(inputProps);
+	const { props, inField } = useFieldControl(inputProps);
 	const [internal, setInternal] = useState(props.defaultChecked ?? false);
 	const checked = props.checked ?? internal;
 	const isBlocked = props.isDisabled || props.isReadOnly;
@@ -17,32 +22,95 @@ export function Switch(inputProps: SwitchProps) @{
 		props.onCheckedChange?.(!checked);
 	};
 
+	const generatedId = useId();
+	const controlId = props.id ?? generatedId;
+	const ownChrome = !inField;
+	const descriptionId = ownChrome && props.description != null ? `${controlId}-description` : undefined;
+	const statusId = ownChrome && props.status?.message != null ? `${controlId}-status` : undefined;
+	const describedBy = ownChrome
+		? [props.web?.['aria-describedby'], descriptionId, statusId].filter(Boolean).join(' ') || undefined
+		: props.ariaDescribedBy;
+	const showRequired = props.isRequired && !props.isOptional;
+	const size = props.size === 'sm' ? 'sm' : 'md';
+	const labelClass = cx('vx-field-label', props.isDisabled && 'vx-field-label--disabled', props.isLabelHidden && 'vx-field-label--hidden');
+	const marker = showRequired
+		? <span className="vx-field-marker"><span className="vx-field-dot" aria-hidden="true">{' \u2219 '}</span>{'Required'}</span>
+		: props.isOptional
+			? <span className="vx-field-marker"><span className="vx-field-dot" aria-hidden="true">{' \u2219 '}</span>{'Optional'}</span>
+			: null;
+	useEffect(() => {
+		if (ownChrome && props.status?.message) {
+			announce(props.status.message, props.status.type === 'error' ? 'assertive' : 'polite');
+		}
+	}, [ownChrome, props.status?.message, props.status?.type]);
+	// Astryx's Spinner speaks "Loading" through the persistent polite region.
+	useEffect(() => {
+		if (props.isLoading) {
+			announce('Loading');
+		}
+	}, [props.isLoading]);
+
 	<div
-		ref={(e: any) => applyEscapeProps(e, props)}
-		id={props.id}
-		data-testid={props.testID}
-		role="switch"
-		aria-checked={checked}
-		aria-disabled={props.isDisabled || undefined}
-		aria-readonly={props.isReadOnly || undefined}
-		aria-busy={props.isLoading || undefined}
-		aria-required={props.isRequired && !props.isOptional || undefined}
-		aria-invalid={props.status?.type === 'error' || undefined}
-		aria-label={props.ariaLabel}
-		aria-labelledby={props.ariaLabelledBy}
-		aria-describedby={props.ariaDescribedBy}
-		aria-description={props.ariaDescription}
-		tabIndex={props.isDisabled ? undefined : 0}
-		className={['vx-switch', checked ? 'vx-switch--on' : undefined, props.isDisabled ? 'vx-switch--disabled' : undefined, props.isReadOnly ? 'vx-switch--readonly' : undefined, props.isLoading ? 'vx-switch--loading' : undefined, props.status ? `vx-switch--status-${props.status.type}` : undefined, props.size ? `vx-switch--size-${props.size}` : undefined, props.className]}
+		className={cx('vx-switch-field', `vx-switch-field--size-${size}`, checked && 'vx-switch-field--on', props.isDisabled && 'vx-switch-field--disabled', props.isReadOnly && 'vx-switch-field--readonly', props.isLoading && 'vx-switch-field--loading', props.status && `vx-switch-field--status-${props.status.type}`, props.className)}
 		style={props.style}
-		onClick={toggle}
-		onKeyDown={(e: any) => {
-			if (e.key === ' ' || e.key === 'Enter') {
-				e.preventDefault();
-				toggle();
-			}
-		}}
+		data-testid={props.testID}
 	>
-		<div className="vx-switch-thumb" aria-hidden="true" />
+		<div className={cx('vx-switch-container', 'vx-switch-row', props.isLabelHidden && 'vx-switch-container--label-hidden')}>
+			<div className={cx('vx-switch-wrapper', `vx-switch-wrapper--${size}`)}>
+				<input
+					ref={(el: any) => { if (el) applyEscapeProps(el, props); }}
+					id={controlId}
+					type="checkbox"
+					role="switch"
+					checked={checked}
+					disabled={props.isDisabled || undefined}
+					aria-required={showRequired || undefined}
+					aria-invalid={props.status?.type === 'error' || undefined}
+					aria-busy={props.isLoading || undefined}
+					aria-label={ownChrome ? props.accessibilityLabel : props.ariaLabel}
+					aria-labelledby={ownChrome ? undefined : props.ariaLabelledBy}
+					aria-describedby={describedBy}
+					aria-description={ownChrome ? undefined : props.ariaDescription}
+					className="vx-switch-native"
+					onChange={isBlocked ? (e: any) => { e.preventDefault?.(); } : () => toggle()}
+				/>
+				<div className={cx('vx-switch', `vx-switch--size-${size}`, checked && 'vx-switch--on', props.isDisabled && 'vx-switch--disabled')} aria-hidden="true">
+					<div className="vx-switch-thumb">
+						@if (props.isLoading) {
+							<span role="status" aria-label="Loading" className="vx-button-spinner-status">
+								<svg width="14" height="14" aria-hidden="true" className="vx-button-spinner-svg">
+									<circle cx="50%" cy="50%" r="5" strokeWidth="2" className="vx-button-spinner-track" />
+									<circle cx="50%" cy="50%" r="5" strokeWidth="2" strokeDasharray="11.78 19.63" className="vx-button-spinner-arc" />
+								</svg>
+							</span>
+						}
+					</div>
+				</div>
+			</div>
+			@if (ownChrome && props.label != null) {
+				<div className={cx('vx-switch-text', `vx-switch-text--${size}`)}>
+					@if (props.description != null) {
+						<div className="vx-field-head">
+							<label htmlFor={controlId} className={labelClass}>{props.label}{marker}</label>
+							<span id={descriptionId} className="vx-field-description">{props.description}</span>
+						</div>
+					} @else {
+						<label htmlFor={controlId} className={labelClass}>{props.label}{marker}</label>
+					}
+				</div>
+			}
+		</div>
+		@if (statusId != null) {
+			<div id={statusId} className={cx('vx-field-status', `vx-field-status--${props.status!.type}`, 'vx-field-status--detached')}>
+				<span className="vx-field-status-row">
+					<span className="vx-field-status-icon-slot">
+						<span className="vx-field-status-icon" aria-hidden="true">
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1em" height="1em" aria-hidden="true"><path fillRule="evenodd" clipRule="evenodd" d={STATUS_ICON_PATHS[props.status!.type as keyof typeof STATUS_ICON_PATHS]} /></svg>
+						</span>
+					</span>
+					<span>{props.status!.message}</span>
+				</span>
+			</div>
+		}
 	</div>
 }

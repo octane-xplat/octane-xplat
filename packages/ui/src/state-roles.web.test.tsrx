@@ -69,21 +69,21 @@ describe('boolean inputs', () => {
 	it('Switch seeds defaultChecked and toggles internally', () => {
 		const change = vi.fn()
 		mount(Switch, { defaultChecked: true, onCheckedChange: change })
-		const host = document.querySelector('.vx-switch')!
-		expect(host.getAttribute('aria-checked')).toBe('true')
+		const host = document.querySelector('input[role="switch"]') as HTMLInputElement
+		expect(host.checked).toBe(true)
 		click(host)
 		expect(change).toHaveBeenLastCalledWith(false)
-		expect(host.getAttribute('aria-checked')).toBe('false')
+		expect(host.checked).toBe(false)
 	})
 
 	it('Switch controlled checked wins and stays caller-owned', () => {
 		const change = vi.fn()
 		mount(Switch, { checked: true, defaultChecked: false, onCheckedChange: change })
-		const host = document.querySelector('.vx-switch')!
-		expect(host.getAttribute('aria-checked')).toBe('true')
+		const host = document.querySelector('input[role="switch"]') as HTMLInputElement
+		expect(host.checked).toBe(true)
 		click(host)
 		expect(change).toHaveBeenLastCalledWith(false)
-		expect(host.getAttribute('aria-checked')).toBe('true')
+		expect(host.checked).toBe(true)
 	})
 
 	it('Checkbox seeds defaultChecked and toggles internally', () => {
