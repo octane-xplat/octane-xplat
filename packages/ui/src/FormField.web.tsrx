@@ -1,4 +1,5 @@
 import { useContext, useId } from 'octane'
+import { cx } from '@octane-xplat/lib'
 import { styleRecord } from './style-merge'
 import type { FormFieldProps } from "./props";
 import { applyEscapeProps } from "./escape-props";
@@ -41,16 +42,16 @@ export function FormField(props: FormFieldProps) @{
 
 	const labelNode = props.label != null
 		? (props.isGroupLabel
-			? <span id={labelId} className={['vx-field-label', props.isLabelHidden ? 'vx-field-label--hidden' : undefined]}>{labelText}</span>
-			: <label id={labelId} htmlFor={controlId} className={['vx-field-label', props.isLabelHidden ? 'vx-field-label--hidden' : undefined]}>{labelText}</label>)
+			? <span id={labelId} className={cx('vx-field-label', props.isLabelHidden && 'vx-field-label--hidden')}>{labelText}</span>
+			: <label id={labelId} htmlFor={controlId} className={cx('vx-field-label', props.isLabelHidden && 'vx-field-label--hidden')}>{labelText}</label>)
 		: null
 
 	const descriptionNode = props.description != null
-		? <span id={descriptionId} className={['vx-field-description', props.isLabelHidden ? 'vx-field-description--hidden' : undefined]}>{props.description}</span>
+		? <span id={descriptionId} className={cx('vx-field-description', props.isLabelHidden && 'vx-field-description--hidden')}>{props.description}</span>
 		: null
 
 	const statusNode = status?.message != null
-		? <span id={statusId} className={['vx-field-status', `vx-field-status--${status.type}`, `vx-field-status--${statusVariant}`]} role={status.type === 'error' ? 'alert' : 'status'}>{status.message}</span>
+		? <span id={statusId} className={cx('vx-field-status', `vx-field-status--${status.type}`, `vx-field-status--${statusVariant}`)} role={status.type === 'error' ? 'alert' : 'status'}>{status.message}</span>
 		: null
 
 	const rootClass = ['vx-field', status ? `vx-field--${status.type}` : undefined, `vx-field--status-${statusVariant}`, props.isDisabled ? 'vx-field--disabled' : undefined, props.isReadOnly ? 'vx-field--readonly' : undefined, props.isLoading ? 'vx-field--loading' : undefined, props.size ? `vx-field--size-${props.size}` : undefined, props.className]
