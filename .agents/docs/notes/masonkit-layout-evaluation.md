@@ -753,6 +753,47 @@ workaround is therefore iOS-only (`relayoutOnImageSource: isIOS` in
 `Image.tsrx`). The Mason path itself remains and is not specific to images; see the
 next section.
 
+## Percentage images and nested grid minima (#41)
+
+The original percentage-fill defect was corrected by the foreign-leaf style
+bridge described above. A separate engine defect remains in Mason core
+`1.0.0-beta.1`: a percentage-sized raster image can inflate the minimum of a
+star grid track through a flex-column wrapper. The original report and consumer
+controls are in [issue #41](https://github.com/octane-xplat/octane-xplat/issues/41).
+
+The Mason source at `27281f978bf5848c9af464a244cd37db6e79d3a5` has two gaps:
+foreign `UIImageView`/Android `ImageView` nodes lack the replaced-element flag,
+and the measured-leaf layout path does not apply the
+[cyclic percentage min-content rule](https://drafts.csswg.org/css-sizing-3/#min-content-zero).
+Replaced elements use externally supplied content, such as a bitmap, for their
+natural size. During a min-content query with no definite percentage basis,
+their percentage size or maximum must resolve against zero. Applying that rule
+at the leaf prevents its bitmap aspect or natural width from propagating up
+through wrappers. Authored minimum sizes, padding and borders still constrain
+the contribution; ordinary measured text keeps its content minimum.
+
+Mason commit `86b1a1e4` marks foreign image views as replaced and caps only
+this indefinite min-content contribution. It preserves final percentage layout
+and does not change `Grid` star-track defaults. A 402-point grid with two
+402-point-high tiles and 360×640 images produces two 201-point tracks, both
+with and without a flex-growing inner wrapper. An explicit 250-point image
+minimum still produces 250-point tracks.
+
+Evidence: 64 focused Rust library/grid/measurement tests pass. The iOS 27
+native core suite passes all 16 tests, including track positions and 201×402
+image frames. The fixture installs the foreign measurement callback used by
+NativeScript; UIKit's raw `UIImageView.sizeThatFits` ignores the proposed
+constraint and is not the NativeScript measurement contract. A nonvisual
+Chromium control, including Xplat's `flex-shrink: 0` normalization, also produces
+201×402 images. These checks do not qualify a packed NativeScript consumer,
+physical devices or desktop targets.
+
+**Adoption boundary:** the correction must be released in the Mason native
+artifacts before Xplat can depend on it. The checked-in Xplat dependency remains
+`1.0.0-beta.1`; a source correction in a separate Mason checkout does not fix an
+installed application's native binary. Keep zero-minimum tracks as the explicit
+screen-fitting option until the corrected package is adopted.
+
 ## Android: a foreign leaf with a pending layout request loses its flex height
 
 Upstream: `@triniwiz/nativescript-masonkit` 1.0.0-beta.110,
