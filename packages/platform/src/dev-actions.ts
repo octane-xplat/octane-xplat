@@ -23,6 +23,7 @@ export {
 	type DevActionSpec,
 	type DevEffectDeclaration,
 	type DevEffectDefinition,
+	DevNavigationError,
 	type DevNavigationResult,
 	type DevPlatform,
 } from './dev-actions-registry'

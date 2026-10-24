@@ -828,6 +828,24 @@ test('failed outcomes return structured per-handler failure records with labels'
 	assert.equal(typeof record.stack, 'string')
 })
 
+test('a handler throwing DevNavigationError surfaces its protocol code', async (t) => {
+	const bridge = await makeBridge(t)
+	const { exports: api } = await loadDevActions({ origin: bridge.origin, token: bridge.token })
+	const definition = api.defineDevAction(declaration())
+	t.after(() => definition.dispose())
+	t.after(() => api.startDevActionBridge().stop())
+
+	api.attachDevActionHandler(definition, () => {
+		throw new api.DevNavigationError('navigation_blocked', 'a navigation blocker held the attempt')
+	})
+
+	const instance = await until(async () => (await bridge.call('GET', '/registry')).instances[0])
+	const outcome = await invokeAndAwait(bridge, instance, 'req_navcode', definition.id)
+	assert.equal(outcome.status, 'failed')
+	assert.equal(outcome.error.code, 'navigation_blocked')
+	assert.match(outcome.error.message, /blocker held the attempt/)
+})
+
 test('a single-handler action reports one failure record; thrown values normalize', async (t) => {
 	const bridge = await makeBridge(t)
 	const { exports: api } = await loadDevActions({ origin: bridge.origin, token: bridge.token })

@@ -248,7 +248,9 @@ Automatic navigation does not navigate back afterwards.
 
 The built-in `xplat.navigate` action covers the other direction — an agent
 navigating explicitly before calling an action that has no route. Generated
-routes register it in development builds; it reports the committed route.
+routes register it in development builds; it reports the committed route,
+and its failures carry the router's `navigation_blocked`/`navigation_failed`
+codes verbatim.
 
 ```sh
 pnpm exec xplat actions invoke --action xplat.navigate \
