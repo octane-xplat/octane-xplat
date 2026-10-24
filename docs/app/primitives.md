@@ -329,7 +329,9 @@ cell `0,0` in a full-size `Grid`. Each layer needs a `View` wrapper to carry
 `row` and `col`; `Screen` does not accept those placement props. The parent
 must already have the bounds you want to cover. On native, start from a
 full-window app host: layers do not correct offsets introduced by a custom
-Page/Frame shell. Here `playing` controls whether the player layer is mounted.
+Page/Frame shell. The native screen shell fills its wrapper, so media's natural
+height does not determine the screen's height. Here `playing` controls whether
+the player layer is mounted.
 
 ```tsx
 import { Grid, Screen, Text, View } from '@octane-xplat/ui'

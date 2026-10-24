@@ -56,6 +56,18 @@
 
 	/* vocabulary base styles */
 
+	/* A Screen hosted by Mason must fill its assigned flex/grid slot before
+	   its inner column computes descendants. Intrinsic content must not turn
+	   the foreign RootLayout into a shorter screen or prevent it shrinking. */
+	.vx-screen-shell {
+		flex-grow: 1;
+		flex-shrink: 1;
+		flex-basis: 0px;
+		align-self: stretch;
+		min-width: 0;
+		min-height: 0;
+	}
+
 	/* RootLayout supplies the native frame, but Mason computes descendants
 	   from its own root size. Keep Screen's inner root at that frame size
 	   instead of letting intrinsic Grid/text content shrink-wrap either axis. */

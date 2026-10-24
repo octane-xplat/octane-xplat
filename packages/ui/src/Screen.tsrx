@@ -23,6 +23,7 @@ import { attachTapToBlur } from './tap-to-blur'
 export function Screen(props: ScreenProps) @{
 	<rootlayout
 		iosIgnoreSafeArea={true}
+		className="vx-screen-shell"
 		id={props.id}
 		ref={(v: any) => applyEscapeProps(v, props)}
 		onLoaded={(e: any) => registerRootLayout(e.object)}

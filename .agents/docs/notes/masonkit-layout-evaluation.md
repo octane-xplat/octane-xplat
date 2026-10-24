@@ -883,19 +883,19 @@ not support attributing those later reports to the old `freeHeight` overwrite.
 
 ### Same-cell shell and stale nested-root layout follow-up
 
-**Integration status:** the native fixes are local Mason commits. The beta.2
-release candidate and Screen shell/test changes are not yet adopted by Xplat's
-registry dependency, which remains beta.1. Shared-layout AC6 is affected; AC7's
-host-bounds coverage is a related control. Video APIs and recipes are unchanged,
-and actual media-player behavior remains unqualified.
+**Adopted:** the native corrections ship in published Mason core
+`1.0.0-beta.2`, pinned by Xplat's workspace and starter. The native Screen shell
+normalization and maintained parent-resize regression accompany that adoption.
+Shared-layout AC6 is affected; AC7's host-bounds coverage is a related control.
+Video APIs and recipes are unchanged, and actual media-player behavior remains
+unqualified.
 
 The later isolated composition reproduces a separate gap: a 914.29dp parent
 layer contains a 771.43dp foreign Screen shell and stage. The latter height is
 the synthetic aspect-ratio content plus an editor. Setting growth on the
 RootLayout itself produces 914.29dp; setting `Screen.style.flexGrow` only
-addresses the inner column. The integration candidate gives the native shell
-a normalization class with growth, shrinkage, zero basis and zero automatic
-minimums. Content styles
+addresses the inner column. The native shell has a normalization class with
+growth, shrinkage, zero basis and zero automatic minimums. Content styles
 remain on the inner column and Grid track minimums remain unchanged.
 
 Resizing also exposed a distinct engine-cache defect. An Android Mason root

@@ -18,6 +18,30 @@ function ForeignScreen() @{
 	</Screen>
 }
 
+function LayeredScreen() @{
+	<Screen>
+		<View id="bounds" style={{ width: 107, height: 400 }}>
+			<Grid rows="*" columns="*" style={{ flexGrow: 1 }}>
+				<View row={0} col={0}>
+					<Text>Retained library</Text>
+				</View>
+				<View id="layer" row={0} col={0}>
+					<Screen id="layered-screen" style={{ flexGrow: 1 }}>
+						<Grid
+							id="layered-stage"
+							rows="*"
+							columns="*"
+							style={{ flexGrow: 1, flexShrink: 1, minHeight: 0 }}
+						>
+							<View style={{ width: '100%', aspectRatio: 360 / 640 }} />
+						</Grid>
+					</Screen>
+				</View>
+			</Grid>
+		</View>
+	</Screen>
+}
+
 it.skipIf(!isAndroid)(
 	'preserves foreign Screen flex height after child requests and parent resize (#42)',
 	async () => {
@@ -46,3 +70,24 @@ it.skipIf(!isAndroid)(
 		}
 	},
 )
+
+it('fills a same-cell layer with intrinsic content without a native height pin (#42)', async () => {
+	const { view } = await mountXplat(LayeredScreen)
+	const bounds = view.getViewById<NativeView>('bounds')!
+	const layer = view.getViewById<NativeView>('layer')!
+	const screen = view.getViewById<NativeView>('layered-screen')!
+	const stage = view.getViewById<NativeView>('layered-stage')!
+	await waitUntil(() => screen.isLoaded)
+	for (const height of [400, 300, 500]) {
+		bounds.style.height = height
+		stage.requestLayout()
+		await waitUntil(() =>
+			[layer, screen, stage].every((item) => Math.abs(item.getActualSize().height - height) <= 1),
+		)
+
+		await new Promise((resolve) => setTimeout(resolve, 400))
+		for (const item of [layer, screen, stage]) {
+			expect(Math.abs(item.getActualSize().height - height)).toBeLessThanOrEqual(1)
+		}
+	}
+})

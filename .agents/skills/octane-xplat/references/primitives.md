@@ -153,6 +153,10 @@ layer in `View row={0} col={0}` inside one full-bounds, single-cell `Grid`.
 Put `Screen` inside the later wrapper; `Screen` itself has no row/col props.
 Do not use flex-column siblings, `flex: 1`, or z-index as a substitute for
 layer placement. See [the complete example and host prerequisites](../../../../docs/app/primitives.md#layer-a-screen-over-retained-content).
+On native, the foreign RootLayout shell fills that slot; `Screen.className`
+and `Screen.style` address its inner Mason column. Put parent bounds on the
+layer wrapper rather than pinning the shell to the display height, which
+does not follow a resized activity window.
 
 ```tsx
 import { Grid, Screen, Text, View } from '@octane-xplat/ui'

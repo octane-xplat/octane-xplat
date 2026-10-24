@@ -35,8 +35,8 @@ the behavior differences between DOM and NativeScript.
 - AC3: [Layout component index](../../../docs/app/components.md#layout) and maintained [LayoutDemo](../../../packages/demos/src/LayoutDemo.tsrx).
 - AC4: [Grouped fields](../../../docs/app/primitives.md#grouped-fields) and maintained [ComponentsDemo](../../../packages/demos/src/ComponentsDemo.tsrx).
 
-- AC5: [Grid placement](../../../docs/app/primitives.md#grid-placement), [native Screen/Grid width regression](../../../apps/mobile/src/tests/screen-grid-width.spec.tsrx), and maintained [Grid driver fixture](../../../packages/ui/tests/grid-placement.fixture.mobile.tsrx).
+- AC5: [Grid placement](../../../docs/app/primitives.md#grid-placement), [native Screen/Grid width regression](../../../apps/mobile/src/tests/screen-grid-width.spec.tsrx), maintained [Grid driver fixture](../../../packages/ui/tests/grid-placement.fixture.mobile.tsrx), and [percentage-image track-minimum regression](../../../apps/mobile/src/tests/image-percentage-grid.spec.tsrx).
 
-- AC6: [Retained screen layers](../../../docs/app/primitives.md#layer-a-screen-over-retained-content), [agent guidance](../../skills/octane-xplat/references/primitives.md#retained-screen-layers), and maintained [geometry fixture](../../../examples/probes/screen-layers.tsrx).
+- AC6: [Retained screen layers](../../../docs/app/primitives.md#layer-a-screen-over-retained-content), [agent guidance](../../skills/octane-xplat/references/primitives.md#retained-screen-layers), maintained [geometry fixture](../../../examples/probes/screen-layers.tsrx), and [intrinsic-content/parent-resize regression](../../../apps/mobile/src/tests/foreign-screen-height.spec.tsrx).
 
 - AC7: [Safe-area edges and the native Page host](../../../docs/app/primitives.md#safe-area-edges), [Page measurement tests](../../../packages/ui/src/full-screen-page.mobile.test.ts), and [native first-mount fixture](../../../examples/probes/screen-safe-area.ios.tsrx).
