@@ -26,7 +26,8 @@ export function Button(props: ButtonProps) @{
 	// Mirror the web leaf: busy (isLoading or in-flight action) disables unless
 	// interruptible, and reports the busy accessibility state.
 	const busy = !!(props.isLoading || actionPending);
-	const disabled = !!(props.isDisabled || group?.isDisabled || (busy && !props.isInterruptible));
+	const isDisabled = !!(props.isDisabled || group?.isDisabled);
+	const disabled = !!(isDisabled || (busy && !props.isInterruptible));
 	const loading = busy;
 	const size = useSize(props.size ?? group?.size, 'md');
 	const icon = typeof props.icon === 'string' ? <Icon name={props.icon} /> : props.icon;
@@ -76,7 +77,7 @@ export function Button(props: ButtonProps) @{
 			props.elevation && props.elevation !== 'none' && `vx-button--elev-${props.elevation}`,
 			props.isIconOnly && 'vx-button--icon',
 			loading && 'vx-button--loading',
-			disabled && 'vx-button--disabled',
+			isDisabled && 'vx-button--disabled',
 			group && `vx-button--group-${group.position}`,
 			props.className,
 		)}
