@@ -190,6 +190,8 @@
 		"test:layer:web": "node --test tests/layer-position.web.mjs",
 		"test:macos": "node --test tests/query-storage.macos.test.mjs && node tests/thumbhash.macos.test.mjs && node tests/macos-barrel.mjs && node tests/packed-consumer.mjs --macos-only",
 		"test:chat:web": "node ../../scripts/probe.ts run tests/fixtures/chat.web.tsrx --target web",
+		"test:color:web": "node ../../scripts/probe.ts run tests/fixtures/color-picker.web.tsrx --target web",
+		"test:color:macos": "node ../../scripts/probe.ts run tests/fixtures/color-picker.macos.tsrx --target macos",
 		"test:chat:ios": "node ../../scripts/probe.ts run tests/fixtures/chat.ios.tsrx --target ios",
 		"test:chat:android": "node ../../scripts/probe.ts run tests/fixtures/chat.android.tsrx --target android",
 		"test:chat:macos": "node ../../scripts/probe.ts run tests/fixtures/chat.macos.tsrx --target macos",
