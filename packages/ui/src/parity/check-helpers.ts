@@ -341,7 +341,10 @@ export function inputRows(m: Resolve): CheckRow[] {
 
 export function inputNaturalRows(m: Resolve, target: string): CheckRow[] {
 	const field = m('field')
-	const expectedHeight = ({ web: 18, ios: 20, android: 18.29 } as Record<string, number>)[target]
+	// Since the field-chrome rework the input carries Astryx's 14px/20px text
+	// metrics everywhere, so the natural line box is 20 on every host rather
+	// than each platform's own text-field metric.
+	const expectedHeight = 20
 	const rows: CheckRow[] = [
 		[
 			'input has positive intrinsic dimensions',
