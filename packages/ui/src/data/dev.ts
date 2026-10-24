@@ -61,13 +61,13 @@ export function inspectQueryClient(
 	const events: QueryInspectionEvent[] = []
 	let disposed = false
 	const detach = source.subscribe((event) => {
-		if (limit === 0) return
+		if (limit === 0) { return }
 		events.push(event)
-		if (events.length > limit) events.splice(0, events.length - limit)
+		if (events.length > limit) { events.splice(0, events.length - limit) }
 	})
 	return {
 		snapshot() {
-			if (disposed) throw new Error('Query inspector is disposed')
+			if (disposed) { throw new Error('Query inspector is disposed') }
 			const snapshot = source.snapshot((definition) => labels.get(definition))
 			return Object.freeze({
 				...snapshot,

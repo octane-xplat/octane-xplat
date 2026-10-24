@@ -40,7 +40,7 @@ async function until<T>(
 	const deadline = Date.now() + timeoutMs
 	while (Date.now() < deadline) {
 		const value = await predicate()
-		if (value) return value as NonNullable<T>
+		if (value) { return value as NonNullable<T> }
 		await new Promise((resolve) => setTimeout(resolve, 50))
 	}
 	throw new Error('Query workflow condition timed out')
@@ -125,8 +125,9 @@ try {
 		])
 		const job = await until(async () => {
 			const status = await command<{ job: Job }>(['actions', 'status', accepted.job.jobId])
-			if (['failed', 'cancelled'].includes(status.job.state))
-				throw new Error('Inspection action failed')
+			if (['failed', 'cancelled'].includes(status.job.state)) {
+					throw new Error('Inspection action failed')
+				}
 			return status.job.result?.outcome ? status.job : undefined
 		})
 		assert.equal(job.result?.outcome?.status, 'succeeded')

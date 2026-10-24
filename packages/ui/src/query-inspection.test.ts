@@ -27,12 +27,12 @@ function setup(eventLimit = 100) {
 	return { client, definition, inspector }
 }
 afterEach(async () => {
-	for (const inspector of inspectors.splice(0)) inspector.dispose()
+	for (const inspector of inspectors.splice(0)) { inspector.dispose() }
 	await Promise.all(clients.splice(0).map((client) => client.dispose()))
 	vi.useRealTimers()
 })
 async function settle() {
-	for (let i = 0; i < 30; i++) await Promise.resolve()
+	for (let i = 0; i < 30; i++) { await Promise.resolve() }
 }
 
 describe('opt-in query inspection', () => {
@@ -85,7 +85,7 @@ describe('opt-in query inspection', () => {
 	it('bounds event history and releases collection without disposing the client', async () => {
 		const { client, definition, inspector } = setup(3)
 		await client.ensureData(definition, 'a')
-		for (let i = 0; i < 20; i++) client.setQueryData(definition, 'a', { privateValue: String(i) })
+		for (let i = 0; i < 20; i++) { client.setQueryData(definition, 'a', { privateValue: String(i) }) }
 		const before = inspector.snapshot()
 		expect(before.events).toHaveLength(3)
 		expect(before.events.every((event) => event.type === 'write')).toBe(true)
