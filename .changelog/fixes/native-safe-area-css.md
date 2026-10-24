@@ -1,7 +1,3 @@
----
-release: lockstep
----
-
 ### Resolve safe-area CSS on Mason core containers
 
 Apps selecting Mason core `1.0.0-beta.1` now resolve safe-area CSS values from

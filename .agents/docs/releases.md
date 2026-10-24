@@ -177,21 +177,18 @@ fixlog. Prefer outcomes such as “Keep your place when new messages arrive”
 over implementation terms. State affected platforms when the difference
 matters to the reader.
 
-Every file begins with a YAML header containing only `release: lockstep` or
-`release: tsrx-typegen`, followed by a level-three title and a short description.
-Most packages use `lockstep`: they share one version. For a change spanning
-both release streams, write a separate file for each stream so either can
-publish independently. Choose a descriptive filename that does not collide
+Every file begins with a level-three title and a short description. Most
+packages use `lockstep`: they share one version, and a lockstep note needs no
+YAML header. Only a `tsrx-typegen` note opens with a header containing
+`release: tsrx-typegen` and nothing else. For a change spanning both release
+streams, write a separate file for each stream so either can publish
+independently. Choose a descriptive filename that does not collide
 with another pending note; do not include an anticipated version or date.
 
 This is a format example for a hypothetical button fix, not a pending release
 announcement. Save a real fix in `.changelog/fixes/disabled-save-button.md`:
 
 ````md
----
-release: lockstep
----
-
 ### Keep disabled buttons inactive
 
 Disabled buttons no longer start their action when pressed.

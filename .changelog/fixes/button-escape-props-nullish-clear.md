@@ -1,7 +1,3 @@
----
-release: lockstep
----
-
 ### No more `title="undefined"` on untooled buttons
 
 `web` escape props carrying `null` or `undefined` now remove the reflected

@@ -1,7 +1,3 @@
----
-release: lockstep
----
-
 ### Button is a real `<button>` on web
 
 `Button` now renders a native `<button type="button">` instead of

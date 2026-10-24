@@ -1,7 +1,3 @@
----
-release: lockstep
----
-
 ### Loading buttons now report busy and keep their accessible name
 
 A `Button` that is `isLoading` or has an in-flight `clickAction` on web now

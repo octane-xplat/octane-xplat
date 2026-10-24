@@ -1,7 +1,3 @@
----
-release: lockstep
----
-
 ### Load route code when it is needed
 
 Generated file routes now load their screen modules during navigation. Use

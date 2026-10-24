@@ -1,7 +1,3 @@
----
-release: lockstep
----
-
 ### The default theme is now Astryx's palette and control geometry
 
 `chrome.css` adopts Astryx's default light/dark palette — blue primary

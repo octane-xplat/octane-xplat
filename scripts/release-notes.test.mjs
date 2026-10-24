@@ -51,7 +51,8 @@ function commit(root, message, path = 'packages/ui/src/example.ts') {
 }
 
 function note(release, title, description = 'A concise explanation.') {
-	return `---\nrelease: ${release}\n---\n\n### ${title}\n\n${description}\n`
+	const header = release ? `---\nrelease: ${release}\n---\n\n` : ''
+	return `${header}### ${title}\n\n${description}\n`
 }
 
 test('version policy includes supported commits and breaking changes, independently of notes', () => {
@@ -162,8 +163,8 @@ test('preview preserves Markdown and prepare consumes only the selected release'
 	const example =
 		'Show the change.\n\n```sh\n# A comment inside an example\npnpm xplat doctor\n```\n\n[Documentation](https://octane-xplat.goddardai.org/toolchain)'
 	write(root, '.changelog/b-feature.md', note('lockstep', 'Second feature'))
-	write(root, '.changelog/a-feature.md', note('lockstep', 'First feature', example))
-	write(root, '.changelog/fixes/repair.md', note('lockstep', 'A repair'))
+	write(root, '.changelog/a-feature.md', note(undefined, 'First feature', example))
+	write(root, '.changelog/fixes/repair.md', note(undefined, 'A repair'))
 	const independent = note('tsrx-typegen', 'Better declarations')
 	write(root, '.changelog/typegen.md', independent)
 	const preview = renderNotes(root, 'lockstep', '0.2.0', '2026-10-23')
@@ -222,7 +223,8 @@ test('invalid fragments fail before logs change or any file is consumed', (t) =>
 	write(root, 'FIXLOG.md', '# Fixlog\n')
 	write(root, '.changelog/good.md', note('lockstep', 'A valid feature'))
 	for (const invalid of [
-		'### Missing release\n\nDescription.\n',
+		'---\nrelease: lockstep\n### Unclosed header\n\nDescription.\n',
+		'---\n\n---\n\n### Empty header\n\nDescription.\n',
 		note('nightly', 'Wrong release'),
 		note('lockstep', 'Unknown field').replace(
 			'release: lockstep',
