@@ -1,6 +1,6 @@
 # @xplat/astryx-parity
 
-Renders the same component scenarios twice — once with
+Renders the same component scenarios — Button, TextInput, CheckboxInput, and Switch — twice — once with
 [`@astryxdesign/core`](https://www.npmjs.com/package/@astryxdesign/core)
 (React, in `reference/`) and once with `@octane-xplat/ui` (in `candidate/`) —
 then compares them in Chromium with [sameframe](https://github.com/aleclarson/sameframe)
@@ -37,7 +37,8 @@ here.
   plus its exit code and the behavior diff count.
 - `artifacts/sameframe/` — persisted per-page evidence; inspect it with the
   sameframe CLI (`inspect-page --format findings`, `inspect-finding`,
-  `query-tree --parity-key button/<scenario>`).
+  `query-tree --parity-key <component>/<scenario>`; routes are `/button`,
+`/text-input`, `/checkbox`, `/switch`, each with a `<route>/behavior` page.
 - `artifacts/behavior/button.json` — every probe observation on both sides
   and the pairwise `diffs`.
 

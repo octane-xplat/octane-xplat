@@ -4,6 +4,9 @@ candidate:
   baseUrl: http://127.0.0.1:4311
 routes:
   - path: /button
+  - path: /text-input
+  - path: /checkbox
+  - path: /switch
 viewports:
   - width: 1024
     height: 720

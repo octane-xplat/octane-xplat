@@ -1,6 +1,10 @@
 import { Button } from '@astryxdesign/core/Button'
+import { TextInput } from '@astryxdesign/core/TextInput'
+import { CheckboxInput } from '@astryxdesign/core/CheckboxInput'
+import { Switch } from '@astryxdesign/core/Switch'
+import { useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import { buttonScenarios } from '../scenarios/index.ts'
+import { buttonScenarios, textInputScenarios, checkboxScenarios, switchScenarios } from '../scenarios/index.ts'
 import '@astryxdesign/core/reset.css'
 import '@astryxdesign/core/astryx.css'
 import '../shared/stage.css'
@@ -83,8 +87,106 @@ function Behavior() {
 	)
 }
 
-const path = window.location.pathname
-const page = path === '/button' ? <Grid /> : path === '/button/behavior' ? <Behavior /> : <Grid />
+function FieldGrid({ prefix, scenarios, render }: { prefix: string; scenarios: { key: string; cellWidth?: number }[]; render: (s: any) => React.ReactNode }) {
+	return (
+		<div className="parity-grid">
+			{scenarios.map((scenario) => (
+				<div
+					key={scenario.key}
+					className="parity-cell parity-cell-field"
+					data-sameframe-key={`${prefix}/${scenario.key}`}
+					style={scenario.cellWidth ? { width: scenario.cellWidth } : undefined}
+				>
+					{render(scenario)}
+				</div>
+			))}
+		</div>
+	)
+}
+
+function TextInputGrid() {
+	return <FieldGrid prefix="text-input" scenarios={textInputScenarios} render={(s) => (
+		<TextInput {...s.props} onChange={() => {}} data-testid={`text-input/${s.key}/control`} />
+	)} />
+}
+
+function CheckboxGrid() {
+	return <FieldGrid prefix="checkbox" scenarios={checkboxScenarios} render={(s) => (
+		<CheckboxInput {...s.props} onChange={() => {}} data-testid={`checkbox/${s.key}/control`} />
+	)} />
+}
+
+function SwitchGrid() {
+	return <FieldGrid prefix="switch" scenarios={switchScenarios} render={(s) => (
+		<Switch {...s.props} onChange={() => {}} data-testid={`switch/${s.key}/control`} />
+	)} />
+}
+
+// Per-route behavior fixtures: a controlled, observable control per component.
+function TextInputBehavior() {
+	const [value, setValue] = useState('')
+	return (
+		<>
+			<button data-parity-key="before">Before</button>
+			<span data-parity-key="input">
+				<TextInput label="Email" value={value} onChange={(v) => { setValue(v); window.__parity.events.push(`change:${v}`) }} />
+			</span>
+			<span data-parity-key="disabled-input">
+				<TextInput label="Email" isDisabled value="" onChange={() => {}} />
+			</span>
+			<button data-parity-key="after">After</button>
+		</>
+	)
+}
+
+function CheckboxBehavior() {
+	const [checked, setChecked] = useState(false)
+	const [mixed, setMixed] = useState<'indeterminate' | boolean>('indeterminate')
+	return (
+		<>
+			<button data-parity-key="before">Before</button>
+			<span data-parity-key="box">
+				<CheckboxInput label="Accept terms" value={checked} onChange={(v) => { setChecked(v); window.__parity.events.push(`check:${v}`) }} />
+			</span>
+			<span data-parity-key="indeterminate-box">
+				<CheckboxInput label="Partial" value={mixed} onChange={(v) => { setMixed(v); window.__parity.events.push(`check:${v}`) }} />
+			</span>
+			<span data-parity-key="disabled-box">
+				<CheckboxInput label="Locked" value={false} isDisabled onChange={() => {}} />
+			</span>
+			<button data-parity-key="after">After</button>
+		</>
+	)
+}
+
+function SwitchBehavior() {
+	const [on, setOn] = useState(false)
+	return (
+		<>
+			<button data-parity-key="before">Before</button>
+			<span data-parity-key="switch">
+				<Switch label="Notifications" value={on} onChange={(v) => { setOn(v); window.__parity.events.push(`switch:${v}`) }} />
+			</span>
+			<span data-parity-key="disabled-switch">
+				<Switch label="Locked" value={true} isDisabled onChange={() => {}} />
+			</span>
+			<button data-parity-key="after">After</button>
+		</>
+	)
+}
+
+const pages: Record<string, { title: string; el: React.ReactNode }> = {
+	'/button': { title: 'Button parity', el: <Grid /> },
+	'/button/behavior': { title: 'Button parity', el: <Behavior /> },
+	'/text-input': { title: 'TextInput parity', el: <TextInputGrid /> },
+	'/text-input/behavior': { title: 'TextInput parity', el: <TextInputBehavior /> },
+	'/checkbox': { title: 'Checkbox parity', el: <CheckboxGrid /> },
+	'/checkbox/behavior': { title: 'Checkbox parity', el: <CheckboxBehavior /> },
+	'/switch': { title: 'Switch parity', el: <SwitchGrid /> },
+	'/switch/behavior': { title: 'Switch parity', el: <SwitchBehavior /> },
+}
+const page = (pages[window.location.pathname] ?? pages['/button']).el
+document.title = pages[window.location.pathname]?.title ?? 'Button parity'
 
 createRoot(document.getElementById('root')!).render(page)
 document.fonts.ready.then(() => {

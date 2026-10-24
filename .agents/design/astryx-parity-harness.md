@@ -115,3 +115,12 @@ block, and the ignored re-press while pending.
 Probe lesson: Astryx runs `clickAction` in a transition and dedupes presses
 until it settles, so probes reload between activations and wait for commits.
 Reading state synchronously after an event races both renderers.
+
+
+## Multi-component coverage (added)
+
+Routes `/text-input`, `/checkbox`, `/switch` join `/button`, each with a
+`<route>/behavior` fixture. Scenario data stays JSX-free in `scenarios/` in
+Astryx's prop vocabulary; `candidate/main.web.tsx` maps it (`Checkbox`/`Switch`
+value→checked, `onChange`→`onCheckedChange`, `CheckboxInput` indeterminate→
+`indeterminate` prop). Xplat re-exports `Checkbox` as `CheckboxInput`.

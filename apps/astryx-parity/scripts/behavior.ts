@@ -174,11 +174,85 @@ async function runSide(browser: Browser, baseUrl: string): Promise<Observation[]
 		for (const key of ['sync', 'disabled', 'async']) {
 			record('aria', key, await page.locator(`[data-parity-key="${key}"]`).ariaSnapshot())
 		}
+
+		// Field components — one route each; probes prefixed with the route name.
+		await textInputProbes(page, baseUrl, record)
+		await toggleProbes(page, baseUrl, record, 'checkbox', 'check')
+		await toggleProbes(page, baseUrl, record, 'switch', 'switch')
 	} finally {
 		await context.close()
 	}
 
 	return out
+}
+
+// TextInput: label-click focuses, typing reports onChange, Tab order includes
+// it, a disabled input is skipped, and its aria snapshot carries the field.
+async function textInputProbes(page: Page, baseUrl: string, record: (probe: string, step: string, value: unknown) => void) {
+	const url = `${baseUrl}/text-input/behavior`
+	const P = 'text-input'
+	await page.goto(url)
+	const input = page.locator('[data-parity-key="input"]').locator('input').first()
+	await page.locator('[data-parity-key="input"]').locator('label, [data-testid]').first().click({ position: { x: 2, y: 2 } }).catch(() => {})
+	await settle(page)
+	record(P, 'label-click-focused', (await activeKey(page)) === 'input')
+	let count = (await events(page)).length
+	await input.fill('abc')
+	await waitForEvents(page, count)
+	record(P, 'type', { events: await events(page), value: await input.inputValue().catch(() => null) })
+	await page.locator('[data-parity-key="before"]').focus()
+	for (let i = 1; i <= 4; i++) {
+		await page.keyboard.press('Tab')
+		await settle(page)
+		record(P, `tab-${i}`, await activeKey(page))
+	}
+	await page.goto(url)
+	for (const key of ['input', 'disabled-input']) {
+		record(P, `aria/${key}`, await page.locator(`[data-parity-key="${key}"]`).ariaSnapshot())
+	}
+}
+
+// Checkbox/Switch share a toggle probe: label-click and Space toggle the
+// controlled state; a disabled control does not toggle; aria snapshot.
+async function toggleProbes(page: Page, baseUrl: string, record: (probe: string, step: string, value: unknown) => void, name: 'checkbox' | 'switch', eventPrefix: string) {
+	const url = `${baseUrl}/${name}/behavior`
+	const controlKey = name === 'checkbox' ? 'box' : 'switch'
+	const controlSel = `[data-parity-key="${controlKey}"] input, [data-parity-key="${controlKey}"] [role="checkbox"], [data-parity-key="${controlKey}"] [role="switch"], [data-parity-key="${controlKey}"] button`
+	await page.goto(url)
+	let count = (await events(page)).length
+	await page.locator(`[data-parity-key="${controlKey}"]`).locator('label, input, [role="checkbox"], [role="switch"], button').first().click()
+	await waitForEvents(page, count)
+	record(name, 'label-click', await events(page))
+	await page.locator(controlSel).first().focus()
+	count = (await events(page)).length
+	await page.keyboard.press('Space')
+	await waitForEvents(page, count)
+	record(name, 'space-toggle', await events(page))
+	count = (await events(page)).length
+	await page.locator(`[data-parity-key="disabled-${name === 'checkbox' ? 'box' : 'switch'}"]`).locator('input, [role="checkbox"], [role="switch"], button').first().click({ force: true }).catch(() => {})
+	await waitForEvents(page, count)
+	record(name, 'disabled-click', await events(page))
+	await page.goto(url)
+	for (const key of [controlKey, `indeterminate-${controlKey}`, `disabled-${controlKey}`]) {
+		const snap = page.locator(`[data-parity-key="${key}"]`)
+		if (await snap.count()) {
+			record(name, `aria/${key}`, await snap.ariaSnapshot())
+		}
+	}
+	if (name === 'checkbox') {
+		const mixed = page.locator('[data-parity-key="indeterminate-box"]').locator('input, [role="checkbox"]').first()
+		record(name, 'indeterminate', {
+			ariaChecked: await mixed.getAttribute('aria-checked').catch(() => null),
+			prop: await mixed.evaluate((el) => (el as HTMLInputElement).indeterminate ?? null).catch(() => null),
+		})
+	}
+	if (name === 'switch') {
+		const sw = page.locator(controlSel).first()
+		record(name, 'role', {
+			role: await sw.getAttribute('role').catch(() => null),
+			checked: await sw.getAttribute('aria-checked').catch(() => null),
+		})
+	}
 }
 
 export async function runBehaviorProbes(referenceUrl: string, candidateUrl: string) {
