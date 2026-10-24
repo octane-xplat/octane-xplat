@@ -372,7 +372,7 @@ index 0000000000000000000000000000000000000000..13a0c29d4b0fad502730062ddba08101
 +    return id.startsWith('/') ? id : '/' + id;
 +}
 diff --git a/hmr/server/process-code-for-device.js b/hmr/server/process-code-for-device.js
-index 1f02ba5ebb7e89d40eff58d1c395b5ec838f45fe..5bbb6e4827da640624624ef80f94a7e5eb5c28ce 100644
+index 1f02ba5ebb7e89d40eff58d1c395b5ec838f45fe..808ed238e795fd935d2a34623479fc08a285d547 100644
 --- a/hmr/server/process-code-for-device.js
 +++ b/hmr/server/process-code-for-device.js
 @@ -1,3 +1,5 @@
@@ -410,7 +410,16 @@ index 1f02ba5ebb7e89d40eff58d1c395b5ec838f45fe..5bbb6e4827da640624624ef80f94a7e5
  // One-line `import.meta.hot` prelude. Single-statement, no internal `;` or
  // newline, so that if any later sanitize pass re-applies
  // `IMPORT_META_HOT_ASSIGNMENT` the whole statement strips cleanly (module
-@@ -449,13 +436,13 @@ function processCodeForDevice(code, isVitePreBundled, preserveVendorImports = fa
+@@ -263,6 +250,8 @@ function processCodeForDevice(code, isVitePreBundled, preserveVendorImports = fa
+     const bindingOptions = {
+         preserveNonPluginVendorImports: preserveVendorImports,
+         resolvedSpecifierOverrides,
++        importerId: sourceId,
++        importerIsLibrary: isNodeModule,
+         // Worker entries evaluate in their own realm, where the main realm's
+         // vendor registry / __nsRequire never exist — route their vendor
+         // imports to the per-module /ns/m/node_modules HTTP ESM form instead,
+@@ -449,13 +438,13 @@ function processCodeForDevice(code, isVitePreBundled, preserveVendorImports = fa
      // Unlike other virtual ids these are real, servable dev-server URLs returning
      // self-contained ESM — stripping them leaves `_decorate`/`_decorateMetadata`
      // undefined at runtime. They're origin-prefixed for the device in rewriteImports.
@@ -617,11 +626,64 @@ index 15c6c7293826767ce7fd45feb6b03cb64a4bdbb5..1f66ca8ae896fad9ee21eabdf3bb75f6
          },
          resolveId(id) {
              if (id === VIRTUAL_ID)
+diff --git a/hmr/server/websocket-module-bindings.js b/hmr/server/websocket-module-bindings.js
+index 00b89ff3ae13b1c2b219a4c35c0450f97ac5ffc9..54c8716bfc5c9a6e2cd9cbee7bbbe9c7fb971943 100644
+--- a/hmr/server/websocket-module-bindings.js
++++ b/hmr/server/websocket-module-bindings.js
+@@ -5,7 +5,7 @@ import * as PAT from './constants.js';
+ import { astExtractImportsAndStripTypes } from '../helpers/ast-extract.js';
+ import { getProjectRootPath } from '../../helpers/project.js';
+ import { extractRootPackageName } from '../shared/package-classifier.js';
+-import { isEsmFrameworkPackageSpecifier, isLikelyNativeScriptPluginSpecifier, isLikelyNativeScriptRuntimePluginSpecifier, normalizeNodeModulesSpecifier, resolveInternalRuntimePluginBareSpecifier, resolveNodeModulesPackageBoundary, resolveVendorFromCandidate, shouldPreserveBareRuntimePluginSubpathImport } from './websocket-module-specifiers.js';
++import { isEsmFrameworkPackageSpecifier, isLikelyNativeScriptPluginSpecifier, isLikelyNativeScriptRuntimePluginSpecifier, normalizeNodeModulesSpecifier, resolveInternalRuntimePluginBareSpecifier, resolveNodeModulesPackageBoundary, resolvePackageInternalVendorFileSpecifier, resolveVendorFromCandidate, shouldPreserveBareRuntimePluginSubpathImport } from './websocket-module-specifiers.js';
+ import { MODULE_IMPORT_ANALYSIS_PLUGINS } from './websocket-served-module-helpers.js';
+ import { getVendorManifest } from '../shared/vendor/registry.js';
+ /**
+@@ -252,6 +252,18 @@ export function ensureNativeScriptModuleBindings(code, options) {
+                 canonical = null;
+             }
+             const runtimePluginSpecifier = isLikelyNativeScriptRuntimePluginSpecifier(canonical || specifier, getProjectRootPath());
++            // Library files served per-module (cold boot — no deps bundle
++            // yet) get static HTTP vendor imports so ESM evaluation order and
++            // live bindings hold: a registry require evaluates the importer
++            // before the vendored module and reads stubs/empty defaults
++            // (gesturehandler.common's `extends Observable`). Package-internal
++            // non-entry files keep their concrete subpath; everything else
++            // uses the root URL form the import map and vendor.mjs share.
++            if (options?.importerIsLibrary && !options?.vendorImportsAsHttp && canonical && !/^@nativescript\/core(\b|\/)/i.test(canonical)) {
++                const internalVendorSpecifier = resolvePackageInternalVendorFileSpecifier(specifier, options?.importerId, canonical);
++                preservedImports.push(rewritePreservedImportSpecifier(original, rawSpec, `/ns/m/node_modules/${internalVendorSpecifier || canonical}`));
++                continue;
++            }
+             // Preserving a bare vendor id is only correct where the IMPORT MAP
+             // exists to route it (main realm). Worker realms have no import map —
+             // a preserved bare specifier falls through to the runtime's
+@@ -309,6 +321,14 @@ export function ensureNativeScriptModuleBindings(code, options) {
+             canonical = null;
+         }
+         const runtimePluginSpecifier = isLikelyNativeScriptRuntimePluginSpecifier(canonical || specifier, getProjectRootPath());
++        // Library files served per-module (cold boot) get static HTTP vendor
++        // imports — see the side-effect branch above. Package-internal
++        // non-entry files keep their concrete subpath.
++        if (options?.importerIsLibrary && !options?.vendorImportsAsHttp && canonical && !/^@nativescript\/core(\b|\/)/i.test(canonical)) {
++            const internalVendorSpecifier = resolvePackageInternalVendorFileSpecifier(specifier, options?.importerId, canonical);
++            preservedImports.push(rewritePreservedImportSpecifier(original, rawSpec, `/ns/m/node_modules/${internalVendorSpecifier || canonical}`));
++            continue;
++        }
+         // See the side-effect branch above: bare preservation relies on the main
+         // realm's import map; in a worker serve (vendorImportsAsHttp) it must not
+         // win over the /ns/m HTTP rewrite.
 diff --git a/hmr/server/websocket-module-specifiers.js b/hmr/server/websocket-module-specifiers.js
-index 0081819906b9df7480408697b1afadb149e26e31..32078469da6f990ae4d99e083c4b788e3d822035 100644
+index 0081819906b9df7480408697b1afadb149e26e31..ae7ef0adf8b810cbeff74f26bce242d750129c06 100644
 --- a/hmr/server/websocket-module-specifiers.js
 +++ b/hmr/server/websocket-module-specifiers.js
-@@ -328,6 +328,24 @@ export function resolveVendorFromCandidate(specifier) {
+@@ -1,4 +1,5 @@
+ import { existsSync, readdirSync, readFileSync, realpathSync } from 'fs';
++import { createRequire } from 'module';
+ import * as path from 'path';
+ import * as PAT from './constants.js';
+ import { getVendorManifest, resolveVendorSpecifier } from '../shared/vendor/registry.js';
+@@ -328,6 +329,24 @@ export function resolveVendorFromCandidate(specifier) {
      }
      return null;
  }
@@ -646,7 +708,7 @@ index 0081819906b9df7480408697b1afadb149e26e31..32078469da6f990ae4d99e083c4b788e
  const workspaceNodeModulesDirsCache = new Map();
  /**
   * `node_modules` dirs that can hold a package the served URL no longer
-@@ -485,6 +503,8 @@ export function resolveCandidateFilePath(candidate, projectRoot, workspaceRoot)
+@@ -485,6 +504,8 @@ export function resolveCandidateFilePath(candidate, projectRoot, workspaceRoot)
                  return fromWorkspaceScan;
          }
      }
@@ -655,7 +717,73 @@ index 0081819906b9df7480408697b1afadb149e26e31..32078469da6f990ae4d99e083c4b788e
      // Linked source checkouts keep private node_modules outside both roots.
      // Only packages the app's own install lacks may come from them: each
      // extension/index variant is resolved separately, so a variant missing
-@@ -746,6 +766,26 @@ export function resolveNodeModulesPackageBoundary(nodeModulesSpec, projectRoot)
+@@ -533,6 +554,8 @@ export function resolveCandidateFilePath(candidate, projectRoot, workspaceRoot)
+  * Returns `null` when the absolute path is outside both roots; the
+  * caller should then leave the original `/@fs/` URL alone (defensive).
+  */
++const fsStoreCanonicalization = new Map();
++
+ export function rewriteFsAbsoluteToNsM(spec, projectRoot, workspaceRoot) {
+     if (!spec || !spec.startsWith('/@fs/'))
+         return null;
+@@ -566,6 +589,56 @@ export function rewriteFsAbsoluteToNsM(spec, projectRoot, workspaceRoot) {
+     }
+     if (rel === null)
+         return null;
++    // pnpm virtual-store paths (`node_modules/.pnpm/<store>/node_modules/<pkg>/<sub>`)
++    // must not keep the store spelling — the same package is also served
++    // canonically at `/ns/m/node_modules/<pkg>/<sub>` via the vendor route, and
++    // two URL spellings evaluate two copies with separate module state
++    // (observed: octane's element registry split — `registerElement` landed in
++    // one copy, the driver consulted the other and threw `is not a registered
++    // element`). Collapse to the canonical spelling only when the store
++    // directory and the project-resolved package are the SAME realpath.
++    const storeNodeModules = absPath.lastIndexOf('/node_modules/');
++    if (storeNodeModules !== -1) {
++        const pkgSub = absPath.slice(storeNodeModules + '/node_modules/'.length);
++        const segments = pkgSub.split('/');
++        const rootCount = segments[0]?.startsWith('@') ? 2 : 1;
++        const pkgName = segments.slice(0, rootCount).join('/');
++        const subpath = segments.slice(rootCount).join('/');
++        if (pkgName && subpath) {
++            const storePkgDir = absPath.slice(0, storeNodeModules + '/node_modules/'.length + pkgName.length);
++            let canonical = fsStoreCanonicalization.get(storePkgDir);
++            if (canonical === undefined) {
++                canonical = null;
++                try {
++                    const projectRequire = createRequire(path.join(projectRootPosix, 'package.json'));
++                    let pkgJsonPath = null;
++                    try {
++                        pkgJsonPath = projectRequire.resolve(`${pkgName}/package.json`);
++                    }
++                    catch {
++                        // `exports` maps that omit `./package.json` refuse the
++                        // subpath resolve — probe the require resolution dirs
++                        // directly, matching manifest-collect's fallback.
++                        for (const dir of projectRequire.resolve.paths(pkgName) ?? []) {
++                            const candidate = path.join(dir, pkgName, 'package.json');
++                            if (existsSync(candidate)) {
++                                pkgJsonPath = candidate;
++                                break;
++                            }
++                        }
++                    }
++                    if (pkgJsonPath && realpathSync(path.dirname(pkgJsonPath)) === realpathSync(storePkgDir)) {
++                        canonical = pkgName;
++                    }
++                }
++                catch { }
++                fsStoreCanonicalization.set(storePkgDir, canonical);
++            }
++            if (canonical !== null) {
++                return `/ns/m/node_modules/${canonical}/${subpath}${querySuffix}`;
++            }
++        }
++    }
+     return rel === '' ? `/ns/m${querySuffix}` : `/ns/m/${rel}${querySuffix}`;
+ }
+ /**
+@@ -746,6 +819,26 @@ export function resolveNodeModulesPackageBoundary(nodeModulesSpec, projectRoot)
      return resolved;
  }
  const exportsReverseMapCache = new Map();
@@ -682,7 +810,7 @@ index 0081819906b9df7480408697b1afadb149e26e31..32078469da6f990ae4d99e083c4b788e
  function resolveExportConditionValue(conditions) {
      if (typeof conditions === 'string')
          return conditions;
-@@ -771,8 +811,8 @@ function getExportsReverseMap(pkgName, projectRoot) {
+@@ -771,8 +864,8 @@ function getExportsReverseMap(pkgName, projectRoot) {
          return cached;
      const map = new Map();
      try {
@@ -693,6 +821,51 @@ index 0081819906b9df7480408697b1afadb149e26e31..32078469da6f990ae4d99e083c4b788e
          if (pkgJson.exports && typeof pkgJson.exports === 'object') {
              for (const [entryPoint, conditions] of Object.entries(pkgJson.exports)) {
                  if (entryPoint.includes('*') || entryPoint.endsWith('.json'))
+@@ -973,4 +1066,43 @@ export function resolveVendorRouting(nodeModulesSpec, projectRoot) {
+     }
+     return { route: 'http' };
+ }
++/**
++ * First-boot per-module serving: a vendored package's package-internal file
++ * import (its own sibling module, after Vite resolution e.g.
++ * `/node_modules/<pkg>/<file>` or `/@fs/.../node_modules/<pkg>/<file>`)
++ * collapses to the package ROOT via findVendorPrefix, and its named imports
++ * become vendor-registry picks of a module that never declares them —
++ * `Class extends value undefined` (gesturehandler's
++ * `./gesturehandler.common` → `BaseGestureRootView`). Keep the concrete file
++ * on /ns/m: return the normalized `pkg/subpath` id when the importer lives
++ * inside the same vendored package and the specifier targets a file that is
++ * NOT the package's root entry. Platform/alias spellings of the root entry
++ * still collapse so the package keeps one vendor record.
++ */
++export function resolvePackageInternalVendorFileSpecifier(specifier, importerId, canonical) {
++    if (!specifier || !importerId || !canonical) {
++        return null;
++    }
++    const importerPackage = extractRootPackageName(normalizeNodeModulesSpecifier(importerId));
++    if (!importerPackage || importerPackage !== canonical) {
++        return null;
++    }
++    const nodeModulesSpecifier = normalizeNodeModulesSpecifier(specifier);
++    if (!nodeModulesSpecifier || !nodeModulesSpecifier.startsWith(`${importerPackage}/`)) {
++        return null;
++    }
++    const subpath = nodeModulesSpecifier.slice(importerPackage.length + 1);
++    if (!subpath) {
++        return null;
++    }
++    const projectRoot = getProjectRootPath();
++    if (getExportsReverseMap(importerPackage, projectRoot).get(subpath) === importerPackage) {
++        return null;
++    }
++    if (subpathMatchesMainEntry(subpath, getPackageMainFieldInfo(importerPackage, projectRoot).mainEntries)) {
++        return null;
++    }
++    return nodeModulesSpecifier;
++}
++
+ //# sourceMappingURL=websocket-module-specifiers.js.map
+\ No newline at end of file
 diff --git a/hmr/server/websocket-ns-m-request.js b/hmr/server/websocket-ns-m-request.js
 index 0879633dc5ee172f16de82d5d24bebe2f6f7878f..b489d7f1524eb35ba87206d86cdb9448a95c188e 100644
 --- a/hmr/server/websocket-ns-m-request.js
@@ -1074,12 +1247,14 @@ index 7b3afd4af098cc8587851b04188f6b1c3d5541bc..854530f1b5c65e41e47b61b50cb1d21c
  }
  function canResolveDependencyPackageJson(specifier, projectRequire) {
      try {
-@@ -939,4 +976,3 @@ function parseEnvList(value) {
+@@ -938,5 +975,4 @@ function parseEnvList(value) {
+         .split(',')
          .map((token) => token.trim())
          .filter(Boolean);
- }
-\ No newline at end of file
+-}
 -//# sourceMappingURL=manifest-collect.js.map
+\ No newline at end of file
++}
 \ No newline at end of file
 diff --git a/hmr/shared/vendor/manifest.js b/hmr/shared/vendor/manifest.js
 index 54ba11ef9c329df049fa93b01b2ce47c9fb1ac3e..f7e3d0d1bd71919584834ef5a56e42f74ad2cf28 100644

@@ -485,6 +485,62 @@ ship secrets into either bundle (native bundles are inspectable like web).
   `'octane'` → `'octane/universal/native'` in the native app config so any
   uncompiled import lands on the lean entry. Reported:
   [NativeScript/NativeScript#11440](https://github.com/NativeScript/NativeScript/issues/11440).
+- **Upstream gap — `resolve.alias` never reached the NativeScript esbuild
+  passes.** The bundler's own plugin set hardcodes a redirect for `octane`
+  (`ns-deps-bundle-octane-universal-alias`, still needed because octane is
+  installed and must keep default resolution); our patch additionally
+  replays the app's captured `resolve.alias` entries inside the deps-bundle
+  and vendor-bundle passes for packages that are NOT installed
+  (`createViteAliasEsbuildPlugin`, @rollup/plugin-alias semantics), routing
+  `@octane-xplat/nativescript-masonkit` + subpaths to the app's installed
+  `@octane-xplat/nativescript-mason-core` — the renderer patch can keep
+  masonkit specifiers while iOS/Android build on core only. Without it the
+  real masonkit package bundles and crashes at bootstrap
+  (`org.nativescript.mason.masonkit.*` classes are absent by design — the
+  host declares only mason-core). Windows stays on full MasonKit via the
+  8.0.21 pin and is untouched.
+- **Limitation — first boot serves vendored packages per-module and
+  rewrites their vendor imports into runtime registry requires.** With no
+  boot recording there is no deps bundle, so `/ns/m/node_modules/<pkg>`
+  serves the package's own transformed module. Two layers then break.
+  First, `ensureNativeScriptModuleBindings` canonicalizes a
+  package-internal sibling import (e.g. gesturehandler's
+  `./gesturehandler.common`) through `findVendorPrefix`/`isFileDistSubpath`
+  to the package ROOT, so named imports become `__nsPick(vendorRoot, …)` →
+  `undefined` (`TypeError: Class extends value undefined`). Second, even
+  with the concrete file served, its imports of OTHER vendored plugins are
+  emitted as `__nsVendorRequire` registry lookups, which evaluate the
+  importer before the vendored module has run — vendor.mjs's static-import
+  order puts the vendored module later — so a default-unwrap yields
+  `#<Object>` instead of the class (`Class extends value #<Object>` in
+  gesturehandler.common's `extends Observable`). Because the crash kills
+  bootstrap, no boot recording is ever written, so the app can never
+  recover. Upstream fixed the collapse only for worker realms
+  (`vendorImportsAsHttp`). Our patch passes the importer id and the
+  served-request library classification into
+  `ensureNativeScriptModuleBindings` (`importerId`, `importerIsLibrary`)
+  and, when the importer is library code, emits every non-core vendor
+  import as a static `/ns/m/node_modules/<canonical>` import —
+  `resolvePackageInternalVendorFileSpecifier` keeps package-internal
+  non-entry files on their concrete subpath. App-source imports and
+  deps-bundle behavior are unchanged.
+- **Limitation — pnpm virtual-store `/@fs` URLs split module identity.** A
+  `/@fs/<abs>` specifier into `node_modules/.pnpm/<store>/node_modules/<pkg>`
+  served under that store spelling while the vendor route serves the same
+  package at `/ns/m/node_modules/<pkg>`. Two URL spellings evaluate two
+  copies of the package's modules. On Android first boot,
+  `@nativescript-community/octane`'s `elements.js` evaluated twice:
+  `registerElement('svgview', …)` landed in the store copy's registry while
+  the driver consulted the canonical copy's and threw
+  `<svgview> is not a registered element`, so the root Page never rendered
+  and every route commit failed `Native Frame did not become ready`. Our
+  patch canonicalizes inside `rewriteFsAbsoluteToNsM`: when the absolute
+  path's last `/node_modules/` yields `<pkg>/<sub>`, it resolves
+  `<pkg>/package.json` from the project root (with the manifest-collect
+  `resolve.paths` fallback for `exports` maps that hide `./package.json`)
+  and emits `/ns/m/node_modules/<pkg>/<sub>` only when both realpaths
+  match, so two genuinely different installs are never aliased. Decisions
+  memoize per store package directory.
 
 ## TSRX language spec
 
