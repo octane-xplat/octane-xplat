@@ -297,3 +297,100 @@ Fix the auth type-generation project boundary and Windows bundle's native-entry
 resolution, then rerun the normal install and Windows build before attempting
 `ns run windows`. App boot, rendering, the demo sweep, and per-seam `.windows`
 divergence checks remain unverified.
+
+## 2026-10-24: packaged lab rerun
+
+The physical x64 laptop now runs the Octane lab menu and passes its OS mouse,
+Frame navigation, and resize smoke checks. This is runtime evidence for the
+isolated lab, not qualification of the kitchen sink or public Windows recipes.
+No visual analysis was performed.
+
+### Artifact and packaging
+
+The run used `@nativescript/windows` 0.1.0-alpha.144, MasonKit
+1.0.0-beta.126, and the existing release `windows.dll` built at 00:02 on
+2026-10-24. The native project contains the experimental CsWinRT 2.3.1
+projection setup and generated-interface patcher in `App_Resources/Windows`.
+Those source changes remain uncommitted and are not a proven requirement for
+native namespace access.
+
+The lab repacker copies the plugin activation extensions into the packaged
+manifest and includes `NativeScript.Mason` and `NativeScript.Widgets` DLLs and
+WinMDs at the package root. The signed MSIX was installed and launched through
+an interactive scheduled task. Temporary scripts and raw results remain under
+`research/windy-setup/` on the laptop.
+
+```powershell
+& research/windy-setup/repack-lab-msix.ps1
+& research/windy-setup/invoke-interactive.ps1 `
+  -Script "$PWD/research/windy-setup/run-lab-e2e.ps1" `
+  -Out "$PWD/research/windy-setup/lab-e2e.log" -TimeoutSec 600
+```
+
+The previous `arrayBufferFromBuffer` failure did not reproduce after repacking
+and reinstalling. A logging-only probe observed `Length = Capacity = 612` and
+a successful native buffer conversion. The clean bundle passed the smoke check
+again after removing that probe. Packaging native metadata is a likely relevant
+difference; the individual packaging changes have not been isolated.
+
+The earlier byte-array hypothesis is ruled out by the generated projection:
+`Style.Values`, `StyleValues`, and `ForeignStyleValues` return
+`Windows.Storage.Streams.IBuffer`. A missing COM-pointer hypothesis is also
+insufficient: successful native buffer wrappers exposed neither `__handle` nor
+`__native_ptr` to JavaScript in this artifact. Do not add a marshalling shim
+based on the old checkpoint alone.
+
+### Harness corrections and evidence boundaries
+
+The input fixture's command channel used `System.IO.File.ReadAllText`, but
+`System.IO` was unavailable in the successful native launch. It now reads via
+WinRT file APIs. The generated lab bundle was changed directly for this
+experiment; a fresh source build of the fixture has not been verified.
+
+```ts
+const file = await NSWinRT.toPromise(
+  Windows.Storage.StorageFile.GetFileFromPathAsync(commandPath),
+)
+const text = await NSWinRT.toPromise(Windows.Storage.FileIO.ReadTextAsync(file))
+```
+
+The PowerShell acknowledgement predicate also needed expression parentheses:
+`Test-Log ([regex]::Escape($sequence))`. Before that correction, the app logged
+the blur acknowledgement but the driver timed out. Test failures could leave
+the next case on the wrong screen; isolated drivers now start fresh processes.
+Final event assertions read JSON event records from the captured log history,
+since acknowledgement waits already consume newly read lines. The completed
+input run passed 25 assertions and retained one failed caret-position assertion.
+
+The initial combined rerun passed real clicks, forward/back navigation, window
+resize, ordinary typing, and Enter submission. Layout mounted and reported
+scroll extents, but its window-percent relayout assertion timed out. Its menu
+button was offscreen, so the combined run did not reach Intl. These partial
+results must not be reported as four passing tests.
+
+### Isolated results
+
+Each case started a fresh app process. The input driver clears only its own
+command JSON and temporary command file before launch, preventing a stale blur
+command from stealing focus during the next test.
+
+| Case | Runtime result |
+| --- | --- |
+| Smoke | Passed OS mouse callbacks, detail navigation, back navigation, resize/layout notification, and another click after resizing. |
+| Input | Passed ordinary typing/submission, public focus/blur, disabled and secure-readonly focus rejection, plain readonly typing rejection, literal `initial`, `inherit`, `unset`, `revert` values, dynamic accessible names, disabled restoration, secure/plain replacement, readonly safety, and focus after remount. Multiline insertion-position assertion failed with both End and Ctrl+End: observed `first\rZ\rsecond`, rather than appending after `second`. Enter did insert a newline; caret positioning remains unresolved. |
+| Layout | Mounted and reported outer/inner scroll extents of 112/580. Window-percent relayout timed out; measured percent host was 300 × 0, parent 300 × 0, child 150 × 19. Page content height was 862 while viewport height was 414.5, leaving the menu offscreen. A follow-up retained the resize failure and found a vertical UIA ScrollPattern, but scroll-target coordinates became `NaN` before wheel input could be sent. OS wheel, nested scroll, and scrolled-content tap remain unverified. |
+| Intl | `number-plain`, `currency-usd`, and `currency-de` each logged `Internal error. Icu error.`. The process then exited before the first `date-ja` result or the completion marker. Later date/time-zone cases were not reached. |
+
+Raw isolated results are `lab-ui-result-input.json`,
+`lab-ui-result-layout.json`, and `lab-ui-result-intl.json` in the laptop's
+research directory. The combined smoke result is in
+`lab-ui-result-before-reader-fix.json`. Driver exit status alone is not a pass;
+inspect each result's `error` and assertions.
+
+These results do not qualify Windows layout parity, multiline caret
+behavior, Intl, or the kitchen sink. The next implementation investigation
+should isolate the layout container sizing and the native runtime's ICU/date
+formatting failure. Keep the experimental projection/package changes separate
+from those investigations until a clean source build reproduces this artifact.
+No public workflow or recipe changed in this rerun; no recipe qualification was
+advanced. Existing kitchen-sink source edits still need verification.
