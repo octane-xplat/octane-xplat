@@ -48,6 +48,9 @@ export function stackEntries(): IterableIterator<[string, Frame]> {
 }
 
 /** Internal: native hosts can observe Frame registrations after startup. */
-export function onStackRegistered(cb: (name: string, frame: Frame) => void): void {
+export function onStackRegistered(cb: (name: string, frame: Frame) => void): () => void {
 	regListeners.add(cb)
+	return () => {
+		regListeners.delete(cb)
+	}
 }

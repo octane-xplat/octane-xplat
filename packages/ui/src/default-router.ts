@@ -1,5 +1,5 @@
 import { createNativeModalRouterHost } from './native-modal-router-host'
-import { getStack } from './stacks'
+import { getStack, onStackRegistered } from './stacks'
 import { createDefaultRouterRuntime } from './default-router-runtime'
 import type {
 	DefaultRouterContractCheck,
@@ -9,7 +9,10 @@ import type {
 } from './props'
 
 export const defaultRouterRuntime = createDefaultRouterRuntime(() =>
-	createNativeModalRouterHost({ getFrame: getStack }),
+	createNativeModalRouterHost({
+		getFrame: getStack,
+		onFrameChange: (listener) => onStackRegistered((name) => listener(name)),
+	}),
 )
 
 /** The application's typed client router. RouteOutlet supplies its owning

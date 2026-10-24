@@ -77,6 +77,9 @@ const frameOwners = new WeakMap<Frame, object>()
  * globally active stack or changes a process-global current router. */
 export function createNativeRouterHost(options: {
 	getFrame(flow: string): Frame | undefined
+	/** Notifies when a flow's Frame becomes available after mount returned
+	 * `undefined` for it. Returns an unsubscribe. @internal */
+	onFrameChange?(listener: (flow: string) => void): () => void
 	/** Shell selection for OS Back; required for named or multiple mounted Frames. */
 	isFlowActive?(flow: string): boolean
 	navigationTimeoutMs?: number
@@ -91,6 +94,7 @@ export function createNativeRouterHost(options: {
 	const closingFrames = new Set<Frame>()
 	const owners = new Map<string, ContentOwner>()
 	const pendingReady = new Set<() => void>()
+	const pendingRebind = new Map<string, () => void>()
 	const readiness = new Map<string, Promise<void>>()
 	const listeners = new Set<(change?: RouterHostChange) => void>()
 	let instance: RouterInstance<any> | undefined
@@ -402,6 +406,7 @@ export function createNativeRouterHost(options: {
 			if (command.action === 'dismiss' || command.route?.presentation === 'modal') {
 				return { status: 'unsupported', operation: 'modal' }
 			}
+			pendingRebind.get(command.flow)?.()
 			const waiting = readiness.get(command.flow)
 			if (waiting) {
 				let timer: ReturnType<typeof setTimeout> | undefined
@@ -835,14 +840,24 @@ export function createNativeRouterHost(options: {
 			owners.set(flow, owner)
 			// Bind the declaring base as soon as this Frame is ready. Waiting until
 			// the first push can capture an unrelated later page as the owner base.
-			const frame = options.getFrame(flow)
+			// The Frame may not exist yet (mount runs before the platform adapter
+			// registers it), so re-resolve it rather than capture `undefined`.
+			let frame = options.getFrame(flow)
 			let releaseReady!: () => void
 			const waiting = new Promise<void>((resolve) => {
 				releaseReady = resolve
 			})
 			readiness.set(flow, waiting)
+			const unsubscribeFrameChange =
+				options.onFrameChange?.((name) => {
+					if (name === flow) {
+						rebind()
+					}
+				}) ?? null
 			const detachReady = () => {
 				frame?.off('navigatedTo', ready)
+				unsubscribeFrameChange?.()
+				pendingRebind.delete(flow)
 				pendingReady.delete(detachReady)
 				if (readiness.get(flow) === waiting) {
 					readiness.delete(flow)
@@ -860,7 +875,18 @@ export function createNativeRouterHost(options: {
 				detachReady()
 				ensure(flow)
 			}
+			function rebind() {
+				const next = options.getFrame(flow)
+				if (next === frame) {
+					return
+				}
+				frame?.off('navigatedTo', ready)
+				frame = next
+				frame?.on('navigatedTo', ready)
+				ready()
+			}
 			pendingReady.add(detachReady)
+			pendingRebind.set(flow, rebind)
 			// A remount may see the previous routed Page while its owner returns
 			// the Frame to its base. Retain the wait until that restoration ends.
 			frame?.on('navigatedTo', ready)
