@@ -878,6 +878,77 @@ suite. Physical-device keyboard resize, media-player content and the exact
 reported same-cell consumer composition remain unverified. These results do
 not support attributing those later reports to the old `freeHeight` overwrite.
 
+### Same-cell shell and stale nested-root layout follow-up
+
+**Integration status:** the native fixes are local Mason commits. The beta.2
+release candidate and Screen shell/test changes are not yet adopted by Xplat's
+registry dependency, which remains beta.1. Shared-layout AC6 is affected; AC7's
+host-bounds coverage is a related control. Video APIs and recipes are unchanged,
+and actual media-player behavior remains unqualified.
+
+The later isolated composition reproduces a separate gap: a 914.29dp parent
+layer contains a 771.43dp foreign Screen shell and stage. The latter height is
+the synthetic aspect-ratio content plus an editor. Setting growth on the
+RootLayout itself produces 914.29dp; setting `Screen.style.flexGrow` only
+addresses the inner column. The integration candidate gives the native shell
+a normalization class with growth, shrinkage, zero basis and zero automatic
+minimums. Content styles
+remain on the inner column and Grid track minimums remain unchanged.
+
+Resizing also exposed a distinct engine-cache defect. An Android Mason root
+under a foreign parent could receive its final frame after an intrinsic
+measurement but apply the cached intrinsic descendant layout. Native regression
+`nestedRootUsesItsAssignedFrameAfterAnIntrinsicMeasure` receives a 200px frame
+but retains a computed 51px height before the correction. Mason `7d72a40e`
+checks the assigned frame during root layout and recomputes only when its
+constraints are stale, preserving the deferred path during an outer Rust
+compute. All 20 native Android tests pass after this correction; the new test
+fails before it.
+
+A separate iOS queue-order defect can overwrite a completed host measurement.
+After a 400→300pt resize, Core reports 900 device pixels for the inner root's
+measured height, but a previously queued provisional compute later replaces
+its native tree with 0×0. Repeating the same native measurement restores
+357×900 device pixels (119×300pt). Native regression
+`test_coreFinalHostMeasureSupersedesQueuedNestedCompute` reproduces that
+overwrite before Mason `51df801a`. Completed host measurements now cancel the
+older queued work; all 18 iOS native layout tests pass.
+
+A second native cache seam remains after that cancellation: a root can report
+a cached settled size while a later intrinsic query has changed its actual
+tree. `test_coreSettledMeasurementRestoresItsRootLayout` reports 357×900 but
+leaves the tree 0×0 before Mason `43a79866`. Reusing a settled measurement now
+also queues restoration of its matching layout when the current constraints
+are stale. The known measurement remains available during the locked outer
+compute; restoration runs after that compute returns. All 19 native iOS tests
+pass. A NativeScript iOS Simulator consumer of the final beta.2 tarball,
+using its release-optimized framework, passes all 14 same-cell/bounded-resize
+assertions and all 32 image-geometry/collapsed-screen heartbeat assertions.
+The resize case includes 400→300→500pt parent bounds. The package's runtime
+suite passes 22 tests, and the pack verifier checks 193 files and hashes.
+Its Android AAR and all runtime JavaScript files are byte-identical to the
+qualified Android consumer package.
+
+The fresh Android NativeScript consumer also passes 22 assertions across two
+real IME show/hide cycles. In the API 35 test window, activity bounds, outer
+layers, foreign shell, inner Mason root and stage all follow
+838.48→526.10→838.48dp. The probe verifies OS IME visibility and the actual
+activity-bound change; input is requested programmatically, not by a tap.
+The fixture uses a test-only API 35 theme to disable edge-to-edge enforcement.
+The stock edge-to-edge host shows the IME without shrinking its activity,
+so it does not meet this test's resize precondition. This does not qualify
+physical-device keyboards, actual media-player content, or default-host
+keyboard avoidance. The theme is not a production migration recommendation;
+[Android 16 removes that opt-out for target API 36](https://developer.android.com/about/versions/16/behavior-changes-16).
+
+An exploratory raw native-style override/removal control remains a separate
+limitation: on core beta.1, assigning `foreign.style.flexGrow = unsetValue`
+after a local growth override did not restore the shell's CSS growth default.
+Both shorthand and longhand defaults exhibited the failure. The diagnostic
+probe and failing results remain in `research/issue42/`; this change does not
+claim to repair raw native-style cascade resets. Ordinary Screen styling
+continues to target its inner column; size the shell through its parent.
+
 ## iOS collapsed Text investigation (#45)
 
 **Status: reproduced and corrected on the iOS 27 iPhone 18 Pro simulator.** The
