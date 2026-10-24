@@ -1012,8 +1012,8 @@ guidance remains applicable. No visual analysis was performed.
 
 ## iOS zero-sized foreign hosts (#50)
 
-**Corrected in Mason source `052f7f86`; not yet adopted in Xplat's published
-core dependency.** The [follow-up report](https://github.com/octane-xplat/octane-xplat/issues/50)
+**Corrected in Mason source `052f7f86` and adopted through published core
+`1.0.0-beta.2`.** The [follow-up report](https://github.com/octane-xplat/octane-xplat/issues/50)
 remained reproducible on core `1.0.0-beta.1`, NativeScript 9.1.3 and Octane
 0.14.0. A `Screen > Grid > Text(visibility: collapse)` probe consumed one CPU
 core and delivered no heartbeat result.
@@ -1038,17 +1038,19 @@ loaded library UUID was checked against the locally rebuilt framework. The
 original installed framework reproduces the stall. This is runtime liveness
 evidence, not physical-device, OS-input or pixel-parity qualification.
 
-The correction needs rebuilt Mason native artifacts and a dependency update
-before an ordinary Xplat application receives it. A local source commit or a
-changed framework in a build directory does not update an already-installed
-application. The consumer's `hidden` workaround remains relevant to the
-uncorrected published package.
+The correction ships in rebuilt Mason native artifacts. Xplat's workspace
+and starter now pin beta.2; existing apps need that dependency update and a
+native rebuild before receiving it. A JavaScript reload does not replace an
+installed native framework. The `hidden` workaround only applies to older
+uncorrected binaries.
 
 The same locally packed candidate described under #41 passes all eight flat
 and layered heartbeat checks on iOS 27 Simulator, in addition to its 24 image
 geometry checks. This qualifies the release-built package payload, beyond the
-earlier debug-framework substitution. The local `1.0.0-beta.2` candidate is
-prepared but not published or adopted by Xplat.
+earlier debug-framework substitution. The final release-optimized beta.2
+tarball repeats those checks, and all 194 files installed from npm match the
+qualified candidate. The maintained layered collapse regression is in
+`apps/mobile/src/tests/collapsed-text.spec.tsrx`.
 
 ## Core extraction: C interface boundaries (2026-10-22)
 

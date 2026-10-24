@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { expect, it } from 'vitest'
 import { isIOS, type View as NativeView } from '@nativescript/core'
-import { Grid, Screen, Text } from '@octane-xplat/ui'
+import { Grid, Screen, Text, View } from '@octane-xplat/ui'
 import { mountXplat, waitUntil } from '@octane-xplat/platform/testing'
 
 function CollapsedText() @{
@@ -10,6 +10,27 @@ function CollapsedText() @{
 			<Text id="collapsed-leaf" style={{ visibility: 'collapse' }}>
 				x
 			</Text>
+		</Grid>
+	</Screen>
+}
+
+// The consumer player is a Screen layered in the same grid cell as its
+// library. Its RootLayout is a foreign leaf of the surrounding Mason View.
+function LayeredCollapsedText() @{
+	<Screen>
+		<Grid rows="*" columns="*">
+			<View row={0} col={0}>
+				<Text>Library</Text>
+			</View>
+			<View row={0} col={0} style={{ flexGrow: 1 }}>
+				<Screen>
+					<Grid id="player-stage" rows="*" columns="*,*">
+						<Text id="collapsed-leaf" style={{ visibility: 'collapse' }}>
+							Player layout probe
+						</Text>
+					</Grid>
+				</Screen>
+			</View>
 		</Grid>
 	</Screen>
 }
@@ -56,5 +77,26 @@ it.skipIf(!isIOS)(
 		await waitUntil(() => Math.abs(left() ?? -1) < 1)
 		leaf.visibility = 'visible'
 		await waitUntil(() => Math.abs((left() ?? -1) - 80) < 1)
+	},
+)
+
+it.skipIf(!isIOS)(
+	'keeps timers alive after measuring and requesting layout in a layered collapsed-text screen (#50)',
+	async () => {
+		const { view } = await mountXplat(LayeredCollapsedText)
+		const leaf = view.getViewById<NativeView>('collapsed-leaf')!
+		const stage = view.getViewById<NativeView>('player-stage')!
+		await waitUntil(() => leaf.isLoaded)
+		for (const visibility of ['collapse', 'hidden', 'visible', 'collapse'] as const) {
+			leaf.visibility = visibility
+			stage.getActualSize()
+			leaf.getActualSize()
+			leaf.requestLayout()
+			for (let tick = 0; tick < 5; tick++) {
+				await new Promise((resolve) => setTimeout(resolve, 200))
+			}
+
+			expect(leaf.visibility).toBe(visibility)
+		}
 	},
 )
