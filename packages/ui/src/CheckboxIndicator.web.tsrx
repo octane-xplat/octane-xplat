@@ -1,4 +1,5 @@
 import { useMemo } from 'octane'
+import { cx } from '@octane-xplat/lib'
 import { refList } from './ref-list'
 import type { IndicatorProps } from './props';
 import { applyEscapeProps } from './escape-props';
@@ -9,11 +10,12 @@ import { applyWebProps } from './platformProps.web';
  *  checkbox keeps the semantics. `children` replaces the state mark. */
 export function CheckboxIndicator(props: IndicatorProps<'multiSelection'>) @{
 	const size = props.size ?? 'md';
-	const mark = props.state === 'indeterminate'
-		? <span className={['vx-ind-dash', `vx-ind-dash--${size}`]} />
-		: props.state === 'checked'
-			? <span className={['vx-checkbox-check', `vx-ind-check--${size}`]}>{'✓'}</span>
-			: null;
+	// Astryx structure: both marks are always present; CSS shows the check
+	// svg when checked and the bar when indeterminate.
+	const mark = <>
+		<svg viewBox="0 0 10 10" className={cx('vx-ind-checkmark', `vx-ind-checkmark--${size}`)}><path d="M8.5 2.5L4 7.5L1.5 5" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
+		<span className={cx('vx-ind-dash', `vx-ind-dash--${size}`)} />
+	</>;
 
 	const content = props.children != null ? props.children : mark;
 

@@ -303,7 +303,7 @@ describe('indicators (web)', () => {
 	it('Checkbox renders through the indicator registry', () => {
 		const { el, root } = mount(<Checkbox checked />);
 		expect(el.querySelector('.vx-ind-checkbox--checked')).not.toBeNull();
-		expect(el.querySelector('.vx-checkbox-check')).not.toBeNull();
+		expect(el.querySelector('.vx-ind-checkmark')).not.toBeNull();
 		root.unmount();
 	});
 });

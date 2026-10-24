@@ -5825,7 +5825,7 @@ export type AccordionProps = AccordionSingleProps | AccordionMultipleProps
  * ```
  * @see CheckboxGroupProps (`CheckboxList`) for multi-choice lists.
  */
-export interface CheckboxProps extends FieldControlProps {
+export interface CheckboxProps extends FieldControlProps, TestIDProps {
 	className?: ClassValue
 	style?: StyleProp
 	id?: string

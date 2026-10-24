@@ -89,18 +89,18 @@ describe('boolean inputs', () => {
 	it('Checkbox seeds defaultChecked and toggles internally', () => {
 		const change = vi.fn()
 		mount(Checkbox, { defaultChecked: true, onCheckedChange: change })
-		const host = document.querySelector('.vx-checkbox-row')!
-		expect(host.getAttribute('aria-checked')).toBe('true')
+		const host = document.querySelector('input[type="checkbox"]') as HTMLInputElement
+		expect(host.checked).toBe(true)
 		click(host)
 		expect(change).toHaveBeenLastCalledWith(false)
-		expect(host.getAttribute('aria-checked')).toBe('false')
+		expect(host.checked).toBe(false)
 	})
 
 	it('Checkbox indeterminate resolves to checked on toggle', () => {
 		const change = vi.fn()
 		mount(Checkbox, { indeterminate: true, onCheckedChange: change })
-		const host = document.querySelector('.vx-checkbox-row')!
-		expect(host.getAttribute('aria-checked')).toBe('mixed')
+		const host = document.querySelector('input[type="checkbox"]') as HTMLInputElement
+		expect(host.indeterminate).toBe(true)
 		click(host)
 		expect(change).toHaveBeenLastCalledWith(true)
 	})

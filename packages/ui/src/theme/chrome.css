@@ -327,11 +327,14 @@
 
 	/* Collapsible/Accordion — column stacks. */
 
-	/* Checkbox — 20px box + check glyph; --on fills with primary. */
+	/* Checkbox — Astryx indicator: 20/24px box, emphasized border, 4px
+	   radius; --on fills with primary and draws the check in on-primary. */
 	.vx-checkbox {
 		border-width: 1px;
-		border-color: var(--color-border);
-		border-radius: var(--radius-sm);
+		border-color: var(--color-border-strong);
+		border-radius: 4px;
+		background-color: var(--color-surface);
+		color: var(--color-primary);
 	}
 	.vx-checkbox--on .vx-checkbox {
 		background-color: var(--color-primary);
@@ -398,6 +401,7 @@
 	.vx-ind-checkbox--indeterminate {
 		background-color: var(--color-primary);
 		border-color: var(--color-primary);
+		color: var(--color-onprimary);
 	}
 	.vx-ind-radio--checked {
 		border-color: var(--color-primary);
@@ -625,6 +629,108 @@
 	}
 	.vx-input-shell--status-success .vx-input-status-icon {
 		color: var(--color-success);
+	}
+	/* Astryx CheckboxInput: a hidden native input stretched over the drawn
+	   indicator, label column beside it, detached status below. */
+	.vx-checkbox-input {
+		display: block;
+	}
+	.vx-checkbox-container {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		gap: 8px;
+	}
+	.vx-checkbox-wrapper {
+		display: flex;
+		align-items: center;
+		position: relative;
+		flex-shrink: 0;
+		width: 24px;
+		height: 24px;
+	}
+	.vx-checkbox-native {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		margin: 0;
+		opacity: 0;
+		cursor: pointer;
+	}
+	.vx-checkbox-indicator-slot {
+		display: contents;
+	}
+	.vx-checkbox-text {
+		display: flex;
+		flex-direction: column;
+	}
+	/* Astryx FieldStatus "detached": a tinted box under the control with a
+	   leading 16px glyph. */
+	.vx-field-status--detached {
+		display: block;
+		margin-top: 4px;
+		padding: 8px;
+		border-width: 0;
+		border-radius: var(--radius-md);
+		line-height: 1.6667;
+	}
+	.vx-field-status--detached.vx-field-status--error {
+		background-color: rgba(227, 25, 59, 0.2);
+	}
+	.vx-field-status--detached.vx-field-status--warning {
+		background-color: rgba(226, 164, 0, 0.2);
+	}
+	.vx-field-status--detached.vx-field-status--success {
+		background-color: rgba(11, 153, 31, 0.2);
+	}
+	.vx-field-status-row {
+		display: flex;
+		gap: 4px;
+	}
+	.vx-field-status-icon-slot {
+		display: flex;
+		align-items: center;
+		width: 16px;
+		height: 20px;
+	}
+	.vx-field-status-icon {
+		display: flex;
+		width: 16px;
+		height: 16px;
+		font-size: 16px;
+		line-height: 1.6667;
+	}
+	.vx-checkbox-container--label-hidden {
+		gap: 0;
+	}
+	/* Astryx draws both marks and shows one: the check svg when checked,
+	   the bar when indeterminate. */
+	.vx-ind-checkmark {
+		display: none;
+		width: 14px;
+		height: 14px;
+	}
+	.vx-ind-checkmark--sm {
+		width: 12px;
+		height: 12px;
+	}
+	.vx-ind-checkbox--disabled:not(.vx-ind-checkbox--checked):not(.vx-ind-checkbox--indeterminate) {
+		background-color: rgba(5, 54, 89, 0.047);
+	}
+	.vx-ind-checkbox--checked .vx-ind-checkmark {
+		display: block;
+	}
+	.vx-ind-checkbox .vx-ind-dash {
+		display: none;
+		border-radius: 9999px;
+	}
+	.vx-ind-checkbox--indeterminate .vx-ind-dash {
+		display: block;
+	}
+	.vx-field-label--disabled {
+		color: var(--color-text-disabled);
 	}
 	/* xplat-web-only:end */
 	.vx-field-status--detached {
