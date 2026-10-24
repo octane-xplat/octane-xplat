@@ -392,6 +392,16 @@
 	.vx-ind-dash--sm {
 		width: 10px;
 	}
+	/* The drawn check shares its geometry with the web svg (whose copy lives
+	   in the DOM-only block below). */
+	.vx-ind-checkmark {
+		width: 14px;
+		height: 14px;
+	}
+	.vx-ind-checkmark--sm {
+		width: 12px;
+		height: 12px;
+	}
 	.vx-ind-radio-dot {
 		width: 12px;
 		height: 12px;
