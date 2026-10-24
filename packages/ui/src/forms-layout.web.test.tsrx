@@ -207,11 +207,11 @@ describe('ButtonGroup defaults (web)', () => {
 			</ButtonGroup>
 		);
 
-		const buttons = el.querySelectorAll('[role="button"]');
+		const buttons = el.querySelectorAll('button.vx-pressable');
 		expect(buttons[0].className).toContain('vx-button--size-sm');
 		expect(buttons[1].className).toContain('vx-button--size-lg');
-		expect(buttons[0].getAttribute('aria-disabled')).toBe('true');
-		expect(buttons[1].getAttribute('aria-disabled')).toBe('true');
+		expect((buttons[0] as HTMLButtonElement).disabled).toBe(true);
+		expect((buttons[1] as HTMLButtonElement).disabled).toBe(true);
 		root.unmount();
 	});
 });

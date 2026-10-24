@@ -26,6 +26,10 @@ export function Button(props: ButtonProps) @{
 	// enabled (a re-click lands a fresh action) but still report busy.
 	const busy = !!(props.isLoading || actionPending);
 	const disabled = !!(props.isDisabled || group?.isDisabled || (busy && !props.isInterruptible));
+	// Astryx: a tooltip'd disabled button stays focusable so keyboard users can
+	// reach the tooltip — aria-disabled instead of the native attribute, with
+	// activation suppressed in the press handler.
+	const useAriaDisabled = props.tooltip != null && disabled;
 	const loading = busy;
 	const size = useSize(props.size ?? group?.size, 'md');
 	const icon = typeof props.icon === 'string' ? <Icon name={props.icon} /> : props.icon;
@@ -102,13 +106,13 @@ export function Button(props: ButtonProps) @{
 		</a>
 	} @else {
 		<Pressable
-			{...props}
-			disabled={disabled}
+			{...{ ...props, _nativeButton: true }}
+			disabled={useAriaDisabled ? false : disabled}
 			onPress={runPress}
 			className={cls}
 			accessibilityRole={props.accessibilityRole ?? 'button'}
 			accessibilityLabel={props.accessibilityLabel ?? ((props.isIconOnly || busy || (props.children != null && props.children !== props.label)) ? props.label : undefined)}
-			accessibilityState={{ ...props.accessibilityState, busy: busy || undefined }}
+			accessibilityState={{ ...props.accessibilityState, busy: busy || undefined, disabled: useAriaDisabled || props.accessibilityState?.disabled }}
 			web={{ title: props.tooltip, ...props.web }}
 		>
 			{content}

@@ -7,6 +7,12 @@ import { layoutChildProps } from './layout-child.web';
 import { usePan } from './pan.web.tsrx';
 
 export function Pressable(props: PressableProps) @{
+	// Internal escape hatch (not public API — callers pass `_nativeButton`
+	// through the untyped props bag): render a real <button type="button">
+	// instead of div[role=button]. Button uses it so the control gets native
+	// focus/activation/disabled semantics; other Pressables stay divs.
+	const asButton = (props as { _nativeButton?: boolean })._nativeButton === true;
+	const Tag: any = asButton ? 'button' : 'div';
 	const el = useRef<HTMLElement | null>(null);
 	const spacePressed = useRef(false);
 	const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -33,25 +39,27 @@ export function Pressable(props: PressableProps) @{
 
 	const forwardedRef = useMemo(() => refList((e: any) => { el.current = e; if (e) { applyEscapeProps(e, props);  } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
-	<div
+	<Tag
 		ref={forwardedRef}
+		type={asButton ? 'button' : undefined}
+		disabled={asButton && props.disabled ? true : undefined}
 		id={props.id}
 		data-testid={props.testID}
 		className={['vx-pressable', props.className]}
 		{...layoutChildProps(props, { ...styleRecord(props.style), ...(props.hitSlop ? { margin: -props.hitSlop, padding: props.hitSlop } : {}) })}
-		role={props.accessibilityRole ?? 'button'}
+		role={asButton ? undefined : (props.accessibilityRole ?? 'button')}
 		aria-label={props.accessibilityLabel}
 		aria-description={props.accessibilityHint}
 		aria-valuetext={props.accessibilityValue}
 		aria-busy={props.accessibilityState?.busy || undefined}
-		aria-disabled={props.disabled || props.accessibilityState?.disabled || undefined}
+		aria-disabled={props.accessibilityState?.disabled || (!asButton && props.disabled) || undefined}
 		aria-selected={props.accessibilityState?.selected}
 		aria-checked={props.accessibilityState?.checked}
 		aria-pressed={props.accessibilityState?.pressed}
 		aria-live={props.accessibilityLiveRegion === 'none' ? 'off' : props.accessibilityLiveRegion}
 		aria-hidden={props.accessible === false ? true : undefined}
-		tabIndex={props.onPress && !props.disabled && props.accessible !== false ? 0 : -1}
-		onKeyDown={(e: KeyboardEvent) => {
+		tabIndex={asButton ? undefined : (props.onPress && !props.disabled && props.accessible !== false ? 0 : -1)}
+		onKeyDown={asButton ? undefined : (e: KeyboardEvent) => {
 			if (e.target !== e.currentTarget || props.disabled || e.isComposing || !props.onPress) return;
 			if (e.key === 'Enter') {
 				e.preventDefault();
@@ -61,7 +69,7 @@ export function Pressable(props: PressableProps) @{
 				spacePressed.current = true;
 			}
 		}}
-		onKeyUp={(e: KeyboardEvent) => {
+		onKeyUp={asButton ? undefined : (e: KeyboardEvent) => {
 			if (e.target !== e.currentTarget || e.key !== ' ') return;
 			const activate = spacePressed.current;
 			spacePressed.current = false;
@@ -70,7 +78,7 @@ export function Pressable(props: PressableProps) @{
 				props.onPress();
 			}
 		}}
-		onBlur={() => { spacePressed.current = false; }}
+		onBlur={asButton ? undefined : () => { spacePressed.current = false; }}
 		onClick={props.disabled ? undefined : props.onPress}
 		onDoubleClick={props.disabled ? undefined : props.onDoublePress}
 		onPointerDown={(e: any) => { if (!props.disabled) { props.onPressIn?.(); down(); } }}
@@ -79,5 +87,5 @@ export function Pressable(props: PressableProps) @{
 		onPointerCancel={() => { if (!props.disabled) props.onPressOut?.(); cancel(); }}
 	>
 		{props.children}
-	</div>
+	</Tag>
 }

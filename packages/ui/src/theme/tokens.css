@@ -544,6 +544,22 @@
 	/* Phase-1 self-drawn components — functional geometry + token chrome only;
    visual design is the app's job. */
 
+	/* xplat-web-only:start — Button renders a real <button> on web (other
+   Pressables stay divs): reset the UA stylesheet so the control inherits the
+   surface it sits on. :where(button) keeps this at class specificity — it
+   sits before .vx-button geometry and .vx-button--* chrome, which win. */
+	.vx-pressable:where(button) {
+		appearance: none;
+		margin: 0;
+		padding: 0;
+		border: 0;
+		background: none;
+		font: inherit;
+		color: inherit;
+		text-align: inherit;
+	}
+	/* xplat-web-only:end */
+
 	/* Button — row-direction pressable (vx-pressable already supplies display
    and press feedback). Geometry follows Astryx's element scale: 28/32/36px
    heights, 8px block / 12px inline padding, 8px gap, --radius-md corners.
