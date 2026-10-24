@@ -189,7 +189,11 @@ describe('Field anatomy (web leaf)', () => {
 		expect(input.disabled).toBe(true);
 		expect(input.getAttribute('aria-required')).toBe('true');
 		expect(input.getAttribute('aria-invalid')).toBe('true');
-		expect(status.getAttribute('role')).toBe('alert');
+		// Astryx: the visible status is plain text; errors are spoken through the
+		// persistent document-level assertive region instead of an inline one.
+		expect(status.getAttribute('role')).toBeNull();
+		expect(el.querySelector('[role="alert"]')).toBeNull();
+		expect(document.querySelector('[data-xplat-live-region="assertive"]')?.getAttribute('role')).toBe('alert');
 		root.unmount();
 		el.remove();
 	});

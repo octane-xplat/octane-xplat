@@ -276,6 +276,23 @@
 	}
 	.vx-input {
 		min-width: 0;
+		height: 20px;
+		line-height: 1.4286;
+	}
+	/* Astryx: the bordered box is the shell (h 28/32/36 per size); the
+	   <input> inside is a transparent text line. */
+	.vx-input-shell {
+		height: 32px;
+		padding: 0 8px;
+		border: 1px solid var(--color-border-strong);
+		border-radius: var(--radius-md);
+		background-color: var(--color-surface);
+	}
+	.vx-input-shell:has(.vx-input--size-sm) {
+		height: 28px;
+	}
+	.vx-input-shell:has(.vx-input--size-lg) {
+		height: 36px;
 	}
 	.vx-input-clear {
 		display: flex;
@@ -885,16 +902,12 @@
 	/* FormField — label / control / message column. */
 	.vx-field {
 		flex-direction: column;
+		gap: 4px;
 	}
-	.vx-field-label {
-		margin-bottom: 4px;
-	}
-	.vx-field-description {
-		margin-top: 4px;
-		margin-bottom: 4px;
-	}
-	.vx-field-status {
-		margin-top: 4px;
+	.vx-field-head,
+	.vx-field-body {
+		display: flex;
+		flex-direction: column;
 	}
 	.vx-field-label-row {
 		display: flex;
@@ -4125,6 +4138,14 @@
 		z-index: 2;
 		cursor: grab;
 		touch-action: none;
+	}
+	/* xplat-web-only:end */
+	/* xplat-web-only:start */
+	.vx-field-label--hidden,
+	.vx-field-description--hidden {
+		position: absolute;
+		top: 0;
+		left: 0;
 	}
 	/* xplat-web-only:end */
 	/* #39 — layout defaults that used to be inline in the native element.

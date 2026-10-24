@@ -172,7 +172,7 @@ describe('FormLayout (web)', () => {
 
 		const labels = Array.from(el.querySelectorAll('.vx-field-label')).map((l) => l.textContent);
 		expect(labels[0]).toBe('Email');
-		expect(labels[1]).toContain('(Optional)');
+		expect(labels[1]).toBe('Nick ∙ Optional');
 		const inputs = el.querySelectorAll('input');
 		expect(inputs[0].getAttribute('aria-required')).toBe('true');
 		expect(inputs[1].getAttribute('aria-required')).toBeNull();
@@ -390,9 +390,10 @@ describe('Field description channel (web)', () => {
 			<TextInput label="Name" description="Your legal name" isDisabled disabledMessage="Locked by admin" status={{ type: 'error', message: 'Required' }} />,
 		);
 		const input = el.querySelector('input')!;
-		expect(input.getAttribute('aria-label')).toBe('Name');
-		expect(input.getAttribute('aria-description')).toBe('Your legal name. Required. Locked by admin');
-		expect(input.getAttribute('aria-describedby')).toBeNull();
+		expect(input.getAttribute('aria-label')).toBeNull();
+		expect(el.querySelector('label.vx-field-label')?.textContent).toBe('Name');
+		expect(input.getAttribute('aria-description')).toBe('Locked by admin');
+		expect(input.getAttribute('aria-describedby')).toBeTruthy();
 		root.unmount();
 	});
 

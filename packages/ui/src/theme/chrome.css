@@ -17,11 +17,15 @@
 		--color-surface-secondary: rgba(5, 54, 89, 0.1);
 		--color-text: #0a1317;
 		--color-text-secondary: #4e606f;
+		--color-text-disabled: #a4b0bc;
 		--color-border: #05365919;
 		--color-border-strong: #ccd3db;
 		--color-danger: #e3193b;
 		--color-warning: #e9af08;
 		--color-success: #0d8626;
+		--color-danger-text: #7b0210;
+		--color-warning-text: #753f07;
+		--color-success-text: #09441f;
 		/* Astryx body stack. Apps override these with their web @font-face
 	   family and the platform's registered native name. */
 		--font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -64,11 +68,15 @@
 		--color-surface-secondary: rgba(223, 226, 229, 0.2);
 		--color-text: #dfe2e5;
 		--color-text-secondary: #aaafb5;
+		--color-text-disabled: #6f747c;
 		--color-border: #f2f4f619;
 		--color-border-strong: #494d53;
 		--color-danger: #f5394f;
 		--color-warning: #f2c00b;
 		--color-success: #0d8626;
+		--color-danger-text: #ffb2b8;
+		--color-warning-text: #fbce03;
+		--color-success-text: #a5f690;
 
 		--color-syntax-keyword: #ff7b72;
 		--color-syntax-string: #a5d6ff;
@@ -522,39 +530,114 @@
 
 	/* FormField — label / control / message column. */
 	.vx-field-label {
-		font-size: 13px;
+		font-size: 14px;
 		line-height: 20px;
 		font-weight: 500;
+		color: var(--color-text-secondary);
+		display: flex;
+		align-items: center;
 	}
-	.vx-field-required {
-		color: var(--color-danger);
+	.vx-field-marker {
+		color: var(--color-text-secondary);
+		font-weight: 400;
 	}
 	.vx-field-optional,
 	.vx-field-description {
 		font-size: 12px;
-		line-height: 16px;
+		line-height: 20px;
 		color: var(--color-text-secondary);
 	}
 	.vx-field-status {
 		font-size: 12px;
-		line-height: 16px;
+		line-height: 20px;
 	}
 	.vx-field-info {
 		font-size: 12px;
 		font-weight: 600;
 		color: var(--color-text-secondary);
 	}
+
+	/* xplat-web-only:start — Astryx field rhythm: unitless leading and the
+	   status box attached under the control. */
+	.vx-field-label {
+		line-height: 1.4286;
+	}
+	.vx-field-marker {
+		font-size: 12px;
+		line-height: 1.6667;
+	}
+	.vx-field-description {
+		line-height: 1.6667;
+	}
+	.vx-field--disabled .vx-field-label {
+		color: var(--color-text-disabled);
+	}
+	/* Astryx attached status: tucked half a control height under the input
+	   (which paints above it), as a tinted box with no border. */
+	.vx-field-status--attached {
+		position: relative;
+		z-index: -1;
+		margin-top: -16px;
+		padding: 24px 8px 8px;
+		line-height: 1.6667;
+		border-radius: 0 0 var(--radius-md) var(--radius-md);
+	}
+	.vx-field-status--attached.vx-field-status--error {
+		background-color: rgba(227, 25, 59, 0.2);
+	}
+	.vx-field-status--attached.vx-field-status--warning {
+		background-color: rgba(226, 164, 0, 0.2);
+	}
+	.vx-field-status--attached.vx-field-status--success {
+		background-color: rgba(11, 153, 31, 0.2);
+	}
+	.vx-input-shell {
+		position: relative;
+		padding-top: 4px;
+		padding-bottom: 4px;
+		gap: 8px;
+	}
+	.vx-input-shell--status-error {
+		border-color: var(--color-danger);
+	}
+	.vx-input-shell--status-warning {
+		border-color: var(--color-warning);
+	}
+	.vx-input-shell--status-success {
+		border-color: var(--color-success);
+	}
+	.vx-input-shell--disabled {
+		opacity: 0.5;
+	}
+	.vx-input-status-icon {
+		display: flex;
+		font-size: 20px;
+		line-height: 1.5;
+		flex-shrink: 0;
+		width: 20px;
+		height: 20px;
+	}
+	.vx-input-shell--status-error .vx-input-status-icon {
+		color: var(--color-danger);
+	}
+	.vx-input-shell--status-warning .vx-input-status-icon {
+		color: var(--color-warning);
+	}
+	.vx-input-shell--status-success .vx-input-status-icon {
+		color: var(--color-success);
+	}
+	/* xplat-web-only:end */
 	.vx-field-status--detached {
 		border-top-color: var(--color-border);
 	}
 	.vx-field-status--error {
-		color: var(--color-danger);
+		color: var(--color-danger-text);
 	}
 	.vx-field-status--warning {
-		color: var(--color-warning);
+		color: var(--color-warning-text);
 	}
 	.vx-field-status--success {
-		color: var(--color-success);
+		color: var(--color-success-text);
 	}
 	.vx-fieldgroup-label {
 		font-size: 13px;
