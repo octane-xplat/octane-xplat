@@ -394,3 +394,49 @@ formatting failure. Keep the experimental projection/package changes separate
 from those investigations until a clean source build reproduces this artifact.
 No public workflow or recipe changed in this rerun; no recipe qualification was
 advanced. Existing kitchen-sink source edits still need verification.
+
+## Feature-level qualification
+
+Silo's `windows_checks` table owns the ongoing Windows inventory. Its natural
+keys distinguish `package:`, `export:`, `ui:`, `demo:`, and `scenario:` records.
+These scopes overlap: a demo mount is evidence for that demo's startup, not a
+pass for every package or component it imports. Inventory sources are public
+package manifests, UI declarations, the maintained demo catalog, and explicit
+cross-cutting scenarios. Expand wildcard exports and add missing behavioral
+scenarios before claiming complete coverage.
+
+```sh
+silo sql "SELECT kind, status, count(*) AS items FROM windows_checks GROUP BY kind, status"
+silo row get windows_checks scenario:workflow
+silo row get windows_checks demo:counter
+```
+
+Each record keeps its required evidence, source revision, execution status,
+and evidence payload. Record the actual Windows host, artifact and experimental
+overlays, asserted behavior, raw result location, and remaining gaps. Keep
+historical artifact evidence distinct from reruns of the current source.
+A build, import, successful mount, or synthesized gesture cannot establish
+OS input, accessibility, platform service behavior, or layout parity.
+Unsupported boundaries need explicit evidence; they are not successful
+implementations of the feature.
+
+Use a detached qualification worktree on the laptop to preserve the original
+experiments. The current worktree is `dev/octane-windows-qualification`;
+`research/windy-setup/qualification-*.ps1` and associated logs live in the
+original checkout. Run install normally, then package builds/tests through
+Turbo with bounded concurrency. The standalone probe runner still excludes
+Windows. Research fixtures remain temporary until promoted into maintained
+regression coverage.
+
+```powershell
+Set-Location "$env:USERPROFILE/dev/octane-windows-qualification"
+pnpm install --frozen-lockfile
+pnpm exec turbo run build:windows --filter=@xplat/windows --concurrency=2 -- --release
+```
+
+The experimental demo driver records mounted native content, render-boundary
+errors and process exits separately for each case. Behavior-specific
+interaction, updates, cleanup and accessibility checks remain necessary after
+a successful mount. A missing adapter is a harness gap, not a framework failure.
+Recipe coverage continues to live in `recipe_audit`; this inventory does not
+replace recipe criteria or qualify a public workflow automatically.
