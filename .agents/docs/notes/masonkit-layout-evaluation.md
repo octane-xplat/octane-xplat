@@ -790,6 +790,18 @@ Chromium control, including Xplat's `flex-shrink: 0` normalization, also produce
 201×402 images. These checks do not qualify a packed NativeScript consumer,
 physical devices or desktop targets.
 
+The subsequent local package candidate qualifies the same image cases through
+NativeScript: 24 assertions pass on iOS 27 Simulator and another 24 on the
+API 35 arm64 Android emulator. Nested wrappers, direct children and images as
+grid items retain two 201×402 frames, allowing one logical pixel for native
+rounding. The probe resolves an extracted local tarball and fingerprints its
+native files, rather than substituting a library into an installed application.
+Mason `ee4ab983` prepares the final `1.0.0-beta.2` manifest, bridge provenance
+and native-input archive checksum. Its packed-file verifier passes for all 193
+shipped files. Runtime checks used the identical JavaScript/native payload
+before the version and README changed. Physical-device and desktop runtime
+qualification remain separate.
+
 **Adoption boundary:** the correction must be released in the Mason native
 artifacts before Xplat can depend on it. The checked-in Xplat dependency remains
 `1.0.0-beta.1`; a source correction in a separate Mason checkout does not fix an
@@ -957,6 +969,12 @@ before an ordinary Xplat application receives it. A local source commit or a
 changed framework in a build directory does not update an already-installed
 application. The consumer's `hidden` workaround remains relevant to the
 uncorrected published package.
+
+The same locally packed candidate described under #41 passes all eight flat
+and layered heartbeat checks on iOS 27 Simulator, in addition to its 24 image
+geometry checks. This qualifies the release-built package payload, beyond the
+earlier debug-framework substitution. The local `1.0.0-beta.2` candidate is
+prepared but not published or adopted by Xplat.
 
 ## Core extraction: C interface boundaries (2026-10-22)
 
