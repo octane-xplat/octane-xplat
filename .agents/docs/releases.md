@@ -168,8 +168,16 @@ its documentation. Do not create a note just because a commit exists.
 | --- | --- | --- |
 | Useful new feature or improvement | `.changelog/<short-description>.md` | `CHANGELOG.md` |
 | Breaking public API change, including a removal | `.changelog/<short-description>.md` | `CHANGELOG.md` |
-| User-facing bug fix | `.changelog/fixes/<short-description>.md` | `FIXLOG.md` |
-| Internal refactor, tests, CI, formatting, or routine dependency maintenance with no user-visible effect | No file | Neither log |
+| User-facing bug fix for behavior a release already shipped | `.changelog/fixes/<short-description>.md` | `FIXLOG.md` |
+| Fix for a bug introduced after the previous release, internal refactor, tests, CI, formatting, or routine dependency maintenance with no user-visible effect | No file | Neither log |
+
+Log a fix only when the bug reached a tagged stable release of the same
+stream (`v*` for lockstep, `tsrx-typegen-v*` for tsrx-typegen). A bug
+introduced and fixed between releases never reached users, so the fix is
+internal work. To check whether the commit that introduced the bug shipped,
+run `git tag --contains <sha>` and look for a stable tag. Nightly
+prereleases do not count: release notes serve readers comparing stable
+versions.
 
 A breaking fix belongs in the changelog with a clear **Breaking change**
 label and the smallest useful migration example. Do not duplicate it in the
