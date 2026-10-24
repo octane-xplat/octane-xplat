@@ -896,6 +896,40 @@ and recipe structure checks passed. Android and desktop runtimes were not run.
 No public workflow or recipe contract changes; the Octane skill's styling
 guidance remains applicable. No visual analysis was performed.
 
+## iOS zero-sized foreign hosts (#50)
+
+**Corrected in Mason source `052f7f86`; not yet adopted in Xplat's published
+core dependency.** The [follow-up report](https://github.com/octane-xplat/octane-xplat/issues/50)
+remained reproducible on core `1.0.0-beta.1`, NativeScript 9.1.3 and Octane
+0.14.0. A `Screen > Grid > Text(visibility: collapse)` probe consumed one CPU
+core and delivered no heartbeat result.
+
+The collapsed leaf is omitted by the renderer bridge, but a foreign ancestor
+can also measure zero. A native sample and `requestLayout` breakpoint identified
+a foreign `UIView` with cached size zero and old 402×874 bounds. `applyBox`
+replaced its empty auto-sized box through `sizeThatFits`, dirtied the node and
+requested another layout. The host measured zero again, repeating before the
+JavaScript event loop could deliver the next timer.
+
+The native correction makes custom measurement callbacks authoritative,
+including zero. Default UIKit measurement keeps its first-layout fallback.
+Removing a callback or restoring default measurement clears that distinction;
+the existing collapse-to-display-none bridge remains necessary.
+
+All 17 core native iOS tests pass, including zero measurement followed by
+restoration of intrinsic sizing. An iOS 27 arm64 Simulator NativeScript probe
+passes eight heartbeat checks across flat and layered screens, measurement and
+layout requests, and collapse/hidden/visible/collapse transitions. The probe's
+loaded library UUID was checked against the locally rebuilt framework. The
+original installed framework reproduces the stall. This is runtime liveness
+evidence, not physical-device, OS-input or pixel-parity qualification.
+
+The correction needs rebuilt Mason native artifacts and a dependency update
+before an ordinary Xplat application receives it. A local source commit or a
+changed framework in a build directory does not update an already-installed
+application. The consumer's `hidden` workaround remains relevant to the
+uncorrected published package.
+
 ## Core extraction: C interface boundaries (2026-10-22)
 
 Source examined: the `octane-xplat/nativescript-mason` fork at

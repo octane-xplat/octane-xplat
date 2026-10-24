@@ -173,3 +173,12 @@ thrown case or cleanup failures remain fatal. `--timeout` bounds case execution
 startup (default 10 minutes). Use `--verbose` for build/host diagnostics. Report
 which targets actually ran, and keep build-only or unavailable evidence separate
 from runtime verification. Screenshots are not required.
+
+## Testing substituted native frameworks
+
+The mobile runner caches installed applications by the native dependency
+fingerprint. Changing a framework inside an already-built app does not replace
+the installed app with that identity. Prefer rebuilding the dependency so its
+fingerprint changes. For a deliberate framework substitution, reinstall only
+the owned disposable probe app and verify the loaded library revision or UUID.
+Restore both the cached artifact and the installed app after the experiment.
