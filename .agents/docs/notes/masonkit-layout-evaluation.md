@@ -798,6 +798,12 @@ screen-fitting option until the corrected package is adopted.
 
 ## Android: a foreign leaf with a pending layout request loses its flex height
 
+**Original defect corrected in Mason `6826ceae`, included in the source
+revision for core `1.0.0-beta.1`.** The beta.110 investigation below is historical.
+The later consumer reports of layered Screen collapse and keyboard-driven
+window resize need their own NativeScript/runtime qualification; a matching
+symptom does not establish that the corrected height-overwrite path recurred.
+
 Upstream: `@triniwiz/nativescript-masonkit` 1.0.0-beta.110,
 `Element.kt` `applyLayoutFlat`, foreign-leaf block:
 `freeHeight = fallbackHeight || (leafChanged && autoHeight)` where
@@ -832,11 +838,33 @@ or image load raises one naturally.
 Explicit heights are unaffected (`autoHeight` is false), and widths are
 unaffected (only an empty width falls back to the measure).
 
-Expected upstream fix: for `leafChanged` alone, re-measure only to dirty
-the node and recompute — keep Taffy's assigned height instead of
-`view.measuredHeight`; reserve the measured-height fallback for an empty
+The upstream correction re-measures for `leafChanged` to dirty
+the node and recompute, keeping Taffy's assigned height instead of
+`view.measuredHeight`; it reserves the measured-height fallback for an empty
 axis (`fallbackHeight`). The path lives in the Kotlin AAR, which the JS
 patch set cannot change.
+
+Mason `20576b72` adds a foreign `FrameLayout` regression with a text child.
+One measure/layout pass must retain the engine's 107-pixel width and heights
+200 → 120 → 260 after child text changes and pending layout requests. All 19
+core native Android tests pass on API 35 arm64 with no skips, including the
+existing label, image, explicit-height and intrinsic-parent-reflow controls.
+This is native instrumentation evidence; it does not simulate an OS keyboard
+or prove NativeScript RootLayout lifecycle behavior.
+
+A separate NativeScript probe on the installed core `1.0.0-beta.1` passes
+nine height checks for `View > Screen > Grid > Text` on API 35 arm64. The
+outer View, foreign RootLayout and stage follow parent heights 200 → 120 →
+260 after text changes and child layout requests, within one logical pixel.
+The RootLayout itself receives `flexGrow: 1` and `alignSelf: stretch` through
+its native style; `Screen.style` addresses its inner Mason column instead.
+No explicit native height is assigned to the RootLayout. The maintained
+counterpart is
+[`foreign-screen-height.spec.tsrx`](../../../../apps/mobile/src/tests/foreign-screen-height.spec.tsrx).
+Runtime evidence is the isolated probe, not execution of the complete mobile
+suite. Physical-device keyboard resize, media-player content and the exact
+reported same-cell consumer composition remain unverified. These results do
+not support attributing those later reports to the old `freeHeight` overwrite.
 
 ## iOS collapsed Text investigation (#45)
 
