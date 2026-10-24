@@ -1539,3 +1539,18 @@ Kept at the end so the vocabulary reads first.
 - **`visibility` command** maps `hidden`→`collapse` (out of layout AND screen).
 - **Element re-registration recreates live instances in place** — plugin-view
   modules hot-reload cleanly; keep `registerElement` modules self-accepting.
+
+## Accessibility `busy` state (upstream gap)
+
+`@nativescript/core@9.1.3` `AccessibilityState` is a single enum —
+`selected | checked | unchecked | disabled` — with no `busy` member
+(`accessibility/accessibility-common.js`). ARIA's independent booleans don't
+map. Our `nativeAccessibilityState` mapping (`escape-props.ts`) accepts and
+ignores `busy` and friends, reporting only the strongest mapped state.
+
+Button's native leaf therefore reports a busy pressable as `disabled` and
+adds `accessibilityValue: 'Loading'` while busy — VoiceOver/TalkBack speak
+"Button, Loading", mirroring Astryx's `role=status` "Loading" region on web.
+Verified on the iPhone 18 Pro simulator and API-35 emulator via
+`research/button-theme.tsrx`. If NS ever adds a busy state (or per-platform
+traits), revisit the mapping.

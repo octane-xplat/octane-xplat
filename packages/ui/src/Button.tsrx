@@ -10,6 +10,7 @@ import { Icon } from './Icon';
 import { useButtonGroup } from './button-group-context';
 import { useSize } from './size-context';
 import { sanitizeUrl } from './safe-url';
+import { mergeStyle } from './style-merge';
 import { reportActionError } from './action-error';
 
 /** Self-drawn button — Pressable row with optional icon/label/end content
@@ -33,11 +34,12 @@ export function Button(props: ButtonProps) @{
 	const icon = typeof props.icon === 'string' ? <Icon name={props.icon} /> : props.icon;
 	const children = props.children == null ? null : <TextSlot className="vx-button-label">{props.children}</TextSlot>;
 	const labelEl = props.label != null ? <label className="vx-button-label" text={props.label} /> : null;
-	const content = loading
-		? <ActivityIndicator />
-		: props.isIconOnly
-			? icon ?? children ?? labelEl
-			: <>{icon}{children ?? labelEl}{props.endContent}</>;
+	// Mirror the web leaf: busy keeps the content laid out but hidden under a
+	// centred spinner overlay (vx-button-content--hidden + vx-button-spinner),
+	// so size and accessible name are preserved.
+	const content = props.isIconOnly
+		? icon ?? children ?? labelEl
+		: <>{icon}{children ?? labelEl}{props.endContent}</>;
 
 	const runPress = () => {
 		if (disabled || (actionPending && !props.isInterruptible)) { return; }
@@ -70,6 +72,9 @@ export function Button(props: ButtonProps) @{
 		{...props}
 		disabled={disabled}
 		onPress={runPress}
+		// Busy stacks content and spinner in one grid cell on native (Mason
+		// grid children share cell 1,1); web overlays via vx-button-spinner.
+		style={mergeStyle(loading ? { display: 'grid', gridTemplateRows: '1fr', gridTemplateColumns: '1fr' } : {}, props.style)}
 		className={cx(
 			'vx-button',
 			`vx-button--${props.variant ?? 'secondary'}`,
@@ -82,9 +87,11 @@ export function Button(props: ButtonProps) @{
 			props.className,
 		)}
 		accessibilityRole={props.accessibilityRole ?? 'button'}
-		accessibilityLabel={props.accessibilityLabel ?? (props.isIconOnly ? props.label : undefined)}
+		accessibilityLabel={props.accessibilityLabel ?? (props.isIconOnly || busy ? props.label : undefined)}
 		accessibilityState={{ ...props.accessibilityState, busy: busy || undefined }}
+		accessibilityValue={props.accessibilityValue ?? (busy ? 'Loading' : undefined)}
 	>
-		{content}
+		<masonview className={cx('vx-button-content', loading && 'vx-button-content--hidden')} style={loading ? { gridRow: '1', gridColumn: '1', justifySelf: 'stretch', alignSelf: 'stretch' } : undefined}>{content}</masonview>
+		{loading && <masonview className="vx-button-spinner" accessible={false} style={{ gridRow: '1', gridColumn: '1', justifySelf: 'center', alignSelf: 'center' }}><ActivityIndicator /></masonview>}
 	</Pressable>
 }

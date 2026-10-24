@@ -596,11 +596,29 @@
 		flex-shrink: 1;
 	}
 
-	/* Loading: content stays mounted but transparent + aria-hidden under the
-	   centered spinner overlay, preserving the button's width and accessible
-	   name. DOM positioning/display rules are web-only — the native leaf swaps
-	   content instead. */
-	/* xplat-web-only:start */
+	/* Loading: content stays mounted but hidden under a centred spinner
+	   overlay, preserving the button's width and accessible name on every
+	   platform. Web: an absolutely positioned overlay + display:contents.
+	   Native: the leaf switches the button to display:grid while busy so
+	   content and spinner share cell 1,1 (Mason has no CSS positioning), and
+	   opacity — not colour — suppresses the hidden content's paint. */
+	.vx-button-content {
+		flex-direction: row;
+		align-items: center;
+		gap: 8px;
+		min-width: 0;
+		flex-shrink: 1;
+	}
+	.vx-button-content--hidden {
+		color: transparent;
+	}
+	/* Astryx's sm spinner is a 14px box — shrink the shared 24px ring inside
+	   the Button overlay. */
+	.vx-button-spinner .vx-spinner {
+		width: 14px;
+		height: 14px;
+	}
+	/* xplat-web-only:start — grid centering and the svg arc ring are DOM-only. */
 	.vx-button {
 		position: relative;
 	}
@@ -634,8 +652,18 @@
 		display: contents;
 	}
 	/* xplat-web-only:end */
-	.vx-button-content--hidden {
-		color: transparent;
+	@platform native {
+		/* The leaf switches the busy button to display:grid and pins both
+	   children to cell 1,1 via style props (grid-row/grid-column are not
+	   CSS-settable on native); the hidden content's paint is suppressed by
+	   opacity so it stays laid out and in the a11y tree. */
+		.vx-button-spinner {
+			align-items: center;
+			justify-content: center;
+		}
+		.vx-button-content--hidden {
+			opacity: 0;
+		}
 	}
 	/* xplat-web-only:start — NS labels clip intrinsically; the DOM needs the
 	   explicit clip for the ellipsis to engage. */
