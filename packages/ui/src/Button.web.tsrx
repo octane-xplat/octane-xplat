@@ -2,7 +2,6 @@ import { useState } from 'octane';
 import type { ButtonProps } from "./props";
 import { applyWebProps } from './platformProps.web';
 import { Pressable } from './Pressable.web.tsrx';
-import { ActivityIndicator } from './ActivityIndicator.web.tsrx';
 import { VisuallyHidden } from './VisuallyHidden.web.tsrx';
 import { Icon } from './Icon.web.tsrx';
 import { useButtonGroup } from './button-group-context';
@@ -25,7 +24,8 @@ export function Button(props: ButtonProps) @{
 	// spinner overlay + live "Loading" status. Interruptible buttons stay
 	// enabled (a re-click lands a fresh action) but still report busy.
 	const busy = !!(props.isLoading || actionPending);
-	const disabled = !!(props.isDisabled || group?.isDisabled || (busy && !props.isInterruptible));
+	const isDisabled = !!(props.isDisabled || group?.isDisabled);
+	const disabled = !!(isDisabled || (busy && !props.isInterruptible));
 	// Astryx: a tooltip'd disabled button stays focusable so keyboard users can
 	// reach the tooltip — aria-disabled instead of the native attribute, with
 	// activation suppressed in the press handler.
@@ -38,7 +38,14 @@ export function Button(props: ButtonProps) @{
 	// under the spinner overlay — so the button keeps its width and, via the
 	// aria-label below, its accessible name.
 	const content = <>
-		{busy && <span className="vx-button-spinner" aria-hidden="true"><ActivityIndicator /></span>}
+		{busy && <span className="vx-button-spinner" aria-hidden="true">
+			<span role="status" aria-label="Loading" className="vx-button-spinner-status">
+				<svg width="14" height="14" aria-hidden="true" className="vx-button-spinner-svg">
+					<circle cx="50%" cy="50%" r="5" strokeWidth="2" className="vx-button-spinner-track" />
+					<circle cx="50%" cy="50%" r="5" strokeWidth="2" strokeDasharray="11.78 19.63" className="vx-button-spinner-arc" />
+				</svg>
+			</span>
+		</span>}
 		<span className={['vx-button-content', busy && 'vx-button-content--hidden']} aria-hidden={busy || undefined}>
 			{props.isIconOnly
 				? icon ?? props.children ?? labelEl
@@ -54,7 +61,7 @@ export function Button(props: ButtonProps) @{
 		props.elevation && props.elevation !== 'none' && `vx-button--elev-${props.elevation}`,
 		props.isIconOnly && 'vx-button--icon',
 		loading && 'vx-button--loading',
-		disabled && 'vx-button--disabled',
+		isDisabled && 'vx-button--disabled',
 		group && `vx-button--group-${group.position}`,
 		props.className,
 	];

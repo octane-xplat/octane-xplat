@@ -593,6 +593,7 @@
 		white-space: nowrap;
 		text-overflow: ellipsis;
 		min-width: 0;
+		flex-shrink: 1;
 	}
 
 	/* Loading: content stays mounted but transparent + aria-hidden under the
@@ -609,9 +610,25 @@
 		left: 0;
 		right: 0;
 		bottom: 0;
-		display: flex;
-		align-items: center;
-		justify-content: center;
+		display: grid;
+		place-items: center;
+	}
+	.vx-button-spinner-status {
+		display: grid;
+	}
+	/* Astryx Spinner sm: 14px box = 10px ring + 2px stroke per side; arc is
+	   0.375 of the circumference at 30% track opacity, currentColor. */
+	.vx-button-spinner-svg {
+		display: block;
+		fill: none;
+		animation: vx-spinner-turn 0.8s linear infinite;
+	}
+	.vx-button-spinner-track {
+		stroke: currentColor;
+		stroke-opacity: 0.3;
+	}
+	.vx-button-spinner-arc {
+		stroke: currentColor;
 	}
 	.vx-button-content {
 		display: contents;
@@ -2486,6 +2503,8 @@
 
 	.vx-visually-hidden {
 		position: absolute;
+		top: 0;
+		left: 0;
 		width: 1px;
 		height: 1px;
 		padding: 0;
@@ -2978,6 +2997,12 @@
 		height: 1px;
 		opacity: 0;
 	}
+	/* xplat-web-only:start — the native opacity hide does not apply to DOM:
+	   clip already hides the node and opacity 0 would mark it invisible. */
+	.vx-visually-hidden {
+		opacity: 1;
+	}
+	/* xplat-web-only:end */
 
 	/* ----- Astryx navigation family (task 05) ----- */
 

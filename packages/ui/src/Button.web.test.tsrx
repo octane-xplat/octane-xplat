@@ -110,7 +110,7 @@ describe('Button loading/pending semantics', () => {
 		expect(content.getAttribute('aria-hidden')).toBe('true')
 		expect(content.textContent).toContain('Save')
 		expect(host.querySelector('.vx-button-spinner')).not.toBe(null)
-		const status = host.querySelector('[role="status"]')!
+		const status = host.querySelector('[role="status"][aria-live="polite"]')!
 		expect(status.getAttribute('aria-live')).toBe('polite')
 		expect(status.textContent).toBe('Loading')
 	})
@@ -125,7 +125,7 @@ describe('Button loading/pending semantics', () => {
 		click(host)
 		expect(host.getAttribute('aria-busy')).toBe('true')
 		expect((host as HTMLButtonElement).disabled).toBe(true)
-		expect(host.querySelector('[role="status"]')!.textContent).toBe('Loading')
+		expect(host.querySelector('[role="status"][aria-live="polite"]')!.textContent).toBe('Loading')
 
 		await act(async () => {
 			resolveAction!()
@@ -133,7 +133,7 @@ describe('Button loading/pending semantics', () => {
 		})
 		expect(host.getAttribute('aria-busy')).toBe(null)
 		expect((host as HTMLButtonElement).disabled).toBe(false)
-		expect(host.querySelector('[role="status"]')!.textContent).toBe('')
+		expect(host.querySelector('[role="status"][aria-live="polite"]')!.textContent).toBe('')
 	})
 
 	it('keeps an interruptible loading button enabled but still busy', () => {
@@ -144,7 +144,7 @@ describe('Button loading/pending semantics', () => {
 
 	it('renders an empty status region when idle', () => {
 		const host = mount({ label: 'Save' })
-		const status = host.querySelector('[role="status"]')!
+		const status = host.querySelector('[role="status"][aria-live="polite"]')!
 		expect(status.textContent).toBe('')
 	})
 })

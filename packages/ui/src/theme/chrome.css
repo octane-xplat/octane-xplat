@@ -2265,6 +2265,12 @@
 		font-weight: 500;
 		line-height: 20px;
 	}
+	/* xplat-web-only:start — Astryx declares the unitless 1.4286 label ratio;
+	   native keeps the 20dip line-height above (unitless would be ~1.4dip). */
+	.vx-button {
+		line-height: 1.4286;
+	}
+	/* xplat-web-only:end */
 	.vx-button--primary {
 		background-color: var(--color-primary);
 		color: var(--color-onprimary);

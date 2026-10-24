@@ -6,6 +6,17 @@ body {
 	background: #fff;
 }
 
+/* Page baseline — not component styling: Astryx's reset sets html
+   line-height 1.5, and its components inherit the app's font stack
+   (its own tokens default to -apple-system). Give both pages the same
+   baseline so findings measure the components, not the page. */
+html {
+	line-height: 1.5;
+}
+body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
 .parity-grid {
 	display: grid;
 	grid-template-columns: repeat(4, 240px);
