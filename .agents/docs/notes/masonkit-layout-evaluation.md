@@ -1111,6 +1111,48 @@ task. Evidence: `research/maintained-regressions/android.log` and
 Both runs stopped their task-owned devices. They do not qualify the complete
 mobile suite, physical devices, actual media-player content or OS input.
 
+## Shared FontManager in core beta.3
+
+Core `1.0.0-beta.3` uses a static iOS framework and declares
+`@nativescript/font-manager@1.0.20` as a dependency. The app links the shared
+native FontManager library once. Core excludes its class implementations and
+module map from the npm payload; the separate native SDK export retains its
+pinned headers/library for isolated Swift and Objective-C client checks.
+Android continues using one resolved `org.nativescript:fontmanager:1.0.20`.
+
+The normal iOS 27 arm64 Simulator harness, with the standalone plugin enabled,
+passes eight applicable tests with one Android-only skip. The four maintained
+files cover plugin font loading/registration, Mason geometry, image-grid
+minimums, collapsed-screen heartbeat and same-cell resizing. All 19 native iOS
+layout tests and 22 runtime tests pass. Device and simulator native SDK clients
+compile and link, including all 99 C entry points; physical devices remain
+unqualified. Evidence is under `research/fontmanager-sharing/`.
+
+The packaged app defines `NSCFontFace`, `NSCFontFaceSet` and `NSCFontDescriptors`
+once each, in its main executable. It embeds no dynamic MasonCore framework and
+contains the separately installed SDWebImage privacy bundle. This checks the
+actual package output in addition to the absence of font classes in the core
+archive (`ios-app-linkage.json`).
+
+The API 35 arm64 Android harness passes six applicable tests with three
+iOS-only skips, including the same standalone-plugin font load. Its native AAR
+is unchanged from beta.2. These focused runs do not qualify the complete mobile
+suite, OS input or pixel parity.
+
+Xplat's compatibility set aligns an existing direct FontManager dependency
+during upgrade; its Windows profile keeps the prior `1.0.18` pin. The maintained
+upgrade test covers both choices. This is Windows metadata evidence only.
+The [upgrade guide](../../../docs/start/toolchain.md#upgrade-framework-packages)
+and Octane skill explain that native dependency updates require an app rebuild.
+Custom-font registration APIs and their recipe are unchanged.
+
+Native SDK packaging disables serialized Swift debugging search paths so
+imports resolve the consumer's shared module rather than the build machine's
+module map. Static release objects also disable coverage instrumentation.
+The symbol audit uses `nm --no-llvm-bc`: Apple's LLVM 21 reader cannot inspect
+unused compiler-builtins bitcode emitted by Rust LLVM 23. It still checks native
+definitions, and real Swift/Objective-C client linking remains mandatory.
+
 ## Core extraction: C interface boundaries (2026-10-22)
 
 Source examined: the `octane-xplat/nativescript-mason` fork at

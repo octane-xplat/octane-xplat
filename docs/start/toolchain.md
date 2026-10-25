@@ -255,6 +255,9 @@ not look for a newer release. `doctor` checks actual installed versions and
 reports duplicate runtimes, including two physical copies of the same
 version. Continue with your app's tests and target builds; these package checks
 do not prove that the app runs on a phone or desktop.
+If your iOS or Android app lists `@nativescript/font-manager` in `package.json`,
+upgrading also aligns its version with Mason core. Rebuild the app so its
+installed native code matches the new packages.
 
 ```sh
 pnpm test                 # if your app has a test script

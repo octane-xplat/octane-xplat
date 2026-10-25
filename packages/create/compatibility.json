@@ -170,7 +170,7 @@
 			"group": "plugin"
 		},
 		"@octane-xplat/nativescript-mason-core": {
-			"version": "1.0.0-beta.2",
+			"version": "1.0.0-beta.3",
 			"group": "runtime"
 		},
 		"@octane-xplat/nativescript-masonkit": {
@@ -180,6 +180,10 @@
 		"jsdom": {
 			"version": "30.1.1",
 			"group": "testing"
+		},
+		"@nativescript/font-manager": {
+			"version": "1.0.20",
+			"group": "plugin"
 		}
 	},
 	"profiles": {
@@ -194,6 +198,9 @@
 			},
 			"nativescript": {
 				"version": "9.1.2-dev.2026-09-24-36031892256"
+			},
+			"@nativescript/font-manager": {
+				"version": "1.0.18"
 			}
 		}
 	},

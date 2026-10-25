@@ -18,10 +18,9 @@ For a boundary or workaround investigation, read the applicable internal record:
 - [Mason cutover](../../../docs/notes/masonkit-layout-evaluation.md): native
   layout implementation, migration boundaries, and remaining qualification gaps.
   Check the native artifact revision: a source fix reaches an app only after
-  rebuilt artifacts are adopted. The [dated harness follow-up](../../../docs/notes/masonkit-layout-evaluation.md#maintained-mobile-harness-follow-up-2026-10-24)
-  records an iOS build conflict between core beta.2's FontManager headers and
-  the standalone FontManager plugin; qualify that combination before relying
-  on a successful native build.
+  rebuilt artifacts are adopted. The [shared FontManager correction](../../../docs/notes/masonkit-layout-evaluation.md#shared-fontmanager-in-core-beta3)
+  replaces core beta.2's conflicting iOS font packaging. Follow the
+  [managed plugin and rebuild guidance](toolchain.md) when updating an app.
 - [AppKit verification](../../../docs/appkit-verification.md): geometry and
   lifecycle evidence, including CSS positioned edges after the layout cutover.
 - [Upstream limitations](../../../docs/upstream-limitations.md): how to verify

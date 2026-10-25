@@ -95,6 +95,35 @@ test('upgrade adopts managed pins and compiler peer, preserving app dependencies
 	assert.equal(planUpgrade(root).files.length, 0, 'upgrade must be idempotent')
 })
 
+test('upgrade aligns a declared mobile FontManager pin and preserves the Windows native version', (t) => {
+	const name = '@nativescript/font-manager'
+	const mobile = project(t, {
+		dependencies: { [name]: '1.0.18' },
+		devDependencies: { '@nativescript/ios': managedSpecifier('@nativescript/ios') },
+	})
+	assert.equal(
+		inspectCompatibility(mobile, tools).find((row) => row.name === `compatibility pin ${name}`)?.ok,
+		false,
+	)
+	applyUpgrade(planUpgrade(mobile))
+	assert.equal(json(join(mobile, 'package.json')).dependencies[name], 'catalog:xplat')
+	assert.equal(yaml(mobile).catalogs.xplat[name], managedSpecifier(name))
+	assert.equal(
+		inspectCompatibility(mobile, tools).find((row) => row.name === `compatibility pin ${name}`)?.ok,
+		true,
+	)
+	assert.equal(planUpgrade(mobile).files.length, 0)
+
+	const windows = project(t, {
+		dependencies: { [name]: '1.0.18' },
+		devDependencies: {
+			'@nativescript/windows': managedSpecifier('@nativescript/windows', 'windows'),
+		},
+	})
+	applyUpgrade(planUpgrade(windows))
+	assert.equal(yaml(windows).catalogs['xplat-windows'][name], '1.0.18')
+})
+
 test('a workspace upgrade visits nested packages and honors exclusions, local links, and Windows pins', (t) => {
 	const root = project(
 		t,

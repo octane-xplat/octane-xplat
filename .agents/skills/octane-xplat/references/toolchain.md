@@ -52,6 +52,16 @@ windows-profile packages on it. Core has an independent beta release track;
 see the
 [extraction design](../../../design/mason-core-extraction.md) for limits.
 
+Core's iOS static framework shares native FontManager through
+`@nativescript/font-manager`. Keep a directly declared plugin on the release's
+managed pin; `xplat upgrade` aligns it when present. NativeScript handles the
+linking, and native dependency updates require an application rebuild.
+
+```sh
+pnpm xplat upgrade
+pnpm build:ios
+```
+
 ```json
 {
 	"dependencies": {
