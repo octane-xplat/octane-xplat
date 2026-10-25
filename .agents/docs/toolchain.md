@@ -100,6 +100,12 @@ experience of agents writing Octane-xplat code effectively.
   pnpm exec turbo run test:postcss-consumer --filter=@octane-xplat/cli
   ```
 
+- MCP's source shims import the CLI's `mcp/*` exports from `dist/`, so its
+  typecheck depends on upstream builds as well as declaration generation.
+  Keep the `^build` edge in `packages/mcp/turbo.json`: a combined test and
+  typecheck run can otherwise check MCP while the CLI clears and replaces
+  those exported files, producing transient TS2307 errors.
+
 - Native dev CSS imports from linked checkouts need their workspace in Vite's
   `server.fs.allow`. `linkedDepFsRoots` inspects installed external source
   directories as well as explicit `link:`/`file:`/`portal:` specs: pnpm
