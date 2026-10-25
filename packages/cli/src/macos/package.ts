@@ -318,6 +318,12 @@ export async function packageMacOS(appRoot) {
 
 		await completeFrameworkSymlinks(packagedFrameworkPath)
 		const nativeLibraries = []
+		for (const library of native.prebuilt ?? []) {
+			const path = join(contentsPath, 'Frameworks', library.file)
+			await cp(library.source, path)
+			nativeLibraries.push(path)
+		}
+
 		for (const library of native.libraries) {
 			const path = join(contentsPath, 'Frameworks', library.file)
 			await cp(join(native.directory, library.file), path)
@@ -349,6 +355,13 @@ export async function packageMacOS(appRoot) {
 					(native.notices ?? []).map(
 						async ({ leaf, source }) => `${leaf}\n${await readFile(source, 'utf8')}`,
 					),
+				)),
+				...(await Promise.all(
+					(native.prebuilt ?? [])
+						.filter((library) => library.notices)
+						.map(
+							async (library) => `${library.name}\n${await readFile(library.notices, 'utf8')}`,
+						),
 				)),
 			].join('\n\n'),
 		)

@@ -1,9 +1,16 @@
 import assert from 'node:assert/strict'
-import { mkdtempSync, mkdirSync, writeFileSync, symlinkSync, rmSync } from 'node:fs'
+import {
+	mkdtempSync,
+	mkdirSync,
+	writeFileSync,
+	symlinkSync,
+	rmSync,
+	realpathSync,
+} from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
-import { buildMacOSNative, discoverMacOSNative } from '../dist/macos/native.js'
+import { buildMacOSNative, discoverMacOSNative, nativeLoader } from '../dist/macos/native.js'
 
 function fixture(t) {
 	const app = mkdtempSync(join(tmpdir(), 'xplat-native-test-'))
@@ -93,4 +100,182 @@ test('native dependency cycles fail with the owning leaf', (t) => {
 	writeFileSync(join(app, 'platforms/macos/src/root.c'), 'int root(void) { return 2; }')
 	writeFileSync(join(app, 'platforms/macos/include/root.h'), 'int root(void);')
 	assert.throws(() => discoverMacOSNative(app), /native dependency cycle/)
+})
+
+function machO({ cputype = 0x0100000c, minos = '13.5' } = {}) {
+	const bytes = Buffer.alloc(56)
+	bytes.writeUInt32LE(0xfeedfacf, 0)
+	bytes.writeUInt32LE(cputype, 4)
+	bytes.writeUInt32LE(1, 16)
+	bytes.writeUInt32LE(24, 20)
+	bytes.writeUInt32LE(0x32, 32)
+	bytes.writeUInt32LE(24, 36)
+	const [major, minor] = minos.split('.').map(Number)
+	bytes.writeUInt32LE((major << 16) | (minor << 8), 44)
+	return bytes
+}
+
+function prebuiltFixture(t, { minos, bytes } = {}) {
+	const app = mkdtempSync(join(tmpdir(), 'xplat-prebuilt-test-'))
+	t.after(() => rmSync(app, { recursive: true, force: true }))
+	mkdirSync(join(app, 'node_modules'))
+	writeFileSync(
+		join(app, 'package.json'),
+		JSON.stringify({ name: 'app', dependencies: { engine: '1.0.0' } }),
+	)
+
+	const engine = join(app, 'node_modules/engine')
+	mkdirSync(join(engine, 'platforms/macos/prebuilt'), { recursive: true })
+	mkdirSync(join(engine, 'platforms/macos/licenses'), { recursive: true })
+	writeFileSync(
+		join(engine, 'platforms/macos/prebuilt/libengine.dylib'),
+		bytes ?? machO({ minos }),
+	)
+	writeFileSync(join(engine, 'platforms/macos/licenses/engine.txt'), 'Engine License\n')
+	writeFileSync(
+		join(engine, 'package.json'),
+		JSON.stringify({
+			name: 'engine',
+			xplat: {
+				macos: {
+					prebuiltLibraries: ['platforms/macos/prebuilt/libengine.dylib'],
+					notices: 'platforms/macos/licenses/engine.txt',
+				},
+			},
+		}),
+	)
+	return { app, engine }
+}
+
+test('a prebuilt-only package ships its dylib without a toolchain', async (t) => {
+	const { app, engine } = prebuiltFixture(t)
+	const graph = discoverMacOSNative(app)
+	assert.deepEqual(graph.leaves, [])
+	assert.equal(graph.prebuilt.length, 1)
+	assert.equal(graph.prebuilt[0].name, 'engine')
+	assert.equal(graph.prebuilt[0].file, 'libengine.dylib')
+	assert.equal(
+		graph.prebuilt[0].source,
+		realpathSync(join(engine, 'platforms/macos/prebuilt/libengine.dylib')),
+	)
+	assert.equal(
+		graph.prebuilt[0].notices,
+		realpathSync(join(engine, 'platforms/macos/licenses/engine.txt')),
+	)
+
+	const artifact = await buildMacOSNative(app)
+	assert.deepEqual(artifact.libraries, [])
+	assert.equal(artifact.prebuilt.length, 1)
+	assert.match(artifact.metadata, /prebuilt.*metadata.nsmd$/)
+})
+
+test('a compile leaf keeps its notices while also shipping prebuilt libraries', (t) => {
+	const { app, leaf } = fixture(t)
+	writeFileSync(
+		join(leaf, 'platforms/macos/prebuilt.dylib'),
+		machO({ minos: '13.5' }),
+	)
+	writeFileSync(
+		join(leaf, 'package.json'),
+		JSON.stringify({
+			name: 'leaf',
+			xplat: {
+				macos: {
+					prebuiltLibraries: ['platforms/macos/prebuilt.dylib'],
+					notices: 'platforms/macos/include/probe.h',
+				},
+			},
+		}),
+	)
+
+	const graph = discoverMacOSNative(app)
+	assert.equal(graph.leaves.length, 1)
+	assert.equal(graph.prebuilt.length, 1)
+	assert.equal(graph.prebuilt[0].file, 'prebuilt.dylib')
+	assert.equal(graph.prebuilt[0].notices, null)
+})
+
+test('prebuilt libraries above the app deployment target are rejected', async (t) => {
+	const { app } = prebuiltFixture(t, { minos: '27.0' })
+	await assert.rejects(
+		() => buildMacOSNative(app),
+		/requires macOS 27\.0, above the declared 13\.5/,
+	)
+})
+
+test('non-Mach-O and non-arm64 prebuilt libraries are rejected', async (t) => {
+	const { app } = prebuiltFixture(t, { bytes: Buffer.from('not a mach-o') })
+	await assert.rejects(() => buildMacOSNative(app), /not an arm64 Mach-O binary/)
+
+	const { app: app32 } = prebuiltFixture(t, { bytes: machO({ cputype: 0x01000007 }) })
+	await assert.rejects(() => buildMacOSNative(app32), /not an arm64 Mach-O binary/)
+})
+
+test('prebuilt library declarations reject invalid paths and keys', (t) => {
+	for (const [config, message, extra] of [
+		[
+			{ prebuiltLibraries: ['platforms/macos/prebuilt/libengine.so'] },
+			/must be a .dylib/,
+			(engine) =>
+				writeFileSync(join(engine, 'platforms/macos/prebuilt/libengine.so'), machO()),
+		],
+		[{ prebuiltLibraries: ['package.json'] }, /inside platforms\/macos/],
+		[
+			{ prebuiltLibraries: ['platforms/macos/prebuilt/libengine.dylib'], frameworks: ['Foundation'] },
+			/requires native sources/,
+		],
+	]) {
+		const { app, engine } = prebuiltFixture(t)
+		extra?.(engine)
+		writeFileSync(
+			join(engine, 'package.json'),
+			JSON.stringify({ name: 'engine', xplat: { macos: config } }),
+		)
+
+		assert.throws(() => discoverMacOSNative(app), message)
+	}
+})
+
+test('duplicate prebuilt basenames across packages are rejected', (t) => {
+	const { app, engine } = prebuiltFixture(t)
+	const other = join(app, 'node_modules/other')
+	mkdirSync(join(other, 'platforms/macos'), { recursive: true })
+	writeFileSync(join(other, 'platforms/macos/libengine.dylib'), machO())
+	writeFileSync(
+		join(other, 'package.json'),
+		JSON.stringify({
+			name: 'other',
+			xplat: { macos: { prebuiltLibraries: ['platforms/macos/libengine.dylib'] } },
+		}),
+	)
+	writeFileSync(
+		join(app, 'package.json'),
+		JSON.stringify({ name: 'app', dependencies: { engine: '1.0.0', other: '1.0.0' } }),
+	)
+
+	assert.throws(() => discoverMacOSNative(app), /Multiple packages ship prebuilt libengine\.dylib/)
+	assert.ok(engine)
+})
+
+test('prebuilt bytes and notices participate in the fingerprint', (t) => {
+	const { app, engine } = prebuiltFixture(t)
+	const original = discoverMacOSNative(app).fingerprint
+	writeFileSync(join(engine, 'platforms/macos/prebuilt/libengine.dylib'), machO({ minos: '14.0' }))
+	assert.notEqual(discoverMacOSNative(app).fingerprint, original)
+	writeFileSync(join(engine, 'platforms/macos/licenses/engine.txt'), 'Engine License v2\n')
+	assert.notEqual(discoverMacOSNative(app).fingerprint, original)
+})
+
+test('the loader dlopens prebuilt libraries from packaged and source paths', async (t) => {
+	const { app, engine } = prebuiltFixture(t)
+	const artifact = await buildMacOSNative(app)
+	const packaged = nativeLoader(artifact, { packaged: true })
+	assert.match(packaged, /privateFrameworksPath/)
+	assert.match(packaged, /libengine\.dylib/)
+
+	const dev = nativeLoader(artifact)
+	assert.match(dev, /dlopen/)
+	assert.ok(
+		dev.includes(realpathSync(join(engine, 'platforms/macos/prebuilt/libengine.dylib'))),
+	)
 })

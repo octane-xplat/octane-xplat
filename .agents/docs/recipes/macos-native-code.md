@@ -2,7 +2,7 @@
 
 ID: macos-native-code
 Targets: macos
-Related APIs: platforms/macos, xplat.macos, xplat dev, xplat build, xplat doctor, xplat clean, runMacOSDev
+Related APIs: platforms/macos, xplat.macos, prebuiltLibraries, notices, xplat dev, xplat build, xplat doctor, xplat clean, runMacOSDev
 
 ## Starting point
 
@@ -27,6 +27,7 @@ The reader owns a leaf package and knows its intended C/ObjC public boundary.
 - AC6: A packed CLI consumer produces a relocated ad-hoc signed app that calls all native APIs; nested native binaries participate in the existing Developer ID/notarization flow with external validation limits stated.
 - AC7: Doctor reports prerequisites and package input errors; clean preserves authored macOS sources; apps without native leaves retain shipped metadata without requiring native tools.
 - AC8: The CLI ships pinned, checksum-verified metadata tooling, ordinary builds need no runtime source checkout, and generated metadata retains AppKit/sqlite globals while adding leaf APIs.
+- AC9: A leaf declaring `prebuiltLibraries` ships an already-compiled arm64 dylib with no compilation toolchain; dev loads it before app JS and packaging embeds it in `Contents/Frameworks` with its notices, while binaries outside the app's deployment target are rejected.
 
 ## Documentation
 
@@ -38,3 +39,4 @@ The reader owns a leaf package and knows its intended C/ObjC public boundary.
 - AC6: [Packaging and signing](../../../docs/platform/macos-native.md#rebuild-package-and-diagnose) and [evidence boundaries](../../../docs/platform/macos-native.md#evidence-and-maintainer-tooling).
 - AC7: [Prerequisites](../../../docs/platform/macos-native.md#prepare-the-app), [diagnostics and clean](../../../docs/platform/macos-native.md#rebuild-package-and-diagnose), and [validation tests](../../../packages/cli/test/macos-native.test.mjs).
 - AC8: [Maintainer tooling](../../../docs/platform/macos-native.md#evidence-and-maintainer-tooling) and [runtime verification](../../../packages/cli/test/verify-macos-native.mjs).
+- AC9: [Ship a prebuilt dynamic library](../../../docs/platform/macos-native.md#ship-a-prebuilt-dynamic-library), [validation tests](../../../packages/cli/test/macos-native.test.mjs), and [consumer verification](../../../packages/macos-renderer/test/packed-consumer.ts).

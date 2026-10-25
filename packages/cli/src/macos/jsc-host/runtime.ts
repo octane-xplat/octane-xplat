@@ -37,7 +37,12 @@ function isFile(path) {
 	}
 }
 
-function inspectMachO(bytes, label, issues) {
+export function inspectMachO(
+	bytes,
+	label,
+	issues,
+	minimumSystemVersion = minimumJscHostSystemVersion,
+) {
 	if (
 		bytes.length < 32 ||
 		bytes.readUInt32LE(0) !== 0xfeedfacf ||
@@ -85,10 +90,10 @@ function inspectMachO(bytes, label, issues) {
 		issues.push(`${label} does not declare a macOS deployment target`)
 	} else {
 		const [major, minor] = minimumVersion.split('.').map(Number)
-		const [allowedMajor, allowedMinor] = minimumJscHostSystemVersion.split('.').map(Number)
+		const [allowedMajor, allowedMinor] = minimumSystemVersion.split('.').map(Number)
 		if (major > allowedMajor || (major === allowedMajor && minor > allowedMinor)) {
 			issues.push(
-				`${label} requires macOS ${minimumVersion}, above the declared ${minimumJscHostSystemVersion}`,
+				`${label} requires macOS ${minimumVersion}, above the declared ${minimumSystemVersion}`,
 			)
 		}
 	}

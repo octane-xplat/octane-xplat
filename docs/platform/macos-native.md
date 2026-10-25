@@ -208,6 +208,35 @@ participate in cache invalidation. Framework/library inputs here name system
 SDK libraries; this interface does not install third-party native libraries,
 run arbitrary package build scripts, or load Node-API addons.
 
+### Ship a prebuilt dynamic library
+
+A package that ships an already-compiled dynamic library instead of sources
+declares `prebuiltLibraries`:
+
+```json
+{
+	"xplat": {
+		"macos": {
+			"prebuiltLibraries": ["platforms/macos/prebuilt/libengine.dylib"],
+			"notices": "platforms/macos/licenses/engine.txt"
+		}
+	}
+}
+```
+
+Each path must name a `.dylib` file inside `platforms/macos` — a thin arm64
+Mach-O whose deployment target does not exceed the app's
+`minimumSystemVersion`. The build inspects the binary and fails otherwise.
+`xplat dev` loads the library from the package before app JS; `xplat build`
+copies it into `Contents/Frameworks` and signs it with the app. A `notices`
+file ships its text in `Contents/Resources/licenses/THIRD-PARTY-NOTICES.txt`.
+
+A package with `prebuiltLibraries` and no native sources is not a compile
+leaf: it needs no compilation toolchain, and only `prebuiltLibraries` and
+`notices` are allowed in its `xplat.macos`. A package may declare both
+sources and prebuilt libraries; it then compiles normally and contributes
+both.
+
 Declare other leaf packages as real `dependencies`, as on mobile. The CLI walks
 installed runtime dependencies and available peers/optional dependencies, with
 support for pnpm's isolated layout and workspace links. Transitive native leaves
