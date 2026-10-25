@@ -182,3 +182,247 @@ globalThis.setInterval = __setInterval
 globalThis.clearInterval = __clearTimer
 globalThis.queueMicrotask = (callback) => Promise.resolve().then(callback)
 globalThis.performance = { now: () => __hostNow() }
+
+// Standard WebSocket over NSURLSessionWebSocketTask. The task's metadata is
+// bridged, so the host can offer the same global web/iOS runtimes provide
+// instead of pushing a socket polyfill into every app.
+try {
+	class XplatWebSocketDelegate extends NSObject {
+		URLSessionWebSocketTaskDidOpenWithProtocol(_session, _task, protocol) {
+			this.socket?._open(protocol ? String(protocol) : '')
+		}
+		URLSessionWebSocketTaskDidCloseWithCodeReason(_session, _task, code, reason) {
+			const text = reason ? String(NSString.alloc().initWithDataEncoding(reason, 4)) : ''
+			this.socket?._close(Number(code), text, true)
+		}
+		URLSessionTaskDidCompleteWithError(_session, _task, error) {
+			if (error) {
+				this.socket?._fail(String(error.localizedDescription ?? error))
+			}
+		}
+	}
+	XplatWebSocketDelegate.ObjCProtocols = [NSURLSessionWebSocketDelegate]
+	// The host registers only enumerable prototype methods on native subclasses.
+	for (const key of Object.getOwnPropertyNames(XplatWebSocketDelegate.prototype)) {
+		if (key === 'constructor') {
+			continue
+		}
+		Object.defineProperty(XplatWebSocketDelegate.prototype, key, {
+			...Object.getOwnPropertyDescriptor(XplatWebSocketDelegate.prototype, key),
+			enumerable: true,
+		})
+	}
+	NativeClass(XplatWebSocketDelegate)
+
+	class WebSocket {
+		static CONNECTING = 0
+		static OPEN = 1
+		static CLOSING = 2
+		static CLOSED = 3
+
+		CONNECTING = 0
+		OPEN = 1
+		CLOSING = 2
+		CLOSED = 3
+
+		constructor(url, protocols) {
+			const parsed = NSURL.URLWithString(String(url))
+			const scheme = parsed?.scheme ? String(parsed.scheme) : ''
+			if (!parsed || (scheme !== 'ws' && scheme !== 'wss')) {
+				throw Error(`SyntaxError: Failed to construct 'WebSocket': The URL '${url}' is invalid.`)
+			}
+			const subs =
+				protocols === undefined
+					? []
+					: typeof protocols === 'string'
+						? [protocols]
+						: Array.from(protocols, String)
+			if (new Set(subs).size !== subs.length) {
+				throw Error("SyntaxError: Failed to construct 'WebSocket': duplicate subprotocol.")
+			}
+
+			this.url = String(url)
+			this.protocol = ''
+			this.extensions = ''
+			this.binaryType = 'arraybuffer'
+			this.bufferedAmount = 0
+			this.readyState = WebSocket.CONNECTING
+			this.onopen = null
+			this.onmessage = null
+			this.onerror = null
+			this.onclose = null
+			this._listeners = new Map()
+			this._task = null
+			this._session = null
+
+			const delegate = XplatWebSocketDelegate.new()
+			delegate.socket = this
+			const session = NSURLSession.sessionWithConfigurationDelegateDelegateQueue(
+				NSURLSessionConfiguration.defaultSessionConfiguration,
+				delegate,
+				NSOperationQueue.mainQueue,
+			)
+			const task = subs.length
+				? session.webSocketTaskWithURLProtocols(parsed, subs)
+				: session.webSocketTaskWithURL(parsed)
+			// Upstream class-cluster gap: the concrete __NSURLSessionWebSocketTask
+			// is private, so the bridge wraps the task as NSURLSessionTask. Re-point
+			// the wrapper at the bridged public prototype to reach the ws methods.
+			if (typeof task.receiveMessageWithCompletionHandler !== 'function') {
+				Object.setPrototypeOf(task, NSURLSessionWebSocketTask.prototype)
+			}
+			this._session = session
+			this._task = task
+			this._delegate = delegate
+			task.resume()
+			this._pump()
+		}
+
+		addEventListener(type, listener) {
+			if (typeof listener !== 'function') {
+				return
+			}
+			const listeners = this._listeners.get(type) ?? []
+			listeners.push(listener)
+			this._listeners.set(type, listeners)
+		}
+
+		removeEventListener(type, listener) {
+			const listeners = this._listeners.get(type)
+			if (!listeners) {
+				return
+			}
+			const index = listeners.indexOf(listener)
+			if (index >= 0) {
+				listeners.splice(index, 1)
+			}
+		}
+
+		dispatchEvent(event) {
+			event.target ??= this
+			event.currentTarget ??= this
+			this[`on${event.type}`]?.call(this, event)
+			for (const listener of this._listeners.get(event.type) ?? []) {
+				listener.call(this, event)
+			}
+			return true
+		}
+
+		send(data) {
+			if (this.readyState === WebSocket.CONNECTING) {
+				throw Error(
+					"InvalidStateError: Failed to execute 'send' on 'WebSocket': Still in CONNECTING state.",
+				)
+			}
+			if (this.readyState !== WebSocket.OPEN) {
+				return
+			}
+
+			let message
+			let size
+			if (typeof data === 'string') {
+				message = NSURLSessionWebSocketMessage.alloc().initWithString(data)
+				size = NSString.stringWithString(data).dataUsingEncoding(4).length
+			} else if (data instanceof ArrayBuffer || ArrayBuffer.isView(data)) {
+				const bytes =
+					data instanceof ArrayBuffer
+						? new Uint8Array(data)
+						: new Uint8Array(data.buffer, data.byteOffset, data.byteLength)
+				message = NSURLSessionWebSocketMessage.alloc().initWithData(
+					NSData.dataWithBytesLength(bytes, bytes.length),
+				)
+				size = bytes.length
+			} else {
+				message = NSURLSessionWebSocketMessage.alloc().initWithString(String(data))
+				size = String(data).length
+			}
+
+			this.bufferedAmount += size
+			this._task.sendMessageCompletionHandler(message, (error) => {
+				this.bufferedAmount = Math.max(0, this.bufferedAmount - size)
+				if (error) {
+					this._fail(String(error.localizedDescription ?? error))
+				}
+			})
+		}
+
+		close(code = 1000, reason = '') {
+			if (code !== 1000 && (code < 3000 || code > 4999)) {
+				throw Error(
+					`InvalidAccessError: Failed to execute 'close' on 'WebSocket': The close code must be 1000 or in the range 3000-4999.`,
+				)
+			}
+			const reasonData = NSString.stringWithString(reason).dataUsingEncoding(4)
+			if (reasonData.length > 123) {
+				throw Error(
+					`SyntaxError: Failed to execute 'close' on 'WebSocket': The close reason must be 123 bytes of UTF-8 or fewer.`,
+				)
+			}
+			if (this.readyState >= WebSocket.CLOSING) {
+				return
+			}
+			this.readyState = WebSocket.CLOSING
+			this._task.cancelWithCloseCodeReason(code, reasonData)
+		}
+
+		_pump() {
+			this._task.receiveMessageWithCompletionHandler((message, error) => {
+				if (this.readyState >= WebSocket.CLOSING) {
+					return
+				}
+				if (error || !message) {
+					this._fail(error ? String(error.localizedDescription ?? error) : 'connection closed')
+					return
+				}
+				const data =
+					message.type === NSURLSessionWebSocketMessageType.String
+						? String(message.string)
+						: interop.bufferFromData(message.data)
+				this.dispatchEvent({ type: 'message', data })
+				this._pump()
+			})
+		}
+
+		_open(protocol) {
+			if (this.readyState !== WebSocket.CONNECTING) {
+				return
+			}
+			this.readyState = WebSocket.OPEN
+			this.protocol = protocol
+			this.dispatchEvent({ type: 'open' })
+		}
+
+		_fail(message) {
+			if (this.readyState === WebSocket.CLOSED) {
+				return
+			}
+			// A peer close can surface as a transport error on the outstanding
+			// receive before didCloseWithCode fires; the task still records the
+			// negotiated close code, so report a clean close instead of an error.
+			const code = Number(this._task?.closeCode ?? 0)
+			if (code !== 0) {
+				const data = this._task.closeReason
+				const reason = data ? String(NSString.alloc().initWithDataEncoding(data, 4)) : ''
+				this._close(code, reason, code !== 1006)
+				return
+			}
+			if (this.readyState !== WebSocket.CLOSING) {
+				this.dispatchEvent({ type: 'error', message })
+			}
+			this._close(this.readyState === WebSocket.CLOSING ? 1000 : 1006, '', false)
+		}
+
+		_close(code, reason, wasClean) {
+			if (this.readyState === WebSocket.CLOSED) {
+				return
+			}
+			this.readyState = WebSocket.CLOSED
+			this._session?.invalidateAndCancel()
+			this.dispatchEvent({ type: 'close', code, reason, wasClean })
+		}
+	}
+
+	globalThis.WebSocket ??= WebSocket
+} catch (error) {
+	console.warn(`[xplat-host] WebSocket unavailable: ${error?.stack ?? error}`)
+}
