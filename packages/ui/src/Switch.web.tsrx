@@ -15,11 +15,25 @@ export function Switch(inputProps: SwitchProps) @{
 	const { props, inField } = useFieldControl(inputProps);
 	const [internal, setInternal] = useState(props.defaultValue ?? false);
 	const checked = props.value ?? internal;
+	const [pending, setPending] = useState(false);
 	const isBlocked = props.isDisabled || props.isReadOnly;
+	const loading = props.isLoading || pending;
 	const toggle = () => {
 		if (isBlocked) return;
-		if (props.value === undefined) setInternal(!checked);
-		props.onChange?.(!checked);
+		const next = !checked;
+		if (props.value === undefined) setInternal(next);
+		props.onChange?.(next);
+		if (!props.changeAction) return;
+		const previous = checked;
+		setPending(true);
+		Promise.resolve(props.changeAction(next)).then(
+			() => setPending(false),
+			() => {
+				if (props.value === undefined) setInternal(previous);
+				props.onChange?.(previous);
+				setPending(false);
+			},
+		);
 	};
 
 	const generatedId = useId();
@@ -45,17 +59,31 @@ export function Switch(inputProps: SwitchProps) @{
 	}, [ownChrome, props.status?.message, props.status?.type]);
 	// Astryx's Spinner speaks "Loading" through the persistent polite region.
 	useEffect(() => {
-		if (props.isLoading) {
+		if (loading) {
 			announce('Loading');
 		}
-	}, [props.isLoading]);
+	}, [loading]);
+
+	const textCol = ownChrome && props.label != null ? (
+		<div className={cx('vx-switch-text', `vx-switch-text--${size}`)}>
+			{props.description != null ? (
+				<div className="vx-field-head">
+					<label htmlFor={controlId} className={labelClass}>{props.label}{marker}</label>
+					<span id={descriptionId} className="vx-field-description">{props.description}</span>
+				</div>
+			) : (
+				<label htmlFor={controlId} className={labelClass}>{props.label}{marker}</label>
+			)}
+		</div>
+	) : null;
 
 	<div
-		className={cx('vx-switch-field', `vx-switch-field--size-${size}`, checked && 'vx-switch-field--on', props.isDisabled && 'vx-switch-field--disabled', props.isReadOnly && 'vx-switch-field--readonly', props.isLoading && 'vx-switch-field--loading', props.status && `vx-switch-field--status-${props.status.type}`, props.className)}
+		className={cx('vx-switch-field', `vx-switch-field--size-${size}`, checked && 'vx-switch-field--on', props.isDisabled && 'vx-switch-field--disabled', props.isReadOnly && 'vx-switch-field--readonly', loading && 'vx-switch-field--loading', props.status && `vx-switch-field--status-${props.status.type}`, props.className)}
 		style={props.style}
 		data-testid={props.testID}
 	>
-		<div className={cx('vx-switch-container', 'vx-switch-row', props.isLabelHidden && 'vx-switch-container--label-hidden')}>
+		<div className={cx('vx-switch-container', 'vx-switch-row', props.isLabelHidden && 'vx-switch-container--label-hidden', props.labelSpacing === 'spread' && 'vx-switch-container--spread')}>
+			{labelFirst ? textCol : null}
 			<div className={cx('vx-switch-wrapper', `vx-switch-wrapper--${size}`)}>
 				<input
 					ref={(el: any) => { if (el) applyEscapeProps(el, props); }}
@@ -66,7 +94,7 @@ export function Switch(inputProps: SwitchProps) @{
 					disabled={props.isDisabled || undefined}
 					aria-required={showRequired || undefined}
 					aria-invalid={props.status?.type === 'error' || undefined}
-					aria-busy={props.isLoading || undefined}
+					aria-busy={loading || undefined}
 					aria-label={ownChrome ? props.accessibilityLabel : props.ariaLabel}
 					aria-labelledby={ownChrome ? undefined : props.ariaLabelledBy}
 					aria-describedby={describedBy}
@@ -76,7 +104,7 @@ export function Switch(inputProps: SwitchProps) @{
 				/>
 				<div className={cx('vx-switch', `vx-switch--size-${size}`, checked && 'vx-switch--on', props.isDisabled && 'vx-switch--disabled')} aria-hidden="true">
 					<div className="vx-switch-thumb">
-						@if (props.isLoading) {
+						@if (loading) {
 							<span role="status" aria-label="Loading" className="vx-button-spinner-status">
 								<svg width="14" height="14" aria-hidden="true" className="vx-button-spinner-svg">
 									<circle cx="50%" cy="50%" r="5" strokeWidth="2" className="vx-button-spinner-track" />
@@ -87,18 +115,7 @@ export function Switch(inputProps: SwitchProps) @{
 					</div>
 				</div>
 			</div>
-			@if (ownChrome && props.label != null) {
-				<div className={cx('vx-switch-text', `vx-switch-text--${size}`)}>
-					@if (props.description != null) {
-						<div className="vx-field-head">
-							<label htmlFor={controlId} className={labelClass}>{props.label}{marker}</label>
-							<span id={descriptionId} className="vx-field-description">{props.description}</span>
-						</div>
-					} @else {
-						<label htmlFor={controlId} className={labelClass}>{props.label}{marker}</label>
-					}
-				</div>
-			}
+			{!labelFirst ? textCol : null}
 		</div>
 		@if (statusId != null) {
 			<div id={statusId} className={cx('vx-field-status', `vx-field-status--${props.status!.type}`, 'vx-field-status--detached')}>

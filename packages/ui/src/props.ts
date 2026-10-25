@@ -2131,6 +2131,15 @@ export interface SwitchProps extends FieldControlProps, TestIDProps {
 	defaultValue?: boolean
 	/** Called with the requested next state when the user toggles. */
 	onChange?: (checked: boolean) => void
+	/** Async action fired after `onChange`. While it runs the switch shows
+	 *  the loading state; a rejection reverts the toggle and reports the
+	 *  previous value through `onChange` again. */
+	changeAction?: (checked: boolean) => void | Promise<void>
+	/** Which side of the track the label column sits on. @default 'end' */
+	labelPosition?: 'start' | 'end'
+	/** `'hug'` keeps the label beside the track; `'spread'` pushes it to the
+	 *  field's opposite edge. @default 'hug' */
+	labelSpacing?: 'hug' | 'spread'
 	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
 	android?: PlatformProps
@@ -5840,6 +5849,10 @@ export interface CheckboxProps extends FieldControlProps, TestIDProps {
 	/** Called with the requested next state when the user toggles (always
 	 *  `true` when leaving `'indeterminate'`). */
 	onChange?: (checked: boolean) => void
+	/** Async action fired after `onChange`. While it runs the checkbox shows
+	 *  the loading state; a rejection reverts the toggle and reports the
+	 *  previous value through `onChange` again. */
+	changeAction?: (checked: boolean) => void | Promise<void>
 	accessibilityLabel?: string
 	accessibilityHint?: string
 	/** Platform-specific properties are applied after shared props. */

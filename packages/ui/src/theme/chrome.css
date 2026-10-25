@@ -731,6 +731,9 @@
 	.vx-switch-container--label-hidden {
 		gap: 0;
 	}
+	.vx-switch-container--spread {
+		justify-content: space-between;
+	}
 	.vx-switch-wrapper {
 		display: flex;
 		align-items: center;

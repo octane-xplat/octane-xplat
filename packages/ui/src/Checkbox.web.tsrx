@@ -20,6 +20,8 @@ export function Checkbox(inputProps: CheckboxProps) @{
 	const indeterminate = resolved === 'indeterminate';
 	const checked = resolved === true;
 	const isBlocked = props.isDisabled || props.isReadOnly;
+	const [pending, setPending] = useState(false);
+	const loading = props.isLoading || pending;
 	const Ind = useIndicator('checkbox') ?? CheckboxIndicator;
 	const indState = indeterminate ? 'indeterminate' : checked ? 'checked' : 'unchecked';
 	const toggle = () => {
@@ -27,6 +29,17 @@ export function Checkbox(inputProps: CheckboxProps) @{
 		const next = indeterminate ? true : !checked;
 		if (props.value === undefined) setInternal(next);
 		props.onChange?.(next);
+		if (!props.changeAction) return;
+		const previous = checked;
+		setPending(true);
+		Promise.resolve(props.changeAction(next)).then(
+			() => setPending(false),
+			() => {
+				if (props.value === undefined) setInternal(previous);
+				props.onChange?.(previous);
+				setPending(false);
+			},
+		);
 	};
 
 	const generatedId = useId();
@@ -70,7 +83,7 @@ export function Checkbox(inputProps: CheckboxProps) @{
 					aria-readonly={props.isReadOnly || undefined}
 					aria-required={showRequired || undefined}
 					aria-invalid={props.status?.type === 'error' || undefined}
-					aria-busy={props.isLoading || undefined}
+					aria-busy={loading || undefined}
 					aria-label={ownChrome ? props.accessibilityLabel : props.ariaLabel}
 					aria-labelledby={ownChrome ? undefined : props.ariaLabelledBy}
 					aria-describedby={describedBy}
