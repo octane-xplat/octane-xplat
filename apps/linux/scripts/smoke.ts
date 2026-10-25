@@ -7,7 +7,7 @@ if (process.platform !== 'linux') {
 	throw new Error('Linux smoke requires the real Linux GTK/WebKit runtime.')
 }
 
-execFileSync('pnpm', ['build'], { cwd: app, stdio: 'inherit' })
+execFileSync('pnpm', ['build'], { cwd: app, stdio: 'inherit', shell: process.platform === 'win32' })
 execFileSync(
 	'xvfb-run',
 	['-a', 'dbus-run-session', '--', `${app}/dist/linux/octane-xplat/octane-xplat`, '--self-test'],

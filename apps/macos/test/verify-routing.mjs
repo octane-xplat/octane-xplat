@@ -16,6 +16,7 @@ const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const mason =
 	process.env.XPLAT_MASON_LIB ??
 	resolve(appRoot, '../../packages/macos-renderer/native/xplatmason/libxplatmason.dylib')
+
 try {
 	await access(mason)
 } catch {
@@ -23,19 +24,23 @@ try {
 		'Build packages/macos-renderer/native/xplatmason/build.sh and set XPLAT_MASON_LIB before running the routing fixture',
 	)
 }
+
 const cliBuild = spawnSync('pnpm', ['--filter', '@octane-xplat/cli', 'build'], {
+	shell: process.platform === 'win32',
 	cwd: appRoot,
 	encoding: 'utf8',
 	timeout: 120000,
 })
+
 assert.equal(cliBuild.status, 0, cliBuild.stdout + cliBuild.stderr)
 const { generateRoutes } = await import('../../../packages/cli/dist/commands/routes.js')
 await generateRoutes(join(appRoot, 'test/default-client'), undefined, undefined, { bake: true })
 const checked = spawnSync(
 	'pnpm',
 	['exec', 'tsrx-tsc', '--noEmit', '-p', 'test/tsconfig.routing.json'],
-	{ cwd: appRoot, encoding: 'utf8', timeout: 60000 },
+	{ cwd: appRoot, encoding: 'utf8', timeout: 60000, shell: process.platform === 'win32' },
 )
+
 assert.equal(checked.status, 0, checked.stdout + checked.stderr)
 const scratch = resolve(appRoot, '../../research')
 await mkdir(scratch, { recursive: true })

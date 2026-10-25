@@ -368,7 +368,12 @@ export async function prepareFontsource(appDir, spec, { subset = 'latin', weight
 			return { error: `${spec} is not installed — run \`pnpm add ${spec}\` or pass --install` }
 		}
 
-		const added = spawnSync('pnpm', ['add', spec], { cwd: appDir, stdio: 'inherit' })
+		const added = spawnSync('pnpm', ['add', spec], {
+			cwd: appDir,
+			stdio: 'inherit',
+			shell: process.platform === 'win32',
+		})
+
 		if (added.status !== 0) {
 			return { error: `pnpm add ${spec} failed` }
 		}

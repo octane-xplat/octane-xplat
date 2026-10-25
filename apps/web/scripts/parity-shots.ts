@@ -24,6 +24,7 @@ const SCALE = 2
 const STEP = 300
 
 const preview = spawn('pnpm', ['exec', 'vite', 'preview', '--port', String(PORT), '--strictPort'], {
+	shell: process.platform === 'win32',
 	cwd: webDir,
 	stdio: ['ignore', 'pipe', 'pipe'],
 	detached: true,

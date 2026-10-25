@@ -167,7 +167,12 @@ if (noInstall) {
 	process.exit(0)
 }
 
-const install = spawnSync('pnpm', ['install'], { cwd: dir, stdio: 'inherit' })
+const install = spawnSync('pnpm', ['install'], {
+	cwd: dir,
+	stdio: 'inherit',
+	shell: process.platform === 'win32',
+})
+
 if (install.status !== 0) {
 	console.log(`\nInstall didn't finish (pnpm missing?). To run manually:`)
 	printNextSteps(dir, ids, templateArg)
@@ -176,7 +181,7 @@ if (install.status !== 0) {
 
 if (templateArg === 'app' && ids.includes('web')) {
 	console.log('\n✓ installed — starting dev server (Ctrl+C to stop)\n')
-	spawnSync('pnpm', ['dev'], { cwd: dir, stdio: 'inherit' })
+	spawnSync('pnpm', ['dev'], { cwd: dir, stdio: 'inherit', shell: process.platform === 'win32' })
 } else {
 	console.log('\n✓ installed. Next steps:')
 	printNextSteps(dir, ids, templateArg)

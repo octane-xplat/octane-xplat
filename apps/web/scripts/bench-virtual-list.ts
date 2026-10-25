@@ -3,6 +3,7 @@ import { chromium } from 'playwright'
 import { spawn } from 'node:child_process'
 
 const preview = spawn('pnpm', ['exec', 'vite', 'preview', '--port', '5220', '--strictPort'], {
+	shell: process.platform === 'win32',
 	cwd: process.cwd(),
 	stdio: ['ignore', 'pipe', 'pipe'],
 	detached: true,

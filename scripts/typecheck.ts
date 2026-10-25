@@ -31,6 +31,7 @@ try {
 for (const { env, configPath } of programs) {
 	console.log(`typecheck[${env}]: tsrx-tsc --noEmit -p ${configPath}`)
 	const res = spawnSync('pnpm', ['exec', 'tsrx-tsc', '--noEmit', '-p', configPath], {
+		shell: process.platform === 'win32',
 		cwd: dir,
 		stdio: 'inherit',
 	})

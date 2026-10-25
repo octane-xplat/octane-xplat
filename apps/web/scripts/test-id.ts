@@ -96,6 +96,7 @@ try {
 			],
 		]) {
 			const result = spawnSync('pnpm', ['dlx', '@swmansion/argent@0.27.0', ...args], {
+				shell: process.platform === 'win32',
 				env,
 				encoding: 'utf8',
 				timeout: 120000,

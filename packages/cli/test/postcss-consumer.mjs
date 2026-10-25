@@ -20,7 +20,12 @@ const manifest = JSON.parse(readFileSync(join(cli, 'package.json'), 'utf8'))
 const root = mkdtempSync(join(tmpdir(), 'xplat-postcss-consumer-'))
 const writeJson = (path, value) => writeFileSync(path, JSON.stringify(value, null, 2))
 const run = (command, args) =>
-	execFileSync(command, args, { cwd: root, stdio: 'pipe', timeout: 120_000 })
+	execFileSync(command, args, {
+		cwd: root,
+		stdio: 'pipe',
+		timeout: 120_000,
+		shell: command === 'pnpm' && process.platform === 'win32',
+	})
 
 try {
 	// Install only the shipped CSS type surface and its dependencies. Copy the

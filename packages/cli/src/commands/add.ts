@@ -122,6 +122,7 @@ export const add = command({
 		// add rewrites deps and patchedDependencies — the lockfile must update,
 		// so frozen installs (the default under CI) have to be opted out of.
 		const install = spawnSync('pnpm', ['install', '--no-frozen-lockfile'], {
+			shell: process.platform === 'win32',
 			cwd,
 			stdio: 'inherit',
 		})

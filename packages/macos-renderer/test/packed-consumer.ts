@@ -311,6 +311,7 @@ if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 
 	console.log('[packed renderer] verifying retained-root HMR')
 	const dev = spawn('pnpm', ['exec', 'xplat', 'dev', '--targets', 'macos'], {
+		shell: process.platform === 'win32',
 		cwd: app,
 		stdio: ['ignore', 'pipe', 'pipe'],
 		env: { ...process.env, OCTANE_MACOS_AUTOMATION: '1', XPLAT_MASON_LIB: masonLibrary },
