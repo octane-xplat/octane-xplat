@@ -58,6 +58,30 @@ that point, so the shim reads them to emit a clean `close` event instead of
 a spurious `error` + `1006`. Locally initiated `close(code, reason)` does
 reach `didCloseWithCode` — both paths are covered.
 
+## `interop.Pointer` cache re-entrancy (upstream, patched)
+
+`g_pointerCache` in `ffi/napi/Interop.mm` is not safe against re-entrant
+finalization. `Pointer::finalize` defers through `PostFinalizer`, which runs
+the cleanup **inline** when GC finalizes on the JS thread — and JSC can
+finalize inside any napi call that allocates. `getCachedPointer` /
+`cachePointer` / `interop_free` all hold `unordered_map` iterators across
+napi calls, so an inline `finalizePointerNow` erases nodes underneath them:
+the outer frame then dereferences a recycled iterator (`__hash_table::remove`
+on a freed node) or reads a stale `napi_ref` (`napi_delete_reference(env,
+NULL)` faulting at `js_delete_reference`). Both surfaced as intermittent
+SIGSEGVs during `run_file` eval once 124e0acdf's `NativeClass`/`extends`
+bridge work increased pointer-cache churn at boot — timing-dependent, not a
+script bug.
+
+- **Workaround**: `patches/nativescript-runtimes.patch` makes
+  `Pointer::finalize` always defer `finalizePointerNow` to the JS runloop
+  (never run the map mutation inline), and `getCachedPointer` treats a null
+  cached `napi_ref` as a stale entry (purge + miss). `patches/libjsc.patch`
+  additionally no-ops `js_delete_reference` on a null ref at the leaf.
+- **Removal condition**: upstream pointer-cache lifecycle that never mutates
+  the map during a bridged call, or moves all erase operations off the
+  finalizer path.
+
 ## Other verified host quirks
 
 Recorded where they were found rather than repeated here:

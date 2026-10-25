@@ -5,7 +5,7 @@ index 5283280..49f39dd 100644
 @@ -508,7 +508,6 @@ napi_value ObjCBridgeState::getObject(napi_env env, id obj, napi_value construct
      return nullptr;
    }
- 
+
 -  napi_wrap(env, result, obj, nullptr, nullptr, nullptr);
    napi_value nativePointer = Pointer::create(env, obj);
    if (nativePointer != nullptr) {
@@ -17,7 +17,7 @@ index 42b9de0..763935b 100644
 @@ -1,6 +1,9 @@
  #ifndef JS_NATIVE_TSFN_H_
  #define JS_NATIVE_TSFN_H_
- 
+
 +#ifdef BARE_COMPAT_NAPI
 +#include <node_api.h>
 +#else
@@ -26,7 +26,7 @@ index 42b9de0..763935b 100644
  #include <cwchar>
 @@ -42,3 +45,4 @@ extern "C" NAPI_EXTERN napi_status
  napi_unref_threadsafe_function(napi_env env, napi_threadsafe_function func);
- 
+
  #endif
 +#endif
 diff --git a/NativeScript/runtime/Runtime.h b/NativeScript/runtime/Runtime.h
@@ -36,13 +36,13 @@ index bc785fe..d2167b5 100644
 @@ -9,6 +9,10 @@
  #include "runtime/SpinLock.h"
  #include "runtime/modules/RuntimeModules.h"
- 
+
 +#ifdef BARE_COMPAT_NAPI
 +typedef struct napi_runtime__ *napi_runtime;
 +#endif
 +
  typedef napi_value (*napi_module_init)(napi_env env, napi_value exports);
- 
+
  extern "C" {
 diff --git a/metadata-generator/src/Umbrella.cpp b/metadata-generator/src/Umbrella.cpp
 index 4a9002e4..9d4bbbf4 100644
@@ -51,7 +51,7 @@ index 4a9002e4..9d4bbbf4 100644
 @@ -382,6 +382,18 @@ std::string CreateUmbrellaHeader(const std::vector<std::string>& clangArgs,
      umbrellaHeaderContents << "#import \"" << h.c_str() << "\"" << std::endl;
    }
- 
+
 +  // xplat: sweep usr/include modules that carry no framework — libsqlite3
 +  // (SQLite3 modulemap) and dlfcn (dlopen/dlsym). The includePath keeps their
 +  // decls past the includePaths filter in MetadataFactory.
@@ -66,4 +66,56 @@ index 4a9002e4..9d4bbbf4 100644
 +
    return umbrellaHeaderContents.str();
  }
- 
+
+diff --git a/NativeScript/ffi/napi/Interop.mm b/NativeScript/ffi/napi/Interop.mm
+index ba9d7a8..96c08ec 100644
+--- a/NativeScript/ffi/napi/Interop.mm
++++ b/NativeScript/ffi/napi/Interop.mm
+@@ -318,6 +318,14 @@ inline bool getCachedPointer(napi_env env, void* data, napi_value* value) {
+     return false;
+   }
+
++  // xplat: a stale entry can hold a null ref — every use below dereferences
++  // it unconditionally (get_ref_value, napi_delete_reference), so purge it
++  // and miss instead of crashing inside js_delete_reference.
++  if (it->second == nullptr) {
++    g_pointerCache.erase(it);
++    return false;
++  }
++
+   *value = get_ref_value(env, it->second);
+   if (*value == nullptr) {
+     napi_delete_reference(env, it->second);
+diff --git a/NativeScript/ffi/napi/Interop.mm b/NativeScript/ffi/napi/Interop.mm
+index ba9d7a8..3298f63 100644
+--- a/NativeScript/ffi/napi/Interop.mm
++++ b/NativeScript/ffi/napi/Interop.mm
+@@ -1569,11 +1569,25 @@ napi_value Pointer::customInspect(napi_env env, napi_callback_info info) {
+ }
+
+ void Pointer::finalize(napi_env env, void* data, void* hint) {
+-  if (PostFinalizer(env, finalizePointerNow, data, hint)) {
++  // xplat: never erase from g_pointerCache re-entrantly. A GC finalization
++  // pass on the JS thread runs this inline inside outer napi calls that hold
++  // iterators into the map (getCachedPointer, cachePointer), leaving dangling
++  // iterators and corrupting the table. Always defer to the runloop instead.
++  ObjCBridgeState* bridgeState = ObjCBridgeState::InstanceData(env);
++  CFRunLoopRef runLoop = bridgeState != nullptr ? bridgeState->jsRunLoop : CFRunLoopGetMain();
++  if (runLoop == nullptr) {
++    if (PostFinalizer(env, finalizePointerNow, data, hint)) {
++      return;
++    }
++    finalizePointerNow(env, data, hint);
+     return;
+   }
+-
+-  finalizePointerNow(env, data, hint);
++  CFRetain(runLoop);
++  CFRunLoopPerformBlock(runLoop, kCFRunLoopCommonModes, ^{
++    finalizePointerNow(env, data, hint);
++    CFRelease(runLoop);
++  });
++  CFRunLoopWakeUp(runLoop);
+ }
+
+ Pointer::Pointer(void* data) { this->data = data; }
