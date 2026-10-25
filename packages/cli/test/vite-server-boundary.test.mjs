@@ -19,25 +19,38 @@ test('native presets reject .server imports and erase named re-exports', async (
 	const makePackage = (name, manifest, files = {}) => {
 		const dir = join(root, 'node_modules', name)
 		mkdirSync(dir, { recursive: true })
-		writeFileSync(
-			join(dir, 'package.json'),
-			JSON.stringify({ name, type: 'module', ...manifest }),
-		)
+		writeFileSync(join(dir, 'package.json'), JSON.stringify({ name, type: 'module', ...manifest }))
 		for (const [file, source] of Object.entries(files)) {
 			mkdirSync(dirname(join(dir, file)), { recursive: true })
 			writeFileSync(join(dir, file), source)
 		}
 	}
 	try {
-		writeFileSync(join(root, 'package.json'), JSON.stringify({ name: 'app', type: 'module' }))
+		writeFileSync(
+			join(root, 'package.json'),
+			JSON.stringify({
+				name: 'app',
+				type: 'module',
+				dependencies: { '@octane-xplat/nativescript-mason-core': 'file:./core.tgz' },
+			}),
+		)
+
+		makePackage(
+			'@octane-xplat/nativescript-mason-core',
+			{ version: '0.0.0', main: 'index.js' },
+			{ 'index.js': 'export {}' },
+		)
+
 		writeFileSync(
 			join(root, 'private.server.ts'),
 			'export const secret = "SERVER_SECRET_SENTINEL"; export const context = () => ({ secret });',
 		)
+
 		writeFileSync(
 			join(root, 'entry-leak.ts'),
 			'import { secret } from "./private.server"; export const value = secret',
 		)
+
 		writeFileSync(
 			join(root, 'entry-erased.ts'),
 			'export { /* AUTHORED_PRIVATE_SENTINEL */ context } from "./private.server"; export const screen = "public";',
@@ -48,21 +61,25 @@ test('native presets reject .server imports and erase named re-exports', async (
 			{ exports: { '.': './index.js', './universal/native': './universal/native.js' } },
 			{ 'index.js': 'export {}', 'universal/native.js': 'export {}' },
 		)
+
 		makePackage(
 			'@octanejs/vite-plugin',
 			{ main: 'index.js' },
 			{ 'index.js': 'export const octane = () => []' },
 		)
+
 		makePackage(
 			'@nativescript-community/vite-octane',
 			{ main: 'index.js' },
 			{ 'index.js': 'export const octaneConfig = () => ({})' },
 		)
+
 		makePackage(
 			'@nativescript-community/octane',
 			{ exports: { './config': './index.js', './driver': './driver.js' } },
 			{ 'index.js': 'export const nativeScriptRenderer = {}', 'driver.js': 'export {}' },
 		)
+
 		makePackage(
 			'@octane-xplat/macos-renderer',
 			{
@@ -80,6 +97,7 @@ test('native presets reject .server imports and erase named re-exports', async (
 				'intrinsics.js': 'export {}',
 			},
 		)
+
 		makePackage(
 			'@octane-xplat/linux-gtk',
 			{
@@ -95,6 +113,7 @@ test('native presets reject .server imports and erase named re-exports', async (
 				'compat/native-core.js': 'export {}',
 			},
 		)
+
 		const require = createRequire(import.meta.url)
 		symlinkSync(
 			dirname(require.resolve('vite/package.json')),
@@ -128,10 +147,8 @@ test('native presets reject .server imports and erase named re-exports', async (
 			.flat()
 			.flatMap((result) => result.output)
 			.filter((entry) => entry.type === 'chunk')
-		assert.doesNotMatch(
-			JSON.stringify(chunks),
-			/SERVER_SECRET_SENTINEL|AUTHORED_PRIVATE_SENTINEL/,
-		)
+
+		assert.doesNotMatch(JSON.stringify(chunks), /SERVER_SECRET_SENTINEL|AUTHORED_PRIVATE_SENTINEL/)
 		assert.ok(chunks.some((entry) => entry.exports.includes('screen')))
 		assert.ok(chunks.every((entry) => !entry.exports.includes('context')))
 
@@ -157,11 +174,13 @@ test('native presets reject .server imports and erase named re-exports', async (
 		} else {
 			process.env.NATIVESCRIPT_BUNDLER_ENV = bundlerEnv
 		}
+
 		if (vendorExclude === undefined) {
 			delete process.env.NS_VENDOR_EXCLUDE
 		} else {
 			process.env.NS_VENDOR_EXCLUDE = vendorExclude
 		}
+
 		rmSync(root, { recursive: true, force: true })
 	}
 })
