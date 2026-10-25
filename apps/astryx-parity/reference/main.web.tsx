@@ -132,7 +132,7 @@ function SwitchGrid() {
 function CheckboxListGrid() {
 	return <FieldGrid prefix="checkbox-list" scenarios={checkboxListScenarios} render={(s) => (
 		<CheckboxList {...s.props} onChange={() => {}}>
-			{s.options.map((o) => <CheckboxListItem key={o.value} value={o.value} label={o.label} isDisabled={o.isDisabled} />)}
+			{s.options.map((o: { value: string; label: string; isDisabled?: boolean }) => <CheckboxListItem key={o.value} value={o.value} label={o.label} isDisabled={o.isDisabled} />)}
 		</CheckboxList>
 	)} />
 }

@@ -1160,7 +1160,8 @@
 	.vx-checkbox-group {
 		flex-direction: column;
 	}
-	.vx-checkbox-group--row {
+	.vx-checkbox-group--row .vx-list,
+	.vx-checkbox-list--row {
 		flex-direction: row;
 	}
 	/* xplat-web-only:start — display:flex for the div/span flex classes */
