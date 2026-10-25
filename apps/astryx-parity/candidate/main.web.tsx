@@ -1,7 +1,7 @@
 import { createRoot } from 'octane'
 import { useState } from 'octane'
-import { Button, TextInput, TextArea, CheckboxInput, Switch } from '@octane-xplat/ui'
-import { buttonScenarios, textInputScenarios, checkboxScenarios, switchScenarios, textAreaScenarios } from '../scenarios/index.ts'
+import { Button, TextInput, TextArea, CheckboxInput, Switch, CheckboxList } from '@octane-xplat/ui'
+import { buttonScenarios, textInputScenarios, checkboxScenarios, switchScenarios, textAreaScenarios, checkboxListScenarios } from '../scenarios/index.ts'
 import '@octane-xplat/ui/theme/tokens.css'
 import '@octane-xplat/ui/theme/chrome.css'
 import '../shared/stage.css'
@@ -114,6 +114,9 @@ function CheckboxGrid() {
 function SwitchGrid() {
 	return <FieldGrid prefix="switch" scenarios={switchScenarios} render={(s) => <Switch {...swProps(s.props, s.key)} onChange={() => {}} />} />
 }
+function CheckboxListGrid() {
+	return <FieldGrid prefix="checkbox-list" scenarios={checkboxListScenarios} render={(s) => <CheckboxList {...s.props} options={s.options} onValueChange={() => {}} />} />
+}
 
 function TextInputBehavior() {
 	const [value, setValue] = useState('')
@@ -177,6 +180,7 @@ const pages: Record<string, { title: string; el: any }> = {
 	'/checkbox/behavior': { title: 'Checkbox parity', el: <CheckboxBehavior /> },
 	'/switch': { title: 'Switch parity', el: <SwitchGrid /> },
 	'/switch/behavior': { title: 'Switch parity', el: <SwitchBehavior /> },
+	'/checkbox-list': { title: 'CheckboxList parity', el: <CheckboxListGrid /> },
 }
 const page = (pages[window.location.pathname] ?? pages['/button']).el
 document.title = pages[window.location.pathname]?.title ?? 'Button parity'

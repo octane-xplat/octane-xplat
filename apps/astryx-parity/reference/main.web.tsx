@@ -2,10 +2,11 @@ import { Button } from '@astryxdesign/core/Button'
 import { TextInput } from '@astryxdesign/core/TextInput'
 import { TextArea } from '@astryxdesign/core/TextArea'
 import { CheckboxInput } from '@astryxdesign/core/CheckboxInput'
+import { CheckboxList, CheckboxListItem } from '@astryxdesign/core/CheckboxList'
 import { Switch } from '@astryxdesign/core/Switch'
 import { useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import { buttonScenarios, textInputScenarios, checkboxScenarios, switchScenarios, textAreaScenarios } from '../scenarios/index.ts'
+import { buttonScenarios, textInputScenarios, checkboxScenarios, switchScenarios, textAreaScenarios, checkboxListScenarios } from '../scenarios/index.ts'
 import '@astryxdesign/core/reset.css'
 import '@astryxdesign/core/astryx.css'
 import '../shared/stage.css'
@@ -128,6 +129,14 @@ function SwitchGrid() {
 	)} />
 }
 
+function CheckboxListGrid() {
+	return <FieldGrid prefix="checkbox-list" scenarios={checkboxListScenarios} render={(s) => (
+		<CheckboxList {...s.props} onChange={() => {}}>
+			{s.options.map((o) => <CheckboxListItem key={o.value} value={o.value} label={o.label} isDisabled={o.isDisabled} />)}
+		</CheckboxList>
+	)} />
+}
+
 // Per-route behavior fixtures: a controlled, observable control per component.
 function TextInputBehavior() {
 	const [value, setValue] = useState('')
@@ -191,6 +200,7 @@ const pages: Record<string, { title: string; el: React.ReactNode }> = {
 	'/checkbox/behavior': { title: 'Checkbox parity', el: <CheckboxBehavior /> },
 	'/switch': { title: 'Switch parity', el: <SwitchGrid /> },
 	'/switch/behavior': { title: 'Switch parity', el: <SwitchBehavior /> },
+	'/checkbox-list': { title: 'CheckboxList parity', el: <CheckboxListGrid /> },
 }
 const page = (pages[window.location.pathname] ?? pages['/button']).el
 document.title = pages[window.location.pathname]?.title ?? 'Button parity'
