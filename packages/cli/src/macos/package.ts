@@ -18,6 +18,7 @@ import { arch, platform } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { writeInfoPlist } from './info-plist.ts'
+import { installedPackageRoot } from '../package-root.ts'
 import { inspectMacOSPackageConfig } from './config.ts'
 import { inspectMacOSRuntimePackage, macOSRuntimePackageName } from './runtime-package.ts'
 import { hostBundle, inspectJscHost, prebuiltRoot, validateHostBundle } from './jsc-host/runtime.ts'
@@ -46,7 +47,7 @@ function readPackageConfig(appRoot) {
 }
 
 function viteExecutable(appRoot) {
-	const viteRoot = join(appRoot, 'node_modules', 'vite')
+	const viteRoot = installedPackageRoot(appRoot, 'vite') ?? join(appRoot, 'node_modules', 'vite')
 	let manifest
 	try {
 		manifest = JSON.parse(readFileSync(join(viteRoot, 'package.json'), 'utf8'))
@@ -275,7 +276,10 @@ export async function packageMacOS(appRoot) {
 
 	await validateHostBundle(bundleFile, appRoot)
 
-	const octaneRoot = await realpath(join(appRoot, 'node_modules', 'octane'))
+	const octaneRoot = installedPackageRoot(appRoot, 'octane')
+	if (!octaneRoot) {
+		throw new Error('Cannot resolve octane from the app. Declare it in dependencies and run pnpm install.')
+	}
 	const octaneLicense = await readFile(join(octaneRoot, 'LICENSE'), 'utf8')
 	const nativeLicense = await readFile(join(nativeRuntimePackage, 'LICENSE'), 'utf8')
 	const hostLicenses = await Promise.all(

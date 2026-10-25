@@ -8,6 +8,7 @@ import { basename, dirname, extname, isAbsolute, join, relative, resolve, sep } 
 import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
 import { macOSExecutable } from './executables.ts'
+import { installedPackageRoot as packageRoot } from '../package-root.ts'
 import { distUrl } from '../env.ts'
 import {
 	hostBundle,
@@ -59,17 +60,6 @@ function strings(value, label, fallback = []) {
 	return value
 }
 
-function packageRoot(root, name) {
-	// The trailing slash makes builtin-named npm dependencies use node_modules lookup.
-	for (const base of createRequire(join(root, 'package.json')).resolve.paths(`${name}/`) ?? []) {
-		const candidate = join(base, name, 'package.json')
-		if (existsSync(candidate)) {
-			return realpathSync(dirname(candidate))
-		}
-	}
-
-	return null
-}
 
 function nodeModulePaths(dir) {
 	const paths = []

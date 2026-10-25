@@ -14,6 +14,7 @@ import { inspectJscHost } from '../macos/jsc-host/runtime.ts'
 import { inspectMacOSRuntimePackage, macOSRuntimePackageName } from '../macos/runtime-package.ts'
 
 import { inspectLinuxPackageConfig } from '../linux/config.ts'
+import { installedPackageRoot } from '../package-root.ts'
 
 const frameworkFallbacks = {
 	// UI's plugin-backed widgets are optional platform subpaths. Requiring
@@ -117,12 +118,9 @@ const workspacePackages = (cwd) => {
 }
 
 const packageRoot = (cwd, name, workspaces) => {
-	const direct = join(cwd, 'node_modules', ...name.split('/'))
-	if (existsSync(join(direct, 'package.json'))) {
-		return direct
-	}
-
-	return workspaces.get(name)
+	// Hoisted workspaces install at the workspace root — Node-style walk-up
+	// first, then the declared workspace map.
+	return installedPackageRoot(cwd, name) ?? workspaces.get(name)
 }
 
 const frameworkPlugins = (cwd, name, workspaces) => {

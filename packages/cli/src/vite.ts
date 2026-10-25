@@ -17,6 +17,7 @@
 // app-specific extras via the `extra` option or a vite mergeConfig wrapper.
 
 import { serverBoundary } from '@octane-xplat/lib/server-boundary'
+import { installedPackageDir, installedPackageRoot } from './package-root.ts'
 import { createRequire } from 'node:module'
 import { existsSync, readFileSync, realpathSync, statSync } from 'node:fs'
 import { dirname, join, relative, resolve } from 'node:path'
@@ -78,16 +79,9 @@ const collectNsPluginDeps = (rootDir) => {
 
 			visited.add(name)
 
-			const pkgJsonPath = join(dir, 'node_modules', name, 'package.json')
-			let depDir
-			try {
-				depDir = dirname(realpathSync(pkgJsonPath))
-			} catch {
-				try {
-					depDir = dirname(req.resolve(`${name}/package.json`, { paths: [dir] }))
-				} catch {
-					continue
-				}
+			const depDir = installedPackageRoot(dir, name)
+			if (!depDir) {
+				continue
 			}
 
 			const depPkg = JSON.parse(readFileSync(join(depDir, 'package.json'), 'utf8'))
@@ -639,7 +633,7 @@ export const linkedDepFsRoots = (projectRoot, searchForWorkspaceRoot) => {
 			// checkout without changing the app manifest. Package.json need not
 			// be exported, so resolve the directory directly.
 			try {
-				const depDir = realpathSync(join(projectRoot, 'node_modules', name))
+				const depDir = realpathSync(installedPackageDir(projectRoot, name))
 				const rel = relative(realpathSync(projectRoot), depDir).replaceAll('\\', '/')
 				// Registry installs (including external pnpm stores) are not source
 				// checkouts. Never widen access to their enclosing workspace/store.
@@ -687,8 +681,12 @@ export const sourceOnlyDeps = (projectRoot) => {
 	for (const section of ['dependencies', 'optionalDependencies']) {
 		for (const name of Object.keys(pkg[section] ?? {})) {
 			try {
+				const depRoot = installedPackageRoot(projectRoot, name)
+				if (!depRoot) {
+					continue
+				}
 				const manifest = JSON.parse(
-					readFileSync(join(projectRoot, 'node_modules', name, 'package.json'), 'utf8'),
+					readFileSync(join(depRoot, 'package.json'), 'utf8'),
 				)
 
 				const exportsField = manifest.exports

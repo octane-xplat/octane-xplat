@@ -1,5 +1,6 @@
 import { readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
+import { installedPackageRoot } from '../package-root.ts'
 
 export const macOSRuntimePackageName = '@nativescript/macos-node-api'
 
@@ -23,7 +24,12 @@ function isFile(path) {
 }
 
 export function inspectMacOSRuntimePackage(appRoot) {
-	const packageRoot = join(appRoot, 'node_modules', ...macOSRuntimePackageName.split('/'))
+	// Hoisted workspaces install runtime packages at the workspace root, not
+	// <app>/node_modules — resolve the way Node does. Fall back to the literal
+	// path for the not-found packageRoot value.
+	const packageRoot =
+		installedPackageRoot(appRoot, macOSRuntimePackageName) ??
+		join(appRoot, 'node_modules', ...macOSRuntimePackageName.split('/'))
 	const packageManifest = readPackageManifest(join(packageRoot, 'package.json'))
 	const missingPaths = requiredPackageFiles.filter((path) => !isFile(join(packageRoot, path)))
 

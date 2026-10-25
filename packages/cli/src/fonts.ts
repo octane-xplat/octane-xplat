@@ -13,6 +13,7 @@ import { basename, extname, join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { inflateSync } from 'node:zlib'
 import { spawnSync } from 'node:child_process'
+import { installedPackageRoot } from './package-root.ts'
 
 export const FONT_EXTENSIONS = new Set(['.ttf', '.otf'])
 const CONVERTIBLE_EXTENSIONS = new Set(['.woff', '.woff2'])
@@ -359,9 +360,10 @@ export async function prepareFontsource(appDir, spec, { subset = 'latin', weight
 		return { error: `unsupported package ${spec} — only @fontsource/* and @fontsource-variable/*` }
 	}
 
-	// Prefer the direct node_modules path — Fontsource `exports` maps don't
-	// always re-export ./package.json, and pnpm links deps at this location.
-	let pkgDir = join(appDir, 'node_modules', ...spec.split('/'))
+	// Resolve through Node's walk-up (hoisted workspaces install at the
+	// workspace root) — Fontsource `exports` maps don't always re-export
+	// ./package.json, so probe the package dir rather than requiring it.
+	let pkgDir = installedPackageRoot(appDir, spec) ?? join(appDir, 'node_modules', ...spec.split('/'))
 	let wasInstalled = false
 	if (!existsSync(join(pkgDir, 'package.json'))) {
 		if (!install) {
