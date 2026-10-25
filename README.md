@@ -7,9 +7,9 @@
   </picture>
 </h1>
 
-Build the app you imagine for **web, iOS, and Android** from one TypeScript
-codebase. Share your screens and logic, then use each platform's capabilities
-whenever your app calls for them.
+Build the app you imagine for **web, iOS, Android, macOS, Windows, and Linux**
+from one TypeScript codebase. Share your screens and logic, then use each
+platform's capabilities whenever your app calls for them.
 
 Octane Xplat brings together [Octane](https://github.com/octanejs/octane)'s
 compiled UI, [NativeScript](https://docs.nativescript.org/)'s native platform
