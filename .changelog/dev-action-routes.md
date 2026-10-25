@@ -1,7 +1,3 @@
----
-release: lockstep
----
-
 ### Dev actions can navigate to their screen first
 
 Declared development actions can now carry a `route`: when invoked while their

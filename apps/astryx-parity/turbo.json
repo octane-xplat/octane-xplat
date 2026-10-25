@@ -1,0 +1,12 @@
+{
+	"$schema": "https://turborepo.dev/schema.json",
+	"extends": ["//"],
+	"tasks": {
+		// Launches Chromium and previews both sides — observable side effects,
+		// never cached.
+		"parity": {
+			"dependsOn": ["^typegen"],
+			"cache": false
+		}
+	}
+}

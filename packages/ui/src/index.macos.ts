@@ -15,11 +15,27 @@ export { VisuallyHidden } from './VisuallyHidden.macos.tsrx'
 /** Keyboard focus containment — web convention; the macOS leaf is an inert
  *  container. Check `getFocusScopeCapabilities()` before relying on flags. */
 export { FocusScope, getFocusScopeCapabilities } from './FocusScope.macos.tsrx'
+export type {
+	ColorAreaProps,
+	ColorBaseProps,
+	ColorFieldProps,
+	ColorPickerProps,
+	ColorSliderProps,
+	ColorSwatchProps,
+	ColorValueProps,
+} from './props'
+
 export type { PanEvent, PanState, SwipeEvent, SetTranslate } from './props'
 export { setTranslate } from './translate.macos'
 export { Text, RichText, RichTextSpan } from './Text.macos.tsrx'
 export { Pressable } from './Pressable.macos.tsrx'
 export { Button, Switch, Slider, SegmentedControl, SearchInput } from './controls.macos.tsrx'
+/** Color suite — self-drawn picker parts on the AppKit renderer. */
+export { ColorArea } from './ColorArea.macos.tsrx'
+export { ColorSlider } from './ColorSlider.macos.tsrx'
+export { ColorSwatch } from './ColorSwatch.macos.tsrx'
+export { ColorField } from './ColorField.macos.tsrx'
+export { ColorPicker } from './ColorPicker.macos.tsrx'
 export { IconButton } from './IconButton.macos.tsrx'
 export { ButtonGroup } from './ButtonGroup.macos.tsrx'
 export { ToggleButton, ToggleButtonGroup } from './ToggleButton.macos.tsrx'

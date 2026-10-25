@@ -618,6 +618,7 @@ export type Role =
 	| 'menuitemcheckbox'
 	| 'menuitemradio'
 	| 'meter'
+	| 'status'
 
 /** Text label — a `span`-class text host (NS `Label`/`TextView` on native). `numberOfLines` truncates with an ellipsis (web uses line-clamp); `ellipsize` shrinks the box instead of wrapping. Typography comes from `className`/theme tokens; use `Heading` for semantic levels and `RichText`/`RichTextSpan` for mixed-format runs.
  *
@@ -2107,13 +2108,13 @@ export type SideDrawerProps = PlatformWidgetProps<DrawerProps>
 /** Props accepted by `DrawerLayout` (`@octane-xplat/ui/android`). */
 export type DrawerLayoutProps = PlatformWidgetProps<DrawerProps>
 
-/** Shared self-drawn switch — identical pixels on every target (the `Switch` parity class). Controlled `checked`+`onCheckedChange`, or uncontrolled `defaultChecked`; field vocabulary (`label`, `status`, `isDisabled`) via `FieldControlProps`. For the OS widget use `UISwitch`/`MaterialSwitch`.
+/** Shared self-drawn switch — identical pixels on every target (the `Switch` parity class). Controlled `value`+`onChange`, or uncontrolled `defaultValue`; field vocabulary (`label`, `status`, `isDisabled`) via `FieldControlProps`. For the OS widget use `UISwitch`/`MaterialSwitch`.
  *
  * @example
  * ```tsx
  * import { Switch } from '@octane-xplat/ui'
  *
- * <Switch label="Notifications" checked={enabled} onCheckedChange={setEnabled} />
+ * <Switch label="Notifications" value={enabled} onChange={setEnabled} />
  * ```
  * @see PlatformSwitchProps.
  */
@@ -2123,13 +2124,22 @@ export interface SwitchProps extends FieldControlProps, TestIDProps {
 	id?: string
 	/** Optional explicit accessible name override for the switch. */
 	accessibilityLabel?: string
-	/** Controlled checked state — pair with `onCheckedChange`. */
-	checked?: boolean
-	/** Initial checked state for uncontrolled use; `checked` wins when both
+	/** Controlled checked state — pair with `onChange`. */
+	value?: boolean
+	/** Initial checked state for uncontrolled use; `value` wins when both
 	 *  are set. */
-	defaultChecked?: boolean
+	defaultValue?: boolean
 	/** Called with the requested next state when the user toggles. */
-	onCheckedChange?: (checked: boolean) => void
+	onChange?: (checked: boolean) => void
+	/** Async action fired after `onChange`. While it runs the switch shows
+	 *  the loading state; a rejection reverts the toggle and reports the
+	 *  previous value through `onChange` again. */
+	changeAction?: (checked: boolean) => void | Promise<void>
+	/** Which side of the track the label column sits on. @default 'end' */
+	labelPosition?: 'start' | 'end'
+	/** `'hug'` keeps the label beside the track; `'spread'` pushes it to the
+	 *  field's opposite edge. @default 'hug' */
+	labelSpacing?: 'hug' | 'spread'
 	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
 	android?: PlatformProps
@@ -2150,7 +2160,7 @@ export interface SwitchProps extends FieldControlProps, TestIDProps {
  * ```tsx
  * import { UISwitch } from '@octane-xplat/ui/ios'
  *
- * <UISwitch checked={on} onCheckedChange={setOn} label="Wi-Fi" />
+ * <UISwitch value={on} onChange={setOn} label="Wi-Fi" />
  * ```
  * @see SwitchProps for the self-drawn shared switch.
  */
@@ -2158,13 +2168,13 @@ export interface PlatformSwitchProps extends TestIDProps {
 	className?: ClassValue
 	style?: StyleProp
 	id?: string
-	/** Controlled checked state — pair with `onCheckedChange`. */
-	checked?: boolean
-	/** Initial checked state for uncontrolled use; `checked` wins when both
-	 *  are set. Without `checked` the OS widget owns its state. */
-	defaultChecked?: boolean
+	/** Controlled checked state — pair with `onChange`. */
+	value?: boolean
+	/** Initial checked state for uncontrolled use; `value` wins when both
+	 *  are set. Without `value` the OS widget owns its state. */
+	defaultValue?: boolean
 	/** Called with the requested next state when the user toggles. */
-	onCheckedChange?: (checked: boolean) => void
+	onChange?: (checked: boolean) => void
 	isDisabled?: boolean
 	isReadOnly?: boolean
 	/** Spoken name source — the platform widget renders no visible label. */
@@ -2275,6 +2285,54 @@ export interface SliderProps {
 export type UISliderProps = PlatformWidgetProps<SliderProps>
 /** Props accepted by `SeekBar` (`@octane-xplat/ui/android`). */
 export type SeekBarProps = PlatformWidgetProps<SliderProps>
+
+/** Shared color-value contract — output hex is lowercase '#rrggbb'; input
+ *  also accepts '#rgb', any case, and a missing '#'. */
+export interface ColorValueProps {
+	/** Controlled color. */
+	value?: string
+	/** Initial color for uncontrolled use. */
+	defaultValue?: string
+	/** Continuous changes — drag moves, keyboard steps, field commits. */
+	onChange?: (hex: string) => void
+	/** Committed changes — drag end, keyboard step, field commit. */
+	onChangeEnd?: (hex: string) => void
+	isDisabled?: boolean
+}
+export interface ColorBaseProps {
+	id?: string
+	testID?: string
+	className?: ClassValue
+	style?: StyleProp
+	accessibilityLabel?: string
+}
+
+/** Small color chip — `color` accepts the shared hex forms. */
+export interface ColorSwatchProps extends ColorBaseProps {
+	color: string
+	size?: number
+}
+
+/** 2D saturation/brightness area for the current hue — x = saturation,
+ *  y = brightness (HSB). Drag is delta-based from the value at gesture
+ *  start; there is no tap-to-position. */
+export interface ColorAreaProps extends ColorValueProps, ColorBaseProps {}
+
+/** Single-channel slider. `hue` is the documented channel subset for v1. */
+export interface ColorSliderProps extends ColorValueProps, ColorBaseProps {
+	channel: 'hue'
+}
+
+/** Hex text field — commits on submit/blur; invalid input restores the
+ *  current value. */
+export interface ColorFieldProps extends ColorValueProps, ColorBaseProps {
+	label?: string
+}
+
+/** Fixed composite picker — ColorArea + hue ColorSlider + a row of
+ *  ColorSwatch and ColorField. React Aria's children-composition picker is
+ *  deferred. */
+export interface ColorPickerProps extends ColorValueProps, ColorBaseProps {}
 
 /** Identifiers of the framework-provided icons — registered automatically
  *  and used by built-in affordances (search/clear glyphs, disclosure and
@@ -5820,27 +5878,29 @@ export type AccordionProps = AccordionSingleProps | AccordionMultipleProps
  * ```tsx
  * import { CheckboxInput } from '@octane-xplat/ui'
  *
- * <CheckboxInput label="Subscribe" checked={subscribed} onCheckedChange={setSubscribed} />
+ * <CheckboxInput label="Subscribe" value={subscribed} onChange={setSubscribed} />
  * ```
  * @see CheckboxGroupProps (`CheckboxList`) for multi-choice lists.
  */
-export interface CheckboxProps extends FieldControlProps {
+export interface CheckboxProps extends FieldControlProps, TestIDProps {
 	className?: ClassValue
 	style?: StyleProp
 	id?: string
-	/** Controlled checked state — pair with `onCheckedChange`. */
-	checked?: boolean
-	/** Initial checked state for uncontrolled use; `checked` wins when both
-	 *  are set. */
-	defaultChecked?: boolean
-	/** Partial-selection state (parent-of-a-tree semantics). Renders the
-	 *  indicator's `indeterminate` mark and `aria-checked="mixed"` on web;
-	 *  NativeScript reports `Partially selected` (no mixed state enum);
-	 *  AppKit exposes the semantic mixed checkbox value. */
-	indeterminate?: boolean
+	/** Controlled state — pair with `onChange`. `'indeterminate'` is the
+	 *  partial-selection state (parent-of-a-tree semantics): it renders the
+	 *  indicator's `indeterminate` mark and the DOM `indeterminate` property
+	 *  on web; NativeScript reports `Partially selected` (no mixed state
+	 *  enum); AppKit exposes the semantic mixed checkbox value. */
+	value?: boolean | 'indeterminate'
+	/** Initial state for uncontrolled use; `value` wins when both are set. */
+	defaultValue?: boolean | 'indeterminate'
 	/** Called with the requested next state when the user toggles (always
-	 *  `true` when leaving `indeterminate`). */
-	onCheckedChange?: (checked: boolean) => void
+	 *  `true` when leaving `'indeterminate'`). */
+	onChange?: (checked: boolean) => void
+	/** Async action fired after `onChange`. While it runs the checkbox shows
+	 *  the loading state; a rejection reverts the toggle and reports the
+	 *  previous value through `onChange` again. */
+	changeAction?: (checked: boolean) => void | Promise<void>
 	accessibilityLabel?: string
 	accessibilityHint?: string
 	/** Platform-specific properties are applied after shared props. */

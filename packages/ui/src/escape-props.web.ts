@@ -12,13 +12,18 @@ export function applyEscapeProps(element: any, props: { web?: any }): void {
 			} else {
 				element.setAttribute(key, value === true ? '' : String(value))
 			}
+		} else if (value == null) {
+			// Nullish clears: assigning null/undefined to a DOM property like
+			// `title` stringifies it ("undefined"), so remove the reflected
+			// attribute instead — it clears both attribute and property.
+			element.removeAttribute(key)
 		} else if (key in element) {
 			try {
 				element[key] = value
 			} catch {
 				element.setAttribute(key, String(value))
 			}
-		} else if (value != null) {
+		} else {
 			element.setAttribute(key, String(value))
 		}
 	}

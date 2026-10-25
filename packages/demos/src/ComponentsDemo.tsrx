@@ -86,7 +86,7 @@ export function ComponentsDemo() @{
 
 		<View className="controls-section">
 			<Text className="font-bold">CheckboxInput + RadioList</Text>
-			<CheckboxInput checked={checked} onCheckedChange={setChecked} label="Checked" />
+			<CheckboxInput value={checked} onChange={setChecked} label="Checked" />
 			<RadioList
 				options={[{ value: 'a', label: 'Alpha' }, { value: 'b', label: 'Beta' }, { value: 'c', label: 'Gamma', isDisabled: true }]}
 				value={radio}

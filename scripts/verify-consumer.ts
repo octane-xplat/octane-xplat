@@ -379,6 +379,7 @@ try {
 		() => {
 			// Read the installed graph without assuming pnpm's store directory layout.
 			const listing = spawnSync('pnpm', ['list', '--depth', 'Infinity', '--json'], {
+				shell: process.platform === 'win32',
 				cwd: appDir,
 				encoding: 'utf8',
 				maxBuffer: 64 * 1024 * 1024,
@@ -684,6 +685,7 @@ try {
 				'pnpm',
 				['exec', 'vite', 'preview', '--port', String(port), '--strictPort'],
 				{
+					shell: process.platform === 'win32',
 					cwd: appDir,
 					detached: true,
 					stdio: ['ignore', 'pipe', 'pipe'],

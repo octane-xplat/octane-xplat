@@ -73,13 +73,11 @@ export function Example() {
 
 `TextInput`, `TextArea`, and `SearchInput` accept the shared field props:
 `label`, `description`, `isLabelHidden`, `isDisabled`, `isReadOnly`,
-`isRequired`, `isOptional`, `size`, `status`, and `isLoading`. Labels are
-optional for composition inside `Field`; the wrapper renders the visible label,
-description, and status text, and connects them to the child control. A
-standalone control's `label` supplies its accessible name, and its
-`description`, `status` message, and `disabledMessage` still announce through
-the platform's accessibility description channel (`aria-description` on web,
-the accessibility hint on native). `hasClear` is opt-in on `TextInput` and defaults
+`isRequired`, `isOptional`, `size`, `status`, and `isLoading`. A standalone
+`TextInput` draws its own field: the `label` above the box, the `description`
+under the label, and the `status` message attached below the box. Tapping the
+label focuses the input. Inside `Field`, the wrapper draws those parts instead
+and the control renders only the box, so you never get two labels. `hasClear` is opt-in on `TextInput` and defaults
 to the existing clear behavior on `SearchInput`. `isLoading` announces busy
 work and does not disable editing. Avoid replacing the native view through the
 handle: use `value` to change its text.

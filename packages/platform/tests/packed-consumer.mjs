@@ -21,7 +21,12 @@ const temporary = realpathSync(mkdtempSync(join(tmpdir(), 'xplat-platform-source
 const modules = join(temporary, 'node_modules/@octane-xplat')
 
 try {
-	execFileSync('pnpm', ['pack', '--pack-destination', temporary], { cwd: root, stdio: 'pipe' })
+	execFileSync('pnpm', ['pack', '--pack-destination', temporary], {
+		cwd: root,
+		stdio: 'pipe',
+		shell: process.platform === 'win32',
+	})
+
 	const tarball = readdirSync(temporary).find((file) => file.endsWith('.tgz'))
 	writeFileSync(
 		join(temporary, 'package.json'),
@@ -33,6 +38,7 @@ try {
 	)
 
 	execFileSync('pnpm', ['install', '--ignore-scripts', '--config.auto-install-peers=false'], {
+		shell: process.platform === 'win32',
 		cwd: temporary,
 		stdio: 'pipe',
 	})

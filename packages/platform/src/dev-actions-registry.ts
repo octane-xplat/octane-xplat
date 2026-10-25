@@ -179,6 +179,19 @@ interface RegistryState {
 	navigator?: { impl: DevActionNavigator; unsubscribe?: () => void }
 }
 
+/**
+ * A dev-action failure carrying a protocol error code instead of the generic
+ * `execution_failure` — used by `xplat.navigate` to surface the router's
+ * `navigation_blocked`/`navigation_failed` codes verbatim. @internal
+ */
+export class DevNavigationError extends Error {
+	code: 'navigation_blocked' | 'navigation_failed'
+	constructor(code: 'navigation_blocked' | 'navigation_failed', message: string) {
+		super(message)
+		this.code = code
+	}
+}
+
 /** The result a router navigator reports to the dev-actions registry. @internal */
 export type DevNavigationResult =
 	| { ok: true; route: string | null }
@@ -1264,7 +1277,7 @@ async function dispatchInvocation(rt: BridgeRuntime, request: InvocationRequest)
 							requestId: request.requestId,
 							status: 'failed',
 							error: {
-								code: 'execution_failure',
+								code: error instanceof DevNavigationError ? error.code : 'execution_failure',
 								message: (error as Error)?.message ?? String(error),
 								...(invocationFailures?.length
 									? { failures: invocationFailures }

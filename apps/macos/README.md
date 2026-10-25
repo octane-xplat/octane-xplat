@@ -329,8 +329,10 @@ other `require()` imports and dynamic `require()`. The supported Node subset is
 `crypto.createHash('sha256').update(data).digest('hex')`, synchronous `fs`
 `mkdirSync`/`existsSync`/`readFileSync`/`writeFileSync`, `os.homedir()`, and
 `path.join`/`path.resolve`. Globals include `console`, `process.env` reads,
-`process.cwd()`, `Buffer.from(base64, 'base64')`, timers, and
-`queueMicrotask`. Packaging rejects static calls to unsupported host members;
+`process.cwd()`, `Buffer.from(base64, 'base64')`, timers, `queueMicrotask`,
+`AbortController`/`AbortSignal`, and `WebSocket` (backed by
+`NSURLSessionWebSocketTask`; `ws:` and `wss:` URLs, text and binary
+`ArrayBuffer` messages, `binaryType` stays `'arraybuffer'`). Packaging rejects static calls to unsupported host members;
 the shim also throws `Unsupported macOS host API` for unsupported runtime
 access. Use the AppKit ObjC bridge for native UI and services; general Node
 modules are outside this host contract.
@@ -389,7 +391,9 @@ gitignored `research/`.
 
 From the repository root, run `node packages/cli/test/verify-macos-jsc.mjs`
 to build an independent unsigned fixture app, boot its packaged executable,
-and check the unsupported-import diagnostic. The script leaves its artifacts
+and check the unsupported-import diagnostic. Run
+`node packages/cli/test/verify-macos-websocket.mjs` to exercise the host's
+`WebSocket` global against a real echo server. Both scripts leave artifacts
 under gitignored `research/` for inspection.
 
 Set the optional `icon` package field to an app-root-relative `.icns` file to

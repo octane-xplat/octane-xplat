@@ -48,7 +48,7 @@ export function PinInput(props: PinInputProps) @{
 		<FieldProvider value={null}>{Array.from({ length }, (_, i) => (
 			<TextInput
 				key={i}
-				label={`${fieldProps.fieldLabel ?? fieldProps.ariaLabel ?? 'PIN'}, digit ${i + 1}`}
+				accessibilityLabel={`${fieldProps.fieldLabel ?? fieldProps.ariaLabel ?? 'PIN'}, digit ${i + 1}`}
 				className="vx-pininput-cell"
 				keyboardType="number"
 				secure={props.secure}

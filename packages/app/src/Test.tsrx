@@ -114,15 +114,15 @@ export function Test() @{
 				<Text>Notifications</Text>
 				<Switch
 					id="sw-notifications"
-					checked={notifications}
-					onCheckedChange={(v) => { console.log('[probe] switch notif -> ' + v); setNotifications(v); }}
+					value={notifications}
+					onChange={(v) => { console.log('[probe] switch notif -> ' + v); setNotifications(v); }}
 				/>
 			</HStack>
 			<HStack className="setting-row">
 				<Text>Analytics</Text>
 				<Switch
-					checked={analytics}
-					onCheckedChange={(v) => { console.log('[probe] switch analytics -> ' + v); setAnalytics(v); }}
+					value={analytics}
+					onChange={(v) => { console.log('[probe] switch analytics -> ' + v); setAnalytics(v); }}
 				/>
 			</HStack>
 			{/* onPress passes the tap event — wrap; openBottomSheet's first arg is the

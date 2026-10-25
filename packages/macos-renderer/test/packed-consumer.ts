@@ -9,6 +9,9 @@ import { fileURLToPath } from 'node:url'
 const actionBarOnly = process.argv.includes('--actionbar')
 const liquidGlassOnly = process.argv.includes('--liquidglass')
 
+const ambientEnv = { ...process.env }
+delete ambientEnv.XPLAT_MASON_LIB
+
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const repo = resolve(packageRoot, '../..')
 const directory = await mkdtemp(join(tmpdir(), 'xplat-macos-renderer-'))
@@ -24,7 +27,7 @@ function run(command: string, args: string[], cwd = app) {
 		encoding: 'utf8',
 		timeout: 180_000,
 		maxBuffer: 16 * 1024 * 1024,
-		env: { ...process.env, MACOS_SIGNING_IDENTITY: '', MACOS_NOTARY_PROFILE: '' },
+		env: { ...ambientEnv, MACOS_SIGNING_IDENTITY: '', MACOS_NOTARY_PROFILE: '' },
 	})
 }
 
@@ -35,6 +38,12 @@ async function pack(root: string) {
 }
 
 const renderer = await pack(packageRoot)
+assert.ok(
+	run('tar', ['-tzf', renderer.slice('file:'.length)], packs).includes(
+		'package/platforms/macos/prebuilt/libxplatmason.dylib',
+	),
+	'packed renderer must ship the prebuilt Mason engine',
+)
 const platform = await pack(join(repo, 'packages/platform'))
 const jsx = await pack(join(repo, 'packages/jsx'))
 const cli = await pack(join(repo, 'packages/cli'))
@@ -238,18 +247,26 @@ console.log('[packed renderer] types and production build pass without harness a
 if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 	console.log('[packed renderer] AppKit runtime and HMR require Apple Silicon macOS; not run')
 } else {
-	// The packed app's dylib lookup is cwd-relative and cannot reach this
-	// checkout, so hand it the locally built Mason engine explicitly.
-	const masonLibrary =
-		process.env.XPLAT_MASON_LIB ?? join(packageRoot, 'native/xplatmason/libxplatmason.dylib')
-
-	assert.ok(
-		existsSync(masonLibrary),
-		`Mason engine not found at ${masonLibrary}; build it with native/xplatmason/build.sh or set XPLAT_MASON_LIB`,
-	)
-
 	console.log('[packed renderer] packaging and launching the standalone app')
 	run('pnpm', ['exec', 'xplat', 'build', '--targets', 'macos'])
+	assert.ok(
+		existsSync(
+			join(
+				app,
+				'artifacts/macos-arm64/RendererConsumer.app/Contents/Frameworks/libxplatmason.dylib',
+			),
+		),
+		'packaged app must embed the Mason engine in Contents/Frameworks',
+	)
+	const notices = await readFile(
+		join(
+			app,
+			'artifacts/macos-arm64/RendererConsumer.app/Contents/Resources/licenses/THIRD-PARTY-NOTICES.txt',
+		),
+		'utf8',
+	)
+	assert.match(notices, /@octane-xplat\/macos-renderer/)
+	assert.match(notices, /Apache License/)
 	const executable = join(
 		app,
 		'artifacts/macos-arm64/RendererConsumer.app/Contents/MacOS/RendererConsumer',
@@ -260,10 +277,9 @@ if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 		encoding: 'utf8',
 		timeout: 30_000,
 		env: {
-			...process.env,
+			...ambientEnv,
 			OCTANE_MACOS_AUTOMATION: '1',
 			XPLAT_RENDERER_CONSUMER_TEST: '1',
-			XPLAT_MASON_LIB: masonLibrary,
 		},
 	})
 
@@ -300,7 +316,7 @@ if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 		assert.match(output, /PACKED_LIQUIDGLASS_OK/)
 	}
 
-	assert.doesNotMatch(output, /PACKED_RENDERER_FAIL|uncaught render error/)
+	assert.doesNotMatch(output, /PACKED_RENDERER_FAIL|uncaught render error|\[macos-mason\]/)
 	console.log(
 		actionBarOnly
 			? '[packed renderer] ActionBar lifecycle assertions pass'
@@ -311,9 +327,10 @@ if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 
 	console.log('[packed renderer] verifying retained-root HMR')
 	const dev = spawn('pnpm', ['exec', 'xplat', 'dev', '--targets', 'macos'], {
+		shell: process.platform === 'win32',
 		cwd: app,
 		stdio: ['ignore', 'pipe', 'pipe'],
-		env: { ...process.env, OCTANE_MACOS_AUTOMATION: '1', XPLAT_MASON_LIB: masonLibrary },
+		env: { ...ambientEnv, OCTANE_MACOS_AUTOMATION: '1' },
 	})
 
 	let devOutput = ''
@@ -382,7 +399,7 @@ if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 			assert.match(devOutput, /PACKED_PLACEHOLDER_HMR_OK/)
 		}
 
-		assert.doesNotMatch(devOutput, /PACKED_HMR_FAIL|uncaught render error/)
+		assert.doesNotMatch(devOutput, /PACKED_HMR_FAIL|uncaught render error|\[macos-mason\]/)
 	} finally {
 		clearTimeout(deadline)
 		if (dev.exitCode === null && dev.signalCode === null) {

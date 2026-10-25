@@ -1,7 +1,3 @@
----
-release: lockstep
----
-
 ### Declare Bamboo's build targets for custom Vite builders
 
 Cloudflare SPA builds can leave a configured SSR target unused. Declare the

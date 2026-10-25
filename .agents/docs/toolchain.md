@@ -175,6 +175,24 @@ experience of agents writing Octane-xplat code effectively.
   const Screen = () => null
   export { Screen as default }
   ```
+- **Hoisted workspaces need the canonical exports-reverse-map fix on
+  NativeScript Vite 8.0.20.** Its runtime-plugin bare-specifier fold reads
+  `projectRoot/node_modules/<pkg>/package.json` literally, so in a
+  `nodeLinker: hoisted` workspace (the app's `node_modules` is empty and
+  packages live at the workspace root) the exports reverse map comes out
+  empty. A deep vendor specifier such as
+  `@nativescript-community/octane/dist/index.js` then fails to fold back to
+  the bare id, misses every `__nsVendorRegistry` key and alias, and device
+  `require` resolves a module without the vendored exports — the app
+  boot-crashes inside the first served UI module
+  (`TypeError: __octaneUniversalPlan is not a function`). The canonical
+  patch locates the package's `package.json` through Node's `node_modules`
+  ancestor chain instead. The installed-patch regression lives in
+  `packages/cli/test/vite-vendor-specifier-fold.test.mjs`; device evidence
+  is the hoisted-workspace iOS boot. Remove this hunk when an adopted
+  upstream release resolves installed package metadata through ancestor
+  `node_modules`.
+
 - NativeScript Vite 8.0.20 collapses unrelated paths containing `/src/` in
   its HMR graph ([NativeScript#11569](https://github.com/NativeScript/NativeScript/issues/11569)).
   Its extensionless workspace-module fetch also returns 404 although the same
@@ -424,3 +442,50 @@ upstream implementation. No dependency-discovery disabling, runtime facade shim
 or upstream patch was added. A follow-up should qualify scanner configuration or
 an upstream plugin correction while preserving the facade's type-only contract.
 The routing check must not be described as warning-free until that is resolved.
+
+## Dev `define` delivery is runtime plumbing, not substitution (`vite` 8.3.0, `@nativescript/vite` 8.0.20)
+
+**Verified upstream behavior, not a defect.** In unbundled dev (the default;
+`experimental.bundledDev` opts into the bundled pipeline) Vite's `vite:define`
+transform returns early for `consumer: 'client'`, so served module source
+keeps every `define` key verbatim — inspecting transformed output suggests
+`define` "doesn't reach the dev client". The values still arrive: `@vite/env`
+(imported first by `@vite/client`, which the dev HTML transform injects ahead
+of the app entry, and injected into module workers) evaluates a serialized
+`define` map once and assigns each key on `globalThis`, splitting dotted keys
+into nested objects. A bare `__FOO__` read resolves through the global scope
+chain; `process.env.X` reads resolve through the created
+`globalThis.process.env`. `process.env.NODE_ENV` is additionally substituted
+statically per-module by `vite:client-inject`, and `import.meta.env.X` by
+`vite:import-analysis`. Runtime-verified on vite 8.3.0 + Chromium: bare
+`__FOO__` reads, plugin `config`-hook defines, and modules outside the Vite
+root all resolve. Builds and bundled dev substitute statically through the
+bundler `transform.define` option, so production output is unaffected.
+
+On NativeScript dev targets the same coverage comes from upstream
+`@nativescript/vite` (≥8.0.17): `setUserDefineEntries` captures `config.define`
+in `configResolved`, and `process-code-for-device` prepends per-module
+`const __FOO__ = globalThis.__FOO__ !== undefined ? globalThis.__FOO__ : (expr)`
+shims to every device-served module, with esbuild `define` covering the deps
+bundle. Runtime-verified transitively: `__XPLAT_DEV_BRIDGE__` arrived on
+Android as a module-scope const (dd5c2c779's fix was the const-vs-global read,
+not delivery).
+
+Constraints this creates:
+
+- Marker-style defines stay verbatim in dev-served source. A plugin that
+  needs a literal in the emitted module (as `@octane-xplat/tweaks` does for
+  its connection marker) must substitute in `transform`; `config.define`
+  alone only plants the global. Define values are also evaluated once inside
+  `env.mjs` — an expression referencing module-local bindings throws for the
+  whole client at boot.
+- The NativeScript capture only admits `__FOO__`-pattern keys and
+  `process.env.*` (`USER_DEFINE_IDENTIFIER_RE`/`USER_PROCESS_ENV_DEFINE_RE`).
+  A define like `API_URL` receives no device shim: the production bundle
+  substitutes it statically while the dev-served module leaves a free
+  identifier that throws at eval. Keep app-facing dev defines to the
+  `__FOO__` form or record a need to widen the upstream capture.
+- Read dev defines portably — bare identifier first, `globalThis` fallback —
+  the shape `packages/platform/src/dev-bridge.ts` adopted after a
+  `globalThis`-only read stayed undefined on NativeScript (device shims are
+  module-scope consts, not globals).

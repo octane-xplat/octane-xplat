@@ -5,7 +5,7 @@ import type { ProbeContext } from '../../scripts/probe/context'
 const events: [string, number, number][] = []
 
 export default function TouchSequence() {
-	return <masonview id="probe-touch" touch={(event: TouchGestureEventData) => {
+	return <masonview id="probe-touch" onTouch={(event: TouchGestureEventData) => {
 		events.push([event.action, event.getX(), event.getY()])
 	}}>
 		<label text="Touch sequence target" />

@@ -21,14 +21,14 @@ const { styleDict: styleDictRealm } = runInNewContext(
 		process: { env: {}, cwd: () => '/' },
 		NativeClass: (c: any) => c,
 		NSView: class {},
-		NSFileManager: { defaultManager: { fileExistsAtPath: () => false } },
+		// The engine ships prebuilt and the CLI bootstrap loads it; tests
+		// publish a stand-in host the way the dylib's +load would.
 		NSThread: { mainThread: { threadDictionary: { objectForKey: () => null } } },
 		NSScreen: { mainScreen: { backingScaleFactor: 2 } },
 		NSNotificationCenter: {
 			defaultCenter: { addObserverForNameObjectQueueUsingBlock: () => ({}) },
 		},
 		NSViewFrameDidChangeNotification: 'frame',
-		dlopen: () => true,
 	},
 )
 

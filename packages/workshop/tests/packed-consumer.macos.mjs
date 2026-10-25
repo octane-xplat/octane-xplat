@@ -261,6 +261,7 @@ void NoSuchWorkshopExport
 	)
 
 	const negative = spawnSync('pnpm', ['exec', 'tsc', '--noEmit'], {
+		shell: process.platform === 'win32',
 		cwd: consumer,
 		encoding: 'utf8',
 	})

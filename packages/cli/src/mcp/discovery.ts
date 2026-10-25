@@ -9,6 +9,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { dirname, join, relative, resolve, sep } from 'node:path'
 import { parse as parseYaml } from 'yaml'
 import { hasWeb } from '../targets.ts'
+import { installedPackageRoot } from '../package-root.ts'
 
 const SKIP_DIRS = new Set([
 	'node_modules',
@@ -122,14 +123,14 @@ export function detectGuidance(dir) {
 
 /** Resolve @octane-xplat/* versions from the app's actual node_modules. */
 function installedVersions(dir, declared) {
-	const scopeDir = join(dir, 'node_modules', '@octane-xplat')
+	// Resolve each declared dep through Node's walk-up so hoisted workspaces
+	// (scope dir only at the workspace root) report their installed versions.
 	const found = new Map()
-	if (existsSync(scopeDir)) {
-		for (const name of readdirSync(scopeDir)) {
-			const manifest = readJson(join(scopeDir, name, 'package.json'))
-			if (manifest?.version) {
-				found.set(`@octane-xplat/${name}`, manifest.version)
-			}
+	for (const name of Object.keys(declared).filter((n) => XPLAT_DEP.test(n))) {
+		const root = installedPackageRoot(dir, name)
+		const manifest = root && readJson(join(root, 'package.json'))
+		if (manifest?.version) {
+			found.set(name, manifest.version)
 		}
 	}
 

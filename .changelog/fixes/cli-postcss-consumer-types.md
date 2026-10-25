@@ -1,7 +1,3 @@
----
-release: lockstep
----
-
 ### Typecheck Vite configs with separate PostCSS patches
 
 Importing the CLI's Vite helpers no longer pulls their PostCSS implementation

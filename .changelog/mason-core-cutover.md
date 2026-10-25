@@ -1,7 +1,3 @@
----
-release: lockstep
----
-
 ### Mason core is the only mobile layout engine
 
 iOS and Android apps now always build with `@octane-xplat/nativescript-mason-core`,

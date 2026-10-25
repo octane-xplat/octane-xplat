@@ -7,7 +7,7 @@
 		"@nativescript-community/octane": "catalog:",
 		"@nativescript/core": "catalog:",
 		"@octane-xplat/ui": "workspace:*",
-		"@octane-xplat/nativescript-mason-core": "1.0.0-beta.3",
+		"@octane-xplat/nativescript-mason-core": "1.0.0-beta.4",
 		"octane": "catalog:"
 	},
 	"devDependencies": {

@@ -415,9 +415,11 @@ in Silo observation `10857de2-c089-42d4-bad5-0acab5da0eb4`.
 MasonKit's `@nativescript/core`-entangled element layer can't be installed.
 Instead the renderer binds the engine itself: `mason-c` (the crate's C ABI)
 is statically linked into a small ObjC facade dylib
-(`packages/macos-renderer/native/xplatmason/`, built by `build.sh` from the
-`research/nativescript-mason` checkout — not committed; the probe path is
-`XPLAT_MASON_LIB`).
+(`packages/macos-renderer/native/xplatmason/`). The dylib is committed
+prebuilt at `packages/macos-renderer/platforms/macos/prebuilt/` — rebuild it
+with `native/xplatmason/build.sh` against the pinned
+`research/nativescript-mason` checkout; the CLI bootstrap loads it before
+app JS.
 
 Bridge constraints discovered at runtime:
 
@@ -1433,3 +1435,47 @@ platforms and passes actual HID input on iOS Simulator and adb input on the
 Android emulator. No screenshot/image
 analysis is used. Commands and source mapping are recorded in
 `tools/mason-core/README.md` and `native-relocations.json` in the Mason fork.
+
+## Mason core beta.4 upgrade (2026-10-25)
+
+The workspace, starter compatibility catalog, and same-day-release exemption now
+pin `@octane-xplat/nativescript-mason-core@1.0.0-beta.4` (dist-tag `next`,
+release commit `7aff22079d08ec8982521331e5404f8405457471` in the Mason fork).
+beta.4 syncs shared engine, style and native-host changes from upstream MasonKit
+through beta.128: writing-mode and logical-box layout (logical margin, padding,
+inset and size longhands plus inherited text-orientation state), a 265-field /
+744-byte style buffer, and four new C exports (text orientation, combine-upright,
+spacing-trim, white-space getters). The iOS device/Simulator frameworks and the
+Android arm64-v8a AAR are rebuilt; iOS stays statically linked with shared
+FontManager ownership, so `@nativescript/font-manager` aligns to the package's
+declared 1.0.20. Full MasonKit remains on beta.126 for the Windows preview;
+core and full still cannot coinstall.
+
+Consumed-surface audit (package diff, source evidence): the driver patch keeps
+working unchanged — `View`, `Scroll`, `Style.fromView`, `batch`, `_styleHelper`,
+and every leaf longhand the foreign-child sync writes (display, physical
+margin/inset, size, flex, grid and position keys) retain their signatures.
+Logical longhands register on the shared NativeScript `Style` class and resolve
+through `installLogicalBoxes` on Mason's `ViewBase` prototype; the
+`logical-boxes` runtime ships but is not re-exported. Foreign leaves inherit
+writing-mode/text-orientation state through the Mason tree, so no leaf-key
+forwarding was needed. No repository source copies StyleKeys counts, buffer
+offsets, or C declarations. Exposing the new logical/writing-mode keys through
+`MasonStyleProps`/`MASON_STYLE_ONLY_PROPS` in the driver patch remains
+available as follow-up API surface, not a fix.
+
+Consumer validation: 48 Turbo typecheck tasks passed for every touched package
+and dependents; 21 create tests, 18 probe-runner tests, and the mason-related
+CLI tests pass. Two unrelated CLI test files fail on this checkout before and
+after the bump (`vite-vendor-internal-import.test.mjs` pnpm-store
+canonicalization assertions, `vite-server-boundary.test.mjs` missing engine
+stub in its fixture) — neither touches the mason path.
+
+Runtime qualification: `screen-safe-area.ios.tsrx` passed 28/28 assertions and
+`touch.mobile.tsrx` passed 1/1 on an arm64 iPhone 18 Pro-class iOS 27 Simulator
+("Mason core extraction" device), each in an isolated probe host built with
+core beta.4 and font-manager 1.0.20 — numeric frame and handler-dispatch
+evidence, not OS input or pixel parity. The touch case first failed because its
+`touch` JSX attribute never bound an event (the driver classifies only
+`on[A-Z]` props); it now uses `onTouch`. Android runtime remains unqualified —
+no authorized device or emulator on this host.

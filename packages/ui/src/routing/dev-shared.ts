@@ -6,6 +6,7 @@
 import {
 	registerDevAction,
 	setDevActionNavigator,
+	DevNavigationError,
 	type DevNavigationResult,
 } from '@octane-xplat/platform/dev-actions'
 import { hasNavigationBlockers, resetNavigationBlockers } from '../navigation-blocker'
@@ -13,6 +14,25 @@ import { bindRouterFlow } from '../router-instance'
 import type { NavigationResult, RouterInstance } from '../props'
 
 const GLOBAL_KEY = 'octane-xplat.routing-dev'
+
+/** `xplat.navigate`'s handler — a committed outcome or DevNavigationError. @internal */
+export async function runXplatNavigate(
+	router: RouterInstance,
+	input: Record<string, unknown>,
+	context: { signal: AbortSignal },
+): Promise<{ status: string; route: string }> {
+	const navigation = await devNavigate(router, String(input.url), context.signal, {
+		replace: input.replace === true,
+	})
+	if (navigation.ok) {
+		return { status: 'committed', route: navigation.route ?? '' }
+	}
+
+	throw new DevNavigationError(
+		navigation.code,
+		`navigation to "${input.url}" did not commit (${navigation.code}, status "${navigation.status}"): ${navigation.message}`,
+	)
+}
 /** How often a held navigation attempt is re-checked for blockers. */
 const BLOCKER_POLL_MS = 150
 
@@ -29,7 +49,7 @@ const describe = (result: NavigationResult): string => {
 		case 'redirect':
 			return 'the navigation was redirected and not followed'
 		case 'failed':
-			return `the route failed during ${result.phase}`
+			return `the route failed during ${result.phase}${result.error !== undefined ? `: ${result.error instanceof Error ? result.error.message : String(result.error)}` : ''}`
 		case 'cancelled':
 			return `the navigation was cancelled (${result.reason})`
 		case 'blocked':
@@ -199,18 +219,7 @@ export function registerRouterDevActionsFor(router: RouterInstance): { dispose()
 		},
 		effects: { summary: 'Navigates the app root flow to a URL', navigation: true },
 		execution: { concurrency: 'serialized', retryable: false },
-		async run(input, context) {
-			const navigation = await devNavigate(router, String(input.url), context.signal, {
-				replace: input.replace === true,
-			})
-			if (navigation.ok) {
-				return { status: 'committed', route: navigation.route ?? '' }
-			}
-
-			throw new Error(
-				`navigation to "${input.url}" did not commit (${navigation.code}, status "${navigation.status}"): ${navigation.message}`,
-			)
-		},
+		run: (input, context) => runXplatNavigate(router, input, context),
 	})
 
 	const restore = setDevActionNavigator({

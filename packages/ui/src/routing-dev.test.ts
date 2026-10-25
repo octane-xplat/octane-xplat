@@ -3,11 +3,11 @@
 // the DevActionNavigator's NavigationResult → DevNavigationResult mapping on a
 // real configured router with a protocol host (not a browser/Frame emulator).
 import { afterEach, expect, it } from 'vitest'
-import { listDevActions } from '@octane-xplat/platform/dev-actions'
+import { DevNavigationError, listDevActions } from '@octane-xplat/platform/dev-actions'
 import { createNavigationBlocker, registerNavigationBlocker } from './navigation-blocker'
 import { bindRouterFlow, createRouter } from './router-instance'
 import { defineRoutes } from './route-table'
-import { registerRouterDevActionsFor, devNavigate } from './routing/dev-shared'
+import { registerRouterDevActionsFor, devNavigate, runXplatNavigate } from './routing/dev-shared'
 import type { PreparedRouteMatch, RouterHost } from './props'
 
 function host() {
@@ -106,6 +106,35 @@ it('registers xplat.navigate idempotently and announces its contract', () => {
 	cleanups.push(() => restored.dispose())
 	expect(restored).not.toBe(first)
 	expect(listDevActions().some((entry) => entry.id === 'xplat.navigate')).toBe(true)
+})
+
+it('runXplatNavigate throws DevNavigationError with navigation_failed for a refused route', async () => {
+	const router = fixture()
+	cleanups.push(() => router.dispose())
+	const controller = new AbortController()
+	await expect(runXplatNavigate(router, { url: '/no-such-route' }, { signal: controller.signal })).rejects.toMatchObject({
+		code: 'navigation_failed',
+	})
+	await expect(runXplatNavigate(router, { url: '/no-such-route' }, { signal: controller.signal })).rejects.toBeInstanceOf(
+		DevNavigationError,
+	)
+})
+
+it('runXplatNavigate throws DevNavigationError with navigation_blocked for a held route', async () => {
+	const router = fixture()
+	cleanups.push(() => router.dispose())
+	const bound = bindRouterFlow(router, 'root')
+	const unregister = registerNavigationBlocker(bound, {
+		blocker: createNavigationBlocker(),
+		shouldBlock: () => true,
+	})
+	cleanups.push(unregister)
+
+	const controller = new AbortController()
+	await expect(runXplatNavigate(router, { url: '/checkout' }, { signal: controller.signal })).rejects.toMatchObject({
+		code: 'navigation_blocked',
+	})
+	await tick()
 })
 
 it('maps a committed navigation to ok with the concrete route', async () => {

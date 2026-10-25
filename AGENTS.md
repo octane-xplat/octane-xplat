@@ -147,7 +147,8 @@ Standing criteria for judgment calls; the critical rules encode the mechanics.
   Conventional Commits. Docs carry conclusions; Silo carries exploration state.
 - Select release notes by user impact, not commit count. Add `.changelog/*.md`
   for meaningful user-facing features and breaking changes, or
-  `.changelog/fixes/*.md` for user-facing bug fixes. Follow the
+  `.changelog/fixes/*.md` for user-facing fixes to bugs a stable release
+  already shipped — a fix for an unreleased bug needs no note. Follow the
   [authoring contract](.agents/docs/releases.md#write-a-release-note): concise
   plain language, a minimal usage/fix snippet for API changes, and official
   documentation links. Internal-only work needs no note. Conventional Commits

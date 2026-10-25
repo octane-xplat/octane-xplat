@@ -644,6 +644,12 @@ export type {
 export { ActivityIndicator as Spinner } from './ActivityIndicator'
 export { Meter } from './Meter'
 export { Slider } from './Slider'
+/** Color suite — React Aria counterparts (fixed-composition ColorPicker). */
+export { ColorArea } from './ColorArea'
+export { ColorSlider } from './ColorSlider'
+export { ColorSwatch } from './ColorSwatch'
+export { ColorField } from './ColorField'
+export { ColorPicker } from './ColorPicker'
 export { Icon } from './Icon'
 export { IconRegistryProvider } from './IconRegistryProvider'
 export { Heading } from './Heading'
@@ -664,6 +670,13 @@ export type {
 	RefreshProps,
 	SearchInputProps,
 	SliderProps,
+	ColorAreaProps,
+	ColorBaseProps,
+	ColorFieldProps,
+	ColorPickerProps,
+	ColorSliderProps,
+	ColorSwatchProps,
+	ColorValueProps,
 	StyledClass,
 	StyledDef,
 	StyledVariant,

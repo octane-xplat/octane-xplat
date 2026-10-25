@@ -16,18 +16,18 @@ export const CHECKS: ParityCheck[] = [
 			const track = m('track')
 			const thumb = m('thumb')
 			return [
-				dims(track, 48, 28),
-				dims(thumb, 22, 22),
+				dims(track, 40, 24),
+				dims(thumb, 16, 16),
 				circular(thumb),
 				[
-					'thumb parked left (3 pad)',
-					near(thumb.box.x - track.box.x, 3),
+					'thumb parked left (4 inset)',
+					near(thumb.box.x - track.box.x, 4),
 					thumb.box.x - track.box.x,
 				],
 				[
 					'thumb centered vertically',
-					near(thumb.box.y - track.box.y, 3),
-					thumb.box.y - track.box.y,
+					near(thumb.box.y + thumb.box.h / 2 - track.box.y, 12, 1),
+					thumb.box.y + thumb.box.h / 2 - track.box.y,
 				],
 			]
 		},
@@ -42,12 +42,14 @@ export const CHECKS: ParityCheck[] = [
 			const track = m('track')
 			const thumb = m('thumb')
 			return [
-				dims(track, 48, 28),
-				dims(thumb, 22, 22),
+				dims(track, 40, 24),
+				// Astryx grows the thumb 16→20 when on rather than translating it.
+				dims(thumb, 20, 20),
 				circular(thumb),
 				[
-					'thumb parked right (3 pad)',
-					near(track.box.w - (thumb.box.x - track.box.x) - thumb.box.w, 3),
+					'thumb parked right (2 inset)',
+					near(track.box.w - (thumb.box.x - track.box.x) - thumb.box.w, 2),
+					track.box.w - (thumb.box.x - track.box.x) - thumb.box.w,
 				],
 			]
 		},

@@ -18,32 +18,36 @@ export const CHECKS: ParityCheck[] = [
 	{
 		fixture: 'checkbox-on',
 		targets: ['web', 'ios', 'android', 'macos'],
-		elements: { row: 'vx-checkbox-row', box: 'vx-checkbox', glyph: 'vx-checkbox-check' },
-		equal: [
-			'box.style.backgroundColor',
-			'glyph.style.fontSize',
-			'glyph.style.lineHeight',
-			'glyph.style.color',
-		],
-		check: (m, target) => {
+		elements: { row: 'vx-checkbox-row', box: 'vx-checkbox' },
+		equal: ['box.style.backgroundColor'],
+		check: (m, target, dump) => {
 			const box = m('box')
-			const glyph = m('glyph')
-			const expectedGlyphWidth = ({ web: 11.98, ios: 10.67, android: 11.43 } as Record<string, number>)[target]
-			const rows: CheckRow[] = [
-				dims(box, 24, 24),
-				['check glyph has positive bounds', glyph.box?.w > 0 && glyph.box?.h > 0],
-				['glyph centered in box', near(glyph.box.x + glyph.box.w / 2 - box.box.x, 12, 1)],
-			]
-
-			if (expectedGlyphWidth !== undefined) {
-				// The ✓ advance comes from each target's actual font fallback.
-				rows.push([
-					'check glyph width matches target font metrics',
-					near(glyph.box?.w, expectedGlyphWidth, 0.75),
-					`${glyph.box?.w}px; expected ${expectedGlyphWidth}px`,
-				])
+			const rows: CheckRow[] = [dims(box, 24, 24)]
+			if (target === 'macos') {
+				// The macOS leaf still draws the ✓ font glyph; web/iOS/Android
+				// share Astryx's drawn check (vx-ind-checkmark).
+				return rows
 			}
 
+			// The drawn check is not in `elements` so resolve() doesn't fail on
+			// macOS; on the shared-geometry targets it must be present.
+			const glyph = (dump.cells?.['checkbox-on'] ?? []).find((n) =>
+				n.classes?.includes('vx-ind-checkmark'),
+			)
+			rows.push(
+				['drawn check mark present', glyph != null],
+				[
+					'check mark is 14×14',
+					near(glyph?.box?.w, 14, 1) && near(glyph?.box?.h, 14, 1),
+					`${glyph?.box?.w}×${glyph?.box?.h}`,
+				],
+				[
+					'check centered in box',
+					glyph != null &&
+						near(glyph.box.x + glyph.box.w / 2 - box.box.x, 12, 1) &&
+						near(glyph.box.y + glyph.box.h / 2 - box.box.y, 12, 1),
+				],
+			)
 			return rows
 		},
 	}

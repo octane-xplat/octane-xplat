@@ -39,7 +39,7 @@ function delay(signal: AbortSignal, milliseconds: number): Promise<void> {
 			resolve()
 		}, milliseconds)
 		signal.addEventListener('abort', abort, { once: true })
-		if (signal.aborted) abort()
+		if (signal.aborted) { abort() }
 	})
 }
 
@@ -66,7 +66,7 @@ export function createDemoSession(
 		async (id: string, { signal }) => {
 			await delay(signal, options.latencyMs ?? 250)
 			const user = records(account).get(id)
-			if (!user) throw new Error('Demo user not found')
+			if (!user) { throw new Error('Demo user not found') }
 			return { ...user }
 		},
 		{ ...policy, compareAuthority: (incoming, current) => incoming.revision - current.revision },
@@ -96,7 +96,7 @@ export function createDemoSession(
 			return queries.runOptimistic(users, id, async (operation, user$, { signal }) => {
 				operation.set(user$, (current) => ({ ...current, name }))
 				await delay(signal, options.latencyMs ?? 250)
-				if (rejectSave) throw new Error('Demo server rejected the rename')
+				if (rejectSave) { throw new Error('Demo server rejected the rename') }
 				const previous = records(account).get(id)!
 				const receipt = { ...previous, name, revision: previous.revision + 1 }
 				records(account).set(id, receipt)
@@ -137,7 +137,7 @@ if (import.meta.env.DEV) {
 		const session = demoSession.getSnapshot()
 		const { inspectQueryClient, registerQueryInspection } =
 			await import('@octane-xplat/ui/data/dev')
-		if (revision !== generation) return
+		if (revision !== generation) { return }
 		const inspector = inspectQueryClient(session.queries, {
 			labels: [
 				{ definition: session.users, label: 'demo.users' },

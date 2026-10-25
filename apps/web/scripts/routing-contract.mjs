@@ -15,7 +15,13 @@ for (const args of [
 	['--filter', '@octane-xplat/ui', 'typegen'],
 	['--filter', '@octane-xplat/cli', 'build'],
 ]) {
-	const built = spawnSync('pnpm', args, { cwd: workspace, encoding: 'utf8', timeout: 120000 })
+	const built = spawnSync('pnpm', args, {
+		cwd: workspace,
+		encoding: 'utf8',
+		timeout: 120000,
+		shell: process.platform === 'win32',
+	})
+
 	assert.equal(built.status, 0, (built.stdout ?? '') + (built.stderr ?? ''))
 }
 
@@ -26,6 +32,7 @@ for (const project of ['tsconfig.json', 'tsconfig.source.json']) {
 		'pnpm',
 		['exec', 'tsrx-tsc', '--noEmit', '-p', 'tests/fixtures/routing-contract/' + project],
 		{
+			shell: process.platform === 'win32',
 			cwd: fileURLToPath(new URL('../', import.meta.url)),
 			encoding: 'utf8',
 			timeout: 60000,
@@ -37,8 +44,14 @@ for (const project of ['tsconfig.json', 'tsconfig.source.json']) {
 
 // Optional retained production artifact for a second engine/desktop host.
 const artifactBase = process.env.XPLAT_ROUTING_ARTIFACT_DIR
-if (artifactBase) {await mkdir(resolve(artifactBase), { recursive: true })}
-const output = await mkdtemp(join(artifactBase ? resolve(artifactBase) : tmpdir(), 'xplat-routing-browser-'))
+if (artifactBase) {
+	await mkdir(resolve(artifactBase), { recursive: true })
+}
+
+const output = await mkdtemp(
+	join(artifactBase ? resolve(artifactBase) : tmpdir(), 'xplat-routing-browser-'),
+)
+
 let server
 let browser
 const checks = []
@@ -987,75 +1000,160 @@ try {
 	await focus.evaluate(() => window.__routing.modal())
 	await focus.evaluate(() => window.__routing.modalPush())
 	await focus.keyboard.press('Tab')
-	check('browser Tab enters the active modal controls', await focus.evaluate(() =>
-		document.activeElement === document.querySelector('[role="dialog"] #item')), true)
+	check(
+		'browser Tab enters the active modal controls',
+		await focus.evaluate(
+			() => document.activeElement === document.querySelector('[role="dialog"] #item'),
+		),
+		true,
+	)
+
 	await focus.keyboard.press('Tab')
-	check('browser Tab wraps inside the active modal', await focus.evaluate(() =>
-		document.querySelector('[role="dialog"]').contains(document.activeElement)), true)
-	check('inert presenter rejects programmatic focus', await focus.evaluate(() => {
-		document.getElementById('item').focus()
-		return document.querySelector('[role="dialog"]').contains(document.activeElement)
-	}), true)
+	check(
+		'browser Tab wraps inside the active modal',
+		await focus.evaluate(() =>
+			document.querySelector('[role="dialog"]').contains(document.activeElement),
+		),
+		true,
+	)
+
+	check(
+		'inert presenter rejects programmatic focus',
+		await focus.evaluate(() => {
+			document.getElementById('item').focus()
+			return document.querySelector('[role="dialog"]').contains(document.activeElement)
+		}),
+		true,
+	)
+
 	await focus.keyboard.press('Escape')
 	await focus.waitForFunction(() => window.__routing.modalCount === 0)
-	check('browser Escape dismisses the owned modal and restores its opener', await focus.evaluate(() => ({
-		path: location.pathname, focused: document.activeElement === document.getElementById('item'),
-	})), { path: '/items/focus-owner', focused: true })
+	check(
+		'browser Escape dismisses the owned modal and restores its opener',
+		await focus.evaluate(() => ({
+			path: location.pathname,
+			focused: document.activeElement === document.getElementById('item'),
+		})),
+		{ path: '/items/focus-owner', focused: true },
+	)
+
 	await focus.close()
 	const effects = await browser.newPage()
 	effects.on('pageerror', (error) => errors.push(error.message))
 	await effects.goto(server.resolvedUrls.local[0])
 	await effects.waitForFunction(() => !!window.__routing)
 	await effects.evaluate(() => window.__routing.focusPage('same'))
-	check('a page commit focuses its heading and applies metadata before resolving', await effects.evaluate(() => ({
-		focused: document.activeElement === document.getElementById('focus-heading'),
-		title: document.title, description: document.querySelector('meta[name="description"]').content,
-		y: scrollY,
-	})), { focused: true, title: 'Focus same', description: 'Page same', y: 0 })
+	check(
+		'a page commit focuses its heading and applies metadata before resolving',
+		await effects.evaluate(() => ({
+			focused: document.activeElement === document.getElementById('focus-heading'),
+			title: document.title,
+			description: document.querySelector('meta[name="description"]').content,
+			y: scrollY,
+		})),
+		{ focused: true, title: 'Focus same', description: 'Page same', y: 0 },
+	)
+
 	await effects.keyboard.press('Tab')
-	check('Tab continues from the newly focused page heading', await effects.evaluate(() =>
-		document.activeElement === document.getElementById('focus-control')), true)
+	check(
+		'Tab continues from the newly focused page heading',
+		await effects.evaluate(
+			() => document.activeElement === document.getElementById('focus-control'),
+		),
+		true,
+	)
+
 	await effects.evaluate(() => scrollTo(0, 300))
 	await effects.waitForFunction(() => scrollY === 300)
 	await effects.evaluate(() => window.__routing.refresh())
-	check('refresh preserves current focus and document scroll', await effects.evaluate(() => ({
-		focused: document.activeElement === document.getElementById('focus-control'), y: scrollY,
-	})), { focused: true, y: 300 })
+	check(
+		'refresh preserves current focus and document scroll',
+		await effects.evaluate(() => ({
+			focused: document.activeElement === document.getElementById('focus-control'),
+			y: scrollY,
+		})),
+		{ focused: true, y: 300 },
+	)
+
 	await effects.evaluate(() => window.__routing.focusPage('same'))
-	check('a second same-URL entry starts at the top with fresh heading focus', await effects.evaluate(() => ({
-		focused: document.activeElement === document.getElementById('focus-heading'), y: scrollY,
-	})), { focused: true, y: 0 })
+	check(
+		'a second same-URL entry starts at the top with fresh heading focus',
+		await effects.evaluate(() => ({
+			focused: document.activeElement === document.getElementById('focus-heading'),
+			y: scrollY,
+		})),
+		{ focused: true, y: 0 },
+	)
+
 	await effects.evaluate(() => {
 		document.getElementById('focus-bottom-control').focus({ preventScroll: true })
 		scrollTo(0, 700)
 	})
+
 	await effects.waitForFunction(() => scrollY === 700)
 	await effects.evaluate(() => window.__routing.focusPage('other'))
 	await effects.evaluate(() => window.__routing.back())
-	check('Back restores the second same-URL entry without focus scrolling', await effects.evaluate(() => ({
-		focused: document.activeElement === document.getElementById('focus-bottom-control'), y: scrollY,
-	})), { focused: true, y: 700 })
+	check(
+		'Back restores the second same-URL entry without focus scrolling',
+		await effects.evaluate(() => ({
+			focused: document.activeElement === document.getElementById('focus-bottom-control'),
+			y: scrollY,
+		})),
+		{ focused: true, y: 700 },
+	)
+
 	await effects.evaluate(() => window.__routing.back())
-	check('Back distinguishes focus and scroll for the first same-URL entry', await effects.evaluate(() => ({
-		focused: document.activeElement === document.getElementById('focus-control'), y: scrollY,
-	})), { focused: true, y: 300 })
+	check(
+		'Back distinguishes focus and scroll for the first same-URL entry',
+		await effects.evaluate(() => ({
+			focused: document.activeElement === document.getElementById('focus-control'),
+			y: scrollY,
+		})),
+		{ focused: true, y: 300 },
+	)
+
 	await effects.goForward()
 	await effects.waitForFunction(() => scrollY === 700)
-	check('browser Forward restores its own focus target', await effects.evaluate(() =>
-		document.activeElement === document.getElementById('focus-bottom-control')), true)
+	check(
+		'browser Forward restores its own focus target',
+		await effects.evaluate(
+			() => document.activeElement === document.getElementById('focus-bottom-control'),
+		),
+		true,
+	)
+
 	await effects.evaluate(() => window.__routing.focusPage('fragment', 'part one'))
-	check('a decoded fragment receives focus and native browser scrolling', await effects.evaluate(() => {
-		const target = document.getElementById('part one')
-		return { focused: document.activeElement === target, aligned: Math.abs(target.getBoundingClientRect().top) < 1,
-			encoded: location.hash === '#part%20one' }
-	}), { focused: true, aligned: true, encoded: true })
+	check(
+		'a decoded fragment receives focus and native browser scrolling',
+		await effects.evaluate(() => {
+			const target = document.getElementById('part one')
+			return {
+				focused: document.activeElement === target,
+				aligned: Math.abs(target.getBoundingClientRect().top) < 1,
+				encoded: location.hash === '#part%20one',
+			}
+		}),
+		{ focused: true, aligned: true, encoded: true },
+	)
+
 	const beforeModalScroll = await effects.evaluate(() => scrollY)
 	await effects.evaluate(() => window.__routing.modal())
-	check('modal presentation preserves the background document position', await effects.evaluate(() => scrollY), beforeModalScroll)
+	check(
+		'modal presentation preserves the background document position',
+		await effects.evaluate(() => scrollY),
+		beforeModalScroll,
+	)
+
 	await effects.evaluate(() => window.__routing.dismiss())
-	check('modal dismissal restores fragment focus and the background document position', await effects.evaluate(() => ({
-		focused: document.activeElement === document.getElementById('part one'), y: scrollY,
-	})), { focused: true, y: beforeModalScroll })
+	check(
+		'modal dismissal restores fragment focus and the background document position',
+		await effects.evaluate(() => ({
+			focused: document.activeElement === document.getElementById('part one'),
+			y: scrollY,
+		})),
+		{ focused: true, y: beforeModalScroll },
+	)
+
 	await effects.evaluate(() => window.__routing.beginFeedback())
 	await effects.waitForFunction(() => window.__routing.feedbackLoads === 1)
 	await effects.evaluate(() => window.__routing.focusPage('latest'))
@@ -1063,13 +1161,26 @@ try {
 		document.getElementById('focus-control').focus({ preventScroll: true })
 		scrollTo(0, 250)
 	})
+
 	await effects.waitForFunction(() => scrollY === 250)
-	check('superseded browser loading settles as cancellation', await effects.evaluate(() => window.__routing.releaseFeedback()), 'cancelled')
+	check(
+		'superseded browser loading settles as cancellation',
+		await effects.evaluate(() => window.__routing.releaseFeedback()),
+		'cancelled',
+	)
+
 	await effects.evaluate(() => new Promise(requestAnimationFrame))
-	check('a late loader cannot move committed focus, scroll or metadata', await effects.evaluate(() => ({
-		focused: document.activeElement === document.getElementById('focus-control'), y: scrollY,
-		title: document.title, path: location.pathname,
-	})), { focused: true, y: 250, title: 'Focus latest', path: '/focus/latest' })
+	check(
+		'a late loader cannot move committed focus, scroll or metadata',
+		await effects.evaluate(() => ({
+			focused: document.activeElement === document.getElementById('focus-control'),
+			y: scrollY,
+			title: document.title,
+			path: location.pathname,
+		})),
+		{ focused: true, y: 250, title: 'Focus latest', path: '/focus/latest' },
+	)
+
 	await effects.close()
 
 	await page.evaluate(() => window.__routing.motion('new-owner', 'none'))
@@ -1115,64 +1226,164 @@ try {
 
 	await page.getByRole('button', { name: 'Increment', exact: true }).click()
 	const beforeConfirmation = await page.evaluate(() => ({
-		loads: window.__routing.loads, contexts: window.__routing.contextReads,
-		path: location.pathname, text: document.getElementById('item')?.textContent,
-	}))
-	check('invalid destinations fail without opening confirmation or reading context', await page.evaluate(async () => ({
-		result: await window.__routing.incoming('/__missing-confirmation__'),
-		loads: window.__routing.loads, contexts: window.__routing.contextReads,
-		status: document.getElementById('confirmation-status')?.textContent,
+		loads: window.__routing.loads,
+		contexts: window.__routing.contextReads,
 		path: location.pathname,
-	})), { result: 'not-found', loads: beforeConfirmation.loads, contexts: beforeConfirmation.contexts, status: 'idle', path: beforeConfirmation.path })
+		text: document.getElementById('item')?.textContent,
+	}))
+
+	check(
+		'invalid destinations fail without opening confirmation or reading context',
+		await page.evaluate(async () => ({
+			result: await window.__routing.incoming('/__missing-confirmation__'),
+			loads: window.__routing.loads,
+			contexts: window.__routing.contextReads,
+			status: document.getElementById('confirmation-status')?.textContent,
+			path: location.pathname,
+		})),
+		{
+			result: 'not-found',
+			loads: beforeConfirmation.loads,
+			contexts: beforeConfirmation.contexts,
+			status: 'idle',
+			path: beforeConfirmation.path,
+		},
+	)
+
 	await page.evaluate(() => window.__routing.clearFailure())
 	await page.evaluate(() => window.__routing.beginConfirmedNavigation('confirm-target'))
 	await page.locator('#confirmation-status').filter({ hasText: 'blocked' }).waitFor()
-	check('unsaved confirmation holds before context, loading and URL changes', await page.evaluate(() => ({
-		loads: window.__routing.loads, contexts: window.__routing.contextReads,
-		path: location.pathname, text: document.getElementById('item')?.textContent,
-	})), beforeConfirmation)
+	check(
+		'unsaved confirmation holds before context, loading and URL changes',
+		await page.evaluate(() => ({
+			loads: window.__routing.loads,
+			contexts: window.__routing.contextReads,
+			path: location.pathname,
+			text: document.getElementById('item')?.textContent,
+		})),
+		beforeConfirmation,
+	)
+
 	await page.getByRole('button', { name: 'Keep editing', exact: true }).click()
-	check('pointer refusal cancels without navigation failure or source-state loss', await page.evaluate(async () => ({
-		result: await window.__routing.confirmationResult(),
-		status: window.__routing.navigationFeedback.status,
-		path: location.pathname, text: document.getElementById('item')?.textContent,
-	})), { result: 'cancelled', status: 'idle', path: beforeConfirmation.path, text: beforeConfirmation.text })
+	check(
+		'pointer refusal cancels without navigation failure or source-state loss',
+		await page.evaluate(async () => ({
+			result: await window.__routing.confirmationResult(),
+			status: window.__routing.navigationFeedback.status,
+			path: location.pathname,
+			text: document.getElementById('item')?.textContent,
+		})),
+		{
+			result: 'cancelled',
+			status: 'idle',
+			path: beforeConfirmation.path,
+			text: beforeConfirmation.text,
+		},
+	)
+
 	await page.evaluate(() => window.__routing.beginConfirmedNavigation('confirm-target'))
 	await page.locator('#confirmation-status').filter({ hasText: 'blocked' }).waitFor()
 	await page.evaluate(() => window.__routing.setHistoryAccess(true, 'after-confirmation'))
 	await page.getByRole('button', { name: 'Leave screen', exact: true }).click()
-	await page.waitForFunction(() => location.pathname === '/items/confirm-target' && window.__routing.navigationFeedback.status === 'idle')
-	check('pointer approval snapshots fresh account context and loads the destination once', await page.evaluate(async () => ({
-		result: await window.__routing.confirmationResult(),
-		account: window.__routing.fileContract.context.account,
-		loads: window.__routing.loads, contexts: window.__routing.contextReads,
-	})), { result: 'committed', account: 'after-confirmation', loads: beforeConfirmation.loads + 1, contexts: beforeConfirmation.contexts + 1 })
+	await page.waitForFunction(
+		() =>
+			location.pathname === '/items/confirm-target' &&
+			window.__routing.navigationFeedback.status === 'idle',
+	)
+
+	check(
+		'pointer approval snapshots fresh account context and loads the destination once',
+		await page.evaluate(async () => ({
+			result: await window.__routing.confirmationResult(),
+			account: window.__routing.fileContract.context.account,
+			loads: window.__routing.loads,
+			contexts: window.__routing.contextReads,
+		})),
+		{
+			result: 'committed',
+			account: 'after-confirmation',
+			loads: beforeConfirmation.loads + 1,
+			contexts: beforeConfirmation.contexts + 1,
+		},
+	)
+
 	await page.evaluate(() => window.__routing.setDirtyEntry('confirm-target'))
-	const beforeBlockedBack = await page.evaluate(() => ({ loads: window.__routing.loads, contexts: window.__routing.contextReads }))
+	const beforeBlockedBack = await page.evaluate(() => ({
+		loads: window.__routing.loads,
+		contexts: window.__routing.contextReads,
+	}))
+
 	await page.goBack()
 	await page.locator('#confirmation-status').filter({ hasText: 'blocked' }).waitFor()
 	await page.getByRole('button', { name: 'Keep editing', exact: true }).click()
-	await page.waitForFunction(() => location.pathname === '/items/confirm-target' && window.__routing.navigationFeedback.status === 'idle')
-	check('browser Back refusal corrects history without loading its rejected target', await page.evaluate(() => ({
-		loads: window.__routing.loads, contexts: window.__routing.contextReads,
-		status: document.getElementById('confirmation-status')?.textContent,
-	})), { ...beforeBlockedBack, status: 'idle' })
+	await page.waitForFunction(
+		() =>
+			location.pathname === '/items/confirm-target' &&
+			window.__routing.navigationFeedback.status === 'idle',
+	)
+
+	check(
+		'browser Back refusal corrects history without loading its rejected target',
+		await page.evaluate(() => ({
+			loads: window.__routing.loads,
+			contexts: window.__routing.contextReads,
+			status: document.getElementById('confirmation-status')?.textContent,
+		})),
+		{ ...beforeBlockedBack, status: 'idle' },
+	)
+
 	await page.goBack()
 	await page.locator('#confirmation-status').filter({ hasText: 'blocked' }).waitFor()
 	await page.getByRole('button', { name: 'Leave screen', exact: true }).click()
-	await page.waitForFunction(() => location.pathname === '/items/confirm-source' && window.__routing.navigationFeedback.status === 'idle')
-	check('browser Back approval restores a freshly prepared location once', await page.evaluate(() => ({ loads: window.__routing.loads, account: window.__routing.fileContract.context.account })), { loads: beforeBlockedBack.loads + 1, account: 'after-confirmation' })
+	await page.waitForFunction(
+		() =>
+			location.pathname === '/items/confirm-source' &&
+			window.__routing.navigationFeedback.status === 'idle',
+	)
+
+	check(
+		'browser Back approval restores a freshly prepared location once',
+		await page.evaluate(() => ({
+			loads: window.__routing.loads,
+			account: window.__routing.fileContract.context.account,
+		})),
+		{ loads: beforeBlockedBack.loads + 1, account: 'after-confirmation' },
+	)
+
 	await page.evaluate(() => window.__routing.setDirtyEntry('confirm-source'))
 	await page.goForward()
 	await page.locator('#confirmation-status').filter({ hasText: 'blocked' }).waitFor()
-	check('Forward confirmation retains the requested direction', await page.locator('#confirmation-action').textContent(), 'forward')
+	check(
+		'Forward confirmation retains the requested direction',
+		await page.locator('#confirmation-action').textContent(),
+		'forward',
+	)
+
 	await page.getByRole('button', { name: 'Keep editing', exact: true }).click()
-	await page.waitForFunction(() => location.pathname === '/items/confirm-source' && window.__routing.navigationFeedback.status === 'idle')
+	await page.waitForFunction(
+		() =>
+			location.pathname === '/items/confirm-source' &&
+			window.__routing.navigationFeedback.status === 'idle',
+	)
+
 	await page.goForward()
 	await page.locator('#confirmation-status').filter({ hasText: 'blocked' }).waitFor()
 	await page.getByRole('button', { name: 'Leave screen', exact: true }).click()
-	await page.waitForFunction(() => location.pathname === '/items/confirm-target' && window.__routing.navigationFeedback.status === 'idle')
-	check('Forward confirmation can proceed after an earlier refusal', await page.evaluate(() => ({ loads: window.__routing.loads, account: window.__routing.fileContract.context.account })), { loads: beforeBlockedBack.loads + 2, account: 'after-confirmation' })
+	await page.waitForFunction(
+		() =>
+			location.pathname === '/items/confirm-target' &&
+			window.__routing.navigationFeedback.status === 'idle',
+	)
+
+	check(
+		'Forward confirmation can proceed after an earlier refusal',
+		await page.evaluate(() => ({
+			loads: window.__routing.loads,
+			account: window.__routing.fileContract.context.account,
+		})),
+		{ loads: beforeBlockedBack.loads + 2, account: 'after-confirmation' },
+	)
+
 	await page.evaluate(() => window.__routing.setDirtyEntry(null))
 
 	await page.evaluate(() => {
@@ -1180,6 +1391,7 @@ try {
 		window.__routing.allowFeedback()
 		window.__routing.beginFeedback()
 	})
+
 	await page.locator('#confirmation-status').filter({ hasText: 'blocked' }).waitFor()
 	await page.getByRole('button', { name: 'Approve and clear edits', exact: true }).click()
 	await page.locator('#confirmation-status').filter({ hasText: 'proceeding' }).waitFor()
@@ -1188,16 +1400,35 @@ try {
 		navigation: window.__routing.navigationFeedback.status,
 		path: location.pathname,
 	}))
+
 	const clearedConditionResult = await page.evaluate(() => window.__routing.releaseFeedback())
-	await page.waitForFunction(() => location.pathname === '/feedback/recover' && window.__routing.navigationFeedback.status === 'idle')
-	check('approval stays proceeding after clearing edits until its loader finishes', {
-		during: clearedConditionPhase,
-		result: clearedConditionResult,
-		after: await page.locator('#confirmation-status').textContent(),
-	}, { during: { confirmation: 'proceeding', navigation: 'pending', path: '/items/confirm-target' }, result: 'committed', after: 'idle' })
+	await page.waitForFunction(
+		() =>
+			location.pathname === '/feedback/recover' &&
+			window.__routing.navigationFeedback.status === 'idle',
+	)
+
+	check(
+		'approval stays proceeding after clearing edits until its loader finishes',
+		{
+			during: clearedConditionPhase,
+			result: clearedConditionResult,
+			after: await page.locator('#confirmation-status').textContent(),
+		},
+		{
+			during: { confirmation: 'proceeding', navigation: 'pending', path: '/items/confirm-target' },
+			result: 'committed',
+			after: 'idle',
+		},
+	)
 
 	const publicPanes = await page.evaluate(() => window.__routing.qualifyPanes())
-	check('public panes preserve entry state, providers and owned independent flows', publicPanes.checks.length, 11)
+	check(
+		'public panes preserve entry state, providers and owned independent flows',
+		publicPanes.checks.length,
+		11,
+	)
+
 	check('public panes leave the browser URL unchanged', publicPanes.urlUnchanged, true)
 	check('public panes leave browser history unchanged', publicPanes.historyUnchanged, true)
 	check('no uncaught browser errors', errors, [])
@@ -1216,6 +1447,9 @@ try {
 		server ? server.httpServer.close((error) => (error ? reject(error) : resolve())) : resolve(),
 	)
 
-	if (artifactBase) {console.log(JSON.stringify({ artifactDirectory: output }))}
-	else {await rm(output, { recursive: true, force: true })}
+	if (artifactBase) {
+		console.log(JSON.stringify({ artifactDirectory: output }))
+	} else {
+		await rm(output, { recursive: true, force: true })
+	}
 }

@@ -67,7 +67,7 @@ export type RouteExportChecks = [
 	// cached-user.tsrx: loader
 	CheckRouteExport<"loader", typeof import("./app/cached-user.tsrx")["loader"]>,
 	// cached-user.tsrx: validateSearch
-	CheckRouteExport<"validateSearch", typeof import("./app/cached-user.tsrx")["validateSearch"]>,
+	CheckRouteExport<"validateSearch", typeof import("./app/cached-user.tsrx")["validateSearch"], import('@octane-xplat/ui/routing/core').RouteSearchValidationCheck<typeof import("./app/cached-user.tsrx")["validateSearch"]>>,
 	// cached-users.tsrx: loader
 	CheckRouteExport<"loader", typeof import("./app/cached-users.tsrx")["loader"]>,
 	// detail.tsrx: beforeLoad

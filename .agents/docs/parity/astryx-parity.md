@@ -4,6 +4,43 @@
 
 Audited 2026-10-02 against Astryx core 0.6.4 at [ebd939b](https://github.com/facebook/astryx/tree/ebd939b665361a078015377c0dfe50cc3c1d70a4/packages/core). This is a source audit of all 106 capitalized top-level package entry points, including utility families. It compares named runtime exports with the shared web/mobile UI barrels and the files leaf. Types, StyleX compatibility, subpath compatibility, visual parity, OS input, accessibility, and every component's behavior are outside this inventory's proof boundary. Earlier focused audits use a different pinned revision and describe their own baselines.
 
+## Pin: Astryx core 0.7.1 (2026-10-24)
+
+All Astryx parity work uses a single pin: `@astryxdesign/core` **0.7.1**. That is
+the version the [browser parity harness](../../design/astryx-parity-harness.md)
+installs. The export inventory in this page was rebased onto it by comparing the
+published `dist/*/index.d.ts` export lists of 0.6.4 and 0.7.1 (source/build
+evidence; no runtime was involved).
+
+- The same 105 capitalized entry points with an `index.d.ts` exist in both versions. None was removed
+  or renamed, and no export was dropped.
+- Four **runtime** exports are new in 0.7.1, and Xplat does not yet ship any of
+  them:
+  - `BreadcrumbMenuGroup` (Breadcrumbs)
+  - `ContextMenuGroup` (ContextMenu)
+  - `DropdownMenuGroup` (DropdownMenu)
+  - `decodeMarkdownCharacterReferences` (Markdown)
+
+  These are new inventory gaps, not regressions.
+- The other additions are types only, which are outside this inventory's proof
+  boundary:
+  - `ComplexSelectorRenderTriggerProps`
+  - `DropdownMenuSubMenuPresentation`
+  - `DropdownMenuTriggerProps`
+  - the `Field*StyleProps`/`FieldInputBaseProps` family
+  - `ItemSwipeAction*`
+  - `LayerInset`
+  - `MarkdownSourceLines`
+  - `MultiSelectorChange`
+  - `MultiSelectorHandle`
+  - `MultiSelectorRenderTriggerProps`
+
+Sections below still link revision `ebd939b` (0.6.4) as historical evidence.
+Their conclusions hold for 0.7.1 at the export level only. Re-check behavior
+against 0.7.1 source before relying on a specific link. The focused family
+audits (`astryx-parity-*.md`) keep their recorded revision until they are next
+touched, and are then rebased onto this pin.
+
 ## October 16 reconciliation of the eight report rows
 
 This section supersedes the October 13 report's current-state conclusions;

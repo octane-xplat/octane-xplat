@@ -15,7 +15,12 @@ mkdirSync(consumer)
 mkdirSync(packs)
 
 function run(args, cwd = consumer) {
-	const result = spawnSync('pnpm', args, { cwd, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 })
+	const result = spawnSync('pnpm', args, {
+		cwd,
+		encoding: 'utf8',
+		maxBuffer: 16 * 1024 * 1024,
+		shell: process.platform === 'win32',
+	})
 	assert.equal(
 		result.status,
 		0,
@@ -87,6 +92,7 @@ export const Basic = defineStory({ id: '${id}', title: 'Examples / ${id}', targe
 	)
 
 	const blocked = spawnSync('pnpm', ['exec', 'xplat', 'workshop', 'dev', '--target', 'windows'], {
+		shell: process.platform === 'win32',
 		cwd: consumer,
 		encoding: 'utf8',
 		timeout: 15000,

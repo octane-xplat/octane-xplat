@@ -894,7 +894,7 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 	const listeners = new Set<(event: QueryInspectionEvent) => void>()
 	const clientId = `query-client-${id}`
 	function emit(type: QueryEventType, queryId?: string): void {
-		if (!listeners.size) return
+		if (!listeners.size) { return }
 		const event = Object.freeze({
 			clientId,
 			...(queryId ? { queryId } : {}),
@@ -1035,7 +1035,7 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 			id: key,
 			queryId,
 			trace(type, trigger) {
-				if (trigger) entry.lastTrigger = trigger
+				if (trigger) { entry.lastTrigger = trigger }
 				emit(type, queryId)
 			},
 			family,
@@ -1327,7 +1327,7 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 				}
 			},
 			subscribe(listener) {
-				if (disposed) return () => {}
+				if (disposed) { return () => {} }
 				listeners.add(listener)
 				return () => {
 					listeners.delete(listener)

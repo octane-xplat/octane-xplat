@@ -86,7 +86,7 @@ try {
  execFileSync('gnome-keyring-daemon', ['--unlock', '--components=secrets'], {input: 'xplat-fixture-keyring-password'})
  const notifications = spawn('/usr/lib/notification-daemon/notification-daemon', [], {stdio:'ignore'})
  await new Promise(r => setTimeout(r, 500))
- execFileSync('pnpm', ['exec', 'xplat', 'doctor'], {cwd:${JSON.stringify(app)},stdio:'inherit'})
+ execFileSync('pnpm', ['exec', 'xplat', 'doctor'], { cwd:${JSON.stringify(app)},stdio:'inherit', shell: process.platform === 'win32' })
  const selftest = launch(${JSON.stringify(installed)}, ['--self-test', 'linux-proof://cold-start/deep-link'])
  await wait(selftest, 'SELFTEST_RESULT {"checks":24,"failed":[]}')
  await new Promise(r => selftest.child.exitCode === null ? selftest.child.once('exit', r) : r())

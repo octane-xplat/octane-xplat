@@ -1,142 +1,83 @@
-# octane-xplat
+<h1>
+  <img src="apps/docs/src/assets/logo-mark.svg" alt="" width="32" height="34" align="middle">
+  &nbsp;
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/assets/wordmark-dark.svg">
+    <img src="apps/docs/src/assets/wordmark.svg" alt="Octane Xplat" width="222" height="30" align="middle">
+  </picture>
+</h1>
 
-Build a TypeScript app for **web, iOS, Android, macOS, Windows, and Linux** with
-shared screens and room for each platform to feel right. In a packing app,
-for example, adding an item and marking it packed can use the same screen
-code on web and mobile; an iOS-only control can live in its own file.
+Build the app you imagine for **web, iOS, and Android** from one TypeScript
+codebase. Share your screens and logic, then use each platform's capabilities
+whenever your app calls for them.
 
-Xplat gives your coding agent a configured starter, shared components, and
-project instructions. You describe the flow, inspect the running result, and
-ask for the next change.
+Octane Xplat brings together [Octane](https://github.com/octanejs/octane)'s
+compiled UI, [NativeScript](https://docs.nativescript.org/)'s native platform
+access, and a growing ecosystem of officially supported packages.
 
-**Start on web, iOS, and Android with the starter today.** macOS has an
-experimental AppKit host; Windows has a private experimental WinUI 3 test
-harness whose app has launched as a registered package, though UI support remains
-incomplete; Linux has an experimental WebKitGTK webview host exercised on
-Ubuntu 24.04. The framework is
-`0.x`, so plan for API changes as well as platform limits.
-See the [target guide](docs/start/spec.md#choose-your-targets) before planning a release.
+## Make every improvement go further
 
-## Get a working app
+Share screens, state, validation, and data access across platforms. Build a
+feature in shared code and every target using it benefits. Fix a bug in one
+place and keep your apps moving together.
 
-With Node.js and pnpm installed ([version requirements](docs/start/toolchain.md#create-and-run)):
+**Shared code makes your AI agent's work go further, too.** There is less code
+to read, generate, and keep in sync. More sharing can mean less context and
+token usage, fewer inconsistent implementations, and less repeated review.
+You and your agent can spend more attention on what makes your app worth using.
+
+## Use the platform
+
+Your iOS and Android apps render native views. NativeScript lets you use
+OS-specific controls and device APIs directly from TypeScript, without writing
+a bridge. Keep the integration in a
+[platform-specific file](docs/platform/module-resolution.md) and share the rest
+of your app. [How native access works](https://docs.nativescript.org/guide/metadata).
+
+**Hot module replacement (HMR) works for TypeScript native integrations, too.**
+Edit the code calling native APIs and see updates in the running app. That
+keeps native experimentation fast. Compiled native code and configuration
+changes can still require a rebuild.
+[Development update loop](docs/start/toolchain.md#see-a-shared-edit-in-running-targets).
+
+## Build with batteries included
+
+Start with shared UI, navigation, styling, and a configured project. The CLI
+brings development, builds, linting, formatting, typechecking, testing setup,
+and diagnostics into one workflow. Included agent instructions and the Xplat
+skill give your coding agent the conventions to work with.
+
+Add officially supported packages as your app grows:
+
+- **Polished interfaces:** [icons](packages/icons/README.md),
+  [motion](packages/motion/README.md), sheets, and menus.
+- **Device capabilities:** [camera](packages/camera/README.md),
+  [audio](packages/audio/README.md), [video](packages/video/README.md), haptics,
+  and location.
+- **App foundations:** [authentication and secure storage](docs/platform/platform-services.md),
+  [SQLite](packages/sqlite/README.md), and notifications.
+
+The packages follow shared conventions and compatible releases, so more of
+your effort stays focused on your app.
+
+## Start building
+
+With [Node.js and pnpm installed](docs/start/toolchain.md#create-and-run):
 
 ```sh
 pnpm create octane-xplat my-app
 ```
 
-The creator installs dependencies and starts the web dev server. Open the
-local URL it prints, then open `my-app` in your coding agent. A first task:
+The creator installs dependencies and starts the web development server.
+Open the local URL it prints, then build with your editor, your coding agent,
+or both. [Run on iOS and Android](docs/start/toolchain.md#run-on-ios-and-android)
+when you're ready.
 
-> Read AGENTS.md and the Xplat skill. Turn the starter into a trip packing
-> checklist: add an item, mark it packed, remove it, and show how many remain.
-> Keep the screen shared between web, iOS, and Android. Use in-memory state
-> for this first version. Run lint, typecheck, and the web build, and tell me
-> which checks passed and which targets you actually ran.
+**Currently in alpha.** Web, iOS, and Android are included in the starter;
+macOS, Windows, and Linux hosts are experimental. APIs can change.
+[Platform support and limits](docs/start/spec.md#choose-your-targets).
 
-Check the result: add “Passport” and “Charger,” mark Passport packed, and
-confirm that one item remains. This first version resets on reload. Then ask
-for the next change: “Group items by bag and keep packed items visible.”
-
-The starter includes `.agents/skills/xplat/` for the agent's conventions.
-[Run and iterate](docs/start/toolchain.md) shows how to check your first result,
-add a native session, and recognize a failed update. You can inspect the
-[actual starter screen](packages/create/template/src/App.tsrx) before installing.
-
-## Add useful device features
-
-Save a checklist, attach a photo, share a trip, or open a screen from a link.
-[Device services](docs/platform/platform-services.md) and
-[media packages](docs/platform/media-services.md) expose those capabilities to shared
-code. Availability, permissions, and responses differ by platform: photo
-capture uses the OS camera on iOS/Android, while the web flow may offer a
-file picker. Handle unavailable features explicitly.
-
-```ts
-import { media } from '@octane-xplat/media'
-
-// Call from your Attach photo action.
-async function attachPhoto() {
-	if ((await media.ensure('camera')) !== 'granted') return null
-	return await media.capturePhoto() // null means the user cancelled.
-}
-```
-
-## Make it feel right on each platform
-
-Share product behavior and the basic screen layout. Use a platform-specific
-file when a phone needs an OS control or a desktop needs a different layout.
-[Platform variants](docs/platform/module-resolution.md) keep those choices behind a
-shared import; [platform widgets](docs/app/primitives.md) provide opt-in OS controls.
-
-```tsx
-/** @jsxImportSource @nativescript-community/octane */
-// PackingSwitch.ios.tsx
-import { UISwitch } from '@octane-xplat/ui/ios'
-
-export function PackingSwitch(props: { value: boolean; onChange: (value: boolean) => void }) {
-	return <UISwitch value={props.value} onValueChange={props.onChange} />
-}
-```
-
-For example, keep a packing row's props and action shared, but put its
-`UISwitch` implementation in an `.ios` file. The browser and Android keep
-their own implementations; the calling screen keeps one import.
-
-```tsx
-// A shared screen imports the module without an OS suffix.
-import { PackingSwitch } from './PackingSwitch'
-
-export function PackingRow(props: { packed: boolean; setPacked: (value: boolean) => void }) {
-	return <PackingSwitch value={props.packed} onChange={props.setPacked} />
-}
-```
-
-## What you can verify
-
-The [showcase plan](.agents/design/demos.md#product-showcase) separates four claims and
-the evidence each needs:
-
-| Claim                                                       | Evidence available now                                                                                                                                                              |
-| ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| One coherent app on all six targets                         | A planned showcase, not a shipped demo. See [target support](docs/start/spec.md#choose-your-targets).                                                                               |
-| A shared edit appears in running targets                    | [Recorded web/iOS live-update check](.agents/docs/notes/toolchain-notes.md#dev-loop), plus [steps to check your app](docs/start/toolchain.md#see-a-shared-edit-in-running-targets). |
-| A useful capability responds appropriately on each platform | [Photo capture behavior and setup](docs/platform/platform-services.md): OS capture on iOS/Android; browser capture or file selection on web.                                        |
-| A focused implementation fits one platform                  | [File variants and import rules](docs/platform/module-resolution.md) explain how to isolate an OS control.                                                                          |
-
-These are different kinds of evidence: recorded experiments, documented
-contracts, and plans. Check the behaviors your app depends on before adopting
-it for a release.
-
-## Why Octane and NativeScript
-
-[Octane](https://github.com/octanejs/octane) keeps a familiar React-style
-component model and compiles the UI. You and your agent work with components,
-props, and state while Xplat supplies shared UI components.
-
-[NativeScript](https://docs.nativescript.org/guide/metadata) exposes native
-iOS and Android APIs directly to TypeScript, without requiring you to author
-a bridge. Its development update loop helps you inspect edits in a running
-app. Its [official agent skills](https://github.com/NativeScript/skills) can
-help with native work; they are optional and separate from the starter's
-Xplat skill. Follow the [setup and version guidance](docs/start/toolchain.md#agent-context-and-versions)
-for this project.
-
-## Docs
-
-**[octane-xplat.goddardai.org](https://octane-xplat.goddardai.org)** —
-start with [what you can build](docs/start/spec.md), then
-[run your app](docs/start/toolchain.md), [add capabilities](docs/platform/platform-services.md),
-and [tailor the experience](docs/platform/module-resolution.md).
-
-See selected [features and breaking changes](CHANGELOG.md) and [bug fixes](FIXLOG.md).
-
-For agents: [llms.txt](https://octane-xplat.goddardai.org/llms.txt) indexes the
-docs; [llms-full.txt](https://octane-xplat.goddardai.org/llms-full.txt) includes
-every guide. Packages include `@octane-xplat/ui`, `@octane-xplat/platform`,
-`@octane-xplat/cli`, and `create-octane-xplat`. For app-chosen bundled icon sets,
-use [`@octane-xplat/icons`](packages/icons/README.md).
-
-Working on the framework itself? Start with [AGENTS.md](AGENTS.md) and the
-[design notes](.agents/design/architecture-notes.md);
-[CONTRIBUTING.md](CONTRIBUTING.md) lists the framework workspace commands.
+[Documentation](https://octane-xplat.goddardai.org) ·
+[Agent docs](https://octane-xplat.goddardai.org/llms.txt) ·
+[Release notes](CHANGELOG.md) · [Bug fixes](FIXLOG.md) ·
+[Contributing](CONTRIBUTING.md)

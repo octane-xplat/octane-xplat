@@ -1071,7 +1071,8 @@ export function ProfileWithChild(props: { id: string }) {
 
 A selector reacts to signals it reads. A plain route prop supplies the initial
 selection in the example above; replacing that prop on an already-mounted
-component does not itself invalidate the selector in Octane 0.6.3. For an
+component does not itself invalidate the selector — it tracks signal reads,
+not prop identity. For an
 editable selection within a screen, use `useSignal$` from
 `octane/signals/client`, read it in the selector, and update it from an event.
 Mount a new route instance for new immutable route params. Do not copy props

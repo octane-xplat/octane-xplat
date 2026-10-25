@@ -9,6 +9,7 @@ source before relying on them.
 ## Framework and platform seams
 
 - [Framework notes](framework-notes.md)
+- [AppKit JavaScriptCore host](macos-jsc-host.md) — verified host capabilities and bridge quirks
 - [MasonKit layout-engine evaluation](masonkit-layout-evaluation.md)
 - [Platform notes](platform-notes.md)
 - [CSS support](css-support-notes.md)

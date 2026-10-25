@@ -75,6 +75,8 @@ const NATIVE_ACCESSIBILITY_ROLES: Record<Role, string> = {
 	// NativeScript has no meter role; progressBar is the closest platform
 	// role for a scalar-within-a-range readout.
 	meter: 'progressBar',
+	// No live-region role on native — keep the region inert there.
+	status: 'none',
 }
 
 /** Translate the shared/ARIA spelling to NativeScript's narrower role enum. */

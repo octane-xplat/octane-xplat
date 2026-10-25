@@ -1,0 +1,16 @@
+{
+	"library": "libxplatmason.dylib",
+	"architectures": ["arm64"],
+	"minimumSystemVersion": "13.5",
+	"source": {
+		"facade": "native/xplatmason/XPLMason.m",
+		"mason": {
+			"repository": "https://github.com/octane-xplat/nativescript-mason",
+			"revision": "27281f978bf5848c9af464a244cd37db6e79d3a5",
+			"crate": "mason-c"
+		}
+	},
+	"sha256": {
+		"libxplatmason.dylib": "4ddb92697702ec26f0ddeebd16a6f5656ce0f77a02756fb990ff0a267d48669f"
+	}
+}

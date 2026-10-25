@@ -2,24 +2,34 @@
 @layer xplat-chrome {
 	:root,
 	.ns-root {
-		--color-primary: #171717;
+		/* Astryx default theme (core 0.7.1 tokens, light half of each
+	   light-dark pair). Semantic mapping: primary=accent, onprimary=on-accent,
+	   surface=background-surface, surface-secondary=neutral (secondary
+	   control fill), text=text-primary, text-secondary=text-secondary,
+	   border=border, border-strong=border-emphasized, danger=error,
+	   warning=warning, success=success. */
+		--color-primary: #0064e0;
 		/* Token names double as the future Tailwind theme keys: text-onprimary
 	   resolves --color-onprimary, bg-danger resolves --color-danger. Keep
 	   class-name segments and var-name segments identical. */
-		--color-onprimary: #fafafa;
+		--color-onprimary: #ffffff;
 		--color-surface: #ffffff;
-		--color-surface-secondary: #fafafa;
-		--color-text: #0a0a0a;
-		--color-text-secondary: #666666;
-		--color-border: #eaeaea;
-		--color-border-strong: #d4d4d4;
-		--color-danger: #dc2626;
-		--color-warning: #b45309;
-		--color-success: #15803d;
-		/* Family lists are deliberately generic. Apps override these with their
-	   web @font-face family and the platform's registered native name. */
-		--font-sans: system-ui, sans-serif;
-		--font-mono: ui-monospace, monospace;
+		--color-surface-secondary: rgba(5, 54, 89, 0.1);
+		--color-text: #0a1317;
+		--color-text-secondary: #4e606f;
+		--color-text-disabled: #a4b0bc;
+		--color-border: #05365919;
+		--color-border-strong: #ccd3db;
+		--color-danger: #e3193b;
+		--color-warning: #e9af08;
+		--color-success: #0d8626;
+		--color-danger-text: #7b0210;
+		--color-warning-text: #753f07;
+		--color-success-text: #09441f;
+		/* Astryx body stack. Apps override these with their web @font-face
+	   family and the platform's registered native name. */
+		--font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+		--font-mono: "SF Mono", Monaco, Consolas, monospace;
 
 		/* Syntax highlighting palette (CodeBlock) — the --color-syntax-* names are
 	   Astryx's; values approximate a GitHub-style scheme. `syntaxTheme` on the
@@ -51,14 +61,22 @@
 
 	.ns-dark,
 	.dark {
-		--color-primary: #ededed;
-		--color-onprimary: #171717;
-		--color-surface: #0a0a0a;
-		--color-surface-secondary: #141414;
-		--color-text: #ededed;
-		--color-text-secondary: #a1a1a1;
-		--color-border: #2e2e2e;
-		--color-border-strong: #4a4a4a;
+		/* Astryx default theme, dark half of each light-dark pair. */
+		--color-primary: #2694fe;
+		--color-onprimary: #ffffff;
+		--color-surface: #1f1f22;
+		--color-surface-secondary: rgba(223, 226, 229, 0.2);
+		--color-text: #dfe2e5;
+		--color-text-secondary: #aaafb5;
+		--color-text-disabled: #6f747c;
+		--color-border: #f2f4f619;
+		--color-border-strong: #494d53;
+		--color-danger: #f5394f;
+		--color-warning: #f2c00b;
+		--color-success: #0d8626;
+		--color-danger-text: #ffb2b8;
+		--color-warning-text: #fbce03;
+		--color-success-text: #a5f690;
 
 		--color-syntax-keyword: #ff7b72;
 		--color-syntax-string: #a5d6ff;
@@ -263,14 +281,17 @@
 	/* Self-drawn switch — flex track + thumb. `--on` flips justify-content,
    which slides the thumb; identical geometry on web and native. */
 	.vx-switch {
-		border-radius: 14px;
-		background-color: var(--color-border);
+		border-radius: 9999px;
+		background-color: rgba(10, 19, 23, 0.2);
+	}
+	.vx-switch--disabled {
+		opacity: 0.5;
 	}
 	.vx-switch--on {
 		background-color: var(--color-primary);
 	}
 	.vx-switch-thumb {
-		border-radius: 50%;
+		border-radius: 9999px;
 		background-color: var(--color-surface);
 	}
 	/* xplat-web-only:start — the DOM host is a div; flex + cursor live here */
@@ -309,11 +330,14 @@
 
 	/* Collapsible/Accordion — column stacks. */
 
-	/* Checkbox — 20px box + check glyph; --on fills with primary. */
+	/* Checkbox — Astryx indicator: 20/24px box, emphasized border, 4px
+	   radius; --on fills with primary and draws the check in on-primary. */
 	.vx-checkbox {
 		border-width: 1px;
-		border-color: var(--color-border);
-		border-radius: var(--radius-sm);
+		border-color: var(--color-border-strong);
+		border-radius: 4px;
+		background-color: var(--color-surface);
+		color: var(--color-primary);
 	}
 	.vx-checkbox--on .vx-checkbox {
 		background-color: var(--color-primary);
@@ -368,6 +392,16 @@
 	.vx-ind-dash--sm {
 		width: 10px;
 	}
+	/* The drawn check shares its geometry with the web svg (whose copy lives
+	   in the DOM-only block below). */
+	.vx-ind-checkmark {
+		width: 14px;
+		height: 14px;
+	}
+	.vx-ind-checkmark--sm {
+		width: 12px;
+		height: 12px;
+	}
 	.vx-ind-radio-dot {
 		width: 12px;
 		height: 12px;
@@ -380,6 +414,7 @@
 	.vx-ind-checkbox--indeterminate {
 		background-color: var(--color-primary);
 		border-color: var(--color-primary);
+		color: var(--color-onprimary);
 	}
 	.vx-ind-radio--checked {
 		border-color: var(--color-primary);
@@ -512,39 +547,288 @@
 
 	/* FormField — label / control / message column. */
 	.vx-field-label {
-		font-size: 13px;
+		font-size: 14px;
 		line-height: 20px;
 		font-weight: 500;
+		color: var(--color-text-secondary);
+		display: flex;
+		align-items: center;
 	}
-	.vx-field-required {
-		color: var(--color-danger);
+	.vx-field-marker {
+		color: var(--color-text-secondary);
+		font-weight: 400;
 	}
 	.vx-field-optional,
 	.vx-field-description {
 		font-size: 12px;
-		line-height: 16px;
+		line-height: 20px;
 		color: var(--color-text-secondary);
 	}
 	.vx-field-status {
 		font-size: 12px;
-		line-height: 16px;
+		line-height: 20px;
 	}
 	.vx-field-info {
 		font-size: 12px;
 		font-weight: 600;
 		color: var(--color-text-secondary);
 	}
+
+	/* xplat-web-only:start — Astryx field rhythm: unitless leading and the
+	   status box attached under the control. */
+	.vx-field-label {
+		line-height: 1.4286;
+	}
+	.vx-field-marker {
+		font-size: 12px;
+		line-height: 1.6667;
+	}
+	.vx-field-description {
+		line-height: 1.6667;
+	}
+	.vx-field--disabled .vx-field-label {
+		color: var(--color-text-disabled);
+	}
+	/* Astryx attached status: tucked half a control height under the input
+	   (which paints above it), as a tinted box with no border. */
+	.vx-field-status--attached {
+		position: relative;
+		z-index: -1;
+		margin-top: -16px;
+		padding: 24px 8px 8px;
+		line-height: 1.6667;
+		border-radius: 0 0 var(--radius-md) var(--radius-md);
+	}
+	.vx-field-status--attached.vx-field-status--error {
+		background-color: rgba(227, 25, 59, 0.2);
+	}
+	.vx-field-status--attached.vx-field-status--warning {
+		background-color: rgba(226, 164, 0, 0.2);
+	}
+	.vx-field-status--attached.vx-field-status--success {
+		background-color: rgba(11, 153, 31, 0.2);
+	}
+	.vx-input-shell {
+		position: relative;
+		padding-top: 4px;
+		padding-bottom: 4px;
+		gap: 8px;
+	}
+	.vx-input-shell--status-error {
+		border-color: var(--color-danger);
+	}
+	.vx-input-shell--status-warning {
+		border-color: var(--color-warning);
+	}
+	.vx-input-shell--status-success {
+		border-color: var(--color-success);
+	}
+	.vx-input-shell--disabled {
+		opacity: 0.5;
+	}
+	.vx-input-status-icon {
+		display: flex;
+		font-size: 20px;
+		line-height: 1.5;
+		flex-shrink: 0;
+		width: 20px;
+		height: 20px;
+	}
+	.vx-input-shell--status-error .vx-input-status-icon {
+		color: var(--color-danger);
+	}
+	.vx-input-shell--status-warning .vx-input-status-icon {
+		color: var(--color-warning);
+	}
+	.vx-input-shell--status-success .vx-input-status-icon {
+		color: var(--color-success);
+	}
+	/* Astryx CheckboxInput: a hidden native input stretched over the drawn
+	   indicator, label column beside it, detached status below. */
+	.vx-checkbox-input {
+		display: block;
+	}
+	.vx-checkbox-container {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		gap: 8px;
+	}
+	.vx-checkbox-wrapper {
+		display: flex;
+		align-items: center;
+		position: relative;
+		flex-shrink: 0;
+		width: 24px;
+		height: 24px;
+	}
+	.vx-checkbox-native {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		margin: 0;
+		font: inherit;
+		color: inherit;
+		opacity: 0;
+		cursor: pointer;
+	}
+	.vx-checkbox-indicator-slot {
+		display: contents;
+	}
+	.vx-checkbox-text {
+		display: flex;
+		flex-direction: column;
+	}
+	/* Astryx FieldStatus "detached": a tinted box under the control with a
+	   leading 16px glyph. */
+	.vx-field-status--detached {
+		display: block;
+		margin-top: 4px;
+		padding: 8px;
+		border-width: 0;
+		border-radius: var(--radius-md);
+		line-height: 1.6667;
+	}
+	.vx-field-status--detached.vx-field-status--error {
+		background-color: rgba(227, 25, 59, 0.2);
+	}
+	.vx-field-status--detached.vx-field-status--warning {
+		background-color: rgba(226, 164, 0, 0.2);
+	}
+	.vx-field-status--detached.vx-field-status--success {
+		background-color: rgba(11, 153, 31, 0.2);
+	}
+	.vx-field-status-row {
+		display: flex;
+		gap: 4px;
+	}
+	.vx-field-status-icon-slot {
+		display: flex;
+		align-items: center;
+		width: 16px;
+		height: 20px;
+	}
+	.vx-field-status-icon {
+		display: flex;
+		width: 16px;
+		height: 16px;
+		font-size: 16px;
+		line-height: 1.6667;
+	}
+	/* Astryx Switch field: a hidden native switch input centred over the
+	   drawn track; on web the on-thumb slides by transform like Astryx. */
+	.vx-switch-field {
+		display: block;
+	}
+	.vx-switch-container {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		gap: 8px;
+	}
+	.vx-switch-container--label-hidden {
+		gap: 0;
+	}
+	.vx-switch-container--spread {
+		justify-content: space-between;
+	}
+	.vx-switch-wrapper {
+		display: flex;
+		align-items: center;
+		position: relative;
+		flex-shrink: 0;
+	}
+	.vx-switch-native {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		width: 100%;
+		height: 100%;
+		margin: 0;
+		font: inherit;
+		color: inherit;
+		opacity: 0;
+		cursor: pointer;
+		transform: translate(-50%, -50%);
+	}
+	.vx-switch-wrapper .vx-switch {
+		padding: 4px;
+		justify-content: flex-start;
+		cursor: auto;
+	}
+	.vx-switch-wrapper .vx-switch-thumb {
+		transform: translateX(0);
+	}
+	.vx-switch-native:disabled,
+	.vx-checkbox-native:disabled {
+		cursor: default;
+	}
+	.vx-switch-wrapper .vx-switch--size-sm {
+		padding: 2px;
+	}
+	.vx-switch-wrapper .vx-switch--on .vx-switch-thumb {
+		transform: translateX(14px);
+	}
+	.vx-switch-wrapper .vx-switch--size-sm.vx-switch--on .vx-switch-thumb {
+		transform: translateX(12px);
+	}
+	.vx-switch-thumb {
+		display: flex;
+		align-items: center;
+	}
+	.vx-switch-text {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		min-height: 24px;
+	}
+	.vx-switch-text--sm {
+		min-height: 20px;
+	}
+	.vx-checkbox-container--label-hidden {
+		gap: 0;
+	}
+	/* Astryx draws both marks and shows one: the check svg when checked,
+	   the bar when indeterminate. */
+	.vx-ind-checkmark {
+		display: none;
+		width: 14px;
+		height: 14px;
+	}
+	.vx-ind-checkmark--sm {
+		width: 12px;
+		height: 12px;
+	}
+	.vx-ind-checkbox--disabled:not(.vx-ind-checkbox--checked):not(.vx-ind-checkbox--indeterminate) {
+		background-color: rgba(5, 54, 89, 0.047);
+	}
+	.vx-ind-checkbox--checked .vx-ind-checkmark {
+		display: block;
+	}
+	.vx-ind-checkbox .vx-ind-dash {
+		display: none;
+		border-radius: 9999px;
+	}
+	.vx-ind-checkbox--indeterminate .vx-ind-dash {
+		display: block;
+	}
+	.vx-field-label--disabled {
+		color: var(--color-text-disabled);
+	}
+	/* xplat-web-only:end */
 	.vx-field-status--detached {
 		border-top-color: var(--color-border);
 	}
 	.vx-field-status--error {
-		color: var(--color-danger);
+		color: var(--color-danger-text);
 	}
 	.vx-field-status--warning {
-		color: var(--color-warning);
+		color: var(--color-warning-text);
 	}
 	.vx-field-status--success {
-		color: var(--color-success);
+		color: var(--color-success-text);
 	}
 	.vx-fieldgroup-label {
 		font-size: 13px;
@@ -2247,7 +2531,20 @@
 }
 
 @layer xplat-chrome {
-	/* Astryx action family: optional visual skin over always-on token geometry. */
+	/* Astryx action family: optional visual skin over always-on token geometry.
+   Label type follows Astryx's --text-label scale (14px / medium / 20px line). */
+	.vx-button {
+		font-family: var(--font-sans);
+		font-size: 14px;
+		font-weight: 500;
+		line-height: 20px;
+	}
+	/* xplat-web-only:start — Astryx declares the unitless 1.4286 label ratio;
+	   native keeps the 20dip line-height above (unitless would be ~1.4dip). */
+	.vx-button {
+		line-height: 1.4286;
+	}
+	/* xplat-web-only:end */
 	.vx-button--primary {
 		background-color: var(--color-primary);
 		color: var(--color-onprimary);

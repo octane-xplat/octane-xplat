@@ -1,13 +1,14 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { mergeStyle, styleRecord } from './style-merge'
-import { useImperativeHandle, useEffect, useRef, useState } from 'octane';
+import { useContext, useImperativeHandle, useEffect, useRef, useState } from 'octane';
 import type { TextInputProps } from "./props";
 import { cx } from "@octane-xplat/lib";
 import { applyEscapeProps, nativeAccessibilityState } from "./escape-props";
 import { isWritingText, writeText } from './text-write';
 import { blurText } from './text-focus';
 import { Pressable } from './Pressable';
-import { useFieldControlProps } from './field-context';
+import { FieldContext, useFieldControlProps } from './field-context';
+import { FormField } from './FormField';
 
 /** Controlled single-line input. Imperative writes suppress their synchronous
  *  textChange echo through text-write. `isReadOnly` defaults false: an undefined
@@ -15,7 +16,7 @@ import { useFieldControlProps } from './field-context';
  *  driver's skip-undefined patch covers it, the ?? stays as documentation.
  *  `text` isn't a bound prop: the leaf writes it imperatively so the
  *  Android selection survives controlled writes (see text-write). */
-export function TextInput(inputProps: TextInputProps) @{
+function TextInputControl(inputProps: TextInputProps) @{
 	const props = useFieldControlProps(inputProps);
 	const el = useRef<any>(null);
 	const [internal, setInternal] = useState(props.defaultValue ?? '');
@@ -65,4 +66,19 @@ export function TextInput(inputProps: TextInputProps) @{
 			? <Pressable className="vx-input-clear" accessibilityLabel="Clear input" onPress={clear}><label text="×" /></Pressable>
 			: null}
 	</masonview>
+}
+
+/** Standalone inputs render Astryx's visible field chrome: outside a
+ *  FormField, wrap the control in one (label, description, status). Inside a
+ *  field the FormField owns that chrome, so the control renders bare. */
+export function TextInput(props: TextInputProps) @{
+	const inField = useContext(FieldContext) != null;
+	const needsChrome = !inField && (props.label != null || props.description != null || props.status != null || props.isRequired || props.isOptional);
+	@if (needsChrome) {
+		<FormField label={props.label} description={props.description} status={props.status} isRequired={props.isRequired} isOptional={props.isOptional} isLabelHidden={props.isLabelHidden} isDisabled={props.isDisabled} labelTooltip={props.labelTooltip} disabledMessage={props.disabledMessage} width={props.width}>
+			<TextInputControl {...props} />
+		</FormField>
+	} @else {
+		<TextInputControl {...props} />
+	}
 }

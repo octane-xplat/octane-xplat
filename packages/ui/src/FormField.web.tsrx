@@ -1,10 +1,12 @@
-import { useContext, useId } from 'octane'
+import { useContext, useEffect, useId } from 'octane'
+import { cx } from '@octane-xplat/lib'
 import { styleRecord } from './style-merge'
 import type { FormFieldProps } from "./props";
 import { applyEscapeProps } from "./escape-props";
 import { FieldProvider } from './field-context'
 import { FormLayoutContext } from './form-layout-context'
 import { Tooltip } from './Tooltip.web.tsrx'
+import { announce } from './announce.web'
 
 /** Shared field wrapper for labels, descriptions, and validation status.
  *  Under a `FormLayout`, horizontal labels flatten the root so the grid can
@@ -35,23 +37,35 @@ export function FormField(props: FormFieldProps) @{
 		? <Tooltip trigger={<span className="vx-field-label-tip" aria-hidden="true">{'?'}</span>} content={props.labelTooltip} placement="top" />
 		: null
 
+	const marker = showRequired
+		? <span className="vx-field-marker"><span className="vx-field-dot" aria-hidden="true">{" \u2219 "}</span>Required</span>
+		: showOptional
+			? <span className="vx-field-marker"><span className="vx-field-dot" aria-hidden="true">{" \u2219 "}</span>Optional</span>
+			: null
 	const labelText = props.label != null
-		? <span className="vx-field-label-text">{props.label}{showRequired ? <span className="vx-field-required" aria-hidden="true"> *</span> : null}{showOptional ? <span className="vx-field-optional"> (Optional)</span> : null}{labelAffordance}</span>
+		? <>{props.label}{marker}{labelAffordance}</>
 		: null
 
 	const labelNode = props.label != null
 		? (props.isGroupLabel
-			? <span id={labelId} className={['vx-field-label', props.isLabelHidden ? 'vx-field-label--hidden' : undefined]}>{labelText}</span>
-			: <label id={labelId} htmlFor={controlId} className={['vx-field-label', props.isLabelHidden ? 'vx-field-label--hidden' : undefined]}>{labelText}</label>)
+			? <span id={labelId} className={cx('vx-field-label', props.isLabelHidden && 'vx-field-label--hidden')}>{labelText}</span>
+			: <label id={labelId} htmlFor={controlId} className={cx('vx-field-label', props.isLabelHidden && 'vx-field-label--hidden')}>{labelText}</label>)
 		: null
 
 	const descriptionNode = props.description != null
-		? <span id={descriptionId} className={['vx-field-description', props.isLabelHidden ? 'vx-field-description--hidden' : undefined]}>{props.description}</span>
+		? <span id={descriptionId} className={cx('vx-field-description', props.isLabelHidden && 'vx-field-description--hidden')}>{props.description}</span>
 		: null
 
+	// Astryx: the visible status is plain text linked by aria-describedby; it is
+	// spoken through the persistent document-level live regions instead.
 	const statusNode = status?.message != null
-		? <span id={statusId} className={['vx-field-status', `vx-field-status--${status.type}`, `vx-field-status--${statusVariant}`]} role={status.type === 'error' ? 'alert' : 'status'}>{status.message}</span>
+		? <div id={statusId} className={cx('vx-field-status', `vx-field-status--${status.type}`, `vx-field-status--${statusVariant}`)}>{status.message}</div>
 		: null
+	useEffect(() => {
+		if (status?.message) {
+			announce(status.message, status.type === 'error' ? 'assertive' : 'polite')
+		}
+	}, [status?.message, status?.type])
 
 	const rootClass = ['vx-field', status ? `vx-field--${status.type}` : undefined, `vx-field--status-${statusVariant}`, props.isDisabled ? 'vx-field--disabled' : undefined, props.isReadOnly ? 'vx-field--readonly' : undefined, props.isLoading ? 'vx-field--loading' : undefined, props.size ? `vx-field--size-${props.size}` : undefined, props.className]
 	const fieldStyle = { ...(props.width != null ? { width: props.width } : {}), ...styleRecord(props.style) }
@@ -66,11 +80,15 @@ export function FormField(props: FormFieldProps) @{
 			</div>
 		</div>
 	} @else {
-		<div ref={(e: any) => applyEscapeProps(e, props)} id={props.id} className={rootClass} style={fieldStyle} role="group">
-			{labelNode}
-			{descriptionNode}
-			<FieldProvider value={fieldContext}>{props.children}</FieldProvider>
-			{statusNode}
+		<div ref={(e: any) => applyEscapeProps(e, props)} id={props.id} className={rootClass} style={fieldStyle}>
+			{descriptionNode != null
+				? <div className="vx-field-head">{labelNode}{descriptionNode}</div>
+				: labelNode}
+			<div className="vx-field-body">
+				<FieldProvider value={fieldContext}>{props.children}</FieldProvider>
+				{statusVariant === 'attached' ? statusNode : null}
+			</div>
+			{statusVariant !== 'attached' ? statusNode : null}
 		</div>
 	}
 }

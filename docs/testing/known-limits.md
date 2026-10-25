@@ -89,7 +89,7 @@ importing them fails the other platform's build on purpose:
 import { UISwitch } from '@octane-xplat/ui/ios'
 
 export function PackedToggle(props: { packed: boolean; onChange: (value: boolean) => void }) {
-	return <UISwitch checked={props.packed} onCheckedChange={props.onChange} />
+	return <UISwitch value={props.packed} onChange={props.onChange} />
 }
 ```
 
@@ -105,6 +105,22 @@ export function PackedToggle(props: { packed: boolean; onChange: (value: boolean
 
 `ui/ios` and `ui/android` resolve only in native builds; `ui/web` only in
 web builds. `ui/nativescript` is plumbing (root-layout helpers), not components.
+
+## Color suite limits
+
+`ColorArea`/`ColorSlider` drags are delta-based — the value adjusts by the
+gesture delta from where it started, matching `Slider`; there is no
+tap-to-position. `ColorSlider` supports only `channel="hue"`; there is no
+alpha channel, and `ColorPicker` is a fixed composite (React Aria's
+children-composition picker is deferred). Values are hex `'#rrggbb'` only —
+no `'rgba'`/`hsl` input. Runtime-verified targets: web
+(Chromium probe — computed gradient styles), iOS (simulator probe —
+`CAGradientLayer` structure + rendered pixels), Android (emulator probe —
+`GradientDrawable` structure + rendered pixels), and macOS (AppKit probe —
+`CAGradientLayer` structure + rendered pixels). Drag behavior is covered by
+jsdom/native unit tests, not by OS input on any target, and
+adjustable-increment accessibility actions are not wired
+on the AppKit host for the color controls.
 
 ## VirtualList performance
 

@@ -168,8 +168,16 @@ its documentation. Do not create a note just because a commit exists.
 | --- | --- | --- |
 | Useful new feature or improvement | `.changelog/<short-description>.md` | `CHANGELOG.md` |
 | Breaking public API change, including a removal | `.changelog/<short-description>.md` | `CHANGELOG.md` |
-| User-facing bug fix | `.changelog/fixes/<short-description>.md` | `FIXLOG.md` |
-| Internal refactor, tests, CI, formatting, or routine dependency maintenance with no user-visible effect | No file | Neither log |
+| User-facing bug fix for behavior a release already shipped | `.changelog/fixes/<short-description>.md` | `FIXLOG.md` |
+| Fix for a bug introduced after the previous release, internal refactor, tests, CI, formatting, or routine dependency maintenance with no user-visible effect | No file | Neither log |
+
+Log a fix only when the bug reached a tagged stable release of the same
+stream (`v*` for lockstep, `tsrx-typegen-v*` for tsrx-typegen). A bug
+introduced and fixed between releases never reached users, so the fix is
+internal work. To check whether the commit that introduced the bug shipped,
+run `git tag --contains <sha>` and look for a stable tag. Nightly
+prereleases do not count: release notes serve readers comparing stable
+versions.
 
 A breaking fix belongs in the changelog with a clear **Breaking change**
 label and the smallest useful migration example. Do not duplicate it in the
@@ -177,21 +185,18 @@ fixlog. Prefer outcomes such as “Keep your place when new messages arrive”
 over implementation terms. State affected platforms when the difference
 matters to the reader.
 
-Every file begins with a YAML header containing only `release: lockstep` or
-`release: tsrx-typegen`, followed by a level-three title and a short description.
-Most packages use `lockstep`: they share one version. For a change spanning
-both release streams, write a separate file for each stream so either can
-publish independently. Choose a descriptive filename that does not collide
+Every file begins with a level-three title and a short description. Most
+packages use `lockstep`: they share one version, and a lockstep note needs no
+YAML header. Only a `tsrx-typegen` note opens with a header containing
+`release: tsrx-typegen` and nothing else. For a change spanning both release
+streams, write a separate file for each stream so either can publish
+independently. Choose a descriptive filename that does not collide
 with another pending note; do not include an anticipated version or date.
 
 This is a format example for a hypothetical button fix, not a pending release
 announcement. Save a real fix in `.changelog/fixes/disabled-save-button.md`:
 
 ````md
----
-release: lockstep
----
-
 ### Keep disabled buttons inactive
 
 Disabled buttons no longer start their action when pressed.

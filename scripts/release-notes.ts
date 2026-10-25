@@ -26,19 +26,24 @@ export function readNotes(root: string): Note[] {
 			const text = readFileSync(path, 'utf8').replace(/\r\n/g, '\n')
 			const header = /^---\n([\s\S]*?)\n---\n([\s\S]*)$/.exec(text)
 			assert.ok(
-				header,
-				`${path}: start with a YAML header containing release: lockstep or release: tsrx-typegen`,
+				header || !text.startsWith('---'),
+				`${path}: close the YAML header or omit it`,
 			)
-			const metadata = parse(header[1])
-			assert.ok(
-				metadata &&
-					typeof metadata === 'object' &&
-					Object.keys(metadata).length === 1 &&
-					Object.hasOwn(metadata, 'release'),
-				`${path}: the header must contain only release`,
-			)
-			const release = releaseName(metadata.release)
-			const body = header[2].trim()
+			let release: Release = 'lockstep'
+			let body = text
+			if (header) {
+				const metadata = parse(header[1])
+				assert.ok(
+					metadata &&
+						typeof metadata === 'object' &&
+						Object.keys(metadata).length === 1 &&
+						Object.hasOwn(metadata, 'release'),
+					`${path}: the header must contain only release`,
+				)
+				release = releaseName(metadata.release)
+				body = header[2]
+			}
+			body = body.trim()
 			assert.match(
 				body,
 				/^### \S[^\n]*\n\s*\n\S/,

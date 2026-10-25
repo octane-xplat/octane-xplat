@@ -197,8 +197,9 @@ the data files pass their scoped lint checks.
   Chromium: App mounts, `onClick`→state, tab switch, chip→real-path
   route write, pane render, popstate restore, deep-link boot, sheet-stub
   call, zero pageerrors — 14/14. Runtime evidence for the web target —
-  until now it was only proven to compile. Selector note: `Pressable`
-  renders `div[role="button"]`.
+  until now it was only proven to compile. Selector note: `Button` renders a
+  native `<button type="button">`; other `Pressable` controls render
+  `div[role="button"]`.
 - Native: weak ecosystem — Appium or `nativescript-dev-appium`-era tooling;
   plan manual smoke scripts + screenshot capture per release until this
   matures. Sameframe-style parity checking is web-only. The harness probe

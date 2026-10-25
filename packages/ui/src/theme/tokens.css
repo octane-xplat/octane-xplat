@@ -288,6 +288,23 @@
 	}
 	.vx-input {
 		min-width: 0;
+		height: 20px;
+		line-height: 1.4286;
+	}
+	/* Astryx: the bordered box is the shell (h 28/32/36 per size); the
+	   <input> inside is a transparent text line. */
+	.vx-input-shell {
+		height: 32px;
+		padding: 0 8px;
+		border: 1px solid var(--color-border-strong);
+		border-radius: var(--radius-md);
+		background-color: var(--color-surface);
+	}
+	.vx-input-shell:has(.vx-input--size-sm) {
+		height: 28px;
+	}
+	.vx-input-shell:has(.vx-input--size-lg) {
+		height: 36px;
 	}
 	.vx-input-clear {
 		display: flex;
@@ -466,11 +483,13 @@
 
 	/* Self-drawn switch — flex track + thumb. `--on` flips justify-content,
    which slides the thumb; identical geometry on web and native. */
+	/* Astryx Switch: 40x24 (md) / 32x20 (sm) track with a 4px/2px inset;
+	   the thumb grows from 16 to 20 (md) or 12 to 16 (sm) when on. */
 	.vx-switch {
-		width: 48px;
-		height: 28px;
-		padding-left: 3px;
-		padding-right: 3px;
+		width: 40px;
+		height: 24px;
+		padding-left: 4px;
+		padding-right: 2px;
 		justify-content: flex-start;
 		align-items: center;
 	}
@@ -478,8 +497,26 @@
 		justify-content: flex-end;
 	}
 	.vx-switch-thumb {
-		width: 22px;
-		height: 22px;
+		width: 16px;
+		height: 16px;
+	}
+	.vx-switch--on .vx-switch-thumb {
+		width: 20px;
+		height: 20px;
+	}
+	.vx-switch--size-sm {
+		width: 32px;
+		height: 20px;
+		padding-left: 2px;
+		padding-right: 2px;
+	}
+	.vx-switch--size-sm .vx-switch-thumb {
+		width: 12px;
+		height: 12px;
+	}
+	.vx-switch--size-sm.vx-switch--on .vx-switch-thumb {
+		width: 16px;
+		height: 16px;
 	}
 	/* xplat-web-only:start — the DOM host is a div; flex + cursor live here */
 	.vx-switch {
@@ -526,6 +563,74 @@
 	}
 	/* xplat-web-only:end */
 
+	/* Self-drawn color suite — native leaves position the area/slider layers
+   absolutely with inline styles; the web leaf uses the classes below. */
+	.vx-color-picker {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+	}
+	.vx-color-picker-row {
+		display: flex;
+		flex-direction: row;
+		gap: 8px;
+		align-items: center;
+	}
+	.vx-color-area {
+		height: 160px;
+	}
+	.vx-color-slider {
+		height: 24px;
+	}
+	.vx-color-swatch {
+		border-radius: 4px;
+		border-width: 1px;
+		border-color: rgba(0, 0, 0, 0.15);
+	}
+	.vx-color-field {
+		display: flex;
+		flex-direction: row;
+		gap: 8px;
+		align-items: center;
+	}
+	/* xplat-web-only:start — DOM layer stacking and thumb chrome. */
+	.vx-color-area,
+	.vx-color-slider {
+		position: relative;
+		overflow: hidden;
+	}
+	.vx-color-area-hue,
+	.vx-color-area-sat,
+	.vx-color-area-val,
+	.vx-color-slider-track {
+		position: absolute;
+		inset: 0;
+	}
+	.vx-color-area-thumb,
+	.vx-color-slider-thumb {
+		position: absolute;
+		border: 2px solid #fff;
+		border-radius: 50%;
+		transform: translate(-50%, -50%);
+		box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2);
+		box-sizing: border-box;
+	}
+	.vx-color-area-thumb {
+		width: 16px;
+		height: 16px;
+	}
+	.vx-color-slider-thumb {
+		width: 20px;
+		height: 20px;
+		top: 50%;
+	}
+	.vx-color-swatch {
+		border: 1px solid rgba(0, 0, 0, 0.15);
+		border-radius: 4px;
+		box-sizing: border-box;
+	}
+	/* xplat-web-only:end */
+
 	/* xplat-web-only:start — Pager's web leaf is a mandatory scroll-snap row:
    one page per item at 100% host width so scrollLeft / clientWidth is a
    clean page index. Native pages are sized by the widget itself, so the
@@ -556,13 +661,133 @@
 	/* Phase-1 self-drawn components — functional geometry + token chrome only;
    visual design is the app's job. */
 
+	/* xplat-web-only:start — Button renders a real <button> on web (other
+   Pressables stay divs): reset the UA stylesheet so the control inherits the
+   surface it sits on. :where(button) keeps this at class specificity — it
+   sits before .vx-button geometry and .vx-button--* chrome, which win. */
+	.vx-pressable:where(button) {
+		appearance: none;
+		margin: 0;
+		padding: 0;
+		border: 0;
+		background: none;
+		font: inherit;
+		color: inherit;
+		text-align: inherit;
+	}
+	/* xplat-web-only:end */
+
 	/* Button — row-direction pressable (vx-pressable already supplies display
-   and press feedback). */
+   and press feedback). Geometry follows Astryx's element scale: 28/32/36px
+   heights, 8px block / 12px inline padding, 8px gap, --radius-md corners.
+   nowrap + min-width:0/max-width:100% let a crowded row shrink the button
+   instead of overflowing; the label truncates with an ellipsis. */
 	.vx-button {
 		flex-direction: row;
 		align-items: center;
 		justify-content: center;
+		gap: 8px;
+		padding-top: 8px;
+		padding-bottom: 8px;
+		padding-left: 12px;
+		padding-right: 12px;
+		border-radius: var(--radius-md);
+		corner-shape: squircle;
+		white-space: nowrap;
+		min-width: 0;
+		max-width: 100%;
 	}
+	.vx-button--size-sm {
+		height: 28px;
+	}
+	.vx-button--size-md {
+		height: 32px;
+	}
+	.vx-button--size-lg {
+		height: 36px;
+	}
+	.vx-button-label {
+		white-space: nowrap;
+		text-overflow: ellipsis;
+		min-width: 0;
+		flex-shrink: 1;
+	}
+
+	/* Loading: content stays mounted but hidden under a centred spinner
+	   overlay, preserving the button's width and accessible name on every
+	   platform. Web: an absolutely positioned overlay + display:contents.
+	   Native: the leaf switches the button to display:grid while busy so
+	   content and spinner share cell 1,1 (Mason has no CSS positioning), and
+	   opacity — not colour — suppresses the hidden content's paint. */
+	.vx-button-content {
+		flex-direction: row;
+		align-items: center;
+		gap: 8px;
+		min-width: 0;
+		flex-shrink: 1;
+	}
+	.vx-button-content--hidden {
+		color: transparent;
+	}
+	/* Astryx's sm spinner is a 14px box — shrink the shared 24px ring inside
+	   the Button overlay. */
+	.vx-button-spinner .vx-spinner {
+		width: 14px;
+		height: 14px;
+	}
+	/* xplat-web-only:start — grid centering and the svg arc ring are DOM-only. */
+	.vx-button {
+		position: relative;
+	}
+	.vx-button-spinner {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		display: grid;
+		place-items: center;
+	}
+	.vx-button-spinner-status {
+		display: grid;
+	}
+	/* Astryx Spinner sm: 14px box = 10px ring + 2px stroke per side; arc is
+	   0.375 of the circumference at 30% track opacity, currentColor. */
+	.vx-button-spinner-svg {
+		display: block;
+		fill: none;
+		animation: vx-spinner-turn 0.8s linear infinite;
+	}
+	.vx-button-spinner-track {
+		stroke: currentColor;
+		stroke-opacity: 0.3;
+	}
+	.vx-button-spinner-arc {
+		stroke: currentColor;
+	}
+	.vx-button-content {
+		display: contents;
+	}
+	/* xplat-web-only:end */
+	@platform native {
+		/* The leaf switches the busy button to display:grid and pins both
+	   children to cell 1,1 via style props (grid-row/grid-column are not
+	   CSS-settable on native); the hidden content's paint is suppressed by
+	   opacity so it stays laid out and in the a11y tree. */
+		.vx-button-spinner {
+			align-items: center;
+			justify-content: center;
+		}
+		.vx-button-content--hidden {
+			opacity: 0;
+		}
+	}
+	/* xplat-web-only:start — NS labels clip intrinsically; the DOM needs the
+	   explicit clip for the ellipsis to engage. */
+	.vx-button-label {
+		overflow: hidden;
+	}
+	/* xplat-web-only:end */
 
 	/* Collapsible/Accordion — column stacks. */
 	.vx-collapsible,
@@ -777,16 +1002,12 @@
 	/* FormField — label / control / message column. */
 	.vx-field {
 		flex-direction: column;
+		gap: 4px;
 	}
-	.vx-field-label {
-		margin-bottom: 4px;
-	}
-	.vx-field-description {
-		margin-top: 4px;
-		margin-bottom: 4px;
-	}
-	.vx-field-status {
-		margin-top: 4px;
+	.vx-field-head,
+	.vx-field-body {
+		display: flex;
+		flex-direction: column;
 	}
 	.vx-field-label-row {
 		display: flex;
@@ -2423,6 +2644,8 @@
 
 	.vx-visually-hidden {
 		position: absolute;
+		top: 0;
+		left: 0;
 		width: 1px;
 		height: 1px;
 		padding: 0;
@@ -2915,6 +3138,12 @@
 		height: 1px;
 		opacity: 0;
 	}
+	/* xplat-web-only:start — the native opacity hide does not apply to DOM:
+	   clip already hides the node and opacity 0 would mark it invisible. */
+	.vx-visually-hidden {
+		opacity: 1;
+	}
+	/* xplat-web-only:end */
 
 	/* ----- Astryx navigation family (task 05) ----- */
 
@@ -4009,6 +4238,14 @@
 		z-index: 2;
 		cursor: grab;
 		touch-action: none;
+	}
+	/* xplat-web-only:end */
+	/* xplat-web-only:start */
+	.vx-field-label--hidden,
+	.vx-field-description--hidden {
+		position: absolute;
+		top: 0;
+		left: 0;
 	}
 	/* xplat-web-only:end */
 	/* #39 — layout defaults that used to be inline in the native element.

@@ -3,7 +3,7 @@ import { Switch } from './Switch'
 import type { ParityFixture } from './parity'
 
 function SwitchFixture(props: { checked: boolean }) @{
-	<Switch checked={props.checked} />
+	<Switch value={props.checked} />
 }
 
 export const PARITY: ParityFixture[] = [

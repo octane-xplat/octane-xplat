@@ -49,6 +49,16 @@ or process launch. Use the error's available-kind list to correct the command.
 pnpm exec xplat build --targets web,android
 ```
 
+For an exact development device, use `--device` with the returned target ID.
+An optional positional platform restricts that selection. Xplat prepares iOS
+simulators through `simctl`; it does not need Simulator.app. Physical-device
+launch remains NativeScript's responsibility.
+
+```sh
+pnpm exec xplat dev ios --device DEVICE_UDID
+pnpm exec xplat dev android --device DEVICE_SERIAL
+```
+
 ## Bind the app and retrieve context
 
 A sole app can bind from the working directory. In an ambiguous workspace, use

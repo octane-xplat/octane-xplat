@@ -294,7 +294,7 @@ import { useState } from 'octane'
 export function Settings() {
 	const [checked, setChecked] = useState(false)
 
-	return <UISwitch checked={checked} onCheckedChange={setChecked} />
+	return <UISwitch value={checked} onChange={setChecked} />
 }
 ```
 
@@ -304,8 +304,8 @@ widget's props type carries the widget's name — `UISwitch` takes
 takes `MaterialSwitchProps`. The `Platform*` types (`PlatformTabSpec`,
 `PlatformListProps`, `PlatformIconChoice`, `PlatformWidgetProps`) are the
 contracts the platform widgets share with each other. The platform switches
-share the `checked`/`onCheckedChange` state contract
-(`defaultChecked` seeds uncontrolled use) and
+share the `value`/`onChange` state contract
+(`defaultValue` seeds uncontrolled use) and
 honor `isDisabled`, `isReadOnly`, `testID`, and the accessibility names —
 `label`, `description`, and `accessibilityLabel`/`accessibilityHint` are
 spoken, since a bare widget draws no visible label. Wrap one in `Field` for
@@ -318,7 +318,7 @@ up from the field automatically.
 import { UISwitch } from '@octane-xplat/ui/ios'
 
 export function AirplaneRow() {
-	return <UISwitch checked label="Airplane mode" isDisabled />
+	return <UISwitch value label="Airplane mode" isDisabled />
 }
 ```
 

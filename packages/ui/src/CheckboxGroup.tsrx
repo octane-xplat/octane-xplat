@@ -27,11 +27,11 @@ export function CheckboxGroup(inputProps: CheckboxGroupProps) @{
 	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-checkbox-group', props.horizontal && 'vx-checkbox-group--row', props.isDisabled && 'vx-checkbox-group--disabled', isReadOnly && 'vx-checkbox-group--readonly', props.isLoading && 'vx-checkbox-group--loading', props.status && `vx-checkbox-group--status-${props.status.type}`, props.size && `vx-checkbox-group--size-${props.size}`, props.className)} style={mergeStyle({flexDirection: props.horizontal ? 'row' : 'column'}, mergeStyle({display: "flex"}, props.style))} accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label} accessibilityHint={props.accessibilityHint} accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled })}>
 		@for (const opt of props.options; key opt.value) {
 			<Checkbox
-				checked={selected.includes(opt.value)}
+				value={selected.includes(opt.value)}
 				isDisabled={props.isDisabled || opt.isDisabled}
 				isReadOnly={isReadOnly}
 				label={opt.label}
-				onCheckedChange={(on: boolean) => toggle(opt.value, on)}
+				onChange={(on: boolean) => toggle(opt.value, on)}
 			/>
 		}
 	</masonview>

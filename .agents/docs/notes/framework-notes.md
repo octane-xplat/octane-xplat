@@ -195,3 +195,35 @@ export function Home() {
 6. Animation facade + gesture normalization.
 7. seam lints + dual `tsrx-tsc` CI + mock-host driver tests.
 8. `styled()` variants, `Icon`, `SafeArea`, commodity primitives.
+
+## Upstream: array `className` on a stored element inside an `@if` branch
+
+**Owner/version:** `octane` 0.14.0 (with the local patch), web runtime. **Evidence:** a local jsdom
+runtime repro (2026-10-24); filed upstream as octanejs/octane#2233.
+
+**Limitation:** a component crashes on its *second* render, inside `commitInScope` → `applyDeoptOrder`, with
+`TypeError: Cannot read properties of undefined (reading 'idState')`, and leaves the stale DOM in place. Three
+conditions trigger it together:
+
+- an element is built in a `const` in the component body;
+- that element has an **array** `className`;
+- the element is rendered inside an `@if`/`@else` branch next to `props.children`.
+
+The same element with a string `className`, or rendered without the `@if`, works. Minimal repro:
+
+```tsx
+function If(props: { h?: boolean; children?: any }) @{
+	const node = <label className={['a']}>N</label>
+	@if (props.h) {
+		<div>x</div>
+	} @else {
+		<div>{node}{props.children}</div>
+	}
+}
+// act(() => root.render(<If><span>a</span></If>)); act(() => root.render(<If><span>b</span></If>)) → crash
+```
+
+**Workaround:** build `className` on stored elements with `cx(...)` from `@octane-xplat/lib`, so it is a
+string. `FormField.web.tsrx` does this. Before the workaround, every labelled `FormField` on web crashed as
+soon as it re-rendered. The regression test is `packages/ui/src/FormField.web.test.tsrx`. Remove the
+workaround once Octane handles array `className` in this position.

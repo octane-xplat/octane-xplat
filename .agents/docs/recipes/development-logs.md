@@ -26,7 +26,7 @@ retention gaps; process output is not a complete OS diagnostic stream.
 - AC6: Discover existing app/session-scoped native reports with explicit availability and candidate/confirmed association; preserve complete originals separately from log rotation, with bounded retention and no OS report deletion.
 - AC7: Use diagnostics across CLI/MCP session/job selection; remove the former logs command/tool, and keep log cursors separate from report reads.
 
-- AC8: Use one durable session ID across dev, agent launch, status, diagnostics and post-owner history; start by optional exact target/platform positional, expose progress/failure without launch jobs, reject ambiguous/unknown selectors, and cancel/end only owned resources across transports.
+- AC8: Use one durable session ID across dev, agent launch, status, diagnostics and post-owner history; start by optional exact target/platform positional or dev --device, expose progress/failure without launch jobs, reject ambiguous/unknown selectors, and cancel/end only owned resources across transports.
 
 ## Documentation
 
@@ -39,4 +39,4 @@ retention gaps; process output is not a complete OS diagnostic stream.
 - AC6: [Native report sources and limits](../../../docs/testing/diagnostics.md#native-reports), [collector regression](../../../packages/cli/test/native-reports.test.mjs)
 - AC7: [Diagnostic interface](../../../docs/testing/diagnostics.md), [CLI regression](../../../packages/cli/test/agent-cli.test.mjs), [MCP regression](../../../packages/mcp/tests/server.test.mjs)
 
-- AC8: [Session lifecycle and selection](../../../docs/testing/diagnostics.md), [runtime regressions](../../../packages/mcp/tests/runtime.test.mjs), [CLI regressions](../../../packages/cli/test/agent-cli.test.mjs)
+- AC8: [Choose a development device](../../../docs/start/toolchain.md#run-on-ios-and-android), [Session lifecycle and selection](../../../docs/testing/diagnostics.md), [runtime regressions](../../../packages/mcp/tests/runtime.test.mjs), [CLI regressions](../../../packages/cli/test/agent-cli.test.mjs)

@@ -12,6 +12,9 @@ vi.mock('@nativescript/core', () => ({
 }))
 
 vi.mock('./pan.tsrx', () => ({ usePan: () => undefined }))
+// CheckboxIndicator registers <svgview> as an import side effect; the object
+// driver doesn't need the real vendored SVGView.
+vi.mock('./svg', () => ({}))
 vi.mock('./default-router', () => ({ router: { navigateUrl: () => Promise.resolve({ status: 'not-found' }) } }))
 
 import { Stack } from './Stack.tsrx'
@@ -172,7 +175,7 @@ describe('native indicators + list', () => {
 	})
 
 	it('indeterminate renders the dash state', () => {
-		const { container, root } = mount(Checkbox as any, { indeterminate: true })
+		const { container, root } = mount(Checkbox as any, { value: 'indeterminate' })
 		expect(findByClass(container.children[0], 'vx-ind-checkbox--indeterminate')).not.toBeNull()
 		expect(findByClass(container.children[0], 'vx-ind-dash')).not.toBeNull()
 		root.unmount()

@@ -6,7 +6,14 @@ export function applyWebProps(el: any, props: Record<string, any> | undefined) {
 
 	for (const [name, value] of Object.entries(props)) {
 		if (name.includes('-')) {
-			el.setAttribute(name, String(value))
+			if (value == null) {
+				el.removeAttribute(name)
+			} else {
+				el.setAttribute(name, String(value))
+			}
+		} else if (value == null) {
+			// See applyEscapeProps: nullish must clear, not stringify.
+			el.removeAttribute(name)
 		} else {
 			el[name] = value
 		}

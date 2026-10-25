@@ -144,6 +144,7 @@ try {
 	// Off-Linux the launch must refuse before binding the dev server — no
 	// WORKSHOP_READY line, an actionable remote-host message.
 	const refusal = spawnSync('pnpm', ['exec', 'xplat', 'workshop', 'dev', '--target', 'linux'], {
+		shell: process.platform === 'win32',
 		cwd: consumer,
 		encoding: 'utf8',
 		timeout: 60_000,
@@ -195,6 +196,7 @@ console.log('UI_RESOLVED ' + (resolved?.id ?? 'unresolved'))
 
 	const serverInfo = await new Promise((accept, reject) => {
 		server = spawn('pnpm', ['exec', 'node', 'start-linux-server.mjs'], {
+			shell: process.platform === 'win32',
 			cwd: consumer,
 			detached: true,
 			stdio: ['ignore', 'pipe', 'pipe'],

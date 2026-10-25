@@ -18,6 +18,7 @@ if (!Number.isFinite(durationMs) || durationMs < 5_000) {
 }
 
 const preview = spawn('pnpm', ['exec', 'vite', 'preview', '--port', '5219', '--strictPort'], {
+	shell: process.platform === 'win32',
 	cwd: process.cwd(),
 	stdio: ['ignore', 'pipe', 'pipe'],
 	detached: true,

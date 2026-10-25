@@ -7,7 +7,11 @@ import { fileURLToPath } from 'node:url'
 import { build } from 'vite'
 import { xplatMacOS } from '../../cli/src/macos/vite.ts'
 import { macOSExecutable } from '../../cli/src/macos/executables.ts'
-import { hostBundle, hostRoot, validateHostBundle } from '../../cli/src/macos/jsc-host/runtime.ts'
+import {
+	buildMacOSNative,
+	writeNativeBootstrap,
+} from '../../cli/src/macos/native.ts'
+import { hostBundle, validateHostBundle } from '../../cli/src/macos/jsc-host/runtime.ts'
 
 const packageRoot = fileURLToPath(new URL('..', import.meta.url))
 const appRoot = fileURLToPath(new URL('../../../apps/macos', import.meta.url))
@@ -44,24 +48,22 @@ try {
 			'ROLLING_TEXT_BUILD_ONLY_OK ' + (human ? 'human' : 'automatic') + '; no host launched',
 		)
 	} else {
+		const artifact = await buildMacOSNative(appRoot)
+		const bootstrap = join(directory, 'bootstrap.js')
+		await writeNativeBootstrap(artifact, bootstrap)
 		const child = spawn(
 			await macOSExecutable(appRoot, 'macos-arm64/host'),
 			[
 				join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
 				bundle,
-				join(hostBundle, 'metadata.nsmd'),
-				join(hostRoot, 'shim.js'),
+				artifact.metadata,
+				bootstrap,
 			],
 			{
 				cwd: directory,
 				env: {
 					...process.env,
 					OCTANE_MACOS_AUTOMATION: '1',
-					XPLAT_MASON_LIB:
-						process.env.XPLAT_MASON_LIB ??
-						fileURLToPath(
-							new URL('../../macos-renderer/native/xplatmason/libxplatmason.dylib', import.meta.url),
-						),
 				},
 			},
 		)

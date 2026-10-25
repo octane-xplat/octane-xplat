@@ -132,9 +132,10 @@ Do not hand-bump versions, hand-publish real releases, or edit the generated
 `CHANGELOG.md` / `FIXLOG.md`. Conventional Commits determine version bumps;
 selected Markdown files determine release notes. For meaningful user-facing
 features or breaking changes, add `.changelog/*.md`; use
-`.changelog/fixes/*.md` for bug fixes. Internal-only work needs no entry.
+`.changelog/fixes/*.md` only for fixes to bugs a stable release already
+shipped. Internal-only work needs no entry.
 Follow the [authoring contract](../../../docs/releases.md#write-a-release-note)
-for the release header, plain wording, minimal API snippets, and official docs
+for the note format, plain wording, minimal API snippets, and official docs
 links.
 The one-time package stub/trust bootstrap is an explicit exception covered by
 the release reference; it is not a general release workflow.

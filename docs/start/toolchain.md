@@ -179,7 +179,19 @@ opens, try the same checklist actions you tried in the browser.
 
 To launch multiple platforms together instead, stop the existing development
 commands with Ctrl+C and run `pnpm xplat dev`. It offers a choice of available
-targets. `pnpm xplat dev macos` runs a single target; `pnpm xplat dev -t web,ios` selects web and an available iOS target.
+targets. Choose one device with `--device` and its identifier from
+`pnpm xplat targets --json`. For iOS simulators, Xplat waits for the simulator to
+boot through `simctl`, so the Simulator desktop app is optional.
+
+```sh
+pnpm xplat dev macos
+pnpm xplat dev ios --device DEVICE_UDID
+pnpm xplat dev android --device DEVICE_SERIAL
+pnpm xplat dev -t web,ios
+```
+
+Replace `DEVICE_UDID` or `DEVICE_SERIAL` with the exact device identifier.
+Use either a single selection (with optional `--device`) or `--targets`.
 
 ## See a shared edit in running targets
 
@@ -223,6 +235,23 @@ records what pnpm installed. Keep all three files in Git.
 	"dependencies": { "octane": "catalog:xplat" },
 	"devDependencies": { "@tsrx/oxc": "catalog:xplat" }
 }
+```
+
+An app can also live inside a pnpm **workspace** — a repo where several
+apps and packages share one install. Move the scaffolded app under a folder
+the workspace covers (for example `apps/mobile`) and list the packages in
+the root `pnpm-workspace.yaml`. With `nodeLinker: hoisted`, pnpm installs
+all dependencies at the workspace root and the app's own `node_modules`
+stays nearly empty; the dev server resolves packages upward the same way
+Node does, so iOS/Android dev sessions work unchanged. Keep the catalog,
+patches, and `allowBuilds` settings in the root `pnpm-workspace.yaml` —
+workspace members read them from there.
+
+```yaml
+# pnpm-workspace.yaml at the workspace root
+packages:
+  - 'apps/*'
+nodeLinker: hoisted
 ```
 
 ### Upgrade framework packages

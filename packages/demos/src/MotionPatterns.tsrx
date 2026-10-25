@@ -85,9 +85,8 @@ const PHRASES = ['Review today', 'Track this week', 'Explore trends'];
 
 const TOTAL_SAMPLES = [0, -120, 98765];
 
-const TOTAL_FORMAT = new Intl.NumberFormat();
 const formatTotal = (value: number) =>
-	Number.isFinite(value) ? TOTAL_FORMAT.format(Math.round(value)) : '—';
+	Number.isFinite(value) ? String(Math.round(value)).replace(/\B(?=(\d{3})+(?!\d))/g, ',') : '—';
 
 const PATTERNS: { key: PatternKey; label: string; recipe: string; when: string }[] = [
 	{ key: 'panels', label: 'Switch views', recipe: 'TransitionPanel', when: 'Keeps one active view while a selection settles — the outgoing view leaves before the incoming one enters.' },
@@ -137,8 +136,8 @@ function ReducedMotionControl(props: {
 	<HStack className="items-center gap-3 flex-wrap">
 		<Switch
 			id={props.id}
-			checked={props.preview}
-			onCheckedChange={props.onChange}
+			value={props.preview}
+			onChange={props.onChange}
 			accessibilityLabel="Preview reduced motion"
 		/>
 		<Text className="text-sm">Reduce motion</Text>
@@ -414,8 +413,8 @@ function FocusPanels() @{
 			<HStack className="items-center gap-3">
 				<Switch
 					id="fp-empty"
-					checked={empty}
-					onCheckedChange={setEmpty}
+					value={empty}
+					onChange={setEmpty}
 					accessibilityLabel="Simulate an empty range"
 				/>
 				<Text className="text-sm">Simulate empty range</Text>

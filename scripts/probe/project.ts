@@ -90,6 +90,9 @@ export async function dependencies(target, caseFile, extra) {
 	const names = new Set(['octane', '@octane-xplat/ui', ...extra])
 	if (target === 'macos') {
 		names.add('@nativescript/macos-node-api')
+		// The shell imports the renderer; its runtime-dep edge is also what
+		// discoverMacOSNative follows to find the shipped Mason dylib.
+		names.add('@octane-xplat/macos-renderer')
 	}
 
 	if (['ios', 'android'].includes(target)) {

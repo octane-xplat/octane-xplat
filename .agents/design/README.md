@@ -20,6 +20,7 @@ start at the [public docs](../../docs/README.md).
 - [Software keyboard ownership](software-keyboard.md) — window state, native tracking, and compatibility boundaries.
 - [Mason core extraction](mason-core-extraction.md) — independent prototype, source preservation, and eventual upstream package boundary.
 - [UI API design audit](ui-api/README.md) — proposed public surface and approved design directions.
+- [Astryx parity harness](astryx-parity-harness.md) — side-by-side Astryx vs Xplat web rendering with geometry, pixel and behavior checks.
 - [Charts package](charts.md)
 - [Command palette plan](command-palette-plan.md)
 - [Query cache commit plan](query-cache-plan.md) — implementation sequence for recovery, shared updates, pagination, and inspection.

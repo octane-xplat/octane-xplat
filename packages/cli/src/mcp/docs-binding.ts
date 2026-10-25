@@ -10,6 +10,7 @@ import { existsSync, lstatSync, readdirSync, readFileSync, realpathSync, statSyn
 import { dirname, join, resolve, sep } from 'node:path'
 import { parse as parseYaml } from 'yaml'
 import { releaseMapping } from './release-map.ts'
+import { installedPackageRoot } from '../package-root.ts'
 
 const SCOPED_DIR = '@octane-xplat'
 const UNSCOPED = ['tsrx-typegen', 'create-octane-xplat']
@@ -84,12 +85,12 @@ function isLinkedSpec(projectRoot, spec = '') {
 	}
 }
 
-function installedEntry(nodeModules, name) {
-	const dir = join(nodeModules, name)
-	const manifest = join(dir, 'package.json')
-	if (!existsSync(manifest)) {
+function installedEntry(projectRoot, name) {
+	const dir = installedPackageRoot(projectRoot, name)
+	if (!dir) {
 		return null
 	}
+	const manifest = join(dir, 'package.json')
 
 	const pkg = readJson(manifest)
 	if (!pkg?.name || !pkg?.version) {
@@ -107,6 +108,23 @@ function installedEntry(nodeModules, name) {
 	}
 }
 
+/** node_modules dirs Node would consult from `dir`, innermost first. */
+function nodeModulesDirs(dir) {
+	const out = []
+	let current = resolve(dir)
+	while (true) {
+		if (!current.endsWith(`${sep}node_modules`) && current !== 'node_modules') {
+			out.push(join(current, 'node_modules'))
+		}
+		const parent = dirname(current)
+		if (parent === current) {
+			break
+		}
+		current = parent
+	}
+	return out
+}
+
 /**
  * Resolve every release-mapped Octane Xplat package in a consumer project.
  *
@@ -118,13 +136,18 @@ function installedEntry(nodeModules, name) {
  * }}
  */
 export function resolveInstallations(projectRoot) {
-	const nodeModules = join(projectRoot, 'node_modules')
 	const specs = declaredSpecs(projectRoot)
 	const locked = lockfileVersions(projectRoot)
 	const candidates = new Set()
 
-	const scopedDir = join(nodeModules, SCOPED_DIR)
-	if (existsSync(scopedDir)) {
+	// Enumerate @octane-xplat scope dirs along the node_modules walk-up chain
+	// (nearest wins for `installed` below via installedPackageRoot), so hoisted
+	// workspaces whose scope dir lives at the workspace root are covered.
+	for (const base of nodeModulesDirs(projectRoot)) {
+		const scopedDir = join(base, SCOPED_DIR)
+		if (!existsSync(scopedDir)) {
+			continue
+		}
 		for (const entry of readdirSync(scopedDir)) {
 			if (entry.startsWith('.')) {
 				continue
@@ -147,7 +170,7 @@ export function resolveInstallations(projectRoot) {
 			continue
 		}
 
-		const entry = installedEntry(nodeModules, name)
+		const entry = installedEntry(projectRoot, name)
 		if (entry) {
 			const kind = entry.linked || isLinkedSpec(projectRoot, specs[name]) ? 'linked' : 'registry'
 

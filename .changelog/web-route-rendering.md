@@ -1,7 +1,3 @@
----
-release: lockstep
----
-
 ### Serve routes as HTML or static pages
 
 The optional `@octane-xplat/web-host` package renders Web routes before they reach

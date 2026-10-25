@@ -25,8 +25,8 @@ describe.each([
 		const change = vi.fn()
 		flushUniversalSync(() =>
 			root.render(Switch, {
-				checked: false,
-				onCheckedChange: change,
+				value: false,
+				onChange: change,
 				isDisabled: true,
 				label: 'Airplane mode',
 				disabledMessage: 'Managed by your admin',
@@ -46,14 +46,14 @@ describe.each([
 		// isDisabled maps to the host's enabled flag; a disabled OS widget
 		// reports the state instead of toggling.
 		flushUniversalSync(() =>
-			root.render(Switch, { checked: false, onCheckedChange: change, isDisabled: false, isReadOnly: true }),
+			root.render(Switch, { value: false, onChange: change, isDisabled: false, isReadOnly: true }),
 		)
 
 		expect(host.props.isEnabled).toBe(true)
 		expect(host.props.isUserInteractionEnabled).toBe(false)
 
 		// A read-only switch reverts stray change events instead of calling
-		// onCheckedChange — the value cannot actually change.
+		// onChange — the value cannot actually change.
 		flushUniversalSync(() => container.dispatchEvent(host, 'checkedChange', { value: true, object: host }))
 		expect(change).not.toHaveBeenCalled()
 		expect(host.checked).toBe(false)
@@ -61,10 +61,10 @@ describe.each([
 		root.unmount()
 	})
 
-	it('delivers checked and onCheckedChange unchanged when enabled', () => {
+	it('delivers checked state and onChange unchanged when enabled', () => {
 		const { container, root } = createRoot()
 		const change = vi.fn()
-		flushUniversalSync(() => root.render(Switch, { checked: true, onCheckedChange: change }))
+		flushUniversalSync(() => root.render(Switch, { value: true, onChange: change }))
 		const host = container.children[0]
 		expect(host.props.checked).toBe(true)
 		expect(host.props.isEnabled).toBe(true)

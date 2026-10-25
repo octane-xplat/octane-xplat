@@ -4,6 +4,7 @@ These records are internal implementation notes and investigation evidence.
 They are kept outside the published documentation corpus in `docs/`.
 
 - [Astryx component parity inventory](astryx-parity.md)
+- [Astryx parity harness](../../../apps/astryx-parity/README.md) (measured Button comparison app)
 - [Command palette parity audit](astryx-parity-commandpalette.md)
 - [Date-input parity audit](astryx-parity-date-inputs.md)
 - [Select parity audit](astryx-parity-select.md)

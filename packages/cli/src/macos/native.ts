@@ -8,10 +8,12 @@ import { basename, dirname, extname, isAbsolute, join, relative, resolve, sep } 
 import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
 import { macOSExecutable } from './executables.ts'
+import { installedPackageRoot as packageRoot } from '../package-root.ts'
 import { distUrl } from '../env.ts'
 import {
 	hostBundle,
 	hostRoot,
+	inspectMachO,
 	minimumJscHostSystemVersion,
 	prebuiltRoot,
 } from './jsc-host/runtime.ts'
@@ -58,17 +60,6 @@ function strings(value, label, fallback = []) {
 	return value
 }
 
-function packageRoot(root, name) {
-	// The trailing slash makes builtin-named npm dependencies use node_modules lookup.
-	for (const base of createRequire(join(root, 'package.json')).resolve.paths(`${name}/`) ?? []) {
-		const candidate = join(base, name, 'package.json')
-		if (existsSync(candidate)) {
-			return realpathSync(dirname(candidate))
-		}
-	}
-
-	return null
-}
 
 function nodeModulePaths(dir) {
 	const paths = []
@@ -191,6 +182,8 @@ export function discoverMacOSNative(appRoot) {
 	const packages = new Map()
 	const visiting = new Set()
 	const leaves = []
+	const prebuilt = []
+	const prebuiltFiles = new Map()
 	function visit(root) {
 		root = realpathSync(root)
 		if (packages.has(root) || visiting.has(root)) {
@@ -249,6 +242,7 @@ export function discoverMacOSNative(appRoot) {
 				'swiftHeaderImports',
 				'resources',
 				'notices',
+				'prebuiltLibraries',
 			])
 
 			for (const key of Object.keys(config ?? {})) {
@@ -272,7 +266,30 @@ export function discoverMacOSNative(appRoot) {
 							`${manifest.name} sources`,
 						)
 
-			if (sources.length || config !== undefined) {
+			const prebuiltLibraries = select(
+				root,
+				nativeRoot,
+				strings(config?.prebuiltLibraries, `${manifest.name} prebuiltLibraries`),
+				`${manifest.name} prebuiltLibraries`,
+			)
+
+			for (const path of prebuiltLibraries) {
+				if (extname(path) !== '.dylib') {
+					throw new Error(
+						`[macos-native] ${manifest.name}: prebuilt library must be a .dylib: ${path}`,
+					)
+				}
+			}
+
+			if (!sources.length && prebuiltLibraries.length) {
+				for (const key of Object.keys(config)) {
+					if (key !== 'prebuiltLibraries' && key !== 'notices') {
+						throw new Error(
+							`[macos-native] ${manifest.name}: xplat.macos.${key} requires native sources`,
+						)
+					}
+				}
+			} else if (sources.length || config !== undefined) {
 				if (!sources.length) {
 					throw new Error(`[macos-native] ${manifest.name}: no native sources`)
 				}
@@ -381,6 +398,22 @@ export function discoverMacOSNative(appRoot) {
 
 				leaves.push(leaf)
 			}
+
+			if (prebuiltLibraries.length) {
+				const notices = leaf
+					? null
+					: noticeFile(root, nativeRoot, config?.notices, `${manifest.name} notices`)
+
+				for (const path of prebuiltLibraries) {
+					const file = basename(path)
+					if (prebuiltFiles.has(file)) {
+						throw new Error(`[macos-native] Multiple packages ship prebuilt ${file}`)
+					}
+
+					prebuiltFiles.set(file, manifest.name)
+					prebuilt.push({ name: manifest.name, file, source: path, notices })
+				}
+			}
 		}
 
 		packages.set(root, { manifest, dependencyRoots, leaf })
@@ -455,7 +488,14 @@ export function discoverMacOSNative(appRoot) {
 		}
 	}
 
-	return { leaves, fingerprint: hash(JSON.stringify(inputs)) }
+	for (const lib of prebuilt) {
+		inputs.push([lib.source, hash(readFileSync(lib.source))])
+		if (lib.notices) {
+			inputs.push([lib.notices, hash(readFileSync(lib.notices))])
+		}
+	}
+
+	return { leaves, prebuilt, fingerprint: hash(JSON.stringify(inputs)) }
 }
 
 /** Validate the toolchain only when the app actually has native leaves. */
@@ -551,24 +591,34 @@ export async function buildMacOSNative(
 	{ minimumSystemVersion = minimumJscHostSystemVersion } = {},
 ) {
 	appRoot = realpathSync(appRoot)
-	const inspection = await inspectMacOSNative(appRoot)
-	const { leaves, fingerprint, toolchain } = inspection
-	if (!leaves.length) {
-		return {
-			leaves: [],
-			libraries: [],
-			metadata: join(hostBundle, 'metadata.nsmd'),
-			fingerprint,
-			cached: true,
-		}
-	}
-
 	if (
 		!/^\d+\.\d+(?:\.\d+)?$/.test(minimumSystemVersion) ||
 		Number(minimumSystemVersion.split('.')[0]) < 13 ||
 		(minimumSystemVersion.startsWith('13.') && Number(minimumSystemVersion.split('.')[1]) < 5)
 	) {
 		throw new Error('[macos-native] minimumSystemVersion must be at least 13.5')
+	}
+
+	const inspection = await inspectMacOSNative(appRoot)
+	const { leaves, prebuilt, fingerprint, toolchain } = inspection
+	const issues = []
+	for (const lib of prebuilt) {
+		inspectMachO(readFileSync(lib.source), `${lib.name} ${lib.file}`, issues, minimumSystemVersion)
+	}
+
+	if (issues.length) {
+		throw new Error(`[macos-native] ${issues.join('; ')}`)
+	}
+
+	if (!leaves.length) {
+		return {
+			leaves: [],
+			libraries: [],
+			prebuilt,
+			metadata: join(hostBundle, 'metadata.nsmd'),
+			fingerprint,
+			cached: true,
+		}
 	}
 
 	const key = hash(
@@ -585,7 +635,7 @@ export async function buildMacOSNative(
 	const destination = join(cache, key)
 	const hit = await cachedArtifact(destination, key)
 	if (hit) {
-		return hit
+		return { ...hit, prebuilt }
 	}
 
 	const staging = await mkdtemp(join(cache, '.build-'))
@@ -865,6 +915,7 @@ export async function buildMacOSNative(
 
 		return {
 			...artifact,
+			prebuilt,
 			directory: destination,
 			metadata: join(destination, 'metadata.nsmd'),
 			cached: false,
@@ -876,13 +927,16 @@ export async function buildMacOSNative(
 
 /** Load native libraries before app JS; packaged paths remain valid after relocation. */
 export function nativeLoader(artifact, { packaged = false } = {}) {
-	if (!artifact.libraries.length) {
+	const paths = [
+		...(artifact.prebuilt ?? []).map((lib) => (packaged ? lib.file : lib.source)),
+		...artifact.libraries.map((lib) =>
+			packaged ? lib.file : join(artifact.directory, lib.file),
+		),
+	]
+
+	if (!paths.length) {
 		return ''
 	}
-
-	const paths = artifact.libraries.map((lib) =>
-		packaged ? lib.file : join(artifact.directory, lib.file),
-	)
 
 	return `globalThis.__xplatNativeHandles = ${JSON.stringify(paths)}.map(function(file) {\n  var path = ${packaged ? 'String(NSBundle.mainBundle.privateFrameworksPath) + "/" + file' : 'file'};\n  var handle = dlopen(path, 2 | 8);\n  if (!handle) throw Error("Native library failed to load: " + path + ": " + interop.stringFromCString(dlerror()));\n  return handle;\n});\n`
 }

@@ -249,6 +249,99 @@ it('waits for actual currentPage confirmation after staged content rendering', a
 	}
 })
 
+function lateFrameFixture(timeout = 1000) {
+	frameEntries.clear()
+	frameRenderFailures.clear()
+	const listeners = new Set<(flow: string) => void>()
+	const state: { frame?: native.Frame } = {}
+	const platform = createNativeRouterHost({
+		getFrame: () => state.frame as any,
+		onFrameChange: (listener) => {
+			listeners.add(listener)
+			return () => listeners.delete(listener)
+		},
+		navigationTimeoutMs: timeout,
+	})
+	const router = createRouter({
+		catalog: defineRoutes([
+			defineRoute({
+				path: '/items/:id',
+				loader: ({ params }) => ({ title: params.id.toUpperCase() }),
+			}).screen(Item),
+		]),
+		host: platform.host,
+	})
+	navigation = router
+	platform.attach(router)
+	const root = createUniversalRoot(
+		createObjectContainer('nativescript'),
+		createObjectDriver('nativescript'),
+	)
+	root.render(App, { platform })
+	return {
+		state,
+		router,
+		notify() {
+			for (const listener of listeners) {
+				listener('root')
+			}
+		},
+		async drive(promise: ReturnType<typeof router.push>) {
+			await until(() => !!state.frame?.pending)
+			state.frame!.complete()
+			await tick()
+			return promise
+		},
+		close() {
+			root.unmount()
+			for (let i = 0; i < 3 && state.frame?.pending; i++) {
+				state.frame.complete()
+			}
+
+			router.dispose()
+		},
+	}
+}
+
+it('binds a Frame announced after the outlet mounted', async () => {
+	const test = lateFrameFixture()
+	try {
+		const pending = test.router.push({ to: '/items/:id', params: { id: 'late' } })
+		test.state.frame = new native.Frame()
+		test.notify()
+		expect((await test.drive(pending)).status).toBe('committed')
+	} finally {
+		test.close()
+	}
+})
+
+it('picks up an unannounced Frame at the next commit', async () => {
+	const test = lateFrameFixture()
+	try {
+		test.state.frame = new native.Frame()
+		const pending = test.router.push({ to: '/items/:id', params: { id: 'late' } })
+		expect((await test.drive(pending)).status).toBe('committed')
+	} finally {
+		test.close()
+	}
+})
+
+it('moves readiness from an unready Frame to its replacement', async () => {
+	const test = lateFrameFixture()
+	try {
+		const stale = new native.Frame()
+		;(stale as any).currentPage = undefined
+		test.state.frame = stale
+		test.notify()
+		test.state.frame = new native.Frame()
+		test.notify()
+		const pending = test.router.push({ to: '/items/:id', params: { id: 'late' } })
+		expect((await test.drive(pending)).status).toBe('committed')
+	} finally {
+		test.close()
+	}
+})
+
 it('waits for the initial Frame receipt before accepting a cold navigation', async () => {
 	const test = fixture(1000, false)
 	try {

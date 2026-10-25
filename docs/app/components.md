@@ -152,11 +152,11 @@ disabling edits by itself. `status` uses `{ type: 'warning' | 'error' |
 of the control, including `TextInput`, `SearchInput`, and `Selector`.
 
 Controls that hold user state follow one ownership contract. The controlled
-prop carries the current value — `value`, `checked`, `isOpen`, or `open` —
+prop carries the current value — `value`, `isOpen`, or `open` —
 and its callback reports each requested change: `onChange` and
-`onValueChange` carry the next value, `onCheckedChange` the next boolean,
+`onValueChange` carry the next value, `onChange` the next text or boolean,
 and `onOpenChange`/`onDismiss` the requested visibility. Pass the matching
-`defaultValue`, `defaultChecked`, or `defaultOpen` instead and the control
+`defaultValue` or `defaultOpen` instead and the control
 owns that state — user actions update it internally and still call the
 callback. When both are set, the controlled prop wins.
 
@@ -166,7 +166,7 @@ import { Switch } from '@octane-xplat/ui'
 export function Example() {
 	// Uncontrolled — the switch owns its on state and reports each toggle.
 
-	return <Switch defaultChecked onCheckedChange={(next) => console.log(next)} />
+	return <Switch defaultValue onChange={(next) => console.log(next)} />
 }
 ```
 
@@ -233,13 +233,18 @@ export function Example() {
 | `Calendar`                                              | Single-date or inclusive range calendar                          | `mode`, `value`, `numberOfMonths`, `dateConstraints`                                          |
 | `DateRangeInput`                                        | Labeled range trigger with calendar and presets                  | `value`, `onChange`, `presets`, `minRangeSpan`, `maxRangeSpan`                                |
 | `FileInput`                                             | `@octane-xplat/files` picker with input and dropzone modes       | `value`, `onChange`, `accept`, `isMultiple`, `maxSize`                                        |
-| `Switch`                                                | On/off toggle (self-drawn)                                       | `checked`, `defaultChecked`, `onCheckedChange`, `isDisabled`                                  |
-| `CheckboxInput`                                         | Self-drawn checkbox                                              | `checked`, `defaultChecked`, `onCheckedChange`, `isDisabled`                                  |
+| `Switch`                                                | On/off toggle (self-drawn)                                       | `value`, `defaultValue`, `onChange`, `isDisabled`                                  |
+| `CheckboxInput`                                         | Self-drawn checkbox                                              | `value`, `defaultValue`, `onChange`, `isDisabled`                                  |
 | `CheckboxIndicator`, `CheckIndicator`, `RadioIndicator` | Decorative selection marks                                       | `state`, `size`, `isDisabled`                                                                 |
 | `CheckboxList`                                          | Self-drawn multi-select list                                     | `options`, `value`, `defaultValue`, `onValueChange`, `isDisabled`                             |
 | `RadioList`                                             | Self-drawn radio options                                         | `options`, `value`, `defaultValue`, `onValueChange`, `isDisabled`                             |
 | `SegmentedControl`                                      | Inline option segments                                           | `options`, `value`, `defaultValue`, `onValueChange`, `isDisabled`                             |
 | `Slider`                                                | Value scrubber (self-drawn)                                      | `value`, `minValue`, `maxValue`, `onValueChange`                                              |
+| `ColorPicker`                                           | Fixed color picker (area + hue slider + swatch + field)          | `value`, `defaultValue`, `onChange`, `onChangeEnd`, `isDisabled`                              |
+| `ColorArea`                                             | 2D saturation/brightness pad for one hue                         | `value`, `defaultValue`, `onChange`, `onChangeEnd`, `isDisabled`                              |
+| `ColorSlider`                                           | Single-channel slider — `channel="hue"` only                     | `channel`, `value`, `defaultValue`, `onChange`, `onChangeEnd`, `isDisabled`                   |
+| `ColorSwatch`                                           | Small color chip                                                 | `color`, `size`                                                                               |
+| `ColorField`                                            | Hex text field; commits on submit/blur                           | `value`, `defaultValue`, `label`, `onChange`, `onChangeEnd`, `isDisabled`                     |
 | `Selector`                                              | Single or multiple-option picker                                 | `selectionMode`, `options`, `value`, `onValueChange`, `searchable`                            |
 | `MultiSelector`                                         | Multiple-option picker preset                                    | `options`, `value`, `onValueChange`, `searchable`, `isDisabled`                               |
 | `Typeahead`                                             | Searchable single selection field                                | `searchSource`, `value`, `onChange`, `hasEntriesOnFocus`                                      |
@@ -266,6 +271,29 @@ export function Volume() {
 	const [volume, setVolume] = useState(0.5)
 
 	return <Slider value={volume} minValue={0} maxValue={1} onValueChange={setVolume} />
+}
+```
+
+`ColorPicker` renders a fixed layout — a saturation/brightness `ColorArea`, a
+hue `ColorSlider`, then a `ColorSwatch` and `ColorField` row — sharing one
+color state, so dragging brightness to black and back keeps the hue. Color
+values are hex strings: output is lowercase `'#rrggbb'`; input also accepts
+`'#rgb'`, any case, and a missing `'#'`. `ColorArea` and `ColorSlider` work
+standalone, `ColorSwatch` renders a small chip, and `ColorField` edits the
+hex text directly (commit on submit/blur; invalid input restores the value).
+
+```tsx
+import { useState } from 'octane'
+import { ColorPicker, ColorSwatch } from '@octane-xplat/ui'
+
+export function FavoriteColor() {
+	const [color, setColor] = useState('#4488ff')
+	return (
+		<>
+			<ColorPicker value={color} onChange={setColor} />
+			<ColorSwatch color={color} />
+		</>
+	)
 }
 ```
 

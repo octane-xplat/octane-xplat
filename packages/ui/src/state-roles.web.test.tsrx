@@ -66,41 +66,41 @@ describe('text inputs', () => {
 })
 
 describe('boolean inputs', () => {
-	it('Switch seeds defaultChecked and toggles internally', () => {
+	it('Switch seeds defaultValue and toggles internally', () => {
 		const change = vi.fn()
-		mount(Switch, { defaultChecked: true, onCheckedChange: change })
-		const host = document.querySelector('.vx-switch')!
-		expect(host.getAttribute('aria-checked')).toBe('true')
+		mount(Switch, { defaultValue: true, onChange: change })
+		const host = document.querySelector('input[role="switch"]') as HTMLInputElement
+		expect(host.checked).toBe(true)
 		click(host)
 		expect(change).toHaveBeenLastCalledWith(false)
-		expect(host.getAttribute('aria-checked')).toBe('false')
+		expect(host.checked).toBe(false)
 	})
 
 	it('Switch controlled checked wins and stays caller-owned', () => {
 		const change = vi.fn()
-		mount(Switch, { checked: true, defaultChecked: false, onCheckedChange: change })
-		const host = document.querySelector('.vx-switch')!
-		expect(host.getAttribute('aria-checked')).toBe('true')
+		mount(Switch, { value: true, defaultValue: false, onChange: change })
+		const host = document.querySelector('input[role="switch"]') as HTMLInputElement
+		expect(host.checked).toBe(true)
 		click(host)
 		expect(change).toHaveBeenLastCalledWith(false)
-		expect(host.getAttribute('aria-checked')).toBe('true')
+		expect(host.checked).toBe(true)
 	})
 
-	it('Checkbox seeds defaultChecked and toggles internally', () => {
+	it('Checkbox seeds defaultValue and toggles internally', () => {
 		const change = vi.fn()
-		mount(Checkbox, { defaultChecked: true, onCheckedChange: change })
-		const host = document.querySelector('.vx-checkbox-row')!
-		expect(host.getAttribute('aria-checked')).toBe('true')
+		mount(Checkbox, { defaultValue: true, onChange: change })
+		const host = document.querySelector('input[type="checkbox"]') as HTMLInputElement
+		expect(host.checked).toBe(true)
 		click(host)
 		expect(change).toHaveBeenLastCalledWith(false)
-		expect(host.getAttribute('aria-checked')).toBe('false')
+		expect(host.checked).toBe(false)
 	})
 
 	it('Checkbox indeterminate resolves to checked on toggle', () => {
 		const change = vi.fn()
-		mount(Checkbox, { indeterminate: true, onCheckedChange: change })
-		const host = document.querySelector('.vx-checkbox-row')!
-		expect(host.getAttribute('aria-checked')).toBe('mixed')
+		mount(Checkbox, { value: 'indeterminate', onChange: change })
+		const host = document.querySelector('input[type="checkbox"]') as HTMLInputElement
+		expect(host.indeterminate).toBe(true)
 		click(host)
 		expect(change).toHaveBeenLastCalledWith(true)
 	})

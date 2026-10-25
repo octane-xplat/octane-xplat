@@ -567,16 +567,16 @@ universal type identities. Published peer bounds are unchanged; this evidence
 qualifies the installed 0.11.0 setup.
 
 ```sh
-XPLAT_MASON_LIB=/path/to/libxplatmason.dylib pnpm --filter @xplat/macos test:routing
+pnpm --filter @xplat/macos test:routing
 ```
 
-Qualification used the repository's ObjC Mason facade, linked locally against
-`mason-c` from the installed plugin's source revision
-`bcb27d01f89231223e2f527533ff5b8981101e0a`. Its upstream workspace has no lockfile;
-a generated lockfile and build outputs were kept in owned temporary directories.
-The runner requires an explicit library or a previously built local facade and
-fails when it is missing. This does not establish production Mason packaging
-or ordinary default-client integration.
+Qualification used the repository's ObjC Mason facade, shipped prebuilt as
+`packages/macos-renderer/platforms/macos/prebuilt/libxplatmason.dylib` and
+loaded by the CLI-generated bootstrap; `native/xplatmason/build.sh` rebuilds
+it against the pinned `research/nativescript-mason` revision recorded in the
+prebuilt manifest. The runner needs no explicit library path and fails if the
+engine cannot load. This does not establish production Mason packaging
+beyond the committed prebuilt binary or ordinary default-client integration.
 
 Octane 0.11.0's `Activity` was also tested as a retained-visibility primitive.
 NativeScript 0.2.5's compiler registry does not advertise the required visibility

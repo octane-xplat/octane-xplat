@@ -194,11 +194,11 @@ function DataGridBodyRow<TData extends RowData>(props: {
 				<View className="vx-datagrid-selection" web={{ role: 'cell' }}>
 					<Checkbox
 						id={props.idPrefix ? `${props.idPrefix}-select-${row.id}` : undefined}
-						checked={row.getIsSelected()}
+						value={row.getIsSelected()}
 						isDisabled={!row.getCanSelect()}
 						accessibilityLabel={`Select ${props.getRowLabel?.(row) ?? row.id}`}
 						accessibilityHint={props.position.label}
-						onCheckedChange={(checked) => row.toggleSelected(checked)}
+						onChange={(checked) => row.toggleSelected(checked)}
 					/>
 				</View>
 			) : null}
@@ -307,11 +307,10 @@ export function DataGrid<TData extends RowData = any>(props: DataGridProps<TData
 									{group.depth === 0 ? (
 										<Checkbox
 											id={props.id ? `${props.id}-select-page` : undefined}
-											checked={table.getIsAllPageRowsSelected()}
-											indeterminate={!table.getIsAllPageRowsSelected() && table.getIsSomePageRowsSelected()}
+											value={table.getIsAllPageRowsSelected() ? true : table.getIsSomePageRowsSelected() ? 'indeterminate' : false}
 											isDisabled={!rows.some((row) => row.getCanSelect())}
 											accessibilityLabel="Select current page"
-											onCheckedChange={(checked) => table.toggleAllPageRowsSelected(checked)}
+											onChange={(checked) => table.toggleAllPageRowsSelected(checked)}
 										/>
 									) : null}
 								</View>

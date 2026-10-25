@@ -276,10 +276,11 @@ export default defineConfig({
 Add `xplatBamboo()` from `@octane-xplat/bamboo/vite` to the web Vite plugins
 and to `xplatNative(mode, { extra: { plugins: [...] } })`. Import
 `virtual:bamboo.css` immediately after the UI token stylesheet in both app
-entries. The UI stylesheet declares the shared cascade order and places
-`vx-*` component rules in `xplat.components`; generated Bamboo utilities use
-the later `xplat.utilities` layer, so they can override component defaults.
-Unlayered app CSS still takes precedence over both.
+entries. The UI stylesheet orders its `xplat-structure` and `xplat-chrome`
+layers, which carry the `vx-*` component rules; importing
+`virtual:bamboo.css` after it places the generated `xplat.*` layers later in
+the cascade, so `xplat.utilities` can override those component rules.
+Unlayered app CSS still takes precedence over every layer.
 
 ```ts
 // vite.config.native.ts

@@ -152,6 +152,14 @@ pnpm --filter @xplat/mobile test:android -- --device DEVICE_ID
   `ns run ios` can only target an already-booted simulator — `xcrun simctl
 boot <udid>` first, then pass `--device <udid>`. `ios-sim-portable` 4.5.1
   (bundled in global CLI 9.1.1) cannot boot devices itself here.
+  `xplat dev` and owned iOS session launches now prepare the selected simulator
+  with `simctl boot` and `bootstatus -b` before invoking NativeScript, bypassing
+  that upstream GUI dependency. Direct `ns run`/`ns test` still needs the
+  manual pre-boot. Evidence: the selected partial Xcode has no Simulator.app;
+  `ios-sim-portable`'s `startSimulator` constructs that path and calls `open`.
+  The workaround applies only when simctl recognizes the selected device; it
+  does not repair missing SDKs, runtimes, or a broken simctl installation.
+  Remove it when NativeScript's simulator launcher no longer requires the GUI.
 - iOS needs `NSAllowsLocalNetworking` (set in the harness Info.plist) for the
   loopback `ws://127.0.0.1` bridge; Android needs the scoped cleartext
   exception `ns test init` installs.

@@ -32,10 +32,12 @@ allowUnusedPatches: true
 # patches apply` refreshes, `xplat patches check` verifies); do not edit by hand.
 patchedDependencies:
   # Published 0.14.0 still requires renderer-owned Children.toArray/map with explicit
-  # universal-native re-exports for older runtimes, universal signal-read tracking and local
-  # hooks, root event-error forwarding, the complete universal imperative-ref lifecycle, the
-  # Descriptor declaring-owner reader fallback, and the signal-owner/enclosingOwner chain so
-  # child reads reuse instance declarations. Rebased against the registry 0.14.0 tarball,
+  # universal-native re-exports for older runtimes, the 0.15.0 universal compiler allowlist
+  # entries and identity runtime export for Children and descriptorChildren (so native .tsrx
+  # modules importing them compile), universal signal-read tracking and local hooks, root
+  # event-error forwarding, the complete universal imperative-ref lifecycle, the Descriptor
+  # declaring-owner reader fallback, and the signal-owner/enclosingOwner chain so child
+  # reads reuse instance declarations. Rebased against the registry 0.14.0 tarball,
   # including local signal-hook registration in the split runtime/hooks modules. Provider
   # null/undefined descendant cleanup is now upstream and no longer patched. Marks generic
   # binding bags from bagOf so fragment commit rehomes their DOM parent references,
@@ -62,7 +64,14 @@ patchedDependencies:
   # source-root/compiled-subpath packages on the Vite transform path; collect re-export
   # specifiers in the .vite/deps rewrite; route outside-roots /@fs paths through /ns/m;
   # probe non-active platform and native suffixes; redirect bare octane to
-  # octane/universal/native in deps-bundle esbuild passes; add .mobile to tsconfig-paths and
+  # octane/universal/native in deps-bundle esbuild passes; give library files served
+  # per-module on first boot static /ns/m vendor imports so ESM evaluation order and live
+  # bindings hold, keeping package-internal non-entry files concrete instead of folding them
+  # onto the package root (first-boot `Class extends value …` in gesturehandler);
+  # canonicalize /@fs pnpm virtual-store paths onto the vendor route's
+  # `/ns/m/node_modules/<pkg>` spelling when the store and root-resolved package share a
+  # realpath, so a package's modules can't split into two registries (first-boot `is not a
+  # registered element` in octane's element registry); add .mobile to tsconfig-paths and
   # generated checker suffixes; scan the app-local pnpm virtual store for served
   # node_modules URLs; ignore per-package turbo.json as workspace markers; resolve #
   # package-imports specifiers in served-module rewrites; preserve, compile, and hot-update
@@ -73,7 +82,19 @@ patchedDependencies:
   # (NativeScript#11569); extensionless workspace requests probe filesystem-anchored
   # extension/platform candidates so hot reimports can fetch shared modules
   # (NativeScript#11570). Linked-checkout discovery and candidate anchoring shipped in
-  # 8.0.20 (NativeScript#11559), so those local hunks are removed.
+  # 8.0.20 (NativeScript#11559), so those local hunks are removed. Vite `resolve.alias`
+  # entries are captured in configResolved and replayed inside the NativeScript esbuild
+  # passes (deps bundle, vendor bundle) via an esbuild alias plugin with
+  # @rollup/plugin-alias semantics, so Vite resolve.alias redirects for packages that are
+  # not installed (e.g. the renderer's full-MasonKit imports mapped to Mason core) resolve
+  # to real files instead of throw-on-evaluate optional-dependency stubs, while installed
+  # packages keep their default resolution; the deps-bundle disk cache key fingerprints the
+  # captured aliases. The runtime-plugin bare-specifier fold locates a package's
+  # package.json through Node's node_modules ancestor chain instead of a literal
+  # projectRoot/node_modules join, so deep `pkg/dist/...` specifiers fold back to the bare
+  # vendor id in hoisted workspaces where the app's own node_modules is empty (a missed fold
+  # leaves the vendor registry without the specifier and device require resolves a module
+  # missing the vendored exports).
   "@nativescript/vite@8.0.20": node_modules/.pnpm-config/@octane-xplat/patches/patches/@nativescript__vite@8.0.20.patch
   # Retains the workspace's NativeScript driver fixes when upgrading to 0.2.5 for portal
   # support: a prop dropped from an update's complete prop bag — or set to

@@ -115,7 +115,8 @@ the handler's screen is not mounted, waits for attach + readiness, then runs.
 Check the listing's `location` first to see where the app is. If the needed
 action has no `availability.route`, fall back to invoking `xplat.navigate`
 (registered in dev builds by generated routes) with `{ "url": "/path" }`
-before the target action — and remember it never navigates back.
+before the target action — and remember it never navigates back. Its
+failures reuse the router's `navigation_blocked`/`navigation_failed` codes.
 
 ## Connect and verify
 

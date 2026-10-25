@@ -61,6 +61,7 @@ export const upgrade = command({
 			}
 
 			const install = spawnSync('pnpm', ['install', '--no-frozen-lockfile'], {
+				shell: process.platform === 'win32',
 				cwd: plan.root,
 				stdio: 'inherit',
 			})

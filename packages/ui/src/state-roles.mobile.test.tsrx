@@ -3,6 +3,9 @@ import { describe, expect, it, vi } from 'vitest'
 import { createObjectContainer, createObjectDriver, createUniversalRoot } from 'octane/universal/native'
 
 vi.mock('@nativescript/core', () => ({ isIOS: false, isAndroid: true }))
+// CheckboxIndicator registers <svgview> as an import side effect; the object
+// driver doesn't need the real vendored SVGView.
+vi.mock('./svg', () => ({}))
 
 import { TextInput } from './TextInput.tsrx'
 import { Switch } from './Switch.tsrx'
@@ -61,10 +64,10 @@ describe('native text input', () => {
 })
 
 describe('native boolean inputs', () => {
-	it('Switch seeds defaultChecked and toggles internally', () => {
+	it('Switch seeds defaultValue and toggles internally', () => {
 		const { container, root } = setup()
 		const change = vi.fn()
-		root.render(Switch, { defaultChecked: true, onCheckedChange: change })
+		root.render(Switch, { defaultValue: true, onChange: change })
 		const host = container.children[0]
 		expect(host.props.accessibilityState).toBe('checked')
 		container.dispatchEvent(host, 'tap', {})
@@ -76,7 +79,7 @@ describe('native boolean inputs', () => {
 	it('Switch controlled checked wins and stays caller-owned', () => {
 		const { container, root } = setup()
 		const change = vi.fn()
-		root.render(Switch, { checked: true, defaultChecked: false, onCheckedChange: change })
+		root.render(Switch, { value: true, defaultValue: false, onChange: change })
 		const host = container.children[0]
 		expect(host.props.accessibilityState).toBe('checked')
 		container.dispatchEvent(host, 'tap', {})
@@ -85,10 +88,10 @@ describe('native boolean inputs', () => {
 		root.unmount()
 	})
 
-	it('Checkbox seeds defaultChecked and toggles internally', () => {
+	it('Checkbox seeds defaultValue and toggles internally', () => {
 		const { container, root } = setup()
 		const change = vi.fn()
-		root.render(Checkbox, { defaultChecked: true, onCheckedChange: change })
+		root.render(Checkbox, { defaultValue: true, onChange: change })
 		const host = container.children[0]
 		expect(host.props.accessibilityState).toBe('checked')
 		container.dispatchEvent(host, 'tap', {})
@@ -100,7 +103,7 @@ describe('native boolean inputs', () => {
 	it('Checkbox indeterminate resolves to checked on toggle', () => {
 		const { container, root } = setup()
 		const change = vi.fn()
-		root.render(Checkbox, { indeterminate: true, onCheckedChange: change })
+		root.render(Checkbox, { value: 'indeterminate', onChange: change })
 		const host = container.children[0]
 		container.dispatchEvent(host, 'tap', {})
 		expect(change).toHaveBeenLastCalledWith(true)
