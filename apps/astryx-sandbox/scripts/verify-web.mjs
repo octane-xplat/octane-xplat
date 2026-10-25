@@ -355,11 +355,16 @@ try {
 	await page.waitForTimeout(400)
 	check('usePopover renders panel', (await page.textContent('body')).includes('Create task'))
 
-	// useTooltip hook: hovering the trigger mounts the hint.
+	// useTooltip hook: hovering the trigger mounts the hint. Layer-stack
+	// mount + positioning adds latency past the configured show delay, so
+	// poll for the hint text rather than asserting on a fixed wait.
 	await page.goto(baseUrl + '/templates/TooltipHookUsage/', { waitUntil: 'networkidle' })
 	await page.locator('button', { hasText: 'Using hook directly' }).first().hover()
-	await page.waitForTimeout(500)
-	check('useTooltip shows hint', (await page.textContent('body')).includes('Tooltip via hook'))
+	const hintMounted = await page
+		.waitForFunction(() => document.body.textContent?.includes('Tooltip via hook'), undefined, { timeout: 5000 })
+		.then(() => true)
+		.catch(() => false)
+	check('useTooltip shows hint', hintMounted)
 
 	// Toasts mount through the LayerProvider-mounted viewport.
 	await page.goto(baseUrl + '/templates/ToastShowcase/', { waitUntil: 'networkidle' })
