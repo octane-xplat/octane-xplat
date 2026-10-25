@@ -126,6 +126,43 @@ try {
 	})
 	check('dark accent resolves dark arm', darkAccent === 'rgb(192, 203, 169)', `dark=${darkAccent}`)
 
+	// All six root themes switch through the theme menu: each selection
+	// restamps the root scope and resolves its own accent token. Back in
+	// light mode first so the dark-arm assertions above stay scoped.
+	await page.locator('[aria-label*="mode"]').first().click()
+	await page.waitForTimeout(300)
+	await page.locator('[role="menuitemradio"], [role="menuitem"]').filter({ hasText: 'Light' }).first().click()
+	await page.waitForTimeout(300)
+	const themeCases = [
+		['Neutral', 'neutral'],
+		['Matcha', 'matcha'],
+		['Stone', 'stone'],
+		['Gothic', 'gothic'],
+		['Chocolate', 'chocolate'],
+		['Y2K', 'y2k'],
+	]
+	for (const [label, id] of themeCases) {
+		await page.locator('[aria-label="Theme"]').first().click()
+		await page.waitForTimeout(300)
+		await page.locator('[role="menuitemradio"], [role="menuitem"]').filter({ hasText: label }).first().click()
+		await page.waitForTimeout(300)
+		check(
+			`${id} theme switches root scope`,
+			(await page.evaluate(() => document.documentElement.getAttribute('data-xds-theme'))) === id,
+		)
+		const themedAccent = await page.evaluate((name) => {
+			const scope = document.querySelector(`.xds-theme-${name}`)
+			if (!scope) return ''
+			const probe = document.createElement('div')
+			probe.style.color = 'var(--color-accent)'
+			scope.appendChild(probe)
+			const c = getComputedStyle(probe).color
+			probe.remove()
+			return c
+		}, id)
+		check(`${id} accent token resolves`, /^rgb/.test(themedAccent), `accent=${themedAccent}`)
+	}
+
 	// Nested theme example: inner scope's tokens differ from outer's.
 	await page.goto(baseUrl + '/templates/ThemeNested/', { waitUntil: 'networkidle' })
 	const warm = await page.evaluate(() => getComputedStyle(document.querySelector('.xds-theme-warm-docs')).getPropertyValue('--color-accent').trim())
