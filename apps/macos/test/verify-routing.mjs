@@ -1,30 +1,21 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
-import { access, mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { build } from 'vite'
 import { createMacOSConfig } from '../vite.shared.mjs'
 import { macOSExecutable } from '../../../packages/cli/src/macos/executables.ts'
 import {
+	buildMacOSNative,
+	writeNativeBootstrap,
+} from '../../../packages/cli/src/macos/native.ts'
+import {
 	hostBundle,
-	hostRoot,
 	validateHostBundle,
 } from '../../../packages/cli/src/macos/jsc-host/runtime.ts'
 
 const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
-const mason =
-	process.env.XPLAT_MASON_LIB ??
-	resolve(appRoot, '../../packages/macos-renderer/native/xplatmason/libxplatmason.dylib')
-
-try {
-	await access(mason)
-} catch {
-	throw new Error(
-		'Build packages/macos-renderer/native/xplatmason/build.sh and set XPLAT_MASON_LIB before running the routing fixture',
-	)
-}
-
 const cliBuild = spawnSync('pnpm', ['--filter', '@octane-xplat/cli', 'build'], {
 	shell: process.platform === 'win32',
 	cwd: appRoot,
@@ -45,8 +36,9 @@ assert.equal(checked.status, 0, checked.stdout + checked.stderr)
 const scratch = resolve(appRoot, '../../research')
 await mkdir(scratch, { recursive: true })
 const directory = await mkdtemp(join(scratch, 'macos-routing-'))
+const artifact = await buildMacOSNative(appRoot)
 const bootstrap = join(directory, 'bootstrap.js')
-await writeFile(bootstrap, await readFile(join(hostRoot, 'shim.js'), 'utf8'))
+await writeNativeBootstrap(artifact, bootstrap)
 const config = await createMacOSConfig({
 	packaged: true,
 	rules: [{ include: '**/*.{tsx,tsrx}', renderer: 'macos' }],
@@ -80,12 +72,12 @@ const result = spawnSync(
 	[
 		join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
 		bundle,
-		join(hostBundle, 'metadata.nsmd'),
+		artifact.metadata,
 		bootstrap,
 	],
 	{
 		cwd: directory,
-		env: { ...process.env, OCTANE_MACOS_AUTOMATION: '1', XPLAT_MASON_LIB: mason },
+		env: { ...process.env, OCTANE_MACOS_AUTOMATION: '1' },
 		encoding: 'utf8',
 		timeout: 30000,
 	},

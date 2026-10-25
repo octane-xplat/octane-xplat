@@ -421,14 +421,16 @@ Activity Back → interceptors → top modal → visible Frame/pane → OS fallb
 
 ## AppKit retained panes
 
-Build the framework's Mason facade against its pinned engine source and provide
-the dylib path. The fixture checks its consumer types, builds production JS and
-runs the JavaScriptCore/AppKit host. A missing library fails explicitly.
+The renderer ships the Mason engine prebuilt
+(`platforms/macos/prebuilt/libxplatmason.dylib`); the fixture's bootstrap
+loads it automatically. Rebuild it with
+`packages/macos-renderer/native/xplatmason/build.sh` against the pinned
+`research/nativescript-mason` revision only when the engine changes. The
+fixture checks its consumer types, builds production JS and runs the
+JavaScriptCore/AppKit host.
 
 ```sh
-bash packages/macos-renderer/native/xplatmason/build.sh MASON_SOURCE_DIRECTORY
-XPLAT_MASON_LIB="$PWD/packages/macos-renderer/native/xplatmason/libxplatmason.dylib" \
-  pnpm --filter @xplat/macos test:routing
+pnpm --filter @xplat/macos test:routing
 ```
 
 The current canonical fixture passed **202 checks** with a locally built

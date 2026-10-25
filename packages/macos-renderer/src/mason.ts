@@ -1,6 +1,6 @@
-/** Mason layout engine bridge — dlopen's libxplatmason.dylib (the XPLMason
- *  ObjC facade statically linked with triniwiz/nativescript-mason's mason-c
- *  crate) and drives it for `masonview` subtrees. Elements keep their own
+/** Mason layout engine bridge — drives libxplatmason.dylib (the XPLMason
+ *  ObjC facade statically linked with octane-xplat/nativescript-mason's
+ *  mason-c crate) for `masonview` subtrees. Elements keep their own
  *  AppKit views; mason only computes frames, which index.ts applies as
  *  leading/top/width/height pins — the same channel every other manual
  *  layout uses.
@@ -9,13 +9,12 @@
  *  shim publishes a host instance via the main thread's threadDictionary at
  *  +load and JS drives it through performSelectorWithObjectWithObject — the
  *  one dynamic-dispatch path the bridge supports. Node pointers cross as
- *  NSValue. Resolve the dylib via the XPLAT_MASON_LIB env var or the
- *  package-native default path; absent the library, masonview children keep
- *  authored geometry only. */
+ *  NSValue. The dylib ships prebuilt in this package; the CLI bootstrap
+ *  loads it before app JS (xplat dev and xplat build both do), so this
+ *  module only reads the published host. */
 
 import {
 	NativeClass,
-	NSFileManager,
 	NSNotificationCenter,
 	NSThread,
 	NSUserInterfaceLayoutOrientation,
@@ -31,37 +30,16 @@ type ViewFor = (node: any) => any
 let host: any = null
 let initFailed = false
 
-function libraryPath(): string | undefined {
-	const env = typeof process !== 'undefined' ? (process as any).env?.XPLAT_MASON_LIB : undefined
-	if (env) {
-		return env
-	}
-
-	const cwd = (process as any).cwd()
-	const candidates = [
-		cwd + '/packages/macos-renderer/native/xplatmason/libxplatmason.dylib',
-		cwd + '/native/xplatmason/libxplatmason.dylib',
-	]
-
-	const fm = NSFileManager.defaultManager
-	return candidates.find((p) => fm.fileExistsAtPath(p))
-}
-
 function masonHost(): any {
 	if (host || initFailed) {
 		return host
 	}
 
-	const path = libraryPath()
-	if (!path || !dlopen(path, 2)) {
-		console.warn('[macos-mason] libxplatmason.dylib not found — masonview lays out nothing')
-		initFailed = true
-		return null
-	}
-
 	host = NSThread.mainThread.threadDictionary.objectForKey('xplatMasonHost')
 	if (!host) {
-		console.warn('[macos-mason] libxplatmason.dylib loaded but no xplatMasonHost was published')
+		console.warn(
+			'[macos-mason] libxplatmason.dylib is not loaded — masonview lays out nothing. Launch through xplat dev or xplat build, which load the engine shipped in @octane-xplat/macos-renderer.',
+		)
 		initFailed = true
 		return null
 	}

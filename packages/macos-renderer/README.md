@@ -374,6 +374,19 @@ export function PositionedRow() {
 }
 ```
 
+## Mason layout engine
+
+`masonview` layout runs on the Mason engine, shipped inside this package as a
+prebuilt `libxplatmason.dylib` under `platforms/macos/prebuilt/`. `xplat dev`
+and `xplat build` load it through the native bootstrap — no build step or
+environment variable is required — and `xplat build` copies it into
+`Contents/Frameworks` and signs it with the app.
+
+Maintainers rebuild the engine with `native/xplatmason/build.sh`, which
+compiles the pinned `mason-c` revision recorded in
+`platforms/macos/prebuilt/manifest.json` for arm64 with a macOS 13.5
+deployment target.
+
 ## Development bundles
 
 Call `xplatMacOS(mode, { packaged: false, hmr: true, entry: 'src/App.macos.tsx' })`

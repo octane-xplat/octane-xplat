@@ -415,9 +415,11 @@ in Silo observation `10857de2-c089-42d4-bad5-0acab5da0eb4`.
 MasonKit's `@nativescript/core`-entangled element layer can't be installed.
 Instead the renderer binds the engine itself: `mason-c` (the crate's C ABI)
 is statically linked into a small ObjC facade dylib
-(`packages/macos-renderer/native/xplatmason/`, built by `build.sh` from the
-`research/nativescript-mason` checkout — not committed; the probe path is
-`XPLAT_MASON_LIB`).
+(`packages/macos-renderer/native/xplatmason/`). The dylib is committed
+prebuilt at `packages/macos-renderer/platforms/macos/prebuilt/` — rebuild it
+with `native/xplatmason/build.sh` against the pinned
+`research/nativescript-mason` checkout; the CLI bootstrap loads it before
+app JS.
 
 Bridge constraints discovered at runtime:
 

@@ -11,8 +11,15 @@
 	"files": [
 		"src",
 		"types",
+		"platforms",
 		"LICENSE"
 	],
+	"xplat": {
+		"macos": {
+			"prebuiltLibraries": ["platforms/macos/prebuilt/libxplatmason.dylib"],
+			"notices": "platforms/macos/licenses/nativescript-mason.txt"
+		}
+	},
 	"type": "module",
 	"exports": {
 		".": {
