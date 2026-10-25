@@ -1,0 +1,26 @@
+{
+	"name": "@xplat/astryx-sandbox",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "vite build",
+		"preview": "vite preview",
+		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json",
+		"coverage": "node scripts/generate-coverage.mjs",
+		"verify:web": "node scripts/verify-web.mjs"
+	},
+	"dependencies": {
+		"@octane-xplat/ui": "workspace:*",
+		"octane": "catalog:"
+	},
+	"devDependencies": {
+		"@octane-xplat/cli": "workspace:*",
+		"@octanejs/vite-plugin": "catalog:",
+		"@tsrx/typescript-plugin": "catalog:",
+		"playwright": "1.63.0",
+		"typescript": "catalog:",
+		"vite": "catalog:"
+	}
+}

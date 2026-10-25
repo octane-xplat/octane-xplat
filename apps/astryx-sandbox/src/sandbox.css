@@ -1,0 +1,171 @@
+/* Sandbox app styles — CSS/className model (Xplat styling contract) where
+ * upstream used StyleX. Token vars come from @octane-xplat/ui chrome.css. */
+
+:root {
+	color-scheme: light dark;
+}
+
+body {
+	margin: 0;
+	font-family: var(--font-sans);
+	background: var(--color-surface);
+	color: var(--color-text);
+}
+
+/* Page scaffold — the Layout/LayoutHeader/LayoutContent contract upstream
+ * uses, composed here until the parts exist as public components. */
+.sb-page {
+	display: flex;
+	flex-direction: column;
+	min-height: 100%;
+}
+.sb-page-header {
+	padding: 24px;
+	border-bottom: 1px solid var(--color-border);
+}
+.sb-page-header > * + * {
+	margin-top: 8px;
+}
+.sb-page-content {
+	padding: 24px;
+}
+
+/* Responsive card grid — upstream Grid columns={{minWidth: 320}} gap={4}. */
+.sb-card-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+	gap: 16px;
+}
+.sb-card-link {
+	display: flex;
+	text-decoration: none;
+	color: inherit;
+}
+.sb-card {
+	width: 100%;
+	cursor: pointer;
+	transition: box-shadow 0.15s ease;
+}
+.sb-card:hover {
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+.sb-card--pending {
+	opacity: 0.6;
+}
+
+/* Text vocabulary — upstream Text type/color props map to token classes. */
+.sb-type-body { font-size: 13px; }
+.sb-type-large { font-size: 15px; }
+.sb-type-label { font-size: 12px; font-weight: 500; }
+.sb-type-supporting { font-size: 12px; }
+.sb-type-code { font-family: var(--font-mono); font-size: 12px; }
+.sb-color-primary { color: var(--color-text); }
+.sb-color-secondary { color: var(--color-text-secondary); }
+.sb-color-accent { color: var(--color-primary); }
+.sb-color-disabled { color: var(--color-text-disabled); }
+.sb-color-placeholder { color: var(--color-text-disabled); }
+.sb-block { display: block; }
+.sb-strikethrough { text-decoration: line-through; }
+.sb-tabular { font-variant-numeric: tabular-nums; }
+
+/* Example chrome — bordered swatches used by Text templates. */
+.sb-example-box {
+	border: 1px solid var(--color-border-strong);
+	padding: 8px;
+}
+.sb-example-box--truncate {
+	overflow: hidden;
+}
+.sb-example-col {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+/* Status + pending surfaces. */
+.sb-status {
+	display: inline-block;
+	padding: 2px 8px;
+	border-radius: 999px;
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+.sb-status--ported {
+	background: var(--color-success-text, #09441f);
+	color: #fff;
+}
+.sb-status--pending {
+	background: var(--color-surface-secondary);
+	color: var(--color-text-secondary);
+}
+.sb-status--blocked {
+	background: var(--color-danger-text, #7b0210);
+	color: #fff;
+}
+.sb-pending {
+	border: 1px dashed var(--color-border-strong);
+	border-radius: var(--radius-lg, 12px);
+	padding: 24px;
+}
+.sb-pending-meta {
+	font-family: var(--font-mono);
+	font-size: 12px;
+	color: var(--color-text-secondary);
+	word-break: break-all;
+}
+.sb-empty {
+	padding: 48px;
+	text-align: center;
+}
+.sb-template-frame {
+	padding: 24px;
+	min-height: 100%;
+	background: var(--color-surface);
+}
+.sb-template-stage {
+	padding: 24px;
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-lg, 12px);
+	margin-top: 16px;
+}
+.sb-badge {
+	display: inline-flex;
+	align-items: center;
+	padding: 1px 8px;
+	border-radius: 999px;
+	font-size: 11px;
+	font-weight: 600;
+	line-height: 18px;
+}
+.sb-badge--info { background: var(--color-primary); color: var(--color-onprimary); }
+.sb-badge--warning { background: var(--color-warning); color: #fff; }
+.sb-badge--neutral { background: var(--color-surface-secondary); color: var(--color-text); }
+
+/* Nav + ledger. */
+.sb-nav-controls {
+	display: flex;
+	gap: 2px;
+}
+.sb-ledger-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 12px;
+}
+.sb-ledger-table th,
+.sb-ledger-table td {
+	text-align: left;
+	padding: 6px 10px;
+	border-bottom: 1px solid var(--color-border);
+	vertical-align: top;
+}
+.sb-ledger-table th {
+	font-size: 11px;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--color-text-secondary);
+}
+.sb-family-heading {
+	margin-top: 32px;
+}

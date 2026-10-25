@@ -1,0 +1,17 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"jsxImportSource": "octane",
+		"types": ["vite/client"],
+		"lib": ["ESNext", "DOM", "DOM.Iterable"],
+		"paths": {
+			"@octane-xplat/ui": ["../../packages/ui/src/index.ts"],
+			"@octane-xplat/ui/routing": ["../../packages/ui/src/routing/index.ts"],
+			"@octane-xplat/ui/routing/core": ["../../packages/ui/src/routing/core.ts"],
+			"@octane-xplat/ui/data": ["../../packages/ui/src/data/index.ts"],
+			"@octane-xplat/ui/*": ["../../packages/ui/src/*"]
+		}
+	},
+	"include": ["src/**/*", "../../packages/*/src/**/*.d.ts", "../../packages/ui/type-support/**/*.d.ts"],
+	"exclude": ["**/*.test.*", "../../packages/**/*.test.*", "**/node_modules", "scripts"]
+}
