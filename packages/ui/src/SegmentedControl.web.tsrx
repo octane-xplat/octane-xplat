@@ -2,11 +2,11 @@ import { useState } from 'octane';
 import type { SegmentedControlProps } from './props';
 import { applyWebProps } from './platformProps.web';
 import { useFieldControlProps } from './field-context';
+import { SegmentedControlProvider } from './option-list-contexts';
 
 /** Self-drawn segmented control — equal-width segments in a track, one
- *  selected (`--on`). Radiogroup semantics like RadioGroup: Space/Enter
- *  selects. `value`/`onValueChange` for controlled, `defaultValue` for
- *  uncontrolled. Same classes + geometry as the native leaf. */
+ *  selected (`--on`). Options come from `options` or `SegmentedControlItem`
+ *  children; `layout="fill"` stretches segments to the full width. */
 export function SegmentedControl(inputProps: SegmentedControlProps) @{
 	const props = useFieldControlProps(inputProps);
 	const [internal, setInternal] = useState(props.defaultValue);
@@ -16,6 +16,13 @@ export function SegmentedControl(inputProps: SegmentedControlProps) @{
 		if (isBlocked) return;
 		if (props.value === undefined) setInternal(value);
 		props.onValueChange?.(value);
+	};
+	const ctx = {
+		selected: current as string | undefined,
+		select,
+		isDisabled: props.isDisabled,
+		isReadOnly: props.isReadOnly,
+		size: props.size,
 	};
 
 	<div
@@ -31,10 +38,10 @@ export function SegmentedControl(inputProps: SegmentedControlProps) @{
 		aria-busy={props.isLoading || undefined}
 		aria-required={props.isRequired && !props.isOptional || undefined}
 		aria-invalid={props.status?.type === 'error' || undefined}
-		className={['vx-segmented', props.isDisabled ? 'vx-segmented--disabled' : undefined, props.isReadOnly ? 'vx-segmented--readonly' : undefined, props.isLoading ? 'vx-segmented--loading' : undefined, props.status ? `vx-segmented--status-${props.status.type}` : undefined, props.size ? `vx-segmented--size-${props.size}` : undefined, props.className]}
+		className={['vx-segmented', props.layout === 'fill' ? 'vx-segmented--fill' : undefined, props.isDisabled ? 'vx-segmented--disabled' : undefined, props.isReadOnly ? 'vx-segmented--readonly' : undefined, props.isLoading ? 'vx-segmented--loading' : undefined, props.status ? `vx-segmented--status-${props.status.type}` : undefined, props.size ? `vx-segmented--size-${props.size}` : undefined, props.className]}
 		style={props.style}
 	>
-		{props.options.map((opt: any) => {
+		{(props.options ?? []).map((opt: any) => {
 			const selected = current === opt.value;
 			const disabled = props.isDisabled || opt.isDisabled;
 			const blocked = disabled || isBlocked;
@@ -60,5 +67,6 @@ export function SegmentedControl(inputProps: SegmentedControlProps) @{
 				</div>
 			);
 		})}
+		{props.children != null ? <SegmentedControlProvider value={ctx}>{props.children}</SegmentedControlProvider> : null}
 	</div>
 }

@@ -22,21 +22,21 @@ export function PageScreen(props: { params: { rest?: string } }) @{
 		return <NotFoundScreen title="Not Found" message={`“${route}” is not part of the pinned sandbox route table.`} />
 	}
 
-	const page = pageFor(route)
+	const Page = pageFor(route)
 
 	if (row.group === 'fullscreen') {
-		if (isEmbed) return page ?? <PendingScreen row={row} />
-		return <PreviewShell row={row}>{page ?? <PendingScreen row={row} />}</PreviewShell>
+		if (isEmbed) return Page ? <Page /> : <PendingScreen row={row} />
+		return <PreviewShell row={row}>{Page ? <Page /> : <PendingScreen row={row} />}</PreviewShell>
 	}
 
 	if (row.group === 'raw') {
-		return page ?? <PendingScreen row={row} />
+		return Page ? <Page /> : <PendingScreen row={row} />
 	}
 
 	return (
 		<SandboxShell>
 			<PageLayout title={row.doc?.displayName ?? 'Sandbox page'}>
-				{page ?? <PendingScreen row={row} />}
+				{Page ? <Page /> : <PendingScreen row={row} />}
 			</PageLayout>
 		</SandboxShell>
 	)

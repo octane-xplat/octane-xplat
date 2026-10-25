@@ -45,7 +45,7 @@ function InputReadiness() @{
 		</Overlay>
 		<CommandPalette open={commandPalette} onOpenChange={setCommandPalette} items={[]} />
 		<button id="slider-before" tabIndex={0}>Before volume</button>
-		<Slider id="volume" value={volume} minValue={0} maxValue={1} onValueChange={setVolume} web={{ 'aria-label': 'Volume' }} />
+		<Slider id="volume" value={volume} minValue={0} maxValue={1} onValueChange={(v) => setVolume(v as number)} web={{ 'aria-label': 'Volume' }} />
 		<Slider id="disabled-volume" value={0.5} disabled onValueChange={() => { throw new Error('disabled slider changed') }} />
 		<button id="slider-after" tabIndex={0}>After volume</button>
 		<button id="exit" onClick={() => setPresent(false)}>Exit</button>

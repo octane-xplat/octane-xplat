@@ -10,7 +10,7 @@ export function Stepper(props: StepperProps) @{
 	const current = props.current ?? 0;
 
 	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-stepper', props.className)} style={mergeStyle({flexDirection: "row"}, mergeStyle({display: "flex"}, props.style))}>
-		@for (const e of props.steps.map((step, i) => ({ step, i })); key e.step.key) {
+		@for (const e of (props.steps ?? []).map((step, i) => ({ step, i })); key e.step.key) {
 			<masonview className="vx-stepper-cell" style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex"})}>
 				{e.i > 0
 					? <masonview className={cx('vx-stepper-line', (e.i <= current) && 'vx-stepper-line--done')} style={mergeStyle({display: "flex"}, { width: 24, height: 1, backgroundColor: e.i <= current ? '#171717' : '#eaeaea' })}/>

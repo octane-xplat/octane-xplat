@@ -1,6 +1,6 @@
 import type { Octane } from 'octane/jsx-runtime'
 
-import type { FieldControlProps, FieldStatus, FieldStatusType } from '@octane-xplat/ui'
+import type { FieldControlProps, FieldStatusInfo, FieldStatusType } from '@octane-xplat/ui'
 import type { FileRef } from './types'
 
 /** A portable selected file. The browser File is only present on web. */
@@ -10,7 +10,7 @@ export interface FileInputFile extends FileRef {
 	file?: any
 }
 
-export type FileInputStatus = FieldStatus
+export type FileInputStatus = FieldStatusInfo
 export type FileInputStatusType = FieldStatusType
 
 export type FileInputPick = (options: {

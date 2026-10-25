@@ -374,6 +374,103 @@ try {
 	const after = (await page.textContent('body')).match(/Document saved successfully/g)?.length ?? 0
 	check('toast mounts via provider viewport', after > before, `${before}→${after}`)
 
+
+	// --- Unit 5: forms, selection and date examples ---
+	// Field chrome: label + required marker + status message.
+	await page.goto(baseUrl + '/templates/FieldStatusVariants/', { waitUntil: 'networkidle' })
+	const fieldText = await page.textContent('body')
+	check('Field status renders error/warning/success', fieldText.includes('valid email address') && fieldText.includes('reserved for administrators') && fieldText.includes('valid and active'))
+
+	// TextInput: controlled value + clear affordance + icon.
+	await page.goto(baseUrl + '/templates/TextInputSearch/', { waitUntil: 'networkidle' })
+	check('TextInput search renders value', await page.locator('input[placeholder="Filter…"]').count() > 0)
+	check('TextInput clear shows while valued', await page.locator('.vx-input-clear').count() > 0)
+
+	// RadioList child parts: items read group selection state.
+	await page.goto(baseUrl + '/templates/RadioListShowcase/', { waitUntil: 'networkidle' })
+	await page.locator('.vx-radiolist-item', { hasText: 'SMS' }).first().click()
+	await page.waitForTimeout(300)
+	check('RadioListItem selects via context', await page.locator('.vx-radiolist-item.vx-radio--on', { hasText: 'SMS' }).count() > 0)
+
+	// CheckboxList child parts + indeterminate select-all.
+	await page.goto(baseUrl + '/templates/CheckboxListSelectAllPattern/', { waitUntil: 'networkidle' })
+	await page.locator('.vx-checkboxlist-item', { hasText: 'Select all' }).first().click()
+	await page.waitForTimeout(300)
+	const checkedCount = await page.locator('.vx-checkboxlist-item.vx-checkbox--on').count()
+	check('CheckboxList select-all checks all', checkedCount >= 5, `${checkedCount} checked`)
+
+	// Switch toggles.
+	await page.goto(baseUrl + '/templates/SwitchShowcase/', { waitUntil: 'networkidle' })
+	const switchOn = await page.locator('[role="switch"][aria-checked="true"], .vx-switch--on').count()
+	check('Switch renders on', switchOn > 0, `${switchOn} on`)
+
+	// SegmentedControlItem child parts.
+	await page.goto(baseUrl + '/templates/SegmentedControlShowcase/', { waitUntil: 'networkidle' })
+	await page.locator('.vx-segment', { hasText: 'Archived' }).first().click()
+	await page.waitForTimeout(300)
+	check('SegmentedControlItem selects', await page.locator('.vx-segment--on', { hasText: 'Archived' }).count() > 0)
+
+	// Stepper Step children: active index + status indicators.
+	await page.goto(baseUrl + '/templates/StepperStatus/', { waitUntil: 'networkidle' })
+	const stepText = await page.textContent('body')
+	check('Stepper Step renders states', stepText.includes('Passport upload failed') && stepText.includes('Pending review'))
+
+	// Selector: trigger opens listbox; renderOption rows render.
+	await page.goto(baseUrl + '/templates/SelectorOptionShowcase/', { waitUntil: 'networkidle' })
+	await page.locator('.vx-select-trigger').first().click()
+	await page.waitForTimeout(400)
+	check('Selector opens listbox', await page.locator('.vx-select-option').count() >= 3, `${await page.locator('.vx-select-option').count()} options`)
+	check('Selector renderOption rows', await page.locator('.vx-selectoroption').count() >= 3)
+	await page.keyboard.press('Escape')
+	await page.waitForTimeout(300)
+
+	// MultiSelector bottom-sheet presentation.
+	await page.goto(baseUrl + '/templates/MultiSelectorBottomSheet/', { waitUntil: 'networkidle' })
+	await page.locator('.vx-select-trigger').first().click()
+	await page.waitForTimeout(500)
+	check('MultiSelector sheet presentation opens options', await page.locator('.vx-select-sheet .vx-select-option, .vx-menu-item').count() > 0)
+	await page.keyboard.press('Escape')
+	await page.waitForTimeout(300)
+
+	// Slider: range value + marks + formatted readout.
+	await page.goto(baseUrl + '/templates/SliderFormattedValue/', { waitUntil: 'networkidle' })
+	check('Slider formatted readout', (await page.textContent('body')).includes('72°F'))
+
+	// Typeahead: searchSource items filter on query.
+	await page.goto(baseUrl + '/templates/TypeaheadShowcase/', { waitUntil: 'networkidle' })
+	await page.locator('input[placeholder*="typing"]').first().fill('uni')
+	await page.waitForTimeout(600)
+	check('Typeahead lists filtered items', await page.locator('.vx-menu-item, [role="option"]').count() > 0, `${await page.locator('.vx-menu-item, [role="option"]').count()} items`)
+
+	// Tokenizer: seeded tokens render.
+	await page.goto(baseUrl + '/templates/TokenizerShowcase/', { waitUntil: 'networkidle' })
+	check('Tokenizer renders tokens', (await page.textContent('body')).includes('typescript'))
+
+	// DateInput + Calendar render.
+	await page.goto(baseUrl + '/templates/DateInputShowcase/', { waitUntil: 'networkidle' })
+	check('DateInput renders field', (await page.textContent('body')).includes('Birthday'))
+	await page.goto(baseUrl + '/templates/CalendarRangeWithValue/', { waitUntil: 'networkidle' })
+	check('Calendar range renders month grid', await page.locator('.vx-calendar, [role="grid"]').count() > 0)
+
+	// NumberInput units + steppers.
+	await page.goto(baseUrl + '/templates/NumberInputWithUnits/', { waitUntil: 'networkidle' })
+	check('NumberInput renders units', (await page.textContent('body')).includes('%'))
+
+	// FormLayout: fields render in the shared grid.
+	await page.goto(baseUrl + '/templates/FormLayoutShowcase/', { waitUntil: 'networkidle' })
+	const formText = await page.textContent('body')
+	check('FormLayout renders fields', formText.includes('Full name') && formText.includes('Select role'))
+
+	// tap-targets page: audit table + live controls.
+	await page.goto(baseUrl + '/pages/tap-targets/', { waitUntil: 'networkidle' })
+	const tapText = await page.textContent('body')
+	check('tap-targets audit table renders', tapText.includes('WCAG 2.5.8') && tapText.includes('CheckboxInput'))
+
+	// textarea-counter page: counter + status row.
+	await page.goto(baseUrl + '/pages/textarea-counter/', { waitUntil: 'networkidle' })
+	const counterText = await page.textContent('body')
+	check('textarea-counter live count', counterText.includes('/140') || counterText.includes('remaining'))
+
 	check('no page errors', errors.length === 0, errors.slice(0, 3).join(' | '))
 } finally {
 	await browser.close()

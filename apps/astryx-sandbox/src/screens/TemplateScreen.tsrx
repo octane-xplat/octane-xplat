@@ -31,11 +31,11 @@ export function TemplateScreen(props: { params: { name: string } }) @{
 		)
 	}
 
-	const example = exampleFor(props.params.name)
+	const Example = exampleFor(props.params.name)
 
 	return (
 		<PreviewShell row={row}>
-			{example ?? <PendingScreen row={row} />}
+			{Example ? <Example /> : <PendingScreen row={row} />}
 		</PreviewShell>
 	)
 }

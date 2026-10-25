@@ -856,6 +856,9 @@ export interface TextInputProps extends FieldControlProps, TestIDProps {
 	hasClear?: boolean
 	/** Called after a clear action reports an empty value. */
 	onClear?: () => void
+	/** Leading glyph inside the input — a registered `IconName` or a node
+	 *  (Astryx `startIcon`). */
+	startIcon?: Renderable
 	placeholderTextColor?: string
 	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
@@ -890,6 +893,11 @@ export interface TextAreaProps extends Omit<TextInputProps, 'hasClear' | 'onClea
 	 *  maxHeight at measured line height (TextView's own `maxLines` only
 	 *  sets truncation on iOS — not a cap). */
 	maxRows?: number
+	/** Character cap — web enforces it via `maxlength` and draws the live
+	 *  `n/max` counter (Astryx `maxLength`); native clamps input. */
+	maxLength?: number
+	/** Leading glyph inside the field (Astryx `startIcon`). */
+	startIcon?: Renderable
 }
 
 /** Chrome-reset search field — TextInput with a leading glyph and a clear
@@ -2267,15 +2275,44 @@ export interface MeterProps {
  * <Slider value={volume} minValue={0} maxValue={1} onValueChange={setVolume} />
  * ```
  */
-export interface SliderProps {
+/** One labeled stop drawn on a `Slider` track (Astryx `marks`). */
+export interface SliderMark {
+	value: number
+	label?: string
+}
+
+/** Slider — self-drawn track + thumb(s) with the shared field vocabulary.
+ *  `value` is one number or a `[low, high]` range (two thumbs; upstream
+ *  `SliderRangeSlider`). `formatValue` renders the readout and `marks` draw
+ *  labeled stops. Native single-value sliders keep the OS-widget contract;
+ *  range, marks, and formatted readouts are rendered only where the leaf
+ *  supports them (web today — recorded gap on native). */
+export interface SliderProps extends FieldControlProps {
 	className?: ClassValue
 	style?: StyleProp
 	id?: string
-	value: number
+	/** Controlled value — `number` or `[low, high]` for a range. */
+	value?: number | [number, number]
+	/** Initial value for uncontrolled use; `value` wins when both are set. */
+	defaultValue?: number | [number, number]
+	min?: number
+	max?: number
+	/** @deprecated use `min` */
 	minValue?: number
+	/** @deprecated use `max` */
 	maxValue?: number
+	step?: number
 	disabled?: boolean
-	onValueChange?: (value: number) => void
+	/** Labeled stops drawn on the track. */
+	marks?: SliderMark[]
+	/** How the current value shows — `'text'` prints it beside the label,
+	 *  `'tooltip'` shows it on the thumb, `'none'` hides it.
+	 *  @default 'none' */
+	valueDisplay?: 'text' | 'tooltip' | 'none'
+	/** Format the readout — receives the value (number or range). */
+	formatValue?: (value: number) => string
+	/** Called while the user drags/keys — receives the new value. */
+	onValueChange?: (value: number | [number, number]) => void
 	ios?: PlatformProps
 	android?: PlatformProps
 	web?: PlatformProps
@@ -6048,6 +6085,10 @@ export interface RadioOption {
 	value: string
 	label?: string
 	isDisabled?: boolean
+	/** Supporting text under the label (Astryx item `description`). */
+	description?: string
+	/** Trailing node — badge, icon, price (Astryx item `endContent`). */
+	endContent?: Renderable
 }
 
 /** Self-drawn radio group — dot options in a column/row.
@@ -6069,7 +6110,7 @@ export interface RadioGroupProps extends FieldControlProps {
 	className?: ClassValue
 	style?: StyleProp
 	id?: string
-	options: RadioOption[]
+	options?: RadioOption[]
 	/** Controlled selected option — pair with `onValueChange`. */
 	value?: string
 	/** Initial selected option for uncontrolled use; `value` wins when both
@@ -6079,7 +6120,27 @@ export interface RadioGroupProps extends FieldControlProps {
 	/** Called with the chosen option's `value`. */
 	onValueChange?: (value: string) => void
 	accessibilityLabel?: string
+	/** `RadioListItem` children — the Astryx child-part alternative to
+	 *  `options`; items read selection state from the group context. */
+	children?: Renderable
 	/** Platform-specific properties are applied after shared props. */
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
+}
+
+/** `RadioListItem` — one option inside a `RadioList` (Astryx child part).
+ *  Selection state comes from the enclosing group's context; standalone use
+ *  renders a presentational row. */
+export interface RadioListItemProps {
+	className?: ClassValue
+	style?: StyleProp
+	id?: string
+	value: string
+	label?: string
+	description?: string
+	endContent?: Renderable
+	isDisabled?: boolean
 	ios?: PlatformProps
 	android?: PlatformProps
 	web?: PlatformProps
@@ -6107,7 +6168,7 @@ export interface SegmentedControlProps extends FieldControlProps {
 	className?: ClassValue
 	style?: StyleProp
 	id?: string
-	options: RadioOption[]
+	options?: RadioOption[]
 	/** Controlled selected segment — pair with `onValueChange`. */
 	value?: string
 	/** Initial selected segment for uncontrolled use; `value` wins when
@@ -6116,7 +6177,30 @@ export interface SegmentedControlProps extends FieldControlProps {
 	/** Called with the chosen segment's `value`. */
 	onValueChange?: (value: string) => void
 	accessibilityLabel?: string
+	/** `'fill'` stretches segments to share the full track width.
+	 *  @default 'hug' */
+	layout?: 'hug' | 'fill'
+	/** `SegmentedControlItem` children — the Astryx child-part alternative
+	 *  to `options`; items read selection state from the control context. */
+	children?: Renderable
 	/** Platform-specific properties are applied after shared props. */
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
+}
+
+/** `SegmentedControlItem` — one segment inside a `SegmentedControl`
+ *  (Astryx child part). `icon` leads the label; `isLabelHidden` renders an
+ *  icon-only segment while `label` stays the accessible name. */
+export interface SegmentedControlItemProps {
+	className?: ClassValue
+	style?: StyleProp
+	id?: string
+	value: string
+	label?: string
+	icon?: Renderable
+	isLabelHidden?: boolean
+	isDisabled?: boolean
 	ios?: PlatformProps
 	android?: PlatformProps
 	web?: PlatformProps
@@ -6597,6 +6681,42 @@ export interface FormFieldProps extends FieldControlProps {
 	web?: PlatformProps
 }
 
+/** `FieldLabel` — a standalone field label (Astryx part): the label text
+ *  plus the required/optional marker, tooltip, and description row, without
+ *  the wrapping `Field` chrome. `inputID` binds it to its control. */
+export interface FieldLabelProps {
+	className?: ClassValue
+	style?: StyleProp
+	id?: string
+	label: string
+	inputID?: string
+	isRequired?: boolean
+	isOptional?: boolean
+	isDisabled?: boolean
+	description?: string
+	labelTooltip?: string
+	/** Leading node in the label row (Astryx `labelIcon`). */
+	labelIcon?: Renderable
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
+}
+
+/** `FieldStatus` — a standalone status message (Astryx part): the severity
+ *  glyph plus message text, for fields that own their chrome. */
+export interface FieldStatusComponentProps {
+	className?: ClassValue
+	style?: StyleProp
+	id?: string
+	type: FieldStatusType
+	message?: string
+	/** @default 'detached' */
+	variant?: FieldStatusVariant
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
+}
+
 /** FieldGroup — labeled group of related fields (role=group).
  *
  * @example
@@ -6692,6 +6812,18 @@ export interface InputNumberProps extends FieldControlProps {
 	max?: number
 	step?: number
 	placeholder?: string
+	/** Trailing unit text inside the field (Astryx `units`). */
+	units?: string
+	/** Format the committed value in the display field — receives the
+	 *  number, returns the shown text (Astryx `formatValue`). */
+	formatValue?: (value: number) => string
+	/** Draw the −/+ stepper buttons (Astryx `hasNumberSteppers`). When
+	 *  unset, steppers show by default. */
+	hasNumberSteppers?: boolean
+	/** Draw a clear action while the field has a value (Astryx `hasClear`). */
+	hasClear?: boolean
+	/** Called after a clear action reports `null`. */
+	onClear?: () => void
 	/** Requests a number or `null` when the input is cleared. */
 	onValueChange?: (value: number | null) => void
 	ios?: PlatformProps
@@ -6733,7 +6865,19 @@ export interface SelectOption {
 	group?: string
 	/** Supporting text; matching still uses label/value. */
 	description?: string
+	/** Leading node — icon, avatar, etc. (Astryx `renderOption` icon lane). */
+	icon?: Renderable
 }
+
+/** Surface a `Selector`/`MultiSelector` listbox opens on — `'popover'` anchors
+ *  it to the trigger, `'bottom-sheet'` presents it in a `BottomSheet`,
+ *  `'adaptive'` resolves per pointer (sheet on coarse/touch, popover on fine).
+ *  @default 'popover' on web, 'adaptive' (always-sheet) on mobile. */
+export type SelectPresentation = 'popover' | 'bottom-sheet' | 'adaptive'
+
+/** Trigger chrome for `Selector`/`MultiSelector` — `'input'` field styling or
+ *  `'ghost'` borderless toolbar styling. @default 'input' */
+export type SelectVariant = 'input' | 'ghost'
 
 /** Select — anchored self-drawn listbox on every target (decision #48).
  *  `selectionMode` determines the selected value and change-event shape;
@@ -6779,7 +6923,34 @@ export interface SelectBaseProps extends FieldControlProps {
 	onClear?: () => void
 	hasClear?: boolean
 	placement?: PopoverPlacement
+	/** Surface the listbox opens on — see `SelectPresentation`. */
+	presentation?: SelectPresentation
+	/** Trigger chrome — `'ghost'` renders the borderless toolbar variant. */
+	variant?: SelectVariant
+	/** Custom row content for one listbox option — receives the resolved
+	 *  `SelectOption`; default renders label/description/icon lanes.
+	 *  (Astryx `renderOption`.) */
+	renderOption?: (option: SelectOption) => Renderable
+	/** Custom trigger content for the selected option — receives the
+	 *  resolved `SelectOption`; default shows its label. (Astryx
+	 *  `renderValue`.) */
+	renderValue?: (option: SelectOption) => Renderable
 	accessibilityLabel?: string
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
+}
+
+/** `SelectorOption` — the styled option row used by `renderOption`/
+ *  `renderValue` renderers (Astryx part): icon lane, label, description. */
+export interface SelectorOptionProps {
+	className?: ClassValue
+	style?: StyleProp
+	id?: string
+	icon?: Renderable
+	label?: string
+	description?: string
+	isDisabled?: boolean
 	ios?: PlatformProps
 	android?: PlatformProps
 	web?: PlatformProps
@@ -6809,8 +6980,10 @@ export interface SelectMultipleProps extends SelectBaseProps {
 	/** Show bulk selection of the visible enabled options. */
 	hasSelectAll?: boolean
 	selectAllLabel?: string
-	/** Multi-value trigger summary. @default 'labels' */
-	triggerDisplay?: 'labels' | 'count'
+	/** Multi-value trigger summary — `'labels'` joins selected labels,
+	 *  `'count'` shows `N selected`, `'badges'` renders removable tokens.
+	 *  @default 'labels' */
+	triggerDisplay?: 'labels' | 'count' | 'badges'
 	formatValue?: (items: { value: string; label: string }[]) => string
 	/** Async commit after `onValueChange`. Blocks edits until settled. */
 	changeAction?: (value: string[]) => void | Promise<void>
@@ -7352,7 +7525,7 @@ export interface CheckboxGroupProps extends FieldControlProps {
 	className?: ClassValue
 	style?: StyleProp
 	id?: string
-	options: RadioOption[]
+	options?: RadioOption[]
 	/** Controlled checked values — pair with `onValueChange`. */
 	value?: string[]
 	/** Initial checked values for uncontrolled use; `value` wins when both
@@ -7364,9 +7537,34 @@ export interface CheckboxGroupProps extends FieldControlProps {
 	horizontal?: boolean
 	/** Row density for the list items — 'compact' renders sm checkboxes. */
 	density?: ListDensity
-	/** Whether to show dividers between list items. @default false */
+	/** Hairline between rows. @default false */
 	hasDividers?: boolean
 	accessibilityLabel?: string
+	/** `CheckboxListItem` children — the Astryx child-part alternative to
+	 *  `options`; items read checked state from the group context. */
+	children?: Renderable
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
+}
+
+/** `CheckboxListItem` — one row inside a `CheckboxList` (Astryx child
+ *  part). With `value` it joins the group's checked set; without `value`,
+ *  `isChecked`/`onCheck` make it a standalone item (select-all pattern). */
+export interface CheckboxListItemProps {
+	className?: ClassValue
+	style?: StyleProp
+	id?: string
+	/** Group membership key — join the parent `CheckboxList` value set. */
+	value?: string
+	label?: string
+	description?: string
+	endContent?: Renderable
+	isDisabled?: boolean
+	/** Standalone checked state (no group `value`). */
+	isChecked?: boolean | 'indeterminate'
+	/** Standalone toggle callback (no group `value`). */
+	onCheck?: (checked: boolean) => void
 	ios?: PlatformProps
 	android?: PlatformProps
 	web?: PlatformProps
@@ -7474,10 +7672,55 @@ export interface StepperProps {
 	className?: ClassValue
 	style?: StyleProp
 	id?: string
-	steps: StepperStep[]
+	/** Data-driven steps — the flat alternative to `Step` children. */
+	steps?: StepperStep[]
 	current?: number
 	onStepChange?: (index: number) => void
 	accessibilityLabel?: string
+	/** Active step index for the `Step` child-part contract (Astryx
+	 *  `activeStep`). */
+	activeStep?: number
+	/** Called with a step's `step` index when it is activated (Astryx
+	 *  `onStepClick`). */
+	onStepClick?: (step: number) => void
+	/** @default 'horizontal' */
+	orientation?: 'horizontal' | 'vertical'
+	/** Indicator placement for the child-part contract. @default 'off-track' */
+	indicatorPosition?: 'off-track' | 'on-track'
+	/** Width-collapse hints for horizontal steppers (Astryx
+	 *  `horizontalOptions`). */
+	horizontalOptions?: {
+		minimumStepWidth?: number
+		collapsedVariant?: 'withLabelAndControls' | 'steps'
+	}
+	/** `Step` children — the Astryx child-part alternative to `steps`. */
+	children?: Renderable
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
+}
+
+/** `Step` — one node in a `Stepper` (Astryx child part). Its state derives
+ *  from comparing `step` against the Stepper's `activeStep`: below is
+ *  completed, equal is current, above is upcoming. Children render as the
+ *  step's content slot. */
+export interface StepProps {
+	className?: ClassValue
+	style?: StyleProp
+	id?: string
+	/** Position this step claims in the parent's progress. */
+	step: number
+	label?: string
+	description?: string
+	/** `'auto'` (number → check when passed), `'number'`, `'none'`, or a
+	 *  node rendered as the indicator. */
+	indicator?: 'auto' | 'number' | 'none' | Renderable
+	/** Status tint — `'accent'` marks the in-progress step without error. */
+	status?: 'success' | 'warning' | 'error' | 'accent'
+	isOptional?: boolean
+	isDisabled?: boolean
+	endContent?: Renderable
+	children?: Renderable
 	ios?: PlatformProps
 	android?: PlatformProps
 	web?: PlatformProps
@@ -10036,6 +10279,8 @@ export interface ToggleButtonProps extends Omit<ButtonProps, 'label' | 'variant'
 	pressedChangeAction?: (isPressed: boolean) => void | Promise<void>
 	/** Icon shown while pressed (e.g. filled variant); falls back to `icon`. */
 	pressedIcon?: Renderable
+	/** Accent color applied while pressed (Astryx `color`). */
+	color?: 'accent' | 'success' | 'warning' | 'error'
 	/** Member key inside a ToggleButtonGroup. */
 	value?: string
 }

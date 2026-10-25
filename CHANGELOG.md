@@ -5,6 +5,41 @@ in the [fixlog](FIXLOG.md).
 Earlier releases retain their original combined notes; older independent
 releases remain in the [tsrx-typegen changelog](packages/tsrx-typegen/CHANGELOG.md).
 
+# Changelog
+
+Selected features and breaking changes, newest release first. Bug fixes appear
+in the [fixlog](FIXLOG.md).
+Earlier releases retain their original combined notes; older independent
+releases remain in the [tsrx-typegen changelog](packages/tsrx-typegen/CHANGELOG.md).
+
+## [Unreleased]
+
+### Breaking Changes
+
+- *(ui)* [**breaking**] `Slider` adopts the Astryx field contract: `value` is
+  now `number | [number, number]` (range sliders emit a tuple),
+  `onValueChange` receives the widened type, and `marks`/`formatValue`/
+  `valueDisplay`/`step`/`min`/`max` replace the widget-style API
+  (`minValue`/`maxValue` remain as deprecated aliases).
+- *(ui)* [**breaking**] `FieldStatus` now names the status-row component; the
+  status-shape type is re-exported as `FieldStatusInfo` in the shared barrels.
+
+### Features
+
+- *(ui)* Compositional list parts — `RadioListItem`, `CheckboxListItem`,
+  `SegmentedControlItem`, `SelectorOption`, `Step` — read selection and
+  position state from a group context instead of inspected children.
+- *(ui)* `Select`/`MultiSelector` gain `presentation`
+  (`popover`/`bottom-sheet`/`adaptive`), `variant="ghost"`, `renderOption`,
+  `renderValue`, option icons, and multi-select badge triggers.
+- *(ui)* `Stepper` accepts `Step` children plus `activeStep`, `onStepClick`,
+  `orientation`, `indicatorPosition`, `horizontalOptions`; `FieldLabel` and
+  the `FieldStatus` component export as standalone field chrome.
+- *(ui)* `TextInput.startIcon`; `TextArea.startIcon`/`maxLength` live
+  counter; `InputNumber` `units`/`formatValue`/`hasNumberSteppers`/`hasClear`.
+- *(ui)* `useGridFocus` — roving roving-tabindex keyboard navigation for
+  option grids (web; native is a signature-compatible no-op).
+
 ## [0.17.1] - 2026-10-23
 
 ### Bug Fixes

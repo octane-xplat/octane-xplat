@@ -17,9 +17,10 @@ export function Slider(props: SliderProps) @{
 	const drag = useRef<{ value0: number } | null>(null);
 	const [dragValue, setDragValue] = useState<number | null>(null);
 
-	const min = props.minValue ?? 0;
-	const max = props.maxValue ?? 100;
-	const value = dragValue ?? props.value ?? min;
+	const min = props.min ?? props.minValue ?? 0;
+	const max = props.max ?? props.maxValue ?? 100;
+	const raw = props.value;
+	const value = dragValue ?? (Array.isArray(raw) ? raw[1] : raw) ?? min;
 	const ratio = Math.min(1, Math.max(0, (value - min) / (max - min)));
 	const width = measure.bounds?.width ?? 0;
 

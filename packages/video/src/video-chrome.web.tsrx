@@ -93,7 +93,7 @@ export function VideoChrome(props: VideoChromeProps) @{
 							value={props.position}
 							minValue={0}
 							maxValue={props.duration > 0 ? props.duration : 1}
-							onValueChange={props.onSeek}
+							onValueChange={(v) => props.onSeek?.(Array.isArray(v) ? v[1] : v)}
 						/>
 						<Text className="vx-video-time">{stamp(props.duration)}</Text>
 						<Pressable

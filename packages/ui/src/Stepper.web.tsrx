@@ -1,20 +1,28 @@
 import type { StepperProps } from "./props";
 import { applyEscapeProps } from "./escape-props";
+import { StepperProvider } from './option-list-contexts';
 
-/** Stepper — numbered step row with connectors. Steps before `current`
- *  show a done mark; tapping a non-disabled step calls `onStepChange`. */
+/** Stepper — numbered step row with connectors. `steps` is the flat
+ *  data-driven contract; `Step` children are the Astryx child-part
+ *  contract (context supplies `activeStep`/`onStepClick`). */
 export function Stepper(props: StepperProps) @{
 	const current = props.current ?? 0;
+	const ctx = {
+		activeStep: props.activeStep ?? props.current ?? 0,
+		onStepClick: props.onStepClick ?? props.onStepChange,
+		orientation: props.orientation ?? 'horizontal',
+		indicatorPosition: props.indicatorPosition ?? 'off-track',
+	};
 
 	<div
 		ref={(e: any) => applyEscapeProps(e, props)}
 		id={props.id}
-		className={['vx-stepper', props.className]}
+		className={['vx-stepper', ctx.orientation === 'vertical' ? 'vx-stepper--vertical' : undefined, ctx.indicatorPosition === 'on-track' ? 'vx-stepper--ontrack' : undefined, props.className]}
 		style={props.style}
 		role="list"
 		aria-label={props.accessibilityLabel}
 	>
-		{props.steps.map((step: any, i: number) => {
+		{(props.steps ?? []).map((step: any, i: number) => {
 			const done = i < current;
 			const active = i === current;
 			return (
@@ -33,5 +41,6 @@ export function Stepper(props: StepperProps) @{
 				</div>
 			);
 		})}
+		{props.children != null ? <StepperProvider value={ctx}>{props.children}</StepperProvider> : null}
 	</div>
 }

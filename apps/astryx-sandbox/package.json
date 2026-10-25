@@ -13,7 +13,8 @@
 	},
 	"dependencies": {
 		"@octane-xplat/ui": "workspace:*",
-		"octane": "catalog:"
+		"octane": "catalog:",
+		"@octane-xplat/files": "workspace:*"
 	},
 	"devDependencies": {
 		"@octane-xplat/cli": "workspace:*",

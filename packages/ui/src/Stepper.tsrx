@@ -3,14 +3,22 @@ import { mergeStyle } from './style-merge'
 import type { StepperProps } from "./props";
 import { cx } from "@octane-xplat/lib";
 import { applyEscapeProps } from "./escape-props";
+import { StepperProvider } from './option-list-contexts';
 
-/** Stepper — numbered step row with connectors. Steps before `current`
- *  show a done mark; tapping a non-disabled step calls `onStepChange`. */
+/** Stepper — numbered step row with connectors. `steps` is the flat
+ *  data-driven contract; `Step` children are the Astryx child-part
+ *  contract (context supplies `activeStep`/`onStepClick`). */
 export function Stepper(props: StepperProps) @{
 	const current = props.current ?? 0;
+	const ctx = {
+		activeStep: props.activeStep ?? props.current ?? 0,
+		onStepClick: props.onStepClick ?? props.onStepChange,
+		orientation: props.orientation ?? 'horizontal',
+		indicatorPosition: props.indicatorPosition ?? 'off-track',
+	};
 
-	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-stepper', props.className)} style={mergeStyle({display: "flex"}, props.style)}>
-		@for (const e of props.steps.map((step, i) => ({ step, i })); key e.step.key) {
+	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-stepper', ctx.orientation === 'vertical' && 'vx-stepper--vertical', props.className)} style={mergeStyle({display: "flex", flexDirection: ctx.orientation === 'vertical' ? 'column' : 'row'}, props.style)}>
+		@for (const e of (props.steps ?? []).map((step, i) => ({ step, i })); key e.step.key) {
 			<masonview className="vx-stepper-cell" style={{display: "flex"}}>
 				{e.i > 0 ? <masonview className={cx('vx-stepper-line', (e.i <= current) && 'vx-stepper-line--done')} style={{display: "flex"}}/> : null}
 				<masonview className={cx('vx-step', e.i < current && 'vx-step--done', e.i === current && 'vx-step--on', e.step.disabled && 'vx-step--disabled')} onTap={e.step.disabled ? undefined : () => props.onStepChange?.(e.i)} style={{display: "flex"}}>
@@ -19,5 +27,6 @@ export function Stepper(props: StepperProps) @{
 				</masonview>
 			</masonview>
 		}
+		{props.children != null ? <StepperProvider value={ctx}>{props.children}</StepperProvider> : null}
 	</masonview>
 }

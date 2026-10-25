@@ -35,6 +35,14 @@ export interface SelectViewProps extends ResolvedFieldControlProps {
 	/** Maximum list height, in px/dip. @default 280 */
 	maxMenuHeight?: number
 	placement?: PopoverPlacement
+	/** Surface the listbox opens on — resolved per host. */
+	presentation?: import('./props').SelectPresentation
+	/** Trigger chrome — 'input' or 'ghost'. */
+	variant?: import('./props').SelectVariant
+	renderOption?: (option: SelectOption) => unknown
+	renderValue?: (option: SelectOption) => unknown
+	/** Multi-value trigger summary; 'badges' renders removable tokens. */
+	triggerDisplay?: 'labels' | 'count' | 'badges'
 	accessibilityLabel?: string
 	/** Web form name; native keeps selection in application state. */
 	htmlName?: string

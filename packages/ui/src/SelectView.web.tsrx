@@ -1,6 +1,8 @@
 import { useEffect, useId, useRef } from 'octane'
 import type { SelectViewProps } from './select-view'
 import { Popover } from './Popover.web.tsrx'
+import { BottomSheet } from './BottomSheet.web.tsrx'
+import { useMediaQuery } from './use-media-query.web'
 import { CheckIndicator, CheckboxIndicator } from './indicators'
 import { useIndicator } from './use-indicator'
 import { cx } from '@octane-xplat/lib'
@@ -16,6 +18,8 @@ export function SelectView(props: SelectViewProps) @{
 	const match = useRef({ text: '', at: 0 })
 	const focusSearch = useRef(true)
 	const CheckInd = useIndicator('check') ?? CheckIndicator
+	const coarse = useMediaQuery('(pointer: coarse)')
+	const asSheet = props.presentation === 'bottom-sheet' || (props.presentation === 'adaptive' && coarse)
 	const MultiInd = useIndicator('checkbox') ?? CheckboxIndicator
 	const busy = Boolean(props.isLoading || props.pending)
 	const blocked = Boolean(props.isDisabled || props.isReadOnly)
@@ -112,7 +116,7 @@ export function SelectView(props: SelectViewProps) @{
 			id={props.id}
 			role={!props.searchable || props.isReadOnly ? 'combobox' : 'button'}
 			tabIndex={props.isDisabled && !props.disabledMessage ? -1 : 0}
-			className={cx('vx-select-trigger', props.isDisabled && 'vx-select--disabled', props.isReadOnly && 'vx-select--readonly', busy && 'vx-select--loading', props.status && `vx-select--status-${props.status.type}`, props.size && `vx-select--size-${props.size}`, props.className)}
+			className={cx('vx-select-trigger', props.variant === 'ghost' && 'vx-select--ghost', props.isDisabled && 'vx-select--disabled', props.isReadOnly && 'vx-select--readonly', busy && 'vx-select--loading', props.status && `vx-select--status-${props.status.type}`, props.size && `vx-select--size-${props.size}`, props.className)}
 			style={props.style}
 			aria-label={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
 			aria-labelledby={props.ariaLabelledBy}
@@ -131,14 +135,18 @@ export function SelectView(props: SelectViewProps) @{
 			onClick={() => props.open ? close() : props.onOpenChange(true)}
 			onKeyDown={(event: KeyboardEvent) => { if (event.target === event.currentTarget) onKey(event) }}
 		>
-			<span className={cx('vx-select-value', !props.selected.length && 'vx-select-placeholder')}>{props.triggerText}</span>
+			{props.multiple && props.triggerDisplay === 'badges' && props.selected.length
+				? <span className="vx-select-badges">{props.selected.map((v) => { const o = props.options.find((x) => x.value === v); return <span key={v} className="vx-select-badge"><span>{o?.label ?? v}</span><button type="button" className="vx-select-badge-x" aria-label={`Remove ${o?.label ?? v}`} onClick={(e: MouseEvent) => { e.stopPropagation(); if (o) props.onPick(o) }}>×</button></span> })}</span>
+				: props.renderValue && props.selected.length && !props.multiple
+					? <span className={cx('vx-select-value')}>{props.renderValue(props.options.find((o) => o.value === props.selected[0])!)}</span>
+					: <span className={cx('vx-select-value', !props.selected.length && 'vx-select-placeholder')}>{props.triggerText}</span>}
 			{props.hasClear && props.selected.length && !blocked ? <button type="button" className="vx-select-clear" aria-label="Clear selection" disabled={props.pending} onClick={(event: MouseEvent) => { event.stopPropagation(); props.onClear(); anchor.current?.focus() }}>×</button> : null}
 			{busy ? <span className="vx-select-loading" role="status">Loading…</span> : null}
 			{!props.isReadOnly ? <span className="vx-select-caret" aria-hidden="true">▾</span> : null}
 		</div>
 		{props.htmlName ? props.selected.map((value) => <input key={value} type="hidden" name={props.htmlName} value={value} disabled={props.isDisabled} />) : null}
 		<span className="vx-sr-only" role="status" aria-live="polite">{props.announcement}</span>
-		<Popover anchor={anchor} open={props.open} placement={props.placement ?? 'bottom'} onDismiss={() => close()} className="vx-menu">
+		<Popover anchor={anchor} open={props.open && !asSheet} placement={props.placement ?? 'bottom'} onDismiss={() => close()} className="vx-menu">
 			{props.searchable ? <div className="vx-select-search-row">
 				<input
 					ref={(element: any) => {
@@ -171,11 +179,16 @@ export function SelectView(props: SelectViewProps) @{
 						onMouseDown={(event: MouseEvent) => event.preventDefault()}
 						onMouseEnter={() => { if (!option.isDisabled) props.onActiveValueChange?.(option.value) }}
 						onClick={() => { props.onPick(option); if (!props.multiple && !option.isDisabled) anchor.current?.focus() }}
-					><span className="vx-select-check" aria-hidden="true">{props.multiple ? <MultiInd state={props.selected.includes(option.value) ? 'checked' : 'unchecked'} isDisabled={option.isDisabled} /> : <CheckInd state={props.selected.includes(option.value) ? 'checked' : 'unchecked'} isDisabled={option.isDisabled} />}</span><span className="vx-menu-item-label">{option.label ?? option.value}{option.description ? <span className="vx-select-description">{option.description}</span> : null}</span></div>)
+					><span className="vx-select-check" aria-hidden="true">{props.multiple ? <MultiInd state={props.selected.includes(option.value) ? 'checked' : 'unchecked'} isDisabled={option.isDisabled} /> : <CheckInd state={props.selected.includes(option.value) ? 'checked' : 'unchecked'} isDisabled={option.isDisabled} />}</span>{props.renderOption ? props.renderOption(option) : <>{option.icon != null ? <span className="vx-select-option-icon" aria-hidden="true">{option.icon}</span> : null}<span className="vx-menu-item-label">{option.label ?? option.value}{option.description ? <span className="vx-select-description">{option.description}</span> : null}</span></>}</div>)
 
 					return group.heading == null ? rows : <div key={index} role="group" aria-label={group.heading}><div className="vx-select-group" aria-hidden="true">{group.heading}</div>{rows}</div>
 				})}
 			</div>
 		</Popover>
+		{asSheet ? <BottomSheet isOpen={props.open} onOpenChange={() => close()} label={props.label ?? 'Options'} height="hug" className="vx-select-sheet">
+			<div role="listbox" aria-label={props.label ?? 'Options'} className="vx-menu-list vx-select-list">
+				{props.groups.map((group, index) => group.heading == null ? group.options.map((option) => <div key={option.value} role="option" aria-selected={props.selected.includes(option.value)} className={cx('vx-menu-item', 'vx-select-option', props.selected.includes(option.value) && 'vx-select-option--on')} onClick={() => { props.onPick(option); close() }}>{props.renderOption ? props.renderOption(option) : <span className="vx-menu-item-label">{option.label ?? option.value}{option.description ? <span className="vx-select-description">{option.description}</span> : null}</span>}</div>) : <div key={index} role="group" aria-label={group.heading}><div className="vx-select-group">{group.heading}</div>{group.options.map((option) => <div key={option.value} role="option" className={cx('vx-menu-item', 'vx-select-option')} onClick={() => { props.onPick(option); close() }}>{props.renderOption ? props.renderOption(option) : <span className="vx-menu-item-label">{option.label ?? option.value}</span>}</div>)}</div>)}
+			</div>
+		</BottomSheet> : null}
 	</>
 }

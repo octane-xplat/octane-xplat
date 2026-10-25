@@ -10,9 +10,9 @@ export function UISlider(props: UISliderProps) @{
 		id={props.id}
 		className={cx(props.className)}
 		style={props.style}
-		value={props.value}
-		minValue={props.minValue ?? 0}
-		maxValue={props.maxValue ?? 100}
+		value={Array.isArray(props.value) ? props.value[1] : props.value}
+		minValue={props.min ?? props.minValue ?? 0}
+		maxValue={props.max ?? props.maxValue ?? 100}
 		isEnabled={props.disabled ? false : true}
 		onValueChange={(e: any) => props.onValueChange?.(e.value)}
 		ref={(el: any) => applyNativeProps(el, props)}

@@ -112,7 +112,8 @@ export function Slider(props: SliderProps) @{
 	const max = props.maxValue ?? 100
 	const drag = useRef<{ value0: number } | null>(null)
 	const [dragValue, setDragValue] = useState<number | null>(null)
-	const value = dragValue ?? props.value ?? min
+	const rawValue = props.value
+	const value = dragValue ?? (Array.isArray(rawValue) ? rawValue[1] : rawValue) ?? min
 	const ratio = Math.min(1, Math.max(0, (value - min) / (max - min)))
 	const colors = controlColors(useThemeScheme() === 'dark')
 	const onPan = usePan(props.disabled ? undefined : (event: PanEvent) => {

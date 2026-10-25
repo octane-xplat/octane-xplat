@@ -74,6 +74,7 @@ export function TextArea(inputProps: TextAreaProps) @{
 
 	const shell = <div className={cx('vx-textarea-shell', props.status && `vx-textarea-shell--status-${props.status.type}`, props.isDisabled && 'vx-textarea-shell--disabled')}
 		onClick={(e: any) => { if (e.target === e.currentTarget && !props.isDisabled && !props.isReadOnly) el.current?.focus(); }}>
+		{props.startIcon != null ? <span className="vx-textarea-icon" aria-hidden="true">{props.startIcon}</span> : null}
 		<textarea
 			ref={(node: any) => {
 					el.current = node;
@@ -97,6 +98,7 @@ export function TextArea(inputProps: TextAreaProps) @{
 			disabled={props.isDisabled || undefined}
 			readOnly={props.isReadOnly || undefined}
 			placeholder={props.placeholder}
+			maxLength={props.maxLength}
 			rows={props.rows ?? (props.autoGrow ? 1 : 3)}
 			onInput={(e: any) => { fit(); setValue(e.target.value); }}
 			onKeyDown={(e: any) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey) && !e.isComposing && e.keyCode !== 229) props.onSubmit?.(); }}
@@ -106,6 +108,7 @@ export function TextArea(inputProps: TextAreaProps) @{
 		{props.status && (props.statusVariant ?? 'attached') === 'attached'
 			? <span className="vx-textarea-status"><span className="vx-input-status-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1em" height="1em" aria-hidden="true"><path fillRule="evenodd" clipRule="evenodd" d={STATUS_ICON_PATHS[props.status.type as keyof typeof STATUS_ICON_PATHS]} /></svg></span></span>
 			: null}
+		{props.maxLength != null ? <span className="vx-textarea-counter" aria-hidden="true">{`${value.length}/${props.maxLength}`}</span> : null}
 	</div>;
 	if (!needsChrome) return shell;
 	return (

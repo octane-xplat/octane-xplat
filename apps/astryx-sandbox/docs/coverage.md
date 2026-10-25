@@ -141,3 +141,91 @@ is a client-routed SPA — adaptation recorded.
   recharts/`@astryxdesign/charts`, `@heroicons/react`, `SpeechRecognition`
   are non-core integrations needing recorded adaptations per pinned
   inventory §6.
+
+## Unit 5 — forms, selection and date examples (34 families, 150 routes)
+
+Ported block families: Field, FieldLabel, FieldStatus, FormLayout,
+InputGroup, FileInput, TextInput, TextArea, NumberInput, CheckboxInput,
+CheckboxList, CheckboxListItem, RadioList, RadioListItem, Switch, Slider,
+Stepper, Step, ToggleButton, ToggleButtonGroup, SegmentedControl,
+SegmentedControlItem, Selector, SelectorOption, MultiSelector,
+ComplexSelector, Typeahead, TypeaheadItem, BaseTypeahead, PowerSearch,
+Tokenizer, DateInput, DateRangeInput, DateTimeInput, TimeInput, Calendar —
+plus the `tap-targets` and `textarea-counter` authored pages.
+
+### Framework additions (packages/ui)
+
+New public exports: `RadioListItem`, `CheckboxListItem`,
+`SegmentedControlItem`, `SelectorOption`, `Step`, `FieldLabel`,
+`FieldStatus` (component), `useGridFocus`. The item/step parts read
+selection/position state from a parent-group context
+(`option-list-contexts.ts`) — the Octane child-part pattern, since
+children are opaque templates and cannot be inspected React-style.
+
+New/extended contracts on existing components:
+
+- `RadioOption`: `description`, `endContent` (exercised by
+  RadioListPricingTier, CheckboxListWithEndContent).
+- `RadioGroup`/`CheckboxGroup`/`SegmentedControl`: `children` alongside
+  `options`; `CheckboxGroup.hasDividers`; `SegmentedControl.layout="fill"`.
+- `Select`/`MultiSelector`: `presentation` (`popover`/`bottom-sheet`/
+  `adaptive` — adaptive resolves per pointer via `useMediaQuery`),
+  `variant="ghost"`, `renderOption`, `renderValue`, `SelectOption.icon`,
+  multi `triggerDisplay="badges"`.
+- `Stepper`: `activeStep`/`onStepClick`/`orientation`/`indicatorPosition`/
+  `horizontalOptions` + `Step` children; the `steps` prop stays the flat
+  alternative.
+- `Slider`: reworked to the Astryx field contract — `FieldControlProps`,
+  `value: number | [number, number]` (range = two thumbs), `min`/`max`/
+  `step`/`marks`/`formatValue`/`valueDisplay`. `minValue`/`maxValue` are
+  deprecated aliases; `onValueChange` now emits the widened type (breaking
+  — callers updated: demos, video-chrome, input-readiness probe).
+- `TextInput.startIcon`; `TextArea.startIcon`/`maxLength` (live counter);
+  `InputNumber` `units`/`formatValue`/`hasNumberSteppers`/`hasClear`/
+  `onClear`.
+- `FieldStatus` the **type** is re-exported as `FieldStatusInfo` in the
+  barrels (the name now belongs to the component, matching upstream);
+  `packages/files` updated to the alias.
+
+### Adaptations and recorded gaps
+
+- `FileInput` ports use `@octane-xplat/files` `FileInput` (cross-platform
+  picker bridge), not a ui stub — `File` values become `FileInputFile`.
+- `Typeahead`/`BaseTypeahead`/`Tokenizer` upstream children-composition
+  maps to `searchSource` + `renderItem`/default rows (the real upstream
+  contract exercised through `createStaticSource`).
+- `PowerSearch` upstream examples are filter-bar compositions; ported via
+  `createPowerSearchConfig` field definitions rather than the text-input
+  appearance they first suggested.
+- `ComplexSelector` `children` is a render function receiving
+  `{value, onChange, close, isOpen, isBusy}` — upstream's
+  `ComplexSelectorSection` composition collapses into the render body;
+  `useGridFocus` drives the 3×3 showcase grid keyboard navigation.
+- `Text type=` maps to `sb-type-*` token classes (existing convention).
+- `Badge variant/label` → children-only Badge (upstream variants not yet
+  in Xplat — recorded gap).
+- `Banner status/title/description` → `icon` + children.
+- `ToggleButton` `value`/`onChange` → `isPressed`/`onPressedChange` +
+  `label` (required a11y name); `pressedIcon` covers the icon-swap cases;
+  `color` added to `ToggleButtonProps` for the accent/status-color rows.
+- `TextInput type="password|email"` → `secure`/`keyboardType`; `hourFormat`
+  uses `'12h'|'24h'`; `format` uses `SharedDateFormat` names;
+  `DateRangePreset` uses `label` + `getRange`.
+- `StepperWidthResponsiveCollapse` accepts `horizontalOptions` but the
+  web leaf does not yet implement the width-collapse measurement — the
+  prop is accepted and recorded, layout stays off-track horizontal.
+- macOS `.macos.tsrx` leaves for the group controls remain options-prop
+  only — child parts render standalone there (context absent), a recorded
+  platform gap alongside existing macOS coverage notes.
+- Native Slider keeps the single-thumb widget path; range/marks/
+  formatted readouts render on web only (recorded in `SliderProps` doc).
+- `useGridFocus` is pointer/keyboard-only on web; native export is a
+  no-op with the same signature.
+
+### Pages
+
+- `tap-targets`: upstream's live DOM measurement (ResizeObserver/rAF +
+  StyleX) is adapted to a static audit table with real rendered controls —
+  the measurement harness is toolchain code, not a component contract.
+- `textarea-counter`: `TextArea.maxLength` live counter + `FieldStatus`
+  row, replacing upstream's hand-rolled counter markup.

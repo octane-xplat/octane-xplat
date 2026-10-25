@@ -19,7 +19,7 @@ export function ControlsDemo() @{
 		<Heading level={2}>Controls</Heading>
 		<View className="controls-section">
 			<Text className="font-bold">Slider: {value}</Text>
-			<Slider value={value} minValue={0} maxValue={100} onValueChange={setValue} />
+			<Slider value={value} minValue={0} maxValue={100} onValueChange={(v) => setValue(v as number)} />
 		</View>
 		<View className="controls-section">
 			<HStack className="items-center gap-2">

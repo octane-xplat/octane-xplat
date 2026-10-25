@@ -177,7 +177,7 @@ export type {
 	ElementSize,
 	FieldControlProps,
 	FieldControlSize,
-	FieldStatus,
+	FieldStatus as FieldStatusInfo,
 	FieldStatusType,
 	DropdownMenuProps,
 	MenuItem,
@@ -452,6 +452,16 @@ export type {
 	PaginationProps,
 	StepperProps,
 	StepperStep,
+	StepProps,
+	RadioListItemProps,
+	CheckboxListItemProps,
+	SegmentedControlItemProps,
+	SelectorOptionProps,
+	SelectPresentation,
+	SelectVariant,
+	SliderMark,
+	FieldLabelProps,
+	FieldStatusComponentProps,
 } from './props'
 
 // Content and display
@@ -671,6 +681,15 @@ export { Screen } from './Screen'
 export { Tabs } from './Tabs'
 export type { TabSpec } from './Tabs'
 export { Switch } from './Switch'
+export { RadioListItem } from './RadioListItem'
+export { CheckboxListItem } from './CheckboxListItem'
+export { SegmentedControlItem } from './SegmentedControlItem'
+export { SelectorOption } from './SelectorOption'
+export { Step } from './Step'
+export { FieldLabel } from './FieldLabel'
+export { FieldStatus } from './FieldStatus'
+export { useGridFocus } from './use-grid-focus'
+export type { GridFocusOptions, GridFocusResult } from './use-grid-focus'
 export { SafeArea } from './SafeArea'
 export { KeyboardAvoiding } from './KeyboardAvoiding'
 export { Drawer } from './Drawer'

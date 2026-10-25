@@ -7,6 +7,8 @@ import { StonePalettePage } from './palettes/StonePalettePage'
 import { GothicPalettePage } from './palettes/GothicPalettePage'
 import { Y2kPalettePage } from './palettes/Y2kPalettePage'
 import { ButterPalettePage } from './palettes/ButterPalettePage'
+import { TapTargetsPage } from './tap-targets/TapTargetsPage'
+import { TextareaCounterPage } from './textarea-counter/TextareaCounterPage'
 
 const pages: Record<string, () => any> = {
 	'/pages/neutral-palette/': NeutralPalettePage,
@@ -14,11 +16,12 @@ const pages: Record<string, () => any> = {
 	'/pages/gothic-palette/': GothicPalettePage,
 	'/pages/y2k-palette/': Y2kPalettePage,
 	'/pages/butter-palette/': ButterPalettePage,
+	'/pages/tap-targets/': TapTargetsPage,
+	'/pages/textarea-counter/': TextareaCounterPage,
 }
 
 export const portedPages = new Set(Object.keys(pages))
 
 export function pageFor(route: string): any {
-	const screen = pages[route]
-	return screen ? screen() : undefined
+	return pages[route]
 }

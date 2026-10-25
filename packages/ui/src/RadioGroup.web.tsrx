@@ -4,9 +4,11 @@ import { applyEscapeProps } from "./escape-props";
 import { useFieldControlProps } from './field-context';
 import { RadioIndicator, indicatorScope } from './indicators';
 import { useIndicator } from './use-indicator';
+import { RadioListProvider } from './option-list-contexts';
 
 /** Self-drawn radio group — dot options in a column (or row with
- *  `horizontal`). Selecting an option calls `onValueChange`. */
+ *  `horizontal`). Options come from the `options` prop or `RadioListItem`
+ *  children (Astryx child part); both share the radiogroup contract. */
 export function RadioGroup(inputProps: RadioGroupProps) @{
 	const props = useFieldControlProps(inputProps);
 	const [internal, setInternal] = useState(props.defaultValue);
@@ -16,6 +18,13 @@ export function RadioGroup(inputProps: RadioGroupProps) @{
 	const select = (value: string) => {
 		if (props.value === undefined) setInternal(value);
 		props.onValueChange?.(value);
+	};
+	const ctx = {
+		selected: current as string | undefined,
+		select,
+		isDisabled: props.isDisabled,
+		isReadOnly: props.isReadOnly,
+		size: props.size,
 	};
 
 	<div
@@ -34,7 +43,7 @@ export function RadioGroup(inputProps: RadioGroupProps) @{
 		className={['vx-radio-group', props.horizontal ? 'vx-radio-group--row' : undefined, props.isDisabled ? 'vx-radio-group--disabled' : undefined, props.isReadOnly ? 'vx-radio-group--readonly' : undefined, props.isLoading ? 'vx-radio-group--loading' : undefined, props.status ? `vx-radio-group--status-${props.status.type}` : undefined, props.size ? `vx-radio-group--size-${props.size}` : undefined, props.className]}
 		style={props.style}
 	>
-		{props.options.map((opt: any) => {
+		{(props.options ?? []).map((opt: any) => {
 			const selected = current === opt.value;
 			const disabled = props.isDisabled || opt.isDisabled;
 			const blocked = disabled || isBlocked;
@@ -57,9 +66,14 @@ export function RadioGroup(inputProps: RadioGroupProps) @{
 					}}
 				>
 					<Ind state={selected ? 'checked' : 'unchecked'} size={props.size === 'sm' ? 'sm' : 'md'} isDisabled={disabled} />
-					{opt.label != null ? <span className="vx-radio-label">{opt.label}</span> : null}
+					<span className="vx-radio-label-col">
+						{opt.label != null ? <span className="vx-radio-label">{opt.label}</span> : null}
+						{opt.description != null ? <span className="vx-radio-description">{opt.description}</span> : null}
+					</span>
+					{opt.endContent != null ? <span className="vx-radio-end">{opt.endContent}</span> : null}
 				</div>
 			);
 		})}
+		{props.children != null ? <RadioListProvider value={ctx}>{props.children}</RadioListProvider> : null}
 	</div>
 }

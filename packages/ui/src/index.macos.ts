@@ -90,7 +90,7 @@ export type {
 	ElementSize,
 	FieldControlProps,
 	FieldControlSize,
-	FieldStatus,
+	FieldStatus as FieldStatusInfo,
 	FieldStatusType,
 	AbsoluteProps,
 	AspectRatioFit,

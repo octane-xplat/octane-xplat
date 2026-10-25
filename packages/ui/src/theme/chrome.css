@@ -2776,3 +2776,56 @@
 .vx-select-description {
 	color: var(--color-muted);
 }
+
+/* Unit-5 form/selection additions */
+.vx-radio-label-col { display: inline-flex; flex-direction: column; }
+.vx-radio-description, .vx-checkbox-description { font-size: 0.8125em; color: var(--color-text-secondary, #666); }
+.vx-radio-row, .vx-checkbox-row { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+.vx-radio-end, .vx-checkbox-end { margin-inline-start: auto; }
+.vx-checkbox-group--divided .vx-checkbox-row + .vx-checkbox-row,
+.vx-checkbox-group--divided .vx-checkboxlist-item + .vx-checkboxlist-item { border-top: 1px solid var(--color-border, #ddd); }
+.vx-segmented--fill { display: flex; width: 100%; }
+.vx-segmented--fill .vx-segment { flex: 1; }
+.vx-segment-icon { display: inline-flex; margin-inline-end: 4px; }
+.vx-segment--icon-only .vx-segment-icon { margin-inline-end: 0; }
+.vx-fieldlabel { display: flex; flex-direction: column; gap: 2px; }
+.vx-fieldlabel--disabled { opacity: 0.5; }
+.vx-field-label-icon { display: inline-flex; margin-inline-end: 4px; vertical-align: middle; }
+.vx-fieldstatus { display: inline-flex; align-items: center; gap: 4px; font-size: 0.8125em; }
+.vx-fieldstatus--error { color: var(--color-error, #d33); }
+.vx-fieldstatus--warning { color: var(--color-warning, #a60); }
+.vx-fieldstatus--success { color: var(--color-success, #080); }
+.vx-selectoroption { display: inline-flex; align-items: flex-start; gap: 8px; }
+.vx-selectoroption-icon { flex-shrink: 0; margin-top: 2px; }
+.vx-selectoroption-text { display: flex; flex-direction: column; }
+.vx-selectoroption-description { font-size: 0.8125em; color: var(--color-text-secondary, #666); }
+.vx-select-option-icon { display: inline-flex; margin-inline-end: 6px; }
+.vx-select--ghost { border-color: transparent; background: transparent; }
+.vx-select-badges { display: inline-flex; flex-wrap: wrap; gap: 4px; }
+.vx-select-badge { display: inline-flex; align-items: center; gap: 2px; padding: 0 4px; border: 1px solid var(--color-border, #ddd); border-radius: 4px; font-size: 0.8125em; }
+.vx-select-badge-x { border: 0; background: none; cursor: pointer; padding: 0 2px; }
+.vx-step-body { display: flex; flex-direction: column; }
+.vx-step-heading { display: inline-flex; align-items: baseline; gap: 6px; }
+.vx-step-optional { font-size: 0.75em; color: var(--color-text-secondary, #666); }
+.vx-step-description { font-size: 0.8125em; color: var(--color-text-secondary, #666); }
+.vx-stepper--vertical { flex-direction: column; }
+.vx-stepper--vertical .vx-step { display: flex; gap: 8px; }
+.vx-step--status-success .vx-step-dot { background: var(--color-success, #080); color: #fff; }
+.vx-step--status-error .vx-step-dot { background: var(--color-error, #d33); color: #fff; }
+.vx-step--status-warning .vx-step-dot { background: var(--color-warning, #a60); color: #fff; }
+.vx-step--status-accent .vx-step-dot { background: var(--color-accent, #36c); color: #fff; }
+.vx-fileinput-input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.vx-fileinput-browse { padding: 8px 12px; border: 1px dashed var(--color-border, #ccc); border-radius: 6px; background: none; cursor: pointer; text-align: start; }
+.vx-fileinput--disabled .vx-fileinput-browse { opacity: 0.5; cursor: default; }
+.vx-inputnumber-units { padding-inline-end: 8px; color: var(--color-text-secondary, #666); }
+.vx-inputnumber-clear { border: 0; background: none; cursor: pointer; }
+.vx-input-icon, .vx-textarea-icon { display: inline-flex; align-items: center; padding-inline-start: 8px; color: var(--color-text-secondary, #666); }
+.vx-textarea-shell { position: relative; display: flex; }
+.vx-textarea-counter { position: absolute; bottom: 6px; inset-inline-end: 10px; font-size: 0.75em; color: var(--color-text-secondary, #666); }
+.vx-slider-mark { position: absolute; top: 100%; transform: translateX(-50%); font-size: 0.75em; color: var(--color-text-secondary, #666); }
+.vx-slider-value { margin-inline-start: 8px; font-size: 0.8125em; }
+
+.vx-toggle-button--accent.vx-toggle-button--pressed { color: var(--color-accent, #36c); }
+.vx-toggle-button--success.vx-toggle-button--pressed { color: var(--color-success, #080); }
+.vx-toggle-button--warning.vx-toggle-button--pressed { color: var(--color-warning, #a60); }
+.vx-toggle-button--error.vx-toggle-button--pressed { color: var(--color-error, #d33); }

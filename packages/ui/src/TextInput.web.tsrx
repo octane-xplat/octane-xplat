@@ -56,6 +56,7 @@ export function TextInput(props: TextInputProps) @{
 	// FormField, wrap the bare input in one (it owns label/description/status
 	// and the <label for> → input focus link). Inside a field, render bare.
 	const shell = <div className={cx('vx-input-shell', fieldProps.inInputGroup && 'vx-input-shell--ingroup', fieldProps.status && `vx-input-shell--status-${fieldProps.status.type}`, fieldProps.isDisabled && 'vx-input-shell--disabled')}>
+		{fieldProps.startIcon != null ? <span className="vx-input-icon" aria-hidden="true">{fieldProps.startIcon}</span> : null}
 		<input
 			ref={(el: any) => {
 				input.current = el;

@@ -184,6 +184,9 @@ importers:
 
   apps/astryx-sandbox:
     dependencies:
+      '@octane-xplat/files':
+        specifier: workspace:*
+        version: link:../../packages/files
       '@octane-xplat/ui':
         specifier: workspace:*
         version: link:../../packages/ui
