@@ -12,6 +12,13 @@ function BadgeFixture() @{
 	</Badge>
 }
 
+function BadgeTextFixture() @{
+	<Badge className="parity-badge-text" style={{ backgroundColor: '#dbeafe' }}>
+		{'42'}
+	</Badge>
+}
+
 export const PARITY: ParityFixture[] = [
 	{ name: 'badge-basic', component: 'Badge', renderer: BadgeFixture, props: {} },
+	{ name: 'badge-text', component: 'Badge', renderer: BadgeTextFixture, props: {} },
 ]

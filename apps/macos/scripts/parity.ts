@@ -9,8 +9,9 @@ const appDir = dirname(dirname(fileURLToPath(import.meta.url)))
 // The xplat bin entry — dev targets spawn through the CLI, not a local shim.
 const xplatCli = join(
 	dirname(fileURLToPath(import.meta.resolve('@octane-xplat/cli/macos'))),
-	'../cli.ts',
+	'../../bin/xplat.mjs',
 )
+
 const repoDir = resolve(appDir, '../..')
 const outputFile = join(repoDir, 'parity-report', 'macos.json')
 const host = spawn(process.execPath, [xplatCli, 'dev', 'macos'], {

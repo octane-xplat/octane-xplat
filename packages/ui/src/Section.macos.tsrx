@@ -15,9 +15,20 @@ export function Section(props: SectionProps) @{
 	const dividers = new Set(props.dividers ?? [])
 	const padding = spacingPx(props.padding) ?? 16
 
-	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(
+		() =>
+			refList((v: any) => {
+				if (v) {
+					applyEscapeProps(v, props)
+				}
+			}, props.ref),
+		[props.ref, props.ios, props.android, props.web],
+	)
 
-	<masonview id={props.id} ref={forwardedRef} className={cx(
+	<masonview
+		id={props.id}
+		ref={forwardedRef}
+		className={cx(
 			'vx-section',
 			`vx-section--${variant}`,
 			dividers.has('top') && 'vx-section--divider-top',
@@ -25,17 +36,25 @@ export function Section(props: SectionProps) @{
 			dividers.has('start') && 'vx-section--divider-start',
 			dividers.has('end') && 'vx-section--divider-end',
 			props.className,
-		)} style={mergeStyle({display: "flex"}, {
-			paddingLeft: spacingPx(props.paddingInlineStart ?? props.paddingInline) ?? padding,
-			paddingRight: spacingPx(props.paddingInlineEnd ?? props.paddingInline) ?? padding,
-			paddingTop: spacingPx(props.paddingBlockStart ?? props.paddingBlock) ?? padding,
-			paddingBottom: spacingPx(props.paddingBlockEnd ?? props.paddingBlock) ?? padding,
-			...(props.width != null ? { width: props.width } : {}),
-			...(props.height != null ? { height: props.height } : {}),
-			...(props.maxWidth != null ? { maxWidth: props.maxWidth } : {}),
-			...(props.minHeight != null ? { minHeight: props.minHeight } : {}),
-			...styleRecord(props.style),
-		})} accessibilityLabel={props.accessibilityLabel} accessibilityRole={props.accessibilityRole} accessibilityHint={props.accessibilityHint}>
+		)}
+		style={mergeStyle(
+			{ display: 'flex', flexDirection: 'column' },
+			{
+				paddingLeft: spacingPx(props.paddingInlineStart ?? props.paddingInline) ?? padding,
+				paddingRight: spacingPx(props.paddingInlineEnd ?? props.paddingInline) ?? padding,
+				paddingTop: spacingPx(props.paddingBlockStart ?? props.paddingBlock) ?? padding,
+				paddingBottom: spacingPx(props.paddingBlockEnd ?? props.paddingBlock) ?? padding,
+				...(props.width != null ? { width: props.width } : {}),
+				...(props.height != null ? { height: props.height } : {}),
+				...(props.maxWidth != null ? { maxWidth: props.maxWidth } : {}),
+				...(props.minHeight != null ? { minHeight: props.minHeight } : {}),
+				...styleRecord(props.style),
+			},
+		)}
+		accessibilityLabel={props.accessibilityLabel}
+		accessibilityRole={props.accessibilityRole}
+		accessibilityHint={props.accessibilityHint}
+	>
 		{props.children}
 	</masonview>
 }
