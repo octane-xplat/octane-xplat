@@ -34,9 +34,12 @@ visual components stay at the root.
 Check the [normalization contract](../../../../docs/start/architecture.md#normalization-classes)
 when deciding which appearance and behavior must match across targets.
 
-`Switch`, `Slider`, `Spinner`, `Tabs`, and `Drawer` are
+`Switch`, `Slider`, `Spinner`, `Tabs`, `Drawer`, and the color suite
+(`ColorPicker`, `ColorArea`, `ColorSlider`, `ColorSwatch`, `ColorField`) are
 self-drawn shared components: their shared props produce the same component
-design across targets, rather than exposing OS chrome. `Slider` follows pan
+design across targets, rather than exposing OS chrome. Color parts report
+`'#rrggbb'` hex through `onChange`/`onChangeEnd`; `ColorSlider` is hue-only
+and drags are delta-based like `Slider`. `Slider` follows pan
 deltas and does not jump to a tapped track position. On web it is a Tab stop:
 Arrow keys change 1% of its range, and Home/End choose the bounds. Pair
 `value` with `onValueChange` to display the change. `Drawer` has no edge-swipe

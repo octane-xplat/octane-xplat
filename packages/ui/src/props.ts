@@ -2286,6 +2286,54 @@ export type UISliderProps = PlatformWidgetProps<SliderProps>
 /** Props accepted by `SeekBar` (`@octane-xplat/ui/android`). */
 export type SeekBarProps = PlatformWidgetProps<SliderProps>
 
+/** Shared color-value contract — output hex is lowercase '#rrggbb'; input
+ *  also accepts '#rgb', any case, and a missing '#'. */
+export interface ColorValueProps {
+	/** Controlled color. */
+	value?: string
+	/** Initial color for uncontrolled use. */
+	defaultValue?: string
+	/** Continuous changes — drag moves, keyboard steps, field commits. */
+	onChange?: (hex: string) => void
+	/** Committed changes — drag end, keyboard step, field commit. */
+	onChangeEnd?: (hex: string) => void
+	isDisabled?: boolean
+}
+export interface ColorBaseProps {
+	id?: string
+	testID?: string
+	className?: ClassValue
+	style?: StyleProp
+	accessibilityLabel?: string
+}
+
+/** Small color chip — `color` accepts the shared hex forms. */
+export interface ColorSwatchProps extends ColorBaseProps {
+	color: string
+	size?: number
+}
+
+/** 2D saturation/brightness area for the current hue — x = saturation,
+ *  y = brightness (HSB). Drag is delta-based from the value at gesture
+ *  start; there is no tap-to-position. */
+export interface ColorAreaProps extends ColorValueProps, ColorBaseProps {}
+
+/** Single-channel slider. `hue` is the documented channel subset for v1. */
+export interface ColorSliderProps extends ColorValueProps, ColorBaseProps {
+	channel: 'hue'
+}
+
+/** Hex text field — commits on submit/blur; invalid input restores the
+ *  current value. */
+export interface ColorFieldProps extends ColorValueProps, ColorBaseProps {
+	label?: string
+}
+
+/** Fixed composite picker — ColorArea + hue ColorSlider + a row of
+ *  ColorSwatch and ColorField. React Aria's children-composition picker is
+ *  deferred. */
+export interface ColorPickerProps extends ColorValueProps, ColorBaseProps {}
+
 /** Identifiers of the framework-provided icons — registered automatically
  *  and used by built-in affordances (search/clear glyphs, disclosure and
  *  navigation chevrons, transport and status marks). An app registering

@@ -1,4 +1,6 @@
-import type { BaseTypeaheadProps, ContextRenderProps, PopoverProps, SearchableItem } from './props'
+import type { ClassValue } from 'octane/jsx-runtime'
+import type { Hsb } from './color'
+import type { BaseTypeaheadProps, ContextRenderProps, PopoverProps, SearchableItem, StyleProp } from './props'
 
 /** Internal plumbing — fields used by sibling components/hooks that must not
  *  appear on the public props contracts. Not re-exported by the package
@@ -19,3 +21,32 @@ export interface TypeaheadQueryEntries<T extends SearchableItem = SearchableItem
 export type PopoverInternalProps = PopoverProps & PopoverLayerPosition
 export type BaseTypeaheadInternalProps<T extends SearchableItem = SearchableItem> =
 	BaseTypeaheadProps<T> & TypeaheadQueryEntries<T>
+
+
+/** Internal LinearGradient part — the color suite composes it; not exported. */
+export interface LinearGradientProps {
+	colors: string[]
+	direction: 'horizontal' | 'vertical'
+	style?: StyleProp
+	className?: ClassValue
+	id?: string
+}
+
+
+/** Internal color-part views — driven by a shared `useColorState` so every
+ *  part in a ColorPicker edits the same HSB. Not exported publicly. */
+export interface ColorAreaViewProps {
+	hsb: Hsb
+	onHsb: (hsb: Hsb) => void
+	onHsbEnd: () => void
+	isDisabled?: boolean
+	id?: string
+	testID?: string
+	className?: ClassValue
+	style?: StyleProp
+	accessibilityLabel?: string
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+}
+export type ColorSliderViewProps = ColorAreaViewProps

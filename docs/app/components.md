@@ -240,6 +240,11 @@ export function Example() {
 | `RadioList`                                             | Self-drawn radio options                                         | `options`, `value`, `defaultValue`, `onValueChange`, `isDisabled`                             |
 | `SegmentedControl`                                      | Inline option segments                                           | `options`, `value`, `defaultValue`, `onValueChange`, `isDisabled`                             |
 | `Slider`                                                | Value scrubber (self-drawn)                                      | `value`, `minValue`, `maxValue`, `onValueChange`                                              |
+| `ColorPicker`                                           | Fixed color picker (area + hue slider + swatch + field)          | `value`, `defaultValue`, `onChange`, `onChangeEnd`, `isDisabled`                              |
+| `ColorArea`                                             | 2D saturation/brightness pad for one hue                         | `value`, `defaultValue`, `onChange`, `onChangeEnd`, `isDisabled`                              |
+| `ColorSlider`                                           | Single-channel slider — `channel="hue"` only                     | `channel`, `value`, `defaultValue`, `onChange`, `onChangeEnd`, `isDisabled`                   |
+| `ColorSwatch`                                           | Small color chip                                                 | `color`, `size`                                                                               |
+| `ColorField`                                            | Hex text field; commits on submit/blur                           | `value`, `defaultValue`, `label`, `onChange`, `onChangeEnd`, `isDisabled`                     |
 | `Selector`                                              | Single or multiple-option picker                                 | `selectionMode`, `options`, `value`, `onValueChange`, `searchable`                            |
 | `MultiSelector`                                         | Multiple-option picker preset                                    | `options`, `value`, `onValueChange`, `searchable`, `isDisabled`                               |
 | `Typeahead`                                             | Searchable single selection field                                | `searchSource`, `value`, `onChange`, `hasEntriesOnFocus`                                      |
@@ -266,6 +271,29 @@ export function Volume() {
 	const [volume, setVolume] = useState(0.5)
 
 	return <Slider value={volume} minValue={0} maxValue={1} onValueChange={setVolume} />
+}
+```
+
+`ColorPicker` renders a fixed layout — a saturation/brightness `ColorArea`, a
+hue `ColorSlider`, then a `ColorSwatch` and `ColorField` row — sharing one
+color state, so dragging brightness to black and back keeps the hue. Color
+values are hex strings: output is lowercase `'#rrggbb'`; input also accepts
+`'#rgb'`, any case, and a missing `'#'`. `ColorArea` and `ColorSlider` work
+standalone, `ColorSwatch` renders a small chip, and `ColorField` edits the
+hex text directly (commit on submit/blur; invalid input restores the value).
+
+```tsx
+import { useState } from 'octane'
+import { ColorPicker, ColorSwatch } from '@octane-xplat/ui'
+
+export function FavoriteColor() {
+	const [color, setColor] = useState('#4488ff')
+	return (
+		<>
+			<ColorPicker value={color} onChange={setColor} />
+			<ColorSwatch color={color} />
+		</>
+	)
 }
 ```
 
