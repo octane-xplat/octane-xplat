@@ -1517,7 +1517,8 @@ The Android emulator passes six tests with three platform skips, including the
 added width-resize assertions. The iOS Simulator passes eight tests with one platform skip, preserving the
 original height criterion; width qualification has a separate unresolved gap
 described below. Scoped
-host checks pass 18 package typecheck programs, 484 CLI tests, and 79 MCP tests.
+host checks pass affected-package and dependent typechecks, 484 CLI tests,
+and 79 MCP tests.
 The NativeScript Vite 8.0.21 collector correction has actual host Android vendor
 bundle evidence, not a new device-startup or HMR-input qualification.
 
