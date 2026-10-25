@@ -1,7 +1,7 @@
 import { createRoot } from 'octane'
 import { useState } from 'octane'
-import { Button, TextInput, CheckboxInput, Switch } from '@octane-xplat/ui'
-import { buttonScenarios, textInputScenarios, checkboxScenarios, switchScenarios } from '../scenarios/index.ts'
+import { Button, TextInput, TextArea, CheckboxInput, Switch, CheckboxList } from '@octane-xplat/ui'
+import { buttonScenarios, textInputScenarios, checkboxScenarios, switchScenarios, textAreaScenarios, checkboxListScenarios } from '../scenarios/index.ts'
 import '@octane-xplat/ui/theme/tokens.css'
 import '@octane-xplat/ui/theme/chrome.css'
 import '../shared/stage.css'
@@ -98,17 +98,24 @@ function FieldGrid({ prefix, scenarios, render }: { prefix: string; scenarios: {
 
 // Scenario props are written in Astryx's vocabulary; map them here.
 const tiProps = (p: any, key: string) => ({ ...p, testID: `text-input/${key}/control` })
+const taProps = (p: any, key: string) => ({ ...p, testID: `text-area/${key}/control` })
 const cbProps = (p: any, key: string) => ({ ...p, testID: `checkbox/${key}/control` })
 const swProps = (p: any, key: string) => ({ ...p, testID: `switch/${key}/control` })
 
 function TextInputGrid() {
 	return <FieldGrid prefix="text-input" scenarios={textInputScenarios} render={(s) => <TextInput {...tiProps(s.props, s.key)} onChange={() => {}} />} />
 }
+function TextAreaGrid() {
+	return <FieldGrid prefix="text-area" scenarios={textAreaScenarios} render={(s) => <TextArea {...taProps(s.props, s.key)} onChange={() => {}} />} />
+}
 function CheckboxGrid() {
 	return <FieldGrid prefix="checkbox" scenarios={checkboxScenarios} render={(s) => <CheckboxInput {...cbProps(s.props, s.key)} onChange={() => {}} />} />
 }
 function SwitchGrid() {
 	return <FieldGrid prefix="switch" scenarios={switchScenarios} render={(s) => <Switch {...swProps(s.props, s.key)} onChange={() => {}} />} />
+}
+function CheckboxListGrid() {
+	return <FieldGrid prefix="checkbox-list" scenarios={checkboxListScenarios} render={(s) => <CheckboxList {...s.props} options={s.options} onValueChange={() => {}} />} />
 }
 
 function TextInputBehavior() {
@@ -167,11 +174,13 @@ const pages: Record<string, { title: string; el: any }> = {
 	'/button': { title: 'Button parity', el: <Grid /> },
 	'/button/behavior': { title: 'Button parity', el: <Behavior /> },
 	'/text-input': { title: 'TextInput parity', el: <TextInputGrid /> },
+	'/text-area': { title: 'TextArea parity', el: <TextAreaGrid /> },
 	'/text-input/behavior': { title: 'TextInput parity', el: <TextInputBehavior /> },
 	'/checkbox': { title: 'Checkbox parity', el: <CheckboxGrid /> },
 	'/checkbox/behavior': { title: 'Checkbox parity', el: <CheckboxBehavior /> },
 	'/switch': { title: 'Switch parity', el: <SwitchGrid /> },
 	'/switch/behavior': { title: 'Switch parity', el: <SwitchBehavior /> },
+	'/checkbox-list': { title: 'CheckboxList parity', el: <CheckboxListGrid /> },
 }
 const page = (pages[window.location.pathname] ?? pages['/button']).el
 document.title = pages[window.location.pathname]?.title ?? 'Button parity'

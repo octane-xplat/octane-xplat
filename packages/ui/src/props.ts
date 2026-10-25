@@ -7213,6 +7213,10 @@ export interface CheckboxGroupProps extends FieldControlProps {
 	 *  option. */
 	onValueChange?: (values: string[]) => void
 	horizontal?: boolean
+	/** Row density for the list items — 'compact' renders sm checkboxes. */
+	density?: ListDensity
+	/** Whether to show dividers between list items. @default false */
+	hasDividers?: boolean
 	accessibilityLabel?: string
 	ios?: PlatformProps
 	android?: PlatformProps

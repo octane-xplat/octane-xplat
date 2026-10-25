@@ -1,12 +1,36 @@
-import { useState } from 'octane';
+import { useId, useState } from 'octane';
 import type { CheckboxGroupProps } from "./props";
 import { applyEscapeProps } from "./escape-props";
 import { Checkbox } from './Checkbox.web.tsrx';
-import { useFieldControlProps } from './field-context';
+import { List } from './List.web.tsrx';
+import { ListItem } from './ListItem.web.tsrx';
+import { FormField } from './FormField.web.tsrx';
+import { FieldProvider, useFieldControl, useFieldControlProps } from './field-context';
 
-/** CheckboxGroup — multi-select list of self-drawn checkboxes. */
+/** CheckboxGroup — multi-select list of self-drawn checkboxes. Standalone
+ *  groups render Astryx's field chrome (span label — a group has no single
+ *  control) around a `role="group"` > `ul`/`li` list; each row pairs the
+ *  option's hidden-label checkbox with its visible text. */
 export function CheckboxGroup(inputProps: CheckboxGroupProps) @{
-	const props = useFieldControlProps(inputProps);
+	const { inField } = useFieldControl(inputProps);
+	const generatedId = useId();
+	const controlId = inputProps.id ?? generatedId;
+	const needsChrome = !inField && (inputProps.label != null || inputProps.description != null || inputProps.status != null || inputProps.isRequired || inputProps.isOptional);
+	const bareProps = needsChrome
+		? {
+				...inputProps,
+				label: undefined,
+				description: undefined,
+				status: inputProps.status ? { type: inputProps.status.type } : undefined,
+				web: {
+					...inputProps.web,
+					'aria-labelledby': `${controlId}-label`,
+					'aria-describedby':
+						[inputProps.web?.['aria-describedby'], inputProps.description != null ? `${controlId}-description` : undefined, inputProps.status?.message != null ? `${controlId}-status` : undefined].filter(Boolean).join(' ') || undefined,
+				},
+			}
+		: inputProps;
+	const props = useFieldControlProps(bareProps);
 	const [internal, setInternal] = useState<string[]>(props.defaultValue ?? []);
 	const controlled = props.value !== undefined;
 	const selected = controlled ? props.value! : internal;
@@ -20,10 +44,12 @@ export function CheckboxGroup(inputProps: CheckboxGroupProps) @{
 		setSelected(on ? [...selected, v] : selected.filter((x) => x !== v));
 
 	const isReadOnly = props.isReadOnly;
+	const density = props.density ?? 'balanced';
+	const optionSize = density === 'compact' ? 'sm' : 'md';
 
-	<div
+	const group = <div
 		ref={(e: any) => applyEscapeProps(e, props)}
-		id={props.id}
+		id={needsChrome ? undefined : props.id}
 		role="group"
 		aria-label={props.ariaLabel}
 		aria-labelledby={props.ariaLabelledBy}
@@ -33,17 +59,34 @@ export function CheckboxGroup(inputProps: CheckboxGroupProps) @{
 		aria-readonly={isReadOnly || undefined}
 		aria-busy={props.isLoading || undefined}
 		className={['vx-checkbox-group', props.horizontal ? 'vx-checkbox-group--row' : undefined, props.isDisabled ? 'vx-checkbox-group--disabled' : undefined, isReadOnly ? 'vx-checkbox-group--readonly' : undefined, props.isLoading ? 'vx-checkbox-group--loading' : undefined, props.status ? `vx-checkbox-group--status-${props.status.type}` : undefined, props.size ? `vx-checkbox-group--size-${props.size}` : undefined, props.className]}
-		style={props.style}
+		style={needsChrome ? undefined : props.style}
 	>
-		{props.options.map((opt: any) => (
-			<Checkbox
-				key={opt.value}
-				value={selected.includes(opt.value)}
-				isDisabled={props.isDisabled || opt.isDisabled}
-				isReadOnly={isReadOnly}
-				label={opt.label}
-				onChange={(on: boolean) => toggle(opt.value, on)}
-			/>
-		))}
-	</div>
+		<List density={density} hasDividers={props.hasDividers} className={props.horizontal ? 'vx-checkbox-list--row' : undefined}>
+			{props.options.map((opt: any) => {
+				const optId = `${controlId}-opt-${opt.value}`;
+				return <ListItem
+					key={opt.value}
+					isDisabled={props.isDisabled || opt.isDisabled}
+					label={opt.label}
+					delegateRef={{ current: { click: () => (document.getElementById(optId) as any)?.click(), focus: () => (document.getElementById(optId) as any)?.focus() } }}
+					startContent={<FieldProvider value={null}><Checkbox
+						id={optId}
+						value={selected.includes(opt.value)}
+						isDisabled={props.isDisabled || opt.isDisabled}
+						isReadOnly={isReadOnly}
+						label={opt.label}
+						isLabelHidden
+						size={optionSize}
+						onChange={(on: boolean) => toggle(opt.value, on)}
+					/></FieldProvider>}
+				/>;
+			})}
+		</List>
+	</div>;
+	if (!needsChrome) return group;
+	return (
+		<FormField inputID={controlId} labelID={`${controlId}-label`} descriptionID={`${controlId}-description`} statusID={`${controlId}-status`} isGroupLabel label={inputProps.label} description={inputProps.description} status={inputProps.status} isRequired={inputProps.isRequired} isOptional={inputProps.isOptional} isLabelHidden={inputProps.isLabelHidden} isDisabled={inputProps.isDisabled} labelTooltip={inputProps.labelTooltip} disabledMessage={inputProps.disabledMessage} width={inputProps.width}>
+			{group}
+		</FormField>
+	);
 }

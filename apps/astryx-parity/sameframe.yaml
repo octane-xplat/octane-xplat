@@ -7,6 +7,8 @@ routes:
   - path: /text-input
   - path: /checkbox
   - path: /switch
+  - path: /text-area
+  - path: /checkbox-list
 viewports:
   - width: 1024
     height: 720

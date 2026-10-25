@@ -1,10 +1,12 @@
 import { Button } from '@astryxdesign/core/Button'
 import { TextInput } from '@astryxdesign/core/TextInput'
+import { TextArea } from '@astryxdesign/core/TextArea'
 import { CheckboxInput } from '@astryxdesign/core/CheckboxInput'
+import { CheckboxList, CheckboxListItem } from '@astryxdesign/core/CheckboxList'
 import { Switch } from '@astryxdesign/core/Switch'
 import { useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import { buttonScenarios, textInputScenarios, checkboxScenarios, switchScenarios } from '../scenarios/index.ts'
+import { buttonScenarios, textInputScenarios, checkboxScenarios, switchScenarios, textAreaScenarios, checkboxListScenarios } from '../scenarios/index.ts'
 import '@astryxdesign/core/reset.css'
 import '@astryxdesign/core/astryx.css'
 import '../shared/stage.css'
@@ -109,6 +111,11 @@ function TextInputGrid() {
 		<TextInput {...s.props} onChange={() => {}} data-testid={`text-input/${s.key}/control`} />
 	)} />
 }
+function TextAreaGrid() {
+	return <FieldGrid prefix="text-area" scenarios={textAreaScenarios} render={(s) => (
+		<TextArea {...s.props} onChange={() => {}} data-testid={`text-area/${s.key}/control`} />
+	)} />
+}
 
 function CheckboxGrid() {
 	return <FieldGrid prefix="checkbox" scenarios={checkboxScenarios} render={(s) => (
@@ -119,6 +126,14 @@ function CheckboxGrid() {
 function SwitchGrid() {
 	return <FieldGrid prefix="switch" scenarios={switchScenarios} render={(s) => (
 		<Switch {...s.props} onChange={() => {}} data-testid={`switch/${s.key}/control`} />
+	)} />
+}
+
+function CheckboxListGrid() {
+	return <FieldGrid prefix="checkbox-list" scenarios={checkboxListScenarios} render={(s) => (
+		<CheckboxList {...s.props} onChange={() => {}}>
+			{s.options.map((o: { value: string; label: string; isDisabled?: boolean }) => <CheckboxListItem key={o.value} value={o.value} label={o.label} isDisabled={o.isDisabled} />)}
+		</CheckboxList>
 	)} />
 }
 
@@ -179,11 +194,13 @@ const pages: Record<string, { title: string; el: React.ReactNode }> = {
 	'/button': { title: 'Button parity', el: <Grid /> },
 	'/button/behavior': { title: 'Button parity', el: <Behavior /> },
 	'/text-input': { title: 'TextInput parity', el: <TextInputGrid /> },
+	'/text-area': { title: 'TextArea parity', el: <TextAreaGrid /> },
 	'/text-input/behavior': { title: 'TextInput parity', el: <TextInputBehavior /> },
 	'/checkbox': { title: 'Checkbox parity', el: <CheckboxGrid /> },
 	'/checkbox/behavior': { title: 'Checkbox parity', el: <CheckboxBehavior /> },
 	'/switch': { title: 'Switch parity', el: <SwitchGrid /> },
 	'/switch/behavior': { title: 'Switch parity', el: <SwitchBehavior /> },
+	'/checkbox-list': { title: 'CheckboxList parity', el: <CheckboxListGrid /> },
 }
 const page = (pages[window.location.pathname] ?? pages['/button']).el
 document.title = pages[window.location.pathname]?.title ?? 'Button parity'
