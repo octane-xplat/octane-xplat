@@ -1,3 +1,5 @@
+### TextInput shows its own field chrome
+
 A standalone `TextInput` now shows its own label, description and status message, like Astryx's text input. Before, `label` only set the accessible name, and you needed a `Field` around the input to see any of it. Inside a `Field`, nothing changes: the `Field` still draws those parts.
 
 ```tsx

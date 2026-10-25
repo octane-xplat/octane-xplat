@@ -1,1 +1,3 @@
+### Native CheckboxInput draws the Astryx check icon
+
 On iOS and Android, a checked `CheckboxInput` now draws Astryx's check icon — the same mark web already rendered — instead of a ✓ text glyph. The check is a 14px drawn icon (12px at `size="sm"`), matching the 24px box on every platform.

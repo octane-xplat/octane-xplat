@@ -1,3 +1,5 @@
+### Button matches the Astryx default
+
 Fixed `Button` differences from Astryx's default button:
 
 - A loading button no longer fades out as if it were disabled.

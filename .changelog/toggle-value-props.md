@@ -1,3 +1,5 @@
+### Toggle controls adopt Astryx prop names
+
 `Switch`, `CheckboxInput`, `UISwitch`, and `MaterialSwitch` now use Astryx's prop names. `checked` is now `value`, `defaultChecked` is now `defaultValue`, and `onCheckedChange` is now `onChange`. On `CheckboxInput`, the `indeterminate` flag is folded into `value`: pass `value="indeterminate"` instead of `indeterminate`.
 
 ```tsx
