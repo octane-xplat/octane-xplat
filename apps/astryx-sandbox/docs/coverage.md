@@ -31,7 +31,8 @@ is a client-routed SPA — adaptation recorded.
 
 | Upstream API | Xplat equivalent | Disposition |
 | --- | --- | --- |
-| `Theme`/`defineTheme`/`useTheme` + 6 theme packages | none — `useThemePreference`/`setThemePreference` covers light/dark only | **finding** (unit 2): theme menu lists all six; non-Neutral marked `— pending` (disabled) |
+| `Theme`/`defineTheme`/`useTheme` + 6 theme packages | `Theme`/`defineTheme`/`useTheme`/`useThemeName`/`registerTheme`/`resolveThemeTokens`/`generateThemeCss` in `@octane-xplat/ui` (new public API); 7 theme packages ported under `src/themes/` from `@astryxdesign/theme-*@0.6.4` built CSS | **ported** — all six root themes selectable; light/dark, nested scopes, persistence, embed-query precedence work |
+| `localStorage` theme/mode + `?embed/theme/mode` | `persist.web.ts` leaf + `Theme` root scope | same keys (`astryx-sandbox-theme/mode`); embed beats storage and skips writes |
 | `LayerProvider` root | internal layer stack exists; no public provider | finding (unit 4): no public surface needed by unit-1 screens |
 | `LinkProvider component={SandboxLink}` + `useLinkComponent` | none — `as` prop slots on nav items; app-level `SandboxLink` calls `router.navigateUrl` | finding (unit 3): app `shell/SandboxLink.web.tsrx` replicates the injection point; components keep the `as` seam |
 | `Layout`, `LayoutHeader`, `LayoutContent` | none | composed as `shell/PageLayout.tsrx` (recorded gap) |
@@ -48,9 +49,12 @@ is a client-routed SPA — adaptation recorded.
 
 ## Framework findings carried forward (unit-1 evidence)
 
-- `F-1` Multi-DefinedTheme runtime (`Theme`/`defineTheme`/`useTheme`/nested)
-  — exercised by `providers.tsx` + Theme templates; Xplat has light/dark
-  scheme only. Owner: unit 2. Nav menu ships disabled pending items.
+- `F-1` Multi-DefinedTheme runtime — **resolved in unit 2** by the public
+  `Theme`/`defineTheme`/`useTheme`/`generateThemeCss` API in
+  `packages/ui/src/theme/`: web emits `light-dark()` scope rules keyed on
+  `.xds-theme-<name>` + `color-scheme`; native emits class-split rules via
+  `Application.addCss` (UNVERIFIED on actual hosts). Root scope mirrors to
+  `<html data-xds-theme>` + `themeSchemeClasses()` so overlay hosts restamp.
 - `F-2` `LinkProvider`/`useLinkComponent` link injection — exercised by
   `RouteView`, `polymorphic-link`, `LinkProviderCustomLink` template.
   App-level `SandboxLink` is the interim seam. Owner: unit 3.
@@ -77,8 +81,12 @@ is a client-routed SPA — adaptation recorded.
 
 - Preview chrome (`PreviewShell`: TreeList nav, ⌘K palette, source view,
   copy) is not implemented; template routes use an interim frame. Unit 3.
-- Six-theme selection is visible but non-Neutral themes are disabled;
-  upstream `MediaTheme`/palette preview screens pending.
+- `MediaTheme`, syntax themes, color-studio/palette-generator/mobile-spacing,
+  theme-family pages remain pending (later units). The palette preview's
+  audit drawer + pending-override editor are recorded adaptations (upstream
+  dev tooling); tonal snap markers omitted with them. SVG `<rect>` chart in
+  useThemeHookUsage re-authored as token-painted divs (renderer has no SVG
+  intrinsics). Native `Theme` scope is a real layout box (no display:contents).
 - iOS/Android/macOS/Linux/Windows hosts not yet scaffolded; web only.
 - `mobile-prototypes` relies on app-owned primitives upstream — port later
   must not claim it proves core components.

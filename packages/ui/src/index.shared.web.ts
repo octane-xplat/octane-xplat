@@ -618,6 +618,32 @@ export type { ThemePreference, ThemeScheme } from './theme/theme-scheme'
 export { themeSchemeClasses, applyThemeClasses } from './theme/theme-host'
 export type { ThemeClassHost } from './theme/theme-host'
 
+/** Astryx-style named themes: `defineTheme` builds a flat token map, `Theme`
+ *  stamps it on a subtree (nestable, mode-aware), `useTheme` reads resolved
+ *  token values for non-CSS consumers. */
+export { Theme } from './theme/Theme'
+export type { ThemeProps } from './theme/Theme'
+export {
+	defineTheme,
+	isDefinedTheme,
+	registerTheme,
+	getRegisteredTheme,
+	getRegisteredThemes,
+	resolveThemeToken,
+	resolveThemeTokens,
+	defaultThemeTokens,
+} from './theme/defined-theme'
+export { generateThemeCss } from './theme/theme-css'
+export type {
+	DefineThemeInput,
+	DefinedTheme,
+	TokenValue,
+	ThemeMode,
+	ResolveThemeTokensOptions,
+} from './theme/defined-theme'
+export { useTheme, useThemeName } from './theme/use-theme'
+export type { UseThemeReturn } from './theme/use-theme'
+
 export { useColorScheme, getColorScheme } from './theme/colorScheme.web'
 export type { ColorScheme } from './theme/colorScheme.web'
 export { styled } from './styled'

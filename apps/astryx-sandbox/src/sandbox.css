@@ -169,3 +169,35 @@ body {
 .sb-family-heading {
 	margin-top: 32px;
 }
+
+/* Theme palette preview sections — upstream ThemePalettePreview's bespoke
+ * surfaces rendered through the themed token vars. */
+.sb-pp-section { display: block; }
+.sb-pp-badge {
+	display: inline-flex;
+	align-items: center;
+	padding: 2px 8px;
+	border-radius: var(--radius-full, 9999px);
+	font-size: 11px;
+	font-weight: 600;
+}
+.sb-pp-badge--accent { background: var(--color-accent-muted); color: var(--color-text-accent); }
+.sb-pp-badge--success { background: var(--color-success-muted); color: var(--color-success); }
+.sb-pp-badge--warning { background: var(--color-warning-muted); color: var(--color-warning); }
+.sb-pp-badge--error { background: var(--color-error-muted); color: var(--color-error); }
+.sb-pp-badge--neutral { background: var(--color-neutral); color: var(--color-text-secondary); }
+.sb-pp-cat--red { background: var(--color-background-red); color: var(--color-text-red); }
+.sb-pp-cat--orange { background: var(--color-background-orange); color: var(--color-text-orange); }
+.sb-pp-cat--yellow { background: var(--color-background-yellow); color: var(--color-text-yellow); }
+.sb-pp-cat--green { background: var(--color-background-green); color: var(--color-text-green); }
+.sb-pp-cat--teal { background: var(--color-background-teal); color: var(--color-text-teal); }
+.sb-pp-cat--cyan { background: var(--color-background-cyan); color: var(--color-text-cyan); }
+.sb-pp-cat--blue { background: var(--color-background-blue); color: var(--color-text-blue); }
+.sb-pp-cat--purple { background: var(--color-background-purple); color: var(--color-text-purple); }
+.sb-pp-cat--pink { background: var(--color-background-pink); color: var(--color-text-pink); }
+.sb-pp-cat--gray { background: var(--color-background-gray); color: var(--color-text-gray); }
+.sb-pp-banner { border-radius: 8px; padding: 10px 12px; }
+.sb-pp-banner--info { background: var(--color-accent-muted); }
+.sb-pp-banner--success { background: var(--color-success-muted); }
+.sb-pp-banner--warning { background: var(--color-warning-muted); }
+.sb-pp-banner--error { background: var(--color-error-muted); }

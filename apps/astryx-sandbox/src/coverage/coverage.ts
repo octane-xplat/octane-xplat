@@ -13,6 +13,7 @@
 
 import { pinnedRoutes, pinnedStats, pinnedRevision, type PinnedRoute } from './pinned'
 import { portedExamples } from '../examples/registry'
+import { portedPages } from '../pages/registry'
 
 export { pinnedRoutes, pinnedStats, pinnedRevision }
 export type { PinnedRoute }
@@ -30,7 +31,7 @@ export function statusOf(row: PinnedRoute): CoverageStatus {
 	if ((row.kind === 'template-block' || row.kind === 'template-page') && row.name && portedExamples.has(row.name)) {
 		return 'ported'
 	}
-	if (portedFixedRoutes.has(row.route)) {
+	if (portedFixedRoutes.has(row.route) || portedPages.has(row.route)) {
 		return 'ported'
 	}
 	return 'pending'

@@ -46,9 +46,8 @@ function SandboxHeader() @{
 								onValueChange: (v) => setThemeName(v as typeof themeName),
 								items: SANDBOX_THEMES.map((t) => ({
 									key: t.id,
-									label: t.available ? t.label : `${t.label} — pending`,
+									label: t.label,
 									value: t.id,
-									isDisabled: !t.available,
 								})),
 							},
 						]}

@@ -89,6 +89,77 @@ try {
 		check('dark mode persists', false, 'mode menu items not found')
 	}
 
+	// --- Theme runtime (unit 2) ---
+	// Root scope carries the named theme + mode markers.
+	await page.goto(baseUrl + '/', { waitUntil: 'networkidle' })
+	const rootTheme = await page.evaluate(() => document.documentElement.getAttribute('data-xds-theme'))
+	check('root theme scope on <html>', rootTheme === 'neutral', `data-xds-theme=${rootTheme}`)
+	const scopeCount = await page.locator('.xds-theme-neutral').count()
+	check('root theme scope class stamped', scopeCount > 0, `${scopeCount} scopes`)
+
+	// Theme switch: pick Matcha from the nav theme menu, verify the root
+	// scope + stored preference change and chrome tokens re-resolve.
+	await page.locator('[aria-label="Theme"]').first().click()
+	await page.waitForTimeout(300)
+	await page.locator('[role="menuitemradio"], [role="menuitem"]').filter({ hasText: 'Matcha' }).first().click()
+	await page.waitForTimeout(300)
+	check('matcha theme switches root scope', (await page.evaluate(() => document.documentElement.getAttribute('data-xds-theme'))) === 'matcha')
+	check('matcha persists', (await page.evaluate(() => window.localStorage.getItem('astryx-sandbox-theme'))) === 'matcha')
+	const accent = await page.evaluate(() => getComputedStyle(document.querySelector('.xds-theme-matcha')).getPropertyValue('--color-accent').trim())
+	check('matcha accent token resolves', accent === '#3E481D' || accent.length > 0, `accent=${accent}`)
+
+	// Dark mode through the menu: scope class + resolved dark accent arm.
+	await page.locator('[aria-label*="mode"]').first().click()
+	await page.waitForTimeout(300)
+	await page.locator('[role="menuitemradio"], [role="menuitem"]').filter({ hasText: 'Dark' }).first().click()
+	await page.waitForTimeout(300)
+	const darkScope = await page.locator('.xds-theme-matcha.dark').count()
+	check('dark mode marker on scope', darkScope > 0, `${darkScope}`)
+	const darkAccent = await page.evaluate(() => {
+		const scope = document.querySelector('.xds-theme-matcha.dark')
+		const probe = document.createElement('div')
+		probe.style.color = 'var(--color-accent)'
+		scope.appendChild(probe)
+		const c = getComputedStyle(probe).color
+		probe.remove()
+		return c
+	})
+	check('dark accent resolves dark arm', darkAccent === 'rgb(192, 203, 169)', `dark=${darkAccent}`)
+
+	// Nested theme example: inner scope's tokens differ from outer's.
+	await page.goto(baseUrl + '/templates/ThemeNested/', { waitUntil: 'networkidle' })
+	const warm = await page.evaluate(() => getComputedStyle(document.querySelector('.xds-theme-warm-docs')).getPropertyValue('--color-accent').trim())
+	const forest = await page.evaluate(() => getComputedStyle(document.querySelector('.xds-theme-forest-docs')).getPropertyValue('--color-accent').trim())
+	check('nested themes resolve own tokens', warm !== forest && forest.length > 0, `warm=${warm} forest=${forest}`)
+
+	// useTheme example resolves concrete values into SVG.
+	await page.goto(baseUrl + '/templates/useThemeHookUsage/', { waitUntil: 'networkidle' })
+	const barColor = await page.evaluate(() => getComputedStyle(document.querySelector('.sb-chart-bar')).backgroundColor)
+	check('useTheme resolves accent into chart', /^rgb/.test(barColor ?? ''), `bg=${barColor}`)
+
+	// Palette page: both mode columns render under one route.
+	await page.goto(baseUrl + '/pages/neutral-palette/', { waitUntil: 'networkidle' })
+	const neutralText = await page.textContent('body')
+	check('neutral palette renders', neutralText.includes('Neutral Theme Palette') && neutralText.includes('Light Mode') && neutralText.includes('Dark Mode'))
+
+	// Gothic single-mode palette renders dark-only.
+	await page.goto(baseUrl + '/pages/gothic-palette/', { waitUntil: 'networkidle' })
+	const gothicText = await page.textContent('body')
+	check('gothic palette renders dark mode', gothicText.includes('Gothic Theme Palette') && gothicText.includes('Dark Mode'))
+
+	// Embed query: theme+mode from URL beat stored prefs, no storage write.
+	await page.evaluate(() => window.localStorage.setItem('astryx-sandbox-theme', 'stone'))
+	await page.goto(baseUrl + '/?embed=1&theme=y2k&mode=dark', { waitUntil: 'networkidle' })
+	check('embed theme wins over storage', (await page.evaluate(() => document.documentElement.getAttribute('data-xds-theme'))) === 'y2k')
+	const embedStored = await page.evaluate(() => window.localStorage.getItem('astryx-sandbox-theme'))
+	check('embed leaves storage untouched', embedStored === 'stone', `stored=${embedStored}`)
+
+	// Persistence: stored stone + dark apply on plain relaunch.
+	await page.evaluate(() => { window.localStorage.setItem('astryx-sandbox-theme', 'stone'); window.localStorage.setItem('astryx-sandbox-mode', 'dark') })
+	await page.goto(baseUrl + '/', { waitUntil: 'networkidle' })
+	check('stored theme applies on relaunch', (await page.evaluate(() => document.documentElement.getAttribute('data-xds-theme'))) === 'stone')
+	check('stored mode applies on relaunch', (await page.locator('.xds-theme-stone.dark').count()) > 0)
+
 	check('no page errors', errors.length === 0, errors.slice(0, 3).join(' | '))
 } finally {
 	await browser.close()

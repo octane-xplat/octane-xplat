@@ -17,6 +17,11 @@ import { TextTruncation } from './text/TextTruncation'
 import { TextWeight } from './text/TextWeight'
 import { TextWordBreak } from './text/TextWordBreak'
 import { TextWrap } from './text/TextWrap'
+import { ThemeApply } from './theme/ThemeApply'
+import { ThemeNested } from './theme/ThemeNested'
+import { ThemeShowcase } from './theme/ThemeShowcase'
+import { ThemeSwitcher } from './theme/ThemeSwitcher'
+import { UseThemeHookUsage } from './theme/useThemeHookUsage'
 
 const examples: Record<string, () => any> = {
 	ButtonShowcase,
@@ -34,6 +39,11 @@ const examples: Record<string, () => any> = {
 	TextWeight,
 	TextWordBreak,
 	TextWrap,
+	ThemeApply,
+	ThemeNested,
+	ThemeShowcase,
+	ThemeSwitcher,
+	'useThemeHookUsage': UseThemeHookUsage,
 }
 
 export const portedExamples = new Set(Object.keys(examples))

@@ -4,6 +4,7 @@
 
 import { View } from '@octane-xplat/ui'
 import { routeRow } from '../coverage/coverage'
+import { pageFor } from '../pages/registry'
 import { PendingScreen } from '../shell/PendingScreen'
 import { SandboxShell } from '../shell/SandboxShell'
 import { PageLayout } from '../shell/PageLayout'
@@ -17,8 +18,11 @@ export function PageScreen(props: { params: { rest?: string } }) @{
 		return <NotFoundScreen title="Not Found" message={`“${route}” is not part of the pinned sandbox route table.`} />
 	}
 
+	const page = pageFor(route)
+
 	if (row.group !== 'sandbox') {
 		// (fullscreen) and (raw) routes render unframed upstream.
+		if (page) return page
 		return (
 			<View className="sb-template-frame">
 				<PendingScreen row={row} />
@@ -29,7 +33,7 @@ export function PageScreen(props: { params: { rest?: string } }) @{
 	return (
 		<SandboxShell>
 			<PageLayout title={row.doc?.displayName ?? 'Sandbox page'}>
-				<PendingScreen row={row} />
+				{page ?? <PendingScreen row={row} />}
 			</PageLayout>
 		</SandboxShell>
 	)

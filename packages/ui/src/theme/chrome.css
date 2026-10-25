@@ -1,7 +1,11 @@
 /* Optional default component chrome. Import after tokens.css; unlayered app CSS overrides both layers on web. */
 @layer xplat-chrome {
 	:root,
-	.ns-root {
+	.ns-root,
+	/* Explicit-light theme scope: a `Theme mode="light"` subtree inside a
+	   dark root re-pins the light defaults — its own declarations beat the
+	   .dark values it would otherwise inherit. */
+	.xds-light {
 		/* Astryx default theme (core 0.7.1 tokens, light half of each
 	   light-dark pair). Semantic mapping: primary=accent, onprimary=on-accent,
 	   surface=background-surface, surface-secondary=neutral (secondary
