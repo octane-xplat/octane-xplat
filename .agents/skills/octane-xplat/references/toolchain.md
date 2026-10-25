@@ -107,7 +107,9 @@ formats; see the [checker boundary](../../../../packages/tsrx-typegen/README.md#
 ## Linked native source packages
 
 Keep the canonical NativeScript Vite patch set when developing against source
-packages that also expose compiled tooling subpaths. The vendor collector must
+packages that also expose compiled tooling subpaths. Both 8.0.20 and 8.0.21
+need the collector repair; a patch for one version does not cover the other.
+The vendor collector must
 classify the requested entry under the native bundler's conditions; a compiled
 sibling export does not make the source root vendorable. Keep those roots in
 the framework transform pipeline. See the

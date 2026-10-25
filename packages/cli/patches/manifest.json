@@ -59,8 +59,8 @@
 			"specifier": "@nativescript/vite@8.0.21",
 			"file": "@nativescript__vite@8.0.21.patch",
 			"scope": "dev",
-			"why": "Windows preview abae298 from NativeScript#11272 uses Vite 8.0.21. Retains /ns/m re-export records, outside-root /@fs routing through the device transform, and .mobile-aware tsconfig-paths probing. Vendor-manifest gating and percent-decoded module paths are now upstream and no longer patched.",
-			"dropWhen": "windows moves off the preview pin \u2014 the real fix lands upstream with the windows platform merge (NativeScript#11272/#11468)",
+			"why": "Windows preview abae298 from NativeScript#11272 uses Vite 8.0.21. Retains /ns/m re-export records, outside-root /@fs routing through the device transform, and .mobile-aware tsconfig-paths probing. Vendor-manifest gating and percent-decoded module paths are now upstream and no longer patched. Carries the 8.0.20 vendor collector repair for Android linked-source consumers (#51): classify the selected native export, excluding source roots even when sibling exports are compiled and preserving compiled subpaths and native plugins.",
+			"dropWhen": "windows moves off the preview pin — the real fix lands upstream with the windows platform merge (NativeScript#11272/#11468); retain the vendor collector repair until an adopted upstream release classifies the requested export under the native bundler conditions.",
 			"template": false
 		},
 		{

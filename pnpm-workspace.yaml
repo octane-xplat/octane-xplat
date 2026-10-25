@@ -252,7 +252,10 @@ patchedDependencies:
   # Windows preview abae298 from NativeScript#11272 uses Vite 8.0.21. Retains /ns/m
   # re-export records, outside-root /@fs routing through the device transform, and
   # .mobile-aware tsconfig-paths probing. Vendor-manifest gating and percent-decoded module
-  # paths are now upstream and no longer patched.
+  # paths are now upstream and no longer patched. Carries the 8.0.20 vendor collector repair
+  # for Android linked-source consumers (#51): classify the selected native export,
+  # excluding source roots even when sibling exports are compiled and preserving compiled
+  # subpaths and native plugins.
   "@nativescript/vite@8.0.21": packages/cli/patches/@nativescript__vite@8.0.21.patch
   # Windows preview abae298 from NativeScript#11272 retains CSS @layer cascade machinery and
   # explicit-size flex alignment, Windows pointer subscription and hover ownership,

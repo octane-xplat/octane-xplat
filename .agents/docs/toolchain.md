@@ -128,7 +128,7 @@ experience of agents writing Octane-xplat code effectively.
   { "exports": { "./feature": "./dist/feature.js" } }
   ```
 - **Mixed exports need the canonical collector patch on NativeScript Vite
-  8.0.20.** Its source-only check flattens every export, so a compiled
+  8.0.20 and 8.0.21.** Their source-only check flattens every export, so a compiled
   `./parity` subpath incorrectly makes a TypeScript root vendorable. In a
   linked consumer, Android's actual dev vendor build failed with 160 esbuild
   resolution errors for extensionless `.tsrx` and `.mobile.ts` leaves. This
@@ -150,7 +150,7 @@ experience of agents writing Octane-xplat code effectively.
   esbuild loaders or another runtime realm.
 
   The [upstream source repair and tests](../patches/native-vendor-entry-source.patch)
-  are retained locally against NativeScript Vite 8.0.20; no follow-up PR has
+  are retained locally against NativeScript Vite 8.0.20 and 8.0.21; no follow-up PR has
   been submitted from this task. The installed-patch regressions live in
   `packages/cli/test/vite-vendor-exclude.test.mjs`, including the Android dev
   vendor build hook. Remove this hunk when an adopted upstream release
@@ -158,6 +158,14 @@ experience of agents writing Octane-xplat code effectively.
   The patched Android dev vendor hook and first-boot deps bundle (188 modules)
   pass against the linked consumer; the unpatched vendor hook reproduces the
   160 errors. These host checks do not establish device startup.
+
+  [Issue #51](https://github.com/octane-xplat/octane-xplat/issues/51) used
+  8.0.21, whose separate patch initially omitted the collector repair from
+  8.0.20. Both canonical patches now carry it. The maintained regression runs
+  against both installed versions and builds Android's vendor payload with a
+  semver dependency symlinked to an external checkout containing extensionless
+  `.tsrx`/`.mobile.ts` imports, without `NS_VENDOR_EXCLUDE`. This repairs the
+  vendor pass; it does not qualify HMR delivery or device startup on 8.0.21.
 
 - NativeScript Vite 8.0.20's dev link check rejects valid named-to-default
   exports and can mistake comments or strings for exports

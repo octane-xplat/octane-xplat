@@ -130,3 +130,213 @@ index 6004d307b..9798d184b 100644
              .map((node) => ({
              start: node.start,
              end: node.end,
+diff --git a/hmr/shared/vendor/manifest-collect.js b/hmr/shared/vendor/manifest-collect.js
+index d35132291253572e7b13e270033621d13a0887ed..0e922b515ef130397536f1bb7841340d632a9efb 100644
+--- a/hmr/shared/vendor/manifest-collect.js
++++ b/hmr/shared/vendor/manifest-collect.js
+@@ -529,7 +529,7 @@ export function collectVendorModules(projectRoot, platform, flavor) {
+                 if (!deps)
+                     return;
+                 for (const [name, spec] of Object.entries(deps)) {
+-                    if (isUnvendorableLocalSource(name, spec, projectRequire, platform))
++                    if (typeof spec === 'string' && (spec.startsWith('link:') || spec.startsWith('workspace:')))
+                         continue;
+                     // Policy exclusions match PACKAGE NAMES (`@prisma/client` in
+                     // ALWAYS_EXCLUDE / NS_VENDOR_EXCLUDE); check here so subpath specs
+@@ -555,7 +555,8 @@ export function collectVendorModules(projectRoot, platform, flavor) {
+                                 console.log(`[vendor] skipping root dependency ${name} (no resolvable bare entry)`);
+                             continue;
+                         }
+-                        addCandidate(name);
++                        if (!isUnvendorableLocalSource(name, spec, projectRequire, platform))
++                            addCandidate(name);
+                         continue;
+                     }
+                     // Subpath-only evidence: the app never imports the package ROOT, and
+@@ -575,7 +576,8 @@ export function collectVendorModules(projectRoot, platform, flavor) {
+                         }
+                         if (debug)
+                             console.log(`[vendor] vendoring subpath ${subpath} (root ${name} has subpath-only evidence)`);
+-                        addCandidate(subpath);
++                        if (!isUnvendorableLocalSource(subpath, spec, projectRequire, platform))
++                            addCandidate(subpath);
+                     }
+                 }
+             };
+@@ -644,7 +646,7 @@ export function collectVendorModules(projectRoot, platform, flavor) {
+         }
+         const peerDependencies = Object.keys(dependencyPkg.peerDependencies ?? {});
+         for (const peer of peerDependencies) {
+-            if (shouldSkipDependency(peer) || localSourceNames.has(peer)) {
++            if (shouldSkipDependency(peer) || localSourceNames.has(peer) || classifyPackageEntry(peer, projectRequire, platform) === 'source') {
+                 continue;
+             }
+             if (projectDeps.dependencies.has(peer) || projectDeps.optional.has(peer) || projectDeps.dev.has(peer)) {
+@@ -803,6 +805,48 @@ function isUnvendorableLocalSource(name, spec, projectRequire, platform) {
+         return true;
+     return false;
+ }
++// These are the explicit conditions used by manifest.ts and deps-bundle.ts.
++// Object insertion order, rather than the order of this set, selects a branch.
++const VENDOR_ENTRY_CONDITIONS = new Set(['module', 'react-native', 'import', 'browser', 'default']);
++function selectVendorExport(exports, subpath) {
++    const selectCondition = (node) => {
++        if (node === null || typeof node === 'string')
++            return node;
++        if (Array.isArray(node)) {
++            for (const item of node) {
++                const selected = selectCondition(item);
++                if (selected !== undefined)
++                    return selected;
++            }
++        }
++        else if (node && typeof node === 'object') {
++            for (const [condition, value] of Object.entries(node)) {
++                if (!VENDOR_ENTRY_CONDITIONS.has(condition))
++                    continue;
++                const selected = selectCondition(value);
++                if (selected !== undefined)
++                    return selected;
++            }
++        }
++        return undefined;
++    };
++    if (exports && typeof exports === 'object' && !Array.isArray(exports) && Object.keys(exports).some((key) => key.startsWith('.'))) {
++        const paths = exports;
++        if (Object.hasOwn(paths, subpath))
++            return selectCondition(paths[subpath]);
++        // Exact matches win; patterns prefer the longest prefix then suffix.
++        const patterns = Object.keys(paths).filter((key) => key.includes('*')).sort((a, b) => b.indexOf('*') - a.indexOf('*') || b.length - a.length);
++        for (const pattern of patterns) {
++            const [prefix, suffix] = pattern.split('*');
++            if (!subpath.startsWith(prefix) || !subpath.endsWith(suffix) || subpath.length < prefix.length + suffix.length)
++                continue;
++            const selected = selectCondition(paths[pattern]);
++            return typeof selected === 'string' ? selected.replaceAll('*', subpath.slice(prefix.length, subpath.length - suffix.length)) : selected;
++        }
++        return undefined;
++    }
++    return subpath === '.' ? selectCondition(exports) : undefined;
++}
+ /**
+  * Classify an installed package's entry point:
+  *  - `'compiled'` — a `.js`/`.mjs`/`.cjs` entry file (or its platform
+@@ -815,16 +859,20 @@ function isUnvendorableLocalSource(name, spec, projectRequire, platform) {
+  *    its subpaths may still be vendored as monorepo root deps.
+  */
+ function classifyPackageEntry(name, projectRequire, platform) {
++    const packageName = bareSpecifierToPackageName(name);
++    if (!packageName)
++        return 'unknown';
++    const subpath = name === packageName ? '.' : `.${name.slice(packageName.length)}`;
+     let pkgJsonPath = null;
+     try {
+-        pkgJsonPath = projectRequire.resolve(`${name}/package.json`);
++        pkgJsonPath = projectRequire.resolve(`${packageName}/package.json`);
+     }
+     catch {
+         // `exports` maps that omit `./package.json` refuse the subpath
+         // resolve — fall back to a direct path probe over the require
+         // resolution dirs.
+-        for (const dir of projectRequire.resolve.paths(name) ?? []) {
+-            const candidate = path.join(dir, name, 'package.json');
++        for (const dir of projectRequire.resolve.paths(packageName) ?? []) {
++            const candidate = path.join(dir, packageName, 'package.json');
+             if (fs.existsSync(candidate)) {
+                 pkgJsonPath = candidate;
+                 break;
+@@ -846,35 +894,23 @@ function classifyPackageEntry(name, projectRequire, platform) {
+         if (typeof value === 'string' && value)
+             candidates.push(value);
+     };
+-    pushCandidate(pkg.module);
+-    pushCandidate(pkg.main);
+-    // Recursively flatten conditional `exports` maps to surface concrete
+-    // file paths. We only need `string` leaves; anything else (function-
+-    // based exports, etc.) doesn't apply to esbuild's resolution.
+-    const visitExports = (node) => {
+-        if (!node)
+-            return;
+-        if (typeof node === 'string') {
+-            pushCandidate(node);
+-            return;
+-        }
+-        if (Array.isArray(node)) {
+-            for (const item of node)
+-                visitExports(item);
+-            return;
+-        }
+-        if (typeof node === 'object') {
+-            for (const value of Object.values(node))
+-                visitExports(value);
+-        }
+-    };
+-    visitExports(pkg.exports);
+-    if (candidates.length === 0) {
+-        // node's default lookup falls back to `index.js`.
+-        candidates.push('index');
++    if (pkg.exports != null) {
++        // Match the specifier and the conditions of the native ESM vendor build.
++        // An unrelated subpath, inactive branch, or legacy main is not evidence
++        // about the entry esbuild will actually load. Keep exports encapsulation.
++        pushCandidate(selectVendorExport(pkg.exports, subpath));
++    }
++    else if (subpath !== '.') {
++        pushCandidate(subpath);
++    }
++    else {
++        pushCandidate(pkg.module);
++        pushCandidate(typeof pkg.browser === 'string' ? pkg.browser : undefined);
++        pushCandidate(pkg.main);
++        if (candidates.length === 0)
++            candidates.push('index');
+     }
+     const extensionsToTry = compiledJsExtensionsForPlatform(platform);
+-    let sourceEntryFound = false;
+     for (const cand of candidates) {
+         const abs = path.resolve(pkgDir, cand);
+         const ext = path.extname(cand);
+@@ -894,25 +930,26 @@ function classifyPackageEntry(name, projectRequire, platform) {
+             continue;
+         }
+         if (!ext) {
+-            // Extensionless main — try plain JS variants AND the
+-            // platform-specific variants NativeScript plugins commonly use
+-            // (`index.ios.js`, `index.android.js`, `index.visionos.js`), as
+-            // both a file (`<abs>.js`) and a directory (`<abs>/index.js`).
+-            for (const e of extensionsToTry) {
+-                if (fs.existsSync(abs + e) || fs.existsSync(path.join(abs, `index${e}`)))
+-                    return 'compiled';
++            // Match the vendor bundler's file-before-directory lookup and extension
++            // order. Only the active platform is eligible; a foreign JS leaf must
++            // not hide the source entry that this platform will actually load.
++            const suffixes = platform === 'android' ? ['android'] : platform === 'visionos' ? ['visionos', 'ios'] : ['ios', 'visionos'];
++            const extensions = ['.tsx', '.jsx', '.ts', '.js', '.mjs', '.cjs', '.json', ...suffixes.flatMap((suffix) => ['.tsx', '.jsx', '.ts', '.js'].map((e) => `.${suffix}${e}`)), '.tsrx', '.mts', '.cts'];
++            for (const base of [abs, path.join(abs, 'index')]) {
++                for (const extension of extensions) {
++                    if (fs.existsSync(base + extension))
++                        return COMPILED_JS_ENTRY_REGEX.test(extension) ? 'compiled' : 'source';
++                }
+             }
+-            if (['.ts', '.tsx', '.mts', '.cts'].some((e) => fs.existsSync(abs + e) || fs.existsSync(path.join(abs, `index${e}`))))
+-                sourceEntryFound = true;
+             continue;
+         }
+         // A non-JS extension (typically `.ts`/`.tsx`) means the package
+         // only ships TS source — esbuild's vendor pipeline can't resolve
+         // any tsconfig-aliased imports inside it.
+         if (fs.existsSync(abs))
+-            sourceEntryFound = true;
++            return 'source';
+     }
+-    return sourceEntryFound ? 'source' : 'unknown';
++    return 'unknown';
+ }
+ function canResolveDependencyPackageJson(specifier, projectRequire) {
+     try {
+@@ -944,4 +981,3 @@ function parseEnvList(value) {
+         .map((token) => token.trim())
+         .filter(Boolean);
+ }
+\ No newline at end of file
+-//# sourceMappingURL=manifest-collect.js.map
