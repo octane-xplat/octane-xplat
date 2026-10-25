@@ -204,6 +204,78 @@ test('invoke → poll → result → outcome, with request-id dedupe', async (t)
 	assert.equal((await call('GET', '/invoke/req_missing')).status, 404)
 })
 
+test('registry reads do not renew a lease; announcements renew it without a revision change', async (t) => {
+	t.mock.timers.enable({ apis: ['Date'], now: 100_000 })
+	const { call } = await makeBridge(t)
+	await announce(call, { announcedAt: '2099-01-01T00:00:00.000Z' })
+	t.mock.timers.setTime(114_999)
+	assert.equal((await (await call('GET', '/registry')).json()).instances.length, 1)
+	await announce(call)
+	t.mock.timers.setTime(129_998)
+	const renewed = await (await call('GET', '/registry')).json()
+	assert.equal(renewed.instances[0].revision, 1)
+	t.mock.timers.setTime(129_999)
+	assert.deepEqual((await (await call('GET', '/registry')).json()).instances, [])
+	assert.equal((await call('GET', '/poll?instance=inst_a')).status, 404)
+	assert.equal(
+		(
+			await call('POST', '/invoke', {
+				requestId: 'expired',
+				appInstanceId: 'inst_a',
+				actionId: 'a.b',
+			})
+		).status,
+		404,
+	)
+})
+
+test('expiry wakes outcome waiters and never replays queued or delivered work after reannouncement', async (t) => {
+	t.mock.timers.enable({ apis: ['Date'], now: 100_000 })
+	const { call, server } = await makeBridge(t)
+	for (const appInstanceId of ['pending', 'delivered']) {
+		await announce(call, { appInstanceId })
+		await call('POST', '/invoke', { requestId: appInstanceId, appInstanceId, actionId: 'a.b' })
+	}
+	assert.equal((await (await call('GET', '/poll?instance=delivered')).json()).invocations.length, 1)
+	const waiting = new Promise((resolve) => server.once('request', resolve))
+	const outcomeWait = call('GET', '/invoke/delivered?wait=5000').then((r) => r.json())
+	await waiting
+	t.mock.timers.setTime(115_000)
+	assert.deepEqual((await (await call('GET', '/registry')).json()).instances, [])
+	const delivered = await outcomeWait
+	assert.equal(delivered.state, 'completed')
+	assert.equal(delivered.outcome.status, 'unknown')
+	assert.equal(delivered.outcome.error.code, 'disconnected_runtime')
+	assert.equal(delivered.outcome.partialEffects.length, 1)
+	const pending = await (await call('GET', '/invoke/pending')).json()
+	assert.deepEqual(pending.outcome.partialEffects, [])
+	for (const appInstanceId of ['pending', 'delivered']) {
+		await announce(call, { appInstanceId })
+		const work = await (await call('GET', `/poll?instance=${appInstanceId}`)).json()
+		assert.deepEqual(work.invocations, [])
+	}
+	await call('POST', '/result', { requestId: 'delivered', outcome: { status: 'succeeded' } })
+	assert.equal((await (await call('GET', '/invoke/delivered')).json()).outcome.status, 'unknown')
+})
+
+test(
+	'the lease timer wakes an in-flight outcome wait without another registry read',
+	{ timeout: 25_000 },
+	async (t) => {
+		const { call } = await makeBridge(t)
+		await announce(call)
+		await call('POST', '/invoke', {
+			requestId: 'stopped',
+			appInstanceId: 'inst_a',
+			actionId: 'a.b',
+		})
+		await call('GET', '/poll?instance=inst_a')
+		const outcome = await (await call('GET', '/invoke/stopped?wait=20000')).json()
+		assert.equal(outcome.state, 'completed')
+		assert.equal(outcome.outcome.error.code, 'disconnected_runtime')
+	},
+)
+
 test('cancel flags reach the app through the poll response', async (t) => {
 	const { call } = await makeBridge(t)
 	await announce(call)
@@ -246,7 +318,12 @@ test('the app-side long poll wakes as soon as work is queued', async (t) => {
 test('NativeScript /ns/m/ frames resolve by line text through device code', async (t) => {
 	// Per-line identity map: generated line N -> source line N.
 	const lines = 15
-	const map = { version: 3, sources: ['index.ts'], names: [], mappings: ['AAAA', ...Array(lines - 1).fill('AACA')].join(';') }
+	const map = {
+		version: 3,
+		sources: ['index.ts'],
+		names: [],
+		mappings: ['AAAA', ...Array(lines - 1).fill('AACA')].join(';'),
+	}
 
 	// Vite transform: tabs, no prelude.
 	const transformed = [
@@ -397,7 +474,12 @@ test('NativeScript /ns/m/ paths for workspace packages anchor at the workspace r
 	})
 
 	await announce(bridge.call)
-	await bridge.call('POST', '/invoke', { requestId: 'req_ws', appInstanceId: 'inst_a', actionId: 'a.b', input: {} })
+	await bridge.call('POST', '/invoke', {
+		requestId: 'req_ws',
+		appInstanceId: 'inst_a',
+		actionId: 'a.b',
+		input: {},
+	})
 	const rawStack = 'TypeError: lib\n    at work (http://x.test/ns/m/packages/lib/src/x.ts:3:3)'
 	await bridge.call('POST', '/result', {
 		requestId: 'req_ws',

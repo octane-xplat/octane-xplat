@@ -259,6 +259,80 @@ const jobDone = async (client, jobId, timeoutMs = 10_000) => {
 
 // ---------- listing ----------
 
+test('an expired realm leaves selection and an in-flight job fails as disconnected without retry', async (t) => {
+	t.mock.timers.enable({ apis: ['Date'], now: 100_000 })
+	const root = makeWorkspace()
+	makeConsumerApp(root, '.', { name: 'actions-app' })
+	const bridge = await makeBridge(t, root)
+	const { client } = await connect(root)
+	t.after(() => client.close())
+	const action = actionDeclaration()
+	const announceInstance = (appInstanceId) =>
+		bridge.call('POST', '/registry', {
+			protocol: 'xplat-dev-actions',
+			version: 1,
+			appInstanceId,
+			platform: 'android',
+			revision: 1,
+			announcedAt: '2099-01-01T00:00:00.000Z',
+			actions: [action],
+		})
+	await announceInstance('old')
+	const started = await callTool(client, 'xplat_dev_action_invoke', {
+		appInstanceId: 'old',
+		actionId: action.id,
+		input: {},
+	})
+	assert.equal(started.ok, true)
+	// Let the service submit before the simulated process stops heartbeating.
+	let work
+	for (let attempt = 0; attempt < 100; attempt++) {
+		work = await bridge.call('GET', '/poll?instance=old')
+		if (work.invocations.length) {
+			break
+		}
+
+		await new Promise((resolve) => setTimeout(resolve, 5))
+	}
+	assert.equal(work.invocations.length, 1)
+	const queued = await callTool(client, 'xplat_dev_action_invoke', {
+		appInstanceId: 'old',
+		actionId: action.id,
+		input: {},
+	})
+	assert.equal(queued.ok, true)
+	t.mock.timers.setTime(115_000)
+	await announceInstance('new')
+	const view = await callTool(client, 'xplat_dev_actions')
+	assert.deepEqual(
+		view.data.instances.map((instance) => instance.appInstanceId),
+		['new'],
+	)
+	assert.equal(view.data.disconnected[0].appInstanceId, 'old')
+	const job = await jobDone(client, started.data.job.jobId)
+	assert.equal(job.state, 'failed')
+	assert.equal(job.error.code, 'disconnected_runtime')
+	assert.equal(job.error.context.outcome, 'unknown')
+	const queuedJob = await jobDone(client, queued.data.job.jobId)
+	assert.equal(queuedJob.error.code, 'disconnected_runtime')
+	assert.equal(queuedJob.error.context.outcome, 'not-run')
+	const rejected = await callTool(client, 'xplat_dev_action_invoke', {
+		appInstanceId: 'old',
+		actionId: action.id,
+		input: {},
+	})
+	assert.equal(rejected.error.code, 'disconnected_runtime')
+	const next = await callTool(client, 'xplat_dev_action_invoke', { actionId: action.id, input: {} })
+	assert.equal(next.ok, true)
+	const nextWork = await bridge.call('GET', '/poll?instance=new')
+	assert.equal(nextWork.invocations.length, 1)
+	await bridge.call('POST', '/result', {
+		requestId: nextWork.invocations[0].requestId,
+		outcome: { status: 'succeeded', result: { role: 'admin' } },
+	})
+	assert.equal((await jobDone(client, next.data.job.jobId)).state, 'succeeded')
+})
+
 test('list distinguishes no bridge, no instance, live, and empty registries', async (t) => {
 	const root = makeWorkspace()
 	makeConsumerApp(root, '.', { name: 'actions-app' })

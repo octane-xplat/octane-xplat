@@ -358,13 +358,21 @@ Replace `JOB_ID` with the returned job ID and poll until terminal. Require
 jobs; they do not deduplicate arbitrary later runs. For an uncertain outcome,
 inspect the existing job before submitting another invocation.
 
-Treat the registry as a live view, not a stable snapshot. An app instance that
-just stopped can still announce `ready` briefly before the registry reaps it,
-and the listing can lag that reap — an instance can list as ready while an
-invoke against it already answers `not_found`. Re-announcing bumps `revision`
-too, so an instance and revision pair cached more than a moment goes
-`stale_identity` quickly. Run `actions list` and read the instance and revision
-immediately before each invoke instead of caching them.
+Treat the registry as a live view, not a stable snapshot. Apps announce every
+five seconds by default. After 15 seconds without an announcement, the bridge
+removes that instance from live listings and refuses new work for it. An
+outstanding action then fails with `disconnected_runtime`; its outcome may be
+unknown, so inspect app state before retrying. A stopped or suspended app can
+still appear live during that 15-second window. Run `actions list` immediately
+before invoking, using its instance and revision:
+
+```sh
+pnpm exec xplat actions list --json
+```
+
+An ordinary heartbeat keeps the revision unchanged. Registry changes can make
+a previously selected revision stale; rediscover it when an invocation reports
+`stale_identity`.
 
 A successful action proves its handler completed. Check the resulting screen
 separately. For a supported owned Chromium session, replace `SESSION_ID` with

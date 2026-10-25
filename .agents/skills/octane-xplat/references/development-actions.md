@@ -101,12 +101,13 @@ carries the full rationale and examples.
   auto-starts a recording blocks every idle-gated action behind
   `recording: true` — ship an escape action that is deliberately not gated on
   that state.
-- The registry is a live view, not a snapshot: a just-stopped instance can
-  announce `ready` briefly before the registry reaps it, `actions list` can
-  lag the reap (listed `ready` while invoke returns `not_found`), and
-  re-announces bump `revision`, so cached instance/revision pairs go
-  `stale_identity` quickly. Rediscover the instance and revision before each
-  invoke rather than caching them.
+- The registry is a live view, not a snapshot: after 15 seconds without an
+  announcement, an instance leaves live listings and rejects new work.
+  In-flight jobs fail with `disconnected_runtime` and may have unknown effects;
+  inspect app state before retrying. A stopped or suspended app can still
+  appear live during that lease. Heartbeats preserve the registry revision;
+  declaration changes can make it stale. Rediscover the instance and revision
+  before each invoke.
 
 ## Reaching screen-owned actions
 

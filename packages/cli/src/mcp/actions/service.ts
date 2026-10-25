@@ -338,6 +338,7 @@ export function createDevActionsService({ jobs, policy, endpoints = scanBridgeEn
 			const inapplicable =
 				action.availability?.platforms !== undefined &&
 				!action.availability.platforms.includes(announcement.platform)
+
 			if (inapplicable || !action.availability?.route) {
 				return fail(
 					contractError(
@@ -478,10 +479,15 @@ export function createDevActionsService({ jobs, policy, endpoints = scanBridgeEn
 		})
 
 		if (!submitted.ok) {
+			const expired = submitted.status === 404 && submitted.error?.code === 'not_found'
 			throw contractError(
-				submitted.error?.code === 'unreachable' ? 'disconnected_runtime' : 'execution_failure',
-				`Invocation was not delivered: ${submitted.error?.message ?? 'bridge error'}. Its outcome is unknown — the app may have received it.`,
-				{ context: { outcome: 'unknown', requestId } },
+				expired || submitted.error?.code === 'unreachable'
+					? 'disconnected_runtime'
+					: 'execution_failure',
+				expired
+					? `App instance "${announcement.appInstanceId}" expired before accepting the invocation. The action was not run.`
+					: `Invocation was not delivered: ${submitted.error?.message ?? 'bridge error'}. Its outcome is unknown — the app may have received it.`,
+				{ context: { outcome: expired ? 'not-run' : 'unknown', requestId } },
 			)
 		}
 
@@ -535,6 +541,20 @@ export function createDevActionsService({ jobs, policy, endpoints = scanBridgeEn
 				continue // accepted but unfinished — keep waiting
 			}
 
+			if (outcome.status === 'unknown' && outcome.error?.code === 'disconnected_runtime') {
+				throw contractError(
+					'disconnected_runtime',
+					`App instance "${announcement.appInstanceId}" stopped announcing. The outcome is unknown and was not retried.`,
+					{
+						context: {
+							outcome: 'unknown',
+							requestId,
+							partialEffects: outcome.partialEffects ?? [],
+						},
+					},
+				)
+			}
+
 			if (outcome.status === 'succeeded') {
 				const output = validateActionOutput(action.result, outcome.result)
 				if (!output.ok) {
@@ -563,11 +583,10 @@ export function createDevActionsService({ jobs, policy, endpoints = scanBridgeEn
 							name: entry?.name,
 							message: entry?.message,
 							...(typeof entry?.stack === 'string' ? { stack: entry.stack } : {}),
-							...(typeof entry?.sourceStack === 'string'
-								? { sourceStack: entry.sourceStack }
-								: {}),
+							...(typeof entry?.sourceStack === 'string' ? { sourceStack: entry.sourceStack } : {}),
 						}))
 					: undefined
+
 				throw appError(outcome.error?.code, outcome.error?.message ?? 'action failed', {
 					context: {
 						partialEffects: outcome.partialEffects,

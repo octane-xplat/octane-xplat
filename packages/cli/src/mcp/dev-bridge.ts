@@ -32,7 +32,10 @@ import { browserLogScript } from '../dev-log-client.web.ts'
 
 const PREFIX = '/__xplat_dev__'
 const MAX_BODY = 1024 * 1024
-const INSTANCE_TTL_MS = 60_000
+// Three missed default (5s) announcements expire a realm's lease. Use the
+// server's receive time: an app clock or an agent registry read is not liveness.
+const INSTANCE_TTL_MS = 15_000
+const OUTCOME_TTL_MS = 600_000
 const MAX_WAIT_MS = 30_000
 
 const json = (res, status, body) => {
@@ -77,7 +80,7 @@ export function xplatDevBridge(options = {}) {
 	const serverId = `srv_${randomUUID()}`
 	const startedAt = new Date().toISOString()
 
-	// appInstanceId → { announcement, at }
+	// appInstanceId → { announcement, at, timer }
 	const instances = new Map()
 	// requestId → { request, state: 'pending'|'delivered', cancelRequested, outcome, waiters }
 	const requests = new Map()
@@ -308,13 +311,13 @@ export function xplatDevBridge(options = {}) {
 	const prune = () => {
 		const now = Date.now()
 		for (const [id, entry] of instances) {
-			if (now - entry.at > INSTANCE_TTL_MS * 10) {
-				instances.delete(id)
+			if (now - entry.at >= INSTANCE_TTL_MS) {
+				expireInstance(id, entry)
 			}
 		}
 
 		for (const [id, entry] of requests) {
-			if (entry.outcome && now - entry.completedAt > INSTANCE_TTL_MS * 10) {
+			if (entry.outcome && now - entry.completedAt > OUTCOME_TTL_MS) {
 				requests.delete(id)
 			}
 		}
@@ -327,10 +330,11 @@ export function xplatDevBridge(options = {}) {
 		})
 
 	const freshInstances = () => {
-		const now = Date.now()
-		return [...instances.entries()]
-			.filter(([, entry]) => now - entry.at <= INSTANCE_TTL_MS)
-			.map(([id, entry]) => ({ ...entry.announcement, appInstanceId: id }))
+		prune()
+		return [...instances.entries()].map(([id, entry]) => ({
+			...entry.announcement,
+			appInstanceId: id,
+		}))
 	}
 
 	// requestId → resolve() — long-poll waiters for outcomes
@@ -364,6 +368,40 @@ export function xplatDevBridge(options = {}) {
 		pollWaiters.delete(instanceId)
 	}
 
+	const expireInstance = (instanceId, instance) => {
+		if (instances.get(instanceId) !== instance) {
+			return
+		}
+
+		clearTimeout(instance.timer)
+		instances.delete(instanceId)
+		for (const [requestId, entry] of requests) {
+			if (entry.request.appInstanceId !== instanceId || entry.outcome) {
+				continue
+			}
+
+			const delivered = entry.state === 'delivered'
+			entry.state = 'completed'
+			entry.completedAt = Date.now()
+			entry.outcome = {
+				requestId,
+				status: 'unknown',
+				error: {
+					code: 'disconnected_runtime',
+					message: 'The app stopped announcing its registry.',
+				},
+				partialEffects: delivered
+					? ['The action was delivered; whether it completed is unknown.']
+					: [],
+				completedAt: new Date(entry.completedAt).toISOString(),
+			}
+
+			settleOutcome(requestId)
+		}
+
+		wakePollers(instanceId)
+	}
+
 	const awaitWork = (instanceId, ms) =>
 		new Promise((resolve) => {
 			const timer = setTimeout(resolve, Math.min(ms, MAX_WAIT_MS))
@@ -379,7 +417,7 @@ export function xplatDevBridge(options = {}) {
 		const invocations = []
 		const cancel = []
 		for (const [requestId, entry] of requests) {
-			if (entry.request.appInstanceId !== instanceId) {
+			if (entry.request.appInstanceId !== instanceId || entry.outcome) {
 				continue
 			}
 
@@ -410,7 +448,14 @@ export function xplatDevBridge(options = {}) {
 				})
 			}
 
-			instances.set(body.appInstanceId, { announcement: body, at: Date.now() })
+			clearTimeout(instances.get(body.appInstanceId)?.timer)
+			const instance = { announcement: body, at: Date.now() }
+			instances.set(body.appInstanceId, instance)
+			instance.timer = setTimeout(
+				() => expireInstance(body.appInstanceId, instance),
+				INSTANCE_TTL_MS,
+			)
+			instance.timer.unref?.()
 			prune()
 			return json(res, 200, { accepted: true, serverId })
 		},
@@ -467,6 +512,11 @@ export function xplatDevBridge(options = {}) {
 			let work = workFor(instanceId)
 			if (!work.invocations.length && !work.cancel.length && wait > 0) {
 				await awaitWork(instanceId, wait)
+				prune()
+				if (!instances.has(instanceId)) {
+					return json(res, 404, { error: { code: 'not_found', message: 'app instance expired' } })
+				}
+
 				work = workFor(instanceId)
 			}
 
@@ -526,6 +576,7 @@ export function xplatDevBridge(options = {}) {
 		}
 
 		try {
+			prune()
 			if (req.method === 'POST' && url.pathname === `${PREFIX}/logs`) {
 				const body = await readBody(req)
 				if (
@@ -681,6 +732,11 @@ export function xplatDevBridge(options = {}) {
 				}
 
 				server.httpServer.on('close', removeSessionFile)
+				server.httpServer.on('close', () => {
+					for (const instance of instances.values()) {
+						clearTimeout(instance.timer)
+					}
+				})
 			}
 		},
 	}
