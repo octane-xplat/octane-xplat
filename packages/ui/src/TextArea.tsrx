@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useImperativeHandle, useEffect, useRef, useState } from 'octane';
+import { useContext, useImperativeHandle, useEffect, useRef, useState } from 'octane';
 import { mergeStyle } from './style-merge'
 import { styleRecord } from './style-merge'
 import { Utils } from '@nativescript/core';
@@ -8,7 +8,8 @@ import { cx } from "@octane-xplat/lib";
 import { applyEscapeProps, nativeAccessibilityState } from "./escape-props";
 import { isWritingText, writeText } from './text-write';
 import { blurText } from './text-focus';
-import { useFieldControlProps } from './field-context';
+import { FieldContext, useFieldControlProps } from './field-context';
+import { FormField } from './FormField';
 
 /** Multiline input — <textview>. TextView measures to content natively, so
  *  `autoGrow` is its default; `rows`/`maxRows` have no NS equivalent, so the
@@ -16,7 +17,7 @@ import { useFieldControlProps } from './field-context';
  *  height (iOS `font.lineHeight`, Android `getLineHeight()` px→dip — measured
  *  on `loaded`, re-fit every commit for prop/style changes). Imperative
  *  writes suppress their synchronous textChange echo through text-write. */
-export function TextArea(inputProps: TextAreaProps) @{
+function TextAreaControl(inputProps: TextAreaProps) @{
 	const props = useFieldControlProps(inputProps);
 	const el = useRef<any>(null);
 	const submitOnReturn = props.returnKeyType === 'done' || props.returnKeyType === 'send';
@@ -54,30 +55,47 @@ export function TextArea(inputProps: TextAreaProps) @{
 
 	useImperativeHandle(props.ref, () => ({ focus: () => el.current.focus(), blur: () => blurText(el.current), native: el.current }), []);
 
-	<textview
-		id={props.id}
-		testID={props.testID ?? ''}
-		ref={(v: any) => {
-				el.current = v;
-			if (!v) return;
-			applyEscapeProps(v, props);
-		}}
-		className={cx('vx-textarea', props.isDisabled && 'vx-textarea--disabled', props.isReadOnly && 'vx-textarea--readonly', props.isLoading && 'vx-textarea--loading', props.status && `vx-textarea--status-${props.status.type}`, props.size && `vx-textarea--size-${props.size}`, props.className)}
-		style={mergeStyle(styleRecord(props.style), props.placeholderTextColor ? { placeholderColor: props.placeholderTextColor } : {})}
-		hint={props.placeholder}
-	accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
-		accessibilityHint={props.accessibilityHint}
-		accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled })}
-		keyboardType={props.keyboardType === 'default' ? undefined : props.keyboardType}
-		returnKeyType={props.returnKeyType}
-		isEnabled={!props.isDisabled}
-		editable={!props.isDisabled && !props.isReadOnly}
-		onLoaded={(e: any) => fit(e.object)}
-		onTextChange={(e: any) => { if (!isWritingText(e.object)) setValue(e.value); }}
-		// TextView emits returnPress for every newline. Only an explicit action
-		// key opts into the submit semantic; ordinary Return remains a newline.
-		onReturnPress={submitOnReturn ? props.onSubmit : undefined}
-		onFocus={props.onFocus}
-		onBlur={props.onBlur}
-	/>
+	<masonview className={cx('vx-textarea-shell', props.status && `vx-textarea-shell--status-${props.status.type}`, props.isDisabled && 'vx-textarea-shell--disabled')} style={mergeStyle({flexDirection: "column", alignItems: "stretch"}, {display: "flex"})}>
+		<textview
+			id={props.id}
+			testID={props.testID ?? ''}
+			ref={(v: any) => {
+					el.current = v;
+				if (!v) return;
+				applyEscapeProps(v, props);
+			}}
+			className={cx('vx-textarea', props.isDisabled && 'vx-textarea--disabled', props.isReadOnly && 'vx-textarea--readonly', props.isLoading && 'vx-textarea--loading', props.status && `vx-textarea--status-${props.status.type}`, props.size && `vx-textarea--size-${props.size}`, props.className)}
+			style={mergeStyle(styleRecord(props.style), props.placeholderTextColor ? { placeholderColor: props.placeholderTextColor } : {})}
+			hint={props.placeholder}
+		accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
+			accessibilityHint={props.accessibilityHint}
+			accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled })}
+			keyboardType={props.keyboardType === 'default' ? undefined : props.keyboardType}
+			returnKeyType={props.returnKeyType}
+			isEnabled={!props.isDisabled}
+			editable={!props.isDisabled && !props.isReadOnly}
+			onLoaded={(e: any) => fit(e.object)}
+			onTextChange={(e: any) => { if (!isWritingText(e.object)) setValue(e.value); }}
+			// TextView emits returnPress for every newline. Only an explicit action
+			// key opts into the submit semantic; ordinary Return remains a newline.
+			onReturnPress={submitOnReturn ? props.onSubmit : undefined}
+			onFocus={props.onFocus}
+			onBlur={props.onBlur}
+		/>
+	</masonview>
+}
+
+/** Standalone text areas render Astryx's visible field chrome: outside a
+ *  FormField, wrap the control in one (label, description, status). Inside a
+ *  field the FormField owns that chrome, so the control renders bare. */
+export function TextArea(props: TextAreaProps) @{
+	const inField = useContext(FieldContext) != null;
+	const needsChrome = !inField && (props.label != null || props.description != null || props.status != null || props.isRequired || props.isOptional);
+	@if (needsChrome) {
+		<FormField label={props.label} description={props.description} status={props.status} isRequired={props.isRequired} isOptional={props.isOptional} isLabelHidden={props.isLabelHidden} isDisabled={props.isDisabled} labelTooltip={props.labelTooltip} disabledMessage={props.disabledMessage} width={props.width}>
+			<TextAreaControl {...props} />
+		</FormField>
+	} @else {
+		<TextAreaControl {...props} />
+	}
 }

@@ -643,6 +643,31 @@
 	.vx-input-shell--status-success .vx-input-status-icon {
 		color: var(--color-success);
 	}
+	.vx-textarea-shell {
+		flex-direction: column;
+		align-items: stretch;
+	}
+	.vx-textarea-shell--status-error {
+		border-color: var(--color-danger);
+	}
+	.vx-textarea-shell--status-warning {
+		border-color: var(--color-warning);
+	}
+	.vx-textarea-shell--status-success {
+		border-color: var(--color-success);
+	}
+	.vx-textarea-shell--disabled {
+		opacity: 0.5;
+	}
+	.vx-textarea-shell--status-error .vx-input-status-icon {
+		color: var(--color-danger);
+	}
+	.vx-textarea-shell--status-warning .vx-input-status-icon {
+		color: var(--color-warning);
+	}
+	.vx-textarea-shell--status-success .vx-input-status-icon {
+		color: var(--color-success);
+	}
 	/* Astryx CheckboxInput: a hidden native input stretched over the drawn
 	   indicator, label column beside it, detached status below. */
 	.vx-checkbox-input {

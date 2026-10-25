@@ -298,11 +298,50 @@
 		display: flex;
 		flex: 0 0 auto;
 	}
+	.vx-textarea {
+		display: block;
+		width: 100%;
+		min-width: 0;
+		line-height: 1.4286;
+		padding: 4px 8px;
+	}
+	/* Astryx: the bordered box is the shell, same chrome as the input shell
+	   minus the fixed height — the rows attr owns the textarea's height. */
+	.vx-textarea-shell {
+		display: block;
+		position: relative;
+		border: 1px solid var(--color-border-strong);
+		border-radius: var(--radius-md);
+		background-color: var(--color-surface);
+	}
+	/* Astryx pins the status icon inside the box, top inline-end, in a
+	   positioning wrapper that inherits the document font metrics. */
+	.vx-textarea-status {
+		position: absolute;
+		top: 8px;
+		right: 8px;
+		display: flex;
+		align-items: center;
+		pointer-events: none;
+	}
+	/* 8px inline pad + a 24px zone for the status icon. */
+	.vx-textarea--has-status {
+		padding-right: 32px;
+	}
+	/* lg doubles the block padding (spacing-2); sm shares md's 4px. */
+	.vx-textarea--size-lg {
+		padding-top: 8px;
+		padding-bottom: 8px;
+	}
 	/* xplat-web-only:end */
 
-	/* auto-grow owns height — the manual resize handle has no native analog */
+	/* Astryx keeps the manual vertical resize handle; autoGrow owns the
+   height instead, so it suppresses the handle. No native analog. */
 	/* xplat-web-only:start */
 	.vx-textarea {
+		resize: vertical;
+	}
+	.vx-textarea--autogrow {
 		resize: none;
 	}
 	/* xplat-web-only:end */
