@@ -1,3 +1,59 @@
+diff --git a/helpers/global-defines.js b/helpers/global-defines.js
+index e7390cb182cafe3b7307a25585280655d6ad5fad..4e0e337a2616cf53684c963562b76b48bb406111 100644
+--- a/helpers/global-defines.js
++++ b/helpers/global-defines.js
+@@ -179,6 +179,51 @@ export function setUserDefineEntries(define) {
+     userDefineEntries = entries;
+     userProcessEnvDefineEntries = envEntries;
+ }
++// ── User-configured `resolve.alias` entries ─────────────────────────────────
++// Vite `resolve.alias` rewrites import specifiers during dev transforms, but
++// the NativeScript esbuild passes (deps bundle, vendor bundle) never see the
++// Vite config — an alias like `^@octane-xplat/nativescript-masonkit(?=/|$)` →
++// the app's mason-core package dir leaves their imports heading for a package
++// that is genuinely absent from the app's node_modules, where the
++// optional-dependency stub then plants a throw-on-evaluate module that kills
++// device boot. Captured from the resolved config in `configResolved` and
++// replayed inside the esbuild passes by `createViteAliasEsbuildPlugin`.
++//
++// Normalized to `{ find: string|RegExp, replacement: string }[]`, keeping
++// only entries esbuild can honor faithfully: a string `replacement`, no
++// `customResolver`, and a `find` that is a RegExp or a bare-specifier string
++// (not `.`-relative or `/`-absolute — those are importer-relative aliases
++// esbuild would have to evaluate per importer dir, which Vite itself does not
++// support).
++let userAliasEntries = [];
++export function setUserAliasEntries(alias) {
++    const entries = [];
++    if (alias) {
++        const list = Array.isArray(alias) ? alias : Object.entries(alias).map(([find, replacement]) => ({ find, replacement }));
++        for (const entry of list) {
++            if (!entry || entry.customResolver)
++                continue;
++            const { find, replacement } = entry;
++            if (typeof replacement !== 'string')
++                continue;
++            if (!(find instanceof RegExp) && !(typeof find === 'string' && find.length && !find.startsWith('.') && !find.startsWith('/')))
++                continue;
++            entries.push({ find, replacement });
++        }
++    }
++    userAliasEntries = entries;
++}
++/** The captured `resolve.alias` entries (see setUserAliasEntries). */
++export function getUserAliasEntries() {
++    return userAliasEntries;
++}
++/** Stable fingerprint of the captured aliases for bundle cache keys. */
++export function getUserAliasEntriesFingerprint() {
++    return JSON.stringify(userAliasEntries.map(({ find, replacement }) => [
++        find instanceof RegExp ? `re:${find.source}:${find.flags}` : `str:${find}`,
++        replacement,
++    ]));
++}
+ /** The captured `__FOO__` define entries as `[key, expression]` pairs (see setUserDefineEntries). */
+ export function getUserDefineEntries() {
+     return userDefineEntries;
 diff --git a/helpers/project.js b/helpers/project.js
 index f6777fa5e64e667cbc56c7e76c4c32c5ab76a911..fdc1f974884e26030c0084d75c1e51a1e5968db2 100644
 --- a/helpers/project.js
@@ -145,18 +201,47 @@ index 0d7cd968eac690a85411cf3d6a24323a3d3a3992..98094d6ccfb918d00249d8087aebdd99
  //# sourceMappingURL=css-device-module.js.map
 \ No newline at end of file
 diff --git a/hmr/server/deps-bundle.js b/hmr/server/deps-bundle.js
-index 395c29e9b9b552fbf30c4a7131121a0d841df116..ca4d7beaf4ae0444ea947a8c97aa9d7fb1a254ef 100644
+index 395c29e9b9b552fbf30c4a7131121a0d841df116..78d0bef8eeeaa2a55eec461adb6b1ac999da8c58 100644
 --- a/hmr/server/deps-bundle.js
 +++ b/hmr/server/deps-bundle.js
-@@ -53,6 +53,7 @@
+@@ -53,15 +53,16 @@
  import { existsSync, mkdirSync, readdirSync, readFileSync, realpathSync, statSync, unlinkSync, writeFileSync } from 'node:fs';
  import * as path from 'node:path';
  import { createHash } from 'node:crypto';
 +import { createRequire } from 'node:module';
  import * as esbuild from 'esbuild';
  import { resolvePlatform } from '../../helpers/cli-flags.js';
- import { getGlobalDefines, getUserDefineEntries } from '../../helpers/global-defines.js';
-@@ -699,6 +700,29 @@ export async function generateDepsBundle(options) {
+-import { getGlobalDefines, getUserDefineEntries } from '../../helpers/global-defines.js';
++import { getGlobalDefines, getUserDefineEntries, getUserAliasEntriesFingerprint } from '../../helpers/global-defines.js';
+ import { getProjectFlavor } from '../../helpers/flavor.js';
+ import { getMonorepoWorkspaceRoot } from '../../helpers/project.js';
+ import { createNativeClassEsbuildPlugin } from '../../helpers/nativeclass-esbuild-plugin.js';
+ import { resolveVerboseFlag } from '../../helpers/logging.js';
+ import { getVitePackageVersion } from '../../helpers/vite-package-version.js';
+-import { createNodeBuiltinPolyfillEsbuildPlugin, createSolidJsxEsbuildPlugin, createUnicodeRegexEsbuildPlugin, createVendorEsbuildPlugin, createWebpackLoaderStubEsbuildPlugin, createOptionalDependencyStubEsbuildPlugin, createNativeAddonStubEsbuildPlugin } from '../shared/vendor/vendor-esbuild-plugins.js';
++import { createNodeBuiltinPolyfillEsbuildPlugin, createSolidJsxEsbuildPlugin, createUnicodeRegexEsbuildPlugin, createVendorEsbuildPlugin, createViteAliasEsbuildPlugin, createWebpackLoaderStubEsbuildPlugin, createOptionalDependencyStubEsbuildPlugin, createNativeAddonStubEsbuildPlugin } from '../shared/vendor/vendor-esbuild-plugins.js';
+ import { getVendorManifest, setVendorRuntimeModuleProvider } from '../shared/vendor/registry.js';
+ import { collectVendorModules } from '../shared/vendor/manifest-collect.js';
+ import { generatePlatformPolyfills } from '../shared/runtime/platform-polyfills.js';
+@@ -537,6 +538,7 @@ export function computeDepsBundleCacheKey(input) {
+         defines: input.defines,
+         entryKeys: input.entryKeys,
+         lockfile: input.lockfile,
++        aliases: input.aliases,
+         vitePackageVersion: input.vitePackageVersion,
+     });
+     return createHash('sha1').update(payload).digest('hex');
+@@ -681,6 +683,9 @@ export async function generateDepsBundle(options) {
+             entryKeys: entries.map((e) => e.key).sort(),
+             lockfile: lockfileFingerprint(projectRoot),
+             vitePackageVersion: getVitePackageVersion(),
++            // Aliases change which files the esbuild pass resolves — a stale
++            // bundle built before an alias appeared must not be reused.
++            aliases: getUserAliasEntriesFingerprint(),
+         });
+         const cached = tryLoadDepsBundleFromDisk(projectRoot, String(platform), cacheKey);
+         if (cached) {
+@@ -699,6 +704,29 @@ export async function generateDepsBundle(options) {
      // the device cannot resolve.
      const buildPlugins = () => [
          createWebpackLoaderStubEsbuildPlugin(),
@@ -186,6 +271,16 @@ index 395c29e9b9b552fbf30c4a7131121a0d841df116..ca4d7beaf4ae0444ea947a8c97aa9d7f
          createNodeBuiltinPolyfillEsbuildPlugin(projectRoot, NODE_BUILTINS),
          createNativeClassEsbuildPlugin(platform),
          createVendorEsbuildPlugin(projectRoot),
+@@ -706,6 +734,9 @@ export async function generateDepsBundle(options) {
+         ...(flavor === 'angular' ? [createDepsAngularLinkerPlugin(projectRoot)] : []),
+         ...(flavor === 'solid' ? [createSolidJsxEsbuildPlugin(projectRoot)] : []),
+         createUnicodeRegexEsbuildPlugin(projectRoot),
++        // App `resolve.alias` redirects for packages that are NOT installed
++        // (masonkit → mason-core & co.) — without this they hit the stub below.
++        createViteAliasEsbuildPlugin(projectRoot),
+         createOptionalDependencyStubEsbuildPlugin(projectRoot),
+         createNativeAddonStubEsbuildPlugin(),
+     ];
 diff --git a/hmr/server/device-transform-helpers.js b/hmr/server/device-transform-helpers.js
 index 71574c48f655183af0c9601b020fd1febd63ccb3..0061d9c9e9fe9c6034576eae8449831d19f8ace7 100644
 --- a/hmr/server/device-transform-helpers.js
@@ -499,8 +594,31 @@ index 51ad398cefe75c918e887bd9506d9152259b957e..235b7cd49cbfb18c8cca87edf62e53c4
          if (spec.startsWith('/@id/__x00__@oxc-project+runtime')) {
              if (httpOriginSafe) {
                  return `${prefix}${httpOriginSafe}${spec}${suffix}`;
+diff --git a/hmr/server/vite-plugin.js b/hmr/server/vite-plugin.js
+index 15c6c7293826767ce7fd45feb6b03cb64a4bdbb5..1f66ca8ae896fad9ee21eabdf3bb75f609bd7132 100644
+--- a/hmr/server/vite-plugin.js
++++ b/hmr/server/vite-plugin.js
+@@ -4,7 +4,7 @@ import path from 'path';
+ import { pathToFileURL } from 'url';
+ import { NS_DEFAULT_DEV_FEATURE_FLAGS, NS_DEFAULT_HOST_MODULES } from '../shared/runtime/browser-runtime-contract.js';
+ import { resolveDeviceReachableHost } from '../../helpers/dev-host.js';
+-import { setUserDefineEntries } from '../../helpers/global-defines.js';
++import { setUserAliasEntries, setUserDefineEntries } from '../../helpers/global-defines.js';
+ import { getMonorepoWorkspaceRoot } from '../../helpers/project.js';
+ const require = createRequire(import.meta.url);
+ const VIRTUAL_ID = 'virtual:ns-hmr-client';
+@@ -619,6 +619,9 @@ export function nsHmrClientVitePlugin(opts) {
+             // modules; without a shim a free `__FOO__` is mis-bound to /ns/rt → wrong
+             // value under HMR vs the production bundle). See setUserDefineEntries.
+             setUserDefineEntries(c.define);
++            // Mirror `resolve.alias` into the esbuild passes (deps bundle,
++            // vendor bundle) — see setUserAliasEntries / createViteAliasEsbuildPlugin.
++            setUserAliasEntries(c.resolve?.alias);
+         },
+         resolveId(id) {
+             if (id === VIRTUAL_ID)
 diff --git a/hmr/server/websocket-module-specifiers.js b/hmr/server/websocket-module-specifiers.js
-index 0081819906b9df7480408697b1afadb149e26e31..562bd0f7f982cd90d22c945f369d2581201597a2 100644
+index 0081819906b9df7480408697b1afadb149e26e31..32078469da6f990ae4d99e083c4b788e3d822035 100644
 --- a/hmr/server/websocket-module-specifiers.js
 +++ b/hmr/server/websocket-module-specifiers.js
 @@ -328,6 +328,24 @@ export function resolveVendorFromCandidate(specifier) {
@@ -537,6 +655,44 @@ index 0081819906b9df7480408697b1afadb149e26e31..562bd0f7f982cd90d22c945f369d2581
      // Linked source checkouts keep private node_modules outside both roots.
      // Only packages the app's own install lacks may come from them: each
      // extension/index variant is resolved separately, so a variant missing
+@@ -746,6 +766,26 @@ export function resolveNodeModulesPackageBoundary(nodeModulesSpec, projectRoot)
+     return resolved;
+ }
+ const exportsReverseMapCache = new Map();
++// Locate an installed package's package.json through Node's node_modules
++// ancestor chain: hoisted workspaces (pnpm nodeLinker: hoisted, npm/yarn
++// classic workspaces) install packages at the workspace root and the app's
++// own node_modules may be empty, so a plain `projectRoot/node_modules/<pkg>`
++// join misses packages that are resolvable at runtime.
++function resolveInstalledPackageJsonPath(pkgName, projectRoot) {
++    let dir = path.resolve(projectRoot || getProjectRootPath());
++    for (;;) {
++        const candidate = path.join(dir, 'node_modules', pkgName, 'package.json');
++        if (existsSync(candidate)) {
++            return candidate;
++        }
++        const parent = path.dirname(dir);
++        if (parent === dir) {
++            break;
++        }
++        dir = parent;
++    }
++    return null;
++}
+ function resolveExportConditionValue(conditions) {
+     if (typeof conditions === 'string')
+         return conditions;
+@@ -771,8 +811,8 @@ function getExportsReverseMap(pkgName, projectRoot) {
+         return cached;
+     const map = new Map();
+     try {
+-        const pkgJsonPath = path.join(projectRoot, 'node_modules', pkgName, 'package.json');
+-        const pkgJson = JSON.parse(readFileSync(pkgJsonPath, 'utf-8'));
++        const pkgJsonPath = resolveInstalledPackageJsonPath(pkgName, projectRoot);
++        const pkgJson = pkgJsonPath ? JSON.parse(readFileSync(pkgJsonPath, 'utf-8')) : {};
+         if (pkgJson.exports && typeof pkgJson.exports === 'object') {
+             for (const [entryPoint, conditions] of Object.entries(pkgJson.exports)) {
+                 if (entryPoint.includes('*') || entryPoint.endsWith('.json'))
 diff --git a/hmr/server/websocket-ns-m-request.js b/hmr/server/websocket-ns-m-request.js
 index 0879633dc5ee172f16de82d5d24bebe2f6f7878f..b489d7f1524eb35ba87206d86cdb9448a95c188e 100644
 --- a/hmr/server/websocket-ns-m-request.js
@@ -715,7 +871,7 @@ index e6a14437f8990e2c631f23eb8db21aa0b28b5759..2b9fb450511b6e114b6e7e7ac8a48831
                              return;
                          // Root-component guard. Analog's in-place
 diff --git a/hmr/shared/vendor/manifest-collect.js b/hmr/shared/vendor/manifest-collect.js
-index 7b3afd4af098cc8587851b04188f6b1c3d5541bc..89cc8c5b629f92c8de124a30f41b6cda1cecc70d 100644
+index 7b3afd4af098cc8587851b04188f6b1c3d5541bc..854530f1b5c65e41e47b61b50cb1d21c43c48144 100644
 --- a/hmr/shared/vendor/manifest-collect.js
 +++ b/hmr/shared/vendor/manifest-collect.js
 @@ -527,7 +527,7 @@ export function collectVendorModules(projectRoot, platform, flavor) {
@@ -922,4 +1078,153 @@ index 7b3afd4af098cc8587851b04188f6b1c3d5541bc..89cc8c5b629f92c8de124a30f41b6cda
          .map((token) => token.trim())
          .filter(Boolean);
  }
+\ No newline at end of file
 -//# sourceMappingURL=manifest-collect.js.map
+\ No newline at end of file
+diff --git a/hmr/shared/vendor/manifest.js b/hmr/shared/vendor/manifest.js
+index 54ba11ef9c329df049fa93b01b2ce47c9fb1ac3e..f7e3d0d1bd71919584834ef5a56e42f74ad2cf28 100644
+--- a/hmr/shared/vendor/manifest.js
++++ b/hmr/shared/vendor/manifest.js
+@@ -6,7 +6,7 @@ import { collectVendorModules } from './manifest-collect.js';
+ import { generatePlatformPolyfills } from '../runtime/platform-polyfills.js';
+ import { createNativeClassEsbuildPlugin } from '../../../helpers/nativeclass-esbuild-plugin.js';
+ import { getGlobalDefines } from '../../../helpers/global-defines.js';
+-import { createVendorEsbuildPlugin, createSolidJsxEsbuildPlugin, angularLinkerEsbuildPlugin, createUnicodeRegexEsbuildPlugin, createWebpackLoaderStubEsbuildPlugin, createNodeBuiltinPolyfillEsbuildPlugin, createOptionalDependencyStubEsbuildPlugin, createNativeAddonStubEsbuildPlugin } from './vendor-esbuild-plugins.js';
++import { createVendorEsbuildPlugin, createSolidJsxEsbuildPlugin, angularLinkerEsbuildPlugin, createUnicodeRegexEsbuildPlugin, createWebpackLoaderStubEsbuildPlugin, createNodeBuiltinPolyfillEsbuildPlugin, createOptionalDependencyStubEsbuildPlugin, createNativeAddonStubEsbuildPlugin , createViteAliasEsbuildPlugin } from './vendor-esbuild-plugins.js';
+ export const VENDOR_MANIFEST_ID = '@nativescript/vendor-manifest';
+ export const VENDOR_MANIFEST_VIRTUAL_ID = '\0' + VENDOR_MANIFEST_ID;
+ export const VENDOR_BUNDLE_ID = '@nativescript/vendor';
+@@ -264,6 +264,9 @@ async function generateVendorBundle(options) {
+         // plugins) BEFORE resolution — a single `loader!./x` specifier would
+         // otherwise hard-fail the whole bundle. See the plugin for details.
+         createWebpackLoaderStubEsbuildPlugin(),
++        // App `resolve.alias` redirects for packages that are NOT installed —
++        // without this they look absent and get stubbed below.
++        createViteAliasEsbuildPlugin(options.projectRoot),
+         createOptionalDependencyStubEsbuildPlugin(options.projectRoot),
+         // Stub compiled `.node` addons (fsevents & co.) — unloadable by esbuild and
+         // unrunnable on device; a throwing stub preserves optional-dep semantics.
+diff --git a/hmr/shared/vendor/vendor-esbuild-plugins.js b/hmr/shared/vendor/vendor-esbuild-plugins.js
+index 4855a85322188435072c21bb72c60ea16d514b37..e8aedc01e80b03b9320d45bb682a2a512360bdbb 100644
+--- a/hmr/shared/vendor/vendor-esbuild-plugins.js
++++ b/hmr/shared/vendor/vendor-esbuild-plugins.js
+@@ -5,6 +5,7 @@ import { readFile } from 'fs/promises';
+ import { createRequire } from 'node:module';
+ import { getAngularLinkerFactory, runAngularLinker } from '../../frameworks/angular/build/shared-linker.js';
+ import { vendorModuleShim } from './vendor-device-shim.js';
++import { getUserAliasEntries } from '../../../helpers/global-defines.js';
+ export function createVendorEsbuildPlugin(projectRoot) {
+     return {
+         name: 'ns-vendor-resolver',
+@@ -419,6 +420,111 @@ export function angularLinkerEsbuildPlugin(projectRoot) {
+  * the try/catch-optional semantics instead of masking real missing modules
+  * with `undefined` exports.
+  */
++/**
++ * Replay the app's Vite `resolve.alias` entries inside esbuild passes (deps
++ * bundle, vendor bundle) for specifiers whose package is NOT installed.
++ * esbuild has no `resolve.alias` option; plugins capture them from the
++ * resolved Vite config (setUserAliasEntries in configResolved). Without
++ * this, a specifier an app aliases to a real directory (e.g.
++ * `@octane-xplat/nativescript-masonkit` → the mason-core package) looks
++ * absent to the vendor collector and gets a throw-on-evaluate
++ * optional-dependency stub that kills device boot. Installed packages keep
++ * their default resolution — redirecting those would bundle a second realm
++ * (e.g. upstream's own `@nativescript/core` → core-root aliases).
++ *
++ * Semantics mirror @rollup/plugin-alias (which Vite uses): entries apply in
++ * order, first match wins; a string `find` matches the exact specifier or a
++ * `find + '/'` prefix; a RegExp `find` is applied via `spec.replace()`. Only
++ * bare specifiers are considered (relative and absolute specifiers are
++ * importer-anchored and were already filtered at capture time). The rewritten
++ * specifier is resolved through `build.resolve` so it inherits the pass's own
++ * resolveExtensions/conditions/mainFields; when resolution fails we return
++ * null and let the normal pipeline (including the optional-dep stub) decide.
++ */
++// `@scope/name/sub` → `@scope/name`; `pkg/sub` → `pkg`; `.prisma/client/…` → `.prisma`.
++const esbuildPackageNameOf = (spec) => {
++    const parts = spec.split('/');
++    return spec.startsWith('@') && parts.length >= 2 ? `${parts[0]}/${parts[1]}` : parts[0];
++};
++// Is the package physically installed? Walk Node's node_modules lookup
++// chain from the importer, then the project root. Presence is judged by the
++// package DIRECTORY (its package.json file), never by entry resolution.
++const esbuildPackagePresenceCache = new Map();
++const isEsbuildPackageInstalled = (pkgName, fromDir, projectRoot) => {
++    const cacheKey = `${pkgName}\0${fromDir}`;
++    const cached = esbuildPackagePresenceCache.get(cacheKey);
++    if (cached !== undefined)
++        return cached;
++    let present = false;
++    let dir = fromDir;
++    for (;;) {
++        if (fs.existsSync(path.join(dir, 'node_modules', pkgName, 'package.json'))) {
++            present = true;
++            break;
++        }
++        const parent = path.dirname(dir);
++        if (parent === dir)
++            break;
++        dir = parent;
++    }
++    if (!present)
++        present = fs.existsSync(path.join(projectRoot, 'node_modules', pkgName, 'package.json'));
++    esbuildPackagePresenceCache.set(cacheKey, present);
++    return present;
++};
++export function createViteAliasEsbuildPlugin(projectRoot) {
++    return {
++        name: 'ns-vite-alias',
++        setup(build) {
++            build.onResolve({ filter: /^[^./]|^\.[^./]|^\.\.[^/]/ }, async (args) => {
++                if (args.pluginData?.nsViteAlias)
++                    return undefined;
++                const entries = getUserAliasEntries();
++                if (!entries.length)
++                    return undefined;
++                for (const { find, replacement } of entries) {
++                    if (find instanceof RegExp)
++                        find.lastIndex = 0;
++                    const matches = find instanceof RegExp
++                        ? find.test(args.path)
++                        : args.path === find || args.path.startsWith(find + '/');
++                    if (!matches)
++                        continue;
++                    // Only redirect packages that are NOT installed — upstream's
++                    // own resolve.alias (@nativescript/core → the installed core
++                    // root & friends) must keep its default resolution or the
++                    // pass bundles a second realm of an already-present package.
++                    if (args.importer &&
++                        isEsbuildPackageInstalled(esbuildPackageNameOf(args.path), path.dirname(args.importer), projectRoot))
++                        return undefined;
++                    const next = args.path.replace(find, replacement);
++                    if (next === args.path)
++                        return undefined;
++                    try {
++                        const resolved = await build.resolve(next, {
++                            kind: args.kind,
++                            importer: args.importer,
++                            resolveDir: args.resolveDir,
++                            pluginData: { nsViteAlias: true },
++                        });
++                        if (resolved.errors?.length)
++                            return undefined;
++                        return {
++                            path: resolved.path,
++                            namespace: resolved.namespace,
++                            external: resolved.external,
++                            sideEffects: resolved.sideEffects,
++                        };
++                    }
++                    catch {
++                        return undefined;
++                    }
++                }
++                return undefined;
++            });
++        },
++    };
++}
+ export function createOptionalDependencyStubEsbuildPlugin(projectRoot) {
+     const requireFromProject = createRequire(path.join(projectRoot, 'package.json'));
+     // `@scope/name/sub` → `@scope/name`; `pkg/sub` → `pkg`; `.prisma/client/…` → `.prisma`.
