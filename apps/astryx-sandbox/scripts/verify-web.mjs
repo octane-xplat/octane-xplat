@@ -174,15 +174,17 @@ try {
 	const barColor = await page.evaluate(() => getComputedStyle(document.querySelector('.sb-chart-bar')).backgroundColor)
 	check('useTheme resolves accent into chart', /^rgb/.test(barColor ?? ''), `bg=${barColor}`)
 
-	// Palette page: both mode columns render under one route.
+	// Palette page: both mode columns render under one route. Fullscreen
+	// authored pages live inside the preview shell's embed iframe (unit 3) —
+	// read the frame document, not the outer body.
 	await page.goto(baseUrl + '/pages/neutral-palette/', { waitUntil: 'networkidle' })
-	const neutralText = await page.textContent('body')
-	check('neutral palette renders', neutralText.includes('Neutral Theme Palette') && neutralText.includes('Light Mode') && neutralText.includes('Dark Mode'))
+	const neutralText = await frameBodyText(page, 'neutral-palette', 'Neutral Theme Palette')
+	check('neutral palette renders', (neutralText ?? '').includes('Neutral Theme Palette') && (neutralText ?? '').includes('Light Mode') && (neutralText ?? '').includes('Dark Mode'))
 
 	// Gothic single-mode palette renders dark-only.
 	await page.goto(baseUrl + '/pages/gothic-palette/', { waitUntil: 'networkidle' })
-	const gothicText = await page.textContent('body')
-	check('gothic palette renders dark mode', gothicText.includes('Gothic Theme Palette') && gothicText.includes('Dark Mode'))
+	const gothicText = await frameBodyText(page, 'gothic-palette', 'Gothic Theme Palette')
+	check('gothic palette renders dark mode', (gothicText ?? '').includes('Gothic Theme Palette') && (gothicText ?? '').includes('Dark Mode'))
 
 	// Embed query: theme+mode from URL beat stored prefs, no storage write.
 	await page.evaluate(() => window.localStorage.setItem('astryx-sandbox-theme', 'stone'))
@@ -197,9 +199,111 @@ try {
 	check('stored theme applies on relaunch', (await page.evaluate(() => document.documentElement.getAttribute('data-xds-theme'))) === 'stone')
 	check('stored mode applies on relaunch', (await page.locator('.xds-theme-stone.dark').count()) > 0)
 
+	// --- Preview shell (unit 3) ---
+	// Reset preferences so checks start from a known theme/mode.
+	await page.evaluate(() => { window.localStorage.setItem('astryx-sandbox-theme', 'neutral'); window.localStorage.setItem('astryx-sandbox-mode', 'light') })
+	await page.goto(baseUrl + '/templates/ButtonShowcase/', { waitUntil: 'networkidle' })
+
+	// Toolbar chrome + page name.
+	check('preview toolbar present', (await page.locator('.sb-preview-toolbar').count()) === 1)
+	check('preview names the example', (await page.textContent('.sb-preview-name'))?.includes('Button') ?? false)
+
+	// Sidebar tree: toggle on, both groups present, selected family expanded,
+	// a leaf link routes client-side.
+	await page.locator('button[aria-label*="sidebar" i]').first().click()
+	await page.waitForTimeout(300)
+	const treeItems = await page.locator('[role="treeitem"]').count()
+	check('sidebar tree covers families', treeItems > 160, `${treeItems} rows`)
+	const treeText = await page.locator('.sb-preview-sidebar').textContent()
+	check('sidebar groups pages+components', treeText.includes('Pages') && treeText.includes('Components') && treeText.includes('Button'))
+	await page.locator('a.vx-tree-label--link[href="/templates/ButtonVariants/"]').first().click()
+	await page.waitForTimeout(400)
+	check('sidebar leaf navigates', page.url().includes('/templates/ButtonVariants'), page.url())
+
+	// Every template destination is reachable through sidebar/category search:
+	// the palette and the /templates/ ledger are both driven by the full
+	// coverage registry (all 714 template routes + authored pages).
+	await page.locator('.sb-preview-name').first().click()
+	await page.waitForTimeout(300)
+	await page.fill('.vx-cmdk-search', 'Funnel & Cohort')
+	await page.waitForTimeout(400)
+	const funnel = page.locator('[role="option"]', { hasText: 'Funnel & Cohort Dashboard' }).first()
+	check('palette finds distant template', (await funnel.count()) > 0)
+	await funnel.click()
+	await page.waitForTimeout(500)
+	check('palette selection navigates', page.url().includes('/templates/dashboard-cohort-funnel'), page.url())
+	await page.goto(baseUrl + '/templates/', { waitUntil: 'networkidle' })
+	await page.fill('input[type="search"], input[placeholder*="Search"]', 'markdown-perf')
+	await page.waitForTimeout(200)
+	check('ledger search reaches authored route', (await page.locator('a[href*="/pages/markdown-perf/"]').count()) > 0)
+
+	// Source view + copy feedback on a ported example (grant clipboard).
+	await page.goto(baseUrl + '/templates/TextWrap/', { waitUntil: 'networkidle' })
+	await page.locator('button[role="radio"], [role="radiogroup"] *', { hasText: 'Code' }).first().click().catch(async () => {
+		await page.locator('text=Code').first().click()
+	})
+	await page.waitForTimeout(300)
+	const codeText = await page.textContent('.sb-preview-code')
+	check('source view shows Octane source', (codeText ?? '').includes('export function TextWrap'))
+
+	// Embed/preview iframe on a page template + authored fullscreen page.
+	await page.goto(baseUrl + '/pages/neutral-palette/', { waitUntil: 'networkidle' })
+	await page.waitForSelector('iframe', { timeout: 8000 }).catch(() => {})
+	const frameText = await frameBodyText(page, 'embed=1', 'Neutral Theme Palette')
+	const frame = page.frames().find((f) => f.url().includes('embed=1'))
+	check('fullscreen page renders in embed iframe', !!frame, frame?.url() ?? 'none')
+	check('iframe renders palette page', (frameText ?? '').includes('Neutral Theme Palette'))
+	// Theme dropdown in the preview toolbar syncs the iframe via postMessage.
+	await page.locator('[aria-label="Preview theme"]').first().click()
+	await page.waitForTimeout(300)
+	await page.locator('[role="menuitemradio"], [role="menuitem"]').filter({ hasText: 'Y2K' }).first().click()
+	await page.waitForTimeout(400)
+	if (frame) {
+		const embedTheme = await frame.evaluate(() => document.documentElement.getAttribute('data-xds-theme'))
+		check('postMessage theme sync reaches embed', embedTheme === 'y2k', `embed theme=${embedTheme}`)
+	}
+
+	// Custom-link example: provider injects the intercepting link component.
+	await page.goto(baseUrl + '/templates/LinkProviderCustomLink/', { waitUntil: 'networkidle' })
+	await page.locator('a', { hasText: 'Go to dashboard' }).first().click()
+	await page.waitForTimeout(300)
+	check(
+		'custom link intercepts navigation',
+		(await page.textContent('body'))?.includes('RouterLink intercepted navigation to: /dashboard') ?? false,
+	)
+	check('interception did not navigate', page.url().includes('/templates/LinkProviderCustomLink'), page.url())
+
+	// Responsive navigation: below the md breakpoint the AppShell swaps the
+	// sidebar for a drawer toggle.
+	await page.goto(baseUrl + '/', { waitUntil: 'networkidle' })
+	await page.setViewportSize({ width: 480, height: 800 })
+	await page.waitForTimeout(400)
+	const navToggle = page.locator('button[aria-label*="navigation" i], button[aria-label*="nav" i]').first()
+	check('mobile nav toggle appears', (await navToggle.count()) > 0)
+	if (await navToggle.count()) {
+		await navToggle.click()
+		await page.waitForTimeout(300)
+		check('mobile drawer shows nav', (await page.locator('nav, [role="navigation"], .vx-sidenav').count()) > 0)
+	}
+	await page.setViewportSize({ width: 1280, height: 800 })
+
 	check('no page errors', errors.length === 0, errors.slice(0, 3).join(' | '))
 } finally {
 	await browser.close()
+}
+
+/** Poll an embed iframe's body text until `needle` appears (or ~10s). */
+async function frameBodyText(page, urlPart, needle) {
+	await page.waitForSelector('iframe', { timeout: 8000 }).catch(() => {})
+	for (let i = 0; i < 20; i++) {
+		const frame = page.frames().find((f) => f !== page.mainFrame() && f.url().includes(urlPart))
+		if (frame) {
+			const text = await frame.locator('body').textContent().catch(() => '')
+			if ((text ?? '').includes(needle)) return text
+		}
+		await page.waitForTimeout(500)
+	}
+	return ''
 }
 
 const failed = results.filter((r) => !r.pass)

@@ -490,6 +490,11 @@ export type {
 // Links, input, scrolling, media, and overlays
 export { Link } from './Link'
 export { NavLink } from './NavLink'
+/** LinkProvider + useLinkComponent — the subtree link-component injection
+ *  contract (Astryx `Link` family). */
+export { LinkProvider } from './LinkProvider'
+export { useLinkComponent } from './use-link-component'
+export { LinkContext } from './link-context'
 export { TextInput } from './TextInput'
 export { TextArea } from './TextArea'
 export { SearchInput } from './SearchInput'
@@ -714,7 +719,9 @@ export type {
 export { isNative } from './platform.web'
 
 export type {
+	LinkComponentType,
 	LinkProps,
+	LinkProviderProps,
 	NavLinkComponentType,
 	NavLinkProps,
 	NavigationActivationEvent,

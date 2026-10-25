@@ -2,6 +2,7 @@ import { useMemo, useState } from 'octane';
 import type { Key, Selection, TreeProps, TreeListNode } from "./props";
 import { applyEscapeProps } from "./escape-props";
 import { gridListPress, isGridListKeySelected, normalizeSelection } from './grid-list-selection';
+import { useLinkComponent } from './use-link-component.web.tsrx';
 
 function leafKeys(nodes: readonly TreeListNode[], into: Key[] = []): Key[] {
 	for (const node of nodes) {
@@ -21,6 +22,7 @@ function TreeRow(props: {
 	const isLeaf = kids.length === 0;
 	const isOpen = props.open.has(node.key);
 	const isSelected = isLeaf && props.selectionMode !== 'none' && isGridListKeySelected(props.selected, node.key);
+	const LinkEl: any = useLinkComponent();
 
 	<div className="vx-tree-node" role="treeitem"
 		aria-expanded={isLeaf ? undefined : isOpen}
@@ -40,7 +42,14 @@ function TreeRow(props: {
 			}}
 		>
 			<span className="vx-tree-caret" aria-hidden="true">{isLeaf ? '' : (isOpen ? '▾' : '▸')}</span>
-			<span className="vx-tree-label">{node.label ?? String(node.key)}</span>
+			{isLeaf && node.href != null ? (
+				<LinkEl className="vx-tree-label vx-tree-label--link" href={node.href}
+					onClick={(e: any) => { e.stopPropagation(); props.press(node) }}>
+					{node.label ?? String(node.key)}
+				</LinkEl>
+			) : (
+				<span className="vx-tree-label">{node.label ?? String(node.key)}</span>
+			)}
 		</div>
 		{isOpen && kids.map((kid: TreeListNode) => (
 			<TreeRow key={kid.key} node={kid} depth={props.depth + 1} open={props.open} selected={props.selected}

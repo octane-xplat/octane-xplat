@@ -5124,6 +5124,10 @@ export interface LinkProps {
 	id?: string
 	href: string
 	target?: string
+	/** Custom link element for this instance (Astryx `as`) — overrides the
+	 *  `LinkProvider` default. Receives `href`, `className`, `style`,
+	 *  children. */
+	as?: NavLinkComponentType
 	/** Override the platform link role when composing a link into another
 	 *  interaction pattern such as a menu. */
 	accessibilityRole?: 'link' | 'menuitem'
@@ -7231,6 +7235,9 @@ interface BreadcrumbItemBase {
 	label: string
 	isDisabled?: boolean
 	onSelect?: () => void
+	/** Custom link element for this item's anchor (Astryx `as`) — overrides
+	 *  the `LinkProvider` default. */
+	as?: NavLinkComponentType
 }
 
 /** An ancestor with a typed route, raw URL, local action, or static label. */
@@ -7547,6 +7554,11 @@ export interface TreeListNode {
 	label?: string
 	children?: TreeListNode[]
 	disabled?: boolean
+	/** Leaf destination — the row renders as a link where the host supports
+	 *  anchors (resolving `LinkProvider`/`as` on web); activation still
+	 *  reports through `onAction` for non-anchor paths like keyboard
+	 *  activation of the row itself. */
+	href?: string
 }
 
 /** TreeList — recursive indent + collapse. Expansion is keyed and follows
@@ -8705,6 +8717,22 @@ export type NavElementSize = 'sm' | 'md' | 'lg'
  *  (`href`, `className`, `style`, children) on web; ignored on native, where
  *  activation goes through `followHref`. */
 export type NavLinkComponentType = ElementType
+
+/** The injected/polymorphic link component contract (Astryx
+ *  `LinkComponentType`) — the same shape as `NavLinkComponentType`: an
+ *  element tag ('a') or a function component accepting `href`,
+ *  `className`, `style`, and children. */
+export type LinkComponentType = NavLinkComponentType
+
+/** `LinkProvider` props — `component` becomes the default link element for
+ *  every link-capable component in the subtree. `useLinkComponent` resolves
+ *  a per-component `as` prop first, then this default, then the platform
+ *  element. */
+export interface LinkProviderProps {
+	/** Link component for the subtree — e.g. a router link. */
+	component: LinkComponentType
+	children?: Renderable
+}
 
 // ----- NavIcon -----
 

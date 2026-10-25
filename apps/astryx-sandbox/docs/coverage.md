@@ -34,8 +34,12 @@ is a client-routed SPA — adaptation recorded.
 | `Theme`/`defineTheme`/`useTheme` + 6 theme packages | `Theme`/`defineTheme`/`useTheme`/`useThemeName`/`registerTheme`/`resolveThemeTokens`/`generateThemeCss` in `@octane-xplat/ui` (new public API); 7 theme packages ported under `src/themes/` from `@astryxdesign/theme-*@0.6.4` built CSS | **ported** — all six root themes selectable; light/dark, nested scopes, persistence, embed-query precedence work |
 | `localStorage` theme/mode + `?embed/theme/mode` | `persist.web.ts` leaf + `Theme` root scope | same keys (`astryx-sandbox-theme/mode`); embed beats storage and skips writes |
 | `LayerProvider` root | internal layer stack exists; no public provider | finding (unit 4): no public surface needed by unit-1 screens |
-| `LinkProvider component={SandboxLink}` + `useLinkComponent` | none — `as` prop slots on nav items; app-level `SandboxLink` calls `router.navigateUrl` | finding (unit 3): app `shell/SandboxLink.web.tsrx` replicates the injection point; components keep the `as` seam |
+| `LinkProvider component={SandboxLink}` + `useLinkComponent` | `LinkProvider`/`useLinkComponent`/`LinkContext` in `@octane-xplat/ui` (new public API, unit 3) | **ported** — provider mounted at app root; `Link`, `SideNav`, `TopNav`, `TabList`, `Breadcrumbs`, and `TreeList` leaf rows resolve `as` → provider → platform default. Custom components receive `to={href}` (router-style); `isSafeDestination` guards both destination props. `SandboxLink` accepts `to` and navigates via the canonical router |
+| `PreviewShell` (toolbar, tree nav, ⌘-palette, source view, copy, viewport sizes, embed iframe) | composed in `shell/PreviewShell.web.tsrx` from `Button`/`DropdownMenu`/`SegmentedControl`/`CommandPalette`+`createStaticSource`/`TreeList`/`CodeBlock`/`useClipboard` | **ported** — palette catalog covers all 714 template routes plus authored pages (upstream listed categories only; recorded superset). `embed.html` sibling → same-route `?embed=1` SPA adaptation; `astryx-theme-sync` postMessage contract preserved |
+| `sourceRegistry` (generated upstream sources) | `src/source-registry.ts` — `import.meta.glob('?raw')` over the ported examples/pages | **adapted** — code view shows the Octane `.tsrx` actually running; pending rows state "Source not available" + upstream path rather than quoting code that isn't running |
+| `SegmentedControl`+`SegmentedControlItem` children | options-driven `options={[{value,label}]}` | adaptation — no child part (F-6); segments show text labels instead of icon-only |
 | `Layout`, `LayoutHeader`, `LayoutContent` | none | composed as `shell/PageLayout.tsrx` (recorded gap) |
+| `TreeListItemData.href`/`isSelected` | `TreeListNode.href` (new) + `selectedKeys`/`selectionMode` | **ported** — href rows render the injected link element; leaf activation also reports `onAction` for keyboard paths |
 | `Grid columns={{minWidth}}` responsive | none — track grammar is static | `.sb-card-grid` CSS `repeat(auto-fill, minmax(320px,1fr))` — adaptation |
 | `Text type/color/weight/wordBreak/textWrap/maxLines/display` props | absent — typography via `className`/tokens; `numberOfLines` covers truncation | token classes in `sandbox.css`; `placeholder` color maps to `--color-text-disabled` (approximation) |
 | `Badge variant="info|warning|neutral" label` | `Badge` unstyled container | `.sb-badge--*` classes — adaptation |
@@ -55,9 +59,24 @@ is a client-routed SPA — adaptation recorded.
   `.xds-theme-<name>` + `color-scheme`; native emits class-split rules via
   `Application.addCss` (UNVERIFIED on actual hosts). Root scope mirrors to
   `<html data-xds-theme>` + `themeSchemeClasses()` so overlay hosts restamp.
-- `F-2` `LinkProvider`/`useLinkComponent` link injection — exercised by
-  `RouteView`, `polymorphic-link`, `LinkProviderCustomLink` template.
-  App-level `SandboxLink` is the interim seam. Owner: unit 3.
+- `F-2` `LinkProvider`/`useLinkComponent` link injection — **resolved in
+  unit 3** by `LinkProvider`/`useLinkComponent`/`LinkContext` in
+  `packages/ui` (`link-context.ts`, `LinkProvider.*`, `use-link-component.*`).
+  Resolution order is upstream's: `as` prop → provider → `'a'`/platform
+  default; the web leaf wraps resolutions in the safe-destination + `to`
+  handoff contract. Consumed by `Link`, `SideNav` items/heading rows,
+  `TopNav` items/mega-menu, `TabList`, `Breadcrumbs`, and `TreeList` leaf
+  rows (`TreeListNode.href`). Caveats: native/macOS leafs keep the
+  canonical-router `followHref` path (the provider default resolves to the
+  `'a'` sentinel there; `Link`'s native leaf does render an injected
+  component); injected components on native receive `href`/`onPress`.
+- `F-8` Router search-param contract — the Xplat client router rejects any
+  URL carrying query params on routes that don't declare `validateSearch`
+  ("This route declares no search parameters" → blank outlet, no surfaced
+  error). Upstream embed URLs (`?embed=1&theme=&mode=`) rely on query
+  params everywhere, so every sandbox route now declares a passthrough
+  validator (routes.ts). Recorded as a framework ergonomics note: an
+  undeclared-query route fails closed and silently.
 - `F-3` `Layout`/`LayoutHeader`/`LayoutContent`/`LayoutFooter`/`LayoutPanel`
   and `GridSpan` — exercised by nearly every page/template. Composed at app
   level for now (`PageLayout`). Owner: units 3/11.
@@ -79,8 +98,12 @@ is a client-routed SPA — adaptation recorded.
 
 ## Honest limitations (unit 1)
 
-- Preview chrome (`PreviewShell`: TreeList nav, ⌘K palette, source view,
-  copy) is not implemented; template routes use an interim frame. Unit 3.
+- Preview chrome is web-only (`PreviewShell.web.tsrx` — iframe embeds,
+  postMessage, localStorage toolbar state); a native host needs a native
+  leaf. `LinkProviderCustomLink` records interception as DOM text instead of
+  upstream's `alert()` so the swap is observable in checks. The command
+  palette catalog intentionally exceeds upstream (all 714 template routes +
+  authored pages vs categories only).
 - `MediaTheme`, syntax themes, color-studio/palette-generator/mobile-spacing,
   theme-family pages remain pending (later units). The palette preview's
   audit drawer + pending-override editor are recorded adaptations (upstream

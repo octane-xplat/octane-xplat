@@ -17,6 +17,7 @@ import { TextTruncation } from './text/TextTruncation'
 import { TextWeight } from './text/TextWeight'
 import { TextWordBreak } from './text/TextWordBreak'
 import { TextWrap } from './text/TextWrap'
+import { LinkProviderCustomLink } from './link/LinkProviderCustomLink'
 import { ThemeApply } from './theme/ThemeApply'
 import { ThemeNested } from './theme/ThemeNested'
 import { ThemeShowcase } from './theme/ThemeShowcase'
@@ -39,6 +40,7 @@ const examples: Record<string, () => any> = {
 	TextWeight,
 	TextWordBreak,
 	TextWrap,
+	LinkProviderCustomLink,
 	ThemeApply,
 	ThemeNested,
 	ThemeShowcase,

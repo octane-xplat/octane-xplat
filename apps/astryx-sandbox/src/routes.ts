@@ -19,27 +19,33 @@ import { PageScreen } from './screens/PageScreen'
 import { NotFoundScreen } from './screens/NotFoundScreen'
 import { CatchAllScreen } from './screens/CatchAllScreen'
 
+// Embed URLs carry `?embed=1&theme=<name>&mode=<light|dark>` (upstream's
+// embed contract); the router rejects search params unless the route
+// declares a validator — pass them through verbatim, the theme layer reads
+// them from location.search itself.
+const passthroughSearch = (raw: Record<string, unknown>) => raw
+
 export const routes = defineRoutes([
-	defineRoute({ path: '' }).screen(HomeScreen),
-	defineRoute({ path: '/components-patterns' }).screen(function ComponentsPatternsRoute() {
+	defineRoute({ path: '', validateSearch: passthroughSearch }).screen(HomeScreen),
+	defineRoute({ path: '/components-patterns', validateSearch: passthroughSearch }).screen(function ComponentsPatternsRoute() {
 		return CategoryScreen({ slug: 'components-patterns' })
 	}),
-	defineRoute({ path: '/themes' }).screen(function ThemesRoute() {
+	defineRoute({ path: '/themes', validateSearch: passthroughSearch }).screen(function ThemesRoute() {
 		return CategoryScreen({ slug: 'themes' })
 	}),
-	defineRoute({ path: '/tools' }).screen(function ToolsRoute() {
+	defineRoute({ path: '/tools', validateSearch: passthroughSearch }).screen(function ToolsRoute() {
 		return CategoryScreen({ slug: 'tools' })
 	}),
-	defineRoute({ path: '/templates' }).screen(TemplatesIndexScreen),
-	defineRoute({ path: '/templates/:name' }).screen(TemplateScreen),
-	defineRoute({ path: '/pages/*rest' }).screen(PageScreen),
-	defineRoute({ path: '/404' }).screen(function NotFoundRoute() {
+	defineRoute({ path: '/templates', validateSearch: passthroughSearch }).screen(TemplatesIndexScreen),
+	defineRoute({ path: '/templates/:name', validateSearch: passthroughSearch }).screen(TemplateScreen),
+	defineRoute({ path: '/pages/*rest', validateSearch: passthroughSearch }).screen(PageScreen),
+	defineRoute({ path: '/404', validateSearch: passthroughSearch }).screen(function NotFoundRoute() {
 		return NotFoundScreen({})
 	}),
 	// The canonical match-order ranks catch-alls above the empty index
 	// pattern, so /*rest also wins '/': CatchAllScreen delegates the empty
 	// splat to HomeScreen and everything else to the pinned 404 surface.
-	defineRoute({ path: '/*rest' }).screen(CatchAllScreen),
+	defineRoute({ path: '/*rest', validateSearch: passthroughSearch }).screen(CatchAllScreen),
 ])
 
 configureRouter({ catalog: routes })

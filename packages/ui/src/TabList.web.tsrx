@@ -6,6 +6,7 @@ import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'o
 import type { TabListProps, TabProps, TabMenuProps, TabMenuOption } from './props';
 import { useSize } from './size-context';
 import { applyEscapeProps } from './escape-props';
+import { useLinkComponent } from './use-link-component.web.tsrx';
 import { Icon } from './Icon.web.tsrx';
 import { Popover } from './Popover.web.tsrx';
 import { followHref } from './nav-href.web';
@@ -228,7 +229,8 @@ export function Tab(props: NavigationItemImplementation<TabProps>) @{
 		</>
 	);
 
-	const LinkEl: any = isDisabled ? 'a' : props.as ?? 'a';
+	const injected: any = useLinkComponent(props.as);
+	const LinkEl: any = isDisabled ? 'a' : injected;
 
 	@if (isLink) {
 		<LinkEl

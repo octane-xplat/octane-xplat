@@ -3,14 +3,16 @@ import { MenuData } from './MenuParts.web.tsrx'
 import type { BreadcrumbProps, BreadcrumbItem, RegisteredRouteContracts, AppRouteStacks, RouteTransitionName } from './props'
 import type { NavigationItemImplementation, NavigationItemsImplementation, MenuOptionImplementation } from './nav-link'
 import { useNavigationItem } from './use-navigation-item.shared.tsrx'
+import { useLinkComponent } from './use-link-component.web.tsrx'
 import { applyEscapeProps } from './escape-props'
 
 function BreadcrumbEntry(props: { item: NavigationItemImplementation<BreadcrumbItem>; current: boolean }) @{
 	const link = useNavigationItem({ ...props.item, onClick: () => props.item.onSelect?.() })
+	const LinkEl: any = useLinkComponent(props.item.as)
 	@if (link.href != null) {
-		<a className="vx-breadcrumb-link" href={link.href} target={props.item.target} rel={props.item.rel} download={props.item.download} aria-current={link.selected ? 'page' : undefined}
+		<LinkEl className="vx-breadcrumb-link" href={link.href} target={props.item.target} rel={props.item.rel} download={props.item.download} aria-current={link.selected ? 'page' : undefined}
 			aria-disabled={link.disabled || undefined} tabIndex={link.disabled ? -1 : undefined}
-			onClick={link.activateWeb}>{props.item.label}</a>
+			onClick={link.activateWeb}>{props.item.label}</LinkEl>
 	} @else if (props.item.onSelect) {
 		<button type="button" className="vx-breadcrumb-link" disabled={link.disabled} onClick={link.activateWeb}>{props.item.label}</button>
 	} @else {

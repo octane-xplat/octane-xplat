@@ -6,7 +6,6 @@ import { useRouterState } from '@octane-xplat/ui/routing'
 import { SideNav, SideNavHeading, SideNavItem, SideNavSection, DropdownMenu, Icon, HStack } from '@octane-xplat/ui'
 import { auditPages, categories, homePage } from '../data/sandboxPages'
 import { SANDBOX_THEMES, setThemeName, setMode, useThemeName, useThemePreference } from '../theme'
-import { SandboxLink } from './SandboxLink'
 
 const categoryIcons: Record<string, string> = {
 	'components-patterns': 'sandbox-box',
@@ -89,7 +88,6 @@ export function SandboxNav() @{
 					label={homePage.label}
 					href={homePage.href}
 					isSelected={pathname === '/'}
-					as={SandboxLink}
 					icon={<Icon name={navPageIcons[homePage.icon]} />}
 				/>
 				{categories
@@ -102,7 +100,6 @@ export function SandboxNav() @{
 								label={category.label}
 								href={href}
 								isSelected={pathname === pathOf(href)}
-								as={SandboxLink}
 								icon={<Icon name={categoryIcons[category.slug] ?? 'sandbox-box'} />}
 							/>
 						)
@@ -119,7 +116,6 @@ export function SandboxNav() @{
 								? pathname.startsWith(pathOf(page.href))
 								: pathname === pathOf(page.href)
 						}
-						as={SandboxLink}
 						icon={<Icon name={navPageIcons[page.icon] ?? 'sandbox-box'} />}
 					/>
 				))}

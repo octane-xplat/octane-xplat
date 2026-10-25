@@ -38,3 +38,27 @@ export function persistThemeMode(theme: string, mode: 'light' | 'dark' | 'system
 		// localStorage can throw in private mode / sandboxed iframes
 	}
 }
+
+/** Embed mode stamps a root class so CSS can enforce the full-height chain
+ *  upstream sets inline (html → body → #root → theme scope). */
+export function markEmbedRoot(): void {
+	document.documentElement.classList.add('sb-embed')
+}
+
+/** Upstream PreviewShell broadcasts `{type:'astryx-theme-sync'}` to its
+ *  embed iframe on theme/mode change — the listener applies the same
+ *  message in embed documents so the preview restyles without reloading.
+ *  Same-origin only, matching upstream's origin check. */
+export function listenEmbedThemeSync(
+	apply: (theme?: string, mode?: 'light' | 'dark') => void,
+): void {
+	window.addEventListener('message', (event) => {
+		if (event.origin !== window.location.origin) return
+		const data = event.data as { type?: string; theme?: unknown; mode?: unknown } | undefined
+		if (data?.type !== 'astryx-theme-sync') return
+		apply(
+			typeof data.theme === 'string' ? data.theme : undefined,
+			data.mode === 'light' || data.mode === 'dark' ? data.mode : undefined,
+		)
+	})
+}

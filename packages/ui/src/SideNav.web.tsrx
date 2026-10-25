@@ -2,6 +2,7 @@
 import type { RegisteredRouteContracts, AppRouteStacks, RouteTransitionName } from './props'
 import type { NavigationItemImplementation } from './nav-link'
 import { useNavigationItem } from './use-navigation-item.shared.tsrx'
+import { useLinkComponent } from './use-link-component.web.tsrx'
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'octane';
 import type {
 	SideNavCollapseButtonProps,
@@ -48,7 +49,7 @@ function HeadingRow(props: {
 	children?: any;
 	onClick?: (e: any) => void;
 }) {
-	const LinkEl: any = props.as ?? 'a';
+	const LinkEl: any = useLinkComponent(props.as);
 	if (props.href != null) {
 		return (
 			<LinkEl className={props.className} href={props.href} aria-label={props.ariaLabel} onClick={props.onClick}>
@@ -339,7 +340,7 @@ export function SideNavItem(props: NavigationItemImplementation<SideNavItemProps
 	);
 
 	const isLink = link.href != null && !isDisabled;
-	const LinkEl: any = props.as ?? 'a';
+	const LinkEl: any = useLinkComponent(props.as);
 	const shared: any = {
 		className: mainCls,
 		style: { minHeight: ITEM_HEIGHT[size] },

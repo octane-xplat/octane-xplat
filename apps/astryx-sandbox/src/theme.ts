@@ -23,7 +23,7 @@ import { stoneTheme } from './themes/stone'
 import { gothicTheme } from './themes/gothic'
 import { chocolateTheme } from './themes/chocolate'
 import { y2kTheme } from './themes/y2k'
-import { readEmbedParams, readStoredMode, readStoredTheme, persistThemeMode } from './persist'
+import { readEmbedParams, readStoredMode, readStoredTheme, persistThemeMode, markEmbedRoot, listenEmbedThemeSync } from './persist'
 
 export const SANDBOX_THEMES = [
 	{ id: 'neutral', label: 'Neutral', theme: neutralTheme },
@@ -73,6 +73,16 @@ export function setThemeName(id: SandboxThemeId): void {
 export function setMode(mode: ThemePreference): void {
 	setThemePreference(mode)
 	if (!embed.isEmbed) persistThemeMode(themeNameStore.getSnapshot(), mode)
+}
+
+// Embed documents: stamp the full-height root marker and follow the parent
+// shell's 'astryx-theme-sync' postMessage broadcasts (upstream contract).
+if (embed.isEmbed) {
+	markEmbedRoot()
+	listenEmbedThemeSync((theme, mode) => {
+		if (isSandboxTheme(theme)) themeNameStore.set(theme)
+		if (mode) setThemePreference(mode)
+	})
 }
 
 export { useThemePreference }

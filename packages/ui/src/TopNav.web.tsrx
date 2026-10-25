@@ -5,6 +5,7 @@ import type { TopNavMenuItemData } from './props'
 import type { RegisteredRouteContracts, AppRouteStacks, RouteTransitionName } from './props'
 import type { NavigationItemImplementation, NavigationItemsImplementation } from './nav-link'
 import { useNavigationItem } from './use-navigation-item.shared.tsrx'
+import { useLinkComponent } from './use-link-component.web.tsrx'
 import { useCallback, useContext, useMemo, useRef, useState } from 'octane';
 import type {
 	TopNavHeadingProps,
@@ -110,7 +111,7 @@ export function TopNavHeading(props: TopNavHeadingProps) @{
 	const closeMenu = useCallback(() => setMenuOpen(false), []);
 	const closeCtx = useMemo(() => ({ closeMenu }), [closeMenu]);
 
-	const LinkEl: any = props.as ?? 'a';
+	const LinkEl: any = useLinkComponent(props.as);
 	const headingLink = props.heading ? (
 		<LinkEl className="vx-topnav-heading-title" href={props.headingHref}>{props.heading}</LinkEl>
 	) : null;
@@ -228,7 +229,8 @@ export function TopNavItem(props: NavigationItemImplementation<TopNavItemProps>)
 		onClick: activate,
 	};
 
-	const ItemEl: any = link.href != null && !isDisabled ? (props.as ?? 'a') : 'button';
+	const ItemLinkEl: any = useLinkComponent(props.as);
+	const ItemEl: any = link.href != null && !isDisabled ? ItemLinkEl : 'button';
 
 	@if (link.href != null && !isDisabled) {
 		<ItemEl
@@ -397,7 +399,7 @@ export function TopNavMegaMenuItem<
 export function TopNavMegaMenuItem(props: NavigationItemImplementation<TopNavMegaMenuItemProps>) @{
 	const link = useNavigationItem(props)
 	const menu = useDropdownMenuContext()
-	const LinkEl: any = props.as ?? 'a';
+	const LinkEl: any = useLinkComponent(props.as);
 	const ItemEl: any = link.href != null ? LinkEl : 'button';
 
 	<ItemEl

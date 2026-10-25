@@ -1,7 +1,16 @@
 import type { LinkProps } from './props';
+import { useLinkComponent } from './use-link-component.web.tsrx'
 
+/**
+ * URL anchor — external/navigation links. For in-app routes use `NavLink`. Import from `@octane-xplat/ui`.
+ * The element resolves through `useLinkComponent`: `as` prop, then the
+ * `LinkProvider` subtree default, then a plain anchor.
+ *
+ * @see LinkProps, NavLinkProps.
+ */
 export function Link(props: LinkProps) @{
-	<a
+	const LinkEl: any = useLinkComponent(props.as)
+	<LinkEl
 		id={props.id}
 		href={props.href}
 		target={props.target ?? '_blank'}
@@ -12,5 +21,5 @@ export function Link(props: LinkProps) @{
 		style={props.style}
 	>
 		{props.children}
-	</a>
+	</LinkEl>
 }

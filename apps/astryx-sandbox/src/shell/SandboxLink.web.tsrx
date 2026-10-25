@@ -7,6 +7,9 @@ import { followHref } from './follow-href.web'
 
 export interface SandboxLinkProps {
 	href: string
+	/** Router-style destination injected by `useLinkComponent` — mirrors
+	 *  upstream's `to={href}` handoff. Navigation uses `to ?? href`. */
+	to?: unknown
 	className?: any
 	style?: any
 	id?: string
@@ -21,7 +24,8 @@ function isExternal(href: string) {
 }
 
 export function SandboxLink(props: SandboxLinkProps) @{
-	const { href, onClick, ...rest } = props
+	const { href, to, onClick, ...rest } = props
+	const destination = typeof to === 'string' ? to : href
 	return (
 		<a
 			{...rest}
@@ -32,7 +36,7 @@ export function SandboxLink(props: SandboxLinkProps) @{
 				if (e?.button !== undefined && e.button !== 0) return
 				if (e?.metaKey || e?.ctrlKey || e?.shiftKey || e?.altKey) return
 				e?.preventDefault?.()
-				followHref(href)
+				followHref(destination)
 			}}
 		/>
 	)
