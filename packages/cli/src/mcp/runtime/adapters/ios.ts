@@ -5,6 +5,7 @@
 // booted simulator where the app is installed AND running, with a
 // `simctl log stream` tap for post-attach output.
 
+import { prepareIosSimulator } from '../../../ios-simulator.ts'
 import { basename } from 'node:path'
 import { spawnManaged } from '../process.ts'
 import { hostBlock, iosSimulators } from '../targets.ts'
@@ -99,6 +100,7 @@ export function createIosAdapter() {
 
 		async launch({ app, target, logs, signal, report, claim, deps }) {
 			assertHost('ios', deps)
+			prepareIosSimulator(target.targetId, deps.execCommand ?? deps.exec)
 			const child = spawnManaged({
 				cmd: 'pnpm',
 				args: nsRunCommand('ios', target.targetId).args,

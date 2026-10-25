@@ -179,7 +179,19 @@ opens, try the same checklist actions you tried in the browser.
 
 To launch multiple platforms together instead, stop the existing development
 commands with Ctrl+C and run `pnpm xplat dev`. It offers a choice of available
-targets. `pnpm xplat dev macos` runs a single target; `pnpm xplat dev -t web,ios` selects web and an available iOS target.
+targets. Choose one device with `--device` and its identifier from
+`pnpm xplat targets --json`. For iOS simulators, Xplat waits for the simulator to
+boot through `simctl`, so the Simulator desktop app is optional.
+
+```sh
+pnpm xplat dev macos
+pnpm xplat dev ios --device DEVICE_UDID
+pnpm xplat dev android --device DEVICE_SERIAL
+pnpm xplat dev -t web,ios
+```
+
+Replace `DEVICE_UDID` or `DEVICE_SERIAL` with the exact device identifier.
+Use either a single selection (with optional `--device`) or `--targets`.
 
 ## See a shared edit in running targets
 

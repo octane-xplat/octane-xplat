@@ -26,6 +26,8 @@ const JOB_LOG_LIMIT = 40
 
 export function createRuntimeService(context, options = {}) {
 	const deps = {
+		// Simulator boot commands must bypass the discovery cache.
+		execCommand: options.exec ?? options.execFile ?? execText,
 		exec: options.exec ?? cachedExec({ exec: options.execFile ?? execText }),
 		spawn: options.spawn,
 		fetch: options.fetch,

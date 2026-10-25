@@ -11,6 +11,7 @@ import { createRouteWatcher } from '../route-watch.ts'
 import { discoverMacOSNative } from '../macos/native.ts'
 import { fileURLToPath } from 'node:url'
 import { siblingUrl } from '../env.ts'
+import { prepareIosSimulator } from '../ios-simulator.ts'
 
 const spawnFor = (t, cwd) => {
 	const run = (tag, cmd, args, cwd) =>
@@ -49,6 +50,10 @@ const spawnFor = (t, cwd) => {
 		return run('windows', 'pnpm', ['exec', 'ns', 'run', 'windows'], cwd)
 	}
 
+	if (t.kind === 'ios') {
+		prepareIosSimulator(t.device)
+	}
+
 	return run(t.kind, 'pnpm', ['exec', 'ns', 'run', t.kind, '--device', t.device], cwd)
 }
 
@@ -79,7 +84,13 @@ export const dev = command({
 			type: optional(string),
 			displayName: 'target',
 			description:
-				'Single-target shorthand — a kind (web,macos,linux,windows) or a device target id',
+				'Single-target shorthand — a kind (web,ios,android,macos,linux,windows) or a device target id',
+		}),
+		device: option({
+			long: 'device',
+			type: optional(string),
+			implicitValue: '',
+			description: 'Exact device target id; optionally combine with an ios or android target',
 		}),
 		targets: option({
 			long: 'targets',
@@ -89,6 +100,11 @@ export const dev = command({
 		}),
 	},
 	handler: async (args) => {
+		if (args.device !== undefined && !args.device.trim()) {
+			p.log.error('--device requires an exact device target id.')
+			process.exit(1)
+		}
+
 		const cwd = process.cwd()
 		const all = discoverTargets(cwd)
 		if (all.length === 0) {
@@ -100,16 +116,21 @@ export const dev = command({
 		}
 
 		let chosen
-		if (args.target && args.targets) {
-			p.log.error('Pass either a positional target or --targets, not both.')
+		if ((args.target || args.device) && args.targets) {
+			p.log.error('Pass either a single target/device or --targets, not both.')
 			process.exit(1)
 		}
 
-		if (args.target) {
-			const matches = all.filter((t) => t.id === args.target || t.kind === args.target)
+		if (args.target || args.device) {
+			const matches = all.filter(
+				(t) =>
+					(!args.target || t.id === args.target || t.kind === args.target) &&
+					(!args.device || t.device === args.device),
+			)
+
 			if (matches.length === 0) {
 				p.log.error(
-					`No targets matched "${args.target}". Available: ${all.map((t) => `${t.kind} (${t.id})`).join(', ')}`,
+					`No targets matched "${args.device ?? args.target}". Available: ${all.map((t) => `${t.kind} (${t.id})`).join(', ')}`,
 				)
 
 				process.exit(1)
