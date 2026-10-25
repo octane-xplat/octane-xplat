@@ -175,6 +175,24 @@ experience of agents writing Octane-xplat code effectively.
   const Screen = () => null
   export { Screen as default }
   ```
+- **Hoisted workspaces need the canonical exports-reverse-map fix on
+  NativeScript Vite 8.0.20.** Its runtime-plugin bare-specifier fold reads
+  `projectRoot/node_modules/<pkg>/package.json` literally, so in a
+  `nodeLinker: hoisted` workspace (the app's `node_modules` is empty and
+  packages live at the workspace root) the exports reverse map comes out
+  empty. A deep vendor specifier such as
+  `@nativescript-community/octane/dist/index.js` then fails to fold back to
+  the bare id, misses every `__nsVendorRegistry` key and alias, and device
+  `require` resolves a module without the vendored exports — the app
+  boot-crashes inside the first served UI module
+  (`TypeError: __octaneUniversalPlan is not a function`). The canonical
+  patch locates the package's `package.json` through Node's `node_modules`
+  ancestor chain instead. The installed-patch regression lives in
+  `packages/cli/test/vite-vendor-specifier-fold.test.mjs`; device evidence
+  is the hoisted-workspace iOS boot. Remove this hunk when an adopted
+  upstream release resolves installed package metadata through ancestor
+  `node_modules`.
+
 - NativeScript Vite 8.0.20 collapses unrelated paths containing `/src/` in
   its HMR graph ([NativeScript#11569](https://github.com/NativeScript/NativeScript/issues/11569)).
   Its extensionless workspace-module fetch also returns 404 although the same

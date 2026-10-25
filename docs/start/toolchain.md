@@ -225,6 +225,23 @@ records what pnpm installed. Keep all three files in Git.
 }
 ```
 
+An app can also live inside a pnpm **workspace** — a repo where several
+apps and packages share one install. Move the scaffolded app under a folder
+the workspace covers (for example `apps/mobile`) and list the packages in
+the root `pnpm-workspace.yaml`. With `nodeLinker: hoisted`, pnpm installs
+all dependencies at the workspace root and the app's own `node_modules`
+stays nearly empty; the dev server resolves packages upward the same way
+Node does, so iOS/Android dev sessions work unchanged. Keep the catalog,
+patches, and `allowBuilds` settings in the root `pnpm-workspace.yaml` —
+workspace members read them from there.
+
+```yaml
+# pnpm-workspace.yaml at the workspace root
+packages:
+  - 'apps/*'
+nodeLinker: hoisted
+```
+
 ### Upgrade framework packages
 
 Run from your app folder. In a workspace containing several packages, an
