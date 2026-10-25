@@ -46,6 +46,7 @@ export function Switch(inputProps: SwitchProps) @{
 		: props.ariaDescribedBy;
 	const showRequired = props.isRequired && !props.isOptional;
 	const size = props.size === 'sm' ? 'sm' : 'md';
+	const labelFirst = props.labelPosition === 'start';
 	const labelClass = cx('vx-field-label', props.isDisabled && 'vx-field-label--disabled', props.isLabelHidden && 'vx-field-label--hidden');
 	const marker = showRequired
 		? <span className="vx-field-marker"><span className="vx-field-dot" aria-hidden="true">{' \u2219 '}</span>{'Required'}</span>
