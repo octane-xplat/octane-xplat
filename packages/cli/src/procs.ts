@@ -58,7 +58,17 @@ export function spawnTagged(tag, cmd, args, cwd, { capture } = {}) {
 			captureError(error)
 		}
 	}
-	const p = spawn(cmd, args, { cwd, env: process.env, detached: process.platform !== 'win32' })
+	// Harness scripts drive dev targets through stdin commands (the AppKit
+	// host's automation protocol lives in the spawned child, not here). A
+	// piped stdin is inherited so those bytes reach the child; a TTY keeps a
+	// dead pipe — detached children sit in a background process group, and
+	// reading the terminal would stop them with SIGTTIN.
+	const p = spawn(cmd, args, {
+		cwd,
+		env: process.env,
+		detached: process.platform !== 'win32',
+		stdio: process.stdin.isTTY ? 'pipe' : ['inherit', 'pipe', 'pipe'],
+	})
 	let requestedStop = false
 	if (log) {
 		process.stdout.write(`[${tag}] session ${log.sessionId}\n`)
@@ -111,19 +121,34 @@ export function spawnTagged(tag, cmd, args, cwd, { capture } = {}) {
 				}
 			}
 		}
-		const forward = (text) => {
-			// Preserve the existing terminal output even when retained records
-			// are truncated to bound memory and disk use.
-			for (const part of text.split('\n')) {
+		// Terminal output is line-buffered separately: a child line longer than
+		// a pipe chunk (e.g. the parity dump's single ~64KB JSON line) must not
+		// be split mid-token or automation readers see truncated text.
+		let pendingOut = ''
+		const writeOut = (text) => {
+			pendingOut += text
+			let idx
+			while ((idx = pendingOut.indexOf('\n')) !== -1) {
+				const part = pendingOut.slice(0, idx).replace(/\r$/, '')
+				pendingOut = pendingOut.slice(idx + 1)
 				if (part.trim()) {
 					process.stdout.write(`[${tag}] ${part}\n`)
 				}
 			}
-			consume(text)
 		}
-		input.on('data', (chunk) => forward(decoder.write(chunk)))
+		input.on('data', (chunk) => {
+			const text = decoder.write(chunk)
+			writeOut(text)
+			consume(text)
+		})
 		input.on('end', () => {
-			forward(decoder.end())
+			const text = decoder.end()
+			writeOut(text)
+			consume(text)
+			if (pendingOut.trim()) {
+				process.stdout.write(`[${tag}] ${pendingOut}\n`)
+				pendingOut = ''
+			}
 			if (pending) {
 				line(pending)
 			}

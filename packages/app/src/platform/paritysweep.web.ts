@@ -1,3 +1,3 @@
 // No-op on web — the dump there comes from apps/web/scripts/parity.ts
 // driving the /parity route in a real browser instead.
-export {}
+export function onParityStageOpen(_fn: () => void): void {}

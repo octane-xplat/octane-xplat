@@ -1,5 +1,6 @@
-import { useEffect } from 'octane';
+import { useEffect, useState } from 'octane';
 import { Screen, RouteOutlet, Tabs, Text, useThemeScheme } from '@octane-xplat/ui';
+import { Parity } from './parity';
 import { Home } from '../Home.tsrx';
 import { Test } from '../Test.tsrx';
 import { Gallery } from '@xplat/demos';
@@ -9,7 +10,7 @@ import type { TabSpec } from '@octane-xplat/ui';
 import '../platform/demosweep';
 // Parity dump step — runs after the sweep via the __xplatSweepDone slot;
 // no-op on web (Playwright dumps /parity directly).
-import '../platform/paritysweep';
+import { onParityStageOpen } from '../platform/paritysweep';
 // Registers the tab-strip icon glyphs (svg + sys:// pairs).
 import '../icons';
 
@@ -44,9 +45,19 @@ export function RootLayout(props: { children?: any }) @{
 
 	console.log('[harness] App render');
 
+	// Parity sweep mounts its stage inline instead of pushing /parity — the
+	// AppKit host presents pushed root routes as surfaces that automation
+	// can't keep alive long enough to measure.
+	const [parityOpen, setParityOpen] = useState(false);
+	useEffect(() => onParityStageOpen(() => setParityOpen(true)), []);
+
 	useEffect(() => {
 		console.log('[harness] App mounted');
 	}, []);
+
+	if (parityOpen) {
+		return <Parity />;
+	}
 
 	// Pushed root routes are wrapped in this layout by the native route host.
 	// Let their screen fill the page; the initial app render has no child and

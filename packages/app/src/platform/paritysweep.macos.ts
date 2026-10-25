@@ -1,7 +1,13 @@
-import { router } from '@octane-xplat/ui/routing';
 import { setThemePreference } from '@octane-xplat/ui'
 
 let running = false
+// The AppKit route host presents pushed root routes as dialog surfaces that
+// tear down under automation before the stage settles; mount the stage inline
+// instead (see _layout.tsrx).
+let openStage: (() => void) | undefined
+export function onParityStageOpen(fn: () => void): void {
+	openStage = fn
+}
 let lastDump = ''
 let lastParsed: any = null
 let prevParsed: any = null
@@ -42,7 +48,9 @@ function diffCells(a: any, b: any): string {
 	return out.slice(0, 8).join(',') + (out.length > 8 ? ' …+' + (out.length - 8) : '')
 }
 
-function waitForDump(tries = 60): void {
+// The fixture stage can take a while to mount and settle on the AppKit host;
+// keep polling well past the worst observed settle time.
+function waitForDump(tries = 300): void {
 	const dump = stableDump()
 	if (dump) {
 		console.log('[parity-json] ' + JSON.stringify(dump))
@@ -51,7 +59,9 @@ function waitForDump(tries = 60): void {
 
 	if (--tries <= 0) {
 		console.log(
-			'[parity] FAIL — stage never produced a stable dump; changed: ' +
+			'[parity] FAIL — stage never produced a stable dump; seam=' +
+				typeof (globalThis as any).__xplatParity +
+				'; changed: ' +
 				diffCells(prevParsed, lastParsed),
 		)
 
@@ -71,7 +81,7 @@ export function runParity(): void {
 	// The sweep compares against the web dump's light-theme facets — pin the
 	// stage to light so a dark host scheme doesn't skew the measurements.
 	setThemePreference('light')
-	router.push({ to: '/parity' })
+	openStage?.()
 	setTimeout(() => waitForDump(), 100)
 }
 

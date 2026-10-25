@@ -3,6 +3,10 @@ import { Application, knownFolders } from '@nativescript/core'
 import { router } from '@octane-xplat/ui/routing';
 import { VIRTUAL_LIST_BENCH_MODE } from './virtual-list-benchmark-mode'
 
+/** Inline-stage mount is a macOS-only path (its leaf overrides this); other
+ *  platforms keep the router.push navigation. */
+export function onParityStageOpen(_fn: () => void): void {}
+
 // Parity sweep step — pushes the parity route on the root stack, dumps the
 // fixture stage's measured tree via the __xplatParity seam (installed by
 // ParityStage on mount), and writes it to app documents so it can be pulled

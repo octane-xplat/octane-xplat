@@ -219,8 +219,9 @@ style and reports the node's window frame).
 
 Per-fixture diffs rank text baseline offsets (~1pt) and anti-aliasing as the
 main residual gaps; labels, spacing, padding, and self-drawn controls match
-closely. The AppKit parity route keeps the host tab bar visible above the
-stage — a harness quirk outside the per-fixture comparison. The window holds
+closely. The AppKit parity stage mounts inline in place of the whole app
+shell — pushed root routes present as dialog surfaces that automation cannot
+hold open long enough to measure. The window holds
 its 640x420 content size: the contentView carries required width/height
 constraints so AppKit can't drag the window to the content's fitting size,
 and stack children get per-side margins via a transparent wrapper view

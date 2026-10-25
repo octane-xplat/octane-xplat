@@ -2561,9 +2561,11 @@ function validateNodeProps(type: string, props: PropBag | undefined, baseProps?:
 	if (
 		type === 'scrollview' &&
 		props?.orientation != null &&
-		!['horizontal', 'vertical'].includes(props.orientation)
+		!['horizontal', 'vertical', 'both'].includes(props.orientation)
 	) {
-		throw new Error('[macos-host] ' + type + ' orientation must be horizontal or vertical')
+		throw new Error(
+			'[macos-host] ' + type + ' orientation must be horizontal, vertical or both',
+		)
 	}
 
 	if (props?.dock != null && !['left', 'top', 'right', 'bottom'].includes(props.dock)) {
@@ -5514,6 +5516,26 @@ function validateTextNesting(parentType: string | undefined, childType: string) 
 	}
 }
 
+// Name the offending child (text preview or element type) and the parent's
+// id — "cannot contain text-only children" alone can't say which fixture
+// or leaf produced the illegal nesting.
+function textOnlyChildError(
+	parent: { type: string; props?: PropBag } | null | undefined,
+	childType: string,
+	child?: { props?: PropBag; text?: string },
+) {
+	const text = child?.text ?? child?.props?.value
+	const detail =
+		childType === '#text' ? ` ("${String(text ?? '').slice(0, 60)}")` : ` (<${childType}>)`
+	return new Error(
+		'AppKit <' +
+			(parent?.type ?? '?') +
+			'> cannot contain text-only children' +
+			detail +
+			(parent?.props?.id ? ` — parent id=${parent.props.id}` : ''),
+	)
+}
+
 function insert(
 	container: RootContainer,
 	parentId: UniversalHostParent,
@@ -5538,7 +5560,7 @@ function insert(
 		!node.view &&
 		node.type !== 'proxyviewcontainer'
 	) {
-		throw new Error('AppKit <' + parent!.type + '> cannot contain text-only children')
+		throw textOnlyChildError(parent, node.type, node)
 	}
 
 	if (parent && (node.view || node.type === 'proxyviewcontainer') && !canContainView(parent.type)) {
@@ -6007,7 +6029,7 @@ function validateBatch(container: RootContainer, commands: readonly UniversalHos
 					!typeHasView(command.type) &&
 					command.type !== 'proxyviewcontainer'
 				) {
-					throw new Error('AppKit <' + parent!.type + '> cannot contain text-only children')
+					throw textOnlyChildError(parent, command.type, { props: command.props })
 				}
 
 				if (
@@ -6057,7 +6079,7 @@ function validateBatch(container: RootContainer, commands: readonly UniversalHos
 						!typeHasView(entry.type) &&
 						entry.type !== 'proxyviewcontainer'
 					) {
-						throw new Error('AppKit <' + parent!.type + '> cannot contain text-only children')
+						throw textOnlyChildError(parent, entry.type, { props: entry.props })
 					}
 
 					if (
@@ -6123,7 +6145,7 @@ function applyCommand(container: RootContainer, command: UniversalHostCommand) {
 				!typeHasView(command.type) &&
 				command.type !== 'proxyviewcontainer'
 			) {
-				throw new Error('AppKit <' + existing!.parent!.type + '> cannot contain text-only children')
+				throw textOnlyChildError(existing!.parent, command.type, { props: command.props })
 			}
 
 			if (existing) {
@@ -6208,7 +6230,7 @@ function applyCommand(container: RootContainer, command: UniversalHostCommand) {
 				!typeHasView(command.type) &&
 				command.type !== 'proxyviewcontainer'
 			) {
-				throw new Error('AppKit <' + parent!.type + '> cannot contain text-only children')
+				throw textOnlyChildError(parent, command.type, { props: command.props })
 			}
 
 			if (
@@ -6746,12 +6768,16 @@ function parityNode(node: ElementNode, boxNode: ElementNode, facets: readonly st
 }
 
 function measureParity(container: RootContainer, facets: readonly string[]) {
-	const stage = [...container.nodes.values()].find((node) => node.props?.id === 'parity-stage')
+	const stage = [...appKitContainers]
+		.flatMap((entry) => [...entry.nodes.values()])
+		.find((node) => node.props?.id === 'parity-stage')
 	if (!stage?.view) {
 		return null
 	}
 
-	container.hostView.window?.contentView?.layoutSubtreeIfNeeded?.()
+	// The stage can live in a sibling container (tab pane, popup, route host).
+	const stageContainer: RootContainer = stage.container ?? container
+	stageContainer.hostView.window?.contentView?.layoutSubtreeIfNeeded?.()
 	stage.view.layoutSubtreeIfNeeded?.()
 
 	const cells: Record<string, any> = {}
@@ -7502,6 +7528,13 @@ export interface MacOSRootOptions {
 	fontFamily?: string
 }
 
+// AppKit renders into several roots — the main window plus tab panes, popup
+// surfaces, and route content hosts each own a container, and every
+// createMacOSRoot call rebinds the __xplatMacOSDebug seam. Debug lookups must
+// search every live container or automation silently misses nodes mounted
+// outside whichever root was created last.
+const appKitContainers = new Set<RootContainer>()
+
 export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptions = {}) {
 	rootFontFamilies.set(hostView, fontFamily)
 	const container: RootContainer = {
@@ -7533,8 +7566,10 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 
 	container.root = root
 	ownedRoots.set(hostView, root)
+	appKitContainers.add(container)
 	const unmount = root.unmount.bind(root)
 	root.unmount = () => {
+		appKitContainers.delete(container)
 		if (ownedRoots.get(hostView) === root) {
 			ownedRoots.delete(hostView)
 		}
@@ -7543,9 +7578,12 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 	}
 
 	if ((process.env as { [key: string]: string | undefined }).OCTANE_MACOS_AUTOMATION === '1') {
+		// Ids resolve across every live container — see appKitContainers.
+		const allNodes = () =>
+			[...appKitContainers].flatMap((entry) => [...entry.nodes.values()])
 		const debug = {
 			findId(id: string) {
-				const node = [...container.nodes.values()].find((node) => node.props.id === id)
+				const node = allNodes().find((node) => node.props.id === id)
 				return node &&
 					[
 						'proxyviewcontainer',
@@ -7634,7 +7672,7 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 				}
 			},
 			scrollToId(id: string, offset: number) {
-				const node = [...container.nodes.values()].find(
+				const node = allNodes().find(
 					(candidate) => candidate.type === 'scrollview' && candidate.props.id === id,
 				)
 
@@ -7652,7 +7690,7 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 			 *  AppKit documents count clip origin y up from the bottom, so
 			 *  the conversion inverts through the doc/clip heights. */
 			scrollToTop(id: string, top: number) {
-				const node = [...container.nodes.values()].find(
+				const node = allNodes().find(
 					(candidate) => candidate.type === 'scrollview' && candidate.props.id === id,
 				)
 
@@ -7679,7 +7717,7 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 			 *  box relative to the viewport. Consumed by the app-side
 			 *  platform/virtual-list-benchmark.macos adapter. */
 			listSnapshot(id: string) {
-				const node = [...container.nodes.values()].find(
+				const node = allNodes().find(
 					(candidate) => candidate.type === 'scrollview' && candidate.props.id === id,
 				)
 
@@ -7750,7 +7788,7 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 					}
 				}
 
-				const node = [...container.nodes.values()].find(
+				const node = allNodes().find(
 					(candidate) => candidate.props.id === id && candidate.view,
 				)
 
@@ -7768,7 +7806,7 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 			},
 			/** Apply a single style prop on a mounted node — margin/layout probes. */
 			setStyle(id: string, name: string, value: any) {
-				const node = [...container.nodes.values()].find((candidate) => candidate.props.id === id)
+				const node = allNodes().find((candidate) => candidate.props.id === id)
 
 				if (!node) {
 					throw new Error('No AppKit node with id ' + id)
@@ -7791,7 +7829,7 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 			},
 			/** Ancestor chain for a node id with frames — layout forensics. */
 			ancestors(id: string) {
-				const node = [...container.nodes.values()].find((candidate) => candidate.props.id === id)
+				const node = allNodes().find((candidate) => candidate.props.id === id)
 
 				if (!node) {
 					throw new Error('No AppKit node with id ' + id)
@@ -7821,7 +7859,7 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 			 *  current scroll position, so a screenshot pass can choose
 			 *  offsets and crop without re-querying the host. */
 			parityCellFrames(scrollId: string) {
-				const scroll = [...container.nodes.values()].find(
+				const scroll = allNodes().find(
 					(candidate) => candidate.type === 'scrollview' && candidate.props.id === scrollId,
 				)
 
@@ -7829,7 +7867,7 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 					throw new Error('No AppKit ScrollView with id ' + scrollId)
 				}
 
-				const stage = [...container.nodes.values()].find(
+				const stage = allNodes().find(
 					(candidate) => candidate.props.id === 'parity-stage',
 				)
 
@@ -7888,7 +7926,7 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 				}
 			},
 			scrollStats(id: string) {
-				const node = [...container.nodes.values()].find(
+				const node = allNodes().find(
 					(candidate) => candidate.type === 'scrollview' && candidate.props.id === id,
 				)
 
@@ -7900,10 +7938,10 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 			},
 			inspect(id: string) {
 				const node = id.startsWith('type:')
-					? [...container.nodes.values()].find(
+					? allNodes().find(
 							(candidate) => candidate.type === id.slice(5) && candidate.view,
 						)
-					: [...container.nodes.values()].find((candidate) => candidate.props?.id === id)
+					: allNodes().find((candidate) => candidate.props?.id === id)
 
 				if (!node?.view) {
 					throw new Error('No AppKit view with id ' + id)
@@ -7956,13 +7994,13 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 			},
 			snapshot() {
 				return {
-					labels: [...container.nodes.values()]
+					labels: allNodes()
 						.filter((node) => node.type === 'label' && node.view)
 						.map((node) => node.view!.stringValue),
-					buttons: [...container.nodes.values()]
+					buttons: allNodes()
 						.filter((node) => node.type === 'button' && node.view)
 						.map((node) => node.view!.title),
-					pressables: [...container.nodes.values()]
+					pressables: allNodes()
 						.filter(
 							(node) =>
 								node.type === 'masonview' &&
@@ -7982,7 +8020,7 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 				handler({ ...event, view })
 			},
 			pressId(id: string) {
-				const node = [...container.nodes.values()].find((candidate) => candidate.props.id === id)
+				const node = allNodes().find((candidate) => candidate.props.id === id)
 				if (!node || node.actionId === undefined) {
 					throw new Error('No AppKit pressable with id ' + id)
 				}
@@ -7990,7 +8028,7 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 				invokeAction(node.actionId)
 			},
 			setText(idOrPlaceholder: string, value: any) {
-				const node = [...container.nodes.values()].find(
+				const node = allNodes().find(
 					(candidate) =>
 						(candidate.type === 'textfield' || candidate.type === 'textview') &&
 						(candidate.props.id === idOrPlaceholder ||
@@ -8010,7 +8048,7 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 				}
 			},
 			pressAccessibilityLabel(label: string) {
-				const node = [...container.nodes.values()].find(
+				const node = allNodes().find(
 					(candidate) =>
 						candidate.type === 'masonview' &&
 						candidate.actionId !== undefined &&
@@ -8026,7 +8064,7 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 				}
 			},
 			pressButton(title: string) {
-				const node = [...container.nodes.values()].find(
+				const node = allNodes().find(
 					(candidate) => candidate.type === 'button' && candidate.view!.title === title,
 				)
 
@@ -8037,7 +8075,7 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 				node.view!.performClick(null)
 			},
 			hover(id: string, phase: 'enter' | 'exit') {
-				const node = [...container.nodes.values()].find(
+				const node = allNodes().find(
 					(candidate) => candidate.props?.id === id && candidate.view,
 				)
 

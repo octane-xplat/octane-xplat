@@ -28,7 +28,11 @@ export function Collapsible(props: CollapsibleProps) @{
 			onPress={toggle}
 			accessibilityLabel={props.accessibilityLabel}
 		>
-			{props.trigger}
+			{typeof props.trigger === 'string' || typeof props.trigger === 'number' ? (
+				<label className="vx-collapsible-trigger-text" text={String(props.trigger)} />
+			) : (
+				props.trigger
+			)}
 		</Pressable>
 		{open ? <masonview className="vx-collapsible-content" style={{display: "flex"}}>{props.children}</masonview> : null}
 	</masonview>
