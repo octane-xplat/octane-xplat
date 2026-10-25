@@ -371,6 +371,11 @@ retained screens. It does not supply modal focus management or make the
 background inaccessible; use [shared temporary surfaces](#own-temporary-surfaces)
 when those behaviors are needed.
 
+The maintained native regression qualifies this composition's height resizing
+on iOS and Android, plus width resizing on Android. A nested iOS stage can
+still report zero width after layout settles; see [known limits](../testing/known-limits.md).
+Check width separately when using nested media stages on iOS.
+
 ### Safe-area edges
 
 `SafeArea` keeps content clear of the system bars, notch, and home

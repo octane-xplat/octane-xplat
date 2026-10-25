@@ -23,7 +23,7 @@ function LayeredScreen() @{
 		<View id="bounds" style={{ width: 107, height: 400 }}>
 			<Grid rows="*" columns="*" style={{ flexGrow: 1 }}>
 				<View row={0} col={0}>
-					<Text>Retained library</Text>
+					<Text>Library</Text>
 				</View>
 				<View id="layer" row={0} col={0}>
 					<Screen id="layered-screen" style={{ flexGrow: 1 }}>
@@ -78,16 +78,49 @@ it('fills a same-cell layer with intrinsic content without a native height pin (
 	const screen = view.getViewById<NativeView>('layered-screen')!
 	const stage = view.getViewById<NativeView>('layered-stage')!
 	await waitUntil(() => screen.isLoaded)
-	for (const height of [400, 300, 500]) {
+	for (const [width, height] of [
+		[107, 400],
+		[107, 300],
+		[107, 500],
+		[200, 500],
+		[107, 300],
+	]) {
+		bounds.style.width = width
 		bounds.style.height = height
 		stage.requestLayout()
-		await waitUntil(() =>
-			[layer, screen, stage].every((item) => Math.abs(item.getActualSize().height - height) <= 1),
-		)
+		try {
+			await waitUntil(() =>
+				[layer, screen, stage].every((item) => {
+					const size = item.getActualSize()
+					return (
+						Math.abs(size.height - height) <= 1 && (!isAndroid || Math.abs(size.width - width) <= 1)
+					)
+				}),
+			)
+		} catch (cause) {
+			throw new Error(
+				`Expected layer bounds ${width}x${height}; actual bounds: ${JSON.stringify(
+					[bounds, layer, screen, stage].map((item) => ({
+						id: item.id,
+						...item.getActualSize(),
+						styleHeight: item.style.height,
+						flexGrow: item.style.flexGrow,
+						minHeight: item.style.minHeight,
+					})),
+				)}`,
+				{ cause },
+			)
+		}
 
 		await new Promise((resolve) => setTimeout(resolve, 400))
 		for (const item of [layer, screen, stage]) {
 			expect(Math.abs(item.getActualSize().height - height)).toBeLessThanOrEqual(1)
+			// Added Android width coverage catches stale-frame intrinsic minima.
+			// iOS can still report zero stage width after settling; see the beta.5
+			// qualification in masonkit-layout-evaluation.md. Height remains cross-platform.
+			if (isAndroid) {
+				expect(Math.abs(item.getActualSize().width - width)).toBeLessThanOrEqual(1)
+			}
 		}
 	}
 })

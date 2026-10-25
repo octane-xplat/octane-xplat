@@ -173,7 +173,7 @@ catalogs:
     "@nativescript/vite": 8.0.20
     "@octane-xplat/cli": 0.17.1
     "@octane-xplat/jsx": 0.17.1
-    "@octane-xplat/nativescript-mason-core": 1.0.0-beta.4
+    "@octane-xplat/nativescript-mason-core": 1.0.0-beta.5
     "@octane-xplat/platform": 0.17.1
     "@octane-xplat/ui": 0.17.1
     "@octanejs/vite-plugin": 0.1.61

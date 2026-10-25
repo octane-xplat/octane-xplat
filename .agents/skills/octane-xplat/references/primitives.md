@@ -187,6 +187,11 @@ export function RetainedLayers() {
 }
 ```
 
+The maintained layer regression qualifies height resizing on both mobile
+platforms and width resizing on Android. An iOS nested stage can still report
+zero width after settling; follow the [known-limits evidence](known-limits.md)
+before promising nested-stage width parity.
+
 ## Conventions
 
 - `className` composes with each leaf's own `vx-*` class. Pass arrays directly

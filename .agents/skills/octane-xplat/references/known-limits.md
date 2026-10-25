@@ -21,6 +21,10 @@ For a boundary or workaround investigation, read the applicable internal record:
   rebuilt artifacts are adopted. The [shared FontManager correction](../../../docs/notes/masonkit-layout-evaluation.md#shared-fontmanager-in-core-beta3)
   replaces core beta.2's conflicting iOS font packaging. Follow the
   [managed plugin and rebuild guidance](toolchain.md) when updating an app.
+  Core beta.4 regressed Android nested-root shrinking; beta.5 corrects it.
+  The [beta.5 qualification](../../../docs/notes/masonkit-layout-evaluation.md#mason-core-beta5-nested-root-correction-2026-10-25)
+  distinguishes the passing height/Android-width cases from an unresolved iOS
+  inner-stage width report. Do not infer width parity from height checks.
 - [AppKit verification](../../../docs/appkit-verification.md): geometry and
   lifecycle evidence, including CSS positioned edges after the layout cutover.
 - [Upstream limitations](../../../docs/upstream-limitations.md): how to verify

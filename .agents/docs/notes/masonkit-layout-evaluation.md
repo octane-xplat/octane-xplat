@@ -1477,5 +1477,72 @@ Runtime qualification: `screen-safe-area.ios.tsrx` passed 28/28 assertions and
 core beta.4 and font-manager 1.0.20 — numeric frame and handler-dispatch
 evidence, not OS input or pixel parity. The touch case first failed because its
 `touch` JSX attribute never bound an event (the driver classifies only
-`on[A-Z]` props); it now uses `onTouch`. Android runtime remains unqualified —
-no authorized device or emulator on this host.
+`on[A-Z]` props); it now uses `onTouch`. Those safe-area/touch cases remain unqualified on Android in this upgrade
+record; the subsequent beta.5 section qualifies different Android layout cases.
+
+
+## Mason core beta.5 nested-root correction (2026-10-25)
+
+The managed pin is now
+[`@octane-xplat/nativescript-mason-core@1.0.0-beta.5`](https://github.com/octane-xplat/nativescript-mason/releases/tag/core-v1.0.0-beta.5).
+Requalifying #42 after integrating beta.4 exposed an Android regression: a
+bounded same-cell layer kept its previous 400-point height when its parent
+shrank to 300. A fresh beta.3 control passed. The corresponding native
+reproducer also failed with expected 300, actual 400.
+
+Beta.4's pre-compute foreign-leaf invalidation could measure a foreign
+NativeScript container using its previous frame as an intrinsic minimum when
+it contained an independent Mason root sharing the same engine. Beta.5 warms
+that nested root's intrinsic measurement before the outer engine compute,
+with both axes unconstrained. Reusing the previous width during warmup also
+prevented a 200-to-107 width shrink, so both axes matter. Ordinary foreign
+controls keep beta.4's invalidation behavior. The native corrections are
+[`10519254`](https://github.com/octane-xplat/nativescript-mason/commit/1051925496e5698902f0c49095a45059a1f3200e)
+and
+[`e1e7372a`](https://github.com/octane-xplat/nativescript-mason/commit/e1e7372a8bd513e35b9cce04d00149a6c42f20af).
+
+The final native Android suite passes all 24 tests, including single-pass
+height and width assertions at 107×400, 107×300, 107×500, 200×500, then
+107×300. All 22 core JavaScript runtime tests pass. The release's iOS payload
+and all 34 JavaScript files are byte-identical to beta.4. All 189 files in the
+published registry package match the locally qualified final candidate.
+Release validation and publication are recorded in the fork's
+[validation run](https://github.com/octane-xplat/nativescript-mason/actions/runs/40216312112)
+and [publish run](https://github.com/octane-xplat/nativescript-mason/actions/runs/40216777208).
+
+The standard mobile harness keeps `@nativescript/font-manager@1.0.20` enabled.
+Its four-file suite covers FontManager coinstallation, percentage image grid
+minimums (#41), collapsed-text liveness (#50), and foreign Screen height (#42).
+The Android emulator passes six tests with three platform skips, including the
+added width-resize assertions. The iOS Simulator passes eight tests with one platform skip, preserving the
+original height criterion; width qualification has a separate unresolved gap
+described below. Scoped
+host checks pass 18 package typecheck programs, 484 CLI tests, and 79 MCP tests.
+The NativeScript Vite 8.0.21 collector correction has actual host Android vendor
+bundle evidence, not a new device-startup or HMR-input qualification.
+
+When comparing native package versions, an install/override alone can reuse an
+old generated APK. The version controls here used freshly generated native
+projects and audited APK library hashes; a mixed beta.3-JavaScript/beta.4-native
+run was discarded. Local logs and registry equivalence evidence are under
+`research/issues51-52/`. These checks do not establish physical-device behavior,
+OS input, safe-area dispatch, or pixel parity.
+
+### Remaining iOS nested-stage width gap
+
+Expanding the original height-only same-cell regression with width assertions
+exposed a separate iOS discrepancy on beta.5's unchanged iOS payload. With a
+107-point bounded parent, the inner stage can report zero width after settling,
+even though the height assertions pass. Shortening the retained label from
+“Retained library” to “Library” removes the label's unrelated 119-point intrinsic
+minimum but does not resolve that discrepancy. The failed assertion is in
+`research/issues51-52/ios-short-label-width-failure.log`; the earlier detailed
+measurement is in `ios-width-diagnostic-failure.log`. These are NativeScript
+`getActualSize()` observations; native frame correctness and the underlying
+cause have not been established.
+
+The maintained test preserves the original cross-platform height requirement
+and adds Android width assertions, with this gap explicit in its source. It
+does not claim iOS width parity. Follow-up must distinguish NativeScript size
+reporting from actual native layout before choosing a fix, then retain an iOS
+width regression. No visual analysis was used.

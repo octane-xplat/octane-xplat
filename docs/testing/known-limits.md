@@ -376,6 +376,12 @@ if (result === 'unavailable') console.log('Sharing unavailable')
   `repeat`, `%`, line names) warn once and lay out as `auto` on every host.
   `row`/`col` are zero-based track indices; spans count tracks. —
   post-0.14.0·desk.
+- **Retained nested Screens need separate width qualification on iOS.** In
+  the bounded same-cell regression, the inner stage can report zero width
+  after settling while the height checks pass. Observed with Mason core
+  1.0.0-beta.5 (unchanged iOS payload from beta.4); native frame correctness
+  and the cause remain unverified. Android passes height and width resizing.
+  See the maintained [regression fixture](../../apps/mobile/src/tests/foreign-screen-height.spec.tsrx).
 - **`useMeasure` `x`/`y` is app-surface-relative on every target** — the
   native leaf subtracts the root layout surface's screen position, matching
   the web viewport space; `bounds === null` is the readiness signal. —
