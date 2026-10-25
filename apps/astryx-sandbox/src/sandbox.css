@@ -330,3 +330,16 @@ html.sb-embed .xds-theme,
 html.sb-embed .sb-embed-root {
 	height: 100%;
 }
+
+.sb-badge--green {
+	background: var(--color-background-success-subtle, #dcfce7);
+	color: var(--color-text-success, #166534);
+}
+.sb-media-overlay-scrim--hover {
+	opacity: 0;
+	transition: opacity 160ms ease;
+}
+.sb-media-overlay:hover .sb-media-overlay-scrim--hover,
+.sb-media-overlay:focus-within .sb-media-overlay-scrim--hover {
+	opacity: 1;
+}

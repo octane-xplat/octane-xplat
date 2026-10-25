@@ -23,7 +23,7 @@ export function DropdownMenuItem(props: MenuItemProps) @{
 		if (props.hasCloseOnSelect !== false) menu.closeMenu()
 	}
 
-	<Pressable ref={props.ref} id={props.id} className={['vx-menu-item', props.isDisabled && 'vx-menu-item--disabled', props.className]} style={props.style}
+	<Pressable ref={props.ref} id={props.id} className={['vx-menu-item', props.isDisabled && 'vx-menu-item--disabled', props.variant === 'destructive' && 'vx-menu-item--destructive', props.className]} style={props.style}
 		accessibilityRole="menuitem" accessibilityLabel={typeof props.label === 'string' ? props.label : undefined}
 		accessibilityState={{ disabled: props.isDisabled }} onPress={select}>
 		{props.icon && <Icon name={props.icon} />}
@@ -42,7 +42,7 @@ export function DropdownMenuCheckboxItem(props: MenuCheckboxItemProps) @{
 		if (props.hasCloseOnSelect) menu.closeMenu()
 	}
 
-	<Pressable ref={props.ref} id={props.id} className={['vx-menu-item', props.isDisabled && 'vx-menu-item--disabled', props.className]} style={props.style}
+	<Pressable ref={props.ref} id={props.id} className={['vx-menu-item', props.isDisabled && 'vx-menu-item--disabled', props.variant === 'destructive' && 'vx-menu-item--destructive', props.className]} style={props.style}
 		accessibilityRole="menuitemcheckbox" accessibilityLabel={typeof props.label === 'string' ? props.label : undefined}
 		accessibilityState={{ disabled: props.isDisabled, checked: props.value }} onPress={select}>
 		<Text accessible={false}>{props.value ? '✓' : '○'}</Text>
@@ -83,7 +83,7 @@ export function DropdownMenuRadioItem(props: MenuRadioItemProps) @{
 		if ((props.hasCloseOnSelect ?? group.hasCloseOnSelect) !== false) menu.closeMenu()
 	}
 
-	<Pressable ref={props.ref} id={props.id} className={['vx-menu-item', props.isDisabled && 'vx-menu-item--disabled', props.className]} style={props.style}
+	<Pressable ref={props.ref} id={props.id} className={['vx-menu-item', props.isDisabled && 'vx-menu-item--disabled', props.variant === 'destructive' && 'vx-menu-item--destructive', props.className]} style={props.style}
 		accessibilityRole="menuitemradio" accessibilityLabel={typeof props.label === 'string' ? props.label : undefined}
 		accessibilityState={{ disabled: props.isDisabled || group.isDisabled, checked: group.value === props.value }} onPress={select}>
 		<Text accessible={false}>{group.value === props.value ? '●' : '○'}</Text>
@@ -149,7 +149,7 @@ export function DropdownMenuSubMenu(props: NavigationMenuImplementation<MenuSubM
 	const closeLevel = () => setOpen(false)
 
 	<>
-		<Pressable ref={mergedRef} id={props.id} className={['vx-menu-item', props.isDisabled && 'vx-menu-item--disabled', props.className]} style={props.style}
+		<Pressable ref={mergedRef} id={props.id} className={['vx-menu-item', props.isDisabled && 'vx-menu-item--disabled', props.variant === 'destructive' && 'vx-menu-item--destructive', props.className]} style={props.style}
 			accessibilityRole="menuitem" accessibilityLabel={typeof props.label === 'string' ? props.label : undefined}
 			accessibilityHint="Opens submenu" accessibilityState={{ disabled: props.isDisabled }} onPress={() => setOpen(!open)}
 			web={{ 'aria-haspopup': 'menu', 'aria-expanded': open, 'data-menu-submenu': true,

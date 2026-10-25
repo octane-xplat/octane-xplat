@@ -7,12 +7,13 @@ import { Dialog } from './Dialog';
  *  mounts the dialog with arbitrary content; `element` renders it — keep
  *  it mounted in the tree. The hook owns open state; user dismissal is
  *  reported back as `isOpen: false` (the hook closes itself). */
-export function useImperativeDialog(): ImperativeDialogReturn @{
+export function useImperativeDialog(defaults: DialogOptions = {}): ImperativeDialogReturn @{
 	const [isOpen, setIsOpen] = useState(false);
 	const [content, setContent] = useState<any>(null);
 	const [options, setOptions] = useState<DialogOptions>({});
 
 	const show = useCallback((children: any, next: DialogOptions = {}) => {
+		next = { ...defaults, ...next };
 		setContent(children);
 		setOptions(next);
 		setIsOpen(true);

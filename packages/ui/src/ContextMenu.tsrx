@@ -10,6 +10,7 @@ import { cx } from "@octane-xplat/lib";
 import { applyEscapeProps } from "./escape-props";
 import { Pressable } from './Pressable';
 import { Popover } from './Popover';
+import { MenuSheet, useMenuSheet } from './menu-sheet';
 
 /** Self-drawn context menu — long-press opens the same anchored list as
  *  DropdownMenu, positioned over the children. There is no right-click on
@@ -25,6 +26,7 @@ export function ContextMenu(props: NavigationMenuImplementation<ContextMenuProps
 	const [internal, setInternal] = useState(props.defaultOpen ?? false);
 	const controlled = props.isOpen !== undefined;
 	const open = props.isOpen ?? internal;
+	const asSheet = useMenuSheet(props.presentation);
 
 	const setOpen = (next: boolean) => {
 		if ((props.isDisabled) && next) return;
@@ -35,17 +37,21 @@ export function ContextMenu(props: NavigationMenuImplementation<ContextMenuProps
 	<masonview ref={(v: any) => { anchor.current = v; if (v) applyEscapeProps(v, props); }} id={props.id} className={cx('vx-contextmenu', props.className)} style={mergeStyle({display: "flex"}, props.style)} onLongPress={(props.isDisabled) ? undefined : () => setOpen(true)}>
 		{props.children}
 		{props.trigger && <Pressable accessibilityLabel={props.accessibilityLabel ?? 'Open actions'} disabled={props.isDisabled} onPress={() => setOpen(!open)}>{props.trigger}</Pressable>}
-		<Popover
-			anchor={anchor}
-			open={open}
-			placement={props.placement ?? 'bottom'}
-			alignment={props.alignment}
-			onDismiss={() => setOpen(false)}
-			className={cx('vx-menu', props.menuClassName)}
-		>
-			<MenuSurface closeMenu={() => setOpen(false)} label={props.accessibilityLabel}>
-				<MenuData items={props.items} />{props.menu}
-			</MenuSurface>
-		</Popover>
+		@if (asSheet) {
+			<MenuSheet open={open} onOpenChange={setOpen} label={props.label ?? props.accessibilityLabel} items={props.items}>{props.menu}</MenuSheet>
+		} @else {
+			<Popover
+				anchor={anchor}
+				open={open}
+				placement={props.placement ?? 'bottom'}
+				alignment={props.alignment}
+				onDismiss={() => setOpen(false)}
+				className={cx('vx-menu', props.menuClassName)}
+			>
+				<MenuSurface closeMenu={() => setOpen(false)} label={props.accessibilityLabel ?? props.label}>
+					<MenuData items={props.items} />{props.menu}
+				</MenuSurface>
+			</Popover>
+		}
 	</masonview>
 }

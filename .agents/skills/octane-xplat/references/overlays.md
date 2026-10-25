@@ -215,3 +215,40 @@ import { getRootLayout } from '@nativescript/core'
 const root = getRootLayout()
 if (root) console.log(root.getChildrenCount())
 ```
+
+## Layer root and headless hooks
+
+`LayerProvider` is optional — it mounts a `ToastViewport` configured by
+`toast` (position, maxVisible, inset) so `useToast()`/`showToast()` dock
+there. Without a provider, toasts lazily self-mount at defaults; nested
+providers pass through.
+
+```tsx
+<LayerProvider toast={{ position: 'topEnd', maxVisible: 3 }}>
+	<App />
+</LayerProvider>
+```
+
+Three headless hooks mirror the Astryx contracts when you need control the
+components don't expose:
+
+- `useLayer({ mode: 'context' | 'fixed', lightDismiss, dismissOnEscape })` —
+  bind `ref` to the anchor and `render(children, { placement, alignment })`.
+- `usePopover({ dialogLabel, hasLightDismiss, hasEscapeDismiss })` — returns
+  `triggerRef`, `triggerProps` (spread for `aria-haspopup`/`aria-expanded`),
+  `show`/`hide`/`toggle`, `isOpen`, and `render(children, position)`.
+- `useTooltip({ placement, delay, hideDelay })` — returns `ref` (binds both
+  position and interaction; `positionRef`/`interactionRef` split them),
+  `describedBy` for `aria-describedby`, and `renderTooltip(children)`. On
+  iOS/Android the refs bind but no hint mounts, matching `Tooltip`.
+
+`useMediaQuery(query)` reports live matches — full `matchMedia` on web; a
+restricted grammar (`(max|min)-(width|height)`, `pointer`, `hover`,
+`orientation`, `and`/`or`/`,`/`not`) evaluated against the main screen on
+iOS/Android.
+
+`DropdownMenu` and `ContextMenu` accept `presentation: 'popover' |
+'bottom-sheet' | 'adaptive'` plus `label` — the sheet surface mounts the
+same data-mode items (`description` and `variant: 'destructive'` included)
+inside a `BottomSheet`. Adaptive tracks the compact coarse-pointer query on
+web and resolves to sheet on mobile, matching `MoreMenu`.

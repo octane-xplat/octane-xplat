@@ -7,6 +7,7 @@ import type { ContextMenuProps } from "./props";
 import { applyEscapeProps } from "./escape-props";
 import { Pressable } from './Pressable.web.tsrx';
 import { Popover } from './Popover.web.tsrx';
+import { MenuSheet, useMenuSheet } from './menu-sheet.web.tsrx';
 
 /** Self-drawn context menu — right-click (or long-press on touch) opens the
  *  same anchored list as DropdownMenu, positioned over the children. */
@@ -21,6 +22,7 @@ export function ContextMenu(props: NavigationMenuImplementation<ContextMenuProps
 	const [internal, setInternal] = useState(props.defaultOpen ?? false);
 	const controlled = props.isOpen !== undefined;
 	const open = props.isOpen ?? internal;
+	const asSheet = useMenuSheet(props.presentation);
 
 	const setOpen = (next: boolean) => {
 		if ((props.isDisabled) && next) return;
@@ -46,17 +48,21 @@ export function ContextMenu(props: NavigationMenuImplementation<ContextMenuProps
 	>
 		{props.children}
 		{props.trigger && <Pressable accessibilityLabel={props.accessibilityLabel ?? 'Open actions'} disabled={props.isDisabled} onPress={() => setOpen(!open)} web={{ 'aria-haspopup': 'menu', 'aria-expanded': String(open) }}>{props.trigger}</Pressable>}
-		<Popover
-			anchor={anchor}
-			open={open}
-			placement={props.placement ?? 'bottom'}
-			alignment={props.alignment}
-			onDismiss={() => setOpen(false)}
-			className={['vx-menu', props.menuClassName]}
-		>
-			<MenuSurface closeMenu={() => setOpen(false)} label={props.accessibilityLabel}>
-				<MenuData items={props.items} />{props.menu}
-			</MenuSurface>
-		</Popover>
+		@if (asSheet) {
+			<MenuSheet open={open} onOpenChange={setOpen} label={props.label ?? props.accessibilityLabel} items={props.items}>{props.menu}</MenuSheet>
+		} @else {
+			<Popover
+				anchor={anchor}
+				open={open}
+				placement={props.placement ?? 'bottom'}
+				alignment={props.alignment}
+				onDismiss={() => setOpen(false)}
+				className={['vx-menu', props.menuClassName]}
+			>
+				<MenuSurface closeMenu={() => setOpen(false)} label={props.accessibilityLabel ?? props.label}>
+					<MenuData items={props.items} />{props.menu}
+				</MenuSurface>
+			</Popover>
+		}
 	</div>
 }

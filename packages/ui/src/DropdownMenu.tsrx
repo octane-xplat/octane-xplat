@@ -8,6 +8,7 @@ import type { DropdownMenuProps } from "./props";
 import { cx } from "@octane-xplat/lib";
 import { Pressable } from './Pressable';
 import { Popover } from './Popover';
+import { MenuSheet, useMenuSheet } from './menu-sheet';
 import { useButtonGroup } from './button-group-context';
 import { useSize } from './size-context';
 
@@ -28,6 +29,7 @@ export function DropdownMenu(props: NavigationMenuImplementation<DropdownMenuPro
 	const [internal, setInternal] = useState(props.defaultOpen ?? false);
 	const controlled = props.isOpen !== undefined;
 	const open = props.isOpen ?? internal;
+	const asSheet = useMenuSheet(props.presentation);
 
 	const setOpen = (next: boolean) => {
 		if (disabled && next) return;
@@ -48,17 +50,21 @@ export function DropdownMenu(props: NavigationMenuImplementation<DropdownMenuPro
 		>
 			{props.trigger}
 		</Pressable>
-		<Popover
-			anchor={anchor}
-			open={open}
-			placement={props.placement ?? 'bottom'}
-			alignment={props.alignment}
-			onDismiss={() => setOpen(false)}
-			className={cx('vx-menu', props.menuClassName)}
-		>
-			<MenuSurface closeMenu={() => setOpen(false)} label={props.accessibilityLabel}>
-				<MenuData items={props.items} />{props.children}
-			</MenuSurface>
-		</Popover>
+		@if (asSheet) {
+			<MenuSheet open={open} onOpenChange={setOpen} label={props.label ?? props.accessibilityLabel} items={props.items}>{props.children}</MenuSheet>
+		} @else {
+			<Popover
+				anchor={anchor}
+				open={open}
+				placement={props.placement ?? 'bottom'}
+				alignment={props.alignment}
+				onDismiss={() => setOpen(false)}
+				className={cx('vx-menu', props.menuClassName)}
+			>
+				<MenuSurface closeMenu={() => setOpen(false)} label={props.accessibilityLabel ?? props.label}>
+					<MenuData items={props.items} />{props.children}
+				</MenuSurface>
+			</Popover>
+		}
 	</>
 }

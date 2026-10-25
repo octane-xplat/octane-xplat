@@ -59,9 +59,9 @@ try {
 	check('TextShowcase renders text types', (await page.textContent('body')).includes('The bulk of content'))
 
 	// Pending template route — honest placeholder, not a fake
-	await page.goto(baseUrl + '/templates/AlertDialogAsyncAction/', { waitUntil: 'networkidle' })
+	await page.goto(baseUrl + '/templates/AppShellShowcase/', { waitUntil: 'networkidle' })
 	const pendingText = await page.textContent('body')
-	check('pending template shows placeholder', pendingText.includes('pending') && pendingText.includes('AlertDialog'))
+	check('pending template shows placeholder', pendingText.includes('pending') && pendingText.includes('AppShell'))
 
 	// Pending authored page — framed, honest placeholder
 	await page.goto(baseUrl + '/pages/example/', { waitUntil: 'networkidle' })
@@ -294,6 +294,80 @@ try {
 		check('mobile drawer shows nav', (await page.locator('nav, [role="navigation"], .vx-sidenav').count()) > 0)
 	}
 	await page.setViewportSize({ width: 1280, height: 800 })
+
+	// --- Layers and overlays (unit 4) ---
+	// Inline dialog surfaces title + subtitle without a modal mount.
+	await page.goto(baseUrl + '/templates/DialogHeaderBasic/', { waitUntil: 'networkidle' })
+	check('inline dialog header renders', (await page.textContent('body')).includes('Invite teammates'))
+
+	// Fullscreen dialog opens and closes through the shared Dialog contract.
+	await page.goto(baseUrl + '/templates/DialogFullscreenDialog/', { waitUntil: 'networkidle' })
+	await page.locator('button', { hasText: 'Open documentation' }).first().click()
+	await page.waitForTimeout(400)
+	check('fullscreen dialog opens', (await page.textContent('body')).includes('Everything you need to get started'))
+	await page.locator('button', { hasText: 'Close' }).first().click()
+	await page.waitForTimeout(400)
+	check('fullscreen dialog closes', !(await page.textContent('body')).includes('Everything you need to get started'))
+
+	// Bottom-sheet switcher advances through steps and dismisses on Escape.
+	await page.goto(baseUrl + '/templates/BottomSheetSwitcherShowcase/', { waitUntil: 'networkidle' })
+	await page.locator('button', { hasText: 'Set up notifications' }).first().click()
+	await page.waitForTimeout(500)
+	check('sheet switcher step 1', (await page.textContent('body')).includes('Step 1 of 3'))
+	await page.locator('button', { hasText: 'Continue' }).first().click()
+	await page.waitForTimeout(500)
+	check('sheet switcher step 2', (await page.textContent('body')).includes('Step 2 of 3'))
+	await page.keyboard.press('Escape')
+	await page.waitForTimeout(500)
+	check('sheet dismisses on Escape', !(await page.textContent('body')).includes('Step 2 of 3'))
+
+	// Dropdown menu data-mode: open, pick an item, row closes and reports.
+	// Menu triggers are Pressable divs (role=button), not <button> elements.
+	await page.goto(baseUrl + '/templates/DropdownMenuActions/', { waitUntil: 'networkidle' })
+	await page.locator('.vx-menu-trigger', { hasText: 'Actions' }).first().click()
+	await page.waitForTimeout(400)
+	await page.locator('.vx-menu-item', { hasText: 'Edit' }).first().click()
+	await page.waitForTimeout(300)
+	check('menu item reports selection', (await page.textContent('body')).includes('Last action: Edit'))
+
+	// Context menu opens on right-click and dismisses via Escape.
+	await page.goto(baseUrl + '/templates/ContextMenuBasic/', { waitUntil: 'networkidle' })
+	await page.locator('.vx-contextmenu').first().click({ button: 'right' })
+	await page.waitForTimeout(400)
+	check('context menu opens', (await page.locator('.vx-menu-item').count()) >= 3, `${await page.locator('.vx-menu-item').count()} items`)
+	await page.keyboard.press('Escape')
+	await page.waitForTimeout(400)
+
+	// useLayer hook example: anchored layer toggles and light-dismisses.
+	await page.goto(baseUrl + '/templates/LayerHookUsage/', { waitUntil: 'networkidle' })
+	await page.locator('button', { hasText: 'Show layer' }).first().click()
+	await page.waitForTimeout(400)
+	check('useLayer shows anchored card', (await page.textContent('body')).includes('Anchored content'))
+	// lightDismiss: the open layer's backdrop covers the page — a click there
+	// (not on the trigger) is what closes it.
+	await page.mouse.click(20, 20)
+	await page.waitForTimeout(400)
+	check('useLayer light-dismisses', !(await page.textContent('body')).includes('Anchored content'))
+
+	// usePopover hook: trigger toggles the quick-actions panel.
+	await page.goto(baseUrl + '/templates/PopoverHookUsage/', { waitUntil: 'networkidle' })
+	await page.locator('button', { hasText: 'Open actions' }).first().click()
+	await page.waitForTimeout(400)
+	check('usePopover renders panel', (await page.textContent('body')).includes('Create task'))
+
+	// useTooltip hook: hovering the trigger mounts the hint.
+	await page.goto(baseUrl + '/templates/TooltipHookUsage/', { waitUntil: 'networkidle' })
+	await page.locator('button', { hasText: 'Using hook directly' }).first().hover()
+	await page.waitForTimeout(500)
+	check('useTooltip shows hint', (await page.textContent('body')).includes('Tooltip via hook'))
+
+	// Toasts mount through the LayerProvider-mounted viewport.
+	await page.goto(baseUrl + '/templates/ToastShowcase/', { waitUntil: 'networkidle' })
+	const before = (await page.textContent('body')).match(/Document saved successfully/g)?.length ?? 0
+	await page.locator('button', { hasText: 'Show toast' }).first().click()
+	await page.waitForTimeout(500)
+	const after = (await page.textContent('body')).match(/Document saved successfully/g)?.length ?? 0
+	check('toast mounts via provider viewport', after > before, `${before}→${after}`)
 
 	check('no page errors', errors.length === 0, errors.slice(0, 3).join(' | '))
 } finally {

@@ -2687,6 +2687,135 @@ export interface FixedLayerReturn extends LayerReturnBase {
  */
 export type LayerReturn = ContextLayerReturn | FixedLayerReturn
 
+// ---------- LayerProvider (Astryx `LayerProvider`) ----------
+
+/** Toast configuration carried by `LayerProvider` — the same fields
+ *  `ToastViewport` accepts, forwarded to the provider-mounted stack. */
+export interface LayerToastConfig {
+	/** Edge the toast stack anchors to. @default 'bottomEnd' */
+	position?: ToastPosition
+	/** Maximum number of visible toasts; older entries evict. @default 5 */
+	maxVisible?: number
+	/** Extra inset from the safe-area-aware edge gutter. */
+	inset?: { top?: number; bottom?: number; start?: number; end?: number }
+}
+
+/** Value published by `LayerProvider` — read with `useLayerContext`. */
+export interface LayerContextValue {
+	/** Resolved toast configuration for the provider-mounted viewport. */
+	toastConfig: LayerToastConfig
+	/** Distinguishes a real provider from the no-provider fallback. */
+	isProvider: true
+}
+
+/** App-level provider for layer systems (Astryx `LayerProvider`) — mounts a
+ *  `ToastViewport` configured by `toast` around `children` so `useToast()`/
+ *  `showToast()` calls anywhere in the subtree dock there. Optional: without
+ *  a provider the toast stack lazily self-mounts at defaults. Nested
+ *  providers pass through unchanged (the outermost wins).
+ *
+ * @example
+ * ```tsx
+ * <LayerProvider toast={{ position: 'topEnd', maxVisible: 3 }}>
+ * 	<App />
+ * </LayerProvider>
+ * ```
+ * @see ToastViewportProps, LayerToastConfig.
+ */
+export interface LayerProviderProps {
+	children?: Renderable
+	/** Toast configuration for the provider-mounted viewport. */
+	toast?: LayerToastConfig
+}
+
+/** Headless popover (Astryx `usePopover`) — owns open state and an anchored
+ *  layer; the trigger binds `triggerRef` (+ `triggerProps` ARIA) and
+ *  `render(children, position)` mounts panel content while open.
+ */
+export interface UsePopoverOptions {
+	/** Accessible name for the popover surface (web `aria-label` on the
+	 *  `role="dialog"` panel, native accessibilityLabel). */
+	dialogLabel?: string
+	/** Fires when the popover becomes visible. */
+	onShow?: () => void
+	/** Fires when the popover hides — including outside/Escape dismissal. */
+	onHide?: () => void
+	/** Outside tap/click (and default Escape) dismisses. @default true */
+	hasLightDismiss?: boolean
+	/** Escape dismissal independent of light dismiss. @default true */
+	hasEscapeDismiss?: boolean
+	/** Extra class on the popover surface. */
+	className?: ClassValue
+	/** Extra style on the popover surface. */
+	style?: StyleProp
+}
+
+/** `usePopover` return — bind `triggerRef`/`triggerProps` to the trigger and
+ *  render panel content through `render`. */
+export interface UsePopoverReturn {
+	/** Bind callback for the trigger element/view (positions the panel). */
+	triggerRef: (el: HostElement) => void
+	/** ARIA props to spread on the trigger (`aria-haspopup`/`aria-expanded`/
+	 *  `aria-controls` on web; `expanded` accessibility state elsewhere). */
+	triggerProps: Record<string, unknown>
+	/** Positioning token identifying the anchor (web `anchor-name` value). */
+	anchorId: string
+	/** Unique id for `aria-controls`/`aria-describedby` composition. */
+	id: string
+	isOpen: boolean
+	show: () => void
+	hide: () => void
+	toggle: () => void
+	/** Render popover content into the anchored layer. */
+	render: (children: Renderable, props?: ContextRenderProps) => Renderable
+}
+
+/** Options for `useMediaQuery` — none; the query string is the input. */
+
+/** Focus trigger behavior for `useTooltip` — `'auto'` attaches only to
+ *  naturally focusable triggers, `'always'`/`'never'` override. */
+export type TooltipFocusTrigger = 'auto' | 'always' | 'never'
+
+/** Tap behavior on touch pointers — `'auto'` skips triggers that perform
+ *  their own action, `'tap'` always opens, `'none'` never opens on touch. */
+export type TooltipTouchTrigger = 'auto' | 'tap' | 'none'
+
+/** Options for `useTooltip` (Astryx `TooltipOptions`). */
+export interface TooltipOptions {
+	/** Logical side of the trigger. @default 'above' */
+	placement?: LayerPlacement | PopoverPlacement
+	/** Cross-axis alignment. @default 'center' */
+	alignment?: LayerAlignment
+	/** Hover delay before showing (ms). @default 200 */
+	delay?: number
+	/** Delay before hiding after pointer/focus leave (ms). @default 0 */
+	hideDelay?: number
+	focusTrigger?: TooltipFocusTrigger
+	touchTrigger?: TooltipTouchTrigger
+	/** Enables hover/focus triggers. @default true */
+	isEnabled?: boolean
+	/** Controlled open state — hover/focus hides are suppressed while set. */
+	isOpen?: boolean
+	/** Show on mount (still dismissible). */
+	isDefaultOpen?: boolean
+	onShow?: () => void
+	onHide?: () => void
+}
+
+/** `useTooltip` return (Astryx `TooltipReturn`) — `ref` binds position and
+ *  interaction on one element; `positionRef`/`interactionRef` split them.
+ *  `describedBy` is the tooltip's id for `aria-describedby`. Touch targets
+ *  bind the refs but never mount the hint — matching `Tooltip`. */
+export interface TooltipReturn {
+	ref: (el: HostElement) => void
+	positionRef: (el: HostElement) => void
+	interactionRef: (el: HostElement) => void
+	anchorId: string
+	describedBy: string
+	/** Render the tooltip content into the anchored layer. */
+	renderTooltip: (children: Renderable, props?: Omit<ContextRenderProps, 'positioning'>) => Renderable
+}
+
 /** Hover/focus-triggered floating card (Astryx `HoverCard`). The trigger is
  *  `children`; `content` is the card body. Pointer hover opens after
  *  `delay`, focus opens per `focusTrigger`, and on touch platforms a tap on
@@ -5999,9 +6128,14 @@ export interface MenuItemData {
 	label?: string
 	/** Registered icon name — see `registerIcon`. */
 	icon?: IconName
+	/** Secondary text under the label (Astryx item `description`). */
+	description?: string
 	isDisabled?: boolean
 	onSelect?: () => void
 	hasCloseOnSelect?: boolean
+	/** Row tone — 'destructive' renders label/description/icon in the error
+	 *  color (Astryx `variant`). @default 'default' */
+	variant?: 'default' | 'destructive'
 }
 
 /** An action menu row. */
@@ -6129,6 +6263,9 @@ export interface MenuItemProps {
 	isDisabled?: boolean
 	onSelect?: () => void
 	hasCloseOnSelect?: boolean
+	/** Row tone — 'destructive' renders label/description/icon in the error
+	 *  color (Astryx `variant`). @default 'default' */
+	variant?: 'default' | 'destructive'
 }
 
 /** Props for an actionable link inside a menu. */
@@ -6274,6 +6411,14 @@ export interface DropdownMenuProps<
 	placement?: PopoverPlacement
 	alignment?: PopoverAlignment
 	isDisabled?: boolean
+	/** Surface presenting the items: anchored 'popover' (default), a modal
+	 *  'bottom-sheet', or 'adaptive' (bottom-sheet on compact coarse-pointer
+	 *  viewports, popover elsewhere — mobile resolves to sheet). Compound
+	 *  `children` menus are popover-only, matching upstream. */
+	presentation?: MoreMenuPresentation
+	/** Accessible name for the menu surface — the BottomSheet label under
+	 *  sheet presentation and the trigger/menu fallback. */
+	label?: string
 	ios?: PlatformProps
 	android?: PlatformProps
 	web?: PlatformProps

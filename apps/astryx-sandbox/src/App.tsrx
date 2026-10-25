@@ -4,7 +4,7 @@
 // `LinkProvider` makes SandboxLink the default link element for every
 // link-capable component in the subtree (the public injection contract).
 
-import { RouteOutlet, Theme, LinkProvider } from '@octane-xplat/ui'
+import { RouteOutlet, Theme, LinkProvider, LayerProvider } from '@octane-xplat/ui'
 import './icons'
 import { themeFor, useThemeName, useThemePreference } from './theme'
 import { SandboxLink } from './shell/SandboxLink'
@@ -15,9 +15,11 @@ export function App() @{
 	const mode = useThemePreference()
 	return (
 		<Theme theme={theme} mode={mode}>
-			<LinkProvider component={SandboxLink}>
-				<RouteOutlet />
-			</LinkProvider>
+			<LayerProvider>
+				<LinkProvider component={SandboxLink}>
+					<RouteOutlet />
+				</LinkProvider>
+			</LayerProvider>
 		</Theme>
 	)
 }

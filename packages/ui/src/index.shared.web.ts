@@ -526,6 +526,10 @@ export { Popover } from './Popover'
 /** Anchored-layer primitive — anchor-relative (context) or fixed x/y
  *  overlay content (Astryx `useLayer`). */
 export { useLayer } from './use-layer'
+export { usePopover } from './use-popover'
+export { useTooltip } from './use-tooltip'
+export { useMediaQuery } from './use-media-query'
+export { LayerProvider, LayerContext, useLayerContext } from './layer-provider'
 export { Dialog, DialogHeader } from './Dialog'
 export { useImperativeDialog } from './use-imperative-dialog'
 export { AlertDialog } from './AlertDialog'
@@ -604,6 +608,15 @@ export type {
 	ToastProps,
 	ToastType,
 	ToastViewportProps,
+	LayerContextValue,
+	LayerProviderProps,
+	LayerToastConfig,
+	TooltipFocusTrigger,
+	TooltipTouchTrigger,
+	TooltipOptions,
+	TooltipReturn,
+	UsePopoverOptions,
+	UsePopoverReturn,
 	TooltipProps,
 } from './props'
 

@@ -507,6 +507,9 @@
 	.vx-menu-item {
 		border-radius: var(--radius-sm);
 	}
+	.vx-menu-item--destructive {
+		color: var(--color-text-error, #b3261e);
+	}
 	.vx-menu-item--disabled {
 		opacity: 0.5;
 	}

@@ -19,7 +19,7 @@ never dropped; the ledger at `/templates/` renders this data live.
 | category indexes | 3 | `[category]/CategoryContent.tsx` | all ported |
 | template index (`/templates/`) | 1 | `(sandbox)/templates/page.tsx` | ported as coverage ledger |
 | authored pages (`/pages/*`) | 51 | `(sandbox\|fullscreen\|raw)/pages/**/page.tsx` | all pending (honest placeholders, group framing preserved) |
-| block templates | 659 | `cli/assets/templates/blocks/components/<Family>/<Name>.tsx` | 15 ported (Button ×6, Text ×9), 644 pending |
+| block templates | 659 | `cli/assets/templates/blocks/components/<Family>/<Name>.tsx` | 71 ported (Button ×6, Text ×9, overlays ×56), 588 pending |
 | page templates | 55 | `cli/assets/templates/pages/<slug>/page.tsx` | all pending |
 
 Routing preserves the pinned URL space (trailing-slash routes resolve
@@ -51,6 +51,25 @@ is a client-routed SPA — adaptation recorded.
 | `localStorage` theme/mode + `?embed/theme/mode` | `persist.web.ts` leaf (same keys: `astryx-sandbox-theme/mode`) | implemented for mode; theme param honored when a theme exists |
 | `matchMedia`-gated `hideOnSmall/hideOnLarge` home classes | — | dropped cosmetic responsive duplication on the home filter row (visible always); recorded, not load-bearing |
 
+## API mappings and substitutions (unit 4 — layers and overlays)
+
+| Upstream API | Xplat equivalent | Disposition |
+| --- | --- | --- |
+| `LayerProvider` + `LayerContext` + toast config | `LayerProvider`/`LayerContext`/`useLayerContext`/`LayerToastConfig` in `@octane-xplat/ui` (new public API) | **ported** — provider mounts the configured `ToastViewport`; nested providers pass through; sandbox `App` mounts it at root |
+| `usePopover` | `usePopover` in `@octane-xplat/ui` (new public API, built on `useLayer`) | **ported** — `triggerRef`/`triggerProps`/`toggle`/`render` contract; upstream's `hasAutoFocus`/`hasCloseButton`/`isModal`/`role`/`hasSurface`/`padding`/`surfaceTarget` options out of scope (PopoverHookUsage exercises `dialogLabel` only) |
+| `useTooltip` | `useTooltip` in `@octane-xplat/ui` (new public API) | **ported** — web leaf mirrors `useHoverCard` machinery (hover/focus intent, delays, scroll/Escape dismiss, `aria-describedby` on the resolved focusable trigger, `role="tooltip"` surface with pointer-events off); AppKit leaf hosts the anchored popup through `appKitHost`; iOS/Android leaf binds refs but never mounts (matches `Tooltip`) |
+| `useMediaQuery` | `useMediaQuery` in `@octane-xplat/ui` (new public API) | **ported** — web `matchMedia`; iOS/Android evaluate a restricted grammar (`(max|min)-(width|height)`, `pointer`, `hover`, `orientation`, `and`/`or`/`,`/`not`) against `Screen.mainScreen` — screen, not window, is the documented approximation |
+| `DropdownMenu`/`ContextMenu` `presentation="bottom-sheet"\|"adaptive"`, `label` | same props added to `DropdownMenu`/`ContextMenu` | **ported** — sheets mount `MenuData` rows inside `BottomSheet` under a `MenuProvider`; adaptive resolves via `(max-width: 768px) and (pointer: coarse)` on web and always-sheet on mobile (same predicate as `MoreMenu`) |
+| Menu item `description`, `variant="destructive"` | `MenuItemData.description`/`variant` + `MenuItemProps.variant` | **ported** — rows paint `.vx-menu-item--destructive` (error text color) |
+| `useImperativeDialog(defaults)` | `useImperativeDialog(defaults?: DialogOptions)` | **ported** — defaults merge under per-`show` options |
+| `Overlay` media-scrim component (3 templates) | name collision with Xplat `Overlay` (modal scrim) | **adapted** — `examples/overlay/MediaOverlay.tsrx` composes the scrim+content pattern from `View`; upstream `<img>` sources substituted with themed gradient blocks |
+| `Layout`/`LayoutContent`/`LayoutFooter` slot composition (dialog examples) | none (F-3) | re-authored as `VStack` + padded sections |
+| `Button` `onClick` | `clickAction` | direct map (upstream contract preserved) |
+| `Text` `type`/`weight`/`color` | `sb-type-*`/`sb-color-*` classes | token classes (same map as unit 1); `weight="bold"` → `style={{fontWeight:600}}` where no class exists |
+| DropdownMenu `button={{label,variant,icon,isIconOnly}}` + `hasChevron` | `trigger` + `triggerClassName` (`vx-button` chrome) + explicit chevron icon | adaptation — the trigger is a `Pressable` (`role="button"` div), verified via class-based selectors |
+| `ContextMenu` `menuContent` | `menu` prop | direct map |
+| heroicons (`PencilSquareIcon`, `TrashIcon`, `ShareIcon`, `DocumentDuplicateIcon`, `EllipsisHorizontalIcon`, `MapPinIcon`, `Arrow*Icon`, `ArrowUturnLeftIcon`, `FlagIcon`, `CalendarIcon`, `TagIcon`, `UserIcon`, `FolderIcon`) | `sandbox-*` glyph registrations | same MIT heroicon path data; ellipsis maps to built-in `xplat-more-horizontal` |
+
 ## Framework findings carried forward (unit-1 evidence)
 
 - `F-1` Multi-DefinedTheme runtime — **resolved in unit 2** by the public
@@ -80,8 +99,13 @@ is a client-routed SPA — adaptation recorded.
 - `F-3` `Layout`/`LayoutHeader`/`LayoutContent`/`LayoutFooter`/`LayoutPanel`
   and `GridSpan` — exercised by nearly every page/template. Composed at app
   level for now (`PageLayout`). Owner: units 3/11.
-- `F-4` `LayerProvider` public provider + toast config — exercised by
-  `providers.tsx` root. Owner: unit 4.
+- `F-4` `LayerProvider` public provider + toast config — **resolved in
+  unit 4** by `LayerProvider`/`LayerContext`/`useLayerContext`/
+  `LayerToastConfig` in `packages/ui/src/layer-provider.tsrx`; the provider
+  mounts a `ToastViewport` configured by `toast` and nested providers pass
+  through. Also landed: `usePopover`, `useTooltip`, `useMediaQuery`,
+  menu `presentation`/`label`, menu item `description`/`variant`, and
+  `useImperativeDialog(defaults)` — see unit-4 mapping table.
 - `F-5` Full `useTable*`/Table parts + column DSL surface — exercised by 21
   Table block templates, 6 page templates, audits, table-overview/lab.
   Owner: units 6–7.
