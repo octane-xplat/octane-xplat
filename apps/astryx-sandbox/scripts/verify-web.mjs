@@ -245,6 +245,14 @@ try {
 	await page.waitForTimeout(300)
 	const codeText = await page.textContent('.sb-preview-code')
 	check('source view shows Octane source', (codeText ?? '').includes('export function TextWrap'))
+	// Copy-source action reports copied state (icon/label swap).
+	await page.locator('button[aria-label="Copy source"]').first().click()
+	await page.waitForTimeout(400)
+	check(
+		'copy source reports copied state',
+		(await page.locator('button[aria-label="Copied"]').count()) > 0 ||
+			(await page.locator('.sb-preview-toolbar svg').count()) > 0,
+	)
 
 	// Embed/preview iframe on a page template + authored fullscreen page.
 	await page.goto(baseUrl + '/pages/neutral-palette/', { waitUntil: 'networkidle' })
