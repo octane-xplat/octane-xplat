@@ -96,7 +96,7 @@ async function run(): Promise<void> {
 	debug.pressId('a11y-btn')
 	assert('Home counter updates', await waitFor(() => has('Count: 1')))
 
-	debug.pressId('tab-1')
+	debug.pressId('app-tabs-tab-1')
 	const appsMounted = await waitFor(() => has('Apps') && has('Counter'))
 	assert('Apps tab mounted shared gallery', appsMounted)
 	if (appsMounted) {
@@ -164,7 +164,7 @@ async function run(): Promise<void> {
 		}
 	}
 
-	debug.pressId('tab-2')
+	debug.pressId('app-tabs-tab-2')
 	const testMounted = await waitFor(() => has('Test') && has('Platform services'))
 	assert('Test tab mounted probes and services', testMounted)
 	if (testMounted) {

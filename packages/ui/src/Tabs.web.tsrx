@@ -38,6 +38,7 @@ function TabRouteSelection(props: TabsProps & { select(key: string): void }) {
 
 export function Tabs(props: TabsProps): any {
 	const selection = useRouteTabsSelection(props)
+	const idPrefix = props.id ?? selection.panelId
 	return (
 		<>
 			{props.tabs.some((tab) => !!tab.stack) ? (
@@ -64,8 +65,8 @@ export function Tabs(props: TabsProps): any {
 							value={routeTabKey(tab, i)}
 							label={tab.title}
 							icon={tab.icon}
-							panelId={selection.panelId + '-panel-' + i}
-							id={selection.panelId + '-tab-' + i}
+							panelId={idPrefix + '-panel-' + i}
+							id={idPrefix + '-tab-' + i}
 						/>
 					}
 				</TabList>
@@ -73,8 +74,8 @@ export function Tabs(props: TabsProps): any {
 					<div
 						className="vx-tabpane"
 						role="tabpanel"
-						id={selection.panelId + '-panel-' + i}
-						aria-labelledby={selection.panelId + '-tab-' + i}
+						id={idPrefix + '-panel-' + i}
+						aria-labelledby={idPrefix + '-tab-' + i}
 						hidden={selection.selectedKey !== routeTabKey(tab, i)}
 						tabIndex={selection.selectedKey === routeTabKey(tab, i) ? 0 : -1}
 						style={{

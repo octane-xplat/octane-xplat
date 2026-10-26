@@ -199,9 +199,7 @@ Measured on 2026-10-25 with `pnpm --filter @xplat/web parity`,
 `node scripts/parity-check.ts --targets=web,macos`: loading CSS raised the
 AppKit result from 913 to 963 of 1145 checks, and no check that passed before
 fails. (The pre-CSS build needed the `Screen` export fix to run.) The macOS
-sweep took 182 s, against 172 s before CSS. The dev-host smoke still stops at
-`pressId('tab-1')`. That predates CSS: the routing rewrite (ff9df4069)
-removed the `tab-N` ids.
+sweep took 182 s, against 172 s before CSS.
 
 After adding or changing a platform route, run
 `pnpm --filter @xplat/app exec xplat routes` so the eager manifest excludes

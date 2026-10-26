@@ -11,11 +11,12 @@ export type { TabSpec } from './props'
 
 export function Tabs(props: TabsProps): any {
 	const selection = useRouteTabsSelection(props)
+	const idPrefix = props.id ?? selection.panelId
 	return <>
 		<masonview id={props.id} className={cx('vx-tabs', props.className)} style={mergeStyle({ display: "flex", flexDirection: "column" }, props.style)}>
 			<TabList className="vx-tabbar" role="tablist" layout="fill" hasDivider value={selection.selectedKey} onChange={selection.select}>
 				@for (const tab of props.tabs; index i; key routeTabKey(tab, i)) {
-					<Tab value={routeTabKey(tab, i)} label={tab.title} icon={tab.icon} panelId={selection.panelId + '-panel-' + i} id={selection.panelId + '-tab-' + i} />
+					<Tab value={routeTabKey(tab, i)} label={tab.title} icon={tab.icon} panelId={idPrefix + '-panel-' + i} id={idPrefix + '-tab-' + i} />
 				}
 			</TabList>
 			<masonview className="vx-tabpane" style={{ display: "flex", flexDirection: "column", flexGrow: 1 }}>
