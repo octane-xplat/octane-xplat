@@ -3197,6 +3197,11 @@ function restyleNode(node: ElementNode) {
 	if (!shallowEqualStyle(prevStyle, style) || !node.appliedStyle) {
 		applyStyle(node, style)
 		syncInputChrome(node)
+		// Stopped spinners hold alphaValue=0 so they keep their layout slot;
+		// re-assert it after an opacity apply/reset overwrote alphaValue.
+		if (node.type === 'activityindicator') {
+			syncActivityIndicator(node)
+		}
 		// Text attributes (font, line height) bake into the attributed string,
 		// which applyProps built before this restyle resolved the font.
 		if (node.type === 'htmlview') {
