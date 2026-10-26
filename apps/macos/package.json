@@ -27,6 +27,7 @@
 	},
 	"dependencies": {
 		"@nativescript/macos-node-api": "catalog:",
+		"@octane-xplat/bamboo": "workspace:*",
 		"@octane-xplat/camera": "workspace:*",
 		"@octane-xplat/desktop-webview": "workspace:*",
 		"@octane-xplat/macos-renderer": "workspace:*",

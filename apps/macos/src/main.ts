@@ -1,3 +1,4 @@
+import './styles'
 import { harnessFontOptions } from './fonts'
 import { createAppKitWindow, fitWindowToContent } from './appkit'
 import App from './App'

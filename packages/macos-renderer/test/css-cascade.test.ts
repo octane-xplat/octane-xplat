@@ -451,3 +451,10 @@ test('(i) className-driven padding + flex-direction reach computedStyle for maso
 	assert.equal(n.computedStyle.paddingRight, 8)
 	assert.equal(n.computedStyle.flexDirection, 'row')
 })
+
+test('Application.addCss registers a stylesheet (theme-css-inject path)', async () => {
+	const { Application } = await import('../src/native-core-shim.ts')
+	Application.addCss('.injected { color: teal }')
+	const n = node('label', { classes: ['injected'] })
+	assert.equal(n.computedStyle.color, 'teal')
+})

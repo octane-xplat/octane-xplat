@@ -1,10 +1,12 @@
 import { xplatMacOS } from '@octane-xplat/cli/macos/vite'
+import { xplatBamboo } from '@octane-xplat/bamboo/vite'
 import { defineConfig } from 'vite'
 import { readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const appRoot = dirname(fileURLToPath(import.meta.url))
+const bambooRoot = resolve(appRoot, '../../packages/app/')
 const fontAssetRoot = resolve(appRoot, '../../packages/app/src/assets/fonts')
 
 export function bundledFontDefines() {
@@ -33,6 +35,13 @@ export function createMacOSConfig({ packaged = false, hmr = false, rules } = {})
 
 	return defineConfig(async ({ mode }) => {
 		const config = await xplatMacOS(mode, { root: appRoot, packaged, hmr, rules, entry })
-		return { ...config, define: { ...config.define, ...(packaged ? bundledFontDefines() : {}) } }
+		return {
+			...config,
+			define: { ...config.define, ...(packaged ? bundledFontDefines() : {}) },
+			plugins: [
+				...(config.plugins ?? []),
+				xplatBamboo({ cwd: bambooRoot, configPath: `${bambooRoot}/bamboo.config.ts`, native: true }),
+			],
+		}
 	})
 }

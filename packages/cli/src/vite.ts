@@ -136,62 +136,70 @@ const CSS_DIVERGENCES = [
  * (b) warns once per file on declarations NS silently ignores, so the
  * divergence is loud at build time.
  */
+export function processNativeCss(
+	code: string,
+	id: string,
+	warn: (msg: string) => void,
+	options: { masonSafeAreaEnvironment?: boolean; warned?: Set<string> } = {},
+): string {
+	const warned = options.warned ?? new Set()
+	// Framework authors mark web-only rule blocks — overlays, popovers,
+	// dialog modals render through RootLayout/showModal natively, so
+	// their CSS is dead weight (and would trip the divergence warnings).
+	// Stripped before the warn pass.
+	code = code.replace(
+		/\/\*\s*xplat-web-only:start[\s\S]*?\*\/[\s\S]*?\/\*\s*xplat-web-only:end[\s\S]*?\*\//g,
+		'',
+	)
+
+	code = unwrapCssLayers(code)
+
+	// `@import` inlining reads the target file's raw text — it never
+	// reaches this hook, so inlined css ships px units AND un-stripped
+	// xplat-web-only rules (they land as real native props, e.g.
+	// translate(-50%,-50%) → translateY:-50dip). Import css files as JS
+	// modules instead — each then passes through this transform.
+	// Strip comments first so `@import` inside a comment doesn't warn.
+	const uncommented = code.replace(/\/\*[\s\S]*?\*\//g, '')
+	if (/@import\s+['"]/.test(uncommented) && !warned.has(id + '|@import')) {
+		warned.add(id + '|@import')
+		warn(
+			`${id}: @import inlining bypasses the px→dip rewrite and the ` +
+				`xplat-web-only strip — import css files as JS modules instead ` +
+				`(import 'pkg/file.css')`,
+		)
+	}
+
+	// Comments and quoted content are not CSS function calls.
+	const declarations = code.replace(/\/\*[\s\S]*?\*\/|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'/g, '')
+	for (const [re, unsupportedHint] of CSS_DIVERGENCES) {
+		const hint =
+			options.masonSafeAreaEnvironment && String(unsupportedHint).startsWith('env(')
+				? 'env(safe-area-inset-*) uses the owning window on Mason containers; native inset dispatch/layout is not yet device-qualified. Ordinary NativeScript controls still need useSafeAreaInsets() with inline styles'
+				: unsupportedHint
+
+		const key = id + '|' + hint
+		if (re.test(declarations) && !warned.has(key)) {
+			warned.add(key)
+			warn(`${id}: ${hint}`)
+		}
+	}
+
+	// NS letter-spacing semantics are raw em numbers — Android feeds the
+	// parsed value to TextView.setLetterSpacing (em), iOS uses it as a
+	// point kern. The NS css parser drops `em` dimension tokens entirely,
+	// so unit-strip the authored em value. Length units (px/dip/pt)
+	// parse but get misread as em — the divergence warning above points
+	// authors at em.
+	code = code.replace(/(letter-spacing\s*:\s*-?\d+(?:\.\d+)?)em\b/g, '$1')
+
+	return code.replace(/(-?\d+(?:\.\d+)?)px\b/g, '$1dip')
+}
+
 export function pxToDip(options: { masonSafeAreaEnvironment?: boolean } = {}) {
 	const warned = new Set()
 	let isBuild = false
-	const process = (code, id, warn) => {
-		// Framework authors mark web-only rule blocks — overlays, popovers,
-		// dialog modals render through RootLayout/showModal natively, so
-		// their CSS is dead weight (and would trip the divergence warnings).
-		// Stripped before the warn pass.
-		code = code.replace(
-			/\/\*\s*xplat-web-only:start[\s\S]*?\*\/[\s\S]*?\/\*\s*xplat-web-only:end[\s\S]*?\*\//g,
-			'',
-		)
-
-		code = unwrapCssLayers(code)
-
-		// `@import` inlining reads the target file's raw text — it never
-		// reaches this hook, so inlined css ships px units AND un-stripped
-		// xplat-web-only rules (they land as real native props, e.g.
-		// translate(-50%,-50%) → translateY:-50dip). Import css files as JS
-		// modules instead — each then passes through this transform.
-		// Strip comments first so `@import` inside a comment doesn't warn.
-		const uncommented = code.replace(/\/\*[\s\S]*?\*\//g, '')
-		if (/@import\s+['"]/.test(uncommented) && !warned.has(id + '|@import')) {
-			warned.add(id + '|@import')
-			warn(
-				`${id}: @import inlining bypasses the px→dip rewrite and the ` +
-					`xplat-web-only strip — import css files as JS modules instead ` +
-					`(import 'pkg/file.css')`,
-			)
-		}
-
-		// Comments and quoted content are not CSS function calls.
-		const declarations = code.replace(/\/\*[\s\S]*?\*\/|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'/g, '')
-		for (const [re, unsupportedHint] of CSS_DIVERGENCES) {
-			const hint =
-				options.masonSafeAreaEnvironment && String(unsupportedHint).startsWith('env(')
-					? 'env(safe-area-inset-*) uses the owning window on Mason containers; native inset dispatch/layout is not yet device-qualified. Ordinary NativeScript controls still need useSafeAreaInsets() with inline styles'
-					: unsupportedHint
-
-			const key = id + '|' + hint
-			if (re.test(declarations) && !warned.has(key)) {
-				warned.add(key)
-				warn(`${id}: ${hint}`)
-			}
-		}
-
-		// NS letter-spacing semantics are raw em numbers — Android feeds the
-		// parsed value to TextView.setLetterSpacing (em), iOS uses it as a
-		// point kern. The NS css parser drops `em` dimension tokens entirely,
-		// so unit-strip the authored em value. Length units (px/dip/pt)
-		// parse but get misread as em — the divergence warning above points
-		// authors at em.
-		code = code.replace(/(letter-spacing\s*:\s*-?\d+(?:\.\d+)?)em\b/g, '$1')
-
-		return code.replace(/(-?\d+(?:\.\d+)?)px\b/g, '$1dip')
-	}
+	const process = (code, id, warn) => processNativeCss(code, id, warn, { ...options, warned })
 
 	return {
 		name: 'xplat-native-css',

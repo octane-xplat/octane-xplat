@@ -37,6 +37,10 @@ const webPlugins = xplatBamboo()
 const nativePlugins = xplatBamboo({ native: true })
 ```
 
+`native: true` covers NativeScript (iOS/Android) and the AppKit renderer —
+`xplatMacOS`'s `xplatMacOSStylesheets` plugin consumes the same finalized
+`virtual:bamboo.css` asset on macOS.
+
 Platform conditions use the same build-time compiler as ordinary CSS. Add
 `xplatCss('web')` from `@octane-xplat/cli/vite` to web plugins; native presets
 include it. Keep the portable utility subset unless you explicitly extend it.

@@ -6,6 +6,7 @@ import { pathToFileURL } from 'node:url'
 import { xplatBoundary, xplatNodeEnvDefine, xplatCss } from '../vite.ts'
 
 import { tabItemContentRoots } from './tab-item.ts'
+import { xplatMacOSStylesheets } from './stylesheets.ts'
 
 const renderer = '@octane-xplat/macos-renderer'
 const runtime = '@nativescript/macos-node-api'
@@ -27,6 +28,7 @@ export async function xplatMacOS(env, options = {}) {
 		define: xplatNodeEnvDefine(mode),
 		plugins: [
 			xplatCss('macos'),
+			xplatMacOSStylesheets(),
 			xplatBoundary('macos'),
 			tabItemContentRoots(),
 			octane({
@@ -50,6 +52,10 @@ export async function xplatMacOS(env, options = {}) {
 			}),
 		],
 		build: {
+			// cssCodeSplit emits the CSS asset at renderChunk time, before the
+			// 'pre' generateBundle where Bamboo's survival check and our
+			// stylesheet serializer run (lib-mode's merged asset arrives too late).
+			cssCodeSplit: true,
 			outDir: options.outDir ?? (packaged ? 'dist/package-build' : 'dist'),
 			emptyOutDir: packaged,
 			lib: {

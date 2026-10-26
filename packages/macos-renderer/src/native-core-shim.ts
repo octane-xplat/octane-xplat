@@ -1,3 +1,6 @@
+import { registerStylesheet } from './css/stylesheets.ts'
+import { NSScreen } from '@octane-xplat/platform/macos'
+
 // The shared pan leaf imports Utils eagerly, but this spike doesn't implement
 // NativeScript gestures. Fail explicitly if pan velocity is ever requested.
 export const Utils = {
@@ -12,7 +15,38 @@ export const Utils = {
 // These values keep import-time platform checks safe; components that need
 // NativeScript application services have explicit AppKit leaves or render
 // an unsupported state.
-export const Application = { ios: null, android: null, on() {}, off() {} }
+let addCssSeq = 0
+export const Application = {
+	ios: null,
+	android: null,
+	on() {},
+	off() {},
+	/** NS parity: theme/runtime CSS injection (theme-css-inject.ts uses this). */
+	addCss(css: string) {
+		registerStylesheet('addCss:' + ++addCssSeq, css)
+	},
+}
+// NS `Screen.mainScreen` reports the main display in DIPs; AppKit points are
+// the DIP equivalent and backingScaleFactor is the pixel ratio.
+export const Screen = {
+	mainScreen: {
+		get widthDIPs() {
+			return Number(NSScreen.mainScreen?.frame.size.width ?? 0)
+		},
+		get heightDIPs() {
+			return Number(NSScreen.mainScreen?.frame.size.height ?? 0)
+		},
+		get scale() {
+			return Number(NSScreen.mainScreen?.backingScaleFactor ?? 1)
+		},
+		get widthPixels() {
+			return this.widthDIPs * this.scale
+		},
+		get heightPixels() {
+			return this.heightDIPs * this.scale
+		},
+	},
+}
 export const isAndroid = false
 export const isIOS = false
 export const AccessibilityRole = {
