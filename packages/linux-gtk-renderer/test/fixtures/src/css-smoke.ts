@@ -266,6 +266,14 @@ await idleStyles()
 out.descendantHoverColor = colorOf(24)
 out.descendantHoverColorRead = node(24)?.computedStyle?.color
 
+// :normal survives PRELIGHT — hover is a desktop extra, not an NS visual
+// state (view-common.js visual states only).
+setFlags(22, Gtk.StateFlags.PRELIGHT)
+await idleStyles()
+out.normalUnderHover = [...(node(22)?.cssPseudoClasses ?? [])].includes('normal')
+unsetFlags(22, Gtk.StateFlags.PRELIGHT)
+await idleStyles()
+
 // :checked via switch notify::active.
 out.checkedBefore = node(25)?.computedStyle?.opacity
 const swNode = node(25)

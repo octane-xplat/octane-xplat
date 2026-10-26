@@ -175,6 +175,9 @@ test('stylesheets cascade through the GTK driver under real GJS+GTK', async (t) 
 	// Descendant `.card:hover .title`.
 	assert.equal(r.descendantHoverColor, '#f0f')
 
+	// :normal survives hover — hover must not cancel it.
+	assert.equal(r.normalUnderHover, true)
+
 	// :checked from the switch's active property.
 	assert.equal(r.checkedBefore, undefined)
 	assert.equal(r.checkedOpacity, 0.5)
