@@ -21,6 +21,7 @@ import { MobileNav } from './MobileNav.web.tsrx';
 import { ResizeHandle } from './ResizeHandle.web.tsrx';
 import { useResizable } from './useResizable.web.tsrx';
 import { regionConfigFrom } from './resize-state';
+import { SizeProvider, useSize } from './size-context';
 import {
 	NavHeadingCloseContext,
 	SideNavCollapseContext,
@@ -33,7 +34,7 @@ import {
 
 export { SideNavRenderContext, SideNavCollapseContext, useSideNavCollapse, useSideNavRenderMode };
 
-const COLLAPSED_RAIL_WIDTH = 56;
+const COLLAPSED_RAIL_WIDTH = 48;
 const ITEM_HEIGHT: Record<string, number> = { sm: 28, md: 32, lg: 36 };
 
 function navIcon(icon: any, size = 16) {
@@ -148,13 +149,24 @@ export function SideNav(props: SideNavProps) @{
 								{props.topContent != null ? <div className="vx-sidenav-topcontent">{props.topContent}</div> : null}
 							</div>
 						) : null}
-						<div className="vx-sidenav-scrollable">{props.children}</div>
+						<div
+							className={[
+								'vx-sidenav-scrollable',
+								collapsed && 'vx-sidenav-scrollable--collapsed',
+								props.header == null && props.topContent == null && 'vx-sidenav-scrollable--notop',
+								props.footer == null && props.footerIcons == null && !(isCollapsible && cfg?.hasButton !== false) && 'vx-sidenav-scrollable--nobottom',
+							]}
+						>
+							{props.children}
+						</div>
 						{props.footer != null || props.footerIcons != null || (isCollapsible && cfg?.hasButton !== false) ? (
 							<div className={['vx-sidenav-stickybottom', collapsed && 'vx-sidenav-stickybottom--collapsed']}>
 								{props.footer}
 								<div className={['vx-sidenav-footerrow', collapsed && 'vx-sidenav-footerrow--collapsed']}>
-									{isCollapsible && cfg?.hasButton !== false ? <SideNavCollapseButton /> : null}
-									{props.footerIcons}
+									<SizeProvider value="sm">
+										{isCollapsible && cfg?.hasButton !== false ? <SideNavCollapseButton /> : null}
+										{props.footerIcons}
+									</SizeProvider>
 								</div>
 							</div>
 						) : null}
@@ -178,8 +190,10 @@ export function SideNav(props: SideNavProps) @{
 
 /** SideNavSection — titled group of items inside the scrollable area. */
 export function SideNavSection(props: SideNavSectionProps) @{
+	const collapsed = useSideNavCollapse()?.isCollapsed === true;
+
 	<section className={['vx-sidenav-section', props.className]} style={props.style} id={props.id}>
-		<div className={['vx-sidenav-section-head', props.isHeaderHidden && 'vx-visually-hidden']}>
+		<div className={['vx-sidenav-section-head', (props.isHeaderHidden || collapsed) && 'vx-visually-hidden']}>
 			<div className="vx-sidenav-section-title-group">
 				<Text className="vx-sidenav-section-title">{props.title}</Text>
 				{props.subtitle != null ? <Text className="vx-sidenav-section-subtitle">{props.subtitle}</Text> : null}
@@ -260,13 +274,13 @@ export function SideNavHeading(props: SideNavHeadingProps) @{
 				ref={(el: any) => { anchor.current = el; }}
 				aria-haspopup="menu"
 				aria-expanded={menuOpen}
-				aria-label="Open heading menu"
+				aria-label="Open menu"
 				onClick={() => setMenuOpen(!menuOpen)}
 			>
 				<Icon name="xplat-chevron-down" size={16} />
 			</button>
 		) : null}
-		{props.headerEndContent}
+		{props.headerEndContent != null ? <span className="vx-sidenav-heading-end">{props.headerEndContent}</span> : null}
 		<NavHeadingCloseProvider value={closeCtx}>
 			<Popover anchor={anchor} open={menuOpen} placement="bottom" onDismiss={() => setMenuOpen(false)} className="vx-headingmenu-pop">
 				{props.menu}
@@ -312,11 +326,21 @@ export function SideNavItem(props: NavigationItemImplementation<SideNavItemProps
 
 	const activate = (e: any) => link.activateWeb(e);
 	// Collapsed rail: children open a flyout popover instead of expanding.
+	// A collapsible item without its own action toggles on press; one with a
+	// primary action gets an independent chevron toggle beside it.
+	const hasPrimaryAction = link.href != null || props.onClick != null;
+	const independentToggle = hasChildren && itemCfg != null && hasPrimaryAction && !railCollapsed;
 	const pressMain = (e: any) => {
 		if (railCollapsed && hasChildren && !link.preservesBrowserNavigation(e)) {
 			if (isDisabled || e?.defaultPrevented) return;
 			e?.preventDefault?.();
 			setFlyoutOpen(!flyoutOpen);
+			return;
+		}
+		if (hasChildren && itemCfg != null && !hasPrimaryAction && !railCollapsed) {
+			if (isDisabled || e?.defaultPrevented) return;
+			e?.preventDefault?.();
+			toggleChildren();
 			return;
 		}
 
@@ -333,9 +357,14 @@ export function SideNavItem(props: NavigationItemImplementation<SideNavItemProps
 
 	const content = (
 		<>
-			{displayIcon != null ? <span className="vx-sidenav-item-icon" aria-hidden="true">{navIcon(displayIcon, size === 'lg' ? 18 : size === 'sm' ? 14 : 16)}</span> : null}
+			{displayIcon != null ? <span className="vx-sidenav-item-icon" aria-hidden="true">{navIcon(displayIcon, 16)}</span> : null}
 			{!railCollapsed ? <span className="vx-sidenav-item-label">{props.label}</span> : null}
 			{!railCollapsed && props.endContent != null ? <span className="vx-sidenav-item-end">{props.endContent}</span> : null}
+			{!railCollapsed && hasChildren && itemCfg != null && !independentToggle ? (
+				<span className={['vx-sidenav-item-chevron', !childrenCollapsed && 'vx-sidenav-item-chevron--expanded']}>
+					<Icon name="xplat-chevron-down" size={16} />
+				</span>
+			) : null}
 		</>
 	);
 
@@ -347,8 +376,14 @@ export function SideNavItem(props: NavigationItemImplementation<SideNavItemProps
 		'aria-current': link.selected ? 'page' : undefined,
 		'aria-disabled': isDisabled || undefined,
 		'aria-label': railCollapsed ? props.label : undefined,
+		'aria-expanded': hasChildren && itemCfg != null && !independentToggle ? !childrenCollapsed : undefined,
 		onClick: pressMain,
 	};
+
+	// Astryx drops icon-less items from the collapsed rail entirely.
+	if (railCollapsed && props.icon == null) {
+		return null;
+	}
 
 	<div className={['vx-sidenav-item', props.className]} style={props.style} id={props.id}>
 		<div className="vx-sidenav-item-row" ref={(el: any) => { if (railCollapsed) anchor.current = el; applyEscapeProps(el, props); }}>
@@ -361,25 +396,26 @@ export function SideNavItem(props: NavigationItemImplementation<SideNavItemProps
 					{content}
 				</button>
 			)}
-			{hasChildren && itemCfg != null && !railCollapsed ? (
+			{independentToggle ? (
 				<button
 					type="button"
-					className="vx-sidenav-item-toggle"
-					aria-label={childrenCollapsed ? 'Expand' : 'Collapse'}
+					className={['vx-sidenav-item-toggle', !childrenCollapsed && 'vx-sidenav-item-toggle--expanded']}
+					aria-label={childrenCollapsed ? `Expand ${props.label}` : `Collapse ${props.label}`}
 					aria-expanded={!childrenCollapsed}
 					onClick={toggleChildren}
 				>
-					<Icon name={childrenCollapsed ? 'xplat-chevron-right' : 'xplat-chevron-down'} size={16} />
+					<Icon name="xplat-chevron-down" size={16} />
 				</button>
 			) : null}
-			{!railCollapsed && props.actions != null ? <span className="vx-sidenav-item-actions">{props.actions}</span> : null}
+			{!railCollapsed && props.actions != null ? <span className="vx-sidenav-item-actions"><SizeProvider value="sm">{props.actions}</SizeProvider></span> : null}
 		</div>
 		{hasChildren && !railCollapsed && !childrenCollapsed ? (
 			<div className="vx-sidenav-item-children">{props.children}</div>
 		) : null}
 		{railCollapsed && hasChildren ? (
 			<Popover anchor={anchor} open={flyoutOpen} placement="right" onDismiss={() => setFlyoutOpen(false)} className="vx-sidenav-flyout">
-				<div className="vx-sidenav-flyout-list" role="menu">{props.children}</div>
+				<div className="vx-sidenav-flyout-title">{props.label}</div>
+				<div className="vx-sidenav-flyout-list" role="menu" aria-label={`${props.label} submenu`}>{props.children}</div>
 			</Popover>
 		) : null}
 	</div>
@@ -399,6 +435,7 @@ export function SideNavCollapseButton(props: SideNavCollapseButtonProps) @{
 	const isCollapsible = ctx?.isCollapsible ?? external?.isCollapsible ?? true;
 	const isCollapsed = ctx?.isCollapsed ?? external?.isCollapsed ?? false;
 	const toggle = ctx?.toggle ?? external?.toggle ?? (() => {});
+	const size = useSize(props.size, 'md');
 
 	@if (!isCollapsible) {
 		null
@@ -407,15 +444,21 @@ export function SideNavCollapseButton(props: SideNavCollapseButtonProps) @{
 			ref={(el: any) => applyEscapeProps(el, props)}
 			id={props.id}
 			type="button"
-			className={['vx-sidenav-collapsebtn', props.label == null && 'vx-sidenav-collapsebtn--icon', props.className]}
+			className={[
+				'vx-sidenav-collapsebtn',
+				`vx-sidenav-collapsebtn--${size}`,
+				props.label == null && 'vx-sidenav-collapsebtn--icon',
+				isCollapsed && 'vx-sidenav-collapsebtn--collapsed',
+				props.className,
+			]}
 			style={props.style}
 			aria-expanded={!isCollapsed}
-			aria-label={props.label ?? (isCollapsed ? 'Expand' : 'Collapse')}
+			aria-label={props.label ?? (isCollapsed ? 'Expand sidebar' : 'Collapse sidebar')}
 			onClick={toggle}
 		>
 			{props.children ?? (
 				<>
-					<Icon name={isCollapsed ? 'xplat-chevron-right' : 'xplat-chevron-left'} size={16} />
+					<Icon name="xplat-chevron-left" size={16} />
 					{props.label != null ? <span className="vx-sidenav-collapsebtn-label">{props.label}</span> : null}
 				</>
 			)}

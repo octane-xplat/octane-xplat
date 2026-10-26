@@ -27,6 +27,8 @@
 		--color-danger: #e3193b;
 		--color-warning: #e9af08;
 		--color-success: #0d8626;
+		--color-overlay-hover: #0536590c;
+		--color-overlay-pressed: #05365919;
 		--color-danger-text: #7b0210;
 		--color-warning-text: #753f07;
 		--color-success-text: #09441f;
@@ -80,6 +82,8 @@
 		--color-danger: #f5394f;
 		--color-warning: #f2c00b;
 		--color-success: #0d8626;
+		--color-overlay-hover: #ffffff0c;
+		--color-overlay-pressed: #ffffff19;
 		--color-danger-text: #ffb2b8;
 		--color-warning-text: #fbce03;
 		--color-success-text: #a5f690;
@@ -2378,30 +2382,302 @@
 		font-weight: 600;
 	}
 
+	/* SideNav — Astryx nav skin. Item rows are 32px pills on the label scale
+   (14px, normal weight, 20px line); the selected page fills --color-neutral
+   at medium weight. rem-token typography, theme spacing/radius/size vars,
+   and state hovers are layered in the web-only block below; these dip-safe
+   literals are the native skin and the un-themed web fallback. */
+	.vx-sidenav-shell {
+		width: 260px;
+	}
 	.vx-sidenav-stickytop {
-		border-bottom-width: 1;
-		border-bottom-color: var(--color-border);
+		padding: 8px;
+		gap: 8px;
+	}
+	.vx-sidenav-scrollable {
+		padding: 4px 8px;
+	}
+	.vx-sidenav-scrollable--notop {
+		padding-top: 8px;
+	}
+	.vx-sidenav-scrollable--nobottom {
+		padding-bottom: 8px;
 	}
 	.vx-sidenav-stickybottom {
-		border-top-width: 1;
-		border-top-color: var(--color-border);
+		padding: 4px 8px 8px;
+		gap: 8px;
+	}
+	.vx-sidenav-stickybottom--collapsed {
+		padding-top: 0;
+	}
+	.vx-sidenav-footerrow,
+	.vx-sidenav-drawericons,
+	.vx-sidenav-topbar-icons {
+		gap: 4px;
+	}
+	.vx-sidenav-drawerfooter {
+		padding-top: 8px;
+		gap: 8px;
+	}
+	.vx-sidenav-section {
+		padding: 4px 0;
+	}
+	.vx-sidenav-section-head {
+		padding: 4px 8px;
+		gap: 8px;
+	}
+	.vx-sidenav-section-items {
+		gap: 2px;
 	}
 	.vx-sidenav-section-title {
 		font-size: 12px;
 		font-weight: 600;
+		line-height: 20px;
 		color: var(--color-text-secondary);
 	}
 	.vx-sidenav-section-subtitle {
-		font-size: 11px;
+		font-size: 12px;
+		line-height: 20px;
 		color: var(--color-text-secondary);
 	}
-	.vx-sidenav-item--selected .vx-sidenav-item-main {
-		background-color: rgba(0, 0, 0, 0.06);
+	.vx-sidenav-heading {
+		gap: 8px;
+		min-height: 32px;
+		padding: 0 8px;
 	}
-	.ns-dark .vx-sidenav-item--selected .vx-sidenav-item-main,
-	.dark .vx-sidenav-item--selected .vx-sidenav-item-main {
-		background-color: rgba(255, 255, 255, 0.1);
+	.vx-sidenav-heading-title {
+		font-size: 17px;
+		font-weight: 600;
+		line-height: 24px;
+		color: var(--color-text-primary, var(--color-text));
 	}
+	.vx-sidenav-heading-super,
+	.vx-sidenav-heading-sub {
+		font-size: 12px;
+		line-height: 20px;
+		color: var(--color-text-secondary);
+	}
+	.vx-sidenav-heading-menubtn {
+		min-width: 28px;
+		min-height: 28px;
+		border-radius: 8px;
+		color: var(--color-icon-secondary, var(--color-text-secondary));
+	}
+	.vx-sidenav-item-main {
+		padding: 0 8px;
+		gap: 8px;
+		border-radius: 8px;
+		background-color: transparent;
+		color: var(--color-text-primary, var(--color-text));
+		text-decoration: none;
+		font-size: 14px;
+		font-weight: 400;
+		line-height: 20px;
+	}
+	.vx-sidenav-item-main.vx-sidenav-item--sm {
+		padding: 0 4px;
+	}
+	.vx-sidenav-item-main.vx-sidenav-item--selected {
+		background-color: var(--color-neutral, var(--color-surface-secondary));
+		font-weight: 500;
+	}
+	.vx-sidenav-item-main.vx-sidenav-item--disabled {
+		color: var(--color-text-disabled);
+	}
+	.vx-sidenav-item-icon {
+		color: var(--color-icon-secondary, var(--color-text-secondary));
+	}
+	.vx-sidenav-item-main.vx-sidenav-item--selected .vx-sidenav-item-icon {
+		color: inherit;
+	}
+	.vx-sidenav-item-main.vx-sidenav-item--disabled .vx-sidenav-item-icon {
+		color: var(--color-icon-disabled, var(--color-text-disabled));
+	}
+	.vx-sidenav-item-toggle {
+		width: 28px;
+		height: 28px;
+		border-radius: 8px;
+		color: inherit;
+	}
+	.vx-sidenav-collapsebtn {
+		height: 32px;
+		padding: 0 8px;
+		gap: 4px;
+		border-radius: 8px;
+		background-color: transparent;
+		color: var(--color-text-primary, var(--color-text));
+		font-size: 14px;
+		font-weight: 500;
+		line-height: 20px;
+	}
+	.vx-sidenav-collapsebtn--icon {
+		width: 32px;
+		padding: 0;
+	}
+	.vx-sidenav-collapsebtn--sm {
+		height: 28px;
+	}
+	.vx-sidenav-collapsebtn--sm.vx-sidenav-collapsebtn--icon {
+		width: 28px;
+	}
+	.vx-sidenav-collapsebtn--lg {
+		height: 36px;
+	}
+	.vx-sidenav-collapsebtn--lg.vx-sidenav-collapsebtn--icon {
+		width: 36px;
+	}
+	.vx-sidenav-flyout-list {
+		padding: 4px;
+		min-width: 180px;
+	}
+	.vx-sidenav-flyout-title {
+		padding: 4px 8px;
+		font-size: 12px;
+		font-weight: 600;
+		line-height: 20px;
+		color: var(--color-text-secondary);
+	}
+	/* xplat-web-only:start — token bindings and interaction states the shared
+   dip literals stand in for on native: Astryx rem type scale, theme
+   spacing/radius/size vars, and the overlay hover/pressed fills. */
+	.vx-sidenav-stickytop {
+		padding: var(--spacing-2, 8px);
+		gap: var(--spacing-2, 8px);
+	}
+	.vx-sidenav-scrollable {
+		padding-inline: var(--spacing-2, 8px);
+		padding-block: var(--spacing-1, 4px);
+	}
+	.vx-sidenav-scrollable--notop {
+		padding-block-start: var(--spacing-2, 8px);
+	}
+	.vx-sidenav-scrollable--nobottom {
+		padding-block-end: var(--spacing-2, 8px);
+	}
+	.vx-sidenav-stickybottom {
+		padding: var(--spacing-1, 4px) var(--spacing-2, 8px) var(--spacing-2, 8px);
+		gap: var(--spacing-2, 8px);
+	}
+	.vx-sidenav-footerrow,
+	.vx-sidenav-drawericons,
+	.vx-sidenav-topbar-icons,
+	.vx-sidenav-collapsebtn,
+	.vx-sidenav-item-actions {
+		gap: var(--spacing-1, 4px);
+	}
+	.vx-sidenav-drawerfooter {
+		padding-block-start: var(--spacing-2, 8px);
+		gap: var(--spacing-2, 8px);
+	}
+	.vx-sidenav-section {
+		padding-block: var(--spacing-1, 4px);
+	}
+	.vx-sidenav-section-head {
+		padding: var(--spacing-1, 4px) var(--spacing-2, 8px);
+		gap: var(--spacing-2, 8px);
+	}
+	.vx-sidenav-section-items {
+		gap: var(--spacing-0-5, 2px);
+	}
+	.vx-sidenav-heading {
+		gap: var(--spacing-2, 8px);
+		min-height: var(--spacing-8, 32px);
+		padding-inline: var(--spacing-2, 8px);
+	}
+	.vx-sidenav-heading-trigger {
+		padding-inline: var(--spacing-2, 8px);
+		gap: var(--spacing-2, 8px);
+		border-radius: var(--radius-element, 8px);
+	}
+	.vx-sidenav-heading-title {
+		font-size: var(--text-large-size, var(--font-size-lg, 1.0625rem));
+		font-weight: var(--font-weight-semibold, 600);
+		line-height: var(--text-large-leading, 1.4118);
+	}
+	.vx-sidenav-heading-super,
+	.vx-sidenav-heading-sub,
+	.vx-sidenav-section-title,
+	.vx-sidenav-section-subtitle,
+	.vx-sidenav-flyout-title {
+		font-size: var(--text-supporting-size, var(--font-size-sm, 0.75rem));
+		line-height: var(--text-supporting-leading, 1.6667);
+	}
+	.vx-sidenav-item-main {
+		padding-inline: var(--spacing-2, 8px);
+		gap: var(--spacing-2, 8px);
+		border-radius: var(--radius-element, 8px);
+		font-size: var(--text-label-size, var(--font-size-base, 0.875rem));
+		font-weight: var(--font-weight-normal, 400);
+		line-height: var(--text-label-leading, 1.4286);
+	}
+	.vx-sidenav-item-main.vx-sidenav-item--sm {
+		padding-inline: var(--spacing-1, 4px);
+	}
+	.vx-sidenav-item-main.vx-sidenav-item--selected {
+		font-weight: var(--font-weight-medium, 500);
+	}
+	.vx-sidenav-item--rail {
+		width: var(--size-element-md, 32px);
+		padding: 0;
+	}
+	.vx-sidenav-item--rail.vx-sidenav-item--sm {
+		width: var(--size-element-sm, 28px);
+	}
+	.vx-sidenav-item--rail.vx-sidenav-item--lg {
+		width: var(--size-element-lg, 36px);
+	}
+	.vx-sidenav-item-toggle {
+		width: var(--size-element-sm, 28px);
+		height: var(--size-element-sm, 28px);
+		border-radius: var(--radius-element, 8px);
+	}
+	.vx-sidenav-item-chevron {
+		width: var(--spacing-6, 24px);
+		height: var(--spacing-6, 24px);
+	}
+	.vx-sidenav-item-children {
+		padding-inline-start: var(--spacing-6, 24px);
+	}
+	.vx-sidenav-collapsebtn {
+		height: var(--size-element-md, 32px);
+		padding-inline: var(--spacing-2, 8px);
+		border-radius: var(--radius-element, 8px);
+		font-size: var(--text-label-size, var(--font-size-base, 0.875rem));
+		font-weight: var(--font-weight-medium, 500);
+		line-height: var(--text-label-leading, 1.4286);
+	}
+	.vx-sidenav-collapsebtn--sm {
+		height: var(--size-element-sm, 28px);
+	}
+	.vx-sidenav-collapsebtn--sm.vx-sidenav-collapsebtn--icon {
+		width: var(--size-element-sm, 28px);
+	}
+	.vx-sidenav-collapsebtn--lg {
+		height: var(--size-element-lg, 36px);
+	}
+	.vx-sidenav-collapsebtn--lg.vx-sidenav-collapsebtn--icon {
+		width: var(--size-element-lg, 36px);
+	}
+	@media (hover: hover) {
+		.vx-sidenav-item-main:hover:not(:disabled):not([aria-disabled='true']):not(.vx-sidenav-item--disabled),
+		.vx-sidenav-item-toggle:hover:not(:disabled),
+		.vx-sidenav-collapsebtn:hover:not(:disabled),
+		.vx-sidenav-heading-trigger:hover:not(:disabled) {
+			background-color: var(--color-overlay-hover);
+		}
+		.vx-sidenav-item-main.vx-sidenav-item--selected:hover:not(:disabled):not([aria-disabled='true']) {
+			background-color: var(--color-neutral, var(--color-surface-secondary));
+		}
+	}
+	.vx-sidenav-item-main:active:not(:disabled):not([aria-disabled='true']):not(.vx-sidenav-item--disabled),
+	.vx-sidenav-item-toggle:active:not(:disabled),
+	.vx-sidenav-collapsebtn:active:not(:disabled) {
+		background-color: var(--color-overlay-pressed);
+	}
+	.vx-sidenav-item-main.vx-sidenav-item--selected:active:not(:disabled):not([aria-disabled='true']) {
+		background-color: var(--color-neutral, var(--color-surface-secondary));
+	}
+	/* xplat-web-only:end */
 
 	.vx-appshell--wash .vx-appshell-header,
 	.vx-appshell-sidenav--wash {

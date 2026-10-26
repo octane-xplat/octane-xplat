@@ -4101,6 +4101,294 @@
 	.dark .vx-navmenu-strip-item:hover:not([disabled]) {
 		background-color: rgba(255, 255, 255, 0.08);
 	}
+	/* SideNav — DOM layout + resets: the shell clips the panel and anchors the
+   resize overlay; inside, the top/bottom zones stick while the middle
+   scrolls. Anchor/button rows shed UA chrome so only the shared skin
+   paints. */
+	.vx-sidenav-shell {
+		display: flex;
+		position: relative;
+		flex-shrink: 0;
+		height: 100%;
+		overflow: clip;
+	}
+	.vx-sidenav {
+		display: flex;
+		width: 100%;
+		height: 100%;
+		overflow: hidden;
+		background-color: inherit;
+	}
+	.vx-sidenav--topbar {
+		width: 100%;
+		height: 48px;
+		justify-content: space-between;
+	}
+	.vx-sidenav-topbar-icons,
+	.vx-sidenav-drawericons {
+		display: flex;
+		align-items: center;
+	}
+	.vx-sidenav-topbar-icons {
+		margin-inline-start: auto;
+	}
+	.vx-sidenav-stickytop {
+		display: flex;
+		flex-shrink: 0;
+		position: sticky;
+		top: 0;
+		z-index: 1;
+		background-color: inherit;
+	}
+	.vx-sidenav-stickytop--collapsed {
+		align-items: center;
+	}
+	.vx-sidenav-topcontent {
+		display: flex;
+		flex-direction: column;
+	}
+	.vx-sidenav-scrollable {
+		display: flex;
+		flex-direction: column;
+		flex: 1;
+		min-height: 0;
+		overflow-y: auto;
+		overflow-x: hidden;
+	}
+	.vx-sidenav-scrollable--collapsed {
+		align-items: center;
+	}
+	.vx-sidenav-stickybottom {
+		display: flex;
+		flex-shrink: 0;
+		margin-top: auto;
+		position: sticky;
+		bottom: 0;
+		background-color: inherit;
+	}
+	.vx-sidenav-stickybottom--collapsed {
+		align-items: center;
+	}
+	.vx-sidenav-footerrow {
+		display: flex;
+		align-items: center;
+	}
+	.vx-sidenav-footerrow--collapsed {
+		flex-direction: column-reverse;
+	}
+	.vx-sidenav-drawerfooter {
+		display: flex;
+		flex-direction: column;
+		margin-block-start: auto;
+	}
+	.vx-sidenav-section {
+		display: flex;
+	}
+	.vx-sidenav-section-head {
+		display: flex;
+		align-items: center;
+		cursor: default;
+		user-select: none;
+	}
+	.vx-sidenav-section-title-group {
+		display: flex;
+		flex: 1;
+		min-width: 0;
+	}
+	.vx-sidenav-section-items {
+		display: flex;
+		flex-direction: column;
+	}
+	.vx-sidenav-heading {
+		display: flex;
+		align-items: center;
+		cursor: default;
+	}
+	.vx-sidenav-heading--button {
+		padding: 0;
+	}
+	.vx-sidenav-heading--collapsed {
+		justify-content: center;
+		padding: 0;
+	}
+	.vx-sidenav-heading-icon {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+	}
+	.vx-sidenav-heading-text {
+		display: flex;
+		flex-direction: column;
+		flex: 1;
+		min-width: 0;
+	}
+	.vx-sidenav-heading-end {
+		display: flex;
+		align-items: center;
+		flex-shrink: 0;
+		margin-inline-start: auto;
+	}
+	.vx-sidenav-heading--collapsed .vx-sidenav-heading-text,
+	.vx-sidenav-heading--collapsed .vx-sidenav-heading-menubtn,
+	.vx-sidenav-heading--collapsed .vx-sidenav-heading-end {
+		display: none;
+	}
+	.vx-sidenav-heading-title,
+	.vx-sidenav-heading-super,
+	.vx-sidenav-heading-sub {
+		text-decoration: none;
+		color: inherit;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	.vx-sidenav-heading-trigger {
+		display: flex;
+		align-items: center;
+		width: 100%;
+		border: 0;
+		background: none;
+		font: inherit;
+		padding: 0;
+		cursor: pointer;
+		text-align: start;
+	}
+	.vx-sidenav-heading-menubtn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+		border: 0;
+		background: none;
+		font: inherit;
+		padding: 0;
+		cursor: pointer;
+	}
+	.vx-sidenav-item {
+		display: flex;
+		width: 100%;
+		min-width: 0;
+	}
+	.vx-sidenav-item-row {
+		display: flex;
+		align-items: center;
+		width: 100%;
+		min-width: 0;
+	}
+	.vx-sidenav--collapsed .vx-sidenav-item-row {
+		justify-content: center;
+	}
+	.vx-sidenav-item-main {
+		display: flex;
+		align-items: center;
+		flex: 1;
+		min-width: 0;
+		border: 0;
+		font: inherit;
+		text-align: start;
+		cursor: pointer;
+	}
+	.vx-sidenav-item-main:disabled,
+	.vx-sidenav-item-main[aria-disabled='true'],
+	.vx-sidenav-item--disabled {
+		cursor: default;
+	}
+	.vx-sidenav-item--disabled {
+		pointer-events: none;
+	}
+	.vx-sidenav-item-icon {
+		display: inline-flex;
+		align-items: center;
+		flex-shrink: 0;
+	}
+	.vx-sidenav-item-label {
+		flex: 1;
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	.vx-sidenav-item-end {
+		display: flex;
+		align-items: center;
+		flex-shrink: 0;
+	}
+	.vx-sidenav-item-actions {
+		display: flex;
+		align-items: center;
+		flex-shrink: 0;
+		pointer-events: auto;
+	}
+	.vx-sidenav-item-chevron {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 24px;
+		height: 24px;
+		flex-shrink: 0;
+	}
+	.vx-sidenav-item-toggle {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+		border: 0;
+		background: none;
+		font: inherit;
+		padding: 0;
+		cursor: pointer;
+	}
+	.vx-sidenav-collapsebtn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+		border: 0;
+		font: inherit;
+		cursor: pointer;
+	}
+	.vx-sidenav-collapsebtn:disabled {
+		cursor: default;
+	}
+	.vx-sidenav-collapsebtn--icon {
+		aspect-ratio: 1 / 1;
+		padding: 0;
+	}
+	.vx-sidenav-collapsebtn-label {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	/* Astryx disclosure chevrons rotate; they do not swap glyphs. */
+	.vx-sidenav-item-chevron .vx-icon,
+	.vx-sidenav-item-toggle .vx-icon,
+	.vx-sidenav-collapsebtn .vx-icon {
+		transition: transform var(--duration-fast, 175ms) var(--ease-standard, ease);
+	}
+	.vx-sidenav-item-chevron--expanded .vx-icon,
+	.vx-sidenav-item-toggle--expanded .vx-icon,
+	.vx-sidenav-collapsebtn--collapsed .vx-icon {
+		transform: rotate(180deg);
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.vx-sidenav-item-chevron .vx-icon,
+		.vx-sidenav-item-toggle .vx-icon,
+		.vx-sidenav-collapsebtn .vx-icon {
+			transition: none;
+		}
+	}
+	.vx-sidenav-item-main:focus-visible,
+	.vx-sidenav-item-toggle:focus-visible,
+	.vx-sidenav-collapsebtn:focus-visible,
+	.vx-sidenav-heading-trigger:focus-visible,
+	.vx-sidenav-heading-menubtn:focus-visible,
+	.vx-sidenav-heading-title:focus-visible,
+	.vx-sidenav-heading-super:focus-visible,
+	.vx-sidenav-heading-sub:focus-visible {
+		outline: var(--focus-outline-width, 2px) var(--focus-outline-style, solid) var(--focus-outline-color, var(--color-primary));
+		outline-offset: var(--focus-outline-offset, 3px);
+	}
 	/* ResizeHandle — hit zone sits on the boundary; a 2px pill indicates the
    grip (auto placement: panel side when expanded, center when collapsed). */
 	.vx-resize-handle {
