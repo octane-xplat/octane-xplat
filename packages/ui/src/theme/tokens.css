@@ -4385,13 +4385,22 @@
 
 @layer xplat-structure {
 	/* Astryx action controls and structured PowerSearch geometry. */
-	.vx-button-group,
-	.vx-toggle-button-group {
+	.vx-button-group {
 		flex-direction: row;
 		align-items: stretch;
 	}
+	/* Astryx ToggleButtonGroup — separated ghost pills on a --spacing-1 gap,
+	   not the segmented strip ButtonGroup uses. */
+	.vx-toggle-button-group {
+		flex-direction: row;
+		align-items: center;
+		gap: var(--spacing-1, 4px);
+	}
 	.vx-button-group--vertical {
 		flex-direction: column;
+	}
+	.vx-toggle-button-group.vx-button-group--vertical {
+		align-items: stretch;
 	}
 	.vx-clickable-card,
 	.vx-selectable-card {

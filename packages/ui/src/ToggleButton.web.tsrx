@@ -1,6 +1,6 @@
 import { useState } from 'octane'
 import type { ToggleButtonProps, ToggleButtonGroupProps } from './props'
-import { useToggleButtonGroup, ToggleButtonGroupContext } from './toggle-button-group-context'
+import { useToggleButtonGroup, ToggleButtonGroupProvider } from './toggle-button-group-context'
 import { Button } from './Button.web.tsrx'
 
 export function ToggleButton(props: ToggleButtonProps) @{
@@ -21,7 +21,21 @@ export function ToggleButton(props: ToggleButtonProps) @{
 		props.onPressedChange?.(next)
 	}
 
-	<Button {...props} size={size} variant={pressed ? 'secondary' : 'ghost'} isDisabled={disabled} icon={pressed ? (props.pressedIcon ?? props.icon) : props.icon} clickAction={() => { activate(); return props.pressedChangeAction?.(actionValue) }} accessibilityState={{...props.accessibilityState, pressed}} className={['vx-toggle-button', pressed ? 'vx-toggle-button--pressed' : undefined, pressed && props.color ? `vx-toggle-button--${props.color}` : undefined, props.className]} />
+	// Astryx: the label goes semibold while pressed and a hidden semibold
+	// twin reserves the wider width so toggling doesn't shift layout. The
+	// vx-button-label block span mirrors upstream Button's children wrapper —
+	// it keeps the inline-flex label wrap from blockifying as a flex item.
+	// Group members ignore pressedChangeAction (the group owns selection).
+	const labelContent = props.isIconOnly ? undefined : (
+		<span className="vx-button-label">
+			<span className="vx-toggle-button-labelwrap">
+				<span className={pressed ? 'vx-toggle-button-label--pressed' : undefined}>{props.children ?? props.label}</span>
+				<span className="vx-toggle-button-labelreserve" aria-hidden="true">{props.children ?? props.label}</span>
+			</span>
+		</span>
+	)
+
+	<Button {...props} size={size} variant="ghost" isDisabled={disabled} icon={pressed ? (props.pressedIcon ?? props.icon) : props.icon} clickAction={() => { activate(); return inGroup ? undefined : props.pressedChangeAction?.(actionValue) }} accessibilityState={{...props.accessibilityState, pressed}} className={['vx-toggle-button', pressed ? 'vx-toggle-button--pressed' : undefined, pressed && props.color ? `vx-toggle-button--${props.color}` : undefined, props.className]}>{labelContent}</Button>
 }
 
 export function ToggleButtonGroup(props: ToggleButtonGroupProps) @{
@@ -35,7 +49,7 @@ export function ToggleButtonGroup(props: ToggleButtonGroupProps) @{
 		} else (props as Extract<ToggleButtonGroupProps, {type?:'single'}>).onChange(selected.has(key) ? null : key)
 	}
 
-	<ToggleButtonGroupContext.Provider value={{selectedValues:selected, toggle, size:props.size, isDisabled:props.isDisabled}}>
+	<ToggleButtonGroupProvider value={{selectedValues:selected, toggle, size:props.size, isDisabled:props.isDisabled}}>
 		<div id={props.id} role="group" aria-label={props.label} className={['vx-toggle-button-group', `vx-button-group--${props.orientation ?? 'horizontal'}`, props.className]} style={props.style}>{props.children}</div>
-	</ToggleButtonGroupContext.Provider>
+	</ToggleButtonGroupProvider>
 }

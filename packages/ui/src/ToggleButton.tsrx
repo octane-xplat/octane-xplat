@@ -2,7 +2,7 @@
 import { mergeStyle } from './style-merge'
 import { useState } from 'octane'
 import type { ToggleButtonProps, ToggleButtonGroupProps } from './props'
-import { useToggleButtonGroup, ToggleButtonGroupContext } from './toggle-button-group-context'
+import { useToggleButtonGroup, ToggleButtonGroupProvider } from './toggle-button-group-context'
 import { Button } from './Button.tsrx'
 import { cx } from '@octane-xplat/lib'
 
@@ -29,7 +29,7 @@ export function ToggleButton(props: ToggleButtonProps) @{
 		props.onPressedChange?.(next)
 	}
 
-	<Button {...props} size={size} variant={pressed ? 'secondary' : 'ghost'} isDisabled={disabled} icon={pressed ? (props.pressedIcon ?? props.icon) : props.icon} clickAction={() => { activate(); return props.pressedChangeAction?.(actionValue) }} accessibilityState={{...props.accessibilityState, pressed}} className={cx('vx-toggle-button', pressed && 'vx-toggle-button--pressed', props.className)} />
+	<Button {...props} size={size} variant="ghost" isDisabled={disabled} icon={pressed ? (props.pressedIcon ?? props.icon) : props.icon} clickAction={() => { activate(); return inGroup ? undefined : props.pressedChangeAction?.(actionValue) }} accessibilityState={{...props.accessibilityState, pressed}} className={cx('vx-toggle-button', pressed && 'vx-toggle-button--pressed', props.className)} />
 }
 
 /**
@@ -54,7 +54,7 @@ export function ToggleButtonGroup(props: ToggleButtonGroupProps) @{
 
 	const context = { selectedValues: selected, toggle, size: props.size, isDisabled: props.isDisabled }
 
-	<ToggleButtonGroupContext.Provider value={context}>
+	<ToggleButtonGroupProvider value={context}>
 		<masonview id={props.id} className={cx('vx-toggle-button-group', `vx-button-group--${props.orientation ?? 'horizontal'}`, props.className)} style={mergeStyle({display: "flex"}, props.style)} accessible={true} accessibilityLabel={props.label}>{props.children}</masonview>
-	</ToggleButtonGroupContext.Provider>
+	</ToggleButtonGroupProvider>
 }

@@ -31,6 +31,19 @@ try {
 	check('home sidebar nav present', (await page.locator('nav').count()) > 0)
 	check('home card grid populated', (await page.locator('.sb-card-grid a').count()) > 0)
 
+	// Category filter row (upstream ToggleButtonGroup, F-7) — four options,
+	// selecting one swaps the grouped sections for a single ungrouped grid.
+	const filterGroup = page.locator('[role="group"][aria-label="Filter by category"]')
+	check('home category filter renders', (await filterGroup.locator('button').count()) === 4)
+	await filterGroup.locator('button', { hasText: 'Themes' }).click()
+	await page.waitForTimeout(200)
+	const themedCards = await page.locator('.sb-card-grid a').count()
+	check('category filter narrows grid', themedCards > 0 && themedCards < 20, `${themedCards} cards`)
+	check('filtered grid is ungrouped', (await page.locator('main h2, [role="main"] h2, h2').count()) === 0)
+	await filterGroup.locator('button', { hasText: 'All' }).click()
+	await page.waitForTimeout(200)
+	check('All restores sections', (await page.locator('h2').count()) > 0)
+
 	// Search filters cards
 	await page.fill('input[type="search"], input[placeholder="Search..."]', 'palette')
 	await page.waitForTimeout(200)

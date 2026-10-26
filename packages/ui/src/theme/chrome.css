@@ -1438,7 +1438,7 @@
 	/* xplat-web-only:start — display:flex for the div-based flex classes */
 	/* xplat-web-only:end */
 	/* xplat-web-only:start — the Astryx heading scale resolves through the
-   theme's --text-heading-*/-font-* token vars (rem lengths + unitless
+   theme's --text-heading-* / --font-* token vars (rem lengths + unitless
    leading); NativeScript reads only the numeric prefix of font-size and
    treats line-height as dips, so the native/macOS leaves resolve the same
    tokens to dips in JS (text-scale.ts). Fallbacks are the Astryx default
@@ -2635,29 +2635,51 @@
 	.vx-button--group-only {
 		border-radius: 0;
 	}
-	.vx-button-group,
-	.vx-toggle-button-group {
+	.vx-button-group {
 		border-width: 1px;
 		border-color: var(--color-border);
 		border-radius: var(--radius-md);
 	}
-	/* xplat-web-only:start — connected DOM borders and clipping. */
-	.vx-button-group,
-	.vx-toggle-button-group {
+	/* xplat-web-only:start — connected DOM borders and clipping. The
+	   ToggleButtonGroup takes none of this: upstream lays it out as
+	   inline-flex ghost pills separated by --spacing-1. */
+	.vx-button-group {
 		overflow: hidden;
 	}
-	.vx-button-group--horizontal > :not(:first-child),
-	.vx-toggle-button-group--horizontal > :not(:first-child) {
+	.vx-toggle-button-group {
+		display: inline-flex;
+	}
+	.vx-button-group.vx-button-group--horizontal > :not(:first-child) {
 		border-left-width: 1px;
 		border-left-color: var(--color-border);
 	}
-	.vx-button-group--vertical > :not(:first-child),
-	.vx-toggle-button-group--vertical > :not(:first-child) {
+	.vx-button-group.vx-button-group--vertical > :not(:first-child) {
 		border-top-width: 1px;
 		border-top-color: var(--color-border);
 	}
+	/* Astryx width-reservation label: the hidden semibold twin keeps the
+	   button's pressed width so toggling doesn't shift the row. */
+	.vx-toggle-button-labelwrap {
+		display: inline-flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+	}
+	.vx-toggle-button-label--pressed,
+	.vx-toggle-button-labelreserve {
+		font-weight: var(--font-weight-semibold, 600);
+	}
+	.vx-toggle-button-labelreserve {
+		display: block;
+		height: 0;
+		overflow: hidden;
+		visibility: hidden;
+		pointer-events: none;
+	}
 	/* xplat-web-only:end */
-	.vx-toggle-button--pressed,
+	.vx-toggle-button--pressed {
+		background-color: var(--color-overlay-pressed, var(--color-surface-secondary));
+	}
 	.vx-selectable-card--selected {
 		border-color: var(--color-primary);
 		background-color: var(--color-surface-secondary);

@@ -44,7 +44,7 @@ is a client-routed SPA — adaptation recorded.
 | `Text`/`Heading` `type`/`size`/`color`/`weight`/`maxLines` props | **ported** in `@octane-xplat/ui` — `type`/`size`/`color`/`weight` resolve the theme's `--text-*`/`--font-*`/`--color-text-*` scale; `maxLines` replaces `numberOfLines`/`ellipsize`. `wordBreak`/`textWrap`/`display`/`hasTruncateTooltip`/`as` remain unported (style props cover them) |
 | `Badge variant="info|warning|neutral" label` | `Badge` unstyled container | `.sb-badge--*` classes — adaptation |
 | `Icon icon={<Icon icon={HeroIcon}/>}` (heroicons) | `icon` prop takes registered `IconName` | `sandbox-*` glyph registrations, same MIT path data |
-| `ToggleButtonGroup`/`ToggleButton` (single select) | same shape (value/onChange/children) | **deferred** — rendering the group inside the ported Home screen blanks the route at runtime (no error surfaced); category filter removed from the home page for unit 1 and recorded here for follow-up |
+| `ToggleButtonGroup`/`ToggleButton` (single select) | same shape (value/onChange/children) | **ported** — F-7 resolved; the home filter row and `activeTab` grouping match upstream (see F-7) |
 | `TextInput isLabelHidden startIcon` | `SearchInput` (normalized search chrome) | equivalent contract |
 | `SideNav*` `as={Link}` | `SideNavItem as` prop + `href` | direct shape parity |
 | `DropdownMenu button={…isIconOnly}` | `DropdownMenu trigger`/`accessibilityLabel` + `radio-group` items | equivalent contract |
@@ -118,12 +118,19 @@ is a client-routed SPA — adaptation recorded.
   `RadioListItem`/`CheckboxListItem`, `CollapsibleGroup`, `Step`,
   `FieldLabel`, `AvatarGroupOverflow`/`AvatarStatusDot`, CommandPalette
   parts. Owner: units 3–11 per family.
-- `F-7` `ToggleButtonGroup` render defect — mounting `ToggleButtonGroup`
-  with `ToggleButton` children inside a `.tsrx` screen produces an empty
-  render (blank route, no console/page error). Repro: restore the commented
-  filter row in `src/screens/HomeScreen.tsrx`. Home category filter omitted
-  until diagnosed; upstream's single-select category tab behavior is
-  preserved as pending scope, not silently substituted.
+- `F-7` `ToggleButtonGroup` render defect — **resolved**. Root cause: the
+  group rendered `<ToggleButtonGroupContext.Provider>`, but Octane's
+  `createContext` returns a callable provider, not a React-style object —
+  `.Provider` throws `OCTANE_CONTEXT_PROVIDER` in dev and is `undefined` in
+  production (blank route, no error). Fixed by rendering the
+  `ToggleButtonGroupProvider` alias (same pattern as
+  `FieldProvider`/`DialogProvider`) across all three variants; covered by
+  `packages/ui/src/ToggleButton.web.test.tsrx`. The fix also restores the
+  toggle examples routes and aligns the group's web look with Astryx —
+  separated ghost pills on a `--spacing-1` gap instead of the ButtonGroup
+  segmented strip, `ghost` variant with the `--color-overlay-pressed`
+  pressed fill, and the semibold pressed label with its width-reservation
+  twin.
 
 ## Honest limitations (unit 1)
 

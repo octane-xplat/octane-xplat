@@ -15,6 +15,10 @@ export const ToggleButtonGroupContext: any = createContext<ToggleButtonGroupCont
 	null,
 )
 
+/** JSX-provider form — Octane's context is a callable rather than a
+ *  `.Provider` member (same aliasing as FieldProvider/DialogProvider). */
+export const ToggleButtonGroupProvider: any = ToggleButtonGroupContext
+
 /** ToggleButton reads group membership here; null outside a group. */
 export function useToggleButtonGroup(): ToggleButtonGroupContextValue | null {
 	return useContext(ToggleButtonGroupContext)
