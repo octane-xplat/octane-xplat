@@ -27,6 +27,8 @@ function LightboxLayer(props: {
 }) @{
 	const { media, index } = props;
 	const count = media.length;
+	const navigation = useRef({ index, count });
+	navigation.current = { index, count };
 	const item = media[index];
 	const layer = useRef<HTMLDivElement | null>(null);
 	const stage = useRef<HTMLDivElement | null>(null);
@@ -34,6 +36,7 @@ function LightboxLayer(props: {
 	const [zoomed, setZoomed] = useState(false);
 	const pan = useRef({ x: 0, y: 0 });
 	const drag = useRef<{ x: number; y: number } | null>(null);
+	const suppressClick = useRef(false);
 	const onClose = useRef(props.onClose);
 	onClose.current = props.onClose;
 	const setIndex = useRef(props.setIndex);
@@ -50,6 +53,8 @@ function LightboxLayer(props: {
 		setIndex.current(props.index - 1 >= 0 ? props.index - 1 : props.index);
 	}, [props.index]);
 
+	// The modal lease belongs to this mounted viewer, not each image. Rebinding
+	// it after navigation would capture a viewer control as the return target.
 	useEffect(() => {
 		const el = layer.current;
 		const panel = stage.current;
@@ -65,6 +70,7 @@ function LightboxLayer(props: {
 		const rtl = getComputedStyle(el).direction === 'rtl';
 		const onKey = (event: KeyboardEvent) => {
 			if (event.isComposing) return;
+			const { index, count } = navigation.current;
 			const fwd = rtl ? 'ArrowLeft' : 'ArrowRight';
 			const back = rtl ? 'ArrowRight' : 'ArrowLeft';
 			if (event.key === fwd) {
@@ -84,7 +90,7 @@ function LightboxLayer(props: {
 				target.focus({ preventScroll: true });
 			}
 		};
-	}, [index, count]);
+	}, []);
 
 	// Zoom: click toggles 1↔2.5, drag pans while zoomed.
 	const applyZoom = (on: boolean, keepPan = false) => {
@@ -103,12 +109,19 @@ function LightboxLayer(props: {
 	};
 
 	const onMediaClick = () => {
+		// Pointer capture still delivers a click after a drag. Keep the pan
+		// until a separate click, rather than immediately toggling zoom off.
+		if (suppressClick.current) {
+			suppressClick.current = false;
+			return;
+		}
 		if (zoomOn) {
 			applyZoom(!zoomed);
 		}
 	};
 
 	const onPointerDown = (event: PointerEvent) => {
+		suppressClick.current = false;
 		if (!zoomed || !imgEl.current) return;
 		drag.current = { x: event.clientX, y: event.clientY };
 		imgEl.current.setPointerCapture?.(event.pointerId);
@@ -119,6 +132,9 @@ function LightboxLayer(props: {
 		const start = drag.current;
 		const el = imgEl.current;
 		if (!start || !el) return;
+		if (Math.abs(event.clientX - start.x) + Math.abs(event.clientY - start.y) > 3) {
+			suppressClick.current = true;
+		}
 		pan.current = {
 			x: pan.current.x + (event.clientX - start.x) / 2.5,
 			y: pan.current.y + (event.clientY - start.y) / 2.5,

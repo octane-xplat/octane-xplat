@@ -316,3 +316,28 @@ html.sb-embed .sb-embed-root {
 .sb-media-overlay:focus-within .sb-media-overlay-scrim--hover {
 	opacity: 1;
 }
+
+.sb-media-frame { width: 360px; max-width: 100%; border-radius: var(--radius-container); overflow: hidden; }
+.sb-media-image { width: 100%; height: 100%; object-fit: cover; }
+.sb-media-bottom { position: absolute; inset-inline: 0; inset-block-end: 0; background: linear-gradient(180deg, transparent, rgba(10,19,23,.78)); }
+.sb-media-light { position: absolute; inset-block-start: 16px; inset-inline-start: 16px; max-width: 250px; background: rgba(255,255,255,.82); border-radius: var(--radius-container); }
+.sb-media-showcase { width: 360px; max-width: 100%; min-height: 230px; display: flex; align-items: flex-end; background: linear-gradient(180deg, rgba(10,19,23,.05), rgba(10,19,23,.82)), url('/template-assets/light-scene-horizontal-1.png') center/cover; border-radius: var(--radius-container); }
+.sb-media-badge { padding: 2px 6px; border: 1px solid currentColor; border-radius: 6px; color: var(--color-text-primary); }
+
+.sb-aspect-specimen { height: 120px; width: auto; border-radius: var(--radius-container); }
+.sb-aspect-gallery-image { border-radius: var(--radius-element); }
+.sb-lightbox-gallery { width: 136px; gap: var(--spacing-2); }
+
+.sb-mode-swatch { text-align: center; width: 72px; }
+.sb-mode-box { position: relative; width: 64px; height: 64px; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,.1); }
+.sb-mode-remove-position { position: absolute; top: 4px; right: 4px; }
+.sb-mode-grid { display: flex; flex-wrap: wrap; gap: 12px; }
+.sb-mode-remove { height: 20px; min-width: 20px; }
+.sb-mode-image { width: 100%; height: 100%; object-fit: cover; display: block; }
+.sb-mode-color-label { font-size: 10px; color: #666; margin-top: 4px; font-weight: 600; }
+.sb-mode-image-label { font-size: 10px; color: #666; margin-top: 4px; }
+.sb-mode-value { font-size: 9px; }
+.sb-mode-info { font-size: 12px; color: #888; }
+.sb-mode-page { max-width: 800px; }
+
+.sb-image-gallery { width: 100%; gap: var(--spacing-4); }

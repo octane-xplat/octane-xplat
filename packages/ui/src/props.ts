@@ -12783,3 +12783,35 @@ export interface RouteOutletProps {
 	stack?: string
 	children?: Renderable
 }
+
+// Media luminance and secondary-action reveal contracts.
+/** Normalized image coordinates, each in the range 0–1. */
+export interface ImageSampleRegion {
+	x: number
+	y: number
+	width: number
+	height: number
+}
+
+export interface UseImageModeOptions {
+	/** Sample this area instead of the whole image. */
+	region?: ImageSampleRegion
+	/** APCA perceptual lightness split; values above it are light. @default 0.5 */
+	threshold?: number
+	/** Used while loading, on failure, and on unsupported native hosts. @default null */
+	fallback?: 'dark' | 'light' | null
+}
+
+/** Exercised subset of Astryx's container reveal contract. */
+export interface UseContainerRevealOptions {
+	isEnabled?: boolean
+}
+
+export interface ContainerRevealProps {
+	className?: string
+}
+
+export interface UseContainerRevealReturn {
+	getContainerProps: () => ContainerRevealProps
+	getContentRevealProps: () => ContainerRevealProps
+}

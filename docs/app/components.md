@@ -810,3 +810,49 @@ packages so `@octane-xplat/ui` keeps zero required plugin deps:
 See [search, select, and token entry](search-selection.md) for `SearchSource`, `Typeahead`, `Tokenizer`, `Token`, and `ComplexSelector` workflows and platform limits.
 
 Shared menu parts and their state/keyboard contracts are explained in [Add actions and choices to a menu](../menus.md).
+
+
+## Media contrast and row actions
+
+On web, `useImageMode` samples an image and returns `"dark"` or `"light"` for
+its surface luminance. It returns your fallback while loading or when decoding,
+CORS, or canvas support prevents sampling. Native hosts currently return the
+fallback without sampling; use an explicit surface mode there. A normalized
+region selects the part behind your controls (coordinates run from 0 to 1).
+
+```tsx
+import { Theme, Text, getRegisteredTheme, useThemeName, useImageMode, defineTheme } from '@octane-xplat/ui'
+
+const mediaTheme = defineTheme({ name: 'photo' })
+
+export function PhotoCaption(props: { src: string }) {
+  const theme = getRegisteredTheme(useThemeName()) ?? mediaTheme
+  const mode = useImageMode(props.src, {
+    region: { x: 0, y: 0.5, width: 1, height: 0.5 },
+    fallback: 'dark',
+  })
+  return <Theme theme={theme} mode={mode ?? 'dark'}><Text>Summer trip</Text></Theme>
+}
+```
+
+`useContainerReveal` reveals secondary actions on web when the row is hovered
+or receives keyboard focus. Actions remain mounted and tabbable. Touch hosts
+keep them visible; native desktop hover reveal is not implemented. This subset
+supports `isEnabled`, `getContainerProps()` and `getContentRevealProps()`;
+Astryx's delay, inversion and force-state options are not supported.
+
+```tsx
+import { Button, HStack, Text, useContainerReveal } from '@octane-xplat/ui'
+
+export function FileActions() {
+  const reveal = useContainerReveal()
+  return (
+    <HStack {...reveal.getContainerProps()}>
+      <Text>report.pdf</Text>
+      <HStack {...reveal.getContentRevealProps()}>
+        <Button label="Edit report" />
+      </HStack>
+    </HStack>
+  )
+}
+```

@@ -1,3 +1,22 @@
+import { AspectRatioCircleImage } from './media/AspectRatioCircleImage'
+import { AspectRatioImageGallery } from './media/AspectRatioImageGallery'
+import { AspectRatioWidescreen } from './media/AspectRatioWidescreen'
+import { AspectRatioSquareImage } from './media/AspectRatioSquareImage'
+import { AspectRatioWithSkeleton } from './media/AspectRatioWithSkeleton'
+import { AspectRatioShowcase } from './media/AspectRatioShowcase'
+import { ThumbnailGallery } from './media/ThumbnailGallery'
+import { ThumbnailRemovable } from './media/ThumbnailRemovable'
+import { ThumbnailShowcase } from './media/ThumbnailShowcase'
+import { ThumbnailDisabled } from './media/ThumbnailDisabled'
+import { ThumbnailStates } from './media/ThumbnailStates'
+import { LightboxZoom } from './media/LightboxZoom'
+import { LightboxVideo } from './media/LightboxVideo'
+import { LightboxGallery } from './media/LightboxGallery'
+import { LightboxShowcase } from './media/LightboxShowcase'
+import { MediaThemeImageOverlay } from './media/MediaThemeImageOverlay'
+import { MediaThemeLightScrim } from './media/MediaThemeLightScrim'
+import { MediaThemeShowcase } from './media/MediaThemeShowcase'
+import { UseContainerRevealHookUsage } from './media/useContainerRevealHookUsage'
 // Implemented-example registry — template route name → the ported Octane
 // element rendered for /templates/<name>/. The coverage ledger derives
 // 'ported' status from this map; adding an example flips its row.
@@ -231,6 +250,26 @@ import { FormLayoutNested } from './formlayout/FormLayoutNested'
 import { FormLayoutShowcase } from './formlayout/FormLayoutShowcase'
 
 const examples: Record<string, () => any> = {
+	AspectRatioCircleImage,
+	AspectRatioImageGallery,
+	AspectRatioWidescreen,
+	AspectRatioSquareImage,
+	AspectRatioWithSkeleton,
+	AspectRatioShowcase,
+	ThumbnailGallery,
+	ThumbnailRemovable,
+	ThumbnailShowcase,
+	ThumbnailDisabled,
+	ThumbnailStates,
+	LightboxZoom,
+	LightboxVideo,
+	LightboxGallery,
+	LightboxShowcase,
+
+	MediaThemeImageOverlay,
+	MediaThemeLightScrim,
+	MediaThemeShowcase,
+	useContainerRevealHookUsage: UseContainerRevealHookUsage,
 	ButtonShowcase,
 	ButtonVariants,
 	ButtonSizeVariants,

@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 // Runtime smoke for the sandbox app in a real browser (Chromium via
-// Playwright). Boots `vite preview` against a fresh `vite build`, then drives
+// Playwright). Uses a running `vite preview` of the production build and drives
 // the pinned journeys with DOM/text assertions only — no screenshots, no
 // pixel checks. Usage: node scripts/verify-web.mjs [--base URL]
 
 import { chromium } from 'playwright'
+import { verifyMedia } from './verify-media.mjs'
 
 const base = process.env.BASE_URL ?? process.argv.find((a) => a.startsWith('--base='))?.split('=')[1]
 const baseUrl = base ?? 'http://localhost:4173'
@@ -25,6 +26,18 @@ page.on('console', (m) => {
 		errors.push(m.text())
 	}
 })
+
+if (process.argv.includes('--media-only')) {
+	try {
+		await verifyMedia(page, baseUrl, check, browser)
+		check('unit-8 no runtime errors', errors.length === 0, errors.slice(0, 3).join(' | '))
+	} finally {
+		await browser.close()
+	}
+	const failures = results.filter((r) => !r.pass)
+	console.log(`${results.length - failures.length}/${results.length} media checks passed`)
+	process.exit(failures.length ? 1 : 0)
+}
 
 try {
 	// Home: heading, nav, search, category sections, cards
@@ -528,6 +541,7 @@ try {
 	const counterText = await page.textContent('body')
 	check('textarea-counter live count', counterText.includes('/140') || counterText.includes('remaining'))
 
+	await verifyMedia(page, baseUrl, check, browser)
 	check('no page errors', errors.length === 0, errors.slice(0, 3).join(' | '))
 } finally {
 	await browser.close()

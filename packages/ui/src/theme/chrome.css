@@ -3245,3 +3245,28 @@
 .vx-toggle-button--success.vx-toggle-button--pressed { color: var(--color-success, #080); }
 .vx-toggle-button--warning.vx-toggle-button--pressed { color: var(--color-warning, #a60); }
 .vx-toggle-button--error.vx-toggle-button--pressed { color: var(--color-error, #d33); }
+
+/* xplat-web-only:start */
+/* Container state resets at each boundary, including nested rows. Opacity
+   keeps actions in the accessibility tree and keyboard tab order. */
+.xds-reveal-container { --xds-reveal-opacity: 0; --xds-reveal-position: absolute; }
+.xds-reveal-content {
+ opacity: var(--xds-reveal-opacity, 1);
+ position: var(--xds-reveal-position, static);
+ transition: opacity 100ms ease;
+}
+@media (hover: hover) {
+ .xds-reveal-container:hover:not(:disabled):not([aria-disabled="true"]) {
+  --xds-reveal-opacity: 1; --xds-reveal-position: static;
+ }
+}
+.xds-reveal-container:focus-within { --xds-reveal-opacity: 1; --xds-reveal-position: static; }
+@media (any-pointer: coarse) {
+ .xds-reveal-container { --xds-reveal-opacity: 1; --xds-reveal-position: static; }
+}
+@media (prefers-reduced-motion: reduce) { .xds-reveal-content { transition: none; } }
+
+.vx-thumbnail-remove[data-xds-image-mode="light"] { background-color: rgba(255,255,255,.85); color: #101820; }
+.vx-thumbnail-remove[data-xds-image-mode="dark"] { background-color: rgba(0,0,0,.6); color: #ffffff; }
+@media (any-pointer: coarse) { .vx-thumbnail-remove { opacity: 1; } }
+/* xplat-web-only:end */

@@ -15,7 +15,8 @@ inventory.
 
 Foundation unit (1 of 14) plus later units are landed: app shell,
 home/category navigation, coverage inventory, the Button (6) + Text (9)
-example slice, the theme runtime, preview shell, overlay and form families.
+example slice, the theme runtime, preview shell, overlay and form families. Unit 8 adds 19 image/media block examples and the
+media-mode comparison screen.
 Unported routes remain honest pending placeholders. See
 [docs/coverage.md](docs/coverage.md) for the route/API inventory,
 substitutions, findings, and runtime evidence.
@@ -25,8 +26,10 @@ substitutions, findings, and runtime evidence.
 ```sh
 pnpm install          # from the repo root — links the workspace
 pnpm --filter @xplat/astryx-sandbox dev       # vite dev on :5240
-pnpm --filter @xplat/astryx-sandbox build && pnpm --filter @xplat/astryx-sandbox preview
-pnpm --filter @xplat/astryx-sandbox verify:web  # Chromium runtime smoke (builds + previews)
+pnpm exec turbo run preview --filter=@xplat/astryx-sandbox  # production build + server
+# In a second terminal, while preview is running:
+pnpm exec turbo run verify:web --filter=@xplat/astryx-sandbox -- --media-only
+# Omit --media-only to run the whole maintained Chromium smoke.
 ```
 
 ## Parity comparison (sameframe)

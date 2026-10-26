@@ -1,3 +1,4 @@
+import { MediaModePage } from './media-mode/MediaModePage'
 // Ported authored-page registry — /pages/* route → the screen that renders
 // it. The coverage ledger derives 'ported' status from these keys; adding
 // a page flips its row, same as the template example registry.
@@ -11,6 +12,7 @@ import { TapTargetsPage } from './tap-targets/TapTargetsPage'
 import { TextareaCounterPage } from './textarea-counter/TextareaCounterPage'
 
 const pages: Record<string, () => any> = {
+	'/pages/media-mode/': MediaModePage,
 	'/pages/neutral-palette/': NeutralPalettePage,
 	'/pages/stone-palette/': StonePalettePage,
 	'/pages/gothic-palette/': GothicPalettePage,

@@ -143,8 +143,9 @@ is a client-routed SPA — adaptation recorded.
   upstream's `alert()` so the swap is observable in checks. The command
   palette catalog intentionally exceeds upstream (all 714 template routes +
   authored pages vs categories only).
-- `MediaTheme`, syntax themes, color-studio/palette-generator/mobile-spacing,
-  theme-family pages remain pending (later units). The palette preview's
+- Explicit `MediaTheme` examples are mapped in unit 8 below. Syntax themes,
+  color-studio/palette-generator/mobile-spacing and theme-family pages remain
+  pending (later units). The palette preview's
   audit drawer + pending-override editor are recorded adaptations (upstream
   dev tooling); tonal snap markers omitted with them. SVG `<rect>` chart in
   useThemeHookUsage re-authored as token-painted divs (renderer has no SVG
@@ -286,3 +287,97 @@ New/extended contracts on existing components:
   the measurement harness is toolchain code, not a component contract.
 - `textarea-counter`: `TextArea.maxLength` live counter + `FieldStatus`
   row, replacing upstream's hand-rolled counter markup.
+
+
+## Unit 8 — media and responsive examples
+
+This unit owns 19 block routes and `/pages/media-mode/` (20 routes total).
+Their status comes from the live registries, not the earlier inventory table.
+The exact candidate is the commit containing this section; the landed SHA is
+reported at handoff. Oracle revision:
+`ebd939b665361a078015377c0dfe50cc3c1d70a4`; candidate base: `4dd7234b7`.
+
+### API mappings and findings
+
+| Upstream examples | Expected contract | Public equivalent or gap | Hosts and evidence |
+| --- | --- | --- | --- |
+| Three `MediaTheme*` blocks; `media-mode` swatches | Explicit dark/light surface ink with inherited theme identity | Nested public `Theme` with the current registered theme and explicit `mode`; no app-local theme provider | Web/DOM: six themes × two ambient modes, live theme/mode change. This does not implement `MediaTheme auto`, media-specific component overrides, or prove native rendering. |
+| `ThumbnailRemovable`, `ThumbnailGallery`, `media-mode` | Regional image luminance and loading/error fallback | Public `useImageMode`; APCA average sampling, cancellation, bitmap cleanup, fallback; shared Thumbnail consumes it for remove contrast | Web: unit and Chromium checks. Native pixel sampling remains unavailable and returns fallback. No native detection claim. |
+| `useContainerRevealHookUsage` | Scoped hover/focus reveal; mounted, tabbable actions; touch always visible | Public `useContainerReveal` default getters + `isEnabled`; public stacks compose the upstream Item row; registered pencil-square/trash icons replace Heroicon components | Web browser mouse/keyboard and coarse-pointer checks. Native defaults keep actions visible; native desktop hover/focus reveal is unavailable. Delay/inversion/force-state options are outside this exercised subset. |
+| `AspectRatio*` | Ratio reservation and fitted media across resize | Public AspectRatio + Image; numeric Grid columns become track strings and CSS gaps | Chromium found missing shared web fill-layer styles; fixed in shared `tokens.css`. Silo observation `7300c40c-0e76-472f-afa6-61e24a523235`. |
+| `ThumbnailGallery`, `ThumbnailDisabled`, `ThumbnailStates` | Independent preview/remove, disabled controls, placeholder/skeleton/upload/loaded states | Public Thumbnail; shared web fix replaces invalid nested button markup, resets errors on source change, and samples remove contrast | Focused regression test + Chromium pointer/keyboard/state checks; Silo `9dc53782-f90d-4f07-86e4-0dd3d5abb902`. Native implementations unchanged. |
+| Four `Lightbox*` blocks | Open/close, gallery navigation, zoom/pan and video | Public Lightbox/useLightbox; single upstream media objects become one-item arrays; shared click-to-zoom replaces the upstream double-click instruction | Chromium input and DOM state; video metadata/controls and keyboard play/pause checked; audio output remains unqualified. Post-drag clicks no longer discard the pan, and gallery navigation retains the original focus lease; Silo `35c51c5d-b9d3-4398-9407-19ede7670e9d` and `854a2bb6-963e-458c-8d31-1edf7007d2ba`. No audio-output or native player claim. |
+| Adaptive dialog (already owned by unit 4) | Query updates after resize on a coarse pointer | Existing public `useMediaQuery`, exercised through its existing sandbox consumer | Chromium compact sheet → wide dialog. No new unit-8 route claimed for this check. |
+| `/pages/media-mode/` | Three selectable algorithms, 16 solid swatches and 8 regional image samples | Upstream app-owned comparison hook re-authored in Octane; APCA overlay uses public useImageMode. Canvas/fetch work stays in a web leaf; source view maps the actual page | Browser-only lab. Remote Picsum URLs retained; deterministic verification substitutes their HTTP response bytes. CORS/network failures retain the upstream `detecting…` fallback. |
+
+Assets are copied unchanged from the pinned docsite with its MIT license.
+MediaTheme info uses the registered `sandbox-info` glyph; lab remove controls
+use `xplat-close`. The fixed light/dark Theme composition does not close the
+separate generated-theme-family page: `/pages/theme-family/` remains owned by
+its theme/authored-screen work. `ItemDocumentTabs` and composed page consumers
+remain owned by their family/page units.
+
+### Runtime evidence
+
+Each row below uses the pinned oracle and the candidate commit identified
+above. Host is Chromium/DOM; initial state is a fresh route navigation; input
+is browser navigation; expected/observed result is rendered ported content
+with no pending placeholder. Evidence is `scripts/verify-media.mjs`, invoked
+by `scripts/verify-web.mjs --media-only`. Final result: **84/84 checks passed**, against the production build in Chromium.
+`turbo run typecheck --filter=...@octane-xplat/ui` passed (58 tasks); the focused
+UI suite passed 34 tests. Recipe/link checks passed. Diff-scoped lint is clean;
+shared-file lint retains an unchanged curly-brace violation in source-registry
+and two unchanged verify-web warnings. `check:css` retains 28 pre-existing
+unsupported declarations; the new CSS rules are explicitly web-only.
+
+| Route/example | Evidence assertion | Result |
+| --- | --- | --- |
+| `/templates/AspectRatioCircleImage/` | `unit-8 route AspectRatioCircleImage renders` | pass |
+| `/templates/AspectRatioImageGallery/` | `unit-8 route AspectRatioImageGallery renders` | pass |
+| `/templates/AspectRatioShowcase/` | `unit-8 route AspectRatioShowcase renders` | pass |
+| `/templates/AspectRatioSquareImage/` | `unit-8 route AspectRatioSquareImage renders` | pass |
+| `/templates/AspectRatioWidescreen/` | `unit-8 route AspectRatioWidescreen renders` | pass |
+| `/templates/AspectRatioWithSkeleton/` | `unit-8 route AspectRatioWithSkeleton renders` | pass |
+| `/templates/MediaThemeImageOverlay/` | `unit-8 route MediaThemeImageOverlay renders` | pass |
+| `/templates/MediaThemeLightScrim/` | `unit-8 route MediaThemeLightScrim renders` | pass |
+| `/templates/MediaThemeShowcase/` | `unit-8 route MediaThemeShowcase renders` | pass |
+| `/templates/ThumbnailDisabled/` | `unit-8 route ThumbnailDisabled renders` | pass |
+| `/templates/ThumbnailGallery/` | `unit-8 route ThumbnailGallery renders` | pass |
+| `/templates/ThumbnailRemovable/` | `unit-8 route ThumbnailRemovable renders` | pass |
+| `/templates/ThumbnailShowcase/` | `unit-8 route ThumbnailShowcase renders` | pass |
+| `/templates/ThumbnailStates/` | `unit-8 route ThumbnailStates renders` | pass |
+| `/templates/LightboxGallery/` | `unit-8 route LightboxGallery renders` | pass |
+| `/templates/LightboxShowcase/` | `unit-8 route LightboxShowcase renders` | pass |
+| `/templates/LightboxVideo/` | `unit-8 route LightboxVideo renders` | pass |
+| `/templates/LightboxZoom/` | `unit-8 route LightboxZoom renders` | pass |
+| `/templates/useContainerRevealHookUsage/` | `unit-8 route useContainerRevealHookUsage renders` | pass |
+| `/pages/media-mode/` | `unit-8 media-mode page renders` — 24 swatches | pass |
+
+Behavior rows use the same oracle/candidate and host, with state/input made
+explicit. Compilation and handler tests are separate from browser input.
+
+| Route/example | Initial state · input mechanism | Expected/observed result · evidence | Result |
+| --- | --- | --- | --- |
+| AspectRatioWidescreen | Desktop · browser viewport resize to 390×844 | Reserved 16:9 box before/after; `aspect-ratio survives viewport resize` | pass |
+| ThumbnailStates/Disabled | Fresh route · navigation | Placeholder, skeleton, upload overlay, loaded image; two disabled remove buttons | pass |
+| ThumbnailGallery/Removable | Four items · browser click | Selection, independent removal, both luminance modes, all-removed state | pass |
+| LightboxZoom thumbnail | Valid route · HTTP response with invalid image bytes | Actual browser decode failure displays placeholder, without synthetic error dispatch | pass |
+| useContainerRevealHookUsage | Hidden desktop actions · mouse hover then Tab | Actions reveal for both input mechanisms; remain mounted/tabbable | pass |
+| useContainerRevealHookUsage | Coarse-pointer browser context · navigation | Actions always visible | pass |
+| MediaThemeImageOverlay/LightScrim | Six themes × two root modes · embed URL navigation | Correct theme identity and explicit dark/light scope in all 24 cases | pass |
+| MediaThemeShowcase | Root theme/mode · browser menu selection and button click | Media subtree updates theme identity and keeps its explicit dark context | pass |
+| LightboxShowcase/Video/Zoom/Gallery | Closed · browser click and Escape | Opens/dismisses, returns focus to opener and unlocks page scrolling | pass |
+| LightboxGallery | First image · ArrowRight and Next click | Gallery advances to 2/4 then 3/4 | pass |
+| LightboxZoom | Unzoomed · browser image click twice | Shared zoom applies, pointer drag pans and stays zoomed, then a separate click resets | pass |
+| LightboxVideo | Open video · browser media load | Positive duration, metadata, controls and browser-keyboard play/pause; audio output not qualified | pass |
+| media-mode | APCA · algorithm-button clicks; deterministic image HTTP responses | Gamma/WCAG explanations switch and APCA regional loads settle | pass |
+| DialogAdaptivePresentation | Coarse pointer at 390px · open/cancel, resize to 1300px, reopen | Sheet becomes dialog via shared useMediaQuery subscription | pass |
+| Public image hook | Deferred loads · mocked fetch/bitmap/canvas in jsdom | Loading/failure fallback, source/options reset, cancelled stale result discarded, bitmap closes | pass — unit test; not browser/OS input |
+| Shared thumbnail | Mounted interactive item · dispatched click/keydown in jsdom | Remove and preview remain independent | pass — handler test; not browser/OS input |
+| All unit-8 routes | Firefox/WebKit, iOS/Android, AppKit/WebView, Linux/Windows | No host journeys run | not-run |
+
+No screenshots, image inspection, visual analysis, pixel-parity claim, actual
+assistive-technology delivery, OS touch/keyboard, or native-host claim.
+The shared-overlays recipe's AC5 names the media APIs and remains current;
+this unit adds media runtime evidence, not a complete modal/host qualification.
+Other recipes do not prescribe these new hooks or change workflow.

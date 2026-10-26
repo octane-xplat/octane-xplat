@@ -19,9 +19,6 @@ export function PackingRow() {
 	)
 }
 ```
-	)
-}
-```
 
 ## Text and Heading typography
 
@@ -231,3 +228,37 @@ before promising nested-stage width parity.
 No theming props (tokens + classes own that), no layout props beyond the
 portable layout surface, and no state: components are controlled or
 uncontrolled per prop, never both.
+
+### Media and secondary row actions
+
+Use the public `useImageMode(src, { region, threshold, fallback })` hook for
+browser image luminance, and a nested `Theme` with an explicit mode for the
+exercised MediaTheme light/dark contract. Keep the nearest registered theme so
+root theme switching still flows through. Native image sampling is unavailable
+and returns the supplied fallback. Do not report fallback as detection.
+
+```tsx
+import { Theme, Text, defineTheme, getRegisteredTheme, useThemeName, useImageMode } from '@octane-xplat/ui'
+
+const mediaTheme = defineTheme({ name: 'media' })
+export function Caption(props: { src: string }) {
+  const theme = getRegisteredTheme(useThemeName()) ?? mediaTheme
+  const mode = useImageMode(props.src, { fallback: 'dark' })
+  return <Theme theme={theme} mode={mode ?? 'dark'}><Text>Photo caption</Text></Theme>
+}
+```
+
+`useContainerReveal` exposes only `isEnabled` and the two default prop getters.
+Spread container props on the row and content props on its secondary actions.
+Web uses scoped CSS hover/focus-within; touch/native defaults keep actions
+visible. Native desktop hover, force/delay and inverted reveal remain gaps.
+See [the media guide](../../../../docs/app/components.md#media-contrast-and-row-actions).
+
+```tsx
+import { Button, HStack, useContainerReveal } from '@octane-xplat/ui'
+
+export function RowActions() {
+  const reveal = useContainerReveal({ isEnabled: true })
+  return <HStack {...reveal.getContainerProps()}><HStack {...reveal.getContentRevealProps()}><Button label="Edit" /></HStack></HStack>
+}
+```

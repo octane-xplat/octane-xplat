@@ -35,6 +35,7 @@ for (const [path, text] of Object.entries(pageSources)) {
 
 /** Ported authored-page route -> source file basename (NeutralPalettePage). */
 const pageSourceFiles: Record<string, string> = {
+	'/pages/media-mode/': 'MediaModePage',
 	'/pages/neutral-palette/': 'NeutralPalettePage',
 	'/pages/stone-palette/': 'StonePalettePage',
 	'/pages/gothic-palette/': 'GothicPalettePage',

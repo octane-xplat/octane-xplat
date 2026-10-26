@@ -5098,3 +5098,19 @@
 	gap: 4px;
 }
 /* xplat-web-only:end */
+
+/* xplat-web-only:start — AspectRatio's fill layer must not contribute
+   intrinsic image dimensions to the parent's preferred aspect ratio. */
+.vx-aspectratio { position: relative; width: 100%; overflow: hidden; }
+.vx-aspectratio--ellipse { border-radius: 50%; }
+.vx-aspectratio-content { position: absolute; inset: 0; }
+.vx-aspectratio-content > img,
+.vx-aspectratio-content > video { width: 100%; height: 100%; }
+.vx-aspectratio-fit-cover > .vx-aspectratio-content > img,
+.vx-aspectratio-fit-cover > .vx-aspectratio-content > video { object-fit: cover !important; }
+.vx-aspectratio-fit-contain > .vx-aspectratio-content > img,
+.vx-aspectratio-fit-contain > .vx-aspectratio-content > video { object-fit: contain !important; }
+.vx-aspectratio-fit-center > .vx-aspectratio-content { display: flex; align-items: center; justify-content: center; }
+.vx-aspectratio-fit-center > .vx-aspectratio-content > img,
+.vx-aspectratio-fit-center > .vx-aspectratio-content > video { width: auto; height: auto; max-width: 100%; max-height: 100%; }
+/* xplat-web-only:end */
