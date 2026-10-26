@@ -51,6 +51,9 @@ function rebuild() {
 		all.push(...entry.selectors)
 	}
 	scope = new StyleSheetSelectorScope(all)
+	// New/changed sheets invalidate the media-result cache so the next
+	// refreshMediaQueries() diff starts clean.
+	mediaResults.clear()
 	restyle?.()
 }
 
@@ -67,6 +70,18 @@ export function unregisterStylesheet(id: string): void {
 	if (sheets.delete(id)) {
 		rebuild()
 	}
+}
+
+/** Every registered sheet's @keyframes records, in registration order. */
+export function stylesheetKeyframes(): Keyframes[] {
+	const out: Keyframes[] = []
+	for (const id of order) {
+		const entry = sheets.get(id)
+		if (entry) {
+			out.push(...entry.keyframes)
+		}
+	}
+	return out
 }
 
 /** The cascade scope covering every registered sheet, in registration order. */
@@ -220,6 +235,83 @@ function matchAndTerm(term: string, env: CssEnvironment): boolean {
 }
 
 setCssMediaQueryEvaluator((q) => evalMediaQuery(q))
+
+// ---- Media re-evaluation + pseudo-class census ------------------------------
+
+import { _setKeyframeMediaEvaluator } from './cascade.ts'
+
+_setKeyframeMediaEvaluator((q) => evalMediaQuery(q))
+
+// Cache of the last evaluated result per distinct media-query string —
+// refreshMediaQueries diffs against it to decide whether a restyle helps.
+const mediaResults = new Map<string, boolean>()
+
+/**
+ * Re-evaluate every media-gated ruleset and keyframe against the current
+ * environment. Returns true when any result moved — callers should restyle
+ * only then. Registration resets the cache so the first check always wins.
+ */
+export function refreshMediaQueries(): boolean {
+	let changed = false
+	const seen = new Set<string>()
+	const visit = (raw: string | string[] | undefined) => {
+		if (!raw) {
+			return
+		}
+		for (const q of Array.isArray(raw) ? raw : [raw]) {
+			if (!q || seen.has(q)) {
+				continue
+			}
+			seen.add(q)
+			const next = evalMediaQuery(q)
+			if (mediaResults.get(q) !== next) {
+				mediaResults.set(q, next)
+				changed = true
+			}
+		}
+	}
+	for (const id of order) {
+		const entry = sheets.get(id)
+		if (!entry) {
+			continue
+		}
+		for (const r of entry.selectors) {
+			visit(r.mediaQueryString)
+		}
+		for (const k of entry.keyframes) {
+			visit(k.mediaQueryString)
+		}
+	}
+	// Queries for sheets removed since the last check drop out of the cache.
+	for (const q of [...mediaResults.keys()]) {
+		if (!seen.has(q)) {
+			mediaResults.delete(q)
+		}
+	}
+	return changed
+}
+
+/**
+ * Pseudo-class names used by any registered selector — renderers wire
+ * state tracking only for these (an unused change must not restyle).
+ */
+export function stylesheetPseudoClasses(): ReadonlySet<string> {
+	const out = new Set<string>()
+	for (const id of order) {
+		const entry = sheets.get(id)
+		if (!entry) {
+			continue
+		}
+		for (const r of entry.selectors) {
+			for (const sel of (r as any).selectors ?? []) {
+				if (typeof sel.cssPseudoClass === 'string') {
+					out.add(sel.cssPseudoClass)
+				}
+			}
+		}
+	}
+	return out
+}
 
 // ---- Injected-sheet delivery ----------------------------------------------
 

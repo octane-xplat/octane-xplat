@@ -30,7 +30,13 @@ import {
 	type CssPendingSubstitution,
 } from '../vendor/css/shorthands.ts'
 
-import { stylesheetScope } from './stylesheets.ts'
+import { stylesheetScope, stylesheetKeyframes } from './stylesheets.ts'
+import {
+	isAnimationDeclaration,
+	keyframeAnimationsFromCSSDeclarations,
+	keyframesArrayFromCSS,
+	type KeyframeAnimationInfo,
+} from './keyframes.ts'
 
 export type PropBag = Record<string, any>
 
@@ -190,7 +196,7 @@ export function evaluateCssCalc(value: any): any {
  * Resolve one declaration into `[camelName, styleValue]` pairs.
  * var() → custom-prop substitution → calc() → pending shorthand re-expand.
  */
-function resolveDeclaration(node: CssHostNode, property: string, value: any, out: [string, any][]) {
+function resolveDeclaration(node: CssHostNode, property: string, value: any, out: [string, any][], borderLonghands = false) {
 	if (isCssPendingSubstitution(value)) {
 		const sub = value as CssPendingSubstitution
 		let resolved = evaluateCssVariables(node, sub.value)
@@ -200,12 +206,12 @@ function resolveDeclaration(node: CssHostNode, property: string, value: any, out
 		const expanded = _expandCssShorthand(sub.shorthand, resolved)
 		if (expanded) {
 			for (const [longhand, v] of expanded) {
-				pushStyleDecl(node, kebabToCamel(longhand), v, out)
+				pushStyleDecl(node, kebabToCamel(longhand), v, out, borderLonghands)
 			}
 		} else {
 			// Still unresolvable — upstream leaves the pending marker; it
 			// surfaces as the unresolved shorthand value downstream.
-			pushStyleDecl(node, kebabToCamel(sub.shorthand), resolved, out)
+			pushStyleDecl(node, kebabToCamel(sub.shorthand), resolved, out, borderLonghands)
 		}
 
 		return
@@ -222,7 +228,7 @@ function resolveDeclaration(node: CssHostNode, property: string, value: any, out
 		}
 	}
 
-	pushStyleDecl(node, kebabToCamel(property), value, out)
+	pushStyleDecl(node, kebabToCamel(property), value, out, borderLonghands)
 }
 
 /**
@@ -231,6 +237,9 @@ function resolveDeclaration(node: CssHostNode, property: string, value: any, out
  * values collapse to the unified key — non-uniform borders keep the last
  * edge's value (same precedence as any other duplicate key).
  */
+// Per-ruleset parsed-animation cache — NS `animationsSymbol`, keyed weakly.
+const rulesetAnimations = new WeakMap<object, KeyframeAnimationInfo[] | undefined>()
+
 const LONGHAND_TO_RENDERER: Record<string, string> = {
 	borderTopLeftRadius: 'borderRadius',
 	borderTopRightRadius: 'borderRadius',
@@ -246,8 +255,10 @@ const LONGHAND_TO_RENDERER: Record<string, string> = {
 	borderLeftColor: 'borderColor',
 }
 
-function pushStyleDecl(node: CssHostNode, name: string, value: any, out: [string, any][]) {
-	name = LONGHAND_TO_RENDERER[name] ?? name
+function pushStyleDecl(node: CssHostNode, name: string, value: any, out: [string, any][], borderLonghands: boolean) {
+	if (!borderLonghands) {
+		name = LONGHAND_TO_RENDERER[name] ?? name
+	}
 	// CSS wide keywords: unset → inherited-prop inherits, else initial (drop);
 	// inherit → parent computed; initial/default → drop (back to default).
 	if (typeof value === 'string') {
@@ -292,6 +303,42 @@ export interface ComputedCascade {
 	cssKeys: Set<string>
 	/** Keys present only via parent inheritance — never warn on these. */
 	inheritedKeys: Set<string>
+	/** Keyframe animations from matched rulesets (NS `playKeyframeAnimations`
+	 *  collects them from rulesets, not the computed bag). */
+	animations: KeyframeAnimationInfo[]
+}
+
+export interface CascadeOptions {
+	/** Keep per-side/per-corner border longhands instead of collapsing them
+	 *  into the single borderRadius/borderWidth/borderColor slot. */
+	borderLonghands?: boolean
+}
+
+/** NS `findKeyframeRule`: name match; media-gated keyframes apply when the
+ *  media query currently matches (evaluated against the live env). */
+function attachKeyframes(info: KeyframeAnimationInfo) {
+	if (!info.name || info.keyframes) {
+		return
+	}
+	for (const kf of stylesheetKeyframes()) {
+		if (kf.name !== info.name) {
+			continue
+		}
+		if (kf.mediaQueryString) {
+			const list = Array.isArray(kf.mediaQueryString) ? kf.mediaQueryString : [kf.mediaQueryString]
+			if (!list.every((q) => evalMediaQueryForKeyframes(q))) {
+				continue
+			}
+		}
+		info.keyframes = keyframesArrayFromCSS(kf.keyframes as any)
+		return
+	}
+}
+
+// Wired lazily by stylesheets.ts to its evaluator (avoids an import cycle).
+let evalMediaQueryForKeyframes: (q: string) => boolean = () => true
+export function _setKeyframeMediaEvaluator(fn: (q: string) => boolean) {
+	evalMediaQueryForKeyframes = fn
 }
 
 /**
@@ -307,7 +354,9 @@ export interface ComputedCascade {
 export function computeCascade(
 	node: CssHostNode,
 	scope?: StyleSheetSelectorScope<any>,
+	options: CascadeOptions = {},
 ): ComputedCascade {
+	const borderLonghands = options.borderLonghands === true
 	const parent = cssParent(node)
 	const parentStyle = parent?.computedStyle ?? {}
 	const parentCustom = parent?.computedCustomProps
@@ -320,6 +369,7 @@ export function computeCascade(
 	const s = scope ?? stylesheetScope()
 	const match = s?.query(node)
 	const decls: [string, any][] = []
+	const matchedRulesets: any[] = []
 	if (match) {
 		for (const sel of match.selectors) {
 			// Dynamic selectors collected by mayMatch are re-checked at apply
@@ -332,10 +382,27 @@ export function computeCascade(
 			if (!ruleset) {
 				continue
 			}
+			matchedRulesets.push(ruleset)
 
 			for (const decl of ruleset.declarations) {
 				decls.push([decl.property, decl.value])
 			}
+		}
+	}
+
+	// Keyframe animations come from the matched rulesets (not the computed
+	// style — animation-* never lands in the bag), cached per ruleset like
+	// NS animationsSymbol. Keyframes attach lazily from the registry.
+	const animations: KeyframeAnimationInfo[] = []
+	for (const ruleset of matchedRulesets) {
+		let infos = rulesetAnimations.get(ruleset)
+		if (infos === undefined) {
+			infos = keyframeAnimationsFromCSSDeclarations(ruleset.declarations)
+			rulesetAnimations.set(ruleset, infos)
+		}
+		for (const info of infos ?? []) {
+			attachKeyframes(info)
+			animations.push(info)
 		}
 	}
 
@@ -360,14 +427,15 @@ export function computeCascade(
 		props: node.props,
 	}
 
-	// Pass 2: value declarations.
+	// Pass 2: value declarations. Animation declarations steer the
+	// keyframe channel, not the style bag.
 	for (const [property, value] of decls) {
-		if (isCssVariable(property)) {
+		if (isCssVariable(property) || isAnimationDeclaration(property)) {
 			continue
 		}
 
 		const before = cssOut.length
-		resolveDeclaration(varScope, property, value, cssOut)
+		resolveDeclaration(varScope, property, value, cssOut, borderLonghands)
 		for (let i = before; i < cssOut.length; i++) {
 			cssKeys.add(cssOut[i][0])
 		}
@@ -407,7 +475,7 @@ export function computeCascade(
 		}
 	}
 
-	return { style, customProps, cssKeys, inheritedKeys }
+	return { style, customProps, cssKeys, inheritedKeys, animations }
 }
 
 /** Convenience: which incoming keys a pending-substitution declaration may
