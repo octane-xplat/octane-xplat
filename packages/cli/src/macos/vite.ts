@@ -6,7 +6,7 @@ import { pathToFileURL } from 'node:url'
 import { xplatBoundary, xplatNodeEnvDefine, xplatCss } from '../vite.ts'
 
 import { tabItemContentRoots } from './tab-item.ts'
-import { xplatMacOSStylesheets } from './stylesheets.ts'
+import { xplatInlineStylesheets } from '../inline-stylesheets.ts'
 
 const renderer = '@octane-xplat/macos-renderer'
 const runtime = '@nativescript/macos-node-api'
@@ -28,7 +28,7 @@ export async function xplatMacOS(env, options = {}) {
 		define: xplatNodeEnvDefine(mode),
 		plugins: [
 			xplatCss('macos'),
-			xplatMacOSStylesheets(),
+			xplatInlineStylesheets(),
 			xplatBoundary('macos'),
 			tabItemContentRoots(),
 			octane({

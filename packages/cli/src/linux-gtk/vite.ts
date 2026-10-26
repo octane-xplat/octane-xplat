@@ -4,6 +4,7 @@ import { realpathSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { xplatBoundary, xplatNodeEnvDefine, xplatCss } from '../vite.ts'
+import { xplatInlineStylesheets } from '../inline-stylesheets.ts'
 
 const renderer = '@octane-xplat/linux-gtk'
 
@@ -29,6 +30,7 @@ export async function xplatLinuxGtk(env, options = {}) {
 		define: xplatNodeEnvDefine(mode),
 		plugins: [
 			xplatCss('gtk'),
+			xplatInlineStylesheets(),
 			xplatBoundary('gtk'),
 			octane({
 				hmr: options.hmr ?? false,
@@ -51,6 +53,10 @@ export async function xplatLinuxGtk(env, options = {}) {
 			}),
 		],
 		build: {
+			// cssCodeSplit emits the CSS asset at renderChunk time, before the
+			// 'pre' generateBundle where Bamboo's survival check and our
+			// stylesheet serializer run (lib-mode's merged asset arrives too late).
+			cssCodeSplit: true,
 			outDir: options.outDir ?? 'dist',
 			emptyOutDir: true,
 			lib: {

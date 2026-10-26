@@ -1,20 +1,23 @@
-// @ts-nocheck — .mjs→.ts port style, matching the rest of packages/cli/src/macos.
+// @ts-nocheck — .mjs→.ts port style, matching the rest of packages/cli/src.
 //
-// macOS CSS delivery: mobile serializes emitted .css assets through
-// @nativescript/vite (generateBundle → addTaggedAdditionalCSS); the macOS
-// JSC host evaluates a single main.cjs, so we instead prepend one
+// Desktop CSS delivery: mobile serializes emitted .css assets through
+// @nativescript/vite (generateBundle → addTaggedAdditionalCSS); the desktop
+// hosts evaluate a single file — the macOS JSC host one `main.cjs`, GJS one
+// ESM `app.js` via `gjs -m` — so we instead prepend one
 // `(globalThis.__xplatStylesheets ??= []).push(...)` line to the entry
-// chunk — the renderer's module-init drain in src/css/stylesheets.ts picks
-// it up. Bamboo's output finalizer runs generateBundle at order 'pre', so
-// this default-order hook sees the finalized `virtual:bamboo.css` asset
-// alongside every module-imported sheet, in emission order.
+// chunk — the renderer's module-init drain in its css/stylesheets module
+// picks it up. A prepended statement before ESM `import` declarations is
+// valid and still runs before the bundled module bodies. Bamboo's output
+// finalizer runs generateBundle at order 'pre', so this default-order hook
+// sees the finalized `virtual:bamboo.css` asset alongside every
+// module-imported sheet, in emission order.
 
-import { processNativeCss } from '../vite.ts'
+import { processNativeCss } from './vite.ts'
 
-export function xplatMacOSStylesheets() {
+export function xplatInlineStylesheets() {
 	const warned = new Set<string>()
 	return {
-		name: 'xplat-macos-stylesheets',
+		name: 'xplat-inline-stylesheets',
 		// Per-file processing — identical to mobile: xplat-web-only strip,
 		// @layer unwrap, px→dip, letter-spacing em strip, divergence warns.
 		transform: {
@@ -45,7 +48,7 @@ export function xplatMacOSStylesheets() {
 					// Bamboo's finalized sheet) — process here too.
 					sheets.push([file.fileName, processNativeCss(src, file.fileName, (m) => this.warn(m), { warned })])
 					// Bamboo's survival check ran at 'pre'; nothing else consumes
-					// the files — the JSC host evaluates only the entry chunk.
+					// the files — the host evaluates only the entry chunk.
 					delete bundle[file.fileName]
 				}
 				if (!sheets.length) {
@@ -54,7 +57,7 @@ export function xplatMacOSStylesheets() {
 
 				const entry = Object.values(bundle).find((file) => file.type === 'chunk' && file.isEntry)
 				if (!entry) {
-					this.warn('xplat-macos-stylesheets: no entry chunk found for stylesheet injection')
+					this.warn('xplat-inline-stylesheets: no entry chunk found for stylesheet injection')
 					return
 				}
 

@@ -18,7 +18,7 @@ function runBeforeNativeCss(plugin: Plugin | undefined, anchor: string) {
 
 export interface XplatBambooOptions extends BambooVitePluginOptions {
 	/** Native CSS delivery — NativeScript's generateBundle serializer and the
-	 *  macOS `xplatMacOSStylesheets` plugin both consume the finalized assets
+	 *  desktop `xplatInlineStylesheets` plugin both consume the finalized assets
 	 *  after this 'pre' finalizer. */
 	native?: boolean
 	/** All environments the custom Vite builder will run, including real SSR targets. */
