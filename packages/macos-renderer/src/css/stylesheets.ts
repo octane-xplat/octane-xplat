@@ -187,9 +187,29 @@ function matchFeature(feature: string, raw: string | null, env: CssEnvironment):
 }
 
 /** Minimal media-query evaluator covering the features above; `and`, `or`,
- *  comma lists, `not`, and media types screen/all/print. */
+ *  comma lists, `not`, and media types screen/all/print. CSS Level 4 range
+ *  syntax — what lightningcss minify emits, e.g. `(width>=300px)` — is
+ *  normalized back to the min-/max- feature vocabulary first:
+ *  `f>=v`/`f>v` → min-, `f<=v`/`f<v` → max-, `f=v` → bare. */
+function normalizeMediaRange(query: string): string {
+	return query.replace(/\(([^()]*)\)/g, (paren, inner: string) => {
+		const range = /^\s*([\w-]+)\s*(>=|<=|=|>|<)\s*([-\w.%]+)\s*$/.exec(inner)
+		if (!range) {
+			return paren
+		}
+		const [, feature, op, value] = range
+		if (op === '>=' || op === '>') {
+			return `(min-${feature}: ${value})`
+		}
+		if (op === '<=' || op === '<') {
+			return `(max-${feature}: ${value})`
+		}
+		return `(${feature}: ${value})`
+	})
+}
+
 export function evalMediaQuery(query: string, env: CssEnvironment = environment()): boolean {
-	for (const part of query.split(',')) {
+	for (const part of normalizeMediaRange(query).split(',')) {
 		if (matchQueryPart(part.trim(), env)) {
 			return true
 		}

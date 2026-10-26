@@ -282,11 +282,9 @@ setFlags(27, Gtk.StateFlags.SELECTED)
 await idleStyles()
 out.untrackedSignatureSame = sigBefore === node(27)?.cssSignature
 
-// Media query flips when the window resizes past the breakpoint. The sheet
-// registers at runtime: the build's px→dip rewrite would leave `300dip` in
-// the query, which the bundle's CSS minifier rejects — the runtime path
-// parses it through the vendored engine instead.
-registerStylesheet('mq', '@media (min-width: 300px) { .mqx { color: #ff0000 } }')
+// Media query flips when the window resizes past the breakpoint — this one
+// rode the imported .css through the bundle (prelude px survives the
+// build-time rewrite now).
 out.mediaBefore = colorOf(26)
 win.set_default_size(400, 300)
 await idleStyles()

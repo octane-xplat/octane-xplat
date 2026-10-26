@@ -11,7 +11,7 @@ const dir = mkdtempSync(join(tmpdir(), 'xplat-inline-css-'))
 mkdirSync(join(dir, 'src'), { recursive: true })
 writeFileSync(
 	join(dir, 'src', 'a.css'),
-	'@layer base { .a { width: 12px } }\n@platform macos { .m { width: 4px } }\n@platform gtk { .g { width: 6px } }\n@platform web { .w { width: 8px } }\n',
+	'@media (min-width: 300px) { .q { width: 10px } }\n@layer base { .a { width: 12px } }\n@platform macos { .m { width: 4px } }\n@platform gtk { .g { width: 6px } }\n@platform web { .w { width: 8px } }\n',
 )
 writeFileSync(join(dir, 'src', 'b.css'), '.b { padding: 2px 4px }\n')
 writeFileSync(
@@ -94,6 +94,10 @@ it('prepends the push before ESM imports for the GTK host', async () => {
 	assert.ok(cssA.includes('width:6dip'), 'px→dip applied to the gtk block')
 	assert.ok(cssA.includes('.g'), 'gtk block kept')
 	assert.ok(!cssA.includes('.w {'), 'web block stripped')
+	const cssQ = payload.find(([, css]) => css.includes('.q'))[1]
+	assert.ok(cssQ.includes('@media'), 'media rule kept')
+	assert.ok(cssQ.includes('300px') && !cssQ.includes('300dip'), `media prelude keeps px: ${cssQ}`)
+	assert.ok(cssQ.includes('width:10dip'), 'media body still px→dip')
 })
 
 after(() => {

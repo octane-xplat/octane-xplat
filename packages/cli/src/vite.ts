@@ -193,7 +193,12 @@ export function processNativeCss(
 	// authors at em.
 	code = code.replace(/(letter-spacing\s*:\s*-?\d+(?:\.\d+)?)em\b/g, '$1')
 
-	return code.replace(/(-?\d+(?:\.\d+)?)px\b/g, '$1dip')
+	// At-rule preludes (@media/@supports/@keyframes/@layer) keep px — media
+	// features are evaluated against dips anyway (evalMediaQuery parses the
+	// number) and `300dip` is not valid in a minified query prelude.
+	return code.replace(/@[\w-]+[^{}]*\{|-?\d+(?:\.\d+)?px\b/g, (m) =>
+		m.endsWith('{') ? m : m.slice(0, -2) + 'dip',
+	)
 }
 
 export function pxToDip(options: { masonSafeAreaEnvironment?: boolean } = {}) {

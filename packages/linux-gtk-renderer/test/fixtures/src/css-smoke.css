@@ -101,3 +101,9 @@
 	color: #123456;
 }
 
+
+@media (min-width: 300px) {
+	.mqx {
+		color: #ff0000;
+	}
+}

@@ -184,7 +184,7 @@ test('stylesheets cascade through the GTK driver under real GJS+GTK', async (t) 
 	assert.equal(r.untrackedSignatureSame, true)
 
 	// @media (min-width: 300px) flips after window.set_default_size.
-	assert.equal(r.mediaAfter, '#ff0000')
+	assert.equal(r.mediaAfter, 'red')
 
 	// Root classes gained orientation + direction.
 	assert.ok(r.rootClassesB2.includes('ns-ltr'))
