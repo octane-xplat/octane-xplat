@@ -231,7 +231,7 @@ unqualified gaps).
 
 The renderer applies stylesheets through the same vendored NativeScript
 selector engine and renderer-owned cascade the AppKit renderer uses —
-consumed from `@octane-xplat/macos-renderer/css`, not copied
+consumed from `@octane-xplat/css-engine`, not copied
 (decision #124). `xplatLinuxGtk` installs the shared
 `xplatInlineStylesheets` plugin (renamed from `xplatMacOSStylesheets`),
 which processes each emitted `.css` asset and prepends one
