@@ -806,15 +806,15 @@ const STATE_VISUAL: [number, string][] = [
 	[Gtk.StateFlags.FOCUS_WITHIN, 'focus-within'],
 ]
 
-// Pseudo-classes that count as "another visual state" for :normal.
+// Pseudo-classes that count as "another visual state" for :normal — NS's
+// visual states only (view-common.js): highlighted/active/pressed, focus,
+// checked, disabled. The desktop extras (hover, focus-visible,
+// focus-within) do NOT cancel :normal.
 const NORMAL_OFF = new Set([
 	'highlighted',
 	'active',
 	'pressed',
-	'hover',
 	'focus',
-	'focus-visible',
-	'focus-within',
 	'checked',
 	'disabled',
 ])
