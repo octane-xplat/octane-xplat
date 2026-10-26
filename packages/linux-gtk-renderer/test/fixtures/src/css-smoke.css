@@ -26,3 +26,41 @@
 .first + .second {
 	color: #00ffff;
 }
+
+.borders {
+	border-top-width: 2px;
+	border-right-color: #00ff4f;
+	border-bottom-width: 4px;
+}
+
+.lspace {
+	letter-spacing: 0.1em;
+}
+
+.sw {
+	color: #ff0000;
+	background-color: #0000ff;
+}
+
+.hid {
+	visibility: hidden;
+}
+
+.col {
+	visibility: collapse;
+}
+
+.rtl {
+	direction: rtl;
+}
+
+.ell {
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	max-lines: 2;
+}
+
+.hal {
+	horizontal-align: center;
+	vertical-align: start;
+}

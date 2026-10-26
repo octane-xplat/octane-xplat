@@ -306,21 +306,42 @@ const TEXT_HOSTS = new Set(['label', 'button'])
 // style-css.ts (GI-free, Node-testable); the provider plumbing stays here.
 // ---------------------------------------------------------------------------
 
+// `~/x.png` in background-image resolves against the bundled app.js's
+// directory — import.meta.url *is* the app.js URL at runtime.
+const GTK_STYLE_OPTIONS = {
+	resolveUrl: (rel: string): string => {
+		const base = String(import.meta.url ?? '')
+		const dir = base.slice(0, base.lastIndexOf('/') + 1)
+		return dir + rel.split('/').map(encodeURIComponent).join('/')
+	},
+	onWarn: (message: string) => warnOnce(message, message),
+}
+
 function syncCss(node: ElementNode, style: PropBag | null | undefined) {
 	const view = node.view
 	if (view === null) {
 		return
 	}
 
-	const css = gtkStyleCss(`.xplat-n${node.id}`, style, node.type)
+	const css = gtkStyleCss(`.xplat-n${node.id}`, style, node.type, GTK_STYLE_OPTIONS)
 	if (css === node.cssSignature) {
 		return
 	}
 	node.cssSignature = css
 
+	// Providers attach at display level, not the widget's own context:
+	// per-widget providers do NOT propagate to internal subnodes (switch's
+	// `slider` gizmo, scale's `trough > highlight`, entry's `text`) in GTK
+	// 4.24 — the control subnode rules only match from a display provider.
+	// Every rule is scoped by the unique xplat-n<id> class, so display
+	// scope stays per-node in practice.
+	const display = view.get_display?.()
+
 	if (css === '') {
 		if (node.cssProvider !== null) {
-			view.get_style_context().remove_provider(node.cssProvider)
+			if (display) {
+				Gtk.StyleContext.remove_provider_for_display(display, node.cssProvider)
+			}
 			node.cssProvider = null
 		}
 		if (node.cssClass !== null) {
@@ -334,7 +355,7 @@ function syncCss(node: ElementNode, style: PropBag | null | undefined) {
 		node.cssClass = `xplat-n${node.id}`
 		view.add_css_class(node.cssClass)
 	}
-	if (node.cssProvider === null) {
+	if (node.cssProvider === null && display) {
 		node.cssProvider = new Gtk.CssProvider()
 		try {
 			// Malformed declarations surface through the provider's error
@@ -348,11 +369,13 @@ function syncCss(node: ElementNode, style: PropBag | null | undefined) {
 		} catch {
 			// Older GTK revisions lack the signal — load errors stay silent.
 		}
-		view
-			.get_style_context()
-			.add_provider(node.cssProvider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+		Gtk.StyleContext.add_provider_for_display(
+			display,
+			node.cssProvider,
+			Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION,
+		)
 	}
-	node.cssProvider.load_from_string(css)
+	node.cssProvider?.load_from_string(css)
 }
 
 /** clsx-style ClassValue → flat class-name list (the shared contract's
@@ -530,6 +553,7 @@ function restyleNode(node: ElementNode) {
 	const { style, customProps, cssKeys, inheritedKeys } = computeCascade(
 		node as unknown as CssHostNode,
 		stylesheetScope(),
+		{ borderLonghands: true },
 	)
 	node.cssOriginKeys = cssKeys
 	node.inheritedOnlyKeys = inheritedKeys
@@ -581,6 +605,27 @@ const SUPPORTED_STYLE_KEYS: ReadonlySet<string> = new Set([
 	'opacity',
 	'textAlign',
 	'placeholderColor',
+	'letterSpacing',
+	'textStroke',
+	'direction',
+	'visibility',
+	'whiteSpace',
+	'textOverflow',
+	'maxLines',
+	'horizontalAlign',
+	'verticalAlign',
+	// Reserved for the Mason snapshot/transform handoff — not warnable yet.
+	'zIndex',
+	'clipPath',
+	'transform',
+	'translateX',
+	'translateY',
+	'scaleX',
+	'scaleY',
+	'rotate',
+	'rotateX',
+	'rotateY',
+	'perspective',
 	...MASON_STYLE_KEYS,
 	// Gtk.Box / Gtk.Fixed / Gtk.Grid emulation keys.
 	'flexGrow',
@@ -727,6 +772,7 @@ function applyStyle(node: ElementNode, style: PropBag) {
 	syncCss(node, next)
 	applyStyleExtras(node, view, next)
 	syncTextAlign(node, view, next)
+	applyStyleViewProps(node, view, next)
 	warnUnsupportedCssProps(node, next)
 }
 
@@ -893,6 +939,108 @@ function applyStyleExtras(node: ElementNode, view: GtkView, style: PropBag | nul
 		node.gridCol = gcol[0]
 		node.gridColSpan = gcol[1]
 		repositionGridChild(node)
+	}
+}
+
+/** CSS-driven widget writes that GTK CSS cannot express — direction,
+ *  child-visibility, label wrapping/ellipsize/lines, and alignment outside
+ *  Mason subtrees. Each key restores the prop value or widget default when
+ *  it leaves the effective style. */
+function applyStyleViewProps(node: ElementNode, view: GtkView, style: PropBag) {
+	const source = style ?? {}
+
+	if (source.direction != null) {
+		const d =
+			source.direction === 'rtl'
+				? Gtk.TextDirection.RTL
+				: source.direction === 'ltr'
+					? Gtk.TextDirection.LTR
+					: Gtk.TextDirection.NONE
+		view.set_direction(d)
+		node.styleDirection = true
+	} else if (node.styleDirection) {
+		node.styleDirection = false
+		view.set_direction(Gtk.TextDirection.NONE)
+	}
+
+	// NS visibility: 'hidden' keeps layout space (child-invisible), only
+	// 'collapse' removes it — styleDict keeps the same split for Mason.
+	const vis = source.visibility
+	if (vis != null) {
+		node.styleVisibility = true
+		if (vis === 'collapse') {
+			view.set_visible(false)
+		} else {
+			view.set_visible(true)
+			view.set_child_visible(vis !== 'hidden')
+		}
+	} else if (node.styleVisibility) {
+		node.styleVisibility = false
+		view.set_visible(
+			node.props.visible !== false &&
+				(node.props.visibility == null || node.props.visibility === 'visible'),
+		)
+		view.set_child_visible(true)
+	}
+
+	// Label text behaviour — buttons reach their Gtk.Label child; keys reset
+	// to the prop value or the widget default.
+	if (node.type === 'label' || node.type === 'button') {
+		const labelView = node.type === 'button' ? (view.get_child?.() ?? view) : view
+		if (source.whiteSpace != null) {
+			labelView.wrap = source.whiteSpace === 'normal' || source.whiteSpace === 'wrap'
+			node.styleWhiteSpace = true
+		} else if (node.styleWhiteSpace) {
+			node.styleWhiteSpace = false
+			const pv = node.props.whiteSpace ?? node.props.textWrap
+			labelView.wrap = pv === true || pv === 'normal' || pv === 'wrap'
+		}
+		if (source.textOverflow != null) {
+			// Pango.EllipsizeMode.END = 3
+			labelView.ellipsize = source.textOverflow === 'ellipsis' ? 3 : 0
+			node.styleTextOverflow = true
+		} else if (node.styleTextOverflow) {
+			node.styleTextOverflow = false
+			labelView.ellipsize = node.props.textOverflow === 'ellipsis' ? 3 : 0
+		}
+		if (source.maxLines != null) {
+			labelView.lines = Number(source.maxLines)
+			node.styleMaxLines = true
+		} else if (node.styleMaxLines) {
+			node.styleMaxLines = false
+			labelView.lines = node.props.maxLines != null ? Number(node.props.maxLines) : -1
+		}
+	}
+
+	// Alignment outside Mason subtrees; inside, the engine owns layout.
+	if (source.horizontalAlign != null || source.verticalAlign != null) {
+		if (isMasonHostView(hostViewOf(node.container, node.parent))) {
+			warnOnce(
+				'css-align-mason',
+				'[linux-gtk-css] horizontalAlign/verticalAlign inside a Mason subtree is handled by the layout engine',
+			)
+		} else {
+			const halign = ALIGN[String(source.horizontalAlign)]
+			if (halign !== undefined) {
+				view.set_halign(halign)
+				node.styleHAlign = true
+			}
+			const valign = ALIGN[String(source.verticalAlign)]
+			if (valign !== undefined) {
+				view.set_valign(valign)
+				node.styleVAlign = true
+			}
+		}
+	}
+	if (source.horizontalAlign == null && node.styleHAlign) {
+		node.styleHAlign = false
+		const pv = ALIGN[String(node.props.horizontalAlignment ?? node.props.halign)]
+		view.set_halign(pv ?? Gtk.Align.FILL)
+	}
+	if (source.verticalAlign == null && node.styleVAlign) {
+		node.styleVAlign = false
+		const pv = ALIGN[String(node.props.verticalAlignment ?? node.props.valign)]
+		view.set_valign(pv ?? Gtk.Align.FILL)
 	}
 }
 
@@ -1204,9 +1352,14 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 			view.set_visible(value !== false)
 			return
 		case 'visibility':
-			// 'hidden' and 'collapse' both unmap; GTK boxes skip invisible
-			// children in allocation, so collapse needs no separate handling.
-			view.set_visible(value === 'visible')
+			// 'hidden' keeps layout space (child-invisible); 'collapse'
+			// unmaps entirely — the same split the style path applies.
+			if (value === 'collapse') {
+				view.set_visible(false)
+			} else {
+				view.set_visible(true)
+				view.set_child_visible(value !== 'hidden')
+			}
 			return
 		case 'opacity':
 			view.set_opacity(Number(value))
@@ -1544,6 +1697,7 @@ function resetProp(node: ElementNode, name: string) {
 			return
 		case 'visibility':
 			view.set_visible(true)
+			view.set_child_visible(true)
 			return
 		case 'alignSelf':
 			view.set_halign(Gtk.Align.FILL)
@@ -2321,7 +2475,10 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 				detach(container, node)
 			}
 			if (node.view !== null && node.cssProvider !== null) {
-				node.view.get_style_context().remove_provider(node.cssProvider)
+				const display = node.view.get_display?.()
+				if (display) {
+					Gtk.StyleContext.remove_provider_for_display(display, node.cssProvider)
+				}
 			}
 			container.nodes.delete(command.id)
 			return
@@ -2344,6 +2501,12 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 			node.muted.clear()
 			detachViews(node)
 			releaseMasonNodes(node)
+			if (node.cssProvider !== null) {
+				const display = node.view?.get_display?.()
+				if (display) {
+					Gtk.StyleContext.remove_provider_for_display(display, node.cssProvider)
+				}
+			}
 			node.view = VIEWLESS.has(command.type) ? null : instantiate(command.type)
 			node.type = command.type
 			node.textApplied = false

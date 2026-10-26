@@ -113,6 +113,42 @@ test('stylesheets cascade through the GTK driver under real GJS+GTK', async (t) 
 	assert.equal(r.rtFirst, '#101010')
 	assert.equal(r.rtReplaced, '#202020')
 
+	// ---- B1: longhands + direct writes ------------------------------------
+
+	// Per-side borders reach the computed bag AND the widget's GTK border.
+	assert.equal(r.borderTopWidth, 2)
+	assert.equal(r.borderBottomWidth, 4)
+	assert.equal(r.borderRightColor, '#00ff4f')
+	assert.equal(r.gtkBorderTop, 2)
+	assert.equal(r.gtkBorderBottom, 4)
+
+	// letter-spacing lands in the provider rule.
+	assert.equal(r.letterSpacingRule, true)
+
+	// Switch color paints the slider gizmo (red); the widget node itself
+	// does not carry a color declaration.
+	assert.ok(r.switchThumbColor, 'slider gizmo color readable')
+	assert.ok(r.switchThumbColor.r > 0.9 && r.switchThumbColor.g < 0.1, JSON.stringify(r.switchThumbColor))
+	assert.equal(r.switchOwnColor, false)
+
+	// hidden keeps space via child-invisible; collapse unmaps entirely.
+	assert.equal(r.hiddenVisible, true)
+	assert.equal(r.hiddenChildVisible, false)
+	assert.equal(r.collapseVisible, false)
+
+	// direction: rtl → Gtk.TextDirection.RTL = 2.
+	assert.equal(r.directionRtl, 2)
+
+	// whiteSpace nowrap → wrap=false, textOverflow → ellipsize 3, maxLines.
+	assert.equal(r.wrapNowrap, false)
+	assert.equal(r.ellipsize, 3)
+	assert.equal(r.maxLines, 2)
+
+	// horizontal/vertical align map to halign/valign outside Mason subtrees
+	// (Gtk.Align.CENTER = 3, START = 1).
+	assert.equal(r.halign, 3)
+	assert.equal(r.valign, 1)
+
 	assert.equal(r.ok, true)
 	t.diagnostic(`theme sheets: ${r.themeSelectors} rule bodies in ${r.themeMs}ms`)
 }, 120000)

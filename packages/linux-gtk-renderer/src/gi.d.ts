@@ -252,6 +252,12 @@ declare module 'gi://Gtk?version=4.0' {
 		class StyleContext {
 			add_provider(provider: CssProvider, priority: number): void
 			remove_provider(provider: CssProvider): void
+			static add_provider_for_display(
+				display: any,
+				provider: CssProvider,
+				priority: number,
+			): void
+			static remove_provider_for_display(display: any, provider: CssProvider): void
 		}
 
 		enum Justification {
@@ -259,6 +265,12 @@ declare module 'gi://Gtk?version=4.0' {
 			RIGHT = 1,
 			CENTER = 2,
 			FILL = 3,
+		}
+
+		enum TextDirection {
+			NONE = 0,
+			LTR = 1,
+			RTL = 2,
 		}
 
 		// GTK 4.20+; absent on older introspection data.

@@ -10,22 +10,49 @@
 
 type PropBag = Record<string, any>
 
+export interface GtkStyleOptions {
+	/** `~/foo.png` bundle-relative url() resolver — index.ts supplies the
+	 *  app.js dirname. */
+	resolveUrl?: (rel: string) => string
+	/** Warn-once sink for unsupported url() schemes. */
+	onWarn?: (message: string) => void
+}
+
 /** camelCase style key → GTK CSS property name. */
 export const CSS_PROPS: Record<string, string> = {
 	background: 'background',
 	backgroundColor: 'background-color',
+	backgroundImage: 'background-image',
+	backgroundPosition: 'background-position',
+	backgroundRepeat: 'background-repeat',
+	backgroundSize: 'background-size',
 	color: 'color',
 	fontSize: 'font-size',
 	fontWeight: 'font-weight',
 	fontStyle: 'font-style',
 	fontFamily: 'font-family',
+	fontVariationSettings: 'font-variation-settings',
+	letterSpacing: 'letter-spacing',
 	lineHeight: 'line-height',
 	textDecoration: 'text-decoration',
 	textShadow: 'text-shadow',
+	textTransform: 'text-transform',
 	boxShadow: 'box-shadow',
 	borderRadius: 'border-radius',
+	borderTopLeftRadius: 'border-top-left-radius',
+	borderTopRightRadius: 'border-top-right-radius',
+	borderBottomLeftRadius: 'border-bottom-left-radius',
+	borderBottomRightRadius: 'border-bottom-right-radius',
 	borderColor: 'border-color',
+	borderTopColor: 'border-top-color',
+	borderRightColor: 'border-right-color',
+	borderBottomColor: 'border-bottom-color',
+	borderLeftColor: 'border-left-color',
 	borderWidth: 'border-width',
+	borderTopWidth: 'border-top-width',
+	borderRightWidth: 'border-right-width',
+	borderBottomWidth: 'border-bottom-width',
+	borderLeftWidth: 'border-left-width',
 	borderStyle: 'border-style',
 	padding: 'padding',
 	paddingTop: 'padding-top',
@@ -41,10 +68,37 @@ export const CSS_PROPS: Record<string, string> = {
 	minHeight: 'min-height',
 }
 
+// Controls whose color/backgroundColor paint a subnode, not the widget's own
+// node — GTK CSS names probed under GJS 1.90 / GTK 4.24: GtkSwitch is
+// `switch` + `slider` gizmo (the checked track reads off `switch:checked`),
+// GtkScale is `scale` + `trough`/`highlight`/`slider`, GtkProgressBar is
+// `progressbar` + `trough`/`progress`. Spinner's `spinner` node takes color
+// directly, so activityindicator is absent here.
+const CONTROL_SUBNODES: Record<
+	string,
+	{ color?: [string, string]; backgroundColor?: [string, string] }
+> = {
+	switch: { color: ['%S slider', 'color'], backgroundColor: ['%S:checked', 'background-color'] },
+	slider: {
+		color: ['%S slider', 'color'],
+		backgroundColor: ['%S trough > highlight', 'background-color'],
+	},
+	// The fill gizmo paints through its background, not `color`.
+	progress: {
+		color: ['%S trough > progress', 'background-color'],
+		backgroundColor: ['%S trough', 'background-color'],
+	},
+}
+
 const DIP_RE = /(-?\d*\.?\d+)dip\b/g
+const URL_RE = /url\(\s*(['"]?)(.*?)\1\s*\)/g
 
 function cssValue(name: string, value: unknown): string | null {
 	if (typeof value === 'number') {
+		if (name === 'letterSpacing') {
+			// NS letterSpacing numbers are em units.
+			return `${value}em`
+		}
 		// Numeric sizes are logical px; weight/style/family pass through.
 		return name === 'fontWeight' || name === 'fontStyle' || name === 'fontFamily'
 			? String(value)
@@ -57,6 +111,10 @@ function cssValue(name: string, value: unknown): string | null {
 		if (name === 'fontFamily') {
 			return /[\s,]/.test(value) && !/^['"]/.test(value) ? `"${value}"` : value
 		}
+		if (name === 'letterSpacing') {
+			// NS parseFloats strings into em as well.
+			return `${parseFloat(value)}em`
+		}
 		// GTK CSS parses the same px/rgb()/named-color vocabulary here.
 		if (/^\d+(?:\.\d+)?$/.test(value)) {
 			return `${value}px`
@@ -66,18 +124,98 @@ function cssValue(name: string, value: unknown): string | null {
 	return null
 }
 
+/** Rewrite url() references: `~/` resolves against the bundle directory via
+ *  the caller's resolver, `file://` passes through, anything else warns. */
+function resolveBackgroundImage(value: string, options: GtkStyleOptions | undefined): string {
+	return value.replace(URL_RE, (match, quote: string, raw: string) => {
+		const url = raw.trim()
+		if (url.startsWith('~/')) {
+			const resolved = options?.resolveUrl?.(url.slice(2))
+			return resolved ? `url("${resolved}")` : match
+		}
+		if (url.startsWith('file://') || url.startsWith('data:')) {
+			return match
+		}
+		options?.onWarn?.(`[linux-gtk-css] ignored unsupported background-image url "${url}"`)
+		return 'none'
+	})
+}
+
+/** NS textStroke "width color" → 8 zero-blur text-shadows at the stroke
+ *  width — GTK has no text-stroke; this is the documented approximation. */
+function textStrokeShadows(value: unknown): string | null {
+	const s = String(value ?? '').trim()
+	if (!s) {
+		return null
+	}
+	const space = s.indexOf(' ')
+	if (space === -1) {
+		return null
+	}
+	const width = parseFloat(s.slice(0, space))
+	const color = s.slice(space + 1).trim()
+	if (!(width > 0) || !color) {
+		return null
+	}
+	const dirs = [
+		[width, 0],
+		[-width, 0],
+		[0, width],
+		[0, -width],
+		[width, width],
+		[width, -width],
+		[-width, width],
+		[-width, -width],
+	]
+	return dirs.map(([x, y]) => `${x}px ${y}px 0 ${color}`).join(', ')
+}
+
+function numericPositive(value: unknown): boolean {
+	if (typeof value === 'number') {
+		return value > 0
+	}
+	if (typeof value === 'string') {
+		return parseFloat(value) > 0
+	}
+	return false
+}
+
 /** Build the CssProvider rule text for one node's effective style.
  *  `selector` scopes every declaration (the per-node `xplat-n<id>` class);
- *  textfield's placeholderColor lands as a `placeholder` subrule in the same
+ *  textfield's placeholderColor lands as a `placeholder` subrule and control
+ *  color/backgroundColor land on their subnode selectors in the same
  *  provider. Returns '' when nothing maps. */
-export function gtkStyleCss(selector: string, style: PropBag | null | undefined, nodeType: string): string {
+export function gtkStyleCss(
+	selector: string,
+	style: PropBag | null | undefined,
+	nodeType: string,
+	options?: GtkStyleOptions,
+): string {
 	const next: [string, string][] = []
+	const extra: string[] = []
+	const subnodes = CONTROL_SUBNODES[nodeType]
+
 	if (style && typeof style === 'object') {
 		for (const name of Object.keys(CSS_PROPS)) {
-			const decl = cssValue(name, style[name])
-			if (decl !== null) {
-				next.push([CSS_PROPS[name], decl])
+			const value = style[name]
+			if (value == null) {
+				continue
 			}
+			// Control color/backgroundColor paint their subnode instead of
+			// the widget node.
+			if (subnodes && (name === 'color' || name === 'backgroundColor') && subnodes[name]) {
+				const [subSel, cssName] = subnodes[name]!
+				extra.push(`${subSel.replace('%S', selector)} { ${cssName}: ${value}; }`)
+				continue
+			}
+			let decl = cssValue(name, value)
+			if (decl === null) {
+				continue
+			}
+			if (name === 'backgroundImage') {
+				decl = resolveBackgroundImage(decl, options)
+			}
+			next.push([CSS_PROPS[name], decl])
 		}
 	}
 
@@ -86,16 +224,32 @@ export function gtkStyleCss(selector: string, style: PropBag | null | undefined,
 	// asked for a border without naming a style.
 	const hasBorderWidth =
 		style != null &&
-		((typeof style.borderWidth === 'number' && style.borderWidth > 0) ||
-			(typeof style.borderWidth === 'string' && parseFloat(style.borderWidth) > 0))
+		(numericPositive(style.borderWidth) ||
+			numericPositive(style.borderTopWidth) ||
+			numericPositive(style.borderRightWidth) ||
+			numericPositive(style.borderBottomWidth) ||
+			numericPositive(style.borderLeftWidth))
 	if (hasBorderWidth && style!.borderStyle == null) {
 		next.push(['border-style', 'solid'])
+	}
+
+	// text-stroke approximation rides the same text-shadow declaration,
+	// appended after any authored shadows.
+	const stroke = textStrokeShadows(style?.textStroke)
+	if (stroke) {
+		const idx = next.findIndex(([k]) => k === 'text-shadow')
+		if (idx === -1) {
+			next.push(['text-shadow', stroke])
+		} else {
+			next[idx] = ['text-shadow', `${next[idx][1]}, ${stroke}`]
+		}
 	}
 
 	const rules: string[] = []
 	if (next.length) {
 		rules.push(`${selector} { ${next.map(([k, v]) => `${k}: ${v};`).join(' ')} }`)
 	}
+	rules.push(...extra)
 	if (nodeType === 'textfield' && style?.placeholderColor != null) {
 		rules.push(`${selector} placeholder { color: ${style.placeholderColor}; }`)
 	}

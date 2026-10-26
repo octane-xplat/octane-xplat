@@ -62,3 +62,110 @@ it('excludes keys outside the GTK CSS table', () => {
 	assert.equal(css.includes('frobnicate'), false)
 	assert.match(css, /color: red;/)
 })
+
+it('maps per-side border widths, colours and corner radii', () => {
+	const css = gtkStyleCss(
+		'.n1',
+		{
+			borderTopWidth: 2,
+			borderBottomWidth: '4dip',
+			borderLeftColor: 'red',
+			borderTopLeftRadius: 6,
+			borderBottomRightRadius: '50%',
+		},
+		'label',
+	)
+	assert.match(css, /border-top-width: 2px;/)
+	assert.match(css, /border-bottom-width: 4px;/)
+	assert.match(css, /border-left-color: red;/)
+	assert.match(css, /border-top-left-radius: 6px;/)
+	assert.match(css, /border-bottom-right-radius: 50%;/)
+	// A positive side width still auto-emits border-style: solid.
+	assert.match(css, /border-style: solid;/)
+})
+
+it('does not collapse per-side borders to the unified keys', () => {
+	const css = gtkStyleCss('.n1', { borderTopWidth: 2 }, 'label')
+	assert.equal(css.includes('border-width'), false)
+	assert.match(css, /border-top-width: 2px;/)
+})
+
+it('maps background-image/-position/-repeat/-size', () => {
+	const css = gtkStyleCss(
+		'.n1',
+		{
+			backgroundImage: 'url("file:///tmp/a.png")',
+			backgroundPosition: 'center',
+			backgroundRepeat: 'no-repeat',
+			backgroundSize: 'cover',
+		},
+		'label',
+	)
+	assert.match(css, /background-image: url\("file:\/\/\/tmp\/a\.png"\);/)
+	assert.match(css, /background-position: center;/)
+	assert.match(css, /background-repeat: no-repeat;/)
+	assert.match(css, /background-size: cover;/)
+})
+
+it('resolves ~/ urls through the resolver and warns on other schemes', () => {
+	const resolved = gtkStyleCss('.n1', { backgroundImage: 'url("~/img/a.png")' }, 'label', {
+		resolveUrl: (rel) => 'file:///bundle/' + rel,
+	})
+	assert.match(resolved, /background-image: url\("file:\/\/\/bundle\/img\/a\.png"\);/)
+
+	const warnings = []
+	const bad = gtkStyleCss('.n1', { backgroundImage: 'url("https://x/a.png")' }, 'label', {
+		onWarn: (m) => warnings.push(m),
+	})
+	assert.equal(warnings.length, 1)
+	assert.match(bad, /background-image: none;/)
+})
+
+it('maps letterSpacing numbers and strings to em', () => {
+	assert.match(gtkStyleCss('.n1', { letterSpacing: 0.1 }, 'label'), /letter-spacing: 0\.1em;/)
+	assert.match(gtkStyleCss('.n1', { letterSpacing: '0.2' }, 'label'), /letter-spacing: 0\.2em;/)
+})
+
+it('maps textTransform and fontVariationSettings', () => {
+	const css = gtkStyleCss(
+		'.n1',
+		{ textTransform: 'uppercase', fontVariationSettings: '"wght" 700' },
+		'label',
+	)
+	assert.match(css, /text-transform: uppercase;/)
+	assert.match(css, /font-variation-settings: "wght" 700;/)
+})
+
+it('appends textStroke as 8 zero-blur text-shadows after authored shadows', () => {
+	const css = gtkStyleCss('.n1', { textShadow: '0dip 1dip 2dip black', textStroke: '2 red' }, 'label')
+	const m = /text-shadow: ([^;]+);/.exec(css)
+	assert.ok(m, 'expected a text-shadow declaration')
+	const shadows = m[1].split(', ')
+	// 1 authored + 8 stroke directions
+	assert.equal(shadows.length, 9)
+	assert.equal(shadows[0], '0px 1px 2px black')
+	assert.equal(shadows[1], '2px 0px 0 red')
+	assert.equal(shadows[8], '-2px -2px 0 red')
+
+	const strokeOnly = gtkStyleCss('.n1', { textStroke: '1 blue' }, 'label')
+	assert.match(strokeOnly, /text-shadow: 1px 0px 0 blue/)
+})
+
+it('routes control color/backgroundColor to subnodes, not the widget node', () => {
+	const sw = gtkStyleCss('.n1', { color: 'red', backgroundColor: '#00f' }, 'switch')
+	assert.match(sw, /\.n1 slider \{ color: red; \}/)
+	assert.match(sw, /\.n1:checked \{ background-color: #00f; \}/)
+	assert.equal(/\.n1 \{[^}]*color/.test(sw), false)
+
+	const sl = gtkStyleCss('.n1', { color: 'red', backgroundColor: '#00f' }, 'slider')
+	assert.match(sl, /\.n1 slider \{ color: red; \}/)
+	assert.match(sl, /\.n1 trough > highlight \{ background-color: #00f; \}/)
+
+	const pr = gtkStyleCss('.n1', { color: 'red', backgroundColor: '#00f' }, 'progress')
+	assert.match(pr, /\.n1 trough > progress \{ background-color: red; \}/)
+	assert.match(pr, /\.n1 trough \{ background-color: #00f; \}/)
+
+	// activityindicator takes color on its own node (spinner).
+	const sp = gtkStyleCss('.n1', { color: 'red' }, 'activityindicator')
+	assert.match(sp, /\.n1 \{ color: red; \}/)
+})

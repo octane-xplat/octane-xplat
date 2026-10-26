@@ -228,9 +228,14 @@ function styleDict(node: NodeLike): Record<string, any> {
 		}
 	}
 
-	// GTK-hidden children still carry widgets — map them onto the engine's
-	// display vocabulary so they stop consuming layout space.
-	if (props.visible === false || props.visibility === 'hidden' || props.visibility === 'collapse') {
+	// Only collapse removes layout space — NS `hidden` keeps it, so it maps
+	// to child-invisible on the widget, never display:none. The computed
+	// style carries the CSS value alongside the prop.
+	if (
+		props.visible === false ||
+		props.visibility === 'collapse' ||
+		style.visibility === 'collapse'
+	) {
 		out.display = 'none'
 	}
 

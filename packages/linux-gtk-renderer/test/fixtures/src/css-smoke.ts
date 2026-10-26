@@ -57,7 +57,23 @@ apply(container, [
 	cmd('insert', 5, { parent: 1, before: null }),
 	cmd('insert', 6, { parent: 1, before: null }),
 	cmd('insert', 7, { parent: 1, before: null }),
+	cmd('create', 11, { type: 'label', props: { text: 'b', className: 'borders' } }),
+	cmd('create', 12, { type: 'label', props: { text: 'sp', className: 'lspace' } }),
+	cmd('create', 13, { type: 'switch', props: { className: 'sw', checked: true } }),
+	cmd('create', 14, { type: 'label', props: { text: 'h', className: 'hid' } }),
+	cmd('create', 15, { type: 'label', props: { text: 'c', className: 'col' } }),
+	cmd('create', 16, { type: 'label', props: { text: 'r', className: 'rtl' } }),
+	cmd('create', 17, { type: 'label', props: { text: 'e', className: 'ell' } }),
+	cmd('create', 18, { type: 'label', props: { text: 'a', className: 'hal' } }),
 	cmd('insert', 8, { parent: 1, before: null }),
+	cmd('insert', 11, { parent: 1, before: null }),
+	cmd('insert', 12, { parent: 1, before: null }),
+	cmd('insert', 13, { parent: 1, before: null }),
+	cmd('insert', 14, { parent: 1, before: null }),
+	cmd('insert', 15, { parent: 1, before: null }),
+	cmd('insert', 16, { parent: 1, before: null }),
+	cmd('insert', 17, { parent: 1, before: null }),
+	cmd('insert', 18, { parent: 1, before: null }),
 ])
 
 const node = (id: number) => container.nodes.get(id)
@@ -123,6 +139,65 @@ registerStylesheet('theme', `${tokensCss}\n${chromeCss}`)
 const themeMs = (GLib.get_monotonic_time() - t0) / 1000
 out.themeMs = Math.round(themeMs * 100) / 100
 out.themeSelectors = `${tokensCss}\n${chromeCss}`.split('{').length - 1
+
+// ---- B1: per-side borders, letter-spacing, controls, visibility, text ----
+
+// Longhand keys reach the computed bag (computeCascade borderLonghands).
+out.borderTopWidth = node(11)?.computedStyle?.borderTopWidth
+out.borderBottomWidth = node(11)?.computedStyle?.borderBottomWidth
+out.borderRightColor = node(11)?.computedStyle?.borderRightColor
+// Real GTK evidence: the provider lands a border on the style context.
+const borderCtx = node(11)?.view?.get_style_context?.()
+const gtkBorder = borderCtx?.get_border?.()
+out.gtkBorderTop = gtkBorder ? gtkBorder.top : null
+out.gtkBorderBottom = gtkBorder ? gtkBorder.bottom : null
+
+// letter-spacing lands in the provider signature.
+out.letterSpacingRule = String(node(12)?.cssSignature ?? '').includes('letter-spacing: 0.1em')
+
+// Switch color/backgroundColor paint the slider gizmo + checked track, not
+// the widget node — find the slider subnode and read its color.
+const cssNameWalk = (w, name) => {
+	for (let c = w.get_first_child?.(); c; c = c.get_next_sibling?.()) {
+		if (c.get_css_name?.() === name) {
+			return c
+		}
+		const nested = cssNameWalk(c, name)
+		if (nested) {
+			return nested
+		}
+	}
+	return null
+}
+const swView = node(13)?.view
+const swSlider = swView ? cssNameWalk(swView, 'slider') : null
+out.switchThumbColor = swSlider?.get_color?.() ? {
+	r: swSlider.get_color().red,
+	g: swSlider.get_color().green,
+	b: swSlider.get_color().blue,
+} : null
+out.switchOwnColor = String(node(13)?.cssSignature ?? '').includes('.xplat-n')
+	? /xplat-n\d+ \{[^}]*\bcolor:/.test(String(node(13)?.cssSignature ?? ''))
+	: null
+
+// hidden keeps space (child-invisible); collapse unmaps.
+out.hiddenVisible = node(14)?.view?.get_visible?.()
+out.hiddenChildVisible = node(14)?.view?.get_child_visible?.()
+out.collapseVisible = node(15)?.view?.get_visible?.()
+
+// direction → set_direction.
+out.directionRtl = node(16)?.view?.get_direction?.()
+
+// whiteSpace/textOverflow/maxLines land on the Gtk.Label.
+const ellView = node(17)?.view
+out.ellipsize = ellView?.ellipsize
+out.wrapNowrap = ellView?.wrap
+out.maxLines = ellView?.lines
+
+// horizontalAlign/verticalAlign outside a Mason subtree → halign/valign.
+const halView = node(18)?.view
+out.halign = halView?.halign ?? halView?.get_halign?.()
+out.valign = halView?.valign ?? halView?.get_valign?.()
 
 out.ok = true
 print(`CSS_SMOKE ${JSON.stringify(out)}`)
