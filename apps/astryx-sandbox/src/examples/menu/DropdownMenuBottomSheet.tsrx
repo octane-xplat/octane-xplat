@@ -19,8 +19,7 @@ export function DropdownMenuBottomSheet() @{
 		<VStack gap={3} align="start">
 			<DropdownMenu
 				label="Project actions"
-				trigger="Project actions"
-				triggerClassName="vx-button vx-button--secondary vx-button--size-md"
+				button={{ label: 'Project actions' }}
 				presentation={isCompactTouch ? 'bottom-sheet' : 'popover'}
 				items={menuItems(ACTIONS.map(({ label, icon }) => ({ label, icon, onClick: () => setLastAction(label) })))}
 			/>

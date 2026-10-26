@@ -147,6 +147,7 @@ body {
 .sb-nav-controls {
 	display: flex;
 	gap: 2px;
+	margin-right: 16px;
 }
 .sb-ledger-table {
 	width: 100%;

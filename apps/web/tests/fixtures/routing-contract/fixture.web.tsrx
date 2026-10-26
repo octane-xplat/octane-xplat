@@ -195,7 +195,7 @@ function NavigationWidgets() {
 	} else {
 		content = (
 			<DropdownMenu
-				trigger="Actions"
+				button={{ label: 'Actions' }}
 				items={[{ type: 'link', key: 'target', label: 'Open target', ...destination }]}
 			/>
 		)

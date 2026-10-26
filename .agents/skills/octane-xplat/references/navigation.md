@@ -426,7 +426,7 @@ its issuing instance from that provider; pass the entire value as `to`.
 import { SideNavItem, DropdownMenu, TabList, Tab } from '@octane-xplat/ui'
 
 const item = <SideNavItem label="Coat" to="/items/:id" params={{ id: 'coat' }} />
-const menu = <DropdownMenu trigger="Items" items={[
+const menu = <DropdownMenu button={{ label: 'Items' }} items={[
 	{ type: 'link', key: 'coat', label: 'Coat', to: '/items/:id', params: { id: 'coat' } },
 ]} />
 const tabs = <TabList value="coat" onChange={() => {}}>

@@ -5,7 +5,7 @@
 import { useRouterState } from '@octane-xplat/ui/routing'
 import { SideNav, SideNavHeading, SideNavItem, SideNavSection, DropdownMenu, Icon, HStack } from '@octane-xplat/ui'
 import { auditPages, categories, homePage } from '../data/sandboxPages'
-import { SANDBOX_THEMES, setThemeName, setMode, useThemeName, useThemePreference } from '../theme'
+import { SANDBOX_THEMES, setThemeName, setMode, useThemePreference } from '../theme'
 
 const categoryIcons: Record<string, string> = {
 	'components-patterns': 'sandbox-box',
@@ -24,49 +24,47 @@ const navPageIcons: Record<string, string> = {
 const pathOf = (href: string | undefined) => (href ?? '').replace(/\/$/, '') || '/'
 
 function SandboxHeader() @{
-	const themeName = useThemeName()
 	const mode = useThemePreference()
+
+	const themeItems = SANDBOX_THEMES.map((t) => ({
+		type: 'action' as const,
+		key: t.id,
+		label: t.label,
+		onSelect: () => setThemeName(t.id),
+	}))
+
+	const modeItems = [
+		{ type: 'action' as const, key: 'light', label: 'Light', onSelect: () => setMode('light') },
+		{ type: 'action' as const, key: 'dark', label: 'Dark', onSelect: () => setMode('dark') },
+	]
 
 	return (
 		<SideNavHeading
 			heading="Sandbox"
 			icon={<Icon name="sandbox-box" size={20} />}
 			headerEndContent={
-				<HStack gap={0} className="sb-nav-controls">
+				<HStack gap={0.5} justify="end" className="sb-nav-controls">
 					<DropdownMenu
-						trigger={<Icon name="sandbox-palette" size={16} />}
-						accessibilityLabel="Theme"
-						size="sm"
-						items={[
-							{
-								type: 'radio-group',
-								key: 'theme',
-								value: themeName,
-								onValueChange: (v) => setThemeName(v as typeof themeName),
-								items: SANDBOX_THEMES.map((t) => ({
-									key: t.id,
-									label: t.label,
-									value: t.id,
-								})),
-							},
-						]}
+						button={{
+							label: 'Theme',
+							icon: <Icon name="sandbox-palette" size={16} color="var(--color-icon-secondary)" />,
+							variant: 'ghost',
+							size: 'sm',
+							isIconOnly: true,
+						}}
+						menuWidth={160}
+						items={themeItems}
 					/>
 					<DropdownMenu
-						trigger={<Icon name={mode === 'dark' ? 'sandbox-moon' : 'sandbox-sun'} size={16} />}
-						accessibilityLabel={mode === 'dark' ? 'Dark mode' : 'Light mode'}
-						size="sm"
-						items={[
-							{
-								type: 'radio-group',
-								key: 'mode',
-								value: mode,
-								onValueChange: (v) => setMode(v as 'light' | 'dark'),
-								items: [
-									{ key: 'light', label: 'Light', value: 'light' },
-									{ key: 'dark', label: 'Dark', value: 'dark' },
-								],
-							},
-						]}
+						button={{
+							label: mode === 'dark' ? 'Dark mode' : 'Light mode',
+							icon: <Icon name={mode === 'dark' ? 'sandbox-moon' : 'sandbox-sun'} size={16} color="var(--color-icon-secondary)" />,
+							variant: 'ghost',
+							size: 'sm',
+							isIconOnly: true,
+						}}
+						menuWidth={160}
+						items={modeItems}
 					/>
 				</HStack>
 			}

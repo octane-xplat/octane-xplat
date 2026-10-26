@@ -45,7 +45,7 @@ export function Breadcrumb(props: NavigationItemsImplementation<BreadcrumbProps,
 		className={cx('vx-breadcrumb', props.className)} style={mergeStyle({ display: 'flex', flexDirection: 'row' }, props.style)}>
 		@for (const item of visible; index index; key index) {
 			<masonview className="vx-breadcrumb-item" style={{ display: 'flex' }}>
-				{index === 1 && (overflow.length > 0 || props.overflowMenu) && <DropdownMenu trigger="…" accessibilityLabel={props.overflowLabel ?? 'More ancestors'}>
+				{index === 1 && (overflow.length > 0 || props.overflowMenu) && <DropdownMenu hasChevron={false} button={{ label: '…', variant: 'ghost', size: 'sm', accessibilityLabel: props.overflowLabel ?? 'More ancestors' }}>
 					<MenuData items={overflowItems} />{props.overflowMenu}
 				</DropdownMenu>}
 				{index > 0 ? <label className="vx-breadcrumb-sep" text={sep} /> : null}

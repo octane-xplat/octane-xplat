@@ -221,13 +221,13 @@ export function PreviewShell(props: { row: CoverageRow; children?: any }) @{
 				) : null}
 
 				<DropdownMenu
-					trigger={
-						<Text className="sb-preview-theme-label">
-							{SANDBOX_THEMES.find((t) => t.id === themeName)?.label ?? themeName}
-						</Text>
-					}
-					accessibilityLabel="Preview theme"
-					size="sm"
+					button={{
+						label: SANDBOX_THEMES.find((t) => t.id === themeName)?.label ?? themeName,
+						variant: 'ghost',
+						size: 'sm',
+						accessibilityLabel: 'Preview theme',
+					}}
+					label="Preview theme"
 					items={[
 						{
 							type: 'radio-group',

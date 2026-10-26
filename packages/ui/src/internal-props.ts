@@ -10,6 +10,10 @@ import type { BaseTypeaheadProps, ContextRenderProps, PopoverProps, SearchableIt
  *  resolved placement/alignment. Public callers use `placement`/`alignment`. */
 export interface PopoverLayerPosition {
 	layerPosition?: Pick<ContextRenderProps, 'placement' | 'alignment'>
+	/** Web only: floor the panel's inline size at the anchor's measured width
+	 *  (upstream `min(anchor-size(width), …)`). `DropdownMenu` sets it so an
+	 *  unset `menuWidth` defaults to the trigger width. */
+	anchorMinWidth?: boolean
 }
 
 /** `Tokenizer` appends query-derived "Create …" entries to `BaseTypeahead`

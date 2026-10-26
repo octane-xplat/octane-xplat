@@ -110,7 +110,7 @@ export function ComponentsDemo() @{
 		<View className="controls-section">
 			<Text className="font-bold">Menus</Text>
 			<HStack className="items-center gap-4">
-				<DropdownMenu trigger={<Text className="chip">Menu ▾</Text>} items={menuItems}>
+				<DropdownMenu button={{ label: 'Menu', variant: 'ghost', size: 'sm' }} items={menuItems}>
 					<DropdownMenuSeparator />
 					<DropdownMenuCheckboxItem label="Show archived" value={menuArchived} onValueChange={setMenuArchived} />
 					<DropdownMenuRadioGroup label="Sort by" value={menuSort} onValueChange={setMenuSort}>

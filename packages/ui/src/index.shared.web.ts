@@ -180,6 +180,7 @@ export type {
 	FieldControlSize,
 	FieldStatus as FieldStatusInfo,
 	FieldStatusType,
+	DropdownMenuButtonProps,
 	DropdownMenuProps,
 	MenuItem,
 	RadioGroupProps,

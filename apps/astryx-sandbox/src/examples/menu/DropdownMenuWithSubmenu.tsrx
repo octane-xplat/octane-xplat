@@ -6,7 +6,7 @@ export function DropdownMenuWithSubmenu() @{
 	const [lastAction, setLastAction] = useState<string | null>(null)
 	return (
 		<VStack gap={3} align="start">
-			<DropdownMenu trigger="Actions" triggerClassName="vx-button vx-button--secondary vx-button--size-md">
+			<DropdownMenu button={{ label: 'Actions' }}>
 				<DropdownMenuItem icon="sandbox-pencil-square" label="Rename" onSelect={() => setLastAction('Rename')} />
 				<DropdownMenuSubMenu icon="sandbox-folder" label="Move to">
 					<DropdownMenuItem label="Projects" onSelect={() => setLastAction('Move to Projects')} />

@@ -8,8 +8,7 @@ export function DropdownMenuActions() @{
 	return (
 		<VStack gap={3} align="start">
 			<DropdownMenu
-				trigger="Actions"
-				triggerClassName="vx-button vx-button--secondary vx-button--size-md"
+				button={{ label: 'Actions' }}
 				items={menuItems([
 					{ label: 'Edit', onClick: () => setLastAction('Edit') },
 					{ label: 'Duplicate', onClick: () => setLastAction('Duplicate') },

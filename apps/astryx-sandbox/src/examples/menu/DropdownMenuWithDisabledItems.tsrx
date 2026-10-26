@@ -8,8 +8,7 @@ export function DropdownMenuWithDisabledItems() @{
 	return (
 		<VStack gap={3} align="start">
 			<DropdownMenu
-				trigger="Manage team"
-				triggerClassName="vx-button vx-button--secondary vx-button--size-md"
+				button={{ label: 'Manage team' }}
 				items={menuItems([
 					{ label: 'Invite member', onClick: () => setLastAction('Invite') },
 					{ label: 'Edit roles', onClick: () => setLastAction('Edit roles') },

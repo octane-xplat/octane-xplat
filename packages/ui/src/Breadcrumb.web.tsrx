@@ -42,7 +42,7 @@ export function Breadcrumb(props: NavigationItemsImplementation<BreadcrumbProps,
 		className={['vx-breadcrumb', props.className]} style={props.style} aria-label={props.accessibilityLabel ?? 'Breadcrumb'}>
 		@for (const item of visible; index index; key index) {
 			<span className="vx-breadcrumb-item">
-				{index === 1 && (overflow.length > 0 || props.overflowMenu) && <DropdownMenu trigger="…" accessibilityLabel={props.overflowLabel ?? 'More ancestors'}>
+				{index === 1 && (overflow.length > 0 || props.overflowMenu) && <DropdownMenu hasChevron={false} button={{ label: '…', variant: 'ghost', size: 'sm', accessibilityLabel: props.overflowLabel ?? 'More ancestors' }}>
 					<MenuData items={overflowItems} />{props.overflowMenu}
 				</DropdownMenu>}
 				{index > 0 ? <span className="vx-breadcrumb-sep" aria-hidden="true">{sep}</span> : null}

@@ -4,15 +4,20 @@ import { MenuData } from './MenuParts.web.tsrx';
 import { MenuSurface } from './MenuSurface.web.tsrx';
 import { useId, useRef, useState } from 'octane';
 import type { DropdownMenuProps } from "./props";
-import { Pressable } from './Pressable.web.tsrx';
+import { Button } from './Button.web.tsrx';
+import { Icon } from './Icon.web.tsrx';
 import { Popover } from './Popover.web.tsrx';
 import { MenuSheet, useMenuSheet } from './menu-sheet.web.tsrx';
 import { useButtonGroup } from './button-group-context';
-import { useSize } from './size-context';
+import { resolveMenuWidth } from './menu-width';
+import type { PopoverInternalProps } from './internal-props';
 
-/** Self-drawn dropdown menu — `trigger` plus an anchored item list via
- *  Popover. The same anchored listbox renders on every target (decision
- *  #48): bounded, unvirtualized items. */
+const MenuPopover = Popover as unknown as (props: PopoverInternalProps) => any;
+
+/** Self-drawn dropdown menu — a shared-`Button` trigger (`button` props,
+ *  Astryx `button`) plus an anchored item list via Popover. The same
+ *  anchored listbox renders on every target (decision #48): bounded,
+ *  unvirtualized items. */
 export function DropdownMenu<
 	Contracts = RegisteredRouteContracts,
 	Stacks extends string = keyof AppRouteStacks & string,
@@ -22,9 +27,9 @@ export function DropdownMenu<
 export function DropdownMenu(props: NavigationMenuImplementation<DropdownMenuProps>) @{
 	const anchor = useRef<any>(null);
 	const triggerId = useId();
+	const menuId = useId();
 	const initialFocus = useRef<'first' | 'last' | 'container'>('container');
 	const group = useButtonGroup();
-	const size = useSize(props.size ?? group?.size, 'md');
 	const disabled = !!(props.isDisabled || group?.isDisabled);
 	const [internal, setInternal] = useState(props.defaultOpen ?? false);
 	const controlled = props.isOpen !== undefined;
@@ -37,36 +42,59 @@ export function DropdownMenu(props: NavigationMenuImplementation<DropdownMenuPro
 		props.onOpenChange?.(next);
 	};
 
+	const button = props.button ?? { label: 'Menu' };
+	const buttonLabel = typeof button.label === 'string' ? button.label : undefined;
+	const iconOnly = button.isIconOnly === true;
+	const endContent = button.endContent ?? (props.hasChevron !== false && !iconOnly ? <Icon name="xplat-chevron-down" size={16} /> : undefined);
+	const menuWidth = props.menuWidth != null ? resolveMenuWidth(props.menuWidth, 'calc(100vw - 32px)') : null;
+
 
 	<>
-		<Pressable
+		<Button
+			{...button}
 			ref={(e: any) => { anchor.current = e; }}
 			id={props.id ?? triggerId}
-			className={['vx-menu-trigger', props.triggerClassName, group && `vx-button--group-${group.position}`, `vx-button--size-${size}`, props.className]}
-			style={props.style}
-			disabled={disabled}
-			accessibilityLabel={props.accessibilityLabel}
-			onPress={() => setOpen(!open)}
-			accessibilityState={{ disabled }}
-			web={{ onpointerdown: () => { initialFocus.current = 'container' }, 'aria-haspopup': 'menu', 'aria-expanded': String(open), onkeydown: (event: any) => { if (event.isComposing || event.keyCode === 229 || event.defaultPrevented) return; if (event.key === 'Enter' || event.key === ' ') initialFocus.current = 'first'; if (event.key === 'ArrowDown' || event.key === 'ArrowUp') { event.preventDefault(); initialFocus.current = event.key === 'ArrowUp' ? 'last' : 'first'; setOpen(true); } } }}
-		>
-			{props.trigger}
-		</Pressable>
+			className={['vx-menu-trigger', button.className]}
+			isDisabled={disabled || button.isDisabled}
+			endContent={endContent}
+			clickAction={() => setOpen(!open)}
+			accessibilityState={{ ...button.accessibilityState, expanded: open }}
+			web={{
+				...button.web,
+				'aria-haspopup': 'menu',
+				'aria-expanded': String(open),
+				'aria-controls': menuId,
+				onpointerdown: (event: any) => { (button.web?.onpointerdown as any)?.(event); initialFocus.current = 'container' },
+				// APG menu-button: Enter/Space/ArrowDown open with the first item
+				// focused, ArrowUp the last. Default is suppressed so the native
+				// button's own click activation can't toggle again (keyup below
+				// covers Space's keyup-side activation).
+				onkeydown: (event: any) => {
+					(button.web?.onkeydown as any)?.(event);
+					if (event.isComposing || event.keyCode === 229 || event.defaultPrevented) return;
+					if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); initialFocus.current = 'first'; setOpen(true); }
+					if (event.key === 'ArrowDown' || event.key === 'ArrowUp') { event.preventDefault(); initialFocus.current = event.key === 'ArrowUp' ? 'last' : 'first'; setOpen(true); }
+				},
+				onkeyup: (event: any) => { if (event.key === ' ') event.preventDefault(); },
+			}}
+		/>
 		@if (asSheet) {
-			<MenuSheet open={open} onOpenChange={setOpen} label={props.label ?? props.accessibilityLabel} items={props.items}>{props.children}</MenuSheet>
+			<MenuSheet open={open} onOpenChange={setOpen} label={props.label ?? buttonLabel} items={props.items}>{props.children}</MenuSheet>
 		} @else {
-			<Popover
+			<MenuPopover
 				anchor={anchor}
 				open={open}
 				placement={props.placement ?? 'bottom'}
 				alignment={props.alignment}
 				onDismiss={() => setOpen(false)}
 				className={['vx-menu', props.menuClassName]}
+				style={menuWidth ? { [menuWidth.property]: menuWidth.value } : undefined}
+				anchorMinWidth={menuWidth == null}
 			>
-				<MenuSurface initialFocus={initialFocus.current} closeMenu={() => setOpen(false)} label={props.accessibilityLabel ?? props.label} labelledBy={props.id ?? triggerId}>
+				<MenuSurface initialFocus={initialFocus.current} closeMenu={() => setOpen(false)} label={props.label ?? buttonLabel} labelledBy={props.id ?? triggerId} className={props.className} style={props.style} web={{ id: menuId }}>
 					<MenuData items={props.items} />{props.children}
 				</MenuSurface>
-			</Popover>
+			</MenuPopover>
 		}
 	</>
 }

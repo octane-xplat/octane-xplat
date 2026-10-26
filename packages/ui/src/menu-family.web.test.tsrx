@@ -40,7 +40,7 @@ function key(key: string, options: KeyboardEventInit = {}) {
 function click(id: string) { act(() => document.getElementById(id)!.click()) }
 afterEach(() => { act(() => roots.splice(0).forEach((r) => r.unmount())); document.body.replaceChildren() })
 function Compound(props: any) @{
-	<DropdownMenu trigger="Actions" isOpen={props.open} onOpenChange={props.close}>
+	<DropdownMenu button={{ label: 'Actions' }} isOpen={props.open} onOpenChange={props.close}>
 		<DropdownMenuItem id="first" label="First" onSelect={props.pick} />
 		<DropdownMenuSeparator />
 		<DropdownMenuItem id="disabled" label="Disabled" isDisabled onSelect={props.pick} />
@@ -57,7 +57,7 @@ function Compound(props: any) @{
 }
 
 function ControlledSub(props: any) @{
-	<DropdownMenu trigger="Actions" isOpen>
+	<DropdownMenu button={{ label: 'Actions' }} isOpen>
 		<DropdownMenuSubMenu id="controlled-sub" label="More" isOpen={props.open} onOpenChange={props.change}>
 			<DropdownMenuItem id="controlled-leaf" label="Leaf" />
 		</DropdownMenuSubMenu>
@@ -65,7 +65,7 @@ function ControlledSub(props: any) @{
 }
 
 function Choices(props: any) @{
-	<DropdownMenu trigger="Choices" isOpen onOpenChange={props.close}>
+	<DropdownMenu button={{ label: 'Choices' }} isOpen onOpenChange={props.close}>
 		<DropdownMenuCheckboxItem id="closing-check" label="Checked" value={false} hasCloseOnSelect onValueChange={props.check} />
 		<DropdownMenuRadioGroup label="Options" defaultValue="a" hasCloseOnSelect={false} isDisabled={props.disabled} onValueChange={props.radio}>
 			<DropdownMenuRadioItem id="choice-a" label="A" value="a" />
@@ -89,7 +89,7 @@ describe('menu family contracts', () => {
 
 	it('opens from the trigger with keyboard focus and returns focus after accepted root dismissal', () => {
 		const pick = vi.fn()
-		mount(DropdownMenu, { id: 'trigger', trigger: 'Actions', items: [{ type: 'action', key: 'one', label: 'One', onSelect: pick }, { type: 'action', key: 'two', label: 'Two' }] })
+		mount(DropdownMenu, { id: 'trigger', button: { label: 'Actions' }, items: [{ type: 'action', key: 'one', label: 'One', onSelect: pick }, { type: 'action', key: 'two', label: 'Two' }] })
 		act(() => document.getElementById('trigger')!.focus())
 		key('ArrowUp'); expect(document.activeElement?.id).toBe('two')
 		key('Escape'); expect(document.activeElement?.id).toBe('trigger')
@@ -184,14 +184,14 @@ describe('menu family contracts', () => {
 	})
 
 	it('names the menu surface by its trigger', () => {
-		mount(DropdownMenu, { id: 'named-trigger', trigger: 'Actions', isOpen: true, items: [{ type: 'action', key: 'one', label: 'One' }] })
+		mount(DropdownMenu, { id: 'named-trigger', button: { label: 'Actions' }, isOpen: true, items: [{ type: 'action', key: 'one', label: 'One' }] })
 		const menu = document.querySelector('[role="menu"]') as HTMLElement
 		expect(menu.getAttribute('aria-labelledby')).toBe('named-trigger')
 		expect(menu.getAttribute('aria-label')).toBeNull()
 	})
 
 	it('names the menu surface by a generated trigger id when none is given', () => {
-		mount(DropdownMenu, { trigger: 'Actions', isOpen: true, items: [{ type: 'action', key: 'one', label: 'One' }] })
+		mount(DropdownMenu, { button: { label: 'Actions' }, isOpen: true, items: [{ type: 'action', key: 'one', label: 'One' }] })
 		const menu = document.querySelector('[role="menu"]') as HTMLElement
 		const labelledBy = menu.getAttribute('aria-labelledby')
 		expect(labelledBy).toBeTruthy()
@@ -215,7 +215,7 @@ describe('menu family contracts', () => {
 	it('types data rows by kind and honors action close overrides', () => {
 		const close = vi.fn()
 		mount(DropdownMenu, {
-			trigger: 'Kinds', isOpen: true, onOpenChange: close,
+			button: { label: 'Kinds' }, isOpen: true, onOpenChange: close,
 			items: [
 				{ type: 'action', key: 'keep', label: 'Keep open', hasCloseOnSelect: false },
 				{ type: 'link', key: 'docs', label: 'Docs', href: '/docs', target: '_self' },

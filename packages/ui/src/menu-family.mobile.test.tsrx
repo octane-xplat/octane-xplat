@@ -107,7 +107,7 @@ it('keeps AppKit anchors and nested menu ownership across separate popup roots',
 	const root = createUniversalRoot(container, createObjectDriver('nativescript'))
 	const pick = vi.fn(), close = vi.fn()
 	try {
-		root.render(MacMenu, { isOpen: true, trigger: 'Actions', onOpenChange: close, items: [{ type: 'submenu', key: 'move', label: 'Move', items: [{ type: 'action', key: 'target', label: 'Target', onSelect: pick }] }] })
+		root.render(MacMenu, { isOpen: true, button: { label: 'Actions' }, onOpenChange: close, items: [{ type: 'submenu', key: 'move', label: 'Move', items: [{ type: 'action', key: 'target', label: 'Target', onSelect: pick }] }] })
 		flushUniversalSync(() => {})
 		await vi.waitFor(() => expect(popups).toHaveLength(1))
 		expect(show.mock.calls[0][0].anchor).toBeTruthy()

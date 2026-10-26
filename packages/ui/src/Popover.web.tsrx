@@ -10,7 +10,7 @@ import { cx } from '@octane-xplat/lib';
 import { resolveCSSLayerOffset } from './layer-position.web';
 import { positionPopover, resolveLayerAlignment, resolveLayerSide } from './popover-position';
 
-type Position = { left: number; top: number };
+type Position = { left: number; top: number; anchorWidth: number };
 
 function PopoverLayer(props: PopoverInternalProps & { anchorElement: any }) @{
 	const dark = useThemeScheme() === 'dark';
@@ -41,9 +41,9 @@ function PopoverLayer(props: PopoverInternalProps & { anchorElement: any }) @{
 		);
 
 		setPosition((current) =>
-			current?.left === placed.left && current?.top === placed.top
+			current?.left === placed.left && current?.top === placed.top && current?.anchorWidth === anchorRect.width
 				? current
-				: placed,
+				: { ...placed, anchorWidth: anchorRect.width },
 		);
 	};
 
@@ -75,6 +75,17 @@ function PopoverLayer(props: PopoverInternalProps & { anchorElement: any }) @{
 		};
 	}, [props.layerPosition, props.open, props.anchorElement, props.placement, props.offset, props.alignment, props.children, position === null]);
 
+	// `anchorMinWidth` floors the panel at the trigger's measured width (the
+	// web stand-in for upstream `min(anchor-size(width), …)`); an explicit
+	// style min-width/inline-size wins.
+	const panelStyle = () => {
+		const style = { ...styleRecord(props.style) };
+		if (props.anchorMinWidth && position && style.minWidth == null && style.inlineSize == null) {
+			style.minWidth = `min(${position.anchorWidth}px, calc(100vw - 32px))`;
+		}
+		return style;
+	};
+
 	const stopPointer = (event: PointerEvent) => event.stopPropagation();
 	const dismiss = (event: MouseEvent) => {
 		event.preventDefault();
@@ -98,7 +109,7 @@ function PopoverLayer(props: PopoverInternalProps & { anchorElement: any }) @{
 				ref={panelRef}
 				className={cx('vx-popover', props.className)}
 				style={{
-					...styleRecord(props.style),
+					...panelStyle(),
 					position: 'fixed',
 					top: position.top,
 					left: position.left,

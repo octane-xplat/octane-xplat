@@ -2904,10 +2904,13 @@
 	.vx-card--disabled {
 		opacity: 0.5;
 	}
+	/* Astryx icon-only: square at the size's element height (28/32/36px),
+	   padding cleared, never squeezed in a crowded row. */
 	.vx-button--icon {
-		min-width: 36px;
-		min-height: 36px;
-		padding: 6px;
+		aspect-ratio: 1 / 1;
+		padding: 0;
+		flex-shrink: 0;
+		max-width: none;
 	}
 	.vx-button--group-first,
 	.vx-button--group-middle,

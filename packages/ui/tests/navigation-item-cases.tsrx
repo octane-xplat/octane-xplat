@@ -223,7 +223,7 @@ export function NavigationChrome(props: {
 	} else {
 		content = (
 			<DropdownMenu
-				trigger="Actions"
+				button={{ label: 'Actions' }}
 				defaultOpen
 				items={[
 					{

@@ -6473,14 +6473,19 @@ export interface MenuSurfaceProps {
 	labelledBy?: string
 }
 
+/** The `DropdownMenu` trigger described as shared-`Button` props — every
+ *  `ButtonProps` field except the press handler, which the menu owns
+ *  (Astryx `DropdownMenuButtonProps`). */
+export type DropdownMenuButtonProps = Omit<ButtonProps, 'clickAction'>
+
 /** Both data rows and compound children use the same menu contracts.
  *
  * @example
  * ```tsx
- * import { DropdownMenu, Button } from '@octane-xplat/ui'
+ * import { DropdownMenu } from '@octane-xplat/ui'
  *
  * <DropdownMenu
- * 	trigger={<Button label="Actions" />}
+ * 	button={{ label: 'Actions' }}
  * 	items={[
  * 		{ type: 'action', key: 'rename', label: 'Rename', onSelect: rename },
  * 		{ type: 'separator', key: 'd' },
@@ -6495,18 +6500,24 @@ export interface DropdownMenuProps<
 	Stacks extends string = keyof AppRouteStacks & string,
 	Transitions extends string = RouteTransitionName,
 > {
+	/** Applied to the menu surface (Astryx `className`). */
 	className?: ClassValue
+	/** Applied to the menu surface (Astryx `style`). */
 	style?: StyleProp
 	id?: string
-	/** Anchor content rendered inside the trigger Pressable. */
-	trigger?: Renderable
-	/** Accessible trigger name when there is no visible text. */
-	accessibilityLabel?: string
-	/** Additional trigger chrome (for example a button class). */
-	triggerClassName?: ClassValue
-	/** Trigger size — wins over ButtonGroup membership and inherited `SizeContext`
-	 *  size (Astryx trigger-Button `size`). @default resolved via `useSize` */
-	size?: FieldControlSize
+	/** Trigger rendered as the shared `Button` — `label`, `icon`, `variant`,
+	 *  `size`, `isIconOnly`, `isDisabled`, `endContent`, `tooltip`, …
+	 *  (Astryx `button`). @default { label: 'Menu' } */
+	button?: DropdownMenuButtonProps
+	/** Minimum popover width — px number or CSS length/keyword; the menu may
+	 *  grow for its content but is capped to the viewport. Defaults to the
+	 *  trigger width. Ignored by bottom-sheet presentation (Astryx
+	 *  `menuWidth`). Web resolves CSS keywords and `min()` clamps; native
+	 *  applies numeric values only. */
+	menuWidth?: number | string
+	/** Append a chevron to a labelled trigger — skipped for `isIconOnly`
+	 *  buttons (Astryx `hasChevron`). @default true */
+	hasChevron?: boolean
 	/** Additional class for the inherited Popover surface. */
 	menuClassName?: ClassValue
 	items?: readonly MenuOption<Contracts, Stacks, Transitions>[]
@@ -6547,10 +6558,17 @@ export interface ContextMenuProps<
 	Contracts = RegisteredRouteContracts,
 	Stacks extends string = keyof AppRouteStacks & string,
 	Transitions extends string = RouteTransitionName,
-> extends Omit<DropdownMenuProps<Contracts, Stacks, Transitions>, 'children'> {
+> extends Omit<DropdownMenuProps<Contracts, Stacks, Transitions>, 'children' | 'button' | 'hasChevron'> {
 	children?: Renderable
 	/** Compound menu content (children remain the context target). */
 	menu?: Renderable
+	/** Optional visible trigger for touch access — the long-press/right-click
+	 *  target stays `children`. */
+	trigger?: Renderable
+	/** Accessible trigger name when there is no visible text. */
+	accessibilityLabel?: string
+	/** Menu item size (Astryx `size`). @default 'md' */
+	size?: FieldControlSize
 }
 
 /** Badge — inline label chip. Pure composition, unstyled beyond layout.

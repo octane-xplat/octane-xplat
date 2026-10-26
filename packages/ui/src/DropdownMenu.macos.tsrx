@@ -6,14 +6,15 @@ import { MenuSurface } from './MenuSurface.macos.tsrx';
 import { useRef, useState } from 'octane';
 import type { DropdownMenuProps } from "./props";
 import { cx } from "@octane-xplat/lib";
-import { Pressable } from './Pressable.macos.tsrx';
+import { Button } from './controls.macos.tsrx';
+import { Icon } from './Icon.macos.tsrx';
 import { Popover } from './Popover.macos.tsrx';
 import { useButtonGroup } from './button-group-context';
-import { useSize } from './size-context';
 
-/** Self-drawn dropdown menu — `trigger` plus an anchored item list via
- *  Popover. The same anchored listbox renders on every target (decision
- *  #48): bounded, unvirtualized items. */
+/** Self-drawn dropdown menu — a shared-`Button` trigger (`button` props,
+ *  Astryx `button`) plus an anchored item list via Popover. The same
+ *  anchored listbox renders on every target (decision #48): bounded,
+ *  unvirtualized items. */
 export function DropdownMenu<
 	Contracts = RegisteredRouteContracts,
 	Stacks extends string = keyof AppRouteStacks & string,
@@ -23,7 +24,6 @@ export function DropdownMenu<
 export function DropdownMenu(props: NavigationMenuImplementation<DropdownMenuProps>) @{
 	const anchor = useRef<any>(null);
 	const group = useButtonGroup();
-	const size = useSize(props.size ?? group?.size, 'md');
 	const disabled = !!(props.isDisabled || group?.isDisabled);
 	const [internal, setInternal] = useState(props.defaultOpen ?? false);
 	const controlled = props.isOpen !== undefined;
@@ -35,19 +35,22 @@ export function DropdownMenu(props: NavigationMenuImplementation<DropdownMenuPro
 		props.onOpenChange?.(next);
 	};
 
+	const button = props.button ?? { label: 'Menu' };
+	const buttonLabel = typeof button.label === 'string' ? button.label : undefined;
+	const iconOnly = button.isIconOnly === true;
+	const endContent = button.endContent ?? (props.hasChevron !== false && !iconOnly ? <Icon name="xplat-chevron-down" size={16} /> : undefined);
+
 	<>
-		<Pressable
+		<Button
+			{...button}
 			ref={(v: any) => { anchor.current = v; }}
 			id={props.id}
-			className={cx('vx-menu-trigger', props.triggerClassName, group && `vx-button--group-${group.position}`, `vx-button--size-${size}`, props.className)}
-			style={props.style}
-			disabled={disabled}
-			accessibilityLabel={props.accessibilityLabel}
-			web={{ 'aria-haspopup': 'menu', 'aria-expanded': open }}
-			onPress={() => setOpen(!open)}
-		>
-			{props.trigger}
-		</Pressable>
+			className={cx('vx-menu-trigger', button.className)}
+			isDisabled={disabled || button.isDisabled}
+			endContent={endContent}
+			clickAction={() => setOpen(!open)}
+			accessibilityState={{ ...button.accessibilityState, expanded: open }}
+		/>
 		<Popover
 			anchor={anchor}
 			open={open}
@@ -55,8 +58,9 @@ export function DropdownMenu(props: NavigationMenuImplementation<DropdownMenuPro
 			alignment={props.alignment}
 			onDismiss={() => setOpen(false)}
 			className={cx('vx-menu', props.menuClassName)}
+			style={typeof props.menuWidth === 'number' ? { minWidth: props.menuWidth } : undefined}
 		>
-			<MenuSurface closeMenu={() => setOpen(false)} label={props.accessibilityLabel}>
+			<MenuSurface closeMenu={() => setOpen(false)} label={props.label ?? buttonLabel} className={props.className} style={props.style}>
 				<MenuData items={props.items} />{props.children}
 			</MenuSurface>
 		</Popover>

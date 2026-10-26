@@ -8,8 +8,7 @@ export function DropdownMenuWithSections() @{
 	return (
 		<VStack gap={3} align="start">
 			<DropdownMenu
-				trigger="File"
-				triggerClassName="vx-button vx-button--ghost vx-button--size-md"
+				button={{ label: 'File', variant: 'ghost' }}
 				items={menuItems([
 					{ type: 'section', title: 'Create', items: [
 						{ label: 'New document', onClick: () => setLastAction('New document') },

@@ -49,7 +49,7 @@ export function Button(props: ButtonProps) @{
 		}
 	}
 
-	<Pressable id={props.id} className={cx('vx-button', `vx-button--${props.variant ?? 'secondary'}`, `vx-button--size-${size}`, group && `vx-button--group-${group.position}`, props.isIconOnly && 'vx-button--icon', disabled && 'vx-button--disabled', props.className)} style={props.style} disabled={disabled} onPress={press} accessibilityLabel={props.accessibilityLabel ?? (props.isIconOnly ? props.label : undefined)} accessibilityRole="button">
+	<Pressable ref={props.ref} id={props.id} className={cx('vx-button', `vx-button--${props.variant ?? 'secondary'}`, `vx-button--size-${size}`, group && `vx-button--group-${group.position}`, props.isIconOnly && 'vx-button--icon', disabled && 'vx-button--disabled', props.className)} style={props.style} disabled={disabled} onPress={press} accessibilityLabel={props.accessibilityLabel ?? (props.isIconOnly ? props.label : undefined)} accessibilityRole="button">
 		{loading ? <ActivityIndicator /> : <>{typeof props.icon === 'string' ? <Icon name={props.icon} /> : props.icon}{props.children ?? (props.isIconOnly ? null : <Text>{props.label}</Text>)}{props.endContent}</>}
 	</Pressable>
 }

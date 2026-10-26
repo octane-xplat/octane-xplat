@@ -28,7 +28,7 @@ function escape(options: KeyboardEventInit = {}) {
 
 function Nested(props: { dialog: boolean; menu: boolean; closeDialog: any; closeMenu: any; purpose?: any }) @{
 	<Dialog isOpen={props.dialog} onOpenChange={props.closeDialog} purpose={props.purpose} accessibilityLabel="Outer">
-		<DropdownMenu isOpen={props.menu} onOpenChange={props.closeMenu} trigger="Menu" items={[{ type: 'action', key: 'one', label: 'One' }]} />
+		<DropdownMenu isOpen={props.menu} onOpenChange={props.closeMenu} button={{ label: 'Menu' }} items={[{ type: 'action', key: 'one', label: 'One' }]} />
 	</Dialog>
 }
 
@@ -49,7 +49,7 @@ function Card(props: { open: boolean; close: any; closeDialog: any; menu?: boole
 
 	<Dialog isOpen accessibilityLabel="Outer" onOpenChange={props.closeDialog}>
 		<button ref={card.ref}>Card</button>
-		{card.renderHoverCard(<><button>Card content</button>{props.menu && <DropdownMenu isOpen onOpenChange={props.closeMenu} trigger="Inner menu" items={[]} />}</>)}
+		{card.renderHoverCard(<><button>Card content</button>{props.menu && <DropdownMenu isOpen onOpenChange={props.closeMenu} button={{ label: 'Inner menu' }} items={[]} />}</>)}
 	</Dialog>
 }
 
@@ -147,7 +147,7 @@ describe('shared nested dismissal', () => {
 
 	it('nested popup ownership also wins over the existing sheet focus helper', () => {
 		const closeSheet = vi.fn(), closeMenu = vi.fn()
-		mount(BottomSheet, { isOpen: true, onOpenChange: closeSheet, children: <DropdownMenu isOpen onOpenChange={closeMenu} trigger="Menu" items={[]} /> })
+		mount(BottomSheet, { isOpen: true, onOpenChange: closeSheet, children: <DropdownMenu isOpen onOpenChange={closeMenu} button={{ label: 'Menu' }} items={[]} /> })
 		escape()
 		expect(closeMenu).toHaveBeenCalledTimes(1)
 		expect(closeSheet).not.toHaveBeenCalled()

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'octane'
 import type { MoreMenuProps, MoreMenuPlacement } from './props'
 import { DropdownMenu } from './DropdownMenu.web.tsrx'
-import { useSize } from './size-context'
+import { Button } from './Button.web.tsrx'
 import { Pressable } from './Pressable.web.tsrx'
 import { BottomSheet } from './BottomSheet.web.tsrx'
 import { Icon } from './Icon.web.tsrx'
@@ -27,15 +27,15 @@ export function MoreMenu(props: MoreMenuProps) @{
 	const useSheet=presentation==='bottom-sheet'||(presentation==='adaptive'&&adaptiveSheet)
 	const setOpen=(next:boolean)=>{if(props.isMenuOpen===undefined)setLocalOpen(next);props.onOpenChange?.(next)}
 	const icon=typeof props.icon==='string'?<Icon name={props.icon}/>:props.icon??<Icon name="xplat-more-horizontal"/>
-	const size=useSize(props.size,'md')
-	const triggerClass=['vx-button',`vx-button--${props.variant??'ghost'}`,`vx-button--size-${size}`,'vx-button--icon','vx-more-menu-trigger',props.isDisabled?'vx-button--disabled':undefined]
+	const label=props.label??'More options'
+	const button={ label, icon, variant: props.variant ?? 'ghost', size: props.size, isDisabled: props.isDisabled, tooltip: label, isIconOnly: true, className: 'vx-more-menu-trigger' } as const
 
 	@if (useSheet) {
 		<>
-			<Pressable id={props.id} className={triggerClass} style={props.style} disabled={props.isDisabled} onPress={()=>setOpen(!open)} accessibilityRole="button" accessibilityLabel={props.label??'More options'} accessibilityState={{disabled:props.isDisabled}}>{icon}</Pressable>
+			<Button {...button} id={props.id} style={props.style} clickAction={()=>setOpen(!open)}/>
 			<BottomSheet isOpen={open} onOpenChange={setOpen} label={props.label??'More options'} snapPoints={[0.5,1]} className="vx-more-menu-sheet"><div className="vx-more-menu-sheet-list">{props.items.map(item=><MenuItemView key={item.key} className={['vx-menu-item',item.isDisabled?'vx-menu-item--disabled':undefined]} disabled={item.isDisabled} onPress={()=>{if(item.isDisabled)return;setOpen(false);item.onSelect?.()}}>{item.icon?<Icon name={item.icon}/>:null}{item.label}</MenuItemView>)}</div></BottomSheet>
 		</>
 	} @else {
-		<DropdownMenu id={props.id} className={props.className} style={props.style} items={props.items} isDisabled={props.isDisabled} isOpen={open} onOpenChange={setOpen} placement={popoverPlacement(props.placement)} alignment={props.alignment} accessibilityLabel={props.label??'More options'} triggerClassName={triggerClass} size={props.size} trigger={icon}/>
+		<DropdownMenu id={props.id} className={props.className} style={props.style} items={props.items} isDisabled={props.isDisabled} isOpen={open} onOpenChange={setOpen} placement={popoverPlacement(props.placement)} alignment={props.alignment} label={label} hasChevron={false} button={button}/>
 	}
 }

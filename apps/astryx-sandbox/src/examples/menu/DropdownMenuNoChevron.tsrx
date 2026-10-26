@@ -9,9 +9,13 @@ export function DropdownMenuNoChevron() @{
 	return (
 		<VStack gap={3} align="start">
 			<DropdownMenu
-				accessibilityLabel="More actions"
-				trigger={<Icon name="xplat-more-horizontal" />}
-				triggerClassName="vx-button vx-button--ghost vx-button--size-md vx-button--icon"
+				button={{
+					label: 'More actions',
+					icon: <Icon name="xplat-more-horizontal" />,
+					variant: 'ghost',
+					isIconOnly: true,
+				}}
+				hasChevron={false}
 				items={menuItems([
 					{ label: 'Copy link', onClick: () => setLastAction('Copy link') },
 					{ label: 'Download', onClick: () => setLastAction('Download') },

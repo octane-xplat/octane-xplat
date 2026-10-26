@@ -2,7 +2,7 @@
 import { useState } from 'octane'
 import type { MoreMenuProps, MoreMenuPlacement } from './props'
 import { DropdownMenu } from './DropdownMenu'
-import { useSize } from './size-context'
+import { Button } from './Button'
 import { Pressable } from './Pressable'
 import { BottomSheet } from './BottomSheet'
 import { Icon } from './Icon'
@@ -28,15 +28,15 @@ export function MoreMenu(props: MoreMenuProps) @{
 	const presentation=props.presentation??'popover'
 	const setOpen=(next:boolean)=>{if(props.isMenuOpen===undefined)setLocalOpen(next);props.onOpenChange?.(next)}
 	const icon=typeof props.icon==='string'?<Icon name={props.icon}/>:props.icon??<Icon name="xplat-more-horizontal"/>
-	const size=useSize(props.size,'md')
-	const triggerClass=cx('vx-button',`vx-button--${props.variant??'ghost'}`,`vx-button--size-${size}`,'vx-button--icon','vx-more-menu-trigger',props.isDisabled&&'vx-button--disabled')
+	const label=props.label??'More options'
+	const button={ label, icon, variant: props.variant ?? 'ghost', size: props.size, isDisabled: props.isDisabled, tooltip: label, isIconOnly: true, className: 'vx-more-menu-trigger' } as const
 
 	@if (presentation === 'bottom-sheet' || presentation === 'adaptive') {
 		<>
-			<Pressable id={props.id} className={triggerClass} style={props.style} disabled={props.isDisabled} onPress={()=>setOpen(!open)} accessibilityRole="button" accessibilityLabel={props.label??'More options'} accessibilityState={{disabled:props.isDisabled}}>{icon}</Pressable>
+			<Button {...button} id={props.id} style={props.style} clickAction={()=>setOpen(!open)}/>
 			<BottomSheet isOpen={open} onOpenChange={setOpen} label={props.label??'More options'} snapPoints={[0.5,1]} className="vx-more-menu-sheet"><masonview className="vx-more-menu-sheet-list" style={{display: "flex"}}>{props.items.map(item=><MenuItemView key={item.key} className={cx('vx-menu-item',item.isDisabled&&'vx-menu-item--disabled')} disabled={item.isDisabled} onPress={()=>{if(item.isDisabled)return;setOpen(false);item.onSelect?.()}}>{item.icon?<Icon name={item.icon}/>:null}<label text={item.label??''}/></MenuItemView>)}</masonview></BottomSheet>
 		</>
 	} @else {
-		<DropdownMenu id={props.id} className={props.className} style={props.style} items={props.items} isDisabled={props.isDisabled} isOpen={open} onOpenChange={setOpen} placement={popoverPlacement(props.placement)} alignment={props.alignment} accessibilityLabel={props.label??'More options'} triggerClassName={triggerClass} size={props.size} trigger={icon}/>
+		<DropdownMenu id={props.id} className={props.className} style={props.style} items={props.items} isDisabled={props.isDisabled} isOpen={open} onOpenChange={setOpen} placement={popoverPlacement(props.placement)} alignment={props.alignment} label={label} hasChevron={false} button={button}/>
 	}
 }

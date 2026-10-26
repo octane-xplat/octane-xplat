@@ -3,7 +3,7 @@ import { DropdownMenu, DropdownMenuItem } from '@octane-xplat/ui'
 
 export function DropdownMenuItemShowcase() @{
 	return (
-		<DropdownMenu trigger="Actions" triggerClassName="vx-button vx-button--secondary vx-button--size-md">
+		<DropdownMenu button={{ label: 'Actions' }}>
 			<DropdownMenuItem icon="sandbox-pencil-square" label="Edit" description="Modify this item" onSelect={() => {}} />
 			<DropdownMenuItem icon="sandbox-document-duplicate" label="Duplicate" description="Create a copy" onSelect={() => {}} />
 			<DropdownMenuItem icon="sandbox-share" label="Share" onSelect={() => {}} />
