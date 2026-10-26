@@ -1,6 +1,4 @@
 // Port of upstream Text/TextColors.tsx (Astryx 0.6.4, MIT).
-// color=placeholder approximates --color-text-disabled until a dedicated
-// placeholder token exists — recorded as an adaptation in docs/coverage.md.
 import { Stack, Text } from '@octane-xplat/ui'
 
 const COLORS = [
@@ -15,7 +13,7 @@ export function TextColors() @{
 	return (
 		<Stack direction="vertical" gap={3}>
 			{COLORS.map(({ color, description }) => (
-				<Text key={color} className={`sb-type-body sb-color-${color}`}>
+				<Text key={color} type="body" color={color}>
 					{description}
 				</Text>
 			))}

@@ -12,7 +12,7 @@ function ThemeCard(props: { label: string }) @{
 					<Heading level={4}>{props.label}</Heading>
 					<Badge className="sb-badge sb-badge--info">Active</Badge>
 				</Stack>
-				<Text className="sb-type-body sb-color-secondary">
+				<Text type="body" color="secondary">
 					The same content inherits this provider's colors, typography, radius,
 					and component treatment.
 				</Text>

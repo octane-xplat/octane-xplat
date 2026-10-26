@@ -18,7 +18,7 @@ export function DropdownMenuActions() @{
 					{ label: 'Delete', onClick: () => setLastAction('Delete') },
 				])}
 			/>
-			{lastAction && <Text className="sb-type-supporting sb-color-secondary">Last action: {lastAction}</Text>}
+			{lastAction && <Text type="supporting" color="secondary">Last action: {lastAction}</Text>}
 		</VStack>
 	)
 }

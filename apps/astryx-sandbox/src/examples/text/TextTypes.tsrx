@@ -1,7 +1,10 @@
 // Port of upstream Text/TextTypes.tsx (Astryx 0.6.4, MIT).
 import { Stack, Text } from '@octane-xplat/ui'
+import type { TextType } from '@octane-xplat/ui'
 
-const TYPES: { type: string; label: string; sample: string; extra?: string }[] = [
+// `sb-block`/`sb-strikethrough`/`sb-tabular` stand in for upstream Text's
+// `display="block"`/`hasStrikethrough`/`hasTabularNumbers` props.
+const TYPES: { type: TextType; label: string; sample: string; extra?: string }[] = [
 	{ type: 'body', label: 'Body text', sample: 'Body text for paragraphs and general content' },
 	{ type: 'large', label: 'Large text', sample: 'Large text for introductions and callouts' },
 	{ type: 'label', label: 'Label text', sample: 'Label text for form fields and section titles' },
@@ -16,8 +19,8 @@ export function TextTypes() @{
 		<Stack direction="vertical" gap={3}>
 			{TYPES.map(({ type, label, sample, extra }) => (
 				<Stack key={label} direction="vertical" gap={0}>
-					<Text className="sb-type-supporting sb-color-secondary">{label}</Text>
-					<Text className={`sb-block sb-type-${type}${extra ? ' ' + extra : ''}`}>{sample}</Text>
+					<Text type="supporting" color="secondary">{label}</Text>
+					<Text type={type} className={`sb-block${extra ? ' ' + extra : ''}`}>{sample}</Text>
 				</Stack>
 			))}
 		</Stack>

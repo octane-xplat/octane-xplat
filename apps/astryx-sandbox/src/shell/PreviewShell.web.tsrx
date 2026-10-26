@@ -300,7 +300,7 @@ export function PreviewShell(props: { row: CoverageRow; children?: any }) @{
 							<CodeBlock code={source} language="tsx" hasLineNumbers hasCopyButton width="100%" />
 						) : (
 							<View className="sb-preview-nosource">
-								<Text className="sb-type-body sb-color-secondary">
+								<Text type="body" color="secondary">
 									Source not available — this route renders the pending-port
 									placeholder. Upstream source: {row.source ?? 'unknown'}
 								</Text>

@@ -21,7 +21,7 @@ export function PopoverKeyboardShortcuts() @{
 					{shortcuts.map((s) => (
 						<HStack key={s.key} gap={3}>
 							<Kbd>{s.key}</Kbd>
-							<Text className="sb-type-body">{s.action}</Text>
+							<Text type="body">{s.action}</Text>
 						</HStack>
 					))}
 				</VStack>

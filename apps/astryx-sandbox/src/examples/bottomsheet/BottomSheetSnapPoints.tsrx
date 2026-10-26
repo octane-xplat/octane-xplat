@@ -24,7 +24,7 @@ export function BottomSheetSnapPoints() @{
 	return (
 		<>
 			<VStack gap={3} align="start">
-				<Text className="sb-type-body">
+				<Text type="body">
 					This sheet has two extra stops: half the viewport, and a 96px peek. Drag the handle down to collapse it, then back up — it rests at each stop instead of following your finger.
 				</Text>
 				<Button label="Show directions" clickAction={() => setIsOpen(true)} />
@@ -34,14 +34,14 @@ export function BottomSheetSnapPoints() @{
 					<VStack gap={1}>
 						<Heading level={3}>Ferry Building</Heading>
 						<HStack gap={2}>
-							<Text className="sb-type-label">18 min</Text>
-							<Text className="sb-type-supporting">3.7 mi · arrive 9:41 AM</Text>
+							<Text type="label">18 min</Text>
+							<Text type="supporting">3.7 mi · arrive 9:41 AM</Text>
 						</HStack>
 					</VStack>
 					<Divider />
 					<VStack gap={0}>
 						{steps.map(([icon, label, detail, distance]) => (
-							<Item key={label} startContent={<Icon name={icon as any} size={16} />} label={label} description={detail} endContent={<Text className="sb-type-supporting">{distance}</Text>} />
+							<Item key={label} startContent={<Icon name={icon as any} size={16} />} label={label} description={detail} endContent={<Text type="supporting">{distance}</Text>} />
 						))}
 					</VStack>
 					<Divider />

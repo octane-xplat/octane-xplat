@@ -5,7 +5,7 @@ function Content(props: { onClose: () => void }) @{
 	<VStack>
 		<DialogHeader title="Delete project?" onOpenChange={() => props.onClose()} />
 		<VStack gap={3} style={{ padding: 'var(--spacing-4)' }}>
-			<Text className="sb-type-body">
+			<Text type="body">
 				This will permanently delete "Marketing Dashboard" and all of its data. This action cannot be undone.
 			</Text>
 			<HStack gap={2} justify="end">

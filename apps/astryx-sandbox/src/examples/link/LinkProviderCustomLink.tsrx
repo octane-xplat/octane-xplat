@@ -36,8 +36,8 @@ export function LinkProviderCustomLink() @{
 	return (
 		<LinkProvider component={RouterLink}>
 			<VStack gap={3}>
-				<Link href="/dashboard" className="sb-type-body">
-					Go to dashboard
+				<Link href="/dashboard">
+					<Text type="body">Go to dashboard</Text>
 				</Link>
 				{hit != null ? (
 					<Text className="sb-link-intercept">

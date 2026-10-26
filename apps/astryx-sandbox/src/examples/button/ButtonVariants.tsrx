@@ -14,7 +14,7 @@ export function ButtonVariants() @{
 		<Stack direction="vertical" gap={4}>
 			{(['default', 'disabled', 'loading'] as const).map((state) => (
 				<Stack direction="vertical" gap={1} key={state}>
-					<Text className="sb-type-supporting sb-color-secondary">
+					<Text type="supporting" color="secondary">
 						{state === 'default' ? 'Default' : state === 'disabled' ? 'Disabled' : 'Loading'}
 					</Text>
 					<Stack direction="horizontal" gap={3} vAlign="center">

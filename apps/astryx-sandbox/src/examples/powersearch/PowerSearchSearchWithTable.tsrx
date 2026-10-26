@@ -32,6 +32,6 @@ export function PowerSearchSearchWithTable() @{
 			<thead><tr><th style={{textAlign: 'left', padding: 6, borderBottom: '1px solid var(--color-border, #ddd)'}}>Name</th><th style={{textAlign: 'left', padding: 6, borderBottom: '1px solid var(--color-border, #ddd)'}}>Status</th><th style={{textAlign: 'left', padding: 6, borderBottom: '1px solid var(--color-border, #ddd)'}}>Owner</th></tr></thead>
 			<tbody>{rows.map((r) => <tr key={r.id}><td style={{padding: 6, borderBottom: '1px solid var(--color-border, #eee)'}}>{r.name}</td><td style={{padding: 6, borderBottom: '1px solid var(--color-border, #eee)'}}>{r.status}</td><td style={{padding: 6, borderBottom: '1px solid var(--color-border, #eee)'}}>{r.owner}</td></tr>)}</tbody>
 		</table>
-		{rows.length === 0 && <Text className="sb-type-supporting">No matching projects.</Text>}
+		{rows.length === 0 && <Text type="supporting">No matching projects.</Text>}
 	</div>
 }

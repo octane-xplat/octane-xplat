@@ -7,8 +7,8 @@ export function OverlayBottomStrip() @{
 		<MediaOverlay position="bottom" align="start" content={
 			<VStack gap={1} style={{ padding: 'var(--spacing-3)' }}>
 				<Badge className="sb-badge--green">New</Badge>
-				<Text className="sb-type-body" style={{ fontWeight: 600, color: 'white' }}>Weekly product highlights</Text>
-				<Text className="sb-type-supporting" style={{ color: 'white' }}>12 updates across templates and tokens</Text>
+				<Text type="body" style={{ fontWeight: 600, color: 'white' }}>Weekly product highlights</Text>
+				<Text type="supporting" style={{ color: 'white' }}>12 updates across templates and tokens</Text>
 			</VStack>
 		}>
 			<AspectRatio ratio={16 / 9} style={{ width: 420, maxWidth: '100%', borderRadius: 12, overflow: 'clip' }}>

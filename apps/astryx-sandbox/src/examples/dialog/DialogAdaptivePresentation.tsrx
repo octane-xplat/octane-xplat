@@ -69,7 +69,7 @@ export function DialogAdaptivePresentation() @{
 				}
 			>
 				<VStack gap={4}>
-					<Text className="sb-type-supporting sb-color-secondary">
+					<Text type="supporting" color="secondary">
 						Dialog remains the default presentation. This example opts into a Bottom Sheet only at lg and below when the device has a coarse pointer and no hover.
 					</Text>
 					<TextInput label="Name" value={name} onChange={setName} />

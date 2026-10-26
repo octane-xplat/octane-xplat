@@ -11,7 +11,7 @@ export function ThemeApply() @{
 				<Card padding={4} width="100%">
 					<Stack direction="vertical" gap={3}>
 						<Heading level={4}>Forest workspace</Heading>
-						<Text className="sb-type-body sb-color-secondary">
+						<Text type="body" color="secondary">
 							Wrap any subtree to apply a theme locally.
 						</Text>
 						<Button label="Create project" />

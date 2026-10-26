@@ -5,7 +5,7 @@ import { useState } from 'octane'
 export function MultiSelectorGhostToolbar() @{
 	const [tags, setTags] = useState<string[]>([])
 	<Stack direction="horizontal" gap={2}>
-		<Text className="sb-type-label" style={{alignSelf: 'center'}}>Tags:</Text>
+		<Text type="label" style={{alignSelf: 'center'}}>Tags:</Text>
 		<MultiSelector variant="ghost" options={[
 			{ value: 'urgent', label: 'Urgent' },
 			{ value: 'bug', label: 'Bug' },

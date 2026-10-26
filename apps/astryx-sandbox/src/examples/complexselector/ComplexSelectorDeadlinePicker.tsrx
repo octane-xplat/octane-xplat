@@ -30,7 +30,7 @@ export function ComplexSelectorDeadlinePicker() @{
 					{value === 'custom' && (
 						<div style={{padding: '8px 12px', borderTop: '1px solid var(--color-border, #e5e5e5)'}}>
 							<DateInput label="Custom deadline" value={customDate} onChange={setCustomDate} hasClear />
-							{error != null ? <Text className="sb-type-supporting">{error}</Text> : null}
+							{error != null ? <Text type="supporting">{error}</Text> : null}
 							<Button variant="primary" label="Apply" clickAction={() => {
 								if (!customDate) { setError('Please select a date before applying'); return }
 								setError(null)

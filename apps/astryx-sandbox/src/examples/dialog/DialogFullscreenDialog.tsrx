@@ -16,8 +16,8 @@ export function DialogFullscreenDialog() @{
 		<Card>
 			<VStack gap={3}>
 				<VStack gap={1}>
-					<Text className="sb-type-body" style={{ fontWeight: 600 }}>Help &amp; Documentation</Text>
-					<Text className="sb-type-supporting sb-color-secondary">5 articles · Last updated Apr 2026</Text>
+					<Text type="body" style={{ fontWeight: 600 }}>Help &amp; Documentation</Text>
+					<Text type="supporting" color="secondary">5 articles · Last updated Apr 2026</Text>
 				</VStack>
 				<Button label="Open documentation" variant="secondary" clickAction={() => setIsOpen(true)} />
 			</VStack>
@@ -28,8 +28,8 @@ export function DialogFullscreenDialog() @{
 						<VStack gap={4}>
 							{SECTIONS.map((s) => (
 								<VStack key={s.title} gap={1}>
-									<Text className="sb-type-body" style={{ fontWeight: 600 }}>{s.title}</Text>
-									<Text className="sb-type-body">{s.body}</Text>
+									<Text type="body" style={{ fontWeight: 600 }}>{s.title}</Text>
+									<Text type="body">{s.body}</Text>
 								</VStack>
 							))}
 						</VStack>

@@ -5,7 +5,7 @@ function Content(props: { onClose: () => void }) @{
 	<VStack>
 		<DialogHeader title="Transfer project ownership" subtitle="This action requires confirmation from the new owner" />
 		<VStack gap={3} style={{ padding: 'var(--spacing-4)' }}>
-			<Text className="sb-type-body">
+			<Text type="body">
 				You are about to transfer "Marketing Dashboard" to Sarah Chen. Once accepted, you will lose admin access.
 			</Text>
 			<HStack gap={2} justify="end">

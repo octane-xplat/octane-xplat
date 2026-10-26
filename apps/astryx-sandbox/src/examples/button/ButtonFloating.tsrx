@@ -12,7 +12,7 @@ const VARIANTS = [
 export function ButtonFloating() @{
 	return (
 		<Stack direction="vertical" gap={4}>
-			<Text className="sb-type-supporting sb-color-secondary">
+			<Text type="supporting" color="secondary">
 				Floating action buttons — raised above content with elevation="med"
 			</Text>
 			<Stack direction="horizontal" gap={3} vAlign="center">

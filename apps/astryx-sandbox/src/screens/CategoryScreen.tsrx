@@ -45,7 +45,7 @@ export function CategoryScreen(props: { slug: string }) @{
 							/>
 							{filtered.length === 0 ? (
 								<View className="sb-empty">
-									<Text className="sb-type-supporting sb-color-secondary">No results found.</Text>
+									<Text type="supporting" color="secondary">No results found.</Text>
 								</View>
 							) : (
 								<View className="sb-card-grid">

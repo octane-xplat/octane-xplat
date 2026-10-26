@@ -22,7 +22,7 @@ export function ThemeSwitcher() @{
 					<Card padding={4} width="100%">
 						<Stack direction="vertical" gap={3}>
 							<Heading level={4}>{themeName} preview</Heading>
-							<Text className="sb-type-body sb-color-secondary">
+							<Text type="body" color="secondary">
 								Switching the theme object updates all tokens and component
 								styles below the provider.
 							</Text>

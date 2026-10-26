@@ -12,7 +12,7 @@ export function ButtonSizeVariants() @{
 		<Stack direction="vertical" gap={4}>
 			{(['primary', 'secondary'] as const).map((variant) => (
 				<Stack direction="vertical" gap={1} key={variant}>
-					<Text className="sb-type-supporting sb-color-secondary">
+					<Text type="supporting" color="secondary">
 						{variant === 'primary' ? 'Primary' : 'Secondary'}
 					</Text>
 					<Stack direction="horizontal" gap={3} vAlign="center">

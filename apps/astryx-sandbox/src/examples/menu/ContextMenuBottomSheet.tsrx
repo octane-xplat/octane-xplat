@@ -17,7 +17,7 @@ export function ContextMenuBottomSheet() @{
 			<View style={{ padding: 32, border: '1px solid var(--color-border)', borderRadius: 12 }}>
 				<VStack gap={2}>
 					<Text style={{ fontWeight: 600 }}>Quarterly plan</Text>
-					<Text className="sb-type-supporting sb-color-secondary">Long-press on touch or right-click for document actions.</Text>
+					<Text type="supporting" color="secondary">Long-press on touch or right-click for document actions.</Text>
 				</VStack>
 			</View>
 		</ContextMenu>

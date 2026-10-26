@@ -14,7 +14,7 @@ export function BottomSheetMobileKeyboard() @{
 				<VStack gap={4} style={{ padding: 'var(--spacing-4)' }}>
 					<Heading level={3}>Edit profile</Heading>
 					<Divider />
-					<Text className="sb-type-supporting sb-color-secondary">
+					<Text type="supporting" color="secondary">
 						Focus fields throughout the form to see them remain visible above the mobile keyboard.
 					</Text>
 					<TextInput label="Name" value={values.name} onChange={update('name')} />

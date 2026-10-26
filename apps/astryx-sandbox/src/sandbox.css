@@ -35,17 +35,8 @@ body {
 	opacity: 0.6;
 }
 
-/* Text vocabulary — upstream Text type/color props map to token classes. */
-.sb-type-body { font-size: 13px; }
-.sb-type-large { font-size: 15px; }
-.sb-type-label { font-size: 12px; font-weight: 500; }
-.sb-type-supporting { font-size: 12px; }
-.sb-type-code { font-family: var(--font-mono); font-size: 12px; }
-.sb-color-primary { color: var(--color-text); }
-.sb-color-secondary { color: var(--color-text-secondary); }
-.sb-color-accent { color: var(--color-primary); }
-.sb-color-disabled { color: var(--color-text-disabled); }
-.sb-color-placeholder { color: var(--color-text-disabled); }
+/* Text helpers — stand-ins for upstream Text's `display`/`hasStrikethrough`/
+ * `hasTabularNumbers` props, which `@octane-xplat/ui` Text lacks. */
 .sb-block { display: block; }
 .sb-strikethrough { text-decoration: line-through; }
 .sb-tabular { font-variant-numeric: tabular-nums; }

@@ -8,7 +8,7 @@ export function DialogHeaderShowcase() @{
 				<DialogHeader title="Edit Profile" subtitle="Update your personal information" onOpenChange={() => {}} />
 				<VStack style={{ padding: 'var(--spacing-4)' }}>
 					<Card variant="muted">
-						<Text className="sb-type-body sb-color-secondary">Dialog body content goes here.</Text>
+						<Text type="body" color="secondary">Dialog body content goes here.</Text>
 					</Card>
 				</VStack>
 			</VStack>

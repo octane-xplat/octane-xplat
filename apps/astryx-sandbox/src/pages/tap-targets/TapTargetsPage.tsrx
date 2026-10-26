@@ -35,7 +35,7 @@ export function TapTargetsPage() @{
 
 	<Stack direction="vertical" gap={5} padding={6} style={{maxWidth: 720}}>
 		<Heading level={1}>Tap target audit (WCAG 2.5.8)</Heading>
-		<Text className="sb-type-body">Interactive targets should be at least 24×24 CSS px. The table lists the rendered control and whether its interactive surface meets that minimum at default size.</Text>
+		<Text type="body">Interactive targets should be at least 24×24 CSS px. The table lists the rendered control and whether its interactive surface meets that minimum at default size.</Text>
 		<Card variant="outlined" padding={4}>
 			<table style={{width: '100%', borderCollapse: 'collapse', fontSize: 14}}>
 				<thead><tr><th style={{textAlign: 'left', padding: 6, borderBottom: '1px solid #ddd'}}>Control</th><th style={{textAlign: 'right', padding: 6, borderBottom: '1px solid #ddd'}}>Target (px)</th><th style={{textAlign: 'center', padding: 6, borderBottom: '1px solid #ddd'}}>≥24</th></tr></thead>

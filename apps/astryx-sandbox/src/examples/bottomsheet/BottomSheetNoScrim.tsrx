@@ -9,7 +9,7 @@ export function BottomSheetNoScrim() @{
 		<Section padding={4}>
 			<VStack gap={3}>
 				<Heading level={3}>Nearby places</Heading>
-				<Text className="sb-type-body">Background interactions: {backgroundClicks}</Text>
+				<Text type="body">Background interactions: {backgroundClicks}</Text>
 				<Button label="Interact with page" variant="secondary" clickAction={() => setBackgroundClicks((c) => c + 1)} />
 				<Button label="Show place details" clickAction={() => setIsOpen(true)} />
 			</VStack>
@@ -17,7 +17,7 @@ export function BottomSheetNoScrim() @{
 				<VStack gap={4} style={{ padding: 'var(--spacing-4)' }}>
 					<Heading level={3}>Central Park</Heading>
 					<Divider />
-					<Text className="sb-type-body">The page remains visible and interactive behind this sheet.</Text>
+					<Text type="body">The page remains visible and interactive behind this sheet.</Text>
 					<Button label="Close details" clickAction={() => setIsOpen(false)} />
 				</VStack>
 			</BottomSheet>

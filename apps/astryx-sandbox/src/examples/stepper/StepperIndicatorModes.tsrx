@@ -6,7 +6,7 @@ export function StepperIndicatorModes() @{
 	const [active, setActive] = useState(2)
 	<div style={{display: 'flex', gap: 48, flexWrap: 'wrap'}}>
 		<div style={{maxWidth: 220}}>
-			<Text className="sb-type-label">None</Text>
+			<Text type="label">None</Text>
 			<Stepper activeStep={active} orientation="vertical" onStepClick={setActive}>
 				<Step step={0} label="Account" indicator="none" />
 				<Step step={1} label="Profile" indicator="none" />
@@ -15,7 +15,7 @@ export function StepperIndicatorModes() @{
 			</Stepper>
 		</div>
 		<div style={{maxWidth: 220}}>
-			<Text className="sb-type-label">Auto</Text>
+			<Text type="label">Auto</Text>
 			<Stepper activeStep={active} orientation="vertical" onStepClick={setActive}>
 				<Step step={0} label="Account" />
 				<Step step={1} label="Profile" />
@@ -24,7 +24,7 @@ export function StepperIndicatorModes() @{
 			</Stepper>
 		</div>
 		<div style={{maxWidth: 220}}>
-			<Text className="sb-type-label">Number</Text>
+			<Text type="label">Number</Text>
 			<Stepper activeStep={active} orientation="vertical" onStepClick={setActive}>
 				<Step step={0} label="Account" indicator="number" />
 				<Step step={1} label="Profile" indicator="number" />
@@ -33,7 +33,7 @@ export function StepperIndicatorModes() @{
 			</Stepper>
 		</div>
 		<div style={{maxWidth: 220}}>
-			<Text className="sb-type-label">Custom icon</Text>
+			<Text type="label">Custom icon</Text>
 			<Stepper activeStep={active} orientation="vertical" onStepClick={setActive}>
 				<Step step={0} label="Account" indicator={<Icon name="sandbox-info" size={14} />} />
 				<Step step={1} label="Profile" indicator={<Icon name="sandbox-search" size={14} />} />

@@ -22,7 +22,7 @@ export function DropdownMenuWithSections() @{
 					]},
 				])}
 			/>
-			{lastAction && <Text className="sb-type-supporting sb-color-secondary">Selected: {lastAction}</Text>}
+			{lastAction && <Text type="supporting" color="secondary">Selected: {lastAction}</Text>}
 		</VStack>
 	)
 }

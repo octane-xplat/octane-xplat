@@ -13,7 +13,7 @@ export function TextWeight() @{
 	return (
 		<Stack direction="vertical" gap={3}>
 			{WEIGHTS.map(({ weight, label }) => (
-				<Text key={weight} className="sb-type-body sb-block" style={{ fontWeight: weight }}>
+				<Text key={weight} type="body" className="sb-block" style={{ fontWeight: weight }}>
 					{label}
 				</Text>
 			))}

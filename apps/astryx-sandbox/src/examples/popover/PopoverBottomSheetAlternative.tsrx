@@ -18,7 +18,7 @@ export function PopoverBottomSheetAlternative() @{
 					<VStack gap={3}>
 						<VStack gap={1}>
 							<Heading level={3}>Project actions</Heading>
-							<Text className="sb-type-supporting sb-color-secondary">
+							<Text type="supporting" color="secondary">
 								Use this modal touch surface when the task should move away from its trigger and stay close to the bottom edge.
 							</Text>
 						</VStack>

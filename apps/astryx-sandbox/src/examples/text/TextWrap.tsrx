@@ -14,9 +14,9 @@ export function TextWrap() @{
 		<Stack direction="vertical" gap={4} style={{ maxWidth: 400 }}>
 			{CASES.map(({ label, style, text, box }) => (
 				<View key={label}>
-					<Text className="sb-type-label sb-block">{label}</Text>
+					<Text type="label" className="sb-block">{label}</Text>
 					<View className={box ?? 'sb-example-box'} style={{ width: 200 }}>
-						<Text className="sb-type-body" style={style}>
+						<Text type="body" style={style}>
 							{text}
 						</Text>
 					</View>

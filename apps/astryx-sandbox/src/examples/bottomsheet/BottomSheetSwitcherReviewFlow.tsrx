@@ -13,7 +13,7 @@ export function BottomSheetSwitcherReviewFlow() @{
 						<VStack gap={4}>
 							<VStack gap={1}>
 								<Heading level={3}>Review settings</Heading>
-								<Text className="sb-type-supporting sb-color-secondary">Daily summaries will be sent by email.</Text>
+								<Text type="supporting" color="secondary">Daily summaries will be sent by email.</Text>
 							</VStack>
 							<HStack gap={2} justify="end">
 								<Button label="Cancel" variant="secondary" clickAction={() => setActiveSheet(null)} />
@@ -27,7 +27,7 @@ export function BottomSheetSwitcherReviewFlow() @{
 						<VStack gap={4}>
 							<VStack gap={1}>
 								<Heading level={3}>Confirm settings</Heading>
-								<Text className="sb-type-supporting sb-color-secondary">Your notification settings are ready to save.</Text>
+								<Text type="supporting" color="secondary">Your notification settings are ready to save.</Text>
 							</VStack>
 							<HStack gap={2} justify="end">
 								<Button label="Back" variant="secondary" clickAction={() => setActiveSheet('review')} />

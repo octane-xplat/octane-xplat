@@ -10,14 +10,14 @@ export function ThemeNested() @{
 					<Stack direction="vertical" gap={4}>
 						<Stack direction="vertical" gap={2}>
 							<Heading level={4}>Outer Warm theme</Heading>
-							<Text className="sb-type-body sb-color-secondary">
+							<Text type="body" color="secondary">
 								The parent section uses Warm.
 							</Text>
 						</Stack>
 						<Theme theme={forestTheme}>
 							<Card padding={3} width="100%">
 								<Stack direction="vertical" gap={2}>
-									<Text className="sb-type-body" style={{ fontWeight: 700 }}>
+									<Text type="body" style={{ fontWeight: 700 }}>
 										Nested Forest section
 									</Text>
 									<Button label="Nested action" size="sm" />

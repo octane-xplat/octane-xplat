@@ -7,7 +7,7 @@ export function DialogHeaderBasic() @{
 			<VStack>
 				<DialogHeader title="Invite teammates" subtitle="Send invitations to join your workspace" onOpenChange={() => {}} />
 				<VStack style={{ padding: 'var(--spacing-4)' }}>
-					<Text className="sb-type-body sb-color-secondary">Dialog body content goes here.</Text>
+					<Text type="body" color="secondary">Dialog body content goes here.</Text>
 				</VStack>
 			</VStack>
 		</Dialog>

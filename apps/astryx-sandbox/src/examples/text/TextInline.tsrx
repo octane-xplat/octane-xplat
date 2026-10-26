@@ -3,8 +3,8 @@ import { Text } from '@octane-xplat/ui'
 
 export function TextInline() @{
 	return (
-		<Text className="sb-type-body sb-block">
-			Design tokens are <Text className="sb-type-code">themeable</Text> and shared across every surface.
+		<Text type="body" className="sb-block">
+			Design tokens are <Text type="code">themeable</Text> and shared across every surface.
 		</Text>
 	)
 }

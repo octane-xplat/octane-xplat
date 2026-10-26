@@ -1,5 +1,5 @@
 // Port of upstream (sandbox)/page.tsx — searchable, category-filtered home
-// catalog. Layout parts are composed via PageLayout; the responsive grid is
+// catalog. Layout parts are the ui `Layout`/`LayoutHeader`/`LayoutContent`; the responsive grid is
 // the CSS equivalent of Grid columns={{minWidth: 320}}.
 
 import { useState } from 'octane'
@@ -66,7 +66,7 @@ export function HomeScreen() @{
 
 							{filtered.length === 0 ? (
 								<View className="sb-empty">
-									<Text className="sb-type-supporting sb-color-secondary">No results found.</Text>
+									<Text type="supporting" color="secondary">No results found.</Text>
 								</View>
 							) : grouped != null ? (
 								<VStack gap={6}>

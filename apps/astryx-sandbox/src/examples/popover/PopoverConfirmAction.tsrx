@@ -11,7 +11,7 @@ export function PopoverConfirmAction() @{
 			<Popover anchor={anchor} open={isOpen} onDismiss={() => setIsOpen(false)} placement="bottom" style={{ width: 300 }}>
 				<VStack gap={3} style={{ padding: 'var(--spacing-4)' }}>
 					<Heading level={4}>Delete project?</Heading>
-					<Text className="sb-type-body">This will permanently delete the project and all its data. This action cannot be undone.</Text>
+					<Text type="body">This will permanently delete the project and all its data. This action cannot be undone.</Text>
 					<HStack gap={2} justify="end">
 						<Button label="Delete" variant="destructive" clickAction={() => setIsOpen(false)} />
 						<Button label="Cancel" variant="ghost" clickAction={() => setIsOpen(false)} />

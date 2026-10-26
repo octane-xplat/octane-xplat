@@ -9,14 +9,14 @@ function OverviewSheet(props: { onCancel: () => void; onContinue: () => void }) 
 			<VStack gap={4}>
 				<VStack gap={1}>
 					<Heading level={3}>Set up notifications</Heading>
-					<Text className="sb-type-supporting sb-color-secondary">Step 1 of 3</Text>
+					<Text type="supporting" color="secondary">Step 1 of 3</Text>
 				</VStack>
 				<Divider />
-				<Text className="sb-type-supporting sb-color-secondary">Stay informed about activity that matters without checking back throughout the day.</Text>
+				<Text type="supporting" color="secondary">Stay informed about activity that matters without checking back throughout the day.</Text>
 				<VStack gap={3}>
-					<VStack gap={1}><Text className="sb-type-label">Important activity</Text><Text className="sb-type-supporting sb-color-secondary">Know when someone mentions you or needs your attention.</Text></VStack>
-					<VStack gap={1}><Text className="sb-type-label">Timely reminders</Text><Text className="sb-type-supporting sb-color-secondary">Get a reminder before work reaches its due date.</Text></VStack>
-					<VStack gap={1}><Text className="sb-type-label">Useful summaries</Text><Text className="sb-type-supporting sb-color-secondary">Catch up on anything you may have missed.</Text></VStack>
+					<VStack gap={1}><Text type="label">Important activity</Text><Text type="supporting" color="secondary">Know when someone mentions you or needs your attention.</Text></VStack>
+					<VStack gap={1}><Text type="label">Timely reminders</Text><Text type="supporting" color="secondary">Get a reminder before work reaches its due date.</Text></VStack>
+					<VStack gap={1}><Text type="label">Useful summaries</Text><Text type="supporting" color="secondary">Catch up on anything you may have missed.</Text></VStack>
 				</VStack>
 				<HStack gap={2} justify="end">
 					<Button label="Cancel" variant="secondary" clickAction={props.onCancel} />
@@ -34,7 +34,7 @@ function FrequencySheet(props: { onBack: () => void; onContinue: () => void }) @
 			<VStack gap={4}>
 				<VStack gap={1}>
 					<Heading level={3}>How often?</Heading>
-					<Text className="sb-type-supporting sb-color-secondary">Step 2 of 3</Text>
+					<Text type="supporting" color="secondary">Step 2 of 3</Text>
 				</VStack>
 				<Divider />
 				<RadioList label="Notification frequency" isLabelHidden value={frequency} onValueChange={setFrequency} options={[
@@ -60,10 +60,10 @@ function ChannelsSheet(props: { onBack: () => void; onFinish: () => void }) @{
 			<VStack gap={4}>
 				<VStack gap={1}>
 					<Heading level={3}>Where should we notify you?</Heading>
-					<Text className="sb-type-supporting sb-color-secondary">Step 3 of 3</Text>
+					<Text type="supporting" color="secondary">Step 3 of 3</Text>
 				</VStack>
 				<Divider />
-				<Text className="sb-type-supporting sb-color-secondary">Choose any combination. You can change these preferences later.</Text>
+				<Text type="supporting" color="secondary">Choose any combination. You can change these preferences later.</Text>
 				<VStack gap={2}>
 					<CheckboxInput label="Email" value={email} onChange={setEmail} />
 					<CheckboxInput label="Push notifications" value={push} onChange={setPush} />

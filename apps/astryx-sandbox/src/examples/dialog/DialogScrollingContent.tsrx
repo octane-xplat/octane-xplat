@@ -25,7 +25,7 @@ function Content(props: { onClose: () => void }) @{
 		<ScrollableArea style={{ padding: 'var(--spacing-4)', maxHeight: 320 }}>
 			<VStack gap={3}>
 				{TERMS.map((term, i) => (
-					<Text className="sb-type-body" key={i}>{i + 1}. {term}</Text>
+					<Text type="body" key={i}>{i + 1}. {term}</Text>
 				))}
 			</VStack>
 		</ScrollableArea>

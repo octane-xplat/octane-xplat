@@ -15,10 +15,10 @@ export function TextareaCounterPage() @{
 
 	<Stack direction="vertical" gap={5} padding={6} style={{maxWidth: 560}}>
 		<Heading level={1}>Textarea counter</Heading>
-		<Text className="sb-type-body">A bounded composer with a live character count and a status row when the draft runs over the limit.</Text>
+		<Text type="body">A bounded composer with a live character count and a status row when the draft runs over the limit.</Text>
 		<Card variant="outlined" padding={4}>
 			<Stack direction="vertical" gap={2}>
-				<Text className="sb-type-label">Draft ({`${value.length}/${LIMIT}`})</Text>
+				<Text type="label">Draft ({`${value.length}/${LIMIT}`})</Text>
 				<TextArea label="Draft" isLabelHidden value={value} onChange={setValue} rows={4} maxLength={LIMIT * 2} />
 				{over
 					? <FieldStatus type="error" message={`${-remaining} characters over the limit`} variant="detached" />
@@ -27,7 +27,7 @@ export function TextareaCounterPage() @{
 		</Card>
 		<Card variant="outlined" padding={4}>
 			<Stack direction="vertical" gap={2}>
-				<Text className="sb-type-label">Overlay variant</Text>
+				<Text type="label">Overlay variant</Text>
 				<TextArea label="Reply" isLabelHidden value={overlay} onChange={setOverlay} rows={3} maxLength={280} placeholder="Write a reply…" />
 			</Stack>
 		</Card>

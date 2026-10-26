@@ -15,7 +15,7 @@ export function DropdownMenuWithSubmenu() @{
 				</DropdownMenuSubMenu>
 				<DropdownMenuItem icon="sandbox-trash" label="Delete" onSelect={() => setLastAction('Delete')} />
 			</DropdownMenu>
-			{lastAction && <Text className="sb-type-supporting sb-color-secondary">Last action: {lastAction}</Text>}
+			{lastAction && <Text type="supporting" color="secondary">Last action: {lastAction}</Text>}
 		</VStack>
 	)
 }

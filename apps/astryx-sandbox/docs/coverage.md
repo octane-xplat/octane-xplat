@@ -38,16 +38,16 @@ is a client-routed SPA — adaptation recorded.
 | `PreviewShell` (toolbar, tree nav, ⌘-palette, source view, copy, viewport sizes, embed iframe) | composed in `shell/PreviewShell.web.tsrx` from `Button`/`DropdownMenu`/`SegmentedControl`/`CommandPalette`+`createStaticSource`/`TreeList`/`CodeBlock`/`useClipboard` | **ported** — palette catalog covers all 714 template routes plus authored pages (upstream listed categories only; recorded superset). `embed.html` sibling → same-route `?embed=1` SPA adaptation; `astryx-theme-sync` postMessage contract preserved |
 | `sourceRegistry` (generated upstream sources) | `src/source-registry.ts` — `import.meta.glob('?raw')` over the ported examples/pages | **adapted** — code view shows the Octane `.tsrx` actually running; pending rows state "Source not available" + upstream path rather than quoting code that isn't running |
 | `SegmentedControl`+`SegmentedControlItem` children | options-driven `options={[{value,label}]}` | adaptation — no child part (F-6); segments show text labels instead of icon-only |
-| `Layout`, `LayoutHeader`, `LayoutContent` | none | composed as `shell/PageLayout.tsrx` (recorded gap) |
+| `Layout`, `LayoutHeader`, `LayoutContent` | `Layout`/`LayoutHeader`/`LayoutContent` in `@octane-xplat/ui` (new public API) | **ported** — every screen composes the real regions (`hasDivider`, `padding={6}`); `PageLayout.tsrx` deleted. `LayoutFooter`/`LayoutPanel`/`GridSpan` remain unported (F-3 partial) |
 | `TreeListItemData.href`/`isSelected` | `TreeListNode.href` (new) + `selectedKeys`/`selectionMode` | **ported** — href rows render the injected link element; leaf activation also reports `onAction` for keyboard paths |
 | `Grid columns={{minWidth}}` responsive | none — track grammar is static | `.sb-card-grid` CSS `repeat(auto-fill, minmax(320px,1fr))` — adaptation |
-| `Text`/`Heading` `type`/`size`/`color`/`weight`/`maxLines` props | **ported** in `@octane-xplat/ui` — `type`/`size`/`color`/`weight` resolve the theme's `--text-*`/`--font-*`/`--color-text-*` scale; `maxLines` replaces `numberOfLines`/`ellipsize`. `wordBreak`/`textWrap`/`display`/`hasTruncateTooltip`/`as` remain unported (style props cover them) |
+| `Text`/`Heading` `type`/`size`/`color`/`weight`/`maxLines` props | **ported** in `@octane-xplat/ui` — `type`/`size`/`color`/`weight` resolve the theme's `--text-*`/`--font-*`/`--color-text-*` scale; `maxLines` replaces `numberOfLines`/`ellipsize`. `wordBreak`/`textWrap`/`display`/`hasStrikethrough`/`hasTabularNumbers`/`hasTruncateTooltip`/`as` remain unported (style props and the `sb-block`/`sb-strikethrough`/`sb-tabular` helpers cover them) |
 | `Badge variant="info|warning|neutral" label` | `Badge` unstyled container | `.sb-badge--*` classes — adaptation |
 | `Icon icon={<Icon icon={HeroIcon}/>}` (heroicons) | `icon` prop takes registered `IconName` | `sandbox-*` glyph registrations, same MIT path data |
 | `ToggleButtonGroup`/`ToggleButton` (single select) | same shape (value/onChange/children) | **ported** — F-7 resolved; the home filter row and `activeTab` grouping match upstream (see F-7) |
-| `TextInput isLabelHidden startIcon` | `SearchInput` (normalized search chrome) | equivalent contract |
+| `TextInput isLabelHidden startIcon` | `TextInput` `label`/`isLabelHidden`/`startIcon`/`size="lg"` | **ported** — home and category/template-index search fields use `TextInput` directly |
 | `SideNav*` `as={Link}` | `SideNavItem as` prop + `href` | direct shape parity |
-| `DropdownMenu button={…isIconOnly}` | `DropdownMenu trigger`/`accessibilityLabel` + `radio-group` items | equivalent contract |
+| `DropdownMenu button={…isIconOnly}` | `DropdownMenu` `button` prop (renders the shared `Button`) + `menuWidth`/`hasChevron` | **ported** — `SandboxNav` theme/mode triggers use `button={{…, isIconOnly: true}}`; `items` keep the `MenuData` contract (`type:'action'`/`onSelect` maps upstream `{label, onClick}`) |
 | `localStorage` theme/mode + `?embed/theme/mode` | `persist.web.ts` leaf (same keys: `astryx-sandbox-theme/mode`) | implemented for mode; theme param honored when a theme exists |
 | `matchMedia`-gated `hideOnSmall/hideOnLarge` home classes | — | dropped cosmetic responsive duplication on the home filter row (visible always); recorded, not load-bearing |
 
@@ -63,10 +63,10 @@ is a client-routed SPA — adaptation recorded.
 | Menu item `description`, `variant="destructive"` | `MenuItemData.description`/`variant` + `MenuItemProps.variant` | **ported** — rows paint `.vx-menu-item--destructive` (error text color) |
 | `useImperativeDialog(defaults)` | `useImperativeDialog(defaults?: DialogOptions)` | **ported** — defaults merge under per-`show` options |
 | `Overlay` media-scrim component (3 templates) | name collision with Xplat `Overlay` (modal scrim) | **adapted** — `examples/overlay/MediaOverlay.tsrx` composes the scrim+content pattern from `View`; upstream `<img>` sources substituted with themed gradient blocks |
-| `Layout`/`LayoutContent`/`LayoutFooter` slot composition (dialog examples) | none (F-3) | re-authored as `VStack` + padded sections |
+| `Layout`/`LayoutContent`/`LayoutFooter` slot composition (dialog examples) | `Layout`/`LayoutContent` now exist in `@octane-xplat/ui`; `LayoutFooter` still missing | remains re-authored as `VStack` + padded sections until `LayoutFooter` lands |
 | `Button` `onClick` | `clickAction` | direct map (upstream contract preserved) |
-| `Text` `type`/`weight`/`color` | native `Text` props (`type`/`size`/`color`/`weight`) in `@octane-xplat/ui` | `sb-type-*`/`sb-color-*` classes still applied as legacy shims until unit cleanup |
-| DropdownMenu `button={{label,variant,icon,isIconOnly}}` + `hasChevron` | `trigger` + `triggerClassName` (`vx-button` chrome) + explicit chevron icon | adaptation — the trigger is a `Pressable` (`role="button"` div), verified via class-based selectors |
+| `Text` `type`/`weight`/`color` | native `Text` props (`type`/`size`/`color`/`weight`) in `@octane-xplat/ui` | **ported** — all screens and examples pass the real props; the `sb-type-*`/`sb-color-*` shims are removed |
+| DropdownMenu `button={{label,variant,icon,isIconOnly}}` + `hasChevron` | `button` prop + `hasChevron` on `DropdownMenu` | **ported** — the trigger is the shared `Button` (a real `<button>`); menu examples use `button={{label, variant, icon, isIconOnly}}` |
 | `ContextMenu` `menuContent` | `menu` prop | direct map |
 | heroicons (`PencilSquareIcon`, `TrashIcon`, `ShareIcon`, `DocumentDuplicateIcon`, `EllipsisHorizontalIcon`, `MapPinIcon`, `Arrow*Icon`, `ArrowUturnLeftIcon`, `FlagIcon`, `CalendarIcon`, `TagIcon`, `UserIcon`, `FolderIcon`) | `sandbox-*` glyph registrations | same MIT heroicon path data; ellipsis maps to built-in `xplat-more-horizontal` |
 
@@ -102,8 +102,11 @@ is a client-routed SPA — adaptation recorded.
   validator (routes.ts). Recorded as a framework ergonomics note: an
   undeclared-query route fails closed and silently.
 - `F-3` `Layout`/`LayoutHeader`/`LayoutContent`/`LayoutFooter`/`LayoutPanel`
-  and `GridSpan` — exercised by nearly every page/template. Composed at app
-  level for now (`PageLayout`). Owner: units 3/11.
+  and `GridSpan` — **partially resolved**: `Layout`/`LayoutHeader`/
+  `LayoutContent` are public `@octane-xplat/ui` components and every screen
+  composes them (`PageLayout` deleted). `LayoutFooter`/`LayoutPanel`/
+  `GridSpan` remain unported; dialog templates keep the `VStack`
+  composition.
 - `F-4` `LayerProvider` public provider + toast config — **resolved in
   unit 4** by `LayerProvider`/`LayerContext`/`useLayerContext`/
   `LayerToastConfig` in `packages/ui/src/layer-provider.tsrx`; the provider
@@ -213,7 +216,7 @@ New/extended contracts on existing components:
   `{value, onChange, close, isOpen, isBusy}` — upstream's
   `ComplexSelectorSection` composition collapses into the render body;
   `useGridFocus` drives the 3×3 showcase grid keyboard navigation.
-- `Text`/`Heading` now carry the Astryx `type`/`size`/`color`/`weight`/`maxLines` props natively; `sb-type-*`/`sb-color-*` classes remain as shims pending the port cleanup.
+- `Text`/`Heading` carry the Astryx `type`/`size`/`color`/`weight`/`maxLines` props natively; the port uses them throughout and the `sb-type-*`/`sb-color-*` shims are removed.
 - `Badge variant/label` → children-only Badge (upstream variants not yet
   in Xplat — recorded gap).
 - `Banner status/title/description` → `icon` + children.

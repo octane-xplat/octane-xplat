@@ -57,7 +57,7 @@ export function TemplatesIndexScreen() @{
 				content={
 					<LayoutContent padding={6}>
 						<VStack gap={4}>
-							<Text className="sb-type-body sb-color-secondary">
+							<Text type="body" color="secondary">
 								Pinned Astryx 0.6.4 baseline: {summary.total} routes — {summary.ported} ported,{' '}
 								{summary.pending} pending, {summary.blocked} blocked.
 							</Text>

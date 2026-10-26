@@ -7,7 +7,7 @@ export function MoreMenuBottomSheet() @{
 		<HStack gap={4} justify="between" style={{ width: 'min(100%, 360px)', padding: 16, border: '1px solid var(--color-border)', borderRadius: 12 }}>
 			<VStack gap={1}>
 				<Text style={{ fontWeight: 600 }}>Quarterly plan</Text>
-				<Text className="sb-type-supporting sb-color-secondary">Updated a few minutes ago</Text>
+				<Text type="supporting" color="secondary">Updated a few minutes ago</Text>
 			</VStack>
 			<MoreMenu
 				presentation="bottom-sheet"

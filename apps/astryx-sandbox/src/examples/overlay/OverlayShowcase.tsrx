@@ -8,7 +8,7 @@ export function OverlayShowcase() @{
 	return (
 		<MediaOverlay align="center" content={
 			<VStack gap={2} style={{ textAlign: 'center' }}>
-				<Text className="sb-type-supporting" style={{ fontWeight: 600, color: 'white' }}>Design system foundations</Text>
+				<Text type="supporting" style={{ fontWeight: 600, color: 'white' }}>Design system foundations</Text>
 				<Button label="Open gallery" variant="secondary" size="sm" />
 			</VStack>
 		}>

@@ -22,7 +22,7 @@ export function BottomSheetHeights() @{
 				<VStack gap={4} style={{ padding: 'var(--spacing-4)' }}>
 					<Heading level={3}>{height ?? 'Hug'} height</Heading>
 					<Divider />
-					<Text className="sb-type-body">{descriptions[height ?? 'hug']}</Text>
+					<Text type="body">{descriptions[height ?? 'hug']}</Text>
 					<Button label="Close" clickAction={() => setHeight(null)} />
 				</VStack>
 			</BottomSheet>

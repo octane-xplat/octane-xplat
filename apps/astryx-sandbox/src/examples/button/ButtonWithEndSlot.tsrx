@@ -6,7 +6,7 @@ import { Badge, Button, Stack, Text } from '@octane-xplat/ui'
 export function ButtonWithEndSlot() @{
 	return (
 		<Stack direction="vertical" gap={4}>
-			<Text className="sb-type-supporting sb-color-secondary">
+			<Text type="supporting" color="secondary">
 				Trailing badges for counts or status
 			</Text>
 			<Stack direction="horizontal" gap={3} vAlign="center">

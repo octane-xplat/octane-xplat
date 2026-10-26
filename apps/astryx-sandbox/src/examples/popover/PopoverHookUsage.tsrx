@@ -10,7 +10,7 @@ export function PopoverHookUsage() @{
 				{popover.render(
 					<Card width={220} padding={3} variant="transparent">
 						<VStack gap={2}>
-							<Text className="sb-type-body" style={{ fontWeight: 600 }}>Quick actions</Text>
+							<Text type="body" style={{ fontWeight: 600 }}>Quick actions</Text>
 							<Button label="Create task" size="sm" />
 							<Button label="Share report" variant="secondary" size="sm" />
 						</VStack>

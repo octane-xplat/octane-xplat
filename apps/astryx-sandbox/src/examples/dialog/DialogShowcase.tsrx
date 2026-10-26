@@ -8,7 +8,7 @@ export function DialogShowcase() @{
 			<VStack>
 				<DialogHeader title="Modal Title" onOpenChange={() => {}} />
 				<VStack gap={3} style={{ padding: 'var(--spacing-4)' }}>
-					<Text className="sb-type-body">Dialog content goes here.</Text>
+					<Text type="body">Dialog content goes here.</Text>
 				</VStack>
 			</VStack>
 		</Dialog>

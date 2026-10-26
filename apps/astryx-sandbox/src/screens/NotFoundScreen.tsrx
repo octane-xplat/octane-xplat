@@ -16,7 +16,7 @@ export function NotFoundScreen(props: { title?: string; message?: string }) @{
 				content={
 					<LayoutContent padding={6}>
 						<VStack gap={3}>
-							<Text className="sb-type-body sb-color-secondary">
+							<Text type="body" color="secondary">
 								{props.message ?? 'This route is not part of the pinned sandbox route table.'}
 							</Text>
 						</VStack>

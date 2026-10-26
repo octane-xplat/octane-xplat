@@ -23,7 +23,7 @@ export function DropdownMenuBottomSheet() @{
 				presentation={isCompactTouch ? 'bottom-sheet' : 'popover'}
 				items={menuItems(ACTIONS.map(({ label, icon }) => ({ label, icon, onClick: () => setLastAction(label) })))}
 			/>
-			{lastAction && <Text className="sb-type-supporting sb-color-secondary">Last action: {lastAction}</Text>}
+			{lastAction && <Text type="supporting" color="secondary">Last action: {lastAction}</Text>}
 		</VStack>
 	)
 }

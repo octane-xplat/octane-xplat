@@ -23,10 +23,10 @@ export function StepperCustomContent() @{
 						<Card variant="muted" padding={3}>
 							<div style={{display: 'flex', flexDirection: 'column', gap: 8}}>
 								<div style={{display: 'flex', alignItems: 'center', gap: 8}}>
-									<Text className="sb-type-label">Next.js 15</Text>
+									<Text type="label">Next.js 15</Text>
 									<Badge>Detected</Badge>
 								</div>
-								<Text className="sb-type-supporting">Build command <code>next build</code> · Output <code>.next</code> · Node 20</Text>
+								<Text type="supporting">Build command <code>next build</code> · Output <code>.next</code> · Node 20</Text>
 							</div>
 						</Card>
 						<div style={{display: 'flex', gap: 8}}>

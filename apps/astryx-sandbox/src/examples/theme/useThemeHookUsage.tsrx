@@ -14,7 +14,7 @@ export function UseThemeHookUsage() @{
 	return (
 		<Card width={360} padding={4}>
 			<VStack gap={3}>
-				<Text className="sb-type-body" style={{ fontWeight: 700 }}>
+				<Text type="body" style={{ fontWeight: 700 }}>
 					{name} · {mode}
 				</Text>
 				<View
@@ -29,8 +29,8 @@ export function UseThemeHookUsage() @{
 					</Text>
 				</View>
 				<HStack gap={2}>
-					<Text className="sb-type-code">--color-accent</Text>
-					<Text className="sb-type-code sb-color-secondary">{accent}</Text>
+					<Text type="code">--color-accent</Text>
+					<Text type="code" color="secondary">{accent}</Text>
 				</HStack>
 			</VStack>
 		</Card>

@@ -13,7 +13,7 @@ export function PopoverShowcase() @{
 				<VStack gap={3} style={{ padding: 'var(--spacing-4)' }}>
 					<Heading level={4}>Settings</Heading>
 					<Divider />
-					<Text className="sb-type-body">Notifications, dark mode, and sound preferences.</Text>
+					<Text type="body">Notifications, dark mode, and sound preferences.</Text>
 				</VStack>
 			</Popover>
 		</>
