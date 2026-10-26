@@ -10,12 +10,18 @@
 
 type PropBag = Record<string, any>
 
+import { cssTransformText, resolveTransform } from './transform-style.ts'
+
 export interface GtkStyleOptions {
 	/** `~/foo.png` bundle-relative url() resolver — index.ts supplies the
 	 *  app.js dirname. */
 	resolveUrl?: (rel: string) => string
 	/** Warn-once sink for unsupported url() schemes. */
 	onWarn?: (message: string) => void
+	/** Emit the NS transform as GTK CSS `transform`, % translates resolved
+	 *  against this box. index.ts passes it only outside masonview — Mason
+	 *  children carry the transform on their allocation instead. */
+	transformBox?: { width: number; height: number }
 }
 
 /** camelCase style key → GTK CSS property name. */
@@ -243,6 +249,13 @@ export function gtkStyleCss(
 		} else {
 			next[idx] = ['text-shadow', `${next[idx][1]}, ${stroke}`]
 		}
+	}
+
+	const box = options?.transformBox
+	const transform = box ? resolveTransform(style) : null
+	if (transform && box) {
+		next.push(['transform', cssTransformText(transform, box.width, box.height)])
+		next.push(['transform-origin', 'center'])
 	}
 
 	const rules: string[] = []

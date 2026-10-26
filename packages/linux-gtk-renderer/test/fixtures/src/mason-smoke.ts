@@ -6,6 +6,7 @@
 import Gtk from 'gi://Gtk?version=4.0'
 import Gdk from 'gi://Gdk?version=4.0'
 import GObject from 'gi://GObject'
+import Graphene from 'gi://Graphene'
 import { createGtkContainer, gtkDriver } from '@octane-xplat/linux-gtk'
 import type { GtkContainer } from '@octane-xplat/linux-gtk'
 import type { UniversalHostCommand } from 'octane/universal/native'
@@ -97,7 +98,137 @@ if (view1) {
 	out.columnB = bounds(view3)
 }
 
+// NS transforms ride the child allocation; z-index and clip-path paint in
+// the host's snapshot.
 apply(container, [
+	{
+		op: 'create',
+		id: 10,
+		type: 'masonview',
+		props: { style: { width: 200, height: 100 } },
+	} as UniversalHostCommand,
+	{
+		op: 'create',
+		id: 11,
+		type: 'label',
+		props: {
+			text: 'moved',
+			style: {
+				position: 'absolute',
+				left: 50,
+				top: 30,
+				width: 100,
+				height: 40,
+				transform: 'translate(-50%, -50%)',
+				zIndex: 2,
+			},
+		},
+	} as UniversalHostCommand,
+	{
+		op: 'create',
+		id: 12,
+		type: 'label',
+		props: {
+			text: 'turned',
+			style: {
+				position: 'absolute',
+				left: 100,
+				top: 50,
+				width: 100,
+				height: 40,
+				transform: 'rotate(90deg)',
+				clipPath: 'circle(20 at 50% 50%)',
+			},
+		},
+	} as UniversalHostCommand,
+	{ op: 'insert', id: 10, parent: null, before: null } as UniversalHostCommand,
+	{ op: 'insert', id: 11, parent: 10, before: null } as UniversalHostCommand,
+	{ op: 'insert', id: 12, parent: 10, before: null } as UniversalHostCommand,
+])
+
+const view10 = container.nodes.get(10)?.view
+const view11 = container.nodes.get(11)?.view
+const view12 = container.nodes.get(12)?.view
+if (view10) {
+	view10.size_allocate(rect(0, 0, 200, 100), -1)
+	const box = (w: any) => {
+		const [ok, b] = w.compute_bounds(view10)
+		return ok
+			? {
+					x: Math.round(b.origin.x),
+					y: Math.round(b.origin.y),
+					w: Math.round(b.size.width),
+					h: Math.round(b.size.height),
+				}
+			: null
+	}
+	out.translated = box(view11)
+	out.rotated = box(view12)
+	// gtk_widget_pick/contains need a mapped window; replay pick's
+	// per-child test — map the point through the child's allocation
+	// transform, then test the local box — topmost (last) child first.
+	const pick = (x: number, y: number) => {
+		for (const [id, child] of [
+			[12, view12],
+			[11, view11],
+		] as const) {
+			const [ok, local] = view10.compute_point(child, new Graphene.Point({ x, y }))
+			if (ok && local.x >= 0 && local.y >= 0 && local.x < child.get_width() && local.y < child.get_height()) {
+				return id
+			}
+		}
+		return null
+	}
+	// (10, 20) is inside the translated box only; (150, 30) is inside the
+	// rotated box only (its untransformed box starts at y=50).
+	out.pickTranslated = pick(10, 20)
+	out.pickRotated = pick(150, 30)
+
+	// Paint order + clip ops, recorded through a stand-in snapshot so the
+	// assertion doesn't depend on a mapped window.
+	const painted: number[] = []
+	const ops: string[] = []
+	view10.snapshot_child = (child: any) => {
+		painted.push(child === view11 ? 11 : child === view12 ? 12 : 0)
+	}
+	const recorder = new Proxy(
+		{},
+		{
+			get: (_target, name: string) => (...args: any[]) => {
+				ops.push(name)
+				if (name === 'push_rounded_clip') {
+					const rr = args[0]
+					out.clipRect = {
+						x: Math.round(rr.bounds.origin.x),
+						y: Math.round(rr.bounds.origin.y),
+						w: Math.round(rr.bounds.size.width),
+						h: Math.round(rr.bounds.size.height),
+						r: Math.round(rr.corner[0].width),
+					}
+				}
+			},
+		},
+	)
+	view10.vfunc_snapshot(recorder)
+	out.paintOrder = painted
+	out.clipOps = ops
+	delete view10.snapshot_child
+	// A real Gtk.Snapshot must accept the same calls without throwing.
+	try {
+		view10.vfunc_snapshot(new Gtk.Snapshot())
+		out.realSnapshot = true
+	} catch (error) {
+		out.realSnapshot = String(error)
+	}
+}
+
+apply(container, [
+	{ op: 'remove', id: 11 } as UniversalHostCommand,
+	{ op: 'destroy', id: 11 } as UniversalHostCommand,
+	{ op: 'remove', id: 12 } as UniversalHostCommand,
+	{ op: 'destroy', id: 12 } as UniversalHostCommand,
+	{ op: 'remove', id: 10 } as UniversalHostCommand,
+	{ op: 'destroy', id: 10 } as UniversalHostCommand,
 	{ op: 'remove', id: 2 } as UniversalHostCommand,
 	{ op: 'destroy', id: 2 } as UniversalHostCommand,
 	{ op: 'remove', id: 3 } as UniversalHostCommand,

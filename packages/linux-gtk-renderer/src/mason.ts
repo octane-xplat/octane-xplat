@@ -20,6 +20,10 @@ import Gtk from 'gi://Gtk?version=4.0'
 import Gdk from 'gi://Gdk?version=4.0'
 import GLib from 'gi://GLib'
 import GObject from 'gi://GObject'
+import Gsk from 'gi://Gsk?version=4.0'
+import Graphene from 'gi://Graphene'
+import { resolveClipPath, type ClipPath } from '@octane-xplat/macos-renderer/css'
+import { paintOrder, resolveTransform, transformSteps, zIndexOf } from './transform-style.ts'
 
 type NodeLike = any
 
@@ -312,6 +316,9 @@ function syncMasonNode(node: NodeLike) {
 		}
 	}
 
+	if (node.view) {
+		nodesByChildView.set(node.view, node)
+	}
 	const dict = styleDict(node)
 	mason.node_set_style(masonEngine_, node.masonNode, JSON.stringify(dict))
 	return node.masonNode
@@ -418,7 +425,157 @@ function layoutChildren(node: NodeLike, width: number, height: number) {
 		allocation.y = Math.round(flat[off + 2])
 		allocation.width = Math.max(0, Math.round(flat[off + 3]))
 		allocation.height = Math.max(0, Math.round(flat[off + 4]))
-		child.size_allocate(allocation, -1)
+		const transform = childTransform(nodesByChildView.get(child), allocation)
+		if (transform) {
+			child.allocate(allocation.width, allocation.height, -1, transform)
+		} else {
+			child.size_allocate(allocation, -1)
+		}
+	}
+}
+
+/** Effective style a child paints with — the computed bag plus the
+ *  keyframe overlay the driver keeps on `node.animatedStyle`. */
+function paintStyle(node: NodeLike): Record<string, any> {
+	const base = node?.computedStyle ?? node?.props?.style ?? {}
+	return node?.animatedStyle ? { ...base, ...node.animatedStyle } : base
+}
+
+/** NS transform on the child allocation: origin at the allocation's
+ *  centre, steps in updateNativeTransform order, % against the child's own
+ *  size. GTK picking honours allocation transforms, as UIKit/Android do. */
+function childTransform(node: NodeLike, allocation: any): any {
+	if (!node) {
+		return null
+	}
+	const parts = resolveTransform(paintStyle(node))
+	if (!parts) {
+		return null
+	}
+	const w = allocation.width
+	const h = allocation.height
+	let t = new (Gsk as any).Transform()
+	t = t.translate(new (Graphene as any).Point({ x: allocation.x + w / 2, y: allocation.y + h / 2 }))
+	for (const step of transformSteps(parts, w, h)) {
+		switch (step.kind) {
+			case 'perspective':
+				t = t.perspective(step.depth)
+				break
+			case 'translate':
+				t = t.translate(new (Graphene as any).Point({ x: step.x, y: step.y }))
+				break
+			case 'rotate':
+				t = t.rotate(step.deg)
+				break
+			case 'rotateX':
+				t = t.rotate_3d(step.deg, (Graphene as any).vec3_x_axis())
+				break
+			case 'rotateY':
+				t = t.rotate_3d(step.deg, (Graphene as any).vec3_y_axis())
+				break
+			case 'scale':
+				t = t.scale(step.x, step.y)
+				break
+		}
+	}
+	return t.translate(new (Graphene as any).Point({ x: -w / 2, y: -h / 2 }))
+}
+
+let polygonClipWarned = false
+
+/** Push `clip` (child-local geometry) onto the snapshot. Returns false when
+ *  the shape can't be expressed on this GTK (polygon before 4.14). */
+function pushClip(snapshot: any, clip: ClipPath): boolean {
+	const G = Graphene as any
+	const rounded = (x: number, y: number, w: number, h: number, radii: [number, number][]) => {
+		const rr = new (Gsk as any).RoundedRect()
+		const size = ([rx, ry]: [number, number]) => new G.Size({ width: rx, height: ry })
+		rr.init(new G.Rect().init(x, y, w, h), size(radii[0]), size(radii[1]), size(radii[2]), size(radii[3]))
+		snapshot.push_rounded_clip(rr)
+	}
+	switch (clip.type) {
+		case 'inset': {
+			const w = Math.max(0, clip.right - clip.left)
+			const h = Math.max(0, clip.bottom - clip.top)
+			rounded(clip.left, clip.top, w, h, clip.radii.length === 4 ? clip.radii : [[0, 0], [0, 0], [0, 0], [0, 0]])
+			return true
+		}
+		case 'circle': {
+			const r = clip.radius
+			rounded(clip.cx - r, clip.cy - r, 2 * r, 2 * r, [[r, r], [r, r], [r, r], [r, r]])
+			return true
+		}
+		case 'ellipse': {
+			const corner: [number, number] = [clip.rx, clip.ry]
+			rounded(clip.cx - clip.rx, clip.cy - clip.ry, 2 * clip.rx, 2 * clip.ry, [corner, corner, corner, corner])
+			return true
+		}
+		case 'polygon': {
+			const PathBuilder = (Gsk as any).PathBuilder
+			if (typeof PathBuilder !== 'function' || typeof snapshot.push_fill !== 'function') {
+				if (!polygonClipWarned) {
+					polygonClipWarned = true
+					console.warn('[linux-gtk-css] clip-path polygon() needs GTK 4.14+ — ignored')
+				}
+				return false
+			}
+			const builder = new PathBuilder()
+			clip.points.forEach(([x, y], index) => (index === 0 ? builder.move_to(x, y) : builder.line_to(x, y)))
+			builder.close()
+			snapshot.push_fill(builder.to_path(), (Gsk as any).FillRule.WINDING)
+			return true
+		}
+		default:
+			return false
+	}
+}
+
+/** Snapshot one child under its clip-path. The clip is established in the
+ *  child's own (transformed) space, then the transform is undone so
+ *  snapshot_child can re-apply it. Snapshot clips don't affect picking —
+ *  same as NS iOS, whose layer mask doesn't change hitTest. */
+function snapshotClipped(host: any, child: any, snapshot: any, text: string) {
+	let clip: ClipPath
+	try {
+		clip = resolveClipPath(text, child.get_width(), child.get_height())
+	} catch {
+		// NS rejects malformed clip-path values — paint unclipped.
+		clip = { type: 'none' }
+	}
+	const [ok, matrix] = child.compute_transform(host)
+	const [invertible, inverse] = ok ? matrix.inverse() : [false, null]
+	if (clip.type === 'none' || !invertible) {
+		host.snapshot_child(child, snapshot)
+		return
+	}
+	snapshot.save()
+	snapshot.transform_matrix(matrix)
+	const pushed = pushClip(snapshot, clip)
+	snapshot.transform_matrix(inverse)
+	host.snapshot_child(child, snapshot)
+	if (pushed) {
+		snapshot.pop()
+	}
+	snapshot.restore()
+}
+
+/** Children in paint order (NS z-index, stable) with clip-paths applied.
+ *  Paint order only — GTK still picks in document order, like UIKit, whose
+ *  hitTest ignores layer.zPosition. */
+function snapshotChildren(host: any, snapshot: any) {
+	const children: any[] = []
+	for (let child = host.get_first_child(); child !== null; child = child.get_next_sibling()) {
+		children.push(child)
+	}
+	const styles = children.map((child) => paintStyle(nodesByChildView.get(child)))
+	const order = paintOrder(styles.map(zIndexOf)) ?? children.map((_, index) => index)
+	for (const index of order) {
+		const clipPath = styles[index].clipPath
+		if (typeof clipPath === 'string' && clipPath.trim() && clipPath.trim() !== 'none') {
+			snapshotClipped(host, children[index], snapshot, clipPath)
+		} else {
+			host.snapshot_child(children[index], snapshot)
+		}
 	}
 }
 
@@ -466,6 +623,9 @@ export function releaseMasonNodes(node: NodeLike) {
 // ---------------------------------------------------------------------------
 
 const nodesByView = new WeakMap<object, NodeLike>()
+/** Any mason-laid-out child widget → its logical node (transform, z-index
+ *  and clip-path read the node's style at allocate/snapshot time). */
+const nodesByChildView = new WeakMap<object, NodeLike>()
 
 const MasonLayoutManager = GObject.registerClass(
 	{ GTypeName: 'XplatMasonLayoutManager' },
@@ -489,7 +649,11 @@ const MasonLayoutManager = GObject.registerClass(
 
 const MasonView = GObject.registerClass(
 	{ GTypeName: 'XplatMasonView' },
-	class XplatMasonView extends (Gtk as any).Widget {},
+	class XplatMasonView extends (Gtk as any).Widget {
+		vfunc_snapshot(snapshot: any) {
+			snapshotChildren(this, snapshot)
+		}
+	},
 )
 
 type GtkView = any

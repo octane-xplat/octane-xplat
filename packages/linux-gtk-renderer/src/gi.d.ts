@@ -387,3 +387,11 @@ declare module 'gi://Gio' {
 	}
 	export default Gio
 }
+declare module 'gi://Gsk?version=4.0' {
+	const Gsk: any
+	export default Gsk
+}
+declare module 'gi://Graphene' {
+	const Graphene: any
+	export default Graphene
+}

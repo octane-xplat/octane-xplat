@@ -329,7 +329,13 @@ function syncCss(node: ElementNode, style: PropBag | null | undefined) {
 		return
 	}
 
-	const css = gtkStyleCss(`.xplat-n${node.id}`, style, node.type, GTK_STYLE_OPTIONS)
+	// Mason children carry their transform on the allocation (src/mason.ts);
+	// everything else gets GTK CSS `transform`, % resolved against the
+	// current size (re-resolved on the next restyle, not on every resize).
+	const options = isMasonChild(node)
+		? GTK_STYLE_OPTIONS
+		: { ...GTK_STYLE_OPTIONS, transformBox: { width: view.get_width(), height: view.get_height() } }
+	const css = gtkStyleCss(`.xplat-n${node.id}`, style, node.type, options)
 	if (css === node.cssSignature) {
 		return
 	}
@@ -646,7 +652,8 @@ const SUPPORTED_STYLE_KEYS: ReadonlySet<string> = new Set([
 	'maxLines',
 	'horizontalAlign',
 	'verticalAlign',
-	// Reserved for the Mason snapshot/transform handoff — not warnable yet.
+	// Transform / paint keys (src/transform-style.ts); zIndex and clipPath
+	// warn separately outside masonview.
 	'zIndex',
 	'clipPath',
 	'transform',
@@ -657,6 +664,8 @@ const SUPPORTED_STYLE_KEYS: ReadonlySet<string> = new Set([
 	'rotate',
 	'rotateX',
 	'rotateY',
+	'rotatex',
+	'rotatey',
 	'perspective',
 	...MASON_STYLE_KEYS,
 	// Gtk.Box / Gtk.Fixed / Gtk.Grid emulation keys.
@@ -1061,6 +1070,11 @@ function observeGtkSettings() {
 	}
 }
 
+/** True when the node's widget is laid out by a mason host. */
+function isMasonChild(node: ElementNode): boolean {
+	return isMasonHostView(hostViewOf(node.container, node.parent))
+}
+
 function dimension(value: unknown): number {
 	return typeof value === 'number' && Number.isFinite(value) ? Math.round(value) : -1
 }
@@ -1090,9 +1104,20 @@ function applyStyleExtras(node: ElementNode, view: GtkView, style: PropBag | nul
 	// consumed by the style dict in src/mason.ts during the next
 	// measure/allocate pass, so the Gtk.Box emulation must not also apply
 	// them. queue_resize re-runs GTK's layout pipeline on the host.
-	if (isMasonHostView(hostViewOf(node.container, node.parent)) || isMasonHostView(view)) {
+	if (isMasonChild(node) || isMasonHostView(view)) {
 		queueMasonLayout(view)
+		// z-index and clip-path paint in the parent's snapshot — a change
+		// that leaves the allocation alone still needs a redraw.
+		view.get_parent?.()?.queue_draw?.()
 		return
+	}
+	for (const name of ['zIndex', 'clipPath']) {
+		if (source[name] != null && node.cssOriginKeys?.has(name)) {
+			warnOnce(
+				`css-outside-mason:${name}`,
+				`[linux-gtk-css] ${name} applies only to masonview children — ignored on <${node.type}>`,
+			)
+		}
 	}
 
 	// Layout keys arrive through the style bag — the Gtk.Box shim consumes

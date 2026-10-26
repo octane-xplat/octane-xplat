@@ -92,6 +92,27 @@ test('mason-c engine drives masonview layout under real GJS+GTK', async (t) => {
 	assert.equal(result.columnA.y, 0)
 	assert.ok(result.columnB.y >= result.columnA.y + result.columnA.h)
 
+	// NS transforms on the allocation: % translate against the child's own
+	// 100x40 box, rotate about its centre; GTK picks through the transform.
+	assert.deepEqual(result.translated, { x: 0, y: 10, w: 100, h: 40 })
+	assert.deepEqual(result.rotated, { x: 130, y: 20, w: 40, h: 100 })
+	assert.equal(result.pickTranslated, 11)
+	assert.equal(result.pickRotated, 12)
+
+	// z-index paints 11 (z 2) after 12 (z 0); 12's circle clip is pushed in
+	// its local space (centre 50,20, r 20) with the transform undone after.
+	assert.deepEqual(result.paintOrder, [12, 11])
+	assert.deepEqual(result.clipRect, { x: 30, y: 0, w: 40, h: 40, r: 20 })
+	assert.deepEqual(result.clipOps, [
+		'save',
+		'transform_matrix',
+		'push_rounded_clip',
+		'transform_matrix',
+		'pop',
+		'restore',
+	])
+	assert.equal(result.realSnapshot, true)
+
 	assert.equal(result.destroyed, true)
 }, 120000)
 

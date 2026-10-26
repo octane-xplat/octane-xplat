@@ -169,3 +169,35 @@ it('routes control color/backgroundColor to subnodes, not the widget node', () =
 	const sp = gtkStyleCss('.n1', { color: 'red' }, 'activityindicator')
 	assert.match(sp, /\.n1 \{ color: red; \}/)
 })
+
+it('resolves NS transform parts — shorthand, longhands, identity', async () => {
+	const { resolveTransform, transformSteps, paintOrder, zIndexOf } = await import('../src/transform-style.ts')
+	assert.equal(resolveTransform({}), null)
+	assert.equal(resolveTransform({ transform: 'none' }), null)
+	assert.equal(resolveTransform({ transform: 'bogus(1)' }), null)
+	const parts = resolveTransform({ transform: 'translate(-50%, 10dip) rotate(45deg)', scaleX: 2, rotatex: 30 })
+	assert.deepEqual(parts.translateX, { value: -0.5, unit: '%' })
+	assert.equal(parts.translateY, 10)
+	assert.equal(parts.rotate, 45)
+	assert.equal(parts.scaleX, 2)
+	assert.equal(parts.rotateX, 30)
+	// NS order: perspective (3D only, default 300), translate, rotate z, x, y, scale.
+	assert.deepEqual(transformSteps(parts, 100, 40), [
+		{ kind: 'perspective', depth: 300 },
+		{ kind: 'translate', x: -50, y: 10 },
+		{ kind: 'rotate', deg: 45 },
+		{ kind: 'rotateX', deg: 30 },
+		{ kind: 'scale', x: 2, y: 1 },
+	])
+	assert.equal(paintOrder([0, 0, 0]), null)
+	assert.deepEqual(paintOrder([2, 0, -1, 0]), [2, 1, 3, 0])
+	assert.equal(zIndexOf({ zIndex: '3' }), 3)
+})
+
+it('emits GTK CSS transform only when given a box', () => {
+	const style = { transform: 'translateX(-50%) rotate(90deg)' }
+	assert.doesNotMatch(gtkStyleCss('.n1', style, 'label'), /transform/)
+	const css = gtkStyleCss('.n1', style, 'label', { transformBox: { width: 80, height: 20 } })
+	assert.match(css, /transform: translate\(-40px, 0px\) rotate\(90deg\);/)
+	assert.match(css, /transform-origin: center;/)
+})
