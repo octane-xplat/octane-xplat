@@ -64,3 +64,40 @@
 	horizontal-align: center;
 	vertical-align: start;
 }
+
+.hov:hover {
+	color: #ff00ff;
+}
+
+.hf:focus {
+	color: #ff8800;
+}
+
+.hl:highlighted {
+	color: #112233;
+}
+
+.nrm {
+	color: #0000ff;
+}
+
+.nrm:normal {
+	color: #00ff00;
+}
+
+.nrm:highlighted {
+	color: #ff0000;
+}
+
+.card:hover .title {
+	color: #ff00ff;
+}
+
+.sw2:checked {
+	opacity: 0.5;
+}
+
+.sel {
+	color: #123456;
+}
+

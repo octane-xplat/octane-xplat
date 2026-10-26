@@ -149,6 +149,51 @@ test('stylesheets cascade through the GTK driver under real GJS+GTK', async (t) 
 	assert.equal(r.halign, 3)
 	assert.equal(r.valign, 1)
 
+	// ---- B2: pseudo-classes, media-on-resize, root classes ----------------
+
+	// :hover toggles through PRELIGHT state flags.
+	assert.equal(r.hoverColorBefore, '#0f0') // inherited host color
+	assert.equal(r.hoverColor, '#f0f')
+	assert.equal(r.hoverColorOff, '#0f0')
+
+	// :focus on the textfield via FOCUS_WITHIN.
+	assert.equal(r.focusColorBefore, '#0f0')
+	assert.equal(r.focusColor, '#f80')
+
+	// :highlighted plus its :active/:pressed aliases from ACTIVE.
+	assert.equal(r.highlightedColor, '#123')
+	for (const p of ['highlighted', 'active', 'pressed']) {
+		assert.ok(r.hlPseudos.includes(p), `missing ${p} in ${r.hlPseudos}`)
+	}
+
+	// :normal holds only while no visual state is active.
+	assert.equal(r.normalBefore, '#0f0')
+	assert.equal(r.normalDuringHighlight, 'red')
+	assert.ok(!r.normalPseudos.includes('normal'), `still normal: ${r.normalPseudos}`)
+	assert.equal(r.normalRestored, '#0f0')
+
+	// Descendant `.card:hover .title`.
+	assert.equal(r.descendantHoverColor, '#f0f')
+
+	// :checked from the switch's active property.
+	assert.equal(r.checkedBefore, undefined)
+	assert.equal(r.checkedOpacity, 0.5)
+
+	// An untracked state change (SELECTED has no selector) leaves the
+	// provider signature byte-identical.
+	assert.equal(r.untrackedSignatureSame, true)
+
+	// @media (min-width: 300px) flips after window.set_default_size.
+	assert.equal(r.mediaAfter, '#ff0000')
+
+	// Root classes gained orientation + direction.
+	assert.ok(r.rootClassesB2.includes('ns-ltr'))
+	assert.ok(
+		r.rootClassesB2.includes('ns-landscape') || r.rootClassesB2.includes('ns-portrait'),
+		`orientation classes: ${r.rootClassesB2}`,
+	)
+	assert.equal(r.rootClassesB2.includes('ns-landscape'), true) // 400x300
+
 	assert.equal(r.ok, true)
 	t.diagnostic(`theme sheets: ${r.themeSelectors} rule bodies in ${r.themeMs}ms`)
 }, 120000)

@@ -88,6 +88,7 @@ declare module 'gi://Gtk?version=4.0' {
 			add_css_class(name: string): void
 			remove_css_class(name: string): void
 			get_style_context(): StyleContext
+			static get_default_direction(): TextDirection
 			set_size_request(width: number, height: number): void
 			get_size_request(): [number, number]
 			set_name(name: string): void
@@ -259,6 +260,25 @@ declare module 'gi://Gtk?version=4.0' {
 			RIGHT = 1,
 			CENTER = 2,
 			FILL = 3,
+		}
+
+		enum StateFlags {
+			NORMAL = 0,
+			ACTIVE = 1,
+			PRELIGHT = 2,
+			SELECTED = 4,
+			INSENSITIVE = 8,
+			INCONSISTENT = 16,
+			FOCUSED = 32,
+			BACKDROP = 64,
+			DIR_LTR = 128,
+			DIR_RTL = 256,
+			LINK = 512,
+			VISITED = 1024,
+			CHECKED = 2048,
+			DROP_ACTIVE = 4096,
+			FOCUS_VISIBLE = 8192,
+			FOCUS_WITHIN = 16384,
 		}
 
 		enum TextDirection {

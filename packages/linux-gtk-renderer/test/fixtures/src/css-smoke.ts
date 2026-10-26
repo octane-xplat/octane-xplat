@@ -36,6 +36,10 @@ const out: Record<string, unknown> = { ok: false }
 Gtk.init()
 
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
+// A real window makes host.get_root() a Gtk.Window so the resize watch
+// wires up — present() is not needed for default-width/height signals.
+const win = new Gtk.Window()
+win.set_child(host)
 const container = createGtkContainer(host)
 
 apply(container, [
@@ -65,6 +69,15 @@ apply(container, [
 	cmd('create', 16, { type: 'label', props: { text: 'r', className: 'rtl' } }),
 	cmd('create', 17, { type: 'label', props: { text: 'e', className: 'ell' } }),
 	cmd('create', 18, { type: 'label', props: { text: 'a', className: 'hal' } }),
+	cmd('create', 19, { type: 'label', props: { text: 'h', className: 'hov' } }),
+	cmd('create', 20, { type: 'textfield', props: { className: 'hf' } }),
+	cmd('create', 21, { type: 'button', props: { text: 'p', className: 'hl' } }),
+	cmd('create', 22, { type: 'label', props: { text: 'n', className: 'nrm' } }),
+	cmd('create', 23, { type: 'masonview', props: { className: 'card' } }),
+	cmd('create', 24, { type: 'label', props: { text: 't', className: 'title' } }),
+	cmd('create', 25, { type: 'switch', props: { className: 'sw2' } }),
+	cmd('create', 26, { type: 'label', props: { text: 'm', className: 'mqx' } }),
+	cmd('create', 27, { type: 'label', props: { text: 's', className: 'sel' } }),
 	cmd('insert', 8, { parent: 1, before: null }),
 	cmd('insert', 11, { parent: 1, before: null }),
 	cmd('insert', 12, { parent: 1, before: null }),
@@ -74,6 +87,15 @@ apply(container, [
 	cmd('insert', 16, { parent: 1, before: null }),
 	cmd('insert', 17, { parent: 1, before: null }),
 	cmd('insert', 18, { parent: 1, before: null }),
+	cmd('insert', 19, { parent: 1, before: null }),
+	cmd('insert', 20, { parent: 1, before: null }),
+	cmd('insert', 21, { parent: 1, before: null }),
+	cmd('insert', 22, { parent: 1, before: null }),
+	cmd('insert', 23, { parent: 1, before: null }),
+	cmd('insert', 24, { parent: 23, before: null }),
+	cmd('insert', 25, { parent: 1, before: null }),
+	cmd('insert', 26, { parent: 1, before: null }),
+	cmd('insert', 27, { parent: 1, before: null }),
 ])
 
 const node = (id: number) => container.nodes.get(id)
@@ -198,6 +220,81 @@ out.maxLines = ellView?.lines
 const halView = node(18)?.view
 out.halign = halView?.halign ?? halView?.get_halign?.()
 out.valign = halView?.valign ?? halView?.get_valign?.()
+
+// ---- B2: pseudo-classes, media-on-resize, root classes -------------------
+
+const idleStyles = async () => {
+	await idle()
+}
+const setFlags = (id, flags) => node(id).view.set_state_flags(flags, true)
+const unsetFlags = (id, flags) => node(id).view.unset_state_flags(flags)
+
+// :hover via PRELIGHT.
+out.hoverColorBefore = colorOf(19)
+setFlags(19, Gtk.StateFlags.PRELIGHT)
+await idleStyles()
+out.hoverColor = colorOf(19)
+unsetFlags(19, Gtk.StateFlags.PRELIGHT)
+await idleStyles()
+out.hoverColorOff = colorOf(19)
+
+// :focus — textfield uses FOCUS_WITHIN.
+out.focusColorBefore = colorOf(20)
+setFlags(20, Gtk.StateFlags.FOCUS_WITHIN)
+await idleStyles()
+out.focusColor = colorOf(20)
+
+// :highlighted/:active/:pressed via ACTIVE on the button.
+setFlags(21, Gtk.StateFlags.ACTIVE)
+await idleStyles()
+out.highlightedColor = colorOf(21)
+out.hlPseudos = [...(node(21)?.cssPseudoClasses ?? [])].sort()
+
+// :normal is on only while no other visual state is active.
+out.normalBefore = colorOf(22)
+setFlags(22, Gtk.StateFlags.ACTIVE)
+await idleStyles()
+out.normalDuringHighlight = colorOf(22)
+out.normalPseudos = [...(node(22)?.cssPseudoClasses ?? [])].sort()
+unsetFlags(22, Gtk.StateFlags.ACTIVE)
+await idleStyles()
+out.normalRestored = colorOf(22)
+
+// Descendant selector `.card:hover .title`.
+setFlags(23, Gtk.StateFlags.PRELIGHT)
+await idleStyles()
+out.descendantHoverColor = colorOf(24)
+out.descendantHoverColorRead = node(24)?.computedStyle?.color
+
+// :checked via switch notify::active.
+out.checkedBefore = node(25)?.computedStyle?.opacity
+const swNode = node(25)
+if (swNode?.view) {
+	swNode.view.active = true
+}
+await idleStyles()
+out.checkedOpacity = node(25)?.computedStyle?.opacity
+
+// An untracked pseudo-class change must not restyle: SELECTED is not in any
+// registered selector — the provider signature stays identical.
+const sigBefore = node(27)?.cssSignature
+setFlags(27, Gtk.StateFlags.SELECTED)
+await idleStyles()
+out.untrackedSignatureSame = sigBefore === node(27)?.cssSignature
+
+// Media query flips when the window resizes past the breakpoint. The sheet
+// registers at runtime: the build's px→dip rewrite would leave `300dip` in
+// the query, which the bundle's CSS minifier rejects — the runtime path
+// parses it through the vendored engine instead.
+registerStylesheet('mq', '@media (min-width: 300px) { .mqx { color: #ff0000 } }')
+out.mediaBefore = colorOf(26)
+win.set_default_size(400, 300)
+await idleStyles()
+await idleStyles()
+out.mediaAfter = colorOf(26)
+
+// Root classes: orientation from the new size, direction from the default.
+out.rootClassesB2 = [...(node(1)?.cssClasses ?? [])].sort()
 
 out.ok = true
 print(`CSS_SMOKE ${JSON.stringify(out)}`)

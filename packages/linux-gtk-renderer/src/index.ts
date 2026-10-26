@@ -25,7 +25,9 @@ import {
 	computeCascade,
 	INHERITED_CSS_PROPERTIES,
 	onStylesheetsChanged,
+	refreshMediaQueries,
 	setStyleEnvironment,
+	stylesheetPseudoClasses,
 	stylesheetScope,
 	type CssHostNode,
 } from '@octane-xplat/macos-renderer/css'
@@ -132,6 +134,10 @@ export interface GtkContainer {
 	cssDirty?: Set<ElementNode>
 	cssFlushQueued?: boolean
 	inBatch?: boolean
+	/** Resize watch on the root Gtk.Window (media/orientation re-eval). */
+	windowSignalIds?: number[]
+	rootSignalId?: number
+	window?: Gtk.Window
 }
 
 // ---------------------------------------------------------------------------
@@ -402,6 +408,8 @@ function internalDescendants(view: GtkView, out: GtkView[] = []): GtkView[] {
 		internalDescendants(child, out)
 	}
 	return out
+}
+
 /** clsx-style ClassValue → flat class-name list (the shared contract's
  *  className composition). */
 function classList(value: unknown, out: string[] = []): string[] {
@@ -714,6 +722,38 @@ function applyClassName(node: ElementNode, value: unknown) {
 	markStyleDirty(node, true)
 }
 
+/** Largest live host's size — the same source setStyleEnvironment uses,
+ *  shared with the orientation root classes. */
+function envSize(): { width: number; height: number } {
+	let width = 0
+	let height = 0
+	for (const container of liveGtkContainers) {
+		let w = container.host.get_width?.() ?? 0
+		let h = container.host.get_height?.() ?? 0
+		if (w === 0 || h === 0) {
+			const root = container.host.get_root?.()
+			w = w || (root?.default_width ?? 0)
+			h = h || (root?.default_height ?? 0)
+		}
+		if (w > width) {
+			width = w
+		}
+		if (h > height) {
+			height = h
+		}
+	}
+	return { width, height }
+}
+
+function cssOrientation(): string {
+	const { width, height } = envSize()
+	return width >= height ? 'ns-landscape' : 'ns-portrait'
+}
+
+function cssDirection(): string {
+	return Gtk.Widget.get_default_direction?.() === Gtk.TextDirection.RTL ? 'ns-rtl' : 'ns-ltr'
+}
+
 /** cssClasses = className tokens ∪ ambient root classes on every
  *  parent-less node. Recomputed on insert/remove/appearance via
  *  markStyleDirty → restyleNode → refreshCssClasses. */
@@ -723,6 +763,8 @@ function refreshCssClasses(node: ElementNode) {
 		set.add('ns-root')
 		set.add('ns-gtk')
 		set.add(cssSchemeName() === 'dark' ? 'ns-dark' : 'ns-light')
+		set.add(cssOrientation())
+		set.add(cssDirection())
 	}
 	node.cssClasses = set
 }
@@ -742,7 +784,114 @@ function setPseudoClass(node: ElementNode, name: string, on: boolean) {
 	} else {
 		node.cssPseudoClasses.delete(name)
 	}
-	markStyleDirty(node, true)
+	// Only pseudo-classes some registered selector actually uses can
+	// restyle — an unused state change must not flush a subtree.
+	if (stylesheetPseudoClasses().has(name)) {
+		markStyleDirty(node, true)
+	}
+}
+
+// ---- Visual states -----------------------------------------------------------
+
+// NS maps state-flags onto visual pseudo-classes: `normal` while no visual
+// state is active; `highlighted`/`active`/`pressed` from ACTIVE; `focus`
+// (FOCUS_WITHIN for entry — the inner Gtk.Text carries real focus);
+// `checked` from the switch's `active` property. Desktop adds `hover`
+// (PRELIGHT), `focus-visible` and `focus-within`.
+const STATE_VISUAL: [number, string][] = [
+	[Gtk.StateFlags.ACTIVE, 'highlighted'],
+	[Gtk.StateFlags.ACTIVE, 'active'],
+	[Gtk.StateFlags.ACTIVE, 'pressed'],
+	[Gtk.StateFlags.PRELIGHT, 'hover'],
+	[Gtk.StateFlags.FOCUS_WITHIN, 'focus-within'],
+]
+
+// Pseudo-classes that count as "another visual state" for :normal.
+const NORMAL_OFF = new Set([
+	'highlighted',
+	'active',
+	'pressed',
+	'hover',
+	'focus',
+	'focus-visible',
+	'focus-within',
+	'checked',
+	'disabled',
+])
+
+/** Recompute pseudo-classes from the widget's state flags (+switch active).
+ *  Called from state-flags-changed, notify::active and once at mount. */
+function syncPseudoState(node: ElementNode) {
+	const view = node.view
+	if (view === null) {
+		return
+	}
+	let flags = 0
+	try {
+		flags = view.get_state_flags?.() ?? 0
+	} catch {
+		flags = 0
+	}
+	for (const [flag, name] of STATE_VISUAL) {
+		setPseudoClass(node, name, (flags & flag) !== 0)
+	}
+	if (node.type === 'textfield') {
+		setPseudoClass(node, 'focus', (flags & Gtk.StateFlags.FOCUS_WITHIN) !== 0)
+	} else {
+		setPseudoClass(node, 'focus', (flags & Gtk.StateFlags.FOCUSED) !== 0)
+	}
+	setPseudoClass(
+		node,
+		'focus-visible',
+		(flags & Gtk.StateFlags.FOCUS_VISIBLE) !== 0 &&
+			(flags & (Gtk.StateFlags.FOCUSED | Gtk.StateFlags.FOCUS_WITHIN)) !== 0,
+	)
+	if (view instanceof Gtk.Switch) {
+		setPseudoClass(node, 'checked', view.active === true)
+	}
+	setPseudoClass(
+		node,
+		'normal',
+		![...NORMAL_OFF].some((name) => node.cssPseudoClasses.has(name)),
+	)
+}
+
+/** Connect state tracking once per view-bearing node; ids ride on the node
+ *  for destroy/recreate. Switch's `active` drives :checked. */
+function wireStateFlags(node: ElementNode) {
+	const view = node.view
+	if (view === null) {
+		return
+	}
+	const ids: number[] = []
+	try {
+		ids.push(view.connect('state-flags-changed', () => syncPseudoState(node)))
+	} catch {
+		// Widgets without state-flags-changed simply stay untracked.
+	}
+	if (view instanceof Gtk.Switch) {
+		try {
+			ids.push(view.connect('notify::active', () => syncPseudoState(node)))
+		} catch {
+			// no active property — skip
+		}
+	}
+	node.cssStateSignalIds = ids
+	syncPseudoState(node)
+}
+
+function unwireStateFlags(node: ElementNode) {
+	const view = node.view
+	if (view !== null && node.cssStateSignalIds) {
+		for (const id of node.cssStateSignalIds) {
+			try {
+				view.disconnect(id)
+			} catch {
+				// already gone
+			}
+		}
+	}
+	node.cssStateSignalIds = undefined
 }
 
 /** textAlign maps to widget props, not GTK CSS — labels take xalign plus
@@ -816,25 +965,7 @@ onStylesheetsChanged(restyleAllContainers)
 
 // Media environment: largest live host size + color scheme + animations.
 setStyleEnvironment(() => {
-	let width = 0
-	let height = 0
-	for (const container of liveGtkContainers) {
-		let w = container.host.get_width?.() ?? 0
-		let h = container.host.get_height?.() ?? 0
-		if (w === 0 || h === 0) {
-			// Unrealized hosts report 0 — the root window's default size is
-			// the best available stand-in.
-			const root = container.host.get_root?.()
-			w = w || (root?.default_width ?? 0)
-			h = h || (root?.default_height ?? 0)
-		}
-		if (w > width) {
-			width = w
-		}
-		if (h > height) {
-			height = h
-		}
-	}
+	const { width, height } = envSize()
 	let reducedMotion = false
 	try {
 		reducedMotion = gtkSettings()?.gtk_enable_animations === false
@@ -848,6 +979,63 @@ setStyleEnvironment(() => {
 // media-gated rules. Settings exist only after Gtk.init — connect lazily on
 // the first container, once.
 let settingsObserved = false
+// ---- Media queries on resize -------------------------------------------------
+
+let lastOrientation = ''
+let resizeQueued = false
+function onWindowResize() {
+	if (resizeQueued) {
+		return
+	}
+	resizeQueued = true
+	Promise.resolve().then(() => {
+		resizeQueued = false
+		const orientation = cssOrientation()
+		const flipped = orientation !== lastOrientation
+		lastOrientation = orientation
+		if (refreshMediaQueries() || flipped) {
+			restyleAllContainers()
+		}
+	})
+}
+
+/** Wire a container's root window for resize-driven media/orientation
+ *  re-eval — once per window, retried when the host later gets a root
+ *  (fixtures mount a bare box that gains a window afterwards). */
+function wireContainerWindow(container: GtkContainer) {
+	if (container.windowSignalIds?.length) {
+		return
+	}
+	const root = container.host.get_root?.()
+	if (!(root instanceof Gtk.Window)) {
+		if (!container.rootSignalId) {
+			try {
+				container.rootSignalId = container.host.connect?.('notify::root', () =>
+					wireContainerWindow(container),
+				)
+			} catch {
+				// no root property — never wired
+			}
+		}
+		return
+	}
+	const ids: number[] = []
+	for (const signal of [
+		'notify::default-width',
+		'notify::default-height',
+		'notify::maximized',
+		'notify::fullscreened',
+	]) {
+		try {
+			ids.push(root.connect(signal, () => onWindowResize()))
+		} catch {
+			// older GTK lacks some signals — keep the rest
+		}
+	}
+	container.windowSignalIds = ids
+	container.window = root
+}
+
 function observeGtkSettings() {
 	if (settingsObserved) {
 		return
@@ -2444,6 +2632,7 @@ function createNode(container: GtkContainer, id: number, type: string, props: Pr
 		cssId: undefined,
 		computedStyle: undefined,
 		computedCustomProps: new Map(),
+		cssStateSignalIds: undefined,
 		textApplied: false,
 		destroyed: false,
 	}
@@ -2455,6 +2644,7 @@ function createNode(container: GtkContainer, id: number, type: string, props: Pr
 		// widget — link them before props land so style writes find it.
 		bindMasonView(view, node)
 	}
+	wireStateFlags(node)
 	applyProps(node, props)
 	return node
 }
@@ -2491,6 +2681,7 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 			container.cssDirty?.delete(node)
 			cancelSelectionSettle(node)
 			disposeListeners(node)
+			unwireStateFlags(node)
 			releaseMasonNodes(node)
 			// Batches normally remove before destroy — detach defensively so a
 			// destroy without a preceding remove can't leave a parented view or
@@ -2498,11 +2689,11 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 			if (node.parent !== null || container.children.includes(node)) {
 				detach(container, node)
 			}
-			if (node.view !== null && node.cssProvider !== null) {
-				const display = node.view.get_display?.()
-				if (display) {
-					Gtk.StyleContext.remove_provider_for_display(display, node.cssProvider)
+			if (node.cssProvider !== null) {
+				for (const target of node.cssProviderTargets ?? []) {
+					target.get_style_context().remove_provider(node.cssProvider)
 				}
+				node.cssProviderTargets = undefined
 			}
 			container.nodes.delete(command.id)
 			return
@@ -2526,12 +2717,14 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 			detachViews(node)
 			releaseMasonNodes(node)
 			if (node.cssProvider !== null) {
-				const display = node.view?.get_display?.()
-				if (display) {
-					Gtk.StyleContext.remove_provider_for_display(display, node.cssProvider)
+				for (const target of node.cssProviderTargets ?? []) {
+					target.get_style_context().remove_provider(node.cssProvider)
 				}
+				node.cssProviderTargets = undefined
 			}
+			unwireStateFlags(node)
 			node.view = VIEWLESS.has(command.type) ? null : instantiate(command.type)
+			wireStateFlags(node)
 			node.type = command.type
 			node.textApplied = false
 			node.cssProvider = null
@@ -2651,6 +2844,11 @@ export function createGtkContainer(host: GtkView): GtkContainer {
 	// Gtk.Settings exists only after Gtk.init — the first container is the
 	// earliest point appearance watches can connect.
 	observeGtkSettings()
+	wireContainerWindow(container)
+	// Prime the media-query cache and the tracked orientation so the first
+	// resize diff compares against a baseline, not an empty cache.
+	refreshMediaQueries()
+	lastOrientation = cssOrientation()
 	return container
 }
 
