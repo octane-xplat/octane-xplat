@@ -86,7 +86,7 @@ export function SandboxNav() @{
 					label={homePage.label}
 					href={homePage.href}
 					isSelected={pathname === '/'}
-					icon={<Icon name={navPageIcons[homePage.icon]} />}
+					icon={navPageIcons[homePage.icon]}
 				/>
 				{categories
 					.filter((c) => c.slug !== 'templates')
@@ -98,7 +98,7 @@ export function SandboxNav() @{
 								label={category.label}
 								href={href}
 								isSelected={pathname === pathOf(href)}
-								icon={<Icon name={categoryIcons[category.slug] ?? 'sandbox-box'} />}
+								icon={categoryIcons[category.slug] ?? 'sandbox-box'}
 							/>
 						)
 					})}
@@ -114,7 +114,7 @@ export function SandboxNav() @{
 								? pathname.startsWith(pathOf(page.href))
 								: pathname === pathOf(page.href)
 						}
-						icon={<Icon name={navPageIcons[page.icon] ?? 'sandbox-box'} />}
+						icon={navPageIcons[page.icon] ?? 'sandbox-box'}
 					/>
 				))}
 			</SideNavSection>

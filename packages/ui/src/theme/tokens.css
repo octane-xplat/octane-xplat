@@ -40,6 +40,13 @@
 	.vx-scroll {
 		overscroll-behavior: contain;
 	}
+	/* Astryx reset.css applies WebKit/Gecko text smoothing document-wide —
+   the DOM's subpixel default reads heavier than upstream's antialiased
+   text, and there is no native analog to normalize. */
+	:where(body) {
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+	}
 	/* xplat-web-only:end */
 
 	/* Shared normalization — NS FlexboxLayout defaults flex children to
