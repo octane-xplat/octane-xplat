@@ -252,12 +252,6 @@ declare module 'gi://Gtk?version=4.0' {
 		class StyleContext {
 			add_provider(provider: CssProvider, priority: number): void
 			remove_provider(provider: CssProvider): void
-			static add_provider_for_display(
-				display: any,
-				provider: CssProvider,
-				priority: number,
-			): void
-			static remove_provider_for_display(display: any, provider: CssProvider): void
 		}
 
 		enum Justification {

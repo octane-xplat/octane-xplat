@@ -329,20 +329,20 @@ function syncCss(node: ElementNode, style: PropBag | null | undefined) {
 	}
 	node.cssSignature = css
 
-	// Providers attach at display level, not the widget's own context:
-	// per-widget providers do NOT propagate to internal subnodes (switch's
-	// `slider` gizmo, scale's `trough > highlight`, entry's `text`) in GTK
-	// 4.24 — the control subnode rules only match from a display provider.
-	// Every rule is scoped by the unique xplat-n<id> class, so display
-	// scope stays per-node in practice.
-	const display = view.get_display?.()
-
+	// Providers attach per-widget. Internal subnodes do NOT inherit the
+	// widget's context provider (GTK 4.24: `slider`, `trough > highlight`,
+	// `placeholder` stay unstyled otherwise) — for controls whose rules
+	// target them, the same provider goes on every internal descendant's
+	// context. Selectors still match the full node path (.xplat-n<id>
+	// subnode), so scoping stays per-node. Display-level providers were
+	// measured O(N²) on restyle and are not used.
 	if (css === '') {
 		if (node.cssProvider !== null) {
-			if (display) {
-				Gtk.StyleContext.remove_provider_for_display(display, node.cssProvider)
+			for (const target of node.cssProviderTargets ?? [view]) {
+				target.get_style_context().remove_provider(node.cssProvider)
 			}
 			node.cssProvider = null
+			node.cssProviderTargets = undefined
 		}
 		if (node.cssClass !== null) {
 			view.remove_css_class(node.cssClass)
@@ -355,7 +355,7 @@ function syncCss(node: ElementNode, style: PropBag | null | undefined) {
 		node.cssClass = `xplat-n${node.id}`
 		view.add_css_class(node.cssClass)
 	}
-	if (node.cssProvider === null && display) {
+	if (node.cssProvider === null) {
 		node.cssProvider = new Gtk.CssProvider()
 		try {
 			// Malformed declarations surface through the provider's error
@@ -369,15 +369,39 @@ function syncCss(node: ElementNode, style: PropBag | null | undefined) {
 		} catch {
 			// Older GTK revisions lack the signal — load errors stay silent.
 		}
-		Gtk.StyleContext.add_provider_for_display(
-			display,
-			node.cssProvider,
-			Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION,
-		)
+		const targets = [view]
+		if (CONTROL_SUBNODE_TYPES.has(node.type)) {
+			for (const child of internalDescendants(view)) {
+				targets.push(child)
+			}
+		}
+		for (const target of targets) {
+			target
+				.get_style_context()
+				.add_provider(node.cssProvider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+		}
+		node.cssProviderTargets = targets
 	}
 	node.cssProvider?.load_from_string(css)
 }
 
+// Controls whose generated rules address internal subnodes — the same set
+// style-css.ts's CONTROL_SUBNODES covers, plus textfield's `placeholder`.
+// These leaf controls have no Octane-managed children, so walking internal
+// descendants is safe.
+const CONTROL_SUBNODE_TYPES: ReadonlySet<string> = new Set([
+	'switch',
+	'slider',
+	'progress',
+	'textfield',
+])
+
+function internalDescendants(view: GtkView, out: GtkView[] = []): GtkView[] {
+	for (let child = view.get_first_child?.(); child; child = child.get_next_sibling?.()) {
+		out.push(child)
+		internalDescendants(child, out)
+	}
+	return out
 /** clsx-style ClassValue → flat class-name list (the shared contract's
  *  className composition). */
 function classList(value: unknown, out: string[] = []): string[] {
