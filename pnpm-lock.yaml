@@ -1978,6 +1978,9 @@ importers:
       '@octane-xplat/jsx':
         specifier: workspace:*
         version: link:../jsx
+      '@octane-xplat/macos-renderer':
+        specifier: workspace:*
+        version: link:../macos-renderer
     devDependencies:
       '@octane-xplat/cli':
         specifier: workspace:*

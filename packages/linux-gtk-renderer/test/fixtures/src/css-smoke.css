@@ -1,0 +1,28 @@
+.ns-root {
+	--pv: #123456;
+}
+
+.inherit-host {
+	color: #00ff00;
+	font-size: 22px;
+}
+
+.accent {
+	color: #ff0000;
+}
+
+.uses-var {
+	color: var(--pv);
+}
+
+.dis:disabled {
+	color: #112233;
+}
+
+.w1 {
+	cursor: pointer;
+}
+
+.first + .second {
+	color: #00ffff;
+}

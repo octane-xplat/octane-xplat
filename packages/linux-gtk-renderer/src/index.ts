@@ -19,7 +19,17 @@ import {
 	masonAvailable,
 	queueMasonLayout,
 	releaseMasonNodes,
+	MASON_STYLE_KEYS,
 } from './mason.js'
+import {
+	computeCascade,
+	INHERITED_CSS_PROPERTIES,
+	onStylesheetsChanged,
+	setStyleEnvironment,
+	stylesheetScope,
+	type CssHostNode,
+} from '@octane-xplat/macos-renderer/css'
+import { CSS_PROPS, gtkStyleCss } from './style-css.js'
 import { createUniversalRoot } from 'octane/universal/native'
 import type {
 	UniversalEventListenerDescriptor,
@@ -86,7 +96,19 @@ export interface ElementNode {
 	cssClass: string | null
 	cssProvider: Gtk.CssProvider | null
 	cssSignature: string
-	classes: string[]
+	/** Selector-engine adapter fields — the vendored NS engine matches on
+	 *  the node directly (same contract as the macOS renderer). */
+	cssType: string
+	cssClasses: Set<string>
+	cssPseudoClasses: Set<string>
+	cssBaseClasses: Set<string>
+	cssId: string | undefined
+	computedStyle: PropBag | undefined
+	computedCustomProps: Map<string, string>
+	cssOriginKeys?: Set<string>
+	inheritedOnlyKeys?: Set<string>
+	cascadeInline?: PropBag
+	appliedStyle?: PropBag
 	/** True once this label/button's text has been written. */
 	textApplied: boolean
 	/** Engine handle when this node participates in a Mason subtree. */
@@ -105,6 +127,11 @@ export interface GtkContainer {
 	nodes: Map<number, ElementNode>
 	children: ElementNode[]
 	root: UniversalRoot | null
+	/** Style restyle queue — flushed at batch end, or on one microtask
+	 *  outside a batch (GJS has no queueMicrotask). */
+	cssDirty?: Set<ElementNode>
+	cssFlushQueued?: boolean
+	inBatch?: boolean
 }
 
 // ---------------------------------------------------------------------------
@@ -273,57 +300,11 @@ const VIEWLESS: ReadonlySet<string> = new Set([
 const TEXT_HOSTS = new Set(['label', 'button'])
 
 // ---------------------------------------------------------------------------
-// Styles — the shared `style` object maps onto per-widget Gtk.CssProvider
-// rules plus direct widget properties; removed keys reset, never go stale
-// (the prop-removal contract: update bags carry the complete next prop set).
+// Styles — the effective style bag (inline + stylesheet cascade) maps onto
+// per-widget Gtk.CssProvider rules plus direct widget properties; removed
+// keys reset, never go stale. The property table and rule text live in
+// style-css.ts (GI-free, Node-testable); the provider plumbing stays here.
 // ---------------------------------------------------------------------------
-
-const CSS_PROPS: Record<string, string> = {
-	backgroundColor: 'background-color',
-	color: 'color',
-	fontSize: 'font-size',
-	fontWeight: 'font-weight',
-	fontStyle: 'font-style',
-	fontFamily: 'font-family',
-	borderRadius: 'border-radius',
-	borderColor: 'border-color',
-	borderWidth: 'border-width',
-	padding: 'padding',
-	paddingTop: 'padding-top',
-	paddingRight: 'padding-right',
-	paddingBottom: 'padding-bottom',
-	paddingLeft: 'padding-left',
-	margin: 'margin',
-	marginTop: 'margin-top',
-	marginRight: 'margin-right',
-	marginBottom: 'margin-bottom',
-	marginLeft: 'margin-left',
-	minWidth: 'min-width',
-	minHeight: 'min-height',
-}
-
-function cssValue(name: string, value: unknown): string | null {
-	if (typeof value === 'number') {
-		// Numeric sizes are logical px; weight/style/family pass through.
-		return name === 'fontWeight' || name === 'fontStyle' || name === 'fontFamily'
-			? String(value)
-			: `${value}px`
-	}
-	if (typeof value === 'string') {
-		if (name === 'fontWeight') {
-			return value
-		}
-		if (name === 'fontFamily') {
-			return /[\s,]/.test(value) && !/^['"]/.test(value) ? `"${value}"` : value
-		}
-		// GTK CSS parses the same px/rgb()/named-color vocabulary here.
-		if (/^\d+(?:\.\d+)?$/.test(value)) {
-			return `${value}px`
-		}
-		return value
-	}
-	return null
-}
 
 function syncCss(node: ElementNode, style: PropBag | null | undefined) {
 	const view = node.view
@@ -331,23 +312,13 @@ function syncCss(node: ElementNode, style: PropBag | null | undefined) {
 		return
 	}
 
-	const next: [string, string][] = []
-	if (style && typeof style === 'object') {
-		for (const name of Object.keys(CSS_PROPS)) {
-			const decl = cssValue(name, style[name])
-			if (decl !== null) {
-				next.push([CSS_PROPS[name], decl])
-			}
-		}
-	}
-
-	const signature = next.map(([k, v]) => `${k}:${v}`).join(';')
-	if (signature === node.cssSignature) {
+	const css = gtkStyleCss(`.xplat-n${node.id}`, style, node.type)
+	if (css === node.cssSignature) {
 		return
 	}
-	node.cssSignature = signature
+	node.cssSignature = css
 
-	if (next.length === 0) {
+	if (css === '') {
 		if (node.cssProvider !== null) {
 			view.get_style_context().remove_provider(node.cssProvider)
 			node.cssProvider = null
@@ -363,10 +334,20 @@ function syncCss(node: ElementNode, style: PropBag | null | undefined) {
 		node.cssClass = `xplat-n${node.id}`
 		view.add_css_class(node.cssClass)
 	}
-
-	const css = `.${node.cssClass} { ${next.map(([k, v]) => `${k}: ${v};`).join(' ')} }`
 	if (node.cssProvider === null) {
 		node.cssProvider = new Gtk.CssProvider()
+		try {
+			// Malformed declarations surface through the provider's error
+			// signal — warn once per message instead of failing the apply.
+			node.cssProvider.connect('parsing-error', (_provider: any, _section: any, error: any) => {
+				warnOnce(
+					'css-parse:' + String(error?.message ?? error),
+					`[linux-gtk-css] ${error?.message ?? error}`,
+				)
+			})
+		} catch {
+			// Older GTK revisions lack the signal — load errors stay silent.
+		}
 		view
 			.get_style_context()
 			.add_provider(node.cssProvider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
@@ -418,45 +399,434 @@ function styleBag(value: unknown): PropBag | null {
 	return value && typeof value === 'object' ? (value as PropBag) : null
 }
 
-function syncClasses(node: ElementNode, value: unknown) {
+// ---- CSS cascade -----------------------------------------------------------
+
+// The vendored NS selector engine (shared with the macOS renderer through
+// @octane-xplat/macos-renderer/css) matches against `node` directly: cssType
+// is the element type, cssClasses come from the className prop plus the
+// ambient root classes, cssPseudoClasses from wired state. User class names
+// are never forwarded onto GTK widgets — GTK's default theme ships classes
+// like .card/.title/.error that would silently style app classes of the same
+// name; computed styles reach the widget only through the per-node
+// `xplat-n<id>` provider in syncCss.
+
+/** CSS-visible element children — text nodes (#text/span/formattedstring)
+ *  fold into their host's text and carry no style of their own; viewless
+ *  containers (contentview/proxyviewcontainer/rootlayout) DO participate so
+ *  inheritance and custom props flow through them. */
+const CSS_INERT_TYPES: ReadonlySet<string> = new Set([TEXT, 'span', 'formattedstring'])
+
+function cssChildren(node: ElementNode): ElementNode[] {
+	return node.children.filter((child) => !CSS_INERT_TYPES.has(child.type))
+}
+
+/** Root container top-level nodes carry the NS ambient classes:
+ *  ns-root, ns-gtk, ns-light|ns-dark. */
+function isCssRootNode(node: ElementNode): boolean {
+	return node.parent === null
+}
+
+function gtkSettings(): any {
+	try {
+		return (Gtk.Settings as any)?.get_default?.() ?? null
+	} catch {
+		return null
+	}
+}
+
+/** Color scheme for the ns-light/ns-dark root classes and the
+ *  prefers-color-scheme media feature. GTK 4.20+ exposes
+ *  gtk-interface-color-scheme; older themes fall back to
+ *  prefer-dark-theme and a -dark theme-name suffix. */
+function cssSchemeName(): string {
+	const settings = gtkSettings()
+	if (settings) {
+		try {
+			if ((Gtk as any).InterfaceColorScheme !== undefined) {
+				const scheme = settings.gtk_interface_color_scheme
+				if (scheme === (Gtk as any).InterfaceColorScheme.DARK) {
+					return 'dark'
+				}
+				if (scheme === (Gtk as any).InterfaceColorScheme.LIGHT) {
+					return 'light'
+				}
+			}
+		} catch {
+			// gtk-interface-color-scheme absent on GTK < 4.20.
+		}
+		try {
+			if (settings.gtk_application_prefer_dark_theme === true) {
+				return 'dark'
+			}
+			if (/-dark$/i.test(String(settings.gtk_theme_name ?? ''))) {
+				return 'dark'
+			}
+		} catch {
+			// Settings properties unreadable — default below.
+		}
+	}
+	return 'light'
+}
+
+// Per-container dirty sets — flushed top-down at batch end, or coalesced
+// onto one microtask outside a batch (appearance change, registerStylesheet).
+function markStyleDirty(node: ElementNode, subtree = false) {
+	const container = node.container
+	if (!container) {
+		return
+	}
+	;(container.cssDirty ??= new Set()).add(node)
+	if (subtree) {
+		for (const child of cssChildren(node)) {
+			markStyleDirty(child, true)
+		}
+	}
+	if (!container.inBatch && !container.cssFlushQueued) {
+		container.cssFlushQueued = true
+		Promise.resolve().then(() => {
+			container.cssFlushQueued = false
+			if (!container.inBatch) {
+				flushStyleDirty(container)
+			}
+		})
+	}
+}
+
+function flushStyleDirty(container: GtkContainer) {
+	const dirty = container.cssDirty
+	container.cssDirty = undefined
+	if (!dirty?.size) {
+		return
+	}
+	// Top-down: parents must compute before children that inherit from them.
+	const nodes = [...dirty].sort((a, b) => cssDepth(a) - cssDepth(b))
+	for (const node of nodes) {
+		// Dead nodes (destroyed/detached before the flush) skip the restyle.
+		if (!container.nodes.has(node.id)) {
+			continue
+		}
+		restyleNode(node)
+	}
+	// No explicit layout pass — GTK coalesces queue_resize on its own.
+}
+
+function cssDepth(node: ElementNode): number {
+	let depth = 0
+	for (let p = node.parent; p; p = p.parent) {
+		depth++
+	}
+	return depth
+}
+
+function shallowEqualStyle(a: PropBag, b: PropBag) {
+	const keys = Object.keys(a)
+	return keys.length === Object.keys(b).length && keys.every((key) => a[key] === b[key])
+}
+
+/** Recompute one node's effective style and apply it. Caller guarantees the
+ *  parent is already styled (top-down flush order). */
+function restyleNode(node: ElementNode) {
+	refreshCssClasses(node)
+	const { style, customProps, cssKeys, inheritedKeys } = computeCascade(
+		node as unknown as CssHostNode,
+		stylesheetScope(),
+	)
+	node.cssOriginKeys = cssKeys
+	node.inheritedOnlyKeys = inheritedKeys
+	const prevStyle = node.computedStyle ?? {}
+	const prevCustom = node.computedCustomProps ?? new Map()
+	node.computedStyle = style
+	node.computedCustomProps = customProps
+
+	const customChanged =
+		prevCustom.size !== customProps.size ||
+		[...customProps].some(([k, v]) => prevCustom.get(k) !== v)
+	let inheritedChanged = false
+	for (const prop of INHERITED_CSS_PROPERTIES) {
+		const camel = prop.replace(/-([a-z])/g, (_m, c: string) => c.toUpperCase())
+		if (prevStyle[camel] !== style[camel]) {
+			inheritedChanged = true
+			break
+		}
+	}
+
+	// Unchanged effective styles skip the native apply: most restyles (class
+	// or sibling marks, ancestor cascades) resolve to the same bag.
+	if (!shallowEqualStyle(prevStyle, style) || !node.appliedStyle) {
+		applyStyle(node, style)
+	}
+
+	// Only cascade to children when values they could inherit moved.
+	if (customChanged || inheritedChanged) {
+		for (const child of cssChildren(node)) {
+			restyleNode(child)
+		}
+	}
+}
+
+function warnUnsupportedCssProp(node: ElementNode, name: string) {
+	warnOnce(
+		'css-prop:' + name,
+		'[linux-gtk-css] ignored unsupported property ' + name + ' (on <' + node.type + '>)',
+	)
+}
+
+/** Style keys a computed bag can carry that have a real consumer: the GTK
+ *  CSS table, the direct-widget extras below, the Mason dict, and the
+ *  Gtk.Box emulation. */
+const SUPPORTED_STYLE_KEYS: ReadonlySet<string> = new Set([
+	...Object.keys(CSS_PROPS),
+	'width',
+	'height',
+	'opacity',
+	'textAlign',
+	'placeholderColor',
+	...MASON_STYLE_KEYS,
+	// Gtk.Box / Gtk.Fixed / Gtk.Grid emulation keys.
+	'flexGrow',
+	'alignSelf',
+	'justifySelf',
+	'left',
+	'top',
+	'gridRow',
+	'gridColumn',
+	'flexDirection',
+	'gap',
+	'rowGap',
+	'columnGap',
+])
+
+function warnUnsupportedCssProps(node: ElementNode, style: PropBag) {
+	for (const name of Object.keys(style)) {
+		if (style[name] == null || SUPPORTED_STYLE_KEYS.has(name)) {
+			continue
+		}
+		// Inherited values, and inheritable properties a stylesheet declares
+		// on a container for its descendants, are not unsupported here.
+		if (
+			node.inheritedOnlyKeys?.has(name) ||
+			(node.cssOriginKeys?.has(name) &&
+				INHERITED_CSS_PROPERTIES.has(
+					name.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase()),
+				))
+		) {
+			continue
+		}
+		// Only CSS-origin keys warn — inline-only unsupported keys stay
+		// silent (unchanged pre-cascade behavior).
+		if (node.cssOriginKeys?.has(name)) {
+			warnUnsupportedCssProp(node, name)
+		}
+	}
+}
+
+function setNodeInlineStyle(node: ElementNode, value: any) {
+	const prev = node.cascadeInline
+	node.props.style = value
+	node.cascadeInline = value
+	// Subtree restyle only when an inherited or custom-property input changed.
+	const inheritedOrCustom = (bag: any): boolean =>
+		!!bag &&
+		Object.keys(bag).some(
+			(k) =>
+				k.startsWith('--') ||
+				INHERITED_CSS_PROPERTIES.has(k.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase())),
+		)
+	const subtree = Boolean(inheritedOrCustom(prev)) || Boolean(inheritedOrCustom(value))
+	markStyleDirty(node, subtree)
+}
+
+/** className now only feeds the selector engine (cssClasses) and marks the
+ *  subtree for restyle — it is never forwarded to the widget's GTK css
+ *  classes (see the cascade note above). */
+function applyClassName(node: ElementNode, value: unknown) {
+	node.cssBaseClasses = new Set(classList(value))
+	refreshCssClasses(node)
+	markStyleDirty(node, true)
+}
+
+/** cssClasses = className tokens ∪ ambient root classes on every
+ *  parent-less node. Recomputed on insert/remove/appearance via
+ *  markStyleDirty → restyleNode → refreshCssClasses. */
+function refreshCssClasses(node: ElementNode) {
+	const set = new Set(node.cssBaseClasses ?? [])
+	if (isCssRootNode(node)) {
+		set.add('ns-root')
+		set.add('ns-gtk')
+		set.add(cssSchemeName() === 'dark' ? 'ns-dark' : 'ns-light')
+	}
+	node.cssClasses = set
+}
+
+function setNodeId(node: ElementNode, value: any) {
+	node.cssId = value == null ? undefined : String(value)
+	markStyleDirty(node, true)
+}
+
+function setPseudoClass(node: ElementNode, name: string, on: boolean) {
+	const had = node.cssPseudoClasses.has(name)
+	if (on === had) {
+		return
+	}
+	if (on) {
+		node.cssPseudoClasses.add(name)
+	} else {
+		node.cssPseudoClasses.delete(name)
+	}
+	markStyleDirty(node, true)
+}
+
+/** textAlign maps to widget props, not GTK CSS — labels take xalign plus
+ *  Gtk.Justification; textfields take xalign. When the key leaves the
+ *  effective style the prop-level value (or the widget default) returns. */
+function syncTextAlign(node: ElementNode, view: GtkView, style: PropBag) {
+	if (node.type !== 'label' && node.type !== 'textfield') {
+		return
+	}
+	const justifyFor = (x: number) =>
+		x === 0.5 ? Gtk.Justification.CENTER : x === 1 ? Gtk.Justification.RIGHT : Gtk.Justification.LEFT
+	const ta = style?.textAlign
+	if (ta != null) {
+		const x = ta === 'center' ? 0.5 : ta === 'right' || ta === 'end' ? 1 : 0
+		view.xalign = x
+		if (node.type === 'label') {
+			view.justify = justifyFor(x)
+		}
+		node.styleTextAlign = true
+		return
+	}
+	if (node.styleTextAlign) {
+		node.styleTextAlign = false
+		const pv = node.props.textAlignment ?? node.props.xalign
+		const x =
+			typeof pv === 'number'
+				? Math.max(0, Math.min(1, pv))
+				: pv === 'center'
+					? 0.5
+					: pv === 'right' || pv === 'end'
+						? 1
+						: 0
+		view.xalign = x
+		if (node.type === 'label') {
+			view.justify = justifyFor(x)
+		}
+	}
+}
+
+/** Apply the node's computed effective style — the cascade output, which
+ *  already folds the inline `style` prop in as the highest tier. Viewless
+ *  nodes still carry computedStyle (inheritance and custom props flow
+ *  through them) but write nothing. */
+function applyStyle(node: ElementNode, style: PropBag) {
+	const next: PropBag = style ?? {}
+	node.appliedStyle = next
 	const view = node.view
 	if (view === null) {
 		return
 	}
+	syncCss(node, next)
+	applyStyleExtras(node, view, next)
+	syncTextAlign(node, view, next)
+	warnUnsupportedCssProps(node, next)
+}
 
-	const next = classList(value)
-	for (const name of node.classes) {
-		if (!next.includes(name)) {
-			view.remove_css_class(name)
+/** Every live container — stylesheet and appearance changes restyle them all. */
+const liveGtkContainers = new Set<GtkContainer>()
+
+function restyleAllContainers() {
+	for (const container of liveGtkContainers) {
+		for (const child of container.children) {
+			markStyleDirty(child, true)
+		}
+		flushStyleDirty(container)
+	}
+}
+
+onStylesheetsChanged(restyleAllContainers)
+
+// Media environment: largest live host size + color scheme + animations.
+setStyleEnvironment(() => {
+	let width = 0
+	let height = 0
+	for (const container of liveGtkContainers) {
+		let w = container.host.get_width?.() ?? 0
+		let h = container.host.get_height?.() ?? 0
+		if (w === 0 || h === 0) {
+			// Unrealized hosts report 0 — the root window's default size is
+			// the best available stand-in.
+			const root = container.host.get_root?.()
+			w = w || (root?.default_width ?? 0)
+			h = h || (root?.default_height ?? 0)
+		}
+		if (w > width) {
+			width = w
+		}
+		if (h > height) {
+			height = h
 		}
 	}
-	for (const name of next) {
-		if (!node.classes.includes(name)) {
-			view.add_css_class(name)
+	let reducedMotion = false
+	try {
+		reducedMotion = gtkSettings()?.gtk_enable_animations === false
+	} catch {
+		// property absent on older GTK — animations enabled.
+	}
+	return { width, height, colorScheme: cssSchemeName() as 'light' | 'dark', reducedMotion }
+})
+
+// Appearance and a11y flips change ns-light/ns-dark on roots and may flip
+// media-gated rules. Settings exist only after Gtk.init — connect lazily on
+// the first container, once.
+let settingsObserved = false
+function observeGtkSettings() {
+	if (settingsObserved) {
+		return
+	}
+	const settings = gtkSettings()
+	if (!settings) {
+		return
+	}
+	settingsObserved = true
+	for (const signal of [
+		// gtk-interface-color-scheme is absent before GTK 4.20 — connect
+		// failures leave the other watches in place.
+		'notify::gtk-interface-color-scheme',
+		'notify::gtk-application-prefer-dark-theme',
+		'notify::gtk-theme-name',
+		'notify::gtk-enable-animations',
+	]) {
+		try {
+			settings.connect(signal, () => restyleAllContainers())
+		} catch {
+			// signal unknown on this GTK — skip it
 		}
 	}
-	node.classes = next
 }
 
 function dimension(value: unknown): number {
 	return typeof value === 'number' && Number.isFinite(value) ? Math.round(value) : -1
 }
 
+// Style applies at batch end, after every prop — the effective bag wins but
+// each key falls back to the prop-level value the element still carries.
 function applyStyleExtras(node: ElementNode, view: GtkView, style: PropBag | null | undefined) {
 	const source = style && typeof style === 'object' ? style : {}
-	const width = source.width != null ? dimension(source.width) : -1
-	const height = source.height != null ? dimension(source.height) : -1
+	const widthValue = source.width ?? node.props.width
+	const heightValue = source.height ?? node.props.height
+	const width = widthValue != null ? dimension(widthValue) : -1
+	const height = heightValue != null ? dimension(heightValue) : -1
 	if (width !== node.appliedWidth || height !== node.appliedHeight) {
 		node.appliedWidth = width
 		node.appliedHeight = height
 		view.set_size_request(width, height)
 	}
-	if (source.opacity != null) {
-		view.set_opacity(Number(source.opacity))
+	const opacity = source.opacity ?? node.props.opacity
+	if (opacity != null) {
+		view.set_opacity(Number(opacity))
 	} else if (node.appliedOpacity !== undefined) {
 		view.set_opacity(1)
 	}
-	node.appliedOpacity = source.opacity
+	node.appliedOpacity = opacity
 
 	// Inside a Mason subtree the engine owns layout — the keys below are
 	// consumed by the style dict in src/mason.ts during the next
@@ -480,7 +850,7 @@ function applyStyleExtras(node: ElementNode, view: GtkView, style: PropBag | nul
 	}
 	// flexGrow clearing must be unconditional — an absent key means the expand
 	// was removed, and syncExpand resets both axes when the value is falsy.
-	node.flexGrowValue = source.flexGrow
+	node.flexGrowValue = source.flexGrow ?? node.props.flexGrow
 	syncExpand(node)
 	if (source.alignSelf != null) {
 		const align = ALIGN[String(source.alignSelf)]
@@ -776,11 +1146,33 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 		warnEventProp(node, name)
 		return // classified events arrive as `event` commands
 	}
+	// Cascade-fed props apply on viewless nodes too — contentview and friends
+	// carry computed styles so inheritance and custom props flow through them.
+	if (name === 'className' || name === 'class') {
+		applyClassName(node, value)
+		return
+	}
+	if (name === 'style') {
+		setNodeInlineStyle(node, styleBag(value) ?? undefined)
+		return
+	}
 	if (name === 'id' || name === 'testID' || name === 'automationText') {
 		// Widget names are the GTK-side queryable identifier (GTK inspector,
 		// gtk_widget_get_name) — the identifier plumbing row of family J.
 		view?.set_name(String(value ?? ''))
+		if (name === 'id') {
+			setNodeId(node, value)
+		}
 		return
+	}
+	if (name === 'disabled' || name === 'isEnabled' || name === 'enabled') {
+		setPseudoClass(
+			node,
+			'disabled',
+			node.props.disabled === true ||
+				node.props.isEnabled === false ||
+				node.props.enabled === false,
+		)
 	}
 	if (value === undefined) {
 		return
@@ -808,16 +1200,6 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 	}
 
 	switch (name) {
-		case 'className':
-		case 'class':
-			syncClasses(node, value)
-			return
-		case 'style': {
-			const bag = styleBag(value)
-			syncCss(node, bag)
-			applyStyleExtras(node, view, bag)
-			return
-		}
 		case 'visible':
 			view.set_visible(value !== false)
 			return
@@ -831,8 +1213,10 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 			return
 		case 'enabled':
 		case 'isEnabled':
+		case 'disabled':
 			view.set_sensitive(
-				value !== false && (node.type !== 'textfield' || node.editableFlag !== false),
+				(name === 'disabled' ? value !== true : value !== false) &&
+					(node.type !== 'textfield' || node.editableFlag !== false),
 			)
 			return
 		case 'width':
@@ -1113,6 +1497,26 @@ function applyProps(node: ElementNode, props: PropBag) {
  *  documented default back here. */
 function resetProp(node: ElementNode, name: string) {
 	const view = node.view
+	// Cascade-fed props reset on viewless nodes too (see setProp).
+	if (name === 'className' || name === 'class') {
+		applyClassName(node, '')
+		return
+	}
+	if (name === 'style') {
+		setNodeInlineStyle(node, undefined)
+		return
+	}
+	if (name === 'id') {
+		setNodeId(node, undefined)
+	} else if (name === 'disabled' || name === 'isEnabled' || name === 'enabled') {
+		setPseudoClass(
+			node,
+			'disabled',
+			node.props.disabled === true ||
+				node.props.isEnabled === false ||
+				node.props.enabled === false,
+		)
+	}
 	if (view === null) {
 		if (name === 'value' || name === 'text') {
 			node.text = ''
@@ -1121,14 +1525,6 @@ function resetProp(node: ElementNode, name: string) {
 		return
 	}
 	switch (name) {
-		case 'className':
-		case 'class':
-			syncClasses(node, '')
-			return
-		case 'style':
-			syncCss(node, null)
-			applyStyleExtras(node, view, null)
-			return
 		case 'width':
 		case 'height': {
 			const [w, h] = view.get_size_request()
@@ -1143,6 +1539,7 @@ function resetProp(node: ElementNode, name: string) {
 			return
 		case 'enabled':
 		case 'isEnabled':
+		case 'disabled':
 			view.set_sensitive(node.type !== 'textfield' || node.editableFlag !== false)
 			return
 		case 'visibility':
@@ -1495,6 +1892,20 @@ function attachViews(container: GtkContainer, node: ElementNode) {
 	}
 }
 
+/** A node's insertion/removal can flip sibling-combinator matches on the
+ *  siblings that stay — restyle them when any registered sheet uses one. */
+function markSiblingsForSelectors(container: GtkContainer, parent: ElementNode | null, skip: ElementNode) {
+	const scope = stylesheetScope()
+	if (!scope.hasAdjacentCombinatorSelectors && !scope.hasSiblingCombinatorSelectors) {
+		return
+	}
+	for (const sibling of parent === null ? container.children : parent.children) {
+		if (sibling !== skip) {
+			markStyleDirty(sibling, true)
+		}
+	}
+}
+
 function detach(container: GtkContainer, node: ElementNode) {
 	const parent = node.parent
 	const siblings = parent === null ? container.children : parent.children
@@ -1502,6 +1913,7 @@ function detach(container: GtkContainer, node: ElementNode) {
 	if (index !== -1) {
 		siblings.splice(index, 1)
 	}
+	markSiblingsForSelectors(container, parent, node)
 	detachViews(node)
 	if (node.view === null) {
 		syncText(nearestViewAncestor(node))
@@ -1524,6 +1936,8 @@ function insert(
 		siblings.splice(index, 0, node)
 	}
 	node.parent = parent
+	markStyleDirty(node, true)
+	markSiblingsForSelectors(container, parent, node)
 	if (node.view === null) {
 		attachViews(container, node)
 		syncText(nearestViewAncestor(node))
@@ -1845,10 +2259,19 @@ function createNode(container: GtkContainer, id: number, type: string, props: Pr
 		cssClass: null,
 		cssProvider: null,
 		cssSignature: '',
-		classes: [],
+		cssType: type,
+		cssClasses: new Set(),
+		cssPseudoClasses: new Set(),
+		cssBaseClasses: new Set(),
+		cssId: undefined,
+		computedStyle: undefined,
+		computedCustomProps: new Map(),
 		textApplied: false,
 		destroyed: false,
 	}
+	node.getChildIndex = (child: ElementNode) => cssChildren(node).indexOf(child)
+	node.getChildAt = (i: number) => cssChildren(node)[i]
+	node.getChildrenCount = () => cssChildren(node).length
 	if (view !== null && isMasonView(view)) {
 		// The layout manager's vfuncs resolve the logical node from the
 		// widget — link them before props land so style writes find it.
@@ -1887,6 +2310,7 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 				return
 			}
 			node.destroyed = true
+			container.cssDirty?.delete(node)
 			cancelSelectionSettle(node)
 			disposeListeners(node)
 			releaseMasonNodes(node)
@@ -1926,7 +2350,13 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 			node.cssProvider = null
 			node.cssClass = null
 			node.cssSignature = ''
-			node.classes = []
+			node.cssType = command.type
+			node.computedStyle = undefined
+			node.computedCustomProps = new Map()
+			node.cssOriginKeys = undefined
+			node.inheritedOnlyKeys = undefined
+			node.appliedStyle = undefined
+			node.styleTextAlign = undefined
 			node.appliedWidth = undefined
 			node.appliedHeight = undefined
 			node.appliedOpacity = undefined
@@ -1953,6 +2383,8 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 				syncText(nearestViewAncestor(node))
 				syncExpandDeep(node)
 			}
+			// The new widget dropped its provider and computed bag — restyle.
+			markStyleDirty(node, true)
 			return
 		}
 		case 'ensure-public-instance':
@@ -1989,6 +2421,9 @@ export const gtkDriver: UniversalHostDriver<GtkContainer, GtkView | ElementNode 
 		return {
 			apply() {
 				applyingDepth++
+				// Styles restyle once at batch end — props settle first so the
+				// computed bag sees the same generation.
+				container.inBatch = true
 				try {
 					for (const command of batch.commands) {
 						try {
@@ -2005,6 +2440,8 @@ export const gtkDriver: UniversalHostDriver<GtkContainer, GtkView | ElementNode 
 					}
 				} finally {
 					applyingDepth--
+					container.inBatch = false
+					flushStyleDirty(container)
 				}
 			},
 			abort() {},
@@ -2022,7 +2459,12 @@ export const gtkDriver: UniversalHostDriver<GtkContainer, GtkView | ElementNode 
 }
 
 export function createGtkContainer(host: GtkView): GtkContainer {
-	return { host, nodes: new Map(), children: [], root: null }
+	const container: GtkContainer = { host, nodes: new Map(), children: [], root: null }
+	liveGtkContainers.add(container)
+	// Gtk.Settings exists only after Gtk.init — the first container is the
+	// earliest point appearance watches can connect.
+	observeGtkSettings()
+	return container
 }
 
 export interface GtkRootOptions extends UniversalRootOptions<GtkContainer> {}
@@ -2044,5 +2486,7 @@ export function createGtkRoot(host: GtkView, options: GtkRootOptions = {}) {
 	container.root = root
 	return { root, container }
 }
+
+export { registerStylesheet } from '@octane-xplat/macos-renderer/css'
 
 export * from 'octane/universal/native'

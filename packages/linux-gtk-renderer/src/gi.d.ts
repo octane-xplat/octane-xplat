@@ -246,10 +246,33 @@ declare module 'gi://Gtk?version=4.0' {
 			constructor()
 			load_from_string(css: string): void
 			load_from_data(data: string): void
+			connect(signal: string, handler: (...args: any[]) => unknown): number
+			disconnect(id: number): void
 		}
 		class StyleContext {
 			add_provider(provider: CssProvider, priority: number): void
 			remove_provider(provider: CssProvider): void
+		}
+
+		enum Justification {
+			LEFT = 0,
+			RIGHT = 1,
+			CENTER = 2,
+			FILL = 3,
+		}
+
+		// GTK 4.20+; absent on older introspection data.
+		const InterfaceColorScheme: {
+			LIGHT: number
+			DARK: number
+			[key: string]: number
+		}
+
+		class Settings {
+			static get_default(): Settings | null
+			connect(signal: string, handler: (...args: any[]) => unknown): number
+			disconnect(id: number): void
+			[key: string]: any
 		}
 
 		class Window extends Widget {

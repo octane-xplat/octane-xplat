@@ -1,3 +1,5 @@
+import { registerStylesheet } from '@octane-xplat/macos-renderer/css'
+
 // The shared pan leaf imports Utils eagerly, but this renderer doesn't
 // implement NativeScript gestures. Fail explicitly if pan velocity is ever
 // requested.
@@ -13,7 +15,17 @@ export const Utils = {
 // These values keep import-time platform checks safe; components that need
 // NativeScript application services need explicit GTK leaves or render an
 // unsupported state.
-export const Application = { ios: null, android: null, on() {}, off() {} }
+let addCssSeq = 0
+export const Application = {
+	ios: null,
+	android: null,
+	on() {},
+	off() {},
+	/** NS parity: theme/runtime CSS injection (theme-css-inject.ts uses this). */
+	addCss(css: string) {
+		registerStylesheet('addCss:' + ++addCssSeq, css)
+	},
+}
 export const isAndroid = false
 export const isIOS = false
 export const AccessibilityRole = {

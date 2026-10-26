@@ -9,6 +9,9 @@ export * from 'octane/universal/native'
 
 export declare const GTK_RENDERER_ID: 'gtk'
 
+/** Register a stylesheet with the shared cascade (replaces by id). */
+export declare function registerStylesheet(id: string, css: string): void
+
 /** The GTK object a node owns — the bridged `GtkWidget` the driver hands to
  *  refs and host events. */
 export type GtkView = Gtk.Widget & { [key: string]: any }
