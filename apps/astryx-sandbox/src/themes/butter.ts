@@ -183,6 +183,12 @@ export const butterTheme = defineTheme({
 	'--shadow-inset-warning': 'inset 0px 0px 0px 2px #54370030',
 	'--shadow-inset-error': 'inset 0px 0px 0px 2px #77121030',
 
+	// Component-scoped overrides — upstream emits these on
+	// `.astryx-card` rules inside the theme scope; the port
+	// flattens them onto the scope for `.vx-card` to read.
+	'--astryx-card-padding': '16px',
+	'--_card-radius': '0.75rem',
+
 	// Xplat semantic aliases — point the app token vocabulary at
 	// the upstream tokens above so shared chrome recolors.
 	'--color-primary': ['#225BFF', '#FDEE8C'],

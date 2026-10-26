@@ -180,6 +180,11 @@ export const stoneTheme = defineTheme({
 	'--shadow-inset-warning': 'inset 0px 0px 0px 2px #83838a30',
 	'--shadow-inset-error': 'inset 0px 0px 0px 2px #83838a30',
 
+	// Component-scoped overrides — upstream emits these on
+	// `.astryx-card` rules inside the theme scope; the port
+	// flattens them onto the scope for `.vx-card` to read.
+	'--astryx-card-padding': '12px',
+
 	// Xplat semantic aliases — point the app token vocabulary at
 	// the upstream tokens above so shared chrome recolors.
 	'--color-primary': ['#25252a', '#f3f3f5'],

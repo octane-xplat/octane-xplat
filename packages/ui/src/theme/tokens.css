@@ -1719,19 +1719,17 @@
 		margin-left: 8px;
 	}
 
-	/* Card — sectioned container. */
+	/* Card — sectioned container. The default padding is the theme's card
+   padding (upstream `--astryx-card-padding`, itself `var(--spacing-N)` per
+   theme) with the 1px border width subtracted, matching upstream's
+   border-inside-padding model: total inset (border + padding) equals the
+   padding token. */
 	.vx-card {
 		flex-direction: column;
-	}
-	.vx-card-header {
-		padding: 12px;
+		padding: calc(var(--astryx-card-padding, var(--spacing-4, 16px)) - 1px);
 	}
 	.vx-card-body {
-		padding: 12px;
 		flex-direction: column;
-	}
-	.vx-card-footer {
-		padding: 12px;
 	}
 
 	/* Chip — pressable pill with selected + remove states. */

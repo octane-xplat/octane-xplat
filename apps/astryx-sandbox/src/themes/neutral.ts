@@ -189,6 +189,11 @@ export const neutralTheme = defineTheme({
 	'--astryx-theme-neutral-color-destructive-overlay-hover': ['#ff7f770D', '#ee736c0D'],
 	'--astryx-theme-neutral-color-destructive-overlay-pressed': ['#ff7f771A', '#ee736c1A'],
 
+	// Component-scoped overrides — upstream emits these on
+	// `.astryx-card` rules inside the theme scope; the port
+	// flattens them onto the scope for `.vx-card` to read.
+	'--astryx-card-padding': '12px',
+
 	// Xplat semantic aliases — point the app token vocabulary at
 	// the upstream tokens above so shared chrome recolors.
 	'--color-primary': ['#1b1b1b', '#f1f1f1'],

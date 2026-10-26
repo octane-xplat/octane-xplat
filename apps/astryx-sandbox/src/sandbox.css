@@ -47,7 +47,7 @@ body {
 	transition: box-shadow 0.15s ease;
 }
 .sb-card:hover {
-	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+	box-shadow: var(--shadow-med, 0 4px 16px rgba(0, 0, 0, 0.12));
 }
 .sb-card--pending {
 	opacity: 0.6;

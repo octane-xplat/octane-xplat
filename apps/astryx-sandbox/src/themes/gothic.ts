@@ -180,6 +180,12 @@ export const gothicTheme = defineTheme({
 	'--shadow-inset-warning': 'inset 0px 0px 0px 1px #d6b56a50',
 	'--shadow-inset-error': 'inset 0px 0px 0px 1px #d4485150',
 
+	// Component-scoped overrides — upstream emits these on
+	// `.astryx-card` rules inside the theme scope; the port
+	// flattens them onto the scope for `.vx-card` to read.
+	'--astryx-card-padding': '12px',
+	'--_card-radius': '0.75rem',
+
 	// Xplat semantic aliases — point the app token vocabulary at
 	// the upstream tokens above so shared chrome recolors.
 	'--color-primary': '#E8F1F6',

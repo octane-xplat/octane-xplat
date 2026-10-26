@@ -8066,7 +8066,10 @@ export interface CardProps {
 	header?: Renderable
 	footer?: Renderable
 	children?: Renderable
-	/** Internal padding in 4px spacing steps. @default 4 */
+	/** Internal padding in 4px spacing steps. Omit it and the card takes the
+	 *  theme's card padding (upstream `--astryx-card-padding`; 16px minus the
+	 *  1px border with no theme), so passing a step overrides the theme rather
+	 *  than restating the default. */
 	padding?: number
 	variant?: string
 	elevation?: Elevation

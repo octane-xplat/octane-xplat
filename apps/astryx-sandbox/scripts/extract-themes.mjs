@@ -57,6 +57,75 @@ const FILL_CANDIDATES = {
 	'--color-success': ['color-status-fill-success', '--color-icon-green'],
 }
 
+/** Component-scoped override vars lifted out of the theme's nested rules.
+ *  Upstream emits these on `.astryx-card { … }` blocks inside the theme
+ *  scope; the port flattens them onto the scope itself, where `.vx-card`
+ *  reads the same names. */
+const COMPONENT_VARS = ['--astryx-card-padding', '--_card-radius']
+
+/** Astryx default-theme values for var() refs inside component overrides —
+ *  most themes don't redeclare the spacing/radius scales they reference. */
+const DEFAULT_FALLBACKS = {
+	'--spacing-3': '12px',
+	'--spacing-4': '16px',
+	'--radius-container': '12px',
+	'--radius-page': '28px',
+}
+
+const VAR_REF = /^var\((--[\w-]+)\)$/
+
+function resolveVar(value, tokens) {
+	let v = value
+	for (let i = 0; i < 4; i++) {
+		const m = VAR_REF.exec(v)
+		if (!m) return v
+		v = tokens[m[1]] ?? DEFAULT_FALLBACKS[m[1]] ?? v
+	}
+	return v
+}
+
+/** Read the theme's bare `.astryx-card { … }` blocks (skip `[data-*]`
+ *  variant selectors) and resolve the component override vars they set. */
+function extractComponentVars(css, name, tokens) {
+	const vars = {}
+	const scopeRe = new RegExp(`@scope \\(\\[data-astryx-theme="${name}"\\]\\)`, 'g')
+	const cardRe = /\.astryx-card\s*\{/g
+	const declRe = /(--[\w-]+)\s*:\s*([^;]+);/g
+	let m
+	while ((m = scopeRe.exec(css))) {
+		const start = css.indexOf('{', m.index)
+		let depth = 1
+		let i = start + 1
+		for (; i < css.length; i++) {
+			if (css[i] === '{') depth++
+			else if (css[i] === '}') {
+				depth--
+				if (depth === 0) break
+			}
+		}
+		const body = css.slice(start + 1, i)
+		let cm
+		while ((cm = cardRe.exec(body))) {
+			const bs = cm.index + cm[0].length - 1
+			let bd = 1
+			let bi = bs + 1
+			for (; bi < body.length; bi++) {
+				if (body[bi] === '{') bd++
+				else if (body[bi] === '}') {
+					bd--
+					if (bd === 0) break
+				}
+			}
+			const inner = body.slice(bs + 1, bi)
+			let em
+			while ((em = declRe.exec(inner))) {
+				if (COMPONENT_VARS.includes(em[1])) vars[em[1]] = resolveVar(em[2].trim(), tokens)
+			}
+		}
+	}
+	return vars
+}
+
 function splitTopLevel(body) {
 	let depth = 0
 	for (let i = 0; i < body.length; i++) {
@@ -162,8 +231,17 @@ for (const name of themes) {
 		put(alias, tokens[`--astryx-theme-${name}-${key}`] ?? tokens[key])
 	}
 
+	const componentVars = extractComponentVars(css, name, tokens)
+
 	const lines = []
 	for (const [k, v] of Object.entries(tokens)) lines.push(`\t'${k}': ${toTuple(v)},`)
+	if (Object.keys(componentVars).length > 0) {
+		lines.push('')
+		lines.push('\t// Component-scoped overrides — upstream emits these on')
+		lines.push('\t// `.astryx-card` rules inside the theme scope; the port')
+		lines.push('\t// flattens them onto the scope for `.vx-card` to read.')
+		for (const [k, v] of Object.entries(componentVars)) lines.push(`\t'${k}': ${toTuple(v)},`)
+	}
 	lines.push('')
 	lines.push('\t// Xplat semantic aliases — point the app token vocabulary at')
 	lines.push('\t// the upstream tokens above so shared chrome recolors.')
