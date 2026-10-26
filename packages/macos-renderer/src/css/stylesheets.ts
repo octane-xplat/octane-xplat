@@ -1,6 +1,7 @@
 /**
  * Stylesheet registry + cascade environment for the AppKit renderer —
- * AppKit-free so Node tests and a future GTK renderer can reuse it.
+ * AppKit-free so Node tests and the GTK renderer (via
+ * `@octane-xplat/macos-renderer/css`) can reuse it.
  *
  * `registerStylesheet(id, css)` parses through the vendored NS selector engine
  * (`populateCssRules`), replaces by id while keeping the id's first-registration

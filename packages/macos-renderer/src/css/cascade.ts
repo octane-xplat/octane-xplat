@@ -1,6 +1,7 @@
 /**
  * Per-node effective-style computation over the vendored NS selector engine —
- * AppKit-free so Node tests and a future GTK renderer can reuse it.
+ * AppKit-free so Node tests and the GTK renderer (via
+ * `@octane-xplat/macos-renderer/css`) can reuse it.
  *
  * Mirrors NS 9.1.3 StyleScope/Style semantics:
  * - matched rulesets arrive sorted ascending by (layerPath, specificity, tier,
