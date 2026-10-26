@@ -471,6 +471,25 @@ export type {
 
 // Content and display
 export { Table } from './Table'
+export { TableHeader } from './Table'
+export { TableBody } from './Table'
+export { TableFooter } from './Table'
+export { TableRow } from './Table'
+export { TableCell } from './Table'
+export { TableHeaderCell } from './Table'
+export { TableSelectionToolbar } from './TableSelectionToolbar'
+export { proportional, generateColumns, resolveColumnWidths, defaultCellRenderer, capitalize, DEFAULT_MIN_COLUMN_WIDTH } from './table/column-utils'
+export { paginateData } from './table/paginate-data'
+export { useTableSelection, useTableSelectionState } from './table/use-table-selection'
+export { useTableSortable } from './table/use-table-sortable'
+export { useTableSortableState, sortTableData } from './table/use-table-sortable-state'
+export { useTablePagination } from './table/use-table-pagination'
+export { useTableColumnSettings, useTableColumnSettingsState } from './table/use-table-column-settings'
+export { useTableColumnResize } from './table/use-table-column-resize'
+export { useTableFilterState } from './table/use-table-filter-state'
+export { useTableFiltering } from './table/use-table-filtering'
+export { toSearchFilters } from './table/to-search-filters'
+export { TableContext } from './table/table-context'
 export { Timeline } from './Timeline'
 /** Expandable hierarchy, exported under Astryx's component name. */
 export { Tree as TreeList } from './Tree'
@@ -492,14 +511,72 @@ export type {
 	KbdProps,
 	ProgressGroupProps,
 	TableColumn,
-	TableCellRenderProps,
+	TableColumnAlign,
+	TableVerticalAlign,
+	TableDensity,
+	TableDividers,
+	TableTextOverflow,
+	TableSortableColumnConfig,
+	TableFilterFieldRef,
+	ColumnWidth,
+	ProportionalWidth,
+	PixelWidth,
 	TableProps,
+	TableHeaderProps,
+	TableBodyProps,
+	TableFooterProps,
+	TableRowProps,
+	TableCellProps,
+	TableHeaderCellProps,
+	TableSelectionToolbarProps,
 	TimelineItem,
 	TimelineProps,
 	TreeListNode,
 	TreeProps,
 	UserProps,
 } from './props'
+export type {
+	TablePlugin,
+	TableRenderProps,
+	TableHostProps,
+	HeaderRowRenderProps,
+	HeaderCellRenderProps,
+	BodyRowRenderProps,
+	BodyCellRenderProps,
+	ScrollWrapperRenderProps,
+	TableContextAction,
+	TableContextActions,
+	TableContextValue,
+	TableSelectionState,
+	TableSortState,
+	TableSortEntry,
+	TableSortDirection,
+	TableSortComparator,
+	TableFilterState,
+	TableFilterValue,
+	TableFilterVariant,
+} from './table/types'
+export type {
+	UseTableSelectionConfig,
+	UseTableSelectionStateConfig,
+	UseTableSelectionStateResult,
+} from './table/use-table-selection'
+export type { UseTableSortableConfig } from './table/use-table-sortable'
+export type {
+	UseTableSortableStateConfig,
+	UseTableSortableStateResult,
+} from './table/use-table-sortable-state'
+export type { UseTablePaginationConfig } from './table/use-table-pagination'
+export type {
+	ColumnSettingsOption,
+	UseTableColumnSettingsConfig,
+	UseTableColumnSettingsStateConfig,
+	UseTableColumnSettingsStateReturn,
+} from './table/use-table-column-settings'
+export type { UseTableColumnResizeConfig } from './table/use-table-column-resize'
+export type { UseTableFilteringConfig } from './table/use-table-filtering'
+export type { UseTableFilterStateResult } from './table/use-table-filter-state'
+export type { ResolvedColumnWidth, ResolvedColumnWidths } from './table/column-utils'
 
 // Links, input, scrolling, media, and overlays
 export { Link } from './Link'
@@ -693,8 +770,8 @@ export { SelectorOption } from './SelectorOption'
 export { Step } from './Step'
 export { FieldLabel } from './FieldLabel'
 export { FieldStatus } from './FieldStatus'
-export { useGridFocus } from './use-grid-focus'
-export type { GridFocusOptions, GridFocusResult } from './use-grid-focus'
+export { useGridFocus } from './use-grid-focus.web'
+export type { GridFocusOptions, GridFocusResult } from './use-grid-focus.web'
 export { SafeArea } from './SafeArea'
 export { KeyboardAvoiding } from './KeyboardAvoiding'
 export { Drawer } from './Drawer'

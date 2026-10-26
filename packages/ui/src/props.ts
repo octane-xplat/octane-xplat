@@ -2389,6 +2389,9 @@ export interface ColorPickerProps extends ColorValueProps, ColorBaseProps {}
  *  navigation chevrons, transport and status marks). An app registering
  *  the same name overrides the bundled glyph. */
 export type BuiltinIconName =
+	| 'xplat-arrow-down'
+	| 'xplat-arrow-up'
+	| 'xplat-arrows-up-down'
 	| 'xplat-calendar'
 	| 'xplat-check'
 	| 'xplat-check-double'
@@ -2402,6 +2405,7 @@ export type BuiltinIconName =
 	| 'xplat-copy'
 	| 'xplat-doc-image'
 	| 'xplat-error'
+	| 'xplat-funnel'
 	| 'xplat-mic'
 	| 'xplat-more-horizontal'
 	| 'xplat-pause'
@@ -7882,62 +7886,215 @@ export interface CommandPaletteProps<T extends CommandPaletteItem = CommandPalet
 
 // ---------- data display (Phase 4) ----------
 
-/** `K` is the row field the column reads — constrained to `keyof T` on
- *  `TableProps`, so a column key that exists in no row fails at the
- *  callsite. Pure display columns (no backing row field) widen the row
- *  type or render through `renderCell`. */
-export interface TableColumn<K extends Key = Key> {
-	key: K
-	label?: string
-	/** Column width in dips; omit to share the remaining space evenly. */
-	width?: number
-	align?: 'left' | 'center' | 'right'
+// ---------- Table (Astryx contract — data-driven + plugin pipeline) ----------
+
+/** Horizontal text alignment for a table column (header and body cells). */
+export type TableColumnAlign = 'start' | 'center' | 'end'
+
+/** Vertical alignment for table body row cells. @default 'middle' */
+export type TableVerticalAlign = 'middle' | 'top' | 'bottom'
+
+/** A proportional (fr-like) column width — created by `proportional()`. */
+export interface ProportionalWidth {
+	type: 'proportional'
+	value: number
+	/** Minimum width in pixels; defaults to `DEFAULT_MIN_COLUMN_WIDTH` (120). */
+	minWidth?: number
 }
 
-/** Named context passed to `Table`'s `renderCell`. `rowIndex` is the row's
- *  current position, not a stable identity; use `idKey` to identify rows. */
-export interface TableCellRenderProps<T extends object = Record<string, unknown>> {
-	row: T
-	column: TableColumn<keyof T & Key>
-	rowIndex: number
+/** A fixed pixel column width — created by `pixel()`. */
+export interface PixelWidth {
+	type: 'pixel'
+	value: number
 }
 
-/** Table — self-drawn grid via rows + cells. Bounded and unvirtualized:
- *  large datasets belong to the platform UITableView/RecyclerView
- *  subpaths, not this component. The row generic flows through
- *  `columns`, `renderCell`, `idKey`, and `onRowPress`, so rows keep their
- *  element type and column keys stay row fields; `rowIndex` values
- *  are positional, not identity.
+/** Column width — either `proportional()` or `pixel()`. Omitting `width`
+ *  distributes as `proportional(1)` but with no minimum-width floor. */
+export type ColumnWidth = ProportionalWidth | PixelWidth
+
+/** Sortable configuration for a column — `sortKey` decouples the sort
+ *  identity from the column key (defaults to the column key). */
+export interface TableSortableColumnConfig {
+	sortKey?: string
+}
+
+/** Reference to a field in a shared `PowerSearchConfig`, resolved by
+ *  `useTableFiltering` — a bare field key (uses `defaultOperator`) or
+ *  `{ field, operator }` for an explicit operator. */
+export interface TableFilterFieldRef {
+	field: string
+	operator?: string
+}
+
+/** Column definition for data-driven table rendering (Astryx `TableColumn`).
+ *  `key` is the row field the column reads by default; `renderCell` overrides
+ *  cell content with a per-item renderer. `sortable`/`resizable`/`filter` are
+ *  inert column metadata — the matching `useTable*` plugins act on them. */
+export interface TableColumn<T extends Record<string, unknown> = Record<string, unknown>> {
+	key: string
+	/** Header content; defaults to the column key. */
+	header?: Renderable
+	/** `proportional()` / `pixel()` width — see `resolveColumnWidths`. */
+	width?: ColumnWidth
+	align?: TableColumnAlign
+	/** `true` sorts by the column key; `{ sortKey }` sorts by another key. */
+	sortable?: boolean | TableSortableColumnConfig
+	/** `false` locks the column against `useTableColumnResize`. @default true */
+	resizable?: boolean
+	/** Field ref (or bare field key) resolved by `useTableFiltering`. */
+	filter?: TableFilterFieldRef | string
+	/** Custom cell renderer — receives the row item. */
+	renderCell?: (item: T) => Renderable
+}
+
+/** Row density controlling cell padding and font size. @default 'balanced' */
+export type TableDensity = 'compact' | 'balanced' | 'spacious'
+
+/** Divider style between cells. @default 'rows' */
+export type TableDividers = 'rows' | 'columns' | 'grid' | 'none'
+
+/** How default-rendered body cell text behaves when it exceeds column width.
+ *  @default 'wrap' */
+export type TableTextOverflow = 'wrap' | 'truncate'
+
+/** Table — a styled, data-driven table (Astryx `Table`). Bounded and
+ *  unvirtualized: large datasets belong to the platform list widgets.
+ *
+ *  Two modes: `data` + `columns` runs the plugin pipeline (selection,
+ *  sortable, pagination, column settings/resize, filtering); `children`
+ *  composes `TableHeader`/`TableBody`/`TableRow`/`TableCell` parts directly.
  *
  * @example
  * ```tsx
- * import { Table } from '@octane-xplat/ui'
- *
  * <Table
- * 	columns={[{ key: 'name', label: 'Name' }, { key: 'role', label: 'Role' }]}
- * 	rows={users}
+ * 	data={users}
+ * 	columns={[
+ * 		{ key: 'name', header: 'Name', width: proportional(1) },
+ * 		{ key: 'age', header: 'Age', width: pixel(80), sortable: true },
+ * 	]}
  * 	idKey="id"
- * 	onRowPress={(row) => open(row.id)}
+ * 	hasHover
+ * 	plugins={{ sort: sortPlugin }}
  * />
  * ```
- * @see TableColumn, TableCellRenderProps; VirtualListProps for large datasets.
+ * @see TableColumn, TablePlugin, useTableSelectionState, useTableSortableState.
  */
-export interface TableProps<T extends object = Record<string, unknown>> {
+export interface TableProps<T extends Record<string, unknown> = Record<string, unknown>> {
 	className?: ClassValue
 	style?: StyleProp
 	id?: string
-	columns: readonly TableColumn<keyof T & Key>[]
-	rows: readonly T[]
-	/** Cell override — receives a `TableCellRenderProps` context; default
-	 *  renders `row[column.key]` as text. */
-	renderCell?: (cell: TableCellRenderProps<T>) => Renderable
-	/** Stable row `Key` — a row field name or an extractor (Astryx `idKey`).
-	 *  Defaults to the row's `id` or `key` property, then its index. The
-	 *  index fallback is positional — supply `idKey` or an `id`/`key` field
-	 *  when rows can be reordered. */
-	idKey?: keyof T | ((row: T, rowIndex: number) => Key)
-	onRowPress?: (row: T, rowIndex: number) => void
-	empty?: Renderable
+	ref?: any
+	/** Row data — rendered as body rows in data mode. */
+	data?: T[]
+	/** Column definitions; auto-generated from data keys when omitted. */
+	columns?: TableColumn<T>[]
+	/** Stable row key — a row field name or an extractor; defaults to index. */
+	idKey?: (keyof T & string) | ((item: T) => string | number)
+	/** Named plugins (`useTable*` hooks) keyed by behavior name. */
+	plugins?: Record<string, import('./table/types').TablePlugin<T>>
+	density?: TableDensity
+	dividers?: TableDividers
+	isStriped?: boolean
+	hasHover?: boolean
+	verticalAlign?: TableVerticalAlign
+	textOverflow?: TableTextOverflow
+	/** Content for the empty-data row; `false` disables it. Default renders a
+	 *  compact "No data" `EmptyState`. */
+	emptyState?: Renderable | false
+	/** 1-based ARIA row index of the first body row; opts the table into
+	 *  `aria-rowindex` (with `rowCount`, `aria-rowcount`). */
+	rowIndexStart?: number
+	/** Total body rows across all pages for `aria-rowcount`. */
+	rowCount?: number
+	/** Children mode — `TableHeader`/`TableBody`/`TableRow`/`TableCell`
+	 *  composition; bypasses the data pipeline. */
+	children?: Renderable
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
+}
+
+/** Props for `TableHeader` — the `<thead>` equivalent. */
+export interface TableHeaderProps {
+	className?: ClassValue
+	style?: StyleProp
+	children?: Renderable
+	web?: PlatformProps
+}
+
+/** Props for `TableBody` — the `<tbody>` equivalent. */
+export interface TableBodyProps {
+	className?: ClassValue
+	style?: StyleProp
+	children?: Renderable
+	web?: PlatformProps
+}
+
+/** Props for `TableFooter` — the `<tfoot>` equivalent. */
+export interface TableFooterProps {
+	className?: ClassValue
+	style?: StyleProp
+	children?: Renderable
+	web?: PlatformProps
+}
+
+/** Props for `TableRow` — `<tr>` equivalent; reads density/striping from the
+ *  enclosing `Table` context, `isHeaderRow` opts out of body-row styling. */
+export interface TableRowProps {
+	className?: ClassValue
+	style?: StyleProp
+	children?: Renderable
+	isHeaderRow?: boolean
+	contextMenuActions?: import('./table/types').TableContextActions
+	web?: PlatformProps
+	[key: string]: any
+}
+
+/** Props for `TableCell` — `<td>` equivalent. */
+export interface TableCellProps {
+	className?: ClassValue
+	style?: StyleProp
+	children?: Renderable
+	scope?: 'col' | 'row' | 'colgroup' | 'rowgroup'
+	headers?: string
+	colSpan?: number
+	rowSpan?: number
+	contextMenuActions?: import('./table/types').TableContextActions
+	web?: PlatformProps
+	[key: string]: any
+}
+
+/** Props for `TableHeaderCell` — `<th>` equivalent. */
+export interface TableHeaderCellProps {
+	className?: ClassValue
+	style?: StyleProp
+	children?: Renderable
+	scope?: 'col' | 'row' | 'colgroup' | 'rowgroup'
+	headers?: string
+	colSpan?: number
+	rowSpan?: number
+	contextMenuActions?: import('./table/types').TableContextActions
+	web?: PlatformProps
+	[key: string]: any
+}
+
+/** Props for `TableSelectionToolbar` — the selection-aware action surface
+ *  rendered above a table; `selection` is the `TableSelectionState` returned
+ *  by `useTableSelectionState`. */
+export interface TableSelectionToolbarProps {
+	className?: ClassValue
+	style?: StyleProp
+	selection: import('./table/types').TableSelectionState
+	/** Accessible label for the toolbar. @default 'Bulk actions' */
+	label?: string
+	/** Override the selected-count content. */
+	renderSelectionLabel?: (selectedCount: number) => Renderable
+	/** Visible label for the clear-selection command. @default 'Unselect All' */
+	clearLabel?: string
+	/** Toolbar `startContent` slot (actions). */
+	startContent?: Renderable
+	size?: ToolbarSize
+	variant?: ToolbarVariant
 	ios?: PlatformProps
 	android?: PlatformProps
 	web?: PlatformProps

@@ -341,3 +341,16 @@ html.sb-embed .sb-embed-root {
 .sb-mode-page { max-width: 800px; }
 
 .sb-image-gallery { width: 100%; gap: var(--spacing-4); }
+/* Unit 6 — table examples */
+.sb-badge--blue { background: var(--color-primary, #36c); color: var(--color-onprimary, #fff); }
+.sb-badge--purple { background: #7c3aed; color: #fff; }
+.sb-bulk-page { overflow-y: auto; max-height: 480px; scrollbar-gutter: stable; }
+.sb-bulk-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-block-end: 24px; }
+.sb-bulk-metric-card { padding: 16px; border-radius: var(--radius-container, 8px); background: var(--color-surface-secondary, rgba(0,0,0,0.04)); }
+.sb-bulk-metric-label { display: block; color: var(--color-text-secondary, #666); }
+.sb-bulk-metric-value { display: block; margin-block-start: 4px; color: var(--color-text-primary, inherit); font-size: 1.4em; }
+.sb-bulk-table-region { position: relative; padding-block-start: 56px; }
+.sb-bulk-toolbar { position: sticky; top: 8px; transform: translateY(-56px); margin-block-end: -40px; z-index: 1; border-radius: var(--radius-element, 6px); box-shadow: var(--shadow-med, 0 2px 8px rgba(0,0,0,0.15)); }
+.sb-tabular { font-variant-numeric: tabular-nums; }
+.sb-text-end { text-align: end; display: block; }
+.sb-audit-row { cursor: pointer; }

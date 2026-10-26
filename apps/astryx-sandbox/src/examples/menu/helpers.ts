@@ -8,8 +8,8 @@ type UpstreamEntry = UpstreamItem | { type: 'divider' } | { type: 'section'; tit
 
 export function menuItems(items: readonly UpstreamEntry[]): MenuOption[] {
 	return items.map((item, i) => {
-		if ('type' in item && item.type === 'divider') return { type: 'separator', key: `d${i}` }
-		if ('type' in item && item.type === 'section') return { type: 'section', key: `s${i}`, label: item.title ?? `Section ${i}`, items: menuItems(item.items) }
+		if ('type' in item && item.type === 'divider') {return { type: 'separator', key: `d${i}` }}
+		if ('type' in item && item.type === 'section') {return { type: 'section', key: `s${i}`, label: item.title ?? `Section ${i}`, items: menuItems(item.items) }}
 		const it = item as UpstreamItem
 		return {
 			type: it.items ? 'submenu' : 'action',

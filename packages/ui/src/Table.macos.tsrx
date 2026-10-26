@@ -1,44 +1,173 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { mergeStyle } from './style-merge'
-import type { Key, TableProps, TableColumn } from "./props";
-import { cx } from "@octane-xplat/lib";
-import { applyEscapeProps } from "./escape-props";
+import type {
+	TableProps,
+	TableColumn,
+	TableHeaderProps,
+	TableBodyProps,
+	TableFooterProps,
+	TableRowProps,
+	TableCellProps,
+	TableHeaderCellProps,
+} from './props'
+import { cx } from '@octane-xplat/lib'
+import { applyEscapeProps } from './escape-props'
+import { planTableRender, wrapTableContext, resolveTablePlugins, applyPlugins } from './table/pipeline'
+import { TableContext, TableContextProvider } from './table/table-context'
 
-function rowKey<T extends object>(props: TableProps<T>, row: T, index: number): Key {
-	if (typeof props.idKey === 'function') return props.idKey(row, index);
-	if (props.idKey !== undefined) {
-		return (((row as Record<PropertyKey, unknown>)[props.idKey]) ?? index) as Key;
-	}
-	const named = row as { id?: Key; key?: Key };
-	return named.id ?? named.key ?? index;
+function cellWidthStyle(col: TableColumn<any>) {
+	const w = col.width
+	if (w?.type === 'pixel') return { width: w.value }
+	return { flexGrow: w?.value ?? 1 }
 }
 
-/** Table — self-drawn grid. Bounded and unvirtualized: large datasets
- *  belong to the platform UITableView/RecyclerView subpaths. */
-export function Table<T extends object = Record<string, any>>(props: TableProps<T>) @{
-	const cellStyle = (col: TableColumn<keyof T & Key>) => ({
-		...(col.width != null ? { width: col.width } : { flexGrow: 1 }),
-		...(col.align ? { textAlignment: col.align } : {}),
-	});
+function cellStyle(col: TableColumn<any>, extra?: Record<string, any>) {
+	return {
+		...cellWidthStyle(col),
+		...(col.align === 'end' ? { textAlignment: 'right' } : col.align === 'center' ? { textAlignment: 'center' } : {}),
+		...extra,
+	}
+}
 
-	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-table', props.className)} style={mergeStyle({display: "flex"}, props.style)}>
-		<masonview className="vx-table-head" style={{display: "flex"}}>
-			@for (const col of props.columns; key col.key) {
-				<masonview className="vx-table-cell vx-table-th" style={mergeStyle({display: "flex"}, cellStyle(col))}>
-					<label text={col.label ?? String(col.key)} />
-				</masonview>
-			}
+function cellContent(content: any) {
+	return typeof content === 'string' || typeof content === 'number'
+		? <label text={String(content)} />
+		: content
+}
+
+/** Table — data-driven + plugin pipeline (Astryx `Table`), AppKit leaf.
+ *  Same render plan as web mapped to flex views; DOM-only plugin effects
+ *  (resize drag, pointer context menus) degrade to their data effects. */
+export function Table<T extends Record<string, unknown> = Record<string, unknown>>(props: TableProps<T>) @{
+	const {
+		data,
+		columns,
+		idKey,
+		plugins: pluginRecord,
+		density = 'balanced',
+		dividers = 'rows',
+		isStriped = false,
+		hasHover = false,
+		verticalAlign = 'middle',
+		textOverflow = 'wrap',
+		emptyState,
+		rowIndexStart,
+		rowCount,
+		children,
+		className,
+		style,
+		id,
+		ref,
+		...rest
+	} = props
+
+	const plugins = resolveTablePlugins<T>([], pluginRecord)
+	const ctx = { density, dividers, isStriped, hasHover, verticalAlign, textOverflow }
+	const tableClasses = cx('vx-table', `vx-table--${density}`, `vx-table--dividers-${dividers}`, className)
+
+	if (children != null) {
+		const table = applyPlugins(plugins, (p) => p.transformTable, { htmlProps: {}, classes: [] } as any)
+		const node = (
+			<masonview ref={ref} id={id} className={cx(tableClasses, table.classes)} style={mergeStyle({ display: 'flex', flexDirection: 'column' }, mergeStyle(table.htmlProps?.style ?? {}, style))}>
+				{children}
+			</masonview>
+		)
+		return (
+			<TableContextProvider value={ctx}>
+				{wrapTableContext(plugins, node) as any}
+			</TableContextProvider>
+		)
+	}
+
+	const plan = planTableRender<T>({ data, columns, idKey: idKey as any, plugins, textOverflow, rowIndexStart, rowCount, emptyState })
+
+	const tableElement = (
+		<masonview
+			ref={(v: any) => applyEscapeProps(v, props)}
+			id={id}
+			className={cx('vx-table-scroll', plan.scrollWrapper.classes)}
+			style={{ display: 'flex', flexDirection: 'column' }}>
+			{plan.scrollWrapper.beforeTable}
+			<masonview className={cx(tableClasses, plan.table.classes)} style={mergeStyle({ display: 'flex', flexDirection: 'column' }, mergeStyle(plan.table.htmlProps?.style ?? {}, style))}>
+				{plan.columns.length > 0 && (
+					<masonview className="vx-table-head" style={{ display: 'flex', flexDirection: 'row' }}>
+						{plan.headerCells.map((cell) => {
+							const { before, after, below, content } = cell.render
+							return (
+								<masonview
+									key={cell.column.key}
+									className={cx('vx-table-cell vx-table-th', `vx-table-cell--${density}`, cell.render.classes)}
+									style={cellStyle(cell.column, { display: 'flex', flexDirection: 'column' })}>
+									{before}
+									<masonview style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+										{typeof content === 'string' ? <label text={content} /> : content}
+										{after}
+									</masonview>
+									{below}
+								</masonview>
+							)
+						})}
+					</masonview>
+				)}
+				{plan.rows.map((row) => (
+					<masonview
+						key={String(row.key)}
+						className={cx('vx-table-row', row.render.classes)}
+						style={mergeStyle({ display: 'flex', flexDirection: 'row' }, row.render.htmlProps?.style ?? {})}>
+						{row.cells.map((cell) => (
+							<masonview
+								key={cell.column.key}
+								className={cx('vx-table-cell', `vx-table-cell--${density}`, cell.render.classes)}
+								style={mergeStyle(cellStyle(cell.column, { display: 'flex' }), cell.render.htmlProps?.style ?? {})}>
+								{cellContent(cell.content)}
+							</masonview>
+						))}
+					</masonview>
+				))}
+				{plan.showEmptyState && (
+					<masonview className="vx-table-empty">
+						{emptyState != null ? emptyState : <label text="No data" />}
+					</masonview>
+				)}
+			</masonview>
+			{plan.scrollWrapper.afterTable}
 		</masonview>
-		{props.rows.length === 0 && props.empty != null
-			? <masonview className="vx-table-empty" style={{display: "flex"}}>{props.empty}</masonview>
-			: @for (const e of props.rows.map((row, ri) => ({ row, ri })); key String(rowKey(props, e.row, e.ri))) {
-				<masonview className={cx('vx-table-row', props.onRowPress && 'vx-table-row--pressable')} onTap={props.onRowPress ? () => props.onRowPress!(e.row, e.ri) : undefined} style={{display: "flex"}}>
-					@for (const col of props.columns; key col.key) {
-						<masonview className="vx-table-cell" style={mergeStyle({display: "flex"}, cellStyle(col))}>
-							{props.renderCell ? props.renderCell({ row: e.row, column: col, rowIndex: e.ri }) : <label text={String((e.row as Record<Key, unknown>)[col.key] ?? '')} />}
-						</masonview>
-					}
-				</masonview>
-			}}
+	)
+
+	<TableContextProvider value={ctx}>
+		{wrapTableContext(plugins, tableElement) as any}
+	</TableContextProvider>
+}
+
+export function TableHeader(props: TableHeaderProps) @{
+	<masonview className={cx('vx-table-header', props.className)} style={props.style}>{props.children}</masonview>
+}
+
+export function TableBody(props: TableBodyProps) @{
+	<masonview className={cx('vx-table-body', props.className)} style={props.style}>{props.children}</masonview>
+}
+
+export function TableFooter(props: TableFooterProps) @{
+	<masonview className={cx('vx-table-footer', props.className)} style={props.style}>{props.children}</masonview>
+}
+
+export function TableRow(props: TableRowProps) @{
+	const { children, className, style, ...rest } = props
+	<masonview {...rest} className={cx('vx-table-row', className)} style={mergeStyle({ display: 'flex', flexDirection: 'row' }, style ?? {})}>
+		{children}
+	</masonview>
+}
+
+export function TableCell(props: TableCellProps) @{
+	const { children, className, style, colSpan, ...rest } = props
+	<masonview {...rest} className={cx('vx-table-cell', className)} style={mergeStyle({ display: 'flex', flexGrow: colSpan ?? 1 }, style ?? {})}>
+		{children}
+	</masonview>
+}
+
+export function TableHeaderCell(props: TableHeaderCellProps) @{
+	const { children, className, style, ...rest } = props
+	<masonview {...rest} className={cx('vx-table-cell vx-table-th', className)} style={mergeStyle({ display: 'flex' }, style ?? {})}>
+		{children}
 	</masonview>
 }

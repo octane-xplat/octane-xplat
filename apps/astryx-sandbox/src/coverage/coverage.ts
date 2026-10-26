@@ -65,7 +65,7 @@ export function coverageSummary() {
 export function familyRows() {
 	const families = new Map<string, { family: string; rows: CoverageRow[] }>()
 	for (const row of coverageRows) {
-		if (row.kind !== 'template-block' || !row.family) continue
+		if (row.kind !== 'template-block' || !row.family) {continue}
 		const entry = families.get(row.family) ?? { family: row.family, rows: [] }
 		entry.rows.push(row)
 		families.set(row.family, entry)

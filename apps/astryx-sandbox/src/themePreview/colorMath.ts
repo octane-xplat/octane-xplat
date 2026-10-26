@@ -66,7 +66,7 @@ export function hexToLab(hex: string): Rgb {
 export function hexToHct(hex: string): HCT {
 	const [L, a, b] = hexToLab(hex)
 	let hue = (Math.atan2(b, a) * 180) / Math.PI
-	if (hue < 0) hue += 360
+	if (hue < 0) {hue += 360}
 	return { hue, chroma: Math.sqrt(a * a + b * b), tone: L }
 }
 
@@ -122,7 +122,7 @@ export function darkTonalPalette(hue: number, chroma: number): Record<number, st
 	const result: Record<number, string> = {}
 	for (const t of TONE_STEPS) {
 		let lift = DARK_TONE_LIFT
-		if (t >= DARK_LIFT_TAPER_END) lift = 0
+		if (t >= DARK_LIFT_TAPER_END) {lift = 0}
 		else if (t > DARK_LIFT_TAPER_START) {
 			lift = (DARK_TONE_LIFT * (DARK_LIFT_TAPER_END - t)) / (DARK_LIFT_TAPER_END - DARK_LIFT_TAPER_START)
 		}

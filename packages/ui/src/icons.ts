@@ -35,6 +35,18 @@ const BUILTIN_ICONS: Record<BuiltinIconName, IconGlyph> = {
 	'xplat-chevron-right': {
 		svg: 'M8.59 16.59 10 18l6-6-6-6-1.41 1.41L13.17 12z',
 	},
+	'xplat-arrow-up': {
+		svg: 'M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z',
+	},
+	'xplat-arrow-down': {
+		svg: 'M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8 8-8z',
+	},
+	'xplat-arrows-up-down': {
+		svg: 'M12 5.83 15.17 9l1.41-1.41L12 3 7.41 7.59 8.83 9 12 5.83zm0 12.34L8.83 15l-1.41 1.41L12 21l4.59-4.59L15.17 15 12 18.17z',
+	},
+	'xplat-funnel': {
+		svg: 'M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z',
+	},
 	'xplat-doc-image': {
 		svg: 'M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z',
 	},

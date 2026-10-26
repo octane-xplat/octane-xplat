@@ -277,8 +277,12 @@ export function ComponentsDemo() @{
 		<View className="controls-section">
 			<Text className="font-bold">Data display</Text>
 			<Table
-				columns={[{ key: 'name', label: 'Name' }, { key: 'qty', label: 'Qty', width: 50, align: 'right' }]}
-				rows={[{ name: 'Apples', qty: 4 }, { name: 'Pears', qty: 2 }, { name: 'Figs', qty: 9 }]}
+				columns={[
+					{ key: 'name', header: 'Name' },
+					{ key: 'qty', header: 'Qty', width: { type: 'pixel', value: 50 }, align: 'end' },
+				]}
+				data={[{ name: 'Apples', qty: 4 }, { name: 'Pears', qty: 2 }, { name: 'Figs', qty: 9 }]}
+				idKey="name"
 			/>
 			<Timeline items={[
 				{ key: 'a', title: 'Ordered', time: '09:12' },

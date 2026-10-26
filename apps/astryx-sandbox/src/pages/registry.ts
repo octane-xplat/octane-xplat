@@ -10,6 +10,7 @@ import { Y2kPalettePage } from './palettes/Y2kPalettePage'
 import { ButterPalettePage } from './palettes/ButterPalettePage'
 import { TapTargetsPage } from './tap-targets/TapTargetsPage'
 import { TextareaCounterPage } from './textarea-counter/TextareaCounterPage'
+import { ComponentScoresPage } from './component-scores/ComponentScoresPage'
 
 const pages: Record<string, () => any> = {
 	'/pages/media-mode/': MediaModePage,
@@ -20,6 +21,7 @@ const pages: Record<string, () => any> = {
 	'/pages/butter-palette/': ButterPalettePage,
 	'/pages/tap-targets/': TapTargetsPage,
 	'/pages/textarea-counter/': TextareaCounterPage,
+	'/pages/component-scores/': ComponentScoresPage,
 }
 
 export const portedPages = new Set(Object.keys(pages))

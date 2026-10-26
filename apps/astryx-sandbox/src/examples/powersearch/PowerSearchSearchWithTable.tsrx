@@ -1,5 +1,8 @@
 // Port of upstream PowerSearch/PowerSearchSearchWithTable.tsx (Astryx 0.6.4, MIT).
-import { PowerSearch, Icon, Text, createPowerSearchConfig } from '@octane-xplat/ui'
+// Unit 6 revision: the raw <table> is now the public `Table` with the
+// PowerSearch-filtered rows — the same narrowing pipeline the flat-table
+// consumers exercise.
+import { PowerSearch, Icon, Table, Text, VStack, createPowerSearchConfig } from '@octane-xplat/ui'
 import { useState } from 'octane'
 import type { PowerSearchFilterFor } from '@octane-xplat/ui'
 
@@ -26,12 +29,17 @@ export function PowerSearchSearchWithTable() @{
 		(!statusFilter || r.status.toLowerCase() === String(statusFilter.value).toLowerCase()) &&
 		r.name.toLowerCase().includes(nameQuery))
 
-	<div style={{width: 560}}>
+	<VStack gap={3} width={560}>
 		<PowerSearch config={config} filters={filters} onChange={setFilters} placeholder="Search projects…" startIcon={<Icon name="sandbox-magnifying-glass" size={16} />} />
-		<table style={{marginTop: 12, width: '100%', fontSize: 14, borderCollapse: 'collapse'}}>
-			<thead><tr><th style={{textAlign: 'left', padding: 6, borderBottom: '1px solid var(--color-border, #ddd)'}}>Name</th><th style={{textAlign: 'left', padding: 6, borderBottom: '1px solid var(--color-border, #ddd)'}}>Status</th><th style={{textAlign: 'left', padding: 6, borderBottom: '1px solid var(--color-border, #ddd)'}}>Owner</th></tr></thead>
-			<tbody>{rows.map((r) => <tr key={r.id}><td style={{padding: 6, borderBottom: '1px solid var(--color-border, #eee)'}}>{r.name}</td><td style={{padding: 6, borderBottom: '1px solid var(--color-border, #eee)'}}>{r.status}</td><td style={{padding: 6, borderBottom: '1px solid var(--color-border, #eee)'}}>{r.owner}</td></tr>)}</tbody>
-		</table>
-		{rows.length === 0 && <Text type="supporting">No matching projects.</Text>}
-	</div>
+		<Table
+			data={rows}
+			columns={[
+				{ key: 'name', header: 'Name' },
+				{ key: 'status', header: 'Status' },
+				{ key: 'owner', header: 'Owner' },
+			]}
+			idKey="id"
+			emptyState={<Text type="supporting">No matching projects.</Text>}
+		/>
+	</VStack>
 }

@@ -1,6 +1,7 @@
 // Measured parity fixtures — assertions live in Table.parity.check.ts.
 import { Table } from './Table'
 import { View } from './View'
+import { pixel } from './table/column-utils'
 import type { ParityFixture } from './parity'
 
 function TableFixture() @{
@@ -8,11 +9,11 @@ function TableFixture() @{
 		className="parity-table-root"
 		style={{ width: 220, height: 96, backgroundColor: '#f5f5f5' }}
 		columns={[
-			{ key: 'name', label: '', width: 100 },
-			{ key: 'status', label: '', width: 100 },
+			{ key: 'name', header: '', width: pixel(100), renderCell: () => <View className="parity-table-cell-content" style={{ width: 64, height: 24 }} /> },
+			{ key: 'status', header: '', width: pixel(100) },
 		]}
-		rows={[{ name: 'Profile', status: 'Ready' }, { name: 'Security', status: 'Pending' }]}
-		renderCell={() => <View className="parity-table-cell-content" style={{ width: 64, height: 24 }} />}
+		data={[{ name: 'Profile', status: 'Ready' }, { name: 'Security', status: 'Pending' }]}
+		idKey="name"
 	/>
 }
 

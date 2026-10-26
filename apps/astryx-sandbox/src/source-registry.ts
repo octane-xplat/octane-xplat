@@ -46,7 +46,7 @@ const pageSourceFiles: Record<string, string> = {
 /** The Octane source rendered for a route, or null when the row is pending
  *  (no ported implementation exists to describe). */
 export function sourceForRow(row: CoverageRow | undefined): string | null {
-	if (!row) return null
+	if (!row) {return null}
 	if ((row.kind === 'template-block' || row.kind === 'template-page') && row.name) {
 		return byExampleName.get(row.name) ?? null
 	}

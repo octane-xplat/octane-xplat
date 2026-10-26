@@ -248,6 +248,24 @@ import { FormLayoutHorizontalLabels } from './formlayout/FormLayoutHorizontalLab
 import { FormLayoutMixedControls } from './formlayout/FormLayoutMixedControls'
 import { FormLayoutNested } from './formlayout/FormLayoutNested'
 import { FormLayoutShowcase } from './formlayout/FormLayoutShowcase'
+import { TableShowcase } from './table/TableShowcase'
+import { TableInCard } from './table/TableInCard'
+import { TableStripedTable } from './table/TableStripedTable'
+import { TableGridDividersTable } from './table/TableGridDividersTable'
+import { TableRichCellTable } from './table/TableRichCellTable'
+import { TableSelectableTable } from './table/TableSelectableTable'
+import { TableSortableTable } from './table/TableSortableTable'
+import { TablePaginatedTable } from './table/TablePaginatedTable'
+import { TableColumnSettingsTable } from './table/TableColumnSettingsTable'
+import { TableResizableTable } from './table/TableResizableTable'
+import { ColumnResizeHookUsage } from './table/ColumnResizeHookUsage'
+import { TableFilterableTable } from './table/TableFilterableTable'
+import { TableInlineFilterTable } from './table/TableInlineFilterTable'
+import { TableBulkActionsTable } from './table/TableBulkActionsTable'
+import { TableFloatingBulkActionsTable } from './table/TableFloatingBulkActionsTable'
+import { PaginationWithTable } from './pagination/PaginationWithTable'
+import { TableTemplate } from './pages/table-template'
+import { TablePageTemplate } from './pages/table-page-template'
 
 const examples: Record<string, () => any> = {
 	AspectRatioCircleImage,
@@ -497,6 +515,25 @@ const examples: Record<string, () => any> = {
 	FormLayoutMixedControls,
 	FormLayoutNested,
 	FormLayoutShowcase,
+	TableShowcase,
+	TableInCard,
+	TableStripedTable,
+	TableGridDividersTable,
+	TableRichCellTable,
+	TableSelectableTable,
+	TableSortableTable,
+	TablePaginatedTable,
+	TableColumnSettingsTable,
+	TableResizableTable,
+	ColumnResizeHookUsage,
+	TableFilterableTable,
+	TableInlineFilterTable,
+	TableBulkActionsTable,
+	TableFloatingBulkActionsTable,
+	PaginationWithTable,
+	// Page templates (slug keys) — unit 6 flat-table pages.
+	'table': TableTemplate,
+	'table-page': TablePageTemplate,
 }
 
 export const portedExamples = new Set(Object.keys(examples))

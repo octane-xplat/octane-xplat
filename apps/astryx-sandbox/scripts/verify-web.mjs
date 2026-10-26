@@ -542,6 +542,159 @@ try {
 	check('textarea-counter live count', counterText.includes('/140') || counterText.includes('remaining'))
 
 	await verifyMedia(page, baseUrl, check, browser)
+	// ==================== Unit 6: flat-table contracts ====================
+
+	const tableCases = [
+		['/templates/TableShowcase/', 'Alice Johnson', 'Email'],
+		['/templates/TableInCard/', 'Team Members', 'Diana Prince'],
+		['/templates/TableStripedTable/', 'Eve Davis', 'Designer'],
+		['/templates/TableGridDividersTable/', 'Retention', '$1.8M'],
+		['/templates/TableRichCellTable/', 'alice@example.com', 'Engineer'],
+		['/templates/TableSelectableTable/', 'alice@example.com', 'Admin'],
+		['/templates/TableSortableTable/', 'Manager', 'charlie@example.com'],
+		['/templates/TablePaginatedTable/', 'Alice Johnson', 'Charlie Brown'],
+		['/templates/TableColumnSettingsTable/', 'Department', 'Operations'],
+		['/templates/TableResizableTable/', 'Analyst', 'eve@example.com'],
+		['/templates/ColumnResizeHookUsage/', 'Analyst', 'PM'],
+		['/templates/TableFilterableTable/', 'Infrastructure', 'Admin'],
+		['/templates/TableInlineFilterTable/', 'Infrastructure', 'Any'],
+		['/templates/TableBulkActionsTable/', 'Admin', 'eve@example.com'],
+		['/templates/TableFloatingBulkActionsTable/', 'Active users', 'Pending reviews'],
+		['/templates/PaginationWithTable/', 'Olivia Chen', 'James Okafor'],
+		['/templates/PowerSearchSearchWithTable/', 'Project Alpha', 'Owner'],
+	]
+	for (const [route, needle, needle2] of tableCases) {
+		await page.goto(baseUrl + route, { waitUntil: 'networkidle' })
+		const hit = await page.locator(`text=${needle}`).count()
+		const hit2 = await page.locator(`text=${needle2}`).count()
+		check(`route ${route}`, hit > 0 && hit2 > 0, `${hit}/${hit2} needles`)
+	}
+
+	// Sorting: click "Age" header — ascending then descending reorders rows.
+	await page.goto(baseUrl + '/templates/TableSortableTable/', { waitUntil: 'networkidle' })
+	const ageHeader = page.locator('th', { hasText: 'Age' }).locator('button, [role="button"], .vx-table-sort-button').first()
+	const firstCell = () => page.locator('tbody tr td').nth(1).textContent()
+	check('sortable header button present', (await page.locator('.vx-table-sort-button').count()) >= 4, `${await page.locator('.vx-table-sort-button').count()} sort buttons`)
+	await ageHeader.click()
+	await page.waitForTimeout(300)
+	const firstAgeAsc = await page.locator('tbody tr').first().locator('td').nth(3).textContent()
+	check('sort ascending by age', firstAgeAsc?.trim() === '28' || firstAgeAsc?.trim() === '29', `first age ${firstAgeAsc}`)
+	await ageHeader.click()
+	await page.waitForTimeout(300)
+	const firstAgeDesc = await page.locator('tbody tr').first().locator('td').nth(3).textContent()
+	check('sort descending by age', firstAgeDesc?.trim() === '45', `first age ${firstAgeDesc}`)
+
+	// Selection: header select-all selects all rows; row checkbox toggles;
+	// bulk-actions toolbar appears and clears.
+	await page.goto(baseUrl + '/templates/TableBulkActionsTable/', { waitUntil: 'networkidle' })
+	const selAll = page.locator('thead .vx-checkbox-input, thead input[type="checkbox"]').first()
+	check('selection checkboxes render', (await page.locator('tbody input[type="checkbox"]').count()) === 5)
+	await selAll.click()
+	await page.waitForTimeout(300)
+	check('select-all → toolbar shows count', (await page.textContent('body')).includes('5 selected'))
+	check('selected rows marked', (await page.locator('tr[aria-selected="true"], .vx-table-row--selected').count()) === 5)
+	await page.locator('button', { hasText: 'Unselect All' }).click()
+	await page.waitForTimeout(300)
+	check('clear selection empties toolbar', !(await page.textContent('body')).includes('selected'))
+
+	// Pagination: next page swaps rows.
+	await page.goto(baseUrl + '/templates/TablePaginatedTable/', { waitUntil: 'networkidle' })
+	const pageOneFirst = await page.locator('tbody tr').first().locator('td').first().textContent()
+	await page.locator('.vx-page-btn', { hasText: /^2$/ }).first().click()
+	await page.waitForTimeout(300)
+	const pageTwoFirst = await page.locator('tbody tr').first().locator('td').first().textContent()
+	check('pagination swaps rows', pageOneFirst?.includes('Alice') === true && pageTwoFirst?.includes('Frank') === true, `${pageOneFirst} → ${pageTwoFirst}`)
+
+	// Column settings: unchecking 'Status' removes its header and cells.
+	await page.goto(baseUrl + '/templates/TableColumnSettingsTable/', { waitUntil: 'networkidle' })
+	check('settings table has 5 headers', (await page.locator('thead th').count()) === 5)
+	// MultiSelector — open and toggle 'Status'.
+	await page.locator('[role="combobox"], .vx-select, .vx-multiselector', { hasText: /Columns|name/i }).first().click().catch(() => {})
+	await page.waitForTimeout(300)
+	const statusOption = page.locator('[role="option"], .vx-menu-item, label', { hasText: 'Status' }).first()
+	if (await statusOption.count()) {
+		await statusOption.click()
+		await page.waitForTimeout(300)
+	}
+	const headerCount = await page.locator('thead th').count()
+	check('column settings toggle hides column', headerCount === 4, `${headerCount} headers`)
+
+	// Column resize: header separator handle exists; keyboard resize widens.
+	await page.goto(baseUrl + '/templates/TableResizableTable/', { waitUntil: 'networkidle' })
+	const handles = await page.locator('[role="separator"].vx-table-resize-handle').count()
+	check('resize handles render', handles >= 3, `${handles} handles`)
+	const nameCol = page.locator('thead th', { hasText: 'Name' })
+	const beforeW = await nameCol.boundingBox()
+	await page.locator('thead th', { hasText: 'Name' }).locator('[role="separator"]').first().focus()
+	await page.keyboard.press('ArrowRight')
+	await page.keyboard.press('ArrowRight')
+	await page.waitForTimeout(200)
+	const afterW = await nameCol.boundingBox()
+	check('keyboard resize widens column', beforeW != null && afterW != null && afterW.width > beforeW.width, `${beforeW?.width} → ${afterW?.width}`)
+
+	// Filtering (popover): funnel opens control; text filter narrows rows.
+	await page.goto(baseUrl + '/templates/TableFilterableTable/', { waitUntil: 'networkidle' })
+	const funnelBtn = page.locator('thead th', { hasText: 'Name' }).locator('button, [role="button"]').first()
+	check('filter trigger renders', (await page.locator('thead button').count()) >= 3)
+	await funnelBtn.click()
+	await page.waitForTimeout(400)
+	const filterInput = page.locator('[role="dialog"] input, .vx-popover input').first()
+	await filterInput.fill('Ali').catch(() => {})
+	await page.waitForTimeout(200)
+	await page.locator('button', { hasText: 'Apply' }).click()
+	await page.waitForTimeout(300)
+	const filteredRows = await page.locator('tbody tr').count()
+	check('popover filter narrows rows', filteredRows === 1, `${filteredRows} rows`)
+
+	// Filtering (inline): enum selector narrows rows.
+	await page.goto(baseUrl + '/templates/TableInlineFilterTable/', { waitUntil: 'networkidle' })
+	check('inline filter controls render', (await page.locator('thead input, thead [role="combobox"], thead select').count()) >= 3)
+	const roleSel = page.locator('thead').locator('[role="combobox"], select').first()
+	await roleSel.click().catch(() => {})
+	await page.waitForTimeout(300)
+	await page.locator('[role="option"], .vx-menu-item', { hasText: 'Engineer' }).first().click().catch(() => {})
+	await page.waitForTimeout(300)
+	const inlineRows = await page.locator('tbody tr').count()
+	check('inline filter narrows rows', inlineRows > 0 && inlineRows < 5, `${inlineRows} rows`)
+
+	// /templates/table/ page: layout + table rows (rendered in the embed iframe).
+	const embedFrame = async (part) => {
+		await page.waitForSelector('iframe', { timeout: 8000 }).catch(() => {})
+		for (let i = 0; i < 10; i++) {
+			const f = page.frames().find((fr) => fr !== page.mainFrame() && fr.url().includes(part))
+			if (f) return f
+			await page.waitForTimeout(400)
+		}
+		return page
+	}
+	await page.goto(baseUrl + '/templates/table/', { waitUntil: 'networkidle' })
+	const tplFrame = await embedFrame('/templates/table?')
+	check('table template page', (await tplFrame.locator('text=Item One').count()) > 0 && (await tplFrame.locator('text=Items').count()) > 0)
+
+	// /templates/table-page/ invoice: filters + sort + totals + empty state.
+	await page.goto(baseUrl + '/templates/table-page/', { waitUntil: 'networkidle' })
+	const invFrame = await embedFrame('/templates/table-page?')
+	check('invoice table renders', (await invFrame.locator('text=Invoice INV-2043').count()) > 0 && (await invFrame.locator('text=Total due').count()) > 0 && (await invFrame.locator('text=Wireframes — key templates').count()) > 0)
+	await invFrame.locator('input[placeholder="Search…"]').fill('wireframes')
+	await page.waitForTimeout(300)
+	const invRows = await invFrame.locator('tbody tr').count()
+	check('invoice search narrows to 1 row', invRows === 1, `${invRows} rows`)
+	check('filtered-view banner appears', (await invFrame.locator('text=Filtered view').count()) > 0)
+	await invFrame.locator('button', { hasText: 'Clear all filters' }).click()
+	await page.waitForTimeout(300)
+	check('clear restores rows', (await invFrame.locator('tbody tr').count()) === 19)
+	await invFrame.locator('input[placeholder="Search…"]').fill('zzz-no-match')
+	await page.waitForTimeout(300)
+	check('invoice empty state', (await invFrame.locator('text=No matching line items').count()) > 0)
+
+	// /pages/component-scores/ audit ledger.
+	await page.goto(baseUrl + '/pages/component-scores/', { waitUntil: 'networkidle' })
+	const csFrame = await embedFrame('/pages/component-scores?')
+	check('component-scores ledger', (await csFrame.locator('text=Component Audits').count()) > 0 && (await csFrame.locator('text=Weakest rubric area').count()) > 0 && (await csFrame.locator('text=TBD').count()) > 0)
+	await csFrame.locator('input[placeholder*="Filter components"]').fill('toast')
+	await page.waitForTimeout(300)
+	check('component-scores filter narrows', (await csFrame.locator('tbody tr').count()) === 1)
+
 	check('no page errors', errors.length === 0, errors.slice(0, 3).join(' | '))
 } finally {
 	await browser.close()

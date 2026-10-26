@@ -53,9 +53,9 @@ export function listenEmbedThemeSync(
 	apply: (theme?: string, mode?: 'light' | 'dark') => void,
 ): void {
 	window.addEventListener('message', (event) => {
-		if (event.origin !== window.location.origin) return
+		if (event.origin !== window.location.origin) {return}
 		const data = event.data as { type?: string; theme?: unknown; mode?: unknown } | undefined
-		if (data?.type !== 'astryx-theme-sync') return
+		if (data?.type !== 'astryx-theme-sync') {return}
 		apply(
 			typeof data.theme === 'string' ? data.theme : undefined,
 			data.mode === 'light' || data.mode === 'dark' ? data.mode : undefined,

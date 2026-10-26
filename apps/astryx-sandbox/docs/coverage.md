@@ -18,9 +18,9 @@ never dropped; the ledger at `/templates/` renders this data live.
 | fixed (`/`, `/404/`) | 2 | `(sandbox)/page.tsx`, generated | both ported |
 | category indexes | 3 | `[category]/CategoryContent.tsx` | all ported |
 | template index (`/templates/`) | 1 | `(sandbox)/templates/page.tsx` | ported as coverage ledger |
-| authored pages (`/pages/*`) | 51 | `(sandbox\|fullscreen\|raw)/pages/**/page.tsx` | all pending (honest placeholders, group framing preserved) |
-| block templates | 659 | `cli/assets/templates/blocks/components/<Family>/<Name>.tsx` | 71 ported (Button ×6, Text ×9, overlays ×56), 588 pending |
-| page templates | 55 | `cli/assets/templates/pages/<slug>/page.tsx` | all pending |
+| authored pages (`/pages/*`) | 51 | `(sandbox\|fullscreen\|raw)/pages/**/page.tsx` | 8 ported (5 palettes, tap-targets, textarea-counter, component-scores), 43 pending |
+| block templates | 659 | `cli/assets/templates/blocks/components/<Family>/<Name>.tsx` | 186 ported (Button ×6, Text ×9, overlays ×56, forms/selection/date ×99, flat tables ×15, pagination ×1), 473 pending |
+| page templates | 55 | `cli/assets/templates/pages/<slug>/page.tsx` | 2 ported (`table`, `table-page`), 53 pending |
 
 Routing preserves the pinned URL space (trailing-slash routes resolve
 against `/templates/:name` and `/pages/*rest`; unmatched URLs land on the
@@ -381,3 +381,40 @@ assistive-technology delivery, OS touch/keyboard, or native-host claim.
 The shared-overlays recipe's AC5 names the media APIs and remains current;
 this unit adds media runtime evidence, not a complete modal/host qualification.
 Other recipes do not prescribe these new hooks or change workflow.
+## API mappings and substitutions (unit 6 — flat-table contracts)
+
+The monolithic `Table` (columns/rows/label/width:number/onRowPress) was
+replaced at source by the Astryx contract — `data` + `columns` + plugin
+pipeline in `@octane-xplat/ui` (breaking; old API removed, callers updated:
+ComponentsDemo, parity fixture, table-props test).
+
+| Upstream API | Xplat equivalent | Disposition |
+| --- | --- | --- |
+| `Table`/`BaseTable` data mode + `plugins` record | `Table` (`data`, `columns`, `idKey`, `plugins`, `density`, `dividers`, `isStriped`, `hasHover`, `verticalAlign`, `textOverflow`, `emptyState`, `rowIndexStart`/`rowCount` aria) | **ported** — web leaf renders semantic `<table>/<thead>/<tbody>/<tr>/<th>/<td>` running the full transform pipeline; universal/AppKit leaves map the same render plan to flex rows (DOM-only effects degrade to data effects) |
+| `TableHeader`/`TableBody`/`TableFooter`/`TableRow`/`TableCell`/`TableHeaderCell` + `TableContext` | same names in `@octane-xplat/ui` | **ported** — children-mode composition reads density/dividers/striping from `TableContext`; `contextMenuActions` render through `ContextMenu` on web |
+| `TablePlugin` transforms (`transformColumns`/`transformTable`/`transformHeaderCell`/`transformHeaderRow`/`transformBodyCell`/`transformBodyRow`/`transformScrollWrapper`/`transformTableContext`) | same interface; `xstyle` → `classes: ClassValue[]`, DOM prop bag stays `htmlProps` | **ported** — sequential pipeline + canonical plugin ordering (`columnSettings → sort → tree → selection → pagination`); a throwing plugin is skipped rather than blanking the table |
+| `proportional`/`pixel`/`generateColumns`/`resolveColumnWidths`/`DEFAULT_MIN_COLUMN_WIDTH` | same names in `@octane-xplat/ui` (`pixel` shared with the resizable-size DSL — identical `{type:'pixel',value}` shape) | **ported** — proportional shares resolve to % widths + min-width floors; `tableMinWidth` aggregate on the table element |
+| `useTableSelection` + `useTableSelectionState` (actionable vs frozen keys, select-all, disabled/non-selectable rows) | same names | **ported** — injected `__xds_selection` checkbox column, `aria-selected` + `vx-table-row--selected` row marking; deselect-all preserves disabled-but-selected (frozen) keys |
+| `TableSelectionToolbar` | same name | **ported** — selection-aware toolbar via `Toolbar`; hides until `hasSelection`; `Unselect All` resets the full set |
+| `useTableSortable` + `useTableSortableState` (asc/desc/unsorted, multi-sort, comparators, `aria-sort`, sort context-menu actions) | same names | **ported** — header `<button>` sort control (web) / tappable header (native); context-menu actions on header cells; stable sorted-data derivation with `Intl.Collator {numeric:true}` fallback; `allowUnsortedState`/`isMultiSortEnabled` honored |
+| `useTablePagination` + `paginateData` | same names | **ported** — Pagination chrome above/below/both via `transformTableContext`; `totalItems`/`totalPages`+`pageSize` → `pageCount`. Upstream `hasMore`/`pageSizeOptions`/`onPageSizeChange`/`variant`/`size`/`label` options are accepted but have no xplat `Pagination` equivalent — **recorded gap** |
+| `useTableColumnSettings` + `useTableColumnSettingsState` (visibility, always-visible, show-all, reset, active order) | same names | **ported** — pure filter+reorder `transformColumns`; sandbox exercises it through `MultiSelector` |
+| `useTableColumnResize` (drag + keyboard separator, min/max, proportional neighbors, `columnWidths` overrides, `onColumnResizeEnd`) | same name | **ported on web** — `role="separator"` handles with pointer drag + Arrow/Home/End keyboard resize and controlled `columnWidths`; **recorded gap** — native leaves apply width overrides only, no separator (pointer capture + DOM measurement are web-specific); upstream's proportional-neighbor compensation deferred |
+| `useTableFiltering` + `useTableFilterState` + `toSearchFilters` (popover + inline/inline-compact variants; string/number/enum/enum_list/date/time/string_list/entity_list controls from operator value type) | same names | **ported** — funnel `IconButton` opens a Popover with a draft FilterControl (Reset/Apply); inline renders the control in the header `below` slot; `toSearchFilters` resolves field/operator from the column's `filter` ref + shared `PowerSearchConfig` for `applyFilters`. Upstream's nested/custom/date-relative/date-range/empty operator types produce no control, matching upstream |
+| `Badge variant` (rich-cell + grade cells) | — | `.sb-badge--*` classes — adaptation (unresolved upstream Badge variants) |
+| `Text hasTabularNumbers`/`justify`/`display` | — | `.sb-tabular`/`.sb-text-end` classes — adaptation |
+| Pagination component `totalItems`/`pageSize`/`variant="count"`/`size` | `Pagination` `page`/`pageCount`/`onPageChange` | **adapted** — `PaginationWithTable` computes `pageCount`; upstream Pagination variants belong to that family's owner |
+| `@astryxdesign/lab` `Drawer`/`Stat` + generated `componentScores` ledger | — | **adapted** — `/pages/component-scores/` embeds a representative static roster (upstream generates roster+snapshot at build from component registry + remote wiki); `Stat` → Card+Text; `Drawer` → `Dialog`; `MoreMenu` → `DropdownMenu` |
+| `table-page` HoverCard anchored to `<tr>` via `closest('tr')` + `useHoverCard` | — | **adapted** — DOM row-anchoring is a web escape hatch; the ported `DescriptionCell` renders the description text (hover-card detail deferred) |
+| `table-page` `useFlushEdges` consumer plugin | consumer-authored `TablePlugin` | **ported** verbatim — same `transformHeaderCell`/`transformBodyCell` htmlProps.style shape |
+| `TableFloatingBulkActionsTable` StyleX sticky-toolbar styles | sandbox CSS (`.sb-bulk-*`) | **adapted** — same sticky/elevated toolbar effect |
+
+### Runtime evidence (unit 6 — web/Chromium, `vite build` + `vite preview`)
+
+`node scripts/verify-web.mjs` covers all 20 unit-6 routes with rendered-content
+checks plus behavior journeys: sort asc→desc via header button, select-all →
+toolbar count → unselect-all, page swap, column-settings hide, keyboard
+column resize, popover filter apply, inline enum filter, invoice
+search→filtered-view banner→clear→empty state, and component-scores
+filtering. See the script's per-check PASS/FAIL output; Chromium/Playwright,
+no pixel claims.

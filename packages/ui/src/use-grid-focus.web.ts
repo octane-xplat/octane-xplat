@@ -1,5 +1,6 @@
 import { useRef, useState } from 'octane'
 import type { GridFocusOptions, GridFocusResult } from './use-grid-focus'
+export type { GridFocusOptions, GridFocusResult }
 
 /** Web `useGridFocus` — roving-tabindex arrow-key grid navigation. The host
  *  carries `onKeyDown`; cells opt into focus management via
