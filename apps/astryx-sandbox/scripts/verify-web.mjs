@@ -21,7 +21,9 @@ const page = await browser.newPage()
 const errors = []
 page.on('pageerror', (e) => errors.push(String(e)))
 page.on('console', (m) => {
-	if (m.type() === 'error') errors.push(m.text())
+	if (m.type() === 'error') {
+		errors.push(m.text())
+	}
 })
 
 try {
@@ -56,6 +58,19 @@ try {
 	check('themes category navigates', page.url().includes('/themes'), page.url())
 	check('themes heading', (await page.textContent('h1'))?.includes('Themes'))
 
+	// Every pinned category index route renders its own heading + card grid.
+	const categoryCases = [
+		['/components-patterns/', 'Components & Patterns'],
+		['/themes/', 'Themes'],
+		['/tools/', 'Tools'],
+	]
+	for (const [route, label] of categoryCases) {
+		await page.goto(baseUrl + route, { waitUntil: 'networkidle' })
+		const heading = await page.textContent('h1')
+		const cards = await page.locator('.sb-card-grid a').count()
+		check(`category ${route} renders`, heading?.includes(label) && cards > 0, `${cards} cards`)
+	}
+
 	// Templates ledger: counts + family rows + statuses
 	await page.goto(baseUrl + '/templates/', { waitUntil: 'networkidle' })
 	const ledgerText = await page.textContent('body')
@@ -70,6 +85,33 @@ try {
 	// Ported Text example route
 	await page.goto(baseUrl + '/templates/TextShowcase/', { waitUntil: 'networkidle' })
 	check('TextShowcase renders text types', (await page.textContent('body')).includes('The bulk of content'))
+
+	// Every unit-1 ported example route gets a rendered-content check: the
+	// preview stage carries real content, never the pending placeholder.
+	const unit1Examples = [
+		'ButtonFloating',
+		'ButtonShowcase',
+		'ButtonSizeVariants',
+		'ButtonVariants',
+		'ButtonWithEndSlot',
+		'ButtonWithIcon',
+		'TextColors',
+		'TextHeadingLevels',
+		'TextInline',
+		'TextShowcase',
+		'TextTruncation',
+		'TextTypes',
+		'TextWeight',
+		'TextWordBreak',
+		'TextWrap',
+	]
+	for (const name of unit1Examples) {
+		await page.goto(`${baseUrl}/templates/${name}/`, { waitUntil: 'networkidle' })
+		const stage = page.locator('.sb-preview-stage')
+		const pending = await stage.locator('.sb-pending').count()
+		const content = ((await stage.textContent()) ?? '').trim()
+		check(`unit-1 route ${name} renders ported content`, pending === 0 && content.length > 0, `${content.length} chars`)
+	}
 
 	// Pending template route — honest placeholder, not a fake
 	await page.goto(baseUrl + '/templates/AppShellShowcase/', { waitUntil: 'networkidle' })
@@ -165,7 +207,9 @@ try {
 		)
 		const themedAccent = await page.evaluate((name) => {
 			const scope = document.querySelector(`.xds-theme-${name}`)
-			if (!scope) return ''
+			if (!scope) {
+				return ''
+			}
 			const probe = document.createElement('div')
 			probe.style.color = 'var(--color-accent)'
 			scope.appendChild(probe)
@@ -496,7 +540,9 @@ async function frameBodyText(page, urlPart, needle) {
 		const frame = page.frames().find((f) => f !== page.mainFrame() && f.url().includes(urlPart))
 		if (frame) {
 			const text = await frame.locator('body').textContent().catch(() => '')
-			if ((text ?? '').includes(needle)) return text
+			if ((text ?? '').includes(needle)) {
+				return text
+			}
 		}
 		await page.waitForTimeout(500)
 	}

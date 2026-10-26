@@ -1,5 +1,5 @@
 // Port of upstream Text/TextShowcase.tsx (Astryx 0.6.4, MIT).
-// Upstream Text type prop → token classes; code type → --font-mono class.
+// Upstream Text type prop → the ported type/size/color props on Xplat Text.
 import { Stack, Text } from '@octane-xplat/ui'
 
 export function TextShowcase() @{

@@ -157,6 +157,48 @@ is a client-routed SPA — adaptation recorded.
   are non-core integrations needing recorded adaptations per pinned
   inventory §6.
 
+## Runtime evidence (unit 1)
+
+Record format: `upstream/candidate revision · route/example · host/renderer ·
+initial state · input mechanism · expected/observed result · evidence ·
+verdict`. Candidate revision is the commit that last touched the checked
+surface; evidence is the named check in `scripts/verify-web.mjs`, run under
+Playwright 1.63.0 Chromium against `vite build` + `vite preview` (production
+bundle, not dev/HMR). Input is real browser automation (Playwright
+click/fill/goto through the Chromium input pipeline) — not DOM dispatch.
+`grep FAIL` count: 0.
+
+Baseline integrity: `scripts/generate-coverage.mjs --astryx <checkout>`
+re-run 2026-10-26 against a fresh `facebook/astryx` clone with HEAD
+`ebd939b665361a078015377c0dfe50cc3c1d70a4`; regeneration produced a
+byte-identical `src/coverage/pinned.ts` (771 routes, bijection enforced by
+the generator). Verdict: pass.
+
+| Route / example | Host/renderer | Initial state | Input | Expected → observed | Evidence | Verdict |
+| --- | --- | --- | --- | --- | --- | --- |
+| `/` home | web / Chromium | fresh context, default theme | `page.goto('/')` | heading "Astryx Sandbox", sidebar nav, populated card grid → all present | `home renders heading`, `home sidebar nav present`, `home card grid populated` | pass |
+| `/components-patterns/` | web / Chromium | fresh context | `page.goto` | category heading + card grid → "Components & Patterns" h1, cards > 0 | `category /components-patterns/ renders` | pass |
+| `/themes/` | web / Chromium | fresh context | `page.goto` | category heading + card grid → "Themes" h1, cards > 0 | `category /themes/ renders` | pass |
+| `/tools/` | web / Chromium | fresh context | `page.goto` | category heading + card grid → "Tools" h1, cards > 0 | `category /tools/ renders` | pass |
+| `/templates/` ledger | web / Chromium | fresh context | `page.goto('/templates/')` | "771 routes" summary + >100 pending status rows → present | `ledger summary counts`, `ledger shows pending rows` | pass |
+| `/templates/{ButtonFloating, ButtonShowcase, ButtonSizeVariants, ButtonVariants, ButtonWithEndSlot, ButtonWithIcon, TextColors, TextHeadingLevels, TextInline, TextShowcase, TextTruncation, TextTypes, TextWeight, TextWordBreak, TextWrap}/` (15 routes) | web / Chromium | fresh context | `page.goto` per route | `.sb-preview-stage` non-empty, `.sb-pending` absent → all 15 render ported content | `unit-1 route <Name> renders ported content` ×15 | pass |
+| `/templates/AppShellShowcase/` (pending) | web / Chromium | fresh context | `page.goto` | honest pending placeholder naming family → "pending" + "AppShell" text | `pending template shows placeholder` | pass |
+| `/pages/example/` (pending) | web / Chromium | fresh context | `page.goto` | framed placeholder naming upstream source → "apps/sandbox/src/app" text | `pending page shows upstream source` | pass |
+| `/pages/motion-lab/bugs/` (pending subtree) | web / Chromium | fresh context | `page.goto` | resolves as pending → "pending" text | `motion-lab subroute resolves` | pass |
+| `/definitely-not-a-route/` | web / Chromium | fresh context | `page.goto` | upstream-style 404 surface → "404" text | `unknown route shows 404` | pass |
+| `/` category filter | web / Chromium | home loaded | click "Themes" toggle, click "All" | filter narrows to ungrouped grid; "All" restores grouped sections → 9 cards filtered, sections restored | `category filter narrows grid`, `filtered grid is ungrouped`, `All restores sections` | pass |
+| `/` search | web / Chromium | home loaded | `fill` "palette" | card grid filters → 7 cards | `home search filters` | pass |
+| sidebar nav → `/themes/` | web / Chromium | home loaded | click sidebar "Themes" | client-side navigation, h1 "Themes" → url `/themes`, h1 correct | `themes category navigates`, `themes heading` | pass |
+| mode toggle | web / Chromium | home loaded | click mode menu → "Dark" | `localStorage["astryx-sandbox-mode"]="dark"` → `stored=dark` | `dark mode persists` | pass |
+| whole-run error sweep | web / Chromium | all journeys above | — | no pageerror/console errors → 0 | `no page errors` | pass |
+
+Boundaries not claimed: Firefox/WebKit journeys, iOS/Android/macOS/Linux/
+Windows hosts, OS-level input (touch/IME/assistive tech), pixel parity —
+all later-unit or sign-off scope. `verify-web.mjs` also carries unit-2…5
+checks (theme runtime, preview shell, overlays, forms) appended by those
+units; this table records the unit-1 slice only. Full suite: 115/115 pass
+at the recorded run.
+
 ## Unit 5 — forms, selection and date examples (34 families, 150 routes)
 
 Ported block families: Field, FieldLabel, FieldStatus, FormLayout,

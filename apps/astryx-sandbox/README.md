@@ -13,10 +13,12 @@ inventory.
 
 ## Status
 
-Foundation unit (1 of 14): app shell, home/category navigation, coverage
-inventory, and the initial Button (6) + Text (9) example slice are ported.
-Everything else is recorded as pending. See [docs/coverage.md](docs/coverage.md)
-for the route/API inventory, substitutions, and findings.
+Foundation unit (1 of 14) plus later units are landed: app shell,
+home/category navigation, coverage inventory, the Button (6) + Text (9)
+example slice, the theme runtime, preview shell, overlay and form families.
+Unported routes remain honest pending placeholders. See
+[docs/coverage.md](docs/coverage.md) for the route/API inventory,
+substitutions, findings, and runtime evidence.
 
 ## Run
 

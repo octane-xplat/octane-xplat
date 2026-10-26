@@ -1,5 +1,5 @@
 // Port of upstream Button/ButtonVariants.tsx (Astryx 0.6.4, MIT).
-// Text type/color props map to the app's token classes — see sandbox.css.
+// Upstream Text type/color props → the ported props on Xplat Text.
 import { Button, Stack, Text } from '@octane-xplat/ui'
 
 const VARIANTS = [
