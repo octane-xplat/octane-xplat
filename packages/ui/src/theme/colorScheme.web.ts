@@ -32,6 +32,9 @@ export function getColorScheme(): ColorScheme {
 export function subscribeSystemScheme(cb: () => void): () => void {
 	const transport = hostTransport()
 	if (!transport) {
+		// Non-DOM/test hosts have no matchMedia — nothing to subscribe to;
+		// getSystemScheme's guard already reports light there.
+		if (typeof matchMedia !== 'function') return () => {}
 		const mq = matchMedia('(prefers-color-scheme: dark)')
 		mq.addEventListener('change', cb)
 		return () => mq.removeEventListener('change', cb)

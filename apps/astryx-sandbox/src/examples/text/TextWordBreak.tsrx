@@ -8,7 +8,7 @@ export function TextWordBreak() @{
 			<View>
 				<Text className="sb-type-label sb-block">Break-word (default for multi-line)</Text>
 				<View className="sb-example-box" style={{ width: 200 }}>
-					<Text className="sb-type-body" numberOfLines={2} style={{ wordBreak: 'break-word' }}>
+					<Text className="sb-type-body" maxLines={2} style={{ wordBreak: 'break-word' }}>
 						This is a verylongunbreakableword for a break-word example
 					</Text>
 				</View>
@@ -16,7 +16,7 @@ export function TextWordBreak() @{
 			<View>
 				<Text className="sb-type-label sb-block">Break-all (default for single-line)</Text>
 				<View className="sb-example-box" style={{ width: 200 }}>
-					<Text className="sb-type-body" numberOfLines={2} style={{ wordBreak: 'break-all' }}>
+					<Text className="sb-type-body" maxLines={2} style={{ wordBreak: 'break-all' }}>
 						Breaks anywhere: abcdefghijklmnopqrstuvwxyz0123456789
 					</Text>
 				</View>

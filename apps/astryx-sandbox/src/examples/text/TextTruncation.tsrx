@@ -1,5 +1,5 @@
 // Port of upstream Text/TextTruncation.tsx (Astryx 0.6.4, MIT).
-// maxLines → numberOfLines (Xplat truncation contract).
+// maxLines prop is now native to Xplat Text.
 import { Stack, Text, View } from '@octane-xplat/ui'
 
 const LONG_TEXT =
@@ -18,7 +18,7 @@ export function TextTruncation() @{
 				<View key={maxLines}>
 					<Text className="sb-type-supporting sb-color-secondary sb-block">{label}</Text>
 					<View className="sb-example-box">
-						<Text className="sb-type-body" numberOfLines={maxLines}>
+						<Text className="sb-type-body" maxLines={maxLines}>
 							{LONG_TEXT}
 						</Text>
 					</View>

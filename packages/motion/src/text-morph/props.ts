@@ -22,7 +22,7 @@ export interface TextMorphCancel extends TextMorphRun {
  */
 export interface TextMorphProps extends Omit<
 	TextProps,
-	'children' | 'accessibilityLabel' | 'accessibilityValue' | 'numberOfLines' | 'ellipsize'
+	'children' | 'accessibilityLabel' | 'accessibilityValue' | 'maxLines'
 > {
 	/** Exact latest text, including whitespace and normalization form. Empty is
 	 * valid. Animate only reliable single-line LTR input, <=80 graphemes and

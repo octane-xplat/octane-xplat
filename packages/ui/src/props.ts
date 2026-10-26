@@ -620,13 +620,22 @@ export type Role =
 	| 'meter'
 	| 'status'
 
-/** Text label — a `span`-class text host (NS `Label`/`TextView` on native). `numberOfLines` truncates with an ellipsis (web uses line-clamp); `ellipsize` shrinks the box instead of wrapping. Typography comes from `className`/theme tokens; use `Heading` for semantic levels and `RichText`/`RichTextSpan` for mixed-format runs.
+/** Display-scale visual variants for `Heading` (Astryx `HeadingType`) — larger,
+ *  lighter `--text-display-*` sizing while `level` keeps semantic meaning. */
+export type HeadingType = 'display-1' | 'display-2' | 'display-3'
+
+/** Text label — a `span`-class text host (NS `Label`/`TextView` on native). `type`
+ *  applies the Astryx type scale (`--text-<type>-*` theme tokens), `size`/`color`/
+ *  `weight` refine it, and `maxLines` truncates with an ellipsis (single-line
+ *  clip at 1, line-clamp beyond — replaces the earlier `numberOfLines`/`ellipsize`
+ *  props). Omit `type` (or pass `'inherit'`) to keep ambient typography; use
+ *  `Heading` for semantic levels and `RichText`/`RichTextSpan` for mixed-format runs.
  *
  * @example
  * ```tsx
  * import { Text } from '@octane-xplat/ui'
  *
- * <Text numberOfLines={2}>{summary}</Text>
+ * <Text type="body" size="sm" color="secondary" maxLines={2}>{summary}</Text>
  * ```
  * @see HeadingProps, RichTextProps.
  */
@@ -635,8 +644,12 @@ export interface TextProps extends LayoutChildProps, TestIDProps {
 	style?: StyleProp
 	children?: Renderable
 	id?: string
-	numberOfLines?: number
-	ellipsize?: boolean
+	type?: TextType
+	size?: TextSize
+	color?: TextColor
+	weight?: TextWeight
+	/** Line cap before ellipsis truncation; 0/unset = no truncation. */
+	maxLines?: number
 	accessible?: boolean
 	accessibilityLabel?: string
 	accessibilityRole?: Role
@@ -2492,13 +2505,17 @@ export interface IconRegistryProviderProps {
 	children?: Renderable
 }
 
-/** Semantic section heading — `level` (1–6) is the semantic level, not a size; visual size comes from `className`/theme. Web renders `h1`–`h6`; native reports the `header` accessibility trait.
+/** Semantic section heading — `level` (1–6) is the semantic level and selects the
+ *  Astryx `--text-heading-<level>-*` scale (size/weight/leading); `type` swaps in
+ *  the display scale instead. Web renders `h1`–`h6`; native reports the `header`
+ *  accessibility trait.
  *
  * @example
  * ```tsx
  * import { Heading } from '@octane-xplat/ui'
  *
  * <Heading level={2}>Details</Heading>
+ * <Heading level={1} type="display-1">Hero</Heading>
  * ```
  * @see TextProps.
  */
@@ -2508,6 +2525,12 @@ export interface HeadingProps {
 	children?: Renderable
 	id?: string
 	level?: 1 | 2 | 3 | 4 | 5 | 6
+	/** Display-scale visual override; `level` still owns semantics. */
+	type?: HeadingType
+	color?: TextColor
+	weight?: TextWeight
+	/** Line cap before ellipsis truncation; 0/unset = no truncation. */
+	maxLines?: number
 	ios?: PlatformProps
 	android?: PlatformProps
 	web?: PlatformProps
@@ -11299,8 +11322,8 @@ export type SpinnerProps = ActivityIndicatorProps
 
 // ---------- content display (Astryx parity) ----------
 
-/** Semantic text roles used by Timestamp/Timer — the Astryx `type` axis.
- *  `inherit` adopts the surrounding text's metrics. */
+/** Semantic text roles — the Astryx `type` axis (shared by `Text`, Timestamp,
+ *  Timer). `inherit` adopts the surrounding text's metrics. */
 export type TextType =
 	| 'body'
 	| 'large'
@@ -11326,10 +11349,11 @@ export type TextSize =
 	| '3xl'
 	| '4xl'
 
-/** Semantic text colors shared by Timestamp/Timer (Astryx `color` axis). */
+/** Semantic text colors — the Astryx `color` axis (`placeholder` shares the
+ *  secondary token upstream). */
 export type TextColor = 'primary' | 'secondary' | 'disabled' | 'placeholder' | 'accent' | 'inherit'
 
-/** Font weight axis shared by Timestamp/Timer. */
+/** Font weight axis — the `--font-weight-*` token suffix. */
 export type TextWeight = 'normal' | 'medium' | 'semibold' | 'bold'
 
 /** Blockquote — styled quotation with optional `cite` attribution.

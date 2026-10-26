@@ -40,7 +40,7 @@ export function PropsDemo() @{
 		</View>
 		<View className="sink-section">
 			<Text className="section-label">Text clamping</Text>
-			<Text className="props-clamp" numberOfLines={2} ellipsize>
+			<Text className="props-clamp" maxLines={2}>
 				This longer sample exercises line clamping and single-line ellipsis behavior across the platform leaves.
 			</Text>
 		</View>

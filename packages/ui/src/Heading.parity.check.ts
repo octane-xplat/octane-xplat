@@ -16,7 +16,7 @@ export const CHECKS: ParityCheck[] = [
 		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { heading: 'parity-heading' },
 		equal: headingEqual,
-		check: (m) => headingRows(m, 24),
+		check: (m) => headingRows(m, 28),
 	},
 
 	{
@@ -24,7 +24,7 @@ export const CHECKS: ParityCheck[] = [
 		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { heading: 'parity-heading' },
 		equal: headingEqual,
-		check: (m) => headingRows(m, 18.72),
+		check: (m) => headingRows(m, 24),
 	},
 
 	{
@@ -32,7 +32,7 @@ export const CHECKS: ParityCheck[] = [
 		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { heading: 'parity-heading' },
 		equal: headingEqual,
-		check: (m) => headingRows(m, 16),
+		check: (m) => headingRows(m, 20),
 	},
 
 	{
@@ -40,7 +40,7 @@ export const CHECKS: ParityCheck[] = [
 		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { heading: 'parity-heading' },
 		equal: headingEqual,
-		check: (m) => headingRows(m, 13.28),
+		check: (m) => headingRows(m, 20),
 	},
 
 	{
@@ -48,14 +48,16 @@ export const CHECKS: ParityCheck[] = [
 		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { heading: 'parity-heading' },
 		equal: headingEqual,
-		check: (m) => headingRows(m, 10.72),
+		check: (m) => headingRows(m, 16),
 	},
 
 	{
+		// The level-1 scale resolves inline, so a text-xl class no longer sizes it —
+		// the resolved h1 line box is 32px on every target.
 		fixture: 'heading-custom-size',
 		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { heading: 'parity-heading' },
 		equal: headingEqual,
-		check: (m) => headingRows(m, 20),
+		check: (m) => headingRows(m, 32),
 	}
 ]

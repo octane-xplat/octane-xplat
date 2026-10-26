@@ -3538,13 +3538,14 @@ function applyClassName(node: ElementNode, value: any) {
 			'text-2xl': 36,
 		}
 
+		// Astryx heading scale (default theme): --text-heading-N-size/leading.
 		const headingMetrics: Record<string, { size: number; height: number }> = {
-			'vx-h1': { size: 32, height: 41 },
-			'vx-h2': { size: 24, height: 31 },
-			'vx-h3': { size: 18.72, height: 25 },
-			'vx-h4': { size: 16, height: 21 },
-			'vx-h5': { size: 13.28, height: 17 },
-			'vx-h6': { size: 10.72, height: 14 },
+			'vx-h1': { size: 24, height: 32 },
+			'vx-h2': { size: 20, height: 28 },
+			'vx-h3': { size: 17, height: 24 },
+			'vx-h4': { size: 14, height: 20 },
+			'vx-h5': { size: 12, height: 20 },
+			'vx-h6': { size: 10, height: 16 },
 		}
 
 		node.headingDefaultHeight = undefined
@@ -3552,7 +3553,7 @@ function applyClassName(node: ElementNode, value: any) {
 		for (const name of classes) {
 			const heading = headingMetrics[name]
 			if (heading) {
-				node.classFontWeight = '700'
+				node.classFontWeight = '600'
 				node.classFontSize = heading.size
 				node.headingDefaultHeight = heading.height
 			}

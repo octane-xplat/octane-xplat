@@ -41,7 +41,7 @@ is a client-routed SPA — adaptation recorded.
 | `Layout`, `LayoutHeader`, `LayoutContent` | none | composed as `shell/PageLayout.tsrx` (recorded gap) |
 | `TreeListItemData.href`/`isSelected` | `TreeListNode.href` (new) + `selectedKeys`/`selectionMode` | **ported** — href rows render the injected link element; leaf activation also reports `onAction` for keyboard paths |
 | `Grid columns={{minWidth}}` responsive | none — track grammar is static | `.sb-card-grid` CSS `repeat(auto-fill, minmax(320px,1fr))` — adaptation |
-| `Text type/color/weight/wordBreak/textWrap/maxLines/display` props | absent — typography via `className`/tokens; `numberOfLines` covers truncation | token classes in `sandbox.css`; `placeholder` color maps to `--color-text-disabled` (approximation) |
+| `Text`/`Heading` `type`/`size`/`color`/`weight`/`maxLines` props | **ported** in `@octane-xplat/ui` — `type`/`size`/`color`/`weight` resolve the theme's `--text-*`/`--font-*`/`--color-text-*` scale; `maxLines` replaces `numberOfLines`/`ellipsize`. `wordBreak`/`textWrap`/`display`/`hasTruncateTooltip`/`as` remain unported (style props cover them) |
 | `Badge variant="info|warning|neutral" label` | `Badge` unstyled container | `.sb-badge--*` classes — adaptation |
 | `Icon icon={<Icon icon={HeroIcon}/>}` (heroicons) | `icon` prop takes registered `IconName` | `sandbox-*` glyph registrations, same MIT path data |
 | `ToggleButtonGroup`/`ToggleButton` (single select) | same shape (value/onChange/children) | **deferred** — rendering the group inside the ported Home screen blanks the route at runtime (no error surfaced); category filter removed from the home page for unit 1 and recorded here for follow-up |
@@ -65,7 +65,7 @@ is a client-routed SPA — adaptation recorded.
 | `Overlay` media-scrim component (3 templates) | name collision with Xplat `Overlay` (modal scrim) | **adapted** — `examples/overlay/MediaOverlay.tsrx` composes the scrim+content pattern from `View`; upstream `<img>` sources substituted with themed gradient blocks |
 | `Layout`/`LayoutContent`/`LayoutFooter` slot composition (dialog examples) | none (F-3) | re-authored as `VStack` + padded sections |
 | `Button` `onClick` | `clickAction` | direct map (upstream contract preserved) |
-| `Text` `type`/`weight`/`color` | `sb-type-*`/`sb-color-*` classes | token classes (same map as unit 1); `weight="bold"` → `style={{fontWeight:600}}` where no class exists |
+| `Text` `type`/`weight`/`color` | native `Text` props (`type`/`size`/`color`/`weight`) in `@octane-xplat/ui` | `sb-type-*`/`sb-color-*` classes still applied as legacy shims until unit cleanup |
 | DropdownMenu `button={{label,variant,icon,isIconOnly}}` + `hasChevron` | `trigger` + `triggerClassName` (`vx-button` chrome) + explicit chevron icon | adaptation — the trigger is a `Pressable` (`role="button"` div), verified via class-based selectors |
 | `ContextMenu` `menuContent` | `menu` prop | direct map |
 | heroicons (`PencilSquareIcon`, `TrashIcon`, `ShareIcon`, `DocumentDuplicateIcon`, `EllipsisHorizontalIcon`, `MapPinIcon`, `Arrow*Icon`, `ArrowUturnLeftIcon`, `FlagIcon`, `CalendarIcon`, `TagIcon`, `UserIcon`, `FolderIcon`) | `sandbox-*` glyph registrations | same MIT heroicon path data; ellipsis maps to built-in `xplat-more-horizontal` |
@@ -206,7 +206,7 @@ New/extended contracts on existing components:
   `{value, onChange, close, isOpen, isBusy}` — upstream's
   `ComplexSelectorSection` composition collapses into the render body;
   `useGridFocus` drives the 3×3 showcase grid keyboard navigation.
-- `Text type=` maps to `sb-type-*` token classes (existing convention).
+- `Text`/`Heading` now carry the Astryx `type`/`size`/`color`/`weight`/`maxLines` props natively; `sb-type-*`/`sb-color-*` classes remain as shims pending the port cleanup.
 - `Badge variant/label` → children-only Badge (upstream variants not yet
   in Xplat — recorded gap).
 - `Banner status/title/description` → `icon` + children.

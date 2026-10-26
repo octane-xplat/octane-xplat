@@ -6,6 +6,8 @@ import type { TextProps } from "./props";
 import { cx } from "@octane-xplat/lib";
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from "./escape-props";
 import { layoutChildProps } from './layout-child';
+import { useTheme } from './theme/use-theme';
+import { textScaleStyle } from './text-scale';
 
 /**
  * Nested <Text> renders a <span> (rich-text run) inside the parent's
@@ -31,7 +33,23 @@ function TextScope(props: { children?: any }) {
  */
 export function Text(props: TextProps) @{
 	const inText = useContext(InText);
-	const fontWeightValue = String(styleRecord(props.style)?.fontWeight ?? '').toLowerCase();
+	const theme = useTheme();
+	const scale = textScaleStyle(theme.tokens, props);
+	const maxLines = props.maxLines ?? 0;
+
+	const textStyle: Record<string, any> = {
+		...(scale.fontSizePx != null && { fontSize: scale.fontSizePx }),
+		...(scale.fontWeight && { fontWeight: scale.fontWeight }),
+		...(scale.lineHeightPx != null && { lineHeight: scale.lineHeightPx }),
+		...(scale.fontFamily && { fontFamily: scale.fontFamily }),
+		...(scale.color && { color: scale.color }),
+		// Clamped text must be allowed to shrink — the shared shrink:0 default
+		// would let the label overflow its row instead of truncating.
+		...(maxLines > 0 && { flexShrink: 1 }),
+		...styleRecord(props.style),
+	};
+
+	const fontWeightValue = String(textStyle.fontWeight ?? '').toLowerCase();
 	const namedWeights: Record<string, number> = {
 		normal: 400,
 		bold: 700,
@@ -48,31 +66,28 @@ export function Text(props: TextProps) @{
 		? Number(fontWeightValue)
 		: namedWeights[fontWeightValue];
 
-	const lineHeight = styleRecord(props.style)?.lineHeight;
+	const lineHeight = textStyle.lineHeight;
 	// UIFontDescriptor resolves variable fonts to the regular axis default on
 	// iOS. Set wght explicitly so CSS fontWeight selects the matching instance.
-	const textStyle = {
-		...styleRecord(props.style),
-		...((Application.ios || Application.android) &&
+	if (
+		(Application.ios || Application.android) &&
 		typeof lineHeight === 'number' &&
 		Number.isFinite(lineHeight) &&
 		lineHeight > 0 &&
-		styleRecord(props.style)?.height == null &&
-		styleRecord(props.style)?.minHeight == null
-			? { minHeight: lineHeight }
-			: {}),
-		...(Application.ios &&
-		styleRecord(props.style)?.fontVariationSettings == null &&
+		textStyle.height == null &&
+		textStyle.minHeight == null
+	) {
+		textStyle.minHeight = lineHeight;
+	}
+	if (
+		Application.ios &&
+		textStyle.fontVariationSettings == null &&
 		fontWeight !== undefined &&
 		fontWeight >= 100 &&
 		fontWeight <= 900
-			? { fontVariationSettings: `'wght' ${fontWeight}` }
-			: {}),
-		// Clamped text must be allowed to shrink — the shared shrink:0 default
-		// would let the label overflow its row instead of truncating.
-		...(props.ellipsize || props.numberOfLines ? { flexShrink: 1 } : {}),
-		...(props.ellipsize ? { whiteSpace: 'nowrap', textOverflow: 'ellipsis' } : {}),
-	};
+	) {
+		textStyle.fontVariationSettings = `'wght' ${fontWeight}`;
+	}
 
 	@if (inText) {
 		<span ref={(v: any) => applyEscapeProps(v, props)} className={cx(props.className)} {...layoutChildProps(props, textStyle)}>
@@ -81,7 +96,7 @@ export function Text(props: TextProps) @{
 	} @else {
 		// NS Label renders single-line unless whiteSpace asks to wrap; web text
 		// wraps freely — 'normal' matches web (0 unlimited lines).
-		<label id={props.id} testID={props.testID ?? ''} ref={(v: any) => applyEscapeProps(v, props)} {...layoutChildProps(props, textStyle)} className={cx(props.className)} maxLines={props.numberOfLines ?? 0} whiteSpace={props.ellipsize ? 'nowrap' : 'normal'} textOverflow={props.ellipsize ? 'ellipsis' : undefined} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole)} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState)} accessibilityLiveRegion={props.accessibilityLiveRegion}>
+		<label id={props.id} testID={props.testID ?? ''} ref={(v: any) => applyEscapeProps(v, props)} {...layoutChildProps(props, textStyle)} className={cx('vx-text', props.type && `vx-text--${props.type}`, props.size && `vx-text--size-${props.size}`, props.color && `vx-text--color-${props.color}`, props.className)} maxLines={maxLines} whiteSpace={maxLines === 1 ? 'nowrap' : 'normal'} textOverflow={maxLines > 0 ? 'ellipsis' : undefined} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole)} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState)} accessibilityLiveRegion={props.accessibilityLiveRegion}>
 			<TextScope>{props.children}</TextScope>
 		</label>
 	}

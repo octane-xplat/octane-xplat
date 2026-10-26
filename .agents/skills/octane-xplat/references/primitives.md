@@ -19,6 +19,26 @@ export function PackingRow() {
 	)
 }
 ```
+	)
+}
+```
+
+## Text and Heading typography
+
+`Text` and `Heading` carry the Astryx type-scale props. `type` selects the
+theme's `--text-<type>-*` tokens (`body`, `large`, `label`, `supporting`,
+`code`, `display-1`–`display-3`); `size`, `color`, and `weight` refine it;
+`maxLines` truncates with an ellipsis (1 = single-line clip, >1 = line-clamp).
+Omit `type` — or pass `type="inherit"` — to keep ambient typography: unlike
+upstream's `'body'` default, bare `Text` inherits because it is also the
+shared text host every other component composes. `Heading` sizes from
+`level` (the `--text-heading-<level>-*` scale) and accepts `type` for the
+display scale plus `color`/`weight`/`maxLines`.
+
+```tsx
+<Text type="body" size="sm" color="secondary" maxLines={2}>{summary}</Text>
+<Heading level={3}>Card title</Heading>
+```
 
 **For UI contributors**, shared component prop contracts live in
 `packages/ui/src/props.ts` and feed published declarations. Consumer app

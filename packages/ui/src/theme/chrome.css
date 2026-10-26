@@ -1437,31 +1437,58 @@
 	/* ProgressGroup — stacked labeled meters. */
 	/* xplat-web-only:start — display:flex for the div-based flex classes */
 	/* xplat-web-only:end */
-	/* NativeScript reads the numeric prefix of font-size; keep this scale in px. */
+	/* xplat-web-only:start — the Astryx heading scale resolves through the
+   theme's --text-heading-*/-font-* token vars (rem lengths + unitless
+   leading); NativeScript reads only the numeric prefix of font-size and
+   treats line-height as dips, so the native/macOS leaves resolve the same
+   tokens to dips in JS (text-scale.ts). Fallbacks are the Astryx default
+   theme's values for un-themed documents. */
 	.vx-h1 {
-		font-size: 32px;
-		font-weight: bold;
+		font-size: var(--text-heading-1-size, var(--font-size-2xl, 1.5rem));
+		font-weight: var(--text-heading-1-weight, var(--font-weight-semibold, 600));
+		line-height: var(--text-heading-1-leading, 1.3333);
 	}
 	.vx-h2 {
-		font-size: 24px;
-		font-weight: bold;
+		font-size: var(--text-heading-2-size, var(--font-size-xl, 1.25rem));
+		font-weight: var(--text-heading-2-weight, var(--font-weight-semibold, 600));
+		line-height: var(--text-heading-2-leading, 1.4);
 	}
 	.vx-h3 {
-		font-size: 18.72px;
-		font-weight: bold;
+		font-size: var(--text-heading-3-size, var(--font-size-lg, 1.0625rem));
+		font-weight: var(--text-heading-3-weight, var(--font-weight-semibold, 600));
+		line-height: var(--text-heading-3-leading, 1.4118);
 	}
 	.vx-h4 {
-		font-size: 16px;
-		font-weight: bold;
+		font-size: var(--text-heading-4-size, var(--font-size-base, 0.875rem));
+		font-weight: var(--text-heading-4-weight, var(--font-weight-semibold, 600));
+		line-height: var(--text-heading-4-leading, 1.4286);
 	}
 	.vx-h5 {
-		font-size: 13.28px;
-		font-weight: bold;
+		font-size: var(--text-heading-5-size, var(--font-size-sm, 0.75rem));
+		font-weight: var(--text-heading-5-weight, var(--font-weight-semibold, 600));
+		line-height: var(--text-heading-5-leading, 1.6667);
 	}
 	.vx-h6 {
-		font-size: 10.72px;
-		font-weight: bold;
+		font-size: var(--text-heading-6-size, var(--font-size-xs, 0.625rem));
+		font-weight: var(--text-heading-6-weight, var(--font-weight-semibold, 600));
+		line-height: var(--text-heading-6-leading, 1.6);
 	}
+	.vx-heading--display-1 {
+		font-size: var(--text-display-1-size, var(--font-size-5xl, 2.625rem));
+		font-weight: var(--text-display-1-weight, var(--font-weight-normal, 400));
+		line-height: var(--text-display-1-leading, 1.2381);
+	}
+	.vx-heading--display-2 {
+		font-size: var(--text-display-2-size, var(--font-size-4xl, 2.1875rem));
+		font-weight: var(--text-display-2-weight, var(--font-weight-normal, 400));
+		line-height: var(--text-display-2-leading, 1.2571);
+	}
+	.vx-heading--display-3 {
+		font-size: var(--text-display-3-size, var(--font-size-3xl, 1.8125rem));
+		font-weight: var(--text-display-3-weight, var(--font-weight-normal, 400));
+		line-height: var(--text-display-3-leading, 1.2414);
+	}
+	/* xplat-web-only:end */
 
 	/* utilities (hand-written subset — do NOT adopt Tailwind until
    NativeScript/tailwind#226 is resolved; the plugin strips core-supported
