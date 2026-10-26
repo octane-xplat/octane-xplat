@@ -4500,6 +4500,15 @@ function applyProps(node: ElementNode, props: PropBag) {
 	}
 
 	if (node.type === 'proxyviewcontainer') {
+		// Projection forwards the proxy's computed style (PROXY_LAYOUT_STYLES),
+		// so style inputs must reach the cascade even though the props loop
+		// below never runs for a viewless node.
+		if ('style' in props) {
+			setNodeInlineStyle(node, props.style)
+		}
+		if ('className' in props) {
+			applyClassName(node, props.className)
+		}
 		queueLayoutReconcile(node.container, node)
 		return
 	}
