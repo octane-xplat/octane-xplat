@@ -1,8 +1,23 @@
 /** App-wide effective appearance. AppKit resolves both system mode and an
  * explicit NSApplication.appearance override; colors remain app-owned. */
 
-import { NSApplication, NSObject } from '@octane-xplat/platform/macos'
+import { NSAppearance, NSApplication, NSObject } from '@octane-xplat/platform/macos'
 export function installAppearanceBridge(bridge: Record<string, any>): void {
+	// An explicit app preference pins NSApp.appearance; null restores system
+	// following. The effectiveAppearance change notifies onAppearanceChange
+	// listeners, so scheme reads, CSS root classes, media queries and native
+	// controls all move together. Installed apart from the producer guard so
+	// a host-installed producer can still inherit this setter.
+	bridge.setAppearanceOverride ??= (scheme: 'light' | 'dark' | null) => {
+		const application = NSApplication.sharedApplication
+		;(application as { appearance: unknown }).appearance =
+			scheme == null
+				? null
+				: NSAppearance.appearanceNamed(
+						scheme === 'dark' ? 'NSAppearanceNameDarkAqua' : 'NSAppearanceNameAqua',
+					)
+	}
+
 	// Preserve an installed producer across module reloads and host customization.
 	if (bridge.getColorScheme && bridge.onAppearanceChange) {
 		return

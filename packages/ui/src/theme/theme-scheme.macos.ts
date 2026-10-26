@@ -23,6 +23,12 @@ export function setThemePreference(value: ThemePreference): void {
 	}
 
 	preference = value
+	// An explicit preference pins NSApp.appearance; 'system' clears the
+	// override. The effectiveAppearance change notifies appearance listeners,
+	// so CSS root classes, media queries and native controls all follow.
+	;(globalThis as Record<string, any>).__xplatAppKit?.setAppearanceOverride?.(
+		value === 'system' ? null : value,
+	)
 	emit()
 }
 

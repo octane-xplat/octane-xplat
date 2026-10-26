@@ -19,12 +19,19 @@ function load(path, context, names) {
 
 test('macOS hooks reconnect and theme override holds until system mode returns', () => {
 	let scheme = 'dark'
+	let override = null
 	let producer
 	let disposed = 0
 	const context = {
 		useSyncExternalStore: (subscribe, snapshot) => ({ subscribe, snapshot }),
 		__xplatAppKit: {
-			getColorScheme: () => scheme,
+			// The real producer pins NSApp.appearance and the effectiveAppearance
+			// change notifies listeners — model both halves here.
+			getColorScheme: () => override ?? scheme,
+			setAppearanceOverride(value) {
+				override = value
+				producer?.()
+			},
 			onAppearanceChange(callback) {
 				assert.equal(producer, undefined)
 				producer = callback
@@ -71,6 +78,7 @@ test('macOS hooks reconnect and theme override holds until system mode returns',
 	const seen = []
 	const unmount = theme.onThemeSchemeChange(() => seen.push(theme.getThemeScheme()))
 	theme.setThemePreference('dark')
+	assert.equal(override, 'dark')
 	assert.equal(theme.getThemeScheme(), 'dark')
 	scheme = 'dark'
 	producer()
@@ -78,6 +86,7 @@ test('macOS hooks reconnect and theme override holds until system mode returns',
 	producer()
 	assert.equal(theme.getThemeScheme(), 'dark')
 	theme.setThemePreference('system')
+	assert.equal(override, null)
 	assert.equal(theme.getThemeScheme(), 'light')
 	assert.equal(seen.at(-1), 'light')
 	unmount()

@@ -6,9 +6,22 @@ import { mockGlobals } from './mock-globals.ts'
 test('standalone effective appearance is live, app-wide, and disposed', () => {
 	let system = 'light'
 	let override: string | null = null
+	let applied: { name: string } | null = null
 	const observers = new Set<any>()
 	let registrations = 0
 	const application = {
+		get appearance() {
+			return applied
+		},
+		set appearance(value: { name: string } | null) {
+			applied = value
+			override =
+				value == null
+					? null
+					: String(value.name) === 'NSAppearanceNameDarkAqua'
+						? 'dark'
+						: 'light'
+		},
 		get effectiveAppearance() {
 			return {
 				bestMatchFromAppearancesWithNames(names: string[]) {
@@ -30,6 +43,7 @@ test('standalone effective appearance is live, app-wide, and disposed', () => {
 
 	mockGlobals({
 		NSApplication: { sharedApplication: application },
+		NSAppearance: { appearanceNamed: (name: string) => ({ name }) },
 		NSObject: {
 			extend(methods: any) {
 				return { new: () => ({ ...methods }) }
@@ -48,8 +62,10 @@ test('standalone effective appearance is live, app-wide, and disposed', () => {
 	const closeSecond = bridge.onAppearanceChange(() => second.push(bridge.getColorScheme()))
 	assert.equal(registrations, 1)
 	const subscribe = bridge.onAppearanceChange
+	const setter = bridge.setAppearanceOverride
 	installAppearanceBridge(bridge)
 	assert.equal(bridge.onAppearanceChange, subscribe)
+	assert.equal(bridge.setAppearanceOverride, setter)
 	const emit = () =>
 		observers.forEach((observer) =>
 			observer.observeValueForKeyPathOfObjectChangeContext('effectiveAppearance'),
@@ -59,6 +75,19 @@ test('standalone effective appearance is live, app-wide, and disposed', () => {
 	emit()
 	assert.deepEqual(first, ['light'])
 	assert.deepEqual(second, ['light'])
+	// The preference setter pins NSApp.appearance; readers and listeners
+	// resolve the override through effectiveAppearance until null restores
+	// system following.
+	bridge.setAppearanceOverride('dark')
+	assert.equal(String(application.appearance?.name), 'NSAppearanceNameDarkAqua')
+	assert.equal(bridge.getColorScheme(), 'dark')
+	emit()
+	assert.equal(first.at(-1), 'dark')
+	bridge.setAppearanceOverride(null)
+	assert.equal(application.appearance, null)
+	assert.equal(bridge.getColorScheme(), 'light')
+	emit()
+	assert.equal(first.at(-1), 'light')
 	override = 'dark'
 	emit()
 	system = 'dark'

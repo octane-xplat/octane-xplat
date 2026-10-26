@@ -70,6 +70,9 @@ async function caseConfig(project, target, options) {
 		)
 	} else if (target === 'macos') {
 		contents.push(
+			// The case bundle's entry is a real file, so Bamboo's generated-entry
+			// transform never injects the stylesheet — import it explicitly.
+			`import 'virtual:bamboo.css'`,
 			`export async function start(adapter) { return executeCase(probe, adapter, ${JSON.stringify(options)}) }`,
 		)
 	} else {

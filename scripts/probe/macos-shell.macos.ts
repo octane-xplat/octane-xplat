@@ -1,4 +1,7 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
+// Bamboo's native build requires the extracted stylesheet inside the entry
+// graph — same import apps/macos/src/styles.ts makes for the real harness.
+import 'virtual:bamboo.css'
 import { harnessFontOptions } from '../../apps/macos/src/fonts.ts'
 import '@nativescript/macos-node-api'
 import * as native from 'octane/universal/native'

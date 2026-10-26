@@ -29,6 +29,9 @@ declare global {
 			view: import('@octane-xplat/platform/macos').NSView,
 			dark: boolean,
 		) => void
+		/** App-wide NSApp.appearance override — 'light'/'dark' pins the effective
+		 *  appearance, null restores system following. */
+		setAppearanceOverride?: (scheme: 'light' | 'dark' | null) => void
 		[key: string]: any
 	}
 
