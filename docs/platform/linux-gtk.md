@@ -85,10 +85,28 @@ main()
 ```
 
 Class, id, and element selectors work through the same NativeScript engine
-the AppKit renderer uses, with the limits listed in the renderer's
+the AppKit renderer uses. State selectors such as `:hover`, `:active`, and
+`:focus` follow the widget's GTK state, media queries re-check when the
+window resizes, and `@keyframes` animations play. The renderer's
 [Apply stylesheets](../../packages/linux-gtk-renderer/README.md#apply-stylesheets)
-section — notably only `:disabled` responds to state and GTK's theme still
-styles native widget chrome underneath.
+section lists the supported properties and limits. GTK's theme still
+styles native widget chrome underneath your CSS.
+
+```css
+/* src/app.css */
+.save:hover {
+  background-color: #2563eb;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.toast {
+  animation: fade-in 200ms ease-out forwards;
+}
+```
 
 ## Add retained route panes
 

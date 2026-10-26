@@ -277,9 +277,53 @@ import, `@platform gtk` kept / `@platform web` stripped, px→dip).
 `src/style-css.ts` mapping.
 
 **NOT proven:** same boundary as above — no Linux-host run, no OS input,
-no visual review. Media queries re-check on appearance/stylesheet changes,
-not window resize; only `:disabled` responds to state; animations are not
-played.
+no visual review.
+
+### NativeScript parity follow-up (2026-10-26)
+
+The first pass left state, resize, and animation gaps; these landed after
+it, each with GJS 1.90.1 / GTK 4.24.1 headless evidence in
+`test/css.test.mjs` or `test/mason.test.mjs`:
+
+- **Cascade output:** `computeCascade(..., { borderLonghands: true })` —
+  per-side borders and per-corner radii stay separate (AppKit keeps the
+  collapsed default). Control colors route to GTK subnodes (`slider`,
+  `trough > highlight`, `trough > progress`, checked switch track); the
+  node's provider is cloned onto every internal descendant context because
+  GTK 4.24 does not propagate widget providers to gizmos (display-scoped
+  providers measured O(N²) on restyle).
+- **Pseudo-classes:** `state-flags-changed` drives `hover` (PRELIGHT),
+  `highlighted`/`active`/`pressed` (ACTIVE), `focus` (FOCUS_WITHIN on
+  textfield, FOCUSED elsewhere), `focus-visible`, `focus-within`; switch
+  `notify::active` drives `checked`. `normal` is cleared only by NS visual
+  states (view-common.js), never by the desktop extras. Restyles are gated
+  on `stylesheetPseudoClasses()`.
+- **Media:** root-window `notify::default-width/height`, maximized, and
+  fullscreened call `refreshMediaQueries()`; roots gain
+  `ns-portrait|ns-landscape` and `ns-ltr|ns-rtl`. The CLI keeps `px` in
+  at-rule preludes, and the engine normalizes lightningcss's Level-4 range
+  syntax (`width>=300px`) back to `min-`/`max-` features.
+- **Paint:** masonview children carry the NS transform on their
+  allocation (`Gsk.Transform`, centre origin, `updateNativeTransform`
+  order), so picking follows it; the host snapshot sorts by `z-index` and
+  pushes `clip-path` in child space. Neither changes picking — UIKit
+  ignores `zPosition` and layer masks for `hitTest` too. Outside masonview
+  the transform falls back to GTK CSS and `zIndex`/`clipPath` warn once.
+- **Keyframes:** matched rulesets' animations (`computeCascade().animations`,
+  identity-stable per ruleset) sample through the shared
+  `sampleKeyframeAnimation` on one 16 ms `GLib.timeout_add` driver — not a
+  frame-clock tick callback, because unmapped widgets get no frame clock
+  and the headless tests must observe frames. The overlay
+  (`node.animatedStyle`) sits above the computed bag like NS's `keyframe:`
+  layer; Mason's style dict and paint read it too. Replay follows NS
+  `updateDynamicState`: the node's own class/id/pseudo-class change,
+  insertion, or a stylesheet change restarts; inline-style restyles do not;
+  removal stops. Divergence: a descendant restarts only when its matched
+  animation list changes, whereas NS restarts every descendant on an
+  ancestor class change. Unchanged `className`/`id` in a full-bag update is
+  no longer treated as a selector change. GTK's `gtk-enable-animations`
+  does not suppress playback (NS ignores the OS setting too); it feeds
+  `prefers-reduced-motion`.
 
 ## Known limitations (build-level observations, not runtime findings)
 

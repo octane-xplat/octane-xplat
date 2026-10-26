@@ -119,9 +119,10 @@ import '@octane-xplat/ui/theme/tokens.css'
   [CSS variants](../../../../docs/platform/module-resolution.md#css-file-variants)
   before relying on browser-only transforms or import ordering.
 - The experimental macOS AppKit and Linux GTK renderers apply the same
-  stylesheets through the shared NativeScript selector engine, but only
-  `:disabled` responds to state and some properties are ignored. Check each
-  renderer's
+  stylesheets through the shared NativeScript selector engine. On AppKit
+  only `:disabled` responds to state; GTK also matches the NativeScript
+  visual states plus `:hover`, re-checks media queries on resize, and plays
+  `@keyframes`. Both ignore some properties. Check each renderer's
   [Apply stylesheets](../../../../packages/macos-renderer/README.md#apply-stylesheets)
   ([GTK](../../../../packages/linux-gtk-renderer/README.md#apply-stylesheets))
   limits before promising a property or pseudo-class. Note `className` is

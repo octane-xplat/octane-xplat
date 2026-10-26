@@ -129,35 +129,101 @@ own GTK CSS classes. GTK's default theme ships classes like `.card`,
 name, so computed styles reach widgets only through an internal per-widget
 provider.
 
-What a matched declaration can do: colors and backgrounds (`color`,
-`background`, `background-color`), fonts (`font-size`, `font-weight`,
-`font-style`, `font-family`), `line-height`, `text-decoration`,
-`text-shadow`, `box-shadow`, borders (`border-radius` including percents,
-`border-color`, `border-width`, `border-style` — `solid` is emitted
-automatically when only a width is set, because GTK's default is `none`),
-`padding*`/`margin*`, `min-width`/`min-height`, plus `width`, `height`, and
-`opacity` applied directly. `text-align` maps to label and entry alignment,
-`placeholder-color` styles a text field's placeholder, and Mason layout keys
-reach the engine (or the `Gtk.Box` fallback subset).
+What a matched declaration can do:
+
+- **Colors, backgrounds, and borders:** `color`, `background`,
+  `background-color`, `background-image` (including `url()`; `~/` resolves
+  next to `app.js`), `background-position`/`-repeat`/`-size`, per-side
+  border widths and colors, per-corner radii (percents too), and
+  `border-style`. GTK draws no border by default, so a width without a style
+  gets `solid`.
+- **Text:** `font-size`, `font-weight`, `font-style`, `font-family`,
+  `font-variation-settings`, `line-height`, `letter-spacing`,
+  `text-transform`, `text-decoration`, `text-shadow`, `text-align`,
+  `white-space`, `text-overflow`, and `placeholder-color` on text fields.
+- **Box and layout:** `padding*`, `margin*`, `min-width`/`min-height`,
+  `width`, `height`, `opacity`, `visibility` (`hidden` keeps its space,
+  `collapse` removes it), `direction`, `box-shadow`, and the Mason layout
+  keys (flex, grid, absolute insets, gaps).
+- **Controls:** `color` and `background-color` paint the moving part and
+  the track of a switch, slider, or progress bar.
+- **Paint:** inside a `masonview`, `transform` (and the `translateX`/
+  `scaleX`/`rotate`/... longhands), `z-index`, and `clip-path` (`rect`,
+  `inset`, `circle`, `ellipse`, `polygon`). Transforms move hit-testing
+  with the widget; `z-index` and `clip-path` only change painting, as on
+  iOS.
+
+State selectors follow the widget's GTK state:
+
+```css
+.save:hover { background-color: #2563eb; }
+.save:active { opacity: 0.8; }        /* also :pressed and :highlighted */
+.field:focus { border-color: #2563eb; }
+.toggle:checked { opacity: 1; }
+.save:disabled { opacity: 0.4; }
+```
+
+`:normal` matches while none of NativeScript's visual states
+(`:highlighted`, `:active`, `:pressed`, `:focus`, `:checked`, `:disabled`)
+is on. The desktop-only `:hover`, `:focus-visible`, and `:focus-within` do
+not cancel it.
+
+Media queries re-check when the window resizes, the color scheme flips, or
+the animation setting changes. Roots also get `ns-portrait` or
+`ns-landscape` and `ns-ltr` or `ns-rtl`:
+
+```css
+@media (min-width: 600px) {
+  .sidebar { visibility: visible; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .spinner { animation: spin 1s linear infinite; }
+}
+```
+
+`@keyframes` animations play with NativeScript's rules. They can change
+`opacity`, `background-color`, `width`, `height`, and the transform
+parts:
+
+```css
+@keyframes pop {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+.toast { animation: pop 200ms ease-out forwards; }
+```
+
+An animation starts when its widget mounts or when the widget's own
+classes, id, or state change, and stops when the widget is removed.
+`forwards` keeps the last frame. As in NativeScript, every matching rule's
+animation plays, so a later `animation: none` does not cancel an earlier
+one. GTK's "enable animations" setting does not stop animations either;
+put motion inside a `prefers-reduced-motion: no-preference` query, as in
+the media example above.
 
 Current limits:
 
-- Only `:disabled` responds to state. `:hover`, `:active`, and `:focus`
-  rules never match yet.
-- Media queries are re-checked when the appearance or the stylesheets
-  change, but not when a window resizes.
-- `@keyframes` and `animation-*` are parsed but not played.
-- Per-corner radii and per-side borders collapse to a single value.
+- Outside a `masonview`, `transform` falls back to GTK CSS with `%`
+  resolved when the widget restyles, and `z-index`/`clip-path` are
+  ignored with a warning.
+- `polygon()` clips need GTK 4.14 or newer; older GTK ignores them with a
+  warning.
+- Changing an ancestor's class restarts a descendant's animation only when
+  the descendant's matched animations change. NativeScript restarts it on
+  every ancestor class change.
+- NativeScript has no CSS `transition`; neither does this renderer.
 - An unsupported property logs `[linux-gtk-css] ignored unsupported
   property` once per property name.
 - GTK's theme still styles native widget chrome (buttons, entries)
   underneath app CSS.
 
 Runtime evidence so far: GJS 1.90.1 + GTK 4.24.1 on macOS (Homebrew),
-headless driver checks in `test/css.test.mjs` — class selectors, inherited
-and `var()` values, root classes, inline precedence, `:disabled`, sibling
-re-match, and runtime replacement, with real `widget.get_color()` reads.
-Not yet run on a Linux host; no visual or pixel review; no OS input.
+headless driver checks in `test/css.test.mjs` and `test/mason.test.mjs`.
+They cover selectors, inheritance, `var()`, inline precedence, state
+selectors driven by real GTK state flags, media queries after a window
+resize, borders read back from the style context, transforms and picking,
+paint order and clip calls, and keyframe frames on a real GLib timer. Not
+yet run on a Linux host; no visual or pixel review; no OS input.
 
 ## Platform seam
 
