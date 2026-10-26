@@ -70,8 +70,8 @@ export function ListItem(props: ListItemProps) @{
 		]}
 		style={{
 			...(ctx.edgeCompensation === 'inline' ? {
-				marginInlineStart: 'calc(-1 * min(var(--vx-item-inset-inline, 0px), var(--vx-container-padding-inline-start, 0px)))',
-				marginInlineEnd: 'calc(-1 * min(var(--vx-item-inset-inline, 0px), var(--vx-container-padding-inline-end, 0px)))',
+				marginInlineStart: 'calc(-1 * min(var(--vx-item-inset-inline, 0px), var(--container-padding-inline-start, 0px)))',
+				marginInlineEnd: 'calc(-1 * min(var(--vx-item-inset-inline, 0px), var(--container-padding-inline-end, 0px)))',
 			} : {}),
 			...styleRecord(props.style),
 		}}

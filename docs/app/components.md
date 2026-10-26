@@ -112,6 +112,9 @@ export function Example() {
 | `Absolute`         | Absolutely-positioned layer                                                                |                                                                           |
 | `Center`           | Centers children on one or both axes                                                       | `axis`, `isInline`                                                        |
 | `Section`          | Banded content with padding and dividers                                                   | `variant`, `dividers`, `padding`                                          |
+| `Layout`           | Five-slot page region primitive (header/start/content/end/footer)                          | `header`, `content`, `start`, `end`, `footer`, `padding`, `height`, `contentWidth`, `defaultHasDividers` |
+| `LayoutHeader`     | `Layout` header band with optional divider                                                 | `hasDivider`, `padding`, `paddingBlockEnd`, `role`, `label`               |
+| `LayoutContent`    | `Layout` scrollable content region                                                         | `padding`, `isScrollable`, `role`, `label`                                |
 | `AspectRatio`      | Constrains child box to a width/height ratio                                               | `ratio`, `shape`, `fit`                                                   |
 | `VisuallyHidden`   | Keeps content available to assistive technology                                            | `as` (web tag)                                                            |
 | `Spacer`           | Flexible gap filler                                                                        |                                                                           |

@@ -7,7 +7,7 @@ import { applyWebProps } from './platformProps.web';
 import { spacingPx } from './stack-layout';
 
 /** Section — a banded container. The outer element escapes an ancestor's
- *  `--vx-container-padding-*` (bleed); the inner element re-asserts the
+ *  `--container-padding-*` (bleed); the inner element re-asserts the
  *  padding so content stays aligned, and the `vx-section-inner` class
  *  zeroes those vars so nested Sections don't compound the escape. Both
  *  read the vars a `Layout` container publishes — with none declared the
@@ -28,8 +28,8 @@ export function Section(props: SectionProps) @{
 		id={props.id}
 		ref={forwardedRef}
 		className={['vx-section', `vx-section--${variant}`, props.className]}
-		style={mergeStyle({marginInlineStart: 'calc(-1 * var(--vx-container-padding-inline-start, 0px))',
-			marginInlineEnd: 'calc(-1 * var(--vx-container-padding-inline-end, 0px))'}, props.style)}
+		style={mergeStyle({marginInlineStart: 'calc(-1 * var(--container-padding-inline-start, 0px))',
+			marginInlineEnd: 'calc(-1 * var(--container-padding-inline-end, 0px))'}, props.style)}
 		role={props.accessibilityRole}
 		aria-label={props.accessibilityLabel}
 		aria-hidden={props.accessible === false ? true : undefined}

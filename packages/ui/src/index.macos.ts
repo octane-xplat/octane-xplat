@@ -10,6 +10,7 @@ export { HStack } from './HStack.macos.tsrx'
 export { Grid, Stack, StackItem, Absolute, Spacer } from './layout.macos.tsrx'
 export { Center } from './Center.macos.tsrx'
 export { Section } from './Section.macos.tsrx'
+export { Layout, LayoutHeader, LayoutContent } from './layout.macos.tsrx'
 export { AspectRatio } from './AspectRatio.macos.tsrx'
 export { VisuallyHidden } from './VisuallyHidden.macos.tsrx'
 /** Keyboard focus containment — web convention; the macOS leaf is an inert
@@ -122,6 +123,11 @@ export type {
 	ListProps,
 	GridListProps,
 	ListStyle,
+	LayoutContentProps,
+	LayoutHeaderProps,
+	LayoutHeight,
+	LayoutProps,
+	LayoutRole,
 	SectionDividerSide,
 	SectionProps,
 	SectionVariant,

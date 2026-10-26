@@ -12160,6 +12160,156 @@ export interface SectionProps extends StackPaddingProps, StackSizeProps, Accessi
 	padding?: SpacingStep
 }
 
+/** `Layout` height behavior — `'fill'` fills the container height and
+ *  `LayoutContent` scrolls internally; `'auto'` grows with content so the
+ *  host (page or parent scroller) scrolls. */
+export type LayoutHeight = 'fill' | 'auto'
+
+/** ARIA landmark roles `LayoutHeader`/`LayoutContent` accept — the same set
+ *  `useLandmark` registers. */
+export type LayoutRole =
+	| 'main'
+	| 'navigation'
+	| 'search'
+	| 'form'
+	| 'region'
+	| 'banner'
+	| 'contentinfo'
+	| 'complementary'
+
+/** `Layout` — Astryx's five-slot region primitive: `header`, logical `start`
+ *  and `end` panels, `content`, and `footer`. Slots take arbitrary content;
+ *  the `LayoutHeader`/`LayoutContent` region components carry the matching
+ *  anatomy (padding collapse, divider, scroll containment). `children` is a
+ *  shorthand for `content`; `content` wins when both are given. `padding`
+ *  sets the layout's outer-edge padding (`--layout-padding-outer-*` on web)
+ *  that header/content read as their container-edge defaults.
+ *
+ * @example
+ * ```tsx
+ * import { Layout, LayoutHeader, LayoutContent, Heading } from '@octane-xplat/ui'
+ *
+ * <Layout
+ * 	header={<LayoutHeader hasDivider padding={6}><Heading level={1}>Title</Heading></LayoutHeader>}
+ * 	content={<LayoutContent padding={6}>{body}</LayoutContent>}
+ * />
+ * ```
+ * @see LayoutHeaderProps, LayoutContentProps.
+ */
+export interface LayoutProps extends AccessibilityProps {
+	className?: ClassValue
+	style?: StyleProp
+	/** Shorthand for the `content` slot — `content` wins when both are set. */
+	children?: Renderable
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
+	id?: string
+	ref?: Octane.Ref<HostElement>
+	/** Top region — typically a `LayoutHeader`. */
+	header?: Renderable
+	/** Logical-start panel (left in LTR). */
+	start?: Renderable
+	/** Center region — typically a `LayoutContent`. */
+	content?: Renderable
+	/** Logical-end panel (right in LTR). */
+	end?: Renderable
+	/** Bottom region. */
+	footer?: Renderable
+	/** Maximum width of the aligned content across the middle lane and the
+	 *  region insets; numbers are px/dips, strings are CSS lengths on web.
+	 *  The web leaf keeps `LayoutContent`'s scrollport full width and aligns
+	 *  its children internally when the value can share a CSS arithmetic
+	 *  basis (Astryx's edge-scrolling path); native/macOS constrain the
+	 *  middle lane instead. */
+	contentWidth?: SizeValue
+	/** @default 'fill' */
+	height?: LayoutHeight
+	/** Outer-edge padding in spacing steps — header/footer/content read it as
+	 *  the padding on edges that touch the layout's boundary. `0` docks every
+	 *  region against the layout edges. */
+	padding?: SpacingStep
+	/** Default divider visibility for `LayoutHeader` (and a future
+	 *  `LayoutFooter`) children that don't pass `hasDivider` explicitly.
+	 *  @default false */
+	defaultHasDividers?: boolean
+}
+
+/** `LayoutHeader` — the `header` region of `Layout`: a fixed top band whose
+ *  inner box owns the padding (`--layout-padding-outer-*` on edges that
+ *  touch the layout boundary, inner padding below) plus an optional
+ *  block-end divider. `hasDivider` falls back to the parent Layout's
+ *  `defaultHasDividers`, then false.
+ *
+ * @example
+ * ```tsx
+ * <LayoutHeader hasDivider padding={6}><Heading level={1}>Settings</Heading></LayoutHeader>
+ * ```
+ * @see LayoutProps.
+ */
+export interface LayoutHeaderProps extends StackSizeProps, AccessibilityProps {
+	className?: ClassValue
+	style?: StyleProp
+	children?: Renderable
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
+	id?: string
+	ref?: Octane.Ref<HostElement>
+	/** Themed hairline on the block-end edge. @default false (or the parent
+	 *  Layout's `defaultHasDividers`). */
+	hasDivider?: boolean
+	/** Internal padding in spacing steps — overrides the layout-provided
+	 *  outer/inner padding on all four edges. `0` docks children on the
+	 *  header's edges (e.g. a TopNav that manages its own padding). */
+	padding?: SpacingStep
+	/** Block-end padding override — wins over `padding` on that edge only, so
+	 *  a tab strip's underline can meet `hasDivider` with no margin hacks. */
+	paddingBlockEnd?: SpacingStep
+	/** Accessible label for the landmark — required when `role` is set and
+	 *  multiple landmarks of the same type exist. `accessibilityLabel` wins
+	 *  when both are given. */
+	label?: string
+	/** ARIA landmark role on web ('banner' only for site-wide headers, not in
+	 *  nested layouts); native leaves have no landmark concept and ignore it. */
+	role?: LayoutRole
+}
+
+/** `LayoutContent` — the `content` region of `Layout`: the scrollable main
+ *  area with context-aware padding (layout outer padding on edges that
+ *  touch the layout boundary, inner padding otherwise) and `isScrollable`
+ *  scroll containment on web and a scroll host on native/macOS.
+ *
+ * @example
+ * ```tsx
+ * <LayoutContent padding={6}>{body}</LayoutContent>
+ * ```
+ * @see LayoutProps.
+ */
+export interface LayoutContentProps extends StackSizeProps, AccessibilityProps {
+	className?: ClassValue
+	style?: StyleProp
+	children?: Renderable
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
+	id?: string
+	ref?: Octane.Ref<HostElement>
+	/** Internal padding in spacing steps — overrides the layout-provided
+	 *  outer/inner padding on all four edges. `0` gives edge-to-edge content. */
+	padding?: SpacingStep
+	/** Scrollable overflow for the content area. `false` clips instead —
+	 *  for `height="auto"` layouts where sticky children must reach the
+	 *  parent scroller. @default true */
+	isScrollable?: boolean
+	/** Accessible label for the landmark — `accessibilityLabel` wins when
+	 *  both are given. */
+	label?: string
+	/** ARIA landmark role on web ('main' only for the primary page content);
+	 *  native leaves have no landmark concept and ignore it. */
+	role?: LayoutRole
+}
+
 /** `VisuallyHidden` — children stay in the accessibility tree but render
  *  invisible. No className/style: styling a hidden node is a mistake. On
  *  native there is no offscreen-a11y primitive; the leaf renders a 1dip,
@@ -12409,7 +12559,7 @@ export interface ListProps extends AccessibilityProps {
 	hasDividers?: boolean
 	/** Compensates for each item's inline inset up to the container padding
 	 *  on each edge (aligns rows with sibling headings). Reads the
-	 *  `--vx-item-inset-inline` / `--vx-container-padding-*` custom
+	 *  `--vx-item-inset-inline` / `--container-padding-*` custom
 	 *  properties; inert where no container padding is declared. Web only. */
 	edgeCompensation?: 'inline'
 	/** Header content rendered above the list (aria-labelledby on web). */

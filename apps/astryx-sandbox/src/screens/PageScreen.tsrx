@@ -4,14 +4,13 @@
 // raw-group pages render unframed. ?embed=1 renders the page content bare —
 // that is the document the preview iframe loads.
 
-import { View } from '@octane-xplat/ui'
+import { View, Heading, Layout, LayoutHeader, LayoutContent } from '@octane-xplat/ui'
 import { routeRow } from '../coverage/coverage'
 import { pageFor } from '../pages/registry'
 import { isEmbed } from '../theme'
 import { PendingScreen } from '../shell/PendingScreen'
 import { PreviewShell } from '../shell/PreviewShell'
 import { SandboxShell } from '../shell/SandboxShell'
-import { PageLayout } from '../shell/PageLayout'
 import { NotFoundScreen } from './NotFoundScreen'
 
 export function PageScreen(props: { params: { rest?: string } }) @{
@@ -35,9 +34,18 @@ export function PageScreen(props: { params: { rest?: string } }) @{
 
 	return (
 		<SandboxShell>
-			<PageLayout title={row.doc?.displayName ?? 'Sandbox page'}>
-				{Page ? <Page /> : <PendingScreen row={row} />}
-			</PageLayout>
+			<Layout
+				header={
+					<LayoutHeader hasDivider padding={6}>
+						<Heading level={1}>{row.doc?.displayName ?? 'Sandbox page'}</Heading>
+					</LayoutHeader>
+				}
+				content={
+					<LayoutContent padding={6}>
+						{Page ? <Page /> : <PendingScreen row={row} />}
+					</LayoutContent>
+				}
+			/>
 		</SandboxShell>
 	)
 }

@@ -170,6 +170,188 @@
 	}
 	/* xplat-web-only:end */
 
+	/* xplat-web-only:start — Astryx Layout: five-slot page primitive. The
+   --layout-padding-* and --container-padding-* custom properties are the shared
+   container-padding seam (regions publish, bleed children compensate); the
+   --vx-lh-* and --vx-lc-* vars carry each region's per-edge resolved padding so
+   defaults, explicit props, and divider collapse compose by specificity
+   rather than inline-style order. Native/macOS leaves resolve the same
+   values through LayoutPaddingContext instead. */
+	.vx-layout {
+		display: flex;
+		margin-inline-start: calc(-1 * var(--container-padding-inline-start, 0px));
+		margin-inline-end: calc(-1 * var(--container-padding-inline-end, 0px));
+		margin-block-start: calc(-1 * var(--container-padding-block-start, 0px));
+		margin-block-end: calc(-1 * var(--container-padding-block-end, 0px));
+	}
+	.vx-layout--fill {
+		height: calc(100% + var(--container-padding-block-start, 0px) + var(--container-padding-block-end, 0px));
+		max-height: var(--container-max-height, none);
+	}
+	.vx-layout--auto {
+		min-height: 100%;
+	}
+	.vx-layout-inner {
+		display: flex;
+		flex-direction: column;
+		--container-padding-inline-start: 0px;
+		--container-padding-inline-end: 0px;
+		--container-padding-block-start: 0px;
+		--container-padding-block-end: 0px;
+		/* Reset inherited width so nested Layouts without contentWidth keep
+		   their released padding; an explicit contentWidth overrides on the
+		   same node. */
+		--layout-content-width: 100cqi;
+		--layout-alignment-width: 100cqi;
+	}
+	.vx-layout-inner.vx-layout--fill {
+		height: calc(100% + var(--container-padding-block-start, 0px) + var(--container-padding-block-end, 0px));
+		max-height: var(--container-max-height, none);
+	}
+	.vx-layout-middle {
+		display: flex;
+		flex-direction: row;
+		flex: 1;
+		min-height: 0;
+	}
+	/* contentWidth constrained-composition fallback (both panels, or a
+	   percentage/intrinsic/bare-var width that can't share one arithmetic
+	   basis). */
+	.vx-layout-middle--constrained {
+		width: 100%;
+		max-width: var(--layout-content-width, none);
+		margin-inline: auto;
+	}
+	/* The middle box is the inline-size query container for the 100cqi
+	   alignment arithmetic inside LayoutContent. */
+	.vx-layout-middle--query:has(> .vx-layout-contentlane > .vx-layout-content) {
+		container-type: inline-size;
+	}
+	/* One side panel: keep the panel aligned to the content-width frame
+	   while LayoutContent occupies the opposite open edge. */
+	.vx-layout-middle--singlepanel {
+		box-sizing: border-box;
+		width: 100%;
+		max-width: var(--layout-content-width, none);
+		margin-inline: auto;
+	}
+	.vx-layout-middle--singlepanel:has(> .vx-layout-contentlane > .vx-layout-content) {
+		max-width: none;
+		margin-inline: 0;
+	}
+	.vx-layout-middle--startpanel:has(> .vx-layout-contentlane > .vx-layout-content) {
+		padding-inline-start: max(0px, calc((100% - var(--layout-content-width)) / 2));
+	}
+	.vx-layout-middle--endpanel:has(> .vx-layout-contentlane > .vx-layout-content) {
+		padding-inline-end: max(0px, calc((100% - var(--layout-content-width)) / 2));
+	}
+	.vx-layout-contentlane {
+		display: flex;
+		flex-direction: column;
+		flex: 1;
+		min-width: 0;
+		min-height: 0;
+	}
+	/* No side panels: LayoutContent owns the full-width scrollport and
+	   aligns its children internally; arbitrary content keeps the
+	   constrained lane. */
+	.vx-layout-contentlane--singlecolumn {
+		width: 100%;
+		max-width: var(--layout-content-width, none);
+		margin-inline: auto;
+	}
+	.vx-layout-contentlane--singlecolumn:has(> .vx-layout-content) {
+		max-width: none;
+	}
+	.vx-layout-header {
+		flex-shrink: 0;
+	}
+	.vx-layout-header-inner {
+		box-sizing: border-box;
+		max-width: var(--layout-content-width, none);
+		margin-inline: auto;
+		/* Outer padding on edges that touch the layout boundary, inner on
+		   interior edges. */
+		--vx-lh-pad-is: var(--layout-padding-outer-x, var(--spacing-4, 16px));
+		--vx-lh-pad-ie: var(--layout-padding-outer-x, var(--spacing-4, 16px));
+		--vx-lh-pad-bs: var(--layout-padding-outer-y, var(--spacing-4, 16px));
+		--vx-lh-pad-be: var(--layout-padding-inner-y, var(--spacing-4, 16px));
+		padding-inline-start: var(--vx-lh-pad-is);
+		padding-inline-end: var(--vx-lh-pad-ie);
+		padding-block-start: var(--vx-lh-pad-bs);
+		padding-block-end: var(--vx-lh-pad-be);
+		/* Publish for bleed children (Table, Divider, Section). */
+		--container-padding-inline-start: var(--vx-lh-pad-is);
+		--container-padding-inline-end: var(--vx-lh-pad-ie);
+		--container-padding-block-start: var(--vx-lh-pad-bs);
+		--container-padding-block-end: var(--vx-lh-pad-be);
+	}
+	.vx-layout-content {
+		box-sizing: border-box;
+		height: 100%;
+		flex: 1;
+		min-height: 0;
+		overflow: clip;
+		/* Inner padding on all sides; edge classes move boundary edges to the
+		   outer channel. */
+		--vx-lc-pad-is: var(--layout-padding-inner-x, var(--spacing-4, 16px));
+		--vx-lc-pad-ie: var(--layout-padding-inner-x, var(--spacing-4, 16px));
+		--vx-lc-pad-bs: var(--layout-padding-inner-y, var(--spacing-4, 16px));
+		--vx-lc-pad-be: var(--layout-padding-inner-y, var(--spacing-4, 16px));
+		padding-inline-start: var(--vx-lc-pad-is);
+		padding-inline-end: var(--vx-lc-pad-ie);
+		padding-block-start: var(--vx-lc-pad-bs);
+		padding-block-end: var(--vx-lc-pad-be);
+		--container-padding-inline-start: var(--vx-lc-pad-is);
+		--container-padding-inline-end: var(--vx-lc-pad-ie);
+		--container-padding-block-start: var(--vx-lc-pad-bs);
+		--container-padding-block-end: var(--vx-lc-pad-be);
+	}
+	.vx-layout-content--scroll {
+		overflow: auto;
+	}
+	.vx-layout-content--nostart {
+		--vx-lc-pad-is: var(--layout-padding-outer-x, var(--spacing-4, 16px));
+		/* Upstream quirk: the no-start path writes the outer inline value to
+		   both inline container vars. */
+		--container-padding-inline-end: var(--layout-padding-outer-x, var(--spacing-4, 16px));
+	}
+	.vx-layout-content--noend {
+		--vx-lc-pad-ie: var(--layout-padding-outer-x, var(--spacing-4, 16px));
+	}
+	.vx-layout-content--noheader {
+		--vx-lc-pad-bs: var(--layout-padding-outer-y, var(--spacing-4, 16px));
+	}
+	.vx-layout-content--nofooter {
+		--vx-lc-pad-be: var(--layout-padding-outer-y, var(--spacing-4, 16px));
+	}
+	/* No-divider padding collapse — the direct declaration wins over every
+	   --vx-lc-pad-* default AND over explicit padding vars, matching
+	   upstream's higher-specificity ancestor rule. The published
+	   --container-padding-* keep the uncollapsed value (upstream's recorded
+	   conformance gap, preserved). */
+	.vx-layout-inner:has(> .vx-layout-header:not([data-divider])) .vx-layout-content {
+		padding-block-start: 0;
+	}
+	.vx-layout-inner:has(> .vx-layout-footer:not([data-divider])) .vx-layout-content {
+		padding-block-end: 0;
+	}
+	/* contentWidth internal alignment — gutters that align LayoutContent's
+	   direct children to the content-width frame while the root stays the
+	   scroll and padding owner. 100cqi defaults make them inert without a
+	   contentWidth. */
+	.vx-layout-content--align-nopanels {
+		--vx-lc-pad-is: max(var(--vx-lc-pad-is), calc((100cqi - var(--layout-alignment-width, 100cqi)) / 2 + var(--vx-lc-pad-is)));
+		--vx-lc-pad-ie: max(var(--vx-lc-pad-ie), calc((100cqi - var(--layout-alignment-width, 100cqi)) / 2 + var(--vx-lc-pad-ie)));
+	}
+	.vx-layout-content--align-startpanel {
+		--vx-lc-pad-ie: max(var(--vx-lc-pad-ie), calc(100cqi - var(--layout-alignment-width, 100cqi) + var(--vx-lc-pad-ie)));
+	}
+	.vx-layout-content--align-endpanel {
+		--vx-lc-pad-is: max(var(--vx-lc-pad-is), calc(100cqi - var(--layout-alignment-width, 100cqi) + var(--vx-lc-pad-is)));
+	}
+	/* xplat-web-only:end */
+
 
 	.vx-spacer {
 		flex-grow: 1;

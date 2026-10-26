@@ -1371,6 +1371,19 @@
 		border-color: var(--color-primary);
 	}
 
+	/* Layout — region dividers (Astryx `--color-border` hairline). Physical
+	   edges: NS CSS has no logical border props. */
+	.vx-layout-header--divided {
+		border-bottom-width: 1px;
+		border-bottom-style: solid;
+		border-bottom-color: var(--color-border);
+	}
+	.vx-layout-footer--divided {
+		border-top-width: 1px;
+		border-top-style: solid;
+		border-top-color: var(--color-border);
+	}
+
 	/* Card — sectioned container. Radius follows Astryx's component override
    (`--_card-radius`, set by themes like matcha/y2k) then the container
    token, matching upstream Card's `--_card-radius` default. */

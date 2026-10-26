@@ -3,9 +3,8 @@
 // the CSS equivalent of Grid columns={{minWidth: 320}}.
 
 import { useState } from 'octane'
-import { Heading, Text, TextInput, ToggleButton, ToggleButtonGroup, Divider, VStack, View, Icon } from '@octane-xplat/ui'
+import { Heading, Text, TextInput, ToggleButton, ToggleButtonGroup, Divider, VStack, View, Icon, Layout, LayoutHeader, LayoutContent } from '@octane-xplat/ui'
 import { categories } from '../data/sandboxPages'
-import { PageLayout } from '../shell/PageLayout'
 import { ProjectCard } from '../shell/ProjectCard'
 import { SandboxShell } from '../shell/SandboxShell'
 
@@ -35,56 +34,65 @@ export function HomeScreen() @{
 
 	return (
 		<SandboxShell>
-			<PageLayout title="Astryx Sandbox">
-				<VStack gap={6}>
-					<VStack gap={4}>
-						<TextInput
-							label="Search"
-							isLabelHidden
-							placeholder="Search..."
-							value={search}
-							onChange={setSearch}
-							startIcon={<Icon name="sandbox-search" size={16} />}
-							size="lg"
-						/>
-						<ToggleButtonGroup
-							label="Filter by category"
-							value={activeTab}
-							onChange={(v) => setActiveTab(v ?? 'All')}
-						>
-							{CATEGORY_FILTERS.map((cat) => (
-								<ToggleButton key={cat} label={cat} value={cat} size="lg" />
-							))}
-						</ToggleButtonGroup>
-					</VStack>
-
-					{filtered.length === 0 ? (
-						<View className="sb-empty">
-							<Text className="sb-type-supporting sb-color-secondary">No results found.</Text>
-						</View>
-					) : grouped != null ? (
+			<Layout
+				header={
+					<LayoutHeader hasDivider padding={6}>
+						<Heading level={1}>{'Astryx Sandbox'}</Heading>
+					</LayoutHeader>
+				}
+				content={
+					<LayoutContent padding={6}>
 						<VStack gap={6}>
-							{grouped.flatMap((section) => [
-								<Divider key={`d-${section.category}`} />,
-								<VStack gap={6} key={section.category}>
-									<Heading level={2}>{section.category}</Heading>
-									<View className="sb-card-grid">
-										{section.pages.map((page) => (
-											<ProjectCard key={page.href} page={page} />
-										))}
-									</View>
-								</VStack>,
-							])}
+							<VStack gap={4}>
+								<TextInput
+									label="Search"
+									isLabelHidden
+									placeholder="Search..."
+									value={search}
+									onChange={setSearch}
+									startIcon={<Icon name="sandbox-search" size={16} />}
+									size="lg"
+								/>
+								<ToggleButtonGroup
+									label="Filter by category"
+									value={activeTab}
+									onChange={(v) => setActiveTab(v ?? 'All')}
+								>
+									{CATEGORY_FILTERS.map((cat) => (
+										<ToggleButton key={cat} label={cat} value={cat} size="lg" />
+									))}
+								</ToggleButtonGroup>
+							</VStack>
+
+							{filtered.length === 0 ? (
+								<View className="sb-empty">
+									<Text className="sb-type-supporting sb-color-secondary">No results found.</Text>
+								</View>
+							) : grouped != null ? (
+								<VStack gap={6}>
+									{grouped.flatMap((section) => [
+										<Divider key={`d-${section.category}`} />,
+										<VStack gap={6} key={section.category}>
+											<Heading level={2}>{section.category}</Heading>
+											<View className="sb-card-grid">
+												{section.pages.map((page) => (
+													<ProjectCard key={page.href} page={page} />
+												))}
+											</View>
+										</VStack>,
+									])}
+								</VStack>
+							) : (
+								<View className="sb-card-grid">
+									{filtered.map((page) => (
+										<ProjectCard key={page.href} page={page} />
+									))}
+								</View>
+							)}
 						</VStack>
-					) : (
-						<View className="sb-card-grid">
-							{filtered.map((page) => (
-								<ProjectCard key={page.href} page={page} />
-							))}
-						</View>
-					)}
-				</VStack>
-			</PageLayout>
+					</LayoutContent>
+				}
+			/>
 		</SandboxShell>
 	)
 }

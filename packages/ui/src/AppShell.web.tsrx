@@ -145,7 +145,7 @@ export function AppShell(props: AppShellProps) @{
 						className="vx-appshell-content"
 						role="main"
 						tabIndex={-1}
-						style={{ padding: contentPad }}
+						style={{ padding: contentPad, '--container-padding-inline-start': `${contentPad}px`, '--container-padding-inline-end': `${contentPad}px`, '--container-padding-block-start': `${contentPad}px`, '--container-padding-block-end': `${contentPad}px` }}
 					>
 						{props.children}
 					</div>

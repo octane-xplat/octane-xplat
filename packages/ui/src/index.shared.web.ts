@@ -33,6 +33,9 @@ export { Stack } from './Stack'
 export { StackItem } from './StackItem'
 export { Center } from './Center'
 export { Section } from './Section'
+/** Five-slot page region primitive (Astryx `Layout` + its header/content
+ *  regions). AppShell owns the app frame; Layout structures inside it. */
+export { Layout, LayoutHeader, LayoutContent } from './Layout'
 export { AspectRatio } from './AspectRatio'
 export { VisuallyHidden } from './VisuallyHidden'
 /** Keyboard focus containment — React Aria's FocusScope. Check
@@ -874,6 +877,11 @@ export type {
 	ListDensity,
 	ListMarkerStyle,
 	ListStyle,
+	LayoutContentProps,
+	LayoutHeaderProps,
+	LayoutHeight,
+	LayoutProps,
+	LayoutRole,
 	SectionDividerSide,
 	SectionProps,
 	SectionVariant,

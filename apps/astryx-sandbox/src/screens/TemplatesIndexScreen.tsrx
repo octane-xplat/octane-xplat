@@ -4,9 +4,8 @@
 // non-template routes in a second ledger.
 
 import { useState } from 'octane'
-import { Heading, Text, TextInput, VStack, View, Icon } from '@octane-xplat/ui'
+import { Heading, Text, TextInput, VStack, View, Icon, Layout, LayoutHeader, LayoutContent } from '@octane-xplat/ui'
 import { coverageRows, coverageSummary, familyRows, type CoverageRow } from '../coverage/coverage'
-import { PageLayout } from '../shell/PageLayout'
 import { SandboxShell } from '../shell/SandboxShell'
 import { SandboxLink } from '../shell/SandboxLink'
 
@@ -49,33 +48,62 @@ export function TemplatesIndexScreen() @{
 
 	return (
 		<SandboxShell>
-			<PageLayout title="Templates">
-				<VStack gap={4}>
-					<Text className="sb-type-body sb-color-secondary">
-						Pinned Astryx 0.6.4 baseline: {summary.total} routes — {summary.ported} ported,{' '}
-						{summary.pending} pending, {summary.blocked} blocked.
-					</Text>
-					<TextInput
-						label="Search templates"
-						isLabelHidden
-						placeholder="Search templates…"
-						value={search}
-						onChange={setSearch}
-						startIcon={<Icon name="sandbox-search" size={16} />}
-						hasClear
-						width={240}
-						size="sm"
-					/>
+			<Layout
+				header={
+					<LayoutHeader hasDivider padding={6}>
+						<Heading level={1}>{'Templates'}</Heading>
+					</LayoutHeader>
+				}
+				content={
+					<LayoutContent padding={6}>
+						<VStack gap={4}>
+							<Text className="sb-type-body sb-color-secondary">
+								Pinned Astryx 0.6.4 baseline: {summary.total} routes — {summary.ported} ported,{' '}
+								{summary.pending} pending, {summary.blocked} blocked.
+							</Text>
+							<TextInput
+								label="Search templates"
+								isLabelHidden
+								placeholder="Search templates…"
+								value={search}
+								onChange={setSearch}
+								startIcon={<Icon name="sandbox-search" size={16} />}
+								hasClear
+								width={240}
+								size="sm"
+							/>
 
-					{families.map((family) => (
-						<View key={family.family}>
+							{families.map((family) => (
+								<View key={family.family}>
+									<Heading level={2} className="sb-family-heading">
+										{family.family} ({family.rows.filter((r) => r.status === 'ported').length}/{family.rows.length})
+									</Heading>
+									<table className="sb-ledger-table">
+										<thead>
+											<tr>
+												<th>Example</th>
+												<th>Kind</th>
+												<th>Family</th>
+												<th>Status</th>
+												<th>Upstream source</th>
+											</tr>
+										</thead>
+										<tbody>
+											{family.rows.map((row) => (
+												<LedgerRow key={row.route} row={row} />
+											))}
+										</tbody>
+									</table>
+								</View>
+							))}
+
 							<Heading level={2} className="sb-family-heading">
-								{family.family} ({family.rows.filter((r) => r.status === 'ported').length}/{family.rows.length})
+								Page templates ({pageTemplates.filter((r) => r.status === 'ported').length}/{pageTemplates.length})
 							</Heading>
 							<table className="sb-ledger-table">
 								<thead>
 									<tr>
-										<th>Example</th>
+										<th>Template</th>
 										<th>Kind</th>
 										<th>Family</th>
 										<th>Status</th>
@@ -83,55 +111,35 @@ export function TemplatesIndexScreen() @{
 									</tr>
 								</thead>
 								<tbody>
-									{family.rows.map((row) => (
+									{pageTemplates.map((row) => (
 										<LedgerRow key={row.route} row={row} />
 									))}
 								</tbody>
 							</table>
-						</View>
-					))}
 
-					<Heading level={2} className="sb-family-heading">
-						Page templates ({pageTemplates.filter((r) => r.status === 'ported').length}/{pageTemplates.length})
-					</Heading>
-					<table className="sb-ledger-table">
-						<thead>
-							<tr>
-								<th>Template</th>
-								<th>Kind</th>
-								<th>Family</th>
-								<th>Status</th>
-								<th>Upstream source</th>
-							</tr>
-						</thead>
-						<tbody>
-							{pageTemplates.map((row) => (
-								<LedgerRow key={row.route} row={row} />
-							))}
-						</tbody>
-					</table>
-
-					<Heading level={2} className="sb-family-heading">
-						Sandbox routes
-					</Heading>
-					<table className="sb-ledger-table">
-						<thead>
-							<tr>
-								<th>Route</th>
-								<th>Kind</th>
-								<th>Family</th>
-								<th>Status</th>
-								<th>Upstream source</th>
-							</tr>
-						</thead>
-						<tbody>
-							{otherRoutes.map((row) => (
-								<LedgerRow key={row.route} row={row} />
-							))}
-						</tbody>
-					</table>
-				</VStack>
-			</PageLayout>
+							<Heading level={2} className="sb-family-heading">
+								Sandbox routes
+							</Heading>
+							<table className="sb-ledger-table">
+								<thead>
+									<tr>
+										<th>Route</th>
+										<th>Kind</th>
+										<th>Family</th>
+										<th>Status</th>
+										<th>Upstream source</th>
+									</tr>
+								</thead>
+								<tbody>
+									{otherRoutes.map((row) => (
+										<LedgerRow key={row.route} row={row} />
+									))}
+								</tbody>
+							</table>
+						</VStack>
+					</LayoutContent>
+				}
+			/>
 		</SandboxShell>
 	)
 }
