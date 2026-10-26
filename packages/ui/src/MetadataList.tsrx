@@ -7,6 +7,7 @@ import { applyEscapeProps } from './escape-props';
 import { MetadataListProvider } from './metadata-list-context';
 import { Grid } from './Grid.tsrx';
 import { Pressable } from './Pressable';
+import { isChildrenBlock } from 'octane';
 import { toChildArray } from './child-array';
 
 /** Repeat an 'auto,*' label/value track pair (or a '*' cell for stacked
@@ -40,7 +41,7 @@ export function MetadataList(props: MetadataListProps) @{
 	const isStacked = labelPosition === 'top' || isHorizontal;
 
 	const [isShowAll, setIsShowAll] = useState(false);
-	const childrenArray = toChildArray(props.children);
+	const childrenArray = (isChildrenBlock(props.children) ? [] : toChildArray(props.children));
 	const effectiveMax = isHorizontal ? undefined : props.maxNumOfItems;
 	const isExceedMax = effectiveMax != null && childrenArray.length > effectiveMax;
 	const visibleChildren =
@@ -59,11 +60,11 @@ export function MetadataList(props: MetadataListProps) @{
 			) : null}
 			{isHorizontal ? (
 				<masonview className="vx-metadatalist-list vx-metadatalist--horizontal" style={mergeStyle({flexDirection: "row", flexWrap: "wrap", gap: 16}, {display: "flex"})}>
-					{visibleChildren}
+					{childrenArray.length ? visibleChildren : props.children}
 				</masonview>
 			) : (
 				<Grid columns={gridColumns(columns, isStacked)} className="vx-metadatalist-list">
-					{visibleChildren}
+					{childrenArray.length ? visibleChildren : props.children}
 				</Grid>
 			)}
 			{isExceedMax ? (

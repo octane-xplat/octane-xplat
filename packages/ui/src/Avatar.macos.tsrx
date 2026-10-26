@@ -9,7 +9,7 @@ import { Image } from './Image.macos.tsrx';
  *  `size` sets the square + border-radius inline so the circle is identical
  *  across targets. */
 export function Avatar(props: AvatarProps) @{
-	const size = props.size ?? 32;
+	const size = typeof props.size === 'number' ? props.size : ({ xsm: 16, sm: 24, md: 32, lg: 40, xl: 48 } as Record<string, number>)[props.size ?? 'md'] ?? 32;
 	const box = { width: size, height: size, borderRadius: size / 2 };
 
 	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-avatar', props.className)} style={mergeStyle({display: "flex"}, { ...styleRecord(props.style), ...(box) })} accessibilityLabel={props.alt}>

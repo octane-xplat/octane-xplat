@@ -1,19 +1,13 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { mergeStyle } from './style-merge'
-import { TextSlot } from './text-slot'
-import type { BadgeProps } from './props'
+import type { BadgeProps } from "./props";
 import { cx } from '@octane-xplat/lib'
-import { applyEscapeProps } from './escape-props'
 
-/** Badge — inline label chip. Pure composition; `vx-badge` supplies only the
- *  inline-flex row so apps own all visual styling. */
+/** Badge — inline label chip (Astryx). Native leaf renders the same
+ *  `vx-badge--{variant}` class hooks; label text is a span child. */
 export function Badge(props: BadgeProps) @{
-	<masonview
-		ref={(v: any) => applyEscapeProps(v, props)}
-		id={props.id}
-		className={cx('vx-badge', props.className)}
-		style={mergeStyle({ display: 'flex', flexDirection: 'row' }, props.style)}
-	>
-		<TextSlot className="vx-badge-text">{props.children}</TextSlot>
+	<masonview id={props.id} className={cx('vx-badge', `vx-badge--${props.variant ?? 'neutral'}`, props.className)} style={props.style}>
+		{typeof (props.children ?? props.label) === 'string' || typeof props.label === 'number'
+			? <label text={typeof props.children === 'string' ? props.children : String(props.label ?? '')} />
+			: props.children}
 	</masonview>
 }

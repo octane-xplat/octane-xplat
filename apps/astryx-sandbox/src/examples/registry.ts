@@ -266,6 +266,299 @@ import { TableFloatingBulkActionsTable } from './table/TableFloatingBulkActionsT
 import { PaginationWithTable } from './pagination/PaginationWithTable'
 import { TableTemplate } from './pages/table-template'
 import { TablePageTemplate } from './pages/table-page-template'
+import { AppShellContentOnly } from './appshell/AppShellContentOnly'
+import { AppShellMobileHookUsage } from './appshell/AppShellMobileHookUsage'
+import { AppShellShowcase } from './appshell/AppShellShowcase'
+import { AppShellSideNavOnly } from './appshell/AppShellSideNavOnly'
+import { AppShellTopNavOnly } from './appshell/AppShellTopNavOnly'
+import { AppShellTopNavWithSideNav } from './appshell/AppShellTopNavWithSideNav'
+import { AppShellWithBanner } from './appshell/AppShellWithBanner'
+import { AvatarFallbackChain } from './avatar/AvatarFallbackChain'
+import { AvatarGroup } from './avatar/AvatarGroup'
+import { AvatarGroupInteractive } from './avatargroup/AvatarGroupInteractive'
+import { AvatarGroupOverflowCustomText } from './avatargroupoverflow/AvatarGroupOverflowCustomText'
+import { AvatarGroupOverflowDefault } from './avatargroupoverflow/AvatarGroupOverflowDefault'
+import { AvatarGroupOverflowShowcase } from './avatargroupoverflow/AvatarGroupOverflowShowcase'
+import { AvatarGroupShowcase } from './avatargroup/AvatarGroupShowcase'
+import { AvatarInitialsFallback } from './avatar/AvatarInitialsFallback'
+import { AvatarInteractive } from './avatar/AvatarInteractive'
+import { AvatarShowcase } from './avatar/AvatarShowcase'
+import { AvatarStatusDotShowcase } from './avatarstatusdot/AvatarStatusDotShowcase'
+import { AvatarStatusDotVariants } from './avatarstatusdot/AvatarStatusDotVariants'
+import { AvatarTooltip } from './avatar/AvatarTooltip'
+import { AvatarUserCard } from './avatar/AvatarUserCard'
+import { AvatarWithImage } from './avatar/AvatarWithImage'
+import { AvatarWithStatus } from './avatar/AvatarWithStatus'
+import { BadgeCategoryTags } from './badge/BadgeCategoryTags'
+import { BadgeCountBadges } from './badge/BadgeCountBadges'
+import { BadgeShowcase } from './badge/BadgeShowcase'
+import { BadgeStatusLabels } from './badge/BadgeStatusLabels'
+import { BannerCollapsibleContent } from './banner/BannerCollapsibleContent'
+import { BannerDismissable } from './banner/BannerDismissable'
+import { BannerFloating } from './banner/BannerFloating'
+import { BannerSectionVariant } from './banner/BannerSectionVariant'
+import { BannerShowcase } from './banner/BannerShowcase'
+import { BannerStatuses } from './banner/BannerStatuses'
+import { BannerWithActionButton } from './banner/BannerWithActionButton'
+import { BreadcrumbItemBasic } from './breadcrumbitem/BreadcrumbItemBasic'
+import { BreadcrumbItemShowcase } from './breadcrumbitem/BreadcrumbItemShowcase'
+import { BreadcrumbsCustomSeparator } from './breadcrumbs/BreadcrumbsCustomSeparator'
+import { BreadcrumbsDeepHierarchy } from './breadcrumbs/BreadcrumbsDeepHierarchy'
+import { BreadcrumbsMenuItem } from './breadcrumbs/BreadcrumbsMenuItem'
+import { BreadcrumbsShowcase } from './breadcrumbs/BreadcrumbsShowcase'
+import { BreadcrumbsSupportingVariant } from './breadcrumbs/BreadcrumbsSupportingVariant'
+import { BreadcrumbsWithIcons } from './breadcrumbs/BreadcrumbsWithIcons'
+import { ButtonGroupBasic } from './buttongroup/ButtonGroupBasic'
+import { ButtonGroupFloating } from './buttongroup/ButtonGroupFloating'
+import { ButtonGroupShowcase } from './buttongroup/ButtonGroupShowcase'
+import { CardCallout } from './card/CardCallout'
+import { CardElevations } from './card/CardElevations'
+import { CardShowcase } from './card/CardShowcase'
+import { CardVariants } from './card/CardVariants'
+import { CardWithInnerLayout } from './card/CardWithInnerLayout'
+import { CardWithSimpleContent } from './card/CardWithSimpleContent'
+import { CenterHorizontal } from './center/CenterHorizontal'
+import { CenterInsideACard } from './center/CenterInsideACard'
+import { CenterShowcase } from './center/CenterShowcase'
+import { ClickableCardElevated } from './card/ClickableCardElevated'
+import { ClickableCardShowcase } from './card/ClickableCardShowcase'
+import { ClickableCardWithNestedButton } from './card/ClickableCardWithNestedButton'
+import { CollapsibleControlledAccordion } from './collapsible/CollapsibleControlledAccordion'
+import { CollapsibleDividedAccordion } from './collapsible/CollapsibleDividedAccordion'
+import { CollapsibleGroupAccordion } from './collapsiblegroup/CollapsibleGroupAccordion'
+import { CollapsibleGroupShowcase } from './collapsiblegroup/CollapsibleGroupShowcase'
+import { CollapsibleHookUsage } from './collapsible/CollapsibleHookUsage'
+import { CollapsibleMultipleAccordion } from './collapsible/CollapsibleMultipleAccordion'
+import { CollapsibleShowcase } from './collapsible/CollapsibleShowcase'
+import { CollapsibleSingleAccordion } from './collapsible/CollapsibleSingleAccordion'
+import { CollapsibleWithoutCard } from './collapsible/CollapsibleWithoutCard'
+import { CommandPaletteAsyncSearch } from './commandpalette/CommandPaletteAsyncSearch'
+import { CommandPaletteAutoGrouped } from './commandpalette/CommandPaletteAutoGrouped'
+import { CommandPaletteCustomFooter } from './commandpalette/CommandPaletteCustomFooter'
+import { CommandPaletteEmptyBasic } from './commandpaletteempty/CommandPaletteEmptyBasic'
+import { CommandPaletteEmptyShowcase } from './commandpaletteempty/CommandPaletteEmptyShowcase'
+import { CommandPaletteFooterBasic } from './commandpalettefooter/CommandPaletteFooterBasic'
+import { CommandPaletteFooterShowcase } from './commandpalettefooter/CommandPaletteFooterShowcase'
+import { CommandPaletteGroupBasic } from './commandpalettegroup/CommandPaletteGroupBasic'
+import { CommandPaletteGroupShowcase } from './commandpalettegroup/CommandPaletteGroupShowcase'
+import { CommandPaletteInputBasic } from './commandpaletteinput/CommandPaletteInputBasic'
+import { CommandPaletteInputShowcase } from './commandpaletteinput/CommandPaletteInputShowcase'
+import { CommandPaletteItemBasic } from './commandpaletteitem/CommandPaletteItemBasic'
+import { CommandPaletteItemShowcase } from './commandpaletteitem/CommandPaletteItemShowcase'
+import { CommandPaletteListBasic } from './commandpalettelist/CommandPaletteListBasic'
+import { CommandPaletteListShowcase } from './commandpalettelist/CommandPaletteListShowcase'
+import { CommandPalettePickerMode } from './commandpalette/CommandPalettePickerMode'
+import { CommandPaletteRichItems } from './commandpalette/CommandPaletteRichItems'
+import { CommandPaletteShowcase } from './commandpalette/CommandPaletteShowcase'
+import { DividerFullBleed } from './divider/DividerFullBleed'
+import { DividerShowcase } from './divider/DividerShowcase'
+import { DividerVariants } from './divider/DividerVariants'
+import { DividerVertical } from './divider/DividerVertical'
+import { EmptyStateActions } from './emptystate/EmptyStateActions'
+import { EmptyStateCompact } from './emptystate/EmptyStateCompact'
+import { EmptyStateContainer } from './emptystate/EmptyStateContainer'
+import { EmptyStateShowcase } from './emptystate/EmptyStateShowcase'
+import { GridDashboardLayout } from './grid/GridDashboardLayout'
+import { GridGalleryExample } from './grid/GridGalleryExample'
+import { GridResponsiveAutoFit } from './grid/GridResponsiveAutoFit'
+import { GridShowcase } from './grid/GridShowcase'
+import { GridSpanColumns } from './gridspan/GridSpanColumns'
+import { GridSpanShowcase } from './gridspan/GridSpanShowcase'
+import { GridWithGridSpan } from './grid/GridWithGridSpan'
+import { HStackBasic } from './hstack/HStackBasic'
+import { HStackShowcase } from './hstack/HStackShowcase'
+import { HeadingCardGrid } from './heading/HeadingCardGrid'
+import { HeadingPageLayout } from './heading/HeadingPageLayout'
+import { HeadingShowcase } from './heading/HeadingShowcase'
+import { HeadingTruncation } from './heading/HeadingTruncation'
+import { HoverCardHookUsage } from './hovercard/HoverCardHookUsage'
+import { HoverCardInlineTextHoverCard } from './hovercard/HoverCardInlineTextHoverCard'
+import { HoverCardInteractiveContent } from './hovercard/HoverCardInteractiveContent'
+import { HoverCardProfileHoverCard } from './hovercard/HoverCardProfileHoverCard'
+import { HoverCardShowcase } from './hovercard/HoverCardShowcase'
+import { IconButtonActionBar } from './iconbutton/IconButtonActionBar'
+import { IconButtonFloating } from './iconbutton/IconButtonFloating'
+import { IconButtonLoadingToggle } from './iconbutton/IconButtonLoadingToggle'
+import { IconButtonShowcase } from './iconbutton/IconButtonShowcase'
+import { IconButtonTooltipIconButton } from './iconbutton/IconButtonTooltipIconButton'
+import { IconNonSemanticColors } from './icon/IconNonSemanticColors'
+import { IconSemanticColors } from './icon/IconSemanticColors'
+import { IconShowcase } from './icon/IconShowcase'
+import { IconSizes } from './icon/IconSizes'
+import { IconStatusIcons } from './icon/IconStatusIcons'
+import { ItemBasicItem } from './item/ItemBasicItem'
+import { ItemDocumentTabs } from './item/ItemDocumentTabs'
+import { ItemShowcase } from './item/ItemShowcase'
+import { ItemWithMedia } from './item/ItemWithMedia'
+import { ItemWithMetadata } from './item/ItemWithMetadata'
+import { KbdInlineInstructions } from './kbd/KbdInlineInstructions'
+import { KbdMenuShortcuts } from './kbd/KbdMenuShortcuts'
+import { KbdModifierCombos } from './kbd/KbdModifierCombos'
+import { KbdShowcase } from './kbd/KbdShowcase'
+import { LayoutBasicCardLayout } from './layout/LayoutBasicCardLayout'
+import { LayoutContentBasic } from './layoutcontent/LayoutContentBasic'
+import { LayoutContentOnlyLayout } from './layout/LayoutContentOnlyLayout'
+import { LayoutContentShowcase } from './layoutcontent/LayoutContentShowcase'
+import { LayoutContentWidth } from './layout/LayoutContentWidth'
+import { LayoutDualPanelLayout } from './layout/LayoutDualPanelLayout'
+import { LayoutFooterActions } from './layoutfooter/LayoutFooterActions'
+import { LayoutFooterShowcase } from './layoutfooter/LayoutFooterShowcase'
+import { LayoutFullBleedContent } from './layout/LayoutFullBleedContent'
+import { LayoutHeaderShowcase } from './layoutheader/LayoutHeaderShowcase'
+import { LayoutHeaderWithActions } from './layoutheader/LayoutHeaderWithActions'
+import { LayoutPanelNavigation } from './layoutpanel/LayoutPanelNavigation'
+import { LayoutPanelShowcase } from './layoutpanel/LayoutPanelShowcase'
+import { LayoutShowcase } from './layout/LayoutShowcase'
+import { LayoutSidebarLayout } from './layout/LayoutSidebarLayout'
+import { LinkExternalLinks } from './link/LinkExternalLinks'
+import { LinkInlineLink } from './link/LinkInlineLink'
+import { LinkShowcase } from './link/LinkShowcase'
+import { LinksWithTooltips } from './link/LinksWithTooltips'
+import { ListBasicList } from './list/ListBasicList'
+import { ListBulletedFeatures } from './list/ListBulletedFeatures'
+import { ListItemBasicItem } from './listitem/ListItemBasicItem'
+import { ListItemShowcase } from './listitem/ListItemShowcase'
+import { ListItemWithMedia } from './listitem/ListItemWithMedia'
+import { ListItemWithMetadata } from './listitem/ListItemWithMetadata'
+import { ListMessageList } from './list/ListMessageList'
+import { ListOrderedSteps } from './list/ListOrderedSteps'
+import { ListShowcase } from './list/ListShowcase'
+import { MetadataListBasicMetadata } from './metadatalist/MetadataListBasicMetadata'
+import { MetadataListCollapsibleMetadata } from './metadatalist/MetadataListCollapsibleMetadata'
+import { MetadataListHorizontalMetadata } from './metadatalist/MetadataListHorizontalMetadata'
+import { MetadataListItemBasic } from './metadatalistitem/MetadataListItemBasic'
+import { MetadataListItemShowcase } from './metadatalistitem/MetadataListItemShowcase'
+import { MetadataListMultiColumnMetadata } from './metadatalist/MetadataListMultiColumnMetadata'
+import { MetadataListShowcase } from './metadatalist/MetadataListShowcase'
+import { MobileNavBasicMobileNav } from './mobilenav/MobileNavBasicMobileNav'
+import { MobileNavEndSideMobileNav } from './mobilenav/MobileNavEndSideMobileNav'
+import { MobileNavShowcase } from './mobilenav/MobileNavShowcase'
+import { MobileNavToggleBasic } from './mobilenavtoggle/MobileNavToggleBasic'
+import { MobileNavToggleShowcase } from './mobilenavtoggle/MobileNavToggleShowcase'
+import { MobileNavWithoutTitleMobileNav } from './mobilenav/MobileNavWithoutTitleMobileNav'
+import { NavHeadingMenuShowcase } from './navheadingmenu/NavHeadingMenuShowcase'
+import { NavIconBasic } from './navicon/NavIconBasic'
+import { NavIconShowcase } from './navicon/NavIconShowcase'
+import { OutlineControlled } from './outline/OutlineControlled'
+import { OutlineDeepNesting } from './outline/OutlineDeepNesting'
+import { OutlineDensity } from './outline/OutlineDensity'
+import { OutlineShowcase } from './outline/OutlineShowcase'
+import { OverflowListCappedToolbar } from './overflowlist/OverflowListCappedToolbar'
+import { OverflowListCollapseFromStartList } from './overflowlist/OverflowListCollapseFromStartList'
+import { OverflowListShowcase } from './overflowlist/OverflowListShowcase'
+import { ProgressBarCustomFormat } from './progressbar/ProgressBarCustomFormat'
+import { ProgressBarIndeterminate } from './progressbar/ProgressBarIndeterminate'
+import { ProgressBarSemanticVariants } from './progressbar/ProgressBarSemanticVariants'
+import { ProgressBarShowcase } from './progressbar/ProgressBarShowcase'
+import { ProgressBarWithValueLabel } from './progressbar/ProgressBarWithValueLabel'
+import { ResizableShowcase } from './resizable/ResizableShowcase'
+import { ResizableSidebar } from './resizable/ResizableSidebar'
+import { ScrollableAreaInlineRail } from './scrollablearea/ScrollableAreaInlineRail'
+import { ScrollableAreaOverscrollChaining } from './scrollablearea/ScrollableAreaOverscrollChaining'
+import { ScrollableAreaShowcase } from './scrollablearea/ScrollableAreaShowcase'
+import { ScrollableAreaStickyGroupHeaders } from './scrollablearea/ScrollableAreaStickyGroupHeaders'
+import { ScrollableAreaStickyPassthrough } from './scrollablearea/ScrollableAreaStickyPassthrough'
+import { ScrollableAreaTwoAxisBoard } from './scrollablearea/ScrollableAreaTwoAxisBoard'
+import { SectionVariants } from './section/SectionVariants'
+import { SectionWashHighlight } from './section/SectionWashHighlight'
+import { SectionWithDividers } from './section/SectionWithDividers'
+import { SelectableCardElevated } from './card/SelectableCardElevated'
+import { SelectableCardMulti } from './card/SelectableCardMulti'
+import { SelectableCardShowcase } from './card/SelectableCardShowcase'
+import { SideNavCollapseButtonBasic } from './sidenavcollapsebutton/SideNavCollapseButtonBasic'
+import { SideNavCollapseButtonShowcase } from './sidenavcollapsebutton/SideNavCollapseButtonShowcase'
+import { SideNavEndContent } from './sidenav/SideNavEndContent'
+import { SideNavHeadingBasic } from './sidenavheading/SideNavHeadingBasic'
+import { SideNavHeadingShowcase } from './sidenavheading/SideNavHeadingShowcase'
+import { SideNavItemBasic } from './sidenavitem/SideNavItemBasic'
+import { SideNavItemShowcase } from './sidenavitem/SideNavItemShowcase'
+import { SideNavNestedItems } from './sidenav/SideNavNestedItems'
+import { SideNavSectionBasic } from './sidenavsection/SideNavSectionBasic'
+import { SideNavSectionShowcase } from './sidenavsection/SideNavSectionShowcase'
+import { SideNavShowcase } from './sidenav/SideNavShowcase'
+import { SideNavWithHeaderMenu } from './sidenav/SideNavWithHeaderMenu'
+import { SkeletonCardSkeleton } from './skeleton/SkeletonCardSkeleton'
+import { SkeletonShowcase } from './skeleton/SkeletonShowcase'
+import { SkeletonStaggeredList } from './skeleton/SkeletonStaggeredList'
+import { SkeletonTableRowSkeleton } from './skeleton/SkeletonTableRowSkeleton'
+import { SpinnerOnMedia } from './spinner/SpinnerOnMedia'
+import { SpinnerShowcase } from './spinner/SpinnerShowcase'
+import { SpinnerSizes } from './spinner/SpinnerSizes'
+import { SpinnerWithLabel } from './spinner/SpinnerWithLabel'
+import { StackAlignment } from './stack/StackAlignment'
+import { StackDirections } from './stack/StackDirections'
+import { StackFillItem } from './stack/StackFillItem'
+import { StackItemFill } from './stackitem/StackItemFill'
+import { StackItemShowcase } from './stackitem/StackItemShowcase'
+import { StatusDotPulsing } from './statusdot/StatusDotPulsing'
+import { StatusDotShowcase } from './statusdot/StatusDotShowcase'
+import { StatusDotStatusIndicators } from './statusdot/StatusDotStatusIndicators'
+import { StatusDotVariants } from './statusdot/StatusDotVariants'
+import { TabListShowcase } from './tablist/TabListShowcase'
+import { TabListTabsFillLayout } from './tablist/TabListTabsFillLayout'
+import { TabListTabsWithActions } from './tablist/TabListTabsWithActions'
+import { TabListTabsWithBadge } from './tablist/TabListTabsWithBadge'
+import { TabListTabsWithIcons } from './tablist/TabListTabsWithIcons'
+import { TabListTabsWithMenu } from './tablist/TabListTabsWithMenu'
+import { TabListTabsWithStatusDot } from './tablist/TabListTabsWithStatusDot'
+import { TabMenuBasic } from './tabmenu/TabMenuBasic'
+import { TabMenuShowcase } from './tabmenu/TabMenuShowcase'
+import { TabShowcase } from './tab/TabShowcase'
+import { TabWithSelectedIcon } from './tab/TabWithSelectedIcon'
+import { TimerFormats } from './timer/TimerFormats'
+import { TimerInline } from './timer/TimerInline'
+import { TimerShowcase } from './timer/TimerShowcase'
+import { TimestampAutoFormat } from './timestamp/TimestampAutoFormat'
+import { TimestampColors } from './timestamp/TimestampColors'
+import { TimestampFormats } from './timestamp/TimestampFormats'
+import { TimestampShowcase } from './timestamp/TimestampShowcase'
+import { TokenClickable } from './token/TokenClickable'
+import { TokenColors } from './token/TokenColors'
+import { TokenEndContent } from './token/TokenEndContent'
+import { TokenIcon } from './token/TokenIcon'
+import { TokenRemovable } from './token/TokenRemovable'
+import { TokenShowcase } from './token/TokenShowcase'
+import { ToolbarBulkActions } from './toolbar/ToolbarBulkActions'
+import { ToolbarCardHeader } from './toolbar/ToolbarCardHeader'
+import { ToolbarSizes } from './toolbar/ToolbarSizes'
+import { ToolbarTableFilter } from './toolbar/ToolbarTableFilter'
+import { ToolbarThreeSlot } from './toolbar/ToolbarThreeSlot'
+import { ToolbarWithTabs } from './toolbar/ToolbarWithTabs'
+import { TopNavCenteredNavigation } from './topnav/TopNavCenteredNavigation'
+import { TopNavEnterpriseDashboard } from './topnav/TopNavEnterpriseDashboard'
+import { TopNavHeadingBasic } from './topnavheading/TopNavHeadingBasic'
+import { TopNavHeadingShowcase } from './topnavheading/TopNavHeadingShowcase'
+import { TopNavHoverMenu } from './topnav/TopNavHoverMenu'
+import { TopNavItemBasic } from './topnavitem/TopNavItemBasic'
+import { TopNavItemShowcase } from './topnavitem/TopNavItemShowcase'
+import { TopNavMegaMenu } from './topnav/TopNavMegaMenu'
+import { TopNavMegaMenuBasic } from './topnavmegamenu/TopNavMegaMenuBasic'
+import { TopNavMegaMenuFeaturedCardBasic } from './topnavmegamenufeaturedcard/TopNavMegaMenuFeaturedCardBasic'
+import { TopNavMegaMenuFeaturedCardShowcase } from './topnavmegamenufeaturedcard/TopNavMegaMenuFeaturedCardShowcase'
+import { TopNavMegaMenuItemBasic } from './topnavmegamenuitem/TopNavMegaMenuItemBasic'
+import { TopNavMegaMenuItemShowcase } from './topnavmegamenuitem/TopNavMegaMenuItemShowcase'
+import { TopNavMegaMenuShowcase } from './topnavmegamenu/TopNavMegaMenuShowcase'
+import { TopNavMenuBasic } from './topnavmenu/TopNavMenuBasic'
+import { TopNavMenuShowcase } from './topnavmenu/TopNavMenuShowcase'
+import { TopNavMultipleDropdowns } from './topnav/TopNavMultipleDropdowns'
+import { TopNavShowcase } from './topnav/TopNavShowcase'
+import { TopNavWithLogo } from './topnav/TopNavWithLogo'
+import { TreeListFileTreeWithIcons } from './treelist/TreeListFileTreeWithIcons'
+import { TreeListInteractiveSettings } from './treelist/TreeListInteractiveSettings'
+import { TreeListMailboxTree } from './treelist/TreeListMailboxTree'
+import { TreeListNavigationTree } from './treelist/TreeListNavigationTree'
+import { TreeListShowcase } from './treelist/TreeListShowcase'
+import { TreeListVariants } from './treelist/TreeListVariants'
+import { useKeyboardHintHookUsage } from './hooks/useKeyboardHintHookUsage'
+import { VStackBasic } from './vstack/VStackBasic'
+import { VStackShowcase } from './vstack/VStackShowcase'
+import { OverflowListMultiRowTags } from './overflowlist/OverflowListMultiRowTags'
+import { OverflowListOverflowBadges } from './overflowlist/OverflowListOverflowBadges'
+import { OverflowListOverflowDropdownActions } from './overflowlist/OverflowListOverflowDropdownActions'
+import { TimerTypography } from './timer/TimerTypography'
+import { TimestampRelativeFormat } from './timestamp/TimestampRelativeFormat'
+import { TimestampTimezone } from './timestamp/TimestampTimezone'
+import { TimestampTooltipTimezones } from './timestamp/TimestampTooltipTimezones'
 
 const examples: Record<string, () => any> = {
 	AspectRatioCircleImage,
@@ -534,6 +827,299 @@ const examples: Record<string, () => any> = {
 	// Page templates (slug keys) — unit 6 flat-table pages.
 	'table': TableTemplate,
 	'table-page': TablePageTemplate,
+	AppShellContentOnly,
+	AppShellMobileHookUsage,
+	AppShellShowcase,
+	AppShellSideNavOnly,
+	AppShellTopNavOnly,
+	AppShellTopNavWithSideNav,
+	AppShellWithBanner,
+	AvatarFallbackChain,
+	AvatarGroup,
+	AvatarGroupInteractive,
+	AvatarGroupOverflowCustomText,
+	AvatarGroupOverflowDefault,
+	AvatarGroupOverflowShowcase,
+	AvatarGroupShowcase,
+	AvatarInitialsFallback,
+	AvatarInteractive,
+	AvatarShowcase,
+	AvatarStatusDotShowcase,
+	AvatarStatusDotVariants,
+	AvatarTooltip,
+	AvatarUserCard,
+	AvatarWithImage,
+	AvatarWithStatus,
+	BadgeCategoryTags,
+	BadgeCountBadges,
+	BadgeShowcase,
+	BadgeStatusLabels,
+	BannerCollapsibleContent,
+	BannerDismissable,
+	BannerFloating,
+	BannerSectionVariant,
+	BannerShowcase,
+	BannerStatuses,
+	BannerWithActionButton,
+	BreadcrumbItemBasic,
+	BreadcrumbItemShowcase,
+	BreadcrumbsCustomSeparator,
+	BreadcrumbsDeepHierarchy,
+	BreadcrumbsMenuItem,
+	BreadcrumbsShowcase,
+	BreadcrumbsSupportingVariant,
+	BreadcrumbsWithIcons,
+	ButtonGroupBasic,
+	ButtonGroupFloating,
+	ButtonGroupShowcase,
+	CardCallout,
+	CardElevations,
+	CardShowcase,
+	CardVariants,
+	CardWithInnerLayout,
+	CardWithSimpleContent,
+	CenterHorizontal,
+	CenterInsideACard,
+	CenterShowcase,
+	ClickableCardElevated,
+	ClickableCardShowcase,
+	ClickableCardWithNestedButton,
+	CollapsibleControlledAccordion,
+	CollapsibleDividedAccordion,
+	CollapsibleGroupAccordion,
+	CollapsibleGroupShowcase,
+	CollapsibleHookUsage,
+	CollapsibleMultipleAccordion,
+	CollapsibleShowcase,
+	CollapsibleSingleAccordion,
+	CollapsibleWithoutCard,
+	CommandPaletteAsyncSearch,
+	CommandPaletteAutoGrouped,
+	CommandPaletteCustomFooter,
+	CommandPaletteEmptyBasic,
+	CommandPaletteEmptyShowcase,
+	CommandPaletteFooterBasic,
+	CommandPaletteFooterShowcase,
+	CommandPaletteGroupBasic,
+	CommandPaletteGroupShowcase,
+	CommandPaletteInputBasic,
+	CommandPaletteInputShowcase,
+	CommandPaletteItemBasic,
+	CommandPaletteItemShowcase,
+	CommandPaletteListBasic,
+	CommandPaletteListShowcase,
+	CommandPalettePickerMode,
+	CommandPaletteRichItems,
+	CommandPaletteShowcase,
+	DividerFullBleed,
+	DividerShowcase,
+	DividerVariants,
+	DividerVertical,
+	EmptyStateActions,
+	EmptyStateCompact,
+	EmptyStateContainer,
+	EmptyStateShowcase,
+	GridDashboardLayout,
+	GridGalleryExample,
+	GridResponsiveAutoFit,
+	GridShowcase,
+	GridSpanColumns,
+	GridSpanShowcase,
+	GridWithGridSpan,
+	HStackBasic,
+	HStackShowcase,
+	HeadingCardGrid,
+	HeadingPageLayout,
+	HeadingShowcase,
+	HeadingTruncation,
+	HoverCardHookUsage,
+	HoverCardInlineTextHoverCard,
+	HoverCardInteractiveContent,
+	HoverCardProfileHoverCard,
+	HoverCardShowcase,
+	IconButtonActionBar,
+	IconButtonFloating,
+	IconButtonLoadingToggle,
+	IconButtonShowcase,
+	IconButtonTooltipIconButton,
+	IconNonSemanticColors,
+	IconSemanticColors,
+	IconShowcase,
+	IconSizes,
+	IconStatusIcons,
+	ItemBasicItem,
+	ItemDocumentTabs,
+	ItemShowcase,
+	ItemWithMedia,
+	ItemWithMetadata,
+	KbdInlineInstructions,
+	KbdMenuShortcuts,
+	KbdModifierCombos,
+	KbdShowcase,
+	LayoutBasicCardLayout,
+	LayoutContentBasic,
+	LayoutContentOnlyLayout,
+	LayoutContentShowcase,
+	LayoutContentWidth,
+	LayoutDualPanelLayout,
+	LayoutFooterActions,
+	LayoutFooterShowcase,
+	LayoutFullBleedContent,
+	LayoutHeaderShowcase,
+	LayoutHeaderWithActions,
+	LayoutPanelNavigation,
+	LayoutPanelShowcase,
+	LayoutShowcase,
+	LayoutSidebarLayout,
+	LinkExternalLinks,
+	LinkInlineLink,
+	LinkShowcase,
+	LinksWithTooltips,
+	ListBasicList,
+	ListBulletedFeatures,
+	ListItemBasicItem,
+	ListItemShowcase,
+	ListItemWithMedia,
+	ListItemWithMetadata,
+	ListMessageList,
+	ListOrderedSteps,
+	ListShowcase,
+	MetadataListBasicMetadata,
+	MetadataListCollapsibleMetadata,
+	MetadataListHorizontalMetadata,
+	MetadataListItemBasic,
+	MetadataListItemShowcase,
+	MetadataListMultiColumnMetadata,
+	MetadataListShowcase,
+	MobileNavBasicMobileNav,
+	MobileNavEndSideMobileNav,
+	MobileNavShowcase,
+	MobileNavToggleBasic,
+	MobileNavToggleShowcase,
+	MobileNavWithoutTitleMobileNav,
+	NavHeadingMenuShowcase,
+	NavIconBasic,
+	NavIconShowcase,
+	OutlineControlled,
+	OutlineDeepNesting,
+	OutlineDensity,
+	OutlineShowcase,
+	OverflowListCappedToolbar,
+	OverflowListCollapseFromStartList,
+	OverflowListShowcase,
+	ProgressBarCustomFormat,
+	ProgressBarIndeterminate,
+	ProgressBarSemanticVariants,
+	ProgressBarShowcase,
+	ProgressBarWithValueLabel,
+	ResizableShowcase,
+	ResizableSidebar,
+	ScrollableAreaInlineRail,
+	ScrollableAreaOverscrollChaining,
+	ScrollableAreaShowcase,
+	ScrollableAreaStickyGroupHeaders,
+	ScrollableAreaStickyPassthrough,
+	ScrollableAreaTwoAxisBoard,
+	SectionVariants,
+	SectionWashHighlight,
+	SectionWithDividers,
+	SelectableCardElevated,
+	SelectableCardMulti,
+	SelectableCardShowcase,
+	SideNavCollapseButtonBasic,
+	SideNavCollapseButtonShowcase,
+	SideNavEndContent,
+	SideNavHeadingBasic,
+	SideNavHeadingShowcase,
+	SideNavItemBasic,
+	SideNavItemShowcase,
+	SideNavNestedItems,
+	SideNavSectionBasic,
+	SideNavSectionShowcase,
+	SideNavShowcase,
+	SideNavWithHeaderMenu,
+	SkeletonCardSkeleton,
+	SkeletonShowcase,
+	SkeletonStaggeredList,
+	SkeletonTableRowSkeleton,
+	SpinnerOnMedia,
+	SpinnerShowcase,
+	SpinnerSizes,
+	SpinnerWithLabel,
+	StackAlignment,
+	StackDirections,
+	StackFillItem,
+	StackItemFill,
+	StackItemShowcase,
+	StatusDotPulsing,
+	StatusDotShowcase,
+	StatusDotStatusIndicators,
+	StatusDotVariants,
+	TabListShowcase,
+	TabListTabsFillLayout,
+	TabListTabsWithActions,
+	TabListTabsWithBadge,
+	TabListTabsWithIcons,
+	TabListTabsWithMenu,
+	TabListTabsWithStatusDot,
+	TabMenuBasic,
+	TabMenuShowcase,
+	TabShowcase,
+	TabWithSelectedIcon,
+	TimerFormats,
+	TimerInline,
+	TimerShowcase,
+	TimestampAutoFormat,
+	TimestampColors,
+	TimestampFormats,
+	TimestampShowcase,
+	TokenClickable,
+	TokenColors,
+	TokenEndContent,
+	TokenIcon,
+	TokenRemovable,
+	TokenShowcase,
+	ToolbarBulkActions,
+	ToolbarCardHeader,
+	ToolbarSizes,
+	ToolbarTableFilter,
+	ToolbarThreeSlot,
+	ToolbarWithTabs,
+	TopNavCenteredNavigation,
+	TopNavEnterpriseDashboard,
+	TopNavHeadingBasic,
+	TopNavHeadingShowcase,
+	TopNavHoverMenu,
+	TopNavItemBasic,
+	TopNavItemShowcase,
+	TopNavMegaMenu,
+	TopNavMegaMenuBasic,
+	TopNavMegaMenuFeaturedCardBasic,
+	TopNavMegaMenuFeaturedCardShowcase,
+	TopNavMegaMenuItemBasic,
+	TopNavMegaMenuItemShowcase,
+	TopNavMegaMenuShowcase,
+	TopNavMenuBasic,
+	TopNavMenuShowcase,
+	TopNavMultipleDropdowns,
+	TopNavShowcase,
+	TopNavWithLogo,
+	TreeListFileTreeWithIcons,
+	TreeListInteractiveSettings,
+	TreeListMailboxTree,
+	TreeListNavigationTree,
+	TreeListShowcase,
+	TreeListVariants,
+	useKeyboardHintHookUsage,
+	VStackBasic,
+	VStackShowcase,
+	OverflowListMultiRowTags,
+	OverflowListOverflowBadges,
+	OverflowListOverflowDropdownActions,
+	TimerTypography,
+	TimestampRelativeFormat,
+	TimestampTimezone,
+	TimestampTooltipTimezones,
 }
 
 export const portedExamples = new Set(Object.keys(examples))

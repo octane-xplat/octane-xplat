@@ -1,7 +1,7 @@
 import { mergeStyle, styleRecord } from './style-merge'
 import { useMemo, useContext } from 'octane'
 import { refList } from './ref-list'
-import type { LayoutProps, LayoutHeaderProps, LayoutContentProps, SizeValue } from './props'
+import type { LayoutProps, LayoutHeaderProps, LayoutContentProps, LayoutFooterProps, LayoutPanelProps, SizeValue } from './props'
 import { applyEscapeProps } from './escape-props'
 import { applyWebProps } from './platformProps.web'
 import { spacingPx } from './stack-layout'
@@ -10,6 +10,8 @@ import {
 	LayoutSlotsProvider,
 	LayoutDividerContext,
 	LayoutDividerProvider,
+	LayoutAreaProvider,
+	LayoutAreaContext,
 } from './layout-context'
 
 /** Astryx's internal-alignment gate: `contentWidth` keeps LayoutContent's
@@ -92,7 +94,7 @@ export function Layout(props: LayoutProps) @{
 							usesInternalContentWidth && !hasStart && hasEnd && 'vx-layout-middle--endpanel',
 						]}
 					>
-						{props.start}
+						<LayoutAreaProvider value="start">{props.start}</LayoutAreaProvider>
 						<div
 							className={[
 								'vx-layout-contentlane',
@@ -101,7 +103,7 @@ export function Layout(props: LayoutProps) @{
 						>
 							{resolvedContent}
 						</div>
-						{props.end}
+						<LayoutAreaProvider value="end">{props.end}</LayoutAreaProvider>
 					</div>
 					{props.footer}
 				</div>
@@ -205,6 +207,77 @@ export function LayoutContent(props: LayoutContentProps) @{
 			props.className,
 		]}
 		style={mergeStyle(style, styleRecord(props.style))}
+		role={props.role ?? props.accessibilityRole}
+		aria-label={props.accessibilityLabel ?? props.label}
+		aria-hidden={props.accessible === false ? true : undefined}
+	>
+		{props.children}
+	</div>
+}
+
+/** Astryx LayoutFooter — `Layout`'s footer region. `hasDivider` paints the
+ *  block-start hairline (falls back to the parent's `defaultHasDividers`);
+ *  the inner box owns padding resolved through `--vx-lf-pad-*`. */
+export function LayoutFooter(props: LayoutFooterProps) @{
+	const dividerCtx = useContext(LayoutDividerContext)
+	const resolvedHasDivider = props.hasDivider ?? dividerCtx?.defaultHasDividers ?? false
+
+	const innerStyle: Record<string, any> = {}
+	if (props.padding != null) {
+		const px = `${spacingPx(props.padding)}px`
+		innerStyle['--vx-lf-pad-is'] = px
+		innerStyle['--vx-lf-pad-ie'] = px
+		innerStyle['--vx-lf-pad-bs'] = px
+		innerStyle['--vx-lf-pad-be'] = px
+	}
+
+	const forwardedRef = useMemo(() => refList((e: any) => { if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web) } }, props.ref), [props.ref, props.ios, props.android, props.web])
+
+	<div
+		id={props.id}
+		ref={forwardedRef}
+		className={['vx-layout-footer', resolvedHasDivider && 'vx-layout-footer--divided', props.className]}
+		style={mergeStyle({ height: props.height, width: props.width, maxWidth: props.maxWidth, minHeight: props.minHeight }, props.style)}
+		role={props.role ?? props.accessibilityRole}
+		aria-label={props.accessibilityLabel ?? props.label}
+		aria-hidden={props.accessible === false ? true : undefined}
+	>
+		<div className="vx-layout-footer-inner" style={innerStyle}>
+			{props.children}
+		</div>
+	</div>
+}
+
+/** Astryx LayoutPanel — fixed-width side panel for `Layout`'s `start`/`end`
+ *  slots. `hasDivider` paints the edge facing the content lane; `area` is
+ *  auto-detected from the slot context. `resizable` takes the
+ *  `useResizable` props bag so a `ResizeHandle` drives `width`. */
+export function LayoutPanel(props: LayoutPanelProps) @{
+	const area = props.area ?? useContext(LayoutAreaContext) ?? 'start'
+	const size = props.resizable?._size ?? props.width
+
+	const forwardedRef = useMemo(() => refList((e: any) => { if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web) } }, props.ref), [props.ref, props.ios, props.android, props.web])
+
+	<div
+		id={props.id}
+		ref={forwardedRef}
+		className={[
+			'vx-layout-panel',
+			`vx-layout-panel--${area}`,
+			props.hasDivider && 'vx-layout-panel--divided',
+			props.isScrollable !== false && 'vx-layout-panel--scroll',
+			props.className,
+		]}
+		style={mergeStyle(
+			{
+				width: size,
+				height: props.height,
+				maxWidth: props.maxWidth,
+				minHeight: props.minHeight,
+				padding: props.padding != null ? `${spacingPx(props.padding)}px` : undefined,
+			},
+			props.style,
+		)}
 		role={props.role ?? props.accessibilityRole}
 		aria-label={props.accessibilityLabel ?? props.label}
 		aria-hidden={props.accessible === false ? true : undefined}

@@ -1,25 +1,32 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { mergeStyle } from './style-merge'
 import type { ActivityIndicatorProps } from './props';
-import { cx } from '@octane-xplat/lib';
-import { applyNativeProps } from './platformProps';
+import { mergeStyle, styleRecord } from './style-merge'
+import { cx } from '@octane-xplat/lib'
 
-/** Self-drawn spinner — a bordered ring (.vx-spinner, same class as web)
- *  rotated by an infinite `animate` loop. Identical pixels across targets;
- *  the platform widget (UIActivityIndicatorView/CircularProgressIndicator)
- *  lives in `ui/ios` + `ui/android`. */
+const sizePx: Record<string, number> = { xsm: 12, sm: 16, md: 20, lg: 24, xl: 32 };
+
+/** ActivityIndicator — exported as `Spinner`. Native leaf: a fixed-size box
+ *  carrying the `vx-spinner` hook + optional label row. */
 export function ActivityIndicator(props: ActivityIndicatorProps) @{
-	if (props.busy === false) return null;
+	const busy = props.busy !== false;
+	if (!busy) return null;
+	const size = typeof props.size === 'number' ? props.size : sizePx[props.size ?? 'md'];
+	const ring = (
+		<activityindicator
+			id={props.id}
+			className={cx('vx-spinner', props.shade === 'onMedia' && 'vx-spinner--onmedia', !props.label && props.className)}
+			style={mergeStyle({ width: size, height: size }, !props.label ? styleRecord(props.style) : undefined)}
+			busy={busy}
+		/>
+	);
 
-	<masonview id={props.id} className={cx('vx-spinner', props.className)} style={mergeStyle({display: "flex"}, props.style)} ref={(el: any) => {
-			if (!el) return;
-			applyNativeProps(el, props);
-			el.once('loaded', () => {
-				el.animate({
-					rotate: 360,
-					duration: 800,
-					iterations: Number.POSITIVE_INFINITY,
-				});
-			});
-		}}/>
+	@if (props.label != null) {
+		<masonview id={props.id} className={cx('vx-spinner-row', props.className)} style={mergeStyle({ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8 }, styleRecord(props.style))}>
+			{ring}
+			<label className="vx-spinner-label" text={typeof props.label === 'string' ? props.label : ''} />
+			{typeof props.label === 'string' ? null : props.label}
+		</masonview>
+	} @else {
+		<>{ring}</>
+	}
 }

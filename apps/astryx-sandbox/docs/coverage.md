@@ -38,7 +38,7 @@ is a client-routed SPA — adaptation recorded.
 | `PreviewShell` (toolbar, tree nav, ⌘-palette, source view, copy, viewport sizes, embed iframe) | composed in `shell/PreviewShell.web.tsrx` from `Button`/`DropdownMenu`/`SegmentedControl`/`CommandPalette`+`createStaticSource`/`TreeList`/`CodeBlock`/`useClipboard` | **ported** — palette catalog covers all 714 template routes plus authored pages (upstream listed categories only; recorded superset). `embed.html` sibling → same-route `?embed=1` SPA adaptation; `astryx-theme-sync` postMessage contract preserved |
 | `sourceRegistry` (generated upstream sources) | `src/source-registry.ts` — `import.meta.glob('?raw')` over the ported examples/pages | **adapted** — code view shows the Octane `.tsrx` actually running; pending rows state "Source not available" + upstream path rather than quoting code that isn't running |
 | `SegmentedControl`+`SegmentedControlItem` children | options-driven `options={[{value,label}]}` | adaptation — no child part (F-6); segments show text labels instead of icon-only |
-| `Layout`, `LayoutHeader`, `LayoutContent` | `Layout`/`LayoutHeader`/`LayoutContent` in `@octane-xplat/ui` (new public API) | **ported** — every screen composes the real regions (`hasDivider`, `padding={6}`); `PageLayout.tsrx` deleted. `LayoutFooter`/`LayoutPanel`/`GridSpan` remain unported (F-3 partial) |
+| `Layout`, `LayoutHeader`, `LayoutContent` | `Layout`/`LayoutHeader`/`LayoutContent` in `@octane-xplat/ui` (new public API) | **ported** — every screen composes the real regions (`hasDivider`, `padding={6}`); `PageLayout.tsrx` deleted. `LayoutFooter`/`LayoutPanel`/`GridSpan` ported in unit 11 |
 | `TreeListItemData.href`/`isSelected` | `TreeListNode.href` (new) + `selectedKeys`/`selectionMode` | **ported** — href rows render the injected link element; leaf activation also reports `onAction` for keyboard paths |
 | `Grid columns={{minWidth}}` responsive | none — track grammar is static | `.sb-card-grid` CSS `repeat(auto-fill, minmax(320px,1fr))` — adaptation |
 | `Text`/`Heading` `type`/`size`/`color`/`weight`/`maxLines` props | **ported** in `@octane-xplat/ui` — `type`/`size`/`color`/`weight` resolve the theme's `--text-*`/`--font-*`/`--color-text-*` scale; `maxLines` replaces `numberOfLines`/`ellipsize`. `wordBreak`/`textWrap`/`display`/`hasStrikethrough`/`hasTabularNumbers`/`hasTruncateTooltip`/`as` remain unported (style props and the `sb-block`/`sb-strikethrough`/`sb-tabular` helpers cover them) |
@@ -260,9 +260,10 @@ New/extended contracts on existing components:
   `ComplexSelectorSection` composition collapses into the render body;
   `useGridFocus` drives the 3×3 showcase grid keyboard navigation.
 - `Text`/`Heading` carry the Astryx `type`/`size`/`color`/`weight`/`maxLines` props natively; the port uses them throughout and the `sb-type-*`/`sb-color-*` shims are removed.
-- `Badge variant/label` → children-only Badge (upstream variants not yet
-  in Xplat — recorded gap).
-- `Banner status/title/description` → `icon` + children.
+- `Badge` gained `variant`/`label`/`size`/`dot` in unit 11 — the unit-5
+  children-only adaptation now renders real Badge variants.
+- `Banner` gained `status`/`title`/`description`/`endContent`/`isDismissable`/
+  `variant`/`elevation`/`container`/`collapsible` in unit 11.
 - `ToggleButton` `value`/`onChange` → `isPressed`/`onPressedChange` +
   `label` (required a11y name); `pressedIcon` covers the icon-swap cases;
   `color` added to `ToggleButtonProps` for the accent/status-color rows.
@@ -565,3 +566,83 @@ specific disposition without claiming runtime success.
 
 Firefox, WebKit, native hosts, OS speech/audio/clipboard delivery and visual
 parity remain unverified. No screenshots or image inspection were used.
+## API mappings and substitutions (unit 11 — remaining component families)
+
+Covers the 79 unclaimed families after units 1–10: layout/composition,
+feedback/display, lists/timing, navigation, avatars, and standalone hooks —
+~284 example routes registered in `src/examples/`.
+
+### Framework additions (packages/ui)
+
+New public exports: `LayoutFooter`, `LayoutPanel` (+ `LayoutAreaProvider`/
+`LayoutAreaContext` slot areas), `GridSpan`, `AvatarStatusDot`,
+`AvatarGroupOverflow`, `CollapsibleGroup` (+ `CollapsibleGroupProvider`),
+`BreadcrumbItem` (part), `Banner` statuses, `Separator` (exported as
+`Divider`), `Empty` (exported as `EmptyState`), `ActivityIndicator`
+(exported as `Spinner`), `Skeleton`, `Kbd`, `Badge` variants, `GridSpan`
+placement props on `Grid` children.
+
+New/extended contracts on existing components:
+
+- `AvatarProps`: `name`/`src`/`status` (node or `AvatarStatusDotVariant`),
+  named+numeric `size`, `radius`, `alt`.
+- `AvatarGroupProps`: `max` overflow collapse with `+N` marker or an
+  explicit `AvatarGroupOverflow` part child.
+- `BannerProps`: `status`, `title`, `description`, `icon`,
+  `endContent`, `isDismissable`, `variant`, `elevation`, `container`,
+  `collapsible` (+ `BannerStatus`).
+- `Breadcrumbs`: `BreadcrumbItem` part children compose alongside the
+  existing `items` data API; composed crumbs take separators from a
+  `--vx-bc-sep` CSS variable stamped by the nav.
+- `GridProps.columns` widened: `GridTrackList | number |
+  GridResponsiveColumns` (upstream `columns={3}` and
+  `{{minWidth, max, repeat}}` auto-fill/fit forms).
+- `ActivityIndicator`/`Spinner`: named `size`, `shade`, `label`,
+  `accessibilityLabel`.
+- `Badge`: `variant`/`label`/`size`/`dot`.
+- `Separator`/`Divider`: `label`, `orientation`, `tone`.
+- `Empty`/`EmptyState`: `icon`, `title`, `description`, `actions`.
+- `Skeleton`: `radius`/`shape`/`lines`/`width`/`height`.
+- `Kbd`: `keys` chord notation → cap-per-segment rendering.
+- `Layout`: area-slot context so `LayoutHeader`/`LayoutFooter`/
+  `LayoutPanel` self-place; `LayoutPanel` accepts `resizable` from
+  `useResizable`.
+- `Icon`: named `size`/`color` props (xsm–xl scale, semantic palette).
+
+### Adaptations and recorded gaps
+
+- `CommandPalette` compound parts (`CommandPaletteInput`/`List`/`Item`/
+  `Group`/`Empty`/`Footer`) map to the public data-driven API:
+  `searchSource`/`items`, `placeholder` (input part), `footer`,
+  `emptySearchText`/`emptyBootstrapText`, item `group`/`shortcut`
+  fields (upstream `auxiliaryData` flattens), `renderItem` for rich
+  rows, `value`/`onValueChange` for picker mode. Upstream `isOpen`/
+  `isInline` → `open`.
+- `useKeyboardHint` has no public equivalent — the ephemeral
+  "arrows to navigate" Toolbar hint is absent; the example documents it
+  instead of faking the behavior.
+- `TreeListNode` lacks upstream's `startContent`/`endContent`/`icon`/
+  `isSelected`/`isExpanded` per-node fields — ports use `key`/`label`/
+  `children`/`href`, `defaultExpandedKeys`, `defaultSelectedKeys`, and
+  `onAction`; badge counts fold into label text.
+- `ToolbarBulkActions` re-authored without unit-6 `useTableSelectionState`/
+  `Table` (other unit's contract) — same selection surface over a plain
+  row list.
+- `Grid gap` was deliberately removed from the public API upstream
+  — examples use `style={{gap}}`; recorded, not re-introduced.
+- `Avatar` `src`/`img` upstream photo assets are absent from the pinned
+  checkout — ports use `name` initials/`icon` fallbacks.
+- `toChildArray`/`Children.toArray` cannot introspect TSRX children
+  blocks — components that introspect `props.children` (Breadcrumb,
+  MetadataList, AvatarGroup) now pass block children through directly and
+  only slice/map when children arrive as an array. **Framework finding:**
+  child-composition collapse (e.g. `MetadataList maxNumOfItems`,
+  `AvatarGroup max`) degrades to always-expanded for static JSX children.
+- `HoverCard`/`useHoverCard`, `Toolbar`, `SideNav*`/`TopNav*`/`MobileNav`/
+  `AppShell`/`Tab`/`TabList`/`TabMenu`/`NavIcon`/`NavHeadingMenu` parts
+  ported 1:1 through existing public contracts.
+- `MobileNavToggle` examples drive `AppShellMobileContext` directly
+  (the context value shape upstream's demos document).
+- `ScrollableArea` sticky-header/passthrough demos use CSS `position:
+  sticky` inside the scroll viewport (upstream's sticky-containment
+  demo relies on web semantics — web leaf preserved).

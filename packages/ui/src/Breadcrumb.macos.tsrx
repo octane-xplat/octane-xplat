@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { DropdownMenu } from './DropdownMenu.macos.tsrx'
 import { MenuData } from './MenuParts.macos.tsrx'
-import type { BreadcrumbProps, BreadcrumbItem, RegisteredRouteContracts, AppRouteStacks, RouteTransitionName } from './props'
+import type { BreadcrumbProps, BreadcrumbEntry as BreadcrumbItemData, RegisteredRouteContracts, AppRouteStacks, RouteTransitionName } from './props'
 import type { NavigationItemImplementation, NavigationItemsImplementation, MenuOptionImplementation } from './nav-link'
 import { useNavigationItem } from './use-navigation-item.shared.tsrx'
 import { applyEscapeProps } from './escape-props'
@@ -11,7 +11,7 @@ import { followHref } from './nav-href.macos'
 import { mergeStyle } from './style-merge'
 import { cx } from '@octane-xplat/lib'
 
-function BreadcrumbEntry(props: { item: NavigationItemImplementation<BreadcrumbItem>; current: boolean }) @{
+function BreadcrumbCrumb(props: { item: NavigationItemImplementation<BreadcrumbItemData>; current: boolean }) @{
 	const link = useNavigationItem({ ...props.item, onClick: () => props.item.onSelect?.() })
 	@if (link.href != null || props.item.onSelect) {
 		<Pressable className="vx-breadcrumb-link" disabled={link.disabled}
@@ -30,11 +30,12 @@ export function Breadcrumb<
 	Transitions extends string = RouteTransitionName,
 >(props: BreadcrumbProps<Contracts, Stacks, Transitions>): any
 
-export function Breadcrumb(props: NavigationItemsImplementation<BreadcrumbProps, BreadcrumbItem>) @{
+export function Breadcrumb(props: Omit<NavigationItemsImplementation<BreadcrumbProps, BreadcrumbItemData>, 'items'> & { items?: readonly NavigationItemImplementation<BreadcrumbItemData>[] }) @{
+	const all = props.items ?? []
 	const sep = props.separator ?? '/'
-	const limit = Math.max(2, props.maxVisibleItems ?? props.items.length)
-	const overflow = props.items.length > limit ? props.items.slice(1, props.items.length - limit + 1) : []
-	const visible = overflow.length ? [props.items[0], ...props.items.slice(props.items.length - limit + 1)] : props.items
+	const limit = Math.max(2, props.maxVisibleItems ?? all.length)
+	const overflow = all.length > limit ? all.slice(1, all.length - limit + 1) : []
+	const visibleArr = overflow.length ? [all[0], ...all.slice(all.length - limit + 1)] : all
 	const overflowItems: readonly MenuOptionImplementation[] = overflow.map((item, index) => (
 		item.to !== undefined || item.href !== undefined
 			? { ...item, type: 'link', key: 'ancestor-' + index }
@@ -43,13 +44,13 @@ export function Breadcrumb(props: NavigationItemsImplementation<BreadcrumbProps,
 
 	<masonview ref={(view: any) => applyEscapeProps(view, props)} id={props.id}
 		className={cx('vx-breadcrumb', props.className)} style={mergeStyle({ display: 'flex', flexDirection: 'row' }, props.style)}>
-		@for (const item of visible; index index; key index) {
+		@for (const item of (visibleArr ?? []); index index; key index) {
 			<masonview className="vx-breadcrumb-item" style={{ display: 'flex' }}>
 				{index === 1 && (overflow.length > 0 || props.overflowMenu) && <DropdownMenu hasChevron={false} button={{ label: '…', variant: 'ghost', size: 'sm', accessibilityLabel: props.overflowLabel ?? 'More ancestors' }}>
 					<MenuData items={overflowItems} />{props.overflowMenu}
 				</DropdownMenu>}
-				{index > 0 ? <label className="vx-breadcrumb-sep" text={sep} /> : null}
-				<BreadcrumbEntry item={item} current={index === visible.length - 1} />
+				{index > 0 ? <label className="vx-breadcrumb-sep" text={typeof sep === 'string' ? sep : ''} /> : null}
+				<BreadcrumbCrumb item={item} current={index === (visibleArr ?? []).length - 1} />
 			</masonview>
 		}
 	</masonview>

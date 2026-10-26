@@ -1275,6 +1275,12 @@
 	.vx-breadcrumb-sep {
 		color: var(--color-text-secondary);
 	}
+	/* Child-composed crumbs (BreadcrumbItem parts) get their separator from
+	 *  the --vx-bc-sep variable the nav stamps, so `separator` still wins. */
+	.vx-breadcrumb .vx-breadcrumb-crumb + .vx-breadcrumb-crumb::before {
+		content: var(--vx-bc-sep, ' / ');
+		color: var(--color-text-secondary);
+	}
 	.vx-breadcrumb-link {
 		color: var(--color-primary);
 	}
@@ -3312,3 +3318,99 @@
 .vx-table-pagination--start { justify-content: flex-start; }
 .vx-table-pagination--center { justify-content: center; }
 .vx-table-pagination--end { justify-content: flex-end; }
+/* ---- Unit 11: remaining Astryx component families ---- */
+.vx-badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; line-height: 1.4; }
+.vx-badge--neutral { background: var(--color-neutral, #ececec); color: var(--color-text-secondary); }
+.vx-badge--info, .vx-badge--blue { background: var(--color-accent-muted, #dbe7ff); color: var(--color-text-accent, #1b4fd8); }
+.vx-badge--success, .vx-badge--green { background: var(--color-success-muted, #d8efd9); color: var(--color-success); }
+.vx-badge--warning, .vx-badge--yellow { background: var(--color-warning-muted, #f9e8c9); color: var(--color-warning); }
+.vx-badge--error, .vx-badge--red { background: var(--color-error-muted, #f8d7d3); color: var(--color-error); }
+.vx-badge--orange { background: var(--color-background-orange, #ffe1c7); color: var(--color-text-orange, #b54b00); }
+.vx-badge--teal { background: var(--color-background-teal, #cbeceb); color: var(--color-text-teal, #0b7070); }
+.vx-badge--cyan { background: var(--color-background-cyan, #d0f0f5); color: var(--color-text-cyan, #0e7490); }
+.vx-badge--purple { background: var(--color-background-purple, #e6ddfb); color: var(--color-text-purple, #6b46c1); }
+.vx-badge--pink { background: var(--color-background-pink, #fadcec); color: var(--color-text-pink, #b83280); }
+.vx-badge--gray { background: var(--color-background-gray, #e5e7ea); color: var(--color-text-gray, #4b5563); }
+
+.vx-banner { border-radius: 8px; overflow: hidden; }
+.vx-banner .vx-banner-header { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; }
+.vx-banner .vx-banner-icon { flex-shrink: 0; margin-top: 1px; }
+.vx-banner .vx-banner-body { flex: 1; min-width: 0; }
+.vx-banner .vx-banner-title { font-weight: 600; font-size: 14px; }
+.vx-banner .vx-banner-desc { font-size: 13px; color: var(--color-text-secondary); margin-top: 2px; }
+.vx-banner .vx-banner-content { padding: 8px 12px 12px; }
+.vx-banner .vx-banner-dismiss { cursor: pointer; padding: 2px 6px; color: var(--color-text-secondary); }
+.vx-banner .vx-banner-collapse-label { font-size: 12px; color: var(--color-text-secondary); cursor: pointer; }
+.vx-banner--info { background: var(--color-accent-muted, #e8efff); }
+.vx-banner--success { background: var(--color-success-muted, #dff0df); }
+.vx-banner--warning { background: var(--color-warning-muted, #faecd2); }
+.vx-banner--error { background: var(--color-error-muted, #f9ddda); }
+.vx-banner--floating { box-shadow: 0 6px 24px rgba(0,0,0,0.18); border-radius: 10px; }
+
+.vx-empty { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; padding: 32px 16px; }
+.vx-empty--compact { padding: 16px 12px; }
+.vx-empty .vx-empty-icon { color: var(--color-text-tertiary, #98a0aa); }
+.vx-empty .vx-empty-title { font-weight: 600; }
+.vx-empty .vx-empty-desc { color: var(--color-text-secondary); font-size: 13px; }
+.vx-empty .vx-empty-actions { display: flex; gap: 8px; margin-top: 8px; }
+
+.vx-separator { background: var(--color-border, #e1e3e6); }
+.vx-separator--h { height: 1px; width: 100%; }
+.vx-separator--v { width: 1px; align-self: stretch; }
+.vx-separator--strong.vx-separator--h { height: 2px; }
+.vx-separator--strong.vx-separator--v { width: 2px; }
+.vx-separator--bleed.vx-separator--h { margin-left: calc(-1 * var(--container-padding-inline-start, 0px)); margin-right: calc(-1 * var(--container-padding-inline-end, 0px)); width: auto; }
+.vx-separator--labeled { display: flex; align-items: center; gap: 8px; background: none; }
+.vx-separator--labeled .vx-separator-rule { flex: 1; height: 1px; background: var(--color-border, #e1e3e6); }
+.vx-separator--labeled .vx-separator-label { font-size: 12px; color: var(--color-text-secondary); }
+
+.vx-skeleton { background: var(--color-neutral, #ececec); animation: vx-skeleton-pulse 1.4s ease-in-out infinite; }
+@keyframes vx-skeleton-pulse { 0%,100% { opacity: 1; } 50% { opacity: .45; } }
+
+.vx-spinner { display: inline-block; border: 2px solid var(--color-accent); border-top-color: transparent; border-radius: 50%; animation: vx-spin .7s linear infinite; }
+.vx-spinner--onmedia { border-color: #ffffff4d; border-top-color: #fff; }
+.vx-spinner-row { display: flex; align-items: center; gap: 8px; }
+.vx-spinner-label { font-size: 14px; color: var(--color-text-secondary); }
+@keyframes vx-spin { to { transform: rotate(360deg); } }
+
+.vx-kbd-group { display: inline-flex; gap: 3px; }
+.vx-kbd { display: inline-block; padding: 1px 5px; border: 1px solid var(--color-border, #d5d8dc); border-bottom-width: 2px; border-radius: 4px; font-size: 11px; font-family: inherit; background: var(--color-surface-secondary, #f4f5f6); color: var(--color-text); }
+
+.vx-avatar { position: relative; display: inline-flex; align-items: center; justify-content: center; background: var(--color-neutral, #d9dce0); color: var(--color-text-secondary); overflow: visible; }
+.vx-avatar .vx-avatar-fallback { font-weight: 600; font-size: 40%; }
+.vx-avatar .vx-avatar-status { position: absolute; right: -1px; bottom: -1px; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--color-surface, #fff); }
+.vx-avatar-overflow { display: inline-flex; align-items: center; justify-content: center; background: var(--color-neutral, #d9dce0); color: var(--color-text-secondary); font-size: 12px; font-weight: 600; }
+.vx-statusdot--success { background: var(--color-success); }
+.vx-statusdot--warning { background: var(--color-warning); }
+.vx-statusdot--error { background: var(--color-error); }
+.vx-statusdot--accent { background: var(--color-accent); }
+.vx-statusdot--neutral { background: var(--color-text-tertiary, #98a0aa); }
+
+.vx-item--compact { padding-top: 4px; padding-bottom: 4px; }
+.vx-item--selected { background: var(--color-accent-muted, #e8efff); }
+.vx-item--highlighted { background: var(--color-warning-muted, #faecd2); }
+.vx-item .vx-item-desc--clamp { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; }
+
+.vx-collapsible-group--divided > * + * { border-top: 1px solid var(--color-border, #e1e3e6); }
+.vx-collapsible-trigger { display: flex; width: 100%; text-align: left; }
+.vx-collapsible-content { padding-top: 4px; }
+
+.vx-link { color: var(--color-text-accent, var(--color-accent)); }
+.vx-link--underline { text-decoration: underline; }
+.vx-link--standalone { text-decoration: none; }
+.vx-link--standalone:hover { text-decoration: underline; }
+.vx-link-external { margin-left: 2px; font-size: .8em; }
+
+.vx-layout-footer { flex-shrink: 0; display: flex; flex-direction: column; }
+.vx-layout-footer--divided { border-top: 1px solid var(--color-border, #e1e3e6); }
+.vx-layout-footer-inner { display: flex; flex-direction: column; padding: var(--vx-lf-pad-bs, var(--layout-padding-inner-y, 16px)) var(--vx-lf-pad-ie, var(--layout-padding-outer-x, 16px)) var(--vx-lf-pad-be, var(--layout-padding-outer-y, 16px)) var(--vx-lf-pad-is, var(--layout-padding-outer-x, 16px)); }
+.vx-layout-panel { flex-shrink: 0; display: flex; flex-direction: column; }
+.vx-layout-panel--scroll { overflow-y: auto; }
+.vx-layout-panel--start.vx-layout-panel--divided { border-right: 1px solid var(--color-border, #e1e3e6); }
+.vx-layout-panel--end.vx-layout-panel--divided { border-left: 1px solid var(--color-border, #e1e3e6); }
+.vx-grid { display: grid; }
+.vx-gridspan { display: contents; }
+.vx-banner--section { border-radius: 0; }
+.vx-banner--elev-low { box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.vx-banner--elev-med { box-shadow: 0 4px 12px rgba(0,0,0,.16); }
+.vx-banner--elev-high { box-shadow: 0 8px 28px rgba(0,0,0,.2); }

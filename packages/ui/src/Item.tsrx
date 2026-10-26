@@ -24,14 +24,14 @@ function EndContent(props: ItemSlotProps) @{
 function ItemView(props: ItemProps) @{
 	<Pressable
 		id={props.id}
-		className={cx('vx-item', props.className)}
+		className={cx('vx-item', props.density === 'compact' && 'vx-item--compact', props.isSelected && 'vx-item--selected', props.isHighlighted && 'vx-item--highlighted', props.className)}
 		style={props.style}
 		onPress={props.onPress}
 		disabled={props.isDisabled}
 		accessibilityLabel={props.accessibilityLabel}
 		accessibilityRole={props.accessibilityRole ?? (props.onPress ? 'button' : 'text')}
 		accessibilityHint={props.accessibilityHint}
-		accessibilityState={props.accessibilityState}
+		accessibilityState={{ ...props.accessibilityState, selected: props.isSelected }}
 	>
 		{props.startContent != null ? <StartContent>{props.startContent}</StartContent> : null}
 		{props.label != null || props.description != null ? (

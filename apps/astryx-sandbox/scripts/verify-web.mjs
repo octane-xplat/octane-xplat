@@ -4,6 +4,7 @@
 // the pinned journeys with DOM/text assertions only — no screenshots, no
 // pixel checks. Usage: node scripts/verify-web.mjs [--base URL]
 
+import { readFileSync } from 'node:fs'
 import { chromium } from 'playwright'
 import { verifyMedia } from './verify-media.mjs'
 
@@ -127,9 +128,9 @@ try {
 	}
 
 	// Pending template route — honest placeholder, not a fake
-	await page.goto(baseUrl + '/templates/AppShellShowcase/', { waitUntil: 'networkidle' })
+	await page.goto(baseUrl + '/templates/ChatComposerShowcase/', { waitUntil: 'networkidle' })
 	const pendingText = await page.textContent('body')
-	check('pending template shows placeholder', pendingText.includes('pending') && pendingText.includes('AppShell'))
+	check('pending template shows placeholder', pendingText.includes('pending') && pendingText.includes('ChatComposer'))
 
 	// Pending authored page — framed, honest placeholder
 	await page.goto(baseUrl + '/pages/example/', { waitUntil: 'networkidle' })
@@ -694,6 +695,83 @@ try {
 	await csFrame.locator('input[placeholder*="Filter components"]').fill('toast')
 	await page.waitForTimeout(300)
 	check('component-scores filter narrows', (await csFrame.locator('tbody tr').count()) === 1)
+
+	// --- Remaining component families (unit 11) ---
+	// Every unit-11 owned example route gets a rendered-content check: the
+	// preview stage carries real content, never the pending placeholder.
+	// The route set is derived from the registry for the owned directories.
+	const unit11Dirs = new Set([
+		'appshell', 'avatar', 'avatargroup', 'avatargroupoverflow', 'avatarstatusdot',
+		'badge', 'banner', 'breadcrumbs', 'breadcrumbitem', 'buttongroup', 'card',
+		'center', 'collapsible', 'collapsiblegroup', 'commandpalette',
+		'commandpaletteempty', 'commandpalettefooter', 'commandpalettegroup',
+		'commandpaletteinput', 'commandpaletteitem', 'commandpalettelist',
+		'divider', 'emptystate', 'grid', 'gridspan', 'heading', 'hooks',
+		'hovercard', 'icon', 'iconbutton', 'item', 'kbd', 'layout',
+		'layoutcontent', 'layoutfooter', 'layoutheader', 'layoutpanel', 'link',
+		'list', 'listitem', 'metadatalist', 'metadatalistitem', 'mobilenav',
+		'mobilenavtoggle', 'navheadingmenu', 'navicon', 'outline', 'overflowlist',
+		'progressbar', 'resizable', 'scrollablearea', 'section', 'sidenav',
+		'sidenavcollapsebutton', 'sidenavheading', 'sidenavitem', 'sidenavsection',
+		'skeleton', 'spinner', 'stack', 'stackitem', 'statusdot', 'tab',
+		'tablist', 'tabmenu', 'timer', 'timestamp', 'token', 'toolbar',
+		'topnav', 'topnavheading', 'topnavitem', 'topnavmenu', 'treelist',
+	])
+	const registrySource = readFileSync(new URL('../src/examples/registry.ts', import.meta.url), 'utf8')
+	const unit11Examples = [...registrySource.matchAll(/import \{ (\w+) \} from '\.\/(\w+)\//g)]
+		.filter(([, , dir]) => unit11Dirs.has(dir))
+		.map(([, name]) => name)
+	let unit11Failures = 0
+	for (const name of unit11Examples) {
+		await page.goto(`${baseUrl}/templates/${name}/`, { waitUntil: 'networkidle' })
+		const rendered = await page.evaluate(() => {
+			const stage = document.querySelector('.sb-preview-stage')
+			if (!stage) { return { ok: false, reason: 'no-stage' } }
+			if (stage.querySelector('.sb-pending')) { return { ok: false, reason: 'pending' } }
+			const nodes = stage.querySelectorAll('*').length
+			if (nodes > 0) { return { ok: true, reason: `stage=${nodes} nodes` } }
+			// Overlays (CommandPalette) render outside the stage — accept
+			// body-level rendered content for those routes.
+			const bodyNodes = document.body.querySelectorAll('.vx-command-palette, [role="dialog"], .vx-overlay *').length
+			return bodyNodes > 0 ? { ok: true, reason: `portal=${bodyNodes}` } : { ok: false, reason: 'empty' }
+		})
+		if (!rendered.ok) {
+			unit11Failures++
+			check(`unit-11 route ${name} renders ported content`, false, rendered.reason)
+		}
+	}
+	check('unit-11 all owned routes render ported content', unit11Failures === 0, `${unit11Examples.length} routes, ${unit11Failures} failures`)
+
+	// Interaction spot checks for meaningful behavior.
+	await page.goto(baseUrl + '/templates/CollapsibleShowcase/', { waitUntil: 'networkidle' })
+	const collapsibleTrigger = page.locator('.sb-preview-stage .vx-collapsible-trigger, .sb-preview-stage [aria-expanded], .sb-preview-stage [role="button"]').first()
+	if (await collapsibleTrigger.count()) {
+		const before = (await page.locator('.sb-preview-stage').textContent()) ?? ''
+		await collapsibleTrigger.click()
+		await page.waitForTimeout(250)
+		const after = (await page.locator('.sb-preview-stage').textContent()) ?? ''
+		check('Collapsible toggles content', before !== after || await collapsibleTrigger.getAttribute('aria-expanded') === 'true', `${before.length} -> ${after.length} chars`)
+	} else {
+		check('Collapsible toggles content', false, 'no trigger found')
+	}
+
+	await page.goto(baseUrl + '/templates/TimerShowcase/', { waitUntil: 'networkidle' })
+	const timerBefore = (await page.locator('.sb-preview-stage').textContent()) ?? ''
+	await page.waitForTimeout(1600)
+	const timerAfter = (await page.locator('.sb-preview-stage').textContent()) ?? ''
+	check('Timer ticks', timerBefore !== timerAfter, `${JSON.stringify(timerBefore.slice(0, 60))} -> ${JSON.stringify(timerAfter.slice(0, 60))}`)
+
+	await page.goto(baseUrl + '/templates/BannerDismissable/', { waitUntil: 'networkidle' })
+	const dismiss = page.locator('.sb-preview-stage [aria-label*="ismiss"], .sb-preview-stage button').last()
+	if (await dismiss.count()) {
+		const before = (await page.locator('.sb-preview-stage').textContent()) ?? ''
+		await dismiss.click()
+		await page.waitForTimeout(250)
+		const after = (await page.locator('.sb-preview-stage').textContent()) ?? ''
+		check('Banner dismiss removes content', before !== after, `${before.length} -> ${after.length} chars`)
+	} else {
+		check('Banner dismiss removes content', false, 'no dismiss control found')
+	}
 
 	check('no page errors', errors.length === 0, errors.slice(0, 3).join(' | '))
 } finally {

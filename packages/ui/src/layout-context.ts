@@ -53,3 +53,8 @@ export const DEFAULT_LAYOUT_PADDING: LayoutPadding = {
 
 export const LayoutPaddingContext = createContext<LayoutPadding>(DEFAULT_LAYOUT_PADDING)
 export const LayoutPaddingProvider: any = LayoutPaddingContext
+
+/** Which side slot a `LayoutPanel` mounts in — `Layout` wraps `start`/`end`
+ *  slot content in this context (Astryx `LayoutAreaContext`). */
+export const LayoutAreaContext = createContext<'start' | 'end' | null>(null)
+export const LayoutAreaProvider: any = LayoutAreaContext

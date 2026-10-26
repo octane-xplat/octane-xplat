@@ -17,7 +17,7 @@ import {
 import { gridTrackListToCss } from './grid-tracks'
 
 export function Grid(props: GridProps) @{
-	<masonview id={props.id} className={props.className} style={mergeStyle({display: "grid", gridTemplateRows: gridTrackListToCss(props.rows, 'rows'), gridTemplateColumns: gridTrackListToCss(props.columns, 'columns')}, props.style)}>
+	<masonview id={props.id} className={props.className} style={mergeStyle({display: "grid", gridTemplateRows: gridTrackListToCss(props.rows, 'rows'), gridTemplateColumns: gridTrackListToCss(typeof props.columns === 'number' ? String(props.columns) : (typeof props.columns === 'object' ? 'auto' : props.columns), 'columns')}, props.style)}>
 		{props.children}
 	</masonview>
 }

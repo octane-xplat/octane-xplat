@@ -11,12 +11,20 @@ import { glyphSvgMarkup, isSvgSrc, svgSource } from './svg';
  *
  * @see IconProps, IconGlyph, registerIcon.
  */
+const namedSizes: Record<string, number> = { xsm: 12, sm: 16, md: 20, lg: 24, xl: 32 };
+const namedColors: Record<string, string> = {
+	primary: 'var(--color-text)', secondary: 'var(--color-text-secondary)', tertiary: 'var(--color-text-tertiary)',
+	disabled: 'var(--color-text-disabled)', accent: 'var(--color-accent)',
+	success: 'var(--color-success)', error: 'var(--color-error)', warning: 'var(--color-warning)', inherit: 'inherit',
+};
+
 export function Icon(props: IconProps) @{
 	const inheritedRegistry = useIconRegistry();
 	const glyph = getIcon(props.name, props.registry ?? inheritedRegistry);
 	if (!glyph) return null;
-	const size = props.size ?? 24;
-	const markup = glyphSvgMarkup(glyph, props.color);
+	const size = typeof props.size === 'number' ? props.size : namedSizes[props.size ?? 'lg'] ?? 24;
+	const color = props.color != null ? namedColors[props.color] ?? props.color : undefined;
+	const markup = glyphSvgMarkup(glyph, color);
 	const accessible = props.accessibilityLabel != null;
 
 	@if (markup) {
@@ -36,7 +44,7 @@ export function Icon(props: IconProps) @{
 				id={props.id}
 				className={cx(props.className)}
 				text={glyph.font.glyph}
-				style={{ fontFamily: glyph.font.family, fontSize: size, color: props.color }}
+				style={{ fontFamily: glyph.font.family, fontSize: size, color: color }}
 				accessible={accessible}
 				accessibilityLabel={props.accessibilityLabel}
 				ref={(el: any) => applyNativeProps(el, props)}
@@ -71,7 +79,7 @@ export function Icon(props: IconProps) @{
 						id={props.id}
 						className={cx(props.className)}
 						text={glyph.text}
-						style={{ fontSize: size, color: props.color }}
+						style={{ fontSize: size, color: color }}
 						accessible={accessible}
 						accessibilityLabel={props.accessibilityLabel}
 						ref={(el: any) => applyNativeProps(el, props)}

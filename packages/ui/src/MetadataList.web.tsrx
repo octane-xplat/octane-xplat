@@ -3,6 +3,7 @@ import { useId, useState } from 'octane';
 import type { MetadataListProps } from './props';
 import { applyEscapeProps } from './escape-props';
 import { MetadataListProvider } from './metadata-list-context';
+import { isChildrenBlock } from 'octane';
 import { toChildArray } from './child-array';
 
 /** MetadataList — a definition list of labeled key/value items.
@@ -27,7 +28,7 @@ function MetadataListImpl(props: MetadataListProps) @{
 	const [isShowAll, setIsShowAll] = useState(false);
 	const contentId = useId();
 
-	const childrenArray = toChildArray(props.children);
+	const childrenArray = isChildrenBlock(props.children) ? [] : toChildArray(props.children);
 	const effectiveMax = isHorizontal ? undefined : props.maxNumOfItems;
 	const isExceedMax = effectiveMax != null && childrenArray.length > effectiveMax;
 	const visibleChildren =
@@ -72,7 +73,7 @@ function MetadataListImpl(props: MetadataListProps) @{
 				className={['vx-metadatalist-list', listClass]}
 				style={gridTemplateColumns ? { gridTemplateColumns } : undefined}
 			>
-				{visibleChildren}
+				{childrenArray.length ? visibleChildren : props.children}
 			</dl>
 			{isExceedMax ? (
 				<button

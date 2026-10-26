@@ -2,7 +2,7 @@
 import { mergeStyle, styleRecord } from './style-merge'
 import { useMemo, useContext } from 'octane'
 import { refList } from './ref-list'
-import type { LayoutProps, LayoutHeaderProps, LayoutContentProps } from './props'
+import type { LayoutProps, LayoutHeaderProps, LayoutContentProps, LayoutFooterProps, LayoutPanelProps } from './props'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props'
 import { spacingPx } from './stack-layout'
@@ -13,6 +13,8 @@ import {
 	LayoutDividerProvider,
 	LayoutPaddingContext,
 	LayoutPaddingProvider,
+	LayoutAreaProvider,
+	LayoutAreaContext,
 } from './layout-context'
 
 /** Astryx Layout — five-slot region primitive (header / start / content /
@@ -70,11 +72,11 @@ export function Layout(props: LayoutProps) @{
 								: {}),
 						}}
 					>
-						{props.start}
+						<LayoutAreaProvider value="start">{props.start}</LayoutAreaProvider>
 						<masonview className="vx-layout-contentlane" style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
 							{resolvedContent}
 						</masonview>
-						{props.end}
+						<LayoutAreaProvider value="end">{props.end}</LayoutAreaProvider>
 					</masonview>
 					{props.footer}
 				</masonview>
@@ -198,4 +200,72 @@ export function LayoutContent(props: LayoutContentProps) @{
 			{props.children}
 		</masonview>
 	}
+}
+
+/** Astryx LayoutFooter — native leaf: outer shell owns divider+sizing,
+ *  inner box owns the resolved padding channels. */
+export function LayoutFooter(props: LayoutFooterProps) @{
+	const pads = useContext(LayoutPaddingContext)
+	const dividerCtx = useContext(LayoutDividerContext)
+	const hasDivider = props.hasDivider ?? dividerCtx?.defaultHasDividers ?? false
+	const pad = props.padding != null ? spacingPx(props.padding) : undefined
+
+	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props) } }, props.ref), [props.ref, props.ios, props.android, props.web])
+
+	<masonview
+		id={props.id}
+		ref={forwardedRef}
+		className={cx('vx-layout-footer', hasDivider && 'vx-layout-footer--divided', props.className)}
+		style={mergeStyle(
+			{
+				display: 'flex', flexDirection: 'column', flexShrink: 0,
+				...(props.height != null ? { height: props.height } : {}),
+				...(props.width != null ? { width: props.width } : {}),
+				...(props.maxWidth != null ? { maxWidth: props.maxWidth } : {}),
+				...(props.minHeight != null ? { minHeight: props.minHeight } : {}),
+			},
+			styleRecord(props.style),
+		)}
+		accessibilityLabel={props.accessibilityLabel ?? props.label}
+		accessibilityRole={nativeAccessibilityRole(props.accessibilityRole)}
+	>
+		<masonview className="vx-layout-footer-inner" style={{ display: 'flex', flexDirection: 'column', paddingLeft: pad ?? pads.outerX, paddingRight: pad ?? pads.outerX, paddingTop: pad ?? pads.innerY, paddingBottom: pad ?? pads.outerY }}>
+			{props.children}
+		</masonview>
+	</masonview>
+}
+
+/** Astryx LayoutPanel — native leaf: fixed-width side column; divider is a
+ *  class hook the native stylesheet resolves on the content-facing edge. */
+export function LayoutPanel(props: LayoutPanelProps) @{
+	const area = props.area ?? useContext(LayoutAreaContext) ?? 'start'
+	const size = props.resizable?._size ?? props.width
+	const pads = useContext(LayoutPaddingContext)
+	const pad = props.padding != null ? spacingPx(props.padding) : undefined
+
+	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props) } }, props.ref), [props.ref, props.ios, props.android, props.web])
+
+	<masonview
+		id={props.id}
+		ref={forwardedRef}
+		className={cx('vx-layout-panel', `vx-layout-panel--${area}`, props.hasDivider && 'vx-layout-panel--divided', props.className)}
+		style={mergeStyle(
+			{
+				display: 'flex', flexDirection: 'column', flexShrink: 0,
+				width: size,
+				paddingLeft: pad ?? pads.outerX,
+				paddingRight: pad ?? pads.outerX,
+				paddingTop: pad ?? pads.innerY,
+				paddingBottom: pad ?? pads.innerY,
+				...(props.height != null ? { height: props.height } : {}),
+				...(props.maxWidth != null ? { maxWidth: props.maxWidth } : {}),
+				...(props.minHeight != null ? { minHeight: props.minHeight } : {}),
+			},
+			styleRecord(props.style),
+		)}
+		accessibilityLabel={props.accessibilityLabel ?? props.label}
+		accessibilityRole={nativeAccessibilityRole(props.accessibilityRole)}
+	>
+		{props.children}
+	</masonview>
 }

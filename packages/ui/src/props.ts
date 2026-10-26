@@ -227,12 +227,40 @@ export type GridTrackList = string | readonly GridTrack[]
  *  </Grid>
  *  ```
  *  @see GridTrackList for the track grammar, LayoutChildProps for placement. */
+/** Responsive column rule (Astryx `{minWidth,max?,repeat?}`) — auto-fill/fit
+ *  tracks of at least `minWidth` dips. Web only; native leaves report a
+ *  `[Grid]` diagnostic and fall back to a single 'auto' column. */
+export interface GridResponsiveColumns {
+	minWidth: number
+	max?: number
+	repeat?: 'fill' | 'fit'
+}
+
 export interface GridProps extends AccessibilityProps {
 	className?: ClassValue
 	style?: StyleProp
 	children?: Renderable
 	rows?: GridTrackList
-	columns?: GridTrackList
+	/** Track grammar, a fixed column count (equal tracks), or a responsive
+	 *  `{minWidth}` rule (Astryx `columns`). */
+	columns?: GridTrackList | number | GridResponsiveColumns
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
+	id?: string
+}
+
+/** GridSpan — a `Grid` child that spans tracks (Astryx `GridSpan`).
+ *  `columns`/`rows` take a track count or `'full'` (columns only: all tracks).
+ *  Implemented through `LayoutChildProps` `colSpan`/`rowSpan`; `'full'` needs
+ *  the grid's declared column count (a `Grid`-parented child on web uses
+ *  `grid-column: 1 / -1`). */
+export interface GridSpanProps extends AccessibilityProps {
+	className?: ClassValue
+	style?: StyleProp
+	children?: Renderable
+	columns?: number | 'full'
+	rows?: number
 	ios?: PlatformProps
 	android?: PlatformProps
 	web?: PlatformProps
@@ -2231,6 +2259,14 @@ export interface ActivityIndicatorProps {
 	style?: StyleProp
 	id?: string
 	busy?: boolean
+	/** Accessible name announced when the platform exposes it. */
+	accessibilityLabel?: string
+	/** Named size (Astryx `Spinner size`). @default 'md' */
+	size?: 'xsm' | 'sm' | 'md' | 'lg' | 'xl'
+	/** Contrast shade for placement on imagery (Astryx `shade`). @default 'default' */
+	shade?: 'default' | 'onMedia'
+	/** Label content rendered beside/under the spinner (Astryx `label`). */
+	label?: Renderable
 	ios?: PlatformProps
 	android?: PlatformProps
 	web?: PlatformProps
@@ -5317,6 +5353,16 @@ export interface LinkProps {
 	id?: string
 	href: string
 	target?: string
+	/** External-destination treatment — new tab + indicator (Astryx `isExternalLink`). */
+	isExternalLink?: boolean
+	/** Standalone (non-inline) presentation (Astryx `isStandalone`). */
+	isStandalone?: boolean
+	/** Force underline (Astryx `hasUnderline`). */
+	hasUnderline?: boolean
+	/** Hover/focus hint (Astryx `tooltip`). */
+	tooltip?: string
+	/** Text color token name or CSS color (Astryx `color`). */
+	color?: string
 	/** Custom link element for this instance (Astryx `as`) — overrides the
 	 *  `LinkProvider` default. Receives `href`, `className`, `style`,
 	 *  children. */
@@ -6004,6 +6050,9 @@ export interface CollapsibleProps {
 	style?: StyleProp
 	id?: string
 	trigger?: Renderable
+	/** Key inside a `CollapsibleGroup` — the group owns which value is open
+	 *  (Astryx `value`). Standalone collapsibles ignore it. */
+	value?: string
 	children?: Renderable
 	open?: boolean
 	defaultOpen?: boolean
@@ -6011,6 +6060,26 @@ export interface CollapsibleProps {
 	onOpenChange?: (open: boolean) => void
 	accessibilityLabel?: string
 	/** Platform-specific properties are applied after shared props. */
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
+}
+
+/** CollapsibleGroup — coordinates `Collapsible` children by their `value`:
+ *  `type="single"` opens one at a time, `"multiple"` toggles each
+ *  independently (Astryx `CollapsibleGroup`). `value`/`defaultValue`/
+ *  `onChange` carry the open key (single) or keys (multiple). `hasDividers`
+ *  paints hairlines between the grouped rows. */
+export interface CollapsibleGroupProps {
+	className?: ClassValue
+	style?: StyleProp
+	id?: string
+	children?: Renderable
+	type?: 'single' | 'multiple'
+	value?: string | string[]
+	defaultValue?: string | string[]
+	onChange?: (value: string | string[]) => void
+	hasDividers?: boolean
 	ios?: PlatformProps
 	android?: PlatformProps
 	web?: PlatformProps
@@ -6584,10 +6653,34 @@ export interface ContextMenuProps<
  * <Badge>{count} new</Badge>
  * ```
  */
+/** Astryx `Badge` tone — five semantic variants plus the categorical palette. */
+export type BadgeVariant =
+	| 'neutral'
+	| 'info'
+	| 'success'
+	| 'warning'
+	| 'error'
+	| 'red'
+	| 'orange'
+	| 'yellow'
+	| 'green'
+	| 'teal'
+	| 'cyan'
+	| 'blue'
+	| 'purple'
+	| 'pink'
+	| 'gray'
+
+/** Badge — small status/category pill. `label` is the pill text; `children`
+ *  win when both are set (Astryx `Badge`). */
 export interface BadgeProps {
 	className?: ClassValue
 	style?: StyleProp
 	id?: string
+	/** Pill text (Astryx `label`). */
+	label?: string | number
+	/** Semantic or categorical color. @default 'neutral' */
+	variant?: BadgeVariant
 	children?: Renderable
 	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
@@ -6609,6 +6702,12 @@ export interface SeparatorProps {
 	style?: StyleProp
 	id?: string
 	orientation?: 'horizontal' | 'vertical'
+	/** Stroke weight — 'subtle' hairline (default) or 'strong' (Astryx Divider variant). */
+	variant?: 'subtle' | 'strong'
+	/** Optional label centered on the rule (Astryx `Divider label`). */
+	label?: Renderable
+	/** Escape the parent's inline padding so the rule spans edge to edge. */
+	isFullBleed?: boolean
 	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
 	android?: PlatformProps
@@ -6628,8 +6727,13 @@ export interface SkeletonProps {
 	className?: ClassValue
 	style?: StyleProp
 	id?: string
-	width?: number
-	height?: number
+	width?: number | string
+	height?: number | string
+	/** Corner shape (Astryx `radius`): 'rounded' (default square-ish element
+	 *  radius) or 'circle' for avatar-like placeholders. */
+	radius?: 'rounded' | 'circle' | 'square'
+	/** Stagger index — delays the shimmer per sibling (Astryx `index`). */
+	index?: number
 	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
 	android?: PlatformProps
@@ -6646,15 +6750,24 @@ export interface SkeletonProps {
  * ```
  * @see AvatarGroupProps, UserProps.
  */
+/** Astryx avatar size names → px (xsm 16, sm 24, md 32, lg 40, xl 48). */
+export type AvatarSize = 'xsm' | 'sm' | 'md' | 'lg' | 'xl' | number
+
 export interface AvatarProps {
 	className?: ClassValue
 	style?: StyleProp
 	id?: string
 	src?: string
 	alt?: string
+	/** Person name — derives initials for the fallback and the accessible
+	 *  name when `alt`/`fallback` are unset (Astryx `name`). */
+	name?: string
 	/** Fallback text (initials) shown when `src` is missing/fails. */
 	fallback?: string
-	size?: number
+	size?: AvatarSize
+	/** Status dot rendered on the avatar's end edge — an `AvatarStatusDot`
+	 *  element (Astryx `status`) or a variant name. */
+	status?: AvatarStatusDotVariant | Renderable
 	/** Platform-specific properties are applied after shared props. */
 	ios?: PlatformProps
 	android?: PlatformProps
@@ -6682,6 +6795,38 @@ export interface AvatarGroupProps {
 	max?: number
 	size?: number
 	/** Platform-specific properties are applied after shared props. */
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
+}
+
+/** Status tones for `AvatarStatusDot` — same map as `StatusDot`. */
+export type AvatarStatusDotVariant = StatusDotVariant
+
+/** AvatarStatusDot — the status dot part that overlays an `Avatar` (Astryx
+ *  `AvatarStatusDot`, also exposed as `Avatar status`). `label` is the
+ *  accessible status name. */
+export interface AvatarStatusDotProps {
+	className?: ClassValue
+	style?: StyleProp
+	id?: string
+	variant?: AvatarStatusDotVariant
+	label?: string
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
+}
+
+/** AvatarGroupOverflow — the `+N` counter part inside `AvatarGroup` (Astryx).
+ *  `count` is the number of hidden members; `label` overrides the rendered
+ *  text (`+{count}` default). */
+export interface AvatarGroupOverflowProps {
+	className?: ClassValue
+	style?: StyleProp
+	id?: string
+	count?: number
+	label?: Renderable
+	size?: AvatarSize
 	ios?: PlatformProps
 	android?: PlatformProps
 	web?: PlatformProps
@@ -6814,6 +6959,14 @@ export interface ItemProps extends AccessibilityProps {
 	endContent?: Renderable
 	onPress?: () => void
 	isDisabled?: boolean
+	/** Selected row state (Astryx `isSelected`). */
+	isSelected?: boolean
+	/** Highlighted row tint (Astryx `isHighlighted`). */
+	isHighlighted?: boolean
+	/** Row density (Astryx `density`). @default 'balanced' */
+	density?: ListDensity
+	/** Clamp the description text to N lines (Astryx `descriptionLines`). */
+	descriptionLines?: number
 	children?: Renderable
 }
 
@@ -7619,17 +7772,31 @@ export interface CheckboxListItemProps {
 
 /** One `Breadcrumbs` trail entry — `label` plus `onSelect` to navigate; the last item renders as the current location.
  */
+/** One `BreadcrumbItem menu` option — a labeled action or a divider row
+ *  (Astryx `BreadcrumbMenuOption`). */
+export type BreadcrumbMenuOption = { label: string; onClick?: () => void } | { type: 'divider' }
+
+/** `Breadcrumbs` trail visual weight (Astryx `variant`). */
+export type BreadcrumbsVariant = 'default' | 'supporting'
+
 interface BreadcrumbItemBase {
 	label: string
 	isDisabled?: boolean
 	onSelect?: () => void
+	/** Leading icon content (Astryx `startIcon`). */
+	startIcon?: Renderable
+	/** Dropdown options turning this crumb into a menu trigger (Astryx `menu`). */
+	menu?: BreadcrumbMenuOption[]
+	/** Mark this crumb the current location explicitly (Astryx `isCurrent`);
+	 *  without it the last item is current. */
+	isCurrent?: boolean
 	/** Custom link element for this item's anchor (Astryx `as`) — overrides
 	 *  the `LinkProvider` default. */
 	as?: NavLinkComponentType
 }
 
 /** An ancestor with a typed route, raw URL, local action, or static label. */
-export type BreadcrumbItem<
+export type BreadcrumbEntry<
 	Contracts = RegisteredRouteContracts,
 	Stacks extends string = keyof AppRouteStacks & string,
 	Transitions extends string = RouteTransitionName,
@@ -7654,13 +7821,20 @@ export interface BreadcrumbProps<
 	className?: ClassValue
 	style?: StyleProp
 	id?: string
-	items: readonly BreadcrumbItem<Contracts, Stacks, Transitions>[]
+	items?: readonly BreadcrumbEntry<Contracts, Stacks, Transitions>[]
 	/** Maximum visible trail items, at least two; hidden ancestors use a menu. */
 	maxVisibleItems?: number
 	/** Additional overflow actions use the same compound menu parts. */
 	overflowMenu?: Renderable
 	overflowLabel?: string
-	separator?: string
+	/** Separator between crumbs — text or element (Astryx `separator`,
+	 *  default '/'). */
+	separator?: string | Renderable
+	/** Trail visual weight (Astryx `variant`). */
+	variant?: BreadcrumbsVariant
+	/** `BreadcrumbItem` part children (Astryx composition) — combined with
+	 *  `items`, which render first. */
+	children?: Renderable
 	accessibilityLabel?: string
 	ios?: PlatformProps
 	android?: PlatformProps
@@ -8294,6 +8468,9 @@ export interface KbdProps {
 	className?: ClassValue
 	style?: StyleProp
 	id?: string
+	/** Chord string like 'mod+k' — split on '+', each segment renders a key
+	 *  cap; 'mod' resolves to the platform modifier glyph (Astryx `keys`). */
+	keys?: string
 	children?: Renderable
 	ios?: PlatformProps
 	android?: PlatformProps
@@ -8315,10 +8492,14 @@ export interface EmptyProps {
 	className?: ClassValue
 	style?: StyleProp
 	id?: string
-	/** Registered icon name — see `registerIcon`. */
-	icon?: IconName
+	/** Registered icon name (see `registerIcon`) or an icon element. */
+	icon?: IconName | Renderable
 	title?: string
 	description?: string
+	/** Action row rendered below the description (Astryx `actions`). */
+	actions?: Renderable
+	/** Tighter vertical rhythm (Astryx `isCompact`). */
+	isCompact?: boolean
 	children?: Renderable
 	ios?: PlatformProps
 	android?: PlatformProps
@@ -8335,12 +8516,34 @@ export interface EmptyProps {
  * ```
  * @see AlertProps.
  */
+/** Banner status tones (Astryx `status`). */
+export type BannerStatus = 'info' | 'success' | 'warning' | 'error'
+
 export interface BannerProps {
 	className?: ClassValue
 	style?: StyleProp
 	id?: string
-	/** Registered icon name — see `registerIcon`. */
-	icon?: IconName
+	/** Status tone — paints the strip and picks the default glyph (Astryx). */
+	status?: BannerStatus
+	/** Headline text (Astryx `title`). */
+	title?: Renderable
+	/** Supporting text under the title (Astryx `description`). */
+	description?: Renderable
+	/** Registered icon name (see `registerIcon`) or icon element. */
+	icon?: IconName | Renderable
+	/** Trailing header content — typically action buttons (Astryx `endContent`). */
+	endContent?: Renderable
+	/** Show the dismiss affordance (Astryx `isDismissable`). */
+	isDismissable?: boolean
+	/** Detached floating presentation (Astryx `variant="floating"`). */
+	variant?: 'inline' | 'floating'
+	/** Resting shadow (Astryx `elevation`). */
+	elevation?: Elevation
+	/** Section-chrome container (Astryx `container="section"`). */
+	container?: 'banner' | 'section'
+	/** Body content collapse behavior (Astryx): true/{defaultIsOpen} wraps
+	 *  children behind a toggle; false keeps them always visible. */
+	collapsible?: boolean | { defaultIsOpen?: boolean }
 	children?: Renderable
 	onDismiss?: () => void
 	ios?: PlatformProps
@@ -12467,6 +12670,59 @@ export interface LayoutContentProps extends StackSizeProps, AccessibilityProps {
 	role?: LayoutRole
 }
 
+/** `LayoutFooter` — the `footer` region of `Layout`: fixed bottom band for
+ *  actions/status; `hasDivider` paints a block-start hairline (falls back to
+ *  the parent Layout's `defaultHasDividers`). Padding resolves like
+ *  `LayoutHeader` (outer channel on boundary edges). */
+export interface LayoutFooterProps extends StackSizeProps, AccessibilityProps {
+	className?: ClassValue
+	style?: StyleProp
+	children?: Renderable
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
+	id?: string
+	ref?: Octane.Ref<HostElement>
+	/** Themed hairline on the block-start edge. @default false */
+	hasDivider?: boolean
+	/** Internal padding in spacing steps; `0` docks children on the edges. */
+	padding?: SpacingStep
+	/** Accessible landmark label — `accessibilityLabel` wins when both set. */
+	label?: string
+	/** ARIA landmark role on web ('contentinfo' only for site-wide footers). */
+	role?: LayoutRole
+}
+
+/** `LayoutPanel` — a fixed-width side panel for `Layout`'s `start`/`end`
+ *  slots (Astryx). `hasDivider` paints the edge facing the content lane;
+ *  `resizable` accepts the `useResizable` handle's `props` bag so an adjacent
+ *  `ResizeHandle` drives `width`. */
+export interface LayoutPanelProps extends StackSizeProps, AccessibilityProps {
+	className?: ClassValue
+	style?: StyleProp
+	children?: Renderable
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
+	id?: string
+	ref?: Octane.Ref<HostElement>
+	/** Hairline on the edge facing the content lane. @default false */
+	hasDivider?: boolean
+	/** Internal padding in spacing steps (outer channel applies). */
+	padding?: SpacingStep
+	/** Scrollable overflow. @default true */
+	isScrollable?: boolean
+	/** Which layout slot this panel mounts in — auto-detected from `Layout`
+	 *  slot context; pass to render a panel outside a Layout. */
+	area?: 'start' | 'end'
+	/** `useResizable` props bag — overrides `width` with the live size. */
+	resizable?: ResizableProps
+	/** Accessible landmark label. */
+	label?: string
+	/** ARIA landmark role on web ('navigation'/'complementary' for top-level). */
+	role?: LayoutRole
+}
+
 /** `VisuallyHidden` — children stay in the accessibility tree but render
  *  invisible. No className/style: styling a hidden node is a mistake. On
  *  native there is no offscreen-a11y primitive; the leaf renders a 1dip,
@@ -12971,4 +13227,26 @@ export interface ContainerRevealProps {
 export interface UseContainerRevealReturn {
 	getContainerProps: () => ContainerRevealProps
 	getContentRevealProps: () => ContainerRevealProps
+}
+
+/** `BreadcrumbItem` part — one trail entry inside `Breadcrumbs` (Astryx).
+ *  `children` are the label; `href`/`to`/`onPress` navigate, `isCurrent`
+ *  marks the current location, `startIcon` leads the label, `menu` turns
+ *  the crumb into a dropdown trigger. */
+export interface BreadcrumbItemProps {
+	className?: ClassValue
+	style?: StyleProp
+	id?: string
+	children?: Renderable
+	/** Inert navigation target (label-only crumbs pass no href). */
+	href?: string
+	to?: string
+	onPress?: () => void
+	onClick?: () => void
+	isCurrent?: boolean
+	startIcon?: Renderable
+	menu?: BreadcrumbMenuOption[]
+	ios?: PlatformProps
+	android?: PlatformProps
+	web?: PlatformProps
 }

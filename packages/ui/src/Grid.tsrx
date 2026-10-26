@@ -1,6 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { mergeStyle } from './style-merge'
-import type { GridProps } from './props';
+import { mergeStyle, styleRecord } from './style-merge'
+import type { GridProps, GridSpanProps } from './props';
 import { cx } from '@octane-xplat/lib';
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props';
 import { gridTrackListToCss } from './grid-tracks';
@@ -20,7 +20,7 @@ export function Grid(props: GridProps) @{
 	}
 
 	const rowTracks = gridTrackListToCss(props.rows, 'rows');
-	const columnTracks = gridTrackListToCss(props.columns, 'columns');
+	const columnTracks = gridTrackListToCss(typeof props.columns === 'number' ? String(props.columns) : (typeof props.columns === 'object' ? 'auto' : props.columns), 'columns');
 
 	// Omitted tracks belong to the CSS cascade. Do not emit undefined style
 	// entries: the driver's deferred Mason replay would clear class tracks.
@@ -30,6 +30,21 @@ export function Grid(props: GridProps) @{
 	<masonview id={props.id} ref={(view: any) => {
 			applyEscapeProps(view, props);
 		}} className={cx('vx-grid', props.className)} style={mergeStyle({display: "grid", gridAutoFlow: "row", ...(rowTracks ? { gridTemplateRows: rowTracks } : {}), ...(columnTracks ? { gridTemplateColumns: columnTracks } : {})}, props.style)} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole)} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState)} accessibilityLiveRegion={props.accessibilityLiveRegion}>
+		{props.children}
+	</masonview>
+}
+
+/** GridSpan — spanning Grid child (Astryx); passes through col/row span as
+ *  child placement metadata. */
+export function GridSpan(props: GridSpanProps) @{
+	<masonview
+		id={props.id}
+		className={cx('vx-gridspan', props.className)}
+		style={styleRecord(props.style)}
+		colSpan={props.columns === 'full' ? undefined : props.columns}
+		rowSpan={props.rows}
+		accessibilityLabel={props.accessibilityLabel}
+	>
 		{props.children}
 	</masonview>
 }

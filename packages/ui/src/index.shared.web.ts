@@ -25,7 +25,7 @@ export { View } from './View'
 export { VStack } from './VStack'
 /** Horizontal flow stack (Astryx `Stack` with direction="horizontal"). */
 export { HStack } from './HStack'
-export { Grid } from './Grid'
+export { Grid, GridSpan } from './Grid'
 /** Flow container — `direction`, `hAlign`/`vAlign`, spacing-step
  *  `gap`/`padding`. Overlapping children belong in `Absolute`. */
 export { Stack } from './Stack'
@@ -35,7 +35,7 @@ export { Center } from './Center'
 export { Section } from './Section'
 /** Five-slot page region primitive (Astryx `Layout` + its header/content
  *  regions). AppShell owns the app frame; Layout structures inside it. */
-export { Layout, LayoutHeader, LayoutContent } from './Layout'
+export { Layout, LayoutHeader, LayoutContent, LayoutFooter, LayoutPanel } from './Layout'
 export { AspectRatio } from './AspectRatio'
 export { VisuallyHidden } from './VisuallyHidden'
 /** Keyboard focus containment — React Aria's FocusScope. Check
@@ -78,7 +78,7 @@ export {
 	resolveOperatorLabel,
 } from './power-search-config'
 
-export { Collapsible } from './Collapsible'
+export { Collapsible, CollapsibleGroup } from './Collapsible'
 export { Accordion } from './Accordion'
 /** Self-drawn checkbox, exported under Astryx's component name. */
 export { Checkbox as CheckboxInput } from './Checkbox'
@@ -90,12 +90,15 @@ export { Badge } from './Badge'
 /** Visual separator between content sections, exported under Astryx's name. */
 export { Separator as Divider } from './Separator'
 export { Skeleton } from './Skeleton'
-export { Avatar } from './Avatar'
-export { AvatarGroup } from './AvatarGroup'
+export { Avatar, AvatarStatusDot } from './Avatar'
+export { AvatarGroup, AvatarGroupOverflow } from './AvatarGroup'
 export type {
 	AccordionItemSpec,
 	AccordionProps,
 	AvatarGroupProps,
+	AvatarGroupOverflowProps,
+	AvatarStatusDotProps,
+	AvatarStatusDotVariant,
 	AvatarProps,
 	BadgeProps,
 	ButtonProps,
@@ -176,6 +179,7 @@ export type {
 	EnumItem,
 	OperatorTokenizationConfig,
 	CheckboxProps,
+	CollapsibleGroupProps,
 	CollapsibleProps,
 	ContextMenuProps,
 	ElementSize,
@@ -441,13 +445,14 @@ export type {
 	UseResizableSingleConfig,
 } from './props'
 
-export { Breadcrumb as Breadcrumbs } from './Breadcrumb'
+export { Breadcrumb as Breadcrumbs, BreadcrumbItem } from './Breadcrumb'
 export { Pagination } from './Pagination'
 export { Stepper } from './Stepper'
 export { NavigationMenu } from './NavigationMenu'
 export { CommandPalette } from './CommandPalette'
 export type {
-	BreadcrumbItem,
+	BreadcrumbEntry,
+	BreadcrumbItemProps,
 	BreadcrumbProps,
 	CommandPaletteProps,
 	CommandPaletteItem,
@@ -505,6 +510,7 @@ export { ProgressGroup } from './ProgressGroup'
 export type {
 	AlertProps,
 	BannerProps,
+	BannerStatus,
 	CardProps,
 	ChipProps,
 	EmptyProps,
@@ -955,6 +961,8 @@ export type {
 	ListMarkerStyle,
 	ListStyle,
 	LayoutContentProps,
+	LayoutFooterProps,
+	LayoutPanelProps,
 	LayoutHeaderProps,
 	LayoutHeight,
 	LayoutProps,
@@ -992,6 +1000,7 @@ export type {
 	SpinnerProps,
 	DrawerProps,
 	GridProps,
+	GridSpanProps,
 	GridTrack,
 	GridTrackList,
 	ImageProps,
