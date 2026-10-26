@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url'
 // The xplat bin entry — dev targets spawn through the CLI, not a local shim.
 const xplatCli = join(
 	dirname(fileURLToPath(import.meta.resolve('@octane-xplat/cli/macos'))),
-	'../cli.ts',
+	'../../bin/xplat.mjs',
 )
 const host = spawn(process.execPath, [xplatCli, 'dev', 'macos'], {
 	cwd: fileURLToPath(new URL('..', import.meta.url)),

@@ -20,7 +20,7 @@ export function bundledFontDefines() {
 	}
 }
 
-export function createMacOSConfig({ packaged = false, hmr = false, rules } = {}) {
+export function createMacOSConfig({ packaged = false, hmr = false, rules, bamboo = true } = {}) {
 	const virtualListBench = hmr && process.env.OCTANE_MACOS_VLIST_BENCH === '1'
 	const mode = process.env.OCTANE_MACOS_VLIST_MODE
 	const entry = packaged
@@ -38,10 +38,13 @@ export function createMacOSConfig({ packaged = false, hmr = false, rules } = {})
 		return {
 			...config,
 			define: { ...config.define, ...(packaged ? bundledFontDefines() : {}) },
-			plugins: [
-				...(config.plugins ?? []),
-				xplatBamboo({ cwd: bambooRoot, configPath: `${bambooRoot}/bamboo.config.ts`, native: true }),
-			],
+			// The dev shell hosts the renderer only; the app bundle owns the stylesheet.
+			plugins: bamboo
+				? [
+						...(config.plugins ?? []),
+						xplatBamboo({ cwd: bambooRoot, configPath: `${bambooRoot}/bamboo.config.ts`, native: true }),
+					]
+				: config.plugins,
 		}
 	})
 }

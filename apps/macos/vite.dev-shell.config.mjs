@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 import { createMacOSConfig } from './vite.shared.mjs'
 
-const config = createMacOSConfig({ packaged: true })
+const config = createMacOSConfig({ packaged: true, bamboo: false })
 export default defineConfig(async (env) => {
 	const resolved = await config(env)
 	return {
