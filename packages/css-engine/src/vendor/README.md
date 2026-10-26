@@ -1,4 +1,4 @@
-# vendor/css — NativeScript core CSS selector engine
+# src/vendor — NativeScript core CSS selector engine
 
 Vendored from **@nativescript/core 9.1.3** (NativeScript/NativeScript tag
 `9.1.3-core`, `packages/core/`), MIT licensed (see `LICENSE`). The
@@ -21,7 +21,7 @@ Runtime npm deps this code still shares with upstream: `css-tree` (the parser
 the `__CSS_PARSER__ === 'css-tree'` build path — what @nativescript/vite
 defines by default — uses), `css-what` (selector parsing inside
 `createSelector`), and `@csstools/css-calc@2.1.4` (upstream's `calc()`
-evaluator, used by `src/css/cascade.ts`). The other two upstream parser paths
+evaluator, used by `src/cascade.ts`). The other two upstream parser paths
 (rework, CSS3Parser) are not ported.
 
 ## NS semantic notes the renderer relies on

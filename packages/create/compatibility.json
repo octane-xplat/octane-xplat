@@ -16,6 +16,7 @@
 		"@octane-xplat/charts",
 		"@octane-xplat/cli",
 		"@octane-xplat/context-menu",
+		"@octane-xplat/css-engine",
 		"@octane-xplat/date-picker",
 		"@octane-xplat/desktop-webview",
 		"@octane-xplat/dnd-kit",

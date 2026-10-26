@@ -1,5 +1,6 @@
-// Stylesheet engine subpath — the GTK renderer consumes this cascade over
-// its own node adapter; keep this module and its imports AppKit-free.
+// Stylesheet engine shared by the AppKit and GTK renderers — each renderer
+// supplies its own node adapter. Keep this module and its imports
+// platform-free (no AppKit, no GI).
 export {
 	computeCascade,
 	INHERITED_CSS_PROPERTIES,
@@ -14,6 +15,7 @@ export {
 	stylesheetScope,
 	stylesheetKeyframes,
 	stylesheetPseudoClasses,
+	stylesheetsHaveMediaRules,
 	refreshMediaQueries,
 	onStylesheetsChanged,
 	setStyleEnvironment,

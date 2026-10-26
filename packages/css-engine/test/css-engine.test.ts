@@ -6,12 +6,12 @@ import {
 	stylesheetPseudoClasses,
 	refreshMediaQueries,
 	setStyleEnvironment,
-} from '../src/css/stylesheets.ts'
-import { computeCascade } from '../src/css/cascade.ts'
-import { sampleKeyframeAnimation } from '../src/css/animations.ts'
-import { transformConverter } from '../src/css/transforms.ts'
-import { resolveClipPath } from '../src/css/clip-path.ts'
-import type { KeyframeAnimationInfo } from '../src/css/keyframes.ts'
+} from '../src/stylesheets.ts'
+import { computeCascade } from '../src/cascade.ts'
+import { sampleKeyframeAnimation } from '../src/animations.ts'
+import { transformConverter } from '../src/transforms.ts'
+import { resolveClipPath } from '../src/clip-path.ts'
+import type { KeyframeAnimationInfo } from '../src/keyframes.ts'
 
 let W = 200
 let seq = 0
@@ -304,7 +304,7 @@ test('resolveClipPath resolves each function', () => {
 // ---- Import-order smoke test --------------------------------------------------
 
 test('css/index.ts first-eval order registers a sheet without TDZ errors', async () => {
-	const mod = await import('../src/css/index.ts')
+	const mod = await import('../src/index.ts')
 	assert.equal(typeof mod.registerStylesheet, 'function')
 	mod.registerStylesheet('smoke', '.s { color: #123456 }')
 	const c = mod.computeCascade(node('masonview', { classes: ['s'] }), mod.stylesheetScope())
@@ -312,7 +312,7 @@ test('css/index.ts first-eval order registers a sheet without TDZ errors', async
 })
 
 test('evalMediaQuery normalizes Level-4 range syntax', async () => {
-	const { evalMediaQuery, setStyleEnvironment } = await import('../src/css/stylesheets.ts')
+	const { evalMediaQuery, setStyleEnvironment } = await import('../src/stylesheets.ts')
 	setStyleEnvironment(() => ({ width: 500, height: 300, colorScheme: 'light' as const, reducedMotion: false }))
 	assert.equal(evalMediaQuery('(width>=300px)'), true)
 	assert.equal(evalMediaQuery('(min-width: 300px)'), true)

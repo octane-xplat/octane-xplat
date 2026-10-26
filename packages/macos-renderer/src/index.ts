@@ -40,14 +40,16 @@ import type {
 } from 'octane/universal/native'
 
 import { composeAttributedText, validateTextStyle } from './formatted-text'
-import { computeCascade, INHERITED_CSS_PROPERTIES, type CssHostNode } from './css/cascade'
 import {
+	computeCascade,
+	INHERITED_CSS_PROPERTIES,
+	type CssHostNode,
 	registerStylesheet,
 	onStylesheetsChanged,
 	setStyleEnvironment,
 	stylesheetScope,
 	stylesheetsHaveMediaRules,
-} from './css/stylesheets'
+} from '@octane-xplat/css-engine'
 import { parseHtmlText, validateHtmlProps } from './html-text'
 import { resolveFont as fontForFamilyStyle } from './fonts'
 import {
@@ -125,7 +127,7 @@ import {
 import type { NSClass, NSControl } from '@octane-xplat/platform/macos'
 
 export { registerFontFamily } from './fonts'
-export { registerStylesheet } from './css/stylesheets'
+export { registerStylesheet } from '@octane-xplat/css-engine'
 export { __tabItemProps } from './tab-view'
 
 configureTabContentRoots((host, fontFamily) => createMacOSRoot(host, { fontFamily }), nativeColor)

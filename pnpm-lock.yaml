@@ -1268,6 +1268,18 @@ importers:
         specifier: 'catalog:'
         version: 8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)
 
+  packages/css-engine:
+    dependencies:
+      '@csstools/css-calc':
+        specifier: 2.1.4
+        version: 2.1.4(@csstools/css-parser-algorithms@3.0.5(@csstools/css-tokenizer@3.0.4))(@csstools/css-tokenizer@3.0.4)
+      css-tree:
+        specifier: 3.2.1
+        version: 3.2.1
+      css-what:
+        specifier: 7.0.0
+        version: 7.0.0
+
   packages/date-picker:
     dependencies:
       '@nativescript/jetpack-compose':
@@ -1975,12 +1987,12 @@ importers:
 
   packages/linux-gtk-renderer:
     dependencies:
+      '@octane-xplat/css-engine':
+        specifier: workspace:*
+        version: link:../css-engine
       '@octane-xplat/jsx':
         specifier: workspace:*
         version: link:../jsx
-      '@octane-xplat/macos-renderer':
-        specifier: workspace:*
-        version: link:../macos-renderer
     devDependencies:
       '@octane-xplat/cli':
         specifier: workspace:*
@@ -2040,27 +2052,21 @@ importers:
 
   packages/macos-renderer:
     dependencies:
-      '@csstools/css-calc':
-        specifier: 2.1.4
-        version: 2.1.4(@csstools/css-parser-algorithms@3.0.5(@csstools/css-tokenizer@3.0.4))(@csstools/css-tokenizer@3.0.4)
       '@nativescript/macos-node-api':
         specifier: 'catalog:'
         version: 0.4.4-next.2026-08-09-31292056208
       '@nativescript/objc-node-api':
         specifier: 1.0.0-alpha.7
         version: 1.0.0-alpha.7
+      '@octane-xplat/css-engine':
+        specifier: workspace:*
+        version: link:../css-engine
       '@octane-xplat/platform':
         specifier: workspace:*
         version: link:../platform
       acorn:
         specifier: 8.15.0
         version: 8.15.0
-      css-tree:
-        specifier: 3.2.1
-        version: 3.2.1
-      css-what:
-        specifier: 7.0.0
-        version: 7.0.0
       saxes:
         specifier: 6.0.0
         version: 6.0.0

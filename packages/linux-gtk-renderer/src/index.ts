@@ -33,7 +33,7 @@ import {
 	type CssHostNode,
 	type KeyframeAnimationInfo,
 	type SampledValues,
-} from '@octane-xplat/macos-renderer/css'
+} from '@octane-xplat/css-engine'
 import { CSS_PROPS, gtkStyleCss } from './style-css.js'
 import { resolveTransform } from './transform-style.js'
 import { createUniversalRoot } from 'octane/universal/native'
@@ -478,7 +478,7 @@ function styleBag(value: unknown): PropBag | null {
 // ---- CSS cascade -----------------------------------------------------------
 
 // The vendored NS selector engine (shared with the macOS renderer through
-// @octane-xplat/macos-renderer/css) matches against `node` directly: cssType
+// @octane-xplat/css-engine) matches against `node` directly: cssType
 // is the element type, cssClasses come from the className prop plus the
 // ambient root classes, cssPseudoClasses from wired state. User class names
 // are never forwarded onto GTK widgets — GTK's default theme ships classes
@@ -3091,6 +3091,6 @@ export function createGtkRoot(host: GtkView, options: GtkRootOptions = {}) {
 	return { root, container }
 }
 
-export { registerStylesheet } from '@octane-xplat/macos-renderer/css'
+export { registerStylesheet } from '@octane-xplat/css-engine'
 
 export * from 'octane/universal/native'

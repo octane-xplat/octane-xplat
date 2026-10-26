@@ -44,6 +44,7 @@ assert.ok(
 	),
 	'packed renderer must ship the prebuilt Mason engine',
 )
+const cssEngine = await pack(join(repo, 'packages/css-engine'))
 const platform = await pack(join(repo, 'packages/platform'))
 const jsx = await pack(join(repo, 'packages/jsx'))
 const cli = await pack(join(repo, 'packages/cli'))
@@ -161,6 +162,7 @@ await writeFile(
 			type: 'module',
 			dependencies: {
 				'@octane-xplat/macos-renderer': renderer,
+				'@octane-xplat/css-engine': cssEngine,
 				'@octane-xplat/platform': platform,
 				'@octane-xplat/jsx': jsx,
 				'@nativescript/macos-node-api':
@@ -204,7 +206,7 @@ await writeFile(
 
 await writeFile(
 	join(app, 'pnpm-workspace.yaml'),
-	`packages: []\nnodeLinker: isolated\nallowUnusedPatches: true\noverrides:\n  create-octane-xplat: ${JSON.stringify(create)}\n  '@octane-xplat/lib': ${JSON.stringify(lib)}\n  '@octane-xplat/lint': ${JSON.stringify(lint)}\n  '@octane-xplat/platform': ${JSON.stringify(platform)}\n`,
+	`packages: []\nnodeLinker: isolated\nallowUnusedPatches: true\noverrides:\n  create-octane-xplat: ${JSON.stringify(create)}\n  '@octane-xplat/lib': ${JSON.stringify(lib)}\n  '@octane-xplat/lint': ${JSON.stringify(lint)}\n  '@octane-xplat/platform': ${JSON.stringify(platform)}\n  '@octane-xplat/css-engine': ${JSON.stringify(cssEngine)}\n`,
 )
 
 await writeFile(

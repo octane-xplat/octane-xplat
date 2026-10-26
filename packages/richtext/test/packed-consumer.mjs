@@ -29,6 +29,7 @@ for (const name of [
 	'tiptap',
 	'lexical',
 	'platform',
+	'css-engine',
 	'macos-renderer',
 	'cli',
 	'lib',
@@ -69,7 +70,7 @@ await writeFile(
 
 await writeFile(
 	join(app, 'pnpm-workspace.yaml'),
-	`packages: []\nnodeLinker: isolated\nminimumReleaseAge: 0\noverrides:\n  create-octane-xplat: ${JSON.stringify(dependencies['create-octane-xplat'])}\n  '@octane-xplat/richtext': ${JSON.stringify(dependencies['@octane-xplat/richtext'])}\n  '@octane-xplat/platform': ${JSON.stringify(dependencies['@octane-xplat/platform'])}\n  '@octane-xplat/lib': ${JSON.stringify(dependencies['@octane-xplat/lib'])}\n  '@tiptap/core': 3.28.0\n  '@tiptap/pm': 3.28.0\n  '@tiptap/starter-kit': 3.28.0\n`,
+	`packages: []\nnodeLinker: isolated\nminimumReleaseAge: 0\noverrides:\n  create-octane-xplat: ${JSON.stringify(dependencies['create-octane-xplat'])}\n  '@octane-xplat/richtext': ${JSON.stringify(dependencies['@octane-xplat/richtext'])}\n  '@octane-xplat/platform': ${JSON.stringify(dependencies['@octane-xplat/platform'])}\n  '@octane-xplat/css-engine': ${JSON.stringify(dependencies['@octane-xplat/css-engine'])}\n  '@octane-xplat/lib': ${JSON.stringify(dependencies['@octane-xplat/lib'])}\n  '@tiptap/core': 3.28.0\n  '@tiptap/pm': 3.28.0\n  '@tiptap/starter-kit': 3.28.0\n`,
 )
 
 await writeFile(

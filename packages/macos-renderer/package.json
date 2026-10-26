@@ -16,7 +16,9 @@
 	],
 	"xplat": {
 		"macos": {
-			"prebuiltLibraries": ["platforms/macos/prebuilt/libxplatmason.dylib"],
+			"prebuiltLibraries": [
+				"platforms/macos/prebuilt/libxplatmason.dylib"
+			],
 			"notices": "platforms/macos/licenses/nativescript-mason.txt"
 		}
 	},
@@ -26,11 +28,6 @@
 			"types": "./src/index.d.ts",
 			"import": "./src/index.ts",
 			"default": "./src/index.ts"
-		},
-		"./css": {
-			"types": "./src/css/index.ts",
-			"import": "./src/css/index.ts",
-			"default": "./src/css/index.ts"
 		},
 		"./intrinsics": "./src/intrinsics.d.ts",
 		"./jsx-runtime": {
@@ -61,13 +58,11 @@
 		"typecheck": "tsc --noEmit -p tsconfig.json"
 	},
 	"dependencies": {
-		"@csstools/css-calc": "2.1.4",
 		"@nativescript/macos-node-api": "catalog:",
 		"@nativescript/objc-node-api": "1.0.0-alpha.7",
+		"@octane-xplat/css-engine": "workspace:*",
 		"@octane-xplat/platform": "workspace:*",
 		"acorn": "8.15.0",
-		"css-tree": "3.2.1",
-		"css-what": "7.0.0",
 		"saxes": "6.0.0"
 	},
 	"devDependencies": {

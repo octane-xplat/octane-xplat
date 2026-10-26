@@ -9,7 +9,7 @@
 // rotation, default 300), translate, rotate z, rotate x/y, scale — around
 // the view's centre, with % translates resolved against its own size.
 
-import { transformToParts, resolveTranslate, type TransformParts, type TranslateAxis } from '@octane-xplat/macos-renderer/css'
+import { transformToParts, resolveTranslate, type TransformParts, type TranslateAxis } from '@octane-xplat/css-engine'
 
 type PropBag = Record<string, any>
 

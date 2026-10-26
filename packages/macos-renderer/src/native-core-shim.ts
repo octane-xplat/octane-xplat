@@ -1,4 +1,4 @@
-import { registerStylesheet } from './css/stylesheets.ts'
+import { registerStylesheet } from '@octane-xplat/css-engine'
 import { NSScreen } from '@octane-xplat/platform/macos'
 
 // The shared pan leaf imports Utils eagerly, but this spike doesn't implement

@@ -1,7 +1,7 @@
 /**
  * Per-node effective-style computation over the vendored NS selector engine —
- * AppKit-free so Node tests and the GTK renderer (via
- * `@octane-xplat/macos-renderer/css`) can reuse it.
+ * platform-free so Node tests and the GTK renderer (via
+ * `@octane-xplat/css-engine`) can reuse it.
  *
  * Mirrors NS 9.1.3 StyleScope/Style semantics:
  * - matched rulesets arrive sorted ascending by (layerPath, specificity, tier,
@@ -20,15 +20,15 @@
  *   `propagateInheritableCssProperties` which propagates any source.
  */
 import { calc } from '@csstools/css-calc'
-import type { Node as CssNode } from '../vendor/css/css-selector.ts'
-import type { StyleSheetSelectorScope } from '../vendor/css/css-selector.ts'
+import type { Node as CssNode } from './vendor/css-selector.ts'
+import type { StyleSheetSelectorScope } from './vendor/css-selector.ts'
 import {
 	_expandCssShorthand,
 	_pendingCssShorthandSubstitution,
 	isCssPendingSubstitution,
 	isCssVariable,
 	type CssPendingSubstitution,
-} from '../vendor/css/shorthands.ts'
+} from './vendor/shorthands.ts'
 
 import { evalMediaQuery, stylesheetKeyframes, stylesheetScope } from './stylesheets.ts'
 import {

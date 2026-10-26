@@ -1,4 +1,4 @@
-import { registerStylesheet } from '@octane-xplat/macos-renderer/css'
+import { registerStylesheet } from '@octane-xplat/css-engine'
 
 // The shared pan leaf imports Utils eagerly, but this renderer doesn't
 // implement NativeScript gestures. Fail explicitly if pan velocity is ever

@@ -1,7 +1,7 @@
 /**
  * Stylesheet registry + cascade environment for the AppKit renderer —
- * AppKit-free so Node tests and the GTK renderer (via
- * `@octane-xplat/macos-renderer/css`) can reuse it.
+ * platform-free so Node tests and the GTK renderer (via
+ * `@octane-xplat/css-engine`) can reuse it.
  *
  * `registerStylesheet(id, css)` parses through the vendored NS selector engine
  * (`populateCssRules`), replaces by id while keeping the id's first-registration
@@ -12,11 +12,11 @@
  * the CLI build injects — is drained; afterwards the global is replaced with an
  * object whose `push` registers directly.
  */
-import { populateCssRules } from '../vendor/css/rules.ts'
-import { StyleSheetSelectorScope } from '../vendor/css/css-selector.ts'
-import type { RuleSet } from '../vendor/css/css-selector.ts'
-import { setCssMediaQueryEvaluator } from '../vendor/css/media-query.ts'
-import type { Keyframes } from '../vendor/css/rules.ts'
+import { populateCssRules } from './vendor/rules.ts'
+import { StyleSheetSelectorScope } from './vendor/css-selector.ts'
+import type { RuleSet } from './vendor/css-selector.ts'
+import { setCssMediaQueryEvaluator } from './vendor/media-query.ts'
+import type { Keyframes } from './vendor/rules.ts'
 
 export interface StylesheetEntry {
 	id: string

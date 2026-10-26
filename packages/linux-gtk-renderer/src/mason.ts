@@ -22,7 +22,7 @@ import GLib from 'gi://GLib'
 import GObject from 'gi://GObject'
 import Gsk from 'gi://Gsk?version=4.0'
 import Graphene from 'gi://Graphene'
-import { resolveClipPath, type ClipPath } from '@octane-xplat/macos-renderer/css'
+import { resolveClipPath, type ClipPath } from '@octane-xplat/css-engine'
 import { paintOrder, resolveTransform, transformSteps, zIndexOf } from './transform-style.ts'
 
 type NodeLike = any

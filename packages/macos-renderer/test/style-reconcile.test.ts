@@ -2,8 +2,12 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { runSlice } from './mock-globals.ts'
 import { sourceWithoutImports } from './mock-globals.ts'
-import { registerStylesheet, stylesheetScope } from '../src/css/stylesheets.ts'
-import { computeCascade, INHERITED_CSS_PROPERTIES } from '../src/css/cascade.ts'
+import {
+	registerStylesheet,
+	stylesheetScope,
+	computeCascade,
+	INHERITED_CSS_PROPERTIES,
+} from '@octane-xplat/css-engine'
 
 // Exercise style/className reconciliation without the Objective-C bridge.
 // Removed style keys and dropped classes must put back the native state they
