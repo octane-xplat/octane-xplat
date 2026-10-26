@@ -7,6 +7,8 @@ export interface MacOSRootOptions {
 	fontFamily?: string
 }
 
+/** Register (or replace, by id) a CSS stylesheet applied through the NS selector engine. */
+export declare function registerStylesheet(id: string, css: string): void
 /** Map an application-registered family to its weighted native faces. */
 export declare function registerFontFamily(
 	family: string,

@@ -1,0 +1,1541 @@
+/**
+ * Vendored from @nativescript/core 9.1.3 `ui/styling/css-selector.ts`, with the
+ * cascade-layer comparison from
+ * packages/cli/patches/@nativescript__core@9.1.3.patch applied.
+ *
+ * Port notes (strip-types compatible — no enums, namespaces, decorators, or
+ * parameter properties):
+ * - `Specificity`/`Rarity`/`PseudoClassSelectorList`/`Combinator`/
+ *   `AttributeSelectorOperator`/`SelectorTier` const enums → `as const` objects.
+ * - `namespace Match`/`namespace Selector` → const objects holding the members.
+ * - `@SelectorProperties`/`@FunctionalPseudoClassProperties` decorators →
+ *   explicit prototype assignment helpers called after each class.
+ * - `../../globals` side-effect import removed (renderer provides globals).
+ * - `core/properties` shorthand helpers → `./shorthands.ts` (same behavior for
+ *   structure, raw string values — see README).
+ * - `utils/types` `isNullOrUndefined` → local equivalent.
+ * - `ui/styling/css-utils` `cleanupImportantFlags` → `./css-utils.ts`
+ *   (Trace notice dropped).
+ * - `media-query-list` `checkIfMediaQueryMatches` → `./media-query.ts`
+ *   injected evaluator.
+ */
+import { parse as convertToCSSWhatSelector } from 'css-what';
+import type { Selector as CSSWhatSelector, DataType as CSSWhatDataType } from 'css-what';
+import { _expandCssShorthand, _pendingCssShorthandSubstitution, isCssVariable } from './shorthands.ts';
+import { cleanupImportantFlags } from './css-utils.ts';
+import type * as ReworkCSS from './reworkcss.ts';
+import { checkIfMediaQueryMatches } from './media-query.ts';
+
+function isNullOrUndefined(value: unknown): value is null | undefined {
+	return value === null || value === undefined;
+}
+
+/**
+ * An interface describing the shape of a type on which the selectors may apply.
+ * Note, the ui/core/view.View implements Node.
+ */
+export interface Node {
+	parent?: Node;
+	_modalParent?: Node;
+
+	id?: string;
+	nodeName?: string;
+	cssType?: string;
+	cssClasses?: Set<string>;
+	cssPseudoClasses?: Set<string>;
+	getChildIndex?(node: Node): number;
+	getChildAt?(index: number): Node;
+	getChildrenCount?(): number;
+}
+
+export interface Declaration {
+	property: string;
+	/** Raw stylesheet text, except expanded shorthand longhands, which carry the converted value. */
+	value: any;
+}
+
+export type ChangeMap<T extends Node> = Map<T, Changes>;
+
+export interface Changes {
+	attributes?: Set<string>;
+	pseudoClasses?: Set<string>;
+}
+
+const Specificity = {
+	Inline: 1000,
+	Id: 100,
+	Attribute: 10,
+	Class: 10,
+	PseudoClass: 10,
+	Type: 1,
+	Universal: 0,
+	Invalid: 0,
+	Zero: 0,
+	/**
+	 * Selector has the specificity of the selector with the highest specificity inside selector list.
+	 */
+	SelectorListHighest: -1,
+} as const;
+
+const Rarity = {
+	Invalid: 4,
+	Id: 3,
+	Class: 2,
+	Type: 1,
+	PseudoClass: 0,
+	Attribute: 0,
+	Universal: 0,
+	Inline: 0,
+} as const;
+export type Rarity = (typeof Rarity)[keyof typeof Rarity];
+
+const PseudoClassSelectorList = {
+	Regular: 0,
+	Forgiving: 1,
+	Relative: 2,
+} as const;
+export type PseudoClassSelectorList = (typeof PseudoClassSelectorList)[keyof typeof PseudoClassSelectorList];
+
+const Combinator = {
+	descendant: ' ',
+	child: '>',
+	adjacent: '+',
+	sibling: '~',
+
+	// Not supported
+	parent: '<',
+	'column-combinator': '||',
+} as const;
+export type Combinator = (typeof Combinator)[keyof typeof Combinator];
+
+const AttributeSelectorOperator = {
+	exists: '',
+	equals: '=',
+	start: '^=',
+	end: '$=',
+	any: '*=',
+	element: '~=',
+	hyphen: '|=',
+} as const;
+
+type AttributeTest = 'exists' | 'equals' | 'start' | 'end' | 'any' | 'element' | 'hyphen';
+
+interface LookupSorter {
+	sortById(id: string, sel: SelectorCore): void;
+	sortByClass(cssClass: string, sel: SelectorCore): void;
+	sortByType(cssType: string, sel: SelectorCore): void;
+	sortAsUniversal(sel: SelectorCore): void;
+}
+
+/**
+ * Rank of the stylesheet set a selector was indexed in. Specificity ties break on
+ * (tier, pos): the application and local indexes are built separately, so positions
+ * are only comparable within a tier.
+ */
+export const SelectorTier = {
+	Application: 0,
+	Local: 1,
+} as const;
+export type SelectorTier = (typeof SelectorTier)[keyof typeof SelectorTier];
+
+const Match = {
+	/**
+	 * Depends on attributes or pseudoclasses state;
+	 */
+	Dynamic: true,
+	/**
+	 * Depends only on the tree structure.
+	 */
+	Static: false,
+} as const;
+
+function eachNodePreviousGeneralSibling(node: Node, callback: (sibling: Node) => boolean): void {
+	if (!node.parent || !node.parent.getChildIndex || !node.parent.getChildAt || !node.parent.getChildrenCount) {
+		return;
+	}
+
+	const nodeIndex = node.parent.getChildIndex(node);
+	if (nodeIndex === 0) {
+		return;
+	}
+
+	const count = node.parent.getChildrenCount();
+	let retVal: boolean = true;
+
+	for (let i = nodeIndex - 1; i >= 0 && retVal; i--) {
+		const sibling = node.parent.getChildAt(i);
+		retVal = callback(sibling);
+	}
+}
+
+function getNodePreviousDirectSibling(node: Node): null | Node {
+	if (!node.parent || !node.parent.getChildIndex || !node.parent.getChildAt) {
+		return null;
+	}
+
+	const nodeIndex = node.parent.getChildIndex(node);
+	if (nodeIndex === 0) {
+		return null;
+	}
+
+	return node.parent.getChildAt(nodeIndex - 1);
+}
+
+/**
+ * `<attribute>Change` is only raised by properties defined as prototype accessors;
+ * a plain instance value (e.g. Angular's `_ngcontent-*` markers) never notifies,
+ * so subscribing to its change event would be pure overhead.
+ */
+const notifyingAttributes = new WeakMap<object, Map<string, boolean>>();
+
+function attributeNotifiesChanges(node: Node, attribute: string): boolean {
+	const prototype = Object.getPrototypeOf(node);
+	if (!prototype) {
+		return false;
+	}
+
+	let cache = notifyingAttributes.get(prototype);
+	if (cache) {
+		const cached = cache.get(attribute);
+		if (cached !== undefined) {
+			return cached;
+		}
+	} else {
+		cache = new Map<string, boolean>();
+		notifyingAttributes.set(prototype, cache);
+	}
+
+	let notifies = false;
+	for (let current = prototype; current; current = Object.getPrototypeOf(current)) {
+		const descriptor = Object.getOwnPropertyDescriptor(current, attribute);
+		if (descriptor) {
+			notifies = !!descriptor.set;
+			break;
+		}
+	}
+
+	cache.set(attribute, notifies);
+
+	return notifies;
+}
+
+function applySelectorProperties(cls: any, specificity: number, rarity: number, dynamic = false): void {
+	cls.prototype.specificity = specificity;
+	cls.prototype.rarity = rarity;
+	cls.prototype.combinator = undefined;
+	cls.prototype.dynamic = dynamic;
+	cls.prototype.hasAdjacentCombinator = false;
+	cls.prototype.hasSiblingCombinator = false;
+	cls.prototype.tier = SelectorTier.Application;
+}
+
+function applyFunctionalPseudoClassProperties(cls: any, specificity: number, rarity: number, pseudoSelectorListType: number): void {
+	cls.prototype.specificity = specificity;
+	cls.prototype.rarity = rarity;
+	cls.prototype.combinator = undefined;
+	cls.prototype.dynamic = false;
+	cls.prototype.hasAdjacentCombinator = false;
+	cls.prototype.hasSiblingCombinator = false;
+	cls.prototype.pseudoSelectorListType = pseudoSelectorListType;
+}
+
+export abstract class SelectorBase {
+	/**
+	 * Dynamic selectors depend on attributes and pseudo classes.
+	 */
+	declare public dynamic: boolean;
+	/**
+	 * Selector contains an adjacent sibling ('+') combinator, so its match depends on the direct previous sibling.
+	 */
+	declare public hasAdjacentCombinator: boolean;
+	/**
+	 * Selector contains a general sibling ('~') combinator, so its match depends on all previous siblings.
+	 */
+	declare public hasSiblingCombinator: boolean;
+	public abstract match(node: Node): boolean;
+	public abstract mayMatch(node: Node): boolean;
+	public abstract trackChanges(node: Node, map: ChangeAccumulator): void;
+}
+
+export abstract class SelectorCore extends SelectorBase {
+	declare public pos: number;
+	declare public tier: SelectorTier;
+	declare public specificity: number;
+	declare public rarity: Rarity;
+	declare public combinator: Combinator;
+	declare public ruleset: RuleSet;
+
+	/**
+	 * If the selector is static returns if it matches the node.
+	 * If the selector is dynamic returns if it may match the node, and accumulates any changes that may affect its state.
+	 */
+	public abstract accumulateChanges(node: Node, map: ChangeAccumulator): boolean;
+	public lookupSort(sorter: LookupSorter, base?: SelectorCore): void {
+		sorter.sortAsUniversal(base || this);
+	}
+}
+applySelectorProperties(SelectorCore, Specificity.Universal, Rarity.Universal, Match.Static);
+
+export abstract class SimpleSelector extends SelectorCore {
+	public accumulateChanges(node: Node, map?: ChangeAccumulator): boolean {
+		if (!this.dynamic) {
+			return this.match(node);
+		} else if (this.mayMatch(node)) {
+			this.trackChanges(node, map!);
+
+			return true;
+		}
+
+		return false;
+	}
+	public mayMatch(node: Node): boolean {
+		return this.match(node);
+	}
+	public trackChanges(node: Node, map: ChangeAccumulator): void {
+		// No-op, silence the tslint 'block is empty'.
+		// Some derived classes (dynamic) will actually fill the map with stuff here, some (static) won't do anything.
+	}
+}
+
+function wrap(text: string): string {
+	return text ? ` ${text} ` : '';
+}
+
+export class InvalidSelector extends SimpleSelector {
+	declare public e: Error;
+
+	constructor(e: Error) {
+		super();
+		this.e = e;
+	}
+	public toString(): string {
+		return `<${this.e}>`;
+	}
+	public match(node: Node): boolean {
+		return false;
+	}
+	public lookupSort(sorter: LookupSorter, base?: SelectorCore): void {
+		// No-op, silence the tslint 'block is empty'.
+		// It feels like tslint has problems with simple polymorphism...
+		// This selector is invalid and will never match so we won't bother sorting it to further appear in queries.
+	}
+}
+applySelectorProperties(InvalidSelector, Specificity.Invalid, Rarity.Invalid, Match.Static);
+
+export class UniversalSelector extends SimpleSelector {
+	public toString(): string {
+		return `*${wrap(this.combinator)}`;
+	}
+	public match(node: Node): boolean {
+		return true;
+	}
+}
+applySelectorProperties(UniversalSelector, Specificity.Universal, Rarity.Universal, Match.Static);
+
+export class IdSelector extends SimpleSelector {
+	declare public id: string;
+
+	constructor(id: string) {
+		super();
+		this.id = id;
+	}
+	public toString(): string {
+		return `#${this.id}${wrap(this.combinator)}`;
+	}
+	public match(node: Node): boolean {
+		// Renderer ids are numeric node ids; the CSS id attribute lives on cssId.
+		return node.id === this.id || (node as any).cssId === this.id;
+	}
+	public lookupSort(sorter: LookupSorter, base?: SelectorCore): void {
+		sorter.sortById(this.id, base || this);
+	}
+}
+applySelectorProperties(IdSelector, Specificity.Id, Rarity.Id, Match.Static);
+
+export class TypeSelector extends SimpleSelector {
+	declare public cssType: string;
+
+	constructor(cssType: string) {
+		super();
+		this.cssType = cssType;
+	}
+	public toString(): string {
+		return `${this.cssType}${wrap(this.combinator)}`;
+	}
+	public match(node: Node): boolean {
+		return node.cssType === this.cssType;
+	}
+	public lookupSort(sorter: LookupSorter, base?: SelectorCore): void {
+		sorter.sortByType(this.cssType, base || this);
+	}
+}
+applySelectorProperties(TypeSelector, Specificity.Type, Rarity.Type, Match.Static);
+
+export class ClassSelector extends SimpleSelector {
+	declare public cssClass: string;
+
+	constructor(cssClass: string) {
+		super();
+		this.cssClass = cssClass;
+	}
+	public toString(): string {
+		return `.${this.cssClass}${wrap(this.combinator)}`;
+	}
+	public match(node: Node): boolean {
+		return !!(node.cssClasses && node.cssClasses.has(this.cssClass));
+	}
+	public lookupSort(sorter: LookupSorter, base?: SelectorCore): void {
+		sorter.sortByClass(this.cssClass, base || this);
+	}
+}
+applySelectorProperties(ClassSelector, Specificity.Class, Rarity.Class, Match.Static);
+
+export class AttributeSelector extends SimpleSelector {
+	declare public attribute: string;
+	declare public test: AttributeTest;
+	declare public value: string;
+	declare public ignoreCase: boolean;
+
+	constructor(attribute: string, test: AttributeTest, value: string, ignoreCase: boolean) {
+		super();
+
+		this.attribute = attribute;
+		this.test = test;
+		this.value = value;
+		this.ignoreCase = ignoreCase;
+
+		// Normalize once at construction instead of on every match
+		if (ignoreCase && value) {
+			this.value = value.toLowerCase();
+		}
+	}
+	public toString(): string {
+		return `[${this.attribute}${wrap(AttributeSelectorOperator[this.test] ?? this.test)}${this.value || ''}]${wrap(this.combinator)}`;
+	}
+	public match(node: Node): boolean {
+		let attr: any = (node as any)[this.attribute];
+
+		if (this.test === 'exists') {
+			return !isNullOrUndefined(attr);
+		}
+
+		if (!this.value) {
+			return false;
+		}
+
+		// Now, convert value to string
+		attr += '';
+
+		if (this.ignoreCase) {
+			attr = attr.toLowerCase();
+		}
+
+		// =
+		if (this.test === 'equals') {
+			return attr === this.value;
+		}
+
+		// ^=
+		if (this.test === 'start') {
+			return attr.startsWith(this.value);
+		}
+
+		// $=
+		if (this.test === 'end') {
+			return attr.endsWith(this.value);
+		}
+
+		// *=
+		if (this.test === 'any') {
+			return attr.indexOf(this.value) !== -1;
+		}
+
+		// ~=
+		if (this.test === 'element') {
+			const words = attr.split(' ');
+			return words && words.indexOf(this.value) !== -1;
+		}
+
+		// |=
+		if (this.test === 'hyphen') {
+			return attr === this.value || attr.startsWith(this.value + '-');
+		}
+		return false;
+	}
+	public mayMatch(node: Node): boolean {
+		// An attribute the node does not carry yet cannot be ruled out: assigning a
+		// plain instance value (Angular's `_ngcontent-*` markers, `[attr.x]` bindings)
+		// neither raises a change event nor invalidates the match, so a selector
+		// dropped here would never be reconsidered.
+		return true;
+	}
+	public trackChanges(node: Node, map: ChangeAccumulator): void {
+		if (attributeNotifiesChanges(node, this.attribute)) {
+			map.addAttribute(node, this.attribute);
+		}
+	}
+}
+applySelectorProperties(AttributeSelector, Specificity.Attribute, Rarity.Attribute, Match.Dynamic);
+
+export class PseudoClassSelector extends SimpleSelector {
+	declare public cssPseudoClass: string;
+
+	constructor(cssPseudoClass: string) {
+		super();
+		this.cssPseudoClass = cssPseudoClass;
+	}
+	public toString(): string {
+		return `:${this.cssPseudoClass}${wrap(this.combinator)}`;
+	}
+	public match(node: Node): boolean {
+		return !!(node.cssPseudoClasses && node.cssPseudoClasses.has(this.cssPseudoClass));
+	}
+	public mayMatch(node: Node): boolean {
+		return true;
+	}
+	public trackChanges(node: Node, map: ChangeAccumulator): void {
+		map.addPseudoClass(node, this.cssPseudoClass);
+	}
+}
+applySelectorProperties(PseudoClassSelector, Specificity.PseudoClass, Rarity.PseudoClass, Match.Dynamic);
+
+export abstract class FunctionalPseudoClassSelector extends PseudoClassSelector {
+	declare protected selectors: Array<SimpleSelector | SimpleSelectorSequence | ComplexSelector>;
+	declare protected selectorListType?: PseudoClassSelectorList;
+
+	constructor(cssPseudoClass: string, dataType: CSSWhatDataType) {
+		super(cssPseudoClass);
+
+		const selectors: Array<SimpleSelector | SimpleSelectorSequence | ComplexSelector> = [];
+		const needsHighestSpecificity: boolean = this.specificity === Specificity.SelectorListHighest;
+
+		let specificity: number = 0;
+
+		if (Array.isArray(dataType)) {
+			for (const asts of dataType) {
+				const selector: SimpleSelector | SimpleSelectorSequence | ComplexSelector = createSelectorFromAst(asts);
+
+				if (selector instanceof InvalidSelector) {
+					// Only forgiving selector list can ignore invalid selectors
+					if (this.selectorListType !== PseudoClassSelectorList.Forgiving) {
+						selectors.splice(0);
+						specificity = 0;
+						break;
+					}
+
+					continue;
+				}
+
+				// The specificity of some pseudo-classes is replaced by the specificity of the most specific selector in its comma-separated argument of selectors
+				if (needsHighestSpecificity && selector.specificity > specificity) {
+					specificity = selector.specificity;
+				}
+
+				selectors.push(selector);
+			}
+		}
+
+		this.selectors = selectors;
+		this.specificity = specificity;
+		// Functional pseudo-classes become dynamic based on selectors in selector list
+		this.dynamic = this.selectors.some((sel) => sel.dynamic);
+		this.hasAdjacentCombinator = this.selectors.some((sel) => sel.hasAdjacentCombinator);
+		this.hasSiblingCombinator = this.selectors.some((sel) => sel.hasSiblingCombinator);
+	}
+	public toString(): string {
+		return `:${this.cssPseudoClass}(${this.selectors.join(', ')})${wrap(this.combinator)}`;
+	}
+	public match(node: Node): boolean {
+		return false;
+	}
+	public mayMatch(node: Node): boolean {
+		return true;
+	}
+	public trackChanges(node: Node, map: ChangeAccumulator): void {
+		this.selectors.forEach((sel) => sel.trackChanges(node, map));
+	}
+}
+
+export class NotFunctionalPseudoClassSelector extends FunctionalPseudoClassSelector {
+	public match(node: Node): boolean {
+		return !this.selectors.some((sel) => sel.match(node));
+	}
+}
+applyFunctionalPseudoClassProperties(NotFunctionalPseudoClassSelector, Specificity.SelectorListHighest, Rarity.PseudoClass, PseudoClassSelectorList.Regular);
+
+export class IsFunctionalPseudoClassSelector extends FunctionalPseudoClassSelector {
+	public match(node: Node): boolean {
+		return this.selectors.some((sel) => sel.match(node));
+	}
+
+	public lookupSort(sorter: LookupSorter, base?: SelectorCore): void {
+		// A faster lookup can be performed when selector list contains just a single selector
+		if (this.selectors.length === 1) {
+			this.selectors[0].lookupSort(sorter, base || this);
+		} else {
+			super.lookupSort(sorter, base || this);
+		}
+	}
+}
+applyFunctionalPseudoClassProperties(IsFunctionalPseudoClassSelector, Specificity.SelectorListHighest, Rarity.PseudoClass, PseudoClassSelectorList.Forgiving);
+
+export class WhereFunctionalPseudoClassSelector extends FunctionalPseudoClassSelector {
+	public match(node: Node): boolean {
+		return this.selectors.some((sel) => sel.match(node));
+	}
+
+	public lookupSort(sorter: LookupSorter, base?: SelectorCore): void {
+		// A faster lookup can be performed when selector list contains just a single selector
+		if (this.selectors.length === 1) {
+			this.selectors[0].lookupSort(sorter, base || this);
+		} else {
+			super.lookupSort(sorter, base || this);
+		}
+	}
+}
+applyFunctionalPseudoClassProperties(WhereFunctionalPseudoClassSelector, Specificity.Zero, Rarity.PseudoClass, PseudoClassSelectorList.Forgiving);
+
+export class SimpleSelectorSequence extends SimpleSelector {
+	declare private head: SimpleSelector;
+	declare public selectors: SimpleSelector[];
+
+	constructor(selectors: SimpleSelector[]) {
+		super();
+		this.selectors = selectors;
+		this.specificity = selectors.reduce((sum, sel) => sel.specificity + sum, 0);
+		this.head = selectors.reduce<SimpleSelector | null>((prev, curr) => (!prev || curr.rarity > prev.rarity ? curr : prev), null)!;
+		this.dynamic = selectors.some((sel) => sel.dynamic);
+		this.hasAdjacentCombinator = selectors.some((sel) => sel.hasAdjacentCombinator);
+		this.hasSiblingCombinator = selectors.some((sel) => sel.hasSiblingCombinator);
+	}
+	public toString(): string {
+		return `${this.selectors.join('')}${wrap(this.combinator)}`;
+	}
+	public match(node: Node): boolean {
+		const selectors = this.selectors;
+		for (let i = 0, length = selectors.length; i < length; i++) {
+			if (!selectors[i].match(node)) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+	public mayMatch(node: Node): boolean {
+		const selectors = this.selectors;
+		for (let i = 0, length = selectors.length; i < length; i++) {
+			if (!selectors[i].mayMatch(node)) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+	public trackChanges(node: Node, map: ChangeAccumulator): void {
+		const selectors = this.selectors;
+		for (let i = 0, length = selectors.length; i < length; i++) {
+			selectors[i].trackChanges(node, map);
+		}
+	}
+	public lookupSort(sorter: LookupSorter, base?: SelectorCore): void {
+		this.head.lookupSort(sorter, base || this);
+	}
+}
+
+export class ChildGroup extends SelectorBase {
+	declare private selectors: SelectorBase[];
+
+	constructor(selectors: SelectorBase[]) {
+		super();
+		this.selectors = selectors;
+		this.dynamic = selectors.some((sel) => sel.dynamic);
+	}
+
+	public getMatchingNode(node: Node, strict: boolean): Node | null {
+		const selectors = this.selectors;
+		let current: Node | undefined = node;
+		for (let i = 0, length = selectors.length; i < length; i++) {
+			if (i !== 0) {
+				current = current?.parent;
+			}
+
+			if (!current) {
+				return null;
+			}
+
+			const sel = selectors[i];
+			if (!(strict ? sel.match(current) : sel.mayMatch(current))) {
+				return null;
+			}
+		}
+
+		return current;
+	}
+
+	public match(node: Node): boolean {
+		return this.getMatchingNode(node, true) != null;
+	}
+
+	public mayMatch(node: Node): boolean {
+		return this.getMatchingNode(node, false) != null;
+	}
+
+	public trackChanges(node: Node, map: ChangeAccumulator): void {
+		let current: Node | undefined = node;
+		this.selectors.forEach((sel, i) => {
+			if (i === 0) {
+				current && sel.trackChanges(current, map);
+			} else {
+				current = current?.parent;
+
+				if (current && sel.mayMatch(current)) {
+					sel.trackChanges(current, map);
+				}
+			}
+		});
+	}
+}
+
+export class SiblingGroup extends SelectorBase {
+	declare private selectors: SimpleSelector[];
+
+	constructor(selectors: SimpleSelector[]) {
+		super();
+		this.selectors = selectors;
+		this.dynamic = selectors.some((sel) => sel.dynamic);
+	}
+
+	public match(node: Node): boolean {
+		let current: Node | null | undefined = node;
+		return this.selectors.every((sel, i) => {
+			if (i === 0) {
+				return current && sel.match(current);
+			}
+
+			if (sel.combinator === Combinator.adjacent) {
+				current = current && getNodePreviousDirectSibling(current);
+				return current && sel.match(current);
+			}
+
+			// Sibling combinator
+			let isMatching: boolean = false;
+
+			current && eachNodePreviousGeneralSibling(current, (sibling) => {
+				isMatching = sel.match(sibling);
+				return !isMatching;
+			});
+
+			return isMatching;
+		});
+	}
+
+	public mayMatch(node: Node): boolean {
+		let current: Node | null | undefined = node;
+		return this.selectors.every((sel, i) => {
+			if (i === 0) {
+				return current && sel.mayMatch(current);
+			}
+
+			if (sel.combinator === Combinator.adjacent) {
+				current = current && getNodePreviousDirectSibling(current);
+				return current && sel.mayMatch(current);
+			}
+
+			// Sibling combinator
+			let isMatching: boolean = false;
+
+			current && eachNodePreviousGeneralSibling(current, (sibling) => {
+				isMatching = sel.mayMatch(sibling);
+				return !isMatching;
+			});
+
+			return isMatching;
+		});
+	}
+
+	public trackChanges(node: Node, map: ChangeAccumulator): void {
+		let current: Node | null | undefined = node;
+		this.selectors.forEach((sel, i) => {
+			if (i === 0) {
+				if (current) {
+					sel.trackChanges(current, map);
+				}
+			} else {
+				if (sel.combinator === Combinator.adjacent) {
+					current = current && getNodePreviousDirectSibling(current);
+					if (current && sel.mayMatch(current)) {
+						sel.trackChanges(current, map);
+					}
+				} else {
+					// Sibling combinator
+					let matchingSibling: Node | undefined;
+
+					current && eachNodePreviousGeneralSibling(current, (sibling) => {
+						const isMatching = sel.mayMatch(sibling);
+						if (isMatching) {
+							matchingSibling = sibling;
+						}
+
+						return !isMatching;
+					});
+
+					if (matchingSibling) {
+						sel.trackChanges(matchingSibling, map);
+					}
+				}
+			}
+		});
+	}
+}
+
+export interface Bound {
+	left: Node;
+	right: Node | null;
+}
+
+// Upstream `namespace Selector` — kept as a compat object so callers can use
+// `Selector.ChildGroup`/`Selector.SiblingGroup`/`Selector.Bound`.
+export const Selector = { ChildGroup, SiblingGroup };
+export type SelectorBound = Bound;
+
+export class ComplexSelector extends SelectorCore {
+	// Grouped by ancestor combinators, then by child combinators.
+	declare private groups: ChildGroup[];
+	declare private last: SelectorCore;
+	declare public selectors: SimpleSelector[];
+
+	constructor(selectors: SimpleSelector[]) {
+		super();
+		this.selectors = selectors;
+
+		let siblingsToGroup!: SimpleSelector[];
+		let currentGroup!: SimpleSelector[][];
+		const groups: SimpleSelector[][][] = [];
+
+		this.specificity = 0;
+		this.dynamic = false;
+		this.hasAdjacentCombinator = false;
+		this.hasSiblingCombinator = false;
+
+		for (let i = selectors.length - 1; i >= 0; i--) {
+			const sel = selectors[i];
+
+			switch (sel.combinator) {
+				case undefined:
+				case Combinator.descendant:
+					siblingsToGroup = [];
+					currentGroup = [siblingsToGroup];
+
+					groups.push(currentGroup);
+					break;
+				case Combinator.child:
+					siblingsToGroup = [];
+
+					currentGroup.push(siblingsToGroup);
+					break;
+				case Combinator.adjacent:
+					this.hasAdjacentCombinator = true;
+					break;
+				case Combinator.sibling:
+					this.hasSiblingCombinator = true;
+					break;
+				default:
+					throw new Error(`Unsupported combinator "${sel.combinator}" for selector ${sel}.`);
+			}
+
+			this.specificity += sel.specificity;
+
+			if (sel.dynamic) {
+				this.dynamic = true;
+			}
+
+			if (sel.hasAdjacentCombinator) {
+				this.hasAdjacentCombinator = true;
+			}
+
+			if (sel.hasSiblingCombinator) {
+				this.hasSiblingCombinator = true;
+			}
+
+			siblingsToGroup.push(sel);
+		}
+
+		this.groups = groups.map((g) => new ChildGroup(g.map((selectors) => (selectors.length > 1 ? new SiblingGroup(selectors) : selectors[0]))));
+		this.last = selectors[selectors.length - 1];
+	}
+
+	public toString(): string {
+		return this.selectors.join('');
+	}
+
+	public match(node: Node): boolean {
+		const groups = this.groups;
+		let current: Node | null | undefined = node;
+		for (let i = 0, length = groups.length; i < length; i++) {
+			const group = groups[i];
+			if (i === 0) {
+				current = current && group.getMatchingNode(current, true);
+				if (!current) {
+					return false;
+				}
+			} else {
+				let ancestor: Node | undefined = current ?? undefined;
+				let matched = false;
+				while ((ancestor = ancestor?.parent ?? ancestor?._modalParent)) {
+					if ((current = group.getMatchingNode(ancestor, true))) {
+						matched = true;
+						break;
+					}
+				}
+
+				if (!matched) {
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	public mayMatch(node: Node): boolean {
+		return false;
+	}
+
+	public trackChanges(node: Node, map: ChangeAccumulator): void {
+		const selectors = this.selectors;
+		for (let i = 0, length = selectors.length; i < length; i++) {
+			selectors[i].trackChanges(node, map);
+		}
+	}
+
+	public lookupSort(sorter: LookupSorter, base?: SelectorCore): void {
+		this.last.lookupSort(sorter, base || this);
+	}
+
+	public accumulateChanges(node: Node, map?: ChangeAccumulator): boolean {
+		if (!this.dynamic) {
+			return this.match(node);
+		}
+
+		let current: Node | null = node;
+		const bounds: Bound[] = [];
+		const mayMatch = this.groups.every((group, i) => {
+			if (i === 0) {
+				const nextNode = current && group.getMatchingNode(current, false);
+				bounds.push({ left: current as Node, right: current });
+				current = nextNode;
+
+				return !!current;
+			} else {
+				let ancestor: Node | undefined = current ?? undefined;
+				while ((ancestor = ancestor?.parent)) {
+					const nextNode = group.getMatchingNode(ancestor, false);
+					if (nextNode) {
+						bounds.push({ left: ancestor, right: null });
+						current = nextNode;
+
+						return true;
+					}
+				}
+
+				return false;
+			}
+		});
+
+		// Calculating the right bounds for each selectors won't save much
+		if (!mayMatch) {
+			return false;
+		}
+
+		if (!map) {
+			return mayMatch;
+		}
+
+		for (let i = 0; i < this.groups.length; i++) {
+			const group = this.groups[i];
+			if (!group.dynamic) {
+				continue;
+			}
+			const bound = bounds[i];
+			let current: Node | null | undefined = bound.left;
+			do {
+				if (current && group.mayMatch(current)) {
+					group.trackChanges(current, map);
+				}
+			} while (current !== bound.right && (current = current?.parent));
+		}
+
+		return mayMatch;
+	}
+}
+
+export class RuleSet {
+	declare public selectors: SelectorCore[];
+	declare public declarations: Declaration[];
+	declare public mediaQueryString?: string | string[];
+	declare public tag?: string | number;
+	declare public scopedTag?: string;
+	/** Cascade-layer rank per nesting depth; undefined/shortest path sorts after every layer (unlayered styles win). */
+	declare public layerPath?: number[];
+
+	constructor(selectors: SelectorCore[], declarations: Declaration[]) {
+		this.selectors = selectors;
+		this.declarations = declarations;
+		this.selectors.forEach((sel) => (sel.ruleset = this));
+	}
+	public toString(): string {
+		let desc = `${this.selectors.join(', ')} {${this.declarations.map((d, i) => `${i === 0 ? ' ' : ''}${d.property}: ${d.value}`).join('; ')} }`;
+		if (this.mediaQueryString) {
+			desc = `@media ${this.mediaQueryString} { ${desc} }`;
+		}
+		return desc;
+	}
+	public lookupSort(sorter: LookupSorter): void {
+		this.selectors.forEach((sel) => sel.lookupSort(sorter));
+	}
+}
+
+export function fromAstNode(astRule: ReworkCSS.Rule): RuleSet {
+	const declarations: Declaration[] = [];
+	const nodes = astRule.declarations;
+
+	for (let i = 0, length = nodes.length; i < length; i++) {
+		const node = nodes[i];
+		if (isDeclaration(node)) {
+			appendDeclaration(declarations, node);
+		}
+	}
+
+	const selectors = astRule.selectors.map(createSelector);
+
+	return new RuleSet(selectors, declarations);
+}
+
+function appendDeclaration(declarations: Declaration[], decl: ReworkCSS.Declaration): void {
+	const property = isCssVariable(decl.property) ? decl.property : decl.property.toLowerCase();
+	const value = cleanupImportantFlags(decl.value, decl.property);
+
+	// The cascade is defined on longhands: a shorthand declares each of its
+	// longhands in its place, so it is expanded here to keep source order meaningful.
+	const expanded = _expandCssShorthand(property, value);
+	if (expanded) {
+		for (let i = 0, length = expanded.length; i < length; i++) {
+			declarations.push({ property: expanded[i][0], value: expanded[i][1] });
+		}
+
+		return;
+	}
+
+	// A var()/calc() shorthand cannot be expanded yet - cascade one
+	// pending-substitution value per longhand instead.
+	const pending = _pendingCssShorthandSubstitution(property, value);
+	if (pending) {
+		for (let i = 0, length = pending.length; i < length; i++) {
+			declarations.push({ property: pending[i][0], value: pending[i][1] });
+		}
+
+		return;
+	}
+
+	declarations.push({ property, value });
+}
+
+function createSimpleSelectorFromAst(ast: CSSWhatSelector): SimpleSelector {
+	if (ast.type === 'attribute') {
+		if (ast.name === 'class') {
+			return new ClassSelector(ast.value);
+		}
+
+		if (ast.name === 'id') {
+			return new IdSelector(ast.value);
+		}
+
+		return new AttributeSelector(ast.name, ast.action as AttributeTest, ast.value, !!ast.ignoreCase);
+	}
+
+	if (ast.type === 'tag') {
+		return new TypeSelector(ast.name.replace('-', '').toLowerCase());
+	}
+
+	if (ast.type === 'pseudo') {
+		if (ast.name === 'is') {
+			return new IsFunctionalPseudoClassSelector(ast.name, ast.data);
+		}
+
+		if (ast.name === 'where') {
+			return new WhereFunctionalPseudoClassSelector(ast.name, ast.data);
+		}
+
+		if (ast.name === 'not') {
+			return new NotFunctionalPseudoClassSelector(ast.name, ast.data);
+		}
+
+		return new PseudoClassSelector(ast.name);
+	}
+
+	if (ast.type === 'universal') {
+		return new UniversalSelector();
+	}
+
+	return new InvalidSelector(new Error(ast.type));
+}
+
+function createSimpleSelectorSequenceFromAst(asts: CSSWhatSelector[]): SimpleSelectorSequence | SimpleSelector {
+	if (asts.length === 0) {
+		return new InvalidSelector(new Error('Empty simple selector sequence.'));
+	}
+
+	if (asts.length === 1) {
+		return createSimpleSelectorFromAst(asts[0]);
+	}
+
+	const sequenceSelectors: SimpleSelector[] = [];
+
+	for (const ast of asts) {
+		const selector = createSimpleSelectorFromAst(ast);
+		if (selector instanceof InvalidSelector) {
+			return selector;
+		}
+
+		sequenceSelectors.push(selector);
+	}
+
+	return new SimpleSelectorSequence(sequenceSelectors);
+}
+
+function createSelectorFromAst(asts: Array<CSSWhatSelector>): SimpleSelector | SimpleSelectorSequence | ComplexSelector {
+	let result: SimpleSelector | SimpleSelectorSequence | ComplexSelector;
+
+	if (asts.length === 0) {
+		return new InvalidSelector(new Error('Empty selector.'));
+	}
+
+	if (asts.length === 1) {
+		return createSimpleSelectorFromAst(asts[0]);
+	}
+
+	const simpleSelectorSequences: Array<SimpleSelector | SimpleSelectorSequence> = [];
+
+	let sequenceAsts: CSSWhatSelector[] = [];
+	let combinatorCount: number = 0;
+
+	for (const ast of asts) {
+		const combinator = (Combinator as Record<string, Combinator | undefined>)[ast.type];
+
+		// Combinator means the end of a sequence
+		if (combinator != null) {
+			const selector = createSimpleSelectorSequenceFromAst(sequenceAsts);
+
+			if (selector instanceof InvalidSelector) {
+				return selector;
+			}
+
+			selector.combinator = combinator;
+			simpleSelectorSequences.push(selector);
+
+			combinatorCount++;
+			// Cleanup stored selectors for the new sequence to take place
+			sequenceAsts = [];
+		} else {
+			sequenceAsts.push(ast);
+		}
+	}
+
+	if (combinatorCount > 0) {
+		// Create a sequence using the remaining selectors after the last combinator
+		if (sequenceAsts.length) {
+			const selector = createSimpleSelectorSequenceFromAst(sequenceAsts);
+
+			if (selector instanceof InvalidSelector) {
+				return selector;
+			}
+
+			simpleSelectorSequences.push(selector);
+		}
+		return new ComplexSelector(simpleSelectorSequences);
+	}
+
+	return createSimpleSelectorSequenceFromAst(sequenceAsts);
+}
+
+export function createSelector(sel: string): SimpleSelector | SimpleSelectorSequence | ComplexSelector {
+	try {
+		const result = convertToCSSWhatSelector(sel);
+		if (!result?.length) {
+			return new InvalidSelector(new Error('Empty selector'));
+		}
+
+		return createSelectorFromAst(result[0]);
+	} catch (e) {
+		return new InvalidSelector(e as Error);
+	}
+}
+
+function isDeclaration(node: ReworkCSS.Node): node is ReworkCSS.Declaration {
+	return node.type === 'declaration';
+}
+
+export function matchMediaQueryString(mediaQueryString: string | string[], cachedQueries: string[]): boolean {
+	if (!mediaQueryString) {
+		return false;
+	}
+
+	if (typeof mediaQueryString === 'string') {
+		// Query has already been validated
+		if (cachedQueries.includes(mediaQueryString)) {
+			return true;
+		}
+
+		const result = checkIfMediaQueryMatches(mediaQueryString);
+		if (result) {
+			cachedQueries.push(mediaQueryString);
+			return result;
+		}
+
+		return false;
+	}
+
+	for (let i = 0, length = mediaQueryString.length; i < length; i++) {
+		const mq = mediaQueryString[i];
+
+		// Query has already been validated
+		if (cachedQueries.includes(mq)) {
+			continue;
+		}
+
+		if (!checkIfMediaQueryMatches(mq)) {
+			return false;
+		}
+
+		cachedQueries.push(mq);
+	}
+
+	return true;
+}
+
+interface SelectorMap {
+	[key: string]: SelectorCore[];
+}
+
+function appendSelectorCandidates(candidates: SelectorCore[], selectors: SelectorCore[] | undefined): void {
+	if (selectors) {
+		for (let i = 0, length = selectors.length; i < length; i++) {
+			candidates.push(selectors[i]);
+		}
+	}
+}
+
+export abstract class SelectorScope<T extends Node> implements LookupSorter {
+	private id: SelectorMap = {};
+	private class: SelectorMap = {};
+	private type: SelectorMap = {};
+	private universal: SelectorCore[] = [];
+
+	public position: number = 0;
+	public tier: SelectorTier = SelectorTier.Application;
+
+	/**
+	 * True when any selector in the scope contains an adjacent sibling ('+') combinator.
+	 */
+	public hasAdjacentCombinatorSelectors = false;
+	/**
+	 * True when any selector in the scope contains a general sibling ('~') combinator.
+	 */
+	public hasSiblingCombinatorSelectors = false;
+
+	getSelectorCandidates(node: T, candidates: SelectorCore[] = []): SelectorCore[] {
+		const { cssClasses, id, cssType } = node;
+
+		appendSelectorCandidates(candidates, this.universal);
+
+		if (id) {
+			appendSelectorCandidates(candidates, this.id[id]);
+		}
+
+		if (cssType) {
+			appendSelectorCandidates(candidates, this.type[cssType]);
+		}
+
+		if (cssClasses && cssClasses.size) {
+			const classSelectors = this.class;
+			for (const cssClass of cssClasses) {
+				appendSelectorCandidates(candidates, classSelectors[cssClass]);
+			}
+		}
+
+		return candidates;
+	}
+
+	sortById(id: string, sel: SelectorCore): void {
+		this.addToMap(this.id, id, sel);
+	}
+	sortByClass(cssClass: string, sel: SelectorCore): void {
+		this.addToMap(this.class, cssClass, sel);
+	}
+	sortByType(cssType: string, sel: SelectorCore): void {
+		this.addToMap(this.type, cssType, sel);
+	}
+	sortAsUniversal(sel: SelectorCore): void {
+		this.universal.push(this.makeDocSelector(sel));
+	}
+
+	private addToMap(map: SelectorMap, head: string, sel: SelectorCore): void {
+		if (!map[head]) {
+			map[head] = [];
+		}
+
+		map[head].push(this.makeDocSelector(sel));
+	}
+
+	private makeDocSelector(sel: SelectorCore): SelectorCore {
+		if (sel.hasAdjacentCombinator) {
+			this.hasAdjacentCombinatorSelectors = true;
+		}
+
+		if (sel.hasSiblingCombinator) {
+			this.hasSiblingCombinatorSelectors = true;
+		}
+
+		sel.pos = this.position++;
+		sel.tier = this.tier;
+
+		return sel;
+	}
+}
+
+export class MediaQuerySelectorScope<T extends Node> extends SelectorScope<T> {
+	declare private _mediaQueryString: string | string[];
+
+	constructor(mediaQueryString: string | string[], tier: SelectorTier) {
+		super();
+
+		this._mediaQueryString = mediaQueryString;
+		this.tier = tier;
+	}
+
+	get mediaQueryString(): string | string[] {
+		return this._mediaQueryString;
+	}
+}
+
+export class StyleSheetSelectorScope<T extends Node> extends SelectorScope<T> {
+	declare private mediaQuerySelectorScopes?: MediaQuerySelectorScope<T>[];
+
+	constructor(rulesets: RuleSet[], tier: SelectorTier = SelectorTier.Application) {
+		super();
+
+		this.tier = tier;
+		this.lookupRulesets(rulesets);
+	}
+
+	/**
+	 * Index rulesets added after this scope was built; the rules already indexed
+	 * keep their positions.
+	 */
+	public appendRulesets(rulesets: RuleSet[], from: number): void {
+		this.lookupRulesets(rulesets, from);
+	}
+
+	private createMediaQuerySelectorScope(mediaQueryString: string | string[]): MediaQuerySelectorScope<T> {
+		const selectorScope = new MediaQuerySelectorScope(mediaQueryString, this.tier);
+		selectorScope.position = this.position;
+
+		if (this.mediaQuerySelectorScopes) {
+			this.mediaQuerySelectorScopes.push(selectorScope);
+		} else {
+			this.mediaQuerySelectorScopes = [selectorScope];
+		}
+
+		return selectorScope;
+	}
+
+	private lookupRulesets(rulesets: RuleSet[], from = 0) {
+		let lastMediaSelectorScope: MediaQuerySelectorScope<T> | undefined;
+
+		for (let i = from, length = rulesets.length; i < length; i++) {
+			const ruleset = rulesets[i];
+
+			if (lastMediaSelectorScope && lastMediaSelectorScope.mediaQueryString !== ruleset.mediaQueryString) {
+				// Once done with current media query scope, update stylesheet scope position
+				this.position = lastMediaSelectorScope.position;
+				lastMediaSelectorScope = undefined;
+			}
+
+			if (ruleset.mediaQueryString) {
+				// Create media query selector scope and register selector lookups there
+				if (!lastMediaSelectorScope) {
+					lastMediaSelectorScope = this.createMediaQuerySelectorScope(ruleset.mediaQueryString);
+				}
+
+				ruleset.lookupSort(lastMediaSelectorScope);
+			} else {
+				ruleset.lookupSort(this);
+			}
+		}
+
+		// If reference of last media selector scope is still kept, update stylesheet scope position
+		if (lastMediaSelectorScope) {
+			this.position = lastMediaSelectorScope.position;
+			lastMediaSelectorScope = undefined;
+		}
+
+		// Media query scopes are queried through this scope, so their combinator flags roll up
+		if (this.mediaQuerySelectorScopes) {
+			for (const selectorScope of this.mediaQuerySelectorScopes) {
+				if (selectorScope.hasAdjacentCombinatorSelectors) {
+					this.hasAdjacentCombinatorSelectors = true;
+				}
+
+				if (selectorScope.hasSiblingCombinatorSelectors) {
+					this.hasSiblingCombinatorSelectors = true;
+				}
+			}
+		}
+	}
+
+	/**
+	 * Append every selector that could match the node, matching media query scopes
+	 * included, for `matchSelectorCandidates` to resolve.
+	 */
+	public collectCandidates(node: T, candidates: SelectorCore[] = []): SelectorCore[] {
+		this.getSelectorCandidates(node, candidates);
+
+		// Validate media queries and include their selectors if needed
+		if (this.mediaQuerySelectorScopes) {
+			// Cache media query results to avoid validations of other identical queries
+			const validatedMediaQueries: string[] = [];
+
+			for (let i = 0, length = this.mediaQuerySelectorScopes.length; i < length; i++) {
+				const selectorScope = this.mediaQuerySelectorScopes[i];
+				const isMatchingAllQueries = matchMediaQueryString(selectorScope.mediaQueryString, validatedMediaQueries);
+
+				if (isMatchingAllQueries) {
+					selectorScope.getSelectorCandidates(node, candidates);
+				}
+			}
+		}
+
+		return candidates;
+	}
+
+	query(node: T): SelectorsMatch<T> {
+		return matchSelectorCandidates(node, this.collectCandidates(node));
+	}
+}
+
+/**
+ * Cascade layers order before specificity: rules in an earlier-declared layer lose
+ * to rules in a later-declared layer regardless of specificity, and unlayered
+ * rules (absent rank at a depth) beat every layered rule.
+ */
+function compareLayerPaths(a: number[] | undefined, b: number[] | undefined): number {
+	const aLength = a?.length ?? 0;
+	const bLength = b?.length ?? 0;
+	const length = Math.max(aLength, bLength);
+	for (let i = 0; i < length; i++) {
+		const rankA = i < aLength ? a![i] : Number.POSITIVE_INFINITY;
+		const rankB = i < bLength ? b![i] : Number.POSITIVE_INFINITY;
+		if (rankA !== rankB) {
+			return rankA - rankB;
+		}
+	}
+	return 0;
+}
+
+/** Cascade order: cascade layer, then specificity, then source order - (tier, position) across stylesheets. */
+function compareSelectors(a: SelectorCore, b: SelectorCore): number {
+	return compareLayerPaths(a.ruleset?.layerPath, b.ruleset?.layerPath) || a.specificity - b.specificity || a.tier - b.tier || a.pos - b.pos;
+}
+
+/**
+ * Resolve collected candidates against a node, compacting the array in place.
+ * `scopedTags` filters out rules registered on behalf of a stylesheet this scope
+ * never loaded; pass it only when such rules exist - it costs a lookup per candidate.
+ */
+export function matchSelectorCandidates<T extends Node>(node: T, candidates: SelectorCore[], scopedTags?: Set<string>): SelectorsMatch<T> {
+	const selectorsMatch = new SelectorsMatch<T>();
+
+	let matched = 0;
+	for (let i = 0, length = candidates.length; i < length; i++) {
+		const selector = candidates[i];
+
+		if (scopedTags) {
+			const scopedTag = selector.ruleset?.scopedTag;
+			if (scopedTag && !scopedTags.has(scopedTag)) {
+				continue;
+			}
+		}
+
+		if (selector.accumulateChanges(node, selectorsMatch)) {
+			candidates[matched++] = selector;
+		}
+	}
+	candidates.length = matched;
+
+	selectorsMatch.selectors = candidates.sort(compareSelectors);
+
+	return selectorsMatch;
+}
+
+interface ChangeAccumulator {
+	addAttribute(node: Node, attribute: string): void;
+	addPseudoClass(node: Node, pseudoClass: string): void;
+}
+
+/** Shared by matches that track nothing; a real map is materialized on first write. */
+const emptyChangeMap: ChangeMap<any> = new Map();
+
+export class SelectorsMatch<T extends Node> implements ChangeAccumulator {
+	public changeMap: ChangeMap<T> = emptyChangeMap;
+	declare public selectors: SelectorCore[];
+
+	public addAttribute(node: T, attribute: string): void {
+		const deps: Changes = this.properties(node);
+		if (!deps.attributes) {
+			deps.attributes = new Set();
+		}
+		deps.attributes.add(attribute);
+	}
+
+	public addPseudoClass(node: T, pseudoClass: string): void {
+		const deps: Changes = this.properties(node);
+		if (!deps.pseudoClasses) {
+			deps.pseudoClasses = new Set();
+		}
+		deps.pseudoClasses.add(pseudoClass);
+	}
+
+	public properties(node: T): Changes {
+		let changeMap = this.changeMap;
+		if (changeMap === emptyChangeMap) {
+			this.changeMap = changeMap = new Map<T, Changes>();
+		}
+
+		let set = changeMap.get(node);
+		if (!set) {
+			changeMap.set(node, (set = {}));
+		}
+
+		return set;
+	}
+}
+
+export const CSSHelper = {
+	createSelector,
+	SelectorCore,
+	SimpleSelector,
+	InvalidSelector,
+	UniversalSelector,
+	TypeSelector,
+	ClassSelector,
+	AttributeSelector,
+	PseudoClassSelector,
+	SimpleSelectorSequence,
+	Selector,
+	RuleSet,
+	SelectorScope,
+	MediaQuerySelectorScope,
+	StyleSheetSelectorScope,
+	matchSelectorCandidates,
+	SelectorsMatch,
+};

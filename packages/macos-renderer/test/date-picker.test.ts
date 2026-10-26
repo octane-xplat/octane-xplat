@@ -1,4 +1,4 @@
-import { runInNewContext } from 'node:vm'
+import { runSlice } from './mock-globals.ts'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { NSDatePicker } from '@octane-xplat/platform/macos'
@@ -36,7 +36,7 @@ function fixture() {
 		bottomAnchor: anchor(),
 	}
 
-	const context = runInNewContext(
+	const context = runSlice(
 		dateFromMillis + '\n' + slice + '\n({ attach: (v, o, c) => attachDatePicker(v, o, c) })',
 		{
 		elementBehaviors: new Map(),

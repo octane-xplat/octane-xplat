@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { runInNewContext } from 'node:vm'
+import { runSlice } from './mock-globals.ts'
 import { sourceWithoutImports } from './mock-globals.ts'
 
 // applyProps merges each update into node.props — a prop dropped by a host
@@ -49,7 +49,7 @@ function fixture() {
 		console,
 	}
 
-	const api = runInNewContext(prefix + slices + '\n;({ applyCommand })', sandbox)
+	const api = runSlice(prefix + slices + '\n;({ applyCommand })', sandbox)
 
 	const container = { nodes: new Map<number, any>(), children: [] }
 	return { ...api, container, applied }
@@ -200,7 +200,7 @@ applyPropsSandbox.elementBehaviors = new Map([
 ])
 applyPropsSandbox.behaviorOf = (t: string) => applyPropsSandbox.elementBehaviors.get(t)
 
-const applyPropsApi = runInNewContext(
+const applyPropsApi = runSlice(
 	source.slice(at('function applyProps('), at('\nfunction detach(')) + '\n;({ applyProps })',
 	new Proxy(applyPropsSandbox, {
 		get(target, key: string | symbol) {

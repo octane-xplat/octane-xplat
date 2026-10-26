@@ -1,4 +1,4 @@
-import { runInNewContext } from 'node:vm'
+import { runSlice } from './mock-globals.ts'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { sourceWithoutImports } from './mock-globals.ts'
@@ -19,7 +19,7 @@ test('AppKit checkbox role/value/help update and disabled controls reject AX pre
 	const ids = new WeakMap()
 	const handlers = new Map()
 	let presses = 0
-	const { AccessibleHostView, applyAccessibility } = runInNewContext(
+	const { AccessibleHostView, applyAccessibility } = runSlice(
 		stack + '\n' + apply + '\n({ AccessibleHostView, applyAccessibility })',
 		{
 		elementBehaviors: new Map(),

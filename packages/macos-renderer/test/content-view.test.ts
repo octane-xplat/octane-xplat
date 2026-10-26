@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { runInNewContext } from 'node:vm'
+import { runSlice } from './mock-globals.ts'
 import { sourceWithoutImports } from './mock-globals.ts'
 
 // Exercise the production slot and placement paths, not a replica of them.
@@ -55,7 +55,7 @@ function fixture(type = 'contentview') {
 	}
 
 	const container = { nodes: new Map([[1, parent]]), children: [] }
-	const api = runInNewContext(
+	const api = runSlice(
 		[
 			'layoutLength',
 			'pinLayoutChild',

@@ -56,10 +56,13 @@
 		"typecheck": "tsc --noEmit -p tsconfig.json"
 	},
 	"dependencies": {
+		"@csstools/css-calc": "2.1.4",
 		"@nativescript/macos-node-api": "catalog:",
 		"@nativescript/objc-node-api": "1.0.0-alpha.7",
 		"@octane-xplat/platform": "workspace:*",
 		"acorn": "8.15.0",
+		"css-tree": "3.2.1",
+		"css-what": "7.0.0",
 		"saxes": "6.0.0"
 	},
 	"devDependencies": {

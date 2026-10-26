@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { runInNewContext } from 'node:vm'
+import { runSlice } from './mock-globals.ts'
 import { sourceWithoutImports } from './mock-globals.ts'
 
 // Exercise the production factory, event and validation paths, not replicas.
@@ -105,7 +105,7 @@ function fixture(props: any = {}) {
 		},
 	}
 
-	const api = runInNewContext(
+	const api = runSlice(
 		placeholderHostClass +
 			'\n' +
 			['makePlaceholder', 'fireCreatingView', 'validateNodeProps', 'applyProps']
@@ -301,7 +301,7 @@ test('insert attaches the host, fires creatingView once, survives a keyed move',
 	}
 
 	parent.container = container
-	const api = runInNewContext(
+	const api = runSlice(
 		placeholderHostClass +
 			'\n' +
 			[
@@ -367,7 +367,7 @@ test('validateNodeProps rejects a non-function onCreatingView', () => {
 })
 
 test('placeholder rejects JSX children through the shared nesting rule', () => {
-	const api = runInNewContext(fn('validateTextNesting') + '\n;({validateTextNesting})', {
+	const api = runSlice(fn('validateTextNesting') + '\n;({validateTextNesting})', {
 		elementBehaviors: new Map(),
 		behaviorOf: () => undefined,
 		isManualLayoutParent: (t: string) =>

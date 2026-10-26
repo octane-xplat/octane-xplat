@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
 import { test } from 'node:test'
-import { runInNewContext } from 'node:vm'
+import { runSlice } from './mock-globals.ts'
 
 const source = stripTypeScriptTypes(
 	readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
@@ -24,7 +24,7 @@ function controlFixture() {
 		source.indexOf('\nfunction applyProps('),
 	)
 
-	const api = runInNewContext(
+	const api = runSlice(
 		constants +
 			'\n' +
 			[
@@ -90,7 +90,7 @@ function controlFixture() {
 const dateValue = (view: any) => new Date(view.dateValue.timeIntervalSince1970 * 1000)
 
 test('TimePicker rejects children and accepts all maintained layout parents', () => {
-	const api = runInNewContext(fn('validateTextNesting') + '\n({validateTextNesting})')
+	const api = runSlice(fn('validateTextNesting') + '\n({validateTextNesting})')
 	for (const child of ['label', '#text', 'span', 'timepicker']) {
 		assert.throws(() => api.validateTextNesting('timepicker', child), /cannot contain JSX children/)
 	}
@@ -120,7 +120,7 @@ test('TimePicker production ownership moves its native host between parents and 
 		},
 	})
 
-	const api = runInNewContext(
+	const api = runSlice(
 		[
 			'parentReference',
 			'resolveParentNode',

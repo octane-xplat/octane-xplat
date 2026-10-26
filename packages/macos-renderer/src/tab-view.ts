@@ -281,7 +281,7 @@ export function syncTabItem(node: ElementNode) {
 
 	const item = node.tabNativeItem
 	item.label = node.props.title ?? ''
-	const style = node.props.style ?? {}
+	const style = node.computedStyle ?? node.props.style ?? {}
 	const fontInputs =
 		typeof node.props.iconSource === 'string' && node.props.iconSource.startsWith('font://')
 			? [style.fontSize, style.fontWeight, style.fontFamily, style.iconFontFamily, style.color]

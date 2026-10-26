@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { runInNewContext } from 'node:vm'
+import { runSlice } from './mock-globals.ts'
 import { sourceWithoutImports } from './mock-globals.ts'
 
 // Exercise the placement-pin contract without the Objective-C bridge.
@@ -20,7 +20,7 @@ const layout =
 		source.indexOf('// Width/height percentages use the parent'),
 	)
 
-const { pinLayoutChild, releasePlacementPins } = runInNewContext(
+const { pinLayoutChild, releasePlacementPins } = runSlice(
 	layout + '\n({ pinLayoutChild, releasePlacementPins })',
 	{ queueMicrotask: undefined },
 )

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { runInNewContext } from 'node:vm'
+import { runSlice } from './mock-globals.ts'
 import { sourceWithoutImports } from './mock-globals.ts'
 
 const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
@@ -8,7 +8,7 @@ const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
 const slice = (start, end) => source.slice(source.indexOf(start), source.indexOf(end))
 const modes = { WordWrapping: 0, Clipping: 2, TruncatingTail: 4 }
 function fixture() {
-	const { applyProps } = runInNewContext(
+	const { applyProps } = runSlice(
 		slice('function syncLabelOverflow(', 'function syncTextViewPlaceholder(') +
 			slice('function applyProps(', 'function detach(') +
 			'\n({ applyProps })',

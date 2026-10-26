@@ -173,7 +173,7 @@ test('queued geometry work is cancelled on removal and flipped origin stays at z
 
 // Exercise the existing renderer scroll dispatch as well as the layout helper:
 // geometry work must not invent new scroll fields or call a stale handler.
-import { runInNewContext } from 'node:vm'
+import { runSlice } from './mock-globals.ts'
 
 test('existing onScroll event shape and latest callback survive replacement and removal', () => {
 	const { node, clip, observers } = fixture()
@@ -181,7 +181,7 @@ test('existing onScroll event shape and latest callback survive replacement and 
 
 	const start = source.indexOf('function setScrollAction(')
 	const code = source.slice(start, source.indexOf('\nconst layoutHandlers', start))
-	const setScrollAction = runInNewContext(code + '\nsetScrollAction', {
+	const setScrollAction = runSlice(code + '\nsetScrollAction', {
 		elementBehaviors: new Map(),
 		behaviorOf: () => undefined,
 		isManualLayoutParent: (t: string) =>

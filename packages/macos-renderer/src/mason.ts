@@ -223,7 +223,7 @@ function edgeBox(value: any): { top: number; left: number; bottom: number; right
  *  dockInsets, class*) layer underneath. */
 function styleDict(node: NodeLike): Record<string, any> {
 	const props = node.props ?? {}
-	const style = props.style ?? {}
+	const style = node.computedStyle ?? props.style ?? {}
 	const out: Record<string, any> = {}
 
 	for (const key of ENUM_STYLE_KEYS) {
@@ -533,7 +533,7 @@ export function layoutMasonChildren(
 	} else {
 		// Container roots are sized by their parent's layout; give the root
 		// node explicit dims so it doesn't shrink-wrap to content.
-		const style = parent.props?.style ?? {}
+		const style = parent.computedStyle ?? parent.props?.style ?? {}
 		if (style.width == null || style.height == null) {
 			const dict = styleDict(parent)
 			if (style.width == null && !parent.sizeConstraintSpecs?.width) {

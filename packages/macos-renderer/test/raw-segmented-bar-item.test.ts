@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
 import { test } from 'node:test'
-import { runInNewContext } from 'node:vm'
+import { runSlice } from './mock-globals.ts'
 
 const source = stripTypeScriptTypes(
 	readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
@@ -16,7 +16,7 @@ const fn = (name: string) => {
 
 function fixture() {
 	const noop = () => {}
-	const api = runInNewContext(
+	const api = runSlice(
 		source.slice(
 			source.indexOf('function droppedPropClears('),
 			source.indexOf('\nfunction applyProps('),

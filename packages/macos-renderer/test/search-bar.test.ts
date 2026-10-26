@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
 import { test } from 'node:test'
-import { runInNewContext } from 'node:vm'
+import { runSlice } from './mock-globals.ts'
 
 const source = stripTypeScriptTypes(
 	readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
@@ -14,7 +14,7 @@ function fixture() {
 		textNodesByView = new WeakMap(),
 		scopes: string[] = []
 
-	const api = runInNewContext(
+	const api = runSlice(
 		[
 			slice('class ButtonActionTarget', 'const buttonActionTarget'),
 			slice('function makeSearchBar(', 'function makeSwitch('),
@@ -180,7 +180,7 @@ test('SearchBar delegate lookup does not dispatch after its ownership is release
 })
 
 test('SearchBar rejects view, text and projected children in batch preflight', () => {
-	const { validateBatch } = runInNewContext(
+	const { validateBatch } = runSlice(
 		slice('const VIEW_PARENT_TYPES', '/** Deterministic prop failures') +
 			slice('function parentReference(', 'function isPortalTargetView(') +
 			slice('function validateTextNesting(', 'function insert(') +

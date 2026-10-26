@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { runInNewContext } from 'node:vm'
+import { runSlice } from './mock-globals.ts'
 import { sourceWithoutImports } from './mock-globals.ts'
 
 const source = sourceWithoutImports(new URL('../src/gestures.ts', import.meta.url)).replaceAll(
@@ -24,7 +24,7 @@ function fixture() {
 		reset() {}
 	}
 
-	const api = runInNewContext(
+	const api = runSlice(
 		source +
 			'\n({ setPressGesture, disposePressGestures, configureGesture, swipeDirection, target, delegate })',
 		{
@@ -207,7 +207,7 @@ function panFixture() {
 		renderer.indexOf('const buttonActionTarget'),
 	)
 
-	const api = runInNewContext(
+	const api = runSlice(
 		targetSource +
 			'\n' +
 			rendererFunction('setPanAction') +
@@ -297,7 +297,7 @@ test('primary press callbacks guard disabled state even when a native action is 
 	const events = []
 	// Read the production action closure installed by setAction.
 	const handlers = new Map()
-	const fn = runInNewContext(rendererFunction('setAction') + '\nsetAction', {
+	const fn = runSlice(rendererFunction('setAction') + '\nsetAction', {
 		actionHandlers: handlers,
 		configureGesture: (r) => r,
 		nextActionId: 1,
@@ -316,7 +316,7 @@ test('primary press callbacks guard disabled state even when a native action is 
 
 test('JSC gesture registration makes native callbacks enumerable before registration', () => {
 	let registered
-	const register = runInNewContext(source + '\nregisterGestureClass', {
+	const register = runSlice(source + '\nregisterGestureClass', {
 		elementBehaviors: new Map(),
 		behaviorOf: () => undefined,
 		isManualLayoutParent: (t: string) =>

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { runInNewContext } from 'node:vm'
+import { runSlice } from './mock-globals.ts'
 import { sourceWithoutImports } from './mock-globals.ts'
 
 test('native layout reentry is bounded per view and released after errors', () => {
@@ -24,7 +24,7 @@ test('native layout reentry is bounded per view and released after errors', () =
 			}
 		}
 	}
-	const { create } = runInNewContext(
+	const { create } = runSlice(
 		sourceWithoutImports(new URL('../src/mason.ts', import.meta.url)).replaceAll('export ', '') +
 			'\ndeps = { baseView: NSView }; MasonLayoutView = createMasonLayoutView(); ({ create: () => MasonLayoutView.alloc().initWithFrame() })',
 		{ NSView: BaseView, NativeClass: () => {} },

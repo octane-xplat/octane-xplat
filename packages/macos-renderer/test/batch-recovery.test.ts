@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { runInNewContext } from 'node:vm'
+import { runSlice } from './mock-globals.ts'
 import { validateTextStyle } from '../src/formatted-text.ts'
 import { sourceWithoutImports } from './mock-globals.ts'
 
@@ -139,7 +139,7 @@ function fixture({ applyProps }: { applyProps?: any } = {}) {
 		makeImageView: () => fakeView('image'),
 	}
 
-	const api = runInNewContext(
+	const api = runSlice(
 		prefix +
 			slices +
 			'\n;({ makeNode, destroy, validateBatch, applyCommand, validateNodeProps, macOSDriver })',

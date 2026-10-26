@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { runInNewContext } from 'node:vm'
+import { runSlice } from './mock-globals.ts'
 import { sourceWithoutImports } from './mock-globals.ts'
 
 // Exercise the production host construction and layout dispatch, not replicas.
@@ -87,7 +87,7 @@ function makeContext() {
 }
 
 test('liquidglass is a supported view-parent type', () => {
-	const { SUPPORTED_TYPES, VIEW_PARENT_TYPES, assertSupportedType, typeHasView } = runInNewContext(
+	const { SUPPORTED_TYPES, VIEW_PARENT_TYPES, assertSupportedType, typeHasView } = runSlice(
 		supportedSets +
 			fn('typeHasView') +
 			fn('assertSupportedType') +
@@ -104,7 +104,7 @@ test('liquidglass is a supported view-parent type', () => {
 
 test('makeLiquidGlass pins a glass material behind grid children', () => {
 	const context = makeContext()
-	const { makeLiquidGlass } = runInNewContext(
+	const { makeLiquidGlass } = runSlice(
 		liquidGlassClass + '\n' + fn('makeLiquidGlass') + '\n;({ makeLiquidGlass })',
 		context,
 	)
@@ -130,7 +130,7 @@ test('a frame change queues the host layout reconcile', () => {
 	const context = makeContext()
 	const calls: any[] = []
 	context.queueLayoutReconcile = (container: any, node: any) => calls.push([container, node])
-	const { makeLiquidGlass } = runInNewContext(
+	const { makeLiquidGlass } = runSlice(
 		liquidGlassClass + '\n' + fn('makeLiquidGlass') + '\n;({ makeLiquidGlass })',
 		context,
 	)
@@ -147,7 +147,7 @@ test('the host layout dispatches to the registered behavior for the node', () =>
 	const calls: any[] = []
 	context.behaviorOf = (type: string) =>
 		type === 'liquidglass' ? { layout: (node: any) => calls.push(node) } : undefined
-	const { makeLiquidGlass } = runInNewContext(
+	const { makeLiquidGlass } = runSlice(
 		liquidGlassClass + '\n' + fn('makeLiquidGlass') + '\n;({ makeLiquidGlass })',
 		context,
 	)

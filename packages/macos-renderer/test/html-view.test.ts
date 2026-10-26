@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
 import { test } from 'node:test'
-import { runInNewContext } from 'node:vm'
+import { runSlice } from './mock-globals.ts'
 import { htmlDocument, parseHtmlText, validateHtmlProps } from '../src/html-text.ts'
 
 const defaults = {
@@ -109,7 +109,7 @@ const fn = (name: string) => {
 }
 
 test('HtmlView rejects all JSX children before mutation, but is a valid layout child', () => {
-	const api = runInNewContext(fn('validateTextNesting') + '\n({validateTextNesting})')
+	const api = runSlice(fn('validateTextNesting') + '\n({validateTextNesting})')
 	for (const child of ['label', 'span', 'formattedstring', '#text', 'htmlview']) {
 		assert.throws(() => api.validateTextNesting('htmlview', child), /takes html content/)
 	}
@@ -123,7 +123,7 @@ test('HtmlView updates reconcile content only after font/color sources, preservi
 	let invalidations = 0,
 		reconciles = 0
 
-	const api = runInNewContext(fn('syncHtmlView') + '\n({syncHtmlView})', {
+	const api = runSlice(fn('syncHtmlView') + '\n({syncHtmlView})', {
 		elementBehaviors: new Map(),
 		behaviorOf: () => undefined,
 		isManualLayoutParent: (t: string) =>
@@ -180,7 +180,7 @@ test('HtmlView production ownership moves its native host between parents and re
 		},
 	})
 
-	const api = runInNewContext(
+	const api = runSlice(
 		[
 			'parentReference',
 			'resolveParentNode',

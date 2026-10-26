@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { runInNewContext } from 'node:vm'
+import { runSlice } from './mock-globals.ts'
 import { sourceWithoutImports } from './mock-globals.ts'
 
 const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
@@ -27,7 +27,7 @@ function fixture() {
 	const placements: any[] = [],
 		released: any[] = []
 
-	const api = runInNewContext(
+	const api = runSlice(
 		fn('validateActionBarTitleView') +
 			'\n' +
 			fn('setActionBarTitleView') +
@@ -151,7 +151,7 @@ test('a raw view without intrinsic metrics retains its supplied dimensions', () 
 
 test('ActionBar rejects non-NSView titleView values during prop preflight', () => {
 	class NSView {}
-	const validate = runInNewContext(fn('validateNodeProps') + '\n;validateNodeProps', {
+	const validate = runSlice(fn('validateNodeProps') + '\n;validateNodeProps', {
 		elementBehaviors: new Map(),
 		behaviorOf: () => undefined,
 		isManualLayoutParent: (t: string) =>

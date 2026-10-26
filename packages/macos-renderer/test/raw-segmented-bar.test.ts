@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
 import { test } from 'node:test'
-import { runInNewContext } from 'node:vm'
+import { runSlice } from './mock-globals.ts'
 
 const source = stripTypeScriptTypes(
 	readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
@@ -36,7 +36,7 @@ function fixture() {
 		source.indexOf('\nfunction applyProps('),
 	)
 
-	const api = runInNewContext(
+	const api = runSlice(
 		constants +
 			'\n' +
 			[
@@ -188,7 +188,7 @@ test('SegmentedBar rejects invalid props before allocating and rejects child con
 		assert.throws(() => api.validateNodeProps('segmentedbar', { items: [item] }), /objects|title/)
 	}
 
-	const nesting = runInNewContext(fn('validateTextNesting') + '\n({validateTextNesting})')
+	const nesting = runSlice(fn('validateTextNesting') + '\n({validateTextNesting})')
 	for (const child of ['label', '#text', 'segmentedbar']) {
 		assert.throws(
 			() => nesting.validateTextNesting('segmentedbar', child),
@@ -222,7 +222,7 @@ test('SegmentedBar production ownership moves its native host between parents an
 		},
 	})
 
-	const api = runInNewContext(
+	const api = runSlice(
 		[
 			'parentReference',
 			'resolveParentNode',
@@ -305,7 +305,7 @@ test('SegmentedBar production ownership moves its native host between parents an
 
 test('SegmentedBar selected background style updates and restores the pinned blue default', () => {
 	const noop = () => {}
-	const api = runInNewContext(
+	const api = runSlice(
 		['applyStyle', 'resetStyle'].map(fn).join('\n') + '\n({applyStyle})',
 		{
 		elementBehaviors: new Map(),

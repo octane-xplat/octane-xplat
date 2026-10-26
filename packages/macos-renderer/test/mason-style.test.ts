@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { runInNewContext } from 'node:vm'
+import { runSlice } from './mock-globals.ts'
 import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
 
@@ -14,7 +14,7 @@ let source = readFileSync(new URL('../src/mason.ts', import.meta.url), 'utf8')
 source = source.replace(/import\s*\{[\s\S]*?\}\s*from\s*'[^']*';?/g, '')
 source = stripTypeScriptTypes(source).replaceAll('export ', '')
 
-const { styleDict: styleDictRealm } = runInNewContext(
+const { styleDict: styleDictRealm } = runSlice(
 	source + '\n;({ styleDict })',
 	{
 		console,

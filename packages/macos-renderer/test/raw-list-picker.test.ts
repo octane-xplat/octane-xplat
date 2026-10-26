@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
 import { test } from 'node:test'
-import { runInNewContext } from 'node:vm'
+import { runSlice } from './mock-globals.ts'
 
 const source = stripTypeScriptTypes(
 	readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
@@ -39,7 +39,7 @@ function fixture() {
 		source.indexOf('\nfunction applyProps('),
 	)
 
-	const api = runInNewContext(
+	const api = runSlice(
 		constants +
 			'\n' +
 			[
@@ -164,7 +164,7 @@ test('ListPicker rejects invalid props before allocating and rejects child conte
 		assert.throws(() => api.validateNodeProps('listpicker', { items: value }), /array/)
 	}
 
-	const nesting = runInNewContext(fn('validateTextNesting') + '\n({validateTextNesting})')
+	const nesting = runSlice(fn('validateTextNesting') + '\n({validateTextNesting})')
 	for (const child of ['label', '#text', 'listpicker']) {
 		assert.throws(
 			() => nesting.validateTextNesting('listpicker', child),
@@ -198,7 +198,7 @@ test('ListPicker production ownership moves its native host between parents and 
 		},
 	})
 
-	const api = runInNewContext(
+	const api = runSlice(
 		[
 			'parentReference',
 			'resolveParentNode',

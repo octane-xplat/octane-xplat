@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
-import { runInNewContext } from 'node:vm'
+import { runSlice } from './mock-globals.ts'
 
 // The compat slice is self-contained — eval it with the renderer seam stubbed.
 const source = stripTypeScriptTypes(
@@ -16,7 +16,7 @@ function fixture() {
 	const reconciles: any[] = []
 	const classNames: any[] = []
 	const styles: any[] = []
-	const api = runInNewContext(
+	const api = runSlice(
 		source +
 			'\n;({ Observable, Property, CssProperty, Style, ViewBase, registerPluginElement, installCompat })',
 		{ console },
@@ -138,7 +138,7 @@ test('registerPluginElement bridges props, style, className and dispose', () => 
 test('registrations before installCompat replay on install', () => {
 	// separate sandbox: register BEFORE install
 	const registered = new Map<string, any>()
-	const api = runInNewContext(
+	const api = runSlice(
 		source + '\n;({ ViewBase, registerPluginElement, installCompat })',
 		{ console },
 	)

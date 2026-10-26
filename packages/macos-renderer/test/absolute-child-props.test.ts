@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { runInNewContext } from 'node:vm'
+import { runSlice } from './mock-globals.ts'
 import { sourceWithoutImports } from './mock-globals.ts'
 
 // GH#10: left/right/top/bottom are parent-directed layout props consumed by
@@ -39,7 +39,7 @@ const sandbox = {
 	DEFAULT_TEXT_LINE_HEIGHT_RATIO: 1.3,
 }
 
-const { applyProps } = runInNewContext(slice + '\n({ applyProps })', sandbox)
+const { applyProps } = runSlice(slice + '\n({ applyProps })', sandbox)
 
 function node(type: string, parent?: any) {
 	const item = { id: Math.random(), type, view: {}, props: {}, parent, children: [] }

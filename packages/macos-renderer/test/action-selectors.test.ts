@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { runInNewContext } from 'node:vm'
+import { runSlice } from './mock-globals.ts'
 import { sourceWithoutImports } from './mock-globals.ts'
 
 // The NAPI runtime registers exposed keys verbatim. Preserve the action-site
@@ -27,7 +27,7 @@ const context = {
 	registerGestureClass() {},
 }
 
-const { ButtonActionTarget } = runInNewContext(
+const { ButtonActionTarget } = runSlice(
 	source.slice(
 		source.indexOf('class ButtonActionTarget'),
 		source.indexOf('const buttonActionTarget'),
@@ -35,7 +35,7 @@ const { ButtonActionTarget } = runInNewContext(
 	context,
 )
 
-const { MenuActionTarget } = runInNewContext(
+const { MenuActionTarget } = runSlice(
 	source.slice(
 		source.indexOf('class MenuActionTarget'),
 		source.indexOf('menuActionTarget = MenuActionTarget.new()'),

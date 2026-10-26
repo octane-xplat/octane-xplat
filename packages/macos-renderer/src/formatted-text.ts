@@ -1,5 +1,6 @@
 /** Viewless text composition. No AppKit object is allocated for a logical node. */
 interface TextNode {
+	computedStyle?: Record<string, any>
 	type: string
 	props: Record<string, any>
 	text: string
@@ -63,7 +64,7 @@ export function textRuns(
 ): Array<{ text: string; style: Record<string, any> }> {
 	const style = { ...inherited }
 	for (const key of TEXT_STYLE_KEYS) {
-		const value = node.props.style?.[key] ?? node.props[key]
+		const value = node.computedStyle?.[key] ?? node.props.style?.[key] ?? node.props[key]
 		if (value != null) {
 			style[key] = value
 		}
@@ -97,7 +98,7 @@ export function composeAttributedText(
 	const paragraph = native.NSMutableParagraphStyle.alloc().init()
 	paragraph.alignment = view.alignment ?? 0
 	paragraph.lineBreakMode = view.cell?.lineBreakMode ?? native.NSLineBreakMode.WordWrapping
-	const lineHeight = Number(props.style?.lineHeight)
+	const lineHeight = Number(props.computedStyle?.lineHeight ?? props.style?.lineHeight)
 	if (Number.isFinite(lineHeight) && lineHeight > 0) {
 		paragraph.minimumLineHeight = lineHeight
 		paragraph.maximumLineHeight = lineHeight

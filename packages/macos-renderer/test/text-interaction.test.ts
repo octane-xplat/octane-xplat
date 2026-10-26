@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { runInNewContext } from 'node:vm'
+import { runSlice } from './mock-globals.ts'
 import { test } from 'node:test'
 import { sourceWithoutImports } from './mock-globals.ts'
 
@@ -47,7 +47,7 @@ function load() {
 
 	return {
 		nodes,
-		...runInNewContext(
+		...runSlice(
 			helpers +
 				'\n' +
 				delegate +

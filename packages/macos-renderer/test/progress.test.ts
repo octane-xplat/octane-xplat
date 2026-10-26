@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
 import { test } from 'node:test'
-import { runInNewContext } from 'node:vm'
+import { runSlice } from './mock-globals.ts'
 
 const source = stripTypeScriptTypes(
 	readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
@@ -35,7 +35,7 @@ function controlFixture() {
 		source.indexOf('\nfunction applyProps('),
 	)
 
-	const api = runInNewContext(
+	const api = runSlice(
 		constants +
 			'\n' +
 			[
@@ -165,7 +165,7 @@ test('Progress rejects nonnumeric/nonfinite inputs before allocation but accepts
 })
 
 test('Progress accepts layout parents and rejects all children before insertion', () => {
-	const api = runInNewContext(fn('validateTextNesting') + '\n({validateTextNesting})')
+	const api = runSlice(fn('validateTextNesting') + '\n({validateTextNesting})')
 	for (const child of ['label', '#text', 'span', 'progress']) {
 		assert.throws(() => api.validateTextNesting('progress', child), /cannot contain JSX children/)
 	}
@@ -196,7 +196,7 @@ test('Progress production ownership moves its native host between parents and re
 		},
 	})
 
-	const api = runInNewContext(
+	const api = runSlice(
 		[
 			'parentReference',
 			'resolveParentNode',

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { runInNewContext } from 'node:vm'
+import { runSlice } from './mock-globals.ts'
 import { sourceWithoutImports } from './mock-globals.ts'
 
 // Exercise the text-control paths without loading the Objective-C bridge.
@@ -64,7 +64,7 @@ function textNode(type, extra = {}) {
 }
 
 test('text fields retain a secure-capable host and their initial values', () => {
-	const { makeTextField: make } = runInNewContext(makeTextField + '\n({ makeTextField })', {
+	const { makeTextField: make } = runSlice(makeTextField + '\n({ makeTextField })', {
 		InteractionTextView: FakeTextView,
 		ContentAlignedTextField: FakeSecureTextField,
 		ContentAlignedSecureTextField: FakeSecureTextField,
@@ -89,7 +89,7 @@ test('text fields retain a secure-capable host and their initial values', () => 
 function propsHarness() {
 	const warnings = []
 	const actionHandlers = new Map()
-	const { applyProps } = runInNewContext(propApplication + '\n({ applyProps })', {
+	const { applyProps } = runSlice(propApplication + '\n({ applyProps })', {
 		elementBehaviors: new Map(),
 		behaviorOf: () => undefined,
 		isManualLayoutParent: (t: string) =>
@@ -220,7 +220,7 @@ test('per-edit delegate events fire the change handler while the action fires su
 	const actionHandlers = new Map()
 	const actionIdsByView = new WeakMap()
 	const textNodesByView = new WeakMap()
-	const { ButtonActionTarget } = runInNewContext(targetClass + '\n({ ButtonActionTarget })', {
+	const { ButtonActionTarget } = runSlice(targetClass + '\n({ ButtonActionTarget })', {
 		elementBehaviors: new Map(),
 		behaviorOf: () => undefined,
 		isManualLayoutParent: (t: string) =>

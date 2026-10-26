@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
 import { test } from 'node:test'
-import { runInNewContext } from 'node:vm'
+import { runSlice } from './mock-globals.ts'
 
 // Exercise the production slot and placement paths, not a replica of them.
 const source = stripTypeScriptTypes(
@@ -72,7 +72,7 @@ function fixture() {
 	const container = { nodes: new Map([[1, parent]]), children: [] }
 
 	;(parent as any).container = container
-	const api = runInNewContext(
+	const api = runSlice(
 		[
 			'layoutLength',
 			'pinLayoutChild',
@@ -284,7 +284,7 @@ test('RootLayout geometry observer releases on disposal and ignores late callbac
 		container: { children: [] },
 	}
 
-	const api = runInNewContext(
+	const api = runSlice(
 		['makeRootLayout', 'destroy', 'detach', 'releasePlacementPins'].map(fn).join('\n') +
 			'\n;({makeRootLayout,destroy})',
 		{

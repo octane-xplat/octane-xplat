@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { runInNewContext } from 'node:vm'
+import { runSlice } from './mock-globals.ts'
 import { sourceWithoutImports } from './mock-globals.ts'
 
 // applyProps warns `ignored <type> prop <name>` for any prop outside its
@@ -16,7 +16,7 @@ const applyPropsSrc = source.slice(
 const warnings: string[] = []
 const reconciles: any[] = []
 
-const { applyProps } = runInNewContext(applyPropsSrc + '\n({ applyProps })', {
+const { applyProps } = runSlice(applyPropsSrc + '\n({ applyProps })', {
 		elementBehaviors: new Map(),
 		behaviorOf: () => undefined,
 		isManualLayoutParent: (t: string) =>

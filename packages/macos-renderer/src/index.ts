@@ -40,6 +40,14 @@ import type {
 } from 'octane/universal/native'
 
 import { composeAttributedText, validateTextStyle } from './formatted-text'
+import { computeCascade, INHERITED_CSS_PROPERTIES, type CssHostNode } from './css/cascade'
+import {
+	registerStylesheet,
+	onStylesheetsChanged,
+	setStyleEnvironment,
+	stylesheetScope,
+	stylesheetsHaveMediaRules,
+} from './css/stylesheets'
 import { parseHtmlText, validateHtmlProps } from './html-text'
 import { resolveFont as fontForFamilyStyle } from './fonts'
 import {
@@ -108,6 +116,7 @@ import {
 	NSWindowDelegate,
 	NSWindowOrderingMode,
 	NSWindowStyleMask,
+	NSWorkspace,
 	NativeClass,
 	WKWebView,
 	interop,
@@ -116,6 +125,7 @@ import {
 import type { NSClass, NSControl } from '@octane-xplat/platform/macos'
 
 export { registerFontFamily } from './fonts'
+export { registerStylesheet } from './css/stylesheets'
 export { __tabItemProps } from './tab-view'
 
 configureTabContentRoots((host, fontFamily) => createMacOSRoot(host, { fontFamily }), nativeColor)
@@ -163,6 +173,8 @@ export interface ElementNode {
 	actionId?: number
 	scrollObserverInstalled: boolean
 	text: string
+	// CSS adapter: cssType/cssClasses/cssPseudoClasses/computedStyle/
+	// computedCustomProps/getChildIndex/getChildAt/getChildrenCount.
 	// Per-kind extras: placeholderView, placeholderContent, placeholderCreated,
 	// sizeConstraints, placementPins, styleBg, bgSlot,
 	// layoutObserver, scrollObserver, scheme, textRuns, appliedStyle,
@@ -208,6 +220,9 @@ interface RootContainer {
 	/** Parents needing a sibling-wide layout pass; non-null only while a
 	 *  command batch is applying. */
 	layoutDirty: Set<ElementNode> | null
+	/** Nodes needing a cascade recompute; flushed before layout reconcile. */
+	cssDirty?: Set<ElementNode>
+	cssFlushQueued?: boolean
 	tabDirty?: Set<ElementNode>
 	tabReleases?: Set<ElementNode>
 }
@@ -316,7 +331,7 @@ function isManualLayoutParent(type: string | undefined) {
 
 const compatInstallation = installCompat({
 	registerElementType,
-	applyStyle,
+	applyStyle: setNodeInlineStyle,
 	applyClassName,
 	applyAccessibility,
 	queueLayoutReconcile,
@@ -692,7 +707,7 @@ const masonElementRegistration = installMasonElement({
 	pinLayoutChild,
 	queueLayoutReconcile,
 	detach,
-	applyStyle,
+	applyStyle: setNodeInlineStyle,
 	applyClassName,
 	applyAccessibility,
 	wireAction: wireViewAction,
@@ -742,7 +757,7 @@ class ActionBarHost extends NSView {
 			Math.max(
 				0,
 				Number(
-					child?.props.style?.[axis] ??
+					effectiveStyle(child)?.[axis] ??
 						(Number(size?.[axis]) >= 0 ? size?.[axis] : child?.view?.fittingSize?.[axis]),
 				) || 0,
 			)
@@ -777,7 +792,7 @@ class ContentViewHost extends NSView {
 			Math.max(
 				0,
 				Number(
-					child.props.style?.[axis] ??
+					effectiveStyle(child)[axis] ??
 						(Number(intrinsic?.[axis]) >= 0 ? intrinsic?.[axis] : fitting?.[axis]) ??
 						0,
 				) || 0,
@@ -2119,7 +2134,7 @@ function dockChildSize(
 	basis: number,
 ) {
 	const spec = child.sizeConstraintSpecs?.[axis]
-	const desired = child.props.style?.[axis]
+	const desired = effectiveStyle(child)[axis]
 	const intrinsic = layoutView(child).intrinsicContentSize?.[axis]
 	const fitting = layoutView(child).fittingSize?.[axis]
 	const natural = Math.max(0, Number(Number(intrinsic) >= 0 ? intrinsic : fitting) || 0)
@@ -2219,7 +2234,7 @@ function layoutContentChild(parent: ElementNode | undefined) {
 
 	const width = Number(parent.view.bounds.size.width)
 	const height = Number(parent.view.bounds.size.height)
-	const style = child.props.style ?? {}
+	const style = effectiveStyle(child)
 	const intrinsic = layoutView(child).intrinsicContentSize ?? { width: 0, height: 0 }
 	const alignment = (value: any, start: string, end: string, fallback: string) => {
 		if (value == null || value === 'auto' || value === 'normal') {
@@ -2621,7 +2636,15 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 		appliedFontFamily: container.fontFamily,
 		scrollObserverInstalled: false,
 		text: '',
+		cssType: type,
+		cssClasses: new Set(),
+		cssPseudoClasses: new Set(),
+		computedStyle: undefined,
+		computedCustomProps: new Map(),
 	}
+	node.getChildIndex = (child: ElementNode) => cssChildren(node).indexOf(child)
+	node.getChildAt = (i: number) => cssChildren(node)[i]
+	node.getChildrenCount = () => cssChildren(node).length
 
 	try {
 		const makeBehavior = behaviorOf(type)?.make
@@ -2884,9 +2907,74 @@ function parseEdgeInsets(value: any) {
 	return { top, left, bottom, right }
 }
 
+// CSS named colors (hex ints). NS Color supports the full CSS keyword set —
+// this table covers the common names; extend as needed.
+const CSS_NAMED_COLORS: Record<string, number> = {
+	transparent: 0x000000,
+	aliceblue: 0xf0f8ff, antiquewhite: 0xfaebd7, aqua: 0x00ffff, aquamarine: 0x7fffd4,
+	azure: 0xf0ffff, beige: 0xf5f5dc, bisque: 0xffe4c4, black: 0x000000,
+	blanchedalmond: 0xffebcd, blue: 0x0000ff, blueviolet: 0x8a2be2, brown: 0xa52a2a,
+	burlywood: 0xdeb887, cadetblue: 0x5f9ea0, chartreuse: 0x7fff00, chocolate: 0xd2691e,
+	coral: 0xff7f50, cornflowerblue: 0x6495ed, cornsilk: 0xfff8dc, crimson: 0xdc143c,
+	cyan: 0x00ffff, darkblue: 0x00008b, darkcyan: 0x008b8b, darkgoldenrod: 0xb8860b,
+	darkgray: 0xa9a9a9, darkgrey: 0xa9a9a9, darkgreen: 0x006400, darkkhaki: 0xbdb76b,
+	darkmagenta: 0x8b008b, darkolivegreen: 0x556b2f, darkorange: 0xff8c00, darkorchid: 0x9932cc,
+	darkred: 0x8b0000, darksalmon: 0xe9967a, darkseagreen: 0x8fbc8f, darkslateblue: 0x483d8b,
+	darkslategray: 0x2f4f4f, darkslategrey: 0x2f4f4f, darkturquoise: 0x00ced1, darkviolet: 0x9400d3,
+	deeppink: 0xff1493, deepskyblue: 0x00bfff, dimgray: 0x696969, dimgrey: 0x696969,
+	dodgerblue: 0x1e90ff, firebrick: 0xb22222, floralwhite: 0xfffaf0, forestgreen: 0x228b22,
+	fuchsia: 0xff00ff, gainsboro: 0xdcdcdc, ghostwhite: 0xf8f8ff, gold: 0xffd700,
+	goldenrod: 0xdaa520, gray: 0x808080, grey: 0x808080, green: 0x008000, greenyellow: 0xadff2f,
+	honeydew: 0xf0fff0, hotpink: 0xff69b4, indianred: 0xcd5c5c, indigo: 0x4b0082,
+	ivory: 0xfffff0, khaki: 0xf0e68c, lavender: 0xe6e6fa, lavenderblush: 0xfff0f5,
+	lawngreen: 0x7cfc00, lemonchiffon: 0xfffacd, lightblue: 0xadd8e6, lightcoral: 0xf08080,
+	lightcyan: 0xe0ffff, lightgoldenrodyellow: 0xfafad2, lightgray: 0xd3d3d3, lightgrey: 0xd3d3d3,
+	lightgreen: 0x90ee90, lightpink: 0xffb6c1, lightsalmon: 0xffa07a, lightseagreen: 0x20b2aa,
+	lightskyblue: 0x87cefa, lightslategray: 0x778899, lightslategrey: 0x778899, lightsteelblue: 0xb0c4de,
+	lightyellow: 0xffffe0, lime: 0x00ff00, limegreen: 0x32cd32, linen: 0xfaf0e6,
+	magenta: 0xff00ff, maroon: 0x800000, mediumaquamarine: 0x66cdaa, mediumblue: 0x0000cd,
+	mediumorchid: 0xba55d3, mediumpurple: 0x9370db, mediumseagreen: 0x3cb371, mediumslateblue: 0x7b68ee,
+	mediumspringgreen: 0x00fa9a, mediumturquoise: 0x48d1cc, mediumvioletred: 0xc71585, midnightblue: 0x191970,
+	mintcream: 0xf5fffa, mistyrose: 0xffe4e1, moccasin: 0xffe4b5, navajowhite: 0xffdead,
+	navy: 0x000080, oldlace: 0xfdf5e6, olive: 0x808000, olivedrab: 0x6b8e23,
+	orange: 0xffa500, orangered: 0xff4500, orchid: 0xda70d6, palegoldenrod: 0xeee8aa,
+	palegreen: 0x98fb98, paleturquoise: 0xafeeee, palevioletred: 0xdb7093, papayawhip: 0xffefd5,
+	peachpuff: 0xffdab9, peru: 0xcd853f, pink: 0xffc0cb, plum: 0xdda0dd,
+	powderblue: 0xb0e0e6, purple: 0x800080, rebeccapurple: 0x663399, red: 0xff0000,
+	rosybrown: 0xbc8f8f, royalblue: 0x4169e1, saddlebrown: 0x8b4513, salmon: 0xfa8072,
+	sandybrown: 0xf4a460, seagreen: 0x2e8b57, seashell: 0xfff5ee, sienna: 0xa0522d,
+	silver: 0xc0c0c0, skyblue: 0x87ceeb, slateblue: 0x6a5acd, slategray: 0x708090,
+	slategrey: 0x708090, snow: 0xfffafa, springgreen: 0x00ff7f, steelblue: 0x4682b4,
+	tan: 0xd2b48c, teal: 0x008080, thistle: 0xd8bfd8, tomato: 0xff6347,
+	turquoise: 0x40e0d0, violet: 0xee82ee, wheat: 0xf5deb3, white: 0xffffff,
+	whitesmoke: 0xf5f5f5, yellow: 0xffff00, yellowgreen: 0x9acd32,
+}
+
 function nativeColor(value: any): NSColor {
-	const string = String(value)
-	let match = /^#([\da-f]{6})$/i.exec(string)
+	const string = String(value).trim().toLowerCase()
+	let match = /^#([\da-f]{3})$/i.exec(string)
+	if (match) {
+		const hex = match[1]
+		return NSColor.colorWithRedGreenBlueAlpha(
+			parseInt(hex[0] + hex[0], 16) / 255,
+			parseInt(hex[1] + hex[1], 16) / 255,
+			parseInt(hex[2] + hex[2], 16) / 255,
+			1,
+		)
+	}
+
+	match = /^#([\da-f]{4})$/i.exec(string)
+	if (match) {
+		const hex = match[1]
+		return NSColor.colorWithRedGreenBlueAlpha(
+			parseInt(hex[0] + hex[0], 16) / 255,
+			parseInt(hex[1] + hex[1], 16) / 255,
+			parseInt(hex[2] + hex[2], 16) / 255,
+			parseInt(hex[3] + hex[3], 16) / 255,
+		)
+	}
+
+	match = /^#([\da-f]{6})$/i.exec(string)
 	if (match) {
 		const hex = match[1]
 		return NSColor.colorWithRedGreenBlueAlpha(
@@ -2905,6 +2993,43 @@ function nativeColor(value: any): NSColor {
 			parseInt(hex.slice(2, 4), 16) / 255,
 			parseInt(hex.slice(4, 6), 16) / 255,
 			parseInt(hex.slice(6, 8), 16) / 255,
+		)
+	}
+
+	const named = CSS_NAMED_COLORS[string]
+	if (named !== undefined) {
+		return NSColor.colorWithRedGreenBlueAlpha(
+			((named >> 16) & 0xff) / 255,
+			((named >> 8) & 0xff) / 255,
+			(named & 0xff) / 255,
+			string === 'transparent' ? 0 : 1,
+		)
+	}
+
+	match = /^hsla?\(\s*(-?[\d.]+)(?:deg|turn|rad)?[,\s]+([\d.]+)%?[,\s]+([\d.]+)%?[,\s/]*([\d.]*)\s*\)$/i.exec(
+		string,
+	)
+	if (match) {
+		let h = parseFloat(match[1])
+		if (/turn/i.test(string)) {
+			h *= 360
+		} else if (/rad/i.test(string)) {
+			h = (h * 180) / Math.PI
+		}
+		h = ((h % 360) + 360) % 360
+		const sat = Math.min(100, Math.max(0, parseFloat(match[2]))) / 100
+		const light = Math.min(100, Math.max(0, parseFloat(match[3]))) / 100
+		const alpha = match[4] === '' ? 1 : Math.min(1, Math.max(0, Number(match[4])))
+		const c = (1 - Math.abs(2 * light - 1)) * sat
+		const x = c * (1 - Math.abs(((h / 60) % 2) - 1))
+		const m = light - c / 2
+		const seg = Math.floor(h / 60) % 6
+		const rgb = [[c,x,0],[x,c,0],[0,c,x],[0,x,c],[x,0,c],[c,0,x]][seg]
+		return NSColor.colorWithRedGreenBlueAlpha(
+			Math.min(1, Math.max(0, rgb[0] + m)),
+			Math.min(1, Math.max(0, rgb[1] + m)),
+			Math.min(1, Math.max(0, rgb[2] + m)),
+			alpha,
 		)
 	}
 
@@ -2927,16 +3052,232 @@ function nativeColor(value: any): NSColor {
 	}
 
 	throw new Error(
-		'AppKit spike expects #rrggbb, #rrggbbaa, or rgb()/rgba() colors, received ' + string,
+		'AppKit spike expects hex, rgb()/rgba(), or hsl()/hsla() colors, received ' + string,
 	)
 }
 
-// The renderer has no CSS layer, so the shared `dark`/`ns-dark` scheme classes
-// can't cascade through selectors. Each themeable color carries a semantic
-// slot and the resolved value tracks the nearest `dark`/`ns-dark` ancestor —
-// the same mechanism ns-dark uses to re-theme native subtrees. Light values
-// are the pre-existing hardcoded palette; dark values mirror tokens.css's
-// `.dark` overrides (--color-text/text-secondary/onprimary/primary/surface).
+// ---- CSS cascade ------------------------------------------------------------
+
+// The vendored NS selector engine matches against `node` directly: cssType is
+// the element type lowercased (NS `cssType` semantics — `stack-layout` ->
+// `stacklayout` happens on the selector side via TypeSelector name mangling),
+// cssClasses come from the className prop, cssPseudoClasses from wired state.
+
+/** CSS-visible element children — #text/span/format wrappers fold into text. */
+function cssChildren(node: ElementNode): ElementNode[] {
+	return node.children.filter((child) => child.view != null || child.type === 'proxyviewcontainer')
+}
+
+function cssParentOf(node: ElementNode): ElementNode | null {
+	let parent = node.parent
+	while (parent && parent.view == null && parent.type !== 'proxyviewcontainer') {
+		parent = parent.parent
+	}
+	return parent
+}
+
+/** Root container top-level nodes (incl. portal/list-cell/sheet roots) carry
+ *  the NS ambient classes: ns-root, ns-macos, ns-light|ns-dark. */
+function isCssRootNode(node: ElementNode): boolean {
+	return node.parent === null
+}
+
+function cssSchemeName(_node: ElementNode): string {
+	return (appKitBridge as any).getColorScheme?.() === 'dark' ? 'dark' : 'light'
+}
+
+// Per-container dirty sets — flushed top-down before the layout reconcile pass
+// inside a batch, or coalesced onto one microtask outside a batch.
+function markStyleDirty(node: ElementNode, subtree = false) {
+	const container = node.container
+	if (!container) {
+		return
+	}
+	;(container.cssDirty ??= new Set()).add(node)
+	if (subtree) {
+		for (const child of cssChildren(node)) {
+			markStyleDirty(child, true)
+		}
+	}
+	if (container.layoutDirty == null && !container.cssFlushQueued) {
+		// Outside a command batch (appearance change, registerStylesheet) —
+		// one microtask flush per container; a batch starting first wins.
+		container.cssFlushQueued = true
+		queueMicrotask(() => {
+			container.cssFlushQueued = false
+			if (container.layoutDirty == null) {
+				flushStyleDirty(container)
+			}
+		})
+	}
+}
+
+function flushStyleDirty(container: RootContainer) {
+	const dirty = container.cssDirty
+	container.cssDirty = undefined
+	if (!dirty?.size) {
+		return
+	}
+	// Top-down: parents must compute before children that inherit from them.
+	const nodes = [...dirty].sort((a, b) => cssDepth(a) - cssDepth(b))
+	for (const node of nodes) {
+		// Dead nodes (destroyed/detached before the flush) skip the restyle.
+		if (node.container.nodes && !node.container.nodes.has(node.id) && node.type !== 'portalroot') {
+			continue
+		}
+		restyleNode(node)
+	}
+}
+
+function cssDepth(node: ElementNode): number {
+	let depth = 0
+	for (let p = node.parent; p; p = p.parent) {
+		depth++
+	}
+	return depth
+}
+
+
+/** Recompute one node's effective style and apply it. Caller guarantees the
+ *  parent is already styled (top-down flush order). */
+function restyleNode(node: ElementNode) {
+	refreshCssClasses(node)
+	const { style, customProps, cssKeys, inheritedKeys } = computeCascade(
+		node as unknown as CssHostNode,
+		stylesheetScope(),
+	)
+	node.cssOriginKeys = cssKeys
+	node.inheritedOnlyKeys = inheritedKeys
+	const prevStyle = node.computedStyle ?? {}
+	const prevCustom = node.computedCustomProps ?? new Map()
+	node.computedStyle = style
+	node.computedCustomProps = customProps
+
+	const customChanged =
+		prevCustom.size !== customProps.size ||
+		[...customProps].some(([k, v]) => prevCustom.get(k) !== v)
+	let inheritedChanged = false
+	for (const prop of INHERITED_CSS_PROPERTIES) {
+		const camel = prop.replace(/-([a-z])/g, (_m, c: string) => c.toUpperCase())
+		if (prevStyle[camel] !== style[camel]) {
+			inheritedChanged = true
+			break
+		}
+	}
+
+	applyStyle(node, style)
+	syncInputChrome(node)
+
+	// Only cascade to children when values they could inherit moved.
+	if (customChanged || inheritedChanged) {
+		for (const child of cssChildren(node)) {
+			restyleNode(child)
+		}
+	}
+}
+
+let cssWarnedProps = new Set<string>()
+function warnUnsupportedCssProp(node: ElementNode, name: string) {
+	if (cssWarnedProps.has(name)) {
+		return
+	}
+	cssWarnedProps.add(name)
+	console.warn('[macos-css] ignored unsupported property ' + name + ' (on <' + node.type + '>)')
+}
+
+function setNodeInlineStyle(node: ElementNode, value: any) {
+	const prev = node.cascadeInline
+	node.props.style = value
+	node.cascadeInline = value
+	// Subtree restyle only when an inherited or custom-property input changed.
+	const inheritedOrCustom = (bag: any): boolean =>
+		!!bag &&
+		Object.keys(bag).some(
+			(k) => k.startsWith('--') || INHERITED_CSS_PROPERTIES.has(k.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase())),
+		)
+	const subtree = Boolean(inheritedOrCustom(prev)) || Boolean(inheritedOrCustom(value))
+	markStyleDirty(node, subtree)
+}
+
+function applyClassName(node: ElementNode, value: any) {
+	node.cssBaseClasses = new Set(normalizeClass(value).split(/\s+/).filter(Boolean))
+	refreshCssClasses(node)
+	markStyleDirty(node, true)
+}
+
+/** cssClasses = className tokens ∪ ambient root classes (ns-root, ns-macos,
+ *  ns-light|ns-dark) on every parent-less node — including owned roots from
+ *  createMacOSRoot (list cells, sheets, windows) and portal content, whose
+ *  chain reaches the portalroot node. Recomputed on insert/remove/appearance
+ *  via markStyleDirty → restyleNode → refreshCssClasses. */
+function refreshCssClasses(node: ElementNode) {
+	const set = new Set(node.cssBaseClasses ?? [])
+	if (isCssRootNode(node)) {
+		set.add('ns-root')
+		set.add('ns-macos')
+		set.add(cssSchemeName(node) === 'dark' ? 'ns-dark' : 'ns-light')
+	}
+	node.cssClasses = set
+}
+
+function setNodeId(node: ElementNode, value: any) {
+	node.cssId = value == null ? undefined : String(value)
+	markStyleDirty(node, true)
+}
+
+function setPseudoClass(node: ElementNode, name: string, on: boolean) {
+	const had = node.cssPseudoClasses.has(name)
+	if (on === had) {
+		return
+	}
+	if (on) {
+		node.cssPseudoClasses.add(name)
+	} else {
+		node.cssPseudoClasses.delete(name)
+	}
+	markStyleDirty(node, true)
+}
+
+// textfield/textview drop native chrome when the effective style overrides
+// background/border (the old vx-input class behavior, now CSS-driven).
+function syncInputChrome(node: ElementNode) {
+	if (node.type !== 'textfield' && node.type !== 'textview') {
+		return
+	}
+	const view = node.view
+	if (!view) {
+		return
+	}
+	const style = node.computedStyle ?? {}
+	const customChrome =
+		style.backgroundColor != null ||
+		style.borderWidth != null ||
+		style.borderColor != null ||
+		style.borderRadius != null ||
+		style.borderTopLeftRadius != null
+	if (customChrome) {
+		if (!node.cssChromeOff) {
+			node.cssChromeOff = true
+			view.drawsBackground = false
+			if (node.type === 'textfield') {
+				view.bezeled = false
+			}
+			if (node.type === 'textview') {
+				view.textContainerInset = { width: 0, height: 0 }
+			}
+		}
+	} else if (node.cssChromeOff) {
+		node.cssChromeOff = false
+		view.drawsBackground = true
+		if (node.type === 'textfield') {
+			view.bezeled = true
+		}
+	}
+}
+
+// Scheme palettes are the defaults beneath CSS and inline styles — a matched
+// CSS rule or inline style wins over these. The active palette resolves from
+// the nearest `dark`/`ns-dark` className ancestor (nodeScheme).
 const SCHEME_COLORS: Record<string, Record<string, string>> = {
 	light: {
 		text: '#0a0a0a',
@@ -3249,6 +3590,7 @@ function resetStyle(node: ElementNode, name: string) {
 		(node.type === 'rootlayout' || behaviorOf(node.type)?.containerStyles)
 	) {
 		node.stylePaddingBox = undefined
+		node.stylePaddingEdges = undefined
 		syncEdgeInsets(node)
 	} else if (
 		EDGE_INSET_PROPS.has(name) &&
@@ -3304,6 +3646,8 @@ function resetStyle(node: ElementNode, name: string) {
 }
 
 function applyStyle(node: ElementNode, style: PropBag) {
+	// cssOriginKeys: declared on this node via CSS -> warn once per prop.
+	// inheritedOnlyKeys: inherited only -> never warn.
 	if (style != null && typeof style !== 'object') {
 		throw new Error('AppKit spike expects style to be an object')
 	}
@@ -3370,7 +3714,9 @@ function applyStyle(node: ElementNode, style: PropBag) {
 			name === 'padding' &&
 			(node.type === 'rootlayout' || behaviorOf(node.type)?.containerStyles)
 		) {
-			node.stylePaddingBox = parseEdgeInsets(value)
+			const box = parseEdgeInsets(value)
+			node.stylePaddingBox = box
+			node.stylePaddingEdges = { top: box.top, right: box.right, bottom: box.bottom, left: box.left }
 			syncEdgeInsets(node)
 		} else if (
 			EDGE_INSET_PROPS.has(name) &&
@@ -3439,7 +3785,14 @@ function applyStyle(node: ElementNode, style: PropBag) {
 				behaviorOf((node.layoutParent ?? node.parent)?.type)?.styleKeys?.has(name)
 			)
 		) {
-			console.warn('[macos-style] ignored unsupported style.' + name + ' on <' + node.type + '>')
+			if (node.inheritedOnlyKeys?.has(name)) {
+				continue
+			}
+			if (node.cssOriginKeys?.has(name)) {
+				warnUnsupportedCssProp(node, name)
+			} else {
+				console.warn('[macos-style] ignored unsupported style.' + name + ' on <' + node.type + '>')
+			}
 		}
 	}
 
@@ -3500,244 +3853,15 @@ function normalizeClass(value: any): string {
 	return str
 }
 
-function applyClassName(node: ElementNode, value: any) {
-	const classes = normalizeClass(value).split(/\s+/).filter(Boolean)
+// className now only feeds the selector engine (cssClasses) and marks the
+// subtree for restyle — the hardcoded token tables are gone.
+/** Effective style for readers that used to consult props.style. */
+function effectiveStyle(node: ElementNode): PropBag {
+	return node.computedStyle ?? node.props?.style ?? {}
+}
 
-	// Class effects re-derive from scratch on every apply: the class-owned
-	// fields reset here and re-populate below, so removing a class drops the
-	// native state it installed instead of leaving stale values behind.
-	node.classFontSize = undefined
-	node.classFontWeight = undefined
-	node.classInsets = undefined
-	node.classRadius = undefined
-	node.classSpacing = undefined
-	node.classOrientation = undefined
-	node.colorSlot = undefined
-	node.bgSlot = undefined
-
-	if (node.type === 'label') {
-		const grabber = classes.includes('vx-sheet-grabber')
-		if (grabber) {
-			node.classLineHeight = 24
-			setSizeConstraint(node, 'height', 24)
-		}
-
-		const sizes: Record<string, number> = {
-			'text-xs': 12,
-			'text-sm': 13,
-			'text-base': 16,
-			'text-lg': 18,
-			'text-xl': 20,
-			'text-2xl': 28,
-		}
-
-		const lineHeights: Record<string, number> = {
-			'text-sm': 20,
-			'text-lg': 28,
-			'text-xl': 28,
-			'text-2xl': 36,
-		}
-
-		// Astryx heading scale (default theme): --text-heading-N-size/leading.
-		const headingMetrics: Record<string, { size: number; height: number }> = {
-			'vx-h1': { size: 24, height: 32 },
-			'vx-h2': { size: 20, height: 28 },
-			'vx-h3': { size: 17, height: 24 },
-			'vx-h4': { size: 14, height: 20 },
-			'vx-h5': { size: 12, height: 20 },
-			'vx-h6': { size: 10, height: 16 },
-		}
-
-		node.headingDefaultHeight = undefined
-		node.classLineHeight = undefined
-		for (const name of classes) {
-			const heading = headingMetrics[name]
-			if (heading) {
-				node.classFontWeight = '600'
-				node.classFontSize = heading.size
-				node.headingDefaultHeight = heading.height
-			}
-
-			if (sizes[name]) {
-				node.classFontSize = sizes[name]
-				node.headingDefaultHeight = undefined
-			}
-
-			if (lineHeights[name] != null) {
-				node.classLineHeight = lineHeights[name]
-			}
-
-			if (name === 'font-semibold') {
-				node.classFontWeight = '600'
-			}
-
-			if (name === 'font-bold') {
-				node.classFontWeight = '700'
-			}
-
-			if (name === 'text-muted') {
-				node.colorSlot = 'muted'
-			}
-
-			if (name === 'text-onprimary') {
-				node.colorSlot = 'onprimary'
-			}
-		}
-
-		syncNodeFont(node)
-
-		if (!grabber && node.props?.style?.height != null) {
-			// The grabber's 24pt pin shares the height spec with style.height —
-			// re-assert the style value once the class is gone.
-			setSizeConstraint(node, 'height', node.props.style.height)
-		}
-
-		if (grabber) {
-			node.view!.alignment = NSTextAlignment.Center
-		} else {
-			// Without the grabber the label returns to its textAlign — or the
-			// Left default when no alignment style is in effect.
-			const textAlign = node.props?.style?.textAlign
-			node.view!.alignment =
-				textAlign == null || textAlign === 'left'
-					? NSTextAlignment.Left
-					: textAlign === 'right'
-						? NSTextAlignment.Right
-						: NSTextAlignment.Center
-		}
-	}
-
-	if (
-		node.type === 'scrollview' ||
-		node.type === 'liquidglass' ||
-		behaviorOf(node.type)?.containerStyles
-	) {
-		const gaps: Record<string, number> = {
-			'gap-1': 4,
-			'gap-2': 8,
-			'gap-3': 12,
-			'gap-4': 16,
-			'gap-6': 24,
-		}
-
-		for (const name of classes) {
-			if (gaps[name] !== undefined) {
-				node.classSpacing = gaps[name]
-			}
-
-			if (name === 'flex-row') {
-				node.classOrientation = NSUserInterfaceLayoutOrientation.Horizontal
-			}
-
-			if (name === 'flex-col') {
-				node.classOrientation = NSUserInterfaceLayoutOrientation.Vertical
-			}
-
-			if (name === 'vx-toast' && node.type === 'masonview') {
-				node.classInsets = { top: 12, right: 12, bottom: 12, left: 12 }
-			}
-
-			if (name === 'vx-toast-viewport') {
-				node.classSpacing = 8
-			}
-
-			if (name === 'vx-button') {
-				node.classOrientation = NSUserInterfaceLayoutOrientation.Horizontal
-			}
-
-			if (name === 'flex-1') {
-				node.view!.setContentHuggingPriorityForOrientation(
-					1,
-					NSUserInterfaceLayoutOrientation.Vertical,
-				)
-
-				node.view!.setContentCompressionResistancePriorityForOrientation(
-					1,
-					NSUserInterfaceLayoutOrientation.Vertical,
-				)
-			}
-
-			if (name === 'shrink-0') {
-				node.view!.setContentHuggingPriorityForOrientation(
-					750,
-					NSUserInterfaceLayoutOrientation.Vertical,
-				)
-			}
-
-			if (name === 'rounded-full' || name.startsWith('rounded-')) {
-				node.classRadius = name === 'rounded-full' ? 12 : 8
-			}
-
-			if (name === 'bg-primary' || name === 'btn') {
-				node.bgSlot = 'primary'
-				node.classInsets = { top: 6, right: 10, bottom: 6, left: 10 }
-			}
-
-			if (name === 'bg-danger') {
-				node.bgSlot = 'danger'
-			}
-
-			if (name === 'btn-secondary' || name === 'chip' || name === 'chip-off') {
-				node.bgSlot = 'secondary'
-				node.classInsets = { top: 4, right: 8, bottom: 4, left: 8 }
-			}
-
-			// Panels that paint the web body's --color-surface. On this host the
-			// root view fills the window, so the surface slot re-themes the whole
-			// background the way `body { background }` does in a browser.
-			if (
-				name === 'vx-app' ||
-				name === 'sheet-panel' ||
-				name === 'overlay-panel' ||
-				name === 'modal-panel'
-			) {
-				node.bgSlot = 'surface'
-			}
-		}
-
-		if (behaviorOf(node.type)?.layout) {
-			queueLayoutReconcile(node.container, node)
-		}
-
-		syncEdgeInsets(node)
-		syncCornerRadius(node)
-	}
-
-	if (node.type === 'textfield' || node.type === 'textview') {
-		if (classes.includes('vx-input') || classes.includes('vx-textarea')) {
-			node.classFontSize = 14
-			node.colorSlot = 'text'
-			node.view!.drawsBackground = false
-			if (node.type === 'textfield') {
-				node.view!.bezeled = false
-			}
-
-			if (node.type === 'textview') {
-				node.view!.textContainerInset = { width: 0, height: 0 }
-			}
-		}
-
-		syncNodeFont(node)
-	}
-
-	applyThemeColors(node)
-	// `dark`/`ns-dark` re-themes descendants too (the ns-dark cascade), so a
-	// scheme flip on this node re-resolves the whole subtree.
-	const dark = classes.includes('dark') || classes.includes('ns-dark')
-	if (dark !== Boolean(node.hasDarkClass)) {
-		node.hasDarkClass = dark
-		for (const child of descendants(node)) {
-			applyThemeColors(child)
-		}
-	}
-
-	if (node.parent) {
-		queueLayoutReconcile(node.container, node.parent)
-	}
-
-	if (behaviorOf(node.type)?.layout) {
-		queueLayoutReconcile(node.container, node)
-	}
+function applyClassNameProp(node: ElementNode, value: any) {
+	applyClassName(node, value)
 }
 
 function textContent(node: ElementNode): string {
@@ -3791,7 +3915,7 @@ function syncHtmlView(node: ElementNode) {
 		fontFamily: String(view.font.familyName),
 		fontWeight: node.appliedFontWeight ?? '400',
 		color: view.textColor,
-		style: node.props.style ?? {},
+		style: effectiveStyle(node),
 	})
 
 	view.invalidateIntrinsicContentSize()
@@ -3799,7 +3923,7 @@ function syncHtmlView(node: ElementNode) {
 }
 
 function setLabelText(node: ElementNode, text: any) {
-	const lineHeight = Number(node.props?.style?.lineHeight)
+	const lineHeight = Number(effectiveStyle(node).lineHeight)
 	if (!Number.isFinite(lineHeight) || lineHeight <= 0) {
 		node.view!.stringValue = text
 		return
@@ -4011,7 +4135,7 @@ function fitTextView(node: ElementNode | undefined) {
 		)
 
 		const height = node.props.autoGrow ? Math.min(cap, Math.max(rows * line, content)) : rows * line
-		if (node.props.style?.height == null && node.sizeConstraintSpecs?.height?.points !== height) {
+		if (effectiveStyle(node).height == null && node.sizeConstraintSpecs?.height?.points !== height) {
 			setSizeConstraint(node, 'height', height)
 		}
 
@@ -4224,6 +4348,16 @@ function applyProps(node: ElementNode, props: PropBag) {
 	}
 
 	node.props = { ...node.props, ...props }
+	if ('id' in props) {
+		setNodeId(node, props.id)
+	}
+	if ('disabled' in props || 'isEnabled' in props || 'enabled' in props) {
+		setPseudoClass(
+			node,
+			'disabled',
+			node.props.disabled === true || node.props.isEnabled === false || node.props.enabled === false,
+		)
+	}
 	if (
 		node.authoredProps ||
 		node.parent?.type === 'proxyviewcontainer' ||
@@ -4360,7 +4494,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 				}
 
 				if (name === 'style') {
-					applyStyle(node, value)
+					setNodeInlineStyle(node, value)
 				} else if (name === 'className') {
 					applyClassName(node, value)
 				} else if (name !== 'id' && value !== undefined) {
@@ -4370,8 +4504,10 @@ function applyProps(node: ElementNode, props: PropBag) {
 				break
 			case 'liquidglass':
 				if (name === 'style') {
-					applyStyle(node, value)
-				} else if (name === 'className' || name === 'id') {
+					setNodeInlineStyle(node, value)
+				} else if (name === 'className') {
+					applyClassName(node, value)
+				} else if (name === 'id') {
 					continue
 				} else if (name === 'overlayChildren') {
 					continue
@@ -4402,7 +4538,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 				) {
 					continue
 				} else if (name === 'style') {
-					applyStyle(node, value)
+					setNodeInlineStyle(node, value)
 				} else if (name === 'className') {
 					applyClassName(node, value)
 				} else if (name === 'accessible' || name.startsWith('accessibility')) {
@@ -4418,7 +4554,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 				if (['items', 'selectedIndex', 'onSelectedIndexChange', 'id'].includes(name)) {
 					continue
 				} else if (name === 'style') {
-					applyStyle(node, value)
+					setNodeInlineStyle(node, value)
 				} else if (name === 'className') {
 					applyClassName(node, value)
 				} else if (name === 'accessible' || name.startsWith('accessibility')) {
@@ -4446,7 +4582,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 				) {
 					continue
 				} else if (name === 'style') {
-					applyStyle(node, value)
+					setNodeInlineStyle(node, value)
 				} else if (name === 'className') {
 					applyClassName(node, value)
 				} else if (name === 'accessible' || name.startsWith('accessibility')) {
@@ -4462,7 +4598,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 				if (['items', 'selectedIndex', 'onSelectedIndexChange', 'id'].includes(name)) {
 					continue
 				} else if (name === 'style') {
-					applyStyle(node, value)
+					setNodeInlineStyle(node, value)
 				} else if (name === 'className') {
 					applyClassName(node, value)
 				} else if (name === 'accessible' || name.startsWith('accessibility')) {
@@ -4491,7 +4627,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 				) {
 					continue
 				} else if (name === 'style') {
-					applyStyle(node, value)
+					setNodeInlineStyle(node, value)
 				} else if (name === 'className') {
 					applyClassName(node, value)
 				} else if (name === 'accessible' || name.startsWith('accessibility')) {
@@ -4519,7 +4655,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 				) {
 					continue
 				} else if (name === 'style') {
-					applyStyle(node, value)
+					setNodeInlineStyle(node, value)
 				} else if (name === 'className') {
 					applyClassName(node, value)
 				} else if (name === 'accessible' || name.startsWith('accessibility')) {
@@ -4535,7 +4671,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 				if (['value', 'maxValue', 'id'].includes(name)) {
 					continue
 				} else if (name === 'style') {
-					applyStyle(node, value)
+					setNodeInlineStyle(node, value)
 				} else if (name === 'className') {
 					applyClassName(node, value)
 				} else if (name === 'accessible' || name.startsWith('accessibility')) {
@@ -4551,7 +4687,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 				if (name === 'busy' || name === 'id') {
 					continue
 				} else if (name === 'style') {
-					applyStyle(node, value)
+					setNodeInlineStyle(node, value)
 				} else if (name === 'className') {
 					applyClassName(node, value)
 				} else if (name === 'accessible' || name.startsWith('accessibility')) {
@@ -4567,7 +4703,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 				if (name === 'html' || name === 'id') {
 					continue // parse once after all font/color sources reconcile
 				} else if (name === 'style') {
-					applyStyle(node, value)
+					setNodeInlineStyle(node, value)
 				} else if (name === 'className') {
 					applyClassName(node, value)
 				} else if (name === 'accessible' || name.startsWith('accessibility')) {
@@ -4586,7 +4722,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 					node.propFontSize = Number(value ?? 16)
 					syncNodeFont(node)
 				} else if (name === 'style') {
-					applyStyle(node, value)
+					setNodeInlineStyle(node, value)
 					syncText(node)
 				} else if (name === 'className') {
 					applyClassName(node, value)
@@ -4622,8 +4758,10 @@ function applyProps(node: ElementNode, props: PropBag) {
 							: null,
 					)
 				} else if (name === 'style') {
-					applyStyle(node, value)
-				} else if (name === 'className' || name === 'id') {
+					setNodeInlineStyle(node, value)
+				} else if (name === 'className') {
+					applyClassName(node, value)
+				} else if (name === 'id') {
 					continue
 				} else if (value !== undefined) {
 					console.warn('[macos-host] ignored button prop ' + name)
@@ -4632,7 +4770,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 				break
 			case 'scrollview':
 				if (name === 'style') {
-					applyStyle(node, value)
+					setNodeInlineStyle(node, value)
 				} else if (name === 'className') {
 					applyClassName(node, value)
 				} else if (name === 'accessibilityLabel') {
@@ -4668,7 +4806,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 							: null,
 					)
 				} else if (name === 'style') {
-					applyStyle(node, value)
+					setNodeInlineStyle(node, value)
 				} else if (name === 'className') {
 					applyClassName(node, value)
 				} else if (name === 'id') {
@@ -4721,7 +4859,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 						)
 					}
 				} else if (name === 'style') {
-					applyStyle(node, value)
+					setNodeInlineStyle(node, value)
 				} else if (name === 'className') {
 					applyClassName(node, value)
 				} else if (name === 'id') {
@@ -4749,8 +4887,10 @@ function applyProps(node: ElementNode, props: PropBag) {
 				} else if (name === 'disabled') {
 					node.view!.enabled = value !== true
 				} else if (name === 'style') {
-					applyStyle(node, value)
-				} else if (name === 'className' || name === 'id') {
+					setNodeInlineStyle(node, value)
+				} else if (name === 'className') {
+					applyClassName(node, value)
+				} else if (name === 'id') {
 					continue
 				} else if (value !== undefined) {
 					console.warn('[macos-host] ignored switch prop ' + name)
@@ -4769,8 +4909,10 @@ function applyProps(node: ElementNode, props: PropBag) {
 				} else if (name === 'disabled') {
 					node.view!.enabled = value !== true
 				} else if (name === 'style') {
-					applyStyle(node, value)
-				} else if (name === 'className' || name === 'id') {
+					setNodeInlineStyle(node, value)
+				} else if (name === 'className') {
+					applyClassName(node, value)
+				} else if (name === 'id') {
 					continue
 				} else if (value !== undefined) {
 					console.warn('[macos-host] ignored slider prop ' + name)
@@ -4779,7 +4921,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 				break
 			case 'webview':
 				if (name === 'style') {
-					applyStyle(node, value)
+					setNodeInlineStyle(node, value)
 				} else if (name === 'className') {
 					applyClassName(node, value)
 				} else if (name === 'accessibilityLabel') {
@@ -4797,8 +4939,10 @@ function applyProps(node: ElementNode, props: PropBag) {
 				} else if (name === 'placeholder') {
 					updateImage(node.view as NSImageView, node.props.src, value)
 				} else if (name === 'style') {
-					applyStyle(node, value)
-				} else if (name === 'className' || name === 'id' || name === 'alt') {
+					setNodeInlineStyle(node, value)
+				} else if (name === 'className') {
+					applyClassName(node, value)
+				} else if (name === 'id' || name === 'alt') {
 					continue
 				} else if (name === 'accessibilityLabel') {
 					node.view!.accessibilityLabel = String(value ?? '')
@@ -4814,7 +4958,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 				if (name === 'onCreatingView' || name === 'id') {
 					continue
 				} else if (name === 'style') {
-					applyStyle(node, value)
+					setNodeInlineStyle(node, value)
 				} else if (name === 'className') {
 					applyClassName(node, value)
 				} else if (name === 'accessible' || name.startsWith('accessibility')) {
@@ -4839,7 +4983,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 
 	if (node.type === 'webview') {
 		updateWebView(node, props, (height) => {
-			node.props.style = { ...node.props.style, height }
+			setNodeInlineStyle(node, { ...node.props.style, height })
 			setSizeConstraint(node, 'height', height)
 		})
 	}
@@ -4854,7 +4998,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 	if (node.type === 'label') {
 		syncLabelOverflow(node)
 		syncText(node)
-		const style = node.props.style ?? {}
+		const style = effectiveStyle(node)
 		if (
 			style.height == null &&
 			node.props.maxLines != null &&
@@ -5044,6 +5188,8 @@ function releaseProjectedView(node: ElementNode) {
 			}
 		}
 		node.props.style = node.authoredProps.style
+					markStyleDirty(node)
+		
 	}
 }
 
@@ -5086,12 +5232,14 @@ function syncProxyProjection(parent: ElementNode) {
 				}
 			}
 			for (const name of PROXY_LAYOUT_STYLES) {
-				if (owner.props.style?.[name] != null) {
-					forwardedStyle[name] = owner.props.style[name]
+				const ownerStyle =
+					effectiveStyle(owner)
+				if (ownerStyle[name] != null) {
+					forwardedStyle[name] = ownerStyle[name]
 				}
 			}
 		}
-		child.props.style = { ...forwardedStyle, ...child.authoredProps.style }
+		setNodeInlineStyle(child, { ...forwardedStyle, ...child.authoredProps.style })
 
 		const changes: PropBag = {}
 		for (const name of PROXY_LAYOUT_PROPS) {
@@ -5675,6 +5823,17 @@ function insert(
 		if (node.type === 'placeholder') {
 			fireCreatingView(node)
 		}
+		markStyleDirty(node, true)
+		if (
+			parent &&
+			(stylesheetScope().hasAdjacentCombinatorSelectors || stylesheetScope().hasSiblingCombinatorSelectors)
+		) {
+			for (const sib of parent.children) {
+				if (sib !== node) {
+					markStyleDirty(sib, true)
+				}
+			}
+		}
 	} else {
 		if (parent?.type === 'tabview') {
 			syncTabView(parent)
@@ -5690,6 +5849,16 @@ function remove(container: RootContainer, parentId: UniversalHostParent, node: E
 	const expectedParent = resolveParentNode(container, parentId)
 	if (node.parent !== expectedParent) {
 		return
+	}
+	if (
+		expectedParent &&
+		(stylesheetScope().hasAdjacentCombinatorSelectors || stylesheetScope().hasSiblingCombinatorSelectors)
+	) {
+		for (const sib of expectedParent.children) {
+			if (sib !== node) {
+				markStyleDirty(sib, true)
+			}
+		}
 	}
 
 	if (
@@ -5745,6 +5914,7 @@ function remove(container: RootContainer, parentId: UniversalHostParent, node: E
 }
 
 function destroy(node: ElementNode) {
+	node.container?.cssDirty?.delete(node)
 	for (const hook of node.destroyHooks ?? []) {
 		hook()
 	}
@@ -6298,7 +6468,15 @@ const macOSDriver: UniversalHostDriver<RootContainer, any> = {
 					appliedFontFamily: container.fontFamily,
 					scrollObserverInstalled: false,
 					text: '',
+					cssType: 'portalroot',
+					cssClasses: new Set(),
+					cssPseudoClasses: new Set(),
+					computedStyle: undefined,
+					computedCustomProps: new Map(),
 				}
+				root.getChildIndex = (child: ElementNode) => cssChildren(root).indexOf(child)
+				root.getChildAt = (i: number) => cssChildren(root)[i]
+				root.getChildrenCount = () => cssChildren(root).length
 
 				portalHandlesByNode.set(root, handle)
 				registration = { root, registrations: 0 }
@@ -6374,6 +6552,7 @@ const macOSDriver: UniversalHostDriver<RootContainer, any> = {
 				} finally {
 					const dirty = container.layoutDirty
 					container.layoutDirty = null
+					;flushStyleDirty(container!)
 					flushTabViews(container)
 					if (dirty) {
 						// Ancestor Mason passes traverse their whole subtree. Attach
@@ -6463,7 +6642,7 @@ function colorValue(color: any, appearance?: any) {
 function parityStyle(node: ElementNode, facets: readonly string[]) {
 	const view = node.view
 	const font = view?.font
-	const supplied: PropBag = node.props?.style ?? {}
+	const supplied: PropBag = effectiveStyle(node)
 	const out: Record<string, any> = {}
 	for (const facet of facets) {
 		let value = supplied[facet]
@@ -6550,11 +6729,11 @@ function parityStyle(node: ElementNode, facets: readonly string[]) {
 		}
 
 		if (facet === 'alignItems') {
-			value = node.props.alignItems ?? node.props.style?.alignItems
+			value = node.props.alignItems ?? effectiveStyle(node).alignItems
 		}
 
 		if (facet === 'justifyContent') {
-			value = node.props.justifyContent ?? node.props.style?.justifyContent
+			value = node.props.justifyContent ?? effectiveStyle(node).justifyContent
 		}
 
 		if (value !== undefined && value !== null && value !== '') {
@@ -7496,6 +7675,43 @@ function presentSheet(view: NSView, options: PropBag) {
 
 const appKitBridge = (globalThis.__xplatAppKit ??= {})
 installAppearanceBridge(appKitBridge)
+
+// Stylesheet and appearance changes restyle every live container.
+function restyleAllContainers() {
+	for (const container of appKitContainers) {
+		for (const child of container.children) {
+			markStyleDirty(child, true)
+		}
+		for (const entry of container.portalTargets.values()) {
+			markStyleDirty(entry.root, true)
+		}
+		flushStyleDirty(container)
+	}
+}
+
+onStylesheetsChanged(restyleAllContainers)
+
+// Media environment: window content size + appearance + reduceMotion.
+setStyleEnvironment(() => {
+	let width = 0
+	let height = 0
+	for (const container of appKitContainers) {
+		const rect: any = container.hostView?.window?.contentLayoutRect ?? container.hostView?.frame
+		const w = rect?.size?.width ?? rect?.width ?? 0
+		const h = rect?.size?.height ?? rect?.height ?? 0
+		if (w > width || h > height) {
+			width = w
+			height = h
+		}
+	}
+	// Same scheme source as the root ns-light/ns-dark classes.
+	const colorScheme = (appKitBridge as any).getColorScheme?.() === 'dark' ? 'dark' : 'light'
+	const reducedMotion = NSWorkspace.sharedWorkspace?.accessibilityDisplayShouldReduceMotion === true
+	return { width, height, colorScheme, reducedMotion }
+})
+
+// Appearance flips change ns-light/ns-dark on roots and may flip media-gated rules.
+appKitBridge.onAppearanceChange?.(() => restyleAllContainers())
 appKitBridge.observeHover = observeHover
 appKitBridge.showAnchoredPopup = showAnchoredPopup
 appKitBridge.showLayer = (options: PropBag) =>
@@ -7813,9 +8029,8 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 					throw new Error('No AppKit node with id ' + id)
 				}
 
-				// Single-key writes merge into the node's style bag — applyStyle
-				// diffs against the last applied bag, so a partial object here
-				// would reset every other style.
+				// Single-key writes merge into the node's inline style bag; the
+				// cascade re-derives the effective style from it.
 				const style = { ...node.props?.style }
 				if (value == null) {
 					delete style[name]
@@ -7823,8 +8038,8 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 					style[name] = value
 				}
 
-				node.props = { ...node.props, style }
-				applyStyle(node, style)
+				setNodeInlineStyle(node, style)
+				flushStyleDirty(node.container)
 				container.hostView.layoutSubtreeIfNeeded?.()
 				return this.frameInWindow(id)
 			},

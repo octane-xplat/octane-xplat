@@ -2034,6 +2034,9 @@ importers:
 
   packages/macos-renderer:
     dependencies:
+      '@csstools/css-calc':
+        specifier: 2.1.4
+        version: 2.1.4(@csstools/css-parser-algorithms@3.0.5(@csstools/css-tokenizer@3.0.4))(@csstools/css-tokenizer@3.0.4)
       '@nativescript/macos-node-api':
         specifier: 'catalog:'
         version: 0.4.4-next.2026-08-09-31292056208
@@ -2046,6 +2049,12 @@ importers:
       acorn:
         specifier: 8.15.0
         version: 8.15.0
+      css-tree:
+        specifier: 3.2.1
+        version: 3.2.1
+      css-what:
+        specifier: 7.0.0
+        version: 7.0.0
       saxes:
         specifier: 6.0.0
         version: 6.0.0

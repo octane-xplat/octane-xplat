@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
-import { runInNewContext } from 'node:vm'
+import { runSlice } from './mock-globals.ts'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 
@@ -26,7 +26,7 @@ test('AppKit meter and progressbar roles report range, value, and description', 
 	const roles = new Map()
 	const labels = new Map()
 	const stackProps = new WeakMap()
-	const { AccessibleHostView, applyAccessibility } = runInNewContext(
+	const { AccessibleHostView, applyAccessibility } = runSlice(
 		stack + '\n' + apply + '\n({ AccessibleHostView, applyAccessibility })',
 		{
 		elementBehaviors: new Map(),

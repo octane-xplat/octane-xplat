@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { runInNewContext } from 'node:vm'
+import { runSlice } from './mock-globals.ts'
 import { sourceWithoutImports } from './mock-globals.ts'
+import { registerStylesheet, stylesheetScope } from '../src/css/stylesheets.ts'
+import { computeCascade, INHERITED_CSS_PROPERTIES } from '../src/css/cascade.ts'
 
 // Exercise style/className reconciliation without the Objective-C bridge.
 // Removed style keys and dropped classes must put back the native state they
@@ -167,15 +169,22 @@ const sandbox = {
 	queueLayoutReconcile: (_container: any, parent: any) => reconciles.push(parent),
 	// Margin hosts install/remove a click-through recognizer; irrelevant here.
 	setLayoutAction: () => {},
+	// Real cascade machinery — the vendored selector engine is importable
+	// directly, so slices exercise actual CSS matching.
+	computeCascade,
+	stylesheetScope,
+	INHERITED_CSS_PROPERTIES,
+	registerStylesheet,
+	queueMicrotask,
 }
 
-const { applyStyle, applyClassName, applyProps, nodeClasses } = runInNewContext(
+const { applyStyle, setNodeInlineStyle, applyClassName, applyProps, nodeClasses, flushStyleDirty, markStyleDirty } = runSlice(
 	slices.join('\n') +
 		source.slice(source.indexOf('function applyProps'), source.indexOf('function detach')) +
-		'\n({ applyStyle, applyClassName, applyProps, nodeClasses })',
+		'\n({ applyStyle, setNodeInlineStyle, applyClassName, applyProps, nodeClasses, flushStyleDirty, markStyleDirty })',
 	sandbox,
 )
-hooks.applyStyle = applyStyle
+hooks.applyStyle = setNodeInlineStyle
 hooks.applyClassName = applyClassName
 
 const container = { fontFamily: undefined }
@@ -189,6 +198,14 @@ function node(type, { orientation, props = {}, parent = null } = {}) {
 		parent,
 		children: [],
 		container,
+		cssType: type,
+		cssClasses: new Set(),
+		cssPseudoClasses: new Set(),
+		computedStyle: {},
+		computedCustomProps: new Map(),
+		getChildIndex: (c) => item.children.indexOf(c),
+		getChildAt: (i) => item.children[i],
+		getChildrenCount: () => item.children.length,
 	}
 
 	parent?.children.push(item)
@@ -200,11 +217,13 @@ function node(type, { orientation, props = {}, parent = null } = {}) {
 function setClass(item, className) {
 	item.props = { ...item.props, className }
 	applyClassName(item, className)
+	flushStyleDirty(item.container)
 }
 
 function setStyle(item, style) {
 	item.props = { ...item.props, style }
-	applyStyle(item, style)
+	setNodeInlineStyle(item, style)
+	flushStyleDirty(item.container)
 }
 
 // edgeInsets literals and nodeClasses results are built inside the vm realm —
@@ -269,11 +288,15 @@ test('removed margin zeroes its side and re-queues the layout parent', () => {
 })
 
 test('removed classes restore spacing, orientation, background, and insets', () => {
+	registerStylesheet(
+		'sr-containers',
+		'.gap-2 { row-gap: 8px; column-gap: 8px } .bg-primary { background-color: blue; padding: 6px 10px } .flex-col { flex-direction: column }',
+	)
 	const item = node('masonview', { orientation: 1 })
 	setClass(item, 'gap-2 bg-primary flex-col')
 
-	assert.equal(item.classSpacing, 8)
-	assert.equal(item.classOrientation, 1)
+	assert.equal(item.computedStyle.rowGap, 8)
+	assert.equal(item.computedStyle.flexDirection, 'column')
 	// Container-plumbing insets flow to dockInsets — the mason style layer
 	// reads them as padding, there is no NSStackView edgeInsets anymore.
 	assert.deepEqual(insets(item.dockInsets), { top: 6, right: 10, bottom: 6, left: 10 })
@@ -281,17 +304,17 @@ test('removed classes restore spacing, orientation, background, and insets', () 
 
 	setClass(item, 'gap-2')
 
-	assert.equal(item.classSpacing, 8, 'remaining class still applies')
+	assert.equal(item.computedStyle.rowGap, 8, 'remaining class still applies')
 	assert.deepEqual(insets(item.dockInsets), { top: 0, right: 0, bottom: 0, left: 0 })
 	assert.equal(item.view.layer.backgroundColor, null)
-	assert.equal(item.bgSlot, undefined)
 
 	setClass(item, '')
 
-	assert.equal(item.classSpacing, undefined)
+	assert.equal(item.computedStyle.rowGap, undefined)
 })
 
 test('removed rounded class restores corner radius and masksToBounds', () => {
+	registerStylesheet('sr-radius', '.rounded-full { border-radius: 12px }')
 	const item = node('masonview', { orientation: 1 })
 	setClass(item, 'rounded-full')
 	assert.equal(item.view.layer.cornerRadius, 12)
@@ -303,6 +326,7 @@ test('removed rounded class restores corner radius and masksToBounds', () => {
 })
 
 test('style padding wins over class insets and removal restores them', () => {
+	registerStylesheet('sr-toast', '.vx-toast { padding: 12px }')
 	const item = node('masonview', { orientation: 1 })
 	setClass(item, 'vx-toast')
 	setStyle(item, { padding: 20 })
@@ -315,6 +339,7 @@ test('style padding wins over class insets and removal restores them', () => {
 })
 
 test('font sources resolve style > class > default as each is removed', () => {
+	registerStylesheet('sr-fonts', '.font-bold { font-weight: 700 }')
 	const item = node('label')
 	setClass(item, 'font-bold')
 	setStyle(item, { fontSize: 20 })
@@ -334,6 +359,7 @@ test('font sources resolve style > class > default as each is removed', () => {
 })
 
 test('grabber class removal returns label alignment to textAlign or left', () => {
+	registerStylesheet('sr-grabber', '.vx-sheet-grabber { text-align: center; height: 24px }')
 	const item = node('label')
 	setClass(item, 'vx-sheet-grabber')
 	assert.equal(item.view.alignment, 1)
@@ -350,6 +376,10 @@ test('grabber class removal returns label alignment to textAlign or left', () =>
 
 // Test the real prop dispatch alongside style/class reconciliation. These
 // values drive orientation, gravity groups and active stretch constraints.
+registerStylesheet(
+	'sr-layout',
+	'.flex-col { flex-direction: column } .gap-2 { row-gap: 8px; column-gap: 8px } .gap-3 { row-gap: 12px; column-gap: 12px } .items-center { align-items: center } .justify-center { justify-content: center }',
+)
 for (const type of ['masonview', 'scrollview']) {
 	test(`${type} resolves layout style > class > props independent of property order`, () => {
 		for (const reversed of [false, true]) {
@@ -363,19 +393,25 @@ for (const type of ['masonview', 'scrollview']) {
 				justifyContent: 'start',
 			})
 
-			applyProps(item, Object.fromEntries(reversed ? entries.reverse() : entries))
-			// className populates classOrientation/classSpacing; props stay
-			// merged for the prop surface — the engine reads them at layout.
-			assert.equal(item.classOrientation, 1)
-			assert.equal(item.classSpacing, 8)
-			assert.equal(item.props.gap, 4)
+			applyProps(item, { className: 'flex-col gap-2' })
+			flushStyleDirty(item.container)
+			assert.equal(item.computedStyle.flexDirection, 'column')
+			assert.equal(item.computedStyle.rowGap, 8)
 
-			applyProps(item, { className: 'flex-col gap-3' })
-			assert.equal(item.classSpacing, 12)
+			// Inline style beats CSS at equal-or-any cascade position (Local > Css).
+			applyProps(item, { style: { flexDirection: 'row', gap: 12 } })
+			flushStyleDirty(item.container)
+			assert.equal(item.computedStyle.flexDirection, 'row')
+			assert.equal(item.computedStyle.gap, 12)
 
-			applyProps(item, { className: '' })
-			assert.equal(item.classSpacing, undefined)
-			assert.equal(item.classOrientation, undefined)
+			applyProps(item, { className: 'flex-col gap-3', style: {} })
+			flushStyleDirty(item.container)
+			assert.equal(item.computedStyle.rowGap, 12)
+
+			applyProps(item, { className: '', style: {} })
+			flushStyleDirty(item.container)
+			assert.equal(item.computedStyle.rowGap, undefined)
+			assert.equal(item.computedStyle.flexDirection, undefined)
 		}
 	})
 }
@@ -401,7 +437,7 @@ test('array className values tokenize like strings', () => {
 	setClass(item, ['gap-2', 'bg-primary', 'items-center'])
 
 	assert.deepEqual(classes(item), ['gap-2', 'bg-primary', 'items-center'])
-	assert.equal(item.classSpacing, 8)
+	assert.equal(item.computedStyle.rowGap, 8)
 	assert.ok(item.view.layer.backgroundColor != null)
 })
 
@@ -410,7 +446,7 @@ test('nested arrays flatten and falsy entries drop out', () => {
 	setClass(item, ['gap-2', ['items-center', null, false], undefined, ''])
 
 	assert.deepEqual(classes(item), ['gap-2', 'items-center'])
-	assert.equal(item.classSpacing, 8)
+	assert.equal(item.computedStyle.rowGap, 8)
 })
 
 test('object className values keep only truthy keys', () => {
@@ -418,7 +454,7 @@ test('object className values keep only truthy keys', () => {
 	setClass(item, { 'gap-2': true, 'items-center': 1, 'bg-primary': false, hidden: 0 })
 
 	assert.deepEqual(classes(item), ['gap-2', 'items-center'])
-	assert.equal(item.classSpacing, 8)
+	assert.equal(item.computedStyle.rowGap, 8)
 	assert.ok(item.view.layer.backgroundColor == null, 'falsy object keys never apply')
 })
 
@@ -428,7 +464,7 @@ test('class effects still reset when an array input goes empty', () => {
 	setClass(item, [])
 
 	assert.deepEqual(classes(item), [])
-	assert.equal(item.classSpacing, undefined)
+	assert.equal(item.computedStyle.rowGap, undefined)
 	assert.ok(item.view.layer.backgroundColor == null)
 })
 
@@ -465,6 +501,7 @@ test('masonview edge padding updates queue the container pass', () => {
 	applyProps(stack, {
 		style: { paddingTop: 3, paddingBottom: 7, paddingLeft: 4, paddingRight: 10 },
 	})
+	flushStyleDirty(stack.container)
 	assert.ok(
 		stack.stylePaddingEdges?.top === 3 && stack.stylePaddingEdges?.right === 10,
 		'edge padding parses for the engine',

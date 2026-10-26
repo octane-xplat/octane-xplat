@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
 import { test } from 'node:test'
-import { runInNewContext } from 'node:vm'
+import { runSlice } from './mock-globals.ts'
 import { textRuns, validateTextStyle } from '../src/formatted-text.ts'
 
 const node = (type: string, props: any = {}, children: any[] = []) => ({
@@ -78,7 +78,7 @@ const fn = (name: string) => {
 	return source.slice(start, source.indexOf('\nfunction ', start + 1))
 }
 
-const api = runInNewContext(fn('validateTextNesting') + '\n({validateTextNesting})')
+const api = runSlice(fn('validateTextNesting') + '\n({validateTextNesting})')
 
 test('formattedstring is viewless and accepts spans only under all five text-bearing hosts', () => {
 	for (const type of ['label', 'button', 'textfield', 'textview', 'searchbar']) {
@@ -102,7 +102,7 @@ test('formattedstring is viewless and accepts spans only under all five text-bea
 
 test('logical text hosts reparent, move, remove and dispose through production ownership paths', () => {
 	const noop = () => {}
-	const runtime = runInNewContext(
+	const runtime = runSlice(
 		[
 			'parentReference',
 			'resolveParentNode',

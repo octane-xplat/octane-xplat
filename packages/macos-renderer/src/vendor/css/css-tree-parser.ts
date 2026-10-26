@@ -1,0 +1,158 @@
+/**
+ * Vendored from @nativescript/core 9.1.3 `css/css-tree-parser.ts`, plus the
+ * `@layer` atrule mapping from packages/cli/patches/@nativescript__core@9.1.3.patch.
+ *
+ * Produces the reworkcss-shaped AST (`reworkcss.ts`) that
+ * `populateCssRules`/`fromAstNode` consume — the same shape the NativeScript
+ * runtime feeds its selector engine when `__CSS_PARSER__ === 'css-tree'`
+ * (the parser the @nativescript/vite build defines by default).
+ */
+/// <reference path="./css-tree.d.ts" />
+import * as cssTree from 'css-tree';
+
+function mapSelectors(selector: string): string[] {
+	if (!selector) {
+		return [];
+	}
+
+	// escaped commas (Tailwind arbitrary values) are part of the selector
+	return selector
+		.replace(/\\[\s\S]/g, (m) => (m === '\\,' ? '\\u200C' : m))
+		.split(/\s*(?![^(]*\)),\s*/)
+		.map((s) => s.replace(/\u200C/g, ','));
+}
+
+function mapPosition(node: any, css: string) {
+	const res: any = {
+		start: {
+			line: node.loc.start.line,
+			column: node.loc.start.column,
+		},
+		end: {
+			line: node.loc.end.line,
+			column: node.loc.end.column,
+		},
+		content: css,
+	};
+
+	if (node.loc.source && node.loc.source !== '<unknown>') {
+		res.source = node.loc.source;
+	}
+
+	return res;
+}
+
+function transformAst(node: any, css: string, type: string | null = null) {
+	if (!node) {
+		return;
+	}
+
+	if (node.type === 'StyleSheet') {
+		return {
+			type: 'stylesheet',
+			stylesheet: {
+				rules: node.children
+					.map((child: any) => transformAst(child, css))
+					.filter((child: any) => child !== null)
+					.toArray(),
+				parsingErrors: [],
+			},
+		};
+	}
+
+	if (node.type === 'Atrule') {
+		const atrule: any = {
+			type: node.name,
+		};
+		if (node.name === 'supports' || node.name === 'media') {
+			atrule[node.name] = node.prelude.value;
+			atrule.rules = transformAst(node.block, css);
+		} else if (node.name === 'page') {
+			atrule.selectors = node.prelude ? mapSelectors(node.prelude.value) : [];
+			atrule.declarations = transformAst(node.block, css);
+		} else if (node.name === 'document') {
+			atrule.document = node.prelude ? node.prelude.value : '';
+			atrule.vendor = '';
+			atrule.rules = transformAst(node.block, css);
+		} else if (node.name === 'font-face') {
+			atrule.declarations = transformAst(node.block, css);
+		} else if (node.name === 'import' || node.name === 'charset' || node.name === 'namespace') {
+			atrule[node.name] = node.prelude ? node.prelude.value : '';
+		} else if (node.name === 'keyframes') {
+			atrule.name = node.prelude ? node.prelude.value : '';
+			atrule.keyframes = transformAst(node.block, css, 'keyframe');
+			atrule.vendor = undefined;
+		} else if (node.name === 'layer') {
+			atrule.layer = node.prelude ? node.prelude.value.trim() : '';
+			atrule.rules = transformAst(node.block, css);
+		} else {
+			atrule.rules = transformAst(node.block, css);
+		}
+		atrule.position = mapPosition(node, css);
+		return atrule;
+	}
+
+	if (node.type === 'Block') {
+		return node.children
+			.map((child: any) => transformAst(child, css, type))
+			.filter((child: any) => child !== null)
+			.toArray();
+	}
+
+	if (node.type === 'Rule') {
+		const value = node.prelude.value;
+		const res: any = {
+			type: type != null ? type : 'rule',
+			declarations: transformAst(node.block, css),
+			position: mapPosition(node, css),
+		};
+		if (type === 'keyframe') {
+			res.values = mapSelectors(value);
+		} else {
+			res.selectors = mapSelectors(value);
+		}
+		return res;
+	}
+
+	if (node.type === 'Comment') {
+		return {
+			type: 'comment',
+			comment: node.value,
+			position: mapPosition(node, css),
+		};
+	}
+
+	if (node.type === 'Declaration') {
+		return {
+			type: 'declaration',
+			property: node.property,
+			value: node.value.value ? node.value.value.trim() : '',
+			position: mapPosition(node, css),
+		};
+	}
+
+	if (node.type === 'Raw') {
+		return null;
+	}
+
+	throw Error(`Unknown node type ${node.type}`);
+}
+
+export function cssTreeParse(css: string, source?: string) {
+	const errors: string[] = [];
+	const ast = cssTree.parse(css, {
+		parseValue: false,
+		parseAtrulePrelude: false,
+		parseRulePrelude: false,
+		positions: true,
+		filename: source,
+		onParseError: (error: any) => {
+			errors.push(`${source}:${error.line}:${error.column}: ${error.formattedMessage}`);
+		},
+	});
+	if (errors.length > 0) {
+		throw new Error(errors[0]);
+	}
+
+	return transformAst(ast, css);
+}

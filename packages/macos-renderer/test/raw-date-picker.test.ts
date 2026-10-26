@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
 import { test } from 'node:test'
-import { runInNewContext } from 'node:vm'
+import { runSlice } from './mock-globals.ts'
 
 const source = stripTypeScriptTypes(
 	readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
@@ -24,7 +24,7 @@ function controlFixture() {
 		source.indexOf('\nfunction applyProps('),
 	)
 
-	const api = runInNewContext(
+	const api = runSlice(
 		constants +
 			'\n' +
 			[
@@ -200,7 +200,7 @@ test('DatePicker rejects invalid primitives before host mutation and supports ca
 })
 
 test('DatePicker rejects children and accepts all maintained layout parents', () => {
-	const api = runInNewContext(fn('validateTextNesting') + '\n({validateTextNesting})')
+	const api = runSlice(fn('validateTextNesting') + '\n({validateTextNesting})')
 	for (const child of ['label', '#text', 'span', 'datepicker']) {
 		assert.throws(() => api.validateTextNesting('datepicker', child), /cannot contain JSX children/)
 	}
@@ -230,7 +230,7 @@ test('DatePicker production ownership moves its native host between parents and 
 		},
 	})
 
-	const api = runInNewContext(
+	const api = runSlice(
 		[
 			'parentReference',
 			'resolveParentNode',

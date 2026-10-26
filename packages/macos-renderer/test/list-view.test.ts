@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
-import { runInNewContext } from 'node:vm'
+import { runSlice } from './mock-globals.ts'
 import { listFactory, parseListTemplate } from '../src/list-template.ts'
 
 function fixture() {
@@ -84,7 +84,7 @@ function fixture() {
 		anchor = { constraintEqualToAnchor: () => ({ active: false }) }
 	}
 
-	const api = runInNewContext(source + '\n({makeListView,updateListView,disposeListView,states})', {
+	const api = runSlice(source + '\n({makeListView,updateListView,disposeListView,states})', {
 		elementBehaviors: new Map(),
 		behaviorOf: () => undefined,
 		isManualLayoutParent: (t: string) =>
