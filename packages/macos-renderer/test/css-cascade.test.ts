@@ -82,6 +82,24 @@ test('inline beats CSS; removing the inline key falls back to CSS', () => {
 	assert.equal(n.computedStyle.color, 'red')
 })
 
+test('an element prop named like a style property outranks CSS and inheritance', () => {
+	registerStylesheet('t-local-prop', '.lp-root { font-size: 16px } .lp-label { color: red }')
+	const root = node('masonview', { classes: ['lp-root'] })
+	const label = node('label', { parent: root, classes: ['lp-label'] })
+	label.props.fontSize = 14
+	label.props.color = 'blue'
+	compute(label)
+	assert.equal(
+		label.computedStyle.fontSize,
+		undefined,
+		'the fontSize prop governs, not the inherited 16',
+	)
+	assert.equal(label.computedStyle.color, undefined, 'the color prop outranks the CSS rule')
+	label.props.style = { fontSize: 12 }
+	compute(label)
+	assert.equal(label.computedStyle.fontSize, 12, 'inline style still wins over the prop')
+})
+
 test('color/font-size inherit to child label; background-color does not', () => {
 	registerStylesheet('t4', '.p { color: #123456; font-size: 20px; background-color: #abcdef }')
 	const p = node('masonview', { classes: ['p'] })
@@ -251,6 +269,7 @@ const MACHINERY = FULL_SOURCE.slice(
 	FULL_SOURCE.indexOf('// ---- CSS cascade'),
 	FULL_SOURCE.indexOf('function nodeScheme'),
 )
+
 const RESTYLE_ALL = FULL_SOURCE.slice(
 	FULL_SOURCE.indexOf('function restyleAllContainers'),
 	FULL_SOURCE.indexOf('onStylesheetsChanged(restyleAllContainers)'),
@@ -271,7 +290,10 @@ function machineryApi(extra: Record<string, any> = {}) {
 		INHERITED_CSS_PROPERTIES,
 		registerStylesheet,
 		normalizeClass: (v: any) => String(v ?? ''),
-		appKitBridge: { getColorScheme: () => ctx.scheme ?? 'light', onAppearanceChange: (l: any) => (ctx.appearanceListener = l) },
+		appKitBridge: {
+			getColorScheme: () => ctx.scheme ?? 'light',
+			onAppearanceChange: (l: any) => (ctx.appearanceListener = l),
+		},
 		NSWorkspace: { sharedWorkspace: { accessibilityDisplayShouldReduceMotion: false } },
 		behaviorOf: () => undefined,
 		queueLayoutReconcile: () => {},
@@ -283,8 +305,14 @@ function machineryApi(extra: Record<string, any> = {}) {
 		applyStyle(node: any, style: any) {
 			applyCalls.push(node)
 			for (const key of Object.keys(style ?? {})) {
-				if (WARNABLE.has(key) || key.startsWith('--')) continue
-				if (node.inheritedOnlyKeys?.has(key)) continue
+				if (WARNABLE.has(key) || key.startsWith('--')) {
+					continue
+				}
+
+				if (node.inheritedOnlyKeys?.has(key)) {
+					continue
+				}
+
 				if (node.cssOriginKeys?.has(key)) {
 					ctx.api.warnUnsupportedCssProp(node, key)
 				} else {
@@ -324,11 +352,15 @@ function sliceNode(type: string, opts: any = {}) {
 		computedStyle: undefined,
 		computedCustomProps: new Map(),
 	}
-	n.getChildIndex = (c: any) => n.parent ? n.parent.children.indexOf(n) : container.children.indexOf(n)
+	n.getChildIndex = (c: any) =>
+		n.parent ? n.parent.children.indexOf(n) : container.children.indexOf(n)
 	n.getChildAt = (i: number) => n.children[i]
 	n.getChildrenCount = () => n.children.length
-	if (n.parent) n.parent.children.push(n)
-	else container.children.push(n)
+	if (n.parent) {
+		n.parent.children.push(n)
+	} else {
+		container.children.push(n)
+	}
 	container.nodes.set(n.id, n)
 	return n
 }
@@ -337,7 +369,9 @@ test('(a) CSS-origin unsupported property on 3 nodes warns exactly once', async 
 	registerStylesheet('t-warn', '.w { foo-bar: 7px }')
 	const { api, warnings } = machineryApi()
 	const nodes = [sliceNode('label'), sliceNode('label'), sliceNode('label')]
-	for (const n of nodes) api.applyClassName(n, 'w')
+	for (const n of nodes) {
+		api.applyClassName(n, 'w')
+	}
 	await tick()
 	assert.equal(
 		warnings.filter((m) => m.includes('fooBar')).length,
@@ -366,10 +400,18 @@ test('(c) __xplatStylesheets queued before module load is applied', async () => 
 	const fresh: any = await import(url)
 	const scope = fresh.stylesheetScope()
 	const n = {
-		id: 'q1', cssType: 'label', cssClasses: new Set(['q']), cssPseudoClasses: new Set(),
-		parent: null, children: [], props: {},
-		computedStyle: undefined, computedCustomProps: new Map(),
-		getChildIndex: () => -1, getChildAt: () => undefined, getChildrenCount: () => 0,
+		id: 'q1',
+		cssType: 'label',
+		cssClasses: new Set(['q']),
+		cssPseudoClasses: new Set(),
+		parent: null,
+		children: [],
+		props: {},
+		computedStyle: undefined,
+		computedCustomProps: new Map(),
+		getChildIndex: () => -1,
+		getChildAt: () => undefined,
+		getChildrenCount: () => 0,
 	}
 	assert.equal(computeCascade(n, scope).style.color, 'green')
 	delete (globalThis as any).__xplatStylesheets
@@ -378,12 +420,56 @@ test('(c) __xplatStylesheets queued before module load is applied', async () => 
 test('(d) N marks outside a batch produce exactly one flush', async () => {
 	const { api, applyCalls } = machineryApi()
 	const nodes = [sliceNode('label'), sliceNode('label'), sliceNode('label'), sliceNode('label')]
-	for (const n of nodes) api.markStyleDirty(n)
+	for (const n of nodes) {
+		api.markStyleDirty(n)
+	}
 	await tick()
 	const firstFlush = applyCalls.length
 	assert.equal(firstFlush, nodes.length, 'each dirty node restyles exactly once')
 	await tick()
 	assert.equal(applyCalls.length, firstFlush, 'no second flush scheduled')
+})
+
+test('(j) a restyle that resolves to the same style skips applyStyle', async () => {
+	const { api, applyCalls } = machineryApi()
+	const n = sliceNode('label', { style: { opacity: 0.5 } })
+	api.markStyleDirty(n)
+	await tick()
+	assert.equal(applyCalls.length, 1)
+	api.markStyleDirty(n)
+	await tick()
+	assert.equal(applyCalls.length, 1, 'unchanged effective style is not re-applied')
+	api.setNodeInlineStyle(n, { opacity: 0.25 })
+	await tick()
+	assert.equal(applyCalls.length, 2)
+})
+
+test('(k) an out-of-batch flush queues style-driven layout into one drain', async () => {
+	let syncLayouts = 0
+	const drained: any[] = []
+	const { api } = machineryApi({
+		applyStyle(node: any, style: any) {
+			node.appliedStyle = style
+			// Mirrors queueLayoutReconcile: batch-queued when a layout batch is open.
+			if (node.container.layoutDirty) {
+				node.container.layoutDirty.add(node.parent ?? node)
+			} else {
+				syncLayouts++
+			}
+		},
+		reconcileLayoutParent: (parent: any) => drained.push(parent),
+	})
+	const container = { nodes: new Map(), layoutDirty: null, children: [], portalTargets: new Map() }
+	const parent = sliceNode('masonview', { container, style: { opacity: 1 } })
+	const a = sliceNode('label', { container, parent, style: { opacity: 0.5 } })
+	const b = sliceNode('label', { container, parent, style: { opacity: 0.25 } })
+	for (const n of [parent, a, b]) {
+		api.markStyleDirty(n)
+	}
+	await tick()
+	assert.equal(syncLayouts, 0, 'no synchronous per-apply layout')
+	assert.deepEqual(drained, [parent], 'one drain per dirty layout parent')
+	assert.equal(container.layoutDirty, null, 'the flush closes the layout batch it opened')
 })
 
 test('(e) root classes follow the appearance bridge', async () => {

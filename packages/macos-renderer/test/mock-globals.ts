@@ -59,11 +59,19 @@ const CSS_SLICE_STUBS = `
 if (typeof effectiveStyle === 'undefined') var effectiveStyle = (n) => n.computedStyle ?? n.props?.style ?? {}
 if (typeof markStyleDirty === 'undefined') var markStyleDirty = () => {}
 if (typeof flushStyleDirty === 'undefined') var flushStyleDirty = () => {}
+if (typeof drainLayoutDirty === 'undefined') var drainLayoutDirty = (dirty) => {
+	for (const p of dirty) {
+		if ((p.projectedChildren || p.children.some((c) => c.type === 'proxyviewcontainer')) && typeof syncProxyProjection === 'function') syncProxyProjection(p)
+	}
+	for (const p of dirty) if (typeof reconcileLayoutParent === 'function') reconcileLayoutParent(p)
+}
 if (typeof setNodeInlineStyle === 'undefined') var setNodeInlineStyle = (n, v) => { n.props.style = v; if (typeof applyStyle === 'function') applyStyle(n, v) }
 if (typeof setNodeClassName === 'undefined') var setNodeClassName = (n, v) => { n.cssClasses = new Set(String(v ?? '').split(/\\s+/).filter(Boolean)) }
 if (typeof setNodeId === 'undefined') var setNodeId = (n, v) => { n.cssId = v == null ? undefined : String(v) }
 if (typeof setPseudoClass === 'undefined') var setPseudoClass = () => {}
 if (typeof syncInputChrome === 'undefined') var syncInputChrome = () => {}
+if (typeof syncText === 'undefined') var syncText = () => {}
+if (typeof syncHtmlView === 'undefined') var syncHtmlView = () => {}
 if (typeof restyleNode === 'undefined') var restyleNode = () => {}
 if (typeof cssChildren === 'undefined') var cssChildren = (n) => n.children.filter((c) => c.view != null || c.type === 'proxyviewcontainer')
 if (typeof refreshCssClasses === 'undefined') var refreshCssClasses = (n) => { n.cssClasses = n.cssBaseClasses ?? new Set() }

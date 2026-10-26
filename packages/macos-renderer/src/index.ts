@@ -3118,6 +3118,15 @@ function flushStyleDirty(container: RootContainer) {
 	if (!dirty?.size) {
 		return
 	}
+
+	// Style applies queue layout work. Inside a command batch the batch drains
+	// it; outside one, open a layout batch so each apply doesn't reconcile
+	// its parent synchronously.
+	const ownsLayoutBatch = container.layoutDirty == null
+	if (ownsLayoutBatch) {
+		container.layoutDirty = new Set()
+	}
+
 	// Top-down: parents must compute before children that inherit from them.
 	const nodes = [...dirty].sort((a, b) => cssDepth(a) - cssDepth(b))
 	for (const node of nodes) {
@@ -3126,6 +3135,12 @@ function flushStyleDirty(container: RootContainer) {
 			continue
 		}
 		restyleNode(node)
+	}
+
+	if (ownsLayoutBatch) {
+		const layoutDirty = container.layoutDirty!
+		container.layoutDirty = null
+		drainLayoutDirty(layoutDirty)
 	}
 }
 
@@ -3137,6 +3152,11 @@ function cssDepth(node: ElementNode): number {
 	return depth
 }
 
+
+function shallowEqualStyle(a: PropBag, b: PropBag) {
+	const keys = Object.keys(a)
+	return keys.length === Object.keys(b).length && keys.every((key) => a[key] === b[key])
+}
 
 /** Recompute one node's effective style and apply it. Caller guarantees the
  *  parent is already styled (top-down flush order). */
@@ -3165,8 +3185,19 @@ function restyleNode(node: ElementNode) {
 		}
 	}
 
-	applyStyle(node, style)
-	syncInputChrome(node)
+	// Unchanged effective styles skip the native apply: most restyles (class or
+	// sibling marks, ancestor cascades) resolve to the same bag.
+	if (!shallowEqualStyle(prevStyle, style) || !node.appliedStyle) {
+		applyStyle(node, style)
+		syncInputChrome(node)
+		// Text attributes (font, line height) bake into the attributed string,
+		// which applyProps built before this restyle resolved the font.
+		if (node.type === 'htmlview') {
+			syncHtmlView(node)
+		} else {
+			syncText(node)
+		}
+	}
 
 	// Only cascade to children when values they could inherit moved.
 	if (customChanged || inheritedChanged) {
@@ -3785,7 +3816,13 @@ function applyStyle(node: ElementNode, style: PropBag) {
 				behaviorOf((node.layoutParent ?? node.parent)?.type)?.styleKeys?.has(name)
 			)
 		) {
-			if (node.inheritedOnlyKeys?.has(name)) {
+			// Inherited values, and inheritable properties a stylesheet declares on
+			// a container for its descendants, are not unsupported here.
+			if (
+				node.inheritedOnlyKeys?.has(name) ||
+				(node.cssOriginKeys?.has(name) &&
+					INHERITED_CSS_PROPERTIES.has(name.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase())))
+			) {
 				continue
 			}
 			if (node.cssOriginKeys?.has(name)) {
@@ -5514,6 +5551,23 @@ function queueLayoutReconcile(container: RootContainer, parent: ElementNode | nu
 	reconcileLayoutParent(parent)
 }
 
+/** Drain a batch's layout parents. Ancestor Mason passes traverse their whole
+ *  subtree, so every pending projection attaches before any pass can pin its
+ *  views. */
+function drainLayoutDirty(dirty: Set<ElementNode>) {
+	for (const parent of dirty) {
+		if (
+			parent.projectedChildren ||
+			parent.children.some((child) => child.type === 'proxyviewcontainer')
+		) {
+			syncProxyProjection(parent)
+		}
+	}
+	for (const parent of dirty) {
+		reconcileLayoutParent(parent)
+	}
+}
+
 function reconcileLayoutParent(parent: ElementNode) {
 	if (
 		parent.projectedChildren ||
@@ -6550,24 +6604,14 @@ const macOSDriver: UniversalHostDriver<RootContainer, any> = {
 						}
 					}
 				} finally {
+					// Restyle while the layout batch is open so style-driven layout
+					// work joins the batch's single drain.
+					flushStyleDirty(container!)
 					const dirty = container.layoutDirty
 					container.layoutDirty = null
-					;flushStyleDirty(container!)
 					flushTabViews(container)
 					if (dirty) {
-						// Ancestor Mason passes traverse their whole subtree. Attach
-						// every pending projection before any pass can pin its views.
-						for (const parent of dirty) {
-							if (
-								parent.projectedChildren ||
-								parent.children.some((child) => child.type === 'proxyviewcontainer')
-							) {
-								syncProxyProjection(parent)
-							}
-						}
-						for (const parent of dirty) {
-							reconcileLayoutParent(parent)
-						}
+						drainLayoutDirty(dirty)
 					}
 				}
 			},

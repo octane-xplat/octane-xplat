@@ -384,6 +384,17 @@ export function computeCascade(
 	for (const [name, value] of cssOut) {
 		style[name] = value
 	}
+	// An element prop named like a style property (a label's `fontSize`, a
+	// layout host's `width`) is a Local value, as in NativeScript: it outranks
+	// CSS and inheritance, so the cascade leaves that key to the prop path.
+	for (const name of Object.keys(style)) {
+		if (node.props?.[name] !== undefined && !(name in inline)) {
+			delete style[name]
+			cssKeys.delete(name)
+			inheritedKeys.delete(name)
+		}
+	}
+
 	for (const [name, value] of Object.entries(inline)) {
 		if (name.startsWith('--')) {
 			continue
