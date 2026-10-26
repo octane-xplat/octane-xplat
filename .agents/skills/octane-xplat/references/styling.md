@@ -118,8 +118,11 @@ import '@octane-xplat/ui/theme/tokens.css'
   conditions belong to the configured preset. See
   [CSS variants](../../../../docs/platform/module-resolution.md#css-file-variants)
   before relying on browser-only transforms or import ordering.
-- The experimental macOS AppKit renderer supports a smaller set of named
-  styles — check `docs/testing/known-limits.md` before promising a property.
+- The experimental macOS AppKit renderer applies the same stylesheets with
+  NativeScript's selector engine, but only `:disabled` responds to state and
+  some properties are ignored. Check the renderer's
+  [Apply stylesheets](../../../../packages/macos-renderer/README.md#apply-stylesheets)
+  limits before promising a property or pseudo-class.
 
 ## Dark mode
 

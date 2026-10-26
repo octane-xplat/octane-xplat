@@ -350,8 +350,9 @@ export function Example() {
 `xplatCss(target)` selects one platform stylesheet sibling and compiles
 `@platform target { ... }` blocks. Native presets install it before native
 CSS rewriting; browser configs install it explicitly. The PostCSS pass also
-handles rules loaded by CSS `@import`. AppKit and GTK still do not acquire a
-CSS stylesheet engine from this build support.
+handles rules loaded by CSS `@import`. AppKit applies the result through its
+vendored NativeScript selector engine (decision #123); GTK still has no
+stylesheet engine.
 
 Vite 8.3.0's CSS `@import` resolver uses a private resolver containing aliases
 and its own file resolver, bypassing ordinary `resolveId` plugins. Xplat uses

@@ -29,8 +29,10 @@ archives, and external image assets are not supported there. Fit modes map to
 AppKit content modes, but pixel parity has not been visually reviewed. The
 harness motion-package route remains unsupported because its gesture and
 reduced-motion hosts are mobile-only; the separate AppKit UI ref-animation
-fixture does not establish motion-package support. Bamboo-generated CSS is unavailable on
-AppKit; Home uses only its existing AppKit styles. See the
+fixture does not establish motion-package support. AppKit applies app and
+Bamboo stylesheets, with the [limits listed for the renderer](../../packages/macos-renderer/README.md#apply-stylesheets):
+only `:disabled` responds to state, media queries ignore window resizes, and
+animations are not played. See the
 [Lottie integration record](../../.agents/docs/notes/lottie-appkit-investigation.md) and
 [non-visual macOS checks](../../apps/macos/README.md#non-visual-smoke-checks) for
 the runtime evidence and its boundaries.

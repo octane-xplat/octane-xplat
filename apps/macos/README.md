@@ -78,9 +78,12 @@ appInfo, app state, window size, clipboard, `openUrl`, NSUserDefaults-backed
 storage, system color scheme (with appearance-change KVO), deep links
 (`application:openURLs:`), imperative sheets (`openSheet` presents a
 dialog-kind window), and `openWindow` multi-window support.
-The renderer maps a curated set of `className` tokens to
-AppKit views; it does not load CSS stylesheets or promise general NativeScript
-or web style parity. In particular, this harness does not validate every
+The harness loads the same stylesheets as the mobile app (`src/styles.ts`:
+UI tokens and chrome, `virtual:bamboo.css`, demo and app CSS). The renderer
+applies them with NativeScript's selector engine; see
+[Apply stylesheets](../../packages/macos-renderer/README.md#apply-stylesheets)
+for the supported cascade and its limits. This does not promise general
+NativeScript or web style parity. In particular, this harness does not validate every
 exported component or every service. The current `List ×500` sweep checks
 that a bounded row window mounts (more than zero and fewer than 500 rows)
 and that dropping one updates the collection to 499 rows. This does not
@@ -188,8 +191,17 @@ Lottie has an explicit macOS leaf: it displays an unsupported label, calls
 The motion-package probe route also reports unsupported on AppKit; its mobile
 gesture and reduced-motion imports are excluded by the generated macOS route
 manifest. UI ref animation is checked independently and does not establish
-support for `@octane-xplat/motion`. Home retains its existing AppKit styling
-without the Bamboo-generated utility class, because AppKit does not load CSS.
+support for `@octane-xplat/motion`. Home uses the shared Bamboo probe class;
+its generated stylesheet ships in the bundle with the app CSS.
+
+Measured on 2026-10-25 with `pnpm --filter @xplat/web parity`,
+`pnpm --filter @xplat/macos parity`, and
+`node scripts/parity-check.ts --targets=web,macos`: loading CSS raised the
+AppKit result from 913 to 963 of 1145 checks, and no check that passed before
+fails. (The pre-CSS build needed the `Screen` export fix to run.) The macOS
+sweep took 182 s, against 172 s before CSS. The dev-host smoke still stops at
+`pressId('tab-1')`. That predates CSS: the routing rewrite (ff9df4069)
+removed the `tab-N` ids.
 
 After adding or changing a platform route, run
 `pnpm --filter @xplat/app exec xplat routes` so the eager manifest excludes

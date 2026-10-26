@@ -205,8 +205,9 @@ Available targets are `web`, `ios`, `android`, `visionos`, `macos`,
 `windows`, `linux`, or `gtk`. `mobile` groups iOS, Android, and visionOS;
 `native` groups native renderer builds. A browser or DOM webview uses `web`
 even on a phone. GTK uses `gtk`; the `linux` target name is reserved for a
-native Linux renderer selected explicitly. These conditions select CSS;
-they do not add stylesheet support to renderers such as AppKit or GTK.
+native Linux renderer selected explicitly. These conditions only select
+CSS. The AppKit renderer applies the selected rules; GTK does not load
+stylesheets yet.
 
 ```css
 @platform mobile {
