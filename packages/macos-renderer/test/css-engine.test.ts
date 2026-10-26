@@ -310,3 +310,14 @@ test('css/index.ts first-eval order registers a sheet without TDZ errors', async
 	const c = mod.computeCascade(node('masonview', { classes: ['s'] }), mod.stylesheetScope())
 	assert.equal(c.style.color, '#123456')
 })
+
+test('evalMediaQuery normalizes Level-4 range syntax', async () => {
+	const { evalMediaQuery, setStyleEnvironment } = await import('../src/css/stylesheets.ts')
+	setStyleEnvironment(() => ({ width: 500, height: 300, colorScheme: 'light' as const, reducedMotion: false }))
+	assert.equal(evalMediaQuery('(width>=300px)'), true)
+	assert.equal(evalMediaQuery('(min-width: 300px)'), true)
+	assert.equal(evalMediaQuery('(width<=300px)'), false)
+	assert.equal(evalMediaQuery('(max-width: 300px)'), false)
+	assert.equal(evalMediaQuery('(width>=600px)'), false)
+	assert.equal(evalMediaQuery('(min-width: 300px)'), true, 'colon form unchanged')
+})
