@@ -1,8 +1,10 @@
 # Sherpa ONNX leaf package plan
 
-Status: proposal, 2026-10-20. This records the intended package and the work
-needed to qualify it. No Xplat implementation or platform runtime probe has
-been completed. API names below are proposed contracts, not shipped exports.
+Status: proposal, 2026-10-20; milestone 1 and the web engine part of
+milestone 2 recorded 2026-10-26. This records the intended package and the
+work needed to qualify it. No Xplat implementation exists. Only the web engine
+has runtime evidence, from a temporary probe. API names below are proposed
+contracts, not shipped exports.
 
 ## Outcome and agreed direction
 
@@ -75,6 +77,102 @@ The RN reference uses directory heuristics, not a universal model manifest.
 Treat ambiguous detection as a condition requiring an explicit choice. Its
 documented defaults are reference material, not an obligation to silently
 choose a model architecture or quantization variant.
+
+## Frozen reference inputs (milestone 1)
+
+Recorded 2026-10-26. Desk evidence unless marked otherwise; Silo topic
+`sherpa-onnx-leaf` holds the question rows and digests.
+
+**Engine set.** Pin sherpa-onnx `v1.13.8` (commit `11afbd0`, 2026-09-10).
+`v2.0.0`/`v2.0.1` were published 2026-10-23/26 and are too new to adopt;
+re-evaluate after they age. Every platform artifact below is built by upstream
+CI from that tag.
+
+| Target | Artifact | Shape | Notes |
+| --- | --- | --- | --- |
+| Web | `sherpa_onnx_web` 1.13.8 on pub.dev (sha256 `e25a3813…`) | `sherpa-onnx-wasm-web.{js,wasm}` + classic wrapper scripts | Built from `wasm/web` (`build-wasm-simd-web.sh`). Combined ASR, streaming ASR, TTS, VAD, KWS, enhancement; 15 MB wasm; MEMFS only, `FS` exported; single-threaded, so no cross-origin isolation requirement |
+| Web (rejected) | npm `sherpa-onnx` 1.13.8 | Node WASM build | Links NODERAWFS and throws outside Node; not a browser artifact |
+| iOS | `sherpa-onnx-v1.13.8-ios-*.xcframework.zip` (release tag `xcframework`) | `SherpaOnnxC.framework`, module map over `c-api.h` | Device arm64 + simulator arm64/x86_64; `MinimumOSVersion` 13.0. `ios-static` excludes ONNX Runtime; `ios-shared-onnxruntime-static` is one self-contained dynamic framework |
+| macOS | `macos-*.xcframework.zip` (same tag) or `osx-universal2-shared` tarball | Framework or `libsherpa-onnx-c-api.dylib` + `libonnxruntime.dylib` | The AppKit leaf machinery accepts only `.dylib` prebuilts (`dlopen` with `RTLD_GLOBAL`); linking a leaf against them is unproven. Upstream also ships `no-tts` variants |
+| Android | `sherpa-onnx-1.13.8.aar` (sha256 `633c2432…`) | Kotlin API `com.k2fsa.sherpa.onnx.*` + JNI `.so` | arm64-v8a, armeabi-v7a, x86, x86_64; `minSdkVersion` 21; all `LOAD` segments 16 KB aligned. NativeScript can call the Kotlin classes directly, so a custom JNI facade may be unnecessary |
+
+**Fixtures.** All three ran on the 1.13.8 engine through the Node WASM build
+(single thread). This is engine/model compatibility evidence only, not browser
+or native evidence.
+
+| Task | Model | Archive | Result |
+| --- | --- | --- | --- |
+| Offline ASR | `sherpa-onnx-moonshine-tiny-en-quantized-2026-02-27` (MIT) | 28 MB, `.ort` encoder + merged decoder | Exact transcript of the bundled 24 kHz sample |
+| Streaming ASR | `sherpa-onnx-streaming-zipformer-en-20M-2023-02-17` int8 | 121 MB archive; 44 MB int8 files used | Meaningful transcript; first three words dropped |
+| TTS | `vits-piper-en_US-amy-low-int8` | 20 MB; 355 `espeak-ng-data` files | 1.74 s of 16 kHz audio |
+
+**Licensing.** Engine is Apache-2.0; the RN reference is MIT. TTS-enabled
+builds compile in `espeak-ng` (via `piper-phonemize`), which is
+GPL-3.0-or-later. `espeak` symbols are present in the web wasm, the iOS
+framework, and the Android JNI libraries; default macOS builds are inferred
+to match because upstream ships separate `no-tts` variants. The RN reference
+does not list this license. Before release,
+decide whether TTS ships in the default binaries, as a separately licensed
+entry, or through ASR-only (`no-tts`) builds. Treat this as a release blocker,
+not a footnote.
+
+**RN reference.** Uses its own prebuilt pipeline (sherpa-onnx 1.12.35 builds
+plus FFmpeg and libarchive) and duplicates roughly 1,400 lines of model
+detection in iOS Objective-C++ and Android C++. We take upstream binaries
+directly. Detection only needs a file listing, so it should be one shared
+TypeScript module fed by each platform's storage leaf (proposal; not yet a
+ledger decision).
+
+## Web engine proof (milestone 2a)
+
+Recorded 2026-10-26. Lab evidence from a temporary `research/` probe; no
+package code exists yet. The pinned web artifact ran in a classic dedicated
+worker: `importScripts` for the glue and wrapper scripts, `locateFile` for the
+wasm, and model files fetched and written into MEMFS.
+
+| Run | Browser | Result |
+| --- | --- | --- |
+| Repository probe runner, Vite dev server | Chromium 153 | All steps pass |
+| `vite build` with base `/sub/app/`, `vite preview`, Playwright 1.63 | Chromium 153, Firefox 155, WebKit 26.6 | All steps pass |
+
+Each run covered init, offline Moonshine, streaming Zipformer, Piper TTS,
+three free/remove/remount/recreate cycles, all three engines resident at once,
+and `worker.terminate()` during a long synthesis followed by a fresh worker.
+
+| Production measurement | Chromium | Firefox | WebKit |
+| --- | --- | --- | --- |
+| Worker init | 245 ms | 427 ms | 136 ms |
+| Offline decode, 3.85 s audio | 244 ms (RTF 0.063) | 274 ms (0.071) | 206 ms (0.054) |
+| Streaming decode, 6.6 s audio | 333 ms (0.05) | 864 ms (0.13) | 301 ms (0.045) |
+| TTS model load / synthesis, ~1.9 s audio | 1232 / 348 ms | 4892 / 3514 ms | 685 / 308 ms |
+
+Measured on one Apple Silicon host with local serving; these are not
+performance budgets. Conclusions for the package:
+
+- **Asset loading works with Vite as-is.** `new Worker(new URL(…))` emits a
+  classic worker, and `?url` imports emit hashed glue/wasm files that survive a
+  non-root base. No COOP/COEP or `SharedArrayBuffer` was needed. The probe set
+  no Content Security Policy, so strict-CSP behavior (`wasm-unsafe-eval`,
+  worker and script sources) remains untested.
+- **Cancellation is worker termination.** A fresh worker re-initialized in
+  43–282 ms. Native inference calls cannot be interrupted inside the worker.
+- **Memory is fixed at 512 MB per worker.** The build sets
+  `INITIAL_MEMORY=512MB`; `HEAPU8.length` never grew, even with all three
+  engines resident. MEMFS file data adds JavaScript heap on top. One shared
+  worker per page is the default; a mobile-browser memory check is still
+  required before claiming mobile web support.
+- **Model URLs must not depend on file extensions.** `espeak-ng-data` has
+  ~356 extensionless files. Vite's dev `/@fs` route returned 500 for them, and
+  SPA fallback in `vite preview` returned `index.html` with HTTP 200. The worker
+  must reject `text/html` responses. Browser model delivery should come from
+  prepared archives or package-owned storage, not individually served static
+  files.
+- The streaming endpoint never fired on the fixture utterance with
+  `enableEndpoint: 1`, matching the Node run. Endpoint rules need their own
+  fixture before endpoint behavior is documented.
+
+Still open for milestone 2: browser persistence (OPFS or IndexedDB),
+`.tar.bz2` extraction, and a mobile-browser memory run.
 
 ## Existing audio contracts and required work
 
