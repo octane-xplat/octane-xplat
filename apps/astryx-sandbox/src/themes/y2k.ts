@@ -209,6 +209,8 @@ export const y2kTheme = defineTheme({
 	'--radius-md': '0px',
 	'--radius-lg': '0px',
 	'--radius-xl': '0px',
+	'--font-sans': 'Poppins, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+	'--font-mono': '"JetBrains Mono", "SF Mono", Monaco, Consolas, monospace',
 	'--color-danger': ['#8b1d24', '#5c0008'],
 	},
 })

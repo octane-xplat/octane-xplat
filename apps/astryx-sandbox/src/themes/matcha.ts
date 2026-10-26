@@ -210,6 +210,8 @@ export const matchaTheme = defineTheme({
 	'--radius-md': '12px',
 	'--radius-lg': '18px',
 	'--radius-xl': '42px',
+	'--font-sans': '"DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+	'--font-mono': '"JetBrains Mono", "SF Mono", Monaco, Consolas, monospace',
 	'--color-danger': ['#FD0000', '#ff5c5c'],
 	},
 })

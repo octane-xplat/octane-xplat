@@ -76,8 +76,13 @@ is a client-routed SPA — adaptation recorded.
   `Theme`/`defineTheme`/`useTheme`/`generateThemeCss` API in
   `packages/ui/src/theme/`: web emits `light-dark()` scope rules keyed on
   `.xds-theme-<name>` + `color-scheme`; native emits class-split rules via
-  `Application.addCss` (UNVERIFIED on actual hosts). Root scope mirrors to
-  `<html data-xds-theme>` + `themeSchemeClasses()` so overlay hosts restamp.
+  `Application.addCss` (UNVERIFIED on actual hosts). Scope rules also carry
+  the theme's body font + primary text color (upstream's `:scope`
+  `font-family`/wrapper `color`), and the root scope mirrors onto `<html>`
+  (`data-xds-theme` + `xds-theme-<name>` + mode classes + `color-scheme`)
+  so theme tokens cover the document; `themeSchemeClasses()` restamps
+  overlay hosts. Theme fonts load through the Google Fonts link in
+  `index.html`, matching upstream's head.
 - `F-2` `LinkProvider`/`useLinkComponent` link injection — **resolved in
   unit 3** by `LinkProvider`/`useLinkComponent`/`LinkContext` in
   `packages/ui` (`link-context.ts`, `LinkProvider.*`, `use-link-component.*`).

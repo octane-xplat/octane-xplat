@@ -74,6 +74,9 @@ describe('generateThemeCss', () => {
 		expect(css).toContain('.xds-theme-forest-test {')
 		expect(css).toContain('--color-accent: light-dark(#15803D, #86EFAC);')
 		expect(css).toContain('--shadow-demo: 0 1px 2px light-dark(#00000011, #ffffff22);')
+		// scope element carries the theme's body text color + font (upstream :scope rule)
+		expect(css).toContain('color: var(--color-text-primary);')
+		expect(css).toContain('font-family: var(--font-family-body);')
 	})
 
 	it('splits arms into class selectors on native', () => {
@@ -84,5 +87,10 @@ describe('generateThemeCss', () => {
 		expect(css).toContain('--color-accent: #86EFAC;')
 		// embedded light-dark in the compound shadow resolves to its arm
 		expect(css).toContain('--shadow-demo: 0 1px 2px #ffffff22;')
+		// scope text declarations resolve to literals (NS var() in font-family
+		// is unreliable) — forest lacks the tokens so the Astryx defaults land
+		expect(css).toContain('color: #0A1317;')
+		expect(css).toContain('color: #DFE2E5;')
+		expect(css).toContain('font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;')
 	})
 })

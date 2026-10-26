@@ -48,6 +48,8 @@ const STATIC_ALIASES = {
 	'--radius-md': '--radius-element',
 	'--radius-lg': '--radius-container',
 	'--radius-xl': '--radius-page',
+	'--font-sans': '--font-family-body',
+	'--font-mono': '--font-family-code',
 }
 const FILL_CANDIDATES = {
 	'--color-danger': ['color-status-fill-error', '--color-icon-red'],

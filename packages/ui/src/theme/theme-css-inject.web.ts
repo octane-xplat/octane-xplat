@@ -5,6 +5,7 @@
 
 import type { DefinedTheme } from './defined-theme'
 import { generateThemeCss } from './theme-css'
+import { themeScopeClass } from './theme-scope'
 
 const injected = new Set<string>()
 
@@ -18,17 +19,30 @@ export function ensureThemeCss(theme: DefinedTheme): void {
 	injected.add(theme.name)
 }
 
-/** Stamp <html data-xds-theme> for the root provider's lifetime; returns a
- *  restore that puts the previous value back. Nested providers skip this —
- *  the boundary belongs to the outermost Theme only. */
-export function syncDocumentRootTheme(name: string): () => void {
-	const prev = document.documentElement.getAttribute('data-xds-theme')
-	document.documentElement.setAttribute('data-xds-theme', name)
+/** Stamp <html> as the outermost theme scope for the root provider's
+ *  lifetime — `data-xds-theme` for detached tooling, the `xds-theme-<name>`
+ *  + mode classes so the generated token rules (and the scope's text
+ *  color/font) cover the whole document including body chrome and hosts
+ *  mounted outside the Theme tree, and `color-scheme` so light-dark()
+ *  resolves the stamped mode at the root. Mirrors upstream stamping
+ *  `data-astryx-theme`/`data-theme` on <html>. Nested providers skip this —
+ *  the boundary belongs to the outermost Theme only. Returns a restore. */
+export function syncDocumentRootTheme(name: string, mode: 'light' | 'dark'): () => void {
+	const root = document.documentElement
+	const prev = root.getAttribute('data-xds-theme')
+	const prevScheme = root.style.colorScheme
+	const scopeClass = themeScopeClass(name)
+	const modeClasses = mode === 'dark' ? ['dark', 'ns-dark'] : ['xds-light']
+	root.setAttribute('data-xds-theme', name)
+	root.classList.add('xds-theme', scopeClass, ...modeClasses)
+	root.style.colorScheme = mode
 	return () => {
 		if (prev == null) {
-			document.documentElement.removeAttribute('data-xds-theme')
+			root.removeAttribute('data-xds-theme')
 		} else {
-			document.documentElement.setAttribute('data-xds-theme', prev)
+			root.setAttribute('data-xds-theme', prev)
 		}
+		root.classList.remove('xds-theme', scopeClass, ...modeClasses)
+		root.style.colorScheme = prevScheme
 	}
 }

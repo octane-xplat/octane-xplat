@@ -195,6 +195,8 @@ export const stoneTheme = defineTheme({
 	'--radius-md': '0.5rem',
 	'--radius-lg': '0.75rem',
 	'--radius-xl': '1.5rem',
+	'--font-sans': 'Figtree, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+	'--font-mono': '"JetBrains Mono", "SF Mono", Monaco, Consolas, monospace',
 	'--color-danger': ['#58413e', '#f9dcd7'],
 	},
 })

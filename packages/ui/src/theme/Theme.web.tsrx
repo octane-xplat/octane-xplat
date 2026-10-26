@@ -48,12 +48,12 @@ export function Theme(props: ThemeProps) @{
 	useEffect(() => {
 		if (isNested) return
 		const unscope = setRootThemeScope(props.theme)
-		const unsync = syncDocumentRootTheme(props.theme.name)
+		const unsync = syncDocumentRootTheme(props.theme.name, effective)
 		return () => {
 			unsync()
 			unscope()
 		}
-	}, [isNested, props.theme])
+	}, [isNested, props.theme, effective])
 
 	const ctx = useMemo(() => ({ theme: props.theme, mode }), [props.theme, mode])
 

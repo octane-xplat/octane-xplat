@@ -204,6 +204,8 @@ export const neutralTheme = defineTheme({
 	'--radius-md': '0.625rem',
 	'--radius-lg': '0.75rem',
 	'--radius-xl': '1.75rem',
+	'--font-sans': 'Figtree, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+	'--font-mono': 'ui-monospace, "SF Mono", Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
 	'--color-danger': ['#c9303a', '#ff705d'],
 	},
 })

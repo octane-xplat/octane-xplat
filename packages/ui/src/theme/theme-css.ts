@@ -10,7 +10,7 @@
  *  explicit-light re-scope so `.xds-light` subtrees flip back. */
 
 import type { DefinedTheme, TokenValue } from './defined-theme'
-import { findMatchingParen } from './defined-theme'
+import { findMatchingParen, resolveThemeTokens } from './defined-theme'
 import { themeScopeClass } from './theme-scope'
 
 export interface ThemeCssOptions {
@@ -65,6 +65,20 @@ function declarations(theme: DefinedTheme, target: 'web' | 'native', mode: 'ligh
 		.join('\n')
 }
 
+/** Body text on the scope element itself — upstream stamps
+ *  `color: var(--color-text-primary)` + `font-family: var(--font-family-body)`
+ *  on the Theme wrapper (and the built theme.css `:scope` rule) so plain
+ *  descendants inherit the theme's type and ink instead of the page's. */
+const scopeTextCss = '\tcolor: var(--color-text-primary);\n\tfont-family: var(--font-family-body);'
+
+/** Native variant of the scope text declarations: var() inside font-family
+ *  is not guaranteed to resolve in NativeScript CSS, so the emitted values
+ *  are concrete literals resolved (defaults under theme) per mode block. */
+function scopeTextCssNative(theme: DefinedTheme, mode: 'light' | 'dark'): string {
+	const resolved = resolveThemeTokens(theme, { mode })
+	return `\tcolor: ${resolved['--color-text-primary']};\n\tfont-family: ${resolved['--font-family-body']};`
+}
+
 /** Scoped token rules for one theme. Both targets key on the shared
  *  `xds-theme-<name>` class, which the `Theme` scope and detached overlay
  *  hosts (via `themeSchemeClasses`) stamp. */
@@ -73,7 +87,7 @@ export function generateThemeCss(theme: DefinedTheme, options: ThemeCssOptions =
 	const scope = `.${themeScopeClass(theme.name)}`
 
 	if (target === 'web') {
-		return `${scope} {\n${declarations(theme, 'web', null)}\n}`
+		return `${scope} {\n${declarations(theme, 'web', null)}\n${scopeTextCss}\n}`
 	}
 
 	// Ordering matters: later equal-specificity rules win, so the explicit
@@ -81,15 +95,19 @@ export function generateThemeCss(theme: DefinedTheme, options: ThemeCssOptions =
 	return [
 		`${scope} {`,
 		declarations(theme, 'native', 'light'),
+		scopeTextCssNative(theme, 'light'),
 		`}`,
 		`.dark ${scope}, .ns-dark ${scope}, ${scope}.dark, ${scope}.ns-dark {`,
 		declarations(theme, 'native', 'dark'),
+		scopeTextCssNative(theme, 'dark'),
 		`}`,
 		`.xds-light ${scope}, ${scope}.xds-light {`,
 		declarations(theme, 'native', 'light'),
+		scopeTextCssNative(theme, 'light'),
 		`}`,
 		`.xds-light ${scope}.dark, .xds-light ${scope}.ns-dark {`,
 		declarations(theme, 'native', 'dark'),
+		scopeTextCssNative(theme, 'dark'),
 		`}`,
 	].join('\n')
 }

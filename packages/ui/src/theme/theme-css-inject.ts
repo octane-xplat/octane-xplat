@@ -23,6 +23,6 @@ export function ensureThemeCss(theme: DefinedTheme): void {
 
 /** No document root exists on native — the root scope class travels to
  *  detached hosts through `themeSchemeClasses()` instead. */
-export function syncDocumentRootTheme(_name: string): () => void {
+export function syncDocumentRootTheme(_name: string, _mode: 'light' | 'dark'): () => void {
 	return () => {}
 }
