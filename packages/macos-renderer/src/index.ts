@@ -3953,8 +3953,8 @@ function normalizeClass(value: any): string {
 // className now only feeds the selector engine (cssClasses) and marks the
 // subtree for restyle — the hardcoded token tables are gone.
 /** Effective style for readers that used to consult props.style. */
-function effectiveStyle(node: ElementNode): PropBag {
-	return node.computedStyle ?? node.props?.style ?? {}
+function effectiveStyle(node: ElementNode | null | undefined): PropBag {
+	return node?.computedStyle ?? node?.props?.style ?? {}
 }
 
 function applyClassNameProp(node: ElementNode, value: any) {

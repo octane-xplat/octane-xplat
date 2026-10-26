@@ -624,3 +624,15 @@ test('textDecoration underline/line-through reach the label attributed string; r
 	setStyle(item, {})
 	assert.equal(item.view.stringValue !== undefined || item.view.attributedStringValue?.attrs?.NSUnderline === undefined, true)
 })
+
+test('effectiveStyle tolerates a missing node (empty actionbar intrinsicContentSize)', () => {
+	const { effectiveStyle } = runSlice(
+		source.slice(
+			source.indexOf('function effectiveStyle'),
+			source.indexOf('function applyClassNameProp'),
+		) + '\n({ effectiveStyle })',
+		{},
+	)
+	assert.deepEqual({ ...effectiveStyle(undefined) }, {})
+	assert.deepEqual({ ...effectiveStyle(null) }, {})
+})
