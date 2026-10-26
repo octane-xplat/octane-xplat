@@ -80,4 +80,11 @@ if (typeof stylesheetScope === 'undefined') var stylesheetScope = () => ({ query
 if (typeof INHERITED_CSS_PROPERTIES === 'undefined') var INHERITED_CSS_PROPERTIES = new Set(['color','font-size','font-weight','font-family','font-style','line-height','letter-spacing','text-align','text-transform','white-space','direction'])
 if (typeof appKitBridge === 'undefined') var appKitBridge = {}
 if (typeof nodeScheme === 'undefined') var nodeScheme = () => 'light'
+// Mirrors src/index.ts — slices that exercise insert/validateBatch reject
+// viewless children through this error but don't include the function.
+if (typeof textOnlyChildError === 'undefined') var textOnlyChildError = (parent, childType, child) => {
+	const text = child?.text ?? child?.props?.value
+	const detail = childType === '#text' ? ' ("' + String(text ?? '').slice(0, 60) + '")' : ' (<' + childType + '>)'
+	return new Error('AppKit <' + (parent?.type ?? '?') + '> cannot contain text-only children' + detail + (parent?.props?.id ? ' — parent id=' + parent.props.id : ''))
+}
 `
