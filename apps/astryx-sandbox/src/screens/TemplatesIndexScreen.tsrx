@@ -4,7 +4,7 @@
 // non-template routes in a second ledger.
 
 import { useState } from 'octane'
-import { Heading, Text, SearchInput, VStack, View } from '@octane-xplat/ui'
+import { Heading, Text, TextInput, VStack, View, Icon } from '@octane-xplat/ui'
 import { coverageRows, coverageSummary, familyRows, type CoverageRow } from '../coverage/coverage'
 import { PageLayout } from '../shell/PageLayout'
 import { SandboxShell } from '../shell/SandboxShell'
@@ -55,13 +55,16 @@ export function TemplatesIndexScreen() @{
 						Pinned Astryx 0.6.4 baseline: {summary.total} routes — {summary.ported} ported,{' '}
 						{summary.pending} pending, {summary.blocked} blocked.
 					</Text>
-					<SearchInput
-						label="Search"
+					<TextInput
+						label="Search templates"
 						isLabelHidden
-						placeholder="Search templates..."
+						placeholder="Search templates…"
 						value={search}
 						onChange={setSearch}
-						size="lg"
+						startIcon={<Icon name="sandbox-search" size={16} />}
+						hasClear
+						width={240}
+						size="sm"
 					/>
 
 					{families.map((family) => (

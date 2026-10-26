@@ -27,7 +27,7 @@ export function PowerSearchSearchWithTable() @{
 		r.name.toLowerCase().includes(nameQuery))
 
 	<div style={{width: 560}}>
-		<PowerSearch config={config} filters={filters} onChange={setFilters} placeholder="Search projects…" startIcon={<Icon name="sandbox-search" size={16} />} />
+		<PowerSearch config={config} filters={filters} onChange={setFilters} placeholder="Search projects…" startIcon={<Icon name="sandbox-magnifying-glass" size={16} />} />
 		<table style={{marginTop: 12, width: '100%', fontSize: 14, borderCollapse: 'collapse'}}>
 			<thead><tr><th style={{textAlign: 'left', padding: 6, borderBottom: '1px solid var(--color-border, #ddd)'}}>Name</th><th style={{textAlign: 'left', padding: 6, borderBottom: '1px solid var(--color-border, #ddd)'}}>Status</th><th style={{textAlign: 'left', padding: 6, borderBottom: '1px solid var(--color-border, #ddd)'}}>Owner</th></tr></thead>
 			<tbody>{rows.map((r) => <tr key={r.id}><td style={{padding: 6, borderBottom: '1px solid var(--color-border, #eee)'}}>{r.name}</td><td style={{padding: 6, borderBottom: '1px solid var(--color-border, #eee)'}}>{r.status}</td><td style={{padding: 6, borderBottom: '1px solid var(--color-border, #eee)'}}>{r.owner}</td></tr>)}</tbody>

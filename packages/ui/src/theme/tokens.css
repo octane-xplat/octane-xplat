@@ -263,6 +263,9 @@
 	.vx-input-shell {
 		flex-direction: row;
 		align-items: center;
+		/* Astryx inputWrapperStyles: spacing-2 (8px) between shell children —
+	   icon, field, clear, status. */
+		gap: 8px;
 	}
 	.vx-input {
 		flex-grow: 1;

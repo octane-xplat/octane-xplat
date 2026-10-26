@@ -44,6 +44,9 @@ registerIcons({
 	'sandbox-external-link': {
 		markup: stroke('<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>'),
 	},
+	'sandbox-search': {
+		markup: stroke('<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>'),
+	},
 	// PreviewShell chrome icons (ported from upstream PreviewShell.tsx)
 	'sandbox-sidebar': {
 		markup: stroke('<rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/>'),
@@ -111,7 +114,7 @@ registerIcons({
 	'sandbox-envelope': {
 		markup: hero('<path d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/>'),
 	},
-	'sandbox-search': {
+	'sandbox-magnifying-glass': {
 		markup: hero('<path d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>'),
 	},
 	'sandbox-bookmark': {

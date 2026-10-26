@@ -16,5 +16,5 @@ const { config, applyFilters } = createPowerSearchConfig([
 
 export function PowerSearchShowcase() @{
 	const [filters, setFilters] = useState<ReadonlyArray<PowerSearchFilterFor<typeof config>>>([])
-	<PowerSearch config={config} filters={filters} onChange={setFilters} placeholder="Search…" startIcon={<Icon name="sandbox-search" size={16} />} />
+	<PowerSearch config={config} filters={filters} onChange={setFilters} placeholder="Search…" startIcon={<Icon name="sandbox-magnifying-glass" size={16} />} />
 }

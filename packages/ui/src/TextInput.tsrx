@@ -7,6 +7,7 @@ import { applyEscapeProps, nativeAccessibilityState } from "./escape-props";
 import { isWritingText, writeText } from './text-write';
 import { blurText } from './text-focus';
 import { Pressable } from './Pressable';
+import { Icon } from './Icon';
 import { FieldContext, useFieldControlProps } from './field-context';
 import { FormField } from './FormField';
 
@@ -38,6 +39,7 @@ function TextInputControl(inputProps: TextInputProps) @{
 	useImperativeHandle(props.ref, () => ({ focus: () => el.current.focus(), blur: () => blurText(el.current), native: el.current }), []);
 
 	<masonview className={cx('vx-input-shell', props.inInputGroup && 'vx-input-shell--ingroup')} style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex"})}>
+		{props.startIcon != null ? <masonview className="vx-input-icon">{typeof props.startIcon === 'string' ? <Icon name={props.startIcon} size={16} /> : props.startIcon}</masonview> : null}
 		<textfield
 			ref={(v: any) => {
 				el.current = v;

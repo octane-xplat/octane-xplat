@@ -3,7 +3,7 @@
 // the CSS equivalent of Grid columns={{minWidth: 320}}.
 
 import { useState } from 'octane'
-import { Heading, Text, SearchInput, ToggleButton, ToggleButtonGroup, Divider, VStack, View } from '@octane-xplat/ui'
+import { Heading, Text, TextInput, ToggleButton, ToggleButtonGroup, Divider, VStack, View, Icon } from '@octane-xplat/ui'
 import { categories } from '../data/sandboxPages'
 import { PageLayout } from '../shell/PageLayout'
 import { ProjectCard } from '../shell/ProjectCard'
@@ -38,12 +38,13 @@ export function HomeScreen() @{
 			<PageLayout title="Astryx Sandbox">
 				<VStack gap={6}>
 					<VStack gap={4}>
-						<SearchInput
+						<TextInput
 							label="Search"
 							isLabelHidden
 							placeholder="Search..."
 							value={search}
 							onChange={setSearch}
+							startIcon={<Icon name="sandbox-search" size={16} />}
 							size="lg"
 						/>
 						<ToggleButtonGroup

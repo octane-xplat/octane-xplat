@@ -17,5 +17,5 @@ export function PowerSearchPresetFilters() @{
 	const [filters, setFilters] = useState<ReadonlyArray<PowerSearchFilterFor<typeof config>>>([
 		{ field: 'status', operator: 'is', value: ['doing'] } as unknown as PowerSearchFilterFor<typeof config>,
 	])
-	<PowerSearch config={config} filters={filters} onChange={setFilters} placeholder="Search with filter…" startIcon={<Icon name="sandbox-search" size={16} />} />
+	<PowerSearch config={config} filters={filters} onChange={setFilters} placeholder="Search with filter…" startIcon={<Icon name="sandbox-magnifying-glass" size={16} />} />
 }
