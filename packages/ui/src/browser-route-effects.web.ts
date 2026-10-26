@@ -38,7 +38,7 @@ export function createBrowserRouteEffects(browser: Window) {
 	}
 	const focus = (target: HTMLElement) => {
 		releaseFocusTarget?.()
-		releaseFocusTarget = focusBrowserTarget(target)
+		releaseFocusTarget = focusBrowserTarget(target, { focusVisible: false })
 	}
 	const pageTarget = (root?: HTMLElement | null) => {
 		const container = root ?? null

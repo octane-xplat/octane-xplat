@@ -221,7 +221,10 @@ if (root) console.log(root.getChildrenCount())
 `LayerProvider` is optional — it mounts a `ToastViewport` configured by
 `toast` (position, maxVisible, inset) so `useToast()`/`showToast()` dock
 there. Without a provider, toasts lazily self-mount at defaults; nested
-providers pass through.
+providers pass through. On web the top-layer viewport renders inside
+`display: contents` wrappers anchored to the stack's edge, so an empty
+viewport has no layout footprint; announcements go through the shared
+document-level live regions.
 
 ```tsx
 <LayerProvider toast={{ position: 'topEnd', maxVisible: 3 }}>

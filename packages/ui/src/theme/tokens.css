@@ -2329,27 +2329,62 @@
 
 	/* ---------- toast stack ---------- */
 
-	/* xplat-web-only:start — the viewport is a fixed, click-through top-layer
-   frame; corner buckets hold the per-position stacks. popover="manual"
-   resets: the UA forces inset/width/margin on popovers. */
+	/* xplat-web-only:start — Astryx's markup: a `display: contents` outlet and
+   host wrap the fixed, click-through top-layer viewport so the in-flow node
+   keeps zero layout footprint. `inset: unset` resets the popover UA inset —
+   the box anchors to the stack's block edge and spans only the inline axis,
+   so an empty viewport measures padding-tall instead of a full-viewport
+   overlay. The corner buckets position themselves against the window. */
+	.vx-toast-outlet,
+	.vx-toast-layer {
+		display: contents;
+	}
+
 	.vx-toast-viewport {
 		position: fixed;
-		inset: 0;
+		inset: unset;
+		inset-inline: 0;
 		z-index: 1200;
+		display: flex;
+		flex-direction: column;
+		box-sizing: border-box;
 		pointer-events: none;
 		width: auto;
 		margin: 0;
 		border-width: 0;
 		background: transparent;
 		overflow: visible;
+		/* Astryx layerTextReset: content-bearing layer roots re-baseline to
+		   the theme's body text so inherited page metrics never leak in. */
+		font-family: var(--font-family-body, inherit);
+		font-size: var(--text-body-size, 14px);
+		font-weight: var(--text-body-weight, 400);
+		line-height: var(--text-body-leading, 1.4286);
 		padding-block: max(16px, env(safe-area-inset-top, 0px))
 			max(16px, env(safe-area-inset-bottom, 0px));
 		padding-inline: max(16px, env(safe-area-inset-left, 0px))
 			max(16px, env(safe-area-inset-right, 0px));
 	}
 
+	.vx-toast-viewport--top {
+		top: 0;
+		flex-direction: column-reverse;
+	}
+
+	.vx-toast-viewport--bottom {
+		bottom: 0;
+	}
+
+	.vx-toast-viewport--start {
+		align-items: flex-start;
+	}
+
+	.vx-toast-viewport--end {
+		align-items: flex-end;
+	}
+
 	.vx-toast-stack {
-		position: absolute;
+		position: fixed;
 		display: flex;
 		flex-direction: column;
 		align-items: flex-end;
@@ -2358,21 +2393,21 @@
 	}
 
 	.vx-toast-stack--top {
-		top: max(16px, env(safe-area-inset-top, 0px));
+		top: var(--vx-toast-inset-block-start, max(16px, env(safe-area-inset-top, 0px)));
 		flex-direction: column-reverse;
 	}
 
 	.vx-toast-stack--bottom {
-		bottom: max(16px, env(safe-area-inset-bottom, 0px));
+		bottom: var(--vx-toast-inset-block-end, max(16px, env(safe-area-inset-bottom, 0px)));
 	}
 
 	.vx-toast-stack--start {
-		inset-inline-start: max(16px, env(safe-area-inset-left, 0px));
+		inset-inline-start: var(--vx-toast-inset-inline-start, max(16px, env(safe-area-inset-left, 0px)));
 		align-items: flex-start;
 	}
 
 	.vx-toast-stack--end {
-		inset-inline-end: max(16px, env(safe-area-inset-right, 0px));
+		inset-inline-end: var(--vx-toast-inset-inline-end, max(16px, env(safe-area-inset-right, 0px)));
 		align-items: flex-end;
 	}
 
@@ -2417,17 +2452,6 @@
 		flex: 1;
 		min-width: 0;
 		overflow-wrap: anywhere;
-	}
-
-	/* Persistent live-region pair — screen readers announce mutations to
-   these, unlike the born-with-content per-toast roles. */
-	.vx-toast-live {
-		position: absolute;
-		width: 1px;
-		height: 1px;
-		overflow: hidden;
-		clip-path: inset(50%);
-		white-space: nowrap;
 	}
 	/* xplat-web-only:end */
 
@@ -3886,6 +3910,13 @@
 		left: 8px;
 	}
 	.vx-appshell-content:focus {
+		outline: none;
+	}
+	/* Route-change focus lands on the page heading/landmark by script, not
+   user input — the target is marked so engines without
+   `FocusOptions.focusVisible` still suppress the programmatic ring.
+   Keyboard :focus-visible rings on tabbable elements are unaffected. */
+	[data-xplat-programmatic-focus]:focus {
 		outline: none;
 	}
 	.vx-topnav {

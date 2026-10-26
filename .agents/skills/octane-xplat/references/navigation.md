@@ -712,7 +712,10 @@ export const head = () => ({ title: 'Edit item' })
 
 Browser page changes focus an explicit autofocus target, then a visible h1/
 level-one ARIA heading, a main landmark or the document body. Temporary tabindex
-is released on blur/owner teardown. Back/Forward use entry-specific document
+is released on blur/owner teardown. Route focus is scripted, not user input, so
+it never paints a focus ring (`focusVisible: false` plus a
+`data-xplat-programmatic-focus` marker while the hold lasts); keyboard
+`:focus-visible` rings are unaffected. Back/Forward use entry-specific document
 scroll and saved focus, with stable DOM IDs for re-rendered controls. Refresh
 preserves focus/scroll; ordinary push/replace/search updates use page-change
 effects. Cancelled/stale work cannot apply late focus, scroll or head metadata.

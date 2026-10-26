@@ -26,6 +26,17 @@ it('honors explicit autofocus and ignores disabled autofocus controls', () => {
 	expect(document.activeElement).toBe(root.querySelector('h1'))
 })
 
+it('marks script-driven route focus so the programmatic ring stays suppressed', () => {
+	root.innerHTML = '<h1>Details</h1><button>Next</button>'
+	const heading = root.querySelector('h1')!
+	effects.restore(undefined, { root })
+	expect(document.activeElement).toBe(heading)
+	expect(heading.getAttribute('data-xplat-programmatic-focus')).toBe('')
+	root.querySelector('button')!.focus()
+	expect(heading.hasAttribute('data-xplat-programmatic-focus')).toBe(false)
+	expect(heading.hasAttribute('tabindex')).toBe(false)
+})
+
 it('leaves author-owned tabindex changes intact when temporary heading focus ends', () => {
 	root.innerHTML = '<h1>Details</h1><button>Continue</button>'
 	const heading = root.querySelector('h1')!

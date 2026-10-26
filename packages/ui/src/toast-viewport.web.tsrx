@@ -11,6 +11,7 @@ import {
 } from './toast-store';
 
 import { useStore } from './use-store.web.tsrx';
+import { announce } from './announce.web';
 import { applyThemeClasses } from './theme/theme-host';
 import { cx } from '@octane-xplat/lib';
 import { ToastSurface } from './Toast.web.tsrx';
@@ -49,17 +50,23 @@ export function ToastViewportSurface(props: {
 	const viewport = useRef<HTMLDivElement | null>(null);
 	const prevFocus = useRef<HTMLElement | null>(null);
 	const announced = useRef<string | null>(null);
-	const livePolite = useRef<HTMLDivElement | null>(null);
-	const liveAssertive = useRef<HTMLDivElement | null>(null);
 	const themeDetach = useRef<(() => void) | undefined>(undefined);
+
+	const viewportClass = cx(
+		'vx-toast-viewport',
+		props.position.startsWith('top') ? 'vx-toast-viewport--top' : 'vx-toast-viewport--bottom',
+		props.position.endsWith('Start') ? 'vx-toast-viewport--start' : 'vx-toast-viewport--end',
+	);
 
 	// The fallback stack mounts on a detached container — mirror the app's
 	// theme attrs onto it so scoped theme CSS resolves (MutationObserver
 	// keeps it live). Mounted viewports inherit the tree's theme already.
+	// `applyThemeClasses` owns the element's className, so the viewport's
+	// own classes ride along as its base.
 	useEffect(() => {
 		const el = viewport.current;
 		if (!el) return;
-		themeDetach.current = applyThemeClasses(el, 'vx-toast-viewport');
+		themeDetach.current = applyThemeClasses(el, viewportClass);
 		return () => themeDetach.current?.();
 	}, []);
 
@@ -76,18 +83,18 @@ export function ToastViewportSurface(props: {
 		}
 	}, [props.isTopLayer]);
 
-	// Announce the newest toast through the persistent live regions — the
-	// per-toast role regions are born with content, which many screen
-	// readers skip; mutating a mounted empty region is what announces.
-	// String bodies announce; structured content does not (documented).
+	// Announce the newest toast through the persistent document-level live
+	// regions (Astryx `useAnnounce`) — the per-toast role regions are born
+	// with content, which many screen readers skip; mutating a mounted
+	// empty region is what announces. String bodies announce; structured
+	// content does not (documented).
 	useEffect(() => {
 		const newest = mine[mine.length - 1];
 		if (!newest || newest.id === announced.current) return;
 		announced.current = newest.id;
 		const body = newest.options.body;
 		if (typeof body !== 'string' || !body) return;
-		const region = (newest.options.type ?? 'info') === 'error' ? liveAssertive.current : livePolite.current;
-		if (region) region.textContent = body;
+		announce(body, (newest.options.type ?? 'info') === 'error' ? 'assertive' : 'polite');
 	}, [mine]);
 
 	// F6 jumps focus into the stack (standard "go to notifications" jump);
@@ -131,16 +138,30 @@ export function ToastViewportSurface(props: {
 		stacked.filter((e) => positionOf(e, props.position) === pos).slice(-props.maxVisible),
 	);
 
+	// The viewport box anchors to the stack's block edge; `inset` also feeds
+	// the fixed corner stacks through custom properties.
 	const insetStyle: Record<string, any> = {};
-	if (props.inset?.top != null) insetStyle.top = props.inset.top;
-	if (props.inset?.bottom != null) insetStyle.bottom = props.inset.bottom;
-	if (props.inset?.start != null) insetStyle.insetInlineStart = props.inset.start;
-	if (props.inset?.end != null) insetStyle.insetInlineEnd = props.inset.end;
+	if (props.inset?.top != null) {
+		insetStyle.top = props.inset.top;
+		insetStyle['--vx-toast-inset-block-start'] = `${props.inset.top}px`;
+	}
+	if (props.inset?.bottom != null) {
+		insetStyle.bottom = props.inset.bottom;
+		insetStyle['--vx-toast-inset-block-end'] = `${props.inset.bottom}px`;
+	}
+	if (props.inset?.start != null) {
+		insetStyle.insetInlineStart = props.inset.start;
+		insetStyle['--vx-toast-inset-inline-start'] = `${props.inset.start}px`;
+	}
+	if (props.inset?.end != null) {
+		insetStyle.insetInlineEnd = props.inset.end;
+		insetStyle['--vx-toast-inset-inline-end'] = `${props.inset.end}px`;
+	}
 
-	return (
+	const viewportEl = (
 		<div
 			ref={viewport}
-			className="vx-toast-viewport"
+			className={viewportClass}
 			style={insetStyle}
 			role={mine.length ? 'region' : undefined}
 			aria-label={mine.length ? 'Notifications' : undefined}
@@ -184,8 +205,6 @@ export function ToastViewportSurface(props: {
 					</div>
 				);
 			})}
-			<div ref={livePolite} className="vx-toast-live" aria-live="polite" role="status" />
-			<div ref={liveAssertive} className="vx-toast-live" aria-live="assertive" role="alert" />
 			{anchored.map((entry) => {
 				const o = entry.options;
 				const timing = toastTiming(o);
@@ -211,6 +230,17 @@ export function ToastViewportSurface(props: {
 					</Popover>
 				);
 			})}
+		</div>
+	);
+
+	// Top-layer viewports sit behind display:contents outlet/host wrappers
+	// (Astryx's markup) so the in-flow node carries zero layout footprint.
+	if (props.isTopLayer === false) {
+		return viewportEl;
+	}
+	return (
+		<div className="vx-toast-outlet">
+			<div className="vx-toast-layer">{viewportEl}</div>
 		</div>
 	);
 }
