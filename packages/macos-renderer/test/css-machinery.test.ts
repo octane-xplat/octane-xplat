@@ -105,7 +105,7 @@ function sliceNode(type: string, opts: any = {}) {
 		computedStyle: undefined,
 		computedCustomProps: new Map(),
 	}
-	n.getChildIndex = (c: any) =>
+	n.getChildIndex = (_c: any) =>
 		n.parent ? n.parent.children.indexOf(n) : container.children.indexOf(n)
 	n.getChildAt = (i: number) => n.children[i]
 	n.getChildrenCount = () => n.children.length

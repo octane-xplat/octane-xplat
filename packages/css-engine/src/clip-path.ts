@@ -37,10 +37,18 @@ function resolveRadius(v: number | { value: number; unit: '%' }, w: number, h: n
 /** NS shorthand edges: 1–4 values → top/right/bottom/left. */
 function edgeParts(parts: string[]): [any, any, any, any] {
 	const vals = parts.map(parseLength)
-	if (vals.length === 1) return [vals[0], vals[0], vals[0], vals[0]]
-	if (vals.length === 2) return [vals[0], vals[1], vals[0], vals[1]]
-	if (vals.length === 3) return [vals[0], vals[1], vals[2], vals[1]]
-	if (vals.length === 4) return [vals[0], vals[1], vals[2], vals[3]]
+	if (vals.length === 1) {
+		return [vals[0], vals[0], vals[0], vals[0]]
+	}
+	if (vals.length === 2) {
+		return [vals[0], vals[1], vals[0], vals[1]]
+	}
+	if (vals.length === 3) {
+		return [vals[0], vals[1], vals[2], vals[1]]
+	}
+	if (vals.length === 4) {
+		return [vals[0], vals[1], vals[2], vals[3]]
+	}
 	throw new Error(`clip-path: expected 1-4 inset values, got ${parts.length}`)
 }
 

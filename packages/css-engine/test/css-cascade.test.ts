@@ -7,7 +7,7 @@ import {
 	evalMediaQuery,
 } from '../src/stylesheets.ts'
 
-import { computeCascade, INHERITED_CSS_PROPERTIES } from '../src/cascade.ts'
+import { computeCascade } from '../src/cascade.ts'
 
 // The cascade modules are AppKit-free: nodes here are plain objects carrying
 // the ElementNode selector-adapter fields.

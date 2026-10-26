@@ -97,8 +97,12 @@ export function resolveTransform(
 	}
 	const tx = translateAxis(s.translateX)
 	const ty = translateAxis(s.translateY)
-	if (tx !== undefined) parts.translateX = tx
-	if (ty !== undefined) parts.translateY = ty
+	if (tx !== undefined) {
+		parts.translateX = tx
+	}
+	if (ty !== undefined) {
+		parts.translateY = ty
+	}
 	parts.scaleX = num(s.scaleX) ?? parts.scaleX
 	parts.scaleY = num(s.scaleY) ?? parts.scaleY
 	parts.rotate = num(s.rotate) ?? parts.rotate

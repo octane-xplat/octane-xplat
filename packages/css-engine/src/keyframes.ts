@@ -127,16 +127,30 @@ function keyframeAnimationsFromCSSProperty(value: any, animations: KeyframeAnima
 		const [name] = parts.filter(
 			(v) => ![duration, delay, timing, iterationCount, direction, fillMode, playState].filter(Boolean).includes(v),
 		)
-		if (duration) ANIMATION_PROPERTY_HANDLERS['animation-duration'](info, duration)
-		if (delay) ANIMATION_PROPERTY_HANDLERS['animation-delay'](info, delay)
-		if (timing) ANIMATION_PROPERTY_HANDLERS['animation-timing-function'](info, timing)
-		if (iterationCount) ANIMATION_PROPERTY_HANDLERS['animation-iteration-count'](info, iterationCount)
-		if (direction) ANIMATION_PROPERTY_HANDLERS['animation-direction'](info, direction)
-		if (fillMode) ANIMATION_PROPERTY_HANDLERS['animation-fill-mode'](info, fillMode)
+		if (duration) {
+		ANIMATION_PROPERTY_HANDLERS['animation-duration'](info, duration)
+	}
+		if (delay) {
+		ANIMATION_PROPERTY_HANDLERS['animation-delay'](info, delay)
+	}
+		if (timing) {
+		ANIMATION_PROPERTY_HANDLERS['animation-timing-function'](info, timing)
+	}
+		if (iterationCount) {
+		ANIMATION_PROPERTY_HANDLERS['animation-iteration-count'](info, iterationCount)
+	}
+		if (direction) {
+		ANIMATION_PROPERTY_HANDLERS['animation-direction'](info, direction)
+	}
+		if (fillMode) {
+		ANIMATION_PROPERTY_HANDLERS['animation-fill-mode'](info, fillMode)
+	}
 		if (playState) {
 			// NS: play state parsed but not implemented.
 		}
-		if (name) ANIMATION_PROPERTY_HANDLERS['animation-name'](info, name)
+		if (name) {
+		ANIMATION_PROPERTY_HANDLERS['animation-name'](info, name)
+	}
 		animations.push(info)
 	}
 }
@@ -243,8 +257,12 @@ export function keyframesArrayFromCSS(
 				time = 1
 			} else {
 				time = parseFloat(time) / 100
-				if (time < 0) time = 0
-				if (time > 100) time = 100
+				if (time < 0) {
+					time = 0
+				}
+				if (time > 100) {
+					time = 100
+				}
 			}
 			let current = parsedKeyframes[time]
 			if (current === undefined) {
@@ -286,13 +304,21 @@ function cubicBezier(p1x: number, p1y: number, p2x: number, p2y: number) {
 		let t = x
 		for (let i = 0; i < 8; i++) {
 			const err = sampleX(t) - x
-			if (Math.abs(err) < 1e-6) return sampleY(t)
+			if (Math.abs(err) < 1e-6) {
+				return sampleY(t)
+			}
 			const d = sampleDerivX(t)
-			if (Math.abs(d) < 1e-6) break
+			if (Math.abs(d) < 1e-6) {
+				break
+			}
 			t -= err / d
 		}
-		if (t < 0) t = 0
-		if (t > 1) t = 1
+		if (t < 0) {
+			t = 0
+		}
+		if (t > 1) {
+			t = 1
+		}
 		return sampleY(t)
 	}
 }

@@ -129,12 +129,16 @@ function parseTransformString(text: string) {
 }
 
 function isZeroTranslate(value: TranslateAxis): boolean {
-	if (typeof value === 'number') return value === 0
+	if (typeof value === 'number') {
+		return value === 0
+	}
 	return value.value === 0
 }
 
 function translateToNumber(value: TranslateAxis): number {
-	if (typeof value === 'number') return value
+	if (typeof value === 'number') {
+		return value
+	}
 	// % stores a fraction; matrix composition keeps the raw number, matching
 	// NS translateValueToNumber.
 	return value.unit === '%' ? value.value * 100 : value.value
@@ -142,8 +146,12 @@ function translateToNumber(value: TranslateAxis): number {
 
 function mergeTranslateAxis(values: TranslateAxis[]): TranslateAxis {
 	const nonZero = values.filter((v) => !isZeroTranslate(v))
-	if (nonZero.length === 0) return 0
-	if (nonZero.length === 1) return nonZero[0]
+	if (nonZero.length === 0) {
+		return 0
+	}
+	if (nonZero.length === 1) {
+		return nonZero[0]
+	}
 	const unit = typeof nonZero[0] === 'object' ? nonZero[0].unit : null
 	if (unit !== null && nonZero.every((v) => typeof v === 'object' && (v as any).unit === unit)) {
 		return { unit: '%', value: nonZero.reduce((s: number, v) => s + (v as { value: number }).value, 0) }

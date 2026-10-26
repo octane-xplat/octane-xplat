@@ -300,7 +300,7 @@ export function refreshMediaQueries(): boolean {
 		}
 	}
 	// Queries for sheets removed since the last check drop out of the cache.
-	for (const q of [...mediaResults.keys()]) {
+	for (const q of mediaResults.keys()) {
 		if (!seen.has(q)) {
 			mediaResults.delete(q)
 		}
@@ -353,10 +353,8 @@ export function stylesheetPseudoClasses(): ReadonlySet<string> {
 
 // ---- Injected-sheet delivery ----------------------------------------------
 
-declare const globalThis: { __xplatStylesheets?: any }
-
-const queued = globalThis.__xplatStylesheets
-globalThis.__xplatStylesheets = {
+const queued = (globalThis as any).__xplatStylesheets
+;(globalThis as any).__xplatStylesheets = {
 	push([id, css]: [string, string]) {
 		registerStylesheet(id, css)
 	},
