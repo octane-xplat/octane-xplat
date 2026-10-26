@@ -178,7 +178,6 @@
    rather than inline-style order. Native/macOS leaves resolve the same
    values through LayoutPaddingContext instead. */
 	.vx-layout {
-		display: flex;
 		margin-inline-start: calc(-1 * var(--container-padding-inline-start, 0px));
 		margin-inline-end: calc(-1 * var(--container-padding-inline-end, 0px));
 		margin-block-start: calc(-1 * var(--container-padding-block-start, 0px));
@@ -4350,6 +4349,7 @@
 	}
 	.vx-sidenav-stickytop {
 		display: flex;
+		flex-direction: column;
 		flex-shrink: 0;
 		position: sticky;
 		top: 0;
@@ -4376,6 +4376,7 @@
 	}
 	.vx-sidenav-stickybottom {
 		display: flex;
+		flex-direction: column;
 		flex-shrink: 0;
 		margin-top: auto;
 		position: sticky;
