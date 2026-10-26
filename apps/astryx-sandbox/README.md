@@ -27,6 +27,27 @@ pnpm --filter @xplat/astryx-sandbox build && pnpm --filter @xplat/astryx-sandbox
 pnpm --filter @xplat/astryx-sandbox verify:web  # Chromium runtime smoke (builds + previews)
 ```
 
+## Parity comparison (sameframe)
+
+`sameframe.yaml` drives a structured parity matrix against the live site
+(`https://astryx.atmeta.com/sandbox/`): home/category/template routes,
+three viewports (1440×900, 1024×768, 390×844), the six themes × light/dark,
+and interaction states (search results/empty, each category filter, collapsed
+rail, nav hover, open theme/mode menus, mobile drawer). With the dev server
+on :5240:
+
+```sh
+pnpm --filter @xplat/astryx-sandbox sameframe   # writes artifacts/sameframe/
+```
+
+Per-page setup lives in `sameframe.setup.mjs`: theme/mode rides upstream's
+own `?embed=1&theme=&mode=` contract (also makes the SSR'd reference
+client-render, so interactions are deterministic), `sf-pin=1` removes the
+post-pin "DiffViewer Perf" card from the reference only (pinned-baseline
+normalization pending the section-11 pin decision), and shared
+`data-sameframe-key` landmarks keep node matching stable across the port's
+different DOM wrapper depth.
+
 Web is the only host in this unit; native hosts are later-unit work.
 
 ## Coverage regeneration

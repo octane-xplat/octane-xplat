@@ -9,7 +9,8 @@
 		"preview": "vite preview",
 		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json",
 		"coverage": "node scripts/generate-coverage.mjs",
-		"verify:web": "node scripts/verify-web.mjs"
+		"verify:web": "node scripts/verify-web.mjs",
+		"sameframe": "sameframe compare --config sameframe.yaml --json"
 	},
 	"dependencies": {
 		"@octane-xplat/ui": "workspace:*",

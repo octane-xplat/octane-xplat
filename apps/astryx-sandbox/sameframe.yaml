@@ -1,0 +1,94 @@
+# Sameframe parity matrix: live Astryx sandbox (reference) vs this port
+# (candidate). Run with the dev server on :5240:
+#
+#   sameframe compare --config sameframe.yaml --json
+#
+# Routes are RELATIVE so they resolve under the reference's /sandbox/ mount and
+# the candidate's root. `sf-*` query params are consumed by sameframe.setup.mjs
+# (ignored by both apps):
+#
+#   sf-pin=1          reference-only: remove the post-pin "DiffViewer Perf" card
+#                     so the live site matches the pinned baseline ebd939b
+#                     (section-11 drift; pending a human pin decision).
+#   embed=1&theme=&mode=  upstream's own embed contract — theme/mode variants
+#                     are deterministic on both targets with no storage or
+#                     reload dance (allowed by the parity plan).
+#   sf-search=<q>     fill the home search field.
+#   sf-filter=<slug>  click a category ToggleButton on home.
+#   sf-state=<name>   nav-collapsed | nav-hover | menu-theme | menu-mode |
+#                     mobile-nav.
+#
+# The setup script also stamps data-sameframe-key on shared landmarks (app
+# shell, side nav, main, search input, filter toggles) on BOTH targets so node
+# matching survives the port's different DOM wrapper depth.
+
+reference:
+  baseUrl: https://astryx.atmeta.com/sandbox
+candidate:
+  baseUrl: http://localhost:5240
+
+setupScript: ./sameframe.setup.mjs
+
+viewports:
+  - width: 1440
+    height: 900
+  - width: 1024
+    height: 768
+  # Below upstream's 840px hideOnSmall/hideOnLarge breakpoint AND the AppShell
+  # mobile-nav breakpoint (md = 768px), so the drawer/topbar path is exercised.
+  - width: 390
+    height: 844
+
+output: ./artifacts/sameframe
+capture:
+  # The vite dev server holds an HMR socket open; networkidle never settles.
+  waitUntil: load
+  stabilizationTimeoutMs: 30000
+
+ignore:
+  selectors:
+    # Stamped by sameframe.setup.mjs on label-hiding mechanism nodes whose
+    # implementation legitimately differs (clipped vs visibility:hidden).
+    - '[data-sf-ignore]'
+
+routes:
+  # --- Home baseline ---
+  - path: './?embed=1&sf-pin=1'
+
+  # --- Home states ---
+  - path: './?embed=1&sf-pin=1&sf-search=palette'
+  - path: './?embed=1&sf-pin=1&sf-search=zzz-no-such-page'
+  - path: './?embed=1&sf-pin=1&sf-filter=components-patterns'
+  - path: './?embed=1&sf-pin=1&sf-filter=themes'
+  - path: './?embed=1&sf-pin=1&sf-filter=tools'
+
+  # --- Side nav states ---
+  - path: './?embed=1&sf-pin=1&sf-state=nav-collapsed'
+  - path: './?embed=1&sf-pin=1&sf-state=nav-hover'
+  - path: './?embed=1&sf-pin=1&sf-state=menu-theme'
+  - path: './?embed=1&sf-pin=1&sf-state=menu-mode'
+  - path: './?embed=1&sf-pin=1&sf-state=mobile-nav'
+
+  # --- Theme x mode matrix via the embed contract (neutral/light is the
+  #     baseline above) ---
+  - path: './?embed=1&theme=neutral&mode=dark&sf-pin=1'
+  - path: './?embed=1&theme=matcha&mode=light&sf-pin=1'
+  - path: './?embed=1&theme=matcha&mode=dark&sf-pin=1'
+  - path: './?embed=1&theme=stone&mode=light&sf-pin=1'
+  - path: './?embed=1&theme=stone&mode=dark&sf-pin=1'
+  - path: './?embed=1&theme=gothic&mode=light&sf-pin=1'
+  - path: './?embed=1&theme=gothic&mode=dark&sf-pin=1'
+  - path: './?embed=1&theme=chocolate&mode=light&sf-pin=1'
+  - path: './?embed=1&theme=chocolate&mode=dark&sf-pin=1'
+  - path: './?embed=1&theme=y2k&mode=light&sf-pin=1'
+  - path: './?embed=1&theme=y2k&mode=dark&sf-pin=1'
+
+  # --- Category + index routes ---
+  - path: 'components-patterns/?embed=1&sf-pin=1'
+  - path: 'themes/?embed=1&sf-pin=1'
+  - path: 'tools/?embed=1&sf-pin=1'
+  - path: 'templates/?embed=1&sf-pin=1'
+
+  # --- One ported authored page + one ported block template ---
+  - path: 'pages/textarea-counter/?embed=1&sf-pin=1'
+  - path: 'templates/ButtonShowcase/?embed=1&sf-pin=1'
