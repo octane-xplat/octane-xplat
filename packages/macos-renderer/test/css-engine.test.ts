@@ -167,7 +167,22 @@ test('sampler: two keyframes at 0/50/100%', () => {
 	const a = info({ keyframes: [kf(0, [['opacity', 0]]), kf(1, [['opacity', 1]])] })
 	assert.equal(sampleKeyframeAnimation(a, 0).values.opacity, 0)
 	assert.equal(Math.round(sampleKeyframeAnimation(a, 50).values.opacity! * 100) / 100, 0.5)
-	assert.ok(sampleKeyframeAnimation(a, 100).values.opacity! > 0.999)
+	assert.ok(sampleKeyframeAnimation(a, 99).values.opacity! > 0.98)
+	// Without forwards fill the end resets (NS _resetAnimationValues).
+	assert.deepEqual(sampleKeyframeAnimation(a, 100).values, {})
+})
+
+test('sampler: first keyframe at 50% is instant, not a played segment', () => {
+	// Keyframes at 50%/100%: NS applies the 50% values at iteration start
+	// (animate(view,0) never plays segment 0), then animates the remaining
+	// 0.5×D. At t=25ms progress should be half of the 0→0.5 gap, not t/0.5D.
+	const a = info({ keyframes: [kf(0.5, [['opacity', 0.5]]), kf(1, [['opacity', 1]])] })
+	assert.equal(sampleKeyframeAnimation(a, 0).values.opacity, 0.5)
+	assert.ok(
+		Math.abs(sampleKeyframeAnimation(a, 25).values.opacity! - 0.75) < 0.01,
+		`expected ~0.75, got ${sampleKeyframeAnimation(a, 25).values.opacity}`,
+	)
+	assert.ok(sampleKeyframeAnimation(a, 49.9).values.opacity! > 0.99)
 })
 
 test('sampler: per-keyframe curve shifts onto the next segment', () => {

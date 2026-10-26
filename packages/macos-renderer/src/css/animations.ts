@@ -205,9 +205,9 @@ export function sampleKeyframeAnimation(
 	}
 
 	const segments = buildSegments(info)
-	// Iteration length = sum of segment durations (NS runs segments
-	// sequentially; a 0% keyframe contributes only its 0.01ms stub).
-	const iterationMs = segments.reduce((s, seg) => s + seg.duration, 0)
+	// NS `animate(view, 0)` applies segment 0 instantly — its duration is
+	// never played, so the timeline is the sum of segments 1..n only.
+	const iterationMs = segments.slice(1).reduce((s, seg) => s + seg.duration, 0)
 	const totalMs = iterationMs * info.iterations
 
 	let t = elapsedMs - info.delay
@@ -228,16 +228,21 @@ export function sampleKeyframeAnimation(
 	}
 
 	// Walk segments carrying the running value per property — segment 0
-	// applies instantly, segment i>0 interpolates over its duration from the
-	// property's previous value (earlier segment target or `base`).
+	// applies instantly at iteration start, segment i>0 interpolates over
+	// its duration from the property's previous value (earlier segment
+	// target or `base`).
 	const values: Record<string, any> = {}
 	const running: Record<string, any> = {}
+	for (const p of Object.keys(segments[0].values)) {
+		running[p] = segments[0].values[p]
+		values[p] = segments[0].values[p]
+	}
 	let cursor = 0
-	for (const seg of segments) {
+	for (const seg of segments.slice(1)) {
 		const end = cursor + seg.duration
 		const props = Object.keys(seg.values)
-		if (local >= end || seg.duration === 0.01) {
-			// Segment fully passed (or instant time-0 stub): commit targets.
+		if (local >= end) {
+			// Segment fully passed: commit targets.
 			for (const p of props) {
 				running[p] = seg.values[p]
 				values[p] = seg.values[p]
@@ -262,14 +267,6 @@ export function sampleKeyframeAnimation(
 			break
 		}
 		cursor = end
-	}
-	// Instant first segment when local lands before any elapsed segment.
-	if (local === 0 && segments.length > 0) {
-		for (const p of Object.keys(segments[0].values)) {
-			if (values[p] === undefined) {
-				values[p] = segments[0].values[p]
-			}
-		}
 	}
 	return { values: values as Partial<SampledValues>, done }
 }
