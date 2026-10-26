@@ -24,6 +24,10 @@ export interface StylesheetEntry {
 	keyframes: Keyframes[]
 }
 
+// Last evaluated result per distinct media-query string —
+// refreshMediaQueries diffs against it.
+const mediaResults = new Map<string, boolean>()
+
 const sheets = new Map<string, StylesheetEntry>()
 /** Registration order of ids — replace-in-place keeps the slot. */
 const order: string[] = []
@@ -51,9 +55,10 @@ function rebuild() {
 		all.push(...entry.selectors)
 	}
 	scope = new StyleSheetSelectorScope(all)
-	// New/changed sheets invalidate the media-result cache so the next
-	// refreshMediaQueries() diff starts clean.
+	// New/changed sheets invalidate the media-result and pseudo-class
+	// caches so the next reads start clean.
 	mediaResults.clear()
+	pseudoClassCache = null
 	restyle?.()
 }
 
@@ -238,14 +243,6 @@ setCssMediaQueryEvaluator((q) => evalMediaQuery(q))
 
 // ---- Media re-evaluation + pseudo-class census ------------------------------
 
-import { _setKeyframeMediaEvaluator } from './cascade.ts'
-
-_setKeyframeMediaEvaluator((q) => evalMediaQuery(q))
-
-// Cache of the last evaluated result per distinct media-query string —
-// refreshMediaQueries diffs against it to decide whether a restyle helps.
-const mediaResults = new Map<string, boolean>()
-
 /**
  * Re-evaluate every media-gated ruleset and keyframe against the current
  * environment. Returns true when any result moved — callers should restyle
@@ -295,7 +292,29 @@ export function refreshMediaQueries(): boolean {
  * Pseudo-class names used by any registered selector — renderers wire
  * state tracking only for these (an unused change must not restyle).
  */
+let pseudoClassCache: ReadonlySet<string> | null = null
+
+function collectPseudoClasses(sel: any, out: Set<string>) {
+	if (typeof sel?.cssPseudoClass === 'string') {
+		out.add(sel.cssPseudoClass)
+	}
+	const inner = sel?.selectors
+	if (Array.isArray(inner)) {
+		for (const s of inner) {
+			collectPseudoClasses(s, out)
+		}
+	}
+}
+
+/** Pseudo-class names used by any registered selector — renderers wire
+ *  state tracking only for these (an unused change must not restyle).
+ *  Recursively walks the selector graph so compound (`button:hover`),
+ *  descendant (`.a:hover .b`) and functional (`:not(:disabled)`) selectors
+ *  are all counted. Recomputed on rebuild. */
 export function stylesheetPseudoClasses(): ReadonlySet<string> {
+	if (pseudoClassCache !== null) {
+		return pseudoClassCache
+	}
 	const out = new Set<string>()
 	for (const id of order) {
 		const entry = sheets.get(id)
@@ -304,12 +323,11 @@ export function stylesheetPseudoClasses(): ReadonlySet<string> {
 		}
 		for (const r of entry.selectors) {
 			for (const sel of (r as any).selectors ?? []) {
-				if (typeof sel.cssPseudoClass === 'string') {
-					out.add(sel.cssPseudoClass)
-				}
+				collectPseudoClasses(sel, out)
 			}
 		}
 	}
+	pseudoClassCache = out
 	return out
 }
 

@@ -1,15 +1,32 @@
 /**
- * Keyframe sampler — GI/AppKit-free. `sampleKeyframeAnimation` evaluates one
- * parsed `KeyframeAnimationInfo` at an elapsed millisecond offset and returns
- * the interpolated property overlay.
+ * Keyframe sampler — GI/AppKit-free. Port of NS 9.1.3
+ * `ui/animation/keyframe-animation.js` (`keyframeAnimationFromInfo`,
+ * `parseKeyframe`, `animate`) expressed as segment sampling: the segment
+ * list NS builds is deterministic, so `sampleKeyframeAnimation` walks it
+ * instead of playing sub-animations.
  *
- * Follows NS `keyframe-animation.js`: delay, iteration count (Infinity
- * allowed), `reverse` flips the timeline, `forwards|both` fill holds the last
- * frame, and each keyframe's `animation-timing-function` curves the segment
- * that ends at it.
+ * Times are milliseconds (NS `timeConverter` returns ms; `keyframes.ts`
+ * keeps them ms too).
+ *
+ * NS semantics reproduced here:
+ * - Segment 0 is applied instantly at iteration start (NS `animate(view,0)`
+ *   writes keyframe 0's values without animating).
+ * - Segment i≥1 animates only the properties keyframe i declares and lasts
+ *   `(k_i − k_{i−1}) × duration`. A keyframe at time 0 gets duration 0.01ms
+ *   and does not advance `startDuration` (`parseKeyframe` lines in NS).
+ * - `reverse` iterates keyframes last→first; each segment's time becomes
+ *   `info.duration − duration` (NS parseKeyframe formula).
+ * - Forward mode: a curve declared on keyframe i is moved onto the segment
+ *   that ends at keyframe i+1 (NS shifts `a2.curve` onto `a1`). Reverse: no
+ *   shift. Missing curves fall back to `info.curve`.
+ * - One iteration lasts the **sum of segment durations** — a 0–50%–100%
+ *   track is not required to sum to the whole `duration`.
+ * - Each property animates from its most recent earlier-segment value, or
+ *   from the caller's `base` when no earlier segment declared it.
+ * - Without forwards fill the sampler returns empty `values` once done.
  */
-import { evaluateCurve, type KeyframeAnimationInfo, type ParsedKeyframe } from './keyframes.ts'
-import type { TranslateAxis } from './transforms.ts'
+import { evaluateCurve, type KeyframeAnimationInfo, type ParsedKeyframe, type TimingCurve } from './keyframes.ts'
+import { resolveTranslate, type TranslateAxis } from './transforms.ts'
 
 export interface SampledValues {
 	opacity?: number
@@ -39,11 +56,11 @@ function parseColor(value: any): Rgba | null {
 		return null
 	}
 	const s = value.trim()
-	const hex = /^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.exec(s)
+	const hex = /^#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.exec(s)
 	if (hex) {
 		let h = hex[1]
-		if (h.length === 3) {
-			h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2]
+		if (h.length === 3 || h.length === 4) {
+			h = [...h].map((c) => c + c).join('')
 		}
 		const r = parseInt(h.slice(0, 2), 16)
 		const g = parseInt(h.slice(2, 4), 16)
@@ -67,10 +84,83 @@ function formatColor(c: Rgba): string {
 	return a >= 1 ? `rgb(${r}, ${g}, ${b})` : `rgba(${r}, ${g}, ${b}, ${a})`
 }
 
-// ---- Per-property interpolation ---------------------------------------------
+// ---- Segment model (keyframeAnimationFromInfo + parseKeyframe) --------------
+
+interface Segment {
+	/** Segment length in ms (0.01 for a time-0 keyframe, like NS). */
+	duration: number
+	/** Only the properties declared on this keyframe. */
+	values: Record<string, any>
+	curve?: TimingCurve
+}
+
+/**
+ * Build NS's `animations` array for one iteration: per-keyframe segments in
+ * order, with the forward-mode curve shift applied (a curve declared on
+ * keyframe i lands on segment i+1). `isReverse` flips keyframe order and the
+ * duration formula, with no shift.
+ */
+function buildSegments(info: KeyframeAnimationInfo): Segment[] {
+	const keyframes = info.keyframes!
+	const animations: Segment[] = []
+	let startDuration = 0
+
+	const parseKeyframe = (keyframe: ParsedKeyframe) => {
+		const values: Record<string, any> = {}
+		for (const d of keyframe.declarations) {
+			values[d.property] = d.value
+		}
+		let duration = keyframe.duration
+		if (duration === 0) {
+			duration = 0.01
+		} else {
+			duration = info.duration * duration - startDuration
+			startDuration += duration
+		}
+		animations.push({
+			// NS `animation.duration`: the reversed formula applies even to
+			// the per-segment length in reverse mode.
+			duration: info.isReverse ? info.duration - duration : duration,
+			values,
+			curve: keyframe.curve,
+		})
+		return startDuration
+	}
+
+	if (info.isReverse) {
+		for (let i = keyframes.length - 1; i >= 0; i--) {
+			parseKeyframe(keyframes[i])
+		}
+	} else {
+		for (const keyframe of keyframes) {
+			parseKeyframe(keyframe)
+		}
+		// NS: shift each keyframe's declared curve onto the NEXT segment.
+		for (let index = animations.length - 1; index > 0; index--) {
+			const a1 = animations[index]
+			const a2 = animations[index - 1]
+			if (a2.curve !== undefined) {
+				a1.curve = a2.curve
+				a2.curve = undefined
+			}
+		}
+	}
+	for (const a of animations) {
+		if (!a.curve) {
+			a.curve = info.curve
+		}
+	}
+	return animations
+}
+
+// ---- Sampling ---------------------------------------------------------------
 
 function lerp(a: number, b: number, t: number): number {
 	return a + (b - a) * t
+}
+
+function isTranslateProp(prop: string): boolean {
+	return prop === 'translateX' || prop === 'translateY'
 }
 
 function interpolate(from: any, to: any, t: number): any {
@@ -87,109 +177,99 @@ function interpolate(from: any, to: any, t: number): any {
 			a: lerp(ca.a, cb.a, t),
 		})
 	}
-	// Percent translates and unmixable values step at the halfway point,
-	// matching CSS abrupt-interpolation for non-interpolable values.
 	return t < 0.5 ? from : to
 }
 
-/** Merge a keyframe's declarations into a flat value map. */
-function keyframeValues(kf: ParsedKeyframe): Partial<SampledValues> {
-	const out: Record<string, any> = {}
-	for (const d of kf.declarations) {
-		out[d.property] = d.value
-	}
-	return out as Partial<SampledValues>
+export interface SampleOptions {
+	/** Values a property animates from when no earlier segment declares it —
+	 *  typically the node's current computed/inline value. */
+	base?: Partial<SampledValues>
+	/** Element box for resolving % translates (iOS resolves at play time).
+	 *  Without it, percent values step at the halfway point. */
+	box?: { width: number; height: number }
 }
 
-const ANIMATABLE: (keyof SampledValues)[] = [
-	'opacity',
-	'backgroundColor',
-	'translateX',
-	'translateY',
-	'scaleX',
-	'scaleY',
-	'rotate',
-	'rotateX',
-	'rotateY',
-	'width',
-	'height',
-]
-
 /**
- * Sample `info` at `elapsedMs` (ms since play). `done` is true once the last
- * iteration finished; without a forwards fill `values` is then empty.
+ * Sample `info` `elapsedMs` ms after play. `done` is true when the last
+ * iteration has finished; without a forwards fill `values` is then empty.
+ * With forwards fill the last iteration's final values hold.
  */
 export function sampleKeyframeAnimation(
 	info: KeyframeAnimationInfo,
 	elapsedMs: number,
+	opts: SampleOptions = {},
 ): { values: Partial<SampledValues>; done: boolean } {
 	const keyframes = info.keyframes
-	const empty = { values: {}, done: true }
-	if (!keyframes || keyframes.length === 0 || info.duration <= 0) {
-		return empty
+	if (!keyframes || keyframes.length === 0) {
+		return { values: {}, done: true }
 	}
 
-	const durationMs = info.duration * 1000
-	const total = durationMs * info.iterations
-	let t = elapsedMs - info.delay * 1000
+	const segments = buildSegments(info)
+	// Iteration length = sum of segment durations (NS runs segments
+	// sequentially; a 0% keyframe contributes only its 0.01ms stub).
+	const iterationMs = segments.reduce((s, seg) => s + seg.duration, 0)
+	const totalMs = iterationMs * info.iterations
+
+	let t = elapsedMs - info.delay
 	if (t < 0) {
+		// Inside the delay: NS plays nothing yet — first keyframe not applied.
 		return { values: {}, done: false }
 	}
-	if (t >= total) {
+	let done = t >= totalMs
+	if (done) {
 		if (!info.isForwards) {
-			return empty
+			return { values: {}, done: true }
 		}
-		t = total
+		t = totalMs
 	}
-	// Position within a single iteration, 0..durationMs.
-	let local = t % durationMs
-	if (t === total) {
-		local = durationMs
-	}
-	if (info.isReverse) {
-		local = durationMs - local
+	let local = t % iterationMs
+	if (done) {
+		local = iterationMs
 	}
 
-	// Per-iteration keyframe times as ms.
-	const times = keyframes.map((k) => k.duration * durationMs)
-	// Keyframe 0 == 'from': NS substitutes duration 0.01 for a zero-duration
-	// step; for sampling a 0% step simply starts the timeline.
-	const segStart = (i: number) => (i === 0 ? 0 : Math.max(times[i], 0.01 * durationMs))
-	const segEnd = (i: number) => Math.max(times[i] || 0.01 * durationMs, 0.01 * durationMs)
-
-	// Find the segment [start, end] containing `local`. Before the first
-	// keyframe time or after the last, hold that keyframe's values.
-	if (local <= times[0]) {
-		return { values: keyframeValues(keyframes[0]), done: t >= total && info.isForwards }
-	}
-	if (local >= times[times.length - 1]) {
-		return { values: keyframeValues(keyframes[keyframes.length - 1]), done: t >= total }
-	}
-	let hi = times.findIndex((x) => local <= x)
-	if (hi < 0) {
-		hi = times.length - 1
-	}
-	const lo = hi - 1
-	const start = segStart(hi) > times[lo] ? times[lo] : times[lo]
-	const end = segEnd(hi)
-	const span = end - start || 1
-	let progress = (local - start) / span
-	progress = Math.max(0, Math.min(1, progress))
-	// The curve declared on the destination keyframe curves this segment;
-	// absent, the animation-level curve applies.
-	const curve = keyframes[hi].curve ?? info.curve
-	progress = evaluateCurve(curve, progress)
-
-	const fromValues = keyframeValues(keyframes[lo])
-	const toValues = keyframeValues(keyframes[hi])
-	const values: Partial<SampledValues> = {}
-	for (const prop of ANIMATABLE) {
-		const to = (toValues as any)[prop]
-		if (to === undefined) {
-			continue
+	// Walk segments carrying the running value per property — segment 0
+	// applies instantly, segment i>0 interpolates over its duration from the
+	// property's previous value (earlier segment target or `base`).
+	const values: Record<string, any> = {}
+	const running: Record<string, any> = {}
+	let cursor = 0
+	for (const seg of segments) {
+		const end = cursor + seg.duration
+		const props = Object.keys(seg.values)
+		if (local >= end || seg.duration === 0.01) {
+			// Segment fully passed (or instant time-0 stub): commit targets.
+			for (const p of props) {
+				running[p] = seg.values[p]
+				values[p] = seg.values[p]
+			}
+		} else if (local > cursor) {
+			// Inside this segment.
+			const progress = evaluateCurve(seg.curve, (local - cursor) / seg.duration)
+			for (const p of props) {
+				const to = seg.values[p]
+				let from = running[p] ?? (opts.base as any)?.[p] ?? to
+				if (opts.box && isTranslateProp(p)) {
+					const basis = p === 'translateX' ? opts.box.width : opts.box.height
+					from = resolveTranslate(from, basis)
+					values[p] = interpolate(from, resolveTranslate(to as TranslateAxis, basis), progress)
+				} else {
+					values[p] = interpolate(from, to, progress)
+				}
+				running[p] = values[p]
+			}
+		} else {
+			// Not reached yet.
+			break
 		}
-		const from = (fromValues as any)[prop] ?? to
-		;(values as any)[prop] = interpolate(from, to, progress)
+		cursor = end
 	}
-	return { values, done: false }
+	// Instant first segment when local lands before any elapsed segment.
+	if (local === 0 && segments.length > 0) {
+		for (const p of Object.keys(segments[0].values)) {
+			if (values[p] === undefined) {
+				values[p] = segments[0].values[p]
+			}
+		}
+	}
+	return { values: values as Partial<SampledValues>, done }
 }

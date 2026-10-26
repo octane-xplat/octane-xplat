@@ -51,14 +51,16 @@ function newInfo(): KeyframeAnimationInfo {
 
 const NAMED_CURVES = new Set(['ease', 'linear', 'ease-in', 'ease-out', 'ease-in-out', 'spring'])
 
-/** NS `timeConverter`: `300ms`/`0.3s`/`0.3` → seconds. */
+/** NS `timeConverter` (`converters.js`): milliseconds. `0.3s` → 300;
+ *  `300ms` → 300; bare `0.3` → 0.3ms (the upstream quirk — NS's default
+ *  duration 0.3 is equally tiny, matching upstream). */
 function timeConverter(value: string): number {
 	let result = parseFloat(value)
 	if (isNaN(result) || !isFinite(result)) {
 		return 0
 	}
-	if (String(value).includes('ms')) {
-		result = result / 1000
+	if (!String(value).includes('ms')) {
+		result = result * 1000
 	}
 	return Math.max(0.0, Math.min(10000, result))
 }

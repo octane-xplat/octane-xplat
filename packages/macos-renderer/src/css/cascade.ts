@@ -30,7 +30,7 @@ import {
 	type CssPendingSubstitution,
 } from '../vendor/css/shorthands.ts'
 
-import { stylesheetScope, stylesheetKeyframes } from './stylesheets.ts'
+import { evalMediaQuery, stylesheetKeyframes, stylesheetScope } from './stylesheets.ts'
 import {
 	isAnimationDeclaration,
 	keyframeAnimationsFromCSSDeclarations,
@@ -326,7 +326,7 @@ function attachKeyframes(info: KeyframeAnimationInfo) {
 		}
 		if (kf.mediaQueryString) {
 			const list = Array.isArray(kf.mediaQueryString) ? kf.mediaQueryString : [kf.mediaQueryString]
-			if (!list.every((q) => evalMediaQueryForKeyframes(q))) {
+			if (!list.every((q) => evalMediaQuery(q))) {
 				continue
 			}
 		}
@@ -335,11 +335,6 @@ function attachKeyframes(info: KeyframeAnimationInfo) {
 	}
 }
 
-// Wired lazily by stylesheets.ts to its evaluator (avoids an import cycle).
-let evalMediaQueryForKeyframes: (q: string) => boolean = () => true
-export function _setKeyframeMediaEvaluator(fn: (q: string) => boolean) {
-	evalMediaQueryForKeyframes = fn
-}
 
 /**
  * Compute the node's effective style: parent-inherited props and custom props,
