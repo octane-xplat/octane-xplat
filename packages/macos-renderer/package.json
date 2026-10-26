@@ -16,9 +16,7 @@
 	],
 	"xplat": {
 		"macos": {
-			"prebuiltLibraries": [
-				"platforms/macos/prebuilt/libxplatmason.dylib"
-			],
+			"prebuiltLibraries": ["platforms/macos/prebuilt/libxplatmason.dylib"],
 			"notices": "platforms/macos/licenses/nativescript-mason.txt"
 		}
 	},
