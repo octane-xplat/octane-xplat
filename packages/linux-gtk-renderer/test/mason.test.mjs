@@ -113,6 +113,13 @@ test('mason-c engine drives masonview layout under real GJS+GTK', async (t) => {
 	])
 	assert.equal(result.realSnapshot, true)
 
+	// Keyframe width reaches the engine; keyframe translate rides the
+	// allocation transform. Segment 0 is applied at play.
+	assert.deepEqual(result.growStart, { x: 0, w: 40 })
+	assert.ok(result.growMid.w > 60 && result.growMid.w < 120, `growMid ${JSON.stringify(result.growMid)}`)
+	assert.ok(result.growMid.x > 20 && result.growMid.x < 80, `growMid ${JSON.stringify(result.growMid)}`)
+	assert.deepEqual(result.growEnd, { x: 100, w: 140 })
+
 	assert.equal(result.destroyed, true)
 }, 120000)
 

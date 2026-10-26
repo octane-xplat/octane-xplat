@@ -302,5 +302,50 @@ out.mediaAfter = colorOf(26)
 // Root classes: orientation from the new size, direction from the default.
 out.rootClassesB2 = [...(node(1)?.cssClasses ?? [])].sort()
 
+// ---- Keyframe animations ---------------------------------------------------
+const sleep = (ms: number) =>
+	new Promise<void>((resolve) => {
+		GLib.timeout_add(GLib.PRIORITY_DEFAULT, ms, () => {
+			resolve()
+			return false
+		})
+	})
+registerStylesheet(
+	'anim',
+	`@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+	.fade { animation: fade 300ms linear forwards; }
+	@keyframes slide { from { transform: translateX(0); } to { transform: translateX(100); } }
+	.slide { animation-name: slide; animation-duration: 300ms; animation-timing-function: linear; }`,
+)
+await idle()
+apply(container, [
+	cmd('create', 40, { type: 'label', props: { text: 'f', className: 'fade' } }),
+	cmd('create', 41, { type: 'label', props: { text: 's', className: 'slide' } }),
+	cmd('insert', 40, { parent: null, before: null }),
+	cmd('insert', 41, { parent: null, before: null }),
+])
+// Segment 0 lands synchronously at play.
+out.fadeStart = node(40)?.view?.get_opacity()
+await sleep(150)
+out.fadeMid = node(40)?.view?.get_opacity()
+out.slideMidCss = node(41)?.cssSignature
+// An inline-style restyle mid-animation must not restart it.
+apply(container, [cmd('update', 40, { props: { text: 'f', className: 'fade', style: { color: '#010203' } } })])
+out.fadeAfterInline = node(40)?.view?.get_opacity()
+await sleep(300)
+out.fadeEnd = node(40)?.view?.get_opacity()
+out.fadeHoldsOverlay = node(40)?.animatedStyle?.opacity
+out.slideEndOverlay = node(41)?.animatedStyle ?? null
+out.slideEndCss = node(41)?.cssSignature
+// A class change re-matches → NS updateDynamicState restarts the animation.
+apply(container, [
+	cmd('update', 40, { props: { text: 'f', className: 'fade again', style: { color: '#010203' } } }),
+])
+out.fadeRestart = node(40)?.view?.get_opacity()
+// Destroy mid-animation stops it — no frame writes to a dead node.
+apply(container, [cmd('remove', 40), cmd('destroy', 40)])
+await sleep(50)
+out.fadeDestroyedOverlay = container.nodes.get(40) ?? null
+
 out.ok = true
 print(`CSS_SMOKE ${JSON.stringify(out)}`)

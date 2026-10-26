@@ -197,6 +197,20 @@ test('stylesheets cascade through the GTK driver under real GJS+GTK', async (t) 
 	)
 	assert.equal(r.rootClassesB2.includes('ns-landscape'), true) // 400x300
 
+	// Keyframe animations: segment 0 is instant, frames advance on the GLib
+	// timer, forwards fill holds, a non-forwards animation drops its overlay,
+	// inline-style restyles keep playing, and a class change restarts.
+	assert.equal(r.fadeStart, 0)
+	assert.ok(r.fadeMid > 0.2 && r.fadeMid < 0.95, `fadeMid ${r.fadeMid}`)
+	assert.match(r.slideMidCss, /transform: translate\(/)
+	assert.ok(r.fadeAfterInline > 0.2, `inline restyle restarted the fade: ${r.fadeAfterInline}`)
+	assert.equal(r.fadeEnd, 1)
+	assert.equal(r.fadeHoldsOverlay, 1)
+	assert.equal(r.slideEndOverlay, null)
+	assert.doesNotMatch(r.slideEndCss, /transform:/)
+	assert.equal(r.fadeRestart, 0)
+	assert.equal(r.fadeDestroyedOverlay, null)
+
 	assert.equal(r.ok, true)
 	t.diagnostic(`theme sheets: ${r.themeSelectors} rule bodies in ${r.themeMs}ms`)
 }, 120000)

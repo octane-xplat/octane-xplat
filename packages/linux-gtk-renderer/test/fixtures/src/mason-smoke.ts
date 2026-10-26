@@ -7,7 +7,8 @@ import Gtk from 'gi://Gtk?version=4.0'
 import Gdk from 'gi://Gdk?version=4.0'
 import GObject from 'gi://GObject'
 import Graphene from 'gi://Graphene'
-import { createGtkContainer, gtkDriver } from '@octane-xplat/linux-gtk'
+import GLib from 'gi://GLib'
+import { createGtkContainer, gtkDriver, registerStylesheet } from '@octane-xplat/linux-gtk'
 import type { GtkContainer } from '@octane-xplat/linux-gtk'
 import type { UniversalHostCommand } from 'octane/universal/native'
 
@@ -222,7 +223,39 @@ if (view10) {
 	}
 }
 
+// Keyframes on a Mason child: animated width reaches the engine's style
+// dict, animated translate rides the child allocation transform. Unmapped
+// widgets get no frame clock, so allocate by hand after each sample.
+registerStylesheet(
+	'mason-anim',
+	`@keyframes grow { from { width: 40; transform: translateX(0); } to { width: 140; transform: translateX(100); } }
+	.grow { animation: grow 400ms linear forwards; }`,
+)
+await new Promise<void>((resolve) => GLib.timeout_add(GLib.PRIORITY_DEFAULT, 0, () => (resolve(), false)))
 apply(container, [
+	{
+		op: 'create',
+		id: 20,
+		type: 'label',
+		props: { text: 'grow', className: 'grow', style: { position: 'absolute', left: 0, top: 0, height: 20 } },
+	} as UniversalHostCommand,
+	{ op: 'insert', id: 20, parent: 10, before: null } as UniversalHostCommand,
+])
+const view20 = container.nodes.get(20)?.view
+const growBox = () => {
+	view10?.size_allocate(rect(0, 0, 200, 100), -1)
+	const [ok, b] = view20.compute_bounds(view10)
+	return ok ? { x: Math.round(b.origin.x), w: Math.round(b.size.width) } : null
+}
+out.growStart = growBox()
+await new Promise<void>((resolve) => GLib.timeout_add(GLib.PRIORITY_DEFAULT, 200, () => (resolve(), false)))
+out.growMid = growBox()
+await new Promise<void>((resolve) => GLib.timeout_add(GLib.PRIORITY_DEFAULT, 350, () => (resolve(), false)))
+out.growEnd = growBox()
+
+apply(container, [
+	{ op: 'remove', id: 20 } as UniversalHostCommand,
+	{ op: 'destroy', id: 20 } as UniversalHostCommand,
 	{ op: 'remove', id: 11 } as UniversalHostCommand,
 	{ op: 'destroy', id: 11 } as UniversalHostCommand,
 	{ op: 'remove', id: 12 } as UniversalHostCommand,

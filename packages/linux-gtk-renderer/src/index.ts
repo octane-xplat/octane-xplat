@@ -26,12 +26,16 @@ import {
 	INHERITED_CSS_PROPERTIES,
 	onStylesheetsChanged,
 	refreshMediaQueries,
+	sampleKeyframeAnimation,
 	setStyleEnvironment,
 	stylesheetPseudoClasses,
 	stylesheetScope,
 	type CssHostNode,
+	type KeyframeAnimationInfo,
+	type SampledValues,
 } from '@octane-xplat/macos-renderer/css'
 import { CSS_PROPS, gtkStyleCss } from './style-css.js'
+import { resolveTransform } from './transform-style.js'
 import { createUniversalRoot } from 'octane/universal/native'
 import type {
 	UniversalEventListenerDescriptor,
@@ -111,6 +115,17 @@ export interface ElementNode {
 	inheritedOnlyKeys?: Set<string>
 	cascadeInline?: PropBag
 	appliedStyle?: PropBag
+	/** Set when the node's own selector inputs changed (class, id,
+	 *  pseudo-class, insertion, stylesheet) — NS `updateDynamicState`, which
+	 *  restarts the node's keyframe animations. Inline-style restyles and
+	 *  descendants of a changed node leave it unset; those restart only when
+	 *  their matched animations change. */
+	cssMatchDirty?: boolean
+	/** Keyframe animations playing (or holding a forwards fill) on this node. */
+	cssAnimation?: CssAnimationPlayback
+	/** Keyframe overlay — NS's `keyframe:` style layer, above every other
+	 *  source including inline style. */
+	animatedStyle?: PropBag
 	/** True once this label/button's text has been written. */
 	textApplied: boolean
 	/** Engine handle when this node participates in a Mason subtree. */
@@ -531,15 +546,18 @@ function cssSchemeName(): string {
 
 // Per-container dirty sets — flushed top-down at batch end, or coalesced
 // onto one microtask outside a batch (appearance change, registerStylesheet).
-function markStyleDirty(node: ElementNode, subtree = false) {
+function markStyleDirty(node: ElementNode, subtree = false, matchChanged = true) {
 	const container = node.container
 	if (!container) {
 		return
 	}
 	;(container.cssDirty ??= new Set()).add(node)
+	if (matchChanged) {
+		node.cssMatchDirty = true
+	}
 	if (subtree) {
 		for (const child of cssChildren(node)) {
-			markStyleDirty(child, true)
+			markStyleDirty(child, true, false)
 		}
 	}
 	if (!container.inBatch && !container.cssFlushQueued) {
@@ -588,7 +606,7 @@ function shallowEqualStyle(a: PropBag, b: PropBag) {
  *  parent is already styled (top-down flush order). */
 function restyleNode(node: ElementNode) {
 	refreshCssClasses(node)
-	const { style, customProps, cssKeys, inheritedKeys } = computeCascade(
+	const { style, customProps, cssKeys, inheritedKeys, animations } = computeCascade(
 		node as unknown as CssHostNode,
 		stylesheetScope(),
 		{ borderLonghands: true },
@@ -612,10 +630,20 @@ function restyleNode(node: ElementNode) {
 		}
 	}
 
+	// NS updateDynamicState: stop the node's keyframe animations (dropping
+	// the keyframe layer), apply the new values, then play what now matches.
+	const playable = animations.filter((info) => info.keyframes?.length)
+	const replay = node.cssMatchDirty === true || !sameAnimations(node.cssAnimation?.infos ?? [], playable)
+	node.cssMatchDirty = false
+	const droppedOverlay = replay && cancelKeyframeAnimations(node)
+
 	// Unchanged effective styles skip the native apply: most restyles (class
 	// or sibling marks, ancestor cascades) resolve to the same bag.
-	if (!shallowEqualStyle(prevStyle, style) || !node.appliedStyle) {
+	if (droppedOverlay || !shallowEqualStyle(prevStyle, style) || !node.appliedStyle) {
 		applyStyle(node, style)
+	}
+	if (replay && playable.length > 0) {
+		playKeyframeAnimations(node, playable)
 	}
 
 	// Only cascade to children when values they could inherit moved.
@@ -623,6 +651,158 @@ function restyleNode(node: ElementNode) {
 		for (const child of cssChildren(node)) {
 			restyleNode(child)
 		}
+	}
+}
+
+// ---- Keyframe animations ---------------------------------------------------
+// NS CssState.playKeyframeAnimations over the shared sampler: every matched
+// `animation` plays from its rule's start on each selector re-match, later
+// animations override earlier ones per property, and the overlay sits above
+// the computed style. One shared ~60 Hz GLib timer drives every playing node
+// (it runs unmapped too, so headless tests observe frames).
+
+interface CssAnimationPlayback {
+	infos: KeyframeAnimationInfo[]
+	startMs: number
+	base: Partial<SampledValues>
+}
+
+const ANIMATION_FRAME_MS = 16
+/** Nodes holding a playback (playing or forwards-filled) — detach walks
+ *  only when this is non-empty. */
+const animatedNodes = new Set<ElementNode>()
+const playingNodes = new Set<ElementNode>()
+let animationTimer: number | null = null
+
+function nowMs(): number {
+	return GLib.get_monotonic_time() / 1000
+}
+
+/** Values a property animates from when no earlier keyframe declares it —
+ *  the node's current (pre-animation) computed value. */
+function animationBase(node: ElementNode): Partial<SampledValues> {
+	const style = node.computedStyle ?? {}
+	const view = node.view
+	const parts = resolveTransform(style)
+	const opacity = Number(style.opacity ?? node.props.opacity)
+	const width = typeof style.width === 'number' ? style.width : (view?.get_width() ?? 0)
+	const height = typeof style.height === 'number' ? style.height : (view?.get_height() ?? 0)
+	return {
+		opacity: Number.isFinite(opacity) ? opacity : 1,
+		backgroundColor: typeof style.backgroundColor === 'string' ? style.backgroundColor : 'rgba(0,0,0,0)',
+		translateX: parts?.translateX ?? 0,
+		translateY: parts?.translateY ?? 0,
+		scaleX: parts?.scaleX ?? 1,
+		scaleY: parts?.scaleY ?? 1,
+		rotate: parts?.rotate ?? 0,
+		rotateX: parts?.rotateX ?? 0,
+		rotateY: parts?.rotateY ?? 0,
+		width,
+		height,
+	}
+}
+
+function sameAnimations(a: KeyframeAnimationInfo[], b: KeyframeAnimationInfo[]): boolean {
+	return a.length === b.length && a.every((info, i) => info === b[i])
+}
+
+function playKeyframeAnimations(node: ElementNode, infos: KeyframeAnimationInfo[]) {
+	if (node.view === null) {
+		return
+	}
+	node.cssAnimation = { infos, startMs: nowMs(), base: animationBase(node) }
+	animatedNodes.add(node)
+	// Segment 0 lands synchronously, like NS `animate(view, 0)` at play.
+	if (advanceKeyframeAnimation(node, node.cssAnimation.startMs)) {
+		playingNodes.add(node)
+		animationTimer ??= GLib.timeout_add(GLib.PRIORITY_DEFAULT, ANIMATION_FRAME_MS, tickKeyframeAnimations)
+	}
+}
+
+function tickKeyframeAnimations(): boolean {
+	const now = nowMs()
+	for (const node of playingNodes) {
+		if (!advanceKeyframeAnimation(node, now)) {
+			playingNodes.delete(node)
+		}
+	}
+	if (playingNodes.size === 0) {
+		animationTimer = null
+		return GLib.SOURCE_REMOVE
+	}
+	return GLib.SOURCE_CONTINUE
+}
+
+/** Writes one frame; false once every animation on the node has finished. */
+function advanceKeyframeAnimation(node: ElementNode, now: number): boolean {
+	const play = node.cssAnimation
+	const view = node.view
+	if (play === undefined || view === null || node.destroyed) {
+		return false
+	}
+	const box = { width: view.get_width(), height: view.get_height() }
+	const overlay: PropBag = {}
+	let done = true
+	for (const info of play.infos) {
+		const sample = sampleKeyframeAnimation(info, now - play.startMs, { base: play.base, box })
+		Object.assign(overlay, sample.values)
+		done &&= sample.done
+	}
+	const prev = node.animatedStyle
+	node.animatedStyle = Object.keys(overlay).length > 0 ? overlay : undefined
+	if (prev !== undefined || node.animatedStyle !== undefined) {
+		applyAnimationFrame(node, view, prev)
+	}
+	return !done
+}
+
+/** Per-frame write. Size keys go through the full style apply (they feed
+ *  set_size_request / the Mason style dict); everything else touches only
+ *  the CSS provider, opacity, and — for Mason children — the parent's
+ *  allocation, which re-applies the child Gsk.Transform. */
+function applyAnimationFrame(node: ElementNode, view: GtkView, prev: PropBag | undefined) {
+	const overlay = node.animatedStyle ?? {}
+	const sized = ['width', 'height'].some((key) => key in overlay || (prev !== undefined && key in prev))
+	if (sized || !node.appliedStyle) {
+		applyStyle(node, node.computedStyle ?? {})
+		return
+	}
+	const merged = { ...node.computedStyle, ...overlay }
+	node.appliedStyle = merged
+	syncCss(node, merged)
+	const opacity = merged.opacity ?? node.props.opacity
+	view.set_opacity(opacity != null ? Number(opacity) : 1)
+	node.appliedOpacity = opacity
+	if (isMasonChild(node)) {
+		view.get_parent?.()?.queue_allocate?.()
+	}
+}
+
+/** Stops the node's animations and drops the keyframe layer without
+ *  re-applying; returns true when an overlay was showing. */
+function cancelKeyframeAnimations(node: ElementNode): boolean {
+	if (node.cssAnimation === undefined) {
+		return false
+	}
+	node.cssAnimation = undefined
+	animatedNodes.delete(node)
+	playingNodes.delete(node)
+	const hadOverlay = node.animatedStyle !== undefined
+	node.animatedStyle = undefined
+	return hadOverlay
+}
+
+/** NS onUnloaded: removal from the tree stops the subtree's animations and
+ *  restores the underlying style. */
+function stopSubtreeAnimations(node: ElementNode) {
+	if (animatedNodes.size === 0) {
+		return
+	}
+	if (cancelKeyframeAnimations(node) && !node.destroyed) {
+		applyStyle(node, node.computedStyle ?? {})
+	}
+	for (const child of node.children) {
+		stopSubtreeAnimations(child)
 	}
 }
 
@@ -719,14 +899,21 @@ function setNodeInlineStyle(node: ElementNode, value: any) {
 				INHERITED_CSS_PROPERTIES.has(k.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase())),
 		)
 	const subtree = Boolean(inheritedOrCustom(prev)) || Boolean(inheritedOrCustom(value))
-	markStyleDirty(node, subtree)
+	markStyleDirty(node, subtree, false)
 }
 
 /** className now only feeds the selector engine (cssClasses) and marks the
  *  subtree for restyle — it is never forwarded to the widget's GTK css
  *  classes (see the cascade note above). */
 function applyClassName(node: ElementNode, value: unknown) {
-	node.cssBaseClasses = new Set(classList(value))
+	const next = new Set(classList(value))
+	// Updates carry the full prop bag — an unchanged className is not a
+	// selector change and must not restart keyframe animations.
+	const prev = node.cssBaseClasses
+	if (prev && prev.size === next.size && [...next].every((name) => prev.has(name))) {
+		return
+	}
+	node.cssBaseClasses = next
 	refreshCssClasses(node)
 	markStyleDirty(node, true)
 }
@@ -779,7 +966,11 @@ function refreshCssClasses(node: ElementNode) {
 }
 
 function setNodeId(node: ElementNode, value: any) {
-	node.cssId = value == null ? undefined : String(value)
+	const next = value == null ? undefined : String(value)
+	if (next === node.cssId) {
+		return
+	}
+	node.cssId = next
 	markStyleDirty(node, true)
 }
 
@@ -945,7 +1136,7 @@ function syncTextAlign(node: ElementNode, view: GtkView, style: PropBag) {
  *  nodes still carry computedStyle (inheritance and custom props flow
  *  through them) but write nothing. */
 function applyStyle(node: ElementNode, style: PropBag) {
-	const next: PropBag = style ?? {}
+	const next: PropBag = node.animatedStyle ? { ...style, ...node.animatedStyle } : (style ?? {})
 	node.appliedStyle = next
 	const view = node.view
 	if (view === null) {
@@ -2305,6 +2496,7 @@ function detach(container: GtkContainer, node: ElementNode) {
 		siblings.splice(index, 1)
 	}
 	markSiblingsForSelectors(container, parent, node)
+	stopSubtreeAnimations(node)
 	detachViews(node)
 	if (node.view === null) {
 		syncText(nearestViewAncestor(node))
@@ -2704,6 +2896,7 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 			}
 			node.destroyed = true
 			container.cssDirty?.delete(node)
+			cancelKeyframeAnimations(node)
 			cancelSelectionSettle(node)
 			disposeListeners(node)
 			unwireStateFlags(node)
@@ -2739,6 +2932,7 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 			const node = expect(container, command.id)
 			disposeListeners(node)
 			node.muted.clear()
+			cancelKeyframeAnimations(node)
 			detachViews(node)
 			releaseMasonNodes(node)
 			if (node.cssProvider !== null) {

@@ -221,8 +221,9 @@ const MASON_CONTAINERS = new Set(['masonview'])
  *  channel. */
 function styleDict(node: NodeLike): Record<string, any> {
 	const props = node.props ?? {}
-	// The cascade's computed bag already folds the inline style prop in.
-	const style = node.computedStyle ?? props.style ?? {}
+	// The cascade's computed bag already folds the inline style prop in;
+	// the keyframe overlay (animated width/height) sits on top.
+	const style = paintStyle(node)
 	const out: Record<string, any> = {}
 
 	for (const key of ENUM_STYLE_KEYS) {
