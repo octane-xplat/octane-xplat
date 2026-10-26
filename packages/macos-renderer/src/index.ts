@@ -176,10 +176,10 @@ export interface ElementNode {
 	// CSS adapter: cssType/cssClasses/cssPseudoClasses/computedStyle/
 	// computedCustomProps/getChildIndex/getChildAt/getChildrenCount.
 	// Per-kind extras: placeholderView, placeholderContent, placeholderCreated,
-	// sizeConstraints, placementPins, styleBg, bgSlot,
+	// sizeConstraints, placementPins, styleBg,
 	// layoutObserver, scrollObserver, scheme, textRuns, appliedStyle,
-	// styleFont*/classFont*/propFontSize, stylePaddingBox/Edges, classInsets,
-	// styleRadius, classRadius, classSpacing, classOrientation, ...
+	// styleFont*/propFontSize, stylePaddingBox/Edges,
+	// styleRadius, ...
 	[key: string]: any
 }
 
@@ -302,8 +302,7 @@ interface ElementBehavior {
 	destroy?: (node: ElementNode) => void
 	/** Element hosts view children (VIEW_PARENT_TYPES semantics). */
 	container?: boolean
-	/** Consumes container plumbing styles: padding->dockInsets and the
-	 *  gap-* classSpacing map. */
+	/** Consumes container plumbing styles: padding -> dockInsets. */
 	containerStyles?: boolean
 	/** Style keys this element (or its children) consume — suppresses the
 	 *  unsupported-style warning for them. */
@@ -1391,7 +1390,12 @@ function setLayoutAction(node: ElementNode, handler: ((event: any) => void) | un
 	})
 }
 
-function setTextFieldPlaceholder(field: NSTextField, props: PropBag, scheme = 'light') {
+function setTextFieldPlaceholder(
+	field: NSTextField,
+	props: PropBag,
+	scheme = 'light',
+	colorOverride?: string,
+) {
 	const placeholder = String(props.placeholder ?? '')
 	if (!placeholder) {
 		field.placeholderAttributedString = null as unknown as NSAttributedString
@@ -1405,9 +1409,10 @@ function setTextFieldPlaceholder(field: NSTextField, props: PropBag, scheme = 'l
 		{
 			[NSFontAttributeName]: field.font,
 			[NSForegroundColorAttributeName]: nativeColor(
-				props.placeholderTextColor != null
-					? String(props.placeholderTextColor)
-					: SCHEME_COLORS[scheme].placeholder,
+				colorOverride ??
+					(props.placeholderTextColor != null
+						? String(props.placeholderTextColor)
+						: SCHEME_COLORS[scheme].placeholder),
 			),
 		},
 	)
@@ -3354,7 +3359,7 @@ function applyThemeColors(node: ElementNode) {
 	node.scheme = nodeScheme(node)
 	const colors = SCHEME_COLORS[node.scheme]
 	if (['label', 'htmlview', 'textfield', 'textview', 'searchbar'].includes(node.type)) {
-		view.textColor = nativeColor(node.styleColor ?? colors[node.colorSlot ?? 'text'])
+		view.textColor = nativeColor(node.styleColor ?? colors.text)
 		if (node.type === 'label') {
 			setLabelText(node, String(view.stringValue ?? ''))
 		}
@@ -3368,10 +3373,10 @@ function applyThemeColors(node: ElementNode) {
 		node.placeholderView.textColor = nativeColor(colors.placeholder)
 	}
 
-	if (node.bgSlot || node.styleBg != null) {
+	if (node.styleBg != null) {
 		node.bgApplied = true
 		view.wantsLayer = true
-		view.layer.backgroundColor = nativeColor(node.styleBg ?? colors[node.bgSlot]).CGColor
+		view.layer.backgroundColor = nativeColor(node.styleBg).CGColor
 	} else if (node.bgApplied) {
 		node.bgApplied = false
 		view.layer.backgroundColor = null
@@ -3499,24 +3504,22 @@ function deactivateSizeConstraints(node: ElementNode) {
 	}
 }
 
-// Style, class, and (for labels) prop sources all write one native font.
-// Each source is tracked on the node so removing one re-resolves the rest —
-// explicit style wins over classes, which win over the element defaults.
+// Style and (for labels) prop sources all write one native font. Each source
+// is tracked on the node so removing one re-resolves the rest — explicit
+// style wins over element defaults.
 function syncNodeFont(node: ElementNode) {
 	const size =
 		node.styleFontSize ??
 		node.propFontSize ??
-		node.classFontSize ??
 		(['label', 'htmlview'].includes(node.type) ? 16 : 14)
 
-	const weight = node.styleFontWeight ?? node.classFontWeight ?? 400
+	const weight = node.styleFontWeight ?? 400
 	node.appliedFontWeight = String(weight)
 	node.appliedFontFamily = node.styleFontFamily ?? node.container.fontFamily
 	node.view!.font = fontForFamilyStyle(size, weight, node.appliedFontFamily)
 }
 
-// NSStackView edgeInsets blend padding styles over class padding over zero.
-// Edges a style never set fall through to the class contribution.
+// NSStackView edgeInsets apply the resolved padding styles.
 function syncEdgeInsets(node: ElementNode) {
 	const view = node.view
 	if (!view) {
@@ -3525,17 +3528,16 @@ function syncEdgeInsets(node: ElementNode) {
 
 	const edges = node.stylePaddingEdges
 	const box = node.stylePaddingBox
-	const klass = node.classInsets
-	if (!edges && !box && !klass && !node.insetsApplied) {
+	if (!edges && !box && !node.insetsApplied) {
 		return
 	}
 
 	node.insetsApplied = true
 	const insets = {
-		top: edges?.top ?? box?.top ?? klass?.top ?? 0,
-		right: edges?.right ?? box?.right ?? klass?.right ?? 0,
-		bottom: edges?.bottom ?? box?.bottom ?? klass?.bottom ?? 0,
-		left: edges?.left ?? box?.left ?? klass?.left ?? 0,
+		top: edges?.top ?? box?.top ?? 0,
+		right: edges?.right ?? box?.right ?? 0,
+		bottom: edges?.bottom ?? box?.bottom ?? 0,
+		left: edges?.left ?? box?.left ?? 0,
 	}
 
 	if (node.type === 'rootlayout' || behaviorOf(node.type)?.containerStyles) {
@@ -3546,15 +3548,42 @@ function syncEdgeInsets(node: ElementNode) {
 	}
 }
 
-// borderRadius (style) and rounded-* (class) share cornerRadius; either source
-// keeps masksToBounds on only while a positive radius is in effect.
+// borderRadius styles keep masksToBounds on only while a positive radius is
+// in effect.
 function syncCornerRadius(node: ElementNode) {
 	const view = node.view
 	if (!view) {
 		return
 	}
 
-	const radius = Number(node.styleRadius ?? node.classRadius ?? 0) || 0
+	const raw = node.styleRadius
+	let radius: number
+	let percentRadius = false
+	if (typeof raw === 'string' && raw.endsWith('%')) {
+		percentRadius = true
+		const pct = parseFloat(raw)
+		const size = view.frame?.size ?? { width: 0, height: 0 }
+		radius = (pct / 100) * Math.min(Number(size.width) || 0, Number(size.height) || 0)
+	} else {
+		radius = Number(raw ?? 0) || 0
+	}
+
+	// A percent radius resolves against the current bounds, so the view's own
+	// frame changes must re-run this — observe them while one is in effect.
+	if (percentRadius && !node.radiusFrameObserver) {
+		view.postsFrameChangedNotifications = true
+		node.radiusFrameObserver =
+			NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
+				NSViewFrameDidChangeNotification,
+				view,
+				null,
+				() => syncCornerRadius(node),
+			)
+	} else if (!percentRadius && node.radiusFrameObserver) {
+		NSNotificationCenter.defaultCenter.removeObserver(node.radiusFrameObserver)
+		node.radiusFrameObserver = null
+	}
+
 	if (radius <= 0 && !node.radiusApplied) {
 		return
 	}
@@ -3638,6 +3667,19 @@ function resetStyle(node: ElementNode, name: string) {
 	} else if (name === 'borderRadius') {
 		node.styleRadius = undefined
 		syncCornerRadius(node)
+	} else if (name === 'cornerShape') {
+		if (view.layer) {
+			view.layer.cornerCurve = 'circular'
+		}
+	} else if (name === 'textDecoration' && node.type === 'label') {
+		setLabelText(node, String(view.stringValue ?? ''))
+	} else if (name === 'placeholderColor') {
+		node.stylePlaceholderColor = undefined
+		if (node.type === 'textfield') {
+			setTextFieldPlaceholder(view as NSTextField, node.props, nodeScheme(node))
+		} else if (node.type === 'textview' && node.placeholderView) {
+			node.placeholderView.textColor = nativeColor(SCHEME_COLORS[nodeScheme(node)].placeholder)
+		}
 	} else if (name === 'width' || name === 'height') {
 		setSizeConstraint(node, name, undefined)
 	} else if (name === 'left' || name === 'top' || name === 'right' || name === 'bottom') {
@@ -3767,6 +3809,22 @@ function applyStyle(node: ElementNode, style: PropBag) {
 		} else if (name === 'borderRadius' && node.view) {
 			node.styleRadius = value
 			syncCornerRadius(node)
+		} else if (name === 'cornerShape' && node.view) {
+			node.view.wantsLayer = true
+			node.view.layer.cornerCurve =
+				value === 'squircle' ? 'continuous' : 'circular'
+		} else if (name === 'placeholderColor' && node.view) {
+			node.stylePlaceholderColor = String(value)
+			if (node.type === 'textfield') {
+				setTextFieldPlaceholder(
+					node.view as NSTextField,
+					node.props,
+					nodeScheme(node),
+					node.stylePlaceholderColor,
+				)
+			} else if (node.type === 'textview' && node.placeholderView) {
+				node.placeholderView.textColor = nativeColor(node.stylePlaceholderColor)
+			}
 		} else if ((name === 'width' || name === 'height') && node.view) {
 			setSizeConstraint(node, name, value)
 		} else if (
@@ -3795,6 +3853,8 @@ function applyStyle(node: ElementNode, style: PropBag) {
 		) {
 			node.styleFontWeight = String(value)
 			syncNodeFont(node)
+		} else if (name === 'textDecoration' && node.type === 'label' && node.view) {
+			setLabelText(node, String(node.view.stringValue ?? ''))
 		} else if (name === 'textAlign' && node.type === 'label') {
 			node.view!.alignment =
 				value === 'left'
@@ -3961,23 +4021,44 @@ function syncHtmlView(node: ElementNode) {
 
 function setLabelText(node: ElementNode, text: any) {
 	const lineHeight = Number(effectiveStyle(node).lineHeight)
-	if (!Number.isFinite(lineHeight) || lineHeight <= 0) {
+	const decoration = String(effectiveStyle(node).textDecoration ?? '')
+	const decorate =
+		decoration.includes('underline') || decoration.includes('line-through')
+	if ((!Number.isFinite(lineHeight) || lineHeight <= 0) && !decorate) {
 		node.view!.stringValue = text
 		return
 	}
 
-	const paragraphStyle = NSMutableParagraphStyle.alloc().init()
-	paragraphStyle.lineBreakMode = (node.view as NSTextField).cell.lineBreakMode
-	// An attributed string's own paragraph style governs rendering — carry
-	// the control's alignment or textAlign silently renders left.
-	paragraphStyle.alignment = node.view!.alignment
-	paragraphStyle.minimumLineHeight = lineHeight
-	paragraphStyle.maximumLineHeight = lineHeight
-	node.view!.attributedStringValue = NSAttributedString.alloc().initWithStringAttributes(text, {
-		[NSParagraphStyleAttributeName]: paragraphStyle,
+	const attributes: Record<string, any> = {
 		[NSFontAttributeName]: node.view!.font,
 		[NSForegroundColorAttributeName]: node.view!.textColor,
-	})
+	}
+	if (Number.isFinite(lineHeight) && lineHeight > 0) {
+		const paragraphStyle = NSMutableParagraphStyle.alloc().init()
+		paragraphStyle.lineBreakMode = (node.view as NSTextField).cell.lineBreakMode
+		// An attributed string's own paragraph style governs rendering — carry
+		// the control's alignment or textAlign silently renders left.
+		paragraphStyle.alignment = node.view!.alignment
+		paragraphStyle.minimumLineHeight = lineHeight
+		paragraphStyle.maximumLineHeight = lineHeight
+		attributes[NSParagraphStyleAttributeName] = paragraphStyle
+	}
+	// macos-node-api publishes the AppKit attribute keys as globals (the same
+	// lookup formatted-text.ts uses); the literals match AppKit's own values.
+	const underlineKey =
+		(globalThis as any).NSUnderlineStyleAttributeName ?? 'NSUnderline'
+	const strikeKey =
+		(globalThis as any).NSStrikethroughStyleAttributeName ?? 'NSStrikethrough'
+	if (decoration.includes('underline')) {
+		attributes[underlineKey] = 1
+	}
+	if (decoration.includes('line-through')) {
+		attributes[strikeKey] = 1
+	}
+	node.view!.attributedStringValue = NSAttributedString.alloc().initWithStringAttributes(
+		text,
+		attributes,
+	)
 }
 
 function syncText(parent: ElementNode | null | undefined) {
@@ -5045,10 +5126,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 			setSizeConstraint(node, 'height', undefined)
 		} else if (style.lineHeight == null && style.height == null) {
 			const size = Number(node.view!.font?.pointSize ?? 16)
-			const height =
-				style.fontSize == null && node.headingDefaultHeight != null
-					? node.headingDefaultHeight
-					: (node.classLineHeight ?? Math.ceil(size * DEFAULT_TEXT_LINE_HEIGHT_RATIO))
+			const height = Math.ceil(size * DEFAULT_TEXT_LINE_HEIGHT_RATIO)
 
 			setSizeConstraint(node, 'height', height)
 		}
@@ -6174,6 +6252,11 @@ function destroy(node: ElementNode) {
 	if (node.layoutObserver) {
 		NSNotificationCenter.defaultCenter.removeObserver(node.layoutObserver)
 		node.layoutObserver = null
+	}
+
+	if (node.radiusFrameObserver) {
+		NSNotificationCenter.defaultCenter.removeObserver(node.radiusFrameObserver)
+		node.radiusFrameObserver = null
 	}
 
 	layoutHandlers.delete(node.layoutObservedView)

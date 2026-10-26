@@ -80,12 +80,11 @@ test('gap styles become length dims — never auto', () => {
 	assert.deepEqual(bare.gapColumn, [0, 8])
 })
 
-test('className-derived spacing/orientation feed the dict', () => {
-	const item = node('masonview')
-	item.classSpacing = 8
-	item.classOrientation = 0 // NSUserInterfaceLayoutOrientation.Horizontal
+test('computed style spacing/orientation feed the dict', () => {
+	const item = node('masonview', { style: { gap: 8, flexDirection: 'row' } })
 	const dict = styleDict(item)
 	assert.deepEqual(dict.gapRow, [0, 8])
+	assert.deepEqual(dict.gapColumn, [0, 8])
 	assert.equal(dict.flexDirection, 'row')
 })
 

@@ -233,11 +233,6 @@ function styleDict(node: NodeLike): Record<string, any> {
 		}
 	}
 
-	if (node.classOrientation != null) {
-		// NSUserInterfaceLayoutOrientation: 0 horizontal, 1 vertical.
-		out.flexDirection = node.classOrientation === 0 ? 'row' : 'column'
-	}
-
 	if (typeof style.flexDirection === 'string') {
 		out.flexDirection = style.flexDirection
 	}
@@ -267,7 +262,7 @@ function styleDict(node: NodeLike): Record<string, any> {
 		}
 	}
 
-	const padding = node.dockInsets ?? node.classInsets ?? edgeBox(style.padding)
+	const padding = node.dockInsets ?? edgeBox(style.padding)
 	if (padding) {
 		out.padding = {
 			left: [0, padding.left ?? 0],
@@ -280,11 +275,6 @@ function styleDict(node: NodeLike): Record<string, any> {
 	const gap = lenDim(style.gap) ?? lenDim(props.spacing)
 	const rowGap = lenDim(style.rowGap) ?? gap
 	const columnGap = lenDim(style.columnGap) ?? gap
-	const classGap = node.classSpacing != null ? ([0, node.classSpacing] as [number, number]) : null
-	if (classGap) {
-		out.gapRow = out.gapColumn = classGap
-	}
-
 	if (rowGap) {
 		out.gapRow = rowGap
 	}
@@ -366,7 +356,7 @@ function syncMasonNode(node: NodeLike, layoutView: ViewFor) {
 		;(globalThis as any).__masonStyle.push({ type: node.type, id: node.props?.id, dict })
 	}
 	if ((process as any).env?.XPLAT_MASON_DEBUG) {
-		console.log('[mason] styledict', node.type, JSON.stringify(dict), 'classSpacing=' + node.classSpacing, 'classInsets=' + JSON.stringify(node.classInsets), 'dockInsets=' + JSON.stringify(node.dockInsets), 'marginInsets=' + JSON.stringify(node.marginInsets), 'className=' + node.props?.className)
+		console.log('[mason] styledict', node.type, JSON.stringify(dict), 'dockInsets=' + JSON.stringify(node.dockInsets), 'marginInsets=' + JSON.stringify(node.marginInsets), 'className=' + node.props?.className)
 	}
 	invoke('style', [node.masonNode, dict])
 	return node.masonNode

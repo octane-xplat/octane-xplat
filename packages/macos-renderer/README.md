@@ -7,9 +7,10 @@ The supported packaging target is Apple Silicon with macOS 13.5 or later.
 
 Your application owns startup, windows, menus, host services, and custom font
 assets. The renderer owns views, layout, events, accessibility, and its hosted
-popups and sheets. It does not load web stylesheets or implement every
-NativeScript widget. See the [macOS harness](../../apps/macos/README.md) for
-the current component and service limits.
+popups and sheets. It applies your stylesheets with the same selector engine
+iOS and Android use, but does not implement every NativeScript widget or CSS
+property. See the [macOS harness](../../apps/macos/README.md) for the current
+component and service limits.
 
 Verification status: the image-crop integration test compiles and mounts the
 public UI barrel, and registered action selectors match their target/action
@@ -104,6 +105,60 @@ root.unmount()
 that view and call `unmount()` before disposing the host. Root creation does
 not create a window or start the application run loop. The package also
 re-exports Octane's universal native runtime for compiler and hook imports.
+
+## Apply stylesheets
+
+Import CSS files from your entry module, the same way the iOS and Android
+apps do. `xplatMacOS` compiles them like the native preset (it drops
+`@platform` blocks for other targets, unwraps `@layer`, and treats `px` as
+points) and bundles them into `main.cjs`. The renderer then matches
+`className`, `id`, and element-type selectors against your views:
+
+```ts
+// src/styles.ts, imported by your entry before the first render
+import '@octane-xplat/ui/theme/tokens.css'
+import '@octane-xplat/ui/theme/chrome.css'
+import './app.css'
+```
+
+```css
+/* app.css */
+.card {
+  padding: 16px;
+  background-color: var(--color-surface);
+  border-radius: 12px;
+}
+```
+
+The cascade follows NativeScript: specificity, then `@layer`, then source
+order. Custom properties and `color`/`font-*`/`line-height` inherit, and
+`var()` and `calc()` resolve per view. A `style` prop overrides CSS, and so
+does an element prop with the same name, such as a label's `fontSize`. The
+root of every renderer tree gets `ns-root`, `ns-macos`, and `ns-light` or
+`ns-dark` from the app's effective appearance.
+
+To add CSS at runtime, call `registerStylesheet`. Registering the same id
+again replaces that sheet, and mounted views restyle:
+
+```ts
+import { registerStylesheet } from '@octane-xplat/macos-renderer'
+
+registerStylesheet('promo', '.promo { background-color: #fde68a; }')
+```
+
+Current limits:
+
+- Only `:disabled` responds to state. `:hover`, `:active`, `:pressed`, and
+  `:focus` rules never match yet.
+- Media queries are re-checked when the appearance or the stylesheets
+  change, but not when a window resizes.
+- `@keyframes` and `animation-*` are parsed but not played.
+- Labels ignore padding. Per-corner radii and per-side borders collapse to a
+  single value.
+- A text field or text view drops its native bezel and background as soon
+  as CSS gives it a background, border, or corner radius.
+- An unsupported property logs `[macos-css] ignored unsupported property`
+  once per property name.
 
 ## Preserve context through portals
 

@@ -25,6 +25,10 @@ const slices = [
 		source.indexOf('function nodeClasses'),
 		source.indexOf('function withDrawingAppearance'),
 	),
+	source.slice(
+		source.indexOf('function setLabelText'),
+		source.indexOf('function syncText'),
+	),
 ]
 
 function anchor() {
@@ -44,6 +48,9 @@ function view({ orientation } = {}) {
 		distribution: null,
 		edgeInsets: { top: 0, right: 0, bottom: 0, left: 0 },
 		wantsLayer: false,
+		frame: { origin: { x: 0, y: 0 }, size: { width: 0, height: 0 } },
+		postsFrameChangedNotifications: false,
+		cell: { lineBreakMode: 0 },
 		layer: {
 			setValueForKeyPath(key, value) {
 				this['kvc:' + key] = value
@@ -96,6 +103,8 @@ function view({ orientation } = {}) {
 }
 
 const inputTransparentViews = new Set()
+const frameObservers: any[] = []
+const placeholderCalls: any[] = []
 const reconciles: any[] = []
 
 const MASON_TYPES = ['masonview', 'liquidglass', 'scrollview']
@@ -161,8 +170,33 @@ const sandbox = {
 		weight: String(weight ?? 400),
 		familyName: family ?? null,
 	}),
-	setLabelText: () => {},
-	setTextFieldPlaceholder: () => {},
+	setTextFieldPlaceholder: (field, props, scheme, override) =>
+		placeholderCalls.push({ field, override }),
+	placeholderCalls,
+	NSNotificationCenter: {
+		defaultCenter: {
+			addObserverForNameObjectQueueUsingBlock: (name, obj, q, cb) => {
+				frameObservers.push(cb)
+				return cb
+			},
+			removeObserver: (o) => {
+				const i = frameObservers.indexOf(o)
+				if (i >= 0) frameObservers.splice(i, 1)
+			},
+		},
+	},
+	NSViewFrameDidChangeNotification: 'frame-changed',
+	NSMutableParagraphStyle: { alloc: () => ({ init: () => ({}) }) },
+	NSAttributedString: {
+		alloc: () => ({
+			initWithStringAttributes: (text, attrs) => ({ text, attrs }),
+		}),
+	},
+	NSUnderlineStyleAttributeName: 'NSUnderline',
+	NSStrikethroughStyleAttributeName: 'NSStrikethrough',
+	NSFontAttributeName: 'NSFont',
+	NSForegroundColorAttributeName: 'NSColor',
+	NSParagraphStyleAttributeName: 'NSParagraph',
 	layoutView: (n: any) => n.view,
 	configureScrollAxes: () => {},
 	// Style application can queue a parent layout reconcile; record them.
@@ -518,4 +552,75 @@ test('an unstyled masonview queues a reconcile without crashing', () => {
 	reconciles.length = 0
 	applyProps(stack, {})
 	assert.ok(reconciles.length >= 0)
+})
+
+test('percent borderRadius resolves against min(width, height) and re-resolves on frame change', () => {
+	const item = node('masonview', { orientation: 1 })
+	item.view.frame.size.width = 100
+	item.view.frame.size.height = 50
+	setStyle(item, { borderRadius: '50%' })
+	assert.equal(item.view.layer.cornerRadius, 25)
+	assert.equal(frameObservers.length, 1, 'frame observer installed while % radius is in effect')
+
+	item.view.frame.size.width = 40
+	for (const cb of [...frameObservers]) cb()
+	assert.equal(item.view.layer.cornerRadius, 20)
+
+	setStyle(item, {})
+	assert.equal(item.view.layer.cornerRadius, 0)
+	assert.equal(frameObservers.length, 0, 'observer removed when the radius resets')
+})
+
+test('numeric borderRadius is unchanged by percent handling', () => {
+	const item = node('masonview', { orientation: 1 })
+	item.view.frame.size.width = 100
+	item.view.frame.size.height = 50
+	setStyle(item, { borderRadius: 7 })
+	assert.equal(item.view.layer.cornerRadius, 7)
+	assert.equal(frameObservers.length, 0)
+})
+
+test('cornerShape squircle maps to a continuous corner curve; reset restores circular', () => {
+	const item = node('masonview', { orientation: 1 })
+	setStyle(item, { cornerShape: 'squircle' })
+	assert.equal(item.view.layer.cornerCurve, 'continuous')
+
+	setStyle(item, { cornerShape: 'round' })
+	assert.equal(item.view.layer.cornerCurve, 'circular')
+
+	setStyle(item, {})
+	assert.equal(item.view.layer.cornerCurve, 'circular')
+})
+
+test('placeholderColor styles textfield placeholder and textview placeholderView; reset restores scheme default', () => {
+	placeholderCalls.length = 0
+	const field = node('textfield', { props: { placeholder: 'e' } })
+	setStyle(field, { placeholderColor: 'red' })
+	assert.equal(placeholderCalls.at(-1)?.override, 'red')
+
+	setStyle(field, {})
+	assert.equal(placeholderCalls.at(-1)?.override, undefined)
+
+	const area = node('textview', { props: {} })
+	area.placeholderView = { textColor: null }
+	setStyle(area, { placeholderColor: 'blue' })
+	assert.deepEqual({ ...area.placeholderView.textColor.CGColor }, { r: 0, g: 0, b: 1, a: 1 })
+
+	setStyle(area, {})
+	assert.ok(area.placeholderView.textColor, 'scheme default placeholder color restored')
+})
+
+test('textDecoration underline/line-through reach the label attributed string; reset clears them', () => {
+	const item = node('label', { props: { text: 'hi' } })
+	item.view.attributedStringValue = null
+	setStyle(item, { textDecoration: 'underline' })
+	assert.equal(item.view.attributedStringValue.attrs.NSUnderline, 1)
+	assert.equal(item.view.attributedStringValue.attrs.NSStrikethrough, undefined)
+
+	setStyle(item, { textDecoration: 'underline line-through' })
+	assert.equal(item.view.attributedStringValue.attrs.NSUnderline, 1)
+	assert.equal(item.view.attributedStringValue.attrs.NSStrikethrough, 1)
+
+	setStyle(item, {})
+	assert.equal(item.view.stringValue !== undefined || item.view.attributedStringValue?.attrs?.NSUnderline === undefined, true)
 })
