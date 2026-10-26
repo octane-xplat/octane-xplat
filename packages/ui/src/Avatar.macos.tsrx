@@ -18,3 +18,7 @@ export function Avatar(props: AvatarProps) @{
 			: <label className="vx-avatar-fallback" text={props.fallback ?? ''} />}
 	</masonview>
 }
+
+// AvatarStatusDot has no AppKit-specific leaf yet; reuse the shared
+// implementation so the barrel resolves.
+export { AvatarStatusDot } from "./Avatar.tsrx";

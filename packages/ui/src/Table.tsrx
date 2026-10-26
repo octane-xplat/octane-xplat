@@ -14,6 +14,7 @@ import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from './escape-props'
 import { planTableRender, wrapTableContext, resolveTablePlugins, applyPlugins } from './table/pipeline'
 import { TableContext, TableContextProvider } from './table/table-context'
+import { TableSlot } from './table/table-slot'
 import { useContext } from 'octane'
 
 /** Column width → native cell style: pixel widths become dips, proportional
@@ -36,7 +37,7 @@ function cellContent(content: any, col: TableColumn<any>) {
 	// Strings/numbers render through <label>; elements pass through.
 	return typeof content === 'string' || typeof content === 'number'
 		? <label text={String(content)} />
-		: content
+		: <TableSlot value={content} />
 }
 
 /** Table — data-driven + plugin pipeline (Astryx `Table`), universal leaf.
@@ -80,7 +81,7 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 		)
 		return (
 			<TableContextProvider value={ctx}>
-				{wrapTableContext(plugins, node) as any}
+				<TableSlot value={wrapTableContext(plugins, node)} />
 			</TableContextProvider>
 		)
 	}
@@ -93,7 +94,7 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 			id={id}
 			className={cx('vx-table-scroll', plan.scrollWrapper.classes)}
 			style={{ display: 'flex', flexDirection: 'column' }}>
-			{plan.scrollWrapper.beforeTable}
+			<TableSlot value={plan.scrollWrapper.beforeTable} />
 			<masonview className={cx(tableClasses, plan.table.classes)} style={mergeStyle({ display: 'flex', flexDirection: 'column' }, mergeStyle(plan.table.htmlProps?.style ?? {}, style))}>
 				{plan.columns.length > 0 && (
 					<masonview className="vx-table-head" style={{ display: 'flex', flexDirection: 'row' }}>
@@ -104,12 +105,12 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 									key={cell.column.key}
 									className={cx('vx-table-cell vx-table-th', `vx-table-cell--${density}`, cell.render.classes)}
 									style={cellStyle(cell.column, { display: 'flex', flexDirection: 'column' })}>
-									{before}
+									<TableSlot value={before} />
 									<masonview style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-										{typeof content === 'string' ? <label text={content} /> : content}
-										{after}
+										{typeof content === 'string' ? <label text={content} /> : <TableSlot value={content} />}
+										<TableSlot value={after} />
 									</masonview>
-									{below}
+									<TableSlot value={below} />
 								</masonview>
 							)
 						})}
@@ -135,16 +136,16 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 				})}
 				{plan.showEmptyState && (
 					<masonview className="vx-table-empty">
-						{emptyState != null ? emptyState : <label text="No data" />}
+						{emptyState != null ? <TableSlot value={emptyState} /> : <label text="No data" />}
 					</masonview>
 				)}
 			</masonview>
-			{plan.scrollWrapper.afterTable}
+			<TableSlot value={plan.scrollWrapper.afterTable} />
 		</masonview>
 	)
 
 	<TableContextProvider value={ctx}>
-		{wrapTableContext(plugins, tableElement) as any}
+		<TableSlot value={wrapTableContext(plugins, tableElement)} />
 	</TableContextProvider>
 }
 

@@ -6,6 +6,7 @@ import { useRef } from 'octane'
 import type { TablePlugin, HeaderCellRenderProps, TableSortState, TableSortDirection, UseTableSortableConfig } from './types'
 import type { TableColumn } from '../props'
 import { Icon } from '../Icon'
+import { tableSlot } from './table-slot'
 
 export function resolveSortKey<T extends Record<string, unknown>>(column: TableColumn<T>): string | null {
 	const { sortable } = column
@@ -59,11 +60,7 @@ export function useTableSortable<T extends Record<string, unknown>, TSortKey ext
 			if (sortKey == null) return props
 			return {
 				...props,
-				content: (
-					<SortHeaderButton column={column} configRef={configRef as any}>
-						{props.content}
-					</SortHeaderButton>
-				),
+				content: tableSlot(SortHeaderButton, { column, configRef, children: props.content }),
 			}
 		},
 	}

@@ -13,6 +13,7 @@ import type {
 import type { TableContextActions, TablePlugin, TableRenderProps } from './table/types'
 import { applyPlugins, planTableRender, wrapTableContext, resolveTablePlugins } from './table/pipeline'
 import { TableContext, TableContextProvider } from './table/table-context'
+import { TableSlot } from './table/table-slot'
 import { Empty as EmptyState } from './Empty'
 import { ContextMenu } from './ContextMenu'
 import { useContext } from 'octane'
@@ -99,7 +100,7 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 		)
 		return (
 			<TableContextProvider value={ctx}>
-				{wrapTableContext(plugins, node) as any}
+				<TableSlot value={wrapTableContext(plugins, node)} />
 			</TableContextProvider>
 		)
 	}
@@ -126,7 +127,7 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 			class={cx('vx-table-scroll', plan.scrollWrapper.classes)}
 			role="group"
 			aria-label="Table">
-			{plan.scrollWrapper.beforeTable as any}
+			<TableSlot value={plan.scrollWrapper.beforeTable} />
 			<table
 				ref={ref}
 				id={id}
@@ -149,20 +150,20 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 										title={typeof content === 'string' && content.length > 0 ? content : undefined}>
 										{hasSlots ? (
 											<>
-												{before as any}
+												<TableSlot value={before} />
 												{after != null ? (
 													<div class="vx-table-header-label">
-														{content as any}
-														{after as any}
+														<TableSlot value={content} />
+														<TableSlot value={after} />
 													</div>
 												) : (
-													(content as any)
+													<TableSlot value={content} />
 												)}
-												{overlay as any}
-												{below as any}
+												<TableSlot value={overlay} />
+												<TableSlot value={below} />
 											</>
 										) : (
-											(content as any)
+											<TableSlot value={content} />
 										)}
 									</th>
 								)
@@ -185,10 +186,10 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 										style={cell.render.htmlProps?.style}>
 										{cell.render.contextMenuActions ? (
 											<CellContextMenu actions={cell.render.contextMenuActions}>
-												{cell.content as any}
+												<TableSlot value={cell.content} />
 											</CellContextMenu>
 										) : (
-											(cell.content as any)
+											<TableSlot value={cell.content} />
 										)}
 									</td>
 								))}
@@ -197,7 +198,7 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 						return row.render.afterRow ? (
 							<>
 								{rowNode}
-								{row.render.afterRow as any}
+								<TableSlot value={row.render.afterRow} />
 							</>
 						) : (
 							rowNode
@@ -206,18 +207,18 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 					{plan.showEmptyState && (
 						<tr>
 							<td colSpan={plan.colSpan}>
-								{emptyState != null ? (emptyState as any) : <EmptyState title="No data" />}
+								{emptyState != null ? <TableSlot value={emptyState} /> : <EmptyState title="No data" />}
 							</td>
 						</tr>
 					)}
 				</tbody>
 			</table>
-			{plan.scrollWrapper.afterTable as any}
+			<TableSlot value={plan.scrollWrapper.afterTable} />
 		</div>
 	)
 
 	<TableContextProvider value={ctx}>
-		{wrapTableContext(plugins, tableElement) as any}
+		<TableSlot value={wrapTableContext(plugins, tableElement)} />
 	</TableContextProvider>
 }
 

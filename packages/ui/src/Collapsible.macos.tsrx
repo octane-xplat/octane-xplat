@@ -37,3 +37,7 @@ export function Collapsible(props: CollapsibleProps) @{
 		{open ? <masonview className="vx-collapsible-content" style={{display: "flex"}}>{props.children}</masonview> : null}
 	</masonview>
 }
+
+// CollapsibleGroup has no AppKit-specific leaf yet; reuse the shared
+// implementation so the barrel resolves.
+export { CollapsibleGroup } from "./Collapsible.tsrx";

@@ -23,6 +23,7 @@ import { Tokenizer } from '../Tokenizer'
 import { HStack } from '../HStack'
 import { VStack } from '../VStack'
 import { View } from '../View'
+import { tableSlot } from './table-slot'
 
 export interface UseTableFilteringConfig {
 	/** Applied filter state — from `useTableFilterState`. */
@@ -246,39 +247,35 @@ export function useTableFiltering<T extends Record<string, unknown>>(config: Use
 			if (variant === 'popover') {
 				return {
 					...props,
-					after: (
-						<>
-							{props.after as any}
-							<PopoverFilterTrigger
-								columnKey={column.key}
-								header={header}
-								opValue={operatorValue}
-								configRef={configRef}
-								size="sm"
-							/>
-						</>
-					),
+					after: [
+						props.after,
+						tableSlot(PopoverFilterTrigger, {
+							columnKey: column.key,
+							header,
+							opValue: operatorValue,
+							configRef,
+							size: 'sm',
+						}),
+					],
 				}
 			}
 
 			return {
 				...props,
-				below: (
-					<>
-						{props.below as any}
-						<FilterControl
-							columnKey={column.key}
-							header={header}
-							opValue={operatorValue}
-							size={size}
-							value={configRef.current.filters[column.key]}
-							onChange={(v) => configRef.current.onFilterChange(column.key, v)}
-							hasClear={variant === 'inline'}
-							hasLabelHidden={variant === 'inline-compact'}
-							extra={{}}
-						/>
-					</>
-				),
+				below: [
+					props.below,
+					tableSlot(FilterControl, {
+						columnKey: column.key,
+						header,
+						opValue: operatorValue,
+						size,
+						value: configRef.current.filters[column.key],
+						onChange: (v: TableFilterValue | null) => configRef.current.onFilterChange(column.key, v),
+						hasClear: variant === 'inline',
+						hasLabelHidden: variant === 'inline-compact',
+						extra: {},
+					}),
+				],
 			}
 		},
 	}

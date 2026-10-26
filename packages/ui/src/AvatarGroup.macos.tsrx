@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
-import { mergeStyle } from './style-merge'
-import type { AvatarGroupProps } from "./props";
+import { mergeStyle, styleRecord } from './style-merge'
+import type { AvatarGroupProps, AvatarGroupOverflowProps } from "./props";
 import { cx } from "@octane-xplat/lib";
 import { applyEscapeProps } from "./escape-props";
 import { toChildArray, mapChildren } from './child-array';
@@ -23,5 +23,13 @@ export function AvatarGroup(props: AvatarGroupProps) @{
 		{overflow > 0
 			? <masonview className="vx-avatar-group-item" style={mergeStyle({display: "flex"}, itemStyle(shown.length))}><Avatar fallback={`+${overflow}`} size={size} /></masonview>
 			: null}
+	</masonview>
+}
+
+/** AvatarGroupOverflow — the `+N` counter part (Astryx), AppKit leaf. */
+export function AvatarGroupOverflow(props: AvatarGroupOverflowProps) @{
+	const size = typeof props.size === 'number' ? props.size : 32;
+	<masonview id={props.id} className={cx('vx-avatar-overflow', props.className)} style={mergeStyle({ width: size, height: size, borderRadius: size / 2 }, styleRecord(props.style))}>
+		<label text={typeof props.label === 'string' ? props.label : `+${props.count ?? 0}`} />
 	</masonview>
 }

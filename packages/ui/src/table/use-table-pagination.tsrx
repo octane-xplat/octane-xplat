@@ -7,6 +7,7 @@
 import type { TablePlugin } from './types'
 import { Pagination } from '../Pagination'
 import { View } from '../View'
+import { TableSlot, tableSlot } from './table-slot'
 
 export interface UseTablePaginationConfig {
 	/** Current page number (1-based). */
@@ -27,43 +28,43 @@ export interface UseTablePaginationConfig {
 	label?: string
 }
 
+function TablePaginationBar(props: { configRef: { current: UseTablePaginationConfig }; labelSuffix?: string }) @{
+	const c = props.configRef.current
+	const pageSize = Number.isFinite(c.pageSize) ? Math.max(1, Math.floor(c.pageSize ?? 10)) : 10
+	const totalPages = c.totalPages ?? (c.totalItems != null ? Math.ceil(c.totalItems / pageSize) : undefined)
+	const isSinglePage = totalPages === 1 && c.hasMore !== true
+	if (isSinglePage || totalPages == null || totalPages < 1) return null as any
+	const align = c.align ?? 'center'
+	const labelSuffix = props.labelSuffix
+	<View className={`vx-table-pagination vx-table-pagination--${align}`}>
+		<Pagination
+			page={c.page}
+			pageCount={totalPages}
+			onPageChange={c.onPageChange}
+			accessibilityLabel={labelSuffix ? `${c.label ?? 'Table pagination'} ${labelSuffix}` : (c.label ?? 'Table pagination')}
+		/>
+	</View>
+}
+
+function TablePaginationChrome(props: { children: any; configRef: { current: UseTablePaginationConfig } }) @{
+	const pos = props.configRef.current.position ?? 'below'
+	const isBoth = pos === 'both'
+	<>
+		{pos === 'above' || isBoth ? <TablePaginationBar configRef={props.configRef} labelSuffix={isBoth ? '(top)' : undefined} /> : null}
+		<TableSlot value={props.children} />
+		{pos === 'below' || isBoth ? <TablePaginationBar configRef={props.configRef} labelSuffix={isBoth ? '(bottom)' : undefined} /> : null}
+	</>
+}
+
 /** Pagination table plugin — renders Pagination controls around the table. */
 export function useTablePagination<T extends Record<string, unknown>>(config: UseTablePaginationConfig): TablePlugin<T> {
 	const configRef = { current: config }
-
-	function renderPagination(labelSuffix?: string) {
-		const c = configRef.current
-		const pageSize = Number.isFinite(c.pageSize) ? Math.max(1, Math.floor(c.pageSize ?? 10)) : 10
-		const totalPages = c.totalPages ?? (c.totalItems != null ? Math.ceil(c.totalItems / pageSize) : undefined)
-		const isSinglePage = totalPages === 1 && c.hasMore !== true
-		if (isSinglePage || totalPages == null || totalPages < 1) return null
-		const align = c.align ?? 'center'
-		return (
-			<View className={`vx-table-pagination vx-table-pagination--${align}`}>
-				<Pagination
-					page={c.page}
-					pageCount={totalPages}
-					onPageChange={c.onPageChange}
-					accessibilityLabel={labelSuffix ? `${c.label ?? 'Table pagination'} ${labelSuffix}` : (c.label ?? 'Table pagination')}
-				/>
-			</View>
-		)
-	}
 
 	return {
 		transformTableContext(children) {
 			const pos = configRef.current.position ?? 'below'
 			if (pos === 'none') return children
-			const above = pos === 'above' || pos === 'both' ? renderPagination(pos === 'both' ? '(top)' : undefined) : null
-			const below = pos === 'below' || pos === 'both' ? renderPagination(pos === 'both' ? '(bottom)' : undefined) : null
-			if (!above && !below) return children
-			return (
-				<>
-					{above}
-					{children}
-					{below}
-				</>
-			)
+			return tableSlot(TablePaginationChrome, { children, configRef })
 		},
 	}
 }

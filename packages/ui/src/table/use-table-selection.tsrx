@@ -10,6 +10,7 @@ import type { TableColumn } from '../props'
 import { Checkbox as CheckboxInput } from '../Checkbox'
 import { View } from '../View'
 import { pixel } from './column-utils'
+import { tableSlot } from './table-slot'
 
 export interface UseTableSelectionConfig<T extends Record<string, unknown>> {
 	getIsItemSelected: (item: T) => boolean
@@ -162,10 +163,10 @@ export function useTableSelection<T extends Record<string, unknown>>(config: Use
 
 	const selectionColumn: TableColumn<T> = {
 		key: SELECTION_COLUMN_KEY,
-		header: <SelectAllCell configRef={configRef} />,
+		header: tableSlot(SelectAllCell, { configRef }),
 		width: pixel(36),
 		resizable: false,
-		renderCell: (item: T) => <SelectionCell item={item} configRef={configRef} />,
+		renderCell: (item: T) => tableSlot(SelectionCell, { item, configRef }),
 	}
 
 	return {
