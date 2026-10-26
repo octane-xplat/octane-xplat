@@ -351,8 +351,8 @@ export function Example() {
 `@platform target { ... }` blocks. Native presets install it before native
 CSS rewriting; browser configs install it explicitly. The PostCSS pass also
 handles rules loaded by CSS `@import`. AppKit applies the result through its
-vendored NativeScript selector engine (decision #123); GTK still has no
-stylesheet engine.
+vendored NativeScript selector engine (decision #123); GTK applies the
+same engine through `@octane-xplat/macos-renderer/css` (decision #124).
 
 Vite 8.3.0's CSS `@import` resolver uses a private resolver containing aliases
 and its own file resolver, bypassing ordinary `resolveId` plugins. Xplat uses

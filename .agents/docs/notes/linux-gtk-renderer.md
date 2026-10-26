@@ -47,10 +47,15 @@ A first native slice of the GTK4/GJS renderer:
   (`map`/`unmap`), change (entry `changed`, switch `notify::active`, scale
   `value-changed`), submit (entry `activate`), scroll (scrolled-window
   adjustments).
-- **Props**: `text`/`value`, `enabled`→sensitive, `width`/`height`→
-  size-request, `style`→per-widget Gtk.CssProvider subset
-  (color/background/font/padding/margin/border/min-size), `className`→
-  `add_css_class`, `flexGrow`→expand along parent orientation, alignment
+- **Props**: `text`/`value`, `enabled`/`disabled`→sensitive plus the
+  `:disabled` pseudo-class, `width`/`height`→size-request,
+  `style`/`className`→the stylesheet cascade (`#apply-stylesheets` in the
+  README): the computed bag maps onto a per-widget `Gtk.CssProvider`
+  (color/background/font/text decorations/shadows/padding/margin/border/
+  min-size) plus direct widget writes. `className` is **not** forwarded to
+  `add_css_class` — GTK's default theme defines `.card`, `.title`,
+  `.error` and friends that would silently style app classes of the same
+  name. `flexGrow`→expand along parent orientation, alignment
   props→`halign`/`valign`, `placeholder`/`secure`/`editable` on textfield,
   controlled entry writes with selection preservation + the bounded
   GLib settle (the X11 SelectionClear repair from the proof), `testID`/
@@ -221,6 +226,60 @@ unqualified gaps).
    the probe pipeline targets the WebKitGTK host. A native-GTK probe path
    is future work (out of scope: `scripts/probe/` is owned by the
    qualification workstream).
+
+## Stylesheets (2026-10-26)
+
+The renderer applies stylesheets through the same vendored NativeScript
+selector engine and renderer-owned cascade the AppKit renderer uses —
+consumed from `@octane-xplat/macos-renderer/css`, not copied
+(decision #124). `xplatLinuxGtk` installs the shared
+`xplatInlineStylesheets` plugin (renamed from `xplatMacOSStylesheets`),
+which processes each emitted `.css` asset and prepends one
+`__xplatStylesheets.push(...)` statement to `app.js` — valid before ESM
+imports and it runs before bundled module bodies, so the engine's
+module-init drain registers every sheet. `registerStylesheet` is
+re-exported from `@octane-xplat/linux-gtk`; `Application.addCss` in the
+native-core shim registers a sheet for theme-css-inject.
+
+Mechanics worth knowing: the CSS tree is the logical tree minus
+`#text`/`span`/`formattedstring` (viewless `contentview`/
+`proxyviewcontainer`/`rootlayout` participate so inheritance and custom
+props flow through); restyle is per-container dirty-set flushed at batch
+end or on one Promise microtask; root nodes get `ns-root`, `ns-gtk`,
+`ns-light|ns-dark` (scheme from `gtk-interface-color-scheme` on GTK ≥
+4.20, else prefer-dark-theme / a `-dark` theme name); computed styles
+reach widgets through a per-node `xplat-n<id>` class + `Gtk.CssProvider`;
+`border-style: solid` is auto-emitted when a width is set without a style
+(GTK's default is `none`); `text-align` maps to `xalign`/`justify`;
+unsupported CSS properties warn once per name (`[linux-gtk-css]`).
+
+**Runtime-proven (this change):** `test/css.test.mjs` builds
+`test/fixtures/src/css-smoke.ts` (which imports a real `.css` file, so the
+CLI injection is exercised end to end) and drives `gtkDriver` batches
+headlessly under real GJS 1.90.1 + GTK 4.24.1 (Homebrew, macOS — genuine
+libraries, non-Linux host): class selectors land in `computedStyle` and on
+the real widget (`get_color()` returns the rule's red), color/font-size
+inherit from a masonview to a child label, `var()` declared on `.ns-root`
+resolves in a descendant, roots carry `ns-root`/`ns-gtk`/one scheme class,
+inline `style` beats CSS, `enabled:false` matches `:disabled` and
+re-enabling unmatches, an unsupported property warns exactly once across
+several nodes, an adjacent-sibling rule re-matches after an insert, a
+runtime `registerStylesheet` replace restyles mounted widgets after a
+microtask, and `className` does not reach the widget's GTK css classes.
+Theme delivery: `registerStylesheet` of `@octane-xplat/ui` `tokens.css` +
+`chrome.css` (961 rule bodies) completes in ~13 ms under GJS 1.90.1.
+
+**Build-proven (this change):** `node --test
+packages/cli/test/vite-inline-stylesheets.test.mjs` — 2 pass, including an
+ES-format GTK-shaped case (push statement prepended before the `gi://`
+import, `@platform gtk` kept / `@platform web` stripped, px→dip).
+`node --test test/style-css.test.mjs` — 9 pass on the GI-free
+`src/style-css.ts` mapping.
+
+**NOT proven:** same boundary as above — no Linux-host run, no OS input,
+no visual review. Media queries re-check on appearance/stylesheet changes,
+not window resize; only `:disabled` responds to state; animations are not
+played.
 
 ## Known limitations (build-level observations, not runtime findings)
 

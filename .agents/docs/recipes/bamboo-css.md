@@ -7,9 +7,10 @@ Related APIs: `@octane-xplat/bamboo`, `xplatBamboo`, `xplatBambooConfig`, `xplat
 ## Starting point
 
 The app uses the xplat Vite presets and shares component code across web and
-NativeScript. The AppKit renderer also applies the generated stylesheet, but
-this recipe has not been verified on macOS. Bamboo `css()` calls stay in
-`.ts` modules until the Vite plugin release includes [TSRX](https://tsrx.dev/)
+NativeScript. The AppKit and GTK renderers also apply the generated
+stylesheet through the shared `xplatInlineStylesheets` plugin, but this
+recipe has not been verified on either desktop target. Bamboo `css()` calls
+stay in `.ts` modules until the Vite plugin release includes [TSRX](https://tsrx.dev/)
 support ([upstream PR](https://github.com/gajus/bamboocss/pull/125)).
 
 ## Requirements

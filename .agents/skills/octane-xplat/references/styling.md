@@ -118,11 +118,14 @@ import '@octane-xplat/ui/theme/tokens.css'
   conditions belong to the configured preset. See
   [CSS variants](../../../../docs/platform/module-resolution.md#css-file-variants)
   before relying on browser-only transforms or import ordering.
-- The experimental macOS AppKit renderer applies the same stylesheets with
-  NativeScript's selector engine, but only `:disabled` responds to state and
-  some properties are ignored. Check the renderer's
+- The experimental macOS AppKit and Linux GTK renderers apply the same
+  stylesheets through the shared NativeScript selector engine, but only
+  `:disabled` responds to state and some properties are ignored. Check each
+  renderer's
   [Apply stylesheets](../../../../packages/macos-renderer/README.md#apply-stylesheets)
-  limits before promising a property or pseudo-class.
+  ([GTK](../../../../packages/linux-gtk-renderer/README.md#apply-stylesheets))
+  limits before promising a property or pseudo-class. Note `className` is
+  never forwarded to GTK widget classes — it only feeds the cascade.
 
 ## Dark mode
 

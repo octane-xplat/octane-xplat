@@ -62,10 +62,13 @@ executes a single file — code splitting would produce an unloadable
 import. GTK screens use the shared JSX contract; put platform-specific
 variants in `.gtk.tsrx`/`.gtk.tsx` files.
 
-The entry point mounts the app through the renderer's host helper:
+The entry point mounts the app through the renderer's host helper. Import
+your stylesheets from the same module — the preset compiles and injects
+them into the bundle:
 
 ```ts
 // src/main.ts
+import './app.css'
 import { runGtkApp } from '@octane-xplat/linux-gtk/host'
 import { App } from './App.gtk'
 
@@ -80,6 +83,12 @@ export function main(): number {
 
 main()
 ```
+
+Class, id, and element selectors work through the same NativeScript engine
+the AppKit renderer uses, with the limits listed in the renderer's
+[Apply stylesheets](../../packages/linux-gtk-renderer/README.md#apply-stylesheets)
+section — notably only `:disabled` responds to state and GTK's theme still
+styles native widget chrome underneath.
 
 ## Add retained route panes
 

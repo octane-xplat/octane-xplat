@@ -71,7 +71,7 @@ for brew's gjs to resolve libgjs.
 
 | Export                     | Contents                                                            |
 | -------------------------- | ------------------------------------------------------------------- |
-| `.`                        | `gtkDriver`, `createGtkRoot`, `GTK_RENDERER_ID`, `octane/universal/native` re-export |
+| `.`                        | `gtkDriver`, `createGtkRoot`, `GTK_RENDERER_ID`, `registerStylesheet`, `octane/universal/native` re-export |
 | `./host`                   | `runGtkApp` — GtkApplication + window + content box + mounted root    |
 | `./compat/native-core`     | `@nativescript/core` shim for leaves evaluated in a GTK bundle      |
 | `./compat/escape-props`    | escape-props shim                                                   |
@@ -82,6 +82,82 @@ layout semantic arrives through `style`/`className`), `label`, `button`,
 `activityindicator`, plus viewless `#text`, `span`, `formattedstring`,
 `contentview`, `proxyviewcontainer`, `rootlayout`. Anything else throws a
 named driver error at mount.
+
+## Apply stylesheets
+
+Import CSS files from your entry module, the same way the iOS and Android
+apps do. `xplatLinuxGtk` compiles them like the other presets (it drops
+`@platform` blocks for other targets, unwraps `@layer`, and treats `px` as
+points) and injects them into `app.js`. The renderer then matches
+`className`, `id`, and element-type selectors against your widgets with the
+same vendored NativeScript selector engine the AppKit renderer uses:
+
+```ts
+// src/main.ts
+import './app.css'
+```
+
+```css
+/* app.css */
+.card {
+  padding: 16px;
+  background-color: var(--color-surface);
+  border-radius: 12px;
+}
+```
+
+The cascade follows NativeScript: specificity, then `@layer`, then source
+order. Custom properties and `color`/`font-*`/`line-height`/`text-align`
+inherit, and `var()` and `calc()` resolve per widget. A `style` prop
+overrides CSS, and so does an element prop with the same name. The root of
+every renderer tree gets `ns-root`, `ns-gtk`, and `ns-light` or `ns-dark`
+from the GTK settings (`gtk-interface-color-scheme` on GTK 4.20+, else
+`gtk-application-prefer-dark-theme` or a `-dark` theme name).
+
+To add CSS at runtime, call `registerStylesheet`. Registering the same id
+again replaces that sheet, and mounted widgets restyle:
+
+```ts
+import { registerStylesheet } from '@octane-xplat/linux-gtk'
+
+registerStylesheet('promo', '.promo { background-color: #fde68a; }')
+```
+
+`className` only feeds the cascade — it is **not** added to the widget's
+own GTK CSS classes. GTK's default theme ships classes like `.card`,
+`.title`, and `.error` that would silently style app classes of the same
+name, so computed styles reach widgets only through an internal per-widget
+provider.
+
+What a matched declaration can do: colors and backgrounds (`color`,
+`background`, `background-color`), fonts (`font-size`, `font-weight`,
+`font-style`, `font-family`), `line-height`, `text-decoration`,
+`text-shadow`, `box-shadow`, borders (`border-radius` including percents,
+`border-color`, `border-width`, `border-style` — `solid` is emitted
+automatically when only a width is set, because GTK's default is `none`),
+`padding*`/`margin*`, `min-width`/`min-height`, plus `width`, `height`, and
+`opacity` applied directly. `text-align` maps to label and entry alignment,
+`placeholder-color` styles a text field's placeholder, and Mason layout keys
+reach the engine (or the `Gtk.Box` fallback subset).
+
+Current limits:
+
+- Only `:disabled` responds to state. `:hover`, `:active`, and `:focus`
+  rules never match yet.
+- Media queries are re-checked when the appearance or the stylesheets
+  change, but not when a window resizes.
+- `@keyframes` and `animation-*` are parsed but not played.
+- Per-corner radii and per-side borders collapse to a single value.
+- An unsupported property logs `[linux-gtk-css] ignored unsupported
+  property` once per property name.
+- GTK's theme still styles native widget chrome (buttons, entries)
+  underneath app CSS.
+
+Runtime evidence so far: GJS 1.90.1 + GTK 4.24.1 on macOS (Homebrew),
+headless driver checks in `test/css.test.mjs` — class selectors, inherited
+and `var()` values, root classes, inline precedence, `:disabled`, sibling
+re-match, and runtime replacement, with real `widget.get_color()` reads.
+Not yet run on a Linux host; no visual or pixel review; no OS input.
 
 ## Platform seam
 

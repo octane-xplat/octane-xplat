@@ -112,7 +112,9 @@ Import CSS files from your entry module, the same way the iOS and Android
 apps do. `xplatMacOS` compiles them like the native preset (it drops
 `@platform` blocks for other targets, unwraps `@layer`, and treats `px` as
 points) and bundles them into `main.cjs`. The renderer then matches
-`className`, `id`, and element-type selectors against your views:
+`className`, `id`, and element-type selectors against your views. (The
+engine also ships as `@octane-xplat/macos-renderer/css` for the internal
+GTK renderer — it is not a stable public API.)
 
 ```ts
 // src/styles.ts, imported by your entry before the first render
