@@ -418,3 +418,150 @@ column resize, popover filter apply, inline enum filter, invoice
 search→filtered-view banner→clear→empty state, and component-scores
 filtering. See the script's per-check PASS/FAIL output; Chromium/Playwright,
 no pixel claims.
+
+
+## Authored-screen evidence: unit 13, first delivery
+
+This delivery adds **16 authored routes**. It does not complete unit 13.
+The two sanctioned private-toolchain blockers remain in the live ledger;
+other authored routes remain pending until delivered. Concurrent units may
+add pages, so the registries remain authoritative for totals.
+
+Upstream for every row: `ebd939b665361a078015377c0dfe50cc3c1d70a4`.
+Candidate source: `8484dfab7`. Host: **web / Chromium**, production Vite
+bundle. Input: Playwright browser pointer, keyboard and text entry; results
+are checked through DOM/text state. Evidence: maintained
+[`verify-authored.mjs`](../scripts/verify-authored.mjs), **34/34 checks pass**.
+Route loads in this table include a no-placeholder assertion. The source
+commit was checked with package typecheck, production build and scoped lint.
+
+| Route | Initial state | Input | Expected / observed | Result |
+| --- | --- | --- | --- | --- |
+| `/pages/example/` | Empty name/email; both checkboxes off | Type name/email; enable notifications | Name retained; notifications checked; updates unchecked | pass |
+| `/pages/navigation/` | Start slot selected | Click Center then Right | Live navigation moves between matching named slots | pass |
+| `/pages/showcase-header/` | Pinned static hero | Route load | Astryx hero and Available now render | pass |
+| `/pages/showcase-components/` | Light mode/animations on; compact off | Click Compact | Compact on; animations remain on | pass |
+| `/pages/doc-home/` | Eight catalog cards | Type unmatched search; clear | No cards; clearing restores gallery | pass |
+| `/pages/doc-discover/` | All categories | Choose Tools; type unmatched query; type theme | Empty state then Theme Editor; DataTable excluded | pass |
+| `/pages/doc-docs/` | Button document and code shown | Toggle code twice | Document remains mounted and use guidance renders | pass |
+| `/pages/documentation/` | Overview selected | Activate Button navigation button; return to Overview | Anatomy table and use guidance; overview restored | pass |
+| `/pages/topnav-menu/` | Menus closed | Hover Products; Escape | Menu opens and dismisses | pass |
+| `/pages/mega-menu/` | Menus closed | Hover Products; Escape | Mega-menu opens and dismisses | pass |
+| `/pages/color-studio/` | Pinned default ramps | Add/remove color; choose Cool; Export | Ramp count updates; shared clipboard confirms copied | pass |
+| `/pages/palette-generator/` | Generator and OKLCH selected | Choose Compare | Both algorithm results and comparison appear | pass |
+| `/pages/polymorphic-link/` | Provider and override examples | Click Products in each navigation | Both intercept navigation; provider and override log distinct handlers | pass |
+| `/pages/codeblock-perf/` | Both strategies; 1000 lines | Choose Spans Only | One CodeBlock remains; spans panel renders | pass |
+| `/pages/dictation-lab/` | Mic idle; Drip attack | Choose Kalimba | Selection changes without requesting microphone access | pass |
+| `/pages/example-cards/` | Pinned collage defaults | Edit email then notes | Email remains edited after independent note change | pass |
+
+These checks cover the named states, not every possible control combination.
+The CodeBlock benchmark retains its browser timing/scroll instruments; no
+performance threshold or cross-engine speed claim is made. Dictation keeps
+the public chat supported/unsupported state, composer and app-owned sound
+mixer. Speech, microphone delivery and audio output were **not run**. Clipboard
+feedback was exercised in an isolated Chromium context with clipboard
+permission; system clipboard and assistive-technology delivery are not claimed.
+Firefox, WebKit, native hosts and visual parity are **not run** for this unit.
+No screenshots were captured or inspected.
+
+### Authored mappings and adaptations
+
+- Scaffold, menus, collage and docs use public Octane components. The
+  breadcrumbs example uses the public `items` form while still exercising
+  `LinkProvider` and the per-item/component link override. Ref props replace
+  React `forwardRef`. Static StyleX rules become CSS; dynamic values stay in
+  style objects. Browser-specific lab code lives in `.web` files.
+- The docs-demo header uses the canonical router for active selection and
+  public link injection. Source views load the Octane files actually running,
+  including `.web.tsrx` filenames.
+- Color calculations, palette-generation algorithms and the reference corpus
+  are upstream app-owned code, retained under the original MIT attribution.
+  Stored theme ramps reuse the already ported palette data. Exports call
+  public `useClipboard`, including transient copied state and timer cleanup.
+- Collage bar/sparkline marks and dictation sound envelopes remain app-owned
+  demonstrations. They do not qualify a chart or audio framework component.
+  Icons use public registered icons where names are mapped; the docs/menu
+  illustrations retain their app-owned browser SVG markup. Badge labels use
+  the public Badge content form; semantic variant styling is a remaining
+  presentation difference and no pixel-parity claim is made.
+
+### Recorded toolchain blockers and remaining dependencies
+
+| Finding / routes | Expected contract | Source evidence / current boundary | Ledger / runtime |
+| --- | --- | --- | --- |
+| U13-1: `/pages/layout-dsl/` | Validate compact/outline expressions, expand Octane source, report token counts and copy output | Pinned `layout-dsl/page.tsx` imports `@astryxdesign/cli/xle`, generated `xle-registry.json` and a generated tokenizer bundle. Generated artifacts are absent at the pin; supervisor explicitly authorized recording this blocker and did not authorize a replacement compiler. | blocked; Chromium confirms visible reason |
+| U13-2: `/pages/doc-preview/` | Load foundational authoring docs and render their topic/token examples | Pinned page loads generated `foundationDocs.json` and private `DocPreview` authoring rendering. Generated JSON is absent at the pin; supervisor explicitly authorized this blocker. | blocked; Chromium confirms visible reason |
+| U13-3: `/pages/theme-family/` | Inherited component overrides, typography, responsive adaptations, media overrides and nested family identity | Pinned `src/themes/theme-family/ocean.ts` uses `components`, `typography`, `adaptations` and `onDark`; current `DefineThemeInput` only accepts name, extends, tokens and localTokens. Token flattening alone does not satisfy the page. Local feedback `2fe792d6-5693-4081-882b-eb82c734a5f8`. | blocked; source evidence only |
+| U13-4: `/pages/markdown-perf/` | Compare baseline versus public soft-break plugin at selectable claim densities | Pinned `benchmarkProfiles.ts` imports `markdownSoftBreaksPlugin` and `MarkdownPluginEntry`; the current public Markdown entrypoint exposes parsing/streaming/outline/syntax but no equivalent plugin registry. | blocked; source evidence only; shared prerequisite for unit 10 |
+| U13-5: Motion Lab before/after rigs | Preserve proposed TabList behavior and its input/overflow contracts | Pinned `motion-lab/LabDemos.tsx` imports its proposed TabList fork; that fork imports private `packages/core/src/hooks/isRtlElement.ts` and `DropdownMenu/menuItemRoles.ts`. A public mapping or explicit private-integration disposition remains required. | pending; no Motion Lab route qualified by this delivery |
+| Shared dependencies: `/pages/table-overview/`, `/pages/table-lab/` | Table page contracts owned by unit 7 | Rows are preserved for that owner. This unit adds no app-local table engine. | pending in this worktree |
+| Shared layout consumers: `/pages/mobile-type/`, `/pages/motion-examples/` | Exercised `LayoutPanel` / `LayoutFooter` regions | F-3: LayoutPanel is absent from public UI exports and blocks mobile-type; motion-examples also needs LayoutFooter. No local substitute is authorized. | blocked; source evidence only |
+| Remaining raw screen: `/pages/mobile-prototypes/` | Preserve the app-owned primitive demonstrations and raw navigation behavior | Unfinished work is preserved outside the app source tree. It is not registered or runtime-qualified and does not qualify core counterparts. | unimplemented / not-run |
+
+All **15 Motion Lab routes** are blocked by F-3 in this delivery: the index,
+`bugs`, `exit-gap`, `export`, `js-mirror`, `library`, `plan`, `preview-plan`,
+`previews`, `published`, `reduced-motion`, `rubric`, `springs`, `tokens`, and
+`violations`. U13-5 applies to the consumed fork, not a claim that every one
+of these pages independently requires it. The shared `MotionLabShell.tsx` consumes `LayoutPanel`, absent from public UI exports; this blocks all 15 routes, including static/data screens. No private re-export or app-local replacement is authorized. The committed pinned `__generated__/motionAudit.ts` identifies its
+audit as **core 0.5.2**; preserve that provenance rather than presenting its
+numbers as measurements of core 0.6.4 or Octane.
+
+At the initial worktree baseline, `component-scores` and `media-mode` were
+also pending. Units 6 and 8 have since added them on main; integration must
+retain those registrations and their owners' evidence.
+
+No app-building recipe or public framework workflow changes in this slice;
+recipe coverage is unaffected. The Octane skill was reviewed for the public
+APIs consumed here; no public API was changed.
+
+
+### Unit 13 integration and second delivery
+
+The integrated slice adds **18 authored routes** in total: the 16 above plus
+`mobile-spacing` and `shell-lab`. Candidate `652d576f2` includes the first
+slice rebased onto current main (`c38dcd7cf`) and adapts the documentation
+consumer to the public data-driven Table API. Main's `media-mode` and
+`component-scores` registrations and evidence are preserved.
+
+Upstream: `ebd939b665361a078015377c0dfe50cc3c1d70a4`. Host: web / Chromium,
+production bundle. Initial state and browser input are recorded below;
+DOM/text assertions are the observed evidence. The maintained
+`verify:authored` suite passes **38/38 checks**, including the previous 16
+routes and the two sanctioned blocker notices. Package typecheck,
+production build, scoped lint and whitespace checks pass. These results
+qualify only the named interactions; whole-app and other-host sign-off
+remain unit 14 work.
+
+| Route | Initial state | Input mechanism | Expected / observed | Evidence / result |
+| --- | --- | --- | --- | --- |
+| `/pages/mobile-spacing/` | Desktop preview, quantity 1, component view | Browser pointer: Mobile, Increase quantity, Delivery & Returns, View → Token values | Mobile proposal control appears; quantity becomes 2; disclosure opens; semantic spacing contract renders | `verify-authored.mjs` / pass |
+| `/pages/shell-lab/` | Default raw shell, banner off, configuration shown | Browser keyboard: focus Banner and Space; reload; pointer: Hide Config then Config | Announcement renders; query persists banner setting across reload; configuration hides and returns | `verify-authored.mjs` / pass |
+
+Mobile spacing composes public Accordion items for grouped disclosures and
+uses public registered SVG icons. Shell Lab composes public AppShell,
+SideNav, TopNav and Banner; its browser URL configuration stays in the web
+leaf. Number inputs in spacing and both color tools compose public Field
+for their accessible label context. The direct NumberInput label-forwarding
+gap is recorded as local feedback
+`1dcc4f10-ee5a-41a0-a96c-34773efae66f`; no framework fix is claimed.
+
+At this candidate, 27 of 51 authored pages are registered, including nine
+owned by earlier units. The remaining 24 comprise the two live private
+artifact blockers, 19 further shared-contract blocked routes below, two
+table pages reserved for unit 7, and one unimplemented raw prototype page.
+The live ledger still calls the latter 22 pending; this report records their
+specific disposition without claiming runtime success.
+
+- **Blocked:** all 15 Motion Lab routes and `mobile-type`: F-3 LayoutPanel
+  is absent from public UI exports. The shared MotionLabShell consumes it,
+  so even static Motion Lab screens are blocked. `motion-examples` also
+  needs LayoutFooter. No stub, private re-export or local substitute was added.
+- **Blocked:** `theme-family` needs the generative overrides/media contract;
+  `markdown-perf` needs public plugin hooks.
+- **Sanctioned blocked:** `layout-dsl` and `doc-preview` retain U13-1/U13-2
+  evidence and visible notices; no replacement compiler was added.
+- **Reserved:** `table-overview` and `table-lab` remain owned by unit 7.
+- **Unimplemented:** `mobile-prototypes` remains listed and not passing.
+
+Firefox, WebKit, native hosts, OS speech/audio/clipboard delivery and visual
+parity remain unverified. No screenshots or image inspection were used.

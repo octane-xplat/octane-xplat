@@ -1,0 +1,6 @@
+/* Pinned Astryx StyleX rules re-authored as static web CSS. */
+.PolymorphicLinkPage-container { max-width: 960px; }
+.PolymorphicLinkPage-navWrapper { border-width: 1px; border-style: solid; border-color: #e0e0e0; border-radius: 8px; overflow: hidden; }
+.PolymorphicLinkPage-log { font-family: monospace; font-size: 0.8rem; background-color: #f5f5f5; padding: 0.75rem 1rem; border-radius: 6px; max-height: 200px; overflow: auto; white-space: pre-wrap; }
+.PolymorphicLinkPage-customLinkIndicator { outline: 2px dashed #3b82f6; outline-offset: -2px; }
+.PolymorphicLinkPage-sidenavWrapper { width: 240px; border-width: 1px; border-style: solid; border-color: #e0e0e0; border-radius: 8px; overflow: hidden; }

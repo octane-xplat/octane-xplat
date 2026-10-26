@@ -1,0 +1,13 @@
+/* xplat-web-only:start */
+.DocDiscoverPage-static-1 { min-height: 100vh; background-color: #ffffff; }
+.DocDiscoverPage-static-2 { max-width: 1280px; margin: 0 auto; padding: 0 32px; }
+.DocDiscoverPage-static-3 { display: flex; align-items: center; justify-content: space-between; padding-top: 40px; padding-bottom: 24px; gap: 32px; }
+.DocDiscoverPage-static-4 { width: 320px; flex-shrink: 0; }
+.DocDiscoverPage-static-5 { padding-bottom: 24px; }
+.DocDiscoverPage-static-6 { padding-bottom: 16px; }
+.DocDiscoverPage-static-7 { padding-top: 40px; padding-bottom: 80px; }
+.DocDiscoverPage-static-8 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; padding-bottom: 64px; }
+.DocDiscoverPage-static-9 { height: 160px; background-color: #f5f5f5; display: flex; align-items: center; justify-content: center; }
+.DocDiscoverPage-static-10 { padding: 16px; }
+.DocDiscoverPage-static-11 { display: flex; flex-wrap: wrap; gap: 6px; }
+/* xplat-web-only:end */

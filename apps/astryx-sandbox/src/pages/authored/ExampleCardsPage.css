@@ -1,0 +1,11 @@
+/* Pinned Astryx StyleX rules re-authored as static web CSS. */
+.ExampleCardsPage-row { display: flex; align-items: center; justify-content: space-between; }
+.ExampleCardsPage-fullWidth { width: 100%; }
+.ExampleCardsPage-chart { display: flex; align-items: flex-end; gap: 4px; height: 80px; }
+.ExampleCardsPage-bar { flex: 1; border-radius: 3px; background-color: var(--color-accent, #0066ff); min-width: 0; }
+.ExampleCardsPage-barMuted { flex: 1; border-radius: 3px; background-color: var(--color-accent, #0066ff); opacity: 0.3; min-width: 0; }
+.ExampleCardsPage-barPurple { flex: 1; border-radius: 3px; background-color: #a855f7; min-width: 0; }
+.ExampleCardsPage-sectionContainer { background-color: var(--color-surface-secondary, #f5f5f5); border-radius: 12px; padding: 14px; }
+.ExampleCardsPage-dot { width: 8px; height: 8px; border-radius: 50%; background-color: var(--color-text-success, #00a67e); }
+.ExampleCardsPage-placeholder { height: 120px; border-radius: 8px; background-color: var(--color-surface-secondary, #f5f5f5); display: flex; align-items: center; justify-content: center; }
+.ExampleCardsPage-sparkline { display: flex; align-items: flex-end; gap: 2px; }

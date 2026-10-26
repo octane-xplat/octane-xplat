@@ -1,0 +1,6 @@
+/* Pinned Astryx StyleX rules re-authored as static web CSS. */
+.ShellLabPage-configOverlay { position: fixed; top: 16px; right: 16px; width: 360px; max-height: calc(100vh - 32px); overflow-y: auto; z-index: 10000; }
+.ShellLabPage-content { max-width: 800px; }
+.ShellLabPage-toggleButton { position: fixed; bottom: 16px; right: 16px; z-index: 10001; }
+.ShellLabPage-padding4 { padding: 16px; }
+.ShellLabPage-customSearchBar { padding-inline: 8px; padding-block: 4px; }

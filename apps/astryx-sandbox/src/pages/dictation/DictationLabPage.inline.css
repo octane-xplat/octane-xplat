@@ -1,0 +1,15 @@
+/* xplat-web-only:start */
+.DictationLabPage-static-1 { position: relative; display: inline-flex; align-items: center; justify-content: center; }
+.DictationLabPage-static-2 { max-width: 800px; margin: 0 auto; padding: 32px; }
+.DictationLabPage-static-3 { padding: 12px; }
+.DictationLabPage-static-4 { flex: 1; height: 6px; background-color: var(--color-background-muted, #eee); border-radius: 3px; overflow: hidden; }
+.DictationLabPage-static-5 { font-family: monospace; min-width: 40px; }
+.DictationLabPage-static-6 { display: flex; gap: 8px; font-family: monospace; font-size: 11px; }
+.DictationLabPage-static-7 { display: flex; flex-direction: column; align-items: center; gap: 2px; flex: 1; }
+.DictationLabPage-static-8 { display: flex; gap: 2px; align-items: flex-end; height: 40px; }
+.DictationLabPage-static-9 { opacity: 0.5; font-size: 9px; }
+.DictationLabPage-static-10 { opacity: 0.4; }
+.DictationLabPage-static-11 { color: var(--color-accent, hsl(210, 80%, 50%)); }
+.DictationLabPage-static-12 { flex: 1; max-width: 200px; }
+.DictationLabPage-static-13 { font-family: monospace; min-width: 40px; }
+/* xplat-web-only:end */

@@ -1,0 +1,9 @@
+/* Pinned Astryx StyleX rules re-authored as static web CSS. */
+.MegaMenuPage-container { max-width: 960px; }
+.MegaMenuPage-navWrapper { position: relative; border-radius: 12px; overflow: visible; background-color: var(--color-background-surface, #fff); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); transition-property: border-radius, box-shadow; transition-duration: 0.2s; transition-timing-function: ease-out; }
+.MegaMenuPage-navWrapperMenuOpen { border-bottom-left-radius: 0; border-bottom-right-radius: 0; box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.06), -1px 0 3px rgba(0, 0, 0, 0.04), 1px 0 3px rgba(0, 0, 0, 0.04); }
+.MegaMenuPage-featuredBody { display: flex; flex-direction: column; gap: 8px; padding: 16px; }
+.MegaMenuPage-featuredTitle { font-size: 16px; font-weight: 600; color: var(--color-text-primary); }
+.MegaMenuPage-featuredDescription { font-size: 14px; color: var(--color-text-secondary); }
+.MegaMenuPage-featuredLink { font-size: 14px; font-weight: 600; color: var(--color-text-accent); text-decoration: none; }
+.MegaMenuPage-featuredImage { width: 100%; height: 140px; object-fit: cover; display: block; }

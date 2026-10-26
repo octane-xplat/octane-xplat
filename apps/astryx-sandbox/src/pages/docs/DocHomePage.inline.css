@@ -1,0 +1,12 @@
+/* xplat-web-only:start */
+.DocHomePage-static-1 { height: 100vh; display: flex; flex-direction: column; background-color: #ffffff; overflow: hidden; }
+.DocHomePage-static-2 { display: flex; flex: 1; min-height: 0; }
+.DocHomePage-static-3 { flex: 0 0 380px; display: flex; flex-direction: column; padding: 48px 32px 32px; }
+.DocHomePage-static-4 { display: flex; flex-direction: column; gap: 20px; }
+.DocHomePage-static-5 { display: flex; gap: 10px; margin-top: 28px; }
+.DocHomePage-static-6 { margin-top: auto; max-width: 360px; }
+.DocHomePage-static-7 { flex: 1; overflow: hidden; padding: 16px 16px 16px 0; min-width: 0; }
+.DocHomePage-static-8 { display: flex; flex-direction: column; height: 100%; }
+.DocHomePage-static-9 { flex: 1; background-color: #f5f5f5; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+.DocHomePage-static-10 { padding-top: 10px; }
+/* xplat-web-only:end */

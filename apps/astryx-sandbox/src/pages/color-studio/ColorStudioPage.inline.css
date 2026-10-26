@@ -1,0 +1,38 @@
+/* xplat-web-only:start */
+.ColorStudioPage-static-1 { padding: 6px 0; }
+.ColorStudioPage-static-2 { position: absolute; inset: -8px; width: calc(100% + 16px); height: calc(100% + 16px); border: none; cursor: pointer; opacity: 0; }
+.ColorStudioPage-static-3 { flex: 1; min-width: 0; }
+.ColorStudioPage-static-4 { font-size: 14px; line-height: 1; }
+.ColorStudioPage-static-5 { margin-bottom: 24px; }
+.ColorStudioPage-static-6 { font-size: 16px; font-weight: 700; color: #1a1a1a; margin: 0; margin-bottom: 4px; }
+.ColorStudioPage-static-7 { font-size: 11px; color: #888; margin: 0; margin-bottom: 12px; }
+.ColorStudioPage-static-8 { width: 70px; flex-shrink: 0; font-size: 9px; font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace; color: #888; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ColorStudioPage-static-9 { display: flex; flex: 1; overflow: hidden; border: 1px solid rgba(0,0,0,0.08); }
+.ColorStudioPage-static-10 { flex: 1; text-align: center; font-size: 8px; font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace; color: #aaa; }
+.ColorStudioPage-static-11 { width: 55px; flex-shrink: 0; font-size: 8px; font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace; color: #52525b; text-align: right; }
+.ColorStudioPage-static-12 { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
+.ColorStudioPage-static-13 { display: flex; flex: 1; overflow: hidden; border: 1px solid rgba(0,0,0,0.08); }
+.ColorStudioPage-static-14 { width: 55px; flex-shrink: 0; font-size: 8px; font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace; color: #52525b; text-align: right; }
+.ColorStudioPage-static-15 { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
+.ColorStudioPage-static-16 { display: flex; flex: 1; overflow: hidden; border: 1px solid rgba(0,0,0,0.08); }
+.ColorStudioPage-static-17 { width: 55px; flex-shrink: 0; font-size: 8px; font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace; color: #52525b; text-align: right; }
+.ColorStudioPage-static-18 { display: flex; height: 100vh; overflow: hidden; background-color: var(--color-background-surface, #fff); }
+.ColorStudioPage-static-19 { width: 320px; flex-shrink: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+.ColorStudioPage-static-20 { flex: 1; background-color: var(--color-background-card, #fff); border-radius: 16px; border: 1px solid var(--color-border, #e0e0e0); overflow: hidden; display: flex; flex-direction: column; margin: 8px; }
+.ColorStudioPage-static-21 { padding: 14px 16px; border-bottom: 1px solid var(--color-border); display: flex; align-items: center; justify-content: space-between; }
+.ColorStudioPage-static-22 { flex: 1; overflow: auto; padding: 16px; }
+.ColorStudioPage-static-23 { justify-content: space-between; }
+.ColorStudioPage-static-24 { justify-content: space-between; }
+.ColorStudioPage-static-25 { flex-shrink: 0; }
+.ColorStudioPage-static-26 { flex: 1; }
+.ColorStudioPage-static-27 { justify-content: space-between; }
+.ColorStudioPage-static-28 { justify-content: space-between; }
+.ColorStudioPage-static-29 { font-size: 16px; line-height: 1; }
+.ColorStudioPage-static-30 { justify-content: space-between; }
+.ColorStudioPage-static-31 { font-size: 16px; line-height: 1; }
+.ColorStudioPage-static-32 { padding: 4px 0; }
+.ColorStudioPage-static-33 { position: absolute; inset: -8px; width: calc(100% + 16px); height: calc(100% + 16px); border: none; cursor: pointer; opacity: 0; }
+.ColorStudioPage-static-34 { flex: 1; min-width: 0; }
+.ColorStudioPage-static-35 { font-size: 14px; line-height: 1; }
+.ColorStudioPage-static-36 { flex: 1; overflow-y: auto; height: 100vh; padding: 24px; }
+/* xplat-web-only:end */

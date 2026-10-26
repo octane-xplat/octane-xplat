@@ -1,0 +1,32 @@
+/* xplat-web-only:start */
+.DocDocsPage-static-1 { flex: 1; }
+.DocDocsPage-static-2 { opacity: 0.5; }
+.DocDocsPage-static-3 { display: flex; height: 100vh; background-color: var(--color-background-surface, #ffffff); font-family: system-ui, -apple-system, sans-serif; }
+.DocDocsPage-static-4 { width: 240px; min-width: 240px; height: 100vh; border-right: 1px solid var(--color-divider, rgba(0,0,0,0.1)); display: flex; flex-direction: column; background-color: var(--color-background-surface, #ffffff); overflow: hidden; }
+.DocDocsPage-static-5 { display: flex; align-items: center; justify-content: space-between; padding: 10px 8px 10px 8px; flex-shrink: 0; }
+.DocDocsPage-static-6 { display: flex; align-items: center; gap: 6px; }
+.DocDocsPage-static-7 { font-size: 20px; font-weight: 800; letter-spacing: -0.03em; color: var(--color-text-primary, #1a1a1a); }
+.DocDocsPage-static-8 { width: 1px; height: 20px; background-color: var(--color-divider, rgba(0,0,0,0.15)); flex-shrink: 0; }
+.DocDocsPage-static-9 { font-size: 16px; font-weight: 600; color: var(--color-text-primary, #1a1a1a); }
+.DocDocsPage-static-10 { flex: 1; overflow-y: auto; padding-bottom: 16px; }
+.DocDocsPage-static-11 { flex: 1; overflow-y: auto; padding: 32px 40px; }
+.DocDocsPage-static-12 { max-width: 840px; }
+.DocDocsPage-static-13 { font-size: 48px; font-weight: 700; margin: 0; letter-spacing: -0.02em; color: var(--color-text-primary, #0a1317); line-height: 1.1; }
+.DocDocsPage-static-14 { font-size: 14px; color: var(--color-text-secondary, #6b7785); margin: 8px 0 32px; }
+.DocDocsPage-static-15 { border: 1px solid var(--color-divider, rgba(0,0,0,0.1)); border-radius: 12px; overflow: hidden; margin-bottom: 40px; }
+.DocDocsPage-static-16 { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-bottom: 1px solid var(--color-divider, rgba(0,0,0,0.08)); background-color: var(--color-background-surface, #ffffff); }
+.DocDocsPage-static-17 { font-size: 13px; font-weight: 600; color: var(--color-text-secondary, #6b7785); }
+.DocDocsPage-static-18 { display: flex; align-items: center; gap: 4px; }
+.DocDocsPage-static-19 { display: flex; min-height: 280px; }
+.DocDocsPage-static-20 { flex: 1; display: flex; align-items: center; justify-content: center; background-color: var(--color-background-body, #f5f6f7); padding: 32px; }
+.DocDocsPage-static-21 { width: 360px; background-color: #282c34; padding: 20px 0; overflow-x: auto; border-left: 1px solid var(--color-divider, rgba(0,0,0,0.1)); }
+.DocDocsPage-static-22 { margin: 0; font-family: "SF Mono", "Roboto Mono", "Fira Code", monospace; font-size: 13px; line-height: 22px; }
+.DocDocsPage-static-23 { display: flex; padding-left: 20px; padding-right: 20px; }
+.DocDocsPage-static-24 { width: 32px; text-align: right; color: #636d83; margin-right: 16px; user-select: none; flex-shrink: 0; }
+.DocDocsPage-static-25 { margin-bottom: 32px; }
+.DocDocsPage-static-26 { margin-bottom: 32px; }
+.DocDocsPage-static-27 { margin-bottom: 16px; }
+.DocDocsPage-static-28 { margin: 0; padding: 0 0 0 20px; color: var(--color-text-primary, #0a1317); font-size: 15px; line-height: 1.7; }
+.DocDocsPage-static-29 { width: 200px; min-width: 200px; padding: 32px 20px; position: sticky; top: 0; height: 100vh; box-sizing: border-box; }
+.DocDocsPage-static-30 { font-size: 11px; font-weight: 700; color: var(--color-text-secondary, #6b7785); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
+/* xplat-web-only:end */

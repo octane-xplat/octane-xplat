@@ -10,6 +10,7 @@
 		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json",
 		"coverage": "node scripts/generate-coverage.mjs",
 		"verify:web": "node scripts/verify-web.mjs",
+		"verify:authored": "node scripts/verify-authored.mjs",
 		"sameframe": "sameframe compare --config sameframe.yaml --json"
 	},
 	"dependencies": {

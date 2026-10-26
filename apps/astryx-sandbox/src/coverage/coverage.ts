@@ -14,6 +14,7 @@
 import { pinnedRoutes, pinnedStats, pinnedRevision, type PinnedRoute } from './pinned'
 import { portedExamples } from '../examples/registry'
 import { portedPages } from '../pages/registry'
+import { authoredPageBlockers } from '../pages/blockers'
 
 export { pinnedRoutes, pinnedStats, pinnedRevision }
 export type { PinnedRoute }
@@ -28,6 +29,9 @@ export interface CoverageRow extends PinnedRoute {
 const portedFixedRoutes = new Set(['/', '/components-patterns/', '/themes/', '/tools/', '/templates/', '/404/'])
 
 export function statusOf(row: PinnedRoute): CoverageStatus {
+	if (authoredPageBlockers[row.route]) {
+		return 'blocked'
+	}
 	if ((row.kind === 'template-block' || row.kind === 'template-page') && row.name && portedExamples.has(row.name)) {
 		return 'ported'
 	}

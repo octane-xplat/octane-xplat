@@ -29,13 +29,36 @@ for (const [path, text] of Object.entries(exampleSources)) {
 // explicit route<->file map below.
 const pageByFile = new Map<string, string>()
 for (const [path, text] of Object.entries(pageSources)) {
-	const file = path.slice(path.lastIndexOf('/') + 1, -'.tsrx'.length)
+	const file = path.slice(path.lastIndexOf('/') + 1, -'.tsrx'.length).replace(/\.web$/, '')
 	pageByFile.set(file, text)
 }
 
 /** Ported authored-page route -> source file basename (NeutralPalettePage). */
 const pageSourceFiles: Record<string, string> = {
+	'/pages/mobile-spacing/': 'MobileSpacingPage',
+	'/pages/shell-lab/': 'ShellLabPage',
+
 	'/pages/media-mode/': 'MediaModePage',
+	'/pages/component-scores/': 'ComponentScoresPage',
+	'/pages/dictation-lab/': 'DictationLabPage',
+	'/pages/example-cards/': 'ExampleCardsPage',
+
+	'/pages/documentation/': 'DocumentationPage',
+	'/pages/codeblock-perf/': 'CodeBlockPerfPage',
+	'/pages/polymorphic-link/': 'PolymorphicLinkPage',
+	'/pages/topnav-menu/': 'TopNavMenuPage',
+	'/pages/mega-menu/': 'MegaMenuPage',
+	'/pages/color-studio/': 'ColorStudioPage',
+	'/pages/palette-generator/': 'PaletteGeneratorPage',
+
+	'/pages/doc-home/': 'DocHomePage',
+	'/pages/doc-discover/': 'DocDiscoverPage',
+	'/pages/doc-docs/': 'DocDocsPage',
+
+	'/pages/example/': 'ExamplePage',
+	'/pages/navigation/': 'NavigationPage',
+	'/pages/showcase-header/': 'ShowcaseHeaderPage',
+	'/pages/showcase-components/': 'ShowcaseComponentsPage',
 	'/pages/neutral-palette/': 'NeutralPalettePage',
 	'/pages/stone-palette/': 'StonePalettePage',
 	'/pages/gothic-palette/': 'GothicPalettePage',
@@ -46,7 +69,9 @@ const pageSourceFiles: Record<string, string> = {
 /** The Octane source rendered for a route, or null when the row is pending
  *  (no ported implementation exists to describe). */
 export function sourceForRow(row: CoverageRow | undefined): string | null {
-	if (!row) {return null}
+	if (!row) {
+		return null
+	}
 	if ((row.kind === 'template-block' || row.kind === 'template-page') && row.name) {
 		return byExampleName.get(row.name) ?? null
 	}

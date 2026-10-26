@@ -1,0 +1,27 @@
+/* Pinned Astryx StyleX rules re-authored as static web CSS. */
+.MobileSpacingPage-page { display: grid; grid-template-rows: auto minmax(0, 1fr); height: 100vh; overflow: hidden; background-color: var(--color-background-card); }
+.MobileSpacingPage-toolbar { padding: 16px; max-height: 45vh; overflow-y: auto; overscroll-behavior: contain; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: var(--color-border); background-color: var(--color-background-card); }
+.MobileSpacingPage-toolbarRow { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; justify-content: flex-start; }
+.MobileSpacingPage-toolbarTitle { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; flex-shrink: 0; }
+.MobileSpacingPage-toolbarDivider { width: 1px; min-height: 36px; align-self: stretch; background-color: var(--color-border); }
+.MobileSpacingPage-controls { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; flex-shrink: 0; }
+.MobileSpacingPage-spacingControl { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; }
+.MobileSpacingPage-intensityControl { display: flex; flex-wrap: nowrap; gap: 8px; align-items: center; }
+.MobileSpacingPage-intensitySlider { width: 260px; flex-shrink: 0; }
+.MobileSpacingPage-intensityRate { white-space: nowrap; flex-shrink: 0; }
+.MobileSpacingPage-stage { min-height: 0; padding: 24px; overflow: auto; background-color: var(--color-background-card); background-image: linear-gradient(var(--color-border) 1px, transparent 1px), linear-gradient(90deg, var(--color-border) 1px, transparent 1px); background-size: 8px 8px; }
+.MobileSpacingPage-panel { width: min(100%, 1280px); margin-inline: auto; padding: 24px; border-width: 1px; border-style: solid; border-color: var(--color-border); border-radius: var(--radius-container); background-color: var(--color-background-card); box-shadow: var(--shadow-raised); }
+.MobileSpacingPage-previewFrame { box-sizing: border-box; margin-inline: auto; overflow: auto; border-width: 1px; border-style: solid; border-color: var(--color-border); border-radius: var(--radius-container); background-color: var(--color-background-card); box-shadow: var(--shadow-raised); }
+.MobileSpacingPage-semanticPage { min-height: 100%; box-sizing: border-box; overflow-wrap: break-word; padding-inline: var(--astryx-layout-padding-inline); padding-block: var(--astryx-layout-padding-block); background-color: var(--color-background-card); }
+.MobileSpacingPage-productGrid { display: grid; min-width: 0; gap: var(--astryx-mobile-section-gap); align-items: start; }
+.MobileSpacingPage-productMediaStack { display: grid; min-width: 0; gap: var(--astryx-mobile-container-region-gap); align-content: start; align-items: start; }
+.MobileSpacingPage-thumbnailGrid { display: grid; min-width: 0; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--astryx-mobile-container-region-gap); align-content: start; align-items: start; }
+.MobileSpacingPage-thumbnailCell { min-width: 0; overflow: hidden; }
+.MobileSpacingPage-image { display: block; width: 100%; height: 100%; object-fit: cover; }
+.MobileSpacingPage-productInfoPanel { box-sizing: border-box; min-width: 0; padding: var(--astryx-card-padding); }
+.MobileSpacingPage-productInfoRegions { display: grid; min-width: 0; gap: var(--astryx-mobile-container-region-gap); }
+.MobileSpacingPage-changedValue { color: var(--color-text-accent); font-weight: 600; }
+.MobileSpacingPage-formulaPanel { padding: 16px; border-radius: var(--radius-container); background-color: var(--color-background-surface); }
+.authored-number-96 { width: 96px; }
+.authored-number-112 { width: 112px; }
+.authored-strikethrough { text-decoration: line-through; }
