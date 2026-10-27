@@ -85,7 +85,9 @@ export type Inset = { top: number; right: number; bottom: number; left: number }
  * native writers feed them to CALayer / OutlineProvider.
  */
 export function toStyle(v: Visual, base: Rect) {
-	const s = v.img.w / base.w
+	// Zero-size or unmeasured bases can't produce a meaningful scale — emit a
+	// finite identity rather than NaN/∞ (native layout races hit this).
+	const s = base.w && Number.isFinite(base.w) ? v.img.w / base.w : 1
 	const i = (n: number) => Math.max(0, n / s)
 	const top = i(v.clip.y - v.img.y)
 	const left = i(v.clip.x - v.img.x)

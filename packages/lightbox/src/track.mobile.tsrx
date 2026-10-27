@@ -32,25 +32,34 @@ export function Track(props: {
 	const live2 = { tracking: false }
 	const tracking = live2
 
-	const stride = () => viewRect(clipRef.current)?.w ?? clipRef.current?.getActualSize?.().width ?? 1
+	const stride = () => (clipRef.current?.parent as any)?.getActualSize?.()?.width ?? viewRect(clipRef.current)?.w ?? clipRef.current?.getActualSize?.().width ?? 1
 	const setX = (x: number) => {
 		l.x = x
 		if (rowRef.current) rowRef.current.translateX = x
 		props.progress.set(-x / (l.stride || 1))
 	}
 
+	// Size everything in explicit DIPs from the popup's measured size —
+	// percentage heights don't stretch inside the popup's Mason column.
 	const layoutSlides = () => {
 		const clip = clipRef.current
 		const row = rowRef.current
 		if (!clip || !row) return
-		const s = clip.getActualSize?.()
-		if (!s?.width) return
+		const parent = clip.parent as any
+		const s = parent?.getActualSize?.() ?? clip.getActualSize?.()
+		if (!s?.width || !s?.height) return
+		if (s.width !== clip.getActualSize?.().width || s.height !== clip.getActualSize?.().height) {
+			clip.width = s.width
+			clip.height = s.height
+		}
 		l.stride = s.width
 		row.width = s.width * count()
 		row.height = s.height
 		row.eachChild?.((child: any) => {
-			child.width = s.width
-			child.height = s.height
+			if (child.width !== s.width || child.height !== s.height) {
+				child.width = s.width
+				child.height = s.height
+			}
 			return true
 		})
 	}
@@ -71,10 +80,14 @@ export function Track(props: {
 				inLayout = false
 			}
 		}
+		;(clipRef.current?.parent as any)?.on?.('layoutChanged', cb)
 		clipRef.current?.on?.('layoutChanged', cb)
 		l.stride = stride()
 		setX(-l.index * l.stride)
-		return () => clipRef.current?.off?.('layoutChanged', cb)
+		return () => {
+			;(clipRef.current?.parent as any)?.off?.('layoutChanged', cb)
+			clipRef.current?.off?.('layoutChanged', cb)
+		}
 	})
 
 	useLayoutEffect(() => {
@@ -119,7 +132,6 @@ export function Track(props: {
 				row.opacity = 1
 			},
 			track(phase, dx, vx) {
-				;(globalThis as any).__lbTrack = [phase, dx, vx, l.x]
 				if (phase === 'start') {
 					live2.tracking = true
 					l.anim?.stop?.()
@@ -137,7 +149,6 @@ export function Track(props: {
 			},
 		}
 		props.controllerRef.current = controller
-		;(globalThis as any).__lbVp = 'registered'
 		return () => { if (props.controllerRef.current === controller) props.controllerRef.current = null }
 	})
 

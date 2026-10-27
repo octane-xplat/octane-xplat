@@ -13,7 +13,7 @@ import type { RootAction, RootEffect, RootState } from './state'
 import { viewRect } from './rect'
 import { scrollTriggerIntoView } from './scroll-sync'
 import type { ImageController } from './Image.tsrx'
-import { Track } from './track.tsrx'
+import { Track } from './track.mobile.tsrx'
 import type {
 	LightboxMedia,
 	LightboxPartProps,

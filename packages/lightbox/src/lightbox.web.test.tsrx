@@ -4,6 +4,16 @@ import { describe, expect, it, vi } from 'vitest'
 import { Lightbox, useLightbox } from './index.web'
 import type { LightboxMedia } from './props'
 
+vi.mock('@nativescript-community/gesturehandler', () => ({
+	Manager: { getInstance: () => ({ createGestureHandler: () => ({ on() {}, off() {}, attachToView() {}, detachFromView() {} }) }) },
+	HandlerType: { PAN: 'pan', PINCH: 'pinch', TAP: 'tap' },
+	GestureState: {},
+	GestureHandlerStateEvent: 's',
+	GestureHandlerTouchEvent: 't',
+}))
+vi.mock('@nativescript/core', () => ({ Utils: { layout: { toDevicePixels: (v: number) => v } } }))
+
+
 const media: LightboxMedia[] = [
 	{ src: 'a.jpg', alt: 'first', caption: 'Caption A' },
 	{ src: 'b.jpg', alt: 'second' },
@@ -228,8 +238,10 @@ describe('lightbox web', () => {
 		vi.unstubAllGlobals()
 	})
 
-	it('native index placeholders throw', async () => {
+	it('native index exports the real surface', async () => {
 		const native = await import('./index.ts')
-		expect(() => (native as never as { useLightbox: () => void }).useLightbox()).toThrowError(/not implemented yet/)
+		for (const name of ['Lightbox', 'useLightbox', 'useLightboxState', 'Root', 'Trigger', 'Popup', 'Backdrop', 'Viewport', 'Slide', 'Image', 'Close', 'Prev', 'Next', 'Title', 'Description']) {
+			expect(typeof (native as Record<string, unknown>)[name], name).toBe('function')
+		}
 	})
 })

@@ -15,12 +15,12 @@ export interface ClipWriter {
 
 function attachMask(view: any): CALayer | null {
 	const layer = view?.ios?.layer as CALayer | undefined
-	if (!layer) return null
+	if (!layer) {return null}
 	const mask = CALayer.layer()
 	mask.backgroundColor = UIColor.whiteColor.CGColor
 	// Property assignment did not stick in Phase 0 — go through KVC.
 	;(layer as any).setValueForKey?.(mask, 'mask')
-	if ((layer as any).mask === mask) return mask
+	if ((layer as any).mask === mask) {return mask}
 	try {
 		layer.mask = mask
 	} catch {}
@@ -50,7 +50,7 @@ export function createClipWriter(view: any): ClipWriter {
 	return {
 		mechanism: 'layout',
 		setClip(inset, radius) {
-			if (!view) return
+			if (!view) {return}
 			view.clipToBounds = true
 			const { width, height } = size()
 			const w = Math.max(0, width - inset.left - inset.right)
@@ -59,11 +59,11 @@ export function createClipWriter(view: any): ClipWriter {
 			view.height = h
 			view.translateX = inset.left
 			view.translateY = inset.top
-			if ('borderRadius' in view.style) (view.style as any).borderRadius = radius
-			else if (view.style) (view.style as any).cornerRadius = radius
+			if ('borderRadius' in view.style) {(view.style as any).borderRadius = radius}
+			else if (view.style) {(view.style as any).cornerRadius = radius}
 		},
 		clear() {
-			if (!view) return
+			if (!view) {return}
 			view.clipToBounds = false
 			view.translateX = 0
 			view.translateY = 0

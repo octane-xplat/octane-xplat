@@ -61,3 +61,17 @@ describe('math', () => {
 		expect(objectPosition('10px 100%')).toEqual([0.5, 1])
 	})
 })
+
+	describe('zero-box safety', () => {
+		it('toStyle emits no NaN with a zero-size base', () => {
+			const v: Visual = { img: { x: 0, y: 0, w: 0, h: 0 }, clip: { x: 0, y: 0, w: 0, h: 0 }, radius: 0, opacity: 1 }
+			const s = toStyle(v, { x: 0, y: 0, w: 0, h: 0 })
+			for (const n of [s.x, s.y, s.scale, s.opacity, s.radius, s.inset.top, s.inset.right, s.inset.bottom, s.inset.left]) {
+				expect(Number.isFinite(n)).toBe(true)
+			}
+		})
+		it('fit returns finite values with a zero-size box', () => {
+			const f = fit(1.333, { x: 0, y: 0, w: 0, h: 0 })
+			for (const n of [f.x, f.y, f.w, f.h]) {expect(Number.isFinite(n)).toBe(true)}
+		})
+	})

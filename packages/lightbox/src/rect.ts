@@ -4,7 +4,7 @@ import type { Rect } from './math'
 
 function surfaceOrigin(view: any): { x: number; y: number } {
 	let root = view
-	while (root?.parent) root = root.parent
+	while (root?.parent) {root = root.parent}
 	const point = root?.getLocationOnScreen?.()
 	return point ? { x: point.x, y: point.y } : { x: 0, y: 0 }
 }
@@ -12,7 +12,7 @@ function surfaceOrigin(view: any): { x: number; y: number } {
 export function viewRect(view: any): Rect | null {
 	const point = view?.getLocationOnScreen?.()
 	const size = view?.getActualSize?.()
-	if (!point || !size) return null
+	if (!point || !size) {return null}
 	const origin = surfaceOrigin(view)
 	return { x: point.x - origin.x, y: point.y - origin.y, w: size.width, h: size.height }
 }
@@ -20,6 +20,6 @@ export function viewRect(view: any): Rect | null {
 export function viewInScreen(view: any): Rect | null {
 	const point = view?.getLocationOnScreen?.()
 	const size = view?.getActualSize?.()
-	if (!point || !size) return null
+	if (!point || !size) {return null}
 	return { x: point.x, y: point.y, w: size.width, h: size.height }
 }

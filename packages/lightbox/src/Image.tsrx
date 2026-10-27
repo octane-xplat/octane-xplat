@@ -5,7 +5,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'octane'
 import { cx } from '@octane-xplat/lib'
 import { useMotionValue } from '@octane-xplat/motion'
-import { attachInput } from './input'
+import { attachInput } from './input.mobile'
 import { createClipWriter } from './clip.ios'
 import { viewRect } from './rect'
 import { SETTLE, INERTIA } from './constants'
@@ -36,7 +36,7 @@ export function Image(props: LightboxImagePartProps) @{
 	const [loaded, setLoaded] = useState(false)
 
 	const aspect = (item?.width && item?.height ? item.width / item.height : undefined) ?? 1
-	const F = box && aspect ? fit({ w: box.w, h: box.h }, aspect) : null
+	const F = box && aspect ? fit(aspect, box) : null
 	const x = useMotionValue(0)
 	const y = useMotionValue(0)
 	const scale = useMotionValue(1)
@@ -45,18 +45,21 @@ export function Image(props: LightboxImagePartProps) @{
 	live.current = { F, ctx, box, index }
 
 	// Measure: re-read on layout changes via NativeScript's layoutChanged.
+	// Measure the untransformed slide — never listen on the wrap itself, as
+	// the transform writes below can re-enter layout on iOS.
 	useLayoutEffect(() => {
 		const v = wrapRef.current
-		if (!v) return
+		const target = (v?.parent as any) ?? v
+		if (!target) return
 		const update = () => {
-			const r = (v.parent as any)?.getActualSize?.() ?? v.getActualSize?.()
+			const r = target.getActualSize?.()
 			if (!r || !r.width || !r.height) return
 			setBox((prev) => (prev && prev.w === r.width && prev.h === r.height ? prev : { x: 0, y: 0, w: r.width, h: r.height }))
 		}
 		update()
 		const cb = () => update()
-		v.on?.('layoutChanged', cb)
-		return () => v.off?.('layoutChanged', cb)
+		target.on?.('layoutChanged', cb)
+		return () => target.off?.('layoutChanged', cb)
 	}, [])
 
 	const slideEl = () => (wrapRef.current?.parent as any) ?? null
@@ -64,15 +67,34 @@ export function Image(props: LightboxImagePartProps) @{
 	// page-sized pane to measure, not the wrap itself.
 
 	// Write the transform MVs to the native view.
+	let syncing = false
 	const sync = () => {
+		if (syncing) return
 		const v = wrapRef.current
 		if (!v) return
-		v.translateX = x.get()
-		v.translateY = y.get()
-		v.scaleX = v.scaleY = scale.get()
+		syncing = true
+		try {
+			v.translateX = x.get()
+			v.translateY = y.get()
+			v.scaleX = v.scaleY = scale.get()
+		} finally {
+			syncing = false
+		}
+	}
+	// Coalesce + defer transform writes off the layout stack: writing NS
+	// transform props while a layout pass is pending re-enters
+	// updateNativeTransform and overflows on iOS.
+	let syncPending = false
+	const scheduleSync = () => {
+		if (syncPending) return
+		syncPending = true
+		setTimeout(() => {
+			syncPending = false
+			sync()
+		}, 0)
 	}
 	useLayoutEffect(() => {
-		const offs = [x.on('change', sync), y.on('change', sync), scale.on('change', sync)]
+		const offs = [x.on('change', scheduleSync), y.on('change', scheduleSync), scale.on('change', scheduleSync)]
 		sync()
 		return () => offs.forEach((f) => f())
 	}, [])
@@ -82,10 +104,10 @@ export function Image(props: LightboxImagePartProps) @{
 		const v = wrapRef.current
 		if (!v) return
 		clip.current = createClipWriter(v)
-		;(globalThis as any).__lbClip = clip.current?.mechanism
 	}, [])
 
 	const apply = (v: Visual, b: Rect) => {
+		if (!b.w || !b.h || !Number.isFinite(b.w) || !Number.isFinite(b.h)) return
 		const s = toStyle(v, b)
 		x.jump(s.x)
 		y.jump(s.y)
@@ -140,6 +162,25 @@ export function Image(props: LightboxImagePartProps) @{
 			case 'dragging': ctx.setDragging(c.value); break
 			case 'close': ctx.close(c.velocity); break
 			case 'toggleUi': ctx.toggleUi(); break
+			case 'tap': {
+				const e = {
+					index: live.current.index,
+					target: c.target,
+					x: c.x,
+					y: c.y,
+					pointerType: c.pointer,
+					prevented: false,
+					preventDefault() { this.prevented = true },
+				}
+				onTap?.(e as never)
+				if (e.prevented) break
+				if (c.target === 'backdrop') {
+					if (live.current.ctx.options.closeOnBackdropClick) live.current.ctx.close()
+				} else if (c.pointer !== 'mouse') {
+					live.current.ctx.toggleUi()
+				}
+				break
+			}
 			case 'track': {
 				// Native paging rides the track — route the command to the Viewport.
 				const v = ctx.viewport.current
@@ -167,30 +208,13 @@ export function Image(props: LightboxImagePartProps) @{
 	detectorRef.current ??= createTapDetector({ now: () => Date.now(), schedule: (fn, ms) => { const id = setTimeout(fn, ms); return () => clearTimeout(id) } })
 
 	const send = (i: Parameters<ReturnType<typeof createGestureMachine>['send']>[0]) => {
-		;(globalThis as any).__lbEvents?.push?.(i.kind)
-		for (const c of machineRef.current!.send(i)) {
-			;(globalThis as any).__lbCmds?.push?.(c.kind)
-			try {
-				exec(c)
-			} catch (e) {
-				;(globalThis as any).__lbErr?.push?.(`${c.kind}:${String(e)}`)
-			}
-		}
+		for (const c of machineRef.current!.send(i)) exec(c)
 	}
 
 	useEffect(() => {
 		const v = wrapRef.current
 		if (!v) return
-		const off = attachInput(v, { maxZoom: ctx.options.maxZoom }, (i) => {
-			if (i.kind === 'tap') {
-				const e = { index: live.current.index, pointer: 'touch' as const, defaultPrevented: false, preventDefault() { e.defaultPrevented = true } }
-				onTap?.(e)
-				if (e.defaultPrevented) return
-				send(i)
-				return
-			}
-			send(i)
-		})
+		const off = attachInput(v, { maxZoom: ctx.options.maxZoom }, send)
 		return () => { off() }
 	}, [])
 

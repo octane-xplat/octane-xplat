@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 vi.mock('@nativescript-community/gesturehandler', () => import('../test/gesturehandler'))
 vi.mock('@nativescript/core', () => ({ Utils: { layout: { toDevicePixels: (v: number) => v } } }))
 
-import { attachInput } from './input'
+import { attachInput } from './input.mobile'
 import {
 	handlers,
 	GestureHandlerStateEvent,

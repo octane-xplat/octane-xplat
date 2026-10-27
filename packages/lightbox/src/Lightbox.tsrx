@@ -57,9 +57,9 @@ function LightboxBase(props: LightboxProps) @{
 								</Slide>
 							))}
 						</Viewport>
-						<Close className="vx-lightbox-close"><Text>×</Text></Close>
-						<Prev className="vx-lightbox-prev"><Text>‹</Text></Prev>
-						<Next className="vx-lightbox-next"><Text>›</Text></Next>
+						<Close className="vx-lightbox-close"><Text>{'×'}</Text></Close>
+						<Prev className="vx-lightbox-prev"><Text>{'‹'}</Text></Prev>
+						<Next className="vx-lightbox-next"><Text>{'›'}</Text></Next>
 						<Counter />
 						<Caption />
 					</Popup>
