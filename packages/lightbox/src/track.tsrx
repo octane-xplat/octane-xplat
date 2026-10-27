@@ -29,6 +29,8 @@ export function Track(props: {
 	const live = useRef({ x: 0, stride: 1, index: 0, anim: null as any })
 	const l = live.current
 	const count = () => props.items.length
+	const live2 = { tracking: false }
+	const tracking = live2
 
 	const stride = () => viewRect(clipRef.current)?.w ?? clipRef.current?.getActualSize?.().width ?? 1
 	const setX = (x: number) => {
@@ -37,9 +39,45 @@ export function Track(props: {
 		props.progress.set(-x / (l.stride || 1))
 	}
 
+	const layoutSlides = () => {
+		const clip = clipRef.current
+		const row = rowRef.current
+		if (!clip || !row) return
+		const s = clip.getActualSize?.()
+		if (!s?.width) return
+		l.stride = s.width
+		row.width = s.width * count()
+		row.height = s.height
+		row.eachChild?.((child: any) => {
+			child.width = s.width
+			child.height = s.height
+			return true
+		})
+	}
+
 	useLayoutEffect(() => {
+		layoutSlides()
+		let inLayout = false
+		const cb = () => {
+			if (inLayout) return
+			inLayout = true
+			try {
+				const before = l.stride
+				layoutSlides()
+				// Only re-snap when the viewport actually resized — re-layouts
+				// from translate/row writes must not clobber an in-flight drag.
+				if (l.stride !== before && !live2.tracking) setX(-l.index * l.stride)
+			} finally {
+				inLayout = false
+			}
+		}
+		clipRef.current?.on?.('layoutChanged', cb)
 		l.stride = stride()
 		setX(-l.index * l.stride)
+		return () => clipRef.current?.off?.('layoutChanged', cb)
+	})
+
+	useLayoutEffect(() => {
 		const controller: ViewportController = {
 			goTo(index, behavior) {
 				l.index = clamp(index, 0, count() - 1)
@@ -48,7 +86,7 @@ export function Track(props: {
 					const mv = props.progress
 					const from = l.x
 					const to = target
-					let last = from
+					let last = -from / l.stride
 					const off = mv.on('change', (v: number) => {
 						const dx = (v - last) * l.stride
 						last = v
@@ -81,7 +119,9 @@ export function Track(props: {
 				row.opacity = 1
 			},
 			track(phase, dx, vx) {
+				;(globalThis as any).__lbTrack = [phase, dx, vx, l.x]
 				if (phase === 'start') {
+					live2.tracking = true
 					l.anim?.stop?.()
 					l.stride = stride()
 				} else if (phase === 'move') {
@@ -89,6 +129,7 @@ export function Track(props: {
 				} else {
 					// Snap: projected resting position decides the landing slide —
 					// same rule the web scroller's snap gives for a flick.
+					live2.tracking = false
 					const projected = l.x + 0.2 * vx
 					const next = clamp(Math.round(-projected / l.stride), 0, count() - 1)
 					this.goTo(next, 'smooth')
@@ -96,6 +137,7 @@ export function Track(props: {
 			},
 		}
 		props.controllerRef.current = controller
+		;(globalThis as any).__lbVp = 'registered'
 		return () => { if (props.controllerRef.current === controller) props.controllerRef.current = null }
 	})
 

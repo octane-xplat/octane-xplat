@@ -49,8 +49,9 @@ export function Image(props: LightboxImagePartProps) @{
 		const v = wrapRef.current
 		if (!v) return
 		const update = () => {
-			const r = v.getActualSize?.()
-			if (r && r.width && r.height) setBox({ x: 0, y: 0, w: r.width, h: r.height })
+			const r = (v.parent as any)?.getActualSize?.() ?? v.getActualSize?.()
+			if (!r || !r.width || !r.height) return
+			setBox((prev) => (prev && prev.w === r.width && prev.h === r.height ? prev : { x: 0, y: 0, w: r.width, h: r.height }))
 		}
 		update()
 		const cb = () => update()
@@ -59,6 +60,8 @@ export function Image(props: LightboxImagePartProps) @{
 	}, [])
 
 	const slideEl = () => (wrapRef.current?.parent as any) ?? null
+	// The wrap lives at the fitted rect inside its slide; the slide is the
+	// page-sized pane to measure, not the wrap itself.
 
 	// Write the transform MVs to the native view.
 	const sync = () => {
@@ -79,6 +82,7 @@ export function Image(props: LightboxImagePartProps) @{
 		const v = wrapRef.current
 		if (!v) return
 		clip.current = createClipWriter(v)
+		;(globalThis as any).__lbClip = clip.current?.mechanism
 	}, [])
 
 	const apply = (v: Visual, b: Rect) => {
@@ -163,7 +167,15 @@ export function Image(props: LightboxImagePartProps) @{
 	detectorRef.current ??= createTapDetector({ now: () => Date.now(), schedule: (fn, ms) => { const id = setTimeout(fn, ms); return () => clearTimeout(id) } })
 
 	const send = (i: Parameters<ReturnType<typeof createGestureMachine>['send']>[0]) => {
-		for (const c of machineRef.current!.send(i)) exec(c)
+		;(globalThis as any).__lbEvents?.push?.(i.kind)
+		for (const c of machineRef.current!.send(i)) {
+			;(globalThis as any).__lbCmds?.push?.(c.kind)
+			try {
+				exec(c)
+			} catch (e) {
+				;(globalThis as any).__lbErr?.push?.(`${c.kind}:${String(e)}`)
+			}
+		}
 	}
 
 	useEffect(() => {
@@ -189,8 +201,18 @@ export function Image(props: LightboxImagePartProps) @{
 				stop()
 				const { ctx } = live.current
 				if (!live.current.F || !box?.w) {
-					ctx.presence.set(0)
-					void ctx.presence.animate(1, ctx.options.open).finished.then(() => ctx.onOpened())
+					// Not yet measured (mount ordering races the layout
+					// effect): defer one frame before the fade fallback.
+					setTimeout(() => {
+						if (!morph.current && (live.current.ctx.phase === 'opening' || live.current.ctx.phase === 'open')) {
+							if (live.current.F && base().w) {
+								this.animateIn?.(trigger)
+							} else {
+								ctx.presence.set(0)
+								void ctx.presence.animate(1, ctx.options.open).finished.then(() => ctx.onOpened())
+							}
+						}
+					}, 16)
 					return
 				}
 				const b = base()
@@ -216,6 +238,8 @@ export function Image(props: LightboxImagePartProps) @{
 				stop()
 				const { ctx } = live.current
 				if (!live.current.F || !box?.w) {
+					await new Promise((r) => setTimeout(r, 16))
+					if (live.current.F && base().w) return this.animateOut(trigger, velocity)
 					await ctx.presence.animate(0, ctx.options.close).finished
 					return
 				}
@@ -241,6 +265,19 @@ export function Image(props: LightboxImagePartProps) @{
 		ctx.images.set(index, controller)
 		return () => { if (ctx.images.get(index) === controller) ctx.images.delete(index) }
 	})
+	useLayoutEffect(() => {
+		const off = scale.on('change', (s: number) => live.current.ctx.setZoomed(s > 1.01))
+		return () => {
+			off()
+			if (live.current.ctx.index === index) live.current.ctx.setZoomed(false)
+		}
+	}, [index])
+	// Start the open morph once the viewer is opening on this slide.
+	useLayoutEffect(() => {
+		if (ctx.phase === 'opening' && ctx.index === index) {
+			ctx.images.get(index)?.animateIn(ctx.openTrigger.current ?? ctx.pickTrigger(index, false))
+		}
+	}, [ctx.phase])
 
 	const thumbVisual = (trigger: any): Visual | null => {
 		const tr = viewRect(trigger)
