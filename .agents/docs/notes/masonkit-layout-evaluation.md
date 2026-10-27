@@ -1547,3 +1547,16 @@ and adds Android width assertions, with this gap explicit in its source. It
 does not claim iOS width parity. Follow-up must distinguish NativeScript size
 reporting from actual native layout before choosing a fix, then retain an iOS
 width regression. No visual analysis was used.
+
+## iOS dev-session bootstrap gap (2026-10-27)
+
+Runtime-observed on an iPhone 18 Pro simulator while launching the
+workshop from `apps/mobile` with `xplat workshop dev --target ios`: the Xcode
+build, install and sync succeed, then the dev-session bootstrap throws
+`ReferenceError: MasonListDelegate is not defined` from
+`@octane-xplat/nativescript-masonkit@1.0.0-beta.126`'s `list/index.ios.js`
+before any app or workshop code runs. The native class is absent from
+`@octane-xplat/nativescript-mason-core@1.0.0-beta.5`, the newest published
+xcframework. There is no JS workaround; a mason-core release exposing the
+delegate, or a masonkit pin that does not reference it, unblocks iOS runtime
+checks. No visual analysis was used.
