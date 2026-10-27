@@ -42,7 +42,11 @@ function resolveContextActions(actions: TableContextActions | undefined) {
 
 function CellContextMenu(props: { actions: TableContextActions | undefined; children: any }) @{
 	const items = resolveContextActions(props.actions)
-	items ? <ContextMenu menu={items}>{props.children}</ContextMenu> : <>{props.children}</>
+	@if (items) {
+		<ContextMenu menu={items}>{props.children}</ContextMenu>
+	} @else {
+		<>{props.children}</>
+	}
 }
 
 function ctxClasses(ctx: any, isHeaderRow: boolean) {
