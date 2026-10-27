@@ -7,6 +7,7 @@
 import { readFileSync } from 'node:fs'
 import { chromium, firefox, webkit } from 'playwright'
 import { verifyRichTables } from './verify-rich-tables.mjs'
+import { verifyLocale } from './verify-locale.mjs'
 import { verifyMedia } from './verify-media.mjs'
 
 const base = process.env.BASE_URL ?? process.argv.find((a) => a.startsWith('--base='))?.split('=')[1]
@@ -32,6 +33,18 @@ page.on('console', (m) => {
 	}
 })
 
+if (process.argv.includes('--locale-only')) {
+	try {
+		await verifyLocale(page, baseUrl, check)
+		check('unit-9 no runtime errors', errors.length === 0, errors.slice(0, 3).join(' | '))
+	} finally {
+		await browser.close()
+	}
+	const failures = results.filter(result => !result.pass)
+	console.log(`${results.length - failures.length}/${results.length} locale/accessibility checks passed (${browserName})`)
+	process.exit(failures.length ? 1 : 0)
+}
+
 if (process.argv.includes('--rich-tables-only')) {
  try {
   await verifyRichTables(page, baseUrl, check)
@@ -55,6 +68,7 @@ if (process.argv.includes('--media-only')) {
 }
 
 try {
+	await verifyLocale(page, baseUrl, check)
 	// Home: heading, nav, search, category sections, cards
 	await page.goto(baseUrl + '/', { waitUntil: 'networkidle' })
 	check('home renders heading', (await page.textContent('h1'))?.includes('Astryx Sandbox'))

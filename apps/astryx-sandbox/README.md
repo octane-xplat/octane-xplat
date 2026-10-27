@@ -75,3 +75,11 @@ Upstream sandbox sources, template metadata, and icon artwork are
 [MIT License](https://github.com/facebook/astryx/blob/main/LICENSE). Icon path
 data from [Heroicons](https://github.com/tailwindlabs/heroicons) (MIT). Ported
 files carry a provenance header naming the upstream file and revision.
+
+Unit 9 adds the three pinned InternationalizationProvider examples, with
+live French strings, sparse overrides and RTL pagination. The focused browser
+journey also checks announcement-region DOM state and the existing grid-focus
+example. Run it against a production preview with
+`node scripts/verify-web.mjs --locale-only --browser=chromium` (also Firefox
+and WebKit). Actual assistive-technology delivery and native hosts remain
+unqualified; see the unit-9 section in [coverage](docs/coverage.md).

@@ -9,8 +9,10 @@ const HIDDEN_CSS =
 	'position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;' +
 	'clip:rect(0,0,0,0);white-space:nowrap;border:0;inset-block-start:0;' +
 	'inset-inline-start:0;pointer-events:none;user-select:none;'
+
 const CLEAR_DELAY_MS = 2000
 
+const frames: Partial<Record<AnnouncePoliteness, number>> = {}
 let regions: Record<AnnouncePoliteness, HTMLElement> | undefined
 const clearTimers: Record<AnnouncePoliteness, ReturnType<typeof setTimeout> | undefined> = {
 	polite: undefined,
@@ -43,13 +45,20 @@ function getRegions(): Record<AnnouncePoliteness, HTMLElement> | undefined {
 
 export function announce(message: string, politeness: AnnouncePoliteness = 'polite'): void {
 	const target = getRegions()?.[politeness]
-	if (!target || message === '') {
+	if (!target) {
 		return
 	}
+	clearTimeout(clearTimers[politeness])
+	if (frames[politeness] !== undefined) {
+		cancelAnimationFrame(frames[politeness]!)
+	}
 	target.textContent = ''
-	requestAnimationFrame(() => {
+	if (!message) {
+		return
+	}
+	frames[politeness] = requestAnimationFrame(() => {
+		delete frames[politeness]
 		target.textContent = message
-		clearTimeout(clearTimers[politeness])
 		clearTimers[politeness] = setTimeout(() => {
 			target.textContent = ''
 		}, CLEAR_DELAY_MS)

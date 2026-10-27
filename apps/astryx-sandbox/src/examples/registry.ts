@@ -1,3 +1,6 @@
+import { InternationalizationProvider01ShippedLocale } from './internationalization/InternationalizationProvider01ShippedLocale'
+import { InternationalizationProvider02Overrides } from './internationalization/InternationalizationProvider02Overrides'
+import { InternationalizationProvider03RtlDirection } from './internationalization/InternationalizationProvider03RtlDirection'
 import { TableGroupedTemplate } from './pages/table-grouped'
 import { TableTreeTemplate } from './pages/table-tree'
 import { TableInboxTemplate } from './pages/table-inbox'
@@ -571,6 +574,9 @@ import { TimestampTimezone } from './timestamp/TimestampTimezone'
 import { TimestampTooltipTimezones } from './timestamp/TimestampTooltipTimezones'
 
 const examples: Record<string, () => any> = {
+	InternationalizationProvider01ShippedLocale,
+	InternationalizationProvider02Overrides,
+	InternationalizationProvider03RtlDirection,
 	AspectRatioCircleImage,
 	AspectRatioImageGallery,
 	AspectRatioWidescreen,

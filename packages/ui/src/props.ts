@@ -13252,3 +13252,15 @@ export interface BreadcrumbItemProps {
 	android?: PlatformProps
 	web?: PlatformProps
 }
+
+/** Static UI message catalogs. ICU formatting is not part of this subset. */
+export type InternationalizationMessages = Record<string, Readonly<Record<string, string | { defaultMessage: string }>>>
+/** Locale/catalog scope for built-in Selector and Pagination static strings.
+ * Nested providers replace the parent scope; set host dir separately. */
+export interface InternationalizationProviderProps {
+	locale: string
+	dir?: 'ltr' | 'rtl'
+	messages?: InternationalizationMessages
+	overrides?: InternationalizationMessages
+	children?: Renderable
+}

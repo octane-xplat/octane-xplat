@@ -1,9 +1,12 @@
+import { useDirection, useTranslator } from './internationalization'
 import type { PaginationProps } from "./props";
 import { applyEscapeProps } from "./escape-props";
 
 /** Pagination — ‹ › plus a windowed run of page buttons around `page`
  *  (first, last, `siblingCount` each side, … for gaps). */
 export function Pagination(props: PaginationProps) @{
+	const direction = useDirection()
+	const translate = useTranslator()
 	const sibling = props.siblingCount ?? 1;
 	const count = Math.max(0, props.pageCount);
 	const current = Math.min(Math.max(1, props.page), Math.max(1, count));
@@ -27,9 +30,9 @@ export function Pagination(props: PaginationProps) @{
 		id={props.id}
 		className={['vx-pagination', props.disabled ? 'vx-pagination--disabled' : undefined, props.className]}
 		style={props.style}
-		aria-label={props.accessibilityLabel ?? 'Pagination'}
+		aria-label={props.accessibilityLabel ?? translate('@astryx.pagination.label')}
 	>
-		<span className="vx-page-btn" role="button" aria-disabled={current <= 1 || props.disabled || undefined} tabIndex={0} onClick={() => go(current - 1)}>‹</span>
+		<span className="vx-page-btn" role="button" aria-disabled={current <= 1 || props.disabled || undefined} aria-label={translate('@astryx.pagination.previous')} tabIndex={current <= 1 || props.disabled ? -1 : 0} onKeyDown={(e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(current - 1) } }} onClick={() => go(current - 1)}>{direction === 'rtl' ? '›' : '‹'}</span>
 		{pages.map((p: number | '…', i: number) => (
 			p === '…'
 				? <span key={'e' + i} className="vx-page-ellipsis">…</span>
@@ -45,6 +48,6 @@ export function Pagination(props: PaginationProps) @{
 					{p}
 				</span>
 		))}
-		<span className="vx-page-btn" role="button" aria-disabled={current >= count || props.disabled || undefined} tabIndex={0} onClick={() => go(current + 1)}>›</span>
+		<span className="vx-page-btn" role="button" aria-disabled={current >= count || props.disabled || undefined} aria-label={translate('@astryx.pagination.next')} tabIndex={current >= count || props.disabled ? -1 : 0} onKeyDown={(e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(current + 1) } }} onClick={() => go(current + 1)}>{direction === 'rtl' ? '‹' : '›'}</span>
 	</nav>
 }

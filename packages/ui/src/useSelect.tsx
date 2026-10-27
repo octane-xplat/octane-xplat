@@ -1,3 +1,4 @@
+import { useTranslator } from './internationalization'
 import { useEffect, useMemo, useRef, useState } from 'octane'
 import type { SelectMultipleProps, SelectOption, SelectProps, SelectSingleProps } from './props'
 import {
@@ -10,6 +11,7 @@ import {
 
 /** Shared finite-list state; platform leaves own focus, events, and hosting. */
 export function useSelect(props: SelectProps) {
+	const translate = useTranslator()
 	const latest = useRef(props)
 	latest.current = props
 	const [internalOpen, setInternalOpen] = useState(props.defaultOpen ?? false)
@@ -187,11 +189,11 @@ export function useSelect(props: SelectProps) {
 			(multiple && props.selectionMode === 'multiple' && props.triggerDisplay === 'count'
 				? `${items.length} selected`
 				: items.map((item) => item.label).join(', ')))
-		: (props.placeholder ?? '')
+		: (props.placeholder ?? translate('@astryx.selector.placeholder'))
 
 	const emptyText = query
-		? (props.emptySearchText ?? 'No results found')
-		: (props.emptyText ?? 'No options')
+		? (props.emptySearchText ?? translate('@astryx.selector.emptySearchResults'))
+		: (props.emptyText ?? translate('@astryx.selector.empty'))
 
 	const announcement = busy
 		? 'Loading…'
@@ -222,6 +224,6 @@ export function useSelect(props: SelectProps) {
 			clear,
 			selectAll,
 		}),
-		[open, selected, query, props, pending, internalValue, internalOpen],
+		[open, selected, query, props, pending, internalValue, internalOpen, translate],
 	)
 }

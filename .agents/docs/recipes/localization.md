@@ -2,7 +2,7 @@
 
 ID: localization
 Targets: web, ios, android, macos, linux
-Related APIs: @octane-xplat/lingui, initLingui, defineCatalogs, catalogsFromGlob, setLocale, getLocale, useLingui, useLocale, detectLocale, matchLocale, tsrxExtractor, @lingui/core, @lingui/cli, lingui extract, lingui compile
+Related APIs: InternationalizationProvider, useDirection, useTranslator, frFR, @octane-xplat/ui, @octane-xplat/lingui, initLingui, defineCatalogs, catalogsFromGlob, setLocale, getLocale, useLingui, useLocale, detectLocale, matchLocale, tsrxExtractor, @lingui/core, @lingui/cli, lingui extract, lingui compile
 
 ## Starting point
 
@@ -43,6 +43,11 @@ The reader knows the platform-services pattern and per-target leaf resolution.
 - AC6: An optional `persist` adapter round-trips the user's choice across
   launches: `load` feeds initial-locale resolution, `save` runs on `setLocale`.
 
+- AC7: Distinguish app-string localization from the built-in Selector/Pagination
+  static-string scope. Change subtree locale and sparse overrides, preserve
+  controlled selection, keep provider and host direction synchronized for RTL,
+  and explain nested scope isolation, English fallback and ICU/host limits.
+
 ## Documentation
 
 - AC1: [Startup](../../../docs/app/localization.md#starting-the-runtime) — catalog
@@ -60,3 +65,7 @@ The reader knows the platform-services pattern and per-target leaf resolution.
 - AC5: [Detection](../../../docs/app/localization.md#locale-detection) — per-target
   sources and the matching rule.
 - AC6: [Persistence](../../../docs/app/localization.md#switching-and-persisting).
+
+- AC7: [Subtree UI strings](../../../docs/app/localization.md#change-ui-strings-in-one-part-of-a-screen),
+  [maintained locale examples](../../../apps/astryx-sandbox/src/examples/internationalization/InternationalizationProvider01ShippedLocale.tsrx),
+  [RTL example](../../../apps/astryx-sandbox/src/examples/internationalization/InternationalizationProvider03RtlDirection.web.tsrx).

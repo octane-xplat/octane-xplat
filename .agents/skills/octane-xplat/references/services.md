@@ -209,3 +209,35 @@ platform barrel. Select the owning package from its guide and export map;
 do not infer support from a similarly named browser API. For adding new
 framework services, apply the dependency and lifecycle criteria in
 [architecture](../../../docs/architecture.md).
+
+### Subtree UI locale and announcements
+
+For Selector/Pagination built-in static strings, use the UI provider rather
+than changing Lingui's global app locale. Nested scopes replace parent
+catalogs; exact/parent overrides precede exact/parent messages, then English.
+The supported catalog subset and host qualification limits are in
+[localization](../../../../docs/app/localization.md#change-ui-strings-in-one-part-of-a-screen).
+
+```tsx
+import { InternationalizationProvider, Selector, frFR } from '@octane-xplat/ui'
+export function Region() {
+	return <InternationalizationProvider locale="fr-FR" messages={{ 'fr-FR': frFR }}>
+		<Selector label="Region" options={[]} />
+	</InternationalizationProvider>
+}
+```
+
+Read the canonical guide for scope-reader hooks and RTL host wiring.
+`useAnnounce` exposes persistent web live regions;
+empty text clears the requested channel. Native forwards nonempty text to the
+platform service without politeness/clear semantics. Do not report DOM region
+or handler checks as screen-reader delivery, or the iOS/Android no-op `useGridFocus`
+as host keyboard qualification. AppKit currently has no root `useGridFocus` export.
+
+```tsx
+import { Button, useAnnounce } from '@octane-xplat/ui'
+export function Status() {
+	const announce = useAnnounce()
+	return <Button label="Report saved" clickAction={() => announce('Saved')} />
+}
+```

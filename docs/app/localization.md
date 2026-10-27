@@ -326,3 +326,94 @@ expected to work) and `Device.language` on physical iOS/Android.
 2026-10-21, the NativeScript iOS and Android runtimes embed V8 built without
 ICU and `Intl` is undefined there (`@nativescript/ios` 9.1.0 simulator,
 `@nativescript/android` 9.1.1 device).
+
+## Change UI strings in one part of a screen
+
+Wrap a Selector or Pagination in `InternationalizationProvider` to change its
+built-in static strings without changing the rest of the app. The provider's
+locale can change while a selection stays in place. `frFR` contains the French
+static strings for these two components; it is not a full Astryx catalog.
+
+```tsx
+import { InternationalizationProvider, Selector, frFR } from '@octane-xplat/ui'
+
+export function Region() {
+	return (
+		<InternationalizationProvider locale="fr-FR" messages={{ 'fr-FR': frFR }}>
+			<Selector label="Billing region" hasClear options={[
+				{ value: 'emea', label: 'EMEA' },
+				{ value: 'apac', label: 'APAC' },
+			]} />
+		</InternationalizationProvider>
+	)
+}
+```
+
+Use `overrides` for a few replacement strings. Lookup checks the exact locale,
+then its parent tags, first in overrides and then in messages. Missing entries
+use built-in English strings. Nested providers replace their parent's scope.
+This API handles static messages only; use Lingui for app text, plurals, and
+formatted messages. Explicit Selector text props take precedence over catalogs.
+
+```tsx
+import { InternationalizationProvider, Selector } from '@octane-xplat/ui'
+
+export function Choice() {
+	return (
+		<InternationalizationProvider locale="en" overrides={{
+			en: { '@astryx.selector.placeholder': 'Choose...' },
+		}}>
+			<Selector label="Region" options={[]} />
+		</InternationalizationProvider>
+	)
+}
+```
+
+For RTL on web, set both the provider's `dir` and the wrapping element's `dir`.
+The provider supplies direction to Pagination's chevrons; the host attribute
+mirrors layout. Native locale state and static labels share the implementation,
+but native layout mirroring and input still need actual-host qualification.
+
+```tsx
+import { InternationalizationProvider, Pagination } from '@octane-xplat/ui'
+
+// A browser leaf, for example RtlPreview.web.tsx.
+export function RtlPreview() {
+	return (
+		<InternationalizationProvider locale="en" dir="rtl">
+			<div dir="rtl"><Pagination page={3} pageCount={20} /></div>
+		</InternationalizationProvider>
+	)
+}
+```
+
+Read the nearest scope from your own component with `useLocale()`,
+`useDirection()`, and `useTranslator()`. The translator reads static catalog
+entries and falls back to English, or to the key when no entry exists.
+
+```tsx
+import { Text, useLocale, useDirection, useTranslator } from '@octane-xplat/ui'
+
+export function LocaleStatus() {
+	const locale = useLocale()
+	const direction = useDirection()
+	const translate = useTranslator()
+	return <Text>{locale} / {direction}: {translate('@astryx.selector.placeholder')}</Text>
+}
+```
+
+Use `useAnnounce()` for an action's status message. Web keeps separate polite
+and assertive live regions, clears messages after two seconds, and accepts an
+empty string to clear a channel. Browser DOM checks confirm these regions,
+not screen-reader speech. Native uses the platform announcement service;
+politeness and explicit clearing are unavailable there and OS delivery remains
+unqualified by these examples.
+
+```tsx
+import { Button, useAnnounce } from '@octane-xplat/ui'
+
+export function SaveStatus() {
+	const announce = useAnnounce()
+	return <Button label="Save" clickAction={() => announce('Saved')} />
+}
+```

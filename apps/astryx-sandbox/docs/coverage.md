@@ -717,3 +717,92 @@ An earlier wider UI run before the rebase reported 1,072 passing tests and one
 Slider assertion failure; a focused Slider retry reproduced it. That wider
 suite was not rerun after the rebase. No Slider source or test was changed by
 unit 7.
+
+## Unit 9 — locale and accessibility examples
+
+### Closed route and API rows
+
+| Pinned route (`/templates/<name>/`) | Public Xplat consumer | Status |
+| --- | --- | --- |
+| `InternationalizationProvider01ShippedLocale` | `InternationalizationProvider`, `frFR`, controlled `Selector`, options-driven `SegmentedControl` | ported |
+| `InternationalizationProvider02Overrides` | sparse `overrides`, controlled clear; supplemental `useAnnounce` controls | ported |
+| `InternationalizationProvider03RtlDirection` | explicit `dir`, `useLocale`, `useDirection`, `Pagination`; independent nested scope | ported |
+
+The registry closes exactly three pinned rows; all 771 oracle rows remain.
+Pagination maps `totalItems=200/pageSize=10` to `pageCount=20`. SegmentedControl
+uses the existing options API. The RTL example uses a browser leaf to set the
+host `dir` separately from context, as the upstream example requires. The
+nested French/LTR scope and announcement controls are supplemental checks.
+Source view resolves the running files by their exact template basenames.
+
+| Upstream API/contract | Equivalent | Scope |
+| --- | --- | --- |
+| subtree locale, sparse overrides and locale updates | `InternationalizationProvider`, `useLocale`, static-only `useTranslator` | exact/parent overrides, exact/parent messages, built-in English fallback; nested scopes replace parent catalogs |
+| shipped French catalog | `frFR` | static Selector/Pagination strings only; no full Astryx catalog or ICU formatting claim |
+| `dir` + RTL pagination | `useDirection`, `getLocaleDirection`, provider `dir` and host `dir` | mirrored chevrons; previous/next retain logical page meaning |
+| `useAnnounce` | same public hook | web polite/assertive persistent regions, repeated/empty messages, 2-second clear; native platform service lacks politeness and clear semantics |
+| `useGridFocus` | existing public hook in `ComplexSelectorShowcase` | browser arrows, Home/End, Enter selection checked; iOS/Android default export remains a no-op; AppKit barrel lacks this hook |
+
+### Framework findings and adaptations
+
+- **U9-locale:** missing subtree locale API and fixed Selector strings required
+  shared framework work, now consumed by all three routes. Silo observation
+  `5104b2f6-20ff-40d3-953c-0a0ee68c18f3` preserves the original expectation.
+  Shared context/static strings are implemented across web/mobile/AppKit
+  entrypoints; only web runtime is qualified here.
+- **U9-static-catalog:** no new dependency was added to UI. This public subset
+  accepts static string/rich `defaultMessage` entries only. Full catalog
+  translation, interpolation/plurals and other components' strings remain
+  outside the three exercised examples. Selector clear-label translation is
+  a generic static phrase rather than upstream's label interpolation.
+- **U9-keyboard:** previous/next Pagination spans lacked keyboard handlers;
+  shared web controls now accept Enter/Space and guard page boundaries.
+- **U9-AT:** DOM live-region state and keyboard focus are observable browser
+  evidence, not actual speech. Assistive technology delivery, mobile OS input,
+  native RTL layout, AppKit, Linux GTK/WebKitGTK and Windows remain not-run.
+  Native `useAnnounce` explicitly documents unsupported politeness/clear.
+- **U9-tooling:** repository lint rejects TSRX style-map declarations despite
+  the available TSRX skill describing them. The examples use imported CSS
+  instead; Silo `0aae909d-966b-42a7-b069-37f5ef34a64b` records the mismatch.
+- Grid focus is exercised on its existing unit-5 route; no claim is made that
+  this closes an additional route or qualifies its iOS/Android no-op implementation.
+  The AppKit barrel does not currently export this hook; that remains an
+  explicit platform gap, not a verified equivalent (Silo
+  `50a68589-1e6d-49da-b5ce-429a7dc53b07`).
+
+### Verification evidence
+
+Upstream: `ebd939b665361a078015377c0dfe50cc3c1d70a4` (Astryx 0.6.4).
+Candidate: unit-9 commit containing this section, based on `4308093a8`.
+The maintained check is `scripts/verify-web.mjs --locale-only --browser=<engine>`;
+assertions use real Playwright clicks/keyboard input and DOM text/state only.
+No screenshots or pixel-parity checks are used.
+
+| Route/example | Host/renderer | Initial state → input → expected result | Evidence / status |
+| --- | --- | --- | --- |
+| shipped locale | web DOM | EN/no selection → FR → French placeholder; select EMEA → EN → value retained; clear → English placeholder | `verify-locale.mjs`; pass in Chromium, Firefox and WebKit |
+| overrides | web DOM | empty → choose APAC → clear → `Choose...`; unspecified clear label stays English | `verify-locale.mjs`; pass in Chromium, Firefox and WebKit |
+| overrides, supplemental announcements | web DOM | empty regions → polite/assertive clicks → independent messages; clear/repeat/timeout → correct region text | `verify-locale.mjs`; pass in all three engines (DOM only); AT not-run |
+| RTL direction | web DOM | page 3/LTR → RTL → context + host direction agree, chevrons reverse; Enter next/Space previous → pages 4/3; nested scope stays French/LTR | `verify-locale.mjs`; pass in Chromium, Firefox and WebKit |
+| ComplexSelectorShowcase | web DOM | no department → open → arrows/Home/End move actual focus; Enter → Engineering selected and popup closes | `verify-locale.mjs`; pass in Chromium, Firefox and WebKit |
+| provider/lookup/Pagination/announcements | jsdom | scope updates, lookup precedence, unknown keys, explicit direction, disabled boundary, pending-announcement clear | `internationalization.web.test.tsrx`; 4 tests passed; synthetic handler/DOM evidence only |
+
+Recipes extended: `localization` AC7 (subtree UI locale) and
+`accessibility-announcements` AC4 (UI hook and host limits). Coverage and
+verification are recorded separately in Silo for the landed revision.
+`pnpm check:recipes` checks structure and local links only.
+
+Final production-preview results: **12/12 checks passed in each of Chromium,
+Firefox and WebKit**, with no browser runtime errors. This includes the running
+source view for every unit route. UI package tests: **133 files, 1,077 tests
+passed**, including four new locale/accessibility regression tests. Scoped
+sandbox typecheck, UI declaration generation and production build passed.
+UI has no standalone `typecheck` script; its declaration emit checks the public
+source, and the sandbox checks source imports. Focused lint has no errors;
+existing SelectView class-name and verify-web warnings remain. UI barrel,
+release-note and recipe-structure checks passed.
+
+The **19 other direct UI dependents passed scoped typechecks**, serially
+(`--concurrency=1`): 57 Turbo tasks succeeded. These include web, mobile,
+AppKit, Linux and Windows harness compilation; they do not qualify host input
+or assistive technology.

@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { useTranslator } from './internationalization'
 import { mergeStyle } from './style-merge'
 import { useRef } from 'octane'
 import type { SelectViewProps } from './select-view'
@@ -13,6 +14,7 @@ import { nativeAccessibilityRole, nativeAccessibilityState } from './escape-prop
 /** Select presentation — resolved finite-list state in, user intents out.
  *  Internal only; consumers use `Select`. */
 export function SelectView(props: SelectViewProps) @{
+	const translate = useTranslator()
 	const anchor = useRef<any>(null)
 	const search = useRef<any>(null)
 	const CheckInd = useIndicator('check') ?? CheckIndicator
@@ -23,13 +25,13 @@ export function SelectView(props: SelectViewProps) @{
 	<>
 		<Pressable ref={(view: any) => { anchor.current = view }} id={props.id} className={cx('vx-select-trigger', props.isDisabled && 'vx-select--disabled', props.isReadOnly && 'vx-select--readonly', busy && 'vx-select--loading', props.className)} style={props.style} disabled={props.isDisabled} onPress={() => props.onOpenChange(!props.open)} accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label} accessibilityHint={props.accessibilityHint} accessibilityState={{ disabled: props.isDisabled }} accessibilityValue={props.triggerText}>
 			<label className={cx('vx-select-value', !props.selected.length && 'vx-select-placeholder')} text={props.triggerText} />
-			{props.hasClear && props.selected.length && !blocked ? <Pressable className="vx-select-clear" disabled={props.pending} accessibilityLabel="Clear selection" onPress={props.onClear}><label text="×" /></Pressable> : null}
+			{props.hasClear && props.selected.length && !blocked ? <Pressable className="vx-select-clear" disabled={props.pending} accessibilityLabel={translate('@astryx.selector.clearLabel')} onPress={props.onClear}><label text="×" /></Pressable> : null}
 			{busy ? <label className="vx-select-loading" text="Loading…" accessibilityLiveRegion={'polite'} /> : null}
 			{!props.isReadOnly ? <label className="vx-select-caret" text="▾" /> : null}
 		</Pressable>
 		<Popover anchor={anchor} open={props.open} placement={props.placement ?? 'bottom'} onDismiss={() => props.onOpenChange(false)} className="vx-menu">
 			{props.searchable ? <masonview className="vx-select-search-row" style={mergeStyle({flexDirection: "row"}, {display: "flex"})}>
-				<textfield ref={(view: any) => { search.current = view }} id={props.id ? `${props.id}-search` : undefined} className="vx-select-search" value={props.query} placeholder={props.searchPlaceholder ?? 'Search…'} accessibilityLabel="Search options" onTextChange={props.onQueryChange} />
+				<textfield ref={(view: any) => { search.current = view }} id={props.id ? `${props.id}-search` : undefined} className="vx-select-search" value={props.query} placeholder={props.searchPlaceholder ?? translate('@astryx.selector.searchPlaceholder')} accessibilityLabel={translate('@astryx.selector.searchOptions')} onTextChange={props.onQueryChange} />
 				{props.query ? <Pressable className="vx-select-search-clear" accessibilityLabel="Clear search" onPress={() => { props.onQueryChange(''); search.current?.window?.makeFirstResponder(search.current) }}><label text="×" /></Pressable> : null}
 			</masonview> : null}
 			{props.multiple && props.hasSelectAll ? <Pressable id={props.id ? `${props.id}-select-all` : undefined} className="vx-select-all" disabled={props.pending || !props.enabled.length} accessibilityLabel={`${props.selectAllLabel ?? 'Select all'}, ${props.selectAllState}`} onPress={props.onSelectAll}><MultiInd state={props.selectAllState} /><label text={props.selectAllLabel ?? 'Select all'} /></Pressable> : null}

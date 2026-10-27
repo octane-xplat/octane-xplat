@@ -1,3 +1,4 @@
+import { useTranslator } from './internationalization'
 import { useEffect, useId, useRef } from 'octane'
 import type { SelectViewProps } from './select-view'
 import { Popover } from './Popover.web.tsrx'
@@ -11,6 +12,7 @@ import { cx } from '@octane-xplat/lib'
  *  Owns trigger/option focus, keyboard navigation, and type-ahead matching;
  *  internal only — consumers use `Select`. */
 export function SelectView(props: SelectViewProps) @{
+	const translate = useTranslator()
 	const anchor = useRef<HTMLDivElement | null>(null)
 	const search = useRef<HTMLInputElement | null>(null)
 	const generatedId = useId()
@@ -140,7 +142,7 @@ export function SelectView(props: SelectViewProps) @{
 				: props.renderValue && props.selected.length && !props.multiple
 					? <span className={cx('vx-select-value')}>{props.renderValue(props.options.find((o) => o.value === props.selected[0])!)}</span>
 					: <span className={cx('vx-select-value', !props.selected.length && 'vx-select-placeholder')}>{props.triggerText}</span>}
-			{props.hasClear && props.selected.length && !blocked ? <button type="button" className="vx-select-clear" aria-label="Clear selection" disabled={props.pending} onClick={(event: MouseEvent) => { event.stopPropagation(); props.onClear(); anchor.current?.focus() }}>×</button> : null}
+			{props.hasClear && props.selected.length && !blocked ? <button type="button" className="vx-select-clear" aria-label={translate('@astryx.selector.clearLabel')} disabled={props.pending} onClick={(event: MouseEvent) => { event.stopPropagation(); props.onClear(); anchor.current?.focus() }}>×</button> : null}
 			{busy ? <span className="vx-select-loading" role="status">Loading…</span> : null}
 			{!props.isReadOnly ? <span className="vx-select-caret" aria-hidden="true">▾</span> : null}
 		</div>
@@ -156,12 +158,12 @@ export function SelectView(props: SelectViewProps) @{
 					id={props.id ? `${props.id}-search` : undefined}
 					className="vx-input vx-select-search"
 					role="combobox"
-					aria-label="Search options"
+					aria-label={translate('@astryx.selector.searchOptions')}
 					aria-expanded={props.open}
 					aria-controls={listId}
 					aria-autocomplete="list"
 					aria-activedescendant={active ? optionId(active.value) : undefined}
-					placeholder={props.searchPlaceholder ?? 'Search…'}
+					placeholder={props.searchPlaceholder ?? translate('@astryx.selector.searchPlaceholder')}
 					value={props.query}
 					onInput={(event: any) => { props.onActiveValueChange?.(null); props.onQueryChange(event.target.value) }}
 					onKeyDown={(event: KeyboardEvent) => onKey(event, true)}

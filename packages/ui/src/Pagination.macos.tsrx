@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { useDirection, useTranslator } from './internationalization'
 import { mergeStyle } from './style-merge'
 import type { PaginationProps } from "./props";
 import { cx } from "@octane-xplat/lib";
@@ -7,6 +8,8 @@ import { applyEscapeProps } from "./escape-props";
 /** Pagination — ‹ › plus a windowed run of page buttons around `page`
  *  (first, last, `siblingCount` each side, … for gaps). */
 export function Pagination(props: PaginationProps) @{
+	const direction = useDirection()
+	const translate = useTranslator()
 	const sibling = props.siblingCount ?? 1;
 	const count = Math.max(0, props.pageCount);
 	const current = Math.min(Math.max(1, props.page), Math.max(1, count));
@@ -29,7 +32,7 @@ export function Pagination(props: PaginationProps) @{
 	};
 
 	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-pagination', props.disabled && 'vx-pagination--disabled', props.className)} style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, props.style))}>
-		<masonview className="vx-page-btn" style={mergeStyle({justifyContent: "center", alignItems: "center"}, mergeStyle({display: "flex"}, { width: 28, height: 28, borderWidth: 1, borderColor: '#eaeaea', borderRadius: 4 }))} onTap={() => go(current - 1)}><label text="‹" /></masonview>
+		<masonview className="vx-page-btn" style={mergeStyle({justifyContent: "center", alignItems: "center"}, mergeStyle({display: "flex"}, { width: 28, height: 28, borderWidth: 1, borderColor: '#eaeaea', borderRadius: 4 }))} accessibilityLabel={translate('@astryx.pagination.previous')} onTap={() => go(current - 1)}><label text={direction === 'rtl' ? '›' : '‹'} /></masonview>
 		@for (const e of pages; key e.key) {
 			<>{e.page == null
 				? <label className="vx-page-ellipsis" text="…" />
@@ -37,6 +40,6 @@ export function Pagination(props: PaginationProps) @{
 					<label text={String(e.page)} />
 				</masonview>}</>
 		}
-		<masonview className="vx-page-btn" style={mergeStyle({justifyContent: "center", alignItems: "center"}, mergeStyle({display: "flex"}, { width: 28, height: 28, borderWidth: 1, borderColor: '#eaeaea', borderRadius: 4 }))} onTap={() => go(current + 1)}><label text="›" /></masonview>
+		<masonview className="vx-page-btn" style={mergeStyle({justifyContent: "center", alignItems: "center"}, mergeStyle({display: "flex"}, { width: 28, height: 28, borderWidth: 1, borderColor: '#eaeaea', borderRadius: 4 }))} accessibilityLabel={translate('@astryx.pagination.next')} onTap={() => go(current + 1)}><label text={direction === 'rtl' ? '‹' : '›'} /></masonview>
 	</masonview>
 }
