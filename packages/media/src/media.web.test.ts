@@ -24,9 +24,13 @@ function nextFileInput(): HTMLInputElement[] {
 }
 
 describe('media (web)', () => {
-	it('ensure reports the file-input capability, not a camera prompt state', async () => {
-		await expect(media.ensure('camera')).resolves.toBe('granted')
-		await expect(media.ensure('photos')).resolves.toBe('granted')
+	it('permissions report the file-input capability, not a camera prompt state', async () => {
+		await expect(media.requestPermissions('camera')).resolves.toMatchObject({
+			status: 'granted',
+		})
+		await expect(media.getPermissions('photos')).resolves.toMatchObject({
+			status: 'granted',
+		})
 	})
 
 	it('a dismissed picker settles empty through the focus fallback', async () => {

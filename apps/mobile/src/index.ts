@@ -1602,7 +1602,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
 				// the PickedImage contract alone.
 				try {
 					const perm = await media
-						.ensure('camera')
+						.requestPermissions('camera')
 						.catch((e: Error) => 'threw ' + (e as Error).message)
 
 					console.log('[probe] capturePhoto ensure(camera)=' + JSON.stringify(perm))

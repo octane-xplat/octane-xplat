@@ -118,7 +118,7 @@ try {
 
 		return {
 			hostedSupported: authSession.supported,
-			hostedEnsure: await authSession.ensure(),
+			hostedAvailable: await authSession.isAvailable(),
 			apple: (await appleAuth.signIn()).status,
 			google: (await googleAuth.signIn()).status,
 		}

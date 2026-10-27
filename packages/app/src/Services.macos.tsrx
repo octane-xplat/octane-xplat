@@ -66,12 +66,12 @@ export function Services() @{
 		<View className="sink-section">
 			<Text className="section-label">Keychain</Text>
 			<Pressable className="btn btn-secondary" onPress={async () => {
-				if (await secureStorage.ensure() !== 'granted' || !secureStorage.impl) {
+				if (!secureStorage.supported || !(await secureStorage.isAvailable())) {
 					setKeychainResult('unsupported')
 					return
 				}
 
-				const store = secureStorage.impl
+				const store = secureStorage
 				const key = 'octane-xplat-demo-' + String(Date.now()) + String(Math.random())
 				const payload = String(Date.now()) + String(Math.random())
 				try {

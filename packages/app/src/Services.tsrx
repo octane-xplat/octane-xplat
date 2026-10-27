@@ -84,17 +84,17 @@ export function Services() @{
 			<Text className="section-label">Secure storage</Text>
 			<HStack className="gap-3 flex-wrap items-center">
 				<Pressable className="btn btn-secondary" onPress={() => run('sec', async () => {
-					if ((await secureStorage.ensure()) !== 'granted' || !secureStorage.impl) return 'unsupported';
-					return await secureStorage.impl.set('octane-xplat-demo', String(Date.now()) + String(Math.random())) ? 'stored' : 'write failed';
+					if (!secureStorage.supported || !(await secureStorage.isAvailable())) return 'unsupported';
+					return await secureStorage.set('octane-xplat-demo', String(Date.now()) + String(Math.random())) ? 'stored' : 'write failed';
 				})}>
 					<Text>Set secret</Text>
 				</Pressable>
 				<Pressable className="btn btn-secondary" onPress={() => run('sec', async () =>
-					secureStorage.impl ? ((await secureStorage.impl.get('octane-xplat-demo')) === null ? 'missing' : 'present') : 'unsupported')}>
+					secureStorage.supported ? ((await secureStorage.get('octane-xplat-demo')) === null ? 'missing' : 'present') : 'unsupported')}>
 					<Text>Read secret</Text>
 				</Pressable>
 				<Pressable className="btn btn-secondary" onPress={() => run('sec', async () =>
-					secureStorage.impl ? (await secureStorage.impl.remove('octane-xplat-demo') ? 'removed' : 'remove failed') : 'unsupported')}>
+					secureStorage.supported ? (await secureStorage.remove('octane-xplat-demo') ? 'removed' : 'remove failed') : 'unsupported')}>
 					<Text>Remove secret</Text>
 				</Pressable>
 				<Text className="text-sm text-muted">{echo.sec ?? '—'}</Text>
@@ -138,15 +138,15 @@ export function Services() @{
 			<Text className="section-label">Feedback</Text>
 			<HStack className="gap-3 flex-wrap items-center">
 				<Pressable className="btn btn-secondary" onPress={() => run('hap', async () => {
-					if ((await haptics.ensure()) !== 'granted' || !haptics.impl) return 'unsupported';
-					haptics.impl.impact('medium');
+					if (!haptics.supported) return 'unsupported';
+					haptics.impact('medium');
 					return 'impact';
 				})}>
 					<Text>Haptics</Text>
 				</Pressable>
 				<Pressable className="btn btn-secondary" onPress={() => run('notif', async () => {
-					if ((await notifications.ensure()) !== 'granted' || !notifications.impl) return 'unsupported';
-					notifications.impl.notify('Kitchen sink', 'notification works');
+					if (!(await notifications.requestPermissions()).granted) return 'denied/unsupported';
+					notifications.notify('Kitchen sink', 'notification works');
 					return 'sent';
 				})}>
 					<Text>Notify</Text>
@@ -178,13 +178,13 @@ export function Services() @{
 			<Text className="section-label">OS-mediated</Text>
 			<HStack className="gap-3 flex-wrap items-center">
 				<Pressable className="btn btn-secondary" onPress={() => run('loc', async () => {
-					if ((await geolocation.ensure()) !== 'granted' || !geolocation.impl) return 'denied/unsupported';
-					const p = await geolocation.impl.getCurrentPosition();
+					if (!(await geolocation.requestPermissions()).granted) return 'denied/unsupported';
+					const p = await geolocation.getCurrentPosition();
 					return p.latitude.toFixed(4) + ', ' + p.longitude.toFixed(4);
 				})}>
 					<Text>Location</Text>
 				</Pressable>
-				<Pressable className="btn btn-secondary" onPress={() => run('geo-perm', async () => 'perm: ' + (await permissions.ensure('location')))}>
+				<Pressable className="btn btn-secondary" onPress={() => run('geo-perm', async () => 'perm: ' + ((await permissions.requestPermissions('location')).status))}>
 					<Text>Ask permission</Text>
 				</Pressable>
 				<Text className="text-sm text-muted">{echo.loc ?? echo['geo-perm'] ?? '—'}</Text>
@@ -201,7 +201,7 @@ export function Services() @{
 					<Text>Pick image</Text>
 				</Pressable>
 				<Pressable className="btn btn-secondary" onPress={() => run('capture', async () => {
-					const permission = await media.ensure('camera')
+					const permission = (await media.requestPermissions('camera')).status
 					if (permission !== 'granted') return 'camera permission: ' + permission;
 					const img = await media.capturePhoto({ saveToGallery: false });
 					if (!img) return 'capture returned null (camera permission granted)';
@@ -213,7 +213,7 @@ export function Services() @{
 					<Text>Capture photo</Text>
 				</Pressable>
 				@for (const kind of PERMISSION_KINDS; key kind) {
-					<Pressable className="chip" onPress={() => run('perm-' + kind, async () => kind + ': ' + (await permissions.ensure(kind)))}>
+					<Pressable className="chip" onPress={() => run('perm-' + kind, async () => kind + ': ' + ((await permissions.requestPermissions(kind)).status))}>
 						<Text>{kind}</Text>
 					</Pressable>
 				}
@@ -260,14 +260,14 @@ export function Services() @{
 					<Text>Open repo</Text>
 				</Pressable>
 				<Pressable className="btn btn-secondary" onPress={() => run('settings', async () => {
-					if ((await openSettings.ensure()) !== 'granted' || !openSettings.impl) return 'unsupported';
-					return openSettings.impl.open() ? 'opened' : 'failed';
+					if (!openSettings.supported) return 'unsupported';
+					return openSettings.open() ? 'opened' : 'failed';
 				})}>
 					<Text>App settings</Text>
 				</Pressable>
 				<Pressable className="btn btn-secondary" onPress={() => run('bio', async () => {
-					if ((await biometrics.ensure()) !== 'granted' || !biometrics.impl) return 'unsupported';
-					return (await biometrics.impl.verify('Unlock the kitchen sink')) ? 'verified' : 'failed';
+					if (!(await biometrics.requestPermissions()).granted) return 'denied/unsupported';
+					return (await biometrics.verify('Unlock the kitchen sink')) ? 'verified' : 'failed';
 				})}>
 					<Text>Biometrics</Text>
 				</Pressable>

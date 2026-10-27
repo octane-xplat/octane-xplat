@@ -1432,7 +1432,7 @@ import('@octane-xplat/media').then(({ media }) => {
 		// 'denied'/'unsupported' vs an actual camera cancel look identical from
 		// the PickedImage contract alone.
 		try {
-			const perm = await media.ensure('camera').catch((e: Error) => 'threw ' + (e as Error).message)
+			const perm = await media.requestPermissions('camera').catch((e: Error) => 'threw ' + (e as Error).message)
 			console.log('[probe] capturePhoto ensure(camera)=' + JSON.stringify(perm))
 		} catch (e) {
 			console.log('[probe] capturePhoto ensure threw: ' + (e as Error).message)
