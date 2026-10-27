@@ -256,6 +256,7 @@ rejected positions include:
 - module-level JSX values, such as `const empty = <Text />`
 - factories that declare and return a component
 - a component declaration that shares its `const` with other declarators
+- JSX inside hooks that return data, such as table plugin objects
 
 Upstream rejects unlowered JSX on purpose rather than falling back to DOM code.
 It has not said whether these positions will ever be supported. Declare a named
@@ -270,6 +271,25 @@ function HomeTab() {
 
 // `render: () => <Text>Home</Text>` here would fail the native build.
 export const tabs = [{ id: 'home', render: HomeTab }] as const
+```
+
+For a data-returning hook, keep its JSX in a named component and return a
+`{ component, props }` descriptor that a component instantiates. The table
+plugin hooks return `tableSlot(...)` descriptors, and the Table leaves render
+them through `TableSlot`. `tests/table-universal.test.mjs` checks the AppKit
+compilation of these hooks with HMR on and off.
+
+```tsrx
+import { Text } from '@octane-xplat/ui'
+import { tableSlot } from './table-slot'
+
+function RowNumber(props: { value: number }) @{
+  <Text>{props.value}</Text>
+}
+
+export function useNumberedRows(startFrom: number) {
+  return { renderCell: (index: number) => tableSlot(RowNumber, { value: index + startFrom }) }
+}
 ```
 
 ## Universal roots take compiled components

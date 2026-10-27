@@ -1,24 +1,23 @@
 import { defineConfig } from 'vite'
-import { xplatNodeEnvDefine } from '@octane-xplat/cli/vite'
+import { xplatMacOS } from '@octane-xplat/cli/macos/vite'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { bundledFontDefines } from './vite.shared.mjs'
 
 const appRoot = dirname(fileURLToPath(import.meta.url))
 
-export default defineConfig(({ mode }) => ({
-	root: appRoot,
-	define: { ...xplatNodeEnvDefine(mode), ...bundledFontDefines() },
-	build: {
+export default defineConfig(async ({ mode }) => {
+	const config = await xplatMacOS(mode, {
+		root: appRoot,
+		entry: resolve(appRoot, 'webview-proof-host.ts'),
 		outDir: resolve(appRoot, 'dist/webview-host'),
-		emptyOutDir: true,
-		lib: {
-			entry: resolve(appRoot, 'webview-proof-host.ts'),
-			formats: ['cjs'],
-			fileName: 'host',
+	})
+	return {
+		...config,
+		define: { ...config.define, ...bundledFontDefines() },
+		build: {
+			...config.build,
+			lib: { ...config.build.lib, fileName: 'host' },
 		},
-		rollupOptions: {
-			external: ['@nativescript/macos-node-api', /^node:/],
-		},
-	},
-}))
+	}
+})

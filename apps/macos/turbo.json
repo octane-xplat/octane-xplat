@@ -19,7 +19,14 @@
 			"cache": false
 		},
 		"verify-hmr": {
-			"dependsOn": ["^typegen", "^build", "@xplat/app#gen"],
+			"dependsOn": [
+				"^typegen",
+				"^build",
+				"@octane-xplat/lexical#build:assets",
+				"@octane-xplat/richtext#build:assets",
+				"@octane-xplat/tiptap#build:assets",
+				"@xplat/app#gen"
+			],
 			"cache": false
 		},
 		"build": {

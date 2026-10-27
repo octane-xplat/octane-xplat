@@ -71,13 +71,18 @@ pnpm exec turbo run test:macos-exports --filter=@octane-xplat/ui --concurrency=1
 pnpm exec turbo run test:macos --filter=@octane-xplat/ui --concurrency=1
 ```
 
-On 2026-10-27, the full barrel check and harness smoke from the
-`affaece81` baseline failed before runtime on table hooks containing nested JSX (including
-`use-table-row-index.tsrx` and `use-table-row-status.tsrx`). Installed patched
-Octane 0.14.0 reports `unsupported module declaration requires universal plan
-lowering`; no workaround is added by the export repair. Keep the full check
-intact and requalify it when those hooks or the compiler change. The
-[routing contract notes](notes/routing-contract.md) record a related nested-JSX limitation on Octane 0.11.0.
+Patched Octane 0.14.0 rejects JSX inside data-returning hooks with
+`unsupported module declaration requires universal plan lowering`. The five
+table hooks for numbering, expansion, grouping, status and trees keep their
+JSX in named components and return `tableSlot` descriptors, which the Table
+leaves render through `TableSlot`. The AppKit barrel build passes with this
+workaround; the maintained
+`tests/table-universal.test.mjs` checks all five hooks with HMR on and off.
+The packed consumer also uses the current `Table data` and column-level
+`renderCell` contract. These are compiler, build and declaration checks.
+Remove the authoring restriction only after an Octane upgrade passes equivalent
+nested-JSX probes. The [routing contract notes](notes/routing-contract.md)
+record the related Octane 0.11.0 limitation.
 
 The isolated AppKit overlay fixture previously passed its overlay assertions
 (`pnpm --filter @xplat/macos test:overlays`); that qualifies handler dispatch,

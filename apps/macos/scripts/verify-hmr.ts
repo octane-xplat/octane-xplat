@@ -20,7 +20,8 @@ const host = spawn(process.execPath, [xplatCli, 'dev', 'macos'], {
 let output = ''
 let touched = false
 let updated = false
-const deadline = setTimeout(() => host.kill('SIGTERM'), 60000)
+// A cold build prepares both the shell and application before starting AppKit.
+const deadline = setTimeout(() => host.kill('SIGTERM'), 120000)
 for (const stream of [host.stdout, host.stderr]) {
 	stream.on('data', (chunk) => {
 		output += chunk.toString()

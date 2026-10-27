@@ -213,7 +213,7 @@
 		"test:scroll:macos": "node ../../scripts/probe.ts run tests/fixtures/scrollable-area.macos.tsrx --target macos",
 		"test:layer:web": "node --test tests/layer-position.web.mjs",
 		"test:macos-exports": "node --test tests/macos-value-exports.test.mjs",
-		"test:macos": "node --test tests/macos-value-exports.test.mjs tests/query-storage.macos.test.mjs && node tests/thumbhash.macos.test.mjs && node tests/macos-barrel.mjs && node tests/packed-consumer.mjs --macos-only",
+		"test:macos": "node --test tests/macos-value-exports.test.mjs tests/query-storage.macos.test.mjs tests/table-universal.test.mjs && node tests/thumbhash.macos.test.mjs && node tests/macos-barrel.mjs && node tests/packed-consumer.mjs --macos-only",
 		"test:chat:web": "node ../../scripts/probe.ts run tests/fixtures/chat.web.tsrx --target web",
 		"test:color:web": "node ../../scripts/probe.ts run tests/fixtures/color-picker.web.tsrx --target web",
 		"test:color:ios": "node ../../scripts/probe.ts run tests/fixtures/color-picker.ios.tsrx --target ios",
