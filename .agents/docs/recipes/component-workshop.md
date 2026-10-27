@@ -7,7 +7,7 @@ Related APIs: @octane-xplat/workshop, defineStory, defineWorkshopConfig, WORKSHO
 ## Starting point
 
 An existing Octane Xplat consumer with its matching compiler, renderer and pnpm
-setup. This recipe covers the browser preview, the Linux GTK4/WebKitGTK host
+setup. This recipe covers the browser preview, the Linux GTK4 renderer host
 and the macOS AppKit/JavaScriptCore host — the same story catalog, controls and
 lifecycle in each. The other three real-host workshops remain separate delivery
 gates.
@@ -29,7 +29,7 @@ explicit inputs, recover from failures, and keep workshop data out of production
 
 ## Documentation
 
-- AC1: [Install and launch](../../../packages/workshop/README.md#try-it); [commands](../../../packages/workshop/README.md#commands); [Linux host](../../../packages/workshop/README.md#linux-host); [macOS target](../../../packages/workshop/README.md#macos-target); [Windows setup status](../../../packages/workshop/WINDOWS.md). Gaps: Linux launch qualifies only through an actual GTK/WebKitGTK host; macOS interaction evidence is recognizer-action dispatch, not OS-synthesized input, and screen-reader/IME remain unqualified; Windows prerequisite reporting exists, but native launch and host qualification remain incomplete.
+- AC1: [Install and launch](../../../packages/workshop/README.md#try-it); [commands](../../../packages/workshop/README.md#commands); [Linux host](../../../packages/workshop/README.md#linux-host); [macOS target](../../../packages/workshop/README.md#macos-target); [Windows setup status](../../../packages/workshop/WINDOWS.md). Gaps: Linux launch qualifies only through an actual GTK4/GJS host (non-Linux GJS is a dev stand-in); macOS interaction evidence is recognizer-action dispatch, not OS-synthesized input, and screen-reader/IME remain unqualified; Windows prerequisite reporting exists, but native launch and host qualification remain incomplete.
 - AC2: [Declare stories](../../../packages/workshop/README.md#declaring-stories); [owned fixture resources](../../../packages/workshop/README.md#owned-fixture-resources).
 - AC3: [Controls and Reset](../../../packages/workshop/README.md#state-preserving-controls-vs-full-reset); [acceptance catalog](../../../apps/workshop-demo/src/stories/isolation.stories.web.tsrx).
 - AC4: [Owned fixture resources](../../../packages/workshop/README.md#owned-fixture-resources); [isolation example](../../../apps/workshop-demo/src/stories/isolation.stories.web.tsrx).

@@ -398,3 +398,12 @@ pane code is byte-identical to the public guide's example and has positive and
 negative TypeScript consumer checks. The source/import boundary and runtime
 results are separate evidence in the
 [routing qualification guide](../navigation-checks.md#native-gtk-retained-panes).
+
+## GJS/GTK stand-ins found during the workshop GTK cutover
+
+Runtime-verified on Homebrew gjs 1.90.1 + GTK4 (`xplat workshop dev --target linux` on macOS; dev stand-in, not Linux qualification):
+
+- `GtkAccessible.update_property` (varargs) cannot be marshalled by GJS — `accessibilityLabel` now falls back to `widget.name` so automation can find widgets; real AT clients still see no accessible name.
+- `queueMicrotask` is absent in GJS — the workshop shell installs a `Promise.resolve().then` polyfill on the global before octane's universal runtime loads.
+- The compat shim `native-core-shim.ts` now carries honest stand-ins: `ApplicationSettings` is an in-process map (no persistence), `Connectivity` reports `connectionType.unknown` and monitoring is a no-op, `Device` reports static desktop values.
+- `xplat workshop dev --target linux`: the GJS shell reads the stdin line protocol through a `GLib.IOChannel` watch; blocking `read_line` inside the callback must not loop — read one line per `IN` dispatch or microtasks starve.

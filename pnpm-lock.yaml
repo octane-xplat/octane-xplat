@@ -782,6 +782,9 @@ importers:
       '@octane-xplat/cli':
         specifier: workspace:*
         version: link:../../packages/cli
+      '@octane-xplat/linux-gtk':
+        specifier: workspace:*
+        version: link:../../packages/linux-gtk-renderer
       '@octane-xplat/macos-renderer':
         specifier: workspace:*
         version: link:../../packages/macos-renderer
@@ -3520,6 +3523,12 @@ importers:
       '@nativescript/types':
         specifier: 'catalog:'
         version: 9.1.4
+      '@octane-xplat/jsx':
+        specifier: workspace:*
+        version: link:../jsx
+      '@octane-xplat/linux-gtk':
+        specifier: workspace:*
+        version: link:../linux-gtk-renderer
       '@octane-xplat/macos-renderer':
         specifier: workspace:*
         version: link:../macos-renderer

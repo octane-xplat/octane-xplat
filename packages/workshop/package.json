@@ -97,7 +97,9 @@
 		"octane": "catalog:",
 		"tsrx-typegen": "workspace:*",
 		"typescript": "catalog:",
-		"vite": "catalog:"
+		"vite": "catalog:",
+		"@octane-xplat/linux-gtk": "workspace:*",
+		"@octane-xplat/jsx": "workspace:*"
 	},
 	"peerDependencies": {
 		"@nativescript-community/octane": ">=0.2.4 <1",
@@ -106,7 +108,8 @@
 		"@octane-xplat/macos-renderer": ">=0.14.0 <1",
 		"@octanejs/vite-plugin": ">=0.1.61",
 		"octane": ">=0.6.3 <1",
-		"vite": ">=8"
+		"vite": ">=8",
+		"@octane-xplat/linux-gtk": ">=0.0.0"
 	},
 	"peerDependenciesMeta": {
 		"vite": {
@@ -122,6 +125,9 @@
 			"optional": true
 		},
 		"@nativescript/macos-node-api": {
+			"optional": true
+		},
+		"@octane-xplat/linux-gtk": {
 			"optional": true
 		}
 	}

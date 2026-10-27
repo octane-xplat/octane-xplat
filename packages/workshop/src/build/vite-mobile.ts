@@ -1,11 +1,16 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 import { readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { dirname, join, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { mobileRegexPlugin } from './mobile-regex.ts'
 import { discoverStories } from './discover.ts'
 
 export const MOBILE_CATALOG_ID = '\0xplat-workshop-mobile-catalog'
 const fsUrl = (file) => `/@fs/${file.replaceAll('\\', '/')}`
+const CHROME_CSS = resolve(
+	dirname(fileURLToPath(import.meta.url)).replace('/dist/', '/src/'),
+	'../native/chrome.css',
+)
 
 export function mobileCatalogCode(root, config, target) {
 	const { entries, diagnostics } = discoverStories(root, { ...config.stories, target })
@@ -63,6 +68,7 @@ export function withWorkshopMobile(config, options = {}) {
 			return `import { startWorkshop } from '@octane-xplat/workshop/mobile'
 import { catalog, diagnostics } from ${JSON.stringify(MOBILE_CATALOG_ID)}
 import '@octane-xplat/ui/theme/tokens.css'
+import ${JSON.stringify(CHROME_CSS)}
 ${presets.map((p, i) => `import * as preset${i} from ${JSON.stringify(fsUrl(resolve(root, p)))}`).join('\n')}
 const workshopRuntime = startWorkshop({catalog, diagnostics, target: ${JSON.stringify(target)}, initialStoryId: ${JSON.stringify(options.story ?? process.env.XPLAT_WORKSHOP_STORY ?? null)}, globalProviders: [${presets.map((_, i) => `...(preset${i}.providers ?? preset${i}.default ?? [])`).join(',')}]})
 if (import.meta.hot) {

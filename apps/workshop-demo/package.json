@@ -10,7 +10,9 @@
 		"typecheck": "node ../../scripts/typecheck.ts",
 		"test:e2e": "node scripts/e2e-web.ts",
 		"test:e2e:macos": "node scripts/e2e-macos.ts",
-		"workshop:macos": "xplat workshop dev --target macos"
+		"workshop:macos": "xplat workshop dev --target macos",
+		"test:e2e:gtk": "node scripts/e2e-gtk.ts",
+		"workshop:linux": "xplat workshop dev --target linux"
 	},
 	"dependencies": {
 		"@octane-xplat/ui": "workspace:*",
@@ -29,6 +31,7 @@
 		"@tsrx/typescript-plugin": "catalog:",
 		"playwright": "1.63.0",
 		"typescript": "catalog:",
-		"vite": "catalog:"
+		"vite": "catalog:",
+		"@octane-xplat/linux-gtk": "workspace:*"
 	}
 }

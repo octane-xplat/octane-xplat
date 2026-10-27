@@ -4,7 +4,7 @@ export default defineWorkshopConfig({
 	stories: {
 		include: [
 			'src/**/*.stories.{ts,tsx,tsrx}',
-			'src/**/*.stories.{web,mobile,ios,android,macos,windows,linux}.{ts,tsx,tsrx}',
+			'src/**/*.stories.{web,mobile,ios,android,macos,windows,linux,gtk}.{ts,tsx,tsrx}',
 		],
 	},
 })

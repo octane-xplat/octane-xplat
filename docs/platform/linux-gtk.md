@@ -62,6 +62,14 @@ executes a single file — code splitting would produce an unloadable
 import. GTK screens use the shared JSX contract; put platform-specific
 variants in `.gtk.tsrx`/`.gtk.tsx` files.
 
+`@octane-xplat/ui` resolves a curated `gtk` export condition — `Text` and
+`Pressable` only, the leaves proven on the GTK driver. Other UI imports are
+unqualified on GTK:
+
+```ts
+import { Text, Pressable } from '@octane-xplat/ui'
+```
+
 The entry point mounts the app through the renderer's host helper. Import
 your stylesheets from the same module — the preset compiles and injects
 them into the bundle:

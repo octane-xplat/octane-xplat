@@ -6,8 +6,9 @@ import * as signalsClient from 'octane/signals/client'
 import * as internal from 'octane/internal/client'
 import * as renderer from '@octane-xplat/macos-renderer'
 import { createMacOSStageHost } from '../../macos/stage.macos.ts'
-import { MacOSWorkshopController } from '../../macos/controller.ts'
-import { UNSET, isUnsettable } from '../../controls.ts'
+import { NativeWorkshopController } from '../../native/controller.ts'
+import { NativeWorkshopChrome } from '../../native/chrome.tsrx'
+import { UNSET } from '../../controls.ts'
 
 // The compiled story bundle requires these exact instances after each edit.
 // Never bundle a second renderer/core runtime into the story revision.
@@ -26,35 +27,11 @@ const setAXLabel = (view, text) => {
 }
 
 const rect = (x, y, width, height) => ({ origin: { x, y }, size: { width, height } })
-const frame = (view, x, y, width, height) => {
-	view.frame = rect(x, y, Math.max(0, width), Math.max(0, height))
-}
 
 class WorkshopActions extends NSObject {
-	static ObjCExposedMethods = {
-		invoke: { returns: interop.types.void, params: [interop.types.id] },
-	}
-	static ObjCProtocols = [NSTextFieldDelegate, NSWindowDelegate]
+	static ObjCProtocols = [NSWindowDelegate]
 	static {
 		NativeClass(this)
-	}
-	invoke(sender) {
-		this.callbacks.get(sender)?.()
-	}
-	controlTextDidChange(notification) {
-		const sender = notification.object
-		if (sender.currentEditor?.hasMarkedText?.()) {
-			return
-		}
-
-		this.callbacks.get(sender)?.()
-	}
-	controlTextViewDoCommandBySelector(_control, _editor, selector) {
-		if (String(selector) === 'cancelOperation:' && this.dismiss()) {
-			return true
-		}
-
-		return false
 	}
 	windowDidResize() {
 		this.layout()
@@ -153,7 +130,8 @@ function installWindowService({ parent, offscreen }) {
 	return () => owned.size
 }
 
-/** Small AppKit shell; all story content lives in a separate persistent view. */
+/** AppKit shell; all chrome lives in one Octane component, the story in a
+ *  separate persistent root mounted on the stage slot's view. */
 export function startMacOSWorkshop({ bundleFile, initialStoryId = null, offscreen = false } = {}) {
 	globalThis.__xplatDevModules = modules
 	const app = NSApplication.sharedApplication
@@ -168,290 +146,90 @@ export function startMacOSWorkshop({ bundleFile, initialStoryId = null, offscree
 	window.releasedWhenClosed = false
 	window.minSize = { width: 320, height: 360 }
 	const content = window.contentView
-	const stage = NSView.alloc().initWithFrame(rect(0, 0, 600, 600))
-	content.addSubview(stage)
-	const errorCover = NSView.alloc().initWithFrame(rect(0, 0, 600, 600))
-	errorCover.hidden = true
-	const errorLabel = NSTextField.labelWithString('')
-	setAXLabel(errorLabel, 'Story error')
-	errorCover.addSubview(errorLabel)
-	content.addSubview(errorCover)
 	const openWindowCount = installWindowService({ parent: window, offscreen })
 	const actions = WorkshopActions.new()
-	actions.callbacks = new Map()
 	window.delegate = actions
 	let firstRevision = __hostRunFile(bundleFile)
-	const controller = new MacOSWorkshopController(
-		createMacOSStageHost({ view: stage, parentWindow: window }),
-		firstRevision.providers ?? [],
-	)
 
-	const chrome = []
-	const button = (parent, title, action) => {
-		const view = NSButton.alloc().initWithFrame(rect(0, 0, 100, 30))
-		view.title = title
-		view.bezelStyle = NSBezelStyle.Rounded
-		view.font = NSFont.systemFontOfSize(13)
-		setAXLabel(view, title)
-		view.target = actions
-		view.action = 'invoke:'
-		actions.callbacks.set(view, action)
-		parent.addSubview(view)
-		return view
-	}
-
-	const label = (parent, text) => {
-		const view = NSTextField.labelWithString(text)
-		view.font = NSFont.systemFontOfSize(13)
-		view.textColor = NSColor.labelColor
-		setAXLabel(view, text)
-		parent.addSubview(view)
-		return view
-	}
-
-	const scroll = () => {
-		const view = NSScrollView.alloc().initWithFrame(rect(0, 0, 240, 600))
-		view.hasVerticalScroller = true
-		view.hasHorizontalScroller = true
-		view.autohidesScrollers = true
-		view.drawsBackground = true
-		view.backgroundColor = NSColor.controlBackgroundColor
-		const body = NSView.alloc().initWithFrame(rect(0, 0, 240, 600))
-		view.documentView = body
-		content.addSubview(view)
-		chrome.push(view)
-		return { view, body, nodes: [] }
-	}
-
-	const catalog = scroll()
-	const controls = scroll()
-	const title = label(content, 'Choose a story')
-	const status = label(content, 'discovered')
-	title.font = NSFont.boldSystemFontOfSize(14)
-	status.font = NSFont.systemFontOfSize(12)
-	status.textColor = NSColor.secondaryLabelColor
-	const storiesButton = button(content, 'Stories', () => toggle('stories', storiesButton))
-	const controlsButton = button(content, 'Controls', () => toggle('controls', controlsButton))
-	const resetButton = button(content, 'Reset', () => {
-		void controller.reset()
+	let stage = null
+	const controller = new NativeWorkshopController({
+		host: {
+			mount(request) {
+				if (!stage) {
+					throw new Error('Workshop stage slot has not been attached')
+				}
+				return createMacOSStageHost({ view: stage, parentWindow: window }).mount(request)
+			},
+		},
+		target: 'macos',
+		catalog: firstRevision.catalog ?? [],
+		globalProviders: firstRevision.providers ?? [],
 	})
 
-	const hideButton = button(content, 'Stage only', () => {
-		controller.stageOnly = !controller.stageOnly
-		controller.notify()
+	const root = renderer.createMacOSRoot(content, {})
+	root.render(NativeWorkshopChrome, {
+		controller,
+		target: 'macos',
+		onStage(view) {
+			stage = view
+		},
+		focus(view) {
+			if (view) {
+				window.makeFirstResponder(view)
+			}
+		},
 	})
 
-	chrome.push(title, status, storiesButton, controlsButton)
-	let opener = null
-	let selectedDefinition
-	let lastCatalog
-	let lastQuery
-	let announced = ''
-	function toggle(panel, source) {
-		opener = source
-		controller.panel = controller.panel === panel ? null : panel
-		controller.notify()
-		if (controller.panel === 'stories') {
-			window.makeFirstResponder(search)
-		}
-	}
-
-	actions.dismiss = () => {
-		if (!controller.panel) {
+	// Escape: a local keyDown monitor intercepts only when this window is key
+	// with no attached sheet, the first responder is not composing marked
+	// text, and a shell overlay is actually active — otherwise the event is
+	// passed on to the normal dispatch path untouched.
+	let escapeMonitor = null
+	const dismissOverlay = () => {
+		if (!controller.panel && !controller.stageOnly) {
 			return false
 		}
-
-		controller.panel = null
-		controller.notify()
-		window.makeFirstResponder(opener)
-		return true
-	}
-
-	const search = NSTextField.alloc().initWithFrame(rect(0, 0, 220, 30))
-	search.placeholderString = 'Search title or ID'
-	setAXLabel(search, 'Search stories')
-	search.delegate = actions
-	catalog.body.addSubview(search)
-	actions.callbacks.set(search, () => {
-		controller.query = String(search.stringValue)
-		controller.notify()
-	})
-
-	function clear(panel) {
-		for (const node of panel.nodes) {
-			actions.callbacks.delete(node)
-			node.delegate = null
-			node.removeFromSuperview()
+		const editor = window.firstResponder?.currentEditor?.()
+		if (editor?.hasMarkedText?.()) {
+			return false
 		}
-
-		panel.nodes = []
+		return controller.dismissOverlay() !== null
 	}
-
-	function rebuildCatalog() {
-		clear(catalog)
-		const entries = controller.catalog.filter((e) =>
-			`${e.title} ${e.id}`.toLowerCase().includes(controller.query.toLowerCase()),
-		)
-
-		const height = Math.max(120, 46 + entries.length * 38)
-		frame(catalog.body, 0, 0, 240, height)
-		frame(search, 8, height - 38, 224, 30)
-		entries.forEach((entry, i) => {
-			const text = `${entry.title} — ${entry.id}${entry.applicable ? '' : ' (unsupported)'}`
-			const item = button(catalog.body, text, () => {
-				void controller.select(entry.id)
-			})
-
-			item.__workshopStoryId = entry.id
-			frame(item, 8, height - 80 - i * 38, 224, 32)
-			catalog.nodes.push(item)
-		})
-
-		if (!entries.length) {
-			const empty = label(catalog.body, 'No stories: check **/*.stories.tsrx')
-			frame(empty, 8, 40, 224, 40)
-			catalog.nodes.push(empty)
-		}
-	}
-
-	function rebuildControls() {
-		clear(controls)
-		const story = controller.session.currentStory
-		if (!story) {
-			return
-		}
-
-		const rows = Object.entries(story.controls ?? {})
-		const height = Math.max(200, rows.length * 122 + 50)
-		frame(controls.body, 0, 0, 240, height)
-		rows.forEach(([key, control], i) => {
-			const y = height - 50 - i * 122
-			const name = label(controls.body, key)
-			frame(name, 8, y, 224, 22)
-			controls.nodes.push(name)
-			let input
-			if (control.type === 'boolean') {
-				input = button(
-					controls.body,
-					String(controller.session.currentProps?.[key] ?? false),
-					() => {
-						controller.control(key, !controller.session.currentProps?.[key])
-						input.title = String(controller.session.currentProps?.[key] ?? false)
-					},
-				)
-			} else if (control.type === 'enum') {
-				input = NSPopUpButton.alloc().initWithFramePullsDown(rect(0, 0, 224, 30), false)
-				input.addItemsWithTitles(control.options.map(String))
-				input.selectItemWithTitle(String(controller.session.currentProps?.[key] ?? ''))
-				input.target = actions
-				input.action = 'invoke:'
-				actions.callbacks.set(input, () =>
-					controller.control(key, control.options[Number(input.indexOfSelectedItem)]),
-				)
-
-				controls.body.addSubview(input)
-			} else {
-				input = NSTextField.alloc().initWithFrame(rect(0, 0, 224, 30))
-				input.stringValue =
-					controller.drafts[key] ?? String(controller.session.currentProps?.[key] ?? '')
-
-				input.delegate = actions
-				actions.callbacks.set(input, () => controller.control(key, String(input.stringValue)))
-				controls.body.addSubview(input)
+	escapeMonitor = NSEvent.addLocalMonitorForEventsMatchingMaskHandler(
+		NSEventMask.KeyDown,
+		(event) => {
+			try {
+				if (
+					event?.type !== NSEventType.KeyDown ||
+					event?.keyCode !== 53 ||
+					event?.window !== window ||
+					window.attachedSheet ||
+					!dismissOverlay()
+				) {
+					return event
+				}
+				return null
+			} catch {
+				return event
 			}
+		},
+	)
 
-			setAXLabel(input, key)
-			frame(input, 8, y - 34, 224, 30)
-			controls.nodes.push(input)
-			const error = label(controls.body, controller.errors[key] ?? '')
-			error.textColor = NSColor.systemRedColor
-			error.__workshopKey = key
-			frame(error, 8, y - 62, 224, 24)
-			controls.nodes.push(error)
-			if (isUnsettable(story, key)) {
-				const unset = button(controls.body, `Unset ${key}`, () => {
-					controller.control(key, UNSET)
-					selectedDefinition = null
-					controller.notify()
-				})
-
-				frame(unset, 8, y - 98, 224, 30)
-				controls.nodes.push(unset)
-			}
-		})
-	}
-
-	function layout() {
+	const layout = () => {
 		const { width, height } = content.bounds.size
-		controller.mode = width >= 1000 && height >= 480 ? 'wide' : width <= 560 ? 'phone' : 'compact'
-		const wide = controller.mode === 'wide' && !controller.stageOnly
-		const showCatalog = !controller.stageOnly && (wide || controller.panel === 'stories')
-		const showControls = !controller.stageOnly && (wide || controller.panel === 'controls')
-		catalog.view.hidden = !showCatalog
-		controls.view.hidden = !showControls
-		for (const node of chrome) {
-			if (node !== catalog.view && node !== controls.view) {
-				node.hidden = controller.stageOnly
-			}
-		}
-
-		const narrow = width < 480
-		const footer = narrow ? 88 : 48
-		// Compact panels reserve space rather than cover an interactive stage.
-		const left = showCatalog ? Math.min(240, width * 0.45) : 0
-		const right = showControls ? Math.min(240, width * 0.45) : 0
-		frame(catalog.view, 0, footer, left, height - footer - 70)
-		frame(controls.view, width - right, footer, right, height - footer - 70)
-		frame(stage, left + 8, footer, width - left - right - 16, height - footer - 70)
-		frame(errorCover, left + 8, footer, width - left - right - 16, height - footer - 70)
-		frame(
-			errorLabel,
-			8,
-			Math.max(0, (height - footer - 70) / 2 - 20),
-			width - left - right - 32,
-			40,
-		)
-		frame(title, 8, height - 30, width - 16, 24)
-		frame(status, 8, height - 64, width - 16, 28)
-		frame(storiesButton, 8, narrow ? 48 : 8, narrow ? (width - 24) / 2 : 95, 32)
-		frame(
-			controlsButton,
-			narrow ? width / 2 + 4 : 108,
-			narrow ? 48 : 8,
-			narrow ? (width - 24) / 2 : 95,
-			32,
-		)
-		frame(resetButton, width - 100, 8, 92, 32)
-		frame(hideButton, narrow ? 8 : width - 230, 8, narrow ? width - 116 : 125, 32)
-		storiesButton.state = showCatalog ? 1 : 0
-		controlsButton.state = showControls ? 1 : 0
-		for (const node of catalog.nodes) {
-			if (node.__workshopStoryId) {
-				node.bezelColor =
-					node.__workshopStoryId === controller.selectedId ? NSColor.controlAccentColor : null
-			}
-		}
-		hideButton.title = controller.stageOnly ? 'Return to workshop' : 'Stage only'
+		controller.resize(width, height)
 	}
 
 	actions.layout = layout
-	const unsubscribe = controller.subscribe(() => {
-		title.stringValue = controller.selectedId ?? 'Choose a story'
+	layout()
+
+	let announced = ''
+	const unsubscribe = controller.session.subscribe(() => {
 		const state = controller.session.state
 		const message =
 			controller.catalogError ||
 			`${state.phase}${state.stale ? ' — stale revision' : ''}${state.failure ? ': ' + state.failure.message : ''}`
 
-		status.stringValue = message
-		setAXLabel(status, message)
-		const covered =
-			state.phase === 'failed' ||
-			state.phase === 'restart-required' ||
-			state.phase === 'disconnected'
-
-		errorCover.hidden = !covered
-		errorLabel.stringValue = covered ? message : ''
-		setAXLabel(errorLabel, covered ? `Story error: ${message}` : 'Story error')
 		if (message !== announced) {
 			announced = message
 			if (!offscreen && typeof NSAccessibilityPostNotificationWithUserInfo === 'function') {
@@ -462,25 +240,6 @@ export function startMacOSWorkshop({ bundleFile, initialStoryId = null, offscree
 				)
 			}
 		}
-
-		if (lastCatalog !== controller.catalog || lastQuery !== controller.query) {
-			lastCatalog = controller.catalog
-			lastQuery = controller.query
-			rebuildCatalog()
-		}
-
-		if (selectedDefinition !== controller.session.currentStory) {
-			selectedDefinition = controller.session.currentStory
-			rebuildControls()
-		}
-
-		for (const node of controls.nodes) {
-			if (node.__workshopKey) {
-				node.stringValue = controller.errors[node.__workshopKey] ?? ''
-			}
-		}
-
-		layout()
 	})
 
 	let reloads = Promise.resolve()
@@ -495,7 +254,7 @@ export function startMacOSWorkshop({ bundleFile, initialStoryId = null, offscree
 				try {
 					const loaded = firstRevision ?? __hostRunFile(bundleFile)
 					firstRevision = null
-					await controller.updateCatalog(loaded.catalog, loaded.diagnostics)
+					controller.updateCatalog(loaded.catalog, loaded.diagnostics)
 					if (!controller.selectedId && initialStoryId) {
 						await controller.select(initialStoryId)
 					}
@@ -534,13 +293,19 @@ export function startMacOSWorkshop({ bundleFile, initialStoryId = null, offscree
 		}
 
 		closed = true
-		await reloads
-		await controller.dispose()
-		unsubscribe()
-		clear(catalog)
-		clear(controls)
-		actions.callbacks.clear()
-		window.delegate = null
+		try {
+			await reloads
+			await controller.dispose()
+			unsubscribe()
+			root.unmount()
+			if (escapeMonitor) {
+				NSEvent.removeMonitor(escapeMonitor)
+				escapeMonitor = null
+			}
+			window.delegate = null
+		} catch (error) {
+			console.error('[workshop-macos] close teardown failed', error)
+		}
 		window.close()
 		globalThis.__xplatStopHost?.()
 	}
@@ -656,17 +421,32 @@ export function startMacOSWorkshop({ bundleFile, initialStoryId = null, offscree
 				controller.control(arg, UNSET)
 			} else if (verb === 'press' && arg) {
 				pressLabel(arg)
+			} else if (verb === 'key' && arg === 'escape') {
+				// Synthesize a keyDown Escape through AppKit dispatch — this
+				// exercises the monitor path, not OS-synthesized input.
+				const event = NSEvent.keyEventWithTypeLocationModifierFlagsTimestampWindowNumberContextCharactersCharactersIgnoringModifiersIsARepeatKeyCode(
+					NSEventType.KeyDown,
+					{ x: 0, y: 0 },
+					0,
+					NSProcessInfo.processInfo.systemUptime,
+					window.windowNumber,
+					null,
+					'\u001b',
+					'\u001b',
+					false,
+					53,
+				)
+				if (event) {
+					NSApp.sendEvent(event)
+				}
 			} else if (verb === 'reset') {
 				await controller.reset()
 			} else if (verb === 'query') {
 				controller.query = arg
-				controller.notify()
 			} else if (verb === 'panel') {
 				controller.panel = arg === 'none' ? null : arg
-				controller.notify()
 			} else if (verb === 'stage-only') {
 				controller.stageOnly = arg !== 'off'
-				controller.notify()
 			}
 		} catch (error) {
 			try {
@@ -681,28 +461,18 @@ export function startMacOSWorkshop({ bundleFile, initialStoryId = null, offscree
 		dump()
 	}
 
+	console.log('WORKSHOP_MACOS_HOST AppKit/JavaScriptCore; native input qualification pending')
 	globalThis.__xplatOnInput = (line) => {
 		if (line === 'reload') {
-			void reload().then(dump)
-		} else if (line === 'rebuilding') {
-			controller.session.markRebuilding()
-		} else if (line.startsWith('compile-error ')) {
-			controller.session.markCompileError(line.slice(14))
-		} else if (line === 'close') {
-			void actions.close()
-		} else {
-			void run(line)
+			void reload()
+			return
 		}
-	}
 
-	layout()
-	void reload()
-	if (!offscreen) {
-		window.center()
-		window.makeKeyAndOrderFront(null)
-		app.finishLaunching()
-	}
+		if (line === 'close') {
+			void actions.close()
+			return
+		}
 
-	console.log('WORKSHOP_MACOS_HOST AppKit/JavaScriptCore; native input qualification pending')
-	return { controller, window, stage, close: actions.close, reload }
+		void run(line)
+	}
 }

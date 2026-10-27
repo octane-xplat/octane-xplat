@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import type { MountRequest } from '../session'
 
 function Providers(p: { request: MountRequest; index: number }) {

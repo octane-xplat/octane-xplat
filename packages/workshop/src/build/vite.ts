@@ -32,31 +32,10 @@ const WEB_EXTENSIONS = [
 	'.json',
 ]
 
-// Per-target resolution for DOM-rendering hosts. Linux renders the same DOM
-// inside the system webview, so its chain mirrors the consumer Linux preset
-// (apps/linux/vite.linux.config.ts): .linux → .web → shared, conditions
-// 'linux' then 'web'.
+// Per-target resolution for DOM-rendering hosts — web only. The Linux
+// workshop renders on the GTK renderer (src/build/gtk-node.ts), not a webview.
 const TARGET_RESOLUTION = {
 	web: { conditions: ['web'], extensions: WEB_EXTENSIONS },
-	linux: {
-		conditions: ['linux', 'web'],
-		extensions: [
-			'.linux.tsrx',
-			'.web.tsrx',
-			'.tsrx',
-			'.linux.tsx',
-			'.web.tsx',
-			'.tsx',
-			'.linux.ts',
-			'.web.ts',
-			'.ts',
-			'.mts',
-			'.ts',
-			'.jsx',
-			'.js',
-			'.json',
-		],
-	},
 }
 
 const fsUrl = (file) => `/@fs/${file.split(sep).join('/')}`

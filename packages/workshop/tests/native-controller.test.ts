@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { MobileController, mobileShellMode } from '../src/mobile/controller'
-import { WorkshopSession, type MountRequest } from '../src/session'
+import { NativeWorkshopController, shellMode } from '../src/native/controller'
+import type { MountRequest } from '../src/session'
 import { defineStory } from '../src/contract'
 import type { CatalogEntry } from '../src/catalog'
 import { UNSET } from '../src/controls'
@@ -39,25 +39,22 @@ function setup(target: 'ios' | 'android', entries: CatalogEntry[]) {
 	const mounts: MountRequest[] = []
 	const updates: Record<string, unknown>[] = []
 	let unmounts = 0
-	const session = new WorkshopSession({
-		target,
-		host: {
-			mount(request) {
-				mounts.push(request)
-				return {
-					update(props) {
-						updates.push(props)
-					},
-					unmount() {
-						unmounts++
-					},
-				}
-			},
+	const host = {
+		mount(request: MountRequest) {
+			mounts.push(request)
+			return {
+				update(props: Record<string, unknown>) {
+					updates.push(props)
+				},
+				unmount() {
+					unmounts++
+				},
+			}
 		},
-	})
+	}
 
-	const controller = new MobileController(session, entries, () => {})
-	return { session, controller, mounts, updates, unmounts: () => unmounts }
+	const controller = new NativeWorkshopController({ host, target, catalog: entries })
+	return { session: controller.session, controller, mounts, updates, unmounts: () => unmounts }
 }
 
 for (const target of ['ios', 'android'] as const) {
@@ -124,7 +121,7 @@ for (const target of ['ios', 'android'] as const) {
 				[1300, 900],
 				[1300, 300],
 			]) {
-				mobileShellMode(width, height)
+				shellMode(width, height)
 				x.controller.panel = 'stories'
 				x.controller.panel = 'controls'
 				x.controller.panel = null
@@ -240,7 +237,7 @@ for (const target of ['ios', 'android'] as const) {
 }
 
 it('uses available height as well as width', () => {
-	expect(mobileShellMode(1300, 900)).toBe('wide')
-	expect(mobileShellMode(1300, 300)).toBe('compact')
-	expect(mobileShellMode(390, 800)).toBe('phone')
+	expect(shellMode(1300, 900)).toBe('wide')
+	expect(shellMode(1300, 300)).toBe('compact')
+	expect(shellMode(390, 800)).toBe('phone')
 })

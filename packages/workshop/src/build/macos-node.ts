@@ -33,13 +33,14 @@ export async function workshopMacOSDev({ root, config, story }) {
 	// src/ only — resolve through src/ whether this module runs from src/ or
 	// dist/build/.
 	const source = dirname(fileURLToPath(import.meta.url)).replace('/dist/', '/src/')
-	const catalogPlugin = join(source, 'macos-vite.ts')
+	const catalogPlugin = join(source, 'native-catalog-vite.ts')
 	const shell = join(source, 'macos/shell.macos.ts')
+	const chromeCss = join(source, '../native/chrome.css')
 	const bundle = join(directory, 'stories.cjs')
 	const shellBundle = join(directory, 'shell.cjs')
 	const catalogFile = join(directory, 'catalog.gen.ts')
 	const common = `import { xplatMacOS } from '@octane-xplat/cli/macos/vite'
-import { macOSCatalogPlugin } from ${JSON.stringify(catalogPlugin)}
+import { nativeCatalogPlugin } from ${JSON.stringify(catalogPlugin)}
 const root = ${JSON.stringify(root)}
 `
 
@@ -49,7 +50,7 @@ const root = ${JSON.stringify(root)}
 			`
 export default async ({ mode }) => {
  const settings = await xplatMacOS(mode, { root, packaged: false, hmr: false })
- return { ...settings, plugins: [macOSCatalogPlugin({ root, config: ${JSON.stringify(config)}, catalogFile: ${JSON.stringify(catalogFile)} }), ...settings.plugins],
+ return { ...settings, plugins: [nativeCatalogPlugin({ root, config: ${JSON.stringify(config)}, catalogFile: ${JSON.stringify(catalogFile)} }), ...settings.plugins],
   build: { ...settings.build, outDir: ${JSON.stringify(directory)}, emptyOutDir: false,
    lib: { entry: ${JSON.stringify(catalogFile)}, formats: ['cjs'], fileName: () => 'stories.cjs' } } }
 }
@@ -58,7 +59,9 @@ export default async ({ mode }) => {
 
 	await writeFile(
 		join(directory, 'entry.ts'),
-		`import { startMacOSWorkshop } from ${JSON.stringify(shell)}
+		`import '@octane-xplat/ui/theme/tokens.css'
+import ${JSON.stringify(chromeCss)}
+import { startMacOSWorkshop } from ${JSON.stringify(shell)}
 startMacOSWorkshop({ bundleFile: ${JSON.stringify(bundle)}, initialStoryId: ${JSON.stringify(story ?? null)},
  offscreen: process.env.OCTANE_WORKSHOP_OFFSCREEN === '1' })
 `,

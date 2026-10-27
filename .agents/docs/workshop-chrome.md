@@ -23,10 +23,22 @@ portable composition dependency is unchanged.
   preview background and bounds still belong to the existing environment UI.
 - The web toolbar wraps at narrow widths; panel content scrolls independently.
   Selected navigation has an inset marker as well as a background change.
-- Mobile keeps NativeScript controls, token fallbacks and `.ns-dark` styling,
-  with two toolbar rows below 400 dips. macOS keeps AppKit controls, semantic
-  system colors and focus rings, two toolbar rows below 480 points, and panel
-  scrolling when the available width is smaller than the content.
+- Native targets (iOS/Android, macOS, Linux) render ONE shared chrome —
+  `packages/workshop/src/native/chrome.tsrx` — styled by one
+  NativeScript-dialect stylesheet (`src/native/chrome.css`, `xw-*` class
+  selectors only). The NativeScript renderer, the AppKit renderer
+  (`@octane-xplat/macos-renderer`), and the GTK renderer
+  (`@octane-xplat/linux-gtk`) each mount it as their own root; the story
+  mounts in a second renderer root inside a chrome-owned `masonview` stage
+  slot, so chrome re-renders never detach the story. Hosts keep only
+  window/page lifecycle, key routing (Escape overlays), and the WORKSHOP_*
+  automation protocol.
+- Mode breakpoints in the native chrome: wide `width >= 1000 && height >=
+  480` (collapsible catalog/stage/controls columns), compact (open panel sits
+  beside the stage at 45%), phone `width <= 600` (panel is an absolute
+  `inset:0` overlay above a `visibility:hidden` stage).
+- Inherited CSS properties (color/font) never sit on `.xw-root`/`.xw-stage*`
+  ancestors — NativeScript would leak them into the story root.
 - Chrome introduces no animations or transitions, including under reduced
   motion. Story animations remain under the specimen's control.
 
@@ -47,7 +59,11 @@ packed mobile check compiles consumer entries without launching a device.
 pnpm exec turbo run typecheck --filter=...@octane-xplat/workshop
 pnpm --filter @octane-xplat/workshop test
 pnpm --filter @xplat/workshop-demo test:e2e
+pnpm --filter @xplat/workshop-demo test:e2e:macos
+pnpm --filter @xplat/workshop-demo test:e2e:gtk
 pnpm --filter @octane-xplat/workshop test:packed
+pnpm --filter @octane-xplat/workshop test:packed:macos
+pnpm --filter @octane-xplat/workshop test:packed:linux
 pnpm --filter @octane-xplat/workshop test:packed:mobile
 pnpm check:recipes
 pnpm check:css

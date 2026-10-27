@@ -1,2 +1,2 @@
 export { createMacOSStageHost, type MacOSStageOptions } from './stage.macos'
-export { MacOSWorkshopController } from './controller'
+export { NativeWorkshopController, shellMode } from '../native/controller'

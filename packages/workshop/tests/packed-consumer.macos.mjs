@@ -55,7 +55,7 @@ function write(name, content) {
 
 try {
 	const tarballs = {}
-	for (const dir of ['create', 'cli', 'lib', 'ui', 'workshop', 'macos-renderer', 'css-engine']) {
+	for (const dir of ['create', 'cli', 'lib', 'ui', 'workshop', 'macos-renderer', 'css-engine', 'platform']) {
 		const root = join(repo, 'packages', dir)
 		const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
 		run('pnpm', ['--config.ignore-scripts=true', 'pack', '--pack-destination', pack], root)
@@ -170,7 +170,7 @@ try {
 
 	assert.equal(byId.get('inputs/editable')?.applicable, false)
 	assert.equal(byId.get('platform/ios-only')?.applicable, false)
-	assert.equal(byId.get('platform/linux-host')?.applicable, false)
+	assert.equal(byId.get('platform/linux-gtk')?.applicable, false)
 	const ids = entries.map((e) => e.id)
 	assert.equal(new Set(ids).size, ids.length, 'catalog emits one row per id across disjoint leaves')
 	console.log(
@@ -211,9 +211,9 @@ try {
 
 	write(
 		'macos-entry.ts',
-		`import { createMacOSStageHost, MacOSWorkshopController } from '@octane-xplat/workshop/macos'
+		`import { createMacOSStageHost, NativeWorkshopController } from '@octane-xplat/workshop/macos'
 void createMacOSStageHost
-void MacOSWorkshopController
+void NativeWorkshopController
 `,
 	)
 

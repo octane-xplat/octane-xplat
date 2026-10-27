@@ -13,7 +13,7 @@ export const ALL_TARGETS = ['web', 'ios', 'android', 'macos', 'windows', 'linux'
 
 const DEFAULT_INCLUDE = [
 	'**/*.stories.{ts,tsx,tsrx,mts,mjs,js,jsx}',
-	'**/*.stories.{web,mobile,ios,android,macos,windows,linux}.{ts,tsx,tsrx,mts,mjs,js,jsx}',
+	'**/*.stories.{web,mobile,ios,android,macos,windows,linux,gtk}.{ts,tsx,tsrx,mts,mjs,js,jsx}',
 ]
 
 const DEFAULT_EXCLUDE = ['**/node_modules/**', '**/dist/**', '**/types/**']
@@ -26,9 +26,10 @@ const SUFFIX_TARGETS = {
 	macos: ['macos'],
 	windows: ['windows'],
 	linux: ['linux'],
+	gtk: ['linux'],
 }
 
-const SUFFIX_RE = /\.stories\.(web|mobile|ios|android|macos|windows|linux)\.[cm]?[jt]srx?$/
+const SUFFIX_RE = /\.stories\.(web|mobile|ios|android|macos|windows|linux|gtk)\.[cm]?[jt]srx?$/
 
 export function storyFileTag(file) {
 	return SUFFIX_RE.exec(file)?.[1] ?? null
@@ -491,6 +492,15 @@ export function discoverStories(root, { include, exclude, target = 'web' } = {})
 			source = readFileSync(file, 'utf8')
 		} catch (e) {
 			diagnostics.push({ file, message: `could not read story file: ${e.message}` })
+			continue
+		}
+
+		if (storyFileTag(file) === 'linux' && target === 'linux') {
+			diagnostics.push({
+				file,
+				message:
+					'the Linux workshop renders with GTK — rename to .stories.gtk.* for the linux catalog, or .stories.web.* for --target web',
+			})
 			continue
 		}
 

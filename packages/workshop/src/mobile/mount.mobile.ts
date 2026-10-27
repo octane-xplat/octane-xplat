@@ -2,7 +2,7 @@ import { createNativeScriptRoot, type UniversalComponent } from '@nativescript-c
 import { composeStory } from 'storybook/preview-api'
 import type { ContentView } from '@nativescript/core'
 import type { StageHost, MountRequest } from '../session'
-import { StoryTree } from './tree.mobile.tsrx'
+import { StoryTree } from '../native/story-tree.tsrx'
 
 /** Owns only this stage root; never detaches a runner or application host. */
 export function createMobileStageHost(stage: ContentView): StageHost {

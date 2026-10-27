@@ -16,7 +16,7 @@ vi.mock('@nativescript-community/octane', () => ({
 	}),
 }))
 
-vi.mock('../src/mobile/tree.mobile.tsrx', () => ({ StoryTree: () => null }))
+vi.mock('../src/native/story-tree.tsrx', () => ({ StoryTree: () => null }))
 // Inspect the adapter's ownership seam, with an object driver.
 // This deliberately does not claim a NativeScript process or OS interaction.
 import { createMobileStageHost } from '../src/mobile/mount.mobile'

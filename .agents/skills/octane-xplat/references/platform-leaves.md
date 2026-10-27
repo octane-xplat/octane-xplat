@@ -13,7 +13,7 @@ it:
 - **Android:** `.android.*` → `.mobile.*` → unsuffixed.
 - **macOS / Windows native:** `.macos.*` / `.windows.*` → unsuffixed.
 - **Linux GTK:** `.gtk.*` → unsuffixed (GTK4/GJS host).
-- **Linux DOM webview:** `.linux.*` → `.web.*` → unsuffixed (legacy WebKitGTK host).
+- **Linux workshop (GTK):** `.gtk.*` → unsuffixed; the GTK renderer hosts chrome and stories natively. `.stories.linux.*` is dropped from the linux catalog (rename to `.gtk`; keep `.web` for `--target web`). App-level `.linux.*` leaves remain the DOM/webview chain in `@xplat/linux`.
 
 Use `.web` for browser-specific APIs or markup, `.mobile` when iOS and Android
 share an implementation that differs from the native default, and an OS suffix
@@ -64,6 +64,8 @@ cross-platform native API only when that import loads safely on both iOS and
 Android. The package's `/nativescript` subpath is NativeScript integration plumbing,
 not a filename suffix; `/web` has a `web` export condition; Linux host presets choose their
 conditions separately. Check the export map rather than guessing subpaths.
+`@octane-xplat/ui` itself resolves a curated `gtk` condition — `Text` and
+`Pressable` only; importing anything else on GTK is unqualified.
 `/macos` and `/linux` carry AppKit- and GTK-only contracts (for example
 `useOutlineFromView` on `/macos`, `LinuxWindowHandle` on `/linux`) that are
 deliberately kept off the shared root so `@octane-xplat/ui` exports the same

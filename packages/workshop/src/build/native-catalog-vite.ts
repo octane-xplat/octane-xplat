@@ -8,9 +8,9 @@ import { discoverStories } from './discover.ts'
  * is resolved before any platform leaf enters the bundle — incompatible leaves
  * keep a catalog entry but never a `load` import.
  */
-export function macOSCatalogPlugin({ root, config = {}, catalogFile }) {
+export function nativeCatalogPlugin({ root, config = {}, catalogFile, target = 'macos' }) {
 	const generate = (ctx) => {
-		const { entries, diagnostics } = discoverStories(root, { ...config.stories, target: 'macos' })
+		const { entries, diagnostics } = discoverStories(root, { ...config.stories, target })
 		for (const entry of entries) {
 			ctx?.addWatchFile?.(entry.file)
 		}

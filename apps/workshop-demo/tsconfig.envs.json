@@ -10,11 +10,11 @@
 	"environments": {
 		"web": {
 			"include": ["src/**/*", "workshop.config.ts"],
-			"exclude": ["**/*.{ios,android,mobile,native,macos,windows,linux}.*"]
+			"exclude": ["**/*.{ios,android,mobile,native,macos,windows,linux,gtk}.*"]
 		},
 		"native": {
 			"include": ["src/**/*"],
-			"exclude": ["**/*.{web,macos,windows,linux}.*"],
+			"exclude": ["**/*.{web,macos,windows,linux,gtk}.*"],
 			"compilerOptions": {
 				"types": ["@nativescript/types"]
 			}

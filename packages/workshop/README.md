@@ -4,7 +4,7 @@ Render an app-owned component on its own development page, edit its inputs,
 and Reset to a fresh example. The current release provides real launch paths
 for three hosts: the **web** browser target, **macOS** through the real AppKit
 renderer on the JavaScriptCore NativeScript host, and **Linux** through the
-real GTK4/WebKitGTK webview host on a Linux machine. Authoring contract
+real GTK4 renderer (`@octane-xplat/linux-gtk`) in a GJS window. Authoring contract
 version: **1**.
 
 [iOS/Android launch setup](MOBILE.md) and native adapters are implemented,
@@ -13,8 +13,9 @@ doctor` reports them honestly. Keyboard and browser accessibility semantics
 have regression coverage; actual screen-reader announcements and OS IME input
 still require qualification on every host. On macOS, scripted interaction
 dispatches through each view's real recognizer or control action — it is not
-OS-synthesized input or hit-testing. On Linux, the GJS window, GTK input/focus
-and WebKitGTK reload semantics remain actual-Linux-host gates.
+OS-synthesized input or hit-testing. On Linux, GTK widget input/focus, Mason layout, and reload semantics remain
+actual-Linux-host gates (non-Linux GJS is a development stand-in, not
+qualification).
 
 For Windows prerequisite reporting and the blocked native launch, see
 [Windows workshop setup status](WINDOWS.md). Windows mounting and interaction
@@ -170,24 +171,29 @@ pnpm exec xplat workshop dev --target web --story counter/basic
 
 ## Linux host
 
-On a Linux machine the workshop opens inside the real GTK4/WebKitGTK webview,
-not a browser tab. The command starts the same development server, then launches
-the GJS host shipped in `@octane-xplat/cli` at its URL. Closing the window stops
-the server; stopping the command closes the window.
+On Linux the workshop renders chrome and stories directly with GTK4 through
+`@octane-xplat/linux-gtk` — no WebKitGTK or DOM is involved. `xplat workshop dev
+--target linux` builds the chrome shell for GJS and the story bundle for the
+NativeScript-dialect renderer, then drives the window over stdin.
 
 ```sh
 pnpm exec xplat workshop dev --target linux
 pnpm exec xplat workshop dev --target linux --story counter/basic
 ```
 
-The launch needs `gjs` plus the GTK4, WebKitGTK 6.0 and Adwaita typelibs (on
-Debian/Ubuntu: `gjs libgtk-4-1 libadwaita-1-0 libwebkitgtk-6.0-4
-gir1.2-webkit-6.0 gir1.2-adw-1`). `xplat workshop doctor` probes them without
-opening a window. On any other OS the row reads `remote-host-required` — run
-the same commands in the Linux host's own checkout rather than bridging
-remotely. Linux resolves `.linux` leaves ahead of `.web` and shared modules,
-matching the consumer app's Linux build; a story listing `linux` under
-`targets` mounts, while foreign leaves stay out of the bundle.
+The launch needs `gjs` plus the GTK4 typelib (on Debian/Ubuntu: `gjs
+libgtk-4-1 gir1.2-gtk-4.0`) and `@octane-xplat/linux-gtk` resolvable from the
+app — it is a private in-repo package, so the Linux workshop is in-repo until
+it publishes. `xplat workshop doctor` probes them without opening a window.
+A missing XplatMason typelib warns and falls back to `Gtk.Box` layout. On
+macOS a Homebrew GJS run is a development stand-in, not Linux qualification.
+
+Linux stories resolve `.gtk` leaves ahead of shared modules; a story listing
+`linux` under `targets` mounts, while foreign leaves stay out of the bundle.
+`.stories.linux.*` files are no longer part of the Linux catalog — discovery
+emits a diagnostic telling the author to rename to `.stories.gtk.*` (or keep
+`.stories.web.*` for `--target web`). DOM stories remain previewable with
+`--target web`.
 
 ## Platform-leaf filtering
 
@@ -236,9 +242,7 @@ pnpm exec xplat workshop dev --target web --story counter/basic
 The DOM-host adapter uses the pinned Storybook 10.6.1 `composeStory` subset
 already used by the private visual harness. Octane owns rendering; workshop
 owns cancellation, fixture/provider lifetime and reset. Arbitrary CSF addons
-are outside this supported subset. Web and Linux share the same DOM shell and
-save/remount wiring; WebKitGTK input, focus and reload semantics still need
-actual-Linux-host qualification. Other native composition imports need their
+are outside this supported subset. Other native composition imports need their
 own host qualification.
 
 ## macOS target
@@ -308,7 +312,7 @@ pnpm --filter @octane-xplat/workshop test:packed:linux
 
 The packed checks compile the published source with the consumer's toolchain.
 They use headless Chromium and capture no images.
-The Linux packed check verifies packed export resolution, catalog applicability,
-the production linux server wiring and production-build exclusion in a plain
-DOM — the GJS window, GTK input/focus and WebKitGTK reload remain actual-host
-gates that no DOM check substitutes for.
+The Linux packed check verifies packed export resolution, catalog
+applicability (including the `.stories.linux.*` diagnostic lane) and
+production-build exclusion statically — the GJS window, GTK input/focus and
+reload remain actual-host gates that no static check substitutes for.

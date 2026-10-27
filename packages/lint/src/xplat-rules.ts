@@ -40,6 +40,7 @@ export const isNativeFile = (f) =>
 	!isWebFile(f) &&
 	(/\.(mobile|ios|android|macos|windows|gtk)\./.test(norm(f)) ||
 		/(^|\/)apps\/(mobile|windows)\//.test(norm(f)) ||
+		/(^|\/)src\/native\//.test(norm(f)) ||
 		isNativeDefaultFile(f))
 
 export const isSharedFile = (f) => !isWebFile(f) && !isNativeFile(f)
