@@ -126,6 +126,17 @@ describe('lightbox web', () => {
 		m.close()
 	})
 
+	it('opens exactly one modal layer and nests the backdrop inside the popup', async () => {
+		const m = mount(<Lightbox isOpen media={media} />)
+		await act(async () => {})
+		const layers = document.body.querySelectorAll('[data-vx-modal-layer]')
+		expect(layers).toHaveLength(1)
+		const backdrop = document.body.querySelector('.vx-lightbox-backdrop')
+		expect(backdrop).toBeTruthy()
+		expect(backdrop?.closest('.vx-lightbox-popup')).toBeTruthy()
+		m.close()
+	})
+
 	it('hasBackdropDismiss={false} keeps the viewer open on backdrop tap', async () => {
 		const onOpenChange = vi.fn()
 		const m = mount(<Lightbox isOpen onOpenChange={onOpenChange} media={media} hasBackdropDismiss={false} />)

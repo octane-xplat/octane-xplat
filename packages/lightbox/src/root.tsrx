@@ -344,22 +344,9 @@ export function Backdrop(props: LightboxPartProps) @{
 	useLayoutEffect(() => {
 		const v = ref.current
 		if (!v) return
-		const size = () => {
-			const s = (v.parent as any)?.getActualSize?.()
-			if (s?.width && s?.height && (v.width !== s.width || v.height !== s.height)) {
-				v.width = s.width
-				v.height = s.height
-			}
-		}
-		size()
-		const parent = v.parent as any
-		parent?.on?.('layoutChanged', size)
 		const off = ctx.presence.on('change', (p: number) => { v.opacity = p })
 		v.opacity = ctx.presence.get()
-		return () => {
-			parent?.off?.('layoutChanged', size)
-			off()
-		}
+		return off
 	}, [ctx.presence])
 	if (ctx.phase === 'closed') return null
 	// Inline layer inside the popup's stack — one modal host per viewer.
@@ -367,9 +354,7 @@ export function Backdrop(props: LightboxPartProps) @{
 		<masonview
 			ref={ref as never}
 			className={cx('vx-lightbox-backdrop', props.className)}
-			horizontalAlignment="stretch"
-			verticalAlignment="stretch"
-			style={{ backgroundColor: 'rgba(0,0,0,0.9)', ...props.style }}
+			style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.9)', ...props.style }}
 			id={props.id}
 			testID={props.testID}
 			onTap={() => {
