@@ -13,8 +13,10 @@ let stopping = false
 const port = new URL(url).port
 const adb = (args, options) => command('adb', ['-s', device, ...args], options)
 const sim = (args, options) => command('xcrun', ['simctl', ...args], options)
-const ctl = (args, options) =>
-	command('xcrun', ['devicectl', 'device', ...args, '--device', device], options)
+// `--device` must precede positional arguments: `process launch` forwards
+// everything after the bundle identifier to the launched app.
+const ctl = ([group, action, ...rest], options) =>
+	command('xcrun', ['devicectl', 'device', group, action, '--device', device, ...rest], options)
 
 const ns = 'ns'
 const env = { ...process.env }

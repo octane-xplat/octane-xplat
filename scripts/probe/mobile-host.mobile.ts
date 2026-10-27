@@ -92,9 +92,14 @@ setInterval(async () => {
 		const css = await (await fetch(session.url + '/style')).text()
 		// Android's CSS loader requires a path inside the extracted app root.
 		const cssPath = path.join(knownFolders.currentApp().path, 'probe.css')
-		await File.fromPath(cssPath).writeText(css)
-		Application.setCssFileName('~/probe.css')
-		Application.loadAppCss()
+		try {
+			await File.fromPath(cssPath).writeText(css)
+			Application.setCssFileName('~/probe.css')
+			Application.loadAppCss()
+		} catch {
+			// Physical iOS app bundles are read-only; apply the text directly.
+			Application.addCss(css)
+		}
 
 		const module = { exports: {} }
 		// Externalized imports not in `modules` fall through to NativeScript's
