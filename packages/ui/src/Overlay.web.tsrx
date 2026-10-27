@@ -24,20 +24,21 @@ export function Overlay(props: OverlayProps) @{
 
 	const dismiss = useRef(requestDismiss)
 	dismiss.current = requestDismiss
+	const modal = !!(props.shadeCover || props.isModal)
 	useEffect(() => {
-		if (!open || !props.shadeCover || !layer.current || !panel.current) {
+		if (!open || !modal || !layer.current || !panel.current) {
 			return
 		}
 
 		return isolateModalFocus(layer.current, panel.current, () => dismiss.current?.())
-	}, [open, props.shadeCover])
+	}, [open, modal])
 
 	@if (open) {
 		<>
 			{createPortal(
 				<div
 					ref={layer}
-					data-vx-modal-layer={props.shadeCover ? '' : undefined}
+					data-vx-modal-layer={modal ? '' : undefined}
 					className={cx('vx-overlay', dark && 'dark', props.className)}
 					style={{ ...styleRecord(props.style), position: 'fixed', inset: 0 }}
 					{...props.web}
@@ -48,9 +49,9 @@ export function Overlay(props: OverlayProps) @{
 					<div
 						ref={panel}
 						data-testid={props.testID}
-						role={props.shadeCover ? 'dialog' : undefined}
-						aria-modal={props.shadeCover ? true : undefined}
-						aria-label={props.shadeCover ? props.accessibilityLabel : undefined}
+						role={modal ? 'dialog' : undefined}
+						aria-modal={modal ? true : undefined}
+						aria-label={modal ? props.accessibilityLabel : undefined}
 						className="vx-overlay-content"
 						onClick={(event: any) => event.stopPropagation()}
 					>

@@ -701,7 +701,7 @@ export function Example() {
 
 | Component                 | What it is                                        | Key props                                                      |
 | ------------------------- | ------------------------------------------------- | -------------------------------------------------------------- |
-| `Overlay`                 | Content above the screen                          | `open`, `defaultOpen`, `onDismiss`, `shadeCover`               |
+| `Overlay`                 | Content above the screen                          | `open`, `defaultOpen`, `onDismiss`, `shadeCover`, `isModal`    |
 | `Popover`                 | Anchored floating content                         | `anchor`, `open`, `defaultOpen`, `placement`, `onDismiss`      |
 | `useLayer`                | Anchored/fixed overlay primitive (hook)           | `mode`, `ref`, `show`, `hide`, `isOpen`, `render`              |
 | `Tooltip`                 | Pointer hover hint                                | `trigger`, `content`, `openDelay`                              |

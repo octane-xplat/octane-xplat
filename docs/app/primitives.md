@@ -1697,6 +1697,19 @@ An open animation finishing after removal cannot revive the surface.
 The maintained [Overlay demo](../../packages/demos/src/OverlayDemo.tsrx) uses the
 same conditional ownership pattern.
 
+For a modal layer with no shade — a full-screen photo viewer, for example —
+set `isModal` instead of `shadeCover`. The overlay gets the same modal
+behavior (web focus isolation and Escape, Android back dismissal, iOS modal
+accessibility) without a dimmed backdrop. macOS ignores `isModal`.
+
+```tsx
+import { Overlay, Text } from '@octane-xplat/ui'
+
+<Overlay open={open} isModal accessibilityLabel="Photo viewer" onDismiss={close}>
+	<Text>Full-screen content</Text>
+</Overlay>
+```
+
 On Web, a shaded `Overlay` is a modal dialog and requires an
 `accessibilityLabel`; `BottomSheet` uses its required `label`. Modal focus stays
 inside the surface, the background leaves keyboard and accessibility queries,

@@ -35,6 +35,16 @@ export function ModalChoice() {
 }
 ```
 
+A shade-free `Overlay` becomes a modal layer with `isModal`: web focus
+isolation and Escape, Android back dismissal, iOS modal accessibility —
+no dimmed backdrop. macOS ignores it.
+
+```tsx
+<Overlay open={open} isModal accessibilityLabel="Photo viewer" onDismiss={close}>
+	<Text>Full-screen content</Text>
+</Overlay>
+```
+
 For retained full-screen siblings, follow [retained screen layers](primitives.md#retained-screen-layers). A native overlay host does not make its own Screen an overlay.
 
 ## Platform modal widgets

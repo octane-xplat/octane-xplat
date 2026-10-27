@@ -338,3 +338,59 @@ for (const custom of [false, true]) {
 		}
 	})
 }
+
+function IsModalOverlay(props: { dismiss: () => void }) @{
+	<><button id="outside">Outside</button><Overlay open isModal accessibilityLabel="Photo viewer" onDismiss={props.dismiss}><button id="inside">Inside</button></Overlay></>
+}
+
+function PlainOverlay(props: { dismiss: () => void }) @{
+	<><button id="outside">Outside</button><Overlay open accessibilityLabel="Plain" onDismiss={props.dismiss}><button id="inside">Inside</button></Overlay></>
+}
+
+describe('Overlay isModal', () => {
+	it('makes a shade-free overlay modal: dialog semantics, inert siblings, Escape', () => {
+		const host = document.createElement('div')
+		document.body.append(host)
+		const root = createRoot(host)
+		const dismiss = vi.fn()
+		try {
+			act(() => root.render(IsModalOverlay, { dismiss }))
+			const layer = document.querySelector('.vx-overlay') as HTMLElement
+			const panel = document.querySelector('.vx-overlay-content') as HTMLElement
+			expect(layer.hasAttribute('data-vx-modal-layer')).toBe(true)
+			expect(document.querySelector('.vx-overlay-shade')).toBeNull()
+			expect(panel.getAttribute('role')).toBe('dialog')
+			expect(panel.getAttribute('aria-modal')).toBe('true')
+			expect(panel.getAttribute('aria-label')).toBe('Photo viewer')
+			expect(host.hasAttribute('inert')).toBe(true)
+			const inside = document.querySelector('#inside') as HTMLElement
+			act(() => inside.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })))
+			expect(dismiss).toHaveBeenCalledTimes(1)
+		} finally {
+			act(() => root.unmount())
+			host.remove()
+		}
+	})
+
+	it('stays non-modal without isModal or shadeCover', () => {
+		const host = document.createElement('div')
+		document.body.append(host)
+		const root = createRoot(host)
+		const dismiss = vi.fn()
+		try {
+			act(() => root.render(PlainOverlay, { dismiss }))
+			const layer = document.querySelector('.vx-overlay') as HTMLElement
+			const panel = document.querySelector('.vx-overlay-content') as HTMLElement
+			expect(layer.hasAttribute('data-vx-modal-layer')).toBe(false)
+			expect(panel.getAttribute('role')).toBeNull()
+			expect(panel.getAttribute('aria-modal')).toBeNull()
+			expect(host.hasAttribute('inert')).toBe(false)
+			const inside = document.querySelector('#inside') as HTMLElement
+			act(() => inside.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })))
+			expect(dismiss).not.toHaveBeenCalled()
+		} finally {
+			act(() => root.unmount())
+			host.remove()
+		}
+	})
+})

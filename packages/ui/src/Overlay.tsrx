@@ -9,6 +9,7 @@ import { cx } from '@octane-xplat/lib'
 import { applyThemeClasses } from './theme/theme-host'
 import { rootLayoutFor } from './root-layout'
 import { createOverlayLifetime } from './overlay-lifetime'
+import { addBackInterceptor } from './back-interceptors'
 
 type OpenOverlay = {
 	host: GridLayout
@@ -33,8 +34,27 @@ export function Overlay(props: OverlayProps) @{
 
 	const dismiss = useRef(requestDismiss)
 	dismiss.current = requestDismiss
+	const modal = !!(props.shadeCover || props.isModal)
 
 	const rootLayout = () => rootLayoutFor(hostView.current)
+
+	const applyIosModal = (host: GridLayout) => {
+		if (!isIOS) return
+		const apply = () => {
+			const v = (host as any).ios
+			if (v) v.accessibilityViewIsModal = modal
+		}
+		if ((host as any).isLoaded) apply()
+		else (host as any).once?.('loaded', apply)
+	}
+
+	useEffect(() => {
+		if (!open || !modal || !isAndroid) return
+		return addBackInterceptor(() => {
+			dismiss.current?.()
+			return true
+		})
+	}, [open, modal])
 
 	useEffect(() => {
 		const current = shown.current
@@ -54,6 +74,7 @@ export function Overlay(props: OverlayProps) @{
 
 			current.host.accessibilityLabel = props.accessibilityLabel ?? ''
 			Object.assign(current.host, isIOS ? props.ios : isAndroid ? props.android : undefined)
+			applyIosModal(current.host)
 			return
 		}
 
@@ -74,6 +95,7 @@ export function Overlay(props: OverlayProps) @{
 
 		host.accessibilityLabel = props.accessibilityLabel ?? ''
 		Object.assign(host, isIOS ? props.ios : isAndroid ? props.android : undefined)
+		applyIosModal(host)
 		const lifetime = createOverlayLifetime(rl, host, null, 'Overlay', (dismissed) => {
 			if (shown.current?.host === host) {
 				shown.current = null
@@ -100,6 +122,7 @@ export function Overlay(props: OverlayProps) @{
 		open,
 		props.children,
 		props.shadeCover,
+		props.isModal,
 		props.className,
 		props.style,
 		props.accessibilityLabel,

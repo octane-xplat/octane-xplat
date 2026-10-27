@@ -2605,6 +2605,10 @@ export interface OverlayProps extends TestIDProps {
 	onDismiss?: () => void
 	/** Enables a RootLayout shade that dismisses when tapped. */
 	shadeCover?: boolean
+	/** Makes the overlay a modal layer without a shade: web focus isolation
+	 *  and Escape dismissal, Android back dismissal, and iOS modal
+	 *  accessibility. `shadeCover` implies this. macOS ignores it. */
+	isModal?: boolean
 	className?: ClassValue
 	style?: StyleProp
 	children?: Renderable
