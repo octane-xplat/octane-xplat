@@ -1,0 +1,2 @@
+export * from './types'
+export { geofencing } from './geofencing.macos'
