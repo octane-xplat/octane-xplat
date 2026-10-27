@@ -26,6 +26,6 @@ export function ActivityIndicator(props: ActivityIndicatorProps) @{
 			<span className="vx-spinner-label">{props.label}</span>
 		</div>
 	} @else {
-		<>{ring}</>
+		{ring}
 	}
 }
