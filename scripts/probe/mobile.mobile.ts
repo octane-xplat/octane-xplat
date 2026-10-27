@@ -1,6 +1,6 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 import { install as installGestureHandler } from '@nativescript-community/gesturehandler'
-import { Application, Frame, GestureTypes, Page } from '@nativescript/core'
+import { Application, Frame, GestureTypes, Page, isIOS, Utils } from '@nativescript/core'
 import { renderNativeScriptApp } from '@nativescript-community/octane'
 
 import { dispatchScrub } from './touch.ts'
@@ -14,6 +14,21 @@ export function mobileAdapter() {
 	// Same as prepareFullScreenPage() in @octane-xplat/ui/nativescript (not importable here).
 	page.iosIgnoreSafeArea = true
 	page.androidOverflowEdge = 'ignore'
+	if (isIOS) {
+		const measure = page.measure
+		page.measure = function (widthMeasureSpec, heightMeasureSpec) {
+			// Same as prepareFullScreenPage() in @octane-xplat/ui/nativescript:
+			// core measures a Page against safeAreaLayoutGuide even when it
+			// ignores safe areas, then lays children out in the full frame.
+			const size = this.nativeViewProtected?.bounds?.size
+			if (size?.width > 0 && size?.height > 0) {
+				const { layout } = Utils
+				widthMeasureSpec = layout.makeMeasureSpec(layout.toDevicePixels(size.width), layout.EXACTLY)
+				heightMeasureSpec = layout.makeMeasureSpec(layout.toDevicePixels(size.height), layout.EXACTLY)
+			}
+			measure.call(this, widthMeasureSpec, heightMeasureSpec)
+		}
+	}
 	const frame = new Frame()
 	frame.navigate({ create: () => page, animated: false })
 	const entry = { create: () => frame }
