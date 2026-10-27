@@ -1,0 +1,30 @@
+{
+	"compilerOptions": {
+		"strict": true,
+		"module": "esnext",
+		"moduleResolution": "bundler",
+		"target": "es2022",
+		"declaration": true,
+		"emitDeclarationOnly": true,
+		"noEmitOnError": true,
+		"outDir": "types",
+		"skipLibCheck": true,
+		"paths": {
+			"@octane-xplat/ui": ["../ui/types/generated/index.d.ts"],
+			"@octane-xplat/motion": ["../motion/types/index.d.ts"]
+		},
+		"moduleSuffixes": [
+			"",
+			".web",
+			".ios",
+			".android",
+			".mobile",
+			".native",
+			".macos",
+			".linux",
+			".windows"
+		],
+		"allowImportingTsExtensions": true
+	},
+	"include": ["src/props.ts", "types/index.d.ts", "types/index.macos.d.ts"]
+}
