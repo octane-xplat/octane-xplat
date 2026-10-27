@@ -2,8 +2,9 @@
 
 Status: proposal, 2026-10-20; milestone 1 and the web engine part of
 milestone 2 recorded 2026-10-26. This records the intended package and the
-work needed to qualify it. No Xplat implementation exists. Only the web engine
-has runtime evidence, from a temporary probe. API names below are proposed
+work needed to qualify it. No Xplat implementation exists. The web engine and
+the iOS simulator have runtime evidence from temporary probes; iOS device,
+macOS, and Android do not. API names below are proposed
 contracts, not shipped exports.
 
 ## Outcome and agreed direction
@@ -173,6 +174,62 @@ performance budgets. Conclusions for the package:
 
 Still open for milestone 2: browser persistence (OPFS or IndexedDB),
 `.tar.bz2` extraction, and a mobile-browser memory run.
+
+## iOS engine proof (milestone 3a)
+
+Recorded 2026-10-26. Lab evidence from a temporary `research/` probe on the
+iOS 27.0 simulator (iPhone 18 Pro). No physical-device result yet.
+
+**Mechanism.** The probe plugin ships the upstream
+`sherpa-onnx-v1.13.8-ios-shared-onnxruntime-static.xcframework` (sha256
+`e259a7d3…`; `SherpaOnnxC` module over `c-api.h`; `ios-arm64` 26 MB,
+simulator 58 MB; iOS 13.0) in `platforms/ios/`. The NativeScript CLI adds it
+to the app automatically. A Swift facade, `XplatSherpaEngine`, imports
+`SherpaOnnxC` and is visible to JS through generated metadata. All engine work
+runs on one serial `DispatchQueue`; completions return on the main queue.
+Engines are integer handles. Config arrives as JSON with C API field names.
+PCM crosses as `NSData`. Models were bundled through a custom
+`App_Resources`; the nested `espeak-ng-data` tree arrived intact.
+
+**Result.** All 16 assertions passed: version `1.13.8`; offline Moonshine
+exact transcript; streaming Zipformer transcript identical to web and Node;
+Piper 1.84 s at 16 kHz; three free/recreate cycles; all three engines resident;
+and `free` queued behind a 4.1 s synthesis completed after it without a crash.
+
+| Simulator measurement | Value |
+| --- | --- |
+| Model load: offline / streaming / TTS | 609 / 376 / 714 ms |
+| Streaming decode, 6.6 s audio | 171 ms (RTF 0.026) |
+| TTS synthesis, 1.84 s audio | 209 ms |
+| Max JS interval gap during offline decode and synthesis | 17 ms (16 ms timer) |
+| WAV parse / `NSData` conversion, 3.85 s clip | 6 ms / <1 ms |
+| `phys_footprint`: start → all engines → end | 57 → 189 → 128 MB |
+
+Simulator timings run on the Mac's CPU and are not device performance.
+
+Conclusions for the package:
+
+- The xcframework plus a Swift facade on a serial queue is a working iOS
+  shape; no custom C++ is needed. The JS thread stayed responsive.
+- `NSData.dataWithBytesLength(view.buffer, view.byteLength)` reads from the
+  start of the backing buffer, not from the view's `byteOffset`. A first probe
+  pass sent `subarray` chunks this way, fed the same leading audio every time,
+  and got an empty transcript. The bridge must copy or honor offsets for every
+  typed-array view; a regression test should cover chunked input.
+- Zero-initialized C config structs are not upstream defaults. The facade sets
+  endpoint rules (2.4 s, 1.2 s, 20 s) and `max_active_paths` 4 as the upstream
+  JS wrapper does. Each family's defaults must be mirrored explicitly.
+- The device slice adds about 26 MB per architecture before models. Shipping it
+  in the npm tarball versus fetching it at build time is still open.
+
+**Physical device.** The repository probe runner failed on a physical iPhone
+for two runner reasons, both fixed in `a25d6a4fc`: `devicectl` treated a
+trailing `--device` as app arguments, and the host wrote CSS into the
+read-only bundle. After the fixes the app installed, launched, and printed
+host-ready, but the case did not complete within 600 s. The likely cause is
+iOS local-network permission or LAN reachability. Someone must be at the
+unlocked device to confirm. Physical-device performance remains required by
+milestone 3.
 
 ## Existing audio contracts and required work
 
