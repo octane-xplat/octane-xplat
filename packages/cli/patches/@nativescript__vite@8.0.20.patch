@@ -436,20 +436,72 @@ index 1f02ba5ebb7e89d40eff58d1c395b5ec838f45fe..808ed238e795fd935d2a34623479fc08
          result = `// [hmr-sanitize] stripped virtual /@id/ side-effect imports\n${result}`;
      }
 diff --git a/hmr/server/rewrite-imports.js b/hmr/server/rewrite-imports.js
-index 51ad398cefe75c918e887bd9506d9152259b957e..235b7cd49cbfb18c8cca87edf62e53c4771b304e 100644
+index 51ad398cefe75c918e887bd9506d9152259b957e..57dc2be15705a5ac8b5393852fd5de411a88fd50 100644
 --- a/hmr/server/rewrite-imports.js
 +++ b/hmr/server/rewrite-imports.js
-@@ -1,3 +1,4 @@
+@@ -1,8 +1,9 @@
 +import { CSS_MODULE_RE } from './css-device-module.js';
  // THE SINGLE import-rewrite function — used everywhere for consistency. Maps a
  // served module's specifiers to device-reachable forms: the unified /ns/core
  // bridge, /ns/m node_modules + app modules, /ns/sfc for Vue, vendor bare specs,
-@@ -12,7 +13,93 @@ import { resolveAngularCoreHmrImportSource, rewriteAngularEntryRegisterOnly } fr
+ // inlined JSON, and import.meta.url-relative dynamic imports.
+-import { existsSync, readFileSync } from 'fs';
++import { existsSync, readFileSync, realpathSync } from 'fs';
+ import * as path from 'path';
+ import * as PAT from './constants.js';
+ import { getMonorepoWorkspaceRoot } from '../../helpers/project.js';
+@@ -12,7 +13,139 @@ import { resolveAngularCoreHmrImportSource, rewriteAngularEntryRegisterOnly } fr
  import { isNativeScriptCoreModule, isNativeScriptPluginModule, normalizeNativeScriptCoreSpecifier, normalizeNodeModulesSpecifier, resolveNodeModulesPackageBoundary, resolveVendorRouting, rewriteFsAbsoluteToNsM, shouldPreserveBareRuntimePluginSubpathImport } from './websocket-module-specifiers.js';
  import { ensureDynamicHmrImportHelper } from './websocket-served-module-helpers.js';
  import { collectMixedRuntimePluginHttpRootPackages, findDependencyFileName, getProjectRelativeImportPath, isApplicationImport, normalizeImportPath, stripToProjectRelative, toAppModuleBaseId, toNodeModulesHttpModuleId } from './device-transform-helpers.js';
 +import { resolvePlatform } from '../../helpers/cli-flags.js';
  const APP_ROOT_DIR = getProjectAppPath();
++// Bare-specifier fallback anchor: the generic `/ns/m/node_modules/<spec>`
++// URL resolves only from the app root, so a bare specifier imported by a
++// node_modules file whose package is not an app-level dependency — e.g.
++// storybook's `@storybook/global` sibling under pnpm's isolated layout —
++// 404s there. When the app-root node_modules ancestor walk misses, map the
++// importer to its absolute path and walk ITS ancestor chain for the package
++// (the same lookup Node performs for the import), then anchor the URL at
++// the real package dir via the /ns/m /@fs route.
++const barePackageNameOf = (spec) =>
++    spec.startsWith('@') ? spec.split('/').slice(0, 2).join('/') : spec.split('/')[0];
++const bareSpecifierHttpFallback = (spec, importerPath, projectRoot) => {
++    const pkg = barePackageNameOf(spec);
++    const subpath = spec.slice(pkg.length);
++    let dir = projectRoot;
++    for (;;) {
++        if (existsSync(path.join(dir, 'node_modules', pkg, 'package.json')))
++            return `/ns/m/node_modules/${spec}`;
++        const parent = path.dirname(dir);
++        if (parent === dir)
++            break;
++        dir = parent;
++    }
++    let importerAbs = null;
++    if (importerPath.startsWith('/@fs/'))
++        importerAbs = importerPath.slice('/@fs'.length);
++    else if (importerPath.startsWith('/'))
++        importerAbs = path.join(projectRoot, `.${importerPath}`);
++    if (importerAbs) {
++        importerAbs = importerAbs.replace(PAT.QUERY_PATTERN, '');
++        try {
++            importerAbs = realpathSync(importerAbs);
++        }
++        catch { }
++        dir = path.dirname(importerAbs);
++        for (;;) {
++            const pkgDir = path.join(dir, 'node_modules', pkg);
++            if (existsSync(path.join(pkgDir, 'package.json')))
++                return `/ns/m/@fs${pkgDir}${subpath}`;
++            const parent = path.dirname(dir);
++            if (parent === dir)
++                break;
++            dir = parent;
++        }
++    }
++    return `/ns/m/node_modules/${spec}`;
++};
 +// ── Package `imports` field (`#specifier`) resolution ─────────────────────
 +// A `#`-prefixed specifier resolves through the `imports` field of the
 +// importer's own package.json (Node "package imports" — e.g. octane's
@@ -538,7 +590,7 @@ index 51ad398cefe75c918e887bd9506d9152259b957e..235b7cd49cbfb18c8cca87edf62e53c4
  export function prepareAngularEntryForDevice(code, importerPath, sfcFileMap, depFileMap, projectRoot, verbose = false, outputDirOverrideRel, httpOrigin, resolveVendorAsHttp = false) {
      const rewrittenCode = rewriteImports(code, importerPath, sfcFileMap, depFileMap, projectRoot, verbose, outputDirOverrideRel, httpOrigin, resolveVendorAsHttp);
      return rewriteAngularEntryRegisterOnly(rewrittenCode, resolveAngularCoreHmrImportSource(rewrittenCode, httpOrigin));
-@@ -239,6 +326,19 @@ export function rewriteImports(code, importerPath, sfcFileMap, depFileMap, proje
+@@ -239,6 +372,19 @@ export function rewriteImports(code, importerPath, sfcFileMap, depFileMap, proje
              }
              return `${prefix}${stub}${suffix}`;
          }
@@ -558,7 +610,7 @@ index 51ad398cefe75c918e887bd9506d9152259b957e..235b7cd49cbfb18c8cca87edf62e53c4
          spec = normalizeNativeScriptCoreSpecifier(spec);
          // Pull `/@fs/<abs-path>` URLs back into the `/ns/m/` pipeline so they
          // hit our CJS/UMD-wrapping handler. Vite emits `/@fs/...` for any
-@@ -256,17 +356,39 @@ export function rewriteImports(code, importerPath, sfcFileMap, depFileMap, proje
+@@ -256,17 +402,39 @@ export function rewriteImports(code, importerPath, sfcFileMap, depFileMap, proje
                  }
                  return `${prefix}${rewritten}${suffix}`;
              }
@@ -603,6 +655,15 @@ index 51ad398cefe75c918e887bd9506d9152259b957e..235b7cd49cbfb18c8cca87edf62e53c4
          if (spec.startsWith('/@id/__x00__@oxc-project+runtime')) {
              if (httpOriginSafe) {
                  return `${prefix}${httpOriginSafe}${spec}${suffix}`;
+@@ -510,7 +678,7 @@ export function rewriteImports(code, importerPath, sfcFileMap, depFileMap, proje
+                 // root internally, which also lands here. Reached only after the
+                 // bare-vendor-routing block above, so a non-Solid project that
+                 // genuinely vendors solid-js is already handled and never gets here.
+-                const httpSpec = spec === 'solid-js' ? `/ns/m/node_modules/solid-js/dist/dev.js` : `/ns/m/node_modules/${spec}`;
++                const httpSpec = spec === 'solid-js' ? `/ns/m/node_modules/solid-js/dist/dev.js` : bareSpecifierHttpFallback(spec, importerPath, projectRoot);
+                 if (httpOriginSafe) {
+                     return `${prefix}${httpOriginSafe}${httpSpec}${suffix}`;
+                 }
 diff --git a/hmr/server/vite-plugin.js b/hmr/server/vite-plugin.js
 index 15c6c7293826767ce7fd45feb6b03cb64a4bdbb5..1f66ca8ae896fad9ee21eabdf3bb75f609bd7132 100644
 --- a/hmr/server/vite-plugin.js

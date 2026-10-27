@@ -203,7 +203,9 @@ patchedDependencies:
   # @rollup/plugin-alias semantics, so Vite resolve.alias redirects for packages that are
   # not installed (e.g. the renderer's full-MasonKit imports mapped to Mason core) resolve
   # to real files instead of throw-on-evaluate optional-dependency stubs, while installed
-  # packages keep their default resolution; the deps-bundle disk cache key fingerprints the
+  # packages keep their default resolution; presence ignores pnpm's hidden
+  # `.pnpm/node_modules` hoist, so another workspace app's hoisted copy (apps/windows' full
+  # MasonKit) does not disable the alias; the deps-bundle disk cache key fingerprints the
   # captured aliases. The runtime-plugin bare-specifier fold locates a package's
   # package.json through Node's node_modules ancestor chain instead of a literal
   # projectRoot/node_modules join, so deep `pkg/dist/...` specifiers fold back to the bare
