@@ -13,7 +13,11 @@ import {
 import type { TextInputHandle, ViewProps } from './props'
 import type { Octane } from 'octane/jsx-runtime'
 
-vi.mock('@nativescript/core', () => ({ isIOS: false, isAndroid: true }))
+vi.mock('@nativescript/core', () => ({
+	// ui-svg's index.common.ts evaluates NS decorators at import.
+	Property: class { constructor(_opts?: any) {} },
+	CSSType: () => () => {},
+	View: class {}, isIOS: false, isAndroid: true }))
 vi.mock('./escape-props', () => ({ applyEscapeProps() {}, nativeAccessibilityState() {}, nativeAccessibilityRole() {} }))
 
 import { View } from './View.tsrx'

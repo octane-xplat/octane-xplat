@@ -68,7 +68,10 @@ vi.mock('@nativescript/core', () => {
 
 	return {
 		...named,
-		Application: {},
+		// ui-svg's index.common.ts evaluates NS decorators at import.
+		Property: class { constructor(_opts?: any) {} },
+		CSSType: () => () => {},
+		Application: { on() {}, off() {} },
 		isIOS: false,
 		isAndroid: false,
 		View,

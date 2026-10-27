@@ -8,6 +8,10 @@ import {
 } from 'octane/universal/native'
 
 vi.mock('@nativescript/core', () => ({
+	// ui-svg's index.common.ts evaluates NS decorators at import.
+	Property: class { constructor(_opts?: any) {} },
+	CSSType: () => () => {},
+	View: class {},
 	isIOS: false,
 	isAndroid: true,
 	Screen: { mainScreen: { scale: 2 } },

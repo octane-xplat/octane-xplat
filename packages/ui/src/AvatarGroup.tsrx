@@ -3,7 +3,6 @@ import { mergeStyle, styleRecord } from './style-merge'
 import type { AvatarGroupProps, AvatarGroupOverflowProps } from "./props";
 import { cx } from "@octane-xplat/lib";
 import { applyEscapeProps } from "./escape-props";
-import { isChildrenBlock } from 'octane';
 import { toChildArray, mapChildren } from './child-array';
 import { Avatar } from './Avatar';
 
@@ -12,13 +11,13 @@ import { Avatar } from './Avatar';
  *  works identically without relying on sibling CSS selectors. */
 export function AvatarGroup(props: AvatarGroupProps) @{
 	const size = props.size ?? 32;
-	const children = (isChildrenBlock(props.children) ? [] : toChildArray(props.children));
+	const children = (typeof props.children === 'function' ? [] : toChildArray(props.children));
 	const shown = props.max != null ? children.slice(0, props.max) : children;
 	const overflow = children.length - shown.length;
 	const itemStyle = (i: number) => (i === 0 ? undefined : { marginLeft: -size / 3 });
 
 	<masonview ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={cx('vx-avatar-group', props.className)} style={mergeStyle({display: "flex"}, props.style)}>
-		{(isChildrenBlock(props.children) ? props.children : mapChildren(shown, (child: any, i: number) => (
+		{(typeof props.children === 'function' ? props.children : mapChildren(shown, (child: any, i: number) => (
 			<masonview className="vx-avatar-group-item" style={mergeStyle({display: "flex"}, itemStyle(i))}>{child}</masonview>
 		)))}
 		{overflow > 0

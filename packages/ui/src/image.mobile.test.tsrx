@@ -3,6 +3,9 @@ import { describe, expect, it, vi } from 'vitest'
 import { createObjectContainer, createObjectDriver, createUniversalRoot } from 'octane/universal/native'
 
 vi.mock('@nativescript/core', () => ({
+	// ui-svg's index.common.ts evaluates NS decorators at import.
+	Property: class { constructor(_opts?: any) {} },
+	CSSType: () => () => {},
 	isIOS: false,
 	isAndroid: true,
 	ScrollView: class {},

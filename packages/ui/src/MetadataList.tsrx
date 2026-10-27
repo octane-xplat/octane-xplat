@@ -7,7 +7,6 @@ import { applyEscapeProps } from './escape-props';
 import { MetadataListProvider } from './metadata-list-context';
 import { Grid } from './Grid.tsrx';
 import { Pressable } from './Pressable';
-import { isChildrenBlock } from 'octane';
 import { toChildArray } from './child-array';
 
 /** Repeat an 'auto,*' label/value track pair (or a '*' cell for stacked
@@ -41,7 +40,7 @@ export function MetadataList(props: MetadataListProps) @{
 	const isStacked = labelPosition === 'top' || isHorizontal;
 
 	const [isShowAll, setIsShowAll] = useState(false);
-	const childrenArray = (isChildrenBlock(props.children) ? [] : toChildArray(props.children));
+	const childrenArray = (typeof props.children === 'function' ? [] : toChildArray(props.children));
 	const effectiveMax = isHorizontal ? undefined : props.maxNumOfItems;
 	const isExceedMax = effectiveMax != null && childrenArray.length > effectiveMax;
 	const visibleChildren =

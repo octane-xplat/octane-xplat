@@ -2,7 +2,10 @@
 import { describe, expect, it, vi } from 'vitest'
 import { createObjectContainer, createObjectDriver, createUniversalRoot } from 'octane/universal/native'
 
-vi.mock('@nativescript/core', () => ({ isIOS: false, isAndroid: true, ScrollView: class ScrollView {}, Application: {} }))
+vi.mock('@nativescript/core', () => ({
+	// ui-svg's index.common.ts evaluates NS decorators at import.
+	Property: class { constructor(_opts?: any) {} },
+	CSSType: () => () => {}, isIOS: false, isAndroid: true, ScrollView: class ScrollView {}, Application: {} }))
 // Meter registers <svgview> as an import side effect; the object driver does
 // not need the vendored element, so stub the router module out.
 vi.mock('./svg', () => ({}))

@@ -1,11 +1,15 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { describe, expect, it, vi } from 'vitest'
 import { createObjectContainer, createObjectDriver, createUniversalRoot, flushUniversalSync } from 'octane/universal/native'
-vi.mock('@nativescript/core', () => ({ isIOS: true, isAndroid: false, Application: {} }))
+vi.mock('@nativescript/core', () => ({
+	// ui-svg's index.common.ts evaluates NS decorators at import.
+	Property: class { constructor(_opts?: any) {} },
+	CSSType: () => () => {},
+	View: class {}, isIOS: true, isAndroid: false, Application: { on() {}, off() {} } }))
 vi.mock('./apply-native-modifiers.native', () => ({ applyNativeModifiers: () => {} }))
 vi.mock('./pan', () => ({ usePan: () => undefined }))
-vi.mock('./Icon', () => ({ Icon: () => null }))
-vi.mock('./Popover', () => ({ Popover: () => null }))
+vi.mock('./Icon', () => ({ Icon: null }))
+vi.mock('./Popover', () => ({ Popover: null }))
 import { MenuSurface } from './MenuSurface.tsrx'
 import { DropdownMenuItem, MenuData } from './MenuParts.tsrx'
 const orphanCaught: { error?: unknown } = {}
@@ -87,7 +91,7 @@ describe('native menu action contracts (object driver)', () => {
 
 vi.mock('./theme/theme-scheme', () => ({ useThemeScheme: () => 'light' }))
 vi.mock('./pan.macos.tsrx', () => ({ usePan: () => undefined }))
-vi.mock('./Icon.macos.tsrx', () => ({ Icon: () => null }))
+vi.mock('./Icon.macos.tsrx', () => ({ Icon: null }))
 import { DropdownMenu as MacMenu } from './DropdownMenu.macos.tsrx'
 import { dispatchLayerKey } from './layer-stack'
 

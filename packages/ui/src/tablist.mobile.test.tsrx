@@ -2,11 +2,15 @@
 import { expect, it, vi } from 'vitest'
 import { createObjectContainer, createObjectDriver, createUniversalRoot } from 'octane/universal/native'
 
-vi.mock('@nativescript/core', () => ({ Application: { ios: null, android: {} }, isIOS: false, isAndroid: true, Utils: { openUrl: vi.fn() } }))
+vi.mock('@nativescript/core', () => ({
+	// ui-svg's index.common.ts evaluates NS decorators at import.
+	Property: class { constructor(_opts?: any) {} },
+	CSSType: () => () => {},
+	View: class {}, Application: { ios: null, android: {}, on() {}, off() {} }, isIOS: false, isAndroid: true, Utils: { openUrl: vi.fn() } }))
 vi.mock('./pan.tsrx', () => ({ usePan: () => undefined }))
 vi.mock('./default-router', () => ({ router: { navigateUrl: () => Promise.resolve({ status: 'not-found' }) } }))
-vi.mock('./Icon', () => ({ Icon: () => null }))
-vi.mock('./Popover', () => ({ Popover: () => null }))
+vi.mock('./Icon', () => ({ Icon: null }))
+vi.mock('./Popover', () => ({ Popover: null }))
 import { TabList, Tab } from './TabList.tsrx'
 
 function Fixture(props: { layout: 'fill' | 'hug'; onChange(value: string): void }) @{
