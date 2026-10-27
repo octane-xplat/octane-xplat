@@ -1280,7 +1280,7 @@ index 54ba11ef9c329df049fa93b01b2ce47c9fb1ac3e..f7e3d0d1bd71919584834ef5a56e42f7
          // Stub compiled `.node` addons (fsevents & co.) — unloadable by esbuild and
          // unrunnable on device; a throwing stub preserves optional-dep semantics.
 diff --git a/hmr/shared/vendor/vendor-esbuild-plugins.js b/hmr/shared/vendor/vendor-esbuild-plugins.js
-index 4855a85322188435072c21bb72c60ea16d514b37..e8aedc01e80b03b9320d45bb682a2a512360bdbb 100644
+index 4855a85322188435072c21bb72c60ea16d514b37..9a45d264cda57c376239dfe124049b7cb95c34b8 100644
 --- a/hmr/shared/vendor/vendor-esbuild-plugins.js
 +++ b/hmr/shared/vendor/vendor-esbuild-plugins.js
 @@ -5,6 +5,7 @@ import { readFile } from 'fs/promises';
@@ -1291,7 +1291,7 @@ index 4855a85322188435072c21bb72c60ea16d514b37..e8aedc01e80b03b9320d45bb682a2a51
  export function createVendorEsbuildPlugin(projectRoot) {
      return {
          name: 'ns-vendor-resolver',
-@@ -419,6 +420,111 @@ export function angularLinkerEsbuildPlugin(projectRoot) {
+@@ -419,6 +420,119 @@ export function angularLinkerEsbuildPlugin(projectRoot) {
   * the try/catch-optional semantics instead of masking real missing modules
   * with `undefined` exports.
   */
@@ -1324,6 +1324,11 @@ index 4855a85322188435072c21bb72c60ea16d514b37..e8aedc01e80b03b9320d45bb682a2a51
 +// Is the package physically installed? Walk Node's node_modules lookup
 +// chain from the importer, then the project root. Presence is judged by the
 +// package DIRECTORY (its package.json file), never by entry resolution.
++// pnpm's hidden hoist (`<root>/node_modules/.pnpm/node_modules/<pkg>`) does
++// not count: those entries are phantom copies of other importers'
++// dependencies, not packages installed for this importer — an unrelated
++// workspace app's hoisted copy (e.g. a Windows-only package) must not
++// disable the alias.
 +const esbuildPackagePresenceCache = new Map();
 +const isEsbuildPackageInstalled = (pkgName, fromDir, projectRoot) => {
 +    const cacheKey = `${pkgName}\0${fromDir}`;
@@ -1333,7 +1338,10 @@ index 4855a85322188435072c21bb72c60ea16d514b37..e8aedc01e80b03b9320d45bb682a2a51
 +    let present = false;
 +    let dir = fromDir;
 +    for (;;) {
-+        if (fs.existsSync(path.join(dir, 'node_modules', pkgName, 'package.json'))) {
++        const inPnpmHiddenHoist =
++            path.basename(dir) === '.pnpm' && path.basename(path.dirname(dir)) === 'node_modules';
++        if (!inPnpmHiddenHoist &&
++            fs.existsSync(path.join(dir, 'node_modules', pkgName, 'package.json'))) {
 +            present = true;
 +            break;
 +        }
