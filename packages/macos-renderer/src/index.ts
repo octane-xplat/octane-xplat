@@ -6789,23 +6789,27 @@ function parityStyle(node: ElementNode, facets: readonly string[]) {
 	const view = node.view
 	const font = view?.font
 	const supplied: PropBag = effectiveStyle(node)
+	// Mason consumes dockInsets rather than NSStackView.edgeInsets. Its
+	// absent flex values use the CSS row/stretch/normal defaults.
+	const mason = node.masonNode != null
+	const padding = node.dockInsets ?? view?.edgeInsets
 	const out: Record<string, any> = {}
 	for (const facet of facets) {
 		let value = supplied[facet]
-		if (facet === 'paddingTop' && view?.edgeInsets?.top != null) {
-			value = view.edgeInsets.top
+		if (facet === 'paddingTop' && (padding?.top != null || mason)) {
+			value = padding?.top ?? 0
 		}
 
-		if (facet === 'paddingRight' && view?.edgeInsets?.right != null) {
-			value = view.edgeInsets.right
+		if (facet === 'paddingRight' && (padding?.right != null || mason)) {
+			value = padding?.right ?? 0
 		}
 
-		if (facet === 'paddingBottom' && view?.edgeInsets?.bottom != null) {
-			value = view.edgeInsets.bottom
+		if (facet === 'paddingBottom' && (padding?.bottom != null || mason)) {
+			value = padding?.bottom ?? 0
 		}
 
-		if (facet === 'paddingLeft' && view?.edgeInsets?.left != null) {
-			value = view.edgeInsets.left
+		if (facet === 'paddingLeft' && (padding?.left != null || mason)) {
+			value = padding?.left ?? 0
 		}
 
 		if (facet === 'fontSize' && font?.pointSize != null) {
@@ -6866,20 +6870,25 @@ function parityStyle(node: ElementNode, facets: readonly string[]) {
 
 		if (facet === 'flexDirection') {
 			value =
+				supplied.flexDirection ??
 				node.props.flexDirection ??
 				(node.props.orientation === 'horizontal'
 					? 'row'
 					: node.props.orientation === 'vertical'
 						? 'column'
-						: undefined)
+						: node.type === 'scrollview'
+							? node.props.horizontal === true
+								? 'row'
+								: 'column'
+							: mason ? 'row' : undefined)
 		}
 
 		if (facet === 'alignItems') {
-			value = node.props.alignItems ?? effectiveStyle(node).alignItems
+			value = supplied.alignItems ?? node.props.alignItems ?? (mason ? 'stretch' : undefined)
 		}
 
 		if (facet === 'justifyContent') {
-			value = node.props.justifyContent ?? effectiveStyle(node).justifyContent
+			value = supplied.justifyContent ?? node.props.justifyContent ?? (mason ? 'normal' : undefined)
 		}
 
 		if (value !== undefined && value !== null && value !== '') {
