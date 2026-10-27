@@ -45,6 +45,10 @@
 				"types": "./types/generated/index.web.d.ts",
 				"default": "./src/index.web.ts"
 			},
+			"gtk": {
+				"types": "./types/generated/index.gtk.d.ts",
+				"default": "./src/index.gtk.ts"
+			},
 			"native": {
 				"types": "./types/generated/index.mobile.d.ts",
 				"default": "./src/index.mobile.ts"
