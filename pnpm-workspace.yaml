@@ -215,7 +215,10 @@ patchedDependencies:
   # importer's real path and walks its node_modules ancestors when the spec is absent from
   # the app root chain, so a package present only as an importer's pnpm sibling (storybook's
   # @storybook/global) rewrites to a serving /ns/m/@fs URL instead of the root-resolved
-  # /ns/m/node_modules/<spec> 404.
+  # /ns/m/node_modules/<spec> 404. The ALWAYS_INCLUDE presence check walks the filesystem
+  # node_modules ancestors instead of require.resolve, so NODE_PATH injected by pnpm bin
+  # shims cannot expose the hidden `.pnpm/node_modules` hoist and collect a package the app
+  # does not actually have (stacktrace-js via the workspace's firebase-crashlytics).
   "@nativescript/vite@8.0.20": packages/cli/patches/@nativescript__vite@8.0.20.patch
   # Driver treats a prop dropped from an update's complete prop bag — or set to
   # `undefined`/`null` — as a removal and restores the documented default:
