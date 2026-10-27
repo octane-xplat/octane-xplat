@@ -206,6 +206,16 @@ experience of agents writing Octane-xplat code effectively.
   is the hoisted-workspace iOS boot. Remove this hunk when an adopted
   upstream release resolves installed package metadata through ancestor
   `node_modules`.
+- **Vite aliases need the canonical esbuild replay on NativeScript Vite
+  8.0.20.** Its deps and vendor esbuild passes ignore `resolve.alias`. The
+  canonical patch replays aliases there for packages that are not installed
+  for the importer. Packages found only in pnpm's hidden hoist
+  (`node_modules/.pnpm/node_modules/`) do not count as installed. Without that
+  exclusion, `apps/windows`' full MasonKit disabled the mobile
+  MasonKit-to-core alias, and iOS dev boot threw
+  `MasonListDelegate is not defined`. The regressions live in
+  `packages/cli/test/vite-deps-alias.test.mjs`. Remove this hunk when upstream
+  esbuild dev passes honor Vite aliases.
 
 - NativeScript Vite 8.0.20 collapses unrelated paths containing `/src/` in
   its HMR graph ([NativeScript#11569](https://github.com/NativeScript/NativeScript/issues/11569)).

@@ -1555,8 +1555,48 @@ workshop from `apps/mobile` with `xplat workshop dev --target ios`: the Xcode
 build, install and sync succeed, then the dev-session bootstrap throws
 `ReferenceError: MasonListDelegate is not defined` from
 `@octane-xplat/nativescript-masonkit@1.0.0-beta.126`'s `list/index.ios.js`
-before any app or workshop code runs. The native class is absent from
-`@octane-xplat/nativescript-mason-core@1.0.0-beta.5`, the newest published
-xcframework. There is no JS workaround; a mason-core release exposing the
-delegate, or a masonkit pin that does not reference it, unblocks iOS runtime
-checks. No visual analysis was used.
+before any app or workshop code runs.
+
+**Resolved (corrected diagnosis).** Plain `apps/mobile` (`xplat dev ios`,
+no workshop) fails identically, so the workshop is not involved. Core is
+correct to omit the class: `MasonListDelegate` is the protocol of full
+MasonKit's `MasonList.swift`, a list widget that core excludes by design. It
+is present in the full `Mason.xcframework` headers (`Mason-Swift.h`) and
+absent from core beta.5's headers and binary. The fault was that full MasonKit
+JavaScript reached the mobile dev bundle at all:
+
+- Mobile apps declare only core beta.5. Only `apps/windows` declares
+  `@octane-xplat/nativescript-masonkit@1.0.0-beta.126`, and pnpm's hidden
+  hoist places it at `node_modules/.pnpm/node_modules/`.
+- The local `@nativescript/vite@8.0.20` patch replays `xplatNative`'s
+  MasonKit-to-core alias in the deps/vendor esbuild passes only for packages
+  that are not installed. Its presence walk from the renderer importer found
+  the hidden-hoisted copy, skipped the alias, and bundled full MasonKit.
+  The renderer barrel reaches `list/index.ios.js`, whose module scope reads
+  `MasonListDelegate`.
+- Release builds were unaffected: Vite's own alias applies there, and
+  `.ns-vite-build/ios/bundle.mjs` contained no MasonKit modules.
+
+The patch now ignores pnpm's hidden-hoist directory when judging presence.
+Before the fix, the generated deps-bundle manifest listed 40 MasonKit modules,
+including `list/index.ios.js`. After it, it lists 0 MasonKit modules and 28
+from core. Android had the same exposure, by static evidence only: MasonKit's
+`list/index.android.js` reads `org.nativescript.mason.masonkit.ListView.Listener`
+at module scope, and core's AAR has no `ListView`. Android was not run.
+
+Runtime evidence, iPhone 18 Pro simulator, 2026-10-27: with the fix the
+`ReferenceError` is gone. The app still does not finish booting, for reasons
+unrelated to Mason that the earlier error had hidden:
+
+- The universal compiler rejects JSX in the new `packages/ui/src/table/use-table-*.tsrx`
+  hooks ("requires universal plan lowering"). These modules then return 404
+  to the device. The same pre-transform errors appear in the logs before the
+  fix.
+- The `xplat workshop dev` path stops earlier, at
+  `/ns/m/node_modules/@storybook/global (status=404)`. So workshop chrome and
+  stage mounting remain unverified.
+- The vendor entry also failed to resolve `stacktrace-js` in this worktree's
+  isolated install. A temporary app-local symlink was used only to proceed.
+
+Logs are in the worktree's `research/masonlistdelegate/`. No visual analysis
+was used.
