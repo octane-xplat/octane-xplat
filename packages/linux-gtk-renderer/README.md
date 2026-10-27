@@ -29,29 +29,41 @@ When the typelib is absent, `masonview` warns once and falls back to the
 
 ### Building the binding (Linux build host)
 
-The artifact is not committed — build it where the renderer runs:
+The artifact is not committed — build it where the renderer runs. The facade
+links the pinned MasonCore engine archive the mason checkout's core native
+build produces (`libMasonCore.a` plus its generated `mason_native.h`), so
+build that artifact first:
 
 ```sh
-git clone https://github.com/triniwiz/nativescript-mason research/nativescript-mason  # sibling checkout
-packages/linux-gtk-renderer/native/xplatmason/build.sh
+git clone https://github.com/octane-xplat/nativescript-mason research/nativescript-mason  # sibling checkout
+cd research/nativescript-mason && rustup run stable cargo generate-lockfile
+pnpm exec nx run nativescript-mason-core:build.native.desktop
+cd ../.. && packages/linux-gtk-renderer/native/xplatmason/build.sh
 ```
 
-Requires cargo, pkg-config, `gtk4` and `json-glib-1.0` dev packages, and
-`gobject-introspection` (`g-ir-scanner`, `g-ir-compiler`). It produces:
+The build consumes `dist/native/mason-core/desktop/<rustc host triple>/` —
+`x86_64-unknown-linux-gnu` on a standard Linux box — and records the consumed
+pin in `native/xplatmason/manifest.json` (`XPLAT_MASON_CORE_MODE` /
+`XPLAT_MASON_CORE_TARGET` select another artifact). Requires pkg-config,
+`gtk4` and `json-glib-1.0` dev packages, and `gobject-introspection`
+(`g-ir-scanner`, `g-ir-compiler`). It produces:
 
-- `libxplatmason-gtk.so` — the facade, statically linked with `libmason_c.a`
+- `libxplatmason-gtk.so` — the facade, statically linked with `libMasonCore.a`
 - `XplatMason-1.0.typelib` — the namespace GJS binds through
 
-Point the app at the artifact directory before launching `gjs`:
+Both artifacts bind by soname only — no absolute paths are stamped in.
+Point the app at the artifact directory before launching `gjs` so the
+typelib and the library path both resolve:
 
 ```sh
-GI_TYPELIB_PATH=packages/linux-gtk-renderer/native/xplatmason gjs -m dist/app.js
-# or: XPLAT_MASON_TYPELIB=<that dir> gjs -m dist/app.js
+XPLAT_MASON_TYPELIB=packages/linux-gtk-renderer/native/xplatmason gjs -m dist/app.js
+# or GI_TYPELIB_PATH=<that dir> plus the dir on LD_LIBRARY_PATH
 ```
 
 macOS dev builds work too (Homebrew `gjs gtk4 gobject-introspection
 json-glib`); `DYLD_FALLBACK_LIBRARY_PATH=$(brew --prefix)/lib` is needed
-for brew's gjs to resolve libgjs.
+for brew's gjs to resolve libgjs, and the facade consumes the host archive
+(`build.native.host` in the mason checkout) via `XPLAT_MASON_CORE_MODE=host`.
 
 ### Layout notes
 

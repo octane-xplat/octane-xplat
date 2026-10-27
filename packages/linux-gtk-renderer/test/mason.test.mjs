@@ -54,7 +54,9 @@ test('mason-c engine drives masonview layout under real GJS+GTK', async (t) => {
 		process.platform === 'darwin'
 			? `${execSync('brew --prefix').toString().trim()}/lib`
 			: undefined
-	const env = { ...process.env, GI_TYPELIB_PATH: nativeDir }
+	// XPLAT_MASON_TYPELIB drives both prepends — typelib search path and the
+	// repository library path the soname resolves through.
+	const env = { ...process.env, GI_TYPELIB_PATH: nativeDir, XPLAT_MASON_TYPELIB: nativeDir }
 	if (dyld) {
 		env.DYLD_FALLBACK_LIBRARY_PATH = [dyld, process.env.DYLD_FALLBACK_LIBRARY_PATH]
 			.filter(Boolean)

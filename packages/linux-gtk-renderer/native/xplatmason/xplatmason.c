@@ -9,54 +9,10 @@
 #include <math.h>
 #include <string.h>
 
-// mason-c exports (crates/mason-c). Linked statically into this library.
-extern void *mason_init(void);
-extern void mason_release(void *mason);
-extern void mason_set_device_scale(void *mason, float scale);
-extern void *mason_node_new_node(void *mason, bool anonymous);
-extern void *mason_node_new_node_with_context(
-    void *mason, void *measure_data,
-    long long (*measure)(const void *, float, float, float, float));
-extern void mason_node_destroy(void *node);
-extern void mason_node_set_children(void *mason, void *node, void *const *children,
-                                    size_t children_size);
-extern void mason_node_mark_dirty(void *mason, void *node);
-extern void mason_node_compute_wh(void *mason, void *node, float width, float height);
-extern void *mason_node_layout(void *mason, void *node,
-                               void *(*cb)(const float *, size_t));
-extern void *mason_node_layout_shallow(void *mason, void *node,
-                                       void *(*cb)(const float *, size_t));
-extern void *mason_node_compute_max_content_and_layout(
-    void *mason, void *node, void *(*cb)(const float *, size_t));
-extern void mason_style_set_with_values(
-    void *mason, void *node, signed char display, signed char position,
-    signed char direction, signed char flex_direction, signed char flex_wrap,
-    signed char overflow, signed char align_items, signed char align_self,
-    signed char align_content, signed char justify_items, signed char justify_self,
-    signed char justify_content, signed char inset_left_type, float inset_left_value,
-    signed char inset_right_type, float inset_right_value, signed char inset_top_type,
-    float inset_top_value, signed char inset_bottom_type, float inset_bottom_value,
-    signed char margin_left_type, float margin_left_value, signed char margin_right_type,
-    float margin_right_value, signed char margin_top_type, float margin_top_value,
-    signed char margin_bottom_type, float margin_bottom_value, signed char padding_left_type,
-    float padding_left_value, signed char padding_right_type, float padding_right_value,
-    signed char padding_top_type, float padding_top_value, signed char padding_bottom_type,
-    float padding_bottom_value, signed char border_left_type, float border_left_value,
-    signed char border_right_type, float border_right_value, signed char border_top_type,
-    float border_top_value, signed char border_bottom_type, float border_bottom_value,
-    float flex_grow, float flex_shrink, signed char flex_basis_type, float flex_basis_value,
-    signed char width_type, float width_value, signed char height_type, float height_value,
-    signed char min_width_type, float min_width_value, signed char min_height_type,
-    float min_height_value, signed char max_width_type, float max_width_value,
-    signed char max_height_type, float max_height_value, signed char gap_row_type,
-    float gap_row_value, signed char gap_column_type, float gap_column_value,
-    float aspect_ratio, const char *grid_auto_rows, const char *grid_auto_columns,
-    signed char grid_auto_flow, const char *grid_column, const char *grid_column_start,
-    const char *grid_column_end, const char *grid_row, const char *grid_row_start,
-    const char *grid_row_end, const char *grid_template_rows,
-    const char *grid_template_columns, signed char overflow_x, signed char overflow_y,
-    float scrollbar_width, signed char text_align, signed char box_sizing,
-    const char *grid_area, const char *grid_template_areas);
+// mason-c exports come from the generated header shipped beside
+// libMasonCore.a under dist/native/mason-core — build.sh puts it on the
+// include path. No hand-written prototypes.
+#include "mason_native.h"
 
 #define H(ptr) ((guint64)(guintptr)(ptr))
 #define P(handle) ((void *)(guintptr)(handle))
@@ -72,8 +28,8 @@ static GHashTable *leaf_widgets(void) {
 }
 
 // Mason packs a measure result as two f32s in an i64 (MeasureOutput::make).
-static gint64 XGtkMeasure(const void *ctx, float known_w, float known_h,
-                          float avail_w, float avail_h) {
+static long long XGtkMeasure(const void *ctx, float known_w, float known_h,
+                             float avail_w, float avail_h) {
   GtkWidget *widget = (GtkWidget *)ctx;
   if (!GTK_IS_WIDGET(widget)) {
     return 0;
@@ -94,7 +50,7 @@ static gint64 XGtkMeasure(const void *ctx, float known_w, float known_h,
   float w = (float)nat_w, h = (float)nat_h;
   memcpy(&wb, &w, sizeof(float));
   memcpy(&hb, &h, sizeof(float));
-  return (gint64)(((guint64)wb << 32) | (guint64)hb);
+  return (long long)(((guint64)wb << 32) | (guint64)hb);
 }
 
 guint64 xplat_mason_engine_new(void) { return H(mason_init()); }
@@ -115,7 +71,7 @@ guint64 xplat_mason_node_new(guint64 engine, gboolean anonymous) {
 
 guint64 xplat_mason_node_new_leaf(guint64 engine, GtkWidget *widget) {
   void *ctx = g_object_ref(widget);
-  void *node = mason_node_new_node_with_context(P(engine), ctx, XGtkMeasure);
+  CMasonNode *node = mason_node_new_node_with_context(P(engine), ctx, XGtkMeasure);
   if (!node) {
     g_object_unref(ctx);
     return 0;
@@ -125,7 +81,7 @@ guint64 xplat_mason_node_new_leaf(guint64 engine, GtkWidget *widget) {
 }
 
 void xplat_mason_node_free(guint64 engine, guint64 node) {
-  void *ptr = P(node);
+  CMasonNode *ptr = P(node);
   gpointer widget = g_hash_table_lookup(leaf_widgets(), ptr);
   if (widget) {
     g_hash_table_remove(leaf_widgets(), ptr);
@@ -138,15 +94,14 @@ void xplat_mason_node_free(guint64 engine, guint64 node) {
 void xplat_mason_node_set_children(guint64 engine, guint64 node,
                                    const guint64 *children,
                                    gsize children_len) {
-  void **list = NULL;
+  CMasonNode **list = NULL;
   if (children_len > 0) {
-    list = g_new(void *, children_len);
+    list = g_new(CMasonNode *, children_len);
     for (gsize i = 0; i < children_len; i++) {
       list[i] = P(children[i]);
     }
   }
-  mason_node_set_children(P(engine), P(node), (void *const *)list,
-                          (size_t)children_len);
+  mason_node_set_children(P(engine), P(node), list, (uintptr_t)children_len);
   g_free(list);
 }
 
@@ -158,7 +113,7 @@ void xplat_mason_node_mark_dirty(guint64 engine, guint64 node) {
 // calls on the single-threaded host.
 static GBytes *xplat_layout_out;
 
-static void *XCollectLayout(const float *ptr, size_t len) {
+static void *XCollectLayout(const float *ptr, uintptr_t len) {
   xplat_layout_out = len ? g_bytes_new(ptr, len * sizeof(float)) : NULL;
   return NULL;
 }

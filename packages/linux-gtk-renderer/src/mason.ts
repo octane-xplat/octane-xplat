@@ -51,8 +51,17 @@ function loadMasonNamespace(): any {
 			} else {
 				repo?.prepend_search_path?.(typelibDir)
 			}
+			// The gir binds the facade by soname only, so the shipped
+			// artifacts stay relocatable — the loader must find the lib
+			// beside its typelib via the repository library path.
+			if (instance?.prepend_library_path) {
+				instance.prepend_library_path(typelibDir)
+			} else {
+				repo?.prepend_library_path?.(typelibDir)
+			}
 		} catch {
-			// Older GIRepository revisions — GI_TYPELIB_PATH still applies.
+			// Older GIRepository revisions — GI_TYPELIB_PATH and the loader
+			// paths (LD_LIBRARY_PATH, DYLD_FALLBACK_LIBRARY_PATH) still apply.
 		}
 	}
 	try {
@@ -70,7 +79,7 @@ function masonEngine(): number | null {
 	if (!mason) {
 		console.warn(
 			'[linux-gtk-mason] XplatMason typelib not found — masonview falls back to Gtk.Box emulation. ' +
-				'Build packages/linux-gtk-renderer/native/xplatmason and set XPLAT_MASON_TYPELIB or GI_TYPELIB_PATH.',
+				'Build packages/linux-gtk-renderer/native/xplatmason and set XPLAT_MASON_TYPELIB (or GI_TYPELIB_PATH plus the loader library path).',
 		)
 		initFailed = true
 		return null
