@@ -40,11 +40,15 @@ export function Slider(inputProps: SliderProps) @{
 		if (isRange) {
 			const clamped = Math.min(max, Math.max(min, snap(next)));
 			const pair: [number, number] = which === 'lo' ? [Math.min(clamped, hi), hi] : [lo, Math.max(clamped, lo)];
-			emit(pair);
+			if (pair[0] !== lo || pair[1] !== hi) {
+				emit(pair);
+			}
 			return pair;
 		}
 		const clamped = Math.min(max, Math.max(min, snap(next)));
-		emit(clamped);
+		if (clamped !== hi) {
+			emit(clamped);
+		}
 		return clamped;
 	};
 

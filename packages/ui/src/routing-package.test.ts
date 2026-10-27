@@ -410,7 +410,7 @@ SideNavItem({ label: 'Local', router: local, to: '/local' })
 NavHeadingMenuItem({ label: 'Local', router: local, to: '/local' })
 Tab({ value: 'local', label: 'Local', router: local, to: '/local' })
 SideNavItem({ label: 'New window', to: '/items/:id', params: { id: 'coat' }, target: '_blank', rel: 'noreferrer' })
-const readonlyAncestors = [{ label: 'Coat', to: '/items/:id', params: { id: 'coat' } }] as const satisfies readonly import('@octane-xplat/ui').BreadcrumbItem[]
+const readonlyAncestors = [{ label: 'Coat', to: '/items/:id', params: { id: 'coat' } }] as const satisfies readonly import('@octane-xplat/ui').BreadcrumbEntry[]
 Breadcrumbs({ items: readonlyAncestors })
 DropdownMenu({ items: [{ type: 'link', key: 'local', router: local, to: '/local' }] })
 // @ts-expect-error Navigation strip arrays preserve required path fields.
