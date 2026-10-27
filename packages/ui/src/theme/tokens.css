@@ -805,6 +805,13 @@
 		height: 4px;
 		vertical-align: middle;
 	}
+	.vx-slider--appkit {
+		grid-template-rows: 1fr;
+		grid-template-columns: 1fr;
+	}
+	.vx-slider--appkit > * {
+		grid-area: 1 / 1;
+	}
 	.vx-slider-thumb {
 		width: 20px;
 		height: 20px;

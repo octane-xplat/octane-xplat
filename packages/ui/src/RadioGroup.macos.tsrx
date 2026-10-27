@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { RadioIndicator } from './RadioIndicator.macos.tsrx'
 import { mergeStyle } from './style-merge'
 import { useState } from 'octane';
 import type { RadioGroupProps } from "./props";
@@ -25,17 +26,7 @@ export function RadioGroup(inputProps: RadioGroupProps) @{
 			const blocked = disabled || isBlocked;
 			return (
 				<masonview key={opt.value} className={cx('vx-radio-row', selected && 'vx-radio--on', disabled && 'vx-radio--disabled', props.isReadOnly && 'vx-radio--readonly')} accessibilityState={{ selected, disabled, readonly: props.isReadOnly }} onTap={blocked ? undefined : () => select(opt.value)} style={mergeStyle({flexDirection: "row", alignItems: "center", gap: 8}, {display: "flex"})}>
-					{/* circle/dot metrics are CSS on web — inline them here
-					   (AppKit has no style layer); keep in step with .vx-radio */}
-					<masonview className="vx-radio" style={mergeStyle({alignItems: "center", justifyContent: "center"}, mergeStyle({display: "flex"}, {
-							width: 18,
-							height: 18,
-							borderWidth: 1,
-							borderColor: selected ? '#171717' : '#d4d4d4',
-							borderRadius: 9,
-						}))}>
-						{selected ? <masonview className="vx-radio-dot" style={mergeStyle({display: "flex"}, { width: 8, height: 8, borderRadius: 4, backgroundColor: '#171717' })}/> : null}
-					</masonview>
+					<RadioIndicator state={selected ? 'checked' : 'unchecked'} size={props.size === 'sm' ? 'sm' : 'md'} isDisabled={disabled} />
 					{opt.label != null ? <label className="vx-radio-label" text={opt.label} /> : null}
 				</masonview>
 			);

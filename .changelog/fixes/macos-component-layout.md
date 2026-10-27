@@ -6,4 +6,6 @@ Button and Pressable now start without a border; authored border styles still ap
 
 Open drawers keep their content height, and Absolute overlays share the same top-left origin on macOS.
 
+Checkboxes, radio indicators, Meter frames, and slider layers now follow their shared sizes and alignment on macOS.
+
 [Shared components](https://octane-xplat.goddardai.org/app/primitives)

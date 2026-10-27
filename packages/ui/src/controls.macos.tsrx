@@ -3,6 +3,7 @@ import { mergeStyle, styleRecord } from './style-merge'
 import { useRef, useState } from 'octane'
 import type { ActivityIndicatorProps, ButtonProps, CheckboxProps, PanEvent, SearchInputProps, SegmentedControlProps, SliderProps, SwitchProps } from './props'
 import { Pressable } from './Pressable.macos.tsrx'
+import { CheckboxIndicator } from './CheckboxIndicator.macos.tsrx'
 import { Text } from './Text.macos.tsrx'
 import { TextInput } from './text-controls.macos.tsrx'
 import { cx } from '@octane-xplat/lib'
@@ -60,9 +61,7 @@ export function Checkbox(inputProps: CheckboxProps) @{
 	const resolved = props.value ?? internal
 	const indeterminate = resolved === 'indeterminate'
 	const checked = resolved === true
-	const marked = checked || indeterminate
 	const isBlocked = props.isDisabled || props.isReadOnly
-	const colors = controlColors(useThemeScheme() === 'dark')
 	const toggle = () => {
 		const next = indeterminate ? true : !checked
 		if (props.value === undefined) setInternal(next)
@@ -70,16 +69,7 @@ export function Checkbox(inputProps: CheckboxProps) @{
 	}
 
 	<masonview id={props.id} className={cx('vx-checkbox-row', checked && 'vx-checkbox--on', props.isDisabled && 'vx-checkbox--disabled', props.isReadOnly && 'vx-checkbox--readonly', props.isLoading && 'vx-checkbox--loading', props.status && `vx-checkbox--status-${props.status.type}`, props.size && `vx-checkbox--size-${props.size}`, props.className)} style={mergeStyle({flexDirection: "row", alignItems: "center", gap: props.label == null ? 0 : 8}, mergeStyle({display: "flex"}, { opacity: props.isDisabled ? 0.5 : 1, ...styleRecord(props.style) }))} accessibilityRole="checkbox" accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label} accessibilityHint={props.accessibilityHint} accessibilityValue={indeterminate ? 'Partially selected' : undefined} accessibilityState={{ checked: indeterminate ? 'mixed' : checked, disabled: props.isDisabled, readonly: props.isReadOnly, busy: props.isLoading, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' }} onTap={isBlocked ? undefined : toggle}>
-		<masonview className="vx-checkbox" style={mergeStyle({alignItems: "center", justifyContent: "center"}, mergeStyle({display: "flex"}, {
-				width: 20,
-				height: 20,
-				borderWidth: 1,
-				borderColor: marked ? colors.primary : colors.border,
-				borderRadius: 6,
-				...(marked ? { backgroundColor: colors.primary } : {}),
-			}))}>
-			{marked ? <Text className="vx-checkbox-check" style={{ fontFamily: 'system-ui', fontSize: 14, lineHeight: '20px', color: colors.onPrimary }}>{indeterminate ? '−' : '✓'}</Text> : null}
-		</masonview>
+		<CheckboxIndicator state={indeterminate ? 'indeterminate' : checked ? 'checked' : 'unchecked'} size={props.size === 'sm' ? 'sm' : 'md'} isDisabled={props.isDisabled} />
 		{props.label != null ? <Text className="vx-checkbox-label">{props.label}</Text> : null}
 	</masonview>
 }
@@ -142,10 +132,10 @@ export function Slider(props: SliderProps) @{
 		props.onValueChange?.(next)
 	}
 
-	<masonview id={props.id} disabled={props.disabled} className={cx('vx-slider', props.className)} style={mergeStyle({display: "grid"}, { height: 28, ...styleRecord(props.style) })} accessibilityRole={nativeAccessibilityRole('adjustable')} accessibilityValue={value} accessibilityMinValue={min} accessibilityMaxValue={max} onAccessibilityIncrement={() => adjustValue(1)} onAccessibilityDecrement={() => adjustValue(-1)} onPan={onPan}>
+	<masonview id={props.id} disabled={props.disabled} className={cx('vx-slider', 'vx-slider--appkit', props.className)} style={mergeStyle({display: "grid"}, { height: 28, ...styleRecord(props.style) })} accessibilityRole={nativeAccessibilityRole('adjustable')} accessibilityValue={value} accessibilityMinValue={min} accessibilityMaxValue={max} onAccessibilityIncrement={() => adjustValue(1)} onAccessibilityDecrement={() => adjustValue(-1)} onPan={onPan}>
 		<masonview style={mergeStyle({display: "flex"}, { height: 4, borderRadius: 2, backgroundColor: colors.border , alignSelf: 'center'})} className="vx-slider-track"/>
 		<masonview style={mergeStyle({display: "flex"}, { width: String(ratio * 100) + '%', height: 4, borderRadius: 2, backgroundColor: colors.primary , justifySelf: 'start', alignSelf: 'center'})} className="vx-slider-fill"/>
-		<masonview style={mergeStyle({display: "flex"}, { width: 20, height: 20, borderRadius: 10, backgroundColor: colors.primary, left: String(ratio * 100) + '%', marginLeft: -10 , justifySelf: 'start', alignSelf: 'center'})} className="vx-slider-thumb"/>
+		<masonview style={mergeStyle({display: "flex"}, { width: 20, height: 20, backgroundColor: colors.primary, left: String(ratio * 100) + '%', marginLeft: -10 , justifySelf: 'start', alignSelf: 'center'})} className="vx-slider-thumb"/>
 	</masonview>
 }
 
