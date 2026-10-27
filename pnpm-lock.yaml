@@ -988,6 +988,40 @@ importers:
         specifier: 'catalog:'
         version: 5.9.3
 
+  packages/barcode-scanner:
+    dependencies:
+      '@nativescript/mlkit-barcode-scanning':
+        specifier: 3.0.4
+        version: 3.0.4
+      '@nativescript/mlkit-core':
+        specifier: 3.0.4
+        version: 3.0.4
+      '@octane-xplat/platform':
+        specifier: workspace:*
+        version: link:../platform
+    devDependencies:
+      '@nativescript-community/octane':
+        specifier: 'catalog:'
+        version: 0.2.5(patch_hash=929a63570f78fe34b9316adda2853402f67438d8bae53642532c615fb2dd26b3)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.14.0(patch_hash=72aab06e2743b11bebe59fe01d29148dcfbd2bb3a381413179986b0f374ba065)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+      '@nativescript/core':
+        specifier: 'catalog:'
+        version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
+      '@nativescript/types':
+        specifier: 'catalog:'
+        version: 9.1.4
+      '@tsrx/typescript-plugin':
+        specifier: 'catalog:'
+        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.14.0(patch_hash=72aab06e2743b11bebe59fe01d29148dcfbd2bb3a381413179986b0f374ba065)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
+      octane:
+        specifier: 'catalog:'
+        version: 0.14.0(patch_hash=72aab06e2743b11bebe59fe01d29148dcfbd2bb3a381413179986b0f374ba065)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      tsrx-typegen:
+        specifier: workspace:*
+        version: link:../tsrx-typegen
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
   packages/biometrics:
     dependencies:
       '@nativescript/biometrics':
@@ -1217,6 +1251,37 @@ importers:
       vite:
         specifier: 'catalog:'
         version: 8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)
+
+  packages/contacts:
+    dependencies:
+      '@nativescript/contacts':
+        specifier: 3.0.0
+        version: 3.0.0
+      '@octane-xplat/platform':
+        specifier: workspace:*
+        version: link:../platform
+    devDependencies:
+      '@nativescript-community/octane':
+        specifier: 'catalog:'
+        version: 0.2.5(patch_hash=929a63570f78fe34b9316adda2853402f67438d8bae53642532c615fb2dd26b3)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.14.0(patch_hash=72aab06e2743b11bebe59fe01d29148dcfbd2bb3a381413179986b0f374ba065)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+      '@nativescript/core':
+        specifier: 'catalog:'
+        version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
+      '@nativescript/types':
+        specifier: 'catalog:'
+        version: 9.1.4
+      '@tsrx/typescript-plugin':
+        specifier: 'catalog:'
+        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.14.0(patch_hash=72aab06e2743b11bebe59fe01d29148dcfbd2bb3a381413179986b0f374ba065)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
+      octane:
+        specifier: 'catalog:'
+        version: 0.14.0(patch_hash=72aab06e2743b11bebe59fe01d29148dcfbd2bb3a381413179986b0f374ba065)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      tsrx-typegen:
+        specifier: workspace:*
+        version: link:../tsrx-typegen
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
 
   packages/context-menu:
     dependencies:
@@ -2801,6 +2866,30 @@ importers:
         specifier: 'catalog:'
         version: 5.9.3
 
+  packages/store-review:
+    devDependencies:
+      '@nativescript-community/octane':
+        specifier: 'catalog:'
+        version: 0.2.5(patch_hash=929a63570f78fe34b9316adda2853402f67438d8bae53642532c615fb2dd26b3)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.14.0(patch_hash=72aab06e2743b11bebe59fe01d29148dcfbd2bb3a381413179986b0f374ba065)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+      '@nativescript/core':
+        specifier: 'catalog:'
+        version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
+      '@nativescript/types':
+        specifier: 'catalog:'
+        version: 9.1.4
+      '@tsrx/typescript-plugin':
+        specifier: 'catalog:'
+        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.14.0(patch_hash=72aab06e2743b11bebe59fe01d29148dcfbd2bb3a381413179986b0f374ba065)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
+      octane:
+        specifier: 'catalog:'
+        version: 0.14.0(patch_hash=72aab06e2743b11bebe59fe01d29148dcfbd2bb3a381413179986b0f374ba065)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      tsrx-typegen:
+        specifier: workspace:*
+        version: link:../tsrx-typegen
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
   packages/table:
     dependencies:
       '@octane-xplat/platform':
@@ -3025,6 +3114,34 @@ importers:
       vite:
         specifier: 'catalog:'
         version: 8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)
+
+  packages/web-browser:
+    dependencies:
+      '@octane-xplat/platform':
+        specifier: workspace:*
+        version: link:../platform
+    devDependencies:
+      '@nativescript-community/octane':
+        specifier: 'catalog:'
+        version: 0.2.5(patch_hash=929a63570f78fe34b9316adda2853402f67438d8bae53642532c615fb2dd26b3)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.14.0(patch_hash=72aab06e2743b11bebe59fe01d29148dcfbd2bb3a381413179986b0f374ba065)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+      '@nativescript/core':
+        specifier: 'catalog:'
+        version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
+      '@nativescript/types':
+        specifier: 'catalog:'
+        version: 9.1.4
+      '@tsrx/typescript-plugin':
+        specifier: 'catalog:'
+        version: 0.4.11(patch_hash=d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee)(octane@0.14.0(patch_hash=72aab06e2743b11bebe59fe01d29148dcfbd2bb3a381413179986b0f374ba065)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(typescript@5.9.3)
+      octane:
+        specifier: 'catalog:'
+        version: 0.14.0(patch_hash=72aab06e2743b11bebe59fe01d29148dcfbd2bb3a381413179986b0f374ba065)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      tsrx-typegen:
+        specifier: workspace:*
+        version: link:../tsrx-typegen
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
 
   packages/web-host:
     dependencies:
@@ -4784,6 +4901,9 @@ packages:
   '@nativescript/canvas@3.0.0-alpha.15':
     resolution: {integrity: sha512-4N1+i7VERZQH/R6TgNkKFCzpxEaFuv4MtWkBy/ur5ADpq780zzXj8JBgqW8utgIN8NW8a2w+s1am1iZ0wFoAww==}
 
+  '@nativescript/contacts@3.0.0':
+    resolution: {integrity: sha512-gBOx3db0gJYaQnc4H/hwLxApEA0w5rsGz/nWk9aqmNnxfkyXUNNpWNaxqiplnPrIo9MCOEVVnbhXwm4GohvVLA==}
+
   '@nativescript/core@9.1.2':
     resolution: {integrity: sha512-zL/dgfuLmcVu9nR47UEFOaPHXoaRKuWMBnDwiaMAwXmf4WKd6yr1gIXcNHheKgBNGrls06LgbBpkB841fI+HcA==}
 
@@ -4838,6 +4958,12 @@ packages:
 
   '@nativescript/macos-node-api@0.4.4-next.2026-08-09-31292056208':
     resolution: {integrity: sha512-BiZiitKtqijvy9G/QbPMVnv2IrzoSH1CzjIpAxV5RmWDX/2lgoNHKWVg07jHRieFMksRg/R99eM5tF3Hj0qymg==}
+
+  '@nativescript/mlkit-barcode-scanning@3.0.4':
+    resolution: {integrity: sha512-Oq4x69wU9EHMBSjRfkNluICJEZ1WlxRmE2Vz3mD+l86Y+XTwFBCNESLXGCk/1hPRCLG7Qttg1+ieM4LGTlfmDA==}
+
+  '@nativescript/mlkit-core@3.0.4':
+    resolution: {integrity: sha512-TNPxgRIKUFxR6ZGYHnBCIQ5wSWN9dxhV8QZOiP6yibHObCkRLpEiRJ1Nk8iATLfxlYf2JbIAyCWIHhPg0KCYag==}
 
   '@nativescript/objc-node-api@1.0.0-alpha.7':
     resolution: {integrity: sha512-HCkKX46wmc/Oe+Td958HeRmlqKCKmzeeIm0Kofb8aU+6WqjslLK8xGj6HLQT1SyzLWNQdr3dYp7PLFixMjBymw==}
@@ -12502,6 +12628,10 @@ snapshots:
     dependencies:
       '@nativescript/font-manager': 1.0.20
 
+  '@nativescript/contacts@3.0.0':
+    dependencies:
+      '@nativescript-community/perms': 2.3.6
+
   '@nativescript/core@9.1.2':
     dependencies:
       '@csstools/css-calc': 2.1.4(@csstools/css-parser-algorithms@3.0.5(@csstools/css-tokenizer@3.0.4))(@csstools/css-tokenizer@3.0.4)
@@ -12599,6 +12729,10 @@ snapshots:
   '@nativescript/macos-node-api@0.4.4-next.2026-08-09-31292056208':
     dependencies:
       '@nativescript/objc-node-api': 1.0.0-alpha.7
+
+  '@nativescript/mlkit-barcode-scanning@3.0.4': {}
+
+  '@nativescript/mlkit-core@3.0.4': {}
 
   '@nativescript/objc-node-api@1.0.0-alpha.7': {}
 

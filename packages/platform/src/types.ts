@@ -48,7 +48,15 @@ export interface RandomImpl {
 	bytes(length: number): Uint8Array
 }
 
-export type PermissionKind = 'notifications' | 'camera' | 'photos' | 'location' | 'microphone'
+export type PermissionKind =
+	| 'notifications'
+	| 'camera'
+	| 'photos'
+	| 'location'
+	| 'location-always'
+	| 'microphone'
+	| 'contacts'
+	| 'calendar'
 
 export type ConnectionType =
 	| 'none'
