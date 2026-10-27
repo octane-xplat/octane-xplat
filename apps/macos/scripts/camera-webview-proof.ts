@@ -16,7 +16,7 @@ if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 }
 
 const webServer = await createServer({
-	configFile: resolve(appRoot, 'vite.webview-camera-proof.config.ts'),
+	configFile: resolve(appRoot, 'vite.webview-camera-proof.config.mjs'),
 })
 
 let child
@@ -60,7 +60,7 @@ process.once('SIGTERM', () => {
 
 try {
 	console.log('[camera-proof] building typed JSC host bundle')
-	await build({ configFile: resolve(appRoot, 'vite.webview-camera-host.config.ts') })
+	await build({ configFile: resolve(appRoot, 'vite.webview-camera-host.config.mjs') })
 
 	console.log('[camera-proof] compiling WKWebView native leaf and metadata')
 	const native = await buildMacOSNative(appRoot)
@@ -76,7 +76,7 @@ try {
 			targets: {
 				macos: {
 					dev: {
-						viteConfig: 'vite.webview-camera-host.config.ts',
+						viteConfig: 'vite.webview-camera-host.config.mjs',
 						bundleFile: 'dist/webview-camera-host/host.cjs',
 					},
 					package: {

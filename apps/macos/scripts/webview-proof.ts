@@ -16,7 +16,7 @@ if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 }
 
 const webServer = await createServer({
-	configFile: resolve(appRoot, 'vite.webview-proof.config.ts'),
+	configFile: resolve(appRoot, 'vite.webview-proof.config.mjs'),
 })
 
 let child
@@ -58,7 +58,7 @@ process.once('SIGTERM', () => {
 
 try {
 	console.log('[webview-proof] building typed JSC host bundle')
-	await build({ configFile: resolve(appRoot, 'vite.webview-host.config.ts') })
+	await build({ configFile: resolve(appRoot, 'vite.webview-host.config.mjs') })
 
 	console.log('[webview-proof] compiling WKWebView native leaf and metadata')
 	const native = await buildMacOSNative(appRoot)

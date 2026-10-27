@@ -6,6 +6,14 @@
 			"dependsOn": ["^typegen", "@xplat/app#gen"],
 			"outputs": []
 		},
+		"webview:proof": {
+			"dependsOn": ["^typegen", "^build"],
+			"cache": false
+		},
+		"test:camera-webview": {
+			"dependsOn": ["^typegen", "^build"],
+			"cache": false
+		},
 		"build": {
 			"dependsOn": ["^typegen", "@xplat/app#gen"],
 			"inputs": [
