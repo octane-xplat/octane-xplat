@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/sqlite",
 	"version": "0.17.1",
-	"description": "Cross-target SQLite persistence — sqlite-wasm worker on web, @nativescript-community/sqlite on iOS/Android",
+	"description": "Cross-target SQLite persistence \u2014 sqlite-wasm worker on web, @nativescript-community/sqlite on iOS/Android",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/octane-xplat/octane-xplat",
@@ -45,7 +45,8 @@
 	},
 	"dependencies": {
 		"@nativescript-community/sqlite": "3.5.9",
-		"@sqlite.org/sqlite-wasm": "3.53.4-build1"
+		"@sqlite.org/sqlite-wasm": "3.53.4-build1",
+		"@octane-xplat/lib": "workspace:*"
 	},
 	"devDependencies": {
 		"@nativescript/types": "catalog:",

@@ -28,7 +28,7 @@ export const createAudioRecorder = () => {
 
 // See @octane-xplat/media for the pattern — registers the kind this leaf owns
 // for the platform permissions dispatcher. 'unavailable' maps onto 'denied'
-// because the shared PermissionResult union has no device-absence value.
+// because the shared PermissionResponse union has no device-absence value.
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
 permissionOwners.microphone = async () => {
 	const state = Application.android

@@ -1,14 +1,13 @@
+import { UnavailabilityError } from '@octane-xplat/lib/capability'
 import type { OpenDatabaseOptions, SqliteDb } from './types'
 
 export const supported = false
 
-const unsupported = (name: string): never => {
-	throw new Error(
-		`@octane-xplat/sqlite is not supported on this platform yet (${name} not opened).`,
-	)
+const unsupported = (): never => {
+	throw new UnavailabilityError('sqlite')
 }
 
 export const openDatabase = (_name: string, _options?: OpenDatabaseOptions): Promise<SqliteDb> =>
-	unsupported(_name)
+	unsupported()
 
 export const deleteDatabase = async (_name: string) => false

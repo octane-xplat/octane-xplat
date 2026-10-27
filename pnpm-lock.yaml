@@ -1532,6 +1532,9 @@ importers:
       '@nativescript-community/ui-document-picker':
         specifier: 1.1.29
         version: 1.1.29
+      '@octane-xplat/lib':
+        specifier: workspace:*
+        version: link:../lib
       '@octane-xplat/platform':
         specifier: workspace:*
         version: link:../platform
@@ -2778,6 +2781,9 @@ importers:
       '@nativescript/core':
         specifier: '>=9.1.0 <10'
         version: 9.1.2
+      '@octane-xplat/lib':
+        specifier: workspace:*
+        version: link:../lib
       '@sqlite.org/sqlite-wasm':
         specifier: 3.53.4-build1
         version: 3.53.4-build1

@@ -1,4 +1,5 @@
 // Files — AppKit host leaf.
+import { UnavailabilityError } from '@octane-xplat/lib/capability'
 import type {
 	FileExportOptions,
 	FileExportResult,
@@ -97,16 +98,16 @@ export const files: Files = {
 		return openPanel(accept, true) ?? []
 	},
 	async readText(_file: FileRef): Promise<string> {
-		throw new Error('unsupported: AppKit file access is not wired')
+		throw new UnavailabilityError('files')
 	},
 	async readBytes(_file: FileRef, _opts?: FileReadBytesOptions): Promise<Uint8Array> {
-		throw new Error('unsupported: AppKit file access is not wired')
+		throw new UnavailabilityError('files')
 	},
 	async writeText(_name: string, _text: string): Promise<FileRef> {
-		throw new Error('unsupported: the AppKit host does not provide a save panel')
+		throw new UnavailabilityError('files')
 	},
 	async writeBytes(_name: string, _bytes: Uint8Array): Promise<FileRef> {
-		throw new Error('unsupported: the AppKit host does not provide a save panel')
+		throw new UnavailabilityError('files')
 	},
 	// FileExportResult names this leaf as the 'unavailable' case — the AppKit
 	// host offers no save panel, so report it instead of throwing.

@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/files",
 	"version": "0.17.1",
-	"description": "Native + web file pick and read/write for Octane xplat — matching web + NativeScript implementations",
+	"description": "Native + web file pick and read/write for Octane xplat \u2014 matching web + NativeScript implementations",
 	"keywords": [
 		"android",
 		"cross-platform",
@@ -62,7 +62,8 @@
 	},
 	"dependencies": {
 		"@nativescript-community/ui-document-picker": "1.1.29",
-		"@octane-xplat/platform": "workspace:*"
+		"@octane-xplat/platform": "workspace:*",
+		"@octane-xplat/lib": "workspace:*"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "catalog:",
