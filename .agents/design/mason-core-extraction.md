@@ -654,21 +654,44 @@ unchanged.
 
 ## Windows core host status (2026-10-27)
 
-The pinned desktop engine archives now include
-`x86_64-pc-windows-msvc/MasonCore.lib` and its flattened
-`include/mason_native.h` (Mason fork `0cdc3c80`), but that is
-cross-compilation plus declared-symbol evidence only — no Windows runtime
-qualification exists.
+The pinned desktop engine archive includes
+`x86_64-pc-windows-msvc/MasonCore.lib` and its generated
+`include/mason_native.h` (Mason fork `0cdc3c80`). A C++/WinRT core host and
+Windows JavaScript leaves now exist in the Mason fork's preserved
+`arthur/windows-core-host` branch. The host links that archive and retains
+the container, layout, styling, scroll and foreign-view surface. This is
+extraction and local package-build evidence; the Windows cutover is still
+gated.
 
-A Windows core host — the container/layout/style/foreign-view subset of
-`src-native/windows/Mason` (C++/WinRT, linked against `MasonCore.lib`,
-scripted projections like the iOS host) — was scoped for extraction and
-end-to-end qualification through `@nativescript/windows`. Qualification could
-not run: the provisioned Windows lab host (`windy`) was unreachable, and a
-fallback UTM Windows VM on an Intel Mac stalled in WinPE before installing
-(the guest ignores `Autounattend.xml` on the setup ISO and could not be driven
-further without console access). The `mason-engine.ts` Windows rejection
-therefore stays: core keeps shipping no Windows host artifacts and windows
-profiles remain on full MasonKit until a real host qualifies the fixture —
-flex/grid layout, native text, resize, dynamic updates, scrolling,
-reparenting, cleanup, native geometry and real OS input.
+The `windy` Windows x64 host became reachable again. Its isolated
+`mason-core-consumer` application runs through `@nativescript/windows` on
+real XAML, with a saved console result of `success: true, checks: 13`.
+Those checks establish a smoke run, with these narrower limits:
+
+| Check | Observed evidence | Qualification still needed |
+| --- | --- | --- |
+| Flex/grid, add, reparent, detach | Operations complete; several checks record unconditional success | Assert native child order, parent ownership, frames and release |
+| Native text and resize | A native label exists; style-buffer reads return | Assert text content, updated buffer values and native geometry |
+| Layout dump and hit-test | Calls return without throwing; the dump result is `null` | Assert actual layout records and the expected hit-test target |
+| Scrolling | A listener fires after programmatic `ChangeView` | OS-driven scroll input, offsets and corresponding child movement |
+
+The Windows consumer and its CsWinRT projection/MSIX build repairs are
+preserved on the lab host, but are not a maintained consumer fixture or
+runner in the Mason branch. The outcome requires maintained native geometry
+and real-input evidence; this smoke result does not satisfy that gate.
+
+Installed registry core betas `.4` and `.5` contain neither
+`index.windows.js` nor `platforms/windows`. A local package assembled from
+the extraction branch contains both, and its packed inventory verifies
+211 files, including the x64 DLL, WinMD, plugin build files and nine Windows
+JavaScript leaves. Extraction and `pnpm pack` on Windows preserve every
+inventory hash and produce a byte-identical tarball. This verifies archive
+portability, not a fresh relocated MSIX build. Local assembly does not add
+Windows support to an already published tarball.
+
+Keep the `mason-engine.ts` Windows rejection until the qualification and
+delivery gates are met. Removing it must also reconcile Windows engine pins,
+doctor/upgrade, the native-preset regression, documentation and skill guidance.
+The outcome's explicit relocatable-archive requirement applies to macOS and
+GTK; a Windows source build or tarball inventory alone does not establish
+installed consumer behavior or clear the separate Windows runtime gate.
