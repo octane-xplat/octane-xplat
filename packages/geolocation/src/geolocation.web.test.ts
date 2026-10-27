@@ -10,18 +10,18 @@ it.each([
 	[3, undefined, 'granted'],
 	[2, 'granted', 'granted'],
 	[2, 'denied', 'denied'],
-	[2, 'prompt', 'unsupported'],
-	[2, undefined, 'unsupported'],
+	[2, 'prompt', 'undetermined'],
+	[2, undefined, 'undetermined'],
 	[99, undefined, 'unsupported'],
-])('ensure classifies error %s with permission %s as %s', async (code, state, expected) => {
+])('requestPermissions classifies error %s with permission %s as %s', async (code, state, expected) => {
 	vi.stubGlobal('navigator', {
 		geolocation: { getCurrentPosition: (_success: any, failure: any) => failure({ code }) },
 		permissions: state ? { query: vi.fn().mockResolvedValue({ state }) } : undefined,
 	})
 
 	const { geolocation } = await import('./geolocation.web')
-	expect(await geolocation.ensure()).toBe(expected)
-	await expect(geolocation.impl!.getCurrentPosition()).rejects.toEqual({ code })
+	expect((await geolocation.requestPermissions()).status).toBe(expected)
+	await expect(geolocation.getCurrentPosition()).rejects.toEqual({ code })
 })
 
 it('keeps unsupported permission queries from throwing', async () => {
@@ -31,5 +31,5 @@ it('keeps unsupported permission queries from throwing', async () => {
 	})
 
 	const { geolocation } = await import('./geolocation.web')
-	expect(await geolocation.ensure()).toBe('unsupported')
+	expect((await geolocation.requestPermissions()).status).toBe('undetermined')
 })

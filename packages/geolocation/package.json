@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/geolocation",
 	"version": "0.17.1",
-	"description": "Device geolocation for Octane xplat — matching web + NativeScript implementations",
+	"description": "Device geolocation for Octane xplat \u2014 matching web + NativeScript implementations",
 	"keywords": [
 		"android",
 		"cross-platform",
@@ -59,7 +59,8 @@
 		"pack:check": "tsrx-typegen --pack-check"
 	},
 	"dependencies": {
-		"@nativescript/geolocation": "9.0.0"
+		"@nativescript/geolocation": "9.0.0",
+		"@octane-xplat/lib": "workspace:*"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "catalog:",

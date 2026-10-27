@@ -1,6 +1,8 @@
 // Geolocation — web leaf. The browser owns the permission prompt and returns
 // the platform-neutral position shape used by the service contract.
-import type { Capability, GeolocationImpl, GeolocationOptions, GeolocationPosition } from './types'
+import { UnavailabilityError } from '@octane-xplat/lib/capability'
+import type { Permissioned, PermissionResponse } from '@octane-xplat/lib/capability'
+import type { GeolocationImpl, GeolocationOptions, GeolocationPosition } from './types'
 
 const supported = typeof navigator !== 'undefined' && 'geolocation' in navigator
 
@@ -27,52 +29,66 @@ function readPosition(options?: GeolocationOptions): Promise<GeolocationPosition
 	})
 }
 
-const impl: GeolocationImpl = {
-	getCurrentPosition: readPosition,
+const respond = (status: PermissionResponse['status']): PermissionResponse => ({
+	status,
+	granted: status === 'granted',
+	canAskAgain: status === 'granted' || status === 'undetermined',
+})
+
+// The prompting probe — a position request surfaces the browser prompt.
+async function requestProbe(): Promise<PermissionResponse> {
+	try {
+		await readPosition({ timeout: 15000 })
+		return respond('granted')
+	} catch (error) {
+		const code = (error as { code?: number }).code
+		if (code === 1) {
+			return respond('denied')
+		}
+
+		if (code === 3) {
+			return respond('granted')
+		}
+
+		// POSITION_UNAVAILABLE can precede authorization (inactive document).
+		// Only a permission query can establish access in that case.
+		if (code === 2) {
+			return readState()
+		}
+
+		return respond('unsupported')
+	}
 }
 
-export const geolocation: Capability<GeolocationImpl> = {
-	supported,
-	async ensure() {
-		if (!supported) {
-			return 'unsupported'
-		}
-
+// Non-prompting read via the Permissions API where available.
+async function readState(): Promise<PermissionResponse> {
+	if (navigator.permissions?.query) {
 		try {
-			await readPosition({ timeout: 15000 })
-			return 'granted'
-		} catch (error) {
-			const code = (error as { code?: number }).code
-			if (code === 1) {
-				return 'denied'
-			}
-
-			if (code === 3) {
-				return 'granted'
-			}
-
-			// POSITION_UNAVAILABLE can precede authorization (inactive document).
-			// Only a permission query can establish access in that case.
-			if (code === 2 && navigator.permissions?.query) {
-				try {
-					const permission = await navigator.permissions.query({ name: 'geolocation' })
-					if (permission.state === 'granted') {
-						return 'granted'
-					}
-
-					if (permission.state === 'denied') {
-						return 'denied'
-					}
-				} catch {
-					// Some browsers expose Permissions but cannot query geolocation.
-				}
-			}
-
-			return 'unsupported'
+			const permission = await navigator.permissions.query({ name: 'geolocation' })
+			return respond(permission.state === 'prompt' ? 'undetermined' : permission.state)
+		} catch {
+			// Some browsers expose Permissions but cannot query geolocation.
 		}
+	}
+
+	return respond('undetermined')
+}
+
+export const geolocation: Permissioned<GeolocationImpl> = {
+	supported,
+	isAvailable: async () => supported,
+	async getPermissions() {
+		return supported ? readState() : respond('unsupported')
 	},
-	impl,
+	async requestPermissions() {
+		return supported ? requestProbe() : respond('unsupported')
+	},
+	getCurrentPosition: (options) =>
+		supported ? readPosition(options) : Promise.reject(new UnavailabilityError('geolocation')),
 }
 
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
-permissionOwners.location = () => geolocation.ensure()
+permissionOwners.location = {
+	getPermissions: () => geolocation.getPermissions(),
+	requestPermissions: () => geolocation.requestPermissions(),
+}

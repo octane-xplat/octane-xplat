@@ -1,9 +1,11 @@
 // Package-owned Core Location facade, loaded by the existing macOS native graph.
-import type { Capability, GeolocationImpl, GeolocationPosition, PermissionResult } from './types'
+import { UnavailabilityError } from '@octane-xplat/lib/capability'
+import type { Permissioned, PermissionResponse } from '@octane-xplat/lib/capability'
+import type { GeolocationImpl, GeolocationPosition } from './types'
 
 declare const XplatGeolocation: {
 	isAvailable(): boolean
-	ensure(completion: (result: PermissionResult) => void): void
+	ensure(completion: (result: 'granted' | 'denied' | 'unsupported') => void): void
 	positionTimeoutMaximumAgeCompletion(
 		highAccuracy: boolean,
 		timeout: number,
@@ -21,7 +23,7 @@ const impl: GeolocationImpl = {
 	getCurrentPosition(options) {
 		return new Promise((resolve, reject) => {
 			if (!available()) {
-				reject(Object.assign(new Error('Location host unavailable'), { code: 2 }))
+				reject(new UnavailabilityError('geolocation'))
 
 				return
 			}
@@ -51,21 +53,32 @@ const impl: GeolocationImpl = {
 	},
 }
 
-export const geolocation: Capability<GeolocationImpl> = {
+// The native seam carries only ensure() — probing may prompt.
+const ensure = (): Promise<PermissionResponse> =>
+	!available()
+		? Promise.resolve({ status: 'unsupported', granted: false, canAskAgain: false })
+		: new Promise((resolve) => {
+				XplatGeolocation.ensure((status) =>
+					resolve({
+						status,
+						granted: status === 'granted',
+						canAskAgain: status === 'granted',
+					}),
+				)
+			})
+
+export const geolocation: Permissioned<GeolocationImpl> = {
 	get supported() {
 		return available()
 	},
-	async ensure() {
-		if (!available()) {
-			return 'unsupported'
-		}
-
-		return new Promise<PermissionResult>((resolve) => XplatGeolocation.ensure(resolve))
-	},
-	get impl() {
-		return available() ? impl : null
-	},
+	isAvailable: async () => available(),
+	getPermissions: ensure,
+	requestPermissions: ensure,
+	...impl,
 }
 
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
-permissionOwners.location = () => geolocation.ensure()
+permissionOwners.location = {
+	getPermissions: () => geolocation.getPermissions(),
+	requestPermissions: () => geolocation.requestPermissions(),
+}

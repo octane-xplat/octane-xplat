@@ -22,9 +22,10 @@ test('missing or unconfigured hosts remain unsupported through both entry points
 	for (const host of [undefined, { isAvailable: () => false }]) {
 		globals.XplatGeolocation = host
 		assert.equal(geolocation.supported, false)
-		assert.equal(geolocation.impl, null)
-		assert.equal(await geolocation.ensure(), 'unsupported')
-		assert.equal(await permissions.ensure('location'), 'unsupported')
+		assert.equal(await geolocation.isAvailable(), false)
+		assert.equal((await geolocation.requestPermissions()).status, 'unsupported')
+		assert.equal((await permissions.requestPermissions('location')).status, 'unsupported')
+		await assert.rejects(geolocation.getCurrentPosition(), { name: 'UnavailabilityError' })
 	}
 })
 
@@ -36,8 +37,8 @@ test('permission outcomes remain distinct and register with the permission dispa
 		}
 
 		assert.equal(geolocation.supported, true)
-		assert.equal(await geolocation.ensure(), result)
-		assert.equal(await permissions.ensure('location'), result)
+		assert.equal((await geolocation.requestPermissions()).status, result)
+		assert.equal((await permissions.requestPermissions('location')).status, result)
 	}
 })
 
@@ -48,13 +49,13 @@ test('position options, JSON normalization, and concurrent callbacks stay indepe
 		positionTimeoutMaximumAgeCompletion: (...args: any[]) => calls.push(args),
 	}
 
-	const first = geolocation.impl!.getCurrentPosition({
+	const first = geolocation.getCurrentPosition({
 		enableHighAccuracy: true,
 		timeout: 25,
 		maximumAge: 50,
 	})
 
-	const second = geolocation.impl!.getCurrentPosition()
+	const second = geolocation.getCurrentPosition()
 	assert.deepEqual(
 		calls.map((call) => call.slice(0, 3)),
 		[
@@ -77,13 +78,12 @@ test('denial, unavailable, timeout and an unloaded host reject with distinct cod
 				done(null, code, 'native error'),
 		}
 
-		await assert.rejects(geolocation.impl!.getCurrentPosition(), {
+		await assert.rejects(geolocation.getCurrentPosition(), {
 			code,
 			message: 'native error',
 		})
 	}
 
-	const impl = geolocation.impl!
 	delete globals.XplatGeolocation
-	await assert.rejects(impl.getCurrentPosition(), { code: 2 })
+	await assert.rejects(geolocation.getCurrentPosition(), { name: 'UnavailabilityError' })
 })

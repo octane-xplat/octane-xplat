@@ -15,7 +15,7 @@ it('uses Android presence flags while preserving real zero and negative altitude
 			android: { hasAltitude: () => present, hasSpeed: () => present, hasBearing: () => present },
 		})
 
-		expect(await geolocation.impl!.getCurrentPosition()).toEqual({
+		expect(await geolocation.getCurrentPosition()).toEqual({
 			latitude: 1,
 			longitude: 2,
 			accuracy: 3,
@@ -36,7 +36,7 @@ it('uses iOS altitude validity and rejects negative course/speed sentinels', asy
 		ios: { verticalAccuracy: -1 },
 	})
 
-	const absent = await geolocation.impl!.getCurrentPosition()
+	const absent = await geolocation.getCurrentPosition()
 	expect([absent.altitude, absent.heading, absent.speed]).toEqual([null, null, null])
 	api.getCurrentLocation.mockResolvedValue({
 		...fix,
@@ -46,24 +46,29 @@ it('uses iOS altitude validity and rejects negative course/speed sentinels', asy
 		ios: { verticalAccuracy: 1 },
 	})
 
-	const present = await geolocation.impl!.getCurrentPosition()
+	const present = await geolocation.getCurrentPosition()
 	expect([present.altitude, present.heading, present.speed]).toEqual([-10, 0, 0])
 })
 
 it('clamps the iOS invalid-accuracy sentinel to the contract floor', async () => {
 	api.getCurrentLocation.mockResolvedValue({ ...fix, horizontalAccuracy: -1 })
-	expect((await geolocation.impl!.getCurrentPosition()).accuracy).toBe(0)
+	expect((await geolocation.getCurrentPosition()).accuracy).toBe(0)
 })
 
 it('preserves plugin errors without inventing numeric codes from localized text', async () => {
 	const error = new Error('Localized platform failure')
 	api.getCurrentLocation.mockRejectedValue(error)
-	await expect(geolocation.impl!.getCurrentPosition()).rejects.toBe(error)
+	await expect(geolocation.getCurrentPosition()).rejects.toBe(error)
 })
 
 it('reports an unsupported capability on windows', async () => {
 	const windows = await import('./geolocation.windows')
 	expect(windows.geolocation.supported).toBe(false)
-	expect(windows.geolocation.impl).toBeNull()
-	await expect(windows.geolocation.ensure()).resolves.toBe('unsupported')
+	expect(windows.geolocation.supported).toBe(false)
+	await expect(windows.geolocation.requestPermissions()).resolves.toMatchObject({
+		status: 'unsupported',
+	})
+	await expect(windows.geolocation.getCurrentPosition()).rejects.toMatchObject({
+		name: 'UnavailabilityError',
+	})
 })

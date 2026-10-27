@@ -50,19 +50,19 @@ const dependencies = ['@nativescript/geolocation', '@nativescript/core']
 const consumers = {
 	web: `import { geolocation } from '@octane-xplat/geolocation'
 const supported: boolean = geolocation.supported
-const position = geolocation.impl?.getCurrentPosition({ timeout: 1000 })
+const position = geolocation.getCurrentPosition({ timeout: 1000 })
 void supported
 void position
 `,
 	native: `import { geolocation } from '@octane-xplat/geolocation'
 const supported: boolean = geolocation.supported
-const position = geolocation.impl?.getCurrentPosition({ timeout: 1000 })
+const position = geolocation.getCurrentPosition({ timeout: 1000 })
 void supported
 void position
 `,
 	macos: `import { geolocation } from '@octane-xplat/geolocation'
 const supported: boolean = geolocation.supported
-const position = geolocation.impl?.getCurrentPosition({ timeout: 1000 })
+const position = geolocation.getCurrentPosition({ timeout: 1000 })
 void supported
 void position
 `,

@@ -2,7 +2,8 @@
 // runtime prompt; getCurrentLocation() is normalized to the web position shape.
 import * as geolocationApi from '@nativescript/geolocation'
 import { CoreTypes } from '@nativescript/core'
-import type { Capability, GeolocationImpl, GeolocationPosition } from './types'
+import type { Permissioned, PermissionResponse } from '@octane-xplat/lib/capability'
+import type { GeolocationImpl, GeolocationPosition } from './types'
 
 function asPosition(nativeLocation: any): GeolocationPosition {
 	const android = nativeLocation.android
@@ -38,20 +39,35 @@ const impl: GeolocationImpl = {
 	},
 }
 
-export const geolocation: Capability<GeolocationImpl> = {
+const respond = (granted: boolean, canAskAgain: boolean): PermissionResponse => ({
+	status: granted ? 'granted' : 'denied',
+	granted,
+	canAskAgain,
+})
+
+export const geolocation: Permissioned<GeolocationImpl> = {
 	supported: true,
-	async ensure() {
+	isAvailable: async () => true,
+	async getPermissions() {
+		// isEnabled() is the plugin's only non-prompting read — services-off and
+		// denied both read as 'denied'.
+		return respond(await geolocationApi.isEnabled(), true)
+	},
+	async requestPermissions() {
 		try {
 			await geolocationApi.enableLocationRequest()
-			return 'granted'
+			return respond(true, true)
 		} catch {
-			return 'denied'
+			return respond(false, false)
 		}
 	},
-	impl,
+	...impl,
 }
 
 // See @octane-xplat/media for the pattern — registers the kind this leaf owns
 // for the platform permissions dispatcher.
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
-permissionOwners.location = () => geolocation.ensure()
+permissionOwners.location = {
+	getPermissions: () => geolocation.getPermissions(),
+	requestPermissions: () => geolocation.requestPermissions(),
+}
