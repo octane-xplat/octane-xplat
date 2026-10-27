@@ -1,9 +1,15 @@
 import { defineConfig } from 'vitest/config'
+import { octane } from 'octane/compiler/vite'
 
-// Phase 1 modules are DOM- and renderer-free; plain node vitest is enough.
 export default defineConfig({
+	plugins: [octane({ ssr: false })],
+	resolve: {
+		conditions: ['web'],
+		extensions: ['.web.tsrx', '.tsrx', '.web.ts', '.ts', '.mjs', '.mts', '.js', '.json'],
+	},
 	test: {
-		include: ['src/**/*.test.ts'],
-		environment: 'node',
+		include: ['src/**/*.test.{ts,tsrx}'],
+		exclude: ['**/*.mobile.test.*'],
+		environment: 'jsdom',
 	},
 })
