@@ -888,7 +888,9 @@ function warnUnsupportedCssProps(node: ElementNode, style: PropBag) {
 
 function setNodeInlineStyle(node: ElementNode, value: any) {
 	const prev = node.cascadeInline
-	node.props.style = value
+	// The create command stores the runtime's own props bag, which the
+	// compiled component path can freeze — never mutate it in place.
+	node.props = { ...node.props, style: value }
 	node.cascadeInline = value
 	// Subtree restyle only when an inherited or custom-property input changed.
 	const inheritedOrCustom = (bag: any): boolean =>
@@ -1879,6 +1881,11 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 			try {
 				view.update_property?.(Gtk.AccessibleProperty.LABEL, String(value))
 			} catch {
+				// GtkAccessible.update_property is a varargs call GJS cannot
+				// marshal — fall back to the widget name so the label stays
+				// inspectable (automation/a11y gap recorded in
+				// upstream-limitations: real AT clients won't see it).
+				view.name = String(value)
 				warnOnce('accessibilityLabel', `<${node.type}> accessibilityLabel could not be applied — GtkAccessible.update_property is unavailable in this GTK`)
 			}
 			return
