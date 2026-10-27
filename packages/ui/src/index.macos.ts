@@ -537,3 +537,35 @@ export { useLocale, useDirection, useTranslator, getLocaleDirection, frFR } from
 export type { InternationalizationProviderProps, InternationalizationMessages } from './props'
 export { useAnnounce } from './use-announce'
 export type { AnnouncePoliteness } from './use-announce'
+
+// Complete the shared value surface; `export type *` above supplies types only.
+export { AvatarGroupOverflow } from './AvatarGroup.macos.tsrx'
+export { AvatarStatusDot } from './Avatar.macos.tsrx'
+export { BreadcrumbItem } from './Breadcrumb.macos.tsrx'
+export { CollapsibleGroup } from './Collapsible.macos.tsrx'
+export { GridSpan } from './Grid.tsrx'
+export { LayoutFooter, LayoutPanel } from './layout.macos.tsrx'
+export { CheckboxListItem } from './CheckboxListItem.tsrx'
+export { RadioListItem } from './RadioListItem.tsrx'
+export { SegmentedControlItem } from './SegmentedControlItem.tsrx'
+export { SelectorOption } from './SelectorOption.tsrx'
+export { Step } from './Step.tsrx'
+export { FieldLabel } from './FieldLabel.tsrx'
+export { FieldStatus } from './FieldStatus.tsrx'
+export { LinkContext } from './link-context'
+export { LinkProvider } from './LinkProvider.tsrx'
+export { useLinkComponent } from './use-link-component'
+export { useGridFocus } from './use-grid-focus'
+export { Theme } from './theme/Theme.macos.tsrx'
+export {
+	defineTheme,
+	isDefinedTheme,
+	registerTheme,
+	getRegisteredTheme,
+	getRegisteredThemes,
+	resolveThemeToken,
+	resolveThemeTokens,
+	defaultThemeTokens,
+} from './theme/defined-theme'
+export { generateThemeCss } from './theme/theme-css'
+export { useTheme, useThemeName } from './theme/use-theme'

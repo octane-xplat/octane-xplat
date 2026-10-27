@@ -59,11 +59,29 @@ input or VoiceOver behavior. Lightbox video playback, double-click zoom, and
 touch swipe navigation remain unavailable on macOS; see
 [shared presentations](../../docs/app/primitives.md#macos-shared-presentations).
 
-The normal UI AppKit packed check builds the full macOS barrel and a packed
-consumer in Bundler and NodeNext modes (`pnpm --filter @octane-xplat/ui
-test:macos`), and the isolated AppKit overlay fixture passes its overlay
-assertions (`pnpm --filter @xplat/macos test:overlays`). Both cover bundling,
-declarations, and handler dispatch; neither establishes physical OS input. See the
+The normal UI AppKit packed check builds the full macOS barrel and compares
+runtime values with declarations in Bundler and NodeNext modes. The focused
+export audit also compares the source barrel's explicit values with the
+emitted declaration surface and bundles the AppKit `Theme` leaf independently.
+These are source and build checks; they do not establish physical OS input or
+nested-theme color parity.
+
+```sh
+pnpm exec turbo run test:macos-exports --filter=@octane-xplat/ui --concurrency=1
+pnpm exec turbo run test:macos --filter=@octane-xplat/ui --concurrency=1
+```
+
+On 2026-10-27, the full barrel check and harness smoke from the
+`affaece81` baseline failed before runtime on table hooks containing nested JSX (including
+`use-table-row-index.tsrx` and `use-table-row-status.tsrx`). Installed patched
+Octane 0.14.0 reports `unsupported module declaration requires universal plan
+lowering`; no workaround is added by the export repair. Keep the full check
+intact and requalify it when those hooks or the compiler change. The
+[routing contract notes](notes/routing-contract.md) record a related nested-JSX limitation on Octane 0.11.0.
+
+The isolated AppKit overlay fixture previously passed its overlay assertions
+(`pnpm --filter @xplat/macos test:overlays`); that qualifies handler dispatch,
+not physical OS input. See the
 [renderer setup and verification boundary](../../packages/macos-renderer/README.md).
 
 The broader `@octane-xplat/ui` native suite is green: the universal entries

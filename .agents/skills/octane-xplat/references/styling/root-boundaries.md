@@ -49,3 +49,20 @@ classes, and do not treat an app-wide token lookup as proof that a local dark
 class was inherited. The optional iOS/Android sheet and context-menu content
 also uses source-owned portals; consult the boundary inventory before making
 claims about another host or renderer.
+
+## Named themes on AppKit
+
+Use the shared `Theme` and `defineTheme` exports on macOS. The AppKit leaf
+registers scoped token rules with the renderer's CSS engine; it must not import
+NativeScript's `Application.addCss` injector. Detached hosts still need the
+class binding described above. Export and bundle checks do not establish
+runtime color parity for nested scopes.
+
+```tsx
+import { defineTheme, Theme, Text } from '@octane-xplat/ui'
+
+const travel = defineTheme({ name: 'travel', tokens: { '--color-primary': '#2463eb' } })
+export function TravelSection() {
+	return <Theme theme={travel}><Text>Upcoming trips</Text></Theme>
+}
+```

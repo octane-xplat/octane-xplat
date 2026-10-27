@@ -2,6 +2,14 @@
 	"$schema": "https://turborepo.dev/schema.json",
 	"extends": ["//"],
 	"tasks": {
+		"test:macos-exports": {
+			"dependsOn": ["typegen", "^typegen"],
+			"outputs": []
+		},
+		"test:macos": {
+			"dependsOn": ["typegen", "^typegen"],
+			"outputs": []
+		},
 		"test": {
 			"dependsOn": ["typegen", "^typegen", "^build"]
 		},
