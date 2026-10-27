@@ -38,7 +38,9 @@ for (const browser of ['firefox', 'webkit']) {
 	})
 }
 
-run(['--dir', 'packages/lightbox', 'test:e2e'])
+for (const browser of browsers) {
+	run(['--dir', 'packages/lightbox', 'test:e2e'], { env: { XPLAT_WEB_BROWSER: browser } })
+}
 
 run(['check:optional-services', '--browser'])
 run(['check:consumer', '--smoke', 'web'], {
