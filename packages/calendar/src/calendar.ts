@@ -274,21 +274,21 @@ export const calendar: Calendar = {
 			if (!e) {
 				throw new Error(`calendar.updateEvent: no event ${id}`)
 			}
-			if (patch.title !== undefined) e.title = patch.title
-			if (patch.startDate) e.startDate = NSDate.dateWithTimeIntervalSince1970(patch.startDate.getTime() / 1000)
-			if (patch.endDate) e.endDate = NSDate.dateWithTimeIntervalSince1970(patch.endDate.getTime() / 1000)
-			if (patch.allDay !== undefined) e.allDay = patch.allDay
-			if (patch.location !== undefined) e.location = patch.location
-			if (patch.notes !== undefined) e.notes = patch.notes
+			if (patch.title !== undefined) {e.title = patch.title}
+			if (patch.startDate) {e.startDate = NSDate.dateWithTimeIntervalSince1970(patch.startDate.getTime() / 1000)}
+			if (patch.endDate) {e.endDate = NSDate.dateWithTimeIntervalSince1970(patch.endDate.getTime() / 1000)}
+			if (patch.allDay !== undefined) {e.allDay = patch.allDay}
+			if (patch.location !== undefined) {e.location = patch.location}
+			if (patch.notes !== undefined) {e.notes = patch.notes}
 			s.saveEventSpanError(e, 0, null)
 			return id
 		}
 		const values = new android.content.ContentValues()
-		if (patch.title !== undefined) values.put('title', patch.title)
-		if (patch.startDate) values.put('dtstart', java.lang.Long.valueOf(patch.startDate.getTime()))
-		if (patch.endDate) values.put('dtend', java.lang.Long.valueOf(patch.endDate.getTime()))
-		if (patch.location !== undefined) values.put('eventLocation', patch.location)
-		if (patch.notes !== undefined) values.put('description', patch.notes)
+		if (patch.title !== undefined) {values.put('title', patch.title)}
+		if (patch.startDate) {values.put('dtstart', java.lang.Long.valueOf(patch.startDate.getTime()))}
+		if (patch.endDate) {values.put('dtend', java.lang.Long.valueOf(patch.endDate.getTime()))}
+		if (patch.location !== undefined) {values.put('eventLocation', patch.location)}
+		if (patch.notes !== undefined) {values.put('description', patch.notes)}
 		resolver()?.update((android.net.Uri as any).withAppendedId(EVENTS_URI(), Number(id)), values, null, null)
 		return id
 	},

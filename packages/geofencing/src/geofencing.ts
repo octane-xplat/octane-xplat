@@ -202,8 +202,8 @@ export const geofencing: Geofencing = {
 		builder.setInitialTrigger(gms.GeofencingRequest.INITIAL_TRIGGER_ENTER)
 		for (const r of regions) {
 			let transitions = 0
-			if (r.notifyOnEnter ?? true) transitions |= gms.Geofence.GEOFENCE_TRANSITION_ENTER
-			if (r.notifyOnExit ?? true) transitions |= gms.Geofence.GEOFENCE_TRANSITION_EXIT
+			if (r.notifyOnEnter ?? true) {transitions |= gms.Geofence.GEOFENCE_TRANSITION_ENTER}
+			if (r.notifyOnExit ?? true) {transitions |= gms.Geofence.GEOFENCE_TRANSITION_EXIT}
 			builder.addGeofence(
 				new gms.Geofence.Builder()
 					.setRequestId(r.identifier)

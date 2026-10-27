@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/macos-renderer */
 // Map view — macOS stub. MKMapView is bridgeable through the AppKit host but
 // not wired; renders nothing and reports via onError once.
 import { useEffect } from 'octane'
@@ -8,5 +9,5 @@ export function MapView(props: MapViewProps) @{
 		props.onError?.({ message: 'unsupported: MapView is not wired on macOS' })
 	}, [])
 
-	<div style={props.style} className={props.className} />
+	<masonview style={props.style} className={props.className} />
 }
