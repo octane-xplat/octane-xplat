@@ -16,10 +16,11 @@ export const googleAuth: GoogleAuth = {
 	async signIn(options = {}): Promise<SignInResult> {
 		const config = configuration
 		const flow = config?.hostedFlow
-		const session = authSession.impl
-		if (!session) {
+		if (!authSession.supported) {
 			return { status: 'error', message: 'AuthenticationServices is unavailable on this host' }
 		}
+
+		const session = authSession
 
 		if (!flow) {
 			return {

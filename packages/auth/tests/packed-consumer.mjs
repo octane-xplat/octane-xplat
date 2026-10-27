@@ -84,7 +84,7 @@ ${
 	target === 'macos'
 		? `import { authSession, type AuthSessionOptions, type AuthSessionResult } from '@octane-xplat/platform'
 const sessionOptions: AuthSessionOptions = { callbackScheme: 'sample', prefersEphemeralSession: true }
-const sessionResult: Promise<AuthSessionResult> | undefined = authSession.impl?.open('https://example.test/login', sessionOptions)
+const sessionResult: Promise<AuthSessionResult> = authSession.open('https://example.test/login', sessionOptions)
 void sessionResult`
 		: ''
 }

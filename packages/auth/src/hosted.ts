@@ -55,7 +55,7 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
 	let signingIn: Promise<HostedAuthSignInResult> | null = null
 
 	function store(): HostedAuthCredentialStore | null {
-		return config.storage ?? secureStorage.impl
+		return config.storage ?? secureStorage
 	}
 
 	function storageOperation<T>(run: () => T | PromiseLike<T>): Promise<T> {
@@ -173,17 +173,13 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
 	async function runSignIn(owner: number): Promise<HostedAuthSignInResult> {
 		const session = config.authSession ?? {
 			supported: authSession.supported,
-			open: (url, options) => {
-				const impl = authSession.impl
-				if (!impl) {
-					return Promise.resolve({
-						type: 'error' as const,
-						message: 'hostedAuth: hosted sign-in is not supported on this target',
-					})
-				}
-
-				return impl.open(url, options)
-			},
+			open: (url, options) =>
+				authSession.supported
+					? authSession.open(url, options)
+					: Promise.resolve({
+							type: 'error' as const,
+							message: 'hostedAuth: hosted sign-in is not supported on this target',
+						}),
 		}
 
 		if (!session.supported || !random.supported) {

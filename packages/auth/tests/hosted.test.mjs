@@ -31,7 +31,7 @@ function loadHosted({ platform = {} } = {}) {
 					return sha256Module
 				case '@octane-xplat/platform':
 					return {
-						authSession: { supported: false, impl: null, ...platform.authSession },
+						authSession: { supported: false, ...platform.authSession },
 						random: {
 							supported: true,
 							bytes: (n) => new Uint8Array(randomBytes(n)),
@@ -39,7 +39,7 @@ function loadHosted({ platform = {} } = {}) {
 						},
 					}
 				case '@octane-xplat/secure-storage':
-					return { secureStorage: { impl: null, ...platform.secureStorage } }
+					return { secureStorage: platform.secureStorage }
 				default:
 					return {}
 			}
