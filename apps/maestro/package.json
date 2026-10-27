@@ -8,7 +8,10 @@
 		"@nativescript/core": "catalog:",
 		"@octane-xplat/ui": "workspace:*",
 		"@octane-xplat/nativescript-mason-core": "1.0.0-beta.5",
-		"octane": "catalog:"
+		"octane": "catalog:",
+		"@octane-xplat/lightbox": "workspace:*",
+		"@nativescript-community/gesturehandler": "2.0.45",
+		"@nativescript-community/observable": "2.0.11"
 	},
 	"devDependencies": {
 		"@nativescript-community/vite-octane": "catalog:",

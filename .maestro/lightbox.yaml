@@ -1,0 +1,19 @@
+appId: ${APP_ID}
+---
+- launchApp
+- assertVisible: 'Maestro lightbox'
+- assertVisible: 'state: closed:0'
+- tapOn:
+    id: 'lb-trigger-0'
+- assertVisible: 'state: open:0'
+- swipe:
+    start: '80%,55%'
+    end: '20%,55%'
+    duration: 700
+- assertVisible: 'state: open:1'
+- swipe:
+    start: '50%,65%'
+    end: '50%,15%'
+    duration: 400
+- assertVisible: 'state: closed:1'
+- stopApp
