@@ -1,0 +1,41 @@
+{
+	"compilerOptions": {
+		"strict": true,
+		"skipLibCheck": true,
+		"module": "esnext",
+		"moduleResolution": "bundler",
+		"target": "esnext",
+		"jsx": "react-jsx",
+		"jsxImportSource": "octane",
+		"declaration": true,
+		"emitDeclarationOnly": true,
+		"noEmit": false,
+		"rootDir": "src",
+		"moduleSuffixes": [
+			"",
+			".web",
+			".ios",
+			".android",
+			".mobile",
+			".native",
+			".macos",
+			".linux",
+			".windows"
+		],
+		"allowImportingTsExtensions": true,
+		"types": [
+			"@nativescript/types"
+		]
+	},
+	"include": [
+		"src/types.ts",
+		"src/store-review.ts",
+		"src/store-review.web.ts",
+		"src/store-review.macos.ts",
+		"src/store-review.linux.ts",
+		"src/store-review.windows.ts",
+		"src/index.ts",
+		"src/index.web.ts",
+		"src/index.macos.ts"
+	]
+}
