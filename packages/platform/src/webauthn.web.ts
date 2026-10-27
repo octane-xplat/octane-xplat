@@ -1,8 +1,9 @@
 // WebAuthn — web leaf over navigator.credentials. Options and results use the
 // JSON wire shape (base64url fields) so RP payloads from better-auth /
 // SimpleWebAuthn pass straight through. Requires a secure context.
+import { UnavailabilityError } from '@octane-xplat/lib/capability'
+import type { Service } from '@octane-xplat/lib/capability'
 import type {
-	Capability,
 	WebAuthnAssertionJSON,
 	WebAuthnCreateOptionsJSON,
 	WebAuthnGetOptionsJSON,
@@ -124,22 +125,21 @@ const supported =
 	typeof PublicKeyCredential === 'function' &&
 	!!navigator.credentials
 
-export const webAuthn: Capability<WebAuthnImpl> = {
+export const webAuthn: Service<WebAuthnImpl> = {
 	supported,
-	async ensure() {
-		return supported ? 'granted' : 'unsupported'
+	async isAvailable() {
+		if (!supported) {
+			return false
+		}
+
+		try {
+			return await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()
+		} catch {
+			return false
+		}
 	},
-	impl: supported
-		? {
-				async isAvailable() {
-					try {
-						return await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()
-					} catch {
-						return false
-					}
-				},
-				create,
-				get,
-			}
-		: null,
+	create: (options) =>
+		supported ? create(options) : Promise.reject(new UnavailabilityError('webAuthn')),
+	get: (options) =>
+		supported ? get(options) : Promise.reject(new UnavailabilityError('webAuthn')),
 }

@@ -16,4 +16,4 @@ export {
 
 export { UnavailabilityError, assertAvailable } from './capability.js'
 
-export type { PermissionStatus, PermissionResponse } from './capability.js'
+export type { PermissionStatus, PermissionResponse, Service, Permissioned } from './capability.js'

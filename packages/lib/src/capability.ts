@@ -44,3 +44,22 @@ export class UnavailabilityError extends Error {
 export function assertAvailable(feature: string, available: boolean): void {
 	if (!available) {throw new UnavailabilityError(feature)}
 }
+
+/**
+ * Flat optional-capability service: `supported` for cheap sync checks and
+ * `isAvailable()` for the authoritative async probe. Methods reject with
+ * UnavailabilityError when the capability is absent — check before calling.
+ */
+export type Service<T> = T & {
+	readonly supported: boolean
+	isAvailable(): Promise<boolean>
+}
+
+/**
+ * Service with a runtime permission gate. `getPermissions()` reads state
+ * without prompting; `requestPermissions()` may show the system dialog.
+ */
+export type Permissioned<T> = Service<T> & {
+	getPermissions(): Promise<PermissionResponse>
+	requestPermissions(): Promise<PermissionResponse>
+}

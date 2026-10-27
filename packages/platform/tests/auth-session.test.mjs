@@ -1,8 +1,11 @@
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
+import { createRequire } from 'node:module'
 import test from 'node:test'
 import vm from 'node:vm'
 import ts from 'typescript'
+
+const requireLib = createRequire(import.meta.url)
 
 const compile = async (name) =>
 	ts.transpile(await readFile(new URL(`../src/${name}.ts`, import.meta.url), 'utf8'), {
@@ -62,6 +65,10 @@ function load({
 	vm.runInNewContext(native, {
 		exports,
 		require: (id) => {
+			if (id === '@octane-xplat/lib/capability') {
+				return requireLib(id)
+			}
+
 			if (id === '@octane-xplat/platform/android') {
 				return { android: platformAndroid }
 			}
@@ -108,7 +115,7 @@ function load({
 }
 
 const open = (h) =>
-	h.auth.impl.open('https://example.test/login', {
+	h.auth.open('https://example.test/login', {
 		callbackScheme: 'sample',
 		prefersEphemeralSession: true,
 	})
@@ -173,7 +180,7 @@ test('iOS success, cancel, native error, invalid URL, and failed start have docu
 
 	assert.equal((await open(load({ ios: true, start: () => false }))).type, 'error')
 	assert.equal(
-		(await load({ ios: true }).auth.impl.open('invalid', { callbackScheme: 'sample' })).type,
+		(await load({ ios: true }).auth.open('invalid', { callbackScheme: 'sample' })).type,
 		'error',
 	)
 })
@@ -185,8 +192,13 @@ test('iOS construction exception resolves as an error result', async () => {
 
 test('web hosted sessions are explicitly unsupported', async () => {
 	const exports = {}
-	vm.runInNewContext(await compile('auth-session.web'), { exports })
+	vm.runInNewContext(await compile('auth-session.web'), {
+		exports,
+		require: (id) => requireLib(id),
+	})
 	assert.equal(exports.authSession.supported, false)
-	assert.equal(exports.authSession.impl, null)
-	assert.equal(await exports.authSession.ensure(), 'unsupported')
+	assert.equal(await exports.authSession.isAvailable(), false)
+	await assert.rejects(exports.authSession.open('https://example.test', {}), {
+		name: 'UnavailabilityError',
+	})
 })

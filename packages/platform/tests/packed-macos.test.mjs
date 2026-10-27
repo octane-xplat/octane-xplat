@@ -29,6 +29,23 @@ test('packed macOS consumer resolves generated declarations and platform contrac
 	const modules = join(directory, 'node_modules/@octane-xplat/platform')
 	mkdirSync(modules, { recursive: true })
 	run('tar', ['-xzf', tarball, '--strip-components=1', '-C', modules], directory)
+
+	// platform's declarations reference the capability contract in
+	// @octane-xplat/lib — a real install pulls it in as a dependency.
+	const libOutput = run(
+		'pnpm',
+		['pack', '--pack-destination', directory],
+		resolve(root, '../lib'),
+	)
+	const libTarball = libOutput
+		.trim()
+		.split('\n')
+		.reverse()
+		.find((line) => line.trim().endsWith('.tgz'))
+	assert.ok(libTarball, `no tarball path in pnpm pack output:\n${libOutput}`)
+	const libModules = join(directory, 'node_modules/@octane-xplat/lib')
+	mkdirSync(libModules, { recursive: true })
+	run('tar', ['-xzf', libTarball, '--strip-components=1', '-C', libModules], directory)
 	const manifest = JSON.parse(readFileSync(join(modules, 'package.json'), 'utf8'))
 	assert.equal(manifest.exports['.'].macos.types, './types/generated/index.macos.d.ts')
 	assert.match(

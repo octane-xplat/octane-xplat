@@ -1,14 +1,8 @@
 // Shared contract shapes — imported by BOTH leaves. Types must live here,
 // never in a leaf: `import … from './x.web'` inside a native default module drags the
 // web implementation into the native typecheck program.
-
-/** Optional capability — never throws for absence (docs/platform/platform-services.md). */
-export interface Capability<T> {
-	supported: boolean
-	ensure(): Promise<'granted' | 'denied' | 'unsupported'>
-	/** usable iff supported && ensured */
-	impl: T | null
-}
+// The capability contract (Service/Permissioned/PermissionResponse/
+// UnavailabilityError) lives in @octane-xplat/lib/capability (decision #125).
 
 export type AppState = 'active' | 'background' | 'inactive'
 
@@ -39,8 +33,6 @@ export interface Locale {
 	language: string
 	region: string
 }
-
-export type PermissionResult = 'granted' | 'denied' | 'unsupported'
 
 /**
  * OS CSPRNG: fills buffers from the platform's cryptographic entropy source

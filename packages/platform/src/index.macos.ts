@@ -1,15 +1,14 @@
 import { useSyncExternalStore } from 'octane'
+import { UnavailabilityError } from '@octane-xplat/lib/capability'
+import type { Service } from '@octane-xplat/lib/capability'
 import { host } from './appkit-host'
 import type {
 	AppInfo,
 	AppState,
-	Capability,
 	DeviceInfo,
 	Insets,
 	Locale,
 	OpenSettingsImpl,
-	PermissionResult,
-	RandomImpl,
 	WebAuthnImpl,
 	WindowSize,
 } from './types'
@@ -20,7 +19,6 @@ export type {
 	AuthSessionImpl,
 	AuthSessionOptions,
 	AuthSessionResult,
-	Capability,
 	ConnectionType,
 	ConnectivityImpl,
 	ConnectivityState,
@@ -28,7 +26,6 @@ export type {
 	Insets,
 	Locale,
 	PermissionKind,
-	PermissionResult,
 	RandomImpl,
 	OpenSettingsImpl,
 	WebAuthnAssertionJSON,
@@ -41,7 +38,13 @@ export type {
 
 export type { BreakpointMap, BreakpointMatches } from './breakpoints.types'
 
-const unsupported = async (): Promise<PermissionResult> => 'unsupported'
+export { UnavailabilityError } from '@octane-xplat/lib/capability'
+export type {
+	Permissioned,
+	PermissionResponse,
+	PermissionStatus,
+	Service,
+} from '@octane-xplat/lib/capability'
 
 const language = Intl.DateTimeFormat().resolvedOptions().locale
 const [languageTag = '', region = ''] = language.split(/[-_]/)
@@ -94,18 +97,23 @@ export const clipboard = {
 	},
 }
 
-export const webAuthn: Capability<WebAuthnImpl> = {
+const webAuthnUnavailable = () => Promise.reject(new UnavailabilityError('webAuthn'))
+
+export const webAuthn: Service<WebAuthnImpl> = {
 	supported: false,
-	ensure: unsupported,
-	impl: null,
+	isAvailable: async () => false,
+	create: webAuthnUnavailable,
+	get: webAuthnUnavailable,
 }
 
 export { authSession } from './auth-session.macos'
 export { random } from './random.macos'
-export const openSettings: Capability<OpenSettingsImpl> = {
+export const openSettings: Service<OpenSettingsImpl> = {
 	supported: false,
-	ensure: unsupported,
-	impl: null,
+	isAvailable: async () => false,
+	open: () => {
+		throw new UnavailabilityError('openSettings')
+	},
 }
 
 export { permissions } from './permissions'

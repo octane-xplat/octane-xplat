@@ -2,7 +2,9 @@
 // (Gio.AppInfo.launch_default_for_uri / xdg-open); browser dev falls back to
 // window.open. Settings stay unsupported — no shared settings surface on Linux.
 import { bridged, call } from './bridge'
-import type { Capability, OpenSettingsImpl } from './types'
+import { UnavailabilityError } from '@octane-xplat/lib/capability'
+import type { Service } from '@octane-xplat/lib/capability'
+import type { OpenSettingsImpl } from './types'
 
 export function openUrl(url: string): boolean {
 	if (bridged()) {
@@ -13,10 +15,10 @@ export function openUrl(url: string): boolean {
 	return window.open(url, '_blank', 'noopener,noreferrer') !== null
 }
 
-export const openSettings: Capability<OpenSettingsImpl> = {
+export const openSettings: Service<OpenSettingsImpl> = {
 	supported: false,
-	async ensure() {
-		return 'unsupported'
+	isAvailable: async () => false,
+	open: () => {
+		throw new UnavailabilityError('openSettings')
 	},
-	impl: null,
 }

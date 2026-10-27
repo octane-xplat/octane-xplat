@@ -1,7 +1,8 @@
 // Outbound links and app settings — native leaf. Settings use the public
 // per-app settings route on each platform, not private iOS prefs URLs.
 import { Application, Utils } from '@nativescript/core'
-import type { Capability, OpenSettingsImpl } from './types'
+import type { Service } from '@octane-xplat/lib/capability'
+import type { OpenSettingsImpl } from './types'
 import { android } from '@octane-xplat/platform/android'
 
 export function openUrl(url: string): boolean {
@@ -39,10 +40,8 @@ function openSettingsPage(): boolean {
 	return false
 }
 
-export const openSettings: Capability<OpenSettingsImpl> = {
+export const openSettings: Service<OpenSettingsImpl> = {
 	supported: true,
-	async ensure() {
-		return 'granted'
-	},
-	impl: { open: openSettingsPage },
+	isAvailable: async () => true,
+	open: openSettingsPage,
 }

@@ -9,7 +9,8 @@
 // loads by default (common.d.ts), so its globals are declared locally — the
 // symbols resolve through the runtime bridge either way.
 import { Application, Utils } from '@nativescript/core'
-import type { AuthSessionImpl, AuthSessionOptions, AuthSessionResult, Capability } from './types'
+import type { Service } from '@octane-xplat/lib/capability'
+import type { AuthSessionImpl, AuthSessionOptions, AuthSessionResult } from './types'
 import { android } from '@octane-xplat/platform/android'
 import { NSObject, NSURL, UIApplication, UIWindow, UIWindowScene } from '@octane-xplat/platform/ios'
 
@@ -168,29 +169,25 @@ function androidOpen(url: string, options: AuthSessionOptions): Promise<AuthSess
 	})
 }
 
-export const authSession: Capability<AuthSessionImpl> = {
+export const authSession: Service<AuthSessionImpl> = {
 	supported: true,
-	async ensure() {
-		return 'granted'
-	},
-	impl: {
-		async open(url, options) {
-			if (active) {
-				return Promise.resolve({
-					type: 'error',
-					message: 'authSession.open: a session is already active',
-				})
-			}
+	isAvailable: async () => true,
+	async open(url, options) {
+		if (active) {
+			return Promise.resolve({
+				type: 'error',
+				message: 'authSession.open: a session is already active',
+			})
+		}
 
-			active = true
-			const run = Application.ios ? iosOpen : androidOpen
-			try {
-				return await run(url, options)
-			} catch {
-				return { type: 'error', message: 'authSession.open: native session failed' }
-			} finally {
-				active = false
-			}
-		},
+		active = true
+		const run = Application.ios ? iosOpen : androidOpen
+		try {
+			return await run(url, options)
+		} catch {
+			return { type: 'error', message: 'authSession.open: native session failed' }
+		} finally {
+			active = false
+		}
 	},
 }

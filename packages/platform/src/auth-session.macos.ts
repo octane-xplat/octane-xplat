@@ -3,7 +3,9 @@
 // itself, so no URL-type registration is needed. The appkit-node-api bridge
 // reaches AuthenticationServices directly; the session presents against the
 // app's key window via a lazy NSObject presentation-context provider.
-import type { AuthSessionImpl, AuthSessionResult, Capability } from './types'
+import { UnavailabilityError } from '@octane-xplat/lib/capability'
+import type { Service } from '@octane-xplat/lib/capability'
+import type { AuthSessionImpl, AuthSessionResult } from './types'
 
 declare const ASWebAuthenticationSession: any
 declare const ASWebAuthenticationPresentationContextProviding: any
@@ -72,15 +74,17 @@ function ensureAnchorClass() {
 	)
 }
 
-export const authSession: Capability<AuthSessionImpl> = {
+export const authSession: Service<AuthSessionImpl> = {
 	get supported() {
 		return frameworkAvailable()
 	},
-	async ensure() {
-		return frameworkAvailable() ? 'granted' : 'unsupported'
-	},
-	get impl() {
-		return frameworkAvailable() ? implementation : null
+	isAvailable: async () => frameworkAvailable(),
+	open(url, options) {
+		if (!frameworkAvailable()) {
+			return Promise.reject(new UnavailabilityError('authSession'))
+		}
+
+		return implementation.open(url, options)
 	},
 }
 

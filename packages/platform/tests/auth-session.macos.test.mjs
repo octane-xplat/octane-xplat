@@ -1,8 +1,11 @@
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
+import { createRequire } from 'node:module'
 import test from 'node:test'
 import vm from 'node:vm'
 import ts from 'typescript'
+
+const requireLib = createRequire(import.meta.url)
 
 const source = ts.transpile(
 	await readFile(new URL('../src/auth-session.macos.ts', import.meta.url), 'utf8'),
@@ -14,6 +17,7 @@ function load({ failure, start = true, presentationWindow = {}, available = true
 	const sessions = []
 	const context = {
 		exports: {},
+		require: (id) => requireLib(id),
 		objc: { import() {} },
 		NSURL: { URLWithString: (url) => ({ host: url.includes('invalid') ? '' : 'example.test' }) },
 		NSApplication: { sharedApplication: { keyWindow: presentationWindow } },
@@ -61,7 +65,7 @@ function load({ failure, start = true, presentationWindow = {}, available = true
 }
 
 const open = (h) =>
-	h.auth.impl.open('https://example.test/login', {
+	h.auth.open('https://example.test/login', {
 		callbackScheme: 'sample',
 		prefersEphemeralSession: true,
 	})
@@ -123,11 +127,14 @@ test('macOS validates launch URL/scheme and reports unavailable capability hones
 		['https://example.test', ''],
 		['https://example.test', null],
 	]) {
-		assert.equal((await h.auth.impl.open(url, { callbackScheme: scheme })).type, 'error')
+		assert.equal((await h.auth.open(url, { callbackScheme: scheme })).type, 'error')
 	}
 
 	const absent = load({ available: false }).auth
 	assert.equal(absent.supported, false)
-	assert.equal(absent.impl, null)
-	assert.equal(await absent.ensure(), 'unsupported')
+	assert.equal(await absent.isAvailable(), false)
+	await assert.rejects(
+		absent.open('https://example.test/login', { callbackScheme: 'sample' }),
+		{ name: 'UnavailabilityError' },
+	)
 })

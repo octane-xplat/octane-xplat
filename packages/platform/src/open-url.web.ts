@@ -1,6 +1,8 @@
 // Outbound links — web leaf. Settings are an app-level concept and are
 // explicitly unsupported in a browser.
-import type { Capability, OpenSettingsImpl } from './types'
+import { UnavailabilityError } from '@octane-xplat/lib/capability'
+import type { Service } from '@octane-xplat/lib/capability'
+import type { OpenSettingsImpl } from './types'
 import { desktopHost } from './host-runtime.web'
 
 export function openUrl(url: string): boolean {
@@ -18,10 +20,10 @@ export function openUrl(url: string): boolean {
 	return window.open(url, '_blank', 'noopener,noreferrer') !== null
 }
 
-export const openSettings: Capability<OpenSettingsImpl> = {
+export const openSettings: Service<OpenSettingsImpl> = {
 	supported: false,
-	async ensure() {
-		return 'unsupported'
+	isAvailable: async () => false,
+	open: () => {
+		throw new UnavailabilityError('openSettings')
 	},
-	impl: null,
 }

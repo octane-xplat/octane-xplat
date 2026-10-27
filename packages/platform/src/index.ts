@@ -8,7 +8,6 @@ export type {
 	AuthSessionImpl,
 	AuthSessionOptions,
 	AuthSessionResult,
-	Capability,
 	ConnectionType,
 	ConnectivityImpl,
 	ConnectivityState,
@@ -16,7 +15,6 @@ export type {
 	Insets,
 	Locale,
 	PermissionKind,
-	PermissionResult,
 	RandomImpl,
 	OpenSettingsImpl,
 	WebAuthnAssertionJSON,
@@ -26,6 +24,14 @@ export type {
 	WebAuthnRegistrationJSON,
 	WindowSize,
 } from './types'
+
+export { UnavailabilityError } from '@octane-xplat/lib/capability'
+export type {
+	Permissioned,
+	PermissionResponse,
+	PermissionStatus,
+	Service,
+} from '@octane-xplat/lib/capability'
 
 export { device } from './device'
 export { connectivity } from './connectivity'

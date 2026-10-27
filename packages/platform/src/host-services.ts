@@ -1,4 +1,5 @@
-import type { AppInfo, AppState, PermissionResult, WindowSize } from './types'
+import type { PermissionStatus } from '@octane-xplat/lib/capability'
+import type { AppInfo, AppState, WindowSize } from './types'
 
 export type HostColorScheme = 'light' | 'dark'
 export type HostShareResult = 'shared' | 'copied' | 'unavailable'
@@ -53,7 +54,7 @@ export interface FrameworkHostServices {
 		writeText(name: string, text: string): Promise<HostFileRef | null>
 	}
 	notifications: {
-		ensure(): Promise<PermissionResult>
+		ensure(): Promise<PermissionStatus>
 		notify(title: string, body?: string): Promise<boolean>
 	}
 	secureStorage: {

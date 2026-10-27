@@ -4,12 +4,15 @@
 // maintained NativeScript plugin provides it, so it stays unsupported until a
 // dedicated leaf lands (decision #66). Run the hosted ceremony through
 // `authSession` instead.
-import type { Capability, WebAuthnImpl } from './types'
+import { UnavailabilityError } from '@octane-xplat/lib/capability'
+import type { Service } from '@octane-xplat/lib/capability'
+import type { WebAuthnImpl } from './types'
 
-export const webAuthn: Capability<WebAuthnImpl> = {
+const unavailable = () => Promise.reject(new UnavailabilityError('webAuthn'))
+
+export const webAuthn: Service<WebAuthnImpl> = {
 	supported: false,
-	async ensure() {
-		return 'unsupported'
-	},
-	impl: null,
+	isAvailable: async () => false,
+	create: unavailable,
+	get: unavailable,
 }
