@@ -25,7 +25,7 @@ function ItemView(props: ItemProps) @{
 	<Pressable
 		id={props.id}
 		className={cx('vx-item', props.className)}
-		style={props.style}
+		style={mergeStyle({ flexDirection: 'row' }, props.style)}
 		onPress={props.onPress}
 		disabled={props.isDisabled}
 		accessibilityLabel={props.accessibilityLabel}
