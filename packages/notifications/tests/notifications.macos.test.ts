@@ -10,9 +10,18 @@ afterEach(() => {
 
 test('missing native metadata is unsupported and registers its permission owner', async () => {
 	assert.equal(notifications.supported, false)
-	assert.equal(notifications.impl, null)
-	assert.equal(await notifications.ensure(), 'unsupported')
-	assert.equal(await permissions.ensure('notifications'), 'unsupported')
+	assert.equal(await notifications.isAvailable(), false)
+	assert.deepEqual(await notifications.requestPermissions(), {
+		status: 'unsupported',
+		granted: false,
+		canAskAgain: false,
+	})
+	assert.deepEqual(await permissions.requestPermissions('notifications'), {
+		status: 'unsupported',
+		granted: false,
+		canAskAgain: false,
+	})
+	assert.throws(() => notifications.notify('title'), { name: 'UnavailabilityError' })
 })
 
 test('permission callbacks preserve granted and denied results via both entry points', async () => {
@@ -23,8 +32,10 @@ test('permission callbacks preserve granted and denied results via both entry po
 		}
 
 		assert.equal(notifications.supported, true)
-		assert.equal(await notifications.ensure(), result)
-		assert.equal(await permissions.ensure('notifications'), result)
+		const direct = await notifications.requestPermissions()
+		assert.equal(direct.status, result)
+		const owned = await permissions.requestPermissions('notifications')
+		assert.equal(owned.status, result)
 	}
 })
 
@@ -38,16 +49,15 @@ test('notify forwards optional body without requesting permission or colliding i
 		notifyBody: (...args: unknown[]) => calls.push(args),
 	}
 
-	const impl = notifications.impl!
-	assert.equal(impl.notify('one'), undefined)
-	impl.notify('two', 'body')
+	assert.equal(notifications.notify('one'), undefined)
+	notifications.notify('two', 'body')
 	assert.deepEqual(calls, [
 		['one', ''],
 		['two', 'body'],
 	])
 
 	delete globals.XplatLocalNotifications
-	assert.doesNotThrow(() => impl.notify('unloaded'))
+	assert.throws(() => notifications.notify('unloaded'), { name: 'UnavailabilityError' })
 })
 
 test('native permission invocation errors reject instead of hanging', async () => {
@@ -58,7 +68,7 @@ test('native permission invocation errors reject instead of hanging', async () =
 		},
 	}
 
-	await assert.rejects(notifications.ensure(), /native failure/)
+	await assert.rejects(notifications.requestPermissions(), /native failure/)
 })
 
 test('an unbundled host with metadata remains unsupported without touching the OS center', async () => {
@@ -70,6 +80,6 @@ test('an unbundled host with metadata remains unsupported without touching the O
 	}
 
 	assert.equal(notifications.supported, false)
-	assert.equal(notifications.impl, null)
-	assert.equal(await notifications.ensure(), 'unsupported')
+	assert.equal(await notifications.isAvailable(), false)
+	assert.equal((await notifications.requestPermissions()).status, 'unsupported')
 })

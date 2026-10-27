@@ -48,36 +48,52 @@ function run(command, args, cwd) {
 const dependencies = [
 	'@nativescript/local-notifications',
 	'@octane-xplat/platform',
+	'@octane-xplat/lib',
 	'@nativescript/core',
 ]
 
 const consumers = {
 	web: `import { notifications } from '@octane-xplat/notifications'
 const supported: boolean = notifications.supported
-notifications.impl?.notify('title', 'body')
+const available: Promise<boolean> = notifications.isAvailable()
+notifications.notify('title', 'body')
+const response = await notifications.requestPermissions()
+const granted: boolean = response.granted
 // @ts-expect-error notify needs a title
-const bad = notifications.impl?.notify()
+const bad = notifications.notify()
+void available
+void granted
 void supported
 void bad
 `,
 	native: `import { notifications } from '@octane-xplat/notifications'
 const supported: boolean = notifications.supported
-notifications.impl?.notify('title', 'body')
+const available: Promise<boolean> = notifications.isAvailable()
+notifications.notify('title', 'body')
+const response = await notifications.requestPermissions()
+const granted: boolean = response.granted
 // @ts-expect-error notify needs a title
-const bad = notifications.impl?.notify()
+const bad = notifications.notify()
+void available
+void granted
 void supported
 void bad
 `,
-	macos: `import type { Capability, NotificationsImpl, PermissionResult } from '@octane-xplat/notifications'
-const result: Promise<PermissionResult> = notifications.ensure()
-const capability: Capability<NotificationsImpl> = notifications
+	macos: `import type { NotificationsImpl, PermissionResponse } from '@octane-xplat/notifications'
+const result: Promise<PermissionResponse> = notifications.requestPermissions()
+const impl: NotificationsImpl = notifications
 void result
-void capability
+void impl
 import { notifications } from '@octane-xplat/notifications'
 const supported: boolean = notifications.supported
-notifications.impl?.notify('title', 'body')
+const available: Promise<boolean> = notifications.isAvailable()
+notifications.notify('title', 'body')
+const response = await notifications.requestPermissions()
+const granted: boolean = response.granted
 // @ts-expect-error notify needs a title
-const bad = notifications.impl?.notify()
+const bad = notifications.notify()
+void available
+void granted
 void supported
 void bad
 `,

@@ -1,46 +1,80 @@
 // Notifications — desktop webview hosts own local notification delivery;
 // outside a host this uses the Web Notification API.
+import { UnavailabilityError } from '@octane-xplat/lib/capability'
+import type { Permissioned, PermissionResponse } from '@octane-xplat/lib/capability'
 import { desktopHost } from '@octane-xplat/platform/host/web'
-import type { Capability, NotificationsImpl } from './types'
+import type { NotificationsImpl } from './types'
 
-export const notifications: Capability<NotificationsImpl> = {
+const dom = () => typeof Notification !== 'undefined'
+
+const fromStatus = (status: string): PermissionResponse => ({
+	status: status as PermissionResponse['status'],
+	granted: status === 'granted',
+	// Denied web permissions can only be reset in browser UI.
+	canAskAgain: status === 'granted' || status === 'undetermined',
+})
+
+// The host wire carries only ensure() — probing there may prompt.
+async function hostPermissions() {
+	const host = desktopHost()
+	if (host && (await host.supports('notifications', 'ensure'))) {
+		return fromStatus(await host.notifications.ensure())
+	}
+
+	return null
+}
+
+export const notifications: Permissioned<NotificationsImpl> = {
 	get supported() {
-		return desktopHost() !== null || typeof Notification !== 'undefined'
+		return desktopHost() !== null || dom()
 	},
-	async ensure() {
+	async isAvailable() {
 		const host = desktopHost()
-		if (host && (await host.supports('notifications', 'ensure'))) {
-			return host.notifications.ensure()
+		return host !== null ? await host.supports('notifications', 'notify') : dom()
+	},
+	async getPermissions() {
+		const hosted = await hostPermissions()
+		if (hosted) {
+			return hosted
 		}
 
-		if (typeof Notification === 'undefined') {
-			return 'unsupported'
+		if (!dom()) {
+			return fromStatus('unsupported')
+		}
+
+		return fromStatus(Notification.permission)
+	},
+	async requestPermissions() {
+		const hosted = await hostPermissions()
+		if (hosted) {
+			return hosted
+		}
+
+		if (!dom()) {
+			return fromStatus('unsupported')
+		}
+
+		return fromStatus(await Notification.requestPermission())
+	},
+	notify(title, body) {
+		const host = desktopHost()
+		if (host) {
+			void host.notifications.notify(title, body).catch(() => {})
+			return
+		}
+
+		if (!dom()) {
+			throw new UnavailabilityError('notifications')
 		}
 
 		if (Notification.permission === 'granted') {
-			return 'granted'
+			new Notification(title, { body })
 		}
-
-		if (Notification.permission === 'denied') {
-			return 'denied'
-		}
-
-		return (await Notification.requestPermission()) === 'granted' ? 'granted' : 'denied'
-	},
-	impl: {
-		notify(title, body) {
-			const host = desktopHost()
-			if (host) {
-				void host.notifications.notify(title, body).catch(() => {})
-				return
-			}
-
-			if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
-				new Notification(title, { body })
-			}
-		},
 	},
 }
 
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
-permissionOwners.notifications = () => notifications.ensure()
+permissionOwners.notifications = {
+	getPermissions: () => notifications.getPermissions(),
+	requestPermissions: () => notifications.requestPermissions(),
+}

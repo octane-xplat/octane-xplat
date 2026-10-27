@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/notifications",
 	"version": "0.17.1",
-	"description": "Local notifications for Octane xplat — matching web + NativeScript implementations",
+	"description": "Local notifications for Octane xplat \u2014 matching web + NativeScript implementations",
 	"keywords": [
 		"android",
 		"cross-platform",
@@ -59,7 +59,8 @@
 	},
 	"dependencies": {
 		"@nativescript/local-notifications": "7.0.0",
-		"@octane-xplat/platform": "workspace:*"
+		"@octane-xplat/platform": "workspace:*",
+		"@octane-xplat/lib": "workspace:*"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "catalog:",

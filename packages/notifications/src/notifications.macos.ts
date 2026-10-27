@@ -1,41 +1,50 @@
 // The CLI builds platforms/macos and exposes this class through native metadata.
-import type { Capability, NotificationsImpl, PermissionResult } from './types'
+import { UnavailabilityError } from '@octane-xplat/lib/capability'
+import type { Permissioned, PermissionResponse } from '@octane-xplat/lib/capability'
+import type { NotificationsImpl } from './types'
 
 declare const XplatLocalNotifications: {
 	isAvailable(): boolean
-	ensure(completion: (result: PermissionResult) => void): void
+	ensure(completion: (result: 'granted' | 'denied' | 'unsupported') => void): void
 	notifyBody(title: string, body: string): void
 }
 
 const available = () =>
 	typeof XplatLocalNotifications !== 'undefined' && XplatLocalNotifications.isAvailable()
 
-const impl: NotificationsImpl = {
-	notify(title, body) {
-		if (available()) {
-			XplatLocalNotifications.notifyBody(title, body ?? '')
-		}
-	},
-}
+// The native seam carries only ensure() — probing may prompt.
+const ensure = (): Promise<PermissionResponse> =>
+	!available()
+		? Promise.resolve({ status: 'unsupported', granted: false, canAskAgain: false })
+		: new Promise((resolve) => {
+				XplatLocalNotifications.ensure((status) =>
+					resolve({
+						status,
+						granted: status === 'granted',
+						canAskAgain: status === 'granted',
+					}),
+				)
+			})
 
-/** Local macOS notifications; permission is requested explicitly by ensure(). */
-export const notifications: Capability<NotificationsImpl> = {
+/** Local macOS notifications; permission is requested via requestPermissions(). */
+export const notifications: Permissioned<NotificationsImpl> = {
 	get supported() {
 		return available()
 	},
-	async ensure() {
+	isAvailable: async () => available(),
+	getPermissions: ensure,
+	requestPermissions: ensure,
+	notify(title, body) {
 		if (!available()) {
-			return 'unsupported'
+			throw new UnavailabilityError('notifications')
 		}
 
-		return new Promise<PermissionResult>((resolve) => {
-			XplatLocalNotifications.ensure(resolve)
-		})
-	},
-	get impl() {
-		return available() ? impl : null
+		XplatLocalNotifications.notifyBody(title, body ?? '')
 	},
 }
 
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
-permissionOwners.notifications = () => notifications.ensure()
+permissionOwners.notifications = {
+	getPermissions: () => notifications.getPermissions(),
+	requestPermissions: () => notifications.requestPermissions(),
+}

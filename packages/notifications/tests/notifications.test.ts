@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
 import { test } from 'node:test'
 import { runInNewContext } from 'node:vm'
+import { UnavailabilityError } from '@octane-xplat/lib/capability'
 import { notificationBody } from '../src/notification-body.ts'
 import { notificationBody as iosBody } from '../src/notification-body.ios.ts'
 
@@ -31,7 +32,7 @@ test('mobile notify checks permission without prompting and drops denied sends',
 			},
 		})
 
-		assert.equal(leaf.impl.notify('title', 'body'), undefined)
+		assert.equal(leaf.notify('title', 'body'), undefined)
 		await flush()
 		assert.equal(calls.length, granted ? 1 : 0)
 	}
@@ -55,7 +56,7 @@ test('mobile notify consumes permission and schedule failures', async () => {
 			},
 		})
 
-		assert.doesNotThrow(() => leaf.impl.notify('title'))
+		assert.doesNotThrow(() => leaf.notify('title'))
 		await flush() // Node's test runner fails on unhandled promise rejections.
 	}
 })
@@ -72,7 +73,7 @@ test('mobile IDs stay distinct with a frozen clock and wrap within signed int ra
 	})
 
 	for (let i = 0; i < 3; i++) {
-		leaf.impl.notify(`title ${i}`)
+		leaf.notify(`title ${i}`)
 	}
 
 	await flush()
@@ -98,11 +99,18 @@ test('iOS preserves title for missing/empty bodies under plugin 7.0.0 normalizat
 	assert.equal(notificationBody(''), '')
 })
 
-test('web absence is unsupported and notify is a safe no-op', async () => {
-	const leaf = loadLeaf('notifications.web', { desktopHost: () => null })
+test('web absence is unsupported and notify throws UnavailabilityError', async () => {
+	const leaf = loadLeaf('notifications.web', {
+		desktopHost: () => null,
+		UnavailabilityError,
+	})
 	assert.equal(leaf.supported, false)
-	assert.equal(await leaf.ensure(), 'unsupported')
-	assert.doesNotThrow(() => leaf.impl.notify('title'))
+	assert.equal(await leaf.isAvailable(), false)
+	const response = await leaf.getPermissions()
+	assert.equal(response.status, 'unsupported')
+	assert.equal(response.granted, false)
+	assert.equal(response.canAskAgain, false)
+	assert.throws(() => leaf.notify('title'), UnavailabilityError)
 })
 
 test('web forwards granted notifications and preserves desktop host delivery', async () => {
@@ -115,16 +123,16 @@ test('web forwards granted notifications and preserves desktop host delivery', a
 	}
 
 	const leaf = loadLeaf('notifications.web', { desktopHost: () => null, Notification })
-	leaf.impl.notify('title', 'body')
+	leaf.notify('title', 'body')
 	assert.equal(calls.length, 1)
 	Notification.permission = 'denied'
-	leaf.impl.notify('blocked')
+	leaf.notify('blocked')
 	assert.equal(calls.length, 1)
 	const hostLeaf = loadLeaf('notifications.web', {
 		desktopHost: () => ({ notifications: { notify: async (title: string) => calls.push(title) } }),
 	})
 
-	hostLeaf.impl.notify('host')
+	hostLeaf.notify('host')
 	await flush()
 	assert.equal(calls[1], 'host')
 })
