@@ -41,7 +41,14 @@ export function reduce(state: RootState, action: RootAction): { state: RootState
 			const index = clamp(action.index, 0, action.count - 1)
 			return {
 				state: { ...state, index, phase: 'opening', uiHidden: false },
-				effects: [{ kind: 'animateIn' }, { kind: 'notifyOpen', open: true }, { kind: 'notifyIndex', index }],
+				// The scroller must land on the opened slide — a non-zero index
+				// otherwise leaves the current slide clipped offscreen.
+				effects: [
+					{ kind: 'slideTo', index, instant: true },
+					{ kind: 'animateIn' },
+					{ kind: 'notifyOpen', open: true },
+					{ kind: 'notifyIndex', index },
+				],
 			}
 		}
 		case 'opened': {

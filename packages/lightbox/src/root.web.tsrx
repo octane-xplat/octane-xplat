@@ -1,5 +1,5 @@
 /** @jsxImportSource octane/web */
-import { createContext, useContext, useEffect, useEffectEvent, useLayoutEffect, useMemo, useRef, useState } from 'octane'
+import { createContext, createPortal, useContext, useEffect, useEffectEvent, useLayoutEffect, useMemo, useRef, useState } from 'octane'
 import { Overlay } from '@octane-xplat/ui'
 import { useMotionValue, useReducedMotion } from '@octane-xplat/motion'
 import { Image } from './Image.web.tsrx'
@@ -339,19 +339,9 @@ export function Root(props: LightboxRootProps) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 
-	const layerOpen = state.phase !== 'closed'
-	return (
-		<LightboxContext value={ctx}>
-			<Overlay
-				open={layerOpen}
-				isModal
-				accessibilityLabel={items?.[state.index]?.alt ?? 'Media viewer'}
-				onDismiss={() => dispatch({ kind: 'requestClose' })}
-			>
-				{children ?? null}
-			</Overlay>
-		</LightboxContext>
-	)
+	// Children mount unconditionally so page-side parts (Trigger) exist while
+	// the viewer is closed — the modal layer parts gate themselves on phase.
+	return <LightboxContext value={ctx}>{children ?? null}</LightboxContext>
 }
 
 // ---------- parts ----------
@@ -400,6 +390,7 @@ export function Trigger(props: LightboxTriggerPartProps) {
 export function Backdrop(props: { children?: unknown; className?: string; style?: Record<string, unknown> }) {
 	const ctx = useLightboxCtx()
 	const ref = useRef<HTMLDivElement | null>(null)
+	if (ctx.phase === 'closed') return null
 	useLayoutEffect(() => {
 		const el = ref.current
 		if (!el) return
@@ -410,15 +401,16 @@ export function Backdrop(props: { children?: unknown; className?: string; style?
 		apply(ctx.presence.get())
 		return ctx.presence.on('change', apply)
 	}, [ctx.presence])
-	return (
+	return createPortal(
 		<div
 			ref={ref}
 			className={cx('vx-lightbox-backdrop', props.className)}
 			style={{ position: 'fixed', inset: 0, ...props.style }}
 		>
 			{props.children as never}
-		</div>
-	)
+		</div>,
+		document.body,
+	) as never
 }
 
 const isEditable = (t: EventTarget | null) =>
@@ -467,7 +459,14 @@ export function Popup(props: { children?: unknown; className?: string; style?: R
 	}
 
 	const mods = `vx-lightbox-popup--${ctx.phase}`
+	if (ctx.phase === 'closed') return null
 	return (
+		<Overlay
+			open
+			isModal
+			accessibilityLabel={ctx.items[ctx.index]?.alt ?? 'Media viewer'}
+			onDismiss={() => ctx.close()}
+		>
 		<div
 			ref={ref}
 			tabIndex={-1}
@@ -481,6 +480,7 @@ export function Popup(props: { children?: unknown; className?: string; style?: R
 		>
 			{props.children as never}
 		</div>
+		</Overlay>
 	)
 }
 
@@ -554,6 +554,9 @@ export function Viewport(props: { children?: unknown; className?: string; style?
 					void anims[0]!.finished.then(finish)
 				}),
 		}
+		// Land on the requested slide: openAt(index>0) must not leave the
+		// current slide clipped offscreen on mount.
+		to(ctx.index, 'auto')
 		const onScroll = () => {
 			const p = el.scrollLeft / stride()
 			if (!fading) progress.set(p)

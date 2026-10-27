@@ -38,6 +38,8 @@ for (const browser of ['firefox', 'webkit']) {
 	})
 }
 
+run(['--dir', 'packages/lightbox', 'test:e2e'])
+
 run(['check:optional-services', '--browser'])
 run(['check:consumer', '--smoke', 'web'], {
 	XPLAT_WEB_BROWSERS: browsers.join(','),

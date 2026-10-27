@@ -49,8 +49,8 @@ export function Image(props: LightboxImageProps) {
 	const morph = useRef<Visual | null>(null)
 
 	const F = box && aspect ? fit(aspect, box, 'contain') : null
-	const live = useRef({ F, ctx, slide })
-	live.current = { F, ctx, slide }
+	const live = useRef({ F, ctx, slide, box })
+	live.current = { F, ctx, slide, box }
 
 	const stop = () => {
 		for (const a of anims.current) a.stop()
@@ -287,9 +287,9 @@ export function Image(props: LightboxImageProps) {
 				live.current.slide.onTap?.(event as never)
 				if (event.prevented) break
 				if (c.target === 'backdrop') {
-					if (ctx.options.closeOnBackdropClick) ctx.close()
+					if (live.current.ctx.options.closeOnBackdropClick) live.current.ctx.close()
 				} else if (c.pointer !== 'mouse') {
-					ctx.toggleUi()
+					live.current.ctx.toggleUi()
 				}
 				break
 			}
@@ -301,7 +301,7 @@ export function Image(props: LightboxImageProps) {
 
 	const env: MachineEnv = {
 		fit: () => live.current.F,
-		view: () => live.current.F ? { w: box!.w, h: box!.h } : { w: 1, h: 1 },
+		view: () => live.current.box ?? { w: 1, h: 1 },
 		transform: () => ({ x: x.get(), y: y.get(), scale: scale.get() }),
 		maxZoom: () => ctx.options.maxZoom,
 		itemCount: () => ctx.items.length,
@@ -346,7 +346,8 @@ export function Image(props: LightboxImageProps) {
 			if (e.pointerType === 'mouse' && e.button !== 0) return
 			if (ignoreTarget(e.target)) return
 			pointers.set(e.pointerId, { x: e.clientX, y: e.clientY })
-			el.setPointerCapture?.(e.pointerId)
+			// Synthesized pointer events have no active pointer to capture.
+			try { el.setPointerCapture?.(e.pointerId) } catch {}
 			if (pointers.size === 1) {
 				down = { x: e.clientX, y: e.clientY }
 				downPointer = e.pointerType || 'touch'
@@ -420,8 +421,8 @@ export function Image(props: LightboxImageProps) {
 			const sEl = slideEl()
 			const r = sEl.getBoundingClientRect()
 			const f = live.current.F
-			if (!f || ctx.phase !== 'open') return
-			if (e.ctrlKey || e.metaKey || ctx.options.wheelToZoom) {
+			if (!f || live.current.ctx.phase !== 'open') return
+			if (e.ctrlKey || e.metaKey || live.current.ctx.options.wheelToZoom) {
 				e.preventDefault()
 				const p = { x: e.clientX - r.left, y: e.clientY - r.top }
 				const factor = Math.exp(-e.deltaY * (e.ctrlKey || e.metaKey ? 0.01 : 0.002))

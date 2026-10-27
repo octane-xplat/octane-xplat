@@ -2329,6 +2329,9 @@ importers:
       octane:
         specifier: 'catalog:'
         version: 0.14.0(patch_hash=72aab06e2743b11bebe59fe01d29148dcfbd2bb3a381413179986b0f374ba065)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      playwright:
+        specifier: 1.63.0
+        version: 1.63.0
       tsrx-typegen:
         specifier: workspace:*
         version: link:../tsrx-typegen
