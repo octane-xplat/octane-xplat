@@ -19,8 +19,8 @@ export function Tabs(props: TabsProps): any {
 					<Tab value={routeTabKey(tab, i)} label={tab.title} icon={tab.icon} panelId={idPrefix + '-panel-' + i} id={idPrefix + '-tab-' + i} />
 				}
 			</TabList>
-			<masonview className="vx-tabpane" style={{ display: "flex", flexDirection: "column", flexGrow: 1 }}>
-				@for (const tab of props.tabs; index i; key routeTabKey(tab, i)) {
+			@for (const tab of props.tabs; index i; key routeTabKey(tab, i)) {
+				<masonview id={idPrefix + '-panel-' + i} className="vx-tabpane" accessibilityRole="tabpanel" style={{ display: selection.selectedKey === routeTabKey(tab, i) ? 'flex' : 'none', flexDirection: 'column', flexGrow: 1 }}>
 					<RoutePane active={selection.selectedKey === routeTabKey(tab, i)}>
 						@if (tab.stack) {
 							<RouteOutlet stack={tab.stack}>{tab.render()}</RouteOutlet>
@@ -28,8 +28,8 @@ export function Tabs(props: TabsProps): any {
 							<>{tab.render()}</>
 						}
 					</RoutePane>
-				}
-			</masonview>
+				</masonview>
+			}
 		</masonview>
 	</>
 }

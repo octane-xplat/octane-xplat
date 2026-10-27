@@ -8,4 +8,6 @@ Open drawers keep their content height, and Absolute overlays share the same top
 
 Checkboxes, radio indicators, Meter frames, and slider layers now follow their shared sizes and alignment on macOS.
 
+Inactive Tabs panes collapse while their content stays mounted for later selection.
+
 [Shared components](https://octane-xplat.goddardai.org/app/primitives)
