@@ -156,8 +156,8 @@ export function Image(props: LightboxImageProps) {
 		animateIn(trigger) {
 			stop()
 			const { ctx } = live.current
-			if (!live.current.F) {
-				// Unmeasured slide (no box/aspect yet): fade the layer in instead.
+			if (!live.current.F || !base().w) {
+				// Unmeasured or zero-size slide: fade the layer in instead.
 				ctx.presence.set(0)
 				void ctx.presence.animate(1, ctx.options.open).finished.then(() => ctx.onOpened())
 				return
@@ -172,6 +172,7 @@ export function Image(props: LightboxImageProps) {
 			// Endpoints are re-read every frame, so anything still settling underneath can't knock the morph off target.
 			void run(ctx.options.open, (p) => {
 				const b = base()
+				if (!b.w) return
 				apply(lerpVisual(from, rest(b), p), b)
 				ctx.presence.set(clamp(p, 0, 1))
 			}).then(() => {
@@ -209,7 +210,9 @@ export function Image(props: LightboxImageProps) {
 			const pv = velocity ? center(to.img) : c0
 			void velocity // velocity projection lives in the spring's `velocity` below
 			await run(ctx.options.close, (p) => {
-				apply(lerpVisual(from, target(), p), base())
+				const b = base()
+				if (!b.w) return
+				apply(lerpVisual(from, target(), p), b)
 				ctx.presence.set(1 - clamp(p, 0, 1))
 			}, velocity && pv ? Math.hypot(velocity.x, velocity.y) * 0.001 : 0)
 		},

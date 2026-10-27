@@ -1,4 +1,4 @@
-import type { ClassValue, HostElement, PlatformProps, Renderable, StyleProp } from '@octane-xplat/ui'
+import type { ClassValue, HostElement, PlatformProps, Renderable, StyleProp, TestIDProps } from '@octane-xplat/ui'
 import type { MotionValue, Transition } from '@octane-xplat/motion'
 
 // ---------- lightbox ----------
@@ -68,10 +68,6 @@ export interface LightboxOptions<T extends LightboxMedia = LightboxMedia> {
 	triggerScroll?: 'smooth' | 'instant' | false
 	/** Open/close morph transition override (motion `Transition`). */
 	transition?: Transition
-	/** Internal: pre-shared trigger element registry used by `useLightbox` so
-	 *  triggers rendered outside the Root tree can still feed the morph.
-	 *  Element type is platform host (HTMLElement on web). */
-	triggers?: Map<number, Set<HostElement>>
 }
 
 /** Full-screen media viewer (Astryx `Lightbox`). Navigates a `media` array
@@ -180,4 +176,29 @@ export interface UseLightboxState<T extends LightboxMedia = LightboxMedia> {
 	zoomIn: () => void
 	zoomOut: () => void
 	resetZoom: () => void
+}
+
+/** Props shared by the lightbox layer parts. */
+export interface LightboxPartProps extends TestIDProps {
+	children?: Renderable
+	className?: ClassValue
+	style?: StyleProp
+}
+/** `Lightbox.Trigger` — registers the morph source element for `index`. */
+export interface LightboxTriggerPartProps extends LightboxPartProps {
+	index: number
+	onClick?: (event: unknown) => void
+}
+/** `Lightbox.Slide`. */
+export interface LightboxSlidePartProps extends LightboxPartProps {
+	index: number
+	/** Taps on this slide (after the double-tap window when zoom is on). Call `event.preventDefault()` to skip the default. */
+	onTap?: (event: LightboxTapEvent) => void
+}
+/** `Lightbox.Image` — defaults `src`/`alt`/`srcSet`/`sizes` to the slide's item. */
+export interface LightboxImagePartProps extends LightboxPartProps {
+	src?: string
+	alt?: string
+	srcSet?: string
+	sizes?: string
 }

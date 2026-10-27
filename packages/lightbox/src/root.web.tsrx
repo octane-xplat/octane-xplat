@@ -12,7 +12,7 @@ import type { RootAction, RootEffect, RootState } from './state'
 import { CLOSE, FADE, OPEN, REDUCED } from './constants'
 import type { Transition } from '@octane-xplat/motion'
 import { lockScroll, thumbImg, visibleFraction } from './web-dom.web'
-import type { LightboxMedia, LightboxRootProps, LightboxTapEvent, UseLightboxState } from './props'
+import type { LightboxMedia, LightboxPartProps, LightboxRootProps, LightboxSlidePartProps, LightboxTapEvent, LightboxTriggerPartProps, UseLightboxState } from './props'
 
 export interface ImageController {
 	animateIn(trigger: HTMLElement | null): void
@@ -71,6 +71,9 @@ export interface SlideCtx {
 }
 
 export const LightboxContext = createContext<LightboxCtx | null>(null)
+/** Internal: lets `useLightbox` share a trigger registry with the Root it
+ *  renders, without exposing a `triggers` prop on the public API. */
+export const InternalTriggersContext = createContext<Map<number, Set<HTMLElement>> | null>(null)
 export const SlideContext = createContext<SlideCtx | null>(null)
 
 export function useLightboxCtx() {
@@ -117,7 +120,8 @@ export function Root(props: LightboxRootProps) {
 	const reducedMotion = useReducedMotion() ?? false
 	const presence = useMotionValue(0)
 	const progress = useMotionValue(0)
-	const [triggers] = useState(() => (props.triggers ?? new Map<number, Set<HTMLElement>>()) as Map<number, Set<HTMLElement>>)
+	const sharedTriggers = useContext(InternalTriggersContext)
+	const [triggers] = useState(() => sharedTriggers ?? new Map<number, Set<HTMLElement>>())
 	const [images] = useState(() => new Map<number, ImageController>())
 	const viewport = useRef<ViewportController | null>(null)
 	const openTrigger = useRef<HTMLElement | null>(null)
@@ -145,7 +149,7 @@ export function Root(props: LightboxRootProps) {
 			const el = opened ?? best ?? list[0] ?? null
 			const v = el ? visibleFraction(el) : 1
 			if (el && scroll && v < 0.99) {
-				el.scrollIntoView({ block: v > 0 ? 'nearest' : 'center', inline: 'nearest', behavior: scroll === 'instant' ? 'auto' : scroll })
+				el.scrollIntoView?.({ block: v > 0 ? 'nearest' : 'center', inline: 'nearest', behavior: scroll === 'instant' ? 'auto' : scroll })
 			}
 			return el
 		},
@@ -162,7 +166,7 @@ export function Root(props: LightboxRootProps) {
 		const id = setTimeout(() => {
 			const el = pickTrigger(state.index, false)
 			if (el && visibleFraction(el) < 0.99) {
-				el.scrollIntoView({
+				el.scrollIntoView?.({
 					block: 'nearest',
 					inline: 'nearest',
 					behavior: scrollTriggerIntoView === 'instant' ? 'auto' : scrollTriggerIntoView,
@@ -196,7 +200,7 @@ export function Root(props: LightboxRootProps) {
 					viewport.current?.freeze(index)
 					const trigger = pickTrigger(index, scrollTriggerIntoView === false ? false : 'instant')
 					if (trigger && scrollTriggerIntoView) {
-						trigger.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'auto' })
+						trigger.scrollIntoView?.({ block: 'nearest', inline: 'nearest', behavior: 'auto' })
 					}
 					const image = images.get(index)
 					const velocity = closeVelocity.current
@@ -207,8 +211,12 @@ export function Root(props: LightboxRootProps) {
 					// An invisible layer that never unmounts would block the page; never wait forever.
 					void Promise.race([animation, new Promise((r) => setTimeout(r, 1500))]).then(() => {
 						dispatch({ kind: 'closed' })
-						const focus = (finalFocusRef?.current as HTMLElement | null) ?? pickTrigger(index, false)
-						focus?.focus?.({ preventScroll: true })
+						// The modal focus isolation restores focus on unmount; run
+						// ours after it settles so the explicit target wins.
+						setTimeout(() => {
+							const focus = (finalFocusRef?.current as HTMLElement | null) ?? pickTrigger(index, false)
+							focus?.focus?.({ preventScroll: true })
+						}, 0)
 					})
 					break
 				}
@@ -346,14 +354,6 @@ export function Root(props: LightboxRootProps) {
 
 // ---------- parts ----------
 
-export interface LightboxTriggerPartProps {
-	index: number
-	children?: unknown
-	className?: string
-	style?: Record<string, unknown>
-	onClick?: (event: MouseEvent) => void
-}
-
 export function Trigger(props: LightboxTriggerPartProps) {
 	const ctx = useLightboxCtx()
 	const ref = useRef<HTMLElement | null>(null)
@@ -375,7 +375,8 @@ export function Trigger(props: LightboxTriggerPartProps) {
 			type="button"
 			aria-haspopup="dialog"
 			className={cx('vx-lightbox-trigger', active && 'vx-lightbox-trigger--active', props.className)}
-			style={props.style}
+			style={props.style as never}
+			data-testid={props.testID}
 			data-lightbox-trigger={active ? '' : undefined}
 			onClick={(e: MouseEvent) => {
 				props.onClick?.(e)
@@ -387,7 +388,7 @@ export function Trigger(props: LightboxTriggerPartProps) {
 	)
 }
 
-export function Backdrop(props: { children?: unknown; className?: string; style?: Record<string, unknown> }) {
+export function Backdrop(props: LightboxPartProps) {
 	const ctx = useLightboxCtx()
 	const ref = useRef<HTMLDivElement | null>(null)
 	if (ctx.phase === 'closed') return null
@@ -406,6 +407,7 @@ export function Backdrop(props: { children?: unknown; className?: string; style?
 			ref={ref}
 			className={cx('vx-lightbox-backdrop', props.className)}
 			style={{ position: 'fixed', inset: 0, ...props.style }}
+			data-testid={props.testID}
 		>
 			{props.children as never}
 		</div>,
@@ -417,7 +419,7 @@ const isEditable = (t: EventTarget | null) =>
 	t instanceof HTMLElement &&
 	(t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))
 
-export function Popup(props: { children?: unknown; className?: string; style?: Record<string, unknown> }) {
+export function Popup(props: LightboxPartProps) {
 	const ctx = useLightboxCtx()
 	const ref = useRef<HTMLDivElement | null>(null)
 	useLayoutEffect(() => {
@@ -472,6 +474,7 @@ export function Popup(props: { children?: unknown; className?: string; style?: R
 			tabIndex={-1}
 			className={cx('vx-lightbox-popup', mods, ctx.zoomed && 'vx-lightbox-popup--zoomed', ctx.dragging && 'vx-lightbox-popup--dragging', ctx.uiHidden && 'vx-lightbox-popup--ui-hidden', props.className)}
 			style={{ position: 'fixed', inset: 0, ...props.style }}
+			data-testid={props.testID}
 			data-phase={ctx.phase}
 			data-zoomed={ctx.zoomed ? '' : undefined}
 			data-dragging={ctx.dragging ? '' : undefined}
@@ -484,7 +487,7 @@ export function Popup(props: { children?: unknown; className?: string; style?: R
 	)
 }
 
-export function Viewport(props: { children?: unknown; className?: string; style?: Record<string, unknown> }) {
+export function Viewport(props: LightboxPartProps) {
 	const ctx = useLightboxCtx()
 	const ref = useRef<HTMLDivElement | null>(null)
 	const count = ctx.items.length
@@ -585,6 +588,7 @@ export function Viewport(props: { children?: unknown; className?: string; style?
 				overscrollBehavior: 'contain',
 				...props.style,
 			}}
+			data-testid={props.testID}
 		>
 			{(props.children ??
 				ctx.items.map((item, i) => (
@@ -596,13 +600,7 @@ export function Viewport(props: { children?: unknown; className?: string; style?
 	)
 }
 
-export function Slide(props: {
-	index: number
-	onTap?: (event: LightboxTapEvent) => void
-	children?: unknown
-	className?: string
-	style?: Record<string, unknown>
-}) {
+export function Slide(props: LightboxSlidePartProps) {
 	const ctx = useLightboxCtx()
 	const current = props.index === ctx.index
 	// Renders index±2 only; a large gallery would want real virtualisation too.
@@ -626,6 +624,7 @@ export function Slide(props: {
 					scrollSnapStop: 'always',
 					...props.style,
 				}}
+				data-testid={props.testID}
 				{...(current ? { 'data-current': '' } : {})}
 			>
 				{(near ? props.children : null) as never}
@@ -634,14 +633,15 @@ export function Slide(props: {
 	)
 }
 
-export function Close(props: { children?: unknown; className?: string; style?: Record<string, unknown>; onClick?: (e: MouseEvent) => void }) {
+export function Close(props: LightboxPartProps & { onClick?: (e: MouseEvent) => void }) {
 	const ctx = useLightboxCtx()
 	return (
 		<button
 			type="button"
 			aria-label="Close"
 			className={cx('vx-lightbox-close', props.className)}
-			style={props.style}
+			style={props.style as never}
+			data-testid={props.testID}
 			onClick={(e: MouseEvent) => {
 				props.onClick?.(e)
 				if (!e.defaultPrevented) ctx.close()
@@ -652,7 +652,7 @@ export function Close(props: { children?: unknown; className?: string; style?: R
 	)
 }
 
-function NavButton(props: { step: 1 | -1; children?: unknown; className?: string; style?: Record<string, unknown> }) {
+function NavButton(props: LightboxPartProps & { step: 1 | -1 }) {
 	const ctx = useLightboxCtx()
 	const target = ctx.index + props.step
 	const disabled = target < 0 || target >= ctx.items.length
@@ -662,7 +662,8 @@ function NavButton(props: { step: 1 | -1; children?: unknown; className?: string
 			disabled={disabled}
 			aria-label={props.step < 0 ? 'Previous image' : 'Next image'}
 			className={cx('vx-lightbox-nav', disabled && 'vx-lightbox-nav--disabled', props.className)}
-			style={props.style}
+			style={props.style as never}
+			data-testid={props.testID}
 			onClick={() => ctx.goTo(target)}
 		>
 			{(props.children ?? (props.step < 0 ? '‹' : '›')) as never}
@@ -670,15 +671,15 @@ function NavButton(props: { step: 1 | -1; children?: unknown; className?: string
 	)
 }
 
-export function Prev(props: { children?: unknown; className?: string; style?: Record<string, unknown> }) {
+export function Prev(props: LightboxPartProps) {
 	return <NavButton step={-1} {...props} />
 }
 
-export function Next(props: { children?: unknown; className?: string; style?: Record<string, unknown> }) {
+export function Next(props: LightboxPartProps) {
 	return <NavButton step={1} {...props} />
 }
 
-export function Title(props: { children?: unknown; className?: string; style?: Record<string, unknown>; id?: string }) {
+export function Title(props: LightboxPartProps & { id?: string }) {
 	return (
 		<h2 id={props.id ?? 'vx-lightbox-title'} className={cx('vx-lightbox-title', props.className)} style={props.style}>
 			{props.children as never}
@@ -686,7 +687,7 @@ export function Title(props: { children?: unknown; className?: string; style?: R
 	)
 }
 
-export function Description(props: { children?: unknown; className?: string; style?: Record<string, unknown>; id?: string }) {
+export function Description(props: LightboxPartProps & { id?: string }) {
 	return (
 		<p id={props.id ?? 'vx-lightbox-description'} className={cx('vx-lightbox-description', props.className)} style={props.style}>
 			{props.children as never}

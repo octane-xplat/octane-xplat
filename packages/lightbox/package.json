@@ -2,7 +2,7 @@
 	"name": "@octane-xplat/lightbox",
 	"version": "0.17.1",
 	"private": true,
-	"description": "Full-screen media lightbox for Octane xplat \u2014 thumbnail morph, pinch/double-tap zoom, pull to dismiss, swipe paging",
+	"description": "Full-screen media lightbox for Octane xplat — thumbnail morph, pinch/double-tap zoom, pull to dismiss, swipe paging",
 	"keywords": [
 		"android",
 		"cross-platform",

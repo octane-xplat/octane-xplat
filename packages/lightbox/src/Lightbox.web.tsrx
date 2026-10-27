@@ -77,7 +77,6 @@ export function Lightbox(props: LightboxProps) {
 			triggerScroll={props.triggerScroll}
 			transition={props.transition}
 			finalFocusRef={props.finalFocusRef}
-			triggers={props.triggers}
 		>
 			<Backdrop className="vx-lightbox-backdrop" />
 			<Popup className={cx('vx-lightbox-layer', props.className)} style={props.style as Record<string, unknown>}>

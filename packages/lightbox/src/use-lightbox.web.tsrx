@@ -2,6 +2,7 @@
 import { useCallback, useState } from 'octane'
 import type { LightboxTriggerProps, UseLightboxOptions, UseLightboxReturn } from './props'
 import { Lightbox } from './Lightbox.web.tsrx'
+import { InternalTriggersContext } from './root.web.tsrx'
 
 /** Imperative lightbox control (Astryx `useLightbox`): `open(index)`
  *  shows the viewer; `triggerProps`/`getTriggerProps` spread onto a
@@ -46,6 +47,7 @@ export function useLightbox(options: UseLightboxOptions): UseLightboxReturn {
 	)
 
 	const element = (
+		<InternalTriggersContext value={triggers}>
 		<Lightbox
 			isOpen={isOpen}
 			onOpenChange={(o: boolean) => {
@@ -57,8 +59,8 @@ export function useLightbox(options: UseLightboxOptions): UseLightboxReturn {
 			hasZoom={options.hasZoom}
 			hasAutoPlay={options.hasAutoPlay}
 			finalFocusRef={options.finalFocusRef}
-			triggers={triggers}
 		/>
+		</InternalTriggersContext>
 	)
 
 	return { open, close, isOpen, index, element, triggerProps: getTriggerProps(0), getTriggerProps }

@@ -1,21 +1,25 @@
 import type { UniversalComponent } from 'octane/universal'
 import type {
-	ClassValue,
-	HostElement,
 	LightboxMedia,
 	LightboxOptions,
+	LightboxPartProps,
 	LightboxProps,
 	LightboxRootProps,
+	LightboxSlidePartProps,
 	LightboxTapEvent,
+	LightboxTriggerPartProps,
 	LightboxTriggerProps,
-	Renderable,
-	StyleProp,
+	LightboxImagePartProps,
 	UseLightboxOptions,
 	UseLightboxReturn,
 	UseLightboxState,
 } from './props'
 
 export type {
+	LightboxPartProps,
+	LightboxTriggerPartProps,
+	LightboxSlidePartProps,
+	LightboxImagePartProps,
 	LightboxMedia,
 	LightboxMediaType,
 	LightboxTapEvent,
@@ -28,25 +32,6 @@ export type {
 	UseLightboxState,
 } from './props'
 
-/** Props shared by the visual layer parts. */
-export interface LightboxPartProps {
-	children?: Renderable
-	className?: ClassValue
-	style?: StyleProp
-}
-export interface LightboxTriggerPartProps extends LightboxPartProps {
-	index: number
-}
-export interface LightboxSlidePartProps extends LightboxPartProps {
-	index: number
-	onTap?: (event: LightboxTapEvent) => void
-}
-export interface LightboxImagePartProps extends LightboxPartProps {
-	src?: string
-	alt?: string
-	srcSet?: string
-	sizes?: string
-}
 
 export declare const Root: UniversalComponent<LightboxRootProps>
 export declare const Trigger: UniversalComponent<LightboxTriggerPartProps>
