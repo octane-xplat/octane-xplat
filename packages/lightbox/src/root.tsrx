@@ -352,13 +352,12 @@ export function Backdrop(props: LightboxPartProps) @{
 	// Its own overlay layer beneath the popup — the leaf view overflows the
 	// safe area so the dimmer covers the full page (D5 requirement).
 	return (
-		<Overlay open isModal accessibilityLabel="" onDismiss={() => {}} ios={{ iosOverflowSafeArea: true }}>
+		<Overlay open isModal accessibilityLabel="" onDismiss={() => {}}>
 			<masonview
 				ref={ref as never}
 				className={cx('vx-lightbox-backdrop', props.className)}
 				horizontalAlignment="stretch"
 				verticalAlignment="stretch"
-				iosOverflowSafeArea
 				style={{ backgroundColor: 'rgba(0,0,0,0.9)', ...props.style }}
 				id={props.id}
 				testID={props.testID}
@@ -381,7 +380,6 @@ export function Popup(props: LightboxPartProps) @{
 			isModal
 			accessibilityLabel={ctx.items[ctx.index]?.alt ?? 'Media viewer'}
 			onDismiss={() => ctx.close()}
-			ios={{ iosOverflowSafeArea: true }}
 		>
 			<masonview
 				className={cx('vx-lightbox-popup', `vx-lightbox-popup--${ctx.phase}`, ctx.zoomed && 'vx-lightbox-popup--zoomed', ctx.dragging && 'vx-lightbox-popup--dragging', ctx.uiHidden && 'vx-lightbox-popup--ui-hidden', props.className)}
@@ -390,7 +388,6 @@ export function Popup(props: LightboxPartProps) @{
 				style={props.style as never}
 				id={props.id}
 			testID={props.testID}
-				iosOverflowSafeArea
 			>
 				{props.children as never}
 			</masonview>

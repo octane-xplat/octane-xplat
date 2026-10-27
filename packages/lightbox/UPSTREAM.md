@@ -24,3 +24,7 @@ Ported from [`frontendsupply/lightbox`](https://github.com/frontendsupply/lightb
 - No `useRender`/`render` prop.
 - Native paging is a self-drawn track driven by gesturehandler, not
   scroll-snap (decision D3); web keeps scroll-snap.
+
+## Phase 7 TODO
+
+- **iOS full-bleed relies on `prepareFullScreenPage()`**: the overlay host is measured against `safeAreaLayoutGuide` unless the app Page's `measure` is wrapped (core `IOSHelper.layoutView` behavior). Every app template applies `prepareFullScreenPage(new Page())`; consumers embedding the leaf outside that setup will see the viewer limited to the safe-area content area. Documented requirement, not a leaf-side flag.
