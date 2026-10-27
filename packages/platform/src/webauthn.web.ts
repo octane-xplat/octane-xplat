@@ -138,8 +138,8 @@ export const webAuthn: Service<WebAuthnImpl> = {
 			return false
 		}
 	},
-	create: (options) =>
+	create: (options: WebAuthnCreateOptionsJSON) =>
 		supported ? create(options) : Promise.reject(new UnavailabilityError('webAuthn')),
-	get: (options) =>
+	get: (options: WebAuthnGetOptionsJSON) =>
 		supported ? get(options) : Promise.reject(new UnavailabilityError('webAuthn')),
 }
