@@ -45,32 +45,41 @@ function run(command, args, cwd) {
 
 // Deps the consumer needs in scope — the package's declared dependencies and
 // peers plus the renderer's jsx-runtime source.
-const dependencies = ['@nativescript/biometrics', '@nativescript/core']
+const dependencies = ['@nativescript/biometrics', '@nativescript/core', '@octane-xplat/lib']
 
 const consumers = {
 	web: `import { biometrics } from '@octane-xplat/biometrics'
 const supported: boolean = biometrics.supported
-const verify = biometrics.impl?.verify('unlock')
+const verify = biometrics.verify('unlock')
+const response = await biometrics.requestPermissions()
+const granted: boolean = response.granted
 // @ts-expect-error verify needs a reason
-const bad = biometrics.impl?.verify()
+const bad = biometrics.verify()
+void granted
 void supported
 void verify
 void bad
 `,
 	native: `import { biometrics } from '@octane-xplat/biometrics'
 const supported: boolean = biometrics.supported
-const verify = biometrics.impl?.verify('unlock')
+const verify = biometrics.verify('unlock')
+const response = await biometrics.requestPermissions()
+const granted: boolean = response.granted
 // @ts-expect-error verify needs a reason
-const bad = biometrics.impl?.verify()
+const bad = biometrics.verify()
+void granted
 void supported
 void verify
 void bad
 `,
 	macos: `import { biometrics } from '@octane-xplat/biometrics'
 const supported: boolean = biometrics.supported
-const verify = biometrics.impl?.verify('unlock')
+const verify = biometrics.verify('unlock')
+const response = await biometrics.requestPermissions()
+const granted: boolean = response.granted
 // @ts-expect-error verify needs a reason
-const bad = biometrics.impl?.verify()
+const bad = biometrics.verify()
+void granted
 void supported
 void verify
 void bad

@@ -7,7 +7,7 @@ declare const interop: any
 
 setTimeout(async () => {
 	try {
-		if (!biometrics.supported || !biometrics.impl) {
+		if (!biometrics.supported) {
 			throw new Error('LocalAuthentication bridge unavailable')
 		}
 
@@ -23,23 +23,23 @@ setTimeout(async () => {
 				: 'denied'
 
 		context.invalidate()
-		const actual = await biometrics.ensure()
+		const actual = (await biometrics.requestPermissions()).status
 		if (actual !== expected) {
 			throw new Error(`Expected ${expected}, got ${actual}`)
 		}
 
-		if (await biometrics.impl.verify('  ')) {
+		if (await biometrics.verify('  ')) {
 			throw new Error('Blank reason authenticated')
 		}
 
 		if (actual === 'unsupported') {
-			if (await biometrics.impl.verify('Verify unavailable biometrics')) {
+			if (await biometrics.verify('Verify unavailable biometrics')) {
 				throw new Error('Unavailable biometrics authenticated')
 			}
 		}
 
 		console.log(
-			`APPKIT_BIOMETRICS_OK: ensure=${actual}; native availability=${available}; code=${code}`,
+			`APPKIT_BIOMETRICS_OK: requestPermissions=${actual}; native availability=${available}; code=${code}`,
 		)
 	} catch (error) {
 		console.error('APPKIT_BIOMETRICS_FAIL: ' + String(error))

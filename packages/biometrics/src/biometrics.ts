@@ -2,7 +2,7 @@
 import { BiometricAuth } from '@nativescript/biometrics'
 import type { VerifyBiometricOptions } from '@nativescript/biometrics'
 import { isIOS } from '@nativescript/core'
-import type { Capability } from './types'
+import type { Permissioned, PermissionResponse } from '@octane-xplat/lib/capability'
 import type { BiometricsImpl } from './types'
 
 const bio = new BiometricAuth()
@@ -12,23 +12,31 @@ const bio = new BiometricAuth()
 // keychain entry on iOS.
 let verifying = false
 
-export const biometrics: Capability<BiometricsImpl> = {
-	supported: true,
-	async ensure() {
-		try {
-			const r = await bio.available()
-			// Android reports `any` for a secure lockscreen without biometrics —
-			// verify() requires BIOMETRIC_STRONG, so that state is not usable.
-			return r.any && (isIOS || r.biometrics) ? 'granted' : 'unsupported'
-		} catch {
-			// Android rejects when the device lacks biometric hardware,
-			// enrollment, or a secure lockscreen — absence, not an error.
-			return 'unsupported'
+const available = async (): Promise<PermissionResponse> => {
+	try {
+		const r = await bio.available()
+		// Android reports `any` for a secure lockscreen without biometrics —
+		// verify() requires BIOMETRIC_STRONG, so that state is not usable.
+		const usable = r.any && (isIOS || r.biometrics)
+		return {
+			status: usable ? 'granted' : 'unsupported',
+			granted: usable,
+			canAskAgain: usable,
 		}
-	},
-	impl: {
-		async verify(reason) {
-			if (verifying) {
+	} catch {
+		// Android rejects when the device lacks biometric hardware,
+		// enrollment, or a secure lockscreen — absence, not an error.
+		return { status: 'unsupported', granted: false, canAskAgain: false }
+	}
+}
+
+export const biometrics: Permissioned<BiometricsImpl> = {
+	supported: true,
+	isAvailable: async () => (await available()).granted,
+	getPermissions: available,
+	requestPermissions: available,
+	async verify(reason) {
+		if (verifying) {
 				return false
 			}
 
@@ -49,6 +57,5 @@ export const biometrics: Capability<BiometricsImpl> = {
 			} finally {
 				verifying = false
 			}
-		},
 	},
 }

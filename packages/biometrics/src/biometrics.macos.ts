@@ -1,5 +1,7 @@
 // LocalAuthentication through the AppKit host's existing Objective-C bridge.
-import type { BiometricsImpl, Capability } from './types'
+import { UnavailabilityError } from '@octane-xplat/lib/capability'
+import type { Permissioned, PermissionResponse } from '@octane-xplat/lib/capability'
+import type { BiometricsImpl } from './types'
 
 declare const objc: { import(name: string): void }
 declare const interop: { Reference: new () => { value?: { domain: string; code: number } } }
@@ -115,26 +117,36 @@ const implementation: BiometricsImpl = {
 	},
 }
 
-export const biometrics: Capability<BiometricsImpl> = {
+const ensure = async (): Promise<PermissionResponse> => {
+	if (!frameworkAvailable()) {
+		return { status: 'unsupported', granted: false, canAskAgain: false }
+	}
+
+	let context: AuthenticationContext | null = null
+	try {
+		context = LAContext.new()
+		const status = availability(context)
+		return {
+			status,
+			granted: status === 'granted',
+			canAskAgain: status === 'granted',
+		}
+	} catch {
+		return { status: 'denied', granted: false, canAskAgain: false }
+	} finally {
+		invalidate(context)
+	}
+}
+
+export const biometrics: Permissioned<BiometricsImpl> = {
 	get supported() {
 		return frameworkAvailable()
 	},
-	async ensure() {
-		if (!frameworkAvailable()) {
-			return 'unsupported'
-		}
-
-		let context: AuthenticationContext | null = null
-		try {
-			context = LAContext.new()
-			return availability(context)
-		} catch {
-			return 'denied'
-		} finally {
-			invalidate(context)
-		}
-	},
-	get impl() {
-		return frameworkAvailable() ? implementation : null
-	},
+	isAvailable: async () => frameworkAvailable(),
+	getPermissions: ensure,
+	requestPermissions: ensure,
+	verify: (reason) =>
+		frameworkAvailable()
+			? implementation.verify(reason)
+			: Promise.reject(new UnavailabilityError('biometrics')),
 }
