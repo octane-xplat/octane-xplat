@@ -3,37 +3,39 @@ package com.octanexplat.geofencing;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingEvent;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class GeofenceReceiver extends BroadcastReceiver {
+	public static final String PREFS = "xplat_geofence_events";
+
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		GeofencingEvent event = GeofencingEvent.fromIntent(intent);
 		if (event == null || event.hasError()) {
 			return;
 		}
-		int transition = event.getGeofenceTransition();
-		String kind = transition == Geofence.GEOFENCE_TRANSITION_EXIT ? "exit" : "enter";
+		String kind = event.getGeofenceTransition() == Geofence.GEOFENCE_TRANSITION_EXIT ? "exit" : "enter";
 		java.util.List<Geofence> regions = event.getTriggeringGeofences();
 		if (regions == null) {
 			return;
 		}
-		for (Geofence region : regions) {
-			emit(region.getRequestId(), kind);
-		}
-	}
-
-	private static void emit(String identifier, String transition) {
-		// The JS leaf exposes __xplatGeofenceEmit; reach it through the
-		// NativeScript runtime's global object when the runtime is live.
+		// Queue into SharedPreferences — the JS leaf drains on init and on
+		// listener attach, so events that relaunch the app are not lost.
+		SharedPreferences prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
 		try {
-			java.lang.reflect.Method emit = Class.forName("com.tns.Runtime")
-				.getDeclaredMethod("emitGeofenceEvent", String.class, String.class);
-			emit.invoke(null, identifier, transition);
-		} catch (Throwable ignored) {
-			android.util.Log.d("GeofenceReceiver",
-				"buffered " + transition + " " + identifier + " — runtime not live");
+			JSONArray queue = new JSONArray(prefs.getString("queue", "[]"));
+			for (Geofence region : regions) {
+				JSONObject item = new JSONObject();
+				item.put("identifier", region.getRequestId());
+				item.put("eventType", kind);
+				queue.put(item);
+			}
+			prefs.edit().putString("queue", queue.toString()).apply();
+		} catch (Exception ignored) {
 		}
 	}
 }

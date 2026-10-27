@@ -1,0 +1,4 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+	<!-- WorkManager registers its initializer via a library content provider;
+	     no app manifest entries are required. -->
+</manifest>

@@ -113,10 +113,34 @@ function androidPendingIntent(): any {
 	return android.app.PendingIntent.getBroadcast(context, 0, intent, flags)
 }
 
-// Android receiver delivery → JS. The native GeofenceReceiver posts events
-// through this global hook so a relaunched app drains the buffer.
-;(globalThis as any).__xplatGeofenceEmit = (identifier: string, transition: string) => {
-	emit({ identifier, eventType: transition === 'exit' ? 'exit' : 'enter' })
+// Android receiver delivery → JS. GeofenceReceiver queues events into the
+// 'xplat_geofence_events' SharedPreferences file (it cannot reach a JS hook
+// on a cold start); drainQueue() runs on a short poll while the app is live
+// and again whenever a listener attaches.
+const androidUtils = Utils.android as any
+const prefs = () => androidUtils?.getApplicationContext?.()?.getSharedPreferences?.('xplat_geofence_events', 0)
+
+function drainQueue(): void {
+	const p = prefs()
+	if (!p) {
+		return
+	}
+	const raw = p.getString('queue', '[]')
+	if (!raw || raw === '[]') {
+		return
+	}
+	try {
+		const queue = JSON.parse(raw)
+		p.edit().putString('queue', '[]').apply()
+		for (const item of queue) {
+			emit({ identifier: String(item.identifier ?? ''), eventType: item.eventType === 'exit' ? 'exit' : 'enter' })
+		}
+	} catch {}
+}
+
+if (!isIOS) {
+	setInterval(drainQueue, 5000)
+	setTimeout(drainQueue, 0)
 }
 
 export const geofencing: Geofencing = {
@@ -239,6 +263,9 @@ export const geofencing: Geofencing = {
 
 	onRegionEvent(listener: RegionEventListener): () => void {
 		listeners.add(listener)
+		if (!isIOS) {
+			drainQueue()
+		}
 		const pending = buffer
 		buffer = []
 		for (const event of pending) {
