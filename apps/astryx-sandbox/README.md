@@ -53,7 +53,7 @@ normalization pending the section-11 pin decision), and shared
 `data-sameframe-key` landmarks keep node matching stable across the port's
 different DOM wrapper depth.
 
-Web is the only host in this unit; native hosts are later-unit work.
+This app currently supplies a web host. Actual native-host checks remain separate gates.
 
 ## Coverage regeneration
 
@@ -73,7 +73,7 @@ and verifies a bijection between the 771 oracle routes and upstream sources.
 Upstream sandbox sources, template metadata, and icon artwork are
 **Copyright (c) Meta Platforms, Inc. and affiliates**, used under the
 [MIT License](https://github.com/facebook/astryx/blob/main/LICENSE). Icon path
-data from [Heroicons](https://github.com/tailwindlabs/heroicons) (MIT). Ported
+data from [Heroicons](https://github.com/tailwindlabs/heroicons) ([MIT license](docs/HEROICONS-LICENSE.txt)). Ported
 files carry a provenance header naming the upstream file and revision.
 
 Unit 9 adds the three pinned InternationalizationProvider examples, with
@@ -83,3 +83,23 @@ example. Run it against a production preview with
 `node scripts/verify-web.mjs --locale-only --browser=chromium` (also Firefox
 and WebKit). Actual assistive-technology delivery and native hosts remain
 unqualified; see the unit-9 section in [coverage](docs/coverage.md).
+
+
+## Rich content and chat checks
+
+Unit 10 covers 75 pinned Markdown, CodeBlock, syntax-theme, streaming-text and
+Chat examples. Run the production preview, then check each browser with text
+and DOM assertions only:
+
+```sh
+pnpm exec turbo run verify:web --filter=@xplat/astryx-sandbox --concurrency=1 -- --content-chat-only --browser=all
+```
+
+The default preview URL is `http://localhost:4173`; `--base=<URL>` selects
+another preview. Dictation checks distinguish static states, mocked capability
+and callbacks from actual OS speech. See the unit-10 evidence and remaining
+host limits in [coverage](docs/coverage.md#unit-10--rich-content-and-chat-examples).
+
+Syntax color data is retained from the pinned Astryx presets: Dracula by Zeno
+Rocha, GitHub Light/Dark by GitHub's Primer team, and One Dark Pro by Binaryify
+(all MIT). The examples pass these palettes to public CodeBlock overrides.

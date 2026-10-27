@@ -1,3 +1,78 @@
+import { ChatMessageMetadataStatus } from './chatmessagemetadata/ChatMessageMetadataStatus'
+import { ChatMessageMetadataShowcase } from './chatmessagemetadata/ChatMessageMetadataShowcase'
+import { ChatMessageMetadataFooter } from './chatmessagemetadata/ChatMessageMetadataFooter'
+import { ChatMessageMetadataTimestamp } from './chatmessagemetadata/ChatMessageMetadataTimestamp'
+import { ChatMessageListDensity } from './chatmessagelist/ChatMessageListDensity'
+import { ChatMessageListShowcase } from './chatmessagelist/ChatMessageListShowcase'
+import { ChatMessageListFullFeatured } from './chatmessagelist/ChatMessageListFullFeatured'
+import { ChatSendButtonShowcase } from './chatsendbutton/ChatSendButtonShowcase'
+import { ChatSendButtonStates } from './chatsendbutton/ChatSendButtonStates'
+import { ChatSendButtonInComposer } from './chatsendbutton/ChatSendButtonInComposer'
+import { ChatSendButtonCustomIcon } from './chatsendbutton/ChatSendButtonCustomIcon'
+import { ChatDictationButtonShowcase } from './chatdictationbutton/ChatDictationButtonShowcase'
+import { ChatDictationButtonBasic } from './chatdictationbutton/ChatDictationButtonBasic'
+import { ChatLayoutShowcase } from './chatlayout/ChatLayoutShowcase'
+import { ChatLayoutPanelChat } from './chatlayout/ChatLayoutPanelChat'
+import { ChatMessageBubbleDensity } from './chatmessagebubble/ChatMessageBubbleDensity'
+import { ChatMessageBubbleCustomContent } from './chatmessagebubble/ChatMessageBubbleCustomContent'
+import { ChatMessageBubbleVariants } from './chatmessagebubble/ChatMessageBubbleVariants'
+import { ChatMessageBubbleMetadata } from './chatmessagebubble/ChatMessageBubbleMetadata'
+import { ChatMessageBubbleShowcase } from './chatmessagebubble/ChatMessageBubbleShowcase'
+import { ChatMessageBubbleGrouping } from './chatmessagebubble/ChatMessageBubbleGrouping'
+import { ChatComposerInputMentionTrigger } from './chatcomposerinput/ChatComposerInputMentionTrigger'
+import { ChatComposerInputDisabled } from './chatcomposerinput/ChatComposerInputDisabled'
+import { ChatComposerInputControlledInput } from './chatcomposerinput/ChatComposerInputControlledInput'
+import { ChatComposerInputMultipleTriggers } from './chatcomposerinput/ChatComposerInputMultipleTriggers'
+import { ChatComposerInputShowcase } from './chatcomposerinput/ChatComposerInputShowcase'
+import { ChatComposerInputSlashCommands } from './chatcomposerinput/ChatComposerInputSlashCommands'
+import { CodeBlockShowcase } from './codeblock/CodeBlockShowcase'
+import { CodeBlockTerminal } from './codeblock/CodeBlockTerminal'
+import { CodeBlockBashCommand } from './codeblock/CodeBlockBashCommand'
+import { CodeBlockJSONConfig } from './codeblock/CodeBlockJSONConfig'
+import { CodeBlockHighlightedLines } from './codeblock/CodeBlockHighlightedLines'
+import { CodeBlockScrollableBlock } from './codeblock/CodeBlockScrollableBlock'
+import { MarkdownDataTable } from './markdown/MarkdownDataTable'
+import { MarkdownCompactAIResponse } from './markdown/MarkdownCompactAIResponse'
+import { MarkdownCitedContent } from './markdown/MarkdownCitedContent'
+import { MarkdownRichContent } from './markdown/MarkdownRichContent'
+import { MarkdownShowcase } from './markdown/MarkdownShowcase'
+import { ChatComposerSimple } from './chatcomposer/ChatComposerSimple'
+import { ChatComposerFlat } from './chatcomposer/ChatComposerFlat'
+import { ChatComposerShowcase } from './chatcomposer/ChatComposerShowcase'
+import { ChatComposerFooterActions } from './chatcomposer/ChatComposerFooterActions'
+import { ChatComposerFullFeatured } from './chatcomposer/ChatComposerFullFeatured'
+import { ChatComposerValidation } from './chatcomposer/ChatComposerValidation'
+import { ChatComposerStreaming } from './chatcomposer/ChatComposerStreaming'
+import { ChatComposerAttachments } from './chatcomposer/ChatComposerAttachments'
+import { ChatTokenizedTextBasic } from './chattokenizedtext/ChatTokenizedTextBasic'
+import { ChatTokenizedTextColors } from './chattokenizedtext/ChatTokenizedTextColors'
+import { ChatTokenizedTextShowcase } from './chattokenizedtext/ChatTokenizedTextShowcase'
+import { ChatMessageAvatarName } from './chatmessage/ChatMessageAvatarName'
+import { ChatMessageMultiBubble } from './chatmessage/ChatMessageMultiBubble'
+import { ChatMessageShowcase } from './chatmessage/ChatMessageShowcase'
+import { ChatMessageGhost } from './chatmessage/ChatMessageGhost'
+import { SyntaxThemeShowcase } from './syntaxtheme/SyntaxThemeShowcase'
+import { SyntaxThemeLightPreset } from './syntaxtheme/SyntaxThemeLightPreset'
+import { SyntaxThemeDarkPreset } from './syntaxtheme/SyntaxThemeDarkPreset'
+import { ChatLayoutScrollButtonStates } from './chatlayoutscrollbutton/ChatLayoutScrollButtonStates'
+import { ChatLayoutScrollButtonLabels } from './chatlayoutscrollbutton/ChatLayoutScrollButtonLabels'
+import { ChatToolCallsToolCallsWithNodes } from './chattoolcalls/ChatToolCallsToolCallsWithNodes'
+import { ChatToolCallsInteractiveToolCalls } from './chattoolcalls/ChatToolCallsInteractiveToolCalls'
+import { ChatToolCallsShowcase } from './chattoolcalls/ChatToolCallsShowcase'
+import { ChatToolCallsStatuses } from './chattoolcalls/ChatToolCallsStatuses'
+import { ChatComposerDrawerAttachments } from './chatcomposerdrawer/ChatComposerDrawerAttachments'
+import { ChatComposerDrawerFeedback } from './chatcomposerdrawer/ChatComposerDrawerFeedback'
+import { ChatComposerDrawerShowcase } from './chatcomposerdrawer/ChatComposerDrawerShowcase'
+import { ChatComposerDrawerCollapsible } from './chatcomposerdrawer/ChatComposerDrawerCollapsible'
+import { ChatComposerDrawerWithProgress } from './chatcomposerdrawer/ChatComposerDrawerWithProgress'
+import { ChatDictationDictationStates } from './chatdictation/ChatDictationDictationStates'
+import { ChatDictationDictationInComposer } from './chatdictation/ChatDictationDictationInComposer'
+import { ChatDictationSizes } from './chatdictation/ChatDictationSizes'
+import { ChatSystemMessageVariants } from './chatsystemmessage/ChatSystemMessageVariants'
+import { ChatSystemMessageShowcase } from './chatsystemmessage/ChatSystemMessageShowcase'
+import { ChatSystemMessageWithIcon } from './chatsystemmessage/ChatSystemMessageWithIcon'
+import { ChatSystemMessageStatusUpdates } from './chatsystemmessage/ChatSystemMessageStatusUpdates'
+import { UseStreamingTextHookUsage } from './hooks/useStreamingTextHookUsage'
 import { InternationalizationProvider01ShippedLocale } from './internationalization/InternationalizationProvider01ShippedLocale'
 import { InternationalizationProvider02Overrides } from './internationalization/InternationalizationProvider02Overrides'
 import { InternationalizationProvider03RtlDirection } from './internationalization/InternationalizationProvider03RtlDirection'
@@ -1147,6 +1222,81 @@ const examples: Record<string, () => any> = {
 	'table-tree': TableTreeTemplate,
 	'table-inbox': TableInboxTemplate,
 	'table-filter': TableFilterTemplate,
+	ChatMessageMetadataStatus,
+	ChatMessageMetadataShowcase,
+	ChatMessageMetadataFooter,
+	ChatMessageMetadataTimestamp,
+	ChatMessageListDensity,
+	ChatMessageListShowcase,
+	ChatMessageListFullFeatured,
+	ChatSendButtonShowcase,
+	ChatSendButtonStates,
+	ChatSendButtonInComposer,
+	ChatSendButtonCustomIcon,
+	ChatDictationButtonShowcase,
+	ChatDictationButtonBasic,
+	ChatLayoutShowcase,
+	ChatLayoutPanelChat,
+	ChatMessageBubbleDensity,
+	ChatMessageBubbleCustomContent,
+	ChatMessageBubbleVariants,
+	ChatMessageBubbleMetadata,
+	ChatMessageBubbleShowcase,
+	ChatMessageBubbleGrouping,
+	ChatComposerInputMentionTrigger,
+	ChatComposerInputDisabled,
+	ChatComposerInputControlledInput,
+	ChatComposerInputMultipleTriggers,
+	ChatComposerInputShowcase,
+	ChatComposerInputSlashCommands,
+	CodeBlockShowcase,
+	CodeBlockTerminal,
+	CodeBlockBashCommand,
+	CodeBlockJSONConfig,
+	CodeBlockHighlightedLines,
+	CodeBlockScrollableBlock,
+	MarkdownDataTable,
+	MarkdownCompactAIResponse,
+	MarkdownCitedContent,
+	MarkdownRichContent,
+	MarkdownShowcase,
+	ChatComposerSimple,
+	ChatComposerFlat,
+	ChatComposerShowcase,
+	ChatComposerFooterActions,
+	ChatComposerFullFeatured,
+	ChatComposerValidation,
+	ChatComposerStreaming,
+	ChatComposerAttachments,
+	ChatTokenizedTextBasic,
+	ChatTokenizedTextColors,
+	ChatTokenizedTextShowcase,
+	ChatMessageAvatarName,
+	ChatMessageMultiBubble,
+	ChatMessageShowcase,
+	ChatMessageGhost,
+	SyntaxThemeShowcase,
+	SyntaxThemeLightPreset,
+	SyntaxThemeDarkPreset,
+	ChatLayoutScrollButtonStates,
+	ChatLayoutScrollButtonLabels,
+	ChatToolCallsToolCallsWithNodes,
+	ChatToolCallsInteractiveToolCalls,
+	ChatToolCallsShowcase,
+	ChatToolCallsStatuses,
+	ChatComposerDrawerAttachments,
+	ChatComposerDrawerFeedback,
+	ChatComposerDrawerShowcase,
+	ChatComposerDrawerCollapsible,
+	ChatComposerDrawerWithProgress,
+	ChatDictationDictationStates,
+	ChatDictationDictationInComposer,
+	ChatDictationSizes,
+	ChatSystemMessageVariants,
+	ChatSystemMessageShowcase,
+	ChatSystemMessageWithIcon,
+	ChatSystemMessageStatusUpdates,
+	'useStreamingTextHookUsage': UseStreamingTextHookUsage,
 }
 
 export const portedExamples = new Set(Object.keys(examples))

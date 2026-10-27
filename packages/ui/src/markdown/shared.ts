@@ -30,6 +30,7 @@ export type {
 	MarkdownProps,
 	MarkdownDataProps,
 	MarkdownTextProps,
+	MarkdownPresentationProps,
 	MarkdownScreenProps,
 	OutlineItem,
 	CodeToken,
@@ -37,3 +38,5 @@ export type {
 	TokenLine,
 	CodeTokenizer,
 } from '../props'
+export { useStreamingText } from '../use-streaming-text'
+export type { StreamingTextSpeed, UseStreamingTextOptions } from '../use-streaming-text'

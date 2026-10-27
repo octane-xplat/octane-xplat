@@ -177,8 +177,11 @@ UI chat fixtures qualify native keyboard geometry and retained reading pixels.
   streaming below the reader, and composer growth. Short conversations remain
   usable, and resumed end-follow tracks growth.
 
+- AC9: Render rich assistant content through public Markdown and smooth cumulative text; describe citation composition and reduced-motion/native limits.
+
 ## Documentation
 
+- AC9: [Rich Markdown and streamed text](../../../docs/app/content-display.md#markdown-documents); maintained [sandbox consumers](../../../apps/astryx-sandbox/src/examples/markdown/MarkdownRichContent.tsrx) and [streaming hook example](../../../apps/astryx-sandbox/src/examples/hooks/useStreamingTextHookUsage.tsrx).
 - AC1: [Chat API inventory and portable event/file contract](../../../docs/app/components.md#chat), plus the maintained [ChatDemo](../../../packages/demos/src/ChatDemo.tsrx).
 - AC2: [ChatComposerInput, token, and trigger API](../../../docs/app/components.md#chat), this recipe's [trigger and token example](#compose-triggers-and-tokens), its [draft serialization example](#compose-triggers-and-tokens), and the maintained [ChatDemo](../../../packages/demos/src/ChatDemo.tsrx). Native inline editing remains a documented limitation: native uses a chip row and approximates mid-text token positions.
 - AC3: [Chat API inventory](../../../docs/app/components.md#chat) and this recipe's [ChatLayout scroll behavior](#compose-triggers-and-tokens).

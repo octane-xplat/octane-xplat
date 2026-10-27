@@ -12,6 +12,8 @@ const inline = (tokens) =>
 				return { t: 'code', text: tok.text }
 			case 'strong':
 				return { t: 'bold', children: inline(tok.tokens) }
+			case 'del':
+				return { t: 'strike', children: inline(tok.tokens) }
 			case 'em':
 				return { t: 'em', children: inline(tok.tokens) }
 			case 'link':
@@ -47,11 +49,21 @@ const block = (tokens) =>
 				return { t: 'p', children: inline(tok.tokens) }
 			case 'code':
 				return { t: 'code', ...(tok.lang ? { lang: tok.lang } : {}), text: tok.text }
+			case 'table':
+				return {
+					t: 'table',
+					header: tok.header.map((cell) => inline(cell.tokens)),
+					rows: tok.rows.map((row) => row.map((cell) => inline(cell.tokens))),
+					align: tok.align.map((align) => align ?? 'left'),
+				}
 			case 'list':
 				return {
 					t: 'list',
 					ordered: !!tok.ordered,
 					items: (tok.items ?? []).map((item) => itemInline(item.tokens)),
+					...(tok.items?.some((item) => item.task)
+						? { checked: tok.items.map((item) => (item.task ? !!item.checked : null)) }
+						: {}),
 				}
 			case 'blockquote':
 				return { t: 'quote', children: blockText(tok.tokens) }

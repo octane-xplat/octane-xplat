@@ -1944,8 +1944,7 @@
 	.vx-chatdrawer-handle {
 		padding: 6px;
 	}
-	.vx-chatsend,
-	.vx-chatdict-btn {
+	.vx-chatsend {
 		border-radius: 999px;
 		background-color: var(--color-primary);
 		color: var(--color-onprimary);

@@ -12368,6 +12368,7 @@ export type MdInline =
 	| { t: 'code'; text: string }
 	| { t: 'bold'; children: MdInline[] }
 	| { t: 'em'; children: MdInline[] }
+	| { t: 'strike'; children: MdInline[] }
 	| { t: 'link'; text: string; href: string }
 
 /** One block in a Markdown doc. `MdNode` covers what the renderer lowers to
@@ -12380,7 +12381,8 @@ export type MdNode =
 	| { t: 'h'; depth: 1 | 2 | 3 | 4 | 5 | 6; children: MdInline[] }
 	| { t: 'p'; children: MdInline[] }
 	| { t: 'code'; lang?: string; text: string }
-	| { t: 'list'; ordered: boolean; items: MdInline[][] }
+	| { t: 'list'; ordered: boolean; items: MdInline[][]; checked?: (boolean | null)[] }
+	| { t: 'table'; header: MdInline[][]; rows: MdInline[][][]; align: ('left' | 'center' | 'right')[] }
 	| { t: 'quote'; children: MdInline[] }
 	| { t: 'hr' }
 
@@ -12441,7 +12443,16 @@ export interface MarkdownTextProps {
  * ```
  * @see MarkdownDataProps, MarkdownTextProps, createMarkdownStreamParser.
  */
-export type MarkdownProps = MarkdownDataProps | MarkdownTextProps
+export interface MarkdownPresentationProps {
+	/** Compact paragraph/block spacing for assistant responses. */
+	density?: 'default' | 'compact'
+	/** Minimum heading level (1..6). Markdown heading depths are shifted accordingly. */
+	headingLevelStart?: 1 | 2 | 3 | 4 | 5 | 6
+	/** Citation ids referenced as [id] in text. Unknown ids remain literal. */
+	sources?: Record<string, CitationSource>
+}
+
+export type MarkdownProps = (MarkdownDataProps | MarkdownTextProps) & MarkdownPresentationProps
 
 /** `MarkdownScreen` — the route screen codegen mounts for `.md` route
  *  files; `data` is the route's baked doc (like any route loader result)

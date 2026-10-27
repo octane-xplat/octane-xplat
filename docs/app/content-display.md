@@ -93,10 +93,49 @@ what the `MdDoc` AST can express: ATX and Setext headings, paragraphs, fenced
 code (` ``` ` and `~~~`; an unclosed fence runs to end of input), flat
 ordered/unordered lists, blockquotes, and horizontal rules; inline code spans,
 `**`/`__` bold, `*`/`_` emphasis, `[text](href)` links, and images reduced to
-their alt text. Tables, HTML blocks, indented code, reference-style links, and
-nested block structure fall through to literal text.
+their alt text. Tables render through `Table`, code fences through `CodeBlock`,
+and task lists show read-only checked/unchecked markers. Strikethrough uses
+`~~text~~`. HTML blocks, indented code, reference-style links, and nested block
+structure remain outside this subset.
+
+```tsx
+<Markdown text={'| Task | Status |\n| --- | --- |\n| Review | **Ready** |\n\n- [x] Parser\n- [ ] Stories\n\n~~Old plan~~'} />
+```
+
+Use `density="compact"` for shorter gaps and `headingLevelStart={3}` to shift
+`#` headings to level 3, `##` to level 4, up to level 6. A `sources` map turns
+known `[id]` markers into labelled `Citation` links; unknown markers stay as
+text. This composes the public Citation component. Source numbers follow the map's
+key order; keep sources in first-citation order. Text with `sources` renders
+settled rather than using the streaming fade.
+
+```tsx
+<Markdown
+	text={'# Tokyo\n\nPopulation facts[tokyo].'}
+	density="compact"
+	headingLevelStart={3}
+	sources={{ tokyo: { title: 'Tokyo facts', url: 'https://en.wikipedia.org/wiki/Tokyo' } }}
+/>
+```
 
 ### Streaming text
+
+To smooth bursts of incoming text before displaying them, use
+`useStreamingText`. Pass the whole accumulated string each time. `natural`
+reveals 10 UTF-16 units per 50 ms, `fast` reveals 4 per 8 ms, and `instant`
+returns all text. Finished streams settle immediately. Emoji clusters stay
+whole where `Intl.Segmenter` is available; other runtimes protect surrogate
+pairs. Browser reduced-motion preferences skip the reveal; native media-query
+support does not currently expose that preference.
+
+```tsx
+import { Markdown, useStreamingText } from '@octane-xplat/ui/markdown'
+
+export function AssistantResponse({ text, streaming }: { text: string; streaming: boolean }) {
+	const displayed = useStreamingText(text, streaming, { speed: 'fast' })
+	return <Markdown text={displayed} isStreaming={streaming} />
+}
+```
 
 For chat/AI-style output where `text` is a cumulative snapshot that grows in
 chunks — often ending mid-token — set `isStreaming`:

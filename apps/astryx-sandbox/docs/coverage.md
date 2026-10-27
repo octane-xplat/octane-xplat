@@ -18,9 +18,9 @@ never dropped; the ledger at `/templates/` renders this data live.
 | fixed (`/`, `/404/`) | 2 | `(sandbox)/page.tsx`, generated | both ported |
 | category indexes | 3 | `[category]/CategoryContent.tsx` | all ported |
 | template index (`/templates/`) | 1 | `(sandbox)/templates/page.tsx` | ported as coverage ledger |
-| authored pages (`/pages/*`) | 51 | `(sandbox\|fullscreen\|raw)/pages/**/page.tsx` | 8 ported (5 palettes, tap-targets, textarea-counter, component-scores), 43 pending |
-| block templates | 659 | `cli/assets/templates/blocks/components/<Family>/<Name>.tsx` | 186 ported (Button ×6, Text ×9, overlays ×56, forms/selection/date ×99, flat tables ×15, pagination ×1), 473 pending |
-| page templates | 55 | `cli/assets/templates/pages/<slug>/page.tsx` | 2 ported (`table`, `table-page`), 53 pending |
+| authored pages (`/pages/*`) | 51 | `(sandbox\|fullscreen\|raw)/pages/**/page.tsx` | 29 ported, 2 blocked, 20 pending |
+| block templates | 659 | `cli/assets/templates/blocks/components/<Family>/<Name>.tsx` | 639 ported (including the 75 unit-10 rows below), 20 pending |
+| page templates | 55 | `cli/assets/templates/pages/<slug>/page.tsx` | 6 ported, 49 pending |
 
 Routing preserves the pinned URL space (trailing-slash routes resolve
 against `/templates/:name` and `/pages/*rest`; unmatched URLs land on the
@@ -806,3 +806,135 @@ The **19 other direct UI dependents passed scoped typechecks**, serially
 (`--concurrency=1`): 57 Turbo tasks succeeded. These include web, mobile,
 AppKit, Linux and Windows harness compilation; they do not qualify host input
 or assistive technology.
+
+## Unit 10 — rich content and chat examples
+
+### Closed route and API rows
+
+All names below resolve at `/templates/<name>/`. Exactly **75 pinned rows**
+are registered as ported. The 771-row oracle is unchanged (680 ported, 89 pending, 2 blocked in this
+checkout); this unit adds no
+authored page or composed page-template claims.
+
+| Family | Pinned example names | Rows |
+| --- | --- | --- |
+| ChatComposer | `ChatComposerAttachments`, `ChatComposerFlat`, `ChatComposerFooterActions`, `ChatComposerFullFeatured`, `ChatComposerShowcase`, `ChatComposerSimple`, `ChatComposerStreaming`, `ChatComposerValidation` | 8 |
+| ChatComposerDrawer | `ChatComposerDrawerAttachments`, `ChatComposerDrawerCollapsible`, `ChatComposerDrawerFeedback`, `ChatComposerDrawerShowcase`, `ChatComposerDrawerWithProgress` | 5 |
+| ChatComposerInput | `ChatComposerInputControlledInput`, `ChatComposerInputDisabled`, `ChatComposerInputMentionTrigger`, `ChatComposerInputMultipleTriggers`, `ChatComposerInputShowcase`, `ChatComposerInputSlashCommands` | 6 |
+| ChatDictationButton | `ChatDictationButtonBasic`, `ChatDictationButtonShowcase` | 2 |
+| ChatDictation | `ChatDictationDictationInComposer`, `ChatDictationDictationStates`, `ChatDictationSizes` | 3 |
+| ChatLayout | `ChatLayoutPanelChat`, `ChatLayoutShowcase` | 2 |
+| ChatLayoutScrollButton | `ChatLayoutScrollButtonLabels`, `ChatLayoutScrollButtonStates` | 2 |
+| ChatMessage | `ChatMessageAvatarName`, `ChatMessageGhost`, `ChatMessageMultiBubble`, `ChatMessageShowcase` | 4 |
+| ChatMessageBubble | `ChatMessageBubbleCustomContent`, `ChatMessageBubbleDensity`, `ChatMessageBubbleGrouping`, `ChatMessageBubbleMetadata`, `ChatMessageBubbleShowcase`, `ChatMessageBubbleVariants` | 6 |
+| ChatMessageList | `ChatMessageListDensity`, `ChatMessageListFullFeatured`, `ChatMessageListShowcase` | 3 |
+| ChatMessageMetadata | `ChatMessageMetadataFooter`, `ChatMessageMetadataShowcase`, `ChatMessageMetadataStatus`, `ChatMessageMetadataTimestamp` | 4 |
+| ChatSendButton | `ChatSendButtonCustomIcon`, `ChatSendButtonInComposer`, `ChatSendButtonShowcase`, `ChatSendButtonStates` | 4 |
+| ChatSystemMessage | `ChatSystemMessageShowcase`, `ChatSystemMessageStatusUpdates`, `ChatSystemMessageVariants`, `ChatSystemMessageWithIcon` | 4 |
+| ChatTokenizedText | `ChatTokenizedTextBasic`, `ChatTokenizedTextColors`, `ChatTokenizedTextShowcase` | 3 |
+| ChatToolCalls | `ChatToolCallsInteractiveToolCalls`, `ChatToolCallsShowcase`, `ChatToolCallsStatuses`, `ChatToolCallsToolCallsWithNodes` | 4 |
+| CodeBlock | `CodeBlockBashCommand`, `CodeBlockHighlightedLines`, `CodeBlockJSONConfig`, `CodeBlockScrollableBlock`, `CodeBlockShowcase`, `CodeBlockTerminal` | 6 |
+| Markdown | `MarkdownCitedContent`, `MarkdownCompactAIResponse`, `MarkdownDataTable`, `MarkdownRichContent`, `MarkdownShowcase` | 5 |
+| SyntaxTheme | `SyntaxThemeDarkPreset`, `SyntaxThemeLightPreset`, `SyntaxThemeShowcase` | 3 |
+| Hooks | `useStreamingTextHookUsage` | 1 |
+
+| Upstream contract | Public Xplat consumer | Disposition |
+| --- | --- | --- |
+| Markdown children, tables, tasks, strike, compact headings and citations | `Markdown text={...}` at `@octane-xplat/ui/markdown`; shared Table, CodeBlock and Citation composition | ported; `density`, `headingLevelStart`, `sources` added; baked/runtime table/task/strike ASTs agree |
+| CodeBlock language/title/line numbers/copy/highlight/scroll cap | existing root `CodeBlock` | direct props; clipboard service remains separately qualified |
+| SyntaxTheme wrappers and four presets | public per-block `syntaxTheme` override | explicit override replaces a provider; pinned Dracula/GitHub Light/GitHub Dark/One Dark Pro token data retained |
+| completed/streaming text | new public `useStreamingText` at `/markdown` | cumulative snapshots; natural/fast/instant, reset, completion, grapheme boundaries and timer disposal; native reduced-motion preference remains unavailable |
+| Chat messages, bubble grouping/density/custom content, metadata/status, system rows, token display and layouts | same named exports at `@octane-xplat/ui/chat` | direct composition; `Timestamp` values use explicit UTC `Z` for deterministic Xplat input |
+| composer/input slots, send/stop, validation, drawers, triggers and menus | `ChatComposer`, `ChatComposerInput`, drawer, send button and static search sources | `onSubmit/onStop` → `onSend/onCancel`; `handleRef` → `ref`; Button uses `clickAction`; Menu actions have stable keys |
+| tool call details, pending/running/complete/error | `ChatToolCalls` | error duration omitted because the public union allows duration only for completion |
+| dictation state fixtures and live capability | `ChatDictationButton`, `useChatDictation` | idle/listening/speaking fixtures retained; live routes explain unsupported recognition; no OS speech claim |
+
+### Framework findings and adaptations
+
+- **U10-rich-markdown:** existing public Markdown lacked the table, task, strike,
+  citation and compact-heading capabilities consumed by these pinned routes.
+  These now live in UI with matching CLI baking support, not sandbox substitutes.
+  Silo observation `e4b5f293-fe1f-47a2-ae48-0fdf093c4748` preserves the expectation.
+- **U10-adjacent-links:** the existing parser swallowed closed bracket markers
+  before a later link. The shared parser now pairs brackets before looking for
+  the destination; mixed citation/link regression passes. Silo
+  `3c68e287-eb87-4a69-93c9-a62b73a68bce` records the mismatch.
+- **U10-list-label:** browser input exposed a shared ListItem action gap: visible
+  label clicks bypassed the invisible hit button. The shared web leaf now
+  forwards non-control row content to onPress without double-firing button or
+  nested-control actions. Silo `77c8ef23-860d-4a34-9141-73c24d7bdd07` records the
+  original expectation. Native ListItem behavior is unchanged and not qualified.
+- **U10-scroll-visibility:** the web scroll button had class names for hidden
+  state but no hiding rule. It now returns null for isVisible=false, matching
+  the native leaf and removing keyboard/hit targets. The two pinned state/label
+  routes consume this fix. Silo `a1ee103e-d9f1-453b-9aaf-c8b7e661a94b` records it.
+- **U10-dictation-hit:** the listening web mic removed its only icon and its
+  unsized Pressable collapsed, so the stop action could not be clicked. Both
+  platform leaves now compose the existing sized icon-only Button, matching
+  upstream; its ghost skin replaces the bespoke primary fill. The browser
+  capability mock verifies a usable stop target without using OS speech. Silo
+  `f27346c6-58b5-44d3-8577-fdcb2491f97d` records the original expectation.
+- **U10-syntax:** named palettes are app-owned pinned data passed through the
+  existing public CodeBlock override; syntax colors stay independent of the root
+  theme. Other code blocks retain the unit-2 theme integration.
+- **U10-citations:** known source markers compose the existing labelled Citation.
+  Source numbers follow object-key order; the pinned map is in first-citation
+  order. Unknown ids remain literal. Citation links retain their URLs and icons.
+  Full upstream plugins, image rendering and nested block grammar are not claimed.
+- **U10-input:** static upstream buttons (attachment removal, footer actions,
+  retry/copy/feedback icons) retain their demonstration callbacks; no upload,
+  model service or backend is invented. The full-featured list adds a supplemental
+  emptyState; the hook sample adds start/stop/reset controls and cleanup.
+- **U10-icons/assets:** Heroicons 2.2.0 glyphs enter the shared icon registry.
+  Existing generic info glyphs substitute several system-notice icons. The four
+  remaining pinned attachment images are copied unchanged with attribution.
+- **U10-hosts:** OS clipboard writes, real microphone permission/service/audio,
+  native text editing, IME, accessibility delivery, iOS, Android and experimental
+  desktop hosts remain not-run. Supported speech callbacks in browser checks are
+  explicitly mocked. No visual inspection or pixel-parity claim is made.
+- The authored `/pages/markdown-perf/` plugin-registry finding (U13-4) remains
+  outside these 75 block examples and is not closed by this change.
+
+### Verification evidence
+
+Upstream: `ebd939b665361a078015377c0dfe50cc3c1d70a4` (0.6.4).
+Candidate: the unit-10 commit containing this section, based on `c7d029e25`.
+Maintained browser entry: `scripts/verify-web.mjs --content-chat-only --browser=<engine>`.
+Checks use DOM text/state and browser input, with separately labelled synthetic
+speech callbacks. Each row below shares the upstream/candidate revisions above.
+
+| Route/example | Host/renderer | Initial state → input mechanism → expected/observed result | Evidence / status |
+| --- | --- | --- | --- |
+| All 75 route rows listed above | web DOM: Chromium, Firefox, WebKit | initial route → browser navigation → actual family component, no pending placeholder; matching running source file exists | `verify-content-chat.mjs` route loop; pass in all three engines |
+| Five Markdown routes | same three engines | raw source → render → semantic shifted headings, strike, checked/unchecked tasks, four-column/four-row table, six source citations and code fences | maintained browser assertions; pass |
+| Six CodeBlock routes + three syntax routes | same three engines | code fixture → copy click / initial render → captured source and Copied feedback; three highlighted lines, 50 numbered lines, 280px cap and preset-scoped keyword tokens | pass; clipboard API mocked, OS clipboard not-run |
+| Controlled, disabled and validation composers | same three engines | empty/default/disabled → browser type + Enter → value reflection, submitted clear, disabled control, error and warning strips | pass |
+| Mention, multiple-trigger and slash-command inputs | same three engines | empty → browser fill + arrows/Enter → matching suggestion inserted as a token with serialized value | pass |
+| Streaming composer | same three engines | ready → browser Send/Stop clicks → streaming state then cancellation and ready state | pass |
+| Drawer collapse and feedback | same three engines | expanded/unselected → browser pointer + Enter → collapsed/expanded aria state; visible choice label selects exactly one row | pass; exercises shared ListItem fix |
+| Footer actions | same three engines | closed → browser open/select → menu closes; upstream action callbacks remain demonstrative no-ops | pass |
+| Tool calls and full-featured message list | same three engines | details closed / pending-running-complete-error fixtures / empty list → pointer + Enter → detail expands/collapses, all four statuses and error description, public emptyState | pass |
+| Send states, token colors and scroll-button states | same three engines | disabled/ready/stop and hidden/visible fixtures → render → disabled state, three token chips, only two visible scroll controls | pass; hidden control is unmounted |
+| Dictation fixtures and two live routes | same three engines | idle/listening/speaking / forced unsupported / mocked supported → browser start/stop + synthetic final transcript callback → correct controls, unavailable explanation, transcript insertion and restored idle state | pass; microphone, OS recognition service, sounds and real speech not-run |
+| Streaming-text hook | same three engines | completed response → browser Reset/Start → empty state and completed response restored | pass; partial reveal, replacement/reset, emoji boundaries, reduced motion and cleanup have separate jsdom timer tests |
+| Source view | same three engines | streaming composer preview → browser Code selection → actual Octane `/chat` source | pass |
+| Shared Markdown, stream helper and controls | jsdom + Node | synthetic DOM, fake timers and parser inputs → table/citation/task/strike output, safe adjacent links, partial graphemes/reveal, cleanup, label activation, control visibility and capability changes; baked/runtime AST equality | 76 focused UI tests across eight files; four CLI parity tests passed |
+
+Production preview: **95/95 checks passed in each of Chromium, Firefox and
+WebKit**, with no browser runtime errors. This qualifies the unit routes and
+listed journeys, not the whole-app host sign-off. No visual evidence was used.
+
+Scoped verification used explicit package filters and serial execution. UI
+declaration generation (1,179 files), the sandbox and CLI typechecks, and 19 of
+21 selected package/app typecheck targets passed. The first run completed 54
+tasks before Windows exhausted its 2.5 GiB Node heap. A five-app retry reused
+generated prerequisites: Linux and web passed from cache; mobile exhausted a
+3 GiB heap. The retry was stopped before repeating Windows; the separately scoped macOS
+check then passed at 2.5 GiB. The mobile/Windows configs include
+`../../packages/**/*`; Windows and mobile app-wide checks remain unqualified. No unrestricted Turbo run was used.
+
+Recipe, UI-barrel and release-note checks passed; CSS validation reported zero
+unsupported properties (139 intentional native drops). Focused lint reported
+no errors, with existing/style warnings retained. Four attachment assets are
+byte-identical to the pinned source. Native runtime, real speech and OS
+clipboard evidence remain outside this qualification.

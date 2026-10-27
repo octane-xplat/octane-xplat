@@ -102,7 +102,7 @@ export function trimStreamingArtifacts(input: string): string {
 	const lastBracket = tail.lastIndexOf('[')
 	if (lastBracket !== -1) {
 		const after = tail.slice(lastBracket)
-		const closed = after.includes('](') && after.includes(')')
+		const closed = after.includes(']') && (!after.includes('](') || after.includes(')'))
 		if (!closed) {
 			const trimTo =
 				lastBracket > 0 && tail[lastBracket - 1] === '!' ? lastBracket - 1 : lastBracket
@@ -279,6 +279,14 @@ export function parseMarkdownIncremental(input: string, state: MarkdownIncrement
 				t: 'list',
 				ordered: last.ordered,
 				items: [...last.items, ...first.items],
+				...(last.checked || first.checked
+					? {
+							checked: [
+								...(last.checked ?? last.items.map(() => null)),
+								...(first.checked ?? first.items.map(() => null)),
+							],
+						}
+					: {}),
 			}
 
 			state.settled.push(...nodes.slice(1))
@@ -311,7 +319,19 @@ export function parseMarkdownIncremental(input: string, state: MarkdownIncrement
 	) {
 		state.output = [
 			...state.settled.slice(0, -1),
-			{ t: 'list', ordered: last.ordered, items: [...last.items, ...first.items] },
+			{
+				t: 'list',
+				ordered: last.ordered,
+				items: [...last.items, ...first.items],
+				...(last.checked || first.checked
+					? {
+							checked: [
+								...(last.checked ?? last.items.map(() => null)),
+								...(first.checked ?? first.items.map(() => null)),
+							],
+						}
+					: {}),
+			},
 			...parsed.nodes.slice(1),
 		]
 	} else {
@@ -422,6 +442,14 @@ export function markdownTextLength(nodes: MdNode[]): number {
 			case 'p':
 			case 'quote':
 				n += mdInlineLen(node.children)
+				break
+			case 'table':
+				for (const row of [node.header, ...node.rows]) {
+					for (const cell of row) {
+						n += mdInlineLen(cell)
+					}
+				}
+
 				break
 			case 'code':
 				n += node.text.length

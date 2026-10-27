@@ -3,10 +3,9 @@
 // The package ships no parser dependency, so this is a hand-written subset
 // covering exactly what the AST can express: ATX and Setext headings,
 // paragraphs, fenced code, flat ordered/unordered lists, blockquotes, and
-// horizontal rules; inline code spans, bold, emphasis, links, and image alt
-// text. Tables, HTML blocks, indented code, reference-style links, and
-// nested block structure are intentionally not parsed — they fall through to
-// literal text, matching the v1 AST's expressiveness.
+// horizontal rules, tables and task markers; inline code spans, bold,
+// emphasis, strike, links and image alt text. HTML blocks, indented code,
+// reference-style links and nested block structure remain outside the subset.
 //
 // Line-level behavior matches `marked` on the covered constructs so runtime
 // and baked output agree: unclosed fences run to EOF, blank-separated items
@@ -23,6 +22,24 @@ const SETEXT_H2 = /^ {0,3}-+[ \t]*$/
 const HR = /^ {0,3}(?:\*[ \t]*){3,}$|^ {0,3}(?:-[ \t]*){3,}$|^ {0,3}(?:_[ \t]*){3,}$/
 const QUOTE = /^ {0,3}>[ \t]?/
 const ITEM = /^ {0,3}([-*+]|\d{1,9}[.)])([ \t]+)(.*)$/
+function tableCells(line: string): string[] {
+	return line
+		.trim()
+		.replace(/^\|/, '')
+		.replace(/\|$/, '')
+		.split(/(?<!\\)\|/)
+		.map((cell) => cell.trim().replace(/\\\|/g, '|'))
+}
+
+function tableAlignment(line: string): ('left' | 'center' | 'right')[] | null {
+	const cells = tableCells(line)
+	return cells.length > 0 && cells.every((cell) => /^:?-{3,}:?$/.test(cell))
+		? cells.map((cell) =>
+				cell.endsWith(':') ? (cell.startsWith(':') ? 'center' : 'right') : 'left',
+			)
+		: null
+}
+
 const BLANK = /^\s*$/
 
 /** A list's CommonMark continuation key: bullet character for unordered
@@ -57,6 +74,23 @@ function parseBlocks(source: string): ParsedBlocks {
 
 		if (BLANK.test(line)) {
 			i++
+			continue
+		}
+
+		const alignment =
+			i + 1 < lines.length && line.includes('|') ? tableAlignment(lines[i + 1]) : null
+
+		if (alignment && alignment.length === tableCells(line).length) {
+			const header = tableCells(line).map(parseMdInline)
+			const rows: MdInline[][][] = []
+			i += 2
+			while (i < lines.length && !BLANK.test(lines[i]) && lines[i].includes('|')) {
+				const cells = tableCells(lines[i++])
+				rows.push(header.map((_, j) => parseMdInline(cells[j] ?? '')))
+			}
+
+			nodes.push({ t: 'table', header, rows, align: alignment })
+			marks.push(undefined)
 			continue
 		}
 
@@ -109,6 +143,7 @@ function parseBlocks(source: string): ParsedBlocks {
 			const ordered = /^\d/.test(firstItem[1])
 			const mark = listMark(firstItem)
 			const items: MdInline[][] = []
+			const checked: (boolean | null)[] = []
 			while (i < lines.length) {
 				const it = lines[i].match(ITEM)
 				if (!it || /^\d/.test(it[1]) !== ordered || listMark(it) !== mark) {
@@ -128,6 +163,12 @@ function parseBlocks(source: string): ParsedBlocks {
 					i++
 				}
 
+				const task = parts[0].match(/^\[([ xX])\]\s+/)
+				checked.push(task ? task[1].toLowerCase() === 'x' : null)
+				if (task) {
+					parts[0] = parts[0].slice(task[0].length)
+				}
+
 				items.push(parseMdInline(parts.join('\n')))
 				// A blank-separated item of the same kind continues the loose
 				// list; anything else ends it. Rewind when not continuing.
@@ -143,7 +184,13 @@ function parseBlocks(source: string): ParsedBlocks {
 				}
 			}
 
-			nodes.push({ t: 'list', ordered, items })
+			nodes.push({
+				t: 'list',
+				ordered,
+				items,
+				...(checked.some((value) => value !== null) ? { checked } : {}),
+			})
+
 			marks.push(mark)
 			continue
 		}
@@ -231,6 +278,7 @@ export function mdInlineText(nodes: MdInline[]): string {
 		switch (n.t) {
 			case 'bold':
 			case 'em':
+			case 'strike':
 				out += mdInlineText(n.children)
 				break
 			case 'link':
@@ -251,6 +299,7 @@ export function mdInlineLen(nodes: MdInline[]): number {
 		switch (node.t) {
 			case 'bold':
 			case 'em':
+			case 'strike':
 				n += mdInlineLen(node.children)
 				break
 			default:
@@ -334,6 +383,16 @@ export function parseMdInline(text: string): MdInline[] {
 			continue
 		}
 
+		if (text.startsWith('~~', i)) {
+			const close = text.indexOf('~~', i + 2)
+			if (close > i + 2) {
+				flush()
+				nodes.push({ t: 'strike', children: parseMdInline(text.slice(i + 2, close)) })
+				i = close + 2
+				continue
+			}
+		}
+
 		if (ch === '*' || ch === '_') {
 			const n = runLen(text, i, ch)
 			const marker = ch.repeat(n)
@@ -395,8 +454,8 @@ export function parseMdInline(text: string): MdInline[] {
 		}
 
 		if (ch === '[') {
-			const mid = text.indexOf('](', i + 1)
-			const close = mid === -1 ? -1 : text.indexOf(')', mid + 2)
+			const mid = text.indexOf(']', i + 1)
+			const close = mid === -1 || text[mid + 1] !== '(' ? -1 : text.indexOf(')', mid + 2)
 			if (close !== -1) {
 				flush()
 				nodes.push({

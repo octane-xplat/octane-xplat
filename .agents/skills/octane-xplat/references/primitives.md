@@ -293,3 +293,37 @@ function ExampleTable() {
   return <Table data={data} columns={columns} idKey="id" plugins={{ sticky }} />
 }
 ```
+
+## Rich and streamed text
+
+Use `@octane-xplat/ui/markdown` for `Markdown` and `useStreamingText`; chat
+components live at `@octane-xplat/ui/chat`. Markdown accepts exactly one of
+`text` or `data`. Tables, task markers, strike, code fences and `[id]` citations
+are supported. `sources` maps ids to public Citation sources; these are individual labelled links, matching the pinned example.
+Keep source keys in first-citation order for consistent numbering. See the [content guide](../../../../docs/app/content-display.md#markdown-documents).
+
+```tsx
+import { Markdown, useStreamingText } from '@octane-xplat/ui/markdown'
+
+function Response(props: { text: string; streaming: boolean }) {
+	const displayed = useStreamingText(props.text, props.streaming, { speed: 'fast' })
+	return <Markdown text={displayed} isStreaming={props.streaming} density="compact" headingLevelStart={3} />
+}
+```
+
+Do not infer OS speech from a dictation button or mock recognition callback.
+`useChatDictation` reports `isSupported: false` on native; expose an unavailable
+state. Browser recognition also depends on host permission and service support.
+The sandbox's dictation state fixtures do not start recognition.
+
+```tsx
+import { ChatDictationButton, useChatDictation } from '@octane-xplat/ui/chat'
+import { Text } from '@octane-xplat/ui'
+
+function Dictation() {
+	const dictation = useChatDictation()
+	return dictation.isSupported
+		? <ChatDictationButton dictation={dictation} />
+		: <Text>Dictation is unavailable on this host.</Text>
+}
+```

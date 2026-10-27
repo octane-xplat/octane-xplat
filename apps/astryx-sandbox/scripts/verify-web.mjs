@@ -4,7 +4,10 @@
 // the pinned journeys with DOM/text assertions only — no screenshots, no
 // pixel checks. Usage: node scripts/verify-web.mjs [--base URL]
 
+import { verifyContentChat } from './verify-content-chat.mjs'
 import { readFileSync } from 'node:fs'
+import { spawnSync } from 'node:child_process'
+import { fileURLToPath } from 'node:url'
 import { chromium, firefox, webkit } from 'playwright'
 import { verifyRichTables } from './verify-rich-tables.mjs'
 import { verifyLocale } from './verify-locale.mjs'
@@ -20,10 +23,20 @@ const check = (name, pass, detail = '') => {
 }
 
 const browserName = process.argv.find(arg => arg.startsWith('--browser='))?.slice('--browser='.length) ?? 'chromium'
+if (browserName === 'all') {
+	const args = process.argv.slice(2).filter(arg => !arg.startsWith('--browser='))
+	for (const engine of ['chromium', 'firefox', 'webkit']) {
+		const result = spawnSync(process.execPath, [fileURLToPath(import.meta.url), ...args, `--browser=${engine}`], { stdio: 'inherit', env: process.env })
+		if (result.error) { throw result.error }
+		if (result.status !== 0) { process.exit(result.status ?? 1) }
+	}
+	process.exit(0)
+}
 const browserType = { chromium, firefox, webkit }[browserName]
 if (!browserType) { throw new Error(`Unknown browser: ${browserName}`) }
 const browser = await browserType.launch()
-const page = await browser.newPage()
+const context = await browser.newContext()
+const page = await context.newPage()
 
 const errors = []
 page.on('pageerror', (e) => errors.push(String(e)))
@@ -32,6 +45,16 @@ page.on('console', (m) => {
 		errors.push(m.text())
 	}
 })
+
+if (process.argv.includes('--content-chat-only')) {
+	try {
+		await verifyContentChat(page, baseUrl, check)
+		check('unit-10 no runtime errors', errors.length === 0, errors.slice(0, 3).join(' | '))
+	} finally { await browser.close() }
+	const failures = results.filter(result => !result.pass)
+	console.log(`${results.length - failures.length}/${results.length} content/chat checks passed (${browserName})`)
+	process.exit(failures.length ? 1 : 0)
+}
 
 if (process.argv.includes('--locale-only')) {
 	try {
@@ -68,6 +91,7 @@ if (process.argv.includes('--media-only')) {
 }
 
 try {
+	await verifyContentChat(page, baseUrl, check)
 	await verifyLocale(page, baseUrl, check)
 	// Home: heading, nav, search, category sections, cards
 	await page.goto(baseUrl + '/', { waitUntil: 'networkidle' })
@@ -117,7 +141,8 @@ try {
 	await page.goto(baseUrl + '/templates/', { waitUntil: 'networkidle' })
 	const ledgerText = await page.textContent('body')
 	check('ledger summary counts', ledgerText.includes('771 routes'), undefined)
-	check('ledger shows pending rows', (await page.locator('.sb-status--pending').count()) > 100)
+	const pendingTotal = Number(ledgerText.match(/(\d+) pending/)?.[1])
+	check('ledger keeps every pending route visible', (await page.locator('.sb-status--pending').count()) === pendingTotal)
 
 	// Ported Button example route
 	await page.goto(baseUrl + '/templates/ButtonShowcase/', { waitUntil: 'networkidle' })

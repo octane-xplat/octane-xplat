@@ -276,3 +276,16 @@ describe('computeBoundaries/computeSegments', () => {
 		])
 	})
 })
+
+it.each([
+	'| Feature | State |\n| --- | ---: |\n| **Parser** | Ready |',
+	'- [x] Done\n- [ ] Pending\n\n- ordinary\n\n- [x] Complete',
+	'~~replaced~~ and **current**',
+])('rich streamed content converges to full parse: %s', (source) => {
+	const state = createMarkdownIncrementalState()
+	let output: MdNode[] = []
+	for (let i = 1; i <= source.length; i++) {
+		output = parseMarkdownIncremental(source.slice(0, i), state)
+	}
+	expect(output).toEqual(parseMdNodes(source))
+})
