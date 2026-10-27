@@ -1,6 +1,7 @@
 #import "XPLMason.h"
 #import <AppKit/AppKit.h>
 
+#include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
@@ -89,6 +90,23 @@ static long long XPLViewMeasure(const void *ctx, float knownW, float knownH,
   }
   if (!(h >= 0)) {
     h = 0;
+  }
+  // Intrinsic size is unconstrained. A wrapping label must be measured at
+  // Mason's assigned/available width or the engine keeps its one-line height.
+  // Editable text controls own their separate sizing policy.
+  if ([view isKindOfClass:[NSTextField class]]) {
+    NSTextField *field = (NSTextField *)view;
+    CGFloat width = isfinite(knownW) && knownW >= 0 ? knownW : availW;
+    if (!field.editable && field.cell.wraps && isfinite(width) && width >= 0) {
+      // Renderer pins use alignment rects; NSTextField's drawing frame adds
+      // horizontal cell insets. Measure the same text width it will draw at.
+      NSRect bounds = [field frameForAlignmentRect:NSMakeRect(0, 0, width, 0)];
+      bounds.size.height = CGFLOAT_MAX;
+      NSSize wrapped = [field.cell cellSizeForBounds:bounds];
+      NSRect aligned = [field alignmentRectForFrame:NSMakeRect(0, 0, wrapped.width, wrapped.height)];
+      w = (float)MIN(width, MAX(0, aligned.size.width));
+      h = (float)MAX(0, aligned.size.height);
+    }
   }
   uint32_t wb;
   uint32_t hb;

@@ -85,7 +85,7 @@ test('multiline limits wrap and truncate only the last visible line, and release
 	update({ whiteSpace: 'nowrap', maxLines: 3 })
 	assert.equal(view.maximumNumberOfLines, 1)
 	update({ maxLines: undefined, whiteSpace: undefined })
-	assert.equal(node.height, 21)
+	assert.equal(node.height, undefined)
 })
 
 test('custom line height carries the overflow mode in its paragraph without altering text', () => {
@@ -114,4 +114,14 @@ test('unsupported text modes and invalid limits fail explicitly', () => {
 	]) {
 		assert.throws(() => fixture().update(props), /\[macos-host\] label/)
 	}
+})
+
+test('ordinary labels leave height to width-constrained native measurement', () => {
+	const { node, update } = fixture()
+	update({ text: 'Words that need more than one line' })
+	assert.equal(node.height, undefined)
+	update({ whiteSpace: 'nowrap' })
+	assert.equal(node.height, 21)
+	update({ whiteSpace: undefined })
+	assert.equal(node.height, undefined)
 })

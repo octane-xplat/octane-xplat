@@ -85,6 +85,22 @@ Keep it when refreshing the patch until core provides an equivalent. See the
 [implementation note](../../../../docs/notes/primitive-notes.md) and
 [upstream PR #14](https://github.com/nativescript-community/octane/pull/14).
 
+## AppKit label sizing
+
+On macOS, leave a wrapping label's height unset so Mason can measure it at
+its available width. An explicit height fixes the frame even when the text
+needs more lines; use `maxLines={1}` or `whiteSpace="nowrap"` for one line.
+
+```tsx
+/** @jsxImportSource @octane-xplat/macos-renderer */
+export function Caption() {
+	return <label text="A caption that can wrap onto another line" style={{ width: 160 }} />
+}
+```
+
+See the [AppKit renderer](../../../../../packages/macos-renderer/README.md)
+for overflow and line-limit behavior.
+
 ## Root creation
 
 `createNativeScriptRoot(hostView)` creates an

@@ -30,7 +30,7 @@ MACOSX_DEPLOYMENT_TARGET=13.5 cargo rustc --manifest-path "$MASON/Cargo.toml" \
 clang -dynamiclib -fobjc-arc \
 	-target arm64-apple-macos13.5 \
 	-install_name "@rpath/libxplatmason.dylib" \
-	-framework Foundation \
+	-framework Foundation -framework AppKit \
 	-o "$OUT" \
 	"$HERE/XPLMason.m" \
 	"$MASON/target/$TARGET/release/libmason_c.a"

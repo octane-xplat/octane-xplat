@@ -5081,18 +5081,18 @@ function applyProps(node: ElementNode, props: PropBag) {
 		syncLabelOverflow(node)
 		syncText(node)
 		const style = effectiveStyle(node)
-		if (
-			style.height == null &&
-			node.props.maxLines != null &&
-			node.props.maxLines !== 1 &&
-			node.props.whiteSpace !== 'nowrap'
-		) {
-			setSizeConstraint(node, 'height', undefined)
-		} else if (style.lineHeight == null && style.height == null) {
-			const size = Number(node.view!.font?.pointSize ?? 16)
-			const height = Math.ceil(size * DEFAULT_TEXT_LINE_HEIGHT_RATIO)
-
-			setSizeConstraint(node, 'height', height)
+		if (style.height == null) {
+			if (
+				(node.props.maxLines === 1 || node.props.whiteSpace === 'nowrap') &&
+				style.lineHeight == null
+			) {
+				const size = Number(node.view!.font?.pointSize ?? 16)
+				setSizeConstraint(node, 'height', Math.ceil(size * DEFAULT_TEXT_LINE_HEIGHT_RATIO))
+			} else {
+				// Wrapping text has an intrinsic height at Mason's available width.
+				// Clear an earlier single-line pin when overflow props change.
+				setSizeConstraint(node, 'height', undefined)
+			}
 		}
 	}
 

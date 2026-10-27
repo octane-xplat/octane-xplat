@@ -318,11 +318,10 @@ export function Suggestion(props: { title: string }) {
 ```
 
 Updating or removing these props reapplies the native settings. Removed props
-restore normal wrapping, unlimited lines, and clipping. An explicit multiline
-limit (including zero) releases the renderer's implicit one-line height so
-AppKit can measure the text; an assigned `style.height` still controls the
-frame. With no line-limit prop, the existing default label height remains one
-font-based line unless the application supplies its own height or line height.
+restore normal wrapping, unlimited lines, and clipping. Labels without an
+assigned `style.height` measure their height at the available layout width.
+An assigned height still controls the frame; `whiteSpace="nowrap"` or
+`maxLines={1}` keeps the text on one line.
 
 ```tsx
 export function UpdatingTitle(props: { title: string; compact: boolean }) {
@@ -494,6 +493,7 @@ From this repository:
 ```sh
 pnpm --filter @octane-xplat/macos-renderer test
 pnpm --filter @octane-xplat/macos-renderer test:overflow
+pnpm probe run packages/macos-renderer/test/fixtures/text-wrap.macos.tsrx --target macos
 pnpm --filter @octane-xplat/macos-renderer test:portals
 pnpm --filter @octane-xplat/macos-renderer test:packed
 pnpm --filter @xplat/macos test:fonts
