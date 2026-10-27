@@ -4874,11 +4874,14 @@ function applyProps(node: ElementNode, props: PropBag) {
 
 				break
 			case 'button':
-				if (name === 'title') {
+				if (name === 'title' || name === 'text') {
 					node.view!.title = String(value ?? '')
+				} else if (name === 'accessibilityLabel') {
+					accessibilityLabels.set(node.actionId!, String(value ?? ''))
+					node.view!.setAccessibilityLabel?.(String(value ?? ''))
 				} else if (name === 'enabled') {
 					node.view!.enabled = value !== false
-				} else if (name === 'onPress') {
+				} else if (name === 'onPress' || name === 'onTap') {
 					actionHandlers.set(
 						node.actionId!,
 						typeof value === 'function'
