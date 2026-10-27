@@ -273,6 +273,16 @@ function styleDict(node: NodeLike): Record<string, any> {
 			bottom: [0, padding.bottom ?? 0],
 		}
 	}
+	// Layer borders also consume space in the CSS box model.
+	if (style.borderWidth != null) {
+		const border = edgeBox(style.borderWidth)!
+		out.border = {
+			left: [0, border.left ?? 0],
+			right: [0, border.right ?? 0],
+			top: [0, border.top ?? 0],
+			bottom: [0, border.bottom ?? 0],
+		}
+	}
 
 	const gap = lenDim(style.gap) ?? lenDim(props.spacing)
 	const rowGap = lenDim(style.rowGap) ?? gap

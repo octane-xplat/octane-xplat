@@ -179,6 +179,7 @@ const sandbox = {
 	setTextFieldPlaceholder: (field, props, override) =>
 		placeholderCalls.push({ field, override }),
 	placeholderCalls,
+	fitTextView: () => {},
 	NSNotificationCenter: {
 		defaultCenter: {
 			addObserverForNameObjectQueueUsingBlock: (name, obj, q, cb) => {

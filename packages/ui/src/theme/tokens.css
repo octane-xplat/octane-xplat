@@ -472,6 +472,27 @@
 		justify-content: center;
 		align-items: center;
 	}
+	/* AppKit uses the same shell and text-line metrics as the DOM leaves. */
+	.vx-input-shell--appkit {
+		height: 32px;
+		padding: 4px 8px;
+		border-width: 1px;
+		border-radius: var(--radius-md);
+	}
+	.vx-input-shell--appkit .vx-input {
+		height: 20px;
+		line-height: 20px;
+	}
+	.vx-textarea-shell--appkit {
+		display: flex;
+		flex-direction: column;
+		border-width: 1px;
+		border-radius: var(--radius-md);
+	}
+	.vx-textarea--appkit {
+		padding: 4px 8px;
+		line-height: 20px;
+	}
 	/* xplat-web-only:start — DOM-only reset: element UA chrome and the
    focus outline (normalized to the same thin ring on both). */
 	.vx-input,

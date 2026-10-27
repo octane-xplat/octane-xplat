@@ -194,3 +194,9 @@ test('style width/height and padding reach the dict', () => {
 		left: [0, 12],
 	})
 })
+
+test('CSS borders consume space in the Mason box model', () => {
+ assert.deepEqual(styleDict(node('masonview', { style: { borderWidth: 1 } })).border, {
+  left: [0, 1], right: [0, 1], top: [0, 1], bottom: [0, 1],
+ })
+})

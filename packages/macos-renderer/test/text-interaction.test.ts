@@ -37,6 +37,8 @@ function load() {
 		NativeClass() {},
 		registerGestureClass() {},
 		DEFAULT_TEXT_LINE_HEIGHT_RATIO: 21 / 16,
+		NSMutableParagraphStyle: { alloc: () => ({ init: () => ({}) }) },
+		NSParagraphStyleAttributeName: 'paragraph',
 		setSizeConstraint(node, name, value) {
 			node.sizeConstraintSpecs = { [name]: { points: value } }
 			node.height = value
@@ -131,6 +133,15 @@ test('growth uses measured wrapped content, caps viewport, and preserves full do
 	control.props.style = { height: 90 }
 	fitTextView(control)
 	assert.equal(control.height, 40, 'explicit height is owned by style application')
+	control.props.style = { lineHeight: 20 }
+	control.view.font = { ascender: 14, descender: -4, leading: 0 }
+	control.view.textContainerInset = { width: 8, height: 4 }
+	fitTextView(control)
+	assert.equal(control.height, 48, 'two shared lines include vertical padding')
+	control.props.rows = 3
+	fitTextView(control)
+	assert.equal(control.height, 68, 'three shared lines include vertical padding')
+
 })
 
 test('secure changes keep the view, current editor text, selection and submit wiring', () => {

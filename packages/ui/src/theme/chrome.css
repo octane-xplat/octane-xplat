@@ -194,6 +194,11 @@
 		/* NS placeholder color; web uses the ::placeholder pseudo below. */
 		placeholder-color: var(--color-text-secondary);
 	}
+	.vx-input-shell--appkit,
+	.vx-textarea-shell--appkit {
+		border-color: var(--color-border-strong);
+		background-color: var(--color-surface);
+	}
 	/* xplat-web-only:start — DOM-only reset: element UA chrome and the
    focus outline (normalized to the same thin ring on both). */
 	.vx-input:focus,

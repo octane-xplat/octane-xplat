@@ -384,8 +384,8 @@ export function textAreaRows(m: Resolve, target: string): CheckRow[] {
 	if (target === 'macos') {
 		rows.push([
 			'placeholder aligns to the textarea content origin',
-			near(field.placeholderBox?.x, field.box.x, 1) &&
-				near(field.placeholderBox?.y, field.box.y, 1),
+			near(field.placeholderBox?.x, field.contentBox?.x, 1) &&
+				near(field.placeholderBox?.y, field.contentBox?.y, 1),
 			JSON.stringify(field.placeholderBox),
 		])
 	}
@@ -407,8 +407,8 @@ export function textAreaRowsIntrinsic(m: Resolve, target: string, height: number
 	if (target === 'macos') {
 		rows.push([
 			'placeholder aligns to the textarea content origin',
-			near(field.placeholderBox?.x, field.box.x, 1) &&
-				near(field.placeholderBox?.y, field.box.y, 1),
+			near(field.placeholderBox?.x, field.contentBox?.x, 1) &&
+				near(field.placeholderBox?.y, field.contentBox?.y, 1),
 			JSON.stringify(field.placeholderBox),
 		])
 	}

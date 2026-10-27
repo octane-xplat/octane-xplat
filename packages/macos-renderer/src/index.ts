@@ -509,8 +509,15 @@ class ContentAlignedTextField extends NSSecureTextField {
 		dispatchTextEvent(textNodesByView.get(this), 'onBlur')
 	}
 
-	// These controls have no bezel or background, so the text area and layout
-	// frame should share the same edges.
+	// @ts-ignore Objective-C exposes this generated property as an accessor.
+	get intrinsicContentSize() {
+		// @ts-ignore The bridge dispatches the inherited Objective-C getter.
+		const size = super.intrinsicContentSize
+		const line = Number(effectiveStyle(textNodesByView.get(this)).lineHeight)
+		return line > 0 ? { width: size.width, height: line } : size
+	}
+
+	// Shared fields draw their chrome in the surrounding shell.
 	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
 	alignmentRectInsets() {
 		return { top: 0, left: 0, bottom: 0, right: 0 }
@@ -2848,18 +2855,21 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 			placeholder.textColor = NSColor.placeholderTextColor
 			placeholder.stringValue = String(props.placeholder ?? '')
 			placeholder.translatesAutoresizingMaskIntoConstraints = false
-			placeholder.heightAnchor.constraintEqualToConstant(
+			node.placeholderHeight = placeholder.heightAnchor.constraintEqualToConstant(
 				Math.ceil(14 * DEFAULT_TEXT_LINE_HEIGHT_RATIO),
-			).active = true
+			)
+			node.placeholderHeight.active = true
 
 			placeholder.hidden = String(props.value ?? '').length > 0
 			node.view!.addSubview(placeholder)
-			placeholder.leadingAnchor.constraintEqualToAnchorConstant(
+			node.placeholderLeading = placeholder.leadingAnchor.constraintEqualToAnchorConstant(
 				node.view!.leadingAnchor,
 				0,
-			).active = true
+			)
+			node.placeholderLeading.active = true
 
-			placeholder.topAnchor.constraintEqualToAnchor(node.view!.topAnchor).active = true
+			node.placeholderTop = placeholder.topAnchor.constraintEqualToAnchor(node.view!.topAnchor)
+			node.placeholderTop.active = true
 			node.placeholderView = placeholder
 			textNodesByView.set(node.view!, node)
 		}
@@ -3287,30 +3297,23 @@ function syncInputChrome(node: ElementNode) {
 	if (!view) {
 		return
 	}
-	const style = node.computedStyle ?? {}
-	const customChrome =
-		style.backgroundColor != null ||
-		style.borderWidth != null ||
-		style.borderColor != null ||
-		style.borderRadius != null ||
-		style.borderTopLeftRadius != null
-	if (customChrome) {
-		if (!node.cssChromeOff) {
-			node.cssChromeOff = true
-			view.drawsBackground = false
-			if (node.type === 'textfield') {
-				view.bezeled = false
-			}
-			if (node.type === 'textview') {
-				view.textContainerInset = { width: 0, height: 0 }
-			}
+	// CSS paints the layer; it must not change the control's native bezel or
+	// background configuration. Shared controls reset those at construction.
+	if (node.type === 'textview') {
+		const style = effectiveStyle(node)
+		const inset = parseEdgeInsets(style.padding ?? 0)
+		view.textContainerInset = {
+			width: Number(style.paddingLeft ?? inset.left) || 0,
+			height: Number(style.paddingTop ?? inset.top) || 0,
 		}
-	} else if (node.cssChromeOff) {
-		node.cssChromeOff = false
-		view.drawsBackground = true
-		if (node.type === 'textfield') {
-			view.bezeled = true
+		if (node.placeholderLeading) node.placeholderLeading.constant = view.textContainerInset.width
+		if (node.placeholderTop) node.placeholderTop.constant = view.textContainerInset.height
+		if (node.placeholderHeight && Number(style.lineHeight) > 0) {
+			node.placeholderHeight.constant = Number(style.lineHeight)
 		}
+		fitTextView(node)
+	} else {
+		view.invalidateIntrinsicContentSize?.()
 	}
 }
 
@@ -3733,7 +3736,7 @@ function applyStyle(node: ElementNode, style: PropBag) {
 		) {
 			node.styleColor = String(value)
 			node.view!.textColor = nativeColor(value)
-		} else if (name === 'lineHeight' && node.type === 'label') {
+		} else if (name === 'lineHeight' && ['label', 'textfield', 'textview'].includes(node.type)) {
 			// syncText applies this to each paragraph; it is not the label's fixed height.
 			continue
 		} else if (
@@ -4174,9 +4177,23 @@ function fitTextView(node: ElementNode | undefined) {
 	try {
 		const view = node.view!
 		const viewport = node.textViewport
+		const styleLine = Number(effectiveStyle(node).lineHeight)
+		if (styleLine > 0) {
+			const paragraph = NSMutableParagraphStyle.alloc().init()
+			paragraph.minimumLineHeight = styleLine
+			paragraph.maximumLineHeight = styleLine
+			view.defaultParagraphStyle = paragraph
+			view.textStorage?.addAttributeValueRange(NSParagraphStyleAttributeName, paragraph, {
+				location: 0,
+				length: String(view.string ?? '').length,
+			})
+		}
 		const width = Number(viewport.contentView.bounds.size.width)
 		if (width > 0) {
-			view.textContainer.containerSize = { width, height: Number.MAX_SAFE_INTEGER }
+			view.textContainer.containerSize = {
+				width: Math.max(0, width - 2 * Number(view.textContainerInset?.width ?? 0)),
+				height: Number.MAX_SAFE_INTEGER,
+			}
 		}
 
 		view.layoutManager.ensureLayoutForTextContainer(view.textContainer)
@@ -4186,9 +4203,10 @@ function fitTextView(node: ElementNode | undefined) {
 		const line = Math.max(
 			1,
 			Math.round(
-				measured > 0 ? measured : Number(font?.pointSize ?? 14) * DEFAULT_TEXT_LINE_HEIGHT_RATIO,
+				styleLine > 0 ? styleLine : measured > 0 ? measured : Number(font?.pointSize ?? 14) * DEFAULT_TEXT_LINE_HEIGHT_RATIO,
 			),
 		)
+		const padding = 2 * Number(view.textContainerInset?.height ?? 0)
 
 		const rows = Math.max(1, Math.floor(Number(node.props.rows) || (node.props.autoGrow ? 1 : 3)))
 		const cap =
@@ -4204,7 +4222,7 @@ function fitTextView(node: ElementNode | undefined) {
 			Math.ceil(Number(extra?.origin?.y ?? 0) + Number(extra?.size?.height ?? 0)),
 		)
 
-		const height = node.props.autoGrow ? Math.min(cap, Math.max(rows * line, content)) : rows * line
+		const height = (node.props.autoGrow ? Math.min(cap, Math.max(rows * line, content)) : rows * line) + padding
 		if (effectiveStyle(node).height == null && node.sizeConstraintSpecs?.height?.points !== height) {
 			setSizeConstraint(node, 'height', height)
 		}
@@ -4213,7 +4231,7 @@ function fitTextView(node: ElementNode | undefined) {
 		view.minSize = { width: 0, height: visibleHeight }
 		view.setFrameSize({
 			width: width || Number(view.frame.size.width),
-			height: Math.max(visibleHeight, content),
+			height: Math.max(visibleHeight, content + padding),
 		})
 	} finally {
 		node.fittingText = false
