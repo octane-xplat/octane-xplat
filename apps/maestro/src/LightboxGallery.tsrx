@@ -20,8 +20,8 @@ export default function LightboxGallery() {
 				<Lightbox.Trigger index={0} testID="lb-trigger-0"><masonview width={160} height={100} backgroundColor="#a33" /></Lightbox.Trigger>
 				<Lightbox.Trigger index={1} testID="lb-trigger-1"><masonview width={160} height={100} backgroundColor="#3a3" /></Lightbox.Trigger>
 				<Lightbox.Trigger index={2} testID="lb-trigger-2"><masonview width={160} height={100} backgroundColor="#337" /></Lightbox.Trigger>
-				<Lightbox.Backdrop testID="lb-backdrop" />
 				<Lightbox.Popup testID="lb-popup">
+					<Lightbox.Backdrop testID="lb-backdrop" />
 					<Lightbox.Viewport>
 						{media.map((_, i) => (
 							<Lightbox.Slide key={i} index={i}><Lightbox.Image /></Lightbox.Slide>

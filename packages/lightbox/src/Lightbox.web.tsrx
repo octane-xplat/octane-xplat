@@ -78,8 +78,8 @@ export function Lightbox(props: LightboxProps) {
 			transition={props.transition}
 			finalFocusRef={props.finalFocusRef}
 		>
-			<Backdrop className="vx-lightbox-backdrop" />
 			<Popup className={cx('vx-lightbox-layer', props.className)} style={props.style as Record<string, unknown>}>
+				<Backdrop className="vx-lightbox-backdrop" />
 				<Viewport>
 					{props.media.map((item: LightboxMedia, i: number) => (
 						<Slide key={item.src + i} index={i}>

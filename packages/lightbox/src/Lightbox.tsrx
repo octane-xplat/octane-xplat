@@ -48,8 +48,8 @@ function LightboxBase(props: LightboxProps) @{
 		>
 			{props.children ?? (
 				<>
-					<Backdrop />
 					<Popup>
+						<Backdrop />
 						<Viewport>
 							{props.media?.map((_, i) => (
 								<Slide key={i} index={i}>

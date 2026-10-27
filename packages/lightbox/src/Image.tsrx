@@ -81,20 +81,8 @@ export function Image(props: LightboxImagePartProps) @{
 			syncing = false
 		}
 	}
-	// Coalesce + defer transform writes off the layout stack: writing NS
-	// transform props while a layout pass is pending re-enters
-	// updateNativeTransform and overflows on iOS.
-	let syncPending = false
-	const scheduleSync = () => {
-		if (syncPending) return
-		syncPending = true
-		setTimeout(() => {
-			syncPending = false
-			sync()
-		}, 0)
-	}
 	useLayoutEffect(() => {
-		const offs = [x.on('change', scheduleSync), y.on('change', scheduleSync), scale.on('change', scheduleSync)]
+		const offs = [x.on('change', sync), y.on('change', sync), scale.on('change', sync)]
 		sync()
 		return () => offs.forEach((f) => f())
 	}, [])

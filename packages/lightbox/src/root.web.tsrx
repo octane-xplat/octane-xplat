@@ -402,7 +402,8 @@ export function Backdrop(props: LightboxPartProps) {
 		apply(ctx.presence.get())
 		return ctx.presence.on('change', apply)
 	}, [ctx.presence])
-	return createPortal(
+	// Inline layer inside the popup's stacking context — one modal host.
+	return (
 		<div
 			ref={ref}
 			className={cx('vx-lightbox-backdrop', props.className)}
@@ -410,8 +411,7 @@ export function Backdrop(props: LightboxPartProps) {
 			data-testid={props.testID}
 		>
 			{props.children as never}
-		</div>,
-		document.body,
+		</div>
 	) as never
 }
 

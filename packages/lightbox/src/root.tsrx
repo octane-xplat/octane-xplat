@@ -344,30 +344,40 @@ export function Backdrop(props: LightboxPartProps) @{
 	useLayoutEffect(() => {
 		const v = ref.current
 		if (!v) return
+		const size = () => {
+			const s = (v.parent as any)?.getActualSize?.()
+			if (s?.width && s?.height && (v.width !== s.width || v.height !== s.height)) {
+				v.width = s.width
+				v.height = s.height
+			}
+		}
+		size()
+		const parent = v.parent as any
+		parent?.on?.('layoutChanged', size)
 		const off = ctx.presence.on('change', (p: number) => { v.opacity = p })
 		v.opacity = ctx.presence.get()
-		return off
+		return () => {
+			parent?.off?.('layoutChanged', size)
+			off()
+		}
 	}, [ctx.presence])
 	if (ctx.phase === 'closed') return null
-	// Its own overlay layer beneath the popup — the leaf view overflows the
-	// safe area so the dimmer covers the full page (D5 requirement).
+	// Inline layer inside the popup's stack — one modal host per viewer.
 	return (
-		<Overlay open isModal accessibilityLabel="" onDismiss={() => {}}>
-			<masonview
-				ref={ref as never}
-				className={cx('vx-lightbox-backdrop', props.className)}
-				horizontalAlignment="stretch"
-				verticalAlignment="stretch"
-				style={{ backgroundColor: 'rgba(0,0,0,0.9)', ...props.style }}
-				id={props.id}
-				testID={props.testID}
-				onTap={() => {
-					if (ctx.options.closeOnBackdropClick) ctx.close()
-				}}
-			>
-				{props.children as never}
-			</masonview>
-		</Overlay>
+		<masonview
+			ref={ref as never}
+			className={cx('vx-lightbox-backdrop', props.className)}
+			horizontalAlignment="stretch"
+			verticalAlignment="stretch"
+			style={{ backgroundColor: 'rgba(0,0,0,0.9)', ...props.style }}
+			id={props.id}
+			testID={props.testID}
+			onTap={() => {
+				if (ctx.options.closeOnBackdropClick) ctx.close()
+			}}
+		>
+			{props.children as never}
+		</masonview>
 	)
 }
 
@@ -385,9 +395,11 @@ export function Popup(props: LightboxPartProps) @{
 				className={cx('vx-lightbox-popup', `vx-lightbox-popup--${ctx.phase}`, ctx.zoomed && 'vx-lightbox-popup--zoomed', ctx.dragging && 'vx-lightbox-popup--dragging', ctx.uiHidden && 'vx-lightbox-popup--ui-hidden', props.className)}
 				horizontalAlignment="stretch"
 				verticalAlignment="stretch"
+				width="100%"
+				height="100%"
 				style={props.style as never}
 				id={props.id}
-			testID={props.testID}
+				testID={props.testID}
 			>
 				{props.children as never}
 			</masonview>
