@@ -97,6 +97,7 @@ export async function checkMacOSMotionConsumer({
 				// Substitute only the driver: keep the production core compatibility
 				// surface so missing named mobile exports still fail the build.
 				{ find: /^@octane-xplat\/macos-renderer$/, replacement: rendererShim },
+				{ find: /^@octane-xplat\/css-engine$/, replacement: join(repoRoot, 'packages/css-engine/src/index.ts') },
 				{ find: /^@nativescript-community\/octane$/, replacement: 'octane/universal/native' },
 				{
 					find: /^@nativescript\/core(?:\/animation-frame)?$/,
