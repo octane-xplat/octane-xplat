@@ -96,8 +96,8 @@ try {
 	let lastMorphRect = null
 	for (let i = 0; i < 30; i++) {
 		const r = await cur(page).boundingBox().catch(() => null)
-		if (r) lastMorphRect = r
-		else break
+		if (r) {lastMorphRect = r}
+		else {break}
 		await page.waitForTimeout(50)
 	}
 	if (lastMorphRect && trigRect) {
@@ -178,7 +178,7 @@ try {
 		const zbox = await cur(page).boundingBox()
 		const zc = { x: zbox.x + zbox.width / 2, y: zbox.y + zbox.height / 2 }
 		await tp('touchStart', [{ x: zc.x, y: zc.y, id: 1 }])
-		for (let i = 1; i <= 6; i++) await tp('touchMove', [{ x: zc.x - i * 40, y: zc.y, id: 1 }])
+		for (let i = 1; i <= 6; i++) {await tp('touchMove', [{ x: zc.x - i * 40, y: zc.y, id: 1 }])}
 		await tp('touchEnd', [])
 		await page.waitForTimeout(800)
 		check('zoomed drag stays on same slide', await page.locator('[data-lightbox-slide][data-current]').getAttribute('aria-label'), '2 of 3')
@@ -207,7 +207,7 @@ try {
 
 	const failed = results.filter((r) => !r.pass)
 	const skipped = results.filter((r) => r.skipped)
-	if (skipped.length) console.log(`${skipped.length} skipped (CDP-only)`)
+	if (skipped.length) {console.log(`${skipped.length} skipped (CDP-only)`)}
 	console.log(`\n[${browserName}] ${results.length - failed.length - skipped.length}/${results.length - skipped.length} checks passed`)
 	for (const r of results) {console.log(`${r.pass ? 'PASS' : 'FAIL'} ${r.name} → ${JSON.stringify(r.actual)}`)}
 	await browser.close()
