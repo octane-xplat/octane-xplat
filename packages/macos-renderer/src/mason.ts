@@ -22,6 +22,8 @@ import {
 	NSViewFrameDidChangeNotification,
 } from '@octane-xplat/platform/macos'
 
+import { scrollAxes } from './scroll-view'
+
 // Element nodes carry open-ended fields; the bridge only needs the shape
 // below. Loose `any` matches the renderer's PropBag style.
 type NodeLike = any
@@ -563,20 +565,24 @@ export function layoutMasonChildren(
 
 	if (isScroll) {
 		// The root record is the content size — express it as a minimum-size
-		// constraint on the document view so it coexists with the renderer's
-		// clip-axis pins (configureScrollAxes) instead of fighting them.
+		// constraint on the document view's scroll axis so it coexists with
+		// the renderer's clip-axis pins (configureScrollAxes) instead of
+		// fighting them. The pinned axis must not carry a competing >= pin:
+		// doc == clip vs doc >= content are two required constraints, and
+		// the solver alternates which it breaks — the document's size flips
+		// every pass, every child re-pins, and the deferred needsLayout
+		// marks never settle.
 		const contentW = Number(flat.objectAtIndex(3)) || 0
 		const contentH = Number(flat.objectAtIndex(4)) || 0
+		const { inline, block } = scrollAxes(parent.props)
 		const pins = (parent.masonScrollPins ??= {
 			width: target.widthAnchor.constraintGreaterThanOrEqualToConstant(0),
 			height: target.heightAnchor.constraintGreaterThanOrEqualToConstant(0),
 		})
 		pins.width.constant = contentW
 		pins.height.constant = contentH
-		if (!pins.width.active) {
-			pins.width.active = true
-			pins.height.active = true
-		}
+		pins.width.active = inline
+		pins.height.active = block
 	}
 
 	applyRecords(flat, RECORD, parent.masonChildren ?? [], target, pin)
