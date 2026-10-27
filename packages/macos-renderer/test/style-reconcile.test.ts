@@ -165,6 +165,8 @@ const sandbox = {
 		FirstBaseline: 11,
 	},
 	NSColor: {
+		labelColor: { semantic: 'label' },
+		placeholderTextColor: { semantic: 'placeholder' },
 		colorWithRedGreenBlueAlpha: (r, g, b, a) => ({ CGColor: { r, g, b, a } }),
 		colorWithCGColor: (cg) => ({ CGColor: cg }),
 	},
@@ -174,7 +176,7 @@ const sandbox = {
 		weight: String(weight ?? 400),
 		familyName: family ?? null,
 	}),
-	setTextFieldPlaceholder: (field, props, scheme, override) =>
+	setTextFieldPlaceholder: (field, props, override) =>
 		placeholderCalls.push({ field, override }),
 	placeholderCalls,
 	NSNotificationCenter: {
@@ -596,7 +598,7 @@ test('cornerShape squircle maps to a continuous corner curve; reset restores cir
 	assert.equal(item.view.layer.cornerCurve, 'circular')
 })
 
-test('placeholderColor styles textfield placeholder and textview placeholderView; reset restores scheme default', () => {
+test('placeholderColor styles textfield placeholder and textview placeholderView; reset restores semantic default', () => {
 	placeholderCalls.length = 0
 	const field = node('textfield', { props: { placeholder: 'e' } })
 	setStyle(field, { placeholderColor: 'red' })
@@ -611,7 +613,7 @@ test('placeholderColor styles textfield placeholder and textview placeholderView
 	assert.deepEqual({ ...area.placeholderView.textColor.CGColor }, { r: 0, g: 0, b: 1, a: 1 })
 
 	setStyle(area, {})
-	assert.ok(area.placeholderView.textColor, 'scheme default placeholder color restored')
+	assert.ok(area.placeholderView.textColor, 'semantic default placeholder color restored')
 })
 
 test('textDecoration underline/line-through reach the label attributed string; reset clears them', () => {

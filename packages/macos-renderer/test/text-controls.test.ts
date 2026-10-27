@@ -69,6 +69,7 @@ test('text fields retain a secure-capable host and their initial values', () => 
 		ContentAlignedTextField: FakeSecureTextField,
 		ContentAlignedSecureTextField: FakeSecureTextField,
 		fontForStyle: () => ({}),
+		NSColor: { labelColor: { semantic: 'label' } },
 		nativeColor: (value) => value,
 		setTextFieldPlaceholder: () => {},
 	})

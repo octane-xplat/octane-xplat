@@ -1210,7 +1210,7 @@ function makeLabel(): NSTextField {
 	label.cell.usesSingleLineMode = false
 	label.translatesAutoresizingMaskIntoConstraints = false
 	label.font = fontForStyle(16)
-	label.textColor = nativeColor('#0a0a0a')
+	label.textColor = NSColor.labelColor
 	return label
 }
 
@@ -1395,7 +1395,6 @@ function setLayoutAction(node: ElementNode, handler: ((event: any) => void) | un
 function setTextFieldPlaceholder(
 	field: NSTextField,
 	props: PropBag,
-	scheme = 'light',
 	colorOverride?: string,
 ) {
 	const placeholder = String(props.placeholder ?? '')
@@ -1410,12 +1409,9 @@ function setTextFieldPlaceholder(
 		placeholder,
 		{
 			[NSFontAttributeName]: field.font,
-			[NSForegroundColorAttributeName]: nativeColor(
-				colorOverride ??
-					(props.placeholderTextColor != null
-						? String(props.placeholderTextColor)
-						: SCHEME_COLORS[scheme].placeholder),
-			),
+			[NSForegroundColorAttributeName]: colorOverride != null || props.placeholderTextColor != null
+				? nativeColor(colorOverride ?? String(props.placeholderTextColor))
+				: NSColor.placeholderTextColor,
 		},
 	)
 }
@@ -1433,7 +1429,7 @@ function makeTextField(props: PropBag, multiline = false) {
 
 	field.translatesAutoresizingMaskIntoConstraints = false
 	field.font = fontForStyle(14)
-	field.textColor = nativeColor('#0a0a0a')
+	field.textColor = NSColor.labelColor
 	if (multiline) {
 		const textView = field as InteractionTextView
 		textView.editable = true
@@ -2849,7 +2845,7 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 
 			const placeholder = makeLabel()
 			placeholder.font = fontForFamilyStyle(14, 400, node.appliedFontFamily)
-			placeholder.textColor = nativeColor('#666666')
+			placeholder.textColor = NSColor.placeholderTextColor
 			placeholder.stringValue = String(props.placeholder ?? '')
 			placeholder.translatesAutoresizingMaskIntoConstraints = false
 			placeholder.heightAnchor.constraintEqualToConstant(
@@ -3318,66 +3314,29 @@ function syncInputChrome(node: ElementNode) {
 	}
 }
 
-// Scheme palettes are the defaults beneath CSS and inline styles — a matched
-// CSS rule or inline style wins over these. The active palette resolves from
-// the nearest `dark`/`ns-dark` className ancestor (nodeScheme).
-const SCHEME_COLORS: Record<string, Record<string, string>> = {
-	light: {
-		text: '#0a0a0a',
-		muted: '#71717a',
-		onprimary: '#ffffff',
-		placeholder: '#666666',
-		primary: '#2563eb',
-		danger: '#dc2626',
-		secondary: '#3f3f46',
-		surface: '#ffffff',
-	},
-	dark: {
-		text: '#ededed',
-		muted: '#a1a1a1',
-		onprimary: '#171717',
-		placeholder: '#a1a1a1',
-		primary: '#ededed',
-		danger: '#dc2626',
-		secondary: '#3f3f46',
-		surface: '#0a0a0a',
-	},
-}
-
-function nodeScheme(node: ElementNode) {
-	for (let current: ElementNode | null = node; current; current = current.parent) {
-		const classes = nodeClasses(current)
-		if (classes.includes('dark') || classes.includes('ns-dark')) {
-			return 'dark'
-		}
-	}
-
-	return 'light'
-}
-
-// Re-resolve a node's class-driven colors under its current scheme. Explicit
-// style.color/style.backgroundColor always win over class palette slots.
-function applyThemeColors(node: ElementNode) {
-	const view = node.view!
+// CSS owns the theme palette. Unstyled controls use AppKit semantic colors,
+// which follow the application's appearance without a second class cascade.
+function syncNativeColors(node: ElementNode) {
+	const view = node.view
 	if (!view) {
 		return
 	}
 
-	node.scheme = nodeScheme(node)
-	const colors = SCHEME_COLORS[node.scheme]
 	if (['label', 'htmlview', 'textfield', 'textview', 'searchbar'].includes(node.type)) {
-		view.textColor = nativeColor(node.styleColor ?? colors.text)
+		view.textColor = node.styleColor != null ? nativeColor(node.styleColor) : NSColor.labelColor
 		if (node.type === 'label') {
 			setLabelText(node, String(view.stringValue ?? ''))
 		}
 	}
 
 	if (node.type === 'textfield') {
-		setTextFieldPlaceholder(view as NSTextField, node.props, node.scheme)
+		setTextFieldPlaceholder(view as NSTextField, node.props, node.stylePlaceholderColor)
 	}
 
 	if (node.type === 'textview' && node.placeholderView) {
-		node.placeholderView.textColor = nativeColor(colors.placeholder)
+		node.placeholderView.textColor = node.stylePlaceholderColor != null
+			? nativeColor(node.stylePlaceholderColor)
+			: NSColor.placeholderTextColor
 	}
 
 	if (node.styleBg != null) {
@@ -3387,19 +3346,6 @@ function applyThemeColors(node: ElementNode) {
 	} else if (node.bgApplied) {
 		node.bgApplied = false
 		view.layer.backgroundColor = null
-	}
-}
-
-// Colors resolve through the parent chain, so a node mounted under (or into)
-// a differently-schemed subtree re-resolves its whole branch on insertion.
-function syncScheme(node: ElementNode) {
-	const scheme = nodeScheme(node)
-	if (scheme === (node.scheme ?? 'light')) {
-		return
-	}
-
-	for (const entry of [node, ...descendants(node)]) {
-		applyThemeColors(entry)
 	}
 }
 
@@ -3651,7 +3597,7 @@ function resetStyle(node: ElementNode, name: string) {
 		syncNodeFont(node)
 	} else if (name === 'color' && textControl) {
 		node.styleColor = undefined
-		applyThemeColors(node)
+		syncNativeColors(node)
 	} else if (
 		name === 'padding' &&
 		(node.type === 'rootlayout' || behaviorOf(node.type)?.containerStyles)
@@ -3670,7 +3616,7 @@ function resetStyle(node: ElementNode, name: string) {
 		syncEdgeInsets(node)
 	} else if (name === 'backgroundColor') {
 		node.styleBg = undefined
-		applyThemeColors(node)
+		syncNativeColors(node)
 	} else if (name === 'borderRadius') {
 		node.styleRadius = undefined
 		syncCornerRadius(node)
@@ -3683,9 +3629,9 @@ function resetStyle(node: ElementNode, name: string) {
 	} else if (name === 'placeholderColor') {
 		node.stylePlaceholderColor = undefined
 		if (node.type === 'textfield') {
-			setTextFieldPlaceholder(view as NSTextField, node.props, nodeScheme(node))
+			setTextFieldPlaceholder(view as NSTextField, node.props)
 		} else if (node.type === 'textview' && node.placeholderView) {
-			node.placeholderView.textColor = nativeColor(SCHEME_COLORS[nodeScheme(node)].placeholder)
+			node.placeholderView.textColor = NSColor.placeholderTextColor
 		}
 	} else if (name === 'width' || name === 'height') {
 		setSizeConstraint(node, name, undefined)
@@ -3826,7 +3772,6 @@ function applyStyle(node: ElementNode, style: PropBag) {
 				setTextFieldPlaceholder(
 					node.view as NSTextField,
 					node.props,
-					nodeScheme(node),
 					node.stylePlaceholderColor,
 				)
 			} else if (node.type === 'textview' && node.placeholderView) {
@@ -5129,7 +5074,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 		syncSecureTextField(node)
 		node.view!.enabled = node.props.isEnabled !== false && node.props.enabled !== false
 		node.view!.editable = node.view!.enabled && node.props.editable !== false
-		setTextFieldPlaceholder(node.view as NSTextField, node.props, nodeScheme(node))
+		setTextFieldPlaceholder(node.view as NSTextField, node.props, node.stylePlaceholderColor)
 	}
 
 	if (node.type === 'label') {
@@ -5403,8 +5348,6 @@ function syncProxyProjection(parent: ElementNode) {
 				)
 			}
 		}
-
-		syncScheme(child)
 	}
 
 	if (manual && host?.addSubviewPositionedRelativeTo) {
@@ -5970,7 +5913,6 @@ function insert(
 			applySizeConstraints(node)
 		}
 
-		syncScheme(node)
 		if (node.type === 'placeholder') {
 			fireCreatingView(node)
 		}
@@ -8324,7 +8266,7 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 				return {
 					type: node.type,
 					classes: nodeClasses(node),
-					scheme: node.scheme ?? 'light',
+					scheme: cssSchemeName(node),
 					color: view.textColor ? (colorValue(view.textColor, appearance) ?? null) : null,
 					backgroundColor: view.layer?.backgroundColor
 						? (colorValue(NSColor.colorWithCGColor(view.layer.backgroundColor), appearance) ?? null)

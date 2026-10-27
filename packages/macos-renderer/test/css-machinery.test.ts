@@ -20,7 +20,7 @@ import {
 const FULL_SOURCE = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
 const MACHINERY = FULL_SOURCE.slice(
 	FULL_SOURCE.indexOf('// ---- CSS cascade'),
-	FULL_SOURCE.indexOf('function nodeScheme'),
+	FULL_SOURCE.indexOf('function syncNativeColors'),
 )
 
 const RESTYLE_ALL = FULL_SOURCE.slice(
