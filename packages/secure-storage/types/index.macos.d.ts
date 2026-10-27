@@ -1,3 +1,4 @@
-import type { Capability, SecureStore } from './generated/types.js'
-export type { Capability, SecureStore } from './generated/types.js'
-export declare const secureStorage: Capability<SecureStore>
+import type { Service } from '@octane-xplat/lib/capability'
+import type { SecureStore } from './generated/types.js'
+export type { SecureStore } from './generated/types.js'
+export declare const secureStorage: Service<SecureStore>
