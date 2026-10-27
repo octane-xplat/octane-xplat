@@ -1,5 +1,7 @@
 // Native APIs are loaded by the CLI's platforms/macos leaf loader.
-import type { Capability, SecureStore } from './types'
+import { UnavailabilityError } from '@octane-xplat/lib/capability'
+import type { Service } from '@octane-xplat/lib/capability'
+import type { SecureStore } from './types'
 
 interface NativeSecureStorage {
 	get(key: string): { objectForKey(key: string): unknown }
@@ -44,12 +46,14 @@ const store: SecureStore = {
 	},
 }
 
-export const secureStorage: Capability<SecureStore> = {
+const unavailable = () => Promise.reject(new UnavailabilityError('secureStorage'))
+
+export const secureStorage: Service<SecureStore> = {
 	get supported() {
 		return native() !== null
 	},
-	ensure: async () => (native() ? 'granted' : 'unsupported'),
-	get impl() {
-		return native() ? store : null
-	},
+	isAvailable: async () => native() !== null,
+	get: (key) => (native() ? store.get(key) : unavailable()),
+	set: (key, value) => (native() ? store.set(key, value) : unavailable()),
+	remove: (key) => (native() ? store.remove(key) : unavailable()),
 }

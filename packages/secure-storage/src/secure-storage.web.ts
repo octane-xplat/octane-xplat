@@ -1,23 +1,27 @@
 // Secure storage — plain web has no equivalent trust boundary. Desktop
 // webview hosts can provide one through the typed host bridge.
+import { UnavailabilityError } from '@octane-xplat/lib/capability'
+import type { Service } from '@octane-xplat/lib/capability'
 import { desktopHost } from '@octane-xplat/platform/host/web'
-import type { Capability, SecureStore } from './types'
+import type { SecureStore } from './types'
+
+const unavailable = () => Promise.reject(new UnavailabilityError('secureStorage'))
 
 const hostStore: SecureStore = {
-	get: (key) => desktopHost()?.secureStorage.get(key) ?? Promise.resolve(null),
-	set: (key, value) => desktopHost()?.secureStorage.set(key, value) ?? Promise.resolve(false),
-	remove: (key) => desktopHost()?.secureStorage.remove(key) ?? Promise.resolve(false),
+	get: (key) => desktopHost()?.secureStorage.get(key) ?? unavailable(),
+	set: (key, value) => desktopHost()?.secureStorage.set(key, value) ?? unavailable(),
+	remove: (key) => desktopHost()?.secureStorage.remove(key) ?? unavailable(),
 }
 
-export const secureStorage: Capability<SecureStore> = {
+export const secureStorage: Service<SecureStore> = {
 	get supported() {
 		return desktopHost() !== null
 	},
-	async ensure() {
+	async isAvailable() {
 		const host = desktopHost()
-		return host && (await host.supports('secureStorage', 'get')) ? 'granted' : 'unsupported'
+		return host !== null && (await host.supports('secureStorage', 'get'))
 	},
-	get impl() {
-		return desktopHost() ? hostStore : null
-	},
+	get: (key) => hostStore.get(key),
+	set: (key, value) => hostStore.set(key, value),
+	remove: (key) => hostStore.remove(key),
 }

@@ -54,27 +54,31 @@ const dependencies = [
 const consumers = {
 	web: `import { secureStorage } from '@octane-xplat/secure-storage'
 const supported: boolean = secureStorage.supported
-const value = secureStorage.impl?.get('key')
-const write = secureStorage.impl?.set('key', 'value')
+const available: Promise<boolean> = secureStorage.isAvailable()
+const value = secureStorage.get('key')
+const write = secureStorage.set('key', 'value')
 void supported
+void available
 void value
 void write
 `,
 	native: `import { secureStorage } from '@octane-xplat/secure-storage'
 const supported: boolean = secureStorage.supported
-const value = secureStorage.impl?.get('key')
-const write = secureStorage.impl?.set('key', 'value')
+const available: Promise<boolean> = secureStorage.isAvailable()
+const value = secureStorage.get('key')
+const write = secureStorage.set('key', 'value')
 void supported
+void available
 void value
 void write
 `,
 	macos: `import { secureStorage } from '@octane-xplat/secure-storage'
 const supported: boolean = secureStorage.supported
-const value = secureStorage.impl?.get('key')
-const write: Promise<boolean> | undefined = secureStorage.impl?.set('key', 'value')
-const read: Promise<string | null> | undefined = value
-const remove: Promise<boolean> | undefined = secureStorage.impl?.remove('key')
-const permission: Promise<'granted' | 'denied' | 'unsupported'> = secureStorage.ensure()
+const available: Promise<boolean> = secureStorage.isAvailable()
+const value: Promise<string | null> = secureStorage.get('key')
+const read: Promise<string | null> = value
+const write: Promise<boolean> = secureStorage.set('key', 'value')
+const remove: Promise<boolean> = secureStorage.remove('key')
 void supported
 void read
 void write

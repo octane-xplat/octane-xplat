@@ -60,6 +60,7 @@
 	},
 	"dependencies": {
 		"@nativescript/secure-storage": "4.0.2",
+		"@octane-xplat/lib": "workspace:*",
 		"@octane-xplat/platform": "workspace:*"
 	},
 	"devDependencies": {

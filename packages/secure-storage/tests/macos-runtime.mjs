@@ -128,14 +128,14 @@ try {
 
 	const setup = `
 console.log('KEYCHAIN_STAGE_START');
-const secretStore = exports.secureStorage.impl;
+const secretStore = exports.secureStorage;
 const keys = ${JSON.stringify(keys)};
 function check(ok) { if (!ok) throw Error('Keychain fixture failed'); }
 `
 
 	host(`${setup}
 (async () => {
-check(exports.secureStorage.supported && await exports.secureStorage.ensure() === 'granted');
+check(exports.secureStorage.supported && await exports.secureStorage.isAvailable());
 console.log('KEYCHAIN_STAGE_AVAILABLE');
 check(await secretStore.get(keys[0]) === null);
 console.log('KEYCHAIN_STAGE_MISSING');
@@ -232,7 +232,7 @@ setTimeout(() => __xplatStopHost(), 0);
 					`
 (async () => {
 for (const key of ${JSON.stringify(keys)}) {
-if (!await exports.secureStorage.impl.remove(key)) throw Error('Keychain cleanup failed');
+if (!await exports.secureStorage.remove(key)) throw Error('Keychain cleanup failed');
 }
 console.log('KEYCHAIN_OK');
 setTimeout(() => __xplatStopHost(), 0);
