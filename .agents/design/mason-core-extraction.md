@@ -651,3 +651,24 @@ Earlier paragraphs describing engine selection as opt-in (`selectMasonEngine`,
 "defaults and production dependencies remain full") are superseded by this
 cutover. The upstream contribution goal and the moved-source discipline are
 unchanged.
+
+## Windows core host status (2026-10-27)
+
+The pinned desktop engine archives now include
+`x86_64-pc-windows-msvc/MasonCore.lib` and its flattened
+`include/mason_native.h` (Mason fork `0cdc3c80`), but that is
+cross-compilation plus declared-symbol evidence only — no Windows runtime
+qualification exists.
+
+A Windows core host — the container/layout/style/foreign-view subset of
+`src-native/windows/Mason` (C++/WinRT, linked against `MasonCore.lib`,
+scripted projections like the iOS host) — was scoped for extraction and
+end-to-end qualification through `@nativescript/windows`. Qualification could
+not run: the provisioned Windows lab host (`windy`) was unreachable, and a
+fallback UTM Windows VM on an Intel Mac stalled in WinPE before installing
+(the guest ignores `Autounattend.xml` on the setup ISO and could not be driven
+further without console access). The `mason-engine.ts` Windows rejection
+therefore stays: core keeps shipping no Windows host artifacts and windows
+profiles remain on full MasonKit until a real host qualifies the fixture —
+flex/grid layout, native text, resize, dynamic updates, scrolling,
+reparenting, cleanup, native geometry and real OS input.
