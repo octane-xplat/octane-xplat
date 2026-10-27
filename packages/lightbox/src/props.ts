@@ -68,6 +68,10 @@ export interface LightboxOptions<T extends LightboxMedia = LightboxMedia> {
 	triggerScroll?: 'smooth' | 'instant' | false
 	/** Open/close morph transition override (motion `Transition`). */
 	transition?: Transition
+	/** Internal: pre-shared trigger element registry used by `useLightbox` so
+	 *  triggers rendered outside the Root tree can still feed the morph.
+	 *  Element type is platform host (HTMLElement on web). */
+	triggers?: Map<number, Set<HostElement>>
 }
 
 /** Full-screen media viewer (Astryx `Lightbox`). Navigates a `media` array

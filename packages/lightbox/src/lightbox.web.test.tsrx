@@ -1,0 +1,157 @@
+/** @jsxImportSource octane/web */
+import { act, createRoot } from 'octane'
+import { describe, expect, it, vi } from 'vitest'
+import { Lightbox, useLightbox } from './index.web'
+import type { LightboxMedia } from './props'
+
+const media: LightboxMedia[] = [
+	{ src: 'a.jpg', alt: 'first', caption: 'Caption A' },
+	{ src: 'b.jpg', alt: 'second' },
+	{ src: 'c.jpg', alt: 'third' },
+]
+
+function mount(node: unknown) {
+	const container = document.createElement('div')
+	document.body.appendChild(container)
+	const root = createRoot(container)
+	act(() => root.render(node))
+	return {
+		container,
+		close: () => {
+			act(() => root.render(null))
+			container.remove()
+		},
+	}
+}
+
+const q = (s: string) => document.body.querySelector(s) as HTMLElement | null
+
+function Harness(props: { onOpenChange?: (o: boolean) => void; onIndexChange?: (i: number) => void }) {
+	const lb = useLightbox({ media, onIndexChange: props.onIndexChange })
+	return (
+		<div>
+			<button id="open-trigger" onClick={lb.getTriggerProps(1).onPress} ref={lb.getTriggerProps(1).ref as never}>
+				open
+			</button>
+			{lb.element}
+			<div id="open-flag">{String(lb.isOpen)}</div>
+		</div>
+	)
+}
+
+describe('lightbox web', () => {
+	it('useLightbox trigger opens the viewer', async () => {
+		const onIndexChange = vi.fn()
+		const m = mount(<Harness onIndexChange={onIndexChange} />)
+		expect(q('[data-phase]')).toBeNull()
+		act(() => (q('#open-trigger') as HTMLButtonElement).click())
+		expect(q('#open-flag')?.textContent).toBe('true')
+		await act(async () => {})
+		expect(q('[data-phase]')).toBeTruthy()
+		m.close()
+	})
+
+	it('controlled isOpen renders the dialog with phase classes', async () => {
+		const onOpenChange = vi.fn()
+		const m = mount(<Lightbox isOpen onOpenChange={onOpenChange} media={media} />)
+		await act(async () => {})
+		const popup = q('.vx-lightbox-popup')
+		expect(popup).toBeTruthy()
+		expect(popup?.getAttribute('data-phase')).toBe('opening')
+		expect(popup?.className).toContain('vx-lightbox-popup--opening')
+		expect(q('.vx-lightbox-shade')).toBeNull()
+		expect(popup?.closest('[data-vx-modal-layer]') ?? q('[data-vx-modal-layer]')).toBeTruthy()
+		// slides: n of m labels, non-current inert
+		const slides = document.body.querySelectorAll('[data-lightbox-slide]')
+		expect(slides).toHaveLength(3)
+		expect(slides[0]?.getAttribute('aria-label')).toBe('1 of 3')
+		expect(slides[1]?.getAttribute('inert')).not.toBeNull()
+		expect(slides[0]?.getAttribute('inert')).toBeNull()
+		m.close()
+	})
+
+	it('nav buttons, counter and caption render; prev disabled at start', async () => {
+		const m = mount(<Lightbox isOpen onOpenChange={() => {}} media={media} />)
+		await act(async () => {})
+		const counter = q('.vx-lightbox-counter')
+		expect(counter?.textContent?.trim()).toBe('1 of 3')
+		expect(q('.vx-lightbox-caption')?.textContent).toContain('Caption A')
+		const prev = q('.vx-lightbox-prev button, button.vx-lightbox-nav') ?? document.body.querySelectorAll('button')
+		const navs = [...document.body.querySelectorAll('.vx-lightbox-nav')]
+		expect((navs[0] as HTMLButtonElement).disabled).toBe(true)
+		expect((navs[1] as HTMLButtonElement).disabled).toBe(false)
+		m.close()
+	})
+
+	it('Next navigates and fires onIndexChange', async () => {
+		const onIndexChange = vi.fn()
+		const m = mount(<Lightbox isOpen onOpenChange={() => {}} media={media} onIndexChange={onIndexChange} />)
+		await act(async () => {})
+		const next = [...document.body.querySelectorAll('.vx-lightbox-nav')][1] as HTMLButtonElement
+		act(() => next.click())
+		expect(onIndexChange).toHaveBeenCalledWith(1)
+		const slides = document.body.querySelectorAll('[data-lightbox-slide]')
+		expect(slides[1]?.getAttribute('inert')).toBeNull()
+		m.close()
+	})
+
+	it('ArrowRight navigates', async () => {
+		const onIndexChange = vi.fn()
+		const m = mount(<Lightbox isOpen onOpenChange={() => {}} media={media} onIndexChange={onIndexChange} />)
+		await act(async () => {})
+		const popup = q('.vx-lightbox-popup')!
+		act(() => popup.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true })))
+		expect(onIndexChange).toHaveBeenCalledWith(1)
+		m.close()
+	})
+
+	it('Escape invokes onOpenChange(false) via the modal overlay', async () => {
+		const onOpenChange = vi.fn()
+		const m = mount(<Lightbox isOpen onOpenChange={onOpenChange} media={media} />)
+		await act(async () => {})
+		act(() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })))
+		// onOpenChange(false) fires after the close morph finishes.
+		await act(async () => { await new Promise((r) => setTimeout(r, 800)) })
+		expect(onOpenChange).toHaveBeenCalledWith(false)
+		m.close()
+	})
+
+	it('hasBackdropDismiss={false} keeps the viewer open on backdrop tap', async () => {
+		const onOpenChange = vi.fn()
+		const m = mount(<Lightbox isOpen onOpenChange={onOpenChange} media={media} hasBackdropDismiss={false} />)
+		await act(async () => {})
+		const popup = q('[data-phase]')!
+		// Tap the backdrop area via the image wrap's pointer path.
+		const wrap = document.body.querySelector('[data-lightbox-image]') as HTMLElement
+		if (wrap) {
+			const down = new PointerEvent('pointerdown', { bubbles: true, clientX: 0, clientY: 0 })
+			wrap.dispatchEvent(down)
+			wrap.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, clientX: 0, clientY: 0 }))
+			await act(async () => { await new Promise((r) => setTimeout(r, 400)) })
+		}
+		expect(q('[data-phase]')).toBeTruthy()
+		expect(onOpenChange).not.toHaveBeenCalledWith(false)
+		m.close()
+	})
+
+	it('video item renders a real <video> with autoplay only when hasAutoPlay', async () => {
+		const vids: LightboxMedia[] = [{ src: 'v.mp4', alt: 'clip', type: 'video' }]
+		const m = mount(<Lightbox isOpen onOpenChange={() => {}} media={vids} hasAutoPlay />)
+		await act(async () => {})
+		const video = q('video')
+		expect(video).toBeTruthy()
+		expect((video as HTMLVideoElement).autoplay ?? video?.hasAttribute('autoplay')).toBeTruthy()
+		m.close()
+
+		const m2 = mount(<Lightbox isOpen onOpenChange={() => {}} media={vids} />)
+		await act(async () => {})
+		const video2 = q('video') as HTMLVideoElement
+		expect(video2.hasAttribute('autoplay')).toBe(false)
+		m2.close()
+	})
+
+	it('native index placeholders throw', async () => {
+		const native = await import('./index.ts')
+		expect(() => (native as never as { useLightbox: () => void }).useLightbox()).toThrowError(/not implemented yet/)
+	})
+})
