@@ -206,14 +206,21 @@ export function createGestureMachine(env: MachineEnv): { send(intent: Intent): C
 							kind: 'track',
 							phase: 'end',
 							dx: intent.at.x - gesture.start.x,
-							vx: intent.velocity.x,
+							// upstream zeroes release velocity on cancellation (lightbox.tsx ~1162)
+							vx: intent.cancelled ? 0 : intent.velocity.x,
 							cancelled: intent.cancelled,
 						},
 					]
 				}
 				if (gesture.kind === 'dismiss') {return letGo(intent.at.y - gesture.start.y, intent.velocity, intent.cancelled)}
 				const t = env.transform()
-				return [{ kind: 'inertia', velocity: intent.velocity, bounds: bounds(t.scale) }]
+				return [
+					{
+						kind: 'inertia',
+						velocity: intent.cancelled ? { x: 0, y: 0 } : intent.velocity,
+						bounds: bounds(t.scale),
+					},
+				]
 			}
 			case 'pinchStart': {
 				if (!ready()) {

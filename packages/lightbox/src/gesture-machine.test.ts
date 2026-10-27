@@ -44,6 +44,25 @@ describe('gesture machine', () => {
 		expect(presence.value).toBeCloseTo(1 - 100 / 105)
 	})
 
+	it('cancelled panEnd zeroes track-end and inertia velocity', () => {
+		const { run } = make()
+		run(pan('panStart', { x: 100, y: 100 }, { pointer: 'touch' }))
+		run(pan('panMove', { x: 140, y: 100 }))
+		expect(run(pan('panEnd', { x: 160, y: 100 }, { velocity: { x: 900, y: 0 }, cancelled: true }))).toEqual([
+			{ kind: 'track', phase: 'end', dx: 60, vx: 0, cancelled: true },
+		])
+
+		const zoomed = make({}, { x: 0, y: 0, scale: 2 })
+		zoomed.run(pan('panStart', { x: 100, y: 100 }, { pointer: 'touch' }))
+		zoomed.run(pan('panMove', { x: 140, y: 130 }))
+		const out = zoomed.run(pan('panEnd', { x: 140, y: 130 }, { velocity: { x: 500, y: 300 }, cancelled: true }))
+		const inertia = out[0]!
+		expect(inertia.kind).toBe('inertia')
+		if (inertia.kind === 'inertia') {
+			expect(inertia.velocity).toEqual({ x: 0, y: 0 })
+		}
+	})
+
 	it('unzoomed horizontal goes to the track', () => {
 		const { run } = make()
 		run(pan('panStart', { x: 100, y: 100 }, { pointer: 'touch' }))
