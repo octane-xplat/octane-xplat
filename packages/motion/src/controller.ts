@@ -88,7 +88,7 @@ export class Controller {
 		if (
 			!reduced &&
 			!isOrchestrated(transition) &&
-			transition.type !== 'spring' &&
+			(transition.type ?? 'tween') === 'tween' &&
 			(transition.duration ?? 0.3) > 0 &&
 			(transition.repeat ?? 0) === 0 &&
 			isBezierEase(transition.ease) &&

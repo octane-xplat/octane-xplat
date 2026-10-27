@@ -111,7 +111,9 @@ export class MotionValue {
 		this.current = value
 		this.updated = now
 	}
-	/** Animate to a destination. New playback replaces old playback. */
+	/** Animate to a destination. New playback replaces old playback.
+	 *  `type: 'inertia'` ignores `target` — pass `value.get()` and steer with
+	 *  `velocity`, `power`, `timeConstant`, `min`, `max`. */
 	animate(
 		target: number,
 		transition: Transition = {},

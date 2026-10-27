@@ -5,6 +5,14 @@ Declarative numeric motion for Octane UI on web, iOS, Android, and the experimen
 and `transition`, or `drag` with numeric translation bounds. Bound motion
 values update hosts without rendering each frame.
 
+Imperative `MotionValue.animate` also accepts `type: 'inertia'` for
+velocity-driven release (upstream drag semantics): the `target` argument is
+ignored, so pass `value.get()`.
+
+```ts
+x.animate(x.get(), { type: 'inertia', velocity: vx, min, max, power: 0.5, timeConstant: 280 })
+```
+
 ```sh
 pnpm add @octane-xplat/motion
 ```

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { spring } from 'motion-dom'
+import { inertia, spring } from 'motion-dom'
 import { runAnimation } from './engine'
 import { MotionValue } from './value'
 import { Controller } from './controller'
@@ -221,5 +221,197 @@ describe('upstream-shaped transitions', () => {
 		expect(() => runAnimation(time.clock, 0, 1, { duration: 1, repeat: 1.5 }, () => {})).toThrow(
 			'repeat',
 		)
+	})
+})
+
+describe('inertia transitions', () => {
+	const spec = {
+		type: 'inertia',
+		velocity: 800,
+		power: 0.5,
+		timeConstant: 280,
+		min: -200,
+		max: 500,
+		bounceStiffness: 360,
+		bounceDamping: 36,
+		restDelta: 0.5,
+	} as const
+
+	it('matches upstream inertia samples at irregular frame intervals', () => {
+		const time = fakeClock()
+		let value = 0
+		const reference = inertia({ keyframes: [0], ...spec })
+		runAnimation(time.clock, 0, 999, spec, (next) => {
+			value = next
+		})
+
+		let elapsed = 0
+		for (const dt of [8, 16, 34, 5, 100, 40, 10000]) {
+			elapsed += dt
+			time.advance(dt)
+			const expected = reference.next(elapsed)
+			expect(value).toBeCloseTo(expected.value)
+			if (expected.done) {
+				break
+			}
+		}
+	})
+
+	it('ends on the bound when release velocity overshoots', async () => {
+		const time = fakeClock()
+		let value = 0
+		const controls = runAnimation(
+			time.clock,
+			0,
+			0,
+			{ ...spec, velocity: 5000, restDelta: 0.5 },
+			(next) => {
+				value = next
+			},
+		)
+
+		for (let i = 0; i < 1000; i++) {
+			time.advance(16)
+			if (await Promise.race([controls.finished.then(() => true), Promise.resolve(false)])) {
+				break
+			}
+		}
+
+		expect(await controls.finished).toBe('finished')
+		expect(Math.abs(value - 500)).toBeLessThanOrEqual(0.5)
+	})
+
+	it('writes the generator resting value, not the to argument', async () => {
+		const time = fakeClock()
+		let value = 0
+		const controls = runAnimation(time.clock, 0, 777, { ...spec, velocity: 300 }, (next) => {
+			value = next
+		})
+
+		for (let i = 0; i < 2000; i++) {
+			time.advance(16)
+			if (await Promise.race([controls.finished.then(() => true), Promise.resolve(false)])) {
+				break
+			}
+		}
+
+		expect(await controls.finished).toBe('finished')
+		expect(value).not.toBe(777)
+	})
+
+	it.each([
+		[{ type: 'inertia', ease: 'linear' }, 'ease'],
+		[{ type: 'inertia', duration: 1 }, 'duration'],
+		[{ type: 'inertia', bounce: 0.2 }, 'bounce'],
+		[{ type: 'inertia', stiffness: 100 }, 'stiffness'],
+		[{ type: 'inertia', damping: 10 }, 'damping'],
+		[{ type: 'inertia', mass: 1 }, 'mass'],
+		[{ type: 'inertia', repeat: 1 }, 'repeat'],
+		[{ power: 0.5 }, 'requires an inertia'],
+		[{ min: 0 }, 'requires an inertia'],
+		[{ bounceStiffness: 100 }, 'requires an inertia'],
+		[{ type: 'inertia', timeConstant: 0 }, 'positive'],
+		[{ type: 'inertia', bounceDamping: 0 }, 'positive'],
+		[{ type: 'inertia', power: -1 }, 'invalid power'],
+		[{ type: 'inertia', min: 10, max: 5 }, 'min'],
+	] as const)('rejects %o with %s', (transition, pattern) => {
+		const time = fakeClock()
+		expect(() => runAnimation(time.clock, 0, 1, transition as any, () => {})).toThrow(pattern)
+	})
+})
+
+describe('inertia transitions', () => {
+	const spec = {
+		type: 'inertia',
+		velocity: 800,
+		power: 0.5,
+		timeConstant: 280,
+		min: -200,
+		max: 500,
+		bounceStiffness: 360,
+		bounceDamping: 36,
+		restDelta: 0.5,
+	} as const
+
+	it('matches upstream inertia samples at irregular frame intervals', () => {
+		const time = fakeClock()
+		let value = 0
+		const reference = inertia({ keyframes: [0], ...spec })
+		runAnimation(time.clock, 0, 999, spec, (next) => {
+			value = next
+		})
+
+		let elapsed = 0
+		for (const dt of [8, 16, 34, 5, 100, 40, 10000]) {
+			elapsed += dt
+			time.advance(dt)
+			const expected = reference.next(elapsed)
+			expect(value).toBeCloseTo(expected.value)
+			if (expected.done) {
+				break
+			}
+		}
+	})
+
+	it('ends on the bound when release velocity overshoots', async () => {
+		const time = fakeClock()
+		let value = 0
+		const controls = runAnimation(
+			time.clock,
+			0,
+			0,
+			{ ...spec, velocity: 5000, restDelta: 0.5 },
+			(next) => {
+				value = next
+			},
+		)
+
+		for (let i = 0; i < 1000; i++) {
+			time.advance(16)
+			if (await Promise.race([controls.finished.then(() => true), Promise.resolve(false)])) {
+				break
+			}
+		}
+
+		expect(await controls.finished).toBe('finished')
+		expect(Math.abs(value - 500)).toBeLessThanOrEqual(0.5)
+	})
+
+	it('writes the generator resting value, not the to argument', async () => {
+		const time = fakeClock()
+		let value = 0
+		const controls = runAnimation(time.clock, 0, 777, { ...spec, velocity: 300 }, (next) => {
+			value = next
+		})
+
+		for (let i = 0; i < 2000; i++) {
+			time.advance(16)
+			if (await Promise.race([controls.finished.then(() => true), Promise.resolve(false)])) {
+				break
+			}
+		}
+
+		expect(await controls.finished).toBe('finished')
+		expect(value).not.toBe(777)
+	})
+
+	it.each([
+		[{ type: 'inertia', ease: 'linear' }, 'ease'],
+		[{ type: 'inertia', duration: 1 }, 'duration'],
+		[{ type: 'inertia', bounce: 0.2 }, 'bounce'],
+		[{ type: 'inertia', stiffness: 100 }, 'stiffness'],
+		[{ type: 'inertia', damping: 10 }, 'damping'],
+		[{ type: 'inertia', mass: 1 }, 'mass'],
+		[{ type: 'inertia', repeat: 1 }, 'repeat'],
+		[{ power: 0.5 }, 'requires an inertia'],
+		[{ min: 0 }, 'requires an inertia'],
+		[{ bounceStiffness: 100 }, 'requires an inertia'],
+		[{ type: 'inertia', timeConstant: 0 }, 'positive'],
+		[{ type: 'inertia', bounceDamping: 0 }, 'positive'],
+		[{ type: 'inertia', power: -1 }, 'invalid power'],
+		[{ type: 'inertia', min: 10, max: 5 }, 'min'],
+	] as const)('rejects %o with %s', (transition, pattern) => {
+		const time = fakeClock()
+		expect(() => runAnimation(time.clock, 0, 1, transition as any, () => {})).toThrow(pattern)
 	})
 })

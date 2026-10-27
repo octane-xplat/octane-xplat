@@ -36,7 +36,7 @@ export interface ChildOrchestration {
 
 /** Timing is seconds. Spring velocity is units per second. */
 export interface Transition extends ChildOrchestration {
-	type?: 'tween' | 'spring'
+	type?: 'tween' | 'spring' | 'inertia'
 	/** Tween duration; on springs this is the visual duration (combine with bounce). */
 	duration?: number
 	delay?: number
@@ -53,6 +53,18 @@ export interface Transition extends ChildOrchestration {
 	velocity?: number
 	restSpeed?: number
 	restDelta?: number
+	/** Inertia only: how far release velocity travels (default 0.8). */
+	power?: number
+	/** Inertia only: decay time constant in ms (default 700). */
+	timeConstant?: number
+	/** Inertia only: lower bound; overshoot bounces back. */
+	min?: number
+	/** Inertia only: upper bound; overshoot bounces back. */
+	max?: number
+	/** Inertia only: stiffness of the bounce-back spring at a bound. */
+	bounceStiffness?: number
+	/** Inertia only: damping of the bounce-back spring at a bound. */
+	bounceDamping?: number
 }
 
 /** Per-channel transition overrides, upstream form: `{x: {…}, default: {…}}`. */

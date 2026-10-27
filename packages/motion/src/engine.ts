@@ -1,4 +1,4 @@
-import { keyframes, spring } from 'motion-dom'
+import { inertia, keyframes, spring } from 'motion-dom'
 import type { Clock } from './clock-types.js'
 import type {
 	Transition,
@@ -71,6 +71,12 @@ export function validateTransition(t: Transition): void {
 		'velocity',
 		'restSpeed',
 		'restDelta',
+		'power',
+		'timeConstant',
+		'min',
+		'max',
+		'bounceStiffness',
+		'bounceDamping',
 	]
 
 	for (const key of Object.keys(t)) {
@@ -83,8 +89,26 @@ export function validateTransition(t: Transition): void {
 		throw new Error('motion: unsupported when')
 	}
 
-	if (t.type !== undefined && t.type !== 'tween' && t.type !== 'spring') {
+	if (t.type !== undefined && t.type !== 'tween' && t.type !== 'spring' && t.type !== 'inertia') {
 		throw new Error('motion: unsupported transition type')
+	}
+
+	if (t.type === 'inertia') {
+		for (const key of ['ease', 'duration', 'bounce', 'stiffness', 'damping', 'mass'] as const) {
+			if (t[key] !== undefined) {
+				throw new Error(`motion: inertia transitions do not accept ${key}`)
+			}
+		}
+
+		if ((t.repeat ?? 0) > 0) {
+			throw new Error('motion: inertia transitions do not accept repeat')
+		}
+	} else {
+		for (const key of ['power', 'timeConstant', 'min', 'max', 'bounceStiffness', 'bounceDamping'] as const) {
+			if (t[key] !== undefined) {
+				throw new Error(`motion: ${key} requires an inertia transition`)
+			}
+		}
 	}
 
 	for (const key of [
@@ -100,9 +124,18 @@ export function validateTransition(t: Transition): void {
 		'velocity',
 		'restSpeed',
 		'restDelta',
+		'power',
+		'timeConstant',
+		'min',
+		'max',
+		'bounceStiffness',
+		'bounceDamping',
 	] as const) {
 		const value = t[key]
-		if (value !== undefined && (!Number.isFinite(value) || (key !== 'velocity' && value < 0))) {
+		if (
+			value !== undefined &&
+			(!Number.isFinite(value) || (key !== 'velocity' && key !== 'min' && key !== 'max' && value < 0))
+		) {
 			throw new Error(`motion: invalid ${key}`)
 		}
 	}
@@ -118,10 +151,23 @@ export function validateTransition(t: Transition): void {
 		throw new Error('motion: unsupported repeatType')
 	}
 
-	for (const key of ['mass', 'stiffness', 'damping', 'restSpeed', 'restDelta'] as const) {
+	for (const key of [
+		'mass',
+		'stiffness',
+		'damping',
+		'restSpeed',
+		'restDelta',
+		'timeConstant',
+		'bounceStiffness',
+		'bounceDamping',
+	] as const) {
 		if (t[key] === 0) {
 			throw new Error(`motion: ${key} must be positive`)
 		}
+	}
+
+	if (t.min !== undefined && t.max !== undefined && t.min > t.max) {
+		throw new Error('motion: min must be less than or equal to max')
 	}
 
 	if (t.ease !== undefined) {
@@ -211,7 +257,20 @@ export function runAnimation(
 	const repeatDelay = (transition.repeatDelay ?? 0) * 1000
 
 	const makeGenerator = (legFrom: number, legTo: number) =>
-		transition.type === 'spring'
+		transition.type === 'inertia'
+			? inertia({
+					keyframes: [legFrom],
+					velocity: transition.velocity ?? 0,
+					power: transition.power,
+					timeConstant: transition.timeConstant,
+					min: transition.min,
+					max: transition.max,
+					bounceStiffness: transition.bounceStiffness,
+					bounceDamping: transition.bounceDamping,
+					restDelta: transition.restDelta,
+					restSpeed: transition.restSpeed,
+				})
+			: transition.type === 'spring'
 			? spring({
 					keyframes: [legFrom, legTo],
 					stiffness: transition.stiffness ?? 100,
@@ -247,7 +306,9 @@ export function runAnimation(
 
 		const elapsed = Math.max(0, now - legStart)
 		const state = generator.next(elapsed)
-		const legEnd = repeatType === 'loop' || leg % 2 === 0 ? to : from
+		// Inertia ignores `to` — the generator's resting value is the destination.
+		const legEnd =
+			transition.type === 'inertia' ? state.value : repeatType === 'loop' || leg % 2 === 0 ? to : from
 		update(state.done ? legEnd : state.value)
 		if (state.done) {
 			if (leg < repeat) {
@@ -270,7 +331,13 @@ export function runAnimation(
 		}
 	}
 
-	if (transition.type !== 'spring' && duration === 0 && !transition.delay && repeat === 0) {
+	if (
+		transition.type !== 'spring' &&
+		transition.type !== 'inertia' &&
+		duration === 0 &&
+		!transition.delay &&
+		repeat === 0
+	) {
 		update(to)
 		settle('finished')
 	} else {
