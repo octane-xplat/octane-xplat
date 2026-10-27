@@ -21,11 +21,12 @@ test('long single-line child output is forwarded intact on one prefixed line', (
 	const dir = root(t)
 	const payload = 'x'.repeat(200_000)
 	const script = join(dir, 'run.mjs')
+	writeFileSync(join(dir, 'payload.txt'), payload)
 	writeFileSync(
 		script,
 		`import { spawnTagged } from ${JSON.stringify(procs)};
 const child = spawnTagged('fixture', process.execPath, ['-e', ${JSON.stringify(
-			`process.stdout.write(${JSON.stringify(payload)} + '\\nok\\n')`,
+			`process.stdout.write(require('node:fs').readFileSync('payload.txt', 'utf8') + String.fromCharCode(10) + 'ok' + String.fromCharCode(10))`,
 		)}], ${JSON.stringify(dir)});
 child.once('close', () => process.exit(0));
 `,
