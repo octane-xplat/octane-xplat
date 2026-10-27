@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { act, createRoot } from 'octane'
 import { afterEach, expect, it, vi } from 'vitest'
 import { InternationalizationProvider } from './InternationalizationProvider.web.tsrx'
