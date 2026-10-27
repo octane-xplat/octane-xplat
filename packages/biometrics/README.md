@@ -13,30 +13,32 @@ a registered credential and an authentication ceremony.
 ```ts
 import { biometrics } from '@octane-xplat/biometrics'
 
-if ((await biometrics.ensure()) === 'granted') {
-	const ok = await biometrics.impl!.verify('Unlock your saved trips')
+if ((await biometrics.requestPermissions()).granted) {
+	const ok = await biometrics.verify('Unlock your saved trips')
 }
 ```
 
-The shared capability contract: `supported` reports whether an
+The shared service contract: `supported` reports whether an
 implementation exists on this target — branch on it rather than catching —
-`ensure()` resolves `'granted' | 'denied' | 'unsupported'`, and `impl` is
-the service once usable. `verify(reason)` resolves `false` for a declined
+`getPermissions()`/`requestPermissions()` resolve
+`{status: 'granted' | 'denied' | 'unsupported', granted, canAskAgain}`.
+`verify(reason)` resolves `false` for a declined
 or failed prompt rather than throwing.
 
 On macOS, availability checks do not open a prompt. Missing hardware,
 enrollment, pairing, or a connected sensor returns `unsupported`; lockout
 or an interaction restriction returns `denied`. A host without the Objective-C
-LocalAuthentication bridge reports `supported: false` and `impl: null`.
+LocalAuthentication bridge reports `supported: false` and `verify()` rejects
+`UnavailabilityError`.
 Verification uses biometrics only, hides password fallback, and returns
 `false` on cancellation, failure, or an overlapping prompt.
 
 ```ts
 import { biometrics } from '@octane-xplat/biometrics'
 
-const availability = await biometrics.ensure()
-if (availability === 'granted') {
-	const verified = await biometrics.impl!.verify('Unlock your saved trips')
+const availability = await biometrics.requestPermissions()
+if (availability.granted) {
+	const verified = await biometrics.verify('Unlock your saved trips')
 	console.log(verified ? 'Unlocked' : 'Still locked')
 }
 ```

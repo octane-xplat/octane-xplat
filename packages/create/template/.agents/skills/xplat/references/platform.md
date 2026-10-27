@@ -32,12 +32,12 @@ import { Pressable, Text } from '@octane-xplat/ui'
 export function UnlockTrip() {
   const [message, setMessage] = useState('Unlock trip')
   return <Pressable onPress={async () => {
-    const status = await biometrics.ensure()
-    if (status !== 'granted' || !biometrics.impl) {
+    const status = await biometrics.requestPermissions()
+    if (!status.granted) {
       setMessage('Use your password instead')
       return
     }
-    const verified = await biometrics.impl.verify('Unlock your trip')
+    const verified = await biometrics.verify('Unlock your trip')
     setMessage(verified ? 'Unlocked' : 'Try again')
   }}><Text>{message}</Text></Pressable>
 }

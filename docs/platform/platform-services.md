@@ -174,15 +174,15 @@ Use it from a setup function or event handler:
 import { secureStorage } from '@octane-xplat/secure-storage'
 
 async function rememberSession(token: string): Promise<boolean> {
-	if ((await secureStorage.ensure()) !== 'granted' || !secureStorage.impl) return false
+	if (!secureStorage.supported || !(await secureStorage.isAvailable())) return false
 
-	return secureStorage.impl.set('session-token', token)
+	return secureStorage.set('session-token', token)
 }
 
 async function restoreSession(): Promise<string | null> {
-	if ((await secureStorage.ensure()) !== 'granted' || !secureStorage.impl) return null
+	if (!secureStorage.supported || !(await secureStorage.isAvailable())) return null
 	try {
-		return await secureStorage.impl.get('session-token')
+		return await secureStorage.get('session-token')
 	} catch {
 		// Tell the user that restoring the session failed; do not log the error.
 
@@ -191,9 +191,9 @@ async function restoreSession(): Promise<string | null> {
 }
 
 async function forgetSession(): Promise<boolean> {
-	if ((await secureStorage.ensure()) !== 'granted' || !secureStorage.impl) return false
+	if (!secureStorage.supported || !(await secureStorage.isAvailable())) return false
 
-	return secureStorage.impl.remove('session-token')
+	return secureStorage.remove('session-token')
 }
 ```
 
@@ -207,7 +207,7 @@ unsupported; keep the session in memory or require sign-in again.
 On macOS AppKit, the existing [native leaf workflow](macos-native.md#prepare-the-app)
 compiles and loads this package's Keychain implementation. Keep the packaged app's
 bundle identifier stable. Development entries are scoped to the app's working
-directory and separate from packaged entries. `ensure()` reports implementation
+directory and separate from packaged entries. `isAvailable()` reports implementation
 availability; locked Keychains or access policies can still make operations fail.
 The leaf does not open authentication prompts. See the
 [leaf's macOS contract](../../packages/secure-storage/README.md#macos-appkit) for return
@@ -371,21 +371,23 @@ JavaScript runtime (Annotation 2).
 
 `media` owns the `camera` and `photos` permission requests for still capture
 and image picking. Live-preview permission belongs to `@octane-xplat/camera`,
-which requests it when `CameraView` starts. `permissions.ensure(kind)`
-delegates to the owning service for notifications, media, and location rather
-than maintaining a second set of probes. On web, `ensure('camera')` reports
-the file-input capture capability — `granted` wherever the DOM exists —
-without querying or prompting; starting `CameraView` instead uses
+which requests it when `CameraView` starts. `permissions.getPermissions(kind)`
+and `permissions.requestPermissions(kind)` delegate to the owning service for
+notifications, media, and location rather than maintaining a second set of
+probes — get never prompts, request may. On web, `requestPermissions('camera')`
+reports the file-input capture capability — `granted` wherever the DOM
+exists — without querying or prompting; starting `CameraView` instead uses
 `getUserMedia` to request access for the preview.
 
 ```ts
 import { media } from '@octane-xplat/media'
 
-// Web ensure('camera') reports 'granted' — the file-input path needs no
-// browser permission — so the denial gate only binds on native leaves.
+// Web requestPermissions('camera') reports 'granted' — the file-input path
+// needs no browser permission — so the denial gate only binds on native
+// leaves.
 export async function webCapture() {
-	const status = await media.ensure('camera')
-	if (status === 'denied') return null
+	const status = await media.requestPermissions('camera')
+	if (status.status === 'denied') return null
 
 	return media.capturePhoto()
 }
@@ -395,8 +397,8 @@ export async function webCapture() {
 import { permissions } from '@octane-xplat/platform'
 import { media } from '@octane-xplat/media'
 
-console.log(await media.ensure('photos'))
-console.log(await permissions.ensure('camera')) // web: reports capture capability without prompting
+console.log(await media.requestPermissions('photos'))
+console.log(await permissions.requestPermissions('camera')) // web: reports capture capability without prompting
 ```
 
 `files.writeText(name, text)` writes a file on native. On web, it starts a
@@ -515,7 +517,7 @@ On macOS AppKit, offer the normal file picker directly from a button. It reads
 only selected files and returns app-owned temporary JPEGs with the original
 pixel dimensions and aspect ratio. No Photos browsing
 or broad photo-library permission is requested. The picker does not depend on
-`ensure('photos')`, which still reports `unsupported` on this target.
+`requestPermissions('photos')`, which still reports `unsupported` on this target.
 
 ```ts
 import { media } from '@octane-xplat/media'
@@ -545,8 +547,8 @@ plugin. Do not add another image-picker pod declaration to the app Podfile.
 import { media } from '@octane-xplat/media'
 import { files } from '@octane-xplat/files'
 
-const permission = await media.ensure('camera')
-if (permission === 'granted') {
+const permission = await media.requestPermissions('camera')
+if (permission.granted) {
 	const image = await media.capturePhoto({ saveToGallery: false })
 	if (image) {
 		try {
@@ -567,7 +569,7 @@ reference after its consumers finish; release the current reference at owner
 teardown. Do not delete a gallery original or arbitrary user-owned file.
 Single selection returns `null` on cancel, multiple selection returns `[]`,
 and capture returns `null` on denial, cancellation, absence or a native capture
-failure. `ensure('camera')` distinguishes permission/availability before capture;
+failure. `requestPermissions('camera')` distinguishes permission/availability before capture;
 a granted result alone does not prove the OS capture flow will succeed.
 Picker/conversion failures can reject: catch them and retain the prior selection.
 Failed browser reads allocate no preview URL, and a failed native conversion
@@ -593,7 +595,7 @@ export async function readSelection() {
 }
 ```
 
-On web, `ensure('camera')` neither queries nor requests camera access — the
+On web, `requestPermissions('camera')` neither queries nor requests camera access — the
 file-input capture flow needs no browser permission, so the leaf reports
 `granted` wherever the DOM exists and `unsupported` only without one.
 Desktop browsers may open a file picker instead of a camera. Successful picks
@@ -617,15 +619,15 @@ dimensions and file-byte round-trips without displaying an image.
 
 ### AppKit still photos
 
-On AppKit, `ensure('camera')` only queries permission. An undecided status
-returns `unsupported`; call capture directly from a user action to offer the
-sheet before authorization. Checking permission never opens an OS prompt.
+On AppKit, `getPermissions('camera')` only queries permission. An undecided
+status returns `unsupported`; call capture directly from a user action to offer
+the sheet before authorization. Checking permission never opens an OS prompt.
 
 ```ts
 import { media } from '@octane-xplat/media'
 
 export async function cameraPermissionAlreadyGranted() {
-	return (await media.ensure('camera')) === 'granted'
+	return (await media.getPermissions('camera')).granted
 }
 ```
 
@@ -715,11 +717,11 @@ import { webAuthn, authSession } from '@octane-xplat/platform'
 
 export async function signIn(options: WebAuthnGetOptionsJSON, signInUrl: string) {
 	if (webAuthn.supported) {
-		const credential = await webAuthn.impl?.get(options)
+		const credential = await webAuthn.get(options)
 		// post credential to the RP's verify endpoint
 	} else if (authSession.supported) {
-		const result = await authSession.impl?.open(signInUrl, { callbackScheme: 'myapp' })
-		if (result?.type === 'success') {
+		const result = await authSession.open(signInUrl, { callbackScheme: 'myapp' })
+		if (result.type === 'success') {
 			// Validate the callback and finish the app-owned sign-in exchange.
 		}
 	}
@@ -753,8 +755,8 @@ const result = await auth.signIn()
 import { authSession } from '@octane-xplat/platform'
 
 export async function hostedSignIn(url: string) {
-	const result = await authSession.impl?.open(url, { callbackScheme: 'sample' })
-	if (!result) return 'unavailable'
+	if (!authSession.supported) return 'unavailable'
+	const result = await authSession.open(url, { callbackScheme: 'sample' })
 	if (result.type === 'error') {
 		console.log(result.message)
 
@@ -777,10 +779,13 @@ asks the iOS/macOS browser for a session without shared cookies.
 import { authSession } from '@octane-xplat/platform'
 
 // Android: register sample://auth/callback in the activity's intent filter.
-const result = await authSession.impl?.open('https://example.com/authorize', {
-	callbackScheme: 'sample',
-	prefersEphemeralSession: true,
-})
+// Guard on supported — on web this call rejects with UnavailabilityError.
+if (authSession.supported) {
+	const result = await authSession.open('https://example.com/authorize', {
+		callbackScheme: 'sample',
+		prefersEphemeralSession: true,
+	})
+}
 ```
 
 ### Register and check a hosted callback
@@ -801,7 +806,7 @@ Keep the activity's `singleTask` launch mode so the active ceremony receives
 ```
 
 Use a fresh server-issued state and a short-lived, one-time exchange code for
-every attempt. After `authSession.impl.open` returns `success`, send the URL to
+every attempt. After `authSession.open` returns `success`, send the URL to
 your backend for validation and redemption; receiving a URL on the requested
 scheme does not authenticate the user. The maintained
 [server exchange example](../../examples/auth/README.md) rejects wrong callback
@@ -818,8 +823,9 @@ export async function exchange(
 	redeem: (attempt: string, callbackUrl: string) => Promise<void>,
 ) {
 	const { url, attempt } = await begin()
-	const result = await authSession.impl?.open(url, { callbackScheme: 'sample' })
-	if (result?.type === 'success') await redeem(attempt, result.url)
+	if (!authSession.supported) return
+	const result = await authSession.open(url, { callbackScheme: 'sample' })
+	if (result.type === 'success') await redeem(attempt, result.url)
 }
 ```
 
@@ -835,8 +841,8 @@ To check the integration on a configured app:
 3. Attempt a second `open` while the first is active. Expect `error`; finishing
    the first must allow a retry. Browser launch failure and iOS/macOS native session
    construction/start failure also return `error`, releasing the active slot.
-4. On web, expect `authSession.supported === false` and `impl === null`; use
-   `webAuthn` or ordinary navigation. Catch web credential rejection and handle
+4. On web, expect `authSession.supported === false` and `open()` to reject
+   `UnavailabilityError`; use `webAuthn` or ordinary navigation. Catch web credential rejection and handle
    a null credential before posting to your RP.
 
 `node --test packages/platform/tests/auth-session.test.mjs` exercises adapter
@@ -1019,14 +1025,15 @@ plugin.
 ## Optional capabilities
 
 Some features are not available everywhere. Check support and ask for access
-before using the implementation:
+before using the implementation. `getPermissions` reads the current state
+without prompting; `requestPermissions` may show the platform prompt:
 
 ```ts
 import { permissions } from '@octane-xplat/platform'
 
-const result = await permissions.ensure('camera')
-if (result === 'granted') console.log('start camera')
-else console.log('camera unavailable')
+const result = await permissions.requestPermissions('camera')
+if (result.granted) console.log('start camera')
+else console.log(`camera unavailable: ${result.status}`) // 'denied' | 'undetermined' | 'unsupported'
 ```
 
 Your screen should show a useful fallback when a capability is unavailable or
@@ -1117,10 +1124,11 @@ open a database when you need queries, joins, or migrations.
 
 ## Interface shapes
 
-The shared contracts are deliberately small and platform-neutral — each
-optional service may expose a `Capability` object (`supported`, `ensure`,
-`impl`), while direct services such as `storage` and `connectivity` expose
-methods directly. Exact signatures live in the owning package: `ConnectivityImpl` in
+The shared contracts are deliberately small and platform-neutral — services
+expose their methods directly, optional capabilities add `supported`,
+`isAvailable()`, and a `getPermissions()`/`requestPermissions()` pair, and
+calling a method on an absent capability rejects `UnavailabilityError`.
+Exact signatures live in the owning package: `ConnectivityImpl` in
 `@octane-xplat/platform`, `GeolocationImpl` in `@octane-xplat/geolocation`, and
 `MediaImpl` in `@octane-xplat/media`. For example,
 `connectivity.getState()` returns `{ online, type }` where `type` is

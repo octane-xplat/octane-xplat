@@ -42,7 +42,7 @@ export function Status() {
 | share                  | `navigator.share`/`clipboard`                           | native share sheet (`SocialShare` plugin); macOS AppKit share picker via the host bridge | `@octane-xplat/share` leaf — moved out of `platform` (#72)                                                                                          |
 | clipboard              | `navigator.clipboard`                                   | `Utils.copyToClipboard` + `ClipboardManager`/`UIPasteboard` via core                     | permission model differs                                                                                                                            |
 | notifications          | Notification API / push                                 | local+push plugins, APNs/FCM setup                                                       | `@octane-xplat/notifications` leaf for local delivery (#72); push stays app-level                                                                   |
-| permissions            | implicit/feature-detect                                 | runtime permission flows                                                                 | `permissions.ensure(kind)` dispatches to owners registered by the leaves via `__xplatPermissionOwners` (#72)                                        |
+| permissions            | implicit/feature-detect                                 | runtime permission flows                                                                 | `permissions.getPermissions(kind)`/`requestPermissions(kind)` dispatch to owners registered by the leaves via `__xplatPermissionOwners` (#72)                                        |
 | device info            | UA/`navigator`                                          | `Device` (os, version, type, region)                                                     | geolocation lives in the `@octane-xplat/geolocation` leaf (#72)                                                                                     |
 | screen/orientation     | `matchMedia`, `resize`                                  | `Screen.mainScreen`, `orientationChanged`, `matchMedia`                                  | `useWindowSize` shared hook                                                                                                                         |
 | safe area              | `env(safe-area-inset-*)`                                | `iosOverflowSafeArea`, system insets                                                     | `useSafeAreaInsets()` — also primitives/SafeArea                                                                                                    |
@@ -89,11 +89,25 @@ export function Heading() {
 ```
 
 ```ts
-// Optional capability — never throws for absence
-interface Capability<T> {
+// Optional capability — flat service; interrogation never throws, method
+// calls on an absent capability reject UnavailabilityError. Shared contract
+// lives in @octane-xplat/lib/capability (#125).
+interface Service<T> {
 	supported: boolean
-	ensure(): Promise<'granted' | 'denied' | 'unsupported'>
-	impl: T | null // usable iff supported && ensured
+	isAvailable(): Promise<boolean>
+	// + T's methods
+}
+
+// Permissioned leaves add the split pair — get never prompts, request may.
+interface Permissioned<T> extends Service<T> {
+	getPermissions(): Promise<PermissionResponse>
+	requestPermissions(): Promise<PermissionResponse>
+}
+
+interface PermissionResponse {
+	status: 'granted' | 'denied' | 'undetermined' | 'unsupported'
+	granted: boolean
+	canAskAgain: boolean
 }
 
 // App lifecycle — shared event vocabulary
@@ -157,9 +171,12 @@ declare function setColorSchemeOverride(c: 'light' | 'dark' | 'system'): void
 - **No DOM globals at module scope in shared code.** Guards belong inside
   platform impls, not littered through components. Lint-enforceable
   (see testing.md).
-- Optional capabilities return a capability object (`{ supported: boolean }`)
-  rather than throwing — share-sheet behavior on desktop web, biometrics, etc.
-- Anything async-permission-shaped gets `ensure(): Promise<'granted'|'denied'|'unsupported'>`.
+- Optional capabilities are flat services — `supported`/`isAvailable()`
+  interrogate without throwing; method calls on an absent capability reject
+  `UnavailabilityError` (biometrics, geolocation, secure-storage, etc.).
+- Permissioned leaves expose `getPermissions()`/`requestPermissions()`
+  returning `PermissionResponse` (`{status, granted, canAskAgain}`) —
+  get never prompts, request may.
 - Platform impls may import `@nativescript/*` plugins or DOM APIs freely —
   that's the point of the boundary. Keep third-party plugin calls _only_ inside `.mobile` or unsuffixed
   native-default files (with web types kept separate).

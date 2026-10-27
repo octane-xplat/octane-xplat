@@ -14,9 +14,9 @@ engine: named presets, timed `playPattern` envelopes (`{duration, points:
 ```ts
 import { createHaptics, haptics } from '@octane-xplat/haptics'
 
-if ((await haptics.ensure()) === 'granted') {
-	haptics.impl!.impact('medium') // simple path
-	haptics.impl!.notification('success')
+if (haptics.supported) {
+	haptics.impact('medium') // simple path
+	haptics.notification('success')
 }
 
 const engine = createHaptics() // advanced path

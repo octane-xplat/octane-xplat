@@ -19,7 +19,7 @@ storage.setString('has-seen-welcome', 'true')
 const seen = storage.getString('has-seen-welcome')
 storage.flush() // block until pending writes are durable
 
-const result = await permissions.ensure('camera')
+const result = await permissions.requestPermissions('camera')
 ```
 
 `storage` flushes pending writes automatically on suspend/exit — call

@@ -11,13 +11,15 @@ pnpm add @octane-xplat/notifications
 ```ts
 import { notifications } from '@octane-xplat/notifications'
 
-if ((await notifications.ensure()) === 'granted') {
-	notifications.impl!.notify('Trip saved', 'Your packing list is up to date')
+if ((await notifications.requestPermissions()).granted) {
+	notifications.notify('Trip saved', 'Your packing list is up to date')
 }
 ```
 
-The shared capability contract: `supported`, `ensure()` →
-`'granted' | 'denied' | 'unsupported'`, then `impl`. `notify(title, body?)`
+The shared service contract: `supported`, `isAvailable()`, and the
+`getPermissions()`/`requestPermissions()` pair returning
+`{status: 'granted' | 'denied' | 'undetermined' | 'unsupported', granted,
+canAskAgain}` — get never prompts, request may. `notify(title, body?)`
 fires immediately — delayed scheduling and cancellation are deliberately out
 of scope. On iOS the underlying plugin schedules a fixed ~2s trigger, so
 delivery lags the immediate macOS/web path by a couple of seconds; that is a

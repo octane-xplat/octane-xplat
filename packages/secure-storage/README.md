@@ -13,21 +13,22 @@ import { secureStorage } from '@octane-xplat/secure-storage'
 
 // Call with a token issued by your app's backend; never log its value.
 async function saveSession(token: string) {
-	if ((await secureStorage.ensure()) !== 'granted' || !secureStorage.impl) return null
-	const store = secureStorage.impl
+	if (!secureStorage.supported || !(await secureStorage.isAvailable())) return null
+	const store = secureStorage
 	if (!(await store.set('session-token', token))) return null
 	return await store.get('session-token')
 }
 ```
 
-The shared capability contract: `supported` reports whether an
-implementation exists on this target — branch on it rather than catching —
-`ensure()` resolves the permission/availability state, and `impl` is an
-async string key-value store (`get` / `set` / `remove`).
+The shared service contract: `supported` reports whether a backing store
+exists on this target — branch on it rather than catching — `isAvailable()`
+probes the host, and the object itself is an async string key-value store
+(`get` / `set` / `remove`). Calling a method while unsupported rejects with
+`UnavailabilityError`.
 
 ```ts
-if ((await secureStorage.ensure()) === 'granted') {
-	await secureStorage.impl!.remove('session-token')
+if (secureStorage.supported) {
+	await secureStorage.remove('session-token')
 }
 ```
 
@@ -53,7 +54,7 @@ Moving that directory changes the development namespace, and development entries
 are separate from packaged entries. Items stay on this Mac and do not use iCloud
 synchronization. `remove()` deletes only the named item in that namespace.
 
-`ensure()` reports that the native implementation exists; it does not unlock the
+`isAvailable()` reports that the native implementation exists; it does not unlock the
 Keychain or guarantee the next operation succeeds. No authentication prompt is
 opened by the leaf. A missing key returns `null`; a failed read rejects with
 `Keychain read failed`, without keys, values, or native exception text. Writing the

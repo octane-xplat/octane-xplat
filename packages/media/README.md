@@ -22,8 +22,9 @@ const shot = await media.capturePhoto()
 Every method returns a `PickedImage` — a `FileRef` (`name`, opaque `uri`)
 you can hand straight to `Image src`, or to `files.readBytes()` for an
 upload body. Cancellation resolves `null` (or `[]` for `pickImages`), so
-check the result rather than catching. `ensure('camera' | 'photos')` resolves
-`'granted' | 'denied' | 'unsupported'`.
+check the result rather than catching. `getPermissions('camera' | 'photos')`
+reads without prompting and `requestPermissions('camera' | 'photos')` may
+prompt — both resolve `{status, granted, canAskAgain}`.
 
 ```tsx
 import { useState } from 'octane'

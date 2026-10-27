@@ -12,16 +12,17 @@ without that facade or location purpose strings report `supported: false`.
 ```ts
 import { geolocation } from '@octane-xplat/geolocation'
 
-if ((await geolocation.ensure()) === 'granted') {
-	const pos = await geolocation.impl!.getCurrentPosition()
+if ((await geolocation.requestPermissions()).granted) {
+	const pos = await geolocation.getCurrentPosition()
 	// { latitude, longitude, accuracy, altitude, heading, speed, timestamp }
 }
 ```
 
-The shared capability contract: `supported` reports whether an
-implementation exists on this target, `ensure()` resolves
-`'granted' | 'denied' | 'unsupported'` (it prompts where the platform
-defers the prompt), and `impl` is the service once usable. Nullable
+The shared service contract: `supported` reports whether an
+implementation exists on this target, `getPermissions()` reads the state
+without prompting and `requestPermissions()` may prompt — both resolve
+`{status: 'granted' | 'denied' | 'undetermined' | 'unsupported', granted,
+canAskAgain}`. Method calls go directly on the service. Nullable
 `altitude`/`heading`/`speed` mean the platform did not report them.
 
 On iOS and Android, position failures preserve the plugin's original error;
@@ -31,9 +32,9 @@ a numeric `code` is not guaranteed. Web and macOS failures use codes 1
 ```ts
 import { geolocation } from '@octane-xplat/geolocation'
 
-if ((await geolocation.ensure()) === 'granted') {
+if ((await geolocation.requestPermissions()).granted) {
 	try {
-		const position = await geolocation.impl!.getCurrentPosition()
+		const position = await geolocation.getCurrentPosition()
 		console.log(position.latitude, position.longitude)
 	} catch (error) {
 		const code = (error as { code?: number }).code
@@ -78,9 +79,9 @@ without a deadline, and omitted maximumAge requires a fresh fix.
 ```ts
 import { geolocation } from '@octane-xplat/geolocation'
 
-if ((await geolocation.ensure()) === 'granted') {
+if ((await geolocation.requestPermissions()).granted) {
 	try {
-		const position = await geolocation.impl!.getCurrentPosition({
+		const position = await geolocation.getCurrentPosition({
 			enableHighAccuracy: true,
 			timeout: 10000,
 			maximumAge: 5000,
