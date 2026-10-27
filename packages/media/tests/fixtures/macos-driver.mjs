@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
+import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import vm from 'node:vm'
 import ts from 'typescript'
@@ -158,7 +159,11 @@ export function createDriver({ mediaRoot = defaultRoot, filesRoot, ...options } 
 		vm.runInContext(`(function(exports, require) { ${code}\n})`, context, { filename: path })(
 			exports,
 			(name) => {
-				assert.ok(name.startsWith('.'), 'macOS public import needs no mobile runtime')
+				if (!name.startsWith('.')) {
+					// The shared capability contract lives in @octane-xplat/lib.
+					return createRequire(mediaRoot)(name)
+				}
+
 				// The unrelated FileInput UI export needs a renderer; this suite exercises services.
 				if (name === './FileInput.macos.tsrx') {
 					readFileSync(resolve(dirname(path), name))

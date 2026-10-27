@@ -1,11 +1,3 @@
-/** Optional capability — never throws for absence (docs/platform/platform-services.md). */
-export interface Capability<T> {
-	supported: boolean
-	ensure(): Promise<'granted' | 'denied' | 'unsupported'>
-	/** usable iff supported && ensured */
-	impl: T | null
-}
-
 export type PermissionResult = 'granted' | 'denied' | 'unsupported'
 
 export type MediaPermissionKind = 'camera' | 'photos'
@@ -41,6 +33,8 @@ export interface CapturePhotoOptions {
 	cameraFacing?: 'front' | 'rear'
 }
 
+import type { PermissionResponse } from '@octane-xplat/lib/capability'
+
 export interface MediaImpl {
 	pickImage(): Promise<PickedImage | null>
 	pickImages(): Promise<PickedImage[]>
@@ -48,10 +42,18 @@ export interface MediaImpl {
 	 * Still-image capture through the OS camera UI (app-owned sheet on AppKit). Resolves null when the
 	 * shot is canceled, permission is denied, no camera exists, or the result cannot be
 	 * read or persisted — call
-	 * `ensure('camera')` from a user action to check permission separately.
+	 * `requestPermissions('camera')` from a user action to check permission separately.
 	 * AppKit rejects saveToGallery:true before permission or UI; it never writes
 	 * to Photos or requests microphone access. Use @octane-xplat/camera for movies.
 	 */
 	capturePhoto(options?: CapturePhotoOptions): Promise<PickedImage | null>
-	ensure(kind: MediaPermissionKind): Promise<PermissionResult>
+	getPermissions(kind: MediaPermissionKind): Promise<PermissionResponse>
+	requestPermissions(kind: MediaPermissionKind): Promise<PermissionResponse>
 }
+export { UnavailabilityError } from '@octane-xplat/lib/capability'
+export type {
+	Permissioned,
+	PermissionResponse,
+	PermissionStatus,
+	Service,
+} from '@octane-xplat/lib/capability'

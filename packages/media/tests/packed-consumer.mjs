@@ -56,14 +56,14 @@ const dependencies = [
 	'@nativescript/imagepicker',
 	'@nativescript/core',
 	'@nativescript/types',
-	'@octane-xplat/platform',
+	'@octane-xplat/platform', '@octane-xplat/lib',
 	'octane',
 ]
 
 const consumers = {
 	web: `import { media } from '@octane-xplat/media'
 const picked: Promise<import('@octane-xplat/media').PickedImage | null> = media.pickImage()
-const ensureResult = media.ensure('camera')
+const ensureResult = media.requestPermissions('camera')
 const captured = media.capturePhoto({ saveToGallery: true })
 void picked
 void ensureResult
@@ -71,7 +71,7 @@ void captured
 `,
 	native: `import { media } from '@octane-xplat/media'
 const picked: Promise<import('@octane-xplat/media').PickedImage | null> = media.pickImage()
-const ensureResult = media.ensure('camera')
+const ensureResult = media.requestPermissions('camera')
 const captured = media.capturePhoto({ saveToGallery: true })
 void picked
 void ensureResult
@@ -80,7 +80,7 @@ void captured
 	macos: `import { media } from '@octane-xplat/media'
 const picked: Promise<import('@octane-xplat/media').PickedImage | null> = media.pickImage()
 const multiple: Promise<import('@octane-xplat/media').PickedImage[]> = media.pickImages()
-const ensureResult = media.ensure('camera')
+const ensureResult = media.requestPermissions('camera')
 const captured = media.capturePhoto({ saveToGallery: true })
 void picked
 void multiple

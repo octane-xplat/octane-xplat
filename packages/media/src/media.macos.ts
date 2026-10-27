@@ -1,4 +1,5 @@
 // Media — AppKit file selection. Photos-library browsing is not requested.
+import type { PermissionResponse, Service } from '@octane-xplat/lib/capability'
 import type { MediaImpl, PickedImage } from './types'
 import { capturePhoto, ensureCamera } from './photo-capture.macos'
 
@@ -113,9 +114,21 @@ function pickSelections(multiple: boolean): PickedImage[] {
 	}
 }
 
-export const media: MediaImpl = {
-	async ensure(kind) {
-		return kind === 'camera' ? ensureCamera() : 'unsupported'
+const respond = (status: string): PermissionResponse => ({
+	status: status as PermissionResponse['status'],
+	granted: status === 'granted',
+	// ensureCamera is query-only — the sheet's Capture action owns the prompt.
+	canAskAgain: status === 'granted' || status === 'undetermined',
+})
+
+export const media: Service<MediaImpl> = {
+	supported: true,
+	isAvailable: async () => true,
+	async getPermissions(kind): Promise<PermissionResponse> {
+		return respond(kind === 'camera' ? await ensureCamera() : 'unsupported')
+	},
+	async requestPermissions(kind): Promise<PermissionResponse> {
+		return respond(kind === 'camera' ? await ensureCamera() : 'unsupported')
 	},
 	async pickImage() {
 		return pickSelections(false)[0] ?? null

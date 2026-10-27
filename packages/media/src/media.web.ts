@@ -1,11 +1,11 @@
 // Media picking — web leaf. The picked File gets a blob: object URL — a file
 // handle that previews via `Image.src` and uploads via `files.readBytes`;
 // no inline data URL is produced. The file input supports multiple photos.
+import type { PermissionResponse, Service } from '@octane-xplat/lib/capability'
 import type {
 	CapturePhotoOptions,
 	MediaImpl,
 	MediaPermissionKind,
-	PermissionResult,
 	PickedImage,
 } from './types'
 
@@ -72,7 +72,14 @@ async function pickFiles(multiple: boolean): Promise<PickedImage[]> {
 	return imageRefs(await selectFiles(multiple))
 }
 
-export const media: MediaImpl = {
+const respond = (): PermissionResponse =>
+	typeof document !== 'undefined'
+		? { status: 'granted', granted: true, canAskAgain: true }
+		: { status: 'unsupported', granted: false, canAskAgain: false }
+
+export const media: Service<MediaImpl> = {
+	supported: typeof document !== 'undefined',
+	isAvailable: async () => typeof document !== 'undefined',
 	/** Opens the browser image picker; returns null when selection is canceled. */
 	async pickImage(): Promise<PickedImage | null> {
 		const [image] = await pickFiles(false)
@@ -105,19 +112,24 @@ export const media: MediaImpl = {
 			return null
 		}
 	},
-	async ensure(kind: MediaPermissionKind): Promise<PermissionResult> {
-		if (kind === 'photos') {
-			return typeof document !== 'undefined' ? 'granted' : 'unsupported'
-		}
-
-		// The file-input capture path needs no camera permission — report the
-		// capability the leaf actually delivers, like the photos branch.
-		return typeof document !== 'undefined' ? 'granted' : 'unsupported'
+	// The file-input path needs no camera or photos permission — report the
+	// capability the leaf actually delivers.
+	async getPermissions(_kind: MediaPermissionKind): Promise<PermissionResponse> {
+		return respond()
+	},
+	async requestPermissions(_kind: MediaPermissionKind): Promise<PermissionResponse> {
+		return respond()
 	},
 }
 
 // See media.ts — registers the kinds this leaf owns for the platform
 // permissions dispatcher.
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
-permissionOwners.camera = () => media.ensure('camera')
-permissionOwners.photos = () => media.ensure('photos')
+permissionOwners.camera = {
+	getPermissions: () => media.getPermissions('camera'),
+	requestPermissions: () => media.requestPermissions('camera'),
+}
+permissionOwners.photos = {
+	getPermissions: () => media.getPermissions('photos'),
+	requestPermissions: () => media.requestPermissions('photos'),
+}

@@ -16,6 +16,7 @@ import type {
 	PermissionResult,
 	PickedImage,
 } from './types'
+import type { PermissionResponse, Service } from '@octane-xplat/lib/capability'
 
 import { android } from '@octane-xplat/platform/android'
 
@@ -173,7 +174,63 @@ async function pickSelections(mode: 'single' | 'multiple'): Promise<PickedImage[
 	}
 }
 
-export const media: MediaImpl = {
+const toResponse = (status: PermissionResult): PermissionResponse => ({
+	status,
+	granted: status === 'granted',
+	canAskAgain: status === 'granted',
+})
+
+// Non-prompting camera read — iOS authorizationStatusForMediaType and
+// Android checkSelfPermission answer without surfacing a dialog.
+async function cameraStatus(): Promise<PermissionResponse> {
+	try {
+		if (!isCameraAvailable()) {
+			return toResponse('unsupported')
+		}
+
+		if (Application.ios) {
+			const av = (globalThis as any).AVCaptureDevice
+			const status = av?.authorizationStatusForMediaType?.((globalThis as any).AVMediaTypeVideo)
+			if (status === 3) {
+				return toResponse('granted')
+			}
+
+			if (status === 0) {
+				return { status: 'undetermined', granted: false, canAskAgain: true }
+			}
+
+			return status === 1 || status === 2 ? toResponse('denied') : toResponse('unsupported')
+		}
+
+		const activity = Application.android.foregroundActivity ?? Application.android.startActivity
+		const granted =
+			activity?.checkSelfPermission?.('android.permission.CAMERA') ===
+			android.content.pm.PackageManager.PERMISSION_GRANTED
+		// Android can't distinguish never-asked from denied without the
+		// rationale hook — report undetermined and let request resolve it.
+		return granted
+			? toResponse('granted')
+			: { status: 'undetermined', granted: false, canAskAgain: true }
+	} catch {
+		return toResponse('unsupported')
+	}
+}
+
+// The imagepicker plugin has no non-prompting read — get reports
+// undetermined and lets requestPermissions resolve the real state.
+async function photosStatus(): Promise<PermissionResponse> {
+	try {
+		createImagePicker({ mode: 'single', mediaType: 1 as ImagePickerMediaType })
+	} catch {
+		return toResponse('unsupported')
+	}
+
+	return { status: 'undetermined', granted: false, canAskAgain: true }
+}
+
+const media: Service<MediaImpl> = {
+	supported: true,
+	isAvailable: async () => true,
 	/** Opens the native image picker; returns null when canceled. */
 	async pickImage(): Promise<PickedImage | null> {
 		const [image] = await pickSelections('single')
@@ -204,15 +261,26 @@ export const media: MediaImpl = {
 			return null
 		}
 	},
-	async ensure(kind: MediaPermissionKind): Promise<PermissionResult> {
-		return kind === 'photos' ? ensurePhotos() : ensureCamera()
+	async getPermissions(kind: MediaPermissionKind): Promise<PermissionResponse> {
+		return kind === 'photos' ? photosStatus() : cameraStatus()
+	},
+	async requestPermissions(kind: MediaPermissionKind): Promise<PermissionResponse> {
+		return toResponse(kind === 'photos' ? await ensurePhotos() : await ensureCamera())
 	},
 }
 
 // Register the permission owners this leaf provides so
-// @octane-xplat/platform's `permissions.ensure(kind)` can reach them without
-// a dependency edge — the generic seam reports 'unsupported' when the leaf
-// is not installed.
+// @octane-xplat/platform's permission dispatcher can reach them without a
+// dependency edge — the generic seam reports 'unsupported' when the leaf is
+// not installed.
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
-permissionOwners.camera = () => ensureCamera()
-permissionOwners.photos = () => ensurePhotos()
+permissionOwners.camera = {
+	getPermissions: () => media.getPermissions('camera'),
+	requestPermissions: () => media.requestPermissions('camera'),
+}
+permissionOwners.photos = {
+	getPermissions: () => media.getPermissions('photos'),
+	requestPermissions: () => media.requestPermissions('photos'),
+}
+
+export { media }

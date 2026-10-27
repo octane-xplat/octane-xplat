@@ -155,13 +155,13 @@ setTimeout(async () => {
     check(sourcePaths.every(path => NSFileManager.defaultManager.fileExistsAtPath(path)), 'originals retained');
     // Still-photo leaf: passive ensure, option rejection, null settles, a
     // successful shot registered for files.release, and late-reply discard.
-    check(await media.ensure('photos') === 'unsupported', 'photos ensure unsupported');
-    check(await media.ensure('camera') === 'unsupported', 'undecided camera ensure unsupported');
+    check((await media.requestPermissions('photos')).status === 'unsupported', 'photos ensure unsupported');
+    check((await media.requestPermissions('camera')).status === 'unsupported', 'undecided camera ensure unsupported');
     check(sheetEvents.length === 1 && sheetEvents[0] === 'dispose', 'ensure allocates and disposes without present');
     sheetState.status = 'granted';
-    check(await media.ensure('camera') === 'granted', 'granted camera ensure');
+    check((await media.requestPermissions('camera')).status === 'granted', 'granted camera ensure');
     sheetState.status = 'denied';
-    check(await media.ensure('camera') === 'denied', 'denied camera ensure');
+    check((await media.requestPermissions('camera')).status === 'denied', 'denied camera ensure');
     let galleryRejected = false;
     try { await media.capturePhoto({ saveToGallery: true }); } catch (error) { galleryRejected = /saveToGallery/.test(error.message); }
     check(galleryRejected, 'saveToGallery rejects');

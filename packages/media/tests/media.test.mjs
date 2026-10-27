@@ -58,7 +58,7 @@ test('photos ensure maps plugin absence to unsupported and keeps denial', async 
 		},
 	})
 
-	assert.equal(await missing.exports.media.ensure('photos'), 'unsupported')
+	assert.equal((await missing.exports.media.requestPermissions('photos')).status, 'unsupported')
 
 	for (const [authorize, expected] of [
 		[async () => true, 'granted'],
@@ -72,13 +72,13 @@ test('photos ensure maps plugin absence to unsupported and keeps denial', async 
 		],
 	]) {
 		const { exports } = await load({ imagePicker: { create: () => ({ authorize }) } })
-		assert.equal(await exports.media.ensure('photos'), expected)
+		assert.equal((await exports.media.requestPermissions('photos')).status, expected)
 	}
 })
 
 test('ios camera ensure reports unsupported when AVFoundation is not exposed', async () => {
 	const { exports } = await load({ application: { ios: {} } })
-	assert.equal(await exports.media.ensure('camera'), 'unsupported')
+	assert.equal((await exports.media.requestPermissions('camera')).status, 'unsupported')
 })
 
 test('ios camera ensure maps authorization status and the prompt result', async () => {
@@ -92,7 +92,7 @@ test('ios camera ensure maps authorization status and the prompt result', async 
 			globals: { AVCaptureDevice: { authorizationStatusForMediaType: () => status } },
 		})
 
-		assert.equal(await exports.media.ensure('camera'), expected)
+		assert.equal((await exports.media.requestPermissions('camera')).status, expected)
 	}
 
 	const prompted = await load({
@@ -105,7 +105,7 @@ test('ios camera ensure maps authorization status and the prompt result', async 
 		},
 	})
 
-	assert.equal(await prompted.exports.media.ensure('camera'), 'denied')
+	assert.equal((await prompted.exports.media.requestPermissions('camera')).status, 'denied')
 })
 
 function androidApp(requestPermissions) {
@@ -134,7 +134,7 @@ test('android permission request throw settles denied and drops the listener', a
 
 	const { exports } = await load(app)
 
-	assert.equal(await exports.media.ensure('camera'), 'denied')
+	assert.equal((await exports.media.requestPermissions('camera')).status, 'denied')
 	assert.equal(app.listeners.size, 0)
 })
 
@@ -149,8 +149,8 @@ test('android grant result resolves granted and unregisters', async () => {
 	})
 
 	const { exports } = await load(app)
-	const pending = exports.media.ensure('camera')
+	const pending = exports.media.requestPermissions('camera')
 	deliver()
-	assert.equal(await pending, 'granted')
+	assert.equal((await pending).status, 'granted')
 	assert.equal(app.listeners.size, 0)
 })

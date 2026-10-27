@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/media",
 	"version": "0.17.1",
-	"description": "Image picking and OS camera capture for Octane xplat — matching web + NativeScript implementations",
+	"description": "Image picking and OS camera capture for Octane xplat \u2014 matching web + NativeScript implementations",
 	"keywords": [
 		"android",
 		"camera",
@@ -62,7 +62,8 @@
 		"@nativescript/camera": "7.0.0",
 		"@nativescript/imagepicker": "5.0.0",
 		"@octane-xplat/camera": "workspace:*",
-		"@octane-xplat/platform": "workspace:*"
+		"@octane-xplat/platform": "workspace:*",
+		"@octane-xplat/lib": "workspace:*"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "catalog:",
