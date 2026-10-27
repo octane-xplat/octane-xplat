@@ -3,6 +3,14 @@ import { readFile } from 'node:fs/promises'
 import test from 'node:test'
 import vm from 'node:vm'
 import ts from 'typescript'
+import { UnavailabilityError } from '@octane-xplat/lib/capability'
+
+const requireShim = (id) => {
+	if (id === '@octane-xplat/lib/capability') {
+		return { UnavailabilityError }
+	}
+	throw new Error(`unexpected require: ${id}`)
+}
 
 async function load(overrides = {}) {
 	const events = []
@@ -171,6 +179,7 @@ test('successful shots participate in the AppKit files.release ownership registr
 	}
 
 	api.context.exports = {}
+	api.context.require = requireShim
 	const source = await readFile(new URL('../../files/src/files.macos.ts', import.meta.url), 'utf8')
 	vm.runInNewContext(ts.transpile(source, { module: ts.ModuleKind.CommonJS }), api.context)
 	api.context.exports.files.release(result)
