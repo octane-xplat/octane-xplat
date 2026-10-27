@@ -391,3 +391,33 @@ this bounded task. iOS/Android runtime accessibility remains unverified.
 [groups]: https://github.com/facebook/astryx/blob/06c8fa3165537dedbe67101cfcabbe14f0f82e82/packages/core/src/Table/plugins/groupedRows/useTableGroupedRows.tsx
 [sticky]: https://github.com/facebook/astryx/blob/06c8fa3165537dedbe67101cfcabbe14f0f82e82/packages/core/src/Table/plugins/stickyColumns/useTableStickyColumns.tsx
 [status-spec]: https://github.com/facebook/astryx/blob/06c8fa3165537dedbe67101cfcabbe14f0f82e82/packages/core/src/Table/plugins/rowStatus/useTableRowStatus.spec.md
+
+## Sandbox unit 7: rich UI Table hooks (Astryx 0.6.4)
+
+The bounded UI Table now has grouped rows, detail expansion, tree data/state,
+row numbers/status, and web sticky columns. The sandbox targets exactly
+`ebd939b665361a078015377c0dfe50cc3c1d70a4`, independently of the separate
+0.7.1 parity harness. See [sandbox coverage](../../../apps/astryx-sandbox/docs/coverage.md#unit-7--hierarchical-and-rich-tables)
+for route adaptations and open completion gates, and [table usage](../../../docs/tables.md)
+for public examples.
+
+```tsx
+function ExampleTable() {
+  const grouped = useTableGroupedRows({ data, groupBy, collapsedGroups, onToggleGroup, getRowKey })
+  return <Table data={grouped.data} idKey={grouped.idKey} columns={columns} plugins={{ grouped: grouped.plugin }} />
+}
+```
+
+Native sticky columns remain unsupported: source inspection of `Table.tsrx`
+and `Table.macos.tsrx` shows flex rows without a horizontal scroll wrapper;
+`use-table-sticky-columns.tsrx` explicitly returns an empty plugin. This is an
+Xplat leaf limitation, not evidence of a NativeScript or AppKit engine limit.
+The same export name must not be used to claim native pinning. The native flex
+rows do not forward the DOM `aria-level`/`aria-expanded` prop bag into host tree
+semantics. Native tap, keyboard, focus, tooltip and hierarchical accessibility
+behavior remains runtime-unverified.
+
+The sandbox's upstream Table Lab uses React Profiler for commit durations.
+Octane 0.14.0's public `dist/index.d.ts` exports no Profiler. The port reports
+commit timing as unavailable and measures scroll frames separately; it does
+not fabricate an equivalent from render counters or browser frame timings.

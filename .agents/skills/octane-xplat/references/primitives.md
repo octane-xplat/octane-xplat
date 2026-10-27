@@ -262,3 +262,34 @@ export function RowActions() {
   return <HStack {...reveal.getContainerProps()}><HStack {...reveal.getContentRevealProps()}><Button label="Edit" /></HStack></HStack>
 }
 ```
+
+## Grouped and tree tables
+
+Use the bounded `Table` plugin pipeline for grouped rows, detail panels and
+trees; see [group and expand table rows](../../../../docs/tables.md) for complete
+examples. Feed `useTableGroupedRows` its post-filter/sort/page data and pass its
+returned `data` and `idKey` to Table. Pair `useTableTreeState` with
+`useTableTreeData`; sort siblings with `sortSiblings: sortable.applySort`, never
+the flattened tree. Row-index numbering follows the data array supplied to
+`useTableRowIndex`. IDs must be globally unique within a tree.
+
+```tsx
+function ExampleTable() {
+  const state = useTableTreeState({ data, idKey: 'id' })
+  const tree = useTableTreeData({ ...state.treeConfig, hasExpandAllControl: true })
+  return <Table data={state.visibleData} columns={columns} idKey="id" plugins={{ tree }} />
+}
+```
+
+`useTableStickyColumns` is web-only behavior: native leaves currently return a
+pass-through plugin because Table has no native horizontal scroll wrapper. Do
+not claim native pinning or native keyboard/accessibility qualification from
+the shared export. Multiple pinned proportional columns use minimum-width
+offsets; use pixel widths when their offsets must remain exact.
+
+```tsx
+function ExampleTable() {
+  const sticky = useTableStickyColumns({ startKeys: ['name'], endKeys: ['status'] })
+  return <Table data={data} columns={columns} idKey="id" plugins={{ sticky }} />
+}
+```

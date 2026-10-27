@@ -1,3 +1,4 @@
+.sb-job-sentinel { height: 1px; }
 /* Sandbox app styles — CSS/className model (Xplat styling contract) where
  * upstream used StyleX. Token vars come from @octane-xplat/ui chrome.css. */
 
@@ -354,3 +355,7 @@ html.sb-embed .sb-embed-root {
 .sb-tabular { font-variant-numeric: tabular-nums; }
 .sb-text-end { text-align: end; display: block; }
 .sb-audit-row { cursor: pointer; }
+.sb-table-lab-scroll {
+	max-height: 480px;
+	overflow: auto;
+}

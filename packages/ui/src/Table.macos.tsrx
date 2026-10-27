@@ -110,21 +110,35 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 						})}
 					</masonview>
 				)}
-				{plan.rows.map((row) => (
-					<masonview
-						key={String(row.key)}
-						className={cx('vx-table-row', row.render.classes)}
-						style={mergeStyle({ display: 'flex', flexDirection: 'row' }, row.render.htmlProps?.style ?? {})}>
-						{row.cells.map((cell) => (
-							<masonview
-								key={cell.column.key}
-								className={cx('vx-table-cell', `vx-table-cell--${density}`, cell.render.classes)}
-								style={mergeStyle(cellStyle(cell.column, { display: 'flex' }), cell.render.htmlProps?.style ?? {})}>
-								{cellContent(cell.content)}
-							</masonview>
-						))}
-					</masonview>
-				))}
+				{plan.rows.map((row) => {
+					const onRowTap = typeof row.render.htmlProps?.onClick === 'function' ? row.render.htmlProps.onClick : undefined
+					const rowNode = (
+						<masonview
+							key={String(row.key)}
+							className={cx('vx-table-row', row.render.classes)}
+							onTap={onRowTap}
+							style={mergeStyle({ display: 'flex', flexDirection: 'row' }, row.render.htmlProps?.style ?? {})}>
+							{row.render.children != null
+								? row.render.children
+								: row.cells.map((cell) => (
+									<masonview
+										key={cell.column.key}
+										className={cx('vx-table-cell', `vx-table-cell--${density}`, cell.render.classes)}
+										style={mergeStyle(cellStyle(cell.column, { display: 'flex' }), cell.render.htmlProps?.style ?? {})}>
+										{cellContent(cell.content)}
+									</masonview>
+								))}
+						</masonview>
+					)
+					return row.render.afterRow != null ? (
+						<>
+							{rowNode}
+							{row.render.afterRow}
+						</>
+					) : (
+						rowNode
+					)
+				})}
 				{plan.showEmptyState && (
 					<masonview className="vx-table-empty">
 						{emptyState != null ? <TableSlot value={emptyState} /> : <label text="No data" />}

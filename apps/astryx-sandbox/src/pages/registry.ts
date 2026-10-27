@@ -1,3 +1,5 @@
+import { TableOverviewPage } from './tables/TableOverviewPage'
+import { TableLabPage } from './tables/TableLabPage'
 // Ported authored-page registry — /pages/* route → the screen that renders
 // it. The coverage ledger derives 'ported' status from these keys; adding
 // a page flips its row, same as the template example registry.
@@ -36,6 +38,8 @@ const pages: Record<string, () => any> = {
 	'/pages/mobile-spacing/': MobileSpacingPage,
 	'/pages/shell-lab/': ShellLabPage,
 
+	'/pages/table-overview/': TableOverviewPage,
+	'/pages/table-lab/': TableLabPage,
 	'/pages/media-mode/': MediaModePage,
 	'/pages/component-scores/': ComponentScoresPage,
 	'/pages/dictation-lab/': DictationLabPage,

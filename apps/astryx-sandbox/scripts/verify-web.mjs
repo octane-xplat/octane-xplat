@@ -5,7 +5,8 @@
 // pixel checks. Usage: node scripts/verify-web.mjs [--base URL]
 
 import { readFileSync } from 'node:fs'
-import { chromium } from 'playwright'
+import { chromium, firefox, webkit } from 'playwright'
+import { verifyRichTables } from './verify-rich-tables.mjs'
 import { verifyMedia } from './verify-media.mjs'
 
 const base = process.env.BASE_URL ?? process.argv.find((a) => a.startsWith('--base='))?.split('=')[1]
@@ -17,7 +18,10 @@ const check = (name, pass, detail = '') => {
 	console.log(`${pass ? 'PASS' : 'FAIL'}  ${name}${detail ? ' — ' + detail : ''}`)
 }
 
-const browser = await chromium.launch()
+const browserName = process.argv.find(arg => arg.startsWith('--browser='))?.slice('--browser='.length) ?? 'chromium'
+const browserType = { chromium, firefox, webkit }[browserName]
+if (!browserType) { throw new Error(`Unknown browser: ${browserName}`) }
+const browser = await browserType.launch()
 const page = await browser.newPage()
 
 const errors = []
@@ -27,6 +31,16 @@ page.on('console', (m) => {
 		errors.push(m.text())
 	}
 })
+
+if (process.argv.includes('--rich-tables-only')) {
+ try {
+  await verifyRichTables(page, baseUrl, check)
+  check('unit-7 no runtime errors', errors.length === 0, errors.slice(0, 3).join(' | '))
+ } finally { await browser.close() }
+ const failures = results.filter(result => !result.pass)
+ console.log(`${results.length - failures.length}/${results.length} rich-table checks passed (${browserName})`)
+ process.exit(failures.length ? 1 : 0)
+}
 
 if (process.argv.includes('--media-only')) {
 	try {
@@ -772,6 +786,7 @@ try {
 	} else {
 		check('Banner dismiss removes content', false, 'no dismiss control found')
 	}
+	await verifyRichTables(page, baseUrl, check)
 
 	check('no page errors', errors.length === 0, errors.slice(0, 3).join(' | '))
 } finally {

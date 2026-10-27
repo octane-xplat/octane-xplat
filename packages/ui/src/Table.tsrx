@@ -117,22 +117,35 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 					</masonview>
 				)}
 				{plan.rows.map((row) => {
+					// Plugins may attach a row-level onClick (grouped header toggle,
+					// tree row-click expansion) — map it to the native tap handler.
+					const onRowTap = typeof row.render.htmlProps?.onClick === 'function' ? row.render.htmlProps.onClick : undefined
 					const rowNode = (
 						<masonview
 							key={String(row.key)}
 							className={cx('vx-table-row', row.render.classes)}
+							onTap={onRowTap}
 							style={mergeStyle({ display: 'flex', flexDirection: 'row' }, row.render.htmlProps?.style ?? {})}>
-							{row.cells.map((cell) => (
-								<masonview
-									key={cell.column.key}
-									className={cx('vx-table-cell', `vx-table-cell--${density}`, cell.render.classes)}
-									style={mergeStyle(cellStyle(cell.column, { display: 'flex' }), cell.render.htmlProps?.style ?? {})}>
-									{cellContent(cell.content, cell.column)}
-								</masonview>
-							))}
+							{row.render.children != null
+								? row.render.children
+								: row.cells.map((cell) => (
+									<masonview
+										key={cell.column.key}
+										className={cx('vx-table-cell', `vx-table-cell--${density}`, cell.render.classes)}
+										style={mergeStyle(cellStyle(cell.column, { display: 'flex' }), cell.render.htmlProps?.style ?? {})}>
+										{cellContent(cell.content, cell.column)}
+									</masonview>
+								))}
 						</masonview>
 					)
-					return rowNode
+					return row.render.afterRow != null ? (
+						<>
+							{rowNode}
+							{row.render.afterRow}
+						</>
+					) : (
+						rowNode
+					)
 				})}
 				{plan.showEmptyState && (
 					<masonview className="vx-table-empty">

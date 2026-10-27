@@ -91,6 +91,9 @@ export interface HeaderCellRenderProps {
 export interface BodyRowRenderProps {
 	htmlProps: TableHostProps
 	classes: ClassValue[]
+	/** When non-null after the pipeline, the leaf renders this IN PLACE of the
+	 *  row's planned cells — plugins that replace a row wholesale set it
+	 *  (grouped-rows swaps the cells for one full-width header cell). */
 	children: Renderable
 	/** Extra content rendered as a sibling immediately after this row (expansion
 	 *  detail panels). Multiple plugins compose by wrapping the previous `afterRow`. */
@@ -234,3 +237,146 @@ export type TableFilterState = Record<string, TableFilterValue | undefined>
 /** Filter UI display variant: `'popover'` (funnel trigger per header),
  *  `'inline'` (control below the header), or `'inline-compact'`. */
 export type TableFilterVariant = 'popover' | 'inline' | 'inline-compact'
+
+// =============================================================================
+// Sticky columns
+// =============================================================================
+
+/**
+ * Config for `useTableStickyColumns`. Every field is optional so
+ * `useTableStickyColumns({})` is an intentional no-op that pins nothing.
+ */
+export interface UseTableStickyColumnsConfig {
+	/** Column keys pinned to the START (inline-start) edge — the contiguous run
+	 *  from the first column through the last listed key. */
+	startKeys?: string[]
+	/** Column keys pinned to the END (inline-end) edge — the contiguous run from
+	 *  the first listed key through the last column. */
+	endKeys?: string[]
+}
+
+// =============================================================================
+// Grouped rows
+// =============================================================================
+
+/** Configuration for `useTableGroupedRows`. */
+export interface UseTableGroupedRowsConfig<T extends Record<string, unknown>> {
+	/** The flat data to group. */
+	data: T[]
+	/** Derive the group key for a row. Rows with the same key share a section. */
+	groupBy: (item: T) => string
+	/** Set of currently-collapsed group keys. */
+	collapsedGroups: Set<string>
+	/** Called with a group key when its header is toggled. */
+	onToggleGroup: (groupKey: string) => void
+	/** Custom renderer for a group header's content (right of the chevron).
+	 *  Defaults to `{key} ({count})`. */
+	renderGroupHeader?: (groupKey: string, count: number, collapsed: boolean) => Renderable
+	/** Stable key for a real row. Falls back to a positional key when omitted. */
+	getRowKey?: (item: T) => string
+	/** Explicit group ordering; groups not listed keep first-seen order after these. */
+	groupOrder?: string[]
+}
+
+export interface UseTableGroupedRowsResult<T extends Record<string, unknown>> {
+	/** Ready-to-use plugin for `<Table plugins>`. */
+	plugin: TablePlugin<T>
+	/** Flattened rows: `[header, ...visibleRows, header, ...visibleRows]`. */
+	data: T[]
+	/** Row-key resolver (also keys synthetic headers as `__group_<key>`).
+	 *  Pass to `<Table idKey>`. */
+	idKey: (item: T) => string
+}
+
+// =============================================================================
+// Row expansion (detail panel)
+// =============================================================================
+
+/** Configuration for `useTableRowExpansion`. For hierarchical child rows that
+ *  reuse the parent columns, use `useTableTreeData` + `useTableTreeState`. */
+export interface UseTableRowExpansionConfig<T extends Record<string, unknown>> {
+	/** Set of currently-expanded row keys. */
+	expandedKeys: Set<string>
+	/** Called with a row key when its expansion is toggled. */
+	onToggle: (key: string) => void
+	/** Derive a stable unique key from a row item. */
+	getRowKey: (item: T) => string
+	/** Render the detail content shown below the row while expanded. */
+	renderExpanded: (item: T) => Renderable
+	/** Control which rows are expandable. @default all rows expandable */
+	getIsItemExpandable?: (item: T) => boolean
+}
+
+// =============================================================================
+// Tree data
+// =============================================================================
+
+/** Structural position of one visible row within the tree. */
+export interface TableTreeRowMeta {
+	/** The row's id (from `idKey`). */
+	id: string
+	/** 0-based depth: roots are level 0. */
+	level: number
+	/** Whether the row shows an expander. */
+	hasChildren: boolean
+	/** Whether the row is currently expanded. */
+	isExpanded: boolean
+}
+
+/**
+ * Configuration for `useTableTreeData`. `useTableTreeState` returns a
+ * ready-made value (`treeConfig`); consumers with server-driven or
+ * pre-flattened trees can construct one directly.
+ */
+export interface UseTableTreeDataConfig<T extends Record<string, unknown>> {
+	/** Structural meta for a visible row; undefined for unknown rows. */
+	getRowMeta: (item: T) => TableTreeRowMeta | undefined
+	/** Toggle a row's expansion. */
+	onToggleItem: (item: T) => void
+	/** Whether any row in the dataset is expandable. When false the plugin is a
+	 *  no-op: no expanders, no indent, no tree ARIA — flat data renders
+	 *  identically to a Table without the plugin. */
+	hasExpandableRows: boolean
+	/** Aggregate expansion state across every expandable row. With
+	 *  `onExpandAll`/`onCollapseAll`, the tree column header shows an
+	 *  expand-all toggle. */
+	isAllExpanded?: boolean | 'indeterminate'
+	/** Expand every expandable row. Wired to the header expand-all control. */
+	onExpandAll?: () => void
+	/** Collapse every row. Wired to the header expand-all control. */
+	onCollapseAll?: () => void
+	/** Show the expand-all/collapse-all toggle in the tree column header.
+	 *  @default false */
+	hasExpandAllControl?: boolean
+	/** Indent step per level, as spacing tokens. @default 'md' */
+	indent?: 'sm' | 'md' | 'lg'
+	/** Column that carries the indent + expander. @default the first column */
+	treeColumnKey?: string
+	/** When true, clicking anywhere on an expandable row toggles its expansion,
+	 *  in addition to the chevron. Clicks from interactive descendants or a
+	 *  text selection do not toggle (web). @default false */
+	hasRowClickExpansion?: boolean
+}
+
+// =============================================================================
+// Row status
+// =============================================================================
+
+/** Named colors supported by the custom row-status marker; raw CSS colors are
+ *  passed through untouched. */
+export type TableRowStatusColor =
+	| 'accent' | 'success' | 'error' | 'warning'
+	| 'red' | 'orange' | 'green' | 'yellow' | 'blue' | 'gray'
+
+/** Semantic row status — resolves to the themed status glyph and tone. */
+export interface TableSemanticRowStatus {
+	status: 'success' | 'warning' | 'error'
+	label: string
+}
+
+/** Custom row-status marker — a named/raw `color`, optional `icon` name. */
+export interface TableRowStatus {
+	color: string
+	icon?: string
+	label: string
+}

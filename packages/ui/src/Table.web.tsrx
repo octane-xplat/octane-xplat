@@ -125,9 +125,14 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 		(plan.tableMinWidth > 0 ? { minWidth: `${plan.tableMinWidth}px` } : {}) as Record<string, unknown>,
 	) as Record<string, unknown>
 
+	// Extract a plugin-contributed ref so it reliably binds to the scroll div
+	// (sticky-columns attaches scroll/resize listeners through it).
+	const { ref: scrollWrapperRef, ...scrollWrapperProps } = plan.scrollWrapper.htmlProps ?? {}
+
 	const tableElement = (
 		<div
-			{...plan.scrollWrapper.htmlProps}
+			ref={scrollWrapperRef as any}
+			{...scrollWrapperProps}
 			class={cx('vx-table-scroll', plan.scrollWrapper.classes)}
 			role="group"
 			aria-label="Table">
@@ -182,7 +187,7 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 								key={row.key}
 								{...row.render.htmlProps}
 								class={cx('vx-table-row', ctxClasses(ctx, false), row.render.classes)}>
-								{row.cells.map((cell) => (
+								{row.render.children != null ? (row.render.children as any) : row.cells.map((cell) => (
 									<td
 										key={cell.column.key}
 										{...cell.render.htmlProps}

@@ -3448,3 +3448,149 @@
 .vx-banner--elev-low { box-shadow: 0 1px 3px rgba(0,0,0,.12); }
 .vx-banner--elev-med { box-shadow: 0 4px 12px rgba(0,0,0,.16); }
 .vx-banner--elev-high { box-shadow: 0 8px 28px rgba(0,0,0,.2); }
+
+/* --- Row overlay var: painted on the row AND replayed on sticky cells' ::before
+   so pinned columns mirror striping/hover/selection while scrolled. --- */
+.vx-table-row--striped:nth-child(even) { --table-row-overlay: var(--color-surface-secondary, rgba(0,0,0,0.03)); }
+.vx-table-row--hover:hover, .vx-table-row--striped-hover:hover { --table-row-overlay: var(--color-overlay-hover, rgba(0,0,0,0.05)); }
+.vx-table-row--selected-fill { --table-row-overlay: var(--color-accent-muted, rgba(51,102,255,0.08)); }
+.vx-table-row--selected-fill:hover { --table-row-overlay: var(--color-accent-muted, rgba(51,102,255,0.12)); }
+
+/* --- Sticky columns (Astryx stickyColumns) --- */
+.vx-table-cell--sticky {
+	position: sticky;
+	/* Opaque base so scrolled content doesn't show through the pinned column. */
+	background: var(--table-sticky-background, var(--color-background-card, #fff));
+	/* padding-box keeps the base off the cell's collapsed divider border. */
+	background-clip: padding-box;
+	/* Sticky cells need visible overflow so the shadow ::after can bleed out. */
+	overflow: visible;
+}
+.vx-table-cell--sticky::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	pointer-events: none;
+	background: var(--table-row-overlay, transparent);
+	transition: background-color var(--duration-fast, 175ms) var(--ease-standard, ease);
+}
+/* Header cells stack above body cells; both stack above non-sticky cells. */
+.vx-table-cell--sticky-header { z-index: 3; }
+.vx-table-cell--sticky-body { z-index: 1; }
+/* 6px gradient shadow strip just past the pinned edge; opacity gated by the
+   scroll-state var set on the scroll container (RTL-aware). */
+.vx-table-cell--sticky-start::after {
+	content: '';
+	position: absolute;
+	top: 0; bottom: 0;
+	inset-inline-end: 0;
+	width: 6px;
+	transform: translateX(100%);
+	pointer-events: none;
+	transition: opacity 150ms ease;
+	opacity: var(--table-sticky-shadow-start, 0);
+	background-image: linear-gradient(to right, var(--color-shadow, rgba(0,0,0,0.1)), transparent);
+}
+.vx-table-cell--sticky-end::after {
+	content: '';
+	position: absolute;
+	top: 0; bottom: 0;
+	inset-inline-start: 0;
+	width: 6px;
+	transform: translateX(-100%);
+	pointer-events: none;
+	transition: opacity 150ms ease;
+	opacity: var(--table-sticky-shadow-end, 0);
+	background-image: linear-gradient(to left, var(--color-shadow, rgba(0,0,0,0.1)), transparent);
+}
+:is([dir="rtl"]) .vx-table-cell--sticky-start::after {
+	transform: translateX(-100%);
+	background-image: linear-gradient(to left, var(--color-shadow, rgba(0,0,0,0.1)), transparent);
+}
+:is([dir="rtl"]) .vx-table-cell--sticky-end::after {
+	transform: translateX(100%);
+	background-image: linear-gradient(to right, var(--color-shadow, rgba(0,0,0,0.1)), transparent);
+}
+
+/* --- Grouped rows (Astryx groupedRows) --- */
+.vx-table-row--group-header {
+	cursor: pointer;
+	user-select: none;
+	background: var(--color-background-muted, rgba(0,0,0,0.04));
+}
+.vx-table-row--group-header .vx-table-group-header-cell { border-bottom: 1px solid var(--color-border, #ddd); }
+.vx-table-group-header-cell { padding-block: var(--spacing-2, 8px); padding-inline-start: 0; padding-inline-end: var(--spacing-3, 12px); }
+/* The cell spans every column, so on a table scrolled sideways the heading
+   would slide out of view; sticking the inner span keeps it on screen. */
+.vx-table-group-header-inner {
+	display: flex;
+	align-items: center;
+	gap: var(--spacing-1, 4px);
+	inset-inline-start: 0;
+	position: sticky;
+	padding-inline-start: var(--spacing-1, 4px);
+}
+.vx-table-group-header-inner--fit { width: fit-content; }
+.vx-table-group-label { font-weight: var(--font-weight-semibold, 600); color: var(--color-text-primary, inherit); }
+.vx-table-group-count { font-weight: var(--font-weight-normal, 400); color: var(--color-text-secondary, #555); }
+
+/* Shared chevron treatment (grouped headers, tree expanders, row expansion). */
+.vx-table-chevron {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	padding: 0;
+	margin: 0;
+	background: transparent;
+	border: 0;
+	cursor: pointer;
+	color: var(--color-icon-secondary, #888);
+}
+.vx-table-chevron:hover { color: var(--color-icon-primary, inherit); }
+.vx-table-chevron-icon { display: inline-flex; transition: transform 150ms; }
+.vx-table-chevron-icon--collapsed { transform: rotate(0deg); }
+.vx-table-chevron-icon--expanded { transform: rotate(90deg); }
+:is([dir="rtl"]) .vx-table-chevron-icon--collapsed { transform: scaleX(-1) rotate(0deg); }
+:is([dir="rtl"]) .vx-table-chevron-icon--expanded { transform: scaleX(-1) rotate(90deg); }
+
+/* --- Row index (Astryx rowIndex) --- */
+.vx-table-rowindex {
+	font-family: var(--font-family-code, monospace);
+	font-size: var(--text-supporting-size, 0.85em);
+	font-variant-numeric: tabular-nums;
+	color: var(--color-text-secondary, #555);
+}
+
+/* --- Row status (Astryx rowStatus) --- */
+.vx-table-status { display: inline-flex; align-items: center; justify-content: center; }
+
+/* --- Row expansion + tree expanders (Astryx rowExpansion / tree) --- */
+.vx-table-expander {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: var(--spacing-6, 24px);
+	height: var(--spacing-6, 24px);
+	background: transparent;
+	border: 0;
+	border-radius: var(--radius-inner, 4px);
+	cursor: pointer;
+	color: var(--color-icon-secondary, #888);
+	transition: color 150ms;
+	padding: 0;
+	flex-shrink: 0;
+}
+@media (hover: hover) {
+	.vx-table-expander:hover { background-image: linear-gradient(var(--color-overlay-hover, rgba(0,0,0,0.06)), var(--color-overlay-hover, rgba(0,0,0,0.06))); color: var(--color-icon-primary, inherit); }
+}
+.vx-table-expander .vx-table-chevron-icon { display: inline-flex; transition: transform 150ms; }
+.vx-table-expanded-row { background: var(--color-background-muted, rgba(0,0,0,0.04)); }
+.vx-table-expanded-cell { padding-block: var(--spacing-4, 16px); padding-inline: var(--spacing-5, 20px); }
+
+/* --- Tree data (Astryx tree) --- */
+.vx-table-tree-cell { display: flex; align-items: center; gap: var(--spacing-1, 4px); }
+.vx-table-tree-leaf-spacer { display: inline-block; width: 24px; height: 24px; flex-shrink: 0; }
+.vx-table-tree-header { display: inline-flex; align-items: center; gap: var(--spacing-1, 4px); min-width: 0; }
+.vx-table-row--clickable { cursor: pointer; }

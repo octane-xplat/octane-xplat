@@ -21,7 +21,7 @@ const pageSources = import.meta.glob('./pages/**/*.tsrx', {
 // Template name -> source text (file basename equals the template name).
 const byExampleName = new Map<string, string>()
 for (const [path, text] of Object.entries(exampleSources)) {
-	const name = path.slice(path.lastIndexOf('/') + 1, -'.tsrx'.length)
+	const name = path.slice(path.lastIndexOf('/') + 1, -'.tsrx'.length).replace(/\.web$/, '')
 	byExampleName.set(name, text)
 }
 
@@ -38,6 +38,8 @@ const pageSourceFiles: Record<string, string> = {
 	'/pages/mobile-spacing/': 'MobileSpacingPage',
 	'/pages/shell-lab/': 'ShellLabPage',
 
+	'/pages/table-overview/': 'TableOverviewPage',
+	'/pages/table-lab/': 'TableLabPage',
 	'/pages/media-mode/': 'MediaModePage',
 	'/pages/component-scores/': 'ComponentScoresPage',
 	'/pages/dictation-lab/': 'DictationLabPage',

@@ -5,6 +5,7 @@
 		"types": ["vite/client"],
 		"lib": ["ESNext", "DOM", "DOM.Iterable"],
 		"paths": {
+			"@octane-xplat/ui/markdown": ["../../packages/ui/src/markdown/index.ts"],
 			"@octane-xplat/ui": ["../../packages/ui/src/index.ts"],
 			"@octane-xplat/ui/routing": ["../../packages/ui/src/routing/index.ts"],
 			"@octane-xplat/ui/routing/core": ["../../packages/ui/src/routing/core.ts"],

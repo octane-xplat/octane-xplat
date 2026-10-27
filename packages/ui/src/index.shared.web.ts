@@ -491,6 +491,13 @@ export { useTableColumnSettings, useTableColumnSettingsState } from './table/use
 export { useTableColumnResize } from './table/use-table-column-resize'
 export { useTableFilterState } from './table/use-table-filter-state'
 export { useTableFiltering } from './table/use-table-filtering'
+export { useTableStickyColumns } from './table/use-table-sticky-columns'
+export { useTableGroupedRows } from './table/use-table-grouped-rows'
+export { useTableRowIndex } from './table/use-table-row-index'
+export { useTableRowStatus } from './table/use-table-row-status'
+export { useTableRowExpansion } from './table/use-table-row-expansion'
+export { useTableTreeState } from './table/use-table-tree-state'
+export { useTableTreeData } from './table/use-table-tree-data'
 export { toSearchFilters } from './table/to-search-filters'
 export { TableContext } from './table/table-context'
 export { Timeline } from './Timeline'
@@ -569,6 +576,15 @@ export type {
 	TableFilterState,
 	TableFilterValue,
 	TableFilterVariant,
+	UseTableStickyColumnsConfig,
+	UseTableGroupedRowsConfig,
+	UseTableGroupedRowsResult,
+	UseTableRowExpansionConfig,
+	UseTableTreeDataConfig,
+	TableTreeRowMeta,
+	TableRowStatus,
+	TableRowStatusColor,
+	TableSemanticRowStatus,
 } from './table/types'
 export type {
 	UseTableSelectionConfig,
@@ -589,6 +605,12 @@ export type {
 } from './table/use-table-column-settings'
 export type { UseTableColumnResizeConfig } from './table/use-table-column-resize'
 export type { UseTableFilteringConfig } from './table/use-table-filtering'
+export type { UseTableRowIndexConfig } from './table/use-table-row-index'
+export type { UseTableRowStatusConfig } from './table/use-table-row-status'
+export type {
+	UseTableTreeStateConfig,
+	UseTableTreeStateResult,
+} from './table/use-table-tree-state'
 export type { UseTableFilterStateResult } from './table/use-table-filter-state'
 export type { ResolvedColumnWidth, ResolvedColumnWidths } from './table/column-utils'
 

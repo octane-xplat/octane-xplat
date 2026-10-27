@@ -1,3 +1,7 @@
+import { TableGroupedTemplate } from './pages/table-grouped'
+import { TableTreeTemplate } from './pages/table-tree'
+import { TableInboxTemplate } from './pages/table-inbox'
+import { TableFilterTemplate } from './pages/table-filter'
 import { AspectRatioCircleImage } from './media/AspectRatioCircleImage'
 import { AspectRatioImageGallery } from './media/AspectRatioImageGallery'
 import { AspectRatioWidescreen } from './media/AspectRatioWidescreen'
@@ -263,6 +267,12 @@ import { TableFilterableTable } from './table/TableFilterableTable'
 import { TableInlineFilterTable } from './table/TableInlineFilterTable'
 import { TableBulkActionsTable } from './table/TableBulkActionsTable'
 import { TableFloatingBulkActionsTable } from './table/TableFloatingBulkActionsTable'
+import { StickyColumnsHookUsage } from './table/StickyColumnsHookUsage'
+import { TableGroupedRowsTable } from './table/TableGroupedRowsTable'
+import { TableRowExpansionTable } from './table/TableRowExpansionTable'
+import { TableRowIndexTable } from './table/TableRowIndexTable'
+import { TableRowStatusTable } from './table/TableRowStatusTable'
+import { TableTreeTable } from './table/TableTreeTable'
 import { PaginationWithTable } from './pagination/PaginationWithTable'
 import { TableTemplate } from './pages/table-template'
 import { TablePageTemplate } from './pages/table-page-template'
@@ -823,6 +833,13 @@ const examples: Record<string, () => any> = {
 	TableInlineFilterTable,
 	TableBulkActionsTable,
 	TableFloatingBulkActionsTable,
+	// Unit 7: hierarchical and rich tables.
+	StickyColumnsHookUsage,
+	TableGroupedRowsTable,
+	TableRowExpansionTable,
+	TableRowIndexTable,
+	TableRowStatusTable,
+	TableTreeTable,
 	PaginationWithTable,
 	// Page templates (slug keys) — unit 6 flat-table pages.
 	'table': TableTemplate,
@@ -1120,6 +1137,10 @@ const examples: Record<string, () => any> = {
 	TimestampRelativeFormat,
 	TimestampTimezone,
 	TimestampTooltipTimezones,
+	'table-grouped': TableGroupedTemplate,
+	'table-tree': TableTreeTemplate,
+	'table-inbox': TableInboxTemplate,
+	'table-filter': TableFilterTemplate,
 }
 
 export const portedExamples = new Set(Object.keys(examples))

@@ -646,3 +646,74 @@ New/extended contracts on existing components:
 - `ScrollableArea` sticky-header/passthrough demos use CSS `position:
   sticky` inside the scroll viewport (upstream's sticky-containment
   demo relies on web semantics — web leaf preserved).
+## Unit 7 — hierarchical and rich tables
+
+The Table family now has all 21 block routes registered. The seven added
+public hooks are `useTableStickyColumns`, `useTableGroupedRows`,
+`useTableRowIndex`, `useTableRowStatus`, `useTableRowExpansion`,
+`useTableTreeData` and `useTableTreeState`. They compose with the unit-6
+pipeline rather than an app-local table implementation.
+
+```tsx
+function ExampleTable() {
+  const state = useTableTreeState({ data, idKey: 'id' })
+  const tree = useTableTreeData({ ...state.treeConfig, hasExpandAllControl: true })
+  return <Table data={state.visibleData} columns={columns} idKey="id" plugins={{ tree }} />
+}
+```
+
+| Route | Implemented behavior | Adaptation / remaining coverage |
+| --- | --- | --- |
+| `StickyColumnsHookUsage` | Contiguous start/end pinning, scroll-aware shadows | Web only. NativeScript/AppKit hooks pass through; their Table leaves have no horizontal scroll wrapper. Multiple pinned proportional columns use minimum-width offsets. |
+| `TableGroupedRowsTable` | Ordered groups, labelled headers, collapse/expand, suppressed synthetic-row cell renderers | Web chevron and row-click checks; native tap wiring is source-only. |
+| `TableRowExpansionTable` | Controlled expanded IDs, per-row eligibility, detail panels after rows | Native panels are flex rows; no native runtime qualification. |
+| `TableRowIndexTable`, `TableRowStatusTable` | View-relative ordinals; semantic/custom labelled status markers | Upstream glyph names map to Xplat icons. Native tooltip/assistive delivery unverified. |
+| `TableTreeTable` | Nested flattening, expansion state, per-level indent, expand/collapse all, sibling sorting, ancestor-cycle guard | Web rows carry `aria-level`/`aria-expanded`; native ARIA and OS keyboard behavior are not qualified. |
+| `/templates/table-grouped/` | Pinned issue data, grouping options, search, collapse, detail pane, create-dialog open/close | Data-driven public Table replaces upstream children-mode manual rows. Create fields remain inert as upstream. Full styling/layout parity is unverified. |
+| `/templates/table-tree/` | Pinned repository data and commit rollups, pruning search, sibling sorting, column resize, tree keyboard movement, folder-specific README | Repository header is compact; full repository chrome/about sidebar styling is adapted. No visual parity claim. |
+| `/templates/table-inbox/` | Pinned conversations, category/unread counts, selection, conversation history, reply prefill, draft close/reopen/discard, Cc/Bcc | Public Tokenizer supports directory and created recipients, Thumbnail/Lightbox supports attachments, and media-query/resizable composition switches between list and conversation surfaces. Inert Send/archive/move/delete controls remain inert as upstream. Native delivery is unverified. |
+| `/templates/table-filter/` | Pinned moving-date service jobs, column filters, PowerSearch tokens, free-text search, sorting, selection, grouping, sticky edges, density/column visibility, saved-view create/load/delete, detail pane | A Power search control escalates removable filter chips to the public PowerSearch editor. Quote-range filtering, cancellable batch loading, preset/edit saved views and complete filter/view snapshots are implemented. Column ordering uses labelled earlier/later buttons instead of upstream drag ordering. |
+| `/pages/table-overview/` | Pinned review data, five statistics, search, collapsible sections, selection and author avatars | Author/reviewer avatars and labelled status badges use public components; upstream decorative styling is adapted. |
+| `/pages/table-lab/` | Deterministic 50/500/2k/10k data, nine plugin toggles, selection/expansion counts, scroll frame sampling | React Profiler commit timing has no public Octane 0.14.0 equivalent; the screen states that it is unavailable. Scroll measurements are browser frame samples, not renderer commit timings. |
+
+The two existing flat page templates (`table`, `table-page`) remain registered,
+so all six table-template destinations render Octane content. Registration is
+not proof of matching behavior on every host. Native sticky columns and lab
+commit timing remain explicit capability gaps; all non-web hosts remain not-run
+for this unit.
+
+Focused browser command (after the sandbox build and preview):
+
+```sh
+node apps/astryx-sandbox/scripts/verify-web.mjs --rich-tables-only --browser=chromium --base=http://127.0.0.1:4277
+```
+
+Use `--browser=firefox` or `--browser=webkit` for the other engines. Assertions
+use browser input plus textual DOM/geometry evidence; no images are captured.
+The existing `interactive-data-grid` recipe concerns the separate virtualized
+`@octane-xplat/table` DataGrid and is unaffected by these bounded UI Table hooks.
+
+### Verification boundary
+
+Candidate source: `b320f08c0bc00704a0646193d9e58668e17468c5`, after reconciling
+newer main work. Each of Chromium, Firefox and WebKit passed the combined
+67-check suite against the production build. Initial-DOM reads use
+Playwright's retrying assertions; navigation network-idle alone did not prove
+that Firefox had mounted the table.
+
+These checks cover all 29 table destinations, group collapse, detail expansion,
+tree levels and controls, status labels, sticky geometry, repository
+search/keyboard movement, draft retention/discard, narrow inbox navigation,
+saved-view authoring, and lab composition/frame sampling. Input is Playwright
+browser pointer, keyboard and text entry, with DOM/text and geometry assertions.
+They do not establish pixel parity or non-web behavior.
+
+After the integration rebase, sandbox source typechecking, UI declaration
+generation, the 21 focused Table tests, the production build, recipe structure,
+UI barrel checks and validation of 74 release notes passed. Checks stayed
+package-scoped, with one Turbo task at a time and a 2.5 GiB Node heap cap.
+
+An earlier wider UI run before the rebase reported 1,072 passing tests and one
+Slider assertion failure; a focused Slider retry reproduced it. That wider
+suite was not rerun after the rebase. No Slider source or test was changed by
+unit 7.
