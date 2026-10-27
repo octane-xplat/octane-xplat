@@ -9,27 +9,27 @@ import type { LightboxProps } from './props'
 import { Backdrop, Close, Description, Next, Popup, Prev, Root, Slide, Title, Trigger, useLightboxState, Viewport } from './root.tsrx'
 import { Image } from './Image.tsrx'
 
-function DefaultSlide(props: { index: number; hasAutoPlay: boolean }) {
+function DefaultSlide(props: { index: number; hasAutoPlay: boolean }) @{
 	const state = useLightboxState()
 	const item = state.items[props.index]
 	// Native video lands with the platform media leaf; images are the default.
 	return <Image src={item?.src} alt={item?.alt} />
 }
 
-function Counter() {
+function Counter() @{
 	const state = useLightboxState()
 	if (state.count <= 1) return null
 	return <label className="vx-lightbox-counter">{`${state.index + 1} of ${state.count}`}</label>
 }
 
-function Caption() {
+function Caption() @{
 	const state = useLightboxState()
 	const caption = state.item?.caption
 	if (caption == null) return null
 	return <label className="vx-lightbox-caption">{typeof caption === 'string' ? caption : (caption as never)}</label>
 }
 
-function LightboxBase(props: LightboxProps) {
+function LightboxBase(props: LightboxProps) @{
 	return (
 		<Root
 			media={props.media}

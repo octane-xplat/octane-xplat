@@ -26,7 +26,7 @@ export interface ImageController {
 
 const center = (r: Rect) => ({ x: r.x + r.w / 2, y: r.y + r.h / 2 })
 
-export function Image(props: LightboxImagePartProps) {
+export function Image(props: LightboxImagePartProps) @{
 	const ctx = useLightboxCtx()
 	const { index, onTap } = useSlideCtx()
 	const item = ctx.items[index]
@@ -256,7 +256,8 @@ export function Image(props: LightboxImagePartProps) {
 	const alt = props.alt ?? item?.alt ?? ''
 	if (!item) return null
 	return (
-		<masonview ref={wrapRef} className={cx('vx-lightbox-image', loaded && 'vx-lightbox-image--loaded', props.className)} style={{ position: 'absolute', ...props.style }} testID={props.testID}>
+		<masonview ref={wrapRef} className={cx('vx-lightbox-image', loaded && 'vx-lightbox-image--loaded', props.className)} style={{ position: 'absolute', ...props.style }} id={props.id}
+			testID={props.testID}>
 			{src ? (
 				<image
 					ref={imgRef}

@@ -180,6 +180,8 @@ export interface UseLightboxState<T extends LightboxMedia = LightboxMedia> {
 
 /** Props shared by the lightbox layer parts. */
 export interface LightboxPartProps extends TestIDProps {
+	/** Host `id` — probe/test lookup (NativeScript `view.id`, web `id` attr). */
+	id?: string
 	children?: Renderable
 	className?: ClassValue
 	style?: StyleProp

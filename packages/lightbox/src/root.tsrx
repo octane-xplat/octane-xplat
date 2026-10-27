@@ -81,7 +81,7 @@ export const LightboxContext = createContext<LightboxCtx | null>(null)
 export const InternalTriggersContext = createContext<Map<number, Set<any>> | null>(null)
 export const SlideContext = createContext<SlideCtx | null>(null)
 
-export function useLightboxCtx() {
+export function useLightboxCtx() @{
 	const ctx = useContext(LightboxContext)
 	if (!ctx) {
 		throw new Error('Lightbox parts must be used inside <Lightbox.Root>.')
@@ -89,7 +89,7 @@ export function useLightboxCtx() {
 	return ctx
 }
 
-export function useSlideCtx() {
+export function useSlideCtx() @{
 	const slide = useContext(SlideContext)
 	if (!slide) {
 		throw new Error('<Lightbox.Image> must be inside <Lightbox.Slide>.')
@@ -114,7 +114,7 @@ const visibleFraction = (view: any) => {
 	return r.x + r.w > 0 && r.y + r.h > 0 && r.x < r.x + r.w + 1e9 ? 1 : 0
 }
 
-export function Root(props: LightboxRootProps) {
+export function Root(props: LightboxRootProps) @{
 	const {
 		media: items,
 		children,
@@ -306,7 +306,7 @@ export function Root(props: LightboxRootProps) {
 
 // ---------- parts ----------
 
-export function Trigger(props: LightboxTriggerPartProps) {
+export function Trigger(props: LightboxTriggerPartProps) @{
 	const ctx = useLightboxCtx()
 	const ref = useRef<any>(null)
 	useLayoutEffect(() => {
@@ -326,6 +326,7 @@ export function Trigger(props: LightboxTriggerPartProps) {
 			ref={ref as never}
 			className={cx('vx-lightbox-trigger', active && 'vx-lightbox-trigger--active', props.className)}
 			style={props.style as never}
+			id={props.id}
 			testID={props.testID}
 			onPress={() => {
 				props.onPress?.(undefined)
@@ -337,7 +338,7 @@ export function Trigger(props: LightboxTriggerPartProps) {
 	)
 }
 
-export function Backdrop(props: LightboxPartProps) {
+export function Backdrop(props: LightboxPartProps) @{
 	const ctx = useLightboxCtx()
 	const ref = useRef<any>(null)
 	useLayoutEffect(() => {
@@ -348,22 +349,30 @@ export function Backdrop(props: LightboxPartProps) {
 		return off
 	}, [ctx.presence])
 	if (ctx.phase === 'closed') return null
+	// Its own overlay layer beneath the popup — the leaf view overflows the
+	// safe area so the dimmer covers the full page (D5 requirement).
 	return (
-		<masonview
-			ref={ref as never}
-			className={cx('vx-lightbox-backdrop', props.className)}
-			style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.9)', ...props.style }}
-			testID={props.testID}
-			onTap={() => {
-				if (ctx.options.closeOnBackdropClick) ctx.close()
-			}}
-		>
-			{props.children as never}
-		</masonview>
+		<Overlay open isModal accessibilityLabel="" onDismiss={() => {}} ios={{ iosOverflowSafeArea: true }}>
+			<masonview
+				ref={ref as never}
+				className={cx('vx-lightbox-backdrop', props.className)}
+				horizontalAlignment="stretch"
+				verticalAlignment="stretch"
+				iosOverflowSafeArea
+				style={{ backgroundColor: 'rgba(0,0,0,0.9)', ...props.style }}
+				id={props.id}
+				testID={props.testID}
+				onTap={() => {
+					if (ctx.options.closeOnBackdropClick) ctx.close()
+				}}
+			>
+				{props.children as never}
+			</masonview>
+		</Overlay>
 	)
 }
 
-export function Popup(props: LightboxPartProps) {
+export function Popup(props: LightboxPartProps) @{
 	const ctx = useLightboxCtx()
 	if (ctx.phase === 'closed') return null
 	return (
@@ -372,11 +381,15 @@ export function Popup(props: LightboxPartProps) {
 			isModal
 			accessibilityLabel={ctx.items[ctx.index]?.alt ?? 'Media viewer'}
 			onDismiss={() => ctx.close()}
+			ios={{ iosOverflowSafeArea: true }}
 		>
 			<masonview
 				className={cx('vx-lightbox-popup', `vx-lightbox-popup--${ctx.phase}`, ctx.zoomed && 'vx-lightbox-popup--zoomed', ctx.dragging && 'vx-lightbox-popup--dragging', ctx.uiHidden && 'vx-lightbox-popup--ui-hidden', props.className)}
-				style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, ...props.style }}
-				testID={props.testID}
+				horizontalAlignment="stretch"
+				verticalAlignment="stretch"
+				style={props.style as never}
+				id={props.id}
+			testID={props.testID}
 				iosOverflowSafeArea
 			>
 				{props.children as never}
@@ -385,12 +398,13 @@ export function Popup(props: LightboxPartProps) {
 	)
 }
 
-export function Viewport(props: LightboxPartProps) {
+export function Viewport(props: LightboxPartProps) @{
 	const ctx = useLightboxCtx()
 	return (
 		<Track
 			className={cx('vx-lightbox-viewport', props.className)}
 			style={props.style}
+			id={props.id}
 			testID={props.testID}
 			items={ctx.items}
 			currentIndex={ctx.index}
@@ -406,7 +420,7 @@ export function Viewport(props: LightboxPartProps) {
 	)
 }
 
-export function Slide(props: LightboxSlidePartProps) {
+export function Slide(props: LightboxSlidePartProps) @{
 	const ctx = useLightboxCtx()
 	const index = props.index
 	const near = Math.abs(ctx.index - index) <= 2
@@ -416,7 +430,8 @@ export function Slide(props: LightboxSlidePartProps) {
 			<masonview
 				className={cx('vx-lightbox-slide', current && 'vx-lightbox-slide--current', props.className)}
 				style={props.style as never}
-				testID={props.testID}
+				id={props.id}
+			testID={props.testID}
 			>
 				{near ? (props.children as never) ?? null : null}
 			</masonview>
@@ -430,6 +445,7 @@ export function Close(props: LightboxPartProps & { onPress?: () => void }) {
 		<Pressable
 			className={cx('vx-lightbox-close', props.className)}
 			style={props.style as never}
+			id={props.id}
 			testID={props.testID}
 			onPress={() => {
 				props.onPress?.()
@@ -441,7 +457,7 @@ export function Close(props: LightboxPartProps & { onPress?: () => void }) {
 	)
 }
 
-function NavButton(props: LightboxPartProps & { step: 1 | -1 }) {
+function NavButton(props: LightboxPartProps & { step: 1 | -1 }) @{
 	const ctx = useLightboxCtx()
 	const target = ctx.index + props.step
 	const disabled = target < 0 || target >= ctx.items.length
@@ -450,6 +466,7 @@ function NavButton(props: LightboxPartProps & { step: 1 | -1 }) {
 			disabled={disabled}
 			className={cx('vx-lightbox-nav', disabled && 'vx-lightbox-nav--disabled', props.className)}
 			style={props.style as never}
+			id={props.id}
 			testID={props.testID}
 			onPress={() => ctx.goTo(target)}
 		>
@@ -457,17 +474,19 @@ function NavButton(props: LightboxPartProps & { step: 1 | -1 }) {
 		</Pressable>
 	)
 }
-export function Prev(props: LightboxPartProps) {
+export function Prev(props: LightboxPartProps) @{
 	return <NavButton step={-1} {...props} />
 }
-export function Next(props: LightboxPartProps) {
+export function Next(props: LightboxPartProps) @{
 	return <NavButton step={1} {...props} />
 }
-export function Title(props: LightboxPartProps) {
-	return <label className={cx('vx-lightbox-title', props.className)} style={props.style as never} testID={props.testID}>{props.children as never}</label>
+export function Title(props: LightboxPartProps) @{
+	return <label className={cx('vx-lightbox-title', props.className)} style={props.style as never} id={props.id}
+			testID={props.testID}>{props.children as never}</label>
 }
-export function Description(props: LightboxPartProps) {
-	return <label className={cx('vx-lightbox-description', props.className)} style={props.style as never} testID={props.testID}>{props.children as never}</label>
+export function Description(props: LightboxPartProps) @{
+	return <label className={cx('vx-lightbox-description', props.className)} style={props.style as never} id={props.id}
+			testID={props.testID}>{props.children as never}</label>
 }
 
 // ---------- state hook ----------

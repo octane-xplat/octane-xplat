@@ -23,7 +23,7 @@ export function Track(props: {
 	className?: string
 	style?: Record<string, unknown>
 	testID?: string
-}) {
+}) @{
 	const clipRef = useRef<any>(null)
 	const rowRef = useRef<any>(null)
 	const live = useRef({ x: 0, stride: 1, index: 0, anim: null as any })
@@ -100,7 +100,8 @@ export function Track(props: {
 	})
 
 	return (
-		<masonview ref={clipRef} className={cx('vx-lightbox-viewport', props.className)} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, overflow: 'hidden', ...props.style }} testID={props.testID} clipToBounds>
+		<masonview ref={clipRef} className={cx('vx-lightbox-viewport', props.className)} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, overflow: 'hidden', ...props.style }} id={props.id}
+			testID={props.testID} clipToBounds>
 			<masonview ref={rowRef} className="vx-lightbox-track" style={{ position: 'absolute', left: 0, top: 0, flexDirection: 'row' }}>
 				{props.children as never}
 			</masonview>

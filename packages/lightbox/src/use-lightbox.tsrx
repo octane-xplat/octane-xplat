@@ -4,7 +4,7 @@ import type { LightboxTriggerProps, UseLightboxOptions, UseLightboxReturn } from
 import { Lightbox } from './Lightbox.tsrx'
 import { InternalTriggersContext } from './root.tsrx'
 
-export function useLightbox(options: UseLightboxOptions): UseLightboxReturn {
+export function useLightbox(options: UseLightboxOptions) @{
 	const [isOpen, setIsOpen] = useState(false)
 	const [internal, setInternal] = useState(options.defaultIndex ?? 0)
 	const index = options.index ?? internal
