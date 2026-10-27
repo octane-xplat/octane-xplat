@@ -81,7 +81,11 @@ function PaletteBody<T extends CommandPaletteItem>(props: { options: CommandPale
 	</LayerDepthProvider>
 }
 
-function PalettePortal(props: { target: unknown; options: any; controller: any; depth: number; present(): void }) {
+// presentSheet owns the window; prop updates belong to the portal subtree.
+// Its handle deliberately has no imperative component/props update method.
+type PaletteSheet = { target: unknown; present(): boolean; close(): void }
+
+function PalettePortal<T extends CommandPaletteItem>(props: { target: unknown; options: CommandPaletteProps<T>; controller: ReturnType<typeof createCommandPaletteController<T>>; depth: number; present(): void }) {
 	useLayoutEffect(() => { props.present() }, [props.target])
 	return createPortal(<PaletteBody options={props.options} controller={props.controller} depth={props.depth} />, props.target)
 }
@@ -94,13 +98,13 @@ export function CommandPalette<T extends CommandPaletteItem>(options: CommandPal
 	// Results belong to the portal body; only visibility updates this owner.
 	const open = useStore(controller.store, (state) => state.open);
 	const anchor = useRef<any>(null);
-	const sheet = useRef<any>(null);
-	const [target, setTarget] = useState<any>(null);
+	const sheet = useRef<PaletteSheet | null>(null);
+	const [target, setTarget] = useState<unknown>(null);
 	const dismissal = useLayerDismissal({ get active() { return open; }, isPresent: () => !!sheet.current, dismiss: controller.close });
 	useEffect(() => {
 		if (!open) return;
 		const width = options.width ?? styleRecord(options.style).width;
-		const presented = appKitHost()?.presentSheet?.(anchor.current, {
+		const presented: PaletteSheet | null | undefined = appKitHost()?.presentSheet?.(anchor.current, {
 			minWidth: typeof width === 'number' ? width : 480,
 			onDismissed: controller.close,
 		});
