@@ -13,3 +13,7 @@ export {
 	pickLayoutChildProps,
 	equalLayoutChildProps,
 } from './component-props.js'
+
+export { UnavailabilityError, assertAvailable } from './capability.js'
+
+export type { PermissionStatus, PermissionResponse } from './capability.js'

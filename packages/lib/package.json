@@ -29,6 +29,10 @@
 		"./server-boundary": {
 			"types": "./types/generated/server-boundary.d.ts",
 			"default": "./dist/server-boundary.js"
+		},
+		"./capability": {
+			"types": "./types/generated/capability.d.ts",
+			"default": "./dist/capability.js"
 		}
 	},
 	"publishConfig": {
