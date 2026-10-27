@@ -17,11 +17,9 @@ export function Drawer(props: DrawerProps) @{
 		props.onDismiss?.();
 	};
 
-	<masonview id={props.id} ref={(v: any) => applyEscapeProps(v, props)} className={cx('vx-drawer', props.className)} style={mergeStyle({display: "grid"}, props.style)}>
+	<masonview id={props.id} ref={(v: any) => applyEscapeProps(v, props)} className={cx('vx-drawer', 'vx-drawer--appkit', props.className)} style={mergeStyle({display: "grid"}, props.style)}>
 		<masonview className="vx-drawer-main" style={{display: "grid"}}>{props.main}</masonview>
-		{/* Backdrop + panel are sibling @ifs (a fragment inside @if is not
-		   lowered on this target). Chrome metrics live inline — AppKit has
-		   no CSS layer; keep in step with .vx-drawer-* in tokens.css. */}
+		{/* All layers share the host's single grid cell. */}
 		@if (open) {
 			<masonview className="vx-drawer-backdrop" style={mergeStyle({display: "flex"}, { backgroundColor: 'rgba(0, 0, 0, 0.4)' })} onTap={requestDismiss}/>
 		}

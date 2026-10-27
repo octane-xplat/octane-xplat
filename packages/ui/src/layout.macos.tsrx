@@ -97,7 +97,7 @@ export function StackItem(props: StackItemProps) @{
 }
 
 export function Absolute(props: AbsoluteProps) @{
-	<masonview id={props.id} className={props.className} style={props.style}>
+	<masonview id={props.id} className={cx('vx-absolute', props.className)} style={props.style}>
 		{props.children}
 	</masonview>
 }

@@ -91,6 +91,14 @@
 	}
 
 	.vx-view,
+	.vx-drawer--appkit {
+		grid-template-rows: 1fr;
+		grid-template-columns: 1fr;
+	}
+	.vx-drawer--appkit > * {
+		grid-area: 1 / 1;
+	}
+
 	.vx-row {
 		display: flex;
 	}
@@ -173,16 +181,16 @@
 		vertical-align: top;
 	}
 
-	/* xplat-web-only:start — Absolute's native leaf is absolutelayout; CSS
-   positioning is web-only (children position via left/top props) */
+	/* Absolute children share one origin on every renderer. */
 	.vx-absolute {
 		position: relative;
 	}
 
 	.vx-absolute > * {
 		position: absolute;
+		left: 0;
+		top: 0;
 	}
-	/* xplat-web-only:end */
 
 	/* xplat-web-only:start — Astryx Layout: five-slot page primitive. The
    --layout-padding-* and --container-padding-* custom properties are the shared
