@@ -2,4 +2,6 @@
 
 On macOS, Item rows now place leading content, the label and description, and trailing content in order across the row.
 
+Button and Pressable now start without a border; authored border styles still apply.
+
 [Shared components](https://octane-xplat.goddardai.org/app/primitives)

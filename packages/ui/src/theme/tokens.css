@@ -374,6 +374,7 @@
 	.vx-pressable {
 		display: flex;
 		flex-direction: column;
+		border-width: 0;
 		user-select: none;
 	}
 
