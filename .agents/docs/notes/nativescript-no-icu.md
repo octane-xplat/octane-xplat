@@ -33,6 +33,8 @@ The embedded V8 in both NativeScript runtimes is built without ICU. Every
 | `Intl` gap — `MotionPatterns` (`packages/demos/src/MotionPatterns.tsrx`) formatted totals with a module-scope `Intl.NumberFormat`, which killed Android/iOS dev boot | Replaced with fixed en-US digit grouping (regex, no `Intl`), identical output on every platform | Applied; revisit locale-aware grouping only when NS runtimes ship ICU                                                     |
 | `Intl` gap — table sorting (`packages/ui/src/table/use-table-sortable-state.ts`) built a module-scope `Intl.Collator`, which killed iOS boot for any app bundling `@octane-xplat/ui` | Collator is created lazily when `Intl` exists; without it, string sorting falls back to an ICU-free natural-order compare (digit runs compare numerically, other text case-insensitively with a lowercase-first tie-break) | Applied; native sort order is not locale-aware — drop the fallback when NS runtimes ship ICU |
 
+| `Intl` gap — module-scope `new Intl.Collator` in `packages/ui/src/table/use-table-sortable-state.ts` crashed native bundles that import the ui barrel (`Intl is not defined` at module eval, observed in a Phase 0/1 lightbox probe on the Android emulator `octane-azure-lathe`) | Collator created lazily on first sort; digit-run fallback compare when `Intl` is undefined | Applied; revisit if NS runtimes ship ICU |
+
 ## Notes
 
 - `@nativescript/ios` 9.1.0 runs the same V8 engine (`v8ios.xcodeproj` in the
