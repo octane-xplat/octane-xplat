@@ -269,6 +269,23 @@ export function ValueControls() {
 }
 ```
 
+For a velocity-driven release — the value keeps moving and decays, optionally
+bouncing off `min`/`max` bounds — animate with `type: 'inertia'`. The
+destination argument is ignored, so pass the current value.
+
+```ts
+x.animate(x.get(), {
+	type: 'inertia',
+	velocity: 800,
+	min: -100,
+	max: 100,
+	power: 0.5,
+	timeConstant: 280,
+	bounceStiffness: 360,
+	bounceDamping: 36,
+})
+```
+
 `useTransform` maps numeric ranges or applies a single/multiple-input numeric
 transformer. `useSpring` follows a value or creates a settable spring: `set`
 animates and `jump` snaps. `useMotionValueEvent` subscribes without a render.
