@@ -19,6 +19,7 @@
 		"webview:dev": "node ./scripts/webview-dev.ts",
 		"test:announce": "node test/verify-announce.mjs",
 		"smoke": "node scripts/smoke.ts",
+		"verify-hmr": "node scripts/verify-hmr.ts",
 		"test:animation": "node test/verify-animation.mjs",
 		"test:layout-channels": "node test/verify-layout-channels.mjs",
 		"test:layout-placement": "node test/verify-layout-placement.mjs",

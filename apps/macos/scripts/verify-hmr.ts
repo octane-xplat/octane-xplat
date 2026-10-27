@@ -8,7 +8,7 @@ const appRoot = dirname(dirname(fileURLToPath(import.meta.url)))
 // The xplat bin entry — dev targets spawn through the CLI, not a local shim.
 const xplatCli = join(
 	dirname(fileURLToPath(import.meta.resolve('@octane-xplat/cli/macos'))),
-	'../cli.ts',
+	'../../bin/xplat.mjs',
 )
 const appSource = join(appRoot, 'src/App.tsx')
 const host = spawn(process.execPath, [xplatCli, 'dev', 'macos'], {

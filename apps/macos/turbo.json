@@ -14,6 +14,14 @@
 			"dependsOn": ["^typegen", "^build"],
 			"cache": false
 		},
+		"smoke": {
+			"dependsOn": ["^typegen", "^build", "@xplat/app#gen"],
+			"cache": false
+		},
+		"verify-hmr": {
+			"dependsOn": ["^typegen", "^build", "@xplat/app#gen"],
+			"cache": false
+		},
 		"build": {
 			"dependsOn": ["^typegen", "@xplat/app#gen"],
 			"inputs": [
