@@ -29,6 +29,7 @@
 		"src/AnimatedImage.web.tsrx",
 		"src/index.ts",
 		"src/index.web.ts",
+		"src/index.windows.ts",
 		"src/native-elements.d.ts",
 		"src/props.ts"
 	]

@@ -37,6 +37,7 @@
 		"src/index.ts",
 		"src/index.web.ts",
 		"src/index.macos.ts",
+		"src/index.windows.ts",
 		"src/props.ts",
 		"src/native-elements.d.ts",
 		"src/BannerAd.tsrx",
