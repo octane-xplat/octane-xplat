@@ -1105,7 +1105,7 @@ index e6a14437f8990e2c631f23eb8db21aa0b28b5759..2b9fb450511b6e114b6e7e7ac8a48831
                              return;
                          // Root-component guard. Analog's in-place
 diff --git a/hmr/shared/vendor/manifest-collect.js b/hmr/shared/vendor/manifest-collect.js
-index 7b3afd4af098cc8587851b04188f6b1c3d5541bc..854530f1b5c65e41e47b61b50cb1d21c43c48144 100644
+index 7b3afd4af098cc8587851b04188f6b1c3d5541bc..8951fe0d26c6cd73ad713bf672ca242437678afd 100644
 --- a/hmr/shared/vendor/manifest-collect.js
 +++ b/hmr/shared/vendor/manifest-collect.js
 @@ -527,7 +527,7 @@ export function collectVendorModules(projectRoot, platform, flavor) {
@@ -1137,6 +1137,15 @@ index 7b3afd4af098cc8587851b04188f6b1c3d5541bc..854530f1b5c65e41e47b61b50cb1d21c
                      }
                  }
              };
+@@ -588,7 +590,7 @@ export function collectVendorModules(projectRoot, platform, flavor) {
+         // Some force-included packages are only present transitively in apps that
+         // actually use them. Skip missing packages quietly so unrelated projects do
+         // not fail vendor collection just because the policy list names them.
+-        if (canResolveDependencyPackageJson(name, projectRequire)) {
++        if (isAlwaysIncludeInstalled(name, projectRoot)) {
+             addCandidate(name);
+         }
+     }
 @@ -642,7 +644,7 @@ export function collectVendorModules(projectRoot, platform, flavor) {
          }
          const peerDependencies = Object.keys(dependencyPkg.peerDependencies ?? {});
@@ -1270,7 +1279,7 @@ index 7b3afd4af098cc8587851b04188f6b1c3d5541bc..854530f1b5c65e41e47b61b50cb1d21c
      for (const cand of candidates) {
          const abs = path.resolve(pkgDir, cand);
          const ext = path.extname(cand);
-@@ -889,25 +925,26 @@ function classifyPackageEntry(name, projectRequire, platform) {
+@@ -889,25 +925,47 @@ function classifyPackageEntry(name, projectRequire, platform) {
              continue;
          }
          if (!ext) {
@@ -1302,9 +1311,30 @@ index 7b3afd4af098cc8587851b04188f6b1c3d5541bc..854530f1b5c65e41e47b61b50cb1d21c
          if (fs.existsSync(abs))
 -            sourceEntryFound = true;
 +            return 'source';
++    }
++    return 'unknown';
++}
++// Presence for force-included packages is a filesystem node_modules
++// ancestor walk from the project root — matching what the esbuild vendor
++// pass can actually resolve. projectRequire.resolve would honor NODE_PATH,
++// and pnpm's bin shims (`node_modules/.bin/ns`, `xplat`) export NODE_PATH
++// containing the hidden `.pnpm/node_modules` hoist, where phantom copies of
++// other importers' dependencies (e.g. a package only a different workspace
++// app uses) look installed but are unresolvable at bundle time.
++function isAlwaysIncludeInstalled(name, projectRoot) {
++    let dir = projectRoot;
++    for (;;) {
++        const inPnpmHiddenHoist =
++            path.basename(dir) === '.pnpm' && path.basename(path.dirname(dir)) === 'node_modules';
++        if (!inPnpmHiddenHoist && fs.existsSync(path.join(dir, 'node_modules', name, 'package.json'))) {
++            return true;
++        }
++        const parent = path.dirname(dir);
++        if (parent === dir)
++            return false;
++        dir = parent;
      }
 -    return sourceEntryFound ? 'source' : 'unknown';
-+    return 'unknown';
  }
  function canResolveDependencyPackageJson(specifier, projectRequire) {
      try {

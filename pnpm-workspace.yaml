@@ -211,7 +211,11 @@ patchedDependencies:
   # projectRoot/node_modules join, so deep `pkg/dist/...` specifiers fold back to the bare
   # vendor id in hoisted workspaces where the app's own node_modules is empty (a missed fold
   # leaves the vendor registry without the specifier and device require resolves a module
-  # missing the vendored exports).
+  # missing the vendored exports). The bare-specifier HTTP fallback anchors at the
+  # importer's real path and walks its node_modules ancestors when the spec is absent from
+  # the app root chain, so a package present only as an importer's pnpm sibling (storybook's
+  # @storybook/global) rewrites to a serving /ns/m/@fs URL instead of the root-resolved
+  # /ns/m/node_modules/<spec> 404.
   "@nativescript/vite@8.0.20": packages/cli/patches/@nativescript__vite@8.0.20.patch
   # Driver treats a prop dropped from an update's complete prop bag — or set to
   # `undefined`/`null` — as a removal and restores the documented default:

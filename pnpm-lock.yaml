@@ -92,7 +92,7 @@ patchedDependencies:
   '@nativescript/core@9.1.3': 5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f
   '@nativescript/core@9.1.4-next.0': a2b3cd0854b048594158f665741d20d569dc8f5c6861b45191324fc8558bc504
   '@nativescript/doctor@2.0.18': d2e06f9eabe23b3bf26d66524e72c6a9cb0ac80b069faaf2cb636e34b5fdc1d3
-  '@nativescript/vite@8.0.20': 1a1dd7a2f8c9f6449176d6e70570c42748590a3f63997fd969d3c07a2ab1cbdb
+  '@nativescript/vite@8.0.20': e3c76e1207a3baa13b61daa65081d7dcbf32f4af3d49a32a5230027001538f57
   '@nativescript/vite@8.0.21': d6580a37f1041a153ab0c5043911dcb95fb385f87bd1f404583d399b4d0167ac
   '@octanejs/tiptap@0.0.52': d0289ba086910439cae2273234809337c4721470c18709472e4ed003c2eb6ada
   '@tsrx/typescript-plugin@0.4.11': d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee
@@ -350,7 +350,7 @@ importers:
     devDependencies:
       '@nativescript-community/vite-octane':
         specifier: 'catalog:'
-        version: 0.2.1(patch_hash=76086d1dcfd0d58d9445667bf0433aeb2d3a7804e1e2357c5d244a57cc53888d)(2e5a44862554c09032138d730ef7fbc6)
+        version: 0.2.1(patch_hash=76086d1dcfd0d58d9445667bf0433aeb2d3a7804e1e2357c5d244a57cc53888d)(07c65177cae3d92d7b4be49d423358bc)
       '@nativescript/android':
         specifier: 9.1.1
         version: 9.1.1
@@ -362,7 +362,7 @@ importers:
         version: 9.1.4
       '@nativescript/vite':
         specifier: 8.0.20
-        version: 8.0.20(patch_hash=1a1dd7a2f8c9f6449176d6e70570c42748590a3f63997fd969d3c07a2ab1cbdb)(@types/node@24.10.1)(@vue/compiler-sfc@3.5.41)(jiti@2.7.0)(supports-color@10.2.2)(terser@5.51.2)(typescript@5.9.3)(yaml@2.9.1)
+        version: 8.0.20(patch_hash=e3c76e1207a3baa13b61daa65081d7dcbf32f4af3d49a32a5230027001538f57)(@types/node@24.10.1)(@vue/compiler-sfc@3.5.41)(jiti@2.7.0)(supports-color@10.2.2)(terser@5.51.2)(typescript@5.9.3)(yaml@2.9.1)
       '@octane-xplat/cli':
         specifier: workspace:*
         version: link:../../packages/cli
@@ -498,7 +498,7 @@ importers:
         version: 7.29.7(@babel/core@7.29.7(supports-color@10.2.2))
       '@nativescript-community/vite-octane':
         specifier: 'catalog:'
-        version: 0.2.1(patch_hash=76086d1dcfd0d58d9445667bf0433aeb2d3a7804e1e2357c5d244a57cc53888d)(2e5a44862554c09032138d730ef7fbc6)
+        version: 0.2.1(patch_hash=76086d1dcfd0d58d9445667bf0433aeb2d3a7804e1e2357c5d244a57cc53888d)(07c65177cae3d92d7b4be49d423358bc)
       '@nativescript/android':
         specifier: 9.1.1
         version: 9.1.1
@@ -513,7 +513,7 @@ importers:
         version: 5.0.0(@babel/core@7.29.7(supports-color@10.2.2))(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(@vitest/runner@4.1.11)(supports-color@10.2.2)(vitest@4.1.11)(webpack@5.111.1(esbuild@0.27.7)(lightningcss@1.33.0)(postcss@8.5.28)(sharp@0.35.4(@types/node@24.10.1)))
       '@nativescript/vite':
         specifier: 8.0.20
-        version: 8.0.20(patch_hash=1a1dd7a2f8c9f6449176d6e70570c42748590a3f63997fd969d3c07a2ab1cbdb)(@types/node@24.10.1)(@vue/compiler-sfc@3.5.41)(jiti@2.7.0)(supports-color@10.2.2)(terser@5.51.2)(typescript@5.9.3)(yaml@2.9.1)
+        version: 8.0.20(patch_hash=e3c76e1207a3baa13b61daa65081d7dcbf32f4af3d49a32a5230027001538f57)(@types/node@24.10.1)(@vue/compiler-sfc@3.5.41)(jiti@2.7.0)(supports-color@10.2.2)(terser@5.51.2)(typescript@5.9.3)(yaml@2.9.1)
       '@octane-xplat/bamboo':
         specifier: workspace:*
         version: link:../../packages/bamboo
@@ -1350,13 +1350,13 @@ importers:
     devDependencies:
       '@nativescript-community/vite-octane':
         specifier: 0.2.1
-        version: 0.2.1(patch_hash=76086d1dcfd0d58d9445667bf0433aeb2d3a7804e1e2357c5d244a57cc53888d)(2e5a44862554c09032138d730ef7fbc6)
+        version: 0.2.1(patch_hash=76086d1dcfd0d58d9445667bf0433aeb2d3a7804e1e2357c5d244a57cc53888d)(07c65177cae3d92d7b4be49d423358bc)
       '@nativescript/core':
         specifier: 'catalog:'
         version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
       '@nativescript/vite':
         specifier: 8.0.20
-        version: 8.0.20(patch_hash=1a1dd7a2f8c9f6449176d6e70570c42748590a3f63997fd969d3c07a2ab1cbdb)(@types/node@24.10.1)(@vue/compiler-sfc@3.5.41)(jiti@2.7.0)(supports-color@10.2.2)(terser@5.51.2)(typescript@5.9.3)(yaml@2.9.1)
+        version: 8.0.20(patch_hash=e3c76e1207a3baa13b61daa65081d7dcbf32f4af3d49a32a5230027001538f57)(@types/node@24.10.1)(@vue/compiler-sfc@3.5.41)(jiti@2.7.0)(supports-color@10.2.2)(terser@5.51.2)(typescript@5.9.3)(yaml@2.9.1)
       '@types/node':
         specifier: 24.10.1
         version: 24.10.1
@@ -13626,10 +13626,10 @@ snapshots:
       - '@nativescript/core'
       - octane
 
-  '@nativescript-community/vite-octane@0.2.1(patch_hash=76086d1dcfd0d58d9445667bf0433aeb2d3a7804e1e2357c5d244a57cc53888d)(2e5a44862554c09032138d730ef7fbc6)':
+  '@nativescript-community/vite-octane@0.2.1(patch_hash=76086d1dcfd0d58d9445667bf0433aeb2d3a7804e1e2357c5d244a57cc53888d)(07c65177cae3d92d7b4be49d423358bc)':
     dependencies:
       '@nativescript-community/octane': 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.14.0(patch_hash=72aab06e2743b11bebe59fe01d29148dcfbd2bb3a381413179986b0f374ba065)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
-      '@nativescript/vite': 8.0.20(patch_hash=1a1dd7a2f8c9f6449176d6e70570c42748590a3f63997fd969d3c07a2ab1cbdb)(@types/node@24.10.1)(@vue/compiler-sfc@3.5.41)(jiti@2.7.0)(supports-color@10.2.2)(terser@5.51.2)(typescript@5.9.3)(yaml@2.9.1)
+      '@nativescript/vite': 8.0.20(patch_hash=e3c76e1207a3baa13b61daa65081d7dcbf32f4af3d49a32a5230027001538f57)(@types/node@24.10.1)(@vue/compiler-sfc@3.5.41)(jiti@2.7.0)(supports-color@10.2.2)(terser@5.51.2)(typescript@5.9.3)(yaml@2.9.1)
       '@octanejs/vite-plugin': 0.1.61(octane@0.14.0(patch_hash=72aab06e2743b11bebe59fe01d29148dcfbd2bb3a381413179986b0f374ba065)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
       vite: 8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)
     transitivePeerDependencies:
@@ -13808,7 +13808,7 @@ snapshots:
       - utf-8-validate
       - webpack
 
-  '@nativescript/vite@8.0.20(patch_hash=1a1dd7a2f8c9f6449176d6e70570c42748590a3f63997fd969d3c07a2ab1cbdb)(@types/node@24.10.1)(@vue/compiler-sfc@3.5.41)(jiti@2.7.0)(supports-color@10.2.2)(terser@5.51.2)(typescript@5.9.3)(yaml@2.9.1)':
+  '@nativescript/vite@8.0.20(patch_hash=e3c76e1207a3baa13b61daa65081d7dcbf32f4af3d49a32a5230027001538f57)(@types/node@24.10.1)(@vue/compiler-sfc@3.5.41)(jiti@2.7.0)(supports-color@10.2.2)(terser@5.51.2)(typescript@5.9.3)(yaml@2.9.1)':
     dependencies:
       '@babel/core': 7.29.7(supports-color@10.2.2)
       '@babel/generator': 7.29.8
