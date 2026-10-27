@@ -1,4 +1,5 @@
 import type { Target, Transition, DragInfo } from './types'
+import type { Measurement, ProjectionWrite } from './projection/types'
 
 export interface DelegatedRequest {
 	/** Channels the caller asked to animate. */
@@ -46,4 +47,10 @@ export interface HostAdapter {
 	/** Subscribe to a gesture lifecycle; returns an unsubscribe, or null if the
 	 *  host cannot emit it (focus events only exist on focusable hosts). */
 	gesture?(kind: GestureKind, callbacks: GestureCallbacks): (() => void) | null
+	/** Measure the host's layout box for projection; null if unmeasurable. */
+	measureLayout?(): Measurement | null
+	/** Temporarily clear any projection transform so layout can be measured. */
+	resetProjection?(): void
+	/** null hands transform ownership back to plain channel writes (write(latest)). */
+	project?(write: ProjectionWrite | null): void
 }

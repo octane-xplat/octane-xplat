@@ -11,6 +11,11 @@ import { Controller, keys, defaults } from './controller'
 import { validateTransitionInput } from './engine'
 import { VariantNode, isLabels, resolveVariant, playbackTransition } from './variants'
 import { MotionValue } from './value'
+import { ProjectionContext } from './projection/context.tsrx'
+import { ProjectionNode } from './projection/node'
+import { projectionRoot } from './projection/root'
+import { layoutSupported } from './projection/barrier'
+import type { AnimationType } from './projection/types'
 import type { MotionKey, MotionProps, MotionViewProps, MotionRowProps, MotionPressableProps, Target, AnimationDefinition } from './types'
 
 const VariantContext = createContext<VariantNode | null>(null)
@@ -23,9 +28,44 @@ const GESTURE_PROPS: Record<GestureKind, { target: 'whileTap' | 'whileFocus'; tr
 	focus: { target: 'whileFocus', transition: 'whileFocusTransition' },
 }
 
+/** Feed channel writes into the projection node; while projecting they only
+ *  mark the projection dirty — the projected transform owns the host. */
+function attachProjection(node: ProjectionNode, adapter: HostAdapter): HostAdapter {
+	node.attach({
+		measureLayout: () => adapter.measureLayout?.() ?? null,
+		resetProjection: () => adapter.resetProjection?.(),
+		project: (write) => adapter.project?.(write),
+	})
+
+	return {
+		pan: adapter.pan?.bind(adapter),
+		read: adapter.read.bind(adapter),
+		restore: adapter.restore.bind(adapter),
+		gesture: adapter.gesture?.bind(adapter),
+		measureLayout: adapter.measureLayout?.bind(adapter),
+		resetProjection: adapter.resetProjection?.bind(adapter),
+		project: adapter.project?.bind(adapter),
+		write(values) {
+			node.setLatestValues(values)
+			if (node.isProjecting() || node.hasProjected) {
+				node.isProjectionDirty = true
+				node.root.requestProjectionFrame()
+				// Opacity never projects; it stays on the plain channel write.
+				if (values.opacity !== undefined) adapter.write({ opacity: values.opacity })
+			} else {
+				adapter.write(values)
+			}
+		},
+	}
+}
+
 function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
-	for (const name of ['layout', 'layoutId', 'inherit', 'whileHover', 'whileInView', 'whileDrag']) {
+	for (const name of ['layoutId', 'layoutScroll', 'layoutRoot', 'layoutAnchor', 'layoutCrossfade', 'inherit', 'whileHover', 'whileInView', 'whileDrag']) {
 		if (name in props) throw new Error(`motion: ${name} is outside the supported subset`)
+	}
+
+	if (props.layout && !layoutSupported) {
+		throw new Error('motion: layout is not yet supported on this platform')
 	}
 
 	validateDrag(props)
@@ -53,6 +93,32 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
 	const reduced = config.reducedMotion === 'always' || (config.reducedMotion === 'user' && systemReduced)
 	const transition = props.transition ?? config.transition ?? {}
 	validateTransitionInput(transition)
+
+	const parentProjection = useContext(ProjectionContext)
+	const layoutMode: AnimationType | undefined = props.layout
+		? props.layout === true
+			? 'both'
+			: props.layout
+		: undefined
+	const projRef = useRef<ProjectionNode | null>(null)
+	let projection = parentProjection
+	if (layoutMode) {
+		if (!projRef.current || projRef.current.parent !== (parentProjection ?? undefined)) {
+			projRef.current = new ProjectionNode(parentProjection ?? undefined)
+		}
+
+		const node = projRef.current
+		node.options.animationType = layoutMode
+		node.options.layoutDependency = props.layoutDependency
+		node.options.transition = props.transition ?? config.transition
+		node.options.reduced = reduced
+		node.options.onLayoutAnimationStart = () => latest.current.onLayoutAnimationStart?.()
+		node.options.onLayoutAnimationComplete = () => latest.current.onLayoutAnimationComplete?.()
+		projection = node
+	} else {
+		projRef.current = null
+	}
+
 	resolve(props.whileTap)
 	resolve(props.whileFocus)
 	if (props.whileTapTransition) validateTransitionInput(props.whileTapTransition)
@@ -63,6 +129,7 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
 		controller: Controller
 		host?: any
 		adapter?: HostAdapter
+		rawAdapter?: HostAdapter
 		initialized: boolean
 		gestureOff?: () => void
 		dragOff?: () => void
@@ -124,7 +191,8 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
 			current.gestureOff = undefined
 			current.adapter?.restore()
 			current.host = host
-			current.adapter = attachHost(host)
+			current.rawAdapter = attachHost(host)
+			current.adapter = projRef.current ? attachProjection(projRef.current, current.rawAdapter) : current.rawAdapter
 			if (!current.initialized) {
 				const baseline = current.adapter.read()
 				for (const [key, value] of previous.current) baseline[key] = value instanceof MotionValue ? value.get() : value
@@ -194,6 +262,30 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
 	}
 
 	useLayoutEffect(() => presence?.register(member.current!), [presence])
+	useLayoutEffect(() => {
+		const node = projRef.current
+		if (!node) return
+		const root = projectionRoot()
+		if (current.rawAdapter && current.adapter === current.rawAdapter) {
+			current.adapter = attachProjection(node, current.rawAdapter)
+			current.controller.attach(current.adapter)
+		}
+
+		root.add(node)
+		return () => {
+			root.remove(node)
+			if (current.rawAdapter && current.adapter !== current.rawAdapter) {
+				current.adapter = current.rawAdapter
+				current.controller.attach(current.adapter)
+			}
+		}
+	}, [projRef.current])
+	useLayoutEffect(() => {
+		if (projRef.current) projectionRoot().invalidate('commit')
+	}, [props])
+	useLayoutEffect(() => () => {
+		if (projRef.current) projectionRoot().invalidate('commit')
+	}, [])
 	const hostRef = useRef((host: any) => ref.current(host)).current
 	useLayoutEffect(() => () => { node.stop(); current.dragOff?.(); current.gestureOff?.(); current.controller.destroy(); current.host = undefined; current.adapter = undefined }, [])
 	useLayoutEffect(() => {
@@ -245,15 +337,15 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
 		return () => { if (!inherits) node.stop() }
 	}, [JSON.stringify(resolvedAnimate), JSON.stringify(resolvedExit), JSON.stringify(animateDefinition), JSON.stringify(transition), reduced, inherits])
 
-	const { drag, dragConstraints, dragElastic, dragMomentum, onDragStart, onDrag, onDragEnd, variants, custom, initial, exit, animate, transition: ignoredTransition, whileTap, whileTapTransition, whileFocus, whileFocusTransition, onAnimationStart, onAnimationComplete, onUpdate, style: ignoredStyle, ref: ignoredRef, ...rest } = props
-	return { hostProps: { ...rest, style, ref: [hostRef, props.ref] }, node }
+	const { drag, dragConstraints, dragElastic, dragMomentum, onDragStart, onDrag, onDragEnd, variants, custom, initial, exit, animate, transition: ignoredTransition, whileTap, whileTapTransition, whileFocus, whileFocusTransition, layout, layoutDependency, onLayoutAnimationStart, onLayoutAnimationComplete, onAnimationStart, onAnimationComplete, onUpdate, style: ignoredStyle, ref: ignoredRef, ...rest } = props
+	return { hostProps: { ...rest, style, ref: [hostRef, props.ref] }, node, projection }
 }
 
 function MotionLeaf(props: MotionProps & { component?: any; children?: any }) @{
 	const Component = props.component
-	const { hostProps, node } = useMotion(props)
+	const { hostProps, node, projection } = useMotion(props)
 
-	<VariantContext value={node}><Component {...hostProps}>{props.children}</Component></VariantContext>
+	<VariantContext value={node}><Component {...hostProps}><ProjectionContext value={projection}>{props.children}</ProjectionContext></Component></VariantContext>
 }
 
 /** Wrap any component that accepts `ref`/`style`/`children` — the portable
@@ -268,21 +360,21 @@ export function createMotion<P extends Record<string, unknown>>(Component: (prop
 
 /** Animated View preserving the shared primitive's layout and accessibility. */
 export function MotionView(props: MotionViewProps) @{
-	const { hostProps, node } = useMotion(props)
+	const { hostProps, node, projection } = useMotion(props)
 
-	<VariantContext value={node}><View {...hostProps}>{props.children}</View></VariantContext>
+	<VariantContext value={node}><View {...hostProps}><ProjectionContext value={projection}>{props.children}</ProjectionContext></View></VariantContext>
 }
 
 /** Animated horizontal stack. */
 export function MotionRow(props: MotionRowProps) @{
-	const { hostProps, node } = useMotion(props)
+	const { hostProps, node, projection } = useMotion(props)
 
-	<VariantContext value={node}><HStack {...hostProps}>{props.children}</HStack></VariantContext>
+	<VariantContext value={node}><HStack {...hostProps}><ProjectionContext value={projection}>{props.children}</ProjectionContext></HStack></VariantContext>
 }
 
 /** Animated Pressable preserving its input callbacks and disabled state. */
 export function MotionPressable(props: MotionPressableProps) @{
-	const { hostProps, node } = useMotion(props)
+	const { hostProps, node, projection } = useMotion(props)
 
-	<VariantContext value={node}><Pressable {...hostProps}>{props.children}</Pressable></VariantContext>
+	<VariantContext value={node}><Pressable {...hostProps}><ProjectionContext value={projection}>{props.children}</ProjectionContext></Pressable></VariantContext>
 }

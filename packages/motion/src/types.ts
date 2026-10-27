@@ -58,6 +58,8 @@ export interface Transition extends ChildOrchestration {
 /** Per-channel transition overrides, upstream form: `{x: {…}, default: {…}}`. */
 export type TransitionOrchestration = ChildOrchestration & {
 	default?: Transition
+	/** Timing for layout-projection animations driven by `layout`. */
+	layout?: Transition
 } & Partial<Record<MotionKey, Transition>>
 
 /** A flat transition or per-channel overrides. */
@@ -121,6 +123,12 @@ export interface MotionProps {
 	/** Target while the host holds focus. */
 	whileFocus?: AnimationDefinition
 	whileFocusTransition?: Transition
+	/** Animate layout changes with transforms only; modes restrict the delta. */
+	layout?: boolean | 'position' | 'size' | 'preserve-aspect' | 'x' | 'y'
+	/** When defined, layout animations only run on commits where this changed. */
+	layoutDependency?: unknown
+	onLayoutAnimationStart?: () => void
+	onLayoutAnimationComplete?: () => void
 	onAnimationStart?: (definition: AnimationDefinition) => void
 	onAnimationComplete?: () => void
 	/** Per-frame snapshot while any channel animates. */

@@ -61,6 +61,10 @@ export default defineConfig({
 				replacement: resolve(configDir, 'test/platform.ts'),
 			},
 			{
+				find: '../clock',
+				replacement: resolve(configDir, 'test/platform.ts'),
+			},
+			{
 				find: './reduced-motion',
 				replacement: resolve(configDir, 'test/platform.ts'),
 			},

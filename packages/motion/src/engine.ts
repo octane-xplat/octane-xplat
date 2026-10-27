@@ -41,7 +41,7 @@ export function isOrchestrated(t: TransitionInput | undefined): t is TransitionO
 		return false
 	}
 
-	return 'default' in t || MOTION_KEYS.some((key) => key in t)
+	return 'default' in t || 'layout' in t || MOTION_KEYS.some((key) => key in t)
 }
 
 export function resolveTransition(t: TransitionInput, key: MotionKey): Transition {
@@ -161,7 +161,7 @@ export function validateTransitionInput(t: TransitionInput): void {
 		const { staggerChildren, delayChildren, when, ...channels } = t
 		validateTransition({ staggerChildren, delayChildren, when })
 		for (const [key, value] of Object.entries(channels)) {
-			if (key !== 'default' && !MOTION_KEYS.includes(key as MotionKey)) {
+			if (key !== 'default' && key !== 'layout' && !MOTION_KEYS.includes(key as MotionKey)) {
 				throw new Error(`motion: unsupported transition ${key}`)
 			}
 
