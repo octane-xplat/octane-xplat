@@ -13,3 +13,5 @@ export const clock = {
 }
 
 export const Utils = { layout: { toDevicePixels: (value: number) => value * 2 } }
+
+export const Application = {}
