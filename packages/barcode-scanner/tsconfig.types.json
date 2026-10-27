@@ -1,0 +1,45 @@
+{
+	"compilerOptions": {
+		"strict": true,
+		"skipLibCheck": true,
+		"module": "esnext",
+		"moduleResolution": "bundler",
+		"target": "esnext",
+		"jsx": "react-jsx",
+		"jsxImportSource": "octane",
+		"declaration": true,
+		"emitDeclarationOnly": true,
+		"noEmit": false,
+		"rootDir": "src",
+		"moduleSuffixes": [
+			"",
+			".web",
+			".ios",
+			".android",
+			".mobile",
+			".native",
+			".macos",
+			".linux",
+			".windows"
+		],
+		"allowImportingTsExtensions": true,
+		"types": [
+			"@nativescript/types"
+		]
+	},
+	"include": [
+		"src/types.ts",
+		"src/props.ts",
+		"src/native-elements.d.ts",
+		"src/barcode-scanner.ts",
+		"src/barcode-scanner.web.ts",
+		"src/barcode-scanner.macos.ts",
+		"src/barcode-scanner.linux.ts",
+		"src/barcode-scanner.windows.ts",
+		"src/BarcodeScanner.tsrx",
+		"src/BarcodeScanner.web.tsrx",
+		"src/index.ts",
+		"src/index.web.ts",
+		"src/index.macos.ts"
+	]
+}
