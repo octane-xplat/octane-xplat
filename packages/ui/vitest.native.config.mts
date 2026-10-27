@@ -57,7 +57,7 @@ export default defineConfig({
 			// Object-driver tests only need its universal-runtime re-exports.
 			{
 				find: /^@nativescript-community\/octane$/,
-				replacement: 'octane/universal/native',
+				replacement: new URL('./tests/octane-native-shim.ts', import.meta.url).pathname,
 			},
 			// The mason layout plugin evaluates platform globals (__ANDROID__/
 			// __APPLE__) and touches native APIs at import — substitute a

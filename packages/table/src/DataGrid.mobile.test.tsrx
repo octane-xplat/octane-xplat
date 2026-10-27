@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { createObjectContainer, createObjectDriver, createUniversalRoot, flushUniversalSync } from 'octane/universal/native'
 import { useState } from 'octane'
 
-vi.mock('@nativescript/core', () => ({ isIOS: false, isAndroid: true, Application: {} }))
+vi.mock('@nativescript/core', () => ({ isIOS: false, isAndroid: true, Application: { on() {}, off() {} }, View: class {}, Property: class { constructor(_o?: any) {} register() {} }, CSSType: () => () => {} }))
 vi.mock('../../ui/src/pan.tsrx', () => ({ usePan: () => undefined }))
 vi.mock('@octane-xplat/ui', () => import('../tests/native-controls.mobile.tsrx'))
 import { DataGrid } from './DataGrid.tsrx'
