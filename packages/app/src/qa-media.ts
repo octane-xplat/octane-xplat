@@ -77,21 +77,21 @@ export async function runQaTrigger(key: string): Promise<string> {
 				_hold.update(0.8, 0.5)
 				return 'holding'
 			case 'notify': {
-				if ((await notifications.ensure()) !== 'granted' || !notifications.impl) {
+				if (!(await notifications.requestPermissions()).granted) {
 					return 'unsupported'
 				}
 
-				notifications.impl.notify('Human QA', 'notification check')
+				notifications.notify('Human QA', 'notification check')
 				return 'sent — background the app now'
 			}
 			case 'share':
 				return 'result: ' + (await share.text('octane-xplat human QA'))
 			case 'biometric': {
-				if ((await biometrics.ensure()) !== 'granted' || !biometrics.impl) {
+				if (!(await biometrics.requestPermissions()).granted) {
 					return 'unsupported'
 				}
 
-				return (await biometrics.impl.verify('Confirm it is you')) ? 'verified' : 'failed'
+				return (await biometrics.verify('Confirm it is you')) ? 'verified' : 'failed'
 			}
 			default:
 				return 'unknown trigger: ' + key

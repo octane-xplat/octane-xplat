@@ -2,7 +2,7 @@
 
 ID: local-notifications
 Targets: web, ios, android, macos
-Related APIs: @octane-xplat/notifications, notifications.supported, notifications.ensure, notifications.impl.notify, permissions.ensure
+Related APIs: @octane-xplat/notifications, notifications.supported, notifications.requestPermissions, notifications.notify, permissions.requestPermissions
 
 ## Starting point
 

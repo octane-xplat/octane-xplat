@@ -22,21 +22,24 @@ the person context for the permission prompt:
 import { notifications } from '@octane-xplat/notifications'
 
 export async function sendReminder() {
-	const result = await notifications.ensure()
-	if (result === 'granted') {
-		notifications.impl?.notify('Reminder', 'Your break starts now.')
+	const result = await notifications.requestPermissions()
+	if (result.granted) {
+		notifications.notify('Reminder', 'Your break starts now.')
 	}
 
 	return result
 }
 ```
 
-`ensure()` returns `granted`, `denied`, or `unsupported`. Show a useful message
-for the last two outcomes. If permission was denied, explain how to enable
-notifications in system or browser settings; repeatedly asking cannot override
-the person's choice. After importing this leaf, the shared
-`permissions.ensure('notifications')` dispatcher uses the same permission owner.
-The dispatcher reports `unsupported` when no owner is installed.
+`requestPermissions()` resolves `{status, granted, canAskAgain}` with
+`status` one of `granted`, `denied`, `undetermined`, or `unsupported`. Show a
+useful message for the non-granted outcomes. If permission was denied, explain
+how to enable notifications in system or browser settings — `canAskAgain:
+false` means the platform cannot re-prompt. `getPermissions()` reads the same
+state without prompting. After importing this leaf, the shared
+`permissions.requestPermissions('notifications')` dispatcher uses the same
+permission owner. The dispatcher reports `unsupported` when no owner is
+installed.
 
 `notify(title, body?)` returns `void`; a missing body becomes an empty message.
 It does not request permission or confirm delivery. The public leaf currently
@@ -61,7 +64,7 @@ metadata. No host edits or push entitlements are required. See
 [native leaves](macos-native.md) if compilation or metadata generation fails.
 Run the resulting `.app` from the configured output directory to test permission
 and delivery under its bundle identity. A plain Node process without native
-metadata, or an unbundled host without an app bundle identity, reports `supported: false`, `unsupported`, and `impl: null`.
+metadata, or an unbundled host without an app bundle identity, reports `supported: false` and an `unsupported` permission status; `notify` throws `UnavailabilityError` there.
 
 The macOS implementation asks for alert, sound, and badge permission. Native
 permission errors return `denied`. Permission callbacks return to the JS main

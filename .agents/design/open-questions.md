@@ -339,7 +339,7 @@ view.style, v)` — camelCase `Style` keys, **dip units**. Shared `style`
     `ASWebAuthenticationSession` is wired over the same proven bridge pattern
     (anchor + delegate selectors verified), but no real
     `open(url, { callbackScheme })` run has happened — needs a hosted endpoint
-    and the packaged app. Lab: drive `authSession.impl.open` against a test
+    and the packaged app. Lab: drive `authSession.open` against a test
     authorize URL in the signed fixture app.
 38. 🔬 **Should `googleAuth` route through `authSession` on macOS?** — Now
     that the hosted ceremony exists there, the leaf could implement Google's

@@ -34,7 +34,7 @@ reporting.
 ```ts
 import { haptics, createHaptics } from '@octane-xplat/haptics'
 
-if ((await haptics.ensure()) === 'granted') haptics.impl?.selection()
+if (haptics.supported) haptics.selection()
 const advanced = createHaptics()
 try {
 	if (advanced.capabilities().presets) advanced.play('success')
@@ -422,7 +422,7 @@ recorder.dispose()
 
 `recorder.restart()` discards the open take and starts a new one — handy for
 "try again" in a dictation UI. On native, `take.path` names the temp file the
-take was written to; your app owns deleting it. `permissions.ensure('microphone')`
+take was written to; your app owns deleting it. `permissions.requestPermissions('microphone')`
 from `@octane-xplat/platform` also delegates to this leaf when it is installed.
 
 Native recording runs `AVAudioRecorder` on iOS/macOS and `AudioRecord` on Android;

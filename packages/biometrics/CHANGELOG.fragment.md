@@ -10,8 +10,8 @@ substituted for biometrics.
 ```ts
 import { biometrics } from '@octane-xplat/biometrics'
 
-if ((await biometrics.ensure()) === 'granted') {
-	const unlocked = await biometrics.impl!.verify('Unlock your saved trips')
+if ((await biometrics.requestPermissions()).granted) {
+	const unlocked = await biometrics.verify('Unlock your saved trips')
 	console.log(unlocked ? 'Unlocked' : 'Still locked')
 }
 ```
