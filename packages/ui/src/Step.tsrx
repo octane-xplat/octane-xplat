@@ -26,13 +26,13 @@ export function Step(props: StepProps) @{
 		ref={(e: any) => applyEscapeProps(e, props)}
 		id={props.id}
 		className={['vx-step', done && 'vx-step--done', current && 'vx-step--on', disabled && 'vx-step--disabled', props.status && `vx-step--status-${props.status}`, props.className]}
-		style={mergeStyle({display: "flex", flexDirection: "row"}, props.style)}
+		style={mergeStyle({display: "flex"}, props.style)}
 		accessibilityState={nativeAccessibilityState({ selected: current, disabled })}
 		onTap={clickable ? () => ctx!.onStepClick!(props.step) : undefined}
 	>
 		{glyph}
 		<masonview className="vx-step-body" style={{display: "flex", flexDirection: "column"}}>
-			<masonview className="vx-step-heading" style={{display: "flex", flexDirection: "row"}}>
+			<masonview className="vx-step-heading" style={{display: "flex"}}>
 				{props.label != null ? <label className="vx-step-label" text={props.label} /> : null}
 				{props.isOptional ? <label className="vx-step-optional" text="Optional" /> : null}
 				{props.endContent != null ? <masonview className="vx-step-end" style={{display: "flex"}}>{props.endContent}</masonview> : null}

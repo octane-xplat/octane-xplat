@@ -1,11 +1,13 @@
 /** @jsxImportSource @nativescript-community/octane */
+vi.mock('./svg', () => ({ glyphSvgMarkup: () => null, isSvgSrc: () => false, svgSource: () => null }))
 import { describe, expect, it, vi } from 'vitest'
 import { createObjectContainer, createObjectDriver, createUniversalRoot } from 'octane/universal/native'
 
 vi.mock('@nativescript/core', () => ({
 	// ui-svg's index.common.ts evaluates NS decorators at import.
-	Property: class { constructor(_opts?: any) {} },
+	Property: class { constructor(_opts?: any) {} register() {} },
 	CSSType: () => () => {},
+	registerElement: () => {},
 	View: class {}, isIOS: false, isAndroid: true }))
 
 import { ColorArea } from './ColorArea.tsrx'

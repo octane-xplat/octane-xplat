@@ -51,7 +51,7 @@ export function Layout(props: LayoutProps) @{
 					id={props.id}
 					ref={forwardedRef}
 					className={cx('vx-layout', props.className)}
-					style={mergeStyle({ display: 'flex', flexDirection: 'column', ...(isFill ? { flexGrow: 1 } : {}) }, styleRecord(props.style))}
+					style={mergeStyle({ display: 'flex', ...(isFill ? { flexGrow: 1 } : {}) }, styleRecord(props.style))}
 					accessible={props.accessible}
 					accessibilityLabel={props.accessibilityLabel}
 					accessibilityRole={nativeAccessibilityRole(props.accessibilityRole)}
@@ -106,8 +106,6 @@ export function LayoutHeader(props: LayoutHeaderProps) @{
 		style={mergeStyle(
 			{
 				display: 'flex',
-				flexDirection: 'column',
-				flexShrink: 0,
 				...(props.height != null ? { height: props.height } : {}),
 				...(props.width != null ? { width: props.width } : {}),
 				...(props.maxWidth != null ? { maxWidth: props.maxWidth } : {}),
@@ -188,7 +186,7 @@ export function LayoutContent(props: LayoutContentProps) @{
 			id={props.id}
 			ref={forwardedRef}
 			className={cx('vx-layout-content', props.className)}
-			style={mergeStyle({ display: 'flex', flexDirection: 'column', ...sizeStyle, ...padStyle }, styleRecord(props.style))}
+			style={mergeStyle({ display: 'flex', ...sizeStyle, ...padStyle }, styleRecord(props.style))}
 			accessible={props.accessible}
 			accessibilityLabel={props.accessibilityLabel ?? props.label}
 			accessibilityRole={nativeAccessibilityRole(props.accessibilityRole)}
@@ -218,7 +216,7 @@ export function LayoutFooter(props: LayoutFooterProps) @{
 		className={cx('vx-layout-footer', hasDivider && 'vx-layout-footer--divided', props.className)}
 		style={mergeStyle(
 			{
-				display: 'flex', flexDirection: 'column', flexShrink: 0,
+				display: 'flex',
 				...(props.height != null ? { height: props.height } : {}),
 				...(props.width != null ? { width: props.width } : {}),
 				...(props.maxWidth != null ? { maxWidth: props.maxWidth } : {}),
@@ -251,7 +249,7 @@ export function LayoutPanel(props: LayoutPanelProps) @{
 		className={cx('vx-layout-panel', `vx-layout-panel--${area}`, props.hasDivider && 'vx-layout-panel--divided', props.className)}
 		style={mergeStyle(
 			{
-				display: 'flex', flexDirection: 'column', flexShrink: 0,
+				display: 'flex',
 				width: size,
 				paddingLeft: pad ?? pads.outerX,
 				paddingRight: pad ?? pads.outerX,

@@ -21,7 +21,7 @@ export function ActivityIndicator(props: ActivityIndicatorProps) @{
 	);
 
 	@if (props.label != null) {
-		<masonview id={props.id} className={cx('vx-spinner-row', props.className)} style={mergeStyle({ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8 }, styleRecord(props.style))}>
+		<masonview id={props.id} className={cx('vx-spinner-row', props.className)} style={mergeStyle({ display: 'flex' }, styleRecord(props.style))}>
 			{ring}
 			<label className="vx-spinner-label" text={typeof props.label === 'string' ? props.label : ''} />
 			{typeof props.label === 'string' ? null : props.label}

@@ -4,8 +4,9 @@ import { createObjectContainer, createObjectDriver, createUniversalRoot } from '
 
 vi.mock('@nativescript/core', () => ({
 	// ui-svg's index.common.ts evaluates NS decorators at import.
-	Property: class { constructor(_opts?: any) {} },
+	Property: class { constructor(_opts?: any) {} register() {} },
 	CSSType: () => () => {},
+	registerElement: () => {},
 	View: class {}, Application: { ios: null, android: {}, on() {}, off() {} }, isIOS: false, isAndroid: true, Utils: { openUrl: vi.fn() } }))
 vi.mock('./pan.tsrx', () => ({ usePan: () => undefined }))
 vi.mock('./default-router', () => ({ router: { navigateUrl: () => Promise.resolve({ status: 'not-found' }) } }))

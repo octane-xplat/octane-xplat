@@ -4,8 +4,9 @@ import { createObjectContainer, createObjectDriver, createUniversalRoot } from '
 
 vi.mock('@nativescript/core', () => ({
 	// ui-svg's index.common.ts evaluates NS decorators at import.
-	Property: class { constructor(_opts?: any) {} },
+	Property: class { constructor(_opts?: any) {} register() {} },
 	CSSType: () => () => {},
+	registerElement: () => {},
 	isIOS: false,
 	isAndroid: true,
 	Screen: { mainScreen: { scale: 3 } },

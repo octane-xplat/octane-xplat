@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+vi.mock('./svg', () => ({ glyphSvgMarkup: () => null, isSvgSrc: () => false, svgSource: () => null }))
 import { describe, expect, it, vi } from 'vitest'
 import { nativeAccessibilityState, nativeAccessibilityRole } from './escape-props'
 import { useImperativeHandle, useMemo, useRef } from 'octane'
@@ -15,8 +16,9 @@ import type { Octane } from 'octane/jsx-runtime'
 
 vi.mock('@nativescript/core', () => ({
 	// ui-svg's index.common.ts evaluates NS decorators at import.
-	Property: class { constructor(_opts?: any) {} },
+	Property: class { constructor(_opts?: any) {} register() {} },
 	CSSType: () => () => {},
+	registerElement: () => {},
 	View: class {}, isIOS: false, isAndroid: true }))
 vi.mock('./escape-props', () => ({ applyEscapeProps() {}, nativeAccessibilityState() {}, nativeAccessibilityRole() {} }))
 

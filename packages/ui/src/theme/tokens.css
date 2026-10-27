@@ -1018,6 +1018,18 @@
 		.vx-button-content--hidden {
 			opacity: 0;
 		}
+		/* Layout: the leaf roots share these classes on web, which styles them
+		   inline — keep the native copies here so web output is unchanged. */
+		.vx-layout {
+			flex-direction: column;
+		}
+		.vx-layout-header {
+			flex-direction: column;
+			flex-shrink: 0;
+		}
+		.vx-layout-content {
+			flex-direction: column;
+		}
 	}
 	/* xplat-web-only:start — NS labels clip intrinsically; the DOM needs the
 	   explicit clip for the ellipsis to engage. */

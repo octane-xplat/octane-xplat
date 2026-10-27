@@ -13,7 +13,7 @@ export function FieldLabel(props: FieldLabelProps) @{
 			? `${props.label} · Optional`
 			: props.label
 
-	<masonview ref={(e: any) => applyEscapeProps(e, props)} id={props.id} className={['vx-fieldlabel', props.className]} style={mergeStyle({display: "flex", flexDirection: "column"}, props.style)} accessibilityHint={props.labelTooltip}>
+	<masonview ref={(e: any) => applyEscapeProps(e, props)} id={props.id} className={['vx-fieldlabel', props.className]} style={mergeStyle({display: "flex"}, props.style)} accessibilityHint={props.labelTooltip}>
 		{props.labelIcon != null ? <masonview className="vx-field-label-icon" style={{display: "flex"}}>{props.labelIcon}</masonview> : null}
 		<label className="vx-field-label" text={text} />
 		{props.description != null ? <label className="vx-field-description" text={props.description} /> : null}

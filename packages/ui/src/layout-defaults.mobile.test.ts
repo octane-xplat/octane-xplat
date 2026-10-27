@@ -9,8 +9,9 @@ import {
 
 vi.mock('@nativescript/core', () => ({
 	// ui-svg's index.common.ts evaluates NS decorators at import.
-	Property: class { constructor(_opts?: any) {} },
+	Property: class { constructor(_opts?: any) {} register() {} },
 	CSSType: () => () => {},
+	registerElement: () => {},
 	View: class {},
 	isIOS: false,
 	isAndroid: true,
@@ -147,6 +148,8 @@ const RETAINED: Record<string, string> = {
 		'the plain and tokenized roots share vx-chattext; a class rule would also wrap the tokenized root on native',
 	'ChatMessage.tsrx:flexDirection':
 		'native orders the user avatar manually; .vx-chatmsg--user row-reverse would double-reverse',
+	'Layout.tsrx:flexGrow':
+		'fill is prop-driven; the native root emits no vx-layout--fill modifier class',
 }
 
 function* jsxTags(src: string): Generator<string> {
