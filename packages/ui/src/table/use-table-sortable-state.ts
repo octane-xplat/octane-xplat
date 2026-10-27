@@ -35,7 +35,27 @@ function toSortableString(value: unknown): string {
 	return ''
 }
 
-const collator = new Intl.Collator(undefined, { numeric: true })
+const DIGIT_RUN = /(\d+)/
+
+function naturalCompare(a: string, b: string): number {
+	const aParts = a.toLowerCase().split(DIGIT_RUN)
+	const bParts = b.toLowerCase().split(DIGIT_RUN)
+	for (let i = 0; i < Math.min(aParts.length, bParts.length); i++) {
+		if (aParts[i] === bParts[i]) {continue}
+		const diff = i % 2 === 1 ? Number(aParts[i]) - Number(bParts[i]) : aParts[i] < bParts[i] ? -1 : 1
+		if (diff !== 0) {return diff}
+	}
+	return aParts.length - bParts.length || (a === b ? 0 : a < b ? 1 : -1)
+}
+
+let collator: Intl.Collator | null | undefined
+
+function compareStrings(a: string, b: string): number {
+	if (collator === undefined) {
+		collator = typeof Intl === 'undefined' ? null : new Intl.Collator(undefined, { numeric: true })
+	}
+	return collator ? collator.compare(a, b) : naturalCompare(a, b)
+}
 
 function defaultCompare<T extends Record<string, unknown>>(a: T, b: T, sortKey: string): number {
 	const aVal = a[sortKey]
@@ -46,7 +66,7 @@ function defaultCompare<T extends Record<string, unknown>>(a: T, b: T, sortKey: 
 	if (aMissing) {return 1}
 	if (bMissing) {return -1}
 	if (typeof aVal === 'number' && typeof bVal === 'number') {return aVal - bVal}
-	return collator.compare(toSortableString(aVal), toSortableString(bVal))
+	return compareStrings(toSortableString(aVal), toSortableString(bVal))
 }
 
 export function sortTableData<T extends Record<string, unknown>, TSortKey extends string = string>(
