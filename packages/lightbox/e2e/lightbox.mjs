@@ -1,3 +1,4 @@
+/* eslint-disable xplat/no-dom-globals — evaluate bodies run in the browser */
 // Browser-synthesized input coverage for the web lightbox. Serves the fixture
 // with vite dev, drives Chromium via Playwright; asserts geometry numerically.
 import { chromium } from 'playwright'
@@ -11,7 +12,7 @@ const results = []
 const check = (name, actual, expected) => {
 	const pass = typeof expected === 'function' ? expected(actual) : Object.is(actual, expected)
 	results.push({ name, pass, actual, expected: String(expected) })
-	if (!pass) console.log(`FAIL ${name}: ${JSON.stringify(actual)} vs ${expected}`)
+	if (!pass) {console.log(`FAIL ${name}: ${JSON.stringify(actual)} vs ${expected}`)}
 }
 const near = (expected, tol = 1) => (v) => typeof v === 'number' && Math.abs(v - expected) <= tol
 
@@ -30,7 +31,7 @@ try {
 	const browser = await chromium.launch()
 	const page = await browser.newPage({ viewport: { width: 800, height: 600 } })
 	page.on('pageerror', (e) => results.push({ name: 'pageerror', pass: false, actual: String(e) }))
-	page.on('console', (m) => { if (m.type() === 'error') results.push({ name: 'console.error', pass: false, actual: m.text() }) })
+	page.on('console', (m) => { if (m.type() === 'error') {results.push({ name: 'console.error', pass: false, actual: m.text() })} })
 	await page.goto(BASE)
 	try { await page.waitForSelector('.vx-lightbox-trigger', { timeout: 10000 }) } catch {
 		console.log('PAGE:', (await page.content()).slice(0, 1500))
@@ -39,7 +40,6 @@ try {
 	}
 
 	// --- open morph lands on the fitted rect ---
-	const thumbRect = await page.locator('.vx-lightbox-trigger').nth(0).locator('img').boundingBox()
 	await page.locator('.vx-lightbox-trigger').nth(0).click()
 	await page.waitForSelector('[data-phase="open"]', { timeout: 5000 })
 	const cur = (pg) => pg.locator('[data-lightbox-slide][data-current] [data-lightbox-image]')
@@ -77,13 +77,13 @@ try {
 	check('ctrl+wheel zooms in', parseFloat(zoomedScale ?? '0'), (v) => v > 1.01)
 
 	// --- double-click zooms then unzooms ---
-	for (const t of ['pointerdown', 'pointerup', 'pointerdown', 'pointerup']) await fire(curSel, t, {})
+	for (const t of ['pointerdown', 'pointerup', 'pointerdown', 'pointerup']) {await fire(curSel, t, {})}
 	await page.waitForTimeout(500)
 	check('double-click resets zoomed', await cur(page).evaluate((el) => /scale\(([^)]+)\)/.exec(el.style.transform)?.[1] ?? '1'), (v) => Math.abs(parseFloat(v) - 1) < 0.05)
-	for (const t of ['pointerdown', 'pointerup', 'pointerdown', 'pointerup']) await fire(curSel, t, {})
+	for (const t of ['pointerdown', 'pointerup', 'pointerdown', 'pointerup']) {await fire(curSel, t, {})}
 	await page.waitForTimeout(500)
 	check('double-click zooms', await cur(page).evaluate((el) => /scale\(([^)]+)\)/.exec(el.style.transform)?.[1] ?? '1'), (v) => parseFloat(v) > 1.5)
-	for (const t of ['pointerdown', 'pointerup', 'pointerdown', 'pointerup']) await fire(curSel, t, {})
+	for (const t of ['pointerdown', 'pointerup', 'pointerdown', 'pointerup']) {await fire(curSel, t, {})}
 	await page.waitForTimeout(500)
 
 	// --- Escape closes; close morph lands near the trigger rect ---
@@ -131,13 +131,13 @@ try {
 
 	const failed = results.filter((r) => !r.pass)
 	console.log(`\n${results.length - failed.length}/${results.length} checks passed`)
-	for (const r of results) console.log(`${r.pass ? 'PASS' : 'FAIL'} ${r.name} → ${JSON.stringify(r.actual)}`)
+	for (const r of results) {console.log(`${r.pass ? 'PASS' : 'FAIL'} ${r.name} → ${JSON.stringify(r.actual)}`)}
 	await browser.close()
 	server.kill()
 	process.exit(failed.length ? 1 : 0)
 } catch (e) {
 	console.error(e)
-	for (const r of results) console.log(`${r.pass ? 'PASS' : 'FAIL'} ${r.name} → ${JSON.stringify(r.actual)}`)
+	for (const r of results) {console.log(`${r.pass ? 'PASS' : 'FAIL'} ${r.name} → ${JSON.stringify(r.actual)}`)}
 	server.kill()
 	process.exit(1)
 }

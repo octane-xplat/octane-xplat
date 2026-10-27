@@ -20,9 +20,9 @@ function App() {
 				<Lightbox.Backdrop style={{ background: 'rgba(0,0,0,0.85)' }} />
 				<Lightbox.Popup>
 					<Lightbox.Viewport />
-					<Lightbox.Close style={{ position: 'fixed', top: 10, right: 10, zIndex: 10 }}>×</Lightbox.Close>
-					<Lightbox.Prev style={{ position: 'fixed', left: 10, top: '50%', zIndex: 10 }}>‹</Lightbox.Prev>
-					<Lightbox.Next style={{ position: 'fixed', right: 10, top: '50%', zIndex: 10 }}>›</Lightbox.Next>
+					<Lightbox.Close className="fx-close">×</Lightbox.Close>
+					<Lightbox.Prev className="fx-prev">‹</Lightbox.Prev>
+					<Lightbox.Next className="fx-next">›</Lightbox.Next>
 				</Lightbox.Popup>
 			</Lightbox.Root>
 		</div>
