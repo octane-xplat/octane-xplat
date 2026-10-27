@@ -6909,6 +6909,21 @@ function measureTextLineCount(node: ElementNode) {
 }
 
 function parityBoxInHost(view: any, rect: any, boxView: any) {
+	if (view.window && boxView.window && view.window !== boxView.window && !view.window.isEqual?.(boxView.window)) {
+		const windowRect = view.superview
+			? view.superview.convertRectToView(rect, null)
+			: view.convertRectToView(view.bounds, null)
+		const screenRect = view.window.convertRectToScreen(windowRect)
+		const boxScreen = boxView.window.convertRectToScreen(
+			boxView.convertRectToView(boxView.bounds, null),
+		)
+		return {
+			x: round(Number(screenRect.origin.x) - Number(boxScreen.origin.x)),
+			y: round(Number(boxScreen.origin.y) + Number(boxScreen.size.height) - Number(screenRect.origin.y) - Number(screenRect.size.height)),
+			w: round(Number(screenRect.size.width)),
+			h: round(Number(screenRect.size.height)),
+		}
+	}
 	const converted = view.superview
 		? view.superview.convertRectToView(rect, boxView)
 		: view.convertRectToView(view.bounds, boxView)
@@ -7063,9 +7078,8 @@ function parityNode(node: ElementNode, boxNode: ElementNode, facets: readonly st
 }
 
 function measureParity(container: RootContainer, facets: readonly string[]) {
-	const stage = [...appKitContainers]
-		.flatMap((entry) => [...entry.nodes.values()])
-		.find((node) => node.props?.id === 'parity-stage')
+	const mountedNodes = [...appKitContainers].flatMap((entry) => [...entry.nodes.values()])
+	const stage = mountedNodes.find((node) => node.props?.id === 'parity-stage')
 	if (!stage?.view) {
 		return null
 	}
@@ -7098,7 +7112,12 @@ function measureParity(container: RootContainer, facets: readonly string[]) {
 			scroll.view!.reflectScrolledClipView(clip)
 		}
 
-		cells[name] = [box, ...descendants(box)]
+		// Match the web dump's fixture-specific portal markers. Portals and
+		// standalone surface roots do not descend from the fixture's box.
+		const portalNodes = mountedNodes
+			.filter((node) => nodeClasses(node).includes('parity-portal--' + name))
+			.flatMap((node) => [node, ...descendants(node)])
+		cells[name] = [...new Set([box, ...descendants(box), ...portalNodes])]
 			.filter((node) => node.view)
 			.map((node) => parityNode(node, box, facets))
 	}

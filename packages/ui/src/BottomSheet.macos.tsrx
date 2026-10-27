@@ -41,6 +41,7 @@ function PresentedSheet(props: BottomSheetProps) @{
 	const panelProps = { ...props, layerDepth: dismissal.depth }
 	const owner = usePresentation(Boolean(props.isOpen), SheetPanel, panelProps, {
 		kind: 'sheet',
+		width: styleRecord(props.style).width,
 		modal: props.hasScrim ?? true,
 		purpose: props.purpose,
 		transitionKey: props.sheetId,
@@ -194,6 +195,7 @@ export function BottomSheetSwitcher(props: BottomSheetSwitcherProps) @{
 					},
 					options: {
 						kind: 'sheet',
+						width: styleRecord(sheet?.style).width ?? styleRecord(props.style).width,
 						modal: props.hasScrim ?? true,
 						purpose: sheet?.purpose,
 						transitionKey: active?.sheetId,

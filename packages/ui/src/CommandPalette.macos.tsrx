@@ -1,13 +1,14 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { mergeStyle , styleRecord} from './style-merge'
-import { appKitHost, hostGlobal } from './host-bridge'
+import { appKitHost } from './host-bridge'
+import { createPortal } from './native-portal'
 import { useMemo } from 'octane';
 import type { CommandPaletteItem, CommandPaletteProps } from './props';
 import { createCommandPaletteController } from './command-palette-state';
 import { useStore } from './use-store.tsrx';
 import { groupTypeaheadItems } from './typeahead-source';
 import { cx } from '@octane-xplat/lib';
-import { useEffect, useRef } from 'octane';
+import { useEffect, useLayoutEffect, useRef, useState } from 'octane';
 import { Pressable } from './Pressable.macos.tsrx';
 import { Icon } from './Icon.macos.tsrx';
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx';
@@ -80,32 +81,45 @@ function PaletteBody<T extends CommandPaletteItem>(props: { options: CommandPale
 	</LayerDepthProvider>
 }
 
-/** AppKit window-modal sheet using the shared host presenter and dismissal registry. */
+function PalettePortal(props: { target: unknown; options: any; controller: any; depth: number; present(): void }) {
+	useLayoutEffect(() => { props.present() }, [props.target])
+	return createPortal(<PaletteBody options={props.options} controller={props.controller} depth={props.depth} />, props.target)
+}
+
+/** AppKit window-modal sheet whose content belongs to the declaring tree. */
 export function CommandPalette<T extends CommandPaletteItem>(options: CommandPaletteProps<T>) @{
 	const controller = useMemo(() => createCommandPaletteController(() => options), []);
 	useEffect(() => controller.configure(options), [options.open, options.searchSource, options.items, options.searchMode, options.value, options.onOpenChange, options.onValueChange]);
 	useEffect(() => () => controller.dispose(), []);
-	const state = useStore(controller.store);
+	// Results belong to the portal body; only visibility updates this owner.
+	const open = useStore(controller.store, (state) => state.open);
 	const anchor = useRef<any>(null);
 	const sheet = useRef<any>(null);
-	const dismissal = useLayerDismissal({ get active() { return state.open; }, isPresent: () => !!sheet.current, dismiss: controller.close });
+	const [target, setTarget] = useState<any>(null);
+	const dismissal = useLayerDismissal({ get active() { return open; }, isPresent: () => !!sheet.current, dismiss: controller.close });
 	useEffect(() => {
-		if (!state.open) return;
-		sheet.current = appKitHost()?.presentSheet?.(anchor.current, {
-			component: PaletteBody, props: { options, controller, depth: dismissal.depth },
-			minWidth: typeof options.width === 'number' ? options.width : 480,
+		if (!open) return;
+		const width = options.width ?? styleRecord(options.style).width;
+		const presented = appKitHost()?.presentSheet?.(anchor.current, {
+			minWidth: typeof width === 'number' ? width : 480,
 			onDismissed: controller.close,
 		});
-
-		if (!sheet.current) {
+		if (!presented) {
 			console.warn('[octane-xplat] CommandPalette requires an AppKit sheet presenter.');
 			controller.close();
+			return;
 		}
+		sheet.current = presented;
+		setTarget(presented.target);
+		return () => {
+			presented.close();
+			if (sheet.current === presented) sheet.current = null;
+			setTarget(null);
+		};
+	}, [open]);
 
-		return () => { sheet.current?.close(); sheet.current = null; };
-	}, [state.open]);
-
-	useEffect(() => { sheet.current?.update({ options, controller, depth: dismissal.depth }); }, [options]);
-
-	<masonview ref={(view: any) => { anchor.current = view; }} style={mergeStyle({display: "flex"}, { width: 0, height: 0 })}/>
+	<>
+		<masonview ref={anchor} style={{ display: 'flex', width: 0, height: 0 }} />
+		{target ? <PalettePortal target={target} options={options} controller={controller} depth={dismissal.depth} present={() => sheet.current?.present()} /> : null}
+	</>
 }
