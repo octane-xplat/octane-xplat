@@ -492,7 +492,7 @@ navigation fixture), Maestro, Workshop demo, and the demos/media-probe
 development dependencies. Default mobile probes inherit that engine and verify
 its native file fingerprint. Vite uses the existing app-local alias for the
 canonical renderer's full-MasonKit imports; the renderer patch is unchanged.
-Windows retains full MasonKit because core has no Windows artifacts. The
+Windows retains full MasonKit because the pinned registry core beta has no Windows artifacts. The
 scaffolder and compatibility manifest still default new apps to full MasonKit;
 this worktree adoption does not clear the physical-device, cold-input or
 matched release-size qualification gaps.
@@ -641,8 +641,8 @@ packages as replaced engines. `xplat upgrade` migrates their pins to the core
 catalog entry; `xplatNative`, doctor, and the probe runner reject them until
 it runs. New scaffolds declare the core beta through `catalog:xplat`.
 
-The Windows preview is a platform constraint, not an engine choice: core
-ships no Windows artifacts, so windows-profile packages stay on full MasonKit
+The Windows preview is a platform constraint, not an engine choice: the pinned
+registry core betas ship no Windows artifacts, so windows-profile packages stay on full MasonKit
 and upgrade replaces a stray core pin there. The `env()` warning split follows
 the same platform line — mobile keeps the headless-qualification warning,
 Windows keeps the unresolved-value warning.
@@ -654,44 +654,62 @@ unchanged.
 
 ## Windows core host status (2026-10-27)
 
-The pinned desktop engine archive includes
-`x86_64-pc-windows-msvc/MasonCore.lib` and its generated
-`include/mason_native.h` (Mason fork `0cdc3c80`). A C++/WinRT core host and
-Windows JavaScript leaves now exist in the Mason fork's preserved
-`arthur/windows-core-host` branch. The host links that archive and retains
-the container, layout, styling, scroll and foreign-view surface. This is
-extraction and local package-build evidence; the Windows cutover is still
-gated.
+The Windows x64 core host is maintained on Mason main (`4b3cb87e`), with
+package prerequisites and the asserted consumer landed through `6eec2eac`. It links
+`x86_64-pc-windows-msvc/MasonCore.lib` from the pinned desktop archive
+(`0cdc3c80`) and supplies nine Windows JavaScript leaves. The maintained
+consumer, native observer and interactive runner now live under
+`tools/mason-core/consumer/windows` in that repository. Its assertions replace
+the old lab-only smoke whose 13 checks included unconditional success values.
 
-The `windy` Windows x64 host became reachable again. Its isolated
-`mason-core-consumer` application runs through `@nativescript/windows` on
-real XAML, with a saved console result of `success: true, checks: 13`.
-Those checks establish a smoke run, with these narrower limits:
+The package now carries the CsWinRT 2.3.1 references and explicit-interface
+projection repair, plus the DotNetBridge MSIX content target. A focused
+prerequisite regression checks repair idempotence and distinct destination
+paths with unrelated app assets. No app-local projection or packaging repair
+is needed. The [Windows host runbook](../docs/windows-test-host.md#mason-core-package-qualification)
+records the preview bridge limitations and core's scoped managed transport and
+foreign flex-setter ownership workarounds.
 
-| Check | Observed evidence | Qualification still needed |
-| --- | --- | --- |
-| Flex/grid, add, reparent, detach | Operations complete; several checks record unconditional success | Assert native child order, parent ownership, frames and release |
-| Native text and resize | A native label exists; style-buffer reads return | Assert text content, updated buffer values and native geometry |
-| Layout dump and hit-test | Calls return without throwing; the dump result is `null` | Assert actual layout records and the expected hit-test target |
-| Scrolling | A listener fires after programmatic `ChangeView` | OS-driven scroll input, offsets and corresponding child movement |
+A relocated package on `windy` builds a release MSIX and installs in interactive
+session 1. The runner compares the installed app/vendor bundles, engine DLL
+and bridge DLL against the signed MSIX before running assertions. Native x64
+consumer evidence now includes:
 
-The Windows consumer and its CsWinRT projection/MSIX build repairs are
-preserved on the lab host, but are not a maintained consumer fixture or
-runner in the Mason branch. The outcome requires maintained native geometry
-and real-input evidence; this smoke result does not satisfy that gate.
+| Assertion | Observed values |
+| --- | --- |
+| Native child order and flex frames | Indexes 0/1; first 100×60 at (0,0), second 100×80 at (0,60) DIP |
+| Grid columns | Second child at (100,0), 100×40 DIP |
+| Native text and foreign style bytes | `mason-core fixture`, native parent present, 180×28 DIP; `flexShrink` exactly 0.25 |
+| Resize write/read and native frame | Width/height type bytes 1/1, float values 140/90, native frame 140×90 DIP |
+| Ownership and detach | Reparented 50×30 child has only its new native/logical owner; detach clears both parents and the Mason-child flag |
+| Foreign release | Native/logical parents clear; original Style prototype, requestLayout and native flex setter restored |
+| Real OS input and scrolling | One user32 click reaches the row; wheel input changes native offset and matching row position; no ChangeView/ScrollTo call |
+| Cleanup | All fixture children detached; root logical/native child counts both zero |
 
-Installed registry core betas `.4` and `.5` contain neither
-`index.windows.js` nor `platforms/windows`. A local package assembled from
-the extraction branch contains both, and its packed inventory verifies
-211 files, including the x64 DLL, WinMD, plugin build files and nine Windows
-JavaScript leaves. Extraction and `pnpm pack` on Windows preserve every
-inventory hash and produce a byte-identical tarball. This verifies archive
-portability, not a fresh relocated MSIX build. Local assembly does not add
-Windows support to an already published tarball.
+The runner identifies the viewport through the owning window's UI Automation
+provider, reads its physical screen bounds, then uses physical cursor APIs and
+user32 mouse input. A standalone managed automation peer can omit the window
+origin; its bounds are recorded separately. This qualifies the listed
+primitives on this x64 host, not pixel parity, text editing/IME, other Windows
+architectures or every framework component.
 
-Keep the `mason-engine.ts` Windows rejection until the qualification and
-delivery gates are met. Removing it must also reconcile Windows engine pins,
-doctor/upgrade, the native-preset regression, documentation and skill guidance.
-The outcome's explicit relocatable-archive requirement applies to macOS and
-GTK; a Windows source build or tarball inventory alone does not establish
-installed consumer behavior or clear the separate Windows runtime gate.
+The delivered local tarball is
+`octane-xplat-nativescript-mason-core-1.0.0-beta.4.tgz`, SHA-256
+`4eea16ea38f694d17d788612774d36636ab66d8752aa90b5e21ec515e82dc436`.
+Its 213-file inventory includes the x64 DLL, WinMD, build files, managed
+transport and all nine Windows leaves. Every packed file hash verifies on
+Windows. This is a distinct local artifact; installed registry betas `.4` and
+`.5` still contain neither `index.windows.js` nor `platforms/windows`.
+
+The default Windows cutover remains gated on a Windows-bearing managed package
+pin. Under the no-push/no-release constraint, keep the full MasonKit harness
+pin, doctor/upgrade rules and `mason-engine.ts` rejection together. A local
+artifact does not repair the registry beta selected by a catalog. After a
+qualified package is available through a usable managed spec, migrate those
+pins and checks together with the rejection removal and preset regression.
+
+Arthur's `6c42c9036` is not on Xplat main. Its code-only patches to
+`mason-engine.ts` and `vite.ts` pass `git apply --check`; the full patch fails at
+`.agents/design/mason-core-extraction.md:654` in the Windows status section.
+Do not replay that obsolete qualification narrative over the maintained
+assertion evidence above.

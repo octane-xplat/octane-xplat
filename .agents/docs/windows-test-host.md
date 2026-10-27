@@ -101,3 +101,33 @@ tests, touched-package and dependent typechecks (including Windows), and the
 installed-package Windows pointer, input, and percentage-layout regressions. The pointer suite also covers preserved authored backgrounds and
 contact-only touch movement from upstream. These exercise JavaScript with host
 fixtures, not WinUI hit testing or OS input.
+
+## Mason core package qualification
+
+The Mason fork now maintains the Windows consumer under
+`tools/mason-core/consumer/windows`, with preparation, native assertions and an
+interactive MSIX runner. Use that fixture to qualify a relocated tarball; the
+older lab-only 13-check smoke is insufficient. The source package includes the
+CsWinRT projection repair and DotNetBridge content target, so a consumer must
+not depend on app-local copies of those repairs.
+
+The pinned `@nativescript/windows@0.1.0-alpha.144` bridge rejects both typed and
+ordinary arrays for projected Mason `byte[]` arguments, reporting a
+`System.String` to `System.Byte[]` cast. Core's package-owned managed adapter
+accepts explicit JSON bytes and calls the unchanged native WinRT API. It also
+retrieves `IMasonElement.Style`; the generated projection makes that property
+explicit while exposing XAML's unrelated `FrameworkElement.Style` publicly.
+These are observed native-consumer limitations, not upstream support.
+
+A NativeScript Label's attached flex setters also call Widgets APIs whose
+`UIElement` arguments fail that preview bridge. While Mason owns the child,
+core mirrors those values into its own leaf and temporarily owns only the
+native `alignSelf`, `flexGrow` and `flexShrink` setters. Detach restores the
+original descriptors and Style prototype. Review these workarounds when the
+Windows runtime pin changes; remove them only after equivalent native
+geometry, buffer, ownership and input checks pass with the replacement.
+
+The current registry betas `.4` and `.5` omit Windows files. A local package
+and successful MSIX build do not qualify the default Windows harness or its
+managed pin. See the [extraction record](../design/mason-core-extraction.md#windows-core-host-status-2026-10-27)
+for the asserted values and remaining cutover gates.
