@@ -1,0 +1,48 @@
+{
+	"compilerOptions": {
+		"strict": true,
+		"skipLibCheck": true,
+		"module": "esnext",
+		"moduleResolution": "bundler",
+		"target": "esnext",
+		"jsx": "react-jsx",
+		"jsxImportSource": "octane",
+		"declaration": true,
+		"emitDeclarationOnly": true,
+		"noEmit": false,
+		"rootDir": "src",
+		"moduleSuffixes": [
+			"",
+			".web",
+			".ios",
+			".android",
+			".mobile",
+			".native",
+			".macos",
+			".linux",
+			".windows"
+		],
+		"allowImportingTsExtensions": true,
+		"types": [
+			"@nativescript/types"
+		]
+	},
+	"include": [
+		"src/types.ts",
+		"src/props.ts",
+		"src/native-elements.d.ts",
+		"src/maps.ts",
+		"src/maps.web.ts",
+		"src/maps.macos.ts",
+		"src/maps.linux.ts",
+		"src/maps.windows.ts",
+		"src/MapView.tsrx",
+		"src/MapView.web.tsrx",
+		"src/MapView.macos.tsrx",
+		"src/MapView.windows.tsrx",
+		"src/index.ts",
+		"src/index.web.ts",
+		"src/index.macos.ts",
+		"src/index.windows.ts"
+	]
+}
