@@ -28,8 +28,9 @@ Source links: [Octane motion](https://github.com/octanejs/octane/tree/main/packa
 
 ## Deliberate boundaries
 
-- Numeric values only. No CSS strings, keyframe arrays, layout/layoutId,
-  `whileHover`/`whileInView`, or broad framework-neutral re-export. Bounded drag,
+- Numeric values only. No CSS strings, keyframe arrays, layoutId/shared-element
+  transitions, `whileHover`/`whileInView`, or broad framework-neutral re-export.
+  `layout` projection itself is supported; see the section below. Bounded drag,
   variants, `whileTap`, `whileFocus`, lifecycle callbacks
   (`onAnimationStart`/`onAnimationComplete`/`onUpdate`), `motion.create`, and
   `useAnimate` match the upstream prop names.
@@ -440,3 +441,47 @@ export function UnsupportedDrag() {
 	return <motion.View drag="x" />
 }
 ```
+
+## Layout projection
+
+`layout`, `layoutDependency`, `onLayoutAnimationStart`/`onLayoutAnimationComplete`,
+and `transition={{ layout: {...} }}` are supported on `motion.View`,
+`motion.Row`, `motion.Pressable`, and `motion.create` hosts across web, iOS and
+Android. macOS throws `motion: layout is not yet supported on this platform`.
+
+The projection node is modeled on upstream `create-projection-node.ts`
+(measure → calc delta → mix → render) over motion-dom's pure geometry helpers;
+`node.test.ts`'s three conformance cases are ported in `conformance.test.ts`.
+The box math (`createBox`, `calcBoxDelta`, `applyTreeDeltas`,
+`buildProjectionTransform`, relative targets, tree-scale propagation) is
+motion-dom unchanged; the host adapter, scheduling barrier and measurement
+walk are ours per platform.
+
+**Divergence from upstream:** upstream snapshots only on rerender. Ours
+measures after every commit, so a keyed reorder of unchanged-prop children
+animates on native where Octane skips rerendering them. Upstream would leave
+a memoized, non-rerendering component's box change unanimated.
+`layoutDependency` gates starting an animation, never measuring.
+
+**Triggering per platform:** web uses MutationObserver plus layout-effect
+invalidation, measured in a microtask before paint. iOS uses the
+`observeBatches` driver's `didApply` → microtask → `layoutIfNeeded()` on the
+app windows → the pass runs in the same CATransaction. Android uses `didApply`
+→ one-shot globalLayout/preDraw listener pairs on every pending root VTO plus
+the decor view, with `postInvalidateOnAnimation()` forcing a traversal so the
+pass lands before the draw. Native batch observation depends on the local
+`observeBatches()` patch to `@nativescript-community/octane@0.2.5`
+(`packages/cli/patches/`), needed because neither `layoutChanged` nor rerender
+signals see reorders of unchanged children.
+
+**Measurement** walks untransformed layout only: UIKit `center - bounds/2` up
+the superview chain (transforms and scroll offsets excluded); Android
+`getLeft`/`getTop` to the first non-View parent, divided by density.
+
+**Still excluded:** `layoutId`/`LayoutGroup`, `layoutScroll`, `layoutRoot`,
+`layoutAnchor`, `layoutCrossfade`, border-radius/box-shadow correction, scroll
+container compensation on web. On native, `rotate` combined with a non-uniform
+parent treeScale is approximate (scale divides translate per axis but not the
+rotation). Reduced motion snaps instead of animating; opacity is never
+projected; `project(null)` rewrites merged channel values. Pre-existing CSS
+transforms stay on an outer container.

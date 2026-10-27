@@ -713,3 +713,75 @@ checks remain unchanged and are not claimed as passing. Motion's independent
 suite reports 47 passing tests and a components.web.test.tsrx module failure
 because motion.create is undefined. The repository-wide TSRX spacing pass has
 existing failures outside this change; changed animation files pass.
+
+## Decision #130 — layout projection (web, iOS, Android)
+
+`layout` (`true | 'position' | 'size' | 'preserve-aspect' | 'x' | 'y'`),
+`layoutDependency`, `onLayoutAnimationStart`/`onLayoutAnimationComplete`, and
+`transition={{ layout: {...} }}` are supported on `motion.View`, `motion.Row`,
+`motion.Pressable` and `motion.create` hosts. macOS throws. `layoutId`/
+`LayoutGroup`, `layoutScroll`/`layoutRoot`/`layoutAnchor`/`layoutCrossfade`,
+border-radius/box-shadow correction and web scroll-container compensation are
+excluded. The default layout transition is a 0.45 s tween.
+
+Mechanism: a node modeled on motion-dom's `create-projection-node.ts` over its
+geometry helpers measures an untransformed window-space box per node, computes
+the delta against the presented snapshot, and writes inverse transforms until
+the animation catches up; `project(null)` restores merged channel values.
+Nested `layout` children get counter-scale correction. Opacity is never
+projected; layout hosts always run the JS engine (no platform animator
+delegation). Reduced motion snaps. Unlike upstream's rerender snapshot, we
+measure after every commit, so keyed reorders of unchanged-prop children
+animate. The divergence is intentional: upstream misses a box change on a
+component that did not rerender, and native Octane never rerenders
+unchanged-prop children on reorder.
+
+Scheduling per platform: web — MutationObserver + layout-effect invalidation,
+measured in a microtask before paint. iOS — `observeBatches` `didApply` →
+microtask → `layoutIfNeeded()` on all app windows → pass in the same
+CATransaction. Android — `didApply` → one-shot globalLayout/preDraw pairs on
+each pending root VTO plus the decor view, with `postInvalidateOnAnimation()`
+forcing a traversal so the pass lands before the draw. (The earlier clock-based
+2-frame fallback raced the traversal because NS animation-frame callbacks
+requested outside a frame resolve faster than vsync; removed.) Native
+measurement: UIKit `center - bounds/2` up the superview chain; Android
+`getLeft`/`getTop` to the first non-View, divided by density — both exclude
+transforms and scroll offsets.
+
+Runtime evidence (2026-10-27, `pnpm probe run examples/probes/motion-layout.tsrx
+--target ios|android`; probe geometry evidence only, not visual capture or OS
+input): iOS 27.0 sim — first frame w 100.23 with raw layout 200, mid 155.81
+with child 50, settle 200, identity transforms, reorder starts at before
+positions; Android 15 emulator — first frame 100 with raw 200, mid 167.43 with
+child 50.0, settle 200, reorder starts at before positions, reorder ops
+`["move"]`. Phase 0 findings P1–P7 are summarized in
+`~/dev/plans/octane-xplat/motion-layout-projection.md`; raw probe logs live in
+gitignored `research/`.
+
+`examples/probes/intl-shim.ts` exists because ui's table module evaluates
+`new Intl.Collator` at module scope while NativeScript's JS runtime has no
+`Intl`; without the shim the shared barrel's module eval aborts bundle startup.
+This is a `packages/ui` native compatibility bug (recorded in Silo
+`feedback_observations`), not a motion limitation; delete the shim once ui
+stops constructing `Intl` objects at module scope.
+
+### NativeScript upstream gaps this feature depends on
+
+- `@nativescript-community/octane@0.2.5` exposes no batch/commit signal.
+  Phase 0 evidence (P3: `layoutChanged` fired zero times on iOS for keyed
+  reorder and parent move; Android edge-children only — P5: unchanged-prop
+  children render 0 times on reorder — P7: one `didApply` per commit across
+  app/modal/programmatic roots) requires a driver-level hook. Local patch:
+  `packages/cli/patches/@nativescript-community__octane@0.2.5.patch` plus the
+  synced copy under `packages/patches/`; exports `observeBatches()` returning
+  an unsubscribe with `willApply`/`didApply(container, commands, depth)`.
+  Scope: batch observation only; no command mutation. Upstream PR candidate:
+  not filed; dropWhen is "upstream ships a batch observer."
+- NativeScript `layoutChanged` does not fire on keyed reorder or parent moves
+  (P3, verified on iOS 27.0 sim + Android 15 emulator), so it can't drive
+  commit detection.
+- `<listview>` crashes at mount under the Mason driver:
+  `Cannot create property 'gridRow' on number '0'` in `Style.set` via
+  `CssState.onLoaded`. Observed in a probe on iOS; not investigated further;
+  a programmatic `createNativeScriptRoot` subtree was used for cell-root
+  evidence instead.

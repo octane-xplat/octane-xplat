@@ -523,9 +523,21 @@ lint` (`xplat/no-dom-globals`) is the backstop; keep DOM code in `.tsrx`
 plus `whileTap`/`whileFocus`, lifecycle callbacks, `motion.create`, `useAnimate`,
 repeat/per-key transitions, duration/bounce springs, bounded variants with custom
 resolvers, inherited animate labels, and child stagger/when timing. Exit/interaction
-labels resolve locally; child timing applies to animate runs. Layout animation,
-`whileHover`/`whileInView`, keyframe arrays, and arbitrary CSS/SVG properties are
-excluded. Existing CSS transforms need an outer container.
+labels resolve locally; child timing applies to animate runs. Layout animation
+(`layout`, `layoutDependency`, `transition.layout`, and the layout callbacks)
+is supported on web, iOS, and Android — a `layout` host animates whenever its
+measured box changes after any commit, including keyed reorders of unchanged
+children; nested `layout` children keep their size inside a scaling parent.
+Verified 2026-10-27 by the maintained probe
+`examples/probes/motion-layout.tsrx` (iOS 27.0 simulator, Android 15 emulator;
+probe-driven geometry evidence, not visual capture or OS input).
+`layoutId`/`LayoutGroup`, `layoutScroll`/`layoutRoot`/`layoutAnchor`/
+`layoutCrossfade`, `whileHover`/`whileInView`, keyframe arrays, and arbitrary
+CSS/SVG properties are excluded. macOS throws for `layout`. Border-radius and
+box-shadow are not scale-corrected and visibly stretch; web layout elements
+inside scrolled overflow containers can animate from a stale position; on
+native, `rotate` with a non-uniform parent scale is approximate.
+Existing CSS transforms need an outer container.
 Declarative tweens delegate to `UIViewPropertyAnimator` (iOS),
 `ViewPropertyAnimator` (Android), and WAAPI `element.animate` (web and
 webview targets); springs, reduced-motion runs, and gesture-driven values

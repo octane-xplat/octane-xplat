@@ -595,6 +595,90 @@ This is deliberately different from upstream Octane motion, which unmounts the
 original component and animates a DOM clone. Xplat retains the live subtree on
 both web and native; it does not export `AnimatePresence` as a compatibility alias.
 
+## Layout animations
+
+`layout` on a `motion` host animates the element whenever its measured box
+changes — size, position, or both. You change the layout as usual, and motion
+animates the visual move for you. Works on web, iOS, and Android.
+
+An expanding card is the smallest useful example. Toggling the width animates
+the card between 120 and 260 units:
+
+```tsx
+import { useState } from 'octane'
+import { motion } from '@octane-xplat/motion'
+import { Text } from '@octane-xplat/ui'
+
+export function ExpandingCard() {
+	const [wide, setWide] = useState(false)
+	return (
+		<motion.Pressable layout onPress={() => setWide((v) => !v)} style={{ width: wide ? 260 : 120, height: 80 }}>
+			<Text>Tap to expand</Text>
+		</motion.Pressable>
+	)
+}
+```
+
+Use `layout="position"` when a child should move with an animated parent but
+keep its own size. It counter-corrects the parent scaling, so the child
+measures 50 wide on screen the whole way through:
+
+```tsx
+<motion.View layout style={{ width: wide ? 260 : 120, height: 80 }}>
+	<motion.View layout="position" style={{ width: 50, height: 30 }} />
+</motion.View>
+```
+
+The other `layout` values pick which axes animate: `'size'`, `'preserve-aspect'`,
+`'x'`, and `'y'`.
+
+Keyed lists animate reorder automatically — even when the children's props
+did not change:
+
+```tsx
+{items.map((item) => (
+	<motion.View key={item.id} layout style={{ height: 44 }}>
+		<Text>{item.label}</Text>
+	</motion.View>
+))}
+```
+
+Pass `layoutDependency` to animate only when that value changes; measurement
+still refreshes either way:
+
+```tsx
+<motion.View layout layoutDependency={selectedId} style={{ height: 44 }} />
+```
+
+Tune the animation with `transition.layout` inside an orchestrated transition;
+the default layout transition is a 0.45-second tween:
+
+```tsx
+<motion.View
+	layout
+	transition={{ layout: { duration: 0.6, ease: 'easeOut' } }}
+	style={{ width: wide ? 260 : 120, height: 80 }}
+/>
+```
+
+`onLayoutAnimationStart` and `onLayoutAnimationComplete` fire around each
+layout run:
+
+```tsx
+<motion.View
+	layout
+	onLayoutAnimationStart={() => console.log('layout animation started')}
+	onLayoutAnimationComplete={() => console.log('layout animation finished')}
+/>
+```
+
+A few limits to keep in mind: `layoutId`, `LayoutGroup`, `layoutScroll`,
+`layoutRoot`, `layoutAnchor`, and `layoutCrossfade` are not part of the
+supported subset yet; macOS is unsupported (`layout` throws there);
+border-radius and box-shadow stretch during scale; and existing CSS
+transforms still belong on an outer container. See
+[Motion leaf limits](../testing/known-limits.md#motion-leaf) for the full list.
+
 ## Compose motion patterns
 
 Common product interactions — switching views, revealing a list, settling a
