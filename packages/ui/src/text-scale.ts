@@ -33,9 +33,9 @@ export interface TextScaleStyle {
 const ROOT_FONT_PX = 16
 
 function fontSizePxOf(value: string | undefined): number | undefined {
-	if (!value) return undefined
+	if (!value) {return undefined}
 	const m = /^([\d.]+)(rem|em|px)?$/.exec(value.trim())
-	if (!m) return undefined
+	if (!m) {return undefined}
 	const n = parseFloat(m[1])
 	return m[2] === 'rem' || m[2] === 'em' ? n * ROOT_FONT_PX : n
 }
@@ -46,9 +46,9 @@ function lineHeightPxOf(
 	leading: string | undefined,
 	sizePx: number | undefined,
 ): number | undefined {
-	if (!leading || sizePx == null) return undefined
+	if (!leading || sizePx == null) {return undefined}
 	const m = /^([\d.]+)(px)?$/.exec(leading.trim())
-	if (!m) return undefined
+	if (!m) {return undefined}
 	const n = parseFloat(m[1])
 	return m[2] === 'px' ? n : n * sizePx
 }
@@ -86,9 +86,9 @@ function finish(
 ): TextScaleStyle {
 	style.fontSizePx = fontSizePxOf(style.fontSize)
 	style.lineHeightPx = lineHeightPxOf(style.lineHeight, style.fontSizePx)
-	if (weight) style.fontWeight = tokens[`--font-weight-${weight}`] || undefined
+	if (weight) {style.fontWeight = tokens[`--font-weight-${weight}`] || undefined}
 	const colorToken = COLOR_TOKEN[color ?? defaultColor]
-	if (colorToken) style.color = tokens[colorToken] || undefined
+	if (colorToken) {style.color = tokens[colorToken] || undefined}
 	return style
 }
 
@@ -111,7 +111,7 @@ export function textScaleStyle(
 		style.fontSize = tokens[`--text-${type}-size`]
 		style.lineHeight = tokens[`--text-${type}-leading`]
 		style.fontWeight = tokens[`--text-${type}-weight`]
-		if (type === 'code') style.fontFamily = tokens['--font-family-code']
+		if (type === 'code') {style.fontFamily = tokens['--font-family-code']}
 	}
 	if (opts.size) {
 		style.fontSize = tokens[`--font-size-${opts.size === 'xsm' ? 'xs' : opts.size}`]

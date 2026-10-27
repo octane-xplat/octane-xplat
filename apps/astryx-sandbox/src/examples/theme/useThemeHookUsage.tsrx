@@ -15,7 +15,7 @@ export function UseThemeHookUsage() @{
 		<Card width={360} padding={4}>
 			<VStack gap={3}>
 				<Text type="body" style={{ fontWeight: 700 }}>
-					{name} · {mode}
+					{name}{' · '}{mode}
 				</Text>
 				<View
 					accessibilityLabel="Themed bar chart"

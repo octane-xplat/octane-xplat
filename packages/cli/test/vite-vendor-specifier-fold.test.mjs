@@ -49,7 +49,7 @@ const makeApp = (workspaceRoot) => {
 }
 
 afterEach(() => {
-	for (const dir of dirs.splice(0)) rmSync(dir, { recursive: true, force: true })
+	for (const dir of dirs.splice(0)) {rmSync(dir, { recursive: true, force: true })}
 })
 
 describe('resolveInternalRuntimePluginBareSpecifier', () => {

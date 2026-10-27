@@ -83,8 +83,8 @@ function injectKeys(targetName) {
 	}
 	for (const el of [...doc.querySelectorAll('nav *')]) {
 		const text = el.textContent?.trim()
-		if (text !== 'Sandbox' && text !== 'Audits') continue
-		if ([...el.children].some((c) => c.textContent?.trim() === text)) continue
+		if (text !== 'Sandbox' && text !== 'Audits') {continue}
+		if ([...el.children].some((c) => c.textContent?.trim() === text)) {continue}
 		let top = el
 		while (
 			top.parentElement?.closest('nav') &&
@@ -106,7 +106,7 @@ function injectKeys(targetName) {
 	if (group) {
 		for (const btn of group.querySelectorAll('button')) {
 			const name = btn.getAttribute('aria-label') ?? ''
-			if (!name) continue
+			if (!name) {continue}
 			btn.setAttribute('data-sameframe-key', `toggle-${name}`)
 			const visible = [...btn.querySelectorAll('span')].find((span) => {
 				const rect = span.getBoundingClientRect()

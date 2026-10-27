@@ -48,7 +48,7 @@ const makeHoistedApp = () => {
 }
 
 afterEach(() => {
-	for (const dir of dirs.splice(0)) rmSync(dir, { recursive: true, force: true })
+	for (const dir of dirs.splice(0)) {rmSync(dir, { recursive: true, force: true })}
 })
 
 describe('installedPackageRoot', () => {
@@ -157,8 +157,8 @@ describe('hoisted workspace node_modules reads', () => {
 			)
 		} finally {
 			process.chdir(cwd)
-			if (prevExclude === undefined) delete process.env.NS_VENDOR_EXCLUDE
-			else process.env.NS_VENDOR_EXCLUDE = prevExclude
+			if (prevExclude === undefined) {delete process.env.NS_VENDOR_EXCLUDE}
+			else {process.env.NS_VENDOR_EXCLUDE = prevExclude}
 		}
 	})
 

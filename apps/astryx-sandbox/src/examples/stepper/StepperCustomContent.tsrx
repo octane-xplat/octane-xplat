@@ -26,7 +26,7 @@ export function StepperCustomContent() @{
 									<Text type="label">Next.js 15</Text>
 									<Badge>Detected</Badge>
 								</div>
-								<Text type="supporting">Build command <code>next build</code> · Output <code>.next</code> · Node 20</Text>
+								<Text type="supporting">Build command <code>next build</code>{' · '}Output <code>.next</code>{' · '}Node 20</Text>
 							</div>
 						</Card>
 						<div style={{display: 'flex', gap: 8}}>

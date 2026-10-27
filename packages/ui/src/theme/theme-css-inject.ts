@@ -16,7 +16,7 @@ const injected = new Set<string>()
 
 /** Register the theme's class-split token rules once per app session. */
 export function ensureThemeCss(theme: DefinedTheme): void {
-	if (injected.has(theme.name)) return
+	if (injected.has(theme.name)) {return}
 	Application.addCss(generateThemeCss(theme, { target: 'native' }))
 	injected.add(theme.name)
 }

@@ -11,7 +11,7 @@ const injected = new Set<string>()
 
 /** Inject the theme's scoped token rules once per document. */
 export function ensureThemeCss(theme: DefinedTheme): void {
-	if (injected.has(theme.name)) return
+	if (injected.has(theme.name)) {return}
 	const el = document.createElement('style')
 	el.setAttribute('data-xds-theme-css', theme.name)
 	el.textContent = generateThemeCss(theme, { target: 'web' })

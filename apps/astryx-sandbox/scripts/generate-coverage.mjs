@@ -51,10 +51,10 @@ const templateSources = new Map() // route → {source, doc}
 for (const family of readdirSync(blocksRoot)) {
 	const familyDir = path.join(blocksRoot, family)
 	for (const file of readdirSync(familyDir)) {
-		if (!file.endsWith('.tsx')) continue
+		if (!file.endsWith('.tsx')) {continue}
 		const name = file.slice(0, -4)
 		const route = `/templates/${name}/`
-		if (templateSources.has(route)) throw new Error(`duplicate block route ${route}`)
+		if (templateSources.has(route)) {throw new Error(`duplicate block route ${route}`)}
 		templateSources.set(route, {
 			kind: 'template-block',
 			family,
@@ -68,9 +68,9 @@ for (const family of readdirSync(blocksRoot)) {
 // Page templates: pages/<slug>/page.tsx → /templates/<slug>/
 for (const slug of readdirSync(pagesRoot)) {
 	const pageFile = path.join(pagesRoot, slug, 'page.tsx')
-	if (!existsSync(pageFile)) continue
+	if (!existsSync(pageFile)) {continue}
 	const route = `/templates/${slug}/`
-	if (templateSources.has(route)) throw new Error(`page slug collides with a block route ${route}`)
+	if (templateSources.has(route)) {throw new Error(`page slug collides with a block route ${route}`)}
 	templateSources.set(route, {
 		kind: 'template-page',
 		family: 'pages',
@@ -84,11 +84,11 @@ for (const slug of readdirSync(pagesRoot)) {
 const authored = new Map() // route → {source, group}
 for (const group of ['sandbox', 'fullscreen', 'raw']) {
 	const pagesDir = path.join(sandboxSrc, `(${group})/pages`)
-	if (!existsSync(pagesDir)) continue
+	if (!existsSync(pagesDir)) {continue}
 	const walk = (dir) => {
 		for (const entry of readdirSync(dir, { withFileTypes: true })) {
 			const full = path.join(dir, entry.name)
-			if (entry.isDirectory()) walk(full)
+			if (entry.isDirectory()) {walk(full)}
 			else if (entry.name === 'page.tsx') {
 				const rel = path.relative(pagesDir, path.dirname(full))
 				authored.set(`/pages/${rel}/`, {
@@ -134,10 +134,10 @@ for (const route of oracleRoutes) {
 
 // Bijection: every routed source maps to an oracle route and vice versa.
 for (const [route, t] of templateSources) {
-	if (!t.done) throw new Error(`unrouted template source ${t.source} (route ${route})`)
+	if (!t.done) {throw new Error(`unrouted template source ${t.source} (route ${route})`)}
 }
 for (const [route, p] of authored) {
-	if (!p.done) throw new Error(`unrouted authored page ${p.source} (route ${route})`)
+	if (!p.done) {throw new Error(`unrouted authored page ${p.source} (route ${route})`)}
 }
 
 // ---------- metadata + imports ----------
@@ -145,12 +145,12 @@ for (const [route, p] of authored) {
 const importRe = /import\s+(?:type\s+)?(?:([^'"]+?)\s+from\s+)?['"]([^'"]+)['"]/g
 
 function sourceImports(file) {
-	if (!file) return {}
+	if (!file) {return {}}
 	const text = readFileSync(path.join(astryxRoot, file), 'utf8')
 	const result = {}
 	for (const match of text.matchAll(importRe)) {
 		const [, clause, specifier] = match
-		if (specifier.startsWith('.') || specifier.startsWith('virtual:')) continue
+		if (specifier.startsWith('.') || specifier.startsWith('virtual:')) {continue}
 		const names = new Set(result[specifier] ?? [])
 		if (!clause) {
 			names.add('*')
@@ -159,13 +159,13 @@ function sourceImports(file) {
 			if (trimmed.startsWith('{')) {
 				for (const part of trimmed.replace(/[{}]/g, '').split(',')) {
 					const name = part.trim().split(/\s+as\s+/)[0]?.trim()
-					if (name) names.add(name)
+					if (name) {names.add(name)}
 				}
 			} else if (trimmed.includes('{')) {
 				names.add(trimmed.split('{')[0].trim().replace(/,$/, ''))
 				for (const part of trimmed.replace(/^[^{]*\{/, '').replace(/[{}]/g, '').split(',')) {
 					const name = part.trim().split(/\s+as\s+/)[0]?.trim()
-					if (name) names.add(name)
+					if (name) {names.add(name)}
 				}
 			} else {
 				names.add('default')
@@ -177,7 +177,7 @@ function sourceImports(file) {
 }
 
 async function docMeta(docPath) {
-	if (!docPath || !existsSync(docPath)) return undefined
+	if (!docPath || !existsSync(docPath)) {return undefined}
 	const mod = await import(pathToFileURL(docPath).href)
 	const doc = mod.doc ?? {}
 	return {

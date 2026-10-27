@@ -19,7 +19,7 @@ export function DisplayTextSection(props: {
 							fontSize: s.size,
 							fontWeight: s.weight ?? 400,
 							letterSpacing: s.letterSpacing,
-							lineHeight: 1.15,
+							lineHeight: s.size * 1.15,
 							color: 'var(--color-text-primary)',
 						}}
 					>

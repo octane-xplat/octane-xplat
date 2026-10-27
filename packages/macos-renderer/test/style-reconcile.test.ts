@@ -185,7 +185,7 @@ const sandbox = {
 			},
 			removeObserver: (o) => {
 				const i = frameObservers.indexOf(o)
-				if (i >= 0) frameObservers.splice(i, 1)
+				if (i >= 0) {frameObservers.splice(i, 1)}
 			},
 		},
 	},
@@ -567,7 +567,7 @@ test('percent borderRadius resolves against min(width, height) and re-resolves o
 	assert.equal(frameObservers.length, 1, 'frame observer installed while % radius is in effect')
 
 	item.view.frame.size.width = 40
-	for (const cb of [...frameObservers]) cb()
+	for (const cb of [...frameObservers]) {cb()}
 	assert.equal(item.view.layer.cornerRadius, 20)
 
 	setStyle(item, {})

@@ -26,18 +26,18 @@ function resolveEmbeddedLightDark(value: string, mode: 'light' | 'dark'): string
 	let i = 0
 	while (i < value.length) {
 		const start = value.indexOf('light-dark(', i)
-		if (start === -1) return out + value.slice(i)
+		if (start === -1) {return out + value.slice(i)}
 		out += value.slice(i, start)
 		const open = value.indexOf('(', start)
 		const close = findMatchingParen(value, open)
-		if (close === -1) return out + value.slice(start)
+		if (close === -1) {return out + value.slice(start)}
 		const body = value.slice(open + 1, close)
 		let depth = 0
 		let comma = -1
 		for (let j = 0; j < body.length; j++) {
 			const c = body[j]
-			if (c === '(') depth++
-			else if (c === ')') depth--
+			if (c === '(') {depth++}
+			else if (c === ')') {depth--}
 			else if (c === ',' && depth === 0) {
 				comma = j
 				break

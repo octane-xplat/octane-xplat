@@ -38,7 +38,7 @@ const makeProject = () => {
 			join(pkgDir, 'package.json'),
 			JSON.stringify({ name, main: 'pkg', nativescript: { platforms: { android: '9.0.0' } } }),
 		)
-		for (const file of files) writeFileSync(join(pkgDir, file), '')
+		for (const file of files) {writeFileSync(join(pkgDir, file), '')}
 	}
 	makePkg(FIXTURE_PKG, ['pkg.android.js', 'pkg.common.js', 'other.js'])
 	makePkg(OTHER_PKG, ['pkg.android.js'])

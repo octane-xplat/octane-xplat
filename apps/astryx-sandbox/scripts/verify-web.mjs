@@ -231,7 +231,7 @@ try {
 			probe.remove()
 			return c
 		}, id)
-		check(`${id} accent token resolves`, /^rgb/.test(themedAccent), `accent=${themedAccent}`)
+		check(`${id} accent token resolves`, themedAccent.startsWith('rgb'), `accent=${themedAccent}`)
 	}
 
 	// Nested theme example: inner scope's tokens differ from outer's.
@@ -663,7 +663,7 @@ try {
 		await page.waitForSelector('iframe', { timeout: 8000 }).catch(() => {})
 		for (let i = 0; i < 10; i++) {
 			const f = page.frames().find((fr) => fr !== page.mainFrame() && fr.url().includes(part))
-			if (f) return f
+			if (f) {return f}
 			await page.waitForTimeout(400)
 		}
 		return page

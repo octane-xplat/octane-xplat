@@ -26,6 +26,7 @@
 					"apps/docs/",
 					"apps/linux/",
 					"apps/macos/",
+					"apps/astryx-sandbox/",
 					"packages/cli/test/fixtures/",
 					"scripts/"
 				]
@@ -34,7 +35,7 @@
 		"xplat/no-web-only-api": [
 			"error",
 			{
-				"exclude": ["apps/web/", "apps/docs/", "apps/linux/"]
+				"exclude": ["apps/web/", "apps/docs/", "apps/linux/", "apps/astryx-sandbox/"]
 			}
 		],
 		"xplat/element-vocabulary": [
@@ -45,6 +46,7 @@
 					"apps/docs/",
 					"apps/mobile/",
 					"apps/windows/",
+					"apps/astryx-sandbox/",
 					"packages/typegen-fixture/"
 				]
 			}
@@ -65,7 +67,7 @@
 		"xplat/no-native-dead-style": [
 			"error",
 			{
-				"exclude": ["apps/web/", "apps/docs/"]
+				"exclude": ["apps/web/", "apps/docs/", "apps/astryx-sandbox/"]
 			}
 		],
 		"xplat/no-line-height-unitless": "error",

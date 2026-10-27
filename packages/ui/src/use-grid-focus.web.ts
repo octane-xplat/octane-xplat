@@ -13,7 +13,7 @@ export function useGridFocus<T extends HTMLElement = HTMLElement>(options: GridF
 
 	const focusCell = (index: number) => {
 		const host = ref.current
-		if (!host) return
+		if (!host) {return}
 		const cells = host.querySelectorAll('[data-grid-cell]')
 		const clamped = Math.max(0, Math.min(index, cells.length - 1))
 		const el = cells[clamped] as HTMLElement | undefined
@@ -22,10 +22,10 @@ export function useGridFocus<T extends HTMLElement = HTMLElement>(options: GridF
 
 	const onKeyDown = (event: KeyboardEvent) => {
 		const host = ref.current
-		if (!host) return
+		if (!host) {return}
 		const cells = [...host.querySelectorAll('[data-grid-cell]')] as HTMLElement[]
 		const current = cells.indexOf(document.activeElement as HTMLElement)
-		if (current < 0) return
+		if (current < 0) {return}
 		let next = current
 		switch (event.key) {
 			case 'ArrowRight': next = Math.min(current + 1, cells.length - 1); break
