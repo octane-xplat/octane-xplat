@@ -1,8 +1,10 @@
 // Simple haptics service — the platform `haptics` capability contract over
 // this leaf's own engine (Pulsar on native, Vibration API on web), so no
 // second plugin is needed.
+import { UnavailabilityError } from '@octane-xplat/lib/capability'
+import type { Service } from '@octane-xplat/lib/capability'
 import { createHaptics } from './haptics'
-import type { Capability, Haptics, HapticsImpl } from './types'
+import type { Haptics, HapticsImpl } from './types'
 
 // Optional capability — importing must never throw for absence, so the
 // engine is constructed lazily and a failed construction reports
@@ -20,7 +22,18 @@ const getEngine = (): Haptics | null => {
 	return engine
 }
 
-export const haptics: Capability<HapticsImpl> = {
+const available = (): boolean => haptics.supported
+
+const withEngine = (run: (engine: Haptics) => boolean | void) => {
+	const engine = getEngine()
+	if (!engine?.capabilities().supported) {
+		throw new UnavailabilityError('haptics')
+	}
+
+	return run(engine)
+}
+
+export const haptics: Service<HapticsImpl> = {
 	get supported() {
 		try {
 			return getEngine()?.capabilities().supported ?? false
@@ -28,12 +41,8 @@ export const haptics: Capability<HapticsImpl> = {
 			return false
 		}
 	},
-	async ensure() {
-		return haptics.supported ? 'granted' : 'unsupported'
-	},
-	impl: {
-		impact: (style = 'light') => void getEngine()?.play(`impact-${style}`),
-		notification: (kind) => void getEngine()?.play(kind),
-		selection: () => void getEngine()?.play('selection'),
-	},
+	isAvailable: async () => available(),
+	impact: (style = 'light') => void withEngine((engine) => engine.play(`impact-${style}`)),
+	notification: (kind) => void withEngine((engine) => engine.play(kind)),
+	selection: () => void withEngine((engine) => engine.play('selection')),
 }

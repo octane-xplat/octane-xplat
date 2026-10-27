@@ -48,7 +48,7 @@ function run(command, args, cwd) {
 const dependencies = [
 	'octane',
 	'@nativescript-community/octane',
-	'@nativescript/core',
+	'@nativescript/core', '@octane-xplat/lib',
 	'@nativescript/types',
 ]
 
@@ -56,7 +56,7 @@ const consumers = {
 	web: `import { createHaptics, haptics, type Haptics } from '@octane-xplat/haptics'
 const engine: Haptics = createHaptics()
 const played: boolean = engine.play('impact-light')
-haptics.impl?.selection()
+haptics.selection()
 // @ts-expect-error preset follows the published union
 const bad = engine.play('buzz')
 void played
@@ -65,7 +65,7 @@ void bad
 	native: `import { createHaptics, haptics, type Haptics } from '@octane-xplat/haptics'
 const engine: Haptics = createHaptics()
 const played: boolean = engine.play('impact-light')
-haptics.impl?.selection()
+haptics.selection()
 // @ts-expect-error preset follows the published union
 const bad = engine.play('buzz')
 void played

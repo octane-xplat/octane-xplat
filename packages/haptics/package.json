@@ -48,7 +48,8 @@
 		"pack:check": "tsrx-typegen --pack-check"
 	},
 	"dependencies": {
-		"@octane-xplat/platform": "workspace:*"
+		"@octane-xplat/platform": "workspace:*",
+		"@octane-xplat/lib": "workspace:*"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "catalog:",
