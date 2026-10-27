@@ -379,7 +379,7 @@ export function Trigger(props: LightboxTriggerPartProps) {
 			data-testid={props.testID}
 			data-lightbox-trigger={active ? '' : undefined}
 			onClick={(e: MouseEvent) => {
-				props.onClick?.(e)
+				props.onPress?.(e)
 				if (!e.defaultPrevented) ctx.openAt(props.index, e.currentTarget as HTMLElement)
 			}}
 		>

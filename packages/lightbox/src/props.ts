@@ -187,7 +187,8 @@ export interface LightboxPartProps extends TestIDProps {
 /** `Lightbox.Trigger` — registers the morph source element for `index`. */
 export interface LightboxTriggerPartProps extends LightboxPartProps {
 	index: number
-	onClick?: (event: unknown) => void
+	/** Activation callback — matches the cross-platform `onPress` convention. */
+	onPress?: (event: unknown) => void
 }
 /** `Lightbox.Slide`. */
 export interface LightboxSlidePartProps extends LightboxPartProps {

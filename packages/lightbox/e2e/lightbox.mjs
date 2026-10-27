@@ -36,7 +36,7 @@ try {
 	const page = await browser.newPage({ viewport: { width: 800, height: 600 } })
 	page.on('pageerror', (e) => results.push({ name: 'pageerror', pass: false, actual: String(e) }))
 	page.on('console', (m) => { if (m.type() === 'error') {results.push({ name: 'console.error', pass: false, actual: m.text() })} })
-	await page.goto(BASE)
+	await page.goto(BASE, { waitUntil: 'domcontentloaded' })
 	try { await page.waitForSelector('.vx-lightbox-trigger', { timeout: 10000 }) } catch {
 		console.log('PAGE:', (await page.content()).slice(0, 1500))
 		console.log('RESULTS:', JSON.stringify(results, null, 1).slice(0, 3000))
@@ -106,7 +106,7 @@ try {
 		check('close morph lands on trigger x', lastMorphRect.x, near(trigRect.x, 60))
 		check('close morph lands on trigger w', lastMorphRect.width, near(trigRect.width, 130))
 	}
-	await page.waitForTimeout(1500)
+	await page.waitForTimeout(500)
 	check('Escape closes layer', await page.locator('[data-phase]').count(), 0)
 	check('trigger visible again', await page.locator('.vx-lightbox-trigger').nth(0).locator('img').evaluate((el) => getComputedStyle(el).visibility), 'visible')
 
@@ -198,12 +198,31 @@ try {
 		check('pinch below fit closes', await page.locator('[data-phase]').count(), 0)
 	}
 
-	// --- reduced motion fades ---
-	const page2 = await browser.newPage({ viewport: { width: 800, height: 600 }, ...(browserName === 'chromium' ? { reducedMotion: 'reduce' } : {}) })
-	await page2.goto(BASE)
+	// --- reduced motion fades (no morph clip-path, presence goes 0→1) ---
+	const page2 = await browser.newPage({ viewport: { width: 800, height: 600 }, reducedMotion: 'reduce' })
+	await page2.goto(BASE, { waitUntil: 'domcontentloaded' })
+	await page2.waitForSelector('.vx-lightbox-trigger')
+	// Record every style write on the lightbox layer's image while it opens.
+	await page2.evaluate(() => {
+		;(window).__writes = []
+		;(window).__imgObs = new MutationObserver((muts) => {
+			for (const m of muts) {
+				if (m.target.hasAttribute?.('data-lightbox-image')) {(window).__writes.push(m.target.getAttribute('style') ?? '')}
+			}
+		})
+		;(window).__imgObs.observe(document.body, { attributes: true, attributeFilter: ['style'], subtree: true })
+	})
 	await page2.locator('.vx-lightbox-trigger').nth(0).click()
 	await page2.waitForSelector('[data-phase="open"]', { timeout: 5000 })
+	await page2.waitForTimeout(300)
 	check('reduced motion opens', await page2.locator('[data-phase]').getAttribute('data-phase'), 'open')
+	const imageWrites = await page2.evaluate(() => (window).__writes)
+	check('reduced motion: no morph clip-path writes', imageWrites.filter((s) => /clip-path:\s*inset\((?!0)/.exec(s)), (v) => v.length === 0)
+	check('reduced motion: image style writes happened', imageWrites.length, (v) => v > 0)
+	check('reduced motion: opacity ramps 0→1',
+		[imageWrites.some((s) => /opacity:\s*0(\D|$)/.test(s)), imageWrites.some((s) => /opacity:\s*1(\D|$)/.test(s))],
+		(v) => v[0] && v[1])
+	await page2.close()
 
 	const failed = results.filter((r) => !r.pass)
 	const skipped = results.filter((r) => r.skipped)

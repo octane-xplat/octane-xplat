@@ -157,9 +157,18 @@ export function Image(props: LightboxImageProps) {
 			stop()
 			const { ctx } = live.current
 			if (!live.current.F || !base().w) {
-				// Unmeasured or zero-size slide: fade the layer in instead.
-				ctx.presence.set(0)
-				void ctx.presence.animate(1, ctx.options.open).finished.then(() => ctx.onOpened())
+				// Not yet measured (mount ordering races the layout effect):
+				// defer one frame before falling back to the presence fade.
+				requestAnimationFrame(() => {
+					if (!morph.current && (live.current.ctx.phase === 'opening' || live.current.ctx.phase === 'open')) {
+						if (live.current.F && base().w) {
+							this.animateIn?.(trigger)
+						} else {
+							ctx.presence.set(0)
+							void ctx.presence.animate(1, ctx.options.open).finished.then(() => ctx.onOpened())
+						}
+					}
+				})
 				return
 			}
 			const r = radius()
