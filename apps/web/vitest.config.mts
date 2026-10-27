@@ -5,6 +5,9 @@ import { octane } from '@octanejs/vite-plugin'
 // web suffix chain so leaves resolve to their DOM implementations.
 export default defineConfig({
 	plugins: [...octane()],
+	ssr: {
+		resolve: { conditions: ['web'] },
+	},
 	resolve: {
 		conditions: ['web'],
 		extensions: [
