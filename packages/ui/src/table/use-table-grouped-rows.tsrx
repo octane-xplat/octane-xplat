@@ -7,6 +7,29 @@ import { useMemo, useRef } from 'octane'
 import type { TablePlugin, UseTableGroupedRowsConfig, UseTableGroupedRowsResult } from './types'
 import { flattenGroups, isGroupHeader, makeGroupedIdKey } from './grouped-rows'
 import { Icon } from '../Icon'
+import { TableSlot, tableSlot } from './table-slot'
+
+function GroupHeaderLabel(props: { groupKey: string; count: number }) @{
+	<masonview className="vx-table-group-label" style={{ flexDirection: 'row' }}>
+		<label text={`${props.groupKey} (${props.count})`} />
+	</masonview>
+}
+
+function GroupHeaderRow(props: { content: any; toggle: () => void }) @{
+	<masonview
+		className="vx-table-group-header-cell"
+		style={{ flexGrow: 1, flexDirection: 'row', alignItems: 'center' }}
+	>
+		<masonview
+			className="vx-table-chevron"
+			onTap={props.toggle}
+			style={{ width: 24, height: 24, alignItems: 'center', justifyContent: 'center' }}
+		>
+			<Icon name="xplat-chevron-right" size={12} />
+		</masonview>
+		<TableSlot value={props.content} />
+	</masonview>
+}
 
 /**
  * Groups a flat data array into collapsible section rows — see the web leaf
@@ -46,13 +69,9 @@ export function useTableGroupedRows<T extends Record<string, unknown>>(
 				const { collapsedGroups: collapsed, onToggleGroup, renderGroupHeader } = configRef.current
 				const isCollapsed = collapsed.has(item.groupKey)
 				const toggle = () => onToggleGroup(item.groupKey)
-				const content = renderGroupHeader ? (
-					renderGroupHeader(item.groupKey, item.count, isCollapsed)
-				) : (
-					<masonview className="vx-table-group-label" style={{ flexDirection: 'row' }}>
-						<label text={`${item.groupKey} (${item.count})`} />
-					</masonview>
-				)
+				const content = renderGroupHeader
+					? renderGroupHeader(item.groupKey, item.count, isCollapsed)
+					: tableSlot(GroupHeaderLabel, { groupKey: item.groupKey, count: item.count })
 
 				return {
 					...props,
@@ -62,21 +81,7 @@ export function useTableGroupedRows<T extends Record<string, unknown>>(
 						'aria-expanded': !isCollapsed,
 					},
 					classes: [...props.classes, 'vx-table-row--group-header'],
-					children: (
-						<masonview
-							className="vx-table-group-header-cell"
-							style={{ flexGrow: 1, flexDirection: 'row', alignItems: 'center' }}
-						>
-							<masonview
-								className="vx-table-chevron"
-								onTap={toggle}
-								style={{ width: 24, height: 24, alignItems: 'center', justifyContent: 'center' }}
-							>
-								<Icon name="xplat-chevron-right" size={12} />
-							</masonview>
-							{content}
-						</masonview>
-					) as any,
+					children: tableSlot(GroupHeaderRow, { content, toggle }),
 				}
 			},
 		}),

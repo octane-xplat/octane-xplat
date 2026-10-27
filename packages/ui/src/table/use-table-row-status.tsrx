@@ -18,6 +18,7 @@ import { Icon } from '../Icon'
 import { Tooltip } from '../Tooltip'
 import { VisuallyHidden } from '../VisuallyHidden'
 import { View } from '../View'
+import { tableSlot } from './table-slot'
 
 /** Configuration for `useTableRowStatus`. */
 export interface UseTableRowStatusConfig<T extends Record<string, unknown>> {
@@ -77,6 +78,83 @@ function resolveStatusIcon(icon: string): IconName {
 // keeps every row's indicator aligned in one gutter.
 const STATUS_COLUMN_WIDTH = pixel(28)
 
+// The gutter stays visually blank, but the th needs a discernible name
+// for assistive technology (axe: empty-table-header).
+function StatusHeader() @{
+	<VisuallyHidden>Row status</VisuallyHidden>
+}
+
+function StatusMarker(props: { status: TableRowStatusResult }) @{
+	const untyped = props.status as { status?: unknown; color?: unknown; icon?: unknown }
+
+	if (isTableRowSemanticStatus(untyped.status)) {
+		return (
+			<Icon
+				name={resolveStatusIcon(untyped.status)}
+				size={12}
+				color={SEMANTIC_COLORS[untyped.status]}
+			/>
+		)
+	}
+
+	if (typeof untyped.color !== 'string') {
+		return null as any
+	}
+
+	if (typeof untyped.icon === 'string') {
+		return (
+			<Icon
+				name={resolveStatusIcon(untyped.icon)}
+				size={12}
+				color={resolveColor(untyped.color)}
+			/>
+		)
+	}
+
+	<View
+		className="vx-table-status-dot"
+		style={{
+			width: 8,
+			height: 8,
+			borderRadius: '50%',
+			backgroundColor: resolveColor(untyped.color),
+			flexShrink: 0,
+		}}
+	/>
+}
+
+function StatusCell<T extends Record<string, unknown>>(props: {
+	item: T
+	configRef: { current: UseTableRowStatusConfig<T> }
+}) @{
+	const status = props.configRef.current.getStatus(props.item)
+	if (!status) {
+		return null as any
+	}
+
+	// No marker without a semantic status or a color — render nothing.
+	if (
+		!isTableRowSemanticStatus((status as { status?: unknown }).status) &&
+		typeof (status as { color?: unknown }).color !== 'string'
+	) {
+		return null as any
+	}
+
+	<Tooltip
+		content={status.label}
+		trigger={
+			<View
+				className="vx-table-status"
+				style={{ alignItems: 'center', justifyContent: 'center' }}
+				accessibilityRole="image"
+				accessibilityLabel={status.label}
+			>
+				<StatusMarker status={status} />
+			</View>
+		}
+	/>
+}
+
 /**
  * Returns a `TablePlugin` that prepends a narrow column signaling per-row
  * status. A semantic `status` resolves a themed glyph and tone; a custom
@@ -88,81 +166,12 @@ export function useTableRowStatus<T extends Record<string, unknown>>(
 	const configRef = useRef(config)
 	configRef.current = config
 
-	const renderMarker = (status: TableRowStatusResult) => {
-		const untyped = status as { status?: unknown; color?: unknown; icon?: unknown }
-
-		if (isTableRowSemanticStatus(untyped.status)) {
-			return (
-				<Icon
-					name={resolveStatusIcon(untyped.status)}
-					size={12}
-					color={SEMANTIC_COLORS[untyped.status]}
-				/>
-			)
-		}
-
-		if (typeof untyped.color !== 'string') {
-			return null
-		}
-
-		if (typeof untyped.icon === 'string') {
-			return (
-				<Icon
-					name={resolveStatusIcon(untyped.icon)}
-					size={12}
-					color={resolveColor(untyped.color)}
-				/>
-			)
-		}
-
-		return (
-			<View
-				className="vx-table-status-dot"
-				style={{
-					width: 8,
-					height: 8,
-					borderRadius: '50%',
-					backgroundColor: resolveColor(untyped.color),
-					flexShrink: 0,
-				}}
-			/>
-		)
-	}
-
 	const statusColumn: TableColumn<T> = {
 		key: '__rowStatus',
-		// The gutter stays visually blank, but the th needs a discernible name
-		// for assistive technology (axe: empty-table-header).
-		header: <VisuallyHidden>Row status</VisuallyHidden>,
+		header: tableSlot(StatusHeader),
 		width: STATUS_COLUMN_WIDTH,
 		resizable: false,
-		renderCell: (item: T) => {
-			const status = configRef.current.getStatus(item)
-			if (!status) {
-				return null
-			}
-
-			const marker = renderMarker(status)
-			if (!marker) {
-				return null
-			}
-
-			return (
-				<Tooltip
-					content={status.label}
-					trigger={
-						<View
-							className="vx-table-status"
-							style={{ alignItems: 'center', justifyContent: 'center' }}
-							accessibilityRole="image"
-							accessibilityLabel={status.label}
-						>
-							{marker}
-						</View>
-					}
-				/>
-			)
-		},
+		renderCell: (item: T) => tableSlot(StatusCell, { item, configRef }),
 	}
 
 	return {

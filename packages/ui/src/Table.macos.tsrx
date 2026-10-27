@@ -119,7 +119,7 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 							onTap={onRowTap}
 							style={mergeStyle({ display: 'flex', flexDirection: 'row' }, row.render.htmlProps?.style ?? {})}>
 							{row.render.children != null
-								? row.render.children
+								? <TableSlot value={row.render.children} />
 								: row.cells.map((cell) => (
 									<masonview
 										key={cell.column.key}
@@ -133,7 +133,7 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 					return row.render.afterRow != null ? (
 						<>
 							{rowNode}
-							{row.render.afterRow}
+							<TableSlot value={row.render.afterRow} />
 						</>
 					) : (
 						rowNode

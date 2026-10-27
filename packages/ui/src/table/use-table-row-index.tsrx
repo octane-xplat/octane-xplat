@@ -7,6 +7,7 @@ import type { TablePlugin } from './types'
 import type { Renderable, TableColumn } from '../props'
 import { pixel } from './column-utils'
 import { Text } from '../Text'
+import { tableSlot } from './table-slot'
 
 /**
  * Configuration for `useTableRowIndex`.
@@ -30,6 +31,18 @@ export interface UseTableRowIndexConfig<T extends Record<string, unknown>> {
 }
 
 const INDEX_COLUMN_WIDTH = pixel(48)
+
+function RowIndexCell<T extends Record<string, unknown>>(props: {
+	item: T
+	lookup: (item: T) => number | undefined
+	startFrom: number
+}) @{
+	const idx = props.lookup(props.item)
+	if (idx == null) {
+		return null as any
+	}
+	<Text className="vx-table-rowindex">{idx + props.startFrom}</Text>
+}
 
 /**
  * Returns a `TablePlugin` that prepends a right-aligned, monospaced
@@ -61,14 +74,7 @@ export function useTableRowIndex<T extends Record<string, unknown>>(
 				width: INDEX_COLUMN_WIDTH,
 				align: 'end',
 				resizable: false,
-				renderCell: (item: T) => {
-					const idx = lookup(item)
-					if (idx == null) {
-						return null
-					}
-
-					return <Text className="vx-table-rowindex">{idx + startFrom}</Text>
-				},
+				renderCell: (item: T) => tableSlot(RowIndexCell, { item, lookup, startFrom }),
 			}
 
 			return [indexColumn, ...columns]

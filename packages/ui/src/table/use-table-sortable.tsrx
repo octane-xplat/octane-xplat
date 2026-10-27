@@ -6,7 +6,7 @@ import { useRef } from 'octane'
 import type { TablePlugin, HeaderCellRenderProps, TableSortState, TableSortDirection, UseTableSortableConfig } from './types'
 import type { TableColumn } from '../props'
 import { Icon } from '../Icon'
-import { tableSlot } from './table-slot'
+import { TableSlot, tableSlot } from './table-slot'
 
 export function resolveSortKey<T extends Record<string, unknown>>(column: TableColumn<T>): string | null {
 	const { sortable } = column
@@ -42,7 +42,7 @@ function SortHeaderButton<T extends Record<string, unknown>>(props: {
 	}
 
 	<masonview className="vx-table-sort-button" onTap={handlePress} style={{ flexDirection: 'row', alignItems: 'center' }}>
-		{typeof props.children === 'string' ? <label text={props.children} /> : props.children}
+		{typeof props.children === 'string' ? <label text={props.children} /> : <TableSlot value={props.children} />}
 		<Icon name={iconName} size={12} />
 	</masonview>
 }

@@ -15,6 +15,7 @@ import type {
 
 import type { TableColumn } from '../props'
 import { Icon } from '../Icon'
+import { TableSlot, tableSlot } from './table-slot'
 
 /** Indent step per level (dips), matching the web spacing tokens. */
 const INDENT_STEP = { sm: 12, md: 16, lg: 24 } as const
@@ -27,7 +28,7 @@ function TreeCellContent<T extends Record<string, unknown>>(props: {
 }) @{
 	const meta = props.meta
 	if (!meta) {
-		return <>{props.children}</>
+		return <TableSlot value={props.children} />
 	}
 
 	const indent = meta.level > 0 ? meta.level * INDENT_STEP[props.indent] : 0
@@ -51,7 +52,7 @@ function TreeCellContent<T extends Record<string, unknown>>(props: {
 		{typeof props.children === 'string' || typeof props.children === 'number' ? (
 			<label text={String(props.children)} />
 		) : (
-			props.children
+			<TableSlot value={props.children} />
 		)}
 	</masonview>
 }
@@ -71,6 +72,22 @@ function TreeExpandAllToggle(props: {
 	>
 		<Icon name="xplat-chevron-right" size={12} />
 	</masonview>
+}
+
+function TreeHeaderBefore(props: {
+	before: any
+	isAllExpanded: boolean | 'indeterminate'
+	onExpandAll: () => void
+	onCollapseAll: () => void
+}) @{
+	<>
+		<TableSlot value={props.before} />
+		<TreeExpandAllToggle
+			isAllExpanded={props.isAllExpanded}
+			onExpandAll={props.onExpandAll}
+			onCollapseAll={props.onCollapseAll}
+		/>
+	</>
 }
 
 export function useTableTreeData<T extends Record<string, unknown>>(
@@ -106,17 +123,14 @@ export function useTableTreeData<T extends Record<string, unknown>>(
 					...col,
 					renderCell: (item: T) => {
 						const cfg = configRef.current
-						return (
-							<TreeCellContent
-								meta={cfg.getRowMeta(item)}
-								indent={cfg.indent ?? 'md'}
-								onToggle={() => cfg.onToggleItem(item)}
-							>
-								{originalRenderCell
-									? originalRenderCell(item)
-									: String((item[col.key] as string | number | null | undefined) ?? '')}
-							</TreeCellContent>
-						)
+						return tableSlot(TreeCellContent, {
+							meta: cfg.getRowMeta(item),
+							indent: cfg.indent ?? 'md',
+							onToggle: () => cfg.onToggleItem(item),
+							children: originalRenderCell
+								? originalRenderCell(item)
+								: String((item[col.key] as string | number | null | undefined) ?? ''),
+						})
 					},
 				}
 			})
@@ -142,16 +156,12 @@ export function useTableTreeData<T extends Record<string, unknown>>(
 
 			return {
 				...props,
-				before: (
-					<>
-						{props.before}
-						<TreeExpandAllToggle
-							isAllExpanded={isAllExpanded}
-							onExpandAll={onExpandAll}
-							onCollapseAll={onCollapseAll}
-						/>
-					</>
-				),
+				before: tableSlot(TreeHeaderBefore, {
+					before: props.before,
+					isAllExpanded,
+					onExpandAll,
+					onCollapseAll,
+				}),
 			}
 		},
 
