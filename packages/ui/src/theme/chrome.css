@@ -3456,6 +3456,9 @@
 .vx-table-row--selected-fill { --table-row-overlay: var(--color-accent-muted, rgba(51,102,255,0.08)); }
 .vx-table-row--selected-fill:hover { --table-row-overlay: var(--color-accent-muted, rgba(51,102,255,0.12)); }
 
+/* xplat-web-only:start — sticky columns: position:sticky, pseudo-element
+   shadows and pointer-events are DOM mechanics; the native leaf never emits
+   these classes (use-table-sticky-columns only exists on web). */
 /* --- Sticky columns (Astryx stickyColumns) --- */
 .vx-table-cell--sticky {
 	position: sticky;
@@ -3512,6 +3515,7 @@
 	transform: translateX(100%);
 	background-image: linear-gradient(to right, var(--color-shadow, rgba(0,0,0,0.1)), transparent);
 }
+/* xplat-web-only:end */
 
 /* --- Grouped rows (Astryx groupedRows) --- */
 .vx-table-row--group-header {
@@ -3519,17 +3523,18 @@
 	user-select: none;
 	background: var(--color-background-muted, rgba(0,0,0,0.04));
 }
-.vx-table-row--group-header .vx-table-group-header-cell { border-bottom: 1px solid var(--color-border, #ddd); }
-.vx-table-group-header-cell { padding-block: var(--spacing-2, 8px); padding-inline-start: 0; padding-inline-end: var(--spacing-3, 12px); }
+.vx-table-row--group-header .vx-table-group-header-cell { border-bottom-width: 1px; border-bottom-color: var(--color-border, #ddd); border-bottom-style: solid; }
+.vx-table-group-header-cell { padding-top: var(--spacing-2, 8px); padding-bottom: var(--spacing-2, 8px); padding-left: 0; padding-right: var(--spacing-3, 12px); }
 /* The cell spans every column, so on a table scrolled sideways the heading
    would slide out of view; sticking the inner span keeps it on screen. */
 .vx-table-group-header-inner {
 	display: flex;
 	align-items: center;
 	gap: var(--spacing-1, 4px);
-	inset-inline-start: 0;
-	position: sticky;
-	padding-inline-start: var(--spacing-1, 4px);
+	padding-left: var(--spacing-1, 4px);
+}
+@platform web {
+	.vx-table-group-header-inner { inset-inline-start: 0; position: sticky; }
 }
 .vx-table-group-header-inner--fit { width: fit-content; }
 .vx-table-group-label { font-weight: var(--font-weight-semibold, 600); color: var(--color-text-primary, inherit); }
@@ -3544,12 +3549,12 @@
 	padding: 0;
 	margin: 0;
 	background: transparent;
-	border: 0;
+	border-width: 0;
 	cursor: pointer;
 	color: var(--color-icon-secondary, #888);
 }
 .vx-table-chevron:hover { color: var(--color-icon-primary, inherit); }
-.vx-table-chevron-icon { display: inline-flex; transition: transform 150ms; }
+.vx-table-chevron-icon { display: inline-flex; }
 .vx-table-chevron-icon--collapsed { transform: rotate(0deg); }
 .vx-table-chevron-icon--expanded { transform: rotate(90deg); }
 :is([dir="rtl"]) .vx-table-chevron-icon--collapsed { transform: scaleX(-1) rotate(0deg); }
@@ -3559,7 +3564,6 @@
 .vx-table-rowindex {
 	font-family: var(--font-family-code, monospace);
 	font-size: var(--text-supporting-size, 0.85em);
-	font-variant-numeric: tabular-nums;
 	color: var(--color-text-secondary, #555);
 }
 
@@ -3574,20 +3578,26 @@
 	width: var(--spacing-6, 24px);
 	height: var(--spacing-6, 24px);
 	background: transparent;
-	border: 0;
+	border-width: 0;
 	border-radius: var(--radius-inner, 4px);
 	cursor: pointer;
 	color: var(--color-icon-secondary, #888);
-	transition: color 150ms;
 	padding: 0;
 	flex-shrink: 0;
 }
 @media (hover: hover) {
 	.vx-table-expander:hover { background-image: linear-gradient(var(--color-overlay-hover, rgba(0,0,0,0.06)), var(--color-overlay-hover, rgba(0,0,0,0.06))); color: var(--color-icon-primary, inherit); }
 }
-.vx-table-expander .vx-table-chevron-icon { display: inline-flex; transition: transform 150ms; }
+.vx-table-expander .vx-table-chevron-icon { display: inline-flex; }
 .vx-table-expanded-row { background: var(--color-background-muted, rgba(0,0,0,0.04)); }
-.vx-table-expanded-cell { padding-block: var(--spacing-4, 16px); padding-inline: var(--spacing-5, 20px); }
+.vx-table-expanded-cell { padding: var(--spacing-4, 16px) var(--spacing-5, 20px); }
+
+/* xplat-web-only:start — transitions + tabular-nums are DOM paint affordances. */
+.vx-table-chevron-icon { transition: transform 150ms; }
+.vx-table-expander { transition: color 150ms; }
+.vx-table-expander .vx-table-chevron-icon { transition: transform 150ms; }
+.vx-table-rowindex { font-variant-numeric: tabular-nums; }
+/* xplat-web-only:end */
 
 /* --- Tree data (Astryx tree) --- */
 .vx-table-tree-cell { display: flex; align-items: center; gap: var(--spacing-1, 4px); }
