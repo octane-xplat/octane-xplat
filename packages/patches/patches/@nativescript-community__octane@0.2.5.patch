@@ -1,7 +1,14 @@
 diff --git a/dist/driver.d.ts b/dist/driver.d.ts
-index 80e30299c44e889e3a066ce2c9a8feb6b7ceaa42..b17dc120c5c00ba4be701233fb95b6d2b3eb72d9 100644
+index 80e30299c44e889e3a066ce2c9a8feb6b7ceaa42..e4ab5a0ae0852efaf7b4740da4eae74bfbccc10e 100644
 --- a/dist/driver.d.ts
 +++ b/dist/driver.d.ts
+@@ -1,5 +1,5 @@
+ import { type EventData, LayoutBase, type ViewBase } from '@nativescript/core';
+-import { type UniversalHostDriver, type UniversalPortalTargetHandle, type UniversalRoot } from 'octane/universal/native';
++import { type UniversalHostCommand, type UniversalHostDriver, type UniversalPortalTargetHandle, type UniversalRoot } from 'octane/universal/native';
+ interface HostNode {
+     readonly id: number;
+     readonly type: string;
 @@ -14,6 +14,9 @@ interface HostNode {
      readonly muted: Set<string>;
      /** Whether this node's `text` has been driven by `#text` children. */
@@ -12,8 +19,23 @@ index 80e30299c44e889e3a066ce2c9a8feb6b7ceaa42..b17dc120c5c00ba4be701233fb95b6d2
  }
  /**
   * A command `parent`: a host node id's node, the root container (`null`), or a
+@@ -42,6 +45,14 @@ export interface NativeScriptContainer {
+     root: UniversalRoot | null;
+ }
+ export declare const nativeScriptDriver: UniversalHostDriver<NativeScriptContainer, ViewBase | null>;
++export interface BatchObserver {
++    /** Before a batch's commands apply; the previous layout is still on screen. */
++    willApply?(container: NativeScriptContainer, commands: readonly UniversalHostCommand[], depth?: number): void;
++    /** After the batch's commands and the tab-view flush applied. Not called if apply threw. */
++    didApply?(container: NativeScriptContainer, commands: readonly UniversalHostCommand[], depth?: number): void;
++}
++/** Observe every batch on every NativeScript root; returns an unsubscribe. */
++export declare function observeBatches(observer: BatchObserver): () => void;
+ /**
+  * Mount an Octane component into an existing NativeScript view.
+  *
 diff --git a/dist/driver.js b/dist/driver.js
-index 8bc563add4cb675a12651184b63805b10224274d..bb6406235d469868b52d66f0ea61b8b3e5019458 100644
+index 8bc563add4cb675a12651184b63805b10224274d..ab378f0d39a483c699098f8d209af5491e41b010 100644
 --- a/dist/driver.js
 +++ b/dist/driver.js
 @@ -1,8 +1,11 @@
@@ -274,7 +296,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..bb6406235d469868b52d66f0ea61b8b3
 +function warnStyleOnlyProp(node, name) {
 +    const key = node.type + ':' + name;
 +    if (warnedStyleOnlyProps.has(key))
-+        return;
+         return;
 +    warnedStyleOnlyProps.add(key);
 +    console.warn(`[xplat] <${node.type} ${name}=...> is a layout key — move it into style={{ ${name}: ... }} or a class.`);
 +}
@@ -314,9 +336,11 @@ index 8bc563add4cb675a12651184b63805b10224274d..bb6406235d469868b52d66f0ea61b8b3
 +            return 'center';
 +        case 'stretch':
 +            return 'stretch';
-+    }
+     }
+-    if (typeof value === 'object')
+-        Object.assign(view.style, value);
 +    return undefined;
-+}
+ }
 +
 +/** Container-role defaults — equivalent to each NS layout's built-in mode. */
 +function applyMasonDefaults(type, view) {
@@ -365,10 +389,8 @@ index 8bc563add4cb675a12651184b63805b10224274d..bb6406235d469868b52d66f0ea61b8b3
 +        return;
 +    if (masonLeafBindings.has(view)) {
 +        masonLeafBindings.get(view).sync();
-         return;
-     }
--    if (typeof value === 'object')
--        Object.assign(view.style, value);
++        return;
++    }
 +    let native;
 +    let leaf;
 +    let defaultDisplay;
@@ -451,7 +473,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..bb6406235d469868b52d66f0ea61b8b3
 +        return;
 +    masonLeafBindings.get(view)?.dispose();
 +    masonLeafBindings.delete(view);
- }
++}
 +
  /** Recompute a text host's `text` from its `#text` children. */
  function syncText(parent) {
@@ -507,7 +529,24 @@ index 8bc563add4cb675a12651184b63805b10224274d..bb6406235d469868b52d66f0ea61b8b3
      markTabView(tabViewOwning(node));
  }
  function insert(container, parent, node, before) {
-@@ -429,6 +785,7 @@ function setEvent(container, node, type, listener) {
+@@ -395,6 +751,16 @@ function insert(container, parent, node, before) {
+  * nests an apply, so this is a depth rather than a flag.
+  */
+ let applyingDepth = 0;
++const batchObservers = new Set();
++export function observeBatches(observer) {
++    batchObservers.add(observer);
++    return () => {
++        batchObservers.delete(observer);
++    };
++}
++function notifyBatchObservers(hook, container, commands, depth) {
++    for (const observer of [...batchObservers]) observer[hook]?.(container, commands, depth);
++}
+ function setEvent(container, node, type, listener) {
+     const view = node.view;
+     if (view === null)
+@@ -429,6 +795,7 @@ function setEvent(container, node, type, listener) {
      view.on(type, handler);
  }
  function disposeListeners(node) {
@@ -515,7 +554,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..bb6406235d469868b52d66f0ea61b8b3
      const view = node.view;
      if (view !== null) {
          for (const [type, handler] of node.listeners)
-@@ -460,6 +817,7 @@ function recreateView(container, node) {
+@@ -460,6 +827,7 @@ function recreateView(container, node) {
          // no longer host them.
          throw new Error(`NativeScript driver: re-registered <${node.type}> is a <${view.typeName}>, which cannot host portal children; the registration stays on the previous view.`);
      }
@@ -523,7 +562,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..bb6406235d469868b52d66f0ea61b8b3
      const parentView = hostViewOf(container, node.parent);
      for (const child of node.children) {
          if (child.view !== null)
-@@ -480,6 +838,9 @@ function recreateView(container, node) {
+@@ -480,6 +848,9 @@ function recreateView(container, node) {
      viewOwners.set(view, { container, node });
      node.view = view;
      node.textApplied = false;
@@ -533,7 +572,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..bb6406235d469868b52d66f0ea61b8b3
      applyProps(node, node.props);
      for (const [type, handler] of node.listeners)
          view.on(type, handler);
-@@ -500,6 +861,12 @@ function recreateView(container, node) {
+@@ -500,6 +871,12 @@ function recreateView(container, node) {
                  addViewChild(view, child.view, index++);
          }
      }
@@ -546,7 +585,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..bb6406235d469868b52d66f0ea61b8b3
      syncText(node);
      markTabView(node);
      attach(container, node);
-@@ -548,7 +915,7 @@ function preparePortalTarget(context) {
+@@ -548,7 +925,7 @@ function preparePortalTarget(context) {
      }
      const target = owner?.node.view ?? suppliedTarget;
      if (!(target instanceof LayoutBase)) {
@@ -555,7 +594,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..bb6406235d469868b52d66f0ea61b8b3
      }
      let id = portalTargetIds.get(target);
      if (id === undefined) {
-@@ -641,7 +1008,7 @@ function applyCommand(container, command) {
+@@ -641,7 +1018,7 @@ function applyCommand(container, command) {
  }
  export const nativeScriptDriver = {
      id: NATIVESCRIPT_RENDERER_ID,
@@ -564,6 +603,22 @@ index 8bc563add4cb675a12651184b63805b10224274d..bb6406235d469868b52d66f0ea61b8b3
      events: {
          classify(name) {
              if (!EVENT_PROP.test(name))
+@@ -656,6 +1033,7 @@ export const nativeScriptDriver = {
+         }
+         return {
+             apply() {
++                notifyBatchObservers('willApply', container, batch.commands, applyingDepth);
+                 applyingDepth++;
+                 pendingTabViews.push(new Set());
+                 try {
+@@ -670,6 +1048,7 @@ export const nativeScriptDriver = {
+                         applyingDepth--;
+                     }
+                 }
++                notifyBatchObservers('didApply', container, batch.commands, applyingDepth);
+             },
+             // Nothing is staged ahead of `apply`, so there is nothing to release.
+             abort() { },
 diff --git a/dist/elements.js b/dist/elements.js
 index a13bcea75176146f58f047be1d9c7b0cdda1120a..cecfae898004a6257a13be68bb39ae7d1307d0b4 100644
 --- a/dist/elements.js
@@ -621,6 +676,33 @@ index a13bcea75176146f58f047be1d9c7b0cdda1120a..cecfae898004a6257a13be68bb39ae7d
  ];
  for (const [tag, element] of BUILTIN_ELEMENTS)
      registerElement(tag, element);
+diff --git a/dist/index.d.ts b/dist/index.d.ts
+index 20937a1f9af4687cd53093c5e7f6225d550bec4b..f7e8b409f34e60abd55b509f1301989a02254389 100644
+--- a/dist/index.d.ts
++++ b/dist/index.d.ts
+@@ -10,8 +10,8 @@
+  * plugins by bare package id and folds `dist/` subpaths back onto the root.
+  */
+ export * from 'octane/universal/native';
+-export { createNativeScriptRoot, nativeScriptDriver, renderNativeScriptApp, } from './driver.js';
+-export type { NativeScriptContainer } from './driver.js';
++export { createNativeScriptRoot, nativeScriptDriver, observeBatches, renderNativeScriptApp, } from './driver.js';
++export type { BatchObserver, NativeScriptContainer } from './driver.js';
+ export { ELEMENTS, eventNameFor, onElementReplaced, registerElement, } from './elements.js';
+ export type { ElementConstructor } from './elements.js';
+ export type { RenderItem } from './list-view.js';
+diff --git a/dist/index.js b/dist/index.js
+index d7f912e56337a6692105395a0a7c524554dd9edd..0dc884630037aaa156f016676f4abf10c728e17d 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -10,6 +10,6 @@
+  * plugins by bare package id and folds `dist/` subpaths back onto the root.
+  */
+ export * from 'octane/universal/native';
+-export { createNativeScriptRoot, nativeScriptDriver, renderNativeScriptApp, } from './driver.js';
++export { createNativeScriptRoot, nativeScriptDriver, observeBatches, renderNativeScriptApp, } from './driver.js';
+ export { ELEMENTS, eventNameFor, onElementReplaced, registerElement, } from './elements.js';
+ export { NATIVESCRIPT_RENDERER_ID } from './config.js';
 diff --git a/dist/intrinsics.d.ts b/dist/intrinsics.d.ts
 index 45a47cbbce199df9635852ca4cdb2849e9bbc83d..23b81c44b6860e6099e8c1a70f975f6e792aa2b2 100644
 --- a/dist/intrinsics.d.ts

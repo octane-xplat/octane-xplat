@@ -120,6 +120,10 @@ patchedDependencies:
   # unchanged and stringifies truthy numeric class values while omitting 0 and NaN, matching
   # Octane 0.11. Maps collapsed foreign native leaves to Mason display:none, restoring
   # effective display on visibility changes so both layout hosts omit the same item (#45).
+  # Adds observeBatches(): willApply/didApply batch observers on every NativeScript root
+  # (including nested applies, with depth) so layout projection can snapshot before and
+  # commit after each host batch, which a rerender-driven signal cannot cover on keyed
+  # reorder.
   "@nativescript-community/octane@0.2.5": node_modules/.pnpm-config/@octane-xplat/patches/patches/@nativescript-community__octane@0.2.5.patch
   # octaneServerStrategy's SCRIPT_FILE_RE only covers [jt]sx? — .tsrx edits never emit the
   # deferred ns:hmr-delta broadcast, so component HMR silently never reaches the device.
