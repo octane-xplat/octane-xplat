@@ -69,10 +69,17 @@
 	.vx-screen-shell {
 		flex-grow: 1;
 		flex-shrink: 1;
-		flex-basis: 0px;
 		align-self: stretch;
 		min-width: 0;
 		min-height: 0;
+	}
+	/* flex-basis has no NS registry entry — NS flex items size from
+	   grow/shrink + content. Mason honors flexBasis, so keep the explicit
+	   zero basis on web and macOS only. */
+	@platform web, macos {
+		.vx-screen-shell {
+			flex-basis: 0px;
+		}
 	}
 
 	/* RootLayout supplies the native frame, but Mason computes descendants

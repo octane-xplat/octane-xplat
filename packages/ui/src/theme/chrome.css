@@ -1275,12 +1275,15 @@
 	.vx-breadcrumb-sep {
 		color: var(--color-text-secondary);
 	}
-	/* Child-composed crumbs (BreadcrumbItem parts) get their separator from
-	 *  the --vx-bc-sep variable the nav stamps, so `separator` still wins. */
+	/* xplat-web-only:start — Child-composed crumbs (BreadcrumbItem parts) get
+	   their separator from the --vx-bc-sep variable the nav stamps, so
+	   `separator` still wins. ::before is DOM-only; native leaves compose the
+	   separator in markup. */
 	.vx-breadcrumb .vx-breadcrumb-crumb + .vx-breadcrumb-crumb::before {
 		content: var(--vx-bc-sep, ' / ');
 		color: var(--color-text-secondary);
 	}
+	/* xplat-web-only:end */
 	.vx-breadcrumb-link {
 		color: var(--color-primary);
 	}
@@ -3197,16 +3200,23 @@
 .vx-radio-label-col { display: inline-flex; flex-direction: column; }
 .vx-radio-description, .vx-checkbox-description { font-size: 0.8125em; color: var(--color-text-secondary, #666); }
 .vx-radio-row, .vx-checkbox-row { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+/* xplat-web-only:start — auto margins are ignored on native; the row's own
+   flex alignment owns end placement there. */
 .vx-radio-end, .vx-checkbox-end { margin-inline-start: auto; }
+/* xplat-web-only:end */
 .vx-checkbox-group--divided .vx-checkbox-row + .vx-checkbox-row,
-.vx-checkbox-group--divided .vx-checkboxlist-item + .vx-checkboxlist-item { border-top: 1px solid var(--color-border, #ddd); }
+.vx-checkbox-group--divided .vx-checkboxlist-item + .vx-checkboxlist-item {
+	border-top-width: 1px;
+	border-top-color: var(--color-border, #ddd);
+	border-top-style: solid;
+}
 .vx-segmented--fill { display: flex; width: 100%; }
 .vx-segmented--fill .vx-segment { flex: 1; }
-.vx-segment-icon { display: inline-flex; margin-inline-end: 4px; }
-.vx-segment--icon-only .vx-segment-icon { margin-inline-end: 0; }
+.vx-segment-icon { display: inline-flex; /* xplat-web-only:start */ margin-inline-end: 4px; /* xplat-web-only:end */ }
+.vx-segment--icon-only .vx-segment-icon { /* xplat-web-only:start */ margin-inline-end: 0; /* xplat-web-only:end */ }
 .vx-fieldlabel { display: flex; flex-direction: column; gap: 2px; }
 .vx-fieldlabel--disabled { opacity: 0.5; }
-.vx-field-label-icon { display: inline-flex; margin-inline-end: 4px; vertical-align: middle; }
+.vx-field-label-icon { display: inline-flex; /* xplat-web-only:start */ margin-inline-end: 4px; /* xplat-web-only:end */ vertical-align: middle; }
 .vx-fieldstatus { display: inline-flex; align-items: center; gap: 4px; font-size: 0.8125em; }
 .vx-fieldstatus--error { color: var(--color-error, #d33); }
 .vx-fieldstatus--warning { color: var(--color-warning, #a60); }
@@ -3215,11 +3225,11 @@
 .vx-selectoroption-icon { flex-shrink: 0; margin-top: 2px; }
 .vx-selectoroption-text { display: flex; flex-direction: column; }
 .vx-selectoroption-description { font-size: 0.8125em; color: var(--color-text-secondary, #666); }
-.vx-select-option-icon { display: inline-flex; margin-inline-end: 6px; }
+.vx-select-option-icon { display: inline-flex; /* xplat-web-only:start */ margin-inline-end: 6px; /* xplat-web-only:end */ }
 .vx-select--ghost { border-color: transparent; background: transparent; }
 .vx-select-badges { display: inline-flex; flex-wrap: wrap; gap: 4px; }
-.vx-select-badge { display: inline-flex; align-items: center; gap: 2px; padding: 0 4px; border: 1px solid var(--color-border, #ddd); border-radius: 4px; font-size: 0.8125em; }
-.vx-select-badge-x { border: 0; background: none; cursor: pointer; padding: 0 2px; }
+.vx-select-badge { display: inline-flex; align-items: center; gap: 2px; padding: 0 4px; border-width: 1px; border-color: var(--color-border, #ddd); border-style: solid; border-radius: 4px; font-size: 0.8125em; }
+.vx-select-badge-x { border-width: 0; background: none; cursor: pointer; padding: 0 2px; }
 .vx-step-body { display: flex; flex-direction: column; }
 .vx-step-heading { display: inline-flex; align-items: baseline; gap: 6px; }
 .vx-step-optional { font-size: 0.75em; color: var(--color-text-secondary, #666); }
@@ -3230,22 +3240,31 @@
 .vx-step--status-error .vx-step-dot { background: var(--color-error, #d33); color: #fff; }
 .vx-step--status-warning .vx-step-dot { background: var(--color-warning, #a60); color: #fff; }
 .vx-step--status-accent .vx-step-dot { background: var(--color-accent, #36c); color: #fff; }
+/* xplat-web-only:start — the visually-hidden <input type=file> is a DOM
+   construct; native file pickers open through the browse chrome. */
 .vx-fileinput-input { position: absolute; width: 1px; height: 1px; opacity: 0; }
-.vx-fileinput-browse { padding: 8px 12px; border: 1px dashed var(--color-border, #ccc); border-radius: 6px; background: none; cursor: pointer; text-align: start; }
+/* xplat-web-only:end */
+.vx-fileinput-browse { padding: 8px 12px; border-width: 1px; border-color: var(--color-border, #ccc); border-style: dashed; border-radius: 6px; background: none; cursor: pointer; text-align: start; }
 .vx-fileinput--disabled .vx-fileinput-browse { opacity: 0.5; cursor: default; }
-.vx-inputnumber-units { padding-inline-end: 8px; color: var(--color-text-secondary, #666); }
-.vx-inputnumber-clear { border: 0; background: none; cursor: pointer; }
-.vx-input-icon, .vx-textarea-icon { display: inline-flex; align-items: center; padding-inline-start: 8px; color: var(--color-text-secondary, #666); }
+.vx-inputnumber-units { /* xplat-web-only:start */ padding-inline-end: 8px; /* xplat-web-only:end */ color: var(--color-text-secondary, #666); }
+.vx-inputnumber-clear { border-width: 0; background: none; cursor: pointer; }
+.vx-input-icon, .vx-textarea-icon { display: inline-flex; align-items: center; /* xplat-web-only:start */ padding-inline-start: 8px; /* xplat-web-only:end */ color: var(--color-text-secondary, #666); }
 /* xplat-web-only:start — the web input shell already insets children 8px and
    gaps siblings 8px (Astryx inputWrapperStyles); the icon's own leading pad
    would double the shell's padding-inline there. The textarea icon keeps the
    pad — its shell has none. */
 .vx-input-icon { padding-inline-start: 0; }
 /* xplat-web-only:end */
-.vx-textarea-shell { position: relative; display: flex; }
+.vx-textarea-shell { /* xplat-web-only:start */ position: relative; /* xplat-web-only:end */ display: flex; }
+/* xplat-web-only:start — the maxLength counter is web-leaf markup
+   (TextArea.web.tsrx); native has no positioned overlay here. */
 .vx-textarea-counter { position: absolute; bottom: 6px; inset-inline-end: 10px; font-size: 0.75em; color: var(--color-text-secondary, #666); }
+/* xplat-web-only:end */
+/* xplat-web-only:start — scale marks are web-leaf markup (Slider.web.tsrx)
+   positioned against the DOM track. */
 .vx-slider-mark { position: absolute; top: 100%; transform: translateX(-50%); font-size: 0.75em; color: var(--color-text-secondary, #666); }
-.vx-slider-value { margin-inline-start: 8px; font-size: 0.8125em; }
+/* xplat-web-only:end */
+.vx-slider-value { /* xplat-web-only:start */ margin-inline-start: 8px; /* xplat-web-only:end */ font-size: 0.8125em; }
 
 .vx-toggle-button--accent.vx-toggle-button--pressed { color: var(--color-accent, #36c); }
 .vx-toggle-button--success.vx-toggle-button--pressed { color: var(--color-success, #080); }
@@ -3277,42 +3296,51 @@
 @media (any-pointer: coarse) { .vx-thumbnail-remove { opacity: 1; } }
 /* xplat-web-only:end */
 /* ---- Table (data-driven + plugin pipeline) ---- */
+/* xplat-web-only:start — horizontal scroll containment is DOM layout;
+   native Table wraps its own scroll host. */
 .vx-table-scroll { overflow-x: auto; }
-.vx-table { border-collapse: collapse; border-spacing: 0; width: 100%; font: inherit; color: var(--color-text-primary, inherit); }
-.vx-table-cell { padding: 8px 12px; overflow-wrap: break-word; }
+/* xplat-web-only:end */
+.vx-table { /* xplat-web-only:start */ border-collapse: collapse; border-spacing: 0; /* xplat-web-only:end */ width: 100%; font: inherit; color: var(--color-text-primary, inherit); }
+.vx-table-cell { padding: 8px 12px; /* xplat-web-only:start */ overflow-wrap: break-word; /* xplat-web-only:end */ }
 .vx-table--compact .vx-table-cell { padding: 4px 10px; font-size: 0.85em; }
 .vx-table--spacious .vx-table-cell { padding: 14px 16px; }
-.vx-table-cell--truncate { white-space: nowrap; text-overflow: ellipsis; overflow: hidden; max-width: 1px; }
+.vx-table-cell--truncate { white-space: nowrap; text-overflow: ellipsis; /* xplat-web-only:start */ overflow: hidden; /* xplat-web-only:end */ max-width: 1px; }
 .vx-table-cell--wrap { white-space: normal; }
 .vx-table--valign-middle .vx-table-cell { vertical-align: middle; }
 .vx-table--valign-top .vx-table-cell { vertical-align: top; }
 .vx-table--valign-bottom .vx-table-cell { vertical-align: bottom; }
-.vx-table-th { font-weight: 600; text-align: start; color: var(--color-text-secondary, #555); border-bottom: 1px solid var(--color-border, #ddd); }
+.vx-table-th { font-weight: 600; text-align: start; color: var(--color-text-secondary, #555); border-bottom-width: 1px; border-bottom-color: var(--color-border, #ddd); border-bottom-style: solid; }
 .vx-table--dividers-rows .vx-table-row .vx-table-cell,
-.vx-table--dividers-grid .vx-table-row .vx-table-cell { border-bottom: 1px solid var(--color-border, #ddd); }
+.vx-table--dividers-grid .vx-table-row .vx-table-cell { border-bottom-width: 1px; border-bottom-color: var(--color-border, #ddd); border-bottom-style: solid; }
 .vx-table--dividers-columns .vx-table-cell + .vx-table-cell,
-.vx-table--dividers-grid .vx-table-cell + .vx-table-cell { border-left: 1px solid var(--color-border, #ddd); }
-.vx-table-cell--row-divider { border-bottom: 1px solid var(--color-border, #ddd); }
-.vx-table-cell--col-divider { border-left: 1px solid var(--color-border, #ddd); }
+.vx-table--dividers-grid .vx-table-cell + .vx-table-cell { border-left-width: 1px; border-left-color: var(--color-border, #ddd); border-left-style: solid; }
+.vx-table-cell--row-divider { border-bottom-width: 1px; border-bottom-color: var(--color-border, #ddd); border-bottom-style: solid; }
+.vx-table-cell--col-divider { border-left-width: 1px; border-left-color: var(--color-border, #ddd); border-left-style: solid; }
 .vx-table-row--striped:nth-child(even) { background: var(--color-surface-secondary, rgba(0,0,0,0.03)); }
 .vx-table-row--hover:hover, .vx-table-row--striped-hover:hover { background: var(--color-overlay-hover, rgba(0,0,0,0.05)); }
+/* xplat-web-only:start — DOM outline reset; native selection state renders
+   through the fill rules below. */
 .vx-table-row--selected { outline: none; }
+/* xplat-web-only:end */
 .vx-table-row--selected-fill { background: var(--color-accent-muted, rgba(51,102,255,0.08)); }
 .vx-table-row--selected-fill:hover { background: var(--color-accent-muted, rgba(51,102,255,0.12)); }
 .vx-table-selection-cell { display: inline-flex; align-items: center; justify-content: center; }
 .vx-table-header-label { display: flex; align-items: center; gap: 4px; }
-.vx-table-sort-button { display: inline-flex; align-items: center; gap: 4px; border: 0; background: none; padding: 0; margin: -4px -6px; padding: 4px 6px; font: inherit; font-weight: inherit; color: inherit; cursor: pointer; border-radius: 4px; text-align: start; }
+.vx-table-sort-button { display: inline-flex; align-items: center; gap: 4px; border-width: 0; background: none; padding: 0; margin: -4px -6px; padding: 4px 6px; font: inherit; font-weight: inherit; color: inherit; cursor: pointer; border-radius: 4px; text-align: start; }
 .vx-table-sort-button:hover { background: var(--color-overlay-hover, rgba(0,0,0,0.06)); }
 .vx-table-sort-button--end { margin-left: auto; }
 .vx-table-sort-button--center { justify-content: center; }
-.vx-table-sort-label { overflow: hidden; text-overflow: ellipsis; }
+.vx-table-sort-label { /* xplat-web-only:start */ overflow: hidden; /* xplat-web-only:end */ text-overflow: ellipsis; }
 .vx-table-sort-icon { display: inline-flex; color: var(--color-icon-secondary, #888); opacity: 0.5; }
 .vx-table-sort-button:hover .vx-table-sort-icon, .vx-table-sort-icon--active { opacity: 1; color: var(--color-accent, #36c); }
 .vx-table-sort-rank { font-size: 0.65em; vertical-align: super; color: var(--color-text-secondary, #888); }
 .vx-table-header-cell--resizable { }
+/* xplat-web-only:start — the drag handle is web-leaf markup
+   (use-table-column-resize.web.tsrx); positioned DOM chrome, no native analog. */
 .vx-table-resize-handle { position: absolute; top: 0; bottom: 0; inset-inline-end: 0; width: 8px; margin-inline-end: -4px; cursor: col-resize; z-index: 1; }
 .vx-table-resize-handle::after { content: ''; position: absolute; top: 20%; bottom: 20%; inset-inline-start: 50%; width: 2px; background: var(--color-border-strong, #bbb); opacity: 0; transition: opacity 0.15s; }
 .vx-table-resize-handle:hover::after, .vx-table-resize-handle--active::after, .vx-table-resize-handle:focus-visible::after { opacity: 1; }
+/* xplat-web-only:end */
 .vx-table-header-cell--resizing { background: var(--color-accent-muted, rgba(51,102,255,0.06)); }
 .vx-table-pagination { display: flex; padding: 8px 0; }
 .vx-table-pagination--start { justify-content: flex-start; }
@@ -3332,7 +3360,7 @@
 .vx-badge--pink { background: var(--color-background-pink, #fadcec); color: var(--color-text-pink, #b83280); }
 .vx-badge--gray { background: var(--color-background-gray, #e5e7ea); color: var(--color-text-gray, #4b5563); }
 
-.vx-banner { border-radius: 8px; overflow: hidden; }
+.vx-banner { border-radius: 8px; /* xplat-web-only:start */ overflow: hidden; /* xplat-web-only:end */ }
 .vx-banner .vx-banner-header { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; }
 .vx-banner .vx-banner-icon { flex-shrink: 0; margin-top: 1px; }
 .vx-banner .vx-banner-body { flex: 1; min-width: 0; }
@@ -3367,18 +3395,18 @@
 .vx-skeleton { background: var(--color-neutral, #ececec); animation: vx-skeleton-pulse 1.4s ease-in-out infinite; }
 @keyframes vx-skeleton-pulse { 0%,100% { opacity: 1; } 50% { opacity: .45; } }
 
-.vx-spinner { display: inline-block; border: 2px solid var(--color-accent); border-top-color: transparent; border-radius: 50%; animation: vx-spin .7s linear infinite; }
+.vx-spinner { display: inline-block; border-width: 2px; border-color: var(--color-accent); border-style: solid; border-top-color: transparent; border-radius: 50%; animation: vx-spin .7s linear infinite; }
 .vx-spinner--onmedia { border-color: #ffffff4d; border-top-color: #fff; }
 .vx-spinner-row { display: flex; align-items: center; gap: 8px; }
 .vx-spinner-label { font-size: 14px; color: var(--color-text-secondary); }
 @keyframes vx-spin { to { transform: rotate(360deg); } }
 
 .vx-kbd-group { display: inline-flex; gap: 3px; }
-.vx-kbd { display: inline-block; padding: 1px 5px; border: 1px solid var(--color-border, #d5d8dc); border-bottom-width: 2px; border-radius: 4px; font-size: 11px; font-family: inherit; background: var(--color-surface-secondary, #f4f5f6); color: var(--color-text); }
+.vx-kbd { display: inline-block; padding: 1px 5px; border-width: 1px; border-color: var(--color-border, #d5d8dc); border-style: solid; border-bottom-width: 2px; border-radius: 4px; font-size: 11px; font-family: inherit; background: var(--color-surface-secondary, #f4f5f6); color: var(--color-text); }
 
-.vx-avatar { position: relative; display: inline-flex; align-items: center; justify-content: center; background: var(--color-neutral, #d9dce0); color: var(--color-text-secondary); overflow: visible; }
+.vx-avatar { /* xplat-web-only:start */ position: relative; /* xplat-web-only:end */ display: inline-flex; align-items: center; justify-content: center; background: var(--color-neutral, #d9dce0); color: var(--color-text-secondary); /* xplat-web-only:start */ overflow: visible; /* xplat-web-only:end */ }
 .vx-avatar .vx-avatar-fallback { font-weight: 600; font-size: 40%; }
-.vx-avatar .vx-avatar-status { position: absolute; right: -1px; bottom: -1px; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--color-surface, #fff); }
+.vx-avatar .vx-avatar-status { /* xplat-web-only:start */ position: absolute; right: -1px; bottom: -1px; /* xplat-web-only:end */ width: 10px; height: 10px; border-radius: 50%; border-width: 2px; border-color: var(--color-surface, #fff); border-style: solid; }
 .vx-avatar-overflow { display: inline-flex; align-items: center; justify-content: center; background: var(--color-neutral, #d9dce0); color: var(--color-text-secondary); font-size: 12px; font-weight: 600; }
 .vx-statusdot--success { background: var(--color-success); }
 .vx-statusdot--warning { background: var(--color-warning); }
@@ -3389,9 +3417,12 @@
 .vx-item--compact { padding-top: 4px; padding-bottom: 4px; }
 .vx-item--selected { background: var(--color-accent-muted, #e8efff); }
 .vx-item--highlighted { background: var(--color-warning-muted, #faecd2); }
+/* xplat-web-only:start — line-clamp is a DOM text-overflow affordance;
+   native Item descriptions truncate through the text leaf. */
 .vx-item .vx-item-desc--clamp { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; }
+/* xplat-web-only:end */
 
-.vx-collapsible-group--divided > * + * { border-top: 1px solid var(--color-border, #e1e3e6); }
+.vx-collapsible-group--divided > * + * { border-top-width: 1px; border-top-color: var(--color-border, #e1e3e6); border-top-style: solid; }
 .vx-collapsible-trigger { display: flex; width: 100%; text-align: left; }
 .vx-collapsible-content { padding-top: 4px; }
 
@@ -3402,12 +3433,15 @@
 .vx-link-external { margin-left: 2px; font-size: .8em; }
 
 .vx-layout-footer { flex-shrink: 0; display: flex; flex-direction: column; }
-.vx-layout-footer--divided { border-top: 1px solid var(--color-border, #e1e3e6); }
+.vx-layout-footer--divided { border-top-width: 1px; border-top-color: var(--color-border, #e1e3e6); border-top-style: solid; }
 .vx-layout-footer-inner { display: flex; flex-direction: column; padding: var(--vx-lf-pad-bs, var(--layout-padding-inner-y, 16px)) var(--vx-lf-pad-ie, var(--layout-padding-outer-x, 16px)) var(--vx-lf-pad-be, var(--layout-padding-outer-y, 16px)) var(--vx-lf-pad-is, var(--layout-padding-outer-x, 16px)); }
 .vx-layout-panel { flex-shrink: 0; display: flex; flex-direction: column; }
+/* xplat-web-only:start — scroll containment is DOM layout; native Layout
+   panels scroll through their own host. */
 .vx-layout-panel--scroll { overflow-y: auto; }
-.vx-layout-panel--start.vx-layout-panel--divided { border-right: 1px solid var(--color-border, #e1e3e6); }
-.vx-layout-panel--end.vx-layout-panel--divided { border-left: 1px solid var(--color-border, #e1e3e6); }
+/* xplat-web-only:end */
+.vx-layout-panel--start.vx-layout-panel--divided { border-right-width: 1px; border-right-color: var(--color-border, #e1e3e6); border-right-style: solid; }
+.vx-layout-panel--end.vx-layout-panel--divided { border-left-width: 1px; border-left-color: var(--color-border, #e1e3e6); border-left-style: solid; }
 .vx-grid { display: grid; }
 .vx-gridspan { display: contents; }
 .vx-banner--section { border-radius: 0; }
