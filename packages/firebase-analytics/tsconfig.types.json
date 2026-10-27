@@ -1,0 +1,41 @@
+{
+	"compilerOptions": {
+		"strict": true,
+		"skipLibCheck": true,
+		"module": "esnext",
+		"moduleResolution": "bundler",
+		"target": "esnext",
+		"jsx": "react-jsx",
+		"jsxImportSource": "octane",
+		"declaration": true,
+		"emitDeclarationOnly": true,
+		"noEmit": false,
+		"rootDir": "src",
+		"moduleSuffixes": [
+			"",
+			".web",
+			".ios",
+			".android",
+			".mobile",
+			".native",
+			".macos",
+			".linux",
+			".windows"
+		],
+		"allowImportingTsExtensions": true,
+		"types": [
+			"@nativescript/types"
+		]
+	},
+	"include": [
+		"src/types.ts",
+		"src/firebase-analytics.ts",
+		"src/firebase-analytics.web.ts",
+		"src/firebase-analytics.macos.ts",
+		"src/firebase-analytics.linux.ts",
+		"src/firebase-analytics.windows.ts",
+		"src/index.ts",
+		"src/index.web.ts",
+		"src/index.macos.ts"
+	]
+}

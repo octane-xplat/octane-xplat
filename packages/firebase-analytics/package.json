@@ -1,0 +1,98 @@
+{
+	"name": "@octane-xplat/firebase-analytics",
+	"version": "0.17.1",
+	"description": "Firebase Analytics for Octane xplat \u2014 logEvent, user properties, screen views via @nativescript/firebase-analytics",
+	"keywords": [
+		"android",
+		"cross-platform",
+		"nativescript",
+		"octane",
+		"xplat",
+		"firebase",
+		"analytics",
+		"events"
+	],
+	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/firebase-analytics",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/octane-xplat/octane-xplat",
+		"directory": "packages/firebase-analytics"
+	},
+	"files": [
+		"src",
+		"platforms",
+		"types",
+		"!src/**/*.test.*",
+		"!src/**/*.spec.*"
+	],
+	"type": "module",
+	"exports": {
+		".": {
+			"macos": {
+				"types": "./types/generated/index.macos.d.ts",
+				"default": "./src/index.macos.ts"
+			},
+			"web": {
+				"types": "./types/generated/index.web.d.ts",
+				"default": "./src/index.web.ts"
+			},
+			"native": {
+				"types": "./types/generated/index.d.ts",
+				"default": "./src/index.ts"
+			},
+			"types": "./types/generated/index.d.ts",
+			"default": "./src/index.ts"
+		},
+		"./*": {
+			"types": "./types/generated/*.d.ts",
+			"default": "./src/*"
+		},
+		"./*.ts": {
+			"types": "./types/generated/*.d.ts",
+			"default": "./src/*.ts"
+		}
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"scripts": {
+		"typegen": "tsrx-typegen --target octane",
+		"prepack": "pnpm typegen && tsrx-typegen --pack-check",
+		"pack:check": "tsrx-typegen --pack-check",
+		"typecheck": "node ../../scripts/typecheck.ts"
+	},
+	"devDependencies": {
+		"@nativescript-community/octane": "catalog:",
+		"@nativescript/core": "catalog:",
+		"@nativescript/types": "catalog:",
+		"@tsrx/typescript-plugin": "catalog:",
+		"octane": "catalog:",
+		"tsrx-typegen": "workspace:*",
+		"typescript": "catalog:"
+	},
+	"peerDependencies": {
+		"@nativescript-community/octane": ">=0.2.1 <1",
+		"@nativescript/core": ">=9.1.0 <10",
+		"octane": ">=0.6.3 <1"
+	},
+	"peerDependenciesMeta": {
+		"@nativescript-community/octane": {
+			"optional": true
+		},
+		"@nativescript/core": {
+			"optional": true
+		}
+	},
+	"nativescript": {
+		"platforms": {
+			"android": "9.1.0",
+			"ios": "9.1.0"
+		}
+	},
+	"dependencies": {
+		"@nativescript/firebase-analytics": "5.0.2",
+		"@nativescript/firebase-core": "5.0.2",
+		"firebase": "11.2.0"
+	}
+}
