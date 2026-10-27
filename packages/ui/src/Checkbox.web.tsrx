@@ -80,6 +80,8 @@ export function Checkbox(inputProps: CheckboxProps) @{
 					checked={checked}
 					disabled={props.isDisabled || undefined}
 					readOnly={props.isReadOnly || undefined}
+					aria-checked={indeterminate ? 'mixed' : checked ? 'true' : 'false'}
+					aria-disabled={props.isDisabled === undefined ? undefined : props.isDisabled ? 'true' : 'false'}
 					aria-readonly={props.isReadOnly || undefined}
 					aria-required={showRequired || undefined}
 					aria-invalid={props.status?.type === 'error' || undefined}
@@ -87,9 +89,10 @@ export function Checkbox(inputProps: CheckboxProps) @{
 					aria-label={ownChrome ? props.accessibilityLabel : props.ariaLabel}
 					aria-labelledby={ownChrome ? undefined : props.ariaLabelledBy}
 					aria-describedby={describedBy}
-					aria-description={ownChrome ? undefined : props.ariaDescription}
+					aria-description={props.ariaDescription ?? (ownChrome ? props.accessibilityHint : undefined)}
 					className="vx-checkbox-native"
 					onChange={isBlocked ? (e: any) => { e.preventDefault?.(); } : () => toggle()}
+					onKeyDown={(e: any) => { if (e.key === ' ' && !isBlocked) { e.preventDefault(); toggle() } }}
 				/>
 				<span className="vx-checkbox-indicator-slot">
 					<Ind state={indState} size={props.size === 'sm' ? 'sm' : 'md'} isDisabled={props.isDisabled} />
