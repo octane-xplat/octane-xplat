@@ -306,6 +306,31 @@ import { css } from 'styled-system/css'
 export const cardClass = css({ padding: '4', color: 'text' })
 ```
 
+Bamboo token names are the UI theme variables without their prefix:
+`color: 'warning'` compiles to `var(--color-warning)` and `borderRadius: 'md'`
+to `var(--radius-md)`. The values come from wherever the variables are
+defined — `@octane-xplat/ui/theme/chrome.css` ships a full default theme, or
+your app can define its own under `:root, .ns-root`. The starter app defines
+only `primary`, `onprimary`, `surface`, and `text`, so either import
+`chrome.css` or add the variables for the tokens you use. A token with no
+matching variable leaves its style without effect.
+
+```css
+/* app.css — define any theme tokens you don't get from chrome.css */
+:root,
+.ns-root {
+	--color-warning: #e9af08;
+	--radius-md: 8px;
+}
+```
+
+```ts
+// bamboo-styles.ts
+import { css } from 'styled-system/css'
+
+export const badgeClass = css({ color: 'warning', borderRadius: 'md' })
+```
+
 Use Bamboo's `_web`, `_mobile`, `_native`, or individual target conditions
 for the same build-time selection. These use the `@platform` compiler above;
 keep `xplatCss('web')` in the web Vite config. The portable utility subset

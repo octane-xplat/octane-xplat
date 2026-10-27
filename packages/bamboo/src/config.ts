@@ -40,16 +40,49 @@ const portableProperties = [
 	'width',
 ] as const
 
+// Token names mirror every --color-* / --radius-* / --space-* variable the
+// @octane-xplat/ui default theme (theme/chrome.css `:root, .ns-root` block)
+// declares. tests/theme-tokens.test.mjs fails when the lists drift apart.
 const colors = Object.fromEntries(
-	['danger', 'onprimary', 'primary', 'surface', 'surface-secondary', 'text', 'text-secondary'].map(
-		(name) => [name, { value: `var(--color-${name})` }],
-	),
+	[
+		'primary',
+		'onprimary',
+		'surface',
+		'surface-secondary',
+		'text',
+		'text-secondary',
+		'text-disabled',
+		'border',
+		'border-strong',
+		'danger',
+		'warning',
+		'success',
+		'overlay-hover',
+		'overlay-pressed',
+		'danger-text',
+		'warning-text',
+		'success-text',
+		'syntax-keyword',
+		'syntax-string',
+		'syntax-comment',
+		'syntax-number',
+		'syntax-function',
+		'syntax-type',
+		'syntax-variable',
+		'syntax-operator',
+		'syntax-constant',
+		'syntax-tag',
+		'syntax-attribute',
+		'syntax-property',
+		'syntax-punctuation',
+		'syntax-background',
+	].map((name) => [name, { value: `var(--color-${name})` }]),
 )
 
 const spacing = Object.fromEntries(['4'].map((name) => [name, { value: `var(--space-${name})` }]))
 
 const radii = Object.fromEntries(
-	['sm', 'md', 'lg', 'xl'].map((name) => [name, { value: `var(--radius-${name})` }]),
+	['sm', 'md', 'lg', 'xl', 'container'].map((name) => [name, { value: `var(--radius-${name})` }]),
 )
 
 const portableUtilities = Object.fromEntries(

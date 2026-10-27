@@ -203,3 +203,10 @@ import { xplatBamboo } from '@octane-xplat/bamboo/vite'
 
 const plugins = xplatBamboo({ buildEnvironments: ['api', 'client'] })
 ```
+
+Bamboo token names mirror the ui theme variables — every `--color-*`,
+`--radius-*`, and `--space-*` in `chrome.css`'s default theme is a valid token
+(`color: 'warning'` → `var(--color-warning)`). A token only resolves when the
+app imports `chrome.css` or defines that variable itself; otherwise the
+generated declaration has no effect. The starter defines only `primary`,
+`onprimary`, `surface`, and `text`.

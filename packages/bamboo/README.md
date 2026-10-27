@@ -24,6 +24,16 @@ export default defineConfig({
 })
 ```
 
+Token names mirror the UI theme variables: every `--color-*`, `--radius-*`,
+and `--space-*` the default theme in `@octane-xplat/ui/theme/chrome.css`
+declares is a valid token, compiled to its variable (`warning` →
+`var(--color-warning)`). A token only resolves when that stylesheet is
+imported or the app defines the variable itself.
+
+```ts
+css({ color: 'warning' }) // -> var(--color-warning)
+```
+
 Preflight is off by default and tokens land on `:root, .ns-root`. The
 xplat NativeScript CSS transform unwraps the emitted `@layer` blocks for
 native builds (the NS parser drops unknown at-rules); browsers keep the

@@ -6,6 +6,13 @@
 		// ^typegen must produce and restore JavaScript as well as declarations.
 		"typegen": {
 			"outputs": ["types/**", "dist/**"]
+		},
+		// The drift test reads the ui default theme by path — invalidate the
+		// test cache when it changes.
+		"test": {
+			"dependsOn": ["^typegen", "^build"],
+			"inputs": ["$TURBO_DEFAULT$", "../ui/src/theme/chrome.css"],
+			"outputs": []
 		}
 	}
 }
