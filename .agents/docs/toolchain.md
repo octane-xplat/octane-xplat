@@ -216,6 +216,23 @@ experience of agents writing Octane-xplat code effectively.
   `MasonListDelegate is not defined`. The regressions live in
   `packages/cli/test/vite-deps-alias.test.mjs`. Remove this hunk when upstream
   esbuild dev passes honor Vite aliases.
+- **Two more pnpm-layout fixes live in the canonical 8.0.20 patch.**
+  - **Bare imports from packages.** In upstream, `rewriteImports` sends a
+    bare import found inside a package to `/ns/m/node_modules/<spec>`, which
+    only resolves from the app root. Under pnpm's isolated layout, a
+    dependency the app does not declare then returns 404. Example: storybook
+    imports its sibling `@storybook/global`. The patch looks the package up
+    from the importing file and serves it through `/ns/m/@fs/<package dir>`.
+    Regression: `packages/cli/test/vite-rewrite-imports-fallback.test.mjs`.
+  - **`stacktrace-js` force-include.** Upstream adds `stacktrace-js` to the
+    vendor bundle when `require.resolve` can find it. That check honors
+    `NODE_PATH`, and pnpm's bin shims add `node_modules/.pnpm/node_modules`
+    to `NODE_PATH`. So a copy only another workspace package uses gets
+    added, and esbuild then cannot resolve it. The patch checks the project's
+    `node_modules` folders on disk instead and skips pnpm's hidden hoist.
+    Regression: `packages/cli/test/vite-vendor-always-include.test.mjs`.
+
+  Both are upstream bugs that have not been reported yet.
 
 - NativeScript Vite 8.0.20 collapses unrelated paths containing `/src/` in
   its HMR graph ([NativeScript#11569](https://github.com/NativeScript/NativeScript/issues/11569)).
