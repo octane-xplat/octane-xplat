@@ -110,7 +110,9 @@ void plugins; void layers
 		'@bamboocss/dev': '1.56.2',
 	}
 	const overrides = {}
-	for (const directory of ['cli', 'create', 'lint']) {
+	// Pack lib too: cli's dist imports ./server-boundary, a subpath the last
+	// published @octane-xplat/lib does not export.
+	for (const directory of ['cli', 'create', 'lint', 'lib']) {
 		const pack = join(temporary, directory)
 		mkdirSync(pack)
 		run('pnpm', ['pack', '--pack-destination', pack], join(repo, 'packages', directory))
@@ -122,6 +124,17 @@ void plugins; void layers
 	writeFileSync(
 		join(app, 'package.json'),
 		JSON.stringify({ private: true, dependencies, pnpm: { overrides } }),
+	)
+	// pnpm overrides do not reach into file:-packed dependency graphs — rewrite
+	// the packed cli's lib spec through the readPackage hook instead.
+	writeFileSync(
+		join(app, '.pnpmfile.cjs'),
+		`module.exports = { hooks: { readPackage(pkg) {
+			if (pkg.dependencies?.['@octane-xplat/lib']) {
+				pkg.dependencies['@octane-xplat/lib'] = '${overrides['@octane-xplat/lib']}'
+			}
+			return pkg
+		} } }\n`,
 	)
 	run('pnpm', ['install', '--ignore-scripts', '--config.auto-install-peers=false'], app)
 	writeFileSync(

@@ -52,6 +52,7 @@ const dependencies = [
 	'@nativescript/core',
 	'@nativescript/types',
 	'@octane-xplat/macos-renderer',
+	'@octane-xplat/css-engine',
 	'@octane-xplat/jsx',
 ]
 

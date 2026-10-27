@@ -48,6 +48,7 @@ function run(command, args, cwd) {
 const dependencies = [
 	'@nativescript/secure-storage',
 	'@octane-xplat/platform',
+	'@octane-xplat/lib',
 	'@nativescript/core',
 ]
 
@@ -83,7 +84,6 @@ void supported
 void read
 void write
 void remove
-void permission
 `,
 }
 

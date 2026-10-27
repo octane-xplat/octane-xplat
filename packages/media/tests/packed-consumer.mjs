@@ -232,6 +232,13 @@ try {
 
 	console.log('media packed consumer: exports typecheck in Bundler mode')
 
+	// The macOS object driver resolves non-relative imports (e.g.
+	// '@octane-xplat/lib/capability') from the packed package root — put the
+	// workspace dep in scope the way an installed consumer would have it.
+	const driverDeps = join(extractedRoot, 'node_modules', '@octane-xplat')
+	mkdirSync(driverDeps, { recursive: true })
+	symlinkSync(join(repoRoot, 'packages/lib'), join(driverDeps, 'lib'), 'dir')
+
 	// Exercise the packed public macOS entries, including the preview owner's release API.
 	const filesPack = join(temporary, 'files-pack')
 	const filesExtracted = join(temporary, 'files-extracted')

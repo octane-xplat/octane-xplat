@@ -1,7 +1,7 @@
 // Compile installed source with the consumer's Octane pipeline; typecheck d.ts separately.
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
-import { existsSync, mkdtempSync, readdirSync, rmSync, realpathSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, realpathSync, writeFileSync } from 'node:fs'
 
 import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
@@ -28,6 +28,18 @@ try {
 	})
 
 	const tarball = readdirSync(temporary).find((file) => file.endsWith('.tgz'))
+
+	// The packed platform's `workspace:*` dep on @octane-xplat/lib resolves to
+	// the published version, which predates ./capability — pin the in-repo pack.
+	const libPack = join(temporary, 'lib-pack')
+	mkdirSync(libPack)
+	execFileSync('pnpm', ['pack', '--pack-destination', libPack], {
+		cwd: join(root, '../lib'),
+		stdio: 'pipe',
+		shell: process.platform === 'win32',
+	})
+	const libTarball = readdirSync(libPack).find((file) => file.endsWith('.tgz'))
+
 	writeFileSync(
 		join(temporary, 'package.json'),
 		JSON.stringify({
@@ -35,6 +47,17 @@ try {
 			type: 'module',
 			dependencies: { '@octane-xplat/platform': `file:${join(temporary, tarball)}` },
 		}),
+	)
+	// pnpm overrides do not reach into file:-packed dependency graphs — rewrite
+	// the packed manifest's lib spec through the readPackage hook instead.
+	writeFileSync(
+		join(temporary, '.pnpmfile.cjs'),
+		`module.exports = { hooks: { readPackage(pkg) {
+			if (pkg.dependencies?.['@octane-xplat/lib']) {
+				pkg.dependencies['@octane-xplat/lib'] = 'file:${join(libPack, libTarball)}'
+			}
+			return pkg
+		} } }\n`,
 	)
 
 	execFileSync('pnpm', ['install', '--ignore-scripts', '--config.auto-install-peers=false'], {

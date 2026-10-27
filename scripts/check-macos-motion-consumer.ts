@@ -23,6 +23,15 @@ export async function checkMacOSMotionConsumer({
 		`export * from '${packageName}'\nexport { createObjectContainer, createObjectDriver, createUniversalRoot } from 'octane/universal/native'\n`,
 	)
 
+	// The driver substitute adds the renderer-owned css-engine surface
+	// (registerStylesheet) on top of universal/native; anything else missing
+	// still fails the build.
+	const rendererShim = join(consumerRoot, 'macos-renderer-shim.ts')
+	writeFileSync(
+		rendererShim,
+		`export * from 'octane/universal/native'\nexport { registerStylesheet } from '@octane-xplat/css-engine'\n`,
+	)
+
 	let resolvedEntry = false
 	await build({
 		configFile: false,
@@ -87,7 +96,7 @@ export async function checkMacOSMotionConsumer({
 				{ find: /^octane$/, replacement: 'octane/universal/native' },
 				// Substitute only the driver: keep the production core compatibility
 				// surface so missing named mobile exports still fail the build.
-				{ find: /^@octane-xplat\/macos-renderer$/, replacement: 'octane/universal/native' },
+				{ find: /^@octane-xplat\/macos-renderer$/, replacement: rendererShim },
 				{ find: /^@nativescript-community\/octane$/, replacement: 'octane/universal/native' },
 				{
 					find: /^@nativescript\/core(?:\/animation-frame)?$/,

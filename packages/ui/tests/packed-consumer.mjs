@@ -99,7 +99,7 @@ async function typecheck(packagePath, target, mode, exportMapIndex, peers = 'all
 		for (const entry of ['dist/universal-native.js', 'dist/node/universal-native.js']) {
 			assert.match(
 				readFileSync(join(modules, 'octane', entry), 'utf8'),
-				/export \{ Children \} from ["']\.\/universal-core\.js["']/,
+				/export \{[^}]*\bChildren\b[^}]*\} from ["']\.\/universal-core\.js["']/,
 			)
 		}
 
@@ -330,7 +330,7 @@ const androidRefresh: AndroidRefreshProps = { onRefresh: () => {} }
 const tabBar = <UITabBar {...tabs} />
 const iosSwitch: typeof UISwitch = UISwitch
 const androidSwitch: typeof MaterialSwitch = MaterialSwitch
-const iosSwitchProps: UISwitchProps = { checked: true }
+const iosSwitchProps: UISwitchProps = { value: true, onChange: checked => { void checked } }
 const tableProps: UITableViewProps<{ id: string }> = { items: [], renderItem: () => null }
 const recyclerProps: RecyclerViewProps = { items: [], renderItem: () => null }
 const androidSwitchProps: MaterialSwitchProps = { isDisabled: true }
@@ -453,7 +453,7 @@ void classExample
 
 	source += `
 import { Item, Selector, BaseTypeahead, Typeahead, Tokenizer, ComplexSelector, PowerSearch, Table } from '@octane-xplat/ui'
-import type { ComplexSelectorRenderProps, ItemProps, SearchableItem, SearchSource, TableCellRenderProps, TypeaheadInputHandle, PowerSearchConfig } from '@octane-xplat/ui'
+import type { ComplexSelectorRenderProps, ItemProps, SearchableItem, SearchSource, TableColumn, TypeaheadInputHandle, PowerSearchConfig } from '@octane-xplat/ui'
 // @ts-expect-error internal presentation is not a supported root export
 import { SelectView } from '@octane-xplat/ui'
 // @ts-expect-error internal presentation is not a supported root export
@@ -474,7 +474,8 @@ const complex = <ComplexSelector label="Fruit" value={choice} onChange={() => {}
 const namedItemProps: ItemProps = { label: 'Fruit', description: 'Fresh', startContent: 'F', endContent: '1', isDisabled: false }
 const item = <Item {...namedItemProps} />
 const tableRow = { name: 'Fruit', qty: 1 }
-const table = <Table rows={[tableRow]} columns={[{ key: 'name' }]} renderCell={cell => { const context: TableCellRenderProps<typeof tableRow> = cell; return String(context.row[context.column.key]) + context.rowIndex }} />
+const tableColumn: TableColumn<typeof tableRow> = { key: 'name', renderCell: item => String(item.name) + item.qty }
+const table = <Table data={[tableRow]} columns={[tableColumn]} />
 const searchConfig: PowerSearchConfig = { name: 'fruit', fields: [] }
 const power = <PowerSearch config={searchConfig} filters={[]} onChange={(filters, type, index) => { const position: number = index; void [filters, type, position] }} />
 inputHandle.current?.focus()
