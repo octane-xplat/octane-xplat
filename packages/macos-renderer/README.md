@@ -169,6 +169,9 @@ Current limits:
   silhouette) and drops the view's corner clip while it is in effect — the
   same CALayer constraint UIKit has. The first `inset` entry approximates as
   an inner ring and ignores blur.
+- `transform` composes onto `CALayer.transform` in NS order (translate,
+  rotate, rotateX/Y with a default 300pt perspective, scale); percent
+  translates resolve against the element's own size and resync on resize.
 - A text field or text view drops its native bezel and background as soon
   as CSS gives it a background, border, or corner radius.
 - An unsupported property logs `[macos-css] ignored unsupported property`

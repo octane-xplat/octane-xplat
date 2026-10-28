@@ -7,6 +7,8 @@ import {
 	stylesheetScope,
 	computeCascade,
 	INHERITED_CSS_PROPERTIES,
+	composeTransform,
+	transformToParts,
 } from '@octane-xplat/css-engine'
 
 // Exercise style/className reconciliation without the Objective-C bridge.
@@ -142,6 +144,7 @@ const inputTransparentViews = new Set()
 const frameObservers: any[] = []
 const placeholderCalls: any[] = []
 const reconciles: any[] = []
+const transformCalls: any[] = []
 
 const MASON_TYPES = ['masonview', 'liquidglass', 'scrollview']
 
@@ -211,6 +214,20 @@ const sandbox = {
 	CGPathAddArcToPoint: (p: any, _t: any, x1: number, y1: number, x2: number, y2: number, r: number) =>
 		p.ops.push(['A', x1, y1, x2, y2, r]),
 	CGPathCloseSubpath: (p: any) => p.ops.push(['Z']),
+	CATransform3DIdentity: { identity: true },
+	CATransform3DTranslate: (t: any, x: number, y: number, z: number) => {
+		transformCalls.push(['T', x, y, z])
+		return { ...t, translate: [x, y, z] }
+	},
+	CATransform3DRotate: (t: any, a: number, x: number, y: number, z: number) => {
+		transformCalls.push(['R', a, x, y, z])
+		return { ...t, rotate: [a, x, y, z] }
+	},
+	CATransform3DScale: (t: any, x: number, y: number, z: number) => {
+		transformCalls.push(['S', x, y, z])
+		return { ...t, scale: [x, y, z] }
+	},
+	transformCalls,
 	fontForFamilyStyle: (size, weight, family) => ({
 		pointSize: Number(size),
 		weight: String(weight ?? 400),
@@ -255,6 +272,8 @@ const sandbox = {
 	computeCascade,
 	stylesheetScope,
 	INHERITED_CSS_PROPERTIES,
+	composeTransform,
+	transformToParts,
 	registerStylesheet,
 	queueMicrotask,
 }
@@ -825,4 +844,24 @@ test('inset box-shadow approximates as an even-odd inner ring', () => {
 
 	setStyle(item, { boxShadow: 'none' })
 	assert.equal(item.insetShadowLayer, null)
+})
+
+test('transform shorthand composes translate/rotate/scale onto the layer', () => {
+	const item = node('masonview', { orientation: 1 })
+	item.view.frame.size.width = 100
+	item.view.frame.size.height = 50
+	setStyle(item, { transform: 'translateX(-50%) rotate(180deg)' })
+
+	const ops = transformCalls
+	assert.deepEqual(
+		ops.filter((o) => o[0] === 'T').map((o) => o.slice(1)),
+		[[-50, 0, 0]],
+		'percent translate resolves against the box and y stays up',
+	)
+	assert.deepEqual(ops.filter((o) => o[0] === 'R').length, 1, 'one z rotation applied')
+	assert.equal(item.view.postsFrameChangedNotifications, true, 'percent translate resyncs')
+
+	setStyle(item, {})
+	assert.equal(item.view.layer.transform?.identity, true)
+	assert.equal(item.transformApplied, false)
 })

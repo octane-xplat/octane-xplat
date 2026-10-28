@@ -42,6 +42,7 @@ import type {
 
 import { composeAttributedText, validateTextStyle } from './formatted-text'
 import {
+	composeTransform,
 	computeCascade,
 	INHERITED_CSS_PROPERTIES,
 	type CssHostNode,
@@ -51,6 +52,7 @@ import {
 	stylesheetPseudoClasses,
 	stylesheetScope,
 	stylesheetsHaveMediaRules,
+	transformToParts,
 } from '@octane-xplat/css-engine'
 import { parseHtmlText, validateHtmlProps } from './html-text'
 import { resolveFont as fontForFamilyStyle } from './fonts'
@@ -58,6 +60,10 @@ import {
 	CAGradientLayer,
 	CALayer,
 	CAShapeLayer,
+	CATransform3DIdentity,
+	CATransform3DRotate,
+	CATransform3DScale,
+	CATransform3DTranslate,
 	CGPathAddArcToPoint,
 	CGPathAddLineToPoint,
 	CGPathCloseSubpath,
@@ -4106,7 +4112,8 @@ function syncBorderBox(node: ElementNode) {
 		Boolean(percentRadius) ||
 		perCorner ||
 		layered ||
-		(node.boxShadowSpec?.length ?? 0) > 0
+		(node.boxShadowSpec?.length ?? 0) > 0 ||
+		hasPercentTranslate(node)
 	if (needsSync && !node.boxFrameObserver) {
 		view.postsFrameChangedNotifications = true
 		node.boxFrameObserver =
@@ -4262,11 +4269,142 @@ function syncBoxShadow(node: ElementNode) {
 	}
 }
 
-// One resync point for every box-geometry consumer — borders/radii/shadow now,
-// transforms join in the transform writer.
+// ---- transforms --------------------------------------------------------------
+
+// Style keys that feed the transform — NS vocabulary: the `transform`
+// shorthand plus longhands (rotatex/rotatey arrive lowercase from CSS
+// pending-substitution, rotateX/rotateY from inline styles).
+const TRANSFORM_KEYS = new Set([
+	'transform',
+	'translateX',
+	'translateY',
+	'scaleX',
+	'scaleY',
+	'rotate',
+	'rotateX',
+	'rotatex',
+	'rotateY',
+	'rotatey',
+	'perspective',
+])
+const TRANSFORM_SLOT: Record<string, string> = {
+	rotatex: 'rotateX',
+	rotatey: 'rotateY',
+}
+
+// A translate axis is points or 'N%' resolved against the element's own size.
+function translateAxisValue(value: any): any {
+	if (typeof value === 'number') {
+		return Number.isFinite(value) ? value : 0
+	}
+	const text = String(value ?? '').trim()
+	const pct = /^([+-]?(?:\d+\.?\d*|\.\d+))%$/.exec(text)
+	if (pct) {
+		return { value: Number(pct[1]) / 100, unit: '%' }
+	}
+	const n = parseFloat(text)
+	return Number.isFinite(n) ? n : 0
+}
+
+const DEFAULT_PERSPECTIVE = 300
+
+// Compose the node's transform spec into a CATransform3D — NS composition
+// order (translate → rotate z → rotate x/y with perspective → scale) around
+// the layer's centre anchor. Y-down CSS semantics map to y-up layer space by
+// negating every y translate and every angle.
+function syncTransform(node: ElementNode) {
+	const view = node.view
+	if (!view || typeof CATransform3DTranslate !== 'function') {
+		return
+	}
+	const spec = node.transformSpec
+	let parts: any = {}
+	if (spec?.transform != null) {
+		try {
+			parts = transformToParts(String(spec.transform))
+		} catch {
+			parts = {}
+		}
+	}
+	if (spec?.translateX !== undefined) {
+		parts.translateX = spec.translateX
+	}
+	if (spec?.translateY !== undefined) {
+		parts.translateY = spec.translateY
+	}
+	if (spec?.scaleX !== undefined) {
+		parts.scaleX = Number(spec.scaleX)
+	}
+	if (spec?.scaleY !== undefined) {
+		parts.scaleY = Number(spec.scaleY)
+	}
+	if (spec?.rotate !== undefined) {
+		parts.rotate = Number(spec.rotate)
+	}
+	if (spec?.rotateX !== undefined) {
+		parts.rotateX = Number(spec.rotateX)
+	}
+	if (spec?.rotateY !== undefined) {
+		parts.rotateY = Number(spec.rotateY)
+	}
+
+	const size = view.frame?.size ?? { width: 0, height: 0 }
+	const steps = composeTransform(
+		parts,
+		Math.max(0, Number(size.width) || 0),
+		Math.max(0, Number(size.height) || 0),
+	)
+	const layer = view.layer
+	if (!steps.length) {
+		if (node.transformApplied) {
+			layer.transform = CATransform3DIdentity
+			node.transformApplied = false
+		}
+		return
+	}
+
+	view.wantsLayer = true
+	let t = CATransform3DIdentity
+	for (const step of steps) {
+		if (step.kind === 'translate') {
+			t = CATransform3DTranslate(t, step.args[0] || 0, -step.args[1] || 0, 0)
+		} else if (step.kind === 'rotate') {
+			t = CATransform3DRotate(t, (-step.args[0] * Math.PI) / 180, 0, 0, 1)
+		} else if (step.kind === 'rotate3d') {
+			const depth = Number(spec?.perspective) || DEFAULT_PERSPECTIVE
+			if (depth > 0) {
+				try {
+					;(t as any).m34 = -1 / depth
+				} catch {
+					// Structs that reject member writes still get the rotation.
+				}
+			}
+			t = CATransform3DRotate(t, (-step.args[0] * Math.PI) / 180, 1, 0, 0)
+			t = CATransform3DRotate(t, (-step.args[1] * Math.PI) / 180, 0, 1, 0)
+		} else if (step.kind === 'scale') {
+			t = CATransform3DScale(t, step.args[0], step.args[1], 1)
+		}
+	}
+	layer.transform = t
+	node.transformApplied = true
+}
+
+function hasPercentTranslate(node: ElementNode): boolean {
+	const spec = node.transformSpec
+	return (
+		spec != null &&
+		((typeof spec.transform === 'string' && spec.transform.includes('%')) ||
+			String(spec.translateX ?? '').includes('%') ||
+			String(spec.translateY ?? '').includes('%'))
+	)
+}
+
+// One resync point for every box-geometry consumer — borders/radii/shadow and
+// percent transforms.
 function syncBoxGeometry(node: ElementNode) {
 	syncBorderBox(node)
 	syncBoxShadow(node)
+	syncTransform(node)
 }
 
 // Zero the margin sides a removed style owned and re-queue the mason pass.
@@ -4372,13 +4510,11 @@ function resetStyle(node: ElementNode, name: string) {
 		if (isManualLayoutParent(resetParent?.type)) {
 			queueLayoutReconcile(node.container, resetParent)
 		}
-	} else if (name === 'translateX' || name === 'translateY') {
-		if (typeof view.layer?.setValueForKeyPath === 'function') {
-			view.layer.setValueForKeyPath(
-				0,
-				name === 'translateY' ? 'transform.translation.y' : 'transform.translation.x',
-			)
+	} else if (TRANSFORM_KEYS.has(name)) {
+		if (node.transformSpec) {
+			delete node.transformSpec[TRANSFORM_SLOT[name] ?? name]
 		}
+		syncBoxGeometry(node)
 	} else if (name === 'zIndex') {
 		if (view.layer) {
 			view.layer.zPosition = 0
@@ -4510,18 +4646,14 @@ function applyStyle(node: ElementNode, style: PropBag) {
 			isManualLayoutParent((node.layoutParent ?? node.parent)?.type)
 		) {
 			queueLayoutReconcile(node.container, node.parent)
-		} else if ((name === 'translateX' || name === 'translateY' || name === 'zIndex') && node.view) {
+		} else if (TRANSFORM_KEYS.has(name) && node.view) {
+			const spec = (node.transformSpec ??= {})
+			spec[TRANSFORM_SLOT[name] ?? name] =
+				name === 'translateX' || name === 'translateY' ? translateAxisValue(value) : value
+			syncBoxGeometry(node)
+		} else if (name === 'zIndex' && node.view) {
 			node.view.wantsLayer = true
-			const layer = node.view.layer
-			if (name === 'zIndex') {
-				layer.zPosition = Number(value) || 0
-			} else {
-				// Core Animation layers use y-up coordinates; public drag deltas use y-down.
-				layer.setValueForKeyPath(
-					(Number(value) || 0) * (name === 'translateY' ? -1 : 1),
-					name === 'translateY' ? 'transform.translation.y' : 'transform.translation.x',
-				)
-			}
+			node.view.layer.zPosition = Number(value) || 0
 		} else if (name === 'opacity' && node.view) {
 			node.view.alphaValue = Number(value)
 		} else if (
