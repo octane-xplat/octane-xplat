@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useLayoutEffect, useRef, useState } from 'octane'
 import { innerLayoutProps, outerLayoutProps, paintedStyle } from './layout-child.web'
 import { smoothPathD } from './path'

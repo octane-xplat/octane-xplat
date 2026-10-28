@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useCallback, useEffect, useRef } from 'octane'
 import { isIOS } from '@nativescript/core'
 import { applySmoothClip as applyIosClip, applySmoothShadow as applyIosShadow } from './apply.ios'

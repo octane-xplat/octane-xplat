@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useCallback, useRef } from 'octane'
 import { innerLayoutProps, outerLayoutProps, paintedStyle } from './layout-child'
 import { flipCommandsY, generateCommands } from './path'
