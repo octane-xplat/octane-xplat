@@ -3,6 +3,7 @@ import { expect, it } from 'vitest'
 import { createObjectContainer, createObjectDriver, createUniversalRoot, flushUniversalSync } from 'octane/universal/native'
 import { TextInput, TextArea } from './text-controls.macos.tsrx'
 import { FormField } from './FormField.macos.tsrx'
+import { SearchInput } from './controls.macos.tsrx'
 
 function mount(component: any, props: any) {
 	const container = createObjectContainer('nativescript')
@@ -122,4 +123,31 @@ it('adding standalone validation metadata retains the editing host and uncontrol
 			expect(env.find(type).props.value).toBe('edited')
 		} finally { env.root.unmount() }
 	}
+})
+
+
+it('AppKit search fields render the default/custom icon and support an icon-free field', () => {
+	const env = mount(SearchInput, { placeholder: '', defaultValue: 'query', hasClear: false })
+	try {
+		const findIcon = () => env.all().find((node) => node.props?.className === 'vx-input-icon')
+		expect(findIcon()).toBeDefined()
+		expect(env.find('image')).toBeDefined()
+		expect(env.find('textfield').props.returnKeyType).toBe('search')
+		expect(env.find('textfield').props.placeholder).toBe('')
+		env.render({ icon: false, hasClear: false })
+		expect(findIcon()).toBeUndefined()
+		expect(env.find('textfield').props.value).toBe('query')
+		expect(env.find('textfield').props.placeholder).toBeUndefined()
+		env.render({ icon: 'xplat-check', hasClear: false })
+		expect(findIcon()).toBeDefined()
+		expect(env.find('image')).toBeDefined()
+	} finally { env.root.unmount() }
+})
+
+it('AppKit TextInput supports a caller-owned leading node and placeholder color', () => {
+	const env = mount(TextInput, { startIcon: <label id="custom-leading" text="@" />, placeholderTextColor: '#aabbcc' })
+	try {
+		expect(env.all().find((node) => node.props?.id === 'custom-leading')?.props.text).toBe('@')
+		expect(env.find('textfield').props.placeholderTextColor).toBe('#aabbcc')
+	} finally { env.root.unmount() }
 })

@@ -6,6 +6,7 @@ import type { Renderable, TextAreaProps, TextInputProps } from './props'
 import { cx } from '@octane-xplat/lib'
 import { Pressable } from './Pressable.macos.tsrx'
 import { Text } from './Text.macos.tsrx'
+import { Icon } from './Icon.macos.tsrx'
 import { FieldContext, useFieldControlProps } from './field-context'
 import { FormField } from './FormField.macos.tsrx'
 
@@ -51,6 +52,11 @@ function TextInputControl(inputProps: TextInputProps) @{
 		accessibilityState={{ busy: props.isLoading }}
 		style={mergeStyle({ flexDirection: 'row', alignItems: 'center' }, { display: 'flex' })}
 	>
+		{props.startIcon != null ? (
+			<masonview className="vx-input-icon">
+				{typeof props.startIcon === 'string' ? <Icon name={props.startIcon} size={16} /> : props.startIcon}
+			</masonview>
+		) : null}
 		<textfield
 			ref={el}
 			secure={props.secure}
@@ -60,6 +66,8 @@ function TextInputControl(inputProps: TextInputProps) @{
 			id={props.id}
 			value={value}
 			placeholder={props.placeholder}
+			placeholderTextColor={props.placeholderTextColor}
+			returnKeyType={props.returnKeyType}
 			className={cx(
 				'vx-input',
 				props.isDisabled && 'vx-input--disabled',

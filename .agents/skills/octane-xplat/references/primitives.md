@@ -507,3 +507,18 @@ export function AccountName() {
 	</Field>
 }
 ```
+
+
+AppKit TextInput renders `startIcon` as a registered glyph name or supplied node;
+SearchInput uses that path for the default/custom icon and omits it for
+`icon={false}`. Its omitted placeholder remains absent. Placeholder text color
+is forwarded by TextInput. Native glyph layout/accessibility remain unqualified;
+see [search fields](../../../../docs/app/primitives.md#when-a-screen-needs-more).
+
+```tsx
+import { SearchInput } from '@octane-xplat/ui'
+
+export function Search() {
+	return <SearchInput label="Find" icon={false} placeholder="Search by name" />
+}
+```

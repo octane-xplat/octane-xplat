@@ -16,7 +16,7 @@ import { CheckboxIndicator } from './CheckboxIndicator.macos.tsrx'
 import { Text } from './Text.macos.tsrx'
 import { TextInput } from './text-controls.macos.tsrx'
 import { cx } from '@octane-xplat/lib'
-import { usePan } from './pan'
+import { usePan } from './pan.macos.tsrx'
 import { nativeAccessibilityRole } from './escape-props'
 import { useThemeScheme } from './theme/theme-scheme.macos'
 import { useFieldControlProps } from './field-context'
@@ -343,7 +343,9 @@ export function SearchInput(props: SearchInputProps) @{
 		value={value}
 		onChange={setValue}
 		hasClear={props.hasClear !== false}
-		placeholder={props.placeholder ?? 'Search'}
+		placeholder={props.placeholder}
+		returnKeyType="search"
+		startIcon={props.icon === false ? undefined : props.icon ?? 'xplat-search'}
 	/>
 }
 

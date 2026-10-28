@@ -1026,6 +1026,26 @@ export function Example() {
 }
 ```
 
+Experimental AppKit now renders the default/custom search icon; `icon={false}`
+omits it. `TextInput.startIcon` also accepts a registered name or a rendered
+node, and `placeholderTextColor` reaches the AppKit field. An omitted search
+placeholder stays omitted; supply your own text when needed. These are source
+contracts; native glyph presentation, spacing, pointer behavior and accessibility
+still need platform qualification.
+
+```tsx
+import { SearchInput, TextInput } from '@octane-xplat/ui'
+
+export function Filters() {
+	return <>
+		<SearchInput label="Find items" icon={false} placeholder="Search by name" />
+		<TextInput label="Account" startIcon="xplat-check" placeholder="Name"
+			placeholderTextColor="#68707e" />
+	</>
+}
+```
+
+
 Use `Dialog` for modal content, `AlertDialog` when the user must choose an
 action, `BottomSheet` for bottom-anchored content, `Overlay` for floating
 content, or `Popover` for anchored content. Dialog and BottomSheet visibility

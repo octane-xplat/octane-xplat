@@ -784,3 +784,35 @@ Native typing, middle-selection edits, IME echo/candidate confirmation,
 external changes during composition and packaged behavior remain unqualified.
 TextArea maxLength remains an implementation gap; no native truncation scheme
 has been claimed or qualified by this prerequisite fix.
+
+
+### Search and single-line entry affordances
+
+AppKit SearchInput previously ignored icon/default glyph/false, because its
+TextInput delegate did not render startIcon. TextInput now uses the AppKit Icon
+leaf for glyph names and accepts a supplied node. SearchInput wires default
+xplat-search, registered names or no icon; it retains its existing controlled/
+uncontrolled clear/submit path. Omitted/empty placeholders are preserved instead
+of inventing Search text. TextInput also forwards placeholderTextColor and
+returnKeyType to the existing renderer prop paths.
+
+Import prerequisite: controls.macos now pins usePan to pan.macos.tsrx; the
+unsuffixed pan implementation imports NativeScript core and normalizes a
+mobile payload. AppKit leaf consumers/object-driver imports should not need
+that mobile source. No shared/Windows/GTK source changed.
+
+Added default/custom/no-icon, supplied-node, placeholder and return-key metadata
+regression source. Syntax and whitespace only; tests are unrun. Deferred:
+
+```sh
+pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/text-controls.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm check:recipes
+```
+
+Real glyph presentation/layout, icon pointer/accessibility behavior, keyboard
+submission/IME, focus preservation during icon changes, the Slider pan import
+and packaged consumers remain unqualified. TextArea maxLength is still an
+implementation gap: partial-composition truncation, paste/replacement, undo,
+selection and external controlled writes need a coherent native edit contract;
+none has been claimed by this source slice.

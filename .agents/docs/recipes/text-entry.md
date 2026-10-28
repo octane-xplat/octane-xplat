@@ -68,3 +68,13 @@ Default Field layout is a column and authored CSS strings are retained. These
 are source/documentation claims only; actual layout, label interaction, keyboard
 activation and VoiceOver remain unqualified. Other native-control families and
 SearchInput icon semantics are not qualified by these text-control repairs.
+
+
+AppKit text-icon follow-up: TextInput.startIcon supports glyph names/rendered
+nodes, and SearchInput supplies its default/custom icon or omits it for false.
+TextInput forwards placeholderTextColor; SearchInput preserves omitted/empty
+placeholders and marks its return action as search. Added object-driver
+regression source; native icon pixels/spacing/accessibility are unqualified.
+The controls leaf pins its pan import to the AppKit implementation instead of
+the NativeScript default. TextArea maxLength remains a source gap, separate
+from these search/entry prerequisites.
