@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { Pressable, Text, VStack } from '@octane-xplat/ui'
+import { Screen, Text } from '@octane-xplat/ui'
 import { useState } from 'octane'
 import { Lightbox } from '@octane-xplat/lightbox'
 
@@ -13,7 +13,7 @@ export default function LightboxGallery() {
 	const [open, setOpen] = useState(false)
 	const [index, setIndex] = useState(0)
 	return (
-		<VStack className="maestro-screen">
+		<Screen className="maestro-screen">
 			<Text>Maestro lightbox</Text>
 			<Text>{`state: ${open ? 'open' : 'closed'}:${index}`}</Text>
 			<Lightbox.Root media={media} isOpen={open} onOpenChange={setOpen} onIndexChange={setIndex}>
@@ -28,8 +28,10 @@ export default function LightboxGallery() {
 						))}
 					</Lightbox.Viewport>
 					<Lightbox.Close testID="lb-close"><Text>{'close'}</Text></Lightbox.Close>
+					{/* The modal popup hides the page from accessibility, so flows read the state here while open. */}
+					<Text testID="lb-state" style={{ position: 'absolute', left: 8, bottom: 8 }}>{`state: ${open ? 'open' : 'closed'}:${index}`}</Text>
 				</Lightbox.Popup>
 			</Lightbox.Root>
-		</VStack>
+		</Screen>
 	)
 }
