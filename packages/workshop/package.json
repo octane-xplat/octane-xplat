@@ -80,6 +80,7 @@
 	},
 	"dependencies": {
 		"@octane-xplat/cli": "workspace:*",
+		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/platform": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
 		"storybook": "10.6.1",
@@ -96,8 +97,7 @@
 		"tsrx-typegen": "workspace:*",
 		"typescript": "catalog:",
 		"vite": "catalog:",
-		"@octane-xplat/linux-gtk": "workspace:*",
-		"@octane-xplat/jsx": "workspace:*"
+		"@octane-xplat/linux-gtk": "workspace:*"
 	},
 	"peerDependencies": {
 		"@nativescript-community/octane": ">=0.2.4 <1",

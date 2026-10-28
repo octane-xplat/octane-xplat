@@ -52,7 +52,8 @@
 		"pack:check": "tsrx-typegen --pack-check"
 	},
 	"dependencies": {
-		"@nstudio/nativescript-exoplayer": "6.2.0"
+		"@nstudio/nativescript-exoplayer": "6.2.0",
+		"@octane-xplat/jsx": "workspace:*"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "catalog:",

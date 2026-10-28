@@ -54,6 +54,7 @@
 		"test:macos-runtime": "node tests/macos-runtime.mjs"
 	},
 	"dependencies": {
+		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/platform": "workspace:*"
 	},
 	"devDependencies": {

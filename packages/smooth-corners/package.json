@@ -46,7 +46,8 @@
 		"typecheck": "node ../../scripts/typecheck.ts"
 	},
 	"dependencies": {
-		"@lisse/core": "0.7.2"
+		"@lisse/core": "0.7.2",
+		"@octane-xplat/jsx": "workspace:*"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "catalog:",

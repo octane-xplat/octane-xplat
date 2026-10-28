@@ -92,6 +92,7 @@
 	},
 	"dependencies": {
 		"@nativescript/google-mobile-ads": "5.0.4",
+		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/platform": "workspace:*"
 	}
 }

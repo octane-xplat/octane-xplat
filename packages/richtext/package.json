@@ -110,5 +110,8 @@
 				"WebKit"
 			]
 		}
+	},
+	"dependencies": {
+		"@octane-xplat/jsx": "workspace:*"
 	}
 }

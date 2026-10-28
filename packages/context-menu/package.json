@@ -51,6 +51,7 @@
 	"dependencies": {
 		"@nativescript/jetpack-compose": "1.0.0-beta.0",
 		"@nativescript/swift-ui": "4.0.2",
+		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/lib": "workspace:*"
 	},
 	"devDependencies": {

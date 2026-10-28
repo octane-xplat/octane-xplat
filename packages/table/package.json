@@ -54,6 +54,7 @@
 		"typecheck": "node ../../scripts/typecheck.ts"
 	},
 	"dependencies": {
+		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/platform": "workspace:*",
 		"@tanstack/table-core": "9.2.4"
 	},

@@ -26,6 +26,7 @@
 		"pack:check": "tsrx-typegen --pack-check"
 	},
 	"devDependencies": {
+		"@octane-xplat/jsx": "workspace:*",
 		"@tsrx/typescript-plugin": "catalog:",
 		"octane": "catalog:",
 		"tsrx-typegen": "workspace:*",

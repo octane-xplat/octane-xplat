@@ -54,6 +54,7 @@
 	},
 	"dependencies": {
 		"@nativescript-community/ui-pager": "14.1.42",
+		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/lib": "workspace:*"
 	},
 	"devDependencies": {

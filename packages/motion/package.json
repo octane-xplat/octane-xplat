@@ -54,6 +54,7 @@
 		"pack:check": "tsrx-typegen --pack-check"
 	},
 	"dependencies": {
+		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/platform": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
 		"motion-dom": "12.42.2"

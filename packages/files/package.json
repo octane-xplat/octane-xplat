@@ -62,8 +62,9 @@
 	},
 	"dependencies": {
 		"@nativescript-community/ui-document-picker": "1.1.29",
-		"@octane-xplat/platform": "workspace:*",
-		"@octane-xplat/lib": "workspace:*"
+		"@octane-xplat/jsx": "workspace:*",
+		"@octane-xplat/lib": "workspace:*",
+		"@octane-xplat/platform": "workspace:*"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "catalog:",

@@ -52,6 +52,7 @@
 		"@dnd-kit/collision": "0.5.0",
 		"@dnd-kit/geometry": "0.5.0",
 		"@dnd-kit/state": "0.5.0",
+		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
 		"abort-controller": "3.0.0"
 	},

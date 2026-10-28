@@ -16,6 +16,7 @@
 		"react-dom": "19.3.0"
 	},
 	"devDependencies": {
+		"@octane-xplat/jsx": "workspace:*",
 		"@octanejs/vite-plugin": "catalog:",
 		"@tsrx/typescript-plugin": "catalog:",
 		"@types/node": "24.10.1",

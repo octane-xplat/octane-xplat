@@ -16,7 +16,9 @@
 	],
 	"xplat": {
 		"macos": {
-			"prebuiltLibraries": ["platforms/macos/prebuilt/libxplatmason.dylib"],
+			"prebuiltLibraries": [
+				"platforms/macos/prebuilt/libxplatmason.dylib"
+			],
 			"notices": "platforms/macos/licenses/nativescript-mason.txt"
 		}
 	},
@@ -59,6 +61,7 @@
 		"@nativescript/macos-node-api": "catalog:",
 		"@nativescript/objc-node-api": "1.0.0-alpha.7",
 		"@octane-xplat/css-engine": "workspace:*",
+		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/platform": "workspace:*",
 		"acorn": "8.15.0",
 		"saxes": "6.0.0"

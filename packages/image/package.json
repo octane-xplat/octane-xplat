@@ -57,7 +57,8 @@
 		"pack:check": "tsrx-typegen --pack-check"
 	},
 	"dependencies": {
-		"@nativescript-community/ui-image": "5.0.18"
+		"@nativescript-community/ui-image": "5.0.18",
+		"@octane-xplat/jsx": "workspace:*"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "catalog:",

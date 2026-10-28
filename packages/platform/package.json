@@ -175,6 +175,7 @@
 		"generate:native-types": "node scripts/generate-native-types.ts"
 	},
 	"dependencies": {
+		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/lib": "workspace:*"
 	},
 	"devDependencies": {

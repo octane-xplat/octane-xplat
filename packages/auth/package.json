@@ -63,6 +63,7 @@
 	"dependencies": {
 		"@nativescript/apple-sign-in": "2.0.0",
 		"@nativescript/google-signin": "2.1.1",
+		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/platform": "workspace:*",
 		"@octane-xplat/secure-storage": "workspace:*"
 	},

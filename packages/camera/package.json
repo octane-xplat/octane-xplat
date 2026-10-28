@@ -54,6 +54,7 @@
 		"test:webkitgtk": "node tests/webkitgtk-conformance.linux.mjs"
 	},
 	"dependencies": {
+		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/platform": "workspace:*",
 		"mediabunny": "1.61.3"
 	},

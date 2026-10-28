@@ -58,6 +58,7 @@
 		"prepack": "pnpm build:assets && pnpm typegen && tsrx-typegen --pack-check"
 	},
 	"dependencies": {
+		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/richtext": "workspace:*",
 		"@octanejs/tiptap": "0.0.52",
 		"@tiptap/core": "3.28.0",

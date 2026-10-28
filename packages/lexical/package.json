@@ -65,6 +65,7 @@
 		"@lexical/rich-text": "0.51.0",
 		"@lexical/selection": "0.51.0",
 		"@lexical/utils": "0.51.0",
+		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/richtext": "workspace:*",
 		"@octanejs/lexical": "0.2.0",
 		"lexical": "0.51.0",

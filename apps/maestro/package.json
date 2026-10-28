@@ -17,6 +17,7 @@
 		"@nativescript/types": "catalog:",
 		"@nativescript/vite": "8.0.20",
 		"@octane-xplat/cli": "workspace:*",
+		"@octane-xplat/jsx": "workspace:*",
 		"@octanejs/vite-plugin": "catalog:",
 		"typescript": "catalog:",
 		"vite": "catalog:"

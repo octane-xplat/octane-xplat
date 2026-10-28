@@ -58,6 +58,7 @@
 	},
 	"dependencies": {
 		"@nativescript/swift-ui": "4.0.2",
+		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/lib": "workspace:*"
 	},
 	"devDependencies": {

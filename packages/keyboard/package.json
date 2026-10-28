@@ -59,6 +59,7 @@
 		"test:os-input": "node tests/os-input.mjs"
 	},
 	"dependencies": {
+		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/platform": "workspace:*",
 		"@octane-xplat/ui": "workspace:*"
 	},
@@ -66,7 +67,6 @@
 		"@nativescript-community/octane": "catalog:",
 		"@nativescript/core": "catalog:",
 		"@octanejs/vite-plugin": "catalog:",
-		"@octane-xplat/jsx": "workspace:*",
 		"octane": "catalog:",
 		"tsrx-typegen": "workspace:*",
 		"typescript": "catalog:",

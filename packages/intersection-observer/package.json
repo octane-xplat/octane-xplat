@@ -87,5 +87,8 @@
 			"android": "9.1.0",
 			"ios": "9.1.0"
 		}
+	},
+	"dependencies": {
+		"@octane-xplat/jsx": "workspace:*"
 	}
 }

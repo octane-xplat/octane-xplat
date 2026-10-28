@@ -23,6 +23,7 @@
 	},
 	"devDependencies": {
 		"@octane-xplat/cli": "workspace:*",
+		"@octane-xplat/jsx": "workspace:*",
 		"@octanejs/vite-plugin": "catalog:",
 		"@tsrx/typescript-plugin": "catalog:",
 		"jsdom": "catalog:",

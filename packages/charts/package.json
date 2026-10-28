@@ -54,6 +54,7 @@
 		"pack:check": "tsrx-typegen --pack-check"
 	},
 	"dependencies": {
+		"@octane-xplat/jsx": "workspace:*",
 		"d3-array": "3.2.4",
 		"d3-format": "3.1.2",
 		"d3-scale": "4.0.2",

@@ -71,6 +71,7 @@
 	"dependencies": {
 		"@iconify/types": "2.0.0",
 		"@iconify/utils": "3.1.7",
+		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
 		"@xmldom/xmldom": "0.9.12",
 		"cubic2quad": "1.2.1",

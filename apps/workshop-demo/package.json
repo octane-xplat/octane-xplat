@@ -25,13 +25,14 @@
 		"@nativescript/macos-node-api": "catalog:",
 		"@nativescript/types": "catalog:",
 		"@octane-xplat/cli": "workspace:*",
+		"@octane-xplat/jsx": "workspace:*",
+		"@octane-xplat/linux-gtk": "workspace:*",
 		"@octane-xplat/macos-renderer": "workspace:*",
 		"@octane-xplat/workshop": "workspace:*",
 		"@octanejs/vite-plugin": "catalog:",
 		"@tsrx/typescript-plugin": "catalog:",
 		"playwright": "1.63.0",
 		"typescript": "catalog:",
-		"vite": "catalog:",
-		"@octane-xplat/linux-gtk": "workspace:*"
+		"vite": "catalog:"
 	}
 }

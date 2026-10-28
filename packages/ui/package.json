@@ -231,6 +231,7 @@
 		"build": "tsc -p tsconfig.node.json"
 	},
 	"dependencies": {
+		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/lib": "workspace:*",
 		"@octane-xplat/platform": "workspace:*"
 	},
