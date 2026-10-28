@@ -5,4 +5,4 @@ Dragging now works through layout changes. A dragged host takes over from its cu
   style={{ marginLeft: shifted ? 100 : 0, width: 100, height: 80 }} />
 ```
 
-Release and cleanup restore ordinary layout animation. See [dragging through layout changes](https://octane-xplat.dev/app/animation-gestures#keep-dragging-through-layout-changes).
+Release and cleanup restore ordinary layout animation. See [dragging through layout changes](https://octane-xplat.goddardai.org/animation-gestures#keep-dragging-through-layout-changes).

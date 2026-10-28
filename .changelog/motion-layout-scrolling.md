@@ -6,4 +6,4 @@ Shared layout transitions now account for scrolling that happens before the sour
 </ScrollableArea>
 ```
 
-Scroll offsets are detected automatically. See [layout animations](https://octane-xplat.dev/app/animation-gestures#layout-animations).
+Scroll offsets are detected automatically. See [layout animations](https://octane-xplat.goddardai.org/animation-gestures#layout-animations).

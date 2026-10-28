@@ -845,7 +845,7 @@ Scalar native radii and blur/spread are exact only under uniform scale. Web
 multiple shadows retain Motion's fallback; percentage radii retain proportional
 behavior on web and NativeScript.
 
-Focused web-host and projection tests, native object-driver tests, and all 349
+Focused web-host and projection tests, native object-driver tests, and all 350
 AppKit renderer tests pass. The AppKit runtime harness verifies a 100→200 uniform
 resize keeps a 20pt corner radius and 12pt shadow blur, including intermediate
 frames and restoration. These assertions inspect layer geometry, not pixels.
@@ -891,9 +891,37 @@ compensates those engine values directly for Mason views, preserving Core cascad
 state. Standard NativeScript views retain the length/array path. This private
 `_styleHelper` seam is scoped and versioned in motion's UPSTREAM.md.
 
-The combined container probe now passes 18 assertions each on the iPhone 18 Pro
+The combined container probe now passes 21 assertions each on the iPhone 18 Pro
 simulator and Android phase0-probe AVD: numeric paint correction/restoration,
 scrolling without spurious projection, root/anchor movement, active drag through
 ancestor layout, continued movement, early release, and disabled-drag cleanup.
 It reads native boxes and paint-engine values and dispatches gesture handlers;
 it does not qualify painted pixels, physical touch, or OS hit-testing.
+
+### Phase 3–4 final verification (2026-10-28)
+
+| Evidence | Result |
+| --- | --- |
+| Motion unit tests that compile with the current parser | 142 pass across 14 files; four existing web component TSRX suites remain blocked by the parser error reproduced on pre-feature main |
+| Native object-driver tests | 28 pass across seven files |
+| AppKit renderer unit tests | 350 pass, including paint ownership and percentage-radius preservation |
+| Chromium container geometry | Five tests pass: corrected paint in nested scrollers, scrolled source removal/handoff, drag through moving ancestors/early release, root/anchor positioning, and intentional user-scale preservation |
+| iOS native container probe | 21 assertions pass on iPhone 18 Pro simulator `91D40099-A056-497D-A572-ADDDFD6A8F23` |
+| Android native container probe | 21 assertions pass on phase0-probe AVD `emulator-5586`, one emulator CPU core |
+| AppKit runtime | Layout, corrected paint, shared reversal, drag/early release, root/anchor and scrolled source handoff markers all pass |
+| Required package/dependent typechecks | All 66 tasks pass, including lint dependents; Turbo concurrency one |
+| Native shadow lint rule | Regression passes for supported boxShadow and rejected float; native fixtures use mobile file boundaries |
+| Packed consumers | Web/native/macOS, both resolver modes and maintained new guide examples pass against the shared JSX facade |
+| Full docs site build | Blocked by `ParserOperationalError: unsupported TSRX parser shape: reachable synthetic ESTree span`, also observed in existing web suites; no full-site pass claimed |
+
+Paint correction compensates only layout scale, preserving intentional user
+scale throughout projection and after release. Browser and native driver
+regressions verify the corner/shadow values before, during, and after a resize.
+
+The native probe inspects boxes and paint-engine values and dispatches handlers;
+it does not establish OS input, hit-testing, or pixel parity. Owned simulators
+and the emulator were shut down and reservations released. Nonuniform native
+corners and scalar blur/spread retain the documented approximation. Explicit
+layoutScroll, measured drag-ref constraints, Reorder, and route transitions remain
+outside this implementation. Recipe motion-patterns AC8 and AC9 cover the new
+container and drag workflow; prior AC1–AC7 evidence remains historical.

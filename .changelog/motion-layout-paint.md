@@ -4,4 +4,4 @@ Layout animations now keep numeric rounded corners and shadows steady during res
 <motion.View layout style={{ borderRadius: 20, width: expanded ? 300 : 150 }} />
 ```
 
-Native corners and scalar blur are exact under uniform scale and approximate otherwise. Multiple web shadows remain uncorrected. See [layout animations](https://octane-xplat.dev/app/animation-gestures#layout-animations).
+Native corners and scalar blur are exact under uniform scale and approximate otherwise. Multiple web or Mason core shadows remain uncorrected. See [layout animations](https://octane-xplat.goddardai.org/animation-gestures#layout-animations).

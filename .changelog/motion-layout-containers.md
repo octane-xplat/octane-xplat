@@ -6,4 +6,4 @@ Motion containers can now use `layoutRoot` to move immediately while their child
 </motion.View>
 ```
 
-See [layout animations](https://octane-xplat.dev/app/animation-gestures#layout-animations).
+See [layout animations](https://octane-xplat.goddardai.org/animation-gestures#layout-animations).

@@ -85,4 +85,4 @@ animation after release.
 <motion.View layout drag="x" dragMomentum={false} style={{ width: 100, height: 80 }} />
 ```
 
-See [dragging through layout changes](https://octane-xplat.dev/app/animation-gestures#keep-dragging-through-layout-changes).
+See [dragging through layout changes](https://octane-xplat.goddardai.org/animation-gestures#keep-dragging-through-layout-changes).
