@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/jsx */
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { createRoot } from 'octane'
 import { App } from '@xplat/app'
 import './fonts.css'
