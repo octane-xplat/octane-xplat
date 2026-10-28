@@ -49,6 +49,7 @@ const noMember = shared.ios
 declare class FakeView {
 	requestLayout(): void
 }
+
 // @ts-expect-error the shared handle is not a concrete platform view
 const concrete: FakeView = shared
 // @ts-expect-error primitives are not host handles
