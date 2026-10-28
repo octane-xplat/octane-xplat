@@ -781,8 +781,8 @@ export function Sections() {
 Visible and hidden tabs now have explicit accessible names; disabled tabs keep
 their tab role and disabled state. The strip exposes native tab-group semantics.
 Keyboard event delivery, Tab order, scroll geometry, VoiceOver, panel
-relationships and layout remain unqualified. TabMenu remains an independent
-trigger outside the registered Tab arrow model. Missing keyboard/suppression
+relationships and layout remain unqualified. TabMenu overflow ownership is
+described below. Missing keyboard/suppression
 bridges retain the corresponding native fallback; do not infer tested keyboard
 support from source presence. See the [native fixture](https://github.com/octane-xplat/octane-xplat/blob/feat/appkit-native-support/examples/probes/tab-list.macos.tsrx).
 
@@ -826,6 +826,55 @@ export function Example() {
 	)
 }
 ```
+
+
+### Overflow tabs on AppKit
+
+AppKit TabMenu now registers its trigger with the surrounding tab strip. The
+selected overflow value identifies that same trigger, so strip arrows and the
+roving Tab candidate include it. Plain Down/Up from the trigger requests first/
+last-option opening; Enter/Space keeps normal press activation. Compose it with
+controlled tabs, as in the ComponentsDemo overflow example:
+
+```tsx
+import { useState } from 'octane'
+import { TabList, Tab, TabMenu, Text } from '@octane-xplat/ui'
+
+export function Sections() {
+	const [value, setValue] = useState('overview')
+	return <>
+		<TabList role="tablist" value={value} onChange={setValue}>
+			<Tab value="overview" label="Overview" />
+			<TabMenu label="More" options={[
+				{ value: 'settings', label: 'Settings' },
+				{ value: 'support', label: 'Support' },
+			]} />
+		</TabList>
+		<Text>{value}</Text>
+	</>
+}
+```
+
+The popup reuses the AppKit menu surface: arrows/Home/End and typeahead move
+option focus, Enter/Space selects, and Tab/Shift-Tab requests a current trigger
+neighbor after closure. Ordinary Escape stays with layer dismissal and requests
+trigger return. Navigation alone does not select a value. Current options and
+attachment guard selection; reentrant callbacks cannot select twice or reopen
+while a selection is being reported. Empty option lists disable the AppKit
+trigger and close an open popup. Older bridges retain pointer selection:
+
+```tsx
+<TabList value={section} onChange={setSection}>
+	<Tab value="home" label="Home" />
+	<TabMenu label="More" options={extraSections} />
+</TabList>
+```
+
+Six object-driver cases and the maintained tab-menu fixture are authored and
+unrun. This source path requires matching keyboard/focus bridges; it does not
+qualify physical keys, native refs/window/focus/Tab/return, scroll reveal,
+popup/modal integration, menu radio mark announcements or packaging. Repairing
+focus after a nonempty menu removes its focused row remains a source gap.
 
 ## Data display
 

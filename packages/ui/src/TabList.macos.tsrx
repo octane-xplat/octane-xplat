@@ -3,8 +3,8 @@ import type { RegisteredRouteContracts, AppRouteStacks, RouteTransitionName } fr
 import type { NavigationItemImplementation } from './nav-link'
 import { useNavigationItem } from './use-navigation-item.shared.tsrx'
 import { mergeStyle } from './style-merge'
-import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'octane'
-import type { TabListProps, TabProps, TabMenuProps } from './props'
+import { useCallback, useContext, useEffect, useLayoutEffect, useId, useMemo, useRef, useState } from 'octane'
+import type { TabListProps, TabProps, TabMenuProps, TabMenuOption } from './props'
 import { useSize } from './size-context'
 import { cx } from '@octane-xplat/lib'
 
@@ -18,6 +18,10 @@ import { revealAppKitTab } from './tab-reveal.macos'
 import { createAppKitChoiceFocus } from './choice-focus.macos'
 import { useKeyboard } from './use-keyboard.macos'
 import { useDirection } from './internationalization'
+import { MenuSurface } from './MenuSurface.macos.tsrx'
+import { useAppKitMenuRow } from './use-menu-row.macos.tsrx'
+import { useAppKitViewKeys } from './use-view-keys.macos.tsrx'
+import { AppKitMenuReturnProvider, createAppKitMenuReturn } from './menu-return.macos'
 
 export { TabListContext }
 export { useTabListContext } from './nav-contexts'
@@ -228,27 +232,69 @@ export function TabMenu(props: TabMenuProps) @{
 		throw new Error('TabMenu must be used within a TabList.')
 	}
 
-	const anchor = useRef<any>(null)
-	const [open, setOpen] = useState(false)
+	const anchor = useRef<NSView | null>(null), menuKey = useId()
+	const [open, setOpenState] = useState(false)
+	const openRef = useRef(open); openRef.current = open
+	const choosing = useRef(false), initialFocus = useRef<'first' | 'last'>('first')
+	const live = useRef({ props, ctx }); live.current = { props, ctx }
+	const setOpen = (next: boolean) => { openRef.current = next; if (anchor.current) setOpenState(next) }
 	const selected = props.options.find((o) => o.value === ctx.value)
 	const triggerLabel = selected?.label ?? props.label
+	const registrationKey = selected?.value ?? menuKey, views = ctx._tabViews
+	const registration = useRef<{ views: Map<string, unknown>; key: string; view: NSView } | null>(null)
+	const synchronizeRegistration = () => {
+		const previous = registration.current
+		if (previous && previous.views.get(previous.key) === previous.view) previous.views.delete(previous.key)
+		registration.current = null
+		if (anchor.current && views) {
+			views.set(registrationKey, anchor.current)
+			registration.current = { views, key: registrationKey, view: anchor.current }
+		}
+	}
+	const registerLatest = useRef(synchronizeRegistration); registerLatest.current = synchronizeRegistration
+	const bind = useCallback((view: NSView | null) => {
+		anchor.current = view; registerLatest.current()
+	}, [])
+	useLayoutEffect(synchronizeRegistration, [views, registrationKey])
+
+	const returnOwner = useMemo(() => createAppKitMenuReturn({ anchor: () => anchor.current,
+		open: () => Boolean(anchor.current) && openRef.current, close: () => setOpen(false) }), [])
+	const finalFocus = useMemo(() => ({ get current() { return returnOwner.focusTarget() } }), [])
+	const closeMenu = () => { returnOwner.reset(); setOpen(false) }
+	const requestOpen = (edge: 'first' | 'last') => {
+		if (!anchor.current || choosing.current || !live.current.props.options.length) return
+		initialFocus.current = edge; returnOwner.reset(); setOpen(true)
+	}
+	const keys = useAppKitViewKeys({ onKeyDown: (event) => {
+		if (!anchor.current || choosing.current || !live.current.props.options.length || event.defaultPrevented || event.isComposing ||
+			event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || (event.key !== 'ArrowDown' && event.key !== 'ArrowUp')) return
+		event.preventDefault(); event.stopPropagation()
+		if (!openRef.current) requestOpen(event.key === 'ArrowUp' ? 'last' : 'first')
+	} })
+	const triggerRef = useMemo(() => [bind, keys.ref], [bind, keys.ref])
+	useLayoutEffect(() => {
+		if (!props.options.length && openRef.current) closeMenu()
+		if (!open) initialFocus.current = 'first'
+	}, [props.options.length, open])
 
 	const pick = (value: string) => {
-		ctx.onChange(value)
-		setOpen(false)
+		if (!anchor.current || !openRef.current || choosing.current || !live.current.props.options.some((option) => option.value === value)) return
+		choosing.current = true; openRef.current = false; returnOwner.reset()
+		try { live.current.ctx.onChange(value) }
+		finally { try { if (anchor.current) setOpen(false) } finally { choosing.current = false } }
 	}
 
 	<>
 		<Pressable
-			ref={(v: any) => {
-				anchor.current = v
-			}}
+			ref={triggerRef}
 			id={props.id}
 			className={cx('vx-tab vx-tabmenu-trigger', selected && 'vx-tab--selected', props.className)}
 			style={mergeStyle({ height: SIZE_HEIGHT[ctx.size] }, props.style)}
 			accessibilityLabel={triggerLabel}
 			accessibilityHint={props.label}
-			onPress={() => setOpen(!open)}
+			disabled={!props.options.length}
+			accessibilityState={{ expanded: open && !!props.options.length, selected: !!selected, disabled: !props.options.length }}
+			onPress={() => { if (!anchor.current || choosing.current) return; if (openRef.current) closeMenu(); else requestOpen('first') }}
 		>
 			<masonview
 				className="vx-tab-content"
@@ -274,38 +320,34 @@ export function TabMenu(props: TabMenuProps) @{
 		</Pressable>
 		<Popover
 			anchor={anchor}
-			open={open}
+			finalFocusRef={finalFocus}
+			open={open && !!props.options.length}
 			placement="bottom"
-			onDismiss={() => setOpen(false)}
+			onDismiss={closeMenu}
 			className="vx-tabmenu-pop"
 		>
-			<masonview
-				className="vx-tabmenu"
-				style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}
-			>
-				<Text className="vx-tabmenu-heading">{props.label}</Text>
-				@for (const option of props.options; key option.value) {
-					<Pressable
-						className={cx(
-							'vx-tabmenu-item',
-							ctx.value === option.value && 'vx-tabmenu-item--selected',
-						)}
-						accessibilityState={{ selected: ctx.value === option.value }}
-						onPress={() => pick(option.value)}
-					>
-						<masonview
-							style={mergeStyle(
-								{ flexDirection: 'row', alignItems: 'center', gap: 8 },
-								{ display: 'flex' },
-							)}
-						>
-							{option.icon != null ? navIcon(option.icon, 16) : null}
-							<Text className="vx-tabmenu-itemcontent">{option.label}</Text>
-							{ctx.value === option.value ? <Icon name="xplat-check" size={16} /> : null}
-						</masonview>
-					</Pressable>
-				}
-			</masonview>
+			<AppKitMenuReturnProvider value={returnOwner}>
+				<MenuSurface closeMenu={closeMenu} initialFocus={initialFocus.current} label={props.label} className="vx-tabmenu">
+					<Text className="vx-tabmenu-heading">{props.label}</Text>
+					@for (const option of props.options; key option.value) {
+						<AppKitTabMenuOption option={option} selected={ctx.value === option.value} pick={pick} />
+					}
+				</MenuSurface>
+			</AppKitMenuReturnProvider>
 		</Popover>
 	</>
+}
+
+
+function AppKitTabMenuOption(props: { option: TabMenuOption; selected: boolean; pick(value: string): void }) @{
+	const row = useAppKitMenuRow({ label: props.option.label, disabled: false, press: () => props.pick(props.option.value) })
+	<Pressable ref={row.ref} className={cx('vx-tabmenu-item', props.selected && 'vx-tabmenu-item--selected')}
+		accessibilityRole="menuitemradio" accessibilityLabel={props.option.label}
+		accessibilityState={{ checked: props.selected, selected: props.selected }} onPress={row.press}>
+		<masonview style={mergeStyle({ flexDirection: 'row', alignItems: 'center', gap: 8 }, { display: 'flex' })}>
+			{props.option.icon != null ? navIcon(props.option.icon, 16) : null}
+			<Text className="vx-tabmenu-itemcontent">{props.option.label}</Text>
+			{props.selected ? <Icon name="xplat-check" size={16} /> : null}
+		</masonview>
+	</Pressable>
 }

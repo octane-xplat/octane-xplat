@@ -3426,3 +3426,58 @@ introduced. Autofocus timing, preset row text relay/full listbox relationships
 and live announcements remain source gaps; Checkbox mixed rollback is pending the
 previously asked contract choice. No package tests/typechecks, builds, installs,
 OS automation, visual analysis or shared audit snapshots ran; no checkbox closed.
+
+
+### AppKit TabMenu overflow keyboard ownership
+
+The previous goal turn committed/pushed date focus and save ownership through
+352ccacc3. Re-read the current issue, source audit/target rows and dependency
+candidates; they remain source-only historical evidence. Demand was revisited:
+ComponentsDemo composes TabList with a More TabMenu, while PagerDemo also exposes
+an unsupported paging workflow. Basic navigation/input takes priority here over
+new playback/paging host machinery. TabList already has roving tab focus/reveal;
+TabMenu still used independent pointer rows and was absent from its registry.
+
+The target TabMenu now registers the concrete trigger in the strip, using the
+selected overflow value or a private stable key, without ref churn on selection
+changes. Down/Up on that trigger requests first/last-row popup focus; repeats
+while opening stay consumed without reopening. Pointer/Enter/Space activation
+retains Pressable ownership. The popup composes the existing MenuSurface,
+useAppKitMenuRow and return owner: wrapping arrows, edges, typeahead, manual
+activation, current Tab/Shift-Tab neighbor intent and ordinary layer Escape.
+Selection reads current options/context, claims before application reentry and
+closes through callback errors/teardown without detached UI writes. Empty options
+disable entry and close an existing popup; pointer selection remains available
+on older bridges. Trigger expanded/selected state and menu radio-row metadata
+are supplied, without claiming native mark/announcement delivery. No public
+prop/type, shared manifest, dependency, new layer engine or other-target leaf
+changed.
+
+Six object-driver cases cover selected overflow strip registration, concrete
+trigger edge opening, menu focus/manual activation/prefix/return, current
+neighbor/ordinary Escape intent, reentry/parent flush/removed rows/empty/detach,
+modified/composing/foreign guards and older-bridge pointer fallback. All are
+unrun. The maintained tab-menu fixture performs no native keys/focus automation.
+Only source/semantic, TSRX syntax and whitespace checks ran. Public guide, skill,
+feature note and appkit-tab-navigation AC4 were reconciled. New bridge/platform
+runtime behavior is not established by this source work.
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/tab-menu.macos.mobile.test.tsrx src/tab-list.macos.mobile.test.tsrx src/menu-keyboard.macos.mobile.test.tsrx src/menu-return.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/tab-menu.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All commands remain deferred pending explicit human authorization for this task.
+Native ref/key/window/notification order, physical keys/Tab, popup/FocusScope/modal
+integration, scroll reveal, focus/return/IME, AX/VoiceOver/menu radio marks and
+packaging remain unqualified. The reused MenuSurface still lacks explicit repair
+when a nonempty menu removes its focused row; this is a remaining source gap,
+not covered up by current-option selection guards. Pager/video, autofocus timing,
+preset text relay/listbox relationships and live announcements also remain gaps;
+Checkbox mixed rollback is still pending the already asked human choice. No
+package tests/typechecks, builds, installs, OS automation, visual analysis or
+shared audit snapshot regeneration ran; no evidence-gated checkbox is closed.

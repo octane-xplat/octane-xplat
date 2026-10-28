@@ -879,7 +879,7 @@ TabList now reveals selected/focused tabs through native scroll geometry and
 uses registered Tab views for roving focus. Arrows/Home/End move focus; Enter/
 Space keep the renderer's press activation. Horizontal direction follows RTL;
 role=tablist leaves vertical arrows to the page. Navigation strips accept both
-axes. TabMenu is still an independent trigger outside this Tab registry. The
+axes. TabMenu overflow registration/menu ownership is covered below. The
 keyboard/suppression/window-update bridges are source capabilities, not OS
 qualification; native focus/Tab, scroll visibility, VoiceOver and panel relations
 remain open. See [AppKit tab strips](../../../../docs/app/components.md#tab-strips-on-appkit).
@@ -927,3 +927,31 @@ function AppLink(props: { href: string; onPress?: () => void }) {
 }
 export function CustomHelp() { return <Link as={AppLink} href="https://example.com/help">Help</Link> }
 ```
+
+
+## AppKit overflow-tab keyboard ownership
+
+TabMenu registers its current trigger with TabList, using the selected overflow
+value for strip focus/reveal. Down/Up on the concrete trigger requests first/last
+option opening; pointer/Enter/Space activation stays on Pressable. The popup now
+reuses MenuSurface/useAppKitMenuRow and the menu return owner for row focus,
+manual selection/typeahead, Tab-neighbor intent and ordinary layer Escape.
+Current options, attachment and selection reentry guards reject stale callbacks;
+empty lists disable/close. No public prop, dependency or separate layer is added.
+
+```tsx
+import { TabList, Tab, TabMenu } from '@octane-xplat/ui'
+
+export function Sections(props: { value: string; change(value: string): void }) {
+	return <TabList role="tablist" value={props.value} onChange={props.change}>
+		<Tab value="overview" label="Overview" />
+		<TabMenu label="More" options={[{ value: 'settings', label: 'Settings' }]} />
+	</TabList>
+}
+```
+
+Six wiring cases and the maintained tab-menu fixture remain unrun. Native key/
+ref/focus/Tab/return/scroll/popup/AX/package qualification remains open, including
+radio mark announcements. Nonempty focused-row removal repair remains a source
+gap in the reused menu surface; do not claim complete dynamic-menu qualification.
+See [AppKit overflow tabs](../../../../docs/app/components.md#overflow-tabs-on-appkit).
