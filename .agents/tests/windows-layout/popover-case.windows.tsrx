@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import {useRef,useState,useEffect} from 'octane'
 import {Screen} from '../../../packages/ui/src/Screen.tsrx'
 import {View} from '../../../packages/ui/src/View.tsrx'

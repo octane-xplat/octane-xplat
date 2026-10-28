@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useEffect, useState } from 'octane'
 import { File } from '@nativescript/core/file-system'
 import { TextInput } from '../../../packages/ui/src/TextInput'

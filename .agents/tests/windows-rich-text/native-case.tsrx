@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import {Text} from '../../../packages/ui/src/Text.tsrx'
 import {signal$} from 'octane/signals'
 const styled$ = signal$(true)
