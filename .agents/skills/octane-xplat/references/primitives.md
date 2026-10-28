@@ -839,3 +839,31 @@ export function Features() {
 	</CheckboxList>
 }
 ```
+
+
+## AppKit button actions and links
+
+Use the dedicated AppKit Button leaf (re-exported by controls). It wraps primitive
+children, forwards inherited Pressable props and preserves content while busy.
+Noninterruptible actions acquire a synchronous ownership token; interruptible
+overlap stays busy until all calls settle. Group/explicit disablement always
+wins. Unmount stops pending UI writes; failures still use onActionError.
+
+```tsx
+import { Button } from '@octane-xplat/ui'
+
+export function Save({ save }: { save(): Promise<void> }) {
+	return <Button label="Save" clickAction={save} />
+}
+```
+
+Button href is sanitized and handed to the platform opener before clickAction.
+It does not use the router; target has no native browsing-context behavior.
+Native URL opening/input/VoiceOver/busy geometry remain unqualified. Tooltip
+presentation is still missing. See the [source contract](../../../../docs/app/components.md#appkit-button-actions-and-links).
+
+```tsx
+import { Button } from '@octane-xplat/ui'
+
+export function Help() { return <Button href="https://example.com/help">Help</Button> }
+```

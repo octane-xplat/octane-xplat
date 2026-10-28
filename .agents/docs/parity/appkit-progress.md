@@ -1816,3 +1816,46 @@ Actual NSSearchField editor ownership, IME, observer delivery/window moves,
 selection/undo, focus, cancel/submit delivery and packaging remain unqualified.
 No builds, package tests/typechecks, dependency installs, OS automation, visual
 analysis or shared audit regeneration ran; no evidence checkbox is closed.
+
+
+### AppKit button links and busy actions
+
+ComponentsDemo renders action/loading/disabled buttons with primitive children;
+the shared public props also document href and inherited Pressable metadata.
+Assumption: save/help flows have greater demand than niche integrations. The old
+AppKit controls leaf dropped href and most inherited props, passed primitive
+children straight into a layout host and swapped out content while busy.
+
+Dedicated Button.macos now uses TextSlot, forwards existing Pressable props,
+keeps content under a same-cell busy overlay and exposes busy/name/value metadata.
+The existing sanitizer gates the existing platform openUrl call before action
+dispatch. Target has no native browsing-context behavior; this is not route
+navigation. No new dependency or shared manifest/CLI edit was required.
+
+A synchronous token guards noninterruptible reentry; interruptible overlap uses
+a set so every call must settle before busy clears. Explicit/group disablement
+always wins; interruptible external loading follows the existing shared native
+contract. Layout-effect cleanup cancels pending UI ownership without changing
+public ref identity. Failures still reach onActionError/default error reporting.
+Native tooltip presentation remains missing and is explicitly retained as a gap.
+
+Authored object-driver cases cover href sanitization/order/disablement, retained
+content/host, busy naming, same-frame duplicates, overlap, sync/rejected errors,
+group/loading gates, forwarded metadata/refs, primitive children and teardown.
+Tests remain unrun. TSRX syntax parsing, semantic/source review and whitespace
+checks only; no native input or geometry result is claimed.
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/button.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All commands remain deferred pending this task's explicit human authorization.
+Actual mouse/keyboard delivery, CSS overlay sizing/appearance, label/name
+aggregation, VoiceOver busy announcements, OS browser opening and packaging
+remain unqualified. No builds, package tests/typechecks, dependency installs,
+OS automation, visual analysis or audit snapshot regeneration ran; no evidence
+checkbox is closed. Existing demos exercise the retained public API; no new
+public workflow is introduced.

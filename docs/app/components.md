@@ -1287,3 +1287,38 @@ export function FileActions() {
   )
 }
 ```
+
+
+### AppKit button actions and links
+
+AppKit buttons keep their content mounted beneath the busy indicator. Normal
+pending actions block presses; `isInterruptible` allows overlap and keeps busy
+state until every call settles. `isDisabled` and ButtonGroup disablement always
+block presses. Action failures use `onActionError`; unmount cancels pending UI
+updates, while failures still reach the configured error path.
+
+```tsx
+import { Button } from '@octane-xplat/ui'
+
+export function SaveButton({ save, report }: { save(): Promise<void>; report(error: unknown): void }) {
+	return <Button label="Save changes" clickAction={save} onActionError={report} />
+}
+```
+
+A button's `href` uses the existing URL sanitizer and AppKit platform opener
+before its click action. `target` does not create a native browser tab/window;
+use NavLink for app routes. Primitive children receive a text host, and inherited
+Pressable layout/events and accessibility metadata reach the native host.
+
+```tsx
+import { Button } from '@octane-xplat/ui'
+
+export function HelpButton() {
+	return <Button href="https://example.com/help">Read help</Button>
+}
+```
+
+These are source implementations with authored, unrun object-driver cases.
+Native click/keyboard delivery, OS URL opening, busy sizing/appearance and
+VoiceOver remain unqualified. Button tooltip presentation remains a separate
+AppKit gap; this change does not implement it.
