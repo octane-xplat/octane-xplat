@@ -1,3 +1,4 @@
+import { captureViewportOffset } from './projection/viewport-offset'
 import { correctNativePaint, radiusKeys } from './projection/paint'
 import type { DelegatedRequest, DelegatedRun, HostAdapter } from './host-types'
 import type { Target } from './types'
@@ -86,7 +87,13 @@ export function attachHost(node: any): HostAdapter {
 		pan: (axis, callbacks) => attachPan(node, axis, callbacks),
 		measureLayout() {
 			const box = measureNativeBox(node)
-			return box ? { layoutBox: box, measuredBox: measureNativeBox(node, true)! } : null
+			return box
+				? {
+						layoutBox: box,
+						measuredBox: measureNativeBox(node, true)!,
+						viewportOffset: captureViewportOffset(node),
+					}
+				: null
 		},
 		resetProjection() {
 			restorePaint()

@@ -1,3 +1,4 @@
+import { captureViewportOffset } from './projection/viewport-offset.web'
 import { radiusKeys } from './projection/paint'
 import { attachPan } from './pan.web'
 import { delegatedRun } from './driver.web'
@@ -102,16 +103,10 @@ export function attachHost(node: HTMLElement): HostAdapter {
 			const measuredBox = toBox(node.getBoundingClientRect())
 			// Compare content coordinates across commits. Scrolling an ancestor
 			// moves the viewport box without changing the element's layout.
-			let scrollX = window.scrollX
-			let scrollY = window.scrollY
-			for (let parent = node.parentElement; parent; parent = parent.parentElement) {
-				if (parent === document.scrollingElement) {
-					continue
-				}
-
-				scrollX += parent.scrollLeft
-				scrollY += parent.scrollTop
-			}
+			const viewportOffset = captureViewportOffset(node)
+			const offset = viewportOffset()
+			const scrollX = -offset.x,
+				scrollY = -offset.y
 			const layoutBox = toBox({
 				left: measuredBox.x.min + scrollX,
 				top: measuredBox.y.min + scrollY,
@@ -125,7 +120,7 @@ export function attachHost(node: HTMLElement): HostAdapter {
 				removeBoxTransforms(layoutBox, latestValues)
 				removeBoxTransforms(measuredBox, latestValues)
 			}
-			return { layoutBox, measuredBox }
+			return { layoutBox, measuredBox, viewportOffset }
 		},
 		resetProjection() {
 			restorePaint()
@@ -138,6 +133,7 @@ export function attachHost(node: HTMLElement): HostAdapter {
 				restorePaint()
 				projecting = false
 				node.style.transformOrigin = transformOrigin
+				node.style.transform = transform
 				this.write(latestValues)
 				return
 			}

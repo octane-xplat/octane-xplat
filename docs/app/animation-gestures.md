@@ -747,10 +747,30 @@ subset. Numeric corner radii and a single box shadow are corrected during scale.
 transforms belong on an outer container. See
 [Motion leaf limits](../testing/known-limits.md#motion-leaf) for the full list.
 
+### Keep corners steady while a card expands
+
+Set numeric corner radii and a shadow in CSS or the style object. Layout
+projection compensates their scale and restores the authored values at the end.
+Percentage radii retain their proportional behavior; multiple web shadows retain
+Motion's uncorrected fallback.
+
+```tsx
+import { motion } from '@octane-xplat/motion'
+
+export function ExpandingCard(props: { expanded: boolean }) {
+  return <motion.View layout style={{
+    width: props.expanded ? 300 : 150,
+    height: props.expanded ? 240 : 120,
+    borderRadius: 20,
+    boxShadow: '0px 4px 12px 0px rgba(0, 0, 0, 0.2)',
+  }} />
+}
+```
+
 ## Move an element between components
 
 Give two motion hosts the same `layoutId` to animate a handoff between them.
-The new host starts from the old host's last presented position and size.
+The new host starts from the old host's last presented position and size, adjusted for current ancestor scrolling even when the old host has just unmounted.
 Use a distinct `LayoutGroup id` for each independent control, so two tab bars
 can both name their underline `"underline"`:
 
@@ -1276,25 +1296,5 @@ import type { AnimatedValue } from '@octane-xplat/ui'
 
 export function moveWithoutWaiting(value: AnimatedValue): void {
 	void value.to(80, { duration: 300 })
-}
-```
-
-### Keep corners steady while a card expands
-
-Set numeric corner radii and a shadow in CSS or the style object. Layout
-projection compensates their scale and restores the authored values at the end.
-Percentage radii retain their proportional behavior; multiple web shadows retain
-Motion's uncorrected fallback.
-
-```tsx
-import { motion } from '@octane-xplat/motion'
-
-export function ExpandingCard(props: { expanded: boolean }) {
-  return <motion.View layout style={{
-    width: props.expanded ? 300 : 150,
-    height: props.expanded ? 240 : 120,
-    borderRadius: 20,
-    boxShadow: '0px 4px 12px 0px rgba(0, 0, 0, 0.2)',
-  }} />
 }
 ```

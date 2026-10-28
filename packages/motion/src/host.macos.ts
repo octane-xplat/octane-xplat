@@ -1,3 +1,4 @@
+import { captureViewportOffset } from './projection/viewport-offset'
 import { setLayoutProjectionScale } from '@octane-xplat/macos-renderer'
 import { paintScale } from './projection/paint'
 import type { HostAdapter } from './host-types'
@@ -87,7 +88,13 @@ export function attachHost(node: any): HostAdapter {
 		pan: (axis, callbacks) => attachPan(node, axis, callbacks),
 		measureLayout() {
 			const box = measureNativeBox(node)
-			return box ? { layoutBox: box, measuredBox: measureNativeBox(node, true)! } : null
+			return box
+				? {
+						layoutBox: box,
+						measuredBox: measureNativeBox(node, true)!,
+						viewportOffset: captureViewportOffset(node),
+					}
+				: null
 		},
 		resetProjection() {
 			setLayoutProjectionScale(node, null)

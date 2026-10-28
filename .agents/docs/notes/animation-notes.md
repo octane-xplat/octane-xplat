@@ -849,3 +849,18 @@ Focused web-host and projection tests, native object-driver tests, and all 349
 AppKit renderer tests pass. The AppKit runtime harness verifies a 100→200 uniform
 resize keeps a 20pt corner radius and 12pt shadow blur, including intermediate
 frames and restoration. These assertions inspect layer geometry, not pixels.
+
+### Phase 3 scroll containers
+
+Measurements retain ancestor scroll readers through source removal. Shared stack
+snapshots and coordinate transfer read current offsets instead of the source's
+last measured offset. Web fixed-position trees omit outside scroll. An explicit
+`layoutScroll` API is unnecessary for these automatic cases; fixed descendants
+inside transformed containers remain unqualified.
+
+Chromium's maintained `motion-containers.test.web.ts` checks nested projecting
+scrollers, corrected numeric corners, no scroll-only animation, and a removed
+source handoff after scrolling. Source-offset unit tests cover UIKit, Android
+pixel-to-DIP conversion, and flipped AppKit ancestors. The test exposed and fixed
+an adapter reset gap: returning transform ownership with no channel values must
+clear the last projection transform.

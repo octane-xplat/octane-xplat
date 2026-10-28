@@ -39,10 +39,12 @@ export type AnimationType = 'both' | 'position' | 'size' | 'preserve-aspect' | '
 
 /** One layout measurement produced by the host adapter. */
 export interface Measurement {
-	/** Untransformed box in root page coordinates (scroll applied). */
+	/** Untransformed content box with ancestor scroll removed. */
 	layoutBox: Box
 	/** Visual box in window coordinates. */
 	measuredBox: Box
+	/** Live content-to-viewport translation, retaining ancestor identities through unmount. */
+	viewportOffset?: () => Point
 }
 
 /** A per-frame projection transform handed to the host adapter. */

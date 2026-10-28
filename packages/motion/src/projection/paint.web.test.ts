@@ -26,6 +26,7 @@ it('keeps pixel corners constant through nonuniform scaling and restores authore
 	host.project!(write)
 	expect(element.style.borderTopLeftRadius).toBe('20% 40%')
 	host.project!(null)
+	expect(element.style.transform).toBe('')
 	expect(element.style.borderTopLeftRadius).toBe('20px')
 	expect(element.style.boxShadow).toContain('10px 20px 30px 4px')
 })

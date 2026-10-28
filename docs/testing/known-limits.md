@@ -534,8 +534,7 @@ probe-driven geometry evidence, not visual capture or OS input).
 `layoutId`/`LayoutGroup` shared handoffs and retained crossfades are supported.
 `layoutScroll`, `whileHover`/`whileInView`, keyframe arrays, and arbitrary
 CSS/SVG properties are excluded. Border-radius and
-box-shadow use scale correction; native corners and scalar blur/spread are approximate under nonuniform scale. Multiple web shadows are not corrected. Fixed-position layout
-roots are unsupported. Browser overflow scroll offsets are detected automatically. On
+box-shadow use scale correction; native corners and scalar blur/spread are approximate under nonuniform scale. Multiple web shadows are not corrected. Fixed-position web containers exclude outside scroll; fixed descendants of transformed containers remain unqualified. Browser overflow scroll offsets are detected automatically. On
 native, `rotate` with a non-uniform parent scale is approximate.
 Existing CSS transforms need an outer container.
 

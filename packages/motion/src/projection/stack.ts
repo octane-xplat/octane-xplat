@@ -15,13 +15,15 @@ export function transferBox(box: Box, from: ProjectionNode, to?: ProjectionNode)
 	const result = createBox()
 	copyBoxInto(result, box)
 	for (const axis of ['x', 'y'] as const) {
-		const offset = from.layout
-			? from.layout.measuredBox[axis].min - from.layout.layoutBox[axis].min
-			: 0
+		const offset =
+			from.layout?.viewportOffset?.()[axis] ??
+			(from.layout ? from.layout.measuredBox[axis].min - from.layout.layoutBox[axis].min : 0)
 
-		const destination = to?.layout
-			? to.layout.layoutBox[axis].min - to.layout.measuredBox[axis].min
-			: 0
+		const destination = to?.layout?.viewportOffset
+			? -to.layout.viewportOffset()[axis]
+			: to?.layout
+				? to.layout.layoutBox[axis].min - to.layout.measuredBox[axis].min
+				: 0
 
 		result[axis].min += offset + destination
 		result[axis].max += offset + destination
@@ -146,7 +148,10 @@ export class SharedStack {
 			lead.presented = createBox()
 			copyBoxInto(lead.presented, snapshot.box)
 			for (const axis of ['x', 'y'] as const) {
-				const offset = lead.layout.layoutBox[axis].min - lead.layout.measuredBox[axis].min
+				const offset = lead.layout.viewportOffset
+					? -lead.layout.viewportOffset()[axis]
+					: lead.layout.layoutBox[axis].min - lead.layout.measuredBox[axis].min
+
 				lead.presented[axis].min += offset
 				lead.presented[axis].max += offset
 			}

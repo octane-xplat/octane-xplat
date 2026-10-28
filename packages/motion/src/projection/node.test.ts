@@ -707,3 +707,35 @@ it('anchors a relative child to the end of a resizing parent and supports opting
 	c.resolveTargetDelta(true)
 	expect(c.relativeParent).toBeUndefined()
 })
+
+it('hands off from the current viewport offset when scrolling happens before source unmount', () => {
+	const { root, commit } = setup()
+	const source = fakeHooks(),
+		destination = fakeHooks()
+	source.state.box = box(0, 200, 100, 100)
+	destination.state.box = box(0, 400, 100, 100)
+	let scroll = 0
+	const a = new ProjectionNode()
+	a.options = { animationType: 'both', layoutId: 'scrolled' }
+	root.add(a)
+	a.attach({
+		...source.hooks,
+		measureLayout: () => ({
+			...source.hooks.measureLayout(),
+			viewportOffset: () => ({ x: 0, y: -scroll }),
+		}),
+	})
+	commit()
+	scroll = 80
+	root.remove(a)
+	const b = new ProjectionNode()
+	b.options = {
+		animationType: 'both',
+		layoutId: 'scrolled',
+		transition: { duration: 1, ease: 'linear' },
+	}
+	b.attach(destination.hooks)
+	root.add(b)
+	commit()
+	expect(b.presented?.y.min).toBeCloseTo(120)
+})

@@ -139,9 +139,27 @@ export function ResizingCard({ wide }: { wide: boolean }) {
 }
 ```
 
+For moving containers, `layoutRoot` snaps the container and keeps child layout
+animations relative to it. `layoutAnchor={{ x: 1, y: 1 }}` attaches a child to its
+parent's end corner; `false` disables relative attachment.
+
+```tsx
+<motion.View layoutRoot>
+  <motion.View layout="position" layoutAnchor={{ x: 1, y: 1 }} />
+</motion.View>
+```
+
+Numeric corner radii and shadows receive scale correction on projected hosts.
+Prefer uniform resizing when native corner/blur accuracy matters; nonuniform
+native correction is approximate. Multiple web shadows are not corrected.
+
+```tsx
+<motion.View layout style={{ borderRadius: 20, width: expanded ? 300 : 150, height: expanded ? 240 : 120 }} />
+```
+
 For shared elements, give matching hosts a `layoutId` inside a distinct
 `LayoutGroup id` per independent control. A same-commit replacement animates
-without retaining the old host; use `Presence` to retain both contents for a
+without retaining the old host, using current ancestor scroll offsets; use `Presence` to retain both contents for a
 crossfade. Keep Presence boundaries mounted through the transition. See
 [shared handoffs and reversals](../../../../docs/app/animation-gestures.md#move-an-element-between-components).
 
@@ -313,21 +331,3 @@ load that internal feature. Web and desktop retain built-ins. UI installs no
 polyfills: test individual capabilities and retain documented fallbacks.
 FormatJS's guarded entries mutate global Intl and may replace incomplete
 implementations. Installing one leaf does not guarantee every Intl API exists.
-
-For moving containers, `layoutRoot` snaps the container and keeps child layout
-animations relative to it. `layoutAnchor={{ x: 1, y: 1 }}` attaches a child to its
-parent's end corner; `false` disables relative attachment.
-
-```tsx
-<motion.View layoutRoot>
-  <motion.View layout="position" layoutAnchor={{ x: 1, y: 1 }} />
-</motion.View>
-```
-
-Numeric corner radii and shadows receive scale correction on projected hosts.
-Prefer uniform resizing when native corner/blur accuracy matters; nonuniform
-native correction is approximate. Multiple web shadows are not corrected.
-
-```tsx
-<motion.View layout style={{ borderRadius: 20, width: expanded ? 300 : 150, height: expanded ? 240 : 120 }} />
-```

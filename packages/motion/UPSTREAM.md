@@ -494,8 +494,13 @@ Motion's web corrector leaves multiple shadows unchanged. Correction resets on
 measurement, completion and detach. Authored paint updates during projection
 replace the baseline.
 
-**Still excluded:** explicit `layoutScroll`.
-Fixed-position layout roots are not supported. On native, `rotate` combined with a non-uniform
+Measurements retain callbacks over scroll ancestor identities. Shared stack snapshots
+read current offsets at promotion/unmount, so scrolling since the last measurement
+cannot reuse a stale viewport origin. The source is not remeasured after removal.
+Ordinary layout comparisons remain in content coordinates, so scroll alone does
+not start an animation. An explicit `layoutScroll` opt-in adds no needed control
+for these cases and remains unexposed.
+Web measurement stops collecting outside scroll at fixed-position ancestors. Fixed descendants of transformed containers remain unqualified. On native, `rotate` combined with a non-uniform
 parent treeScale is approximate (scale divides translate per axis but not the
 rotation). Reduced motion snaps instead of animating; shared crossfades own opacity
 until completion; `project(null)` rewrites merged channel values. Pre-existing CSS

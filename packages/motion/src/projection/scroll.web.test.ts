@@ -31,3 +31,31 @@ describe('layout content coordinates', () => {
 		expect(adapter.measureLayout!()!.layoutBox.y.min - before.layoutBox.y.min).toBe(25)
 	})
 })
+
+it('reads scroll changes after source removal without remeasuring the removed host', () => {
+	const scroller = document.createElement('div')
+	const element = document.createElement('div')
+	document.body.append(scroller)
+	scroller.append(element)
+	element.getBoundingClientRect = () => ({ left: 0, right: 100, top: 200, bottom: 250 }) as DOMRect
+	const measurement = attachHost(element).measureLayout!()!
+	element.remove()
+	scroller.scrollTop = 80
+	expect(measurement.viewportOffset!().y).toBe(-80)
+})
+
+it('does not add document or outside ancestor scroll to a fixed layout tree', () => {
+	const scroller = document.createElement('div')
+	scroller.scrollTop = 50
+	const fixed = document.createElement('div')
+	fixed.style.position = 'fixed'
+	const element = document.createElement('div')
+	document.body.append(scroller)
+	scroller.append(fixed)
+	fixed.append(element)
+	element.getBoundingClientRect = () => ({ left: 10, right: 110, top: 20, bottom: 70 }) as DOMRect
+	const measurement = attachHost(element).measureLayout!()!
+	expect(measurement.layoutBox.y.min).toBe(20)
+	fixed.scrollTop = 10
+	expect(measurement.viewportOffset!().y).toBe(-10)
+})
