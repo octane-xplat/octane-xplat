@@ -935,11 +935,14 @@ export async function xplatNative(env, opts = {}) {
 			},
 			build: {
 				rolldownOptions: {
-					// Dev/HMR universal emit retains JSX in expression props
-					// (e.g. `renderItem={(item) => <gridlayout>…}`) for the file's
-					// own @jsxImportSource pragma to lower. Rolldown only parses
-					// JSX in script-lang modules, so mark .tsrx transform
-					// output tsx.
+					// Dev/HMR universal emit lowers JSX inside expression props
+					// (e.g. `renderItem={(item) => <gridlayout>…}`) itself —
+					// verified via dev-server transformRequest on both the
+					// @octane-xplat/jsx and @nativescript-community/octane
+					// pragmas: no jsx-runtime import reaches the output, so the
+					// file's own @jsxImportSource pragma is inert here. Keep
+					// .tsrx marked tsx anyway: if a construct survives the
+					// compiler as literal JSX, rolldown still parses it.
 					moduleTypes: { '.tsrx': 'tsx' },
 					output: {
 						// Sources deliberately kept out of a graph (boundary-severed
