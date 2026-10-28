@@ -15,6 +15,21 @@ Shared files compile twice: the DOM renderer for web, and the universal renderer
 for iOS, Android, and desktop hosts. Everything below applies to both unless a
 section names one target.
 
+## Dynamic HTML tags
+
+The pinned compiler/parser combination rejects computed `<{tag}>` syntax in
+Heading. Use a capitalized tag variable for a dynamic HTML element; recheck the
+[recorded parser limitation](../../../docs/toolchain.md) when upgrading Octane
+or TSRX.
+
+```tsrx
+/** @jsxImportSource @octane-xplat/jsx/dom */
+export function Title(props: { level: 1 | 2 | 3; label: string }) @{
+  const Tag = `h${props.level}` as const
+  <Tag>{props.label}</Tag>
+}
+```
+
 ## Hooks belong to call sites, not call order
 
 A hook may sit behind a condition or after an early return. The compiler gives

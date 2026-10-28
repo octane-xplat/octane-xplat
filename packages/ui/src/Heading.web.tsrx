@@ -7,7 +7,7 @@ import { cx } from '@octane-xplat/lib'
 
 export function Heading(props: HeadingProps) @{
 	const level = props.level ?? 2
-	const tag = `h${level}`
+	const Tag = `h${level}` as const
 	const theme = useTheme()
 	const scale = headingScaleStyle(theme.tokens, props)
 	const maxLines = props.maxLines ?? 0
@@ -38,7 +38,7 @@ export function Heading(props: HeadingProps) @{
 		...normStyle(props.style),
 	}
 
-	<{tag}
+	<Tag
 		id={props.id}
 		className={cx(
 			'vx-heading',
@@ -50,5 +50,5 @@ export function Heading(props: HeadingProps) @{
 		ref={(el: any) => applyWebProps(el, props.web)}
 	>
 		{props.children}
-	</{tag}>
+	</Tag>
 }

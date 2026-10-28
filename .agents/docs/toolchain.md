@@ -251,6 +251,19 @@ experience of agents writing Octane-xplat code effectively.
   workspace-shared and external-source edits. Host checks do not establish
   device HMR or qualify route creation/removal watching.
 
+- **TSRX computed-tag parser limitation (2026-10-28).** With the installed
+  `octane@0.14.0` compiler and `@tsrx/oxc@0.16.0`, compiling Heading's
+  `<{tag}>…</{tag}>` fails with `unsupported TSRX parser shape: reachable
+  synthetic ESTree span`. A compiler-only reduction retained the failure after
+  removing the style spread or ref, and passed after replacing the computed tag.
+  Heading uses a capitalized `Tag` variable and `<Tag>…</Tag>` instead;
+  this keeps the selected HTML heading level. The maintained DOM regression is
+  `packages/ui/src/text-scale.web.test.tsrx`; table and motion tests also compile
+  Heading through the UI barrel. This is source/compiler evidence, not native
+  device evidence. No dependency or parser patch was added. Recheck computed
+  tags when upgrading the [Octane compiler](https://github.com/octanejs/octane/tree/octane%400.14.0/packages/octane/src/compiler)
+  or its TSRX parser, and remove the workaround once that form compiles.
+
 - **TSRX generic syntax limitation (observed with the installed, locally patched
   `@tsrx/typescript-plugin@0.4.11`).** The valid TSX generic arrow
   `const identity = <Value,>(value: Value): Value => value` fails `tsrx-tsc`
