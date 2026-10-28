@@ -572,7 +572,9 @@ export function ShortNote() {
 TextInput/TextArea (and delegated SearchInput) keep a differing value pending
 while the native editor has marked text. The latest controlled prop applies
 after commit unless a newer matching echo cancels it; removing/unsetting the
-value cancels pending work. Writes reuse the host and clamp selection when the editor identity survives. Raw NSSearchField uses a separate path. Actual IME, focus, selection,
+value cancels pending work. Writes reuse the host and clamp selection when the editor identity survives. Raw `<searchbar text>` shares marked-text deferral but emits property-change
+events for changed programmatic writes; dropping `text` requests an empty string,
+not an uncontrolled handoff. Actual IME, focus, selection,
 window changes and packaging still require qualification; see
 [text actions](../../../../docs/app/primitives.md#text-and-keyboard-actions).
 
@@ -584,6 +586,13 @@ export function Draft({ value, onChange }: { value: string; onChange(value: stri
 }
 ```
 
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+export function RawSearch({ query, onQuery }: { query: string; onQuery(value: string): void }) {
+	return <searchbar text={query} onTextChange={(event) => onQuery(event.value)} />
+}
+```
 
 ## AppKit number fields
 

@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
 import { test } from 'node:test'
 import { runSlice } from './mock-globals.ts'
+import { createTextValueWriter } from '../src/text-value.ts'
 
 const source = stripTypeScriptTypes(
 	readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
@@ -14,16 +15,38 @@ function fixture() {
 		textNodesByView = new WeakMap(),
 		scopes: string[] = []
 
+	const writers = new Map<object, ReturnType<typeof createTextValueWriter>>()
+	const jobs: (() => void)[] = [], cancelled = new Set<unknown>()
+	const observers = new Map<object, () => void>()
 	const api = runSlice(
 		[
 			slice('class ButtonActionTarget', 'const buttonActionTarget'),
 			slice('function makeSearchBar(', 'function makeSwitch('),
+			slice('function updateNativeTextValue(', 'function syncTextControlState('),
 			slice('function invokeAction(', 'class ButtonActionTarget'),
 			slice('function setControlAction(', '/** `isEnabled`/`editable`'),
 			slice('function droppedPropClears(', 'function applyProps('),
 			'({ makeSearchBar, syncSearchBar, notifySearchTextChange, ButtonActionTarget, setTextSubmitAction, droppedPropClears })',
 		].join('\n'),
 		{
+			setTextValue: (view: object, value: string | undefined, create: any) => {
+				let writer = writers.get(view)
+				if (!writer && value !== undefined) {
+					writer = createTextValueWriter(create(), {
+						schedule: (job) => { jobs.push(job); return job },
+						cancel: (job) => { cancelled.add(job) },
+					})
+					writers.set(view, writer)
+				}
+				writer?.update(value)
+			},
+			isWritingTextValue: (view: object) => writers.get(view)?.isWriting ?? false,
+			notifyTextValueCommit: (view: object) => writers.get(view)?.flushLater(),
+			NSWindowDidUpdateNotification: 'window-update',
+			NSNotificationCenter: { defaultCenter: {
+				addObserverForNameObjectQueueUsingBlock: (_name, window, _queue, notify) => { observers.set(window, notify); return window },
+				removeObserver: (window) => { observers.delete(window) },
+			} },
 			elementBehaviors: new Map(),
 			behaviorOf: () => undefined,
 			isManualLayoutParent: (t: string) =>
@@ -52,6 +75,9 @@ function fixture() {
 					return new this()
 				}
 				cell = {}
+				editor: any = null
+				window = {}
+				currentEditor() { return this.editor }
 				initWithFrame(frame: any) {
 					this.frame = frame
 					return this
@@ -60,6 +86,7 @@ function fixture() {
 			actionHandlers,
 			textNodesByView,
 			actionIdsByView: new WeakMap(),
+			dispatchTextEvent() {},
 			console,
 		},
 	)
@@ -83,7 +110,9 @@ function fixture() {
 
 	textNodesByView.set(view, node)
 	const target = new api.ButtonActionTarget()
-	return { ...api, view, node, target, scopes, actionHandlers, textNodesByView }
+	return { ...api, view, node, target, scopes, actionHandlers, textNodesByView, writers, observers,
+		runJobs() { for (const job of jobs.splice(0)) if (!cancelled.has(job)) job() },
+	}
 }
 
 test('SearchBar starts empty and suppresses search/end-editing actions', () => {
@@ -226,4 +255,70 @@ test('SearchBar rejects view, text and projected children in batch preflight', (
 			/searchbar.*cannot contain children/,
 		)
 	}
+})
+
+
+test('SearchBar preserves marked editor text until the latest external value can commit', () => {
+	const f = fixture(), values: string[] = []
+	f.node.props.onTextChange = (event: any) => values.push(event.value)
+	f.view.editor = { string: 'marked', hasMarkedText: () => true, selectedRange: { location: 6, length: 0 } }
+	f.target.controlTextDidChange({ object: f.view })
+	assert.equal(f.node.text, 'marked') // Read the live field editor, not the stale model.
+	for (const text of ['first', 'latest']) {
+		f.node.props.text = text
+		f.syncSearchBar(f.node, { text })
+	}
+	assert.equal(f.view.editor.string, 'marked')
+	assert.deepEqual(values, ['marked'])
+	assert.equal(f.observers.size, 1)
+	f.view.editor.hasMarkedText = () => false
+	f.target.controlTextDidEndEditing({ object: f.view })
+	f.runJobs()
+	assert.equal(f.view.stringValue, 'latest')
+	assert.equal(f.view.editor.string, 'latest')
+	assert.deepEqual(values, ['marked', 'latest'])
+	assert.equal(f.observers.size, 0)
+})
+
+test('SearchBar native echo supersedes deferred text and teardown cancels pending work', () => {
+	const f = fixture(), values: string[] = []
+	f.node.props.onTextChange = (event: any) => values.push(event.value)
+	f.view.editor = { string: 'composing', hasMarkedText: () => true }
+	f.node.props.text = 'external'
+	f.syncSearchBar(f.node, { text: 'external' })
+	f.view.editor.string = 'committed'
+	f.view.editor.hasMarkedText = () => false
+	f.target.controlTextDidChange({ object: f.view })
+	f.node.props.text = 'committed'
+	f.syncSearchBar(f.node, { text: 'committed' })
+	f.runJobs()
+	assert.deepEqual(values, ['committed'])
+	assert.equal(f.view.editor.string, 'committed')
+	assert.equal(f.observers.size, 0)
+	f.view.editor.hasMarkedText = () => true
+	f.node.props.text = ''
+	f.syncSearchBar(f.node, { text: undefined })
+	f.writers.get(f.view)!.flushLater()
+	f.writers.get(f.view)!.dispose()
+	f.view.editor.hasMarkedText = () => false
+	f.runJobs()
+	assert.equal(f.view.editor.string, 'committed')
+	assert.equal(f.observers.size, 0)
+})
+
+
+test('SearchBar deferred clear uses the current handler and emits one property change', () => {
+	const f = fixture(), values: string[] = []
+	f.node.props.onTextChange = () => { throw new Error('stale handler') }
+	f.view.editor = { string: 'marked', hasMarkedText: () => true }
+	f.node.text = 'marked'
+	f.node.props.text = ''
+	f.syncSearchBar(f.node, { text: undefined })
+	f.node.props.onTextChange = (event: any) => values.push(event.value)
+	f.view.editor.hasMarkedText = () => false
+	f.target.controlTextDidEndEditing({ object: f.view })
+	f.runJobs()
+	f.target.controlTextDidChange({ object: f.view })
+	assert.equal(f.view.editor.string, '')
+	assert.deepEqual(values, [''])
 })

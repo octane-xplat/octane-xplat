@@ -1783,3 +1783,36 @@ All commands remain deferred pending this task's explicit human authorization.
 Multiline wrapping, host sizing, baseline/line-height behavior, CSS delivery and
 packaged native editing still require qualification. No builds, package tests,
 typechecks, installs, OS automation, visual analysis or checkbox closures ran.
+
+
+### Raw SearchBar marked-text synchronization
+
+Search is a common app flow. Shared SearchInput delegates through NSTextField,
+but raw searchbar syncSearchBar directly assigned NSSearchField.stringValue,
+bypassing existing marked-text deferral. It now reuses updateNativeTextValue;
+notifySearchTextChange reads the live field editor before the backing string.
+The adapter emits the raw SearchBar property-change notification after an actual
+write, preserving its different contract from shared onChange. Latest external
+text wins unless a matching native echo supersedes it. Dropping text still
+requests empty text (deferred during composition), not an uncontrolled handoff.
+Existing teardown already disposes writers for searchbar nodes.
+
+Authored source cases use the real writer with a controlled scheduler to cover
+marked editor preservation, latest value, matching echo, deferred clear/current
+handler, deduplication and disposal. Existing submit/cancel/property cases remain.
+The search fixture already exercises retained hosts and text/hint/handler removal;
+no new automated native result is claimed. Only syntax/source/semantic review
+and whitespace checks ran. Shared SearchInput behavior/API is unchanged.
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer
+pnpm exec turbo run test:text-controls --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All commands remain deferred until this task's explicit human authorization.
+Actual NSSearchField editor ownership, IME, observer delivery/window moves,
+selection/undo, focus, cancel/submit delivery and packaging remain unqualified.
+No builds, package tests/typechecks, dependency installs, OS automation, visual
+analysis or shared audit regeneration ran; no evidence checkbox is closed.

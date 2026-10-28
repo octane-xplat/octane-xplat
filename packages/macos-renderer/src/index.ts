@@ -1683,7 +1683,9 @@ function makeSearchBar() {
 /** Match NativeScript property changes, including programmatic writes and
  * clearing, without emitting an event for an unchanged string. */
 function notifySearchTextChange(node: ElementNode) {
-	const value = String(node.view!.stringValue ?? '')
+	const view = node.view!
+	const editor = typeof view.currentEditor === 'function' ? view.currentEditor() : null
+	const value = String(editor?.string ?? view.stringValue ?? '')
 	const oldValue = node.text
 	if (value === oldValue) {
 		return
@@ -1709,8 +1711,9 @@ function syncSearchBar(node: ElementNode, props: PropBag) {
 	}
 
 	if ('text' in props) {
-		node.view!.stringValue = String(node.props.text ?? '')
-		notifySearchTextChange(node)
+		// Preserve the raw SearchBar property-change contract, including clears,
+		// while sharing marked-text deferral with ordinary text controls.
+		updateNativeTextValue(node, String(node.props.text ?? ''))
 	}
 }
 
@@ -6223,6 +6226,7 @@ function updateNativeTextValue(node: ElementNode, value: string | undefined): vo
 					const location = Math.min(selection.location, next.length)
 					target.selectedRange = { location, length: Math.max(0, Math.min(selection.location + selection.length, next.length) - location) }
 				}
+				if (node.type === 'searchbar') notifySearchTextChange(node)
 				if (multiline) {
 					rememberTextLimitValue(view as NSTextView)
 					syncTextViewPlaceholder(node)
