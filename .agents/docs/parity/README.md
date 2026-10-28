@@ -13,3 +13,5 @@ They are kept outside the published documentation corpus in `docs/`.
 - [Mobile runtime qualification report](mobile-runtime.md)
 
 Raw probe output for the two runtime reports is in [evidence](evidence/).
+
+- [Native desktop export audit](native-desktop-support.md) (Windows, AppKit and GTK)
