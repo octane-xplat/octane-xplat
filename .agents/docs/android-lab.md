@@ -14,7 +14,9 @@ for the runner contract; this note supplies the local Android setup it expects.
   system image is `system-images;android-35;google_apis;arm64-v8a` (revision 9).
   API 34 has a platform package, but no emulator system image.
 - JDK 21.0.12.1 (Temurin) is installed in the user Library. JDK 25 is also
-  installed; the runner selects JDK 21 on macOS.
+  installed; the runner selects JDK 21 on macOS when `JAVA_HOME` is unset.
+  An explicit `JAVA_HOME` is preserved, including an unregistered Homebrew JDK;
+  the doctor validates that the selected Java reports major version 21.
 - Both `avdmanager list avd` and `emulator -list-avds` initially returned no
   AVDs. The former `tiptap-verify` AVD was absent. Created
   `octane-prime-larkspur` with the installed API 35 arm64 image.
@@ -29,13 +31,21 @@ emulated phone and persistent data. Give each worktree a distinct AVD and
 choose an unused even console port (5556 here; adb uses the next port).
 Do not reuse an AVD already running for another task.
 
+For an unregistered Homebrew JDK, set its location before the recipe. The
+doctor checks its major version; a configured JDK 25 is rejected rather than
+silently replaced.
+
+```sh
+export JAVA_HOME=/opt/homebrew/opt/openjdk@21
+```
+
 1. Prepare this shell and inspect installed tools/devices:
 
    ```sh
    export ANDROID_HOME="$HOME/Library/Android/sdk"
    export ANDROID_SDK_ROOT="$ANDROID_HOME"
    export PATH="$ANDROID_HOME/emulator:$ANDROID_HOME/platform-tools:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
-   export JAVA_HOME="$(/usr/libexec/java_home -v 21)"
+   export JAVA_HOME="${JAVA_HOME:-$(/usr/libexec/java_home -v 21)}"
    export ANDROID_ADB_SERVER_PORT=5037
    export ADB_SERVER_SOCKET=tcp:localhost:5037
    sdkmanager --list_installed

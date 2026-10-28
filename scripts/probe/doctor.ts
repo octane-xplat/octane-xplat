@@ -127,12 +127,18 @@ export async function doctor() {
 		}
 	}
 
-	const java =
-		process.platform === 'darwin'
+	const configuredJava = process.env.JAVA_HOME
+	const java = configuredJava
+		? await inspect(join(configuredJava, 'bin/java'), ['-version'])
+		: process.platform === 'darwin'
 			? await inspect('/usr/libexec/java_home', ['-v', '21'])
 			: await inspect('java', ['-version'])
-
-	if (java.code) {
+	const needsVersionCheck = configuredJava || process.platform !== 'darwin'
+	if (
+		java.code ||
+		(needsVersionCheck &&
+			!/\b(?:openjdk|java)(?: version)?\s+"?21(?:[.\s"-]|$)/i.test(java.stdout + java.stderr))
+	) {
 		targets.android.issues.push('JDK 21 is unavailable; configure JAVA_HOME')
 	}
 

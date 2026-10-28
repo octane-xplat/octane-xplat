@@ -20,7 +20,7 @@ const ctl = ([group, action, ...rest], options) =>
 
 const ns = 'ns'
 const env = { ...process.env }
-if (target === 'android' && process.platform === 'darwin') {
+if (target === 'android' && process.platform === 'darwin' && !env.JAVA_HOME) {
 	env.JAVA_HOME = (await command('/usr/libexec/java_home', ['-v', '21'])).stdout.trim()
 }
 

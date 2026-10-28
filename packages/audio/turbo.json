@@ -6,13 +6,16 @@
 		"test:runtime": {
 			"dependsOn": [
 				"typegen",
-				"^typegen"
+				"^typegen",
+				"@octane-xplat/cli#build",
+				"@octane-xplat/bamboo#typegen"
 			],
 			"cache": false,
 			"passThroughEnv": [
 				"ANDROID_HOME",
 				"ANDROID_SDK_ROOT",
 				"JAVA_HOME",
+				"GRADLE_USER_HOME",
 				"ANDROID_ADB_SERVER_PORT",
 				"ADB_SERVER_SOCKET",
 				"XPLAT_IOS_DEVELOPMENT_TEAM"
