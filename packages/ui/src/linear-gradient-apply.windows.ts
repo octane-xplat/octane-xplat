@@ -1,5 +1,5 @@
 import { Color } from '@nativescript/core'
-import { Microsoft, Windows } from '@octane-xplat/platform/windows'
+import { Microsoft } from '@octane-xplat/platform/windows'
 
 /** Paint a WinUI background brush without loading mobile gradient backends. */
 export function applyLinearGradient(
@@ -19,7 +19,13 @@ export function applyLinearGradient(
 	colors.forEach((value, index) => {
 		const color = new Color(value)
 		const stop = new media.GradientStop()
-		stop.Color = Windows.UI.ColorHelper.FromArgb(color.a, color.r, color.g, color.b)
+		// Match the pinned core: the bridge accepts a plain ARGB color struct.
+		stop.Color = {
+			A: Math.round(color.a),
+			R: Math.round(color.r),
+			G: Math.round(color.g),
+			B: Math.round(color.b),
+		}
 		stop.Offset = colors.length > 1 ? index / (colors.length - 1) : 0
 		brush.GradientStops.Append(stop)
 	})
