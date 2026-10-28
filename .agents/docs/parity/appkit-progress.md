@@ -716,3 +716,39 @@ pnpm check:recipes
 Real native Return/newline, done/send actions, marked-text confirmation,
 controlled edits/selection and disabled/read-only interactions require later
 human-authorized platform qualification. No evidence checkbox is closed.
+
+
+### Standalone text field metadata and layout
+
+TextInput and TextArea previously resolved labels/accessibility state but never
+rendered standalone visible label, description or status. Their AppKit controls
+now compose through the existing native FormField, with no nested wrapper when
+an ancestor Field owns the metadata. SearchInput delegates to TextInput and
+inherits this behavior. Standalone field width is applied to its owner; the
+imperative handle still belongs to the inner editing view. Required/optional,
+hidden label, status variant, disabled/read-only/loading and hint ownership are
+forwarded through the existing shared field context.
+
+Prerequisite repairs in the AppKit FormField leaf: the default flex layout now
+specifies column so label/description/control/status stack vertically; authored
+CSS strings pass through mergeStyle instead of being dropped by styleRecord.
+The multiline shell also specifies its column layout explicitly. Existing
+horizontal-label arrangements retain their explicit row/column structure.
+Source impact includes native Field callers such as date/range/time/typeahead
+and InputGroup; this is a deliberate normalization repair, not a runtime pass.
+
+Added object-driver coverage for standalone metadata, inherited disabled/hints,
+one enclosing wrapper, hidden label naming and CSS-string preservation. These
+cases are authored but unrun. Syntax/whitespace checks only. Deferred commands:
+
+```sh
+pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/text-controls.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm check:recipes
+```
+
+Native field layout, label pointer/focus behavior, actual sizing, status changes,
+VoiceOver, keyboard/IME and packaging remain unqualified. The existing horizontal
+label, InputGroup, date/time and typeahead callers need later native regression
+coverage. TextArea maxLength and SearchInput icon rendering remain source gaps;
+none of this closes AC3's physical-keyboard/assistive-technology gate.

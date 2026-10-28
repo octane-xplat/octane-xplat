@@ -481,12 +481,29 @@ Use `returnKeyType="done"` or `"send"` with `TextArea.onSubmit`; other Return
 keys keep newline behavior. Disabled/read-only controls suppress edit/submit
 callbacks. The multiline native delegate does not consume Return while marked
 text is present. This source guard is not real IME or OS-keyboard qualification;
-see [text entry](../../../../docs/app/primitives.md#enter-and-submit-text).
+see [text entry](../../../../docs/app/primitives.md#text-and-keyboard-actions).
 
 ```tsx
 import { TextArea } from '@octane-xplat/ui'
 
 export function Composer() {
 	return <TextArea returnKeyType="send" onSubmit={() => console.log('Send')} />
+}
+```
+
+
+AppKit text controls now create a native Field for standalone label/description/
+status/width props, and reuse the surrounding Field when present. Keep status
+and descriptions on that enclosing Field when it owns the form. Field's default
+layout is a column; inline CSS strings remain supported. Native layout, label
+interaction and VoiceOver still require qualification.
+
+```tsx
+import { Field, TextInput } from '@octane-xplat/ui'
+
+export function AccountName() {
+	return <Field label="Name" description="Shown publicly">
+		<TextInput />
+	</Field>
 }
 ```

@@ -1,14 +1,15 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { appKitTextChange } from './appkit-events.macos'
 import { mergeStyle } from './style-merge'
-import { useImperativeHandle, useRef, useState } from 'octane'
-import type { TextAreaProps, TextInputProps } from './props'
+import { useContext, useImperativeHandle, useRef, useState } from 'octane'
+import type { Renderable, TextAreaProps, TextInputProps } from './props'
 import { cx } from '@octane-xplat/lib'
 import { Pressable } from './Pressable.macos.tsrx'
 import { Text } from './Text.macos.tsrx'
-import { useFieldControlProps } from './field-context'
+import { FieldContext, useFieldControlProps } from './field-context'
+import { FormField } from './FormField.macos.tsrx'
 
-export function TextInput(inputProps: TextInputProps) @{
+function TextInputControl(inputProps: TextInputProps) @{
 	const props = useFieldControlProps(inputProps)
 	const isBlocked = props.isDisabled || props.isReadOnly
 	const el = useRef<any>(null)
@@ -106,7 +107,7 @@ export function TextInput(inputProps: TextInputProps) @{
 	</masonview>
 }
 
-export function TextArea(inputProps: TextAreaProps) @{
+function TextAreaControl(inputProps: TextAreaProps) @{
 	const props = useFieldControlProps(inputProps)
 	const isBlocked = props.isDisabled || props.isReadOnly
 	const el = useRef<any>(null)
@@ -139,7 +140,8 @@ export function TextArea(inputProps: TextAreaProps) @{
 		[],
 	)
 
-	<masonview className="vx-textarea-shell vx-textarea-shell--appkit">
+	<masonview className="vx-textarea-shell vx-textarea-shell--appkit"
+		style={{ display: 'flex', flexDirection: 'column' }}>
 		<textview
 			ref={el}
 			onFocus={props.onFocus}
@@ -179,4 +181,43 @@ export function TextArea(inputProps: TextAreaProps) @{
 			}}
 		/>
 	</masonview>
+}
+
+
+/** An enclosing Field owns the chrome; standalone controls create it once. */
+function TextEntryField({ props, children }: { props: TextInputProps; children?: Renderable }) @{
+	const inField = useContext(FieldContext) != null
+	const needsChrome = !inField && (props.label != null || props.description != null ||
+		props.status != null || props.isRequired || props.isOptional || props.width != null)
+	@if (needsChrome) {
+		<FormField
+			inputID={props.id}
+			label={props.label}
+			description={props.description}
+			status={props.status}
+			statusVariant={props.statusVariant}
+			isRequired={props.isRequired}
+			isOptional={props.isOptional}
+			isLabelHidden={props.isLabelHidden}
+			isDisabled={props.isDisabled}
+			isReadOnly={props.isReadOnly}
+			isLoading={props.isLoading}
+			size={props.size}
+			labelTooltip={props.labelTooltip}
+			disabledMessage={props.disabledMessage}
+			width={props.width}
+		>
+			{children}
+		</FormField>
+	} @else {
+		<>{children}</>
+	}
+}
+
+export function TextInput(props: TextInputProps) @{
+	<TextEntryField props={props}><TextInputControl {...props} /></TextEntryField>
+}
+
+export function TextArea(props: TextAreaProps) @{
+	<TextEntryField props={props}><TextAreaControl {...props} /></TextEntryField>
 }

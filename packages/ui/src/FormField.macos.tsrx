@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { mergeStyle, styleRecord } from './style-merge'
+import { mergeStyle } from './style-merge'
 import { useContext, useId } from 'octane'
 import type { FormFieldProps } from './props'
 import { cx } from '@octane-xplat/lib'
@@ -98,10 +98,7 @@ export function FormField(props: FormFieldProps) @{
 		props.className,
 	)
 
-	const fieldStyle = {
-		...(props.width != null ? { width: props.width } : {}),
-		...styleRecord(props.style),
-	}
+	const fieldStyle = mergeStyle(props.width != null ? { width: props.width } : {}, props.style)
 
 	@if (isHorizontalLabels) {
 		<masonview
@@ -130,7 +127,7 @@ export function FormField(props: FormFieldProps) @{
 			ref={(v: any) => applyEscapeProps(v, props)}
 			id={props.id}
 			className={rootClass}
-			style={mergeStyle({ display: 'flex' }, fieldStyle)}
+			style={mergeStyle({ display: 'flex', flexDirection: 'column' }, fieldStyle)}
 		>
 			{labelNode}
 			{descriptionNode}

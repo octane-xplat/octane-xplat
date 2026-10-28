@@ -449,6 +449,23 @@ export function App() {
 
 ### Text and keyboard actions
 
+On experimental AppKit, standalone `TextInput`, `TextArea` and `SearchInput`
+render their label, description and status through the native Field wrapper.
+Inside an existing `Field`, that parent owns the visible messages. Field width
+sizes the wrapper; an explicit `style` still styles the input itself. Accessible
+names, hints and required/error state are mapped, while VoiceOver and actual
+native presentation remain unqualified.
+
+```tsx
+import { TextInput } from '@octane-xplat/ui'
+
+export function ProfileName() {
+	return <TextInput label="Name" description="Shown on your profile" width={280}
+		isRequired status={{ type: 'error', message: 'Enter a name' }} />
+}
+```
+
+
 `TextArea` keeps Return as a newline. On web, Cmd/Ctrl+Enter submits it.
 On iOS, Android and experimental AppKit, submission is enabled only with
 `returnKeyType="done"` or `returnKeyType="send"`; other Return keys insert

@@ -2,17 +2,19 @@
 import { expect, it } from 'vitest'
 import { createObjectContainer, createObjectDriver, createUniversalRoot, flushUniversalSync } from 'octane/universal/native'
 import { TextInput, TextArea } from './text-controls.macos.tsrx'
+import { FormField } from './FormField.macos.tsrx'
 
 function mount(component: any, props: any) {
 	const container = createObjectContainer('nativescript')
 	const root = createUniversalRoot(container, createObjectDriver('nativescript'))
 	const render = (next: any) => { root.render(component, next); flushUniversalSync(() => {}) }
 	render(props)
-	const find = (type: string): any => {
-		const walk = (node: any): any => node.type === type ? node : node.children?.map(walk).find(Boolean)
-		return container.children.map(walk).find(Boolean)
+	const all = (): any[] => {
+		const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+		return container.children.flatMap(walk)
 	}
-	return { root, render, find }
+	const find = (type: string): any => all().find((node) => node.type === type)
+	return { root, render, find, all }
 }
 
 it('AppKit multiline fields submit only for enabled done/send actions', () => {
@@ -52,4 +54,53 @@ it('AppKit text controls ignore edit callbacks after becoming disabled or read-o
 			}
 		} finally { env.root.unmount() }
 	}
+})
+
+
+it('AppKit standalone text fields render labels, hints and status once in a column', () => {
+	for (const component of [TextInput, TextArea]) {
+		const env = mount(component, { id: 'name', label: 'Name', description: 'Public name',
+			status: { type: 'error', message: 'Required' }, width: 240, isRequired: true })
+		try {
+			const labels = env.all().filter((node) => node.type === 'label').map((node) => node.props.text)
+			expect(labels).toEqual(['Name *', 'Public name', 'Required'])
+			const field = env.all().find((node) => String(node.props?.className).split(' ').includes('vx-field'))
+			expect(field.props.style).toMatchObject({ width: 240, display: 'flex', flexDirection: 'column' })
+			const control = env.find(component === TextInput ? 'textfield' : 'textview')
+			expect(control.props.id).toBe('name')
+			expect(control.props.accessibilityLabel).toBe('Name')
+			expect(control.props.accessibilityHint).toBe('Public name. Required')
+			expect(control.props.accessibilityState).toMatchObject({ required: true, invalid: true })
+		} finally { env.root.unmount() }
+	}
+})
+
+it('an enclosing AppKit Field owns text chrome and inherited state without nesting', () => {
+	function Parent() {
+		return <FormField label="Account" description="Use your name" isDisabled disabledMessage="Saving">
+			<TextInput label="Own name" status={{ type: 'error', message: 'Missing' }} />
+		</FormField>
+	}
+	const env = mount(Parent, {})
+	try {
+		expect(env.all().filter((node) => String(node.props?.className).split(' ').includes('vx-field'))).toHaveLength(1)
+		expect(env.all().filter((node) => node.type === 'label').map((node) => node.props.text)).toEqual(['Account', 'Use your name'])
+		expect(env.find('textfield').props.isEnabled).toBe(false)
+		expect(env.find('textfield').props.accessibilityHint).toBe('Use your name. Missing. Saving')
+	} finally { env.root.unmount() }
+})
+
+it('AppKit Field preserves inline CSS strings and hidden labels keep the accessible name', () => {
+	function Parent() {
+		return <FormField label="Secret" isLabelHidden style="width:240px;min-width:120px">
+			<TextArea />
+		</FormField>
+	}
+	const env = mount(Parent, {})
+	try {
+		expect(env.find('masonview').props.style).toContain('flex-direction:column')
+		expect(env.find('masonview').props.style).toContain('width:240px;min-width:120px')
+		expect(env.all().filter((node) => node.type === 'label')).toHaveLength(0)
+		expect(env.find('textview').props.accessibilityLabel).toBe('Secret')
+	} finally { env.root.unmount() }
 })

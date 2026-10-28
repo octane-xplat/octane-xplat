@@ -59,3 +59,12 @@ delegate leaves marked-text confirmation to AppKit. [Component regressions](../.
 and [delegate regressions](../../../packages/macos-renderer/test/text-controls.test.ts)
 are authored but unrun. Real keyboard, composition and full AC2 qualification
 remain open; source dispatch is not evidence of physical input.
+
+
+AppKit AC3 documentation now covers standalone TextInput/TextArea/SearchInput
+field chrome and reuse of an enclosing Field; see [text and keyboard actions](../../../docs/app/primitives.md#text-and-keyboard-actions)
+and the [object-driver field regressions](../../../packages/ui/src/text-controls.macos.mobile.test.tsrx).
+Default Field layout is a column and authored CSS strings are retained. These
+are source/documentation claims only; actual layout, label interaction, keyboard
+activation and VoiceOver remain unqualified. Other native-control families and
+SearchInput icon semantics are not qualified by these text-control repairs.
