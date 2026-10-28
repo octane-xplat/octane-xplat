@@ -56,6 +56,7 @@ export function runSlice(code: string, context?: Record<string, any>) {
 // these fallbacks fill names the slices reference but don't include. Real
 // function declarations in the slice and sandbox-provided globals win.
 const CSS_SLICE_STUBS = `
+if (typeof notifyLayoutCommit === 'undefined') var notifyLayoutCommit = () => {}
 if (typeof effectiveStyle === 'undefined') var effectiveStyle = (n) => n.computedStyle ?? n.props?.style ?? {}
 if (typeof markStyleDirty === 'undefined') var markStyleDirty = () => {}
 if (typeof flushStyleDirty === 'undefined') var flushStyleDirty = () => {}

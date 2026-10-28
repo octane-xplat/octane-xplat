@@ -27,3 +27,6 @@ export declare function __tabItemProps(props: any): any
 export declare function __PortalTabItem(props: any): any
 /** @internal Compiler-owned portal wrapper for raw AppKit list cells. */
 export declare function __PortalList(props: any): any
+export { type LayoutCommit } from './layout-observers'
+/** Observe renderer layout batches and visit existing roots immediately. Returns an unsubscribe function. */
+export declare function observeLayoutCommits(observer: (commit: import('./layout-observers').LayoutCommit) => void): () => void

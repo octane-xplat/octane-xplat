@@ -1,8 +1,8 @@
 # Compose motion patterns
 
 ID: motion-patterns
-Targets: web, ios, android
-Related APIs: @octane-xplat/motion, Presence, motion.View, MotionConfig, useReducedMotion, useMotionValue, useMotionValueEvent, SegmentedControl, Switch
+Targets: web, ios, android, macos
+Related APIs: @octane-xplat/motion, Presence, motion.View, MotionConfig, useReducedMotion, useMotionValue, useMotionValueEvent, layout, layoutDependency, SegmentedControl, Switch
 
 ## Starting point
 
@@ -10,6 +10,7 @@ An Octane Xplat app with the motion package installed and a working screen.
 The live reference is the Motion patterns showcase in the harness app —
 `pnpm dev:web`, `pnpm dev:ios`, or `pnpm dev:android`, then
 Apps → Motion patterns → Activity overview.
+The experimental macOS layout fixture is `packages/motion/tests/layout.macos.tsx`.
 
 ## Requirements
 
@@ -26,6 +27,8 @@ before any app-level preview.
 - AC4: Rotate short whole phrases on explicit Play with a readable dwell, Pause/Resume/Next controls, no autonomous cycling under reduced motion or while the view is hidden or backgrounded, and no repeated announcements.
 - AC5: Treat the system reduced-motion preference as the authority — a preview may request reduced motion but never force full motion — and settle panels, groups, totals, and loops directly when it applies.
 
+- AC6: Animate resizing and keyed reordering from the last presented position, preserve nested child size during parent scaling, retarget without jumps, and avoid treating scrolling as a layout change. Reduced motion settles directly.
+
 ## Documentation
 
 - AC1: [Switch views with a wait-style swap](../../../docs/app/animation-gestures.md#switch-views-with-a-wait-style-swap) and the [maintained showcase](../../../packages/demos/src/MotionPatterns.tsrx); exiting content leaves input and the accessibility tree through [retained presence](../../../docs/app/animation-gestures.md#retain-content-through-exit).
@@ -33,3 +36,5 @@ before any app-level preview.
 - AC3: [Update a total](../../../docs/app/animation-gestures.md#update-a-total) and [reduced-motion lifecycle](../../../docs/app/animation-gestures.md#reduced-motion-and-lifecycle).
 - AC4: [Rotate supporting copy](../../../docs/app/animation-gestures.md#rotate-supporting-copy).
 - AC5: [Reduced motion and lifecycle](../../../docs/app/animation-gestures.md#reduced-motion-and-lifecycle) plus the [motion leaf limits](../../../docs/testing/known-limits.md#motion-leaf).
+
+- AC6: [Animate size and position changes](../../../docs/app/animation-gestures.md#layout-animations) and the [maintained layout probe](../../../examples/probes/motion-layout.tsrx); browser geometry coverage lives in `apps/visual/src/motion-layout.test.web.ts`.

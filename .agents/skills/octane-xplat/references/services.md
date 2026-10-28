@@ -123,6 +123,22 @@ export function MovingCard() {
   [animation and gestures](../../../../docs/app/animation-gestures.md) for the
   current contract rather than treating a historical harness assert as a guarantee.
 
+For moves and resizes caused by layout, use the motion package's `layout`
+prop on web, iOS, Android, and the experimental macOS host. A nested
+`layout="position"` host keeps its size while its parent scales. Browser
+overflow scroll offsets are detected automatically; do not add an unsupported
+`layoutScroll` prop. See [layout animations](../../../../docs/app/animation-gestures.md#layout-animations).
+
+```tsx
+import { motion } from '@octane-xplat/motion'
+
+export function ResizingCard({ wide }: { wide: boolean }) {
+	return <motion.View layout style={{ width: wide ? 240 : 120 }}>
+		<motion.View layout="position" style={{ width: 50, height: 50 }} />
+	</motion.View>
+}
+```
+
 ## Gestures
 
 Normalized payloads (primitives.md). Pan on web uses raw pointer listeners

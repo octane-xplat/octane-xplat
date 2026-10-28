@@ -599,7 +599,7 @@ both web and native; it does not export `AnimatePresence` as a compatibility ali
 
 `layout` on a `motion` host animates the element whenever its measured box
 changes — size, position, or both. You change the layout as usual, and motion
-animates the visual move for you. Works on web, iOS, and Android.
+animates the visual move for you. Works on web, iOS, Android, and the experimental macOS host.
 
 An expanding card is the smallest useful example. Toggling the width animates
 the card between 120 and 260 units:
@@ -672,9 +672,45 @@ layout run:
 />
 ```
 
+Give each item a stable key when reordering a list. Motion animates the existing
+hosts to their new positions, including on native where unchanged children may
+not render again:
+
+```tsx
+import { motion } from '@octane-xplat/motion'
+import { Text, VStack } from '@octane-xplat/ui'
+
+export function ReorderingList({ items }: { items: { id: string; name: string }[] }) {
+	return <VStack>
+		{items.map(item => (
+			<motion.View key={item.id} layout="position">
+				<Text>{item.name}</Text>
+			</motion.View>
+		))}
+	</VStack>
+}
+```
+
+Scrolling a browser overflow container does not count as a layout change.
+Motion accounts for ancestor scroll offsets automatically, so the next move
+starts at the element's current position:
+
+```tsx
+import { motion } from '@octane-xplat/motion'
+import { ScrollableArea } from '@octane-xplat/ui'
+
+export function ScrollingCard({ wide }: { wide: boolean }) {
+	return (
+		<ScrollableArea style={{ height: 180 }}>
+			<motion.View layout style={{ width: wide ? 260 : 120, height: 300 }} />
+		</ScrollableArea>
+	)
+}
+```
+
 A few limits to keep in mind: `layoutId`, `LayoutGroup`, `layoutScroll`,
 `layoutRoot`, `layoutAnchor`, and `layoutCrossfade` are not part of the
-supported subset yet; macOS is unsupported (`layout` throws there);
+supported subset yet;
 border-radius and box-shadow stretch during scale; and existing CSS
 transforms still belong on an outer container. See
 [Motion leaf limits](../testing/known-limits.md#motion-leaf) for the full list.

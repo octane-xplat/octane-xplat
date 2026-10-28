@@ -122,7 +122,5 @@ export async function runChannels() {
 		console.error('MOTION_CHANNELS_FAIL ' + (error as Error).message)
 	} finally {
 		root.unmount()
-
-		;(globalThis as any).__xplatStopHost()
 	}
 }

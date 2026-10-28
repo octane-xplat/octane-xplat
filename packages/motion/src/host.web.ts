@@ -60,11 +60,23 @@ export function attachHost(node: HTMLElement): HostAdapter {
 		},
 		measureLayout(): Measurement | null {
 			const measuredBox = toBox(node.getBoundingClientRect())
+			// Compare content coordinates across commits. Scrolling an ancestor
+			// moves the viewport box without changing the element's layout.
+			let scrollX = window.scrollX
+			let scrollY = window.scrollY
+			for (let parent = node.parentElement; parent; parent = parent.parentElement) {
+				if (parent === document.scrollingElement) {
+					continue
+				}
+
+				scrollX += parent.scrollLeft
+				scrollY += parent.scrollTop
+			}
 			const layoutBox = toBox({
-				left: measuredBox.x.min + window.scrollX,
-				top: measuredBox.y.min + window.scrollY,
-				right: measuredBox.x.max + window.scrollX,
-				bottom: measuredBox.y.max + window.scrollY,
+				left: measuredBox.x.min + scrollX,
+				top: measuredBox.y.min + scrollY,
+				right: measuredBox.x.max + scrollX,
+				bottom: measuredBox.y.max + scrollY,
 			})
 
 			// Channel transforms are subtracted mathematically so the layout box

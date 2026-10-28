@@ -525,7 +525,7 @@ repeat/per-key transitions, duration/bounce springs, bounded variants with custo
 resolvers, inherited animate labels, and child stagger/when timing. Exit/interaction
 labels resolve locally; child timing applies to animate runs. Layout animation
 (`layout`, `layoutDependency`, `transition.layout`, and the layout callbacks)
-is supported on web, iOS, and Android — a `layout` host animates whenever its
+is supported on web, iOS, Android, and the experimental macOS host — a `layout` host animates whenever its
 measured box changes after any commit, including keyed reorders of unchanged
 children; nested `layout` children keep their size inside a scaling parent.
 Verified 2026-10-27 by the maintained probe
@@ -533,9 +533,9 @@ Verified 2026-10-27 by the maintained probe
 probe-driven geometry evidence, not visual capture or OS input).
 `layoutId`/`LayoutGroup`, `layoutScroll`/`layoutRoot`/`layoutAnchor`/
 `layoutCrossfade`, `whileHover`/`whileInView`, keyframe arrays, and arbitrary
-CSS/SVG properties are excluded. macOS throws for `layout`. Border-radius and
-box-shadow are not scale-corrected and visibly stretch; web layout elements
-inside scrolled overflow containers can animate from a stale position; on
+CSS/SVG properties are excluded. Border-radius and
+box-shadow are not scale-corrected and visibly stretch; fixed-position layout
+roots are unsupported. Browser overflow scroll offsets are detected automatically. On
 native, `rotate` with a non-uniform parent scale is approximate.
 Existing CSS transforms need an outer container.
 Declarative tweens delegate to `UIViewPropertyAnimator` (iOS),

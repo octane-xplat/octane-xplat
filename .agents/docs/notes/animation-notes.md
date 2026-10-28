@@ -714,15 +714,15 @@ suite reports 47 passing tests and a components.web.test.tsrx module failure
 because motion.create is undefined. The repository-wide TSRX spacing pass has
 existing failures outside this change; changed animation files pass.
 
-## Decision #130 — layout projection (web, iOS, Android)
+## Decision #130 — layout projection (web, iOS, Android, macOS)
 
 `layout` (`true | 'position' | 'size' | 'preserve-aspect' | 'x' | 'y'`),
 `layoutDependency`, `onLayoutAnimationStart`/`onLayoutAnimationComplete`, and
 `transition={{ layout: {...} }}` are supported on `motion.View`, `motion.Row`,
-`motion.Pressable` and `motion.create` hosts. macOS throws. `layoutId`/
+`motion.Pressable` and `motion.create` hosts, including experimental macOS. `layoutId`/
 `LayoutGroup`, `layoutScroll`/`layoutRoot`/`layoutAnchor`/`layoutCrossfade`,
-border-radius/box-shadow correction and web scroll-container compensation are
-excluded. The default layout transition is a 0.45 s tween.
+border-radius/box-shadow correction are excluded. Browser overflow scroll offsets
+are detected automatically. The default layout transition is a 0.45 s tween.
 
 Mechanism: a node modeled on motion-dom's `create-projection-node.ts` over its
 geometry helpers measures an untransformed window-space box per node, computes
@@ -746,7 +746,16 @@ forcing a traversal so the pass lands before the draw. (The earlier clock-based
 requested outside a frame resolve faster than vsync; removed.) Native
 measurement: UIKit `center - bounds/2` up the superview chain; Android
 `getLeft`/`getTop` to the first non-View, divided by density — both exclude
-transforms and scroll offsets.
+transforms and scroll offsets. macOS observes renderer batches (including existing
+roots when subscribing), forces AppKit layout before measuring, and compensates
+for layer anchors. AppKit `isFlipped` is called when exposed as a method.
+
+The maintained macOS runtime fixture loads Mason through the CLI native bootstrap.
+On 2026-10-28 it passed resize origin, intermediate parent width (134.75pt), nested
+child width (50pt), transform restoration, and keyed reorder origin/settle checks.
+Layer-coordinate measurements are nonvisual evidence, not OS input or pixel parity.
+The Chromium fixture also passes scrolling between updates in nested overflow
+containers without spurious motion.
 
 Runtime evidence (2026-10-27, `pnpm probe run examples/probes/motion-layout.tsrx
 --target ios|android`; probe geometry evidence only, not visual capture or OS

@@ -7,7 +7,8 @@ import { fileURLToPath } from 'node:url'
 import { build } from 'vite'
 import { xplatMacOS } from '../../cli/src/macos/vite.ts'
 import { macOSExecutable } from '../../cli/src/macos/executables.ts'
-import { hostBundle, hostRoot, validateHostBundle } from '../../cli/src/macos/jsc-host/runtime.ts'
+import { writeNativeBootstrap } from '../../cli/src/macos/native.ts'
+import { hostBundle, validateHostBundle } from '../../cli/src/macos/jsc-host/runtime.ts'
 
 const packageRoot = fileURLToPath(new URL('..', import.meta.url))
 const appRoot = fileURLToPath(new URL('../../../apps/macos', import.meta.url))
@@ -16,7 +17,7 @@ try {
 	const entry = join(directory, 'entry.ts')
 	await writeFile(
 		entry,
-		`import { runChannels } from ${JSON.stringify(join(packageRoot, 'tests/channels.macos.tsx'))}\nNSApplication.sharedApplication\nvoid runChannels()\n`,
+		`import { runChannels } from ${JSON.stringify(join(packageRoot, 'tests/channels.macos.tsx'))}\nimport { runLayout } from ${JSON.stringify(join(packageRoot, 'tests/layout.macos.tsx'))}\nNSApplication.sharedApplication\nvoid runChannels().then(runLayout).catch(error => { console.error("MOTION_LAYOUT_FAIL", error.message, error.stack); }).finally(() => (globalThis as any).__xplatStopHost())\n`,
 	)
 
 	const config = await xplatMacOS('development', {
@@ -35,13 +36,29 @@ try {
 
 	const bundle = join(directory, 'main.cjs')
 	await validateHostBundle(bundle, appRoot)
+	const bootstrap = join(directory, 'bootstrap.js')
+	await writeNativeBootstrap(
+		{
+			prebuilt: [
+				{
+					source: join(
+						packageRoot,
+						'../macos-renderer/platforms/macos/prebuilt/libxplatmason.dylib',
+					),
+				},
+			],
+			libraries: [],
+		},
+		bootstrap,
+	)
+
 	const result = spawnSync(
 		await macOSExecutable(appRoot, 'macos-arm64/host'),
 		[
 			join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
 			bundle,
 			join(hostBundle, 'metadata.nsmd'),
-			join(hostRoot, 'shim.js'),
+			bootstrap,
 		],
 		{
 			cwd: directory,
@@ -55,6 +72,7 @@ try {
 	assert.equal(result.status, 0, output)
 	assert.doesNotMatch(output, /MOTION_CHANNELS_FAIL|uncaught render error/)
 	assert.match(output, /MOTION_CHANNELS_OK/)
+	assert.match(output, /MOTION_LAYOUT_OK/)
 	console.log(output)
 } finally {
 	await rm(directory, { recursive: true, force: true })

@@ -1,6 +1,7 @@
 import type { HostAdapter } from './host-types'
 import type { Target } from './types'
 import { attachPan } from './pan.macos'
+import { measureNativeBox } from './projection/measure.macos'
 
 // AppKit refs are NSViews, not NativeScript Views. Keep public y-down units
 // and degrees at this boundary; explicit JS samples own interpolation.
@@ -27,7 +28,9 @@ export function attachHost(node: any): HostAdapter {
 		throw new Error('motion: put existing transforms on an outer container')
 	}
 
+	let latestValues: Target = { ...original }
 	const write = (values: Target) => {
+		latestValues = { ...latestValues, ...values }
 		const transforms: [string, number][] = []
 		if (values.x !== undefined) {
 			transforms.push(['transform.translation.x', values.x])
@@ -77,5 +80,34 @@ export function attachHost(node: any): HostAdapter {
 		write,
 		restore: () => write(original),
 		pan: (axis, callbacks) => attachPan(node, axis, callbacks),
+		measureLayout() {
+			const box = measureNativeBox(node)
+			return box ? { layoutBox: box, measuredBox: box } : null
+		},
+		resetProjection() {},
+		project(projection) {
+			if (!projection) {
+				write(latestValues)
+				return
+			}
+			const { delta, treeScale, latest } = projection
+			const saved = { ...original, ...latest }
+			const anchor = node.layer.anchorPoint
+			// Projection math uses a center origin; AppKit's layer anchor is
+			// usually bottom-left. Keep AppKit's anchor and compensate in points.
+			write({
+				...saved,
+				x:
+					delta.x.translate / treeScale.x +
+					(delta.x.origin - anchor.x) * node.bounds.size.width * (1 - delta.x.scale),
+				y:
+					delta.y.translate / treeScale.y +
+					(delta.y.origin - (1 - anchor.y)) * node.bounds.size.height * (1 - delta.y.scale),
+				scale: 1,
+				scaleX: delta.x.scale,
+				scaleY: delta.y.scale,
+			})
+			latestValues = saved
+		},
 	}
 }

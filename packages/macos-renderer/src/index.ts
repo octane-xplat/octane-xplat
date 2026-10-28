@@ -1,4 +1,15 @@
 import '@nativescript/macos-node-api'
+import { notifyLayoutCommit, observeLayoutCommits as subscribeLayoutCommits, type LayoutCommit } from './layout-observers'
+export type { LayoutCommit } from './layout-observers'
+
+/** Observe renderer layout batches and visit existing roots immediately. Returns an unsubscribe function. */
+export function observeLayoutCommits(observer: (commit: LayoutCommit) => void): () => void {
+	const stop = subscribeLayoutCommits(observer)
+	for (const container of appKitContainers) {
+		observer({ hostView: container.hostView })
+	}
+	return stop
+}
 import {
 	configureGesture,
 	setPressGesture,
@@ -3377,6 +3388,7 @@ function flushStyleDirty(container: RootContainer) {
 		const layoutDirty = container.layoutDirty!
 		container.layoutDirty = null
 		drainLayoutDirty(layoutDirty)
+		notifyLayoutCommit(container.hostView)
 	}
 }
 
@@ -8370,6 +8382,7 @@ const macOSDriver: UniversalHostDriver<RootContainer, any> = {
 					if (dirty) {
 						drainLayoutDirty(dirty)
 					}
+					notifyLayoutCommit(container.hostView)
 				}
 			},
 			abort() {},

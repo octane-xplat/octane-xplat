@@ -69,3 +69,51 @@ it('keeps a layout="position" child at constant size while the parent expands', 
 		host.remove()
 	}
 })
+
+it('keeps the animation origin in content coordinates after nested scrolling', async () => {
+	const outer = document.createElement('div')
+	outer.style.cssText = 'width:300px;height:150px;overflow:auto'
+	const inner = document.createElement('div')
+	inner.style.cssText = 'width:250px;height:300px;overflow:auto'
+	const host = document.createElement('div')
+	host.style.height = '600px'
+	inner.append(host)
+	outer.append(inner)
+	document.body.append(outer)
+	const root = createRoot(host)
+	const view = (offset: number) =>
+		createElement(motion.View, {
+			layout: true,
+			transition: { duration: 0.4, ease: 'linear' },
+			style: { marginTop: offset, width: 100, height: 50 },
+		})
+	const flush = async () => {
+		for (let i = 0; i < 8; i++) {
+			await Promise.resolve()
+		}
+	}
+	try {
+		root.render(view(150))
+		await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+		const element = host.firstElementChild as HTMLElement
+		outer.scrollTop = 20
+		inner.scrollTop = 70
+		const before = element.getBoundingClientRect().top
+		root.render(view(150))
+		await flush()
+		expect(element.getBoundingClientRect().top).toBeCloseTo(before, 1)
+		expect(element.style.transform).not.toContain('translate3d')
+		root.render(view(190))
+		await flush()
+		expect(Math.abs(element.getBoundingClientRect().top - before)).toBeLessThan(0.5)
+		await new Promise((resolve) => setTimeout(resolve, 180))
+		const mid = element.getBoundingClientRect().top
+		expect(mid).toBeGreaterThan(before + 5)
+		expect(mid).toBeLessThan(before + 35)
+		await new Promise((resolve) => setTimeout(resolve, 400))
+		expect(element.getBoundingClientRect().top).toBeCloseTo(before + 40, 1)
+	} finally {
+		root.unmount()
+		outer.remove()
+	}
+})

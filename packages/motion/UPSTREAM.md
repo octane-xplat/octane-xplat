@@ -447,7 +447,7 @@ export function UnsupportedDrag() {
 `layout`, `layoutDependency`, `onLayoutAnimationStart`/`onLayoutAnimationComplete`,
 and `transition={{ layout: {...} }}` are supported on `motion.View`,
 `motion.Row`, `motion.Pressable`, and `motion.create` hosts across web, iOS and
-Android. macOS throws `motion: layout is not yet supported on this platform`.
+Android, and the experimental macOS host.
 
 The projection node is modeled on upstream `create-projection-node.ts`
 (measure → calc delta → mix → render) over motion-dom's pure geometry helpers;
@@ -477,10 +477,16 @@ signals see reorders of unchanged children.
 **Measurement** walks untransformed layout only: UIKit `center - bounds/2` up
 the superview chain (transforms and scroll offsets excluded); Android
 `getLeft`/`getTop` to the first non-View parent, divided by density.
+Web adds ancestor scroll offsets to viewport measurements automatically;
+unlike Motion React, this does not require `layoutScroll`. macOS observes
+renderer layout commits, forces pending AppKit layout in a microtask, and
+walks view frames in y-down content coordinates. Layer transforms do not
+participate in measurement. Projection writes compensate for the layer's
+anchor without changing AppKit's anchor or position.
 
 **Still excluded:** `layoutId`/`LayoutGroup`, `layoutScroll`, `layoutRoot`,
-`layoutAnchor`, `layoutCrossfade`, border-radius/box-shadow correction, scroll
-container compensation on web. On native, `rotate` combined with a non-uniform
+`layoutAnchor`, `layoutCrossfade`, border-radius/box-shadow correction.
+Fixed-position layout roots are not supported. On native, `rotate` combined with a non-uniform
 parent treeScale is approximate (scale divides translate per axis but not the
 rotation). Reduced motion snaps instead of animating; opacity is never
 projected; `project(null)` rewrites merged channel values. Pre-existing CSS
