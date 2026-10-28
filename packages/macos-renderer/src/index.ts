@@ -841,6 +841,9 @@ class AccessibleHostView extends NSView {
 		if (role === 'adjustable') return 'AXSlider'
 		if (role === 'link') return 'AXLink'
 		if (role === 'radiogroup') return 'AXRadioGroup'
+		if (role === 'button' && typeof stackAccessibilityPropsByView.get(this)?.accessibilityState?.pressed === 'boolean') {
+			return 'AXCheckBox'
+		}
 		// ARIA 'meter' is AppKit's level indicator — a gauge of a scalar within
 		// a range, distinct from task progress (AXProgressIndicator).
 		return role === 'checkbox'
@@ -869,11 +872,14 @@ class AccessibleHostView extends NSView {
 		}
 
 		if (role === 'AXCheckBox') {
+			const state = props?.accessibilityState
+			const checked = accessibilityRoles.get(actionIdsByView.get(this) ?? -1) === 'button' && typeof state?.pressed === 'boolean'
+				? state.pressed : state?.checked
 			// AppKit uses 0/1/2 for off/on/mixed checkbox values.
 			return NSNumber.numberWithDouble(
-				props?.accessibilityState?.checked === 'mixed'
+				checked === 'mixed'
 					? 2
-					: props?.accessibilityState?.checked === true
+					: checked === true
 						? 1
 						: 0,
 			)
@@ -6279,7 +6285,7 @@ function applyAccessibility(node: ElementNode, name: string, value: any) {
 		}
 		stackAccessibilityPropsByView.set(node.view!, { ...props, [name]: value })
 		const changed = name === 'accessibilityValue' ? !Object.is(props[name], value) :
-			name === 'accessibilityState' && (props[name]?.checked !== value?.checked || props[name]?.selected !== value?.selected)
+			name === 'accessibilityState' && (props[name]?.checked !== value?.checked || props[name]?.selected !== value?.selected || props[name]?.pressed !== value?.pressed)
 		if (changed && Object.hasOwn(props, name) && typeof NSAccessibilityPostNotification === 'function') {
 			NSAccessibilityPostNotification(node.view!, 'AXValueChanged')
 		}

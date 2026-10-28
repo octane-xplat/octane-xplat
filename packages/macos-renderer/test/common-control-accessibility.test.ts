@@ -117,3 +117,23 @@ test('self-drawn activation preserves modified shortcuts and blocked native key 
 	f.view.keyDown({ keyCode: 36 })
 	assert.equal(f.forwarded.length, 9)
 })
+
+
+test('pressed buttons use native checked values and notify only changed pressed states', () => {
+	const f = fixture()
+	f.set('accessibilityRole', 'button')
+	assert.equal(f.view.accessibilityRole(), 'AXButton')
+	f.set('accessibilityState', { pressed: false })
+	assert.equal(f.view.accessibilityRole(), 'AXCheckBox')
+	assert.equal(f.view.accessibilityValue(), 0)
+	assert.equal(f.notifications.length, 0)
+	f.set('accessibilityState', { pressed: true })
+	assert.equal(f.view.accessibilityValue(), 1)
+	assert.equal(f.notifications.length, 1)
+	f.set('accessibilityState', { pressed: true })
+	assert.equal(f.notifications.length, 1)
+	f.set('accessibilityState', {})
+	assert.equal(f.view.accessibilityRole(), 'AXButton')
+	assert.equal(f.view.accessibilityValue(), '')
+	assert.equal(f.notifications.length, 2)
+})

@@ -805,3 +805,22 @@ Raw mapping and Pressable/Button forwarding have authored, unrun source cases.
 Native bridge setters, accessibility-tree discovery, selector replay, reparenting
 and packaged operation remain unqualified. An identifier does not expose an
 otherwise ignored view or prove an automation tool can discover it.
+
+
+### Pressed action accessibility
+
+A button host with boolean accessibilityState.pressed uses AppKit's checked
+control role and numeric 0/1 value, matching the shared native pressed-state
+contract. Removing pressed restores the ordinary button role. Changed pressed
+state posts the existing value-change notification; equal states stay silent.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+export function PinAction({ pressed, toggle }: { pressed: boolean; toggle(): void }) {
+	return <masonview accessibilityRole="button" accessibilityLabel="Pin"
+		accessibilityState={{ pressed }} onTap={toggle}><label text="Pin" /></masonview>
+}
+```
+
+The getter/notification cases are authored and unrun. Native registration,
+VoiceOver role/value announcements and actual activation remain unqualified.

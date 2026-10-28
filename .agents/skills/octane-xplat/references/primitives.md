@@ -867,3 +867,25 @@ import { Button } from '@octane-xplat/ui'
 
 export function Help() { return <Button href="https://example.com/help">Help</Button> }
 ```
+
+
+## AppKit toggle-button saves
+
+ToggleButton delegates to the target Button action owner, so loading, errors,
+overlap, metadata and teardown follow that leaf. Standalone uncontrolled choice
+flips optimistically before onPressedChange/pressedChangeAction. Rejection
+reports onActionError without rollback; controlled isPressed still follows the
+parent. Group value membership ignores member save actions.
+
+```tsx
+import { ToggleButton } from '@octane-xplat/ui'
+
+export function Pin({ save }: { save(value: boolean): Promise<void> }) {
+	return <ToggleButton label="Pin" pressedChangeAction={save} />
+}
+```
+
+Pressed button state maps to native checked-control role/value and changed-value
+notifications. Source cases/fixture are authored but unrun; native VoiceOver,
+input, busy geometry, tooltip, reserved semibold width and group/toolbar roving
+remain unqualified or absent. See [toggle saves](../../../../docs/app/components.md#save-a-toggle-button-action-on-appkit).

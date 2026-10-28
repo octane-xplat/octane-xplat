@@ -1946,3 +1946,51 @@ identifier setters, accessibility-tree discovery/replay, ignored-element behavio
 reparenting and packaged lifetime remain unqualified. No installs, builds,
 package tests/typechecks, OS automation, visual analysis or shared audit
 regeneration ran; no evidence checkbox is closed.
+
+
+### AppKit toggle-button action ownership
+
+ActionControlsDemo uses pin toggles and a view-mode group. Demand assumption:
+these ordinary action/selection flows matter before niche integrations. The
+AppKit leaf directly invoked pressedChangeAction without declared pending
+presentation/duplicate suppression, dropped most inherited Button props and
+ignored node icons. It now delegates to Button.macos; standalone uncontrolled
+choices flip before callbacks/save, controlled display follows the parent,
+normal pending duplicates are blocked and interruptible overlap remains busy
+until all calls settle. A live local choice ref supports same-frame uncontrolled
+interruptible flips. Failure keeps the optimistic state and reports through
+onActionError, matching the shared contract (not Switch rollback semantics).
+
+Group membership still owns controlled single/multiple selection and ignores
+member saves. The group handler now independently rejects disabled changes and
+exposes named group semantics. Each member keeps its native activation path;
+no group/toolbar roving keyboard implementation is claimed. Existing Button
+metadata, icon-only/node icon, loading, ref and teardown behavior is reused.
+Reserved semibold label width and tooltip presentation remain missing.
+
+Renderer prerequisite: boolean pressed state on a semantic button maps to
+AXCheckBox and numeric 0/1; removing pressed returns AXButton. Pressed changes
+join existing AXValueChanged dispatch, with initial/equal states silent. This
+follows the shared props contract's checked native representation; actual
+protocol registration/role-change/VoiceOver announcements remain unqualified.
+
+Authored six object-driver cases and one renderer case cover order, optimistic/
+controlled state, errors without rollback, pending duplicates/overlap, icons,
+metadata, membership, disablement, teardown and pressed getters/notifications.
+A maintained native fixture includes manual success/failure controls and a
+scripted direct-action/native-value lookup path. All tests/fixture remain unrun.
+Only TypeScript/TSRX syntax, semantic/source and whitespace checks ran.
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/toggle-button.macos.mobile.test.tsrx src/button.macos.mobile.test.tsrx
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/macos-renderer
+pnpm probe run examples/probes/toggle-button.macos.tsrx --target macos --watch
+pnpm check:recipes
+```
+
+All commands remain deferred pending this task's explicit human authorization.
+OS mouse/key delivery, VoiceOver role/value/busy reporting, grouped focus,
+busy/icon layout, native teardown and packaging remain unqualified. No builds,
+package tests/typechecks, installs, OS automation, visual analysis or shared
+audit regeneration ran; no evidence checkbox is closed.

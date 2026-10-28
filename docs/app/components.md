@@ -1322,3 +1322,44 @@ These are source implementations with authored, unrun object-driver cases.
 Native click/keyboard delivery, OS URL opening, busy sizing/appearance and
 VoiceOver remain unqualified. Button tooltip presentation remains a separate
 AppKit gap; this change does not implement it.
+
+
+### Save a toggle-button action on AppKit
+
+Use pressedChangeAction when a pin or favorite change needs saving. AppKit
+ToggleButton now uses Button's action owner: it flips the uncontrolled choice,
+calls onPressedChange, then runs the save action with a busy indicator. Normal
+pending actions block duplicates; isInterruptible allows overlap and keeps busy
+state until every call settles. A rejected save reports onActionError and keeps
+the optimistic choice. It does not roll the choice back.
+
+```tsx
+import { ToggleButton } from '@octane-xplat/ui'
+
+export function Pin({ save, report }: { save(pressed: boolean): Promise<void>; report(error: unknown): void }) {
+	return <ToggleButton label="Pin" pressedChangeAction={save} onActionError={report} />
+}
+```
+
+Controlled isPressed follows the parent. In a ToggleButtonGroup, value binds
+membership instead: the group owns selection and ignores member save actions.
+Button props such as loading, icon-only names, node icons, press metadata and
+identifiers pass through the same AppKit Button path.
+
+```tsx
+import { ToggleButton, ToggleButtonGroup } from '@octane-xplat/ui'
+
+export function ViewMode({ value, onChange }: { value: string | null; onChange(value: string | null): void }) {
+	return <ToggleButtonGroup label="View mode" value={value} onChange={onChange}>
+		<ToggleButton value="list" label="List" />
+		<ToggleButton value="grid" label="Grid" />
+	</ToggleButtonGroup>
+}
+```
+
+AppKit exposes a pressed button through its checked-control accessibility role
+and numeric off/on value. Actual VoiceOver, physical key/click delivery, busy
+geometry and packaging remain unqualified. Native toolbar/group roving keys,
+reserved semibold label width and tooltip presentation remain separate gaps.
+The maintained [AppKit toggle fixture](https://github.com/octane-xplat/octane-xplat/blob/main/examples/probes/toggle-button.macos.tsrx)
+is authored but unrun; its scripted path dispatches actions directly.
