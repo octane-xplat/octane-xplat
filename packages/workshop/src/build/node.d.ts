@@ -56,9 +56,6 @@ export declare function startWorkshopServer(options?: {
 	port?: number
 }): Promise<{ server: unknown; url: string }>
 
-/** Linux host prerequisites as a missing-item list (empty when satisfied). */
-export declare function linuxMissingPrerequisites(): string[]
-
 export declare function findConfigFile(root: string): string | null
 export declare function loadWorkshopConfig(
 	root: string,
