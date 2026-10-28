@@ -75,6 +75,13 @@ See [shared presentations](../app/primitives.md#macos-shared-presentations)
 for app guidance and the [AppKit verification record](../../.agents/docs/appkit-verification.md)
 for contributor checks and evidence boundaries.
 
+AppKit image loading now shares cancellable requests, bounds decoded images by
+recent use, rejects HTTP error payloads, and queues remote processing/delivery
+on the main operation queue. Core and optional-package images share layout and
+class normalization. Actual networking, callback threading, cancellation,
+responsiveness and pixels remain unqualified. Public image-cache controls and
+engine-specific features remain missing; see [AppKit image loading](../app/components.md#image-loading-on-appkit).
+
 ## Where the real OS widgets live
 
 The shared UI surface aims for consistent behavior on its supported targets — self-drawn
@@ -275,6 +282,7 @@ macOS AppKit secure storage uses Keychain through the
 [`@octane-xplat/secure-storage` native leaf](../../packages/secure-storage/README.md#macos-appkit).
 Availability does not guarantee access to a locked or policy-restricted Keychain;
 reads can reject and writes/removal can return `false`.
+
 
 ## Platform services
 

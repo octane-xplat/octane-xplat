@@ -246,13 +246,41 @@ entry, including startup and shutdown, without importing the harness.
 
 ## Render local images and overlays
 
-Image sources can be base64 data URIs, local file paths, or `file://` URLs.
-An empty or unsupported source clears the old image. Remote URLs require a
-separate download; image loading does not perform synchronous network work.
-Uncached decodes resolve on a later run-loop turn, so a source change keeps
-the previous image until its replacement is ready.
-For centered contain-fit, pass `style={{ objectFit: 'contain' }}` to `Image`.
-This scales smaller images up while preserving their aspect ratio.
+Image sources can be base64 data URIs, bundle resources, local paths,
+`file://` URLs, or HTTP(S) URLs. Remote requests use NSURLSession; their
+processing and view delivery are queued on AppKit's main operation queue.
+Uncached local decoding runs on a later turn. Concurrent views share a load;
+the last subscriber's removal cancels it. Stale completions cannot update a
+newer source, and rejected HTTP responses are not decoded or cached. A bounded
+cache retains up to 64 decoded images by recent use. These are source contracts;
+actual queue delivery, cancellation and responsiveness remain unqualified.
+
+```tsx
+import { Image } from '@octane-xplat/ui'
+
+export function Preview({ src }: { src: string }) {
+	return <Image src={src} alt="Selected photo" contentFit="contain"
+		style={{ width: 120, height: 80 }} />
+}
+```
+
+An empty source clears the view unless a placeholder is supplied. A pending
+replacement can keep the prior image; a placeholder paints while it loads and
+remains after failure. Failed loads are not cached. Cache hits do not paint a
+pending placeholder. The optional image package uses the same AppKit leaf;
+its cache controls, engine extensions and load/error callbacks remain missing.
+Cover scaling, arbitrary content position, source-set selection and decode
+scheduling hints remain separate gaps. Full-resolution decodes can still block
+the UI queue; this is not the mobile Glide/SDWebImage engine.
+
+```tsx
+import { Image } from '@octane-xplat/image'
+
+export function Preview({ src }: { src: string }) {
+	return <Image src={src} placeholder="~/thumbnail.png" contentFit="contain"
+		alt="Selected photo" style={{ width: 120, height: 80 }} />
+}
+```
 
 `style={{ pointerEvents: 'none' }}` makes `Image` and `View` (the flexbox host)
 pass hit-testing through to siblings below them. Use it for decorative crop

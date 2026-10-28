@@ -127,6 +127,7 @@ test('remote sources fetch through NSURLSession; placeholder paints while pendin
 				cachedResponseForRequest: (request) => staged[request.url] ?? null,
 			},
 		},
+		NSOperationQueue: { mainQueue: { addOperationWithBlock: (block) => block() } },
 		NSURLSession: {
 			sharedSession: {
 				dataTaskWithURLCompletionHandler: (url, handler) => {
@@ -134,6 +135,7 @@ test('remote sources fetch through NSURLSession; placeholder paints while pendin
 						url,
 						handler,
 						resumed: false,
+						cancel() {},
 						resume() {
 							this.resumed = true
 						},
@@ -157,7 +159,7 @@ test('remote sources fetch through NSURLSession; placeholder paints while pendin
 		assert.equal(tasks[0].resumed, true)
 
 		// A resolved fetch replaces the placeholder.
-		tasks[0].handler({ remote: 'photo-bytes' }, null, null)
+		tasks[0].handler({ remote: 'photo-bytes' }, { statusCode: 200 }, null)
 		assert.deepEqual(view.image, { data: { remote: 'photo-bytes' } })
 
 		// A second view for the same URL hits the cache synchronously and
@@ -185,7 +187,7 @@ test('remote sources fetch through NSURLSession; placeholder paints while pendin
 		updateImage(swapped, 'https://x/old.png', placeholder)
 		updateImage(swapped, 'data:image/png;base64,Yg==', placeholder)
 		assert.equal(tasks.length, 4)
-		tasks[3].handler({ remote: 'old-bytes' }, null, null)
+		tasks[3].handler({ remote: 'old-bytes' }, { statusCode: 200 }, null)
 		await new Promise((resolve) => setTimeout(resolve, 0))
 		assert.deepEqual(swapped.image, { data: { value: 'Yg==', options: 0 } })
 

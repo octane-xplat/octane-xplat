@@ -87,6 +87,26 @@ export function Controls() {
 }
 ```
 
+## Native macOS images
+
+AppKit `Image` preserves shared layout props, composed classes and style forms.
+The optional image package now delegates to the core leaf. Use local placeholders
+and contain-fit while cover/position/source-set/decode-hint gaps remain. The
+renderer shares bounded decoded images and cancels pending work after its last
+subscriber leaves; HTTP error payloads are rejected and remote delivery enters
+the main operation queue. Native timing, rendering and packaging are unqualified.
+Engine/cache APIs and callbacks in the optional package remain unsupported;
+see [AppKit image loading](../../../../docs/app/components.md#image-loading-on-appkit).
+
+```tsx
+import { Image } from '@octane-xplat/ui'
+
+export function Photo({ src }: { src: string }) {
+	return <Image src={src} alt="Photo" flexGrow={1} contentFit="contain"
+		className={['photo', { framed: true }]} style={{ width: 120, height: 80 }} />
+}
+```
+
 ## Native macOS interaction
 
 AppKit `GridList` now registers native rows for roving Tab stops, arrows,

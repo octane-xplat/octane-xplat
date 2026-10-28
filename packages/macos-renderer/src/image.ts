@@ -5,11 +5,13 @@ import {
 	NSData,
 	NSImage,
 	NSImageView,
+	NSOperationQueue,
 	NSURL,
 	NSURLCache,
 	NSURLRequest,
 	NSURLSession,
 } from '@octane-xplat/platform/macos'
+import { createImageRequests } from './image-requests.ts'
 
 export function loadImage(source: unknown): NSImage | null {
 	const src = String(source ?? '')
@@ -54,95 +56,70 @@ interface ImageRequest {
 	placeholder: string
 	placeholderImage: NSImage | null
 	generation: number
+	release?: () => void
 }
 
 const requests = new WeakMap<object, ImageRequest>()
 
-/** Decoded images shared across views; bounded so galleries cannot retain
- *  every source they have ever shown. Failures are not cached — a file that
- *  appears later or a retry must still decode. */
-const cache = new Map<string, NSImage>()
-const pending = new Map<string, ((image: NSImage | null) => void)[]>()
-const IMAGE_CACHE_LIMIT = 64
-
-function settleImage(source: string, image: NSImage | null) {
-	const callbacks = pending.get(source) ?? []
-	pending.delete(source)
-
-	if (image) {
-		cache.delete(source)
-		cache.set(source, image)
-		while (cache.size > IMAGE_CACHE_LIMIT) {
-			cache.delete(cache.keys().next().value!)
-		}
+/** The renderer and every mounted image share one bounded decode cache.
+ * A final subscriber's removal cancels pending work instead of retaining its
+ * view until a remote request eventually finishes. */
+const imageRequests = createImageRequests<NSImage>((source, complete) => {
+	if (!/^https?:\/\//i.test(source)) {
+		const timer = setTimeout(() => {
+			let image: NSImage | null = null
+			try { image = loadImage(source) } catch (error) {
+				console.error('[macos-image] decode failed', error)
+			}
+			complete(image)
+		}, 0)
+		return () => clearTimeout(timer)
 	}
 
-	for (const callback of callbacks) {
-		callback(image)
-	}
-}
-
-function decodeImage(source: string) {
-	let image: NSImage | null = null
-	try {
-		image = loadImage(source)
-	} catch (error) {
-		console.error('[macos-image] decode failed', error)
-	}
-
-	settleImage(source, image)
-}
-
-/** Remote sources fetch through NSURLSession and settle through the same
- *  cache/waiter path as local decodes. The task is keyed by source, not view —
- *  a superseded request is generation-guarded, and letting the fetch finish
- *  still populates the cache for the next view asking for it. A response
- *  already staged in the shared URL cache — by an earlier session fetch or an
- *  explicit prefetch warm — decodes without hitting the network. */
-function fetchImage(source: string) {
+	// Preserve main's public prefetch/shared URL-cache path with cancellable delivery.
 	let staged: NSData | null = null
 	try {
 		const request = NSURLRequest.requestWithURL(NSURL.URLWithString(source))
-		staged = (NSURLCache.sharedURLCache.cachedResponseForRequest(request)?.data ??
-			null) as NSData | null
-	} catch {
-		staged = null
-	}
-
+		staged = (NSURLCache.sharedURLCache.cachedResponseForRequest(request)?.data ?? null) as NSData | null
+	} catch { staged = null }
 	if (staged) {
-		// Same deferred settle as decodeImage — updateImage registers its
-		// waiter after fetchImage returns.
-		setTimeout(() => {
+		const timer = setTimeout(() => {
 			let image: NSImage | null = null
-			try {
-				image = NSImage.alloc().initWithData(staged)
-			} catch (error) {
+			try { image = NSImage.alloc().initWithData(staged) } catch (error) {
 				console.error('[macos-image] cached decode failed', error)
 			}
-
-			settleImage(source, image)
+			complete(image)
 		}, 0)
-		return
+		return () => clearTimeout(timer)
 	}
 
-	NSURLSession.sharedSession
-		.dataTaskWithURLCompletionHandler(
-			NSURL.URLWithString(source),
-			(data: any, _response: any, error: any) => {
+	const mainQueue = NSOperationQueue.mainQueue
+	if (typeof mainQueue?.addOperationWithBlock !== 'function') { complete(null); return }
+	const url = NSURL.URLWithString(source)
+	if (!url) { complete(null); return }
+	let active = true
+	const task = NSURLSession.sharedSession.dataTaskWithURLCompletionHandler(
+		url,
+		(data: any, response: any, error: any) => {
+			if (!active) return
+			// NSURLSession completion queues are not UI queues. Decode and
+			// view delivery enter AppKit's main queue explicitly.
+			mainQueue.addOperationWithBlock(() => {
+				if (!active) return
 				let image: NSImage | null = null
-				if (data && !error) {
-					try {
-						image = NSImage.alloc().initWithData(data)
-					} catch (decodeError) {
+				const status = Number(response?.statusCode ?? 0)
+				if (data && !error && status >= 200 && status < 300) {
+					try { image = NSImage.alloc().initWithData(data) } catch (decodeError) {
 						console.error('[macos-image] remote decode failed', decodeError)
 					}
 				}
-
-				settleImage(source, image)
-			},
-		)
-		.resume()
-}
+				complete(image)
+			})
+		},
+	)
+	try { task.resume() } catch (error) { active = false; task.cancel(); throw error }
+	return () => { active = false; task.cancel() }
+})
 
 /** Points `view` at `source`. Cached decodes assign immediately; anything else
  *  decodes on a later run-loop turn — or fetches over NSURLSession for
@@ -171,6 +148,8 @@ export function updateImage(view: NSImageView, source: unknown, placeholder?: un
 	request.source = src
 	request.placeholder = ph
 	const generation = ++request.generation
+	request.release?.()
+	request.release = undefined
 	const deliver = (image: NSImage | null) => {
 		if (requests.get(view) !== request || request.generation !== generation) {
 			return
@@ -203,30 +182,14 @@ export function updateImage(view: NSImageView, source: unknown, placeholder?: un
 		return
 	}
 
-	const cached = cache.get(src)
-	if (cached) {
-		deliver(cached)
-		return
-	}
-
-	// A decode/fetch is pending — the placeholder is the interim content.
-	showPlaceholder()
-
-	let waiters = pending.get(src)
-	if (!waiters) {
-		waiters = []
-		pending.set(src, waiters)
-		if (/^https?:\/\//i.test(src)) {
-			fetchImage(src)
-		} else {
-			setTimeout(() => decodeImage(src), 0)
-		}
-	}
-
-	waiters.push(deliver)
+	// Cached requests deliver synchronously; otherwise the placeholder stands
+	// until a decode/fetch resolves. The previous image can remain meanwhile.
+	request.release = imageRequests.subscribe(src, deliver, showPlaceholder)
 }
 
 /** Invalidates any in-flight decode for `view`; call when its node is destroyed. */
 export function disposeImage(view: NSImageView) {
+	const request = requests.get(view)
 	requests.delete(view)
+	request?.release?.()
 }

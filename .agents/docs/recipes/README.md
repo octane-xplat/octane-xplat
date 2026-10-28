@@ -113,6 +113,7 @@ Workflows:
 - [Ship a custom font across web and native](custom-fonts.md)
 - [Add rich text editing](rich-text-editing.md)
 - [Render SVG images on AppKit](appkit-svg-images.md)
+- [Load and replace images on AppKit](appkit-image-loading.md)
 - [Render bundled icons across web, mobile, and AppKit](bundled-icons.md)
 - [Reorder and move draggable items](drag-and-drop.md)
 - [Record a voice memo to WAV](voice-memo.md)

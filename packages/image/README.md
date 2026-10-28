@@ -7,7 +7,7 @@ pool, disk cache, decode-to-view-size) and **SDWebImage on iOS**. This is the
 fix for the core `image`'s 5 MB `LruCache`, which evicts visible images
 mid-scroll and re-decodes them.
 
-**Recommended image path for apps with native targets.** `Image` is a drop-in
+**Recommended image path for iOS/Android apps.** `Image` is a drop-in
 for `@octane-xplat/ui`'s `Image` — the same name and the same prop contract
 (`src` incl. `ImageSourceLike[]` multi-source, `alt`, `placeholder`,
 `recyclingKey`, `contentFit`, `contentPosition`, layout-child props,
@@ -101,6 +101,40 @@ await isImageCached(url, { decodeWidth: 600, decodeHeight: 400 })
 Android caveat: the plugin's probe can't see Glide's active resources, so a
 bitmap still on screen may report `'none'` — treat `'none'` as "not provably
 cached", not "absent".
+
+## AppKit subset
+
+The macOS leaf delegates to the core AppKit `Image`, keeping source grammar,
+local placeholders, parent layout, composed classes and style forms consistent.
+It uses the renderer's shared bounded decoded-image cache and request lifecycle,
+not Glide or SDWebImage. Last-subscriber removal cancels pending work; HTTP error
+responses are not decoded or cached. Real network/main-queue behavior, layout
+and packaging remain unqualified.
+
+```tsx
+import { Image } from '@octane-xplat/image'
+
+export function Preview({ src }: { src: string }) {
+	return <Image src={src} alt="Photo" placeholder="~/thumbnail.png"
+		contentFit="contain" style={{ width: 120, height: 80 }} />
+}
+```
+
+AppKit cache-control functions remain stubs (`prefetch`/`evictImage` return
+false, cache queries return none, initialization/clear do nothing). Headers,
+cachePolicy, decode bounds, failureImage, progressive loading, transitions and
+onLoad/onError are unimplemented. Cover, arbitrary position, source-set choice
+and decode scheduling retain the core AppKit limits. See
+[AppKit image loading](../../docs/app/components.md#image-loading-on-appkit).
+
+```ts
+import { prefetch, isImageCached } from '@octane-xplat/image'
+
+// On AppKit these remain false / 'none'; this does not query the renderer cache.
+const warmed = await prefetch('https://example.com/photo.png')
+const state = await isImageCached('https://example.com/photo.png')
+console.log(warmed, state)
+```
 
 ## Divergences from core `Image`
 

@@ -453,3 +453,68 @@ After human authorization, verify root/direct-import resolution, copy-only host
 behavior, actual NSPasteboard write/read, Unicode and empty text, failed writes,
 CopyTextDemo feedback, repeated independent attempts and packaged behavior.
 Source tests and handler dispatch do not prove OS pasteboard access.
+
+## Image request lifecycle and leaf normalization
+
+Priority evidence: Services.macos.tsrx already previews picked files with core
+Image, and Home.tsrx contains an image seam. Image lifecycle and layout therefore
+affect ordinary existing screens, independently of niche media integrations.
+Source audit's image-appkit finding still applies to the optional cache APIs:
+they remain stubs. The renderer did already have a bounded decoded-image cache;
+that existing source facility is distinct from a cache-control API or engine.
+
+A platform-free request coordinator now installs each subscriber before native
+work starts, shares active loads, bounds cached decoded images to 64 by recent
+use, and cancels when the final subscriber leaves. Source change/disposal removes
+the callback promptly. Request identity prevents cancelled completions from
+poisoning retry/cache state; setup/resume failures settle without leaving a
+permanent pending entry. Callback failures cannot strand other subscribers.
+
+Remote completion processing and NSImageView delivery explicitly enter
+NSOperationQueue.mainQueue; non-2xx HTTP responses are rejected before decode.
+Apple documents completion handlers on the session's
+[delegate queue](https://developer.apple.com/documentation/foundation/urlsession/delegatequeue)
+and the main operation queue on the
+[main thread](https://developer.apple.com/documentation/foundation/operationqueue/main).
+These API contracts motivate the scheduling; they do not prove this native
+bridge's runtime behavior. This is source-level scheduling, not runtime thread proof. Full-resolution
+decodes still execute on the UI queue and can stall it; downsampling and an
+image-engine backend remain work. Uncached local decode remains deferred to a
+later turn. Cached hits skip pending placeholders; failures retain a local
+placeholder or clear the view. Native callbacks, queue behavior, cancellation
+and memory retention are not qualified by the authored tests.
+
+Core Image.macos now normalizes ClassValue and preserves its declared
+LayoutChildProps and style forms using the existing shared helpers. The
+optional image package delegates to this core leaf instead of maintaining a
+second incomplete copy. The native placeholder intrinsic declaration moved
+to the core owner. No public Image ref was added: the current shared ImageProps
+does not expose one. Source arrays still choose their first entry; cover,
+position and decode-hint behavior remain incomplete. Engine headers, cache
+policy, decode bounds, transitions, failureImage and load/error callbacks are
+still missing; cache APIs remain unchanged/unsupported.
+
+Added platform-free coordinator, fake-queue remote and object-driver layout
+regressions plus a maintained nonvisual lifecycle probe. Syntax and whitespace
+checks passed. No tests, typechecks, builds, probe/OS automation, visual analysis,
+image downloads, dependency installs or packaging ran. Shared snapshots remain
+untouched; no evidence checkbox is closed.
+
+Deferred commands:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/image.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer --filter=...@octane-xplat/ui --filter=...@octane-xplat/image
+pnpm exec turbo run typegen --filter=@octane-xplat/ui --filter=@octane-xplat/image
+pnpm exec turbo run test:packed --filter=@octane-xplat/image
+pnpm probe run examples/probes/image-loading.macos.tsrx --target macos --watch
+pnpm check:recipes
+```
+
+After human authorization, qualify real URLSession main-queue delivery,
+connection/setup/HTTP/decode failure, cancellation and late completions, shared
+requests, local placeholders, repeated mounting, bounded memory, large-image
+responsiveness, parent layout/classes, SVG behavior on the actual OS, packaged
+resolution and teardown. Pixel checks still require separate visual-analysis
+authorization; none is requested or implied here.

@@ -427,7 +427,7 @@ export function LayoutHint() {
 | `Skeleton`       | Loading placeholder block                          | `width`, `height`                                                                        |
 | `Divider`        | Hairline rule                                      | `orientation`                                                                            |
 
-For images on native, prefer the `Image` from `@octane-xplat/image` — same
+For images on iOS/Android, prefer the `Image` from `@octane-xplat/image` — same
 name, same props, and it loads through Glide/SDWebImage (sized memory + disk
 cache, decode-to-view-size) instead of the core component's 5 MB cache. Core
 `Image` remains the dep-free baseline and the path for SVG sources.
@@ -694,6 +694,43 @@ with the leaf's key as its argument. The visual `TreeNode` prop type is now
 `useListData`, `useTreeData`, and `useAsyncList` now type `items` and
 `selectedKeys` as readonly.
 
+### Image loading on AppKit
+
+AppKit `Image` accepts local and HTTP(S) sources and preserves its declared
+parent-layout props, composed class names, and object/inline-CSS styles.
+Concurrent views share a pending load. Changing the source or removing a view
+releases that subscriber; the last removal cancels the work. Failed HTTP
+responses do not populate the decoded-image cache. Remote processing is queued
+on AppKit's main operation queue; actual delivery and responsiveness remain
+unqualified. Remote loading remains subject to system transport and sandbox policy.
+
+```tsx
+import { Image } from '@octane-xplat/ui'
+
+export function Photo({ src }: { src: string }) {
+	return <Image src={src} alt="Photo" contentFit="contain" flexGrow={1}
+		className={['photo', { framed: true }]}
+		style={{ width: 120, height: 80 }} />
+}
+```
+
+The optional image package reuses this core AppKit path. Its cache-control APIs
+remain stubs, and engine-specific headers, decode bounds, transitions and
+load/error callbacks remain unimplemented. AppKit still selects the first
+source-array item, degrades cover scaling, ignores arbitrary content position
+and does not honor decode scheduling hints. Local placeholders remain on failure;
+remote placeholders are ignored. Real native loading, cancellation, layout,
+network errors and packaging still need qualification.
+
+```tsx
+import { Image } from '@octane-xplat/image'
+
+export function Photo({ src }: { src: string }) {
+	return <Image src={src} alt="Photo" contentFit="contain"
+		placeholder="~/thumbnail.png" style={{ width: 120, height: 80 }} />
+}
+```
+
 ## Scrolling
 
 | Component                        | What it is                                      | Key props                             |
@@ -888,7 +925,7 @@ packages so `@octane-xplat/ui` keeps zero required plugin deps:
 | `@octane-xplat/camera`  | `CameraView`, `createCameraSession`                                                            | Camera preview and movie recording                                                            |
 | `@octane-xplat/video`   | `Video`                                                                                        | Embedded video player                                                                         |
 | `@octane-xplat/gif`     | `AnimatedImage`                                                                                | Animated images (GIF/webp)                                                                    |
-| `@octane-xplat/image`   | `Image`, `initializeImageCache`, `prefetch`, `evictImage`, `clearImageCaches`, `isImageCached` | Recommended `Image` on native (Glide/SDWebImage via ui-image) — same contract as core `Image` |
+| `@octane-xplat/image`   | `Image`, `initializeImageCache`, `prefetch`, `evictImage`, `clearImageCaches`, `isImageCached` | Glide/SDWebImage on iOS/Android; AppKit shares the core Image path with engine/cache gaps |
 | `@octane-xplat/canvas`  | `Canvas`, `getGPU`                                                                             | Canvas/GPU surface (2D, WebGL/WebGPU)                                                         |
 | `@octane-xplat/audio`   | `createAudioPlayer`                                                                            | Long-form audio playback                                                                      |
 | `@octane-xplat/haptics` | `createHaptics`                                                                                | Capability-aware haptics                                                                      |

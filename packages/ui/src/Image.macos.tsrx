@@ -1,6 +1,8 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useMemo } from 'octane'
-import { styleRecord } from './style-merge'
+import { mergeStyle } from './style-merge'
+import { layoutChildProps } from './layout-child'
+import { cx } from '@octane-xplat/lib'
 import { appKitImageSource } from './svg-image.macos'
 import { hashToPngBase64 } from './hash-image'
 import type { ImageProps } from './props'
@@ -22,6 +24,13 @@ function appKitPlaceholder(placeholder: string): string | undefined {
 	return appKitImageSource(placeholder)
 }
 
+// The AppKit host paints a placeholder in the same image view while loading.
+declare module '@octane-xplat/jsx/intrinsics' {
+	interface ImageProps {
+		placeholder?: string
+	}
+}
+
 export function Image(props: ImageProps) @{
 	const srcString = (Array.isArray(props.src) ? props.src[0]?.uri : props.src) ?? ''
 	const src = useMemo(() => appKitImageSource(srcString), [srcString])
@@ -38,17 +47,14 @@ export function Image(props: ImageProps) @{
 	// scaling mode). contentPosition is unimplemented on this leaf.
 	// `decoding` is ignored — AppKit image decodes are synchronous, and remote
 	// fetches take no decode-mode hint.
-	const style = {
-		objectFit: props.contentFit ?? 'cover',
-		...styleRecord(props.style),
-	}
+	const style = mergeStyle({ objectFit: props.contentFit ?? 'cover' }, props.style)
 
 	<image
 		id={props.id}
 		src={src}
 		placeholder={placeholder}
-		className={props.className}
-		{style}
+		className={cx(props.className)}
+		{...layoutChildProps(props, style)}
 		accessibilityLabel={props.alt ?? ''}
 	/>
 }
