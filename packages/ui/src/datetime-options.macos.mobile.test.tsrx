@@ -103,3 +103,64 @@ it('time-only selection retains a draft until a valid date is entered', async ()
 		expect(changed).toHaveBeenCalledWith('2026-03-05T09:30')
 	} finally { env.root.unmount() }
 })
+
+it('closed time fields step exact values independently of preset cadence and honor current endpoint bounds', () => {
+	const changed = vi.fn(), env = mount({ value: '2026-03-05T09:15:17', hasSeconds: true, timeIncrement: 5, onChange: changed })
+	try {
+		const handler = env.input().props.onKeyDown
+		expect(env.key(env.input(), 'ArrowUp')).toBe(true); expect(changed).toHaveBeenLastCalledWith('2026-03-05T09:20:17')
+		expect(env.rows()).toHaveLength(0); expect(env.input().props.value).toContain('9:15:17')
+		env.render({ ...env.base, value: '2026-03-05T09:20:17', timeIncrement: 10 })
+		handler({ key: 'ArrowDown', target: env.input(), preventDefault() {}, stopPropagation() {} }); env.flush()
+		expect(changed).toHaveBeenLastCalledWith('2026-03-05T09:10:17')
+		changed.mockClear(); env.render({ ...env.base, value: '2026-03-05T09:00:00' })
+		expect(env.key(env.input(), 'ArrowDown')).toBe(true); expect(changed).not.toHaveBeenCalled()
+		env.render({ ...env.base, value: '2026-03-05T10:00:00' }); env.key(env.input(), 'ArrowUp'); expect(changed).not.toHaveBeenCalled()
+		env.render({ ...env.base, value: '2026-03-05T23:55:17', min: undefined, max: undefined, timeIncrement: 10 })
+		env.key(env.input(), 'ArrowUp'); expect(changed).toHaveBeenLastCalledWith('2026-03-05T00:05:17')
+	} finally { env.root.unmount() }
+})
+it('closed-field stepping retains date-less time drafts and preserves popup/modified/marked-editor ownership', async () => {
+	const changed = vi.fn(), env = mount({ value: null, timeIncrement: 15, hourFormat: '24h', onChange: changed })
+	try {
+		env.input().props.onTextChange('09:15'); env.flush()
+		env.key(env.input(), 'ArrowUp'); expect(env.input().props.value).toContain('9:30'); expect(changed).not.toHaveBeenCalled()
+		env.key(env.input(), 'ArrowDown'); expect(env.input().props.value).toContain('9:15')
+		for (const extra of [{ altKey: true }, { ctrlKey: true }, { metaKey: true }, { shiftKey: true }, { isComposing: true }, { defaultPrevented: true }, { target: {} }]) {
+			expect(env.key(env.input(), 'ArrowUp', extra)).toBe(false)
+		}
+		env.input().currentEditor = () => ({ hasMarkedText: true }); expect(env.key(env.input(), 'ArrowUp')).toBe(false)
+		env.input().currentEditor = null
+		env.key(env.input(), 'ArrowDown', { altKey: true }); await vi.waitFor(() => { env.flush(); expect(env.rows()).toHaveLength(96) })
+		expect(env.key(env.input(), 'ArrowUp')).toBe(false); expect(changed).not.toHaveBeenCalled()
+		env.popup().onDismiss(); env.flush()
+		const date = env.all().find((node) => node.props?.id === 'appointment')
+		date.props.onTextChange('2026-03-05'); env.flush(); expect(changed).toHaveBeenLastCalledWith('2026-03-05T09:15')
+	} finally { env.root.unmount() }
+})
+it('step callback reentry and pending saves exclude duplicate writes and release after failure', async () => {
+	let repeat = () => {}, reject!: (error: Error) => void, count = 0
+	const changed = vi.fn(() => { if (++count === 1) repeat() }), save = vi.fn(() => new Promise<void>((_, fail) => { reject = fail }))
+	const env = mount({ timeIncrement: 5, onChange: changed, changeAction: save })
+	try {
+		const handler = env.input().props.onKeyDown
+		repeat = () => { env.render({ ...env.base, label: 'Reentered' }); handler({ key: 'ArrowUp', target: env.input(), preventDefault() {}, stopPropagation() {} }) }
+		env.key(env.input(), 'ArrowUp'); expect(changed).toHaveBeenCalledTimes(1); expect(save).toHaveBeenCalledTimes(1)
+		expect(env.key(env.input(), 'ArrowUp')).toBe(false); expect(env.key(env.input(), 'ArrowDown', { altKey: true })).toBe(false)
+		reject(Error('offline')); await vi.waitFor(() => { env.flush(); expect(env.input().props.editable).toBe(true) })
+		env.render({ ...env.base, value: '2026-03-05T09:20', changeAction: () => { throw Error('offline') } })
+		env.key(env.input(), 'ArrowDown'); await vi.waitFor(() => { env.flush(); expect(env.input().props.editable).toBe(true) })
+		expect(changed).toHaveBeenLastCalledWith('2026-03-05T09:15'); expect(env.input().props.value).toContain('9:20')
+	} finally { env.root.unmount() }
+})
+it('a step releases throwing forward callbacks and dispatches an accepted save after teardown without detached state writes', async () => {
+	const env = mount({ timeIncrement: 5, onChange: () => { throw Error('forward') } })
+	try {
+		expect(() => env.key(env.input(), 'ArrowUp')).toThrow('forward')
+		const changed = vi.fn(); env.render({ ...env.base, onChange: changed }); env.key(env.input(), 'ArrowUp'); expect(changed).toHaveBeenCalledTimes(1)
+		let settle!: () => void
+		const save = vi.fn(() => new Promise<void>((done) => { settle = done }))
+		env.render({ ...env.base, onChange: () => env.root.unmount(), changeAction: save })
+		env.key(env.input(), 'ArrowDown'); expect(save).toHaveBeenCalledWith('2026-03-05T09:10'); settle(); await Promise.resolve(); env.flush()
+	} finally { env.root.unmount() }
+})

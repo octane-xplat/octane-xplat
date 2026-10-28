@@ -1369,5 +1369,32 @@ export function Starts(props: { value: string | null; change(value: string | nul
 
 Five object-driver cases and the maintained time-step fixture remain unrun.
 Physical key/repeat, field-editor/IME/caret/draft/focus/AX and packaging remain
-unqualified. DateTimeInput closed-field timeIncrement and live announcements
-remain gaps. See [AppKit time stepping](../../../../docs/platform/date-picker.md#step-appkit-time-values-with-arrow-keys).
+unqualified. DateTimeInput stepping follows below; live announcements remain
+a gap. See [AppKit time stepping](../../../../docs/platform/date-picker.md#step-appkit-time-values-with-arrow-keys).
+
+
+## AppKit DateTimeInput closed-field minute stepping
+
+Plain current-field Up/Down uses timeIncrement independently of preset cadence.
+The adapter steps the committed time or date-less draft/current time through
+shared arithmetic/bounds, keeps the date on midnight wrap, and preserves optional
+seconds. Date-less changes remain private until a date is committed. Either open
+popup retains plain arrows; Alt+Down still requests presets. Current modifiers,
+composition and disabled/busy/detached guards preserve native editing commands.
+
+```tsx
+import { DateTimeInput } from '@octane-xplat/ui'
+
+export function Appointment(props: { value: string | null; change(value: string | null): void }) {
+	return <DateTimeInput label="Appointment" value={props.value} onChange={props.change}
+		timeIncrement={5} timeOptionInterval={15} />
+}
+```
+
+The shared target change boundary claims before callback reentry and retains a
+pending save guard through settlement; accepted saves dispatch after callback
+teardown without detached busy-state writes. Parent values remain authoritative.
+Four added wiring cases and the extended preset-times fixture remain unrun;
+physical key/repeat, IME/editor/caret/draft/focus/save/AX and packaging remain
+unqualified. Row-to-editor relay, complete listbox relationships and live
+announcements remain gaps. See [closed time-field stepping](../../../../docs/platform/date-picker.md#step-the-appkit-date-time-field-without-opening-presets).

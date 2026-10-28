@@ -42,6 +42,8 @@ picker bundled with `@octane-xplat/files`.
 
 - AC15: AppKit TimeInput adapts plain current-field Up/Down to shared minute increment/seconds/midnight and min/max policies, preserving parent authority and modified/composing/native editing. Current blocking, callback reentry and pending save ownership exclude duplicate edits; detach avoids settlement UI writes. Distinguish authored object-driver evidence from native key/repeat/field-editor/IME/draft/focus/AX qualification and DateTimeInput stepping/live-announcement gaps.
 
+- AC16: AppKit DateTimeInput closed-field arrows adapt timeIncrement independently of preset cadence, with optional seconds, same-date midnight wrap, endpoint bounds, parent authority and date-less time drafts. Preserve open-popup/modified/composing ownership and current reentry/pending-save/detach guards. Distinguish source/object-driver evidence from native input, save/focus/AX and package qualification.
+
 ## Documentation
 
 - AC1: [Portable component list](../../../docs/app/components.md#inputs) and [shared platform contract](../../../docs/platform/date-picker.md#portable-values).
@@ -67,3 +69,5 @@ picker bundled with `@octane-xplat/files`.
 - AC14: [AppKit preset-time guide](../../../docs/platform/date-picker.md#choose-appkit-preset-times-with-keys), one renderer/four focus-policy/five object-driver cases, [maintained fixture](../../../examples/probes/preset-times.macos.tsrx) and [target note](../parity/appkit-progress.md#appkit-preset-time-option-keyboard-ownership). All ten cases and native checks remain unrun.
 
 - AC15: [AppKit time stepping guide](../../../docs/platform/date-picker.md#step-appkit-time-values-with-arrow-keys), five object-driver cases, [maintained fixture](../../../examples/probes/time-step.macos.tsrx) and [target note](../parity/appkit-progress.md#appkit-timeinput-minute-key-stepping). Cases, fixture and native qualification remain unrun.
+
+- AC16: [AppKit date-time stepping guide](../../../docs/platform/date-picker.md#step-the-appkit-date-time-field-without-opening-presets), four added DateTimeInput object-driver cases, [extended maintained fixture](../../../examples/probes/preset-times.macos.tsrx) and [target note](../parity/appkit-progress.md#appkit-datetimeinput-closed-field-stepping). Cases/fixture/native qualification remain unrun.

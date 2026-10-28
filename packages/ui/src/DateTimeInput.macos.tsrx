@@ -18,6 +18,7 @@ import { createAppKitMenuReturn } from './menu-return.macos'
 import type { NativeKeyboardEvent } from '@octane-xplat/jsx/intrinsics'
 import type { NSTextField, NSView } from '@octane-xplat/platform/macos'
 import {
+	adjustTime,
 	combineDateTime,
 	currentISOTime,
 	formatDateValue,
@@ -47,6 +48,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 	const dateInput = useRef<NSTextField | null>(null)
 	const timeInput = useRef<NSTextField | null>(null)
 	const anchor = useRef<NSView | null>(null)
+	const writing = useRef(false), actionPending = useRef(false)
 
 	const [open, setOpenState] = useState<'calendar' | 'times' | null>(null)
 	const openRef = useRef(open); openRef.current = open
@@ -65,6 +67,8 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 	const isDisabled = !!props.isDisabled || !!props.isReadOnly
 	const isBusy = !!props.isLoading || busy
 	const hasSeconds = !!props.hasSeconds
+	const current = useRef({ props, isDisabled, isBusy })
+	current.current = { props, isDisabled, isBusy }
 	const formatDisplay = (time: ISOTimeString, seconds: boolean) =>
 		props.locale
 			? formatLocalizedTime(time, seconds, props.hourFormat ?? '12h', resolveLocale(props.locale))
@@ -102,20 +106,22 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 	}, [value])
 
 	const fireChange = (next: ISODateTimeString | null | undefined) => {
-		if (isDisabled || isBusy) {
-			return
-		}
-
+		const live = current.current
+		if (!anchor.current || writing.current || actionPending.current || live.isDisabled || live.isBusy) return
 		const emitted = next ?? null
-		lastEmitted.current = emitted
-		props.onChange?.(emitted)
-		if (props.changeAction) {
-			setBusy(true)
-			runDateChangeAction(
-				() => props.changeAction!(emitted),
-				() => setBusy(false),
-			)
-		}
+		writing.current = true
+		try {
+			lastEmitted.current = emitted
+			live.props.onChange?.(emitted)
+			if (live.props.changeAction) {
+				actionPending.current = true
+				if (anchor.current) setBusy(true)
+				runDateChangeAction(() => live.props.changeAction!(emitted), () => {
+					actionPending.current = false
+					if (anchor.current) setBusy(false)
+				})
+			}
+		} finally { writing.current = false }
 	}
 
 	const commitDate = (iso: ISODateString, fromPicker: boolean) => {
@@ -275,8 +281,10 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 	}, [props.timeOptionInterval, hasSeconds, timeMin, timeMax, props.hourFormat, props.locale])
 
 	const choosingTime = useRef(false)
-	const timeState = useRef({ blocked: isDisabled || isBusy, options: timeOptions, commitTime })
-	timeState.current = { blocked: isDisabled || isBusy, options: timeOptions, commitTime }
+	const timeState = useRef({ blocked: isDisabled || isBusy, options: timeOptions, commitTime,
+		base: timeDraft ?? valueParts.time, hasSeconds, increment: props.timeIncrement ?? 1, min: timeMin, max: timeMax })
+	timeState.current = { blocked: isDisabled || isBusy, options: timeOptions, commitTime,
+		base: timeDraft ?? valueParts.time, hasSeconds, increment: props.timeIncrement ?? 1, min: timeMin, max: timeMax }
 	const timeReturn = useMemo(() => createAppKitMenuReturn({ anchor: () => timeInput.current,
 		open: () => openRef.current === 'times', close: () => setOpen(null),
 	}), [])
@@ -284,7 +292,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 	const closeTimes = () => { timeReturn.reset(); setOpen(null) }
 	const chooseTime = (time: ISOTimeString) => {
 		const current = timeState.current
-		if (!anchor.current || choosingTime.current || openRef.current !== 'times' || current.blocked || !current.options.some((option) => option.time === time)) return
+		if (!anchor.current || writing.current || actionPending.current || choosingTime.current || openRef.current !== 'times' || current.blocked || !current.options.some((option) => option.time === time)) return
 		choosingTime.current = true
 		openRef.current = null // Claim before application callbacks can reenter or flush parent state.
 		timeReturn.reset()
@@ -300,11 +308,25 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 		closeTimes(); return false
 	}
 	const timeKeyDown = (event: NativeKeyboardEvent<NSView>) => {
-		if (event.target !== timeInput.current || !anchor.current || choosingTime.current || timeState.current.blocked || !timeState.current.options.length ||
-			event.defaultPrevented || event.isComposing || hasDateComposition(timeInput.current) || event.ctrlKey || event.metaKey || event.shiftKey ||
-			!event.altKey || event.key !== 'ArrowDown') return
-		event.preventDefault(); event.stopPropagation(); timeReturn.reset(); setOpen('times')
+		const live = timeState.current
+		if (!timeInput.current || event.target !== timeInput.current || !anchor.current || writing.current || actionPending.current || choosingTime.current || live.blocked ||
+			event.defaultPrevented || event.isComposing || hasDateComposition(timeInput.current) || event.ctrlKey || event.metaKey || event.shiftKey) return
+		if (event.altKey) {
+			if (event.key === 'ArrowDown' && live.options.length) {
+				event.preventDefault(); event.stopPropagation(); timeReturn.reset(); setOpen('times')
+			}
+			return
+		}
+		if (openRef.current !== null || (event.key !== 'ArrowUp' && event.key !== 'ArrowDown')) return
+		event.preventDefault(); event.stopPropagation()
+		const base = live.base ?? currentISOTime(live.hasSeconds)
+		const next = adjustTime(base, event.key === 'ArrowUp' ? live.increment : -live.increment, live.hasSeconds)
+		if (next !== live.base && isTimeInRange(next, live.min, live.max)) {
+			live.commitTime(next)
+			if (anchor.current) setTimePending(null)
+		}
 	}
+
 	useEffect(() => {
 		if ((isDisabled || isBusy) && openRef.current !== null) { timeReturn.reset(); setOpen(null) }
 		else if (!timeOptions.length && openRef.current === 'times') closeTimes()
@@ -345,7 +367,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 				accessibilityLabel={open === 'calendar' ? messages.closeCalendar : messages.openCalendar}
 				disabled={isDisabled || isBusy}
 				onPress={() => {
-					if (anchor.current && !choosingTime.current && !timeState.current.blocked) {
+					if (anchor.current && !writing.current && !actionPending.current && !choosingTime.current && !timeState.current.blocked) {
 						timeReturn.reset(); setOpen(openRef.current === 'calendar' ? null : 'calendar')
 					}
 				}}
@@ -404,7 +426,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 					accessibilityLabel="Show preset times"
 					disabled={isDisabled || isBusy}
 					onPress={() => {
-						if (anchor.current && !choosingTime.current && !timeState.current.blocked && timeState.current.options.length) {
+						if (anchor.current && !writing.current && !actionPending.current && !choosingTime.current && !timeState.current.blocked && timeState.current.options.length) {
 							timeReturn.reset(); setOpen(openRef.current === 'times' ? null : 'times')
 						}
 					}}

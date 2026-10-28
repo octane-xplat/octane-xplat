@@ -3263,3 +3263,60 @@ listbox relationships and live announcements remain source gaps. No package
 tests/typechecks, builds, installs, OS automation, visual analysis or shared audit
 snapshot regeneration ran; no evidence-gated checkbox is closed. Checkbox mixed
 rollback remains pending the human contract choice already asked.
+
+
+### AppKit DateTimeInput closed-field stepping
+
+The preceding standalone TimeInput slice a9bb6fb4a was committed and pushed with
+verification deferred. Continued the adjacent public timeIncrement gap rather
+than treating preset navigation as a complete time keyboard workflow. The web
+leaf already separates minute steps from timeOptionInterval; the AppKit source
+previously handled only Alt+Down opening in the time field.
+
+Plain current-field Up/Down now steps through shared adjustTime/currentISOTime/
+isTimeInRange with current increment, seconds and date-endpoint bounds. Preset
+cadence does not quantize stepped values. Midnight wrap keeps the date unchanged;
+without a date, the existing local timeDraft is stepped and retained for a later
+valid date commit. Parent values remain authoritative; successful request dispatch
+clears private display drafts, while rejected bounds keep them. Either open popup
+retains plain field arrows. Alt+Down still requests nonempty presets. Modified,
+prevented, marked-editor/composing, foreign/detached and current blocked events
+stay outside stepping. No public type, shared manifest, dependency, parser policy
+or other platform leaf changed.
+
+The common target fireChange boundary now claims before application callbacks
+can reenter or flush parent metadata, and pending changeAction excludes edits and
+popup entry before/after rendering. Accepted saves retain captured callbacks even
+when onChange unmounts; detached settlement skips busy-state writes. Synchronous
+forward errors release the write claim, and failed saves release busy state
+without automatic parent rollback. The preset choose/clock/calendar entry paths
+also respect these synchronous guards. Native focus return while busy remains
+unqualified.
+
+Four new object-driver cases cover current increment/seconds/controlled values,
+endpoint bounds/same-date midnight wrap, date-less drafts and modified/marked/open
+popup ownership, callback reentry/pending/sync+async failure, and forward errors/
+accepted save after teardown. All are unrun, as are the prior five DateTimeInput
+preset wiring/four focus-policy/one renderer cases. The existing preset-times
+fixture now exposes 5-minute closed-field steps beside 15-minute presets and
+synthesizes no OS input. Only source/semantic, TypeScript/TSRX syntax and whitespace
+review ran. Guide/skill/feature note and date-picker AC16 were reconciled.
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/datetime-options.macos.mobile.test.tsrx src/time-step.macos.mobile.test.tsrx
+pnpm exec turbo run test --filter=@octane-xplat/ui -- src/datetime.test.ts src/time-list-focus.macos.test.ts
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/preset-times.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All commands remain deferred until explicit human authorization for this task.
+Physical keys/repeat, native field-editor routing/IME/caret/draft, actual bound/
+save/blur/focus ordering, popup/FocusScope/modal/AX/VoiceOver and packaging remain
+unqualified. Row-to-editor preset text relay, full listbox/option relationships
+and live announcements remain source gaps; Checkbox mixed rollback is still
+pending the previously asked human contract choice. No package tests/typechecks,
+builds, installs, OS automation, visual analysis or shared audit snapshots ran;
+no evidence-gated checkbox is closed.

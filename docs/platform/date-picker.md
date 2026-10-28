@@ -629,5 +629,44 @@ Use status for app-owned error feedback:
 Five object-driver cases and the maintained time-step fixture remain unrun.
 Source/syntax review does not qualify physical keys/repeat, native field-editor
 routing, IME, caret/draft updates, asynchronous focus behavior, accessibility or
-packaging. DateTimeInput closed-field timeIncrement stepping and live
-announcements remain separate gaps.
+packaging. DateTimeInput stepping is described below; live announcements remain
+a separate gap.
+
+
+### Step the AppKit date-time field without opening presets
+
+DateTimeInput.timeIncrement controls plain Up/Down in its closed time field.
+This is independent of timeOptionInterval: a five-minute step can request 09:20
+between quarter-hour presets. Existing date/time bounds apply to the candidate.
+Midnight wrap keeps the selected date unchanged, and hasSeconds preserves seconds:
+
+```tsx
+import { useState } from 'octane'
+import { DateTimeInput } from '@octane-xplat/ui'
+
+export function Appointment() {
+	const [value, setValue] = useState<string | null>('2026-03-05T09:15:17')
+	return <DateTimeInput label="Appointment" value={value} onChange={setValue}
+		timeIncrement={5} timeOptionInterval={15} hasSeconds
+		min="2026-03-05T09:00:00" max="2026-03-05T17:00:00" />
+}
+```
+
+The parent owns committed values. With no date yet, stepping updates the local
+time draft; entering a valid date combines that draft through the existing commit
+path. Plain field arrows leave either open popup in charge, while Alt+Down still
+opens available presets. Modified/composing/foreign/detached/blocked input stays
+outside stepping. Pending changeAction work guards both stepping and popup entry:
+
+```tsx
+<DateTimeInput label="Appointment" value={value} onChange={setValue}
+	timeIncrement={5} changeAction={saveAppointment} />
+```
+
+Four additional object-driver cases are authored and unrun; the existing nine
+preset policy/wiring cases and renderer prerequisite case remain unrun too. The
+maintained preset-times fixture includes closed-field stepping and synthesizes
+no OS input. Physical keys/repeat, field-editor/IME/draft/caret, bounds/save/focus
+ordering, native popup/AX/VoiceOver and packaging remain unqualified. Preset
+row-to-editor text relay, full listbox relationships and live announcements remain
+gaps.
