@@ -453,3 +453,23 @@ skill and release note describe the subset. The passkey-sign-in recipe excludes
 Windows, and hosted auth remains unavailable; this does not qualify that workflow
 or add a Windows recipe target. No shared audit snapshot was regenerated and no
 evidence-gated issue row is closed.
+
+## Windows UI declaration entrypoint reconciliation
+
+The Windows root package export added by the import foundation work was missing
+from the UI declaration target's explicit runtime/types lists. Both Windows paths
+are now declared alongside the existing variants. The TypeScript project's
+`src/*.ts` include already includes index.windows.ts, and the shared public
+exports remain unchanged. This reconciles the maintained manifest; it does not
+prove declaration generation or the package consumer graph. UI typegen,
+pack-check, dependent checks and native app verification remain deferred:
+
+```sh
+pnpm exec turbo run typegen --filter=@octane-xplat/ui
+pnpm exec turbo run pack:check --filter=@octane-xplat/ui
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+```
+
+A targeted JSON parse/path comparison checked that the Windows runtime/types
+paths match package.json and that the source entry exists. No broad generation
+or new test suite ran for this manifest-only change.
