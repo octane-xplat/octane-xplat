@@ -3,6 +3,8 @@
 AppKit TextInput, TextArea and SearchInput now defer a different controlled
 value while the native editor has marked text. A newer matching echo cancels
 the older pending value, and removal cancels its observer and scheduled work.
+Single-line and multiline submit paths leave marked-text confirmation to the
+input context.
 
 ```tsx
 import { useState } from 'octane'

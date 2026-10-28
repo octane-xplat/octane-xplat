@@ -990,3 +990,13 @@ Observer ownership detail: detached views do not register an unfiltered global
 window observer. Attached views watch the window present when the pending write
 begins; replacement pending values reuse that observer. Native unmark/end hooks
 remain available, and changing windows during composition is unqualified.
+
+
+Single-line submit follow-up: textFieldSubmitted now checks its current field
+editor's marked-text state, and raw NSSearchField Return delegation does the
+same. Confirmation remains with the input context while marked; unmarked submit
+retains its action. Added fake method/BOOL marked-state regression cases; syntax
+and whitespace only, not OS keyboard/candidate or native-action qualification.
+The deferred writer's scope remains core textfield/textview values; raw search
+text synchronization itself is unchanged. The same deferred renderer test and
+native composition commands above apply.

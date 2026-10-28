@@ -487,6 +487,10 @@ class ButtonActionTarget extends NSObject {
 	// change handler lives on controlTextDidChange, so the action never
 	// masquerades as a value-change event.
 	textFieldSubmitted(sender: NSObject) {
+		const field = sender as any
+		const editor = typeof field.currentEditor === 'function' ? field.currentEditor() : null
+		const marked = editor?.hasMarkedText
+		if (typeof marked === 'function' ? marked.call(editor) : marked) return
 		notifyTextValueCommit(sender)
 		textNodesByView.get(sender)?.submitHandler?.()
 	}
@@ -556,6 +560,8 @@ class ButtonActionTarget extends NSObject {
 			return false
 		}
 
+		const marked = (_editor as any)?.hasMarkedText
+		if (typeof marked === 'function' ? marked.call(_editor) : marked) return false
 		node.submitHandler?.()
 		return true
 	}

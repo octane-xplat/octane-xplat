@@ -180,3 +180,34 @@ test('programmatic native change notifications do not call public onChange durin
 		} finally { disposeTextValue(view) }
 	}
 })
+
+
+test('single-line and native search submit leave marked confirmation to the input context', () => {
+	const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
+	const body = source.slice(source.indexOf('class ButtonActionTarget'), source.indexOf('const buttonActionTarget'))
+	const nodes = new WeakMap()
+	let submits = 0
+	const { ButtonActionTarget } = runSlice(body + '\n({ ButtonActionTarget })', {
+		NSObject: class {}, NSButton: class {}, NSPanGestureRecognizer: class {}, NSNotification: class {},
+		NSTextViewDelegate: {}, NSTextFieldDelegate: {},
+		interop: { types: { void: 'void' } }, registerGestureClass() {},
+		textNodesByView: nodes, notifyTextValueCommit() {},
+	})
+	const target = new ButtonActionTarget()
+	const editor: any = { hasMarkedText: () => true }
+	const field = { currentEditor: () => editor }
+	const search = {}
+	nodes.set(field, { submitHandler: () => { submits++ } })
+	nodes.set(search, { type: 'searchbar', submitHandler: () => { submits++ } })
+	for (const marked of [() => true, true]) {
+		editor.hasMarkedText = marked
+		target.textFieldSubmitted(field)
+		assert.equal(target.controlTextViewDoCommandBySelector(search, editor, 'insertNewline:'), false)
+		assert.equal(submits, 0)
+	}
+	editor.hasMarkedText = () => false
+	target.textFieldSubmitted(field)
+	assert.equal(target.controlTextViewDoCommandBySelector(search, editor, 'insertNewline:'), true)
+	assert.equal(submits, 2)
+	assert.equal(target.controlTextViewDoCommandBySelector(search, editor, 'moveLeft:'), false)
+})

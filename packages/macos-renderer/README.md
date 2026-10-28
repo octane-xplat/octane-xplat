@@ -664,6 +664,7 @@ change notifications are suppressed while writing.
 ```
 
 This path covers core TextInput, TextArea and delegated SearchInput. Raw
-NSSearchField's `text` API uses a separate path. Real field-editor ownership,
+NSSearchField's `text` API uses a separate path. Single-line and multiline
+submit paths check marked state before dispatching their submit action. Real field-editor ownership,
 IME candidate/confirmation timing, observer delivery/window moves, secure-mode
 changes, undo/redo, focus and packaging remain unqualified.
