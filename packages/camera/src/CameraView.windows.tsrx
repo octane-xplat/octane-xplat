@@ -1,8 +1,8 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useImperativeHandle, useCallback, useEffect, useRef } from 'octane'
 import { View } from '@nativescript/core'
 import { registerElement } from '@nativescript-community/octane'
-import type { Attributes } from '@nativescript-community/octane/intrinsics'
+import type { Attributes } from '@octane-xplat/jsx/intrinsics'
 import type { CameraViewProps } from './props'
 import { attachSessionPreview } from './session'
 import { cameraHardwarePresent, ensureCameraPermission } from './camera-permission.windows'
@@ -23,9 +23,9 @@ class CameraPreview extends View {
 	}
 }
 
-declare module '@nativescript-community/octane/intrinsics' {
-	interface NativeScriptElements {
-		camerapreview: Attributes<typeof CameraPreview>
+declare module '@octane-xplat/jsx/intrinsics' {
+	interface NativeElements<TElement> {
+		camerapreview: Attributes<TElement, {}>
 	}
 }
 

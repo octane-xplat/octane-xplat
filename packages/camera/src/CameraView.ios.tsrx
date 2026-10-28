@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useImperativeHandle, useCallback, useEffect, useRef } from 'octane'
 import type { CameraViewProps } from './props'
 import { cameraHardwarePresent, ensureCameraPermission } from './camera-permission.mobile'

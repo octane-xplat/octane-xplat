@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { Application, ApplicationSettings, File, knownFolders } from '@nativescript/core'
 import { CameraView, createCameraSession } from '@octane-xplat/camera'
 import type { CameraSession, CameraSessionEvent } from '@octane-xplat/camera'

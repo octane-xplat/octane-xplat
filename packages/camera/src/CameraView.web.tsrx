@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useImperativeHandle, useEffect, useRef } from 'octane'
 import type { CameraViewProps } from './props'
 import { attachSessionPreview } from './session'

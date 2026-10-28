@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { CameraCaptureError, CameraView, createCameraSession } from '@octane-xplat/camera'
 import type { CameraSession, CameraSessionEvent } from '@octane-xplat/camera'
 import type { ProbeContext } from '../../../scripts/probe/context'
