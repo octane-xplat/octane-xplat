@@ -40,5 +40,30 @@ export function AnimatedTile() {
 }
 ```
 
+GTK textfield refs now preserve Unicode cursor/selection ranges during
+programmatic text writes and support focus/blur. Read-only fields stay
+selectable; disabled fields block interaction.
+
+```tsx
+import { useRef } from 'octane'
+import type { HostElement } from '@octane-xplat/jsx/intrinsics'
+import { Pressable, Text, View } from '@octane-xplat/ui'
+
+export function FocusableField() {
+  const field = useRef<HostElement | null>(null)
+  return (
+    <View>
+      <textfield ref={field} text="Copy this text" editable={false} />
+      <Pressable onPress={() => { field.current?.focus() }}>
+        <Text>Focus the field</Text>
+      </Pressable>
+      <Pressable onPress={() => { field.current?.blur() }}>
+        <Text>Release focus</Text>
+      </Pressable>
+    </View>
+  )
+}
+```
+
 Layout uses the XplatMason engine; the GTK surface remains a qualified subset
 of the full UI. [GTK setup and support limits](https://octane-xplat.goddardai.org/platform/linux-gtk)

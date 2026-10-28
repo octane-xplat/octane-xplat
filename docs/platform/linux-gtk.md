@@ -121,6 +121,34 @@ icons.registerIcon('brand', { src: '~/brand.svg' })
 icons.registerIcon('remote-brand', { src: 'https://example.com/brand.svg' })
 ```
 
+For a low-level textfield, GTK refs support focus and blur. Setting editable
+to false keeps the text selectable; isEnabled=false disables interaction.
+
+```tsx
+import { useRef } from 'octane'
+import type { HostElement } from '@octane-xplat/jsx/intrinsics'
+import { Pressable, Text, View } from '@octane-xplat/ui'
+
+export function FocusableField() {
+  const field = useRef<HostElement | null>(null)
+  return (
+    <View>
+      <textfield ref={field} text="Copy this text" editable={false} />
+      <Pressable onPress={() => { field.current?.focus() }}>
+        <Text>Focus the field</Text>
+      </Pressable>
+      <Pressable onPress={() => { field.current?.blur() }}>
+        <Text>Release focus</Text>
+      </Pressable>
+    </View>
+  )
+}
+```
+
+TextInput and TextArea remain outside the curated GTK root while their complete
+field and multiline behavior is being qualified. The raw-field example above
+does not establish IME or screen-reader support.
+
 Use `AspectRatio` to derive a container's height from its allocated width.
 `useMeasure` reports a widget's position and size relative to the app content
 surface, including movement when an ancestor scrolls. Set `observe: false`

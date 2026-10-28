@@ -78,6 +78,15 @@ export function bindPublicInstance(
 	let tick: number | null = null
 	let previous: string | undefined
 	const listeners = new Map<RefEvent, Set<Listener>>()
+	view.focus = () => !disposed && view.grab_focus()
+	view.blur = () => {
+		if (disposed) return
+		const root = view.get_root()
+		const focused = root?.get_focus()
+		// Entry delegates focus to its internal GtkText. Only release focus
+		// owned by this widget; a stale blur must not clear a sibling's focus.
+		if (focused && (focused === view || focused.is_ancestor(view))) root.set_focus(null)
+	}
 	const bounds = (): GtkBounds | null => {
 		if (disposed || !host || !view.get_parent()) return null
 		const [ok, rect] = view.compute_bounds(host) as [boolean, any]

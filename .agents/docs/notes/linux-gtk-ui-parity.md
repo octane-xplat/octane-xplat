@@ -411,3 +411,45 @@ pull and wheel fixtures. The icon fixture retains all 44 assertions.
 The final expanded renderer/dependent typecheck passes eight tasks
 (andromeda /tmp/gtk-icon-types-complete.log). No macOS GTK stand-in,
 Wayland, visual/pixel or external screen-reader qualification is added.
+
+## Native text-input ref foundation
+
+The shared TextInput's imperative text-write and focus/blur paths now work on
+real GTK refs. Text writes preserve Unicode code-point cursor positions and
+clamped/reversed selections without controlled onChange echoes. Read-only editing
+uses GtkEditable independently of disabled sensitivity. Default/removed hint,
+secure and keyboard-purpose props reset their prior values; labels/hints use
+stored GTK accessibility text, including explicit undefined resets.
+
+A capture controller cancels delayed selection repair on real key/button/touch
+input; the fixture creates a controlled write immediately before an OS Left key
+and verifies that repair does not move the cursor back. Dispose cancels pending
+repair and makes stale .text/focus/blur ref operations inert. Nested native focus
+events use the universal root's dispatchEvent scope inheritance, so Clear can
+focus its field and run the current callback inside the discrete press scope.
+The [renderer note](linux-gtk-renderer.md#native-text-refs-and-editable-behavior)
+records GTK 4.14.5's wrapper cursor limitation and its delegate-property workaround.
+
+The focused real-Linux fixture passes 51 assertions
+(guest /tmp/gtk-text-ref-test-fifth.log). It exercises shared TextInput source,
+programmatic value writes, field label/description, clear through GTK controller
+dispatch, native focus ownership, and real X11 keyboard edit/Return/readonly/
+disabled/navigation phases. Clear's controller dispatch is separate from OS
+input evidence. No IME, AT-client, compositor or pixel qualification is claimed.
+The final expanded renderer/dependent typecheck passes eight tasks
+(andromeda /tmp/gtk-text-ref-types-final.log).
+
+The curated UI barrel stays at 36 runtime values and 55 types. TextInput remains
+a direct-source fixture until its field-tooltip/full-state contract is qualified;
+TextArea still needs a multiline intrinsic and row sizing. This foundation
+changes no UI source or public prop types, adds no dependency, and does not turn
+the wider input surface into a passed qualification. Recipes remain unchanged;
+their packaging/runtime requirements are not proved by this widget fixture.
+
+The final combined real-Linux renderer suite passes all 34 tests without skips
+(guest /tmp/gtk-text-ref-test-final.log), including 51 text-entry assertions and
+the earlier real X11 press/drag, pull and wheel fixtures. The final expanded
+renderer/dependent typecheck passes eight tasks
+(andromeda /tmp/gtk-text-ref-types-final.log). Recipes and all 12 release notes
+validate. The existing broad native batch-observer and docs-site parser
+failures are unchanged; this slice adds no mobile OS runtime qualification.

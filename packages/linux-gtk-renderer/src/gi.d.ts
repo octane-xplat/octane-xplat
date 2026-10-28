@@ -275,6 +275,8 @@ declare module 'gi://Gtk?version=4.0' {
 			constructor()
 		}
 
+		const EventControllerLegacy: any
+		const PropagationPhase: { CAPTURE: number }
 		class EventControllerKey extends EventController {
 			constructor()
 		}
@@ -415,7 +417,6 @@ declare module 'gi://GLib' {
 
 declare module 'gi://Gdk?version=4.0' {
 	namespace Gdk {
-<<<<<<< HEAD
 		const EventType: {
 			KEY_PRESS: number
 			KEY_RELEASE: number
@@ -436,9 +437,7 @@ declare module 'gi://Gdk?version=4.0' {
 		function keyval_name(keyval: number): string | null
 		function keyval_to_unicode(keyval: number): number
 
-=======
 		const Texture: any
->>>>>>> dc5fc486d (feat(linux-gtk): support icons and scoped registries)
 		class Rectangle {
 			constructor(fields?: { x?: number; y?: number; width?: number; height?: number })
 			x: number

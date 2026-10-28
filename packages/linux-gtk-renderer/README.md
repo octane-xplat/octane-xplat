@@ -137,6 +137,40 @@ export function BrandGlyph() {
 }
 ```
 
+## Textfield refs
+
+A textfield ref keeps its real Gtk.Entry identity while adding focus(), blur()
+and a controlled .text setter. Read-only entries keep focus and selection;
+isEnabled=false disables interaction. Programmatic text writes preserve Unicode
+cursor/selection ranges and do not echo through onTextChange. A blur only releases
+focus inside its own widget.
+
+```tsx
+import { useRef } from 'octane'
+import type { HostElement } from '@octane-xplat/jsx/intrinsics'
+import { Pressable, Text, View } from '@octane-xplat/ui'
+
+export function FocusableField() {
+  const field = useRef<HostElement | null>(null)
+  return (
+    <View>
+      <textfield ref={field} text="Copy this text" editable={false} />
+      <Pressable onPress={() => { field.current?.focus() }}>
+        <Text>Focus the field</Text>
+      </Pressable>
+      <Pressable onPress={() => { field.current?.blur() }}>
+        <Text>Release focus</Text>
+      </Pressable>
+    </View>
+  )
+}
+```
+
+The shared TextInput source is exercised by a maintained GTK fixture; its full
+field/tooltip contract is still outside the curated UI barrel. TextArea's
+multiline host is pending. These raw-ref methods do not provide a general
+NativeScript View facade.
+
 ## Apply stylesheets
 
 Import CSS files from your entry module, the same way the iOS and Android

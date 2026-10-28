@@ -11,6 +11,7 @@
 // reads must be inlined by the build (xplatLinuxGtk does).
 import Gtk from 'gi://Gtk?version=4.0'
 import GLib from 'gi://GLib'
+import Gdk from 'gi://Gdk?version=4.0'
 import {
 	bindMasonView,
 	isMasonHostView,
@@ -104,8 +105,6 @@ export interface ElementNode {
 	/** Recorded `flexGrow` — expand is resolved at attach time, once the
 	 *  parent's orientation is known. */
 	flexGrowValue: unknown
-	/** textfield's `editable` folded into `sensitive` alongside `enabled`. */
-	editableFlag: boolean | undefined
 	/** CSS state owned by the style/className pipeline. */
 	cssClass: string | null
 	cssProvider: Gtk.CssProvider | null
@@ -1639,6 +1638,8 @@ const ALIGN: Record<string, Gtk.Align> = {
 // Gtk.InputPurpose — the contract's keyboardType values mapped to OS input
 // purpose (drives on-screen keyboards / input methods on mobile-ish hosts).
 const INPUT_PURPOSES: Record<string, number> = {
+	default: Gtk.InputPurpose.FREE_FORM,
+	decimal: Gtk.InputPurpose.NUMBER,
 	number: Gtk.InputPurpose.NUMBER,
 	integer: Gtk.InputPurpose.DIGITS,
 	digits: Gtk.InputPurpose.DIGITS,
@@ -1724,6 +1725,13 @@ function syncExpand(node: ElementNode) {
 	view.set_vexpand(!horizontal && expand)
 }
 
+function entryCursor(view: GtkView): number {
+	// GtkEntry's GtkEditable wrapper normalizes its delegate's selection
+	// bounds, so get_position() returns the upper bound for a backward range.
+	// Read the delegate's documented cursor-position property instead.
+	return Number((view.get_delegate?.() ?? view).cursor_position ?? view.get_position())
+}
+
 function selectionBounds(view: GtkView): [number, number] {
 	// GJS packs multiple out-params into an array return.
 	const [has, start, end] = view.get_selection_bounds()
@@ -1751,6 +1759,7 @@ function scheduleSelectionSettle(
 	wantSel: boolean,
 	wantS: number,
 	wantE: number,
+	wantCursor: number,
 ) {
 	cancelSelectionSettle(node)
 	const editsAtWrite = node.changeSeq
@@ -1763,15 +1772,13 @@ function scheduleSelectionSettle(
 			return false
 		}
 		const [has, s, e] = view.get_selection_bounds()
-		const wantPos = wantSel ? null : wantS
-		const intact = wantSel
-			? has && s === wantS && e === wantE
-			: !has && view.get_position() === wantPos
+		const intact =
+			(wantSel ? has && s === wantS && e === wantE : !has) && entryCursor(view) === wantCursor
 		if (!intact) {
 			if (wantSel) {
-				view.select_region(wantS, wantE)
+				view.select_region(wantCursor === wantS ? wantE : wantS, wantCursor)
 			} else {
-				view.set_position(wantPos!)
+				view.set_position(wantCursor)
 			}
 		}
 		if (attempt === 0) {
@@ -1806,23 +1813,20 @@ function writeEntryText(node: ElementNode, view: GtkView, value: unknown) {
 		// Preserve selection AND collapsed cursor across a controlled write —
 		// GtkEntry.set_text otherwise parks the cursor at 0 and real input
 		// prepends.
-		const pos = view.get_position()
+		const pos = entryCursor(view)
 		const [selStart, selEnd] = selectionBounds(view)
 		view.set_text(text)
-		const wantSel = selStart >= 0 && selEnd <= text.length
+		const length = Array.from(text).length
+		const wantS = selStart >= 0 ? Math.min(selStart, length) : Math.min(pos, length)
+		const wantE = selStart >= 0 ? Math.min(selEnd, length) : wantS
+		const wantSel = wantS !== wantE
+		const wantCursor = wantSel ? Math.min(pos, length) : wantS
 		if (wantSel) {
-			view.select_region(selStart, selEnd)
+			view.select_region(wantCursor === wantS ? wantE : wantS, wantCursor)
 		} else {
-			view.set_position(Math.min(pos, text.length))
+			view.set_position(wantS)
 		}
-		scheduleSelectionSettle(
-			node,
-			view,
-			text,
-			wantSel,
-			wantSel ? selStart : Math.min(pos, text.length),
-			wantSel ? selEnd : Math.min(pos, text.length),
-		)
+		scheduleSelectionSettle(node, view, text, wantSel, wantS, wantE, wantCursor)
 	})
 }
 
@@ -1874,6 +1878,27 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 		node.picture.setSource(value)
 		return
 	}
+	if (name === 'accessibilityLabel' || name === 'accessibilityHint') {
+		if (!view) return
+		const property =
+			name === 'accessibilityLabel'
+				? Gtk.AccessibleProperty.LABEL
+				: Gtk.AccessibleProperty.DESCRIPTION
+		try {
+			if (value == null) view.reset_property(property)
+			else view.update_property([property], [String(value)])
+		} catch (error) {
+			warnOnce(
+				name,
+				'<' + node.type + '> could not set GTK accessible text: ' + (error as Error).message,
+			)
+		}
+		return
+	}
+	if (value === undefined && node.type === 'textfield' && name in RESET_DEFAULTS.textfield) {
+		setProp(node, name, RESET_DEFAULTS.textfield[name])
+		return
+	}
 	if (value === undefined) {
 		return
 	}
@@ -1922,8 +1947,9 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 		case 'isEnabled':
 		case 'disabled':
 			view.set_sensitive(
-				(name === 'disabled' ? value !== true : value !== false) &&
-					(node.type !== 'textfield' || node.editableFlag !== false),
+				node.props.disabled !== true &&
+					node.props.isEnabled !== false &&
+					node.props.enabled !== false,
 			)
 
 			return
@@ -2004,6 +2030,7 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 			node.gridColSpan = Number(value)
 			repositionGridChild(node)
 			return
+<<<<<<< HEAD
 		case 'accessibilityLabel':
 			// GIR exposes the non-varargs gtk_accessible_update_property_value
 			// as update_property, with parallel property/value arrays.
@@ -2013,6 +2040,8 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 <<<<<<< HEAD
 =======
 		}
+=======
+>>>>>>> f5254506a (fix(linux-gtk): preserve native text refs and nested focus delivery)
 		case 'accessible':
 			view.update_state([Gtk.AccessibleState.HIDDEN], [value === false])
 			return
@@ -2113,13 +2142,7 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 			} else if (name === 'secure') {
 				view.visibility = value !== true
 			} else if (name === 'editable') {
-				// Gtk.Entry has no "editable" prop; combined with `enabled` into
-				// sensitive so neither clobbers the other.
-				node.editableFlag = value !== false
-				view.sensitive =
-					node.editableFlag !== false &&
-					node.props.enabled !== false &&
-					node.props.isEnabled !== false
+				view.set_editable(value !== false)
 			} else if (name === 'maxLength') {
 				view.get_buffer?.().set_max_length?.(Number(value))
 			} else if (name === 'keyboardType') {
@@ -2285,7 +2308,11 @@ function resetProp(node: ElementNode, name: string) {
 		case 'enabled':
 		case 'isEnabled':
 		case 'disabled':
-			view.set_sensitive(node.type !== 'textfield' || node.editableFlag !== false)
+			view.set_sensitive(
+				node.props.disabled !== true &&
+					node.props.isEnabled !== false &&
+					node.props.enabled !== false,
+			)
 			return
 		case 'visibility':
 			view.set_visible(true)
@@ -2326,8 +2353,22 @@ function resetProp(node: ElementNode, name: string) {
 			view.accessible_role = 0
 			return
 		case 'accessibilityLabel':
+<<<<<<< HEAD
 			view.reset_property(Gtk.AccessibleProperty.LABEL)
 			view.set_name(widgetName(node))
+=======
+		case 'accessibilityHint':
+			try {
+				view.reset_property(
+					name === 'accessibilityLabel'
+						? Gtk.AccessibleProperty.LABEL
+						: Gtk.AccessibleProperty.DESCRIPTION,
+				)
+			} catch {
+				// Unsupported GTK binding — the setter already reported the limitation.
+			}
+
+>>>>>>> f5254506a (fix(linux-gtk): preserve native text refs and nested focus delivery)
 			return
 		case 'id':
 		case 'testID':
@@ -2381,7 +2422,7 @@ function resetProp(node: ElementNode, name: string) {
 function applyUpdate(node: ElementNode, props: PropBag) {
 	const dropped = Object.keys(node.props).filter((name) => !(name in props))
 	// Publish the incoming bag first: prop handlers that read node.props
-	// (progress' value/maxValue pair, textfield's enabled/editable pair) must
+	// (progress' value/maxValue pair, enabled/disabled aliases) must
 	// see the same generation the update describes.
 	node.props = { ...props }
 	for (const name of dropped) {
@@ -2815,7 +2856,9 @@ function connectEvent(
 					if (root) root.eventScope('continuous', () => listener(payload))
 					else listener(payload)
 				} else {
-					root!.eventScope(listener.priority, () => root!.dispatchEvent(listener.id, payload))
+					// dispatchEvent opens a scope when needed and inherits an active
+					// scope's priority/handler snapshot for synchronous GTK follow-up events.
+					root!.dispatchEvent(listener.id, payload)
 				}
 			} catch (error) {
 				console.error('[linux-gtk] event handler failed', error)
@@ -3133,7 +3176,7 @@ function expect(container: GtkContainer, id: number): ElementNode {
 }
 
 function bindNodePublicInstance(node: ElementNode): () => void {
-	return bindPublicInstance(
+	const disposePublic = bindPublicInstance(
 		node,
 		{
 			read: (key) => {
@@ -3157,6 +3200,46 @@ function bindNodePublicInstance(node: ElementNode): () => void {
 			}
 		},
 	)
+	// Native UI's text-write helper assigns .text imperatively. Route that
+	// channel through the same selection/echo contract as declarative writes.
+	let textNode: ElementNode | null = node.type === 'textfield' ? node : null
+	let disposeEntryInput: (() => void) | undefined
+	if (textNode) {
+		const view = textNode.view!
+		Object.defineProperty(view, 'text', {
+			configurable: true,
+			get: () => view.get_text(),
+			set: (value: unknown) => {
+				if (textNode) writeEntryText(textNode, view, value)
+			},
+		})
+		// Cursor movement and selection clicks do not emit text changes. Stop
+		// delayed repair on actual input too, before GTK handles that event.
+		const input = new Gtk.EventControllerLegacy()
+		input.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
+		const signal = input.connect('event', (_controller: unknown, event: any) => {
+			const type = event.get_event_type()
+			if (
+				textNode &&
+				[Gdk.EventType.KEY_PRESS, Gdk.EventType.BUTTON_PRESS, Gdk.EventType.TOUCH_BEGIN].includes(
+					type,
+				)
+			)
+				cancelSelectionSettle(textNode)
+			return false
+		})
+		view.add_controller(input)
+		disposeEntryInput = () => {
+			input.disconnect(signal)
+			view.remove_controller(input)
+		}
+	}
+	return () => {
+		disposeEntryInput?.()
+		if (textNode) cancelSelectionSettle(textNode)
+		textNode = null
+		disposePublic()
+	}
 }
 
 function createNode(
@@ -3187,7 +3270,6 @@ function createNode(
 		gridRowSpan: 1,
 		gridColSpan: 1,
 		flexGrowValue: undefined,
-		editableFlag: undefined,
 		cssClass: null,
 		cssProvider: null,
 		cssSignature: '',

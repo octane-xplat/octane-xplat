@@ -485,3 +485,78 @@ undefined src clearing, failure recovery and teardown. A malformed synthetic
 PNG fixture was replaced with valid generated one-pixel PNG bytes; no pixel
 inspection was used. The final combined renderer-suite result is recorded in
 the GTK UI parity note.
+
+## Native text refs and editable behavior
+
+The GTK host now routes imperative textfield .text writes through the same
+echo suppression and cursor/selection preservation as declarative text props.
+This is the path used by the shared native TextInput's text-write helper.
+Cursor offsets and shrink clamps count Unicode code points, not UTF-16 units.
+Partial selections retain their surviving range. Explicit undefined textfield
+props restore registered defaults, including hint/secure/keyboard purpose.
+
+GTK GtkEditable.editable controls editing independently of sensitivity.
+The previous renderer comment that Gtk.Entry lacked editable was incorrect:
+Gtk.Entry implements GtkEditable, and a GTK 4.14.5/GJS 1.80.2 probe verifies
+get_editable=false with get_sensitive=true. Disabled/enabled aliases now derive
+sensitivity from the complete incoming bag, so setter order cannot override
+a disabled field. Named size and shared field props are not widened.
+
+GtkWidget refs expose focus through grab_focus, and blur clears a GtkRoot focus
+only when it belongs to that widget or its descendants (Entry delegates to
+GtkText). Disposed ref operations are inert. Entry owns a capture controller
+that cancels delayed X11 selection repair on real key/button/touch input before
+GTK handles it; cleanup removes that controller and any pending repair timer.
+Accessible labels and hints use GTK LABEL/DESCRIPTION arrays and reset when
+their values are removed or become undefined. Stored accessibility properties
+do not establish screen-reader behavior.
+
+### GTK wrapper cursor limitation
+
+On GTK 4.14.5 with GJS 1.80.2, a backward select_region(4, 1) reports bounds
+[1, 4]. GtkEntry.get_position() reports 4, but its GtkText delegate's
+cursor-position property reports the actual active edge, 1. The mapped
+/tmp/gtk-entry-cursor-probe.mjs records all three values. This is backed by
+[GTK 4.14.5's GtkEditable implementation](https://raw.githubusercontent.com/GNOME/gtk/4.14.5/gtk/gtkeditable.c):
+the Entry wrapper forwards through normalized selection bounds before the
+position getter takes their end. Read the delegate's documented cursor-position
+property for restoration and repair checks. select_region retains the backward
+direction; no synthetic key binding is required. Reassess the workaround after
+GTK upgrades; remove it only after the same backward-range probe and maintained
+fixture show that the wrapper getter preserves the active cursor edge.
+See [the cursor property](https://docs.gtk.org/gtk4/property.Editable.cursor-position.html)
+and [editable state](https://docs.gtk.org/gtk4/method.Editable.set_editable.html).
+
+The maintained ui-text-entry fixture imports the shared TextInput source
+directly. TextInput is not added to the curated GTK barrel by this foundation
+change: field-tooltip behavior, full accessibility states and remaining input
+contracts still require qualification. TextArea still needs its multiline host
+and row sizing. The fixture separates native signal/controller checks from
+its real X11 keyboard phases; IME/compositor/AT-client/pixel qualification
+remains open.
+
+### Nested native focus dispatch
+
+Octane 0.14.0's public dispatchEvent opens an event scope when none is active
+and otherwise uses the active priority and handler snapshot. The GTK renderer
+previously wrapped every descriptor delivery in eventScope(listener.priority).
+A discrete Clear action then focusing its entry synchronously tried to open a
+default focus scope and failed with a nested-priority error. Descriptor delivery
+now calls dispatchEvent directly. The maintained text fixture forces focus
+from a sibling during Clear and requires the current onFocus callback, as well
+as rejecting event-handler failures in stderr. This fixes renderer integration
+with the upstream event contract; it does not change Octane or weaken its
+priority invariant. Raw imperative gesture callbacks retain their existing
+continuous scope.
+
+Feedback observations: 31a0040a-2761-4412-a48b-33fa042b7fa8 (text-ref/readonly
+expectations), f80486ca-2c44-48b2-a191-24f9e1f86b99 (GTK cursor wrapper), and
+bc2d9543-7e13-4fc4-91ed-f1efe7b6b8e4 (nested focus delivery).
+
+The final combined real-Linux renderer suite passes all 34 tests without skips
+(guest /tmp/gtk-text-ref-test-final.log), including 51 text-entry assertions and
+the earlier real X11 press/drag, pull and wheel fixtures. The final expanded
+renderer/dependent typecheck passes eight tasks
+(andromeda /tmp/gtk-text-ref-types-final.log). Recipes and all 12 release notes
+validate. The existing broad native batch-observer and docs-site parser
+failures are unchanged; this slice adds no mobile OS runtime qualification.

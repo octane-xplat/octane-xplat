@@ -163,3 +163,16 @@ currentColor/custom-property tinting and texture disposal. HTTP sources load
 Soup 3 lazily; local assets need no HTTP typelib. SVG requires an installed
 GdkPixbuf SVG loader. res:// maps to registered GResource paths, not mobile
 asset catalogs. Image's full placeholder/sizing contract remains unqualified.
+
+GTK textfield refs implement .text/focus()/blur() for native text helpers.
+Imperative .text writes preserve Unicode selections and suppress controlled
+echoes. Keep GtkEditable.editable separate from widget sensitivity; read-only
+does not mean disabled. The Entry wrapper's get_position() can return the
+ordered selection bound for a backward range on GTK 4.14.5; use the renderer
+protocol rather than duplicating selection logic. Input cancels pending repair.
+TextInput is still a direct-source qualification fixture, not a GTK root export;
+its tooltip/full-state surface and TextArea's multiline host remain open.
+
+For GTK descriptor events, call the universal root's dispatchEvent directly.
+It opens or inherits the proper scope; wrapping each listener's priority can
+fail when focus/blur is emitted synchronously inside a discrete press.
