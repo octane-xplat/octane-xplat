@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import type { PagerProps } from './props'
 
 /** Explicit placeholder until the AppKit host has a paging surface. */

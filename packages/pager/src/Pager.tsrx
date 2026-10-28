@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { memo, useCallback, useEffect, useRef, useState } from 'octane'
 import {
 	pickAccessibilityProps,
@@ -9,7 +9,6 @@ import {
 
 import { registerElement } from '@nativescript-community/octane'
 
-import type { Attributes } from '@nativescript-community/octane/intrinsics'
 import {
 	createPortal as createUniversalPortal,
 	type UniversalRenderable,
@@ -25,12 +24,6 @@ import {
 } from './escape-props.mobile'
 
 import { layoutChildProps } from './layout-child'
-
-declare module '@nativescript-community/octane/intrinsics' {
-	interface NativeScriptElements {
-		pager: Attributes<typeof NSPager>
-	}
-}
 
 // @nativescript-community/ui-pager — ViewPager2 on Android, a paging
 // UICollectionView on iOS. It is a required peer: this leaf sits in the

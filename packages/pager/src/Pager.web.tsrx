@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useEffect, useRef } from 'octane'
 import type { PagerProps } from './props'
 import { applyWebProps } from './platformProps.web'
