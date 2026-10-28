@@ -2655,3 +2655,52 @@ packaging remain unqualified. ContextMenu/unowned Tab intent, secondary click an
 full menu AX roles/checked announcements remain implementation gaps. Native-backed focus handles receive attachment checks; explicit opaque custom
 focus delegates preserve caller-owned behavior whose attachment cannot be inspected. No builds, package tests/typechecks, installs,
 OS automation, visual analysis or shared audit snapshots ran; no checkbox is closed.
+
+### AppKit context menu keyboard and invoker return
+
+ComponentsDemo exposes context actions through a visible text trigger and long
+press. AppKit ContextMenu had no keyboard opening path, invoker return ownership
+or primitive trigger host. It now requests open on Shift+F10 from a current owned
+focused descendant, preserving prevented/composing/Alt/Ctrl/Meta events and current
+disabled/open state. A typed native key target is needed to remember the invoker;
+the renderer already normalizes shared field editors to their control. Nested
+context scopes stop the accepted key from reaching ancestors. No standalone
+wrapper Tab stop or no-op primary action was added.
+
+Keyboard origins and visible-trigger refs now feed the existing private menu
+return owner. They must remain eligible, inside the wrapper and in its current
+window; an invalid remembered origin falls back to the visible trigger. Tab/Shift-
+Tab records neighbor intent through controlled acceptance and existing layer
+restoration; ordinary dismissal resets it. Long-press-only menus with no live
+invoker keep native Tab fallback. Stable wrapper binding preserves remembered
+origins across render, while layout effects retain existing escape-prop updates.
+Visible trigger primitives use TextSlot; wrapper/menu labels fall back to label
+and effective expanded/disabled metadata is forwarded. No public API/dependency,
+shared manifest or renderer change was needed.
+
+Three origin-policy and three appended inline-popup cases cover same-window
+ancestry/eligibility, Shift+F10/control acceptance, visible-trigger primitive/text
+and return, live blocked/detach/foreign/IME/modifier guards and originless fallback.
+All six remain unrun. Fake native-tree hydration now supplies simulated superview
+links, so origin checks cannot pass on absent ancestry. Only TypeScript/TSRX
+syntax, semantic/source review and whitespace checks ran. Existing maintained
+menu-keyboard fixture now includes a focused ContextMenu example; its runner still
+only dispatches the ordinary dropdown trigger. Guide/skill, feature note and
+shared-menus AC10 were reconciled. Also corrected an earlier guide edit that used
+DropdownMenu's button prop on ContextMenu; its public prop remains trigger.
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/context-menu-origin.macos.mobile.test.tsrx src/menu-family.macos.mobile.test.tsrx src/menu-return.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe run examples/probes/menu-keyboard.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All commands remain deferred pending explicit human authorization for this task.
+Native Shift+F10 delivery, actual invoker/popup/Tab focus, refs/window timing,
+long-press/nested gesture arbitration, field-editor/IME behavior, full menu AX and
+packaging remain unqualified. Native secondary click and dedicated hardware
+Context Menu key normalization remain implementation gaps. No builds, package
+tests/typechecks, installs, OS automation, visual analysis or shared audit snapshots
+ran; no evidence checkbox is closed.

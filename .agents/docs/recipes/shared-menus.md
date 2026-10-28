@@ -33,7 +33,9 @@ context-menu leaf has its own recipe.
 
 - AC8: Closed AppKit dropdown Down/Up requests first/last-row opening on the existing Button host, retaining controlled pending intent and rejecting current blocked/open/descendant/IME/modified/prevented keys. Owned subscriptions compose with prop handlers on the shared monitor, enter discrete scope and release on ref/node destruction. Preserve Button ref/ID/layout and ordinary activation; report native evidence separately.
 
-- AC9: Owned AppKit dropdown/submenu Tab resolves a current same-window trigger neighbor, requests close without eager focus, and consumes the key while controlled owners decide. Nested return refs follow accepted ancestor visibility. AppKit layer restoration uses explicit live target windows, stable field owners and detached/hidden/moved-fallback guards. Keep ContextMenu/unowned fallback and actual native evidence explicit.
+- AC9: Owned AppKit dropdown/submenu Tab resolves a current same-window trigger neighbor, requests close without eager focus, and consumes the key while controlled owners decide. Nested return refs follow accepted ancestor visibility. AppKit layer restoration uses explicit live target windows, stable field owners and detached/hidden/moved-fallback guards. Keep originless/unowned fallback and actual native evidence explicit.
+
+- AC10: AppKit ContextMenu Shift+F10 opens from a valid owned focused host, preserving disabled/open/IME/modifier/prevention guards and controlled state. Keyboard/visible-trigger invokers drive ordinary and Tab return; reject moved/hidden/detached origins, preserve primitive trigger content and current label/state metadata, and document originless/native fallback plus secondary-click/key-normalization gaps.
 
 ## Documentation
 
@@ -50,3 +52,5 @@ context-menu leaf has its own recipe.
 - AC8: [Trigger arrow guide](../../../docs/app/menus.md#open-an-appkit-dropdown-with-arrows), appended dispatcher/bridge/menu-family source cases, [renderer ownership contract](../../../packages/macos-renderer/README.md#composed-control-key-ownership), maintained menu-keyboard fixture and [target note](../parity/appkit-progress.md#appkit-dropdown-trigger-arrow-ownership). All authored cases and native checks remain deferred.
 
 - AC9: [Owned Tab guide](../../../docs/app/menus.md#leave-an-owned-appkit-dropdown-with-tab), authored layer-focus/menu-return/policy/menu-family cases and [target note](../parity/appkit-progress.md#appkit-owned-menu-tab-return-intent). Cases remain unrun; maintained menu fixture describes the interaction without synthesizing OS keys.
+
+- AC10: [Context keyboard guide](../../../docs/app/menus.md#open-appkit-context-actions-from-the-keyboard), three origin-policy/three appended menu-family source cases, maintained target fixture and [target note](../parity/appkit-progress.md#appkit-context-menu-keyboard-and-invoker-return). Cases and native checks remain deferred.

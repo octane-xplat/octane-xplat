@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
-import { DropdownMenu, DropdownMenuItem, DropdownMenuCheckboxItem, DropdownMenuSubMenu, VStack } from '@octane-xplat/ui'
+import { Button, ContextMenu, DropdownMenu, DropdownMenuItem, DropdownMenuCheckboxItem, DropdownMenuSubMenu, VStack } from '@octane-xplat/ui'
 import type { ProbeContext } from '../../scripts/probe/context'
 
 export default function MenuKeyboardProbe() {
@@ -15,6 +15,10 @@ export default function MenuKeyboardProbe() {
 				<DropdownMenuItem id="menu-export" label="Export" onSelect={() => setResult('export')} />
 			</DropdownMenuSubMenu>
 		</DropdownMenu>
+		<ContextMenu id="context-keys" label="Document actions" trigger="Context actions"
+			menu={<DropdownMenuItem label="Archive" onSelect={() => setResult('context-archive')} />}>
+			<Button id="context-item" label="Document — try Shift+F10" clickAction={() => setResult('selected')} />
+		</ContextMenu>
 		<label id="menu-key-result" text={`${result}; ${checked ? 'pinned' : 'unpinned'}`} />
 	</VStack>
 }

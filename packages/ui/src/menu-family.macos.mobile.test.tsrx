@@ -164,7 +164,7 @@ function nativeMenuFixture() {
 		node.subviews = { get count() { return node.children?.length ?? 0 }, objectAtIndex: (index: number) => node.children[index] }
 		node.bounds = {}; node.scrollRectToVisible = vi.fn()
 		node.accessibilityIsEnabled = () => !node.props?.accessibilityState?.disabled
-		for (const child of node.children ?? []) hydrate(child, owner)
+		for (const child of node.children ?? []) { child.superview = node; hydrate(child, owner) }
 	}
 	const key = (surface: any, name: string, extra = {}) => {
 		const event: any = { key: name, code: '', altKey: false, ctrlKey: false, metaKey: false, shiftKey: false,
@@ -376,5 +376,73 @@ it('nested Tab requests the whole menu chain and return refs follow accepted anc
 		env.render({ root: false, sub: false }); expect(lists(env)).toHaveLength(0)
 		expect(inner.finalFocusRef.current).toBe(next)
 		expect(outer.finalFocusRef.current).toBe(next)
+	} finally { env.root.unmount(); vi.unstubAllGlobals() }
+})
+
+it('ContextMenu Shift-F10 opens from owned content and records controlled Tab return through its invoker', async () => {
+	const f = nativeMenuFixture(), main = f.window(), panel = f.window(), changes = vi.fn()
+	const base = { id: 'context', isOpen: false, label: 'Item actions', onOpenChange: changes,
+		children: <TextInput id="context-input" />, menu: <DropdownMenuItem id="context-action" label="Archive" /> }
+	const env = mount(ContextMenu, base)
+	try {
+		const host = env.byID('context'); f.hydrate(host, main)
+		expect(host.props.accessibilityLabel).toBe('Item actions')
+		const field = env.byID('context-input'), next = { window: main }; field.nextValidKeyView = next
+		main.firstResponder = field
+		expect(f.key(host, 'F10', { target: field, shiftKey: true }).stopped).toBe(true)
+		expect(changes).toHaveBeenLastCalledWith(true); expect(lists(env)).toHaveLength(0)
+		env.render({ ...base, isOpen: true }); f.hydrate(lists(env)[0], panel)
+		await vi.waitFor(() => { flushUniversalSync(() => {}); expect(panel.firstResponder).toBe(env.byID('context-action')) })
+		const owner = popupFor('context'); expect(owner.finalFocusRef.current).toBe(field)
+		expect(f.key(lists(env)[0], 'Tab').defaultPrevented).toBe(true)
+		expect(changes).toHaveBeenLastCalledWith(false); expect(lists(env)).toHaveLength(1)
+		expect(owner.finalFocusRef.current).toBe(next)
+		env.render(base); expect(lists(env)).toHaveLength(0); expect(owner.finalFocusRef.current).toBe(next)
+	} finally { env.root.unmount(); vi.unstubAllGlobals() }
+})
+
+it('visible context triggers keep primitive content and provide ordinary/Tab return without replacing the wrapper', async () => {
+	const f = nativeMenuFixture(), main = f.window(), panel = f.window(), changes = vi.fn()
+	const props = { id: 'context', label: 'Item actions', trigger: 'Actions', onOpenChange: changes,
+		menu: <DropdownMenuItem id="context-action" label="Archive" /> }
+	const env = mount(ContextMenu, props)
+	try {
+		const host = env.byID('context'); f.hydrate(host, main)
+		const trigger = env.all().find((node) => String(node.props?.className).split(' ').includes('vx-contextmenu-trigger'))
+		const previous = { window: main }; trigger.previousValidKeyView = previous
+		expect(env.all().some((node) => node.type === 'label' && node.props?.text === 'Actions')).toBe(true)
+		trigger.props.onTap(); flushUniversalSync(() => {}); f.hydrate(lists(env)[0], panel)
+		await vi.waitFor(() => { flushUniversalSync(() => {}); expect(panel.firstResponder).toBe(env.byID('context-action')) })
+		expect(popupFor('context').finalFocusRef.current).toBe(trigger)
+		expect(f.key(lists(env)[0], 'Tab', { shiftKey: true }).stopped).toBe(true)
+		flushUniversalSync(() => {}); expect(lists(env)).toHaveLength(0)
+		expect(env.byID('context')).toBe(host)
+		expect(popupFor('context').finalFocusRef.current).toBe(previous)
+		const cached = trigger.props.onTap; env.render({ ...props, isDisabled: true }); changes.mockClear()
+		cached(); expect(changes).not.toHaveBeenCalled()
+	} finally { env.root.unmount(); vi.unstubAllGlobals() }
+})
+
+it('context keyboard guards reject stale blocked/detached/foreign/prevented/composing/modified events; originless long press retains Tab fallback', async () => {
+	const f = nativeMenuFixture(), main = f.window(), panel = f.window(), changes = vi.fn()
+	const base = { id: 'context', isOpen: false, onOpenChange: changes, children: <TextInput id="context-input" />,
+		menu: <DropdownMenuItem id="context-action" label="Archive" /> }
+	const env = mount(ContextMenu, base)
+	try {
+		const host = env.byID('context'); f.hydrate(host, main)
+		const field = env.byID('context-input'), cached = { props: { onKeyDown: host.props.onKeyDown } }
+		for (const extra of [{ isComposing: true }, { altKey: true }, { ctrlKey: true }, { metaKey: true }, { defaultPrevented: true }, { shiftKey: false }, { target: { window: main } }]) {
+			expect(f.key(host, 'F10', { target: field, shiftKey: true, ...extra }).stopped).toBe(false)
+		}
+		env.render({ ...base, isDisabled: true }); expect(f.key(cached, 'F10', { target: field, shiftKey: true }).defaultPrevented).toBe(false)
+		expect(changes).not.toHaveBeenCalled()
+		env.render(base); host.props.onLongPress(); flushUniversalSync(() => {}); expect(changes).toHaveBeenLastCalledWith(true)
+		env.render({ ...base, isOpen: true }); f.hydrate(lists(env)[0], panel)
+		await vi.waitFor(() => { flushUniversalSync(() => {}); expect(panel.firstResponder).toBe(env.byID('context-action')) })
+		expect(f.key(lists(env)[0], 'Tab').defaultPrevented).toBe(false)
+		expect(changes).toHaveBeenLastCalledWith(false)
+		env.root.unmount(); changes.mockClear()
+		expect(f.key(cached, 'F10', { target: field, shiftKey: true }).defaultPrevented).toBe(false)
+		expect(changes).not.toHaveBeenCalled()
 	} finally { env.root.unmount(); vi.unstubAllGlobals() }
 })

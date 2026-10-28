@@ -1068,7 +1068,7 @@ export function Actions({ disabled }: { disabled: boolean }) {
 ```
 
 The subsequent menu-surface source path covers arrows/typeahead/submenu intent;
-ContextMenu/unowned Tab return, native secondary click and
+originless/unowned Tab return, native secondary click and
 full menu AX roles/checked announcements remain implementation gaps; native popup/ref/focus/
 input/VoiceOver behavior is unqualified. Authored inline-popup cases remain unrun.
 
@@ -1125,7 +1125,8 @@ same-window next/previous valid key view, records return intent and consumes the
 key while requesting closure. Private return owners follow accepted ancestor
 visibility: a child whose parent stays open returns to that parent's row; after
 the chain closes its ref delegates to the root neighbor. No eager makeFirstResponder
-is added to the menu handler. ContextMenu/unowned surfaces keep native Tab fallback.
+is added to the menu handler. ContextMenu now supplies return intent for valid invokers; originless/unowned
+surfaces keep native Tab fallback, as described below.
 
 ```tsx
 import { useState } from 'octane'
@@ -1145,3 +1146,27 @@ back to controls. Native-backed handles receive attachment checks; explicit opaq
 keep caller-owned behavior whose attachment cannot be inspected. Ten new authored cases
 remain unrun. Actual layer cleanup/window timing, native traversal/focus, modal/
 FocusScope and AX behavior remain unqualified; see [owned Tab return](../../../../docs/menus.md#leave-an-owned-appkit-dropdown-with-tab).
+
+
+AppKit ContextMenu now handles Shift+F10 from a still-owned focused descendant.
+It stores the concrete invoker and reuses the menu return owner for ordinary and
+Tab/Shift-Tab intent. Visible triggers supply a fallback invoker and now wrap
+primitive content through TextSlot. Label fallback and expanded/disabled wrapper
+metadata are forwarded. Origin checks reject detached, moved, hidden or blocked
+hosts while preserving explicitly focusable disabled-card claims.
+
+```tsx
+import { Button, ContextMenu, DropdownMenuItem } from '@octane-xplat/ui'
+
+export function Document() {
+	return <ContextMenu label="Document actions" trigger="Actions" menu={<DropdownMenuItem label="Archive" />}>
+		<Button label="report.txt" clickAction={() => console.log('select')} />
+	</ContextMenu>
+}
+```
+
+Use trigger content for ContextMenu; only DropdownMenu accepts button. Long-press-
+only menus without a live invoker keep native Tab fallback. Six authored cases
+remain unrun; native key/gesture/ref/IME/focus/AX/packaging behavior is unqualified.
+Secondary click and dedicated hardware Context Menu key normalization remain
+implementation gaps. See [context keyboard intent](../../../../docs/menus.md#open-appkit-context-actions-from-the-keyboard).

@@ -110,7 +110,7 @@ implementations and state ownership.
 
 ```tsx
 <ContextMenu
-	button={{ label: 'Actions' }}
+	trigger={<Text>Actions</Text>}
 	accessibilityLabel="Open file actions"
 	items={[{ type: 'action', key: 'rename', label: 'Rename', onSelect: rename }]}
 >
@@ -205,8 +205,7 @@ export function ControlledActions({ disabled }: { disabled: boolean }) {
 Five authored AppKit object-driver cases remain unrun and replace popovers with
 inline content. Subsequent surface/trigger keyboard source paths are described below; reliable
 owned-dropdown Tab return intent is described below; real popup/ref/focus timing, physical keys, mouse hit testing,
-VoiceOver and packaging remain unqualified. Shared AppKit ContextMenu still uses
-long press or its visible trigger; native secondary-click support is separate.
+VoiceOver and packaging remain unqualified. Shared AppKit ContextMenu also has the Shift+F10 source path described below; native secondary-click support is separate.
 The renderer's full menu-role/checked announcements also remain incomplete.
 
 
@@ -297,9 +296,41 @@ Nested return refs choose the closest accepted open ancestor, then the outer
 trigger's requested neighbor once the chain closes. The AppKit focus adapter
 uses an explicit target's own window, resolves shared field editors to their
 owning controls, and rejects detached/hidden targets or moved fallback controls.
-Context menus and unowned surfaces retain native Tab fallback in this slice.
+ContextMenu now supplies return intent when it has a valid invoker, as described
+below; originless and unowned surfaces retain native Tab fallback.
 
 Ten new focus/return-policy/fake-window cases remain unrun. Native cleanup order,
 actual key-view traversal and focus restoration, window activation timing,
 FocusScope/modal integration, IME, VoiceOver and packaging remain unqualified.
 The implementation records return intent; it is not proof of a native Tab result.
+
+
+### Open AppKit context actions from the keyboard
+
+AppKit ContextMenu now requests opening with Shift+F10 from focused content
+inside its wrapper, preserving composition, modified/prevented keys and disabled
+state. It remembers that live native invoker for ordinary return and Tab/Shift-Tab
+neighbor intent. Its visible trigger also supplies a return host; plain text
+trigger content is wrapped in a native text host. ContextMenu owns the clickable
+trigger, so provide its content with trigger; DropdownMenu uses button instead.
+
+```tsx
+import { Button, ContextMenu, DropdownMenuItem } from '@octane-xplat/ui'
+
+export function Document() {
+	return <ContextMenu label="Document actions" trigger="Actions"
+		menu={<DropdownMenuItem label="Archive" onSelect={() => console.log('archive')} />}>
+		<Button label="report.txt" clickAction={() => console.log('select')} />
+	</ContextMenu>
+}
+```
+
+The invoker must remain visible, eligible, inside the wrapper and in the same
+window. An unavailable keyboard origin falls back to the visible trigger. Without
+a valid invoker, long-press-only menus retain native Tab fallback. Controlled
+owners still accept closure before layer restoration runs.
+
+Six new origin-policy/inline-popup cases remain unrun. Physical Shift+F10 delivery,
+actual invoker/popup/Tab focus, native metadata/gesture arbitration, IME, VoiceOver
+and packaging remain unqualified. Secondary-click opening and normalization of a
+dedicated hardware Context Menu key remain separate implementation gaps.
