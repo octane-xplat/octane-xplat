@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 function CardRoot(props: { title: string }) @{
 	<div>{props.title}</div>
 }

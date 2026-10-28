@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import type { BoxProps } from './BoxProps'
 
 export function Box<T>(props: BoxProps<T>) @{
