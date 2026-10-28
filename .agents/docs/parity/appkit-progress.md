@@ -349,7 +349,7 @@ Deferred commands:
 
 ```sh
 pnpm exec turbo run test --filter=@octane-xplat/ui -- src/grid-navigation.macos.test.ts
-pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/grid-list.macos.mobile.test.tsrx
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/grid-list.macos.mobile.test.tsrx
 pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
 pnpm exec turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/macos-renderer
 pnpm probe run examples/probes/grid-list.macos.tsrx --target macos --watch
@@ -504,7 +504,7 @@ Deferred commands:
 
 ```sh
 pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
-pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/image.macos.mobile.test.tsrx
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/image.macos.mobile.test.tsrx
 pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer --filter=...@octane-xplat/ui --filter=...@octane-xplat/image
 pnpm exec turbo run typegen --filter=@octane-xplat/ui --filter=@octane-xplat/image
 pnpm exec turbo run test:packed --filter=@octane-xplat/image
@@ -613,7 +613,7 @@ Deferred commands:
 ```sh
 pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
 pnpm exec turbo run test --filter=@octane-xplat/ui -- src/image-content.test.ts
-pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/image.macos.mobile.test.tsrx
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/image.macos.mobile.test.tsrx
 pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer --filter=...@octane-xplat/ui --filter=...@octane-xplat/image
 pnpm exec turbo run typegen --filter=@octane-xplat/ui --filter=@octane-xplat/image
 pnpm exec turbo run test:packed --filter=@octane-xplat/image
@@ -676,7 +676,7 @@ Syntax and whitespace checks only. Deferred commands:
 
 ```sh
 pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
-pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/image.macos.mobile.test.tsrx
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/image.macos.mobile.test.tsrx
 pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer --filter=...@octane-xplat/ui --filter=...@octane-xplat/image
 pnpm check:recipes
 ```
@@ -708,7 +708,7 @@ Deferred commands:
 
 ```sh
 pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
-pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/text-controls.macos.mobile.test.tsrx
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/text-controls.macos.mobile.test.tsrx
 pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer --filter=...@octane-xplat/ui
 pnpm check:recipes
 ```
@@ -742,7 +742,7 @@ one enclosing wrapper, hidden label naming and CSS-string preservation. These
 cases are authored but unrun. Syntax/whitespace checks only. Deferred commands:
 
 ```sh
-pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/text-controls.macos.mobile.test.tsrx
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/text-controls.macos.mobile.test.tsrx
 pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
 pnpm check:recipes
 ```
@@ -807,7 +807,7 @@ Added default/custom/no-icon, supplied-node, placeholder and return-key metadata
 regression source. Syntax and whitespace only; tests are unrun. Deferred:
 
 ```sh
-pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/text-controls.macos.mobile.test.tsrx
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/text-controls.macos.mobile.test.tsrx
 pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
 pnpm check:recipes
 ```
@@ -845,7 +845,7 @@ nonzero window-content origins and composed-class regression cases. Syntax and
 whitespace only; no tests or native interaction ran. Deferred commands:
 
 ```sh
-pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/appkit-scroll-geometry.mobile.test.ts src/scrollable-area-appkit.mobile.test.tsrx src/chat-scroll-host.macos.mobile.test.ts
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/appkit-scroll-geometry.mobile.test.ts src/scrollable-area-appkit.mobile.test.tsrx src/chat-scroll-host.macos.mobile.test.ts
 pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
 pnpm check:recipes
 ```
@@ -915,7 +915,7 @@ native-API probe. None has run. Syntax and whitespace only. Deferred commands:
 
 ```sh
 pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
-pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/text-controls.macos.mobile.test.tsrx
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/text-controls.macos.mobile.test.tsrx
 pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer --filter=...@octane-xplat/ui
 pnpm probe run examples/probes/text-limit.macos.tsrx --target macos --watch
 pnpm check:recipes
@@ -1000,3 +1000,38 @@ and whitespace only, not OS keyboard/candidate or native-action qualification.
 The deferred writer's scope remains core textfield/textview values; raw search
 text synchronization itself is unchanged. The same deferred renderer test and
 native composition commands above apply.
+
+
+### AppKit object-driver resolver prerequisite
+
+While adding NumberInput source coverage, inspection found the shared native
+Vitest configuration preferred iOS/mobile suffixes even for explicit AppKit
+component tests. Transitive unsuffixed imports (for example FormField → Tooltip
+→ View/pan or escape-props) could therefore select mobile NativeScript imports.
+This is a test-config source finding, not a claim that the production AppKit
+resolver failed: the CLI already uses macos/native conditions and macOS suffixes.
+
+The UI native test configuration now selects an explicit macOS mode via
+XPLAT_UI_TEST_TARGET=macos. Target-specific options retain the CLI's macOS/
+unsuffixed extension order and route AppKit patterns to this mode. Default mobile
+Vitest mode excludes those same patterns. The UI Turbo test:native task declares
+the env variable for passing/hash separation; no package manifest, CLI file or
+Windows/GTK source changed. The unchanged Node-test prelude still runs in either
+mode, and Turbo prerequisites can build dependencies. Existing deferred UI
+AppKit test commands in this note now include the target prefix.
+
+Config/source syntax, JSON parsing and whitespace only. No Vitest collection,
+Turbo task execution/cache validation, tests, builds, typechecks, installs or
+native automation ran. Deferred after human authorization:
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/input-number.macos.mobile.test.tsrx
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/text-controls.macos.mobile.test.tsrx src/scrollable-area-appkit.mobile.test.tsrx src/image.macos.mobile.test.tsrx
+pnpm exec turbo run test:native --filter=@octane-xplat/ui
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm check:recipes
+```
+
+Actual target file collection, dependency resolution, compiler transforms and
+both modes' execution remain unverified. Prior authored AppKit cases are still
+unrun; adding a selectable mode does not close a native or test evidence gate.

@@ -14,7 +14,8 @@
 			"dependsOn": ["typegen", "^typegen", "^build"]
 		},
 		"test:native": {
-			"dependsOn": ["typegen", "^typegen", "^build"]
+			"dependsOn": ["typegen", "^typegen", "^build"],
+			"env": ["XPLAT_UI_TEST_TARGET"]
 		}
 	}
 }

@@ -1,4 +1,5 @@
-import { defineConfig } from 'vitest/config'
+import { configDefaults, defineConfig } from 'vitest/config'
+import { APPKIT_EXTENSIONS, APPKIT_TESTS } from './vitest.appkit-options.mts'
 import { URL } from 'node:url'
 import { octane } from 'octane/compiler/vite'
 import { nativeScriptRenderer } from '@nativescript-community/octane/config'
@@ -11,6 +12,10 @@ import { nativeScriptRenderer } from '@nativescript-community/octane/config'
 // the nativescript renderer is server:'unsupported'. The app-level
 // @octanejs/vite-plugin wrapper doesn't forward this flag, so tests use the
 // compiler plugin directly.
+const target = process.env.XPLAT_UI_TEST_TARGET ?? 'mobile'
+if (target !== 'mobile' && target !== 'macos') throw new Error('XPLAT_UI_TEST_TARGET must be mobile or macos')
+const appkit = target === 'macos'
+
 const NATIVE_EXTS = [
 	'.ios.tsrx',
 	'.android.tsrx',
@@ -42,7 +47,7 @@ export default defineConfig({
 		}),
 	],
 	resolve: {
-		conditions: ['native'],
+		conditions: appkit ? ['macos', 'native'] : ['native'],
 		alias: [
 			{ find: /^octane$/, replacement: 'octane/universal/native' },
 			// Vitest's SSR resolver otherwise redirects the authored client hook
@@ -72,12 +77,13 @@ export default defineConfig({
 				replacement: new URL('./tests/masonkit-mock.ts', import.meta.url).pathname,
 			},
 		],
-		extensions: NATIVE_EXTS,
+		extensions: appkit ? APPKIT_EXTENSIONS : NATIVE_EXTS,
 	},
 	test: {
 		// Turbo runs package suites together; keep their worker pools bounded.
 		maxWorkers: 2,
-		include: ['src/**/*.mobile.test.{ts,tsx,tsrx}'],
+		include: appkit ? APPKIT_TESTS : ['src/**/*.mobile.test.{ts,tsx,tsrx}'],
+		exclude: [...configDefaults.exclude, ...(appkit ? [] : APPKIT_TESTS)],
 		environment: 'node',
 	},
 })

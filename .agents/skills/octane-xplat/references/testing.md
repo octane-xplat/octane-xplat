@@ -53,7 +53,7 @@ Choose the narrowest maintained layer that can establish the claim:
 | Layer                    | Repository command                                           | Evidence boundary                                                        |
 | ------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------------------ |
 | Package types            | `pnpm exec turbo run typecheck --filter=...@octane-xplat/ui` | Types for the touched package and dependents; no runtime claim           |
-| Shared/native unit tests | `pnpm --filter @octane-xplat/ui test:native`                 | Node and compiled object-driver regressions; no OS host/input claim      |
+| Shared/native unit tests | `pnpm exec turbo run test:native --filter=@octane-xplat/ui`                 | Node and compiled object-driver regressions; no OS host/input claim      |
 | DOM seam check           | `pnpm lint`                                                  | Forbidden DOM usage in native/shared code                                |
 | Web harness smoke        | `pnpm smoke:web`                                             | Browser behavior covered by the local smoke script                       |
 | Packed starter           | `pnpm check:consumer --no-build --quick`                     | Prepared tarballs, isolated install, declarations, and compilation       |
@@ -173,3 +173,20 @@ For agent-driven browser/device interaction, use the optional
 Neither tool establishes untested targets, physical devices, or arbitrary input
 behavior by implication. Only capture or inspect visual artifacts when the task
 and project instructions authorize that evidence.
+
+
+### AppKit object-driver test mode
+
+Use `XPLAT_UI_TEST_TARGET=macos` for AppKit component cases. It selects macOS
+package conditions/extensions and AppKit test patterns; the default mobile
+mode excludes those patterns. The target is part of the UI Turbo task's env
+hash. The Node-test prelude and task prerequisites still run. This mode does
+not launch an OS app or prove native input/layout/VoiceOver/packaging.
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/input-number.macos.mobile.test.tsrx
+```
+
+Read [test-layer guidance](../../../docs/testing.md#appkit-component-tests) for
+scope and prerequisites. Do not use an AppKit filename with the default mobile
+mode and report missing tests as a platform pass.

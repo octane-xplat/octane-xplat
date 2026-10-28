@@ -11,6 +11,24 @@ For Android emulator setup, device isolation, and verified host commands, use th
 Prefer an isolated case over editing the harness or running a full sweep just
 to answer one question. Windows is excluded from this runner.
 
+## AppKit component tests
+
+The UI's native test task has separate mobile and AppKit Vitest modes. Select
+AppKit explicitly so unsuffixed imports use macOS leaves and `macos` package
+conditions. The default mobile mode excludes the AppKit test patterns; those
+cases remain owned by the AppKit command, not silently treated as passing.
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/input-number.macos.mobile.test.tsrx
+```
+
+The existing Node-test prelude still runs. Turbo may prepare dependency builds
+and generated declarations; the target variable is declared in the UI task's
+environment hash. Vitest cases use the object driver and cannot establish OS
+input, AppKit layout, VoiceOver or packaged behavior. Omit the variable (or set
+it to `mobile`) for the existing mobile Vitest suite. The configuration rejects
+other values.
+
 ## Web browser end-to-end tests
 
 The UI's web unit suite uses jsdom and runs in the normal `pnpm test` and PR
