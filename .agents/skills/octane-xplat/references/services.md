@@ -253,3 +253,23 @@ export function Status() {
 	return <Button label="Report saved" clickAction={() => announce('Saved')} />
 }
 ```
+
+### Leaf-owned Intl initialization
+
+On iOS/Android, Lingui initializes only the Intl APIs required by its message
+engine and comparison/list hooks. Additional data is selected through
+`@octane-xplat/lingui/locales/<tag>` and `/time-zones/{all,golden}` in an app's
+`.mobile.ts` module. See [native formatting data](../../../../docs/app/localization.md#native-formatting-data).
+Do not add an app-wide API bootstrap or use Lingui as a generic Intl provider.
+
+```ts
+// locale-data.mobile.ts, imported before initLingui
+import '@octane-xplat/lingui/locales/de'
+```
+
+RollingText owns Segmenter and its prerequisites; Motion's internal text-morph
+semantics do the same when consumed on mobile. Ordinary Motion imports do not
+load that internal feature. Web and desktop retain built-ins. UI installs no
+polyfills: test individual capabilities and retain documented fallbacks.
+FormatJS's guarded entries mutate global Intl and may replace incomplete
+implementations. Installing one leaf does not guarantee every Intl API exists.

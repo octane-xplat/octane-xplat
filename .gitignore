@@ -23,6 +23,7 @@ packages/camera/types/session-core.d.ts
 packages/camera/types/synthetic-session.d.ts
 packages/*/types/table.d.ts
 packages/motion/types/clock-types.d.ts
+packages/motion/types/intl.d.ts
 packages/motion/types/engine.d.ts
 packages/motion/types/value.d.ts
 packages/motion/types/text-morph/

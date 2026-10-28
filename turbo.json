@@ -2,6 +2,11 @@
 	"$schema": "https://turborepo.dev/schema.json",
 	"globalDependencies": ["tsconfig.base.json", "packages/cli/patches/**"],
 	"tasks": {
+		"test:intl": {
+			"inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/scripts/intl-test-utils.mjs"],
+			"dependsOn": ["typegen", "^typegen", "^build"],
+			"outputs": []
+		},
 		// Declarations consumed by dependents' typecheck (exports.types →
 		// types/generated). ^typegen ordering guarantees dep d.ts exist; the edge
 		// also folds each dep package's file hash in — even for script-less deps,

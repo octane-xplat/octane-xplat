@@ -48,6 +48,10 @@ The reader knows the platform-services pattern and per-target leaf resolution.
   controlled selection, keep provider and host direction synchronized for RTL,
   and explain nested scope isolation, English fallback and ICU/host limits.
 
+- AC8: Native Lingui initializes only its required Intl APIs; the app selects
+  additional locale and time-zone data without owning FormatJS dependencies.
+  Distinguish this behavior from UI's optional capabilities and fallbacks.
+
 ## Documentation
 
 - AC1: [Startup](../../../docs/app/localization.md#starting-the-runtime) — catalog
@@ -69,3 +73,6 @@ The reader knows the platform-services pattern and per-target leaf resolution.
 - AC7: [Subtree UI strings](../../../docs/app/localization.md#change-ui-strings-in-one-part-of-a-screen),
   [maintained locale examples](../../../apps/astryx-sandbox/src/examples/internationalization/InternationalizationProvider01ShippedLocale.tsrx),
   [RTL example](../../../apps/astryx-sandbox/src/examples/internationalization/InternationalizationProvider03RtlDirection.web.tsrx).
+
+- AC8: [Native formatting data](../../../docs/app/localization.md#native-formatting-data),
+  [isolated native bundle checks](../../../packages/lingui/tests/intl.mjs).

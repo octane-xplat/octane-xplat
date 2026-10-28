@@ -1,3 +1,5 @@
+import { build } from 'vite'
+import { checkIntlBundle } from '../../../scripts/intl-test-utils.mjs'
 // Real tarball installation: the workspace extraction test's symlink can hide
 // Node's unsupported TypeScript stripping inside node_modules.
 import assert from 'node:assert/strict'
@@ -67,6 +69,16 @@ assert.equal(typeof babelExtractor.extract, 'function')
 	)
 
 	run(process.execPath, ['check.mjs'], app)
+	await checkIntlBundle(build, {
+		root: app,
+		source: `import '@octane-xplat/lingui/locales/de'; export { initLingui, i18n } from '@octane-xplat/lingui'`,
+		check: `
+   await leaf.initLingui({locale:'de', catalogs:{de:async () => ({messages:{}})}})
+   assert.equal(leaf.i18n.number(1234.5), '1.234,5')
+   assert.equal(typeof Intl.Segmenter, 'undefined')
+   assert.equal(typeof Intl.RelativeTimeFormat, 'undefined')
+  `,
+	})
 	run('pnpm', ['exec', 'lingui', 'extract'], app)
 	const catalog = JSON.parse(readFileSync(join(app, 'locales/en/messages.json'), 'utf8'))
 	const entries = Object.values(catalog)

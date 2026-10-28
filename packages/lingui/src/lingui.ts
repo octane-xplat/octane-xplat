@@ -1,3 +1,5 @@
+import './intl'
+
 // Lingui runtime binding — shared module. Locale state lives in a
 // module-scope store (same rule as packages/ui/src/store.ts): pushed pages and
 // overlays are separate roots on native, so a raw signal read in one root never

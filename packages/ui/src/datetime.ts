@@ -7,9 +7,9 @@
  * platform contract needs one: `dateConstraints` callbacks and Calendar's
  * single-mode `onChange` second argument.
  *
- * Locale display goes through `Intl.DateTimeFormat` (V8 on Android, JSC on
- * iOS/macOS — all provide it) with a fixed English fallback so formatting
- * never throws on a runtime with a reduced ICU.
+ * Locale display uses `Intl.DateTimeFormat` where available, with a fixed
+ * English fallback. NativeScript's ICU-free runtimes need an explicit
+ * polyfill opt-in for locale-aware output.
  */
 
 import type {

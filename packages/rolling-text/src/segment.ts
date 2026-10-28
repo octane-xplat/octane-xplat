@@ -1,3 +1,5 @@
+import './intl'
+
 import type { RollingTextUnit } from './props'
 
 interface Segmentation {
@@ -17,11 +19,13 @@ let graphemeSegmenter: Segmenter | null | undefined
 let wordSegmenter: Segmenter | null | undefined
 
 function getSegmenter(granularity: 'grapheme' | 'word'): Segmenter | null {
-	const IntlWithSegmenter = Intl as unknown as {
-		Segmenter?: new (locale?: string, options?: { granularity: string }) => Segmenter
-	}
+	const IntlWithSegmenter = (typeof Intl === 'undefined' ? undefined : Intl) as
+		| {
+				Segmenter?: new (locale?: string, options?: { granularity: string }) => Segmenter
+		  }
+		| undefined
 
-	return typeof IntlWithSegmenter.Segmenter === 'function'
+	return typeof IntlWithSegmenter?.Segmenter === 'function'
 		? new IntlWithSegmenter.Segmenter(undefined, { granularity })
 		: null
 }

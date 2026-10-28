@@ -1,0 +1,14 @@
+{
+	"extends": ["//"],
+	"tasks": {
+		"typegen": {
+			"outputs": ["types/**", "dist/locales/**", "dist/time-zones/**"]
+		},
+		"build": {
+			"dependsOn": ["typegen", "^typegen"]
+		},
+		"test": {
+			"dependsOn": ["build", "^typegen", "^build"]
+		}
+	}
+}

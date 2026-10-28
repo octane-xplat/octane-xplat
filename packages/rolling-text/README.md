@@ -44,6 +44,20 @@ while a roll is queued or reduced. The animated glyphs are hidden from the
 accessibility tree, so there is never a mix of old and new text. Pass
 `accessibilityLiveRegion="polite"` if a change should be announced.
 
+## Native text segmentation
+
+On iOS and Android, RollingText installs its own guarded `Intl.Segmenter`
+polyfill and prerequisites. No app bootstrap or formatting dependency is
+needed. Other targets use their built-in segmenter:
+
+```tsx
+import { RollingText } from '@octane-xplat/rolling-text'
+
+export function Greeting() {
+  return <RollingText value="Hello 👨‍👩‍👧" rollBy="grapheme" />
+}
+```
+
 ## Limits
 
 - **One line.** The row clips to a single line; long values overflow rather

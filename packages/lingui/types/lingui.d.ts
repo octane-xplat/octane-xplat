@@ -1,3 +1,4 @@
+import './intl';
 import { i18n } from '@lingui/core';
 export { i18n };
 import type { CatalogLoader, LinguiSetup } from './types';

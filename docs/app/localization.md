@@ -310,6 +310,87 @@ The system source is per target:
 | iOS, Android   | `@nativescript/core` `Device.language`           |
 | macOS, Windows | `Intl.DateTimeFormat().resolvedOptions().locale` |
 
+## Native formatting data
+
+On iOS and Android, importing the Lingui integration installs the Intl APIs
+that its message engine and hooks need. The package owns the FormatJS
+dependencies; you do not need a polyfill bootstrap. English formatting data is
+included:
+
+```ts
+import { initLingui, i18n } from '@octane-xplat/lingui'
+
+await initLingui({
+  locale: 'en',
+  catalogs: { en: async () => ({ messages: {} }) },
+})
+console.log(i18n.number(1234.5)) // 1,234.5
+```
+
+For another language, load its formatting data before activating the catalog.
+Translation catalogs contain your messages; these data entries supply number,
+date, list, and plural rules. Keep the import in a `.mobile.ts` file so other
+targets continue using their built-in data:
+
+```ts
+// src/locale-data.mobile.ts
+import '@octane-xplat/lingui/locales/de'
+import '@octane-xplat/lingui/locales/fr-CA'
+```
+
+```ts
+// src/locale-data.ts — other targets
+export {}
+```
+
+```ts
+// In the module that starts localization, before calling initLingui:
+import './locale-data'
+import { initLingui, i18n } from '@octane-xplat/lingui'
+
+await initLingui({
+  locale: 'de',
+  catalogs: { de: async () => ({ messages: {} }) },
+})
+console.log(i18n.number(1234.5)) // 1.234,5
+```
+
+The native date formatter defaults to UTC. Load named time-zone data separately
+and pass the desired zone explicitly; the package does not infer the device's
+zone. `golden` is the smaller major-zone dataset; `all` includes the full set:
+
+```ts
+// src/locale-data.mobile.ts
+import '@octane-xplat/lingui/time-zones/all'
+```
+
+```ts
+console.log(i18n.date(0, {
+  timeZone: 'America/New_York', hour: 'numeric', hourCycle: 'h23',
+}))
+```
+
+The native integration installs guarded global `getCanonicalLocales`, `Locale`,
+`PluralRules`, `NumberFormat`, `DateTimeFormat`, `ListFormat`, and `Collator`.
+It does not install `RelativeTimeFormat` or `Segmenter`. FormatJS guards may
+replace existing but incomplete implementations; repeated resolved imports
+share initialization. Collator's embedded data accounts for most of the
+roughly 8.6 MB uncompressed native library bundle measured for this integration.
+
+UI remains independent: basic UI imports install no polyfills. Table falls back
+to natural sorting and optional text segmentation falls back to code points.
+Explicit locale-aware UI features still require their corresponding APIs; check
+individual capabilities because another leaf may install only part of Intl:
+
+```ts
+const hasRelativeTime =
+  typeof Intl !== 'undefined' && typeof Intl.RelativeTimeFormat === 'function'
+```
+
+Installing Intl does not repair NativeScript's separate no-op
+`String.prototype.normalize`; Lingui filtering still cannot promise
+canonical-equivalence matching there.
+
 ## Verification status
 
 Desk- and harness-verified: macro expansion inside `.tsrx` through the
@@ -322,10 +403,12 @@ Not yet device-verified: `import.meta.glob` catalog loading inside a real
 native bundle (the pattern matches the ui route tables' glob use, so it is
 expected to work) and `Device.language` on physical iOS/Android.
 
-`Intl.PluralRules` is unavailable on the NS runtimes: checked on device
+Built-in `Intl.PluralRules` is unavailable on the NS runtimes: checked on device
 2026-10-21, the NativeScript iOS and Android runtimes embed V8 built without
 ICU and `Intl` is undefined there (`@nativescript/ios` 9.1.0 simulator,
-`@nativescript/android` 9.1.1 device).
+`@nativescript/android` 9.1.1 device). The leaf-owned initialization above
+passed combined formatting and segmentation checks on Chromium, an iOS
+simulator, and macOS on 2026-10-28. Android polyfill execution remains unverified.
 
 ## Change UI strings in one part of a screen
 

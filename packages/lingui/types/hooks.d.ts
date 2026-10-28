@@ -1,3 +1,4 @@
+import './intl';
 import { type I18n } from '@lingui/core';
 /** Subscribe the calling component to locale changes and return the locale. */
 export declare function useLocale(): string;

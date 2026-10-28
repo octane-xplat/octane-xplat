@@ -96,3 +96,59 @@ performed for this proposal.
 No production dependency or formatting behavior changed. Revisit when the
 selected implementations can receive their prerequisites and locale data
 without global registration, or when the integration constraints change.
+
+
+## Leaf-owned Intl initialization
+
+NativeScript mobile implementations initialize the APIs owned by each feature:
+
+| Leaf | Installed APIs (including prerequisites) |
+| --- | --- |
+| Lingui | getCanonicalLocales, Locale, PluralRules, NumberFormat, DateTimeFormat, ListFormat, Collator |
+| RollingText | getCanonicalLocales, Locale, Segmenter |
+| Motion's internal text-morph semantics | getCanonicalLocales, Locale, Segmenter |
+| UI | None; checks individual capabilities and preserves documented fallbacks |
+
+`src/intl.mobile.ts` owns each leaf's guarded `/polyfill.js` imports;
+`src/intl.ts` is empty on other targets. The consuming module imports the
+unsuffixed initializer before using Intl. Motion's internal semantics are not
+exported as a runtime component, so an ordinary Motion import does not initialize
+Segmenter. These dependencies do not make Intl a UI or CLI responsibility.
+
+Lingui owns only its message engine's number/date/plural APIs and its hooks'
+list/collation APIs. It neither installs nor depends on RelativeTimeFormat or
+Segmenter. Source evidence: Lingui 6.8.0 `packages/core/src/formats.ts` and
+`interpolate.ts`; Xplat's `packages/lingui/src/hooks.ts`. The data generator
+exposes locale and time-zone entries, not a catalog of API installers. English
+is included; apps select additional language data before activating catalogs.
+DateTimeFormat still defaults to UTC unless a time zone is explicitly passed.
+See [native formatting data](../../../docs/app/localization.md#native-formatting-data).
+
+Guarded imports intentionally mutate global Intl (and applicable formatting
+prototype methods). They preserve capable implementations, but may replace
+incomplete ones. Locale 5.3.12's feature checks replace Node 26.12.0's Locale;
+module deduplication and complete locale initialization matter when composing
+leaves. Keep the common FormatJS versions aligned when upgrading.
+
+The maintained `tests/intl.mjs` in each leaf builds its consuming module and
+runs it with Intl absent in a fresh Node process. It checks independence and
+excluded APIs; web bundle checks ensure no FormatJS modules are included.
+Lingui also covers partial Intl, regional data fallback, named time zones, and
+a packed consumer with only transitive FormatJS dependencies. UI tests cover
+absent/partial Intl and capabilities installed later. Production bundle checks
+for Text, Table and Timestamp contain no FormatJS.
+
+Measured Lingui native ES library output: 8,566,791 uncompressed JavaScript
+bytes, predominantly Collator's embedded data. This is a bundle measurement,
+not installed size, startup timing, or an engine conformance claim. Runtime
+probe evidence is recorded separately below. The independent no-op
+String.prototype.normalize limitation remains unresolved.
+
+On 2026-10-28, the combined `research/probes/leaf-intl.case.ts` probe
+(temporary, gitignored) passed eight assertions on Chromium, the NativeScript
+iOS 9.1.0 simulator, and the macOS host: Lingui number/date formatting,
+plural/list/collation, named time zones, RollingText graphemes, and Motion's
+internal segmentation. The iOS Intl keys contained the two leaves' combined
+requirements and no RelativeTimeFormat. These are runtime API checks, not
+rendering, startup-performance, or full locale conformance tests. Android was
+not run because no authorized device was available.

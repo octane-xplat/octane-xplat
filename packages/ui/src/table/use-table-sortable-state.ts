@@ -62,13 +62,20 @@ function naturalCompare(a: string, b: string): number {
 	return aParts.length - bParts.length || (a === b ? 0 : a < b ? 1 : -1)
 }
 
-let collator: Intl.Collator | null | undefined
+let collator: Intl.Collator | undefined
+let collatorConstructor: typeof Intl.Collator | undefined
 
 function compareStrings(a: string, b: string): number {
-	if (collator === undefined) {
-		collator = typeof Intl === 'undefined' ? null : new Intl.Collator(undefined, { numeric: true })
+	const constructor = typeof Intl === 'undefined' ? undefined : Intl.Collator
+	if (typeof constructor !== 'function') {
+		return naturalCompare(a, b)
 	}
-	return collator ? collator.compare(a, b) : naturalCompare(a, b)
+	// A later opt-in may install or replace this capability. Do not cache absence.
+	if (constructor !== collatorConstructor) {
+		collator = new constructor(undefined, { numeric: true })
+		collatorConstructor = constructor
+	}
+	return collator!.compare(a, b)
 }
 
 function defaultCompare<T extends Record<string, unknown>>(a: T, b: T, sortKey: string): number {

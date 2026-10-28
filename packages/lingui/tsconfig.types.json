@@ -23,6 +23,6 @@
 		],
 		"allowImportingTsExtensions": true
 	},
-	"include": ["src/index.ts", "src/extractor.ts"],
+	"include": ["src/index.ts", "src/extractor.ts", "src/intl.mobile.ts"],
 	"exclude": ["**/*.test.ts"]
 }

@@ -1,3 +1,5 @@
+import '../intl'
+
 /** Renderer-independent exact-text planning. No normalization or boundary guesses. */
 export const TEXT_MORPH_LIMITS = { graphemes: 80, words: 32, operations: 10_000 } as const
 

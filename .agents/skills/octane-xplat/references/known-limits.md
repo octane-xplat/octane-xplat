@@ -30,8 +30,10 @@ For a boundary or workaround investigation, read the applicable internal record:
 - [Upstream limitations](../../../docs/upstream-limitations.md): how to verify
   and record upstream scope and local workarounds.
 - [NativeScript runtimes: V8 without ICU](../../../docs/notes/nativescript-no-icu.md):
-  NativeScript iOS/Android V8 lacks ICU — no `Intl`, no `\p{…}` regexes (a
-  literal fails its whole module at parse time), no normalization.
+  NativeScript iOS/Android V8 lacks ICU — no built-in `Intl`, no `\p{…}` regexes (a
+  literal fails its whole module at parse time), no normalization. Lingui,
+  RollingText and internal Motion text segmentation initialize their own required
+  Intl APIs on mobile; UI remains optional. See [leaf ownership](services.md#leaf-owned-intl-initialization).
 
 Uncharacterized lab flakes belong with their investigation records and Silo,
 not in an undated skill list. A historical failure is not automatically a

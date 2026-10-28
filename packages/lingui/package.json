@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/lingui",
 	"version": "0.18.0",
-	"description": "Lingui localization runtime for Octane xplat \u2014 core macros, signal-free locale store, per-target locale detection",
+	"description": "Lingui localization runtime for Octane xplat — core macros, signal-free locale store, per-target locale detection",
 	"keywords": [
 		"android",
 		"cross-platform",
@@ -37,20 +37,37 @@
 		"./extractor": {
 			"types": "./types/extractor.d.ts",
 			"default": "./dist/extractor.js"
+		},
+		"./locales/*": {
+			"types": "./dist/locales/*.d.ts",
+			"default": "./dist/locales/*.js"
+		},
+		"./time-zones/*": {
+			"types": "./dist/time-zones/*.d.ts",
+			"default": "./dist/time-zones/*.js"
 		}
 	},
 	"publishConfig": {
 		"access": "public"
 	},
 	"scripts": {
-		"typegen": "tsc -p tsconfig.types.json",
+		"typegen": "tsc -p tsconfig.types.json && node scripts/build-intl-data.mjs",
 		"prepack": "pnpm build && pnpm typegen && tsrx-typegen --pack-check",
 		"pack:check": "tsrx-typegen --pack-check",
-		"test": "pnpm build && node --test tests/*.test.mjs",
+		"test": "node --test --test-concurrency=1 tests/*.test.mjs",
 		"build": "tsc -p tsconfig.build.json",
-		"test:packed": "node tests/packed-consumer.mjs"
+		"test:packed": "node tests/packed-consumer.mjs",
+		"test:intl": "node --test tests/intl.mjs",
+		"typecheck": "tsc -p tsconfig.types.json --emitDeclarationOnly false --declaration false --noEmit"
 	},
 	"dependencies": {
+		"@formatjs/intl-collator": "0.2.9",
+		"@formatjs/intl-datetimeformat": "7.8.2",
+		"@formatjs/intl-getcanonicallocales": "3.2.12",
+		"@formatjs/intl-listformat": "8.3.15",
+		"@formatjs/intl-locale": "5.3.12",
+		"@formatjs/intl-numberformat": "9.4.3",
+		"@formatjs/intl-pluralrules": "6.3.16",
 		"@lingui/core": "6.8.0",
 		"@octane-xplat/jsx": "workspace:*"
 	},

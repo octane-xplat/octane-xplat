@@ -17,6 +17,7 @@ function load() {
 	vm.runInNewContext(source, {
 		exports,
 		require(id) {
+			if (id === './intl') { return {} }
 			if (id === '@lingui/core') {
 				return { i18n }
 			}
