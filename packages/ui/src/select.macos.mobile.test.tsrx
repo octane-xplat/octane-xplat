@@ -118,7 +118,11 @@ it('wires native trigger/surface keys, manual row focus, Tab return intent and o
 		retainFocusTarget(view: object) { retained.add(view); return () => retained.delete(view) },
 	})
 	vi.stubGlobal('NSNotificationCenter', { defaultCenter: {
-		addObserverForNameObjectQueueUsingBlock(_name, _owner, _queue, notify) { const token = {}; observers.set(token, notify); return token },
+		addObserverForNameObjectQueueUsingBlock(name, _owner, _queue, notify) {
+			const token = {}
+			if (name === ((globalThis as any).NSWindowDidUpdateNotification ?? 'NSWindowDidUpdateNotification')) observers.set(token, notify)
+			return token
+		},
 		removeObserver(token: object) { observers.delete(token) },
 	} })
 	const makeWindow = () => ({ firstResponder: null as any, recalculateKeyViewLoop() {}, makeFirstResponder(view: any) { this.firstResponder = view; return true } })
@@ -148,8 +152,11 @@ it('wires native trigger/surface keys, manual row focus, Tab return intent and o
 		expect(key(trigger, 'ArrowDown').defaultPrevented).toBe(true)
 		expect(changes).toHaveBeenCalledWith(true)
 		env.render({ ...base, open: true }); const surface = hydrate()
-		await Promise.resolve()
-		expect(panel.firstResponder).toBe(env.byID('choice-option-a'))
+		await vi.waitFor(() => {
+			flushUniversalSync(() => {})
+			expect(observers.size).toBe(1)
+			expect(panel.firstResponder).toBe(env.byID('choice-option-a'))
+		})
 		expect(retained.has(surface)).toBe(true)
 		expect(key(surface, 'ArrowDown').defaultPrevented).toBe(true)
 		expect(panel.firstResponder).toBe(env.byID('choice-option-c'))
@@ -167,6 +174,7 @@ it('wires native trigger/surface keys, manual row focus, Tab return intent and o
 		expect(key(cachedSurface, 'Enter', { isComposing: true }).defaultPrevented).toBe(false)
 		expect(excluded.size).toBe(0)
 		expect(retained.size).toBe(0)
+		await vi.waitFor(() => { flushUniversalSync(() => {}); expect(observers.size).toBe(0) })
 	} finally {
 		env.root.unmount()
 		expect(observers.size).toBe(0)

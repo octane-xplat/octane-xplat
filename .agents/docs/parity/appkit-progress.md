@@ -2204,3 +2204,10 @@ alternate presentation/ghost chrome, live announcements and standalone Field
 ownership remain separate gaps. No builds, package tests/typechecks, installs,
 OS automation, visual analysis or shared audit regeneration ran; no checkbox
 is closed.
+
+
+Selector wiring-case review follow-up: its fake notification center now isolates
+window-update claims, and the case requires one active observer before asserting
+close cleanup. This prevents an absent observer from making cleanup appear
+covered. The case remains unrun; syntax/whitespace only, with the same deferred
+commands and native qualification limits above.
