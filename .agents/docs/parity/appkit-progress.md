@@ -2100,3 +2100,47 @@ Tab order, native FocusScope containment/restoration, disabled AX announcements,
 window moves, nested hit-testing, CSS layout and packaged lifetime remain
 unqualified. No builds, package tests/typechecks, installs, OS automation,
 visual analysis or shared audit regeneration ran; no checkbox is closed.
+
+
+### AppKit finite selection mode and view contract
+
+ComponentsDemo uses Selector for fruit choice; public selection examples cover
+multiple/bulk choice. Demand assumption: finite form choices precede niche
+integrations. Select.macos omitted the multiple view flag that shared native/web
+containers pass. MultiSelector's alias delegates to this same target container,
+so its multi-value state could not reach checkbox/select-all presentation.
+The flag is now wired without changing shared state or public types.
+
+SelectView now gives multiple rows checkbox semantics and single rows radio
+checked state, with native disabled props and absent handlers when pending,
+disabled or read-only. Bulk selection uses a raw mixed-state checkbox host.
+Trigger metadata includes expanded/busy/validation state and blocked triggers
+have no action. Existing useSelect coordinates array/scalar callbacks, pending
+ownership and failure rollback; this slice does not replace that state machine.
+
+renderOption and single renderValue now use TextSlot for primitive/component
+results; absent selected options use the existing summary fallback. Default
+option icon content is included. Native anchor/search refs are stable concrete
+NSView/NSTextField refs rather than fresh any callbacks. Native ownership and
+focus still require evidence. Badges, alternate presentation/ghost chrome,
+arrow/typeahead navigation, popup/search/return focus and live-region behavior
+remain absent or unqualified; standalone metadata ownership needs separate review.
+
+Four authored source cases cover mode/preset/bulk arrays and mixed state,
+pending/duplicate/rollback, custom/default content/missing keys and blocked view
+semantics. Popover is intentionally substituted inline in this suite: it does
+not exercise separate roots, OS focus, hit-testing or native input. All cases
+remain unrun. Only TSRX syntax, semantic/source and whitespace checks ran.
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/select.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All commands remain deferred pending explicit human authorization for this task.
+NSPopover root/anchor lifetime, keyboard/search/return focus, real selection and
+clear gesture arbitration, VoiceOver, layout and packaging remain unqualified.
+No builds, package tests/typechecks, installs, OS automation, visual analysis or
+shared audit regeneration ran; no evidence checkbox is closed.

@@ -939,3 +939,26 @@ export function UnavailablePlan({ selected, onChange }: { selected: boolean; onC
 	return <SelectableCard label="Team plan" isSelected={selected} isDisabled onChange={onChange}>Unavailable</SelectableCard>
 }
 ```
+
+
+## AppKit finite-option selection
+
+Selector now passes selectionMode=multiple to the target view; MultiSelector
+uses that same target container. Checkbox/select-all presentation, mixed bulk
+state and native inert guards now follow the existing shared state owner.
+Custom renderOption and single renderValue are used through TextSlot; unresolved
+selected keys retain the summary fallback. Default option icons are rendered.
+
+```tsx
+import { MultiSelector } from '@octane-xplat/ui'
+
+export function Channels() {
+	return <MultiSelector options={[{ value: 'email', label: 'Email' }, { value: 'push', label: 'Push' }]}
+		defaultValue={['email']} hasSelectAll />
+}
+```
+
+Source cases mock the popup inline and remain unrun. Do not infer actual popup
+ownership, arrow/typeahead keys, search/return focus or VoiceOver from them.
+Removable badges, alternate presentation/ghost chrome and live announcements
+remain open. See the [AppKit selection subset](../../../../docs/app/search-selection.md#appkit-finite-option-selection).

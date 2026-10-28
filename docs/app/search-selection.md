@@ -472,3 +472,44 @@ and [the parity fixtures](../../packages/ui/src/Typeahead.parity.tsrx).
 ## Try a small demo
 
 [Try the packing list demo](../demos/packing-list.md) with bundled local content.
+
+
+## AppKit finite-option selection
+
+Selector's multiple mode and the MultiSelector preset now reach the AppKit
+view's checkbox/select-all presentation. Bulk selection includes visible enabled
+options and reports arrays. The select-all row exposes mixed state when only
+some enabled options are selected; pending, disabled and read-only option hosts
+reject selection while the existing state owner coordinates saves and rollback.
+
+```tsx
+import { MultiSelector } from '@octane-xplat/ui'
+
+export function Channels() {
+	return <MultiSelector options={[
+		{ value: 'email', label: 'Email' },
+		{ value: 'push', label: 'Push notifications' },
+	]} defaultValue={['email']} hasSelectAll />
+}
+```
+
+AppKit also uses custom option renderers and single-value trigger renderers.
+Plain text results receive a native text host; supplied components keep their
+own hosts. When a selected key no longer has an option, the trigger keeps its
+summary instead of passing undefined to the custom renderer.
+
+```tsx
+import { Selector, Text } from '@octane-xplat/ui'
+
+export function Region() {
+	return <Selector options={[{ value: 'west', label: 'West', description: 'Nearby region' }]}
+		renderOption={(option) => <Text>{option.label}</Text>}
+		renderValue={(option) => <Text>{option.label}</Text>} />
+}
+```
+
+These changes have authored, unrun object-driver cases. The popup is replaced
+with an inline test surface in those cases, so they do not prove NSPopover
+ownership or input. Arrow/typeahead navigation, popup/search/return focus,
+removable badges, alternate presentations, ghost chrome, live-region
+announcements, native layout/VoiceOver and packaging remain open or unqualified.

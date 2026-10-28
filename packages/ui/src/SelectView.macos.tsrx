@@ -7,6 +7,7 @@ import type { SelectViewProps } from './select-view'
 import { cx } from '@octane-xplat/lib'
 import { Pressable } from './Pressable.macos.tsrx'
 import { Popover } from './Popover.macos.tsrx'
+import { TextSlot } from './text-slot'
 
 import { CheckIndicator, CheckboxIndicator } from './indicators'
 import { useIndicator } from './use-indicator'
@@ -16,18 +17,17 @@ import { nativeAccessibilityRole, nativeAccessibilityState } from './escape-prop
  *  Internal only; consumers use `Select`. */
 export function SelectView(props: SelectViewProps) @{
 	const translate = useTranslator()
-	const anchor = useRef<any>(null)
-	const search = useRef<any>(null)
+	const anchor = useRef<NSView | null>(null)
+	const search = useRef<NSTextField | null>(null)
 	const CheckInd = useIndicator('check') ?? CheckIndicator
 	const MultiInd = useIndicator('checkbox') ?? CheckboxIndicator
 	const busy = Boolean(props.isLoading || props.pending)
 	const blocked = Boolean(props.isDisabled || props.isReadOnly)
+	const selectedOption = props.options.find((option) => option.value === props.selected[0])
 
 	<>
 		<Pressable
-			ref={(view: any) => {
-				anchor.current = view
-			}}
+			ref={anchor}
 			id={props.id}
 			className={cx(
 				'vx-select-trigger',
@@ -38,18 +38,21 @@ export function SelectView(props: SelectViewProps) @{
 			)}
 			style={props.style}
 			disabled={props.isDisabled}
-			onPress={() => props.onOpenChange(!props.open)}
+			onPress={blocked ? undefined : () => props.onOpenChange(!props.open)}
+			accessibilityRole="button"
 			accessibilityLabel={
 				props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label
 			}
 			accessibilityHint={props.accessibilityHint}
-			accessibilityState={{ disabled: props.isDisabled }}
+			accessibilityState={{ disabled: props.isDisabled, expanded: props.open, busy,
+				invalid: props.status?.type === 'error', required: props.isRequired && !props.isOptional }}
 			accessibilityValue={props.triggerText}
 		>
-			<label
-				className={cx('vx-select-value', !props.selected.length && 'vx-select-placeholder')}
-				text={props.triggerText}
-			/>
+			{props.renderValue && selectedOption && !props.multiple ? (
+				<masonview className="vx-select-value"><TextSlot>{props.renderValue(selectedOption)}</TextSlot></masonview>
+			) : (
+				<label className={cx('vx-select-value', !props.selected.length && 'vx-select-placeholder')} text={props.triggerText} />
+			)}
 			{props.hasClear && props.selected.length && !blocked ? (
 				<Pressable
 					className="vx-select-clear"
@@ -78,9 +81,7 @@ export function SelectView(props: SelectViewProps) @{
 					style={mergeStyle({ flexDirection: 'row' }, { display: 'flex' })}
 				>
 					<textfield
-						ref={(view: any) => {
-							search.current = view
-						}}
+						ref={search}
 						id={props.id ? `${props.id}-search` : undefined}
 						className="vx-select-search"
 						value={props.query}
@@ -103,16 +104,17 @@ export function SelectView(props: SelectViewProps) @{
 				</masonview>
 			) : null}
 			{props.multiple && props.hasSelectAll ? (
-				<Pressable
-					id={props.id ? `${props.id}-select-all` : undefined}
-					className="vx-select-all"
-					disabled={props.pending || !props.enabled.length}
-					accessibilityLabel={`${props.selectAllLabel ?? 'Select all'}, ${props.selectAllState}`}
-					onPress={props.onSelectAll}
-				>
+				<masonview id={props.id ? `${props.id}-select-all` : undefined}
+					className="vx-pressable vx-select-all"
+					disabled={blocked || props.pending || !props.enabled.length}
+					onTap={blocked || props.pending || !props.enabled.length ? undefined : props.onSelectAll}
+					accessibilityRole="checkbox"
+					accessibilityLabel={props.selectAllLabel ?? 'Select all'}
+					accessibilityState={{ checked: props.selectAllState === 'indeterminate' ? 'mixed' : props.selectAllState === 'checked',
+						disabled: blocked || props.pending || !props.enabled.length }}>
 					<MultiInd state={props.selectAllState} />
 					<label text={props.selectAllLabel ?? 'Select all'} />
-				</Pressable>
+				</masonview>
 			) : null}
 			<label
 				className="vx-select-feedback"
@@ -129,6 +131,8 @@ export function SelectView(props: SelectViewProps) @{
 			>
 				<masonview
 					className="vx-menu-list vx-select-list"
+					accessibilityRole={props.multiple ? 'group' : 'radiogroup'}
+					accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label ?? 'Options'}
 					style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}
 				>
 					{!props.shown.length && !busy ? (
@@ -146,14 +150,16 @@ export function SelectView(props: SelectViewProps) @{
 										'vx-menu-item',
 										'vx-select-option',
 										props.selected.includes(option.value) && 'vx-select-option--on',
-										option.isDisabled && 'vx-menu-item--disabled',
+										(blocked || option.isDisabled || props.pending) && 'vx-menu-item--disabled',
 									)}
-									onTap={() => props.onPick(option)}
-									accessibilityRole={nativeAccessibilityRole('button')}
+									disabled={blocked || option.isDisabled || props.pending}
+									onTap={blocked || option.isDisabled || props.pending ? undefined : () => props.onPick(option)}
+									accessibilityRole={nativeAccessibilityRole(props.multiple ? 'checkbox' : 'radio')}
 									accessibilityLabel={`${option.label ?? option.value}${option.description ? ', ' + option.description : ''}${props.selected.includes(option.value) ? ', Selected' : ''}${option.isDisabled ? ', Disabled' : ''}`}
 									accessibilityState={nativeAccessibilityState({
 										selected: props.selected.includes(option.value),
-										disabled: option.isDisabled || props.pending,
+										checked: props.selected.includes(option.value),
+										disabled: blocked || option.isDisabled || props.pending,
 									})}
 									style={mergeStyle({ flexDirection: 'row' }, { display: 'flex' })}
 								>
@@ -178,6 +184,8 @@ export function SelectView(props: SelectViewProps) @{
 											/>
 										)}
 									</masonview>
+									{props.renderOption ? <TextSlot>{props.renderOption(option)}</TextSlot> : <>
+										{option.icon != null ? <masonview className="vx-select-option-icon" accessible={false}><TextSlot>{option.icon}</TextSlot></masonview> : null}
 									<masonview
 										style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}
 									>
@@ -192,6 +200,7 @@ export function SelectView(props: SelectViewProps) @{
 											/>
 										) : null}
 									</masonview>
+									</>}
 								</masonview>
 							}
 						</masonview>
