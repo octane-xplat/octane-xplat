@@ -264,7 +264,10 @@ function styleDict(node: NodeLike): Record<string, any> {
 		}
 	}
 
-	const padding = node.dockInsets ?? edgeBox(style.padding)
+	// Label cells carry padding in their measured size — passing it here too
+	// would double-count. Other leaves still get box growth from the engine.
+	const padding =
+		node.type === 'label' ? null : (node.dockInsets ?? edgeBox(style.padding))
 	if (padding) {
 		out.padding = {
 			left: [0, padding.left ?? 0],
@@ -320,6 +323,12 @@ function styleDict(node: NodeLike): Record<string, any> {
 		if (typeof value === 'string') {
 			out[key] = value
 		}
+	}
+
+	// `visibility: collapse` drops the layout slot like the visibility prop;
+	// `hidden` keeps it (the renderer hides the view itself).
+	if (style.visibility === 'collapse') {
+		out.display ??= 'none'
 	}
 
 	// Container roots are positioned — otherwise absolute children escape to

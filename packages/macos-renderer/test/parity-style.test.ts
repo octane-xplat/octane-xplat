@@ -5,6 +5,7 @@ import { runSlice, sourceWithoutImports } from './mock-globals.ts'
 const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
 const { parityStyle } = runSlice(
 	source.slice(source.indexOf('function parityStyle('), source.indexOf('function measureTextLineAdvances(')) + '\n({ parityStyle })',
+	{ labelPaddings: new WeakMap() },
 )
 const facets = ['flexDirection', 'alignItems', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft']
 const style = (node: any) => JSON.parse(JSON.stringify(parityStyle({ view: {}, props: {}, ...node }, facets)))

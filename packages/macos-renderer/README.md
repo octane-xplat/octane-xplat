@@ -156,6 +156,15 @@ and repeating gradients, and multiple background layers remain unsupported.
 .fade { background-image: linear-gradient(to right, #152b36, transparent); }
 ```
 
+Labels honor `padding` (the text insets and the box grows), `letter-spacing`
+on plain text, and italic `font-style`. `visibility: hidden` keeps the layout
+slot while suppressing paint and input; `visibility: collapse` drops it.
+
+```css
+.caption { padding: 2px 6px; letter-spacing: 0.5px; font-style: italic; }
+.ghost { visibility: hidden; }
+```
+
 Current limits:
 
 - Only `:disabled` responds to state. `:hover`, `:active`, `:pressed`, and
@@ -163,7 +172,7 @@ Current limits:
 - Media queries are re-checked when the appearance or the stylesheets
   change, but not when a window resizes.
 - `@keyframes` and `animation-*` are parsed but not played.
-- Labels ignore padding. Per-side borders and per-corner radii draw through a
+- Per-side borders and per-corner radii draw through a
   masked shape layer; `border-style` values paint solid.
 - `box-shadow` paints one outset shadow (first entry; spread grows the
   silhouette) and drops the view's corner clip while it is in effect — the
@@ -172,6 +181,7 @@ Current limits:
 - `transform` composes onto `CALayer.transform` in NS order (translate,
   rotate, rotateX/Y with a default 300pt perspective, scale); percent
   translates resolve against the element's own size and resync on resize.
+- `letter-spacing` does not reach `formattedstring`/`span` runs.
 - A text field or text view drops its native bezel and background as soon
   as CSS gives it a background, border, or corner radius.
 - An unsupported property logs `[macos-css] ignored unsupported property`

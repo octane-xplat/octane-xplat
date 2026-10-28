@@ -91,6 +91,8 @@ if (typeof stylesheetScope === 'undefined') var stylesheetScope = () => ({ query
 if (typeof INHERITED_CSS_PROPERTIES === 'undefined') var INHERITED_CSS_PROPERTIES = new Set(['color','font-size','font-weight','font-family','font-style','line-height','letter-spacing','text-align','text-transform','white-space','direction'])
 if (typeof appKitBridge === 'undefined') var appKitBridge = {}
 if (typeof nodeScheme === 'undefined') var nodeScheme = () => 'light'
+// Mirrors src/index.ts — collapse folds the visibility prop and the style.
+if (typeof isCollapsed === 'undefined') var isCollapsed = (n) => n?.props?.visibility === 'collapse' || n?.styleVisibility === 'collapse'
 // Mirrors src/index.ts — slices that exercise insert/validateBatch reject
 // viewless children through this error but don't include the function.
 if (typeof textOnlyChildError === 'undefined') var textOnlyChildError = (parent, childType, child) => {

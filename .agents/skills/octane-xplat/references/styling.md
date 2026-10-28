@@ -121,7 +121,8 @@ import '@octane-xplat/ui/theme/tokens.css'
 - The experimental macOS AppKit and Linux GTK renderers apply the same
   stylesheets through the shared NativeScript selector engine. On AppKit
   linear-gradient backgrounds support direction keywords, degree angles and
-  percentage stops (no image URLs or multiple layers). Only `:disabled` responds to state; GTK also matches the NativeScript
+  percentage stops (no image URLs or multiple layers). Labels honor padding,
+  letter-spacing and italic; `visibility` hides or collapses. Only `:disabled` responds to state; GTK also matches the NativeScript
   visual states plus `:hover`, re-checks media queries on resize, and plays
   `@keyframes`. Both ignore some properties. Check each renderer's
   [Apply stylesheets](../../../../packages/macos-renderer/README.md#apply-stylesheets)

@@ -92,8 +92,11 @@ import {
 	NSDatePickerStyle,
 	NSEvent,
 	NSFontAttributeName,
+	NSFontManager,
+	NSFontTraitMask,
 	NSForegroundColorAttributeName,
 	NSImageView,
+	NSKernAttributeName,
 	NSLayoutAttribute,
 	NSLineBreakMode,
 	NSMenu,
@@ -203,8 +206,8 @@ export interface ElementNode {
 	// Per-kind extras: placeholderView, placeholderContent, placeholderCreated,
 	// sizeConstraints, placementPins, styleBg,
 	// layoutObserver, scrollObserver, scheme, textRuns, appliedStyle,
-	// styleFont*/propFontSize, stylePaddingBox/Edges,
-	// borderSpec, ...
+	// styleFont*/propFontSize, stylePaddingBox/Edges, styleVisibility,
+	// gradientLayer/gradientObserver, borderSpec, ...
 	[key: string]: any
 }
 
@@ -599,6 +602,53 @@ class InteractionSecureTextFieldCell extends NSSecureTextFieldCell {
 		const node = textNodesByView.get(editor.delegate)
 		super.endEditing(editor)
 		dispatchTextEvent(node, 'onBlur')
+	}
+}
+
+/** Label cell carrying CSS padding — drawing insets by the edges and the
+ *  measured size grows by them, so mason and manual hosts read one box.
+ *  The insets live in labelPaddings: JS field initializers do not survive
+ *  ObjC-side init paths like initTextCell, and ObjC exceptions crossing the
+ *  bridge terminate the process. */
+const labelPaddings = new WeakMap<object, { top: number; left: number; bottom: number; right: number }>()
+const ZERO_PADDING = { top: 0, left: 0, bottom: 0, right: 0 }
+
+class PaddedLabelCell extends NSTextFieldCell {
+	static {
+		NativeClass(this)
+	}
+
+	private insets() {
+		return labelPaddings.get(this.controlView) ?? labelPaddings.get(this) ?? ZERO_PADDING
+	}
+
+	drawingRectForBounds(bounds: any) {
+		const pad = this.insets()
+		return {
+			origin: {
+				x: bounds.origin.x + pad.left,
+				y: bounds.origin.y + pad.top,
+			},
+			size: {
+				width: Math.max(0, bounds.size.width - pad.left - pad.right),
+				height: Math.max(0, bounds.size.height - pad.top - pad.bottom),
+			},
+		}
+	}
+
+	cellSizeForBounds(bounds: any) {
+		const pad = this.insets()
+		const inner = super.cellSizeForBounds({
+			origin: bounds.origin,
+			size: {
+				width: Math.max(0, bounds.size.width - pad.left - pad.right),
+				height: bounds.size.height,
+			},
+		})
+		return {
+			width: inner.width + pad.left + pad.right,
+			height: inner.height + pad.top + pad.bottom,
+		}
 	}
 }
 
@@ -1242,6 +1292,7 @@ function makeLabel(): NSTextField {
 		size: { width: 400, height: 32 },
 	})
 
+	label.cell = PaddedLabelCell.alloc().initTextCell('')
 	label.bezeled = false
 	label.drawsBackground = false
 	label.editable = false
@@ -3684,7 +3735,14 @@ function syncNodeFont(node: ElementNode) {
 	const weight = node.styleFontWeight ?? 400
 	node.appliedFontWeight = String(weight)
 	node.appliedFontFamily = node.styleFontFamily ?? node.container.fontFamily
-	node.view!.font = fontForFamilyStyle(size, weight, node.appliedFontFamily)
+	let font = fontForFamilyStyle(size, weight, node.appliedFontFamily)
+	const fontStyle = String(effectiveStyle(node).fontStyle ?? 'normal')
+	if (font && (fontStyle === 'italic' || fontStyle === 'oblique')) {
+		font =
+			NSFontManager.sharedFontManager.convertFontToHaveTrait(font, NSFontTraitMask.Italic) ??
+			font
+	}
+	node.view!.font = font
 }
 
 // NSStackView edgeInsets apply the resolved padding styles.
@@ -3714,6 +3772,44 @@ function syncEdgeInsets(node: ElementNode) {
 	} else {
 		view.edgeInsets = insets
 	}
+}
+
+// Labels consume the same padding vocabulary — the cell insets drawing and
+// grows the measured size so the box model holds without a container.
+function syncLabelPadding(node: ElementNode) {
+	const view = node.view
+	const cell = view?.cell
+	if (!view || typeof cell?.cellSizeForBounds !== 'function') {
+		return
+	}
+
+	const edges = node.stylePaddingEdges
+	const box = node.stylePaddingBox
+	const insets = {
+		top: edges?.top ?? box?.top ?? 0,
+		right: edges?.right ?? box?.right ?? 0,
+		bottom: edges?.bottom ?? box?.bottom ?? 0,
+		left: edges?.left ?? box?.left ?? 0,
+	}
+	// Register on both wrappers — the cell reads through its own reference or
+	// back through controlView, and bridged object identity is not guaranteed
+	// to round-trip.
+	labelPaddings.set(view, insets)
+	labelPaddings.set(cell, insets)
+	view.invalidateIntrinsicContentSize()
+	queueLayoutReconcile(node.container, node.parent)
+}
+
+// `hidden` keeps the layout slot while suppressing paint and hit-testing;
+// `collapse` additionally drops the node from layout flows — mason consumes
+// it as display:none, manual hosts skip it like the visibility prop.
+function syncVisibility(node: ElementNode) {
+	node.view!.hidden = node.styleVisibility === 'hidden' || node.styleVisibility === 'collapse'
+	queueLayoutReconcile(node.container, node.parent)
+}
+
+function isCollapsed(node: any) {
+	return node?.props?.visibility === 'collapse' || node?.styleVisibility === 'collapse'
 }
 
 // CSS angles run clockwise from up. Layer coordinates follow the host view.
@@ -4638,9 +4734,26 @@ function resetStyle(node: ElementNode, name: string) {
 	} else if (name === 'fontWeight' && textControl) {
 		node.styleFontWeight = undefined
 		syncNodeFont(node)
+	} else if (name === 'fontStyle' && textControl) {
+		syncNodeFont(node)
+	} else if (name === 'letterSpacing' && node.type === 'label') {
+		setLabelText(node, String(view.stringValue ?? ''))
 	} else if (name === 'color' && textControl) {
 		node.styleColor = undefined
 		syncNativeColors(node)
+	} else if (name === 'visibility') {
+		node.styleVisibility = undefined
+		syncVisibility(node)
+	} else if (name === 'padding' && node.type === 'label') {
+		node.stylePaddingBox = undefined
+		node.stylePaddingEdges = undefined
+		syncLabelPadding(node)
+	} else if (EDGE_INSET_PROPS.has(name) && node.type === 'label') {
+		for (const edge of EDGE_INSET_PROPS.get(name)!) {
+			delete node.stylePaddingEdges?.[edge]
+		}
+
+		syncLabelPadding(node)
 	} else if (
 		name === 'padding' &&
 		(node.type === 'rootlayout' || behaviorOf(node.type)?.containerStyles)
@@ -4780,6 +4893,23 @@ function applyStyle(node: ElementNode, style: PropBag) {
 		} else if (name === 'lineHeight' && ['label', 'textfield', 'textview'].includes(node.type)) {
 			// syncText applies this to each paragraph; it is not the label's fixed height.
 			continue
+		} else if (name === 'padding' && node.type === 'label') {
+			const box = parseEdgeInsets(value)
+			node.stylePaddingBox = box
+			node.stylePaddingEdges = {
+				top: box.top,
+				right: box.right,
+				bottom: box.bottom,
+				left: box.left,
+			}
+			syncLabelPadding(node)
+		} else if (EDGE_INSET_PROPS.has(name) && node.type === 'label') {
+			const edges = (node.stylePaddingEdges ??= {})
+			for (const edge of EDGE_INSET_PROPS.get(name)!) {
+				edges[edge] = Number(value) || 0
+			}
+
+			syncLabelPadding(node)
 		} else if (
 			name === 'padding' &&
 			(node.type === 'rootlayout' || behaviorOf(node.type)?.containerStyles)
@@ -4844,6 +4974,16 @@ function applyStyle(node: ElementNode, style: PropBag) {
 		) {
 			node.styleFontWeight = String(value)
 			syncNodeFont(node)
+		} else if (
+			name === 'fontStyle' &&
+			['label', 'htmlview', 'textfield', 'textview', 'searchbar'].includes(node.type)
+		) {
+			syncNodeFont(node)
+		} else if (name === 'letterSpacing' && node.type === 'label' && node.view) {
+			setLabelText(node, String(node.view.stringValue ?? ''))
+		} else if (name === 'visibility' && node.view) {
+			node.styleVisibility = String(value)
+			syncVisibility(node)
 		} else if (name === 'textDecoration' && node.type === 'label' && node.view) {
 			setLabelText(node, String(node.view.stringValue ?? ''))
 		} else if (name === 'textAlign' && node.type === 'label') {
@@ -5017,11 +5157,17 @@ function syncHtmlView(node: ElementNode) {
 }
 
 function setLabelText(node: ElementNode, text: any) {
-	const lineHeight = Number(effectiveStyle(node).lineHeight)
-	const decoration = String(effectiveStyle(node).textDecoration ?? '')
+	const style = effectiveStyle(node)
+	const lineHeight = Number(style.lineHeight)
+	const decoration = String(style.textDecoration ?? '')
+	const kern = Number(style.letterSpacing)
 	const decorate =
 		decoration.includes('underline') || decoration.includes('line-through')
-	if ((!Number.isFinite(lineHeight) || lineHeight <= 0) && !decorate) {
+	if (
+		(!Number.isFinite(lineHeight) || lineHeight <= 0) &&
+		!decorate &&
+		(!Number.isFinite(kern) || kern === 0)
+	) {
 		node.view!.stringValue = text
 		return
 	}
@@ -5051,6 +5197,9 @@ function setLabelText(node: ElementNode, text: any) {
 	}
 	if (decoration.includes('line-through')) {
 		attributes[strikeKey] = 1
+	}
+	if (Number.isFinite(kern) && kern !== 0) {
+		attributes[NSKernAttributeName] = kern
 	}
 	node.view!.attributedStringValue = NSAttributedString.alloc().initWithStringAttributes(
 		text,
@@ -6298,7 +6447,7 @@ function projectedViews(parent: ElementNode): ElementNode[] {
 		: parent.children
 
 	return children.flatMap((child: ElementNode) => {
-		if (child.props.visibility === 'collapse') {
+		if (isCollapsed(child)) {
 			return []
 		}
 
@@ -6521,7 +6670,7 @@ function validateProxyTree(container: RootContainer, commands: readonly Universa
 		}
 
 		const node = nodes.get(id)
-		if (!node || node.props.visibility === 'collapse') {
+		if (!node || isCollapsed(node)) {
 			return 0
 		}
 
@@ -7823,7 +7972,7 @@ function parityStyle(node: ElementNode, facets: readonly string[]) {
 	// Mason consumes dockInsets rather than NSStackView.edgeInsets. Its
 	// absent flex values use the CSS row/stretch/normal defaults.
 	const mason = node.masonNode != null
-	const padding = node.dockInsets ?? view?.edgeInsets
+	const padding = node.dockInsets ?? view?.edgeInsets ?? labelPaddings.get(view!)
 	const out: Record<string, any> = {}
 	for (const facet of facets) {
 		let value = supplied[facet]
@@ -7991,7 +8140,10 @@ function measureTextLineCount(node: ElementNode) {
 		size: { width: Number(bounds.size.width), height: 100000 },
 	})
 
-	const height = Number(fit?.height)
+	// The padded cell reports padding inside its size — take it back out
+	// before dividing by the line height.
+	const pad = labelPaddings.get(view!)
+	const height = Number(fit?.height) - (pad ? Number(pad.top) + Number(pad.bottom) : 0)
 	const styleLineHeight = Number(parityStyle(node, []).lineHeight)
 	const font = view!.font
 	const fontLineHeight = Number(font?.ascender) - Number(font?.descender) + Number(font?.leading)
