@@ -1702,3 +1702,22 @@ keys/repeat/IME/editor/blur/popup/AX and package qualification remain deferred.
 Legacy overflow measurement still needs AppKit geometry review. Use the
 [token guide](../../../../docs/app/search-selection.md#remove-appkit-tokens-with-empty-input-backspace)
 for the supported source subset and evidence boundary.
+
+## AppKit PowerSearch initial focus
+
+PowerSearch's existing hasAutoFocus flag now uses the private AppKit request
+owner through its typed shared-input handle, replacing the one-shot effect.
+Current inherited disabled/read-only/loading or active filter editing cancels
+pending work. User activity, changed responders, native replacement and teardown
+retain ownership; unblocking alone does not rearm. One stable callback handle
+uses current input/blocking and is inert after teardown. The callback contract
+still accepts handles only; this change adds no null notification.
+
+```tsx
+<PowerSearch config={config} filters={filters} onChange={setFilters} hasAutoFocus />
+```
+
+TextInput/TextArea have no public hasAutoFocus prop; do not forward that flag to
+them. Five object-driver cases and the manual fixture are authored, unrun. Actual
+attachment/notification/focus/caret/IME/modal/AX and packaging remain unqualified.
+See [initial search focus](../../../../docs/app/power-search.md#request-initial-appkit-search-focus).

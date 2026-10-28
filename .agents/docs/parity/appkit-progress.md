@@ -4173,3 +4173,52 @@ not establish inline/layer truncation. Other remaining source gaps include
 PowerSearch focus, active-option AX/announcements, preset text relay, Carousel
 fades and video. Checkbox mixed rollback still awaits the earlier human contract
 choice. Evidence-gated checkboxes stay open; the persistent goal remains active.
+
+## AppKit PowerSearch owned initial focus
+
+Demand assumption: the sandbox's PowerSearchContentSearch and
+PowerSearchSearchWithTable make a searchable content/table filter bar a more
+useful next input flow than niche integration. Source review of Tokenizer
+geometry confirmed that replacing NativeScript measurement calls alone would
+leave duplicated layer token refs and web-only truncation styles unresolved;
+that source gap stays explicit rather than claiming layout parity.
+
+PowerSearch's one-shot hasAutoFocus effect bypassed the existing private AppKit
+request owner. It now binds the current typed shared-input native handle after
+commit and delegates attachment/visibility/input/window/responder ownership to
+that existing policy. Current inherited disabled/read-only/loading and active
+editing cancel pending work. One memoized callback handle reads current input,
+blocking and attachment, preserves foreign blur, and is inert after teardown.
+No new null callback notification is added. No shared input public prop, renderer,
+dependency, other-target leaf, runner or audit snapshot changed.
+
+Correction to the initial investigation assumption: TextInput/TextArea have no
+public hasAutoFocus flag. They were not missing implementation of that prop;
+the PowerSearch view owns this existing flag directly. No shared input API or
+source was changed. This distinction is reconciled in guide/skill/recipe.
+
+Five object-driver cases are authored, all unrun: late attachment/one attempt,
+input/flag/unmount cancellation and cleanup, inherited blocking and explicit
+rearm, changed responder/active editing, and live callback handle replacement/
+foreign blur/teardown. They use fake hosts/native observation and mock away
+Popover; actual native ordering and modal behavior are not proven. The manual
+fixture adds mount/remount, request/blocking toggles and another focus owner;
+its runner only waits/records. Only source/semantic review, TS/TSRX syntax parsing
+and whitespace checks ran.
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/power-search-focus.macos.mobile.test.tsrx src/auto-focus.macos.test.ts src/typeahead-focus.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/power-search-focus.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All remain deferred until explicit human authorization for this task. No package
+tests/typechecks/builds, installs, OS automation, visual analysis or packaging
+ran. Native attachment/notification/focus/caret/IME/modal/AX and package behavior
+remain unqualified. Tokenizer overflow geometry/truncation, active-option AX/
+announcements, preset text relay, Carousel fades and video remain source gaps.
+Checkbox mixed rollback still awaits the earlier human contract choice.
+Evidence-gated checkboxes stay open; the persistent goal remains active.

@@ -195,3 +195,26 @@ export function Example() {
 	)
 }
 ```
+
+## Request initial AppKit search focus
+
+Use `hasAutoFocus` for a newly mounted AppKit search bar. The request waits for
+its first attached, visible native input while window/input observation is
+available. User activity, a newer responder, blocking, filter editing or removal
+cancels it. It does not activate a window. Removing the flag and setting it again
+requests focus again; merely unblocking the field does not.
+
+```tsx
+import { PowerSearch, createPowerSearchConfig } from '@octane-xplat/ui'
+const { config } = createPowerSearchConfig([{ key: 'title', type: 'string' }] as const)
+export function InitialSearch() {
+	return <PowerSearch config={config} filters={[]} onChange={() => {}} hasAutoFocus />
+}
+```
+
+AppKit uses its native input handle directly; TextInput and TextArea have no
+public `hasAutoFocus` prop. Five [object-driver cases](../../packages/ui/src/power-search-focus.macos.mobile.test.tsrx)
+and a [manual fixture](../../examples/probes/power-search-focus.macos.tsrx) are
+authored, all unrun. Source/fake dispatch does not prove actual AppKit attachment,
+focus/notification ordering, caret/IME, modal containment, accessibility or
+packaging. Existing inline popover and editor limitations above still apply.

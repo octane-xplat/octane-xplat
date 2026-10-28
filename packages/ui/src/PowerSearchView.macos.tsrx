@@ -1,7 +1,10 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from './style-merge'
-import { useEffect, useRef } from 'octane'
-import type { PowerSearchHandle } from './props'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'octane'
+import type { NSView } from '@octane-xplat/platform/macos'
+import { createAppKitAutoFocus } from './auto-focus.macos'
+import { useFieldControlProps } from './field-context'
+import type { PowerSearchHandle, TextInputHandle } from './props'
 import { useSize } from './size-context'
 import type { PowerSearchViewProps } from './power-search-view'
 import { SearchInput } from './controls.macos.tsrx'
@@ -14,25 +17,43 @@ import { PowerSearchFilterEditor } from './PowerSearchFilterEditor.macos.tsrx'
 import { powerSearchTranslate } from './power-search-strings'
 import { cx } from '@octane-xplat/lib'
 
-export function PowerSearchView(props: PowerSearchViewProps) @{
+// The public handle uses a platform-neutral native type. Inspect the AppKit
+// control boundary before passing it to the native request owner.
+function appKitInput(view: object | null | undefined): view is NSView {
+	return !!view && 'window' in view && typeof Reflect.get(view, 'currentEditor') === 'function'
+}
+
+export function PowerSearchView(inProps: PowerSearchViewProps) @{
+	const props = useFieldControlProps(inProps)
+	const live = useRef(props); live.current = props
 	const size = useSize(props.size, 'md')
-	const anchor = useRef<any>(null)
-	const inputHandle = useRef<any>(null)
+	const anchor = useRef<NSView | null>(null)
+	const inputHandle = useRef<TextInputHandle | null>(null)
+	const autoFocus = useMemo(() => createAppKitAutoFocus({
+		requested: () => !!live.current.hasAutoFocus,
+		blocked: () => !!live.current.isDisabled || !!live.current.isReadOnly || !!live.current.isLoading || !!live.current.editing,
+	}), [])
+	const bindAnchor = useCallback((view: NSView | null) => { anchor.current = view; if (!view) autoFocus.bind(null) }, [])
+	const bindInput = useCallback((handle: TextInputHandle | null) => {
+		inputHandle.current = handle
+		const native = handle?.native
+		autoFocus.bind(appKitInput(native) ? native : null)
+		autoFocus.update()
+	}, [])
+	useLayoutEffect(() => {
+		const native = inputHandle.current?.native
+		autoFocus.bind(anchor.current && appKitInput(native) ? native : null)
+		autoFocus.update()
+	}, null)
+	useEffect(() => () => autoFocus.dispose(), [])
+	const handle = useMemo<PowerSearchHandle>(() => ({
+		focusTypeahead() { if (anchor.current && !live.current.isDisabled && !live.current.editing) inputHandle.current?.focus() },
+		blurTypeahead() { if (anchor.current) inputHandle.current?.blur() },
+	}), [])
 	const { query, editing, results, internal } = props
 	const Suggestion: any = Pressable
 	const status = props.status
-	useEffect(() => {
-		props.handleRef?.({
-			focusTypeahead: () => inputHandle.current?.focus?.(),
-			blurTypeahead: () => inputHandle.current?.blur?.(),
-		} as PowerSearchHandle)
-	}, [props.handleRef])
-
-	useEffect(() => {
-		if (props.hasAutoFocus) {
-			inputHandle.current?.focus?.()
-		}
-	}, [props.hasAutoFocus])
+	useEffect(() => { props.handleRef?.(handle) }, [props.handleRef])
 
 	const Editor: any = editing
 		? (props.components?.[
@@ -50,9 +71,7 @@ export function PowerSearchView(props: PowerSearchViewProps) @{
 			props.className,
 		)}
 		style={mergeStyle({ display: 'flex' }, props.style)}
-		ref={(v: any) => {
-			anchor.current = v
-		}}
+		ref={bindAnchor}
 	>
 		<masonview className="vx-power-search-row" style={{ display: 'flex' }}>
 			{props.startIcon ? (
@@ -87,7 +106,7 @@ export function PowerSearchView(props: PowerSearchViewProps) @{
 				)
 			})}
 			<SearchInput
-				ref={(h: any) => (inputHandle.current = h)}
+				ref={bindInput}
 				className="vx-power-search-input"
 				value={query}
 				placeholder={props.placeholder ?? powerSearchTranslate('@astryx.powersearch.placeholder')}
