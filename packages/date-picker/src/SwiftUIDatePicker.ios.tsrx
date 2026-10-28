@@ -1,15 +1,22 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { registerElement } from '@nativescript-community/octane'
-import type { Attributes } from '@nativescript-community/octane/intrinsics'
+import type { Attributes } from '@octane-xplat/jsx/intrinsics'
 import { SwiftUI, UIDataDriver, registerSwiftUI } from '@nativescript/swift-ui'
 import { useState } from 'octane'
 import type { SwiftUIDatePickerProps } from './ios/types'
 
 declare const XplatDatePickerProvider: any
 
-declare module '@nativescript-community/octane/intrinsics' {
-	interface NativeScriptElements {
-		xplatiosdatepicker: Attributes<typeof SwiftUI>
+declare module '@octane-xplat/jsx/intrinsics' {
+	interface NativeElements<TElement> {
+		xplatiosdatepicker: Attributes<
+			TElement,
+			{
+				swiftId?: string
+				data?: Record<string, unknown>
+				onSwiftUIEvent?: (event: { data?: unknown }) => void
+			}
+		>
 	}
 }
 

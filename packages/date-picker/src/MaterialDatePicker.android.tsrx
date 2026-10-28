@@ -1,6 +1,6 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { registerElement } from '@nativescript-community/octane'
-import type { Attributes } from '@nativescript-community/octane/intrinsics'
+import type { Attributes } from '@octane-xplat/jsx/intrinsics'
 import {
 	ComposeDataDriver,
 	JetpackCompose,
@@ -11,9 +11,16 @@ import type { MaterialDatePickerProps } from './android/types'
 
 declare const com: any
 
-declare module '@nativescript-community/octane/intrinsics' {
-	interface NativeScriptElements {
-		xplatandroiddatepicker: Attributes<typeof JetpackCompose>
+declare module '@octane-xplat/jsx/intrinsics' {
+	interface NativeElements<TElement> {
+		xplatandroiddatepicker: Attributes<
+			TElement,
+			{
+				composeId?: string
+				data?: Record<string, unknown>
+				onComposeEvent?: (event: { data?: unknown }) => void
+			}
+		>
 	}
 }
 
