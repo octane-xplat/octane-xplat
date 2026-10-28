@@ -4603,3 +4603,47 @@ window resize/scroll/RTL, real input/caret/IME/focus/blur/click ordering, nested
 layer dismissal, native AX/announcements and packaged imports remain unqualified.
 Do not close floating-result or platform evidence gates from this implementation.
 The persistent goal remains active.
+
+
+## AppKit committed-result highlight readiness
+
+Source follow-through on the floating-result integration found that the field's
+highlight effect can run before portal rows mount. Publishing a target rerenders
+the result child rather than necessarily rerendering its owning field, so the
+parent effect alone cannot cover that readiness boundary. This is source
+reasoning, not an observed native failure. It matters for current highlighted
+rows and same-window AX links on initial result attachment/replacement.
+
+The private controller now reports readiness only for a current, committed,
+revealed session. Retired source roots, closed handles, changed native windows
+and stale tokens cannot report readiness or count as present, including native
+retirement during show. The source portal relays successful readiness to the
+field's stable live callback. That callback refreshes native AX relationships
+and requests scrolling of the current highlighted row only while the current
+input/owned editor retains focus in the row's window. It rechecks live open,
+blocking, result key and native refs; it does not transfer focus. The existing
+parent highlight effect remains for ordinary navigation updates.
+
+Two additional controller cases and three explicit readiness-boundary wiring
+cases are authored, unrun. The complete floating-result source set is now sixteen
+controller/focus, four portal and three readiness cases. Readiness cases mock
+only the result host and signal the boundary after decorating fake native rows;
+they cannot prove actual source/native commit timing or scrolling. Guide/skill/
+recipe reconcile this addition; the previous feature note already covers the
+same unreleased result host. No shared API, other-target source or audit changes.
+Only source/semantic review, TS/TSRX syntax parsing and whitespace ran.
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/typeahead-layer.macos.test.ts src/typeahead-results.macos.mobile.test.tsrx src/typeahead-result-ready.macos.mobile.test.tsrx src/typeahead-keys.macos.mobile.test.tsrx src/typeahead-accessibility.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/typeahead-results.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+Every command remains deferred until explicit human authorization for this task.
+Native portal/context/ref/commit ordering, actual row reveal/scrolling, editor/
+IME/focus/blur, AX/announcements and packaging remain unqualified. The prior
+floating-result slice's other deferred checks still apply. The issue's native
+proof gates remain open and the persistent goal stays active.

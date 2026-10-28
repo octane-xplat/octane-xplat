@@ -70,7 +70,7 @@ export function createAppKitTypeaheadLayer(options: {
 	}
 	const valid = (owned: Session) => {
 		const current = options.state()
-		return !disposed && session === owned && owned.live && current.open && current.anchor === owned.anchor &&
+		return !disposed && session === owned && owned.live && !owned.released && !owned.handle?.closed && current.open && current.anchor === owned.anchor &&
 			current.input === owned.input && owned.anchor.window === owned.window && owned.input.window === owned.window
 	}
 	const refresh = () => {
@@ -158,7 +158,7 @@ export function createAppKitTypeaheadLayer(options: {
 			throw error
 		} finally { updating = false }
 	}
-	return { update, isPresent: () => !!session?.handle && !session.handle.closed && session.live && session.revealed,
+	return { update, isPresent: () => !!session?.handle && valid(session) && session.revealed,
 		committed(token: object) {
 			const owned = session
 			if (!owned || owned.token !== token || !valid(owned)) return
@@ -168,6 +168,7 @@ export function createAppKitTypeaheadLayer(options: {
 			if (!valid(owned) || !owned.committed || !owned.handle) return
 			if (!waiting.length) owned.handle.update({})
 			if (valid(owned) && owned.committed && !owned.revealed) { owned.handle.show(); owned.revealed = true }
+			return valid(owned) && owned.committed && owned.revealed
 		},
 		dispose() { if (disposed) return; disposed = true; try { retire() } finally { stop() } },
 	}

@@ -817,7 +817,9 @@ Experimental AppKit BaseTypeahead now hosts suggestions outside the field's
 layout in the same native window. Typeahead and Tokenizer inherit this result
 view. Use `menuWidth` to choose a width; otherwise it follows the anchor.
 `placement` chooses the preferred side, with flipping and window bounds limiting
-the panel. Longer results have a bounded scrolling area. This requires the
+the panel. Longer results have a bounded scrolling area; a current source
+commit requests highlight reveal after its rows mount, retaining input focus.
+This requires the
 matching AppKit renderer's source-owned window-layer host; older hosts fail
 explicitly. Native layout and interaction qualification remain pending.
 
@@ -854,8 +856,9 @@ export function TeamSearch() {
 }
 ```
 
-Fourteen [controller/focus cases](../../packages/ui/src/typeahead-layer.macos.test.ts),
-four [source-portal cases](../../packages/ui/src/typeahead-results.macos.mobile.test.tsrx)
+Sixteen [controller/focus cases](../../packages/ui/src/typeahead-layer.macos.test.ts),
+four [source-portal cases](../../packages/ui/src/typeahead-results.macos.mobile.test.tsrx),
+three [readiness cases](../../packages/ui/src/typeahead-result-ready.macos.mobile.test.tsrx)
 and the [manual fixture](../../examples/probes/typeahead-results.macos.tsrx) are
 authored, all unrun. Existing state/key cases use an explicit test host.
 Actual portal/context/ref/commit ordering, native sizing/clipping/scrolling/RTL,

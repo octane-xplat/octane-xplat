@@ -16,6 +16,7 @@ interface Props {
 	placement?: PopoverPlacement
 	onDismiss(): void
 	onBlur(event: any): void
+	onReady?(): void
 	children?: Renderable
 }
 function ResultPortal(props: { target: TypeaheadLayerTarget; size: TypeaheadLayerSize; dark: boolean; depth: number; children?: Renderable; committed(token: object): void; blur(event: any): void }) {
@@ -54,7 +55,7 @@ export function TypeaheadResults(props: Props) @{
 	useEffect(() => () => controller.dispose(), [])
 	@if (target && props.open) {
 		<ResultPortal target={target} size={size} dark={dark} depth={dismissal.depth}
-			committed={controller.committed} blur={(event: any) => live.current.props.onBlur(event)}>
+			committed={(token: object) => { if (controller.committed(token)) live.current.props.onReady?.() }} blur={(event: any) => live.current.props.onBlur(event)}>
 			{props.children}
 		</ResultPortal>
 	}

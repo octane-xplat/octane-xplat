@@ -61,13 +61,16 @@ export function BaseTypeaheadView<T extends SearchableItem>(
 		open: () => live.current.onOpenChange(true), close: () => live.current.onOpenChange(false),
 		highlight: (index) => live.current.onHighlight?.(index), select: (item) => live.current.onSelect(item),
 	}), [])
-	useLayoutEffect(() => {
-		if (!props.open || activeIndex < 0) return
-		const input = props.inputRef.current, row = rows.current.get(props.results[activeIndex].id)?.view
+	const resultsReady = useCallback(() => {
+		accessibility.update()
+		const current = live.current, item = current.results[current.highlightedIndex]
+		if (!current.open || current.isDisabled || current.isReadOnly || !item) return
+		const input = current.inputRef.current, row = rows.current.get(item.id)?.view
 		if (!input?.window || !row || row.window !== input.window) return
 		const editor = typeof input.currentEditor === 'function' ? input.currentEditor() : input.currentEditor
 		if (input.window.firstResponder === input || (editor != null && input.window.firstResponder === editor)) row.scrollRectToVisible?.(row.bounds)
-	}, [props.open, activeIndex, props.results])
+	}, [])
+	useLayoutEffect(resultsReady, [props.open, activeIndex, props.results])
 
 	<masonview
 		className={cx('vx-typeahead', props.className)}
@@ -107,7 +110,7 @@ export function BaseTypeaheadView<T extends SearchableItem>(
 			anchor={props.anchor} input={() => live.current.inputRef.current}
 			open={props.open && !props.isDisabled && !props.isReadOnly}
 			width={props.menuWidth} placement={props.placement}
-			onDismiss={() => live.current.onOpenChange(false)} onBlur={fieldBlur}
+			onDismiss={() => live.current.onOpenChange(false)} onBlur={fieldBlur} onReady={resultsReady}
 		>
 			<masonview
 				className="vx-typeahead-list"

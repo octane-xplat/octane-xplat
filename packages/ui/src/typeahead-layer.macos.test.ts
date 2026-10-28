@@ -136,3 +136,19 @@ it('window migration during source publication retires a late handle until close
 		f.controller.update(); expect(f.layers).toHaveLength(1)
 	} finally { f.controller.dispose() }
 })
+
+it('only a current revealed source commit reports readiness to its field', () => {
+	const f = fixture()
+	try {
+		f.controller.update(); const token = f.token()
+		expect(f.controller.committed({})).toBeFalsy(); expect(f.controller.committed(token)).toBe(true)
+		f.input.window = null; expect(f.controller.committed(token)).toBeFalsy(); expect(f.controller.isPresent()).toBe(false)
+	} finally { f.controller.dispose() }
+})
+it('native source retirement during reveal cannot report readiness or remain present', () => {
+	const f = fixture()
+	try {
+		f.controller.update(); f.layers[0].show.mockImplementation(() => f.layers[0].close())
+		expect(f.controller.committed(f.token())).toBeFalsy(); expect(f.controller.isPresent()).toBe(false)
+	} finally { f.controller.dispose() }
+})

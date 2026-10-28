@@ -1808,6 +1808,8 @@ commit-gated reveal. Source providers remain around result content; input and
 result descendants share the field-leave blur boundary. The host does not focus
 or restore focus, and top-layer ownership gates controlled outside dismissal.
 Window retirement cancels the current presentation until close/open rearms it.
+Current source readiness refreshes native AX links and requests highlighted-row
+reveal after rows mount, using current input/editor/window ownership.
 
 ```tsx
 <BaseTypeahead searchSource={people} value={person} onChange={setPerson}
@@ -1815,8 +1817,8 @@ Window retirement cancels the current presentation until close/open rearms it.
 ```
 
 Require the matching renderer source-outlet/staged-window-layer contract; do not
-add an inline fallback or replace it with a standalone NSPopover root. Fourteen
-controller/focus and four actual source-portal object cases plus a manual
+add an inline fallback or replace it with a standalone NSPopover root. Sixteen
+controller/focus, four actual source-portal and three readiness cases plus a manual
 fixture are authored, unrun. State/key fixtures explicitly mock only this host.
 Generic Popover/useLayer standalone roots and Tokenizer's outer unfocusedLayer
 editor remain separate limitations. Native portal/context/commit/geometry,
