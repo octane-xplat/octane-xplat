@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { Canvas, getGPU } from '@octane-xplat/canvas'
 import type { CanvasContextKind, CanvasReady } from '@octane-xplat/canvas'
 import type { ProbeContext } from '../../../scripts/probe/context'

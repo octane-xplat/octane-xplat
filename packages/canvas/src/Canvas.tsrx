@@ -1,14 +1,7 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { registerElement } from '@nativescript-community/octane'
-import type { Attributes } from '@nativescript-community/octane/intrinsics'
 import { Canvas as NSCanvas } from '@nativescript/canvas'
 import type { CanvasProps } from './props'
-
-declare module '@nativescript-community/octane/intrinsics' {
-	interface NativeScriptElements {
-		nscanvas: Attributes<typeof NSCanvas>
-	}
-}
 
 // @nativescript/canvas — Skia + wgpu core exposing the DOM Canvas API
 // (2d, webgl, webgl2, webgpu) on iOS + Android. Element name is `nscanvas`

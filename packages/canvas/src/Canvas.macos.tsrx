@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useEffect } from 'octane'
 import type { CanvasContextKind, CanvasProps } from './props'
 
@@ -16,8 +16,6 @@ export function Canvas(props: CanvasProps) @{
 	<masonview
 		id={props.id}
 		className={props.className}
-		style={{ display: 'grid', ...props.style }}
-		width={props.width}
-		height={props.height}
+		style={{ display: 'grid', width: props.width, height: props.height, ...props.style }}
 	/>
 }

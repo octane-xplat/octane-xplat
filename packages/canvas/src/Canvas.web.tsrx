@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useMemo, useRef } from 'octane'
 import type { CanvasProps } from './props'
 
