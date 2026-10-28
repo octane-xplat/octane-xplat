@@ -13,13 +13,13 @@ export function TextAreaHarness(props: TextAreaProps & { frameClass?: string }) 
 export const standaloneChanges: string[] = []
 export const standaloneRef: { current: any } = { current: null }
 export function StandaloneEditor(props: {
-	generation: number; width: number; height: number; left?: number; top?: number; translateX?: number; opacity?: number; role?: 'text';
+	generation: number; width?: number; height?: number; content?: string; left?: number; top?: number; translateX?: number; opacity?: number; role?: 'text';
 }) @{
 	<proxyviewcontainer>
 		<textview key={props.generation} id="standalone-editor" ref={standaloneRef}
 			accessibilityRole={props.role}
 			onTextChange={(event: any) => standaloneChanges.push(props.generation + ':' + event.value)}
-			text={'First\nSecond'} style={{ width: props.width, height: props.height,
+			text={props.content ?? 'First\nSecond'} style={{ width: props.width, height: props.height,
 				left: props.left, top: props.top, translateX: props.translateX, opacity: props.opacity, padding: 0, borderWidth: 0 }} />
 	</proxyviewcontainer>
 }

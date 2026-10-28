@@ -92,7 +92,9 @@ reads after fontChanged until native CSS validation has run. GTK textview refs
 stay on the native editor; its scrolling/placeholder parents are adapter-owned. Hint overlays do not
 participate in preferred measurement or pointer targeting; keep the accessible
 label independent of hint text. Use framework
-style props for the full control's size, opacity and placement.
+style props for the full control's size, opacity and placement. GTK size
+requests are minima: preserve the adapter's natural-size propagation policy
+for explicit numeric dimensions and their removal.
 
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */

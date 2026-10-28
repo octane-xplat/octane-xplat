@@ -287,6 +287,7 @@ async function run() {
 		})
 		const initial = {
 			generation: 1,
+			content: name === 'box' ? Array.from({ length: 12 }, () => 'A line').join('\n') : undefined,
 			width: 160,
 			height: 80,
 			left: name === 'fixed' ? 10 : undefined,
@@ -326,8 +327,38 @@ async function run() {
 			)
 			check(
 				'box: definite dimensions apply to the whole control: ' +
-					[viewport.get_width(), viewport.get_height(), editor.get_width()].join(','),
+					JSON.stringify({
+						size: [viewport.get_width(), viewport.get_height(), editor.get_width()],
+						align: [viewport.get_halign(), viewport.get_valign()],
+						expand: [viewport.get_hexpand(), viewport.get_vexpand()],
+						measure: viewport.measure(Gtk.Orientation.VERTICAL, 160),
+						scrollMeasure: node.textView!.scroller.measure(Gtk.Orientation.VERTICAL, 160),
+						textMeasure: editor.measure(Gtk.Orientation.VERTICAL, 160),
+						textRequest: editor.get_size_request(),
+						font: editor.create_pango_layout('Mg').get_pixel_size(),
+						style: node.computedStyle,
+					}),
 				allocated,
+			)
+			nested.root.render(StandaloneEditor, { ...initial, content: 'LongWord'.repeat(100) })
+			await pause()
+			check(
+				'long unbroken text respects both explicit dimensions',
+				await waitForAllocation(
+					() => close(viewport.get_width(), 160) && close(viewport.get_height(), 80),
+				),
+			)
+			nested.root.render(StandaloneEditor, { ...initial, width: undefined, height: undefined })
+			check(
+				'removing dimensions restores natural expansion',
+				await waitForAllocation(() => viewport.get_width() > 160 && viewport.get_height() > 80),
+			)
+			nested.root.render(StandaloneEditor, initial)
+			check(
+				'restoring dimensions caps content again',
+				await waitForAllocation(
+					() => close(viewport.get_width(), 160) && close(viewport.get_height(), 80),
+				),
 			)
 		}
 		if (name === 'fixed') {

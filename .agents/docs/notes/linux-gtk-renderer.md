@@ -1203,3 +1203,32 @@ export or dependency changes. No phone, IME, AT-client, Wayland, HiDPI or image
 claim. Logs: guest /tmp/gtk-hint-full-final.log; andromeda
 /tmp/gtk-hint-types-complete.log. Earlier failing logs remain diagnostic
 history rather than current pass evidence.
+
+## Explicit multiline dimensions in native hosts
+
+The earlier placeholder slice treated an intermittent Box allocation failure
+as a frame-settling issue. It recurred after the bounded wait: authored160x80
+became160x187. A long-content fixture then reproduced the problem reliably.
+Twelve lines produced editor minimum/natural height204; the scrolling host
+reported minimum46/natural204, and the physical overlay minimum80/natural204.
+Despite START alignment and expansion=false, the native Box allocated360px
+height. This is a sizing-policy error, not evidence that three seconds of
+waiting was insufficient.
+
+GTK 4.14.5 follows its documented contracts:
+[set_size_request](https://docs.gtk.org/gtk4/method.Widget.set_size_request.html)
+sets a minimum, and
+[propagate-natural-height](https://docs.gtk.org/gtk4/property.ScrolledWindow.propagate-natural-height.html)
+requests the child's natural size. The adapter had enabled natural-size
+propagation unconditionally. It now disables propagation on each axis with
+an explicit numeric width or height, and restores it when that dimension is
+removed. Auto-sized controls can still grow. This is a local adapter fix
+using GTK's sizing policy, not an upstream GTK defect.
+
+The native host fixture now uses twelve lines in Box and checks a long
+unbroken word, removal of both dimensions, and restoration of the authored
+size. Existing host position, transform, role recreation, ref/focus and
+buffer-listener assertions remain. Focused long-content checks pass on GTK 4.14.5. Final integration checks,
+including the dimension-transition cases, are recorded below.
+Logs: guest /tmp/gtk-controlled-long-host-before.log and
+/tmp/gtk-controlled-long-host-after.log.

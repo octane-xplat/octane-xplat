@@ -851,3 +851,13 @@ custom line spacing and stable field/controlled ownership still gate the
 TextArea GTK root export. See the
 [placeholder evidence](linux-gtk-renderer.md#multiline-placeholder-overlays);
 Silo retains per-export qualification state.
+
+### Explicit multiline sizing in native hosts
+
+Long content exposed a gap in the private scrolling host's size policy:
+GTK size requests are minima, so propagated natural content height could
+override an explicit height in Box. The adapter now disables natural-size
+propagation on explicit numeric axes and restores it when dimensions clear.
+The long-content and dimension-transition cases stay in the maintained host
+matrix. See the [native sizing evidence](linux-gtk-renderer.md#explicit-multiline-dimensions-in-native-hosts).
+This adds no GTK root exports.

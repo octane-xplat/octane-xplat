@@ -1423,6 +1423,12 @@ function applyStyleExtras(node: ElementNode, view: GtkView, style: PropBag | nul
 	const heightValue = source.height ?? node.props.height
 	const width = widthValue != null ? dimension(widthValue) : -1
 	const height = heightValue != null ? dimension(heightValue) : -1
+	if (node.textView) {
+		// GTK size requests are minima. Do not let natural content enlarge a
+		// control with an authored dimension in a native layout container.
+		node.textView.scroller.propagate_natural_width = width < 0
+		node.textView.scroller.propagate_natural_height = height < 0
+	}
 	if (width !== node.appliedWidth || height !== node.appliedHeight) {
 		node.appliedWidth = width
 		node.appliedHeight = height
