@@ -133,7 +133,7 @@ try {
 			writeFileSync(consumerManifestPath, `${JSON.stringify(consumerManifest, null, 2)}\n`)
 		}
 
-		for (const target of ['web', 'native']) {
+		for (const target of ['web', 'native', 'windows']) {
 			for (const mode of [
 				{ name: 'bundler', module: 'esnext', moduleResolution: 'bundler' },
 				{ name: 'nodenext', module: 'nodenext', moduleResolution: 'nodenext' },
@@ -143,7 +143,7 @@ try {
 		}
 	}
 
-	console.log('gif packed consumer: web/native exports typecheck in Bundler and NodeNext modes')
+	console.log('gif packed consumer: web/native/windows exports typecheck in Bundler and NodeNext modes')
 } finally {
 	rmSync(temporary, { recursive: true, force: true })
 }
