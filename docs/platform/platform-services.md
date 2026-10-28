@@ -445,6 +445,27 @@ WinRT `CryptographicBuffer`; Windows runtime verification is pending. Check
 `random.supported` before generating bytes, and disable or defer the feature
 when the host has no bound source. Never weaken the secret.
 
+## Read the installed app version
+
+Use `appInfo` for an About screen or support details. On experimental native
+Windows, it reads package identity: `bundleId` is `Package.Id.Name`, `version`
+keeps all four `Major.Minor.Build.Revision` numbers, and `build` is the `Build`
+field. Unpackaged hosts report unsupported with null fields; a missing version
+projection can leave version/build null even when the identifier is available.
+
+```ts
+import { appInfo } from '@octane-xplat/platform'
+
+const versionLabel = appInfo.supported
+  ? appInfo.version ?? 'Version unavailable'
+  : 'App metadata unavailable'
+```
+
+Read the values after host startup. The Windows adapter reads lazily, so an
+early unavailable read is not cached. Packaged values and app integration still
+need Windows qualification; see the
+[Windows evidence record](../../.agents/docs/parity/windows-support-progress.md#windows-app-metadata-candidate).
+
 ## Open settings
 
 Offer a settings action when the user needs to change a system preference.
@@ -484,7 +505,7 @@ console.log(accepted ? 'Use System Settings to change the permission' : 'Setting
 | ----------------------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `geolocation`                       | `getCurrentPosition(options)`                                                                | `@octane-xplat/geolocation` leaf                                                                                                                                                     |
 | `connectivity`                      | `getState()` + `subscribe(listener)`                                                         | web also exposes connection type where `navigator.connection` exists                                                                                                                 |
-| `appInfo`                           | `{ supported, version, build, bundleId }`                                                    | `supported: false` on web — a browser bundle has no trustworthy app identity                                                                                                         |
+| `appInfo`                           | `{ supported, version, build, bundleId }`                                                    | Unsupported in a browser; experimental native Windows reads package identity and reports null fields when unavailable                                                                 |
 | `openUrl(url)`                      | returns whether an outbound-link request was accepted                                        | WKWebView and native Windows submit asynchronously; this API cannot return the host's eventual result                                                                          |
 | `random`                            | `bytes(length)`, `fill(view)` — OS CSPRNG bytes                                              | WinRT CryptographicBuffer candidate on Windows; runtime verification pending                                                                                                         |
 | `openSettings`                      | capability; `open()`                                                                         | [AppKit opens System Settings without selecting a pane](#open-settings); iOS/Android open app settings; unsupported on web                                                                                                                                                                   |

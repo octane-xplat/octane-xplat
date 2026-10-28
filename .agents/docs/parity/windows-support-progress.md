@@ -37,6 +37,7 @@ is complete because of these changes.
 | Scroll observation | Windows useScrollableArea composes viewport/content layout, scroll and lifecycle handlers | Scripted-hook/fake-metric contracts only; real compiler/renderer, Mason measurements, OS scrolling and RTL unqualified |
 | Credentials | Package-family-scoped PasswordVault adapter avoids mobile plugin fallback | Standalone task-namespace operations/cleanup passed; actual packaged identity, persistence across launches and policy behavior unqualified |
 | Device | Explicit Windows OS identity, core metadata | Version/model/language metadata unqualified |
+| App metadata | Windows appInfo lazily reads package identity and four-part version | Four mocked contracts and standalone unpackaged-unavailable result passed; packaged values, startup and production integration unqualified |
 | App settings | Package-family-specific Settings URI; unavailable without package identity | Packaged and unpackaged host behavior, launch acceptance and navigation unqualified |
 | Preferences | Windows leaf preserves ApplicationSettings string operations and returns false for unconfirmed blocking flush | OS persistence/crash durability unqualified; no blocking commit API bound |
 | Auth session | Explicit unavailable Windows leaf rejects with UnavailabilityError | Hosted OAuth/WebAuthn callback/activation adapter still missing; this corrects availability, not auth support |
@@ -775,3 +776,79 @@ without its owner or adopting a newer namespace without its SDK would not
 complete that workflow. After authorized host work, qualify single/multiple
 selection, filters, cancellation versus failure, window ownership, read/retain
 of selected paths and absence of deletion of external files before enabling it.
+
+## Windows app metadata candidate
+
+The native default app-info module imports the iOS subpath and returns
+unsupported outside Android/iOS. A Windows leaf now avoids that foreign import
+and reads Package.Current.Id lazily. bundleId is Id.Name, version retains all
+Major.Minor.Build.Revision components, and build is the literal Build field.
+Unpackaged/missing hosts return unsupported/null metadata. Usable identity can
+remain available when its version fields are absent, invalid or unprojected;
+those fields stay null. Reads are not cached across startup failures.
+
+The existing Services.tsrx readout displays appInfo.supported/version/build/
+bundleId. That is the concrete demand assumption for About/support metadata;
+it needs no example workaround. It was reviewed as source, not run on Windows.
+The shared AppInfo type and public import paths are unchanged. Microsoft's
+[Package.Current contract](https://learn.microsoft.com/uwp/api/windows.applicationmodel.package.current)
+requires package identity; its [PackageVersion fields](https://learn.microsoft.com/en-us/uwp/api/windows.applicationmodel.packageversion)
+provide the four numbers. There is no fallback to CLI settings, browser host
+metadata, assembly versions or mobile APIs.
+
+Four projected-host contracts passed on windy through the isolated uncached
+Turbo test:app-info task (one task, no dependency builds, exit 0). They cover
+lazy startup/retry, exact names and version components including zeros,
+unavailable/error hosts and partially usable metadata. A minimal Vite resolver
+using the current CLI extension function and package manifest passed nine
+root/subpath/relative-path checks across Windows/iOS/Android; an AST comparison
+confirms the same AppInfo annotation and four getters. No server, full preset,
+production import graph, dependency scan or transform ran. Logs:
+`research/windows61/windy-app-info-contracts.log` and
+`research/windows61/windy-app-info-resolution.log`.
+
+A resource-reserved standalone x64 native DLL check passed the unpackaged
+unavailable contract, exit 0. Win32 GetCurrentPackageFullName independently
+confirmed APPMODEL_ERROR_NO_PACKAGE (15700). The actual preview projects
+Package.Current as undefined in this host; the adapter returned false and all
+null fields. An initial diagnostic expected a propagated WinRT no-package
+HRESULT and stopped before adapter assertions when that assumption was not
+met. The final check verifies process identity independently and preserves the
+adapter's required false/null assertions. These are unavailable-host results,
+not packaged metadata evidence. The DLL remains alpha.144 with SHA256
+748D95864AC032DE2D1BB69FEC1E5B2CDD393BAA1671E349AA670160AA66D47C. Logs:
+`research/windows61/windy-native-app-info.log` (initial diagnostic failure) and
+`research/windows61/windy-native-app-info-unpackaged.log` (pass). No app or UI
+was launched, no package identity was fabricated, and metadata values were not
+logged.
+
+The existing windy formatter 0.1.0 formatted the two source/test files. Current
+0.1.1 formatting and targeted lint could not start from the shared local
+installation: @alloc/cmd-ts and picomatch were missing. No dependency install or
+shared repair was performed. The local changelog check also could not start
+because this worktree lacks yaml. The same current checker and all 14 pending
+source notes passed in a private windy snapshot using existing dependencies,
+exit 0. The first transfer included macOS AppleDouble files and failed; the
+final archive contains every actual source note and no generated transfer
+metadata. Logs: `research/windows61/windy-app-info-notes-check.log` and
+`research/windows61/windy-app-info-notes-source-check.log`. Recipe structure
+passed. Exact remaining commands in the canonical workspace:
+
+```sh
+pnpm exec xplat fmt --check packages/platform/src/app-info.windows.ts packages/platform/tests/windows-app-info.test.mjs
+node packages/lint/bin/lint.mjs packages/platform/src/app-info.windows.ts packages/platform/tests/windows-app-info.test.mjs
+pnpm check:changelog
+pnpm exec turbo run test --filter=@octane-xplat/platform
+pnpm exec turbo run typecheck --filter=...@octane-xplat/platform
+pnpm exec turbo run typegen --filter=@octane-xplat/platform
+pnpm exec turbo run pack:check --filter=@octane-xplat/platform
+pnpm exec turbo run test:packed --filter=@octane-xplat/platform
+pnpm exec turbo run build --filter=@xplat/docs
+```
+
+Native packaged names, all version-field projections, app startup/integration,
+architecture coverage, current declaration/packaged-consumer behavior and
+Windows builds remain unqualified/deferred. A release note, service guide and
+agent guidance record the subset. The platform-leaves recipe still excludes
+Windows; no supported recipe target, shared audit snapshot or evidence-gated
+checkbox changed. Hosted auth and deep-link activation remain separate gaps.

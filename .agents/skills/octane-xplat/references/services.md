@@ -383,6 +383,22 @@ import { auth } from './auth'
 await auth.signOut()
 ```
 
+## Windows app metadata
+
+Windows appInfo reads Package.Current.Id lazily, with no mobile import or
+app-config fallback. bundleId is Id.Name, version retains
+Major.Minor.Build.Revision, and build is the literal Build field. Check supported
+and nullable fields separately: identity can be available without a usable
+version projection. Unpackaged/missing hosts are unsupported. Early failure is
+not cached; do not turn the standalone unavailable-host check into packaged
+metadata qualification.
+
+```ts
+import { appInfo } from '@octane-xplat/platform'
+
+const versionLabel = appInfo.supported ? appInfo.version ?? 'Unknown version' : 'Unavailable'
+```
+
 ## Windows file I/O boundary
 
 The experimental [Windows file leaf](../../../../packages/files/README.md#experimental-native-windows-file-io)
