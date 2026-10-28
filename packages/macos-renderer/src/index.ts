@@ -3,6 +3,7 @@ import {
 	configureGesture,
 	setPressGesture,
 	disposePressGestures,
+	setVisualStateTracking,
 	swipeDirection,
 	registerGestureClass,
 } from './gestures'
@@ -47,6 +48,7 @@ import {
 	registerStylesheet,
 	onStylesheetsChanged,
 	setStyleEnvironment,
+	stylesheetPseudoClasses,
 	stylesheetScope,
 	stylesheetsHaveMediaRules,
 } from '@octane-xplat/css-engine'
@@ -124,6 +126,7 @@ import {
 	NSVisualEffectView,
 	NSWindow,
 	NSWindowDelegate,
+	NSWindowDidUpdateNotification,
 	NSWindowOrderingMode,
 	NSWindowStyleMask,
 	NSWorkspace,
@@ -233,6 +236,10 @@ interface RootContainer {
 	/** Nodes needing a cascade recompute; flushed before layout reconcile. */
 	cssDirty?: Set<ElementNode>
 	cssFlushQueued?: boolean
+	/** Focused node followed by its :focus-within ancestors — diffed per
+	 *  window update so moved focus clears the whole old chain. */
+	cssFocusChain?: ElementNode[]
+	cssFocusVisible?: boolean
 	tabDirty?: Set<ElementNode>
 	tabReleases?: Set<ElementNode>
 }
@@ -244,6 +251,8 @@ interface PortalTargetEntry {
 
 const nodeContainersByView = new WeakMap<object, RootContainer>()
 const portalHandlesByNode = new WeakMap<ElementNode, UniversalPortalTargetHandle>()
+/** Every node view, for firstResponder→node resolution (focus pseudo-classes). */
+const cssNodesByView = new WeakMap<object, ElementNode>()
 
 function parentReference(parent: ElementNode | null | undefined): UniversalHostParent {
 	if (!parent) {
@@ -395,6 +404,11 @@ class ButtonActionTarget extends NSObject {
 
 	controlChanged(sender: NSControl) {
 		invokeAction(sender.tag ?? actionIdsByView.get(sender))
+		// Toggle state lives on the control itself — resync :checked/:normal.
+		const node = cssNodesByView.get(sender)
+		if (node) {
+			syncPseudoState(node)
+		}
 	}
 
 	// NSControlTextEditingDelegate: fires on every edit while a single-line
@@ -2890,6 +2904,8 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 			}
 
 			nodeContainersByView.set(node.view, container)
+			cssNodesByView.set(node.view, node)
+			syncPseudoTracking(node)
 		}
 
 		return node
@@ -3293,7 +3309,25 @@ function setPseudoClass(node: ElementNode, name: string, on: boolean) {
 	} else {
 		node.cssPseudoClasses.delete(name)
 	}
-	markStyleDirty(node, true)
+	// Only pseudo-classes some registered selector actually uses can
+	// restyle — an unused state change must not flush a subtree.
+	if (stylesheetPseudoClasses().has(name)) {
+		markStyleDirty(node, true)
+	}
+}
+
+// Pseudo-classes that count as "another visual state" for :normal — NS's
+// visual states only (view-common.js): highlighted/active/pressed, focus,
+// checked, disabled. The desktop extras (hover, focus-visible, focus-within)
+// do NOT cancel :normal.
+const NORMAL_OFF = new Set(['highlighted', 'active', 'pressed', 'focus', 'checked', 'disabled'])
+
+function syncNormalState(node: ElementNode) {
+	setPseudoClass(
+		node,
+		'normal',
+		![...NORMAL_OFF].some((name) => node.cssPseudoClasses.has(name)),
+	)
 }
 
 // textfield/textview drop native chrome when the effective style overrides
@@ -4977,6 +5011,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 			'disabled',
 			node.props.disabled === true || node.props.isEnabled === false || node.props.enabled === false,
 		)
+		syncNormalState(node)
 	}
 	if (
 		node.authoredProps ||
@@ -6677,6 +6712,9 @@ function destroy(node: ElementNode) {
 	}
 
 	disposePressGestures(node)
+	node.cssHoverDispose?.()
+	node.cssHoverDispose = undefined
+	setVisualStateTracking(node, null)
 	if (node.view) {
 		panHandlersByView.delete(node.view)
 	}
@@ -6793,6 +6831,10 @@ function destroy(node: ElementNode) {
 		nodeContainersByView.get(node.view) === node.container
 	) {
 		nodeContainersByView.delete(node.view)
+	}
+
+	if (node.view) {
+		cssNodesByView.delete(node.view)
 	}
 }
 
@@ -7134,6 +7176,8 @@ const macOSDriver: UniversalHostDriver<RootContainer, any> = {
 				root.getChildAt = (i: number) => cssChildren(root)[i]
 				root.getChildrenCount = () => cssChildren(root).length
 
+				cssNodesByView.set(target as object, root)
+				syncPseudoTracking(root)
 				portalHandlesByNode.set(root, handle)
 				registration = { root, registrations: 0 }
 				container.portalTargets.set(handle, registration)
@@ -7805,6 +7849,211 @@ try {
 	)
 }
 
+// ---- CSS pseudo-classes -----------------------------------------------------
+// NS `updateDynamicState` parity — the GTK renderer's `syncPseudoState`
+// contract with AppKit sources: NSTrackingArea for :hover, the passive press
+// recognizer for :active/:pressed/:highlighted, and window firstResponder for
+// :focus/:focus-visible/:focus-within. Wiring attaches once per node view and
+// only when a registered selector uses the state
+// (stylesheetPseudoClasses()); setPseudoClass gates the actual restyle on the
+// same set. `observeHover` is NOT reused — it keeps one record per view for
+// Tooltip/Hoverable and would drop whichever handler registered first; the
+// CSS hook keeps its own area in the shared dispatch instead.
+
+/** Own tracking area per node in the shared hover dispatch — returns the
+ *  unsubscribe for destroy. */
+function observePseudoHover(node: ElementNode) {
+	const view = node.view!
+	if (
+		typeof view.addTrackingArea !== 'function' ||
+		typeof NSTrackingArea === 'undefined' ||
+		!hoverTrackingTarget
+	) {
+		return () => {}
+	}
+
+	const area = NSTrackingArea.alloc().initWithRectOptionsOwnerUserInfo(
+		{ origin: { x: 0, y: 0 }, size: { width: 0, height: 0 } },
+		HOVER_TRACKING_OPTIONS,
+		hoverTrackingTarget,
+		null,
+	)
+	if (!area) {
+		return () => {}
+	}
+
+	view.addTrackingArea(area)
+	hoverRecordsByArea.set(area, {
+		enter: () => {
+			setPseudoClass(node, 'hover', true)
+		},
+		exit: () => {
+			setPseudoClass(node, 'hover', false)
+		},
+	})
+	return () => {
+		hoverRecordsByArea.delete(area)
+		try {
+			view.removeTrackingArea(area)
+		} catch {
+			// already detached
+		}
+	}
+}
+
+/** NS ACTIVE parity: the down event sets highlighted/active/pressed together
+ *  (view-common.js maps all three to the same flag). */
+function syncPressedState(node: ElementNode, pressed: boolean) {
+	setPseudoClass(node, 'highlighted', pressed)
+	setPseudoClass(node, 'active', pressed)
+	setPseudoClass(node, 'pressed', pressed)
+	syncNormalState(node)
+}
+
+/** Read the live AppKit state a node exposes — the switch's `state` drives
+ *  :checked like Gtk.Switch's `active`; :normal recomputes after every
+ *  pseudo change, matching NS updateDynamicState. */
+function syncPseudoState(node: ElementNode) {
+	const view = node.view
+	if (!view) {
+		return
+	}
+	if (node.type === 'switch') {
+		setPseudoClass(node, 'checked', Number(view.state) === 1)
+	}
+	syncNormalState(node)
+}
+
+/** Attach the node's tracking pieces for the pseudo-classes registered
+ *  selectors actually use. Idempotent — safe to repeat after stylesheet
+ *  registration. */
+function syncPseudoTracking(node: ElementNode) {
+	const view = node.view
+	if (!view) {
+		return
+	}
+	const used = stylesheetPseudoClasses()
+	if (used.has('hover') && !node.cssHoverDispose) {
+		node.cssHoverDispose = observePseudoHover(node)
+	}
+	if (
+		(used.has('active') || used.has('pressed') || used.has('highlighted')) &&
+		!node.cssStateRecognizer
+	) {
+		setVisualStateTracking(node, (pressed) => syncPressedState(node, pressed))
+	}
+	syncPseudoState(node)
+}
+
+/** The node whose view is (or contains) the window's first responder. The
+ *  field editor resolves through its delegate back to the textfield; any
+ *  other responder resolves up the superview chain to an owned view. */
+function focusedCssNode(container: RootContainer): ElementNode | null {
+	const responder: any = container.hostView?.window?.firstResponder
+	if (!responder) {
+		return null
+	}
+	for (let view = responder; view; view = view.superview) {
+		const node = cssNodesByView.get(view)
+		if (node) {
+			return node
+		}
+	}
+	for (let view = responder.delegate; view; view = view?.superview) {
+		const node = cssNodesByView.get(view)
+		if (node) {
+			return node
+		}
+	}
+	return null
+}
+
+/** Diff window firstResponder onto :focus/:focus-visible/:focus-within. The
+ *  focused node owns :focus (+:focus-within itself, matching GTK's
+ *  FOCUS_WITHIN→both mapping); ancestors own :focus-within. KeyView
+ *  traversal (Tab) is the :focus-visible signal — a direct selection (mouse
+ *  or makeFirstResponder) reports DirectSelection. */
+function syncContainerFocus(container: RootContainer) {
+	const window = container.hostView?.window
+	const focused = focusedCssNode(container)
+	const keyboard = focused !== null && Number(window?.keyViewSelectionDirection) !== 0
+	const prev = container.cssFocusChain ?? []
+	const next: ElementNode[] = []
+	if (focused) {
+		next.push(focused)
+		for (let p = focused.parent; p; p = p.parent) {
+			next.push(p)
+		}
+	}
+	if (
+		container.cssFocusVisible === keyboard &&
+		prev.length === next.length &&
+		prev.every((member, i) => next[i] === member)
+	) {
+		return
+	}
+	for (const old of prev) {
+		setPseudoClass(old, 'focus', false)
+		setPseudoClass(old, 'focus-visible', false)
+		setPseudoClass(old, 'focus-within', false)
+	}
+	if (focused) {
+		setPseudoClass(focused, 'focus', true)
+		setPseudoClass(focused, 'focus-visible', keyboard)
+		setPseudoClass(focused, 'focus-within', true)
+	}
+	for (const ancestor of next.slice(1)) {
+		setPseudoClass(ancestor, 'focus-within', true)
+	}
+	container.cssFocusChain = next
+	container.cssFocusVisible = keyboard
+}
+
+// firstResponder changes never post their own notification; the window
+// update that follows a focus move (focus ring, caret) does.
+let focusObserverInstalled = false
+function installFocusObserver() {
+	if (focusObserverInstalled || typeof NSNotificationCenter === 'undefined') {
+		return
+	}
+	const center = NSNotificationCenter.defaultCenter
+	if (!center || typeof center.addObserverForNameObjectQueueUsingBlock !== 'function') {
+		return
+	}
+	focusObserverInstalled = true
+	center.addObserverForNameObjectQueueUsingBlock(
+		NSWindowDidUpdateNotification ?? 'NSWindowDidUpdateNotification',
+		null,
+		null,
+		(notification: NSNotification) => {
+			for (const container of appKitContainers) {
+				if (container.hostView?.window === notification?.object) {
+					syncContainerFocus(container)
+				}
+			}
+		},
+	)
+}
+
+/** Wire a container's live nodes for the used pseudo-classes and resync
+ *  focus — runs on every stylesheet/appearance restyle so nodes created
+ *  before registration pick tracking up late. */
+function syncContainerPseudoState(container: RootContainer) {
+	const used = stylesheetPseudoClasses()
+	if (used.has('focus') || used.has('focus-visible') || used.has('focus-within')) {
+		installFocusObserver()
+	}
+	for (const node of container.nodes.values()) {
+		syncPseudoTracking(node)
+	}
+	for (const entry of container.portalTargets.values()) {
+		syncPseudoTracking(entry.root)
+	}
+	if (focusObserverInstalled) {
+		syncContainerFocus(container)
+	}
+}
+
 // preferredEdge is the anchor edge the popover attaches to: 'top' places the
 // panel above the anchor (its MaxY edge). Numeric NSRectEdge values are the
 // fallback when the bridged enum object is absent.
@@ -8385,6 +8634,7 @@ installAppearanceBridge(appKitBridge)
 // Stylesheet and appearance changes restyle every live container.
 function restyleAllContainers() {
 	for (const container of appKitContainers) {
+		syncContainerPseudoState(container)
 		for (const child of container.children) {
 			markStyleDirty(child, true)
 		}

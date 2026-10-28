@@ -69,6 +69,12 @@ if (typeof setNodeInlineStyle === 'undefined') var setNodeInlineStyle = (n, v) =
 if (typeof setNodeClassName === 'undefined') var setNodeClassName = (n, v) => { n.cssClasses = new Set(String(v ?? '').split(/\\s+/).filter(Boolean)) }
 if (typeof setNodeId === 'undefined') var setNodeId = (n, v) => { n.cssId = v == null ? undefined : String(v) }
 if (typeof setPseudoClass === 'undefined') var setPseudoClass = () => {}
+if (typeof stylesheetPseudoClasses === 'undefined') var stylesheetPseudoClasses = () => new Set()
+if (typeof syncNormalState === 'undefined') var syncNormalState = () => {}
+if (typeof syncContainerPseudoState === 'undefined') var syncContainerPseudoState = () => {}
+if (typeof setVisualStateTracking === 'undefined') var setVisualStateTracking = () => {}
+if (typeof syncPseudoTracking === 'undefined') var syncPseudoTracking = () => {}
+if (typeof cssNodesByView === 'undefined') var cssNodesByView = new WeakMap()
 if (typeof syncInputChrome === 'undefined') var syncInputChrome = () => {}
 if (typeof syncText === 'undefined') var syncText = () => {}
 if (typeof syncHtmlView === 'undefined') var syncHtmlView = () => {}

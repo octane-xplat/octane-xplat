@@ -13,6 +13,7 @@ import {
 	computeCascade,
 	INHERITED_CSS_PROPERTIES,
 	registerStylesheet,
+	stylesheetPseudoClasses,
 	stylesheetScope,
 	onStylesheetsChanged,
 } from '@octane-xplat/css-engine'
@@ -40,6 +41,7 @@ function machineryApi(extra: Record<string, any> = {}) {
 		queueMicrotask,
 		computeCascade,
 		stylesheetScope,
+		stylesheetPseudoClasses,
 		INHERITED_CSS_PROPERTIES,
 		registerStylesheet,
 		normalizeClass: (v: any) => String(v ?? ''),
@@ -79,7 +81,7 @@ function machineryApi(extra: Record<string, any> = {}) {
 	const code =
 		MACHINERY +
 		RESTYLE_ALL +
-		`\n({ markStyleDirty, flushStyleDirty, restyleNode, setNodeInlineStyle, applyClassName, refreshCssClasses, warnUnsupportedCssProp, restyleAllContainers })`
+		`\n({ markStyleDirty, flushStyleDirty, restyleNode, setNodeInlineStyle, applyClassName, refreshCssClasses, warnUnsupportedCssProp, restyleAllContainers, setPseudoClass })`
 	ctx.api = runSlice(code, ctx)
 	// Module init registers restyleAllContainers as the sheet-change listener —
 	// done here explicitly (the slice's top-level call is excluded).
@@ -327,4 +329,23 @@ test('Application.addCss registers a stylesheet (theme-css-inject path)', async 
 	Application.addCss('.injected { color: teal }')
 	const n = node('label', { classes: ['injected'] })
 	assert.equal(n.computedStyle.color, 'teal')
+})
+
+test('(l) a used pseudo-class restyles; an unused one only updates the set', async () => {
+	registerStylesheet('t-pseudo', '.tp:hover { color: #111 } .tp:focus { color: #222 }')
+	const { api, applyCalls } = machineryApi()
+	const n = sliceNode('label')
+	api.applyClassName(n, 'tp')
+	await tick()
+	applyCalls.length = 0
+
+	api.setPseudoClass(n, 'hover', true)
+	await tick()
+	assert.equal(applyCalls.length, 1, 'registered :hover selector forces a restyle')
+	assert.ok(n.cssPseudoClasses.has('hover'))
+
+	api.setPseudoClass(n, 'bogusstate', true)
+	await tick()
+	assert.equal(applyCalls.length, 1, 'unused pseudo-classes must not flush a subtree')
+	assert.ok(n.cssPseudoClasses.has('bogusstate'), 'the set still records the state')
 })

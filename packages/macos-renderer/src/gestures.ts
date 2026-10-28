@@ -109,6 +109,67 @@ class TouchGestureRecognizer extends NSGestureRecognizer {
 	}
 }
 
+/** Passive down/up observer for the CSS visual state machine — NS has no
+ * flag for ACTIVE on arbitrary views, so :active/:pressed/:highlighted come
+ * from this recognizer instead. It never claims the sequence, matching the
+ * TouchGestureRecognizer contract. */
+export type VisualStateCallback = (pressed: boolean) => void
+
+class VisualStateGestureRecognizer extends NSGestureRecognizer {
+	pressed = false
+	callback: VisualStateCallback | null = null
+	static {
+		registerGestureClass(this)
+	}
+	private emit(pressed: boolean) {
+		if (this.pressed === pressed) {
+			return
+		}
+
+		this.pressed = pressed
+		this.callback?.(pressed)
+	}
+	mouseDown(_event: NSEvent) {
+		this.emit(true)
+	}
+	mouseUp(_event: NSEvent) {
+		this.emit(false)
+	}
+	reset() {
+		this.emit(false)
+		super.reset()
+	}
+}
+
+/** Attach (or detach, with null) the passive press observer on a node's
+ *  view. Attached once; the callback can be swapped afterwards. */
+export function setVisualStateTracking(node: GestureNode, callback: VisualStateCallback | null) {
+	const view = node.view
+	let recognizer = node.cssStateRecognizer as VisualStateGestureRecognizer | undefined
+	if (callback === null) {
+		if (recognizer && view) {
+			recognizer.callback = null
+			recognizer.enabled = false
+			view.removeGestureRecognizer(recognizer)
+		}
+
+		node.cssStateRecognizer = undefined
+		return
+	}
+
+	if (!view) {
+		return
+	}
+
+	if (!recognizer) {
+		recognizer = VisualStateGestureRecognizer.new() as VisualStateGestureRecognizer
+		node.cssStateRecognizer = configureGesture(recognizer)
+		view.addGestureRecognizer(recognizer)
+	}
+
+	recognizer.callback = callback
+}
+
 class GestureTarget extends NSObject {
 	static ObjCExposedMethods = {
 		'longPressed:': { params: [NSObject], returns: interop.types.void },
