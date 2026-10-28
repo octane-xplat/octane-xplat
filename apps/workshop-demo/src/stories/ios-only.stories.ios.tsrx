@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { defineStory } from '@octane-xplat/workshop'
 
 // A platform leaf — must never enter a web bundle.

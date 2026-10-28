@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useState } from 'octane'
 import { defineStory } from '@octane-xplat/workshop'
 

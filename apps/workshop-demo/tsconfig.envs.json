@@ -5,24 +5,40 @@
 		"module": "ESNext",
 		"moduleResolution": "Bundler",
 		"jsx": "react-jsx",
-		"allowImportingTsExtensions": true
+		"allowImportingTsExtensions": true,
+		"jsxImportSource": "@octane-xplat/jsx"
 	},
 	"environments": {
 		"web": {
-			"include": ["src/**/*", "workshop.config.ts"],
-			"exclude": ["**/*.{ios,android,mobile,native,macos,windows,linux,gtk}.*"]
+			"include": [
+				"src/**/*",
+				"workshop.config.ts"
+			],
+			"exclude": [
+				"**/*.{ios,android,mobile,native,macos,windows,linux,gtk}.*"
+			]
 		},
 		"native": {
-			"include": ["src/**/*"],
-			"exclude": ["**/*.{web,macos,windows,linux,gtk}.*"],
+			"include": [
+				"src/**/*"
+			],
+			"exclude": [
+				"**/*.{web,macos,windows,linux,gtk}.*"
+			],
 			"compilerOptions": {
-				"types": ["@nativescript/types"]
+				"types": [
+					"@nativescript/types"
+				]
 			}
 		},
 		"macos": {
-			"include": ["src/**/*.macos.*"],
+			"include": [
+				"src/**/*.macos.*"
+			],
 			"compilerOptions": {
-				"types": ["@nativescript/types"]
+				"types": [
+					"@nativescript/types"
+				]
 			}
 		}
 	}

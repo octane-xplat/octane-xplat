@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { Pressable, Text } from '@octane-xplat/ui'
 import { useStore, type Store } from '@octane-xplat/ui/data'
 

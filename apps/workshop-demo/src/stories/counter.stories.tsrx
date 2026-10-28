@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { Text } from '@octane-xplat/ui'
 import { defineStory } from '@octane-xplat/workshop'
 import { WorkshopCounter, type CounterState } from '../counter.tsrx'
