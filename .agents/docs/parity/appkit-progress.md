@@ -2941,3 +2941,14 @@ metadata, focus/VoiceOver and packaging remain unqualified. Promised files,
 custom hover feedback/autoscroll, directories/symlink resolution and persistent
 grants remain outside this source path. No package tests/typechecks, builds,
 installs, OS automation or visual analysis ran; no evidence checkbox is closed.
+
+
+The same source review found a 64-bit admission correction after the initial drop
+slice: NSDragOperationEvery is NSUIntegerMax in the installed NSDragging.h. Its
+unsigned Number representation rounds to 2**64, so Number(mask) & 1 loses Copy.
+Admission now recognizes signed/unsigned all-operation masks and BigInt flags,
+while safe finite ordinary masks test the Copy bit without 32-bit coercion.
+Expanded the existing registry case for Every and no-copy/invalid masks; it is
+still unrun. TypeScript syntax and whitespace/source review only. The exact
+renderer test/typecheck/native probe commands above remain deferred; no native
+bridge representation, drag or OS behavior is claimed.

@@ -2,7 +2,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { createAppKitFileDropRegistry } from '../src/file-drop.ts'
 function fixture(initial: string[] = []) {
-	let types = initial, mask = 1, readable = true, enabled = true
+	let types = initial, mask: number | bigint = 1, readable = true, enabled = true
 	const reads: any[] = [], received: string[][] = [], changes: string[][] = []
 	const native = { NSURL: {}, NSPasteboardURLReadingFileURLsOnlyKey: 'files-only' }
 	const url = { isFileURL: true, absoluteString: 'file:///a.txt' }
@@ -15,16 +15,22 @@ function fixture(initial: string[] = []) {
 	const registry = createAppKitFileDropRegistry(() => native)
 	const handlers = { enabled: () => enabled, receive: (uris: string[]) => { received.push(uris); return true } }
 	return { registry, native, sender, view, reads, received, changes, handlers,
-		mask: (next: number) => { mask = next }, readable: (next: boolean) => { readable = next }, enabled: (next: boolean) => { enabled = next } }
+		mask: (next: number | bigint) => { mask = next }, readable: (next: boolean) => { readable = next }, enabled: (next: boolean) => { enabled = next } }
 }
 test('file destinations advertise copy and deliver deduplicated file URLs only to live enabled owners', () => {
 	const f = fixture(), off = f.registry.subscribe(f.view, f.handlers)
-	assert.equal(f.registry.operation(f.view, f.sender), 1)
+	for (const mask of [1, 3, -1, 2 ** 64, (1n << 64n) - 1n]) {
+		f.mask(mask); assert.equal(f.registry.operation(f.view, f.sender), 1)
+	}
+	f.mask(1)
 	assert.deepEqual(f.reads[0], [[f.native.NSURL], { 'files-only': true }])
 	assert.equal(f.registry.operation(f.view, { ...f.sender, draggingDestinationWindow: {} }), 0)
 	assert.equal(f.registry.perform(f.view, f.sender), true); assert.deepEqual(f.received, [['file:///a.txt']])
 	f.enabled(false); assert.equal(f.registry.operation(f.view, f.sender), 0); assert.equal(f.registry.perform(f.view, f.sender), false)
 	f.enabled(true); f.mask(2); assert.equal(f.registry.perform(f.view, f.sender), false)
+	for (const mask of [0, 2, 16, 0n, 2n, NaN, Infinity]) {
+		f.mask(mask); assert.equal(f.registry.operation(f.view, f.sender), 0)
+	}
 	f.mask(1); f.readable(false); assert.equal(f.registry.operation(f.view, f.sender), 0)
 	f.readable(true); off(); assert.equal(f.registry.perform(f.view, f.sender), false)
 	assert.equal(f.received.length, 1)

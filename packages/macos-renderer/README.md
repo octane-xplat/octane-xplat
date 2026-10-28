@@ -1020,6 +1020,8 @@ The registry adds public.file-url to registered types and preserves other types
 on last release. Independent leases, ref cleanup and node teardown own registration.
 Admission requires the current destination window, copy in the source mask, readable file URLs
 and a current enabled owner; delivery rechecks ownership and enters discrete scope.
+Copy admission also accepts NSDragOperationEvery as signed/unsigned Number or
+BigInt; it avoids 32-bit coercion of the SDK's NSUIntegerMax mask.
 
 ```tsx
 import { FileInput } from '@octane-xplat/files'

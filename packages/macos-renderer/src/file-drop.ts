@@ -9,11 +9,19 @@ const fileType = 'public.file-url'
 const array = (value: any): any[] => Array.isArray(value) ? value :
 	Array.from({ length: Number(value?.count ?? 0) }, (_, i) => value.objectAtIndex(i))
 
+// NSDragOperationEvery is NSUIntegerMax. Its uint64 Number representation rounds
+// to 2**64, so JS bitwise coercion would discard its Copy bit entirely.
+function allowsCopy(value: unknown): boolean {
+	if (typeof value === 'bigint') return value === -1n || (value >= 0n && (value & 1n) !== 0n)
+	const mask = Number(value)
+	return mask === -1 || mask === 2 ** 64 || (Number.isSafeInteger(mask) && mask >= 0 && mask % 2 === 1)
+}
+
 /** Native destination ownership only; leaf packages inspect/validate file content. */
 export function createAppKitFileDropRegistry(native: () => Record<string, any> = () => globalThis) {
 	const owners = new Map<DropView, { entries: Set<DropHandlers>; addedType: boolean }>()
 	const candidates = (view: DropView, sender: any) => {
-		if (!view.window || sender?.draggingDestinationWindow !== view.window || !(Number(sender.draggingSourceOperationMask) & 1)) return []
+		if (!view.window || sender?.draggingDestinationWindow !== view.window || !allowsCopy(sender.draggingSourceOperationMask)) return []
 		const host = native(), board = sender.draggingPasteboard
 		if (!host.NSURL || !host.NSPasteboardURLReadingFileURLsOnlyKey || !board?.canReadObjectForClassesOptions?.([host.NSURL],
 			{ [host.NSPasteboardURLReadingFileURLsOnlyKey]: true })) return []
