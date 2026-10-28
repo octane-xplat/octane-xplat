@@ -816,3 +816,27 @@ Wayland, HiDPI or image evidence is claimed by the sizing fixture.
 Logs: /tmp/gtk-textarea-rows-full.log in the guest, and
 /tmp/gtk-textarea-rows-types-final.log, /tmp/gtk-textarea-rows-native-final.log
 and /tmp/gtk-textarea-rows-pack-final.log on andromeda.
+
+## Multiline scrolling host
+
+The textview intrinsic now mounts and measures a private native scrolling
+host while preserving its public Gtk.TextView reference. This advances actual
+wheel/keyboard scrolling beyond the earlier adjustment-range proof. Read-only
+and disabled input ownership and nested app scrolling have dedicated X11 cases.
+Physical host placement, styling and lifecycle have native container cases;
+see the [renderer record](linux-gtk-renderer.md#native-multiline-scrolling-and-physical-hosts).
+TextArea remains outside the curated root pending its remaining field/input
+contracts; root availability stays 38 values/64 types.
+
+
+Verification for the scrolling-host slice: all 41 Linux renderer tests pass
+with no skips; ui-text-area has 106 assertions and ui-text-view retains 59.
+Ctrl+End/Home and wheel phases use actual X11 input; the native host matrix,
+role changes and buffer insertions are programmatic checks, not OS-input proof.
+All eight renderer/dependent Turbo typecheck tasks pass. Recipes, barrel shape,
+release-note validation, formatting and whitespace checks pass. No UI source
+or public GTK barrel export changes; no new dependency, native facade rebuild,
+phone, touchpad, Wayland, HiDPI, AT-client or image claim.
+Logs: guest /tmp/gtk-textarea-scroll-full.log and andromeda
+/tmp/gtk-textarea-scroll-types-final.log. Earlier failure logs remain historical
+evidence, including the stale viewport diagnosis.

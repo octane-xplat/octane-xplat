@@ -243,16 +243,19 @@ These raw-ref methods do not provide a general NativeScript View facade.
 ### Low-level multiline editor
 
 The GTK textview intrinsic supports multiline text, Unicode selection,
-read-only editing, focus and change events. Return inserts a newline;
+focus and change events. Long text scrolls within its assigned height;
+read-only editors remain scrollable. Return inserts a newline;
 done or send with an onReturnPress handler submits instead. Shift+Return
 keeps a newline. Tab moves focus to the next control.
 
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
-export function NotesEditor() {
+export function NotesEditor(props: { readOnly?: boolean }) {
   return (
     <textview
-      text="First line\nSecond line"
+      text={'A line\n'.repeat(20)}
+      editable={!props.readOnly}
+      accessibilityLabel="Notes"
       returnKeyType="done"
       onTextChange={(event) => console.log(event.value)}
       onReturnPress={() => console.log('Submitted')}
@@ -264,7 +267,7 @@ export function NotesEditor() {
 
 This is renderer support; TextArea remains outside the GTK UI root.
 Placeholder, maximum length and the full field workflow remain unqualified.
-Source-harness row and growth checks are recorded in the
+Source-harness row, growth and X11 keyboard/wheel checks are recorded in the
 [renderer note](../../.agents/docs/notes/linux-gtk-renderer.md#textarea-row-sizing-on-gtk). GTK TextView has no per-field Return-caption property;
 the renderer reports that limit once when returnKeyType is supplied.
 

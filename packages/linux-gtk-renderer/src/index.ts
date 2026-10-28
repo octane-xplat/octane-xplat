@@ -39,12 +39,13 @@ import {
 	type SampledValues,
 } from '@octane-xplat/css-engine'
 
-import { makeTextView } from './text-view.js'
+import { physicalView } from './physical-view.js'
+import { makeTextView, takeTextViewViewport } from './text-view.js'
 import { bindPicture } from './picture.js'
 import { bindPublicInstance } from './public-instance.js'
 
 import { CSS_PROPS, gtkStyleCss } from './style-css.js'
-import { resolveTransform } from './transform-style.js'
+import { resolveTransform, cssTransformText } from './transform-style.js'
 import { createUniversalRoot } from 'octane/universal/native'
 import type {
 	UniversalEventListenerDescriptor,
@@ -83,6 +84,8 @@ export interface ElementNode {
 	id: number
 	type: string
 	view: GtkView | null
+	/** Outer native host for composite controls; public refs stay on view. */
+	layoutView?: GtkView
 	/** Physical boundary for a viewless, renderer-owned external portal root. */
 	portalHost?: GtkView
 	picture?: ReturnType<typeof bindPicture>
@@ -301,7 +304,8 @@ function warnStyleOnly(node: ElementNode, name: string) {
 let applyingDepth = 0
 
 // ---------------------------------------------------------------------------
-// Element factories — one Gtk widget per view-bearing intrinsic.
+// Element factories — one public Gtk widget per intrinsic, with a native
+// layout host when the control needs one.
 // ---------------------------------------------------------------------------
 
 function instantiate(type: string): GtkView {
@@ -385,10 +389,19 @@ function syncCss(node: ElementNode, style: PropBag | null | undefined) {
 	// Mason children carry their transform on the allocation (src/mason.ts);
 	// everything else gets GTK CSS `transform`, % resolved against the
 	// current size (re-resolved on the next restyle, not on every resize).
-	const options = isMasonChild(node)
-		? GTK_STYLE_OPTIONS
-		: { ...GTK_STYLE_OPTIONS, transformBox: { width: view.get_width(), height: view.get_height() } }
-	const css = gtkStyleCss(`.xplat-n${node.id}`, style, node.type, options)
+	const layout = physicalView(node)!
+	const composite = layout !== view
+	const options =
+		isMasonChild(node) || composite
+			? GTK_STYLE_OPTIONS
+			: {
+					...GTK_STYLE_OPTIONS,
+					transformBox: { width: view.get_width(), height: view.get_height() },
+				}
+	let css = gtkStyleCss(`.xplat-n${node.id}`, style, node.type, options)
+	const transform = composite && !isMasonChild(node) ? resolveTransform(style) : null
+	if (transform)
+		css += `.xplat-n${node.id}-layout { transform: ${cssTransformText(transform, layout.get_width(), layout.get_height())}; transform-origin: center; }`
 	if (css === node.cssSignature) {
 		return
 	}
@@ -413,6 +426,7 @@ function syncCss(node: ElementNode, style: PropBag | null | undefined) {
 
 		if (node.cssClass !== null) {
 			view.remove_css_class(node.cssClass)
+			if (composite) layout.remove_css_class(node.cssClass + '-layout')
 			node.cssClass = null
 		}
 
@@ -422,6 +436,7 @@ function syncCss(node: ElementNode, style: PropBag | null | undefined) {
 	if (node.cssClass === null) {
 		node.cssClass = `xplat-n${node.id}`
 		view.add_css_class(node.cssClass)
+		if (composite) layout.add_css_class(node.cssClass + '-layout')
 	}
 	if (node.cssProvider === null) {
 		node.cssProvider = new Gtk.CssProvider()
@@ -438,7 +453,7 @@ function syncCss(node: ElementNode, style: PropBag | null | undefined) {
 			// Older GTK revisions lack the signal — load errors stay silent.
 		}
 
-		const targets = [view]
+		const targets = composite ? [view, layout] : [view]
 		if (CONTROL_SUBNODE_TYPES.has(node.type)) {
 			for (const child of internalDescendants(view)) {
 				targets.push(child)
@@ -742,7 +757,7 @@ function nowMs(): number {
  *  the node's current (pre-animation) computed value. */
 function animationBase(node: ElementNode): Partial<SampledValues> {
 	const style = node.computedStyle ?? {}
-	const view = node.view
+	const view = physicalView(node)
 	const parts = resolveTransform(style)
 	const opacity = Number(style.opacity ?? node.props.opacity)
 	const width = typeof style.width === 'number' ? style.width : (view?.get_width() ?? 0)
@@ -816,7 +831,7 @@ function advanceKeyframeAnimation(node: ElementNode, now: number): boolean {
 	const prev = node.animatedStyle
 	node.animatedStyle = Object.keys(overlay).length > 0 ? overlay : undefined
 	if (prev !== undefined || node.animatedStyle !== undefined) {
-		applyAnimationFrame(node, view, prev)
+		applyAnimationFrame(node, prev)
 	}
 	return !done
 }
@@ -825,7 +840,8 @@ function advanceKeyframeAnimation(node: ElementNode, now: number): boolean {
  *  set_size_request / the Mason style dict); everything else touches only
  *  the CSS provider, opacity, and — for Mason children — the parent's
  *  allocation, which re-applies the child Gsk.Transform. */
-function applyAnimationFrame(node: ElementNode, view: GtkView, prev: PropBag | undefined) {
+function applyAnimationFrame(node: ElementNode, prev: PropBag | undefined) {
+	const view = physicalView(node)!
 	const overlay = node.animatedStyle ?? {}
 	const sized = ['width', 'height'].some(
 		(key) => key in overlay || (prev !== undefined && key in prev),
@@ -1214,7 +1230,7 @@ function applyStyle(node: ElementNode, style: PropBag) {
 		return
 	}
 	syncCss(node, next)
-	applyStyleExtras(node, view, next)
+	applyStyleExtras(node, physicalView(node)!, next)
 	syncTextAlign(node, view, next)
 	applyStyleViewProps(node, view, next)
 	warnUnsupportedCssProps(node, next)
@@ -1357,7 +1373,7 @@ function dimension(value: unknown): number {
  * size request. Preserve definite authored sizes at the GTK/Mason boundary;
  * inside a Mason parent the engine owns alignment and allocation. */
 function syncBoxAlignment(node: ElementNode, source: PropBag) {
-	const view = node.view
+	const view = physicalView(node)
 	if (!view) return
 	const host = hostViewOf(node.container, node.parent)
 	if (!(host instanceof Gtk.Box) || isMasonHostView(host)) {
@@ -1514,6 +1530,7 @@ function applyStyleExtras(node: ElementNode, view: GtkView, style: PropBag | nul
  *  it leaves the effective style. */
 function applyStyleViewProps(node: ElementNode, view: GtkView, style: PropBag) {
 	const source = style ?? {}
+	const layout = physicalView(node)!
 
 	if (source.direction != null) {
 		const d =
@@ -1524,10 +1541,12 @@ function applyStyleViewProps(node: ElementNode, view: GtkView, style: PropBag) {
 					: Gtk.TextDirection.NONE
 
 		view.set_direction(d)
+		if (layout !== view) layout.set_direction(d)
 		node.styleDirection = true
 	} else if (node.styleDirection) {
 		node.styleDirection = false
 		view.set_direction(Gtk.TextDirection.NONE)
+		if (layout !== view) layout.set_direction(Gtk.TextDirection.NONE)
 	}
 
 	// NS visibility: 'hidden' keeps layout space (child-invisible), only
@@ -1536,19 +1555,19 @@ function applyStyleViewProps(node: ElementNode, view: GtkView, style: PropBag) {
 	if (vis != null) {
 		node.styleVisibility = true
 		if (vis === 'collapse') {
-			view.set_visible(false)
+			layout.set_visible(false)
 		} else {
-			view.set_visible(true)
-			view.set_child_visible(vis !== 'hidden')
+			layout.set_visible(true)
+			layout.set_child_visible(vis !== 'hidden')
 		}
 	} else if (node.styleVisibility) {
 		node.styleVisibility = false
-		view.set_visible(
+		layout.set_visible(
 			node.props.visible !== false &&
 				(node.props.visibility == null || node.props.visibility === 'visible'),
 		)
 
-		view.set_child_visible(true)
+		layout.set_child_visible(true)
 	}
 
 	// Label text behaviour — buttons reach their Gtk.Label child; keys reset
@@ -1592,13 +1611,13 @@ function applyStyleViewProps(node: ElementNode, view: GtkView, style: PropBag) {
 		} else {
 			const halign = ALIGN[String(source.horizontalAlign)]
 			if (halign !== undefined) {
-				view.set_halign(halign)
+				layout.set_halign(halign)
 				node.styleHAlign = true
 			}
 
 			const valign = ALIGN[String(source.verticalAlign)]
 			if (valign !== undefined) {
-				view.set_valign(valign)
+				layout.set_valign(valign)
 				node.styleVAlign = true
 			}
 		}
@@ -1606,12 +1625,12 @@ function applyStyleViewProps(node: ElementNode, view: GtkView, style: PropBag) {
 	if (source.horizontalAlign == null && node.styleHAlign) {
 		node.styleHAlign = false
 		const pv = ALIGN[String(node.props.horizontalAlignment ?? node.props.halign)]
-		view.set_halign(pv ?? Gtk.Align.FILL)
+		layout.set_halign(pv ?? Gtk.Align.FILL)
 	}
 	if (source.verticalAlign == null && node.styleVAlign) {
 		node.styleVAlign = false
 		const pv = ALIGN[String(node.props.verticalAlignment ?? node.props.valign)]
-		view.set_valign(pv ?? Gtk.Align.FILL)
+		layout.set_valign(pv ?? Gtk.Align.FILL)
 	}
 	syncBoxAlignment(node, source)
 }
@@ -1752,7 +1771,7 @@ function syncExpandDeep(node: ElementNode) {
  *  nearest view ancestor, which may sit above viewless parents. Resolved
  *  when the parent view is known; the prop may arrive before `insert`. */
 function syncExpand(node: ElementNode) {
-	const view = node.view
+	const view = physicalView(node)
 	if (view === null) {
 		return
 	}
@@ -1987,28 +2006,29 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 		return
 	}
 
+	const layout = physicalView(node)!
 	switch (name) {
 		case 'visible':
-			view.set_visible(value !== false)
+			layout.set_visible(value !== false)
 			return
 		case 'visibility':
 			// 'hidden' keeps layout space (child-invisible); 'collapse'
 			// unmaps entirely — the same split the style path applies.
 			if (value === 'collapse') {
-				view.set_visible(false)
+				layout.set_visible(false)
 			} else {
-				view.set_visible(true)
-				view.set_child_visible(value !== 'hidden')
+				layout.set_visible(true)
+				layout.set_child_visible(value !== 'hidden')
 			}
 
 			return
 		case 'opacity':
-			view.set_opacity(Number(value))
+			layout.set_opacity(Number(value))
 			return
 		case 'enabled':
 		case 'isEnabled':
 		case 'disabled':
-			view.set_sensitive(
+			layout.set_sensitive(
 				node.props.disabled !== true &&
 					node.props.isEnabled !== false &&
 					node.props.enabled !== false,
@@ -2017,8 +2037,8 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 			return
 		case 'width':
 		case 'height': {
-			const [w, h] = view.get_size_request()
-			view.set_size_request(
+			const [w, h] = layout.get_size_request()
+			layout.set_size_request(
 				name === 'width' ? dimension(value) : w,
 				name === 'height' ? dimension(value) : h,
 			)
@@ -2029,7 +2049,7 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 		case 'halign': {
 			const align = ALIGN[String(value)]
 			if (align !== undefined) {
-				view.set_halign(align)
+				layout.set_halign(align)
 			}
 
 			return
@@ -2038,7 +2058,7 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 		case 'valign': {
 			const align = ALIGN[String(value)]
 			if (align !== undefined) {
-				view.set_valign(align)
+				layout.set_valign(align)
 			}
 
 			return
@@ -2056,9 +2076,9 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 			}
 
 			if (hostView.orientation === Gtk.Orientation.HORIZONTAL) {
-				view.set_valign(align)
+				layout.set_valign(align)
 			} else {
-				view.set_halign(align)
+				layout.set_halign(align)
 			}
 
 			return
@@ -2364,48 +2384,49 @@ function resetProp(node: ElementNode, name: string) {
 
 		return
 	}
+	const layout = physicalView(node)!
 	switch (name) {
 		case 'width':
 		case 'height': {
-			const [w, h] = view.get_size_request()
-			view.set_size_request(name === 'width' ? -1 : w, name === 'height' ? -1 : h)
+			const [w, h] = layout.get_size_request()
+			layout.set_size_request(name === 'width' ? -1 : w, name === 'height' ? -1 : h)
 			return
 		}
 		case 'opacity':
-			view.set_opacity(1)
+			layout.set_opacity(1)
 			return
 		case 'visible':
-			view.set_visible(true)
+			layout.set_visible(true)
 			return
 		case 'enabled':
 		case 'isEnabled':
 		case 'disabled':
-			view.set_sensitive(
+			layout.set_sensitive(
 				node.props.disabled !== true &&
 					node.props.isEnabled !== false &&
 					node.props.enabled !== false,
 			)
 			return
 		case 'visibility':
-			view.set_visible(true)
-			view.set_child_visible(true)
+			layout.set_visible(true)
+			layout.set_child_visible(true)
 			return
 		case 'alignSelf':
-			view.set_halign(Gtk.Align.FILL)
-			view.set_valign(Gtk.Align.FILL)
+			layout.set_halign(Gtk.Align.FILL)
+			layout.set_valign(Gtk.Align.FILL)
 			return
 		case 'horizontalAlignment':
 		case 'halign':
-			view.set_halign(Gtk.Align.FILL)
+			layout.set_halign(Gtk.Align.FILL)
 			return
 		case 'verticalAlignment':
 		case 'valign':
-			view.set_valign(Gtk.Align.FILL)
+			layout.set_valign(Gtk.Align.FILL)
 			return
 		case 'flexGrow':
 			node.flexGrowValue = undefined
-			view.set_hexpand(false)
-			view.set_vexpand(false)
+			layout.set_hexpand(false)
+			layout.set_vexpand(false)
 			return
 		case 'tooltip':
 		case 'tooltipText':
@@ -2561,7 +2582,7 @@ function syncText(anchor: ElementNode | null) {
 /** View descendants of a node in tree order (the node itself if view-bearing). */
 function viewDescendants(node: ElementNode, out: GtkView[] = []): GtkView[] {
 	if (node.view !== null) {
-		out.push(node.view)
+		out.push(physicalView(node)!)
 		return out
 	}
 	for (const child of node.children) {
@@ -2713,25 +2734,27 @@ function insertViewInto(parentView: GtkView, node: ElementNode, view: GtkView, i
 }
 
 function repositionFixedChild(node: ElementNode) {
+	const view = physicalView(node)
 	const parentView = hostViewOf(node.container, node.parent)
-	if (!(parentView instanceof Gtk.Fixed) || node.view === null) {
+	if (!(parentView instanceof Gtk.Fixed) || view === null) {
 		return
 	}
-	if (node.view.get_parent() === parentView) {
-		parentView.move(node.view, node.fixedX, node.fixedY)
+	if (view.get_parent() === parentView) {
+		parentView.move(view, node.fixedX, node.fixedY)
 	}
 }
 
 function repositionGridChild(node: ElementNode) {
+	const view = physicalView(node)
 	const parentView = hostViewOf(node.container, node.parent)
-	if (!(parentView instanceof Gtk.Grid) || node.view === null) {
+	if (!(parentView instanceof Gtk.Grid) || view === null) {
 		return
 	}
-	if (node.view.get_parent() === parentView) {
-		parentView.remove(node.view)
+	if (view.get_parent() === parentView) {
+		parentView.remove(view)
 	}
 	parentView.attach(
-		node.view,
+		view,
 		node.gridCol ?? 0,
 		node.gridRow ?? 0,
 		node.gridColSpan || 1,
@@ -2747,7 +2770,19 @@ function detachView(view: GtkView) {
 	if (parent instanceof Gtk.ScrolledWindow) {
 		parent.set_child(null)
 	} else {
-		view.unparent()
+		const scroller = parent.get_parent()
+		if (
+			scroller instanceof Gtk.ScrolledWindow &&
+			scroller.get_child() === parent &&
+			parent.get_child?.() === view
+		) {
+			// GTK inserts a Viewport for non-Scrollable children. Removing
+			// only the widget leaves its child slot stale; set_child would
+			// then treat a later reinsertion as an unchanged child.
+			scroller.set_child(null)
+		} else {
+			view.unparent()
+		}
 	}
 }
 
@@ -2768,7 +2803,7 @@ function attachViews(container: GtkContainer, node: ElementNode) {
 		else child.children.forEach(collect)
 	}
 	collect(node)
-	const views = nodes.map((child) => child.view!)
+	const views = nodes.map((child) => physicalView(child)!)
 	if (views.length === 0) {
 		return
 	}
@@ -2786,7 +2821,7 @@ function attachViews(container: GtkContainer, node: ElementNode) {
 	}
 	let index = viewIndexOf(container, node.parent, node)
 	for (const child of nodes) {
-		insertViewInto(parentView, child, child.view!, index++)
+		insertViewInto(parentView, child, physicalView(child)!, index++)
 	}
 }
 
@@ -2849,17 +2884,18 @@ function insert(
 		syncExpandDeep(node)
 		return
 	}
+	const view = physicalView(node)!
 	const parentView = hostViewOf(container, parent)
 	if (parentView instanceof Gtk.ScrolledWindow) {
 		const existing = parentView.get_child?.()
-		if (existing !== null && existing !== undefined && existing !== node.view) {
+		if (existing !== null && existing !== undefined && existing !== view) {
 			warn('<scrollview> hosts a single view — replacing its current child')
 		}
 
-		parentView.set_child(node.view)
+		parentView.set_child(view)
 		return
 	}
-	insertViewInto(parentView, node, node.view, viewIndexOf(container, parent, node))
+	insertViewInto(parentView, node, view, viewIndexOf(container, parent, node))
 	// A new child changes the host's measure — ask GTK to re-run the pass.
 	if (isMasonHostView(parentView)) {
 		queueMasonLayout(parentView)
@@ -3415,6 +3451,7 @@ function createNodeState(
 		id,
 		type,
 		view,
+		layoutView: takeTextViewViewport(view),
 		text: '',
 		props,
 		parent: null,
@@ -3669,6 +3706,7 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 
 			unwireStateFlags(node)
 			node.view = VIEWLESS.has(command.type) ? null : instantiate(command.type)
+			node.layoutView = takeTextViewViewport(node.view)
 			wireStateFlags(node)
 			node.type = command.type
 			node.defaultAccessibleRole = undefined
@@ -3703,9 +3741,14 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 			if (node.view !== null) {
 				const parentView = hostViewOf(container, node.parent)
 				if (parentView instanceof Gtk.ScrolledWindow) {
-					parentView.set_child(node.view)
+					parentView.set_child(physicalView(node)!)
 				} else {
-					insertViewInto(parentView, node, node.view, viewIndexOf(container, node.parent, node))
+					insertViewInto(
+						parentView,
+						node,
+						physicalView(node)!,
+						viewIndexOf(container, node.parent, node),
+					)
 				}
 
 				// Children ride inside the view — re-attach them into the new one.

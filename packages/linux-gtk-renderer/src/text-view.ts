@@ -1,6 +1,15 @@
 import Gtk from 'gi://Gtk?version=4.0'
 import type { GtkView } from './index.js'
 
+const viewports = new WeakMap<GtkView, GtkView>()
+
+export function takeTextViewViewport(view: GtkView | null): GtkView | undefined {
+	if (!view) return undefined
+	const viewport = viewports.get(view)
+	viewports.delete(view)
+	return viewport
+}
+
 /** Keep the public ref on the native TextView. These private editable aliases
  * let single- and multiline editors share the driver's controlled-write path;
  * offsets are Unicode characters, as required by both GTK buffer APIs. */
@@ -20,5 +29,13 @@ export function makeTextView(): GtkView {
 	}
 	view.select_region = (anchor: number, cursor: number) =>
 		buffer.select_range(buffer.get_iter_at_offset(cursor), buffer.get_iter_at_offset(anchor))
+	const viewport = new Gtk.ScrolledWindow({
+		hscrollbar_policy: Gtk.PolicyType.NEVER,
+		vscrollbar_policy: Gtk.PolicyType.AUTOMATIC,
+	}) as GtkView
+	viewport.propagate_natural_height = true
+	viewport.propagate_natural_width = true
+	viewport.set_child(view)
+	viewports.set(view, viewport)
 	return view
 }

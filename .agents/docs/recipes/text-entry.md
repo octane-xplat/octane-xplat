@@ -153,7 +153,9 @@ also exercises actual X11 selection replacement, newline/action Return and Tab
 on the low-level textview intrinsic. It does not qualify the public TextArea.
 The [direct-source sizing fixture](../../../packages/linux-gtk-renderer/test/ui-text-area.test.mjs)
 checks rows, growth caps, authored bounds, direct/ancestor CSS font updates and
-cleanup. Its adjustment-range check does not prove wheel or scroll input.
+cleanup. It now also exercises actual X11 keyboard/wheel scrolling, read-only
+and disabled states, nested app scrolling, and native host/recreation behavior.
+These cases do not complete the composition, field or software-keyboard criteria.
 
 These checks contribute to AC1, Return behavior within AC2, and the TextInput
 portions of AC3/AC4. They do not establish the complete recipe:

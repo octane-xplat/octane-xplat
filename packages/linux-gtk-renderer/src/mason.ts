@@ -22,6 +22,7 @@ import GLib from 'gi://GLib'
 import GObject from 'gi://GObject'
 import Gsk from 'gi://Gsk?version=4.0'
 import Graphene from 'gi://Graphene'
+import { physicalView } from './physical-view.js'
 import { resolveClipPath, type ClipPath } from '@octane-xplat/css-engine'
 import { paintOrder, resolveTransform, transformSteps, zIndexOf } from './transform-style.ts'
 
@@ -306,6 +307,7 @@ function styleDict(node: NodeLike): Record<string, any> {
 
 function syncMasonNode(node: NodeLike) {
 	const masonEngine_ = masonEngine()
+	const view = physicalView(node)
 	if (masonEngine_ == null) {
 		return 0
 	}
@@ -316,8 +318,8 @@ function syncMasonNode(node: NodeLike) {
 		// Gtk.Label get the same leaf treatment macOS gives NSViews.
 		node.masonNode = MASON_CONTAINERS.has(node.type)
 			? mason.node_new(masonEngine_, false)
-			: node.view
-				? mason.node_new_leaf(masonEngine_, node.view)
+			: view
+				? mason.node_new_leaf(masonEngine_, view)
 				: mason.node_new(masonEngine_, false)
 
 		if (!node.masonNode) {
@@ -325,8 +327,8 @@ function syncMasonNode(node: NodeLike) {
 		}
 	}
 
-	if (node.view) {
-		nodesByChildView.set(node.view, node)
+	if (view) {
+		nodesByChildView.set(view, node)
 	}
 	const dict = styleDict(node)
 	mason.node_set_style(masonEngine_, node.masonNode, JSON.stringify(dict))

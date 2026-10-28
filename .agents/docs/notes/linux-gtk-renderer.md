@@ -1041,8 +1041,7 @@ the helper refits over two bounded frames, then removes its frame callback.
 It also cancels pending callbacks and native subscriptions on cleanup/unmap.
 
 The renderer ref's fontChanged subscription reports effective font-style
-changes, including ancestor selectors, inherited values, local writes and
-keyframe style application. It is lazy: widgets without subscribers allocate
+changes from ancestor selectors, inherited values and local writes. It is lazy: widgets without subscribers allocate
 no observer set. Row min/max changes do not trigger this font event.
 The GTK helper uses that notification to schedule measurement after GTK's
 style validation; the event itself does not promise already-updated metrics.
@@ -1081,3 +1080,62 @@ Wayland, HiDPI or image evidence is claimed by the sizing fixture.
 Logs: /tmp/gtk-textarea-rows-full.log in the guest, and
 /tmp/gtk-textarea-rows-types-final.log, /tmp/gtk-textarea-rows-native-final.log
 and /tmp/gtk-textarea-rows-pack-final.log on andromeda.
+
+
+## Native multiline scrolling and physical hosts
+
+A capped Gtk.TextView had a vertical adjustment range and native keyboard
+navigation, but no wheel handler in the standalone configuration.
+The maintained X11 probe passed Ctrl+End/Home and then failed wheel scrolling
+(/tmp/gtk-textarea-scroll-before.log). TextView now lives in a private
+Gtk.ScrolledWindow, which supplies GTK's scrolling behavior. The public ref,
+text/selection facade, CSS body, focus, accessibility metadata and text events
+remain on the real Gtk.TextView.
+
+| ElementNode field | Owner |
+| --- | --- |
+| view | Native editor and public reference |
+| layoutView | Private scrolling host, mount/measure, size, visibility, sensitivity, alignment, opacity and transforms |
+
+Non-composite nodes keep their original single-widget path. Mason measures
+and allocates the physical host; Box, Fixed and Grid placement, viewless
+projection, detach/reinsert and role recreation use the same physical-view
+selector. The factory hands viewport ownership to the node once, then clears
+its temporary weak-map entry. The CSS provider styles the editor body and,
+outside Mason, applies a separate scoped transform to the physical host.
+Opacity is applied once to the complete control.
+
+GTK automatically inserts a Gtk.Viewport when a scrolled window receives a
+non-Scrollable child. Unparenting that child directly leaves its child slot
+stale: subsequent set_child calls can return without reattaching it. The
+host-matrix probe observed a detached scrolling host while the parent's
+get_child still returned Gtk.Viewport (/tmp/gtk-textarea-scroll-host-diagnostic.log).
+Detach now clears the owning scrolled window's child via its public API.
+[GTK 4.14.5 source](https://github.com/GNOME/gtk/blob/4.14.5/gtk/gtkscrolledwindow.c#L3891-L3947)
+defines this automatic viewport and unchanged-child behavior. This is a local
+adapter ownership correction, not an upstream GTK defect. The old direct
+unparent branch is present in stable v0.17.1, so a fix note records it separately
+from the new multiline viewport support.
+
+The source TextArea fixture exercises actual X11 keyboard and wheel input,
+read-only scrolling, disabled blocking, and app scrolling outside the editor.
+Its host matrix covers Box, Fixed, Grid and ScrolledWindow with viewless roots,
+size/position changes, transform/opacity scope, keyed replacement and role
+recreation with restored focus and text-change bindings. The previous
+24-assertion sizing evidence remains historical; the added input/host checks
+do not promote TextArea to the GTK UI root. Placeholder/maxLength, stable
+automatic field/controlled ownership, custom line spacing, IME/OSK/AT-client,
+Wayland/touchpad gestures, HiDPI and visual parity remain outside qualification.
+
+
+Verification for the scrolling-host slice: all 41 Linux renderer tests pass
+with no skips; ui-text-area has 106 assertions and ui-text-view retains 59.
+Ctrl+End/Home and wheel phases use actual X11 input; the native host matrix,
+role changes and buffer insertions are programmatic checks, not OS-input proof.
+All eight renderer/dependent Turbo typecheck tasks pass. Recipes, barrel shape,
+release-note validation, formatting and whitespace checks pass. No UI source
+or public GTK barrel export changes; no new dependency, native facade rebuild,
+phone, touchpad, Wayland, HiDPI, AT-client or image claim.
+Logs: guest /tmp/gtk-textarea-scroll-full.log and andromeda
+/tmp/gtk-textarea-scroll-types-final.log. Earlier failure logs remain historical
+evidence, including the stale viewport diagnosis.

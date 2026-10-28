@@ -1,15 +1,16 @@
 ### Add a multiline editor to GTK screens
 
 The experimental GTK renderer now supports the textview intrinsic for
-multiline text, read-only editing, focus and change events. Return adds a
-line; done/send can submit instead. Tab moves to the next control.
+multiline text, read-only editing, focus and change events. Long text scrolls
+inside its assigned height, including read-only editors. Return adds a line;
+done/send can submit instead. Tab moves to the next control.
 
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 export function NotesEditor() {
   return (
     <textview
-      text="First line"
+      text={'A line\n'.repeat(20)}
       onTextChange={(event) => console.log(event.value)}
       style={{ width: 260, height: 120 }}
     />
@@ -17,6 +18,6 @@ export function NotesEditor() {
 }
 ```
 
-The public TextArea component still needs placeholder, scrolling-input and
+The public TextArea component still needs placeholder, maximum-length and
 full field qualification. [GTK text entry](https://octane-xplat.goddardai.org/platform/linux-gtk#text-entry)
 describes the current scope.

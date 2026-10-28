@@ -315,7 +315,8 @@ exercise Gtk.Entry with actual X11 typing, controlled rejection/acceptance and
 selection/cursor checks. The [multiline renderer fixture](../../packages/linux-gtk-renderer/test/ui-text-view.test.mjs)
 checks a low-level textview with actual X11 selection replacement, Return and
 Tab. The [direct-source sizing fixture](../../packages/linux-gtk-renderer/test/ui-text-area.test.mjs)
-checks row allocation, growth caps and CSS font updates. Public TextArea,
+checks row allocation, growth caps, CSS font updates and actual X11 internal
+keyboard/wheel scrolling. Public TextArea,
 IME composition, OSK/overlay avoidance,
 assistive-technology clients and visual parity remain unqualified.
 
