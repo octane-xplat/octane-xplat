@@ -111,3 +111,44 @@ return tests use mocked Windows objects. Actual WinUI mounting, positioning,
 context updates, dismissal and focus still need native app checks. Initial
 focus, Tab containment and Escape/IME behavior remain unqualified. This does not
 qualify every menu or tooltip that uses layers.
+
+## Custom scroll viewport candidate
+
+For a custom Windows native viewport, spread both `useScrollableArea` getters.
+The viewport props observe scrolling and lifecycle changes; the content props
+observe content growth even when the viewport keeps the same size. Set the
+viewport's height and orientation yourself. The hook reports overflow and edge
+state; it does not configure keyboard access, overscroll chaining or sticky
+containment on Windows.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+// NotesViewport.windows.tsx
+import { Screen, Text, useScrollableArea } from '@octane-xplat/ui'
+import './notes-viewport.css'
+
+const notes = Array.from({ length: 24 }, (_, index) => `Note ${index + 1}`)
+
+export function NotesViewport() {
+  const area = useScrollableArea({ axis: 'block' })
+  return <Screen>
+    <Text>{area.state.block.isScrollable ? 'Scroll for more notes.' : 'All notes fit.'}</Text>
+    <scrollview {...area.getViewportProps({ className: 'notes-viewport', orientation: 'vertical' })}>
+      <masonview {...area.getContentProps({ className: 'notes-content' })}>
+        {notes.map(note => <Text key={note}>{note}</Text>)}
+      </masonview>
+    </scrollview>
+  </Screen>
+}
+```
+
+```css
+/* notes-viewport.css */
+.notes-viewport { height: 240px; }
+.notes-content { display: flex; flex-direction: column; gap: 12px; }
+```
+
+Eight source-logic tests use scripted hooks and fake view metrics. Actual
+Windows event delivery, renderer updates, Mason measurements, wheel/touch/key
+scrolling, RTL and resize still need native app checks. Use the shared
+`ScrollableArea` component when a custom viewport is unnecessary.

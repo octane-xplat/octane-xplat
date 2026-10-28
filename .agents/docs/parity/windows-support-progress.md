@@ -34,6 +34,7 @@ is complete because of these changes.
 | Clipboard | WinRT text read/write, format check, async bridge, flush, false/null failures | OS clipboard access, foreground restrictions and persistence need Windows checks; rich formats excluded |
 | Random | WinRT CryptographicBuffer entropy, bounded hex conversion, byte-range preservation | Standalone NativeScript byte bounds/chunks passed; production app integration unqualified; no JS PRNG fallback |
 | Controlled text | Windows text-write leaf preserves TextBox selection around guarded value updates | Mocked range/lifecycle tests only; actual WinUI selection, IME, secure fields and focus unqualified |
+| Scroll observation | Windows useScrollableArea composes viewport/content layout, scroll and lifecycle handlers | Scripted-hook/fake-metric contracts only; real compiler/renderer, Mason measurements, OS scrolling and RTL unqualified |
 | Credentials | Package-family-scoped PasswordVault adapter avoids mobile plugin fallback | Standalone task-namespace operations/cleanup passed; actual packaged identity, persistence across launches and policy behavior unqualified |
 | Device | Explicit Windows OS identity, core metadata | Version/model/language metadata unqualified |
 | App settings | Package-family-specific Settings URI; unavailable without package identity | Packaged and unpackaged host behavior, launch acceptance and navigation unqualified |
@@ -696,3 +697,54 @@ inactive/secondary windows and no foreground activation. Initial focus, Tab
 containment/background exclusion, Escape, IME and production overlay behavior
 remain separate gaps. This is an unreleased Windows fix; no new release note or
 supported recipe target was added. No evidence-gated issue checkbox was closed.
+
+## Windows headless scroll observation
+
+The basic ScrollableArea component already resolves to Mason's scroll shell;
+the existing Windows offset helper uses its scrollTo surface. No substitute
+ScrollViewer engine was added. Demand assumptions come from the six-row notes
+viewport in ScrollableAreaShowcase and the shared 24-row ScrollBoxDemo. Their
+source is unchanged and is not a Windows runtime pass.
+
+The default headless hook measured scroll and viewport layout, but its content
+getter only forwarded a ref. Source inspection found no content-layout
+subscription, so content growth without viewport resize could leave edge state
+stale until another observed event. This is a source gap, not a new OS-level
+reproduction. A Windows-only hook now composes scroll, viewport/content layout,
+and load/unload props through the existing native driver event path, following
+the retained AppKit observer pattern without changing its files.
+
+The leaf samples Mason's scroll/client sizes and offsets in layout units,
+normalizes non-finite geometry and uses the shared clamped edge-state helpers.
+It updates the snapshot before forwarding caller callbacks and avoids redundant
+state writes. Refs and caller props are preserved; callbacks read the latest
+options. Foreign retired-host events are skipped. Detached/unloaded or failed
+geometry resets to a neutral edge state; a later load remeasures. It owns no
+manual listeners. Axis filters state; caller dimensions/orientation still
+configure scrolling. Keyboard access, overscroll chaining and sticky
+containment remain inert; logical/RTL behavior is not newly qualified.
+
+Eight maintained source-logic contracts passed on windy through isolated Turbo
+test:scroll, exit 0. Its dry run contains one uncached task with no dependencies.
+The tests cover growth/shrink without viewport resize, callback timing and
+composition, latest axis/handlers, nested refs, invalid/sub-unit ranges,
+overscroll clamping, replacement/detach, unchanged-state coalescing, unmount,
+late load and reload. They transpile the actual source and its shared state/ref
+helpers, with scripted hook slots and fake view metrics. They do not run the
+Octane compiler/renderer, Mason engine, native events or any OS input. Log:
+`research/windows61/windy-scrollable-area-contracts.log`.
+
+The regression is registered in UI test:native. A minimal resolver diagnostic
+passed five paths: Windows selects its dedicated hook and shared state/ref
+helpers; iOS/Android retain their default hook. An AST comparison confirms
+matching public generic parameters, arguments and result type. Log:
+`research/windows61/scroll-observer-resolution.log`, exit 0. Targeted lint/format,
+barrel/recipe and whitespace checks passed. Full UI and
+dependent checks, native build/app and package gates remain deferred at the
+commands above. Native qualification must check actual content-only growth,
+resize, edge notifications, callbacks and renderer updates, retention/reload,
+wheel/touch/keyboard scrolling, both axes, RTL, zoom/scaling and teardown. The
+Windows guide and primitives skill state the current subset. Existing
+platform-leaves/shared-overlays/keyboard-clipboard recipes still exclude
+Windows; no criterion, audit snapshot or evidence-gated checkbox was changed.
+This is an unreleased Windows hook repair, so no new release note was added.

@@ -2733,3 +2733,32 @@ export function LayerTrigger() {
   </>
 }
 ```
+
+## Experimental Windows scroll observation
+
+Windows useScrollableArea composes scroll, viewport/content layout and
+load/unload handlers. Spread both getters to observe content growth, preserve
+caller refs/handlers, and obtain current edge state inside a scroll callback.
+Configure native viewport dimensions and orientation separately; axis filters
+the measured state. Keyboard access, overscroll chaining, sticky containment
+and RTL semantics are not added by this observer.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+// CustomViewport.windows.tsx — classes are defined by the app stylesheet.
+import { Text, useScrollableArea } from '@octane-xplat/ui'
+
+export function CustomViewport() {
+  const area = useScrollableArea({ axis: 'block' })
+  return <scrollview {...area.getViewportProps({ className: 'notes-viewport', orientation: 'vertical' })}>
+    <masonview {...area.getContentProps({ className: 'notes-content' })}>
+      <Text>Packing notes</Text>
+    </masonview>
+  </scrollview>
+}
+```
+
+The regression checks use scripted hook slots and fake Mason metrics. They do
+not prove compiler call-site transformation, renderer subscriptions or native
+scroll behavior. Keep Windows qualification pending; use the
+[complete example and boundary](../../../../docs/platform/windows-setup.md#custom-scroll-viewport-candidate).
