@@ -1,0 +1,22 @@
+{
+	"extends": [
+		"//"
+	],
+	"tasks": {
+		"test:runtime": {
+			"dependsOn": [
+				"typegen",
+				"^typegen"
+			],
+			"cache": false,
+			"passThroughEnv": [
+				"ANDROID_HOME",
+				"ANDROID_SDK_ROOT",
+				"JAVA_HOME",
+				"ANDROID_ADB_SERVER_PORT",
+				"ADB_SERVER_SOCKET",
+				"XPLAT_IOS_DEVELOPMENT_TEAM"
+			]
+		}
+	}
+}

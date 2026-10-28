@@ -1,0 +1,31 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"environments": {
+		"web": {
+			"include": [
+				"src/index.web.ts",
+				"tests/consumer.ts"
+			]
+		},
+		"native": {
+			"include": [
+				"src/index.ts"
+			]
+		},
+		"macos": {
+			"include": [
+				"src/index.macos.ts"
+			]
+		},
+		"linux": {
+			"files": [
+				"src/unavailable.ts"
+			]
+		},
+		"windows": {
+			"files": [
+				"src/unavailable.ts"
+			]
+		}
+	}
+}

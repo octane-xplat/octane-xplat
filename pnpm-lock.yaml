@@ -2824,6 +2824,49 @@ importers:
         specifier: 'catalog:'
         version: 8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)
 
+  packages/network:
+    dependencies:
+      '@kayahr/text-encoding':
+        specifier: 2.2.0
+        version: 2.2.0
+      '@octane-xplat/platform':
+        specifier: workspace:*
+        version: link:../platform
+      web-streams-polyfill:
+        specifier: 4.3.0
+        version: 4.3.0
+    devDependencies:
+      '@nativescript-community/octane':
+        specifier: 'catalog:'
+        version: 0.2.5(patch_hash=409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8)(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))(octane@0.14.0(patch_hash=72aab06e2743b11bebe59fe01d29148dcfbd2bb3a381413179986b0f374ba065)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))
+      '@nativescript/core':
+        specifier: 'catalog:'
+        version: 9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f)
+      '@octanejs/vite-plugin':
+        specifier: 'catalog:'
+        version: 0.1.61(octane@0.14.0(patch_hash=72aab06e2743b11bebe59fe01d29148dcfbd2bb3a381413179986b0f374ba065)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)))(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      octane:
+        specifier: 'catalog:'
+        version: 0.14.0(patch_hash=72aab06e2743b11bebe59fe01d29148dcfbd2bb3a381413179986b0f374ba065)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      playwright:
+        specifier: 1.63.0
+        version: 1.63.0
+      rouzer:
+        specifier: 6.0.2
+        version: 6.0.2(zod@4.6.5)
+      tsrx-typegen:
+        specifier: workspace:*
+        version: link:../tsrx-typegen
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+      vite:
+        specifier: 'catalog:'
+        version: 8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1)
+      zod:
+        specifier: 4.6.5
+        version: 4.6.5
+
   packages/notifications:
     dependencies:
       '@nativescript/local-notifications':
@@ -5291,6 +5334,9 @@ packages:
   '@jridgewell/trace-mapping@0.3.9':
     resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
 
+  '@kayahr/text-encoding@2.2.0':
+    resolution: {integrity: sha512-9jjWumQ9+fI1SfiRo1oSqMm4Wz95A/XtRDXB1C4pyNLo8HhtiyZMAzVPGplhMreymaroGyPqRyOy3h+3khPJVg==}
+
   '@kwsites/file-exists@1.1.1':
     resolution: {integrity: sha512-m9/5YGR18lIwxSFDwfE3oA7bWuq9kdau6ugN4H2rJeyhFQZcG9AgSHkQtSD15a8WvTgfz9aikZMrKPHvbpqFiw==}
 
@@ -7100,6 +7146,9 @@ packages:
   '@protobufjs/utf8@1.1.2':
     resolution: {integrity: sha512-b1UQwcEZ4yCnMCD8DAL1VlbvBJE9/IX4FTIp7BG1xYpf29SLazLSrqUkj4w7Y5y7cCVP6E5tcqqcI0xemPkHug==}
 
+  '@remix-run/route-pattern@0.22.1':
+    resolution: {integrity: sha512-czdGJWh09Lapvcqt7Vb09KlrU2PhRJ8xQaI+AItTuD9aDJ5MAgxnS38lnys6Ll+6RJEqPiaUqTwIQhVLwFvv+w==}
+
   '@rigor789/resolve-package-path@1.0.7':
     resolution: {integrity: sha512-/JqGCvHpj0PxS9cyZPP5LpiEy1pYszgWor/JTyreHQwLPQQdxO1mUYTtRribYcVosxH7FFs0GJBtJ652nlwKyw==}
 
@@ -8087,6 +8136,9 @@ packages:
 
   ajv@8.20.0:
     resolution: {integrity: sha512-Thbli+OlOj+iMPYFBVBfJ3OmCAnaSyNn4M1vz9T6Gka5Jt9ba/HIR56joy65tY6kx/FCF5VXNB819Y7/GUrBGA==}
+
+  alien-middleware@0.12.0:
+    resolution: {integrity: sha512-c71zFSddJ1V1CGQiIuNdSfQhW+ltmDW6agwYF3qED1QWD0gUK1O5gD64fgJIcE4Cn6JoYSnylbfTaTW2uVhTJw==}
 
   alien-signals@3.2.0:
     resolution: {integrity: sha512-5J9+NpCLHgic4xnZtI8SznvNagwJsZSvRFsAwoLlLw+Edaqa4upCiOC19P8Vx2DqmEvqK2qJBMtI8+9eXOEb/A==}
@@ -10318,6 +10370,9 @@ packages:
   pathe@2.0.3:
     resolution: {integrity: sha512-WUjGcAqP1gQacoQe+OBJsFA7Ld4DyXuUIjZ5cc75cLHvJ7dtNsTugphxIADwspS+AraAUePCKrSVtPLFj/F88w==}
 
+  pathic@0.1.7:
+    resolution: {integrity: sha512-/NYGEI0kdhD1CJAsddsFCB+vtSTM8LJMYlEd8HG74QXXv6Z6RzrLNQBG5UQjqGWwOsVqxJBhaoTHyOJkM+qMpQ==}
+
   pathkit-wasm@1.0.0:
     resolution: {integrity: sha512-oREIcGpwnBBto6PfB3C20aIw9jBPLcSNVF1AlL5tGlXsoL2zqWVuD0mi8WMJQHHNemm6aR1hHH2lz+TO551Fgw==}
 
@@ -10762,6 +10817,11 @@ packages:
   router@2.2.0:
     resolution: {integrity: sha512-nLTrUKm2UyiL7rlhapu/Zl45FwNgkZGaCpZbIHajDYgwlJCOzLSk+cIPAnsEqV955GjILJnKbdQC1nVPz+gAYQ==}
     engines: {node: '>= 18'}
+
+  rouzer@6.0.2:
+    resolution: {integrity: sha512-Sb+lrlg79eds12Ilw78nPcRGzJ80hTl3d8fnOFC05lSCNvxDk4AHvhXzMDEHxOUzsjS9MI3a8gstCWDMvI2aSw==}
+    peerDependencies:
+      zod: '>=4'
 
   run-applescript@7.1.0:
     resolution: {integrity: sha512-DPe5pVFaAsinSaV6QjQ6gdiedWDcRCbUuiQfQa2wmWV7+xC9bGulGI8+TdRmoFkAPaBXk8CrAbnlY2ISniJ47Q==}
@@ -11654,6 +11714,10 @@ packages:
 
   wcwidth@1.0.1:
     resolution: {integrity: sha512-XHPEwS0q6TaxcvG85+8EYkbiCux2XtWG2mkc47Ng2A77BQu9+DqIOJldST4HgPkuea7dvKSj5VgX3P1d4rW8Tg==}
+
+  web-streams-polyfill@4.3.0:
+    resolution: {integrity: sha512-/Gnggvj9oSrEvJbDyyPtAnxBt5fGQM2iWOKQNu7ie1OxDgK40iZpyV3TKaRiEzVj1oA1UxKnEy9XPXh6PW3eVw==}
+    engines: {node: '>= 8'}
 
   web-vitals@4.2.4:
     resolution: {integrity: sha512-r4DIlprAGwJ7YM11VZp4R884m0Vmgr6EAKe3P+kO0PPj3Unqyvv59rczf6UiGcb9Z8QxZVcqKNwv/g0WNdWwsw==}
@@ -13553,6 +13617,8 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.6.0
 
+  '@kayahr/text-encoding@2.2.0': {}
+
   '@kwsites/file-exists@1.1.1(supports-color@10.2.2)':
     dependencies:
       debug: 4.4.3(supports-color@10.2.2)
@@ -15112,6 +15178,8 @@ snapshots:
 
   '@protobufjs/utf8@1.1.2': {}
 
+  '@remix-run/route-pattern@0.22.1': {}
+
   '@rigor789/resolve-package-path@1.0.7': {}
 
   '@ripple-ts/adapter@0.4.6': {}
@@ -16154,6 +16222,10 @@ snapshots:
       fast-uri: 3.1.8
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
+
+  alien-middleware@0.12.0:
+    dependencies:
+      pathic: 0.1.7
 
   alien-signals@3.2.0: {}
 
@@ -18607,6 +18679,8 @@ snapshots:
 
   pathe@2.0.3: {}
 
+  pathic@0.1.7: {}
+
   pathkit-wasm@1.0.0: {}
 
   pathval@2.0.1: {}
@@ -19080,6 +19154,12 @@ snapshots:
       path-to-regexp: 8.4.2
     transitivePeerDependencies:
       - supports-color
+
+  rouzer@6.0.2(zod@4.6.5):
+    dependencies:
+      '@remix-run/route-pattern': 0.22.1
+      alien-middleware: 0.12.0
+      zod: 4.6.5
 
   run-applescript@7.1.0: {}
 
@@ -19964,6 +20044,8 @@ snapshots:
   wcwidth@1.0.1:
     dependencies:
       defaults: 1.0.4
+
+  web-streams-polyfill@4.3.0: {}
 
   web-vitals@4.2.4: {}
 

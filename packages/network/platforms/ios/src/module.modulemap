@@ -1,0 +1,4 @@
+module XplatNetwork {
+  header "XplatStreamingRequest.h"
+  export *
+}

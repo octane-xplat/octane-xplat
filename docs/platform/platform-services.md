@@ -1151,3 +1151,19 @@ shared contract and web/native leaves rather than adding a one-off conditional.
 
 See the [platform notes](../../.agents/docs/notes/platform-notes.md) for the complete capability map,
 accessibility mapping, and native typing details.
+
+## Read an HTTP response before it finishes
+
+Use the optional network leaf when a server sends response bytes over time.
+NativeScript's default fetch buffers responses. The network API keeps global
+fetch unchanged and has a smaller, explicit request contract; see the
+[network guide](../../packages/network/README.md) for request limits,
+cancellation, decoder requirements, and target qualification.
+
+```ts
+import { requestStream } from '@octane-xplat/network'
+const response = await requestStream('https://example.com/api/events')
+const reader = response.body.getReader()
+try { console.log((await reader.read()).value?.byteLength) }
+finally { await reader.cancel(); reader.releaseLock() }
+```
