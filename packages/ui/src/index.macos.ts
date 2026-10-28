@@ -13,8 +13,8 @@ export { Section } from './Section.macos.tsrx'
 export { Layout, LayoutHeader, LayoutContent } from './layout.macos.tsrx'
 export { AspectRatio } from './AspectRatio.macos.tsrx'
 export { VisuallyHidden } from './VisuallyHidden.macos.tsrx'
-/** Keyboard focus containment — web convention; the macOS leaf is an inert
- *  container. Check `getFocusScopeCapabilities()` before relying on flags. */
+/** Native per-window focus ownership. Check getFocusScopeCapabilities() for
+ * bridge availability; actual OS input/accessibility remains unqualified. */
 export { FocusScope, getFocusScopeCapabilities } from './FocusScope.macos.tsrx'
 export type {
 	ColorAreaProps,
