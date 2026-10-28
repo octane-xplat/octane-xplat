@@ -760,3 +760,27 @@ therefore does not change the control's component ancestry and reset its
 uncontrolled text/ref. Added an unrun object-driver identity/state regression
 for adding and removing metadata. Syntax and whitespace only; the same deferred
 text-control and native layout/IME/focus checks above apply.
+
+
+### Controlled native text echoes
+
+While investigating composition-safe TextArea limits, source review found the
+AppKit value-prop branch always reassigned NSTextField.stringValue or
+NSTextView.string, even when the real editor already held the echoed text.
+It now compares the current native string before writing. This avoids an
+unnecessary setter call during normal controlled edits; changed external
+values still write through. It does not implement deferral of different
+external values during IME composition or qualify selection/marked text.
+
+Added a setter-count regression for both native control paths. Syntax and
+whitespace only; tests are unrun. Deferred commands:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer
+```
+
+Native typing, middle-selection edits, IME echo/candidate confirmation,
+external changes during composition and packaged behavior remain unqualified.
+TextArea maxLength remains an implementation gap; no native truncation scheme
+has been claimed or qualified by this prerequisite fix.

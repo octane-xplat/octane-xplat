@@ -6735,11 +6735,14 @@ function applyProps(node: ElementNode, props: PropBag) {
 						continue
 					}
 
+					// A controlled echo already matches the editor. Reassigning it
+					// needlessly disturbs selection and in-progress marked text.
+					const next = String(value ?? '')
 					if (node.type === 'textview') {
-						node.view!.string = String(value ?? '')
+						if (String(node.view!.string ?? '') !== next) node.view!.string = next
 						syncTextViewPlaceholder(node)
-					} else {
-						node.view!.stringValue = String(value ?? '')
+					} else if (String(node.view!.stringValue ?? '') !== next) {
+						node.view!.stringValue = next
 					}
 				} else if (name === 'placeholder') {
 					if (node.type === 'textfield') {

@@ -324,3 +324,24 @@ test('multiline submit delegate preserves ordinary Return and marked-text confir
 	assert.equal(target.textViewDoCommandBySelector(view, 'insertNewline:'), true)
 	assert.deepEqual(seen, ['onSubmit', 'onSubmit'])
 })
+
+
+test('controlled echoes do not assign an unchanged native editor string', () => {
+	for (const type of ['textfield', 'textview']) {
+		const { applyProps } = propsHarness()
+		const node = textNode(type)
+		const property = type === 'textview' ? 'string' : 'stringValue'
+		let text = 'composing', writes = 0
+		Object.defineProperty(node.view, property, {
+			get: () => text,
+			set: (value: string) => { text = value; writes++ },
+		})
+		applyProps(node, { value: 'composing' })
+		assert.equal(writes, 0)
+		applyProps(node, { value: 'external' })
+		assert.equal(writes, 1)
+		assert.equal(text, 'external')
+		applyProps(node, { value: 'external' })
+		assert.equal(writes, 1)
+	}
+})
