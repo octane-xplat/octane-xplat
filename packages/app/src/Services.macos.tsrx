@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { useState } from 'octane'
+import { useEffect, useRef, useState } from 'octane'
 import { secureStorage } from '@octane-xplat/secure-storage'
 import { files } from '@octane-xplat/files'
 import { media } from '@octane-xplat/media'
@@ -10,36 +10,64 @@ import {
 	connectivity,
 	device,
 	locale,
+	openSettings,
 	useAppState,
 	useWindowSize,
 } from '@octane-xplat/platform'
 
 export function Services() @{
 	const [clipboardResult, setClipboardResult] = useState('—')
+	const [settingsResult, setSettingsResult] = useState('—')
 	const [announcementResult, setAnnouncementResult] = useState('—')
 	const [keychainResult, setKeychainResult] = useState('—')
 	const [imageResult, setImageResult] = useState('—')
 	const [picked, setPicked] = useState<{ name: string; uri: string } | null>(null)
+	const latestPicked = useRef<typeof picked>(null)
+	const alive = useRef(true)
+	const pickGeneration = useRef(0)
+	useEffect(() => {
+		alive.current = true
+		return () => {
+			alive.current = false
+			pickGeneration.current++
+			// Also cover a result received before its state update committed.
+			if (latestPicked.current) files.release(latestPicked.current)
+			latestPicked.current = null
+		}
+	}, [])
+	// Keep the selected file through its preview's commit; release it when
+	// replaced or when the screen owner leaves.
+	useEffect(() => {
+		const preview = picked
+		return () => { if (preview) files.release(preview) }
+	}, [picked])
 	const conn = connectivity.getState()
 	const appState = useAppState()
 	const size = useWindowSize()
 	async function chooseImages(multiple: boolean) {
+		const generation = ++pickGeneration.current
 		try {
 			const single = multiple ? null : await media.pickImage()
 			const images = multiple ? await media.pickImages() : single ? [single] : []
+			if (!alive.current || generation !== pickGeneration.current) {
+				for (const image of images) files.release(image)
+				return
+			}
 			if (!images.length) {
 				setImageResult('cancelled')
 				return
 			}
 
-			setPicked({ name: images[0].name, uri: images[0].uri })
+			const next = { name: images[0].name, uri: images[0].uri }
+			latestPicked.current = next
+			setPicked(next)
 			setImageResult(images.map((image) => image.name).join(', '))
 			// The preview still needs the first pick's file; extras release now.
 			for (const image of images.slice(1)) {
 				files.release(image)
 			}
 		} catch {
-			setImageResult('Could not read the selection')
+			if (alive.current && generation === pickGeneration.current) setImageResult('Could not read the selection')
 		}
 	}
 
@@ -60,11 +88,9 @@ export function Services() @{
 				<Pressable
 					className="btn btn-secondary"
 					onPress={async () => {
-						setClipboardResult(
-							clipboard.canCopy && (await clipboard.write('octane-xplat'))
-								? 'copied'
-								: 'unsupported',
-						)
+						const result = !clipboard.canCopy ? 'Copy unavailable'
+							: await clipboard.writeText('octane-xplat') ? 'copied' : 'Copy failed'
+						if (alive.current) setClipboardResult(result)
 					}}
 				>
 					<Text>Copy</Text>
@@ -72,15 +98,35 @@ export function Services() @{
 				<Pressable
 					className="btn btn-secondary"
 					onPress={async () => {
-						setClipboardResult(
-							clipboard.canCopy ? 'read: ' + ((await clipboard.read()) ?? 'empty') : 'unsupported',
-						)
+						const text = await clipboard.readText()
+						if (alive.current) setClipboardResult(text ?? 'No text available')
 					}}
 				>
 					<Text>Paste</Text>
 				</Pressable>
 				<Text className="text-sm text-muted">{clipboardResult}</Text>
 			</HStack>
+		</View>
+		<View className="sink-section">
+			<Text className="section-label">System Settings</Text>
+			<Pressable className="btn btn-secondary" onPress={async () => {
+				try {
+					const available = openSettings.supported && await openSettings.isAvailable()
+					if (!alive.current) return
+					if (!available) {
+						setSettingsResult('Settings unavailable')
+						return
+					}
+					const accepted = openSettings.open()
+					if (alive.current) setSettingsResult(accepted ? 'Launch request accepted' : 'Could not open settings')
+				} catch { if (alive.current) setSettingsResult('Settings unavailable') }
+			}}>
+				<Text>Open settings</Text>
+			</Pressable>
+			<Text className="text-sm text-muted">{settingsResult}</Text>
+			<Text className="text-sm text-muted">
+				Choose the permission you need in System Settings. Opening it does not change permissions.
+			</Text>
 		</View>
 		<View className="sink-section">
 			<Text className="section-label">Accessibility announcement</Text>
@@ -153,11 +199,7 @@ export function Services() @{
 			}
 		</View>
 		<View className="sink-section">
-			<Text className="section-label">Unsupported on this AppKit host</Text>
-			<Text className="text-sm text-muted">
-				Connectivity, audio, UI sounds, haptics, notifications, location, camera, Photos-library
-				browsing, file pickers, sharing, app settings, biometrics, and system bars.
-			</Text>
+			<Text className="section-label">Connectivity</Text>
 			<Text className="text-sm text-muted">
 				{conn.supported === false ? 'Connectivity: unsupported' : 'Connectivity: available'}
 			</Text>

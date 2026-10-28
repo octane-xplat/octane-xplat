@@ -518,3 +518,45 @@ requests, local placeholders, repeated mounting, bounded memory, large-image
 responsiveness, parent layout/classes, SVG behavior on the actual OS, packaged
 resolution and teardown. Pixel checks still require separate visual-analysis
 authorization; none is requested or implied here.
+
+## AppKit Services screen reconciliation
+
+The macOS app selects Services.macos.tsrx, so updating the shared Services
+screen alone did not expose the new settings service there. The native leaf
+now has an explicit System Settings action with support/availability/failure
+feedback and no automatic launch. Paste now reads independently of canCopy;
+copy failures no longer masquerade as unsupported capability. Results arriving
+after owner teardown do not update the clipboard/settings status or launch
+settings. These are source changes; no service was invoked by this task.
+
+The screen's picked preview now releases its owned temporary file on
+replacement/unmount, releases stale/late selection results, and rejects older
+selection completions. A latest-result ref covers teardown before a state
+commit. files.release is best-effort/idempotent and only deletes registered
+app-owned media outputs; original picker source files remain outside that
+ownership contract. Extras still release immediately. Real picker, teardown,
+preview ordering and temporary-file cleanup remain unqualified.
+
+Removed the static unsupported-service census, which contradicted file pickers
+already present in the same screen and dedicated source leaves. Connectivity
+retains its own capability-derived status. This change adds no new claim that
+the removed service names are runtime-qualified.
+
+Syntax and whitespace checks passed. No tests, app build, native launch,
+clipboard read/write, file picking/deletion, settings launch, OS automation or
+visual analysis ran. The affected recipes are appkit-settings,
+keyboard-clipboard AC2 and pick-and-capture-images AC3. Native flow verification is deferred:
+
+```sh
+pnpm dev:macos
+pnpm exec turbo run typecheck --filter=...@xplat/app
+pnpm probe run examples/probes/open-settings.macos.tsrx --target macos --watch
+pnpm probe run examples/probes/image-loading.macos.tsrx --target macos --watch
+pnpm check:recipes
+```
+
+After explicit human authorization, run the AppKit Services route: copy-only
+and read-only hosts, rejected writes, empty/failed reads, Settings launch/failure,
+image selection/cancel/replacement, screen removal with a pending picker,
+preview file ownership, repeated teardown and HMR. The retained probes do not
+replace that screen-level native workflow qualification.
