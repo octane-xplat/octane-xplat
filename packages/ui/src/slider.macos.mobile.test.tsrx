@@ -174,3 +174,43 @@ it('AppKit slider adjustments reject callback reentry and release their claim af
 		expect(calls).toEqual([21, 21])
 	} finally { env.root.unmount() }
 })
+
+it('an external controlled value retires the AppKit drag preview and its remaining deltas', () => {
+	const calls: unknown[] = [], changed = (value: unknown) => calls.push(value), env = mount(Slider, { value: 20, onValueChange: changed })
+	try {
+		const host = env.named('vx-slider--appkit')[0], thumb = env.named('vx-slider-thumb')[0], view = { bounds: { size: { width: 120 } } }
+		const pan = (state: number, deltaX: number) => { host.props.onPan({ state, x: 30 + deltaX, deltaX, deltaY: 0, view }); flushUniversalSync(() => {}) }
+		pan(1, 0); pan(2, 10); expect(thumb.props.accessibilityValue).toBe('30'); expect(calls).toEqual([30])
+		env.render({ value: 60, onValueChange: changed }); expect(thumb.props.accessibilityValue).toBe('60')
+		pan(2, 20); pan(3, 30); expect(calls).toEqual([30]); expect(thumb.props.accessibilityValue).toBe('60')
+	} finally { env.root.unmount() }
+})
+
+it('matching controlled feedback keeps an AppKit drag while mode, limits and blocking changes retire it', () => {
+	let selected: number | [number, number] = 20
+	const requests: unknown[] = [], env = mount(Slider, { value: selected })
+	const props = () => ({ value: selected, onValueChange: (value: number | [number, number]) => { selected = value; requests.push(value); env.render(props()) } })
+	try {
+		env.render(props())
+		const host = env.named('vx-slider--appkit')[0], view = { bounds: { size: { width: 120 } } }, thumb = () => env.named('vx-slider-thumb')[0]
+		const pan = (state: number, deltaX: number) => { host.props.onPan?.({ state, x: 30 + deltaX, deltaX, deltaY: 0, view }); flushUniversalSync(() => {}) }
+		pan(1, 0); pan(2, 10); pan(2, 20); pan(3, 20); expect(requests).toEqual([30, 40]); expect(thumb().props.accessibilityValue).toBe('40')
+		for (const replacement of [{ defaultValue: 10 }, { value: 40, step: 5 }, { value: 40, isReadOnly: true }]) {
+			env.render({ value: 40, onValueChange: (value: unknown) => requests.push(value) }); pan(1, 0); pan(2, 5)
+			const before = requests.length
+			env.render({ ...replacement, onValueChange: (value: unknown) => requests.push(value) })
+			pan(2, 20); pan(3, 20); expect(requests).toHaveLength(before)
+		}
+	} finally { env.root.unmount() }
+})
+
+it('a keyboard adjustment retires an active AppKit drag instead of leaving its preview over parent state', () => {
+	const calls: unknown[] = [], env = mount(Slider, { value: 20, onValueChange: (value: unknown) => calls.push(value) })
+	try {
+		const host = env.named('vx-slider--appkit')[0], thumb = env.named('vx-slider-thumb')[0], view = { bounds: { size: { width: 120 } } }
+		const pan = (state: number, deltaX: number) => { host.props.onPan({ state, x: 30 + deltaX, deltaX, deltaY: 0, view }); flushUniversalSync(() => {}) }
+		pan(1, 0); pan(2, 10); expect(thumb.props.accessibilityValue).toBe('30')
+		key(thumb, 'ArrowRight'); expect(calls).toEqual([30, 31]); expect(thumb.props.accessibilityValue).toBe('20')
+		pan(2, 20); pan(3, 20); expect(calls).toEqual([30, 31])
+	} finally { env.root.unmount() }
+})

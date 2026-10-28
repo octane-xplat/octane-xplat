@@ -5009,3 +5009,55 @@ typecheck/build/install, probe, OS/native/browser automation, packaging or visua
 analysis ran. Actual keyboard/pointer/VoiceOver dispatch, focus/ref timing, drag
 ownership, layout/tooltips/pixels and packaged behavior remain unqualified.
 Evidence gates and shared source-audit snapshots remain unchanged; goal active.
+
+
+## AppKit controlled slider drag preview ownership
+
+Continuing the ControlsDemo/price-range flow, source review confirmed the next
+issue: preview validity used only bounds/step/shape. A different controlled value
+could therefore remain covered by an earlier drag preview and the old gesture
+could continue requesting deltas over it. The previous handler-ownership section
+explicitly deferred this case; this change adds its source path. No runtime
+failure has been observed.
+
+Each preview now retains a specific private drag owner. That owner records the
+normalized starting source, controlled mode and most recent requested value.
+Current normalized parent values matching the starting source or latest request
+count as feedback. A different value, controlled/uncontrolled transition,
+bounds/step/shape change or blocking retires the owner during render, before an
+obsolete preview can cover new state. Equal normalized writes cannot communicate
+an explicit reset. Remaining moved/ended deltas cannot revive a retired session;
+a new began event is required. Keyboard/accessibility adjustments end the drag
+preview too. Owner identity checks keep old end cleanup from touching replacement
+work. Passive effect cleanup no longer controls this source invalidation.
+
+The request is recorded before state/app callbacks so synchronous matching
+controlled feedback preserves the same delta gesture. Uncontrolled drags still
+persist their internal value. The prior edit claim prevents nested gesture
+starts during a change callback; exceptions retain the existing propagation.
+No public API, renderer gesture protocol, dependency, loading semantics or
+track-tap behavior changed. Three more cases are authored, all unrun: external
+replacement retires deltas; matching echo continues while mode/limits/blocking
+changes retire; keyboard adjustment retires preview. The slider suite now has
+thirteen source cases. Guide/skill/recipe AC1 and target fixture reconcile this
+contract. The fixture can schedule external range replacement while a human
+drags; its runner still reads only initial metadata.
+
+Only source/semantic review, syntax-only parsing of three TSRX files and
+whitespace checks ran. Exact deferred commands:
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/slider.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/slider.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm exec turbo run test:packed --filter=@octane-xplat/ui
+pnpm check:recipes
+```
+
+All remain deferred pending explicit human authorization for this task. No test,
+typecheck/build/install, probe, native/OS/browser automation, packaging or visual
+analysis ran. Actual native pan/keyboard/VoiceOver timing, controlled feedback,
+focus/ref lifetime, layout/tooltips/pixels and packaged behavior remain
+unqualified. Audit snapshots and evidence gates remain unchanged; goal active.

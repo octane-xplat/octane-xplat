@@ -490,7 +490,13 @@ tapping the track does not jump the value. Thumbs cannot cross. `isDisabled`
 and `isReadOnly` also inherit from Field. Retained thumb key/accessibility
 handlers use current values, bounds, steps and callbacks, reject blocked or
 detached hosts, and suppress nested value changes during onValueChange. A
-consumer exception releases that claim and propagates. Steps use the existing web grid
+consumer exception releases that claim and propagates. Drag previews belong to
+their active gesture. Matching normalized parent feedback keeps that gesture;
+a different parent value, controlled/uncontrolled switch, bounds/step/shape
+change or blocking retires it before it can mask current state. Keys or
+accessibility adjustments also end the drag preview. Repeating the starting or
+latest requested normalized value is matching feedback, not an explicit reset.
+Steps use the existing web grid
 anchored at zero, then clamp to bounds. Native input, Tab/VoiceOver, hover
 tooltips, layout and pixel parity remain unqualified; these changes have source
 coverage only. `valueDisplay="tooltip"` uses AppKit's hover tooltip timing.

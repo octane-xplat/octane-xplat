@@ -56,6 +56,11 @@ function SliderThumb(props: {
 	/>
 }
 
+interface SliderDrag {
+	key: string; which: 0 | 1; start: SliderValue; width: number
+	controlled: boolean; source: SliderValue; requested?: SliderValue
+}
+
 function SliderControl(inputProps: SliderProps & { controlID: string }) @{
 	const props = useFieldControlProps(inputProps)
 	const limits = sliderLimits(props)
@@ -67,27 +72,35 @@ function SliderControl(inputProps: SliderProps & { controlID: string }) @{
 	const key = `${limits.min}:${limits.max}:${limits.step}:${range}`
 	const latest = useRef({ props, limits, controlled, key, blocked }); latest.current = { props, limits, controlled, key, blocked }
 	const changing = useRef(false)
-	const [preview, setPreview] = useState<{ key: string; value: SliderValue } | null>(null)
-	const value = sliderValue(!blocked && preview?.key === key ? preview.value : source, limits)
+	const drag = useRef<SliderDrag | null>(null)
+	const [preview, setPreview] = useState<{ owner: SliderDrag; value: SliderValue } | null>(null)
+	const base = sliderValue(source, limits), session = drag.current
+	// Matching controlled feedback belongs to this drag. A different parent
+	// value or control contract retires it before preview can mask that update.
+	if (session && (blocked || session.key !== key || session.controlled !== controlled ||
+		controlled && !sameSliderValue(base, session.source) && (session.requested === undefined || !sameSliderValue(base, session.requested)))) drag.current = null
+	const value = preview && drag.current === preview.owner ? preview.value : base
 	const live = useRef(value)
 	live.current = value
 	const thumbs = useRef<(NSView | null)[]>([])
 	const track = useRef<NSView | null>(null)
-	const drag = useRef<{ key: string; which: 0 | 1; start: SliderValue; width: number } | null>(null)
-	useEffect(() => { drag.current = null; setPreview(null) }, [key, blocked])
 	const lo = Array.isArray(value) ? value[0] : value, hi = Array.isArray(value) ? value[1] : value
 	const colors = controlColors(useThemeScheme() === 'dark')
 	const format = (number: number) => props.formatValue ? props.formatValue(number) : String(number)
 	const move = (which: 0 | 1, proposed: number, dragging = false) => {
 		const current = latest.current
 		if (!track.current || current.blocked || changing.current) return
+		const owner = drag.current
+		if (dragging && (!owner || owner.key !== current.key || owner.controlled !== current.controlled)) return
 		const next = moveSlider(live.current, which, proposed, current.limits)
 		if (sameSliderValue(next, live.current)) return
 		// Claim before state writes or app callbacks can reenter another adjustment.
 		changing.current = true
 		try {
+			if (dragging && owner) owner.requested = next
+			else if (owner) { drag.current = null; setPreview(null) }
 			if (!current.controlled) setInternal(next)
-			if (dragging) setPreview({ key: current.key, value: next })
+			if (dragging && owner) setPreview({ owner, value: next })
 			if (!current.controlled || dragging) live.current = next
 			current.props.onValueChange?.(next)
 		} finally { changing.current = false }
@@ -106,7 +119,7 @@ function SliderControl(inputProps: SliderProps & { controlID: string }) @{
 			const at = limits.min + (location - event.dx - origin) / width * (limits.max - limits.min)
 			const lowDistance = Math.abs(at - lo), highDistance = Math.abs(at - hi)
 			const which: 0 | 1 = range && (lowDistance < highDistance || lowDistance === highDistance && event.dx < 0) ? 0 : 1
-			drag.current = { key, which, start: live.current, width }
+			drag.current = { key, which, start: live.current, width, controlled, source: base }
 			const thumb = thumbs.current[which]
 			thumb?.window?.makeFirstResponder(thumb)
 			return
@@ -117,7 +130,7 @@ function SliderControl(inputProps: SliderProps & { controlID: string }) @{
 			const start = Array.isArray(session.start) ? session.start[session.which] : session.start
 			move(session.which, start + event.dx / session.width * (limits.max - limits.min), true)
 		}
-		if (event.state === 'ended' || event.state === 'cancelled') { drag.current = null; setPreview(null) }
+		if ((event.state === 'ended' || event.state === 'cancelled') && drag.current === session) { drag.current = null; setPreview(null) }
 	})
 	const name = props.ariaLabel ?? props.fieldLabel ?? props.label
 	const state = { disabled, readonly: props.isReadOnly, busy: props.isLoading, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' }

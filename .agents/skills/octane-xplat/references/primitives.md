@@ -666,7 +666,11 @@ thumbs, marks, text/hover readouts and inherited Field blocking. Dragging stays
 delta-based; it does not jump on track taps. Retained thumb key/adjustable
 handlers read current values, bounds, steps and callbacks, reject current
 blocking/detachment, and claim adjustments before app callback reentry. Consumer
-errors propagate after releasing the claim. Native keyboard, accessibility,
+errors propagate after releasing the claim. Preview ownership follows the active
+drag: matching normalized starting/latest-requested values are feedback; other
+parent values, mode/limits/shape changes or blocking retire it. Keys/adjustable
+actions end the preview. An equal normalized prop write cannot signal reset.
+Native keyboard, accessibility,
 hover timing and layout remain unqualified. See [AppKit Slider](../../../../docs/app/components.md#slider-on-appkit).
 
 ```tsx
