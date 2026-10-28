@@ -4200,38 +4200,44 @@ function syncBorderBox(node: ElementNode) {
 	if (maxRadius > 0 || maxWidth > 0) {
 		view.wantsLayer = true
 	}
+	// NSView.layer is nil until wantsLayer — a view with only cleared or
+	// shadow/transform styles may still lack one.
+	const layer = view.layer
+	if (!layer) {
+		return
+	}
 
 	// Corners: a uniform radius stays on cornerRadius; per-corner radii clip
 	// through a mask path instead.
 	if (perCorner) {
 		const mask = (node.cornerMask ??= CAShapeLayer.alloc().init())
 		mask.path = roundedBoxCGPath(w, h, scaled)
-		view.layer.mask = mask
-		view.layer.cornerRadius = 0
+		layer.mask = mask
+		layer.cornerRadius = 0
 		node.cornerMaskApplied = true
 	} else {
 		if (node.cornerMaskApplied) {
-			view.layer.mask = null as any
+			layer.mask = null as any
 			node.cornerMaskApplied = false
 		}
 		// The fast path writes the raw value — CA caps the radius internally,
 		// and a 0×0 pre-layout frame must not zero it (the observer-less
 		// uniform case never resyncs).
-		view.layer.cornerRadius = maxRadius
+		layer.cornerRadius = maxRadius
 	}
 
 	const clip = maxRadius > 0 && !outsetShadow
 	if (clip || node.radiusApplied) {
-		view.layer.masksToBounds = clip
+		layer.masksToBounds = clip
 	}
 	node.radiusApplied = clip
 
 	if (layered) {
-		view.layer.borderWidth = 0
-		view.layer.borderColor = null
+		layer.borderWidth = 0
+		layer.borderColor = null
 		if (!node.borderLayer) {
 			node.borderLayer = CALayer.alloc().init()
-			view.layer.insertSublayerAtIndex(node.borderLayer, 0)
+			layer.insertSublayerAtIndex(node.borderLayer, 0)
 		}
 		const box = node.borderLayer
 		box.frame = { origin: { x: 0, y: 0 }, size: { width: w, height: h } }
@@ -4259,8 +4265,8 @@ function syncBorderBox(node: ElementNode) {
 		removeBorderLayers(node)
 		// Uniform borders use the CALayer slots; without shape layers the top
 		// edge's values stand in — deterministic like the collapsed engine.
-		view.layer.borderWidth = widths.top
-		view.layer.borderColor =
+		layer.borderWidth = widths.top
+		layer.borderColor =
 			maxWidth > 0 && widths.top > 0
 				? (borderNSColor(node, spec?.colors?.top)?.CGColor ?? null)
 				: null
@@ -4370,10 +4376,19 @@ function syncBoxShadow(node: ElementNode) {
 	if (!view) {
 		return
 	}
-	const layer = view.layer
 	const shadows = node.boxShadowSpec ?? []
 	const outset = shadows.find((s: ParsedBoxShadow) => !s.inset)
 	const inset = shadows.find((s: ParsedBoxShadow) => s.inset)
+	if (!outset && !inset && !node.shadowApplied && !node.insetShadowLayer) {
+		return
+	}
+	if (outset || inset) {
+		view.wantsLayer = true
+	}
+	const layer = view.layer
+	if (!layer) {
+		return
+	}
 
 	const size = view.frame?.size ?? { width: 0, height: 0 }
 	const w = Math.max(0, Number(size.width) || 0)
@@ -4517,16 +4532,19 @@ function syncTransform(node: ElementNode) {
 		Math.max(0, Number(size.width) || 0),
 		Math.max(0, Number(size.height) || 0),
 	)
-	const layer = view.layer
 	if (!steps.length) {
-		if (node.transformApplied) {
-			layer.transform = CATransform3DIdentity
+		if (node.transformApplied && view.layer) {
+			view.layer.transform = CATransform3DIdentity
 			node.transformApplied = false
 		}
 		return
 	}
 
 	view.wantsLayer = true
+	const layer = view.layer
+	if (!layer) {
+		return
+	}
 	let t = CATransform3DIdentity
 	for (const step of steps) {
 		if (step.kind === 'translate') {
