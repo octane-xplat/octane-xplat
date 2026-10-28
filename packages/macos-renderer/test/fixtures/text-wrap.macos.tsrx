@@ -10,7 +10,7 @@ export default function Case() {
 	update = (props) => props$.set(props)
 	return <masonview style={{ display: 'flex', flexDirection: 'column' }}>
 		<label id="wrapped" text={text} maxLines={props$.get().maxLines} whiteSpace={props$.get().whiteSpace}
-			style={{ width: props$.get().width, fontSize: 16, lineHeight: 20 }} />
+			style={{ width: props$.get().width, fontSize: 16, lineHeight: '20px' }} />
 	</masonview>
 }
 

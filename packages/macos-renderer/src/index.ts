@@ -3306,8 +3306,8 @@ function syncInputChrome(node: ElementNode) {
 			width: Number(style.paddingLeft ?? inset.left) || 0,
 			height: Number(style.paddingTop ?? inset.top) || 0,
 		}
-		if (node.placeholderLeading) node.placeholderLeading.constant = view.textContainerInset.width
-		if (node.placeholderTop) node.placeholderTop.constant = view.textContainerInset.height
+		if (node.placeholderLeading) {node.placeholderLeading.constant = view.textContainerInset.width}
+		if (node.placeholderTop) {node.placeholderTop.constant = view.textContainerInset.height}
 		if (node.placeholderHeight && Number(style.lineHeight) > 0) {
 			node.placeholderHeight.constant = Number(style.lineHeight)
 		}
