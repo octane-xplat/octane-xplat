@@ -747,3 +747,25 @@ export function Save({ save }: { save(): void }) {
 	return <Button label="Save" clickAction={save} />
 }
 ```
+
+
+## AppKit radio composition
+
+RadioList options and RadioListItem children now share the group context and
+controlled/uncontrolled selection. Native rows expose radio/checked/name
+semantics and render descriptions/endContent. Standalone Field metadata is
+stable; an enclosing Field retains ownership. The macOS root explicitly selects
+the new child leaf. Pointer/Enter/Space, VoiceOver and layout remain unqualified;
+radio arrow navigation/roving Tab remain gaps. See
+[radio choices](../../../../docs/app/components.md#radio-choices-on-appkit).
+
+```tsx
+import { RadioList, RadioListItem } from '@octane-xplat/ui'
+
+export function Plan() {
+	return <RadioList label="Plan" defaultValue="free">
+		<RadioListItem value="free" label="Free" description="Personal use" />
+		<RadioListItem value="team" label="Team" />
+	</RadioList>
+}
+```

@@ -306,6 +306,41 @@ export function Alerts({ save }: { save(next: boolean): Promise<void> }) {
 }
 ```
 
+### Radio choices on AppKit
+
+AppKit RadioList now shares selection between `options` and RadioListItem
+children. Options render descriptions and trailing content; standalone groups
+render Field metadata, while an enclosing Field owns it instead. Native rows
+expose radio roles, explicit names and checked state. Controlled parents apply
+onValueChange feedback; disabled/read-only groups block both item forms.
+
+```tsx
+import { RadioList, RadioListItem } from '@octane-xplat/ui'
+
+export function Plan() {
+	return <RadioList label="Plan" defaultValue="free"
+		options={[{ value: 'free', label: 'Free', description: 'Personal use' }]}>
+		<RadioListItem value="team" label="Team" description="Shared projects" />
+	</RadioList>
+}
+```
+
+Standalone RadioListItem remains presentational. Native pointer/Enter/Space,
+VoiceOver/group relationships, layout and packaging remain unqualified; radio
+arrow navigation and a roving Tab model are still gaps. Indicator overrides use
+the existing registry, but custom indicator presentation also needs native
+qualification.
+
+```tsx
+import { Field, RadioList, RadioListItem } from '@octane-xplat/ui'
+
+export function LockedPlan() {
+	return <Field label="Plan" isReadOnly>
+		<RadioList defaultValue="free"><RadioListItem value="free" label="Free" /></RadioList>
+	</Field>
+}
+```
+
 ### Checkbox metadata on AppKit
 
 Standalone AppKit Checkbox renders its label and description beside the

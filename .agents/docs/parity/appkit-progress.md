@@ -1524,3 +1524,42 @@ actual RTL layout/initial placement, backing geometry, elasticity/scroll input,
 animation and packaging remain unqualified. No builds, installs, package tests/
 typechecks, probes, OS automation, visual analysis or shared audit regeneration
 ran. No evidence checkbox is closed.
+
+
+### AppKit radio options and child parts
+
+RadioList is a basic single-choice form flow. Its AppKit RadioGroup ignored
+declared RadioListItem children and option descriptions/endContent, omitted
+radio-group/radio roles and checked state, and rendered no standalone Field
+metadata. The macOS root explicitly exported generic RadioListItem.tsrx, so
+adding an OS suffix alone would not select a repaired child implementation.
+
+Options and children now share the existing RadioListProvider and one state
+owner. The target child leaf forwards radio/name/checked/selected state, group/
+item disabled and read-only gates, descriptions/endContent, class/style forms
+and the existing indicator registry. Standalone children remain presentational.
+The target root export now explicitly selects RadioListItem.macos.tsrx. Stable
+standalone FormField metadata wraps the group; an enclosing Field keeps its
+ownership. Re-selecting the current value does not emit another change. Static
+layout uses scoped macOS CSS. No public props/dependencies or other target
+leaves changed.
+
+Authored source cases cover mixed option/child composition, controlled feedback,
+metadata host/state retention, blocked states, Field ownership and standalone
+items. Added a maintained direct-selection fixture and guide/skill/recipe/release
+coverage. TSRX/TypeScript syntax and whitespace only; tests/probes have not run.
+Deferred after this task's explicit human authorization:
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/radio-list.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe run examples/probes/radio-list.macos.tsrx --target macos --watch
+pnpm check:recipes
+```
+
+Actual pointer/Enter/Space delivery, focus/Tab, native radio grouping/VoiceOver,
+custom indicator styling, descriptions/layout and packaging remain unqualified.
+Radio arrow navigation and a roving Tab model remain unimplemented; this slice
+does not claim a complete desktop radio composite. No builds, installs, package
+tests/typechecks, OS automation, visual analysis or shared audit regeneration ran.
+No evidence checkbox is closed.
