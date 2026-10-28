@@ -217,3 +217,47 @@ it('snaps a root and animates its anchored child relative to the new root positi
 		h.dispose()
 	}
 })
+
+it('preserves intentional channel scaling of corners through a layout animation', async () => {
+	const h = harness()
+	const card = document.createElement('div')
+	card.style.cssText =
+		'width:100px;height:100px;border-radius:20px;box-shadow:0px 4px 12px 0px black'
+	h.host.append(card)
+	const node = h.mount(card)
+	const adapter = h.adapters.get(node)!
+	const controller = new Controller(clock)
+	controller.seed({ ...adapter.read(), scale: 2 })
+	controller.attach(adapter)
+	const radius = () => {
+		const value = getComputedStyle(card).borderTopLeftRadius
+		const width = card.getBoundingClientRect().width
+		return value.includes('%')
+			? (parseFloat(value) / 100) * width
+			: (parseFloat(value) * width) / card.offsetWidth
+	}
+	const blur = () => {
+		const parts = [...getComputedStyle(card).boxShadow.matchAll(/(-?[\d.]+)px/g)]
+		return (Number(parts[2][1]) * card.getBoundingClientRect().width) / card.offsetWidth
+	}
+	try {
+		await h.commit()
+		expect(radius()).toBeCloseTo(40, 0)
+		expect(blur()).toBeCloseTo(24, 0)
+		card.style.width = card.style.height = '200px'
+		await h.commit()
+		expect(card.getBoundingClientRect().width).toBeCloseTo(200, 0)
+		expect(radius()).toBeCloseTo(40, 0)
+		expect(blur()).toBeCloseTo(24, 0)
+		await sleep(160)
+		expect(radius()).toBeCloseTo(40, 0)
+		expect(blur()).toBeCloseTo(24, 0)
+		await sleep(350)
+		expect(radius()).toBeCloseTo(40, 0)
+		expect(blur()).toBeCloseTo(24, 0)
+		expect(card.getBoundingClientRect().width).toBeCloseTo(400, 0)
+	} finally {
+		controller.destroy()
+		h.dispose()
+	}
+})

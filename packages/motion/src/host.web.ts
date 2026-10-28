@@ -52,7 +52,7 @@ export function attachHost(node: HTMLElement): HostAdapter {
 		const context = {
 			target: projection.target,
 			treeScale: projection.treeScale,
-			projectionDelta: projection.delta,
+			projectionDelta: projection.layoutDelta ?? projection.delta,
 		}
 		for (const key of radiusKeys) {
 			node.style[key] = String(correctBorderRadius.correct(values[key], context as any))

@@ -50,7 +50,9 @@ export interface Measurement {
 /** A per-frame projection transform handed to the host adapter. */
 export interface ProjectionWrite {
 	delta: Delta
-	/** Current projected box for percentage-based corner correction. */
+	/** Layout-only projection, excluding intentional user channel transforms. */
+	layoutDelta?: Delta
+	/** Current layout target before user channel transforms, for corner correction. */
 	target?: Box
 	treeScale: Point
 	latest: Target

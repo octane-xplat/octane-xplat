@@ -3,8 +3,9 @@ import type { ProjectionWrite } from './types'
 
 /** Total scale includes projecting ancestors. Near-zero scales cannot be inverted. */
 export function paintScale(write: ProjectionWrite) {
-	const x = Math.max(0.0001, Math.abs(write.delta.x.scale * write.treeScale.x))
-	const y = Math.max(0.0001, Math.abs(write.delta.y.scale * write.treeScale.y))
+	const delta = write.layoutDelta ?? write.delta
+	const x = Math.max(0.0001, Math.abs(delta.x.scale * write.treeScale.x))
+	const y = Math.max(0.0001, Math.abs(delta.y.scale * write.treeScale.y))
 	return { x, y, uniform: Math.sqrt(x * y) }
 }
 
@@ -51,7 +52,7 @@ export function correctNativePaint(style: Record<string, any>, write: Projection
 	if (typeof style.boxShadow === 'string' && style.boxShadow && style.boxShadow !== 'none') {
 		corrected.boxShadow = correctBoxShadow.correct(style.boxShadow, {
 			treeScale: write.treeScale,
-			projectionDelta: write.delta,
+			projectionDelta: write.layoutDelta ?? write.delta,
 		} as any)
 	}
 	for (const key of radiusKeys) {
