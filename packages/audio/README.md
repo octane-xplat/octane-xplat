@@ -66,6 +66,20 @@ export async function playTrack(source: string) {
 
 For short UI sounds use [`@octane-xplat/sounds`](https://github.com/octane-xplat/octane-xplat/blob/main/packages/sounds/README.md).
 
+Native Windows selects an unavailable leaf without loading mobile backends.
+Creating a player throws; this import boundary does not provide Windows playback.
+
+```ts
+import { createAudioPlayer } from '@octane-xplat/audio'
+
+try {
+	const candidate = createAudioPlayer()
+	candidate.dispose()
+} catch (error) {
+	console.log('Audio unavailable:', String(error))
+}
+```
+
 Guide: [Media services](https://octane-xplat.goddardai.org/media-services); per-target
 availability: [platform notes](https://github.com/octane-xplat/octane-xplat/blob/main/.agents/docs/notes/platform-notes.md). Exercised by
 the harness `MediaServices` screen

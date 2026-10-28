@@ -1135,3 +1135,32 @@ Current targeted format/lint, recipe structure and whitespace checks passed.
 This repairs private harness orchestration; no supported public recipe target,
 Windows rendering/input qualification, shared audit snapshot or issue checkbox
 changed. The app's default synthetic self-test entry has not been launched.
+
+## Windows audio import prerequisite
+
+The full kitchen-sink build's actual boundary failure identified the native
+audio wrapper's static iOS/Android imports. Its runtime platform checks do not
+keep those modules out of the bundle. A Windows-only audio.windows.ts leaf
+now preserves unavailable creation with an explicit Windows error, without
+importing either mobile backend. No playback engine, API type, dependency,
+mobile/AppKit leaf or supported capability was added.
+
+A focused Vite build on windy passed the actual public @octane-xplat/audio
+entry with the current CLI relative resolver and xplat-platform-boundary guard.
+Its emitted modules contain audio.windows.ts and no iOS/Android leaf; executing
+the emitted chunk confirms createAudioPlayer throws the Windows unavailable
+error. No server, native runtime, audio device or playback ran. An initial
+probe fixture incorrectly supplied a virtual library entry that Vite normalized
+as a path; it failed before testing audio. The corrected probe uses an owned
+physical entry and the actual app importer. Logs:
+research/windows61/windy-native-common-build.log (fixture setup failure) and
+research/windows61/windy-native-common-build-retry1.log (boundary assertion pass,
+then ongoing bounded native build).
+
+The package README and service skill retain the unsupported playback boundary.
+Current targeted formatting/lint and whitespace checks passed. The original
+kitchen-sink entry has not yet been rebuilt after this leaf; the next native
+build selects the bounded public-UI common-flow case instead of the app's
+camera/file-picker/synthetic-test timers. That case does not qualify the full
+kitchen sink or optional services. No audio support checkbox or shared audit
+snapshot changed; full audio typecheck/packed/consumer checks remain outstanding.

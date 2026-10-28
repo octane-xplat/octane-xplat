@@ -379,6 +379,13 @@ await keepAwake.activate('presentation')
 const held = await keepAwake.isActivated()
 await keepAwake.deactivate('presentation')
 ```
+## Windows audio import boundary
+
+The Windows audio leaf keeps mobile backends out of native imports, but
+createAudioPlayer still throws: no Windows playback backend is supplied.
+Do not treat a clean import graph as playback support or call capabilities()
+without first handling unsupported creation. See the
+[audio package boundary](../../../../packages/audio/README.md).
 ## SQLite transactions
 
 Use the callback's handle for every awaited transaction operation. Main-handle
