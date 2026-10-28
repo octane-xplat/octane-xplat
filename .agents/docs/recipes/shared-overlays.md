@@ -150,6 +150,8 @@ export function TripPreview() {
   Dismissal during keyboard movement releases bindings and restores eligible
   editing focus, with actual OS input qualified separately.
 
+- AC11: AppKit Carousel delivers its existing handle and optional Previous/Next controls using current native viewport/slide geometry, clamped indexed navigation, looping only with multiple overflowing slides, logical RTL alignment and reduced-motion requests. Proportional layout measures each viewport-width slide and its track extent. Preserve vertical position, child/ref ownership, current resize/scroll state and teardown guards; distinguish source/policy/wiring evidence from native layout/input/AX/package qualification and remaining snap/fade gaps.
+
 ## Documentation
 
 - AC1: The [AppKit normal-barrel fixture](../../../packages/ui/tests/macos-barrel.mjs) and [packed consumer](../../../packages/ui/tests/packed-consumer.mjs) check public import and declaration boundaries; they do not establish OS rendering or input. [Surface selection](../../../docs/app/primitives.md#when-a-screen-needs-more), [anchored useLayer layers](../../../docs/app/primitives.md#anchor-a-layer-to-an-element), [conditional BottomSheet example](../../../docs/app/primitives.md#own-temporary-surfaces), and maintained [Overlay demo](../../../packages/demos/src/OverlayDemo.tsrx).
@@ -177,3 +179,5 @@ Windows is not added to this recipe’s supported targets.
 [Final keyboard qualification](../keyboard.md#final-workflow-qualification) separates
 OS touch/typing in shared overlays from programmatic native-sheet, desktop, and
 browser evidence. Physical keyboard and screen-reader navigation are not implied.
+
+- AC11: [AppKit carousel guide](../../../docs/app/components.md#navigate-appkit-carousel-slides), private geometry adapter, five policy/three wiring/one motion-getter authored cases, [maintained fixture](../../../examples/probes/carousel.macos.tsrx), skill and [target note](../parity/appkit-progress.md#appkit-carousel-navigation-and-handle). All cases/fixture/package/native checks remain unrun; snap/fades remain source gaps.

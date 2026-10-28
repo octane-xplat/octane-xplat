@@ -220,3 +220,15 @@ test('host write and scheduling failures settle the run without unhandled reject
 
 	assert.deepEqual(await unscheduled.to(10), { status: 'failed', error })
 })
+
+test('AppKit reduced motion reads live property and receiver-bound getter forms instead of function truthiness', () => {
+	const original = globalThis.NSWorkspace
+	try {
+		const workspace = { reduced: false, accessibilityDisplayShouldReduceMotion() { return this.reduced } }
+		globalThis.NSWorkspace = { sharedWorkspace: workspace }
+		assert.equal(readReducedMotion(), false); workspace.reduced = true; assert.equal(readReducedMotion(), true)
+		workspace.accessibilityDisplayShouldReduceMotion = false; assert.equal(readReducedMotion(), false)
+		workspace.accessibilityDisplayShouldReduceMotion = true; assert.equal(readReducedMotion(), true)
+		globalThis.NSWorkspace = undefined; assert.equal(readReducedMotion(), false)
+	} finally { if (original === undefined) delete globalThis.NSWorkspace; else globalThis.NSWorkspace = original }
+})

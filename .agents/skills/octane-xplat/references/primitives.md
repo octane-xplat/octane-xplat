@@ -1471,3 +1471,38 @@ an old focus request.
 Five policy/three surface/one TabMenu cases and the extended menu-keyboard
 fixture remain unrun. Source ownership is not native ref/responder/fallback/
 notification/IME/layer/scroll/AX/package qualification. See [dynamic menu focus](../../../../docs/menus.md#keep-focus-owned-when-appkit-menu-rows-change).
+
+
+## AppKit Carousel native geometry controls
+
+Carousel now delivers its existing handle and optional native overlay buttons.
+Current NSScrollView clip/document metrics drive viewport paging, clamped indexed
+slide conversion, edge/capability state and hasLoop wrapping. Proportional slides
+use measured viewport widths and explicit track extent including gaps. Child
+normalization and labels remain; dynamic slides keep intrinsic sizing. Logical
+RTL conversion/leading-edge alignment and row/button direction share useDirection.
+Invalid, hidden and detached views cannot scroll. Existing AppKit offset and
+reduced-motion helpers own native requests; the motion reader accepts property
+and receiver-bound callable getter forms. Refs, scroll/layout and window updates
+keep measurements current without polling; teardown invalidates held handles.
+
+```tsx
+import { useRef } from 'octane'
+import { Carousel, Button, Text } from '@octane-xplat/ui'
+import type { CarouselHandle } from '@octane-xplat/ui'
+
+export function Previews() {
+	const carousel = useRef<CarouselHandle | null>(null)
+	return <>
+		<Carousel ref={carousel} label="Previews" hasButtons hasLoop variant="proportional" style={{ width: 320, height: 120 }}>
+			<Text>First</Text><Text>Second</Text>
+		</Carousel>
+		<Button label="Next" clickAction={() => carousel.current?.scrollNext()} />
+	</>
+}
+```
+
+Five policy/three wiring/one motion-getter cases and the maintained fixture are
+unrun. Native sizing, RTL/initial alignment, animation/input/overlay hit testing,
+keyboard/AX/resize and packaging remain unqualified. Snap and edge fades remain
+source gaps. See [AppKit carousel navigation](../../../../docs/app/components.md#navigate-appkit-carousel-slides).

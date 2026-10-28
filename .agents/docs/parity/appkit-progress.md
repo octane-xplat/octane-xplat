@@ -3544,3 +3544,70 @@ preset text relay/listbox relationships and live announcements remain source
 gaps; Checkbox mixed rollback is still pending the previously asked human
 choice. No package tests/typechecks, builds, installs, OS automation, visual
 analysis or audit regeneration ran; no evidence-gated checkbox is closed.
+
+
+### AppKit Carousel navigation and handle
+
+The previous goal turn completed source menu-focus repair through c4abedff0.
+Continued an ordinary attachment/media-preview gap: ChatComposerDrawerAttachments
+uses Carousel, and the maintained carousel-paging fixture/public props expect
+programmatic navigation and proportional slides. The AppKit leaf had only a
+horizontal row and explicitly omitted buttons, loop and handle. Native scrolling
+already has working source axes/offset helpers; the old horizontal alias is
+recognized, so no renderer-axis fix is claimed or shared renderer edit made.
+
+The target leaf now delivers the existing CarouselHandle and optional Previous/
+Next controls. A private native geometry adapter reads current clip/document
+metrics, pages by viewport, converts slide rectangles to document coordinates,
+clamps index/range and preserves the untouched vertical clip origin. Current
+count/loop/direction drive capability methods; loop requires multiple slides and
+actual overflow. Hidden/detached/invalid geometry cannot act, and refs invalidate
+held handles on teardown. Logical RTL conversion, row/button direction and
+leading-edge alignment follow useDirection; initialization waits for usable
+geometry and is claimed before native callbacks can reenter.
+
+Proportional slides use measured viewport widths and explicit track extent,
+including gaps, instead of an ambiguous percentage basis in overflowing native
+content. Dynamic slides retain intrinsic sizing. Named slide groups, root
+metadata, class/style ownership and child normalization remain. Layout/scroll
+callbacks and one owned window-update observer refresh button/width state,
+including old-window detach. Updates coalesce and skip detached UI writes.
+The existing AppKit offset helper owns animator/fallback requests. Carousel now
+reuses readReducedMotion; a prerequisite normalizes its live property or callable
+receiver-bound getter so a false-returning function is not treated as true.
+Semantic impact reaches existing UI animations/route transitions, whose runtime
+qualification remains deferred. No dependency, public API/type, shared manifest,
+other-target leaf or shared audit snapshot was changed.
+
+Five pure geometry-policy/three object-driver/one appended animation-getter cases
+are authored, all unrun. They cover viewport steps/edges/loop/current count,
+indexed conversion/clamps/foreign geometry, RTL/alignment, initial geometry,
+reduced-motion/animator fallback, hidden/detach/retained handles, proportional
+wiring/button state/ref replacement/resize/observer cleanup and live getter forms.
+The maintained carousel fixture mounts a manual diagnostic surface and performs
+no native scrolling/input/visual automation. Only source/semantic, TypeScript/
+TSRX syntax and whitespace checks ran. Guide/skill/feature note/shared-overlays
+AC11 were reconciled. The surrounding guide also corrects its stale suggestion
+that the separate AppKit Video leaf supplies playback; that leaf is still an
+explicit placeholder.
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/ui -- src/carousel-scroll.macos.test.ts
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/carousel.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/carousel.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All commands remain deferred pending explicit human authorization for this task.
+The native task's existing Node prelude includes tests/animated-value.test.mjs;
+its appended getter case is unrun too. Native intrinsic/proportional sizing,
+RTL and initial geometry, scroll/animation and reduced-motion delivery, actual
+button overlay/hit testing/keyboard/trackpad, resize/focus/AX and packaging remain
+unqualified. hasSnap/hasEdgeFade are still unimplemented AppKit flags; Pager/video,
+autofocus timing, date preset text relay/listbox relationships and live
+announcements remain gaps. Checkbox mixed rollback still awaits the previously
+asked human contract choice. No package tests/typechecks, builds, installs,
+OS automation, visual analysis or audit regeneration ran; no checkbox is closed.

@@ -1249,10 +1249,9 @@ owning window, `BottomSheet` docks to its bottom edge, and `Lightbox` covers
 its content area. `ToastViewport` mounts timed edge stacks, and `showToast`
 uses a fallback stack when needed. Anchored notifications keep the existing
 `NSPopover` path. See [macOS presentation and verification](primitives.md#macos-shared-presentations).
-Lightbox video playback is unavailable; use the separate `@octane-xplat/video`
-package when your screen needs a player. macOS `Overlay` retains its
-experimental inline implementation. `Carousel` is a basic horizontal scroller without navigation buttons, looping,
-edge fades, or a `CarouselHandle`; `ScrollableArea` supports block (the default), inline, and both-axis scrolling;
+Lightbox video playback and the AppKit `@octane-xplat/video` leaf remain unavailable. macOS `Overlay` retains its
+experimental inline implementation. AppKit Carousel navigation/handle source ownership
+is described below; snap and edge fades remain gaps; `ScrollableArea` supports block (the default), inline, and both-axis scrolling;
 pull-to-refresh remains unsupported on macOS. Use the
 [app-owned refresh action](primitives.md#macos-scrolling-and-refresh) instead.
 
@@ -1273,6 +1272,55 @@ export function Example() {
 	)
 }
 ```
+
+### Navigate AppKit carousel slides
+
+Carousel now has an AppKit source path for its existing handle, Previous/Next
+buttons and end wrapping. Steps use one measured viewport; scrollTo(index) uses
+the current slide's native leading edge. Requests clamp to the content range
+and preserve the vertical clip offset. The proportional variant measures the
+viewport and gives each slide that width, including its gap in the track size:
+
+```tsx
+import { useRef } from 'octane'
+import { Carousel, Button, Text } from '@octane-xplat/ui'
+import type { CarouselHandle } from '@octane-xplat/ui'
+
+export function Previews() {
+	const carousel = useRef<CarouselHandle | null>(null)
+	return <>
+		<Carousel ref={carousel} label="Trip previews" variant="proportional" hasButtons hasLoop
+			style={{ width: 320, height: 160 }}>
+			<Text>First preview</Text>
+			<Text>Second preview</Text>
+			<Text>Third preview</Text>
+		</Carousel>
+		<Button label="Last preview" clickAction={() => carousel.current?.scrollTo(2)} />
+	</>
+}
+```
+
+The source adapter reads current layout and child counts for capability checks;
+empty, hidden, detached or invalid geometry cannot scroll. Looping requires at
+least two slides and actual overflow. Logical offsets, button direction and
+leading-edge alignment follow the app's writing direction; initial alignment
+waits for usable geometry. Native animation is skipped when reduced motion is
+reported, with a direct scroll fallback when an animator is unavailable. Refs,
+layout/scroll callbacks and window updates keep controls current and release on
+teardown:
+
+```tsx
+<Button label="Next preview" clickAction={() => {
+	if (carousel.current?.canScrollNext()) carousel.current.scrollNext()
+}} />
+```
+
+Five geometry-policy, three object-driver and one motion-getter cases plus a
+maintained fixture are authored and unrun. Source/syntax review does not qualify
+native intrinsic sizing, RTL geometry/initial alignment, scroll/animation/input,
+button overlay hit testing/keyboard activation, resize behavior, accessibility
+or packaging. hasSnap and hasEdgeFade remain unsupported by the AppKit leaf.
+
 
 ## Leaf packages
 

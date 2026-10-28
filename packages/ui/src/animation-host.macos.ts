@@ -8,10 +8,9 @@ const transformPaths: Record<string, string> = {
 }
 
 export function readReducedMotion(): boolean {
-	return Boolean(
-		(globalThis as Record<string, any>).NSWorkspace?.sharedWorkspace
-			?.accessibilityDisplayShouldReduceMotion,
-	)
+	const workspace = (globalThis as Record<string, any>).NSWorkspace?.sharedWorkspace
+	const value = workspace?.accessibilityDisplayShouldReduceMotion
+	return Boolean(typeof value === 'function' ? value.call(workspace) : value)
 }
 
 /** Refs are NSViews, not NativeScript views. Keep the renderer's y-down convention. */
