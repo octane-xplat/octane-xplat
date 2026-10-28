@@ -4,4 +4,26 @@
     <AppDescription>Built with NativeScript on Windows.</AppDescription>
     <ApplicationManifest Condition="'$(ApplicationManifest)' == '' and Exists('$(MSBuildThisFileDirectory)app.manifest')">$(MSBuildThisFileDirectory)app.manifest</ApplicationManifest>
   </PropertyGroup>
+  <!-- alpha.144 copies these files after Build or only during Publish, too
+       late for the MSIX payload. Declare them before package output discovery. -->
+  <ItemGroup>
+    <Content Include="$(NSWindowsRoot)\dotnet-bridge\publish\**\*"
+             Exclude="$(NSWindowsRoot)\dotnet-bridge\publish\.*"
+             Condition="Exists('$(NSWindowsRoot)\dotnet-bridge\publish')">
+      <Link>dotnet-bridge\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="$(MSBuildProjectDirectory)\plugins\@nativescript\core\$(NSLibPlatform)\NativeScript.Widgets.dll;$(MSBuildProjectDirectory)\plugins\@nativescript\core\$(NSLibPlatform)\NativeScript.Widgets.winmd;$(MSBuildProjectDirectory)\plugins\@octane-xplat\nativescript-masonkit\$(NSLibPlatform)\NativeScript.Mason.dll;$(MSBuildProjectDirectory)\plugins\@octane-xplat\nativescript-masonkit\$(NSLibPlatform)\NativeScript.Mason.winmd">
+      <Link>%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+  <!-- Plugins update Package.appxmanifest after the generated manifest was
+       read. Carry their registrations into the manifest actually packaged. -->
+  <Target Name="XplatPackageNativeRegistrations" AfterTargets="_GenerateAppxManifest"
+          DependsOnTargets="NSRegisterWidgetsActivatableClasses;NSRegisterMasonActivatableClasses;NSRegisterFontManagerActivatableClasses">
+    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\App_Resources\Windows\merge-native-registrations.ps1&quot; -Source &quot;$(MSBuildProjectDirectory)\Package.appxmanifest&quot; -Destination &quot;@(FinalAppxManifest)&quot;" />
+  </Target>
 </Project>

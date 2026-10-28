@@ -1191,3 +1191,71 @@ been launched. The exact mapping affects the private Windows harness only;
 no public recipe, supported target, shared audit snapshot or issue checkbox
 changed. JSON parsed and whitespace checks passed; the repository formatter
 reports JSON as unsupported rather than checking it.
+
+## Native package payload qualification
+
+The corrected bounded case passed its standalone Windows typecheck and native
+release build: all 38 executed Turbo tasks succeeded (34 cache hits), exit 0,
+using the same combined command above. The Vite delegated checker still reports
+its 12 foreign/context diagnostics, so this is not a delegated-checker pass.
+The fixture's raw scroll viewport now uses static CSS for its height instead
+of the invalid intrinsic height prop. Log: research/windows61/windy-payload-retry.log.
+
+The first native build had already produced an unsigned 23,668,180-byte MSIX,
+but direct ZIP inspection found zero bridge, Widgets or Mason files and no
+native activation registrations. The loose output contained the components.
+Evidence: research/windows61/windy-baseline-package-payload.log and
+windy-current-plugin-output.log. A successful compilation therefore did not
+establish a launchable app. The owning artifacts are Windows runtime
+0.1.0-alpha.144, preview core abae298, MasonKit 1.0.0-beta.126 and Windows App SDK
+1.6.250205002; no pin has been upgraded.
+
+The Windows app resource override now declares the bridge publish files and
+active-architecture Widgets/Mason DLL + winmd pairs as package content before
+output discovery. A second real MSIX includes all seven required files:
+three dotnet-bridge files plus both component pairs
+(research/windows61/windy-candidate-package-payload.log). The plugin registration
+targets still run too late for that package's generated manifest. The candidate
+now explicitly schedules those targets before merging their native server
+registrations into the manifest actually packaged. The merge passed against
+the actual source/generated manifest pair and was unchanged on a second run;
+its build-order adjustment is still under qualification. No manual repack has
+been substituted for validating the app resource hook. This is a local
+workaround for these pinned build targets; recheck/remove it when upstream
+includes the payload and registrations during package discovery/generation.
+No GUI, OS input or screenshot ran in this build phase.
+
+An attempted pnpm exec ns build windows --help unexpectedly triggered pnpm's
+dependency-drift auto-install and the root postinstall's broad typegen graph.
+It failed on the unrelated Sentry declaration generator before the bounded
+cancellation commands could find its already-exited process. Neither
+cancellation command killed any process. The install/generation failure is
+not a check pass. Log: research/windows61/windy-build-help.log. The isolated
+checkout now adds verify-deps-before-run=warn to its own .npmrc, preserving
+drift warnings while preventing implicit installs on subsequent commands.
+This follows pnpm's [documented dependency-check policy](https://github.com/pnpm/pnpm/blob/main/pnpm/docs/settings/build.md#verifydepsbeforerun).
+No shared/global pnpm configuration changed. The next registration retry
+reported no lockfile/workspace-config diff and patch synchronization passed;
+all prerequisite tasks remain in the Turbo graph. Full package/dependent and
+packed-consumer checks remain outstanding at the earlier commands; the
+bounded Windows build authorization does not turn those into passes.
+
+The integrated registration retry passed: all 37 native-build graph tasks
+succeeded (35 cache hits), exit 0, 3m20.651s. The actual MSIX contains both
+Widgets and Mason native activation servers as well as all seven required
+payload files (research/windows61/windy-registration-retry.log and
+windy-final-package-payload.log). The explicit dependency on the plugin's
+registration targets is required: a merge scheduled only after manifest
+generation ran before those targets and correctly had nothing to merge.
+This packaging repair is qualified on the pinned x64 release build only.
+ARM64, debug/unpackaged and actual view construction remain unqualified.
+Existing duplicate FontManager NuGet references and missing symbol-packaging
+tool warnings remain visible; no dependency version was changed.
+
+Correction to the policy paragraph above: adding verify-deps-before-run=warn
+in .npmrc did not establish effective policy. The first OS-phase wrapper's
+installed-core recheck triggered another automatic install/root typegen before
+signing or launching. The phase is being cancelled, and a retry must assert
+the effective verifyDepsBeforeRun configuration before invoking pnpm exec.
+This phase has no OS behavior result and must not be counted as an install,
+launch, signing or keyboard pass. Log: research/windows61/windy-os-common-flows.log.
