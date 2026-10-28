@@ -58,7 +58,8 @@ export interface AccessibilityProps {
 
 /** Paged horizontal swipe container — onboarding flows, media galleries.
  *  Chrome-reset OS paging on native (ViewPager2 / UICollectionView paging via
- *  @nativescript-community/ui-pager), a scroll-snap scroller on web. Follows
+ *  @nativescript-community/ui-pager), a scroll-snap scroller on web, experimental NSScrollView paging on AppKit.
+ *  AppKit eagerly renders pages; native input/layout remain unqualified. Follows
  *  the platform-list contract: `items` + `renderItem`, no children — each
  *  page is a full-host-size cell. No indicator is built in; compose dots
  *  from `Row` + `View` driven by `page`/`onPageChange`. */
@@ -74,8 +75,7 @@ export interface PagerProps extends LayoutChildProps, AccessibilityProps {
 	page?: number
 	/** Starting page for uncontrolled use (default 0). */
 	defaultPage?: number
-	/** Fires when the settled page changes — a completed swipe on both
-	 *  targets. Programmatic `page` writes do not echo back through it. */
+	/** Fires when the settled page changes — a completed user page transition. Programmatic `page` writes do not echo back through it. */
 	onPageChange?: (index: number) => void
 	/** Platform escape hatches, applied after the shared props. */
 	ios?: Record<string, any>

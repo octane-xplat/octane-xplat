@@ -1,107 +1,91 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { useCallback, useRef, useState } from 'octane'
-import { createPortal, type UniversalRenderable } from 'octane/universal/native'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'octane'
+import { ScrollableArea, useDirection, type ScrollableAreaHandle } from '@octane-xplat/ui'
 import type { PagerProps } from './props'
+import { mergeStyle } from './style-merge'
+import { layoutChildProps } from './layout-child'
+import { createAppKitPagerState, type AppKitPagerFrame } from './pager-state.macos'
+import { createAppKitPagerEvents } from './pager-scroll-events.macos'
 
-interface PageBinding {
-	id: number
-	generation: number
-	target: unknown
-	item: any
-	index: number
-}
-
-function PageContent(props: {
-	render: (item: any, index: number) => any
-	item: any
-	index: number
-}) {
-	return <>{props.render(props.item, props.index)}</>
-}
-
-function PagePortal(props: {
-	key?: number
-	page: PageBinding
-	render: (item: any, index: number) => any
-}) {
-	const page = props.page
-	return createPortal(
-		(
-			<PageContent render={props.render} item={page.item} index={page.index} />
-		) as UniversalRenderable,
-		page.target,
-	)
-}
-
-/** Pager — the AppKit host's `pager` element: a horizontal NSScrollView
- *  whose clip-sized page hosts snap to the settled page (the web leaf's
- *  scroll-snap model). Page content is a portal from the declaring tree —
- *  provider context follows each page, same as the recycled-cell portal on
- *  mobile. `page` writes scroll/settle programmatically; only user swipes
- *  echo back through `onPageChange` (the element's settle report is compared
- *  against the tracked index, muting the echo — same rule as web). */
+/** Experimental NSScrollView paging. Eager page rendering; native input/AX remain unqualified. */
 export function Pager(props: PagerProps) @{
-	const [pages, setPages] = useState<PageBinding[]>([])
-	// The page the leaf believes it is on — seeded by `page`/`defaultPage`,
-	// updated by controlled writes and settled swipes. A settle that lands on
-	// `current` is programmatic — it never reports back through onPageChange.
-	const current = useRef(props.page ?? props.defaultPage ?? 0)
-
-	const onTarget = useCallback((event: PageBinding & { type: 'bind' | 'release' }) => {
-		setPages((list) => {
-			const existing = list.find((page) => page.id === event.id)
-			if (event.type === 'release') {
-				return existing?.generation === event.generation
-					? list.filter((page) => page.id !== event.id)
-					: list
-			}
-
-			if (
-				existing?.generation === event.generation &&
-				existing.index === event.index &&
-				Object.is(existing.item, event.item)
-			) {
-				return list
-			}
-
-			return [...list.filter((page) => page.id !== event.id), event]
-		})
-	}, [])
-
-	const onPageChange = useCallback(
-		(index: number) => {
-			if (index !== current.current) {
-				current.current = index
-				props.onPageChange?.(index)
-			}
+	const direction = useDirection(), area = useRef<ScrollableAreaHandle | null>(null), attached = useRef(false)
+	const live = useRef({ props, direction }); live.current = { props, direction }
+	const [size, setSize] = useState({ width: 0, height: 0, page: 0 }), previous = useRef(size), [, rerender] = useState(0)
+	const viewport = () => (area.current?.native ?? null) as Record<string, any> | null
+	const frame = (): AppKitPagerFrame | null => {
+		const view = viewport(), bounds = view?.contentView?.bounds, document = view?.documentView
+		if (!view?.window || !bounds || !document) return null
+		if (['hidden', 'hiddenOrHasHiddenAncestor'].some((key) => Boolean(typeof view[key] === 'function' ? view[key]() : view[key]))) return null
+		const width = Number(bounds.size.width), height = Number(bounds.size.height), content = Number(document.frame.size.width), x = Number(bounds.origin.x)
+		if (![width, height, content, x].every(Number.isFinite) || width <= 0 || height <= 0) return null
+		const maximum = Math.max(0, content - width), physical = Math.max(0, Math.min(maximum, x))
+		return { view, window: view.window, width, height, position: live.current.direction === 'rtl' ? maximum - physical : physical,
+			ready: Math.abs(content - live.current.props.items.length * width) <= 1 }
+	}
+	const beforeWrite = useRef<() => void>(() => {}), userBusy = useRef<() => boolean>(() => false)
+	const control = useMemo(() => createAppKitPagerState({
+		source: () => ({ count: live.current.props.items.length, page: live.current.props.page, defaultPage: live.current.props.defaultPage, direction: live.current.direction }),
+		frame, busy: () => userBusy.current(), beforeWrite: () => beforeWrite.current(),
+		write: (inline, animated) => {
+			const workspace = (globalThis as Record<string, any>).NSWorkspace?.sharedWorkspace, value = workspace?.accessibilityDisplayShouldReduceMotion
+			const reduced = Boolean(typeof value === 'function' ? value.call(workspace) : value)
+			area.current?.scrollToOffset({ inline }, { animated: animated && !reduced })
 		},
-		[props.onPageChange],
-	)
+		report: (page) => { try { live.current.props.onPageChange?.(page) } finally { if (attached.current) rerender((n) => n + 1) } },
+	}), [])
+	const measuring = useRef(false), queued = useRef(false)
+	const measure = () => {
+		if (!area.current || measuring.current) return
+		measuring.current = true
+		try {
+			events.validate()
+			const geometry = frame()
+			control.synchronize()
+			if (!area.current || !geometry) return
+			const next = { width: geometry.width, height: geometry.height, page: control.selected() }
+			if (next.width !== previous.current.width || next.height !== previous.current.height || next.page !== previous.current.page) { previous.current = next; setSize(next) }
+		} catch (error) { console.warn('[macos-pager] geometry synchronization failed', error) }
+		finally { measuring.current = false }
+	}
+	const latestMeasure = useRef(measure); latestMeasure.current = measure
+	const events = useMemo(() => createAppKitPagerEvents({ view: viewport, interaction: control.interacted, settle: control.settle, measure: () => latestMeasure.current() }), [])
+	beforeWrite.current = events.cancel; userBusy.current = events.busy
+	const queueMeasure = () => { if (!queued.current) { queued.current = true; void Promise.resolve().then(() => { queued.current = false; if (area.current) latestMeasure.current() }) } }
+	const bind = useCallback((handle: ScrollableAreaHandle | null) => {
+		if (area.current !== handle) control.detach()
+		area.current = handle; attached.current = !!handle
+		const view = viewport()
+		if (view) { view.hasHorizontalScroller = false; view.hasVerticalScroller = false }
+		events.bind(view); if (handle) queueMeasure()
+	}, [])
+	useLayoutEffect(() => { latestMeasure.current(); queueMeasure() }, null)
+	useEffect(() => { events.bind(viewport()); return () => { attached.current = false; events.dispose(); area.current = null; control.detach() } }, [])
+	const layout = layoutChildProps({ ...props, style: undefined })
 
-	@if (props.items.length > 0) {
-		<>
-			<pager
-				id={props.id}
-				className={['vx-pager', props.className]}
-				style={props.style}
-				items={props.items}
-				renderItem={props.renderItem}
-				selectedIndex={props.page ?? props.defaultPage ?? 0}
-				onSelectedIndexChange={(e: any) => onPageChange(e?.value ?? e?.index ?? 0)}
-				__onCellTarget={onTarget}
-				accessible={props.accessible}
-				accessibilityRole={props.accessibilityRole ?? 'adjustable'}
-				accessibilityLabel={props.accessibilityLabel}
-				accessibilityHint={props.accessibilityHint}
-				accessibilityValue={props.accessibilityValue}
-				accessibilityState={props.accessibilityState}
-				accessibilityLiveRegion={props.accessibilityLiveRegion}
-			/>
-			{pages.map((page) => (
-				<PagePortal key={page.id} page={page} render={props.renderItem} />
-			))}
-		</>
+	@if (props.items.length) {
+		<masonview id={props.id} className={['vx-pager', 'vx-pager--appkit', props.className]} style={mergeStyle(layout.style, props.style)} onLayoutChanged={queueMeasure}
+			accessible={props.accessible} accessibilityRole={props.accessibilityRole ?? 'group'} accessibilityLabel={props.accessibilityLabel}
+			accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue ?? `Page ${control.selected() + 1} of ${props.items.length}`}
+			accessibilityState={props.accessibilityState} accessibilityLiveRegion={props.accessibilityLiveRegion}>
+			<ScrollableArea ref={bind} axis="inline" className="vx-pager-viewport" style={{ width: '100%', height: '100%' }} label={props.accessibilityLabel}>
+				<masonview className="vx-pager-track--appkit" onLayoutChanged={queueMeasure}
+					style={{ width: size.width ? size.width * props.items.length : undefined, height: size.height || undefined, flexDirection: direction === 'rtl' ? 'row-reverse' : 'row' }}>
+					@for (const item of props.items; index i; key i) {
+						<masonview className="vx-pager-page vx-pager-page--appkit" accessibilityRole="group" accessibilityLabel={`${i + 1} of ${props.items.length}`}
+							style={{ width: size.width || undefined, height: size.height || undefined, flexBasis: size.width || 'auto' }}>
+							{props.renderItem(item, i)}
+						</masonview>
+					}
+				</masonview>
+			</ScrollableArea>
+		</masonview>
 	} @else {
 		<>{props.renderEmpty?.()}</>
 	}
 }
+<style>
+	.vx-pager--appkit { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+	.vx-pager-track--appkit { display: flex; flex-shrink: 0; }
+	.vx-pager-page--appkit { display: flex; flex-direction: column; flex-grow: 0; flex-shrink: 0; overflow: hidden; }
+</style>

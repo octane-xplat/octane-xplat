@@ -3675,3 +3675,74 @@ preset text relay/listbox relationships and live announcements remain source
 gaps; Checkbox mixed rollback still awaits the previously asked human contract
 choice. No package tests/typechecks, builds, installs, OS automation, visual
 analysis or audit regeneration ran; no evidence-gated checkbox is closed.
+
+### AppKit Pager full-host pages and user settlement
+
+Continued Pager before Carousel edge fades: PagerDemo explicitly presents
+onboarding/media galleries with controlled dots and Previous/Next actions,
+while the selected AppKit leaf returned an unsupported label. Assumed small,
+bounded page collections are the first useful desktop subset. No shared audit
+snapshot was regenerated, and no other target leaf/configuration was changed.
+
+The AppKit leaf now composes public UI ScrollableArea/useDirection; no mobile
+pager/plugin/runtime is imported along its selected source path. The existing
+mobile package dependency is retained. Viewport geometry drives full-host eager
+page widths/heights and current RTL logical offsets. Current props/callbacks,
+controlled/default ownership, count clamping, empty/refill, native scope changes
+and teardown are explicit. Defaults seed once; programmatic placement never
+reports. A settled user request claims before application callbacks, waits for
+actual native offset alignment before reporting, and lets controlled parent
+acceptance/rejection govern the next placement. Pending user work is invalidated
+by current requests/count/direction/size/window changes and replaced native refs.
+
+Per-viewport live-scroll observation uses the SDK's user-only WillStart/DidLive/
+DidEnd notifications, with trailing 140 ms quiet time and legacy unbracketed
+updates. Native bounds/window updates only measure; they cannot create user
+intent. Active tracking holds placement off, foreign/hidden/moved/detached scope
+is rejected, old callbacks are binding-version guarded, and partial subscription
+failure removes prior observers. The renderer already enables clip bounds
+notifications through ScrollableArea's existing onScroll handler
+(packages/macos-renderer/src/index.ts setScrollAction); no renderer change was
+needed. Direct NSWorkspace preference reading handles either property or callable
+bridge exposure. AppKit useMediaQuery supports no reduced-motion query, so the
+implementation does not pretend that hook can supply it.
+
+Pager's existing UI peer minimum rises from >=0.6.0 to >=0.18.0 for its current
+public scrolling API; the feature note and package guide mark this breaking
+requirement. No dependency install or lockfile regeneration ran. Six state,
+four observer-lifetime and four object-driver cases are authored, all unrun.
+Object cases mock the public UI module to the actual AppKit ScrollableArea and
+shared direction context, because Pager's existing native test resolver is
+mobile-oriented. This tests authored composition only when run; it does not
+prove production barrel selection or native behavior. The maintained manual
+fixture includes controlled/default flows, rejection, empty/refill, direction
+and nested text inputs; its runner mounts/records only. Existing parity targets
+remain web/iOS/Android. The package guide, skill, feature note and appkit-paging
+recipe distinguish source coverage from qualification.
+
+Only TypeScript/TSRX syntax parsing, focused source/semantic review and whitespace
+checks ran. No tests, typechecks, builds, installs, native/OS automation, visual
+analysis or packaging checks ran. Deferred exact commands:
+
+```sh
+pnpm exec turbo run test:native --filter=@octane-xplat/pager -- src/pager-state.macos.mobile.test.ts src/pager-scroll-events.macos.mobile.test.ts src/Pager.macos.mobile.test.tsrx
+pnpm exec turbo run typegen --filter=@octane-xplat/pager
+pnpm exec turbo run typecheck --filter=...@octane-xplat/pager --filter=...@octane-xplat/ui
+pnpm exec turbo run pack:check --filter=@octane-xplat/pager
+pnpm probe doctor
+pnpm probe run examples/probes/pager.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All remain deferred until explicit human authorization for this task. Pager has
+no own typecheck script: its typegen emits public declarations and does not
+qualify the AppKit implementation. Verify selected tasks/environments before
+reporting coverage. Production import/registration, actual ref/context/notification
+ordering, page sizing and RTL placement, trackpad/legacy wheel/keyboard/momentum,
+animation/reduced motion, nested input/focus, VoiceOver/live announcements,
+eager-page memory behavior and packaged consumers remain unqualified. Full
+native page virtualization is not implemented. Carousel edge fades, video,
+autofocus timing and date preset text relay/listbox relationships remain source
+gaps. Checkbox mixed rollback still awaits the previously asked human contract
+choice. No evidence-gated checkbox is closed.

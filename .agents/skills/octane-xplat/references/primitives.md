@@ -1531,3 +1531,30 @@ unrun, alongside earlier cases. Native live/momentum ordering, wheel/trackpad/
 scroller/keyboard delivery, layout/RTL/animation/AX and packaging are unqualified.
 Missing live-scroll observation does not promise snap; edge fades remain a gap.
 See [AppKit snap](../../../../docs/app/components.md#snap-appkit-carousel-slides-after-user-scrolling).
+
+## Experimental AppKit Pager
+
+For small onboarding/gallery flows, Pager's macOS leaf now composes the public
+AppKit ScrollableArea. Set an explicit size; all pages render eagerly. Requires
+UI >=0.18.0 <1. defaultPage seeds once; page owns controlled state. User changes
+report only after native position settles on a page boundary; programmatic
+writes do not echo. Direction uses UI context and motion reads NSWorkspace's
+native preference directly (AppKit useMediaQuery does not support a
+prefers-reduced-motion query). Source/state/event/object-driver cases and the
+manual fixture are authored, all unrun. Native sizing/RTL, scroll/momentum,
+ref/context ordering, focus/AX and packaged resolution remain unqualified.
+
+```tsx
+import { Pager } from '@octane-xplat/pager'
+import { Text } from '@octane-xplat/ui'
+export function TravelPages() {
+	return <Pager items={['Pack', 'Travel']} defaultPage={1}
+		style={{ width: 320, height: 160 }} renderItem={(title) => <Text>{title}</Text>} />
+}
+```
+
+Read the [package guide](../../../../packages/pager/README.md#platform-support)
+and [AppKit recipe](../../../docs/recipes/appkit-paging.md) before promising native
+paging support. The mobile plugin is not imported by the macOS leaf; its existing
+package dependency remains. Do not add macOS to qualified parity targets from
+source/mock evidence.
