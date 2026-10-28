@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { createRoot, useRef, useState } from 'octane'
 import { LexicalEditor, type LexicalEditorHandle } from '../../src/index.web'
 import { BadgeNode } from './BadgeNode'

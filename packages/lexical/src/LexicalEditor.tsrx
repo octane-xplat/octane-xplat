@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useState, useImperativeHandle, useCallback, useEffect, useRef } from 'octane'
 import { RichTextEditor, supported as leafSupported } from '@octane-xplat/richtext'
 import type { RichTextEditorHandle } from '@octane-xplat/richtext'

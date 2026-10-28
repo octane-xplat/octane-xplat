@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useState, useImperativeHandle, useEffect, useRef } from 'octane'
 import {
 	AutoFocusPlugin,
