@@ -84,12 +84,14 @@ for hover/focus tooltips. Field and TextArea remain outside the root.
 
 Treat the [multiline intrinsic checks](../../../docs/notes/linux-gtk-renderer.md#multiline-buffer-foundation)
 as renderer foundation evidence. Before exporting TextArea, qualify
-placeholder/maxLength, custom line spacing and the shared field/controlled
+maxLength, text alignment, custom line spacing and the shared field/controlled
 ownership contract. Font-based rows/maxRows/autoGrow and constraint transitions have
 a maintained direct-source GTK fixture, now including X11 internal wheel input
 and native host/recreation cases; that evidence does not yet qualify public TextArea. Preserve the fitting effect's cleanup and defer GTK metric
 reads after fontChanged until native CSS validation has run. GTK textview refs
-stay on the native editor; its scrolling parent is adapter-owned. Use framework
+stay on the native editor; its scrolling/placeholder parents are adapter-owned. Hint overlays do not
+participate in preferred measurement or pointer targeting; keep the accessible
+label independent of hint text. Use framework
 style props for the full control's size, opacity and placement.
 
 ```tsx

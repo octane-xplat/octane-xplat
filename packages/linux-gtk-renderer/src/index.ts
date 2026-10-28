@@ -40,7 +40,7 @@ import {
 } from '@octane-xplat/css-engine'
 
 import { physicalView } from './physical-view.js'
-import { makeTextView, takeTextViewViewport } from './text-view.js'
+import { makeTextView, takeTextViewControl, type TextViewControl } from './text-view.js'
 import { bindPicture } from './picture.js'
 import { bindPublicInstance } from './public-instance.js'
 
@@ -86,6 +86,7 @@ export interface ElementNode {
 	view: GtkView | null
 	/** Outer native host for composite controls; public refs stay on view. */
 	layoutView?: GtkView
+	textView?: TextViewControl
 	/** Physical boundary for a viewless, renderer-owned external portal root. */
 	portalHost?: GtkView
 	picture?: ReturnType<typeof bindPicture>
@@ -455,8 +456,8 @@ function syncCss(node: ElementNode, style: PropBag | null | undefined) {
 
 		const targets = composite ? [view, layout] : [view]
 		if (CONTROL_SUBNODE_TYPES.has(node.type)) {
-			for (const child of internalDescendants(view)) {
-				targets.push(child)
+			for (const child of internalDescendants(composite ? layout : view)) {
+				if (!targets.includes(child)) targets.push(child)
 			}
 		}
 
@@ -480,6 +481,7 @@ const CONTROL_SUBNODE_TYPES: ReadonlySet<string> = new Set([
 	'slider',
 	'progress',
 	'textfield',
+	'textview',
 ])
 
 function internalDescendants(view: GtkView, out: GtkView[] = []): GtkView[] {
@@ -1664,7 +1666,15 @@ const RESET_DEFAULTS: Record<string, Record<string, unknown>> = {
 		keyboardType: 'default',
 		autocorrect: true,
 	},
-	textview: { text: '', value: '', editable: true, keyboardType: 'default', autocorrect: true },
+	textview: {
+		text: '',
+		value: '',
+		hint: '',
+		placeholder: '',
+		editable: true,
+		keyboardType: 'default',
+		autocorrect: true,
+	},
 	switch: { checked: false },
 	slider: { value: 0, minValue: 0, maxValue: 100 },
 	progress: { value: 0, maxValue: 100 },
@@ -2203,6 +2213,8 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 		case 'textview':
 			if (name === 'value' || name === 'text') {
 				writeEntryText(node, view, value)
+			} else if (name === 'hint' || name === 'placeholder') {
+				node.textView!.setPlaceholder(value)
 			} else if (name === 'editable') {
 				view.set_editable(value !== false)
 			} else if (name === 'keyboardType') {
@@ -3364,6 +3376,7 @@ function expect(container: GtkContainer, id: number): ElementNode {
 }
 
 function bindNodePublicInstance(node: ElementNode): () => void {
+	const textView = node.textView
 	const pressKeys = node.view && node.type === 'masonview' ? bindPressKeys(node) : null
 	node.pressKeys = pressKeys
 	const disposePublic = bindPublicInstance(
@@ -3432,6 +3445,7 @@ function bindNodePublicInstance(node: ElementNode): () => void {
 		}
 	}
 	return () => {
+		textView?.dispose()
 		pressKeys?.dispose()
 		disposeEntryInput?.()
 		if (textNode) cancelSelectionSettle(textNode)
@@ -3447,11 +3461,13 @@ function createNodeState(
 	props: PropBag,
 	view: GtkView | null,
 ): ElementNode {
+	const textView = takeTextViewControl(view)
 	const node: ElementNode = {
 		id,
 		type,
 		view,
-		layoutView: takeTextViewViewport(view),
+		layoutView: textView?.layoutView,
+		textView,
 		text: '',
 		props,
 		parent: null,
@@ -3706,7 +3722,8 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 
 			unwireStateFlags(node)
 			node.view = VIEWLESS.has(command.type) ? null : instantiate(command.type)
-			node.layoutView = takeTextViewViewport(node.view)
+			node.textView = takeTextViewControl(node.view)
+			node.layoutView = node.textView?.layoutView
 			wireStateFlags(node)
 			node.type = command.type
 			node.defaultAccessibleRole = undefined

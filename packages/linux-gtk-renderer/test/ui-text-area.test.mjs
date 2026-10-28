@@ -9,7 +9,7 @@ import { build } from 'vite'
 import { xplatLinuxGtk } from '../../cli/src/linux-gtk/vite.ts'
 const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
 test(
-	'GTK TextArea sizes native rows and scrolls capped content with actual keyboard and wheel input',
+	'GTK TextArea sizes native rows, overlays hints and scrolls capped content with actual OS input',
 	{ timeout: 120000 },
 	async (t) => {
 		const outDir = join(fixture, 'dist-ui-text-area')
@@ -85,7 +85,7 @@ test(
 						String(phase.repeat ?? 6),
 						'--delay',
 						'35',
-						phase.phase.endsWith('down') ? '5' : '4',
+						phase.phase === 'hint-click' ? '1' : phase.phase.endsWith('down') ? '5' : '4',
 					)
 				}
 				send('key', 'F12')
@@ -110,7 +110,7 @@ test(
 		const line = stdout.split('\n').find((line) => line.startsWith('GTK_TEXT_AREA '))
 		assert.ok(line, stdout)
 		const result = JSON.parse(line.slice('GTK_TEXT_AREA '.length))
-		assert.ok(result.checks >= (osInput ? 106 : 87), JSON.stringify(result))
+		assert.ok(result.checks >= (osInput ? 125 : 104), JSON.stringify(result))
 		assert.equal(result.osInput, osInput)
 		t.diagnostic(
 			process.platform +

@@ -38,6 +38,11 @@ const pause = (ms = 160) =>
 			return false
 		}),
 	)
+// A window-child replacement may allocate on a later GTK frame under load.
+const waitForAllocation = async (ready: () => boolean) => {
+	for (let attempt = 0; attempt < 120 && !ready(); attempt++) await pause(25)
+	return ready()
+}
 let checks = 0
 const check = (name: string, ok: boolean) => {
 	if (!ok) throw new Error(name)
@@ -86,6 +91,77 @@ async function run() {
 	let fontEvents = 0
 	const fontChanged = () => fontEvents++
 	view.on('fontChanged', fontChanged)
+	const hint = editorNode.textView!.placeholder
+	const initialHeight = view.get_height()
+	await render({ value: '', placeholder: 'Enter notes', placeholderTextColor: '#123456' })
+	check('empty editor shows its hint', hint.get_visible() && hint.get_label() === 'Enter notes')
+	check('hint is not an input target', !hint.get_can_target() && !hint.get_focusable())
+	check(
+		'hint has presentation semantics',
+		hint.get_accessible_role() === Gtk.AccessibleRole.PRESENTATION,
+	)
+	check('hint does not resize the editor', close(view.get_height(), initialHeight))
+	const color = hint.get_style_context().get_color()
+	check(
+		'hint color uses the shared style',
+		[color.red, color.green, color.blue].map((x: number) => Math.round(x * 255)).join(',') ===
+			'18,52,86',
+	)
+	const native = (globalThis as any).imports.gi.XplatMason
+	check(
+		'hint reaches native placeholder metadata',
+		native.test_accessible_string_property(
+			view,
+			Gtk.AccessibleProperty.PLACEHOLDER,
+			'Enter notes',
+		) === null,
+	)
+	await render({ style: { ...style, padding: 9, borderWidth: 2 } })
+	const [positioned, hintBounds] = hint.compute_bounds(view)
+	const [hintX, hintY] = hint.get_layout_offsets()
+	const caret = view.get_iter_location(buffer.get_start_iter())
+	const [caretX, caretY] = view.buffer_to_window_coords(Gtk.TextWindowType.WIDGET, caret.x, caret.y)
+
+	check(
+		'hint starts at the padded editor text origin',
+		positioned &&
+			close(hintBounds.origin.x + hintX, caretX) &&
+			close(hintBounds.origin.y + hintY, caretY),
+	)
+	await render({ style })
+	await render({ placeholder: 'A long hint '.repeat(100) })
+	check('long hint does not change width', close(view.get_width(), 280))
+	check('long hint does not change row height', close(view.get_height(), initialHeight))
+	await render({ placeholder: 'Enter notes', isReadOnly: true })
+	check('read-only empty editor keeps its hint', hint.get_visible() && !view.get_editable())
+	await render({ isReadOnly: false })
+	if (GLib.getenv('GTK_TEXT_OS') === '1') {
+		window.set_focus(null)
+		await input(view, 'hint-click', 1)
+		check('click through hint focuses the native editor', window.get_focus() === view)
+	}
+	await render({ value: 'One' })
+	check('content hides the hint', !hint.get_visible())
+	await render({ value: '', placeholder: undefined })
+	check('removed hint stays hidden for empty content', !hint.get_visible())
+	await render({ placeholder: 'Changed hint' })
+	check(
+		'replacement hint updates the label',
+		hint.get_visible() && hint.get_label() === 'Changed hint',
+	)
+	await render({ value: 'One', placeholder: undefined, placeholderTextColor: undefined })
+	const defaultHintColor = hint.get_style_context().get_color()
+	const themedHintColor = new (globalThis as any).imports.gi.Gdk.RGBA()
+	check(
+		'theme defines a parseable hint color',
+		themedHintColor.parse(editorNode.computedStyle!.placeholderColor),
+	)
+	check(
+		'removing explicit hint color restores the theme hint color',
+		['red', 'green', 'blue', 'alpha'].every(
+			(key) => Math.abs(defaultHintColor[key] - themedHintColor[key]) < 0.01,
+		),
+	)
 	const line = view.get_line_yrange(buffer.get_start_iter())[1]
 	print(
 		'GTK_TEXT_AREA_MEASURE ' +
@@ -187,10 +263,14 @@ async function run() {
 	check('ancestor font reset restores row floor', close(view.style.minHeight, small * 2))
 	view.off('fontChanged', fontChanged)
 	check('same editor survives sizing updates', areaRef.current!.native === view)
+	await render({ value: '', placeholder: 'Retired hint' })
+	check('hint is visible before disposal', hint.get_visible())
 	view.add_css_class('pending-font-refit')
 	root.unmount()
 	check('font observers detach when the editor retires', editorNode.fontObservers?.size === 0)
 	check('native handle clears on disposal', areaRef.current === null)
+	buffer.insert_at_cursor('Retired buffer edit', -1)
+	check('retired buffer cannot update the detached hint', hint.get_visible())
 	await pause(40)
 	const hosts: Array<[string, any]> = [
 		['box', new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })],
@@ -225,7 +305,8 @@ async function run() {
 		)
 		check(
 			name + ': native scrolling host owns the editor',
-			viewport instanceof Gtk.ScrolledWindow && viewport.get_child() === editor,
+			viewport.get_child() instanceof Gtk.ScrolledWindow &&
+				viewport.get_child().get_child() === editor,
 		)
 
 		check(
@@ -236,13 +317,19 @@ async function run() {
 			name + ': initial physical size request',
 			viewport.get_size_request().join(',') === '160,80',
 		)
-		if (name === 'box')
-			check(
-				'box: definite dimensions apply to the whole control',
-				close(viewport.get_width(), 160) &&
+		if (name === 'box') {
+			const allocated = await waitForAllocation(
+				() =>
+					close(viewport.get_width(), 160) &&
 					close(viewport.get_height(), 80) &&
 					close(editor.get_width(), 160),
 			)
+			check(
+				'box: definite dimensions apply to the whole control: ' +
+					[viewport.get_width(), viewport.get_height(), editor.get_width()].join(','),
+				allocated,
+			)
+		}
 		if (name === 'fixed') {
 			const bounds = editor.getBounds()
 			check('fixed: initial viewport position', close(bounds.x, 10) && close(bounds.y, 12))
@@ -287,7 +374,7 @@ async function run() {
 			name + ': role recreation replaces both native widgets',
 			recreated !== editor &&
 				recreatedViewport !== viewport &&
-				recreatedViewport.get_child() === recreated,
+				recreatedViewport.get_child().get_child() === recreated,
 		)
 		check(
 			name + ': recreated physical host remains mounted',

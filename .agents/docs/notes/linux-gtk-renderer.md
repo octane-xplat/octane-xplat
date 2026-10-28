@@ -1139,3 +1139,67 @@ phone, touchpad, Wayland, HiDPI, AT-client or image claim.
 Logs: guest /tmp/gtk-textarea-scroll-full.log and andromeda
 /tmp/gtk-textarea-scroll-types-final.log. Earlier failure logs remain historical
 evidence, including the stale viewport diagnosis.
+
+## Multiline placeholder overlays
+
+GTK 4.14.5 on the Linux guest has no Gtk.TextView placeholder property; the
+[published TextView API](https://docs.gtk.org/gtk4/class.TextView.html) also
+exposes none. The adapter now owns a Gtk.Overlay
+around the existing scroller, with a Gtk.Label overlay excluded from preferred
+measurement and pointer targeting. The public ref remains the Gtk.TextView.
+The label appears only for empty buffers, including read-only editors;
+replacing or removing hint updates both the label and the editor's native
+PLACEHOLDER accessibility property. The label has PRESENTATION semantics,
+while the editor's accessible name remains independently authored.
+
+The overlay's child-position callback uses the editor's visible rectangle and
+buffer-to-widget coordinate conversion, so CSS padding and borders align the
+hint with the text origin. Typography and color are copied to the private
+physical host; background and border stay on the editor. placeholderColor
+overrides a translucent text-color default. Disposal disconnects the buffer
+and allocation signals, including role recreation.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+export function Notes() {
+  return <textview text="" hint="Write a note" accessibilityLabel="Notes"
+    style={{ width: 260, height: 120, placeholderColor: '#777' }} />
+}
+```
+
+GTK uses different enums for TextView and Label wrapping: Gtk.WrapMode.WORD_CHAR
+is 3, while Pango.WrapMode.WORD_CHAR is 2. The first probe rejected the wrong
+enum before mounting; importing Pango fixes the constructor. This is an adapter
+correction, not an upstream limitation. GTK's
+[overlay measurement contract](https://docs.gtk.org/gtk4/class.Overlay.html)
+and [child-position callback](https://docs.gtk.org/gtk4/signal.Overlay.get-child-position.html)
+supply the layout mechanism. Revisit this adapter when GTK adds a native
+TextView placeholder API with equivalent sizing, styling and accessibility.
+
+The focused Linux run passed 121 TextArea assertions, including padded origin,
+long-hint size stability, color, metadata, read-only visibility, replacement,
+removal and actual X11 click-through. Raw TextView retained all 59 checks in
+the preceding run. The first full run passed 41 of 42 tests and failed a newly added reset
+assertion: it expected the unthemed translucent fallback, but chrome.css
+explicitly defines placeholder-color for .vx-textarea. Native readback after
+removal was red=78/255 and alpha=1, rather than the editor's red=10/255 with
+half alpha. The corrected assertion checks the resolved theme color exactly;
+it does not replace the expected result with a weaker color-change check.
+The corrected focused run passed all 125 assertions. One subsequent native
+Box allocation check was timing-sensitive after window-child replacement;
+the same dimensions passed on rerun. The fixture now waits up to three
+seconds for those exact dimensions rather than assuming a 160ms frame delay.
+This does not qualify textAlign, bidirectional text, custom line spacing,
+maximum length, shared field/controlled ownership, IME, AT clients or visual
+parity, and does not promote TextArea to the UI root.
+Logs: guest /tmp/gtk-hint-second.log and /tmp/gtk-hint-geometry.log.
+
+Final verification: all 42 Linux renderer tests pass with no skips, including
+TextArea125 and raw TextView59. The added checks cover theme color reset and
+retired-buffer listener cleanup as well as the earlier hint cases. All eight
+renderer/dependent Turbo typecheck tasks pass. Recipes, barrel shape, 20
+release notes, formatting and whitespace checks pass. No UI source, root
+export or dependency changes. No phone, IME, AT-client, Wayland, HiDPI or image
+claim. Logs: guest /tmp/gtk-hint-full-final.log; andromeda
+/tmp/gtk-hint-types-complete.log. Earlier failing logs remain diagnostic
+history rather than current pass evidence.

@@ -840,3 +840,14 @@ phone, touchpad, Wayland, HiDPI, AT-client or image claim.
 Logs: guest /tmp/gtk-textarea-scroll-full.log and andromeda
 /tmp/gtk-textarea-scroll-types-final.log. Earlier failure logs remain historical
 evidence, including the stale viewport diagnosis.
+
+### TextArea placeholder foundation
+
+The renderer now supplies native hint overlays for textview without changing
+the editor ref or preferred size. The direct-source TextArea fixture covers
+visibility, color, native placeholder metadata, padded origin and X11 click
+through. This remains a renderer foundation: maximum length, text alignment,
+custom line spacing and stable field/controlled ownership still gate the
+TextArea GTK root export. See the
+[placeholder evidence](linux-gtk-renderer.md#multiline-placeholder-overlays);
+Silo retains per-export qualification state.

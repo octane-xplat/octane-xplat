@@ -78,6 +78,8 @@ declare module 'gi://Gtk?version=4.0' {
 
 		const AccessibleList: any
 		const AccessibleRelation: { DESCRIBED_BY: number }
+		const Overlay: any
+		const TextWindowType: { WIDGET: number }
 		const Popover: any
 		const EventControllerMotion: any
 		const PositionType: { TOP: number; BOTTOM: number; LEFT: number; RIGHT: number }
@@ -131,7 +133,9 @@ declare module 'gi://Gtk?version=4.0' {
 			reset_relation(relation: number): void
 			grab_focus(): boolean
 			pick(x: number, y: number, flags: number): Widget | null
-			compute_bounds(target: Widget): [boolean, unknown]
+			compute_bounds(
+				target: Widget,
+			): [boolean, { origin: { x: number; y: number }; size: { width: number; height: number } }]
 			visible: boolean
 			sensitive: boolean
 			hexpand: boolean
@@ -514,4 +518,9 @@ declare module 'gi://Graphene' {
 declare module 'gi://Soup?version=3.0' {
 	const Soup: any
 	export default Soup
+}
+
+declare module 'gi://Pango' {
+	const Pango: { WrapMode: { WORD_CHAR: number } }
+	export default Pango
 }

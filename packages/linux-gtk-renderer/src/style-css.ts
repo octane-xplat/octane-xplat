@@ -275,5 +275,25 @@ export function gtkStyleCss(
 	if (nodeType === 'textfield' && style?.placeholderColor != null) {
 		rules.push(`${selector} placeholder { color: ${style.placeholderColor}; }`)
 	}
+	if (nodeType === 'textview') {
+		const font: Record<string, unknown> = {}
+		for (const key of [
+			'fontSize',
+			'fontFamily',
+			'fontWeight',
+			'fontStyle',
+			'fontVariationSettings',
+			'letterSpacing',
+			'lineHeight',
+			'color',
+		])
+			if (style?.[key] != null) font[key] = style[key]
+		const layout = selector + '-layout'
+		const inherited = gtkStyleCss(layout, font, 'textview-hint-host')
+		if (inherited) rules.push(inherited)
+		rules.push(
+			`${layout} .xplat-text-placeholder { color: ${style?.placeholderColor ?? 'alpha(currentColor, 0.5)'}; }`,
+		)
+	}
 	return rules.join('\n')
 }
