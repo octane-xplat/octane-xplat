@@ -288,3 +288,23 @@ physical Tab/Shift+Tab, clicks, IME, initial/delayed attachment, hide/disable,
 reparent/detach, nested groups, multiple windows, app activation, popup/editor
 ownership, VoiceOver and repeated/HMR teardown. Programmatic responder changes
 are not OS-input or accessibility proof.
+
+## GridList stacked layout
+
+Source inspection of the AppKit GridList found that `layout="stack"` retained
+`flexDirection: 'row'` while assigning each cell 100% width. It now uses a
+column flex direction for stack layout and retains row/wrap for grids. This
+is a target-specific layout correction; rendered geometry remains unverified.
+Parser and whitespace checks passed. No new test duplicates this one-line
+mapping; existing package checks and native layout qualification remain
+explicitly deferred:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/ui -- src/grid-list.mobile.test.tsrx src/grid-list.web.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+```
+
+GridList keyboard navigation remains an independent implementation gap.
+The inert AppKit hook cannot simply reuse DOM row selectors/tabIndex: native
+row discovery and a renderer-backed roving Tab-stop policy are prerequisites.
+The new hardware-key bridge is necessary but does not by itself supply them.

@@ -12,8 +12,8 @@ import { refList } from './ref-list'
 
 /** GridList macOS leaf — same props as web. Cells are Pressables in a
  *  wrapping masonview (`columns` gives each cell a percentage width);
- *  arrow-key navigation and roving tabindex are web-only by platform
- *  nature. Tap activates onAction and toggles selection per the shared
+ *  arrow-key navigation and roving Tab stops remain unimplemented
+ *  on AppKit. Tap activates onAction and toggles selection per the shared
  *  grid-list-selection mapping (no Shift-range on touch). */
 export function GridList<T = any>(props: GridListProps<T>) @{
 	const keys = props.items.map((item, index) => (props.keyExtractor ?? defaultItemKey)(item, index))
@@ -75,7 +75,7 @@ export function GridList<T = any>(props: GridListProps<T>) @{
 		{...layoutChildProps(
 			props,
 			mergeStyle(
-				{ flexDirection: 'row', flexWrap: isGrid ? 'wrap' : 'nowrap' },
+				{ flexDirection: isGrid ? 'row' : 'column', flexWrap: isGrid ? 'wrap' : 'nowrap' },
 				{ display: 'flex' },
 			),
 		)}
