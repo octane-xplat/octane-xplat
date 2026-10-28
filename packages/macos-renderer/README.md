@@ -159,10 +159,14 @@ and repeating gradients, and multiple background layers remain unsupported.
 Labels honor `padding` (the text insets and the box grows), `letter-spacing`
 on plain text, and italic `font-style`. `visibility: hidden` keeps the layout
 slot while suppressing paint and input; `visibility: collapse` drops it.
+`cursor` pushes the matching AppKit cursor while the pointer is inside the
+view (`none` hides it); `user-select` toggles `selectable` on labels and
+html views.
 
 ```css
 .caption { padding: 2px 6px; letter-spacing: 0.5px; font-style: italic; }
 .ghost { visibility: hidden; }
+.link { cursor: pointer; user-select: none; }
 ```
 
 Current limits:
@@ -182,6 +186,8 @@ Current limits:
   rotate, rotateX/Y with a default 300pt perspective, scale); percent
   translates resolve against the element's own size and resync on resize.
 - `letter-spacing` does not reach `formattedstring`/`span` runs.
+- Cursor keywords without an AppKit equivalent (diagonal resizes, `wait`,
+  zoom, `cell`, `help`) keep the inherited cursor.
 - A text field or text view drops its native bezel and background as soon
   as CSS gives it a background, border, or corner radius.
 - An unsupported property logs `[macos-css] ignored unsupported property`

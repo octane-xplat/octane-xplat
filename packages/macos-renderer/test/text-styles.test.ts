@@ -179,6 +179,73 @@ test('letterSpacing bakes NSKern into the attributed string', () => {
 	assert.equal(node.view.stringValue, 'Plain')
 })
 
+// ---- cursor / user-select --------------------------------------------------
+
+const cursorRecords = new WeakMap()
+const cursorLog: string[] = []
+const cursorWarnings: string[] = []
+const cursorSlice = runSlice(
+	source.slice(
+		source.indexOf('// CSS cursor keywords'),
+		source.indexOf('// CSS angles run clockwise'),
+	) + '\n({ syncCursor, syncUserSelect, CSS_CURSORS })',
+	{
+		console: { warn: (m: string) => cursorWarnings.push(m) },
+		NSCursor: {
+			pointingHandCursor: { name: 'hand', push: () => cursorLog.push('push') },
+			pop: () => cursorLog.push('pop'),
+			hide: () => cursorLog.push('hide'),
+			unhide: () => cursorLog.push('unhide'),
+		},
+		hoverRecordByView: cursorRecords,
+		observeHover: (view: any) => {
+			cursorRecords.set(view, { view })
+		},
+		unobserveHover: (view: any) => {
+			cursorRecords.delete(view)
+		},
+	},
+)
+
+test('cursor installs a hover record, retakes inside, and releases on clear', () => {
+	const node: any = { type: 'masonview', view: {}, styleCursor: 'pointer' }
+	cursorSlice.syncCursor(node)
+	const record: any = cursorRecords.get(node.view)
+	assert.equal(record.cursor.name, 'hand')
+
+	record.inside = true
+	node.styleCursor = 'none'
+	cursorSlice.syncCursor(node)
+	assert.deepEqual(cursorLog.slice(-1), ['hide'])
+	assert.equal(record.cursorHidden, true)
+
+	node.styleCursor = undefined
+	cursorSlice.syncCursor(node)
+	assert.deepEqual(cursorLog.slice(-1), ['unhide'])
+	assert.equal(cursorRecords.get(node.view), undefined)
+})
+
+test('unknown cursor values warn and keep the inherited cursor', () => {
+	cursorWarnings.length = 0
+	const node: any = { type: 'label', view: {}, styleCursor: 'zoom-in' }
+	cursorSlice.syncCursor(node)
+	assert.equal(cursorWarnings.length, 1)
+	assert.match(cursorWarnings[0], /unsupported cursor/)
+	assert.equal(cursorRecords.get(node.view), undefined)
+})
+
+test('user-select toggles selectable on labels and restores htmlview default', () => {
+	const label: any = { type: 'label', view: { selectable: false }, styleUserSelect: 'text' }
+	cursorSlice.syncUserSelect(label)
+	assert.equal(label.view.selectable, true)
+	label.styleUserSelect = 'none'
+	cursorSlice.syncUserSelect(label)
+	assert.equal(label.view.selectable, false)
+	const html: any = { type: 'htmlview', view: { selectable: false }, styleUserSelect: 'auto' }
+	cursorSlice.syncUserSelect(html)
+	assert.equal(html.view.selectable, true)
+})
+
 // ---- mason dict ------------------------------------------------------------
 
 let masonSource = readFileSync(new URL('../src/mason.ts', import.meta.url), 'utf8')

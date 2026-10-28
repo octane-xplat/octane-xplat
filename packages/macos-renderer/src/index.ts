@@ -85,6 +85,7 @@ import {
 	NSColor,
 	NSColorSpace,
 	NSControlSize,
+	NSCursor,
 	NSDate,
 	NSDatePicker,
 	NSDatePickerElementFlags,
@@ -3813,6 +3814,112 @@ function isCollapsed(node: any) {
 	return node?.props?.visibility === 'collapse' || node?.styleVisibility === 'collapse'
 }
 
+// CSS cursor keywords → the AppKit cursor pushed while the pointer is inside
+// the view's tracking area. 'none' hides the cursor instead; keywords with no
+// AppKit equivalent (diagonal resizes, wait, zoom, cell, help) keep the
+// inherited cursor and warn once.
+const CSS_CURSORS: Record<string, string> = {
+	auto: 'arrowCursor',
+	default: 'arrowCursor',
+	pointer: 'pointingHandCursor',
+	text: 'IBeamCursor',
+	'vertical-text': 'IBeamCursorForVerticalLayout',
+	crosshair: 'crosshairCursor',
+	move: 'openHandCursor',
+	grab: 'openHandCursor',
+	grabbing: 'closedHandCursor',
+	'col-resize': 'resizeLeftRightCursor',
+	'ew-resize': 'resizeLeftRightCursor',
+	'e-resize': 'resizeRightCursor',
+	'w-resize': 'resizeLeftCursor',
+	'row-resize': 'resizeUpDownCursor',
+	'ns-resize': 'resizeUpDownCursor',
+	'n-resize': 'resizeUpCursor',
+	's-resize': 'resizeDownCursor',
+	'not-allowed': 'operationNotAllowedCursor',
+	copy: 'dragCopyCursor',
+	alias: 'dragLinkCursor',
+	'context-menu': 'contextualMenuCursor',
+	'disappearing': 'disappearingItemCursor',
+}
+
+// The hover record's `inside` flag lets a mid-hover cursor change retake the
+// right cursor immediately; pushed/unhide bookkeeping pairs with pop/unhide.
+function syncCursor(node: ElementNode) {
+	const view = node.view!
+	const name = node.styleCursor
+	const hidesCursor = name === 'none'
+	let cursor: any = null
+	if (name != null && !hidesCursor) {
+		const property = CSS_CURSORS[String(name)]
+		if (property) {
+			cursor = (NSCursor as any)[property]
+		} else {
+			console.warn('[macos-css] unsupported cursor ' + JSON.stringify(name) + ' (on <' + node.type + '>)')
+		}
+	}
+
+	const release = (record: any) => {
+		if (record.pushed) {
+			NSCursor.pop()
+			record.pushed = false
+		}
+		if (record.cursorHidden) {
+			NSCursor.unhide()
+			record.cursorHidden = false
+		}
+	}
+
+	if (!cursor && !hidesCursor) {
+		const record = hoverRecordByView.get(view)
+		if (record) {
+			release(record)
+			record.cursor = null
+			record.hidesCursor = false
+			if (!record.enter && !record.exit) {
+				unobserveHover(view)
+			}
+		}
+		return
+	}
+
+	let record = hoverRecordByView.get(view)
+	if (!record) {
+		observeHover(view, {})
+		record = hoverRecordByView.get(view)
+		if (!record) return
+	}
+
+	release(record)
+	record.cursor = cursor
+	record.hidesCursor = hidesCursor
+	if (record.inside) {
+		if (hidesCursor) {
+			NSCursor.hide()
+			record.cursorHidden = true
+		} else if (cursor) {
+			cursor.push()
+			record.pushed = true
+		}
+	}
+}
+
+// user-select only reaches selectable text — labels and html views; editable
+// controls keep their own editing affordance.
+function syncUserSelect(node: ElementNode) {
+	const value = node.styleUserSelect
+	// `selectable` reads readonly on the generated NSTextField type; the
+	// setter exists on every AppKit text control.
+	if (value === 'none') {
+		;(node.view as any).selectable = false
+	} else if (value === 'text' || value === 'all') {
+		;(node.view as any).selectable = true
+	} else {
+		// auto/inherit/absent — restore the element's authored default.
+		;(node.view as any).selectable = node.type === 'htmlview'
+	}
+}
+
 // CSS angles run clockwise from up. Layer coordinates follow the host view.
 function syncBackgroundImage(node: ElementNode, value: any) {
 	const view = node.view!
@@ -4745,6 +4852,14 @@ function resetStyle(node: ElementNode, name: string) {
 	} else if (name === 'visibility') {
 		node.styleVisibility = undefined
 		syncVisibility(node)
+	} else if (name === 'cursor') {
+		node.styleCursor = undefined
+		syncCursor(node)
+	} else if (name === 'userSelect') {
+		node.styleUserSelect = undefined
+		if (['label', 'htmlview'].includes(node.type)) {
+			syncUserSelect(node)
+		}
 	} else if (name === 'padding' && node.type === 'label') {
 		node.stylePaddingBox = undefined
 		node.stylePaddingEdges = undefined
@@ -4985,6 +5100,14 @@ function applyStyle(node: ElementNode, style: PropBag) {
 		} else if (name === 'visibility' && node.view) {
 			node.styleVisibility = String(value)
 			syncVisibility(node)
+		} else if (name === 'cursor' && node.view) {
+			node.styleCursor = String(value)
+			syncCursor(node)
+		} else if (name === 'userSelect' && node.view) {
+			node.styleUserSelect = String(value)
+			if (['label', 'htmlview'].includes(node.type)) {
+				syncUserSelect(node)
+			}
 		} else if (name === 'textDecoration' && node.type === 'label' && node.view) {
 			setLabelText(node, String(node.view.stringValue ?? ''))
 		} else if (name === 'textAlign' && node.type === 'label') {
@@ -8378,7 +8501,7 @@ function measureParity(container: RootContainer, facets: readonly string[]) {
 // packages/ui macOS leaves through the __xplatAppKit host global — ui never
 // links macos-node-api directly.
 
-const hoverRecordsByArea = new Map<object, { enter?: () => void; exit?: () => void }>()
+const hoverRecordsByArea = new Map<object, any>()
 const hoverRecordByView = new WeakMap<object, any>()
 const openPopups = new Set<any>()
 
@@ -8396,6 +8519,28 @@ const HOVER_TRACKING_OPTIONS =
 
 function dispatchHover(area: any, phase: 'enter' | 'exit') {
 	const record = hoverRecordsByArea.get(area)
+	if (record) {
+		if (phase === 'enter') {
+			record.inside = true
+			if (record.hidesCursor) {
+				NSCursor.hide()
+				record.cursorHidden = true
+			} else if (record.cursor) {
+				record.cursor.push()
+				record.pushed = true
+			}
+		} else {
+			record.inside = false
+			if (record.pushed) {
+				NSCursor.pop()
+				record.pushed = false
+			}
+			if (record.cursorHidden) {
+				NSCursor.unhide()
+				record.cursorHidden = false
+			}
+		}
+	}
 	const handler = phase === 'enter' ? record?.enter : record?.exit
 	if (typeof handler !== 'function') {
 		return
@@ -8418,6 +8563,9 @@ function observeHover(view: NSView, handlers: { enter?: () => void; exit?: () =>
 		return () => {}
 	}
 
+	// A re-registration (tooltip arriving after a cursor style, or vice
+	// versa) keeps the cursor fields — they belong to the view, not the area.
+	const previous = hoverRecordByView.get(view)
 	unobserveHover(view)
 	const area = NSTrackingArea.alloc().initWithRectOptionsOwnerUserInfo(
 		{ origin: { x: 0, y: 0 }, size: { width: 0, height: 0 } },
@@ -8431,7 +8579,14 @@ function observeHover(view: NSView, handlers: { enter?: () => void; exit?: () =>
 	}
 
 	view.addTrackingArea(area)
-	const record = { view, area, enter: handlers?.enter, exit: handlers?.exit }
+	const record = {
+		view,
+		area,
+		enter: handlers?.enter,
+		exit: handlers?.exit,
+		cursor: previous?.cursor,
+		hidesCursor: previous?.hidesCursor,
+	}
 	hoverRecordsByArea.set(area, record)
 	hoverRecordByView.set(view, record)
 	return () => unobserveHover(view)
@@ -8445,6 +8600,12 @@ function unobserveHover(view: NSView) {
 
 	hoverRecordByView.delete(view)
 	hoverRecordsByArea.delete(record.area)
+	if (record.pushed) {
+		NSCursor.pop()
+	}
+	if (record.cursorHidden) {
+		NSCursor.unhide()
+	}
 	try {
 		view.removeTrackingArea(record.area)
 	} catch (error) {
