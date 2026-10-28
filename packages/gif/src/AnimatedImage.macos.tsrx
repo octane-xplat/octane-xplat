@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import type { AnimatedImageProps } from './props'
 
 /** Show an explicit placeholder until the AppKit host has an animation view. */

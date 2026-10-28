@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import type { AnimatedImageProps } from './props'
 
 /** Unsupported placeholder — the Windows host has no animated-image engine

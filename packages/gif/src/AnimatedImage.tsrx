@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { registerElement } from '@nativescript-community/octane'
 import { Img } from '@nativescript-community/ui-image'
 import type { AnimatedImageProps } from './props'
