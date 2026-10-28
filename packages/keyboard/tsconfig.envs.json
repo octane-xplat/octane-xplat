@@ -20,5 +20,8 @@
 				"src/index.ts"
 			]
 		}
+	},
+	"compilerOptions": {
+		"jsxImportSource": "@octane-xplat/jsx"
 	}
 }
