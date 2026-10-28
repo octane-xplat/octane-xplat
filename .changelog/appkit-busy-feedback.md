@@ -11,6 +11,15 @@ export function Saving() {
 }
 ```
 
-The self-drawn ring remains static; native CSS animation playback is still a
-gap. Appearance, clipping and accessibility remain unqualified. See
+Spinner rotation and indeterminate ProgressBar sliding now connect to the
+existing AppKit keyframe sampler. Reduced Motion leaves steady feedback; workspace
+display-option changes refresh its media rule. Native playback, notification
+delivery, appearance, clipping and accessibility remain unqualified. See
 [busy feedback](https://octane-xplat.goddardai.org/app/components#busy-feedback-on-appkit).
+
+```tsx
+import { ProgressBar } from '@octane-xplat/ui'
+export function Upload() {
+	return <ProgressBar label="Uploading" isIndeterminate />
+}
+```

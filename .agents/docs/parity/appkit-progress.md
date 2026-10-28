@@ -5221,3 +5221,73 @@ visual analysis ran. Actual parser bundle/resolution, batch/validation atomicity
 native style update/removal, native font/glyph/layout/truncation/AX, performance
 and packed consumers remain unqualified. Audit snapshots and evidence gates
 remain unchanged; persistent goal active.
+
+## AppKit busy animation source and reduced motion refresh
+
+Saving switches, uploads and the ControlsDemo spinner make visible busy feedback
+a common flow. Source review found the renderer already samples/plays matched
+keyframes on a shared 16 ms timer, including percentage translations and subtree
+stop/overlay restoration. Older README/leaf comments saying keyframes never play
+were stale. However, token rotation/slide rules were web-only and ProgressBar
+never selected its indeterminate class. Source presence is not native proof.
+
+The existing @platform macos token block now has uniquely named ring-rotation
+and progress-slide tracks. Spinner classes already select the ring rule;
+ProgressBar now selects/removes the unknown-mode class and clips the translated
+40% fill to its track. AppKit compound selectors outrank a later generic spinner
+rule so reduced-motion cancellation still wins across token/chrome ordering.
+Reduced-motion media rules leave the ring/fill steady.
+No new animation engine, dependency, component public API or manifest changed.
+GTK leaves and consumers are unchanged; the reset correction below is shared.
+
+Prerequisite: css-engine accumulates parsed animations per matched ruleset.
+An animation:none rule previously added no track but failed to retire earlier
+ones. Explicit animation:none/animation-name:none now clears earlier accumulated
+tracks and earlier declarations in the same ruleset; a later animation may start
+again. Other native per-ruleset accumulation remains, rather than claiming full
+browser shorthand/longhand/list cascade parity. This is a local correction to
+the engine's NativeScript-9.1.3-style port; source evidence is cascade.ts and the
+keyframes.ts per-ruleset parser comments. Upstream runtime was not tested and no
+upstream runtime bug is asserted. Revisit the local reset when upgrading the port.
+
+Live preference prerequisite: one renderer-process observer registers on
+NSWorkspace.sharedWorkspace.notificationCenter, using the main operation queue.
+Apple's [display-option notification contract](https://developer.apple.com/documentation/appkit/nsworkspace/accessibilitydisplayoptionsdidchangenotification)
+requires the workspace center. A notification with live roots queues the existing
+coalesced media refresh; changed queries restyle/cancel old tracks. Registration
+failures do not claim installation and a later root can retry. The observer token
+is retained for the loaded renderer process, matching the existing resize-observer
+lifetime; it does not allocate a new per-control observer. Actual native selector,
+BOOL getter, notification delivery and main-queue behavior remain unqualified.
+
+Seven cases are authored, all unrun: one explicit reset/cascade case, two token
+rule/sampler/reduced-environment cases, one real playback-source/stop/timer case,
+two observer-source cases and one added ProgressBar class/clipping case. The
+playback source case manually invokes a fake timer; it is not native timing or
+frame-pacing evidence. CSS cases extract the AppKit source region, so they do not
+prove CLI @platform/web-only preprocessing or packed stylesheet inclusion.
+The target progress fixture now includes Spinner and manual reduced-motion copy;
+its runner still records mounting only. Guide, skill, renderer README and busy
+recipe AC3/AC4 and unreleased busy-feedback note supersede earlier static-source
+claims while preserving native gates.
+
+Only source/semantic review, TS/TSRX/CSS syntax parsing and whitespace checks ran.
+Exact deferred commands:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/css-engine --filter=@octane-xplat/macos-renderer
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/progress-bar.macos.mobile.test.tsrx src/activity-indicator.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/css-engine --filter=...@octane-xplat/macos-renderer --filter=...@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/progress-bar.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm exec turbo run test:packed --filter=@octane-xplat/ui --filter=@octane-xplat/macos-renderer
+pnpm check:recipes
+```
+
+All remain deferred pending explicit human authorization for this task. No test,
+typecheck/build/install, probe, native/OS/browser automation, packaging or visual
+analysis ran. Actual native animation/overlay cleanup, clipping/rotation/pixels,
+reduced-motion preference/notification delivery, responsiveness/power/frame pacing,
+compiler/bundle and packed consumers remain unqualified. Audit snapshots and
+issue evidence gates remain unchanged; persistent goal active.

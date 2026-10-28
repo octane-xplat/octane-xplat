@@ -1,12 +1,13 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
-import { Button, Meter, ProgressBar, ProgressGroup, Text, VStack } from '@octane-xplat/ui'
+import { Button, Meter, ProgressBar, ProgressGroup, Spinner, Text, VStack } from '@octane-xplat/ui'
 import type { ProbeContext } from '../../scripts/probe/context'
 
 export default function ProgressBarProbe() {
 	const [unknown, setUnknown] = useState(true), [value, setValue] = useState(25)
 	const [disabled, setDisabled] = useState(false), [css, setCSS] = useState(true)
 	return <VStack gap={2}>
+		<Spinner label="Saving settings" />
 		<ProgressBar id="upload-progress" label="Upload" value={value} isIndeterminate={unknown}
 			isDisabled={disabled} hasValueLabel marks={[{ value: 50, label: 'Halfway' }]}
 			accessibilityHint="Keep the app open" style={css ? 'width:240px' : { width: 240 }} />
@@ -16,7 +17,7 @@ export default function ProgressBarProbe() {
 		<Button label="Advance known progress" clickAction={() => setValue((current) => (current + 25) % 125)} />
 		<Button label="Toggle inactive state" clickAction={() => setDisabled((current) => !current)} />
 		<Button label="Toggle style form" clickAction={() => setCSS((current) => !current)} />
-		<Text>Change the app theme and inspect known/unknown mode, style width and accessibility separately. Unknown progress is a static fill; meters show an unfilled track and supplied content, with no value arc. Mounting does not qualify animation, painting or VoiceOver.</Text>
+		<Text>Change the app theme and inspect known/unknown mode, style width and accessibility separately. Unknown progress and the spinner have AppKit animation source rules; Reduce Motion should leave steady feedback; meters show an unfilled track and supplied content, with no value arc. Mounting does not qualify animation, painting or VoiceOver.</Text>
 	</VStack>
 }
 

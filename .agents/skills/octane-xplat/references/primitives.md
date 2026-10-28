@@ -768,9 +768,11 @@ export function IncludeArchived() {
 
 Spinner now forwards named sizes, text/node labels, contrast, accessible names,
 class/style forms and busy=false removal. Switch shows a compact ring while
-saving or externally loading. The ring remains static: AppKit CSS animation
-playback is still a gap. Do not describe it as a tested animated spinner;
-layout, clipping, contrast and accessibility are unqualified. See
+saving or externally loading. AppKit-specific rotation now uses the existing
+renderer keyframe sampler; reduced-motion rules leave the ring steady. Workspace
+display-option notifications queue media refresh. This is a source path, not
+proof of playback or OS notification delivery; layout, clipping, contrast and
+accessibility are unqualified. See
 [busy feedback](../../../../docs/app/components.md#busy-feedback-on-appkit).
 
 ```tsx
@@ -785,8 +787,10 @@ export function Saving() {
 AppKit ProgressBar subscribes to theme changes and preserves object/array/CSS
 styles with authored overrides. It forwards declared accessible/name/hint/value
 props. Indeterminate mode skips the formatter, readout, marks and numeric AX
-range/value, and sets busy state; disabled state is separate. Its 40% fill is
-still static. Native animation, theme presentation, layout and VoiceOver are
+range/value, and sets busy state; disabled state is separate. Its unknown fill
+now selects AppKit sliding keyframes and clips to the track; reduced-motion
+rules leave it steady, and determinate mode removes the animation class.
+Native animation/preference delivery, theme presentation, layout and VoiceOver are
 unqualified; do not infer them from mounted metadata.
 
 ```tsx

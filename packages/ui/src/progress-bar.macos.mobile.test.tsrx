@@ -62,3 +62,13 @@ it('AppKit progress follows theme preference changes without parent prop replace
 		setThemePreference('light'); flushUniversalSync(() => {}); expect(fill.props.style.backgroundColor).toBe(initial); expect(track.props.style.backgroundColor).toBe('#eaeaea')
 	} finally { env.root.unmount() }
 })
+
+it('AppKit progress binds unknown-mode animation classes and clips the moving fill', () => {
+	const env = mount({ label: 'Upload', isIndeterminate: true })
+	try {
+		const fill = env.named('vx-progressbar-fill'), track = env.named('vx-progressbar-track')
+		expect(fill.props.className).toContain('vx-progressbar-fill--appkit'); expect(fill.props.className).toContain('vx-progressbar-fill--indeterminate'); expect(track.props.style.overflow).toBe('hidden')
+		env.render({ label: 'Upload', value: 25 }); expect(env.named('vx-progressbar-fill')).toBe(fill)
+		expect(fill.props.className).not.toContain('vx-progressbar-fill--indeterminate'); expect(fill.props.style.width).toBe('25%')
+	} finally { env.root.unmount() }
+})

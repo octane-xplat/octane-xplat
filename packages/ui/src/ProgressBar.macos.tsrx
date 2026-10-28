@@ -7,9 +7,8 @@ import { mutedColor, progressFillColor, textColor } from './scheme-colors'
 
 const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max)
 
-/** ProgressBar — macOS leaf. Indeterminate renders a steady 40% fill (the
- *  AppKit host has no JS-driven `animate` on views). Marks overlay via
- *  star-column grids like the mobile leaf. */
+/** AppKit progress uses the renderer keyframe path for unknown progress;
+ * reduced-motion rules retain a steady fill. Native playback is unqualified. */
 export function ProgressBar(props: ProgressBarProps) @{
 	const scheme = useThemeScheme()
 	const max = Math.max(props.max ?? 100, 1e-9)
@@ -72,7 +71,7 @@ export function ProgressBar(props: ProgressBarProps) @{
 			className="vx-progressbar-track"
 			style={mergeStyle(
 				{ display: 'grid' },
-				{ borderRadius: 4, backgroundColor: scheme === 'dark' ? '#2e2e2e' : '#eaeaea', height: 8 },
+				{ overflow: 'hidden', borderRadius: 4, backgroundColor: scheme === 'dark' ? '#2e2e2e' : '#eaeaea', height: 8 },
 			)}
 		>
 			<masonview
@@ -85,7 +84,7 @@ export function ProgressBar(props: ProgressBarProps) @{
 						width: isIndeterminate ? '40%' : `${pct}%`,
 					},
 				)}
-				className={cx('vx-progressbar-fill', `vx-progressbar-fill--${variant}`)}
+				className={cx('vx-progressbar-fill', 'vx-progressbar-fill--appkit', `vx-progressbar-fill--${variant}`, isIndeterminate && 'vx-progressbar-fill--indeterminate')}
 			/>
 			{marks.map((mark) => {
 				const markPct = clamp(mark.value, 0, max) / max

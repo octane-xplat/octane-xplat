@@ -300,9 +300,11 @@ export function Volume() {
 
 AppKit Spinner now uses the shared named sizes, text/node labels and on-media
 contrast. `busy={false}` removes it; `accessibilityLabel` names the progress
-owner. A labeled spinner uses one root ID. The self-drawn ring is static on
-AppKit because CSS animation playback remains unsupported; it does not imply
-an animated native spinner. Appearance and accessibility remain unqualified.
+owner. A labeled spinner uses one root ID. AppKit-specific rotation rules now
+use the renderer's existing keyframe sampler. A reduced-motion rule leaves the
+ring steady; workspace display-option notifications refresh that media query.
+Actual animation, notification delivery, appearance and accessibility remain
+unqualified.
 
 ```tsx
 import { Spinner } from '@octane-xplat/ui'
@@ -329,8 +331,10 @@ AppKit ProgressBar now preserves object, array and CSS-string styles and follows
 the app theme. It forwards accessibility names, hints and determinate value
 overrides; unknown progress omits numeric range/value, skips the formatter,
 readout and marks, and reports busy state. Disabled progress reports disabled
-state. Unknown progress still uses a static 40% fill; animation playback,
-appearance, layout and VoiceOver remain unqualified.
+state. Unknown progress now selects an AppKit-specific sliding 40% fill clipped
+to its track; reduced motion leaves steady feedback. Switching to determinate
+removes the animation class. Actual playback, preference delivery, appearance,
+layout and VoiceOver remain unqualified.
 
 ```tsx
 import { ProgressBar } from '@octane-xplat/ui'

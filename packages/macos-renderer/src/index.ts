@@ -152,6 +152,7 @@ import {
 	NSNotificationCenter,
 	NSNumber,
 	NSObject,
+	NSOperationQueue,
 	NSPanGestureRecognizer,
 	NSParagraphStyleAttributeName,
 	NSPopover,
@@ -191,6 +192,7 @@ import {
 	NSWindowOrderingMode,
 	NSWindowStyleMask,
 	NSWorkspace,
+	NSWorkspaceAccessibilityDisplayOptionsDidChangeNotification,
 	NativeClass,
 	WKWebView,
 	AVPlayerView,
@@ -10398,6 +10400,23 @@ function installResizeObserver() {
 	)
 }
 
+// Accessibility display notifications use the workspace's center, not defaultCenter.
+// Like the resize observer, one token belongs to the loaded renderer process.
+let accessibilityDisplayObserver: unknown
+function installAccessibilityDisplayObserver() {
+	if (accessibilityDisplayObserver !== undefined) return
+	try {
+		const workspace = NSWorkspace.sharedWorkspace, center = workspace?.notificationCenter
+		if (typeof center?.addObserverForNameObjectQueueUsingBlock !== 'function') return
+		const observer = center.addObserverForNameObjectQueueUsingBlock(
+			NSWorkspaceAccessibilityDisplayOptionsDidChangeNotification,
+			workspace, NSOperationQueue.mainQueue,
+			() => { if (appKitContainers.size) onHostWindowResize() },
+		)
+		if (observer != null) accessibilityDisplayObserver = observer
+	} catch (error) { console.warn('[macos-css] accessibility display observer unavailable', error) }
+}
+
 // Appearance flips change ns-light/ns-dark on roots and may flip media-gated rules.
 appKitBridge.onAppearanceChange?.(() => restyleAllContainers())
 appKitBridge.imageMemoryCache = imageMemoryCache
@@ -10509,6 +10528,7 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 	ownedRoots.set(hostView, root)
 	appKitContainers.add(container)
 	installResizeObserver()
+	installAccessibilityDisplayObserver()
 	// Prime the media-query cache so the first resize diff compares against
 	// a baseline instead of an empty cache (GTK wires its window the same way).
 	refreshMediaQueries()

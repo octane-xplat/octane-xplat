@@ -5,7 +5,8 @@ import { useThemeScheme } from './theme/theme-scheme.macos'
 import { controlColors } from './control-colors.macos'
 import { mergeStyle } from './style-merge'
 
-/** Shared, self-drawn ring. AppKit still does not play its CSS rotation. */
+/** Self-drawn ring with AppKit stylesheet rotation and reduced-motion fallback.
+ * Native playback and presentation remain unqualified. */
 export function ActivityIndicator(props: ActivityIndicatorProps) @{
 	const dark = useThemeScheme() === 'dark'
 	if (props.busy === false) return null

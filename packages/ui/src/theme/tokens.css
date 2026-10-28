@@ -816,6 +816,16 @@
 		.vx-spinner--appkit.vx-spinner--size-lg { width: 24px; height: 24px; }
 		.vx-spinner--appkit.vx-spinner--size-xl { width: 32px; height: 32px; }
 		.vx-spinner-row--appkit { display: flex; flex-direction: row; align-items: center; gap: 8px; }
+		/* AppKit busy animation rules. */
+		.vx-spinner.vx-spinner--appkit { animation: vx-appkit-spinner-turn 0.8s linear infinite; }
+		.vx-progressbar-fill--appkit.vx-progressbar-fill--indeterminate { animation: vx-appkit-progressbar-slide 1.2s linear infinite; }
+		@keyframes vx-appkit-spinner-turn { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+		@keyframes vx-appkit-progressbar-slide { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
+		@media (prefers-reduced-motion: reduce) {
+			.vx-spinner.vx-spinner--appkit,
+			.vx-progressbar-fill--appkit.vx-progressbar-fill--indeterminate { animation: none; }
+		}
+		/* AppKit busy animation rules end. */
 		.vx-switch--appkit .vx-switch-thumb { align-items: center; justify-content: center; }
 		.vx-field-label-press--appkit { display: flex; flex-direction: column; flex-shrink: 1; }
 		.vx-checkbox-field--appkit { display: flex; flex-direction: column; }

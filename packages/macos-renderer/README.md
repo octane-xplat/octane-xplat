@@ -223,7 +223,12 @@ Current limits:
   `:focus` rules never match yet.
 - Media queries are re-checked when the appearance or the stylesheets
   change, but not when a window resizes.
-- `@keyframes` and `animation-*` are parsed but not played.
+- Matched keyframes now have a shared sampler/timer source path. Explicit
+  animation:none/animation-name:none resets earlier accumulated tracks; this
+  is not full browser animation-cascade parity. AppKit busy-control rules use
+  it, with workspace display-option notifications queuing media refresh for
+  reduced motion. Native playback, notification delivery and frame pacing
+  remain unqualified.
 - Per-side borders and per-corner radii draw through a
   masked shape layer; `border-style` values paint solid.
 - `box-shadow` paints one outset shadow (first entry; spread grows the
