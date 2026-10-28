@@ -1906,3 +1906,43 @@ Native URL launch, router integration across consumers, key/mouse activation,
 VoiceOver, inline wrapping/appearance and packaged lifecycle remain unqualified.
 No builds, package tests/typechecks, installs, OS automation, visual analysis or
 shared audit regeneration ran; no evidence checkbox is closed.
+
+
+### Pressable identifiers and accessibility-element forwarding
+
+Pressable underlies everyday action controls. Its AppKit leaf dropped both
+accessible and testID, including Button's inherited metadata after the prior
+forwarding repair. The renderer vocabulary also accepted testID without any
+native application path. Renderer prerequisite first: applyProps now assigns
+concrete hosts' accessibilityIdentifier once, independently of CSS id/labels,
+and consumes the prop before leaf dispatch. Removal clears to an empty string;
+viewless nodes do not allocate an identifier/view. The leaf now forwards both
+props, preserving normal press callbacks when accessible is false.
+
+Apple's [identifier property](https://developer.apple.com/documentation/appkit/nsaccessibility-c.protocol/accessibilityidentifier)
+is programmatic identity. This is not a spoken label, AX exposure override or
+proof an automation tool can find the element. The existing AccessibleHostView
+ignored-element path already honors accessible=false; actual native behavior is
+still unqualified. hitSlop, live-region announcements and escape-bag modifiers
+remain separate Pressable gaps; no new support claim is made for them.
+
+Two renderer cases cover identity updates/clear/separation and viewless behavior;
+two object-driver cases cover Pressable metadata/retention/removal and Button
+busy/disabled forwarding. All cases are authored but unrun. Public identifier
+guidance now distinguishes this AppKit source subset from previously qualified
+iOS/web selector evidence. No other composite forwarding audit is implied.
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/pressable.macos.mobile.test.tsrx src/button.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer --filter=...@octane-xplat/ui
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All commands remain deferred pending this task's explicit human authorization.
+Only syntax parsing, semantic/source review and whitespace checks ran. Native
+identifier setters, accessibility-tree discovery/replay, ignored-element behavior,
+reparenting and packaged lifetime remain unqualified. No installs, builds,
+package tests/typechecks, OS automation, visual analysis or shared audit
+regeneration ran; no evidence checkbox is closed.

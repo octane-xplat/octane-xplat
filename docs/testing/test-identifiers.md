@@ -106,7 +106,8 @@ export function NameField() {
 | iOS | UIKit `accessibilityIdentifier` |
 | Android | Automation identifier in accessibility `resource-id`; runtime replay remains unverified |
 | Web | DOM `data-testid`; existing DOM `id` preserved |
-| Desktop renderers and physical devices | Not qualified; do not assume support |
+| AppKit (source only) | Raw native hosts map to `accessibilityIdentifier`; Pressable/Button forward the prop; runtime selectors unqualified |
+| Other desktop renderers and physical devices | Not qualified; do not assume support |
 
 The bounded journey passed on an iOS simulator and Chromium. See the
 [internal mapping evidence](../../.agents/docs/argent.md#test-identifier-mapping-evidence)
@@ -127,3 +128,39 @@ For optional AI-agent browser/device control through MCP, use
 [Argent's official setup](https://docs.swmansion.com/argent/docs/fundamentals/installation/)
 and the [qualified local Argent recipe](argent.md). Stable IDs improve
 reliable targeting; spoken accessibility semantics still belong to users.
+
+
+## AppKit source implementation
+
+AppKit Pressable and Button now forward `testID` to their retained native host.
+The renderer assigns it to AppKit's
+[accessibility identifier](https://developer.apple.com/documentation/appkit/nsaccessibility-c.protocol/accessibilityidentifier),
+which is separate from the CSS `id` and spoken accessibility label. Changing the
+prop updates that host; dropping it clears the identifier to an empty string.
+Viewless logical nodes receive no native identifier.
+
+```tsx
+import { Button } from '@octane-xplat/ui'
+
+export function SaveDraft({ save }: { save(): void }) {
+	return <Button id="save-control" testID="draft.save" label="Save changes" clickAction={save} />
+}
+```
+
+This is source implementation with authored, unrun renderer/object-driver cases.
+It does not establish selector discovery/replay, native bridge behavior or
+VoiceOver on macOS. Other AppKit composites need their own forwarding review;
+this change does not qualify the whole host table for desktop use. Pressable
+also forwards `accessible`, but use that prop only when deliberately choosing
+whether an interaction appears as an accessibility element. It is not an
+identifier or a substitute for a spoken label.
+
+```tsx
+import { Pressable, Text } from '@octane-xplat/ui'
+
+export function NamedAction({ run }: { run(): void }) {
+	return <Pressable testID="draft.preview" accessible accessibilityLabel="Preview draft" onPress={run}>
+		<Text>Preview</Text>
+	</Pressable>
+}
+```

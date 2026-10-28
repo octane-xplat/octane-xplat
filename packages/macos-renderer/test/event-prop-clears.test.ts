@@ -319,3 +319,30 @@ test('applyProps commits native focus handler updates and clears', () => {
 	assert.equal(Reflect.get(node.props, 'onFocus'), undefined)
 	assert.equal(Reflect.get(node.props, 'onBlur'), undefined)
 })
+
+
+test('testID maps to the native accessibility identifier independently of CSS id and labels', () => {
+	for (const type of ['masonview', 'textfield']) {
+		const { node, applyProps } = applyPropsFixture(type)
+		node.props = { id: 'css-name', accessibilityLabel: 'Save changes' }
+		const host = node.view
+		applyProps(node, { testID: 'draft.save' })
+		assert.equal(Reflect.get(host, 'accessibilityIdentifier'), 'draft.save')
+		assert.equal(Reflect.get(node.props, 'id'), 'css-name')
+		assert.equal(Reflect.get(node.props, 'accessibilityLabel'), 'Save changes')
+		applyProps(node, { testID: 'draft.retry' })
+		assert.equal(node.view, host)
+		assert.equal(Reflect.get(host, 'accessibilityIdentifier'), 'draft.retry')
+		applyProps(node, { testID: undefined }) // droppedPropClears supplies this clear.
+		assert.equal(Reflect.get(host, 'accessibilityIdentifier'), '')
+	}
+})
+
+test('testID on a viewless host does not create a view or overwrite authored CSS identity', () => {
+	const { node, applyProps } = applyPropsFixture('proxyviewcontainer')
+	node.view = null as any
+	node.props = { id: 'logical-owner' }
+	applyProps(node, { testID: 'logical-only' })
+	assert.equal(node.view, null)
+	assert.equal(Reflect.get(node.props, 'id'), 'logical-owner')
+})

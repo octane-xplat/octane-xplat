@@ -190,3 +190,21 @@ XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xpla
 Read [test-layer guidance](../../../docs/testing.md#appkit-component-tests) for
 scope and prerequisites. Do not use an AppKit filename with the default mobile
 mode and report missing tests as a platform pass.
+
+
+## AppKit identifiers remain source-only
+
+AppKit raw native hosts now map testID to accessibilityIdentifier, with updates
+and clears on the retained host; logical viewless nodes do not get native IDs.
+Pressable and Button forward testID and accessible. Preserve the separate CSS
+id and spoken label. Do not infer other composites' forwarding, native selector
+replay or VoiceOver behavior from this implementation; source cases are authored
+but unrun. See [AppKit identifiers](../../../../docs/testing/test-identifiers.md#appkit-source-implementation).
+
+```tsx
+import { Button } from '@octane-xplat/ui'
+
+export function Save({ save }: { save(): void }) {
+	return <Button id="save-control" testID="draft.save" label="Save changes" clickAction={save} />
+}
+```

@@ -783,3 +783,25 @@ export function Choice({ enabled, choose }: { enabled: boolean; choose(): void }
 		onTap={enabled ? choose : undefined}><label text="Choice" /></masonview>
 }
 ```
+
+
+### Native test identifiers
+
+A concrete AppKit host maps `testID` to its
+[accessibilityIdentifier](https://developer.apple.com/documentation/appkit/nsaccessibility-c.protocol/accessibilityidentifier).
+This does not change its CSS id or spoken label. Updates reuse the host;
+removal clears the native identifier to an empty string. Viewless logical
+nodes do not allocate a native identifier or view.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+export function SaveAction({ save }: { save(): void }) {
+	return <masonview id="save-control" testID="draft.save" accessibilityRole="button"
+		accessibilityLabel="Save changes" onTap={save}><label text="Save" /></masonview>
+}
+```
+
+Raw mapping and Pressable/Button forwarding have authored, unrun source cases.
+Native bridge setters, accessibility-tree discovery, selector replay, reparenting
+and packaged operation remain unqualified. An identifier does not expose an
+otherwise ignored view or prove an automation tool can discover it.

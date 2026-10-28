@@ -6351,6 +6351,9 @@ function applyProps(node: ElementNode, props: PropBag) {
 	}
 
 	node.props = { ...node.props, ...props }
+	if ('testID' in props && node.view) {
+		node.view.accessibilityIdentifier = String(props.testID ?? '')
+	}
 	if ('disabled' in props && node.clickGestureRecognizer) {
 		node.clickGestureRecognizer.enabled = !node.props.disabled && typeof actionHandlers.get(node.actionId!) === 'function'
 	}
@@ -6443,6 +6446,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 	}
 
 	for (const [name, value] of Object.entries(props)) {
+		if (name === 'testID') continue // Applied once to every concrete native host above.
 		if (name === 'onKeyDown' || name === 'onKeyUp' || name === 'onFocus' || name === 'onBlur') continue
 		if (
 			(node.layoutParent ?? node.parent) &&

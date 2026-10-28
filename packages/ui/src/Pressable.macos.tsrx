@@ -13,6 +13,8 @@ export function Pressable(props: PressableProps) @{
 			mergeStyle({ flexDirection: 'column' }, mergeStyle({ display: 'flex' }, props.style)),
 		)}
 		id={props.id}
+		testID={props.testID}
+		accessible={props.accessible}
 		className={cx('vx-pressable', props.className)}
 		disabled={props.disabled}
 		onPan={usePan(props.disabled ? undefined : props.onPan)}
