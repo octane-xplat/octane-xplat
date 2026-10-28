@@ -22,12 +22,23 @@ function setup() {
 	return { container, root }
 }
 
+function findNative(node: any, type: string, label?: string): any {
+	if (node.type === type && (label === undefined || node.props?.accessibilityLabel === label)) {
+		return node
+	}
+	for (const child of node.children ?? []) {
+		const found = findNative(child, type, label)
+		if (found) return found
+	}
+	return null
+}
+
 describe('native text input', () => {
 	it('seeds defaultValue, keeps user edits internally, and reports the new string', async () => {
 		const { container, root } = setup()
 		const change = vi.fn()
 		root.render(TextInput, { defaultValue: 'seed', onChange: change })
-		const field = container.children[0].children[0]
+		const field = findNative(container, 'textfield')
 		await vi.waitFor(() => expect(field.text).toBe('seed'))
 		container.dispatchEvent(field, 'textChange', { object: field, value: 'seed-x' })
 		expect(change).toHaveBeenLastCalledWith('seed-x')
@@ -39,7 +50,7 @@ describe('native text input', () => {
 		const { container, root } = setup()
 		const change = vi.fn()
 		root.render(TextInput, { value: 'owned', defaultValue: 'ignored', onChange: change })
-		const field = container.children[0].children[0]
+		const field = findNative(container, 'textfield')
 		await vi.waitFor(() => expect(field.text).toBe('owned'))
 		container.dispatchEvent(field, 'textChange', { object: field, value: 'edited' })
 		expect(change).toHaveBeenLastCalledWith('edited')
@@ -58,17 +69,39 @@ describe('native text input', () => {
 			onClear: cleared,
 		})
 
-		const shell = container.children[0]
-		const field = shell.children[0]
-		await vi.waitFor(() => expect(shell.children.length).toBe(2))
+		const field = findNative(container, 'textfield')
+		const clear = findNative(container, 'masonview', 'Clear input')
+		expect(clear).not.toBeNull()
 		// The object driver instance has no NSView surface — the clear handler
 		// refocuses the field imperatively on a real device.
 		field.focus = vi.fn()
-		container.dispatchEvent(shell.children[1], 'tap', {})
+		container.dispatchEvent(clear, 'tap', {})
 		expect(change).toHaveBeenLastCalledWith('')
 		expect(cleared).toHaveBeenCalled()
 		await vi.waitFor(() => expect(field.text).toBe(''))
 		root.unmount()
+	})
+
+	it('retains an edited input while automatic labels appear and disappear', async () => {
+		const { container, root } = setup()
+		const change = vi.fn()
+		const inputRef = { current: null as any }
+		const props = { defaultValue: 'seed', onChange: change, ref: inputRef }
+		root.render(TextInput, props)
+		const field = findNative(container, 'textfield')
+		await vi.waitFor(() => expect(field.text).toBe('seed'))
+		container.dispatchEvent(field, 'textChange', { object: field, value: 'edited' })
+		await vi.waitFor(() => expect(field.text).toBe('edited'))
+		root.render(TextInput, { ...props, label: 'Account', description: 'Help' })
+		await vi.waitFor(() => expect(findNative(container, 'textfield')).toBe(field))
+		expect(inputRef.current.native).toBe(field)
+		expect(field.text).toBe('edited')
+		root.render(TextInput, props)
+		await vi.waitFor(() => expect(findNative(container, 'textfield')).toBe(field))
+		expect(field.text).toBe('edited')
+		expect(change).toHaveBeenCalledExactlyOnceWith('edited')
+		root.unmount()
+		expect(inputRef.current).toBeNull()
 	})
 })
 

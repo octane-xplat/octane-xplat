@@ -23,4 +23,17 @@ export function AccountField() {
 }
 ```
 
+
+Native TextInput also keeps edited text, focus and selection when a label appears
+or disappears. Its automatic field wrapper stays mounted during the change.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { TextInput } from '@octane-xplat/ui'
+
+export function EditableAccount(props: { showLabel: boolean }) {
+  return <TextInput defaultValue="Account" label={props.showLabel ? 'Account' : undefined} />
+}
+```
+
 [GTK qualification](https://octane-xplat.goddardai.org/platform/linux-gtk#check-the-runtime).

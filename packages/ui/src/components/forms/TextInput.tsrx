@@ -19,7 +19,6 @@ import { FormField } from './FormField'
  *  Android selection survives controlled writes (see text-write). */
 function TextInputControl(inputProps: TextInputProps) @{
 	const props = useFieldControlProps(inputProps)
-	const inField = useContext(FieldContext) != null
 	const el = useRef<any>(null)
 	const [internal, setInternal] = useState(props.defaultValue ?? '')
 	const value = props.value ?? internal
@@ -55,10 +54,7 @@ function TextInputControl(inputProps: TextInputProps) @{
 
 	<masonview
 		className={cx('vx-input-shell', props.inInputGroup && 'vx-input-shell--ingroup')}
-		style={mergeStyle(
-			{ flexDirection: 'row', alignItems: 'center' },
-			{ display: 'flex', ...(!inField && props.width != null ? { width: props.width } : {}) },
-		)}
+		style={mergeStyle({ flexDirection: 'row', alignItems: 'center' }, { display: 'flex' })}
 	>
 		{props.startIcon != null ? (
 			<masonview className="vx-input-icon">
@@ -135,18 +131,17 @@ function TextInputControl(inputProps: TextInputProps) @{
 
 /** Standalone inputs render Astryx's visible field chrome: outside a
  *  FormField, wrap the control in one (label, description, status). Inside a
- *  field the FormField owns that chrome, so the control renders bare. */
-export function TextInput(props: TextInputProps): unknown @{
+ *  field the FormField owns that chrome, so the control renders bare. Keep
+ *  the automatic wrapper mounted even without visible chrome: adding a label
+ *  or validation message must not replace the editor owner, reset
+ *  uncontrolled text, move focus or discard its selection. */
+export function TextInput(inputProps: TextInputProps): unknown @{
 	const inField = useContext(FieldContext) != null
-	const needsChrome =
-		!inField &&
-		(props.label != null ||
-			props.description != null ||
-			props.status != null ||
-			props.isRequired ||
-			props.isOptional)
+	const props = useFieldControlProps(inputProps)
 
-	@if (needsChrome) {
+	@if (inField) {
+		<TextInputControl {...inputProps} />
+	} @else {
 		<FormField
 			label={props.label}
 			description={props.description}
@@ -163,9 +158,7 @@ export function TextInput(props: TextInputProps): unknown @{
 			disabledMessage={props.disabledMessage}
 			width={props.width}
 		>
-			<TextInputControl {...props} />
+			<TextInputControl {...inputProps} />
 		</FormField>
-	} @else {
-		<TextInputControl {...props} />
 	}
 }

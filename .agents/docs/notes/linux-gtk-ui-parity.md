@@ -628,3 +628,53 @@ the runtime/type checks; behavior and public prop types are unchanged.
 Packed export/declaration validation also passes six tasks
 (andromeda /tmp/gtk-field-chrome-pack.log). Existing broad native batch-observer
 and docs-site parser failures remain outside this slice’s passing evidence.
+
+## Stable native TextInput ownership
+
+Adding or removing an automatic label previously switched TextInputControl
+between component branches. A real X11 edit followed by label insertion fails
+on the previous source because native entry/public-handle identity changes
+(guest /tmp/gtk-entry-lifecycle-before.log). That is an observed remount; the
+old branch structure also created a fresh uncontrolled state owner.
+
+Standalone native TextInput now always mounts the same automatic FormField,
+even when none of its chrome is visible. Inside an existing FieldContext it
+still uses the existing field owner. Width belongs to that outer owner; the
+control no longer repeats it on its shell. The automatic wrapper receives
+resolved field props, so inherited size and state match the editor. The inner
+control receives the original props so description/status hints are resolved
+once rather than concatenated twice. The tradeoff is one neutral layout view
+for a previously bare standalone input.
+
+The focused real-Linux fixture passes 56 checks after the fix
+(/tmp/gtk-entry-lifecycle-after.log), including actual X11 typing followed by
+label insertion/removal, exact entry/ref/selection/focus retention, inherited
+size updates and explicit size precedence. Existing clear/help/status keyboard
+checks remain in that fixture. Native object-driver regression coverage now
+queries the editor and clear label instead of assuming a wrapper depth; it adds
+an edited-state retention regression. Broad native tests pass 453 Vitest cases
+and fail the same previously recorded batch-observer expectation that an
+observer exception escapes; its test/config/lockfile/canonical Octane patch
+remain unchanged from the task base. The task's prior note records the same
+isolated failure. This is not a passing broad-native-suite claim.
+
+TextInput remains direct-source while remaining input-purpose/return-caption
+and common-prop qualification proceeds. No GTK root export, recipe workflow,
+IME, AT-client, Wayland, mobile-device or pixel qualification is added here.
+
+Final evidence: full real-Linux renderer suite passes all 39 tests without
+skips, including the 56-check lifecycle/field fixture
+(/tmp/gtk-entry-lifecycle-tests-final.log). The final focused fixture adds
+first-validation-message insertion/removal and passes 59 checks with actual
+X11 typing and clear/help/status keyboard input
+(/tmp/gtk-entry-lifecycle-focused-final.log). Runtime remains Ubuntu24.04 amd64,
+GJS1.80.2, GTK4.14.5, XplatMason and private Xvfb. UI/renderer/dependent typechecks
+pass 58 tasks (/tmp/gtk-entry-lifecycle-types.log); the final fixture changes
+pass the expanded eight-task renderer check
+(/tmp/gtk-entry-lifecycle-types-final.log). Packed declarations/exports pass six
+tasks (/tmp/gtk-entry-lifecycle-pack.log). Focused native tests pass 58 Node
+checks and 30 Vitest cases (/tmp/gtk-entry-lifecycle-native-focused.log).
+Recipes, UI barrel synchronization, 17 release notes, formatting and whitespace
+pass. Root remains 37 values and 57 types; no new UI dependencies or public prop
+types. The broad-native batch-observer failure and docs-site parser failure
+remain outside passing evidence.

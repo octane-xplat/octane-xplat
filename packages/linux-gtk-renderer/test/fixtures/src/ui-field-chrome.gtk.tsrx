@@ -1,6 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { View } from '@octane-xplat/ui'
 import { TextInput } from '../../../../ui/src/TextInput'
+import { SizeProvider } from '../../../../ui/src/size-context'
 import { FormField } from '../../../../ui/src/FormField'
 import type { TextInputHandle, FieldStatusVariant } from '../../../../ui/src/props'
 
@@ -8,6 +9,9 @@ export const inputRef: { current: TextInputHandle | null } = { current: null }
 export const actions: string[] = []
 export function FieldChrome(props: {
 	bareWidth: number | string
+	bareLabel?: string
+	bareMessage?: string
+	providerSize?: 'sm' | 'md' | 'lg'
 	fieldWidth: number | string
 	variant: FieldStatusVariant
 	message: string
@@ -16,8 +20,9 @@ export function FieldChrome(props: {
 	disabled?: boolean
 	size?: 'sm' | 'md' | 'lg'
 }) @{
+	<SizeProvider value={props.providerSize}>
 	<View id="field-root" style={{ width: 400, height: 500 }}>
-		<TextInput id="bare" ref={inputRef} defaultValue="Seed" hasClear width={props.bareWidth}
+		<TextInput id="bare" ref={inputRef} defaultValue="Seed" hasClear width={props.bareWidth} label={props.bareLabel} status={props.bareMessage ? { type: "error", message: props.bareMessage } : undefined}
 			onChange={(value) => actions.push('change:' + value)} onClear={() => actions.push('clear')} />
 		<TextInput id="field" defaultValue="Account" label="Account" labelTooltip="Work account"
 			description="Use your account" status={{ type: 'error', message: props.message }}
@@ -28,4 +33,5 @@ export function FieldChrome(props: {
 		</FormField>
 		<textfield id="field-peer" text="Peer" style={{ width: 200, height: 32 }} />
 	</View>
+	</SizeProvider>
 }

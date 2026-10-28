@@ -64,7 +64,10 @@ test(
 					.split('\n')[0]
 				const send = (...args) => execFileSync('xdotool', args, { env, timeout: 7000 })
 				send('windowfocus', id)
-				if (phase.phase === 'clear-focus' || phase.phase === 'info') send('key', 'Tab')
+				if (phase.phase === 'edit') {
+					send('key', 'ctrl+a')
+					send('type', '--clearmodifiers', '--delay', '1', 'Edited account')
+				} else if (phase.phase === 'clear-focus' || phase.phase === 'info') send('key', 'Tab')
 				else if (phase.phase === 'clear') send('key', 'Return')
 				else if (phase.phase === 'escape') send('key', 'Escape')
 				else if (phase.phase === 'status') send('key', 'Tab', 'Tab')
@@ -89,7 +92,7 @@ test(
 		const line = stdout.split('\n').find((line) => line.startsWith('GTK_FIELD_CHROME '))
 		assert.ok(line, stdout)
 		const result = JSON.parse(line.slice('GTK_FIELD_CHROME '.length))
-		assert.ok(result.checks >= (osInput ? 40 : 28), JSON.stringify(result))
+		assert.ok(result.checks >= (osInput ? 59 : 44), JSON.stringify(result))
 		assert.equal(result.osInput, osInput)
 		t.diagnostic(
 			process.platform +

@@ -85,3 +85,10 @@ GTK Entry has no direct per-field return-key caption property in the inspected
 4.14.5 GIR or 4.24.1 API. Keep Return/onSubmit behavior separate from captions;
 do not turn returnKeyType="next" into automatic focus movement. See the
 [renderer evidence](../../../docs/notes/linux-gtk-renderer.md#gtk-entry-return-key-captions).
+
+Keep a standalone native TextInput’s automatic Field wrapper stable when labels
+or validation messages appear. Reparenting the control between conditional
+component branches remounts its state and native editor. Pass resolved defaults
+to the wrapper and original input props to the control so composed hints are
+not resolved twice. The maintained GTK field fixture covers exact entry, ref,
+selection and focus retention after actual typing.

@@ -187,6 +187,75 @@ async function run() {
 		'replacing status presentation retains uncontrolled text',
 		node('field').view === field && field.get_text() === 'Account',
 	)
+	inputRef.current!.focus()
+	await pause()
+	if (GLib.getenv('GTK_FIELD_CHROME_OS') === '1') {
+		await phase('edit')
+	} else {
+		bare.set_text('Edited account')
+		await pause()
+	}
+	check('lifecycle probe starts with an uncontrolled edit', bare.get_text() === 'Edited account')
+	bare.select_region(1, 5)
+	const focusedEditor = window.get_focus()
+	props = { ...props, bareLabel: 'Name', providerSize: 'lg', size: 'md' }
+	render()
+	await pause()
+	check(
+		'adding chrome retains native entry and public handle',
+		node('bare').view === bare && inputRef.current!.native === bare,
+	)
+	check('adding chrome retains uncontrolled edits', bare.get_text() === 'Edited account')
+	const [selected, start, end] = bare.get_selection_bounds()
+	check('adding chrome retains selection', selected && start === 1 && end === 5)
+	check('adding chrome retains exact native focus delegate', window.get_focus() === focusedEditor)
+	check(
+		'automatic chrome inherits provider size',
+		node('bare').parent!.parent!.cssClasses.has('vx-field--size-lg'),
+	)
+	check(
+		'input and automatic chrome inherit the same size',
+		node('bare').cssClasses.has('vx-input--size-lg'),
+	)
+	check('explicit input size wins over provider size', chrome.cssClasses.has('vx-field--size-md'))
+	props = { ...props, bareLabel: undefined, providerSize: 'sm' }
+	render()
+	await pause()
+	check(
+		'removing chrome retains native entry and uncontrolled edits',
+		node('bare').view === bare && bare.get_text() === 'Edited account',
+	)
+	const [kept, first, last] = bare.get_selection_bounds()
+	check(
+		'removing chrome retains selection and focus',
+		kept && first === 1 && last === 5 && window.get_focus() === focusedEditor,
+	)
+	check(
+		'size provider updates both automatic chrome and input',
+		node('bare').parent!.parent!.cssClasses.has('vx-field--size-sm') &&
+			node('bare').cssClasses.has('vx-input--size-sm'),
+	)
+	props = { ...props, bareMessage: 'Please correct the name' }
+	render()
+	await pause()
+	check(
+		'first validation message retains edited input',
+		node('bare').view === bare && bare.get_text() === 'Edited account',
+	)
+	const [statusSelection, statusStart, statusEnd] = bare.get_selection_bounds()
+	check(
+		'first validation message retains selection and focus',
+		statusSelection && statusStart === 1 && statusEnd === 5 && window.get_focus() === focusedEditor,
+	)
+	props = { ...props, bareMessage: undefined }
+	render()
+	await pause()
+	check(
+		'clearing validation retains editor and focus',
+		node('bare').view === bare &&
+			bare.get_text() === 'Edited account' &&
+			window.get_focus() === focusedEditor,
+	)
 	if (GLib.getenv('GTK_FIELD_CHROME_OS') === '1') {
 		inputRef.current!.focus()
 		await pause()
