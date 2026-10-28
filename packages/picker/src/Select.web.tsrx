@@ -1,4 +1,4 @@
-/** @jsxImportSource octane */
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useState } from 'octane'
 import type { SelectProps } from './web/types'
 
