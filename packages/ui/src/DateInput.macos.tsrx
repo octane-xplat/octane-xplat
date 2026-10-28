@@ -2,7 +2,8 @@
 import { appKitTextChange } from './appkit-events.macos'
 import { mergeStyle } from './style-merge'
 import { createAppKitDateFieldHandle } from './date-field-handle.macos'
-import { useImperativeHandle, useContext, useEffect, useId, useMemo, useRef, useState, useCallback } from 'octane'
+import { createAppKitAutoFocus } from './auto-focus.macos'
+import { useImperativeHandle, useContext, useEffect, useLayoutEffect, useId, useMemo, useRef, useState, useCallback } from 'octane'
 import type { DateInputProps, ISODateString } from './props'
 import type { NSTextField, NSView } from '@octane-xplat/platform/macos'
 import { cx } from '@octane-xplat/lib'
@@ -29,7 +30,7 @@ function DateInputControl(inputProps: DateInputProps) @{
 	const inputId = props.id ?? generatedId
 	const input = useRef<NSTextField | null>(null)
 	const anchor = useRef<NSView | null>(null)
-	const bindInput = useCallback((view: NSTextField | null) => { input.current = view }, [])
+	const bindInput = useCallback((view: NSTextField | null) => { input.current = view; autoFocus.bind(view) }, [])
 	const bindAnchor = useCallback((view: NSView | null) => { anchor.current = view; if (!view) openRef.current = false }, [])
 
 	const [open, setOpenState] = useState(false)
@@ -61,6 +62,11 @@ function DateInputControl(inputProps: DateInputProps) @{
 
 	const current = useRef({ props, isDateDisabled })
 	current.current = { props, isDateDisabled }
+	const autoFocus = useMemo(() => createAppKitAutoFocus({
+		requested: () => current.current.props.hasAutoFocus === true, blocked: () => blocked.current || actionPending.current,
+	}), [])
+	useLayoutEffect(() => autoFocus.update(), null)
+	useEffect(() => () => autoFocus.dispose(), [])
 	useEffect(() => { if (blocked.current && openRef.current) setOpen(false) }, [isDisabled, isBusy])
 
 	const formatValue = (iso: ISODateString): string =>

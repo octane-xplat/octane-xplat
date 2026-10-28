@@ -1425,7 +1425,7 @@ export function Booking(props: { date: string | null; change(date: string | null
 
 Three policy/six object-driver cases and the date-focus fixture are unrun; source
 wiring is not native ref/editor/focus/IME/layer/AX qualification. DateInput/TimeInput
-hasAutoFocus remains a separate attachment-timing gap. See [date focus handles](../../../../docs/platform/date-picker.md#focus-an-appkit-date-field-from-a-form-action).
+hasAutoFocus now has separate source wiring; native attachment timing remains unqualified. See [date focus handles](../../../../docs/platform/date-picker.md#focus-an-appkit-date-field-from-a-form-action).
 
 
 ## AppKit date/range change ownership
@@ -1558,3 +1558,26 @@ and [AppKit recipe](../../../docs/recipes/appkit-paging.md) before promising nat
 paging support. The mobile plugin is not imported by the macOS leaf; its existing
 package dependency remains. Do not add macOS to qualified parity targets from
 source/mock evidence.
+
+
+## AppKit date/time autofocus request ownership
+
+DateInput/TimeInput now wire their existing hasAutoFocus flag to a private
+post-commit request owner. It waits for first attachment/visibility only while
+input and window observation are available, cancels on user activity, changed
+responders, blocking/ref/window changes or teardown, and claims before native
+focus callbacks. Native refusal is not retried. False-to-true explicitly rearms;
+unblocking alone does not. No window activation or picker opening is requested.
+
+```tsx
+import { DateInput } from '@octane-xplat/ui'
+export function NewBooking() {
+	return <DateInput label="Booking date" hasAutoFocus />
+}
+```
+
+Nine policy/six object-driver cases and the manual fixture are unrun. Popover is
+mocked away in component cases; this is not modal containment/native caret/IME/
+AX evidence. See [autofocus guidance](../../../../docs/platform/date-picker.md#request-initial-appkit-date-or-time-focus).
+This does not change DateTimeInput/DateRangeInput (no autofocus flag), nor qualify
+BaseTypeahead/PowerSearch initial-focus ownership.

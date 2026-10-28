@@ -721,7 +721,7 @@ ref replacement/unmount ownership uses Octane's imperative-ref lifecycle. Three
 policy and six object-driver cases plus a maintained fixture are authored and
 unrun. Source/syntax review does not prove native ref timing, responder/editor
 identity, blur/submit/IME/caret ordering, popup/modal integration or accessibility.
-DateInput/TimeInput hasAutoFocus attachment timing remains a separate source gap.
+DateInput/TimeInput autofocus now has [separate source wiring](#request-initial-appkit-date-or-time-focus); native attachment and focus ordering remain unqualified.
 
 
 ### Keep AppKit date saves owned by one edit
@@ -767,3 +767,43 @@ Seven object-driver cases and the maintained date-save fixture are authored and
 unrun. Source/syntax review does not prove native callback, save/blur/focus/IME,
 popup/modal, accessibility or package behavior. These guards do not add save
 cancellation, automatic parent rollback or native error announcements.
+
+
+### Request initial AppKit date or time focus
+
+Use `hasAutoFocus` when a newly mounted date or time field should receive the
+caret. The AppKit source queues one request after commit and can wait for its
+first attached, visible host. It requests first responder without activating a
+window or opening a picker.
+
+```tsx
+import { DateInput } from '@octane-xplat/ui'
+export function NewBooking() {
+	return <DateInput label="Booking date" hasAutoFocus />
+}
+```
+
+Pending requests cancel on keyboard/pointer activity, application deactivation,
+changed responders, ref/window replacement, blocking state, prop removal or
+teardown. Making a blocked field editable again does not rearm autofocus; toggle
+`hasAutoFocus` from false to true for a new request, or use the existing ref's
+`focus()` method from an explicit action.
+
+```tsx
+import { useState } from 'octane'
+import { Button, TimeInput } from '@octane-xplat/ui'
+export function BookingTime() {
+	const [requested, setRequested] = useState(false)
+	return <>
+		<TimeInput label="Start time" hasAutoFocus={requested} />
+		<Button label="Toggle focus request" clickAction={() => setRequested(!requested)} />
+	</>
+}
+```
+
+Without native input/window observation, only an immediate attached post-commit
+attempt is allowed. Nine policy and six object-driver cases plus the
+[manual fixture](../../examples/probes/date-autofocus.macos.tsrx) are authored,
+all unrun. Mock timing does not prove OS caret/IME, native notifications, modal
+focus containment, hit testing, accessibility or packaged behavior. DateTimeInput
+and DateRangeInput do not expose this flag; their existing focus refs remain.

@@ -3771,3 +3771,70 @@ pnpm exec turbo run test --filter=@octane-xplat/ui -- src/menu-focus.macos.test.
 
 Command remains deferred until the human explicitly authorizes this task.
 TypeScript syntax and whitespace only; no tests/typechecks/build/native checks.
+
+### AppKit date and time autofocus requests
+
+The preceding Pager slices and policy-runner correction changed authoritative
+source state; they were implementation progress, not native qualification.
+Continued initial form focus before Carousel edge fades or niche integrations.
+Assumed booking/onboarding form entry has high demand, following the existing
+date-family APIs/examples and maintained date-focus fixture. DateInput and
+TimeInput expose hasAutoFocus and their web leaves use it, but targeted AppKit
+source inspection found the flag was entirely ignored. This is a framework leaf
+omission, not evidence of an upstream renderer autofocus guarantee or a newly
+observed native runtime failure. DateTimeInput/DateRangeInput have no such flag;
+no new public API is invented for them.
+
+A private target request owner now connects current date/time props and native
+textfield refs. It queues after commit, can wait for the first window/visible
+host, snapshots responder ownership, recognizes an already-owned field editor,
+checks native method/property visibility/enabled guards and requests first
+responder only once. Native refusal does not rearm. A request can start before
+its first ref. Ref replacement after binding, window moves/detach, current
+blocking/flag removal and teardown retire it. Late competing requests snapshot
+before claim so a first successful focus move invalidates a stale second one.
+No value edits, picker opening, window activation or synthetic input are added.
+
+Pending requests alone own two native notifications and a key/pointer monitor;
+input is returned unchanged. Any observed user activity or app deactivation
+cancels, and changed native responders preserve newer focus. Claim precedes
+cleanup/native focus callbacks; stale queued/notification callbacks cannot replay.
+Partial installation cleans installed tokens. Missing observation gets only an
+attached post-commit attempt, never an unsafe delayed retry. Unblocking alone
+preserves cancellation; false-to-true requests explicitly rearm. UI's existing
+FocusScope or explicit focus delegates retain their own contracts; real modal
+and simultaneous autofocus ordering still require native qualification.
+
+Nine Vitest policy cases and six parameterized object-driver cases are authored,
+all unrun. They cover delayed/no-ref attachment, foreign notifications, input/
+deactivation/changed responder, hidden/detached/moved scope, current props and
+inherited Field blocking, flag rearming, replacement/teardown, partial/missing
+observation, native refusal/editor ownership and competing delayed requests.
+Object cases mock Popover away and cannot prove layer integration. A maintained
+manual fixture provides date/time mounting/removal, a competing editor, blocking
+and flag toggles; its runner only waits/records. Date guide/skill, feature note
+and appkit-date-autofocus recipe reconcile the old source-gap statement.
+
+Only source/semantic review, TypeScript/TSRX syntax parsing and whitespace checks
+ran. No package tests/typechecks/builds, installs, native/OS automation, visual
+analysis or shared audit regeneration ran. Exact deferred commands:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/ui -- src/auto-focus.macos.test.ts src/date-field-handle.macos.test.ts
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/date-autofocus.macos.mobile.test.tsrx src/date-refs.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/date-autofocus.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All remain deferred until explicit human authorization for this task. Native
+ref/commit/window notification and initiating-event ordering, first responder/
+field editor refusal/caret/IME, actual key/pointer/hit testing, competing scopes,
+focus appearance/VoiceOver/live announcements and packaging remain unqualified.
+BaseTypeahead still needs initial-focus review; PowerSearch currently calls a
+ref once on its flag effect and late attachment remains unqualified. Carousel
+edge fades, video, date preset text relay/listbox relationships remain source
+gaps. Checkbox mixed rollback awaits the previously asked human contract choice.
+No evidence-gated checkbox is closed; the overall goal remains active.

@@ -2,7 +2,8 @@
 import { appKitTextChange } from './appkit-events.macos'
 import { mergeStyle } from './style-merge'
 import { createAppKitDateFieldHandle } from './date-field-handle.macos'
-import { useImperativeHandle, useContext, useEffect, useId, useMemo, useRef, useState, useCallback } from 'octane'
+import { createAppKitAutoFocus } from './auto-focus.macos'
+import { useImperativeHandle, useContext, useEffect, useLayoutEffect, useId, useMemo, useRef, useState, useCallback } from 'octane'
 import type { ISOTimeString, TimeInputProps } from './props'
 import type { NativeKeyboardEvent } from '@octane-xplat/jsx/intrinsics'
 import type { NSTextField } from '@octane-xplat/platform/macos'
@@ -37,7 +38,7 @@ export function TimeInput(inputProps: TimeInputProps) @{
 	const generatedId = useId()
 	const inputId = props.id ?? generatedId
 	const input = useRef<NSTextField | null>(null)
-	const bindInput = useCallback((view: NSTextField | null) => { input.current = view }, [])
+	const bindInput = useCallback((view: NSTextField | null) => { input.current = view; autoFocus.bind(view) }, [])
 	const writing = useRef(false), actionPending = useRef(false)
 
 	const [pendingInput, setPendingInput] = useState<string | null>(null)
@@ -51,6 +52,11 @@ export function TimeInput(inputProps: TimeInputProps) @{
 	const hasSeconds = !!props.hasSeconds
 	const current = useRef({ props, shown, isDisabled, isBusy, hasSeconds })
 	current.current = { props, shown, isDisabled, isBusy, hasSeconds }
+	const autoFocus = useMemo(() => createAppKitAutoFocus({
+		requested: () => current.current.props.hasAutoFocus === true, blocked: () => current.current.isDisabled || current.current.isBusy || actionPending.current,
+	}), [])
+	useLayoutEffect(() => autoFocus.update(), null)
+	useEffect(() => () => autoFocus.dispose(), [])
 	useImperativeHandle(props.ref, () => createAppKitDateFieldHandle({
 		primary: () => input.current,
 		blocked: () => current.current.isDisabled || current.current.isBusy || actionPending.current,
