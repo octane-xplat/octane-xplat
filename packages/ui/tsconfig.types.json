@@ -17,7 +17,7 @@
 		],
 		"target": "esnext",
 		"jsx": "react-jsx",
-		"jsxImportSource": "octane",
+		"jsxImportSource": "@octane-xplat/jsx",
 		"declaration": true,
 		"emitDeclarationOnly": true,
 		"noEmit": false,
@@ -43,5 +43,7 @@
 		"src/routing/dev-shared.ts",
 		"src/routing/web-host.web.ts"
 	],
-	"exclude": ["**/*.test.*"]
+	"exclude": [
+		"**/*.test.*"
+	]
 }

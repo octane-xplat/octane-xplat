@@ -1,8 +1,7 @@
-import type { Attributes } from '@nativescript-community/octane/intrinsics'
-import type { Drawer } from '@nativescript-community/ui-drawer'
+import type { Attributes } from '@octane-xplat/jsx/intrinsics'
 
-declare module '@nativescript-community/octane/intrinsics' {
-	interface NativeScriptElements {
-		drawer: Attributes<typeof Drawer>
+declare module '@octane-xplat/jsx/intrinsics' {
+	interface NativeElements<TElement> {
+		drawer: Attributes<TElement>
 	}
 }

@@ -1,18 +1,11 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { LiquidGlass as NSLiquidGlass } from '@nativescript/core'
 import { LiquidGlassView } from './liquid-glass-view.ios'
 import { registerElement } from '@nativescript-community/octane'
-import type { Attributes } from '@nativescript-community/octane/intrinsics'
 import type { LiquidGlassProps } from '../props'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../escape-props'
 import { layoutChildProps } from '../layout-child'
-
-declare module '@nativescript-community/octane/intrinsics' {
-	interface NativeScriptElements {
-		liquidglass: Attributes<typeof NSLiquidGlass>
-	}
-}
 
 // The driver needs an intrinsic registration for the fallback-aware core view.
 registerElement('liquidglass', LiquidGlassView)

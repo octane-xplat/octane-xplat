@@ -1,16 +1,16 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { LiquidGlassContainer as NSLiquidGlassContainer } from '@nativescript/core'
 import { LiquidGlassContainerView } from './liquid-glass-container-view.ios'
 import { registerElement } from '@nativescript-community/octane'
-import type { Attributes } from '@nativescript-community/octane/intrinsics'
+import type { Attributes } from '@octane-xplat/jsx/intrinsics'
 import type { LiquidGlassContainerProps } from '../props'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../escape-props'
 import { layoutChildProps } from '../layout-child'
 
-declare module '@nativescript-community/octane/intrinsics' {
-	interface NativeScriptElements {
-		liquidglasscontainer: Attributes<typeof NSLiquidGlassContainer>
+declare module '@octane-xplat/jsx/intrinsics' {
+	interface NativeElements<TElement> {
+		liquidglasscontainer: Attributes<TElement>
 	}
 }
 
