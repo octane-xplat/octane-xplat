@@ -236,3 +236,21 @@ Index-only ListView/RadListView hosts need an explicit index adapter; this
 repair does not guess an index or claim recycled-list support. Detached or
 unusable morph sources fade. Numeric tests cover both axes and selection;
 actual native scrolling/layout remains pending runtime qualification.
+
+## Native focus audit repair and remaining feasibility work
+
+Source inspection found that createOverlayLifetime releases portal resources
+before its detach work necessarily finishes. The lightbox therefore captures
+the actual native presentation layer and waits for its parent to disappear
+before attempting View.focus() on an attached explicit target, current trigger
+or opening trigger. A session token prevents close completion stealing focus
+from a reopened viewer; a bounded wait abandons focus if detachment is not
+observed. This does not add a misleading post-close callback to Overlay.
+
+The installed core 9.1.3 public View declaration exposes focus(): boolean,
+which attempts keyboard/view focus; it is not a promise of accessibility focus.
+See the [View API](https://docs.nativescript.org/api/classes/View).
+Object-driver tests cover ordering and cancellation, not actual keyboard or
+screen-reader behavior. The inspected andromeda.local host still has no simctl,
+adb or Maestro in its available tool paths. Native keyboard-focus probes and
+VoiceOver/TalkBack restoration remain open; commit-plan item 8 is partial.

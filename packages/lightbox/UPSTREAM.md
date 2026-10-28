@@ -125,6 +125,15 @@ behavior, rather than used as evidence of parity.
   Numeric tests cover both axes, bounds, duplicates and detached hosts.
   Real native scrolling and post-scroll morph targets still need qualification.
 
+- Native close now schedules a bounded keyboard-focus attempt after the
+  captured presentation layer detaches. Explicit attached targets precede
+  the current trigger and opening trigger; a new open session, unmount or
+  timeout suppresses restoration. Object-driver checks cover detach ordering,
+  fallback and cancellation. This uses NativeScript View.focus(), not an
+  accessibility-focus API. iOS/Android runtime focus probes and VoiceOver/
+  TalkBack restoration are still pending; the focus audit item is only
+  partially repaired.
+
 ## Qualification boundary
 
 This was a source and documentation audit of the pinned reference, not an

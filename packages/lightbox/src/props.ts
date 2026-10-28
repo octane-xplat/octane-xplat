@@ -55,7 +55,9 @@ export interface LightboxOptions<T extends LightboxMedia = LightboxMedia> {
 	/** Auto-play videos when they are shown. Web only. @default false */
 	hasAutoPlay?: boolean
 	/** Element to focus on close; defaults to the element focused when the
-	 *  lightbox opened. `{current}`-style ref; web semantics. */
+	 *  lightbox opened. Web restores DOM focus; native attempts keyboard focus
+	 * after the presenting layer detaches. Native screen-reader focus is not
+	 * qualified. `{current}`-style ref. */
 	finalFocusRef?: { current: HostElement | null }
 	/** Trackpad/wheel zoom on the photo. Web only. */
 	hasWheelZoom?: boolean

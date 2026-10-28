@@ -2,7 +2,7 @@
 // Native lightbox host: the same pure state machine as web, wired to a
 // NativeScript vocabulary (masonview/image/label) over the ui modal Overlay.
 import { createContext, useContext, useEffect, useEffectEvent, useLayoutEffect, useMemo, useRef, useState } from 'octane'
-import type { Label } from '@nativescript/core'
+import type { Label, View } from '@nativescript/core'
 import { Overlay, Pressable } from '@octane-xplat/ui'
 import { cx } from '@octane-xplat/lib'
 import { mergeStyle } from './style-merge'
@@ -14,6 +14,7 @@ import { clamp } from './math'
 import { reduce } from './state'
 import type { RootAction, RootEffect, RootState } from './state'
 import { createNativeTriggerVisibility, nativeVisibleFraction, pickNativeTrigger } from './native-trigger'
+import { restoreNativeFocus } from './native-focus'
 import { scrollTriggerIntoView } from './scroll-sync'
 import { Image, type ImageController } from './Image.tsrx'
 import type { Intent } from './gesture-machine'
@@ -50,6 +51,8 @@ interface CtxOptions {
 }
 
 export interface LightboxCtx {
+	focusSession: number
+	canRestoreFocus(session: number): boolean
 	dialogText: ReturnType<typeof useDialogText>
 	items: LightboxMedia[]
 	index: number
@@ -140,6 +143,7 @@ export function Root(props: LightboxRootProps) @{
 		...initialState(),
 		index: clamp(props.index ?? props.defaultIndex ?? 0, 0, Math.max(0, items.length - 1)),
 	}))
+	const focusSession = useRef(0)
 	const live = useRef(state)
 	live.current = state
 	const mounted = useRef(true)
@@ -220,6 +224,7 @@ export function Root(props: LightboxRootProps) @{
 
 	const dispatch = useEffectEvent((action: RootAction) => {
 		const next = reduce(live.current, action)
+		if (action.kind === 'open' && next.state !== live.current) focusSession.current++
 		live.current = next.state
 		setState(next.state)
 		runEffects(next.effects)
@@ -227,6 +232,8 @@ export function Root(props: LightboxRootProps) @{
 
 	const ctx: LightboxCtx = useMemo(
 		() => ({
+			focusSession: focusSession.current,
+			canRestoreFocus: session => mounted.current && live.current.phase === 'closed' && focusSession.current === session,
 			dialogText,
 			items: items ?? [],
 			index: state.index,
@@ -397,6 +404,23 @@ export function Backdrop(props: LightboxPartProps) @{
 
 export function Popup(props: LightboxPartProps) @{
 	const ctx = useLightboxCtx()
+	const host = useRef<View | null>(null)
+	const latest = useRef(ctx)
+	latest.current = ctx
+	const pendingFocus = useRef<(() => void) | null>(null)
+	const shown = ctx.phase !== 'closed'
+	useLayoutEffect(() => {
+		if (!shown) return
+		pendingFocus.current?.()
+		const layer = host.current?.parent
+		const session = ctx.focusSession
+		return () => {
+			pendingFocus.current = restoreNativeFocus(layer, () => {
+				const current = latest.current
+				return [current.options.finalFocusRef?.current, current.pickTrigger(current.index, false), current.openTrigger.current]
+			}, () => latest.current.canRestoreFocus(session))
+		}
+	}, [shown])
 	useEffect(() => {
 		if (ctx.phase !== 'opening') return
 		let active = true
@@ -423,6 +447,7 @@ export function Popup(props: LightboxPartProps) @{
 			onDismiss={() => ctx.close()}
 		>
 			<masonview
+				ref={host}
 				className={cx('vx-lightbox-popup', `vx-lightbox-popup--${ctx.phase}`, ctx.zoomed && 'vx-lightbox-popup--zoomed', ctx.dragging && 'vx-lightbox-popup--dragging', ctx.uiHidden && 'vx-lightbox-popup--ui-hidden', props.className)}
 				style={mergeStyle({ width: '100%', height: '100%', alignSelf: 'stretch' }, props.style)}
 				id={props.id}
