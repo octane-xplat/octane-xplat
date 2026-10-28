@@ -46,7 +46,16 @@ function write(name, content) {
 
 try {
 	const tarballs = {}
-	for (const dir of ['create', 'cli', 'lib', 'ui', 'workshop']) {
+	for (const dir of [
+		'create',
+		'cli',
+		'lib',
+		'ui',
+		'workshop',
+		'linux-gtk-renderer',
+		'css-engine',
+		'jsx',
+	]) {
 		const root = join(repo, 'packages', dir)
 		const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
 		run('pnpm', ['--config.ignore-scripts=true', 'pack', '--pack-destination', pack], root)
@@ -65,6 +74,7 @@ try {
 				devDependencies: {
 					'@octane-xplat/workshop': tarballs['@octane-xplat/workshop'],
 					'@octane-xplat/cli': tarballs['@octane-xplat/cli'],
+					'@octane-xplat/linux-gtk': tarballs['@octane-xplat/linux-gtk'],
 					'@octanejs/vite-plugin': '0.1.61',
 					'@tsrx/oxc': '0.20.0',
 					'@tsrx/core': '0.2.4',
@@ -85,7 +95,7 @@ try {
 	)
 
 	run('pnpm', ['install', '--ignore-scripts'])
-	for (const name of ['ui', 'workshop', 'cli']) {
+	for (const name of ['ui', 'workshop', 'cli', 'linux-gtk']) {
 		assert.ok(
 			realpathSync(join(consumer, 'node_modules/@octane-xplat', name)).startsWith(work),
 			`${name} must come from a tarball`,
@@ -114,6 +124,70 @@ try {
 	const gtkShell = req.resolve('@octane-xplat/workshop/node')
 	assert.ok(gtkShell.endsWith('.js'), 'node entry resolves to dist build')
 	console.log('PASS packed node entry resolves')
+	for (const entry of ['', '/host', '/compat/native-core', '/compat/escape-props']) {
+		assert.match(req.resolve(`@octane-xplat/linux-gtk${entry}`), /\/dist\/.*\.js$/)
+	}
+
+	// Exercise the actual CLI preset against this tarball's dist exports.
+	write(
+		'src/gtk-entry.ts',
+		`import { runGtkApp } from '@octane-xplat/linux-gtk/host'
+import { App } from './App.gtk'
+runGtkApp({ applicationId: 'dev.xplat.packedgtk', title: 'Packed GTK' }, ({ root }) => root.render(App, {}))
+`,
+	)
+
+	write(
+		'src/App.gtk.tsx',
+		`/** @jsxImportSource @octane-xplat/jsx */
+import { Text } from '@octane-xplat/ui'
+export function App() {
+  return <masonview><Text>GTK consumer</Text><button text="Save" accessibilityLabel="Save draft" /></masonview>
+}
+`,
+	)
+
+	write(
+		'vite.gtk.config.mjs',
+		`import { xplatLinuxGtk } from '@octane-xplat/cli/linux-gtk/vite'
+export default env => xplatLinuxGtk(env, { entry: 'src/gtk-entry.ts', outDir: 'dist-gtk' })
+`,
+	)
+
+	run('pnpm', ['exec', 'vite', 'build', '--config', 'vite.gtk.config.mjs'])
+	assert.ok(readFileSync(join(consumer, 'dist-gtk/app.js'), 'utf8').includes('gi://Gtk'))
+	console.log('PASS packed renderer and CLI preset build')
+	write(
+		'gtk-types.ts',
+		`import type { GtkAppOptions } from '@octane-xplat/linux-gtk/host'
+import type { GtkContainer } from '@octane-xplat/linux-gtk'
+const options: GtkAppOptions = { applicationId: 'dev.xplat.consumer', title: 'Consumer' }
+// @ts-expect-error applicationId is required and must be a string.
+const invalid: GtkAppOptions = { applicationId: 42 }
+declare const container: GtkContainer
+container.nodes.get(1)?.view?.get_name()
+void options; void invalid
+`,
+	)
+
+	write(
+		'tsconfig.gtk.json',
+		JSON.stringify({
+			compilerOptions: {
+				module: 'NodeNext',
+				moduleResolution: 'NodeNext',
+				target: 'ES2022',
+				strict: true,
+				skipLibCheck: true,
+				noEmit: true,
+				types: [],
+			},
+			files: ['gtk-types.ts'],
+		}),
+	)
+
+	run('pnpm', ['exec', 'tsc', '-p', 'tsconfig.gtk.json'])
+	console.log('PASS packed GTK declarations')
 
 	// Catalog: .stories.gtk.* leaves apply on the linux target; .stories.linux.*
 	// produces a discovery diagnostic pointing at the GTK rename.

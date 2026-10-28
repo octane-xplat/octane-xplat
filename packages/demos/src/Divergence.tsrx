@@ -32,10 +32,9 @@ export function Divergence() @{
 				<Text id="dv-lh" className="dv-lh">
 					LineHeight gyÊ
 				</Text>
-				<Text id="dv-lh2" style={{ lineHeight: 40 }}>
+				<Text id="dv-lh2" style={{ lineHeight: '40px' }}>
 					inline lh
 				</Text>{' '}
-				{/* xplat-disable-line */}
 			</HStack>
 		</View>
 

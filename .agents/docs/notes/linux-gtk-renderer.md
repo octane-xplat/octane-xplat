@@ -337,9 +337,9 @@ it, each with GJS 1.90.1 / GTK 4.24.1 headless evidence in
 - No `@girs/*` types — `src/gi.d.ts` is a hand-maintained member subset;
   members beyond it resolve as `any`. Generated GIR types are the upgrade
   path.
-- `accessibilityLabel` is wired through a guarded `update_property` call —
-  the GTK4 varargs entry point may not marshal from GJS; expect the
-  once-per-label warning until the GtkAccessible row is qualified.
+- `accessibilityLabel` uses the non-varargs property-array binding; the
+  [release audit](linux-gtk-release.md#accessibility-mechanism-and-evidence) records
+  AT-SPI evidence and the button mnemonic relation handling.
 - `flexDirection` `*-reverse` renders unreversed under the Box fallback
   (warns); under Mason the engine handles it. The fallback collapses
   asymmetric `rowGap`/`columnGap` to `spacing` and cannot express
@@ -361,9 +361,8 @@ it, each with GJS 1.90.1 / GTK 4.24.1 headless evidence in
 - The Mason binding needs the gitignored build artifacts
   (`native/xplatmason/build.sh` output) plus `GI_TYPELIB_PATH` or
   `XPLAT_MASON_TYPELIB` at run time; without them `masonview` runs the
-  `Gtk.Box` emulation with a once warn. `build.sh` stamps the absolute
-  `.so` path into the typelib — fine for in-tree dev, wrong shape for a
-  system install.
+  `Gtk.Box` emulation with a once warn. `build.sh` binds the facade by soname; supply both the typelib and library
+  search paths. Native consumer relocation remains unqualified.
 
 ## Canonical retained-pane routing
 
@@ -372,7 +371,7 @@ client, stack registry, Back interception and route shells. The default client
 uses the renderer-neutral pane host; it does not import NativeScript Frame,
 Page or modal hosts. `xplatLinuxGtk` resolves both compiler-generated GTK imports
 and retargeted NativeScript-renderer imports to the application's renderer entry.
-UI takes no GTK dependency. The private GTK renderer declares UI as a workspace
+UI takes no GTK dependency. The experimental GTK renderer declares UI as a workspace
 dev dependency for its public-consumer fixture.
 
 The initial barrel probe failed on five missing native-core exports. A second
@@ -403,7 +402,10 @@ results are separate evidence in the
 
 Runtime-verified on Homebrew gjs 1.90.1 + GTK4 (`xplat workshop dev --target linux` on macOS; dev stand-in, not Linux qualification):
 
-- `GtkAccessible.update_property` (varargs) cannot be marshalled by GJS — `accessibilityLabel` now falls back to `widget.name` so automation can find widgets; real AT clients still see no accessible name.
+- Historical finding, superseded by the release preparation: the scalar
+  `GtkAccessible.update_property` invocation failed. The property-array binding
+  now sets AT-visible labels; widget names remain solely for automation. See the
+  [release audit](linux-gtk-release.md).
 - `queueMicrotask` is absent in GJS — the workshop shell installs a `Promise.resolve().then` polyfill on the global before octane's universal runtime loads.
 - The compat shim `native-core-shim.ts` now carries honest stand-ins: `ApplicationSettings` is an in-process map (no persistence), `Connectivity` reports `connectionType.unknown` and monitoring is a no-op, `Device` reports static desktop values.
 - `xplat workshop dev --target linux`: the GJS shell reads the stdin line protocol through a `GLib.IOChannel` watch; blocking `read_line` inside the callback must not loop — read one line per `IN` dispatch or microtasks starve.

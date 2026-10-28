@@ -500,7 +500,7 @@ universal compilation; factories create controller/state objects. Pane histories
 retain screens and providers without changing browser URLs, creating native
 Frames or presenting modals. Motion reports skipped. OS Back and window-close
 integration belong to the enclosing host. Typed hooks take the explicit instance.
-The private native GTK renderer supports this explicit pane workflow through
+The experimental native GTK renderer supports this explicit pane workflow through
 `xplatLinuxGtk`. Keep its screens in `.gtk` leaves and use the GTK preset's
 renderer resolution. Its modal presentation, OS Back, generated startup and
 full shared-control support are outside this measured subset. See the

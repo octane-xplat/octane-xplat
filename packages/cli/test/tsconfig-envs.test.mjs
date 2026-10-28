@@ -66,8 +66,8 @@ test('the program carries the fixed module suffix precedence', () => {
 	// No platform customConditions — package boundaries resolve the default
 	// (unsuffixed) export surface.
 	assert.equal(config.compilerOptions.customConditions, undefined)
-	// Combined programs default JSX to the DOM-flavored octane renderer.
-	assert.equal(config.compilerOptions.jsxImportSource, 'octane')
+	// Combined programs use the shared cross-platform JSX facade.
+	assert.equal(config.compilerOptions.jsxImportSource, '@octane-xplat/jsx')
 })
 
 test('all environment files union into the program', () => {

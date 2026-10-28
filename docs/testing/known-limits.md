@@ -529,7 +529,7 @@ is supported on web, iOS, and Android — a `layout` host animates whenever its
 measured box changes after any commit, including keyed reorders of unchanged
 children; nested `layout` children keep their size inside a scaling parent.
 Verified 2026-10-27 by the maintained probe
-`examples/probes/motion-layout.tsrx` (iOS 27.0 simulator, Android 15 emulator;
+`examples/probes/motion-layout.mobile.tsrx` (iOS 27.0 simulator, Android 15 emulator;
 probe-driven geometry evidence, not visual capture or OS input).
 `layoutId`/`LayoutGroup`, `layoutScroll`/`layoutRoot`/`layoutAnchor`/
 `layoutCrossfade`, `whileHover`/`whileInView`, keyframe arrays, and arbitrary

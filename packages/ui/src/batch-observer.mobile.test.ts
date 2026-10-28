@@ -155,7 +155,7 @@ it('iterates a snapshot and stays consistent when an observer throws', () => {
 			stopFirst()
 		},
 	})
-	observeBatches({ willApply: () => calls.push('second') })
+	const stopSecond = observeBatches({ willApply: () => calls.push('second') })
 
 	apply(target)
 	expect(calls).toEqual(['first', 'second'])
@@ -165,17 +165,34 @@ it('iterates a snapshot and stays consistent when an observer throws', () => {
 	apply(target)
 	expect(calls).toEqual(['second'])
 
+	const error = new Error('boom')
+	const report = vi.spyOn(console, 'error').mockImplementation(() => {})
 	const stopThrowing = observeBatches({
 		willApply() {
-			throw new Error('boom')
+			throw error
 		},
 	})
-	expect(() => apply(target)).toThrow('boom')
-	// The throw happened before applyingDepth touched state; a later apply works.
-	stopThrowing()
-	calls.length = 0
-	apply(target)
-	expect(calls).toEqual(['second'])
-
-	releaseNativeScriptContainer(target)
+	const depths: number[] = []
+	const stopAfter = observeBatches({
+		didApply(_container, _commands, depth) {
+			depths.push(depth)
+		},
+	})
+	try {
+		// The carried driver patch reports observer errors without aborting a batch.
+		expect(() => apply(target)).not.toThrow()
+		expect(report).toHaveBeenCalledWith('NativeScript driver: batch observer threw:', error)
+		expect(depths).toEqual([0])
+		stopThrowing()
+		calls.length = 0
+		apply(target)
+		expect(calls).toEqual(['second'])
+		expect(depths).toEqual([0, 0])
+	} finally {
+		stopThrowing()
+		stopSecond()
+		stopAfter()
+		report.mockRestore()
+		releaseNativeScriptContainer(target)
+	}
 })

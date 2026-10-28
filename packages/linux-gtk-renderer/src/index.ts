@@ -1743,6 +1743,12 @@ function writeEntryText(node: ElementNode, view: GtkView, value: unknown) {
 	})
 }
 
+// Keep automation identifiers separate from the AT-visible accessible label.
+function widgetName(node: ElementNode): string {
+	const { testID, automationText, id, accessibilityLabel } = node.props
+	return String(testID ?? automationText ?? id ?? accessibilityLabel ?? '')
+}
+
 function setProp(node: ElementNode, name: string, value: unknown) {
 	const view = node.view
 	if (name === 'children' || name === 'key' || name === 'ref') {
@@ -1765,7 +1771,7 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 	if (name === 'id' || name === 'testID' || name === 'automationText') {
 		// Widget names are the GTK-side queryable identifier (GTK inspector,
 		// gtk_widget_get_name) — the identifier plumbing row of family J.
-		view?.set_name(String(value ?? ''))
+		view?.set_name(widgetName(node))
 		if (name === 'id') {
 			setNodeId(node, value)
 		}
@@ -1911,26 +1917,12 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 			node.gridColSpan = Number(value)
 			repositionGridChild(node)
 			return
-		case 'accessibilityLabel': {
-			// GTK4 exposes accessible names through GtkAccessible.update_property —
-			// a varargs entry point GJS cannot reliably marshal; try it and warn
-			// once instead of silently dropping the label.
-			try {
-				view.update_property?.(Gtk.AccessibleProperty.LABEL, String(value))
-			} catch {
-				// GtkAccessible.update_property is a varargs call GJS cannot
-				// marshal — fall back to the widget name so the label stays
-				// inspectable (automation/a11y gap recorded in
-				// upstream-limitations: real AT clients won't see it).
-				view.name = String(value)
-				warnOnce(
-					'accessibilityLabel',
-					`<${node.type}> accessibilityLabel could not be applied — GtkAccessible.update_property is unavailable in this GTK`,
-				)
-			}
-
+		case 'accessibilityLabel':
+			// GIR exposes the non-varargs gtk_accessible_update_property_value
+			// as update_property, with parallel property/value arrays.
+			syncAccessibleName(node)
+			view.set_name(widgetName(node))
 			return
-		}
 		case 'accessibilityRole': {
 			// accessible-role is a real Gtk.Widget property (GTK 4.0+).
 			const role = typeof value === 'string' ? A11Y_ROLES[value] : undefined
@@ -2123,10 +2115,30 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 	}
 }
 
+function syncAccessibleName(node: ElementNode) {
+	const view = node.view
+	if (!view) {
+		return
+	}
+	const label = node.props.accessibilityLabel
+	if (label != null) {
+		view.update_property([Gtk.AccessibleProperty.LABEL], [String(label)])
+		if (node.type === 'button') {
+			// GTK's mnemonic labelled-by relation takes priority over LABEL.
+			view.reset_relation(Gtk.AccessibleRelation.LABELLED_BY)
+		}
+	} else if (node.type === 'label') {
+		// Gtk.Label stores its visible text in LABEL too. A reset or a text
+		// write must restore the natural name when no override is present.
+		view.update_property([Gtk.AccessibleProperty.LABEL], [view.get_text()])
+	}
+}
+
 function applyProps(node: ElementNode, props: PropBag) {
 	for (const name of Object.keys(props)) {
 		setProp(node, name, props[name])
 	}
+	syncAccessibleName(node)
 }
 
 /** Explicit reset for a dropped prop. setProp skips `undefined`, so resets
@@ -2210,17 +2222,13 @@ function resetProp(node: ElementNode, name: string) {
 			view.accessible_role = 0
 			return
 		case 'accessibilityLabel':
-			try {
-				view.update_property?.(Gtk.AccessibleProperty.LABEL, '')
-			} catch {
-				// unmarshalable on this GTK — nothing was applied, nothing to reset
-			}
-
+			view.reset_property(Gtk.AccessibleProperty.LABEL)
+			view.set_name(widgetName(node))
 			return
 		case 'id':
 		case 'testID':
 		case 'automationText':
-			view.set_name('')
+			view.set_name(widgetName(node))
 			return
 		case 'x':
 		case 'left':
@@ -2321,12 +2329,14 @@ function syncText(anchor: ElementNode | null) {
 		if (anchor.textApplied) {
 			anchor.textApplied = false
 			anchor.view.label = String(anchor.props.text ?? anchor.props.value ?? '')
+			syncAccessibleName(anchor)
 		}
 
 		return
 	}
 	anchor.textApplied = true
 	anchor.view.label = text
+	syncAccessibleName(anchor)
 }
 
 // ---------------------------------------------------------------------------

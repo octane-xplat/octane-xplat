@@ -758,6 +758,9 @@ child 50.0, settle 200, reorder starts at before positions, reorder ops
 `~/dev/plans/octane-xplat/motion-layout-projection.md`; raw probe logs live in
 gitignored `research/`.
 
+The maintained probe is now `examples/probes/motion-layout.mobile.tsrx`; the
+`.mobile` suffix marks its iOS/Android-only native imports and elements.
+
 `examples/probes/intl-shim.ts` exists because ui's table module evaluates
 `new Intl.Collator` at module scope while NativeScript's JS runtime has no
 `Intl`; without the shim the shared barrel's module eval aborts bundle startup.

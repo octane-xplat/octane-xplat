@@ -44,6 +44,7 @@
 		"@octane-xplat/lib",
 		"@octane-xplat/lingui",
 		"@octane-xplat/lint",
+		"@octane-xplat/linux-gtk",
 		"@octane-xplat/lottie",
 		"@octane-xplat/macos-renderer",
 		"@octane-xplat/maps",

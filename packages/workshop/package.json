@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/workshop",
 	"version": "0.18.0",
-	"description": "Development-only component workshop for Octane Xplat — typed stories, metadata discovery, adaptive shell, lifecycle and warm reload",
+	"description": "Development-only component workshop for Octane Xplat \u2014 typed stories, metadata discovery, adaptive shell, lifecycle and warm reload",
 	"keywords": [
 		"components",
 		"cross-platform",
@@ -107,7 +107,7 @@
 		"@octanejs/vite-plugin": ">=0.1.61",
 		"octane": ">=0.6.3 <1",
 		"vite": ">=8",
-		"@octane-xplat/linux-gtk": ">=0.0.0"
+		"@octane-xplat/linux-gtk": ">=0.18.0 <1"
 	},
 	"peerDependenciesMeta": {
 		"vite": {

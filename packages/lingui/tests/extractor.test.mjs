@@ -37,7 +37,7 @@ test('lingui extract finds messages in .tsrx via tsrxExtractor', () => {
 			(entry) => entry.message === 'Extraction probe from tsrx',
 		)
 
-		assert.deepEqual(tsrxEntry.origin, [['src/app.tsrx', 8]])
+		assert.deepEqual(tsrxEntry.origin, [['src/app.tsrx', 10]])
 	} finally {
 		rmSync(`${fixture}/locales`, { recursive: true, force: true })
 		rmSync(`${fixture}/node_modules`, { recursive: true, force: true })
