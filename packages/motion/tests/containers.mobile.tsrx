@@ -205,12 +205,25 @@ export async function run(ctx: ProbeContext) {
 	close('scroll does not start paint projection', Number(views.paint.scaleX), 1, 0.001)
 	await sleep(950)
 	close('anchored child settles', geometry(views.anchored).x - childBefore.x, 80)
+	const parentRest = geometry(views.parent).layoutX
+	const previousStarts = starts
+	shift(true)
+	await ctx.waitFor(() => starts > previousStarts, { timeout: 3000, interval: 5 })
+	await sleep(100)
+	const moving = geometry(views.drag).x
 	input.send(views.drag, 'start', 0)
+	await sleep(40)
+	close('grabbing active layout preserves position', geometry(views.drag).x, moving)
 	input.send(views.drag, 'move', 20)
 	await sleep(40)
 	const beforeDrag = geometry(views.drag).x
-	shift(true)
-	await ctx.waitFor(() => geometry(views.parent).layoutX >= 99, { timeout: 3000, interval: 5 })
+	close('grabbed layout continues pointer movement', beforeDrag, moving + 20)
+	shift(false)
+	await ctx.waitFor(() => Math.abs(geometry(views.parent).layoutX - parentRest) <= 1, {
+		timeout: 3000,
+		interval: 5,
+	})
+
 	await sleep(30)
 	close('drag survives layout commit', geometry(views.drag).x, beforeDrag)
 	await sleep(180)
@@ -228,7 +241,7 @@ export async function run(ctx: ProbeContext) {
 	enable(false)
 	await sleep(60)
 	const beforeStarts = starts
-	shift(false)
+	shift(true)
 	await ctx.waitFor(() => starts > beforeStarts, { timeout: 3000, interval: 10 })
 	ctx.assert('disabled drag restores layout animation', starts > beforeStarts, true)
 	const sourceBeforeScroll = geometry(views.source)

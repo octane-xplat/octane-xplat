@@ -163,10 +163,16 @@ it('keeps a dragged card under the pointer through ancestor layout changes and r
 	const frame = () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
 	try {
 		await h.commit()
+		card.style.left = '80px'
+		await h.commit()
+		await sleep(80)
+		expect(node.currentAnimation).toBeDefined()
+		const moving = card.getBoundingClientRect().x
 		pointer('pointerdown', 30)
 		pointer('pointermove', 50)
 		await frame()
 		const before = card.getBoundingClientRect().x
+		expect(before).toBeCloseTo(moving + 20, 0)
 		expect(node.isAnimationBlocked).toBe(true)
 		parent.style.marginLeft = '100px'
 		card.style.left = '40px'

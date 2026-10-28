@@ -346,11 +346,17 @@ export async function runDragLayout() {
 				dragViews.card.layer.convertRectToLayer(dragViews.card.layer.bounds, host.layer).origin.x,
 			)
 
+		app.render(DragLayoutApp, { shifted: true })
+		await flush()
+		await sleep(80)
+		check(!!card.currentAnimation, 'AppKit card is moving before drag pickup')
+		const moving = x()
 		pan.start({}, info(0))
 		pan.move({}, info(20))
 		await sleep(40)
 		const before = x()
-		app.render(DragLayoutApp, { shifted: true })
+		check(Math.abs(before - moving - 20) < 0.5, 'AppKit active layout pickup continuity')
+		app.render(DragLayoutApp, { shifted: false })
 		await flush()
 		check(Math.abs(x() - before) < 0.5, 'AppKit drag survives layout commit')
 		check(card.currentAnimation === undefined, 'AppKit drag blocks layout animation')
@@ -456,7 +462,11 @@ export async function runContainers() {
 	const rect = (name: string) =>
 		containerViews[name].layer.convertRectToLayer(containerViews[name].layer.bounds, host.layer)
 	const close = (actual: number, expected: number, name: string) => {
-		if (!Number.isFinite(actual) || !Number.isFinite(expected) || Math.abs(actual - expected) > 0.5) {
+		if (
+			!Number.isFinite(actual) ||
+			!Number.isFinite(expected) ||
+			Math.abs(actual - expected) > 0.5
+		) {
 			throw new Error(name + ': ' + actual + ' vs ' + expected)
 		}
 	}
@@ -485,7 +495,14 @@ export async function runContainers() {
 		const destination = rect('destination')
 		close(Number(destination.origin.x), Number(source.origin.x), 'AppKit handoff scroll x')
 		close(Number(destination.origin.y), Number(source.origin.y), 'AppKit handoff current scroll y')
-		console.log('MOTION_CONTAINERS_OK ' + JSON.stringify({ rootX: Number(rect('root').origin.x), sourceY: Number(source.origin.y), destinationY: Number(destination.origin.y) }))
+		console.log(
+			'MOTION_CONTAINERS_OK ' +
+				JSON.stringify({
+					rootX: Number(rect('root').origin.x),
+					sourceY: Number(source.origin.y),
+					destinationY: Number(destination.origin.y),
+				}),
+		)
 	} finally {
 		root.unmount()
 		window.close()
