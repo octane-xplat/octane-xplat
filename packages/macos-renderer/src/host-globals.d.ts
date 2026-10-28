@@ -18,6 +18,8 @@ declare global {
 		observeHardwareKeys?: (notify: (event: { type: number; modifierFlags: number }) => void) => () => void
 		/** Exclude a self-drawn native host from Tab without rejecting arrow focus. */
 		suppressTabStop?: (view: import('@octane-xplat/platform/macos').NSView) => () => void
+		/** Opt a disabled self-drawn host into focus without enabling activation. */
+		retainDisabledFocus?: (view: import('@octane-xplat/platform/macos').NSView) => () => void
 		/** Retain programmatic focus on a scope box without a Tab stop/action. */
 		retainFocusTarget?: (view: import('@octane-xplat/platform/macos').NSView) => () => void
 		observeHover?: (view: import('@octane-xplat/platform/macos').NSView, handlers: any) => void

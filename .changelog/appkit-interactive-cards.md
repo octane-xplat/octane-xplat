@@ -11,5 +11,4 @@ export function Help() {
 }
 ```
 
-Native input/URL launch/layout remain unqualified; disabled-but-focusable
-SelectableCard behavior remains missing. See [AppKit cards](https://octane-xplat.goddardai.org/app/interactive-actions#appkit-card-qualification).
+Native input/URL launch/layout and disabled-card focus remain unqualified. See [AppKit cards](https://octane-xplat.goddardai.org/app/interactive-actions#appkit-card-qualification).

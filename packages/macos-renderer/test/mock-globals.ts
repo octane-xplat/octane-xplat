@@ -58,6 +58,7 @@ export function runSlice(code: string, context?: Record<string, any>) {
 // function declarations in the slice and sandbox-provided globals win.
 const CSS_SLICE_STUBS = `
 if (typeof notifyLayoutCommit === 'undefined') var notifyLayoutCommit = () => {}
+if (typeof disabledFocusTargets === 'undefined') var disabledFocusTargets = { allows: () => false }
 if (typeof effectiveStyle === 'undefined') var effectiveStyle = (n) => n.computedStyle ?? n.props?.style ?? {}
 if (typeof markStyleDirty === 'undefined') var markStyleDirty = () => {}
 if (typeof flushStyleDirty === 'undefined') var flushStyleDirty = () => {}

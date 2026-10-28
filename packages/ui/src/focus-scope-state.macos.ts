@@ -37,7 +37,8 @@ function responder(window: NSWindow): any {
 }
 function eligible(view: any): boolean {
 	return !flag(view, 'hidden') && !flag(view, 'hiddenOrHasHiddenAncestor') &&
-		flag(view, 'enabled', true) && flag(view, 'isEnabled', true) && flag(view, 'accessibilityIsEnabled', true)
+		flag(view, 'enabled', true) && flag(view, 'isEnabled', true) &&
+		(flag(view, 'accessibilityIsEnabled', true) || flag(view, 'canBecomeKeyView'))
 }
 function ancestors(root: NSView): Set<NSView> {
 	const result = new Set<NSView>()

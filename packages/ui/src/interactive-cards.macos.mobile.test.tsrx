@@ -76,3 +76,40 @@ it('selectable cards request controlled changes, retain checked hosts and forwar
 		expect(host.props.onTap).toBeUndefined()
 	} finally { env.root.unmount() }
 })
+
+
+it('SelectableCard owns disabled-focus claims and releases them on enablement/removal', () => {
+	const previous = (globalThis as any).__xplatAppKit
+	const active = new Map<object, number>(), released: object[] = []
+	;(globalThis as any).__xplatAppKit = { ...previous, retainDisabledFocus(view: object) {
+		active.set(view, (active.get(view) ?? 0) + 1)
+		let live = true
+		return () => {
+			if (!live) return
+			live = false
+			released.push(view)
+			const count = (active.get(view) ?? 1) - 1
+			if (count) active.set(view, count); else active.delete(view)
+		}
+	} }
+	const change = vi.fn()
+	const env = mount(SelectableCard, { id: 'card', label: 'Plan', isSelected: true, isDisabled: true, onChange: change })
+	try {
+		const host = env.host()
+		expect(active.get(host)).toBe(1)
+		expect(host.props.onTap).toBeUndefined()
+		expect(host.props.accessibilityState.disabled).toBe(true)
+		env.render({ id: 'card', label: 'Plan', isSelected: true, isDisabled: true, onChange: change })
+		expect(active.get(host)).toBe(1)
+		env.render({ id: 'card', label: 'Plan', isSelected: true, onChange: change })
+		expect(env.host()).toBe(host)
+		expect(active.size).toBe(0)
+		expect(released).toHaveLength(1)
+		env.render({ id: 'card', label: 'Plan', isSelected: true, isDisabled: true, onChange: change })
+		expect(active.get(host)).toBe(1)
+	} finally {
+		env.root.unmount()
+		expect(active.size).toBe(0)
+		;(globalThis as any).__xplatAppKit = previous
+	}
+})

@@ -176,6 +176,23 @@ export function ProjectHelp() {
 
 AppKit has no native browser target/modifier-click behavior. Nested interactive
 children have authored host-preservation cases, but OS gesture arbitration and
-hit-testing remain unqualified. The declared disabled-but-focusable
-SelectableCard behavior still lacks an AppKit implementation. These source
-changes do not qualify disabled focus, physical input, layout or packaging.
+hit-testing remain unqualified. AppKit SelectableCard now has an opt-in focus claim while disabled. It keeps
+its disabled accessibility state and has no activation handler; the native
+FocusScope owner respects its explicit focus eligibility. This requires the
+matching renderer bridge. These source changes do not qualify real Tab order,
+VoiceOver, physical input, layout or packaging.
+
+
+A disabled selection card remains discoverable by focus while rejecting changes.
+Other disabled controls retain their ordinary focus behavior. Hiding, explicit
+Tab suppression and scope fallback exclusions still take precedence.
+
+```tsx
+import { SelectableCard } from '@octane-xplat/ui'
+
+export function Plan({ selected, onChange }: { selected: boolean; onChange(value: boolean): void }) {
+	return <SelectableCard label="Team plan" isSelected={selected} isDisabled onChange={onChange}>
+		Team plan is currently unavailable
+	</SelectableCard>
+}
+```

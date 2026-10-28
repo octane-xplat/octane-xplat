@@ -207,3 +207,24 @@ describe('AppKit focus scope manager', () => {
 		off()
 	})
 })
+
+
+it('retains native disabled-but-focusable views while excluding ordinary disabled controls', async () => {
+	const env = fixture()
+	const disabledCard = env.view('disabled card', true)
+	disabledCard.accessibilityIsEnabled = false
+	const disabledField = env.view('disabled field', true)
+	disabledField.enabled = false
+	const disabledAction = env.view('disabled action', true)
+	disabledAction.accessibilityIsEnabled = false
+	disabledAction.canBecomeKeyView = false
+	const next = env.view('next', true)
+	const root = env.view('scope', false, [disabledCard, disabledField, disabledAction, next])
+	const off = env.manager.bind(root, () => ({ contain: true, autoFocus: true }))
+	try {
+		await Promise.resolve()
+		expect(env.window.firstResponder).toBe(disabledCard)
+		env.key(); expect(env.window.firstResponder).toBe(next)
+		env.key(); expect(env.window.firstResponder).toBe(disabledCard)
+	} finally { off() }
+})

@@ -824,3 +824,28 @@ export function PinAction({ pressed, toggle }: { pressed: boolean; toggle(): voi
 
 The getter/notification cases are authored and unrun. Native registration,
 VoiceOver role/value announcements and actual activation remain unqualified.
+
+
+### Focus on disabled selection cards
+
+SelectableCard uses an internal reference-counted disabled-focus claim. A claimed
+self-drawn host can accept focus and join native key-view order while retaining
+its disabled accessibility state. The claim does not install an action: pointer,
+keyboard and accessibility activation remain blocked. Ordinary disabled controls
+keep their existing behavior; hiding, Tab suppression and scope fallback
+exclusions take precedence.
+
+```tsx
+import { SelectableCard } from '@octane-xplat/ui'
+
+export function Plan({ selected, onChange }: { selected: boolean; onChange(value: boolean): void }) {
+	return <SelectableCard label="Team plan" isSelected={selected} isDisabled onChange={onChange}>Unavailable</SelectableCard>
+}
+```
+
+Each owner releases only its own claim; enablement/ref detach releases the card's
+claim and requests a native key-view-loop refresh. FocusScope honors explicit
+native key-view eligibility while retaining hidden/disabled-native-field gates.
+The matching renderer bridge is required. Authored getter/ownership/object-driver
+cases remain unrun; actual Tab traversal, focus restoration, VoiceOver, window
+moves and packaged operation remain unqualified.

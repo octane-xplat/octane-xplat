@@ -2056,3 +2056,47 @@ URL launch, mouse/keyboard and nested-control arbitration, VoiceOver, disabled
 focus, variant/elevation geometry/appearance and packaging remain unqualified.
 No builds, package tests/typechecks, installs, OS automation, visual analysis or
 shared audit regeneration ran; no evidence checkbox is closed.
+
+
+### Disabled SelectableCard focus ownership
+
+The preceding slice recorded a concrete mismatch with the public card contract:
+disabled selection cards were removed from native focus because Pressable
+removed their action and AccessibleHostView rejects disabled key views. Native
+controls should remain disabled; globally relaxing disablement was not justified.
+The renderer now owns an opt-in reference-counted disabled-focus set, published
+through the internal retainDisabledFocus bridge. Claimed hosts can accept focus
+and join native key-view order without acquiring an action. Hiding, independent
+Tab suppression and programmatic-only scope ownership still exclude Tab stops.
+Native key/AX activation continues to reject disabled hosts.
+
+SelectableCard now owns its concrete mason host/ref and disabled-focus claim;
+it releases on enablement/ref detach and refreshes the native key-view loop.
+Its static flex/column normalization moved into target CSS, retaining the
+pressable class and existing card padding/dimensions/text/checkbox metadata.
+No public prop or non-AppKit leaf changed. Missing bridge keeps the ordinary
+disabled-focus behavior; bridge presence is not runtime proof.
+
+FocusScope's eligibility filter now honors explicit native canBecomeKeyView
+when only AX enabled state is false, while retaining native enabled/isEnabled
+and hidden gates. This keeps the opted-in card in contained Tab traversal and
+still rejects ordinary disabled native fields/actions. Authored cases cover
+renderer claim counts/independent owners/release, action rejection, hiding/Tab/
+scope suppression, card enable/detach cleanup and scope candidate traversal.
+They remain unrun; object-driver ownership is not real native Tab/AX evidence.
+Existing class-slice fixtures default the new private focus set to no claims.
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/interactive-cards.macos.mobile.test.tsrx src/focus-scope-state.macos.test.ts
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/macos-renderer
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All commands remain deferred pending explicit human authorization for this task.
+Only syntax parsing, semantic/source review and whitespace checks ran. Actual
+Tab order, native FocusScope containment/restoration, disabled AX announcements,
+window moves, nested hit-testing, CSS layout and packaged lifetime remain
+unqualified. No builds, package tests/typechecks, installs, OS automation,
+visual analysis or shared audit regeneration ran; no checkbox is closed.

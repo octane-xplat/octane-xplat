@@ -1,14 +1,41 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { SelectableCardProps } from './props'
 import { styleRecord } from './style-merge'
-import { Pressable } from './Pressable.macos.tsrx'
+import { useCallback, useLayoutEffect, useRef } from 'octane'
+import { appKitHost } from './host-bridge'
 import { cx } from '@octane-xplat/lib'
 import { TextSlot } from './text-slot'
 export function SelectableCard(props: SelectableCardProps) @{
-	<Pressable
+	const view = useRef<NSView | null>(null)
+	const release = useRef<(() => void) | null>(null)
+	const bind = useCallback((target: NSView | null) => {
+		const previous = view.current
+		release.current?.()
+		release.current = null
+		view.current = target
+		previous?.window?.recalculateKeyViewLoop()
+	}, [])
+	useLayoutEffect(() => {
+		const target = view.current
+		if (!target || !props.isDisabled) return
+		const retain = appKitHost()?.retainDisabledFocus
+		if (typeof retain !== 'function') return
+		const dispose = retain(target)
+		if (typeof dispose !== 'function') throw new Error('AppKit disabled focus ownership unavailable')
+		release.current = dispose
+		target.window?.recalculateKeyViewLoop()
+		return () => {
+			// A ref detach may already have released this claim.
+			if (release.current === dispose) { release.current = null; dispose() }
+			target.window?.recalculateKeyViewLoop()
+		}
+	}, [props.isDisabled])
+	<masonview ref={bind}
 		id={props.id}
 		className={cx(
+			'vx-pressable',
 			'vx-card',
+			'vx-selectable-card--appkit',
 			'vx-selectable-card',
 			`vx-card--${props.variant ?? 'default'}`,
 			props.elevation && `vx-card--elev-${props.elevation}`,
@@ -24,7 +51,7 @@ export function SelectableCard(props: SelectableCardProps) @{
 			maxWidth: props.maxWidth,
 		}}
 		disabled={props.isDisabled}
-		onPress={() => !props.isDisabled && props.onChange(!props.isSelected)}
+		onTap={props.isDisabled ? undefined : () => { if (!props.isDisabled) props.onChange(!props.isSelected) }}
 		accessibilityRole="checkbox"
 		accessibilityLabel={props.label}
 		accessibilityState={{
@@ -34,5 +61,12 @@ export function SelectableCard(props: SelectableCardProps) @{
 		}}
 	>
 		<TextSlot>{props.children}</TextSlot>
-	</Pressable>
+	</masonview>
 }
+
+<style>
+	.vx-selectable-card--appkit {
+		display: flex;
+		flex-direction: column;
+	}
+</style>

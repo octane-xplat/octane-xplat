@@ -1,5 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
+import { createDisabledFocusTargets } from '../src/disabled-focus.ts'
+import { createTabStopSuppression } from '../src/tab-stop.ts'
 import { runSlice, sourceWithoutImports } from './mock-globals.ts'
 
 const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
@@ -7,18 +9,20 @@ const host = source.slice(source.indexOf('class AccessibleHostView'), source.ind
 const apply = source.slice(source.indexOf('function applyAccessibility('), source.indexOf('function applyProps('))
 function fixture() {
 	const ids = new WeakMap(), handlers = new Map(), notifications: unknown[] = [], events: string[] = [], forwarded: unknown[] = []
+	const disabledFocus = createDisabledFocusTargets(), tabStops = createTabStopSuppression()
+	const scopeFocus = new WeakMap()
 	const { AccessibleHostView, applyAccessibility } = runSlice(host + '\n' + apply + '\n({AccessibleHostView,applyAccessibility})', {
 		NSView: class { keyDown(event: unknown) { forwarded.push(event) } }, NativeClass() {}, interop: { types: { bool: 'bool', id: 'id' } },
 		NSNumber: { numberWithDouble: (value: number) => value }, actionIdsByView: ids, actionHandlers: handlers,
 		accessibilityRoles: new Map(), accessibilityLabels: new Map(), stackAccessibilityPropsByView: new WeakMap(),
-		scopeFocusTargets: new WeakMap(), inputTransparentViews: new WeakSet(), invokeAction: (id: number) => handlers.get(id)(),
+		scopeFocusTargets: scopeFocus, disabledFocusTargets: disabledFocus, tabStopSuppression: tabStops, inputTransparentViews: new WeakSet(), invokeAction: (id: number) => handlers.get(id)(),
 		NSAccessibilityPostNotification: (view: object, name: string) => notifications.push([view, name]),
 	})
 	const view = new AccessibleHostView()
 	ids.set(view, 1)
 	const node = { type: 'masonview', view, actionId: 1, props: {} as any,
 		container: { root: { eventScope: (kind: string, callback: () => void) => { events.push(kind); callback() } } as any } }
-	return { view, node, handlers, notifications, events, forwarded, set: (name: string, value: unknown) => applyAccessibility(node, name, value) }
+	return { view, node, handlers, notifications, events, forwarded, disabledFocus, tabStops, scopeFocus, set: (name: string, value: unknown) => applyAccessibility(node, name, value) }
 }
 
 test('self-drawn switch/tab/adjustable hosts expose native roles and values', () => {
@@ -136,4 +140,35 @@ test('pressed buttons use native checked values and notify only changed pressed 
 	assert.equal(f.view.accessibilityRole(), 'AXButton')
 	assert.equal(f.view.accessibilityValue(), '')
 	assert.equal(f.notifications.length, 2)
+})
+
+
+test('disabled focus claims allow focus without actions and respect suppression, hiding and other owners', () => {
+	const f = fixture()
+	f.set('accessibilityRole', 'checkbox')
+	f.set('accessibilityState', { checked: true, disabled: true })
+	assert.equal(f.view.acceptsFirstResponder(), false)
+	assert.equal(f.view.canBecomeKeyView(), false)
+	const first = f.disabledFocus.retain(f.view), second = f.disabledFocus.retain(f.view)
+	assert.equal(f.view.acceptsFirstResponder(), true)
+	assert.equal(f.view.canBecomeKeyView(), true)
+	assert.equal(f.view.accessibilityIsEnabled(), false)
+	assert.equal(f.view.accessibilityPerformPress(), false)
+	f.view.keyDown({ keyCode: 49 })
+	assert.equal(f.forwarded.length, 1)
+	assert.equal(f.handlers.size, 0)
+	const unsuppress = f.tabStops.retain(f.view)
+	assert.equal(f.view.canBecomeKeyView(), false)
+	unsuppress()
+	f.view.hiddenOrHasHiddenAncestor = true
+	assert.equal(f.view.canBecomeKeyView(), false)
+	f.view.hiddenOrHasHiddenAncestor = false
+	f.scopeFocus.set(f.view, 1)
+	assert.equal(f.view.canBecomeKeyView(), false)
+	f.scopeFocus.delete(f.view)
+	first(); first()
+	assert.equal(f.view.canBecomeKeyView(), true)
+	second()
+	assert.equal(f.view.canBecomeKeyView(), false)
+	assert.equal(f.view.acceptsFirstResponder(), false)
 })

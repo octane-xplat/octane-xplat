@@ -911,8 +911,10 @@ ClickableCard sanitizes href and calls the platform opener before onPress;
 URL-bearing cards expose a link role, callback-only cards a button role.
 Both interactive cards use TextSlot for primitive children and forward
 variant/elevation classes. SelectableCard remains controlled. Native appearance,
-URL launch, nested-control gesture arbitration and disabled-but-focusable
-selection cards remain unqualified or missing; native target browsing contexts
+URL launch and nested-control gesture arbitration remain unqualified; disabled
+SelectableCard now retains focus eligibility through the renderer bridge while
+keeping activation blocked and disabled semantics intact. Actual Tab/VoiceOver
+qualification remains open; native target browsing contexts
 are not implemented. See [cards](../../../../docs/app/interactive-actions.md#appkit-card-qualification).
 
 ```tsx
@@ -920,5 +922,20 @@ import { ClickableCard } from '@octane-xplat/ui'
 
 export function Help() {
 	return <ClickableCard label="Open help" href="https://example.com/help" elevation="low">Help</ClickableCard>
+}
+```
+
+
+Disabled-card focus uses a reference-counted renderer claim, released on enablement
+or detach, without adding an action. FocusScope honors explicit native key-view
+eligibility while still excluding disabled native fields, hidden views and Tab
+suppression. Hosts missing retainDisabledFocus keep the ordinary disabled focus
+behavior; do not infer qualification from bridge presence alone.
+
+```tsx
+import { SelectableCard } from '@octane-xplat/ui'
+
+export function UnavailablePlan({ selected, onChange }: { selected: boolean; onChange(value: boolean): void }) {
+	return <SelectableCard label="Team plan" isSelected={selected} isDisabled onChange={onChange}>Unavailable</SelectableCard>
 }
 ```

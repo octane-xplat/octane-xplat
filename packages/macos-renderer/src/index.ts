@@ -64,6 +64,7 @@ import { installCompat } from './ns-compat'
 import { createAppKitKeyboardDispatcher } from './keyboard'
 import { createAppKitFocusWithinDispatcher } from './focus-within'
 import { createTabStopSuppression } from './tab-stop'
+import { createDisabledFocusTargets } from './disabled-focus'
 import type { NativeKeyboardEvent } from '@octane-xplat/jsx/intrinsics'
 import { makeListView, updateListView, disposeListView } from './list-view'
 import { makePagerView, updatePagerView, disposePagerView } from './pager'
@@ -745,6 +746,7 @@ const inputTransparentViews = new WeakSet<object>()
 
 const scopeFocusTargets = new WeakMap<object, number>()
 const tabStopSuppression = createTabStopSuppression()
+const disabledFocusTargets = createDisabledFocusTargets()
 
 /** Plain NSView host for interactive containers — tap/keyboard/AX actions
  *  dispatch through the shared actionId registry. Mason-backed containers
@@ -756,13 +758,13 @@ class AccessibleHostView extends NSView {
 	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
 	acceptsFirstResponder() {
 		return typeof actionHandlers.get(actionIdsByView.get(this) ?? -1) === 'function' ||
-			(scopeFocusTargets.get(this) ?? 0) > 0
+			(scopeFocusTargets.get(this) ?? 0) > 0 || disabledFocusTargets.allows(this)
 	}
 	// Scope fallback boxes accept programmatic focus but are not Tab stops.
 	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
 	canBecomeKeyView() {
 		return !scopeFocusTargets.has(this) && !tabStopSuppression.isSuppressed(this) && this.acceptsFirstResponder() &&
-			this.accessibilityIsEnabled() && !this.hiddenOrHasHiddenAncestor
+			(this.accessibilityIsEnabled() || disabledFocusTargets.allows(this)) && !this.hiddenOrHasHiddenAncestor
 	}
 
 	keyDown(event: any) {
@@ -10188,6 +10190,7 @@ Object.defineProperty(appKitBridge, 'focusWithinSupported', {
 appKitBridge.dispatchKeyboardEvent = keyboardDispatcher.dispatch
 appKitBridge.observeHardwareKeys = keyboardDispatcher.observe
 appKitBridge.suppressTabStop = (view: NSView) => tabStopSuppression.retain(view)
+appKitBridge.retainDisabledFocus = (view: NSView) => disabledFocusTargets.retain(view)
 appKitBridge.retainFocusTarget = (view: NSView) => {
 	scopeFocusTargets.set(view, (scopeFocusTargets.get(view) ?? 0) + 1)
 	let active = true
