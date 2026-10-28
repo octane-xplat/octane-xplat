@@ -22,10 +22,20 @@ every target; a `customConditions` setting binds the host element type only:
 
 | `customConditions`    | `HostElement` in refs and host events       |
 | --------------------- | ------------------------------------------- |
-| (none)                | opaque `HostElement` (non-`unknown` marker) |
+| (none)                | `object` — any object-typed ref is accepted |
 | `["native"]`          | NativeScript `View`                         |
 | `["macos"]`           | bridged AppKit `NSView`                     |
 | `["macos", "native"]` | AppKit `NSView` — `macos` wins              |
+
+Under the default condition the shared `HostElement` is `object`: member
+access on the handle fails, and the handle is not assignable to a concrete
+platform view — name the concrete host type where the ref is declared. A
+`.ios.tsrx` leaf can use the NativeScript `View` directly:
+
+```tsx
+const pagerRef = useRef<View | null>(null)
+return <pager ref={pagerRef} items={items} />
+```
 
 Conditions change host element value types only — never intrinsic
 membership. The shared map carries the 39 NativeScript-baseline tags, the

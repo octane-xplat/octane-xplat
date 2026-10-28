@@ -232,7 +232,7 @@ const laneSource = {
 	default: `
 const lane = <label
 	ref={(element) => {
-		// The opaque default is a real object type, not unknown.
+		// The shared default is a real object type, not unknown.
 		const asObject: object | null = element
 		void asObject
 		// @ts-expect-error opaque members are not readable
@@ -240,6 +240,38 @@ const lane = <label
 	}}
 />
 void lane
+
+// Refs annotated with the concrete host type are accepted (bivariant ref
+// callbacks); the shared handle itself still cannot reach view members.
+declare class View {
+	requestLayout(): void
+}
+declare class NSView {
+	addSubview(v: NSView): void
+}
+const viewRef = <label ref={(v: View | null) => v?.requestLayout()} />
+const nsViewRef = <label ref={(v: NSView | null) => {}} />
+const refObj: { current: View | null } = { current: null }
+const objRef = <label ref={refObj} />
+const arrRef = <label ref={[refObj, (v: NSView | null) => {}]} />
+void viewRef
+void nsViewRef
+void objRef
+void arrRef
+// @ts-expect-error the shared handle cannot reach view members unannotated
+const memberRef = <label ref={(v) => { v?.requestLayout() }} />
+void memberRef
+declare function needsView(v: View): void
+// @ts-expect-error the shared handle is not assignable to a concrete view
+const assignRef = <label ref={(v) => { if (v) needsView(v) }} />
+void assignRef
+const stringRef: { current: string | null } = { current: null }
+// @ts-expect-error ref objects must hold host elements
+const badRefObj = <label ref={stringRef} />
+void badRefObj
+import type { TapEvent } from '@octane-xplat/jsx/jsx-runtime'
+const tapHandler = <button onTap={(e: TapEvent<View>) => { void e }} />
+void tapHandler
 `,
 	native: `
 import type { View } from '@nativescript/core/ui/core/view/index.js'

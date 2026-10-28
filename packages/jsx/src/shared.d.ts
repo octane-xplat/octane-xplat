@@ -28,12 +28,30 @@ export type NativeNode = unknown
 export type ElementTypeOf = string | ((props: any, scope: any) => unknown)
 
 /**
+ * Ref callback with React-style parameter bivariance: a callback annotated
+ * with the concrete host type is accepted where the facade binds a generic
+ * `TElement`, without loosening the result or arity checks.
+ */
+export type RefCallback<TElement> = {
+	bivarianceHack(instance: TElement | null): void | (() => void)
+}['bivarianceHack']
+
+/**
+ * Host-event handler with the same method-syntax bivariance: handlers whose
+ * event parameter is typed against the conditioned `TElement` accept an
+ * annotation naming the concrete host element or view.
+ */
+export type HostHandler<E> = { bivarianceHack(event: E): void }['bivarianceHack']
+
+/**
  * Host ref lifecycle, matching the octane universal contract: a callback that
  * may return a cleanup function, a `{ current }` object, an array of refs
- * (nested arrays flatten), or null/undefined.
+ * (nested arrays flatten), or null/undefined. Ref callbacks compare their
+ * parameter bivariantly, so a callback annotated with the concrete host type
+ * is accepted.
  */
 export type Ref<TElement> =
-	| ((instance: TElement | null) => void | (() => void))
+	| RefCallback<TElement>
 	| { current: TElement | null }
 	| readonly Ref<TElement>[]
 	| null
@@ -179,27 +197,27 @@ export interface CommonAttributes {
  * `onSubmit` → returnPress), focus/blur, and the view lifecycle pair.
  */
 export interface CommonEvents<TElement> {
-	onTap?: (event: TapEvent<TElement>) => void
+	onTap?: HostHandler<TapEvent<TElement>>
 	/** Alias for `onTap`. */
-	onClick?: (event: TapEvent<TElement>) => void
+	onClick?: HostHandler<TapEvent<TElement>>
 	/** Alias for `onTap`. */
-	onPress?: (event: TapEvent<TElement>) => void
-	onDoubleTap?: (event: TapEvent<TElement>) => void
-	onLongPress?: (event: TapEvent<TElement>) => void
-	onSwipe?: (event: SwipeGestureEvent<TElement>) => void
-	onPan?: (event: PanGestureEvent<TElement>) => void
-	onPinch?: (event: PinchGestureEvent<TElement>) => void
-	onRotation?: (event: RotationGestureEvent<TElement>) => void
-	onTouch?: (event: TouchGestureEvent<TElement>) => void
+	onPress?: HostHandler<TapEvent<TElement>>
+	onDoubleTap?: HostHandler<TapEvent<TElement>>
+	onLongPress?: HostHandler<TapEvent<TElement>>
+	onSwipe?: HostHandler<SwipeGestureEvent<TElement>>
+	onPan?: HostHandler<PanGestureEvent<TElement>>
+	onPinch?: HostHandler<PinchGestureEvent<TElement>>
+	onRotation?: HostHandler<RotationGestureEvent<TElement>>
+	onTouch?: HostHandler<TouchGestureEvent<TElement>>
 	/** Alias for `onTextChange`. */
-	onChange?: (event: ValueChangeEvent<TElement>) => void
+	onChange?: HostHandler<ValueChangeEvent<TElement>>
 	/** Alias for `onReturnPress`. */
-	onSubmit?: (event: NativeEvent<TElement>) => void
-	onFocus?: (event: NativeEvent<TElement>) => void
-	onBlur?: (event: NativeEvent<TElement>) => void
-	onLoaded?: (event: NativeEvent<TElement>) => void
-	onUnloaded?: (event: NativeEvent<TElement>) => void
-	onLayoutChanged?: (event: NativeEvent<TElement>) => void
+	onSubmit?: HostHandler<NativeEvent<TElement>>
+	onFocus?: HostHandler<NativeEvent<TElement>>
+	onBlur?: HostHandler<NativeEvent<TElement>>
+	onLoaded?: HostHandler<NativeEvent<TElement>>
+	onUnloaded?: HostHandler<NativeEvent<TElement>>
+	onLayoutChanged?: HostHandler<NativeEvent<TElement>>
 }
 
 /**
@@ -269,8 +287,8 @@ export interface TextFieldProps<TElement> {
 	returnKeyType?: 'done' | 'next' | 'go' | 'search' | 'send' | string
 	autocorrect?: boolean
 	autocapitalizationType?: 'none' | 'words' | 'sentences' | 'allcharacters'
-	onTextChange?: (event: ValueChangeEvent<TElement, string>) => void
-	onReturnPress?: (event: NativeEvent<TElement>) => void
+	onTextChange?: HostHandler<ValueChangeEvent<TElement, string>>
+	onReturnPress?: HostHandler<NativeEvent<TElement>>
 }
 
 export interface TextViewProps<TElement> {
@@ -282,14 +300,14 @@ export interface TextViewProps<TElement> {
 	autoGrow?: boolean
 	maxRows?: number
 	rows?: number
-	onTextChange?: (event: ValueChangeEvent<TElement, string>) => void
+	onTextChange?: HostHandler<ValueChangeEvent<TElement, string>>
 }
 
 export interface SearchBarProps<TElement> {
 	text?: string
 	hint?: string
-	onTextChange?: (event: ValueChangeEvent<TElement, string>) => void
-	onSubmit?: (event: NativeEvent<TElement>) => void
+	onTextChange?: HostHandler<ValueChangeEvent<TElement, string>>
+	onSubmit?: HostHandler<NativeEvent<TElement>>
 }
 
 export interface ButtonProps {
@@ -302,7 +320,7 @@ export interface ButtonProps {
 export interface SwitchProps<TElement> {
 	checked?: boolean
 	isEnabled?: boolean
-	onCheckedChange?: (event: ValueChangeEvent<TElement, boolean>) => void
+	onCheckedChange?: HostHandler<ValueChangeEvent<TElement, boolean>>
 }
 
 export interface SliderProps<TElement> {
@@ -310,7 +328,7 @@ export interface SliderProps<TElement> {
 	minValue?: number
 	maxValue?: number
 	isEnabled?: boolean
-	onValueChange?: (event: ValueChangeEvent<TElement, number>) => void
+	onValueChange?: HostHandler<ValueChangeEvent<TElement, number>>
 }
 
 /** Shared range contract for determinate progress on every native target. */
@@ -328,14 +346,14 @@ export interface ActivityIndicatorProps {
 export interface ListPickerProps<TElement> {
 	items?: readonly unknown[]
 	selectedIndex?: number
-	onSelectedIndexChange?: (event: IndexChangeEvent<TElement>) => void
+	onSelectedIndexChange?: HostHandler<IndexChangeEvent<TElement>>
 }
 
 export interface SegmentedBarProps<TElement> {
 	/** Upstream `SegmentedBarItem[]`. */
 	items?: readonly HostObject[]
 	selectedIndex?: number
-	onSelectedIndexChange?: (event: IndexChangeEvent<TElement>) => void
+	onSelectedIndexChange?: HostHandler<IndexChangeEvent<TElement>>
 }
 
 export interface SegmentedBarItemProps {
@@ -352,7 +370,7 @@ export interface DatePickerProps<TElement> {
 	day?: number
 	month?: number
 	year?: number
-	onDateChange?: (event: ValueChangeEvent<TElement, Date>) => void
+	onDateChange?: HostHandler<ValueChangeEvent<TElement, Date>>
 }
 
 /** Minute-precision time of day: time and event values normalize to
@@ -370,7 +388,7 @@ export interface TimePickerProps<TElement> {
 	maxHour?: number
 	minMinute?: number
 	maxMinute?: number
-	onTimeChange?: (event: ValueChangeEvent<TElement, Date>) => void
+	onTimeChange?: HostHandler<ValueChangeEvent<TElement, Date>>
 }
 
 export interface ListViewProps<TElement> {
@@ -393,9 +411,9 @@ export interface ListViewProps<TElement> {
 	 */
 	renderItem?: (item: any, index: number) => NativeNode
 	separatorColor?: string | HostObject
-	onItemLoading?: (event: ItemEvent<TElement>) => void
-	onItemTap?: (event: ItemEvent<TElement>) => void
-	onLoadMoreItems?: (event: NativeEvent<TElement>) => void
+	onItemLoading?: HostHandler<ItemEvent<TElement>>
+	onItemTap?: HostHandler<ItemEvent<TElement>>
+	onLoadMoreItems?: HostHandler<NativeEvent<TElement>>
 }
 
 /** Unconditioned item instance. Target entries bind this name to the
@@ -413,8 +431,8 @@ export interface TabViewProps<TElement, TItem = TabViewItemHandle> {
 	/** Imperative alternative to ordered tabviewitem JSX children. */
 	items?: readonly TItem[]
 	selectedIndex?: number
-	onSelectedIndexChange?: (event: IndexChangeEvent<TElement>) => void
-	onSelectedIndexChanged?: (event: IndexChangeEvent<TElement>) => void
+	onSelectedIndexChange?: HostHandler<IndexChangeEvent<TElement>>
+	onSelectedIndexChanged?: HostHandler<IndexChangeEvent<TElement>>
 }
 
 export interface TabViewItemProps {
@@ -428,9 +446,9 @@ export interface PageProps<TElement> {
 	enableSwipeBackNavigation?: boolean
 	statusBarStyle?: 'light' | 'dark' | string
 	backgroundSpanUnderStatusBar?: boolean
-	onNavigatedTo?: (event: NativeEvent<TElement>) => void
-	onNavigatedFrom?: (event: NativeEvent<TElement>) => void
-	onNavigatingTo?: (event: NativeEvent<TElement>) => void
+	onNavigatedTo?: HostHandler<NativeEvent<TElement>>
+	onNavigatedFrom?: HostHandler<NativeEvent<TElement>>
+	onNavigatingTo?: HostHandler<NativeEvent<TElement>>
 }
 
 export interface FrameProps {
@@ -465,21 +483,21 @@ export interface ImageProps {
 
 export interface WebViewProps<TElement> {
 	src?: string
-	onLoadStarted?: (event: WebViewEvent<TElement>) => void
-	onLoadFinished?: (event: WebViewEvent<TElement>) => void
-	onLoadError?: (event: WebViewEvent<TElement>) => void
+	onLoadStarted?: HostHandler<WebViewEvent<TElement>>
+	onLoadFinished?: HostHandler<WebViewEvent<TElement>>
+	onLoadError?: HostHandler<WebViewEvent<TElement>>
 }
 
 export interface ScrollViewProps<TElement> {
 	orientation?: 'horizontal' | 'vertical'
 	scrollBarIndicatorVisible?: boolean
 	isScrollEnabled?: boolean
-	onScroll?: (event: ScrollEvent<TElement>) => void
+	onScroll?: HostHandler<ScrollEvent<TElement>>
 }
 
 export interface PlaceholderProps<TElement> {
 	/** Fired once the placeholder is attached; the handler assigns `event`'s view. */
-	onCreatingView?: (event: NativeEvent<TElement> & { view?: HostObject }) => void
+	onCreatingView?: HostHandler<NativeEvent<TElement> & { view?: HostObject }>
 }
 
 // ---------------------------------------------------------------------------
@@ -539,17 +557,17 @@ export interface VideoProps<TElement> {
 	fill?: 'aspect' | 'aspectFill' | 'fill' | string
 	headers?: Record<string, string>
 	observeCurrentTime?: boolean
-	onFinished?: (event: NativeEvent<TElement>) => void
-	onPlaybackReady?: (event: NativeEvent<TElement>) => void
-	onPlaybackStart?: (event: NativeEvent<TElement>) => void
-	onCurrentTimeUpdated?: (event: NativeEvent<TElement> & { position?: number }) => void
-	onError?: (event: NativeEvent<TElement> & { error?: unknown }) => void
+	onFinished?: HostHandler<NativeEvent<TElement>>
+	onPlaybackReady?: HostHandler<NativeEvent<TElement>>
+	onPlaybackStart?: HostHandler<NativeEvent<TElement>>
+	onCurrentTimeUpdated?: HostHandler<NativeEvent<TElement> & { position?: number }>
+	onError?: HostHandler<NativeEvent<TElement> & { error?: unknown }>
 }
 
 export interface CanvasProps<TElement> {
 	width?: number | string
 	height?: number | string
-	onReady?: (event: NativeEvent<TElement>) => void
+	onReady?: HostHandler<NativeEvent<TElement>>
 }
 
 export interface LottieProps {
@@ -564,9 +582,9 @@ export interface PagerProps<TElement> {
 	items?: readonly unknown[] | HostObject
 	renderItem?: (item: any, index: number) => NativeNode
 	selectedIndex?: number
-	onItemLoading?: (event: ItemEvent<TElement>) => void
-	onItemDisposing?: (event: ItemEvent<TElement>) => void
-	onSelectedIndexChange?: (event: IndexChangeEvent<TElement>) => void
+	onItemLoading?: HostHandler<ItemEvent<TElement>>
+	onItemDisposing?: HostHandler<ItemEvent<TElement>>
+	onSelectedIndexChange?: HostHandler<IndexChangeEvent<TElement>>
 }
 
 export interface AnimatedImageProps {

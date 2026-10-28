@@ -1,7 +1,7 @@
 /**
  * `@octane-xplat/jsx/jsx-runtime` — default export condition.
  *
- * The shared native JSX contract with an opaque `HostElement`: the type a
+ * The shared native JSX contract with a shared `HostElement` handle: the type a
  * consumer gets when neither the `native` nor `macos` condition is enabled.
  * Target-conditioned declarations (`./native.d.ts`, `./macos.d.ts`) bind the
  * same surface to a concrete host class; only the host element value type
@@ -13,16 +13,14 @@ import type { ElementTypeOf, NativeElements, NativeNode, Ref } from './shared.js
 
 export * from './shared.js'
 
-declare const sharedHostElement: unique symbol
 /**
- * Opaque host element — non-`unknown` so accidental member access still
- * fails typechecking, and non-assignable so a default-checked library cannot
- * forge or depend on a concrete platform view. Target-conditioned resolution
+ * Shared host handle — any object. Member access on the alias itself fails
+ * until code names its concrete host type where the ref is declared
+ * (`useRef<View | null>`, `(view: NSView | null) => …`); the alias is still
+ * not assignable to a concrete platform view. Target-conditioned resolution
  * replaces it with the concrete NativeScript or AppKit host type.
  */
-export interface HostElement {
-	readonly [sharedHostElement]: 'shared-native-host'
-}
+export type HostElement = object
 
 export declare namespace JSX {
 	type Element = NativeNode

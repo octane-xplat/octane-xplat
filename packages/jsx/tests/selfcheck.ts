@@ -39,17 +39,24 @@ void extensionTag2
 
 // --- Default HostElement is opaque -----------------------------------------
 
-// Non-unknown (assignable to object) and non-forgeable (nothing but the
-// driver produces one).
+// Non-unknown (assignable to object) and member-free — accidental access
+// still fails typechecking, and the shared handle is not assignable to a
+// concrete platform view.
 declare const shared: HostElement
 const asObject: object = shared
-// @ts-expect-error opaque members are not readable
+// @ts-expect-error member access fails on the shared handle
 const noMember = shared.ios
-// @ts-expect-error cannot forge the opaque host element
-const forged: HostElement = {}
+declare class FakeView {
+	requestLayout(): void
+}
+// @ts-expect-error the shared handle is not a concrete platform view
+const concrete: FakeView = shared
+// @ts-expect-error primitives are not host handles
+const primitive: HostElement = 'x'
 void asObject
 void noMember
-void forged
+void concrete
+void primitive
 
 // --- macOS binds the AppKit host surface ------------------------------------
 
