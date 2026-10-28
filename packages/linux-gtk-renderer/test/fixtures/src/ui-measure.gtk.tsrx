@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { AspectRatio, Text, View, useMeasure } from '@octane-xplat/ui'
 
-export function Measurement(props: { width: number; alternate?: boolean; observe?: boolean; report: (bounds: any) => void }) @{
+export function Measurement(props: { width?: number; alternate?: boolean; observe?: boolean; report: (bounds: any) => void }) @{
 	const { ref, bounds } = useMeasure({ observe: props.observe })
 	props.report(bounds)
 

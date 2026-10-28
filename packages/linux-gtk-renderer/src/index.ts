@@ -1299,6 +1299,50 @@ function dimension(value: unknown): number {
 	return typeof value === 'number' && Number.isFinite(value) ? Math.round(value) : -1
 }
 
+/** Gtk.Box stretches cross-axis children by default even when they have a
+ * size request. Preserve definite authored sizes at the GTK/Mason boundary;
+ * inside a Mason parent the engine owns alignment and allocation. */
+function syncBoxAlignment(node: ElementNode, source: PropBag) {
+	const view = node.view
+	if (!view) return
+	const host = hostViewOf(node.container, node.parent)
+	if (!(host instanceof Gtk.Box) || isMasonHostView(host)) {
+		if (node.boxAlignmentManaged) {
+			view.set_halign(Gtk.Align.FILL)
+			view.set_valign(Gtk.Align.FILL)
+			node.boxAlignmentManaged = false
+		}
+		return
+	}
+	const horizontal = host.orientation === Gtk.Orientation.HORIZONTAL
+	const cross = ALIGN[String(source.alignSelf ?? node.props.alignSelf)]
+	let halign =
+		ALIGN[String(source.horizontalAlign ?? node.props.horizontalAlignment ?? node.props.halign)]
+	let valign =
+		ALIGN[String(source.verticalAlign ?? node.props.verticalAlignment ?? node.props.valign)]
+	if (cross !== undefined) {
+		if (horizontal) valign ??= cross
+		else halign ??= cross
+	}
+	halign ??= ALIGN[String(source.justifySelf ?? node.props.justifySelf)]
+	const width = dimension(source.width ?? node.props.width)
+	const height = dimension(source.height ?? node.props.height)
+	const grow = Number(source.flexGrow ?? node.props.flexGrow) > 0
+	// Stretch only changes an auto cross size. Flex growth may enlarge the
+	// main size even when the basis has a definite authored dimension.
+	if (halign == null || halign === Gtk.Align.FILL) {
+		halign = width >= 0 && !(horizontal && grow) ? Gtk.Align.START : Gtk.Align.FILL
+	}
+	if (valign == null || valign === Gtk.Align.FILL) {
+		valign = height >= 0 && !(!horizontal && grow) ? Gtk.Align.START : Gtk.Align.FILL
+	}
+	view.set_halign(halign)
+	view.set_valign(valign)
+	node.boxAlignmentManaged = true
+	node.flexGrowValue = source.flexGrow ?? node.props.flexGrow
+	syncExpand(node)
+}
+
 // Style applies at batch end, after every prop — the effective bag wins but
 // each key falls back to the prop-level value the element still carries.
 function applyStyleExtras(node: ElementNode, view: GtkView, style: PropBag | null | undefined) {
@@ -1505,6 +1549,7 @@ function applyStyleViewProps(node: ElementNode, view: GtkView, style: PropBag) {
 		const pv = ALIGN[String(node.props.verticalAlignment ?? node.props.valign)]
 		view.set_valign(pv ?? Gtk.Align.FILL)
 	}
+	syncBoxAlignment(node, source)
 }
 
 // ---------------------------------------------------------------------------
@@ -1613,6 +1658,7 @@ function forEachViewNode(node: ElementNode, fn: (n: ElementNode) => void) {
  *  inserts and recreates attach descendants without per-node syncExpand. */
 function syncExpandDeep(node: ElementNode) {
 	forEachViewNode(node, (n) => {
+		syncBoxAlignment(n, n.computedStyle ?? {})
 		if (n.flexGrowValue !== undefined) {
 			syncExpand(n)
 		}
@@ -2629,6 +2675,7 @@ function insert(
 	if (isMasonHostView(parentView)) {
 		queueMasonLayout(parentView)
 	}
+	syncBoxAlignment(node, node.computedStyle ?? {})
 	// flexGrow was recorded before the parent existed — resolve it now.
 	if (node.flexGrowValue !== undefined) {
 		syncExpand(node)

@@ -164,3 +164,22 @@ release-note validation pass. Logs on andromeda: /tmp/gtk-ui-measure-types.log,
 /tmp/gtk-ui-measure-renderer-types.log, /tmp/gtk-ui-measure-pack.log; guest runtime
 log: /tmp/gtk-ui-measure-test-final.log. The existing docs-site parser failure
 above remains unresolved; these checks do not claim a successful site build.
+
+## Numeric root size correction
+
+The root-sizing gap above is fixed for finite numeric widths and heights.
+When a Gtk.Box hosts a renderer node, definite dimensions now select native
+start alignment instead of silently stretching its size request. Auto dimensions
+restore fill, explicit non-stretch alignment is preserved, and flex growth can
+still enlarge the main axis. Mason parents continue to own child allocation;
+moving a retained widget across the GTK/Mason boundary resets the old alignment.
+
+The default fill-aligned measurement fixture now verifies a 200→160 width
+change and clearing the width back to 300, with matching AspectRatio heights.
+Four direct-driver checks cover numeric root sizing, reparenting into Mason,
+moving back to Gtk.Box, and clearing a retained root's width. All 29 Linux tests
+pass without skips (19 measurement assertions plus 42 primitive assertions and
+the separate actual X11 pointer test). The expanded renderer/dependent typecheck
+passes all eight tasks. Logs: guest /tmp/gtk-root-sizing-test.log and andromeda
+/tmp/gtk-root-sizing-types.log. This does not qualify percentage/min/max root
+dimensions or every alignment/flex interaction.

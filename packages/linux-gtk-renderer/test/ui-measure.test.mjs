@@ -43,7 +43,7 @@ test('measurement and aspect ratio follow real GTK allocation and scrolling', as
 	const line = result.stdout.split('\n').find((s) => s.startsWith('GTK_UI_MEASURE '))
 	assert.ok(line, `Missing primitive result: ${result.stdout}\n${result.stderr}`)
 	const { checks, gtk } = JSON.parse(line.slice('GTK_UI_MEASURE '.length))
-	assert.ok(checks >= 12, `Expected measurement checks, got ${checks}`)
+	assert.ok(checks >= 19, `Expected measurement checks, got ${checks}`)
 
 	t.diagnostic(
 		`${process.platform}; GTK ${gtk}; ${checks} assertions; XplatMason; real GTK allocation and scroll adjustment; no OS input or visual evidence`,
