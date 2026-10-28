@@ -101,6 +101,14 @@ behavior, rather than used as evidence of parity.
   ID props are presented as an equivalent. Native object-driver naming checks
   pass; screen-reader qualification and description association remain open.
 
+- Native Image now observes the existing host's imageSource/loading events,
+  uses valid decoded dimensions when media dimensions are absent, rejects
+  stale source notifications, and releases listeners on replacement/unmount.
+  A failed decode yields an alt-text fallback rather than an invented natural
+  size; explicit dimensions still allow early fitting. Native responsive
+  srcSet/sizes remain outside the documented web-only attribute contract.
+  Observer and delayed-layout checks pass; device loading/layout is pending.
+
 ## Qualification boundary
 
 This was a source and documentation audit of the pinned reference, not an

@@ -193,3 +193,17 @@ See [NativeScript accessibility](https://docs.nativescript.org/guide/accessibili
 Object-driver checks establish text registration and the chosen host name.
 They do not establish VoiceOver/TalkBack announcements. This partial repair
 leaves native description association open before any full-parity claim.
+
+## Native image sizing audit repair
+
+The leaf now observes Image.imageSource and isLoading changes on the existing
+host. Explicit positive dimensions allow early layout; otherwise the decoded
+source supplies the aspect ratio. The image controller reads the current
+aspect, including after source changes. No second download is started.
+Completed failed decoding renders alt text and uses the fade path; responsive
+srcSet/sizes remain web attributes. See the [Image API](https://docs.nativescript.org/api/classes/Image)
+and [ImageSource dimensions](https://docs.nativescript.org/core/image-source).
+
+The observer regressions cover portrait/landscape results, replacement,
+listener cleanup and failed completion. Actual native loading and fitting
+remain pending qualification.

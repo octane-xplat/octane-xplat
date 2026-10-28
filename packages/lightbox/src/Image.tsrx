@@ -3,6 +3,8 @@
 // zoom/pan transform — same shape as Image.web.tsrx but the frame writes go to
 // NativeScript view properties and gestures come from gesturehandler.
 import { useEffect, useLayoutEffect, useRef, useState } from 'octane'
+import type { Image as NativeImage } from '@nativescript/core'
+import { observeNativeImage } from './native-image-source'
 import { cx } from '@octane-xplat/lib'
 import { mergeStyle } from './style-merge'
 import { useMotionValue } from '@octane-xplat/motion'
@@ -31,18 +33,28 @@ export function Image(props: LightboxImagePartProps) @{
 	const { index, onTap } = useSlideCtx()
 	const item = ctx.items[index]
 	const wrapRef = useRef<any>(null)
-	const imgRef = useRef<any>(null)
+	const imgRef = useRef<NativeImage | null>(null)
 	const [box, setBox] = useState<Rect | null>(null)
-	const [loaded, setLoaded] = useState(false)
+	const src = props.src ?? item?.src
+	const [decoded, setDecoded] = useState<{ source: string; width: number; height: number; failed: boolean } | null>(null)
+	const currentDecode = decoded?.source === src ? decoded : null
+	const failed = currentDecode?.failed ?? false
+	const loaded = !!currentDecode && !failed
+	useLayoutEffect(() => {
+		const host = imgRef.current
+		if (!host || !src) return
+		return observeNativeImage(host, src, result => setDecoded({ source: src, ...result }))
+	}, [src])
 
-	const aspect = (item?.width && item?.height ? item.width / item.height : undefined) ?? 1
+	const explicit = item?.width && item?.height && Number.isFinite(item.width) && Number.isFinite(item.height) && item.width > 0 && item.height > 0 ? item.width / item.height : null
+	const aspect = explicit ?? (currentDecode && !failed ? currentDecode.width / currentDecode.height : failed ? 1 : null)
 	const F = box && aspect ? fit(aspect, box) : null
 	const x = useMotionValue(0)
 	const y = useMotionValue(0)
 	const scale = useMotionValue(1)
 
-	const live = useRef({ F, ctx, box, index })
-	live.current = { F, ctx, box, index }
+	const live = useRef({ F, ctx, box, index, failed, aspect })
+	live.current = { F, ctx, box, index, failed, aspect }
 
 	// Measure: re-read on layout changes via NativeScript's layoutChanged.
 	// Measure the untransformed slide — never listen on the wrap itself, as
@@ -231,7 +243,7 @@ export function Image(props: LightboxImagePartProps) @{
 				}
 				const b = base()
 				const rest = (bb: Rect): Visual => ({ img: bb, clip: bb, radius: 0, opacity: 1 })
-				const thumb = !ctx.reducedMotion && trigger ? thumbVisual(trigger) : null
+				const thumb = !live.current.failed && !ctx.reducedMotion && trigger ? thumbVisual(trigger) : null
 				const from = thumb ?? { ...rest(b), opacity: 0 }
 				morph.current = from
 				morphTarget.current = rest(b)
@@ -258,7 +270,7 @@ export function Image(props: LightboxImagePartProps) @{
 					return
 				}
 				const from = current(base())
-				const thumb = !ctx.reducedMotion && trigger ? thumbVisual(trigger) : null
+				const thumb = !live.current.failed && !ctx.reducedMotion && trigger ? thumbVisual(trigger) : null
 				const to = thumb ?? { ...from, opacity: 0 }
 				const t0 = trigger ? viewRect(trigger) : null
 				const target = (): Visual => {
@@ -299,24 +311,24 @@ export function Image(props: LightboxImagePartProps) @{
 		const sr = slideEl() ? viewRect(slideEl()) : null
 		if (!tr || !sr) return null
 		const r = (trigger as any)?.borderRadius
-		return thumbVisualFrom(tr, sr, aspect, typeof r === 'number' ? r : 0)
+		return thumbVisualFrom(tr, sr, live.current.aspect ?? 1, typeof r === 'number' ? r : 0)
 	}
 	const base = (): Rect => live.current.F!
 	const current = (b: Rect): Visual => ({ img: { x: b.x + x.get(), y: b.y + y.get(), w: b.w * scale.get(), h: b.h * scale.get() }, clip: b, radius: 0, opacity: 1 })
 
-	const src = props.src ?? item?.src
 	const alt = props.alt ?? item?.alt ?? ''
 	if (!item) return null
 	return (
 		<masonview ref={wrapRef} className={cx('vx-lightbox-image', loaded && 'vx-lightbox-image--loaded', props.className)} style={mergeStyle(F ? { position: 'absolute', left: F.x, top: F.y, width: F.w, height: F.h } : { position: 'absolute', width: 0, height: 0, opacity: 0 }, props.style)} id={props.id}
 			testID={props.testID}>
+			{failed ? <label accessibilityLabel={alt}>{alt}</label> : null}
 			{src ? (
 				<image
+					key={src}
 					ref={imgRef}
 					src={src}
 					accessibilityLabel={alt}
 					style={{ width: '100%', height: '100%' }}
-					onLoaded={() => setLoaded(true)}
 				/>
 			) : null}
 		</masonview>
