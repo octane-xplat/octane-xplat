@@ -263,4 +263,48 @@ test('explicit animation none resets earlier rules and earlier declarations but 
 	assert.equal(animations('reset-base', 'reset-in-rule').length, 0)
 	assert.equal(animations('reset-base', 'reset-name').length, 0)
 	assert.equal(animations('reset-base', 'reset-stop', 'reset-again')[0].duration, 2000)
+test('desktop CSS ids select independently of numeric host identity and reset on change', () => {
+	registerStylesheet(
+		'desktop-css-ids',
+		'.desktop-id-fallback { color: #111111 } #desktop-card { color: #222222; --desktop-tint: #333333 } #desktop-other { color: #444444 }',
+	)
+	const n = node('masonview', { classes: ['desktop-id-fallback'] })
+	n.id = 987654
+	n.cssId = 'desktop-card'
+	compute(n)
+	assert.equal(n.computedStyle.color, '#222222')
+	assert.equal(n.computedCustomProps.get('--desktop-tint'), '#333333')
+	n.cssId = 'desktop-other'
+	compute(n)
+	assert.equal(n.id, 987654)
+	assert.equal(n.computedStyle.color, '#444444')
+	assert.equal(n.computedCustomProps.has('--desktop-tint'), false)
+	delete n.cssId
+	compute(n)
+	assert.equal(n.computedStyle.color, '#111111')
+})
+
+test('desktop CSS id lookup supports compound selectors and does not duplicate native string ids', () => {
+	registerStylesheet(
+		'desktop-css-id-compound',
+		'.desktop-id-parent > #desktop-id-child { opacity: 0.4 }',
+	)
+	const parent = node('masonview', { classes: ['desktop-id-parent'] })
+	const child = node('label', { parent })
+	child.id = 987655
+	child.cssId = 'desktop-id-child'
+	compute(child)
+	assert.equal(child.computedStyle.opacity, 0.4)
+	child.id = 'desktop-id-child'
+	const matched = stylesheetScope()
+		.query(child)
+		.selectors.filter((selector) => selector.match(child))
+	assert.equal(
+		matched.filter((selector) =>
+			selector.ruleset?.declarations.some(
+				(decl) => decl.property === 'opacity' && String(decl.value) === '0.4',
+			),
+		).length,
+		1,
+	)
 })
