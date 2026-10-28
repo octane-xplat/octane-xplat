@@ -1174,8 +1174,9 @@ export interface CalendarRangeProps extends CalendarBaseProps {
 }
 
 /** A self-drawn month calendar — same value model on every target. Keyboard
- *  grid navigation is web; native hardware-key delivery is not implemented. Native cells announce through
- *  `accessibility*` props rather than ARIA.
+ *  grid navigation is implemented on web; AppKit adapts the same model with
+ *  native delivery/focus still unqualified. NativeScript hardware keys are not
+ *  bound. Native cells expose `accessibility*` props rather than ARIA.
  *
  * @example
  * ```tsx

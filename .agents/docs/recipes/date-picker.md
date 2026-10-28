@@ -34,6 +34,8 @@ picker bundled with `@octane-xplat/files`.
 
 - AC11: AppKit FileInput input/dropzone presentations attach a current native destination lease for copy-delivered local file URLs, inspects regular-file references and reuses current picker/save validation and operation ownership. Preserve parent values, blocked/detached guards and other registered drag types; distinguish receipt from validation/save and keep promises/hover/autoscroll/grants/native qualification limits explicit.
 
+- AC12: AppKit Calendar owns current native day refs and one enabled day Tab candidate across panes, adapts shared bounded/disabled/RTL navigation, manual activation and local range Escape, and preserves header/IME/modified/native Tab ownership. Controlled page focus waits for accepted cells; window changes, other navigation and teardown invalidate pending focus/claims. Keep adapter/fake-window evidence distinct from native key/focus/popup/AX qualification and native time-list gaps.
+
 ## Documentation
 
 - AC1: [Portable component list](../../../docs/app/components.md#inputs) and [shared platform contract](../../../docs/platform/date-picker.md#portable-values).
@@ -51,3 +53,5 @@ picker bundled with `@octane-xplat/files`.
 - AC10: [AppKit metadata guide](../../../packages/files/README.md#appkit-file-metadata), default adapter source and [authored metadata/controller cases](../../../packages/files/src/file-input-details.macos.test.ts). Cases remain unrun; [target note](../parity/appkit-progress.md#appkit-fileinput-default-metadata) lists deferred native qualification.
 
 - AC11: [Drop local files guide](../../../docs/platform/date-picker.md#drop-local-files-on-appkit), [files contract](../../../packages/files/README.md#appkit-local-file-drops), renderer contract, nine authored registry/bridge/inspection/controller cases, [maintained fixture](../../../examples/probes/fileinput-drop.macos.tsrx) and [target note](../parity/appkit-progress.md#appkit-local-file-drop-ownership). All cases/fixture and native qualification remain unrun.
+
+- AC12: [AppKit calendar key guide](../../../docs/platform/date-picker.md#navigate-appkit-calendar-days-with-keys), six adapter/two object-driver wiring cases, [maintained fixture](../../../examples/probes/calendar-keys.macos.tsrx) and [target note](../parity/appkit-progress.md#appkit-calendar-day-keyboard-ownership). All eight cases and native qualification remain unrun.

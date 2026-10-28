@@ -1,9 +1,11 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from './style-merge'
-import { useImperativeHandle, useEffect, useMemo, useRef, useState } from 'octane'
+import { useImperativeHandle, useEffect, useLayoutEffect, useCallback, useMemo, useRef, useState } from 'octane'
 import type { CalendarProps, DateRange, ISODateString } from './props'
 import { cx } from '@octane-xplat/lib'
 import { dateMessages } from './date-messages'
+import { createAppKitCalendarFocus, type AppKitCalendarState } from './calendar-focus.macos'
+import { useDirection } from './internationalization'
 import { Icon } from './Icon.macos.tsrx'
 import { Pressable } from './Pressable.macos.tsrx'
 import {
@@ -32,10 +34,37 @@ import {
 	type CalendarMonthGrid,
 } from './calendar-core'
 
+interface AppKitCalendarDayProps {
+	iso: ISODateString
+	label: string
+	day: number
+	className: string
+	disabled: boolean
+	selected: boolean
+	register(iso: string, view: NSView): () => void
+	pick(iso: ISODateString): void
+}
+function AppKitCalendarDay(props: AppKitCalendarDayProps) @{
+	const live = useRef(props), view = useRef<NSView | null>(null), release = useRef<(() => void) | null>(null)
+	live.current = props
+	const bind = useCallback((next: NSView | null) => {
+		release.current?.(); release.current = null; view.current = next
+		if (next) release.current = live.current.register(live.current.iso, next)
+	}, [])
+	<masonview ref={bind} onTap={props.disabled ? undefined : () => {
+		if (view.current && !live.current.disabled) live.current.pick(live.current.iso)
+	}} disabled={props.disabled} className={props.className}
+		accessibilityLabel={props.label} accessibilityRole="button"
+		accessibilityState={{ disabled: props.disabled, selected: props.selected }} style={{ display: 'flex' }}>
+		<label text={String(props.day)} />
+	</masonview>
+}
+
 /** Self-drawn month calendar — `single` or `range` selection, ISO values.
- *  macOS leaf: same tap-driven grid as native; `ref` exposes
+ *  macOS leaf: native focus adapts the shared keyboard model; `ref` exposes
  *  `{navigateTo}`. */
 export function Calendar(props: CalendarProps) @{
+	const inheritedDirection = useDirection(), direction = props.direction ?? inheritedDirection
 	const mode = props.mode ?? 'single'
 	const numberOfMonths = props.numberOfMonths === 2 ? 2 : 1
 	const weekStartsOn = normalizeDayOfWeek(props.weekStartsOn)
@@ -127,11 +156,13 @@ export function Calendar(props: CalendarProps) @{
 		setAnnouncement(monthYearLabel)
 	}, [monthYearLabel])
 
+	const focusOwner = useRef<ReturnType<typeof createAppKitCalendarFocus> | null>(null)
 	const navApi = useRef({ navigateTo: (_: ISODateString) => {} })
 	navApi.current = {
 		navigateTo: (iso: ISODateString) => {
 			const pd = plainDateFromISO(iso)
 			if (pd) {
+				focusOwner.current?.cancelPending()
 				setBaseMonth(monthStart(pd))
 			}
 		},
@@ -192,6 +223,19 @@ export function Calendar(props: CalendarProps) @{
 		}
 	}
 
+	const live = useRef<AppKitCalendarState>({ months, isDisabled: isDateDisabled, value: currentValue, mode, rangeAnchor, direction, min: props.min, max: props.max })
+	live.current = { months, isDisabled: isDateDisabled, value: currentValue, mode, rangeAnchor, direction, min: props.min, max: props.max }
+	const actions = useRef({ setBaseMonth, pick, cancelRange: () => { setRangeAnchor(null); setAnnouncement(messages.rangeCleared) } })
+	actions.current = { setBaseMonth, pick, cancelRange: () => { setRangeAnchor(null); setAnnouncement(messages.rangeCleared) } }
+	const focus = useMemo(() => createAppKitCalendarFocus({ current: () => live.current,
+		navigate: (iso) => actions.current.setBaseMonth(monthStart(plainDateFromISO(iso)!)),
+		pick: (iso) => actions.current.pick(iso), cancelRange: () => actions.current.cancelRange(),
+	}), [])
+	focusOwner.current = focus
+	const bind = useCallback((view: NSView | null) => focus.bind(view), [])
+	useLayoutEffect(() => { focus.update() }, [months, isDateDisabled, currentValue])
+	useLayoutEffect(() => () => focus.dispose(), [])
+
 	const renderDay = (grid: CalendarMonthGrid, day: CalendarMonthGrid['weeks'][0][0]) => {
 		const state = computeDayCellState(day, {
 			mode,
@@ -225,9 +269,10 @@ export function Calendar(props: CalendarProps) @{
 							: dateLabel
 
 		return (
-			<masonview
-				key={day.iso}
-				onTap={state.isDisabled ? undefined : () => pick(day.iso)}
+			<AppKitCalendarDay
+				key={day.iso} iso={day.iso} day={day.dayOfMonth} label={fullLabel}
+				register={focus.register} pick={focus.activate}
+				disabled={state.isDisabled} selected={dayCarriesBand(state) || state.isSelected}
 				className={cx(
 					'vx-calendar-day',
 					state.isSelected && 'vx-calendar-day--selected',
@@ -239,20 +284,11 @@ export function Calendar(props: CalendarProps) @{
 					day.isToday && 'vx-calendar-day--today',
 					day.isWeekend && 'vx-calendar-day--weekend',
 				)}
-				accessibilityLabel={fullLabel}
-				accessibilityRole="button"
-				accessibilityState={{
-					disabled: state.isDisabled,
-					selected: dayCarriesBand(state) || state.isSelected,
-				}}
-				style={{ display: 'flex' }}
-			>
-				<label text={String(day.dayOfMonth)} />
-			</masonview>
+			/>
 		)
 	}
 
-	<masonview
+	<masonview ref={bind} onKeyDown={focus.keyDown}
 		id={props.id}
 		className={cx(
 			'vx-calendar',
@@ -265,7 +301,7 @@ export function Calendar(props: CalendarProps) @{
 		<masonview
 			className="vx-calendar-header"
 			style={mergeStyle(
-				{ flexDirection: props.direction === 'rtl' ? 'row-reverse' : 'row', alignItems: 'center' },
+				{ flexDirection: direction === 'rtl' ? 'row-reverse' : 'row', alignItems: 'center' },
 				{ display: 'flex' },
 			)}
 		>
@@ -274,9 +310,7 @@ export function Calendar(props: CalendarProps) @{
 				accessibilityLabel={messages.previousMonth}
 				accessibilityState={{ disabled: !bounds.canNavigatePrevious }}
 				disabled={!bounds.canNavigatePrevious}
-				onPress={() =>
-					bounds.canNavigatePrevious && setBaseMonth(monthStart(plainDateAddMonths(baseMonth, -1)))
-				}
+				onPress={() => { if (bounds.canNavigatePrevious) { focus.cancelPending(); setBaseMonth(monthStart(plainDateAddMonths(baseMonth, -1))) } }}
 			>
 				<Icon name="xplat-chevron-left" size={16} />
 			</Pressable>
@@ -291,9 +325,7 @@ export function Calendar(props: CalendarProps) @{
 				accessibilityLabel={messages.nextMonth}
 				accessibilityState={{ disabled: !bounds.canNavigateNext }}
 				disabled={!bounds.canNavigateNext}
-				onPress={() =>
-					bounds.canNavigateNext && setBaseMonth(monthStart(plainDateAddMonths(baseMonth, 1)))
-				}
+				onPress={() => { if (bounds.canNavigateNext) { focus.cancelPending(); setBaseMonth(monthStart(plainDateAddMonths(baseMonth, 1))) } }}
 			>
 				<Icon name="xplat-chevron-right" size={16} />
 			</Pressable>
@@ -311,7 +343,7 @@ export function Calendar(props: CalendarProps) @{
 					<masonview
 						className="vx-calendar-weeknames"
 						style={mergeStyle(
-							{ flexDirection: props.direction === 'rtl' ? 'row-reverse' : 'row' },
+							{ flexDirection: direction === 'rtl' ? 'row-reverse' : 'row' },
 							{ display: 'flex' },
 						)}
 					>
@@ -327,7 +359,7 @@ export function Calendar(props: CalendarProps) @{
 							key={w}
 							className="vx-calendar-week"
 							style={mergeStyle(
-								{ flexDirection: props.direction === 'rtl' ? 'row-reverse' : 'row' },
+								{ flexDirection: direction === 'rtl' ? 'row-reverse' : 'row' },
 								{ display: 'flex' },
 							)}
 						>

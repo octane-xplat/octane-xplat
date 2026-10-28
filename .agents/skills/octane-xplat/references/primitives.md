@@ -1262,3 +1262,33 @@ attributes, expanded-state notifications and complete shown-menu/selected-child
 relationships remain gaps; checked state is separate from selected state. Two
 renderer and one link-label cases remain unrun. Native bridge/query/tree,
 VoiceOver, focus and packaging qualification remains open. See [menu metadata](../../../../docs/menus.md#appkit-menu-accessibility-metadata).
+
+
+## AppKit calendar day keyboard intent
+
+Calendar now adapts calendarKeyTarget through a private per-calendar native day
+registry. One enabled day is a Tab candidate across panes. Arrows/row edges/grid
+edges/month pages share existing bounds/disabled predicates; Enter/Space uses the
+existing single/range selection owner. Explicit/provider RTL controls horizontal
+intent. An unfinished range consumes Escape locally; ordinary Escape and Tab stay
+with the surrounding layer/native traversal. Header controls retain their keys.
+
+```tsx
+import { useState } from 'octane'
+import { Calendar } from '@octane-xplat/ui'
+import type { DateRange } from '@octane-xplat/ui'
+
+export function StayDates() {
+	const [range, setRange] = useState<DateRange | null>(null)
+	return <Calendar mode="range" value={range} onChange={setRange} numberOfMonths={2} maxRangeSpan={14} />
+}
+```
+
+Controlled focusDate requests defer native focus until accepted cells attach.
+Pending focus stays in its request window; header/imperative navigation and
+teardown invalidate it. Current native ownership, disabled/hidden state and
+first-responder identity guard key dispatch; pointer selection still works on
+older bridges. Six adapter/two wiring cases and the maintained fixture remain
+unrun. Source intent is not physical-key, Tab/focus, popup/modal, RTL, AX/live
+announcement or package qualification. Native time-list keys remain a gap. See
+[AppKit calendar keys](../../../../docs/platform/date-picker.md#navigate-appkit-calendar-days-with-keys).

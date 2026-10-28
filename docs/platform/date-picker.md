@@ -277,9 +277,10 @@ not imply those digits can be typed back into the parser.
 
 Web selection and month changes use live regions and selected grid cells.
 Native calendars supply localized accessible names/state and the existing live
-label; native validation uses accessible hints. NativeScript/AppKit shared
-calendars and time lists do not yet bind hardware-key navigation, and AppKit
-live-region delivery is not implemented. OS key events, focus/hit-testing, and
+label; native validation uses accessible hints. NativeScript calendars and native
+time lists do not yet bind hardware-key navigation. AppKit calendar day-grid
+source ownership is described below; actual delivery remains unqualified, and
+AppKit live-region delivery is not implemented. OS key events, focus/hit-testing, and
 VoiceOver/TalkBack announcements have not been verified by these handler and
 unit tests. Use the distinct OS-authentic leaves below when their native
 interaction is required.
@@ -488,3 +489,39 @@ excluded. Accepting a drop does not prove validation or saving succeeded, and no
 persistent sandbox grant is promised. Native registration, OS hit routing/drag,
 metadata/grants, focus/VoiceOver and packaging remain unqualified. Nine authored
 cases are unrun. See [file-drop scope and limitations](../../packages/files/README.md#appkit-local-file-drops).
+
+
+### Navigate AppKit calendar days with keys
+
+With the matching renderer, AppKit Calendar adapts the shared date-navigation
+model: arrows skip disabled dates, Home/End use enabled row edges, Command/Control
+Home/End use the visible grid, and PageUp/PageDown request an adjacent month.
+Horizontal arrows follow explicit or provider direction. One enabled day is a
+Tab candidate across both month panes; header controls keep their own keys.
+Enter/Space selects through the existing single/range callback. Tab keeps native
+traversal, and Escape clears an unfinished range before layer dismissal:
+
+```tsx
+import { useState } from 'octane'
+import { Calendar } from '@octane-xplat/ui'
+import type { DateRange } from '@octane-xplat/ui'
+
+export function StayDates() {
+	const [range, setRange] = useState<DateRange | null>(null)
+	return <Calendar mode="range" value={range} onChange={setRange}
+		numberOfMonths={2} min="2026-01-01" max="2026-12-31" maxRangeSpan={14} />
+}
+```
+
+A controlled focusDate keeps the old page until the parent accepts
+onFocusDateChange; pending day focus waits for the new native cells. Moving focus
+does not select a value. Header/imperative navigation cancels stale page focus,
+and window changes or teardown invalidate pending intent and release claims.
+Prevented/composing/Alt events and modified shortcuts stay outside day navigation,
+except the explicit Command/Control Home/End grid commands.
+
+Six adapter and two object-driver wiring cases remain unrun; their native objects
+are simulated. The maintained calendar-keys fixture synthesizes no OS input.
+Physical keys/Tab, native ref/window/notification order, focus/reveal, popup and
+modal integration, geometry, RTL delivery, AX/VoiceOver and packaging remain
+unqualified. Native time-list keys and AppKit live announcements remain gaps.

@@ -3019,3 +3019,60 @@ All commands remain deferred pending explicit human authorization for this task.
 Existing source cases remain unrun. No new dependency, shared manifest/other target
 leaf, audit snapshot, OS automation or visual analysis was involved; no evidence
 checkbox is closed.
+
+
+### AppKit Calendar day keyboard ownership
+
+The prior turn made concrete Switch/checkbox metadata progress. Scheduling/date
+entry is another common form flow: ComponentsDemo and NativeDatePickerDemo show
+shared date inputs. Their AppKit Calendar leaf had tap selection and native day
+buttons, but no keyboard handler, day registry or roving day Tab ownership.
+The portable calendarKeyTarget already defines bounded/disabled row/column/page
+navigation, so this target adapter reuses it instead of introducing a second date
+policy. DateInput/DateTimeInput/DateRangeInput AppKit surfaces reuse this Calendar;
+native time-list keyboard binding remains a separate gap.
+
+Added a private per-calendar focus owner backed by existing choice-focus leases.
+Day components retain current native refs; one enabled day is a Tab candidate
+across both panes, preferring focused/selected/today/first enabled. Root key routing
+requires the current attached first-responder day and skips header/foreign/
+disabled/hidden/IME/prevented input. Alt and modified shortcuts remain outside,
+except explicit Command/Control Home/End. Arrows, Home/End and month pages use
+existing bounds/disabled/range predicates and explicit/provider RTL. Enter/Space
+uses the existing selection callback; unfinished range Escape cancels the anchor
+before a surrounding layer can dismiss. Ordinary Tab/Escape remain native/layer
+owned. Pointer day activation requests focus without replacing selection ownership.
+
+Page focus retains request-window intent while controlled focusDate waits for
+parent acceptance and native cells. Queued refreshes coalesce; window updates
+repair pending/invalidated day focus without stealing header focus. Header and
+imperative navigation cancel pending intent; root/day teardown releases Tab and
+observer ownership. The public navigateTo handle stays unchanged and uses a ref
+to avoid assuming imperative-handle callback timing. No public API/dependency,
+shared manifest or other platform leaf changed; CalendarProps comment now separates
+AppKit source intent from unqualified delivery and unbound NativeScript keys.
+
+Six adapter and two object-driver wiring cases cover current/RTL/disabled/row/
+grid navigation, manual/range ownership, controlled page acceptance, unsupported
+bridges, window moves, hidden/detached roots, ref teardown and stale activation. All eight remain unrun.
+The maintained calendar-keys fixture synthesizes no OS keys. Only TypeScript/TSRX
+syntax, source/semantic review and whitespace checks ran. Guide/skill, feature note
+and date-picker AC12 were reconciled. Shared Checkbox mixed rollback choice remains
+pending; no shared checkbox callback type or async behavior was changed.
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/ui -- src/date-keyboard.test.ts src/calendar-focus.macos.test.ts
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/calendar.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe run examples/probes/calendar-keys.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All commands remain deferred pending explicit human authorization for this task.
+Physical key/Tab delivery, native ref/window/observer/effect timing, focus/reveal,
+popup/FocusScope/modal integration, geometry, RTL provider delivery, AX/VoiceOver
+and packaging remain unqualified. AppKit live announcements and native time-list
+keys remain source gaps. No builds, package tests/typechecks, installs, OS
+automation, visual analysis or shared audit snapshot regeneration ran; no evidence
+checkbox is closed.
