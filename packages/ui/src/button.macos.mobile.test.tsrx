@@ -3,6 +3,7 @@ import { expect, it, vi } from 'vitest'
 import { createObjectContainer, createObjectDriver, createUniversalRoot, flushUniversalSync } from 'octane/universal/native'
 import { openUrl } from '@octane-xplat/platform'
 import { Button } from './Button.macos.tsrx'
+import { IconButton } from './IconButton.macos.tsrx'
 import { ButtonGroupProvider } from './button-group-context'
 
 vi.mock('@octane-xplat/platform', async (original) => ({ ...await original<typeof import('@octane-xplat/platform')>(), openUrl: vi.fn() }))
@@ -128,4 +129,41 @@ it('wraps primitive children in text hosts and forwards refs without changing pe
 		task.resolve()
 		await vi.waitFor(() => { flushUniversalSync(() => {}); expect(host.props.accessibilityState.busy).toBeUndefined() })
 	} finally { env.root.unmount() }
+})
+
+
+it('IconButton shares named busy ownership and preserves icon/ref/metadata', async () => {
+	const task = deferred(), action = vi.fn(() => task.promise), ref = { current: null }
+	const env = mount(IconButton, { label: 'Share', icon: <label id="share-icon" text="Share glyph" />,
+		clickAction: action, ref, testID: 'document.share', accessibilityHint: 'Shares this document' })
+	try {
+		const host = env.host(), press = host.props.onTap
+		expect(ref.current).toBe(host)
+		expect(host.props.accessibilityLabel).toBe('Share')
+		expect(host.props.accessibilityHint).toBe('Shares this document')
+		expect(host.props.testID).toBe('document.share')
+		const icon = env.all().find((node) => node.props?.id === 'share-icon')
+		press(); press(); flushUniversalSync(() => {})
+		expect(action).toHaveBeenCalledTimes(1)
+		expect(host.props.accessibilityState).toMatchObject({ busy: true, disabled: true })
+		expect(env.all()).toContain(icon)
+		task.resolve()
+		await vi.waitFor(() => { flushUniversalSync(() => {}); expect(host.props.accessibilityState.busy).toBeUndefined() })
+		expect(env.all()).toContain(icon)
+	} finally { env.root.unmount() }
+})
+
+it('IconButton inherits group disablement and uses Button sanitized href dispatch', () => {
+	vi.mocked(openUrl).mockClear()
+	function Group() { return <ButtonGroupProvider value={{ position: 'only', isDisabled: true, size: 'sm' }}>
+		<IconButton label="Share" icon={<label text="Share" />} href="https://example.com" />
+	</ButtonGroupProvider> }
+	const group = mount(Group, {})
+	try {
+		expect(group.host().props.onTap).toBeUndefined()
+		expect(String(group.host().props.className)).toContain('vx-button--size-sm')
+	} finally { group.root.unmount() }
+	const env = mount(IconButton, { label: 'Help', icon: <label text="Help" />, href: ' https://example.com/help ' })
+	try { env.host().props.onTap(); expect(openUrl).toHaveBeenCalledWith('https://example.com/help') }
+	finally { env.root.unmount() }
 })

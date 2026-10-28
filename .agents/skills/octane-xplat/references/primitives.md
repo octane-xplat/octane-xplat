@@ -889,3 +889,17 @@ Pressed button state maps to native checked-control role/value and changed-value
 notifications. Source cases/fixture are authored but unrun; native VoiceOver,
 input, busy geometry, tooltip, reserved semibold width and group/toolbar roving
 remain unqualified or absent. See [toggle saves](../../../../docs/app/components.md#save-a-toggle-button-action-on-appkit).
+
+
+IconButton.macos is a thin wrapper around Button.macos with isIconOnly, matching
+the shared native shape. Use the Button contract for pending/overlap/errors,
+group defaults, metadata and href. Native tooltip/presentation/input/VoiceOver
+qualification is still open.
+
+```tsx
+import { IconButton } from '@octane-xplat/ui'
+
+export function Share({ share }: { share(): Promise<void> }) {
+	return <IconButton label="Share document" icon="share" clickAction={share} />
+}
+```

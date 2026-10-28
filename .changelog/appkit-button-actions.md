@@ -12,3 +12,7 @@ export function Help() { return <Button href="https://example.com/help">Read hel
 
 Native input, URL opening, busy layout and VoiceOver remain unqualified; tooltip
 presentation remains unsupported. See [AppKit buttons](https://octane-xplat.goddardai.org/app/components#appkit-button-actions-and-links).
+
+IconButton now uses the same AppKit Button owner for group disablement,
+identifiers, href and pending actions, with its required label retained as the
+accessible name.

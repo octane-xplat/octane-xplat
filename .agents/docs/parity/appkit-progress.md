@@ -1994,3 +1994,26 @@ OS mouse/key delivery, VoiceOver role/value/busy reporting, grouped focus,
 busy/icon layout, native teardown and packaging remain unqualified. No builds,
 package tests/typechecks, installs, OS automation, visual analysis or shared
 audit regeneration ran; no evidence checkbox is closed.
+
+
+### AppKit IconButton delegates to Button
+
+ActionControlsDemo places Share inside a disabled/sized ButtonGroup. The old
+AppKit IconButton duplicated stale action logic, ignored group disablement,
+dropped inherited metadata/href and replaced the icon while busy. It is now the
+same thin Button wrapper as shared native/web leaves. Two appended source cases
+cover retained busy icon/name/ref/metadata, duplicate suppression, group defaults/
+disablement and href dispatch. They remain unrun. Existing Button coverage and
+native limitations apply; no claim is made for tooltip presentation.
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/button.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm check:recipes
+```
+
+All commands remain deferred pending explicit human authorization for this task.
+Only syntax/source/semantic review and whitespace checks ran. Native mouse/keys,
+busy/icon geometry, VoiceOver, URL launch and packaging remain unqualified; no
+builds, package tests/typechecks, installs, OS automation, visual analysis or
+checkbox closure occurred.
