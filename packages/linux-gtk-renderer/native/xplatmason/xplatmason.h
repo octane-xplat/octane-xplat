@@ -6,7 +6,8 @@
 // records, and leaf nodes whose measure callback reads a live widget's
 // natural size.
 //
-// All pointers cross as guint64 handles. `children` is a guint64 array;
+// Engine/node pointers cross as guint64 handles; GTK widgets/accessibles
+// remain introspected objects. `children` is a guint64 array;
 // layout output crosses as GBytes (Float32 records, 22 per node, preorder:
 // order,x,y,w,h,borderTRBL,marginTRBL,paddingTRBL,overflowRB,scrollbarWH,
 // childCount).
@@ -149,6 +150,44 @@ GBytes *xplat_mason_node_layout_shallow(guint64 engine, guint64 node);
  */
 void xplat_mason_node_natural(guint64 engine, guint64 node, gfloat *width,
                               gfloat *height);
+
+
+/**
+ * xplat_mason_test_accessible_state:
+ * @accessible: widget whose stored accessibility metadata is checked
+ * @state: state to compare
+ * @expected: expected boolean, tristate or invalid-state integer
+ *
+ * Fixed-signature binding of GTK's variadic test helper for GJS fixtures.
+ *
+ * Returns: (nullable) (transfer full): mismatch message, or NULL on match
+ */
+gchar *xplat_mason_test_accessible_state(GtkAccessible *accessible,
+                                        GtkAccessibleState state, gint expected);
+
+/**
+ * xplat_mason_test_accessible_boolean_property:
+ * @accessible: widget whose stored accessibility metadata is checked
+ * @property: boolean property to compare
+ * @expected: expected value
+ *
+ * Returns: (nullable) (transfer full): mismatch message, or NULL on match
+ */
+gchar *xplat_mason_test_accessible_boolean_property(GtkAccessible *accessible,
+                                                   GtkAccessibleProperty property,
+                                                   gboolean expected);
+
+/**
+ * xplat_mason_test_accessible_string_property:
+ * @accessible: widget whose stored accessibility metadata is checked
+ * @property: string property to compare
+ * @expected: expected value
+ *
+ * Returns: (nullable) (transfer full): mismatch message, or NULL on match
+ */
+gchar *xplat_mason_test_accessible_string_property(GtkAccessible *accessible,
+                                                  GtkAccessibleProperty property,
+                                                  const gchar *expected);
 
 G_END_DECLS
 

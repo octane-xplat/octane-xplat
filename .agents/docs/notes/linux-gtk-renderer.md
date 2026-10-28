@@ -680,3 +680,63 @@ contain 37 values and 57 types; native and GTK Tooltip declarations both take
 TooltipProps and return unknown. No mobile OS, AT-client, IME, Wayland or pixel
 qualification is added. The existing broad native batch-observer and docs-site
 parser failures remain outside this slice's passing evidence.
+
+## Independent GTK accessibility state and field flags
+
+The GTK escape adapter now returns the complete accessibilityState record.
+It previously collapsed the record to one NativeScript state string, and the
+GTK driver did not bind that prop. A shared renderer synchronizer now runs after
+all props in a complete bag. It accepts those legacy strings as well as records,
+updates independent states/properties and resets removed values. This allows
+one control to report disabled, selected, checked, pressed, busy, expanded,
+hidden, invalid, visited, required and readOnly information together.
+
+checked/pressed use GTK tristates, including mixed; invalid accepts boolean,
+grammar and spelling tokens. readOnly/required are GTK accessible properties.
+GTK's optional booleans, tristates and invalid token values are boxed as
+G_TYPE_INT; ordinary boolean states and properties use boolean values. This
+matches the examined [4.14.5 value collector](https://raw.githubusercontent.com/GNOME/gtk/4.14.5/gtk/gtkaccessiblevalue.c#L1103-L1173)
+and [4.24.1 collector](https://raw.githubusercontent.com/GNOME/gtk/4.24.1/gtk/gtkaccessiblevalue.c#L1175-L1244).
+Only 4.14.5 is runtime-tested here; the newer source is not newer runtime proof.
+
+Metadata does not change sensitivity, editability or value. Native insensitive
+widgets remain disabled in metadata, noneditable entries remain read-only, and
+accessible=false remains hidden even if a record requests false for that flag.
+When an explicit native switch checked override disappears, its actual active
+state is restored. A WeakMap tracks only managed scalar bindings, so missing
+keys can be cleared without retaining roots or widget references. Recreate uses
+a fresh widget/cache entry; old weak keys need no global cleanup list.
+
+Shared TextInput forwards resolved disabled, readOnly, required, busy and invalid
+flags. The GTK adapter preserves them; NativeScript's existing adapter still
+reduces its supported enum and ignores other keys as documented in escape-props.
+No GTK TextInput copy or UI dependency is added. Field context supplies the
+resolved values, including optional-over-required precedence and combined
+label/description/status/disabled-reason text.
+
+The facade adds fixed-signature test helpers for GTK's variadic
+check_state/check_property APIs, which GI cannot call directly. They return a
+mismatch string or null and are used only by maintained GJS assertions. The
+ui-accessibility fixture compares exact native bool/tristate/token/property/text
+values, exercises removal and native-state restoration, and verifies shared
+TextInput flags. This proves native metadata, not an AT client's announcement,
+OS input or pixels. It requires a freshly rebuilt XplatMason typelib.
+
+The final combined Linux suite passes 37 tests without skips, including 58 exact
+accessibility comparisons (guest /tmp/gtk-a11y-tests-final.log). The focused
+fixture also passes independently (/tmp/gtk-a11y-runtime-first.log). Runtime:
+Ubuntu 24.04 amd64, GJS 1.80.2, GTK 4.14.5, XplatMason and private Xvfb. Existing
+OS pointer/drag/pull/wheel/keyboard/tooltip fixtures remain passing; this new
+fixture itself checks metadata rather than OS input or an AT client. The native
+facade rebuild passes with the pinned Linux archive and explicit
+XPLAT_MASON_CORE_TARGET=x86_64-unknown-linux-gnu
+(guest /tmp/gtk-a11y-native-build.log). GTK's installed GIR marks the original
+variadic check_state function introspectable=0.
+
+The expanded UI/renderer/dependent typecheck passes 58 tasks
+(andromeda /tmp/gtk-a11y-types-final.log); packed exports/declarations pass six
+tasks (/tmp/gtk-a11y-pack.log). Recipes and all 15 release notes validate. Public
+UI prop types and the curated 37-value/57-type root surface are unchanged.
+No mobile OS, IME, AT-client, Wayland or pixel qualification is added. Existing
+broad native batch-observer and docs-site parser failures remain outside this
+slice's passing evidence.

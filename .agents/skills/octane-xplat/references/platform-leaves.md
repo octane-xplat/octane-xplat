@@ -206,3 +206,21 @@ export function Help() {
   return <Tooltip trigger={<button text="Details" />} content="More information" />
 }
 ```
+
+GTK's nativeAccessibilityState adapter preserves the full record instead of
+collapsing it to NativeScript's strongest enum state. The renderer applies flags
+after the complete prop bag: sensitivity and GtkEditable editability agree with
+the same generation. Missing flags reset old native metadata; native switch
+checked state is restored when an override is removed. Keep behavior in
+isEnabled/editable/checked and use accessibilityState for metadata. The current
+shared TextInput forwards disabled/readOnly/required/busy/invalid fields without
+a GTK copy. Its full field/prop surface is still outside the curated barrel.
+
+For native GTK assertion fixtures, rebuild the XplatMason typelib and use its
+fixed-signature test_accessible_state, test_accessible_boolean_property and
+test_accessible_string_property
+helpers. GTK's original variadic checks are not introspectable. The wrappers
+compare values and distinguish false/true/mixed, not merely attribute presence.
+Integer-valued optional booleans and tristates require G_TYPE_INT values; ordinary
+boolean states/properties use boolean values. See
+[the GTK state example](../../../../docs/platform/linux-gtk.md#control-accessibility-state).

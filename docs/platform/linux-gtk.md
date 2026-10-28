@@ -505,3 +505,36 @@ export function SaveHelp(props: { saving: boolean }) {
   )
 }
 ```
+
+## Control accessibility state
+
+GTK intrinsics accept an accessibilityState record with independent flags.
+For example, a field can report required, loading and invalid state together.
+Read-only metadata also follows a textfield's editable property, and disabled
+metadata respects native widget sensitivity.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+export function AccountField(props: { required: boolean; loading: boolean; invalid: boolean }) {
+  return (
+    <textfield
+      accessibilityLabel="Account"
+      accessibilityState={{ required: props.required, busy: props.loading, invalid: props.invalid }}
+      text=""
+    />
+  )
+}
+```
+
+These flags describe the widget; they do not disable interaction or change its
+value. Use isEnabled, editable, checked and the control's other behavior props
+for that. The renderer clears removed flags instead of retaining stale values.
+State storage is checked against native GTK; screen-reader behavior has not yet
+been qualified with an assistive-technology client.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+export function ReadOnlyField(props: { readOnly: boolean; disabled: boolean }) {
+  return <textfield text="Stored account" editable={!props.readOnly} isEnabled={!props.disabled} />
+}
+```

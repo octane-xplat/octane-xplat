@@ -95,7 +95,13 @@ function TextInputControl(inputProps: TextInputProps) @{
 				props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label
 			}
 			accessibilityHint={props.accessibilityHint}
-			accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled })}
+			accessibilityState={nativeAccessibilityState({
+				disabled: props.isDisabled,
+				readOnly: props.isReadOnly,
+				required: props.isRequired,
+				busy: props.isLoading,
+				invalid: props.status?.type === 'error',
+			})}
 			secure={props.secure}
 			keyboardType={props.keyboardType === 'default' ? undefined : props.keyboardType}
 			returnKeyType={props.returnKeyType}

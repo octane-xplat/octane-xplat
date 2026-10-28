@@ -519,3 +519,38 @@ contain 37 values and 57 types; native and GTK Tooltip declarations both take
 TooltipProps and return unknown. No mobile OS, AT-client, IME, Wayland or pixel
 qualification is added. The existing broad native batch-observer and docs-site
 parser failures remain outside this slice's passing evidence.
+
+## Input accessibility foundation
+
+The GTK adapter and renderer now preserve simultaneous accessibility state
+instead of dropping a collapsed native enum. Shared TextInput forwards resolved
+readOnly/required/busy/invalid flags alongside disabled state. Native GtkEditable
+and sensitivity continue to control interaction; metadata does not replace them.
+The maintained ui-accessibility fixture compares actual stored values through
+fixed-signature GTK test bindings, including false/true/mixed, reset behavior,
+native switch restoration, field optionality and combined description text.
+
+The curated root stays at 37 values and 57 types. TextInput remains a direct-source
+fixture: its remaining field/prop review, standalone width forwarding, return-key
+hint behavior and complete common-prop coverage are not established by these
+metadata checks. TextArea still needs multiline behavior and row/growth sizing.
+No recipe workflow or packaged-consumer support is added by this foundation.
+
+The final combined Linux suite passes 37 tests without skips, including 58 exact
+accessibility comparisons (guest /tmp/gtk-a11y-tests-final.log). The focused
+fixture also passes independently (/tmp/gtk-a11y-runtime-first.log). Runtime:
+Ubuntu 24.04 amd64, GJS 1.80.2, GTK 4.14.5, XplatMason and private Xvfb. Existing
+OS pointer/drag/pull/wheel/keyboard/tooltip fixtures remain passing; this new
+fixture itself checks metadata rather than OS input or an AT client. The native
+facade rebuild passes with the pinned Linux archive and explicit
+XPLAT_MASON_CORE_TARGET=x86_64-unknown-linux-gnu
+(guest /tmp/gtk-a11y-native-build.log). GTK's installed GIR marks the original
+variadic check_state function introspectable=0.
+
+The expanded UI/renderer/dependent typecheck passes 58 tasks
+(andromeda /tmp/gtk-a11y-types-final.log); packed exports/declarations pass six
+tasks (/tmp/gtk-a11y-pack.log). Recipes and all 15 release notes validate. Public
+UI prop types and the curated 37-value/57-type root surface are unchanged.
+No mobile OS, IME, AT-client, Wayland or pixel qualification is added. Existing
+broad native batch-observer and docs-site parser failures remain outside this
+slice's passing evidence.

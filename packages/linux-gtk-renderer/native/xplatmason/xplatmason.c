@@ -407,3 +407,23 @@ void xplat_mason_node_set_style(guint64 engine, guint64 node,
   }
   XSetStyle(P(engine), P(node), json_node_get_object(root));
 }
+
+// GTK's variadic assertion helpers are not introspectable. Fixed signatures
+// let maintained GJS fixtures compare actual stored values, including false
+// versus true, rather than merely checking that an attribute is present.
+gchar *xplat_mason_test_accessible_state(GtkAccessible *accessible,
+                                        GtkAccessibleState state, gint expected) {
+  return gtk_test_accessible_check_state(accessible, state, expected);
+}
+
+gchar *xplat_mason_test_accessible_boolean_property(GtkAccessible *accessible,
+                                                   GtkAccessibleProperty property,
+                                                   gboolean expected) {
+  return gtk_test_accessible_check_property(accessible, property, expected);
+}
+
+gchar *xplat_mason_test_accessible_string_property(GtkAccessible *accessible,
+                                                  GtkAccessibleProperty property,
+                                                  const gchar *expected) {
+  return gtk_test_accessible_check_property(accessible, property, expected);
+}

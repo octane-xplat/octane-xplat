@@ -37,7 +37,7 @@
 		}
 	},
 	"scripts": {
-		"test": "node --test --test-concurrency=1 test/build.test.mjs test/mason.test.mjs test/css.test.mjs test/style-css.test.mjs test/ui.test.mjs test/ui-input.test.mjs test/ui-measure.test.mjs test/ui-animation.test.mjs test/ui-scroll.test.mjs test/ui-area.test.mjs test/ui-icon.test.mjs test/ui-text-entry.test.mjs test/ui-portal.test.mjs test/ui-tooltip.test.mjs",
+		"test": "node --test --test-concurrency=1 test/build.test.mjs test/mason.test.mjs test/css.test.mjs test/style-css.test.mjs test/ui.test.mjs test/ui-input.test.mjs test/ui-measure.test.mjs test/ui-animation.test.mjs test/ui-scroll.test.mjs test/ui-area.test.mjs test/ui-icon.test.mjs test/ui-text-entry.test.mjs test/ui-portal.test.mjs test/ui-tooltip.test.mjs test/ui-accessibility.test.mjs",
 		"typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p test/fixtures/tsconfig.routing.json && tsrx-tsc --noEmit -p test/fixtures/tsconfig.ui.json",
 		"build": "tsc -p tsconfig.build.json && node build.mjs",
 		"prepack": "bun run turbo run build --filter=@octane-xplat/linux-gtk",

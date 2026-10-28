@@ -396,3 +396,38 @@ is noninteractive and retains trigger focus. Plain generic views are not given
 an extra tab stop; use a focusable trigger when keyboard access is required.
 The maintained ui-tooltip fixture separates real X11 pointer/Tab/Escape evidence
 from controller dispatch and checks native metadata, not pixels or an AT client.
+
+## Accessibility state records
+
+accessibilityState now preserves independent disabled, selected, checked,
+pressed, busy, expanded, hidden, invalid and visited state. checked/pressed also
+accept 'mixed'; invalid accepts true/false, 'grammar' or 'spelling'. required and
+readOnly are native accessible properties. The legacy selected/checked/unchecked/
+disabled strings are still accepted because existing native callers send them.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+export function AccountField(props: { required: boolean; loading: boolean; invalid: boolean }) {
+  return (
+    <textfield
+      accessibilityLabel="Account"
+      accessibilityState={{ required: props.required, busy: props.loading, invalid: props.invalid }}
+      text=""
+    />
+  )
+}
+```
+
+Apply interaction through widget props, not metadata. GtkEditable editability,
+widget sensitivity and accessible=false remain authoritative when they would
+contradict metadata. Removing an explicit checked override on a native switch
+restores its actual active value. Removing other managed flags/properties clears
+their old GTK storage. Shared TextInput now forwards resolved read-only, required,
+loading and error state through the GTK adapter; it remains a direct-source
+fixture while the rest of its field/prop contract is qualified.
+
+The maintained ui-accessibility fixture compares native stored values using
+fixed-signature bindings of GTK's variadic test helpers. Rebuild XplatMason after
+updating the facade: older typelibs do not contain those check functions. This is
+stronger than attribute-presence checks and does not claim AT-client or pixel
+qualification.

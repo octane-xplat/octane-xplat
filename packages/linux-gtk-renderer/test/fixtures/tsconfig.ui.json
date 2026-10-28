@@ -12,6 +12,7 @@
 		"src/ui-icon.gtk.tsrx",
 		"src/ui-text-entry.gtk.tsrx",
 		"src/ui-portal.gtk.tsrx",
-		"src/ui-tooltip.gtk.tsrx"
+		"src/ui-tooltip.gtk.tsrx",
+		"src/ui-accessibility.gtk.tsrx"
 	]
 }

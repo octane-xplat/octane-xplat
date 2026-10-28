@@ -83,7 +83,9 @@ declare module 'gi://Gtk?version=4.0' {
 		const PositionType: { TOP: number; BOTTOM: number; LEFT: number; RIGHT: number }
 		const Picture: any
 		const ContentFit: { FILL: number; CONTAIN: number; COVER: number; SCALE_DOWN: number }
-		const AccessibleState: { HIDDEN: number }
+		const AccessibleState: { HIDDEN: number; [key: string]: number }
+		const AccessibleTristate: { FALSE: number; TRUE: number; MIXED: number }
+		const AccessibleInvalidState: { FALSE: number; TRUE: number; GRAMMAR: number; SPELLING: number }
 		class Widget {
 			connect(signal: string, handler: (...args: any[]) => unknown): number
 			disconnect(id: number): void
@@ -457,6 +459,8 @@ declare module 'gi://Gdk?version=4.0' {
 
 declare module 'gi://GObject' {
 	namespace GObject {
+		const Value: any
+		const TYPE_INT: any
 		/** GJS type registration — returns a constructible GObject class. */
 		function registerClass(meta: any, klass?: any): any
 	}

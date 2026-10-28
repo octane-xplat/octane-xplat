@@ -12,6 +12,7 @@
 import Gtk from 'gi://Gtk?version=4.0'
 import GLib from 'gi://GLib'
 import Gdk from 'gi://Gdk?version=4.0'
+import { syncAccessibilityState } from './accessibility.js'
 import {
 	bindMasonView,
 	isMasonHostView,
@@ -1897,8 +1898,12 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 		node.picture.setSource(value)
 		return
 	}
+	if (name === 'accessibilityState') return
 	if (name === 'accessibilityLabel' || name === 'accessibilityHint') {
 		if (!view) return
+		if (name === 'accessibilityLabel') {
+			view.set_name(widgetName(node))
+		}
 		const property =
 			name === 'accessibilityLabel'
 				? Gtk.AccessibleProperty.LABEL
@@ -2049,22 +2054,15 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 			node.gridColSpan = Number(value)
 			repositionGridChild(node)
 			return
-<<<<<<< HEAD
 		case 'accessibilityLabel':
 			// GIR exposes the non-varargs gtk_accessible_update_property_value
 			// as update_property, with parallel property/value arrays.
 			syncAccessibleName(node)
 			view.set_name(widgetName(node))
 			return
-<<<<<<< HEAD
-=======
-		}
-=======
->>>>>>> f5254506a (fix(linux-gtk): preserve native text refs and nested focus delivery)
 		case 'accessible':
 			view.update_state([Gtk.AccessibleState.HIDDEN], [value === false])
 			return
->>>>>>> dc5fc486d (feat(linux-gtk): support icons and scoped registries)
 		case 'accessibilityRole': {
 			// accessible-role is a real Gtk.Widget property (GTK 4.0+).
 			const role = typeof value === 'string' ? A11Y_ROLES[value] : undefined
@@ -2274,6 +2272,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 	for (const name of Object.keys(props)) {
 		setProp(node, name, props[name])
 	}
+	if (node.view) syncAccessibilityState(node.view, props)
 	syncAccessibleName(node)
 }
 
@@ -2372,11 +2371,10 @@ function resetProp(node: ElementNode, name: string) {
 			view.accessible_role = 0
 			return
 		case 'accessibilityLabel':
-<<<<<<< HEAD
-			view.reset_property(Gtk.AccessibleProperty.LABEL)
-			view.set_name(widgetName(node))
-=======
 		case 'accessibilityHint':
+			if (name === 'accessibilityLabel') {
+				view.set_name(widgetName(node))
+			}
 			try {
 				view.reset_property(
 					name === 'accessibilityLabel'
@@ -2387,7 +2385,6 @@ function resetProp(node: ElementNode, name: string) {
 				// Unsupported GTK binding — the setter already reported the limitation.
 			}
 
->>>>>>> f5254506a (fix(linux-gtk): preserve native text refs and nested focus delivery)
 			return
 		case 'id':
 		case 'testID':
