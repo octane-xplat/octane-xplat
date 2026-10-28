@@ -1,5 +1,6 @@
-/** @jsxImportSource @nativescript-community/octane */
-import { Screen, Text } from '@octane-xplat/ui'
+/** @jsxImportSource @octane-xplat/jsx */
+import './LightboxGallery.css'
+import { Screen, Text, View } from '@octane-xplat/ui'
 import { useState } from 'octane'
 import { Lightbox } from '@octane-xplat/lightbox'
 
@@ -17,9 +18,9 @@ export default function LightboxGallery() {
 			<Text>Maestro lightbox</Text>
 			<Text>{`state: ${open ? 'open' : 'closed'}:${index}`}</Text>
 			<Lightbox.Root media={media} isOpen={open} onOpenChange={setOpen} onIndexChange={setIndex}>
-				<Lightbox.Trigger index={0} testID="lb-trigger-0"><masonview width={160} height={100} backgroundColor="#a33" /></Lightbox.Trigger>
-				<Lightbox.Trigger index={1} testID="lb-trigger-1"><masonview width={160} height={100} backgroundColor="#3a3" /></Lightbox.Trigger>
-				<Lightbox.Trigger index={2} testID="lb-trigger-2"><masonview width={160} height={100} backgroundColor="#337" /></Lightbox.Trigger>
+				<Lightbox.Trigger index={0} testID="lb-trigger-0"><View className="maestro-lightbox-thumb maestro-lightbox-thumb--red" /></Lightbox.Trigger>
+				<Lightbox.Trigger index={1} testID="lb-trigger-1"><View className="maestro-lightbox-thumb maestro-lightbox-thumb--green" /></Lightbox.Trigger>
+				<Lightbox.Trigger index={2} testID="lb-trigger-2"><View className="maestro-lightbox-thumb maestro-lightbox-thumb--blue" /></Lightbox.Trigger>
 				<Lightbox.Popup testID="lb-popup">
 					<Lightbox.Backdrop testID="lb-backdrop" />
 					<Lightbox.Viewport>
