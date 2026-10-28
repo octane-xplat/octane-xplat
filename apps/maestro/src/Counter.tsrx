@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { Pressable, Text, VStack } from '@octane-xplat/ui'
 import { useSignal$ } from 'octane/signals/client'
 

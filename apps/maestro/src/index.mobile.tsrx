@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { Application, Page } from '@nativescript/core'
 import { renderNativeScriptApp } from '@nativescript-community/octane'
 import { prepareFullScreenPage } from '@octane-xplat/ui/nativescript'
