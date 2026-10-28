@@ -91,8 +91,9 @@ export interface NativeEvent<TElement> {
 /** Tap/double-tap/long-press gestures — `{object}` payload only. */
 export interface TapEvent<TElement> extends NativeEvent<TElement> {}
 export interface SwipeGestureEvent<TElement> extends NativeEvent<TElement> {
-	/** Upstream `SwipeDirection` enum — projected, see `HostObject`. */
-	readonly direction: unknown
+	/** Upstream `SwipeDirection` enum: right=1, left=2, up=4, down=8. Both
+	 * drivers emit these values (AppKit via `swipeDirection()`). */
+	readonly direction: 1 | 2 | 4 | 8
 }
 
 export interface PanGestureEvent<TElement> extends NativeEvent<TElement> {
@@ -150,6 +151,10 @@ export interface WebViewEvent<TElement> extends NativeEvent<TElement> {
 	readonly navigationType?: unknown
 }
 
+/** NativeScript `AccessibilityState` names — the single enum value the NS
+ * driver consumes (the record form is the AppKit/web shape). */
+export type AccessibilityStateName = 'selected' | 'checked' | 'unchecked' | 'disabled'
+
 /** Attributes every host element accepts: key, ref, children. */
 export interface OctaneAttributes<TElement> {
 	key?: string | number
@@ -182,7 +187,13 @@ export interface CommonAttributes {
 	accessibilityRole?: string
 	accessibilityHint?: string
 	accessibilityValue?: string
-	accessibilityState?: Record<string, unknown>
+	/**
+	 * The drivers differ: NativeScript consumes the enum name (`'selected'`,
+	 * `'checked'`, `'unchecked'`, `'disabled'` — see `AccessibilityStateName`),
+	 * while the AppKit driver reads a record (`.checked`, `.disabled`, …).
+	 * ui's `nativeAccessibilityState` picks per platform.
+	 */
+	accessibilityState?: AccessibilityStateName | Record<string, unknown>
 	accessibilityLiveRegion?: 'none' | 'polite' | 'assertive'
 	automationText?: string
 	testID?: string

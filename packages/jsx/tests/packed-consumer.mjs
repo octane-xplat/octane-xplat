@@ -200,6 +200,18 @@ declare const NotComponent: { a: 1 }
 // @ts-expect-error plain objects are not components
 const notComponent = <NotComponent />
 void notComponent
+
+// AccessibilityState takes the NativeScript enum name or the AppKit record.
+const accName = <masonview accessibilityState="selected" />
+const accRecord = <masonview accessibilityState={{ checked: true }} />
+// @ts-expect-error only the four NS enum names or a record are accepted
+const accBad = <masonview accessibilityState="bogus" />
+void accName
+void accRecord
+void accBad
+// Swipe direction is the shared 1|2|4|8 value on both drivers.
+const swipeDir = <masonview onSwipe={(event) => { const d: 1 | 2 | 4 | 8 = event.direction; void d }} />
+void swipeDir
 `
 
 // Module augmentation through the intrinsics entry must reach the contract.

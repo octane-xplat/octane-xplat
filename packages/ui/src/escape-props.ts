@@ -1,5 +1,6 @@
 import { isAndroid, isIOS, ScrollView } from '@nativescript/core'
 import type { NativeModifier, Role } from './props'
+import type { AccessibilityStateName } from '@octane-xplat/jsx/intrinsics'
 import { applyNativeModifiers } from './apply-native-modifiers.native'
 
 /** Android ViewGroups clip every child to the child's own layout bounds
@@ -93,7 +94,7 @@ export function nativeAccessibilityState(state?: {
 	/** ARIA keys with no NS counterpart (busy, expanded, invalid, …) are
 	 *  accepted and ignored — the enum reports the strongest mapped state. */
 	[key: string]: boolean | undefined
-}): string | undefined {
+}): AccessibilityStateName | undefined {
 	if (state?.disabled) {
 		return 'disabled'
 	}
