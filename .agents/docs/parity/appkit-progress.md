@@ -984,3 +984,9 @@ No shared audit snapshot or evidence-gated checkbox changed.
 Deferred-writer source cases also cover nested writes (suppression stays active
 until the outer write returns) and simulated programmatic native notifications
 that must not call public onChange. These cases are authored, not executed.
+
+
+Observer ownership detail: detached views do not register an unfiltered global
+window observer. Attached views watch the window present when the pending write
+begins; replacement pending values reuse that observer. Native unmark/end hooks
+remain available, and changing windows during composition is unqualified.

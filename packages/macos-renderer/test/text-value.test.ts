@@ -128,6 +128,10 @@ test('native adapters read the field editor, clamp selection and scope commit ob
 		assert.equal(observed[3], notify)
 		detach()
 		assert.equal(removed, 1)
+		view.window = null
+		observed = []
+		adapter.observeCommit(notify)()
+		assert.equal(observed.length, 0)
 		editor.hasMarkedText = () => false
 		adapter.write('new')
 		assert.equal(editor.string, 'new')

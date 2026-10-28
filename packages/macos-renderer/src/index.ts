@@ -6163,7 +6163,7 @@ function setTextSubmitAction(node: ElementNode, value: any) {
 }
 
 /** Each pending writer observes only its window and releases that observer
- * after commit, replacement, a matching echo or teardown. */
+ * after commit, an unset value, a matching echo or teardown. */
 function updateNativeTextValue(node: ElementNode, value: string | undefined): void {
 	const view = node.view
 	if (!view) return
@@ -6193,8 +6193,10 @@ function updateNativeTextValue(node: ElementNode, value: string | undefined): vo
 				}
 			},
 			observeCommit: (notify) => {
+				const window = view.window
+				if (!window) return () => {}
 				const center = NSNotificationCenter.defaultCenter
-				const token = center.addObserverForNameObjectQueueUsingBlock(NSWindowDidUpdateNotification, view.window ?? null, null, notify)
+				const token = center.addObserverForNameObjectQueueUsingBlock(NSWindowDidUpdateNotification, window, null, notify)
 				return () => center.removeObserver(token)
 			},
 		}
