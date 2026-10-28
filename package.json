@@ -77,6 +77,7 @@
 	},
 	"devDependencies": {
 		"@tsrx/core": "0.2.4",
+		"@tsrx/oxc": "0.20.0",
 		"@tsrx/typescript-plugin": "catalog:",
 		"@types/node": "24.10.1",
 		"oxfmt": "0.70.0",

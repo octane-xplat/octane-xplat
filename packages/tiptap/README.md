@@ -106,9 +106,17 @@ export function DocumentCopy() {
 }
 ```
 
-The tiptap family pins to `3.28.0` to match `@octanejs/tiptap@0.0.52` —
-extension `^` ranges float ahead of core and break (`getPreviousBlockSibling`),
-so consumers should keep the workspace override. See
+The Tiptap family pins to `3.32.0` with `@octanejs/tiptap@0.0.61`. Keep the
+framework's managed overrides so the adapter, extensions, and your app share
+one engine. Starters include them; existing apps receive them through the
+upgrade command:
+
+```sh
+pnpm dlx @octane-xplat/cli@latest upgrade
+pnpm install
+```
+
+See
 [`docs/app/rich-text.md`](../../docs/app/rich-text.md) for the shared contract,
 format vocabulary, and known limits.
 

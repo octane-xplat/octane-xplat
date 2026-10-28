@@ -44,8 +44,8 @@
 		"pack:check": "tsrx-typegen --pack-check"
 	},
 	"dependencies": {
-		"@nativescript-community/sqlite": "3.5.9",
-		"@sqlite.org/sqlite-wasm": "3.53.4-build1",
+		"@nativescript-community/sqlite": "4.1.1",
+		"@sqlite.org/sqlite-wasm": "3.54.1-build1",
 		"@octane-xplat/lib": "workspace:*"
 	},
 	"devDependencies": {

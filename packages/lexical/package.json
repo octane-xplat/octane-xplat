@@ -57,18 +57,18 @@
 		"prepack": "pnpm build:assets && pnpm typegen && tsrx-typegen --pack-check"
 	},
 	"dependencies": {
-		"@lexical/code": "0.51.0",
-		"@lexical/extension": "0.51.0",
-		"@lexical/html": "0.51.0",
-		"@lexical/link": "0.51.0",
-		"@lexical/list": "0.51.0",
-		"@lexical/rich-text": "0.51.0",
-		"@lexical/selection": "0.51.0",
-		"@lexical/utils": "0.51.0",
+		"@lexical/code": "0.52.0",
+		"@lexical/extension": "0.52.0",
+		"@lexical/html": "0.52.0",
+		"@lexical/link": "0.52.0",
+		"@lexical/list": "0.52.0",
+		"@lexical/rich-text": "0.52.0",
+		"@lexical/selection": "0.52.0",
+		"@lexical/utils": "0.52.0",
 		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/richtext": "workspace:*",
-		"@octanejs/lexical": "0.2.0",
-		"lexical": "0.51.0",
+		"@octanejs/lexical": "0.2.12",
+		"lexical": "0.52.0",
 		"zeed-dom": "0.18.0"
 	},
 	"devDependencies": {

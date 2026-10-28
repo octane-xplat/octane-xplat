@@ -65,7 +65,7 @@ try {
 	const vite = createRequire(consumer.resolve('vite'))
 	const installedCli = realpathSync(join(root, 'node_modules/@octane-xplat/cli'))
 	const cliRequire = createRequire(join(installedCli, 'src/css-platform.ts'))
-	assert.equal(cliRequire('postcss/package.json').version, '8.5.28')
+	assert.equal(cliRequire('postcss/package.json').version, manifest.dependencies.postcss)
 	assert.equal(vite('postcss/package.json').version, '8.5.31')
 	assert.notEqual(cliRequire.resolve('postcss'), vite.resolve('postcss'))
 	writeFileSync(
@@ -128,7 +128,7 @@ export default defineConfig({
 	assert.match(files, /cli\/src\/vite\.d\.ts/)
 	assert.doesNotMatch(files, /cli\/src\/css-platform\.ts/)
 	console.log(
-		'Consumer typecheck passed: CLI PostCSS 8.5.28; Vite PostCSS 8.5.31; skipLibCheck=false',
+		`Consumer typecheck passed: CLI PostCSS ${manifest.dependencies.postcss}; Vite PostCSS 8.5.31; skipLibCheck=false`,
 	)
 } catch (error) {
 	if (error.stdout) {

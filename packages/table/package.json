@@ -56,7 +56,7 @@
 	"dependencies": {
 		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/platform": "workspace:*",
-		"@tanstack/table-core": "9.2.4"
+		"@tanstack/table-core": "9.3.1"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "catalog:",

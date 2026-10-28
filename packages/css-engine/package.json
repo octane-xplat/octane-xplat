@@ -28,8 +28,8 @@
 		"typecheck": "tsc --noEmit -p tsconfig.json"
 	},
 	"dependencies": {
-		"@csstools/css-calc": "2.1.4",
+		"@csstools/css-calc": "3.4.3",
 		"css-tree": "3.2.1",
-		"css-what": "7.0.0"
+		"css-what": "8.0.0"
 	}
 }

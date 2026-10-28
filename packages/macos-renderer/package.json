@@ -56,7 +56,7 @@
 		"@octane-xplat/css-engine": "workspace:*",
 		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/platform": "workspace:*",
-		"acorn": "8.15.0",
+		"acorn": "8.19.0",
 		"saxes": "6.0.0"
 	},
 	"devDependencies": {

@@ -92,6 +92,6 @@
 	},
 	"dependencies": {
 		"@nativescript-community/sentry": "4.6.49",
-		"@sentry/browser": "8.55.0"
+		"@sentry/browser": "11.9.0"
 	}
 }

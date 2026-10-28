@@ -43,9 +43,9 @@
 		"typecheck": "tsc -p tsconfig.json"
 	},
 	"dependencies": {
-		"@tsrx/core": "^0.2.4",
-		"ignore": "7.0.12",
-		"oxlint": "1.74.0",
+		"@tsrx/core": "0.5.5",
+		"ignore": "7.0.14",
+		"oxlint": "1.90.0",
 		"picomatch": "4.0.7"
 	},
 	"devDependencies": {

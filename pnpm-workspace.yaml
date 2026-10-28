@@ -15,7 +15,7 @@ publicHoistPattern:
 # toolchain, and the patched native renderer whose type-level augmentations
 # (e.g. ui's type-support/svg-element.d.ts) only apply to the resolved copy.
 catalog:
-  octane: 0.14.0
+  octane: 0.16.3
   '@nativescript-community/octane': 0.2.5
   '@nativescript-community/vite-octane': 0.2.1
   '@nativescript/core': 9.1.3
@@ -26,7 +26,7 @@ catalog:
   '@nativescript/unit-test-runner': 5.0.0
   typescript: 5.9.3
   vite: 8.3.0
-  '@octanejs/vite-plugin': 0.1.61
+  '@octanejs/vite-plugin': 0.5.0
   '@tsrx/typescript-plugin': 0.4.11
   # vitest 4 line repo-wide: platform peers pin <5 alongside
   # @nativescript/unit-test-runner, and visual's @vitest/browser family must
@@ -43,6 +43,11 @@ allowUnusedPatches: true
 # resolve through the store). sass only uses chokidar for `sass --watch`, which
 # nothing here invokes; chokidar3+readdirp3 is the coherent pair.
 overrides:
+  # regexpu and its Unicode data exchange regenerate instances via instanceof.
+  # Keep one constructor so negative properties and v-mode sets can compile.
+  regenerate: 1.5.0
+  # The production lint runner needs this optional type-aware checker version.
+  oxlint-tsgolint: 7.0.2005
   chokidar: ^3.6.0
   # vite 8's esbuild peer range admits 0.28.x; where octane/app-core peer
   # contexts resolve it fresh they get 0.28.2 while vite's own tree carries
@@ -50,35 +55,57 @@ overrides:
   # Pin everything to vite's 0.27.7 except wrangler, which wants its own.
   esbuild: 0.27.7
   wrangler>esbuild: 0.28.1
-  # tiptap 3.28.0 is the line @octanejs/tiptap pins. Its extension packages
-  # declare ^3.28.0 ranges that float to 3.31.x, which imports core symbols
-  # (getPreviousBlockSibling) that 3.28.0 lacks — pin the whole family.
-  '@tiptap/core': 3.28.0
-  '@tiptap/pm': 3.28.0
-  '@tiptap/starter-kit': 3.28.0
-  '@tiptap/static-renderer': 3.28.0
-  '@tiptap/extensions': 3.28.0
-  '@tiptap/extension-blockquote': 3.28.0
-  '@tiptap/extension-bold': 3.28.0
-  '@tiptap/extension-bullet-list': 3.28.0
-  '@tiptap/extension-code': 3.28.0
-  '@tiptap/extension-code-block': 3.28.0
-  '@tiptap/extension-document': 3.28.0
-  '@tiptap/extension-dropcursor': 3.28.0
-  '@tiptap/extension-gapcursor': 3.28.0
-  '@tiptap/extension-hard-break': 3.28.0
-  '@tiptap/extension-heading': 3.28.0
-  '@tiptap/extension-horizontal-rule': 3.28.0
-  '@tiptap/extension-italic': 3.28.0
-  '@tiptap/extension-link': 3.28.0
-  '@tiptap/extension-list': 3.28.0
-  '@tiptap/extension-list-item': 3.28.0
-  '@tiptap/extension-list-keymap': 3.28.0
-  '@tiptap/extension-ordered-list': 3.28.0
-  '@tiptap/extension-paragraph': 3.28.0
-  '@tiptap/extension-strike': 3.28.0
-  '@tiptap/extension-text': 3.28.0
-  '@tiptap/extension-underline': 3.28.0
+  # @octanejs/lexical pins 0.51.0; align its engine with the direct imports.
+  '@lexical/a11y': 0.52.0
+  '@lexical/code': 0.52.0
+  '@lexical/devtools-core': 0.52.0
+  '@lexical/dragon': 0.52.0
+  '@lexical/extension': 0.52.0
+  '@lexical/hashtag': 0.52.0
+  '@lexical/history': 0.52.0
+  '@lexical/html': 0.52.0
+  '@lexical/internal': 0.52.0
+  '@lexical/link': 0.52.0
+  '@lexical/list': 0.52.0
+  '@lexical/mark': 0.52.0
+  '@lexical/markdown': 0.52.0
+  '@lexical/overflow': 0.52.0
+  '@lexical/plain-text': 0.52.0
+  '@lexical/rich-text': 0.52.0
+  '@lexical/selection': 0.52.0
+  '@lexical/table': 0.52.0
+  '@lexical/text': 0.52.0
+  '@lexical/utils': 0.52.0
+  '@lexical/yjs': 0.52.0
+  'lexical': 0.52.0
+  # @octanejs/tiptap pins 3.28.0; align the whole engine and extension family
+  # with our direct 3.32.0 imports to avoid missing symbols and duplicate cores.
+  '@tiptap/core': 3.32.0
+  '@tiptap/pm': 3.32.0
+  '@tiptap/starter-kit': 3.32.0
+  '@tiptap/static-renderer': 3.32.0
+  '@tiptap/extensions': 3.32.0
+  '@tiptap/extension-blockquote': 3.32.0
+  '@tiptap/extension-bold': 3.32.0
+  '@tiptap/extension-bullet-list': 3.32.0
+  '@tiptap/extension-code': 3.32.0
+  '@tiptap/extension-code-block': 3.32.0
+  '@tiptap/extension-document': 3.32.0
+  '@tiptap/extension-dropcursor': 3.32.0
+  '@tiptap/extension-gapcursor': 3.32.0
+  '@tiptap/extension-hard-break': 3.32.0
+  '@tiptap/extension-heading': 3.32.0
+  '@tiptap/extension-horizontal-rule': 3.32.0
+  '@tiptap/extension-italic': 3.32.0
+  '@tiptap/extension-link': 3.32.0
+  '@tiptap/extension-list': 3.32.0
+  '@tiptap/extension-list-item': 3.32.0
+  '@tiptap/extension-list-keymap': 3.32.0
+  '@tiptap/extension-ordered-list': 3.32.0
+  '@tiptap/extension-paragraph': 3.32.0
+  '@tiptap/extension-strike': 3.32.0
+  '@tiptap/extension-text': 3.32.0
+  '@tiptap/extension-underline': 3.32.0
   # sameframe 0.2.2 pins playwright 1.55.0; the repo standardizes on the
   # 1.63.0 Chromium already used by tools/visual so one browser build serves both.
   sameframe>playwright: 1.63.0
@@ -90,15 +117,12 @@ minimumReleaseAgeExclude:
   - '@nativescript/core@9.1.3'
   - '@octanejs/app-core@0.0.56'
   - '@octanejs/vite-plugin@0.1.61'
-  - octane@0.14.0
-  - '@nativescript-community/octane@0.2.4'
-  - '@nativescript-community/octane@0.2.5'
+  - octane@0.16.3
+  - '@nativescript-community/octane@0.2.4 || 0.2.5'
   - '@nativescript-community/vite-octane@0.2.1'
   - '@nativescript/vite@8.0.20'
-  # octane 0.14.0 pulls these tsrx versions; the template pins @tsrx/oxc 0.20.0.
-  - '@tsrx/core@0.5.5'
+  - '@tsrx/core@0.3.2 || 0.5.5'
   - '@tsrx/oxc@0.20.0'
-  - '@tsrx/core@0.3.2'
   - '@tsrx/typescript-plugin@0.4.11'
   # same-day releases of our formatter; platform binaries ship together.
   - '@octane-xplat/fmt@0.1.1'
@@ -110,9 +134,7 @@ minimumReleaseAgeExclude:
   - '@octane-xplat/fmt-linux-x64-musl@0.1.1'
   - '@octane-xplat/fmt-win32-arm64@0.1.1'
   - '@octane-xplat/fmt-win32-x64@0.1.1'
-  # Same-day release of our Mason core package — the only mobile engine.
-  - '@octane-xplat/nativescript-mason-core@1.0.0-beta.4'
-  - '@octane-xplat/nativescript-mason-core@1.0.0-beta.5'
+  - '@octane-xplat/nativescript-mason-core@1.0.0-beta.4 || 1.0.0-beta.5'
   # same-day release of our MasonKit fork (Windows preview only)
   - '@octane-xplat/nativescript-masonkit@1.0.0-beta.126'
   - '@nativescript/canvas@3.0.0-alpha.15'
@@ -120,9 +142,15 @@ minimumReleaseAgeExclude:
   # windows platform (cli#6065). Exact pins in apps/windows/package.json.
   - '@nativescript/windows@0.1.0-alpha.144'
   - nativescript@9.1.2-dev.2026-09-24-36031892256
-  - '@octanejs/tiptap@0.0.52'
+  - '@octanejs/tiptap@0.0.61'
   - '@nativescript/types@9.1.4'
   - shaders@4.0.0
+  - '@posthog/browser-common@0.10.1'
+  - '@posthog/core@1.61.1'
+  - '@posthog/types@1.418.0'
+  - posthog-js-lite@4.13.2
+  - posthog-js@1.441.2
+  - storybook@10.6.5
 allowBuilds:
   '@nativescript/core': true
   nativescript: true
@@ -147,21 +175,16 @@ allowBuilds:
 # patch`/`pnpm patch-commit` (it writes to the configured path), then `pnpm sync:patches`
 # propagates it to @octane-xplat/patches. `pnpm check:patches` fails on drift.
 patchedDependencies:
-  # Published 0.14.0 still requires renderer-owned Children.toArray/map with explicit
-  # universal-native re-exports for older runtimes, the 0.15.0 universal compiler allowlist
-  # entries and identity runtime export for Children and descriptorChildren (so native .tsrx
-  # modules importing them compile), universal signal-read tracking and local hooks, root
-  # event-error forwarding, the complete universal imperative-ref lifecycle, the Descriptor
-  # declaring-owner reader fallback, and the signal-owner/enclosingOwner chain so child
-  # reads reuse instance declarations. Rebased against the registry 0.14.0 tarball,
-  # including local signal-hook registration in the split runtime/hooks modules. Provider
-  # null/undefined descendant cleanup is now upstream and no longer patched. Marks generic
-  # binding bags from bagOf so fragment commit rehomes their DOM parent references,
-  # preventing stale fragment parents, namespace recursion, and invalid insertion during
-  # typeahead updates. Preserves keyed component ownership through compiler-generated
-  # transparent root slots so native map reorders retain host identity, state, and portal
-  # content.
-  octane@0.14.0: packages/cli/patches/octane@0.14.0.patch
+  # Published 0.16.3 includes universal Children normalization, descriptorChildren and their
+  # compiler allowlist entries, plus compiler-owned generic binding bags. Retains universal
+  # signal-read tracking and local hooks, root event-error forwarding, the complete
+  # universal imperative-ref lifecycle, the Descriptor declaring-owner reader fallback, and
+  # the signal-owner/enclosingOwner chain so child reads reuse instance declarations.
+  # Preserves keyed component ownership through compiler-generated transparent root slots so
+  # native map reorders retain host identity, state, and portal content. Rebased against the
+  # registry 0.16.3 tarball; upstream Children and binding-bag implementations are
+  # preserved.
+  octane@0.16.3: packages/cli/patches/octane@0.16.3.patch
   # Published 9.1.3 ships the #11446 nested-tab-frame lifecycle fix and iOS explicit-size
   # flex alignment, so those hunks are removed. Retains the unshipped parent-padding
   # measure-spec fix and Android explicit-size flex alignment, iOS continuous corner
@@ -297,7 +320,7 @@ patchedDependencies:
   # typecheck program. Adds a module-local process declaration for typecheck. (The
   # './Context' self-import half of the 0.0.51 patch shipped upstream in 0.0.52 via
   # octanejs/octane#1502.)
-  "@octanejs/tiptap@0.0.52": packages/cli/patches/@octanejs__tiptap@0.0.52.patch
+  "@octanejs/tiptap@0.0.61": packages/cli/patches/@octanejs__tiptap@0.0.61.patch
   # @nativescript/doctor's Android runtime check reads the app's raw devDependencies
   # specifier and npm dist-tag resolves anything that isn't a semver range — a pnpm
   # `catalog:` pin throws 'The determined Android runtime version ... is not valid' and

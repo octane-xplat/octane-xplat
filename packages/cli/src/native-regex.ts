@@ -12,10 +12,7 @@ import unicodeProperties from '@babel/plugin-transform-unicode-property-regex'
 
 const HAS_PROPERTY_ESCAPE = /\\[pP]\{/
 const JS_MODULE_ID = /\.[cm]?[jt]sx?(?:[?#]|$)/
-const REGEX_ESCAPE_PLUGINS = () => [
-	unicodeSets.default ?? unicodeSets,
-	unicodeProperties.default ?? unicodeProperties,
-]
+const REGEX_ESCAPE_PLUGINS = () => [unicodeSets, unicodeProperties]
 
 /** Compile `\p{NAME}` to its equivalent character-class ranges for splicing
  *  into template-literal RegExp patterns. Returns the class inner text and
@@ -34,7 +31,10 @@ function expandEscape(letter: string, body: string) {
 			plugins: REGEX_ESCAPE_PLUGINS(),
 		})
 
-		const src = String(res.code).trim().replace(/;+$/, '')
+		if (!res?.code) {
+			throw new Error(`Failed to expand Unicode property escape ${key}`)
+		}
+		const src = res.code.trim().replace(/;+$/, '')
 		const negated = src.startsWith('/[^')
 		entry = { inner: src.slice(negated ? 3 : 2, src.lastIndexOf(']')), negated }
 		expansionCache.set(key, entry)
@@ -110,6 +110,9 @@ export function transformNativeRegex(code: string, filename = 'xplat-native.ts')
 				visitor: {
 					'NewExpression|CallExpression'(path) {
 						const node = path.node
+						if (!types.isNewExpression(node) && !types.isCallExpression(node)) {
+							return
+						}
 						if (
 							!types.isIdentifier(node.callee, { name: 'RegExp' }) ||
 							path.scope.getBinding('RegExp') ||
@@ -136,8 +139,7 @@ export function transformNativeRegex(code: string, filename = 'xplat-native.ts')
 				},
 			}),
 			// `v`-flag sets can carry \p{…} too; the sets transform must run first.
-			unicodeSets.default ?? unicodeSets,
-			unicodeProperties.default ?? unicodeProperties,
+			...REGEX_ESCAPE_PLUGINS(),
 		],
 	})
 }

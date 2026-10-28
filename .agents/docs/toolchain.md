@@ -3,6 +3,46 @@
 Paths in code spans refer to the repository root. Read this reference when its
 subject applies to your task; [AGENTS.md](../../AGENTS.md) is the entry point.
 
+## Runtime dependency compatibility
+
+The workspace uses Octane 0.16.3 with `@tsrx/oxc` 0.20.0 and
+`@octanejs/vite-plugin` 0.5.0. The parser pin is explicit at the root so a
+hoisted installation cannot select the older optional peer from another
+Octane context. These compiler dependencies must move together. Octane now
+requires Node 22.22.2 or newer; starters and doctor share that minimum in
+`packages/create/compatibility.json`.
+
+The Octane 0.16.3 patch preserves upstream universal `Children`,
+`descriptorChildren`, compiler allowlist entries, and compiler-owned binding
+bags. It retains the local signal ownership, imperative-ref, event-error,
+descriptor-reader, and transparent keyed-root fixes described in the patch
+manifest. Patch applicability and host tests do not establish device behavior.
+
+`@octanejs/tiptap` 0.0.61 still pins Tiptap 3.28.0 and
+`@octanejs/lexical` 0.2.12 pins Lexical 0.51.0. Overrides align their
+complete engine families with our direct imports at 3.32.0 and 0.52.0,
+respectively. Keep each family aligned to avoid missing core symbols or
+separate editor registries. Reassess these overrides when the adapters adopt
+the corresponding engines. The compatibility manifest supplies these overrides
+to starters and `xplat upgrade`, so consumer installs share the same alignment.
+
+Bamboo's runtime preset/types and `@bamboocss/dev` must also stay aligned at
+1.60.1: mixing the older dev package with the new preset makes mobile and
+Windows configuration typechecks fail on the added `Mask` utility group.
+
+Keep `regenerate` at one version across `regexpu-core` and
+`regenerate-unicode-properties`. Babel 8 resolved 1.5.0 for the former and
+1.4.2 for the latter; their `instanceof` checks then rejected each other's
+sets with `symbol.charCodeAt is not a function`. The 1.5.0 override satisfies
+both dependency ranges and also ships through the compatibility manifest.
+The CLI's real Unicode-property and `v`-mode regex
+transform tests pass with it. Reassess the override when upstream accepts
+sets across constructor copies or guarantees one copy itself.
+
+The Windows preview retains its commit-pinned NativeScript core and
+FontManager 1.0.18. macOS keeps its newer `next` runtime rather than
+downgrading to the registry's older `latest` tag.
+
 Drive-by improvements to `packages/lint/` are allowed when they improve the
 experience of agents writing Octane-xplat code effectively.
 

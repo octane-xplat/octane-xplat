@@ -25,7 +25,7 @@ import {
 import { inspectCompatibility } from '../dist/compatibility-check.js'
 
 const cli = fileURLToPath(new URL('../dist/cli.js', import.meta.url))
-const tools = { node: 'v22.18.0', pnpm: compatibility.tools.pnpm }
+const tools = { node: `v${compatibility.tools.nodeMinimum}`, pnpm: compatibility.tools.pnpm }
 const patchPrefix = 'node_modules/.pnpm-config/@octane-xplat/patches/patches/'
 const json = (file) => JSON.parse(readFileSync(file, 'utf8'))
 const yaml = (root) => parse(readFileSync(join(root, 'pnpm-workspace.yaml'), 'utf8'))

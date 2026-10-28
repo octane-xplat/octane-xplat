@@ -114,6 +114,35 @@ const native = load('db.ts', {
 	'@nativescript-community/sqlite': { openOrCreate: nativeBackend },
 })
 
+test('native adapter: execute hides plugin metadata and close propagates async failures', async () => {
+	const backend = nativeBackend()
+	const execute = backend.execute
+	backend.execute = async (...args) => {
+		await execute(...args)
+		return { changes: 0, lastInsertRowId: 0 }
+	}
+	const close = backend.close
+	backend.close = () => {
+		const failure = Promise.reject(new Error('close failed'))
+		void failure.catch(() => {})
+		return failure
+	}
+	const api = load('db.ts', {
+		'./operation-queue': ownership,
+		'@nativescript/core': {
+			knownFolders: { documents: () => ({ getFile: (name) => ({ path: name }) }) },
+		},
+		'@nativescript-community/sqlite': { openOrCreate: () => backend },
+	})
+	const db = await api.openDatabase(':memory:')
+	try {
+		assert.equal(await db.execute('CREATE TABLE example (id INTEGER)'), undefined)
+		await assert.rejects(db.close(), /close failed/)
+	} finally {
+		close()
+	}
+})
+
 test('native adapter: user_version survives a successful version write', async () => {
 	const db = await native.openDatabase(':memory:')
 	try {

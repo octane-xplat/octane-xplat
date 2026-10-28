@@ -49,13 +49,13 @@
 	},
 	"dependencies": {
 		"@ampproject/remapping": "2.3.0",
-		"@bamboocss/preset-base": "1.56.2",
-		"@bamboocss/types": "1.56.2",
-		"@bamboocss/vite": "1.56.2",
-		"magic-string": "0.30.21"
+		"@bamboocss/preset-base": "1.60.1",
+		"@bamboocss/types": "1.60.1",
+		"@bamboocss/vite": "1.60.1",
+		"magic-string": "1.4.5"
 	},
 	"devDependencies": {
-		"@bamboocss/dev": "1.56.2",
+		"@bamboocss/dev": "1.60.1",
 		"@octane-xplat/cli": "workspace:*",
 		"typescript": "catalog:"
 	},

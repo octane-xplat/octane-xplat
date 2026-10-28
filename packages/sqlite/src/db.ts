@@ -19,7 +19,9 @@ class NativeSqliteDb implements SqliteDb {
 	get isOpen() {
 		return this.db.isOpen
 	}
-	execute = (sql: string, params?: SqliteParams) => this.db.execute(sql, params)
+	execute = async (sql: string, params?: SqliteParams): Promise<void> => {
+		await this.db.execute(sql, params)
+	}
 	select = <T = SqliteRow>(sql: string, params?: SqliteParams): Promise<T[]> =>
 		this.db.select(sql, params) as Promise<T[]>
 	selectArray = (sql: string, params?: SqliteParams) => this.db.selectArray(sql, params)
@@ -37,12 +39,12 @@ class NativeSqliteDb implements SqliteDb {
 		onRow: (error: Error | null, row: SqliteRow) => void,
 		onDone: (error: Error | null, count: number) => void,
 	): Promise<number> => this.db.each(sql, params, onRow, onDone)
-	getUserVersion = async () => this.db.getVersion() as number
+	getUserVersion = () => this.db.getVersion()
 	setUserVersion = async (version: number) => {
 		await this.db.setVersion(version)
 	}
 	close = async () => {
-		this.db.close()
+		await this.db.close()
 	}
 }
 

@@ -91,8 +91,8 @@
 		}
 	},
 	"dependencies": {
-		"posthog-js": "1.236.0",
-		"posthog-js-lite": "4.13.1",
+		"posthog-js": "1.441.2",
+		"posthog-js-lite": "4.13.2",
 		"@octane-xplat/platform": "workspace:*"
 	}
 }

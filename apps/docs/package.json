@@ -19,7 +19,7 @@
 		"@octane-xplat/ui": "workspace:*",
 		"@xplat/demos": "workspace:*",
 		"octane": "catalog:",
-		"shiki": "4.4.3"
+		"shiki": "4.5.0"
 	},
 	"devDependencies": {
 		"@octane-xplat/cli": "workspace:*",

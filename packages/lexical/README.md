@@ -158,9 +158,18 @@ reports when the lazy conversion bridge settles.
 />
 ```
 
-The lexical family pins to `0.51.0` and `@octanejs/lexical` to `0.2.0`
-(peers `octane ^0.6.0`). `@lexical/link`'s ICU-dependent URL-matcher literal
-is compiled away at bundle time by the `xplatNative` unicode-regex transform. See
+The Lexical family pins to `0.52.0` and `@octanejs/lexical` to `0.2.12`
+(peers `octane ^0.16.0`). Keep the framework's managed overrides so the adapter
+and your app share one engine. Starters include them; existing apps receive
+them through the upgrade command:
+
+```sh
+pnpm dlx @octane-xplat/cli@latest upgrade
+pnpm install
+```
+
+`@lexical/link`'s ICU-dependent URL-matcher literal is compiled away at bundle
+time by the `xplatNative` unicode-regex transform. See
 [`docs/app/rich-text.md`](../../docs/app/rich-text.md) for the shared contract,
 format vocabulary, and known limits.
 

@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import { useImperativeHandle, useEffect, useRef } from 'octane'
-import { Loader } from '@googlemaps/js-api-loader'
+import { importLibrary, setOptions } from '@googlemaps/js-api-loader'
 import type { MapViewHandle, MapViewProps } from './props'
 import { webApiKey } from './maps.web'
 
@@ -21,8 +21,8 @@ function loadMaps(): Promise<any> {
 			return Promise.reject(new Error('maps.init({apiKey}) must run before <MapView>'))
 		}
 
-		loaderPromise = new Loader({ apiKey: key, version: 'weekly' })
-			.load()
+		setOptions({ key, v: 'weekly' })
+		loaderPromise = Promise.all([importLibrary('maps'), importLibrary('marker')])
 			.then(() => (globalThis as any).google.maps)
 	}
 

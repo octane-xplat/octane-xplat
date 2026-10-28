@@ -5,10 +5,10 @@ habits get wrong. Read this before writing hooks, component state, context,
 refs, error boundaries, or code that inspects `children`. TSRX syntax itself
 (`@{ }`, `@if`, `@for`, `@try`) lives in the `tsrx` skill.
 
-This page is checked against `octane@0.14.0`, the version in the repository
+This page is checked against `octane@0.16.3`, the version in the repository
 catalog. Match it to the app's installed version. Upstream's full divergence
 contract is
-[Differences from React](https://github.com/octanejs/octane/blob/octane%400.14.0/docs/differences-from-react.md);
+[Differences from React](https://github.com/octanejs/octane/blob/octane%400.16.3/docs/differences-from-react.md);
 read it when a behavior here does not answer the question.
 
 Shared files compile twice: the DOM renderer for web, and the universal renderer
@@ -206,8 +206,10 @@ Children written inside a template reach a component as a compiled render body,
 not as an element list. Rendering `{props.children}` works. On web,
 `Children.count`, `Children.map`, `Children.toArray`, `Children.only`, and
 `cloneElement` see nothing unless the component is wrapped in
-[`descriptorChildren`](https://github.com/octanejs/octane/blob/octane%400.14.0/docs/differences-from-react.md#template-children-and-inspection).
-On native targets, `Children` and `cloneElement` cannot be imported at all.
+[`descriptorChildren`](https://github.com/octanejs/octane/blob/octane%400.16.3/docs/differences-from-react.md#template-children-and-inspection).
+Native targets support `Children.toArray` and `Children.map`; `descriptorChildren`
+is accepted as an identity wrapper. Other child inspection methods and
+`cloneElement` remain unavailable on native.
 
 For shared components, take the data as a prop instead of inspecting children:
 
@@ -229,9 +231,9 @@ export function Steps(props: { steps: readonly Step[] }) @{
 
 The universal compiler accepts only these runtime imports from `octane`
 (`UNIVERSAL_RUNTIME_IMPORTS` in
-[`compile-universal.js`](https://github.com/octanejs/octane/blob/octane%400.14.0/packages/octane/src/compiler/compile-universal.js)):
+[`compile-universal.js`](https://github.com/octanejs/octane/blob/octane%400.16.3/packages/octane/src/compiler/compile-universal.js)):
 
-`Activity`, `createContext`, `createPortal`, `lazy`, `memo`,
+`Activity`, `Children`, `descriptorChildren`, `createContext`, `createPortal`, `lazy`, `memo`,
 `requestFormReset`, `startTransition`, `use`, `useActionState`,
 `useCallback`, `useContext`, `useDebugValue`, `useDeferredValue`, `useEffect`,
 `useEffectEvent`, `useFormState`, `useFormStatus`, `useId`,
@@ -239,7 +241,7 @@ The universal compiler accepts only these runtime imports from `octane`
 `useLazyRef`, `useLinkedState`, `useMemo`, `useOptimistic`, `useReducer`,
 `useRef`, `useState`, `useSyncExternalStore`, `useTransition`.
 
-Any other runtime import, such as `Children`, `cloneElement`, `createElement`,
+Any other runtime import, such as `cloneElement`, `createElement`,
 `ErrorBoundary`, `Suspense`, or `flushSync`, fails the native build with
 `runtime import "<name>" has no universal renderer implementation.` Imports
 must be named; a namespace or default import of `octane` is also a compile

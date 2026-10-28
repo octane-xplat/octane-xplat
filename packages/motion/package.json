@@ -61,7 +61,7 @@
 		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/platform": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
-		"motion-dom": "12.42.2"
+		"motion-dom": "14.7.1"
 	},
 	"devDependencies": {
 		"@nativescript-community/gesturehandler": "2.0.45",

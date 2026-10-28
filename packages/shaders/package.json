@@ -52,7 +52,7 @@
 	},
 	"dependencies": {
 		"@octane-xplat/canvas": "workspace:*",
-		"shaders": "4.0.0"
+		"shaders": "4.0.5"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "catalog:",

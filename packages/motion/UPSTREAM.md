@@ -3,7 +3,7 @@
 The behavioral reference is `@octanejs/motion` source package version 0.1.56,
 inspected from Octane main on 2026-09-29. Its UPSTREAM.md pins Motion 12.42.2
 (commit `40e8756c63b258c9dd07de9501cb788410eefb02`). This package pins
-`motion-dom@12.42.2` and bundles its pure numeric generators and interpolation.
+`motion-dom@14.7.1` and bundles its pure numeric generators and interpolation.
 The adapter is original code; it does not copy upstream's DOM host factory.
 
 | Contract                                         | Upstream reference under packages/motion                          | Xplat implementation / evidence                                                                                                                                      |
