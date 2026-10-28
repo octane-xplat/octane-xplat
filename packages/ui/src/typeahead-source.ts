@@ -31,15 +31,14 @@ export function createStaticSource<T extends SearchableItem>(
 	}
 }
 
-/** User-perceived character count when Intl.Segmenter is available; otherwise
- * counts Unicode code points (joined emoji may count more than once).
- * `minQueryLength` uses this count, never UTF-16 code units. */
+/** User-perceived character count — one emoji/flag/accented grapheme counts
+ *  once. `minQueryLength` is measured in these, not UTF-16 code units. */
 export function characterCount(str: string): number {
 	if (str === '') {
 		return 0
 	}
 
-	const Segmenter = typeof Intl === 'undefined' ? undefined : Intl.Segmenter
+	const Segmenter = Intl.Segmenter
 	if (typeof Segmenter === 'function') {
 		const segmenter = new Segmenter(undefined, { granularity: 'grapheme' })
 		let count = 0

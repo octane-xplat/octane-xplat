@@ -42,7 +42,7 @@ export function getLocaleDirection(locale: string): 'ltr' | 'rtl' {
 
 		return /^(ar|fa|he|ur|ps|sd|ug|yi)(-|$)/i.test(value.baseName) ? 'rtl' : 'ltr'
 	} catch {
-		return /^(ar|fa|he|ur|ps|sd|ug|yi)(-|$)/i.test(locale) ? 'rtl' : 'ltr'
+		return 'ltr'
 	}
 }
 

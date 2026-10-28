@@ -310,104 +310,6 @@ The system source is per target:
 | iOS, Android   | `@nativescript/core` `Device.language`           |
 | macOS, Windows | `Intl.DateTimeFormat().resolvedOptions().locale` |
 
-## Opt in to Intl on native
-
-A **polyfill** supplies a JavaScript API that the runtime is missing. NativeScript's
-iOS/Android runtime lacks `Intl`. The localization package owns the FormatJS
-dependencies, so your app does not need to install them separately. Import the
-formatting entry before code that uses dates, numbers, lists, or plural messages:
-
-```ts
-// src/intl.mobile.ts — selected on iOS and Android
-import '@octane-xplat/lingui/polyfills'
-
-console.log(new Intl.NumberFormat('en').format(1234.5)) // 1,234.5
-```
-
-Keep other targets on their built-in implementations with an empty sibling.
-Load this module before the module that initializes Lingui or renders your app:
-
-```ts
-// src/intl.ts — default for other targets
-export {}
-```
-
-```ts
-// src/index.ts — app entry
-import './intl'
-import './start' // your existing application startup, moved to src/start.ts
-```
-
-The formatting entry installs guarded `getCanonicalLocales`, `Locale`,
-`PluralRules`, `NumberFormat`, `DateTimeFormat`, `RelativeTimeFormat`, and
-`ListFormat` support, with English data. Add each language you use explicitly;
-a translation catalog does not contain number/date formatting data:
-
-```ts
-// Add to src/intl.mobile.ts
-import '@octane-xplat/lingui/polyfills/locales/es'
-import '@octane-xplat/lingui/polyfills/locales/de'
-
-console.log(new Intl.NumberFormat('de').format(1234.5)) // 1.234,5
-```
-
-If you only need one capability, import its entry instead of the full formatting
-entry. It loads its prerequisites automatically. Locale-specific entries also
-load the corresponding prerequisite data when FormatJS supplies it:
-
-```ts
-// Alternative src/intl.mobile.ts for number formatting only
-import '@octane-xplat/lingui/polyfills/number/locales/de'
-
-console.log(new Intl.NumberFormat('de').format(1234.5)) // 1.234,5
-```
-
-The capability entry names are `locale`, `plural`, `number`, `date`,
-`relative-time`, `list`, `collator`, and `segmenter`. Collation (language-aware
-sorting) and segmentation (finding word/grapheme boundaries) are separate
-opt-ins. Lingui's `useCollator` and `useFilter` require collation:
-
-```ts
-import '@octane-xplat/lingui/polyfills/collator'
-import '@octane-xplat/lingui/polyfills/segmenter'
-
-console.log(new Intl.Collator('en', { numeric: true }).compare('item2', 'item10') < 0)
-console.log([...new Intl.Segmenter('en').segment('👨‍👩‍👧‍👦')].length) // 1
-```
-
-DateTimeFormat's polyfill defaults to UTC, not the device's zone. For named
-time zones, load `time-zones/all` (or the smaller `time-zones/golden` set of
-major zones) and pass the zone explicitly. The entry does not change the device
-settings or infer a default locale or zone:
-
-```ts
-import '@octane-xplat/lingui/polyfills/time-zones/all'
-
-const clock = new Intl.DateTimeFormat('en', {
-  timeZone: 'America/New_York', hour: 'numeric', hourCycle: 'h23',
-})
-console.log(clock.format(new Date(0))) // 19
-```
-
-These entries intentionally mutate global `Intl` and, where applicable,
-locale-formatting prototype methods. They use FormatJS's guarded `/polyfill`
-entries: existing implementations can be replaced if they fail its capability
-checks. Repeated imports share module initialization. Importing `ui` or the
-normal Lingui entry does **not** install polyfills. You can check a specific
-capability without assuming the rest of `Intl` exists:
-
-```ts
-const hasCollator = typeof Intl !== 'undefined' && typeof Intl.Collator === 'function'
-```
-
-Without opt-in, Table uses a non-locale-aware natural sort; Typeahead counts
-code points rather than grapheme clusters; Calendar/date inputs retain their
-fixed English date fallback. Explicit locale-formatting features such as
-Timestamp, PowerSearch formatting, and Lingui formatting hooks require the
-corresponding APIs. Install them before rendering those features. Polyfills do
-not fix NativeScript's separate `String.prototype.normalize` limitation, so
-Lingui filtering still cannot promise canonical-equivalence matching there.
-
 ## Verification status
 
 Desk- and harness-verified: macro expansion inside `.tsrx` through the
@@ -420,13 +322,10 @@ Not yet device-verified: `import.meta.glob` catalog loading inside a real
 native bundle (the pattern matches the ui route tables' glob use, so it is
 expected to work) and `Device.language` on physical iOS/Android.
 
-Built-in `Intl.PluralRules` is unavailable on the NS runtimes: checked on device
+`Intl.PluralRules` is unavailable on the NS runtimes: checked on device
 2026-10-21, the NativeScript iOS and Android runtimes embed V8 built without
 ICU and `Intl` is undefined there (`@nativescript/ios` 9.1.0 simulator,
-`@nativescript/android` 9.1.1 device). The explicit polyfill bootstrap above
-passed eight formatting, time-zone, collation, and segmentation checks in
-Chromium, an iOS simulator, and the macOS host on 2026-10-28. Android polyfill execution has not
-yet been verified.
+`@nativescript/android` 9.1.1 device).
 
 ## Change UI strings in one part of a screen
 
