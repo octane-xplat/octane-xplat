@@ -790,13 +790,19 @@ RadioList options and RadioListItem children now share the group context and
 controlled/uncontrolled selection. Native rows expose radio/checked/name
 semantics and render descriptions/endContent. Standalone Field metadata is
 stable; an enclosing Field retains ownership. The macOS root explicitly selects
-the new child leaf. Ordinary form groups now request selection after Arrow/
+the new child leaf. Held item/key handlers now read current group/row state;
+mounted registration and reentry guards reject retired/nested selection.
+Uncontrolled local values suppress immediate duplicates before render; controlled
+parents retain feedback authority. Ordinary form groups now request selection after Arrow/
 Home/End focus, with RTL horizontal keys and owned roving Tab exclusions when
 the native bridges are available. Disabled/read-only groups do not install keys;
 interactive trailing children keep their own keys. Native input/Tab/reveal,
 VoiceOver and layout remain unqualified; toolbar-specific navigation is still
 unsupported. See
-[radio choices](../../../../docs/app/components.md#radio-choices-on-appkit).
+[radio choices](../../../../docs/app/components.md#radio-choices-on-appkit). Eight
+ownership cases are authored, unrun, alongside the existing composition/focus
+cases. The fixture adds current blocking/value/acceptance/focus controls; its run
+hook still checks direct selection only.
 
 ```tsx
 import { RadioList, RadioListItem } from '@octane-xplat/ui'

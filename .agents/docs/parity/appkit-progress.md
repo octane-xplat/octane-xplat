@@ -4375,3 +4375,49 @@ ordering/AX and package behavior remain unqualified. Preset text relay, active-
 option AX/announcements, Carousel fades, video and floating Tokenizer layer
 hosting remain separate source gaps. Checkbox mixed rollback awaits the earlier
 human contract choice. Evidence-gated checkboxes stay open; the goal is active.
+
+## AppKit radio current selection ownership
+
+Demand assumption: ComponentsDemo, theme preview and table-filter examples use
+RadioList for ordinary settings/selection. Current source already selects the
+AppKit RadioListItem leaf, despite the historical TSV pointing at the old mobile
+leaf. That source snapshot stays unchanged. Pull-to-refresh has fewer repository
+uses and is explicitly unsupported; video/lightbox remain separate gaps.
+
+RadioGroup now reads current inherited blocking/options/callbacks through a live
+record and updates uncontrolled local selection before render. Mounted root/current
+registered value, duplicate selection and reentry guards own acceptance. Held
+keyboard handlers check current blocking before native focus/navigation. Row
+activation reads current props/group/registry and checks its attached registration;
+per-binding leases preserve a newer registration during old-key/provider cleanup.
+Controlled requests still await parent feedback and can repeat while rejected.
+Callback-driven focus changes and teardown remain authoritative; failed consumer
+callbacks release the claim. No shared context/public API shape, choice-focus
+helper behavior, dependency, manifest, other-target leaf or audit snapshot changed.
+
+Eight object-driver cases are authored, all unrun: rapid local duplicate/reentry,
+controlled rejection/echo, current inherited blocking/held keys, per-row disable/
+detach, changed child value/registration, current keyboard callbacks/teardown,
+callback focus/removal and error release. Native row trees/responders are fake;
+these do not prove OS navigation. The existing fixture adds blocking, child
+value/state, acceptance and focus-move controls plus an uncontrolled group. Its
+run hook remains direct selection only. Guide/skill/recipe AC5 and feature note
+reconcile the subset; existing AC1–AC4 evidence remains unrun.
+
+Only source/semantic review, TSRX syntax parsing and whitespace checks ran.
+Exact deferred commands:
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/radio-ownership.macos.mobile.test.tsrx src/radio-list.macos.mobile.test.tsrx src/tab-list.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/radio-list.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All remain deferred until explicit human authorization for this task. No package
+tests/typechecks/builds, installs, OS automation, visual analysis or packaging
+ran. Native pointer/keyboard/Tab/RTL/focus/reveal/group relationships/VoiceOver,
+layout and package behavior remain unqualified. Toolbar-specific radio navigation
+remains unsupported. Evidence-gated checkboxes stay open; the goal remains active.

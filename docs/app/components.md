@@ -325,6 +325,29 @@ export function Plan() {
 }
 ```
 
+Held AppKit item/key handlers now check the current group and row state.
+Uncontrolled selection updates its local value before render, so an immediate
+repeat does not report the same selection twice. Controlled parents still own
+checked state; separate requests can repeat while a parent rejects feedback.
+Nested selection during `onValueChange`, removed rows and retired groups cannot
+select. Changing a child value updates its native registration.
+
+```tsx
+import { useState } from 'octane'
+import { RadioList, RadioListItem } from '@octane-xplat/ui'
+export function CurrentPlan({ locked }: { locked: boolean }) {
+	const [value, setValue] = useState('free')
+	return <RadioList label="Plan" value={value} onValueChange={setValue} isReadOnly={locked}>
+		<RadioListItem value="free" label="Free" />
+		<RadioListItem value="team" label="Team" />
+	</RadioList>
+}
+```
+
+Eight [ownership cases](../../packages/ui/src/radio-ownership.macos.mobile.test.tsrx)
+are authored, all unrun. Fake row/responder dispatch does not prove native
+pointer, keyboard, focus, accessibility or packaging behavior.
+
 Standalone RadioListItem remains presentational. For ordinary form groups,
 arrows and Home/End now move focus and request selection; horizontal arrows
 respect RTL. Controlled parents must accept the request to update checked state.

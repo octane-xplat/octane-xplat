@@ -16,6 +16,8 @@ A form choosing one plan, using option data or child parts.
 
 - AC4: Ordinary form groups register native option/child hosts, keep one owned Tab candidate, and request selection after successful Arrow/Home/End focus. Respect RTL, skip disabled/hidden items, preserve modifiers/composition and trailing-child keys, suppress keys for blocked groups, and release registration/observer/Tab ownership on teardown. Controlled parents retain checked-state ownership.
 
+- AC5: Held row/key handlers observe current inherited group and per-row state, callback and registered value. Reject removed/retired/nested selections; suppress duplicate uncontrolled selection before render, keep controlled feedback authoritative and preserve callback-driven focus choices. Per-binding cleanup must not remove a newer registration.
+
 ## Documentation
 
 - AC1: [AppKit radio guide](../../../docs/app/components.md#radio-choices-on-appkit) and [authored composition cases](../../../packages/ui/src/radio-list.macos.mobile.test.tsrx). Tests unrun.
@@ -23,3 +25,5 @@ A form choosing one plan, using option data or child parts.
 - AC3: [Maintained fixture](../../../examples/probes/radio-list.macos.tsrx) checks direct selection state only; [target progress](../parity/appkit-progress.md#appkit-radio-options-and-child-parts) records native gaps and exact deferred commands.
 
 - AC4: [Shared native choice controller](../../../packages/ui/src/choice-focus.macos.ts), [radio registration/guard/observer cases](../../../packages/ui/src/radio-list.macos.mobile.test.tsrx) and [manual/automatic focus cases](../../../packages/ui/src/tab-list.macos.mobile.test.tsrx). Native keyboard/Tab/focus/reveal/VoiceOver remain unqualified; the fixture run hook is still direct selection only.
+
+- AC5: [Current selection guidance](../../../docs/app/components.md#radio-choices-on-appkit), eight [authored ownership cases](../../../packages/ui/src/radio-ownership.macos.mobile.test.tsrx) and the extended [fixture](../../../examples/probes/radio-list.macos.tsrx), all unrun. [Target note](../parity/appkit-progress.md#appkit-radio-current-selection-ownership) records exact deferred commands and separates fake dispatch from native qualification.

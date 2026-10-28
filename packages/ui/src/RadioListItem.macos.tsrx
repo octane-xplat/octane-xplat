@@ -1,5 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { useCallback, useContext, useRef } from 'octane'
+import { useContext, useMemo, useRef } from 'octane'
+import type { NSView } from '@octane-xplat/platform/macos'
 import { cx } from '@octane-xplat/lib'
 import type { RadioListItemProps } from './props'
 import { RadioListContext } from './option-list-contexts'
@@ -12,12 +13,25 @@ import { AppKitRadioViewsContext } from './radio-focus-context.macos'
 export function RadioListItem(props: RadioListItemProps) @{
 	const group = useContext(RadioListContext)
 	const views = useContext(AppKitRadioViewsContext)
-	const own = useRef<NSView | null>(null)
-	const bind = useCallback((view: NSView | null) => {
-		if (own.current && views?.get(props.value) === own.current) views.delete(props.value)
-		own.current = view
-		if (view) views?.set(props.value, view)
+	const live = useRef({ props, group, views }); live.current = { props, group, views }
+	const own = useRef<{ view: NSView } | null>(null)
+	const bind = useMemo(() => {
+		let lease: { view: NSView } | null = null
+		return (view: NSView | null) => {
+			if (lease) {
+				if (views?.get(props.value) === lease.view) views.delete(props.value)
+				if (own.current === lease) own.current = null
+			}
+			lease = view ? { view } : null
+			if (lease) { own.current = lease; views?.set(props.value, lease.view) }
+		}
 	}, [views, props.value])
+	const activate = () => {
+		const current = live.current
+		if (!own.current || current.props.isDisabled || current.group?.isDisabled || current.group?.isReadOnly ||
+			(current.views && current.views.get(current.props.value) !== own.current.view)) return
+		current.group?.select?.(current.props.value)
+	}
 	const Ind = useIndicator('radio') ?? RadioIndicator
 	const checked = group?.selected === props.value
 	const disabled = Boolean(group?.isDisabled || props.isDisabled)
@@ -27,7 +41,7 @@ export function RadioListItem(props: RadioListItemProps) @{
 		style={props.style} accessibilityRole={group ? 'radio' : undefined}
 		accessibilityLabel={group ? props.label ?? props.value : undefined} accessibilityHint={props.description}
 		accessibilityState={{ checked, selected: checked, disabled, readonly: group?.isReadOnly }}
-		onTap={!blocked && group?.select ? () => group.select?.(props.value) : undefined}>
+		onTap={!blocked && group?.select ? activate : undefined}>
 		<Ind state={checked ? 'checked' : 'unchecked'} size={group?.size === 'sm' ? 'sm' : 'md'} isDisabled={disabled} />
 		<masonview className="vx-radio-label-col--appkit">
 			{props.label != null ? <label className="vx-radio-label" text={props.label} /> : null}
