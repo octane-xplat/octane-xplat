@@ -1,7 +1,10 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { appKitTextChange } from './appkit-events.macos'
 import { mergeStyle } from './style-merge'
-import { useContext, useImperativeHandle, useRef, useState } from 'octane'
+import { useContext, useImperativeHandle, useMemo, useRef, useState } from 'octane'
+import type { NSView, NSTextField, NSTextView } from '@octane-xplat/platform/macos'
+import { createAppKitDateFieldHandle } from './date-field-handle.macos'
+import { hasDateComposition } from './date-composition.macos'
 import type { Renderable, TextAreaProps, TextInputProps } from './props'
 import { cx } from '@octane-xplat/lib'
 import { Pressable } from './Pressable.macos.tsrx'
@@ -10,39 +13,63 @@ import { Icon } from './Icon.macos.tsrx'
 import { FieldContext, useFieldControlProps } from './field-context'
 import { FormField } from './FormField.macos.tsrx'
 
+const nativeValue = (view: object, name: string) => {
+	const value = Reflect.get(view, name)
+	return typeof value === 'function' ? value.call(view) : value
+}
+const composing = (view: NSView) => !!nativeValue(view, 'hasMarkedText') || hasDateComposition(view)
+
+/** Current props and local text own every accepted edit. Draft notifications
+ * remain live during composition; submit/clear wait for committed text. */
+function useAppKitTextEntry<T extends NSView>(props: TextInputProps, multiline = false) {
+	const live = useRef(props); live.current = props
+	const el = useRef<T | null>(null), writing = useRef(false)
+	const [internal, setInternal] = useState(props.defaultValue ?? '')
+	const local = useRef(internal); local.current = internal
+	const isBlocked = !!props.isDisabled || !!props.isReadOnly
+	const canEdit = () => !!el.current && !live.current.isDisabled && !live.current.isReadOnly && !writing.current
+	const handle = useMemo(() => createAppKitDateFieldHandle({ primary: () => el.current, blocked: () => !!live.current.isDisabled }), [])
+	useImperativeHandle(props.ref, () => handle, [props.ref])
+	const write = (text: string, current: TextInputProps) => {
+		if (current.value === undefined) { local.current = text; setInternal(text) }
+		current.onChange?.(text)
+	}
+	const change = (text: string) => {
+		if (!canEdit()) return
+		writing.current = true
+		try { write(text, live.current) } finally { writing.current = false }
+	}
+	const submit = () => {
+		const current = live.current, view = el.current
+		if (!view || !canEdit() || composing(view) || (multiline && current.returnKeyType !== 'done' && current.returnKeyType !== 'send')) return
+		writing.current = true
+		try { current.onSubmit?.() } finally { writing.current = false }
+	}
+	const clear = () => {
+		const current = live.current, view = el.current
+		if (!view || !canEdit() || !current.hasClear || (current.value ?? local.current) === '' || composing(view)) return
+		const window = view.window, responder = window?.firstResponder
+		// An accepted clear owns its callback pair, even if onChange replaces
+		// props or removes the field. Subsequent UI/focus work needs live ownership.
+		writing.current = true
+		try {
+			write('', current); current.onClear?.()
+		} finally { writing.current = false }
+		if (el.current !== view || !window || view.window !== window || window.firstResponder !== responder ||
+			live.current.isDisabled || live.current.isReadOnly) return
+		const editor = nativeValue(view, 'currentEditor')
+		if (responder !== view && (!responder || responder !== editor)) handle.focus()
+	}
+	return { el, value: props.value ?? internal, isBlocked, change, submit, clear,
+		focus: () => { if (el.current && !live.current.isDisabled) live.current.onFocus?.() },
+		blur: () => { if (el.current) live.current.onBlur?.() },
+	}
+}
+
 function TextInputControl(inputProps: TextInputProps) @{
 	const props = useFieldControlProps(inputProps)
-	const isBlocked = props.isDisabled || props.isReadOnly
-	const el = useRef<NSTextField | null>(null)
-	const [internal, setInternal] = useState(props.defaultValue ?? '')
-	const value = props.value ?? internal
-	const setValue = (next: string) => {
-		if (isBlocked) return
-		if (props.value === undefined) {
-			setInternal(next)
-		}
-
-		props.onChange?.(next)
-	}
-
-	useImperativeHandle(
-		props.ref,
-		() => ({
-			focus: () => el.current?.window?.makeFirstResponder(el.current),
-			blur: () => {
-				const view = el.current
-				const responder = view?.window?.firstResponder
-				if (responder === view || (responder && responder === view?.currentEditor?.())) {
-					view.window.makeFirstResponder(null)
-				}
-			},
-			get native() {
-				// The owning public ref is delivered only for a mounted input.
-				return el.current!
-			},
-		}),
-		[],
-	)
+	const entry = useAppKitTextEntry<NSTextField>(props)
+	const { el, value, isBlocked } = entry
 
 	<masonview
 		className={cx(
@@ -61,9 +88,9 @@ function TextInputControl(inputProps: TextInputProps) @{
 		<textfield
 			ref={el}
 			secure={props.secure}
-			onSubmit={isBlocked ? undefined : props.onSubmit}
-			onFocus={props.onFocus}
-			onBlur={props.onBlur}
+			onSubmit={isBlocked || !props.onSubmit ? undefined : entry.submit}
+			onFocus={entry.focus}
+			onBlur={entry.blur}
 			id={props.id}
 			testID={props.testID}
 			value={value}
@@ -83,7 +110,7 @@ function TextInputControl(inputProps: TextInputProps) @{
 			style={props.style}
 			isEnabled={!props.isDisabled}
 			editable={!isBlocked}
-			onTextChange={appKitTextChange(setValue)}
+			onTextChange={appKitTextChange(entry.change)}
 			accessibilityLabel={
 				props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label
 			}
@@ -106,12 +133,7 @@ function TextInputControl(inputProps: TextInputProps) @{
 							? `Clear ${props.label}`
 							: 'Clear input'
 				}
-				onPress={() => {
-					setValue('')
-					props.onClear?.()
-					const input = el.current
-					input?.window?.makeFirstResponder(input)
-				}}
+				onPress={entry.clear}
 			>
 				<Text>×</Text>
 			</Pressable>
@@ -121,45 +143,17 @@ function TextInputControl(inputProps: TextInputProps) @{
 
 function TextAreaControl(inputProps: TextAreaProps) @{
 	const props = useFieldControlProps(inputProps)
-	const isBlocked = props.isDisabled || props.isReadOnly
-	const el = useRef<any>(null)
-	const [internal, setInternal] = useState(props.defaultValue ?? '')
-	const value = props.value ?? internal
-	const setValue = (next: string) => {
-		if (isBlocked) return
-		if (props.value === undefined) {
-			setInternal(next)
-		}
-
-		props.onChange?.(next)
-	}
-
-	useImperativeHandle(
-		props.ref,
-		() => ({
-			focus: () => el.current?.window?.makeFirstResponder(el.current),
-			blur: () => {
-				const view = el.current
-				const responder = view?.window?.firstResponder
-				if (responder === view || (responder && responder === view?.currentEditor?.())) {
-					view.window.makeFirstResponder(null)
-				}
-			},
-			get native() {
-				return el.current
-			},
-		}),
-		[],
-	)
+	const entry = useAppKitTextEntry<NSTextView>(props, true)
+	const { el, value, isBlocked } = entry
 
 	<masonview className="vx-textarea-shell vx-textarea-shell--appkit"
 		style={{ display: 'flex', flexDirection: 'column' }}>
 		<textview
 			ref={el}
-			onFocus={props.onFocus}
-			onBlur={props.onBlur}
+			onFocus={entry.focus}
+			onBlur={entry.blur}
 			returnKeyType={props.returnKeyType}
-			onSubmit={!isBlocked && (props.returnKeyType === 'done' || props.returnKeyType === 'send') ? props.onSubmit : undefined}
+			onSubmit={!isBlocked && props.onSubmit && (props.returnKeyType === 'done' || props.returnKeyType === 'send') ? entry.submit : undefined}
 			autoGrow={props.autoGrow}
 			maxRows={props.maxRows}
 			maxLength={props.maxLength}
@@ -181,7 +175,7 @@ function TextAreaControl(inputProps: TextAreaProps) @{
 			style={props.style}
 			isEnabled={!props.isDisabled}
 			editable={!isBlocked}
-			onTextChange={appKitTextChange(setValue)}
+			onTextChange={appKitTextChange(entry.change)}
 			accessibilityLabel={
 				props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label
 			}

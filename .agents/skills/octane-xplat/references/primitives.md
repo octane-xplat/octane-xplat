@@ -752,8 +752,9 @@ Native selector binding, focus, VoiceOver and packaging remain unqualified.
 ## AppKit text clear focus
 
 TextInput/SearchInput clear now requests focus on the retained native input after
-onChange('') and onClear. Controlled parents still own value feedback; callbacks
-that unmount the input do not focus the detached host. Actual focus/caret/IME and
+onChange('') and onClear. Controlled parents still own value feedback. Refocus
+requires the same attached input/window/responder and current editable state;
+callback-driven focus choices and teardown win. Actual focus/caret/IME and
 clear hit testing remain unqualified. See
 [clear and continue](../../../../docs/app/primitives.md#clear-and-continue-typing-on-appkit).
 
@@ -1743,3 +1744,27 @@ object-driver cases and the manual fixture are authored, unrun. Drawing,
 Mason sizing, resize/font/RTL behavior, focus/IME, hit-testing/AX and packaging
 remain unqualified. The existing Tokenizer layer host remains inline. See the
 [overflow guide](../../../../docs/app/search-selection.md#collapse-appkit-token-rows-with-native-geometry).
+
+## AppKit plain text edit ownership
+
+TextInput/TextArea now share a private target-local edit owner, also used by
+SearchInput through TextInput. Held handlers read current props/inherited blocking,
+callback and return-key policy. Mounted-host/reentry guards prevent retired or
+nested edits. Rapid uncontrolled edits update a local text record before render.
+Composition still reports draft changes; submit/clear wait for unmarked text,
+including the NSTextView itself and the NSTextField's current editor.
+
+```tsx
+<TextInput label="Name" defaultValue="Ada" hasClear onChange={saveDraft}
+	onClear={recordClear} onSubmit={submitName} />
+<TextArea label="Message" defaultValue="Hello" returnKeyType="send" onSubmit={send} />
+```
+
+An accepted clear captures its onChange/onClear pair; parent callback replacement
+or teardown does not redirect the second callback. UI/focus work afterward needs
+current attachment/blocking/responder ownership. One stable live handle supports
+ref replacement, guarded native focus and foreign-responder-safe blur. Read-only
+fields may request focus; disabled fields do not. isLoading remains descriptive.
+Ten object-driver cases and a manual fixture are authored, unrun. Native editing,
+IME/caret/Return/clear/focus ordering, accessibility and packaging are unqualified.
+See [AppKit edit ownership](../../../../docs/app/text-entry.md#keep-appkit-text-actions-owned-by-the-current-field).

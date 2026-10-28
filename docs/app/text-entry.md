@@ -360,3 +360,55 @@ cleanup, unit conversion, and resize ownership using host doubles. Packed
 consumer checks cover imports and the numeric type. These do not establish
 OS keyboard delivery, floating-keyboard behavior, or dock positioning on a
 real iOS or Android host.
+
+## Keep AppKit text actions owned by the current field
+
+Experimental AppKit TextInput, TextArea and SearchInput now check current
+editable state and callbacks before accepting an edit. Disabled/read-only fields,
+removed fields and nested edits from an active callback cannot change local text.
+Composition continues to report draft edits; submit and clear wait until marked
+text is committed. TextArea still submits only for `done` or `send` return keys.
+
+```tsx
+import { TextInput, TextArea } from '@octane-xplat/ui'
+export function DraftForm() {
+	return <>
+		<TextInput label="Name" defaultValue="Ada" hasClear
+			onChange={(text) => console.log('Draft:', text)}
+			onClear={() => console.log('Cleared')}
+			onSubmit={() => console.log('Submit name')} />
+		<TextArea label="Message" returnKeyType="send"
+			onSubmit={() => console.log('Send message')} />
+	</>
+}
+```
+
+An accepted clear calls its original `onChange('')`, then `onClear`, even if the
+first callback replaces props or removes the field. A controlled parent still
+owns the displayed text. Refocus afterward requires the same attached input,
+window, responder and editable state, so moving focus in a callback takes
+precedence. Public handles follow the current native host and become inert
+after removal; read-only fields can request focus, while disabled fields cannot.
+
+```tsx
+import { useRef, useState } from 'octane'
+import { TextInput } from '@octane-xplat/ui'
+import type { TextInputHandle } from '@octane-xplat/ui'
+export function ClearAndMove() {
+	const [query, setQuery] = useState('recent')
+	const next = useRef<TextInputHandle | null>(null)
+	return <>
+		<TextInput label="Query" value={query} onChange={setQuery} hasClear
+			onClear={() => next.current?.focus()} />
+		<TextInput label="Next field" ref={next} />
+	</>
+}
+```
+
+Ten [object-driver cases](../../packages/ui/src/text-entry-ownership.macos.mobile.test.tsrx)
+and a [manual fixture](../../examples/probes/text-entry-ownership.macos.tsrx) are
+authored, all unrun. These source guards do not prove actual native editing,
+IME, caret/selection, Return/clear hit-testing, focus/notification ordering,
+accessibility or packaged behavior. Existing `isLoading` behavior remains busy
+announcement without disabling editing. TextInput/TextArea have no public
+`hasAutoFocus` prop; this change adds none.

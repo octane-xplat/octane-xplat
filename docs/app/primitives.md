@@ -2500,8 +2500,10 @@ unverified. An unsupported decoder produces an empty image. See the
 
 AppKit TextInput and SearchInput now request focus on their retained input after
 clearing. The callbacks remain ordered `onChange('')`, then `onClear`; controlled
-parents still apply the requested value. Disabled/read-only fields do not expose
-the clear action. Native focus, caret/IME behavior and pointer/keyboard activation
+parents still apply the requested value. Refocus requires the same attached
+input, window and responder; callback-driven focus choices take precedence.
+Disabled/read-only fields do not expose the clear action, and composing text
+waits for commit before clear. Native focus, caret/IME behavior and pointer/keyboard activation
 remain unqualified.
 
 ```tsx

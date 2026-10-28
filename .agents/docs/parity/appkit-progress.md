@@ -4314,3 +4314,64 @@ Popover still renders inline: this slice does not establish floating-layer
 parity. Active-option AX/announcements, preset text relay, Carousel fades and
 video remain separate source gaps; Checkbox mixed rollback awaits the earlier
 human contract choice. Evidence-gated checkboxes stay open; the goal is active.
+
+## AppKit plain text edit ownership
+
+Demand assumption: Home's text input and shared name/message/search examples
+make plain form edits higher demand than preset-row text relay. Source review
+of DateTimeInput's remaining relay gap confirmed that NativeKeyboardEvent does
+not expose the original NSEvent; composing/edit-command forwarding needs a
+native handoff design, rather than reconstructing input from event.key. No relay
+behavior is claimed or changed here.
+
+The ordinary AppKit text controls previously used captured editable state and
+callbacks, duplicated ref adapters, and unconditional clear refocus. TextInput
+and TextArea now share a private target-local edit owner; SearchInput inherits
+it through TextInput. Held callbacks read current inherited disabled/read-only
+state, callbacks and multiline return-key policy. Mounted-host/reentry guards
+reject retired/nested actions; rapid uncontrolled edits update current local
+text before render. Controlled feedback stays parent-owned, and isLoading keeps
+its documented descriptive behavior rather than disabling edits.
+
+Marked drafts still report edit notifications. Submit/clear wait for unmarked
+text, checking the NSTextView itself and the existing field-editor composition
+helper. An accepted clear captures its onChange('')/onClear callback pair, even
+if the first callback replaces props or removes the field. Subsequent focus work
+requires the same native input/window/responder and current editable state;
+callback-driven focus, blocking or teardown wins. Stable public handles reuse
+the existing private native handle adapter, follow ref replacement, preserve
+foreign blur and become inert after teardown. Read-only focus is allowed;
+disabled/hidden/native-disabled focus is rejected. The adapter changed only its
+comment to reflect reuse. No public API shape, new autofocus flag, dependency,
+manifest, renderer behavior, other-target leaf or shared audit snapshot changed.
+
+Ten object-driver cases are authored, all unrun. They cover current inherited
+blocking/callback replacement, controlled correction, rapid local edits/reentry,
+direct/editor marked state versus draft reporting, current multiline Return,
+public refs/native focus/foreign blur, held clear guards/duplicate local clear,
+accepted callback ownership/parent replacement/teardown, newer focus choices,
+SearchInput delegation and claim release after callback failure. Hosts/editors/
+responder changes are fake, so OS event ordering is not proven. The manual
+fixture adds controlled acceptance/rejection, blocking, clear-to-next focus,
+uncontrolled multiline/search and removal/remount; its runner only waits/records.
+Guide/clear guidance/skill/target recipe and feature note reconcile the subset.
+
+Only source/semantic review, TypeScript/TSRX syntax parsing and whitespace checks
+ran. Exact deferred commands:
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/text-entry-ownership.macos.mobile.test.tsrx src/text-controls.macos.mobile.test.tsrx src/date-field-handle.macos.test.ts src/power-search-focus.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/text-entry-ownership.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All remain deferred until explicit human authorization for this task. No package
+tests/typechecks/builds, installs, OS automation, visual analysis or packaging
+ran. Native editing/IME/caret/selection/Return/clear hit-testing/focus/notification
+ordering/AX and package behavior remain unqualified. Preset text relay, active-
+option AX/announcements, Carousel fades, video and floating Tokenizer layer
+hosting remain separate source gaps. Checkbox mixed rollback awaits the earlier
+human contract choice. Evidence-gated checkboxes stay open; the goal is active.
