@@ -219,6 +219,13 @@ export function Image(props: LightboxImagePartProps) @{
 		for (const c of machineRef.current!.send(i)) exec(c)
 	}
 
+	useLayoutEffect(() => {
+		const fitted = live.current.F
+		if (fitted && scale.get() > ctx.options.maxZoom) {
+			send({ kind: 'zoomNow', scale: ctx.options.maxZoom, focal: center(fitted) })
+		}
+	}, [ctx.options.maxZoom])
+
 	// The viewport owns the gesture surface (the clip never transforms, so
 	// touches always hit it); each gesture sequence latches to the slide that
 	// is current at its start and routes intents here.

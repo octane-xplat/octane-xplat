@@ -243,6 +243,7 @@ export function createGestureMachine(env: MachineEnv): { send(intent: Intent): C
 			}
 			case 'pinchMove': {
 				if (g?.kind !== 'pinch') {return []}
+				if (env.maxZoom() <= 1) { g = null; return settleTo(1, null) }
 				if (!ready()) {return reset()}
 				const f = env.fit()!
 				const max = env.maxZoom()

@@ -122,7 +122,7 @@ export function Track(props: LightboxPartProps & {
 		if (!clip) return
 		const off = attachInput(clip, { maxZoom: props.maxZoom ?? 1 }, dispatch.current)
 		return () => { off(); l.anim?.stop(); l.fade?.stop() }
-	}, [])
+	}, [props.maxZoom])
 
 	useLayoutEffect(() => {
 		const controller: ViewportController = {

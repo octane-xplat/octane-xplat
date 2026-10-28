@@ -134,6 +134,11 @@ behavior, rather than used as evidence of parity.
   TalkBack restoration are still pending; the focus audit item is only
   partially repaired.
 
+- Live zoom-option changes now also refresh native tap arbitration, read the
+  current web tap setting, cap an already zoomed image and settle a pinch
+  disabled mid-gesture. The shared gesture regression covers that transition;
+  it is distinct from initial option forwarding.
+
 ## Qualification boundary
 
 This was a source and documentation audit of the pinned reference, not an

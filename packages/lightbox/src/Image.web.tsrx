@@ -409,7 +409,7 @@ export function Image(props: LightboxImageProps) {
 			if (!cancelled && down && !moved) {
 				// Tap: fire through the detector — it delays for the double-tap window when zoom can apply.
 				const onImage = insideImage(e.clientX, e.clientY)
-				const waitForDouble = ctx.options.maxZoom > 1 && !(downPointer === 'mouse' && !onImage)
+				const waitForDouble = live.current.ctx.options.maxZoom > 1 && !(downPointer === 'mouse' && !onImage)
 				const atSlide = toSlide(e.clientX, e.clientY)
 				const pointer = (e.pointerType || 'touch') as never
 				detector.up(atSlide, pointer, waitForDouble, (i) => send(i))
@@ -517,6 +517,12 @@ export function Image(props: LightboxImageProps) {
 	}, [])
 
 	// Controller registration + zoomed flag.
+	useLayoutEffect(() => {
+		if (live.current.F && scale.get() > ctx.options.maxZoom) {
+			controller.zoomBy(ctx.options.maxZoom / scale.get())
+		}
+	}, [ctx.options.maxZoom])
+
 	useLayoutEffect(() => {
 		ctx.images.set(index, controller)
 		return () => void ctx.images.delete(index)

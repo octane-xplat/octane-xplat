@@ -234,3 +234,14 @@ it('disabled zoom ignores pinch and clamps double tap, wheel and button zoom wit
 	}
 	expect(run(pan('panStart', a, { pointer: 'touch' }), pan('panMove', { x: 180, y: 100 })).map(c => c.kind)).toContain('track')
 })
+
+it('settles an active pinch when zoom is disabled mid-gesture', () => {
+	let maximum = 4
+	const { run } = make({ maxZoom: () => maximum }, { x: 0, y: 0, scale: 2 })
+	const a = { x: 100, y: 100 }, b = { x: 200, y: 100 }
+	run({ kind: 'pinchStart', a, b })
+	maximum = 1
+	const commands = run({ kind: 'pinchMove', a, b: { x: 350, y: 100 } })
+	expect(commands.find(c => c.kind === 'settle')).toMatchObject({ t: { scale: 1 } })
+	expect(run({ kind: 'pinchEnd', cancelled: false })).toEqual([])
+})
