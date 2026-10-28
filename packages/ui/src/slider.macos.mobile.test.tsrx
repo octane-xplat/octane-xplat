@@ -132,3 +132,45 @@ it('AppKit pan keeps shared delta aliases and exposes pointer location separatel
 		expect(events).toEqual([expect.objectContaining({ x: 10, y: 3, dx: 10, dy: 3, locationX: 42, locationY: 17 })])
 	} finally { env.root.unmount() }
 })
+
+it('retained AppKit thumb handlers read current values, limits, steps and callbacks', () => {
+	const calls: unknown[] = [], env = mount(Slider, { value: 20, step: 5, onValueChange: () => calls.push('old') })
+	try {
+		const thumb = env.named('vx-slider-thumb')[0], increment = thumb.props.onAccessibilityIncrement, down = thumb.props.onAccessibilityDecrement, keyboard = thumb.props.onKeyDown
+		env.render({ value: 50, min: 40, max: 70, step: 10, onValueChange: (value: unknown) => calls.push(value) })
+		increment(); down(); key({ props: { onKeyDown: keyboard } }, 'End')
+		expect(calls).toEqual([60, 40, 70]); expect(thumb.props.accessibilityValue).toBe('50')
+	} finally { env.root.unmount() }
+})
+
+it('retained thumb callbacks reject current blocking and detached hosts without stealing focus', () => {
+	const calls: unknown[] = [], env = mount(Slider, { value: 20, onValueChange: (value: unknown) => calls.push(value) })
+	const thumb = env.named('vx-slider-thumb')[0], increment = thumb.props.onAccessibilityIncrement, keyboard = thumb.props.onKeyDown, tap = thumb.props.onTap
+	let focused = 0
+	thumb.window = { makeFirstResponder: () => { focused++; return true } }
+	try {
+		for (const flag of ['disabled', 'isDisabled', 'isReadOnly']) {
+			env.render({ value: 20, [flag]: true, onValueChange: (value: unknown) => calls.push(value) })
+			increment(); expect(key({ props: { onKeyDown: keyboard } }, 'ArrowRight').defaultPrevented).toBe(false)
+			if (flag !== 'isReadOnly') tap()
+		}
+		expect(calls).toEqual([]); expect(focused).toBe(0)
+		env.render({ value: 20, onValueChange: (value: unknown) => calls.push(value) }); env.root.unmount()
+		increment(); tap(); expect(key({ props: { onKeyDown: keyboard } }, 'ArrowRight').defaultPrevented).toBe(false)
+		expect(calls).toEqual([]); expect(focused).toBe(0)
+	} finally { env.root.unmount() }
+})
+
+it('AppKit slider adjustments reject callback reentry and release their claim after a thrown callback', () => {
+	const calls: unknown[] = [], env = mount(Slider, { value: 20 })
+	try {
+		const increment = env.named('vx-slider-thumb')[0].props.onAccessibilityIncrement
+		let nested = true
+		env.render({ value: 20, onValueChange: (value: unknown) => { calls.push(value); if (nested) { nested = false; increment() } } })
+		increment(); expect(calls).toEqual([21])
+		env.render({ value: 20, onValueChange: () => { throw Error('consumer failed') } })
+		expect(() => increment()).toThrow('consumer failed')
+		env.render({ value: 20, onValueChange: (value: unknown) => calls.push(value) }); increment()
+		expect(calls).toEqual([21, 21])
+	} finally { env.root.unmount() }
+})

@@ -17,16 +17,23 @@ function SliderThumb(props: {
 	bind(view: NSView | null): void; move(value: number): void
 }) @{
 	const view = useRef<NSView | null>(null)
+	const latest = useRef(props); latest.current = props
 	const latestBind = useRef(props.bind)
 	latestBind.current = props.bind
 	const bind = useCallback((target: NSView | null) => { view.current = target; latestBind.current(target) }, [])
 	const { keyboardProps } = useKeyboard({ onKeyDown: (event) => {
-		if (props.blocked || event.defaultPrevented || event.isComposing || event.altKey || event.ctrlKey || event.metaKey) return
-		const next = sliderKey(event.key, props.value, { min: props.min, max: props.max, step: props.step })
+		const current = latest.current
+		if (!view.current || current.blocked || event.defaultPrevented || event.isComposing || event.altKey || event.ctrlKey || event.metaKey) return
+		const next = sliderKey(event.key, current.value, { min: current.min, max: current.max, step: current.step })
 		if (next === undefined) return
 		event.preventDefault()
-		props.move(next)
+		current.move(next)
 	} })
+	const adjust = (direction: 1 | -1) => {
+		const current = latest.current
+		if (!view.current || current.blocked) return
+		current.move(current.value + direction * (current.step || (current.max - current.min) / 100))
+	}
 	useEffect(() => {
 		const target = view.current
 		if (!target) return
@@ -39,12 +46,12 @@ function SliderThumb(props: {
 		className={cx('vx-slider-thumb', props.lower && 'vx-slider-thumb--lo')}
 		disabled={props.disabled}
 		{...keyboardProps}
-		onTap={() => view.current?.window?.makeFirstResponder(view.current)}
+		onTap={() => { const target = view.current; if (target && !latest.current.disabled) target.window?.makeFirstResponder(target) }}
 		accessibilityRole="adjustable" accessibilityLabel={props.label} accessibilityHint={props.hint}
 		accessibilityValue={String(props.value)} accessibilityMinValue={props.min} accessibilityMaxValue={props.max}
 		accessibilityState={props.state}
-		onAccessibilityIncrement={props.blocked ? undefined : () => props.move(props.value + (props.step || (props.max - props.min) / 100))}
-		onAccessibilityDecrement={props.blocked ? undefined : () => props.move(props.value - (props.step || (props.max - props.min) / 100))}
+		onAccessibilityIncrement={props.blocked ? undefined : () => adjust(1)}
+		onAccessibilityDecrement={props.blocked ? undefined : () => adjust(-1)}
 		style={{ backgroundColor: props.color, left: `${props.ratio * 100}%` }}
 	/>
 }
@@ -58,6 +65,8 @@ function SliderControl(inputProps: SliderProps & { controlID: string }) @{
 	const range = Array.isArray(source)
 	const disabled = Boolean(props.disabled || props.isDisabled), blocked = disabled || Boolean(props.isReadOnly)
 	const key = `${limits.min}:${limits.max}:${limits.step}:${range}`
+	const latest = useRef({ props, limits, controlled, key, blocked }); latest.current = { props, limits, controlled, key, blocked }
+	const changing = useRef(false)
 	const [preview, setPreview] = useState<{ key: string; value: SliderValue } | null>(null)
 	const value = sliderValue(!blocked && preview?.key === key ? preview.value : source, limits)
 	const live = useRef(value)
@@ -70,15 +79,21 @@ function SliderControl(inputProps: SliderProps & { controlID: string }) @{
 	const colors = controlColors(useThemeScheme() === 'dark')
 	const format = (number: number) => props.formatValue ? props.formatValue(number) : String(number)
 	const move = (which: 0 | 1, proposed: number, dragging = false) => {
-		if (blocked) return
-		const next = moveSlider(live.current, which, proposed, limits)
+		const current = latest.current
+		if (!track.current || current.blocked || changing.current) return
+		const next = moveSlider(live.current, which, proposed, current.limits)
 		if (sameSliderValue(next, live.current)) return
-		if (!controlled) setInternal(next)
-		if (dragging) setPreview({ key, value: next })
-		if (!controlled || dragging) live.current = next
-		props.onValueChange?.(next)
+		// Claim before state writes or app callbacks can reenter another adjustment.
+		changing.current = true
+		try {
+			if (!current.controlled) setInternal(next)
+			if (dragging) setPreview({ key: current.key, value: next })
+			if (!current.controlled || dragging) live.current = next
+			current.props.onValueChange?.(next)
+		} finally { changing.current = false }
 	}
 	const onPan = usePan(blocked ? undefined : (event: PanEvent) => {
+		if (!track.current || changing.current) return
 		if (event.state === 'began') {
 			const location = event.locationX
 			if (typeof location !== 'number' || !Number.isFinite(location)) return

@@ -487,7 +487,10 @@ export function PriceRange() {
 
 Dragging uses distance from the starting point and chooses the nearest thumb;
 tapping the track does not jump the value. Thumbs cannot cross. `isDisabled`
-and `isReadOnly` also inherit from Field. Steps use the existing web grid
+and `isReadOnly` also inherit from Field. Retained thumb key/accessibility
+handlers use current values, bounds, steps and callbacks, reject blocked or
+detached hosts, and suppress nested value changes during onValueChange. A
+consumer exception releases that claim and propagates. Steps use the existing web grid
 anchored at zero, then clamp to bounds. Native input, Tab/VoiceOver, hover
 tooltips, layout and pixel parity remain unqualified; these changes have source
 coverage only. `valueDisplay="tooltip"` uses AppKit's hover tooltip timing.

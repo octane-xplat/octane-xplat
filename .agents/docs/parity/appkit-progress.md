@@ -4959,3 +4959,53 @@ typechecks/builds/installs, native/OS/probe/browser automation, packaging or vis
 analysis ran. Native placeholder paint/theme/removal, layout, editing/IME and
 packaged behavior remain unqualified. Evidence gates and audit snapshots are
 unchanged; the persistent goal remains active.
+
+## AppKit current slider adjustment ownership
+
+The ControlsDemo controlled volume slider and target price-range fixture make
+ordinary settings adjustment the demand assumption. Source inspection found
+retained thumb keyboard/accessibility callbacks capturing render-time value,
+step, bounds, blocking and move callbacks. The parent move callback also lacked
+an edit claim, allowing synchronous onValueChange reentry to issue duplicate
+controlled requests. These are source findings, not observed OS input failures.
+
+Thumb handlers now read current props, require their bound host, and reject
+current disabled/read-only state. Retained disabled tap callbacks cannot take
+focus; read-only thumbs remain focusable. Parent adjustments use current props,
+limits and controlled state, require the bound track, and claim before state
+writes or the app callback. Nested adjustments/pan events during that callback
+are ignored. A finally block releases the claim even when the consumer throws;
+the exception propagates. The pan helper already reads its current callback;
+its additional bound-track/reentry guard makes retained work inert after teardown.
+No new host selectors, dependencies, public props, loading-state semantics or
+track-tap behavior were introduced. Dragging retains the existing delta contract.
+Controlled drag-preview reconciliation with an unrelated external value update
+is not addressed by this handler-ownership change and remains a follow-up.
+
+Three cases are authored, all unrun: retained value/bounds/step/callback updates,
+current blocking and ref detachment with focus exclusion, and controlled callback
+reentry plus exception recovery. The slider suite now has ten source cases.
+Guide/skill and appkit-slider AC2 describe the contract, and the target fixture
+adds a manual range read-only toggle; its runner still checks initial metadata
+only. This fixes an unreleased implementation omission; no release note added.
+
+Only targeted source/semantic review, three-file TSRX syntax parsing and
+whitespace checks ran. sem's static graph reported unresolved bare-name callers
+for moveSlider; the exact leaf and test call sites were inspected directly.
+Deferred commands:
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/slider.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/slider.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm exec turbo run test:packed --filter=@octane-xplat/ui
+pnpm check:recipes
+```
+
+All remain deferred pending explicit human authorization for this task. No test,
+typecheck/build/install, probe, OS/native/browser automation, packaging or visual
+analysis ran. Actual keyboard/pointer/VoiceOver dispatch, focus/ref timing, drag
+ownership, layout/tooltips/pixels and packaged behavior remain unqualified.
+Evidence gates and shared source-audit snapshots remain unchanged; goal active.

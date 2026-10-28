@@ -663,7 +663,10 @@ export function Quantity() {
 Use scalar or pair values with explicit bounds; controlled sliders need
 onValueChange feedback. The AppKit leaf implements steps, noncrossing range
 thumbs, marks, text/hover readouts and inherited Field blocking. Dragging stays
-delta-based; it does not jump on track taps. Native keyboard, accessibility,
+delta-based; it does not jump on track taps. Retained thumb key/adjustable
+handlers read current values, bounds, steps and callbacks, reject current
+blocking/detachment, and claim adjustments before app callback reentry. Consumer
+errors propagate after releasing the claim. Native keyboard, accessibility,
 hover timing and layout remain unqualified. See [AppKit Slider](../../../../docs/app/components.md#slider-on-appkit).
 
 ```tsx
