@@ -37,6 +37,21 @@ component layer; design tokens are CSS custom properties.
    `.ns-dark`, `.ns-light`, `.ns-landscape`, `.ns-modal` on native ≈
    `:root`/`.dark` on web.
 
+When maintaining AppKit leaves, preserve the public style value before the host
+boundary. The renderer now normalizes declaration strings and ordered arrays
+before validation and mutation using the existing CSS-tree parser. This closes
+a source prerequisite that previously rejected forwarded strings; earlier
+component forwarding alone was not native proof. Invalid lists fail explicitly.
+Native !important has no extra priority; normalization does not add property,
+unit, shorthand or variable support beyond inline object styles. Keep the authoring
+rules above; actual native layout/painting/removal still needs qualification.
+
+```tsx
+// Leaf forwarding: use the standard merge helper without extracting styleRecord.
+const style = mergeStyle({ opacity: disabled ? 0.38 : 1 }, props.style)
+<label style={style} text="Status" />
+```
+
 ## Native layout styles
 
 Raw native layout uses `masonview`. Put CSS layout keys in its style bag or

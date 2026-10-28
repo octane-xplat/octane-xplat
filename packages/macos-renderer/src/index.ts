@@ -28,6 +28,7 @@ export function setLayoutProjectionScale(view: object, scale: ProjectionScale | 
 	}
 }
 
+import { normalizeHostStyleProps } from './inline-style.ts'
 import {
 	configureGesture,
 	setPressGesture,
@@ -2694,6 +2695,7 @@ function assertSupportedType(type: string) {
  *  registrations exist. `baseProps` supplies already-applied props for
  *  update commands so merged-prop rules (e.g. placeholder color) stay exact. */
 function validateNodeProps(type: string, props: PropBag | undefined, baseProps?: PropBag) {
+	props = normalizeHostStyleProps(props)
 	if (type === 'actionbar' && props?.titleView != null && !(props.titleView instanceof NSView)) {
 		throw new TypeError('AppKit actionbar titleView must be an AppKit NSView')
 	}
@@ -2915,6 +2917,7 @@ function validateNodeProps(type: string, props: PropBag | undefined, baseProps?:
 }
 
 function makeNode(container: RootContainer, id: number, type: string, props: PropBag) {
+	props = normalizeHostStyleProps(props)
 	// Reject malformed props before factories allocate views or register
 	// actions — the node only reaches container.nodes after this returns, so
 	// a throwing prop below must unwind whatever was already acquired.
@@ -6563,6 +6566,7 @@ function droppedPropClears(node: ElementNode, next: PropBag): PropBag {
 }
 
 function applyProps(node: ElementNode, props: PropBag) {
+	props = normalizeHostStyleProps(props)
 	if (node.type === 'timepicker') {
 		validateNodeProps(node.type, props)
 	}

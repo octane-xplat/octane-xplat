@@ -37,6 +37,24 @@ display scale plus `color`/`weight`/`maxLines`.
 <Heading level={3}>Card title</Heading>
 ```
 
+AppKit Text/Heading now merge authored styles over typography defaults without
+dropping declaration strings or runtime arrays. Heading root/purpose paths share
+one leaf; RichText/Span forward styles and RichText's declared ID survives.
+Renderer normalization runs before validation/creation/update, including logical
+text runs and direct template creation. Native text/layout/truncation/VoiceOver
+remain unqualified; do not infer heading-level AX support from a heading role.
+Prefer classes for static styles and objects for dynamic values.
+
+```tsx
+import { Heading, Text } from '@octane-xplat/ui'
+export function Summary({ points }: { points: number }) {
+	return <>
+		<Heading level={2} style={{ fontSize: points }}>Summary</Heading>
+		<Text type="body" style={{ fontSize: points }}>Ready</Text>
+	</>
+}
+```
+
 **For UI contributors**, shared component prop contracts live in
 `packages/ui/src/props.ts` and feed published declarations. Consumer app
 components own their own props; do not edit framework internals to define them.

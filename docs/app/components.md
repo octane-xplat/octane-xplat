@@ -137,6 +137,25 @@ shared styling options.
 | `Link`, `NavLink`                                   | Route navigation as text                                  | `href`, `route`                         |
 | [`Markdown`](content-display.md#markdown-documents) | Markdown doc — baked AST or runtime text, streaming-ready | `data`, `text`, `isStreaming`, `fadeIn` |
 
+On experimental AppKit, Text and Heading now preserve inline declaration strings
+and runtime style arrays beneath authored override order. Heading root and
+purpose imports use the same leaf. RichText and RichTextSpan forward their
+styles for renderer normalization, and RichText preserves its declared ID.
+The renderer parses declaration strings before validation; malformed lists fail
+before native allocation. Type-scale defaults and maxLines remain. Native glyph
+metrics, truncation, rich-run layout and heading/VoiceOver semantics still need
+qualification; forwarding is source evidence.
+
+```tsx
+import { Heading, Text } from '@octane-xplat/ui'
+export function Summary({ points }: { points: number }) {
+	return <>
+		<Heading level={2} style={{ fontSize: points }}>Summary</Heading>
+		<Text type="body" style={`font-size:${points}px`}>Ready to review</Text>
+	</>
+}
+```
+
 ## Inputs
 
 Field controls share `label`, `description`, `isDisabled`, `isReadOnly`,

@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { HeadingProps } from './props'
-import { styleRecord } from './style-merge'
+import { mergeStyle } from './style-merge'
 import { cx } from '@octane-xplat/lib'
 import { useTheme } from './theme/use-theme'
 import { headingScaleStyle } from './text-scale'
@@ -10,13 +10,12 @@ export function Heading(props: HeadingProps) @{
 	const theme = useTheme()
 	const scale = headingScaleStyle(theme.tokens, props)
 	const maxLines = props.maxLines ?? 0
-	const headingStyle = {
+	const headingStyle = mergeStyle({
 		...(scale.fontSizePx != null && { fontSize: scale.fontSizePx }),
 		...(scale.fontWeight && { fontWeight: scale.fontWeight }),
 		...(scale.lineHeightPx != null && { lineHeight: scale.lineHeightPx }),
 		...(scale.color && { color: scale.color }),
-		...styleRecord(props.style),
-	}
+	}, props.style)
 
 	<label
 		id={props.id}

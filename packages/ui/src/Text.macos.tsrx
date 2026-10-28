@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { RichTextProps, RichTextSpanProps, TextProps } from './props'
-import { styleRecord } from './style-merge'
+import { mergeStyle } from './style-merge'
 import { cx } from '@octane-xplat/lib'
 import { useTheme } from './theme/use-theme'
 import { textScaleStyle } from './text-scale'
@@ -9,14 +9,13 @@ export function Text(props: TextProps) @{
 	const theme = useTheme()
 	const scale = textScaleStyle(theme.tokens, props)
 	const maxLines = props.maxLines ?? 0
-	const textStyle = {
+	const textStyle = mergeStyle({
 		...(scale.fontSizePx != null && { fontSize: scale.fontSizePx }),
 		...(scale.fontWeight && { fontWeight: scale.fontWeight }),
 		...(scale.lineHeightPx != null && { lineHeight: scale.lineHeightPx }),
 		...(scale.fontFamily && { fontFamily: scale.fontFamily }),
 		...(scale.color && { color: scale.color }),
-		...styleRecord(props.style),
-	}
+	}, props.style)
 
 	<label
 		id={props.id}
@@ -42,7 +41,7 @@ export function RichText(props: RichTextProps) @{
 	<label
 		id={props.id}
 		className={cx(props.className)}
-		style={styleRecord(props.style)}
+		style={props.style}
 		accessibilityLabel={props.accessibilityLabel}
 	>
 		{props.children}
@@ -50,7 +49,7 @@ export function RichText(props: RichTextProps) @{
 }
 
 export function RichTextSpan(props: RichTextSpanProps) @{
-	<span className={cx(props.className)} style={styleRecord(props.style)}>
+	<span className={cx(props.className)} style={props.style}>
 		{props.children}
 	</span>
 }

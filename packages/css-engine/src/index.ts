@@ -47,3 +47,5 @@ export {
 } from './transforms.ts'
 
 export { resolveClipPath, type ClipPath } from './clip-path.ts'
+
+export { normalizeInlineStyle } from './inline-style.ts'

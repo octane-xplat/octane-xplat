@@ -109,6 +109,24 @@ re-exports Octane's universal native runtime for compiler and hook imports.
 
 ## Apply stylesheets
 
+Inline style declaration strings now normalize before native prop validation,
+creation and update, including logical formatted runs and direct list-template
+creation. The internal CSS engine reuses CSS-tree: duplicate declarations use
+last-write order, native numeric px/dip/pt values become numbers, custom-property
+case and quoted delimiters survive, and unsupported syntax fails before native
+allocation. Object styles retain their existing semantics; arrays fold in order.
+The native engine gives !important no separate priority. This does not extend
+supported properties, shorthands, units or variable behavior beyond object inline
+styles. Parser/host source cases are authored but unrun; actual native style
+application, removal, glyphs and layout remain unqualified.
+
+```tsx
+// A computed declaration string reaches the same native style vocabulary.
+const points = 20
+<label style={`font-size:${points}px;letter-spacing:1px`} text="Preview" />
+```
+
+
 Import CSS files from your entry module, the same way the iOS and Android
 apps do. `xplatMacOS` compiles them like the native preset (it drops
 `@platform` blocks for other targets, unwraps `@layer`, and treats `px` as

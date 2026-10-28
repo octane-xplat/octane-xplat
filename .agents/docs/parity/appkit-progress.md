@@ -5158,3 +5158,66 @@ typechecks/builds/installs, probes, native/OS/browser automation, packaging or
 visual analysis ran. Native range normalization/AX, ring/child layout, style
 mutation, shape clipping and root/purpose packed resolution remain unqualified.
 Evidence gates and audit snapshots remain unchanged; persistent goal active.
+
+## AppKit inline style normalization and text entrypoints
+
+ContentDisplayDemo headings and the framework's shared Text host make ordinary
+text styling a high-demand gap. Source review found Text and duplicate Heading
+leaves dropping string/array styles through styleRecord; RichText/Span did too. Root/purpose Heading selected separate
+implementations. The entrypoints now use one Heading.macos leaf, with the existing
+macos-extras barrel re-exporting the same named function. Text/Heading merge
+style defaults under authored values; rich hosts/spans forward them intact.
+No public API, dependency or shared manifest changed.
+
+Crucially, further source review found renderer validation rejecting style
+strings before native allocation. Earlier progress/control/field forwarding
+repairs were only source paths and did not establish native support. This change
+supplies that missing prerequisite, rather than treating object-driver strings
+as native evidence. normalizeHostStyleProps now runs in native validation,
+makeNode and applyProps, covering batch create/recreate/update and direct
+list-template creation. It snapshots string/array props without modifying the
+app's bag; existing objects/unset styles retain their contract.
+
+The css-engine adds a small opt-in normalizeInlineStyle export over its existing
+CSS-tree dependency and cssValueToStyle converter. No GTK consumer changes.
+Declaration-list parsing preserves quotes/delimiters, duplicate last-write order
+and custom-property case, maps ordinary names to camelCase, and converts numeric
+px/dip/pt values to native numbers. Arrays fold in order; prototype-like keys
+become own data fields. Invalid lists/rules/primitives fail before native work.
+!important has no separate priority, matching the native cascade. This parser
+does not add new properties/units, shorthand expansion or inline variable behavior.
+The native formatted-run validator still rejects invalid numeric attributes after
+normalization. Existing source-slice fixtures receive the real normalizer rather
+than an identity stub; tests remain unrun.
+
+Ten cases are authored, all unrun: four CSS parser cases, two host/validation
+cases and four Text/Heading/rich forwarding cases. UI cases use the object driver;
+one host case evaluates the real formatted-node validation source. They do not
+prove actual native mutation or glyphs. New target fixture switches style forms,
+size and removal; its runner records mounting only. Renderer README, component
+guide, primitive/styling skill references and appkit-text-styles recipe cover
+this source subset. Existing typography/default/maxLines props are preserved;
+heading-level native AX mapping is not added or inferred from the role.
+These repair unreleased gaps; no release note added.
+
+Only source/semantic review, TS/TSRX syntax parsing and whitespace checks ran.
+Static caller graphs were incomplete; actual root/barrel/leaf/driver call sites
+were inspected directly. Exact deferred commands:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/css-engine --filter=@octane-xplat/macos-renderer
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/text-style.macos.mobile.test.tsrx src/progress-bar.macos.mobile.test.tsrx src/meter.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/css-engine --filter=...@octane-xplat/macos-renderer --filter=...@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/text-styles.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm exec turbo run test:packed --filter=@octane-xplat/ui --filter=@octane-xplat/macos-renderer
+pnpm check:recipes
+```
+
+All remain deferred pending explicit human authorization for this task. No tests,
+typechecks/builds/installs, probes, native/OS/browser automation, packaging or
+visual analysis ran. Actual parser bundle/resolution, batch/validation atomicity,
+native style update/removal, native font/glyph/layout/truncation/AX, performance
+and packed consumers remain unqualified. Audit snapshots and evidence gates
+remain unchanged; persistent goal active.
