@@ -207,3 +207,17 @@ and [ImageSource dimensions](https://docs.nativescript.org/core/image-source).
 The observer regressions cover portrait/landscape results, replacement,
 listener cleanup and failed completion. Actual native loading and fitting
 remain pending qualification.
+
+## Native source crop audit repair
+
+Source geometry now uses the actual native image child's rectangle and
+stretch mode. This also supports UI Image's computed-position path, where an
+already fitted inner image is clipped by its container. Ancestor clipping
+includes ScrollView, native iOS clipsToBounds, Android clipChildren and explicit
+hidden/clip overflow, plus the app root bounds. Clip inputs stay in DIPs.
+
+A raw distorted fill or none-stretched image cannot currently supply a reliable
+uniform-scale endpoint through this adapter; it explicitly takes the fade
+fallback. This is an adapter limitation, not a claim that NativeScript cannot
+render those modes. Native runtime qualification remains pending. Tests cover
+numeric crops and restoration of image-only visibility, not presented pixels.

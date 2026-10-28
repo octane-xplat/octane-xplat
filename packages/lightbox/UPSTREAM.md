@@ -109,6 +109,14 @@ behavior, rather than used as evidence of parity.
   srcSet/sizes remain outside the documented web-only attribute contract.
   Observer and delayed-layout checks pass; device loading/layout is pending.
 
+- Native morph sources now inspect the image child, its fit/positioned
+  bounds, clipping ancestors and radii in DIPs. Visibility ownership hides
+  only that image and restores its original value on switching/close/unmount.
+  Numeric checks cover contain/cover, positioned inner content, cropped and
+  offscreen sources, radii and visibility restoration. A distorted fill or
+  raw none-stretched source falls back to fading rather than pretending its
+  crop is a uniform-scale morph. Device crop/morph qualification remains open.
+
 ## Qualification boundary
 
 This was a source and documentation audit of the pinned reference, not an

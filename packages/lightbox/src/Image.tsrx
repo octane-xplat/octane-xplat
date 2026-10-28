@@ -10,8 +10,9 @@ import { mergeStyle } from './style-merge'
 import { useMotionValue } from '@octane-xplat/motion'
 import { createClipWriter } from './clip'
 import { viewRect } from './rect'
+import { nativeThumbVisual } from './native-trigger'
 import { SETTLE, INERTIA } from './constants'
-import { clamp, fit, lerp, lerpVisual, thumbVisualFrom, toStyle } from './math'
+import { clamp, fit, lerp, lerpVisual, toStyle } from './math'
 import type { Rect, Visual } from './math'
 import { createGestureMachine } from './gesture-machine'
 import type { Command, MachineEnv } from './gesture-machine'
@@ -310,8 +311,7 @@ export function Image(props: LightboxImagePartProps) @{
 		const tr = viewRect(trigger)
 		const sr = slideEl() ? viewRect(slideEl()) : null
 		if (!tr || !sr) return null
-		const r = (trigger as any)?.borderRadius
-		return thumbVisualFrom(tr, sr, live.current.aspect ?? 1, typeof r === 'number' ? r : 0)
+		return nativeThumbVisual(trigger, sr, live.current.aspect ?? 1)
 	}
 	const base = (): Rect => live.current.F!
 	const current = (b: Rect): Visual => ({ img: { x: b.x + x.get(), y: b.y + y.get(), w: b.w * scale.get(), h: b.h * scale.get() }, clip: b, radius: 0, opacity: 1 })

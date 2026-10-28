@@ -14,6 +14,7 @@ import { clamp } from './math'
 import { reduce } from './state'
 import type { RootAction, RootEffect, RootState } from './state'
 import { viewRect } from './rect'
+import { createNativeTriggerVisibility } from './native-trigger'
 import { scrollTriggerIntoView } from './scroll-sync'
 import { Image, type ImageController } from './Image.tsrx'
 import type { Intent } from './gesture-machine'
@@ -163,15 +164,10 @@ export function Root(props: LightboxRootProps) @{
 	const [images] = useState(() => new Map<number, ImageController>())
 	const viewport = useRef<ViewportController | null>(null)
 	const openTrigger = useRef<any>(null)
-	const hidden = useRef<any[]>([])
+	const [hideTrigger] = useState(createNativeTriggerVisibility)
+	useLayoutEffect(() => () => hideTrigger(null), [hideTrigger])
 	const pendingFade = useRef<{ from: number; to: number } | null>(null)
 	const closeVelocity = useRef<{ x: number; y: number } | undefined>(undefined)
-
-	const hideTrigger = useEffectEvent((trigger: any) => {
-		for (const v of hidden.current) v.visibility = 'visible'
-		hidden.current = trigger ? [trigger] : []
-		for (const v of hidden.current) v.visibility = 'hidden'
-	})
 
 	const pickTrigger = useEffectEvent(
 		(i: number, scroll: 'auto' | 'instant' | 'smooth' | false): any => {
