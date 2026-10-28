@@ -29,13 +29,6 @@
 			"import": "./src/index.ts",
 			"default": "./src/index.ts"
 		},
-		"./intrinsics": "./src/intrinsics.d.ts",
-		"./jsx-runtime": {
-			"types": "./src/jsx-runtime.d.ts"
-		},
-		"./jsx-dev-runtime": {
-			"types": "./src/jsx-runtime.d.ts"
-		},
 		"./types": {
 			"types": "./types/index.d.ts"
 		},

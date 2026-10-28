@@ -69,7 +69,7 @@ export async function checkMacOSMotionConsumer({
 							target: 'universal',
 							server: 'unsupported',
 							text: 'host',
-							intrinsics: '@octane-xplat/macos-renderer/intrinsics',
+							intrinsics: '@octane-xplat/jsx',
 						},
 					},
 					rules: [{ include: '**/*.{tsx,tsrx}', renderer: 'macos' }],
