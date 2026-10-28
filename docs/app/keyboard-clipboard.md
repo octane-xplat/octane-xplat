@@ -70,6 +70,22 @@ export function RowCopy({ text }: { text: string }) {
 }
 ```
 
+### AppKit clipboard access
+
+AppKit `clipboard.canCopy` checks for a native writer independently of read
+access. A copy-only host can copy text. The platform service and UI `copyText`
+helper share the same write implementation: unavailable or failed writes resolve
+false; unavailable or failed reads resolve null. This remains text-only and does
+not establish OS pasteboard or permission qualification.
+
+```ts
+import { clipboard } from '@octane-xplat/platform'
+
+export async function copyMessage(text: string): Promise<boolean> {
+	return clipboard.canCopy ? clipboard.writeText(text) : false
+}
+```
+
 ## Handle hardware keys on web and Linux
 
 Use this DOM example in a `.web.tsrx` file (including a Linux web host).

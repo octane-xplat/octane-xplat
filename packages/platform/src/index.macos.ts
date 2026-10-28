@@ -78,23 +78,7 @@ export { connectivity } from './connectivity.macos'
 
 export { storage } from './storage.macos'
 
-export const clipboard = {
-	get canCopy() {
-		return !!host().readClipboard && !!host().writeClipboard
-	},
-	async writeText(value: string): Promise<boolean> {
-		return host().writeClipboard?.(value) ?? false
-	},
-	async readText(): Promise<string | null> {
-		return host().readClipboard?.() ?? null
-	},
-	async write(value: string): Promise<boolean> {
-		return host().writeClipboard?.(value) ?? false
-	},
-	async read(): Promise<string | null> {
-		return host().readClipboard?.() ?? null
-	},
-}
+export { clipboard } from './clipboard.macos'
 
 const webAuthnUnavailable = () => Promise.reject(new UnavailabilityError('webAuthn'))
 

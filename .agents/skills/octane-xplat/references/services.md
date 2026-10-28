@@ -34,6 +34,22 @@ import { random } from '@octane-xplat/platform'
 const nonce = random.bytes(16)
 ```
 
+## Copy text on AppKit
+
+AppKit `clipboard.canCopy` checks write access independently of read access.
+Use `writeText` for copy and `readText` only when reading is part of the user's
+action. The UI `copyText` helper delegates to the same writer. Operations resolve
+false/null on missing or failing hosts; capability presence does not prove OS
+pasteboard access. See [AppKit clipboard access](../../../../docs/app/keyboard-clipboard.md#appkit-clipboard-access).
+
+```ts
+import { clipboard } from '@octane-xplat/platform'
+
+export async function copyMessage(text: string) {
+	return clipboard.canCopy ? clipboard.writeText(text) : false
+}
+```
+
 ## Open system settings
 
 Use `openSettings` from the root platform package for an explicit user action.

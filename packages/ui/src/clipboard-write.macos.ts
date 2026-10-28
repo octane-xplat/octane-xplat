@@ -1,10 +1,7 @@
-import { appKitHost, hostGlobal } from './host-bridge'
-/** Write text to the macOS pasteboard via the __xplatAppKit bridge
- *  (NSPasteboard). Resolves false when the bridge is absent. */
-export async function copyText(text: string): Promise<boolean> {
-	try {
-		return Boolean(appKitHost()?.writeClipboard?.(text))
-	} catch {
-		return false
-	}
+import { clipboard } from '@octane-xplat/platform'
+
+/** Use the platform's AppKit write path so copy helpers share the same
+ * unavailable/failed-write result and never require clipboard read access. */
+export function copyText(text: string): Promise<boolean> {
+	return clipboard.writeText(text)
 }

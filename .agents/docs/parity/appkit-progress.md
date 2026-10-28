@@ -413,3 +413,43 @@ After explicit human authorization, verify direct/root package resolution,
 actual launch from the shared screen and probe button, already-running Settings,
 launch rejection, app focus/return, denied-permission follow-up, and packaged/
 sandbox operation. Querying availability alone is not presentation proof.
+
+## Text clipboard capability and failure handling
+
+The root AppKit clipboard previously required both read and write methods to
+report canCopy, incorrectly hiding copy capability on a write-only host. It now
+checks only the live writer. A dedicated clipboard.macos leaf supplies the root
+export and a platform-resolver candidate for direct imports, avoiding the
+mobile leaf's iOS/Android imports when that candidate is selected. Actual
+Vite/package direct-import selection remains deferred.
+
+Missing or throwing/rejected write/read host calls now resolve false/null,
+matching the other text clipboard leaves; empty read text remains an empty
+string. Both published method names share each operation. AppKit UI copyText
+now delegates to the same platform writer rather than maintain another bridge
+wrapper. Reads remain independent of write capability. No paste, rich formats,
+shortcut interception or clipboard-history feature is added.
+
+Authored fake-host cases cover write-only/read-only/missing/late/replaced hosts,
+root/leaf identity, failure normalization, method aliases and empty text. A UI
+adapter case covers forwarding true/false results without a reader. The existing
+CopyTextDemo is the maintained user-flow example; keyboard-clipboard AC2 and
+skill guidance now include this contract. Syntax and whitespace checks passed;
+no tests, typechecks, native build/probe, real pasteboard read/write, dependency
+install, packaging or visual analysis ran. No user clipboard contents were read.
+
+Deferred commands:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/platform
+pnpm exec turbo run test --filter=@octane-xplat/ui -- src/clipboard-write.macos.test.ts
+pnpm exec turbo run typecheck --filter=...@octane-xplat/platform --filter=...@octane-xplat/ui
+pnpm exec turbo run typegen --filter=@octane-xplat/platform
+pnpm exec turbo run test:packed --filter=@octane-xplat/platform
+pnpm check:recipes
+```
+
+After human authorization, verify root/direct-import resolution, copy-only host
+behavior, actual NSPasteboard write/read, Unicode and empty text, failed writes,
+CopyTextDemo feedback, repeated independent attempts and packaged behavior.
+Source tests and handler dispatch do not prove OS pasteboard access.
