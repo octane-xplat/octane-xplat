@@ -28,9 +28,11 @@ picker bundled with `@octane-xplat/files`.
 - AC7: Shared web date controls support enabled-cell keyboard focus, RTL calendar navigation, IME-safe text commits, and bounded time-option navigation. Apps can supply locale and translated state messages on all targets; unsupported native key/accessibility delivery is explicit.
 - AC8: On experimental AppKit, read picked local files, write Documents files and export through a save panel; distinguish cancellation, unsupported hosts, size-limit/cancellation errors and write failures from a successful save. Security grants are session-scoped; no persistent bookmark is promised.
 
-- AC9: AppKit FileInput owns one picker/save operation per mounted control, rejects immediate/reentrant duplicate edits, checks latest selection/constraints/blocking state before acceptance, ignores detached results/errors, reports sync/async failures, and removes by URI after reorder. Parent-owned selection is not rolled back on save failure; native drag/drop and actual panel/ref/focus qualification remain explicit gaps.
+- AC9: AppKit FileInput owns one picker/save operation per mounted control, rejects immediate/reentrant duplicate edits, checks latest selection/constraints/blocking state before acceptance, ignores detached results/errors, reports sync/async failures, and removes by URI after reorder. Parent-owned selection is not rolled back on save failure; native drag/drop and actual panel/ref/focus qualification remain explicit evidence gates.
 
 - AC10: Default AppKit FileInput picks receive finite filename MIME hints and best-effort Foundation size metadata before validation; supplied metadata is preserved, unknown/failed metadata stays optional and acquired metadata security scopes are released. Distinguish metadata hints from content verification/read limits and actual native evidence.
+
+- AC11: AppKit FileInput input/dropzone presentations attach a current native destination lease for copy-delivered local file URLs, inspects regular-file references and reuses current picker/save validation and operation ownership. Preserve parent values, blocked/detached guards and other registered drag types; distinguish receipt from validation/save and keep promises/hover/autoscroll/grants/native qualification limits explicit.
 
 ## Documentation
 
@@ -47,3 +49,5 @@ picker bundled with `@octane-xplat/files`.
 - AC9: [AppKit attachment lifetime](../../../packages/files/README.md#appkit-attachment-picker-lifetime), [portable file guide](../../../docs/platform/date-picker.md#portable-values), [authored controller cases](../../../packages/files/src/file-input-state.macos.test.ts) and [target note](../parity/appkit-progress.md#appkit-fileinput-operation-ownership). Cases remain unrun; native UI wiring is source-reviewed only.
 
 - AC10: [AppKit metadata guide](../../../packages/files/README.md#appkit-file-metadata), default adapter source and [authored metadata/controller cases](../../../packages/files/src/file-input-details.macos.test.ts). Cases remain unrun; [target note](../parity/appkit-progress.md#appkit-fileinput-default-metadata) lists deferred native qualification.
+
+- AC11: [Drop local files guide](../../../docs/platform/date-picker.md#drop-local-files-on-appkit), [files contract](../../../packages/files/README.md#appkit-local-file-drops), renderer contract, nine authored registry/bridge/inspection/controller cases, [maintained fixture](../../../examples/probes/fileinput-drop.macos.tsrx) and [target note](../parity/appkit-progress.md#appkit-local-file-drop-ownership). All cases/fixture and native qualification remain unrun.

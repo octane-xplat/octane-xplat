@@ -2885,3 +2885,59 @@ title access), actual AX roles/queries/tree, checked-state announcements, popup/
 focus timing, VoiceOver and packaging remain unqualified. No builds, package
 tests/typechecks, installs, OS automation, visual analysis or shared audit snapshot
 regeneration ran; no evidence checkbox is closed.
+
+
+### AppKit local file-drop ownership
+
+Revisited high-demand attachment flows after menu prerequisites. The sandbox's
+FileInputBasic/FileInputShowcase examples exercise attachment entry, and the
+public FileInput dropzone contract calls for pointer drops. The AppKit leaf only
+changed presentation and opened a picker. Assumption: receiving local document
+files is more demanded than niche integrations or menu polish. Existing exports,
+shared props and picker service imports already resolve; no shared manifests or
+other platform leaves needed changes.
+
+Added a private renderer destination lease on existing AccessibleHostView wrappers.
+NSDraggingDestination entered/updated/prepare/perform selectors use the SDK's
+64-bit NSUInteger/BOOL contracts. Registration adds public.file-url, preserves
+existing/later other types and releases independent leases through ref/node
+teardown. Admission requires copy and file-URL-readable pasteboard content;
+delivery reads NSURL objects with the file-URLs-only option, deduplicates URIs,
+checks the current destination window and owners/props/root and enters discrete event scope. Native SDK headers
+and Apple NSDraggingDestination/NSPasteboard docs were inspected; source presence
+is not proof of ObjC registration, drag hit routing or delivery.
+
+FileInput attaches in both input/dropzone presentations, matching the web wrapper
+contract, keeps its existing public native trigger handle and checks current
+blocking/busy/attachment state. The files leaf inspects
+local URLs for regular-file attributes and metadata with balanced security scopes,
+then feeds the existing picker/save controller. Extracted common validation from
+picker completion; cancellation still preserves selection/errors. Accepted drops
+share the immediate operation token, current validation and parent feedback;
+receipt is not successful validation/save, and save errors do not roll back parent
+values. Directories, symlinks, uninspectable/promised/non-file payloads are excluded.
+Filename MIME hints and optional sizes retain their previous limits.
+
+Four registry, one bridge, two inspection and two controller cases were authored,
+all nine unrun. The maintained fileinput-drop fixture mounts controls only; its
+runner synthesizes no drag or OS file access. TypeScript/TSRX syntax parsing,
+semantic/source review and whitespace checks only. Files/renderer/guide/skill,
+feature note and date-picker AC11 were reconciled. No new dependencies, shared
+manifest edits, other-target leaves or audit snapshot regeneration.
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run test --filter=@octane-xplat/files -- src/file-input-state.macos.test.ts src/file-input-drop.macos.test.ts src/file-input-details.macos.test.ts
+pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer --filter=...@octane-xplat/files
+pnpm probe run examples/probes/fileinput-drop.macos.tsrx --deps @octane-xplat/files --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All commands remain deferred pending explicit human authorization for this task.
+Native selector/ABI/registration, ref cleanup, presentation changes, destination hit routing,
+copy cursor/drag/validation/save behavior, sandbox/security grants, Foundation
+metadata, focus/VoiceOver and packaging remain unqualified. Promised files,
+custom hover feedback/autoscroll, directories/symlink resolution and persistent
+grants remain outside this source path. No package tests/typechecks, builds,
+installs, OS automation or visual analysis ran; no evidence checkbox is closed.

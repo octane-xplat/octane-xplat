@@ -106,3 +106,29 @@ it('a detached save rejection cannot update status or fire another change', asyn
 	expect(f.publish).toHaveBeenCalledTimes(calls)
 	expect(change).toHaveBeenCalledTimes(1)
 })
+
+it('drop receive shares current validation, parent-owned values and the picker/save operation token', async () => {
+	const saved = deferred<void>(), change = vi.fn(), f = fixture({ value: [a], isMultiple: true, onChange: change, changeAction: () => saved.promise })
+	expect(f.state.receive([b])).toBe(false)
+	f.state.attach(); expect(f.state.canReceive()).toBe(true)
+	expect(f.state.receive([b])).toBe(true); expect(change).toHaveBeenCalledWith([a, b])
+	expect(f.state.canReceive()).toBe(false); expect(f.state.receive([b])).toBe(false)
+	f.state.open(); expect(f.picker).not.toHaveBeenCalled()
+	saved.resolve(); await idle(f); expect(f.state.canReceive()).toBe(true)
+	f.update({ value: a, isMultiple: false, accept: '.txt' }); change.mockClear()
+	expect(f.state.receive([b])).toBe(true); await idle(f)
+	expect(change).not.toHaveBeenCalled(); expect(f.publish.mock.lastCall?.[1][0]).toContain('b.pdf: file type not accepted')
+})
+
+it('drop receive rejects blocked, empty and detached operations and does not let a late save publish after detach', async () => {
+	const saved = deferred<void>(), f = fixture({ changeAction: () => saved.promise })
+	f.state.attach()
+	for (const patch of [{ isDisabled: true }, { isReadOnly: true }, { isLoading: true }]) {
+		f.update(patch); expect(f.state.receive([a])).toBe(false); expect(f.state.canReceive()).toBe(false)
+		f.update({ isDisabled: false, isReadOnly: false, isLoading: false })
+	}
+	expect(f.state.receive([])).toBe(false); expect(f.state.receive([a])).toBe(true)
+	f.state.detach(); const calls = f.publish.mock.calls.length
+	saved.reject(new Error('late save')); await saved.promise.catch(() => {}); await Promise.resolve(); await Promise.resolve()
+	expect(f.publish).toHaveBeenCalledTimes(calls); expect(f.state.receive([a])).toBe(false)
+})

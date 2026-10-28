@@ -1009,3 +1009,31 @@ Checked state is not substituted for selection or returned as an invented menu
 value. Existing value-change policy is unchanged. Two added renderer cases and
 one inline-popup label case remain unrun; native selector/property forwarding,
 AX queries/tree, VoiceOver, focus and packaged operation remain unqualified.
+
+
+### Local file-drop destination leases
+
+The private observeFileDrop bridge attaches a destination lease to an existing
+AccessibleHostView. The host exposes NSDraggingDestination entered/updated/prepare/
+perform selectors (NSDragOperation uses the supported 64-bit NSUInteger ABI).
+The registry adds public.file-url to registered types and preserves other types
+on last release. Independent leases, ref cleanup and node teardown own registration.
+Admission requires the current destination window, copy in the source mask, readable file URLs
+and a current enabled owner; delivery rechecks ownership and enters discrete scope.
+
+```tsx
+import { FileInput } from '@octane-xplat/files'
+import type { FileInputFile } from '@octane-xplat/files'
+
+export function Attachments(props: { value: FileInputFile[]; change(value: FileInputFile | FileInputFile[] | null): void }) {
+	return <FileInput label="Attachments" mode="dropzone" value={props.value} onChange={props.change} isMultiple />
+}
+```
+
+Pasteboard reads request NSURL objects with the file-URLs-only option, then
+forward deduplicated file URL strings. The files leaf owns regular-file inspection,
+metadata and validation; native acceptance is receipt, not persistence. No file
+promises, native drag source, custom hover/autoscroll or permanent grants are added.
+Four registry/one bridge/two inspection/two controller cases are authored, all
+unrun. Native ObjC/ABI registration, actual destination hit routing/drag delivery,
+Foundation values/grants, lifecycle, AX/focus and packaging remain unqualified.

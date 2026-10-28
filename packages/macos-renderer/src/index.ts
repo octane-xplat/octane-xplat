@@ -63,6 +63,7 @@ import { installMasonElement, makeMasonHostView } from './mason'
 import { installCompat } from './ns-compat'
 import { createAppKitKeyboardDispatcher } from './keyboard'
 import { createAppKitContextPointerDispatcher } from './context-pointer'
+import { createAppKitFileDropRegistry } from './file-drop'
 import { createAppKitFocusWithinDispatcher } from './focus-within'
 import { createTabStopSuppression } from './tab-stop'
 import { createDisabledFocusTargets } from './disabled-focus'
@@ -320,6 +321,7 @@ const keyboardDispatcher = createAppKitKeyboardDispatcher(() => ({ NSEvent }))
 const contextPointerDispatcher = createAppKitContextPointerDispatcher(
 	(event) => appKitMouseHit(event.window, event.locationInWindow), () => ({ NSEvent }),
 )
+const fileDropRegistry = createAppKitFileDropRegistry()
 const focusWithinDispatcher = createAppKitFocusWithinDispatcher(() => ({ NSNotificationCenter, NSWindowDidUpdateNotification }))
 
 function parentReference(parent: ElementNode | null | undefined): UniversalHostParent {
@@ -790,7 +792,16 @@ class AccessibleHostView extends NSView {
 		return inputTransparentViews.has(this) ? null : super.hitTest(point)
 	}
 
+	draggingEntered(sender: any) { return fileDropRegistry.operation(this, sender) }
+	draggingUpdated(sender: any) { return fileDropRegistry.operation(this, sender) }
+	prepareForDragOperation(sender: any) { return fileDropRegistry.operation(this, sender) !== 0 }
+	performDragOperation(sender: any) { return fileDropRegistry.perform(this, sender) }
+
 	static ObjCExposedMethods = {
+		draggingEntered: { params: [interop.types.id], returns: interop.types.uint64 },
+		draggingUpdated: { params: [interop.types.id], returns: interop.types.uint64 },
+		prepareForDragOperation: { params: [interop.types.id], returns: interop.types.bool },
+		performDragOperation: { params: [interop.types.id], returns: interop.types.bool },
 		accessibilityPerformPress: { params: [], returns: interop.types.bool },
 		accessibilityPerformIncrement: { params: [], returns: interop.types.bool },
 		accessibilityPerformDecrement: { params: [], returns: interop.types.bool },
@@ -5962,6 +5973,38 @@ function observeViewKeys(view: NSView, handlers: {
 	return off
 }
 
+const fileDropSubscriptionsByNode = new WeakMap<ElementNode, Set<() => void>>()
+
+function observeFileDrop(view: NSView, handlers: { enabled(): boolean; receive(uris: string[]): boolean }): () => void {
+	const node = cssNodesByView.get(view)
+	if (!node || !(view instanceof AccessibleHostView)) return () => {}
+	let owned = fileDropSubscriptionsByNode.get(node)
+	if (!owned) {
+		owned = new Set(); fileDropSubscriptionsByNode.set(node, owned)
+		const leases = owned
+		;(node.destroyHooks ??= []).push(() => {
+			for (const off of [...leases]) off()
+			fileDropSubscriptionsByNode.delete(node)
+		})
+	}
+	const leases = owned
+	let active = true
+	const current = () => active && node.view === view && cssNodesByView.get(view) === node && Boolean(node.container.root) &&
+		node.props.disabled !== true && node.props.isEnabled !== false && node.props.enabled !== false
+	const release = fileDropRegistry.subscribe(view, {
+		enabled: () => current() && handlers.enabled(),
+		receive: (uris) => {
+			if (!current() || !handlers.enabled()) return false
+			let accepted = false
+			node.container.root!.eventScope('discrete', () => { accepted = handlers.receive(uris) === true })
+			return accepted
+		},
+	})
+	const off = () => { if (!active) return; active = false; release(); leases.delete(off) }
+	leases.add(off)
+	return off
+}
+
 const contextSubscriptionsByNode = new WeakMap<ElementNode, Set<() => void>>()
 
 /** Shared ContextMenu owns an intent lease; OS-native menus keep their own leaf. */
@@ -10293,6 +10336,7 @@ appKitBridge.observeHardwareKeys = keyboardDispatcher.observe
 appKitBridge.observeViewKeys = observeViewKeys
 Object.defineProperty(appKitBridge, 'contextMenuEventsSupported', { configurable: true, enumerable: true, get: contextPointerDispatcher.available })
 appKitBridge.observeContextMenu = observeContextMenu
+appKitBridge.observeFileDrop = observeFileDrop
 appKitBridge.observePointerInput = (notify: (event: { type: number; modifierFlags: number }) => void) => {
 	const off = contextPointerDispatcher.observe(notify)
 	if (!contextPointerDispatcher.available()) { off(); throw new Error('AppKit pointer observation unavailable') }

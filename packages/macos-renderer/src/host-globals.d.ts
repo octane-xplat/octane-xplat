@@ -13,6 +13,7 @@ declare global {
 		readonly keyboardEventsSupported?: boolean
 		readonly focusWithinSupported?: boolean
 		readonly contextMenuEventsSupported?: boolean
+		observeFileDrop?: (view: import('@octane-xplat/platform/macos').NSView, handlers: { enabled(): boolean; receive(uris: string[]): boolean }) => () => void
 		observeContextMenu?: (view: import('@octane-xplat/platform/macos').NSView, handler: (target: import('@octane-xplat/platform/macos').NSView) => boolean) => () => void
 		observePointerInput?: (notify: (event: { type: number; modifierFlags: number }) => void) => () => void
 		/** Coordinate Xplat key handlers before an independent scope monitor. */

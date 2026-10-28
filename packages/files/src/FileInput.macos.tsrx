@@ -1,12 +1,13 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from './style-merge'
-import { useCallback, useMemo, useRef, useImperativeHandle, useId, useState } from 'octane'
+import { useCallback, useMemo, useRef, useImperativeHandle, useId, useState, useLayoutEffect } from 'octane'
 import type { NSView } from '@octane-xplat/platform/macos'
 import { Field as FormField, Icon, Pressable, useFieldControl } from '@octane-xplat/ui'
 import type { FileInputFile, FileInputProps } from './props'
 import { files as fileService } from './files.macos'
 import { createAppKitFileInputState } from './file-input-state.macos'
 import { appKitFileInputDetails } from './file-input-details.macos'
+import { appKitDroppedFiles } from './file-input-drop.macos'
 import { cx, formatFileSize } from './file-input-utils'
 
 const STATUS_TEXT = { error: '⚠', warning: '⚠', success: '✓' } as const
@@ -45,11 +46,26 @@ function FileInputControl(inputProps: FileInputProps) @{
 	}, [])
 
 	const dropzone = props.mode === 'dropzone'
+	const dropHost = useRef<NSView | null>(null), dropLease = useRef<(() => void) | null>(null)
+	const bindDrop = useCallback((view: NSView | null) => {
+		dropLease.current?.(); dropLease.current = null; dropHost.current = view
+		const observe = (globalThis as any).__xplatAppKit?.observeFileDrop
+		if (!view || typeof observe !== 'function') return
+		const enabled = () => dropHost.current === view && Boolean(view.window) && state.canReceive()
+		try { dropLease.current = observe(view, { enabled, receive: (uris: string[]) => {
+			if (!enabled()) return false
+			const picked = appKitDroppedFiles(uris, latest.current.accept)
+			return enabled() && state.receive(picked)
+		} }) } catch (error) { console.warn('[macos-file-drop] attachment unavailable', error) }
+	}, [])
+	useLayoutEffect(() => () => { dropHost.current = null; dropLease.current?.(); dropLease.current = null }, [])
+
 	const statusText = statusType ? STATUS_TEXT[statusType] : null
 
 	useImperativeHandle(props.ref, () => ({ open: state.open, get native() { return hostRef.current } }), [])
 
 	<masonview
+		ref={bindDrop}
 		className={cx(
 			'vx-fileinput',
 			dropzone && 'vx-fileinput--dropzone',
@@ -136,8 +152,8 @@ function FileInputControl(inputProps: FileInputProps) @{
 
 /**
  * File entry — delegates selection to this package's AppKit files service.
- * Values are portable `{name, uri, size?, mimeType?}` refs. Drag/drop is not
- * implemented on this leaf.
+ * Values are portable `{name, uri, size?, mimeType?}` refs. Both field presentations use
+ * the matching renderer's local file-URL destination lease.
  */
 export function FileInput(props: FileInputProps) @{
 	const { inField } = useFieldControl(props)

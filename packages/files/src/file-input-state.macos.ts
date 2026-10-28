@@ -26,8 +26,17 @@ export function createAppKitFileInputState(options: {
 		props.onChange(emitted)
 		if (owns(token)) await props.changeAction?.(emitted)
 	}
+	const ready = () => attached && !active && !blocked(options.props())
+	const accept = async (result: FileInputFile[], token: symbol) => {
+		if (!editable(token) || !result.length) return
+		const props = options.props(), previous = files(props)
+		const { valid, errors: invalid } = validateFiles(props.isMultiple ? [...previous, ...result] : result, props)
+		report(invalid)
+		const next = !props.isMultiple && invalid.length ? previous : valid
+		if (next.length !== previous.length || next.some((file, index) => file.uri !== previous[index]?.uri)) await save(next, token)
+	}
 	const run = (action: (token: symbol) => Promise<void>) => {
-		if (!attached || active || blocked(options.props())) return
+		if (!ready()) return false
 		const token = Symbol('file-input')
 		active = token
 		options.publish(true, errors)
@@ -42,6 +51,7 @@ export function createAppKitFileInputState(options: {
 				}
 			}
 		})()
+		return true
 	}
 	return {
 		attach() {
@@ -53,17 +63,13 @@ export function createAppKitFileInputState(options: {
 			run(async (token) => {
 				const request = options.props()
 				const result = await (request.pick ?? options.pick)({ accept: request.accept, multiple: request.isMultiple })
-				if (!editable(token)) return
-				const picked = normalizePicked(result)
-				if (!picked.length) return // Cancellation does not erase existing selection/errors.
-				const props = options.props(), previous = files(props)
-				const { valid, errors: invalid } = validateFiles(props.isMultiple ? [...previous, ...picked] : picked, props)
-				report(invalid)
-				const next = !props.isMultiple && invalid.length ? previous : valid
-				if (next.length !== previous.length || next.some((file, index) => file.uri !== previous[index]?.uri)) {
-					await save(next, token)
-				}
+				await accept(normalizePicked(result), token)
 			})
+		},
+		canReceive: ready,
+		receive(picked: FileInputFile[]): boolean {
+			if (!picked.length) return false
+			return run((token) => accept(picked, token))
 		},
 		remove(uri: string) {
 			run(async (token) => {

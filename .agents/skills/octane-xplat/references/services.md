@@ -465,7 +465,7 @@ Clear/removal share the same guard, and row removal follows URI after reorder.
 changeAction failure reports validation status without rolling back parent-owned
 value. Custom picker promises are ignored after detach, not cancelled; ownership
 is per control. Native panels/ref lifecycle/VoiceOver and drag/drop remain
-unqualified or unimplemented. See the [files contract](../../../../packages/files/README.md#appkit-attachment-picker-lifetime).
+unqualified; local file-drop source ownership is described below. See the [files contract](../../../../packages/files/README.md#appkit-attachment-picker-lifetime).
 
 ```tsx
 import { FileInput } from '@octane-xplat/files'
@@ -494,3 +494,28 @@ import { files } from '@octane-xplat/files'
 const file = await files.pick('image/*')
 if (file) await files.readBytes(file, { maxBytes: 5000000 })
 ```
+
+
+AppKit FileInput now attaches a private destination lease in both presentations to its
+existing wrapper when the matching renderer is present. Copy-delivered local URLs
+must pass regular-file inspection, then reuse the picker/save token and current
+validation/parent feedback. Loading/read-only/disabled state, an active
+operation and detach decline delivery. Ref/node teardown releases ownership and
+other registered drag types are preserved.
+
+```tsx
+import { FileInput } from '@octane-xplat/files'
+import type { FileInputFile } from '@octane-xplat/files'
+
+export function Attachments(props: { value: FileInputFile[]; change(value: FileInputFile | FileInputFile[] | null): void }) {
+	return <FileInput label="Attachments" mode="dropzone" value={props.value} onChange={props.change}
+		isMultiple accept=".txt,.pdf" maxSize={5000000} maxFiles={3} />
+}
+```
+
+Do not equate native drop acceptance with successful validation/save or a durable
+sandbox grant. Directories, symlinks, uninspectable/promised/non-file items are
+excluded. MIME hints remain filename-based; missing sizes skip maxSize. Nine
+source cases and the maintained fixture remain unrun. Native ABI/registration,
+hit routing/drag, grants, hover/AX/focus and packaging require qualification;
+custom hover/autoscroll and promised-file support remain gaps. See [AppKit file drops](../../../../packages/files/README.md#appkit-local-file-drops).

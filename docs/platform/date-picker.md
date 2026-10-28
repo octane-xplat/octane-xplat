@@ -207,8 +207,8 @@ The default AppKit adapter also supplies known filename-based MIME hints and
 optional Foundation file-size metadata for validation. Unknown metadata stays
 absent; these hints do not inspect bytes or guarantee a later read limit.
 Controller/metadata cases remain unrun; native panel/ref/focus and packaged
-behavior remain unqualified. AppKit dropzone mode still opens the picker; native drag/drop is not
-implemented. See [AppKit attachment lifetime](../../packages/files/README.md#appkit-attachment-picker-lifetime).
+behavior remain unqualified. AppKit dropzone mode now has a local file-URL source
+path described below; actual OS drag delivery remains unqualified. See [AppKit attachment lifetime](../../packages/files/README.md#appkit-attachment-picker-lifetime).
 
 `@octane-xplat/files` has a peer dependency on `@octane-xplat/ui` for the
 field presentation. Install both packages when using `FileInput`.
@@ -463,3 +463,28 @@ props conflicted with the portable shared `DateInput`. Use
   the bridge does not carry `ColorValue` ints). Not ported: the
   `DatePickerDialog`/`TimePickerDialog` wrappers and their keyboard
   soft-input handling; `dateAndTime` combined input.
+
+
+### Drop local files on AppKit
+
+Both compact and dropzone presentations use the matching AppKit renderer to
+receive inspectable local regular-file URLs. Dropped references follow the same accept/count/size checks and
+parent-owned value/save flow as picked files. The picker remains available:
+
+```tsx
+import { useState } from 'octane'
+import { FileInput } from '@octane-xplat/files'
+import type { FileInputFile } from '@octane-xplat/files'
+
+export function Attachments() {
+	const [value, setValue] = useState<FileInputFile | FileInputFile[] | null>([])
+	return <FileInput label="Attachments" mode="dropzone" value={value} onChange={setValue}
+		isMultiple accept=".txt,.pdf" maxSize={5000000} maxFiles={3} />
+}
+```
+
+Directories, symlinks, uninspectable files and promised/non-file payloads are
+excluded. Accepting a drop does not prove validation or saving succeeded, and no
+persistent sandbox grant is promised. Native registration, OS hit routing/drag,
+metadata/grants, focus/VoiceOver and packaging remain unqualified. Nine authored
+cases are unrun. See [file-drop scope and limitations](../../packages/files/README.md#appkit-local-file-drops).

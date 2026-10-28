@@ -127,8 +127,8 @@ Cancellation retains selection and existing validation messages. Results and
 errors after detachment are ignored; a custom picker promise is not cancelled.
 This is per-control ownership, not a global panel broker. The seven authored
 controller cases remain unrun and do not prove native refs, panel interaction,
-focus, sandbox access, VoiceOver or packaged behavior. AppKit dropzone mode still
-provides picker presentation only; native drag/drop is unimplemented.
+focus, sandbox access, VoiceOver or packaged behavior. AppKit dropzone file-URL
+ownership is described below; native drag delivery remains unqualified.
 
 ### AppKit file metadata
 
@@ -154,3 +154,41 @@ reads still need their own `readBytes` maxBytes limit. Foundation attributes use
 any metadata security-scope claim is released. Recognized concrete MIME aliases use the matching table hint. Five authored
 metadata/controller cases remain unrun. Real Foundation values, sandbox grants and packaged picker
 validation remain unqualified.
+
+
+### AppKit local file drops
+
+With the matching AppKit renderer, both input and dropzone presentations register
+the existing field wrapper as a local file-URL destination. Inspectable regular files join the same
+per-control picker/save token, current accept/count/size validation and parent-owned
+value flow. Keep the picker available
+for sources that cannot supply local file URLs:
+
+```tsx
+import { useState } from 'octane'
+import { FileInput } from '@octane-xplat/files'
+import type { FileInputFile } from '@octane-xplat/files'
+
+export function Attachments() {
+	const [value, setValue] = useState<FileInputFile | FileInputFile[] | null>([])
+	return <FileInput label="Attachments" mode="dropzone" value={value} onChange={setValue}
+		isMultiple accept=".txt,.pdf" maxSize={5000000} maxFiles={3} />
+}
+```
+
+The source path advertises copy, reads file URLs on delivery, and checks Foundation
+regular-file attributes before accepting references. Directories, symlinks,
+uninspectable files, promised files and non-file payloads are declined. Filename
+MIME hints are not content inspection; missing sizes still skip maxSize. An
+accepted native drop means the controller received references, not that validation
+or saving succeeded. Save errors keep the parent-owned selection. Busy, blocked,
+or detached controls cannot accept through a cached callback. Inspection
+security scopes are released; persistent sandbox grants are not provided.
+
+Four registry, one bridge, two inspection and two controller cases remain unrun.
+The [maintained fixture](../../examples/probes/fileinput-drop.macos.tsrx) mounts the
+controls but synthesizes no OS drag. Native registration/ABI, destination hit
+routing, cursor/hover presentation, drag delivery, sandbox/grants, actual validation
+and save behavior, focus/VoiceOver and packaging remain unqualified. File promises,
+custom drag hover feedback and autoscroll remain outside this source path. Older
+renderer bridges retain picker entry.
