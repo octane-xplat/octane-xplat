@@ -42,3 +42,57 @@ The embedded V8 in both NativeScript runtimes is built without ICU. Every
   `new RegExp(pattern, flags-with-u|v)` calls, and `\p{…}` escapes embedded in
   template-literal patterns. Truly dynamic patterns (e.g.
   `new RegExp(userInput)`) are not covered — they still throw on device.
+
+## Direct FormatJS imports still require global Intl
+
+The proposed direct-import integration is blocked with the versions below.
+Importing a constructor instead of its `polyfill` entry does not make it
+independent of global `Intl`. Do not add these dependencies to UI on the
+assumption that regular imports alone solve the NativeScript gap without
+mutating globals.
+
+On 2026-10-28, an isolated Node 26.12.0 probe deleted `globalThis.Intl` before
+importing each package in a fresh process. Imports completed, but constructor
+use failed as follows:
+
+| Package (`@formatjs/` prefix) | Version | Result |
+| --- | --- | --- |
+| `intl-locale` | 5.3.12 | `ReferenceError: Intl is not defined` |
+| `intl-pluralrules` | 6.3.16 | Same |
+| `intl-numberformat` | 9.4.3 | Same |
+| `intl-datetimeformat` | 7.8.2 | Same |
+| `intl-relativetimeformat` | 12.3.16 | Same |
+| `intl-listformat` | 8.3.15 | Same |
+| `intl-segmenter` | 12.2.15 | Same |
+| `intl-collator` | 0.2.9 | Creates global `Intl`, then throws `TypeError: Intl.getCanonicalLocales is not a function` |
+
+Minimal reproduction in an isolated process with NumberFormat 9.4.3 installed:
+
+```js
+Reflect.deleteProperty(globalThis, 'Intl')
+const { NumberFormat } = await import('@formatjs/intl-numberformat')
+new NumberFormat('en').format(1234.5)
+// ReferenceError: Intl is not defined (CanonicalizeLocaleList)
+```
+
+Upstream's [CanonicalizeLocaleList implementation](https://github.com/formatjs/formatjs/blob/main/packages/ecma402-abstract/CanonicalizeLocaleList.ts)
+calls global `Intl.getCanonicalLocales`. Collator's
+[core module](https://github.com/formatjs/formatjs/blob/main/packages/intl-collator/core.ts)
+calls `ensureIntl()` at module scope, including through its regular export.
+Locale data was not installed in this probe: the observed global prerequisite
+failure precedes successful formatting, and is sufficient to reject the
+unmodified direct-import design. This does not establish that supplying only
+`getCanonicalLocales` would be sufficient.
+
+Local evidence: `research/formatjs-direct/probe.mjs`, its pinned package/lock
+files, and `results.log` (temporary, gitignored). Run from that directory with
+`turbo run probe --filter=//`. The diagnostic task catches and prints each
+constructor error; its exit status means the diagnostic ran, not that FormatJS
+works. This is Node runtime evidence with the global removed, not a device
+runtime test or a full emulation of NativeScript's ICU-free engine. No iOS,
+Android, or macOS runtime qualification or consumer bundle measurements were
+performed for this proposal.
+
+No production dependency or formatting behavior changed. Revisit when the
+selected implementations can receive their prerequisites and locale data
+without global registration, or when the integration constraints change.
