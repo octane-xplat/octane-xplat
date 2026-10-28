@@ -57,5 +57,45 @@ Full-screen coverage also depends on a prepared native Page; see
   smooth paging cancellation. They do not establish OS input behavior.
 
 No physical device, OS pinch input, screenshots, or visual parity inspection
-was used. Android and macOS qualification remain separate work. This private
-implementation repair does not change the public shared-overlays recipe.
+was used. This private implementation repair does not change the public
+shared-overlays recipe.
+
+## Android clipping and qualification
+
+The Android writer uses a native outline in physical pixels, keeping shared
+morph inputs in DIPs. It takes the untransformed size from the native view,
+converts insets and radius, and restores the previous outline when cleared.
+The platform import selects this writer instead of the iOS CALayer writer:
+
+```ts
+import { createClipWriter } from './clip'
+
+const writer = createClipWriter(view)
+writer.setClip({ top: 50, right: 0, bottom: 50, left: 0 }, 12)
+writer.clear()
+```
+
+Gesturehandler 2.0.45's Android activation-distance setter takes physical
+pixels, while emitted coordinates and velocity use DIPs. The adapter converts
+only the activation threshold; its regression test uses a 2× density to
+catch a missing or double conversion. Each handler's own callback is removed
+on viewport cleanup, including pinch and both tap handlers.
+
+Verified on 2026-10-28 with the same core/renderer/plugin versions as iOS,
+Android API 35 Google APIs arm64, emulator 37.1.11, and the host GPU (Apple M4):
+
+- The local `research/lightbox-probes/lightbox.android.tsrx` probe passed 21
+  assertions: full-page backdrop, morph rectangles within 1 DIP, the iOS
+  gesture cases, reduced-motion fade, and Android back dismissal. Gesture
+  cases used handler dispatch; back used `adb shell input keyevent 4` while
+  the viewer was open. Raw result: local, ignored
+  `research/lightbox-probes/logs/phase4-android-2026-10-28.json`.
+- A native Choreographer sample during opening recorded 60 intervals with
+  mean and p95 of 16.67 ms over about one second. This measures native frame
+  callbacks, not presented pixels or physical-device performance.
+- The maintained Maestro flow passed on a fresh Android build: OS taps and
+  swipes covered paging, pull dismissal, reopening, and backdrop dismissal.
+  Result: local, ignored
+  `research/maestro/android/1793163729524/report.xml` (one test, zero failures).
+
+macOS qualification and the public package cutover are still pending.

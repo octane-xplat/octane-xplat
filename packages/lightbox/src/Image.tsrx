@@ -5,7 +5,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'octane'
 import { cx } from '@octane-xplat/lib'
 import { useMotionValue } from '@octane-xplat/motion'
-import { createClipWriter } from './clip.ios'
+import { createClipWriter } from './clip'
 import { viewRect } from './rect'
 import { SETTLE, INERTIA } from './constants'
 import { clamp, fit, lerp, lerpVisual, thumbVisualFrom, toStyle } from './math'
@@ -91,6 +91,7 @@ export function Image(props: LightboxImagePartProps) @{
 		const v = wrapRef.current
 		if (!v) return
 		clip.current = createClipWriter(v)
+		return () => clip.current?.clear()
 	}, [])
 
 	const apply = (v: Visual, b: Rect) => {

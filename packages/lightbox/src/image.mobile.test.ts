@@ -7,7 +7,7 @@ vi.mock('./root.tsrx', () => ({
 	useLightboxCtx: () => fixture.context,
 	useSlideCtx: () => ({ index: 0 }),
 }))
-vi.mock('./clip.ios', () => ({ createClipWriter: () => fixture.clip }))
+vi.mock('./clip', () => ({ createClipWriter: () => fixture.clip }))
 
 import { Image } from './Image.tsrx'
 

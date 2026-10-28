@@ -128,9 +128,13 @@ export function attachInput(node: any, opts: AttachInputOptions, send: (i: Inten
 	return () => {
 		panActive = false
 		pinchActive = false
+		pan.off(GestureHandlerStateEvent, panState)
+		pan.off(GestureHandlerTouchEvent, panTouch)
+		pinch.off(GestureHandlerStateEvent, pinchState)
+		pinch.off(GestureHandlerTouchEvent, pinchTouch)
+		tap.off(GestureHandlerStateEvent, tapState)
+		double.off(GestureHandlerStateEvent, doubleState)
 		for (const h of [pan, pinch, tap, double]) {
-			h.off(GestureHandlerStateEvent, panState)
-			h.off(GestureHandlerTouchEvent, panTouch)
 			h.detachFromView(node)
 		}
 	}

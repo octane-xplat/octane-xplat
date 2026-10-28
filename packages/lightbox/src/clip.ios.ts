@@ -1,10 +1,7 @@
 // The clip uses the wrapper's untransformed local bounds. NativeScript's
 // getActualSize() reports the transformed frame on iOS during the morph.
-export interface ClipWriter {
-	readonly mechanism: 'mask'
-	setClip(inset: { top: number; right: number; bottom: number; left: number }, radius: number): void
-	clear(): void
-}
+import type { ClipWriter } from './clip-types'
+export type { ClipWriter } from './clip-types'
 
 export function createClipWriter(view: any): ClipWriter {
 	let mask: CALayer | undefined

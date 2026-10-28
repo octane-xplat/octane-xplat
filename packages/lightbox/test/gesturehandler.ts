@@ -22,7 +22,9 @@ export const Manager = {
 				options,
 				node: undefined as any,
 				on: (name: string, fn: Function) => listeners.set(name, fn),
-				off: (name: string) => listeners.delete(name),
+				off: (name: string, fn?: Function) => {
+					if (!fn || listeners.get(name) === fn) {listeners.delete(name)}
+				},
 				attachToView(node: any) {
 					this.node = node
 				},

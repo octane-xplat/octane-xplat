@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('@nativescript-community/gesturehandler', () => import('../test/gesturehandler'))
-vi.mock('@nativescript/core', () => ({ Utils: { layout: { toDevicePixels: (v: number) => v } } }))
+vi.mock('@nativescript/core', () => ({ Utils: { layout: { toDevicePixels: (v: number) => v * 2 } } }))
 
 import { attachInput } from './input.mobile'
 import {
@@ -14,6 +14,35 @@ import {
 const node = {}
 
 describe('native input adapter', () => {
+	it('converts Android activation slop to pixels without rescaling DIP events', () => {
+		vi.stubGlobal('android', {})
+		const send = vi.fn()
+		const off = attachInput(node, { maxZoom: 4 }, send)
+		try {
+			const [pan] = handlers.slice(-4)
+			expect(pan.options.minDist).toBe(12)
+			pan.emit(GestureHandlerStateEvent, { state: GestureState.ACTIVE, extraData: { x: 10, y: 20 } })
+			expect(send).toHaveBeenCalledWith({ kind: 'panStart', at: { x: 10, y: 20 }, pointer: 'touch' })
+		} finally {
+			off()
+			vi.unstubAllGlobals()
+		}
+	})
+
+	it('removes every listener when the viewport detaches', () => {
+		const send = vi.fn()
+		const off = attachInput(node, { maxZoom: 4 }, send)
+		const attached = handlers.slice(-4)
+		off()
+		for (const handler of attached) {
+			handler.emit(GestureHandlerStateEvent, { state: GestureState.ACTIVE, extraData: {} })
+			handler.emit(GestureHandlerTouchEvent, { state: GestureState.ACTIVE, extraData: {} })
+			handler.emit(GestureHandlerStateEvent, { state: GestureState.END, extraData: {} })
+			expect(handler.node).toBeUndefined()
+		}
+		expect(send).not.toHaveBeenCalled()
+	})
+
 	it('emits panStart/panMove/panEnd with velocity and cancel flag', () => {
 		const sent: any[] = []
 		const off = attachInput(node, { maxZoom: 4 }, (i) => sent.push(i))
