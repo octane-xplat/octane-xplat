@@ -17,6 +17,8 @@ const save = (name: string) => (view: NativeView | null) => {
 }
 
 let scroller: ScrollableAreaHandle | null = null
+let sourceScroller: ScrollableAreaHandle | null = null
+let handoff = (_value: boolean) => {}
 let expand = (_value: boolean) => {}
 let moveRoot = (_value: boolean) => {}
 let shift = (_value: boolean) => {}
@@ -28,6 +30,8 @@ export default function ContainerProbe() @{
 	const [rootMoved, setRootMoved] = useState(false)
 	const [shifted, setShifted] = useState(false)
 	const [enabled, setEnabled] = useState(true)
+	const [shared, setShared] = useState(false)
+	handoff = setShared
 	expand = setWide
 	moveRoot = setRootMoved
 	shift = setShifted
@@ -83,6 +87,31 @@ export default function ContainerProbe() @{
 					style={{ marginLeft: shifted ? 40 : 20, width: 80, height: 60 }}
 				/>
 			</motion.View>
+			<ScrollableArea
+				ref={(value) => {
+					sourceScroller = value
+				}}
+				style={{ width: 320, height: 100 }}
+			>
+				<View style={{ width: 300, height: 400 }}>
+					@if (!shared) {
+						<motion.View
+							layoutId="container-scroll-handoff"
+							ref={save('source')}
+							transition={{ duration: 4, ease: 'linear' }}
+							style={{ marginTop: 100, width: 100, height: 50 }}
+						/>
+					}
+				</View>
+			</ScrollableArea>
+			@if (shared) {
+				<motion.View
+					layoutId="container-scroll-handoff"
+					ref={save('destination')}
+					transition={{ duration: 4, ease: 'linear' }}
+					style={{ marginLeft: 140, width: 100, height: 50 }}
+				/>
+			}
 		</View>
 	</MotionConfig>
 }
@@ -195,4 +224,22 @@ export async function run(ctx: ProbeContext) {
 	shift(false)
 	await ctx.waitFor(() => starts > beforeStarts, { timeout: 3000, interval: 10 })
 	ctx.assert('disabled drag restores layout animation', starts > beforeStarts, true)
+	const sourceBeforeScroll = geometry(views.source)
+	sourceScroller!.scrollToOffset({ block: 80 }, { animated: false })
+	await ctx.waitFor(() => sourceBeforeScroll.y - geometry(views.source).y >= 79, {
+		timeout: 3000,
+		interval: 5,
+	})
+
+	const sourceAfterScroll = geometry(views.source)
+	close('native source scrolls', sourceBeforeScroll.y - sourceAfterScroll.y, 80)
+	handoff(true)
+	await ctx.waitFor(
+		() => views.destination?.isLoaded && Math.abs(Number(views.destination.translateX)) > 10,
+		{ timeout: 3000, interval: 5 },
+	)
+
+	const incoming = geometry(views.destination)
+	close('shared handoff uses current scroll x', incoming.x, sourceAfterScroll.x, 3)
+	close('shared handoff uses current scroll y', incoming.y, sourceAfterScroll.y, 3)
 }

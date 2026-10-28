@@ -17,7 +17,7 @@ try {
 	const entry = join(directory, 'entry.ts')
 	await writeFile(
 		entry,
-		`import { runChannels } from ${JSON.stringify(join(packageRoot, 'tests/channels.macos.tsx'))}\nimport { runLayout, runSharedLayout, runDragLayout } from ${JSON.stringify(join(packageRoot, 'tests/layout.macos.tsx'))}\nNSApplication.sharedApplication\nvoid runChannels().then(runLayout).then(runSharedLayout).then(runDragLayout).catch(error => { console.error("MOTION_LAYOUT_FAIL", error.message, error.stack); }).finally(() => (globalThis as any).__xplatStopHost())\n`,
+		`import { runChannels } from ${JSON.stringify(join(packageRoot, 'tests/channels.macos.tsx'))}\nimport { runLayout, runSharedLayout, runDragLayout, runContainers } from ${JSON.stringify(join(packageRoot, 'tests/layout.macos.tsx'))}\nNSApplication.sharedApplication\nvoid runChannels().then(runLayout).then(runSharedLayout).then(runDragLayout).then(runContainers).catch(error => { console.error("MOTION_LAYOUT_FAIL", error.message, error.stack); }).finally(() => (globalThis as any).__xplatStopHost())\n`,
 	)
 
 	const config = await xplatMacOS('development', {
@@ -80,6 +80,7 @@ try {
 	assert.match(output, /MOTION_LAYOUT_OK/)
 	assert.match(output, /MOTION_SHARED_LAYOUT_OK/)
 	assert.match(output, /MOTION_DRAG_LAYOUT_OK/)
+	assert.match(output, /MOTION_CONTAINERS_OK/)
 	console.log(output)
 } finally {
 	await rm(directory, { recursive: true, force: true })

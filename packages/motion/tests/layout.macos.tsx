@@ -381,3 +381,113 @@ export async function runDragLayout() {
 		window.close()
 	}
 }
+
+import { ScrollableArea } from '@octane-xplat/ui'
+const containerViews: Record<string, any> = {}
+let sourceScroller: any
+function ContainerApp(props: { moved: boolean; shared: boolean }) {
+	const save = (name: string) => (view: any) => {
+		if (view) {
+			containerViews[name] = view
+		}
+	}
+	return (
+		<MotionConfig reducedMotion="never" transition={{ duration: 0.4, ease: 'linear' }}>
+			<View style={{ width: 400, height: 300 }}>
+				<motion.View
+					layoutRoot
+					ref={save('root')}
+					style={{ marginLeft: props.moved ? 100 : 0, width: 250, height: 100 }}
+				>
+					<motion.View
+						layout="position"
+						layoutAnchor={{ x: 1, y: 1 }}
+						ref={save('anchor')}
+						style={{ marginLeft: props.moved ? 40 : 20, width: 30, height: 30 }}
+					/>
+				</motion.View>
+				<ScrollableArea
+					ref={(value: any) => {
+						sourceScroller = value
+					}}
+					style={{ width: 300, height: 100 }}
+				>
+					<View style={{ width: 280, height: 400 }}>
+						{!props.shared && (
+							<motion.View
+								layoutId="appkit-scroll-source"
+								ref={save('source')}
+								transition={{ duration: 4, ease: 'linear' }}
+								style={{ marginTop: 100, width: 100, height: 50 }}
+							/>
+						)}
+					</View>
+				</ScrollableArea>
+				{props.shared && (
+					<motion.View
+						layoutId="appkit-scroll-source"
+						ref={save('destination')}
+						transition={{ duration: 4, ease: 'linear' }}
+						style={{ marginLeft: 140, width: 100, height: 50 }}
+					/>
+				)}
+			</View>
+		</MotionConfig>
+	)
+}
+
+export async function runContainers() {
+	const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
+		NSMakeRect(0, 0, 400, 300),
+		0,
+		2,
+		false,
+	)
+	window.releasedWhenClosed = false
+	const host = window.contentView
+	host.wantsLayer = true
+	const root = createMacOSRoot(host)
+	const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+	const flush = async () => {
+		for (let i = 0; i < 12; i++) {
+			await Promise.resolve()
+		}
+	}
+	const rect = (name: string) =>
+		containerViews[name].layer.convertRectToLayer(containerViews[name].layer.bounds, host.layer)
+	const close = (actual: number, expected: number, name: string) => {
+		if (!Number.isFinite(actual) || !Number.isFinite(expected) || Math.abs(actual - expected) > 0.5) {
+			throw new Error(name + ': ' + actual + ' vs ' + expected)
+		}
+	}
+	try {
+		root.render(ContainerApp, { moved: false, shared: false })
+		await sleep(100)
+		const before = Number(rect('anchor').origin.x)
+		root.render(ContainerApp, { moved: true, shared: false })
+		await flush()
+		close(Number(rect('root').origin.x), 100, 'AppKit root snaps')
+		close(
+			Number(rect('anchor').origin.x),
+			before + 100,
+			'AppKit anchor starts relative to snapped root',
+		)
+
+		await sleep(500)
+		close(Number(rect('anchor').origin.x), before + 120, 'AppKit anchor settles')
+		const beforeScroll = Number(rect('source').origin.y)
+		sourceScroller.scrollToOffset({ block: 80 }, { animated: false })
+		await sleep(50)
+		const source = rect('source')
+		close(Math.abs(Number(source.origin.y) - beforeScroll), 80, 'AppKit source scrolls')
+		root.render(ContainerApp, { moved: true, shared: true })
+		await flush()
+		const destination = rect('destination')
+		close(Number(destination.origin.x), Number(source.origin.x), 'AppKit handoff scroll x')
+		close(Number(destination.origin.y), Number(source.origin.y), 'AppKit handoff current scroll y')
+		console.log('MOTION_CONTAINERS_OK ' + JSON.stringify({ rootX: Number(rect('root').origin.x), sourceY: Number(source.origin.y), destinationY: Number(destination.origin.y) }))
+	} finally {
+		root.unmount()
+		window.close()
+	}
+}

@@ -190,3 +190,30 @@ it('keeps a dragged card under the pointer through ancestor layout changes and r
 		h.dispose()
 	}
 })
+
+it('snaps a root and animates its anchored child relative to the new root position', async () => {
+	const h = harness()
+	const parent = document.createElement('div'),
+		card = document.createElement('div')
+	parent.style.cssText = 'position:relative;width:250px;height:100px'
+	card.style.cssText = 'position:absolute;left:20px;top:20px;width:30px;height:30px'
+	parent.append(card)
+	h.host.append(parent)
+	const p = h.mount(parent),
+		c = h.mount(card, p)
+	p.options.layoutRoot = true
+	c.options.layoutAnchor = { x: 1, y: 1 }
+	try {
+		await h.commit()
+		const before = card.getBoundingClientRect().x
+		parent.style.marginLeft = '100px'
+		card.style.left = '40px'
+		await h.commit()
+		expect(parent.getBoundingClientRect().x).toBeCloseTo(100, 0)
+		expect(card.getBoundingClientRect().x).toBeCloseTo(before + 100, 0)
+		await sleep(500)
+		expect(card.getBoundingClientRect().x).toBeCloseTo(before + 120, 0)
+	} finally {
+		h.dispose()
+	}
+})
