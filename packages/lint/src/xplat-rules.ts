@@ -1389,34 +1389,52 @@ export function checkHooksInPlainTs(program, _src, filename, options) {
 // ---------- .tsrx-only checks (run by lint-tsrx.mjs) ----------
 
 export const NATIVE_PRAGMA = '/** @jsxImportSource @octane-xplat/jsx */'
-const LEGACY_NATIVE_PRAGMA = '/** @jsxImportSource @nativescript-community/octane */'
-const MACOS_PRAGMA = '/** @jsxImportSource @octane-xplat/macos-renderer */'
-const GTK_PRAGMA = '/** @jsxImportSource @octane-xplat/jsx */'
+export const DOM_PRAGMA = '/** @jsxImportSource @octane-xplat/jsx/dom */'
+const RETIRED_PRAGMAS = ['@nativescript-community/octane', '@octane-xplat/macos-renderer', 'octane']
 
-// The pragma sets the JSX import source — only files that contain JSX need
-// it. JSX-free native leaves (styled, use-store) omit it by
-// design. Existing renderer pragmas remain accepted for older consumers;
-// GTK leaves use the shared facade with the gtk host condition.
+// The pragma selects the JSX vocabulary — only files that contain JSX need
+// it. JSX-free native leaves (styled, use-store) omit it by design. Native
+// files take '@octane-xplat/jsx'; browser (.web/.linux) files take the /dom
+// facade — via pragma in mixed workspaces or the workspace tsconfig default
+// in browser-only ones (a missing /dom there is not an error).
 export function checkNativePragmaFirstLine(program, source, filename, options) {
-	if (
-		!norm(filename).endsWith('.tsrx') ||
-		!isNativeFile(filename) ||
-		fileExcluded(filename, options)
-	) {
+	if (!norm(filename).endsWith('.tsrx') || fileExcluded(filename, options)) {
 		return []
 	}
 
 	const file = norm(filename)
-	const legacyPragma = file.includes('.gtk.')
-		? GTK_PRAGMA
-		: file.includes('.macos.')
-			? MACOS_PRAGMA
-			: LEGACY_NATIVE_PRAGMA
-	// UI declarations use their renderer's types without an app-facade dependency.
-	const uiGtkRendererPragma =
-		/(?:^|\/)packages\/ui\/src\/.*\.gtk\.tsrx$/.test(file) &&
-		source.startsWith(LEGACY_NATIVE_PRAGMA)
-	if (source.startsWith(NATIVE_PRAGMA) || source.startsWith(legacyPragma) || uiGtkRendererPragma) {
+	const first = source.split('\n')[0] ?? ''
+	const pragmaMatch = /@jsxImportSource\s+([^\s*]+)/.exec(first)
+	if (pragmaMatch) {
+		const value = pragmaMatch[1]
+		if (RETIRED_PRAGMAS.includes(value)) {
+			return [
+				{
+					node: program,
+					message:
+						"Retired JSX pragma '" +
+						value +
+						"' — use '@octane-xplat/jsx' (native) or '@octane-xplat/jsx/dom' (browser).",
+				},
+			]
+		}
+
+		if (value === '@octane-xplat/jsx' && (file.includes('.web.') || file.includes('.linux.'))) {
+			return [
+				{
+					node: program,
+					message:
+						"Browser files type against '@octane-xplat/jsx/dom', not the native facade pragma.",
+				},
+			]
+		}
+	}
+
+	if (!isNativeFile(filename)) {
+		return []
+	}
+
+	if (source.startsWith(NATIVE_PRAGMA)) {
 		return []
 	}
 
