@@ -2531,7 +2531,10 @@ export function Code() {
 
 This slice preserves the shared single-character-per-edit behavior: a multi-
 character paste retains its last character, and deleting a filled cell truncates
-the suffix. Empty-cell Backspace navigation, OTP autofill, native digit filtering,
-physical focus/caret/IME, secure-field behavior and VoiceOver remain open or
+the suffix. Plain Backspace in an empty editable cell now requests focus on the
+preceding cell without changing the PIN or firing change/completion callbacks.
+Filled-cell deletion, IME composition and modified shortcuts keep native editor
+ownership. OTP autofill, native digit filtering, physical focus/caret/IME,
+secure-field behavior and VoiceOver remain open or
 unqualified; do not infer a complete native authentication flow from source
 presence.

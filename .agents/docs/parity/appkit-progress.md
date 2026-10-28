@@ -2318,3 +2318,39 @@ VoiceOver/AX naming and packaging remain unqualified. No build, package tests/
 typechecks, installs, OS automation, visual analysis or shared audit regeneration
 ran; no evidence checkbox is closed. Alternate picker presentations and live
 announcements remain separate implementation gaps.
+
+### AppKit empty-cell PIN Backspace
+
+ComponentsDemo contains a four-cell PinInput. The source already advances focus
+on entry but had no empty-cell key path. The target group now consumes plain
+Backspace only from its own empty editable, non-first mounted cell and requests
+previous-cell focus. It leaves the contiguous code and change/completion
+callbacks untouched. Filled cells, unavailable future cells, first cells,
+unrelated targets, prevented events, IME and modified shortcuts keep native
+editor ownership. Parent disabled/read-only state blocks this path.
+
+The private intrinsic handler needs the native target to match existing
+TextInputHandle.native identities: portable useKeyboard deliberately strips
+native targets. The existing renderer maps a shared field editor back to its
+owning text field and reports marked-text composition. No new public keyboard
+prop, renderer change, dependency, shared state or layout wrapper was added.
+Two authored object-driver cases cover controlled/uncontrolled focus intent
+without edits and the preserved editor/blocked-target gates. They remain unrun.
+Only TSRX syntax, semantic/source review and whitespace checks ran. The existing
+Components demo continues to provide the maintained four-cell usage; public
+PIN guidance, skill and pin-entry recipe AC5 now document this target behavior.
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/pin-input.macos.mobile.test.tsrx src/text-controls.macos.mobile.test.tsrx
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All commands remain deferred pending explicit human authorization for this task.
+Physical Backspace/field-editor target mapping, native focus/caret, IME, secure
+input/VoiceOver and packaged operation remain unqualified. OTP autofill and
+native digit filtering remain implementation gaps. No build, package test/
+typecheck, install, OS automation, visual analysis or shared audit regeneration
+ran; no evidence checkbox is closed.

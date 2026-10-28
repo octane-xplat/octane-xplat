@@ -71,3 +71,54 @@ it('retains entered values/hosts when standalone validation metadata changes', (
 		expect(env.all().map((node) => node.props?.text)).toContain('Try again')
 	} finally { env.root.unmount() }
 })
+
+function key(target: any, overrides: any = {}) {
+	return { target, key: 'Backspace', code: 'Backspace', altKey: false, ctrlKey: false, metaKey: false, shiftKey: false,
+		isComposing: false, repeat: false, defaultPrevented: false, stopped: false,
+		preventDefault() { this.defaultPrevented = true }, stopPropagation() { this.stopped = true }, ...overrides }
+}
+
+it('empty-cell Backspace requests previous-cell focus without editing controlled or uncontrolled code', () => {
+	for (const controlled of [false, true]) {
+		const changes = vi.fn(), complete = vi.fn(), focus = vi.fn()
+		const env = mount(PinInput, { id: 'pin', length: 4, ...(controlled ? { value: '12' } : {}), onValueChange: changes, onComplete: complete })
+		try {
+			if (!controlled) {
+				env.fields()[0].props.onTextChange('1'); flushUniversalSync(() => {})
+				env.fields()[1].props.onTextChange('2'); flushUniversalSync(() => {})
+			}
+			changes.mockClear(); complete.mockClear()
+			for (const field of env.fields()) field.window = { makeFirstResponder: focus }
+			const group = env.all().find((node) => node.props?.id === 'pin'), fields = env.fields()
+			const event = key(fields[2]); group.props.onKeyDown(event)
+			expect(event.defaultPrevented).toBe(true)
+			expect(event.stopped).toBe(true)
+			expect(focus).toHaveBeenCalledWith(fields[1])
+			expect(fields.map((field) => field.props.value)).toEqual(['1', '2', '', ''])
+			expect(changes).not.toHaveBeenCalled(); expect(complete).not.toHaveBeenCalled()
+		} finally { env.root.unmount() }
+	}
+})
+
+it('PIN Backspace preserves native filled-cell editing, IME, shortcuts and unrelated targets', () => {
+	const env = mount(PinInput, { id: 'pin', value: '12' }), focus = vi.fn()
+	try {
+		const fields = env.fields(), group = env.all().find((node) => node.props?.id === 'pin')
+		for (const field of fields) field.window = { makeFirstResponder: focus }
+		for (const event of [key(fields[0]), key(fields[1]), key(fields[3]), key({}),
+			...['isComposing', 'altKey', 'ctrlKey', 'metaKey', 'shiftKey', 'defaultPrevented'].map((flag) => key(fields[2], { [flag]: true })),
+			key(fields[2], { key: 'Delete' })]) {
+			const wasPrevented = event.defaultPrevented
+			group.props.onKeyDown(event)
+			expect(event.defaultPrevented).toBe(wasPrevented)
+			expect(event.stopped).toBe(false)
+		}
+		expect(focus).not.toHaveBeenCalled()
+		for (const patch of [{ isDisabled: true }, { isReadOnly: true }]) {
+			env.render({ id: 'pin', value: '12', ...patch })
+			const event = key(fields[2]); group.props.onKeyDown(event)
+			expect(event.defaultPrevented).toBe(false)
+		}
+		expect(focus).not.toHaveBeenCalled()
+	} finally { env.root.unmount() }
+})

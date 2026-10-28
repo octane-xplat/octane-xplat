@@ -789,7 +789,9 @@ export function Plan() {
 PinInput now resolves inherited Field gates/metadata, gives each cell a unique
 ID and digit name, and cancels pending focus when blocked. One stable Field owns
 standalone metadata. Shared last-character paste and suffix-truncation editing
-remain unchanged; empty-cell Backspace/OTP autofill and native focus/IME/secure/
+remain unchanged. Plain empty-cell Backspace now requests previous-cell focus
+without changing the code; filled cells/IME/modified keys keep editor ownership.
+OTP autofill and native focus/IME/secure/
 VoiceOver qualification remain open. See
 [PIN fields](../../../../docs/app/primitives.md#pin-fields-on-appkit).
 

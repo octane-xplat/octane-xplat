@@ -1,6 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useEffect, useId, useRef, useState } from 'octane'
 import type { PinInputProps, TextInputHandle } from './props'
+import type { NativeKeyboardEvent } from '@octane-xplat/jsx/intrinsics'
 import { cx } from '@octane-xplat/lib'
 import { useFieldControl } from './field-context'
 import { FormField } from './FormField.macos.tsrx'
@@ -64,8 +65,25 @@ export function PinInput(inputProps: PinInputProps) @{
 		}
 	}
 
+	// The renderer maps a shared field editor back to its owning text field.
+	// Keep this private native target lookup: portable useKeyboard omits targets.
+	const backspace = (event: NativeKeyboardEvent<NSView>) => {
+		if (event.defaultPrevented || event.key !== 'Backspace' || event.isComposing ||
+			event.altKey || event.ctrlKey || event.metaKey || event.shiftKey ||
+			props.isDisabled || props.isReadOnly) return
+		const index = handles.current.findIndex((handle) => handle?.native === event.target)
+		if (index <= 0 || index >= length || index > value.length || cellValue(index) !== '') return
+		const previous = handles.current[index - 1]
+		if (!previous) return
+		pendingFocus.current = null
+		event.preventDefault()
+		event.stopPropagation()
+		previous.focus()
+	}
+
 	const group = <masonview
 		id={controlID}
+		onKeyDown={backspace}
 		className={cx(
 			'vx-pininput',
 			'vx-pininput--appkit',
