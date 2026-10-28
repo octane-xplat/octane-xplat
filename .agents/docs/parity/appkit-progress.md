@@ -127,3 +127,37 @@ Once authorized, check app activation/deactivation, actual primary-window
 resize/rendering and subscription cleanup in addition to bridge assertions.
 Work is now on origin branch `feat/appkit-native-support`; pushing is authorized.
 The heavy-verification restriction remains unchanged.
+
+## Focus-visible input modality
+
+AppKit now has a dedicated `useFocusVisible` leaf. Its native source observes
+unmodified key-down and left/right/other mouse-down events without consuming
+them, ignores modified application shortcuts, and clears modality when the app
+deactivates. Hook readers share one monitor/notification observer and release
+both after the last unmount. A synchronous `isFocusVisible()` read retains
+observation for the module's lifetime; HMR disposal releases it. Missing or
+failed bridge registration reports unsupported rather than inferred input.
+`useFocusRing` reads this modality through its existing shared hook.
+
+Source regressions cover stable snapshots, event passthrough, keyboard/mouse
+transitions, modifiers, deactivation, shared subscriptions, teardown, global
+read retention and partial-registration failure. They and the maintained
+`focus-modality.macos.tsrx` probe are authored but not run. Syntax parsing and
+whitespace checks are the only validation. Actual hook updates, physical input,
+text focus callbacks, focus appearance and VoiceOver remain unqualified.
+FocusScope and subtree-focus limitations are unchanged; this is modality
+tracking rather than containment or a claim of finished focus parity.
+
+Deferred commands for this slice:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/ui -- src/focus-visible-source.macos.test.ts
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe run examples/probes/focus-modality.macos.tsrx --target macos --watch
+pnpm check:recipes
+```
+
+After authorization, exercise real Tab/Shift+Tab, pointer buttons, Command/
+Control/Option shortcuts, app deactivation, two simultaneous hook readers,
+last-reader unmount/remount and HMR cleanup. The probe only exposes state and
+initial bridge capability; that alone is not OS-input evidence.

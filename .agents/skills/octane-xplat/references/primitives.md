@@ -87,7 +87,23 @@ export function Controls() {
 }
 ```
 
-## Platform-authentic subpaths
+## Native macOS interaction
+
+AppKit `useFocusVisible` now reports keyboard/mouse modality when its native
+observer is available. Check `isSupported`; it is a bridge capability rather
+than OS-input evidence. Prefer the subscribed hook for render readers. A
+global `isFocusVisible()` read retains observation for the module's lifetime.
+See [focus behavior](../../../../docs/app/primitives.md#focus-behavior) for
+cleanup and the remaining FocusScope/mobile limits.
+
+```tsx
+import { Text, useFocusVisible } from '@octane-xplat/ui'
+
+export function InputStatus() {
+	const input = useFocusVisible()
+	return <Text>{input.isSupported ? input.inputModality : 'Unavailable'}</Text>
+}
+```
 
 For AppKit responsive choices, use `useMediaQuery`'s
 [documented native subset](../../../../docs/app/components.md#responsive-appkit-layout).
@@ -119,6 +135,8 @@ export function ViewMode() {
 	</SegmentedControl>
 }
 ```
+
+## Platform-authentic subpaths
 
 The OS widget is the value of these exports. They are intentionally absent
 from the shared root barrel.

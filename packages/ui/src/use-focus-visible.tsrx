@@ -1,9 +1,9 @@
-/** Input modality observed by the focus-visible tracker. Native targets use
- *  `unknown` because they do not track keyboard/pointer modality. */
+/** Input modality observed by the focus-visible tracker. The default mobile
+ * leaf reports unknown; web and AppKit have dedicated input trackers. */
 export type FocusInputModality = 'keyboard' | 'pointer' | 'unknown'
 
-/** Result of `useFocusVisible` on every target. Native targets report
- *  `isSupported: false`, `inputModality: 'unknown'`, and no visible ring. */
+/** Result of `useFocusVisible` on every target. Check isSupported before
+ * relying on modality; default mobile leaves report false and unknown. */
 export interface UseFocusVisibleResult {
 	isFocusVisible: boolean
 	inputModality: FocusInputModality
@@ -11,10 +11,9 @@ export interface UseFocusVisibleResult {
 }
 
 /**
- * Native counterpart of use-focus-visible.web.tsrx. There is no
- * pointer-vs-keyboard modality on native — focus-visible is a web input
- * concept — so the hook reports a constant false and an unsupported
- * modality instead of implying that pointer input was observed.
+ * Default mobile counterpart of use-focus-visible.web.tsrx. This leaf has
+ * no shared hardware-input observer and reports false/unknown. AppKit uses
+ * its own leaf; physical keyboard/pointer input is meaningful on desktop.
  */
 export function useFocusVisible(): UseFocusVisibleResult {
 	return { isFocusVisible: false, inputModality: 'unknown', isSupported: false }

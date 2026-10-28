@@ -466,7 +466,10 @@ if (result === 'unavailable') console.log('Sharing unavailable')
   native and macOS report all four false. `useGridList().isSupported` and
   `useFocusWithin().isSubtreeTrackingSupported` are false on native/macOS.
   `useFocusVisible()` reports typed `inputModality` (`keyboard`, `pointer`, or
-  `unknown`) plus `isSupported`; native/macOS return false and `unknown`.
+  `unknown`) plus `isSupported`; the default mobile leaf returns false and
+  `unknown`. AppKit now has a shared native keyboard/mouse observer, with
+  bridge-availability reporting, app-deactivation reset and subscriber cleanup.
+  Actual OS input, focus callbacks/rings and VoiceOver remain unqualified.
   Focus callbacks use `FocusEventPayload` on web and may omit the event on
   native/macOS. Check capabilities before depending on those behaviors. — post-0.14.0·desk.
 

@@ -61,7 +61,8 @@ export function useFocus(options: UseFocusOptions = {}) {
  */
 export interface UseFocusRingResult {
 	isFocused: boolean
-	/** Focused AND the last input was keyboard-modality (web); always false on native. */
+	/** Focused AND the tracked input modality is keyboard (web/AppKit).
+	 * The default mobile tracker reports false. */
 	isFocusVisible: boolean
 	/** Whether this target tracks keyboard/pointer modality for focus rings. */
 	isFocusVisibleSupported: boolean

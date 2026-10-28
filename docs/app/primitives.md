@@ -526,12 +526,17 @@ export function FocusExample() {
 }
 ```
 
-On web, `useFocusVisible` identifies keyboard, pointer, or unknown input
-modality. NativeScript and macOS return `isSupported: false` and
-`inputModality: 'unknown'`; `useFocusRing` exposes the same limit through
-`isFocusVisibleSupported`. `FocusScope` reports containment, autofocus,
+On web and experimental AppKit, `useFocusVisible` identifies keyboard, pointer,
+or unknown input modality. AppKit observes unmodified key presses and mouse
+buttons without consuming events; app deactivation resets it to unknown.
+Hook readers share one monitor and the last unmount releases it. AppKit's
+`isSupported` reflects native bridge availability, not OS-input qualification.
+NativeScript still reports false and unknown; `useFocusRing` exposes support
+through `isFocusVisibleSupported`. `FocusScope` reports containment, autofocus,
 restoration, and nested-scope support. Web supports the first three but does
 not stack nested scopes; NativeScript and macOS support none of these behaviors.
+AppKit physical input, focus callbacks, focus appearance and VoiceOver remain
+unqualified.
 
 ```tsx
 import { FocusScope, Text, getFocusScopeCapabilities, useFocusVisible } from '@octane-xplat/ui'
@@ -552,6 +557,16 @@ export function ScopedContent() {
 		</FocusScope>
 	)
 }
+```
+
+For a synchronous global read, AppKit's `isFocusVisible()` starts observation
+and retains it for the module's lifetime (HMR disposes it). It does not subscribe
+the caller to updates; use the hook for rendering. Neither API moves focus.
+
+```ts
+import { isFocusVisible } from '@octane-xplat/ui'
+
+const lastInputWasKeyboard = isFocusVisible()
 ```
 
 ### Reusable rows
