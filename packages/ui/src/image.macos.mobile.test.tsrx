@@ -48,3 +48,28 @@ it('AppKit Image forwards corner/percentage positions and valid center edge offs
 		expect(env.host.props.style.objectPosition).toBe('top 50% left 50%')
 	} finally { env.root.unmount() }
 })
+
+
+it('AppKit Image selects declared candidates after box/density changes and source replacement', () => {
+	const sources = [
+		{ uri: '~/small.png', width: 100, height: 50 },
+		{ uri: '~/large.png', width: 200, height: 100 },
+	]
+	const env = mount({ src: sources, style: { width: 100, height: 50 } })
+	try {
+		expect(env.host.props.src).toBe('~/small.png')
+		env.host.props.onImageGeometryChanged({ width: 100, height: 50, scale: 2 })
+		flushUniversalSync(() => {})
+		expect(env.host.props.src).toBe('~/large.png')
+		env.host.props.onImageGeometryChanged({ width: 100, height: 50, scale: 1 })
+		flushUniversalSync(() => {})
+		expect(env.host.props.src).toBe('~/small.png')
+		env.root.render(Image, { src: [], style: { width: 100, height: 50 } })
+		flushUniversalSync(() => {})
+		expect(env.host.props.src).toBe('')
+		env.root.render(Image, { src: '~/single.png' })
+		flushUniversalSync(() => {})
+		expect(env.host.props.src).toBe('~/single.png')
+		expect(env.host.props.onImageGeometryChanged).toBeUndefined()
+	} finally { env.root.unmount() }
+})

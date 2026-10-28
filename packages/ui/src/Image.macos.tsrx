@@ -1,12 +1,12 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { useMemo } from 'octane'
+import { useMemo, useState } from 'octane'
 import { mergeStyle } from './style-merge'
 import { layoutChildProps } from './layout-child'
 import { cx } from '@octane-xplat/lib'
 import { appKitImageSource } from './svg-image.macos'
 import { hashToPngBase64 } from './hash-image'
 import type { ImageProps } from './props'
-import { objectPositionCSSValue, resolveContentPosition } from './image-content'
+import { bestImageSource, objectPositionCSSValue, resolveContentPosition } from './image-content'
 
 /** `blurhash:`/`thumbhash:` decode to a data: PNG (./hash-image — the same
  *  decode the other leaves run); `data:`/`res://`/`~/`/file paths pass through
@@ -29,11 +29,19 @@ function appKitPlaceholder(placeholder: string): string | undefined {
 declare module '@octane-xplat/jsx/intrinsics' {
 	interface ImageProps {
 		placeholder?: string
+		onImageGeometryChanged?: (geometry: { width: number; height: number; scale: number }) => void
 	}
 }
 
 export function Image(props: ImageProps) @{
-	const srcString = (Array.isArray(props.src) ? props.src[0]?.uri : props.src) ?? ''
+	const [geometry, setGeometry] = useState({ width: 0, height: 0, scale: 1 })
+	const sources = Array.isArray(props.src) ? props.src : null
+	const srcString = (sources
+		? bestImageSource(sources, geometry.width, geometry.height, geometry.scale)?.uri
+		: props.src as string) ?? ''
+	const onGeometry = useMemo(() => (next: typeof geometry) => setGeometry((previous) =>
+		previous.width === next.width && previous.height === next.height && previous.scale === next.scale
+			? previous : next), [])
 	const src = useMemo(() => appKitImageSource(srcString), [srcString])
 	const svg = src.startsWith('data:image/svg+xml')
 	// The host paints the placeholder into the same view while a remote src
@@ -57,6 +65,7 @@ export function Image(props: ImageProps) @{
 		id={props.id}
 		src={src}
 		placeholder={placeholder}
+		onImageGeometryChanged={sources ? onGeometry : undefined}
 		className={cx(props.className)}
 		{...layoutChildProps(props, style)}
 		accessibilityLabel={props.alt ?? ''}

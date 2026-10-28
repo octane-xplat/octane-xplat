@@ -124,7 +124,7 @@ AppKit cache-control functions remain stubs (`prefetch`/`evictImage` return
 false, cache queries return none, initialization/clear do nothing). Headers,
 cachePolicy, decode bounds, failureImage, progressive loading, transitions and
 onLoad/onError are unimplemented. Fit/position use the core AppKit clipped drawing path in logical points;
-source-set choice and decode scheduling remain incomplete. Native fit/crop,
+source sets use the core box/window-density selector, while decode scheduling remains incomplete. Native fit/crop,
 orientation and density are not runtime-qualified. See
 [AppKit image loading](../../docs/app/components.md#image-loading-on-appkit).
 

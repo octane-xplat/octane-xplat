@@ -93,8 +93,8 @@ AppKit `Image` preserves shared layout props, composed classes and style forms.
 The optional image package now delegates to the core leaf. Use local placeholders and the shared fit/position props. AppKit now draws
 clipped fit rectangles in native logical points, including cover and corner/
 percentage offsets. Raw CSS position parsing accepts keywords/px/percentages;
-other units or unresolved expressions center with a warning. Source-set and
-decode-hint gaps remain; native cropping/orientation/density are unqualified. The
+other units or unresolved expressions center with a warning. Resolution candidates use the shared closest-pixel-count rule on box/window-density
+changes (use a stable styled box); decode hints remain unimplemented; native cropping/orientation/density are unqualified. The
 renderer shares bounded decoded images and cancels pending work after its last
 subscriber leaves; HTTP error payloads are rejected and remote delivery enters
 the main operation queue. Native timing, rendering and packaging are unqualified.

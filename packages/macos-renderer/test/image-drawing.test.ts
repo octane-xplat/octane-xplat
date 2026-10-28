@@ -61,17 +61,19 @@ test('drawing restores graphics state after native failure and ignores pending o
 test('native image subclass retains hit testing and redraws after a real frame-size change', () => {
 	const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
 	const slice = source.slice(source.indexOf('class InputImageView'), source.indexOf('function makeImageView'))
-	let fallback = 0, handled = false
+	let fallback = 0, handled = false, metrics = 0, lifecycle = 0
 	const transparent = new WeakSet()
 	const { InputImageView } = runSlice(slice + '\n({ InputImageView })', {
 		NSImageView: class {
 			frame = { size: { width: 10, height: 20 } }
 			needsDisplay = false
 			drawRect() { fallback++ }
+			viewDidMoveToWindow() { lifecycle++ }
+			viewDidChangeBackingProperties() { lifecycle++ }
 			setFrameSize(size: any) { this.frame.size = { ...size } }
 			hitTest() { return this }
 		},
-		NativeClass() {}, inputTransparentViews: transparent, drawImageContent: () => handled,
+		notifyImageGeometry() { metrics++ }, NativeClass() {}, inputTransparentViews: transparent, drawImageContent: () => handled,
 	})
 	const view = new InputImageView()
 	assert.equal(view.wantsUpdateLayer, false)
@@ -84,6 +86,11 @@ test('native image subclass retains hit testing and redraws after a real frame-s
 	assert.equal(view.needsDisplay, false)
 	view.setFrameSize({ width: 20, height: 10 })
 	assert.equal(view.needsDisplay, true)
+	assert.equal(metrics, 1)
+	view.viewDidMoveToWindow()
+	view.viewDidChangeBackingProperties()
+	assert.equal(metrics, 3)
+	assert.equal(lifecycle, 2)
 	assert.equal(view.hitTest({}), view)
 	transparent.add(view)
 	assert.equal(view.hitTest({}), null)

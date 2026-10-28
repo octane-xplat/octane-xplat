@@ -734,10 +734,27 @@ export function Portrait({ src }: { src: string }) {
 }
 ```
 
+For resolution candidates, AppKit uses the shared closest-pixel-count rule
+with the image box and its own window's backing scale. It reselects after
+resize, attachment or backing-density changes; before attachment it falls
+back to declared density at scale 1. Use a stable styled box for resolution
+variants. Intrinsic-only source sets, screen transfers and actual asset density
+still need native qualification.
+
+```tsx
+import { Image } from '@octane-xplat/ui'
+
+export function Avatar() {
+	return <Image alt="Profile photo" style={{ width: 80, height: 80 }} src={[
+		{ uri: '~/avatar.png', width: 80, height: 80, scale: 1 },
+		{ uri: '~/avatar@2x.png', width: 80, height: 80, scale: 2 },
+	]} />
+}
+```
+
 The optional image package reuses this core AppKit path. Its cache-control APIs
 remain stubs, and engine-specific headers, decode bounds, transitions and
-load/error callbacks remain unimplemented. AppKit still selects the first
-source-array item and does not honor decode scheduling hints. Fit/position
+load/error callbacks remain unimplemented. AppKit does not honor decode scheduling hints. Fit/position
 use the native image's logical point dimensions, not an engine decode bound. Local placeholders remain on failure;
 remote placeholders are ignored. Real native loading, cancellation, layout,
 network errors and packaging still need qualification.

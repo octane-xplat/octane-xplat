@@ -39,6 +39,7 @@ import {
 
 import { showWindowLayer, type WindowLayerOptions } from './layer'
 import { disposeImage, updateImage } from './image'
+import { notifyImageGeometry, setImageGeometryHandler } from './image-geometry.ts'
 import { drawImageContent, setImageDrawingStyle } from './image-drawing'
 import {
 	makeTabView,
@@ -2480,7 +2481,18 @@ class InputImageView extends NSImageView {
 	setFrameSize(size: { width: number; height: number }): void {
 		const previousWidth = this.frame.size.width, previousHeight = this.frame.size.height
 		super.setFrameSize(size)
-		if (size.width !== previousWidth || size.height !== previousHeight) this.needsDisplay = true
+		if (size.width !== previousWidth || size.height !== previousHeight) {
+			this.needsDisplay = true
+			notifyImageGeometry(this)
+		}
+	}
+	viewDidMoveToWindow(): void {
+		super.viewDidMoveToWindow()
+		notifyImageGeometry(this)
+	}
+	viewDidChangeBackingProperties(): void {
+		super.viewDidChangeBackingProperties()
+		notifyImageGeometry(this)
 	}
 	hitTest(point: any): any {
 		return inputTransparentViews.has(this) ? null : super.hitTest(point)
@@ -6329,6 +6341,13 @@ function applyProps(node: ElementNode, props: PropBag) {
 			continue
 		}
 
+		if (node.type === 'image' && name === 'onImageGeometryChanged') {
+			setImageGeometryHandler(node.view as NSImageView, typeof value === 'function'
+				? (geometry) => node.container.root!.eventScope('discrete', () => value(geometry))
+				: undefined)
+			continue
+		}
+
 		if (name === 'onLayoutChanged') {
 			setLayoutAction(node, value)
 			continue
@@ -8043,6 +8062,7 @@ function destroy(node: ElementNode) {
 	}
 
 	if ((node.type === 'image' || node.type === 'animatedimage') && node.view) {
+		if (node.type === 'image') setImageGeometryHandler(node.view as NSImageView, undefined)
 		disposeImage(node.view as NSImageView)
 	}
 

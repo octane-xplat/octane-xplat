@@ -646,3 +646,42 @@ qualify native file/picker timing or close a runtime checkbox.
 Whitespace and snippet syntax were checked only. Deferred: `pnpm check:recipes`
 and native picker/read/cleanup runs; no test, typecheck, build, packaging,
 automation or visual analysis ran for this documentation correction.
+
+
+### Image resolution candidate selection
+
+Priority assumption: shared Image declares resolution-qualified source arrays;
+retina avatars and bounded collection thumbnails are common desktop app flows.
+AppKit previously always selected the first item. It now reuses bestImageSource
+with its image bounds in logical points and its own window's backing scale.
+An unattached image initially selects by declared density at scale 1. Native
+frame changes, window attachment and backing changes notify a dedicated image
+callback independently of margin-host layout notifications. Notifications are
+coalesced after the native callback stack; identical measurements do not rerender.
+Removed handlers/views cancel queued delivery. Source replacement uses current
+props and the existing request generation/cancellation lifecycle.
+
+The bridge follows Apple's public NSView lifecycle methods:
+[viewDidMoveToWindow](https://developer.apple.com/documentation/appkit/nsview/viewdidmovetowindow%28%29)
+and [viewDidChangeBackingProperties](https://developer.apple.com/documentation/appkit/nsview/viewdidchangebackingproperties%28%29).
+These API references are design evidence only. Object-driver selection,
+coalescing/deduplication, rebind, teardown, detached/invalid metrics and native
+subclass signal regression cases are authored but have not run. Stable styled
+boxes are the documented path. Actual retina density, cross-screen moves,
+intrinsic-only source-set feedback/layout, native callback registration and
+packaging remain unqualified. Decode hints, downsampling and engine/cache APIs
+remain gaps. No shared audit snapshot or evidence-gated checkbox was changed.
+
+Syntax and whitespace checks only. Deferred commands:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/image.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer --filter=...@octane-xplat/ui --filter=...@octane-xplat/image
+pnpm check:recipes
+```
+
+After human authorization, qualify candidate swaps with a fixed box, live resize,
+backing-scale/window changes, in-flight cancellation, empty/string replacement,
+owner teardown and intrinsic-only layout. No tests/typechecks/builds, native or
+OS automation, installs, packaging or visual analysis ran in this slice.

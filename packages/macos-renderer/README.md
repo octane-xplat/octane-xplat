@@ -590,3 +590,21 @@ physical OS input remains a separate manual check.
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit gesture verification"}' -- pnpm probe run packages/macos-renderer/test/fixtures/gestures.macos.tsrx --target macos
 ```
+
+
+### Image geometry callbacks on AppKit
+
+Raw `image` views expose `onImageGeometryChanged` for core Image's resolution
+selection. Events contain `{ width, height, scale }` for the image's own bounds
+and window backing factor, independently of margin-host layout notifications.
+Frame-size, window attachment and backing-property changes coalesce onto a
+later turn; identical metrics are suppressed. Removing the handler/view cancels
+queued delivery. This callback is internal renderer machinery, not a new shared
+Image prop. Native callback registration, cross-screen behavior and automatic
+intrinsic sizing remain unqualified.
+
+```tsx
+<image src="~/photo.png" onImageGeometryChanged={({ width, height, scale }) => {
+	console.log({ width, height, scale })
+}} />
+```
