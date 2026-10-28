@@ -796,10 +796,12 @@ uncontrolled clear/submit path. Omitted/empty placeholders are preserved instead
 of inventing Search text. TextInput also forwards placeholderTextColor and
 returnKeyType to the existing renderer prop paths.
 
-Import prerequisite: controls.macos now pins usePan to pan.macos.tsrx; the
-unsuffixed pan implementation imports NativeScript core and normalizes a
-mobile payload. AppKit leaf consumers/object-driver imports should not need
-that mobile source. No shared/Windows/GTK source changed.
+Import alignment: controls.macos now pins usePan to pan.macos.tsrx. The native
+AppKit resolver already prefers that suffix; this is not evidence of a failing
+production import. The explicit leaf also lets the mobile-oriented object-driver
+test resolver import AppKit controls without selecting pan.tsrx, which imports
+NativeScript core and normalizes a mobile payload. No shared/Windows/GTK source
+changed.
 
 Added default/custom/no-icon, supplied-node, placeholder and return-key metadata
 regression source. Syntax and whitespace only; tests are unrun. Deferred:

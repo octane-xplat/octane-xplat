@@ -75,6 +75,6 @@ nodes, and SearchInput supplies its default/custom icon or omits it for false.
 TextInput forwards placeholderTextColor; SearchInput preserves omitted/empty
 placeholders and marks its return action as search. Added object-driver
 regression source; native icon pixels/spacing/accessibility are unqualified.
-The controls leaf pins its pan import to the AppKit implementation instead of
-the NativeScript default. TextArea maxLength remains a source gap, separate
+The controls leaf explicitly pins its pan import to AppKit for source/test
+resolution; the AppKit bundler already prefers the macOS suffix. TextArea maxLength remains a source gap, separate
 from these search/entry prerequisites.
