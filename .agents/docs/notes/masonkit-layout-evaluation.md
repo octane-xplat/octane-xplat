@@ -1696,6 +1696,27 @@ and the user's already-running simulator was left alone. These checks use
 numeric frames and handler dispatch; they do not qualify pixels or OS input.
 No public workflow or recipe changed.
 
+#### Published as core beta.6
+
+The fix `0cbb3b2` and release-input commit `e2ef767` are pushed to Mason main.
+[Mason core 1.0.0-beta.6](https://github.com/octane-xplat/nativescript-mason/releases/tag/core-v1.0.0-beta.6)
+replaces the simulator-only candidate described above. Both iOS slices pass
+isolated Swift/Objective-C link checks and all 103 C export checks; assembly
+verifies matching source projections, public headers and dependency locks.
+The device slice was rebuilt without physical-device execution. Android is
+byte-preserved from beta.5. Exported iOS headers are byte-identical to beta.5;
+the declaration manifest records that API revalidation and the new binary hash.
+
+The native input archive SHA256 is
+`7be9fdee434bc7dc7dd9701b2c5eba0161fcbc53025cbe9048dbff08863f97ef`.
+[CI validation](https://github.com/octane-xplat/nativescript-mason/actions/runs/40747404097)
+and the [release publishing workflow](https://github.com/octane-xplat/nativescript-mason/actions/runs/40747611326)
+pass. npm trusted publishing reports beta.6 published with provenance under
+`next`. The release notes preserve the remaining 107×500 stage shrink failure;
+this release does not resolve that case. The separate push workflow's Rust
+formatting check fails in unchanged Rust files; it is not a passing Rust test
+run. Xplat's dependency pin remains beta.5 and is not upgraded by this release.
+
 ## iOS dev-session bootstrap gap (2026-10-27)
 
 Runtime-observed on an iPhone 18 Pro simulator while launching the
