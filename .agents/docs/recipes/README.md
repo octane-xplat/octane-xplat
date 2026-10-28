@@ -77,6 +77,7 @@ Workflows:
 - [Render a long vertical collection](virtual-list.md)
 - [Manage an interactive data grid](interactive-data-grid.md)
 - [Build a settings list with reusable rows](settings-list.md)
+- [Open System Settings on AppKit](appkit-settings.md)
 - [Render a bounded content list](content-list.md)
 - [Compose a shared screen layout](shared-layout.md)
 - [Handle keys and copy text](keyboard-clipboard.md)

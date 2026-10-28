@@ -278,6 +278,14 @@ reads can reject and writes/removal can return `false`.
 
 ## Platform services
 
+AppKit `openSettings` now resolves and launches System Settings through
+NSWorkspace when the native methods are available. It does not select an
+app-specific permission page. A launch request can fail and does not prove
+presentation, activation or a permission change. Native runtime and packaged/
+sandbox checks remain pending; see [opening settings](../platform/platform-services.md#open-settings).
+
+
+
 | Seam                                        | Web                                                                                                                                                                                                    | iOS                                                                                                                | Android                                                                                                                       | Kind                                                                                                                                                                                                              | Verified              |
 | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------- |
 | `appInfo`                                   | unsupported — no trustworthy bundle identity                                                                                                                                                           | `NSBundle` metadata                                                                                                | package metadata                                                                                                              | `unsupported`                                                                                                                                                                                                     | 0.5.0                 |

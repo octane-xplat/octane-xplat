@@ -34,6 +34,23 @@ import { random } from '@octane-xplat/platform'
 const nonce = random.bytes(16)
 ```
 
+## Open system settings
+
+Use `openSettings` from the root platform package for an explicit user action.
+Check `supported` and await `isAvailable()` first. AppKit opens the installed
+System Settings application; it does not navigate to app-specific permissions
+or change them. A true return acknowledges the launch request only. Browsers
+remain unsupported; AppKit runtime/packaged behavior is unqualified. See
+[opening settings](../../../../docs/platform/platform-services.md#open-settings).
+
+```ts
+import { openSettings } from '@octane-xplat/platform'
+
+export async function showSettings() {
+	return openSettings.supported && await openSettings.isAvailable() && openSettings.open()
+}
+```
+
 ## SQLite transactions
 
 Use the callback's handle for every awaited transaction operation. Main-handle

@@ -492,7 +492,7 @@ export function Services() @{
 						})
 					}
 				>
-					<Text>App settings</Text>
+					<Text>Open settings</Text>
 				</Pressable>
 				<Pressable
 					className="btn btn-secondary"

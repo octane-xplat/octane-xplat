@@ -8,7 +8,6 @@ import type {
 	DeviceInfo,
 	Insets,
 	Locale,
-	OpenSettingsImpl,
 	WebAuthnImpl,
 	WindowSize,
 } from './types'
@@ -108,13 +107,7 @@ export const webAuthn: Service<WebAuthnImpl> = {
 
 export { authSession } from './auth-session.macos'
 export { random } from './random.macos'
-export const openSettings: Service<OpenSettingsImpl> = {
-	supported: false,
-	isAvailable: async () => false,
-	open: () => {
-		throw new UnavailabilityError('openSettings')
-	},
-}
+export { openUrl, openSettings } from './open-url.macos'
 
 export { permissions } from './permissions'
 export const systemBars = {
@@ -133,10 +126,6 @@ export function announce(text: string): void {
 	if (text.trim()) {
 		host().announce?.(text)
 	}
-}
-
-export function openUrl(url: string): boolean {
-	return host().openUrl?.(url) ?? false
 }
 
 export function useAppState(): AppState {

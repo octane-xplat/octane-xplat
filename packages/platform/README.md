@@ -26,6 +26,21 @@ const result = await permissions.requestPermissions('camera')
 `flush()` after writes that must survive a hard kill; it returns whether the
 platform confirmed durability.
 
+On experimental AppKit, `openSettings` opens the installed System Settings
+application without choosing a pane. Check availability before an explicit
+user action; acceptance does not confirm presentation or a permission change.
+Actual AppKit presentation and packaged behavior remain unqualified. See
+[opening settings](../../docs/platform/platform-services.md#open-settings).
+
+```ts
+import { openSettings } from '@octane-xplat/platform'
+
+if (openSettings.supported && await openSettings.isAvailable()) {
+	const accepted = openSettings.open()
+	console.log(accepted)
+}
+```
+
 Ask your agent for the user outcome and the fallback: “Attach a photo to a
 trip item and explain when capture is unavailable.” Services cover storage,
 permissions, deep links, and more. Services that need a NativeScript

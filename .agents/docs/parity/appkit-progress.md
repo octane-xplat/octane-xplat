@@ -362,3 +362,54 @@ disable/hide/remove/reorder, nested grids and FocusScope, controlled selection,
 scroll visibility, nested editing/IME, two windows, delayed attachment, VoiceOver,
 HMR and packaged lifecycle. Handler dispatch or makeFirstResponder alone does
 not qualify physical input, hit testing or accessibility.
+
+## System settings launch
+
+Priority evidence: `packages/app/src/Services.tsrx`, used by the shared app,
+already exposes a settings action. This makes the service an existing everyday
+flow, ahead of niche integrations. Its action label is now Open settings so
+it does not promise an app-specific page on macOS.
+
+The new AppKit open-url leaf supplies the root `openSettings` service and
+preserves existing `openUrl` host delegation. It checks live NSWorkspace
+method availability, resolves the installed System Settings bundle on each
+availability/open request, and launches only on `open()`. Missing native methods
+report unsupported and open throws UnavailabilityError; missing apps, lookup
+errors and rejected/throwing launch requests return false. No private pane URL,
+absolute application path, shell launch or new dependency is involved.
+
+AppKit opens the settings application without choosing a pane; this is a
+platform subset rather than the mobile app-details route. It does not change
+permissions or confirm presentation/activation. Launch Services may restore
+its prior location. The public API references are Apple's
+[application lookup](https://developer.apple.com/documentation/appkit/nsworkspace/urlforapplication%28withbundleidentifier%3A%29)
+and [open URL](https://developer.apple.com/documentation/appkit/nsworkspace/open%28_%3A%29).
+The current host's System Settings Info.plist was read with
+`plutil -extract CFBundleIdentifier raw '/System/Applications/System Settings.app/Contents/Info.plist'`
+and returned `com.apple.systempreferences`. This is filesystem/source evidence,
+not a launch, settings interaction, or cross-version runtime qualification.
+
+Authored fake-bridge cases cover root/leaf identity, support vs availability,
+missing/partial/late/throwing bridges, missing apps, launch rejection/failure,
+fresh lookups, and unchanged outbound-link delegation. The maintained probe
+has an explicit launch button; its run function only queries availability.
+Syntax and whitespace checks passed. Tests, declaration/type generation,
+package/Vite resolution, native build/probe, real settings launch/presentation,
+sandbox/packaged behavior and visual analysis have NOT run. Audit snapshots
+remain untouched and evidence-gated issue checkboxes remain open.
+
+Deferred commands:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/platform
+pnpm exec turbo run typecheck --filter=...@octane-xplat/platform --filter=...@xplat/app
+pnpm exec turbo run typegen --filter=@octane-xplat/platform
+pnpm exec turbo run test:packed --filter=@octane-xplat/platform
+pnpm probe run examples/probes/open-settings.macos.tsrx --target macos --watch
+pnpm check:recipes
+```
+
+After explicit human authorization, verify direct/root package resolution,
+actual launch from the shared screen and probe button, already-running Settings,
+launch rejection, app focus/return, denied-permission follow-up, and packaged/
+sandbox operation. Querying availability alone is not presentation proof.

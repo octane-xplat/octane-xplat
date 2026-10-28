@@ -236,6 +236,39 @@ has a bound source except Windows, where `random.supported` is `false` —
 check the flag and disable or defer the feature there rather than catching
 errors or weakening the secret.
 
+## Open settings
+
+Offer a settings action when the user needs to change a system preference.
+Check bridge support and availability before calling `open()`. Native macOS
+opens the installed System Settings application without choosing a pane; iOS
+and Android use their app-specific settings page. A `true` result means the
+launch request was accepted, not that the window appeared or a permission
+changed. Keep the action explicit so a capability check never launches it.
+
+```ts
+import { openSettings } from '@octane-xplat/platform'
+
+export async function showSettings(): Promise<boolean> {
+	if (!openSettings.supported || !await openSettings.isAvailable()) return false
+	return openSettings.open()
+}
+```
+
+AppKit resolves the application by bundle identifier through the public
+[NSWorkspace lookup](https://developer.apple.com/documentation/appkit/nsworkspace/urlforapplication%28withbundleidentifier%3A%29).
+It does not select an app-specific permission page or modify permissions.
+A missing bridge is unsupported; a missing application, failed lookup, or rejected
+launch returns false. Browsers remain unsupported. Actual AppKit presentation,
+activation and packaged/sandbox behavior remain unqualified.
+
+```ts
+import { openSettings } from '@octane-xplat/platform'
+
+// In an explicit user action, after checking support/availability:
+const accepted = openSettings.open()
+console.log(accepted ? 'Use System Settings to change the permission' : 'Settings could not open')
+```
+
 ## Capability map
 
 | Service                             | Shared shape                                                                                 | Platform notes                                                                                                                                                                       |
@@ -245,7 +278,7 @@ errors or weakening the secret.
 | `appInfo`                           | `{ supported, version, build, bundleId }`                                                    | `supported: false` on web — a browser bundle has no trustworthy app identity                                                                                                         |
 | `openUrl(url)`                      | returns whether an outbound-link request was accepted                                        | a WKWebView sends the request asynchronously; this synchronous API cannot return the host's eventual result                                                                          |
 | `random`                            | `bytes(length)`, `fill(view)` — OS CSPRNG bytes                                              | `supported: false` on Windows                                                                                                                                                        |
-| `openSettings`                      | capability; `open()`                                                                         | unsupported on web                                                                                                                                                                   |
+| `openSettings`                      | capability; `open()`                                                                         | [AppKit opens System Settings without selecting a pane](#open-settings); iOS/Android open app settings; unsupported on web                                                                                                                                                                   |
 | `media.pickImage()`, `pickImages()` | pick existing image(s)                                                                       | `@octane-xplat/media` leaf                                                                                                                                                           |
 | `media.capturePhoto()`              | still capture through the OS camera UI                                                       | `@octane-xplat/media` leaf; web uses `<input type="file" capture>` — a real camera flow on phones, a file-picker fallback on desktops                                                |
 | `webAuthn`                          | `isAvailable()`, `create(options)`, `get(options)` — raw WebAuthn over the RP's JSON options | web only; native reports `supported: false` — use `authSession`                                                                                                                      |
