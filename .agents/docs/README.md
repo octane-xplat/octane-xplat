@@ -62,3 +62,5 @@ Reusable fixtures and patch sources are in
 and [desktop audit tooling](../../tools/desktop-support/README.md).
 [Operational state and raw evidence](exploration.md#operational-evidence) stay
 in Silo/local storage. Plans are maintained outside `.agents/`.
+
+- [GTK UI parity](notes/linux-gtk-ui-parity.md) — native export inventory, implementation order, and qualification boundaries.
