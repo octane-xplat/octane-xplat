@@ -36,6 +36,7 @@ import {
 	type SampledValues,
 } from '@octane-xplat/css-engine'
 
+import { bindPicture } from './picture.js'
 import { bindPublicInstance } from './public-instance.js'
 
 import { CSS_PROPS, gtkStyleCss } from './style-css.js'
@@ -76,6 +77,7 @@ export interface ElementNode {
 	id: number
 	type: string
 	view: GtkView | null
+	picture?: ReturnType<typeof bindPicture>
 	text: string
 	props: PropBag
 	parent: ElementNode | null
@@ -302,6 +304,9 @@ function instantiate(type: string): GtkView {
 				hscrollbar_policy: Gtk.PolicyType.NEVER,
 				vscrollbar_policy: Gtk.PolicyType.AUTOMATIC,
 			})
+		case 'image':
+		case 'svgview':
+			return new Gtk.Picture({ can_shrink: true })
 		case 'textfield':
 			return new Gtk.Entry()
 		case 'switch':
@@ -649,6 +654,7 @@ function restyleNode(node: ElementNode) {
 	const prevCustom = node.computedCustomProps ?? new Map()
 	node.computedStyle = style
 	node.computedCustomProps = customProps
+	node.picture?.restyle()
 
 	const customChanged =
 		prevCustom.size !== customProps.size ||
@@ -998,6 +1004,10 @@ function cssDirection(): string {
  *  parent-less node. Recomputed on insert/remove/appearance via
  *  markStyleDirty → restyleNode → refreshCssClasses. */
 function refreshCssClasses(node: ElementNode) {
+	// The selector engine delegates pseudo classes to the host node, including
+	// :root. Keep it in step with the same logical-root boundary as ns-root.
+	if (isCssRootNode(node)) node.cssPseudoClasses.add('root')
+	else node.cssPseudoClasses.delete('root')
 	const set = new Set(node.cssBaseClasses ?? [])
 	if (isCssRootNode(node)) {
 		set.add('ns-root')
@@ -1860,6 +1870,10 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 				node.props.enabled === false,
 		)
 	}
+	if (name === 'src' && node.picture) {
+		node.picture.setSource(value)
+		return
+	}
 	if (value === undefined) {
 		return
 	}
@@ -1996,6 +2010,13 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 			syncAccessibleName(node)
 			view.set_name(widgetName(node))
 			return
+<<<<<<< HEAD
+=======
+		}
+		case 'accessible':
+			view.update_state([Gtk.AccessibleState.HIDDEN], [value === false])
+			return
+>>>>>>> dc5fc486d (feat(linux-gtk): support icons and scoped registries)
 		case 'accessibilityRole': {
 			// accessible-role is a real Gtk.Widget property (GTK 4.0+).
 			const role = typeof value === 'string' ? A11Y_ROLES[value] : undefined
@@ -2012,6 +2033,11 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 	}
 
 	switch (node.type) {
+		case 'image':
+		case 'svgview':
+			if (name === 'stretch') node.picture!.setStretch(value)
+			else warn('<' + node.type + '> ignored prop ' + name)
+			return
 		case 'masonview':
 			if (name === 'spacing' || name === 'gap' || name === 'rowGap' || name === 'columnGap') {
 				view.spacing = Number(value)
@@ -2285,6 +2311,15 @@ function resetProp(node: ElementNode, name: string) {
 		case 'tooltip':
 		case 'tooltipText':
 			view.set_tooltip_text(null)
+			return
+		case 'accessible':
+			view.reset_state(Gtk.AccessibleState.HIDDEN)
+			return
+		case 'src':
+			node.picture?.setSource(undefined)
+			return
+		case 'stretch':
+			node.picture?.setStretch('aspectFit')
 			return
 		case 'accessibilityRole':
 			// Gtk.AccessibleRole.AUTOMATIC = 0 — the widget default.
@@ -3175,6 +3210,7 @@ function createNode(
 		// widget — link them before props land so style writes find it.
 		bindMasonView(view, node)
 	}
+	if (type === 'image' || type === 'svgview') node.picture = bindPicture(node, import.meta.url)
 	node.disposePublicInstance = bindNodePublicInstance(node)
 	wireStateFlags(node)
 	applyProps(node, props)
@@ -3212,6 +3248,7 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 				return
 			}
 
+			node.picture?.dispose()
 			node.disposePublicInstance?.()
 			node.destroyed = true
 			container.cssDirty?.delete(node)
@@ -3253,6 +3290,7 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 			// Rebuild the widget in place: keep logical identity and children,
 			// swap the view at the same slot, then re-parent the children.
 			const node = expect(container, command.id)
+			node.picture?.dispose()
 			node.disposePublicInstance?.()
 			disposeListeners(node)
 			node.muted.clear()
@@ -3289,6 +3327,10 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 			node.styleOverflow = false
 			node.originalOverflow = undefined
 			node.props = command.props
+			node.picture =
+				command.type === 'image' || command.type === 'svgview'
+					? bindPicture(node, import.meta.url)
+					: undefined
 			if (node.view !== null && isMasonHostView(node.view)) {
 				bindMasonView(node.view, node)
 			}

@@ -80,7 +80,7 @@ variants in `.gtk.tsrx`/`.gtk.tsx` files.
 `@octane-xplat/ui` resolves a curated `gtk` export condition. It includes
 `Text`, `Pressable`, the `View`/`Stack` family, `Grid`/`GridSpan`, `Center`,
 `Section`, `Layout` regions, `Absolute`, `Spacer`, `Badge`, `Divider`,
-`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, `ScrollableArea`, `Spinner`, and `useScrollableArea`.
+`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, `ScrollableArea`, `Spinner`, `useScrollableArea`, `Icon`, and icon registries.
 For example, place a label and
 status badge in a horizontal row:
 
@@ -95,6 +95,30 @@ export function BuildStatus() {
     </Stack>
   )
 }
+```
+
+Use `Icon` for the framework's built-in glyphs, or pass a registry created with
+`createIconRegistry` for your own set. Give meaningful standalone icons an
+`accessibilityLabel`; icons without one are decorative.
+
+```tsx
+import { Icon, createIconRegistry } from '@octane-xplat/ui'
+
+const icons = createIconRegistry()
+icons.registerIcon('favorite', { svg: 'M12 2 15 8 22 9 17 14 18 22 12 18 6 22 7 14 2 9 9 8z' })
+export function FavoriteIcon() {
+  return <Icon name="favorite" registry={icons} size={24} accessibilityLabel="Favorite" />
+}
+```
+
+Custom icon files can use a path beside the emitted bundle (`~/brand.svg`),
+a registered GResource (`res://icons/brand.svg`), or an HTTP(S) URL.
+Linux hosts need the GdkPixbuf SVG loader for SVG icons and Soup 3 introspection
+for HTTP sources; on Ubuntu these are `librsvg2-common` and `gir1.2-soup-3.0`.
+
+```tsx
+icons.registerIcon('brand', { src: '~/brand.svg' })
+icons.registerIcon('remote-brand', { src: 'https://example.com/brand.svg' })
 ```
 
 Use `AspectRatio` to derive a container's height from its allocated width.

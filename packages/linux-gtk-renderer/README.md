@@ -101,9 +101,41 @@ Contributor implementation details and qualification evidence live in the
 Implemented intrinsics: `masonview` (the single layout container — every
 layout semantic arrives through `style`/`className`), `label`, `button`,
 `scrollview`, `textfield`, `switch`, `slider`, `progress`,
-`activityindicator`, plus viewless `#text`, `span`, `formattedstring`,
+`activityindicator`, `image`, `svgview`, plus viewless `#text`, `span`, `formattedstring`,
 `contentview`, `proxyviewcontainer`, `rootlayout`. Anything else throws a
 named driver error at mount.
+
+## Icon sources
+
+The shared Icon component uses Gtk.Picture for SVG and raster sources, and
+Gtk.Label for font/text fallbacks. Registry providers and explicit registries
+use the same shared UI implementation.
+
+```tsx
+import { Icon } from '@octane-xplat/ui'
+
+export function SearchGlyph() {
+  return <Icon name="xplat-search" size={20} accessibilityLabel="Search" />
+}
+```
+
+The picture source loader accepts inline SVG, data URIs, local paths, file URIs,
+bundle-relative `~/` paths, registered GResource names through `res://`, and
+HTTP(S) URLs. HTTP loading requires the Soup 3 GI typelib; SVG decoding requires
+the installed GdkPixbuf SVG loader (librsvg on the qualified Ubuntu host).
+The loader cancels stale requests and disposes textures with their widget.
+The Image component's wider sizing/placeholder contract is still unqualified.
+
+```tsx
+// A custom icon set can point to an asset beside the emitted app.js bundle.
+import { Icon, createIconRegistry } from '@octane-xplat/ui'
+
+const icons = createIconRegistry()
+icons.registerIcon('brand', { src: '~/brand.svg' })
+export function BrandGlyph() {
+  return <Icon name="brand" registry={icons} size={24} />
+}
+```
 
 ## Apply stylesheets
 
@@ -265,3 +297,10 @@ GTK host element type. There is no renderer-owned `jsx-runtime` export.
 which wires the Octane compiler's `gtk` renderer, `gi://` externals, the
 `.gtk` extension chain, and the `octane` → `octane/universal/native` retarget.
 The output is one ESM file run with `gjs -m`.
+
+For a focused maintained runtime fixture, pass its file through Turbo so
+dependency builds and declaration generation still run first:
+
+```sh
+xvfb-run -a pnpm exec turbo run test:runtime --filter=@octane-xplat/linux-gtk -- test/ui-icon.test.mjs
+```

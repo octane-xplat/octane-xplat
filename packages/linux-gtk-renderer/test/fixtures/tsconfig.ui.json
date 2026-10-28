@@ -8,6 +8,7 @@
 		"src/ui-measure.gtk.tsrx",
 		"src/ui-animation.gtk.tsrx",
 		"src/ui-scroll.gtk.tsrx",
-		"src/ui-area.gtk.tsrx"
+		"src/ui-area.gtk.tsrx",
+		"src/ui-icon.gtk.tsrx"
 	]
 }

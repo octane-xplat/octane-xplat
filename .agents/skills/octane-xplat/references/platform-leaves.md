@@ -154,3 +154,12 @@ export function HostLabel() {
 	return <Text>{isNative ? 'Native host' : 'Browser host'}</Text>
 }
 ```
+
+GTK Icon uses the shared component and registry/provider contracts. Its
+svg.gtk helper preserves sources for renderer-owned decoding; do not call
+the shared svgSource helper directly in a GJS leaf because GJS lacks fetch/atob.
+The image/svgview intrinsics own Gtk.Picture source cancellation, SVG
+currentColor/custom-property tinting and texture disposal. HTTP sources load
+Soup 3 lazily; local assets need no HTTP typelib. SVG requires an installed
+GdkPixbuf SVG loader. res:// maps to registered GResource paths, not mobile
+asset catalogs. Image's full placeholder/sizing contract remains unqualified.

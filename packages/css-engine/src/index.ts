@@ -3,6 +3,7 @@
 // platform-free (no AppKit, no GI).
 export {
 	computeCascade,
+	evaluateCssVariables,
 	INHERITED_CSS_PROPERTIES,
 	type CascadeOptions,
 	type CssHostNode,

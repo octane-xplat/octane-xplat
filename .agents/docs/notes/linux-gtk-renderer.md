@@ -415,3 +415,73 @@ Runtime-verified on Homebrew gjs 1.90.1 + GTK4 (`xplat workshop dev --target lin
 - `queueMicrotask` is absent in GJS — the workshop shell installs a `Promise.resolve().then` polyfill on the global before octane's universal runtime loads.
 - The compat shim `native-core-shim.ts` now carries honest stand-ins: `ApplicationSettings` is an in-process map (no persistence), `Connectivity` reports `connectionType.unknown` and monitoring is a no-op, `Device` reports static desktop values.
 - `xplat workshop dev --target linux`: the GJS shell reads the stdin line protocol through a `GLib.IOChannel` watch; blocking `read_line` inside the callback must not loop — read one line per `IN` dispatch or microtasks starve.
+
+## GTK icon and picture sources
+
+The shared Icon, IconRegistryProvider and registry functions are now included in
+the GTK barrel, with their original native declarations. Icon's SVG/raster
+branches use new image/svgview intrinsics backed by Gtk.Picture; text and font
+fallbacks stay Gtk.Label. The public Image component is not added by this slice.
+
+GJS 1.80.2 on the Ubuntu qualification host has neither fetch nor atob.
+The existing shared svgSource helper calls them for remote and base64 sources.
+A metadata-only GJS probe (/tmp/gtk-texture-probe.mjs on andromeda) confirmed
+both missing globals and successful native SVG decoding into a 24 by 16 texture.
+The svg.gtk file boundary preserves source strings for renderer-owned decoding;
+it does not install browser globals or change the shared helper's behavior.
+
+GDK 4.14.5 loads bytes through Texture.new_from_bytes. Its documented guaranteed
+formats are PNG, JPEG and TIFF; SVG support depends on the installed loader.
+The tested Ubuntu host has GdkPixbuf 2.42.10 and librsvg2-common 2.58.0. Do not
+assume that GTK alone guarantees an SVG loader on another distribution.
+A missing decoder follows the explicit imageError state; no fake icon is shown.
+Review this dependency when moving to a GDK/glycin loader stack.
+Reference: [GDK texture byte loader](https://docs.gtk.org/gdk4/ctor.Texture.new_from_bytes.html).
+
+HTTP(S) sources lazily import Soup 3 (tested typelib package 3.4.4).
+Soup reads use Gio.Cancellable; local paths, bundle-relative ~/ paths and
+registered GResource res:// paths use Gio.File. Data URIs decode through GLib
+and byte escapes, without atob. Promised sources are accepted. A generation
+guard blocks late completion after a newer source, recreation or disposal.
+Failures clear loading state and retain the error on the raw widget; diagnostics
+do not include the source URI. No new UI dependency or peer is added.
+Reference: [Soup asynchronous body loading](https://libsoup.gnome.org/libsoup-3.0/method.Session.send_and_read_async.html).
+
+SVG currentColor and custom-property expressions resolve against the renderer
+cascade before native decoding. The CSS engine's existing evaluateCssVariables
+helper is re-exported rather than copied. Source-independent restyles can
+replace the paintable; source changes preserve the widget. The accessible
+flag writes GTK's hidden state through the array binding, so decorative and
+named icons keep distinct stored accessibility state. This is not a screen-reader
+or visual/pixel qualification. Raw intrinsic stretch supports aspectFit,
+aspectFill and fill; none rejects until its natural-size behavior is implemented.
+
+Initial Linux qualification passed the existing 32 tests and failed the new
+icon test's tint assertion. Correcting the fixture's after-notification capture
+exposed a real :root gap: GTK marked ns-root in classes but not root in its
+pseudo-class set. Tracking that state at the same logical-root boundary made
+the original custom-property tint assertion pass. The next currentColor check
+exposed a separate desktop-port gap: IdSelector.match honored cssId, but fast
+candidate collection only looked at numeric node.id. Candidate lookup now
+includes cssId and avoids duplicate lookup when the two identities agree.
+This is a gap in the local desktop adaptation of NS 9.1.3, not an upstream
+NativeScript bug with ordinary string ids. The partial adaptation originated
+in 53c6019bf0; no local release tag contains that commit. Two new CSS-engine
+tests cover numeric identity, changes/removal, compound selectors and deduplication;
+all 37 engine tests pass (/tmp/gtk-css-id-test.log). Silo observations:
+48fc0a27-efe4-4fa3-89ca-cf1a38c3c9bb and 0f92da1b-c425-4843-ae8c-2d4a31dce35e.
+The runtime assertions remain intact. Expanded typecheck passes all
+63 tasks for UI/CSS-engine dependents (/tmp/gtk-icon-types-expanded.log).
+Packed exports/declarations pass all six tasks (/tmp/gtk-icon-pack.log).
+The final expanded renderer/dependent check passes eight tasks
+(/tmp/gtk-icon-types-complete.log), and the combined real-Linux renderer
+suite passes all 33 tests without skips (/tmp/gtk-icon-test-final.log).
+CSS audit reports zero unsupported declarations; recipes and 12 release notes
+validate. The runtime fixture also checks file/GResource/raster sources and
+request disposal. The focused real-Linux fixture passes 44 assertions
+(/tmp/gtk-icon-test-clear.log), including original :root and #id tint checks,
+file/GResource/raster/data sources, pending Promise/HTTP ownership, explicit
+undefined src clearing, failure recovery and teardown. A malformed synthetic
+PNG fixture was replaced with valid generated one-pixel PNG bytes; no pixel
+inspection was used. The final combined renderer-suite result is recorded in
+the GTK UI parity note.

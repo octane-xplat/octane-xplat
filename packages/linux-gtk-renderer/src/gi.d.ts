@@ -76,6 +76,9 @@ declare module 'gi://Gtk?version=4.0' {
 			[key: string]: number
 		}
 
+		const Picture: any
+		const ContentFit: { FILL: number; CONTAIN: number; COVER: number; SCALE_DOWN: number }
+		const AccessibleState: { HIDDEN: number }
 		class Widget {
 			connect(signal: string, handler: (...args: any[]) => unknown): number
 			disconnect(id: number): void
@@ -386,6 +389,8 @@ declare module 'gi://Gtk?version=4.0' {
 
 declare module 'gi://GLib' {
 	namespace GLib {
+		const Bytes: any
+		function base64_decode(value: string): Uint8Array
 		const MAJOR_VERSION: number
 		const MINOR_VERSION: number
 		const MICRO_VERSION: number
@@ -410,6 +415,7 @@ declare module 'gi://GLib' {
 
 declare module 'gi://Gdk?version=4.0' {
 	namespace Gdk {
+<<<<<<< HEAD
 		const EventType: {
 			KEY_PRESS: number
 			KEY_RELEASE: number
@@ -430,6 +436,9 @@ declare module 'gi://Gdk?version=4.0' {
 		function keyval_name(keyval: number): string | null
 		function keyval_to_unicode(keyval: number): number
 
+=======
+		const Texture: any
+>>>>>>> dc5fc486d (feat(linux-gtk): support icons and scoped registries)
 		class Rectangle {
 			constructor(fields?: { x?: number; y?: number; width?: number; height?: number })
 			x: number
@@ -453,6 +462,7 @@ declare module 'gi://GObject' {
 
 declare module 'gi://Gio' {
 	namespace Gio {
+		const Cancellable: any
 		const ApplicationFlags: {
 			FLAGS_NONE: number
 			NON_UNIQUE: number
@@ -462,6 +472,7 @@ declare module 'gi://Gio' {
 
 		class File {
 			static new_for_path(path: string): File
+			static new_for_uri(uri: string): File
 			query_exists(cancellable: unknown): boolean
 			get_path(): string | null
 			get_uri(): string
@@ -480,4 +491,9 @@ declare module 'gi://Gsk?version=4.0' {
 declare module 'gi://Graphene' {
 	const Graphene: any
 	export default Graphene
+}
+
+declare module 'gi://Soup?version=3.0' {
+	const Soup: any
+	export default Soup
 }

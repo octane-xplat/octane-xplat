@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "buildId": "8a6c2c40-d950-49b0-a5bc-e71d62a30bda",
+  "mode": "production",
+  "capabilities": {
+    "independentHydration": false
+  }
+}

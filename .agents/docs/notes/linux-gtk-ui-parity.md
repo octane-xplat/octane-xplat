@@ -371,3 +371,43 @@ pass; the broad native batch-observer failure above remains unchanged.
 The docs-site parser failure remains open. These checks do not establish
 visual parity, every common/accessibility prop, Wayland, or mobile OS runtime
 qualification of the shared wrapper styling.
+
+## Icon and registry slice
+
+The GTK barrel adds Icon, IconRegistryProvider, createIconRegistry, registerIcon
+and registerIcons, plus their seven shared types: 36 runtime values and 55 types.
+The native Icon and registry/provider components are reused. The svg.gtk source
+helper keeps file/data/URL strings intact for renderer decoding, avoiding the
+shared helper's browser-only fetch/atob assumptions.
+
+New image/svgview intrinsics use Gtk.Picture, with real GDK texture decoding,
+scoped registry overrides, custom-property/currentColor tinting, independent
+widget/source identity, source cancellation, explicit clearing and disposal.
+The [renderer note](linux-gtk-renderer.md#gtk-icon-and-picture-sources) records
+SVG loader/Soup requirements, the local :root and desktop #id fixes, and the
+boundary between raw intrinsics and Image's still-unqualified wider contract.
+The desktop selector fix is committed separately as 350f4e8cc.
+
+The focused Ubuntu/GJS/GTK fixture passes 44 state/dimension/lifecycle assertions
+(/tmp/gtk-icon-test-clear.log). These include actual loopback HTTP loading,
+registered GResource and filesystem sources, a synthetic one-pixel PNG's
+dimensions, stale promises/requests, clearing, failures and cleanup.
+No screenshot, pixel inspection, OS input or external AT client is used by this
+fixture. Stored GTK accessibility name/hidden state is narrower evidence than
+screen-reader behavior.
+
+Both expanded UI/CSS-engine checks pass 63 tasks, including the selector fix
+(/tmp/gtk-icon-types-expanded.log and /tmp/gtk-css-id-types.log). CSS-engine
+tests pass all 37 cases; packed declarations pass six tasks. The declaration
+surface preserves shared native types. The prior native batch-observer and
+docs-site parser failures remain open. Recipe structure/local links, 12 release
+notes and the CSS declaration audit pass. This adds no UI dependencies or peers;
+the existing GTK packaging recipe criteria remain unchanged and not runtime
+qualified by these widget tests.
+
+The final combined renderer suite passes all 33 tests without skips
+(guest /tmp/gtk-icon-test-final.log), retaining separate real X11 click/drag,
+pull and wheel fixtures. The icon fixture retains all 44 assertions.
+The final expanded renderer/dependent typecheck passes eight tasks
+(andromeda /tmp/gtk-icon-types-complete.log). No macOS GTK stand-in,
+Wayland, visual/pixel or external screen-reader qualification is added.

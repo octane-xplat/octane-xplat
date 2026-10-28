@@ -81,3 +81,15 @@ export type {
 	ActivityIndicatorProps,
 	SpinnerProps,
 } from './props'
+
+export { Icon } from './Icon'
+export { IconRegistryProvider } from './IconRegistryProvider'
+export { createIconRegistry, registerIcon, registerIcons } from './icons'
+export type { IconGlyph, IconRegistry } from './icons'
+export type {
+	IconProps,
+	BuiltinIconName,
+	IconName,
+	IconNameRegistry,
+	IconRegistryProviderProps,
+} from './props'
