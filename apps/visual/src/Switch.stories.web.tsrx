@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { SWITCH_SCENARIO } from './scenario'
 import { Switch } from '@octane-xplat/ui'
 

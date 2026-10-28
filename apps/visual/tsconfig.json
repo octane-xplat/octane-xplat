@@ -15,7 +15,7 @@
 			".windows"
 		],
 		"jsx": "react-jsx",
-		"jsxImportSource": "octane",
+		"jsxImportSource": "@octane-xplat/jsx/dom",
 		"types": ["vitest-plugin-vis", "vite/client"]
 	},
 	"include": ["src", "vitest.config.ts"]
