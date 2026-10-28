@@ -161,7 +161,9 @@ on plain text, and italic `font-style`. `visibility: hidden` keeps the layout
 slot while suppressing paint and input; `visibility: collapse` drops it.
 `cursor` pushes the matching AppKit cursor while the pointer is inside the
 view (`none` hides it); `user-select` toggles `selectable` on labels and
-html views.
+html views. `outline`/`outline-*` draws a solid ring outside the border edge
+— focus-ring styles land when a stylesheet declares them, though `:focus`
+still never matches.
 
 ```css
 .caption { padding: 2px 6px; letter-spacing: 0.5px; font-style: italic; }
@@ -188,6 +190,8 @@ Current limits:
 - `letter-spacing` does not reach `formattedstring`/`span` runs.
 - Cursor keywords without an AppKit equivalent (diagonal resizes, `wait`,
   zoom, `cell`, `help`) keep the inherited cursor.
+- Outlines always draw solid; `dotted`/`dashed`/`double` and friends
+  approximate to a solid ring and warn.
 - A text field or text view drops its native bezel and background as soon
   as CSS gives it a background, border, or corner radius.
 - An unsupported property logs `[macos-css] ignored unsupported property`

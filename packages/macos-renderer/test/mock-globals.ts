@@ -93,6 +93,11 @@ if (typeof appKitBridge === 'undefined') var appKitBridge = {}
 if (typeof nodeScheme === 'undefined') var nodeScheme = () => 'light'
 // Mirrors src/index.ts — collapse folds the visibility prop and the style.
 if (typeof isCollapsed === 'undefined') var isCollapsed = (n) => n?.props?.visibility === 'collapse' || n?.styleVisibility === 'collapse'
+// Mirrors src/index.ts — outline/cursor writers live inside the applyStyle
+// slice range; stubbed only where a narrower slice still calls them.
+if (typeof syncOutline === 'undefined') var syncOutline = () => {}
+if (typeof syncCursor === 'undefined') var syncCursor = () => {}
+if (typeof syncUserSelect === 'undefined') var syncUserSelect = () => {}
 // Mirrors src/index.ts — slices that exercise insert/validateBatch reject
 // viewless children through this error but don't include the function.
 if (typeof textOnlyChildError === 'undefined') var textOnlyChildError = (parent, childType, child) => {

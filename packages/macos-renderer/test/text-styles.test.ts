@@ -246,6 +246,33 @@ test('user-select toggles selectable on labels and restores htmlview default', (
 	assert.equal(html.view.selectable, true)
 })
 
+// ---- outline ---------------------------------------------------------------
+
+const { outlineSpec } = runSlice(
+	source.slice(
+		source.indexOf('// `outline`/`outline-*` draws'),
+		source.indexOf('// CSS angles run clockwise'),
+	) + '\n({ outlineSpec })',
+	{
+		nativeColor: (color: any) => ({ CGColor: 'cg:' + color }),
+		NSColor: { keyboardFocusIndicatorColor: { CGColor: 'cg:focus' } },
+	},
+)
+
+test('outline shorthand and longhands resolve to a ring spec', () => {
+	assert.deepEqual(plain(outlineSpec({ outline: '1.5px solid #ff0000' })), {
+		width: 1.5,
+		color: 'cg:#ff0000',
+		offset: 0,
+	})
+	assert.deepEqual(
+		plain(outlineSpec({ outlineWidth: 2, outlineOffset: -1 })),
+		{ width: 2, color: 'cg:focus', offset: -1 },
+	)
+	assert.equal(outlineSpec({ outline: 'none' }), null)
+	assert.equal(outlineSpec({}), null)
+})
+
 // ---- mason dict ------------------------------------------------------------
 
 let masonSource = readFileSync(new URL('../src/mason.ts', import.meta.url), 'utf8')

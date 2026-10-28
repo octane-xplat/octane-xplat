@@ -2990,6 +2990,14 @@ const EDGE_INSET_PROPS = new Map([
 	['paddingHorizontal', ['left', 'right']],
 ])
 
+const OUTLINE_PROPS = new Set([
+	'outline',
+	'outlineWidth',
+	'outlineStyle',
+	'outlineColor',
+	'outlineOffset',
+])
+
 // number | 'N' | 'V H' | 'T R B L' → NSEdgeInsets (top/left/bottom/right).
 function parseEdgeInsets(value: any) {
 	if (typeof value === 'number' || !isNaN(Number(value))) {
@@ -3918,6 +3926,88 @@ function syncUserSelect(node: ElementNode) {
 		// auto/inherit/absent — restore the element's authored default.
 		;(node.view as any).selectable = node.type === 'htmlview'
 	}
+}
+
+// `outline`/`outline-*` draws a stroked ring outside the border edge — a
+// CALayer framing the bounds expanded by offset + width. `none` clears it.
+function outlineSpec(style: PropBag) {
+	let width: number | undefined
+	let styleName: string | undefined
+	let color: any
+	const shorthand = style.outline
+	if (shorthand != null && shorthand !== '') {
+		for (const token of String(shorthand).trim().split(/\s+/)) {
+			if (/^[+-]?[\d.]+(px)?$/.test(token)) {
+				width = parseFloat(token)
+			} else if (
+				['none', 'hidden', 'solid', 'dotted', 'dashed', 'double', 'groove', 'ridge', 'inset', 'outset', 'auto'].includes(
+					token,
+				)
+			) {
+				styleName = token
+			} else {
+				color = token
+			}
+		}
+	}
+	const longWidth = Number(style.outlineWidth)
+	if (Number.isFinite(longWidth)) {
+		width = longWidth
+	}
+	if (style.outlineStyle != null) {
+		styleName = String(style.outlineStyle)
+	}
+	if (style.outlineColor != null) {
+		color = style.outlineColor
+	}
+	const offset = Number(style.outlineOffset)
+	if (width == null || width <= 0 || styleName === 'none' || styleName === 'hidden') {
+		return null
+	}
+	// AppKit draws one solid ring; decorative outline styles approximate to it.
+	if (styleName != null && styleName !== 'solid' && styleName !== 'auto') {
+		console.warn('[macos-css] unsupported outline-style ' + JSON.stringify(styleName) + '; drawing solid')
+	}
+	return {
+		width,
+		color: color != null ? nativeColor(color).CGColor : NSColor.keyboardFocusIndicatorColor?.CGColor,
+		offset: Number.isFinite(offset) ? offset : 0,
+	}
+}
+
+function syncOutline(node: ElementNode) {
+	const view = node.view!
+	node.outlineLayer?.removeFromSuperlayer()
+	node.outlineLayer = null
+	if (node.outlineObserver) {
+		NSNotificationCenter.defaultCenter.removeObserver(node.outlineObserver)
+		node.outlineObserver = null
+	}
+	const spec = outlineSpec(effectiveStyle(node))
+	if (!spec || !view.layer) return
+	view.wantsLayer = true
+	const layer = CALayer.alloc().init()
+	node.outlineLayer = layer
+	layer.backgroundColor = null
+	layer.borderWidth = spec.width
+	layer.borderColor = spec.color
+	view.layer.addSublayer(layer)
+	const resize = () => {
+		const grow = spec.offset + spec.width
+		layer.frame = {
+			origin: { x: -grow, y: -grow },
+			size: {
+				width: Number(view.bounds.size.width) + grow * 2,
+				height: Number(view.bounds.size.height) + grow * 2,
+			},
+		}
+		layer.cornerRadius = Number(view.layer.cornerRadius) + grow
+	}
+	resize()
+	view.postsFrameChangedNotifications = true
+	node.outlineObserver = NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
+		NSViewFrameDidChangeNotification, view, null, resize,
+	)
 }
 
 // CSS angles run clockwise from up. Layer coordinates follow the host view.
@@ -4860,6 +4950,8 @@ function resetStyle(node: ElementNode, name: string) {
 		if (['label', 'htmlview'].includes(node.type)) {
 			syncUserSelect(node)
 		}
+	} else if (OUTLINE_PROPS.has(name)) {
+		syncOutline(node)
 	} else if (name === 'padding' && node.type === 'label') {
 		node.stylePaddingBox = undefined
 		node.stylePaddingEdges = undefined
@@ -5108,6 +5200,8 @@ function applyStyle(node: ElementNode, style: PropBag) {
 			if (['label', 'htmlview'].includes(node.type)) {
 				syncUserSelect(node)
 			}
+		} else if (OUTLINE_PROPS.has(name) && node.view) {
+			syncOutline(node)
 		} else if (name === 'textDecoration' && node.type === 'label' && node.view) {
 			setLabelText(node, String(node.view.stringValue ?? ''))
 		} else if (name === 'textAlign' && node.type === 'label') {
@@ -7557,6 +7651,10 @@ function destroy(node: ElementNode) {
 	if (node.gradientObserver) {
 		NSNotificationCenter.defaultCenter.removeObserver(node.gradientObserver)
 		node.gradientObserver = null
+	}
+	if (node.outlineObserver) {
+		NSNotificationCenter.defaultCenter.removeObserver(node.outlineObserver)
+		node.outlineObserver = null
 	}
 	if (node.boxFrameObserver) {
 		NSNotificationCenter.defaultCenter.removeObserver(node.boxFrameObserver)
