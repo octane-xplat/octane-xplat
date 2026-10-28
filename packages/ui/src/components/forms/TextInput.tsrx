@@ -19,6 +19,7 @@ import { FormField } from './FormField'
  *  Android selection survives controlled writes (see text-write). */
 function TextInputControl(inputProps: TextInputProps) @{
 	const props = useFieldControlProps(inputProps)
+	const inField = useContext(FieldContext) != null
 	const el = useRef<any>(null)
 	const [internal, setInternal] = useState(props.defaultValue ?? '')
 	const value = props.value ?? internal
@@ -54,7 +55,10 @@ function TextInputControl(inputProps: TextInputProps) @{
 
 	<masonview
 		className={cx('vx-input-shell', props.inInputGroup && 'vx-input-shell--ingroup')}
-		style={mergeStyle({ flexDirection: 'row', alignItems: 'center' }, { display: 'flex' })}
+		style={mergeStyle(
+			{ flexDirection: 'row', alignItems: 'center' },
+			{ display: 'flex', ...(!inField && props.width != null ? { width: props.width } : {}) },
+		)}
 	>
 		{props.startIcon != null ? (
 			<masonview className="vx-input-icon">
@@ -117,7 +121,12 @@ function TextInputControl(inputProps: TextInputProps) @{
 			onBlur={props.onBlur}
 		/>
 		{props.hasClear && value !== '' && !isBlocked ? (
-			<Pressable className="vx-input-clear" accessibilityLabel="Clear input" onPress={clear}>
+			<Pressable
+				className="vx-input-clear"
+				accessibilityRole="button"
+				accessibilityLabel="Clear input"
+				onPress={clear}
+			>
 				<label text="×" />
 			</Pressable>
 		) : null}
@@ -142,10 +151,14 @@ export function TextInput(props: TextInputProps): unknown @{
 			label={props.label}
 			description={props.description}
 			status={props.status}
+			statusVariant={props.statusVariant}
 			isRequired={props.isRequired}
 			isOptional={props.isOptional}
 			isLabelHidden={props.isLabelHidden}
 			isDisabled={props.isDisabled}
+			isReadOnly={props.isReadOnly}
+			isLoading={props.isLoading}
+			size={props.size}
 			labelTooltip={props.labelTooltip}
 			disabledMessage={props.disabledMessage}
 			width={props.width}

@@ -468,3 +468,7 @@ export function PointerAction(props: { disabled: boolean; save: () => void }) {
   )
 }
 ```
+
+Maintainer qualification now includes the [field-chrome runtime fixture](https://github.com/octane-xplat/octane-xplat/blob/main/packages/linux-gtk-renderer/test/fixtures/src/ui-field-chrome.gtk.tsrx).
+TextInput and Field remain outside the curated GTK root; successful source
+fixtures do not establish complete app-facing support.

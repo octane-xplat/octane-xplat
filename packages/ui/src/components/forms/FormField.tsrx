@@ -6,13 +6,9 @@ import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { FieldProvider } from './field-context'
 import { FormLayoutContext } from './form-layout-context'
-<<<<<<< HEAD:packages/ui/src/components/forms/FormField.tsrx
 import { Tooltip } from '../overlays/Tooltip.tsrx'
 import { Pressable } from '../actions/Pressable'
-=======
-import { Tooltip } from './Tooltip'
-import { Pressable } from './Pressable'
->>>>>>> 8392f5f1c (feat(ui): add native GTK tooltips with retained context):packages/ui/src/FormField.tsrx
+import { nativeFieldStatusVariant } from '../../field-status-variant'
 
 /** Shared field wrapper for labels, descriptions, and validation status.
  *  Under `FormLayout direction="horizontal-labels"` it renders a row; the
@@ -30,8 +26,7 @@ export function FormField(props: FormFieldProps): unknown @{
 			: (props.descriptionID ?? `${generatedControlId}-description`)
 
 	const status = props.status
-	const statusVariant =
-		props.statusVariant === 'tooltip' ? 'detached' : (props.statusVariant ?? 'attached')
+	const statusVariant = nativeFieldStatusVariant(props.statusVariant)
 
 	const statusId =
 		status?.message == null ? undefined : (props.statusID ?? `${generatedControlId}-status`)
@@ -65,6 +60,7 @@ export function FormField(props: FormFieldProps): unknown @{
 						trigger={
 							<Pressable
 								className="vx-field-info"
+								accessibilityRole="button"
 								accessibilityLabel={'More about ' + props.label}
 								accessibilityHint={props.labelTooltip}
 							>
@@ -84,7 +80,21 @@ export function FormField(props: FormFieldProps): unknown @{
 		) : null
 
 	const statusNode =
-		status?.message != null ? (
+		status?.message != null && statusVariant === 'tooltip' ? (
+			<Tooltip
+				trigger={
+					<Pressable
+						className={cx('vx-field-status-trigger', `vx-field-status--${status.type}`)}
+						accessibilityRole="button"
+						accessibilityLabel={status.message}
+					>
+						<label text={status.type === 'success' ? '✓' : '!'} />
+					</Pressable>
+				}
+				content={<label id={statusId} className="vx-field-status" text={status.message} textWrap />}
+				placement="top"
+			/>
+		) : status?.message != null ? (
 			<label
 				id={statusId}
 				className={cx(

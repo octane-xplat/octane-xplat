@@ -74,3 +74,14 @@ export function SaveAction(props: { disabled: boolean; save: () => void }) {
   )
 }
 ```
+
+GTK field qualification uses TextInput source fixtures. Keep width on the outer
+field owner to avoid applying percentages twice. GTK status tooltips use the
+platform status-variant policy; do not reuse the touch-only detached fallback.
+Changing only status presentation keeps the control in the same provider slot.
+This does not add TextInput or FormField to the curated root.
+
+GTK Entry has no direct per-field return-key caption property in the inspected
+4.14.5 GIR or 4.24.1 API. Keep Return/onSubmit behavior separate from captions;
+do not turn returnKeyType="next" into automatic focus movement. See the
+[renderer evidence](../../../docs/notes/linux-gtk-renderer.md#gtk-entry-return-key-captions).

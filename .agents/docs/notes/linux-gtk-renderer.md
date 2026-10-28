@@ -788,3 +788,65 @@ Recipes, all 16 release notes, synchronized UI barrels, formatting and whitespac
 checks pass. Final source-only changes after these checks format the TSRX
 fixture; behavior is unchanged. Existing broad native batch-observer and
 docs-site parser failures remain outside this slice's passing evidence.
+
+## TextInput field width and status qualification
+
+Shared TextInput applies width to its bare shell when no FieldContext owns the
+outer width. Its automatic FormField receives statusVariant, read-only, loading
+and size. Percentage width is applied by one owner rather than both wrappers.
+The clear control and label-help trigger now declare button roles. GTK's status
+policy preserves tooltip; the default touch policy keeps the documented detached
+fallback. A status tooltip uses a focusable 20-dip glyph and existing Tooltip
+ownership. Switching attached/detached/tooltip presentation keeps the control in
+the same FieldProvider slot, preserving its native entry and uncontrolled text.
+
+The maintained ui-field-chrome fixture passes 44 assertions on real Ubuntu
+24.04 amd64, GJS1.80.2, GTK4.14.5, XplatMason and Xvfb
+(guest /tmp/gtk-field-chrome-first.log). It checks native allocated absolute and
+percentage widths, wrapper classes, status portal updates/disposal, and actual
+X11 Tab/Return/Escape access to clear, label help and validation status. Native
+regressions pass 58 Node checks plus 29 selected Vitest assertions across
+forms-layout, state-roles and text-input
+(andromeda /tmp/gtk-field-chrome-native-tests.log). These native adapter tests
+are not iOS/Android device evidence.
+
+This is further direct-source TextInput qualification, not a GTK root export.
+Return-key caption hints, remaining common props and inherited size/state
+interactions, retention when automatic chrome appears/disappears, IME,
+AT-client/Wayland and pixels remain open. TextArea still needs multiline and
+row/growth behavior. The curated root remains 37 values and 57 types. No recipe
+workflow changes in this slice; the maintained source fixture is the proving
+harness.
+
+## GTK Entry return-key captions
+
+GTK4.14.5's installed Gtk-4.0.gir Entry and internal Text property lists expose
+input-purpose, input-hints and activates-default, but no per-field Return/OSK
+action-caption selector. The [GTK4.24.1 Entry API](https://docs.gtk.org/gtk4/class.Entry.html),
+[InputPurpose](https://docs.gtk.org/gtk4/enum.InputPurpose.html) and
+[InputHints](https://docs.gtk.org/gtk4/flags.InputHints.html) have the same relevant
+boundary. This is installed metadata and current upstream API/source evidence;
+4.24.1 and an on-screen keyboard were not run. It does not prove that a custom
+OSK or compositor-specific protocol could never implement action captions.
+
+TextInput returnKeyType's done/next/go/search/send captions therefore have no
+direct Gtk.Entry mapping in the current renderer. Native Return activation and
+onSubmit are separately proven by the text-entry fixture. Do not map next to
+automatic focus advancement or activates-default: those change behavior rather
+than naming the key. The current renderer warns about the unbound prop; a later
+qualification should make the documented caption subset explicit. Revisit if
+GTK adds an introspectable per-entry action hint or a platform leaf owns the
+external OSK lifecycle. This limitation remains open rather than being hidden
+by the field-width/status work.
+
+Final combined evidence: 39 Linux renderer tests pass without skips, including
+44 field-chrome assertions and 51 semantic keyboard assertions
+(guest /tmp/gtk-field-chrome-tests-final.log). The expanded UI/renderer/dependent
+typecheck passes all 58 tasks (andromeda /tmp/gtk-field-chrome-types.log).
+Recipes, UI barrel synchronization, all 17 release notes, formatting and
+whitespace validate. Only a multiline JSX attribute formatting change followed
+the runtime/type checks; behavior and public prop types are unchanged.
+
+Packed export/declaration validation also passes six tasks
+(andromeda /tmp/gtk-field-chrome-pack.log). Existing broad native batch-observer
+and docs-site parser failures remain outside this slice’s passing evidence.

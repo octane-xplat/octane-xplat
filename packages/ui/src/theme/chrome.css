@@ -592,6 +592,14 @@
 		font-size: 12px;
 		line-height: 20px;
 	}
+	.vx-field-status-trigger {
+		width: 20px;
+		height: 20px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		align-self: flex-start;
+	}
 	.vx-field-info {
 		font-size: 12px;
 		font-weight: 600;
