@@ -1,6 +1,8 @@
 import Html, { htmlRef, htmlRefEvents } from './Html'
 
 import {
+	NSAppearance,
+	NSApplication,
 	NSColor,
 	NSColorSpace,
 	NSFontAttributeName,
@@ -110,6 +112,17 @@ export async function checkHtmlLifecycle(root: any, nativeWindow: any) {
 		'Dropped HTML style did not restore host defaults',
 	)
 
+	// Parsed HTML bakes in a static body color, so the labelColor default must
+	// resolve under the host's appearance. Host the reparse opposite the app's.
+	const appDark =
+		NSApplication.sharedApplication.effectiveAppearance.bestMatchFromAppearancesWithNames([
+			'NSAppearanceNameAqua',
+			'NSAppearanceNameDarkAqua',
+		]) === 'NSAppearanceNameDarkAqua'
+	nativeWindow.appearance = NSAppearance.appearanceNamed(
+		appDark ? 'NSAppearanceNameAqua' : 'NSAppearanceNameDarkAqua',
+	)
+
 	await advance()
 	check(
 		htmlRef.current === first && Number(first.frame.origin.y) < Number(tail.frame.origin.y),
@@ -119,6 +132,15 @@ export async function checkHtmlLifecycle(root: any, nativeWindow: any) {
 	check(
 		Number(attr(first, NSFontAttributeName).pointSize) === 16,
 		'Reparsed HTML retained removed font override',
+	)
+
+	// The importer omits the attribute for black body text, which AppKit draws black.
+	const body = attr(first, NSForegroundColorAttributeName) ?? NSColor.blackColor
+	nativeWindow.appearance = null
+	const red = Number(body.colorUsingColorSpace(NSColorSpace.sRGBColorSpace).redComponent)
+	check(
+		appDark ? red < 0.1 : red > 0.9,
+		'HTML labelColor default did not resolve under the host appearance: ' + srgb(body),
 	)
 
 	await advance()

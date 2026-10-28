@@ -60,6 +60,7 @@ import {
 	transformToParts,
 } from '@octane-xplat/css-engine'
 import { parseHtmlText, validateHtmlProps } from './html-text'
+import { srgbComponents, withDrawingAppearance } from './color-components'
 import { resolveFont as fontForFamilyStyle } from './fonts'
 import {
 	CAGradientLayer,
@@ -83,7 +84,6 @@ import {
 	NSButtonType,
 	NSClickGestureRecognizer,
 	NSColor,
-	NSColorSpace,
 	NSControlSize,
 	NSCursor,
 	NSDate,
@@ -5401,6 +5401,7 @@ function syncHtmlView(node: ElementNode) {
 		fontFamily: String(view.font.familyName),
 		fontWeight: node.appliedFontWeight ?? '400',
 		color: view.textColor,
+		appearance: view.effectiveAppearance,
 		style: effectiveStyle(node),
 	})
 
@@ -8174,48 +8175,19 @@ function descendants(node: ElementNode, out: ElementNode[] = []) {
 	return out
 }
 
-function withDrawingAppearance<T>(appearance: any, read: () => T): T {
-	let value!: T
-	const readValue = () => {
-		value = read()
-	}
-
-	if (typeof appearance?.performAsCurrentDrawingAppearance === 'function') {
-		appearance.performAsCurrentDrawingAppearance(readValue)
-	} else {
-		readValue()
-	}
-
-	return value
-}
-
 function colorValue(color: any, appearance?: any) {
-	if (!color) {
-		return undefined
-	}
-
 	try {
-		return withDrawingAppearance(appearance, () => {
-			const rgb =
-				typeof color.colorUsingColorSpace === 'function'
-					? color.colorUsingColorSpace(NSColorSpace.sRGBColorSpace)
-					: color
-			// A failed conversion leaves a catalog color whose component getters
-			// raise a fatal NSException; report nothing instead.
-			if (!rgb) {
-				return undefined
-			}
-			return (
-				'#' +
-				[rgb.redComponent, rgb.greenComponent, rgb.blueComponent]
-					.map((component) =>
-						Math.round(Number(component) * 255)
-							.toString(16)
-							.padStart(2, '0'),
-					)
-					.join('')
-			)
-		})
+		const rgb = srgbComponents(color, appearance)
+		return rgb
+			? '#' +
+					[rgb.red, rgb.green, rgb.blue]
+						.map((component) =>
+							Math.round(component * 255)
+								.toString(16)
+								.padStart(2, '0'),
+						)
+						.join('')
+			: undefined
 	} catch {
 		return undefined
 	}
@@ -8272,7 +8244,7 @@ function parityStyle(node: ElementNode, facets: readonly string[]) {
 		}
 
 		if (facet === 'color' && view?.textColor) {
-			value = colorValue(view.textColor) ?? value
+			value = colorValue(view.textColor, view.effectiveAppearance) ?? value
 		}
 
 		if (facet === 'backgroundColor') {
@@ -8281,6 +8253,7 @@ function parityStyle(node: ElementNode, facets: readonly string[]) {
 					view?.layer?.backgroundColor
 						? NSColor.colorWithCGColor(view.layer.backgroundColor)
 						: null,
+					view?.effectiveAppearance,
 				) ?? value
 
 			if (value == null && view?.drawsBackground === false) {
@@ -8306,7 +8279,7 @@ function parityStyle(node: ElementNode, facets: readonly string[]) {
 						? NSColor.colorWithCGColor(view.layer.borderColor)
 						: null
 			if (color) {
-				value = colorValue(color) ?? value
+				value = colorValue(color, view?.effectiveAppearance) ?? value
 			}
 		}
 

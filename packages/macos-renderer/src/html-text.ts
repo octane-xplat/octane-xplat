@@ -1,4 +1,6 @@
 /** AppKit's HTML importer owns markup semantics; this layer supplies host styling. */
+import { srgbComponents } from './color-components.ts'
+
 export function validateHtmlProps(props: Record<string, any>) {
 	if (props.html != null && typeof props.html !== 'string') {
 		throw new Error('AppKit htmlview html must be a string')
@@ -19,7 +21,7 @@ export function htmlDocument(
 		fontSize: number
 		fontFamily: string
 		fontWeight: string
-		color: string
+		color: string | null
 		style: Record<string, any>
 	},
 ) {
@@ -28,7 +30,7 @@ export function htmlDocument(
 		`font-family:${cssString(defaults.fontFamily)}`,
 		`font-size:${defaults.fontSize}px`,
 		`font-weight:${defaults.fontWeight}`,
-		`color:${defaults.color}`,
+		...(defaults.color == null ? [] : [`color:${defaults.color}`]),
 		'margin:0',
 	]
 
@@ -56,6 +58,7 @@ export function parseHtmlText(
 		fontFamily: string
 		fontWeight: string
 		color: any
+		appearance?: any
 		style: Record<string, any>
 	},
 ) {
@@ -64,8 +67,13 @@ export function parseHtmlText(
 		return native.NSAttributedString.alloc().initWithString('')
 	}
 
-	const rgb = defaults.color.colorUsingColorSpace(native.NSColorSpace.sRGBColorSpace)
-	const color = `rgb(${[rgb.redComponent, rgb.greenComponent, rgb.blueComponent].map((value) => Math.round(Number(value) * 255)).join(',')})`
+	// The parsed string bakes in a static color, so a semantic default must
+	// resolve under the view's appearance. An unconvertible color leaves body
+	// text to the importer's default.
+	const rgb = srgbComponents(defaults.color, defaults.appearance)
+	const color = rgb
+		? `rgb(${[rgb.red, rgb.green, rgb.blue].map((value) => Math.round(value * 255)).join(',')})`
+		: null
 	const data = native.NSString.stringWithString(
 		htmlDocument(html, { ...defaults, color }),
 	).dataUsingEncoding(native.NSUTF8StringEncoding)

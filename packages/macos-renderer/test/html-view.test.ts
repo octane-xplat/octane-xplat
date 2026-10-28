@@ -137,6 +137,7 @@ test('HtmlView updates reconcile content only after font/color sources, preservi
 	const view: any = {
 		font: { pointSize: 20, familyName: 'System' },
 		textColor: '#ff0000',
+		effectiveAppearance: { name: 'NSAppearanceNameDarkAqua' },
 		invalidateIntrinsicContentSize: () => invalidations++,
 	}
 
@@ -150,6 +151,7 @@ test('HtmlView updates reconcile content only after font/color sources, preservi
 	assert.equal(view.attributedStringValue.html, '<b>first</b>')
 	assert.equal(view.attributedStringValue.defaults.fontSize, 20)
 	assert.equal(view.attributedStringValue.defaults.fontWeight, '700')
+	assert.equal(view.attributedStringValue.defaults.appearance, view.effectiveAppearance)
 	node.props = {}
 	view.font.pointSize = 16
 	node.appliedFontWeight = undefined

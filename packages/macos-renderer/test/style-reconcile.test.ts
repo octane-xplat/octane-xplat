@@ -29,7 +29,7 @@ const slices = [
 	source.slice(source.indexOf('const EDGE_INSET_PROPS'), source.indexOf('function textContent')),
 	source.slice(
 		source.indexOf('function nodeClasses'),
-		source.indexOf('function withDrawingAppearance'),
+		source.indexOf('function colorValue'),
 	),
 	source.slice(
 		source.indexOf('function setLabelText'),
