@@ -1,7 +1,8 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { appKitTextChange } from './appkit-events.macos'
 import { mergeStyle } from './style-merge'
-import { useContext, useEffect, useId, useMemo, useRef, useState, useCallback } from 'octane'
+import { createAppKitDateFieldHandle } from './date-field-handle.macos'
+import { useImperativeHandle, useContext, useEffect, useId, useMemo, useRef, useState, useCallback } from 'octane'
 import type { DateTimeInputProps, ISODateString, ISODateTimeString, ISOTimeString } from './props'
 import { cx } from '@octane-xplat/lib'
 import { dateMessages } from './date-messages'
@@ -69,6 +70,10 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 	const hasSeconds = !!props.hasSeconds
 	const current = useRef({ props, isDisabled, isBusy })
 	current.current = { props, isDisabled, isBusy }
+	useImperativeHandle(props.ref, () => createAppKitDateFieldHandle({
+		primary: () => dateInput.current, fields: () => [dateInput.current, timeInput.current],
+		blocked: () => current.current.isDisabled || current.current.isBusy || actionPending.current,
+	}), [])
 	const formatDisplay = (time: ISOTimeString, seconds: boolean) =>
 		props.locale
 			? formatLocalizedTime(time, seconds, props.hourFormat ?? '12h', resolveLocale(props.locale))

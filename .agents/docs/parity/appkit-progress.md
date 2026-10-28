@@ -3320,3 +3320,55 @@ and live announcements remain source gaps; Checkbox mixed rollback is still
 pending the previously asked human contract choice. No package tests/typechecks,
 builds, installs, OS automation, visual analysis or shared audit snapshots ran;
 no evidence-gated checkbox is closed.
+
+
+### AppKit date-family ref handles
+
+The previous goal turn committed/pushed standalone and date-time minute stepping
+through 134aaa48b; that was implementation progress, not native qualification.
+The next common form flow is returning to a date field from an action. Existing
+DateInput, TimeInput and DateTimeInput props expose TextInputHandle refs, but the
+AppKit leaves did not deliver them. DateRangeInput delivered inert focus/blur
+methods and a snapshot native host. This source expectation mismatch motivates a
+private responder adapter rather than new public API or niche platform work.
+
+The four target leaves now use normal useImperativeHandle ownership with stable
+host refs and a live native getter. DateInput/TimeInput focus their textfields,
+DateTimeInput focuses its date segment, and DateRangeInput focuses its trigger.
+Focus requests the current host's window first responder only when attached,
+visible, enabled and unblocked by current local/inherited state. It does not
+activate a window, select/parse/commit text, or open/close layers. Blur checks only
+live owned views/current field editors and leaves unrelated responders alone;
+DateTimeInput checks both segments. Native responder transitions own any editing
+callbacks they cause. Held handles resolve null/no-op after host teardown. No
+observers, timers, dependency, public type, shared manifest or other-target leaf
+were introduced; this does not change the existing generic text-control adapter.
+
+Three pure adapter cases and six object-driver cases (four parameterized control
+wiring/lifecycle cases, secondary-editor ownership and inherited Field blocking)
+are authored and unrun. They cover current hosts, native method/property editor
+forms, hidden/disabled/detached/blocking guards, ref object/callback/nested-list
+replacement, unmount clearing and composite blur. The date-focus fixture only
+mounts/records a manual diagnostic surface; it synthesizes no focus or input.
+Guide/skill/feature note, component-refs AC4 and date-picker AC6 evidence were
+reconciled. Only source/semantic, TypeScript/TSRX syntax and whitespace review ran.
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/ui -- src/date-field-handle.macos.test.ts
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/date-refs.macos.mobile.test.tsrx src/time-step.macos.mobile.test.tsrx src/datetime-options.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/date-focus.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All commands remain deferred pending explicit human authorization for this task.
+Actual native ref ordering, responder/field-editor identity, focus refusal,
+blur/submit/IME/draft/caret callbacks, popup/FocusScope/modal integration, AX and
+packaging remain unqualified. DateInput/TimeInput hasAutoFocus attachment timing,
+preset row-to-editor text relay, full listbox/option relationships and live
+announcements remain source gaps. Checkbox mixed rollback still awaits the
+previously asked human contract choice. No package tests/typechecks, builds,
+installs, OS automation, visual analysis or shared audit snapshots ran; no
+evidence-gated checkbox is closed.

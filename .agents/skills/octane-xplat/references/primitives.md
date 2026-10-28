@@ -1398,3 +1398,31 @@ Four added wiring cases and the extended preset-times fixture remain unrun;
 physical key/repeat, IME/editor/caret/draft/focus/save/AX and packaging remain
 unqualified. Row-to-editor relay, complete listbox relationships and live
 announcements remain gaps. See [closed time-field stepping](../../../../docs/platform/date-picker.md#step-the-appkit-date-time-field-without-opening-presets).
+
+
+## AppKit date-family imperative refs
+
+DateInput/TimeInput/DateTimeInput now deliver their existing TextInputHandle refs;
+DateRangeInput replaces inert focus/blur with trigger responder requests. Native
+reads are live, not snapshots. The date-time primary host is its date segment;
+blur checks both owned segments and their current field editors. Focus rejects
+current blocked, hidden, disabled or detached hosts; blur preserves unrelated
+responders and does not open/close layers or directly parse/commit text.
+
+```tsx
+import { useRef } from 'octane'
+import { Button, DateInput } from '@octane-xplat/ui'
+import type { TextInputHandle } from '@octane-xplat/ui'
+
+export function Booking(props: { date: string | null; change(date: string | null): void }) {
+	const input = useRef<TextInputHandle | null>(null)
+	return <>
+		<DateInput ref={input} label="Booking date" value={props.date} onChange={props.change} />
+		<Button label="Edit date" clickAction={() => input.current?.focus()} />
+	</>
+}
+```
+
+Three policy/six object-driver cases and the date-focus fixture are unrun; source
+wiring is not native ref/editor/focus/IME/layer/AX qualification. DateInput/TimeInput
+hasAutoFocus remains a separate attachment-timing gap. See [date focus handles](../../../../docs/platform/date-picker.md#focus-an-appkit-date-field-from-a-form-action).

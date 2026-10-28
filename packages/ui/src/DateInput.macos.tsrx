@@ -1,8 +1,10 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { appKitTextChange } from './appkit-events.macos'
 import { mergeStyle } from './style-merge'
-import { useContext, useEffect, useId, useMemo, useRef, useState } from 'octane'
+import { createAppKitDateFieldHandle } from './date-field-handle.macos'
+import { useImperativeHandle, useContext, useEffect, useId, useMemo, useRef, useState, useCallback } from 'octane'
 import type { DateInputProps, ISODateString } from './props'
+import type { NSTextField, NSView } from '@octane-xplat/platform/macos'
 import { cx } from '@octane-xplat/lib'
 import { dateMessages } from './date-messages'
 import { hasDateComposition } from './date-composition'
@@ -25,8 +27,10 @@ function DateInputControl(inputProps: DateInputProps) @{
 	const messages = dateMessages(props.messages)
 	const generatedId = useId()
 	const inputId = props.id ?? generatedId
-	const input = useRef<any>(null)
-	const anchor = useRef<any>(null)
+	const input = useRef<NSTextField | null>(null)
+	const anchor = useRef<NSView | null>(null)
+	const bindInput = useCallback((view: NSTextField | null) => { input.current = view }, [])
+	const bindAnchor = useCallback((view: NSView | null) => { anchor.current = view }, [])
 
 	const [open, setOpen] = useState(false)
 	const [pendingInput, setPendingInput] = useState<string | null>(null)
@@ -37,6 +41,10 @@ function DateInputControl(inputProps: DateInputProps) @{
 	const shown = value
 	const isDisabled = !!props.isDisabled || !!props.isReadOnly
 	const isBusy = !!props.isLoading || busy
+	const blocked = useRef(isDisabled || isBusy); blocked.current = isDisabled || isBusy
+	useImperativeHandle(props.ref, () => createAppKitDateFieldHandle({
+		primary: () => input.current, blocked: () => blocked.current,
+	}), [])
 
 	const isDateDisabled = useMemo(
 		() =>
@@ -141,9 +149,7 @@ function DateInputControl(inputProps: DateInputProps) @{
 
 	<>
 		<masonview
-			ref={(v: any) => {
-				anchor.current = v
-			}}
+			ref={bindAnchor}
 			className={cx(
 				'vx-dateinput',
 				'vx-dateinput-popover',
@@ -172,9 +178,7 @@ function DateInputControl(inputProps: DateInputProps) @{
 				<Icon name="xplat-calendar" size={16} />
 			</Pressable>
 			<textfield
-				ref={(v: any) => {
-					input.current = v
-				}}
+				ref={bindInput}
 				id={inputId}
 				className={cx('vx-dateinput-input', !isPendingValid && 'vx-dateinput-input--invalid')}
 				value={displayText}

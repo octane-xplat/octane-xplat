@@ -20,6 +20,8 @@ hooks, and release ref ownership correctly. Migrate existing Xplat bind usage.
 - AC2: Ref replacement and unmount detach the previous owner, clear object refs, and invoke callback cleanup or null delivery.
 - AC3: Host attachment hooks compose through the same ref prop, and existing bind/bindRoot call sites can be migrated without another attachment convention.
 
+- AC4: AppKit date-family controls deliver existing TextInputHandle refs through normal object/callback/list replacement and teardown ownership. Focus resolves the current attached/visible/enabled/unblocked primary host; blur preserves unrelated responders and handles current owned field editors, including the date-time secondary segment. Keep source/object-driver evidence distinct from native ref/responder/editor/IME/popup/AX qualification and autofocus timing.
+
 ## Documentation
 
 - AC1: [AppKit logical TabView item refs](../notes/appkit-native-intrinsics.md#tabview-host-and-minimal-logical-items), maintained [TabView fixture](../../../packages/macos-renderer/test/fixtures/Tab.macos.tsx), and [Refs](../../../docs/app/primitives.md#refs), [focus handles](../../../docs/app/text-entry.md#release-and-restore-focus), and maintained [web ref fixture](../../../packages/ui/src/refs.web.test.tsrx).
@@ -30,3 +32,5 @@ The [AppKit text fixture](../../../apps/macos/test/text-controls-fixture.macos.t
 checks TextInput/TextArea object handles, native focus/blur, stable native identity
 when secure mode changes, and ref clearing on unmount. Other ref forms and
 replacement are covered by the shared ref suites above.
+
+- AC4: [AppKit date focus guide](../../../docs/platform/date-picker.md#focus-an-appkit-date-field-from-a-form-action), private date-field-handle adapter, three policy/six object-driver cases, [maintained fixture](../../../examples/probes/date-focus.macos.tsrx), skill reference and [target note](../parity/appkit-progress.md#appkit-date-family-ref-handles). All cases/fixture and native qualification remain unrun; hasAutoFocus remains separate.

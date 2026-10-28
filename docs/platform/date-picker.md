@@ -670,3 +670,55 @@ no OS input. Physical keys/repeat, field-editor/IME/draft/caret, bounds/save/foc
 ordering, native popup/AX/VoiceOver and packaging remain unqualified. Preset
 row-to-editor text relay, full listbox relationships and live announcements remain
 gaps.
+
+
+### Focus an AppKit date field from a form action
+
+Use the existing ref prop when a form action needs to return to a date field.
+The AppKit date-family source now supplies TextInputHandle.focus(), blur() and
+native: DateInput and TimeInput target their textfield, DateTimeInput targets its
+date segment, and DateRangeInput targets its calendar trigger:
+
+```tsx
+import { useRef, useState } from 'octane'
+import { Button, DateInput, VStack } from '@octane-xplat/ui'
+import type { TextInputHandle } from '@octane-xplat/ui'
+
+export function BookingDate() {
+	const input = useRef<TextInputHandle | null>(null)
+	const [date, setDate] = useState<string | null>('2026-03-05')
+	return <VStack>
+		<DateInput ref={input} label="Booking date" value={date} onChange={setDate} />
+		<Button label="Edit booking date" clickAction={() => input.current?.focus()} />
+		<Button label="Leave date field" clickAction={() => input.current?.blur()} />
+	</VStack>
+}
+```
+
+Focus requests require an attached, visible, enabled and currently unblocked
+host. Blur clears only a current owned host or its active field editor; it leaves
+unrelated responders alone. On AppKit DateTimeInput, blur also handles its time
+segment. These methods request responder changes without activating a window,
+opening or dismissing a popup, selecting a value or directly committing a draft.
+The native responder transition owns any editing callbacks it causes:
+
+```tsx
+import { useRef } from 'octane'
+import { Button, DateTimeInput } from '@octane-xplat/ui'
+import type { TextInputHandle } from '@octane-xplat/ui'
+
+export function EditAppointment(props: { value: string | null; change(value: string | null): void }) {
+	const appointment = useRef<TextInputHandle | null>(null)
+	return <>
+		<DateTimeInput ref={appointment} label="Appointment" value={props.value} onChange={props.change} />
+		<Button label="Edit appointment date" clickAction={() => appointment.current?.focus()} />
+	</>
+}
+```
+
+The native getter reads the current host, including null after teardown. Normal
+ref replacement/unmount ownership uses Octane's imperative-ref lifecycle. Three
+policy and six object-driver cases plus a maintained fixture are authored and
+unrun. Source/syntax review does not prove native ref timing, responder/editor
+identity, blur/submit/IME/caret ordering, popup/modal integration or accessibility.
+DateInput/TimeInput hasAutoFocus attachment timing remains a separate source gap.

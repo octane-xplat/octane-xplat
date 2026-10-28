@@ -1,7 +1,9 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from './style-merge'
-import { useImperativeHandle, useContext, useId, useRef, useState } from 'octane'
+import { createAppKitDateFieldHandle } from './date-field-handle.macos'
+import { useImperativeHandle, useContext, useId, useRef, useState, useCallback } from 'octane'
 import type { DateRange, DateRangeInputProps } from './props'
+import type { NSView } from '@octane-xplat/platform/macos'
 import { cx } from '@octane-xplat/lib'
 import { runDateChangeAction } from './date-field-action'
 import { Icon } from './Icon.macos.tsrx'
@@ -16,20 +18,23 @@ import { isDateRangeAllowed } from './calendar-core'
 const STATUS_TEXT = { error: '⚠', warning: '⚠', success: '✓' } as const
 
 function RangeControl(inputProps: DateRangeInputProps) @{
-	const hostRef = useRef<any>(null)
+	const hostRef = useRef<NSView | null>(null)
+	const bindHost = useCallback((view: NSView | null) => { hostRef.current = view }, [])
 	const props = useFieldControlProps(inputProps)
 	const locale = resolveLocale(props.locale)
 	const generatedId = useId()
 	const inputId = props.id ?? generatedId
 
 	const [open, setOpen] = useState(false)
-	const anchor = useRef<any>(null)
+	const anchor = useRef<NSView | null>(null)
+	const bindAnchor = useCallback((view: NSView | null) => { anchor.current = view }, [])
 	const [busy, setBusy] = useState(false)
 
 	const value = props.value
 	const shown = value ?? undefined
 	const isDisabled = !!props.isDisabled || !!props.isReadOnly
 	const isBusy = !!props.isLoading || busy
+	const blocked = useRef(isDisabled || isBusy); blocked.current = isDisabled || isBusy
 
 	const fireChange = (next: DateRange | null) => {
 		if (isDisabled || isBusy || (next !== null && !isDateRangeAllowed(next, props))) {
@@ -69,17 +74,13 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 
 	const statusText = props.status ? STATUS_TEXT[props.status.type] : null
 
-	useImperativeHandle(
-		props.ref,
-		() => ({ focus: () => {}, blur: () => {}, native: hostRef.current }),
-		undefined,
-	)
+	useImperativeHandle(props.ref, () => createAppKitDateFieldHandle({
+		primary: () => hostRef.current, blocked: () => blocked.current,
+	}), [])
 
 	<>
 		<masonview
-			ref={(v: any) => {
-				anchor.current = v
-			}}
+			ref={bindAnchor}
 			className={cx(
 				'vx-daterangeinput',
 				isDisabled && 'vx-daterangeinput--disabled',
@@ -106,9 +107,7 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 				}
 				accessibilityHint={props.accessibilityHint}
 				accessibilityState={{ disabled: isDisabled, busy: isBusy }}
-				ref={(v: any) => {
-					hostRef.current = v
-				}}
+				ref={bindHost}
 				onPress={() => {
 					if (!isDisabled && !isBusy) {
 						setOpen(!open)

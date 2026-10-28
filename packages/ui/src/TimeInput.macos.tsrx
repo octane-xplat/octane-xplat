@@ -1,7 +1,8 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { appKitTextChange } from './appkit-events.macos'
 import { mergeStyle } from './style-merge'
-import { useContext, useEffect, useId, useMemo, useRef, useState, useCallback } from 'octane'
+import { createAppKitDateFieldHandle } from './date-field-handle.macos'
+import { useImperativeHandle, useContext, useEffect, useId, useMemo, useRef, useState, useCallback } from 'octane'
 import type { ISOTimeString, TimeInputProps } from './props'
 import type { NativeKeyboardEvent } from '@octane-xplat/jsx/intrinsics'
 import type { NSTextField } from '@octane-xplat/platform/macos'
@@ -50,6 +51,10 @@ export function TimeInput(inputProps: TimeInputProps) @{
 	const hasSeconds = !!props.hasSeconds
 	const current = useRef({ props, shown, isDisabled, isBusy, hasSeconds })
 	current.current = { props, shown, isDisabled, isBusy, hasSeconds }
+	useImperativeHandle(props.ref, () => createAppKitDateFieldHandle({
+		primary: () => input.current,
+		blocked: () => current.current.isDisabled || current.current.isBusy || actionPending.current,
+	}), [])
 	const formatDisplay = (time: ISOTimeString, seconds: boolean) =>
 		props.locale
 			? formatLocalizedTime(time, seconds, props.hourFormat ?? '12h', resolveLocale(props.locale))
