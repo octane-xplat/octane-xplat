@@ -3754,3 +3754,20 @@ that remains a separate deferred gate. The leaf normalizes root classes with
 the existing cx utility (already declared lib dependency), matching neighboring
 UI leaves and object-driver class tokens. Syntax/whitespace only; the same
 14 cases and all native/package checks remain unrun.
+
+### AppKit policy test registration correction
+
+While scoping date/time autofocus, read UI's current test script and Vitest
+include/exclude globs. Four earlier target policy files (menu-focus,
+date-field-handle, carousel-scroll and carousel-snap) imported node:test despite
+being selected by the UI Vitest task. Changed only their test registration import
+to Vitest, preserving assertions/cases. This is a source runner mismatch and
+registration correction, not an observed execution failure/pass. Their earlier
+unrun status is unchanged. No shared runner/config/manifest changed.
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/ui -- src/menu-focus.macos.test.ts src/date-field-handle.macos.test.ts src/carousel-scroll.macos.test.ts src/carousel-snap.macos.test.ts
+```
+
+Command remains deferred until the human explicitly authorizes this task.
+TypeScript syntax and whitespace only; no tests/typechecks/build/native checks.

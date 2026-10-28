@@ -1,5 +1,5 @@
 import { strict as assert } from 'node:assert'
-import { test } from 'node:test'
+import { test } from 'vitest'
 import { createAppKitCarouselSnap } from './carousel-snap.macos.ts'
 function fixture() {
 	const callbacks = new Map<number, () => void>(), observers = new Map<object, { name: string; view: any; callback: (note: any) => void }>()

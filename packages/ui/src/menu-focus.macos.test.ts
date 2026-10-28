@@ -1,5 +1,5 @@
 import { strict as assert } from 'node:assert'
-import { test } from 'node:test'
+import { test } from 'vitest'
 import { createAppKitMenuFocus } from './menu-focus.macos.ts'
 
 function fixture(initial: 'first' | 'last' | 'container' = 'first') {

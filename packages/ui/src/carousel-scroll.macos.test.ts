@@ -1,5 +1,5 @@
 import { strict as assert } from 'node:assert'
-import { test } from 'node:test'
+import { test } from 'vitest'
 import { createAppKitCarouselScroll } from './carousel-scroll.macos.ts'
 function fixture(rtl = false) {
 	const state = { loop: false, count: 3, reduced: false, direction: rtl ? 'rtl' as const : 'ltr' as 'ltr' | 'rtl' }
