@@ -80,7 +80,7 @@ variants in `.gtk.tsrx`/`.gtk.tsx` files.
 `@octane-xplat/ui` resolves a curated `gtk` export condition. It includes
 `Text`, `Pressable`, the `View`/`Stack` family, `Grid`/`GridSpan`, `Center`,
 `Section`, `Layout` regions, `Absolute`, `Spacer`, `Badge`, `Divider`,
-`ColorSwatch`, the shared size context, `AspectRatio`, and `useMeasure`.
+`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, and `useAnimation`.
 For example, place a label and
 status badge in a horizontal row:
 
@@ -115,6 +115,28 @@ export function Preview() {
 			<Text>{bounds ? `Width: ${bounds.width}` : 'Measuring…'}</Text>
 		</View>
 	)
+}
+```
+
+Use `useAnimation` for numeric transforms, opacity, or layout dimensions.
+Attach its `ref` to a view, then call `to` or `spring` from an event handler.
+Each run returns a result; replacement, stopping, ref detachment and unmount
+cancel pending playback. GTK rejects unsupported properties and nonfinite
+values rather than storing an inert widget property.
+
+```tsx
+import { Pressable, Text, View, useAnimation } from '@octane-xplat/ui'
+
+export function SlidePreview() {
+  const offset = useAnimation(0, 'translateX')
+  return (
+    <View>
+      <View ref={offset.ref} style={{ width: 40, height: 40, backgroundColor: 'royalblue' }} />
+      <Pressable onPress={() => { void offset.to(100, { duration: 300 }) }}>
+        <Text>Slide</Text>
+      </Pressable>
+    </View>
+  )
 }
 ```
 

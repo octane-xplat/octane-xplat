@@ -74,6 +74,12 @@ or call NativeScript's `getLocationOnScreen()`. The GTK `useMeasure` leaf
 subscribes through `on/off('layoutChanged')`, which also observes movement
 from ancestor scrolling. The current imperative subscription vocabulary is
 `loaded`, `unloaded`, and `layoutChanged`; other names throw until qualified.
+Use GTK `useAnimation` or `setTranslate` for numeric motion. Ref transforms
+and `view.style` feed a renderer-owned local style layer; assigning GTK's
+read-only `width`/`height` properties does not animate layout. Supported numeric
+keys are explicit in the renderer's `public-instance.ts`; unsupported numeric writes
+throw. Local style values survive unrelated renders; deleting a local style key
+restores authored styling. CSS keyframe samples retain higher priority.
 For GTK adapters, retain the shared file's source extension: a shared
 `pan.tsrx` needs `pan.gtk.tsrx`. The current GTK preset checks unsuffixed
 `.tsrx` before `.gtk.ts`, so changing the extension can silently select the

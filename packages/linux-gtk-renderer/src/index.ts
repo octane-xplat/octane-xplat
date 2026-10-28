@@ -626,11 +626,18 @@ function shallowEqualStyle(a: PropBag, b: PropBag) {
  *  parent is already styled (top-down flush order). */
 function restyleNode(node: ElementNode) {
 	refreshCssClasses(node)
-	const { style, customProps, cssKeys, inheritedKeys, animations } = computeCascade(
-		node as unknown as CssHostNode,
-		stylesheetScope(),
-		{ borderLonghands: true },
-	)
+	const {
+		style: cascadeStyle,
+		customProps,
+		cssKeys,
+		inheritedKeys,
+		animations,
+	} = computeCascade(node as unknown as CssHostNode, stylesheetScope(), { borderLonghands: true })
+	// Imperative numeric refs are local style values: above authored inline
+	// styles and below CSS keyframe samples. Never mutate the frozen props bag.
+	const style = { ...cascadeStyle, ...node.localStyle }
+	for (const key of Object.keys(node.localStyle ?? {})) inheritedKeys.delete(key)
+
 	node.cssOriginKeys = cssKeys
 	node.inheritedOnlyKeys = inheritedKeys
 	const prevStyle = node.computedStyle ?? {}
@@ -3073,6 +3080,21 @@ function expect(container: GtkContainer, id: number): ElementNode {
 	return node
 }
 
+function bindNodePublicInstance(node: ElementNode): () => void {
+	return bindPublicInstance(node, {
+		read: (key) => {
+			const direct = node.localStyle?.[key] ?? node.computedStyle?.[key] ?? node.props[key]
+			if (direct !== undefined) return direct
+			return (resolveTransform({ ...node.computedStyle, ...node.localStyle }) as any)?.[key]
+		},
+		write: (key, value) => {
+			if (value === undefined) delete node.localStyle?.[key]
+			else (node.localStyle ??= {})[key] = value
+			markStyleDirty(node, false, false)
+		},
+	})
+}
+
 function createNode(
 	container: GtkContainer,
 	id: number,
@@ -3124,7 +3146,7 @@ function createNode(
 		// widget — link them before props land so style writes find it.
 		bindMasonView(view, node)
 	}
-	node.disposePublicInstance = bindPublicInstance(node)
+	node.disposePublicInstance = bindNodePublicInstance(node)
 	wireStateFlags(node)
 	applyProps(node, props)
 	return node
@@ -3225,6 +3247,7 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 			node.cssClass = null
 			node.cssSignature = ''
 			node.cssType = command.type
+			node.localStyle = undefined
 			node.computedStyle = undefined
 			node.computedCustomProps = new Map()
 			node.cssOriginKeys = undefined
@@ -3239,7 +3262,7 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 				bindMasonView(node.view, node)
 			}
 
-			node.disposePublicInstance = bindPublicInstance(node)
+			node.disposePublicInstance = bindNodePublicInstance(node)
 			applyProps(node, command.props)
 			if (node.view !== null) {
 				const parentView = hostViewOf(container, node.parent)

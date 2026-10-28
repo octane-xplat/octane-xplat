@@ -7692,7 +7692,11 @@ export type AnimationResult =
  * style properties. On NativeScript, `prop` is the name of a NativeScript
  * view property (for example, `translateX` or `opacity`). AppKit supports
  * opacity, translateX/translateY (points, positive Y downward), scale/scaleX/
- * scaleY, and rotate (degrees). The default property is translateX.
+ * scaleY, and rotate (degrees). GTK supports opacity, translateX/translateY,
+ * scale/scaleX/scaleY, rotate/rotateX/rotateY, perspective, and numeric dimensions,
+ * margins, padding, border widths/radii, fontSize, letterSpacing and lineHeight.
+ * GTK rejects unsupported properties and nonfinite numeric writes.
+ * The default property is translateX.
  * `to` uses milliseconds (300 by default); spring defaults to damping 14 and
  * stiffness 120. stop freezes the sampled value; a new run replaces playback.
  * The owning hook stops work on disposal. AppKit reduced motion snaps transforms

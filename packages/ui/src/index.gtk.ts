@@ -54,3 +54,7 @@ export type {
 	AspectRatioFit,
 	AspectRatioShape,
 } from './props'
+
+export { setTranslate } from './translate'
+export { useAnimation } from './anim'
+export type { SetTranslate, AnimatedValue, AnimationResult } from './props'

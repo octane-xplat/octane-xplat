@@ -10,13 +10,61 @@ export interface GtkBounds {
 type LayoutEvent = 'loaded' | 'unloaded' | 'layoutChanged'
 type Listener = (event: { eventName: LayoutEvent; object: unknown }) => void
 
+const NUMERIC_STYLE_KEYS = new Set([
+	'opacity',
+	'translateX',
+	'translateY',
+	'scale',
+	'scaleX',
+	'scaleY',
+	'rotate',
+	'rotateX',
+	'rotateY',
+	'perspective',
+	'width',
+	'height',
+	'minWidth',
+	'minHeight',
+	'maxWidth',
+	'maxHeight',
+	'margin',
+	'marginTop',
+	'marginRight',
+	'marginBottom',
+	'marginLeft',
+	'padding',
+	'paddingTop',
+	'paddingRight',
+	'paddingBottom',
+	'paddingLeft',
+	'borderWidth',
+	'borderTopWidth',
+	'borderRightWidth',
+	'borderBottomWidth',
+	'borderLeftWidth',
+	'borderRadius',
+	'borderTopLeftRadius',
+	'borderTopRightRadius',
+	'borderBottomLeftRadius',
+	'borderBottomRightRadius',
+	'fontSize',
+	'letterSpacing',
+	'lineHeight',
+])
+
+interface StyleHost {
+	read(property: string): unknown
+	write(property: string, value: number | undefined): void
+}
+
 /** Keep refs as real Gtk widgets, with app-surface measurement and subscriptions.
  * A frame callback observes ancestor allocation/scroll changes too; GTK's
  * notify::width alone does not observe changes to position. */
-export function bindPublicInstance(node: ElementNode): () => void {
+export function bindPublicInstance(node: ElementNode, styles: StyleHost): () => void {
 	const view = node.view
 	if (!view) return () => {}
 	let host: typeof view | null = node.container.host
+	let styleHost: StyleHost | null = styles
 	let disposed = false
 	let tick: number | null = null
 	let previous: string | undefined
@@ -58,6 +106,64 @@ export function bindPublicInstance(node: ElementNode): () => void {
 		stop()
 		emit('unloaded')
 	})
+	const readStyle = (name: string) => {
+		const key = name === 'scale' ? 'scaleX' : name
+		const value = styleHost?.read(key)
+		if (value != null) return value
+		switch (key) {
+			case 'scaleX':
+			case 'scaleY':
+				return 1
+			case 'perspective':
+				return 300
+			case 'opacity':
+				return view.get_opacity()
+			case 'width':
+				return view.get_width()
+			case 'height':
+				return view.get_height()
+			default:
+				return 0
+		}
+	}
+
+	const writeStyle = (name: string, value: unknown) => {
+		if (!styleHost) return
+		if (!NUMERIC_STYLE_KEYS.has(name))
+			throw new Error('linux-gtk ref: unsupported numeric style ' + name)
+		if (value != null && (typeof value !== 'number' || !Number.isFinite(value)))
+			throw new Error('linux-gtk ref: numeric style requires a finite number: ' + name)
+		for (const key of name === 'scale' ? ['scaleX', 'scaleY'] : [name])
+			styleHost.write(key, value == null ? undefined : (value as number))
+	}
+	view.style = new Proxy(Object.create(null), {
+		get: (_target, key) => (typeof key === 'string' ? readStyle(key) : undefined),
+		set: (_target, key, value) => {
+			writeStyle(String(key), value)
+			return true
+		},
+		deleteProperty: (_target, key) => {
+			writeStyle(String(key), undefined)
+			return true
+		},
+	})
+	for (const name of [
+		'translateX',
+		'translateY',
+		'scale',
+		'scaleX',
+		'scaleY',
+		'rotate',
+		'rotateX',
+		'rotateY',
+		'perspective',
+	]) {
+		Object.defineProperty(view, name, {
+			configurable: true,
+			get: () => readStyle(name),
+			set: (value) => writeStyle(name, value),
+		})
+	}
 	view.getActualSize = () => ({ width: view.get_width(), height: view.get_height() })
 	view.getBounds = bounds
 	view.on = (name: LayoutEvent, listener: Listener) => {
@@ -78,6 +184,7 @@ export function bindPublicInstance(node: ElementNode): () => void {
 	return () => {
 		disposed = true
 		host = null
+		styleHost = null
 		stop()
 		listeners.clear()
 		view.disconnect(mapped)

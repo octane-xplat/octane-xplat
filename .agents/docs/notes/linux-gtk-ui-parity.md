@@ -183,3 +183,39 @@ the separate actual X11 pointer test). The expanded renderer/dependent typecheck
 passes all eight tasks. Logs: guest /tmp/gtk-root-sizing-test.log and andromeda
 /tmp/gtk-root-sizing-types.log. This does not qualify percentage/min/max root
 dimensions or every alignment/flex interaction.
+
+## Numeric animation and translation slice
+
+The GTK barrel now exposes setTranslate and useAnimation, plus their three
+shared types (28 runtime exports and 34 type exports in total). setTranslate
+reuses the shared implementation: GTK refs expose backed transform properties.
+The GTK animation leaf uses the shared createAnimatedValue state machine and the
+existing GJS timer-backed animation-frame shim, writing through view.style so
+GTK's read-only width/height properties are preserved.
+
+The renderer keeps a local numeric style layer above authored inline values
+and below CSS keyframe samples. It survives unrelated component renders; deleting
+a local key reveals authored styling. Numeric writes are finite and restricted
+to supported transforms, opacity, dimensions, box edges and text metrics.
+Uniform scale writes both axes. Transform reads resolve authored shorthand;
+disposed refs release their style callbacks and cannot revive destroyed nodes.
+These are explicit backed operations, not a general NativeScript Style facade.
+
+The real Linux renderer task passes 30 tests without skips. The new animation
+fixture performs 24 assertions: actual allocation bounds for setTranslate and
+timed movement, native opacity, width, uniform scale, stable hook identity,
+frozen authored props, deletion, CSS keyframe precedence/restoration, timing,
+spring settlement, replacement, stop, ref detachment and unmount cancellation,
+invalid writes and stale-ref cleanup. The existing measurement fixture retains
+19 assertions and the primitive fixture 42. Actual X11 pointer input is a
+separate fixture; animation geometry checks do not prove transformed OS
+hit-testing, visual frame pacing, assistive technology, or Wayland behavior.
+
+The UI/dependent typecheck passes all 58 tasks; packed exports and declaration
+graph, web barrel consistency, recipe structure and release notes pass.
+The final renderer/dependent typecheck passes all eight tasks
+(/tmp/gtk-animation-renderer-types-final.log).
+Other logs: andromeda /tmp/gtk-animation-{types,pack,barrels,recipes,changelog}.log
+and guest /tmp/gtk-animation-test-final.log. The existing docs-site parser
+failure is still unresolved. GTK system reduced-motion behavior for imperative
+playback and exhaustive numeric-property qualification remain open.
