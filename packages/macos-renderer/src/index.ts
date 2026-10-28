@@ -6728,7 +6728,15 @@ function colorValue(color: any, appearance?: any) {
 
 	try {
 		return withDrawingAppearance(appearance, () => {
-			const rgb = color.colorUsingColorSpace?.(NSColorSpace.sRGBColorSpace) ?? color
+			const rgb =
+				typeof color.colorUsingColorSpace === 'function'
+					? color.colorUsingColorSpace(NSColorSpace.sRGBColorSpace)
+					: color
+			// A failed conversion leaves a catalog color whose component getters
+			// raise a fatal NSException; report nothing instead.
+			if (!rgb) {
+				return undefined
+			}
 			return (
 				'#' +
 				[rgb.redComponent, rgb.greenComponent, rgb.blueComponent]

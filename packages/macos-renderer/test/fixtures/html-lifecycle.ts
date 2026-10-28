@@ -1,6 +1,8 @@
 import Html, { htmlRef, htmlRefEvents } from './Html'
 
 import {
+	NSColor,
+	NSColorSpace,
 	NSFontAttributeName,
 	NSFontTraitMask,
 	NSForegroundColorAttributeName,
@@ -97,8 +99,14 @@ export async function checkHtmlLifecycle(root: any, nativeWindow: any) {
 		'Dropped HTML did not restore empty default',
 	)
 
+	const srgb = (color: any) => {
+		const rgb = color.colorUsingColorSpace(NSColorSpace.sRGBColorSpace)
+		return [rgb.redComponent, rgb.greenComponent, rgb.blueComponent, rgb.alphaComponent]
+			.map((component: any) => Math.round(Number(component) * 255))
+			.join(',')
+	}
 	check(
-		Number(first.font.pointSize) === 16 && Number(first.textColor.redComponent) < 0.1,
+		Number(first.font.pointSize) === 16 && srgb(first.textColor) === srgb(NSColor.labelColor),
 		'Dropped HTML style did not restore host defaults',
 	)
 
