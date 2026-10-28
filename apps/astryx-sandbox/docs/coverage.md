@@ -938,3 +938,66 @@ unsupported properties (139 intentional native drops). Focused lint reported
 no errors, with existing/style warnings retained. Four attachment assets are
 byte-identical to the pinned source. Native runtime, real speech and OS
 clipboard evidence remain outside this qualification.
+
+## Unit 12 — composed page templates
+
+### Closed route rows
+
+All 55 pinned composed page templates resolve at `/templates/<name>/`. The
+six table-driven pages reuse the Table examples delivered by units 6/7;
+the remaining 49 are authored TSRX ports. With this unit the composed-page
+slice of the 771-row oracle is fully registered (the oracle totals are
+updated separately by coverage generation).
+
+| Slice | Routes | Port style |
+| --- | --- | --- |
+| Blanks, heroes, galleries, logins, app shells | 14 | earlier group-A commit `19d61ca3c` |
+| Detail/product/contact/file-explorer/messaging/ide/forms/settings/docs | 10 | earlier group-B commit `9ee5433bc` |
+| Table page templates (`table` + variants) | 6 | units 6/7 table pages |
+| Dashboards (7), form/checkout/payment wizards (7), console/kanban/library/editor/detail (5), chat/docs/settings/theme/canvas (6) | 25 | this commit |
+
+### Upstream contract → public consumer
+
+| Upstream contract | Public Xplat consumer | Disposition |
+| --- | --- | --- |
+| Recharts area/bar/donut/funnel charts across all dashboards | app-local SVG chart helper (`src/examples/pages/charts.tsrx`) | substitution recorded; axes, legends, series colors and donut center labels preserved |
+| `Stepper` + `Step` wizards with step click, error status, optional steps | public `Stepper`/`Step` (`accessibilityLabel`, `activeStep`, `onStepClick`, `status`, `isOptional`) | ported; validation revealed on Next instead of disabled buttons, matching upstream's validate-on-advance |
+| `FileInput` + `MultiSelector` focus/ref targeting (form-wizard-vertical) | public `FileInput`, `MultiSelector` | gap recorded: `MultiSelector` drops DOM props and `FileInput` hides the input, so step validation cannot focus them |
+| `PowerSearch` filters/grouping (incident-console) | public `PowerSearch` config | ported 1:1 |
+| Chat surfaces (messaging-shell, ai-chat, ai-chat-landing, theme-showcase) | `ChatComposer`/`ChatLayout`/`ChatMessage*` at `@octane-xplat/ui/chat`; `createStaticSource`, `ChatComposerTrigger` tokens | ported; `@`/`/` triggers, mode tokens, attachments, drawer, dictation button |
+| Pointer-drag kanban + canvas selection | DOM pointer handlers on card elements | ported; insertion targets computed the same way |
+| Settings surfaces (sidebar + dialog shells) | `SideNav`/`SideNavSection`/`SideNavItem`, `Dialog`, `Selector`, `Switch`, `TabList` | condensed panel inventories; search, two-view mobile pattern and tab strip preserved |
+| Canvas editor (layers, inspector, resizable rails) | `useResizable`, `LayoutPanel`, `TreeList`-adjacent `List`, numeric axis inputs | condensed port; HSV picker → native color input + hex field; drag transform → axis inputs |
+
+### Framework findings and adaptations
+
+- **U12-chart-substitution:** no public chart engine; the seven dashboards share
+  an app-local SVG helper implementing upstream's area/bar/donut/funnel
+  visuals. This is a deliberate substitution, not a framework capability claim.
+- **U12-control-handler-names:** `Switch`, `DateInput`, `TimeInput` and
+  `ToggleButtonGroup` use `onChange`; `Selector`/`MultiSelector`/`SegmentedControl`
+ /`RadioList`/`CheckboxList` use `onValueChange` with `string | null` /
+  `string[] | null` parameters (null-coalescing handlers added where required).
+- **U12-stepper-label:** `Stepper` takes `accessibilityLabel` (not `label`);
+  `Step` takes `label`, `status`, `isOptional` — no `icon` slot.
+- **U12-textcolor-gap:** `Text color` lacks the `error`/`success`/`warning`
+  semantic tones the upstream relies on; ports use `style` color variables.
+  Same for `Icon` — no `style` prop, `color` takes the value directly.
+- **U12-timestamp-grammar:** `Timestamp value` needs epoch ms
+  (`Date.parse(...)` + `valueUnit="unix-milliseconds"`) or full ISO datetimes
+  with zone — bare `YYYY-MM-DD` and naive datetimes are rejected.
+- **U12-menu-separator:** menu dividers are `{type:'separator'}` rows, and
+  `MoreMenu`'s item union accepts no separator at all (dropped there).
+- **U12-tsrx-early-jsx:** in `@{` bodies, JSX inside `if`/`switch` must be
+  `return`ed — bare JSX statements elsewhere are flagged as unused output.
+- **U12-layout-slots:** `Layout` accepts `start`/`end`/`header`/`footer`/
+  `content` panels — no `direction` prop; `LayoutHeader` must be imported.
+
+### Verification evidence
+
+Production preview and behavior checks live in
+`scripts/verify-pages.mjs` (route-content asserts for all 55 pages plus the
+existing pointer/keyboard journeys) and the shared `scripts/verify-web.mjs`
+pattern for the whole-app host bar. Results are recorded in the unit-12 commit
+report; checks use DOM text/state and real browser input only — no visual
+assertions.

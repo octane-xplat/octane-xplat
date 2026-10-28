@@ -1,0 +1,22 @@
+/* Ported container-query rules for templates/pages/mixed-gallery (Astryx 0.6.4, MIT).
+   Upstream shipped this CSS in an inline <style> tag; the sandbox keeps it in a
+   static stylesheet. 3 columns → 1 column below 720px (no 2-col middle state);
+   the hero spans 2 columns on desktop, then fills the row once stacked and
+   switches 3:1 → 3:2 so every tile stays uniform. */
+.tp-mixed-gallery-grid {
+	display: grid;
+	gap: var(--spacing-3);
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.tp-mixed-gallery-hero {
+	grid-column: span 2;
+}
+@container tp-mixed-gallery (max-width: 720px) {
+	.tp-mixed-gallery-grid {
+		grid-template-columns: minmax(0, 1fr);
+	}
+	.tp-mixed-gallery-hero {
+		grid-column: 1 / -1;
+		aspect-ratio: 3 / 2;
+	}
+}

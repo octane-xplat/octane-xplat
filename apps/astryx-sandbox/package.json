@@ -11,6 +11,7 @@
 		"coverage": "node scripts/generate-coverage.mjs",
 		"verify:web": "node scripts/verify-web.mjs",
 		"verify:authored": "node scripts/verify-authored.mjs",
+		"verify:pages": "node scripts/verify-pages.mjs",
 		"sameframe": "sameframe compare --config sameframe.yaml --json"
 	},
 	"dependencies": {

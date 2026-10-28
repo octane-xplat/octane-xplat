@@ -29,6 +29,13 @@
 				"@octane-xplat/cli#build"
 			],
 			"cache": false
+		},
+		"verify:pages": {
+			"dependsOn": [
+				"build",
+				"@octane-xplat/cli#build"
+			],
+			"cache": false
 		}
 	}
 }

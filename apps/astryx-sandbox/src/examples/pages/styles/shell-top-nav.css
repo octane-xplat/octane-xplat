@@ -1,0 +1,18 @@
+/* Ported StyleX rules for templates/pages/shell-top-nav (Astryx 0.6.4, MIT).
+   - Cap + center the page body so wide screens show whitespace gutters.
+   - Lock both mega-menu panels to an identical size. Without this, Shop and
+     Brands size to their own content (different widths); since both anchor to
+     the centered nav, switching between them resizes the panel — which reads
+     as flashing/jumping. Fixed item + featured widths make the panels
+     pixel-identical so the transition is seamless. */
+.tp-shell-top-nav-content-max {
+	max-width: 1100px;
+	margin-inline: auto;
+}
+.tp-shell-top-nav-mega-items {
+	grid-column: 1 / -1;
+	width: 520px;
+}
+.tp-shell-top-nav-mega-featured {
+	width: 240px;
+}

@@ -354,6 +354,55 @@ import { TableTreeTable } from './table/TableTreeTable'
 import { PaginationWithTable } from './pagination/PaginationWithTable'
 import { TableTemplate } from './pages/table-template'
 import { TablePageTemplate } from './pages/table-page-template'
+import { BlankTemplate } from './pages/blank'
+import { CenteredHeroTemplate } from './pages/centered-hero'
+import { GalleryHeroTemplate } from './pages/gallery-hero'
+import { SideGalleryTemplate } from './pages/side-gallery'
+import { ProductGalleryTemplate } from './pages/product-gallery'
+import { ClassicGalleryTemplate } from './pages/classic-gallery'
+import { MixedGalleryTemplate } from './pages/mixed-gallery'
+import { LoginTemplate } from './pages/login'
+import { LoginCardTemplate } from './pages/login-card'
+import { LoginSplitTemplate } from './pages/login-split'
+import { LoginSsoTemplate } from './pages/login-sso'
+import { ShellTopNavTemplate } from './pages/shell-top-nav'
+import { ShellSideNavTemplate } from './pages/shell-side-nav'
+import { ShellNavTemplate } from './pages/shell-nav'
+import { ContactFormTemplate } from './pages/contact-form'
+import { DocumentationTemplate } from './pages/documentation'
+import { DocumentationTechnicalTemplate } from './pages/documentation-technical'
+import { FormTwoColumnTemplate } from './pages/form-two-column'
+import { SettingsTemplate } from './pages/settings'
+import { ProductDetailTemplate } from './pages/product-detail'
+import { FileExplorerTemplate } from './pages/file-explorer'
+import { DetailPageTemplate } from './pages/detail-page'
+import { IdeTemplate } from './pages/ide'
+import { MessagingShellTemplate } from './pages/messaging-shell'
+import { AIChatTemplate } from './pages/ai-chat'
+import { AIChatLandingTemplate } from './pages/ai-chat-landing'
+import { CanvasEditorTemplate } from './pages/canvas-editor'
+import { CheckoutWizardTemplate } from './pages/checkout-wizard'
+import { DashboardAlertRailTemplate } from './pages/dashboard-alert-rail'
+import { DashboardCohortFunnelTemplate } from './pages/dashboard-cohort-funnel'
+import { DashboardComparisonTemplate } from './pages/dashboard-comparison'
+import { DashboardCompositionTemplate } from './pages/dashboard-composition'
+import { DashboardProgressTemplate } from './pages/dashboard-progress'
+import { DashboardScorecardTemplate } from './pages/dashboard-scorecard'
+import { DashboardTemplate } from './pages/dashboard'
+import { DocumentationDesignTemplate } from './pages/documentation-design'
+import { EditorTemplate } from './pages/editor'
+import { FormWizardTemplate } from './pages/form-wizard'
+import { FormWizardDialogTemplate } from './pages/form-wizard-dialog'
+import { FormWizardInlineTemplate } from './pages/form-wizard-inline'
+import { FormWizardVerticalTemplate } from './pages/form-wizard-vertical'
+import { IncidentConsoleTemplate } from './pages/incident-console'
+import { KanbanBoardTemplate } from './pages/kanban-board'
+import { LibraryTemplate } from './pages/library'
+import { PaymentFormTemplate } from './pages/payment-form'
+import { SettingsDialogTemplate } from './pages/settings-dialog'
+import { SettingsSidebarTemplate } from './pages/settings-sidebar'
+import { ThemeShowcaseTemplate } from './pages/theme-showcase'
+import { WorkItemDetailTemplate } from './pages/work-item-detail'
 import { AppShellContentOnly } from './appshell/AppShellContentOnly'
 import { AppShellMobileHookUsage } from './appshell/AppShellMobileHookUsage'
 import { AppShellShowcase } from './appshell/AppShellShowcase'
@@ -925,6 +974,32 @@ const examples: Record<string, () => any> = {
 	// Page templates (slug keys) — unit 6 flat-table pages.
 	table: TableTemplate,
 	'table-page': TablePageTemplate,
+	// Composed page templates (slug keys) — unit 12 group A.
+	'blank': BlankTemplate,
+	'centered-hero': CenteredHeroTemplate,
+	'gallery-hero': GalleryHeroTemplate,
+	'side-gallery': SideGalleryTemplate,
+	'product-gallery': ProductGalleryTemplate,
+	'classic-gallery': ClassicGalleryTemplate,
+	'mixed-gallery': MixedGalleryTemplate,
+	'login': LoginTemplate,
+	'login-card': LoginCardTemplate,
+	'login-split': LoginSplitTemplate,
+	'login-sso': LoginSsoTemplate,
+	'shell-top-nav': ShellTopNavTemplate,
+	'shell-side-nav': ShellSideNavTemplate,
+	'shell-nav': ShellNavTemplate,
+	// Composed page templates (slug keys) — unit 12 group B.
+	'contact-form': ContactFormTemplate,
+	'documentation': DocumentationTemplate,
+	'documentation-technical': DocumentationTechnicalTemplate,
+	'form-two-column': FormTwoColumnTemplate,
+	'settings': SettingsTemplate,
+	'product-detail': ProductDetailTemplate,
+	'file-explorer': FileExplorerTemplate,
+	'detail-page': DetailPageTemplate,
+	'ide': IdeTemplate,
+	'messaging-shell': MessagingShellTemplate,
 	AppShellContentOnly,
 	AppShellMobileHookUsage,
 	AppShellShowcase,
@@ -1222,6 +1297,31 @@ const examples: Record<string, () => any> = {
 	'table-tree': TableTreeTemplate,
 	'table-inbox': TableInboxTemplate,
 	'table-filter': TableFilterTemplate,
+	'ai-chat': AIChatTemplate,
+	'ai-chat-landing': AIChatLandingTemplate,
+	'canvas-editor': CanvasEditorTemplate,
+	'checkout-wizard': CheckoutWizardTemplate,
+	'dashboard-alert-rail': DashboardAlertRailTemplate,
+	'dashboard-cohort-funnel': DashboardCohortFunnelTemplate,
+	'dashboard-comparison': DashboardComparisonTemplate,
+	'dashboard-composition': DashboardCompositionTemplate,
+	'dashboard-progress': DashboardProgressTemplate,
+	'dashboard-scorecard': DashboardScorecardTemplate,
+	'dashboard': DashboardTemplate,
+	'documentation-design': DocumentationDesignTemplate,
+	'editor': EditorTemplate,
+	'form-wizard': FormWizardTemplate,
+	'form-wizard-dialog': FormWizardDialogTemplate,
+	'form-wizard-inline': FormWizardInlineTemplate,
+	'form-wizard-vertical': FormWizardVerticalTemplate,
+	'incident-console': IncidentConsoleTemplate,
+	'kanban-board': KanbanBoardTemplate,
+	'library': LibraryTemplate,
+	'payment-form': PaymentFormTemplate,
+	'settings-dialog': SettingsDialogTemplate,
+	'settings-sidebar': SettingsSidebarTemplate,
+	'theme-showcase': ThemeShowcaseTemplate,
+	'work-item-detail': WorkItemDetailTemplate,
 	ChatMessageMetadataStatus,
 	ChatMessageMetadataShowcase,
 	ChatMessageMetadataFooter,

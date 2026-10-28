@@ -1,0 +1,26 @@
+/* Ported container-query rules for templates/pages/login-split (Astryx 0.6.4, MIT).
+   Upstream shipped this CSS in an inline <style> tag; the sandbox keeps it in a
+   static stylesheet.
+   - Pad the grid, not the Card: the form's Section escapes Card's
+     --container-padding-* vars, which would cancel the inset on the form side.
+     container-type makes the grid the query container for the stack point.
+   - repeat:'fit' (auto-fit) collapses the two columns to one below ~511px; the
+     query reorders the image (order:-1) and tightens the inset at that point,
+     keyed to the card width (not the window) so it never desyncs. */
+.tp-login-split-grid {
+	container-type: inline-size;
+	container-name: tp-login-split;
+	padding: var(--spacing-8);
+}
+.tp-login-split-image {
+	width: 100%;
+	order: 0;
+}
+@container tp-login-split (max-width: 511px) {
+	.tp-login-split-grid {
+		padding: var(--spacing-4);
+	}
+	.tp-login-split-image {
+		order: -1;
+	}
+}
