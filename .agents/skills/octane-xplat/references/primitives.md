@@ -1635,3 +1635,26 @@ manual fixture are unrun. Native keys/IME/repeat/Tab/layer/reveal and package
 qualification remain deferred; no listbox/active-option AX or announcements are
 claimed. Tokenizer Backspace removal still needs separate wiring. Read the
 [key guide](../../../../docs/app/search-selection.md#choose-appkit-typeahead-results-with-keys).
+
+## AppKit TimeInput draft ownership
+
+TimeInput now guards text/submit/clear before pending-state writes using current
+blocking, callback reentry and save ownership. A live draft record lets retained
+submit/edit callbacks read current text, seconds and bounds. Post-callback clear
+checks draft identity and native attachment; external parent correction wins.
+The existing date-composition.macos.ts already supplies native marked-text checks;
+do not infer missing AppKit support from the unsuffixed mobile helper.
+
+```tsx
+import { useState } from 'octane'
+import { TimeInput } from '@octane-xplat/ui'
+export function StartTime() {
+	const [time, setTime] = useState<string | null>('14:30')
+	return <TimeInput label="Start time" value={time} onChange={setTime}
+		min="09:00" max="18:00" hasClear />
+}
+```
+
+Six object-driver cases and a manual fixture are unrun. Native editor/IME/Return/
+blur, pending-save/caret/focus/AX and package behavior remain unqualified. The
+analogous DateTimeInput draft path remains separate work. See [time drafts](../../../../docs/platform/date-picker.md#keep-appkit-time-drafts-owned-by-the-current-edit).

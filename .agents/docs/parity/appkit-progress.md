@@ -4018,3 +4018,50 @@ pending or detached edit. That is the next implementation work, not evidence of
 an IME guard omission. Native event/editor/IME behavior remains unqualified.
 Only source review and whitespace checks ran for this correction; all heavy and
 native verification remains deferred under the existing human boundary.
+
+### AppKit TimeInput current draft ownership
+
+After correcting the composition-leaf assessment, continued the actual typed
+form seam before niche work. TimeInput's text/submit/clear paths could replace or
+clear pending state before fireChange rejected current busy/blocking/reentry or
+teardown. They also captured old seconds/bounds/pending text. Existing arrow
+stepping guarded current action ownership; typed edits needed the same boundary.
+This is a source-observed handler seam, not a newly reproduced native failure.
+
+The target leaf now checks current attachment, disabled/read-only/loading,
+writing and actionPending before touching a draft. A ref-owned draft record
+tracks the latest pending text independently of old handler closures. Parsing
+uses current seconds/min/max/shown value and returns actual fireChange
+acceptance. Submit/blur, clear and stepped draft cleanup require the same owned
+draft and a live input after callbacks; a parent correction or teardown wins.
+Marked text continues through the existing explicit AppKit composition leaf,
+which was already implemented. No composition helper, public API, renderer,
+dependency, shared manifest/runner or other-target leaf changed.
+
+Six object-driver cases are authored, all unrun. They cover existing marked
+editor method/property forms, current disabled/read-only/loading preservation,
+pending-save writes before/after busy render, latest seconds/bounds/text through
+held callbacks, reentrant editing/submit/clear, callback teardown and parent
+correction. A manual fixture provides delayed-save release, current blocking,
+seconds, parent correction and removal. Its runner waits/records only. Guide,
+skill, feature note and appkit-time-drafts recipe reconcile this source scope.
+Only source/semantic, TSRX syntax and whitespace checks ran.
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/time-draft.macos.mobile.test.tsrx src/time-step.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/time-draft.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All remain deferred until explicit human authorization for this task. No package
+tests/typechecks/builds, installs, native/OS automation, visual analysis or
+packaging ran. Actual native draft/marked-editor/IME/Return/blur/save/ref/caret/
+focus/AX and packaged behavior remain unqualified. DateTimeInput's analogous
+draft handlers still need current ownership review. Tokenizer Backspace,
+PowerSearch focus, native listbox relationships/announcements, Carousel fades,
+video and date-preset text relay remain separate gaps. Checkbox mixed rollback
+awaits the previously asked human contract choice. No evidence-gated checkbox
+is closed; the persistent goal remains active.

@@ -807,3 +807,29 @@ attempt is allowed. Nine policy and six object-driver cases plus the
 all unrun. Mock timing does not prove OS caret/IME, native notifications, modal
 focus containment, hit testing, accessibility or packaged behavior. DateTimeInput
 and DateRangeInput do not expose this flag; their existing focus refs remain.
+
+
+### Keep AppKit time drafts owned by the current edit
+
+TimeInput now checks current disabled/read-only/busy state and an accepted save
+before changing pending text. A rejected edit cannot replace or clear that draft.
+Return and blur parse the latest pending text with the current seconds/bounds;
+external parent corrections retain authority over the field.
+
+```tsx
+import { useState } from 'octane'
+import { TimeInput } from '@octane-xplat/ui'
+export function StartTime() {
+	const [time, setTime] = useState<string | null>('14:30')
+	return <TimeInput label="Start time" value={time} onChange={setTime}
+		min="09:00" max="18:00" hasClear />
+}
+```
+
+The existing AppKit composition helper already reads native field-editor marked
+text. Drafts stay pending during composition; completed submit/blur can request a
+commit. This is source wiring, not proof of native IME, Return/blur or caret
+ordering. Six object-driver cases and the
+[manual fixture](../../examples/probes/time-draft.macos.tsrx) are authored, all
+unrun. Save/ref/blocked callback ordering, input/focus/accessibility and packaging
+remain unqualified. DateTimeInput's analogous draft handlers are separate work.

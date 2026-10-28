@@ -41,7 +41,12 @@ export function TimeInput(inputProps: TimeInputProps) @{
 	const bindInput = useCallback((view: NSTextField | null) => { input.current = view; autoFocus.bind(view) }, [])
 	const writing = useRef(false), actionPending = useRef(false)
 
-	const [pendingInput, setPendingInput] = useState<string | null>(null)
+	const [pendingInput, setPendingInputState] = useState<string | null>(null)
+	const pending = useRef<{ text: string | null }>({ text: null })
+	const setPendingInput = (text: string | null) => {
+		pending.current = { text }
+		if (input.current) setPendingInputState(text)
+	}
 	const [busy, setBusy] = useState(false)
 
 	const lastEmitted = useRef<ISOTimeString | null | undefined>(undefined)
@@ -52,6 +57,7 @@ export function TimeInput(inputProps: TimeInputProps) @{
 	const hasSeconds = !!props.hasSeconds
 	const current = useRef({ props, shown, isDisabled, isBusy, hasSeconds })
 	current.current = { props, shown, isDisabled, isBusy, hasSeconds }
+	const canEdit = () => !!input.current && !current.current.isDisabled && !current.current.isBusy && !writing.current && !actionPending.current
 	const autoFocus = useMemo(() => createAppKitAutoFocus({
 		requested: () => current.current.props.hasAutoFocus === true, blocked: () => current.current.isDisabled || current.current.isBusy || actionPending.current,
 	}), [])
@@ -104,7 +110,8 @@ export function TimeInput(inputProps: TimeInputProps) @{
 		const increment = live.props.increment ?? 1
 		const base = live.shown ?? currentISOTime(live.hasSeconds)
 		const next = adjustTime(base, event.key === 'ArrowUp' ? increment : -increment, live.hasSeconds)
-		if (next !== live.shown && isTimeInRange(next, live.props.min, live.props.max) && fireChange(next) && input.current) setPendingInput(null)
+		const ownedDraft = pending.current
+		if (next !== live.shown && isTimeInRange(next, live.props.min, live.props.max) && fireChange(next) && input.current && pending.current === ownedDraft) setPendingInput(null)
 	}
 
 	const pendingParsed =
@@ -115,46 +122,29 @@ export function TimeInput(inputProps: TimeInputProps) @{
 			? true
 			: pendingParsed !== null && isTimeInRange(pendingParsed, props.min, props.max)
 
-	const commitParsed = (parsed: ISOTimeString | null) => {
-		if (parsed && isTimeInRange(parsed, props.min, props.max) && parsed !== shown) {
-			fireChange(parsed)
-			return true
-		}
-
-		return false
+	const commitParsed = (parsed: ISOTimeString | null): boolean => {
+		const live = current.current
+		return canEdit() && parsed !== null && isTimeInRange(parsed, live.props.min, live.props.max) && parsed !== live.shown
+			? fireChange(parsed) : false
 	}
 
 	const commitPending = () => {
-		if (hasDateComposition(input.current)) {
-			return
-		}
-
-		if (pendingInput == null) {
-			return
-		}
-
-		if (!pendingInput.trim()) {
-			if (shown != null) {
-				fireChange(undefined)
-			}
+		if (!canEdit() || hasDateComposition(input.current)) return
+		const ownedDraft = pending.current, live = current.current
+		if (ownedDraft.text == null) return
+		if (!ownedDraft.text.trim()) {
+			if (live.shown != null) fireChange(undefined)
 		} else {
-			commitParsed(parseTimeInput(pendingInput, hasSeconds))
+			commitParsed(parseTimeInput(ownedDraft.text, live.hasSeconds))
 		}
-
-		setPendingInput(null)
+		if (input.current && pending.current === ownedDraft) setPendingInput(null)
 	}
 
 	const handleTextChange = (text: string) => {
-		if (isDisabled) {
-			return
-		}
-
+		if (!canEdit()) return
 		setPendingInput(text)
-		if (hasDateComposition(input.current)) {
-			return
-		}
-
-		commitParsed(parseTimeInput(text, hasSeconds))
+		if (hasDateComposition(input.current)) return
+		commitParsed(parseTimeInput(text, current.current.hasSeconds))
 	}
 
 	const displayText = pendingInput ?? (shown ? formatDisplay(shown, hasSeconds) : '')
@@ -205,8 +195,9 @@ export function TimeInput(inputProps: TimeInputProps) @{
 					className="vx-timeinput-clear"
 					accessibilityLabel={`Clear ${props.fieldLabel ?? props.label ?? 'time'}`}
 					onPress={() => {
-						setPendingInput(null)
-						fireChange(undefined)
+						if (!canEdit() || current.current.shown == null) return
+						const ownedDraft = pending.current
+						if (fireChange(undefined) && input.current && pending.current === ownedDraft) setPendingInput(null)
 					}}
 				>
 					<label text="×" />
