@@ -47,6 +47,7 @@ server.on('upgrade', (req, socket) => {
 			if (buffer.length < 2) {
 				return
 			}
+
 			const opcode = buffer[0] & 0x0f
 			const masked = buffer[1] & 0x80
 			let length = buffer[1] & 0x7f
@@ -55,27 +56,33 @@ server.on('upgrade', (req, socket) => {
 				if (buffer.length < 4) {
 					return
 				}
+
 				length = buffer.readUInt16BE(2)
 				offset = 4
 			} else if (length === 127) {
 				if (buffer.length < 10) {
 					return
 				}
+
 				length = Number(buffer.readBigUInt64BE(2))
 				offset = 10
 			}
+
 			const maskOffset = offset
 			if (masked) {
 				offset += 4
 			}
+
 			if (buffer.length < offset + length) {
 				return
 			}
+
 			let payload = buffer.subarray(offset, offset + length)
 			if (masked) {
 				const mask = buffer.subarray(maskOffset, maskOffset + 4)
 				payload = Buffer.from(payload.map((b, i) => b ^ mask[i % 4]))
 			}
+
 			buffer = buffer.subarray(offset + length)
 
 			const frame = (op, data) => {
@@ -103,17 +110,21 @@ server.on('upgrade', (req, socket) => {
 					socket.end()
 					return
 				}
+
 				frame(0x8, payload)
 				socket.end()
 				return
 			}
+
 			if (opcode === 0x9) {
 				frame(0xa, payload)
 				continue
 			}
+
 			if (opcode !== 0x1 && opcode !== 0x2) {
 				continue
 			}
+
 			serverEvents.push([opcode === 0x1 ? 'text' : 'binary', payload.toString('utf8')])
 			if (opcode === 0x1 && payload.toString('utf8') === 'server-close') {
 				const body = Buffer.alloc(2 + 3)
@@ -123,11 +134,13 @@ server.on('upgrade', (req, socket) => {
 				waitingForClose = true
 				continue
 			}
+
 			frame(opcode, payload)
 		}
 	})
 	socket.on('error', () => {})
 })
+
 await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
 const port = server.address().port
 
@@ -198,10 +211,12 @@ const child = spawn(
 	],
 	{ stdio: ['ignore', 'ignore', 'pipe'] },
 )
+
 let output = ''
 child.stderr.on('data', (chunk) => {
 	output += chunk
 })
+
 const status = await new Promise((resolve) => child.on('close', resolve))
 server.close()
 
@@ -224,6 +239,7 @@ assert.deepEqual(JSON.parse(result), [
 	'err-ev',
 	'close3 1006 false',
 ])
+
 assert.deepEqual(serverEvents, [
 	['upgrade', '/socket'],
 	['text', 'hello'],

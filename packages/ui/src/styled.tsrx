@@ -1,7 +1,7 @@
 import { defineUniversalComponent, universalComponent } from 'octane/universal/native'
-import type { UniversalComponent } from 'octane/universal';
-import type { ClassValue, StyledDef, StyledVariant, StyledVariantSelection } from './props';
-import { resolveStyledClasses } from './styled-variants';
+import type { UniversalComponent } from 'octane/universal'
+import type { ClassValue, StyledDef, StyledVariant, StyledVariantSelection } from './props'
+import { resolveStyledClasses } from './styled-variants'
 
 /**
  * styled() — decision #7, Tamagui-shaped but CSS-backed. base/variants are
@@ -23,15 +23,18 @@ import { resolveStyledClasses } from './styled-variants';
  * universalComponent(...) elements directly. If upstream exposes a blessed
  * factory path, switch to it (driver-level fix candidate).
  */
-export function styled<P extends { className?: ClassValue }, V extends Record<string, StyledVariant>>(
+export function styled<
+	P extends { className?: ClassValue },
+	V extends Record<string, StyledVariant>,
+>(
 	Base: (props: P) => any,
 	def: StyledDef<V>,
 ): (props: P & StyledVariantSelection<V>, context: any) => any {
 	function Styled(props: P & StyledVariantSelection<V>) {
-		const { classes, rest } = resolveStyledClasses(def, props);
-		rest.className = classes;
-		return universalComponent('nativescript', Base as unknown as UniversalComponent<any>, rest);
+		const { classes, rest } = resolveStyledClasses(def, props)
+		rest.className = classes
+		return universalComponent('nativescript', Base as unknown as UniversalComponent<any>, rest)
 	}
 
-	return defineUniversalComponent('nativescript', Styled);
+	return defineUniversalComponent('nativescript', Styled)
 }

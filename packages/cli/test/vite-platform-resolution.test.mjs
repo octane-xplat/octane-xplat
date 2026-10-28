@@ -63,8 +63,11 @@ describe('nativeRelativeResolution', () => {
 			const resolve = nativeRelativeResolution().resolveId.handler
 			assert.equal(resolve('./screen', join(dir, 'main.ts'), {}), join(dir, 'screen.windows.ts'))
 		} finally {
-			if (previous === undefined) {delete process.env.NATIVESCRIPT_BUNDLER_ENV}
-			else {process.env.NATIVESCRIPT_BUNDLER_ENV = previous}
+			if (previous === undefined) {
+				delete process.env.NATIVESCRIPT_BUNDLER_ENV
+			} else {
+				process.env.NATIVESCRIPT_BUNDLER_ENV = previous
+			}
 		}
 	})
 })

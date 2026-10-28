@@ -1,6 +1,10 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { describe, expect, it, vi } from 'vitest'
-import { createObjectContainer, createObjectDriver, createUniversalRoot } from 'octane/universal/native'
+import {
+	createObjectContainer,
+	createObjectDriver,
+	createUniversalRoot,
+} from 'octane/universal/native'
 
 vi.mock('@nativescript/core', () => ({ isIOS: false, isAndroid: true }))
 // CheckboxIndicator registers <svgview> as an import side effect; the object
@@ -48,7 +52,13 @@ describe('native text input', () => {
 		const { container, root } = setup()
 		const change = vi.fn()
 		const cleared = vi.fn()
-		root.render(TextInput, { defaultValue: 'seed', hasClear: true, onChange: change, onClear: cleared })
+		root.render(TextInput, {
+			defaultValue: 'seed',
+			hasClear: true,
+			onChange: change,
+			onClear: cleared,
+		})
+
 		const shell = container.children[0]
 		const field = shell.children[0]
 		await vi.waitFor(() => expect(shell.children.length).toBe(2))

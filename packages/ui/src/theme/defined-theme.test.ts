@@ -9,6 +9,7 @@ import {
 	resolveThemeTokens,
 	resolveTokenValue,
 } from './defined-theme'
+
 import { generateThemeCss } from './theme-css'
 
 const forest = defineTheme({
@@ -91,6 +92,8 @@ describe('generateThemeCss', () => {
 		// is unreliable) — forest lacks the tokens so the Astryx defaults land
 		expect(css).toContain('color: #0A1317;')
 		expect(css).toContain('color: #DFE2E5;')
-		expect(css).toContain('font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;')
+		expect(css).toContain(
+			'font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;',
+		)
 	})
 })

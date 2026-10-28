@@ -1,7 +1,12 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { useImperativeHandle, useCallback, useEffect, useRef } from 'octane'
 import type { CameraViewProps } from './props'
-import { cameraHardwarePresent, ensureCameraPermission, startCameraPreview } from './camera-session.macos'
+import {
+	cameraHardwarePresent,
+	ensureCameraPermission,
+	startCameraPreview,
+} from './camera-session.macos'
+
 import { attachSessionPreview } from './session'
 import { layoutChildProps, nativeAccessibilityRole, nativeAccessibilityState } from './layout-child'
 import { observePreviewTap } from './preview-tap'
@@ -21,7 +26,10 @@ export function CameraView(props: CameraViewProps) @{
 
 	useEffect(() => {
 		const view = host.current
-		if (!view || !active) return
+		if (!view || !active) {
+			return
+		}
+
 		let disposed = false
 		let stopPreview: (() => void) | undefined
 		const fail = (message: string) => props.onError?.({ message })
@@ -35,7 +43,9 @@ export function CameraView(props: CameraViewProps) @{
 			try {
 				const detach = attachSessionPreview(props.session, view, {
 					onReady: () => {
-						if (!disposed) props.onReady?.()
+						if (!disposed) {
+							props.onReady?.()
+						}
 					},
 				})
 
@@ -55,7 +65,10 @@ export function CameraView(props: CameraViewProps) @{
 		}
 
 		ensureCameraPermission().then((granted) => {
-			if (disposed) return
+			if (disposed) {
+				return
+			}
+
 			if (!granted) {
 				fail('camera permission denied')
 				return
@@ -76,5 +89,23 @@ export function CameraView(props: CameraViewProps) @{
 
 	useEffect(() => observePreviewTap(host.current, props.onTap), [props.onTap])
 
-	<masonview ref={bindHost} id={props.id} className={['vx-layers', 'vx-cameraview', props.className]} {...layoutChildProps(props, {display: "grid", gridTemplateRows: "1fr", gridTemplateColumns: "1fr", ...({ backgroundColor: '#000000', ...props.style })})} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any}/>
+	<masonview
+		ref={bindHost}
+		id={props.id}
+		className={['vx-layers', 'vx-cameraview', props.className]}
+		{...layoutChildProps(props, {
+			display: 'grid',
+			gridTemplateRows: '1fr',
+			gridTemplateColumns: '1fr',
+			backgroundColor: '#000000',
+			...props.style,
+		})}
+		accessible={props.accessible}
+		accessibilityLabel={props.accessibilityLabel}
+		accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any}
+		accessibilityHint={props.accessibilityHint}
+		accessibilityValue={props.accessibilityValue}
+		accessibilityState={nativeAccessibilityState(props.accessibilityState) as any}
+		accessibilityLiveRegion={props.accessibilityLiveRegion as any}
+	/>
 }

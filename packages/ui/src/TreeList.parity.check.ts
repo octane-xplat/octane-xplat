@@ -2,7 +2,6 @@ import type { ParityCheck } from './parity/check-helpers.ts'
 import { dims } from './parity/check-helpers.ts'
 
 export const CHECKS: ParityCheck[] = [
-
 	{
 		fixture: 'tree-expanded',
 		targets: ['web', 'ios', 'android', 'macos'],
@@ -15,5 +14,5 @@ export const CHECKS: ParityCheck[] = [
 				['expanded child has a visible frame', child.box.w > 0 && child.box.h > 0],
 			]
 		},
-	}
+	},
 ]

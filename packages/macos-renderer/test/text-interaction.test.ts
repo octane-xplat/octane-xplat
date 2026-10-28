@@ -21,9 +21,18 @@ function load() {
 		elementBehaviors: new Map(),
 		behaviorOf: () => undefined,
 		isManualLayoutParent: (t: string) =>
-			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
+			[
+				'gridlayout',
+				'liquidglass',
+				'absolutelayout',
+				'contentview',
+				'actionbar',
+				'docklayout',
+				'wraplayout',
+				'rootlayout',
+			].includes(t),
 		registerElementType: () => {},
-		
+
 		textNodesByView: nodes,
 		actionIdsByView: new WeakMap(),
 		actionHandlers: new Map(),
@@ -141,7 +150,6 @@ test('growth uses measured wrapped content, caps viewport, and preserves full do
 	control.props.rows = 3
 	fitTextView(control)
 	assert.equal(control.height, 68, 'three shared lines include vertical padding')
-
 })
 
 test('secure changes keep the view, current editor text, selection and submit wiring', () => {

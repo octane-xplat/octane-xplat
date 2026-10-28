@@ -10,7 +10,11 @@ export function ThemeProviders(props: { fixture: { account: string }; children?:
 
 export function ThemeBadge(props: { fixture: { account: string } }) {
 	const { theme } = useStore(themeStore)
-	return <Text>{props.fixture.account} — theme: {theme}</Text>
+	return (
+		<Text>
+			{props.fixture.account} — theme: {theme}
+		</Text>
+	)
 }
 
 export const Provided = defineStory<Record<string, never>, void, { account: string }>({

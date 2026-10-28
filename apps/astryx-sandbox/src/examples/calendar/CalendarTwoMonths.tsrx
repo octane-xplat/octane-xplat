@@ -5,5 +5,6 @@ import type { DateRange } from '@octane-xplat/ui'
 
 export function CalendarTwoMonths() @{
 	const [value, setValue] = useState<DateRange | null>(null)
+
 	<Calendar mode="range" value={value} onChange={setValue} numberOfMonths={2} />
 }

@@ -29,7 +29,14 @@ interface DragState {
 
 function ResizeHandle(props: {
 	columnKey: string
-	configRef: { current: { drag: DragState | null; setWidth: (k: string, v: number) => void; commit: () => void; cfg: UseTableColumnResizeConfig } }
+	configRef: {
+		current: {
+			drag: DragState | null
+			setWidth: (k: string, v: number) => void
+			commit: () => void
+			cfg: UseTableColumnResizeConfig
+		}
+	}
 }) @{
 	const [isResizing, setIsResizing] = useState(false)
 
@@ -44,19 +51,28 @@ function ResizeHandle(props: {
 	const move = (clientX: number) => {
 		const st = props.configRef.current
 		const drag = st.drag
-		if (!drag || drag.key !== props.columnKey) return
+		if (!drag || drag.key !== props.columnKey) {
+			return
+		}
+
 		const delta = clientX - drag.startX
 		const min = st.cfg.minWidth ?? 50
 		const max = st.cfg.maxWidth
 		let next = Math.max(min, drag.startWidth + delta)
-		if (max != null) next = Math.min(max, next)
+		if (max != null) {
+			next = Math.min(max, next)
+		}
+
 		drag.currentWidth = next
 		st.setWidth(props.columnKey, next)
 	}
 
 	const end = () => {
 		const st = props.configRef.current
-		if (!st.drag) return
+		if (!st.drag) {
+			return
+		}
+
 		st.commit()
 		st.drag = null
 		setIsResizing(false)
@@ -73,6 +89,7 @@ function ResizeHandle(props: {
 			globalThis.removeEventListener('pointerup', onUp)
 			end()
 		}
+
 		globalThis.addEventListener('pointermove', onMove)
 		globalThis.addEventListener('pointerup', onUp)
 	}
@@ -84,11 +101,20 @@ function ResizeHandle(props: {
 		const min = st.cfg.minWidth ?? 50
 		const max = st.cfg.maxWidth ?? Infinity
 		let next: number | null = null
-		if (e.key === 'ArrowLeft') next = Math.max(min, current - 10)
-		else if (e.key === 'ArrowRight') next = Math.min(max, current + 10)
-		else if (e.key === 'Home') next = min
-		else if (e.key === 'End') next = max === Infinity ? current : max
-		else if (e.key === 'Escape') { st.drag = null; setIsResizing(false); return }
+		if (e.key === 'ArrowLeft') {
+			next = Math.max(min, current - 10)
+		} else if (e.key === 'ArrowRight') {
+			next = Math.min(max, current + 10)
+		} else if (e.key === 'Home') {
+			next = min
+		} else if (e.key === 'End') {
+			next = max === Infinity ? current : max
+		} else if (e.key === 'Escape') {
+			st.drag = null
+			setIsResizing(false)
+			return
+		}
+
 		if (next != null) {
 			e.preventDefault()
 			e.stopPropagation()
@@ -102,7 +128,11 @@ function ResizeHandle(props: {
 		tabIndex={0}
 		aria-label="Resize column"
 		aria-orientation="vertical"
-		class={isResizing ? 'vx-table-resize-handle vx-table-resize-handle--active' : 'vx-table-resize-handle'}
+		class={
+			isResizing
+				? 'vx-table-resize-handle vx-table-resize-handle--active'
+				: 'vx-table-resize-handle'
+		}
 		onPointerDown={onPointerDown}
 		onKeyDown={onKeyDown}
 	/>
@@ -110,20 +140,24 @@ function ResizeHandle(props: {
 
 /** Column resize plugin — separator handles in header cells + controlled
  *  width overrides applied to header/body columns. */
-export function useTableColumnResize<T extends Record<string, unknown>>(config: UseTableColumnResizeConfig): TablePlugin<T> {
+export function useTableColumnResize<T extends Record<string, unknown>>(
+	config: UseTableColumnResizeConfig,
+): TablePlugin<T> {
 	const [localWidths, setLocalWidths] = useState<Record<string, number>>({})
 	const state = {
 		current: {
 			drag: null as DragState | null,
-			setWidth: (k: string, v: number) => setLocalWidths((prev: Record<string, number>) => ({ ...prev, [k]: v })),
+			setWidth: (k: string, v: number) =>
+				setLocalWidths((prev: Record<string, number>) => ({ ...prev, [k]: v })),
 			commit: () => configRef.current.onColumnResizeEnd?.({ ...widthsRef.current }),
 			cfg: config,
 		},
 	}
+
 	const configRef = useRef(config)
 	configRef.current = config
 	const widthsRef = useRef<Record<string, number>>({})
-	widthsRef.current = { ...(config.columnWidths ?? {}), ...localWidths }
+	widthsRef.current = { ...config.columnWidths, ...localWidths }
 	const widths = widthsRef.current
 
 	return {
@@ -135,14 +169,20 @@ export function useTableColumnResize<T extends Record<string, unknown>>(config: 
 			if (showHandle) {
 				htmlProps.style = { ...htmlProps.style, position: 'relative' }
 			}
+
 			if (override != null) {
 				htmlProps.style = { ...htmlProps.style, width: `${override}px`, minWidth: `${override}px` }
 			}
+
 			const activeHandle = state.current.drag?.key === column.key
 			return {
 				...props,
 				htmlProps,
-				classes: [...props.classes, showHandle && 'vx-table-header-cell--resizable', activeHandle && 'vx-table-header-cell--resizing'],
+				classes: [
+					...props.classes,
+					showHandle && 'vx-table-header-cell--resizable',
+					activeHandle && 'vx-table-header-cell--resizing',
+				],
 				overlay: (
 					<>
 						{props.overlay as any}

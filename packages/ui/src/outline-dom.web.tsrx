@@ -24,8 +24,13 @@ export function outlineItemsFromDOM(
 	container?: ParentNode | null,
 	selector = 'h1, h2, h3, h4, h5, h6',
 ): OutlineItem[] {
-	const root: ParentNode | undefined = container ?? (typeof document !== 'undefined' ? document : undefined)
-	if (!root) return []
+	const root: ParentNode | undefined =
+		container ?? (typeof document !== 'undefined' ? document : undefined)
+
+	if (!root) {
+		return []
+	}
+
 	const nodes = root.querySelectorAll(selector)
 	const counts = new Map<string, number>()
 	const items: OutlineItem[] = []
@@ -33,7 +38,10 @@ export function outlineItemsFromDOM(
 		const el = node as HTMLElement
 		const level = Number(el.tagName?.slice(1)) || 2
 		const label = (el.innerText ?? el.textContent ?? '').trim()
-		if (!label) continue
+		if (!label) {
+			continue
+		}
+
 		const id = el.id || uniqueSlug(slugify(label), counts)
 		items.push({ id, label, level })
 	}
@@ -50,11 +58,14 @@ export function useOutlineFromDOM(
 ): OutlineItem[] {
 	const [items, setItems] = useState<OutlineItem[]>([])
 	const resolve = () => {
-		const source = containerRef && typeof containerRef === 'object' && 'current' in containerRef
-			? (containerRef as { current?: unknown }).current
-			: containerRef
+		const source =
+			containerRef && typeof containerRef === 'object' && 'current' in containerRef
+				? (containerRef as { current?: unknown }).current
+				: containerRef
 
-		return (source ?? options?.root ?? (typeof document !== 'undefined' ? document : null)) as ParentNode | null
+		return (source ??
+			options?.root ??
+			(typeof document !== 'undefined' ? document : null)) as ParentNode | null
 	}
 
 	useEffect(() => {

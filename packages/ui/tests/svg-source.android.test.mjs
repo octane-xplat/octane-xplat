@@ -8,10 +8,12 @@ const source = await readFile(
 	new URL('../src/vendor/ui-svg/src/index.android.ts', import.meta.url),
 	'utf8',
 )
+
 const compiled = ts.transpile(source, {
 	module: ts.ModuleKind.CommonJS,
 	target: ts.ScriptTarget.ES2022,
 })
+
 const markup = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"/>'
 
 function fixture() {

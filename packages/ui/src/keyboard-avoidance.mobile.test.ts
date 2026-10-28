@@ -77,9 +77,15 @@ it('preserves foreign padding changes and separates different windows', () => {
 })
 
 it('updates offsets without replacing the live observer or viewport ownership', () => {
-	const host = { bottom: 800 }, content = { style: { paddingBottom: 0 } }
+	const host = { bottom: 800 },
+		content = { style: { paddingBottom: 0 } }
 	let options = { safeBottom: 0, ancestorBottom: 0, offset: 8 }
-	const binding = bindKeyboardAvoidance(host, content, () => options, () => {})
+	const binding = bindKeyboardAvoidance(
+		host,
+		content,
+		() => options,
+		() => {},
+	)
 	const observer = mock.readers.get(host)!
 	observer(state(500, 500, 'end'), window)
 	expect(content.style.paddingBottom).toBe(308)

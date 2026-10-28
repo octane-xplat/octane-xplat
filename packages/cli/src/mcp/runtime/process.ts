@@ -53,15 +53,18 @@ function pipeLines(stream, emit) {
 			if (!discarding) {
 				pending += part
 			}
+
 			if (pending.length > 8192) {
 				emit(pending.slice(0, 8192), true)
 				pending = ''
 				discarding = true
 			}
+
 			if (part.endsWith('\n')) {
 				if (!discarding) {
 					emit(pending.replace(/\r?\n$/, ''))
 				}
+
 				pending = ''
 				discarding = false
 			}

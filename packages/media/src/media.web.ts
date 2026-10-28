@@ -2,12 +2,7 @@
 // handle that previews via `Image.src` and uploads via `files.readBytes`;
 // no inline data URL is produced. The file input supports multiple photos.
 import type { PermissionResponse, Service } from '@octane-xplat/lib/capability'
-import type {
-	CapturePhotoOptions,
-	MediaImpl,
-	MediaPermissionKind,
-	PickedImage,
-} from './types'
+import type { CapturePhotoOptions, MediaImpl, MediaPermissionKind, PickedImage } from './types'
 
 function selectFiles(multiple: boolean, capture?: 'user' | 'environment'): Promise<File[]> {
 	return new Promise((resolve) => {
@@ -129,6 +124,7 @@ permissionOwners.camera = {
 	getPermissions: () => media.getPermissions('camera'),
 	requestPermissions: () => media.requestPermissions('camera'),
 }
+
 permissionOwners.photos = {
 	getPermissions: () => media.getPermissions('photos'),
 	requestPermissions: () => media.requestPermissions('photos'),

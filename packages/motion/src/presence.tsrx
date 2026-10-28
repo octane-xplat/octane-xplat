@@ -12,39 +12,64 @@ export function Presence(props: PresenceProps) @{
 	const latest = useRef(props)
 	latest.current = props
 	const stateRef = useRef<PresenceState | null>(null)
-	if (!stateRef.current) stateRef.current = new PresenceState(props.present, () => {
-		setRetained(false)
-		latest.current.onExitComplete?.()
-	})
+	if (!stateRef.current) {
+		stateRef.current = new PresenceState(props.present, () => {
+			setRetained(false)
+			latest.current.onExitComplete?.()
+		})
+	}
 
 	const state = stateRef.current
 	const host = useRef<any>(null)
 	const restoreInput = useRef<(() => void) | null>(null)
 	const syncInput = () => {
-		if (!props.present && host.current && !restoreInput.current) restoreInput.current = blockInput(host.current)
-		if (props.present && restoreInput.current) { restoreInput.current(); restoreInput.current = null }
+		if (!props.present && host.current && !restoreInput.current) {
+			restoreInput.current = blockInput(host.current)
+		}
+
+		if (props.present && restoreInput.current) {
+			restoreInput.current()
+			restoreInput.current = null
+		}
 	}
 
 	useLayoutEffect(() => {
-		if (props.present) setRetained(true)
+		if (props.present) {
+			setRetained(true)
+		}
+
 		syncInput()
 		state.setPresent(props.present)
 	}, [props.present])
 
-	useLayoutEffect(() => () => {
-		state.destroy()
-		restoreInput.current?.()
-		restoreInput.current = null
-		host.current = null
-	}, [])
+	useLayoutEffect(
+		() => () => {
+			state.destroy()
+			restoreInput.current?.()
+			restoreInput.current = null
+			host.current = null
+		},
+		[],
+	)
 
 	const { present, onExitComplete, children, ref, ...viewProps } = props
 
 	@if (props.present || retained) {
-		<View {...viewProps} ref={[(node: any) => {
-			if (host.current !== node) { restoreInput.current?.(); restoreInput.current = null; host.current = node }
-			syncInput()
-		}, ref]}>
+		<View
+			{...viewProps}
+			ref={[
+				(node: any) => {
+					if (host.current !== node) {
+						restoreInput.current?.()
+						restoreInput.current = null
+						host.current = node
+					}
+
+					syncInput()
+				},
+				ref,
+			]}
+		>
 			<PresenceContext value={state}>{children}</PresenceContext>
 		</View>
 	}

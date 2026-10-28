@@ -59,9 +59,7 @@ function readChannels(node: HTMLElement, fallback: Target): Target {
 	}
 
 	const values = match[1].split(',').map(Number.parseFloat)
-	return values.every(Number.isFinite)
-		? { ...base, ...decompose(values) }
-		: base
+	return values.every(Number.isFinite) ? { ...base, ...decompose(values) } : base
 }
 
 function waapiRun(

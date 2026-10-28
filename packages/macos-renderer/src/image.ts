@@ -1,6 +1,14 @@
 /** Local and embedded sources avoid synchronous network work on AppKit's main thread. */
 
-import { NSBundle, NSData, NSImage, NSImageView, NSURL, NSURLSession } from '@octane-xplat/platform/macos'
+import {
+	NSBundle,
+	NSData,
+	NSImage,
+	NSImageView,
+	NSURL,
+	NSURLSession,
+} from '@octane-xplat/platform/macos'
+
 export function loadImage(source: unknown): NSImage | null {
 	const src = String(source ?? '')
 	const match = /^data:[^,]*;base64,(.+)$/s.exec(src)
@@ -14,7 +22,9 @@ export function loadImage(source: unknown): NSImage | null {
 	}
 
 	if (src.startsWith('~/')) {
-		return NSImage.alloc().initWithContentsOfFile(NSBundle.mainBundle.resourcePath + '/' + src.slice(2))
+		return NSImage.alloc().initWithContentsOfFile(
+			NSBundle.mainBundle.resourcePath + '/' + src.slice(2),
+		)
 	}
 
 	if (src.startsWith('file://')) {
@@ -87,18 +97,21 @@ function decodeImage(source: string) {
  *  still populates the cache for the next view asking for it. */
 function fetchImage(source: string) {
 	NSURLSession.sharedSession
-		.dataTaskWithURLCompletionHandler(NSURL.URLWithString(source), (data: any, _response: any, error: any) => {
-			let image: NSImage | null = null
-			if (data && !error) {
-				try {
-					image = NSImage.alloc().initWithData(data)
-				} catch (decodeError) {
-					console.error('[macos-image] remote decode failed', decodeError)
+		.dataTaskWithURLCompletionHandler(
+			NSURL.URLWithString(source),
+			(data: any, _response: any, error: any) => {
+				let image: NSImage | null = null
+				if (data && !error) {
+					try {
+						image = NSImage.alloc().initWithData(data)
+					} catch (decodeError) {
+						console.error('[macos-image] remote decode failed', decodeError)
+					}
 				}
-			}
 
-			settleImage(source, image)
-		})
+				settleImage(source, image)
+			},
+		)
 		.resume()
 }
 

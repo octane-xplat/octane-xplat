@@ -6,7 +6,8 @@ export function TextInputSizes() @{
 	const [sm, setSm] = useState('')
 	const [md, setMd] = useState('')
 	const [lg, setLg] = useState('')
-	<div style={{width: 300}}>
+
+	<div style={{ width: 300 }}>
 		<Stack direction="vertical" gap={3}>
 			<TextInput label="Small" value={sm} onChange={setSm} placeholder="Enter a value" size="sm" />
 			<TextInput label="Medium" value={md} onChange={setMd} placeholder="Enter a value" size="md" />

@@ -391,8 +391,10 @@ export const handlers = {
 						),
 					)
 				}
+
 				return ok(await retainedDiagnostics(selection.app.root, args))
 			}
+
 			return hostCall(env, 'runtime.readDiagnostics', args)
 		} catch (error) {
 			return fail(toContractError(error))

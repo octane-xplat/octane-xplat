@@ -9,7 +9,10 @@ import {
 
 vi.mock('@nativescript/core', () => ({
 	// ui-svg's index.common.ts evaluates NS decorators at import.
-	Property: class { constructor(_opts?: any) {} register() {} },
+	Property: class {
+		constructor(_opts?: any) {}
+		register() {}
+	},
 	CSSType: () => () => {},
 	registerElement: () => {},
 	View: class {},
@@ -51,8 +54,13 @@ function mount(props: any) {
 
 function sized(host: any) {
 	host.on = (event: string, fn: () => void) => {
-		if (event === 'layoutChanged') host._layoutCb = fn
-		if (event === 'isLoadingChange') host._loadCb = fn
+		if (event === 'layoutChanged') {
+			host._layoutCb = fn
+		}
+
+		if (event === 'isLoadingChange') {
+			host._loadCb = fn
+		}
 	}
 
 	host.off = () => {}

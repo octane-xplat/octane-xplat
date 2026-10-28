@@ -24,12 +24,21 @@ function fixture() {
 			'({ makeSearchBar, syncSearchBar, notifySearchTextChange, ButtonActionTarget, setTextSubmitAction, droppedPropClears })',
 		].join('\n'),
 		{
-		elementBehaviors: new Map(),
-		behaviorOf: () => undefined,
-		isManualLayoutParent: (t: string) =>
-			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
-		registerElementType: () => {},
-		
+			elementBehaviors: new Map(),
+			behaviorOf: () => undefined,
+			isManualLayoutParent: (t: string) =>
+				[
+					'gridlayout',
+					'liquidglass',
+					'absolutelayout',
+					'contentview',
+					'actionbar',
+					'docklayout',
+					'wraplayout',
+					'rootlayout',
+				].includes(t),
+			registerElementType: () => {},
+
 			NSObject: class {},
 			NSTextViewDelegate: {},
 			NSTextFieldDelegate: {},
@@ -187,11 +196,20 @@ test('SearchBar rejects view, text and projected children in batch preflight', (
 			slice('function validateBatch(', 'function applyCommand(') +
 			'\n({ validateBatch })',
 		{
-		elementBehaviors: new Map(),
-		behaviorOf: () => undefined,
-		isManualLayoutParent: (t: string) =>
-			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
-		registerElementType: () => {},
+			elementBehaviors: new Map(),
+			behaviorOf: () => undefined,
+			isManualLayoutParent: (t: string) =>
+				[
+					'gridlayout',
+					'liquidglass',
+					'absolutelayout',
+					'contentview',
+					'actionbar',
+					'docklayout',
+					'wraplayout',
+					'rootlayout',
+				].includes(t),
+			registerElementType: () => {},
 		},
 	)
 

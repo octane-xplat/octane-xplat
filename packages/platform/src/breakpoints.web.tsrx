@@ -6,7 +6,9 @@ import type { BreakpointMap, BreakpointMatches } from './breakpoints.types'
 const listeners = new Set<() => void>()
 
 function publish() {
-	for (const listener of listeners) listener()
+	for (const listener of listeners) {
+		listener()
+	}
 }
 
 function subscribe(listener: () => void): () => void {
@@ -36,11 +38,15 @@ function matchesAt<T extends BreakpointMap>(width: number, breakpoints: T): Brea
 
 function sameMatches(a: Record<string, boolean>, b: Record<string, boolean>): boolean {
 	for (const name in a) {
-		if (!(name in b)) return false
+		if (!(name in b)) {
+			return false
+		}
 	}
 
 	for (const name in b) {
-		if (a[name] !== b[name]) return false
+		if (a[name] !== b[name]) {
+			return false
+		}
 	}
 
 	return true
@@ -51,7 +57,9 @@ export function useBreakpoints$<T extends BreakpointMap>(breakpoints: T): Breakp
 	useEffect(() => {
 		const update = () => {
 			const next = matchesAt(window.innerWidth, breakpoints)
-			if (!sameMatches(matches$.get(), next)) matches$.set(next)
+			if (!sameMatches(matches$.get(), next)) {
+				matches$.set(next)
+			}
 		}
 
 		const unsubscribe = subscribe(update)

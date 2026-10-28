@@ -18,6 +18,7 @@ const xplatCli = join(
 	dirname(fileURLToPath(import.meta.resolve('@octane-xplat/cli/macos'))),
 	'../cli.ts',
 )
+
 const repoDir = resolve(appDir, '../..')
 const outDir = join(repoDir, 'parity-report', 'shots', 'macos')
 

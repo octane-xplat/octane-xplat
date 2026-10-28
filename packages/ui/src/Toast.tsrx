@@ -1,12 +1,12 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { mergeStyle } from './style-merge'
-import { useEffect, useRef } from 'octane';
-import type { ToastProps } from './props';
-import { cx } from '@octane-xplat/lib';
-import { applyEscapeProps } from './escape-props';
-import { Text } from './Text';
+import { useEffect, useRef } from 'octane'
+import type { ToastProps } from './props'
+import { cx } from '@octane-xplat/lib'
+import { applyEscapeProps } from './escape-props'
+import { Text } from './Text'
 
-const SWIPE_DISMISS_DIP = 44;
+const SWIPE_DISMISS_DIP = 44
 
 /**
  * Toast surface (Astryx `Toast`), native leaf. Auto-hide timer; a
@@ -15,61 +15,81 @@ const SWIPE_DISMISS_DIP = 44;
  * assertively.
  */
 export function Toast(props: ToastProps) @{
-	const type = props.type ?? 'info';
-	const autoHide = props.isAutoHide ?? type !== 'error';
-	const duration = Math.max(0, props.autoHideDuration ?? 5000);
-	const el = useRef<any>(null);
-	const dismissed = useRef(false);
-	const onDismiss = useRef(props.onDismiss);
-	onDismiss.current = props.onDismiss;
+	const type = props.type ?? 'info'
+	const autoHide = props.isAutoHide ?? type !== 'error'
+	const duration = Math.max(0, props.autoHideDuration ?? 5000)
+	const el = useRef<any>(null)
+	const dismissed = useRef(false)
+	const onDismiss = useRef(props.onDismiss)
+	onDismiss.current = props.onDismiss
 
 	const dismiss = (reason: 'auto' | 'manual' = 'auto') => {
-		if (dismissed.current) return;
-		dismissed.current = true;
-		onDismiss.current?.(reason);
-	};
+		if (dismissed.current) {
+			return
+		}
+
+		dismissed.current = true
+		onDismiss.current?.(reason)
+	}
 
 	useEffect(() => {
-		if (!autoHide) return;
-		const timer = setTimeout(() => dismiss('auto'), duration);
-		return () => clearTimeout(timer);
-	}, [autoHide, duration]);
+		if (!autoHide) {
+			return
+		}
+
+		const timer = setTimeout(() => dismiss('auto'), duration)
+		return () => clearTimeout(timer)
+	}, [autoHide, duration])
 
 	useEffect(() => {
-		const view = el.current;
-		if (!view?.on) return;
-		let dragging = false;
+		const view = el.current
+		if (!view?.on) {
+			return
+		}
+
+		let dragging = false
 		const onPan = (e: any) => {
 			// GestureStateTypes: began=1, changed=2, ended=3, cancelled=4
 			if (e.state === 1) {
-				dragging = true;
+				dragging = true
 			} else if (e.state === 2 && dragging) {
-				view.translateX = e.deltaX;
-				view.opacity = Math.max(0.3, 1 - Math.abs(view.translateX) / 160);
+				view.translateX = e.deltaX
+				view.opacity = Math.max(0.3, 1 - Math.abs(view.translateX) / 160)
 			} else if (e.state === 3 || e.state === 4) {
-				dragging = false;
+				dragging = false
 				if (Math.abs(view.translateX) >= SWIPE_DISMISS_DIP) {
-					dismiss('manual');
-					return;
+					dismiss('manual')
+					return
 				}
 
 				if (view.animate) {
-					view.animate({ translate: { x: 0, y: 0 }, opacity: 1, duration: 120 });
+					view.animate({ translate: { x: 0, y: 0 }, opacity: 1, duration: 120 })
 				} else {
-					view.translateX = 0;
-					view.opacity = 1;
+					view.translateX = 0
+					view.opacity = 1
 				}
 			}
-		};
+		}
 
-		view.on('pan', onPan);
-		return () => view.off?.('pan', onPan);
-	}, []);
+		view.on('pan', onPan)
+		return () => view.off?.('pan', onPan)
+	}, [])
 
-	<masonview ref={(v: any) => {
-			el.current = v;
-			applyEscapeProps(v, props);
-		}} id={props.id} className={cx('vx-toast', `vx-toast--${type}`, props.isExiting && 'vx-toast--exiting', props.className)} style={mergeStyle({display: "flex"}, props.style)} accessibilityLiveRegion={(type === 'error' ? 'assertive' : 'polite')}>
+	<masonview
+		ref={(v: any) => {
+			el.current = v
+			applyEscapeProps(v, props)
+		}}
+		id={props.id}
+		className={cx(
+			'vx-toast',
+			`vx-toast--${type}`,
+			props.isExiting && 'vx-toast--exiting',
+			props.className,
+		)}
+		style={mergeStyle({ display: 'flex' }, props.style)}
+		accessibilityLiveRegion={type === 'error' ? 'assertive' : 'polite'}
+	>
 		{props.renderContent ? (
 			props.renderContent({
 				body: props.body,
@@ -81,15 +101,16 @@ export function Toast(props: ToastProps) @{
 			})
 		) : (
 			<>
-				<masonview className="vx-toast-body" style={mergeStyle({flexDirection: "column", flexGrow: 1}, {display: "flex"})}>
-					{typeof props.body === 'string' ? (
-						<Text>{props.body}</Text>
-					) : (
-						props.body
-					)}
+				<masonview
+					className="vx-toast-body"
+					style={mergeStyle({ flexDirection: 'column', flexGrow: 1 }, { display: 'flex' })}
+				>
+					{typeof props.body === 'string' ? <Text>{props.body}</Text> : props.body}
 				</masonview>
 				{props.endContent != null && (
-					<masonview className="vx-toast-end" style={{display: "flex"}}>{props.endContent}</masonview>
+					<masonview className="vx-toast-end" style={{ display: 'flex' }}>
+						{props.endContent}
+					</masonview>
 				)}
 			</>
 		)}

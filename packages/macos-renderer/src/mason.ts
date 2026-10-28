@@ -42,6 +42,7 @@ function masonHost(): any {
 		console.warn(
 			'[macos-mason] libxplatmason.dylib is not loaded — masonview lays out nothing. Launch through xplat dev or xplat build, which load the engine shipped in @octane-xplat/macos-renderer.',
 		)
+
 		initFailed = true
 		return null
 	}
@@ -152,12 +153,7 @@ const DIM_EDGES = [
 	['bottom', 'bottom'],
 ]
 
-const NUMBER_STYLE_KEYS = new Set([
-	'flexGrow',
-	'flexShrink',
-	'aspectRatio',
-	'scrollbarWidth',
-])
+const NUMBER_STYLE_KEYS = new Set(['flexGrow', 'flexShrink', 'aspectRatio', 'scrollbarWidth'])
 
 const GRID_STYLE_KEYS = new Set([
 	'gridAutoRows',
@@ -266,8 +262,7 @@ function styleDict(node: NodeLike): Record<string, any> {
 
 	// Label cells carry padding in their measured size — passing it here too
 	// would double-count. Other leaves still get box growth from the engine.
-	const padding =
-		node.type === 'label' ? null : (node.dockInsets ?? edgeBox(style.padding))
+	const padding = node.type === 'label' ? null : (node.dockInsets ?? edgeBox(style.padding))
 	if (padding) {
 		out.padding = {
 			left: [0, padding.left ?? 0],
@@ -365,9 +360,11 @@ function syncMasonNode(node: NodeLike, layoutView: ViewFor) {
 		node.masonNode = MASON_CONTAINERS.has(node.type)
 			? invoke('node')
 			: invoke('mnode', [layoutView(node)])
+
 		if (!node.masonNode) {
 			return null
 		}
+
 		// Leaf nodes outlive their container's destroy path — free the engine
 		// handle through the renderer's per-node teardown hooks.
 		;(node.destroyHooks ??= []).push(() => {
@@ -383,10 +380,18 @@ function syncMasonNode(node: NodeLike, layoutView: ViewFor) {
 		// Probe/debug channel: set globalThis.__masonTrace=[] in a case to
 		// collect every synced style dict + flat record stream.
 		;(globalThis as any).__masonStyle ??= []
+
 		;(globalThis as any).__masonStyle.push({ type: node.type, id: node.props?.id, dict })
 	}
 	if ((process as any).env?.XPLAT_MASON_DEBUG) {
-		console.log('[mason] styledict', node.type, JSON.stringify(dict), 'dockInsets=' + JSON.stringify(node.dockInsets), 'marginInsets=' + JSON.stringify(node.marginInsets), 'className=' + node.props?.className)
+		console.log(
+			'[mason] styledict',
+			node.type,
+			JSON.stringify(dict),
+			'dockInsets=' + JSON.stringify(node.dockInsets),
+			'marginInsets=' + JSON.stringify(node.marginInsets),
+			'className=' + node.props?.className,
+		)
 	}
 	invoke('style', [node.masonNode, dict])
 	return node.masonNode
@@ -482,6 +487,7 @@ function applyRecords(
 		if ((process as any).env?.XPLAT_MASON_DEBUG) {
 			console.log('[mason] pin', child.type, x, y, w, h)
 		}
+
 		pin(child, parentView, x, y, w, h)
 		next += RECORD
 		if (MASON_CONTAINERS.has(child.type) && child.masonChildren?.length) {
@@ -532,8 +538,7 @@ export function layoutMasonChildren(
 	const width = Number(target.bounds?.size?.width) || 0
 	const height = Number(target.bounds?.size?.height) || 0
 	const isScroll = parent.type === 'scrollview'
-	const horizontal =
-		parent.props?.orientation === 'horizontal' || parent.props?.horizontal === true
+	const horizontal = parent.props?.orientation === 'horizontal' || parent.props?.horizontal === true
 
 	if (isScroll) {
 		// The node's own authored dims size the NSScrollView chrome in its
@@ -559,9 +564,11 @@ export function layoutMasonChildren(
 			if (style.width == null && !parent.sizeConstraintSpecs?.width) {
 				dict.width = [1, width]
 			}
+
 			if (style.height == null && !parent.sizeConstraintSpecs?.height) {
 				dict.height = [1, height]
 			}
+
 			invoke('style', [root, dict])
 		}
 
@@ -581,13 +588,18 @@ export function layoutMasonChildren(
 			for (let i = 0; i < RECORD; i++) {
 				r.push(Number(flat.objectAtIndex(off + i)))
 			}
+
 			recs.push(r.map((v) => Math.round(v * 10) / 10).join(','))
 		}
+
 		;(globalThis as any).__masonTrace?.push?.({
 			root: parent.type + ':' + (parent.props?.id ?? ''),
-			children: (parent.masonChildren ?? []).map((c: NodeLike) => c.type + ':' + (c.props?.id ?? '')),
+			children: (parent.masonChildren ?? []).map(
+				(c: NodeLike) => c.type + ':' + (c.props?.id ?? ''),
+			),
 			records: recs,
 		})
+
 		console.log('[mason] records', recs.join(' | '))
 	}
 
@@ -607,6 +619,7 @@ export function layoutMasonChildren(
 			width: target.widthAnchor.constraintGreaterThanOrEqualToConstant(0),
 			height: target.heightAnchor.constraintGreaterThanOrEqualToConstant(0),
 		})
+
 		pins.width.constant = contentW
 		pins.height.constant = contentH
 		pins.width.active = inline
@@ -799,15 +812,37 @@ const MASON_STYLE_ONLY_KEYS = new Set<string>([
 	...MASON_STYLE_KEYS,
 	'inset',
 	// The pre-cutover prop vocabulary — contract props and sugar alike.
-	'flexDirection', 'flexWrap', 'justifyContent', 'alignItems', 'alignContent',
-	'gap', 'rowGap', 'columnGap', 'flexGrow', 'flexShrink', 'alignSelf', 'order',
-	'row', 'col', 'rowSpan', 'colSpan', 'dock', 'horizontalAlignment',
-	'verticalAlignment', 'flexWrapBefore', 'stretchLastChild', 'itemWidth',
-	'itemHeight', 'rows', 'columns',
+	'flexDirection',
+	'flexWrap',
+	'justifyContent',
+	'alignItems',
+	'alignContent',
+	'gap',
+	'rowGap',
+	'columnGap',
+	'flexGrow',
+	'flexShrink',
+	'alignSelf',
+	'order',
+	'row',
+	'col',
+	'rowSpan',
+	'colSpan',
+	'dock',
+	'horizontalAlignment',
+	'verticalAlignment',
+	'flexWrapBefore',
+	'stretchLastChild',
+	'itemWidth',
+	'itemHeight',
+	'rows',
+	'columns',
 ])
+
 for (const key of MASON_LAYOUT_PROPS) {
 	MASON_STYLE_ONLY_KEYS.delete(key)
 }
+
 const warnedStyleOnlyProps = new Set<string>()
 
 /** Exported so index.ts's scrollview factory can give the document view a
@@ -857,6 +892,7 @@ export function installMasonElement(next: MasonDeps) {
 						? () => handler({ eventName: 'tap', object: node.view })
 						: value,
 				)
+
 				return true
 			}
 			if (name === 'onPan') {
@@ -871,8 +907,11 @@ export function installMasonElement(next: MasonDeps) {
 				const key = `${node.type}:${name}`
 				if (!warnedStyleOnlyProps.has(key)) {
 					warnedStyleOnlyProps.add(key)
-					console.warn(`[macos-xplat] <${node.type} ${name}=...> is a Mason style key — move it into style={{${name}: ...}} or a class.`)
+					console.warn(
+						`[macos-xplat] <${node.type} ${name}=...> is a Mason style key — move it into style={{${name}: ...}} or a class.`,
+					)
 				}
+
 				return true
 			}
 			return name === 'id' || value === undefined

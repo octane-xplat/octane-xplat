@@ -1,7 +1,4 @@
-import {
-	AbsoluteLayout,
-	LiquidGlassContainer as NSLiquidGlassContainer,
-} from '@nativescript/core'
+import { AbsoluteLayout, LiquidGlassContainer as NSLiquidGlassContainer } from '@nativescript/core'
 
 /** Keep NativeScript's absolute layout and native-view lifecycle. */
 export class LiquidGlassContainerView extends NSLiquidGlassContainer {

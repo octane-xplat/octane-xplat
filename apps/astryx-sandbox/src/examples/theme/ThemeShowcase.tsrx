@@ -13,8 +13,8 @@ function ThemeCard(props: { label: string }) @{
 					<Badge className="sb-badge sb-badge--info">Active</Badge>
 				</Stack>
 				<Text type="body" color="secondary">
-					The same content inherits this provider's colors, typography, radius,
-					and component treatment.
+					The same content inherits this provider's colors, typography, radius, and component
+					treatment.
 				</Text>
 				<Stack direction="horizontal" gap={2} wrap="wrap">
 					<Button label="Primary" variant="primary" size="sm" />

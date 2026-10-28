@@ -14,11 +14,14 @@ function createSafeLink(Component: any) {
 		if (!isSafeDestination(href) || !isSafeDestination(to)) {
 			return <a {...rest} />
 		}
+
 		if (Component === 'a') {
 			return <a {...rest} href={href} />
 		}
+
 		return <Component {...rest} href={href} to={to ?? href} />
 	}
+
 	return SafeLink
 }
 

@@ -66,9 +66,7 @@ export function useRollingText(props: RollingTextProps): RollingTextHandle {
 	latest.current = { rollBy, direction, policy, reduced, durationMs, delayMs }
 
 	// Mount snaps to the initial value — all cells start settled.
-	const [cells, setCells] = useState<CellState[]>(() =>
-		initialCells(unitsFor(props.value), alloc),
-	)
+	const [cells, setCells] = useState<CellState[]>(() => initialCells(unitsFor(props.value), alloc))
 
 	const cellsRef = useRef(cells)
 	const committedRef = useRef(props.value)
@@ -323,33 +321,30 @@ export function useRollingText(props: RollingTextProps): RollingTextHandle {
 		}
 	}, [])
 
-	const attachCell = useCallback(
-		(id: number) => {
-			let fn = attachFns.current.get(id)
-			if (!fn) {
-				fn = (view: any) => {
-					if (!view) {
-						viewsRef.current.delete(id)
-						return
-					}
-
-					viewsRef.current.set(id, view)
-					const cell = cellsRef.current.find((entry) => entry.id === id)
-					if (cell?.phase === 'enter') {
-						// Park the incoming face outside the clip before the first
-						// paint; the layout effect starts the roll on this commit.
-						const sign = latest.current.direction === 'up' ? 1 : -1
-						writeCell(view, sign * distanceRef.current, 0)
-					}
+	const attachCell = useCallback((id: number) => {
+		let fn = attachFns.current.get(id)
+		if (!fn) {
+			fn = (view: any) => {
+				if (!view) {
+					viewsRef.current.delete(id)
+					return
 				}
 
-				attachFns.current.set(id, fn)
+				viewsRef.current.set(id, view)
+				const cell = cellsRef.current.find((entry) => entry.id === id)
+				if (cell?.phase === 'enter') {
+					// Park the incoming face outside the clip before the first
+					// paint; the layout effect starts the roll on this commit.
+					const sign = latest.current.direction === 'up' ? 1 : -1
+					writeCell(view, sign * distanceRef.current, 0)
+				}
 			}
 
-			return fn
-		},
-		[],
-	)
+			attachFns.current.set(id, fn)
+		}
+
+		return fn
+	}, [])
 
 	return {
 		cells,

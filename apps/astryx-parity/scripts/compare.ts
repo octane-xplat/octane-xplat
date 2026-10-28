@@ -73,6 +73,7 @@ async function main() {
 				`${artifacts}/summary.json`,
 				JSON.stringify({ sameframe, behavior: null }, null, '\t'),
 			)
+
 			exitCode = 4
 			return
 		}
@@ -82,17 +83,10 @@ async function main() {
 			`http://127.0.0.1:${SIDES[1].port}`,
 		)
 
-		writeFileSync(
-			`${artifacts}/behavior/button.json`,
-			JSON.stringify(behavior, null, '\t'),
-		)
+		writeFileSync(`${artifacts}/behavior/button.json`, JSON.stringify(behavior, null, '\t'))
 		writeFileSync(
 			`${artifacts}/summary.json`,
-			JSON.stringify(
-				{ sameframe, behavior: { diffCount: behavior.diffs.length } },
-				null,
-				'\t',
-			),
+			JSON.stringify({ sameframe, behavior: { diffCount: behavior.diffs.length } }, null, '\t'),
 		)
 
 		const status = (sameframe.result as { status?: string })?.status
@@ -101,6 +95,7 @@ async function main() {
 				`parity findings: sameframe status=${status ?? 'unknown'}, ` +
 					`behavior diffs=${behavior.diffs.length} — see artifacts/`,
 			)
+
 			exitCode = 1
 		}
 	} catch (error) {

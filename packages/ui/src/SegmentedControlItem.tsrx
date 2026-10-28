@@ -16,13 +16,24 @@ export function SegmentedControlItem(props: SegmentedControlItemProps) @{
 	<masonview
 		ref={(e: any) => applyEscapeProps(e, props)}
 		id={props.id}
-		className={['vx-segment', selected && 'vx-segment--on', disabled && 'vx-segment--disabled', props.className]}
-		style={mergeStyle({display: "flex"}, props.style)}
+		className={[
+			'vx-segment',
+			selected && 'vx-segment--on',
+			disabled && 'vx-segment--disabled',
+			props.className,
+		]}
+		style={mergeStyle({ display: 'flex' }, props.style)}
 		accessibilityLabel={props.isLabelHidden ? props.label : undefined}
 		accessibilityState={nativeAccessibilityState({ selected, disabled })}
 		onTap={blocked ? undefined : () => ctx?.select?.(props.value)}
 	>
-		{props.icon != null ? <masonview className="vx-segment-icon" style={{display: "flex"}}>{props.icon}</masonview> : null}
-		{!props.isLabelHidden ? <label className="vx-segment-label" text={props.label ?? props.value} /> : null}
+		{props.icon != null ? (
+			<masonview className="vx-segment-icon" style={{ display: 'flex' }}>
+				{props.icon}
+			</masonview>
+		) : null}
+		{!props.isLabelHidden ? (
+			<label className="vx-segment-label" text={props.label ?? props.value} />
+		) : null}
 	</masonview>
 }

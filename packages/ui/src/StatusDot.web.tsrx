@@ -1,7 +1,7 @@
-import type { StatusDotProps } from './props';
-import { applyEscapeProps } from './escape-props';
-import { Tooltip } from './Tooltip.web.tsrx';
-import { isRenderable } from './is-renderable';
+import type { StatusDotProps } from './props'
+import { applyEscapeProps } from './escape-props'
+import { Tooltip } from './Tooltip.web.tsrx'
+import { isRenderable } from './is-renderable'
 
 /** StatusDot — an 8px colored status signal. Non-focusable `role="img"` with
  *  `aria-label` so the status reaches screen readers without hover. `icon`
@@ -22,11 +22,13 @@ export function StatusDot(props: StatusDotProps) @{
 			]}
 			style={props.style}
 		>
-			{isRenderable(props.icon) ? <span className="vx-statusdot-icon" aria-hidden="true">{props.icon}</span> : null}
+			{isRenderable(props.icon) ? (
+				<span className="vx-statusdot-icon" aria-hidden="true">
+					{props.icon}
+				</span>
+			) : null}
 		</span>
-	);
+	)
 
-	return props.tooltip != null
-		? <Tooltip trigger={dot} content={props.tooltip} />
-		: dot;
+	return props.tooltip != null ? <Tooltip trigger={dot} content={props.tooltip} /> : dot
 }

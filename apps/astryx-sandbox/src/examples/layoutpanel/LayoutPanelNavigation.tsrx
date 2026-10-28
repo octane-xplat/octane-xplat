@@ -8,10 +8,18 @@ export function LayoutPanelNavigation() @{
 			height="fill"
 			start={
 				<LayoutPanel hasDivider width={140} role="navigation">
-					<List><ListItem label="Overview" isSelected /><ListItem label="Analytics" /><ListItem label="Settings" /></List>
+					<List>
+						<ListItem label="Overview" isSelected />
+						<ListItem label="Analytics" />
+						<ListItem label="Settings" />
+					</List>
 				</LayoutPanel>
 			}
-			content={<LayoutContent><Card variant="muted" /></LayoutContent>}
+			content={
+				<LayoutContent>
+					<Card variant="muted" />
+				</LayoutContent>
+			}
 		/>
 	</Center>
 }

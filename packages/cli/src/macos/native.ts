@@ -60,7 +60,6 @@ function strings(value, label, fallback = []) {
 	return value
 }
 
-
 function nodeModulePaths(dir) {
 	const paths = []
 	let current = dir
@@ -929,9 +928,7 @@ export async function buildMacOSNative(
 export function nativeLoader(artifact, { packaged = false } = {}) {
 	const paths = [
 		...(artifact.prebuilt ?? []).map((lib) => (packaged ? lib.file : lib.source)),
-		...artifact.libraries.map((lib) =>
-			packaged ? lib.file : join(artifact.directory, lib.file),
-		),
+		...artifact.libraries.map((lib) => (packaged ? lib.file : join(artifact.directory, lib.file))),
 	]
 
 	if (!paths.length) {

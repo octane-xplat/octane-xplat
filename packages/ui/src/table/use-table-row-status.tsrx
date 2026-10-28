@@ -103,11 +103,7 @@ function StatusMarker(props: { status: TableRowStatusResult }) @{
 
 	if (typeof untyped.icon === 'string') {
 		return (
-			<Icon
-				name={resolveStatusIcon(untyped.icon)}
-				size={12}
-				color={resolveColor(untyped.color)}
-			/>
+			<Icon name={resolveStatusIcon(untyped.icon)} size={12} color={resolveColor(untyped.color)} />
 		)
 	}
 

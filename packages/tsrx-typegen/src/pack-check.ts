@@ -360,6 +360,7 @@ function compilerExports(
 				ts.isExportSpecifier(declaration) &&
 				(declaration.isTypeOnly || declaration.parent.parent.isTypeOnly),
 		)
+
 		if (!typeOnlyAlias && resolved.flags & ts.SymbolFlags.Value) {
 			values.add(symbol.name)
 		}

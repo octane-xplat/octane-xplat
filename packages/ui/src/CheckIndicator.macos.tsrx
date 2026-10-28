@@ -11,17 +11,38 @@ import { applyEscapeProps } from './escape-props'
 export function CheckIndicator(props: IndicatorProps<'singleSelection'>) @{
 	const size = props.size ?? 'md'
 
-	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(
+		() =>
+			refList((v: any) => {
+				if (v) {
+					applyEscapeProps(v, props)
+				}
+			}, props.ref),
+		[props.ref, props.ios, props.android, props.web],
+	)
 
 	@if (props.children != null) {
-		<masonview id={props.id} ref={forwardedRef} className={cx('vx-ind-check-slot', `vx-ind-check-slot--${size}`, props.className)} style={mergeStyle({alignItems: "center", justifyContent: "center"}, mergeStyle({display: "flex"}, props.style))}>
+		<masonview
+			id={props.id}
+			ref={forwardedRef}
+			className={cx('vx-ind-check-slot', `vx-ind-check-slot--${size}`, props.className)}
+			style={mergeStyle(
+				{ alignItems: 'center', justifyContent: 'center' },
+				mergeStyle({ display: 'flex' }, props.style),
+			)}
+		>
 			{props.children}
 		</masonview>
 	} @else if (props.state === 'checked') {
 		<label
 			id={props.id}
 			ref={forwardedRef}
-			className={cx('vx-ind-check', `vx-ind-check--${size}`, props.isDisabled && 'vx-ind-check--disabled', props.className)}
+			className={cx(
+				'vx-ind-check',
+				`vx-ind-check--${size}`,
+				props.isDisabled && 'vx-ind-check--disabled',
+				props.className,
+			)}
 			style={styleRecord(props.style)}
 			text="✓"
 		/>

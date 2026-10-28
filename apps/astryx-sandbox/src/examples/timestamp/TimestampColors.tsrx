@@ -7,7 +7,9 @@ export function TimestampColors() @{
 	<Stack direction="vertical" gap={4}>
 		{(['primary', 'secondary', 'disabled', 'accent'] as const).map((color) => (
 			<Stack direction="vertical" gap={1}>
-				<Text type="supporting" color="secondary">{color[0].toUpperCase() + color.slice(1)}</Text>
+				<Text type="supporting" color="secondary">
+					{color[0].toUpperCase() + color.slice(1)}
+				</Text>
 				<Timestamp value={DATE} format="date_time" color={color} />
 			</Stack>
 		))}

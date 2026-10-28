@@ -32,7 +32,12 @@ describe('InputNumber empty value', () => {
 		const onValueChange = vi.fn()
 		const host = mount(<InputNumber value={null} onValueChange={onValueChange} />)
 		expect((host.querySelector('input') as HTMLInputElement).value).toBe('')
-		act(() => host.querySelector('.vx-inputnumber-step:last-child')!.dispatchEvent(new MouseEvent('click', { bubbles: true })))
+		act(() =>
+			host
+				.querySelector('.vx-inputnumber-step:last-child')!
+				.dispatchEvent(new MouseEvent('click', { bubbles: true })),
+		)
+
 		expect(onValueChange).toHaveBeenCalledWith(1)
 	})
 })

@@ -2,7 +2,19 @@
 import { mergeStyle, styleRecord } from './style-merge'
 import { useMemo, useContext } from 'octane'
 import { refList } from './ref-list'
-import type { AbsoluteProps, GridProps, LayoutContentProps, LayoutFooterProps, LayoutHeaderProps, LayoutPanelProps, LayoutProps, SpacerProps, StackItemProps, StackProps } from './props'
+import type {
+	AbsoluteProps,
+	GridProps,
+	LayoutContentProps,
+	LayoutFooterProps,
+	LayoutHeaderProps,
+	LayoutPanelProps,
+	LayoutProps,
+	SpacerProps,
+	StackItemProps,
+	StackProps,
+} from './props'
+
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props'
 import { resolveStackLayout, spacingPx, stackItemStyle } from './stack-layout'
@@ -15,10 +27,29 @@ import {
 	LayoutPaddingProvider,
 	LayoutAreaContext,
 } from './layout-context'
+
 import { gridTrackListToCss } from './grid-tracks'
 
 export function Grid(props: GridProps) @{
-	<masonview id={props.id} className={props.className} style={mergeStyle({display: "grid", gridTemplateRows: gridTrackListToCss(props.rows, 'rows'), gridTemplateColumns: gridTrackListToCss(typeof props.columns === 'number' ? String(props.columns) : (typeof props.columns === 'object' ? 'auto' : props.columns), 'columns')}, props.style)}>
+	<masonview
+		id={props.id}
+		className={props.className}
+		style={mergeStyle(
+			{
+				display: 'grid',
+				gridTemplateRows: gridTrackListToCss(props.rows, 'rows'),
+				gridTemplateColumns: gridTrackListToCss(
+					typeof props.columns === 'number'
+						? String(props.columns)
+						: typeof props.columns === 'object'
+							? 'auto'
+							: props.columns,
+					'columns',
+				),
+			},
+			props.style,
+		)}
+	>
 		{props.children}
 	</masonview>
 }
@@ -39,14 +70,22 @@ export function Stack(props: StackProps) @{
 		...(layout.paddingInlineEnd !== undefined ? { paddingRight: layout.paddingInlineEnd } : {}),
 	}
 
-	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(
+		() =>
+			refList((v: any) => {
+				if (v) {
+					applyEscapeProps(v, props)
+				}
+			}, props.ref),
+		[props.ref, props.ios, props.android, props.web],
+	)
 
 	@if (layout.scrollable) {
 		<scrollview
 			id={props.id}
 			ref={forwardedRef}
 			className={cx('vx-stack', 'vx-stack--scroll', props.className)}
-			style={{ ...(sizingStyle), ...styleRecord(props.style) }}
+			style={{ ...sizingStyle, ...styleRecord(props.style) }}
 			orientation={layout.flexDirection === 'row' ? 'horizontal' : 'vertical'}
 			accessible={props.accessible}
 			accessibilityLabel={props.accessibilityLabel}
@@ -56,12 +95,44 @@ export function Stack(props: StackProps) @{
 			accessibilityState={props.accessibilityState}
 			accessibilityLiveRegion={props.accessibilityLiveRegion}
 		>
-			<masonview style={mergeStyle({flexDirection: layout.flexDirection, justifyContent: layout.justifyContent, alignItems: layout.alignItems, flexWrap: layout.flexWrap, gap: layout.gap}, {display: "flex"})}>
+			<masonview
+				style={mergeStyle(
+					{
+						flexDirection: layout.flexDirection,
+						justifyContent: layout.justifyContent,
+						alignItems: layout.alignItems,
+						flexWrap: layout.flexWrap,
+						gap: layout.gap,
+					},
+					{ display: 'flex' },
+				)}
+			>
 				{props.children}
 			</masonview>
 		</scrollview>
 	} @else {
-		<masonview id={props.id} ref={forwardedRef} className={cx('vx-stack', props.className)} style={mergeStyle({flexDirection: layout.flexDirection, justifyContent: layout.justifyContent, alignItems: layout.alignItems, flexWrap: layout.flexWrap, gap: layout.gap}, mergeStyle({display: "flex"}, { ...(sizingStyle), ...styleRecord(props.style) }))} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={props.accessibilityRole} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={props.accessibilityState} accessibilityLiveRegion={props.accessibilityLiveRegion}>
+		<masonview
+			id={props.id}
+			ref={forwardedRef}
+			className={cx('vx-stack', props.className)}
+			style={mergeStyle(
+				{
+					flexDirection: layout.flexDirection,
+					justifyContent: layout.justifyContent,
+					alignItems: layout.alignItems,
+					flexWrap: layout.flexWrap,
+					gap: layout.gap,
+				},
+				mergeStyle({ display: 'flex' }, { ...sizingStyle, ...styleRecord(props.style) }),
+			)}
+			accessible={props.accessible}
+			accessibilityLabel={props.accessibilityLabel}
+			accessibilityRole={props.accessibilityRole}
+			accessibilityHint={props.accessibilityHint}
+			accessibilityValue={props.accessibilityValue}
+			accessibilityState={props.accessibilityState}
+			accessibilityLiveRegion={props.accessibilityLiveRegion}
+		>
 			{props.children}
 		</masonview>
 	}
@@ -70,14 +141,22 @@ export function Stack(props: StackProps) @{
 export function StackItem(props: StackItemProps) @{
 	const itemStyle = stackItemStyle(props)
 
-	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(
+		() =>
+			refList((v: any) => {
+				if (v) {
+					applyEscapeProps(v, props)
+				}
+			}, props.ref),
+		[props.ref, props.ios, props.android, props.web],
+	)
 
 	@if (props.isScrollable) {
 		<scrollview
 			id={props.id}
 			ref={forwardedRef}
 			className={cx('vx-stackitem', props.className)}
-			style={{ ...(itemStyle), ...styleRecord(props.style) }}
+			style={{ ...itemStyle, ...styleRecord(props.style) }}
 			orientation="vertical"
 			accessible={props.accessible}
 			accessibilityLabel={props.accessibilityLabel}
@@ -87,10 +166,24 @@ export function StackItem(props: StackItemProps) @{
 			accessibilityState={props.accessibilityState}
 			accessibilityLiveRegion={props.accessibilityLiveRegion}
 		>
-			<masonview style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>{props.children}</masonview>
+			<masonview style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}>
+				{props.children}
+			</masonview>
 		</scrollview>
 	} @else {
-		<masonview id={props.id} ref={forwardedRef} className={cx('vx-stackitem', props.className)} style={mergeStyle({display: "flex"}, { ...(itemStyle), ...styleRecord(props.style) })} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={props.accessibilityRole} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={props.accessibilityState} accessibilityLiveRegion={props.accessibilityLiveRegion}>
+		<masonview
+			id={props.id}
+			ref={forwardedRef}
+			className={cx('vx-stackitem', props.className)}
+			style={mergeStyle({ display: 'flex' }, { ...itemStyle, ...styleRecord(props.style) })}
+			accessible={props.accessible}
+			accessibilityLabel={props.accessibilityLabel}
+			accessibilityRole={props.accessibilityRole}
+			accessibilityHint={props.accessibilityHint}
+			accessibilityValue={props.accessibilityValue}
+			accessibilityState={props.accessibilityState}
+			accessibilityLiveRegion={props.accessibilityLiveRegion}
+		>
 			{props.children}
 		</masonview>
 	}
@@ -103,7 +196,10 @@ export function Absolute(props: AbsoluteProps) @{
 }
 
 export function Spacer(props: SpacerProps) @{
-	<masonview className={cx('vx-spacer flex-1', props.className)} style={mergeStyle({display: "flex"}, props.style)}/>
+	<masonview
+		className={cx('vx-spacer flex-1', props.className)}
+		style={mergeStyle({ display: 'flex' }, props.style)}
+	/>
 }
 
 /** Astryx Layout — five-slot region primitive (header / start / content /
@@ -117,19 +213,36 @@ export function Layout(props: LayoutProps) @{
 	const isFill = (props.height ?? 'fill') === 'fill'
 	const pads =
 		props.padding != null
-			? { ...parentPads, outerX: spacingPx(props.padding) ?? 0, outerY: spacingPx(props.padding) ?? 0 }
+			? {
+					...parentPads,
+					outerX: spacingPx(props.padding) ?? 0,
+					outerY: spacingPx(props.padding) ?? 0,
+				}
 			: parentPads
+
 	const slots = {
 		hasHeader: props.header != null,
 		hasFooter: props.footer != null,
 		hasStart: props.start != null,
 		hasEnd: props.end != null,
 	}
+
 	const dividerValue =
-		props.defaultHasDividers != null ? { defaultHasDividers: props.defaultHasDividers } : parentDivider
+		props.defaultHasDividers != null
+			? { defaultHasDividers: props.defaultHasDividers }
+			: parentDivider
+
 	const resolvedContent = props.content ?? props.children
 
-	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props) } }, props.ref), [props.ref, props.ios, props.android, props.web])
+	const forwardedRef = useMemo(
+		() =>
+			refList((v: any) => {
+				if (v) {
+					applyEscapeProps(v, props)
+				}
+			}, props.ref),
+		[props.ref, props.ios, props.android, props.web],
+	)
 
 	<LayoutSlotsProvider value={slots}>
 		<LayoutPaddingProvider value={pads}>
@@ -138,7 +251,10 @@ export function Layout(props: LayoutProps) @{
 					id={props.id}
 					ref={forwardedRef}
 					className={cx('vx-layout', props.className)}
-					style={mergeStyle({ display: 'flex', flexDirection: 'column', ...(isFill ? { flexGrow: 1 } : {}) }, styleRecord(props.style))}
+					style={mergeStyle(
+						{ display: 'flex', flexDirection: 'column', ...(isFill ? { flexGrow: 1 } : {}) },
+						styleRecord(props.style),
+					)}
 					accessibilityLabel={props.accessibilityLabel}
 					accessibilityRole={props.accessibilityRole}
 					accessibilityHint={props.accessibilityHint}
@@ -156,7 +272,10 @@ export function Layout(props: LayoutProps) @{
 						}}
 					>
 						{props.start}
-						<masonview className="vx-layout-contentlane" style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+						<masonview
+							className="vx-layout-contentlane"
+							style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}
+						>
 							{resolvedContent}
 						</masonview>
 						{props.end}
@@ -176,7 +295,15 @@ export function LayoutHeader(props: LayoutHeaderProps) @{
 	const pad = props.padding != null ? spacingPx(props.padding) : undefined
 	const padBE = props.paddingBlockEnd != null ? spacingPx(props.paddingBlockEnd) : undefined
 
-	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props) } }, props.ref), [props.ref, props.ios, props.android, props.web])
+	const forwardedRef = useMemo(
+		() =>
+			refList((v: any) => {
+				if (v) {
+					applyEscapeProps(v, props)
+				}
+			}, props.ref),
+		[props.ref, props.ios, props.android, props.web],
+	)
 
 	<masonview
 		id={props.id}
@@ -226,6 +353,7 @@ export function LayoutContent(props: LayoutContentProps) @{
 		paddingTop: pad ?? (!slots.hasHeader ? pads.outerY : pads.innerY),
 		paddingBottom: pad ?? (!slots.hasFooter ? pads.outerY : pads.innerY),
 	}
+
 	const sizeStyle = {
 		flexGrow: 1,
 		...(props.height != null ? { height: props.height } : {}),
@@ -234,7 +362,15 @@ export function LayoutContent(props: LayoutContentProps) @{
 		...(props.minHeight != null ? { minHeight: props.minHeight } : {}),
 	}
 
-	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props) } }, props.ref), [props.ref, props.ios, props.android, props.web])
+	const forwardedRef = useMemo(
+		() =>
+			refList((v: any) => {
+				if (v) {
+					applyEscapeProps(v, props)
+				}
+			}, props.ref),
+		[props.ref, props.ios, props.android, props.web],
+	)
 
 	@if (props.isScrollable !== false) {
 		<scrollview
@@ -256,7 +392,10 @@ export function LayoutContent(props: LayoutContentProps) @{
 			id={props.id}
 			ref={forwardedRef}
 			className={cx('vx-layout-content', props.className)}
-			style={mergeStyle({ display: 'flex', flexDirection: 'column', ...sizeStyle, ...padStyle }, styleRecord(props.style))}
+			style={mergeStyle(
+				{ display: 'flex', flexDirection: 'column', ...sizeStyle, ...padStyle },
+				styleRecord(props.style),
+			)}
 			accessibilityLabel={props.accessibilityLabel ?? props.label}
 			accessibilityRole={props.accessibilityRole}
 			accessibilityHint={props.accessibilityHint}
@@ -274,7 +413,15 @@ export function LayoutFooter(props: LayoutFooterProps) @{
 	const hasDivider = props.hasDivider ?? dividerCtx?.defaultHasDividers ?? false
 	const pad = props.padding != null ? spacingPx(props.padding) : undefined
 
-	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props) } }, props.ref), [props.ref, props.ios, props.android, props.web])
+	const forwardedRef = useMemo(
+		() =>
+			refList((v: any) => {
+				if (v) {
+					applyEscapeProps(v, props)
+				}
+			}, props.ref),
+		[props.ref, props.ios, props.android, props.web],
+	)
 
 	<masonview
 		id={props.id}
@@ -282,7 +429,9 @@ export function LayoutFooter(props: LayoutFooterProps) @{
 		className={cx('vx-layout-footer', hasDivider && 'vx-layout-footer--divided', props.className)}
 		style={mergeStyle(
 			{
-				display: 'flex', flexDirection: 'column', flexShrink: 0,
+				display: 'flex',
+				flexDirection: 'column',
+				flexShrink: 0,
 				...(props.height != null ? { height: props.height } : {}),
 				...(props.width != null ? { width: props.width } : {}),
 				...(props.maxWidth != null ? { maxWidth: props.maxWidth } : {}),
@@ -293,7 +442,17 @@ export function LayoutFooter(props: LayoutFooterProps) @{
 		accessibilityLabel={props.accessibilityLabel ?? props.label}
 		accessibilityRole={nativeAccessibilityRole(props.accessibilityRole)}
 	>
-		<masonview className="vx-layout-footer-inner" style={{ display: 'flex', flexDirection: 'column', paddingLeft: pad ?? pads.outerX, paddingRight: pad ?? pads.outerX, paddingTop: pad ?? pads.innerY, paddingBottom: pad ?? pads.outerY }}>
+		<masonview
+			className="vx-layout-footer-inner"
+			style={{
+				display: 'flex',
+				flexDirection: 'column',
+				paddingLeft: pad ?? pads.outerX,
+				paddingRight: pad ?? pads.outerX,
+				paddingTop: pad ?? pads.innerY,
+				paddingBottom: pad ?? pads.outerY,
+			}}
+		>
 			{props.children}
 		</masonview>
 	</masonview>
@@ -307,15 +466,30 @@ export function LayoutPanel(props: LayoutPanelProps) @{
 	const pads = useContext(LayoutPaddingContext)
 	const pad = props.padding != null ? spacingPx(props.padding) : undefined
 
-	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props) } }, props.ref), [props.ref, props.ios, props.android, props.web])
+	const forwardedRef = useMemo(
+		() =>
+			refList((v: any) => {
+				if (v) {
+					applyEscapeProps(v, props)
+				}
+			}, props.ref),
+		[props.ref, props.ios, props.android, props.web],
+	)
 
 	<masonview
 		id={props.id}
 		ref={forwardedRef}
-		className={cx('vx-layout-panel', `vx-layout-panel--${area}`, props.hasDivider && 'vx-layout-panel--divided', props.className)}
+		className={cx(
+			'vx-layout-panel',
+			`vx-layout-panel--${area}`,
+			props.hasDivider && 'vx-layout-panel--divided',
+			props.className,
+		)}
 		style={mergeStyle(
 			{
-				display: 'flex', flexDirection: 'column', flexShrink: 0,
+				display: 'flex',
+				flexDirection: 'column',
+				flexShrink: 0,
 				width: size,
 				paddingLeft: pad ?? pads.outerX,
 				paddingRight: pad ?? pads.outerX,

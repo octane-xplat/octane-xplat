@@ -2385,6 +2385,7 @@ export interface ColorValueProps {
 	onChangeEnd?: (hex: string) => void
 	isDisabled?: boolean
 }
+
 export interface ColorBaseProps {
 	id?: string
 	testID?: string
@@ -2915,7 +2916,10 @@ export interface TooltipReturn {
 	anchorId: string
 	describedBy: string
 	/** Render the tooltip content into the anchored layer. */
-	renderTooltip: (children: Renderable, props?: Omit<ContextRenderProps, 'positioning'>) => Renderable
+	renderTooltip: (
+		children: Renderable,
+		props?: Omit<ContextRenderProps, 'positioning'>,
+	) => Renderable
 }
 
 /** Hover/focus-triggered floating card (Astryx `HoverCard`). The trigger is
@@ -4164,29 +4168,45 @@ export interface DecodedRouteSearchSchema<Input, Output> extends RouteSearchSche
 /** Decoded URL fields before validation. Repeated keys remain arrays. */
 export type RawRouteSearch = Readonly<Record<string, string | readonly string[] | undefined>>
 
-type SearchFieldAcceptsUrl<Value> = unknown extends Value ? true
-	: [Exclude<Value, undefined>] extends [string | readonly string[]] ? true
-	: string extends Value ? true : false
-type SearchInputAcceptsUrl<Input> = unknown extends Input ? true
-	: Input extends object ? false extends {
-		[Key in keyof Input]-?: SearchFieldAcceptsUrl<Input[Key]>
-	}[keyof Input] ? false : true : false
+type SearchFieldAcceptsUrl<Value> = unknown extends Value
+	? true
+	: [Exclude<Value, undefined>] extends [string | readonly string[]]
+		? true
+		: string extends Value
+			? true
+			: false
+
+type SearchInputAcceptsUrl<Input> = unknown extends Input
+	? true
+	: Input extends object
+		? false extends {
+				[Key in keyof Input]-?: SearchFieldAcceptsUrl<Input[Key]>
+			}[keyof Input]
+			? false
+			: true
+		: false
 
 /** Generated and programmatic checks keep schema inputs aligned with URL decoding.
  * A decoder is necessary when a validator requires numbers, booleans or other
  * values that the URL parser does not produce. */
-export type RouteSearchValidationCheck<Validator> =
-	Validator extends { readonly [decodedRouteSearch]: true } ? true
+export type RouteSearchValidationCheck<Validator> = Validator extends {
+	readonly [decodedRouteSearch]: true
+}
+	? true
 	: Validator extends RouteSearchSchema<infer Input, unknown>
-		? SearchInputAcceptsUrl<Input> extends true ? true : 'Use withSearchDecoder for non-string search inputs'
+		? SearchInputAcceptsUrl<Input> extends true
+			? true
+			: 'Use withSearchDecoder for non-string search inputs'
 		: Validator extends (raw: infer Input) => unknown
-			? SearchInputAcceptsUrl<Input> extends true ? true : 'Search parsers receive decoded URL strings'
+			? SearchInputAcceptsUrl<Input> extends true
+				? true
+				: 'Search parsers receive decoded URL strings'
 			: true
 
-type CheckedSearchValidator<Validator> = Validator & (
-	RouteSearchValidationCheck<NoInfer<Validator>> extends true ? unknown
-	: { readonly 'Search input requires an explicit URL decoder': never }
-)
+type CheckedSearchValidator<Validator> = Validator &
+	(RouteSearchValidationCheck<NoInfer<Validator>> extends true
+		? unknown
+		: { readonly 'Search input requires an explicit URL decoder': never })
 
 /** A validated search field bag. Ordinary interfaces need no string index
  * signature. Collection/coercion/function protocols cannot establish that bag;
@@ -4371,14 +4391,36 @@ export type RouteProps<Name extends keyof RegisteredRouteContracts & string> = R
 declare const routeDefinitionTypes: unique symbol
 type AddedRouteContext<Value> = Value extends object ? Value : {}
 type ContextFields<Context> = {
-	[Key in keyof Context as string extends Key ? never : number extends Key ? never : symbol extends Key ? never : Key]: Context[Key]
+	[
+		Key in keyof Context as string extends Key
+			? never
+			: number extends Key
+				? never
+				: symbol extends Key
+					? never
+					: Key
+	]: Context[Key]
 }
+
 type ContextIndexes<Context> = {
-	[Key in keyof Context as string extends Key ? Key : number extends Key ? Key : symbol extends Key ? Key : never]: Context[Key]
+	[
+		Key in keyof Context as string extends Key
+			? Key
+			: number extends Key
+				? Key
+				: symbol extends Key
+					? Key
+					: never
+	]: Context[Key]
 }
+
 /** Preserve named parent fields when a root context also has an index signature. */
-export type MergedRouteContext<Context, Added> = Omit<ContextFields<Context>, keyof AddedRouteContext<Added>> &
-	ContextIndexes<Context> & AddedRouteContext<Added>
+export type MergedRouteContext<Context, Added> = Omit<
+	ContextFields<Context>,
+	keyof AddedRouteContext<Added>
+> &
+	ContextIndexes<Context> &
+	AddedRouteContext<Added>
 
 /** Contextual callback inputs inferred by defineRoute for programmatic routes. */
 export interface RouteDefinitionArgs<Path extends string, Validator, Context> {
@@ -4420,8 +4462,10 @@ export interface RouteDefinitionInput<Path extends string, Validator, Context, A
 	presentation?: 'push' | 'modal'
 	transition?: RouteTransitionName
 	head?: RouteHeadExport<
-		RouteSpecParams<Path>, NoInfer<RouteSearchOutput<Validator>>,
-		MergedRouteContext<Context, NoInfer<Added>>, Awaited<NoInfer<Data>>
+		RouteSpecParams<Path>,
+		NoInfer<RouteSearchOutput<Validator>>,
+		MergedRouteContext<Context, NoInfer<Added>>,
+		Awaited<NoInfer<Data>>
 	>
 	errorBoundary?: (props: RouteErrorBoundaryProps) => Renderable
 	source?: string
@@ -4435,7 +4479,14 @@ export interface RouteDefinitionInput<Path extends string, Validator, Context, A
  * const item = defineRoute({ path: '/items/:id', loader: ({ params }) => params.id })
  *   .screen(({ data }) => data)
  */
-export interface RouteDefinitionBuilder<Path extends string, Validator, Context, Added, Data, Root = Context> {
+export interface RouteDefinitionBuilder<
+	Path extends string,
+	Validator,
+	Context,
+	Added,
+	Data,
+	Root = Context,
+> {
 	readonly screen: (
 		component: (props: {
 			params: RouteSpecParams<Path>
@@ -4459,9 +4510,14 @@ export type RouteDefinitionWithLoader<
 }
 
 /** A definition ready for manifest assembly, carrying complete inferred metadata. */
-export type DefinedRoute<Path extends string, Validator, Context, Added, Data, Root = Context> = Readonly<
-	Omit<RouteSpec, 'screen' | 'preparation'>
-> & {
+export type DefinedRoute<
+	Path extends string,
+	Validator,
+	Context,
+	Added,
+	Data,
+	Root = Context,
+> = Readonly<Omit<RouteSpec, 'screen' | 'preparation'>> & {
 	readonly path: Path
 	readonly preparation?: Readonly<RoutePreparationBehavior>
 	readonly screen: Parameters<
@@ -4507,7 +4563,9 @@ export type RuntimeRouteCatalog<Specs extends readonly RouteSpec[]> = RouteCatal
 export type DeclaredRouteSpecs<Specs extends readonly RouteSpec[]> =
 	Exclude<Specs[number]['path'], FiniteRoutePath<Specs[number]['path']>> extends never
 		? unknown
-		: { readonly 'Preserve literal paths with as const, or use defineRuntimeRoutes for computed paths': never }
+		: {
+				readonly 'Preserve literal paths with as const, or use defineRuntimeRoutes for computed paths': never
+			}
 
 declare const runtimeRouteContractTypes: unique symbol
 /** Preserve runtime-route dependencies without exposing another string name. */
@@ -4619,11 +4677,13 @@ export interface RouteGroup<Context = RouteContext, Root = Context> {
 }
 
 type FileGroupContext<Module> = Module extends { group: RouteGroup<infer Context, any> }
-	? Context : {}
-type FileGroupRoot<Module> = Module extends { group: RouteGroup<any, infer Root> }
-	? Root : {}
+	? Context
+	: {}
+
+type FileGroupRoot<Module> = Module extends { group: RouteGroup<any, infer Root> } ? Root : {}
 type FileRootContext<Module, Context> = string extends keyof Context
-	? FileGroupRoot<Module> : Context & FileGroupRoot<Module>
+	? FileGroupRoot<Module>
+	: Context & FileGroupRoot<Module>
 
 /** Generated guard inputs depend only on the route's path, search validator and
  * root context. They deliberately exclude the guard's own return type. */
@@ -4631,7 +4691,11 @@ export type FileRouteGuardArgs<
 	Path extends string,
 	Module,
 	Context = RouteContext,
-> = RouteDefinitionArgs<Path, FileSearchValidator<Module>, MergedRouteContext<Context, FileGroupContext<Module>>>
+> = RouteDefinitionArgs<
+	Path,
+	FileSearchValidator<Module>,
+	MergedRouteContext<Context, FileGroupContext<Module>>
+>
 
 /** Generated loader inputs add the context returned by this route's guard. */
 export type FileRouteLoaderArgs<
@@ -4641,7 +4705,10 @@ export type FileRouteLoaderArgs<
 > = RouteDefinitionArgs<
 	Path,
 	FileSearchValidator<Module>,
-	MergedRouteContext<MergedRouteContext<Context, FileGroupContext<Module>>, FileGuardContext<Module>>
+	MergedRouteContext<
+		MergedRouteContext<Context, FileGroupContext<Module>>,
+		FileGuardContext<Module>
+	>
 >
 
 /** Build-only sibling output. Generated contracts reference the module through
@@ -4681,7 +4748,10 @@ export type FileRouteContract<
 	RouteSearchInputOf<FileSearchValidator<Module>>,
 	RouteSearchOutput<FileSearchValidator<Module>>,
 	RouteModuleData<Module, BakedData>,
-	MergedRouteContext<MergedRouteContext<Context, FileGroupContext<Module>>, FileGuardContext<Module>>,
+	MergedRouteContext<
+		MergedRouteContext<Context, FileGroupContext<Module>>,
+		FileGuardContext<Module>
+	>,
 	FileRootContext<Module, Context>
 >
 
@@ -5105,7 +5175,10 @@ export interface ClientRouterHost {
 }
 
 /** @internal Owner-preserving platform outlet; applications use RouteOutlet. */
-export interface ClientRouteOutletProps extends Pick<RouteOutletProps, 'authority' | 'resumeUrl' | 'onResume'> {
+export interface ClientRouteOutletProps extends Pick<
+	RouteOutletProps,
+	'authority' | 'resumeUrl' | 'onResume'
+> {
 	host: ClientRouterHost
 	flow?: string
 	children?: any
@@ -5298,7 +5371,12 @@ export interface RouteHead {
 
 /** Prepared inputs shared with the screen. Head functions run synchronously
  * after validation, guards and loading; load asynchronous metadata in a loader. */
-export interface RouteHeadArgs<Params = Record<string, unknown>, Search = Record<string, unknown>, Context = RouteContext, Data = unknown> {
+export interface RouteHeadArgs<
+	Params = Record<string, unknown>,
+	Search = Record<string, unknown>,
+	Context = RouteContext,
+	Data = unknown,
+> {
 	readonly params: Params
 	readonly search: Search
 	readonly context: Context
@@ -5306,14 +5384,22 @@ export interface RouteHeadArgs<Params = Record<string, unknown>, Search = Record
 }
 
 /** Compute title and metadata from the prepared route snapshot. */
-export interface RouteHeadFn<Params = Record<string, unknown>, Search = Record<string, unknown>, Context = RouteContext, Data = unknown> {
+export interface RouteHeadFn<
+	Params = Record<string, unknown>,
+	Search = Record<string, unknown>,
+	Context = RouteContext,
+	Data = unknown,
+> {
 	(args: RouteHeadArgs<Params, Search, Context, Data>): RouteHead
 }
 
 /** A static head declaration or a synchronous prepared-input callback. */
-export type RouteHeadExport<Params = Record<string, unknown>, Search = Record<string, unknown>, Context = RouteContext, Data = unknown> =
-	| RouteHead
-	| RouteHeadFn<Params, Search, Context, Data>
+export type RouteHeadExport<
+	Params = Record<string, unknown>,
+	Search = Record<string, unknown>,
+	Context = RouteContext,
+	Data = unknown,
+> = RouteHead | RouteHeadFn<Params, Search, Context, Data>
 
 /** Props the framework passes to a route's `ErrorBoundary` export when the
  *  route's rendered subtree throws. `reset` clears the caught error and
@@ -6633,7 +6719,10 @@ export interface ContextMenuProps<
 	Contracts = RegisteredRouteContracts,
 	Stacks extends string = keyof AppRouteStacks & string,
 	Transitions extends string = RouteTransitionName,
-> extends Omit<DropdownMenuProps<Contracts, Stacks, Transitions>, 'children' | 'button' | 'hasChevron'> {
+> extends Omit<
+	DropdownMenuProps<Contracts, Stacks, Transitions>,
+	'children' | 'button' | 'hasChevron'
+> {
 	children?: Renderable
 	/** Compound menu content (children remain the context target). */
 	menu?: Renderable
@@ -12382,7 +12471,12 @@ export type MdNode =
 	| { t: 'p'; children: MdInline[] }
 	| { t: 'code'; lang?: string; text: string }
 	| { t: 'list'; ordered: boolean; items: MdInline[][]; checked?: (boolean | null)[] }
-	| { t: 'table'; header: MdInline[][]; rows: MdInline[][][]; align: ('left' | 'center' | 'right')[] }
+	| {
+			t: 'table'
+			header: MdInline[][]
+			rows: MdInline[][][]
+			align: ('left' | 'center' | 'right')[]
+	  }
 	| { t: 'quote'; children: MdInline[] }
 	| { t: 'hr' }
 
@@ -13265,7 +13359,11 @@ export interface BreadcrumbItemProps {
 }
 
 /** Static UI message catalogs. ICU formatting is not part of this subset. */
-export type InternationalizationMessages = Record<string, Readonly<Record<string, string | { defaultMessage: string }>>>
+export type InternationalizationMessages = Record<
+	string,
+	Readonly<Record<string, string | { defaultMessage: string }>>
+>
+
 /** Locale/catalog scope for built-in Selector and Pagination static strings.
  * Nested providers replace the parent scope; set host dir separately. */
 export interface InternationalizationProviderProps {

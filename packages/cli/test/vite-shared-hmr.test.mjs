@@ -104,6 +104,7 @@ it('shared native modules retain one identity through static imports, hot contex
 			origin,
 			true,
 		)
+
 		assert.ok(rewritten.includes('/ns/m' + key), rewritten)
 		graph.upsert(file, 'export default "baseline"', [], { bumpVersion: false })
 		const response = await fetch(origin + '/ns/m' + key)
@@ -135,6 +136,7 @@ it('shared native modules retain one identity through static imports, hot contex
 				sharedTransformRequest,
 			},
 		)
+
 		const id = graph.normalizeGraphId(file)
 		assert.equal(messages.at(-1).changed[0].id, id)
 		assert.deepEqual(graph.computeTxnOrderForChanged([file]), [id])

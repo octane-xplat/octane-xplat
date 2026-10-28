@@ -2,7 +2,6 @@ import type { ParityCheck } from './parity/check-helpers.ts'
 import { dims } from './parity/check-helpers.ts'
 
 export const CHECKS: ParityCheck[] = [
-
 	{
 		fixture: 'context-menu-target',
 		targets: ['web', 'ios', 'android', 'macos'],
@@ -15,5 +14,5 @@ export const CHECKS: ParityCheck[] = [
 			'target.box.h',
 		],
 		check: (m) => [dims(m('root'), 180, 56), dims(m('target'), 144, 28)],
-	}
+	},
 ]

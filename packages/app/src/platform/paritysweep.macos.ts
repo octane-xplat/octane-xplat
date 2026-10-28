@@ -9,6 +9,7 @@ let openStage: (() => void) | undefined
 export function onParityStageOpen(fn: () => void): void {
 	openStage = fn
 }
+
 let lastDump = ''
 let lastParsed: any = null
 let prevParsed: any = null
@@ -160,6 +161,7 @@ export function runParity(): void {
 			'[parity] dump never stabilized; emitting last measurement — changed: ' +
 				diffCells(prevParsed, lastParsed),
 		)
+
 		console.log('[parity-json] ' + JSON.stringify(lastParsed))
 	} else {
 		console.log(

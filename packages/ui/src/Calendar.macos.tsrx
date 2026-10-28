@@ -43,52 +43,75 @@ export function Calendar(props: CalendarProps) @{
 	const messages = dateMessages(props.messages)
 
 	const controlled = props.value !== undefined
-	const [internalValue, setInternalValue] = useState<ISODateString | DateRange | undefined>(props.defaultValue ?? undefined)
-	const currentValue: ISODateString | DateRange | undefined = controlled ? props.value ?? undefined : internalValue
+	const [internalValue, setInternalValue] = useState<ISODateString | DateRange | undefined>(
+		props.defaultValue ?? undefined,
+	)
+
+	const currentValue: ISODateString | DateRange | undefined = controlled
+		? (props.value ?? undefined)
+		: internalValue
 
 	const [rangeAnchor, setRangeAnchor] = useState<ISODateString | null>(null)
 	const [announcement, setAnnouncement] = useState('')
 
 	const focusControlled = props.focusDate !== undefined
 	const [internalBase, setInternalBase] = useState(() =>
-		monthStart(getInitialFocusDate({
-			focusDate: props.focusDate,
-			value: currentValue,
-			min: props.min,
-			max: props.max,
-			numberOfMonths,
-		})))
+		monthStart(
+			getInitialFocusDate({
+				focusDate: props.focusDate,
+				value: currentValue,
+				min: props.min,
+				max: props.max,
+				numberOfMonths,
+			}),
+		),
+	)
 
 	const baseMonth = focusControlled
 		? monthStart(plainDateFromISO(props.focusDate!) ?? internalBase)
 		: internalBase
 
 	const setBaseMonth = (next: ReturnType<typeof monthStart>) => {
-		if (!focusControlled) setInternalBase(next)
+		if (!focusControlled) {
+			setInternalBase(next)
+		}
+
 		props.onFocusDateChange?.(plainDateToISO(next))
 	}
 
 	const months = useMemo(
-		() => Array.from({ length: numberOfMonths }, (_, i) => buildMonthGrid(
-			plainDateAddMonths(baseMonth, i).year,
-			plainDateAddMonths(baseMonth, i).month,
-			weekStartsOn,
-			props.hasVariableRowCount ?? false,
-			locale,
-		)),
+		() =>
+			Array.from({ length: numberOfMonths }, (_, i) =>
+				buildMonthGrid(
+					plainDateAddMonths(baseMonth, i).year,
+					plainDateAddMonths(baseMonth, i).month,
+					weekStartsOn,
+					props.hasVariableRowCount ?? false,
+					locale,
+				),
+			),
 		[baseMonth, numberOfMonths, weekStartsOn, props.hasVariableRowCount, locale],
 	)
 
 	const isDateDisabled = useMemo(
-		() => createDateDisabledCheck({
-			min: props.min,
-			max: props.max,
-			dateConstraints: props.dateConstraints,
-			maxRangeSpan: props.maxRangeSpan,
-			minRangeSpan: props.minRangeSpan,
-			rangeAnchor: mode === 'range' ? rangeAnchor : null,
-		}),
-		[props.min, props.max, props.dateConstraints, props.maxRangeSpan, props.minRangeSpan, rangeAnchor, mode],
+		() =>
+			createDateDisabledCheck({
+				min: props.min,
+				max: props.max,
+				dateConstraints: props.dateConstraints,
+				maxRangeSpan: props.maxRangeSpan,
+				minRangeSpan: props.minRangeSpan,
+				rangeAnchor: mode === 'range' ? rangeAnchor : null,
+			}),
+		[
+			props.min,
+			props.max,
+			props.dateConstraints,
+			props.maxRangeSpan,
+			props.minRangeSpan,
+			rangeAnchor,
+			mode,
+		],
 	)
 
 	const bounds = navigationBounds(baseMonth, numberOfMonths, props.min, props.max)
@@ -96,7 +119,11 @@ export function Calendar(props: CalendarProps) @{
 
 	const firstLabel = useRef(true)
 	useEffect(() => {
-		if (firstLabel.current) { firstLabel.current = false; return }
+		if (firstLabel.current) {
+			firstLabel.current = false
+			return
+		}
+
 		setAnnouncement(monthYearLabel)
 	}, [monthYearLabel])
 
@@ -104,20 +131,35 @@ export function Calendar(props: CalendarProps) @{
 	navApi.current = {
 		navigateTo: (iso: ISODateString) => {
 			const pd = plainDateFromISO(iso)
-			if (pd) setBaseMonth(monthStart(pd))
+			if (pd) {
+				setBaseMonth(monthStart(pd))
+			}
 		},
 	}
 
-	useImperativeHandle(props.ref, () => ({ navigateTo: (iso: ISODateString) => navApi.current.navigateTo(iso) }), [])
+	useImperativeHandle(
+		props.ref,
+		() => ({ navigateTo: (iso: ISODateString) => navApi.current.navigateTo(iso) }),
+		[],
+	)
 
 	const pick = (iso: ISODateString) => {
 		const pd = plainDateFromISO(iso)
-		if (!pd || isDateDisabled(pd)) return
+		if (!pd || isDateDisabled(pd)) {
+			return
+		}
+
 		if (mode === 'single') {
 			setAnnouncement(messages.selected(plainDateFormat(pd, DATE_FORMAT_WITH_WEEKDAY, locale)))
-			if (!controlled) setInternalValue(iso)
+			if (!controlled) {
+				setInternalValue(iso)
+			}
 
-			;(props.onChange as ((value: ISODateString, date: Date) => void) | undefined)?.(iso, plainDateToDate(pd))
+			;(props.onChange as ((value: ISODateString, date: Date) => void) | undefined)?.(
+				iso,
+				plainDateToDate(pd),
+			)
+
 			return
 		}
 
@@ -136,10 +178,17 @@ export function Calendar(props: CalendarProps) @{
 
 		if (result.kind === 'commit') {
 			setRangeAnchor(null)
-			if (!controlled) setInternalValue(result.range)
+			if (!controlled) {
+				setInternalValue(result.range)
+			}
 
 			;(props.onChange as ((value: DateRange) => void) | undefined)?.(result.range)
-			setAnnouncement(messages.rangeSelected(plainDateFormat(plainDateFromISO(result.range.start)!, DATE_FORMAT_WITH_WEEKDAY, locale), plainDateFormat(plainDateFromISO(result.range.end)!, DATE_FORMAT_WITH_WEEKDAY, locale)))
+			setAnnouncement(
+				messages.rangeSelected(
+					plainDateFormat(plainDateFromISO(result.range.start)!, DATE_FORMAT_WITH_WEEKDAY, locale),
+					plainDateFormat(plainDateFromISO(result.range.end)!, DATE_FORMAT_WITH_WEEKDAY, locale),
+				),
+			)
 		}
 	}
 
@@ -152,19 +201,34 @@ export function Calendar(props: CalendarProps) @{
 		})
 
 		if (day.isOutsideMonth) {
-			return props.hasOutsideDays ?? true
-				? <label key={day.iso} className="vx-calendar-day vx-calendar-day--outside" text={String(day.dayOfMonth)} />
-				: <label key={day.iso} className="vx-calendar-day vx-calendar-day--empty" />
+			return (props.hasOutsideDays ?? true) ? (
+				<label
+					key={day.iso}
+					className="vx-calendar-day vx-calendar-day--outside"
+					text={String(day.dayOfMonth)}
+				/>
+			) : (
+				<label key={day.iso} className="vx-calendar-day vx-calendar-day--empty" />
+			)
 		}
 
 		const dateLabel = plainDateFormat(day.date, DATE_FORMAT_WITH_WEEKDAY, locale)
-		const fullLabel = state.isPendingStart || state.isRangeStart ? messages.rangeStart(dateLabel)
-			: state.isRangeEnd ? messages.rangeEnd(dateLabel)
-				: state.isInRange ? messages.inRange(dateLabel)
-					: state.isSelected ? messages.selected(dateLabel) : dateLabel
+		const fullLabel =
+			state.isPendingStart || state.isRangeStart
+				? messages.rangeStart(dateLabel)
+				: state.isRangeEnd
+					? messages.rangeEnd(dateLabel)
+					: state.isInRange
+						? messages.inRange(dateLabel)
+						: state.isSelected
+							? messages.selected(dateLabel)
+							: dateLabel
 
 		return (
-			<masonview key={day.iso} onTap={state.isDisabled ? undefined : () => pick(day.iso)} className={cx(
+			<masonview
+				key={day.iso}
+				onTap={state.isDisabled ? undefined : () => pick(day.iso)}
+				className={cx(
 					'vx-calendar-day',
 					state.isSelected && 'vx-calendar-day--selected',
 					state.isRangeStart && 'vx-calendar-day--range-start',
@@ -174,46 +238,105 @@ export function Calendar(props: CalendarProps) @{
 					state.isDisabled && 'vx-calendar-day--disabled',
 					day.isToday && 'vx-calendar-day--today',
 					day.isWeekend && 'vx-calendar-day--weekend',
-				)} accessibilityLabel={fullLabel} accessibilityRole="button" accessibilityState={{ disabled: state.isDisabled, selected: dayCarriesBand(state) || state.isSelected }} style={{display: "flex"}}>
+				)}
+				accessibilityLabel={fullLabel}
+				accessibilityRole="button"
+				accessibilityState={{
+					disabled: state.isDisabled,
+					selected: dayCarriesBand(state) || state.isSelected,
+				}}
+				style={{ display: 'flex' }}
+			>
 				<label text={String(day.dayOfMonth)} />
 			</masonview>
 		)
 	}
 
-	<masonview id={props.id} className={cx('vx-calendar', mode === 'range' && 'vx-calendar--range', numberOfMonths === 2 && 'vx-calendar--two-months', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style))}>
-		<masonview className="vx-calendar-header" style={mergeStyle({flexDirection: props.direction === 'rtl' ? 'row-reverse' : 'row', alignItems: "center"}, {display: "flex"})}>
+	<masonview
+		id={props.id}
+		className={cx(
+			'vx-calendar',
+			mode === 'range' && 'vx-calendar--range',
+			numberOfMonths === 2 && 'vx-calendar--two-months',
+			props.className,
+		)}
+		style={mergeStyle({ flexDirection: 'column' }, mergeStyle({ display: 'flex' }, props.style))}
+	>
+		<masonview
+			className="vx-calendar-header"
+			style={mergeStyle(
+				{ flexDirection: props.direction === 'rtl' ? 'row-reverse' : 'row', alignItems: 'center' },
+				{ display: 'flex' },
+			)}
+		>
 			<Pressable
 				className="vx-calendar-nav vx-calendar-nav--prev"
 				accessibilityLabel={messages.previousMonth}
 				accessibilityState={{ disabled: !bounds.canNavigatePrevious }}
 				disabled={!bounds.canNavigatePrevious}
-				onPress={() => bounds.canNavigatePrevious && setBaseMonth(monthStart(plainDateAddMonths(baseMonth, -1)))}
+				onPress={() =>
+					bounds.canNavigatePrevious && setBaseMonth(monthStart(plainDateAddMonths(baseMonth, -1)))
+				}
 			>
 				<Icon name="xplat-chevron-left" size={16} />
 			</Pressable>
-			<label className="vx-calendar-title" text={monthYearLabel} textAlignment="center" style={{flexGrow: 1}}/>
+			<label
+				className="vx-calendar-title"
+				text={monthYearLabel}
+				textAlignment="center"
+				style={{ flexGrow: 1 }}
+			/>
 			<Pressable
 				className="vx-calendar-nav vx-calendar-nav--next"
 				accessibilityLabel={messages.nextMonth}
 				accessibilityState={{ disabled: !bounds.canNavigateNext }}
 				disabled={!bounds.canNavigateNext}
-				onPress={() => bounds.canNavigateNext && setBaseMonth(monthStart(plainDateAddMonths(baseMonth, 1)))}
+				onPress={() =>
+					bounds.canNavigateNext && setBaseMonth(monthStart(plainDateAddMonths(baseMonth, 1)))
+				}
 			>
 				<Icon name="xplat-chevron-right" size={16} />
 			</Pressable>
 		</masonview>
-		<masonview className="vx-calendar-months" style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
+		<masonview
+			className="vx-calendar-months"
+			style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}
+		>
 			{months.map((grid) => (
-				<masonview key={`${grid.year}-${grid.month}`} className="vx-calendar-month" style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
-					<masonview className="vx-calendar-weeknames" style={mergeStyle({flexDirection: props.direction === 'rtl' ? 'row-reverse' : 'row'}, {display: "flex"})}>
-						{props.hasWeekNumbers ? <label className="vx-calendar-weeknumber vx-calendar-weeknumber--head" /> : null}
-						{grid.dayNames.map((name, i) => <label key={i} className="vx-calendar-weekname" text={name} />)}
+				<masonview
+					key={`${grid.year}-${grid.month}`}
+					className="vx-calendar-month"
+					style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}
+				>
+					<masonview
+						className="vx-calendar-weeknames"
+						style={mergeStyle(
+							{ flexDirection: props.direction === 'rtl' ? 'row-reverse' : 'row' },
+							{ display: 'flex' },
+						)}
+					>
+						{props.hasWeekNumbers ? (
+							<label className="vx-calendar-weeknumber vx-calendar-weeknumber--head" />
+						) : null}
+						{grid.dayNames.map((name, i) => (
+							<label key={i} className="vx-calendar-weekname" text={name} />
+						))}
 					</masonview>
 					{grid.weeks.map((week, w) => (
-						<masonview key={w} className="vx-calendar-week" style={mergeStyle({flexDirection: props.direction === 'rtl' ? 'row-reverse' : 'row'}, {display: "flex"})}>
-							{props.hasWeekNumbers
-								? <label className="vx-calendar-weeknumber" text={String(plainDateGetWeekNumber(week[0].date))} />
-								: null}
+						<masonview
+							key={w}
+							className="vx-calendar-week"
+							style={mergeStyle(
+								{ flexDirection: props.direction === 'rtl' ? 'row-reverse' : 'row' },
+								{ display: 'flex' },
+							)}
+						>
+							{props.hasWeekNumbers ? (
+								<label
+									className="vx-calendar-weeknumber"
+									text={String(plainDateGetWeekNumber(week[0].date))}
+								/>
+							) : null}
 							{week.map((day) => renderDay(grid, day))}
 						</masonview>
 					))}

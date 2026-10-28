@@ -32,9 +32,12 @@ it('preserves centered scale geometry when a delegated animation is cancelled', 
 		expect(after.width).toBeCloseTo(before.width)
 		expect(after.height).toBeCloseTo(before.height)
 		const resumed = host.delegate!({
-			target: { scaleX: 2, scaleY: 2 }, dest: { scaleX: 2, scaleY: 2 },
-			eff: { scaleX: 2, scaleY: 2 }, transition: { duration: 1, ease: 'linear' },
+			target: { scaleX: 2, scaleY: 2 },
+			dest: { scaleX: 2, scaleY: 2 },
+			eff: { scaleX: 2, scaleY: 2 },
+			transition: { duration: 1, ease: 'linear' },
 		})
+
 		try {
 			expect(resumed).not.toBeNull()
 			const [next] = element.getAnimations()
@@ -52,6 +55,7 @@ it('preserves centered scale geometry when a delegated animation is cancelled', 
 		if (!cancelled) {
 			run?.cancel()
 		}
+
 		host.restore()
 		element.remove()
 	}

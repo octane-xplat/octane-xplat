@@ -1,26 +1,40 @@
-import type { StackItemProps } from './props';
+import type { StackItemProps } from './props'
 import { styleRecord } from './style-merge'
-import { applyEscapeProps } from './escape-props';
-import { applyWebProps } from './platformProps.web';
-import { useMemo, useRef } from 'octane';
+import { applyEscapeProps } from './escape-props'
+import { applyWebProps } from './platformProps.web'
+import { useMemo, useRef } from 'octane'
 import { refList } from './ref-list'
-import { stackItemStyle } from './stack-layout';
-import { usePan } from './pan.web.tsrx';
+import { stackItemStyle } from './stack-layout'
+import { usePan } from './pan.web.tsrx'
 
 /** StackItem — per-child size (`fill` grows into remaining space) and
  *  cross-axis alignment inside a `Stack`. Carries the flex `min-*: 0`
  *  reset so `size="fill" isScrollable` is a complete scroll region. */
 export function StackItem(props: StackItemProps) @{
-	const Tag: any = props.as ?? 'div';
-	const el = useRef<HTMLElement | null>(null);
-	usePan(el, props.onPan);
+	const Tag: any = props.as ?? 'div'
+	const el = useRef<HTMLElement | null>(null)
+	usePan(el, props.onPan)
 
-	const forwardedRef = useMemo(() => refList((e: any) => { el.current = e; if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web);  } }, props.ref), [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(
+		() =>
+			refList((e: any) => {
+				el.current = e
+				if (e) {
+					applyEscapeProps(e, props)
+					applyWebProps(e, props.web)
+				}
+			}, props.ref),
+		[props.ref, props.ios, props.android, props.web],
+	)
 
 	<Tag
 		id={props.id}
 		ref={forwardedRef}
-		className={['vx-stackitem', props.isScrollable ? 'vx-stackitem--scroll' : undefined, props.className]}
+		className={[
+			'vx-stackitem',
+			props.isScrollable ? 'vx-stackitem--scroll' : undefined,
+			props.className,
+		]}
 		style={{
 			minWidth: 0,
 			minHeight: 0,

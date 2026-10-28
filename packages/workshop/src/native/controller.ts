@@ -163,9 +163,9 @@ export class NativeWorkshopController {
 		// Filtering is enforced again at the runtime boundary, before load.
 		if (!entry?.applicable || !entry.load) {
 			this.set({
-				catalogError:
-					entry?.reason ?? `Story "${id}" is missing; choose from the catalog.`,
+				catalogError: entry?.reason ?? `Story "${id}" is missing; choose from the catalog.`,
 			})
+
 			await this.session.dispose()
 			return
 		}

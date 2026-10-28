@@ -2,7 +2,6 @@ import type { ParityCheck, CheckRow } from './parity/check-helpers.ts'
 import { near, controlEqual, controlRows } from './parity/check-helpers.ts'
 
 export const CHECKS: ParityCheck[] = [
-
 	{
 		fixture: 'input-rating-selected',
 		targets: ['web', 'ios', 'android', 'macos'],
@@ -11,7 +10,9 @@ export const CHECKS: ParityCheck[] = [
 		equal: [...controlEqual, 'selected.box.h'],
 		check: (m, target) => {
 			const selected = m('selected')
-			const expectedWidth = ({ web: 23.88, ios: 24, android: 21.33 } as Record<string, number>)[target]
+			const expectedWidth = ({ web: 23.88, ios: 24, android: 21.33 } as Record<string, number>)[
+				target
+			]
 			const rows: CheckRow[] = [
 				...controlRows(m, 200, 32),
 				['selected rating cell has positive bounds', selected.box?.w > 0 && selected.box?.h > 0],
@@ -27,5 +28,5 @@ export const CHECKS: ParityCheck[] = [
 
 			return rows
 		},
-	}
+	},
 ]

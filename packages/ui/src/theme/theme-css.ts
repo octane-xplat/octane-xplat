@@ -26,30 +26,48 @@ function resolveEmbeddedLightDark(value: string, mode: 'light' | 'dark'): string
 	let i = 0
 	while (i < value.length) {
 		const start = value.indexOf('light-dark(', i)
-		if (start === -1) {return out + value.slice(i)}
+		if (start === -1) {
+			return out + value.slice(i)
+		}
+
 		out += value.slice(i, start)
 		const open = value.indexOf('(', start)
 		const close = findMatchingParen(value, open)
-		if (close === -1) {return out + value.slice(start)}
+		if (close === -1) {
+			return out + value.slice(start)
+		}
+
 		const body = value.slice(open + 1, close)
 		let depth = 0
 		let comma = -1
 		for (let j = 0; j < body.length; j++) {
 			const c = body[j]
-			if (c === '(') {depth++}
-			else if (c === ')') {depth--}
-			else if (c === ',' && depth === 0) {
+			if (c === '(') {
+				depth++
+			} else if (c === ')') {
+				depth--
+			} else if (c === ',' && depth === 0) {
 				comma = j
 				break
 			}
 		}
-		out += comma === -1 ? body.trim() : (mode === 'dark' ? body.slice(comma + 1) : body.slice(0, comma)).trim()
+
+		out +=
+			comma === -1
+				? body.trim()
+				: (mode === 'dark' ? body.slice(comma + 1) : body.slice(0, comma)).trim()
+
 		i = close + 1
 	}
 	return out
 }
 
-function tokenCss(name: string, value: TokenValue, target: 'web' | 'native', mode: 'light' | 'dark' | null): string {
+function tokenCss(
+	name: string,
+	value: TokenValue,
+	target: 'web' | 'native',
+	mode: 'light' | 'dark' | null,
+): string {
 	if (target === 'web') {
 		const v = Array.isArray(value) ? `light-dark(${value[0]}, ${value[1]})` : value
 		return `\t${name}: ${v};`
@@ -59,7 +77,11 @@ function tokenCss(name: string, value: TokenValue, target: 'web' | 'native', mod
 	return `\t${name}: ${resolveEmbeddedLightDark(raw, arm)};`
 }
 
-function declarations(theme: DefinedTheme, target: 'web' | 'native', mode: 'light' | 'dark' | null): string {
+function declarations(
+	theme: DefinedTheme,
+	target: 'web' | 'native',
+	mode: 'light' | 'dark' | null,
+): string {
 	return Object.entries(theme.tokens)
 		.map(([name, value]) => tokenCss(name, value, target, mode))
 		.join('\n')

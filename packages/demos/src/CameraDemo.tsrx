@@ -1,14 +1,14 @@
-import { useState } from 'octane';
-import { Button, Heading, HStack, SegmentedControl, Text, View } from '@octane-xplat/ui';
-import { CameraView } from '@octane-xplat/camera';
+import { useState } from 'octane'
+import { Button, Heading, HStack, SegmentedControl, Text, View } from '@octane-xplat/ui'
+import { CameraView } from '@octane-xplat/camera'
 
 /** Shared `CameraView` demo — live preview only. `facing` flips the lens,
  *  `active` tears the stream/session down. Stills deliberately go through
  *  `media.capturePhoto` in @octane-xplat/media, not this widget. */
 export function CameraDemo() @{
-	const [facing, setFacing] = useState<'front' | 'back'>('back');
-	const [active, setActive] = useState(true);
-	const [status, setStatus] = useState('starting…');
+	const [facing, setFacing] = useState<'front' | 'back'>('back')
+	const [active, setActive] = useState(true)
+	const [status, setStatus] = useState('starting…')
 
 	<View className="camera-demo gap-4">
 		<Heading level={2}>Camera</Heading>
@@ -18,9 +18,7 @@ export function CameraDemo() @{
 			active={active}
 			onReady={() => setStatus('preview live')}
 			onError={(e) => setStatus(`error ${e.message ?? ''}`)}
-			onTap={(point) =>
-				setStatus(`tap ${point.x.toFixed(2)},${point.y.toFixed(2)}`)
-			}
+			onTap={(point) => setStatus(`tap ${point.x.toFixed(2)},${point.y.toFixed(2)}`)}
 		/>
 		<HStack className="gap-2 items-center">
 			<SegmentedControl

@@ -1,11 +1,17 @@
-import { useState } from 'octane';
-import type { DrawerProps } from './props';
+import { useState } from 'octane'
+import type { DrawerProps } from './props'
 
 function applyWebProps(node: any, bag?: Record<string, any>) {
-	if (!node || !bag) return;
+	if (!node || !bag) {
+		return
+	}
+
 	for (const [key, value] of Object.entries(bag)) {
-		if (key.includes('-')) node.setAttribute(key, String(value));
-		else node[key] = value;
+		if (key.includes('-')) {
+			node.setAttribute(key, String(value))
+		} else {
+			node[key] = value
+		}
 	}
 }
 
@@ -14,12 +20,15 @@ function applyWebProps(node: any, bag?: Record<string, any>) {
  *  click fires `onDismiss` on both). The edge-gesture plugin widget lives
  *  in `ui/android` (DrawerLayout) and `ui/ios` (SideDrawer). */
 export function Drawer(props: DrawerProps) @{
-	const [internal, setInternal] = useState(props.defaultOpen ?? false);
-	const open = props.open ?? internal;
+	const [internal, setInternal] = useState(props.defaultOpen ?? false)
+	const open = props.open ?? internal
 	const requestDismiss = () => {
-		if (props.open === undefined) setInternal(false);
-		props.onDismiss?.();
-	};
+		if (props.open === undefined) {
+			setInternal(false)
+		}
+
+		props.onDismiss?.()
+	}
 
 	<div
 		id={props.id}

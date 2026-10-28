@@ -3,7 +3,10 @@ import { Button, Toast, useToast } from '@octane-xplat/ui'
 
 export function ToastShowcase() @{
 	const toast = useToast()
-	const show = () => { toast({ body: 'Document saved successfully' }) }
+	const show = () => {
+		toast({ body: 'Document saved successfully' })
+	}
+
 	return (
 		<Toast
 			type="info"

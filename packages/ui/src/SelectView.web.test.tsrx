@@ -14,14 +14,19 @@ const options: SelectOption[] = [
 ]
 
 const cleanups: (() => void)[] = []
-afterEach(() => { cleanups.splice(0).forEach((cleanup) => cleanup()); vi.unstubAllGlobals() })
+afterEach(() => {
+	cleanups.splice(0).forEach((cleanup) => cleanup())
+	vi.unstubAllGlobals()
+})
 
 /** Resolved-state fixtures mirror what `useSelect` hands the view: groups,
  *  shown, and enabled come from the real option helpers so the matrix stays
  *  honest. Intents default to spies; resolved fields take overrides. */
 function fixture(overrides: Partial<SelectViewProps> = {}): SelectViewProps {
 	const query = overrides.query ?? ''
-	const groups = overrides.groups ?? groupSelectOptions(filterSelectOptions(overrides.options ?? options, query))
+	const groups =
+		overrides.groups ?? groupSelectOptions(filterSelectOptions(overrides.options ?? options, query))
+
 	const shown = overrides.shown ?? groups.flatMap((group) => group.options)
 	return {
 		label: 'Choice',
@@ -47,12 +52,20 @@ function fixture(overrides: Partial<SelectViewProps> = {}): SelectViewProps {
 }
 
 function mount(props: SelectViewProps) {
-	vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() })))
+	vi.stubGlobal(
+		'matchMedia',
+		vi.fn(() => ({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() })),
+	)
+
 	const host = document.createElement('div')
 	document.body.append(host)
 	const root = createRoot(host)
 	act(() => root.render(<SelectView {...props} />))
-	const unmount = () => { root.unmount(); host.remove() }
+	const unmount = () => {
+		root.unmount()
+		host.remove()
+	}
+
 	cleanups.push(unmount)
 	const trigger = () => host.querySelector('.vx-select-trigger') as HTMLElement
 	const click = (target: Element) => act(() => (target as HTMLElement).click())
@@ -70,11 +83,24 @@ describe('SelectView resolved-state fixtures', () => {
 	})
 
 	it('renders a closed selected value with clear affordance and hidden inputs', () => {
-		const ui = mount(fixture({ selected: ['apple'], triggerText: 'Apple', hasClear: true, multiple: true, htmlName: 'choices' }))
+		const ui = mount(
+			fixture({
+				selected: ['apple'],
+				triggerText: 'Apple',
+				hasClear: true,
+				multiple: true,
+				htmlName: 'choices',
+			}),
+		)
+
 		expect(ui.trigger().textContent).toContain('Apple')
 		expect(ui.host.querySelector('.vx-select-placeholder')).toBeNull()
 		expect(ui.host.querySelector('.vx-select-clear')).not.toBeNull()
-		expect(Array.from(ui.host.querySelectorAll('input[type="hidden"]')).map((input) => (input as HTMLInputElement).value)).toEqual(['apple'])
+		expect(
+			Array.from(ui.host.querySelectorAll('input[type="hidden"]')).map(
+				(input) => (input as HTMLInputElement).value,
+			),
+		).toEqual(['apple'])
 	})
 
 	it('renders the open listbox with groups, selected marks, and the resolved highlight', () => {
@@ -99,13 +125,32 @@ describe('SelectView resolved-state fixtures', () => {
 	})
 
 	it('renders the no-results query state', () => {
-		mount(fixture({ open: true, searchable: true, query: 'zzz', emptyText: 'No results found', announcement: '0 results. No results found' }))
+		mount(
+			fixture({
+				open: true,
+				searchable: true,
+				query: 'zzz',
+				emptyText: 'No results found',
+				announcement: '0 results. No results found',
+			}),
+		)
+
 		expect(document.querySelectorAll('[role="option"]')).toHaveLength(0)
 		expect(document.querySelector('.vx-select-empty')?.textContent).toBe('No results found')
 	})
 
 	it('renders the pending commit as busy and inert', () => {
-		const ui = mount(fixture({ open: true, selected: ['berlin'], pending: true, hasClear: true, multiple: true, hasSelectAll: true }))
+		const ui = mount(
+			fixture({
+				open: true,
+				selected: ['berlin'],
+				pending: true,
+				hasClear: true,
+				multiple: true,
+				hasSelectAll: true,
+			}),
+		)
+
 		expect(ui.trigger().getAttribute('aria-busy')).toBe('true')
 		expect(ui.trigger().className).toContain('vx-select--loading')
 		expect(ui.host.querySelector('.vx-select-clear')?.hasAttribute('disabled')).toBe(true)
@@ -129,11 +174,29 @@ describe('SelectView resolved-state fixtures', () => {
 	})
 
 	it('renders multiple select-all states deterministically', () => {
-		const indeterminate = mount(fixture({ open: true, multiple: true, hasSelectAll: true, selected: ['apple'], selectAllState: 'indeterminate' }))
+		const indeterminate = mount(
+			fixture({
+				open: true,
+				multiple: true,
+				hasSelectAll: true,
+				selected: ['apple'],
+				selectAllState: 'indeterminate',
+			}),
+		)
+
 		expect(document.querySelector('.vx-select-all')?.getAttribute('aria-pressed')).toBe('mixed')
 		indeterminate.unmount()
 
-		mount(fixture({ open: true, multiple: true, hasSelectAll: true, selected: ['apple', 'banana', 'berlin'], selectAllState: 'checked' }))
+		mount(
+			fixture({
+				open: true,
+				multiple: true,
+				hasSelectAll: true,
+				selected: ['apple', 'banana', 'berlin'],
+				selectAllState: 'checked',
+			}),
+		)
+
 		expect(document.querySelector('.vx-select-all')?.getAttribute('aria-pressed')).toBe('true')
 	})
 
@@ -160,7 +223,11 @@ describe('SelectView intent wiring', () => {
 
 		const searching = mount(fixture({ open: true, searchable: true }))
 		const search = document.querySelector('.vx-select-search') as HTMLInputElement
-		act(() => { search.value = 'ap'; search.dispatchEvent(new Event('input', { bubbles: true })) })
+		act(() => {
+			search.value = 'ap'
+			search.dispatchEvent(new Event('input', { bubbles: true }))
+		})
+
 		expect(searching.props.onQueryChange).toHaveBeenCalledWith('ap')
 	})
 

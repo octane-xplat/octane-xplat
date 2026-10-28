@@ -16,10 +16,17 @@ function VirtualListFixture() @{
 			{ key: 'zeta' },
 		]}
 		keyExtractor={(item: any) => item.key}
-		renderItem={() => <View className="parity-virtual-list-item-content" style={{ width: 200, height: 24 }} />}
+		renderItem={() => (
+			<View className="parity-virtual-list-item-content" style={{ width: 200, height: 24 }} />
+		)}
 	/>
 }
 
 export const PARITY: ParityFixture[] = [
-	{ name: 'virtual-list-viewport', component: 'VirtualList', renderer: VirtualListFixture, props: {} },
+	{
+		name: 'virtual-list-viewport',
+		component: 'VirtualList',
+		renderer: VirtualListFixture,
+		props: {},
+	},
 ]

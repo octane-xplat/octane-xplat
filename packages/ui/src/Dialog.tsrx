@@ -28,37 +28,49 @@ function DialogPanel(props: DialogProps & { layerDepth: number }) @{
 	const padding = spacingStep(props.padding ?? 5) ?? 20
 	const pos = props.position
 
-	<masonview className="vx-dialog-host" width="100%" height="100%" style={{display: "grid", gridTemplateRows: "1fr", gridTemplateColumns: "1fr"}}>
-		<masonview className={cx(
-				'vx-dialog',
-				isFullscreen && 'vx-dialog--fullscreen',
-				props.className,
-			)} width={isFullscreen ? '100%' : undefined} height={isFullscreen ? '100%' : undefined} accessible={true} accessibilityLabel={props.accessibilityLabel} accessibilityRole={purpose === 'required' ? 'alert' : undefined} style={mergeStyle({display: "flex"}, [{
-				padding,
-				width: typeof props.width === 'number' ? props.width : isFullscreen ? '100%' : undefined,
-				height: isFullscreen ? '100%' : undefined,
-				maxHeight: typeof props.maxHeight === 'number' ? props.maxHeight : undefined,
-				marginLeft: typeof pos?.start === 'number' ? pos.start : undefined,
-				marginRight: typeof pos?.end === 'number' ? pos.end : undefined,
-				marginTop: typeof pos?.top === 'number' ? pos.top : undefined,
-				marginBottom: typeof pos?.bottom === 'number' ? pos.bottom : undefined,
-				...styleRecord(props.style) }, {justifySelf: 
-				isFullscreen
-					? 'stretch'
-					: pos?.start != null
-						? 'left'
-						: pos?.end != null
-							? 'right'
-							: 'center'
-			, alignSelf: 
-				isFullscreen
-					? 'stretch'
-					: pos?.top != null
-						? 'top'
-						: pos?.bottom != null
-							? 'bottom'
-						: 'middle'
-			}])}>
+	<masonview
+		className="vx-dialog-host"
+		width="100%"
+		height="100%"
+		style={{ display: 'grid', gridTemplateRows: '1fr', gridTemplateColumns: '1fr' }}
+	>
+		<masonview
+			className={cx('vx-dialog', isFullscreen && 'vx-dialog--fullscreen', props.className)}
+			width={isFullscreen ? '100%' : undefined}
+			height={isFullscreen ? '100%' : undefined}
+			accessible={true}
+			accessibilityLabel={props.accessibilityLabel}
+			accessibilityRole={purpose === 'required' ? 'alert' : undefined}
+			style={mergeStyle({ display: 'flex' }, [
+				{
+					padding,
+					width: typeof props.width === 'number' ? props.width : isFullscreen ? '100%' : undefined,
+					height: isFullscreen ? '100%' : undefined,
+					maxHeight: typeof props.maxHeight === 'number' ? props.maxHeight : undefined,
+					marginLeft: typeof pos?.start === 'number' ? pos.start : undefined,
+					marginRight: typeof pos?.end === 'number' ? pos.end : undefined,
+					marginTop: typeof pos?.top === 'number' ? pos.top : undefined,
+					marginBottom: typeof pos?.bottom === 'number' ? pos.bottom : undefined,
+					...styleRecord(props.style),
+				},
+				{
+					justifySelf: isFullscreen
+						? 'stretch'
+						: pos?.start != null
+							? 'left'
+							: pos?.end != null
+								? 'right'
+								: 'center',
+					alignSelf: isFullscreen
+						? 'stretch'
+						: pos?.top != null
+							? 'top'
+							: pos?.bottom != null
+								? 'bottom'
+								: 'middle',
+				},
+			])}
+		>
 			<DialogProvider value={{ titleId, isModal: true, requestClose: props.onOpenChange }}>
 				<LayerDepthProvider value={props.layerDepth}>
 					<SizeProvider value={null}>{props.children}</SizeProvider>
@@ -73,7 +85,18 @@ function DialogInline(props: DialogProps) @{
 	const titleId = useId()
 	const padding = spacingStep(props.padding ?? 5) ?? 20
 
-	<masonview className={cx('vx-dialog', 'vx-dialog--inline', props.className)} style={mergeStyle({display: "flex"}, { padding, width: typeof props.width === 'number' ? props.width : undefined, ...styleRecord(props.style) })} accessibilityLabel={props.accessibilityLabel}>
+	<masonview
+		className={cx('vx-dialog', 'vx-dialog--inline', props.className)}
+		style={mergeStyle(
+			{ display: 'flex' },
+			{
+				padding,
+				width: typeof props.width === 'number' ? props.width : undefined,
+				...styleRecord(props.style),
+			},
+		)}
+		accessibilityLabel={props.accessibilityLabel}
+	>
 		<DialogProvider value={{ titleId, isModal: false, requestClose: props.onOpenChange }}>
 			{props.children}
 		</DialogProvider>
@@ -188,11 +211,21 @@ export function Dialog(props: DialogProps) @{
 	// the declaring component's ancestry.
 
 	<>
-		<masonview ref={(v: any) => { sentinel.current = v; }} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { width: 0, height: 0 }))}/>
-		{open && portalHost ? createPortal(
-			<DialogPanel {...props} onOpenChange={requestChange} layerDepth={dismissal.depth} />,
-			portalHost,
-		) : null}
+		<masonview
+			ref={(v: any) => {
+				sentinel.current = v
+			}}
+			style={mergeStyle(
+				{ flexDirection: 'column' },
+				mergeStyle({ display: 'flex' }, { width: 0, height: 0 }),
+			)}
+		/>
+		{open && portalHost
+			? createPortal(
+					<DialogPanel {...props} onOpenChange={requestChange} layerDepth={dismissal.depth} />,
+					portalHost,
+				)
+			: null}
 	</>
 }
 
@@ -201,15 +234,39 @@ export function DialogHeader(props: DialogHeaderProps) @{
 	const ctx = useContext(DialogContext) // provider membership supplies the title id on web and the shared close request.
 	const requestClose = props.onOpenChange ?? ctx?.requestClose
 
-	<masonview className={cx('vx-dialog-header', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style))} id={props.id}>
-		<masonview style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex"})}>
-			{props.startContent != null && <masonview className="vx-dialog-header-start" style={{display: "flex"}}>{props.startContent}</masonview>}
-			<masonview className="vx-dialog-header-text" style={mergeStyle({flexDirection: "column", flexGrow: 1}, {display: "flex"})}>
-				{props.title != null && <label className="vx-dialog-title" textWrap={true}>{props.title}</label>}
-				{props.subtitle != null && <label className="vx-dialog-subtitle" textWrap={true}>{props.subtitle}</label>}
+	<masonview
+		className={cx('vx-dialog-header', props.className)}
+		style={mergeStyle({ flexDirection: 'column' }, mergeStyle({ display: 'flex' }, props.style))}
+		id={props.id}
+	>
+		<masonview
+			style={mergeStyle({ flexDirection: 'row', alignItems: 'center' }, { display: 'flex' })}
+		>
+			{props.startContent != null && (
+				<masonview className="vx-dialog-header-start" style={{ display: 'flex' }}>
+					{props.startContent}
+				</masonview>
+			)}
+			<masonview
+				className="vx-dialog-header-text"
+				style={mergeStyle({ flexDirection: 'column', flexGrow: 1 }, { display: 'flex' })}
+			>
+				{props.title != null && (
+					<label className="vx-dialog-title" textWrap={true}>
+						{props.title}
+					</label>
+				)}
+				{props.subtitle != null && (
+					<label className="vx-dialog-subtitle" textWrap={true}>
+						{props.subtitle}
+					</label>
+				)}
 			</masonview>
 			{(props.endContent != null || requestClose != null) && (
-				<masonview className="vx-dialog-header-end" style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex"})}>
+				<masonview
+					className="vx-dialog-header-end"
+					style={mergeStyle({ flexDirection: 'row', alignItems: 'center' }, { display: 'flex' })}
+				>
 					{props.endContent}
 					{requestClose && (
 						<Pressable
@@ -223,6 +280,8 @@ export function DialogHeader(props: DialogHeaderProps) @{
 				</masonview>
 			)}
 		</masonview>
-		{(props.hasDivider ?? true) && <masonview className="vx-dialog-divider" height={1} style={{display: "grid"}}/>}
+		{(props.hasDivider ?? true) && (
+			<masonview className="vx-dialog-divider" height={1} style={{ display: 'grid' }} />
+		)}
 	</masonview>
 }

@@ -5,7 +5,9 @@ export function KeyboardDemo() @{
 	const key$ = useSignal$('Press a key')
 	const { keyboardProps } = useKeyboard({
 		onKeyDown: (event) => {
-			if (!event.isComposing) key$.set(`${event.key} (${event.code})`)
+			if (!event.isComposing) {
+				key$.set(`${event.key} (${event.code})`)
+			}
 		},
 	})
 

@@ -19,12 +19,15 @@ async function ensure(): Promise<PermissionResult> {
 			if (status === 3) {
 				return 'granted'
 			}
+
 			if (status === 1 || status === 2) {
 				return 'denied'
 			}
+
 			if (typeof av?.requestAccessForMediaTypeCompletionHandler !== 'function') {
 				return 'unsupported'
 			}
+
 			return await new Promise<PermissionResult>((resolve) => {
 				av.requestAccessForMediaTypeCompletionHandler(video, (granted: boolean) =>
 					resolve(granted ? 'granted' : 'denied'),
@@ -39,9 +42,11 @@ async function ensure(): Promise<PermissionResult> {
 		) {
 			return 'granted'
 		}
+
 		if (!activity) {
 			return 'denied'
 		}
+
 		return await new Promise<PermissionResult>((resolve) => {
 			const requestCode = scanRequestCode++
 			const event = Application.android.activityRequestPermissionsEvent

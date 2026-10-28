@@ -109,6 +109,7 @@ void plugins; void layers
 		vite: '8.3.0',
 		'@bamboocss/dev': '1.56.2',
 	}
+
 	const overrides = {}
 	// Pack lib too: cli's dist imports ./server-boundary, a subpath the last
 	// published @octane-xplat/lib does not export.
@@ -120,11 +121,13 @@ void plugins; void layers
 		const name = JSON.parse(readFileSync(join(repo, 'packages', directory, 'package.json'))).name
 		overrides[name] = `file:${join(pack, archive)}`
 	}
+
 	dependencies['@octane-xplat/cli'] = overrides['@octane-xplat/cli']
 	writeFileSync(
 		join(app, 'package.json'),
 		JSON.stringify({ private: true, dependencies, pnpm: { overrides } }),
 	)
+
 	// pnpm overrides do not reach into file:-packed dependency graphs — rewrite
 	// the packed cli's lib spec through the readPackage hook instead.
 	writeFileSync(
@@ -136,6 +139,7 @@ void plugins; void layers
 			return pkg
 		} } }\n`,
 	)
+
 	run('pnpm', ['install', '--ignore-scripts', '--config.auto-install-peers=false'], app)
 	writeFileSync(
 		join(app, 'vite.config.native.mts'),
@@ -154,6 +158,7 @@ export default {
 }
 `,
 	)
+
 	writeFileSync(
 		join(app, 'check.mjs'),
 		`
@@ -176,6 +181,7 @@ for (const loader of ['bundle', 'native', 'runner']) {
 }
 `,
 	)
+
 	run(process.execPath, ['check.mjs'], app)
 
 	console.log(

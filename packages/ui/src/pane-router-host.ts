@@ -15,21 +15,27 @@ export function createPaneRouterHost(
 	} = {},
 ) {
 	const frames = options.frames
-	if (frames && frames.host.history !== 'independent')
-		{throw new TypeError('Pane composition requires independent Frame histories')}
+	if (frames && frames.host.history !== 'independent') {
+		throw new TypeError('Pane composition requires independent Frame histories')
+	}
 	const frameFlows = new Set(options.frameFlows ?? ['root'])
 	const declaredFrameFlows = new Map<string, boolean>()
 	const panes = createRenderRouterHost()
 	const listeners = new Set<(change?: RouterHostChange) => void>()
 	let instance: RouterInstance<any> | undefined
 	let disposed = false
-	const isFrame = (flow: string) => !!frames && (declaredFrameFlows.get(flow) ?? frameFlows.has(flow))
+	const isFrame = (flow: string) =>
+		!!frames && (declaredFrameFlows.get(flow) ?? frameFlows.has(flow))
 	const declareFlow = (flow: string) => {
-		if (!declaredFrameFlows.has(flow)) {declaredFrameFlows.set(flow, frameFlows.has(flow) || options.isFrameFlow?.(flow) === true)}
+		if (!declaredFrameFlows.has(flow)) {
+			declaredFrameFlows.set(flow, frameFlows.has(flow) || options.isFrameFlow?.(flow) === true)
+		}
 	}
 	const selected = (flow: string) => (isFrame(flow) ? frames!.host : panes.host)
 	const notify = (change?: RouterHostChange) => {
-		for (const listener of [...listeners]) {listener(change)}
+		for (const listener of [...listeners]) {
+			listener(change)
+		}
 	}
 	const detachFrames = frames?.host.subscribe(notify)
 	const detachPanes = panes.host.subscribe(notify)
@@ -44,11 +50,15 @@ export function createPaneRouterHost(
 			}
 		},
 		commit(command) {
-			if (disposed) {return Promise.resolve({ status: 'cancelled', reason: 'disposed' })}
+			if (disposed) {
+				return Promise.resolve({ status: 'cancelled', reason: 'disposed' })
+			}
 			return selected(command.flow).commit(command)
 		},
 		dispose() {
-			if (disposed) {return}
+			if (disposed) {
+				return
+			}
 			disposed = true
 			detachFrames?.()
 			detachPanes()
@@ -61,13 +71,17 @@ export function createPaneRouterHost(
 	return {
 		host,
 		attach(router) {
-			if (instance || disposed) {throw new Error('Pane host cannot be attached')}
+			if (instance || disposed) {
+				throw new Error('Pane host cannot be attached')
+			}
 			frames?.attach(router)
 			panes.attach(router)
 			instance = router
 		},
 		scope(flow) {
-			if (!instance) {throw new Error('Pane host is not attached')}
+			if (!instance) {
+				throw new Error('Pane host is not attached')
+			}
 			return createRouterRenderScope(instance, flow)
 		},
 		getRenderHost(flow) {
@@ -75,7 +89,9 @@ export function createPaneRouterHost(
 			return isFrame(flow) ? frames?.getRenderHost?.(flow) : panes
 		},
 		mount(flow, owner) {
-			if (disposed) {throw new Error('Pane host is disposed')}
+			if (disposed) {
+				throw new Error('Pane host is disposed')
+			}
 			declareFlow(flow)
 			return isFrame(flow) ? frames!.mount(flow, owner) : () => {}
 		},

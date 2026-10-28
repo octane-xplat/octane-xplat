@@ -73,7 +73,9 @@ export async function checkMacOSBarrels(root) {
 		assert.ok(routing.includes(name), `routing barrel retains the public ${name} API`)
 	}
 
-	for (const name of ['pushRoute', 'popRoute', 'registerRoutes', 'useRoute']) {assert.ok(!routing.includes(name), `routing cutover removes ${name}`)}
+	for (const name of ['pushRoute', 'popRoute', 'registerRoutes', 'useRoute']) {
+		assert.ok(!routing.includes(name), `routing cutover removes ${name}`)
+	}
 
 	const data = await buildMacOSBarrel(root, '@octane-xplat/ui/data')
 	for (const name of [

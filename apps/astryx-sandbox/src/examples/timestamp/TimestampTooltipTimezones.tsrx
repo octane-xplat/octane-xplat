@@ -6,7 +6,9 @@ const DATE = '2026-02-19T17:00:00Z'
 export function TimestampTooltipTimezones() @{
 	<Stack direction="vertical" gap={4}>
 		<Stack direction="vertical" gap={1}>
-			<Text type="supporting" color="secondary">Local + UTC — hover to compare</Text>
+			<Text type="supporting" color="secondary">
+				Local + UTC — hover to compare
+			</Text>
 			<Timestamp
 				value={DATE}
 				format="relative"
@@ -18,7 +20,9 @@ export function TimestampTooltipTimezones() @{
 			/>
 		</Stack>
 		<Stack direction="vertical" gap={1}>
-			<Text type="supporting" color="secondary">Incident origin zone alongside the reader's</Text>
+			<Text type="supporting" color="secondary">
+				Incident origin zone alongside the reader's
+			</Text>
 			<Timestamp
 				value={DATE}
 				format="date_time"
@@ -30,15 +34,14 @@ export function TimestampTooltipTimezones() @{
 			/>
 		</Stack>
 		<Stack direction="vertical" gap={1}>
-			<Text type="supporting" color="secondary">Friendly line plus a machine-precise line</Text>
+			<Text type="supporting" color="secondary">
+				Friendly line plus a machine-precise line
+			</Text>
 			<Timestamp
 				value={DATE}
 				format="date_time"
 				color="primary"
-				tooltipEntries={[
-					{ format: 'full' },
-					{ format: 'system_date_time', label: 'ISO' },
-				]}
+				tooltipEntries={[{ format: 'full' }, { format: 'system_date_time', label: 'ISO' }]}
 			/>
 		</Stack>
 	</Stack>

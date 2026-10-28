@@ -1,6 +1,18 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs'
+import {
+	chmodSync,
+	existsSync,
+	mkdirSync,
+	mkdtempSync,
+	readdirSync,
+	readFileSync,
+	rmSync,
+	symlinkSync,
+	unlinkSync,
+	writeFileSync,
+} from 'node:fs'
+
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -36,7 +48,11 @@ test('dev exits unsuccessfully when its web target fails', (t) => {
 	const root = project(t)
 	write(root, 'package.json', JSON.stringify({ private: true, type: 'module' }))
 	write(root, 'vite.config.ts', 'export default {}')
-	write(root, 'bin/pnpm', `#!${process.execPath}\nconsole.error('AUDIT_TARGET_FAILED'); process.exit(42)\n`)
+	write(
+		root,
+		'bin/pnpm',
+		`#!${process.execPath}\nconsole.error('AUDIT_TARGET_FAILED'); process.exit(42)\n`,
+	)
 	// Match the executable fake-pnpm seam used by build.test.mjs.
 	chmodSync(join(root, 'bin/pnpm'), 0o755)
 	const result = run(root, ['dev', 'web'], { PATH: `${join(root, 'bin')}:${process.env.PATH}` })
@@ -70,17 +86,29 @@ test('dev preserves successful and signal exit statuses and closes each capture'
 
 test('dev retains a target failure when another target succeeds', (t) => {
 	const root = project(t)
-	write(root, 'package.json', JSON.stringify({
-		private: true, type: 'module', xplat: { targets: { linux: { runtime: 'gtk' } } },
-	}))
+	write(
+		root,
+		'package.json',
+		JSON.stringify({
+			private: true,
+			type: 'module',
+			xplat: { targets: { linux: { runtime: 'gtk' } } },
+		}),
+	)
 	write(root, 'vite.config.ts', 'export default {}')
 	// Both targets use a fake pnpm child; no GTK host or native runtime starts.
-	write(root, 'bin/pnpm', `#!${process.execPath}
+	write(
+		root,
+		'bin/pnpm',
+		`#!${process.execPath}
 console.log(process.argv.includes('vite') ? 'WEB_FAILED' : 'SECOND_TARGET_COMPLETE')
 setTimeout(() => process.exit(process.argv.includes('vite') ? 42 : 0), process.argv.includes('vite') ? 0 : 100)
-`)
+`,
+	)
 	chmodSync(join(root, 'bin/pnpm'), 0o755)
-	const result = run(root, ['dev', '--targets', 'web,linux'], { PATH: `${join(root, 'bin')}:${process.env.PATH}` })
+	const result = run(root, ['dev', '--targets', 'web,linux'], {
+		PATH: `${join(root, 'bin')}:${process.env.PATH}`,
+	})
 	assert.ifError(result.error)
 	assert.match(result.stdout, /WEB_FAILED/)
 	assert.match(result.stdout, /SECOND_TARGET_COMPLETE/)

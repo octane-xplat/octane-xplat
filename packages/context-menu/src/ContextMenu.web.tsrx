@@ -22,7 +22,10 @@ export function ContextMenu(props: ContextMenuProps) @{
 
 	const choose = (index: number) => {
 		const item = items[index]
-		if (!item || item.disabled) return
+		if (!item || item.disabled) {
+			return
+		}
+
 		setMenu(null)
 		props.onItemSelected?.(item.id)
 	}
@@ -31,7 +34,10 @@ export function ContextMenu(props: ContextMenuProps) @{
 	// stays reachable, then focus it so the keyboard contract works.
 	useLayoutEffect(() => {
 		const el = listRef.current
-		if (!menu || !el) return
+		if (!menu || !el) {
+			return
+		}
+
 		const x = Math.max(0, Math.min(menu.x, window.innerWidth - el.offsetWidth - 8))
 		const y = Math.max(0, Math.min(menu.y, window.innerHeight - el.offsetHeight - 8))
 		if (x !== menu.x || y !== menu.y) {
@@ -50,7 +56,10 @@ export function ContextMenu(props: ContextMenuProps) @{
 			return
 		}
 
-		if (!enabled.length) return
+		if (!enabled.length) {
+			return
+		}
+
 		const at = Math.max(0, enabled.indexOf(active))
 		if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
 			e.preventDefault?.()
@@ -71,7 +80,7 @@ export function ContextMenu(props: ContextMenuProps) @{
 	<span
 		id={props.id}
 		className={props.className}
-		style={{ display: 'inline-block', ...(props.style ?? {}) }}
+		style={{ display: 'inline-block', ...props.style }}
 		onContextMenu={props.activation === 'singlePress' ? undefined : openAt}
 		onClick={props.activation === 'singlePress' ? openAt : undefined}
 		aria-label={props.accessibilityLabel}
@@ -127,7 +136,10 @@ export function ContextMenu(props: ContextMenuProps) @{
 							{item.divider && (
 								<li
 									aria-hidden="true"
-									style={{ borderTop: '1px solid color-mix(in srgb, CanvasText 15%, transparent)', margin: '4px 0' }}
+									style={{
+										borderTop: '1px solid color-mix(in srgb, CanvasText 15%, transparent)',
+										margin: '4px 0',
+									}}
 								/>
 							)}
 							<li
@@ -153,5 +165,5 @@ export function ContextMenu(props: ContextMenuProps) @{
 				</ul>
 			</>
 		)}
-	</span>;
+	</span>
 }

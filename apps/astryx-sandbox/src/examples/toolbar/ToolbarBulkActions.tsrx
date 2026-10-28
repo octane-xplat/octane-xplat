@@ -15,7 +15,13 @@ const DATA = [
 
 export function ToolbarBulkActions() @{
 	const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set(['1', '3', '5']))
-	const toggle = (id: string) => setSelectedKeys((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n })
+	const toggle = (id: string) =>
+		setSelectedKeys((prev) => {
+			const n = new Set(prev)
+			n.has(id) ? n.delete(id) : n.add(id)
+			return n
+		})
+
 	<Stack direction="vertical">
 		{selectedKeys.size > 0 && (
 			<Toolbar
@@ -26,16 +32,38 @@ export function ToolbarBulkActions() @{
 				startContent={
 					<>
 						<Badge label={`${selectedKeys.size} selected`} />
-						<Button label="Delete" variant="ghost" icon={<Icon name="sandbox-trash" />} isIconOnly />
-						<Button label="Archive" variant="ghost" icon={<Icon name="sandbox-folder" />} isIconOnly />
+						<Button
+							label="Delete"
+							variant="ghost"
+							icon={<Icon name="sandbox-trash" />}
+							isIconOnly
+						/>
+						<Button
+							label="Archive"
+							variant="ghost"
+							icon={<Icon name="sandbox-folder" />}
+							isIconOnly
+						/>
 					</>
 				}
-				endContent={<Button label="Deselect all" variant="ghost" clickAction={() => setSelectedKeys(new Set())} />}
+				endContent={
+					<Button
+						label="Deselect all"
+						variant="ghost"
+						clickAction={() => setSelectedKeys(new Set())}
+					/>
+				}
 			/>
 		)}
 		<List hasDividers>
 			{DATA.map((row) => (
-				<ListItem key={row.id} label={`${row.name} — ${row.role}`} description={row.status} isSelected={selectedKeys.has(row.id)} onPress={() => toggle(row.id)} />
+				<ListItem
+					key={row.id}
+					label={`${row.name} — ${row.role}`}
+					description={row.status}
+					isSelected={selectedKeys.has(row.id)}
+					onPress={() => toggle(row.id)}
+				/>
 			))}
 		</List>
 	</Stack>

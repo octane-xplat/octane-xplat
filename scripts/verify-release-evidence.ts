@@ -34,6 +34,7 @@ import {
 	rmSync,
 	writeFileSync,
 } from 'node:fs'
+
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { RELEASE_TRACKS, verifyEvidence } from './release-channel.ts'
@@ -62,6 +63,7 @@ if (mode === 'record') {
 	if (track === 'stable') {
 		assert.ok(Number(nightlyRunId) > 0, '--nightly-run-id required for stable evidence')
 	}
+
 	const needs = JSON.parse(value('jobs') ?? '{}')
 	const jobs = Object.fromEntries(required.map((job) => [job, needs[job]?.result ?? 'absent']))
 
@@ -135,12 +137,14 @@ if (mode === 'verify') {
 				break
 			}
 		}
+
 		assert.ok(
 			evidenceRunId,
 			`no completed CI run for ${sha} carried release evidence — ` +
 				'publish only revisions CI tested',
 		)
 	}
+
 	assert.ok(!artifact.expired, 'CI release evidence has expired')
 	const run = JSON.parse(gh(`repos/${repo}/actions/runs/${evidenceRunId}`))
 	const { jobs } = JSON.parse(
@@ -184,11 +188,13 @@ if (mode === 'verify') {
 		jobs,
 		nightly,
 	})
+
 	rmSync(tmp, { recursive: true, force: true })
 	console.log(`release channel: ${channel} — CI run ${evidenceRunId} at ${sha}`)
 	for (const job of required) {
 		console.log(`  ${job}: ${evidence.jobs?.[job] ?? 'absent'}`)
 	}
+
 	if (channel === 'none') {
 		console.log(`${track} qualification did not pass for this revision — nothing to release`)
 	}

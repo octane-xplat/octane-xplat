@@ -21,7 +21,13 @@ function EndContent(props: ItemSlotProps) @{
 function ItemView(props: ItemProps) @{
 	<Pressable
 		id={props.id}
-		className={['vx-item', props.density === 'compact' && 'vx-item--compact', props.isSelected && 'vx-item--selected', props.isHighlighted && 'vx-item--highlighted', props.className]}
+		className={[
+			'vx-item',
+			props.density === 'compact' && 'vx-item--compact',
+			props.isSelected && 'vx-item--selected',
+			props.isHighlighted && 'vx-item--highlighted',
+			props.className,
+		]}
 		style={props.style}
 		onPress={props.onPress}
 		disabled={props.isDisabled}
@@ -34,7 +40,13 @@ function ItemView(props: ItemProps) @{
 		{props.label != null || props.description != null ? (
 			<Content>
 				{props.label != null ? <Text className="vx-item-title">{props.label}</Text> : null}
-				{props.description != null ? <Description className={props.descriptionLines != null ? 'vx-item-desc--clamp' : undefined}>{props.description}</Description> : null}
+				{props.description != null ? (
+					<Description
+						className={props.descriptionLines != null ? 'vx-item-desc--clamp' : undefined}
+					>
+						{props.description}
+					</Description>
+				) : null}
 			</Content>
 		) : null}
 		{props.children}

@@ -2,7 +2,6 @@ import type { ParityCheck } from './parity/check-helpers.ts'
 import { dims } from './parity/check-helpers.ts'
 
 export const CHECKS: ParityCheck[] = [
-
 	{
 		fixture: 'tabs-second-selected',
 		targets: ['web', 'ios', 'android', 'macos'],
@@ -22,5 +21,5 @@ export const CHECKS: ParityCheck[] = [
 			'content.box.h',
 		],
 		check: (m) => [dims(m('root'), 200, 104), dims(m('content'), 200, 48)],
-	}
+	},
 ]

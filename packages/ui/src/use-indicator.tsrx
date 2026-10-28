@@ -1,6 +1,6 @@
-import type { IndicatorComponent, IndicatorMap, IndicatorName } from './props';
-import { useStore } from './use-store';
-import { defaultIndicators, indicatorOverrides } from './indicators';
+import type { IndicatorComponent, IndicatorMap, IndicatorName } from './props'
+import { useStore } from './use-store'
+import { defaultIndicators, indicatorOverrides } from './indicators'
 
 /**
  * `useIndicator` — resolves an indicator by name (registered override →
@@ -17,5 +17,5 @@ export function useIndicator<N extends IndicatorName>(
 			(overrides[name] ?? defaultIndicators[name]) as
 				| IndicatorComponent<IndicatorMap[N]>
 				| undefined,
-	);
+	)
 }

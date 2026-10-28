@@ -21,6 +21,7 @@ import {
 	HeadingNode,
 	QuoteNode,
 } from '@lexical/rich-text'
+
 import {
 	$isListNode,
 	INSERT_CHECK_LIST_COMMAND,
@@ -37,6 +38,7 @@ import {
 	LinkNode,
 	TOGGLE_LINK_COMMAND,
 } from '@lexical/link'
+
 import { $createCodeNode, $isCodeNode, CodeNode } from '@lexical/code'
 import { $generateHtmlFromNodes, $generateNodesFromDOM } from '@lexical/html'
 import { $isHorizontalRuleNode, INSERT_HORIZONTAL_RULE_COMMAND } from '@lexical/extension'
@@ -124,6 +126,7 @@ export function applyFormat(editor: any, format: LexicalFormat): void {
 			() => $createHeadingNode(tag),
 			(n) => n.getTag() === tag,
 		)
+
 		return
 	}
 
@@ -135,6 +138,7 @@ export function applyFormat(editor: any, format: LexicalFormat): void {
 				() => $createParagraphNode(),
 				() => false,
 			)
+
 			break
 		case 'blockquote':
 			setBlock(editor, $isQuoteNode, () => $createQuoteNode())
@@ -201,6 +205,7 @@ export function isActive(editor: any, format: LexicalFormat): boolean {
 			case 'taskList': {
 				const want =
 					format === 'bulletList' ? 'bullet' : format === 'orderedList' ? 'number' : 'check'
+
 				return sel.getNodes().some((n: any) => {
 					const l = $findMatchingParent(n, $isListNode)
 					return l?.getListType() === want

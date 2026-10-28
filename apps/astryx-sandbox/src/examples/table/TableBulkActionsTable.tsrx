@@ -1,9 +1,15 @@
 // Port of upstream Table/TableBulkActionsTable.tsx (Astryx 0.6.4, MIT).
 import { useState } from 'octane'
 import {
-	Button, Table, TableSelectionToolbar, View, proportional,
-	useTableSelection, useTableSelectionState,
+	Button,
+	Table,
+	TableSelectionToolbar,
+	View,
+	proportional,
+	useTableSelection,
+	useTableSelectionState,
 } from '@octane-xplat/ui'
+
 import type { TableColumn } from '@octane-xplat/ui'
 
 interface User extends Record<string, unknown> {
@@ -36,6 +42,7 @@ export function TableBulkActionsTable() @{
 		selectedKeys,
 		setSelectedKeys,
 	})
+
 	const selectionPlugin = useTableSelection<User>(selectionConfig)
 
 	<View>

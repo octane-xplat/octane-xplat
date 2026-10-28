@@ -7,5 +7,5 @@ export function NativeContextMenuDemo() @{
 		<Text id="native-context-menu-status">
 			Native context menus are unsupported on the Windows host.
 		</Text>
-	</View>;
+	</View>
 }

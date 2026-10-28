@@ -692,7 +692,7 @@ const examples: Record<string, () => any> = {
 	ThemeNested,
 	ThemeShowcase,
 	ThemeSwitcher,
-	'useThemeHookUsage': UseThemeHookUsage,
+	useThemeHookUsage: UseThemeHookUsage,
 	DialogShowcase,
 	DialogConfirmationDialog,
 	DialogFormDialog,
@@ -923,7 +923,7 @@ const examples: Record<string, () => any> = {
 	TableTreeTable,
 	PaginationWithTable,
 	// Page templates (slug keys) — unit 6 flat-table pages.
-	'table': TableTemplate,
+	table: TableTemplate,
 	'table-page': TablePageTemplate,
 	AppShellContentOnly,
 	AppShellMobileHookUsage,
@@ -1296,7 +1296,7 @@ const examples: Record<string, () => any> = {
 	ChatSystemMessageShowcase,
 	ChatSystemMessageWithIcon,
 	ChatSystemMessageStatusUpdates,
-	'useStreamingTextHookUsage': UseStreamingTextHookUsage,
+	useStreamingTextHookUsage: UseStreamingTextHookUsage,
 }
 
 export const portedExamples = new Set(Object.keys(examples))

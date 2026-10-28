@@ -39,16 +39,23 @@ export function ColumnDrag(props: {
 		}
 
 		const start = drag.current
-		if (!start) return
+		if (!start) {
+			return
+		}
+
 		if (event.state === 'cancelled') {
-			if (resize)
+			if (resize) {
 				props.table.setColumnSizing((old: Record<string, number>) => {
 					const next = { ...old }
-					if (start.sizing[props.column.id] == null) delete next[props.column.id]
-					else next[props.column.id] = start.sizing[props.column.id]
+					if (start.sizing[props.column.id] == null) {
+						delete next[props.column.id]
+					} else {
+						next[props.column.id] = start.sizing[props.column.id]
+					}
 
 					return next
 				})
+			}
 
 			drag.current = null
 			return

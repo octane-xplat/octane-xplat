@@ -1,30 +1,34 @@
-import { useRef, useState } from 'octane';
-import type { ColorFieldProps } from './props';
-import { Text } from './Text';
-import { TextInput } from './TextInput';
-import { normalizeHex } from './color';
-import { useColorState } from './color-state';
+import { useRef, useState } from 'octane'
+import type { ColorFieldProps } from './props'
+import { Text } from './Text'
+import { TextInput } from './TextInput'
+import { normalizeHex } from './color'
+import { useColorState } from './color-state'
 
 /** Hex text field — keeps a draft while editing; commits on submit/blur:
  *  valid input fires onChange + onChangeEnd, invalid restores the value. */
 export function ColorField(props: ColorFieldProps) {
-	const color = useColorState(props);
-	const draft = useRef<string | null>(null);
-	const [, bump] = useState(0);
+	const color = useColorState(props)
+	const draft = useRef<string | null>(null)
+	const [, bump] = useState(0)
 
 	const commit = () => {
-		const text = draft.current;
-		draft.current = null;
-		const parsed = normalizeHex(text ?? '');
+		const text = draft.current
+		draft.current = null
+		const parsed = normalizeHex(text ?? '')
 		if (parsed) {
-			color.setHex(parsed);
-			color.end();
+			color.setHex(parsed)
+			color.end()
 		}
-		bump((n) => n + 1); // invalid input: drop the draft, restore current hex
-	};
+
+		bump((n) => n + 1) // invalid input: drop the draft, restore current hex
+	}
 
 	return (
-		<div className={['vx-color-field', props.className]} style={typeof props.style === 'object' && props.style !== null ? props.style : undefined}>
+		<div
+			className={['vx-color-field', props.className]}
+			style={typeof props.style === 'object' && props.style !== null ? props.style : undefined}
+		>
 			{props.label ? <Text className="vx-color-field-label">{props.label}</Text> : null}
 			<TextInput
 				id={props.id}
@@ -32,11 +36,14 @@ export function ColorField(props: ColorFieldProps) {
 				className="vx-color-field-input"
 				value={draft.current ?? color.hex}
 				isDisabled={props.isDisabled}
-				onChange={(v) => { draft.current = v; bump((n) => n + 1); }}
+				onChange={(v) => {
+					draft.current = v
+					bump((n) => n + 1)
+				}}
 				onSubmit={commit}
 				onBlur={commit}
 				accessibilityLabel={props.accessibilityLabel ?? 'color'}
 			/>
 		</div>
-	);
+	)
 }

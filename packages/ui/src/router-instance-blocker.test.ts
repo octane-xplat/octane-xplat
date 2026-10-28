@@ -67,16 +67,18 @@ function fixture() {
 		},
 	}
 	const catalog = defineRoutes([
-		defineRoute.withContext<{ account: string }>()({
-			path: '/items/:id',
-			beforeLoad({ params }) {
-				events.push('guard:' + params.id)
-			},
-			loader({ params, context }) {
-				events.push('load:' + params.id)
-				return { account: context.account }
-			},
-		}).screen(() => null),
+		defineRoute
+			.withContext<{ account: string }>()({
+				path: '/items/:id',
+				beforeLoad({ params }) {
+					events.push('guard:' + params.id)
+				},
+				loader({ params, context }) {
+					events.push('load:' + params.id)
+					return { account: context.account }
+				},
+			})
+			.screen(() => null),
 	])
 	const router = createRouter({
 		catalog,

@@ -34,6 +34,7 @@ try {
 							return { selector, available: node.clientWidth, actual: node.scrollWidth }
 						}),
 					)
+
 					for (const size of sizes) {
 						assert.ok(
 							size.actual <= size.available + 1,

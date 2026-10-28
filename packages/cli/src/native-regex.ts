@@ -33,6 +33,7 @@ function expandEscape(letter: string, body: string) {
 			ast: false,
 			plugins: REGEX_ESCAPE_PLUGINS(),
 		})
+
 		const src = String(res.code).trim().replace(/;+$/, '')
 		const negated = src.startsWith('/[^')
 		entry = { inner: src.slice(negated ? 3 : 2, src.lastIndexOf(']')), negated }
@@ -49,9 +50,13 @@ function inClass(source: string, offset: number) {
 	let open = false
 	for (let i = 0; i < offset; i++) {
 		const ch = source[i]
-		if (ch === '\\') i++
-		else if (ch === '[') open = true
-		else if (ch === ']') open = false
+		if (ch === '\\') {
+			i++
+		} else if (ch === '[') {
+			open = true
+		} else if (ch === ']') {
+			open = false
+		}
 	}
 	return open
 }
@@ -63,19 +68,29 @@ function inClass(source: string, offset: number) {
  *  inside a class, which cannot be expressed without set operations. */
 function expandTemplateEscapes(pattern: types.TemplateLiteral) {
 	const next = pattern.quasis.map(({ value: { cooked } }) => {
-		if (cooked == null || !HAS_PROPERTY_ESCAPE.test(cooked)) return null
+		if (cooked == null || !HAS_PROPERTY_ESCAPE.test(cooked)) {
+			return null
+		}
 		for (const m of cooked.matchAll(TEMPLATE_PROPERTY_ESCAPE)) {
-			if (m[1] === 'P' && inClass(cooked, m.index)) return undefined
+			if (m[1] === 'P' && inClass(cooked, m.index)) {
+				return undefined
+			}
 		}
 		return cooked.replace(TEMPLATE_PROPERTY_ESCAPE, (_m, letter, body, offset) => {
 			const exp = expandEscape(letter, body)
-			if (inClass(cooked, offset)) return exp.inner
+			if (inClass(cooked, offset)) {
+				return exp.inner
+			}
 			return exp.negated ? `[^${exp.inner}]` : `[${exp.inner}]`
 		})
 	})
-	if (next.includes(undefined)) return
+	if (next.includes(undefined)) {
+		return
+	}
 	next.forEach((cooked, i) => {
-		if (cooked == null) return
+		if (cooked == null) {
+			return
+		}
 		const raw = cooked.replace(/[\\`]|\$(?=\{)/g, '\\$&')
 		pattern.quasis[i].value = { raw, cooked }
 	})
@@ -107,10 +122,7 @@ export function transformNativeRegex(code: string, filename = 'xplat-native.ts')
 						if (!types.isStringLiteral(flags) || !/[uv]/.test(flags.value)) {
 							return
 						}
-						if (
-							types.isStringLiteral(pattern) &&
-							HAS_PROPERTY_ESCAPE.test(pattern.value)
-						) {
+						if (types.isStringLiteral(pattern) && HAS_PROPERTY_ESCAPE.test(pattern.value)) {
 							path.replaceWith(types.regExpLiteral(pattern.value, flags.value))
 							return
 						}

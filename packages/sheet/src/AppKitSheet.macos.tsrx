@@ -1,13 +1,17 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { useEffect, useRef } from 'octane'
 import { useState } from 'octane'
-import { createPortal as createUniversalPortal, type UniversalRenderable } from 'octane/universal/native'
+import {
+	createPortal as createUniversalPortal,
+	type UniversalRenderable,
+} from 'octane/universal/native'
+
 import type { AppKitSheetProps } from './macos/types'
 
 const host = (): any => (globalThis as any).__xplatAppKit ?? {}
 
 function ContentRoot(props: { render?: () => any }) @{
-	<>{props.render?.()}</>;
+	<>{props.render?.()}</>
 }
 
 function createPortal(children: unknown, target: unknown) {
@@ -33,7 +37,10 @@ export function AppKitSheet(props: AppKitSheetProps) @{
 
 		const view = anchor.current
 		const present = host().presentSheet
-		if (!view || typeof present !== 'function') return
+		if (!view || typeof present !== 'function') {
+			return
+		}
+
 		let entry: any = null
 		entry = present(view, {
 			onDismissed: () => {
@@ -41,10 +48,15 @@ export function AppKitSheet(props: AppKitSheetProps) @{
 					presented.current = null
 					setPortalTarget(null)
 				}
+
 				props.onDismissed?.()
 			},
 		})
-		if (!entry) return
+
+		if (!entry) {
+			return
+		}
+
 		presented.current = entry
 		setPortalTarget(entry.target)
 
@@ -52,6 +64,7 @@ export function AppKitSheet(props: AppKitSheetProps) @{
 			if (presented.current === entry) {
 				presented.current = null
 			}
+
 			entry?.close()
 		}
 	}, [props.open])
@@ -59,7 +72,10 @@ export function AppKitSheet(props: AppKitSheetProps) @{
 	// Wait until the portal has attached its children before measuring and showing
 	// the native window so fitting-size presentation includes the current content.
 	useEffect(() => {
-		if (!portalTarget) return
+		if (!portalTarget) {
+			return
+		}
+
 		const entry = presented.current
 		if (entry?.target === portalTarget && !entry.present()) {
 			presented.current = null
@@ -68,9 +84,15 @@ export function AppKitSheet(props: AppKitSheetProps) @{
 	}, [portalTarget])
 
 	<>
-		<masonview ref={(v: any) => { anchor.current = v }} id={props.id} style={{display: "flex"}}/>
+		<masonview
+			ref={(v: any) => {
+				anchor.current = v
+			}}
+			id={props.id}
+			style={{ display: 'flex' }}
+		/>
 		{props.open && portalTarget && props.content
 			? createPortal(<ContentRoot render={props.content} />, portalTarget)
 			: null}
-	</>;
+	</>
 }

@@ -56,11 +56,21 @@ function mount(props: any = {}) {
 		)
 
 	render(props)
-	return { el, root, render, get handle() { return handle } }
+	return {
+		el,
+		root,
+		render,
+		get handle() {
+			return handle
+		},
+	}
 }
 
 afterEach(() => {
-	for (const root of roots.splice(0)) act(() => root.unmount())
+	for (const root of roots.splice(0)) {
+		act(() => root.unmount())
+	}
+
 	document.body.innerHTML = ''
 	vi.restoreAllMocks()
 })
@@ -136,7 +146,6 @@ it('can replace the default custom-node registry', () => {
 	expect((handle!.native as any).getRegisteredNode(BadgeNode)).toBeTruthy()
 	expect(handle!.getJSON()!.root).toBeTruthy()
 })
-
 
 it('rejects apply(link) without changing content or focus', () => {
 	const { handle } = mount({ value: '<p>Unchanged</p>' })

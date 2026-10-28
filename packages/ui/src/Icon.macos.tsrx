@@ -11,9 +11,16 @@ export function Icon(props: IconProps) @{
 	const inheritedRegistry = useIconRegistry()
 	const glyph = getIcon(props.name, props.registry ?? inheritedRegistry)
 	const markup = glyph && glyphSvgMarkup(glyph, props.color ?? '#000000')
-	if (markup) return <Image src={markup} id={props.id} className={cx(props.className)}
-		alt={props.accessibilityLabel ?? ''}
-		style={{ width: size, height: size }} />
+	if (markup)
+		return (
+			<Image
+				src={markup}
+				id={props.id}
+				className={cx(props.className)}
+				alt={props.accessibilityLabel ?? ''}
+				style={{ width: size, height: size }}
+			/>
+		)
 
 	<label
 		id={props.id}

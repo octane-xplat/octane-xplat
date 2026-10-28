@@ -1,5 +1,5 @@
-import type { CodeProps } from './props';
-import { applyEscapeProps } from './escape-props';
+import type { CodeProps } from './props'
+import { applyEscapeProps } from './escape-props'
 
 /** Code — inline monospace run. `size="inherit"` drops the fixed font-size so
  *  the run adopts its surrounding text metrics; `color` picks the primary,

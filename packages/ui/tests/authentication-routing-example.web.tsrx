@@ -141,8 +141,16 @@ export async function createAuthenticationExample(
 			setState({ version: authority, returnTo })
 		}
 
-		return <ClientRouteOutlet host={platform} authority={state.version} resumeUrl={state.returnTo}
-			onResume={result => returned.push(result.status)}><p id="owner-base">New owner</p></ClientRouteOutlet>
+		return (
+			<ClientRouteOutlet
+				host={platform}
+				authority={state.version}
+				resumeUrl={state.returnTo}
+				onResume={(result) => returned.push(result.status)}
+			>
+				<p id="owner-base">New owner</p>
+			</ClientRouteOutlet>
+		)
 	}
 
 	const container = document.createElement('div')

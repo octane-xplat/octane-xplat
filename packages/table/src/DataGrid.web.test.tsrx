@@ -82,7 +82,10 @@ const pan = (id: string, type: string, x: number) =>
 const names = () => [...document.querySelectorAll('[id^="grid-row-"]')].map((el) => el.textContent)
 
 afterEach(() => {
-	for (const root of roots.splice(0)) act(() => root.unmount())
+	for (const root of roots.splice(0)) {
+		act(() => root.unmount())
+	}
+
 	document.body.innerHTML = ''
 })
 
@@ -184,10 +187,14 @@ describe('DataGrid controls', () => {
 	})
 })
 
-
 describe('DataGrid selection and row accessibility', () => {
 	it('announces mixed page selection, supports Space, and disables an empty filtered page', () => {
-		mount({ showRowSelection: true, showGlobalFilter: true, getRowLabel: (row: any) => row.original.name })
+		mount({
+			showRowSelection: true,
+			showGlobalFilter: true,
+			getRowLabel: (row: any) => row.original.name,
+		})
+
 		const page = () => document.getElementById('grid-select-page')!
 		const alice = document.getElementById('grid-select-a')!
 		expect(alice.getAttribute('aria-label')).toBe('Select Alice')
@@ -205,8 +212,15 @@ describe('DataGrid selection and row accessibility', () => {
 	})
 
 	it('uses sorted filtered ordinals with a page offset and excludes controls from the table', () => {
-		mount({ showRowSelection: true, showPagination: true, showGlobalFilter: true,
-			initialState: { pagination: { pageIndex: 1, pageSize: 1 }, sorting: [{ id: 'name', desc: true }] } })
+		mount({
+			showRowSelection: true,
+			showPagination: true,
+			showGlobalFilter: true,
+			initialState: {
+				pagination: { pageIndex: 1, pageSize: 1 },
+				sorting: [{ id: 'name', desc: true }],
+			},
+		})
 
 		const table = document.getElementById('grid-table')!
 		expect(table.getAttribute('role')).toBe('table')
@@ -230,14 +244,31 @@ describe('DataGrid selection and row accessibility', () => {
 		function Owner() {
 			const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({ absent: true })
 			const [rows, setRows] = useState(data)
-			return <>
-				<button id="replace" onClick={() => setRows([...data].reverse())}>Replace</button>
-				<DataGrid id="grid" data={rows} columns={columns} getRowId={(row) => row.id}
-					showRowSelection showGlobalFilter showPagination
-					initialState={{ pagination: { pageIndex: 0, pageSize: 2 } }}
-					state={{ rowSelection }} options={{ enableRowSelection: (row) => row.id !== 'b',
-						onRowSelectionChange: (updater) => { changes(updater); setRowSelection(updater) } }} />
-			</>
+			return (
+				<>
+					<button id="replace" onClick={() => setRows([...data].reverse())}>
+						Replace
+					</button>
+					<DataGrid
+						id="grid"
+						data={rows}
+						columns={columns}
+						getRowId={(row) => row.id}
+						showRowSelection
+						showGlobalFilter
+						showPagination
+						initialState={{ pagination: { pageIndex: 0, pageSize: 2 } }}
+						state={{ rowSelection }}
+						options={{
+							enableRowSelection: (row) => row.id !== 'b',
+							onRowSelectionChange: (updater) => {
+								changes(updater)
+								setRowSelection(updater)
+							},
+						}}
+					/>
+				</>
+			)
 		}
 
 		act(() => root.render(<Owner />))
@@ -260,23 +291,32 @@ describe('DataGrid selection and row accessibility', () => {
 
 	it('keeps a controlled snapshot read-only until its owner publishes the updater', () => {
 		const changed = vi.fn()
-		mount({ showRowSelection: true, state: { rowSelection: {} }, options: { onRowSelectionChange: changed } })
+		mount({
+			showRowSelection: true,
+			state: { rowSelection: {} },
+			options: { onRowSelectionChange: changed },
+		})
+
 		click('grid-select-a')
 		expect(changed.mock.calls[0][0]({})).toEqual({ a: true })
 		expect(document.getElementById('grid-select-a')!.getAttribute('aria-checked')).toBe('false')
 	})
 
 	it('renders every row without pagination controls or state', () => {
-		mount({ data: Array.from({ length: 15 }, (_, i) => ({ id: `r${i}`, name: `Row ${i}`, count: i })) })
+		mount({
+			data: Array.from({ length: 15 }, (_, i) => ({ id: `r${i}`, name: `Row ${i}`, count: i })),
+		})
 
 		expect(names()).toHaveLength(15)
 	})
 
 	it('pins the primitive renderValue contract — strings and numbers draw as text', () => {
-		mount({ columns: [
-			{ accessorKey: 'name', header: 'Name' },
-			{ accessorKey: 'count', header: 'Count' },
-		] })
+		mount({
+			columns: [
+				{ accessorKey: 'name', header: 'Name' },
+				{ accessorKey: 'count', header: 'Count' },
+			],
+		})
 
 		expect(names()[0]).toContain('Alice')
 		expect(names()[0]).toContain('1')
@@ -303,12 +343,23 @@ describe('DataGrid selection and row accessibility', () => {
 		expect(cells[2]).toBe(new Date(0).toString())
 	})
 
-	it.each([[-1, undefined], [101, 100]])('describes manual server pages with total %s', (expected, rowCount) => {
-		mount({ showRowSelection: true, state: { pagination: { pageIndex: 3, pageSize: 10 } },
-			options: { manualPagination: true, rowCount, pageCount: -1 } })
+	it.each([
+		[-1, undefined],
+		[101, 100],
+	])('describes manual server pages with total %s', (expected, rowCount) => {
+		mount({
+			showRowSelection: true,
+			state: { pagination: { pageIndex: 3, pageSize: 10 } },
+			options: { manualPagination: true, rowCount, pageCount: -1 },
+		})
 
-		expect(document.getElementById('grid-table')!.getAttribute('aria-rowcount')).toBe(String(expected))
+		expect(document.getElementById('grid-table')!.getAttribute('aria-rowcount')).toBe(
+			String(expected),
+		)
+
 		expect(document.getElementById('grid-row-a')!.getAttribute('aria-rowindex')).toBe('32')
-		expect(document.getElementById('grid-select-a')!.getAttribute('aria-description')).toBe(rowCount == null ? 'Row 31' : 'Row 31 of 100')
+		expect(document.getElementById('grid-select-a')!.getAttribute('aria-description')).toBe(
+			rowCount == null ? 'Row 31' : 'Row 31 of 100',
+		)
 	})
 })

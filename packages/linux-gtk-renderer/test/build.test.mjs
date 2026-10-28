@@ -118,6 +118,7 @@ test('the proxy ordering fixture builds and exercises real GTK when available', 
 		if (error.code !== 'ENOENT') {
 			throw error
 		}
+
 		t.diagnostic('Build evidence only: gjs is unavailable; native proxy ordering was not exercised')
 		return
 	}
@@ -126,10 +127,13 @@ test('the proxy ordering fixture builds and exercises real GTK when available', 
 	if (process.platform === 'darwin') {
 		const prefix = execFileSync('brew', ['--prefix'], { encoding: 'utf8' }).trim()
 		env.DYLD_FALLBACK_LIBRARY_PATH = [join(prefix, 'lib'), env.DYLD_FALLBACK_LIBRARY_PATH]
-			.filter(Boolean).join(':')
+			.filter(Boolean)
+			.join(':')
 	}
 	const output = execFileSync('gjs', ['-m', bundle], {
-		env, encoding: 'utf8', timeout: 15000,
+		env,
+		encoding: 'utf8',
+		timeout: 15000,
 	})
 	const marker = output.split('\n').find((line) => line.startsWith('GTK_PROXY_ORDER '))
 	assert.ok(marker, `native fixture result missing: ${output}`)

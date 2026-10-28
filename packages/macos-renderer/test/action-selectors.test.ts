@@ -9,12 +9,21 @@ import { sourceWithoutImports } from './mock-globals.ts'
 const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
 
 const context = {
-		elementBehaviors: new Map(),
-		behaviorOf: () => undefined,
-		isManualLayoutParent: (t: string) =>
-			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
-		registerElementType: () => {},
-		
+	elementBehaviors: new Map(),
+	behaviorOf: () => undefined,
+	isManualLayoutParent: (t: string) =>
+		[
+			'gridlayout',
+			'liquidglass',
+			'absolutelayout',
+			'contentview',
+			'actionbar',
+			'docklayout',
+			'wraplayout',
+			'rootlayout',
+		].includes(t),
+	registerElementType: () => {},
+
 	NSObject: class {},
 	NSButton: class {},
 	NSMenuItem: class {},

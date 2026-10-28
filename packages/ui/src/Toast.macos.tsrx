@@ -15,13 +15,19 @@ export function Toast(props: ToastProps) @{
 	const view = useRef<any>(null)
 	const dismissed = useRef(false)
 	const dismiss = useCallback((reason: 'auto' | 'manual') => {
-		if (dismissed.current) return
+		if (dismissed.current) {
+			return
+		}
+
 		dismissed.current = true
 		onDismiss.current?.(reason)
 	}, [])
 
 	useEffect(() => {
-		if (!timing.isAutoHide || props.isExiting) return
+		if (!timing.isAutoHide || props.isExiting) {
+			return
+		}
+
 		let remaining = timing.autoHideDuration
 		let last = Date.now()
 		let hovered = false
@@ -30,7 +36,9 @@ export function Toast(props: ToastProps) @{
 			const responder = view.current?.window?.firstResponder
 			for (const start of [responder, responder?.delegate]) {
 				for (let current = start; current; current = current.superview) {
-					if (current === view.current || current.isEqual?.(view.current)) return true
+					if (current === view.current || current.isEqual?.(view.current)) {
+						return true
+					}
 				}
 			}
 
@@ -40,33 +48,75 @@ export function Toast(props: ToastProps) @{
 		let paused = false
 		const tick = () => {
 			const now = Date.now()
-			if (!paused) remaining -= now - last
+			if (!paused) {
+				remaining -= now - last
+			}
+
 			last = now
 			paused = hovered || focused()
-			if (remaining <= 0 && !paused) { dismiss('auto'); return }
+			if (remaining <= 0 && !paused) {
+				dismiss('auto')
+				return
+			}
+
 			timer = setTimeout(tick, paused ? 100 : Math.min(100, Math.max(0, remaining)))
 		}
 
 		const detach = appKitHost()?.observeHover?.(view.current, {
-			enter: () => { hovered = true }, exit: () => { hovered = false },
+			enter: () => {
+				hovered = true
+			},
+			exit: () => {
+				hovered = false
+			},
 		})
 
 		timer = setTimeout(tick, Math.min(100, remaining))
-		return () => { clearTimeout(timer); detach?.() }
+		return () => {
+			clearTimeout(timer)
+			detach?.()
+		}
 	}, [timing.isAutoHide, timing.autoHideDuration, props.isExiting, dismiss])
 
 	const content: ToastContentRenderProps = {
-		body: props.body, endContent: props.endContent, type: props.type ?? 'info', ...timing,
+		body: props.body,
+		endContent: props.endContent,
+		type: props.type ?? 'info',
+		...timing,
 		dismiss: () => dismiss('manual'),
 	}
 
-	<masonview id={props.id} ref={view} className={cx('vx-toast', props.type === 'error' && 'vx-toast--error', props.className)} style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, { opacity: props.isExiting ? 0 : 1, ...styleRecord(props.style) }))}>
-		{props.renderContent ? props.renderContent(content) : (
-			<masonview className="vx-toast-content" style={mergeStyle({flexDirection: "column", flexGrow: 1}, {display: "flex"})}>
-				{typeof props.body === 'string' ? <label whiteSpace="normal">{props.body}</label> : props.body}
+	<masonview
+		id={props.id}
+		ref={view}
+		className={cx('vx-toast', props.type === 'error' && 'vx-toast--error', props.className)}
+		style={mergeStyle(
+			{ flexDirection: 'row', alignItems: 'center' },
+			mergeStyle(
+				{ display: 'flex' },
+				{ opacity: props.isExiting ? 0 : 1, ...styleRecord(props.style) },
+			),
+		)}
+	>
+		{props.renderContent ? (
+			props.renderContent(content)
+		) : (
+			<masonview
+				className="vx-toast-content"
+				style={mergeStyle({ flexDirection: 'column', flexGrow: 1 }, { display: 'flex' })}
+			>
+				{typeof props.body === 'string' ? (
+					<label whiteSpace="normal">{props.body}</label>
+				) : (
+					props.body
+				)}
 				{props.endContent}
 			</masonview>
 		)}
-		{props.onDismiss != null && <Button accessibilityLabel="Dismiss notification" clickAction={() => dismiss('manual')}>×</Button>}
+		{props.onDismiss != null && (
+			<Button accessibilityLabel="Dismiss notification" clickAction={() => dismiss('manual')}>
+				×
+			</Button>
+		)}
 	</masonview>
 }

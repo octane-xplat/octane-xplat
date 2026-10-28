@@ -4,5 +4,6 @@ import { useState } from 'octane'
 
 export function ToggleButtonLabel() @{
 	const [showDetails, setShowDetails] = useState(true)
+
 	<ToggleButton label="Show details" isPressed={showDetails} onPressedChange={setShowDetails} />
 }

@@ -1,9 +1,9 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { mergeStyle } from './style-merge'
-import type { ChatLayoutScrollButtonProps } from './props';
-import { cx } from '@octane-xplat/lib';
-import { Icon } from './Icon';
-import { Pressable } from './Pressable';
+import type { ChatLayoutScrollButtonProps } from './props'
+import { cx } from '@octane-xplat/lib'
+import { Icon } from './Icon'
+import { Pressable } from './Pressable'
 
 /** Floating scroll-to-bottom pill for ChatLayout. Native keeps the same
  *  anatomy (centered pill above the composer, optional expanding label);
@@ -11,12 +11,19 @@ import { Pressable } from './Pressable';
  *  visibility without animation. */
 export function ChatLayoutScrollButton(props: ChatLayoutScrollButtonProps) @{
 	if (!props.isVisible) {
-		return null;
+		return null
 	}
 
-	<masonview id={props.id} className={cx('vx-chatscroll-wrap', props.className)} style={mergeStyle({display: "flex"}, props.style)}>
+	<masonview
+		id={props.id}
+		className={cx('vx-chatscroll-wrap', props.className)}
+		style={mergeStyle({ display: 'flex' }, props.style)}
+	>
 		<Pressable
-			className={cx('vx-chatscroll', props.label ? 'vx-chatscroll--expanded' : 'vx-chatscroll--collapsed')}
+			className={cx(
+				'vx-chatscroll',
+				props.label ? 'vx-chatscroll--expanded' : 'vx-chatscroll--collapsed',
+			)}
 			accessibilityRole="button"
 			accessibilityLabel={props.label ?? 'Scroll to bottom'}
 			onPress={props.onPress}

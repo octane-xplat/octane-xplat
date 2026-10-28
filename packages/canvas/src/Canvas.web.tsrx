@@ -1,28 +1,26 @@
-import { useMemo, useRef } from 'octane';
-import type { CanvasProps } from './props';
+import { useMemo, useRef } from 'octane'
+import type { CanvasProps } from './props'
 
 /** Canvas — a plain <canvas>. `onReady` fires at mount with the element
  *  and the resolved context. */
 export function Canvas(props: CanvasProps) @{
 	// Keep the element callback referentially stable — a fresh closure each
 	// render makes the web renderer detach/reattach it, refiring onReady.
-	const propsRef = useRef(props);
-	propsRef.current = props;
+	const propsRef = useRef(props)
+	propsRef.current = props
 	const canvasRef = useMemo(
 		() => (el: HTMLCanvasElement | null) => {
 			if (!el) {
-				return;
+				return
 			}
 
 			propsRef.current.onReady?.({
 				canvas: el,
-				context: propsRef.current.context
-					? el.getContext(propsRef.current.context)
-					: null,
-			});
+				context: propsRef.current.context ? el.getContext(propsRef.current.context) : null,
+			})
 		},
 		[],
-	);
+	)
 
 	<canvas
 		id={props.id}

@@ -21,6 +21,7 @@ import {
 	releaseMasonNodes,
 	MASON_STYLE_KEYS,
 } from './mason.js'
+
 import {
 	computeCascade,
 	INHERITED_CSS_PROPERTIES,
@@ -34,6 +35,7 @@ import {
 	type KeyframeAnimationInfo,
 	type SampledValues,
 } from '@octane-xplat/css-engine'
+
 import { CSS_PROPS, gtkStyleCss } from './style-css.js'
 import { resolveTransform } from './transform-style.js'
 import { createUniversalRoot } from 'octane/universal/native'
@@ -368,13 +370,16 @@ function syncCss(node: ElementNode, style: PropBag | null | undefined) {
 			for (const target of node.cssProviderTargets ?? [view]) {
 				target.get_style_context().remove_provider(node.cssProvider)
 			}
+
 			node.cssProvider = null
 			node.cssProviderTargets = undefined
 		}
+
 		if (node.cssClass !== null) {
 			view.remove_css_class(node.cssClass)
 			node.cssClass = null
 		}
+
 		return
 	}
 
@@ -396,17 +401,20 @@ function syncCss(node: ElementNode, style: PropBag | null | undefined) {
 		} catch {
 			// Older GTK revisions lack the signal — load errors stay silent.
 		}
+
 		const targets = [view]
 		if (CONTROL_SUBNODE_TYPES.has(node.type)) {
 			for (const child of internalDescendants(view)) {
 				targets.push(child)
 			}
 		}
+
 		for (const target of targets) {
 			target
 				.get_style_context()
 				.add_provider(node.cssProvider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 		}
+
 		node.cssProviderTargets = targets
 	}
 	node.cssProvider?.load_from_string(css)
@@ -462,14 +470,17 @@ function styleBag(value: unknown): PropBag | null {
 			if (colon === -1) {
 				continue
 			}
+
 			const key = decl.slice(0, colon).trim()
 			const val = decl.slice(colon + 1).trim()
 			if (!key || !val) {
 				continue
 			}
+
 			// kebab-case CSS → camelCase prop name
 			bag[key.replace(/-([a-z])/g, (_m, c: string) => c.toUpperCase())] = val
 		}
+
 		return bag
 	}
 	return value && typeof value === 'object' ? (value as PropBag) : null
@@ -523,6 +534,7 @@ function cssSchemeName(): string {
 				if (scheme === (Gtk as any).InterfaceColorScheme.DARK) {
 					return 'dark'
 				}
+
 				if (scheme === (Gtk as any).InterfaceColorScheme.LIGHT) {
 					return 'light'
 				}
@@ -530,10 +542,12 @@ function cssSchemeName(): string {
 		} catch {
 			// gtk-interface-color-scheme absent on GTK < 4.20.
 		}
+
 		try {
 			if (settings.gtk_application_prefer_dark_theme === true) {
 				return 'dark'
 			}
+
 			if (/-dark$/i.test(String(settings.gtk_theme_name ?? ''))) {
 				return 'dark'
 			}
@@ -584,6 +598,7 @@ function flushStyleDirty(container: GtkContainer) {
 		if (!container.nodes.has(node.id)) {
 			continue
 		}
+
 		restyleNode(node)
 	}
 	// No explicit layout pass — GTK coalesces queue_resize on its own.
@@ -633,7 +648,8 @@ function restyleNode(node: ElementNode) {
 	// NS updateDynamicState: stop the node's keyframe animations (dropping
 	// the keyframe layer), apply the new values, then play what now matches.
 	const playable = animations.filter((info) => info.keyframes?.length)
-	const replay = node.cssMatchDirty === true || !sameAnimations(node.cssAnimation?.infos ?? [], playable)
+	const replay =
+		node.cssMatchDirty === true || !sameAnimations(node.cssAnimation?.infos ?? [], playable)
 	node.cssMatchDirty = false
 	const droppedOverlay = replay && cancelKeyframeAnimations(node)
 
@@ -689,7 +705,8 @@ function animationBase(node: ElementNode): Partial<SampledValues> {
 	const height = typeof style.height === 'number' ? style.height : (view?.get_height() ?? 0)
 	return {
 		opacity: Number.isFinite(opacity) ? opacity : 1,
-		backgroundColor: typeof style.backgroundColor === 'string' ? style.backgroundColor : 'rgba(0,0,0,0)',
+		backgroundColor:
+			typeof style.backgroundColor === 'string' ? style.backgroundColor : 'rgba(0,0,0,0)',
 		translateX: parts?.translateX ?? 0,
 		translateY: parts?.translateY ?? 0,
 		scaleX: parts?.scaleX ?? 1,
@@ -715,7 +732,11 @@ function playKeyframeAnimations(node: ElementNode, infos: KeyframeAnimationInfo[
 	// Segment 0 lands synchronously, like NS `animate(view, 0)` at play.
 	if (advanceKeyframeAnimation(node, node.cssAnimation.startMs)) {
 		playingNodes.add(node)
-		animationTimer ??= GLib.timeout_add(GLib.PRIORITY_DEFAULT, ANIMATION_FRAME_MS, tickKeyframeAnimations)
+		animationTimer ??= GLib.timeout_add(
+			GLib.PRIORITY_DEFAULT,
+			ANIMATION_FRAME_MS,
+			tickKeyframeAnimations,
+		)
 	}
 }
 
@@ -762,7 +783,9 @@ function advanceKeyframeAnimation(node: ElementNode, now: number): boolean {
  *  allocation, which re-applies the child Gsk.Transform. */
 function applyAnimationFrame(node: ElementNode, view: GtkView, prev: PropBag | undefined) {
 	const overlay = node.animatedStyle ?? {}
-	const sized = ['width', 'height'].some((key) => key in overlay || (prev !== undefined && key in prev))
+	const sized = ['width', 'height'].some(
+		(key) => key in overlay || (prev !== undefined && key in prev),
+	)
 	if (sized || !node.appliedStyle) {
 		applyStyle(node, node.computedStyle ?? {})
 		return
@@ -867,17 +890,17 @@ function warnUnsupportedCssProps(node: ElementNode, style: PropBag) {
 		if (style[name] == null || SUPPORTED_STYLE_KEYS.has(name)) {
 			continue
 		}
+
 		// Inherited values, and inheritable properties a stylesheet declares
 		// on a container for its descendants, are not unsupported here.
 		if (
 			node.inheritedOnlyKeys?.has(name) ||
 			(node.cssOriginKeys?.has(name) &&
-				INHERITED_CSS_PROPERTIES.has(
-					name.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase()),
-				))
+				INHERITED_CSS_PROPERTIES.has(name.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase())))
 		) {
 			continue
 		}
+
 		// Only CSS-origin keys warn — inline-only unsupported keys stay
 		// silent (unchanged pre-cascade behavior).
 		if (node.cssOriginKeys?.has(name)) {
@@ -933,9 +956,11 @@ function envSize(): { width: number; height: number } {
 			w = w || (root?.default_width ?? 0)
 			h = h || (root?.default_height ?? 0)
 		}
+
 		if (w > width) {
 			width = w
 		}
+
 		if (h > height) {
 			height = h
 		}
@@ -1012,14 +1037,7 @@ const STATE_VISUAL: [number, string][] = [
 // visual states only (view-common.js): highlighted/active/pressed, focus,
 // checked, disabled. The desktop extras (hover, focus-visible,
 // focus-within) do NOT cancel :normal.
-const NORMAL_OFF = new Set([
-	'highlighted',
-	'active',
-	'pressed',
-	'focus',
-	'checked',
-	'disabled',
-])
+const NORMAL_OFF = new Set(['highlighted', 'active', 'pressed', 'focus', 'checked', 'disabled'])
 
 /** Recompute pseudo-classes from the widget's state flags (+switch active).
  *  Called from state-flags-changed, notify::active and once at mount. */
@@ -1051,11 +1069,7 @@ function syncPseudoState(node: ElementNode) {
 	if (view instanceof Gtk.Switch) {
 		setPseudoClass(node, 'checked', view.active === true)
 	}
-	setPseudoClass(
-		node,
-		'normal',
-		![...NORMAL_OFF].some((name) => node.cssPseudoClasses.has(name)),
-	)
+	setPseudoClass(node, 'normal', ![...NORMAL_OFF].some((name) => node.cssPseudoClasses.has(name)))
 }
 
 /** Connect state tracking once per view-bearing node; ids ride on the node
@@ -1104,7 +1118,11 @@ function syncTextAlign(node: ElementNode, view: GtkView, style: PropBag) {
 		return
 	}
 	const justifyFor = (x: number) =>
-		x === 0.5 ? Gtk.Justification.CENTER : x === 1 ? Gtk.Justification.RIGHT : Gtk.Justification.LEFT
+		x === 0.5
+			? Gtk.Justification.CENTER
+			: x === 1
+				? Gtk.Justification.RIGHT
+				: Gtk.Justification.LEFT
 	const ta = style?.textAlign
 	if (ta != null) {
 		const x = ta === 'center' ? 0.5 : ta === 'right' || ta === 'end' ? 1 : 0
@@ -1112,6 +1130,7 @@ function syncTextAlign(node: ElementNode, view: GtkView, style: PropBag) {
 		if (node.type === 'label') {
 			view.justify = justifyFor(x)
 		}
+
 		node.styleTextAlign = true
 		return
 	}
@@ -1126,6 +1145,7 @@ function syncTextAlign(node: ElementNode, view: GtkView, style: PropBag) {
 					: pv === 'right' || pv === 'end'
 						? 1
 						: 0
+
 		view.xalign = x
 		if (node.type === 'label') {
 			view.justify = justifyFor(x)
@@ -1159,6 +1179,7 @@ function restyleAllContainers() {
 		for (const child of container.children) {
 			markStyleDirty(child, true)
 		}
+
 		flushStyleDirty(container)
 	}
 }
@@ -1219,6 +1240,7 @@ function wireContainerWindow(container: GtkContainer) {
 				// no root property — never wired
 			}
 		}
+
 		return
 	}
 	const ids: number[] = []
@@ -1319,6 +1341,7 @@ function applyStyleExtras(node: ElementNode, view: GtkView, style: PropBag | nul
 		if (source.flexDirection != null) {
 			setOrientation(node, view, source.flexDirection)
 		}
+
 		const spacing = source.gap ?? source.rowGap ?? source.columnGap
 		if (spacing != null) {
 			view.spacing = Number(spacing) || 0
@@ -1386,6 +1409,7 @@ function applyStyleViewProps(node: ElementNode, view: GtkView, style: PropBag) {
 				: source.direction === 'ltr'
 					? Gtk.TextDirection.LTR
 					: Gtk.TextDirection.NONE
+
 		view.set_direction(d)
 		node.styleDirection = true
 	} else if (node.styleDirection) {
@@ -1410,6 +1434,7 @@ function applyStyleViewProps(node: ElementNode, view: GtkView, style: PropBag) {
 			node.props.visible !== false &&
 				(node.props.visibility == null || node.props.visibility === 'visible'),
 		)
+
 		view.set_child_visible(true)
 	}
 
@@ -1425,6 +1450,7 @@ function applyStyleViewProps(node: ElementNode, view: GtkView, style: PropBag) {
 			const pv = node.props.whiteSpace ?? node.props.textWrap
 			labelView.wrap = pv === true || pv === 'normal' || pv === 'wrap'
 		}
+
 		if (source.textOverflow != null) {
 			// Pango.EllipsizeMode.END = 3
 			labelView.ellipsize = source.textOverflow === 'ellipsis' ? 3 : 0
@@ -1433,6 +1459,7 @@ function applyStyleViewProps(node: ElementNode, view: GtkView, style: PropBag) {
 			node.styleTextOverflow = false
 			labelView.ellipsize = node.props.textOverflow === 'ellipsis' ? 3 : 0
 		}
+
 		if (source.maxLines != null) {
 			labelView.lines = Number(source.maxLines)
 			node.styleMaxLines = true
@@ -1455,6 +1482,7 @@ function applyStyleViewProps(node: ElementNode, view: GtkView, style: PropBag) {
 				view.set_halign(halign)
 				node.styleHAlign = true
 			}
+
 			const valign = ALIGN[String(source.verticalAlign)]
 			if (valign !== undefined) {
 				view.set_valign(valign)
@@ -1741,6 +1769,7 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 		if (name === 'id') {
 			setNodeId(node, value)
 		}
+
 		return
 	}
 	if (name === 'disabled' || name === 'isEnabled' || name === 'enabled') {
@@ -1760,6 +1789,7 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 			node.text = String(value ?? '')
 			syncText(nearestViewAncestor(node))
 		}
+
 		return
 	}
 
@@ -1790,6 +1820,7 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 				view.set_visible(true)
 				view.set_child_visible(value !== 'hidden')
 			}
+
 			return
 		case 'opacity':
 			view.set_opacity(Number(value))
@@ -1801,6 +1832,7 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 				(name === 'disabled' ? value !== true : value !== false) &&
 					(node.type !== 'textfield' || node.editableFlag !== false),
 			)
+
 			return
 		case 'width':
 		case 'height': {
@@ -1809,6 +1841,7 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 				name === 'width' ? dimension(value) : w,
 				name === 'height' ? dimension(value) : h,
 			)
+
 			return
 		}
 		case 'horizontalAlignment':
@@ -1817,6 +1850,7 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 			if (align !== undefined) {
 				view.set_halign(align)
 			}
+
 			return
 		}
 		case 'verticalAlignment':
@@ -1825,6 +1859,7 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 			if (align !== undefined) {
 				view.set_valign(align)
 			}
+
 			return
 		}
 		case 'flexGrow':
@@ -1838,11 +1873,13 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 			if (align === undefined || !(hostView instanceof Gtk.Box)) {
 				return
 			}
+
 			if (hostView.orientation === Gtk.Orientation.HORIZONTAL) {
 				view.set_valign(align)
 			} else {
 				view.set_halign(align)
 			}
+
 			return
 		}
 		// Layout-position props are recorded unconditionally — `create` applies
@@ -1886,8 +1923,12 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 				// inspectable (automation/a11y gap recorded in
 				// upstream-limitations: real AT clients won't see it).
 				view.name = String(value)
-				warnOnce('accessibilityLabel', `<${node.type}> accessibilityLabel could not be applied — GtkAccessible.update_property is unavailable in this GTK`)
+				warnOnce(
+					'accessibilityLabel',
+					`<${node.type}> accessibilityLabel could not be applied — GtkAccessible.update_property is unavailable in this GTK`,
+				)
 			}
+
 			return
 		}
 		case 'accessibilityRole': {
@@ -1896,6 +1937,7 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 			if (role !== undefined) {
 				view.accessible_role = role
 			}
+
 			return
 		}
 		case 'tooltip':
@@ -1913,6 +1955,7 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 			} else {
 				warn(`<${node.type}> ignored prop ${name}`)
 			}
+
 			return
 		case 'label':
 			if (name === 'text' || name === 'value') {
@@ -1949,6 +1992,7 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 			} else {
 				warn(`<label> ignored prop ${name}`)
 			}
+
 			return
 		case 'button':
 			if (name === 'text' || name === 'label' || name === 'title') {
@@ -1968,6 +2012,7 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 			} else {
 				warn(`<button> ignored prop ${name}`)
 			}
+
 			return
 		case 'textfield':
 			if (name === 'value' || name === 'text') {
@@ -1998,14 +2043,13 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 			} else {
 				warn(`<textfield> ignored prop ${name}`)
 			}
+
 			return
 		case 'scrollview':
 			if (name === 'orientation') {
 				const horizontal = value === 'horizontal'
 				view.hscrollbar_policy = Gtk.PolicyType.AUTOMATIC
-				view.vscrollbar_policy = horizontal
-					? Gtk.PolicyType.NEVER
-					: Gtk.PolicyType.AUTOMATIC
+				view.vscrollbar_policy = horizontal ? Gtk.PolicyType.NEVER : Gtk.PolicyType.AUTOMATIC
 			} else if (name === 'scrollBarIndicatorVisible') {
 				// Gtk.PolicyType.NEVER hides the indicator on both axes.
 				view.hscrollbar_policy = value === false ? Gtk.PolicyType.NEVER : Gtk.PolicyType.AUTOMATIC
@@ -2021,6 +2065,7 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 			} else {
 				warn(`<scrollview> ignored prop ${name}`)
 			}
+
 			return
 		case 'switch':
 			if (name === 'checked' || name === 'value') {
@@ -2030,6 +2075,7 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 			} else {
 				warn(`<switch> ignored prop ${name}`)
 			}
+
 			return
 		case 'slider':
 			if (name === 'value') {
@@ -2043,6 +2089,7 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 			} else {
 				warn(`<slider> ignored prop ${name}`)
 			}
+
 			return
 		case 'progress':
 			if (name === 'value' || name === 'maxValue') {
@@ -2057,6 +2104,7 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 			} else {
 				warn(`<progress> ignored prop ${name}`)
 			}
+
 			return
 		case 'activityindicator':
 			if (name === 'busy') {
@@ -2068,6 +2116,7 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 			} else {
 				warn(`<activityindicator> ignored prop ${name}`)
 			}
+
 			return
 		default:
 			warn(`<${node.type}> ignored prop ${name}`)
@@ -2110,6 +2159,7 @@ function resetProp(node: ElementNode, name: string) {
 			node.text = ''
 			syncText(nearestViewAncestor(node))
 		}
+
 		return
 	}
 	switch (name) {
@@ -2165,6 +2215,7 @@ function resetProp(node: ElementNode, name: string) {
 			} catch {
 				// unmarshalable on this GTK — nothing was applied, nothing to reset
 			}
+
 			return
 		case 'id':
 		case 'testID':
@@ -2206,6 +2257,7 @@ function resetProp(node: ElementNode, name: string) {
 		if (isMasonHostView(view) && MASON_CONTAINER_STYLE_ONLY_PROPS.has(name)) {
 			return
 		}
+
 		setProp(node, name, defaults[name])
 	}
 }
@@ -2253,6 +2305,7 @@ function syncText(anchor: ElementNode | null) {
 			if (child.view !== null) {
 				continue
 			}
+
 			if (child.type === TEXT || child.type === 'span') {
 				text += child.text
 				found = true
@@ -2269,6 +2322,7 @@ function syncText(anchor: ElementNode | null) {
 			anchor.textApplied = false
 			anchor.view.label = String(anchor.props.text ?? anchor.props.value ?? '')
 		}
+
 		return
 	}
 	anchor.textApplied = true
@@ -2303,16 +2357,20 @@ function hostViewOf(container: GtkContainer, parent: ElementNode | null): GtkVie
 
 /** Flattened view position of `node` within its effective parent: count of
  *  view-bearing descendants of preceding siblings. */
-function viewIndexOf(container: GtkContainer, parent: ElementNode | null, node: ElementNode): number {
+function viewIndexOf(
+	container: GtkContainer,
+	parent: ElementNode | null,
+	node: ElementNode,
+): number {
 	const siblings = parent === null ? container.children : parent.children
 	// A viewless parent occupies a slice of its own effective parent.
-	let index = parent !== null && parent.view === null
-		? viewIndexOf(container, parent.parent, parent)
-		: 0
+	let index =
+		parent !== null && parent.view === null ? viewIndexOf(container, parent.parent, parent) : 0
 	for (const sibling of siblings) {
 		if (sibling === node) {
 			break
 		}
+
 		index += viewDescendants(sibling).length
 	}
 	return index
@@ -2321,14 +2379,11 @@ function viewIndexOf(container: GtkContainer, parent: ElementNode | null, node: 
 /** Index → the child widget currently at that view position, or null to append. */
 function viewChildAt(parentView: GtkView, index: number): Gtk.Widget | null {
 	let i = 0
-	for (
-		let child = parentView.get_first_child();
-		child !== null;
-		child = child.get_next_sibling()
-	) {
+	for (let child = parentView.get_first_child(); child !== null; child = child.get_next_sibling()) {
 		if (i === index) {
 			return child
 		}
+
 		i++
 	}
 	return null
@@ -2355,12 +2410,14 @@ function insertViewInto(parentView: GtkView, node: ElementNode, view: GtkView, i
 			parentView.prepend(view)
 			return
 		}
+
 		const before = viewChildAt(parentView, index - 1)
 		if (before !== null) {
 			parentView.insert_child_after(view, before)
 		} else {
 			parentView.append(view)
 		}
+
 		return
 	}
 
@@ -2377,6 +2434,7 @@ function insertViewInto(parentView: GtkView, node: ElementNode, view: GtkView, i
 			view.insert_before(parentView, next)
 			parentView.move(view, x, y)
 		}
+
 		return
 	}
 
@@ -2400,14 +2458,14 @@ function insertViewInto(parentView: GtkView, node: ElementNode, view: GtkView, i
 			) {
 				last = child
 			}
+
 			parentView.attach_next_to(view, last, 3, 1, 1)
 		}
+
 		return
 	}
 
-	throw new Error(
-		`linux-gtk driver: ${parentView.constructor.name} cannot host children.`,
-	)
+	throw new Error(`linux-gtk driver: ${parentView.constructor.name} cannot host children.`)
 }
 
 function repositionFixedChild(node: ElementNode) {
@@ -2472,6 +2530,7 @@ function attachViews(container: GtkContainer, node: ElementNode) {
 				'<scrollview> hosts a single view — additional children were dropped from the widget tree',
 			)
 		}
+
 		parentView.set_child(views[0])
 		return
 	}
@@ -2483,7 +2542,11 @@ function attachViews(container: GtkContainer, node: ElementNode) {
 
 /** A node's insertion/removal can flip sibling-combinator matches on the
  *  siblings that stay — restyle them when any registered sheet uses one. */
-function markSiblingsForSelectors(container: GtkContainer, parent: ElementNode | null, skip: ElementNode) {
+function markSiblingsForSelectors(
+	container: GtkContainer,
+	parent: ElementNode | null,
+	skip: ElementNode,
+) {
 	const scope = stylesheetScope()
 	if (!scope.hasAdjacentCombinatorSelectors && !scope.hasSiblingCombinatorSelectors) {
 		return
@@ -2542,6 +2605,7 @@ function insert(
 		if (existing !== null && existing !== undefined && existing !== node.view) {
 			warn('<scrollview> hosts a single view — replacing its current child')
 		}
+
 		parentView.set_child(node.view)
 		return
 	}
@@ -2579,12 +2643,15 @@ function payloadFor(node: ElementNode, type: string): unknown {
 			if (view instanceof Gtk.Entry) {
 				return { eventName: 'change', object: view, value: view.get_text() }
 			}
+
 			if (view instanceof Gtk.Switch) {
 				return { eventName: 'change', object: view, value: view.active }
 			}
+
 			if (view instanceof Gtk.Scale) {
 				return { eventName: 'change', object: view, value: view.get_value() }
 			}
+
 			return { eventName: 'change', object: view }
 		case 'submit':
 			return {
@@ -2646,8 +2713,12 @@ function connectEvent(
 	switch (type) {
 		case 'tap': {
 			if (view instanceof Gtk.Button) {
-				return { connections: [{ emitter: view, signalId: view.connect('clicked', handler) }], controllers: [] }
+				return {
+					connections: [{ emitter: view, signalId: view.connect('clicked', handler) }],
+					controllers: [],
+				}
 			}
+
 			const gesture = new Gtk.GestureClick()
 			view.add_controller(gesture)
 			return {
@@ -2701,6 +2772,7 @@ function connectEvent(
 					: view instanceof Gtk.Scale
 						? 'value-changed'
 						: 'changed'
+
 			return {
 				connections: [{ emitter: view, signalId: view.connect(signal, handler) }],
 				controllers: [],
@@ -2726,10 +2798,17 @@ function connectEvent(
 				warn('onScroll on a non-scrollview element is not supported')
 				return { connections: [], controllers: [] }
 			}
+
 			return {
 				connections: [
-					{ emitter: view.vadjustment, signalId: view.vadjustment.connect('value-changed', handler) },
-					{ emitter: view.hadjustment, signalId: view.hadjustment.connect('value-changed', handler) },
+					{
+						emitter: view.vadjustment,
+						signalId: view.vadjustment.connect('value-changed', handler),
+					},
+					{
+						emitter: view.hadjustment,
+						signalId: view.hadjustment.connect('value-changed', handler),
+					},
 				],
 				controllers: [],
 			}
@@ -2757,6 +2836,7 @@ function setEvent(
 		for (const conn of previous) {
 			conn.emitter.disconnect(conn.signalId)
 		}
+
 		node.listeners.delete(type)
 	}
 	// Controllers installed for this event type are released with it.
@@ -2765,6 +2845,7 @@ function setEvent(
 		for (const controller of controllers) {
 			view.remove_controller(controller)
 		}
+
 		node.controllers.delete(type)
 	}
 	if (listener === null) {
@@ -2800,6 +2881,7 @@ function disposeListeners(node: ElementNode) {
 				conn.emitter.disconnect(conn.signalId)
 			}
 		}
+
 		for (const controllers of node.controllers.values()) {
 			for (const controller of controllers) {
 				view.remove_controller(controller)
@@ -2822,7 +2904,12 @@ function expect(container: GtkContainer, id: number): ElementNode {
 	return node
 }
 
-function createNode(container: GtkContainer, id: number, type: string, props: PropBag): ElementNode {
+function createNode(
+	container: GtkContainer,
+	id: number,
+	type: string,
+	props: PropBag,
+): ElementNode {
 	const view = VIEWLESS.has(type) ? null : instantiate(type)
 	const node: ElementNode = {
 		id,
@@ -2880,6 +2967,7 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 				command.id,
 				createNode(container, command.id, command.type, command.props),
 			)
+
 			return
 		case 'update':
 			applyUpdate(expect(container, command.id), command.props)
@@ -2892,6 +2980,7 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 				expect(container, command.id),
 				command.before,
 			)
+
 			return
 		case 'remove':
 			detach(container, expect(container, command.id))
@@ -2901,6 +2990,7 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 			if (node === undefined) {
 				return
 			}
+
 			node.destroyed = true
 			container.cssDirty?.delete(node)
 			cancelKeyframeAnimations(node)
@@ -2914,12 +3004,15 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 			if (node.parent !== null || container.children.includes(node)) {
 				detach(container, node)
 			}
+
 			if (node.cssProvider !== null) {
 				for (const target of node.cssProviderTargets ?? []) {
 					target.get_style_context().remove_provider(node.cssProvider)
 				}
+
 				node.cssProviderTargets = undefined
 			}
+
 			container.nodes.delete(command.id)
 			return
 		}
@@ -2931,6 +3024,7 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 			if (view !== null) {
 				view.set_visible(command.state === 'visible')
 			}
+
 			return
 		}
 		case 'recreate': {
@@ -2946,8 +3040,10 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 				for (const target of node.cssProviderTargets ?? []) {
 					target.get_style_context().remove_provider(node.cssProvider)
 				}
+
 				node.cssProviderTargets = undefined
 			}
+
 			unwireStateFlags(node)
 			node.view = VIEWLESS.has(command.type) ? null : instantiate(command.type)
 			wireStateFlags(node)
@@ -2970,6 +3066,7 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 			if (node.view !== null && isMasonHostView(node.view)) {
 				bindMasonView(node.view, node)
 			}
+
 			applyProps(node, command.props)
 			if (node.view !== null) {
 				const parentView = hostViewOf(container, node.parent)
@@ -2978,17 +3075,20 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 				} else {
 					insertViewInto(parentView, node, node.view, viewIndexOf(container, node.parent, node))
 				}
+
 				// Children ride inside the view — re-attach them into the new one.
 				for (const child of node.children) {
 					detachViews(child)
 					attachViews(container, child)
 				}
+
 				syncExpandDeep(node)
 			} else {
 				attachViews(container, node)
 				syncText(nearestViewAncestor(node))
 				syncExpandDeep(node)
 			}
+
 			// The new widget dropped its provider and computed bag — restyle.
 			markStyleDirty(node, true)
 			return
@@ -3041,6 +3141,7 @@ export const gtkDriver: UniversalHostDriver<GtkContainer, GtkView | ElementNode 
 								}> id=${'id' in command ? command.id : '?'}`,
 								error,
 							)
+
 							throw error
 						}
 					}

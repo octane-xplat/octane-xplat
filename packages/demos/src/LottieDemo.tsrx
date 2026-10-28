@@ -1,8 +1,8 @@
-import { useRef, useState } from 'octane';
-import { Button, Heading, HStack, Text, View } from '@octane-xplat/ui';
-import { Lottie } from '@octane-xplat/lottie';
-import type { LottieHandle } from '@octane-xplat/lottie';
-import animation from './pinjump-anim';
+import { useRef, useState } from 'octane'
+import { Button, Heading, HStack, Text, View } from '@octane-xplat/ui'
+import { Lottie } from '@octane-xplat/lottie'
+import type { LottieHandle } from '@octane-xplat/lottie'
+import animation from './pinjump-anim'
 
 /** Shared `Lottie` demo — same animation data and props on lottie-web
  *  (web), vendored ui-lottie (iOS/Android), and Airbnb Lottie (AppKit).
@@ -10,11 +10,11 @@ import animation from './pinjump-anim';
  *  controlled `playing` prop and the `ref` handle; status surfaces the
  *  normalized events (duration is ms on both platforms). */
 export function LottieDemo() @{
-	const [playing, setPlaying] = useState(false);
-	const [loop, setLoop] = useState(false);
-	const [speed, setSpeed] = useState(1);
-	const [status, setStatus] = useState('idle');
-	const handle = useRef<LottieHandle | null>(null);
+	const [playing, setPlaying] = useState(false)
+	const [loop, setLoop] = useState(false)
+	const [speed, setSpeed] = useState(1)
+	const [status, setStatus] = useState('idle')
+	const handle = useRef<LottieHandle | null>(null)
 
 	<View className="lottie-demo gap-4">
 		<Heading level={2}>Lottie</Heading>
@@ -39,9 +39,9 @@ export function LottieDemo() @{
 			<Button
 				className="btn btn-secondary"
 				clickAction={() => {
-					handle.current?.stop();
-					setPlaying(false);
-					setStatus('stopped');
+					handle.current?.stop()
+					setPlaying(false)
+					setStatus('stopped')
 				}}
 			>
 				<Text>Stop</Text>
@@ -52,8 +52,8 @@ export function LottieDemo() @{
 			<Button
 				className="btn btn-secondary"
 				clickAction={() => {
-					handle.current?.seekTo(0.5);
-					setStatus('seek 0.5');
+					handle.current?.seekTo(0.5)
+					setStatus('seek 0.5')
 				}}
 			>
 				<Text>Seek 50%</Text>

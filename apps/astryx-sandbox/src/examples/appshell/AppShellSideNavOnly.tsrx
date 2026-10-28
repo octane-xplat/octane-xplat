@@ -1,5 +1,16 @@
 // Port of upstream AppShell/AppShellSideNavOnly.tsx (Astryx 0.6.4, MIT).
-import { AppShell, Heading, Icon, NavIcon, SideNav, SideNavHeading, SideNavItem, SideNavSection, Text, VStack } from '@octane-xplat/ui'
+import {
+	AppShell,
+	Heading,
+	Icon,
+	NavIcon,
+	SideNav,
+	SideNavHeading,
+	SideNavItem,
+	SideNavSection,
+	Text,
+	VStack,
+} from '@octane-xplat/ui'
 
 export function AppShellSideNavOnly() @{
 	<AppShell
@@ -29,7 +40,11 @@ export function AppShellSideNavOnly() @{
 	>
 		<VStack gap={4}>
 			<Heading level={3}>Page Content</Heading>
-			<Text type="body">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</Text>
+			<Text type="body">
+				Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut
+				labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
+				laboris.
+			</Text>
 		</VStack>
 	</AppShell>
 }

@@ -16,11 +16,15 @@ function mount(props: any = {}) {
 			<ToastViewportSurface viewportId="test" position="bottomEnd" maxVisible={5} {...props} />,
 		),
 	)
+
 	return el
 }
 
 afterEach(() => {
-	for (const root of roots.splice(0)) act(() => root.unmount())
+	for (const root of roots.splice(0)) {
+		act(() => root.unmount())
+	}
+
 	document.body.innerHTML = ''
 	toastStore.set([])
 })
@@ -60,6 +64,7 @@ it('announces string bodies through the document-level live regions', async () =
 	await act(async () => {
 		await new Promise((r) => requestAnimationFrame(r))
 	})
+
 	const region = document.body.querySelector('[data-xplat-live-region="polite"]')!
 	expect(region.textContent).toBe('Saved')
 })

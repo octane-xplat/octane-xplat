@@ -6,11 +6,7 @@ function BreadcrumbFixture() @{
 	<Breadcrumbs
 		className="parity-breadcrumb-root"
 		style={{ width: 220, height: 36, backgroundColor: '#f5f5f5' }}
-		items={[
-			{ label: 'Home', onSelect: () => {} },
-			{ label: 'Settings' },
-			{ label: 'Profile' },
-		]}
+		items={[{ label: 'Home', onSelect: () => {} }, { label: 'Settings' }, { label: 'Profile' }]}
 	/>
 }
 

@@ -1,7 +1,6 @@
 import './DocDiscoverPage.inline.css'
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 
-
 import { useState } from 'octane'
 import { VStack, HStack } from '@octane-xplat/ui'
 import { Heading, Text } from '@octane-xplat/ui'

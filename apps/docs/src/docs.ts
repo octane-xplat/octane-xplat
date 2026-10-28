@@ -50,5 +50,8 @@ export const DOCS: DocPage[] = Object.entries(files)
 
 // The introduction uses '/'; all other guides use their flat slug path.
 export function routeForDoc(doc: DocPage | undefined) {
-	return { to: '/:slug?' as const, params: { slug: !doc || doc.slug === 'README' ? undefined : doc.slug } }
+	return {
+		to: '/:slug?' as const,
+		params: { slug: !doc || doc.slug === 'README' ? undefined : doc.slug },
+	}
 }

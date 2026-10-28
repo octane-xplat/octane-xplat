@@ -1,5 +1,13 @@
 // Port of upstream SideNav/SideNavWithHeaderMenu.tsx (Astryx 0.6.4, MIT).
-import { Icon, ListItem, NavIcon, SideNav, SideNavHeading, SideNavItem, SideNavSection } from '@octane-xplat/ui'
+import {
+	Icon,
+	ListItem,
+	NavIcon,
+	SideNav,
+	SideNavHeading,
+	SideNavItem,
+	SideNavSection,
+} from '@octane-xplat/ui'
 
 export function SideNavWithHeaderMenu() @{
 	<SideNav

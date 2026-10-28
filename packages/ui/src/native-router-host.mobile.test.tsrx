@@ -137,10 +137,13 @@ const frameRenderFailures = new Set<string>()
 function Item() {
 	const item = getRouteApi('/items/:id', navigation)
 	const id = item.useParams().id
-	if (frameRenderFailures.has(id)) throw new Error('History target render failed')
+	if (frameRenderFailures.has(id)) {
+		throw new Error('History target render failed')
+	}
+
 	const title = item.useLoaderData().title
 	const [count, setCount] = useState(0)
-	frameEntries.set(id, { title, count, increment: () => setCount(value => value + 1) })
+	frameEntries.set(id, { title, count, increment: () => setCount((value) => value + 1) })
 	return <label text={id + ':' + title} />
 }
 
@@ -171,7 +174,12 @@ async function until(condition: () => boolean) {
 	expect(condition()).toBe(true)
 }
 
-function fixture<const Effects extends TransitionRegistry = {}>(timeout = 1000, ready = true, effects?: Effects, behavior?: { guard?(id: string): void | Promise<void>; title?(id: string): string }) {
+function fixture<const Effects extends TransitionRegistry = {}>(
+	timeout = 1000,
+	ready = true,
+	effects?: Effects,
+	behavior?: { guard?(id: string): void | Promise<void>; title?(id: string): string },
+) {
 	frameEntries.clear()
 	frameRenderFailures.clear()
 	const frame = new native.Frame()
@@ -189,7 +197,9 @@ function fixture<const Effects extends TransitionRegistry = {}>(timeout = 1000, 
 			defineRoute({
 				path: '/items/:id',
 				beforeLoad: ({ params }) => behavior?.guard?.(params.id),
-				loader: ({ params }) => ({ title: behavior?.title?.(params.id) ?? params.id.toUpperCase() }),
+				loader: ({ params }) => ({
+					title: behavior?.title?.(params.id) ?? params.id.toUpperCase(),
+				}),
 			}).screen(Item),
 		]),
 		host: platform.host,
@@ -262,6 +272,7 @@ function lateFrameFixture(timeout = 1000) {
 		},
 		navigationTimeoutMs: timeout,
 	})
+
 	const router = createRouter({
 		catalog: defineRoutes([
 			defineRoute({
@@ -271,12 +282,14 @@ function lateFrameFixture(timeout = 1000) {
 		]),
 		host: platform.host,
 	})
+
 	navigation = router
 	platform.attach(router)
 	const root = createUniversalRoot(
 		createObjectContainer('nativescript'),
 		createObjectDriver('nativescript'),
 	)
+
 	root.render(App, { platform })
 	return {
 		state,
@@ -330,6 +343,7 @@ it('moves readiness from an unready Frame to its replacement', async () => {
 	const test = lateFrameFixture()
 	try {
 		const stale = new native.Frame()
+
 		;(stale as any).currentPage = undefined
 		test.state.frame = stale
 		test.notify()
@@ -448,12 +462,17 @@ it('settles missing native callbacks without claiming to undo accepted native wo
 it('rejects a rendering failure before mutating the Frame', async () => {
 	const test = fixture()
 	try {
-		test.router.addRoutes(defineRoutes([defineRoute({ path: '/render-failure/:id' }).screen(Broken)]), {
-			id: 'broken',
-			conflict: 'replace',
-		})
+		test.router.addRoutes(
+			defineRoutes([defineRoute({ path: '/render-failure/:id' }).screen(Broken)]),
+			{
+				id: 'broken',
+				conflict: 'replace',
+			},
+		)
 
-		expect(await test.router.push({ to: '/render-failure/:id', params: { id: 'coat' } })).toMatchObject({
+		expect(
+			await test.router.push({ to: '/render-failure/:id', params: { id: 'coat' } }),
+		).toMatchObject({
 			status: 'failed',
 			phase: 'commit',
 		})
@@ -634,47 +653,91 @@ it('rechecks disposal after a staged composition barrier completes', async () =>
 })
 
 it('selects a registered native engine transition once and leaves Back reversal to its Frame', async () => {
-  const page = vi.fn(() => ({ name: 'slideLeft', duration: 240 }))
-  const f = fixture(1000, true, defineTransitions({ detail: defineNativeTransition({ page }) }))
-  try {
-    const push = f.router.push({ to: '/items/:id', params: { id: 'coat' }, transition: 'detail' })
-    await until(() => !!f.frame.pending)
-    expect(f.frame.pending!.args.transition).toEqual({ name: 'slideLeft', duration: 240 })
-    expect(f.frame.pending!.args.animated).toBe(true)
-    expect(page).toHaveBeenCalledOnce()
-    expect(page.mock.calls[0][0]).toMatchObject({ action: 'push', from: null, to: { params: { id: 'coat' } } })
-    f.frame.complete()
-    const result = await push
-    expect(result.status === 'committed' && await result.finished).toEqual({ status: 'completed' })
-    expect((await f.drive(f.router.back())).status).toBe('committed')
-    expect(page).toHaveBeenCalledOnce()
-  } finally { f.close() }
+	const page = vi.fn(() => ({ name: 'slideLeft', duration: 240 }))
+	const f = fixture(1000, true, defineTransitions({ detail: defineNativeTransition({ page }) }))
+	try {
+		const push = f.router.push({ to: '/items/:id', params: { id: 'coat' }, transition: 'detail' })
+		await until(() => !!f.frame.pending)
+		expect(f.frame.pending!.args.transition).toEqual({ name: 'slideLeft', duration: 240 })
+		expect(f.frame.pending!.args.animated).toBe(true)
+		expect(page).toHaveBeenCalledOnce()
+		expect(page.mock.calls[0][0]).toMatchObject({
+			action: 'push',
+			from: null,
+			to: { params: { id: 'coat' } },
+		})
+
+		f.frame.complete()
+		const result = await push
+		expect(result.status === 'committed' && (await result.finished)).toEqual({
+			status: 'completed',
+		})
+
+		expect((await f.drive(f.router.back())).status).toBe('committed')
+		expect(page).toHaveBeenCalledOnce()
+	} finally {
+		f.close()
+	}
 })
 
 it('commits without animation when a native factory throws and exposes its separate failure', async () => {
-  const error = new Error('native effect failed')
-  const f = fixture(1000, true, defineTransitions({ detail: defineNativeTransition({ page: () => { throw error } }) }))
-  try {
-    const push = f.router.push({ to: '/items/:id', params: { id: 'coat' }, transition: 'detail' })
-    await until(() => !!f.frame.pending)
-    expect(f.frame.pending!.args.animated).toBe(false)
-    f.frame.complete()
-    const result = await push
-    expect(result.status === 'committed' && await result.finished).toEqual({ status: 'failed', error })
-    expect(f.router.getSnapshot().route?.params.id).toBe('coat')
-  } finally { f.close() }
+	const error = new Error('native effect failed')
+	const f = fixture(
+		1000,
+		true,
+		defineTransitions({
+			detail: defineNativeTransition({
+				page: () => {
+					throw error
+				},
+			}),
+		}),
+	)
+
+	try {
+		const push = f.router.push({ to: '/items/:id', params: { id: 'coat' }, transition: 'detail' })
+		await until(() => !!f.frame.pending)
+		expect(f.frame.pending!.args.animated).toBe(false)
+		f.frame.complete()
+		const result = await push
+		expect(result.status === 'committed' && (await result.finished)).toEqual({
+			status: 'failed',
+			error,
+		})
+
+		expect(f.router.getSnapshot().route?.params.id).toBe('coat')
+	} finally {
+		f.close()
+	}
 })
 
 it('does not mutate a Frame after an application transition factory disposes its router', async () => {
-  let dispose = () => {}
-  const f = fixture(1000, true, defineTransitions({ detail: defineNativeTransition({ page: () => { dispose(); return { name: 'fade' } } }) }))
-  dispose = () => f.router.dispose()
-  const base = f.frame.currentPage
-  try {
-    expect(await f.router.push({ to: '/items/:id', params: { id: 'coat' }, transition: 'detail' })).toEqual({ status: 'cancelled', reason: 'disposed' })
-    expect(f.frame.pending).toBeUndefined()
-    expect(f.frame.currentPage).toBe(base)
-  } finally { f.close() }
+	let dispose = () => {}
+	const f = fixture(
+		1000,
+		true,
+		defineTransitions({
+			detail: defineNativeTransition({
+				page: () => {
+					dispose()
+					return { name: 'fade' }
+				},
+			}),
+		}),
+	)
+
+	dispose = () => f.router.dispose()
+	const base = f.frame.currentPage
+	try {
+		expect(
+			await f.router.push({ to: '/items/:id', params: { id: 'coat' }, transition: 'detail' }),
+		).toEqual({ status: 'cancelled', reason: 'disposed' })
+
+		expect(f.frame.pending).toBeUndefined()
+		expect(f.frame.currentPage).toBe(base)
+	} finally {
+		f.close()
+	}
 })
 
 it('waits for the old Frame owner to restore its base before a remounted owner navigates', async () => {
@@ -710,7 +773,15 @@ it('waits for the old Frame owner to restore its base before a remounted owner n
 it('rechecks a retained Frame Page before popping and refreshes its data without losing local state', async () => {
 	let allowed = true
 	let account = 'a'
-	const test = fixture(1000, true, undefined, { guard() { if (!allowed) throw new RouteForbidden() }, title: id => account + ':' + id })
+	const test = fixture(1000, true, undefined, {
+		guard() {
+			if (!allowed) {
+				throw new RouteForbidden()
+			}
+		},
+		title: (id) => account + ':' + id,
+	})
+
 	try {
 		await tick()
 		await test.drive(test.router.push({ to: '/items/:id', params: { id: 'coat' } }))
@@ -729,12 +800,21 @@ it('rechecks a retained Frame Page before popping and refreshes its data without
 		expect((await test.drive(test.router.retry())).status).toBe('committed')
 		expect(test.frame.currentPage).toBe(coat)
 		expect(frameEntries.get('coat')).toMatchObject({ title: 'b:coat', count: 1 })
-	} finally { test.close() }
+	} finally {
+		test.close()
+	}
 })
 
 it('redirects Frame Back into the retained Page with a fresh screen identity', async () => {
 	let redirect = false
-	const test = fixture(1000, true, undefined, { guard(id) { if (redirect && id === 'coat') throw new DestinationRedirect({ to: '/items/:id', params: { id: 'cap' } }) } })
+	const test = fixture(1000, true, undefined, {
+		guard(id) {
+			if (redirect && id === 'coat') {
+				throw new DestinationRedirect({ to: '/items/:id', params: { id: 'cap' } })
+			}
+		},
+	})
+
 	try {
 		await tick()
 		await test.drive(test.router.push({ to: '/items/:id', params: { id: 'coat' } }))
@@ -749,12 +829,21 @@ it('redirects Frame Back into the retained Page with a fresh screen identity', a
 		expect(test.router.getSnapshot().route?.params.id).toBe('cap')
 		expect(frameEntries.get('cap')).toMatchObject({ title: 'CAP', count: 0 })
 		expect(test.frame.backStack).toHaveLength(1)
-	} finally { test.close() }
+	} finally {
+		test.close()
+	}
 })
 
 it('preserves a retained target when a redirected Frame history screen fails to render', async () => {
 	let redirect = false
-	const test = fixture(1000, true, undefined, { guard(id) { if (redirect && id === 'coat') throw new DestinationRedirect({ to: '/items/:id', params: { id: 'cap' } }) } })
+	const test = fixture(1000, true, undefined, {
+		guard(id) {
+			if (redirect && id === 'coat') {
+				throw new DestinationRedirect({ to: '/items/:id', params: { id: 'cap' } })
+			}
+		},
+	})
+
 	try {
 		await tick()
 		await test.drive(test.router.push({ to: '/items/:id', params: { id: 'coat' } }))
@@ -767,12 +856,17 @@ it('preserves a retained target when a redirected Frame history screen fails to 
 		frameRenderFailures.add('cap')
 		const pending = test.router.back()
 		let settled = false
-		void pending.then(() => { settled = true })
+		void pending.then(() => {
+			settled = true
+		})
+
 		await until(() => settled)
 		expect(await pending).toMatchObject({ status: 'failed', phase: 'commit' })
 		await tick()
 		expect(test.frame.currentPage).toBe(hat)
 		expect(test.frame.backStack.at(-1)?.resolvedPage).toBe(coat)
 		expect(frameEntries.get('coat')?.count).toBe(1)
-	} finally { test.close() }
+	} finally {
+		test.close()
+	}
 })

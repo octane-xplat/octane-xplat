@@ -7,5 +7,5 @@ export function NativePickerDemo() @{
 		<Text id="native-picker-status">
 			Native pickers are unsupported by the experimental AppKit host.
 		</Text>
-	</View>;
+	</View>
 }

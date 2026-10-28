@@ -1,15 +1,15 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { registerElement } from '@nativescript-community/octane';
-import * as applePlugin from '@nativescript/apple-sign-in';
-import { appleAuth } from './apple';
-import type { AppleSignInButtonProps, SignInResult } from './types';
+import { registerElement } from '@nativescript-community/octane'
+import * as applePlugin from '@nativescript/apple-sign-in'
+import { appleAuth } from './apple'
+import type { AppleSignInButtonProps, SignInResult } from './types'
 
 // The plugin's SignInButton wraps ASAuthorizationAppleIDButton — iOS only
 // (the class is absent from the plugin's Android module), so register it
 // conditionally and fall back to a plain button everywhere else.
-const PluginButton = (applePlugin as any).SignInButton;
+const PluginButton = (applePlugin as any).SignInButton
 if (PluginButton) {
-	registerElement('applesigninbutton', PluginButton);
+	registerElement('applesigninbutton', PluginButton)
 }
 
 /** Sign in with Apple button — the platform-authentic
@@ -17,11 +17,11 @@ if (PluginButton) {
  *  A tap starts `appleAuth.signIn()`; `onResult` reports the outcome. */
 export function AppleSignInButton(props: AppleSignInButtonProps) @{
 	const run = () => {
-		props.onPress?.();
+		props.onPress?.()
 		if (props.onResult) {
-			appleAuth.signIn().then((result: SignInResult) => props.onResult?.(result));
+			appleAuth.signIn().then((result: SignInResult) => props.onResult?.(result))
 		}
-	};
+	}
 
 	@if (PluginButton && appleAuth.supported) {
 		<applesigninbutton
@@ -38,7 +38,13 @@ export function AppleSignInButton(props: AppleSignInButtonProps) @{
 			id={props.id}
 			className={props.className}
 			style={props.style}
-			text={props.type === 'signUp' ? 'Sign up with Apple' : props.type === 'continue' ? 'Continue with Apple' : 'Sign in with Apple'}
+			text={
+				props.type === 'signUp'
+					? 'Sign up with Apple'
+					: props.type === 'continue'
+						? 'Continue with Apple'
+						: 'Sign in with Apple'
+			}
 			isEnabled={props.disabled !== true}
 			onTap={run}
 		/>

@@ -1,50 +1,50 @@
-import { useMemo, useEffect, useImperativeHandle, useRef } from 'octane';
+import { useMemo, useEffect, useImperativeHandle, useRef } from 'octane'
 import { styleRecord } from './style-merge'
 import { refList } from './ref-list'
-import type { ScrollableAreaHandle, ScrollableAreaProps } from './props';
-import type { RefreshConfig, RefreshController } from './refresh.web';
-import { applyEscapeProps } from './escape-props';
-import { layoutChildProps } from './layout-child.web';
-import { ActivityIndicator } from './ActivityIndicator.web.tsrx';
-import { REFRESH_HEADER_HEIGHT } from './refresh-metrics';
-import { createPullToRefresh } from './refresh.web';
-import { useScrollableArea } from './use-scrollable-area.web.tsrx';
-import { spacingStep } from './spacing';
+import type { ScrollableAreaHandle, ScrollableAreaProps } from './props'
+import type { RefreshConfig, RefreshController } from './refresh.web'
+import { applyEscapeProps } from './escape-props'
+import { layoutChildProps } from './layout-child.web'
+import { ActivityIndicator } from './ActivityIndicator.web.tsrx'
+import { REFRESH_HEADER_HEIGHT } from './refresh-metrics'
+import { createPullToRefresh } from './refresh.web'
+import { useScrollableArea } from './use-scrollable-area.web.tsrx'
+import { spacingStep } from './spacing'
 
 const size = (v: number | string | undefined) =>
-	v == null ? undefined : typeof v === 'number' ? `${v}px` : v;
+	v == null ? undefined : typeof v === 'number' ? `${v}px` : v
 
 function contentPadding(props: ScrollableAreaProps) {
-	const inline = spacingStep(props.paddingInline ?? props.padding);
-	const block = spacingStep(props.paddingBlock ?? props.padding);
-	const style: Record<string, any> = {};
+	const inline = spacingStep(props.paddingInline ?? props.padding)
+	const block = spacingStep(props.paddingBlock ?? props.padding)
+	const style: Record<string, any> = {}
 	if (inline != null) {
-		style.paddingInlineStart = `${spacingStep(props.paddingInlineStart) ?? inline}px`;
-		style.paddingInlineEnd = `${spacingStep(props.paddingInlineEnd) ?? inline}px`;
+		style.paddingInlineStart = `${spacingStep(props.paddingInlineStart) ?? inline}px`
+		style.paddingInlineEnd = `${spacingStep(props.paddingInlineEnd) ?? inline}px`
 	} else {
 		if (props.paddingInlineStart != null) {
-			style.paddingInlineStart = `${spacingStep(props.paddingInlineStart)}px`;
+			style.paddingInlineStart = `${spacingStep(props.paddingInlineStart)}px`
 		}
 
 		if (props.paddingInlineEnd != null) {
-			style.paddingInlineEnd = `${spacingStep(props.paddingInlineEnd)}px`;
+			style.paddingInlineEnd = `${spacingStep(props.paddingInlineEnd)}px`
 		}
 	}
 
 	if (block != null) {
-		style.paddingBlockStart = `${spacingStep(props.paddingBlockStart) ?? block}px`;
-		style.paddingBlockEnd = `${spacingStep(props.paddingBlockEnd) ?? block}px`;
+		style.paddingBlockStart = `${spacingStep(props.paddingBlockStart) ?? block}px`
+		style.paddingBlockEnd = `${spacingStep(props.paddingBlockEnd) ?? block}px`
 	} else {
 		if (props.paddingBlockStart != null) {
-			style.paddingBlockStart = `${spacingStep(props.paddingBlockStart)}px`;
+			style.paddingBlockStart = `${spacingStep(props.paddingBlockStart)}px`
 		}
 
 		if (props.paddingBlockEnd != null) {
-			style.paddingBlockEnd = `${spacingStep(props.paddingBlockEnd)}px`;
+			style.paddingBlockEnd = `${spacingStep(props.paddingBlockEnd)}px`
 		}
 	}
 
-	return style;
+	return style
 }
 
 /** Portable handle over the viewport element. Inline offsets follow the
@@ -54,29 +54,32 @@ function contentPadding(props: ScrollableAreaProps) {
 function scrollableAreaHandle(viewport: { current: HTMLElement | null }): ScrollableAreaHandle {
 	return {
 		scrollToOffset: (offset, options) => {
-			const el = viewport.current;
-			if (!el || typeof el.scrollTo !== 'function') return;
+			const el = viewport.current
+			if (!el || typeof el.scrollTo !== 'function') {
+				return
+			}
+
 			const target: { left?: number; top?: number; behavior: 'auto' | 'smooth' } = {
 				behavior: options?.animated === true ? 'smooth' : 'auto',
-			};
+			}
 
 			if (offset.block != null && Number.isFinite(offset.block)) {
-				const maxY = Math.max(0, el.scrollHeight - el.clientHeight);
-				target.top = Math.max(0, Math.min(offset.block, maxY));
+				const maxY = Math.max(0, el.scrollHeight - el.clientHeight)
+				target.top = Math.max(0, Math.min(offset.block, maxY))
 			}
 
 			if (offset.inline != null && Number.isFinite(offset.inline)) {
-				const maxX = Math.max(0, el.scrollWidth - el.clientWidth);
-				const clamped = Math.max(0, Math.min(offset.inline, maxX));
-				target.left = getComputedStyle(el).direction === 'rtl' ? -clamped : clamped;
+				const maxX = Math.max(0, el.scrollWidth - el.clientWidth)
+				const clamped = Math.max(0, Math.min(offset.inline, maxX))
+				target.left = getComputedStyle(el).direction === 'rtl' ? -clamped : clamped
 			}
 
-			el.scrollTo(target);
+			el.scrollTo(target)
 		},
 		get native() {
-			return viewport.current;
+			return viewport.current
 		},
-	};
+	}
 }
 
 /** Pull-enabled variant — same structure the old ScrollView used: a
@@ -88,55 +91,68 @@ function ScrollableAreaRefreshable(props: ScrollableAreaProps) @{
 		overscroll: props.overscroll,
 		stickyContainment: props.stickyContainment,
 		keyboardAccess: { owner: 'viewport', label: props.label ?? '', role: props.role },
-	});
+	})
 
-	const cfg = useRef<RefreshConfig>({});
+	const cfg = useRef<RefreshConfig>({})
 	cfg.current = {
 		onRefresh: props.onRefresh,
 		refreshing: props.refreshing,
 		threshold: props.refreshThreshold,
-	};
+	}
 
-	const ctl = useRef<RefreshController | null>(null);
-	const scroller = useRef<HTMLElement | null>(null);
-	const indicator = useRef<HTMLElement | null>(null);
+	const ctl = useRef<RefreshController | null>(null)
+	const scroller = useRef<HTMLElement | null>(null)
+	const indicator = useRef<HTMLElement | null>(null)
 
 	useEffect(() => {
-		if (!scroller.current || !indicator.current) return;
+		if (!scroller.current || !indicator.current) {
+			return
+		}
+
 		ctl.current = createPullToRefresh({
 			scroller: scroller.current,
 			indicator: indicator.current,
 			cfg,
-		});
+		})
 
 		return () => {
-			ctl.current?.detach();
-			ctl.current = null;
-		};
-	}, []);
+			ctl.current?.detach()
+			ctl.current = null
+		}
+	}, [])
 
 	useEffect(() => {
-		ctl.current?.sync();
-	}, [props.refreshing]);
+		ctl.current?.sync()
+	}, [props.refreshing])
 
-	const { ref: viewportRef, ...viewport } = area.getViewportProps();
-	const { ref: contentRef, ...content } = area.getContentProps();
+	const { ref: viewportRef, ...viewport } = area.getViewportProps()
+	const { ref: contentRef, ...content } = area.getContentProps()
 
-	const handle = useMemo(() => scrollableAreaHandle(scroller), []);
-	useImperativeHandle(props.ref, () => handle, [props.ref]);
+	const handle = useMemo(() => scrollableAreaHandle(scroller), [])
+	useImperativeHandle(props.ref, () => handle, [props.ref])
 
-	const forwardedRef = useMemo(() => [(el: any) => {
-				scroller.current = el;
+	const forwardedRef = useMemo(
+		() => [
+			(el: any) => {
+				scroller.current = el
 
-				applyEscapeProps(el, props);
-			}, viewportRef], [props.ios, props.android, props.web, viewportRef]);
-	const viewportStyle = typeof viewport.style === 'object' ? viewport.style : undefined;
-	const contentStyle = typeof content.style === 'object' ? content.style : undefined;
+				applyEscapeProps(el, props)
+			},
+			viewportRef,
+		],
+		[props.ios, props.android, props.web, viewportRef],
+	)
 
-	<div {...layoutChildProps(props, { ...styleRecord(props.style) })} className={['vx-refresh-wrap', props.className]}>
+	const viewportStyle = typeof viewport.style === 'object' ? viewport.style : undefined
+	const contentStyle = typeof content.style === 'object' ? content.style : undefined
+
+	<div
+		{...layoutChildProps(props, { ...styleRecord(props.style) })}
+		className={['vx-refresh-wrap', props.className]}
+	>
 		<div
 			ref={(el: any) => {
-				indicator.current = el;
+				indicator.current = el
 			}}
 			className="vx-refresh"
 			style={{ transform: `translateY(${-REFRESH_HEADER_HEIGHT}px)` }}
@@ -158,7 +174,12 @@ function ScrollableAreaRefreshable(props: ScrollableAreaProps) @{
 				minHeight: size(props.minHeight),
 			}}
 		>
-			<div {...content} ref={contentRef} className={['vx-scrollable-content', content.className]} style={{ ...contentStyle, ...contentPadding(props) }}>
+			<div
+				{...content}
+				ref={contentRef}
+				className={['vx-scrollable-content', content.className]}
+				style={{ ...contentStyle, ...contentPadding(props) }}
+			>
 				{props.children}
 			</div>
 		</div>
@@ -172,7 +193,7 @@ function ScrollableAreaRefreshable(props: ScrollableAreaProps) @{
  *  sticky boundary; `isFullBleed` is inert here (no container-padding
  *  protocol exists yet — documented deviation). */
 export function ScrollableArea(props: ScrollableAreaProps) @{
-	const axis = props.axis ?? 'block';
+	const axis = props.axis ?? 'block'
 
 	@if (axis === 'block' && (props.onRefresh != null || props.refreshing != null)) {
 		<ScrollableAreaRefreshable {...props} />
@@ -187,22 +208,27 @@ function ScrollableAreaCore(props: ScrollableAreaProps) @{
 		overscroll: props.overscroll,
 		stickyContainment: props.stickyContainment,
 		keyboardAccess: { owner: 'viewport', label: props.label ?? '', role: props.role },
-	});
+	})
 
-	const { ref: viewportRef, ...viewport } = area.getViewportProps();
-	const { ref: contentRef, ...content } = area.getContentProps();
-	const outer = layoutChildProps(props, { ...styleRecord(props.style) });
+	const { ref: viewportRef, ...viewport } = area.getViewportProps()
+	const { ref: contentRef, ...content } = area.getContentProps()
+	const outer = layoutChildProps(props, { ...styleRecord(props.style) })
 
-	const viewportEl = useRef<HTMLElement | null>(null);
-	const handle = useMemo(() => scrollableAreaHandle(viewportEl), []);
-	useImperativeHandle(props.ref, () => handle, [props.ref]);
+	const viewportEl = useRef<HTMLElement | null>(null)
+	const handle = useMemo(() => scrollableAreaHandle(viewportEl), [])
+	useImperativeHandle(props.ref, () => handle, [props.ref])
 
-	const forwardedRef = useMemo(() => refList((el: any) => {
-				viewportEl.current = el;
-				applyEscapeProps(el, props);
-			}, viewportRef), [props.ios, props.android, props.web, viewportRef]);
-	const viewportStyle = typeof viewport.style === 'object' ? viewport.style : undefined;
-	const contentStyle = typeof content.style === 'object' ? content.style : undefined;
+	const forwardedRef = useMemo(
+		() =>
+			refList((el: any) => {
+				viewportEl.current = el
+				applyEscapeProps(el, props)
+			}, viewportRef),
+		[props.ios, props.android, props.web, viewportRef],
+	)
+
+	const viewportStyle = typeof viewport.style === 'object' ? viewport.style : undefined
+	const contentStyle = typeof content.style === 'object' ? content.style : undefined
 
 	<div
 		{...viewport}

@@ -61,7 +61,9 @@ export function CameraDemo() @{
 			active={active}
 			style={{ width: 480, height: 360 }}
 			onReady={() => {
-				if (!recording) setStatus('preview live')
+				if (!recording) {
+					setStatus('preview live')
+				}
 			}}
 			onError={(e) => setStatus(`error ${e.message ?? ''}`)}
 		/>
@@ -82,5 +84,5 @@ export function CameraDemo() @{
 		<Text id="camera-status" className="text-sm text-muted">
 			{status}
 		</Text>
-	</View>;
+	</View>
 }

@@ -12,12 +12,20 @@ function TabsFixture() @{
 			{ title: 'Overview', render: () => <View style={{ width: 200, height: 48 }} /> },
 			{
 				title: 'Activity',
-				render: () => <View className="parity-tabs-pane-child" style={{ width: 200, height: 48 }} />,
+				render: () => (
+					<View className="parity-tabs-pane-child" style={{ width: 200, height: 48 }} />
+				),
 			},
 		]}
 	/>
 }
 
 export const PARITY: ParityFixture[] = [
-	{ name: 'tabs-second-selected', component: 'Tabs', renderer: TabsFixture, props: {}, height: 120 },
+	{
+		name: 'tabs-second-selected',
+		component: 'Tabs',
+		renderer: TabsFixture,
+		props: {},
+		height: 120,
+	},
 ]

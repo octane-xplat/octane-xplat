@@ -13,10 +13,14 @@ function mount(props: any = {}) {
 	return el.firstElementChild as HTMLElement
 }
 
-const click = (host: Element) => act(() => host.dispatchEvent(new MouseEvent('click', { bubbles: true })))
+const click = (host: Element) =>
+	act(() => host.dispatchEvent(new MouseEvent('click', { bubbles: true })))
 
 afterEach(() => {
-	for (const root of roots.splice(0)) act(() => root.unmount())
+	for (const root of roots.splice(0)) {
+		act(() => root.unmount())
+	}
+
 	document.body.innerHTML = ''
 	vi.useRealTimers()
 })
@@ -28,7 +32,10 @@ describe('Button clickAction failure reporting', () => {
 		let rejectAction: ((reason: unknown) => void) | undefined
 		const host = mount({
 			label: 'Save',
-			clickAction: () => new Promise<void>((_, reject) => { rejectAction = reject }),
+			clickAction: () =>
+				new Promise<void>((_, reject) => {
+					rejectAction = reject
+				}),
 			onActionError,
 		})
 
@@ -65,7 +72,10 @@ describe('Button clickAction failure reporting', () => {
 		let rejectAction: ((reason: unknown) => void) | undefined
 		const host = mount({
 			label: 'Save',
-			clickAction: () => new Promise<void>((_, reject) => { rejectAction = reject }),
+			clickAction: () =>
+				new Promise<void>((_, reject) => {
+					rejectAction = reject
+				}),
 		})
 
 		click(host)
@@ -119,7 +129,10 @@ describe('Button loading/pending semantics', () => {
 		let resolveAction: (() => void) | undefined
 		const host = mount({
 			label: 'Save',
-			clickAction: () => new Promise<void>((resolve) => { resolveAction = resolve }),
+			clickAction: () =>
+				new Promise<void>((resolve) => {
+					resolveAction = resolve
+				}),
 		})
 
 		click(host)
@@ -131,13 +144,19 @@ describe('Button loading/pending semantics', () => {
 			resolveAction!()
 			await Promise.resolve()
 		})
+
 		expect(host.getAttribute('aria-busy')).toBe(null)
 		expect((host as HTMLButtonElement).disabled).toBe(false)
 		expect(host.querySelector('[role="status"][aria-live="polite"]')!.textContent).toBe('')
 	})
 
 	it('keeps an interruptible loading button enabled but still busy', () => {
-		const host = mount({ label: 'Save', isLoading: true, isInterruptible: true }) as HTMLButtonElement
+		const host = mount({
+			label: 'Save',
+			isLoading: true,
+			isInterruptible: true,
+		}) as HTMLButtonElement
+
 		expect(host.getAttribute('aria-busy')).toBe('true')
 		expect(host.disabled).toBe(false)
 	})
@@ -168,6 +187,7 @@ describe('Button renders a native button element', () => {
 			host.dispatchEvent(new KeyboardEvent(type, { key, bubbles: true, cancelable: true }))
 			host.dispatchEvent(new MouseEvent('click', { bubbles: true }))
 		})
+
 		expect(action).toHaveBeenCalledTimes(1)
 	})
 
@@ -180,7 +200,12 @@ describe('Button renders a native button element', () => {
 
 	it('disabled renders the native attribute and does not activate', () => {
 		const action = vi.fn()
-		const host = mount({ label: 'Save', isDisabled: true, clickAction: action }) as HTMLButtonElement
+		const host = mount({
+			label: 'Save',
+			isDisabled: true,
+			clickAction: action,
+		}) as HTMLButtonElement
+
 		expect(host.disabled).toBe(true)
 		expect(host.getAttribute('aria-disabled')).toBe(null)
 		click(host)
@@ -189,7 +214,13 @@ describe('Button renders a native button element', () => {
 
 	it('disabled + tooltip uses aria-disabled and stays focusable', () => {
 		const action = vi.fn()
-		const host = mount({ label: 'Save', isDisabled: true, tooltip: 'Unavailable', clickAction: action }) as HTMLButtonElement
+		const host = mount({
+			label: 'Save',
+			isDisabled: true,
+			tooltip: 'Unavailable',
+			clickAction: action,
+		}) as HTMLButtonElement
+
 		expect(host.disabled).toBe(false)
 		expect(host.getAttribute('aria-disabled')).toBe('true')
 		click(host)
@@ -200,7 +231,10 @@ describe('Button renders a native button element', () => {
 		let resolveAction: (() => void) | undefined
 		const host = mount({
 			label: 'Save',
-			clickAction: () => new Promise<void>((resolve) => { resolveAction = resolve }),
+			clickAction: () =>
+				new Promise<void>((resolve) => {
+					resolveAction = resolve
+				}),
 		}) as HTMLButtonElement
 
 		click(host)
@@ -212,6 +246,7 @@ describe('Button renders a native button element', () => {
 			resolveAction!()
 			await Promise.resolve()
 		})
+
 		expect(host.getAttribute('aria-busy')).toBe(null)
 		expect(host.disabled).toBe(false)
 	})

@@ -503,6 +503,7 @@ export function createRoutePreparation(options: RoutePreparationOptions) {
 				if (!claim(destination.stack ?? 'root')) {
 					return { status: 'cancelled', reason: 'superseded' }
 				}
+
 				try {
 					const definition = metaFor(destination.to)!
 					if (definition.loadModule) {

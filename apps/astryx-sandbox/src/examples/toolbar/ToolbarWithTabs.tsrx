@@ -4,6 +4,7 @@ import { Button, Card, Icon, Tab, TabList, Toolbar } from '@octane-xplat/ui'
 
 export function ToolbarWithTabs() @{
 	const [value, setValue] = useState('all')
+
 	<Card padding={0} style={{ width: 500 }}>
 		<Toolbar
 			label="Project actions"

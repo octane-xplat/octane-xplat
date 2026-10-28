@@ -7,7 +7,9 @@ export function TimestampFormats() @{
 	<Stack direction="vertical" gap={2}>
 		{(['date', 'date_long', 'date_weekday', 'date_time', 'time'] as const).map((format) => (
 			<Stack direction="horizontal" gap={4} vAlign="center">
-				<Text type="supporting" color="secondary" style={{ width: 110 }}>{format}</Text>
+				<Text type="supporting" color="secondary" style={{ width: 110 }}>
+					{format}
+				</Text>
 				<Timestamp value={DATE} format={format} color="primary" />
 			</Stack>
 		))}

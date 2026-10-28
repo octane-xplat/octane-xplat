@@ -1,6 +1,12 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { describe, expect, it, vi } from 'vitest'
-import { createObjectContainer, createObjectDriver, createUniversalRoot, flushUniversalSync } from 'octane/universal/native'
+import {
+	createObjectContainer,
+	createObjectDriver,
+	createUniversalRoot,
+	flushUniversalSync,
+} from 'octane/universal/native'
+
 import { ScrollableArea } from './ScrollableArea.macos.tsrx'
 import { useScrollableArea } from './use-scrollable-area.macos.tsrx'
 import { scrollableAreaState } from './scrollable-area-state'
@@ -19,7 +25,10 @@ function fixture(Component: any, props: any, peer = geometry()) {
 	const instance = driver.getPublicInstance.bind(driver)
 	driver.getPublicInstance = (container, id) => {
 		const host: any = instance(container, id)
-		if (host.type === 'scrollview') Object.assign(host, peer)
+		if (host.type === 'scrollview') {
+			Object.assign(host, peer)
+		}
+
 		return host
 	}
 
@@ -49,7 +58,9 @@ describe('AppKit ScrollableArea viewport contract (object driver)', () => {
 			fx.render({ ref: next })
 			expect(callback.mock.calls.at(-1)).toEqual([null])
 			expect(next.current.native).toBe(fx.host)
-		} finally { fx.root.unmount() }
+		} finally {
+			fx.root.unmount()
+		}
 
 		expect(next.current).toBeNull()
 	})
@@ -57,22 +68,33 @@ describe('AppKit ScrollableArea viewport contract (object driver)', () => {
 	it('scrolls each axis through the portable handle', () => {
 		const handle = { current: null as any }
 		const calls: { x: number; y: number }[] = []
-		const fx = fixture(ScrollableArea, { ref: handle }, {
-			contentView: {
-				bounds: { origin: { x: 0, y: 300 }, size: { width: 100, height: 100 } },
-				scrollToPoint: (point: { x: number; y: number }) => { calls.push(point) },
+		const fx = fixture(
+			ScrollableArea,
+			{ ref: handle },
+			{
+				contentView: {
+					bounds: { origin: { x: 0, y: 300 }, size: { width: 100, height: 100 } },
+					scrollToPoint: (point: { x: number; y: number }) => {
+						calls.push(point)
+					},
+				},
+				documentView: { frame: { size: { width: 300, height: 400 } }, isFlipped: () => false },
+				reflectScrolledClipView: vi.fn(),
 			},
-			documentView: { frame: { size: { width: 300, height: 400 } }, isFlipped: () => false },
-			reflectScrolledClipView: vi.fn(),
-		})
+		)
 
 		try {
 			handle.current.scrollToOffset({ block: 50 })
 			expect(calls).toEqual([{ x: 0, y: 250 }])
 			// Inline-only: the block offset keeps its clip origin (300 ⇒ top 0).
 			handle.current.scrollToOffset({ inline: 40 })
-			expect(calls).toEqual([{ x: 0, y: 250 }, { x: 40, y: 300 }])
-		} finally { fx.root.unmount() }
+			expect(calls).toEqual([
+				{ x: 0, y: 250 },
+				{ x: 40, y: 300 },
+			])
+		} finally {
+			fx.root.unmount()
+		}
 	})
 
 	it('honors callback cleanup refs when replaced and unmounted', () => {
@@ -89,12 +111,21 @@ describe('AppKit ScrollableArea viewport contract (object driver)', () => {
 })
 
 let area: UseScrollableAreaResult
-let deliveredState: UseScrollableAreaResult["state"]
+let deliveredState: UseScrollableAreaResult['state']
 function Headless(props: any) @{
 	area = useScrollableArea({ axis: props.axis })
 
-	<scrollview {...area.getViewportProps({ ref: props.ref, onScroll: props.onScroll, onLayoutChanged: props.onLayoutChanged })}>
-		<masonview {...area.getContentProps({ onLayoutChanged: props.onContentLayoutChanged })} style={{display: "flex"}}/>
+	<scrollview
+		{...area.getViewportProps({
+			ref: props.ref,
+			onScroll: props.onScroll,
+			onLayoutChanged: props.onLayoutChanged,
+		})}
+	>
+		<masonview
+			{...area.getContentProps({ onLayoutChanged: props.onContentLayoutChanged })}
+			style={{ display: 'flex' }}
+		/>
 	</scrollview>
 }
 
@@ -107,11 +138,21 @@ describe('AppKit headless scroll geometry and event composition', () => {
 			fx.render({ axis: 'both' })
 			expect(area.state.inline.isScrollable).toBe(true)
 			fx.peer.contentView.bounds.origin = { x: 90, y: 200 }
-			flushUniversalSync(() => fx.container.dispatchEvent(fx.host, 'scroll', { verticalOffset: 200, viewportHeight: 100, contentHeight: 400 }))
+			flushUniversalSync(() =>
+				fx.container.dispatchEvent(fx.host, 'scroll', {
+					verticalOffset: 200,
+					viewportHeight: 100,
+					contentHeight: 400,
+				}),
+			)
+
 			expect(area.state.inline.atStart).toBe(false)
 			expect(area.state.block.atStart).toBe(false)
 			fx.peer.contentView.bounds.size = { width: 500, height: 500 }
-			flushUniversalSync(() => fx.container.dispatchEvent(fx.host, 'layoutChanged', { width: 500, height: 500 }))
+			flushUniversalSync(() =>
+				fx.container.dispatchEvent(fx.host, 'layoutChanged', { width: 500, height: 500 }),
+			)
+
 			expect(area.state.inline).toEqual({ isScrollable: false, atStart: true, atEnd: true })
 			expect(area.state.block).toEqual(area.state.inline)
 			fx.peer.documentView.frame.size = { width: 800, height: 900 }
@@ -123,12 +164,17 @@ describe('AppKit headless scroll geometry and event composition', () => {
 			fx.render({})
 			expect(area.state.inline.isScrollable).toBe(false)
 			expect(area.state.block.isScrollable).toBe(true)
-		} finally { fx.root.unmount() }
+		} finally {
+			fx.root.unmount()
+		}
 	})
 
 	it('uses the latest caller once, keeps the original event, and updates state first', () => {
 		const first = vi.fn()
-		const latest = vi.fn(() => { deliveredState = area.state })
+		const latest = vi.fn(() => {
+			deliveredState = area.state
+		})
+
 		const layout = vi.fn()
 		const fx = fixture(Headless, { axis: 'both', onScroll: first })
 		try {
@@ -150,7 +196,9 @@ describe('AppKit headless scroll geometry and event composition', () => {
 			fx.render({ axis: 'both' })
 			flushUniversalSync(() => fx.container.dispatchEvent(fx.host, 'scroll', event))
 			expect(latest).toHaveBeenCalledTimes(1)
-		} finally { fx.root.unmount() }
+		} finally {
+			fx.root.unmount()
+		}
 	})
 
 	it('normalizes flipped documents and elastic offsets in points', () => {
@@ -164,7 +212,9 @@ describe('AppKit headless scroll geometry and event composition', () => {
 			flushUniversalSync(() => fx.container.dispatchEvent(fx.host, 'scroll', {}))
 			expect(area.state.inline.atEnd).toBe(true)
 			expect(area.state.block.atEnd).toBe(true)
-		} finally { fx.root.unmount() }
+		} finally {
+			fx.root.unmount()
+		}
 	})
 
 	it('treats empty, fitting, sub-unit and invalid ranges as both edges', () => {

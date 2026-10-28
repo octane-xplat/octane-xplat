@@ -1,6 +1,12 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { expect, it, vi } from 'vitest'
-import { createObjectContainer, createObjectDriver, createUniversalRoot, flushUniversalSync } from 'octane/universal/native'
+import {
+	createObjectContainer,
+	createObjectDriver,
+	createUniversalRoot,
+	flushUniversalSync,
+} from 'octane/universal/native'
+
 import { useMeasure } from './useMeasure.tsrx'
 import type { MeasureBounds } from './props'
 
@@ -10,7 +16,7 @@ function Measured(props: { values: Array<MeasureBounds | null> }) @{
 	const measurement = useMeasure()
 	props.values.push(measurement.bounds)
 
-	<masonview ref={measurement.ref} style={{display: "flex"}}/>
+	<masonview ref={measurement.ref} style={{ display: 'flex' }} />
 }
 
 function mountWithHosts(host: (instance: any) => any) {

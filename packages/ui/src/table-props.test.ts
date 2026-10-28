@@ -14,9 +14,7 @@ describe('Table schema types', () => {
 
 	it('threads the row type into renderCell', () => {
 		type Row = { name: string; qty: number }
-		expectTypeOf<NonNullable<TableColumn<Row>['renderCell']>>().toEqualTypeOf<
-			(item: Row) => any
-		>()
+		expectTypeOf<NonNullable<TableColumn<Row>['renderCell']>>().toEqualTypeOf<(item: Row) => any>()
 	})
 
 	it('keeps the loose default usable without a row type', () => {

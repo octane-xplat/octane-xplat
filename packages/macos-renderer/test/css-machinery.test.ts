@@ -179,9 +179,7 @@ test('(b) inherited color on a masonview produces no warning', async () => {
 test('(c) __xplatStylesheets queued before module load is applied', async () => {
 	const engineEntry = createRequire(import.meta.url).resolve('@octane-xplat/css-engine')
 	const url =
-		pathToFileURL(engineEntry.replace(/index\.ts$/, 'stylesheets.ts')).href +
-		'?drain=' +
-		Date.now()
+		pathToFileURL(engineEntry.replace(/index\.ts$/, 'stylesheets.ts')).href + '?drain=' + Date.now()
 	;(globalThis as any).__xplatStylesheets = [['pre-init', '.q { color: green }']]
 	const fresh: any = await import(url)
 	const scope = fresh.stylesheetScope()

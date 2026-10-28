@@ -9,6 +9,7 @@ export {
 	type ComputedCascade,
 	type PropBag,
 } from './cascade.ts'
+
 export {
 	registerStylesheet,
 	unregisterStylesheet,
@@ -21,10 +22,8 @@ export {
 	setStyleEnvironment,
 	type CssEnvironment,
 } from './stylesheets.ts'
-export {
-	sampleKeyframeAnimation,
-	type SampledValues,
-} from './animations.ts'
+
+export { sampleKeyframeAnimation, type SampledValues } from './animations.ts'
 export {
 	keyframeAnimationsFromCSSDeclarations,
 	keyframesArrayFromCSS,
@@ -35,6 +34,7 @@ export {
 	type ParsedKeyframe,
 	type TimingCurve,
 } from './keyframes.ts'
+
 export {
 	transformConverter,
 	transformToParts,
@@ -45,4 +45,5 @@ export {
 	type TransformParts,
 	type TranslateAxis,
 } from './transforms.ts'
+
 export { resolveClipPath, type ClipPath } from './clip-path.ts'

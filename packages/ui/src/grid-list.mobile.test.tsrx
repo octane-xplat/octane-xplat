@@ -1,6 +1,10 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { describe, expect, it, vi } from 'vitest'
-import { createObjectContainer, createObjectDriver, createUniversalRoot } from 'octane/universal/native'
+import {
+	createObjectContainer,
+	createObjectDriver,
+	createUniversalRoot,
+} from 'octane/universal/native'
 
 vi.mock('@nativescript/core', () => ({ isIOS: false, isAndroid: true }))
 
@@ -20,10 +24,10 @@ const items = [
 let captured: any
 
 const Probe = (props: any) => @{
-	captured = useGridList({ columns: props.columns })
+		captured = useGridList({ columns: props.columns })
 
-	<label text="probe" />
-}
+		<label text="probe" />
+	}
 
 describe('GridList (universal renderer)', () => {
 	it('renders cells and toggles selection + onAction on tap', () => {

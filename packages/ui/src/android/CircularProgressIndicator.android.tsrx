@@ -1,13 +1,15 @@
 /** @jsxImportSource @nativescript-community/octane */
-import type { CircularProgressIndicatorProps } from '../props';
-import { cx } from '@octane-xplat/lib';
-import { applyNativeProps } from '../platformProps';
+import type { CircularProgressIndicatorProps } from '../props'
+import { cx } from '@octane-xplat/lib'
+import { applyNativeProps } from '../platformProps'
 
 /** CircularProgressIndicator — the platform spinner (Android indeterminate
  *  ProgressBar via NativeScript `activityindicator`). The self-drawn shared
  *  `ActivityIndicator` lives in the root export. */
 export function CircularProgressIndicator(props: CircularProgressIndicatorProps) @{
-	if (props.busy === false) return null;
+	if (props.busy === false) {
+		return null
+	}
 
 	<activityindicator
 		id={props.id}

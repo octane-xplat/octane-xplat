@@ -8,8 +8,20 @@ export function FieldWithDescription() @{
 
 	<Center>
 		<VStack gap={4}>
-			<TextInput label="Email" description="We'll send a confirmation link to this address" value={email} onChange={setEmail} placeholder="you@example.com" />
-			<TextInput label="Password" description="At least 8 characters with one uppercase letter" value={password} onChange={setPassword} placeholder="Create a password" />
+			<TextInput
+				label="Email"
+				description="We'll send a confirmation link to this address"
+				value={email}
+				onChange={setEmail}
+				placeholder="you@example.com"
+			/>
+			<TextInput
+				label="Password"
+				description="At least 8 characters with one uppercase letter"
+				value={password}
+				onChange={setPassword}
+				placeholder="Create a password"
+			/>
 		</VStack>
 	</Center>
 }

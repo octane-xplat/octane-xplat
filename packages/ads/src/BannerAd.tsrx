@@ -14,7 +14,8 @@ const SIZES: Record<string, any> = {
 	fullBanner: () => (BannerAdSize as any).FULL_BANNER,
 	leaderboard: () => (BannerAdSize as any).LEADERBOARD,
 	adaptiveBanner: () => (BannerAdSize as any).getCurrentOrientationAnchoredAdaptiveBannerAdSize?.(),
-	anchoredAdaptive: () => (BannerAdSize as any).getCurrentOrientationAnchoredAdaptiveBannerAdSize?.(),
+	anchoredAdaptive: () =>
+		(BannerAdSize as any).getCurrentOrientationAnchoredAdaptiveBannerAdSize?.(),
 	fluid: () => (BannerAdSize as any).FLUID,
 }
 
@@ -30,11 +31,13 @@ export function BannerAd(props: BannerAdProps) @{
 		if (!v) {
 			return
 		}
+
 		if (props.onAdEvent) {
 			v.onAdEvent((type: any, error?: any, data?: any) =>
 				props.onAdEvent?.({ type: String(type) as any, error, reward: data }),
 			)
 		}
+
 		const bag = isAndroid ? props.android : props.ios
 		if (bag) {
 			Object.assign(v, bag)
@@ -48,5 +51,10 @@ export function BannerAd(props: BannerAdProps) @{
 		}
 	}, [props.size])
 
-	<xplatbannerad ref={bindHost} unitId={props.adUnitId} style={props.style} className={props.className} />
+	<xplatbannerad
+		ref={bindHost}
+		unitId={props.adUnitId}
+		style={props.style}
+		className={props.className}
+	/>
 }

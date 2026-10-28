@@ -7,5 +7,5 @@ export function NativeSheetDemo() @{
 		<Text id="native-sheet-status">
 			Native sheets are unsupported by the experimental AppKit host.
 		</Text>
-	</View>;
+	</View>
 }

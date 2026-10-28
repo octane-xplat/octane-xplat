@@ -1,34 +1,34 @@
 // @vitest-environment jsdom
-import { describe, expect, it } from 'vitest';
-import { act, createRoot } from 'octane';
-import { createStore } from './store';
-import { useStore } from './use-store';
+import { describe, expect, it } from 'vitest'
+import { act, createRoot } from 'octane'
+import { createStore } from './store'
+import { useStore } from './use-store'
 
 // DOM-renderer counterpart to store.mobile.test.ts. Here a parent re-render
 // re-invokes children with unchanged props (React semantics — memo() is the
 // only bail), so a bare store.getSnapshot() in a child refreshes incidentally. The
 // portable rule is still: readers subscribe via useStore.
 
-const store = createStore(0);
+const store = createStore(0)
 
 function BareChild() @{
 	<span class="bare">{String(store.getSnapshot())}</span>
 }
 
 function SubbedChild() @{
-	const v = useStore(store);
+	const v = useStore(store)
 
 	<span class="subbed">{String(v)}</span>
 }
 
 function SelectedChild() @{
-	const v = useStore(store, (s) => s * 10);
+	const v = useStore(store, (s) => s * 10)
 
 	<span class="sel">{String(v)}</span>
 }
 
 function Parent() @{
-	useStore(store);
+	useStore(store)
 
 	<>
 		<BareChild />
@@ -39,20 +39,20 @@ function Parent() @{
 
 describe('createStore + useStore (DOM renderer)', () => {
 	it('parent store subscription re-renders a bare-read child too (DOM semantics)', () => {
-		const el = document.createElement('div');
-		document.body.appendChild(el);
-		const root = createRoot(el);
-		act(() => root.render(<Parent />));
-		expect(el.querySelector('.bare')!.textContent).toBe('0');
-		expect(el.querySelector('.subbed')!.textContent).toBe('0');
-		expect(el.querySelector('.sel')!.textContent).toBe('0');
+		const el = document.createElement('div')
+		document.body.appendChild(el)
+		const root = createRoot(el)
+		act(() => root.render(<Parent />))
+		expect(el.querySelector('.bare')!.textContent).toBe('0')
+		expect(el.querySelector('.subbed')!.textContent).toBe('0')
+		expect(el.querySelector('.sel')!.textContent).toBe('0')
 
-		act(() => store.set(1));
+		act(() => store.set(1))
 		// On DOM the retained child DOES re-run — the divergence this test pins.
-		expect(el.querySelector('.bare')!.textContent).toBe('1');
-		expect(el.querySelector('.subbed')!.textContent).toBe('1');
-		expect(el.querySelector('.sel')!.textContent).toBe('10');
-		root.unmount();
-		el.remove();
-	});
-});
+		expect(el.querySelector('.bare')!.textContent).toBe('1')
+		expect(el.querySelector('.subbed')!.textContent).toBe('1')
+		expect(el.querySelector('.sel')!.textContent).toBe('10')
+		root.unmount()
+		el.remove()
+	})
+})

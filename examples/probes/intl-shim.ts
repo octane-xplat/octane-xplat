@@ -10,6 +10,7 @@ if (!(globalThis as any).Intl) {
 			return String(v)
 		}
 	}
+
 	;(globalThis as any).Intl = {
 		Collator: class {
 			compare(a: string, b: string) {

@@ -9,10 +9,32 @@ export function ToastDismiss() @{
 	const handleRef = useRef<ToastHandle | null>(null)
 	return (
 		<VStack gap={3}>
-			<Toast type="info" body="Uploading file…" isAutoHide={false} autoHideDuration={5000} isExiting={false} onDismiss={() => {}} />
+			<Toast
+				type="info"
+				body="Uploading file…"
+				isAutoHide={false}
+				autoHideDuration={5000}
+				isExiting={false}
+				onDismiss={() => {}}
+			/>
 			<HStack gap={3}>
-				<Button label="Show toast" variant="secondary" size="sm" clickAction={() => { handleRef.current = toast({ body: 'Uploading file…', isAutoHide: false }) }} />
-				<Button label="Dismiss via code" variant="ghost" size="sm" clickAction={() => { handleRef.current?.dismiss(); handleRef.current = null }} />
+				<Button
+					label="Show toast"
+					variant="secondary"
+					size="sm"
+					clickAction={() => {
+						handleRef.current = toast({ body: 'Uploading file…', isAutoHide: false })
+					}}
+				/>
+				<Button
+					label="Dismiss via code"
+					variant="ghost"
+					size="sm"
+					clickAction={() => {
+						handleRef.current?.dismiss()
+						handleRef.current = null
+					}}
+				/>
 			</HStack>
 		</VStack>
 	)

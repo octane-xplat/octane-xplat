@@ -26,6 +26,7 @@ export const Application = {
 		registerStylesheet('addCss:' + ++addCssSeq, css)
 	},
 }
+
 export const isAndroid = false
 export const isIOS = false
 export const AccessibilityRole = {

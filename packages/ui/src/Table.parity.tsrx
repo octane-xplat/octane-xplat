@@ -9,10 +9,20 @@ function TableFixture() @{
 		className="parity-table-root"
 		style={{ width: 220, height: 96, backgroundColor: '#f5f5f5' }}
 		columns={[
-			{ key: 'name', header: '', width: pixel(100), renderCell: () => <View className="parity-table-cell-content" style={{ width: 64, height: 24 }} /> },
+			{
+				key: 'name',
+				header: '',
+				width: pixel(100),
+				renderCell: () => (
+					<View className="parity-table-cell-content" style={{ width: 64, height: 24 }} />
+				),
+			},
 			{ key: 'status', header: '', width: pixel(100) },
 		]}
-		data={[{ name: 'Profile', status: 'Ready' }, { name: 'Security', status: 'Pending' }]}
+		data={[
+			{ name: 'Profile', status: 'Ready' },
+			{ name: 'Security', status: 'Pending' },
+		]}
 		idKey="name"
 	/>
 }

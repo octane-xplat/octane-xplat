@@ -6,7 +6,9 @@ export function StackAlignment() @{
 		{(['start', 'center', 'end'] as const).map((a) => (
 			<Card padding={4}>
 				<Stack direction="vertical" gap={4}>
-					<Text type="supporting" color="secondary">{a === 'start' ? 'Start (left)' : a === 'center' ? 'Center' : 'End (right)'}</Text>
+					<Text type="supporting" color="secondary">
+						{a === 'start' ? 'Start (left)' : a === 'center' ? 'Center' : 'End (right)'}
+					</Text>
 					<Stack direction="horizontal" gap={1} hAlign={a}>
 						<Button label="Cancel" variant="secondary" size="sm" />
 						<Button label="Save" variant="primary" size="sm" />

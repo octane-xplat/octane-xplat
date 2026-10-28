@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
-import { useEffect } from 'octane';
-import type { CanvasContextKind, CanvasProps } from './props';
+import { useEffect } from 'octane'
+import type { CanvasContextKind, CanvasProps } from './props'
 
 /** AppKit mounts a neutral frame. No drawing surface or GPU is created. */
 export function Canvas(props: CanvasProps) @{
@@ -8,10 +8,16 @@ export function Canvas(props: CanvasProps) @{
 		// Preserve deferred acquisition without pretending this is a native view.
 		const canvas = Object.freeze({
 			getContext: (_kind: CanvasContextKind, _options?: any): null => null,
-		});
+		})
 
-		props.onReady?.({ canvas, context: null });
-	}, []);
+		props.onReady?.({ canvas, context: null })
+	}, [])
 
-	<masonview id={props.id} className={props.className} style={{display: "grid", ...(props.style)}} width={props.width} height={props.height}/>;
+	<masonview
+		id={props.id}
+		className={props.className}
+		style={{ display: 'grid', ...props.style }}
+		width={props.width}
+		height={props.height}
+	/>
 }

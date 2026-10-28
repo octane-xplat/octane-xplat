@@ -22,5 +22,11 @@ function RichTextFixture() @{
 }
 
 export const PARITY: ParityFixture[] = [
-	{ name: 'rich-text-fixed-run', component: 'RichText', renderer: RichTextFixture, props: {}, height: 48 },
+	{
+		name: 'rich-text-fixed-run',
+		component: 'RichText',
+		renderer: RichTextFixture,
+		props: {},
+		height: 48,
+	},
 ]

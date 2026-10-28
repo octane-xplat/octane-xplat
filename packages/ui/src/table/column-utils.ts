@@ -70,11 +70,13 @@ export function resolveColumnWidths<T extends Record<string, unknown>>(
 			if (totalProportion > 0) {
 				style.width = `${(proportion / totalProportion) * 100}%`
 			}
+
 			if (w != null) {
 				const minW = w.minWidth ?? DEFAULT_MIN_COLUMN_WIDTH
 				style.minWidth = `${minW}px`
 			}
 		}
+
 		result.set(col.key, { style })
 	}
 
@@ -89,7 +91,10 @@ export function resolveColumnWidths<T extends Record<string, unknown>>(
  * proportional(2) // twice as wide as proportional(1)
  * proportional(1, { minWidth: 200 })
  */
-export function proportional(value: number = 1, options?: { minWidth?: number }): ProportionalWidth {
+export function proportional(
+	value: number = 1,
+	options?: { minWidth?: number },
+): ProportionalWidth {
 	return { type: 'proportional', value, minWidth: options?.minWidth ?? DEFAULT_MIN_COLUMN_WIDTH }
 }
 
@@ -100,16 +105,25 @@ export function pixel(value: number): PixelWidth {
 
 /** Capitalize the first letter of a string. */
 export function capitalize(str: string): string {
-	if (str.length === 0) {return str}
+	if (str.length === 0) {
+		return str
+	}
 	const first = str[0]!
 	return first.toUpperCase() + str.slice(first.length)
 }
 
 /** Default cell renderer — converts the value at `item[key]` to a string. */
-export function defaultCellRenderer<T extends Record<string, unknown>>(item: T, key: string): string {
+export function defaultCellRenderer<T extends Record<string, unknown>>(
+	item: T,
+	key: string,
+): string {
 	const value = item[key]
-	if (value == null) {return ''}
-	if (value instanceof Date) {return value.toISOString()}
+	if (value == null) {
+		return ''
+	}
+	if (value instanceof Date) {
+		return value.toISOString()
+	}
 	if (
 		typeof value === 'string' ||
 		typeof value === 'number' ||
@@ -122,20 +136,31 @@ export function defaultCellRenderer<T extends Record<string, unknown>>(item: T, 
 }
 
 function estimateContentLength(value: unknown): number {
-	if (value == null) {return 0}
-	if (typeof value === 'string') {return value.length}
-	if (typeof value === 'number' || typeof value === 'boolean') {return String(value).length}
+	if (value == null) {
+		return 0
+	}
+	if (typeof value === 'string') {
+		return value.length
+	}
+	if (typeof value === 'number' || typeof value === 'boolean') {
+		return String(value).length
+	}
 	return 0
 }
 
 function longestWord(value: unknown): number {
-	if (typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean') {return 0}
+	if (typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean') {
+		return 0
+	}
 	const str = String(value)
 	let max = 0
 	let current = 0
 	for (let i = 0; i <= str.length; i++) {
 		if (i === str.length || str[i] === ' ' || str[i] === '\t' || str[i] === '\n') {
-			if (current > max) {max = current}
+			if (current > max) {
+				max = current
+			}
+
 			current = 0
 		} else {
 			current++
@@ -152,7 +177,9 @@ const PX_PER_CHAR = 8
  * content-proportional widths derived from the header and the first few rows.
  */
 export function generateColumns<T extends Record<string, unknown>>(data: T[]): TableColumn<T>[] {
-	if (data.length === 0) {return []}
+	if (data.length === 0) {
+		return []
+	}
 	const keys = Object.keys(data[0]!)
 	const sampleRows = data.slice(0, Math.min(5, data.length))
 

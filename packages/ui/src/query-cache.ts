@@ -5,6 +5,7 @@ import {
 	type QueryEventType,
 	type QueryTrigger,
 } from './query-inspection'
+
 import { cursorPageLoader, type CursorQueryDefinition, type CursorQueryData } from './cursor-query'
 import { environment as platformEnvironment } from '@octane-xplat/platform/environment'
 /** Shared queries with explicit definition, reader, and client lifetimes. */
@@ -256,11 +257,13 @@ export function defineQuery<A extends QueryKeyPart, T>(
 	load: (selection: A, context: Pick<QueryLoadContext<unknown>, 'signal'>) => T | PromiseLike<T>,
 	options?: QueryOptions<NoInfer<T>>,
 ): QueryDefinition<A, T>
+
 export function defineQuery<A extends QueryKeyPart, T>(
 	key: QueryKey,
 	load: (selection: A, context: QueryLoadContext<T>) => T | PromiseLike<T>,
 	options?: QueryOptions<NoInfer<T>>,
 ): QueryDefinition<A, T>
+
 export function defineQuery<A extends QueryKeyPart, T>(
 	key: QueryKey,
 	load: (selection: A, context: QueryLoadContext<T>) => T | PromiseLike<T>,
@@ -636,6 +639,7 @@ async function attempt<T>(
 				fetchStatus: 'paused',
 				failureCount: failures,
 			})
+
 			entry.trace('pause')
 			await wait(entry, signal)
 		}
@@ -681,6 +685,7 @@ async function attempt<T>(
 				error,
 				failureCount: failures,
 			})
+
 			if (failures > (policy.retryCount ?? 2) || policy.shouldRetry?.(failures, error) === false) {
 				throw error
 			}
@@ -894,7 +899,9 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 	const listeners = new Set<(event: QueryInspectionEvent) => void>()
 	const clientId = `query-client-${id}`
 	function emit(type: QueryEventType, queryId?: string): void {
-		if (!listeners.size) { return }
+		if (!listeners.size) {
+			return
+		}
 		const event = Object.freeze({
 			clientId,
 			...(queryId ? { queryId } : {}),
@@ -1035,7 +1042,9 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 			id: key,
 			queryId,
 			trace(type, trigger) {
-				if (trigger) { entry.lastTrigger = trigger }
+				if (trigger) {
+					entry.lastTrigger = trigger
+				}
 				emit(type, queryId)
 			},
 			family,
@@ -1327,7 +1336,9 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 				}
 			},
 			subscribe(listener) {
-				if (disposed) { return () => {} }
+				if (disposed) {
+					return () => {}
+				}
 				listeners.add(listener)
 				return () => {
 					listeners.delete(listener)

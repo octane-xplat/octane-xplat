@@ -28,8 +28,10 @@ export function TableSlot(props: { value: any }) @{
 		const Component = value.component
 		return <Component {...value.props} />
 	}
+
 	if (Array.isArray(value)) {
 		return value.map((item, index) => <TableSlot key={index} value={item} />)
 	}
+
 	return value as any
 }

@@ -152,7 +152,9 @@ type ItemPath = '/nav/:id' | '/runtime/:id' | '/loaded/:id' | '/broken/:id' | '/
 const push = (stack: FixtureStack, id: string, to: ItemPath = '/nav/:id') =>
 	to === '/runtime/:id'
 		? refined.navigation.navigateUrl(
-				(stack === 'root' ? '' : '/@' + encodeURIComponent(stack)) + '/runtime/' + encodeURIComponent(id),
+				(stack === 'root' ? '' : '/@' + encodeURIComponent(stack)) +
+					'/runtime/' +
+					encodeURIComponent(id),
 			)
 		: refined.navigation.push({ stack, to, params: { id }, transition: 'none' })
 
@@ -982,17 +984,13 @@ async function run(): Promise<void> {
 			translateX: motionModalTarget.translateX,
 		}),
 	)
-	await wait(
-		'native modal view motion samples intermediate values',
-		() => {
-			const v = sampleViewMotion(motionModalTarget)
-			return v.opacity > 0 && v.opacity < 1
-		},
-	)
+	await wait('native modal view motion samples intermediate values', () => {
+		const v = sampleViewMotion(motionModalTarget)
+		return v.opacity > 0 && v.opacity < 1
+	})
 	check(
 		'native modal view motion completes',
-		motionModal.status === 'committed' &&
-			(await motionModal.finished).status === 'completed',
+		motionModal.status === 'committed' && (await motionModal.finished).status === 'completed',
 	)
 	check(
 		'native modal view motion restores neutral values',
@@ -1765,13 +1763,10 @@ async function run(): Promise<void> {
 		!!motionPaneTarget && motionPaneTarget.opacity < 1,
 		JSON.stringify({ opacity: motionPaneTarget?.opacity }),
 	)
-	await wait(
-		'pane view motion samples intermediate values',
-		() => {
-			const v = sampleViewMotion(motionPaneTarget)
-			return v.opacity > 0 && v.opacity < 1
-		},
-	)
+	await wait('pane view motion samples intermediate values', () => {
+		const v = sampleViewMotion(motionPaneTarget)
+		return v.opacity > 0 && v.opacity < 1
+	})
 	check(
 		'pane view motion completes',
 		motionPane.status === 'committed' && (await motionPane.finished).status === 'completed',
@@ -1802,8 +1797,7 @@ async function run(): Promise<void> {
 	)
 	check(
 		'pane Back view motion completes',
-		motionPaneBack.status === 'committed' &&
-			(await motionPaneBack.finished).status === 'completed',
+		motionPaneBack.status === 'committed' && (await motionPaneBack.finished).status === 'completed',
 	)
 	check(
 		'pane Back view motion restores neutral values',

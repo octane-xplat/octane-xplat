@@ -1,155 +1,171 @@
-import { createPortal, useCallback, useEffect, useRef, useState } from 'octane';
-import type { LightboxMedia, LightboxProps } from './props';
-import { cx } from '@octane-xplat/lib';
-import { isolateModalFocus } from './modal-focus.web';
-import { applyEscapeProps } from './escape-props';
-import { Icon } from './Icon.web.tsrx';
-import { Pressable } from './Pressable.web.tsrx';
-import { Text } from './Text.web.tsrx';
+import { createPortal, useCallback, useEffect, useRef, useState } from 'octane'
+import type { LightboxMedia, LightboxProps } from './props'
+import { cx } from '@octane-xplat/lib'
+import { isolateModalFocus } from './modal-focus.web'
+import { applyEscapeProps } from './escape-props'
+import { Icon } from './Icon.web.tsrx'
+import { Pressable } from './Pressable.web.tsrx'
+import { Text } from './Text.web.tsrx'
 
 const clampIndex = (i: number, count: number) =>
-	count <= 0 ? 0 : Math.min(Math.max(i, 0), count - 1);
+	count <= 0 ? 0 : Math.min(Math.max(i, 0), count - 1)
 
 /** The open viewer — rendered once per Lightbox while `isOpen`. Handles
  *  keyboard nav, scroll lock, focus isolation, and image zoom/pan. */
 function LightboxLayer(props: {
-	media: LightboxMedia[];
-	index: number;
-	setIndex: (i: number) => void;
-	onClose: () => void;
-	hasZoom: boolean;
-	hasAutoPlay: boolean;
-	finalFocusRef?: { current: any };
-	className?: any;
-	style?: any;
-	id?: string;
-	web?: Record<string, any>;
+	media: LightboxMedia[]
+	index: number
+	setIndex: (i: number) => void
+	onClose: () => void
+	hasZoom: boolean
+	hasAutoPlay: boolean
+	finalFocusRef?: { current: any }
+	className?: any
+	style?: any
+	id?: string
+	web?: Record<string, any>
 }) @{
-	const { media, index } = props;
-	const count = media.length;
-	const navigation = useRef({ index, count });
-	navigation.current = { index, count };
-	const item = media[index];
-	const layer = useRef<HTMLDivElement | null>(null);
-	const stage = useRef<HTMLDivElement | null>(null);
-	const imgEl = useRef<HTMLImageElement | null>(null);
-	const [zoomed, setZoomed] = useState(false);
-	const pan = useRef({ x: 0, y: 0 });
-	const drag = useRef<{ x: number; y: number } | null>(null);
-	const suppressClick = useRef(false);
-	const onClose = useRef(props.onClose);
-	onClose.current = props.onClose;
-	const setIndex = useRef(props.setIndex);
-	setIndex.current = props.setIndex;
+	const { media, index } = props
+	const count = media.length
+	const navigation = useRef({ index, count })
+	navigation.current = { index, count }
+	const item = media[index]
+	const layer = useRef<HTMLDivElement | null>(null)
+	const stage = useRef<HTMLDivElement | null>(null)
+	const imgEl = useRef<HTMLImageElement | null>(null)
+	const [zoomed, setZoomed] = useState(false)
+	const pan = useRef({ x: 0, y: 0 })
+	const drag = useRef<{ x: number; y: number } | null>(null)
+	const suppressClick = useRef(false)
+	const onClose = useRef(props.onClose)
+	onClose.current = props.onClose
+	const setIndex = useRef(props.setIndex)
+	setIndex.current = props.setIndex
 
-	const isVideo = item?.type === 'video';
-	const zoomOn = (props.hasZoom ?? true) && !isVideo;
+	const isVideo = item?.type === 'video'
+	const zoomOn = (props.hasZoom ?? true) && !isVideo
 
 	const next = useCallback(() => {
-		setIndex.current(clampIndex(props.index + 1, count) === props.index ? props.index : props.index + 1);
-	}, [props.index, count]);
+		setIndex.current(
+			clampIndex(props.index + 1, count) === props.index ? props.index : props.index + 1,
+		)
+	}, [props.index, count])
 
 	const prev = useCallback(() => {
-		setIndex.current(props.index - 1 >= 0 ? props.index - 1 : props.index);
-	}, [props.index]);
+		setIndex.current(props.index - 1 >= 0 ? props.index - 1 : props.index)
+	}, [props.index])
 
 	// The modal lease belongs to this mounted viewer, not each image. Rebinding
 	// it after navigation would capture a viewer control as the return target.
 	useEffect(() => {
-		const el = layer.current;
-		const panel = stage.current;
-		if (!el || !panel) return;
+		const el = layer.current
+		const panel = stage.current
+		if (!el || !panel) {
+			return
+		}
 
-		const restoreScroll = document.documentElement.style.overflow || '';
-		document.documentElement.style.overflow = 'hidden';
+		const restoreScroll = document.documentElement.style.overflow || ''
+		document.documentElement.style.overflow = 'hidden'
 		const releaseFocus = isolateModalFocus(el, panel, () => {
-			const target = props.finalFocusRef?.current;
-			onClose.current();
-		});
+			const target = props.finalFocusRef?.current
+			onClose.current()
+		})
 
-		const rtl = getComputedStyle(el).direction === 'rtl';
+		const rtl = getComputedStyle(el).direction === 'rtl'
 		const onKey = (event: KeyboardEvent) => {
-			if (event.isComposing) return;
-			const { index, count } = navigation.current;
-			const fwd = rtl ? 'ArrowLeft' : 'ArrowRight';
-			const back = rtl ? 'ArrowRight' : 'ArrowLeft';
-			if (event.key === fwd) {
-				setIndex.current(Math.min(index + 1, count - 1));
-			} else if (event.key === back) {
-				setIndex.current(Math.max(index - 1, 0));
+			if (event.isComposing) {
+				return
 			}
-		};
 
-		document.addEventListener('keydown', onKey);
-		return () => {
-			document.removeEventListener('keydown', onKey);
-			releaseFocus();
-			document.documentElement.style.overflow = restoreScroll;
-			const target = props.finalFocusRef?.current;
-			if (target && typeof target.focus === 'function' && target.isConnected !== false) {
-				target.focus({ preventScroll: true });
+			const { index, count } = navigation.current
+			const fwd = rtl ? 'ArrowLeft' : 'ArrowRight'
+			const back = rtl ? 'ArrowRight' : 'ArrowLeft'
+			if (event.key === fwd) {
+				setIndex.current(Math.min(index + 1, count - 1))
+			} else if (event.key === back) {
+				setIndex.current(Math.max(index - 1, 0))
 			}
-		};
-	}, []);
+		}
+
+		document.addEventListener('keydown', onKey)
+		return () => {
+			document.removeEventListener('keydown', onKey)
+			releaseFocus()
+			document.documentElement.style.overflow = restoreScroll
+			const target = props.finalFocusRef?.current
+			if (target && typeof target.focus === 'function' && target.isConnected !== false) {
+				target.focus({ preventScroll: true })
+			}
+		}
+	}, [])
 
 	// Zoom: click toggles 1↔2.5, drag pans while zoomed.
 	const applyZoom = (on: boolean, keepPan = false) => {
-		const el = imgEl.current;
-		if (!el) return;
-		setZoomed(on);
-		if (!keepPan) {
-			pan.current = { x: 0, y: 0 };
+		const el = imgEl.current
+		if (!el) {
+			return
 		}
 
-		el.style.transform = on
-			? `scale(2.5) translate(${pan.current.x}px, ${pan.current.y}px)`
-			: '';
+		setZoomed(on)
+		if (!keepPan) {
+			pan.current = { x: 0, y: 0 }
+		}
 
-		el.style.cursor = on ? 'grab' : 'zoom-in';
-	};
+		el.style.transform = on ? `scale(2.5) translate(${pan.current.x}px, ${pan.current.y}px)` : ''
+
+		el.style.cursor = on ? 'grab' : 'zoom-in'
+	}
 
 	const onMediaClick = () => {
 		// Pointer capture still delivers a click after a drag. Keep the pan
 		// until a separate click, rather than immediately toggling zoom off.
 		if (suppressClick.current) {
-			suppressClick.current = false;
-			return;
+			suppressClick.current = false
+			return
 		}
+
 		if (zoomOn) {
-			applyZoom(!zoomed);
+			applyZoom(!zoomed)
 		}
-	};
+	}
 
 	const onPointerDown = (event: PointerEvent) => {
-		suppressClick.current = false;
-		if (!zoomed || !imgEl.current) return;
-		drag.current = { x: event.clientX, y: event.clientY };
-		imgEl.current.setPointerCapture?.(event.pointerId);
-		imgEl.current.style.cursor = 'grabbing';
-	};
+		suppressClick.current = false
+		if (!zoomed || !imgEl.current) {
+			return
+		}
+
+		drag.current = { x: event.clientX, y: event.clientY }
+		imgEl.current.setPointerCapture?.(event.pointerId)
+		imgEl.current.style.cursor = 'grabbing'
+	}
 
 	const onPointerMove = (event: PointerEvent) => {
-		const start = drag.current;
-		const el = imgEl.current;
-		if (!start || !el) return;
-		if (Math.abs(event.clientX - start.x) + Math.abs(event.clientY - start.y) > 3) {
-			suppressClick.current = true;
+		const start = drag.current
+		const el = imgEl.current
+		if (!start || !el) {
+			return
 		}
+
+		if (Math.abs(event.clientX - start.x) + Math.abs(event.clientY - start.y) > 3) {
+			suppressClick.current = true
+		}
+
 		pan.current = {
 			x: pan.current.x + (event.clientX - start.x) / 2.5,
 			y: pan.current.y + (event.clientY - start.y) / 2.5,
-		};
+		}
 
-		drag.current = { x: event.clientX, y: event.clientY };
-		el.style.transform = `scale(2.5) translate(${pan.current.x}px, ${pan.current.y}px)`;
-	};
+		drag.current = { x: event.clientX, y: event.clientY }
+		el.style.transform = `scale(2.5) translate(${pan.current.x}px, ${pan.current.y}px)`
+	}
 
 	const onPointerUp = () => {
-		drag.current = null;
+		drag.current = null
 		if (imgEl.current) {
-			imgEl.current.style.cursor = zoomed ? 'grab' : 'zoom-in';
+			imgEl.current.style.cursor = zoomed ? 'grab' : 'zoom-in'
 		}
-	};
+	}
 
 	return (
 		<div
@@ -162,14 +178,14 @@ function LightboxLayer(props: {
 			aria-label={item?.alt ?? 'Media viewer'}
 			onClick={(e: MouseEvent) => {
 				if (e.target === e.currentTarget) {
-					onClose.current();
+					onClose.current()
 				}
 			}}
 			{...props.web}
 		>
 			<div ref={stage} className="vx-lightbox-stage" tabIndex={-1}>
-				{item != null && (
-					isVideo ? (
+				{item != null &&
+					(isVideo ? (
 						<video
 							className="vx-lightbox-media"
 							src={item.src}
@@ -191,8 +207,7 @@ function LightboxLayer(props: {
 							onPointerUp={onPointerUp}
 							onPointerCancel={onPointerUp}
 						/>
-					)
-				)}
+					))}
 				{count > 1 && (
 					<>
 						<Pressable
@@ -232,43 +247,45 @@ function LightboxLayer(props: {
 				)}
 			</div>
 		</div>
-	);
+	)
 }
 
 /** Full-screen media viewer (Astryx `Lightbox`), web leaf — portal layer
  *  with platform focus trap/scroll lock, keyboard navigation
  *  (Escape/←/→), backdrop click, click-zoom + drag-pan on images. */
 export function Lightbox(props: LightboxProps) @{
-	const [internal, setInternal] = useState(props.defaultIndex ?? 0);
-	const count = props.media.length;
-	const index = clampIndex(props.index ?? internal, count);
+	const [internal, setInternal] = useState(props.defaultIndex ?? 0)
+	const count = props.media.length
+	const index = clampIndex(props.index ?? internal, count)
 	const setIndex = (i: number) => {
-		const clamped = clampIndex(i, count);
+		const clamped = clampIndex(i, count)
 		if (props.index == null) {
-			setInternal(clamped);
+			setInternal(clamped)
 		}
 
 		if (clamped !== index) {
-			props.onIndexChange?.(clamped);
+			props.onIndexChange?.(clamped)
 		}
-	};
+	}
 
 	@if (props.isOpen && count > 0) {
-		<>{createPortal(
-			<LightboxLayer
-				media={props.media}
-				index={index}
-				setIndex={setIndex}
-				onClose={() => props.onOpenChange(false)}
-				hasZoom={props.hasZoom ?? true}
-				hasAutoPlay={props.hasAutoPlay ?? false}
-				finalFocusRef={props.finalFocusRef}
-				className={props.className}
-				style={props.style}
-				id={props.id}
-				web={props.web}
-			/>,
-			document.body,
-		)}</>
+		<>
+			{createPortal(
+				<LightboxLayer
+					media={props.media}
+					index={index}
+					setIndex={setIndex}
+					onClose={() => props.onOpenChange(false)}
+					hasZoom={props.hasZoom ?? true}
+					hasAutoPlay={props.hasAutoPlay ?? false}
+					finalFocusRef={props.finalFocusRef}
+					className={props.className}
+					style={props.style}
+					id={props.id}
+					web={props.web}
+				/>,
+				document.body,
+			)}
+		</>
 	}
 }

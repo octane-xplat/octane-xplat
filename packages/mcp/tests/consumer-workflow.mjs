@@ -108,6 +108,7 @@ try {
 			? { result: { ...session.launch, buildIdentity: session.buildIdentity } }
 			: null
 	})
+
 	evidence.push({ check: 'owned launch/readiness', sessionId, result: launched.result })
 	await until(async () => {
 		const result = await client.callTool({

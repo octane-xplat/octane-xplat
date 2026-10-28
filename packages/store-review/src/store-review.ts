@@ -14,7 +14,10 @@ function iosRequestReview(): void {
 		throw new Error('unsupported: SKStoreReviewController is not available')
 	}
 	// iOS 14+: scene-scoped prompt. UISceneActivationStateForegroundActive === 0.
-	if (typeof SKStoreReviewController.requestReviewInScene === 'function' && typeof UIApplication !== 'undefined') {
+	if (
+		typeof SKStoreReviewController.requestReviewInScene === 'function' &&
+		typeof UIApplication !== 'undefined'
+	) {
 		const all = UIApplication.sharedApplication?.connectedScenes?.allObjects
 		for (let i = 0; i < (all?.count ?? 0); i++) {
 			const scene = all.objectAtIndex(i)
@@ -31,10 +34,16 @@ function iosRequestReview(): void {
 // context/activity through the same fallback chain as platform/open-url.
 const androidUtils = Utils.android as any
 const androidContext = () => androidUtils?.getApplicationContext?.() ?? Application.android?.context
-const androidActivity = () => androidUtils?.getCurrentActivity?.() ?? Application.android?.foregroundActivity
+const androidActivity = () =>
+	androidUtils?.getCurrentActivity?.() ?? Application.android?.foregroundActivity
 
 function androidPackageName(): string {
-	return config.androidPackageName ?? androidUtils?.getPackageName?.() ?? androidContext()?.getPackageName() ?? ''
+	return (
+		config.androidPackageName ??
+		androidUtils?.getPackageName?.() ??
+		androidContext()?.getPackageName() ??
+		''
+	)
 }
 
 function androidHasAction(): boolean {
@@ -43,6 +52,7 @@ function androidHasAction(): boolean {
 			android.content.Intent.ACTION_VIEW,
 			android.net.Uri.parse('market://details?id=' + androidPackageName()),
 		)
+
 		return intent.resolveActivity(androidContext().getPackageManager()) != null
 	} catch {
 		return false
@@ -72,11 +82,10 @@ function androidRequestReview(): Promise<void> {
 							reject(task.getException?.() ?? new Error('unsupported: review flow request failed'))
 							return
 						}
+
 						manager
 							.launchReviewFlow(activity, task.getResult())
-							.addOnCompleteListener(
-								new tasks.OnCompleteListener({ onComplete: () => resolve() }),
-							)
+							.addOnCompleteListener(new tasks.OnCompleteListener({ onComplete: () => resolve() }))
 					} catch (e) {
 						reject(e)
 					}

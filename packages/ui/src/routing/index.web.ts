@@ -7,7 +7,13 @@ export { addBackInterceptor } from '../back-interceptors.web'
 
 export { RouteBoundary } from '../RouteBoundary'
 export { useBackInterceptor } from '../use-back'
-export { defineRoute, defineRouteGroup, withSearchDecoder, RouteSearchValidationError } from '../define-route'
+export {
+	defineRoute,
+	defineRouteGroup,
+	withSearchDecoder,
+	RouteSearchValidationError,
+} from '../define-route'
+
 export { defineTransitions } from '../route-transitions'
 export { createPaneRouterHost } from '../pane-router-client'
 export { RouterPane } from '../RouterPane.tsrx'

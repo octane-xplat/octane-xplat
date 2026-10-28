@@ -1,7 +1,13 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { describe, expect, it, vi } from 'vitest'
 import { createContext, useContext, useState } from 'octane'
-import { createObjectContainer, createObjectDriver, createUniversalRoot, flushUniversalSync } from 'octane/universal/native'
+import {
+	createObjectContainer,
+	createObjectDriver,
+	createUniversalRoot,
+	flushUniversalSync,
+} from 'octane/universal/native'
+
 import { createContentOwner } from './owned-content'
 import { useOwnedContent } from './use-owned-content'
 
@@ -11,7 +17,12 @@ const Provider: any = Name
 let content: ReturnType<typeof useOwnedContent>
 let setName: (name: string) => void
 const observed: string[] = []
-function Child() { const name = useContext(Name); observed.push(name); return <label text={name} /> }
+function Child() {
+	const name = useContext(Name)
+	observed.push(name)
+	return <label text={name} />
+}
+
 function Case() {
 	const [name, update] = useState('Avery')
 	setName = update
@@ -19,11 +30,19 @@ function Case() {
 	return <Provider value={name}>{content.element}</Provider>
 }
 
-const settle = async () => { flushUniversalSync(() => {}); await new Promise(resolve => setTimeout(resolve, 0)); flushUniversalSync(() => {}) }
+const settle = async () => {
+	flushUniversalSync(() => {})
+	await new Promise((resolve) => setTimeout(resolve, 0))
+	flushUniversalSync(() => {})
+}
 
 describe('owned content outlets', () => {
 	it('renders under the outlet provider, updates live, and releases only its own entry', async () => {
-		const root = createUniversalRoot(createObjectContainer('nativescript'), createObjectDriver('nativescript'))
+		const root = createUniversalRoot(
+			createObjectContainer('nativescript'),
+			createObjectDriver('nativescript'),
+		)
+
 		root.render(Case, {})
 		await settle()
 		const onDispose = vi.fn()

@@ -12,12 +12,30 @@ export default function SelectProbe() @{
 	const [value, setValue] = useState<string | string[] | null>('apple')
 	const [values, setValues] = useState<string[]>(['locked'])
 
-	<rootlayout><VStack>
-		<Selector id="select-single" label="Fruit" options={options} value={value} onValueChange={setValue} hasClear />
-		<MultiSelector id="select-multiple" label="Fruits" options={options} value={values} onValueChange={setValues} hasSelectAll triggerDisplay="count" searchable />
-		<Text id="select-value">{String(value)}</Text>
-		<Text id="select-values">{values.join(',')}</Text>
-	</VStack></rootlayout>
+	<rootlayout>
+		<VStack>
+			<Selector
+				id="select-single"
+				label="Fruit"
+				options={options}
+				value={value}
+				onValueChange={setValue}
+				hasClear
+			/>
+			<MultiSelector
+				id="select-multiple"
+				label="Fruits"
+				options={options}
+				value={values}
+				onValueChange={setValues}
+				hasSelectAll
+				triggerDisplay="count"
+				searchable
+			/>
+			<Text id="select-value">{String(value)}</Text>
+			<Text id="select-values">{values.join(',')}</Text>
+		</VStack>
+	</rootlayout>
 }
 
 export { run } from './select-case'

@@ -18,15 +18,18 @@ writeFileSync(
 		},
 	}),
 )
+
 const bridge = new URL('../dist/mcp/dev-bridge.js', import.meta.url).href
 writeFileSync(
 	join(root, 'vite.config.mjs'),
 	`import {xplatDevBridge} from ${JSON.stringify(bridge)};export default {plugins:[xplatDevBridge()],server:{host:'127.0.0.1',port:0}}`,
 )
+
 writeFileSync(
 	join(root, 'index.html'),
 	'<html><head></head><body><script type="module">console.warn("SESSION_STARTUP_WARNING")</script></body></html>',
 )
+
 const cli = resolve('packages/cli/dist/cli.js')
 const env = { ...process.env, XPLAT_AGENT_HOST_IDLE_MS: '1000' }
 const call = (args) =>
@@ -36,6 +39,7 @@ const call = (args) =>
 			env,
 		}),
 	)
+
 const launch = call(['session', 'start', 'web'])
 assert.equal(launch.ok, true)
 assert.equal(launch.data.job, undefined)
@@ -47,8 +51,10 @@ try {
 		if (status.data?.session.state !== 'starting') {
 			break
 		}
+
 		await new Promise((r) => setTimeout(r, 100))
 	}
+
 	assert.equal(status.data.session.state, 'ready', JSON.stringify(status))
 	let diagnostic
 	for (let i = 0; i < 100; i++) {
@@ -56,13 +62,16 @@ try {
 		if (diagnostic.data?.logs.records.some((r) => r.line.includes('SESSION_STARTUP_WARNING'))) {
 			break
 		}
+
 		await new Promise((r) => setTimeout(r, 100))
 	}
+
 	assert.ok(
 		diagnostic.data.logs.records.some(
 			(r) => r.line.includes('SESSION_STARTUP_WARNING') && r.source === 'browser',
 		),
 	)
+
 	const end = call(['session', 'end', id])
 	assert.equal(end.data.result.ended, true)
 	await new Promise((r) => setTimeout(r, 2000))

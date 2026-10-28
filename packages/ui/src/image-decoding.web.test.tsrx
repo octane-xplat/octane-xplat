@@ -15,12 +15,17 @@ function mount(props: any = {}) {
 }
 
 afterEach(() => {
-	for (const root of roots.splice(0)) act(() => root.unmount())
+	for (const root of roots.splice(0)) {
+		act(() => root.unmount())
+	}
+
 	document.body.innerHTML = ''
 })
 
 it('writes the HTML decoding attribute — async by default, 1:1 when set', () => {
 	expect(mount({ src: 'https://x/a.png' }).getAttribute('decoding')).toBe('async')
 	expect(mount({ src: 'https://x/a.png', decoding: 'sync' }).getAttribute('decoding')).toBe('sync')
-	expect(mount({ src: 'https://x/a.png', decoding: 'async' }).getAttribute('decoding')).toBe('async')
+	expect(mount({ src: 'https://x/a.png', decoding: 'async' }).getAttribute('decoding')).toBe(
+		'async',
+	)
 })

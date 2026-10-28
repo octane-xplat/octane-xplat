@@ -15,21 +15,46 @@ export function ToggleButton(props: ToggleButtonProps) @{
 	const group = useToggleButtonGroup()
 	const [localPressed, setLocalPressed] = useState(!!props.isPressed)
 	const inGroup = group != null && props.value != null
-	const pressed = inGroup ? group!.selectedValues.has(props.value!) : props.isPressed ?? localPressed
+	const pressed = inGroup
+		? group!.selectedValues.has(props.value!)
+		: (props.isPressed ?? localPressed)
+
 	const controlled = props.isPressed !== undefined
 	const disabled = !!(props.isDisabled || group?.isDisabled)
 	const size = props.size ?? group?.size ?? 'md'
 	let actionValue = !pressed
 	const activate = () => {
-		if (disabled) return
-		if (inGroup) { group!.toggle(props.value!); return }
+		if (disabled) {
+			return
+		}
+
+		if (inGroup) {
+			group!.toggle(props.value!)
+			return
+		}
+
 		const next = !pressed
 		actionValue = next
-		if (!controlled) setLocalPressed(next)
+		if (!controlled) {
+			setLocalPressed(next)
+		}
+
 		props.onPressedChange?.(next)
 	}
 
-	<Button {...props} size={size} variant="ghost" isDisabled={disabled} icon={pressed ? (props.pressedIcon ?? props.icon) : props.icon} clickAction={() => { activate(); return inGroup ? undefined : props.pressedChangeAction?.(actionValue) }} accessibilityState={{...props.accessibilityState, pressed}} className={cx('vx-toggle-button', pressed && 'vx-toggle-button--pressed', props.className)} />
+	<Button
+		{...props}
+		size={size}
+		variant="ghost"
+		isDisabled={disabled}
+		icon={pressed ? (props.pressedIcon ?? props.icon) : props.icon}
+		clickAction={() => {
+			activate()
+			return inGroup ? undefined : props.pressedChangeAction?.(actionValue)
+		}}
+		accessibilityState={{ ...props.accessibilityState, pressed }}
+		className={cx('vx-toggle-button', pressed && 'vx-toggle-button--pressed', props.className)}
+	/>
 }
 
 /**
@@ -40,21 +65,47 @@ export function ToggleButton(props: ToggleButtonProps) @{
 export function ToggleButtonGroup(props: ToggleButtonGroupProps) @{
 	const type = props.type ?? 'single'
 	const controlled = props.value
-	const selected = new Set(Array.isArray(controlled) ? controlled : controlled == null ? [] : [controlled])
+	const selected = new Set(
+		Array.isArray(controlled) ? controlled : controlled == null ? [] : [controlled],
+	)
+
 	const toggle = (key: string) => {
 		if (type === 'multiple') {
 			const next = new Set(selected)
-			if (next.has(key)) next.delete(key); else next.add(key)
+			if (next.has(key)) {
+				next.delete(key)
+			} else {
+				next.add(key)
+			}
 
-			;(props as Extract<ToggleButtonGroupProps, {type:'multiple'}>).onChange([...next])
+			;(props as Extract<ToggleButtonGroupProps, { type: 'multiple' }>).onChange([...next])
 		} else {
-			;(props as Extract<ToggleButtonGroupProps, {type?:'single'}>).onChange(selected.has(key) ? null : key)
+			;(props as Extract<ToggleButtonGroupProps, { type?: 'single' }>).onChange(
+				selected.has(key) ? null : key,
+			)
 		}
 	}
 
-	const context = { selectedValues: selected, toggle, size: props.size, isDisabled: props.isDisabled }
+	const context = {
+		selectedValues: selected,
+		toggle,
+		size: props.size,
+		isDisabled: props.isDisabled,
+	}
 
 	<ToggleButtonGroupProvider value={context}>
-		<masonview id={props.id} className={cx('vx-toggle-button-group', `vx-button-group--${props.orientation ?? 'horizontal'}`, props.className)} style={mergeStyle({display: "flex"}, props.style)} accessible={true} accessibilityLabel={props.label}>{props.children}</masonview>
+		<masonview
+			id={props.id}
+			className={cx(
+				'vx-toggle-button-group',
+				`vx-button-group--${props.orientation ?? 'horizontal'}`,
+				props.className,
+			)}
+			style={mergeStyle({ display: 'flex' }, props.style)}
+			accessible={true}
+			accessibilityLabel={props.label}
+		>
+			{props.children}
+		</masonview>
 	</ToggleButtonGroupProvider>
 }

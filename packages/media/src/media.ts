@@ -16,6 +16,7 @@ import type {
 	PermissionResult,
 	PickedImage,
 } from './types'
+
 import type { PermissionResponse, Service } from '@octane-xplat/lib/capability'
 
 import { android } from '@octane-xplat/platform/android'
@@ -206,6 +207,7 @@ async function cameraStatus(): Promise<PermissionResponse> {
 		const granted =
 			activity?.checkSelfPermission?.('android.permission.CAMERA') ===
 			android.content.pm.PackageManager.PERMISSION_GRANTED
+
 		// Android can't distinguish never-asked from denied without the
 		// rationale hook — report undetermined and let request resolve it.
 		return granted
@@ -278,6 +280,7 @@ permissionOwners.camera = {
 	getPermissions: () => media.getPermissions('camera'),
 	requestPermissions: () => media.requestPermissions('camera'),
 }
+
 permissionOwners.photos = {
 	getPermissions: () => media.getPermissions('photos'),
 	requestPermissions: () => media.requestPermissions('photos'),

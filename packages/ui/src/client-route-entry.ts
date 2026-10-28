@@ -24,7 +24,9 @@ export function createClientRouteEntry(
 		settle = resolve
 	})
 	const finish = (result: RouterHostResult) => {
-		if (settled) {return}
+		if (settled) {
+			return
+		}
 		settled = true
 		settle(result)
 	}
@@ -39,7 +41,9 @@ export function createClientRouteEntry(
 			finish({ status: 'committed', route })
 		},
 		failed(error: unknown) {
-			if (settled) {return}
+			if (settled) {
+				return
+			}
 			settled = true
 			reject(error)
 		},
@@ -48,4 +52,5 @@ export function createClientRouteEntry(
 		},
 	}
 }
+
 export type ClientRouteEntry = ReturnType<typeof createClientRouteEntry>

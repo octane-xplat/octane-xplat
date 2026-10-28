@@ -59,6 +59,7 @@ import {
 	stylesheetsHaveMediaRules,
 	transformToParts,
 } from '@octane-xplat/css-engine'
+
 import { parseHtmlText, validateHtmlProps } from './html-text'
 import { srgbComponents, withDrawingAppearance } from './color-components'
 import { resolveFont as fontForFamilyStyle } from './fonts'
@@ -611,7 +612,11 @@ class InteractionSecureTextFieldCell extends NSSecureTextFieldCell {
  *  The insets live in labelPaddings: JS field initializers do not survive
  *  ObjC-side init paths like initTextCell, and ObjC exceptions crossing the
  *  bridge terminate the process. */
-const labelPaddings = new WeakMap<object, { top: number; left: number; bottom: number; right: number }>()
+const labelPaddings = new WeakMap<
+	object,
+	{ top: number; left: number; bottom: number; right: number }
+>()
+
 const ZERO_PADDING = { top: 0, left: 0, bottom: 0, right: 0 }
 
 class PaddedLabelCell extends NSTextFieldCell {
@@ -1485,11 +1490,7 @@ function setLayoutAction(node: ElementNode, handler: ((event: any) => void) | un
 	})
 }
 
-function setTextFieldPlaceholder(
-	field: NSTextField,
-	props: PropBag,
-	colorOverride?: string,
-) {
+function setTextFieldPlaceholder(field: NSTextField, props: PropBag, colorOverride?: string) {
 	const placeholder = String(props.placeholder ?? '')
 	if (!placeholder) {
 		field.placeholderAttributedString = null as unknown as NSAttributedString
@@ -1502,9 +1503,10 @@ function setTextFieldPlaceholder(
 		placeholder,
 		{
 			[NSFontAttributeName]: field.font,
-			[NSForegroundColorAttributeName]: colorOverride != null || props.placeholderTextColor != null
-				? nativeColor(colorOverride ?? String(props.placeholderTextColor))
-				: NSColor.placeholderTextColor,
+			[NSForegroundColorAttributeName]:
+				colorOverride != null || props.placeholderTextColor != null
+					? nativeColor(colorOverride ?? String(props.placeholderTextColor))
+					: NSColor.placeholderTextColor,
 		},
 	)
 }
@@ -2674,9 +2676,7 @@ function validateNodeProps(type: string, props: PropBag | undefined, baseProps?:
 		props?.orientation != null &&
 		!['horizontal', 'vertical', 'both'].includes(props.orientation)
 	) {
-		throw new Error(
-			'[macos-host] ' + type + ' orientation must be horizontal, vertical or both',
-		)
+		throw new Error('[macos-host] ' + type + ' orientation must be horizontal, vertical or both')
 	}
 
 	if (props?.dock != null && !['left', 'top', 'right', 'bottom'].includes(props.dock)) {
@@ -2944,6 +2944,7 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 			node.placeholderHeight = placeholder.heightAnchor.constraintEqualToConstant(
 				Math.ceil(14 * DEFAULT_TEXT_LINE_HEIGHT_RATIO),
 			)
+
 			node.placeholderHeight.active = true
 
 			placeholder.hidden = String(props.value ?? '').length > 0
@@ -2952,6 +2953,7 @@ function makeNode(container: RootContainer, id: number, type: string, props: Pro
 				node.view!.leadingAnchor,
 				0,
 			)
+
 			node.placeholderLeading.active = true
 
 			node.placeholderTop = placeholder.topAnchor.constraintEqualToAnchor(node.view!.topAnchor)
@@ -3020,43 +3022,154 @@ function parseEdgeInsets(value: any) {
 // this table covers the common names; extend as needed.
 const CSS_NAMED_COLORS: Record<string, number> = {
 	transparent: 0x000000,
-	aliceblue: 0xf0f8ff, antiquewhite: 0xfaebd7, aqua: 0x00ffff, aquamarine: 0x7fffd4,
-	azure: 0xf0ffff, beige: 0xf5f5dc, bisque: 0xffe4c4, black: 0x000000,
-	blanchedalmond: 0xffebcd, blue: 0x0000ff, blueviolet: 0x8a2be2, brown: 0xa52a2a,
-	burlywood: 0xdeb887, cadetblue: 0x5f9ea0, chartreuse: 0x7fff00, chocolate: 0xd2691e,
-	coral: 0xff7f50, cornflowerblue: 0x6495ed, cornsilk: 0xfff8dc, crimson: 0xdc143c,
-	cyan: 0x00ffff, darkblue: 0x00008b, darkcyan: 0x008b8b, darkgoldenrod: 0xb8860b,
-	darkgray: 0xa9a9a9, darkgrey: 0xa9a9a9, darkgreen: 0x006400, darkkhaki: 0xbdb76b,
-	darkmagenta: 0x8b008b, darkolivegreen: 0x556b2f, darkorange: 0xff8c00, darkorchid: 0x9932cc,
-	darkred: 0x8b0000, darksalmon: 0xe9967a, darkseagreen: 0x8fbc8f, darkslateblue: 0x483d8b,
-	darkslategray: 0x2f4f4f, darkslategrey: 0x2f4f4f, darkturquoise: 0x00ced1, darkviolet: 0x9400d3,
-	deeppink: 0xff1493, deepskyblue: 0x00bfff, dimgray: 0x696969, dimgrey: 0x696969,
-	dodgerblue: 0x1e90ff, firebrick: 0xb22222, floralwhite: 0xfffaf0, forestgreen: 0x228b22,
-	fuchsia: 0xff00ff, gainsboro: 0xdcdcdc, ghostwhite: 0xf8f8ff, gold: 0xffd700,
-	goldenrod: 0xdaa520, gray: 0x808080, grey: 0x808080, green: 0x008000, greenyellow: 0xadff2f,
-	honeydew: 0xf0fff0, hotpink: 0xff69b4, indianred: 0xcd5c5c, indigo: 0x4b0082,
-	ivory: 0xfffff0, khaki: 0xf0e68c, lavender: 0xe6e6fa, lavenderblush: 0xfff0f5,
-	lawngreen: 0x7cfc00, lemonchiffon: 0xfffacd, lightblue: 0xadd8e6, lightcoral: 0xf08080,
-	lightcyan: 0xe0ffff, lightgoldenrodyellow: 0xfafad2, lightgray: 0xd3d3d3, lightgrey: 0xd3d3d3,
-	lightgreen: 0x90ee90, lightpink: 0xffb6c1, lightsalmon: 0xffa07a, lightseagreen: 0x20b2aa,
-	lightskyblue: 0x87cefa, lightslategray: 0x778899, lightslategrey: 0x778899, lightsteelblue: 0xb0c4de,
-	lightyellow: 0xffffe0, lime: 0x00ff00, limegreen: 0x32cd32, linen: 0xfaf0e6,
-	magenta: 0xff00ff, maroon: 0x800000, mediumaquamarine: 0x66cdaa, mediumblue: 0x0000cd,
-	mediumorchid: 0xba55d3, mediumpurple: 0x9370db, mediumseagreen: 0x3cb371, mediumslateblue: 0x7b68ee,
-	mediumspringgreen: 0x00fa9a, mediumturquoise: 0x48d1cc, mediumvioletred: 0xc71585, midnightblue: 0x191970,
-	mintcream: 0xf5fffa, mistyrose: 0xffe4e1, moccasin: 0xffe4b5, navajowhite: 0xffdead,
-	navy: 0x000080, oldlace: 0xfdf5e6, olive: 0x808000, olivedrab: 0x6b8e23,
-	orange: 0xffa500, orangered: 0xff4500, orchid: 0xda70d6, palegoldenrod: 0xeee8aa,
-	palegreen: 0x98fb98, paleturquoise: 0xafeeee, palevioletred: 0xdb7093, papayawhip: 0xffefd5,
-	peachpuff: 0xffdab9, peru: 0xcd853f, pink: 0xffc0cb, plum: 0xdda0dd,
-	powderblue: 0xb0e0e6, purple: 0x800080, rebeccapurple: 0x663399, red: 0xff0000,
-	rosybrown: 0xbc8f8f, royalblue: 0x4169e1, saddlebrown: 0x8b4513, salmon: 0xfa8072,
-	sandybrown: 0xf4a460, seagreen: 0x2e8b57, seashell: 0xfff5ee, sienna: 0xa0522d,
-	silver: 0xc0c0c0, skyblue: 0x87ceeb, slateblue: 0x6a5acd, slategray: 0x708090,
-	slategrey: 0x708090, snow: 0xfffafa, springgreen: 0x00ff7f, steelblue: 0x4682b4,
-	tan: 0xd2b48c, teal: 0x008080, thistle: 0xd8bfd8, tomato: 0xff6347,
-	turquoise: 0x40e0d0, violet: 0xee82ee, wheat: 0xf5deb3, white: 0xffffff,
-	whitesmoke: 0xf5f5f5, yellow: 0xffff00, yellowgreen: 0x9acd32,
+	aliceblue: 0xf0f8ff,
+	antiquewhite: 0xfaebd7,
+	aqua: 0x00ffff,
+	aquamarine: 0x7fffd4,
+	azure: 0xf0ffff,
+	beige: 0xf5f5dc,
+	bisque: 0xffe4c4,
+	black: 0x000000,
+	blanchedalmond: 0xffebcd,
+	blue: 0x0000ff,
+	blueviolet: 0x8a2be2,
+	brown: 0xa52a2a,
+	burlywood: 0xdeb887,
+	cadetblue: 0x5f9ea0,
+	chartreuse: 0x7fff00,
+	chocolate: 0xd2691e,
+	coral: 0xff7f50,
+	cornflowerblue: 0x6495ed,
+	cornsilk: 0xfff8dc,
+	crimson: 0xdc143c,
+	cyan: 0x00ffff,
+	darkblue: 0x00008b,
+	darkcyan: 0x008b8b,
+	darkgoldenrod: 0xb8860b,
+	darkgray: 0xa9a9a9,
+	darkgrey: 0xa9a9a9,
+	darkgreen: 0x006400,
+	darkkhaki: 0xbdb76b,
+	darkmagenta: 0x8b008b,
+	darkolivegreen: 0x556b2f,
+	darkorange: 0xff8c00,
+	darkorchid: 0x9932cc,
+	darkred: 0x8b0000,
+	darksalmon: 0xe9967a,
+	darkseagreen: 0x8fbc8f,
+	darkslateblue: 0x483d8b,
+	darkslategray: 0x2f4f4f,
+	darkslategrey: 0x2f4f4f,
+	darkturquoise: 0x00ced1,
+	darkviolet: 0x9400d3,
+	deeppink: 0xff1493,
+	deepskyblue: 0x00bfff,
+	dimgray: 0x696969,
+	dimgrey: 0x696969,
+	dodgerblue: 0x1e90ff,
+	firebrick: 0xb22222,
+	floralwhite: 0xfffaf0,
+	forestgreen: 0x228b22,
+	fuchsia: 0xff00ff,
+	gainsboro: 0xdcdcdc,
+	ghostwhite: 0xf8f8ff,
+	gold: 0xffd700,
+	goldenrod: 0xdaa520,
+	gray: 0x808080,
+	grey: 0x808080,
+	green: 0x008000,
+	greenyellow: 0xadff2f,
+	honeydew: 0xf0fff0,
+	hotpink: 0xff69b4,
+	indianred: 0xcd5c5c,
+	indigo: 0x4b0082,
+	ivory: 0xfffff0,
+	khaki: 0xf0e68c,
+	lavender: 0xe6e6fa,
+	lavenderblush: 0xfff0f5,
+	lawngreen: 0x7cfc00,
+	lemonchiffon: 0xfffacd,
+	lightblue: 0xadd8e6,
+	lightcoral: 0xf08080,
+	lightcyan: 0xe0ffff,
+	lightgoldenrodyellow: 0xfafad2,
+	lightgray: 0xd3d3d3,
+	lightgrey: 0xd3d3d3,
+	lightgreen: 0x90ee90,
+	lightpink: 0xffb6c1,
+	lightsalmon: 0xffa07a,
+	lightseagreen: 0x20b2aa,
+	lightskyblue: 0x87cefa,
+	lightslategray: 0x778899,
+	lightslategrey: 0x778899,
+	lightsteelblue: 0xb0c4de,
+	lightyellow: 0xffffe0,
+	lime: 0x00ff00,
+	limegreen: 0x32cd32,
+	linen: 0xfaf0e6,
+	magenta: 0xff00ff,
+	maroon: 0x800000,
+	mediumaquamarine: 0x66cdaa,
+	mediumblue: 0x0000cd,
+	mediumorchid: 0xba55d3,
+	mediumpurple: 0x9370db,
+	mediumseagreen: 0x3cb371,
+	mediumslateblue: 0x7b68ee,
+	mediumspringgreen: 0x00fa9a,
+	mediumturquoise: 0x48d1cc,
+	mediumvioletred: 0xc71585,
+	midnightblue: 0x191970,
+	mintcream: 0xf5fffa,
+	mistyrose: 0xffe4e1,
+	moccasin: 0xffe4b5,
+	navajowhite: 0xffdead,
+	navy: 0x000080,
+	oldlace: 0xfdf5e6,
+	olive: 0x808000,
+	olivedrab: 0x6b8e23,
+	orange: 0xffa500,
+	orangered: 0xff4500,
+	orchid: 0xda70d6,
+	palegoldenrod: 0xeee8aa,
+	palegreen: 0x98fb98,
+	paleturquoise: 0xafeeee,
+	palevioletred: 0xdb7093,
+	papayawhip: 0xffefd5,
+	peachpuff: 0xffdab9,
+	peru: 0xcd853f,
+	pink: 0xffc0cb,
+	plum: 0xdda0dd,
+	powderblue: 0xb0e0e6,
+	purple: 0x800080,
+	rebeccapurple: 0x663399,
+	red: 0xff0000,
+	rosybrown: 0xbc8f8f,
+	royalblue: 0x4169e1,
+	saddlebrown: 0x8b4513,
+	salmon: 0xfa8072,
+	sandybrown: 0xf4a460,
+	seagreen: 0x2e8b57,
+	seashell: 0xfff5ee,
+	sienna: 0xa0522d,
+	silver: 0xc0c0c0,
+	skyblue: 0x87ceeb,
+	slateblue: 0x6a5acd,
+	slategray: 0x708090,
+	slategrey: 0x708090,
+	snow: 0xfffafa,
+	springgreen: 0x00ff7f,
+	steelblue: 0x4682b4,
+	tan: 0xd2b48c,
+	teal: 0x008080,
+	thistle: 0xd8bfd8,
+	tomato: 0xff6347,
+	turquoise: 0x40e0d0,
+	violet: 0xee82ee,
+	wheat: 0xf5deb3,
+	white: 0xffffff,
+	whitesmoke: 0xf5f5f5,
+	yellow: 0xffff00,
+	yellowgreen: 0x9acd32,
 }
 
 function nativeColor(value: any): NSColor {
@@ -3115,9 +3228,10 @@ function nativeColor(value: any): NSColor {
 		)
 	}
 
-	match = /^hsla?\(\s*(-?[\d.]+)(?:deg|turn|rad)?[,\s]+([\d.]+)%?[,\s]+([\d.]+)%?[,\s/]*([\d.]*)\s*\)$/i.exec(
-		string,
-	)
+	match =
+		/^hsla?\(\s*(-?[\d.]+)(?:deg|turn|rad)?[,\s]+([\d.]+)%?[,\s]+([\d.]+)%?[,\s/]*([\d.]*)\s*\)$/i.exec(
+			string,
+		)
 	if (match) {
 		let h = parseFloat(match[1])
 		if (/turn/i.test(string)) {
@@ -3125,6 +3239,7 @@ function nativeColor(value: any): NSColor {
 		} else if (/rad/i.test(string)) {
 			h = (h * 180) / Math.PI
 		}
+
 		h = ((h % 360) + 360) % 360
 		const sat = Math.min(100, Math.max(0, parseFloat(match[2]))) / 100
 		const light = Math.min(100, Math.max(0, parseFloat(match[3]))) / 100
@@ -3133,7 +3248,15 @@ function nativeColor(value: any): NSColor {
 		const x = c * (1 - Math.abs(((h / 60) % 2) - 1))
 		const m = light - c / 2
 		const seg = Math.floor(h / 60) % 6
-		const rgb = [[c,x,0],[x,c,0],[0,c,x],[0,x,c],[x,0,c],[c,0,x]][seg]
+		const rgb = [
+			[c, x, 0],
+			[x, c, 0],
+			[0, c, x],
+			[0, x, c],
+			[x, 0, c],
+			[c, 0, x],
+		][seg]
+
 		return NSColor.colorWithRedGreenBlueAlpha(
 			Math.min(1, Math.max(0, rgb[0] + m)),
 			Math.min(1, Math.max(0, rgb[1] + m)),
@@ -3246,6 +3369,7 @@ function flushStyleDirty(container: RootContainer) {
 		if (node.container.nodes && !node.container.nodes.has(node.id) && node.type !== 'portalroot') {
 			continue
 		}
+
 		restyleNode(node)
 	}
 
@@ -3263,7 +3387,6 @@ function cssDepth(node: ElementNode): number {
 	}
 	return depth
 }
-
 
 function shallowEqualStyle(a: PropBag, b: PropBag) {
 	const keys = Object.keys(a)
@@ -3316,6 +3439,7 @@ function restyleNode(node: ElementNode) {
 		if (node.type === 'activityindicator') {
 			syncActivityIndicator(node)
 		}
+
 		// Text attributes (font, line height) bake into the attributed string,
 		// which applyProps built before this restyle resolved the font.
 		if (node.type === 'htmlview') {
@@ -3362,14 +3486,13 @@ function animationBase(node: ElementNode): Partial<SampledValues> {
 	const style = node.computedStyle ?? {}
 	const frame = node.view?.frame?.size
 	const opacity = Number(style.opacity ?? node.props.opacity)
-	const parts =
-		typeof style.transform === 'string' ? transformToParts(style.transform) : undefined
+	const parts = typeof style.transform === 'string' ? transformToParts(style.transform) : undefined
 	return {
 		opacity: Number.isFinite(opacity) ? opacity : 1,
 		backgroundColor:
 			typeof style.backgroundColor === 'string' ? style.backgroundColor : 'rgba(0,0,0,0)',
-		translateX: parts?.translateX ?? (style.translateX ?? 0),
-		translateY: parts?.translateY ?? (style.translateY ?? 0),
+		translateX: parts?.translateX ?? style.translateX ?? 0,
+		translateY: parts?.translateY ?? style.translateY ?? 0,
 		scaleX: parts?.scaleX ?? 1,
 		scaleY: parts?.scaleY ?? 1,
 		rotate: parts?.rotate ?? 0,
@@ -3404,9 +3527,7 @@ function tickKeyframeAnimations() {
 			playingNodes.delete(node)
 		}
 	}
-	animationTimer = playingNodes.size
-		? setTimeout(tickKeyframeAnimations, ANIMATION_FRAME_MS)
-		: null
+	animationTimer = playingNodes.size ? setTimeout(tickKeyframeAnimations, ANIMATION_FRAME_MS) : null
 }
 
 /** Writes one frame; false once every animation on the node has finished. */
@@ -3444,7 +3565,7 @@ function advanceKeyframeAnimation(node: ElementNode, now: number): boolean {
  *  the computed style inside applyStyle; a no-op frame skips the write. */
 function applyAnimationFrame(node: ElementNode) {
 	const merged = node.animatedStyle
-		? { ...(node.computedStyle ?? {}), ...node.animatedStyle }
+		? { ...node.computedStyle, ...node.animatedStyle }
 		: (node.computedStyle ?? {})
 	if (node.appliedStyle && shallowEqualStyle(node.appliedStyle, merged)) {
 		return
@@ -3497,7 +3618,9 @@ function setNodeInlineStyle(node: ElementNode, value: any) {
 	const inheritedOrCustom = (bag: any): boolean =>
 		!!bag &&
 		Object.keys(bag).some(
-			(k) => k.startsWith('--') || INHERITED_CSS_PROPERTIES.has(k.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase())),
+			(k) =>
+				k.startsWith('--') ||
+				INHERITED_CSS_PROPERTIES.has(k.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase())),
 		)
 	const subtree = Boolean(inheritedOrCustom(prev)) || Boolean(inheritedOrCustom(value))
 	markStyleDirty(node, subtree)
@@ -3553,11 +3676,7 @@ function setPseudoClass(node: ElementNode, name: string, on: boolean) {
 const NORMAL_OFF = new Set(['highlighted', 'active', 'pressed', 'focus', 'checked', 'disabled'])
 
 function syncNormalState(node: ElementNode) {
-	setPseudoClass(
-		node,
-		'normal',
-		![...NORMAL_OFF].some((name) => node.cssPseudoClasses.has(name)),
-	)
+	setPseudoClass(node, 'normal', ![...NORMAL_OFF].some((name) => node.cssPseudoClasses.has(name)))
 }
 
 // textfield/textview drop native chrome when the effective style overrides
@@ -3579,11 +3698,19 @@ function syncInputChrome(node: ElementNode) {
 			width: Number(style.paddingLeft ?? inset.left) || 0,
 			height: Number(style.paddingTop ?? inset.top) || 0,
 		}
-		if (node.placeholderLeading) {node.placeholderLeading.constant = view.textContainerInset.width}
-		if (node.placeholderTop) {node.placeholderTop.constant = view.textContainerInset.height}
+
+		if (node.placeholderLeading) {
+			node.placeholderLeading.constant = view.textContainerInset.width
+		}
+
+		if (node.placeholderTop) {
+			node.placeholderTop.constant = view.textContainerInset.height
+		}
+
 		if (node.placeholderHeight && Number(style.lineHeight) > 0) {
 			node.placeholderHeight.constant = Number(style.lineHeight)
 		}
+
 		fitTextView(node)
 	} else {
 		view.invalidateIntrinsicContentSize?.()
@@ -3610,9 +3737,10 @@ function syncNativeColors(node: ElementNode) {
 	}
 
 	if (node.type === 'textview' && node.placeholderView) {
-		node.placeholderView.textColor = node.stylePlaceholderColor != null
-			? nativeColor(node.stylePlaceholderColor)
-			: NSColor.placeholderTextColor
+		node.placeholderView.textColor =
+			node.stylePlaceholderColor != null
+				? nativeColor(node.stylePlaceholderColor)
+				: NSColor.placeholderTextColor
 	}
 
 	if (node.styleBg != null) {
@@ -3738,9 +3866,7 @@ function deactivateSizeConstraints(node: ElementNode) {
 // style wins over element defaults.
 function syncNodeFont(node: ElementNode) {
 	const size =
-		node.styleFontSize ??
-		node.propFontSize ??
-		(['label', 'htmlview'].includes(node.type) ? 16 : 14)
+		node.styleFontSize ?? node.propFontSize ?? (['label', 'htmlview'].includes(node.type) ? 16 : 14)
 
 	const weight = node.styleFontWeight ?? 400
 	node.appliedFontWeight = String(weight)
@@ -3749,8 +3875,7 @@ function syncNodeFont(node: ElementNode) {
 	const fontStyle = String(effectiveStyle(node).fontStyle ?? 'normal')
 	if (font && (fontStyle === 'italic' || fontStyle === 'oblique')) {
 		font =
-			NSFontManager.sharedFontManager.convertFontToHaveTrait(font, NSFontTraitMask.Italic) ??
-			font
+			NSFontManager.sharedFontManager.convertFontToHaveTrait(font, NSFontTraitMask.Italic) ?? font
 	}
 	node.view!.font = font
 }
@@ -3848,7 +3973,7 @@ const CSS_CURSORS: Record<string, string> = {
 	copy: 'dragCopyCursor',
 	alias: 'dragLinkCursor',
 	'context-menu': 'contextualMenuCursor',
-	'disappearing': 'disappearingItemCursor',
+	disappearing: 'disappearingItemCursor',
 }
 
 // The hover record's `inside` flag lets a mid-hover cursor change retake the
@@ -3863,7 +3988,9 @@ function syncCursor(node: ElementNode) {
 		if (property) {
 			cursor = (NSCursor as any)[property]
 		} else {
-			console.warn('[macos-css] unsupported cursor ' + JSON.stringify(name) + ' (on <' + node.type + '>)')
+			console.warn(
+				'[macos-css] unsupported cursor ' + JSON.stringify(name) + ' (on <' + node.type + '>)',
+			)
 		}
 	}
 
@@ -3888,6 +4015,7 @@ function syncCursor(node: ElementNode) {
 				unobserveHover(view)
 			}
 		}
+
 		return
 	}
 
@@ -3895,7 +4023,9 @@ function syncCursor(node: ElementNode) {
 	if (!record) {
 		observeHover(view, {})
 		record = hoverRecordByView.get(view)
-		if (!record) return
+		if (!record) {
+			return
+		}
 	}
 
 	release(record)
@@ -3940,9 +4070,19 @@ function outlineSpec(style: PropBag) {
 			if (/^[+-]?[\d.]+(px)?$/.test(token)) {
 				width = parseFloat(token)
 			} else if (
-				['none', 'hidden', 'solid', 'dotted', 'dashed', 'double', 'groove', 'ridge', 'inset', 'outset', 'auto'].includes(
-					token,
-				)
+				[
+					'none',
+					'hidden',
+					'solid',
+					'dotted',
+					'dashed',
+					'double',
+					'groove',
+					'ridge',
+					'inset',
+					'outset',
+					'auto',
+				].includes(token)
 			) {
 				styleName = token
 			} else {
@@ -3966,11 +4106,14 @@ function outlineSpec(style: PropBag) {
 	}
 	// AppKit draws one solid ring; decorative outline styles approximate to it.
 	if (styleName != null && styleName !== 'solid' && styleName !== 'auto') {
-		console.warn('[macos-css] unsupported outline-style ' + JSON.stringify(styleName) + '; drawing solid')
+		console.warn(
+			'[macos-css] unsupported outline-style ' + JSON.stringify(styleName) + '; drawing solid',
+		)
 	}
 	return {
 		width,
-		color: color != null ? nativeColor(color).CGColor : NSColor.keyboardFocusIndicatorColor?.CGColor,
+		color:
+			color != null ? nativeColor(color).CGColor : NSColor.keyboardFocusIndicatorColor?.CGColor,
 		offset: Number.isFinite(offset) ? offset : 0,
 	}
 }
@@ -3984,7 +4127,9 @@ function syncOutline(node: ElementNode) {
 		node.outlineObserver = null
 	}
 	const spec = outlineSpec(effectiveStyle(node))
-	if (!spec || !view.layer) return
+	if (!spec || !view.layer) {
+		return
+	}
 	view.wantsLayer = true
 	const layer = CALayer.alloc().init()
 	node.outlineLayer = layer
@@ -4006,7 +4151,10 @@ function syncOutline(node: ElementNode) {
 	resize()
 	view.postsFrameChangedNotifications = true
 	node.outlineObserver = NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
-		NSViewFrameDidChangeNotification, view, null, resize,
+		NSViewFrameDidChangeNotification,
+		view,
+		null,
+		resize,
 	)
 }
 
@@ -4019,7 +4167,9 @@ function syncBackgroundImage(node: ElementNode, value: any) {
 		NSNotificationCenter.defaultCenter.removeObserver(node.gradientObserver)
 		node.gradientObserver = null
 	}
-	if (value == null || value === 'none') return
+	if (value == null || value === 'none') {
+		return
+	}
 	const match = /^linear-gradient\((.*)\)$/s.exec(String(value).trim())
 	if (!match) {
 		console.warn('[macos-css] unsupported backgroundImage: ' + value)
@@ -4027,11 +4177,18 @@ function syncBackgroundImage(node: ElementNode, value: any) {
 	}
 	// Split only top-level commas: rgb()/rgba() colors contain commas too.
 	const parts: string[] = []
-	let depth = 0, start = 0
+	let depth = 0,
+		start = 0
 	for (let i = 0; i < match[1].length; i++) {
 		const c = match[1][i]
-		if (c === '(') depth++
-		if (c === ')') depth--
+		if (c === '(') {
+			depth++
+		}
+
+		if (c === ')') {
+			depth--
+		}
+
 		if (c === ',' && depth === 0) {
 			parts.push(match[1].slice(start, i).trim())
 			start = i + 1
@@ -4039,28 +4196,50 @@ function syncBackgroundImage(node: ElementNode, value: any) {
 	}
 	parts.push(match[1].slice(start).trim())
 	const directions: Record<string, number> = {
-		'to top': 0, 'to right': 90, 'to bottom': 180, 'to left': 270,
-		'to top right': 45, 'to right top': 45, 'to bottom right': 135,
-		'to right bottom': 135, 'to bottom left': 225, 'to left bottom': 225,
-		'to top left': 315, 'to left top': 315,
+		'to top': 0,
+		'to right': 90,
+		'to bottom': 180,
+		'to left': 270,
+		'to top right': 45,
+		'to right top': 45,
+		'to bottom right': 135,
+		'to right bottom': 135,
+		'to bottom left': 225,
+		'to left bottom': 225,
+		'to top left': 315,
+		'to left top': 315,
 	}
 	let angle = 180
-	if (parts[0] in directions) angle = directions[parts.shift()!]!
-	else if (/^[+-]?[\d.]+deg$/.test(parts[0])) angle = parseFloat(parts.shift()!)
-	if (parts.length < 2) return
+	if (parts[0] in directions) {
+		angle = directions[parts.shift()!]!
+	} else if (/^[+-]?[\d.]+deg$/.test(parts[0])) {
+		angle = parseFloat(parts.shift()!)
+	}
+	if (parts.length < 2) {
+		return
+	}
 	const stops = parts.map((part) => {
 		const stop = /^(.*?)\s+([+-]?[\d.]+)%$/.exec(part)
-		return { color: nativeColor(stop ? stop[1] : part).CGColor, at: stop ? Number(stop[2]) / 100 : null }
+		return {
+			color: nativeColor(stop ? stop[1] : part).CGColor,
+			at: stop ? Number(stop[2]) / 100 : null,
+		}
 	})
 	stops[0].at ??= 0
 	stops[stops.length - 1].at ??= 1
 	let previous = 0
 	for (let i = 1; i < stops.length; i++) {
-		if (stops[i].at == null) continue
+		if (stops[i].at == null) {
+			continue
+		}
+
 		stops[i].at = Math.max(stops[previous].at!, stops[i].at!)
 		for (let j = previous + 1; j < i; j++) {
-			stops[j].at = stops[previous].at! + (stops[i].at! - stops[previous].at!) * (j - previous) / (i - previous)
+			stops[j].at =
+				stops[previous].at! +
+				((stops[i].at! - stops[previous].at!) * (j - previous)) / (i - previous)
 		}
+
 		previous = i
 	}
 	view.wantsLayer = true
@@ -4072,33 +4251,33 @@ function syncBackgroundImage(node: ElementNode, value: any) {
 	const resize = () => {
 		layer.frame = view.bounds
 		layer.cornerRadius = view.layer.cornerRadius
-		const radians = angle * Math.PI / 180
+		const radians = (angle * Math.PI) / 180
 		const flipped = typeof view.isFlipped === 'function' ? view.isFlipped() : view.isFlipped
-		const dx = Math.sin(radians), dy = -Math.cos(radians) * (flipped ? 1 : -1)
+		const dx = Math.sin(radians),
+			dy = -Math.cos(radians) * (flipped ? 1 : -1)
 		const { width, height } = view.bounds.size
 		const length = Math.abs(width * dx) + Math.abs(height * dy)
-		const x = width ? dx * length / width / 2 : 0
-		const y = height ? dy * length / height / 2 : 0
+		const x = width ? (dx * length) / width / 2 : 0
+		const y = height ? (dy * length) / height / 2 : 0
 		layer.startPoint = { x: 0.5 - x, y: 0.5 - y }
 		layer.endPoint = { x: 0.5 + x, y: 0.5 + y }
 	}
 	resize()
 	view.postsFrameChangedNotifications = true
-	node.gradientObserver = NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
-		NSViewFrameDidChangeNotification, view, null, resize,
-	)
+	node.gradientObserver =
+		NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
+			NSViewFrameDidChangeNotification,
+			view,
+			null,
+			resize,
+		)
 }
 
 type BorderSide = 'top' | 'right' | 'bottom' | 'left'
 type BorderCorner = 'topLeft' | 'topRight' | 'bottomRight' | 'bottomLeft'
 
 const BORDER_SIDES: readonly BorderSide[] = ['top', 'right', 'bottom', 'left']
-const BORDER_CORNERS: readonly BorderCorner[] = [
-	'topLeft',
-	'topRight',
-	'bottomRight',
-	'bottomLeft',
-]
+const BORDER_CORNERS: readonly BorderCorner[] = ['topLeft', 'topRight', 'bottomRight', 'bottomLeft']
 
 // camelCase style keys → the slot each writes; 'all' expands to every
 // side/corner. CSS border shorthands land as longhands (computeCascade
@@ -4110,6 +4289,7 @@ const BORDER_WIDTH_KEYS: Record<string, BorderSide | 'all'> = {
 	borderBottomWidth: 'bottom',
 	borderLeftWidth: 'left',
 }
+
 const BORDER_COLOR_KEYS: Record<string, BorderSide | 'all'> = {
 	borderColor: 'all',
 	borderTopColor: 'top',
@@ -4117,6 +4297,7 @@ const BORDER_COLOR_KEYS: Record<string, BorderSide | 'all'> = {
 	borderBottomColor: 'bottom',
 	borderLeftColor: 'left',
 }
+
 const BORDER_RADIUS_KEYS: Record<string, BorderCorner | 'all'> = {
 	borderRadius: 'all',
 	borderTopLeftRadius: 'topLeft',
@@ -4124,6 +4305,7 @@ const BORDER_RADIUS_KEYS: Record<string, BorderCorner | 'all'> = {
 	borderBottomRightRadius: 'bottomRight',
 	borderBottomLeftRadius: 'bottomLeft',
 }
+
 const BORDER_EDGE_KEYS: Record<string, BorderSide | 'all'> = {
 	border: 'all',
 	borderTop: 'top',
@@ -4131,6 +4313,7 @@ const BORDER_EDGE_KEYS: Record<string, BorderSide | 'all'> = {
 	borderBottom: 'bottom',
 	borderLeft: 'left',
 }
+
 // Borders paint solid regardless — consume the declarations so they don't warn.
 const BORDER_STYLE_KEYS = new Set([
 	'borderStyle',
@@ -4153,6 +4336,7 @@ function splitStyleTokens(text: string): string[] {
 		} else if (c === ')') {
 			depth = Math.max(0, depth - 1)
 		}
+
 		if (i === text.length || (depth === 0 && (c === ' ' || c === '\t' || c === '\n'))) {
 			if (start >= 0) {
 				tokens.push(text.slice(start, i))
@@ -4170,7 +4354,9 @@ function borderLength(value: any): number {
 	if (typeof value === 'number') {
 		return Number.isFinite(value) ? Math.max(0, value) : 0
 	}
-	const text = String(value ?? '').trim().toLowerCase()
+	const text = String(value ?? '')
+		.trim()
+		.toLowerCase()
 	if (text === 'thin') {
 		return 1
 	}
@@ -4225,6 +4411,7 @@ function scaleBorderRadii(radii: Record<BorderCorner, number>, w: number, h: num
 		for (const corner of BORDER_CORNERS) {
 			scaled[corner] *= scale
 		}
+
 		return scaled
 	}
 	return radii
@@ -4242,6 +4429,7 @@ const BORDER_STYLE_WORDS = new Set([
 	'inset',
 	'outset',
 ])
+
 const BORDER_WIDTH_RE = /^[+-]?(?:\d+\.?\d*|\.\d+)(?:px|dip|pt)?$|^thin$|^medium$|^thick$/i
 
 // `border[-side]: <width> <style> <color>` arrives whole (no shorthand
@@ -4260,10 +4448,12 @@ function parseBorderEdge(value: any): { width: any; color: any } {
 			none = none || lower === 'none' || lower === 'hidden'
 			continue
 		}
+
 		if (width === undefined && BORDER_WIDTH_RE.test(token)) {
 			width = token
 			continue
 		}
+
 		color = color === undefined ? token : `${color} ${token}`
 	}
 	return { width: none ? 0 : width, color }
@@ -4455,12 +4645,7 @@ function syncBorderBox(node: ElementNode) {
 	const spec = node.borderSpec
 
 	const radii = resolveBorderRadii(spec?.radii, w, h)
-	const maxRadius = Math.max(
-		radii.topLeft,
-		radii.topRight,
-		radii.bottomRight,
-		radii.bottomLeft,
-	)
+	const maxRadius = Math.max(radii.topLeft, radii.topRight, radii.bottomRight, radii.bottomLeft)
 	const uniformRadius =
 		radii.topLeft === radii.topRight &&
 		radii.topRight === radii.bottomRight &&
@@ -4475,16 +4660,13 @@ function syncBorderBox(node: ElementNode) {
 	}
 	const maxWidth = Math.max(widths.top, widths.right, widths.bottom, widths.left)
 	const uniformWidth =
-		widths.top === widths.right &&
-		widths.right === widths.bottom &&
-		widths.bottom === widths.left
+		widths.top === widths.right && widths.right === widths.bottom && widths.bottom === widths.left
 	const normColor = (c: any) => (c == null ? '' : String(c).trim().toLowerCase())
 	const uniformColor = BORDER_SIDES.every(
 		(side) => normColor(spec?.colors?.[side]) === normColor(spec?.colors?.top),
 	)
 
-	const layers =
-		typeof CAShapeLayer !== 'undefined' && typeof CGPathCreateMutable === 'function'
+	const layers = typeof CAShapeLayer !== 'undefined' && typeof CGPathCreateMutable === 'function'
 	// An outset shadow cannot render under a mask or masksToBounds — the layer
 	// clip loses to the shadow (same CALayer constraint UIKit has).
 	const outsetShadow = node.boxShadowSpec?.some((s: any) => !s.inset) === true
@@ -4514,6 +4696,7 @@ function syncBorderBox(node: ElementNode) {
 			layer.mask = null as any
 			node.cornerMaskApplied = false
 		}
+
 		// The fast path writes the raw value — CA caps the radius internally,
 		// and a 0×0 pre-layout frame must not zero it (the observer-less
 		// uniform case never resyncs).
@@ -4533,6 +4716,7 @@ function syncBorderBox(node: ElementNode) {
 			node.borderLayer = CALayer.alloc().init()
 			layer.insertSublayerAtIndex(node.borderLayer, 0)
 		}
+
 		const box = node.borderLayer
 		box.frame = { origin: { x: 0, y: 0 }, size: { width: w, height: h } }
 		if (maxRadius > 0) {
@@ -4542,11 +4726,13 @@ function syncBorderBox(node: ElementNode) {
 		} else {
 			box.mask = null as any
 		}
+
 		for (const side of BORDER_SIDES) {
 			const shape = ((node.borderSides ??= {})[side] ??= CAShapeLayer.alloc().init())
 			if (shape.superlayer !== box) {
 				box.addSublayer(shape)
 			}
+
 			if (widths[side] > 0) {
 				shape.hidden = false
 				shape.path = borderSideCGPath(side, w, h, widths)
@@ -4570,7 +4756,11 @@ function syncBorderBox(node: ElementNode) {
 	// the box — resync on frame changes while any is in effect.
 	const percentRadius =
 		spec?.radii != null &&
-		BORDER_CORNERS.some((corner) => String(spec.radii[corner] ?? '').trim().endsWith('%'))
+		BORDER_CORNERS.some((corner) =>
+			String(spec.radii[corner] ?? '')
+				.trim()
+				.endsWith('%'),
+		)
 	const needsSync =
 		Boolean(percentRadius) ||
 		perCorner ||
@@ -4617,6 +4807,7 @@ function splitTopLevelCommas(text: string): string[] {
 		} else if (c === ')') {
 			depth = Math.max(0, depth - 1)
 		}
+
 		if (i === text.length || (c === ',' && depth === 0)) {
 			parts.push(text.slice(start, i).trim())
 			start = i + 1
@@ -4642,12 +4833,15 @@ function parseBoxShadow(value: any): ParsedBoxShadow[] {
 				inset = true
 				continue
 			}
+
 			if (lengths.length < 4 && SHADOW_LENGTH_RE.test(token)) {
 				lengths.push(parseFloat(token))
 				continue
 			}
+
 			color = color ? `${color} ${token}` : token
 		}
+
 		if (lengths.length >= 2) {
 			shadows.push({
 				inset,
@@ -4698,6 +4892,7 @@ function syncBoxShadow(node: ElementNode) {
 			bottomRight: Math.max(0, radii.bottomRight + s),
 			bottomLeft: Math.max(0, radii.bottomLeft + s),
 		}
+
 		// Spread grows the silhouette — the offset recenters the grown path.
 		layer.shadowPath = roundedBoxCGPath(w + 2 * s, h + 2 * s, grown)
 		layer.shadowColor = borderNSColor(node, outset.color)?.CGColor ?? null
@@ -4717,6 +4912,7 @@ function syncBoxShadow(node: ElementNode) {
 		if (shape.superlayer !== layer) {
 			layer.addSublayer(shape)
 		}
+
 		shape.frame = { origin: { x: 0, y: 0 }, size: { width: w, height: h } }
 		// Ring = outer outline + inner outline inset by spread (offset shifts
 		// the inner edge; blur is not representable and is dropped).
@@ -4727,10 +4923,12 @@ function syncBoxShadow(node: ElementNode) {
 			bottomRight: Math.max(0, radii.bottomRight - edge),
 			bottomLeft: Math.max(0, radii.bottomLeft - edge),
 		}
+
 		const ring = roundedBoxCGPath(w, h, radii)
 		if (ring) {
 			roundedBoxCGPath(w - 2 * edge, h - 2 * edge, inner, edge + inset.dx, edge - inset.dy, ring)
 		}
+
 		shape.path = ring
 		shape.fillRule = 'even-odd'
 		shape.fillColor = borderNSColor(node, inset.color)?.CGColor ?? null
@@ -4759,6 +4957,7 @@ const TRANSFORM_KEYS = new Set([
 	'rotatey',
 	'perspective',
 ])
+
 const TRANSFORM_SLOT: Record<string, string> = {
 	rotatex: 'rotateX',
 	rotatey: 'rotateY',
@@ -4783,7 +4982,9 @@ function transformAngleValue(value: any): number {
 	if (typeof value === 'number') {
 		return Number.isFinite(value) ? value : 0
 	}
-	const text = String(value ?? '').trim().toLowerCase()
+	const text = String(value ?? '')
+		.trim()
+		.toLowerCase()
 	const n = parseFloat(text)
 	if (!Number.isFinite(n)) {
 		return 0
@@ -4865,6 +5066,7 @@ function syncTransform(node: ElementNode) {
 			view.layer.transform = CATransform3DIdentity
 			node.transformApplied = false
 		}
+
 		return
 	}
 
@@ -4888,6 +5090,7 @@ function syncTransform(node: ElementNode) {
 					// Structs that reject member writes still get the rotation.
 				}
 			}
+
 			t = CATransform3DRotate(t, (-step.args[0] * Math.PI) / 180, 1, 0, 0)
 			t = CATransform3DRotate(t, (-step.args[1] * Math.PI) / 180, 0, 1, 0)
 		} else if (step.kind === 'scale') {
@@ -5050,6 +5253,7 @@ function resetStyle(node: ElementNode, name: string) {
 		if (node.transformSpec) {
 			delete node.transformSpec[TRANSFORM_SLOT[name] ?? name]
 		}
+
 		syncBoxGeometry(node)
 	} else if (name === 'zIndex') {
 		if (view.layer) {
@@ -5078,7 +5282,7 @@ function applyStyle(node: ElementNode, style: PropBag) {
 	// last apply must reset the native state they installed before the current
 	// values go on — otherwise removed styles linger on the view. The keyframe
 	// overlay sits above the computed style (NS `keyframe:` layer semantics).
-	const next: PropBag = node.animatedStyle ? { ...(style ?? {}), ...node.animatedStyle } : (style ?? {})
+	const next: PropBag = node.animatedStyle ? { ...style, ...node.animatedStyle } : (style ?? {})
 
 	const prev: PropBag = node.appliedStyle ?? {}
 	for (const name of Object.keys(prev)) {
@@ -5144,6 +5348,7 @@ function applyStyle(node: ElementNode, style: PropBag) {
 				bottom: box.bottom,
 				left: box.left,
 			}
+
 			syncLabelPadding(node)
 		} else if (EDGE_INSET_PROPS.has(name) && node.type === 'label') {
 			const edges = (node.stylePaddingEdges ??= {})
@@ -5158,7 +5363,13 @@ function applyStyle(node: ElementNode, style: PropBag) {
 		) {
 			const box = parseEdgeInsets(value)
 			node.stylePaddingBox = box
-			node.stylePaddingEdges = { top: box.top, right: box.right, bottom: box.bottom, left: box.left }
+			node.stylePaddingEdges = {
+				top: box.top,
+				right: box.right,
+				bottom: box.bottom,
+				left: box.left,
+			}
+
 			syncEdgeInsets(node)
 		} else if (
 			EDGE_INSET_PROPS.has(name) &&
@@ -5179,16 +5390,11 @@ function applyStyle(node: ElementNode, style: PropBag) {
 			setBorderSlot(node, 'radii', BORDER_RADIUS_KEYS[name], value)
 		} else if (name === 'cornerShape' && node.view) {
 			node.view.wantsLayer = true
-			node.view.layer.cornerCurve =
-				value === 'squircle' ? 'continuous' : 'circular'
+			node.view.layer.cornerCurve = value === 'squircle' ? 'continuous' : 'circular'
 		} else if (name === 'placeholderColor' && node.view) {
 			node.stylePlaceholderColor = String(value)
 			if (node.type === 'textfield') {
-				setTextFieldPlaceholder(
-					node.view as NSTextField,
-					node.props,
-					node.stylePlaceholderColor,
-				)
+				setTextFieldPlaceholder(node.view as NSTextField, node.props, node.stylePlaceholderColor)
 			} else if (node.type === 'textview' && node.placeholderView) {
 				node.placeholderView.textColor = nativeColor(node.stylePlaceholderColor)
 			}
@@ -5204,6 +5410,7 @@ function applyStyle(node: ElementNode, style: PropBag) {
 			const spec = (node.transformSpec ??= {})
 			spec[TRANSFORM_SLOT[name] ?? name] =
 				name === 'translateX' || name === 'translateY' ? translateAxisValue(value) : value
+
 			syncBoxGeometry(node)
 		} else if (name === 'zIndex' && node.view) {
 			node.view.wantsLayer = true
@@ -5274,6 +5481,7 @@ function applyStyle(node: ElementNode, style: PropBag) {
 			) {
 				continue
 			}
+
 			if (node.cssOriginKeys?.has(name) || node.animatedStyle?.[name] != null) {
 				warnUnsupportedCssProp(node, name)
 			} else {
@@ -5414,8 +5622,7 @@ function setLabelText(node: ElementNode, text: any) {
 	const lineHeight = Number(style.lineHeight)
 	const decoration = String(style.textDecoration ?? '')
 	const kern = Number(style.letterSpacing)
-	const decorate =
-		decoration.includes('underline') || decoration.includes('line-through')
+	const decorate = decoration.includes('underline') || decoration.includes('line-through')
 	if (
 		(!Number.isFinite(lineHeight) || lineHeight <= 0) &&
 		!decorate &&
@@ -5441,10 +5648,8 @@ function setLabelText(node: ElementNode, text: any) {
 	}
 	// macos-node-api publishes the AppKit attribute keys as globals (the same
 	// lookup formatted-text.ts uses); the literals match AppKit's own values.
-	const underlineKey =
-		(globalThis as any).NSUnderlineStyleAttributeName ?? 'NSUnderline'
-	const strikeKey =
-		(globalThis as any).NSStrikethroughStyleAttributeName ?? 'NSStrikethrough'
+	const underlineKey = (globalThis as any).NSUnderlineStyleAttributeName ?? 'NSUnderline'
+	const strikeKey = (globalThis as any).NSStrikethroughStyleAttributeName ?? 'NSStrikethrough'
 	if (decoration.includes('underline')) {
 		attributes[underlineKey] = 1
 	}
@@ -5632,6 +5837,7 @@ function fitTextView(node: ElementNode | undefined) {
 				length: String(view.string ?? '').length,
 			})
 		}
+
 		const width = Number(viewport.contentView.bounds.size.width)
 		if (width > 0) {
 			view.textContainer.containerSize = {
@@ -5647,9 +5853,14 @@ function fitTextView(node: ElementNode | undefined) {
 		const line = Math.max(
 			1,
 			Math.round(
-				styleLine > 0 ? styleLine : measured > 0 ? measured : Number(font?.pointSize ?? 14) * DEFAULT_TEXT_LINE_HEIGHT_RATIO,
+				styleLine > 0
+					? styleLine
+					: measured > 0
+						? measured
+						: Number(font?.pointSize ?? 14) * DEFAULT_TEXT_LINE_HEIGHT_RATIO,
 			),
 		)
+
 		const padding = 2 * Number(view.textContainerInset?.height ?? 0)
 
 		const rows = Math.max(1, Math.floor(Number(node.props.rows) || (node.props.autoGrow ? 1 : 3)))
@@ -5666,8 +5877,13 @@ function fitTextView(node: ElementNode | undefined) {
 			Math.ceil(Number(extra?.origin?.y ?? 0) + Number(extra?.size?.height ?? 0)),
 		)
 
-		const height = (node.props.autoGrow ? Math.min(cap, Math.max(rows * line, content)) : rows * line) + padding
-		if (effectiveStyle(node).height == null && node.sizeConstraintSpecs?.height?.points !== height) {
+		const height =
+			(node.props.autoGrow ? Math.min(cap, Math.max(rows * line, content)) : rows * line) + padding
+
+		if (
+			effectiveStyle(node).height == null &&
+			node.sizeConstraintSpecs?.height?.points !== height
+		) {
 			setSizeConstraint(node, 'height', height)
 		}
 
@@ -5887,8 +6103,11 @@ function applyProps(node: ElementNode, props: PropBag) {
 		setPseudoClass(
 			node,
 			'disabled',
-			node.props.disabled === true || node.props.isEnabled === false || node.props.enabled === false,
+			node.props.disabled === true ||
+				node.props.isEnabled === false ||
+				node.props.enabled === false,
 		)
+
 		syncNormalState(node)
 	}
 	if (
@@ -5919,9 +6138,11 @@ function applyProps(node: ElementNode, props: PropBag) {
 		if ('style' in props) {
 			setNodeInlineStyle(node, props.style)
 		}
+
 		if ('className' in props) {
 			applyClassName(node, props.className)
 		}
+
 		queueLayoutReconcile(node.container, node)
 		return
 	}
@@ -6729,9 +6950,9 @@ function releaseProjectedView(node: ElementNode) {
 				node.props[name] = node.authoredProps[name]
 			}
 		}
+
 		node.props.style = node.authoredProps.style
-					markStyleDirty(node)
-		
+		markStyleDirty(node)
 	}
 }
 
@@ -6773,14 +6994,15 @@ function syncProxyProjection(parent: ElementNode) {
 					forwarded[name] = owner.props[name]
 				}
 			}
+
 			for (const name of PROXY_LAYOUT_STYLES) {
-				const ownerStyle =
-					effectiveStyle(owner)
+				const ownerStyle = effectiveStyle(owner)
 				if (ownerStyle[name] != null) {
 					forwardedStyle[name] = ownerStyle[name]
 				}
 			}
 		}
+
 		setNodeInlineStyle(child, { ...forwardedStyle, ...child.authoredProps.style })
 
 		const changes: PropBag = {}
@@ -7380,10 +7602,12 @@ function insert(
 		if (node.type === 'placeholder') {
 			fireCreatingView(node)
 		}
+
 		markStyleDirty(node, true)
 		if (
 			parent &&
-			(stylesheetScope().hasAdjacentCombinatorSelectors || stylesheetScope().hasSiblingCombinatorSelectors)
+			(stylesheetScope().hasAdjacentCombinatorSelectors ||
+				stylesheetScope().hasSiblingCombinatorSelectors)
 		) {
 			for (const sib of parent.children) {
 				if (sib !== node) {
@@ -7409,7 +7633,8 @@ function remove(container: RootContainer, parentId: UniversalHostParent, node: E
 	}
 	if (
 		expectedParent &&
-		(stylesheetScope().hasAdjacentCombinatorSelectors || stylesheetScope().hasSiblingCombinatorSelectors)
+		(stylesheetScope().hasAdjacentCombinatorSelectors ||
+			stylesheetScope().hasSiblingCombinatorSelectors)
 	) {
 		for (const sib of expectedParent.children) {
 			if (sib !== node) {
@@ -8057,6 +8282,7 @@ const macOSDriver: UniversalHostDriver<RootContainer, any> = {
 					computedStyle: undefined,
 					computedCustomProps: new Map(),
 				}
+
 				root.getChildIndex = (child: ElementNode) => cssChildren(root).indexOf(child)
 				root.getChildAt = (i: number) => cssChildren(root)[i]
 				root.getChildrenCount = () => cssChildren(root).length
@@ -8278,6 +8504,7 @@ function parityStyle(node: ElementNode, facets: readonly string[]) {
 					: view?.layer?.borderColor
 						? NSColor.colorWithCGColor(view.layer.borderColor)
 						: null
+
 			if (color) {
 				value = colorValue(color, view?.effectiveAppearance) ?? value
 			}
@@ -8287,11 +8514,7 @@ function parityStyle(node: ElementNode, facets: readonly string[]) {
 			const declared = node.borderSpec?.radii?.topLeft
 			if (declared != null && view) {
 				const size = view.frame?.size ?? { width: 0, height: 0 }
-				value = borderRadiusPoints(
-					declared,
-					Number(size.width) || 0,
-					Number(size.height) || 0,
-				)
+				value = borderRadiusPoints(declared, Number(size.width) || 0, Number(size.height) || 0)
 			} else if (view?.layer) {
 				value = view.layer.cornerRadius
 			}
@@ -8313,7 +8536,9 @@ function parityStyle(node: ElementNode, facets: readonly string[]) {
 							? node.props.horizontal === true
 								? 'row'
 								: 'column'
-							: mason ? 'row' : undefined)
+							: mason
+								? 'row'
+								: undefined)
 		}
 
 		if (facet === 'alignItems') {
@@ -8385,17 +8610,29 @@ function measureTextLineCount(node: ElementNode) {
 }
 
 function parityBoxInHost(view: any, rect: any, boxView: any) {
-	if (view.window && boxView.window && view.window !== boxView.window && !view.window.isEqual?.(boxView.window)) {
+	if (
+		view.window &&
+		boxView.window &&
+		view.window !== boxView.window &&
+		!view.window.isEqual?.(boxView.window)
+	) {
 		const windowRect = view.superview
 			? view.superview.convertRectToView(rect, null)
 			: view.convertRectToView(view.bounds, null)
+
 		const screenRect = view.window.convertRectToScreen(windowRect)
 		const boxScreen = boxView.window.convertRectToScreen(
 			boxView.convertRectToView(boxView.bounds, null),
 		)
+
 		return {
 			x: round(Number(screenRect.origin.x) - Number(boxScreen.origin.x)),
-			y: round(Number(boxScreen.origin.y) + Number(boxScreen.size.height) - Number(screenRect.origin.y) - Number(screenRect.size.height)),
+			y: round(
+				Number(boxScreen.origin.y) +
+					Number(boxScreen.size.height) -
+					Number(screenRect.origin.y) -
+					Number(screenRect.size.height),
+			),
 			w: round(Number(screenRect.size.width)),
 			h: round(Number(screenRect.size.height)),
 		}
@@ -8593,6 +8830,7 @@ function measureParity(container: RootContainer, facets: readonly string[]) {
 		const portalNodes = mountedNodes
 			.filter((node) => nodeClasses(node).includes('parity-portal--' + name))
 			.flatMap((node) => [node, ...descendants(node)])
+
 		cells[name] = [...new Set([box, ...descendants(box), ...portalNodes])]
 			.filter((node) => node.view)
 			.map((node) => parityNode(node, box, facets))
@@ -8640,6 +8878,7 @@ function dispatchHover(area: any, phase: 'enter' | 'exit') {
 				NSCursor.pop()
 				record.pushed = false
 			}
+
 			if (record.cursorHidden) {
 				NSCursor.unhide()
 				record.cursorHidden = false
@@ -9536,9 +9775,11 @@ function restyleAllContainers() {
 		for (const child of container.children) {
 			markStyleDirty(child, true)
 		}
+
 		for (const entry of container.portalTargets.values()) {
 			markStyleDirty(entry.root, true)
 		}
+
 		flushStyleDirty(container)
 	}
 }
@@ -9698,8 +9939,7 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 
 	if ((process.env as { [key: string]: string | undefined }).OCTANE_MACOS_AUTOMATION === '1') {
 		// Ids resolve across every live container — see appKitContainers.
-		const allNodes = () =>
-			[...appKitContainers].flatMap((entry) => [...entry.nodes.values()])
+		const allNodes = () => [...appKitContainers].flatMap((entry) => [...entry.nodes.values()])
 		const debug = {
 			findId(id: string) {
 				const node = allNodes().find((node) => node.props.id === id)
@@ -9907,9 +10147,7 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 					}
 				}
 
-				const node = allNodes().find(
-					(candidate) => candidate.props.id === id && candidate.view,
-				)
+				const node = allNodes().find((candidate) => candidate.props.id === id && candidate.view)
 
 				if (!node) {
 					throw new Error('No AppKit view with id ' + id)
@@ -9985,9 +10223,7 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 					throw new Error('No AppKit ScrollView with id ' + scrollId)
 				}
 
-				const stage = allNodes().find(
-					(candidate) => candidate.props.id === 'parity-stage',
-				)
+				const stage = allNodes().find((candidate) => candidate.props.id === 'parity-stage')
 
 				if (!stage) {
 					throw new Error('No parity stage mounted')
@@ -10056,9 +10292,7 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 			},
 			inspect(id: string) {
 				const node = id.startsWith('type:')
-					? allNodes().find(
-							(candidate) => candidate.type === id.slice(5) && candidate.view,
-						)
+					? allNodes().find((candidate) => candidate.type === id.slice(5) && candidate.view)
 					: allNodes().find((candidate) => candidate.props?.id === id)
 
 				if (!node?.view) {
@@ -10193,9 +10427,7 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 				node.view!.performClick(null)
 			},
 			hover(id: string, phase: 'enter' | 'exit') {
-				const node = allNodes().find(
-					(candidate) => candidate.props?.id === id && candidate.view,
-				)
+				const node = allNodes().find((candidate) => candidate.props?.id === id && candidate.view)
 
 				if (!node) {
 					throw new Error('No AppKit view with id ' + id)

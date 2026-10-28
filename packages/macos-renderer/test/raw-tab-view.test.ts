@@ -71,12 +71,21 @@ function fixture() {
 		code +
 			'\n({makeTabView,makeTabItem,syncTabView,syncTabItem,detachTabItem,releaseTabView,releaseTabItem,validateTabProps,flushTabViews,configureTabContentRoots,__tabItemProps})',
 		{
-		elementBehaviors: new Map(),
-		behaviorOf: () => undefined,
-		isManualLayoutParent: (t: string) =>
-			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
-		registerElementType: () => {},
-		
+			elementBehaviors: new Map(),
+			behaviorOf: () => undefined,
+			isManualLayoutParent: (t: string) =>
+				[
+					'gridlayout',
+					'liquidglass',
+					'absolutelayout',
+					'contentview',
+					'actionbar',
+					'docklayout',
+					'wraplayout',
+					'rootlayout',
+				].includes(t),
+			registerElementType: () => {},
+
 			defineUniversalComponent: (_: any, render: any) => render,
 			universalPlan: (_: any, plan: any) => plan,
 			universalValue() {},

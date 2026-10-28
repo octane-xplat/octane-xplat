@@ -1,6 +1,6 @@
-import { NavLink, Pressable, HStack, Screen, Text, View } from '@octane-xplat/ui';
-import { defineRouteGroup, defineRoutes } from '@octane-xplat/ui/routing/core';
-import { useRouter } from '@octane-xplat/ui/routing';
+import { NavLink, Pressable, HStack, Screen, Text, View } from '@octane-xplat/ui'
+import { defineRouteGroup, defineRoutes } from '@octane-xplat/ui/routing/core'
+import { useRouter } from '@octane-xplat/ui/routing'
 
 /** Programmatic-route probe — a manifest built from a data array at module
  *  scope, included by the configured generated route catalog.
@@ -11,18 +11,32 @@ import { useRouter } from '@octane-xplat/ui/routing';
  *  declarations, so a per-doc closure component can't express this. */
 
 export interface GuideDoc {
-	slug: string;
-	title: string;
-	body: string;
+	slug: string
+	title: string
+	body: string
 }
 
 export const GUIDES: GuideDoc[] = [
-	{ slug: 'install', title: 'Install', body: 'Scaffold with the create template, then run the dev server per target.' },
-	{ slug: 'routes', title: 'Routes from data', body: 'defineRoutes turns specs into a manifest; generated catalogs combine it with file routes.' },
-	{ slug: 'deploy', title: 'Deploy', body: 'xplat build emits the web bundle and the native app package.' },
-];
+	{
+		slug: 'install',
+		title: 'Install',
+		body: 'Scaffold with the create template, then run the dev server per target.',
+	},
+	{
+		slug: 'routes',
+		title: 'Routes from data',
+		body: 'defineRoutes turns specs into a manifest; generated catalogs combine it with file routes.',
+	},
+	{
+		slug: 'deploy',
+		title: 'Deploy',
+		body: 'xplat build emits the web bundle and the native app package.',
+	},
+]
 
-const GUIDE_BY_SLUG: Record<string, GuideDoc> = Object.fromEntries(GUIDES.map((doc) => [doc.slug, doc]));
+const GUIDE_BY_SLUG: Record<string, GuideDoc> = Object.fromEntries(
+	GUIDES.map((doc) => [doc.slug, doc]),
+)
 
 /** Programmatic layout — the `layouts` map plays the _layout.tsrx role:
  *  wraps every guides/* screen (RouteHost on native, outlet wrap on web).
@@ -35,7 +49,7 @@ export function GuideShell(props: { children?: any }) @{
 }
 
 export function GuideIndex() @{
-	const navigation = useRouter();
+	const navigation = useRouter()
 
 	<Screen className="vx-app flex-1 gap-6">
 		<HStack className="gap-4 items-center">
@@ -44,7 +58,9 @@ export function GuideIndex() @{
 			</Pressable>
 			<Text className="text-xl font-semibold flex-1">Guides</Text>
 		</HStack>
-		<Text className="text-sm text-muted">{'Registered from a ' + GUIDES.length + '-record data array.'}</Text>
+		<Text className="text-sm text-muted">
+			{'Registered from a ' + GUIDES.length + '-record data array.'}
+		</Text>
 		<View className="gap-2">
 			@for (const doc of GUIDES; key doc.slug) {
 				<NavLink to="/guides/:slug" params={{ slug: doc.slug }} className="chip">
@@ -58,13 +74,20 @@ export function GuideIndex() @{
 /** Doc screen — `slug` arrives as a route param (URL-scalar); the doc is
  *  looked up rather than closed over. Unknown slugs render a not-found
  *  note rather than throwing. */
-export function GuideScreen(props: { params: { slug: string }; data: GuideDoc | undefined }) @{
-	const navigation = useRouter();
-	const doc = props.data;
+export function GuideScreen(props: {
+	params: { slug: string }
+	data: GuideDoc | undefined
+}) @{
+	const navigation = useRouter()
+	const doc = props.data
 
 	<Screen className="vx-app flex-1 gap-6">
 		<HStack className="gap-4 items-center">
-			<Pressable id={'guide-back-' + (props.params.slug ?? 'missing')} onPress={() => navigation.back()} className="btn btn-secondary">
+			<Pressable
+				id={'guide-back-' + (props.params.slug ?? 'missing')}
+				onPress={() => navigation.back()}
+				className="btn btn-secondary"
+			>
 				<Text>← Back</Text>
 			</Pressable>
 			<Text className="text-xl font-semibold flex-1">{doc?.title ?? 'Unknown guide'}</Text>
@@ -76,16 +99,21 @@ export function GuideScreen(props: { params: { slug: string }; data: GuideDoc | 
 
 /** Exported so `routes.ts` can merge the spec-derived route types into the
  *  app's typed navigation surface (ManifestRouteParams et al.). */
-const guideLibrary = defineRouteGroup({ id: 'guideLibrary', loader: () => ({ docs: GUIDE_BY_SLUG }) });
+const guideLibrary = defineRouteGroup({
+	id: 'guideLibrary',
+	loader: () => ({ docs: GUIDE_BY_SLUG }),
+})
 
 export const guideRoutes = defineRoutes({
 	routes: [
 		guideLibrary.route({ path: '/guides', head: { title: 'Guides' } }).screen(GuideIndex),
-		guideLibrary.route({
-			path: '/guides/:slug',
-			loader: ({ params, context }) => context.guideLibrary.docs[params.slug],
-			head: ({ data }) => ({ title: data?.title ?? 'Guide' }),
-		}).screen(GuideScreen),
+		guideLibrary
+			.route({
+				path: '/guides/:slug',
+				loader: ({ params, context }) => context.guideLibrary.docs[params.slug],
+				head: ({ data }) => ({ title: data?.title ?? 'Guide' }),
+			})
+			.screen(GuideScreen),
 	],
 	layouts: { guides: GuideShell },
-});
+})

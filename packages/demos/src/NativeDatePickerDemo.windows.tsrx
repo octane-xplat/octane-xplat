@@ -7,5 +7,5 @@ export function NativeDatePickerDemo() @{
 		<Text id="native-date-picker-status">
 			Native date pickers are unsupported on the Windows host.
 		</Text>
-	</View>;
+	</View>
 }

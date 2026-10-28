@@ -88,9 +88,18 @@ function fixture() {
 		elementBehaviors: new Map(),
 		behaviorOf: () => undefined,
 		isManualLayoutParent: (t: string) =>
-			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
+			[
+				'gridlayout',
+				'liquidglass',
+				'absolutelayout',
+				'contentview',
+				'actionbar',
+				'docklayout',
+				'wraplayout',
+				'rootlayout',
+			].includes(t),
 		registerElementType: () => {},
-		
+
 		NSView: View,
 		NSScrollView: View,
 		NSTableView: View,
@@ -341,7 +350,11 @@ test('obsolete row-add callbacks never inspect removed native columns', () => {
 	const events: any[] = []
 	f.update({ items: ['A'], onLoadMoreItems: (event: any) => events.push(event) })
 	const didAdd = f.table.delegate['tableView:didAddRowView:forRow:']
-	const removedRow = { viewAtColumn() { throw new Error('native row has no columns') } }
+	const removedRow = {
+		viewAtColumn() {
+			throw new Error('native row has no columns')
+		},
+	}
 	assert.doesNotThrow(() => didAdd(f.table, removedRow, -1))
 	assert.doesNotThrow(() => didAdd(f.table, removedRow, 1))
 	f.update({ items: [] })

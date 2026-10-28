@@ -11,7 +11,10 @@ function HoverableFixture() @{
 		style={{ width: 180, height: 48, backgroundColor: '#f5f5f5' }}
 		content={<Text>Delayed hover card</Text>}
 	>
-		<View className="parity-hoverable-child" style={{ width: 72, height: 24, backgroundColor: '#0a0a0a' }} />
+		<View
+			className="parity-hoverable-child"
+			style={{ width: 72, height: 24, backgroundColor: '#0a0a0a' }}
+		/>
 	</HoverCard>
 }
 

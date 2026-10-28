@@ -5,7 +5,15 @@ import type { ISODateString, ISOTimeString, ISODateTimeString, DateRange } from 
 
 export function TimeInputConstrained() @{
 	const [value, setValue] = useState<ISOTimeString | null>(null)
-	<div style={{width: 400}}>
-		<TimeInput label="Meeting start" min="09:00" max="17:00" description="Business hours only" value={value} onChange={setValue} />
+
+	<div style={{ width: 400 }}>
+		<TimeInput
+			label="Meeting start"
+			min="09:00"
+			max="17:00"
+			description="Business hours only"
+			value={value}
+			onChange={setValue}
+		/>
 	</div>
 }

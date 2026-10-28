@@ -23,8 +23,8 @@ export function ThemeSwitcher() @{
 						<Stack direction="vertical" gap={3}>
 							<Heading level={4}>{themeName} preview</Heading>
 							<Text type="body" color="secondary">
-								Switching the theme object updates all tokens and component
-								styles below the provider.
+								Switching the theme object updates all tokens and component styles below the
+								provider.
 							</Text>
 							<Button label="Save changes" />
 						</Stack>

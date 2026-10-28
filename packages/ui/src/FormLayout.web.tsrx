@@ -1,9 +1,9 @@
 import { useMemo, useContext } from 'octane'
 import { refList } from './ref-list'
-import type { FormLayoutProps } from './props';
-import { applyEscapeProps } from './escape-props';
-import { applyWebProps } from './platformProps.web';
-import { FormLayoutContext, FormLayoutProvider } from './form-layout-context';
+import type { FormLayoutProps } from './props'
+import { applyEscapeProps } from './escape-props'
+import { applyWebProps } from './platformProps.web'
+import { FormLayoutContext, FormLayoutProvider } from './form-layout-context'
 
 /** FormLayout — arranges fields: 'vertical' column (16px gaps),
  *  'horizontal' equal-width row, 'horizontal-labels' a two-column grid
@@ -14,9 +14,18 @@ export function FormLayout(props: FormLayoutProps) @{
 	const parent = useContext(FormLayoutContext)
 	const direction = props.direction ?? 'vertical'
 	const defaultOptionality = props.defaultOptionality ?? parent.defaultOptionality
-	const value = { direction, defaultOptionality };
+	const value = { direction, defaultOptionality }
 
-	const forwardedRef = useMemo(() => refList((e: any) => { if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(
+		() =>
+			refList((e: any) => {
+				if (e) {
+					applyEscapeProps(e, props)
+					applyWebProps(e, props.web)
+				}
+			}, props.ref),
+		[props.ref, props.ios, props.android, props.web],
+	)
 
 	<FormLayoutProvider value={value}>
 		<div

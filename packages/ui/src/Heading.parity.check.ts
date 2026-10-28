@@ -2,7 +2,6 @@ import type { ParityCheck } from './parity/check-helpers.ts'
 import { headingEqual, headingRows } from './parity/check-helpers.ts'
 
 export const CHECKS: ParityCheck[] = [
-
 	{
 		fixture: 'heading-level-1',
 		targets: ['web', 'ios', 'android', 'macos'],
@@ -59,5 +58,5 @@ export const CHECKS: ParityCheck[] = [
 		elements: { heading: 'parity-heading' },
 		equal: headingEqual,
 		check: (m) => headingRows(m, 32),
-	}
+	},
 ]

@@ -9,11 +9,17 @@ export function ScrollBoxDemo() @{
 	const [refreshing, setRefreshing] = useState(false)
 	const [status, setStatus] = useState('Ready')
 	async function refresh() {
-		if (refreshing) return
+		if (refreshing) {
+			return
+		}
+
 		setRefreshing(true)
 		setStatus('Refreshing rows')
 		try {
-			const next = await Promise.resolve(Array.from({ length: 24 }, (_, i) => `Updated row ${i + 1}`))
+			const next = await Promise.resolve(
+				Array.from({ length: 24 }, (_, i) => `Updated row ${i + 1}`),
+			)
+
 			setRows(next)
 			setStatus('Rows updated')
 		} catch {
@@ -30,7 +36,11 @@ export function ScrollBoxDemo() @{
 		<Text accessibilityLabel={status}>{status}</Text>
 		<ScrollableArea id="scrollbox-demo" label="Rows" className="flex-1">
 			<View className="gap-2">
-				{rows.map(row => <Text key={row} className="cell">{row}</Text>)}
+				{rows.map((row) => (
+					<Text key={row} className="cell">
+						{row}
+					</Text>
+				))}
 			</View>
 		</ScrollableArea>
 	</View>

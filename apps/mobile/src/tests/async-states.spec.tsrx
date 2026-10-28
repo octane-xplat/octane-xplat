@@ -11,7 +11,9 @@ function FetchLabel(props: { fail?: boolean }) @{
 	useEffect(() => {
 		let live = true
 		const timer = setTimeout(() => {
-			if (live) setState(props.fail ? 'error' : 'ready')
+			if (live) {
+				setState(props.fail ? 'error' : 'ready')
+			}
 		}, 30)
 
 		return () => {

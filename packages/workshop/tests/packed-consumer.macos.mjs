@@ -55,7 +55,16 @@ function write(name, content) {
 
 try {
 	const tarballs = {}
-	for (const dir of ['create', 'cli', 'lib', 'ui', 'workshop', 'macos-renderer', 'css-engine', 'platform']) {
+	for (const dir of [
+		'create',
+		'cli',
+		'lib',
+		'ui',
+		'workshop',
+		'macos-renderer',
+		'css-engine',
+		'platform',
+	]) {
 		const root = join(repo, 'packages', dir)
 		const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
 		run('pnpm', ['--config.ignore-scripts=true', 'pack', '--pack-destination', pack], root)

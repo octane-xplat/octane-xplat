@@ -9,12 +9,24 @@ import { CAPTURE_PROFILE } from '../../../../visual/src/scenario'
 import { assertSwitchGeometry } from '../../../../visual/src/geometry'
 import '@octane-xplat/ui/theme/tokens.css'
 import '@octane-xplat/ui/theme/chrome.css'
-import { NSLocale, NSTimeZone, UIDevice, UIGraphicsImageRenderer, UIGraphicsImageRendererFormat, UIImagePNGRepresentation, UIScreen, UIView } from '@octane-xplat/platform/ios'
+import {
+	NSLocale,
+	NSTimeZone,
+	UIDevice,
+	UIGraphicsImageRenderer,
+	UIGraphicsImageRendererFormat,
+	UIImagePNGRepresentation,
+	UIScreen,
+	UIView,
+} from '@octane-xplat/platform/ios'
+
 import type { CGRect } from '@octane-xplat/platform/ios'
 
-
 declare const __VISUAL_CAPTURE__: null | {
-	url: string; runId: string; revision: string; scenarioHash: string
+	url: string
+	runId: string
+	revision: string
+	scenarioHash: string
 }
 
 const frame = () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
@@ -30,9 +42,15 @@ function PreparedStory(props: { composed: any; args: any }) @{
 // Ordinary mobile tests do not capture or write visual artifacts.
 it.skipIf(!__VISUAL_CAPTURE__)('captures the real iOS Switch stage', async () => {
 	const config = __VISUAL_CAPTURE__!
-	const composed = composeStory(UncheckedLight, meta, {
-		render: StorybookRender,
-	}, {}, 'UncheckedLight')
+	const composed = composeStory(
+		UncheckedLight,
+		meta,
+		{
+			render: StorybookRender,
+		},
+		{},
+		'UncheckedLight',
+	)
 
 	expect(composed.id).toBe('switch--unchecked-light')
 	const window = Application.ios.nativeApp.keyWindow
@@ -43,14 +61,24 @@ it.skipIf(!__VISUAL_CAPTURE__)('captures the real iOS Switch stage', async () =>
 	const previousAppearance = window.overrideUserInterfaceStyle
 	window.overrideUserInterfaceStyle = 1 // UIKit light appearance
 	try {
-
 		for (const [index, displacement] of [0, 0, 0, 1].entries()) {
-			const mounted = await mountXplat(PreparedStory, { composed, args: { ...composed.args, displacement } })
+			const mounted = await mountXplat(PreparedStory, {
+				composed,
+				args: { ...composed.args, displacement },
+			})
+
 			try {
 				const stage = mounted.view.getViewById(composed.id)
-				await waitUntil(() => Boolean(stage?.isLoaded && stage.ios?.window && findByTestId(mounted.view, 'visual-switch')), {
-					timeout: 5000, message: 'Selected iOS story did not become ready',
-				})
+				await waitUntil(
+					() =>
+						Boolean(
+							stage?.isLoaded && stage.ios?.window && findByTestId(mounted.view, 'visual-switch'),
+						),
+					{
+						timeout: 5000,
+						message: 'Selected iOS story did not become ready',
+					},
+				)
 
 				const native = stage!.ios as UIView
 				let stable = 0
@@ -59,8 +87,11 @@ it.skipIf(!__VISUAL_CAPTURE__)('captures the real iOS Switch stage', async () =>
 				while (stable < 2) {
 					await frame()
 					native.layoutIfNeeded()
-					const geometry = JSON.stringify([native.bounds.size.width, native.bounds.size.height,
-						findByTestId(mounted.view, 'visual-switch')!.getActualSize()])
+					const geometry = JSON.stringify([
+						native.bounds.size.width,
+						native.bounds.size.height,
+						findByTestId(mounted.view, 'visual-switch')!.getActualSize(),
+					])
 
 					stable = geometry === previous ? stable + 1 : 0
 					previous = geometry
@@ -79,12 +110,21 @@ it.skipIf(!__VISUAL_CAPTURE__)('captures the real iOS Switch stage', async () =>
 				const thumb = control.getChildAt(0)
 				const thumbRect = thumb.ios.convertRectToView(thumb.ios.bounds, native)
 				const captureRect = (rect: CGRect) => ({
-					x: rect.origin.x, y: rect.origin.y, width: rect.size.width, height: rect.size.height,
+					x: rect.origin.x,
+					y: rect.origin.y,
+					width: rect.size.width,
+					height: rect.size.height,
 				})
 
-				assertSwitchGeometry({
-					stage: captureRect(native.bounds), track: captureRect(trackRect), thumb: captureRect(thumbRect),
-				}, Boolean(composed.args.checked), displacement)
+				assertSwitchGeometry(
+					{
+						stage: captureRect(native.bounds),
+						track: captureRect(trackRect),
+						thumb: captureRect(thumbRect),
+					},
+					Boolean(composed.args.checked),
+					displacement,
+				)
 
 				expect(composed.args.checked).toBe(false)
 				expect(thumbPosition.x).toBe(3)
@@ -92,7 +132,11 @@ it.skipIf(!__VISUAL_CAPTURE__)('captures the real iOS Switch stage', async () =>
 				const format = UIGraphicsImageRendererFormat.defaultFormat()
 				format.scale = CAPTURE_PROFILE.scale
 				format.opaque = true
-				const renderer = UIGraphicsImageRenderer.alloc().initWithSizeFormat(native.bounds.size, format)
+				const renderer = UIGraphicsImageRenderer.alloc().initWithSizeFormat(
+					native.bounds.size,
+					format,
+				)
+
 				let drawn = false
 				const image = renderer.imageWithActions(() => {
 					drawn = native.drawViewHierarchyInRectAfterScreenUpdates(native.bounds, true)
@@ -102,13 +146,29 @@ it.skipIf(!__VISUAL_CAPTURE__)('captures the real iOS Switch stage', async () =>
 				const png = UIImagePNGRepresentation(image)
 				expect(png).toBeTruthy()
 				const response = await fetch(config.url, {
-					method: 'POST', headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ ...config, url: undefined, index, displacement,
-						storyId: composed.id, args: composed.args, target: 'ios', provenance: 'real',
-						profile: CAPTURE_PROFILE, width: image.size.width, height: image.size.height,
-						runtime: { os: UIDevice.currentDevice.systemVersion, scale: UIScreen.mainScreen.scale, locale: NSLocale.currentLocale.localeIdentifier, timezone: NSTimeZone.localTimeZone.name,
-							capture: 'UIKit drawViewHierarchy, explicit 1x renderer; no postcapture resizing' },
-						pngBase64: png!.base64EncodedStringWithOptions(0 as any), readiness: { geometry: previous, stableFrames: stable },
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({
+						...config,
+						url: undefined,
+						index,
+						displacement,
+						storyId: composed.id,
+						args: composed.args,
+						target: 'ios',
+						provenance: 'real',
+						profile: CAPTURE_PROFILE,
+						width: image.size.width,
+						height: image.size.height,
+						runtime: {
+							os: UIDevice.currentDevice.systemVersion,
+							scale: UIScreen.mainScreen.scale,
+							locale: NSLocale.currentLocale.localeIdentifier,
+							timezone: NSTimeZone.localTimeZone.name,
+							capture: 'UIKit drawViewHierarchy, explicit 1x renderer; no postcapture resizing',
+						},
+						pngBase64: png!.base64EncodedStringWithOptions(0 as any),
+						readiness: { geometry: previous, stableFrames: stable },
 					}),
 				})
 

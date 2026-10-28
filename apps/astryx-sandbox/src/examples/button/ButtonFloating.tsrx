@@ -17,7 +17,13 @@ export function ButtonFloating() @{
 			</Text>
 			<Stack direction="horizontal" gap={3} vAlign="center">
 				{VARIANTS.map(({ variant, label }) => (
-					<Button key={variant} label={label} variant={variant} icon="sandbox-plus" elevation="med" />
+					<Button
+						key={variant}
+						label={label}
+						variant={variant}
+						icon="sandbox-plus"
+						elevation="med"
+					/>
 				))}
 			</Stack>
 		</Stack>

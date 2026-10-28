@@ -2,7 +2,6 @@ import type { ParityCheck } from './parity/check-helpers.ts'
 import { dims } from './parity/check-helpers.ts'
 
 export const CHECKS: ParityCheck[] = [
-
 	{
 		fixture: 'list-item-row',
 		targets: ['web', 'ios', 'android'],
@@ -76,5 +75,5 @@ export const CHECKS: ParityCheck[] = [
 				],
 			]
 		},
-	}
+	},
 ]

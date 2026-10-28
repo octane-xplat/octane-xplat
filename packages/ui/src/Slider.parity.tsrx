@@ -7,6 +7,18 @@ function SliderFixture(props: { id?: string; value: number }) @{
 }
 
 export const PARITY: ParityFixture[] = [
-	{ name: 'slider-0', component: 'Slider', renderer: SliderFixture, props: { value: 0 }, wide: true },
-	{ name: 'slider-50', component: 'Slider', renderer: SliderFixture, props: { id: 'probe-slider-50', value: 50 }, wide: true },
+	{
+		name: 'slider-0',
+		component: 'Slider',
+		renderer: SliderFixture,
+		props: { value: 0 },
+		wide: true,
+	},
+	{
+		name: 'slider-50',
+		component: 'Slider',
+		renderer: SliderFixture,
+		props: { id: 'probe-slider-50', value: 50 },
+		wide: true,
+	},
 ]

@@ -1,5 +1,12 @@
 // Port of upstream NavHeadingMenu/NavHeadingMenuShowcase.tsx (Astryx 0.6.4, MIT).
-import { Icon, NavHeadingMenu, NavHeadingMenuItem, NavIcon, SideNav, SideNavHeading } from '@octane-xplat/ui'
+import {
+	Icon,
+	NavHeadingMenu,
+	NavHeadingMenuItem,
+	NavIcon,
+	SideNav,
+	SideNavHeading,
+} from '@octane-xplat/ui'
 
 export function NavHeadingMenuShowcase() @{
 	<div style={{ height: 100 }}>

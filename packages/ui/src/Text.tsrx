@@ -1,13 +1,13 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { createContext, useContext } from 'octane';
+import { createContext, useContext } from 'octane'
 import { styleRecord } from './style-merge'
-import { Application } from '@nativescript/core';
-import type { TextProps } from "./props";
-import { cx } from "@octane-xplat/lib";
-import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from "./escape-props";
-import { layoutChildProps } from './layout-child';
-import { useTheme } from './theme/use-theme';
-import { textScaleStyle } from './text-scale';
+import { Application } from '@nativescript/core'
+import type { TextProps } from './props'
+import { cx } from '@octane-xplat/lib'
+import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props'
+import { layoutChildProps } from './layout-child'
+import { useTheme } from './theme/use-theme'
+import { textScaleStyle } from './text-scale'
 
 /**
  * Nested <Text> renders a <span> (rich-text run) inside the parent's
@@ -18,12 +18,12 @@ import { textScaleStyle } from './text-scale';
 // The 'octane' import is compiler-retargeted to the universal runtime on
 // native; its DOM Context type signature (2-3 args) doesn't match the
 // universal 1-arg callable, so type the value loosely for this leaf.
-const InText: any = createContext(false);
+const InText: any = createContext(false)
 
 /** Function-component wrapper: context callables aren't JSX.ElementType under
  *  the nativescript intrinsics, so provide through a component shape. */
 function TextScope(props: { children?: any }) {
-	return InText({ value: true, children: props.children });
+	return InText({ value: true, children: props.children })
 }
 
 /**
@@ -32,10 +32,10 @@ function TextScope(props: { children?: any }) {
  * @see TextProps.
  */
 export function Text(props: TextProps) @{
-	const inText = useContext(InText);
-	const theme = useTheme();
-	const scale = textScaleStyle(theme.tokens, props);
-	const maxLines = props.maxLines ?? 0;
+	const inText = useContext(InText)
+	const theme = useTheme()
+	const scale = textScaleStyle(theme.tokens, props)
+	const maxLines = props.maxLines ?? 0
 
 	const textStyle: Record<string, any> = {
 		...(scale.fontSizePx != null && { fontSize: scale.fontSizePx }),
@@ -47,9 +47,9 @@ export function Text(props: TextProps) @{
 		// would let the label overflow its row instead of truncating.
 		...(maxLines > 0 && { flexShrink: 1 }),
 		...styleRecord(props.style),
-	};
+	}
 
-	const fontWeightValue = String(textStyle.fontWeight ?? '').toLowerCase();
+	const fontWeightValue = String(textStyle.fontWeight ?? '').toLowerCase()
 	const namedWeights: Record<string, number> = {
 		normal: 400,
 		bold: 700,
@@ -60,13 +60,13 @@ export function Text(props: TextProps) @{
 		'semi-bold': 600,
 		'extra-bold': 800,
 		black: 900,
-	};
+	}
 
 	const fontWeight = /^\d+$/.test(fontWeightValue)
 		? Number(fontWeightValue)
-		: namedWeights[fontWeightValue];
+		: namedWeights[fontWeightValue]
 
-	const lineHeight = textStyle.lineHeight;
+	const lineHeight = textStyle.lineHeight
 	// UIFontDescriptor resolves variable fonts to the regular axis default on
 	// iOS. Set wght explicitly so CSS fontWeight selects the matching instance.
 	if (
@@ -77,8 +77,9 @@ export function Text(props: TextProps) @{
 		textStyle.height == null &&
 		textStyle.minHeight == null
 	) {
-		textStyle.minHeight = lineHeight;
+		textStyle.minHeight = lineHeight
 	}
+
 	if (
 		Application.ios &&
 		textStyle.fontVariationSettings == null &&
@@ -86,17 +87,43 @@ export function Text(props: TextProps) @{
 		fontWeight >= 100 &&
 		fontWeight <= 900
 	) {
-		textStyle.fontVariationSettings = `'wght' ${fontWeight}`;
+		textStyle.fontVariationSettings = `'wght' ${fontWeight}`
 	}
 
 	@if (inText) {
-		<span ref={(v: any) => applyEscapeProps(v, props)} className={cx(props.className)} {...layoutChildProps(props, textStyle)}>
+		<span
+			ref={(v: any) => applyEscapeProps(v, props)}
+			className={cx(props.className)}
+			{...layoutChildProps(props, textStyle)}
+		>
 			{props.children}
 		</span>
 	} @else {
 		// NS Label renders single-line unless whiteSpace asks to wrap; web text
 		// wraps freely — 'normal' matches web (0 unlimited lines).
-		<label id={props.id} testID={props.testID ?? ''} ref={(v: any) => applyEscapeProps(v, props)} {...layoutChildProps(props, textStyle)} className={cx('vx-text', props.type && `vx-text--${props.type}`, props.size && `vx-text--size-${props.size}`, props.color && `vx-text--color-${props.color}`, props.className)} maxLines={maxLines} whiteSpace={maxLines === 1 ? 'nowrap' : 'normal'} textOverflow={maxLines > 0 ? 'ellipsis' : undefined} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole)} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState)} accessibilityLiveRegion={props.accessibilityLiveRegion}>
+		<label
+			id={props.id}
+			testID={props.testID ?? ''}
+			ref={(v: any) => applyEscapeProps(v, props)}
+			{...layoutChildProps(props, textStyle)}
+			className={cx(
+				'vx-text',
+				props.type && `vx-text--${props.type}`,
+				props.size && `vx-text--size-${props.size}`,
+				props.color && `vx-text--color-${props.color}`,
+				props.className,
+			)}
+			maxLines={maxLines}
+			whiteSpace={maxLines === 1 ? 'nowrap' : 'normal'}
+			textOverflow={maxLines > 0 ? 'ellipsis' : undefined}
+			accessible={props.accessible}
+			accessibilityLabel={props.accessibilityLabel}
+			accessibilityRole={nativeAccessibilityRole(props.accessibilityRole)}
+			accessibilityHint={props.accessibilityHint}
+			accessibilityValue={props.accessibilityValue}
+			accessibilityState={nativeAccessibilityState(props.accessibilityState)}
+			accessibilityLiveRegion={props.accessibilityLiveRegion}
+		>
 			<TextScope>{props.children}</TextScope>
 		</label>
 	}

@@ -10,7 +10,9 @@ export function CopyTextDemo() @{
 	})
 
 	<View>
-		<Pressable {...clipboardProps}><Text>{isCopied ? 'Copied' : 'Copy greeting'}</Text></Pressable>
+		<Pressable {...clipboardProps}>
+			<Text>{isCopied ? 'Copied' : 'Copy greeting'}</Text>
+		</Pressable>
 		{failed$.get() && !isCopied ? <Text>Copy unavailable</Text> : null}
 	</View>
 }

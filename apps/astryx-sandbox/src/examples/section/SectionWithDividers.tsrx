@@ -13,7 +13,9 @@ export function SectionWithDividers() @{
 			<Section variant="section" padding={5} dividers={i < 2 ? ['bottom'] : undefined}>
 				<Stack direction="vertical" gap={1}>
 					<Heading level={4}>{title}</Heading>
-					<Text type="body" color="secondary">{body}</Text>
+					<Text type="body" color="secondary">
+						{body}
+					</Text>
 				</Stack>
 			</Section>
 		))}

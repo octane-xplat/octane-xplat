@@ -1,7 +1,12 @@
 // Port of upstream (fullscreen)/pages/stone-palette/page.tsx (Astryx 0.6.4, MIT).
 import { stoneTheme } from '../../themes/stone'
 import { stonePalettes } from '../../themes/stonePalettes'
-import { ThemePalettePreview, type TonalColor, type CoreSwatch } from '../../themePreview/ThemePalettePreview'
+import {
+	ThemePalettePreview,
+	type TonalColor,
+	type CoreSwatch,
+} from '../../themePreview/ThemePalettePreview'
+
 import { DisplayTextSection } from './shared'
 
 const TONAL_COLORS: TonalColor[] = [

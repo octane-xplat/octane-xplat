@@ -75,12 +75,21 @@ function fixture(type = 'contentview') {
 			.map(fn)
 			.join('\n') + '\n({insert,remove,destroy,layoutContentChild})',
 		{
-		elementBehaviors: new Map(),
-		behaviorOf: () => undefined,
-		isManualLayoutParent: (t: string) =>
-			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
-		registerElementType: () => {},
-		
+			elementBehaviors: new Map(),
+			behaviorOf: () => undefined,
+			isManualLayoutParent: (t: string) =>
+				[
+					'gridlayout',
+					'liquidglass',
+					'absolutelayout',
+					'contentview',
+					'actionbar',
+					'docklayout',
+					'wraplayout',
+					'rootlayout',
+				].includes(t),
+			registerElementType: () => {},
+
 			contentViewNodesByView: new WeakMap(),
 			disposePressGestures: noop,
 			panHandlersByView: new WeakMap(),

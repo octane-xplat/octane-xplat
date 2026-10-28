@@ -9,7 +9,10 @@ import {
 
 vi.mock('@nativescript/core', () => ({
 	// ui-svg's index.common.ts evaluates NS decorators at import.
-	Property: class { constructor(_opts?: any) {} register() {} },
+	Property: class {
+		constructor(_opts?: any) {}
+		register() {}
+	},
 	CSSType: () => () => {},
 	registerElement: () => {},
 	View: class {},

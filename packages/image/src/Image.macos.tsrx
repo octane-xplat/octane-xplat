@@ -9,8 +9,14 @@ import { hashToPngBase64 } from './hash-image'
  *  a placeholder that must fetch first is pointless. */
 function appKitPlaceholder(placeholder: string): string | undefined {
 	const png = hashToPngBase64(placeholder)
-	if (png) {return `data:image/png;base64,${png}`}
-	if (/^https?:\/\//i.test(placeholder)) {return undefined}
+	if (png) {
+		return `data:image/png;base64,${png}`
+	}
+
+	if (/^https?:\/\//i.test(placeholder)) {
+		return undefined
+	}
+
 	return placeholder
 }
 

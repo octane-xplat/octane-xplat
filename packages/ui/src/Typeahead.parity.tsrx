@@ -7,7 +7,10 @@ function TypeaheadFixture() @{
 	<Typeahead
 		className="parity-typeahead-root"
 		label="Size"
-		searchSource={createStaticSource([{ id: 'small', label: 'Small' }, { id: 'large', label: 'Large' }])}
+		searchSource={createStaticSource([
+			{ id: 'small', label: 'Small' },
+			{ id: 'large', label: 'Large' },
+		])}
 		value={{ id: 'small', label: 'Small' }}
 		onChange={() => {}}
 		style={{ width: 220, height: 44, backgroundColor: '#f5f5f5' }}

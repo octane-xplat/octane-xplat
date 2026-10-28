@@ -52,5 +52,4 @@ export type {
 
 export { useImperativeModal } from './use-imperative-modal.android.tsrx'
 
-
 export type { ImperativeModalReturn } from '../props'

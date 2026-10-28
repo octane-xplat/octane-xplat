@@ -24,8 +24,18 @@ export const textInputScenarios: TextInputScenario[] = [
 	{ key: 'description', props: { label: 'Email', description: 'We never share it' } },
 	{ key: 'required', props: { label: 'Email', isRequired: true } },
 	{ key: 'optional', props: { label: 'Nickname', isOptional: true } },
-	{ key: 'error', props: { label: 'Email', value: 'not-an-email', status: { type: 'error', message: 'Enter a valid email' } } },
-	{ key: 'label-hidden', props: { label: 'Email', isLabelHidden: true, placeholder: 'you@example.com' } },
+	{
+		key: 'error',
+		props: {
+			label: 'Email',
+			value: 'not-an-email',
+			status: { type: 'error', message: 'Enter a valid email' },
+		},
+	},
+	{
+		key: 'label-hidden',
+		props: { label: 'Email', isLabelHidden: true, placeholder: 'you@example.com' },
+	},
 	{ key: 'sm', props: { label: 'Email', size: 'sm' } },
 	{ key: 'lg', props: { label: 'Email', size: 'lg' } },
 ]

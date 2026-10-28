@@ -18,8 +18,9 @@ test('file and spec grammar share canonical root, optional, and catch-all identi
 		['[[locale]]/help', '/:locale?/help'],
 		['docs/[...rest]', '/docs/*rest'],
 		['docs/[[...rest]]', '/docs/*rest'],
-	])
-		{assert.equal(routePatternPath(input), output)}
+	]) {
+		assert.equal(routePatternPath(input), output)
+	}
 	assert.equal(routeParamName(':locale?'), 'locale')
 	assert.equal(routeParamName('*'), '*')
 	assert.equal(routeParamName('index'), undefined)

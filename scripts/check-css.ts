@@ -32,7 +32,8 @@ const DROPPED_INTENTIONAL = new Map(
 		display: 'element style owns the layout type on native (masonview display prop)',
 		'border-style': 'native draws a solid border when width+color are set; style is web-only',
 		'border-top-style': 'native draws a solid border when width+color are set; style is web-only',
-		'border-bottom-style': 'native draws a solid border when width+color are set; style is web-only',
+		'border-bottom-style':
+			'native draws a solid border when width+color are set; style is web-only',
 		'border-left-style': 'native draws a solid border when width+color are set; style is web-only',
 		'border-right-style': 'native draws a solid border when width+color are set; style is web-only',
 		cursor: 'no pointer affordance on native touch platforms — web/desktop hint only',

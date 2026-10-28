@@ -30,9 +30,11 @@ registerFontFamily('Test', [{ weight: 'bold', descriptor }])
 const mason: SharedJSX.IntrinsicElements['masonview'] = {
 	style: { display: 'grid', gridTemplateRows: '40px 40px' },
 }
+
 const masonChild: SharedJSX.IntrinsicElements['label'] = {
 	style: { gridRow: 2, gridColumn: 1 },
 }
+
 void mason
 void masonChild
 // @ts-expect-error removed layout containers are not in the contract

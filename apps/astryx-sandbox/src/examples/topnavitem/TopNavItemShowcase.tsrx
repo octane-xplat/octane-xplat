@@ -8,7 +8,12 @@ export function TopNavItemShowcase() @{
 		heading={<TopNavHeading heading="App" />}
 		startContent={
 			<>
-				<TopNavItem label="Dashboard" href="#" isSelected icon={<Icon name="sandbox-home" size={16} />} />
+				<TopNavItem
+					label="Dashboard"
+					href="#"
+					isSelected
+					icon={<Icon name="sandbox-home" size={16} />}
+				/>
 				<TopNavItem label="Projects" href="#" />
 				<TopNavItem label="Reports" href="#" />
 				<TopNavItem label="Archived" href="#" isDisabled />

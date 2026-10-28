@@ -11,13 +11,16 @@ const commands = [
 
 export function CommandPaletteItemShowcase() @{
 	const source = useMemo(() => createStaticSource(commands), [])
+
 	<CommandPalette
 		open
 		onOpenChange={() => {}}
 		searchSource={source}
 		renderItem={(item: { label: string; shortcut?: string }) => (
 			<>
-				<Text type="body" style={{ flexGrow: 1 }}>{item.label}</Text>
+				<Text type="body" style={{ flexGrow: 1 }}>
+					{item.label}
+				</Text>
 				{item.shortcut && <Kbd keys={item.shortcut} />}
 			</>
 		)}

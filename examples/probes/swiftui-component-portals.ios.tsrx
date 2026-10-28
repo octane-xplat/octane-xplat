@@ -15,6 +15,7 @@ const rendered: Record<Surface, string[]> = {
 	preview: [],
 	shader: [],
 }
+
 const mounted = new Set<Surface>()
 
 let updateName: (value: string) => void
@@ -42,9 +43,9 @@ export default function SwiftUIComponentPortals() {
 
 	return (
 		<NameProvider value={name}>
-			{sheetEnabled
-				? <SwiftUIBottomSheet open content={() => <ContextLabel surface="sheet" />} />
-				: null}
+			{sheetEnabled ? (
+				<SwiftUIBottomSheet open content={() => <ContextLabel surface="sheet" />} />
+			) : null}
 			<SwiftUIContextMenu
 				items={[]}
 				trigger={() => <ContextLabel surface="trigger" />}
@@ -62,6 +63,7 @@ export async function run(ctx: ProbeContext) {
 		(['sheet', 'trigger', 'preview', 'shader'] as const).every(
 			(surface) => mounted.has(surface) && rendered[surface].at(-1) === 'Avery',
 		)
+
 	await ctx.waitFor(initialContextReachedAllHosts, { timeout: 8000, interval: 25 })
 	ctx.assert('sheet reads declaring context', rendered.sheet.at(-1), 'Avery')
 	ctx.assert('context-menu trigger reads declaring context', rendered.trigger.at(-1), 'Avery')
@@ -74,6 +76,7 @@ export async function run(ctx: ProbeContext) {
 		preview: rendered.preview.length,
 		shader: rendered.shader.length,
 	}
+
 	updateName('Jordan')
 	await ctx.waitFor(
 		() =>
@@ -86,6 +89,7 @@ export async function run(ctx: ProbeContext) {
 			),
 		{ timeout: 5000, interval: 25 },
 	)
+
 	ctx.assert('live context update reaches sheet', rendered.sheet.at(-1), 'Jordan')
 	ctx.assert('live context update reaches context-menu trigger', rendered.trigger.at(-1), 'Jordan')
 	ctx.assert('live context update reaches preview', rendered.preview.at(-1), 'Jordan')
@@ -93,21 +97,31 @@ export async function run(ctx: ProbeContext) {
 
 	setSheetEnabled(false)
 	await ctx.waitFor(() => !mounted.has('sheet'), { timeout: 5000, interval: 25 })
-	ctx.assert('unmounting the SwiftUI sheet detaches its portal subtree', mounted.has('sheet'), false)
-	setSheetEnabled(true)
-	await ctx.waitFor(
-		() => mounted.has('sheet') && rendered.sheet.at(-1) === 'Jordan',
-		{ timeout: 8000, interval: 25 },
+	ctx.assert(
+		'unmounting the SwiftUI sheet detaches its portal subtree',
+		mounted.has('sheet'),
+		false,
 	)
+
+	setSheetEnabled(true)
+	await ctx.waitFor(() => mounted.has('sheet') && rendered.sheet.at(-1) === 'Jordan', {
+		timeout: 8000,
+		interval: 25,
+	})
+
 	ctx.assert('remounted sheet portal retains updated context', rendered.sheet.at(-1), 'Jordan')
 
 	setPreviewEnabled(false)
 	await ctx.waitFor(() => !mounted.has('preview'), { timeout: 5000, interval: 25 })
 	ctx.assert('removing the preview detaches its portal subtree', mounted.has('preview'), false)
 	setPreviewEnabled(true)
-	await ctx.waitFor(
-		() => mounted.has('preview') && rendered.preview.at(-1) === 'Jordan',
-		{ timeout: 5000, interval: 25 },
+	await ctx.waitFor(() => mounted.has('preview') && rendered.preview.at(-1) === 'Jordan', {
+		timeout: 5000,
+		interval: 25,
+	})
+
+	ctx.record(
+		'portal boundary evidence',
+		'iOS SwiftUI sheet, context-menu trigger/preview, and shader effect',
 	)
-	ctx.record('portal boundary evidence', 'iOS SwiftUI sheet, context-menu trigger/preview, and shader effect')
 }

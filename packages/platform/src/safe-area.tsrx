@@ -6,7 +6,6 @@ import { Application, Screen } from '@nativescript/core'
 import type { Insets } from './types'
 import { android } from '@octane-xplat/platform/android'
 
-
 const zeroInsets = (): Insets => ({ top: 0, bottom: 0, left: 0, right: 0 })
 
 function androidActivity(): any {
@@ -17,7 +16,9 @@ function readAndroidInsets(windowInsets?: any): Insets {
 	const activity = androidActivity()
 	const decorView = activity?.getWindow?.()?.getDecorView?.()
 	const insets = windowInsets ?? decorView?.getRootWindowInsets?.()
-	if (!insets) return zeroInsets()
+	if (!insets) {
+		return zeroInsets()
+	}
 
 	const scale = Screen.mainScreen.scale || 1
 	if (android.os.Build.VERSION.SDK_INT >= 30) {
@@ -44,16 +45,23 @@ function readAndroidInsets(windowInsets?: any): Insets {
 function readInsets(): Insets {
 	if (Application.ios) {
 		const i = Application.ios.rootController?.view?.safeAreaInsets
-		if (i) return { top: i.top, bottom: i.bottom, left: i.left, right: i.right }
+		if (i) {
+			return { top: i.top, bottom: i.bottom, left: i.left, right: i.right }
+		}
 	}
 
-	if (Application.android) return readAndroidInsets()
+	if (Application.android) {
+		return readAndroidInsets()
+	}
+
 	return zeroInsets()
 }
 
 function watchAndroidInsets(update: (insets: Insets) => void): () => void {
 	const decorView = androidActivity()?.getWindow?.()?.getDecorView?.()
-	if (!decorView) return () => {}
+	if (!decorView) {
+		return () => {}
+	}
 
 	const listener = new android.view.View.OnApplyWindowInsetsListener({
 		onApplyWindowInsets(_view: any, insets: any) {

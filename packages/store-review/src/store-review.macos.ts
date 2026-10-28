@@ -3,10 +3,12 @@
 // @octane-xplat/geolocation's XplatGeolocation).
 import type { StoreReview, StoreReviewConfig } from './types'
 
-declare const XplatStoreReview: {
-	isAvailable(): boolean
-	requestReview(): void
-} | undefined
+declare const XplatStoreReview:
+	| {
+			isAvailable(): boolean
+			requestReview(): void
+	  }
+	| undefined
 
 const native = () => (typeof XplatStoreReview === 'undefined' ? null : XplatStoreReview)
 

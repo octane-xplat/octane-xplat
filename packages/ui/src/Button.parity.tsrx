@@ -26,8 +26,32 @@ function ButtonNaturalFixture(props: { label: string }) @{
 }
 
 export const PARITY: ParityFixture[] = [
-	{ name: 'button-basic', component: 'Button', renderer: ButtonFixture, props: { width: 220, height: 32, label: 'Go' }, wide: true },
-	{ name: 'button-compact', component: 'Button', renderer: ButtonFixture, props: { width: 96, height: 28, label: 'Save' }, wide: true },
-	{ name: 'button-long-label', component: 'Button', renderer: ButtonFixture, props: { width: 160, height: 36, label: 'Continue' }, wide: true },
-	{ name: 'button-natural', component: 'Button', renderer: ButtonNaturalFixture, props: { label: 'Go' }, width: 220 },
+	{
+		name: 'button-basic',
+		component: 'Button',
+		renderer: ButtonFixture,
+		props: { width: 220, height: 32, label: 'Go' },
+		wide: true,
+	},
+	{
+		name: 'button-compact',
+		component: 'Button',
+		renderer: ButtonFixture,
+		props: { width: 96, height: 28, label: 'Save' },
+		wide: true,
+	},
+	{
+		name: 'button-long-label',
+		component: 'Button',
+		renderer: ButtonFixture,
+		props: { width: 160, height: 36, label: 'Continue' },
+		wide: true,
+	},
+	{
+		name: 'button-natural',
+		component: 'Button',
+		renderer: ButtonNaturalFixture,
+		props: { label: 'Go' },
+		width: 220,
+	},
 ]

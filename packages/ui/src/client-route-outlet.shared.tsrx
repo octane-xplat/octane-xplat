@@ -53,7 +53,12 @@ function OwnedClientRouteOutlet(props: ClientRouteOutletProps): any {
 
 export function ClientRouteOutlet(props: ClientRouteOutletProps): any {
 	return (
-		<RouterOutletBoundary key={routeAuthorityKey(props.authority)} host={props.host} flow={props.flow ?? 'root'} base={props.children}>
+		<RouterOutletBoundary
+			key={routeAuthorityKey(props.authority)}
+			host={props.host}
+			flow={props.flow ?? 'root'}
+			base={props.children}
+		>
 			<OwnedClientRouteOutlet {...props} />
 		</RouterOutletBoundary>
 	)

@@ -1,5 +1,14 @@
 // Port of upstream Dialog/DialogScrollingContent.tsx (Astryx 0.6.4, MIT).
-import { useImperativeDialog, Dialog, DialogHeader, Button, HStack, ScrollableArea, Text, VStack } from '@octane-xplat/ui'
+import {
+	useImperativeDialog,
+	Dialog,
+	DialogHeader,
+	Button,
+	HStack,
+	ScrollableArea,
+	Text,
+	VStack,
+} from '@octane-xplat/ui'
 
 const TERMS = [
 	'You agree to use the service only for lawful purposes and in compliance with all applicable laws and regulations in your jurisdiction.',
@@ -25,7 +34,9 @@ function Content(props: { onClose: () => void }) @{
 		<ScrollableArea style={{ padding: 'var(--spacing-4)', maxHeight: 320 }}>
 			<VStack gap={3}>
 				{TERMS.map((term, i) => (
-					<Text type="body" key={i}>{i + 1}. {term}</Text>
+					<Text type="body" key={i}>
+						{i + 1}. {term}
+					</Text>
 				))}
 			</VStack>
 		</ScrollableArea>

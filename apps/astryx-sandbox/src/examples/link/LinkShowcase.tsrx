@@ -2,5 +2,9 @@
 import { Link } from '@octane-xplat/ui'
 
 export function LinkShowcase() @{
-	return <Link href="#" isStandalone>Documentation</Link>
+	return (
+		<Link href="#" isStandalone>
+			Documentation
+		</Link>
+	)
 }

@@ -1,4 +1,4 @@
-import { Text, View } from '@octane-xplat/ui';
+import { Text, View } from '@octane-xplat/ui'
 
 /** Nested route-dir layout — wraps every screen pushed under demo/*
  *  (demo/:id here): web outlets wrap the resolved element, native wraps

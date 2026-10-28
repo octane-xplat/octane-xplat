@@ -19,6 +19,7 @@ declare global {
 		debug(...args: any[]): void
 		[key: string]: any
 	}
+
 	/** GJS CJS-style loader — present but unused by bundled ESM entry points. */
 	function require(specifier: string): any
 	/** Process argv inside `gjs -m` entry points. */

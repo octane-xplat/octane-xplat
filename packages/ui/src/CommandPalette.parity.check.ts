@@ -2,7 +2,6 @@ import type { ParityCheck, CheckRow } from './parity/check-helpers.ts'
 import { near, dims } from './parity/check-helpers.ts'
 
 export const CHECKS: ParityCheck[] = [
-
 	{
 		fixture: 'command-palette-open',
 		targets: ['web', 'ios', 'android', 'macos'],
@@ -12,7 +11,9 @@ export const CHECKS: ParityCheck[] = [
 		equal: ['panel.box.w', 'panel.box.h', 'panel.style.backgroundColor'],
 		check: (m, target) => {
 			const list = m('list')
-			const expectedWidth = ({ web: 182, ios: 184, android: 181.71 } as Record<string, number>)[target]
+			const expectedWidth = ({ web: 182, ios: 184, android: 181.71 } as Record<string, number>)[
+				target
+			]
 			const rows: CheckRow[] = [
 				dims(m('panel'), 200, 96),
 				['command list has a visible frame', list.box.w > 0 && list.box.h > 0],
@@ -28,5 +29,5 @@ export const CHECKS: ParityCheck[] = [
 
 			return rows
 		},
-	}
+	},
 ]

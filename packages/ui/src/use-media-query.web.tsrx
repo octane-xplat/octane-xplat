@@ -15,6 +15,7 @@ export function useMediaQuery(query: string): boolean {
 			setMatches(false)
 			return
 		}
+
 		const mql = window.matchMedia(query)
 		const update = () => setMatches(mql.matches)
 		update()

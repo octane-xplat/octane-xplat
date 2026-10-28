@@ -31,7 +31,10 @@ export function LexicalEditor(props: LexicalEditorProps) @{
 	const applyDoc = () => {
 		const host = inner.current
 		const doc = desiredDoc.current
-		if (!host) return
+		if (!host) {
+			return
+		}
+
 		if (doc === undefined) {
 			if (desiredHTML.current !== undefined && appliedHost.current !== host) {
 				host.setHTML(desiredHTML.current)
@@ -41,9 +44,15 @@ export function LexicalEditor(props: LexicalEditorProps) @{
 			return
 		}
 
-		if (!jsonBridgeReady()) return
+		if (!jsonBridgeReady()) {
+			return
+		}
+
 		const stamp = JSON.stringify(doc)
-		if (stamp === lastJSON.current && appliedHost.current === host) return
+		if (stamp === lastJSON.current && appliedHost.current === host) {
+			return
+		}
+
 		const html = jsonToHTML(doc)
 		if (html != null) {
 			lastJSON.current = stamp
@@ -61,32 +70,38 @@ export function LexicalEditor(props: LexicalEditorProps) @{
 			queueMicrotask(applyDoc)
 		}
 
-		setHandle((previous) => previousHost === h ? previous : h ? ({
-			getHTML: () => h.getHTML(),
-			setHTML: (html: string) => {
-				desiredDoc.current = undefined
-				desiredHTML.current = html
-				lastJSON.current = undefined
-				appliedHost.current = h
-				h.setHTML(html)
-			},
-			getJSON: () => (jsonBridgeReady() ? htmlToJSON(h.getHTML()) : null),
-			setJSON: (doc) => {
-				desiredDoc.current = doc
-				desiredHTML.current = undefined
-				applyDoc()
-			},
-			apply: (format) => h.apply(format),
-			linkTo: (url, anchor) => h.linkTo(url, anchor),
-			removeLink: () => h.removeLink(),
-			isActive: (format) => h.isActive(format),
-			undo: () => h.undo(),
-			redo: () => h.redo(),
-			focus: () => h.focus(),
-			blur: () => h.blur(),
-			isFocused: () => h.isFocused(),
-			native: h.native,
-		} satisfies LexicalEditorHandle) : null)
+		setHandle((previous) =>
+			previousHost === h
+				? previous
+				: h
+					? ({
+							getHTML: () => h.getHTML(),
+							setHTML: (html: string) => {
+								desiredDoc.current = undefined
+								desiredHTML.current = html
+								lastJSON.current = undefined
+								appliedHost.current = h
+								h.setHTML(html)
+							},
+							getJSON: () => (jsonBridgeReady() ? htmlToJSON(h.getHTML()) : null),
+							setJSON: (doc) => {
+								desiredDoc.current = doc
+								desiredHTML.current = undefined
+								applyDoc()
+							},
+							apply: (format) => h.apply(format),
+							linkTo: (url, anchor) => h.linkTo(url, anchor),
+							removeLink: () => h.removeLink(),
+							isActive: (format) => h.isActive(format),
+							undo: () => h.undo(),
+							redo: () => h.redo(),
+							focus: () => h.focus(),
+							blur: () => h.blur(),
+							isFocused: () => h.isFocused(),
+							native: h.native,
+						} satisfies LexicalEditorHandle)
+					: null,
+		)
 	}, [])
 
 	// The bridge loads once per process — dynamic imports of the DOM-free
@@ -100,7 +115,10 @@ export function LexicalEditor(props: LexicalEditorProps) @{
 
 		let alive = true
 		ensureJSONBridge().then((ok) => {
-			if (!alive) return
+			if (!alive) {
+				return
+			}
+
 			props.onJSONReady?.(ok)
 			applyDoc()
 		})
@@ -116,23 +134,35 @@ export function LexicalEditor(props: LexicalEditorProps) @{
 	useEffect(() => {
 		desiredDoc.current = props.json
 		desiredHTML.current = undefined
-		if (props.json === undefined) return
+		if (props.json === undefined) {
+			return
+		}
+
 		applyDoc()
 	}, [props.json])
 
 	// External HTML changes replace the rebind snapshot too. Unchanged
 	// props must not replay over imperative replacements or user edits.
 	useEffect(() => {
-		if (props.value === lastHTMLInput.current) return
+		if (props.value === lastHTMLInput.current) {
+			return
+		}
+
 		lastHTMLInput.current = props.value
-		if (props.json !== undefined || props.value === undefined) return
+		if (props.json !== undefined || props.value === undefined) {
+			return
+		}
+
 		desiredDoc.current = undefined
 		desiredHTML.current = props.value
 		appliedHost.current = inner.current
 	}, [props.value])
 
 	const emitJSON = () => {
-		if (!inner.current || !jsonBridgeReady()) return
+		if (!inner.current || !jsonBridgeReady()) {
+			return
+		}
+
 		const doc = htmlToJSON(inner.current.getHTML())
 		if (doc) {
 			desiredDoc.current = doc
@@ -180,5 +210,5 @@ export function LexicalEditor(props: LexicalEditorProps) @{
 		flexShrink={props.flexShrink}
 		alignSelf={props.alignSelf}
 		order={props.order}
-	/>;
+	/>
 }

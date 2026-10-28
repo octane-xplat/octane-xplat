@@ -5,12 +5,14 @@ import { View } from './View'
 import type { ParityFixture } from './parity'
 
 function PopoverLayoutFixture(props: { marker: string }) @{
-	const anchor = useRef<any>(null);
+	const anchor = useRef<any>(null)
 
 	<>
 		<View
 			className="parity-popover-anchor"
-			ref={(view: any) => { anchor.current = view; }}
+			ref={(view: any) => {
+				anchor.current = view
+			}}
 			style={{ width: 24, height: 20 }}
 		/>
 		<Popover
@@ -26,5 +28,10 @@ function PopoverLayoutFixture(props: { marker: string }) @{
 }
 
 export const PARITY: ParityFixture[] = [
-	{ name: 'popover-bottom-frame', component: 'Popover', renderer: PopoverLayoutFixture, props: { marker: 'parity-portal--popover-bottom-frame' } },
+	{
+		name: 'popover-bottom-frame',
+		component: 'Popover',
+		renderer: PopoverLayoutFixture,
+		props: { marker: 'parity-portal--popover-bottom-frame' },
+	},
 ]

@@ -37,9 +37,20 @@ function injectKeys(targetName) {
 		targetName === 'reference' ? '.astryx-app-shell-sidenav' : '.vx-appshell-sidenav',
 	)
 
-	key('appshell', doc.querySelector(targetName === 'reference' ? '.astryx-app-shell' : '.vx-appshell'))
-	key('layout', doc.querySelector(targetName === 'reference' ? '.astryx-layout' : '.vx-appshell-body'))
-	key('midrow', targetName === 'reference' ? sideNavPanel?.parentElement : doc.querySelector('.vx-appshell-middle'))
+	key(
+		'appshell',
+		doc.querySelector(targetName === 'reference' ? '.astryx-app-shell' : '.vx-appshell'),
+	)
+	key(
+		'layout',
+		doc.querySelector(targetName === 'reference' ? '.astryx-layout' : '.vx-appshell-body'),
+	)
+	key(
+		'midrow',
+		targetName === 'reference'
+			? sideNavPanel?.parentElement
+			: doc.querySelector('.vx-appshell-middle'),
+	)
 	key('sidenav', sideNavPanel)
 	const main = doc.querySelector('[role="main"], main')
 	key('main', main)
@@ -83,8 +94,14 @@ function injectKeys(targetName) {
 	}
 	for (const el of [...doc.querySelectorAll('nav *')]) {
 		const text = el.textContent?.trim()
-		if (text !== 'Sandbox' && text !== 'Audits') {continue}
-		if ([...el.children].some((c) => c.textContent?.trim() === text)) {continue}
+		if (text !== 'Sandbox' && text !== 'Audits') {
+			continue
+		}
+
+		if ([...el.children].some((c) => c.textContent?.trim() === text)) {
+			continue
+		}
+
 		let top = el
 		while (
 			top.parentElement?.closest('nav') &&
@@ -93,6 +110,7 @@ function injectKeys(targetName) {
 		) {
 			top = top.parentElement
 		}
+
 		const rect = top.getBoundingClientRect()
 		if (getComputedStyle(top).visibility === 'hidden' || rect.width <= 2 || rect.height === 0) {
 			top.setAttribute('data-sf-ignore', '')
@@ -106,7 +124,10 @@ function injectKeys(targetName) {
 	if (group) {
 		for (const btn of group.querySelectorAll('button')) {
 			const name = btn.getAttribute('aria-label') ?? ''
-			if (!name) {continue}
+			if (!name) {
+				continue
+			}
+
 			btn.setAttribute('data-sameframe-key', `toggle-${name}`)
 			const visible = [...btn.querySelectorAll('span')].find((span) => {
 				const rect = span.getBoundingClientRect()
@@ -116,6 +137,7 @@ function injectKeys(targetName) {
 					getComputedStyle(span).visibility !== 'hidden'
 				)
 			})
+
 			visible?.setAttribute('data-sameframe-key', `toggle-label-${name}`)
 		}
 	}
@@ -124,9 +146,7 @@ function injectKeys(targetName) {
 async function clickByText(page, text) {
 	await page.evaluate((wanted) => {
 		const el = [...document.querySelectorAll('button, a')].find(
-			(node) =>
-				node.textContent.trim() === wanted &&
-				node.getBoundingClientRect().height > 0,
+			(node) => node.textContent.trim() === wanted && node.getBoundingClientRect().height > 0,
 		)
 		el?.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
 	}, text)
@@ -153,9 +173,7 @@ export default async function setup({ page, target }) {
 	// App mount: wait for a deep-rendered page, not just the shell. Embed mode
 	// client-renders both targets through a lazy page load, so early DOM
 	// mutations can be wiped when the real content swaps in.
-	await page
-		.waitForSelector('[role="main"], main, nav', { timeout: 20000 })
-		.catch(() => {})
+	await page.waitForSelector('[role="main"], main, nav', { timeout: 20000 }).catch(() => {})
 	await page
 		.waitForFunction(() => document.querySelectorAll('a[href]').length > 10, {
 			timeout: 20000,

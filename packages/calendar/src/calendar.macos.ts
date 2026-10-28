@@ -1,6 +1,7 @@
 import type { Calendar, PermissionResult } from './types'
 
-const unsupported = () => Promise.reject(new Error('unsupported: calendar is not wired on this platform'))
+const unsupported = () =>
+	Promise.reject(new Error('unsupported: calendar is not wired on this platform'))
 
 export const calendar: Calendar = {
 	supported: false,

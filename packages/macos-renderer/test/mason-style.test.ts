@@ -14,23 +14,20 @@ let source = readFileSync(new URL('../src/mason.ts', import.meta.url), 'utf8')
 source = source.replace(/import\s*\{[\s\S]*?\}\s*from\s*'[^']*';?/g, '')
 source = stripTypeScriptTypes(source).replaceAll('export ', '')
 
-const { styleDict: styleDictRealm } = runSlice(
-	source + '\n;({ styleDict })',
-	{
-		console,
-		process: { env: {}, cwd: () => '/' },
-		NativeClass: (c: any) => c,
-		NSView: class {},
-		// The engine ships prebuilt and the CLI bootstrap loads it; tests
-		// publish a stand-in host the way the dylib's +load would.
-		NSThread: { mainThread: { threadDictionary: { objectForKey: () => null } } },
-		NSScreen: { mainScreen: { backingScaleFactor: 2 } },
-		NSNotificationCenter: {
-			defaultCenter: { addObserverForNameObjectQueueUsingBlock: () => ({}) },
-		},
-		NSViewFrameDidChangeNotification: 'frame',
+const { styleDict: styleDictRealm } = runSlice(source + '\n;({ styleDict })', {
+	console,
+	process: { env: {}, cwd: () => '/' },
+	NativeClass: (c: any) => c,
+	NSView: class {},
+	// The engine ships prebuilt and the CLI bootstrap loads it; tests
+	// publish a stand-in host the way the dylib's +load would.
+	NSThread: { mainThread: { threadDictionary: { objectForKey: () => null } } },
+	NSScreen: { mainScreen: { backingScaleFactor: 2 } },
+	NSNotificationCenter: {
+		defaultCenter: { addObserverForNameObjectQueueUsingBlock: () => ({}) },
 	},
-)
+	NSViewFrameDidChangeNotification: 'frame',
+})
 
 // Objects crossing the vm boundary carry foreign prototypes — normalize
 // through JSON so strict deep-equal sees plain literals.
@@ -48,10 +45,7 @@ function node(type: string, props: any = {}, parent?: any) {
 
 test('scrollview orientation maps to flexDirection', () => {
 	assert.equal(styleDict(node('scrollview')).flexDirection, 'column')
-	assert.equal(
-		styleDict(node('scrollview', { orientation: 'horizontal' })).flexDirection,
-		'row',
-	)
+	assert.equal(styleDict(node('scrollview', { orientation: 'horizontal' })).flexDirection, 'row')
 	assert.equal(styleDict(node('scrollview')).display, 'flex')
 	// containers establish containing blocks for absolute descendants
 	assert.equal(styleDict(node('scrollview')).position, 'relative')
@@ -128,11 +122,7 @@ test('masonview children with edge styles become inset dims', () => {
 test('a docked-left child pins three edges through style insets', () => {
 	const host = node('masonview')
 	// dock="left" compiles to absolute positioning + left/top/bottom insets.
-	const item = node(
-		'label',
-		{ style: { position: 'absolute', left: 0, top: 0, bottom: 0 } },
-		host,
-	)
+	const item = node('label', { style: { position: 'absolute', left: 0, top: 0, bottom: 0 } }, host)
 	const dict = styleDict(item)
 	assert.equal(dict.position, 'absolute')
 	assert.deepEqual(dict.inset.left, [1, 0])
@@ -196,7 +186,10 @@ test('style width/height and padding reach the dict', () => {
 })
 
 test('CSS borders consume space in the Mason box model', () => {
- assert.deepEqual(styleDict(node('masonview', { style: { borderWidth: 1 } })).border, {
-  left: [0, 1], right: [0, 1], top: [0, 1], bottom: [0, 1],
- })
+	assert.deepEqual(styleDict(node('masonview', { style: { borderWidth: 1 } })).border, {
+		left: [0, 1],
+		right: [0, 1],
+		top: [0, 1],
+		bottom: [0, 1],
+	})
 })

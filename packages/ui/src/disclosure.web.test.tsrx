@@ -5,8 +5,25 @@ import { Accordion } from './Accordion.web.tsrx'
 import type { AccordionProps } from './props'
 
 const items = [{ key: 'faq', header: 'Question', content: 'Answer' }]
-const singleContract: AccordionProps = { items, open: null, onOpenChange: (value) => { const empty: string | null = value; void empty } }
-const multipleContract: AccordionProps = { items, multiple: true, open: [], onOpenChange: (value) => { const keys: string[] = value; void keys } }
+const singleContract: AccordionProps = {
+	items,
+	open: null,
+	onOpenChange: (value) => {
+		const empty: string | null = value
+		void empty
+	},
+}
+
+const multipleContract: AccordionProps = {
+	items,
+	multiple: true,
+	open: [],
+	onOpenChange: (value) => {
+		const keys: string[] = value
+		void keys
+	},
+}
+
 // @ts-expect-error Single disclosure uses a key or null, never an array.
 const invalidSingleContract: AccordionProps = { items, multiple: false, open: ['faq'] }
 // @ts-expect-error Multiple disclosure uses an array, never one key.

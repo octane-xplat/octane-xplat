@@ -9,9 +9,9 @@ import { cx } from '@octane-xplat/lib'
  *  loop, edge fades, and the imperative handle are unimplemented on this
  *  target (documented). */
 export function Carousel(props: CarouselProps) @{
-	const items = toChildArray(props.children);
-	const count = items.length;
-	const gap = spacingStep(props.gap ?? 2) ?? 8;
+	const items = toChildArray(props.children)
+	const count = items.length
+	const gap = spacingStep(props.gap ?? 2) ?? 8
 
 	<scrollview
 		id={props.id}
@@ -20,9 +20,19 @@ export function Carousel(props: CarouselProps) @{
 		horizontal={true}
 		accessibilityLabel={props.accessibilityLabel ?? props.label}
 	>
-		<masonview className="vx-carousel-track" style={mergeStyle({flexDirection: "row"}, mergeStyle({display: "flex"}, { columnGap: gap }))}>
+		<masonview
+			className="vx-carousel-track"
+			style={mergeStyle(
+				{ flexDirection: 'row' },
+				mergeStyle({ display: 'flex' }, { columnGap: gap }),
+			)}
+		>
 			{mapChildren(items, (child: any, i: number) => (
-				<masonview className="vx-carousel-slide" accessibilityLabel={`Slide ${i + 1} of ${count}`} style={{display: "flex"}}>
+				<masonview
+					className="vx-carousel-slide"
+					accessibilityLabel={`Slide ${i + 1} of ${count}`}
+					style={{ display: 'flex' }}
+				>
 					{child}
 				</masonview>
 			))}

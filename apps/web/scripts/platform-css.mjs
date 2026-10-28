@@ -10,12 +10,14 @@ writeFileSync(
 	join(root, 'index.html'),
 	'<div class="card">Platform card</div><script type="module" src="/main.js"></script>',
 )
+
 writeFileSync(join(root, 'main.js'), "import './card.css'")
 writeFileSync(join(root, 'card.css'), '.card{color:rgb(255,0,0)}')
 writeFileSync(
 	join(root, 'card.web.css'),
 	'.card{color:rgb(0,0,255)} @platform ios, web {.card{padding:11px}} @platform ios, android {.card{color:red;padding:99px}}',
 )
+
 const server = await createServer({
 	configFile: false,
 	root,
@@ -23,6 +25,7 @@ const server = await createServer({
 	plugins: [xplatCss('web')],
 	server: { host: '127.0.0.1', port: 0 },
 })
+
 let browser
 try {
 	await server.listen()
@@ -32,10 +35,12 @@ try {
 	await page.waitForFunction(
 		() => getComputedStyle(document.querySelector('.card')).paddingTop === '11px',
 	)
+
 	const result = await page.locator('.card').evaluate((el) => ({
 		color: getComputedStyle(el).color,
 		padding: getComputedStyle(el).paddingTop,
 	}))
+
 	assert.deepEqual(result, { color: 'rgb(0, 0, 255)', padding: '11px' })
 	console.log(JSON.stringify(result))
 } finally {

@@ -4,7 +4,11 @@
 // matching upstream's approximation, not CAM16.
 
 export type Rgb = [number, number, number]
-export interface HCT { hue: number; chroma: number; tone: number }
+export interface HCT {
+	hue: number
+	chroma: number
+	tone: number
+}
 
 export function hexToRgb(hex: string): Rgb {
 	const h = hex.replace('#', '').slice(0, 6)
@@ -14,7 +18,10 @@ export function hexToRgb(hex: string): Rgb {
 }
 
 export function rgbToHex(r: number, g: number, b: number): string {
-	const clamp = (n: number) => Math.max(0, Math.min(255, Math.round(n))).toString(16).padStart(2, '0')
+	const clamp = (n: number) =>
+		Math.max(0, Math.min(255, Math.round(n)))
+			.toString(16)
+			.padStart(2, '0')
 	return '#' + clamp(r) + clamp(g) + clamp(b)
 }
 
@@ -22,10 +29,12 @@ function srgbToLinear(c: number): number {
 	const s = c / 255
 	return s <= 0.04045 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4)
 }
+
 function linearToSrgb(c: number): number {
 	const s = c <= 0.0031308 ? c * 12.92 : 1.055 * Math.pow(c, 1 / 2.4) - 0.055
 	return Math.round(Math.min(255, Math.max(0, s * 255)))
 }
+
 function linearRgbToXyz(r: number, g: number, b: number): Rgb {
 	return [
 		0.4124564 * r + 0.3575761 * g + 0.1804375 * b,
@@ -33,6 +42,7 @@ function linearRgbToXyz(r: number, g: number, b: number): Rgb {
 		0.0193339 * r + 0.119192 * g + 0.9503041 * b,
 	]
 }
+
 function xyzToLinearRgb(x: number, y: number, z: number): Rgb {
 	return [
 		3.2404542 * x - 1.5371385 * y - 0.4985314 * z,
@@ -40,21 +50,29 @@ function xyzToLinearRgb(x: number, y: number, z: number): Rgb {
 		0.0556434 * x - 0.2040259 * y + 1.0572252 * z,
 	]
 }
+
 const D65: Rgb = [0.95047, 1.0, 1.08883]
 function labF(t: number): number {
 	const d = 6 / 29
 	return t > d * d * d ? Math.cbrt(t) : t / (3 * d * d) + 4 / 29
 }
+
 function labFInv(t: number): number {
 	const d = 6 / 29
 	return t > d ? t * t * t : 3 * d * d * (t - 4 / 29)
 }
+
 function xyzToLab(x: number, y: number, z: number): Rgb {
-	const fx = labF(x / D65[0]), fy = labF(y / D65[1]), fz = labF(z / D65[2])
+	const fx = labF(x / D65[0]),
+		fy = labF(y / D65[1]),
+		fz = labF(z / D65[2])
 	return [116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)]
 }
+
 function labToXyz(L: number, a: number, b: number): Rgb {
-	const fy = (L + 16) / 116, fx = a / 500 + fy, fz = fy - b / 200
+	const fy = (L + 16) / 116,
+		fx = a / 500 + fy,
+		fz = fy - b / 200
 	return [labFInv(fx) * D65[0], labFInv(fy) * D65[1], labFInv(fz) * D65[2]]
 }
 
@@ -66,7 +84,9 @@ export function hexToLab(hex: string): Rgb {
 export function hexToHct(hex: string): HCT {
 	const [L, a, b] = hexToLab(hex)
 	let hue = (Math.atan2(b, a) * 180) / Math.PI
-	if (hue < 0) {hue += 360}
+	if (hue < 0) {
+		hue += 360
+	}
 	return { hue, chroma: Math.sqrt(a * a + b * b), tone: L }
 }
 
@@ -78,7 +98,8 @@ export function hctToHex({ hue, chroma, tone }: HCT): string {
 		const [x, y, z] = labToXyz(tone, c * Math.cos(rad), c * Math.sin(rad))
 		return xyzToLinearRgb(x, y, z)
 	}
-	let lo = 0, hi = Math.max(0, chroma)
+	let lo = 0,
+		hi = Math.max(0, chroma)
 	let best: Rgb = [0, 0, 0]
 	for (let i = 0; i < 24; i++) {
 		const mid = (lo + hi) / 2
@@ -96,6 +117,7 @@ export function hctToHex({ hue, chroma, tone }: HCT): string {
 export const TONE_STEPS = [
 	0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100,
 ] as const
+
 export type ToneStep = (typeof TONE_STEPS)[number]
 
 /** Light-mode tonal palette: 21 tones; low tones get a chroma boost
@@ -122,26 +144,35 @@ export function darkTonalPalette(hue: number, chroma: number): Record<number, st
 	const result: Record<number, string> = {}
 	for (const t of TONE_STEPS) {
 		let lift = DARK_TONE_LIFT
-		if (t >= DARK_LIFT_TAPER_END) {lift = 0}
-		else if (t > DARK_LIFT_TAPER_START) {
-			lift = (DARK_TONE_LIFT * (DARK_LIFT_TAPER_END - t)) / (DARK_LIFT_TAPER_END - DARK_LIFT_TAPER_START)
+		if (t >= DARK_LIFT_TAPER_END) {
+			lift = 0
+		} else if (t > DARK_LIFT_TAPER_START) {
+			lift =
+				(DARK_TONE_LIFT * (DARK_LIFT_TAPER_END - t)) / (DARK_LIFT_TAPER_END - DARK_LIFT_TAPER_START)
 		}
+
 		const liftedTone = Math.min(100, t + lift)
 		const boost = liftedTone < 50 ? 1 + (50 - liftedTone) / 40 : 1
-		result[t] = hctToHex({ hue, chroma: Math.min(adjustedChroma * boost, maxChroma), tone: liftedTone })
+		result[t] = hctToHex({
+			hue,
+			chroma: Math.min(adjustedChroma * boost, maxChroma),
+			tone: liftedTone,
+		})
 	}
 	return result
 }
 
 export type Mode = 'light' | 'dark'
 
-export function tonalPaletteForMode(hue: number, chroma: number, mode: Mode): Record<number, string> {
+export function tonalPaletteForMode(
+	hue: number,
+	chroma: number,
+	mode: Mode,
+): Record<number, string> {
 	return mode === 'dark' ? darkTonalPalette(hue, chroma) : tonalPalette(hue, chroma)
 }
 
 /** CIE76 ΔE in Lab — the "close enough" distance for swatch matching. */
 export function deltaE(labA: Rgb, labB: Rgb): number {
-	return Math.sqrt(
-		(labA[0] - labB[0]) ** 2 + (labA[1] - labB[1]) ** 2 + (labA[2] - labB[2]) ** 2,
-	)
+	return Math.sqrt((labA[0] - labB[0]) ** 2 + (labA[1] - labB[1]) ** 2 + (labA[2] - labB[2]) ** 2)
 }

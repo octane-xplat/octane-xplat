@@ -1,8 +1,19 @@
 // Port of upstream Resizable/ResizableShowcase.tsx (Astryx 0.6.4, MIT).
-import { Card, Heading, Layout, LayoutContent, LayoutPanel, ResizeHandle, Text, useResizable, VStack } from '@octane-xplat/ui'
+import {
+	Card,
+	Heading,
+	Layout,
+	LayoutContent,
+	LayoutPanel,
+	ResizeHandle,
+	Text,
+	useResizable,
+	VStack,
+} from '@octane-xplat/ui'
 
 export function ResizableShowcase() @{
 	const sidebar = useResizable({ defaultSize: 200, minSize: 120, maxSize: 400 })
+
 	<Card variant="muted" height={280} width={600}>
 		<Layout
 			height="fill"
@@ -14,7 +25,12 @@ export function ResizableShowcase() @{
 							<Text color="secondary">{Math.round(sidebar.size)}px wide</Text>
 						</VStack>
 					</LayoutPanel>
-					<ResizeHandle direction="horizontal" hasDivider resizable={sidebar.props} label="Resize sidebar" />
+					<ResizeHandle
+						direction="horizontal"
+						hasDivider
+						resizable={sidebar.props}
+						label="Resize sidebar"
+					/>
 				</>
 			}
 			content={

@@ -50,6 +50,7 @@ export interface MediaImpl {
 	getPermissions(kind: MediaPermissionKind): Promise<PermissionResponse>
 	requestPermissions(kind: MediaPermissionKind): Promise<PermissionResponse>
 }
+
 export { UnavailabilityError } from '@octane-xplat/lib/capability'
 export type {
 	Permissioned,

@@ -15,17 +15,30 @@ export function RouteOutletResume(props: Pick<RouteOutletProps, 'resumeUrl' | 'o
 	const navigation = useRouter(instance)
 	const state = useNavigation(instance)
 	const lifetime = useMemo(() => ({ active: true, started: false }), [])
-	useLayoutEffect(() => () => { lifetime.active = false }, [])
+	useLayoutEffect(
+		() => () => {
+			lifetime.active = false
+		},
+		[],
+	)
+
 	useEffect(() => {
-		if (!lifetime.active || props.resumeUrl === undefined || lifetime.started || state.status === 'pending') {
+		if (
+			!lifetime.active ||
+			props.resumeUrl === undefined ||
+			lifetime.started ||
+			state.status === 'pending'
+		) {
 			return
 		}
+
 		lifetime.started = true
-		void navigation.navigateUrl(props.resumeUrl, { replace: true }).then(result => {
+		void navigation.navigateUrl(props.resumeUrl, { replace: true }).then((result) => {
 			if (lifetime.active) {
 				props.onResume?.(result)
 			}
 		})
 	}, [navigation, props.resumeUrl, state.status])
+
 	return null
 }

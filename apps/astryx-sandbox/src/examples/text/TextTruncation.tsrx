@@ -16,7 +16,9 @@ export function TextTruncation() @{
 		<Stack direction="vertical" gap={4} style={{ maxWidth: 300 }}>
 			{LINES.map(({ maxLines, label }) => (
 				<View key={maxLines}>
-					<Text type="supporting" color="secondary" className="sb-block">{label}</Text>
+					<Text type="supporting" color="secondary" className="sb-block">
+						{label}
+					</Text>
 					<View className="sb-example-box">
 						<Text type="body" maxLines={maxLines}>
 							{LONG_TEXT}

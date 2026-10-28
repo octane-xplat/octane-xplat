@@ -241,20 +241,33 @@ describe('host-independent routing preparation', () => {
 		])
 		const engine = createRoutePreparation({ catalog, stacks: ['retention', 'retention-controls'] })
 		try {
-			expect(engine.resolveDestination({ to: '/retention-late', stack: 'retention' })).toMatchObject({
-				status: 'matched', href: '/@retention/retention-late',
+			expect(
+				engine.resolveDestination({ to: '/retention-late', stack: 'retention' }),
+			).toMatchObject({
+				status: 'matched',
+				href: '/@retention/retention-late',
 				destination: { to: '/retention-late', stack: 'retention' },
 			})
+
 			expect(engine.resolveUrl('/@retention/retention-late')).toMatchObject({
-				status: 'matched', destination: { to: '/retention-late', stack: 'retention' },
+				status: 'matched',
+				destination: { to: '/retention-late', stack: 'retention' },
 			})
+
 			expect(engine.resolveUrl('/retention/retention-late')).toMatchObject({
-				status: 'matched', destination: { to: '/retention/:id', stack: 'root' },
+				status: 'matched',
+				destination: { to: '/retention/:id', stack: 'root' },
 			})
-			expect(engine.resolveUrl('/@missing/retention-late')).toMatchObject({ status: 'invalid-input', path: 'stack' })
+
+			expect(engine.resolveUrl('/@missing/retention-late')).toMatchObject({
+				status: 'invalid-input',
+				path: 'stack',
+			})
+
 			expect(
 				engine.resolveDestination({ to: '/retention-late', stack: 'retention-controls' }).status,
 			).toBe('matched')
+
 			expect(loads).toBe(0)
 		} finally {
 			engine.dispose()
@@ -264,13 +277,17 @@ describe('host-independent routing preparation', () => {
 	it('round-trips stack markers, root @ paths, base paths and encoded stack names', () => {
 		const engine = createRoutePreparation({
 			catalog: defineRoutes([{ path: '/*rest', screen: Screen }]),
-			stacks: ['café/one'], base: '/app',
+			stacks: ['café/one'],
+			base: '/app',
 		})
 		try {
 			for (const stack of ['root', 'café/one']) {
 				const destination = { to: '/*rest', params: { rest: '@café/one' }, stack }
 				const href = engine.href(destination)
-				expect(href).toBe(stack === 'root' ? '/app/%40caf%C3%A9/one' : '/app/@caf%C3%A9%2Fone/%40caf%C3%A9/one')
+				expect(href).toBe(
+					stack === 'root' ? '/app/%40caf%C3%A9/one' : '/app/@caf%C3%A9%2Fone/%40caf%C3%A9/one',
+				)
+
 				expect(engine.resolveUrl(href)).toMatchObject({ status: 'matched', destination })
 			}
 		} finally {
@@ -680,25 +697,58 @@ it('keeps relative redirects in the selected stack and validates current motion 
 })
 
 it('rejects exotic JavaScript validator outputs before guards or loaders', async () => {
-  for (const output of [new Date(), new Map(), new Set(), new Error('search'), /search/, [], () => null, 42, null]) {
-    const events: string[] = []
-    // Exercise the untyped JavaScript boundary rather than a valid TS validator.
-    const engine = Reflect.apply(createRoutePreparation, undefined, [{
-      catalog: catalog(), behaviors: { '/items/:id': {
-        validateSearch: () => output,
-        beforeLoad: () => { events.push('guard') },
-        loader: () => { events.push('loader') },
-      } },
-    }])
-    expect(await engine.prepare('/items/coat')).toMatchObject({ status: 'invalid-input', path: 'search' })
-    expect(events).toEqual([])
-  }
+	for (const output of [
+		new Date(),
+		new Map(),
+		new Set(),
+		new Error('search'),
+		/search/,
+		[],
+		() => null,
+		42,
+		null,
+	]) {
+		const events: string[] = []
+		// Exercise the untyped JavaScript boundary rather than a valid TS validator.
+		const engine = Reflect.apply(createRoutePreparation, undefined, [
+			{
+				catalog: catalog(),
+				behaviors: {
+					'/items/:id': {
+						validateSearch: () => output,
+						beforeLoad: () => {
+							events.push('guard')
+						},
+						loader: () => {
+							events.push('loader')
+						},
+					},
+				},
+			},
+		])
+
+		expect(await engine.prepare('/items/coat')).toMatchObject({
+			status: 'invalid-input',
+			path: 'search',
+		})
+
+		expect(events).toEqual([])
+	}
 })
+
 it('accepts plain and null-prototype validated search field bags', async () => {
-  for (const output of [{ page: 2 }, Object.assign(Object.create(null), { page: 2 })]) {
-    const engine = create({ behaviors: { '/items/:id': { validateSearch: () => output, loader: ({ search }) => search.page } } })
-    expect(await engine.prepare('/items/coat')).toMatchObject({ status: 'ready', match: { search: { page: 2 }, data: 2 } })
-  }
+	for (const output of [{ page: 2 }, Object.assign(Object.create(null), { page: 2 })]) {
+		const engine = create({
+			behaviors: {
+				'/items/:id': { validateSearch: () => output, loader: ({ search }) => search.page },
+			},
+		})
+
+		expect(await engine.prepare('/items/coat')).toMatchObject({
+			status: 'ready',
+			match: { search: { page: 2 }, data: 2 },
+		})
+	}
 })
 
 it('resolves its own generated href for a Unicode static route', async () => {
@@ -707,9 +757,20 @@ it('resolves its own generated href for a Unicode static route', async () => {
 		catalog: defineRoutes([{ path: '/café/:id', screen: Screen }]),
 		behaviors: { '/café/:id': { validateSearch: (search) => search } },
 	})
-	const destination = { to: '/café/:id', params: { id: 'a/b' }, search: { q: 'x+y' }, hash: 'section' }
+	const destination = {
+		to: '/café/:id',
+		params: { id: 'a/b' },
+		search: { q: 'x+y' },
+		hash: 'section',
+	}
 	const href = engine.href(destination)
 	expect(href).toBe('/app/caf%C3%A9/a%2Fb?q=x%2By#section')
-	expect(engine.resolveUrl(href)).toMatchObject({ status: 'matched', destination: { params: { id: 'a/b' } } })
-	expect(await engine.prepare(href)).toMatchObject({ status: 'ready', match: { params: { id: 'a/b' } } })
+	expect(engine.resolveUrl(href)).toMatchObject({
+		status: 'matched',
+		destination: { params: { id: 'a/b' } },
+	})
+	expect(await engine.prepare(href)).toMatchObject({
+		status: 'ready',
+		match: { params: { id: 'a/b' } },
+	})
 })

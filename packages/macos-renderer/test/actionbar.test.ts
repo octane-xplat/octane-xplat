@@ -35,12 +35,21 @@ function fixture() {
 			fn('syncActionBar') +
 			'\n;({syncActionBar,setActionBarTitleView})',
 		{
-		elementBehaviors: new Map(),
-		behaviorOf: () => undefined,
-		isManualLayoutParent: (t: string) =>
-			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
-		registerElementType: () => {},
-		
+			elementBehaviors: new Map(),
+			behaviorOf: () => undefined,
+			isManualLayoutParent: (t: string) =>
+				[
+					'gridlayout',
+					'liquidglass',
+					'absolutelayout',
+					'contentview',
+					'actionbar',
+					'docklayout',
+					'wraplayout',
+					'rootlayout',
+				].includes(t),
+			registerElementType: () => {},
+
 			ownedRoots: new WeakMap(),
 			nodeContainersByView: new WeakMap(),
 			releasePlacementPins: (child: any) => released.push(child),
@@ -155,9 +164,19 @@ test('ActionBar rejects non-NSView titleView values during prop preflight', () =
 		elementBehaviors: new Map(),
 		behaviorOf: () => undefined,
 		isManualLayoutParent: (t: string) =>
-			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
+			[
+				'gridlayout',
+				'liquidglass',
+				'absolutelayout',
+				'contentview',
+				'actionbar',
+				'docklayout',
+				'wraplayout',
+				'rootlayout',
+			].includes(t),
 		registerElementType: () => {},
-		 NSView })
+		NSView,
+	})
 	for (const titleView of ['text', {}, true, 5]) {
 		assert.throws(() => validate('actionbar', { titleView }), /titleView must be an AppKit NSView/)
 	}

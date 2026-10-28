@@ -6,7 +6,8 @@ import { setupI18n } from '@lingui/core'
 import ts from 'typescript'
 
 const source = ts.transpile(readFileSync(new URL('../src/lingui.ts', import.meta.url), 'utf8'), {
-	module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022,
+	module: ts.ModuleKind.CommonJS,
+	target: ts.ScriptTarget.ES2022,
 })
 
 function load() {
@@ -43,10 +44,18 @@ test('the latest locale choice wins when an older catalog finishes later', async
 	const notifications = []
 	api.subscribeLocale(() => notifications.push(api.getLocale()))
 	let finishFrench
-	const french = new Promise((resolve) => { finishFrench = resolve })
+	const french = new Promise((resolve) => {
+		finishFrench = resolve
+	})
 	await api.initLingui({
-		catalogs: { en: catalog('Hello'), fr: () => french, de: catalog('Hallo') }, locale: 'en',
-		persist: { load: () => undefined, save: (locale) => { saved.push(locale) } },
+		catalogs: { en: catalog('Hello'), fr: () => french, de: catalog('Hallo') },
+		locale: 'en',
+		persist: {
+			load: () => undefined,
+			save: (locale) => {
+				saved.push(locale)
+			},
+		},
 	})
 	const older = api.setLocale('fr')
 	await api.setLocale('de')
@@ -59,11 +68,12 @@ test('the latest locale choice wins when an older catalog finishes later', async
 	assert.equal(api.i18n._('hello'), 'Hallo')
 })
 
-
 test('an unregistered choice does not supersede a pending registered locale', async () => {
 	const api = load()
 	let finishFrench
-	const french = new Promise((resolve) => { finishFrench = resolve })
+	const french = new Promise((resolve) => {
+		finishFrench = resolve
+	})
 	await api.initLingui({ catalogs: { en: catalog('Hello'), fr: () => french }, locale: 'en' })
 	const pending = api.setLocale('fr')
 	await assert.rejects(api.setLocale('missing'), /no catalog registered/)
@@ -76,9 +86,17 @@ test('an unregistered choice does not supersede a pending registered locale', as
 test('a failed newer catalog does not allow an older choice to activate', async () => {
 	const api = load()
 	let finishFrench
-	const french = new Promise((resolve) => { finishFrench = resolve })
+	const french = new Promise((resolve) => {
+		finishFrench = resolve
+	})
 	await api.initLingui({
-		catalogs: { en: catalog('Hello'), fr: () => french, de: async () => { throw new Error('catalog unavailable') } },
+		catalogs: {
+			en: catalog('Hello'),
+			fr: () => french,
+			de: async () => {
+				throw new Error('catalog unavailable')
+			},
+		},
 		locale: 'en',
 	})
 	const older = api.setLocale('fr')

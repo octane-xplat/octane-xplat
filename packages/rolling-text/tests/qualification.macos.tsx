@@ -93,6 +93,7 @@ export async function runRollingText() {
 		) {
 			await wait(8)
 		}
+
 		check(text() === '910', 'outgoing and incoming cells coexist')
 		check(
 			cells().some((cell) => Math.abs(y(cell)) > 0),

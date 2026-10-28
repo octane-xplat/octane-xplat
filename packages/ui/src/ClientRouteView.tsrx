@@ -22,9 +22,19 @@ export function ClientRouteView(props: { entry: ClientRouteEntry }): any {
 		const child = content
 		content = <Layout>{child}</Layout>
 	}
-	useLayoutEffect(() => { entry.rendered() }, [entry])
+
+	useLayoutEffect(() => {
+		entry.rendered()
+	}, [entry])
+
 	const route = entry.route
-	return <ClientRenderBoundary key={entry.id} entry={entry}><RouterRenderScopeProvider scope={entry.scope}>
-		<RouteBoundary boundary={entry.content.boundary} route={route}>{content}</RouteBoundary>
-	</RouterRenderScopeProvider></ClientRenderBoundary>
+	return (
+		<ClientRenderBoundary key={entry.id} entry={entry}>
+			<RouterRenderScopeProvider scope={entry.scope}>
+				<RouteBoundary boundary={entry.content.boundary} route={route}>
+					{content}
+				</RouteBoundary>
+			</RouterRenderScopeProvider>
+		</ClientRenderBoundary>
+	)
 }

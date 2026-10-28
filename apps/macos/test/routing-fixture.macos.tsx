@@ -964,8 +964,7 @@ export async function runRoutingFixture() {
 		)
 
 		check(
-			modalResult.status === 'committed' &&
-				(await modalResult.finished).status === 'skipped',
+			modalResult.status === 'committed' && (await modalResult.finished).status === 'skipped',
 			'AppKit modal without a transition reports motion disabled',
 		)
 
@@ -1062,28 +1061,34 @@ export async function runRoutingFixture() {
 			params: { id: 'modal-motion' },
 			transition: 'motion' as 'none',
 		})
+
 		check(motionDestination.status === 'valid', 'configured modal transition validates')
 		if (motionDestination.status !== 'valid') {
 			throw new Error('Expected a validated modal transition')
 		}
+
 		const motionModal = await defaultRouter.push(motionDestination.destination)
 		check(motionModal.status === 'committed', 'AppKit modal with custom motion commits')
 		if (motionModal.status !== 'committed') {
 			throw new Error('Expected a committed motion modal')
 		}
+
 		const motionSurface = surfaces.at(-1)!
 		check(
 			Number(motionSurface.surface.panel.alphaValue) < 1,
 			'AppKit modal content starts at its custom values',
 		)
+
 		check(
 			(await motionModal.finished).status === 'completed',
 			'AppKit modal content motion completes',
 		)
+
 		check(
 			Number(motionSurface.surface.panel.alphaValue) === 1,
 			'AppKit modal motion restores neutral content values',
 		)
+
 		check(
 			(await defaultEntries.get('modal-motion')!.navigator.dismiss()).status === 'committed',
 			'completed modal dismisses canonically',
@@ -1094,28 +1099,30 @@ export async function runRoutingFixture() {
 			params: { id: 'modal-interrupted' },
 			transition: 'motion' as 'none',
 		})
-		check(
-			interruptedDestination.status === 'valid',
-			'second configured modal transition validates',
-		)
+
+		check(interruptedDestination.status === 'valid', 'second configured modal transition validates')
 		if (interruptedDestination.status !== 'valid') {
 			throw new Error('Expected a validated modal transition')
 		}
+
 		const interrupted = await defaultRouter.push(interruptedDestination.destination)
 		check(interrupted.status === 'committed', 'AppKit modal interrupt fixture commits')
 		if (interrupted.status !== 'committed') {
 			throw new Error('Expected a committed interrupted modal')
 		}
+
 		const interruptedSurface = surfaces.at(-1)!
 		const interruptDismiss = defaultEntries.get('modal-interrupted')!.navigator.dismiss()
 		check(
 			(await interrupted.finished).status === 'skipped',
 			'AppKit modal dismissal interrupts content motion',
 		)
+
 		check(
 			Number(interruptedSurface.surface.panel.alphaValue) === 1,
 			'AppKit modal interrupt restores neutral content values',
 		)
+
 		check((await interruptDismiss).status === 'committed', 'interrupted modal dismisses')
 
 		check(

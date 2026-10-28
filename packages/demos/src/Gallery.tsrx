@@ -1,50 +1,74 @@
-import { useState } from 'octane';
-import { Screen, View, HStack, Text, Pressable, ScrollableArea } from '@octane-xplat/ui';
-import { GoalCounter } from './GoalCounter.tsrx';
-import { PackingList } from './PackingList.tsrx';
-import { Counter } from './Counter.tsrx';
-import { Stopwatch } from './Stopwatch.tsrx';
-import { Todo } from './Todo.tsrx';
-import { TicTacToe } from './TicTacToe.tsrx';
-import { WatchFace } from './WatchFace.tsrx';
-import { Dialer } from './Dialer.tsrx';
+import { useState } from 'octane'
+import { Screen, View, HStack, Text, Pressable, ScrollableArea } from '@octane-xplat/ui'
+import { GoalCounter } from './GoalCounter.tsrx'
+import { PackingList } from './PackingList.tsrx'
+import { Counter } from './Counter.tsrx'
+import { Stopwatch } from './Stopwatch.tsrx'
+import { Todo } from './Todo.tsrx'
+import { TicTacToe } from './TicTacToe.tsrx'
+import { WatchFace } from './WatchFace.tsrx'
+import { Dialer } from './Dialer.tsrx'
 // './variant-demos' is extensionless on purpose: moduleSuffixes +
 // resolve.extensions pick the .ios.ts/.android.ts/.web.ts twin, which
 // re-exports the platform-authentic demo leaf (or the shared fallback).
-import { VirtualList, ListDemo, ScrollBoxDemo, PullRefreshDemo, DeviceDemo, ModalDemo, GlassDemo, OverlayDemo, WebViewDemo, EffectsDemo, NativePickerDemo, NativeDatePickerDemo, NativeContextMenuDemo, NativeSheetDemo, FileInputDemo } from './variant-demos';
-import { Weather } from './Weather.tsrx';
-import { AnimShowcase } from './AnimShowcase.tsrx';
-import { ReactiveProbe } from './ReactiveProbe.tsrx';
+import {
+	VirtualList,
+	ListDemo,
+	ScrollBoxDemo,
+	PullRefreshDemo,
+	DeviceDemo,
+	ModalDemo,
+	GlassDemo,
+	OverlayDemo,
+	WebViewDemo,
+	EffectsDemo,
+	NativePickerDemo,
+	NativeDatePickerDemo,
+	NativeContextMenuDemo,
+	NativeSheetDemo,
+	FileInputDemo,
+} from './variant-demos'
 
-import { PropsDemo } from './PropsDemo.tsrx';
-import { ControlsDemo } from './ControlsDemo.tsrx';
-import { PagerDemo } from './PagerDemo.tsrx';
-import { SegmentedDemo } from './SegmentedDemo.tsrx';
-import { SearchDemo } from './SearchDemo.tsrx';
-import { ActionControlsDemo } from './ActionControlsDemo.tsrx';
-import { PowerSearchDemo } from './PowerSearchDemo.tsrx';
-import { VideoDemo } from './VideoDemo.tsrx';
-import { LottieDemo } from './LottieDemo.tsrx';
-import { CameraDemo, AnimatedImageDemo, CachedImageDemo, CanvasDemo, ShaderDemo } from './hosted-demos';
-import { AuthDemo } from './AuthDemo.tsrx';
-import { PushDemo } from './PushDemo.tsrx';
-import { LayoutDemo } from './LayoutDemo.tsrx';
-import { RichTextDemo } from './RichTextDemo.tsrx';
-import { RichTextEditorDemo } from './RichTextEditorDemo.tsrx';
-import { TiptapProbe } from './TiptapProbe.tsrx';
-import { LexicalProbe } from './LexicalProbe.tsrx';
-import { TiptapEditorDemo } from './TiptapEditorDemo.tsrx';
-import { LexicalEditorDemo } from './LexicalEditorDemo.tsrx';
-import { ChatDemo } from './ChatDemo.tsrx';
-import { ContentDisplayDemo } from './ContentDisplayDemo.tsrx';
-import { Divergence } from './Divergence.tsrx';
-import { Reorder } from './Reorder.tsrx';
-import { ComponentsDemo } from './ComponentsDemo.tsrx';
+import { Weather } from './Weather.tsrx'
+import { AnimShowcase } from './AnimShowcase.tsrx'
+import { ReactiveProbe } from './ReactiveProbe.tsrx'
+
+import { PropsDemo } from './PropsDemo.tsrx'
+import { ControlsDemo } from './ControlsDemo.tsrx'
+import { PagerDemo } from './PagerDemo.tsrx'
+import { SegmentedDemo } from './SegmentedDemo.tsrx'
+import { SearchDemo } from './SearchDemo.tsrx'
+import { ActionControlsDemo } from './ActionControlsDemo.tsrx'
+import { PowerSearchDemo } from './PowerSearchDemo.tsrx'
+import { VideoDemo } from './VideoDemo.tsrx'
+import { LottieDemo } from './LottieDemo.tsrx'
+import {
+	CameraDemo,
+	AnimatedImageDemo,
+	CachedImageDemo,
+	CanvasDemo,
+	ShaderDemo,
+} from './hosted-demos'
+
+import { AuthDemo } from './AuthDemo.tsrx'
+import { PushDemo } from './PushDemo.tsrx'
+import { LayoutDemo } from './LayoutDemo.tsrx'
+import { RichTextDemo } from './RichTextDemo.tsrx'
+import { RichTextEditorDemo } from './RichTextEditorDemo.tsrx'
+import { TiptapProbe } from './TiptapProbe.tsrx'
+import { LexicalProbe } from './LexicalProbe.tsrx'
+import { TiptapEditorDemo } from './TiptapEditorDemo.tsrx'
+import { LexicalEditorDemo } from './LexicalEditorDemo.tsrx'
+import { ChatDemo } from './ChatDemo.tsrx'
+import { ContentDisplayDemo } from './ContentDisplayDemo.tsrx'
+import { Divergence } from './Divergence.tsrx'
+import { Reorder } from './Reorder.tsrx'
+import { ComponentsDemo } from './ComponentsDemo.tsrx'
 // Extensionless on purpose — .macos/.windows twins substitute a stub leaf
 // (the motion leaf's hosts are mobile + web only).
-import { MotionPatterns } from './MotionPatterns';
-import { FancyComponents } from './FancyComponents';
-import { useLastDemo } from './store.tsrx';
+import { MotionPatterns } from './MotionPatterns'
+import { FancyComponents } from './FancyComponents'
+import { useLastDemo } from './store.tsrx'
 
 // kind: 'app' = a self-contained mini-app a human pokes to build trust;
 // 'proof' = a seam demonstration (probes, proofs, boring stuff) — lives
@@ -107,7 +131,7 @@ export const DEMOS: { id: string; title: string; kind: 'app' | 'proof' }[] = [
 	{ id: 'canvas', title: 'Canvas / WebGPU', kind: 'proof' },
 	{ id: 'shaders', title: 'Shader / SimplexNoise', kind: 'proof' },
 	{ id: 'effects', title: 'Shader effects', kind: 'proof' },
-];
+]
 
 // Render fns are standalone arrows (same contract as TabSpec.render /
 // List.renderItem) — JSX inside a module-level object literal can't get
@@ -116,62 +140,62 @@ export const DEMOS: { id: string; title: string; kind: 'app' | 'proof' }[] = [
 // NOTE: an @if/@else-if chain here compiled to an else callback that
 // discards branch results — @else-if lowers wrong in the universal
 // codegen (see .agents/design/demos.md findings).
-const renderGoalCounter = () => <GoalCounter />;
-const renderPackingList = () => <PackingList />;
-const renderCounter = () => <Counter />;
-const renderWatch = () => <WatchFace />;
-const renderStopwatch = () => <Stopwatch />;
-const renderTodo = () => <Todo />;
-const renderTtt = () => <TicTacToe />;
-const renderDialer = () => <Dialer />;
-const renderVlist = () => <VirtualList />;
-const renderWeather = () => <Weather />;
-const renderAnim = () => <AnimShowcase />;
-const renderProbe = () => <ReactiveProbe />;
-const renderListDemo = () => <ListDemo />;
-const renderScrollBox = () => <ScrollBoxDemo />;
-const renderPullRefresh = () => <PullRefreshDemo />;
-const renderDevice = () => <DeviceDemo />;
-const renderModal = () => <ModalDemo />;
-const renderProps = () => <PropsDemo />;
-const renderOverlay = () => <OverlayDemo />;
-const renderControls = () => <ControlsDemo />;
-const renderLayout = () => <LayoutDemo />;
-const renderRichText = () => <RichTextDemo />;
-const renderTiptapProbe = () => <TiptapProbe />;
-const renderLexicalProbe = () => <LexicalProbe />;
-const renderRichTextEditor = () => <RichTextEditorDemo />;
-const renderTiptapEditor = () => <TiptapEditorDemo />;
-const renderLexicalEditor = () => <LexicalEditorDemo />;
-const renderChat = () => <ChatDemo />;
-const renderContentDisplay = () => <ContentDisplayDemo />;
-const renderDivergence = () => <Divergence />;
-const renderGlass = () => <GlassDemo />;
-const renderReorder = () => <Reorder />;
-const renderComponents = () => <ComponentsDemo />;
-const renderWebView = () => <WebViewDemo />;
-const renderPager = () => <PagerDemo />;
-const renderSegmented = () => <SegmentedDemo />;
-const renderNativePicker = () => <NativePickerDemo />;
-const renderNativeDatePicker = () => <NativeDatePickerDemo />;
-const renderFileInput = () => <FileInputDemo />;
-const renderNativeContextMenu = () => <NativeContextMenuDemo />;
-const renderNativeSheet = () => <NativeSheetDemo />;
-const renderSearch = () => <SearchDemo />;
-const renderPowerSearch = () => <PowerSearchDemo />;
-const renderActionControls = () => <ActionControlsDemo />;
-const renderVideo = () => <VideoDemo />;
-const renderLottie = () => <LottieDemo />;
-const renderCamera = () => <CameraDemo />;
-const renderAnimatedImage = () => <AnimatedImageDemo />;
-const renderCachedImage = () => <CachedImageDemo />;
-const renderAuth = () => <AuthDemo />;
-const renderPush = () => <PushDemo />;
-const renderCanvas = () => <CanvasDemo />;
-const renderEffects = () => <EffectsDemo />;
-const renderShaders = () => <ShaderDemo />;
-const renderMotionPatterns = () => <MotionPatterns />;
-const renderFancyComponents = () => <FancyComponents />;
+const renderGoalCounter = () => <GoalCounter />
+const renderPackingList = () => <PackingList />
+const renderCounter = () => <Counter />
+const renderWatch = () => <WatchFace />
+const renderStopwatch = () => <Stopwatch />
+const renderTodo = () => <Todo />
+const renderTtt = () => <TicTacToe />
+const renderDialer = () => <Dialer />
+const renderVlist = () => <VirtualList />
+const renderWeather = () => <Weather />
+const renderAnim = () => <AnimShowcase />
+const renderProbe = () => <ReactiveProbe />
+const renderListDemo = () => <ListDemo />
+const renderScrollBox = () => <ScrollBoxDemo />
+const renderPullRefresh = () => <PullRefreshDemo />
+const renderDevice = () => <DeviceDemo />
+const renderModal = () => <ModalDemo />
+const renderProps = () => <PropsDemo />
+const renderOverlay = () => <OverlayDemo />
+const renderControls = () => <ControlsDemo />
+const renderLayout = () => <LayoutDemo />
+const renderRichText = () => <RichTextDemo />
+const renderTiptapProbe = () => <TiptapProbe />
+const renderLexicalProbe = () => <LexicalProbe />
+const renderRichTextEditor = () => <RichTextEditorDemo />
+const renderTiptapEditor = () => <TiptapEditorDemo />
+const renderLexicalEditor = () => <LexicalEditorDemo />
+const renderChat = () => <ChatDemo />
+const renderContentDisplay = () => <ContentDisplayDemo />
+const renderDivergence = () => <Divergence />
+const renderGlass = () => <GlassDemo />
+const renderReorder = () => <Reorder />
+const renderComponents = () => <ComponentsDemo />
+const renderWebView = () => <WebViewDemo />
+const renderPager = () => <PagerDemo />
+const renderSegmented = () => <SegmentedDemo />
+const renderNativePicker = () => <NativePickerDemo />
+const renderNativeDatePicker = () => <NativeDatePickerDemo />
+const renderFileInput = () => <FileInputDemo />
+const renderNativeContextMenu = () => <NativeContextMenuDemo />
+const renderNativeSheet = () => <NativeSheetDemo />
+const renderSearch = () => <SearchDemo />
+const renderPowerSearch = () => <PowerSearchDemo />
+const renderActionControls = () => <ActionControlsDemo />
+const renderVideo = () => <VideoDemo />
+const renderLottie = () => <LottieDemo />
+const renderCamera = () => <CameraDemo />
+const renderAnimatedImage = () => <AnimatedImageDemo />
+const renderCachedImage = () => <CachedImageDemo />
+const renderAuth = () => <AuthDemo />
+const renderPush = () => <PushDemo />
+const renderCanvas = () => <CanvasDemo />
+const renderEffects = () => <EffectsDemo />
+const renderShaders = () => <ShaderDemo />
+const renderMotionPatterns = () => <MotionPatterns />
+const renderFancyComponents = () => <FancyComponents />
 
 export const RENDER: Record<string, () => any> = {
 	'goal-counter': renderGoalCounter,
@@ -230,7 +254,7 @@ export const RENDER: Record<string, () => any> = {
 	effects: renderEffects,
 	'motion-patterns': renderMotionPatterns,
 	'fancy-components': renderFancyComponents,
-};
+}
 
 /** Demo launcher — chip menu. Two modes:
  *  - `onOpen` provided (app shell): chips delegate — App navigates to the
@@ -238,14 +262,22 @@ export const RENDER: Record<string, () => any> = {
  *  - `onOpen` absent (standalone catalog): chips swap an inline render map.
  *  `Last opened` reads the module store — it updates after nav pops back,
  *  proving module-scope state crosses roots (context never does). */
-export function Gallery(props: { onOpen?: (id: string) => void; kind?: 'app' | 'proof'; title?: string }) @{
-	const [demo, setDemo] = useState('counter');
-	const last = useLastDemo();
-	const shown = DEMOS.filter((d) => !props.kind || d.kind === props.kind);
+export function Gallery(props: {
+	onOpen?: (id: string) => void
+	kind?: 'app' | 'proof'
+	title?: string
+}) @{
+	const [demo, setDemo] = useState('counter')
+	const last = useLastDemo()
+	const shown = DEMOS.filter((d) => !props.kind || d.kind === props.kind)
 	const open = (id: string) => {
-		console.log('[probe] demo -> ' + id);
-		if (props.onOpen) props.onOpen(id); else setDemo(id);
-	};
+		console.log('[probe] demo -> ' + id)
+		if (props.onOpen) {
+			props.onOpen(id)
+		} else {
+			setDemo(id)
+		}
+	}
 
 	<Screen className="vx-app flex-1 gap-6">
 		<HStack className="justify-between items-baseline">
@@ -266,9 +298,7 @@ export function Gallery(props: { onOpen?: (id: string) => void; kind?: 'app' | '
 			</HStack>
 		</ScrollableArea>
 		@if (!props.onOpen) {
-			<View className="flex-1 min-h-0">
-				{RENDER[demo]()}
-			</View>
+			<View className="flex-1 min-h-0">{RENDER[demo]()}</View>
 		}
 	</Screen>
 }

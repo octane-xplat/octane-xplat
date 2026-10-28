@@ -5,7 +5,8 @@ import type { ISODateString, ISOTimeString, ISODateTimeString, DateRange } from 
 
 export function DateTimeInputShowcase() @{
 	const [value, setValue] = useState<ISODateTimeString | null>(null)
-	<div style={{width: 400}}>
+
+	<div style={{ width: 400 }}>
 		<DateTimeInput label="Meeting time" value={value} onChange={setValue} />
 	</div>
 }

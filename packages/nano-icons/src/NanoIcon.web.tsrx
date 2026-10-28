@@ -5,15 +5,29 @@ import {
 	resolveGlyphEntry,
 	type NanoGlyphMap,
 } from './glyphmap'
+
 import { useStore } from '@octane-xplat/ui/data'
 import { nanoIconSetRegistry, resolveNanoIcon, type NanoIconSet } from './set'
 import type { NanoIconProps, NanoIconSetProps } from './props'
 
-function transformStyle(props: { rotate?: number; hFlip?: boolean; vFlip?: boolean }): string | undefined {
+function transformStyle(props: {
+	rotate?: number
+	hFlip?: boolean
+	vFlip?: boolean
+}): string | undefined {
 	const parts: string[] = []
-	if (props.rotate) parts.push(`rotate(${(props.rotate * 90) % 360}deg)`)
-	if (props.hFlip) parts.push('scaleX(-1)')
-	if (props.vFlip) parts.push('scaleY(-1)')
+	if (props.rotate) {
+		parts.push(`rotate(${(props.rotate * 90) % 360}deg)`)
+	}
+
+	if (props.hFlip) {
+		parts.push('scaleX(-1)')
+	}
+
+	if (props.vFlip) {
+		parts.push('scaleY(-1)')
+	}
+
 	return parts.length ? parts.join(' ') : undefined
 }
 

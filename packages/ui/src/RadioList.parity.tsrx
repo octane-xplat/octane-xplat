@@ -5,7 +5,10 @@ import type { ParityFixture } from './parity'
 function RadioGroupFixture() @{
 	<RadioList
 		className="parity-radiogroup-root"
-		options={[{ value: 'low', label: 'Low' }, { value: 'high', label: 'High' }]}
+		options={[
+			{ value: 'low', label: 'Low' },
+			{ value: 'high', label: 'High' },
+		]}
 		value="low"
 		style={{ width: 180, height: 56, backgroundColor: '#f5f5f5' }}
 	/>

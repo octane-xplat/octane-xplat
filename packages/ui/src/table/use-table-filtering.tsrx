@@ -3,7 +3,14 @@
 // field's operator value type in the shared PowerSearchConfig.
 
 import { useMemo, useRef, useState } from 'octane'
-import type { TablePlugin, HeaderCellRenderProps, TableFilterState, TableFilterValue, TableFilterVariant } from './types'
+import type {
+	TablePlugin,
+	HeaderCellRenderProps,
+	TableFilterState,
+	TableFilterValue,
+	TableFilterVariant,
+} from './types'
+
 import type { TableColumn } from '../props'
 import type { PowerSearchConfig, OperatorValue } from '../props'
 import { resolveFilterConfig } from './to-search-filters'
@@ -53,7 +60,9 @@ interface ControlProps {
 
 /** Resolve the operator-value type to the matching xplat control. */
 function FilterControl(props: ControlProps) @{
-	const { columnKey, header, opValue, size, value, onChange, hasClear, hasLabelHidden, extra } = props
+	const { columnKey, header, opValue, size, value, onChange, hasClear, hasLabelHidden, extra } =
+		props
+
 	switch (opValue.type) {
 		case 'string':
 			return (
@@ -73,7 +82,10 @@ function FilterControl(props: ControlProps) @{
 				<Selector
 					label={header}
 					isLabelHidden={hasLabelHidden}
-					options={(opValue.values ?? []).map((o: { value: string; label: string }) => ({ value: o.value, label: o.label }))}
+					options={(opValue.values ?? []).map((o: { value: string; label: string }) => ({
+						value: o.value,
+						label: o.label,
+					}))}
 					value={typeof value === 'string' ? value : null}
 					onValueChange={(v: string | null) => onChange(v ?? null)}
 					placeholder="Any"
@@ -87,7 +99,10 @@ function FilterControl(props: ControlProps) @{
 				<MultiSelector
 					label={header}
 					isLabelHidden={hasLabelHidden}
-					options={(opValue.values ?? []).map((o: { value: string; label: string }) => ({ value: o.value, label: o.label }))}
+					options={(opValue.values ?? []).map((o: { value: string; label: string }) => ({
+						value: o.value,
+						label: o.label,
+					}))}
 					value={Array.isArray(value) ? value : []}
 					onValueChange={(v: string[]) => onChange(v.length === 0 ? null : v)}
 					selectionMode="multiple"
@@ -140,7 +155,9 @@ function FilterControl(props: ControlProps) @{
 					isLabelHidden={hasLabelHidden}
 					searchSource={EMPTY_SOURCE}
 					value={(Array.isArray(value) ? value : []).map((v: string) => ({ id: v, label: v }))}
-					onChange={(items: { id: string }[]) => onChange(items.length === 0 ? null : items.map((i) => i.id))}
+					onChange={(items: { id: string }[]) =>
+						onChange(items.length === 0 ? null : items.map((i) => i.id))
+					}
 					placeholder="Filter…"
 					size={size}
 					{...extra}
@@ -174,7 +191,10 @@ function PopoverFilterTrigger(props: {
 			size={props.size}
 			variant={isFiltered ? 'primary' : 'secondary'}
 			label={`Filter ${props.header}`}
-			clickAction={() => { setDraft(applied); popover.toggle() }}
+			clickAction={() => {
+				setDraft(applied)
+				popover.toggle()
+			}}
 			{...(popover.triggerProps as any)}
 		/>
 		{popover.render(
@@ -219,7 +239,9 @@ function PopoverFilterTrigger(props: {
 
 /** Filter table plugin — adds a filter control slot to `filter`-tagged
  *  columns: popover trigger (`after`), or inline control (`below`). */
-export function useTableFiltering<T extends Record<string, unknown>>(config: UseTableFilteringConfig): TablePlugin<T> {
+export function useTableFiltering<T extends Record<string, unknown>>(
+	config: UseTableFilteringConfig,
+): TablePlugin<T> {
 	const configRef = useRef(config)
 	configRef.current = config
 
@@ -228,18 +250,29 @@ export function useTableFiltering<T extends Record<string, unknown>>(config: Use
 
 	return {
 		transformColumns(columns) {
-			if (variant === 'popover') return columns
+			if (variant === 'popover') {
+				return columns
+			}
+
 			return columns.map((col) => {
-				if (!col.filter) return col
+				if (!col.filter) {
+					return col
+				}
+
 				const needsFilterUI = col.width?.type !== 'pixel'
 				return needsFilterUI ? { ...col, width: col.width ?? proportional(1) } : col
 			})
 		},
 		transformHeaderCell(props: HeaderCellRenderProps, column: TableColumn<T>) {
-			if (!column.filter) return props
+			if (!column.filter) {
+				return props
+			}
+
 			const searchConfig = configRef.current.searchConfig
 			const operatorValue = resolveFilterConfig(column.filter, searchConfig)
-			if (!operatorValue) return props
+			if (!operatorValue) {
+				return props
+			}
 
 			const header = typeof column.header === 'string' ? column.header : column.key
 			const size = variant === 'popover' ? inlineSize : inlineSize
@@ -270,7 +303,8 @@ export function useTableFiltering<T extends Record<string, unknown>>(config: Use
 						opValue: operatorValue,
 						size,
 						value: configRef.current.filters[column.key],
-						onChange: (v: TableFilterValue | null) => configRef.current.onFilterChange(column.key, v),
+						onChange: (v: TableFilterValue | null) =>
+							configRef.current.onFilterChange(column.key, v),
 						hasClear: variant === 'inline',
 						hasLabelHidden: variant === 'inline-compact',
 						extra: {},

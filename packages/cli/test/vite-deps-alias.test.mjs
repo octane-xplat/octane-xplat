@@ -12,11 +12,14 @@ const nsViteUrl = pathToFileURL(nsViteEntry)
 const { vendorManifestPlugin, VENDOR_BUNDLE_VIRTUAL_ID } = await import(
 	new URL('./hmr/shared/vendor/manifest.js', nsViteUrl)
 )
+
 const { generateDepsBundle, computeDepsBundleCacheKey } = await import(
 	new URL('./hmr/server/deps-bundle.js', nsViteUrl)
 )
-const { setUserAliasEntries, getUserAliasEntries, getUserAliasEntriesFingerprint } =
-	await import(new URL('./helpers/global-defines.js', nsViteUrl))
+
+const { setUserAliasEntries, getUserAliasEntries, getUserAliasEntriesFingerprint } = await import(
+	new URL('./helpers/global-defines.js', nsViteUrl)
+)
 
 const dirs = []
 const track = (path) => {
@@ -54,10 +57,7 @@ const makeVendoredDep = (root) => {
 const makeAliasTarget = (root) => {
 	const dir = join(root, 'node_modules/alias-target')
 	mkdirSync(dir, { recursive: true })
-	writeFileSync(
-		join(dir, 'package.json'),
-		JSON.stringify({ name: 'alias-target', main: 'index' }),
-	)
+	writeFileSync(join(dir, 'package.json'), JSON.stringify({ name: 'alias-target', main: 'index' }))
 	// A bare `import 'absent-name'` only keeps the module when it has a real
 	// top-level side effect (like the renderer packages this mirrors), so emit
 	// one rather than a bare export that esbuild would elide.
@@ -117,6 +117,7 @@ describe('vite resolve.alias replayed inside esbuild passes', () => {
 				mode: 'development',
 				recordedPaths: [],
 			})
+
 			assert.ok(state?.code.includes('TARGET_MARKER_ROOT'), 'root alias target bundled')
 			assert.ok(state?.code.includes('TARGET_MARKER_STYLE'), 'subpath alias target bundled')
 			assert.ok(!state?.code.includes(STUB_MARKER), 'no optional-dep stub')
@@ -132,23 +133,38 @@ describe('vite resolve.alias replayed inside esbuild passes', () => {
 		// to its package root; redirecting would bundle a second realm).
 		const depDir = join(root, 'node_modules/dep-main')
 		mkdirSync(depDir, { recursive: true })
-		writeFileSync(join(depDir, 'package.json'), JSON.stringify({ name: 'dep-main', main: 'index.js' }))
+		writeFileSync(
+			join(depDir, 'package.json'),
+			JSON.stringify({ name: 'dep-main', main: 'index.js' }),
+		)
 		writeFileSync(
 			join(depDir, 'index.js'),
 			`import { m } from 'installed-dep';\nexport const dep = m\n`,
 		)
 		const installed = join(root, 'node_modules/installed-dep')
 		mkdirSync(installed, { recursive: true })
-		writeFileSync(join(installed, 'package.json'), JSON.stringify({ name: 'installed-dep', main: 'index.js' }))
+		writeFileSync(
+			join(installed, 'package.json'),
+			JSON.stringify({ name: 'installed-dep', main: 'index.js' }),
+		)
 		writeFileSync(
 			join(installed, 'index.js'),
 			'export const m = "INSTALLED_RESOLUTION"\nglobalThis.__installedDep = 1\n',
 		)
 		const decoy = join(root, 'node_modules/alias-target')
 		mkdirSync(decoy, { recursive: true })
-		writeFileSync(join(decoy, 'package.json'), JSON.stringify({ name: 'alias-target', main: 'index' }))
-		writeFileSync(join(decoy, 'index.ios.js'), 'export const m = "DECOY_RESOLUTION"\nglobalThis.__decoy = 1\n')
-		writeFileSync(join(decoy, 'index.android.js'), 'export const m = "DECOY_RESOLUTION"\nglobalThis.__decoy = 1\n')
+		writeFileSync(
+			join(decoy, 'package.json'),
+			JSON.stringify({ name: 'alias-target', main: 'index' }),
+		)
+		writeFileSync(
+			join(decoy, 'index.ios.js'),
+			'export const m = "DECOY_RESOLUTION"\nglobalThis.__decoy = 1\n',
+		)
+		writeFileSync(
+			join(decoy, 'index.android.js'),
+			'export const m = "DECOY_RESOLUTION"\nglobalThis.__decoy = 1\n',
+		)
 
 		setUserAliasEntries([{ find: /^installed-dep(?=\/|$)/, replacement: decoy }])
 		const code = await buildVendorCode(root, 'ios')
@@ -164,7 +180,10 @@ describe('vite resolve.alias replayed inside esbuild passes', () => {
 		// dependency — the phantom presence must not count as installed.
 		const depDir = join(root, 'node_modules/.pnpm/dep-main@1.0.0/node_modules/dep-main')
 		mkdirSync(depDir, { recursive: true })
-		writeFileSync(join(depDir, 'package.json'), JSON.stringify({ name: 'dep-main', main: 'index.js' }))
+		writeFileSync(
+			join(depDir, 'package.json'),
+			JSON.stringify({ name: 'dep-main', main: 'index.js' }),
+		)
 		writeFileSync(
 			join(depDir, 'index.js'),
 			`import 'absent-name';\nimport 'absent-name/style';\nexport const dep = 1\n`,
@@ -172,7 +191,10 @@ describe('vite resolve.alias replayed inside esbuild passes', () => {
 		symlinkSync('.pnpm/dep-main@1.0.0/node_modules/dep-main', join(root, 'node_modules/dep-main'))
 		const decoy = join(root, 'node_modules/.pnpm/node_modules/absent-name')
 		mkdirSync(decoy, { recursive: true })
-		writeFileSync(join(decoy, 'package.json'), JSON.stringify({ name: 'absent-name', main: 'index.js' }))
+		writeFileSync(
+			join(decoy, 'package.json'),
+			JSON.stringify({ name: 'absent-name', main: 'index.js' }),
+		)
 		writeFileSync(join(decoy, 'index.js'), 'globalThis.__hoistDecoy = "DECOY_HOIST"\n')
 		writeFileSync(join(decoy, 'style.js'), 'globalThis.__hoistDecoyStyle = "DECOY_HOIST_STYLE"\n')
 		const target = makeAliasTarget(root)
@@ -191,6 +213,7 @@ describe('vite resolve.alias replayed inside esbuild passes', () => {
 				mode: 'development',
 				recordedPaths: [],
 			})
+
 			assert.ok(state?.code.includes('TARGET_MARKER_ROOT'), 'deps: root alias target bundled')
 			assert.ok(state?.code.includes('TARGET_MARKER_STYLE'), 'deps: subpath alias target bundled')
 			assert.ok(!state?.code.includes('DECOY_HOIST'), 'deps: hidden-hoist decoy not bundled')
@@ -207,7 +230,10 @@ describe('vite resolve.alias replayed inside esbuild passes', () => {
 		const siblings = join(root, 'node_modules/.pnpm/dep-main@1.0.0/node_modules')
 		const depDir = join(siblings, 'dep-main')
 		mkdirSync(depDir, { recursive: true })
-		writeFileSync(join(depDir, 'package.json'), JSON.stringify({ name: 'dep-main', main: 'index.js' }))
+		writeFileSync(
+			join(depDir, 'package.json'),
+			JSON.stringify({ name: 'dep-main', main: 'index.js' }),
+		)
 		writeFileSync(
 			join(depDir, 'index.js'),
 			`import { m } from 'installed-dep';\nexport const dep = m\n`,
@@ -215,16 +241,28 @@ describe('vite resolve.alias replayed inside esbuild passes', () => {
 		symlinkSync('.pnpm/dep-main@1.0.0/node_modules/dep-main', join(root, 'node_modules/dep-main'))
 		const installed = join(siblings, 'installed-dep')
 		mkdirSync(installed, { recursive: true })
-		writeFileSync(join(installed, 'package.json'), JSON.stringify({ name: 'installed-dep', main: 'index.js' }))
+		writeFileSync(
+			join(installed, 'package.json'),
+			JSON.stringify({ name: 'installed-dep', main: 'index.js' }),
+		)
 		writeFileSync(
 			join(installed, 'index.js'),
 			'export const m = "INSTALLED_RESOLUTION"\nglobalThis.__installedDep = 1\n',
 		)
 		const decoy = join(root, 'node_modules/alias-target')
 		mkdirSync(decoy, { recursive: true })
-		writeFileSync(join(decoy, 'package.json'), JSON.stringify({ name: 'alias-target', main: 'index' }))
-		writeFileSync(join(decoy, 'index.ios.js'), 'export const m = "DECOY_RESOLUTION"\nglobalThis.__decoy = 1\n')
-		writeFileSync(join(decoy, 'index.android.js'), 'export const m = "DECOY_RESOLUTION"\nglobalThis.__decoy = 1\n')
+		writeFileSync(
+			join(decoy, 'package.json'),
+			JSON.stringify({ name: 'alias-target', main: 'index' }),
+		)
+		writeFileSync(
+			join(decoy, 'index.ios.js'),
+			'export const m = "DECOY_RESOLUTION"\nglobalThis.__decoy = 1\n',
+		)
+		writeFileSync(
+			join(decoy, 'index.android.js'),
+			'export const m = "DECOY_RESOLUTION"\nglobalThis.__decoy = 1\n',
+		)
 
 		setUserAliasEntries([{ find: /^installed-dep(?=\/|$)/, replacement: decoy }])
 		const code = await buildVendorCode(root, 'ios')

@@ -3,8 +3,17 @@ import { registerElement } from '@nativescript-community/octane'
 import type { Attributes } from '@nativescript-community/octane/intrinsics'
 import { SwiftUI, UIDataDriver, registerSwiftUI, SwiftUIManager } from '@nativescript/swift-ui'
 import { GridLayout } from '@nativescript/core'
-import { getSwiftUIHostLifecycle, registerSwiftUIHost, unregisterSwiftUIHost } from '@octane-xplat/lib'
-import { createPortal as createUniversalPortal, type UniversalRenderable } from 'octane/universal/native'
+import {
+	getSwiftUIHostLifecycle,
+	registerSwiftUIHost,
+	unregisterSwiftUIHost,
+} from '@octane-xplat/lib'
+
+import {
+	createPortal as createUniversalPortal,
+	type UniversalRenderable,
+} from 'octane/universal/native'
+
 import { useEffect, useRef, useState } from 'octane'
 import type { SwiftUIContextMenuProps } from './ios/types'
 
@@ -18,8 +27,9 @@ declare module '@nativescript-community/octane/intrinsics' {
 }
 
 registerElement('xplatioscontextmenu', SwiftUI)
-registerSwiftUI('xplat-swiftui-contextmenu', (owner: any) =>
-	new UIDataDriver(new XplatContextMenuProvider(), owner),
+registerSwiftUI(
+	'xplat-swiftui-contextmenu',
+	(owner: any) => new UIDataDriver(new XplatContextMenuProvider(), owner),
 )
 
 function createPortal(children: unknown, target: unknown) {
@@ -48,7 +58,7 @@ function registerHosts(
 }
 
 function TriggerRoot(props: { render: () => any }) @{
-	<>{props.render()}</>;
+	<>{props.render()}</>
 }
 
 let seq = 0
@@ -113,5 +123,5 @@ export function SwiftUIContextMenu(props: SwiftUIContextMenuProps) @{
 		{portalHosts && props.preview
 			? createPortal(<TriggerRoot render={props.preview} />, portalHosts.preview)
 			: null}
-	</>;
+	</>
 }

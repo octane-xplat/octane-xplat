@@ -2,7 +2,6 @@ import type { ParityCheck } from './parity/check-helpers.ts'
 import { near, dims, circular } from './parity/check-helpers.ts'
 
 export const CHECKS: ParityCheck[] = [
-
 	{
 		fixture: 'slider-0',
 		targets: ['web', 'ios', 'android', 'macos'],
@@ -73,5 +72,5 @@ export const CHECKS: ParityCheck[] = [
 				['thumb centered at 50%', near(thumb.box.x + thumb.box.w / 2 - track.box.x, 110, 1)],
 			]
 		},
-	}
+	},
 ]

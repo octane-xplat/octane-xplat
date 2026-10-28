@@ -1,4 +1,13 @@
-import { useImperativeHandle, useContext, useEffect, useId, useMemo, useRef, useState } from 'octane'
+import {
+	useImperativeHandle,
+	useContext,
+	useEffect,
+	useId,
+	useMemo,
+	useRef,
+	useState,
+} from 'octane'
+
 import type { DateInputProps, ISODateString } from './props'
 import { cx } from '@octane-xplat/lib'
 import { dateMessages } from './date-messages'
@@ -39,7 +48,10 @@ function isCoarsePointer(): boolean {
 function useCoarsePointer(): boolean {
 	const [coarse, setCoarse] = useState(isCoarsePointer)
 	useEffect(() => {
-		if (typeof matchMedia !== 'function') return
+		if (typeof matchMedia !== 'function') {
+			return
+		}
+
 		const mq = matchMedia('(pointer: coarse)')
 		const onChange = (e: any) => setCoarse(e.matches)
 		mq.addEventListener?.('change', onChange)
@@ -57,9 +69,15 @@ interface StatusGlyphProps {
 }
 
 function StatusGlyph(props: StatusGlyphProps) @{
-	if (!props.status) return null
+	if (!props.status) {
+		return null
+	}
+
 	const glyph = STATUS_GLYPHS[props.status.type]
-	const span = <span className={cx('vx-field-icon', `vx-field-icon--${props.status.type}`)}>{glyph}</span>
+	const span = (
+		<span className={cx('vx-field-icon', `vx-field-icon--${props.status.type}`)}>{glyph}</span>
+	)
+
 	if (props.variant === 'tooltip' && props.status.message) {
 		return <Tooltip trigger={span} content={props.status.message} />
 	}
@@ -102,11 +120,17 @@ function DateInputControl(inputProps: CoreProps) @{
 	const lastCommit = useRef<string | null>(null)
 
 	const isDateDisabled = useMemo(
-		() => createDateDisabledCheck({ min: props.min, max: props.max, dateConstraints: props.dateConstraints }),
+		() =>
+			createDateDisabledCheck({
+				min: props.min,
+				max: props.max,
+				dateConstraints: props.dateConstraints,
+			}),
 		[props.min, props.max, props.dateConstraints],
 	)
 
-	const formatValue = (iso: ISODateString): string => formatDateValue(iso, props.format ?? 'date_long', locale)
+	const formatValue = (iso: ISODateString): string =>
+		formatDateValue(iso, props.format ?? 'date_long', locale)
 
 	// Preserve typing on an echoed edit; external values replace the draft.
 	useEffect(() => {
@@ -119,23 +143,37 @@ function DateInputControl(inputProps: CoreProps) @{
 	}, [value])
 
 	const fireChange = (next: ISODateString | null) => {
-		if (isDisabled || isBusy) return
+		if (isDisabled || isBusy) {
+			return
+		}
+
 		lastEmitted.current = next
 		setAnnouncement(next ? messages.selected(formatValue(next)) : messages.cleared)
 		props.onChange?.(next)
 		if (props.changeAction) {
 			setBusy(true)
-			runDateChangeAction(() => props.changeAction!(next), () => setBusy(false))
+			runDateChangeAction(
+				() => props.changeAction!(next),
+				() => setBusy(false),
+			)
 		}
 	}
 
-	const parsedPending = pendingInput != null && pendingInput.trim() ? parseDateInput(pendingInput, locale) : null
-	const isPendingValid = isComposing || pendingInput == null || !pendingInput.trim() ? true : parsedPending !== null && !isDateDisabled(parsedPending)
+	const parsedPending =
+		pendingInput != null && pendingInput.trim() ? parseDateInput(pendingInput, locale) : null
+
+	const isPendingValid =
+		isComposing || pendingInput == null || !pendingInput.trim()
+			? true
+			: parsedPending !== null && !isDateDisabled(parsedPending)
 
 	const commitParsed = (pd: PlainDate | null) => {
 		if (pd && !isDateDisabled(pd)) {
 			const iso = plainDateToISO(pd)
-			if (iso !== shown) fireChange(iso)
+			if (iso !== shown) {
+				fireChange(iso)
+			}
+
 			return true
 		}
 
@@ -143,21 +181,37 @@ function DateInputControl(inputProps: CoreProps) @{
 	}
 
 	const handleType = (e: any) => {
-		if (isDisabled) return
+		if (isDisabled) {
+			return
+		}
+
 		const text = e.target.value as string
 		setPendingInput(text)
 		setRejected(null)
-		if (composing.current || isDateComposing(e)) return
+		if (composing.current || isDateComposing(e)) {
+			return
+		}
+
 		const parsed = parseDateInput(text, locale)
-		if (parsed) commitParsed(parsed)
+		if (parsed) {
+			commitParsed(parsed)
+		}
 	}
 
 	const handleBlur = () => {
-		if (composing.current) return
+		if (composing.current) {
+			return
+		}
+
 		setIsFocused(false)
-		if (pendingInput == null) return
+		if (pendingInput == null) {
+			return
+		}
+
 		if (!pendingInput.trim()) {
-			if (shown !== undefined && shown !== null) fireChange(null)
+			if (shown !== undefined && shown !== null) {
+				fireChange(null)
+			}
 		} else {
 			commitParsed(parseDateInput(pendingInput, locale))
 		}
@@ -167,8 +221,14 @@ function DateInputControl(inputProps: CoreProps) @{
 	}
 
 	const handleKeyDown = (e: any) => {
-		if (composing.current || isDateComposing(e)) return
-		if (isDisabled || isBusy) return
+		if (composing.current || isDateComposing(e)) {
+			return
+		}
+
+		if (isDisabled || isBusy) {
+			return
+		}
+
 		if (e.key === 'ArrowDown' && surface === 'popover' && !isDisabled) {
 			e.preventDefault()
 			setOpen(true)
@@ -191,9 +251,12 @@ function DateInputControl(inputProps: CoreProps) @{
 	}
 
 	const displayValue = pendingInput ?? (shown ? formatValue(shown) : '')
-	const displayPlaceholder = isFocused && !displayValue
-		? (isLocaleDayFirst(locale) ? 'e.g., 25/3/2026' : 'e.g., 3/25/2026')
-		: (props.placeholder ?? 'Select a date')
+	const displayPlaceholder =
+		isFocused && !displayValue
+			? isLocaleDayFirst(locale)
+				? 'e.g., 25/3/2026'
+				: 'e.g., 3/25/2026'
+			: (props.placeholder ?? 'Select a date')
 
 	const pickFromCalendar = (iso: ISODateString) => {
 		fireChange(iso)
@@ -206,30 +269,58 @@ function DateInputControl(inputProps: CoreProps) @{
 		setPendingInput(null)
 		setRejected(null)
 		fireChange(null)
-		if (surface !== 'native') input.current?.focus({ preventScroll: true })
+		if (surface !== 'native') {
+			input.current?.focus({ preventScroll: true })
+		}
 	}
 
 	// --- native surface (<input type=date>) --------------------------------
 	const openNativePicker = () => {
-		if (isDisabled) return
+		if (isDisabled) {
+			return
+		}
+
 		input.current?.focus?.()
-		try { (input.current)?.showPicker?.() } catch {}
+		try {
+			input.current?.showPicker?.()
+		} catch {}
 	}
 
 	const handleNativeCommit = (e: any) => {
 		const raw = (e.target.value ?? '') as string
-		if (lastCommit.current === raw) return
+		if (lastCommit.current === raw) {
+			return
+		}
+
 		lastCommit.current = raw
-		if (!raw) { setRejected(null); if (value != null) fireChange(null); return }
+		if (!raw) {
+			setRejected(null)
+			if (value != null) {
+				fireChange(null)
+			}
+
+			return
+		}
+
 		const parsed = parseDateInput(raw, locale)
-		if (!parsed || isDateDisabled(parsed)) { setRejected(raw); return }
+		if (!parsed || isDateDisabled(parsed)) {
+			setRejected(raw)
+			return
+		}
+
 		setRejected(null)
 		const iso = plainDateToISO(parsed)
-		if (iso !== value) fireChange(iso)
+		if (iso !== value) {
+			fireChange(iso)
+		}
 	}
 
 	// --- sheet surface (touch-style read display) ---------------------------
-	const openSheet = () => { if (!isDisabled) setOpen(true) }
+	const openSheet = () => {
+		if (!isDisabled) {
+			setOpen(true)
+		}
+	}
 
 	const iconButton = (
 		<button
@@ -240,9 +331,13 @@ function DateInputControl(inputProps: CoreProps) @{
 			disabled={isDisabled || isBusy || undefined}
 			tabIndex={-1}
 			onClick={() => {
-				if (surface === 'native') openNativePicker()
-				else if (surface === 'sheet') openSheet()
-				else setOpen(!open)
+				if (surface === 'native') {
+					openNativePicker()
+				} else if (surface === 'sheet') {
+					openSheet()
+				} else {
+					setOpen(!open)
+				}
 			}}
 		>
 			<Icon name="xplat-calendar" size={16} />
@@ -251,7 +346,10 @@ function DateInputControl(inputProps: CoreProps) @{
 
 	const shellNode = (
 		<div
-			ref={(el: any) => { shell.current = el; anchor.current = el }}
+			ref={(el: any) => {
+				shell.current = el
+				anchor.current = el
+			}}
 			className={cx(
 				'vx-dateinput',
 				`vx-dateinput--${surface}`,
@@ -269,14 +367,16 @@ function DateInputControl(inputProps: CoreProps) @{
 			{surface === 'native' ? (
 				<span className="vx-dateinput-nativeslot">
 					<input
-						ref={(el: any) => { input.current = el; }}
+						ref={(el: any) => {
+							input.current = el
+						}}
 						id={inputId}
 						type="date"
 						className={cx('vx-dateinput-nativeinput', 'vx-dateinput-input')}
 						value={shown && /^\d{4}-\d{2}-\d{2}$/.test(shown) ? shown : ''}
 						min={props.min}
 						max={props.max}
-						disabled={isDisabled && !showsDisabledReason || undefined}
+						disabled={(isDisabled && !showsDisabledReason) || undefined}
 						aria-disabled={showsDisabledReason || undefined}
 						readOnly={showsDisabledReason || undefined}
 						autoFocus={props.hasAutoFocus || undefined}
@@ -284,28 +384,41 @@ function DateInputControl(inputProps: CoreProps) @{
 						aria-labelledby={props.ariaLabelledBy}
 						aria-describedby={props.ariaDescribedBy}
 						aria-description={props.ariaDescription}
-						aria-required={props.isRequired && !props.isOptional || undefined}
+						aria-required={(props.isRequired && !props.isOptional) || undefined}
 						aria-invalid={props.status?.type === 'error' || rejected !== null || undefined}
 						aria-busy={isBusy || undefined}
 						onChange={handleNativeCommit}
 						onInput={handleNativeCommit}
 						onFocus={() => setIsFocused(true)}
-						onBlur={() => { setIsFocused(false); setRejected(null) }}
+						onBlur={() => {
+							setIsFocused(false)
+							setRejected(null)
+						}}
 					/>
 					<span className="vx-dateinput-overlay" aria-hidden="true">
-						{shown ? formatValue(shown) : <span className="vx-dateinput-overlay--placeholder">{props.placeholder ?? 'Select a date'}</span>}
+						{shown ? (
+							formatValue(shown)
+						) : (
+							<span className="vx-dateinput-overlay--placeholder">
+								{props.placeholder ?? 'Select a date'}
+							</span>
+						)}
 					</span>
 				</span>
 			) : surface === 'sheet' ? (
 				<button
 					type="button"
-					className={cx('vx-dateinput-input', 'vx-dateinput-segment', !shown && 'vx-dateinput-segment--placeholder')}
+					className={cx(
+						'vx-dateinput-input',
+						'vx-dateinput-segment',
+						!shown && 'vx-dateinput-segment--placeholder',
+					)}
 					disabled={isDisabled || isBusy || undefined}
 					aria-label={props.ariaLabel}
 					aria-labelledby={props.ariaLabelledBy}
 					aria-describedby={props.ariaDescribedBy}
 					aria-description={props.ariaDescription}
-					aria-required={props.isRequired && !props.isOptional || undefined}
+					aria-required={(props.isRequired && !props.isOptional) || undefined}
 					aria-expanded={open}
 					aria-haspopup="dialog"
 					onClick={openSheet}
@@ -314,14 +427,16 @@ function DateInputControl(inputProps: CoreProps) @{
 				</button>
 			) : (
 				<input
-					ref={(el: any) => { input.current = el; }}
+					ref={(el: any) => {
+						input.current = el
+					}}
 					id={inputId}
 					type="text"
 					role="combobox"
 					className={cx('vx-dateinput-input', !isPendingValid && 'vx-dateinput-input--invalid')}
 					value={displayValue}
 					placeholder={displayPlaceholder}
-					disabled={isDisabled && !showsDisabledReason || undefined}
+					disabled={(isDisabled && !showsDisabledReason) || undefined}
 					aria-disabled={showsDisabledReason || undefined}
 					readOnly={showsDisabledReason || isBusy || undefined}
 					autoFocus={props.hasAutoFocus || undefined}
@@ -329,67 +444,135 @@ function DateInputControl(inputProps: CoreProps) @{
 					aria-labelledby={props.ariaLabelledBy}
 					aria-describedby={props.ariaDescribedBy}
 					aria-description={props.ariaDescription}
-					aria-required={props.isRequired && !props.isOptional || undefined}
-					aria-invalid={props.status?.type === 'error' || rejected !== null || !isPendingValid || undefined}
+					aria-required={(props.isRequired && !props.isOptional) || undefined}
+					aria-invalid={
+						props.status?.type === 'error' || rejected !== null || !isPendingValid || undefined
+					}
 					aria-busy={isBusy || undefined}
 					aria-expanded={surface === 'popover' ? open : undefined}
 					aria-haspopup={surface === 'popover' ? 'dialog' : undefined}
 					onInput={handleType}
-					onCompositionStart={() => { composing.current = true; setIsComposing(true) }}
-					onCompositionEnd={(e: any) => { composing.current = false; setIsComposing(false); handleType(e) }}
-					onMouseDown={() => { if (surface === 'popover' && !isDisabled && !open) setOpen(true) }}
-					onFocus={() => { if (!isDisabled) setIsFocused(true) }}
+					onCompositionStart={() => {
+						composing.current = true
+						setIsComposing(true)
+					}}
+					onCompositionEnd={(e: any) => {
+						composing.current = false
+						setIsComposing(false)
+						handleType(e)
+					}}
+					onMouseDown={() => {
+						if (surface === 'popover' && !isDisabled && !open) {
+							setOpen(true)
+						}
+					}}
+					onFocus={() => {
+						if (!isDisabled) {
+							setIsFocused(true)
+						}
+					}}
 					onBlur={handleBlur}
 					onKeyDown={handleKeyDown}
 				/>
 			)}
-			{canClear ? <button type="button" className="vx-dateinput-clear" aria-label={`Clear ${props.fieldLabel ?? props.label ?? 'date'}`} onClick={clear}>{'×'}</button> : null}
+			{canClear ? (
+				<button
+					type="button"
+					className="vx-dateinput-clear"
+					aria-label={`Clear ${props.fieldLabel ?? props.label ?? 'date'}`}
+					onClick={clear}
+				>
+					{'×'}
+				</button>
+			) : null}
 			{isBusy ? <ActivityIndicator busy className="vx-dateinput-spinner" /> : null}
 			<StatusGlyph status={props.status} variant={props.statusVariant} />
 		</div>
 	)
 
-	const popover = surface === 'popover' || surface === 'sheet'
-		? surface === 'popover'
-			? <Popover anchor={anchor} open={open} onDismiss={() => setOpen(false)} placement="bottom" className="vx-dateinput-popover">
-				<Calendar
-					locale={props.locale}
-					direction={props.direction}
-					messages={props.messages}
-					mode="single"
-					value={typeof shown === 'string' ? shown : undefined}
-					onChange={pickFromCalendar}
-					min={props.min}
-					max={props.max}
-					dateConstraints={props.dateConstraints}
-					numberOfMonths={props.numberOfMonths}
-					weekStartsOn={props.weekStartsOn}
-				/>
-			</Popover>
-			: <BottomSheet isOpen={open} onOpenChange={(isOpen) => setOpen(isOpen)} label={props.label ?? props.accessibilityLabel ?? 'Choose a date'} height="hug" className="vx-dateinput-sheet">
-				<Calendar
-					locale={props.locale}
-					direction={props.direction}
-					messages={props.messages}
-					mode="single"
-					value={typeof shown === 'string' ? shown : undefined}
-					onChange={pickFromCalendar}
-					min={props.min}
-					max={props.max}
-					dateConstraints={props.dateConstraints}
-					numberOfMonths={1}
-					weekStartsOn={props.weekStartsOn}
-				/>
-			</BottomSheet>
-		: null
+	const popover =
+		surface === 'popover' || surface === 'sheet' ? (
+			surface === 'popover' ? (
+				<Popover
+					anchor={anchor}
+					open={open}
+					onDismiss={() => setOpen(false)}
+					placement="bottom"
+					className="vx-dateinput-popover"
+				>
+					<Calendar
+						locale={props.locale}
+						direction={props.direction}
+						messages={props.messages}
+						mode="single"
+						value={typeof shown === 'string' ? shown : undefined}
+						onChange={pickFromCalendar}
+						min={props.min}
+						max={props.max}
+						dateConstraints={props.dateConstraints}
+						numberOfMonths={props.numberOfMonths}
+						weekStartsOn={props.weekStartsOn}
+					/>
+				</Popover>
+			) : (
+				<BottomSheet
+					isOpen={open}
+					onOpenChange={(isOpen) => setOpen(isOpen)}
+					label={props.label ?? props.accessibilityLabel ?? 'Choose a date'}
+					height="hug"
+					className="vx-dateinput-sheet"
+				>
+					<Calendar
+						locale={props.locale}
+						direction={props.direction}
+						messages={props.messages}
+						mode="single"
+						value={typeof shown === 'string' ? shown : undefined}
+						onChange={pickFromCalendar}
+						min={props.min}
+						max={props.max}
+						dateConstraints={props.dateConstraints}
+						numberOfMonths={1}
+						weekStartsOn={props.weekStartsOn}
+					/>
+				</BottomSheet>
+			)
+		) : null
 
-	const live = <><div className="vx-sr-only" aria-live="polite" role="status">{announcement}</div><div className="vx-sr-only" aria-live="assertive" role="alert">{!isPendingValid || rejected !== null ? messages.invalidDate : ''}</div></>
+	const live = (
+		<>
+			<div className="vx-sr-only" aria-live="polite" role="status">
+				{announcement}
+			</div>
+			<div className="vx-sr-only" aria-live="assertive" role="alert">
+				{!isPendingValid || rejected !== null ? messages.invalidDate : ''}
+			</div>
+		</>
+	)
 
-	useImperativeHandle(props.ref, () => ({ focus: () => input.current?.focus(), blur: () => input.current?.blur(), native: input.current }), undefined);
+	useImperativeHandle(
+		props.ref,
+		() => ({
+			focus: () => input.current?.focus(),
+			blur: () => input.current?.blur(),
+			native: input.current,
+		}),
+		undefined,
+	)
 
-	return showsDisabledReason
-		? <><Tooltip trigger={shellNode} content={props.disabledMessage!} />{popover}{live}</>
-		: <>{shellNode}{popover}{live}</>
+	return showsDisabledReason ? (
+		<>
+			<Tooltip trigger={shellNode} content={props.disabledMessage!} />
+			{popover}
+			{live}
+		</>
+	) : (
+		<>
+			{shellNode}
+			{popover}
+			{live}
+		</>
+	)
 }
 
 /** Date entry field — ISO `value`, typed text + calendar. `presentation`
@@ -404,7 +587,14 @@ export function DateInput(props: DateInputProps) @{
 	const cid = useId()
 
 	if (inField) {
-		return <DateInputControl {...props} surface={surface === 'popover' || surface === 'sheet' || surface === 'native' ? surface : 'popover'} />
+		return (
+			<DateInputControl
+				{...props}
+				surface={
+					surface === 'popover' || surface === 'sheet' || surface === 'native' ? surface : 'popover'
+				}
+			/>
+		)
 	}
 
 	return (
@@ -425,7 +615,12 @@ export function DateInput(props: DateInputProps) @{
 			labelTooltip={props.labelTooltip}
 			width={props.width}
 		>
-			<DateInputControl {...props} surface={surface === 'popover' || surface === 'sheet' || surface === 'native' ? surface : 'popover'} />
+			<DateInputControl
+				{...props}
+				surface={
+					surface === 'popover' || surface === 'sheet' || surface === 'native' ? surface : 'popover'
+				}
+			/>
 		</FormField>
 	)
 }

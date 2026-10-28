@@ -19,9 +19,11 @@ const directory = await mkdtemp(join(tmpdir(), 'octane-thumbhash-runtime-'))
 // is not byte-exact, so alpha is compared by decoded-image distance).
 const GRADIENT_PNG =
 	'iVBORw0KGgoAAAANSUhEUgAAABAAAAAMCAYAAABr5z2BAAADTklEQVR4AQBBAL7/AAAAAP8RAAn/IgAS/zMAG/9EACT/VQAt/2YANv93AD//iABI/5kAUf+qAFr/uwBj/8wAbP/dAHX/7gB+//8Ah/8AQQC+/wAAFQn/ERUS/yIVG/8zFST/RBUt/1UVNv9mFT//dxVI/4gVUf+ZFVr/qhVj/7sVbP/MFXX/3RV+/+4Vh///FZD/AEEAvv8AACoS/xEqG/8iKiT/Myot/0QqNv9VKj//ZipI/3cqUf+IKlr/mSpj/6oqbP+7KnX/zCp+/90qh//uKpD//yqZ/wBBAL7/AAA/G/8RPyT/Ij8t/zM/Nv9EPz//VT9I/2Y/Uf93P1r/iD9j/5k/bP+qP3X/uz9+/8w/h//dP5D/7j+Z//8/ov8AQQC+/wAAVCT/EVQt/yJUNv8zVD//RFRI/1VUUf9mVFr/d1Rj/4hUbP+ZVHX/qlR+/7tUh//MVJD/3VSZ/+5Uov//VKv/AEEAvv8AAGkt/xFpNv8iaT//M2lI/0RpUf9VaVr/Zmlj/3dpbP+IaXX/mWl+/6pph/+7aZD/zGmZ/91pov/uaav//2m0/wBBAL7/AAB+Nv8Rfj//In5I/zN+Uf9Eflr/VX5j/2Z+bP93fnX/iH5+/5l+h/+qfpD/u36Z/8x+ov/dfqv/7n60//9+vf8AQQC+/wAAkz//EZNI/yKTUf8zk1r/RJNj/1WTbP9mk3X/d5N+/4iTh/+Zk5D/qpOZ/7uTov/Mk6v/3ZO0/+6Tvf//k8b/AEEAvv8AAKhI/xGoUf8iqFr/M6hj/0SobP9VqHX/Zqh+/3eoh/+IqJD/maiZ/6qoov+7qKv/zKi0/92ovf/uqMb//6jP/wBBAL7/AAC9Uf8RvVr/Ir1j/zO9bP9EvXX/Vb1+/2a9h/93vZD/iL2Z/5m9ov+qvav/u720/8y9vf/dvcb/7r3P//+92P8AQQC+/wAA0lr/EdJj/yLSbP8z0nX/RNJ+/1XSh/9m0pD/d9KZ/4jSov+Z0qv/qtK0/7vSvf/M0sb/3dLP/+7S2P//0uH/AUEAvv8AAOdj/xHnbP8i53X/M+d+/0Tnh/9V55D/ZueZ/3fnov+I56v/mee0/6rnvf+758b/zOfP/93n2P/u5+H//+fq/7mpzVA4zGGPAAAAAElFTkSuQmCC'
+
 const GRADIENT_HASH = 'thumbhash:HhgODZxwd3dxeHiHiHiHiIuAB+eI'
 const ALPHA_PNG =
 	'iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAABNklEQVR4AQAhAN7/AMg8WkC+PFpYtDxacKo8WoigPFqgljxauIw8WtCCPFroACEA3v8AyFBaQL5QWli0UFpwqlBaiKBQWqCWUFq4jFBa0IJQWugAIQDe/wDIZFpAvmRaWLRkWnCqZFqIoGRaoJZkWriMZFrQgmRa6AAhAN7/AMh4WkC+eFpYtHhacKp4WoigeFqglnhauIx4WtCCeFroACEA3v8AyIxaQL6MWli0jFpwqoxaiKCMWqCWjFq4jIxa0IKMWugAIQDe/wDIoFpAvqBaWLSgWnCqoFqIoKBaoJagWriMoFrQgqBa6AAhAN7/AMi0WkC+tFpYtLRacKq0WoigtFqglrRauIy0WtCCtFroASEA3v8AyMhaQL7IWli0yFpwqshaiKDIWqCWyFq4jMha0ILIWugZd4VBWb9+hAAAAABJRU5ErkJggg=='
+
 const ALPHA_HASH = 'thumbhash:nzmGFQopa3iQh3h4iGuQt/aGcId4iIeIhw=='
 
 try {

@@ -7,9 +7,15 @@ export function TimeInputStates() @{
 	const [required, setRequired] = useState<ISOTimeString | null>(null)
 	const [disabled, setDisabled] = useState<ISOTimeString | null>(null)
 	const [error, setError] = useState<ISOTimeString | null>(null)
-	<Stack direction="vertical" gap={4} style={{width: 400}}>
+
+	<Stack direction="vertical" gap={4} style={{ width: 400 }}>
 		<TimeInput label="Required" isRequired value={required} onChange={setRequired} />
 		<TimeInput label="Disabled" isDisabled value={disabled} onChange={setDisabled} />
-		<TimeInput label="Error" status={{ type: 'error', message: 'Please choose a valid time' }} value={error} onChange={setError} />
+		<TimeInput
+			label="Error"
+			status={{ type: 'error', message: 'Please choose a valid time' }}
+			value={error}
+			onChange={setError}
+		/>
 	</Stack>
 }

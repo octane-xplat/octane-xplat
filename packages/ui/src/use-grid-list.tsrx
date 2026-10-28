@@ -7,9 +7,9 @@ import type { Octane } from 'octane/jsx-runtime'
 
 export interface UseGridListOptions {
 	/** Fixed column count; measured from layout when unset. */
-	columns?: number;
+	columns?: number
 	/** Selector matching focusable rows inside the grid. Default '[role="row"]'. */
-	rowSelector?: string;
+	rowSelector?: string
 }
 
 /**

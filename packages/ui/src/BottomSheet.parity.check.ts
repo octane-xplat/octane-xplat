@@ -2,7 +2,6 @@ import type { ParityCheck } from './parity/check-helpers.ts'
 import { dims } from './parity/check-helpers.ts'
 
 export const CHECKS: ParityCheck[] = [
-
 	{
 		fixture: 'sheet-fixed-frame',
 		elements: { frame: 'parity-portal--sheet-fixed-frame' },
@@ -33,5 +32,5 @@ export const CHECKS: ParityCheck[] = [
 
 			return [dims(m('frame'), 96, expectedHeight)]
 		},
-	}
+	},
 ]

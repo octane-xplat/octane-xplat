@@ -9,20 +9,24 @@ const patch = readFileSync(
 	new URL('../patches/@nativescript-community__octane@0.2.5.patch', import.meta.url),
 	'utf8',
 )
+
 const driver = patch
 	.split('diff --git a/dist/elements.js')[0]
 	.split('\n')
 	.filter((line) => (line.startsWith('+') && !line.startsWith('+++')) || line.startsWith(' '))
 	.map((line) => line.slice(1))
 	.join('\n')
+
 const helpers = driver.slice(
 	driver.indexOf('const MASON_CONTAINER_TAGS'),
 	driver.indexOf('/** Recompute a text host'),
 )
+
 const inline = driver.slice(
 	driver.indexOf('function refreshCss'),
 	driver.indexOf('// --- Mason layout cutover'),
 )
+
 const unsetValue = Symbol('unset')
 const nativeStyles = new WeakMap()
 const api = runInNewContext(
@@ -41,15 +45,39 @@ const api = runInNewContext(
 		// The leaf longhands are real CssProperties — report them registered so
 		// removal restores via unsetValue (the cascade path), not the captured
 		// default reserved for plain fields.
-		_getStyleProperties: () => [
-			'display', 'visibility',
-			'width', 'height', 'minWidth', 'minHeight', 'maxWidth', 'maxHeight',
-			'marginTop', 'marginRight', 'marginBottom', 'marginLeft',
-			'flexGrow', 'flexShrink', 'flexBasis', 'alignSelf', 'justifySelf',
-			'order', 'position', 'left', 'top', 'right', 'bottom', 'aspectRatio',
-			'gridRow', 'gridColumn', 'gridRowStart', 'gridRowEnd',
-			'gridColumnStart', 'gridColumnEnd',
-		].map((name) => ({ name })),
+		_getStyleProperties: () =>
+			[
+				'display',
+				'visibility',
+				'width',
+				'height',
+				'minWidth',
+				'minHeight',
+				'maxWidth',
+				'maxHeight',
+				'marginTop',
+				'marginRight',
+				'marginBottom',
+				'marginLeft',
+				'flexGrow',
+				'flexShrink',
+				'flexBasis',
+				'alignSelf',
+				'justifySelf',
+				'order',
+				'position',
+				'left',
+				'top',
+				'right',
+				'bottom',
+				'aspectRatio',
+				'gridRow',
+				'gridColumn',
+				'gridRowStart',
+				'gridRowEnd',
+				'gridColumnStart',
+				'gridColumnEnd',
+			].map((name) => ({ name })),
 		cssTreeParse: (source) => {
 			const declarations = [...source.matchAll(/([\w-]+)\s*:/g)].map((m) => ({
 				type: 'declaration',
@@ -59,6 +87,7 @@ const api = runInNewContext(
 		},
 	},
 )
+
 const plain = (value) => JSON.parse(JSON.stringify(value))
 
 function observable() {

@@ -5,8 +5,8 @@ import { TableLabPage } from './tables/TableLabPage'
 // a page flips its row, same as the template example registry.
 
 import './authored/authored.css'
-import {MediaModePage} from './media-mode/MediaModePage'
-import {ComponentScoresPage} from './component-scores/ComponentScoresPage'
+import { MediaModePage } from './media-mode/MediaModePage'
+import { ComponentScoresPage } from './component-scores/ComponentScoresPage'
 import { NeutralPalettePage } from './palettes/NeutralPalettePage'
 import { StonePalettePage } from './palettes/StonePalettePage'
 import { GothicPalettePage } from './palettes/GothicPalettePage'

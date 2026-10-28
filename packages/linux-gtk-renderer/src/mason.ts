@@ -51,6 +51,7 @@ function loadMasonNamespace(): any {
 			} else {
 				repo?.prepend_search_path?.(typelibDir)
 			}
+
 			// The gir binds the facade by soname only, so the shipped
 			// artifacts stay relocatable — the loader must find the lib
 			// beside its typelib via the repository library path.
@@ -81,6 +82,7 @@ function masonEngine(): number | null {
 			'[linux-gtk-mason] XplatMason typelib not found — masonview falls back to Gtk.Box emulation. ' +
 				'Build packages/linux-gtk-renderer/native/xplatmason and set XPLAT_MASON_TYPELIB (or GI_TYPELIB_PATH plus the loader library path).',
 		)
+
 		initFailed = true
 		return null
 	}
@@ -115,6 +117,7 @@ function autoDim(value: any): [number, number] | undefined {
 		if (percent) {
 			return [2, Number(percent[1]) / 100]
 		}
+
 		const points = Number(text.replace(/px$/, ''))
 		return Number.isFinite(points) ? [1, points] : undefined
 	}
@@ -167,12 +170,7 @@ const DIM_EDGES = [
 	['bottom', 'bottom'],
 ]
 
-const NUMBER_STYLE_KEYS = new Set([
-	'flexGrow',
-	'flexShrink',
-	'aspectRatio',
-	'scrollbarWidth',
-])
+const NUMBER_STYLE_KEYS = new Set(['flexGrow', 'flexShrink', 'aspectRatio', 'scrollbarWidth'])
 
 const GRID_STYLE_KEYS = new Set([
 	'gridAutoRows',
@@ -321,6 +319,7 @@ function syncMasonNode(node: NodeLike) {
 			: node.view
 				? mason.node_new_leaf(masonEngine_, node.view)
 				: mason.node_new(masonEngine_, false)
+
 		if (!node.masonNode) {
 			return 0
 		}
@@ -361,17 +360,17 @@ function syncMasonTree(parent: NodeLike): number {
 	const nextOrder: NodeLike[] = []
 
 	for (const child of children) {
-		const handle = MASON_CONTAINERS.has(child.type)
-			? syncMasonTree(child)
-			: syncMasonNode(child)
+		const handle = MASON_CONTAINERS.has(child.type) ? syncMasonTree(child) : syncMasonNode(child)
 		if (!handle) {
 			continue
 		}
+
 		// Re-measure leaves every pass — text/CSS may have changed since the
 		// last compute.
 		if (!MASON_CONTAINERS.has(child.type)) {
 			mason.node_mark_dirty(masonEngine()!, handle)
 		}
+
 		handles.push(handle)
 		nextOrder.push(child)
 	}
@@ -395,11 +394,7 @@ function records(bytes: any): Float32Array {
 }
 
 /** Computes the subtree and returns the root record's [width, height]. */
-function computeRootSize(
-	root: number,
-	width: number,
-	height: number,
-): [number, number] {
+function computeRootSize(root: number, width: number, height: number): [number, number] {
 	mason.node_compute(masonEngine()!, root, width, height)
 	const flat = records(mason.node_layout_shallow(masonEngine()!, root))
 	return flat.length >= 5 ? [flat[3], flat[4]] : [0, 0]
@@ -431,6 +426,7 @@ function layoutChildren(node: NodeLike, width: number, height: number) {
 		if (off + 5 > flat.length) {
 			break
 		}
+
 		allocation.x = Math.round(flat[off + 1])
 		allocation.y = Math.round(flat[off + 2])
 		allocation.width = Math.max(0, Math.round(flat[off + 3]))
@@ -500,24 +496,56 @@ function pushClip(snapshot: any, clip: ClipPath): boolean {
 	const rounded = (x: number, y: number, w: number, h: number, radii: [number, number][]) => {
 		const rr = new (Gsk as any).RoundedRect()
 		const size = ([rx, ry]: [number, number]) => new G.Size({ width: rx, height: ry })
-		rr.init(new G.Rect().init(x, y, w, h), size(radii[0]), size(radii[1]), size(radii[2]), size(radii[3]))
+		rr.init(
+			new G.Rect().init(x, y, w, h),
+			size(radii[0]),
+			size(radii[1]),
+			size(radii[2]),
+			size(radii[3]),
+		)
 		snapshot.push_rounded_clip(rr)
 	}
 	switch (clip.type) {
 		case 'inset': {
 			const w = Math.max(0, clip.right - clip.left)
 			const h = Math.max(0, clip.bottom - clip.top)
-			rounded(clip.left, clip.top, w, h, clip.radii.length === 4 ? clip.radii : [[0, 0], [0, 0], [0, 0], [0, 0]])
+			rounded(
+				clip.left,
+				clip.top,
+				w,
+				h,
+				clip.radii.length === 4
+					? clip.radii
+					: [
+							[0, 0],
+							[0, 0],
+							[0, 0],
+							[0, 0],
+						],
+			)
+
 			return true
 		}
 		case 'circle': {
 			const r = clip.radius
-			rounded(clip.cx - r, clip.cy - r, 2 * r, 2 * r, [[r, r], [r, r], [r, r], [r, r]])
+			rounded(clip.cx - r, clip.cy - r, 2 * r, 2 * r, [
+				[r, r],
+				[r, r],
+				[r, r],
+				[r, r],
+			])
+
 			return true
 		}
 		case 'ellipse': {
 			const corner: [number, number] = [clip.rx, clip.ry]
-			rounded(clip.cx - clip.rx, clip.cy - clip.ry, 2 * clip.rx, 2 * clip.ry, [corner, corner, corner, corner])
+			rounded(clip.cx - clip.rx, clip.cy - clip.ry, 2 * clip.rx, 2 * clip.ry, [
+				corner,
+				corner,
+				corner,
+				corner,
+			])
+
 			return true
 		}
 		case 'polygon': {
@@ -527,10 +555,15 @@ function pushClip(snapshot: any, clip: ClipPath): boolean {
 					polygonClipWarned = true
 					console.warn('[linux-gtk-css] clip-path polygon() needs GTK 4.14+ — ignored')
 				}
+
 				return false
 			}
+
 			const builder = new PathBuilder()
-			clip.points.forEach(([x, y], index) => (index === 0 ? builder.move_to(x, y) : builder.line_to(x, y)))
+			clip.points.forEach(([x, y], index) =>
+				index === 0 ? builder.move_to(x, y) : builder.line_to(x, y),
+			)
+
 			builder.close()
 			snapshot.push_fill(builder.to_path(), (Gsk as any).FillRule.WINDING)
 			return true
@@ -591,11 +624,7 @@ function snapshotChildren(host: any, snapshot: any) {
 
 /** Natural size for GTK's measure vfunc — min/max-content computes read the
  *  root record; forSize constrains the opposite axis when GTK knows it. */
-function measureNode(
-	node: NodeLike,
-	horizontal: boolean,
-	forSize: number,
-): [number, number] {
+function measureNode(node: NodeLike, horizontal: boolean, forSize: number): [number, number] {
 	const root = syncMasonTree(node)
 	if (!root) {
 		return [0, 0]

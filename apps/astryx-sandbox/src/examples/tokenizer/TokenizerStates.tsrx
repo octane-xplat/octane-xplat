@@ -7,11 +7,37 @@ const source = createStaticSource(TAGS.map((t) => ({ id: t, label: t })))
 
 export function TokenizerStates() @{
 	const [required, setRequired] = useState<{ id: string; label: string }[]>([])
-	const [disabled, setDisabled] = useState<{ id: string; label: string }[]>([{ id: 'locked', label: 'locked' }])
+	const [disabled, setDisabled] = useState<{ id: string; label: string }[]>([
+		{ id: 'locked', label: 'locked' },
+	])
+
 	const [error, setError] = useState<{ id: string; label: string }[]>([])
-	<Stack direction="vertical" gap={4} style={{width: 400}}>
-		<Tokenizer label="Required" isRequired status={{ type: 'error', message: 'At least one tag is required' }} searchSource={source} value={required} onChange={setRequired} placeholder="Add tags…" />
-		<Tokenizer label="Disabled" isDisabled searchSource={source} value={disabled} onChange={setDisabled} placeholder="Add tags…" />
-		<Tokenizer label="Loading" isLoading searchSource={source} value={error} onChange={setError} placeholder="Add tags…" />
+
+	<Stack direction="vertical" gap={4} style={{ width: 400 }}>
+		<Tokenizer
+			label="Required"
+			isRequired
+			status={{ type: 'error', message: 'At least one tag is required' }}
+			searchSource={source}
+			value={required}
+			onChange={setRequired}
+			placeholder="Add tags…"
+		/>
+		<Tokenizer
+			label="Disabled"
+			isDisabled
+			searchSource={source}
+			value={disabled}
+			onChange={setDisabled}
+			placeholder="Add tags…"
+		/>
+		<Tokenizer
+			label="Loading"
+			isLoading
+			searchSource={source}
+			value={error}
+			onChange={setError}
+			placeholder="Add tags…"
+		/>
 	</Stack>
 }

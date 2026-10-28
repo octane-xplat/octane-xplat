@@ -5,19 +5,34 @@ import { createContentOwner, type ContentOwner, type ContentEntry } from './owne
 function OwnedEntry(props: { key?: number; entry: ContentEntry }) {
 	const entry = props.entry
 	const Component = entry.component
-	useLayoutEffect(() => { entry.committed() }, [entry])
+	useLayoutEffect(() => {
+		entry.committed()
+	}, [entry])
+
 	return createPortal(<Component {...entry.props} />, entry.target as Element | DocumentFragment)
 }
 
 function ContentOutlet(props: { owner: ContentOwner }) {
-	const entries = useSyncExternalStore(props.owner.entries.subscribe, props.owner.entries.getSnapshot, props.owner.entries.getSnapshot)
+	const entries = useSyncExternalStore(
+		props.owner.entries.subscribe,
+		props.owner.entries.getSnapshot,
+		props.owner.entries.getSnapshot,
+	)
+
 	useEffect(() => () => props.owner.dispose(), [props.owner])
-	return <>
-		<span ref={(view: any) => { props.owner.host = view }} style={{ display: 'none' }} />
-		@for (const entry of entries; key entry.id) {
-			<OwnedEntry entry={entry} />
-		}
-	</>
+	return (
+		<>
+			<span
+				ref={(view: any) => {
+					props.owner.host = view
+				}}
+				style={{ display: 'none' }}
+			/>
+			@for (const entry of entries; key entry.id) {
+				<OwnedEntry entry={entry} />
+			}
+		</>
+	)
 }
 
 export function useOwnedContent() {

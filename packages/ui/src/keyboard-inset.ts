@@ -198,7 +198,7 @@ keyboardWindows.install(observeKeyboardDestination, 'fallback')
 const resizeLeases = new Map<any, { count: number; previous: number; adjusted: number }>()
 
 const acquireResize = (window: any) => {
-		const params = globalThis.android?.view?.WindowManager?.LayoutParams
+	const params = globalThis.android?.view?.WindowManager?.LayoutParams
 	if (!window || !params) {
 		return () => {}
 	}

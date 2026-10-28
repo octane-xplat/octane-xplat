@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url'
 if (process.argv.length > 2) {
 	throw new Error('This task runs headless web only and accepts no target overrides')
 }
+
 const result = spawnSync(
 	process.execPath,
 	[
@@ -18,5 +19,9 @@ const result = spawnSync(
 	],
 	{ cwd: fileURLToPath(new URL('../', import.meta.url)), stdio: 'inherit' },
 )
-if (result.error) { throw result.error }
+
+if (result.error) {
+	throw result.error
+}
+
 process.exitCode = result.status ?? 1

@@ -86,6 +86,7 @@ it('suppresses the iOS launch echo once, then dispatches repeated URLs', async (
 const iosSet = (...values: any[]) => ({
 	allObjects: { count: values.length, objectAtIndex: (index: number) => values[index] },
 })
+
 const iosUrl = (url: string) => ({ URL: { absoluteString: url } })
 function sceneHost() {
 	native.app.ios = {
@@ -106,10 +107,11 @@ it('adopts scene connection URLs once and delivers repeated warm scene URLs', as
 	expect(links.consumeInitialUrl()).toBeNull()
 	// A host/plugin forwarding the same scene event into the legacy bus must not duplicate it.
 	native.listeners.get('openUrl')!({ url: { absoluteString: 'xplat://detail' } })
-	for (let i = 0; i < 2; i++)
-		{native.iosListeners.get('sceneOpenURLContexts')!({
+	for (let i = 0; i < 2; i++) {
+		native.iosListeners.get('sceneOpenURLContexts')!({
 			urlContexts: iosSet(iosUrl('xplat://detail')),
-		})}
+		})
+	}
 	expect(received.mock.calls).toEqual([['xplat://detail'], ['xplat://detail']])
 })
 
@@ -150,8 +152,9 @@ it('classifies a pre-launch Android newIntent as one cold delivery', async () =>
 	native.app.android.foregroundActivity = { getIntent: () => cold }
 	native.listeners.get('resume')!({})
 	expect(received).not.toHaveBeenCalled()
-	for (let i = 0; i < 2; i++)
-		{native.androidListeners.get('activityNewIntent')!({ intent: intent('xplat://cold') })}
+	for (let i = 0; i < 2; i++) {
+		native.androidListeners.get('activityNewIntent')!({ intent: intent('xplat://cold') })
+	}
 	expect(received.mock.calls).toEqual([['xplat://cold'], ['xplat://cold']])
 })
 

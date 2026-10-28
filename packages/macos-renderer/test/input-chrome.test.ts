@@ -7,6 +7,7 @@ const chrome = source.slice(
 	source.indexOf('function syncInputChrome('),
 	source.indexOf('// CSS owns the theme palette.'),
 )
+
 function load() {
 	return runSlice(chrome + '\n({ syncInputChrome })', {
 		effectiveStyle: (node) => node.computedStyle ?? {},
@@ -24,6 +25,7 @@ test('CSS chrome leaves the native bezel and background configuration intact', (
 			view,
 			computedStyle: { backgroundColor: 'red', borderWidth: 1, borderRadius: 8 },
 		}
+
 		syncInputChrome(node)
 		assert.equal(view.bezeled, enabled)
 		assert.equal(view.drawsBackground, enabled)

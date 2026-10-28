@@ -24,7 +24,8 @@ export const build = command({
 			// cmd-ts drops empty argv strings; preserve explicit option presence
 			// so both --targets '' and a bare --targets fail validation below.
 			implicitValue: '',
-			description: 'Comma list (web,ios,android,macos,linux) — every requested kind must be declared',
+			description:
+				'Comma list (web,ios,android,macos,linux) — every requested kind must be declared',
 		}),
 	},
 	handler: async (args) => {

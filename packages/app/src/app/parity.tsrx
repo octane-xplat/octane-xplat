@@ -1,5 +1,5 @@
-import { Screen } from '@octane-xplat/ui';
-import { ParityStage } from '../parity/stage.tsrx';
+import { Screen } from '@octane-xplat/ui'
+import { ParityStage } from '../parity/stage.tsrx'
 
 /** Parity route — root-level screen on web (/parity), pushable as 'parity'
  *  on native for the sweep step. Renders the fixture stage only; no app

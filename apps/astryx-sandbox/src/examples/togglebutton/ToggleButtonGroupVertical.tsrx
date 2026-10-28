@@ -4,9 +4,21 @@ import { useState } from 'octane'
 
 export function ToggleButtonGroupVertical() @{
 	const [alignment, setAlignment] = useState<string | null>('left')
-	<ToggleButtonGroup label="Alignment" orientation="vertical" value={alignment} onChange={setAlignment}>
-		<ToggleButton value="left" label="Align left"><Icon name="sandbox-align-left" size={16} /></ToggleButton>
-		<ToggleButton value="center" label="Align center"><Icon name="sandbox-align-center" size={16} /></ToggleButton>
-		<ToggleButton value="right" label="Align right"><Icon name="sandbox-align-right" size={16} /></ToggleButton>
+
+	<ToggleButtonGroup
+		label="Alignment"
+		orientation="vertical"
+		value={alignment}
+		onChange={setAlignment}
+	>
+		<ToggleButton value="left" label="Align left">
+			<Icon name="sandbox-align-left" size={16} />
+		</ToggleButton>
+		<ToggleButton value="center" label="Align center">
+			<Icon name="sandbox-align-center" size={16} />
+		</ToggleButton>
+		<ToggleButton value="right" label="Align right">
+			<Icon name="sandbox-align-right" size={16} />
+		</ToggleButton>
 	</ToggleButtonGroup>
 }

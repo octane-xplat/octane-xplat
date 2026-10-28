@@ -1,5 +1,13 @@
 // Port of upstream TopNavMegaMenu/TopNavMegaMenuShowcase.tsx (Astryx 0.6.4, MIT).
-import { Icon, TopNav, TopNavHeading, TopNavItem, TopNavMegaMenu, TopNavMegaMenuFeaturedCard, TopNavMegaMenuItem } from '@octane-xplat/ui'
+import {
+	Icon,
+	TopNav,
+	TopNavHeading,
+	TopNavItem,
+	TopNavMegaMenu,
+	TopNavMegaMenuFeaturedCard,
+	TopNavMegaMenuItem,
+} from '@octane-xplat/ui'
 
 export function TopNavMegaMenuShowcase() @{
 	<TopNav
@@ -13,10 +21,30 @@ export function TopNavMegaMenuShowcase() @{
 					label="Products"
 					items={
 						<>
-							<TopNavMegaMenuItem title="Deploy" description="Ship to production in seconds" icon={<Icon name="sandbox-arrow-up" size={20} />} href="#deploy" />
-							<TopNavMegaMenuItem title="Documentation" description="Guides, references, and tutorials" icon={<Icon name="sandbox-code" size={20} />} href="#docs" />
-							<TopNavMegaMenuItem title="Security" description="Protect your application" icon={<Icon name="sandbox-lock" size={20} />} href="#security" />
-							<TopNavMegaMenuItem title="Search" description="Instant full-text search" icon={<Icon name="xplat-search" size={20} />} href="#search" />
+							<TopNavMegaMenuItem
+								title="Deploy"
+								description="Ship to production in seconds"
+								icon={<Icon name="sandbox-arrow-up" size={20} />}
+								href="#deploy"
+							/>
+							<TopNavMegaMenuItem
+								title="Documentation"
+								description="Guides, references, and tutorials"
+								icon={<Icon name="sandbox-code" size={20} />}
+								href="#docs"
+							/>
+							<TopNavMegaMenuItem
+								title="Security"
+								description="Protect your application"
+								icon={<Icon name="sandbox-lock" size={20} />}
+								href="#security"
+							/>
+							<TopNavMegaMenuItem
+								title="Search"
+								description="Instant full-text search"
+								icon={<Icon name="xplat-search" size={20} />}
+								href="#search"
+							/>
 						</>
 					}
 					featured={

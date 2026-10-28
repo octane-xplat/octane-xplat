@@ -682,11 +682,7 @@ setTimeout(() => {
 	console.log('[probe] scrollview=' + (sv ? sv.constructor.name : 'none'))
 	sv?.scrollTo?.({ top: 200, behavior: 'instant' })
 	console.log(
-		'[assert] scroll offset: ' +
-			(sv?.scrollTop > 0 ? 'OK' : 'FAIL') +
-			' (' +
-			sv?.scrollTop +
-			')',
+		'[assert] scroll offset: ' + (sv?.scrollTop > 0 ? 'OK' : 'FAIL') + ' (' + sv?.scrollTop + ')',
 	)
 
 	const img = find('img')
@@ -1432,7 +1428,10 @@ import('@octane-xplat/media').then(({ media }) => {
 		// 'denied'/'unsupported' vs an actual camera cancel look identical from
 		// the PickedImage contract alone.
 		try {
-			const perm = await media.requestPermissions('camera').catch((e: Error) => 'threw ' + (e as Error).message)
+			const perm = await media
+				.requestPermissions('camera')
+				.catch((e: Error) => 'threw ' + (e as Error).message)
+
 			console.log('[probe] capturePhoto ensure(camera)=' + JSON.stringify(perm))
 		} catch (e) {
 			console.log('[probe] capturePhoto ensure threw: ' + (e as Error).message)

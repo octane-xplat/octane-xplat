@@ -23,13 +23,16 @@ export function applyPlugins<T extends Record<string, unknown>, TProps, TArgs ex
 ): TProps {
 	return plugins.reduce<TProps>((acc, plugin, index) => {
 		const transform = getter(plugin)
-		if (!transform) {return acc}
+		if (!transform) {
+			return acc
+		}
 		try {
 			return transform.call(plugin, acc, ...args)
 		} catch (error) {
 			if (typeof console !== 'undefined') {
 				console.error(`Table plugin at index ${index} threw in transform:`, error)
 			}
+
 			return acc
 		}
 	}, initial)
@@ -58,7 +61,11 @@ export function resolveTablePlugins<T extends Record<string, unknown>>(
 ): TablePlugin<T>[] {
 	const sorted = userPlugins
 		? Object.entries(userPlugins)
-				.sort(([a], [b]) => (PLUGIN_ORDER_MAP.get(a) ?? PLUGIN_ORDER.length) - (PLUGIN_ORDER_MAP.get(b) ?? PLUGIN_ORDER.length))
+				.sort(
+					([a], [b]) =>
+						(PLUGIN_ORDER_MAP.get(a) ?? PLUGIN_ORDER.length) -
+						(PLUGIN_ORDER_MAP.get(b) ?? PLUGIN_ORDER.length),
+				)
 				.map(([, plugin]) => plugin)
 		: []
 	return [...basePlugins, ...sorted]
@@ -125,7 +132,9 @@ export interface PlanSource<T extends Record<string, unknown>> {
  * `rows`/`scrollWrapper` host props plus each plugin's
  * `transformTableContext` wrapped around the assembled output.
  */
-export function planTableRender<T extends Record<string, unknown>>(source: PlanSource<T>): TableRenderPlan<T> {
+export function planTableRender<T extends Record<string, unknown>>(
+	source: PlanSource<T>,
+): TableRenderPlan<T> {
 	const { data, columns: columnsProp, idKey, plugins, rowIndexStart, rowCount, emptyState } = source
 
 	const ariaRowIndexingEnabled = rowIndexStart != null || rowCount != null
@@ -135,21 +144,19 @@ export function planTableRender<T extends Record<string, unknown>>(source: PlanS
 	const resolvedColumns = applyPlugins(plugins, (p) => p.transformColumns, baseColumns)
 	const widths = resolveColumnWidths(resolvedColumns)
 
-	const table = applyPlugins(
-		plugins,
-		(p) => p.transformTable,
-		{
-			htmlProps: ariaRowIndexingEnabled ? { 'aria-rowcount': rowCount ?? -1 } : {},
-			classes: [] as never,
-		} as TableRenderProps,
-	)
+	const table = applyPlugins(plugins, (p) => p.transformTable, {
+		htmlProps: ariaRowIndexingEnabled ? { 'aria-rowcount': rowCount ?? -1 } : {},
+		classes: [] as never,
+	} as TableRenderProps)
 
 	const headerCells = resolvedColumns.map((col, columnIndex): PlannedHeaderCell<T> => {
 		const htmlProps: Record<string, unknown> = {
 			'data-column-key': col.key,
 			scope: 'col',
 		}
-		if (col.align) {htmlProps.style = { textAlign: col.align }}
+		if (col.align) {
+			htmlProps.style = { textAlign: col.align }
+		}
 		const render = applyPlugins(
 			plugins,
 			(p) => p.transformHeaderCell,
@@ -167,16 +174,18 @@ export function planTableRender<T extends Record<string, unknown>>(source: PlanS
 		return { column: col, render, widthStyle: widths.columns.get(col.key)?.style ?? {} }
 	})
 
-	const headerRow = applyPlugins(
-		plugins,
-		(p) => p.transformHeaderRow,
-		{ htmlProps: {}, classes: [] as never, children: undefined } as HeaderRowRenderProps,
-	)
+	const headerRow = applyPlugins(plugins, (p) => p.transformHeaderRow, {
+		htmlProps: {},
+		classes: [] as never,
+		children: undefined,
+	} as HeaderRowRenderProps)
 
 	const rows: PlannedRow<T>[] = (data ?? []).map((item, rowIndex) => {
 		const cells = resolvedColumns.map((col, columnIndex): PlannedBodyCell<T> => {
 			const htmlProps: Record<string, unknown> = {}
-			if (col.align) {htmlProps.style = { textAlign: col.align }}
+			if (col.align) {
+				htmlProps.style = { textAlign: col.align }
+			}
 			const render = applyPlugins(
 				plugins,
 				(p) => p.transformBodyCell,
@@ -228,11 +237,10 @@ export function planTableRender<T extends Record<string, unknown>>(source: PlanS
 		}
 	})
 
-	const scrollWrapper = applyPlugins(
-		plugins,
-		(p) => p.transformScrollWrapper,
-		{ htmlProps: {}, classes: [] as never } as ScrollWrapperRenderProps,
-	)
+	const scrollWrapper = applyPlugins(plugins, (p) => p.transformScrollWrapper, {
+		htmlProps: {},
+		classes: [] as never,
+	} as ScrollWrapperRenderProps)
 
 	return {
 		columns: resolvedColumns,
@@ -250,14 +258,19 @@ export function planTableRender<T extends Record<string, unknown>>(source: PlanS
 
 /** Apply the transformTableContext chain around an assembled node —
  *  outermost plugin wraps last, matching upstream's sequential application. */
-export function wrapTableContext<T extends Record<string, unknown>>(plugins: TablePlugin<T>[], node: unknown): unknown {
+export function wrapTableContext<T extends Record<string, unknown>>(
+	plugins: TablePlugin<T>[],
+	node: unknown,
+): unknown {
 	let out = node
 	for (const plugin of plugins) {
 		if (plugin.transformTableContext) {
 			try {
 				out = plugin.transformTableContext(out)
 			} catch (error) {
-				if (typeof console !== 'undefined') {console.error('Table plugin transformTableContext threw:', error)}
+				if (typeof console !== 'undefined') {
+					console.error('Table plugin transformTableContext threw:', error)
+				}
 			}
 		}
 	}

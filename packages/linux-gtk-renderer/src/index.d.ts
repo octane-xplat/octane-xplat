@@ -36,10 +36,7 @@ export interface GtkContainer {
 
 export interface GtkRootOptions extends UniversalRootOptions<GtkContainer> {}
 
-export declare const gtkDriver: UniversalHostDriver<
-	GtkContainer,
-	GtkView | ElementNode | null
->
+export declare const gtkDriver: UniversalHostDriver<GtkContainer, GtkView | ElementNode | null>
 
 export declare function createGtkContainer(host: GtkView): GtkContainer
 

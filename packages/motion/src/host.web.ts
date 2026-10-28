@@ -69,11 +69,15 @@ export function attachHost(node: HTMLElement): HostAdapter {
 
 			// Channel transforms are subtracted mathematically so the layout box
 			// stays transform-free; a projection transform is reset before reads.
-			if (!projecting) removeBoxTransforms(layoutBox, latestValues)
+			if (!projecting) {
+				removeBoxTransforms(layoutBox, latestValues)
+			}
 			return { layoutBox, measuredBox }
 		},
 		resetProjection() {
-			if (projecting) node.style.transform = 'none'
+			if (projecting) {
+				node.style.transform = 'none'
+			}
 		},
 		project(write: ProjectionWrite | null) {
 			if (!write) {

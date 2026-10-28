@@ -105,6 +105,7 @@ function cssValue(name: string, value: unknown): string | null {
 			// NS letterSpacing numbers are em units.
 			return `${value}em`
 		}
+
 		// Numeric sizes are logical px; weight/style/family pass through.
 		return name === 'fontWeight' || name === 'fontStyle' || name === 'fontFamily'
 			? String(value)
@@ -114,17 +115,21 @@ function cssValue(name: string, value: unknown): string | null {
 		if (name === 'fontWeight') {
 			return value
 		}
+
 		if (name === 'fontFamily') {
 			return /[\s,]/.test(value) && !/^['"]/.test(value) ? `"${value}"` : value
 		}
+
 		if (name === 'letterSpacing') {
 			// NS parseFloats strings into em as well.
 			return `${parseFloat(value)}em`
 		}
+
 		// GTK CSS parses the same px/rgb()/named-color vocabulary here.
 		if (/^\d+(?:\.\d+)?$/.test(value)) {
 			return `${value}px`
 		}
+
 		return value.replace(DIP_RE, '$1px')
 	}
 	return null
@@ -207,6 +212,7 @@ export function gtkStyleCss(
 			if (value == null) {
 				continue
 			}
+
 			// Control color/backgroundColor paint their subnode instead of
 			// the widget node.
 			if (subnodes && (name === 'color' || name === 'backgroundColor') && subnodes[name]) {
@@ -214,13 +220,16 @@ export function gtkStyleCss(
 				extra.push(`${subSel.replace('%S', selector)} { ${cssName}: ${value}; }`)
 				continue
 			}
+
 			let decl = cssValue(name, value)
 			if (decl === null) {
 				continue
 			}
+
 			if (name === 'backgroundImage') {
 				decl = resolveBackgroundImage(decl, options)
 			}
+
 			next.push([CSS_PROPS[name], decl])
 		}
 	}

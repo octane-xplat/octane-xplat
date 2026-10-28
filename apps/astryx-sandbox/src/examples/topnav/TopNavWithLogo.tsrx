@@ -4,7 +4,13 @@ import { Icon, NavIcon, TopNav, TopNavHeading, TopNavItem } from '@octane-xplat/
 export function TopNavWithLogo() @{
 	<TopNav
 		label="Main navigation"
-		heading={<TopNavHeading heading="Acme" logo={<NavIcon icon={<Icon name="sandbox-blocks" size={16} />} />} headingHref="#" />}
+		heading={
+			<TopNavHeading
+				heading="Acme"
+				logo={<NavIcon icon={<Icon name="sandbox-blocks" size={16} />} />}
+				headingHref="#"
+			/>
+		}
 		startContent={
 			<>
 				<TopNavItem label="Overview" href="#" isSelected />

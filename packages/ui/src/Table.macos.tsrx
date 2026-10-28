@@ -10,36 +10,54 @@ import type {
 	TableCellProps,
 	TableHeaderCellProps,
 } from './props'
+
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from './escape-props'
-import { planTableRender, wrapTableContext, resolveTablePlugins, applyPlugins } from './table/pipeline'
+import {
+	planTableRender,
+	wrapTableContext,
+	resolveTablePlugins,
+	applyPlugins,
+} from './table/pipeline'
+
 import { TableContext, TableContextProvider } from './table/table-context'
 import { TableSlot } from './table/table-slot'
 
 function cellWidthStyle(col: TableColumn<any>) {
 	const w = col.width
-	if (w?.type === 'pixel') return { width: w.value }
+	if (w?.type === 'pixel') {
+		return { width: w.value }
+	}
+
 	return { flexGrow: w?.value ?? 1 }
 }
 
 function cellStyle(col: TableColumn<any>, extra?: Record<string, any>) {
 	return {
 		...cellWidthStyle(col),
-		...(col.align === 'end' ? { textAlignment: 'right' } : col.align === 'center' ? { textAlignment: 'center' } : {}),
+		...(col.align === 'end'
+			? { textAlignment: 'right' }
+			: col.align === 'center'
+				? { textAlignment: 'center' }
+				: {}),
 		...extra,
 	}
 }
 
 function cellContent(content: any) {
-	return typeof content === 'string' || typeof content === 'number'
-		? <label text={String(content)} />
-		: <TableSlot value={content} />
+	return typeof content === 'string' || typeof content === 'number' ? (
+		<label text={String(content)} />
+	) : (
+		<TableSlot value={content} />
+	)
 }
 
 /** Table — data-driven + plugin pipeline (Astryx `Table`), AppKit leaf.
  *  Same render plan as web mapped to flex views; DOM-only plugin effects
  *  (resize drag, pointer context menus) degrade to their data effects. */
-export function Table<T extends Record<string, unknown> = Record<string, unknown>>(props: TableProps<T>) @{
+export function Table<T extends Record<string, unknown> = Record<string, unknown>>(
+	props: TableProps<T>,
+) @{
 	const {
 		data,
 		columns,
@@ -64,15 +82,33 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 
 	const plugins = resolveTablePlugins<T>([], pluginRecord)
 	const ctx = { density, dividers, isStriped, hasHover, verticalAlign, textOverflow }
-	const tableClasses = cx('vx-table', `vx-table--${density}`, `vx-table--dividers-${dividers}`, className)
+	const tableClasses = cx(
+		'vx-table',
+		`vx-table--${density}`,
+		`vx-table--dividers-${dividers}`,
+		className,
+	)
 
 	if (children != null) {
-		const table = applyPlugins(plugins, (p) => p.transformTable, { htmlProps: {}, classes: [] } as any)
+		const table = applyPlugins(plugins, (p) => p.transformTable, {
+			htmlProps: {},
+			classes: [],
+		} as any)
+
 		const node = (
-			<masonview ref={ref} id={id} className={cx(tableClasses, table.classes)} style={mergeStyle({ display: 'flex', flexDirection: 'column' }, mergeStyle(table.htmlProps?.style ?? {}, style))}>
+			<masonview
+				ref={ref}
+				id={id}
+				className={cx(tableClasses, table.classes)}
+				style={mergeStyle(
+					{ display: 'flex', flexDirection: 'column' },
+					mergeStyle(table.htmlProps?.style ?? {}, style),
+				)}
+			>
 				{children}
 			</masonview>
 		)
+
 		return (
 			<TableContextProvider value={ctx}>
 				<TableSlot value={wrapTableContext(plugins, node)} />
@@ -80,16 +116,32 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 		)
 	}
 
-	const plan = planTableRender<T>({ data, columns, idKey: idKey as any, plugins, textOverflow, rowIndexStart, rowCount, emptyState })
+	const plan = planTableRender<T>({
+		data,
+		columns,
+		idKey: idKey as any,
+		plugins,
+		textOverflow,
+		rowIndexStart,
+		rowCount,
+		emptyState,
+	})
 
 	const tableElement = (
 		<masonview
 			ref={(v: any) => applyEscapeProps(v, props)}
 			id={id}
 			className={cx('vx-table-scroll', plan.scrollWrapper.classes)}
-			style={{ display: 'flex', flexDirection: 'column' }}>
+			style={{ display: 'flex', flexDirection: 'column' }}
+		>
 			<TableSlot value={plan.scrollWrapper.beforeTable} />
-			<masonview className={cx(tableClasses, plan.table.classes)} style={mergeStyle({ display: 'flex', flexDirection: 'column' }, mergeStyle(plan.table.htmlProps?.style ?? {}, style))}>
+			<masonview
+				className={cx(tableClasses, plan.table.classes)}
+				style={mergeStyle(
+					{ display: 'flex', flexDirection: 'column' },
+					mergeStyle(plan.table.htmlProps?.style ?? {}, style),
+				)}
+			>
 				{plan.columns.length > 0 && (
 					<masonview className="vx-table-head" style={{ display: 'flex', flexDirection: 'row' }}>
 						{plan.headerCells.map((cell) => {
@@ -97,11 +149,22 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 							return (
 								<masonview
 									key={cell.column.key}
-									className={cx('vx-table-cell vx-table-th', `vx-table-cell--${density}`, cell.render.classes)}
-									style={cellStyle(cell.column, { display: 'flex', flexDirection: 'column' })}>
+									className={cx(
+										'vx-table-cell vx-table-th',
+										`vx-table-cell--${density}`,
+										cell.render.classes,
+									)}
+									style={cellStyle(cell.column, { display: 'flex', flexDirection: 'column' })}
+								>
 									<TableSlot value={before} />
-									<masonview style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-										{typeof content === 'string' ? <label text={content} /> : <TableSlot value={content} />}
+									<masonview
+										style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}
+									>
+										{typeof content === 'string' ? (
+											<label text={content} />
+										) : (
+											<TableSlot value={content} />
+										)}
 										<TableSlot value={after} />
 									</masonview>
 									<TableSlot value={below} />
@@ -111,25 +174,44 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 					</masonview>
 				)}
 				{plan.rows.map((row) => {
-					const onRowTap = typeof row.render.htmlProps?.onClick === 'function' ? row.render.htmlProps.onClick : undefined
+					const onRowTap =
+						typeof row.render.htmlProps?.onClick === 'function'
+							? row.render.htmlProps.onClick
+							: undefined
+
 					const rowNode = (
 						<masonview
 							key={String(row.key)}
 							className={cx('vx-table-row', row.render.classes)}
 							onTap={onRowTap}
-							style={mergeStyle({ display: 'flex', flexDirection: 'row' }, row.render.htmlProps?.style ?? {})}>
-							{row.render.children != null
-								? <TableSlot value={row.render.children} />
-								: row.cells.map((cell) => (
+							style={mergeStyle(
+								{ display: 'flex', flexDirection: 'row' },
+								row.render.htmlProps?.style ?? {},
+							)}
+						>
+							{row.render.children != null ? (
+								<TableSlot value={row.render.children} />
+							) : (
+								row.cells.map((cell) => (
 									<masonview
 										key={cell.column.key}
-										className={cx('vx-table-cell', `vx-table-cell--${density}`, cell.render.classes)}
-										style={mergeStyle(cellStyle(cell.column, { display: 'flex' }), cell.render.htmlProps?.style ?? {})}>
+										className={cx(
+											'vx-table-cell',
+											`vx-table-cell--${density}`,
+											cell.render.classes,
+										)}
+										style={mergeStyle(
+											cellStyle(cell.column, { display: 'flex' }),
+											cell.render.htmlProps?.style ?? {},
+										)}
+									>
 										{cellContent(cell.content)}
 									</masonview>
-								))}
+								))
+							)}
 						</masonview>
 					)
+
 					return row.render.afterRow != null ? (
 						<>
 							{rowNode}
@@ -155,34 +237,55 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 }
 
 export function TableHeader(props: TableHeaderProps) @{
-	<masonview className={cx('vx-table-header', props.className)} style={props.style}>{props.children}</masonview>
+	<masonview className={cx('vx-table-header', props.className)} style={props.style}>
+		{props.children}
+	</masonview>
 }
 
 export function TableBody(props: TableBodyProps) @{
-	<masonview className={cx('vx-table-body', props.className)} style={props.style}>{props.children}</masonview>
+	<masonview className={cx('vx-table-body', props.className)} style={props.style}>
+		{props.children}
+	</masonview>
 }
 
 export function TableFooter(props: TableFooterProps) @{
-	<masonview className={cx('vx-table-footer', props.className)} style={props.style}>{props.children}</masonview>
+	<masonview className={cx('vx-table-footer', props.className)} style={props.style}>
+		{props.children}
+	</masonview>
 }
 
 export function TableRow(props: TableRowProps) @{
 	const { children, className, style, ...rest } = props
-	<masonview {...rest} className={cx('vx-table-row', className)} style={mergeStyle({ display: 'flex', flexDirection: 'row' }, style ?? {})}>
+
+	<masonview
+		{...rest}
+		className={cx('vx-table-row', className)}
+		style={mergeStyle({ display: 'flex', flexDirection: 'row' }, style ?? {})}
+	>
 		{children}
 	</masonview>
 }
 
 export function TableCell(props: TableCellProps) @{
 	const { children, className, style, colSpan, ...rest } = props
-	<masonview {...rest} className={cx('vx-table-cell', className)} style={mergeStyle({ display: 'flex', flexGrow: colSpan ?? 1 }, style ?? {})}>
+
+	<masonview
+		{...rest}
+		className={cx('vx-table-cell', className)}
+		style={mergeStyle({ display: 'flex', flexGrow: colSpan ?? 1 }, style ?? {})}
+	>
 		{children}
 	</masonview>
 }
 
 export function TableHeaderCell(props: TableHeaderCellProps) @{
 	const { children, className, style, ...rest } = props
-	<masonview {...rest} className={cx('vx-table-cell vx-table-th', className)} style={mergeStyle({ display: 'flex' }, style ?? {})}>
+
+	<masonview
+		{...rest}
+		className={cx('vx-table-cell vx-table-th', className)}
+		style={mergeStyle({ display: 'flex' }, style ?? {})}
+	>
 		{children}
 	</masonview>
 }

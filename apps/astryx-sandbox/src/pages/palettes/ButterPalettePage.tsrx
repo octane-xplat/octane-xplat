@@ -1,11 +1,21 @@
 // Port of upstream (fullscreen)/pages/butter-palette/page.tsx (Astryx 0.6.4, MIT).
 import { butterTheme } from '../../themes/butter'
 import { butterPalettes } from '../../themes/butterPalettes'
-import { ThemePalettePreview, type TonalColor, type CoreSwatch } from '../../themePreview/ThemePalettePreview'
+import {
+	ThemePalettePreview,
+	type TonalColor,
+	type CoreSwatch,
+} from '../../themePreview/ThemePalettePreview'
+
 import { DisplayTextSection } from './shared'
 
 const TONAL_COLORS: TonalColor[] = [
-	{ name: 'Accent', sourceHex: '#225BFF', tones: butterPalettes.accent, dark: { sourceHex: '#FDEE8C', tones: butterPalettes.yellow } },
+	{
+		name: 'Accent',
+		sourceHex: '#225BFF',
+		tones: butterPalettes.accent,
+		dark: { sourceHex: '#FDEE8C', tones: butterPalettes.yellow },
+	},
 	{ name: 'Gray', sourceHex: '#868B99', tones: butterPalettes.neutral },
 	{ name: 'Red', sourceHex: '#FF7553', tones: butterPalettes.red },
 	{ name: 'Orange', sourceHex: '#FFA347', tones: butterPalettes.orange },

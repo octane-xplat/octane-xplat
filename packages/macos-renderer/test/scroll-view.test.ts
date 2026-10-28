@@ -185,9 +185,18 @@ test('existing onScroll event shape and latest callback survive replacement and 
 		elementBehaviors: new Map(),
 		behaviorOf: () => undefined,
 		isManualLayoutParent: (t: string) =>
-			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
+			[
+				'gridlayout',
+				'liquidglass',
+				'absolutelayout',
+				'contentview',
+				'actionbar',
+				'docklayout',
+				'wraplayout',
+				'rootlayout',
+			].includes(t),
 		registerElementType: () => {},
-		
+
 		scrollHandlers: new WeakMap(),
 		NSNotificationCenter: globalThis.NSNotificationCenter,
 		NSViewBoundsDidChangeNotification: 'bounds',

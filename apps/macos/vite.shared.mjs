@@ -42,7 +42,11 @@ export function createMacOSConfig({ packaged = false, hmr = false, rules, bamboo
 			plugins: bamboo
 				? [
 						...(config.plugins ?? []),
-						xplatBamboo({ cwd: bambooRoot, configPath: `${bambooRoot}/bamboo.config.ts`, native: true }),
+						xplatBamboo({
+							cwd: bambooRoot,
+							configPath: `${bambooRoot}/bamboo.config.ts`,
+							native: true,
+						}),
 					]
 				: config.plugins,
 		}

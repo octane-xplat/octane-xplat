@@ -19,7 +19,9 @@ function imageDataSync(src: string): any {
 	}
 
 	if (src.startsWith('~/')) {
-		return host.NSData.dataWithContentsOfFile(host.NSBundle.mainBundle.resourcePath + '/' + src.slice(2))
+		return host.NSData.dataWithContentsOfFile(
+			host.NSBundle.mainBundle.resourcePath + '/' + src.slice(2),
+		)
 	}
 
 	if (src.startsWith('file://')) {
@@ -43,9 +45,12 @@ async function imageData(src: string): Promise<any> {
 	if (/^https?:\/\//i.test(src)) {
 		return await new Promise((resolve) => {
 			host.NSURLSession.sharedSession
-				.dataTaskWithURLCompletionHandler(host.NSURL.URLWithString(src), (data: any, _response: any, error: any) => {
-					resolve(error ? null : data)
-				})
+				.dataTaskWithURLCompletionHandler(
+					host.NSURL.URLWithString(src),
+					(data: any, _response: any, error: any) => {
+						resolve(error ? null : data)
+					},
+				)
 				.resume()
 		})
 	}

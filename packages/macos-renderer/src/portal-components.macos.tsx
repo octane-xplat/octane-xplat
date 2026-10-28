@@ -41,11 +41,7 @@ function CellPortal(props: {
 	// its content identity when a same-count update changes the bound item.
 	return createPortal(
 		(
-			<CellContent
-				render={props.render}
-				item={cell.item}
-				index={cell.index}
-			/>
+			<CellContent render={props.render} item={cell.item} index={cell.index} />
 		) as UniversalRenderable,
 		cell.target,
 	)
@@ -79,9 +75,7 @@ export function __PortalList(props: any) {
 		<>
 			<listview {...props} __onCellTarget={props.renderItem ? onTarget : undefined} />
 			{props.renderItem
-				? cells.map((cell) => (
-						<CellPortal key={cell.id} cell={cell} render={props.renderItem} />
-					))
+				? cells.map((cell) => <CellPortal key={cell.id} cell={cell} render={props.renderItem} />)
 				: null}
 		</>
 	)

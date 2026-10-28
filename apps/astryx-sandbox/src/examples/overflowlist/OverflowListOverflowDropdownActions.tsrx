@@ -4,13 +4,27 @@ import { Button, Card, DropdownMenu, OverflowList } from '@octane-xplat/ui'
 const actions = ['Save', 'Edit', 'Duplicate', 'Share', 'Archive', 'Delete']
 
 export function OverflowListOverflowDropdownActions() @{
-	<Card padding={2} style={{ resize: 'horizontal', overflow: 'hidden', minWidth: 100, width: 350, maxWidth: '100%' }}>
+	<Card
+		padding={2}
+		style={{
+			resize: 'horizontal',
+			overflow: 'hidden',
+			minWidth: 100,
+			width: 350,
+			maxWidth: '100%',
+		}}
+	>
 		<OverflowList
 			gap={2}
 			overflowRenderer={(overflowItems: { index: number }[]) => (
 				<DropdownMenu
 					button={{ label: `+${overflowItems.length}`, variant: 'ghost', size: 'sm' }}
-					items={overflowItems.map(({ index }) => ({ type: 'action' as const, key: `action-${index}`, label: actions[index], onSelect: () => {} }))}
+					items={overflowItems.map(({ index }) => ({
+						type: 'action' as const,
+						key: `action-${index}`,
+						label: actions[index],
+						onSelect: () => {},
+					}))}
 				/>
 			)}
 		>

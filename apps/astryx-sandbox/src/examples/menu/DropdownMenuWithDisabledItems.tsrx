@@ -17,8 +17,14 @@ export function DropdownMenuWithDisabledItems() @{
 					{ label: 'Delete team', isDisabled: true },
 				])}
 			/>
-			{lastAction && <Text type="supporting" color="secondary">Last action: {lastAction}</Text>}
-			<Text type="supporting" color="secondary">Destructive actions are disabled for non-admin users</Text>
+			{lastAction && (
+				<Text type="supporting" color="secondary">
+					Last action: {lastAction}
+				</Text>
+			)}
+			<Text type="supporting" color="secondary">
+				Destructive actions are disabled for non-admin users
+			</Text>
 		</VStack>
 	)
 }

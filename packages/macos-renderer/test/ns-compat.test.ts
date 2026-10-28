@@ -73,9 +73,11 @@ test('affectsLayout properties request a layout reconcile', () => {
 			return { kind: 'native' }
 		}
 	}
-	new api.Property<MyView, number>({ name: 'count', defaultValue: 0, affectsLayout: true }).register(
-		MyView,
-	)
+	new api.Property<MyView, number>({
+		name: 'count',
+		defaultValue: 0,
+		affectsLayout: true,
+	}).register(MyView)
 	api.registerPluginElement('myview', { createView: () => new MyView() })
 
 	const behavior = registered.get('myview')
@@ -138,10 +140,9 @@ test('registerPluginElement bridges props, style, className and dispose', () => 
 test('registrations before installCompat replay on install', () => {
 	// separate sandbox: register BEFORE install
 	const registered = new Map<string, any>()
-	const api = runSlice(
-		source + '\n;({ ViewBase, registerPluginElement, installCompat })',
-		{ console },
-	)
+	const api = runSlice(source + '\n;({ ViewBase, registerPluginElement, installCompat })', {
+		console,
+	})
 	api.registerPluginElement('earlyview', {
 		createView: () => {
 			const v = new api.ViewBase()

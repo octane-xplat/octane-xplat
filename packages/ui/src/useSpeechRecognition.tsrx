@@ -1,9 +1,9 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useCallback } from 'octane';
-import type { UseSpeechRecognitionOptions, UseSpeechRecognitionReturn } from './props';
+import { useCallback } from 'octane'
+import type { UseSpeechRecognitionOptions, UseSpeechRecognitionReturn } from './props'
 
-const EMPTY: number[] = [0, 0, 0, 0, 0];
-const noop = () => {};
+const EMPTY: number[] = [0, 0, 0, 0, 0]
+const noop = () => {}
 
 /** Speech recognition is a browser API — native has no shared engine in
  *  `ui` (a plugin-backed leaf package could host one). The contract is
@@ -12,10 +12,10 @@ const noop = () => {};
 export function useSpeechRecognition(
 	_options: UseSpeechRecognitionOptions = {},
 ): UseSpeechRecognitionReturn {
-	const start = useCallback(noop, []);
-	const stop = useCallback(noop, []);
-	const abort = useCallback(noop, []);
-	const toggle = useCallback(noop, []);
+	const start = useCallback(noop, [])
+	const stop = useCallback(noop, [])
+	const abort = useCallback(noop, [])
+	const toggle = useCallback(noop, [])
 
 	return {
 		isSupported: false,
@@ -29,5 +29,5 @@ export function useSpeechRecognition(
 		stop,
 		abort,
 		toggle,
-	};
+	}
 }

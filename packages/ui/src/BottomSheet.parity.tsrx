@@ -17,5 +17,11 @@ function SheetLayoutFixture(props: { marker: string }) @{
 }
 
 export const PARITY: ParityFixture[] = [
-	{ name: 'sheet-fixed-frame', component: 'BottomSheet', renderer: SheetLayoutFixture, props: { marker: 'parity-portal--sheet-fixed-frame' }, height: 112 },
+	{
+		name: 'sheet-fixed-frame',
+		component: 'BottomSheet',
+		renderer: SheetLayoutFixture,
+		props: { marker: 'parity-portal--sheet-fixed-frame' },
+		height: 112,
+	},
 ]

@@ -2,7 +2,6 @@ import type { ParityCheck, CheckRow } from './parity/check-helpers.ts'
 import { near, dims } from './parity/check-helpers.ts'
 
 export const CHECKS: ParityCheck[] = [
-
 	{
 		fixture: 'checkbox-off',
 		targets: ['web', 'ios', 'android', 'macos'],
@@ -50,5 +49,5 @@ export const CHECKS: ParityCheck[] = [
 			)
 			return rows
 		},
-	}
+	},
 ]

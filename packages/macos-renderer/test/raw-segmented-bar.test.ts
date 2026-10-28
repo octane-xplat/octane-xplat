@@ -55,12 +55,21 @@ function fixture() {
 				.join('\n') +
 			'\n({makeSegmentedBar,validateNodeProps,applyProps,applyCommand})',
 		{
-		elementBehaviors: new Map(),
-		behaviorOf: () => undefined,
-		isManualLayoutParent: (t: string) =>
-			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
-		registerElementType: () => {},
-		
+			elementBehaviors: new Map(),
+			behaviorOf: () => undefined,
+			isManualLayoutParent: (t: string) =>
+				[
+					'gridlayout',
+					'liquidglass',
+					'absolutelayout',
+					'contentview',
+					'actionbar',
+					'docklayout',
+					'wraplayout',
+					'rootlayout',
+				].includes(t),
+			registerElementType: () => {},
+
 			NSSegmentedControl: {
 				segmentedControlWithLabelsTrackingModeTargetAction: (
 					_labels: any,
@@ -235,12 +244,21 @@ test('SegmentedBar production ownership moves its native host between parents an
 			.map(fn)
 			.join('\n') + '\n({insert,destroy})',
 		{
-		elementBehaviors: new Map(),
-		behaviorOf: () => undefined,
-		isManualLayoutParent: (t: string) =>
-			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
-		registerElementType: () => {},
-		
+			elementBehaviors: new Map(),
+			behaviorOf: () => undefined,
+			isManualLayoutParent: (t: string) =>
+				[
+					'gridlayout',
+					'liquidglass',
+					'absolutelayout',
+					'contentview',
+					'actionbar',
+					'docklayout',
+					'wraplayout',
+					'rootlayout',
+				].includes(t),
+			registerElementType: () => {},
+
 			VIEW_PARENT_TYPES: new Set(['contentview']),
 			layoutView: (node: any) => node.view,
 			arrangedView: (node: any) => node.view,
@@ -305,25 +323,31 @@ test('SegmentedBar production ownership moves its native host between parents an
 
 test('SegmentedBar selected background style updates and restores the pinned blue default', () => {
 	const noop = () => {}
-	const api = runSlice(
-		['applyStyle', 'resetStyle'].map(fn).join('\n') + '\n({applyStyle})',
-		{
+	const api = runSlice(['applyStyle', 'resetStyle'].map(fn).join('\n') + '\n({applyStyle})', {
 		elementBehaviors: new Map(),
 		behaviorOf: () => undefined,
 		isManualLayoutParent: (t: string) =>
-			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
+			[
+				'gridlayout',
+				'liquidglass',
+				'absolutelayout',
+				'contentview',
+				'actionbar',
+				'docklayout',
+				'wraplayout',
+				'rootlayout',
+			].includes(t),
 		registerElementType: () => {},
-		
-			nativeColor: (value: any) => value,
-			MARGIN_SIDES: {},
-			EDGE_INSET_PROPS: new Map(),
-			syncStackLayout: noop,
-			syncEdgeInsets: noop,
-			syncText: noop,
-			syncScheme: noop,
-			queueLayoutReconcile: noop,
-		},
-	)
+
+		nativeColor: (value: any) => value,
+		MARGIN_SIDES: {},
+		EDGE_INSET_PROPS: new Map(),
+		syncStackLayout: noop,
+		syncEdgeInsets: noop,
+		syncText: noop,
+		syncScheme: noop,
+		queueLayoutReconcile: noop,
+	})
 
 	const node: any = { type: 'segmentedbar', props: {}, view: {}, container: {} }
 	api.applyStyle(node, { selectedBackgroundColor: '#ff0000' })

@@ -12,8 +12,18 @@ export function TopNavMenuBasic() @{
 				<TopNavMenu
 					label="Tools"
 					items={[
-						{ title: 'Analytics', description: 'View traffic and engagement metrics', icon: <Icon name="sandbox-chart" />, href: '#analytics' },
-						{ title: 'Settings', description: 'Configure your workspace', icon: <Icon name="sandbox-cog" />, href: '#settings' },
+						{
+							title: 'Analytics',
+							description: 'View traffic and engagement metrics',
+							icon: <Icon name="sandbox-chart" />,
+							href: '#analytics',
+						},
+						{
+							title: 'Settings',
+							description: 'Configure your workspace',
+							icon: <Icon name="sandbox-cog" />,
+							href: '#settings',
+						},
 					]}
 				/>
 			</>

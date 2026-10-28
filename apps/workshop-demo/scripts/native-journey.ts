@@ -149,6 +149,7 @@ export function runNativeJourney(options) {
 			const catalog = JSON.parse(
 				normalize(await next('WORKSHOP_CATALOG ')).slice('WORKSHOP_CATALOG '.length),
 			)
+
 			const applicable = catalog
 				.filter((e) => e.applicable)
 				.map((e) => e.id)
@@ -198,7 +199,11 @@ export function runNativeJourney(options) {
 			)
 
 			s = await state('unset label')
-			check('Unset removes optional prop', s.props && !('label' in s.props), JSON.stringify(s.props))
+			check(
+				'Unset removes optional prop',
+				s.props && !('label' in s.props),
+				JSON.stringify(s.props),
+			)
 
 			s = await state('reset')
 			check(
@@ -246,7 +251,8 @@ export function runNativeJourney(options) {
 					!seen
 						.slice(lateMarker)
 						.some(
-							(x) => x.storyId === 'counter/async-fixture' && x.phase === 'ready' && x.d > readyDump,
+							(x) =>
+								x.storyId === 'counter/async-fixture' && x.phase === 'ready' && x.d > readyDump,
 						),
 				`story=${s.storyId} phase=${s.phase}`,
 			)

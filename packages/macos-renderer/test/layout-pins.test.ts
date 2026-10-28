@@ -11,10 +11,7 @@ import { sourceWithoutImports } from './mock-globals.ts'
 const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
 
 const layout =
-	source.slice(
-		source.indexOf('function layoutView('),
-		source.indexOf('function setMarginStyle'),
-	) +
+	source.slice(source.indexOf('function layoutView('), source.indexOf('function setMarginStyle')) +
 	source.slice(
 		source.indexOf('function pinLayoutChild'),
 		source.indexOf('// Width/height percentages use the parent'),

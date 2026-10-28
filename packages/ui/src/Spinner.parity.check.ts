@@ -2,7 +2,6 @@ import type { ParityCheck } from './parity/check-helpers.ts'
 import { dims } from './parity/check-helpers.ts'
 
 export const CHECKS: ParityCheck[] = [
-
 	{
 		fixture: 'activity-indicator-busy',
 		targets: ['web', 'ios', 'android', 'macos'],
@@ -14,5 +13,5 @@ export const CHECKS: ParityCheck[] = [
 			'spinner.style.borderTopColor',
 		],
 		check: (m) => [dims(m('spinner'), 24, 24)],
-	}
+	},
 ]

@@ -18,23 +18,11 @@ import {
 const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
 
 const slices = [
-	source.slice(
-		source.indexOf('const MARGIN_SIDES'),
-		source.indexOf('function wireViewAction'),
-	),
-	source.slice(
-		source.indexOf('function layoutLength'),
-		source.indexOf('function pinLayoutChild'),
-	),
+	source.slice(source.indexOf('const MARGIN_SIDES'), source.indexOf('function wireViewAction')),
+	source.slice(source.indexOf('function layoutLength'), source.indexOf('function pinLayoutChild')),
 	source.slice(source.indexOf('const EDGE_INSET_PROPS'), source.indexOf('function textContent')),
-	source.slice(
-		source.indexOf('function nodeClasses'),
-		source.indexOf('function colorValue'),
-	),
-	source.slice(
-		source.indexOf('function setLabelText'),
-		source.indexOf('function syncText'),
-	),
+	source.slice(source.indexOf('function nodeClasses'), source.indexOf('function colorValue')),
+	source.slice(source.indexOf('function setLabelText'), source.indexOf('function syncText')),
 ]
 
 function anchor() {
@@ -71,6 +59,7 @@ function fakeCALayer() {
 				if (i >= 0) {
 					this.superlayer.sublayers.splice(i, 1)
 				}
+
 				this.superlayer = null
 			}
 		},
@@ -164,26 +153,33 @@ const masonProp = (_node: any, name: string, value: any) => {
 }
 
 const sandbox = {
-		elementBehaviors: new Map(
-			MASON_TYPES.map((t) => [
-				t,
-				// Mirrors the real mason behavior: consume every prop (layout
-				// props reconcile through styleDict, not per-prop dispatch),
-				// take container plumbing styles, advertise the style surface.
-				{
-					layout: () => {},
-					containerStyles: true,
-					applyProp: masonProp,
-					styleKeys: new Set(['flexDirection', 'flexWrap', 'alignSelf', 'gap', 'rowGap', 'columnGap', 'flexGrow']),
-				},
-			]),
-		),
-		behaviorOf: (t: string) => sandbox.elementBehaviors.get(t),
-		isManualLayoutParent: (t: string) =>
-			['contentview','actionbar','rootlayout'].includes(t) ||
-			MASON_TYPES.includes(t),
-		registerElementType: () => {},
-		
+	elementBehaviors: new Map(
+		MASON_TYPES.map((t) => [
+			t,
+			// Mirrors the real mason behavior: consume every prop (layout
+			// props reconcile through styleDict, not per-prop dispatch),
+			// take container plumbing styles, advertise the style surface.
+			{
+				layout: () => {},
+				containerStyles: true,
+				applyProp: masonProp,
+				styleKeys: new Set([
+					'flexDirection',
+					'flexWrap',
+					'alignSelf',
+					'gap',
+					'rowGap',
+					'columnGap',
+					'flexGrow',
+				]),
+			},
+		]),
+	),
+	behaviorOf: (t: string) => sandbox.elementBehaviors.get(t),
+	isManualLayoutParent: (t: string) =>
+		['contentview', 'actionbar', 'rootlayout'].includes(t) || MASON_TYPES.includes(t),
+	registerElementType: () => {},
+
 	console,
 	inputTransparentViews,
 	NSTextAlignment: { Left: 0, Center: 1, Right: 2 },
@@ -211,8 +207,15 @@ const sandbox = {
 	CGPathCreateMutable: () => ({ ops: [] as any[] }),
 	CGPathMoveToPoint: (p: any, _t: any, x: number, y: number) => p.ops.push(['M', x, y]),
 	CGPathAddLineToPoint: (p: any, _t: any, x: number, y: number) => p.ops.push(['L', x, y]),
-	CGPathAddArcToPoint: (p: any, _t: any, x1: number, y1: number, x2: number, y2: number, r: number) =>
-		p.ops.push(['A', x1, y1, x2, y2, r]),
+	CGPathAddArcToPoint: (
+		p: any,
+		_t: any,
+		x1: number,
+		y1: number,
+		x2: number,
+		y2: number,
+		r: number,
+	) => p.ops.push(['A', x1, y1, x2, y2, r]),
 	CGPathCloseSubpath: (p: any) => p.ops.push(['Z']),
 	CATransform3DIdentity: { identity: true },
 	CATransform3DTranslate: (t: any, x: number, y: number, z: number) => {
@@ -233,8 +236,7 @@ const sandbox = {
 		weight: String(weight ?? 400),
 		familyName: family ?? null,
 	}),
-	setTextFieldPlaceholder: (field, props, override) =>
-		placeholderCalls.push({ field, override }),
+	setTextFieldPlaceholder: (field, props, override) => placeholderCalls.push({ field, override }),
 	placeholderCalls,
 	fitTextView: () => {},
 	NSNotificationCenter: {
@@ -245,7 +247,9 @@ const sandbox = {
 			},
 			removeObserver: (o) => {
 				const i = frameObservers.indexOf(o)
-				if (i >= 0) {frameObservers.splice(i, 1)}
+				if (i >= 0) {
+					frameObservers.splice(i, 1)
+				}
 			},
 		},
 	},
@@ -278,12 +282,21 @@ const sandbox = {
 	queueMicrotask,
 }
 
-const { applyStyle, setNodeInlineStyle, applyClassName, applyProps, nodeClasses, flushStyleDirty, markStyleDirty } = runSlice(
+const {
+	applyStyle,
+	setNodeInlineStyle,
+	applyClassName,
+	applyProps,
+	nodeClasses,
+	flushStyleDirty,
+	markStyleDirty,
+} = runSlice(
 	slices.join('\n') +
 		source.slice(source.indexOf('function applyProps'), source.indexOf('function detach')) +
 		'\n({ applyStyle, setNodeInlineStyle, applyClassName, applyProps, nodeClasses, flushStyleDirty, markStyleDirty })',
 	sandbox,
 )
+
 hooks.applyStyle = setNodeInlineStyle
 hooks.applyClassName = applyClassName
 
@@ -381,10 +394,7 @@ test('removed margin zeroes its side and re-queues the layout parent', () => {
 	reconciles.length = 0
 	setStyle(item, {})
 	assert.equal(item.marginInsets.top, 0)
-	assert.ok(
-		reconciles.includes(parent),
-		'margin removal re-queues the mason pass',
-	)
+	assert.ok(reconciles.includes(parent), 'margin removal re-queues the mason pass')
 })
 
 test('removed classes restore spacing, orientation, background, and insets', () => {
@@ -480,6 +490,7 @@ registerStylesheet(
 	'sr-layout',
 	'.flex-col { flex-direction: column } .gap-2 { row-gap: 8px; column-gap: 8px } .gap-3 { row-gap: 12px; column-gap: 12px } .items-center { align-items: center } .justify-center { justify-content: center }',
 )
+
 for (const type of ['masonview', 'scrollview']) {
 	test(`${type} resolves layout style > class > props independent of property order`, () => {
 		for (const reversed of [false, true]) {
@@ -629,7 +640,9 @@ test('percent borderRadius resolves against min(width, height) and re-resolves o
 	assert.equal(frameObservers.length, 1, 'frame observer installed while % radius is in effect')
 
 	item.view.frame.size.width = 40
-	for (const cb of [...frameObservers]) {cb()}
+	for (const cb of [...frameObservers]) {
+		cb()
+	}
 	assert.equal(item.view.layer.cornerRadius, 20)
 
 	setStyle(item, {})
@@ -688,7 +701,11 @@ test('textDecoration underline/line-through reach the label attributed string; r
 	assert.equal(item.view.attributedStringValue.attrs.NSStrikethrough, 1)
 
 	setStyle(item, {})
-	assert.equal(item.view.stringValue !== undefined || item.view.attributedStringValue?.attrs?.NSUnderline === undefined, true)
+	assert.equal(
+		item.view.stringValue !== undefined ||
+			item.view.attributedStringValue?.attrs?.NSUnderline === undefined,
+		true,
+	)
 })
 
 test('effectiveStyle tolerates a missing node (empty actionbar intrinsicContentSize)', () => {

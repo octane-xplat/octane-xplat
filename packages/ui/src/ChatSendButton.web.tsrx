@@ -1,31 +1,31 @@
-import type { ChatSendButtonProps } from './props';
-import { Icon } from './Icon.web.tsrx';
-import { Pressable } from './Pressable.web.tsrx';
-import { useChatComposerContext } from './chat-context';
+import type { ChatSendButtonProps } from './props'
+import { Icon } from './Icon.web.tsrx'
+import { Pressable } from './Pressable.web.tsrx'
+import { useChatComposerContext } from './chat-context'
 
 /** Circular send/stop toggle for the chat composer. Reads
  *  ChatComposerContext by default — every value is prop-overridable for
  *  standalone use. Send = accent + arrow-up (disabled when empty); stop =
  *  neutral + stop glyph, calls onStop. */
 export function ChatSendButton(props: ChatSendButtonProps) @{
-	const ctx = useChatComposerContext();
-	const isStopShown = props.isStopShown ?? ctx?.isStopShown ?? false;
-	const isDisabled = props.isDisabled ?? !(ctx?.canSend ?? false);
-	const onCancel = props.onCancel ?? props.onStop ?? ctx?.onCancel ?? ctx?.onStop;
-	const size = props.size ?? 'md';
+	const ctx = useChatComposerContext()
+	const isStopShown = props.isStopShown ?? ctx?.isStopShown ?? false
+	const isDisabled = props.isDisabled ?? !(ctx?.canSend ?? false)
+	const onCancel = props.onCancel ?? props.onStop ?? ctx?.onCancel ?? ctx?.onStop
+	const size = props.size ?? 'md'
 
 	const activate = () => {
 		if (isStopShown) {
-			onCancel?.();
+			onCancel?.()
 		} else if (props.onSend) {
-			props.onSend();
+			props.onSend()
 		} else {
-			const sendAction = ctx?.onSend ?? ctx?.onSubmit;
-			sendAction?.(ctx?.value ?? '');
+			const sendAction = ctx?.onSend ?? ctx?.onSubmit
+			sendAction?.(ctx?.value ?? '')
 		}
 
-		props.onPress?.();
-	};
+		props.onPress?.()
+	}
 
 	<Pressable
 		id={props.id}

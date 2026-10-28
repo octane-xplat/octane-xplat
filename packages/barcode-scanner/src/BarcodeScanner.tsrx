@@ -44,6 +44,7 @@ export function BarcodeScanner(props: BarcodeScannerProps) @{
 		if (!v) {
 			return
 		}
+
 		v.detectionType = DetectionType.Barcode
 		v.on(MLKitView.detectionEvent, (e: any) => {
 			const data = e?.data ?? e?.data?.data ?? e
@@ -52,6 +53,7 @@ export function BarcodeScanner(props: BarcodeScannerProps) @{
 				if (!item) {
 					continue
 				}
+
 				const bounds = item.bounds
 				props.onCodeScanned?.({
 					type: fromNativeFormat(item.format),
@@ -67,6 +69,7 @@ export function BarcodeScanner(props: BarcodeScannerProps) @{
 				})
 			}
 		})
+
 		applyEscapeProps(v, props)
 	}, [])
 

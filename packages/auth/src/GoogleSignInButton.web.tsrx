@@ -1,5 +1,5 @@
-import { renderGoogleButton } from './google.web';
-import type { GoogleSignInButtonProps, SignInResult } from './types';
+import { renderGoogleButton } from './google.web'
+import type { GoogleSignInButtonProps, SignInResult } from './types'
 
 /** Google Sign-In button — web leaf. Renders the official GIS button via
  *  `renderButton` when a `clientId` is configured; without one it falls back
@@ -16,7 +16,7 @@ export function GoogleSignInButton(props: GoogleSignInButtonProps) @{
 					el,
 					{ theme: props.theme, variant: props.variant, onPress: () => props.onPress?.() },
 					(result: SignInResult) => props.onResult?.(result),
-				);
+				)
 			}
 		}}
 	/>

@@ -1,7 +1,7 @@
-import { useRef, useState } from 'octane';
-import { Button, Heading, HStack, Text, View } from '@octane-xplat/ui';
-import { LexicalEditor, supported } from '@octane-xplat/lexical';
-import type { LexicalEditorHandle } from '@octane-xplat/lexical';
+import { useRef, useState } from 'octane'
+import { Button, Heading, HStack, Text, View } from '@octane-xplat/ui'
+import { LexicalEditor, supported } from '@octane-xplat/lexical'
+import type { LexicalEditorHandle } from '@octane-xplat/lexical'
 
 const TOOLBAR: { label: string; format?: any; call?: string }[] = [
 	{ label: 'B', format: 'bold' },
@@ -18,41 +18,46 @@ const TOOLBAR: { label: string; format?: any; call?: string }[] = [
 	{ label: '↺', call: 'undo' },
 	{ label: '↻', call: 'redo' },
 	{ label: 'JSON', call: 'json' },
-];
+]
 
 const INITIAL_HTML =
 	'<h2>Unified facade</h2>' +
 	'<p>One <strong>lexical-shaped API</strong> — @octanejs/lexical on web, ' +
-	'Aztec on iOS/Android, live Lexical in AppKit WebKit.</p>';
+	'Aztec on iOS/Android, live Lexical in AppKit WebKit.</p>'
 
 /** Facade demo — the same <LexicalEditor> runs a LexicalComposer on web and
  *  Aztec + lexical serialized-state interchange on iOS/Android. */
 export function LexicalEditorDemo() @{
-	const editor = useRef<LexicalEditorHandle | null>(null);
-	const [status, setStatus] = useState(supported ? 'idle' : 'unsupported');
-	const [jsonState, setJsonState] = useState('loading');
-	const [active, setActive] = useState('');
-	const [jsonTypes, setJsonTypes] = useState('');
+	const editor = useRef<LexicalEditorHandle | null>(null)
+	const [status, setStatus] = useState(supported ? 'idle' : 'unsupported')
+	const [jsonState, setJsonState] = useState('loading')
+	const [active, setActive] = useState('')
+	const [jsonTypes, setJsonTypes] = useState('')
 
 	const press = (item: (typeof TOOLBAR)[number]) => {
-		const e = editor.current;
-		if (!e) return;
-		if (item.call === 'link') {
-			e.linkTo('https://example.com', 'example');
-		} else if (item.call === 'undo') {
-			e.undo();
-		} else if (item.call === 'redo') {
-			e.redo();
-		} else if (item.call === 'json') {
-			const doc = e.getJSON();
-			const types = ((doc?.root as any)?.children ?? []).map((n: any) => n.type).join(',');
-			setJsonTypes(types || 'null');
-			console.log('[probe] lexical facade getJSON: ' + (types || 'null'));
-		} else if (item.format) {
-			e.apply(item.format);
-			console.log('[probe] lexical facade apply ' + item.format + ' active=' + e.isActive(item.format));
+		const e = editor.current
+		if (!e) {
+			return
 		}
-	};
+
+		if (item.call === 'link') {
+			e.linkTo('https://example.com', 'example')
+		} else if (item.call === 'undo') {
+			e.undo()
+		} else if (item.call === 'redo') {
+			e.redo()
+		} else if (item.call === 'json') {
+			const doc = e.getJSON()
+			const types = ((doc?.root as any)?.children ?? []).map((n: any) => n.type).join(',')
+			setJsonTypes(types || 'null')
+			console.log('[probe] lexical facade getJSON: ' + (types || 'null'))
+		} else if (item.format) {
+			e.apply(item.format)
+			console.log(
+				'[probe] lexical facade apply ' + item.format + ' active=' + e.isActive(item.format),
+			)
+		}
+	}
 
 	<View className="gap-4">
 		<Heading level={2}>Lexical facade</Heading>
@@ -66,23 +71,19 @@ export function LexicalEditorDemo() @{
 			value={INITIAL_HTML}
 			placeholder="Write something…"
 			onReady={() => {
-				setStatus('ready');
-				console.log('[probe] lexical facade ready');
+				setStatus('ready')
+				console.log('[probe] lexical facade ready')
 			}}
 			onJSONReady={(ok) => {
-				setJsonState(ok ? 'json ok' : 'json unavailable');
-				console.log('[probe] lexical facade json bridge: ' + ok);
+				setJsonState(ok ? 'json ok' : 'json unavailable')
+				console.log('[probe] lexical facade json bridge: ' + ok)
 			}}
 			onSelectionChange={(e) => setActive(e.active.join(',') || '—')}
 			ref={editor}
 		/>
 		<HStack className="flex-wrap gap-2">
 			{TOOLBAR.map((item) => (
-				<Button
-					key={item.label}
-					className="btn btn-secondary"
-					clickAction={() => press(item)}
-				>
+				<Button key={item.label} className="btn btn-secondary" clickAction={() => press(item)}>
 					<Text>{item.label}</Text>
 				</Button>
 			))}

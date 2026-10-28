@@ -11,10 +11,15 @@ it('imports top-level inline HTML into the live Lexical editor', () => {
 	let handle: LexicalEditorHandle | null = null
 	const root = createRoot(host, { onUncaughtError: (error) => errors.push(error) })
 	try {
-		act(() => root.render(LexicalEditor, {
-			value: '<span>Hello</span>',
-			ref: (value: LexicalEditorHandle | null) => { handle = value },
-		}))
+		act(() =>
+			root.render(LexicalEditor, {
+				value: '<span>Hello</span>',
+				ref: (value: LexicalEditorHandle | null) => {
+					handle = value
+				},
+			}),
+		)
+
 		expect(errors).toEqual([])
 		expect(handle).not.toBeNull()
 		expect((handle as LexicalEditorHandle | null)?.getHTML()).toContain('Hello')
@@ -30,15 +35,21 @@ for (const mode of ['initial', 'controlled', 'imperative'] as const) {
 		document.body.append(host)
 		const root = createRoot(host)
 		let handle: LexicalEditorHandle | null = null
-		const ref = (value: LexicalEditorHandle | null) => { handle = value }
+		const ref = (value: LexicalEditorHandle | null) => {
+			handle = value
+		}
 		const html = '<span>Before</span><p>Middle</p><em>After</em>'
 		try {
-			act(() => root.render(LexicalEditor, { value: mode === 'initial' ? html : '<p>Original</p>', ref }))
+			act(() =>
+				root.render(LexicalEditor, { value: mode === 'initial' ? html : '<p>Original</p>', ref }),
+			)
+
 			if (mode === 'controlled') {
 				act(() => root.render(LexicalEditor, { value: html, ref }))
 			} else if (mode === 'imperative') {
 				act(() => handle!.setHTML(html))
 			}
+
 			const output = new DOMParser().parseFromString(handle!.getHTML(), 'text/html')
 			expect(output.body.textContent).toBe('BeforeMiddleAfter')
 			expect(output.querySelector('em')?.textContent).toBe('After')

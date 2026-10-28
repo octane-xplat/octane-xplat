@@ -5,20 +5,44 @@ vi.mock('./theme/theme-scheme', () => ({ useThemeScheme: () => 'light' }))
 import { DropdownMenu } from './DropdownMenu.web.tsrx'
 import { ContextMenu } from './ContextMenu.web.tsrx'
 import { Breadcrumb } from './Breadcrumb.web.tsrx'
-import { DropdownMenuItem, DropdownMenuCheckboxItem, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuSubMenu } from './MenuParts.web.tsrx'
+import {
+	DropdownMenuItem,
+	DropdownMenuCheckboxItem,
+	DropdownMenuRadioGroup,
+	DropdownMenuRadioItem,
+	DropdownMenuSeparator,
+	DropdownMenuSubMenu,
+} from './MenuParts.web.tsrx'
+
 import type { MenuOption, MoreMenuProps } from './props'
 
 const menuKinds: MenuOption[] = [
 	{ type: 'action', key: 'rename', label: 'Rename', onSelect() {} },
 	{ type: 'link', key: 'settings', label: 'Settings', href: '/settings' },
-	{ type: 'section', key: 'export', label: 'Export', items: [{ type: 'action', key: 'csv', label: 'CSV' }] },
+	{
+		type: 'section',
+		key: 'export',
+		label: 'Export',
+		items: [{ type: 'action', key: 'csv', label: 'CSV' }],
+	},
 	{ type: 'separator', key: 'break' },
 ]
+
 const actionOverflow: MoreMenuProps = { items: [{ type: 'action', key: 'share', label: 'Share' }] }
 // @ts-expect-error A link needs normal DropdownMenu navigation behavior.
-const invalidActionOverflow: MoreMenuProps = { items: [{ type: 'link', key: 'settings', href: '/settings' }] }
+const invalidActionOverflow: MoreMenuProps = {
+	items: [{ type: 'link', key: 'settings', href: '/settings' }],
+}
+
 // @ts-expect-error A section is a label and nested rows, never an action.
-const invalidSectionAction: MenuOption = { type: 'section', key: 'group', label: 'Group', items: [], onSelect() {} }
+const invalidSectionAction: MenuOption = {
+	type: 'section',
+	key: 'group',
+	label: 'Group',
+	items: [],
+	onSelect() {},
+}
+
 void [menuKinds, actionOverflow, invalidActionOverflow, invalidSectionAction]
 
 const roots: ReturnType<typeof createRoot>[] = []
@@ -37,28 +61,47 @@ function key(key: string, options: KeyboardEventInit = {}) {
 	return event
 }
 
-function click(id: string) { act(() => document.getElementById(id)!.click()) }
-afterEach(() => { act(() => roots.splice(0).forEach((r) => r.unmount())); document.body.replaceChildren() })
+function click(id: string) {
+	act(() => document.getElementById(id)!.click())
+}
+
+afterEach(() => {
+	act(() => roots.splice(0).forEach((r) => r.unmount()))
+	document.body.replaceChildren()
+})
+
 function Compound(props: any) @{
 	<DropdownMenu button={{ label: 'Actions' }} isOpen={props.open} onOpenChange={props.close}>
 		<DropdownMenuItem id="first" label="First" onSelect={props.pick} />
 		<DropdownMenuSeparator />
 		<DropdownMenuItem id="disabled" label="Disabled" isDisabled onSelect={props.pick} />
-		<DropdownMenuCheckboxItem id="check" label="Archived" value={props.checked} onValueChange={props.check} />
+		<DropdownMenuCheckboxItem
+			id="check"
+			label="Archived"
+			value={props.checked}
+			onValueChange={props.check}
+		/>
 		<DropdownMenuRadioGroup label="Sort" value={props.value} onValueChange={props.radio}>
 			<DropdownMenuRadioItem id="new" label="Newest" value="new" />
 			<DropdownMenuRadioItem id="old" label="Oldest" value="old" />
 		</DropdownMenuRadioGroup>
 		<DropdownMenuSubMenu id="sub" label="Move">
 			<DropdownMenuItem id="folder" label="Folder" onSelect={props.pick} />
-			<DropdownMenuSubMenu id="deep" label="More"><DropdownMenuItem id="leaf" label="Leaf" onSelect={props.pick} /></DropdownMenuSubMenu>
+			<DropdownMenuSubMenu id="deep" label="More">
+				<DropdownMenuItem id="leaf" label="Leaf" onSelect={props.pick} />
+			</DropdownMenuSubMenu>
 		</DropdownMenuSubMenu>
 	</DropdownMenu>
 }
 
 function ControlledSub(props: any) @{
 	<DropdownMenu button={{ label: 'Actions' }} isOpen>
-		<DropdownMenuSubMenu id="controlled-sub" label="More" isOpen={props.open} onOpenChange={props.change}>
+		<DropdownMenuSubMenu
+			id="controlled-sub"
+			label="More"
+			isOpen={props.open}
+			onOpenChange={props.change}
+		>
 			<DropdownMenuItem id="controlled-leaf" label="Leaf" />
 		</DropdownMenuSubMenu>
 	</DropdownMenu>
@@ -66,8 +109,20 @@ function ControlledSub(props: any) @{
 
 function Choices(props: any) @{
 	<DropdownMenu button={{ label: 'Choices' }} isOpen onOpenChange={props.close}>
-		<DropdownMenuCheckboxItem id="closing-check" label="Checked" value={false} hasCloseOnSelect onValueChange={props.check} />
-		<DropdownMenuRadioGroup label="Options" defaultValue="a" hasCloseOnSelect={false} isDisabled={props.disabled} onValueChange={props.radio}>
+		<DropdownMenuCheckboxItem
+			id="closing-check"
+			label="Checked"
+			value={false}
+			hasCloseOnSelect
+			onValueChange={props.check}
+		/>
+		<DropdownMenuRadioGroup
+			label="Options"
+			defaultValue="a"
+			hasCloseOnSelect={false}
+			isDisabled={props.disabled}
+			onValueChange={props.radio}
+		>
 			<DropdownMenuRadioItem id="choice-a" label="A" value="a" />
 			<DropdownMenuRadioItem id="choice-b" label="B" value="b" />
 		</DropdownMenuRadioGroup>
@@ -79,76 +134,127 @@ describe('menu family contracts', () => {
 		const pick = vi.fn()
 		mount(Compound, { open: true, pick })
 		expect(document.activeElement?.getAttribute('role')).toBe('menu')
-		key('ArrowDown'); expect(document.activeElement?.id).toBe('first')
-		key('ArrowDown'); expect(document.activeElement?.id).toBe('disabled')
-		key('Enter'); expect(pick).not.toHaveBeenCalled()
-		key('End'); expect(document.activeElement?.id).toBe('sub')
-		key('Home'); expect(document.activeElement?.id).toBe('first')
-		key('o'); expect(document.activeElement?.id).toBe('old')
+		key('ArrowDown')
+		expect(document.activeElement?.id).toBe('first')
+		key('ArrowDown')
+		expect(document.activeElement?.id).toBe('disabled')
+		key('Enter')
+		expect(pick).not.toHaveBeenCalled()
+		key('End')
+		expect(document.activeElement?.id).toBe('sub')
+		key('Home')
+		expect(document.activeElement?.id).toBe('first')
+		key('o')
+		expect(document.activeElement?.id).toBe('old')
 	})
 
 	it('opens from the trigger with keyboard focus and returns focus after accepted root dismissal', () => {
 		const pick = vi.fn()
-		mount(DropdownMenu, { id: 'trigger', button: { label: 'Actions' }, items: [{ type: 'action', key: 'one', label: 'One', onSelect: pick }, { type: 'action', key: 'two', label: 'Two' }] })
+		mount(DropdownMenu, {
+			id: 'trigger',
+			button: { label: 'Actions' },
+			items: [
+				{ type: 'action', key: 'one', label: 'One', onSelect: pick },
+				{ type: 'action', key: 'two', label: 'Two' },
+			],
+		})
+
 		act(() => document.getElementById('trigger')!.focus())
-		key('ArrowUp'); expect(document.activeElement?.id).toBe('two')
-		key('Escape'); expect(document.activeElement?.id).toBe('trigger')
-		key('Enter'); expect(document.activeElement?.id).toBe('one')
-		key('Enter'); expect(pick).toHaveBeenCalledOnce()
+		key('ArrowUp')
+		expect(document.activeElement?.id).toBe('two')
+		key('Escape')
+		expect(document.activeElement?.id).toBe('trigger')
+		key('Enter')
+		expect(document.activeElement?.id).toBe('one')
+		key('Enter')
+		expect(pick).toHaveBeenCalledOnce()
 		expect(document.activeElement?.id).toBe('trigger')
 	})
 
 	it('dismisses only the top submenu through its inherited outside backdrop', () => {
 		const close = vi.fn()
 		mount(Compound, { open: true, close })
-		key('End'); key('ArrowRight')
-		act(() => (Array.from(document.querySelectorAll('.vx-popover-backdrop')).at(-1) as HTMLElement).click())
+		key('End')
+		key('ArrowRight')
+		act(() =>
+			(Array.from(document.querySelectorAll('.vx-popover-backdrop')).at(-1) as HTMLElement).click(),
+		)
+
 		expect(document.querySelectorAll('[role="menu"]')).toHaveLength(1)
 		expect(close).not.toHaveBeenCalled()
 		expect(document.activeElement?.id).toBe('sub')
 	})
 
 	it('keeps controlled checked/radio values with the caller and uses their close defaults', () => {
-		const close = vi.fn(), check = vi.fn(), radio = vi.fn()
+		const close = vi.fn(),
+			check = vi.fn(),
+			radio = vi.fn()
+
 		const root = mount(Compound, { open: true, checked: false, value: 'new', close, check, radio })
-		click('check'); expect(check).toHaveBeenCalledWith(true); expect(close).not.toHaveBeenCalled()
+		click('check')
+		expect(check).toHaveBeenCalledWith(true)
+		expect(close).not.toHaveBeenCalled()
 		expect(document.getElementById('check')?.getAttribute('aria-checked')).toBe('false')
-		act(() => root.render(Compound, { open: true, checked: true, value: 'new', close, check, radio }))
+		act(() =>
+			root.render(Compound, { open: true, checked: true, value: 'new', close, check, radio }),
+		)
+
 		expect(document.getElementById('check')?.getAttribute('aria-checked')).toBe('true')
-		click('old'); expect(radio).toHaveBeenCalledWith('old'); expect(close).toHaveBeenCalledWith(false)
+		click('old')
+		expect(radio).toHaveBeenCalledWith('old')
+		expect(close).toHaveBeenCalledWith(false)
 		expect(document.getElementById('old')?.getAttribute('aria-checked')).toBe('false')
 	})
 
 	it('honors close overrides, uncontrolled radio ownership and group disabled state', () => {
-		const close = vi.fn(), check = vi.fn(), radio = vi.fn()
+		const close = vi.fn(),
+			check = vi.fn(),
+			radio = vi.fn()
+
 		const root = mount(Choices, { close, check, radio })
-		click('closing-check'); expect(check).toHaveBeenCalledWith(true); expect(close).toHaveBeenCalledWith(false)
+		click('closing-check')
+		expect(check).toHaveBeenCalledWith(true)
+		expect(close).toHaveBeenCalledWith(false)
 		close.mockClear()
-		click('choice-b'); expect(radio).toHaveBeenCalledWith('b'); expect(close).not.toHaveBeenCalled()
+		click('choice-b')
+		expect(radio).toHaveBeenCalledWith('b')
+		expect(close).not.toHaveBeenCalled()
 		expect(document.getElementById('choice-b')?.getAttribute('aria-checked')).toBe('true')
-		click('choice-b'); expect(radio).toHaveBeenCalledTimes(1)
+		click('choice-b')
+		expect(radio).toHaveBeenCalledTimes(1)
 		act(() => root.render(Choices, { close, check, radio, disabled: true }))
-		click('choice-a'); expect(radio).toHaveBeenCalledTimes(1)
+		click('choice-a')
+		expect(radio).toHaveBeenCalledTimes(1)
 		expect(document.getElementById('choice-a')?.getAttribute('aria-disabled')).toBe('true')
 	})
 
 	it('opens nested keyboard surfaces, returns to the immediate parent and inherits Escape ownership', () => {
-		const close = vi.fn(), pick = vi.fn()
+		const close = vi.fn(),
+			pick = vi.fn()
+
 		mount(Compound, { open: true, close, pick })
-		key('End'); key('ArrowRight')
+		key('End')
+		key('ArrowRight')
 		expect(document.activeElement?.id).toBe('folder')
-		key('End'); key('ArrowRight')
+		key('End')
+		key('ArrowRight')
 		expect(document.activeElement?.id).toBe('leaf')
-		key('ArrowLeft'); expect(document.activeElement?.id).toBe('deep')
-		key('Escape'); expect(close).not.toHaveBeenCalled()
+		key('ArrowLeft')
+		expect(document.activeElement?.id).toBe('deep')
+		key('Escape')
+		expect(close).not.toHaveBeenCalled()
 		expect(document.querySelectorAll('[role="menu"]')).toHaveLength(1)
-		key('End'); key('ArrowRight'); click('folder')
-		expect(pick).toHaveBeenCalledTimes(1); expect(close).toHaveBeenCalledWith(false)
+		key('End')
+		key('ArrowRight')
+		click('folder')
+		expect(pick).toHaveBeenCalledTimes(1)
+		expect(close).toHaveBeenCalledWith(false)
 	})
 
 	it('ignores composing and IME ArrowRight and retains controlled submenu focus until close acceptance', () => {
 		mount(Compound, { open: true })
-		key('End'); key('ArrowRight', { isComposing: true })
+		key('End')
+		key('ArrowRight', { isComposing: true })
 		expect(document.querySelectorAll('[role="menu"]')).toHaveLength(1)
 		key('ArrowRight', { keyCode: 229 })
 		expect(document.querySelectorAll('[role="menu"]')).toHaveLength(1)
@@ -161,37 +267,65 @@ describe('menu family contracts', () => {
 		expect(change).toHaveBeenCalledWith(false)
 		expect(document.activeElement?.id).toBe('controlled-leaf')
 		expect(document.querySelectorAll('[role="menu"]')).toHaveLength(2)
-		key('Escape'); expect(document.querySelectorAll('[role="menu"]')).toHaveLength(2)
+		key('Escape')
+		expect(document.querySelectorAll('[role="menu"]')).toHaveLength(2)
 		act(() => root.render(ControlledSub, { open: false, change }))
 		expect(document.activeElement?.id).toBe('controlled-sub')
 	})
 
 	it('preserves legacy items and ContextMenu children and supports a visible trigger', () => {
 		const pick = vi.fn()
-		mount(ContextMenu, { children: 'Target', trigger: 'Actions', items: [{ type: 'action', key: 'legacy', label: 'Legacy', onSelect: pick }] })
+		mount(ContextMenu, {
+			children: 'Target',
+			trigger: 'Actions',
+			items: [{ type: 'action', key: 'legacy', label: 'Legacy', onSelect: pick }],
+		})
+
 		act(() => (document.querySelector('[role="button"]') as HTMLElement).click())
-		click('legacy'); expect(pick).toHaveBeenCalledTimes(1)
+		click('legacy')
+		expect(pick).toHaveBeenCalledTimes(1)
 		expect(document.querySelector('[role="menu"]')).toBeNull()
 	})
 
 	it('reuses the menu for hidden breadcrumb ancestors', () => {
 		const select = vi.fn()
-		mount(Breadcrumb, { maxVisibleItems: 2, items: [{ label: 'Home', onSelect: select }, { label: 'Team', onSelect: select }, { label: 'Project', onSelect: select }, { label: 'Current' }] })
+		mount(Breadcrumb, {
+			maxVisibleItems: 2,
+			items: [
+				{ label: 'Home', onSelect: select },
+				{ label: 'Team', onSelect: select },
+				{ label: 'Project', onSelect: select },
+				{ label: 'Current' },
+			],
+		})
+
 		act(() => (document.querySelector('[aria-label="More ancestors"]') as HTMLElement).click())
 		expect(document.querySelector('[role="menu"]')?.textContent).toContain('Team')
-		click('ancestor-1'); expect(select).toHaveBeenCalledTimes(1)
+		click('ancestor-1')
+		expect(select).toHaveBeenCalledTimes(1)
 		expect(document.querySelector('[aria-current="page"]')?.textContent).toBe('Current')
 	})
 
 	it('names the menu surface by its trigger', () => {
-		mount(DropdownMenu, { id: 'named-trigger', button: { label: 'Actions' }, isOpen: true, items: [{ type: 'action', key: 'one', label: 'One' }] })
+		mount(DropdownMenu, {
+			id: 'named-trigger',
+			button: { label: 'Actions' },
+			isOpen: true,
+			items: [{ type: 'action', key: 'one', label: 'One' }],
+		})
+
 		const menu = document.querySelector('[role="menu"]') as HTMLElement
 		expect(menu.getAttribute('aria-labelledby')).toBe('named-trigger')
 		expect(menu.getAttribute('aria-label')).toBeNull()
 	})
 
 	it('names the menu surface by a generated trigger id when none is given', () => {
-		mount(DropdownMenu, { button: { label: 'Actions' }, isOpen: true, items: [{ type: 'action', key: 'one', label: 'One' }] })
+		mount(DropdownMenu, {
+			button: { label: 'Actions' },
+			isOpen: true,
+			items: [{ type: 'action', key: 'one', label: 'One' }],
+		})
+
 		const menu = document.querySelector('[role="menu"]') as HTMLElement
 		const labelledBy = menu.getAttribute('aria-labelledby')
 		expect(labelledBy).toBeTruthy()
@@ -208,6 +342,7 @@ describe('menu family contracts', () => {
 				<span>caught</span>
 			}
 		}
+
 		mount(Harness, {})
 		expect(String(caught.error)).toContain('requires a menu')
 	})
@@ -215,14 +350,22 @@ describe('menu family contracts', () => {
 	it('types data rows by kind and honors action close overrides', () => {
 		const close = vi.fn()
 		mount(DropdownMenu, {
-			button: { label: 'Kinds' }, isOpen: true, onOpenChange: close,
+			button: { label: 'Kinds' },
+			isOpen: true,
+			onOpenChange: close,
 			items: [
 				{ type: 'action', key: 'keep', label: 'Keep open', hasCloseOnSelect: false },
 				{ type: 'link', key: 'docs', label: 'Docs', href: '/docs', target: '_self' },
-				{ type: 'section', key: 'group', label: 'More', items: [{ type: 'action', key: 'nested', label: 'Nested' }] },
+				{
+					type: 'section',
+					key: 'group',
+					label: 'More',
+					items: [{ type: 'action', key: 'nested', label: 'Nested' }],
+				},
 				{ type: 'separator', key: 'split' },
 			],
 		})
+
 		expect(document.querySelector('a#docs')?.getAttribute('role')).toBe('menuitem')
 		expect(document.querySelector('a#docs')?.getAttribute('href')).toBe('/docs')
 		expect(document.getElementById('group')?.getAttribute('role')).toBe('group')

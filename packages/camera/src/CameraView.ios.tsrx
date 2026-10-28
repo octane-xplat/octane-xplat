@@ -4,7 +4,13 @@ import type { CameraViewProps } from './props'
 import { cameraHardwarePresent, ensureCameraPermission } from './camera-permission.mobile'
 import { startCameraPreview } from './camera-session.ios'
 import { attachSessionPreview } from './session'
-import { applyEscapeProps, layoutChildProps, nativeAccessibilityRole, nativeAccessibilityState } from './layout-child'
+import {
+	applyEscapeProps,
+	layoutChildProps,
+	nativeAccessibilityRole,
+	nativeAccessibilityState,
+} from './layout-child'
+
 import { observePreviewTap } from './preview-tap'
 
 /** Live iOS preview backed by AVFoundation. With `session`, the preview
@@ -14,7 +20,11 @@ export function CameraView(props: CameraViewProps) @{
 	const host = useRef<any>(null)
 	const active = props.active !== false
 	const facing = props.facing ?? 'back'
-	useImperativeHandle(props.ref, () => ({ native: host.current.ios ?? host.current.nativeViewProtected }), []);
+	useImperativeHandle(
+		props.ref,
+		() => ({ native: host.current.ios ?? host.current.nativeViewProtected }),
+		[],
+	)
 
 	const bindHost = useCallback((view: any) => {
 		host.current = view
@@ -22,7 +32,10 @@ export function CameraView(props: CameraViewProps) @{
 
 	useEffect(() => {
 		const view = host.current
-		if (!view || !active) return
+		if (!view || !active) {
+			return
+		}
+
 		let disposed = false
 		let stopPreview: (() => void) | undefined
 		const fail = (message: string) => props.onError?.({ message })
@@ -36,7 +49,9 @@ export function CameraView(props: CameraViewProps) @{
 			try {
 				const detach = attachSessionPreview(props.session, view, {
 					onReady: () => {
-						if (!disposed) props.onReady?.()
+						if (!disposed) {
+							props.onReady?.()
+						}
 					},
 				})
 
@@ -56,7 +71,10 @@ export function CameraView(props: CameraViewProps) @{
 		}
 
 		ensureCameraPermission().then((granted) => {
-			if (disposed) return
+			if (disposed) {
+				return
+			}
+
 			if (!granted) {
 				fail('camera permission denied')
 				return
@@ -77,11 +95,32 @@ export function CameraView(props: CameraViewProps) @{
 
 	useEffect(() => {
 		const view = host.current
-		if (!view) return
+		if (!view) {
+			return
+		}
+
 		applyEscapeProps(view.ios ?? view.nativeViewProtected, props)
 	}, [props.ref, props.ios])
 
 	useEffect(() => observePreviewTap(host.current, props.onTap), [props.onTap])
 
-	<masonview ref={bindHost} id={props.id} className={['vx-layers', 'vx-cameraview', props.className]} {...layoutChildProps(props, {display: "grid", gridTemplateRows: "1fr", gridTemplateColumns: "1fr", ...({ backgroundColor: '#000', ...props.style })})} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any}/>
+	<masonview
+		ref={bindHost}
+		id={props.id}
+		className={['vx-layers', 'vx-cameraview', props.className]}
+		{...layoutChildProps(props, {
+			display: 'grid',
+			gridTemplateRows: '1fr',
+			gridTemplateColumns: '1fr',
+			backgroundColor: '#000',
+			...props.style,
+		})}
+		accessible={props.accessible}
+		accessibilityLabel={props.accessibilityLabel}
+		accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any}
+		accessibilityHint={props.accessibilityHint}
+		accessibilityValue={props.accessibilityValue}
+		accessibilityState={nativeAccessibilityState(props.accessibilityState) as any}
+		accessibilityLiveRegion={props.accessibilityLiveRegion as any}
+	/>
 }

@@ -1,9 +1,24 @@
-import { useState, useEffect, useRef } from 'octane';
-import { View, HStack, Text, Pressable, NavLink, TextInput, TextArea, ScrollableArea, Image, BottomSheet, useAnimation, useColorScheme, setThemePreference } from '@octane-xplat/ui';
-import { openOverlay } from './platform/overlay';
-import { SELF_DRIVE } from './platform/selfdrive';
-import { storage } from '@octane-xplat/platform';
-import { bambooCardClass } from './bamboo-styles';
+import { useState, useEffect, useRef } from 'octane'
+import {
+	View,
+	HStack,
+	Text,
+	Pressable,
+	NavLink,
+	TextInput,
+	TextArea,
+	ScrollableArea,
+	Image,
+	BottomSheet,
+	useAnimation,
+	useColorScheme,
+	setThemePreference,
+} from '@octane-xplat/ui'
+
+import { openOverlay } from './platform/overlay'
+import { SELF_DRIVE } from './platform/selfdrive'
+import { storage } from '@octane-xplat/platform'
+import { bambooCardClass } from './bamboo-styles'
 
 const INITIAL = [
 	{ id: 'a', label: 'Alpha' },
@@ -11,86 +26,98 @@ const INITIAL = [
 	{ id: 'c', label: 'Gamma' },
 	{ id: 'd', label: 'Delta' },
 	{ id: 'e', label: 'Epsilon' },
-];
+]
 
 // Identity-stable — an inline arrow would change every Home render and force
 // every recycled cell root to re-render on each native itemLoading refire.
-const renderItem = (item: any) => <Text className="cell">{item.label}</Text>;
-const renderEmpty = () => <Text>No items</Text>;
-const ROWS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+const renderItem = (item: any) => <Text className="cell">{item.label}</Text>
+const renderEmpty = () => <Text>No items</Text>
+const ROWS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 // 1×1 red PNG — deterministic, no network. data: URIs decode via
 // ImageSource.fromBase64 on native; the web leaf just hands it to <img>.
-const PIXEL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+const PIXEL =
+	'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='
 
 /** Home tab — the original harness surface (counter, list, input, probes). */
 export function Home() @{
-	const [count, setCount] = useState(0);
+	const [count, setCount] = useState(0)
 	// dark = manual override ?? system scheme (useColorScheme seam —
 	// systemAppearanceChanged on native, prefers-color-scheme on web).
-	const scheme = useColorScheme();
+	const scheme = useColorScheme()
 	const [override, setOverride] = useState<string | null>(() => {
-		const saved = storage.getString('theme-preference');
-		return saved === 'light' || saved === 'dark' ? saved : null;
-	});
+		const saved = storage.getString('theme-preference')
+		return saved === 'light' || saved === 'dark' ? saved : null
+	})
 
-	const dark = (override ?? scheme) === 'dark';
+	const dark = (override ?? scheme) === 'dark'
 	// Push the app-level override into the theme store so imperative roots
 	// (overlay/popover/toast/sheet/modal) render with the same scheme.
 	useEffect(() => {
-		setThemePreference((override ?? 'system') as 'light' | 'dark' | 'system');
-	}, [override]);
+		setThemePreference((override ?? 'system') as 'light' | 'dark' | 'system')
+	}, [override])
 
-	const darkMark = useRef(0);
-	const [text, setText] = useState('');
-	const [bio, setBio] = useState('');
-	const [items, setItems] = useState(INITIAL);
-	const [modal, setModal] = useState(false);
-	const x = useAnimation(0);
-	console.log('[harness] Home render, items=' + items.length + ' scheme=' + scheme);
+	const darkMark = useRef(0)
+	const [text, setText] = useState('')
+	const [bio, setBio] = useState('')
+	const [items, setItems] = useState(INITIAL)
+	const [modal, setModal] = useState(false)
+	const x = useAnimation(0)
+	console.log('[harness] Home render, items=' + items.length + ' scheme=' + scheme)
 
 	// [self] timers drive the sink on a clock (shuffle → type → dark flip)
 	// so commit seams exercise without taps. Web gates them behind
 	// ?selfdrive — presenting the sink defaults to a quiet screen; native
 	// keeps them always-on (demosweep/theme probes rely on the sequence).
 	useEffect(() => {
-		if (!SELF_DRIVE) return;
-		console.log('[harness] Home mounted');
+		if (!SELF_DRIVE) {
+			return
+		}
+
+		console.log('[harness] Home mounted')
 		const t1 = setTimeout(() => {
-			console.log('[self] shuffle');
-			setItems([...items].reverse());
-		}, 1000);
+			console.log('[self] shuffle')
+			setItems([...items].reverse())
+		}, 1000)
 
 		const t2 = setTimeout(() => {
-			console.log('[self] setText');
-			setText('hello');
-		}, 2000);
+			console.log('[self] setText')
+			setText('hello')
+		}, 2000)
 
 		const t3 = setTimeout(() => {
-			console.log('[self] dark on');
-			darkMark.current = Date.now();
-			setOverride('dark');
-		}, 3000);
+			console.log('[self] dark on')
+			darkMark.current = Date.now()
+			setOverride('dark')
+		}, 3000)
 
-		return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
-	}, []);
+		return () => {
+			clearTimeout(t1)
+			clearTimeout(t2)
+			clearTimeout(t3)
+		}
+	}, [])
 
 	useEffect(() => {
 		// Runs post-commit: setState -> render -> native prop application ->
 		// effect. darkMark is the setState timestamp.
 		if (darkMark.current) {
-			console.log('[probe] dark setState->commit ' + (Date.now() - darkMark.current) + 'ms');
+			console.log('[probe] dark setState->commit ' + (Date.now() - darkMark.current) + 'ms')
 		}
-	}, [dark]);
+	}, [dark])
 
 	<View className={['vx-app', 'flex-1', 'gap-6', dark ? 'dark ns-dark' : '']}>
 		<HStack className="justify-between items-baseline shrink-0">
 			<Text className="text-2xl font-semibold">Kitchen sink</Text>
 			<HStack className="gap-3 items-center">
-				<Pressable id="scheme-toggle" onPress={() => {
-					const next = dark ? 'light' : 'dark';
-					storage.setString('theme-preference', next);
-					setOverride(next);
-				}} className="btn btn-secondary">
+				<Pressable
+					id="scheme-toggle"
+					onPress={() => {
+						const next = dark ? 'light' : 'dark'
+						storage.setString('theme-preference', next)
+						setOverride(next)
+					}}
+					className="btn btn-secondary"
+				>
 					<Text>{dark ? 'Light' : 'Dark'}</Text>
 				</Pressable>
 			</HStack>
@@ -151,7 +178,11 @@ export function Home() @{
 				<BottomSheet isOpen={modal} label="Modal sheet" onOpenChange={(o) => setModal(o)}>
 					<View className="modal-panel">
 						<Text>Modal content</Text>
-						<Pressable id="modal-close" onPress={() => setModal(false)} className="btn btn-secondary">
+						<Pressable
+							id="modal-close"
+							onPress={() => setModal(false)}
+							className="btn btn-secondary"
+						>
 							<Text>Close modal</Text>
 						</Pressable>
 					</View>
@@ -168,8 +199,8 @@ export function Home() @{
 						className="panbox"
 						style={{ padding: 16 }}
 						onPan={(e) => {
-							(e.target as any).lastPanState = e.state;
-							console.log('[probe] pan dx=' + e.dx + ' dy=' + e.dy + ' state=' + e.state);
+							;(e.target as any).lastPanState = e.state
+							console.log('[probe] pan dx=' + e.dx + ' dy=' + e.dy + ' state=' + e.state)
 						}}
 						onSwipe={(e) => console.log('[probe] swipe dir=' + e.direction)}
 					>
@@ -185,10 +216,14 @@ export function Home() @{
 						{/* Image seam: <image> native / <img> web; data: URI decodes
 						    synchronously via ImageSource.fromBase64Sync. */}
 						<Image id="img" src={PIXEL} alt="pixel" style={{ width: 24, height: 24 }} />
-						<Pressable id="anim-btn" onPress={() => {
-							x.to(80, { duration: 300 });
-							setTimeout(() => x.spring(0), 700);
-						}} className="btn btn-secondary">
+						<Pressable
+							id="anim-btn"
+							onPress={() => {
+								x.to(80, { duration: 300 })
+								setTimeout(() => x.spring(0), 700)
+							}}
+							className="btn btn-secondary"
+						>
 							<Text>Animate</Text>
 						</Pressable>
 					</HStack>
@@ -206,9 +241,9 @@ export function Home() @{
 					<HStack className="gap-3 flex-wrap">
 						<Pressable
 							onPress={() => {
-								const next = [...items].reverse();
-								console.log('[harness] shuffle -> ' + next.map((i) => i.id).join(','));
-								setItems(next);
+								const next = [...items].reverse()
+								console.log('[harness] shuffle -> ' + next.map((i) => i.id).join(','))
+								setItems(next)
 							}}
 							className="btn btn-secondary"
 						>
@@ -238,7 +273,11 @@ export function Home() @{
 					<TextInput
 						id="probe-input"
 						value={text}
-						onChange={(v) => { console.log('[probe] onChange ' + v); setText(v); storage.setString('draft', v); }}
+						onChange={(v) => {
+							console.log('[probe] onChange ' + v)
+							setText(v)
+							storage.setString('draft', v)
+						}}
 						placeholder="Type here"
 						className="input"
 					/>
@@ -250,18 +289,34 @@ export function Home() @{
 					<TextArea
 						id="probe-textarea"
 						value={bio}
-						onChange={(v) => { console.log('[probe] textareaChange ' + JSON.stringify(v)); setBio(v); }}
+						onChange={(v) => {
+							console.log('[probe] textareaChange ' + JSON.stringify(v))
+							setBio(v)
+						}}
 						placeholder="Multiline composer"
 						autoGrow
 						maxRows={4}
 						className="input"
 					/>
-					<TextArea id="probe-textarea-uncontrolled" placeholder="Uncontrolled composer" autoGrow rows={2} maxRows={4} className="input" />
+					<TextArea
+						id="probe-textarea-uncontrolled"
+						placeholder="Uncontrolled composer"
+						autoGrow
+						rows={2}
+						maxRows={4}
+						className="input"
+					/>
 					<Text className="text-sm text-muted multiline-echo">{'Bio: ' + bio}</Text>
 					{/* Cascade-layer probe — app.css contests these two views across
 					    layers; the harness asserts which rule actually applied. */}
-					<Text id="layer-probe" className="xplat-layer-probe">{'Layer order'}</Text>
-					<View id="layer-unlayered-probe" className="xplat-layer-unlayered" style={{ width: 8, height: 8 }} />
+					<Text id="layer-probe" className="xplat-layer-probe">
+						{'Layer order'}
+					</Text>
+					<View
+						id="layer-unlayered-probe"
+						className="xplat-layer-unlayered"
+						style={{ width: 8, height: 8 }}
+					/>
 				</View>
 			</View>
 		</ScrollableArea>

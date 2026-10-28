@@ -3,7 +3,16 @@
 // canonical router state instead of react-router's usePathname.
 
 import { useRouterState } from '@octane-xplat/ui/routing'
-import { SideNav, SideNavHeading, SideNavItem, SideNavSection, DropdownMenu, Icon, HStack } from '@octane-xplat/ui'
+import {
+	SideNav,
+	SideNavHeading,
+	SideNavItem,
+	SideNavSection,
+	DropdownMenu,
+	Icon,
+	HStack,
+} from '@octane-xplat/ui'
+
 import { auditPages, categories, homePage } from '../data/sandboxPages'
 import { SANDBOX_THEMES, setThemeName, setMode, useThemePreference } from '../theme'
 
@@ -58,7 +67,13 @@ function SandboxHeader() @{
 					<DropdownMenu
 						button={{
 							label: mode === 'dark' ? 'Dark mode' : 'Light mode',
-							icon: <Icon name={mode === 'dark' ? 'sandbox-moon' : 'sandbox-sun'} size={16} color="var(--color-icon-secondary)" />,
+							icon: (
+								<Icon
+									name={mode === 'dark' ? 'sandbox-moon' : 'sandbox-sun'}
+									size={16}
+									color="var(--color-icon-secondary)"
+								/>
+							),
 							variant: 'ghost',
 							size: 'sm',
 							isIconOnly: true,
@@ -79,7 +94,12 @@ export function SandboxNav() @{
 		<SideNav
 			header={<SandboxHeader />}
 			collapsible={{ defaultIsCollapsed: false }}
-			resizable={{ defaultWidth: 300, minWidth: 220, maxWidth: 420, autoSaveId: 'sandbox-side-nav' }}
+			resizable={{
+				defaultWidth: 300,
+				minWidth: 220,
+				maxWidth: 420,
+				autoSaveId: 'sandbox-side-nav',
+			}}
 		>
 			<SideNavSection title="Sandbox">
 				<SideNavItem

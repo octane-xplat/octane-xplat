@@ -279,6 +279,7 @@ export function refreshMediaQueries(): boolean {
 			if (!q || seen.has(q)) {
 				continue
 			}
+
 			seen.add(q)
 			const next = evalMediaQuery(q)
 			if (mediaResults.get(q) !== next) {
@@ -292,9 +293,11 @@ export function refreshMediaQueries(): boolean {
 		if (!entry) {
 			continue
 		}
+
 		for (const r of entry.selectors) {
 			visit(r.mediaQueryString)
 		}
+
 		for (const k of entry.keyframes) {
 			visit(k.mediaQueryString)
 		}
@@ -341,6 +344,7 @@ export function stylesheetPseudoClasses(): ReadonlySet<string> {
 		if (!entry) {
 			continue
 		}
+
 		for (const r of entry.selectors) {
 			for (const sel of (r as any).selectors ?? []) {
 				collectPseudoClasses(sel, out)
@@ -354,6 +358,7 @@ export function stylesheetPseudoClasses(): ReadonlySet<string> {
 // ---- Injected-sheet delivery ----------------------------------------------
 
 const queued = (globalThis as any).__xplatStylesheets
+
 ;(globalThis as any).__xplatStylesheets = {
 	push([id, css]: [string, string]) {
 		registerStylesheet(id, css)

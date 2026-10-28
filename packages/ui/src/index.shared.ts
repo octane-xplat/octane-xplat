@@ -480,13 +480,25 @@ export { TableRow } from './Table'
 export { TableCell } from './Table'
 export { TableHeaderCell } from './Table'
 export { TableSelectionToolbar } from './TableSelectionToolbar'
-export { proportional, generateColumns, resolveColumnWidths, defaultCellRenderer, capitalize, DEFAULT_MIN_COLUMN_WIDTH } from './table/column-utils'
+export {
+	proportional,
+	generateColumns,
+	resolveColumnWidths,
+	defaultCellRenderer,
+	capitalize,
+	DEFAULT_MIN_COLUMN_WIDTH,
+} from './table/column-utils'
+
 export { paginateData } from './table/paginate-data'
 export { useTableSelection, useTableSelectionState } from './table/use-table-selection'
 export { useTableSortable } from './table/use-table-sortable'
 export { useTableSortableState, sortTableData } from './table/use-table-sortable-state'
 export { useTablePagination } from './table/use-table-pagination'
-export { useTableColumnSettings, useTableColumnSettingsState } from './table/use-table-column-settings'
+export {
+	useTableColumnSettings,
+	useTableColumnSettingsState,
+} from './table/use-table-column-settings'
+
 export { useTableColumnResize } from './table/use-table-column-resize'
 export { useTableFilterState } from './table/use-table-filter-state'
 export { useTableFiltering } from './table/use-table-filtering'
@@ -555,6 +567,7 @@ export type {
 	TreeProps,
 	UserProps,
 } from './props'
+
 export type {
 	TablePlugin,
 	TableRenderProps,
@@ -585,16 +598,19 @@ export type {
 	TableRowStatusColor,
 	TableSemanticRowStatus,
 } from './table/types'
+
 export type {
 	UseTableSelectionConfig,
 	UseTableSelectionStateConfig,
 	UseTableSelectionStateResult,
 } from './table/use-table-selection'
+
 export type { UseTableSortableConfig } from './table/use-table-sortable'
 export type {
 	UseTableSortableStateConfig,
 	UseTableSortableStateResult,
 } from './table/use-table-sortable-state'
+
 export type { UseTablePaginationConfig } from './table/use-table-pagination'
 export type {
 	ColumnSettingsOption,
@@ -602,14 +618,12 @@ export type {
 	UseTableColumnSettingsStateConfig,
 	UseTableColumnSettingsStateReturn,
 } from './table/use-table-column-settings'
+
 export type { UseTableColumnResizeConfig } from './table/use-table-column-resize'
 export type { UseTableFilteringConfig } from './table/use-table-filtering'
 export type { UseTableRowIndexConfig } from './table/use-table-row-index'
 export type { UseTableRowStatusConfig } from './table/use-table-row-status'
-export type {
-	UseTableTreeStateConfig,
-	UseTableTreeStateResult,
-} from './table/use-table-tree-state'
+export type { UseTableTreeStateConfig, UseTableTreeStateResult } from './table/use-table-tree-state'
 export type { UseTableFilterStateResult } from './table/use-table-filter-state'
 export type { ResolvedColumnWidth, ResolvedColumnWidths } from './table/column-utils'
 
@@ -641,6 +655,7 @@ export {
 	 *  accepts directly. */
 	rgbaToThumbHashUri,
 } from './hash-image'
+
 /** Image source → `thumbhash:<base64>` URI — decode, ≤100px scale, RGBA
  *  extract, encode. Same src grammar as `Image`; compute at pick/upload
  *  time and store beside the image. */
@@ -777,6 +792,7 @@ export {
 	resolveThemeTokens,
 	defaultThemeTokens,
 } from './theme/defined-theme'
+
 export { generateThemeCss } from './theme/theme-css'
 export type {
 	DefineThemeInput,
@@ -785,6 +801,7 @@ export type {
 	ThemeMode,
 	ResolveThemeTokensOptions,
 } from './theme/defined-theme'
+
 export { useTheme, useThemeName } from './theme/use-theme'
 export type { UseThemeReturn } from './theme/use-theme'
 
@@ -1214,11 +1231,7 @@ export { RouteOutlet } from './RouteOutlet'
 export type { ImperativeBottomSheetReturn, RouteOutletProps } from './props'
 
 // Registry interfaces must share the props symbol for generated augmentation.
-export type {
-	AppRouteContracts,
-	AppRouteStacks,
-	AppRouteTransitions,
-} from './props'
+export type { AppRouteContracts, AppRouteStacks, AppRouteTransitions } from './props'
 
 export { useContainerReveal } from './use-container-reveal'
 export type { UseContainerRevealOptions, UseContainerRevealReturn } from './props'
@@ -1226,7 +1239,14 @@ export { useImageMode } from './use-image-mode'
 export type { UseImageModeOptions, ImageSampleRegion } from './props'
 
 export { InternationalizationProvider } from './InternationalizationProvider.tsrx'
-export { useLocale, useDirection, useTranslator, getLocaleDirection, frFR } from './internationalization'
+export {
+	useLocale,
+	useDirection,
+	useTranslator,
+	getLocaleDirection,
+	frFR,
+} from './internationalization'
+
 export type { InternationalizationProviderProps, InternationalizationMessages } from './props'
 export { useAnnounce } from './use-announce'
 export type { AnnouncePoliteness } from './use-announce'

@@ -34,8 +34,12 @@ export function ScrollableAreaInlineRail() @{
 					{FILES.map((file) => (
 						<Card key={file.id} variant="muted" padding={3} width={170}>
 							<VStack gap={1}>
-								<Text weight="medium" maxLines={1}>{file.title}</Text>
-								<Text type="supporting" maxLines={1}>{file.meta}</Text>
+								<Text weight="medium" maxLines={1}>
+									{file.title}
+								</Text>
+								<Text type="supporting" maxLines={1}>
+									{file.meta}
+								</Text>
 							</VStack>
 						</Card>
 					))}

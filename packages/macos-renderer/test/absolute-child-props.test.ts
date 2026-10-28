@@ -19,15 +19,15 @@ const warnings: string[] = []
 const reconciles: any[] = []
 
 const sandbox = {
-		elementBehaviors: new Map(),
-		behaviorOf: (type: string) =>
-			['masonview', 'liquidglass'].includes(type)
-				? { layout: () => {}, containerStyles: true }
-				: undefined,
-		isManualLayoutParent: (t: string) =>
-			['masonview','liquidglass','contentview','actionbar','rootlayout'].includes(t),
-		registerElementType: () => {},
-		
+	elementBehaviors: new Map(),
+	behaviorOf: (type: string) =>
+		['masonview', 'liquidglass'].includes(type)
+			? { layout: () => {}, containerStyles: true }
+			: undefined,
+	isManualLayoutParent: (t: string) =>
+		['masonview', 'liquidglass', 'contentview', 'actionbar', 'rootlayout'].includes(t),
+	registerElementType: () => {},
+
 	configureScrollAxes: () => {},
 	console: { warn: (msg: unknown) => warnings.push(String(msg)) },
 	queueLayoutReconcile: (_container: any, parent: any) => reconciles.push(parent),

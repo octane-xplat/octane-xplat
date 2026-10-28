@@ -19,8 +19,12 @@ function loadMaps(): Promise<any> {
 		if (!key) {
 			return Promise.reject(new Error('maps.init({apiKey}) must run before <MapView>'))
 		}
-		loaderPromise = new Loader({ apiKey: key, version: 'weekly' }).load().then(() => (globalThis as any).google.maps)
+
+		loaderPromise = new Loader({ apiKey: key, version: 'weekly' })
+			.load()
+			.then(() => (globalThis as any).google.maps)
 	}
+
 	return loaderPromise
 }
 
@@ -44,11 +48,13 @@ export function MapView(props: MapViewProps) @{
 			for (const c of coordinates) {
 				bounds.extend({ lat: c.latitude, lng: c.longitude })
 			}
+
 			g?.fitBounds(bounds, padding)
 		},
 		snapshot: () => Promise.reject(new Error('unsupported: map snapshot is not available on web')),
 		native: g,
 	})
+
 	useImperativeHandle(props.ref, () => handle(map.current), [])
 
 	function sync() {
@@ -57,10 +63,12 @@ export function MapView(props: MapViewProps) @{
 		if (!g || !G) {
 			return
 		}
+
 		const p = latest.current
 		if (p.mapType) {
 			g.setMapTypeId(MAP_TYPE[p.mapType])
 		}
+
 		if (p.userLocationEnabled !== undefined && navigator.geolocation && p.userLocationEnabled) {
 			navigator.geolocation.getCurrentPosition((pos) => {
 				const marker = new G.Marker({
@@ -68,9 +76,11 @@ export function MapView(props: MapViewProps) @{
 					map: g,
 					title: 'Current location',
 				})
+
 				overlays.current.set('userlocation:', marker)
 			})
 		}
+
 		const syncSet = (kind: string, defs: any[] | undefined, apply: (def: any) => any) => {
 			const want = new Map((defs ?? []).map((d, i) => [d.id ?? `anon-${i}`, d]))
 			for (const [key, ref] of overlays.current) {
@@ -79,12 +89,14 @@ export function MapView(props: MapViewProps) @{
 					overlays.current.delete(key)
 				}
 			}
+
 			for (const [key, def] of want) {
 				if (!overlays.current.has(`${kind}:${key}`)) {
 					overlays.current.set(`${kind}:${key}`, apply(def))
 				}
 			}
 		}
+
 		syncSet('marker', p.markers, (def) => {
 			const marker = new G.Marker({
 				position: { lat: def.coordinates.latitude, lng: def.coordinates.longitude },
@@ -94,40 +106,54 @@ export function MapView(props: MapViewProps) @{
 				opacity: def.opacity,
 				rotation: def.rotation,
 			})
+
 			if (def.onTap) {
 				marker.addListener('click', def.onTap)
 			}
+
 			return marker
 		})
-		syncSet('polyline', p.polylines, (def) =>
-			new G.Polyline({
-				path: def.points.map((c: any) => ({ lat: c.latitude, lng: c.longitude })),
-				map: g,
-				strokeColor: def.color,
-				strokeWeight: def.width,
-				geodesic: def.geodesic,
-			}),
+
+		syncSet(
+			'polyline',
+			p.polylines,
+			(def) =>
+				new G.Polyline({
+					path: def.points.map((c: any) => ({ lat: c.latitude, lng: c.longitude })),
+					map: g,
+					strokeColor: def.color,
+					strokeWeight: def.width,
+					geodesic: def.geodesic,
+				}),
 		)
-		syncSet('polygon', p.polygons, (def) =>
-			new G.Polygon({
-				paths: [def.points, ...(def.holes ?? [])].map((ring: any[]) =>
-					ring.map((c) => ({ lat: c.latitude, lng: c.longitude })),
-				),
-				map: g,
-				fillColor: def.fillColor,
-				strokeColor: def.strokeColor,
-				strokeWeight: def.strokeWidth,
-			}),
+
+		syncSet(
+			'polygon',
+			p.polygons,
+			(def) =>
+				new G.Polygon({
+					paths: [def.points, ...(def.holes ?? [])].map((ring: any[]) =>
+						ring.map((c) => ({ lat: c.latitude, lng: c.longitude })),
+					),
+					map: g,
+					fillColor: def.fillColor,
+					strokeColor: def.strokeColor,
+					strokeWeight: def.strokeWidth,
+				}),
 		)
-		syncSet('circle', p.circles, (def) =>
-			new G.Circle({
-				center: { lat: def.center.latitude, lng: def.center.longitude },
-				radius: def.radius,
-				map: g,
-				fillColor: def.fillColor,
-				strokeColor: def.strokeColor,
-				strokeWeight: def.strokeWidth,
-			}),
+
+		syncSet(
+			'circle',
+			p.circles,
+			(def) =>
+				new G.Circle({
+					center: { lat: def.center.latitude, lng: def.center.longitude },
+					radius: def.radius,
+					map: g,
+					fillColor: def.fillColor,
+					strokeColor: def.strokeColor,
+					strokeWeight: def.strokeWidth,
+				}),
 		)
 	}
 
@@ -136,12 +162,14 @@ export function MapView(props: MapViewProps) @{
 		if (!host) {
 			return
 		}
+
 		let cancelled = false
 		loadMaps()
 			.then((G) => {
 				if (cancelled) {
 					return
 				}
+
 				const camera = latest.current.cameraPosition
 				map.current = new G.Map(host, {
 					center: camera
@@ -150,11 +178,13 @@ export function MapView(props: MapViewProps) @{
 					zoom: camera?.zoom ?? 2,
 					mapTypeId: MAP_TYPE[latest.current.mapType ?? 'normal'],
 				})
+
 				map.current.addListener('click', (e: any) => {
 					latest.current.onMapClick?.({
 						coordinates: { latitude: e.latLng.lat(), longitude: e.latLng.lng() },
 					})
 				})
+
 				map.current.addListener('center_changed', () => {
 					const c = map.current.getCenter()
 					latest.current.onCameraMove?.({
@@ -165,6 +195,7 @@ export function MapView(props: MapViewProps) @{
 						state: 'move',
 					})
 				})
+
 				map.current.addListener('idle', () => {
 					const c = map.current.getCenter()
 					latest.current.onCameraMove?.({
@@ -175,10 +206,12 @@ export function MapView(props: MapViewProps) @{
 						state: 'idle',
 					})
 				})
+
 				sync()
 				latest.current.onMapReady?.()
 			})
 			.catch((e) => latest.current.onError?.({ message: e?.message ?? String(e) }))
+
 		return () => {
 			cancelled = true
 		}
@@ -189,6 +222,7 @@ export function MapView(props: MapViewProps) @{
 		if (!g) {
 			return
 		}
+
 		const c = props.cameraPosition
 		if (c) {
 			g.setCenter({ lat: c.coordinates.latitude, lng: c.coordinates.longitude })
@@ -196,6 +230,7 @@ export function MapView(props: MapViewProps) @{
 				g.setZoom(c.zoom)
 			}
 		}
+
 		sync()
 	}, [JSON.stringify(props.cameraPosition)])
 
@@ -208,7 +243,11 @@ export function MapView(props: MapViewProps) @{
 		JSON.stringify(props.circles),
 	])
 
-	<div ref={(e: HTMLDivElement | null) => {
-				el.current = e
-			}} style={props.style} className={props.className} />
+	<div
+		ref={(e: HTMLDivElement | null) => {
+			el.current = e
+		}}
+		style={props.style}
+		className={props.className}
+	/>
 }

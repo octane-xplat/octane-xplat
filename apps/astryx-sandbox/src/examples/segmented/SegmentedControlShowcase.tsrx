@@ -4,7 +4,8 @@ import { useState } from 'octane'
 
 export function SegmentedControlShowcase() @{
 	const [value, setValue] = useState('active')
-	<div style={{width: 500}}>
+
+	<div style={{ width: 500 }}>
 		<SegmentedControl value={value} onValueChange={setValue}>
 			<SegmentedControlItem label="Active" value="active" />
 			<SegmentedControlItem label="Archived" value="archived" />

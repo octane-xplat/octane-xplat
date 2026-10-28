@@ -3,7 +3,21 @@
 // the CSS equivalent of Grid columns={{minWidth: 320}}.
 
 import { useState } from 'octane'
-import { Heading, Text, TextInput, ToggleButton, ToggleButtonGroup, Divider, VStack, View, Icon, Layout, LayoutHeader, LayoutContent } from '@octane-xplat/ui'
+import {
+	Heading,
+	Text,
+	TextInput,
+	ToggleButton,
+	ToggleButtonGroup,
+	Divider,
+	VStack,
+	View,
+	Icon,
+	Layout,
+	LayoutHeader,
+	LayoutContent,
+} from '@octane-xplat/ui'
+
 import { categories } from '../data/sandboxPages'
 import { ProjectCard } from '../shell/ProjectCard'
 import { SandboxShell } from '../shell/SandboxShell'
@@ -26,11 +40,15 @@ export function HomeScreen() @{
 
 	// Category-filtered views show one ungrouped grid; "All" keeps the
 	// per-category sections, each led by a divider (upstream ordering).
-	const grouped = activeTab === 'All'
-		? homeCategories
-			.map((c) => ({ category: c.label, pages: filtered.filter((p) => p.category === c.label) }))
-			.filter((s) => s.pages.length > 0)
-		: null
+	const grouped =
+		activeTab === 'All'
+			? homeCategories
+					.map((c) => ({
+						category: c.label,
+						pages: filtered.filter((p) => p.category === c.label),
+					}))
+					.filter((s) => s.pages.length > 0)
+			: null
 
 	return (
 		<SandboxShell>
@@ -66,7 +84,9 @@ export function HomeScreen() @{
 
 							{filtered.length === 0 ? (
 								<View className="sb-empty">
-									<Text type="supporting" color="secondary">No results found.</Text>
+									<Text type="supporting" color="secondary">
+										No results found.
+									</Text>
 								</View>
 							) : grouped != null ? (
 								<VStack gap={6}>

@@ -23,6 +23,7 @@ const stopChild = (child, signal) => {
 		} catch {}
 	}
 }
+
 const stop = (signal, code) => {
 	if (stopping) {
 		return
@@ -55,6 +56,7 @@ export function spawnTagged(tag, cmd, args, cwd, { capture } = {}) {
 			if (error.code === 'target_busy') {
 				throw error
 			}
+
 			captureError(error)
 		}
 	}
@@ -165,6 +167,7 @@ export function spawnTagged(tag, cmd, args, cwd, { capture } = {}) {
 				detail: error.message,
 				launch: { phase: 'failed', error: { code: 'execution_failure', message: error.message } },
 			})
+
 			log?.close(`Process launch failed: ${error.message}`)
 		} catch (error) {
 			captureError(error)
@@ -175,6 +178,7 @@ export function spawnTagged(tag, cmd, args, cwd, { capture } = {}) {
 			if (!requestedStop && !stopping && (code || signal)) {
 				log?.update({ state: 'failed', detail: `Process exited (${code ?? signal}).` })
 			}
+
 			log?.close(`Process exited (code=${code}, signal=${signal}).`)
 		} catch (error) {
 			captureError(error)

@@ -15,8 +15,12 @@ export function CardVariants() @{
 		{VARIANTS.map(({ variant, label, note }) => (
 			<Card key={variant} variant={variant} width={160}>
 				<Stack direction="vertical" gap={1}>
-					<Text type="body" weight="bold">{label}</Text>
-					<Text type="supporting" color="secondary">{note}</Text>
+					<Text type="body" weight="bold">
+						{label}
+					</Text>
+					<Text type="supporting" color="secondary">
+						{note}
+					</Text>
 				</Stack>
 			</Card>
 		))}

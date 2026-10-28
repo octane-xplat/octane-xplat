@@ -1,9 +1,9 @@
-import type { CitationProps } from './props';
-import { applyEscapeProps } from './escape-props';
-import { sanitizeUrl } from './safe-url';
-import { isRenderable } from './is-renderable';
+import type { CitationProps } from './props'
+import { applyEscapeProps } from './escape-props'
+import { sanitizeUrl } from './safe-url'
+import { isRenderable } from './is-renderable'
 
-let warnedBlockedUrl = false;
+let warnedBlockedUrl = false
 
 /** Citation — a labelled chip or numbered pill referencing a source.
  *  Unsafe schemes (javascript:, vbscript:, data:text/html) render the
@@ -11,27 +11,27 @@ let warnedBlockedUrl = false;
  *  favicon URL (back-compat); a node renders inside the icon circle; when
  *  both `icon` node and `src` exist the node wins. */
 export function Citation(props: CitationProps) @{
-	const source = props.source;
-	const variant = props.variant ?? 'label';
-	const href = source.url;
-	const safeHref = href == null ? null : sanitizeUrl(href);
-	const isLink = safeHref != null;
+	const source = props.source
+	const variant = props.variant ?? 'label'
+	const href = source.url
+	const safeHref = href == null ? null : sanitizeUrl(href)
+	const isLink = safeHref != null
 
 	if (!warnedBlockedUrl && href != null && !isLink) {
-		warnedBlockedUrl = true;
+		warnedBlockedUrl = true
 		console.warn(
 			`[octane-xplat] Citation: blocked unsafe url ${JSON.stringify(href)} — the citation renders inert.`,
-		);
+		)
 	}
 
 	const iconNode =
-		typeof source.icon === 'string'
-			? <img className="vx-citation-icon-img" src={source.icon} alt="" aria-hidden="true" />
-			: isRenderable(source.icon)
-				? source.icon
-				: isRenderable(source.src)
-					? <img className="vx-citation-icon-img" src={source.src} alt="" aria-hidden="true" />
-					: null;
+		typeof source.icon === 'string' ? (
+			<img className="vx-citation-icon-img" src={source.icon} alt="" aria-hidden="true" />
+		) : isRenderable(source.icon) ? (
+			source.icon
+		) : isRenderable(source.src) ? (
+			<img className="vx-citation-icon-img" src={source.src} alt="" aria-hidden="true" />
+		) : null
 
 	const body =
 		variant === 'number' ? (
@@ -42,14 +42,14 @@ export function Citation(props: CitationProps) @{
 				{source.title != null ? <span className="vx-citation-title">{source.title}</span> : null}
 				<span className="vx-citation-count">{props.number}</span>
 			</>
-		);
+		)
 
 	const cls = [
 		'vx-citation',
 		`vx-citation--${variant}`,
 		isLink && 'vx-citation--link',
 		props.className,
-	];
+	]
 
 	return isLink ? (
 		<a
@@ -74,5 +74,5 @@ export function Citation(props: CitationProps) @{
 		>
 			{body}
 		</span>
-	);
+	)
 }

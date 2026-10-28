@@ -4,6 +4,7 @@ import { Tab, TabList } from '@octane-xplat/ui'
 
 export function TabListShowcase() @{
 	const [value, setValue] = useState('home')
+
 	<TabList value={value} onChange={setValue}>
 		<Tab value="home" label="Home" />
 		<Tab value="projects" label="Projects" />

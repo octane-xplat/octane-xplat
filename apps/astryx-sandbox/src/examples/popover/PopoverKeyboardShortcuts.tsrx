@@ -14,7 +14,13 @@ export function PopoverKeyboardShortcuts() @{
 	return (
 		<>
 			<Button ref={anchor} label="Shortcuts" clickAction={() => setIsOpen(true)} />
-			<Popover anchor={anchor} open={isOpen} onDismiss={() => setIsOpen(false)} placement="bottom" style={{ width: 260 }}>
+			<Popover
+				anchor={anchor}
+				open={isOpen}
+				onDismiss={() => setIsOpen(false)}
+				placement="bottom"
+				style={{ width: 260 }}
+			>
 				<VStack gap={2} style={{ padding: 'var(--spacing-4)' }}>
 					<Heading level={4}>Keyboard shortcuts</Heading>
 					<Divider />

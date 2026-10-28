@@ -10,6 +10,7 @@ vi.mock('@nativescript/core', () => ({
 	isAndroid: true,
 	Utils: { openUrl: vi.fn() },
 }))
+
 vi.mock('./pan.tsrx', () => ({ usePan: () => undefined }))
 vi.mock('./route', () => ({ pushDeepLink: () => false }))
 
@@ -36,8 +37,11 @@ describe('View styling', () => {
 		try {
 			root.render(View, { className: 'actions', style: { flexDirection: 'column' }, gap: 6 })
 			expect(container.children[0].props.style).toEqual({
-				display: 'flex', flexDirection: 'column', gap: 6,
+				display: 'flex',
+				flexDirection: 'column',
+				gap: 6,
 			})
+
 			root.render(View, { className: 'actions', gap: 6 })
 			expect(container.children[0].props.style).toEqual({ display: 'flex', gap: 6 })
 			root.render(View, {})

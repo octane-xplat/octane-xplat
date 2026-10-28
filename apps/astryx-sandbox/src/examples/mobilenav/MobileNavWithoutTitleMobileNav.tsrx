@@ -4,9 +4,20 @@ import { Button, Icon, MobileNav, SideNavItem, SideNavSection } from '@octane-xp
 
 export function MobileNavWithoutTitleMobileNav() @{
 	const [isOpen, setIsOpen] = useState(false)
+
 	<>
-		<Button label="Open Navigation" icon={<Icon name="sandbox-menu" color="inherit" />} variant="ghost" clickAction={() => setIsOpen(true)} isIconOnly />
-		<MobileNav isOpen={isOpen} onOpenChange={(open: boolean) => setIsOpen(open)} label="Navigation drawer">
+		<Button
+			label="Open Navigation"
+			icon={<Icon name="sandbox-menu" color="inherit" />}
+			variant="ghost"
+			clickAction={() => setIsOpen(true)}
+			isIconOnly
+		/>
+		<MobileNav
+			isOpen={isOpen}
+			onOpenChange={(open: boolean) => setIsOpen(open)}
+			label="Navigation drawer"
+		>
 			<SideNavSection title="Main" isHeaderHidden>
 				<SideNavItem label="Dashboard" icon={<Icon name="sandbox-home" />} isSelected href="/" />
 				<SideNavItem label="Projects" icon={<Icon name="sandbox-folder" />} href="/projects" />

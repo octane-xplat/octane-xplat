@@ -16,6 +16,7 @@ declare module 'gi://Gtk?version=4.0' {
 			HORIZONTAL = 0,
 			VERTICAL = 1,
 		}
+
 		enum Align {
 			FILL = 0,
 			START = 1,
@@ -24,12 +25,14 @@ declare module 'gi://Gtk?version=4.0' {
 			BASELINE_FILL = 4,
 			BASELINE_CENTER = 5,
 		}
+
 		enum PolicyType {
 			ALWAYS = 0,
 			AUTOMATIC = 1,
 			NEVER = 2,
 			EXTERNAL = 3,
 		}
+
 		// Declared as a loose map — the numeric values come from the GI
 		// namespace at runtime and are not stable enough to pin here.
 		const AccessibleRole: {
@@ -43,10 +46,12 @@ declare module 'gi://Gtk?version=4.0' {
 			SWITCH: number
 			[key: string]: number
 		}
+
 		const AccessibleProperty: {
 			LABEL: number
 			[key: string]: number
 		}
+
 		const InputPurpose: {
 			FREE_FORM: number
 			DIGITS: number
@@ -58,6 +63,7 @@ declare module 'gi://Gtk?version=4.0' {
 			PIN: number
 			[key: string]: number
 		}
+
 		const InputHints: {
 			NONE: number
 			NO_SPELLCHECK: number
@@ -74,10 +80,7 @@ declare module 'gi://Gtk?version=4.0' {
 			insert_before(parent: Widget, sibling: Widget | null): void
 			insert_after(parent: Widget, sibling: Widget | null): void
 			set_layout_manager(manager: LayoutManager): void
-			measure(
-				orientation: Orientation,
-				forSize: number,
-			): [number, number, number, number]
+			measure(orientation: Orientation, forSize: number): [number, number, number, number]
 			size_allocate(
 				allocation: { x: number; y: number; width: number; height: number },
 				baseline: number,
@@ -116,7 +119,7 @@ declare module 'gi://Gtk?version=4.0' {
 			halign: Align
 			valign: Align
 			opacity: number
-			readonly has_focus: boolean
+			readonly has_focus: boolean;
 			[key: string]: any
 		}
 
@@ -230,15 +233,19 @@ declare module 'gi://Gtk?version=4.0' {
 		class EventController {
 			[key: string]: any
 		}
+
 		class GestureClick extends EventController {
 			constructor()
 		}
+
 		class GestureLongPress extends EventController {
 			constructor()
 		}
+
 		class EventControllerFocus extends EventController {
 			constructor()
 		}
+
 		class EventControllerKey extends EventController {
 			constructor()
 		}
@@ -250,6 +257,7 @@ declare module 'gi://Gtk?version=4.0' {
 			connect(signal: string, handler: (...args: any[]) => unknown): number
 			disconnect(id: number): void
 		}
+
 		class StyleContext {
 			add_provider(provider: CssProvider, priority: number): void
 			remove_provider(provider: CssProvider): void
@@ -307,6 +315,7 @@ declare module 'gi://Gtk?version=4.0' {
 			close(): void
 			title: string
 		}
+
 		class ApplicationWindow extends Window {
 			constructor(props?: {
 				application?: Application
@@ -328,6 +337,7 @@ declare module 'gi://Gtk?version=4.0' {
 
 	export default Gtk
 }
+
 declare module 'gi://GLib' {
 	namespace GLib {
 		const MAJOR_VERSION: number
@@ -348,8 +358,10 @@ declare module 'gi://GLib' {
 		function file_test(path: string, test: number): boolean
 		const FileTest: { EXISTS: number; IS_DIR: number }
 	}
+
 	export default GLib
 }
+
 declare module 'gi://Gdk?version=4.0' {
 	namespace Gdk {
 		class Rectangle {
@@ -360,15 +372,19 @@ declare module 'gi://Gdk?version=4.0' {
 			height: number
 		}
 	}
+
 	export default Gdk
 }
+
 declare module 'gi://GObject' {
 	namespace GObject {
 		/** GJS type registration — returns a constructible GObject class. */
 		function registerClass(meta: any, klass?: any): any
 	}
+
 	export default GObject
 }
+
 declare module 'gi://Gio' {
 	namespace Gio {
 		const ApplicationFlags: {
@@ -377,6 +393,7 @@ declare module 'gi://Gio' {
 			HANDLES_OPEN: number
 			[key: string]: number
 		}
+
 		class File {
 			static new_for_path(path: string): File
 			query_exists(cancellable: unknown): boolean
@@ -385,12 +402,15 @@ declare module 'gi://Gio' {
 			[key: string]: any
 		}
 	}
+
 	export default Gio
 }
+
 declare module 'gi://Gsk?version=4.0' {
 	const Gsk: any
 	export default Gsk
 }
+
 declare module 'gi://Graphene' {
 	const Graphene: any
 	export default Graphene

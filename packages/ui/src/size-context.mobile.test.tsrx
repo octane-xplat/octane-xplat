@@ -61,58 +61,66 @@ import { Popover } from './Popover.tsrx'
 const captured: Record<string, unknown> = {}
 
 const Probe = (props: { tag: string; size?: any; def?: any }) => @{
-	captured[props.tag] = useSize(props.size, props.def)
-	<label text={props.tag} />
-}
+		captured[props.tag] = useSize(props.size, props.def)
+
+		<label text={props.tag} />
+	}
 
 const FieldProbe = (props: { tag: string }) => @{
-	captured[props.tag] = useFieldControlProps({} as any).size
-	<label text={props.tag} />
-}
+		captured[props.tag] = useFieldControlProps({} as any).size
+
+		<label text={props.tag} />
+	}
 
 const CaseBare = () => @{
-	<Probe tag="a" />
-}
+		<Probe tag="a" />
+	}
 
 const CaseDefaults = () => @{
-	<>
-		<Probe tag="d" def="lg" />
-		<Probe tag="p" size="sm" def="lg" />
-	</>
-}
+		<>
+			<Probe tag="d" def="lg" />
+			<Probe tag="p" size="sm" def="lg" />
+		</>
+	}
 
 const CaseNested = () => @{
-	<SizeProvider value="lg">
-		<Probe tag="a" />
-		<Probe tag="b" size="sm" />
-		<SizeProvider value="sm"><Probe tag="c" /></SizeProvider>
-	</SizeProvider>
-}
+		<SizeProvider value="lg">
+			<Probe tag="a" />
+			<Probe tag="b" size="sm" />
+			<SizeProvider value="sm">
+				<Probe tag="c" />
+			</SizeProvider>
+		</SizeProvider>
+	}
 
 const CaseNullProvider = () => @{
-	<SizeProvider value={null}><Probe tag="a" def="sm" /></SizeProvider>
-}
+		<SizeProvider value={null}>
+			<Probe tag="a" def="sm" />
+		</SizeProvider>
+	}
 
 const CaseToolbar = () => @{
-	<Toolbar
-		label="t"
-		size="sm"
-		startContent={<>
-			<Probe tag="a" />
-			<Probe tag="b" size="lg" />
-			<FieldProbe tag="f" />
-		</>}
-	/>
-}
+		<Toolbar
+			label="t"
+			size="sm"
+			startContent={
+				<>
+					<Probe tag="a" />
+					<Probe tag="b" size="lg" />
+					<FieldProbe tag="f" />
+				</>
+			}
+		/>
+	}
 
 const CaseLayer = (props: { anchor: any }) => @{
-	<SizeProvider value="sm">
-		<Probe tag="in" />
-		<Popover open={true} anchor={props.anchor}>
-			<Probe tag="layer" />
-		</Popover>
-	</SizeProvider>
-}
+		<SizeProvider value="sm">
+			<Probe tag="in" />
+			<Popover open={true} anchor={props.anchor}>
+				<Probe tag="layer" />
+			</Popover>
+		</SizeProvider>
+	}
 
 function render(Component: any, props?: any) {
 	const container = createObjectContainer('nativescript')

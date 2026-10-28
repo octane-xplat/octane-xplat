@@ -1,4 +1,4 @@
-import { useSyncExternalStore } from 'octane';
+import { useSyncExternalStore } from 'octane'
 import type { UseFocusVisibleResult } from './use-focus-visible.tsrx'
 
 /**
@@ -10,59 +10,59 @@ import type { UseFocusVisibleResult } from './use-focus-visible.tsrx'
 
 type FocusVisibleState = Pick<UseFocusVisibleResult, 'isFocusVisible' | 'inputModality'>
 
-let state: FocusVisibleState = { isFocusVisible: false, inputModality: 'unknown' };
-let attached = false;
-const listeners = new Set<() => void>();
+let state: FocusVisibleState = { isFocusVisible: false, inputModality: 'unknown' }
+let attached = false
+const listeners = new Set<() => void>()
 
 const set = (next: FocusVisibleState) => {
 	if (next.isFocusVisible === state.isFocusVisible && next.inputModality === state.inputModality) {
-		return;
+		return
 	}
 
-	state = next;
+	state = next
 	for (const listener of [...listeners]) {
-		listener();
+		listener()
 	}
-};
+}
 
 const onKeyDown = (event: KeyboardEvent) => {
 	if (!event.metaKey && !event.altKey && !event.ctrlKey) {
-		set({ isFocusVisible: true, inputModality: 'keyboard' });
+		set({ isFocusVisible: true, inputModality: 'keyboard' })
 	}
-};
+}
 
-const onPointer = () => set({ isFocusVisible: false, inputModality: 'pointer' });
-const onWindowBlur = () => set({ isFocusVisible: false, inputModality: 'unknown' });
+const onPointer = () => set({ isFocusVisible: false, inputModality: 'pointer' })
+const onWindowBlur = () => set({ isFocusVisible: false, inputModality: 'unknown' })
 
 const attach = () => {
 	if (attached || typeof window === 'undefined') {
-		return;
+		return
 	}
 
-	attached = true;
-	window.addEventListener('keydown', onKeyDown, true);
-	window.addEventListener('pointerdown', onPointer, true);
-	window.addEventListener('mousedown', onPointer, true);
-	window.addEventListener('blur', onWindowBlur, true);
-};
+	attached = true
+	window.addEventListener('keydown', onKeyDown, true)
+	window.addEventListener('pointerdown', onPointer, true)
+	window.addEventListener('mousedown', onPointer, true)
+	window.addEventListener('blur', onWindowBlur, true)
+}
 
 const subscribe = (notify: () => void) => {
-	attach();
-	listeners.add(notify);
+	attach()
+	listeners.add(notify)
 	return () => {
-		listeners.delete(notify);
-	};
-};
+		listeners.delete(notify)
+	}
+}
 
 export type { FocusInputModality, UseFocusVisibleResult } from './use-focus-visible.tsrx'
 
 export function useFocusVisible(): UseFocusVisibleResult {
-	attach();
-	return { ...useSyncExternalStore(subscribe, () => state), isSupported: true };
+	attach()
+	return { ...useSyncExternalStore(subscribe, () => state), isSupported: true }
 }
 
 /** Non-hook read for render paths that already subscribe elsewhere. */
 export function isFocusVisible(): boolean {
-	attach();
-	return state.isFocusVisible;
+	attach()
+	return state.isFocusVisible
 }

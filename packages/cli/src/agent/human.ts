@@ -173,6 +173,7 @@ export function renderHuman(command, result, out = []) {
 				out,
 				`session ${data.session.sessionId} — ${data.session.state}; poll: xplat session status ${data.session.sessionId}`,
 			)
+
 			break
 
 		case 'session attach':
@@ -239,15 +240,18 @@ export function renderHuman(command, result, out = []) {
 				lines(out, data.report.content)
 				break
 			}
+
 			for (const report of data.reports ?? []) {
 				lines(out, `${report.id} — ${report.kind} (${report.association}): ${report.summary}`)
 			}
+
 			if (data.coverage?.nativeReports) {
 				lines(
 					out,
 					`Native reports: ${data.coverage.nativeReports.status}. ${data.coverage.nativeReports.detail}`,
 				)
 			}
+
 			if (data.session) {
 				lines(
 					out,

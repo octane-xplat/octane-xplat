@@ -16,35 +16,70 @@ const sdk = vi.hoisted(() => {
 		isPlaying = false
 		complete!: () => void
 		fail!: (error: unknown) => void
-		cancel = vi.fn(() => { this.isPlaying = false; this.fail(new Error('SDK cancelled')) })
-		constructor(definitions: any[]) { this.definitions = definitions; animations.push(this) }
+		cancel = vi.fn(() => {
+			this.isPlaying = false
+			this.fail(new Error('SDK cancelled'))
+		})
+		constructor(definitions: any[]) {
+			this.definitions = definitions
+			animations.push(this)
+		}
 		play() {
 			this.isPlaying = true
 			return new Promise<void>((resolve, reject) => {
-				this.complete = () => { this.isPlaying = false; resolve() }
-				this.fail = error => { this.isPlaying = false; reject(error) }
+				this.complete = () => {
+					this.isPlaying = false
+					resolve()
+				}
+				this.fail = (error) => {
+					this.isPlaying = false
+					reject(error)
+				}
 			})
 		}
 	}
 	return { View, Animation, animations }
 })
+
 vi.mock('@nativescript/core', () => sdk)
 vi.mock('./native-route-motion-policy', () => ({ readNativeReducedMotion: () => false }))
 import { defineNativeTransition } from './native-route-transition'
 import { createNativeViewRouteTransitions } from './native-view-route-transition.mobile'
 const context = { direction: 'forward' as const, action: 'push' as const, from: null, to: null }
-const effect = defineNativeTransition({ view: { from: { opacity: 0, translateX: 24, scaleX: 0.9, scaleY: 0.9, rotate: 5 }, duration: 300, curve: 'linear' } })
-afterEach(() => { sdk.animations.length = 0 })
+const effect = defineNativeTransition({
+	view: {
+		from: { opacity: 0, translateX: 24, scaleX: 0.9, scaleY: 0.9, rotate: 5 },
+		duration: 300,
+		curve: 'linear',
+	},
+})
+
+afterEach(() => {
+	sdk.animations.length = 0
+})
 
 it('animates only the owned SDK view and restores neutral values at completion', async () => {
 	const driver = createNativeViewRouteTransitions()
 	const view = new sdk.View()
 	let settled = false
-	const finished = driver.run(context, 'detail', effect, view).then(result => { settled = true; return result })
+	const finished = driver.run(context, 'detail', effect, view).then((result) => {
+		settled = true
+		return result
+	})
 	expect(view).toMatchObject({ opacity: 0, translateX: 24, scaleX: 0.9, rotate: 5 })
 	await Promise.resolve()
 	expect(settled).toBe(false)
-	expect(sdk.animations[0].definitions).toEqual([{ target: view, opacity: 1, translate: { x: 0, y: 0 }, scale: { x: 1, y: 1 }, rotate: 0, duration: 300, curve: 'linear' }])
+	expect(sdk.animations[0].definitions).toEqual([
+		{
+			target: view,
+			opacity: 1,
+			translate: { x: 0, y: 0 },
+			scale: { x: 1, y: 1 },
+			rotate: 0,
+			duration: 300,
+			curve: 'linear',
+		},
+	])
 	sdk.animations[0].complete()
 	expect(await finished).toEqual({ status: 'completed' })
 	expect(view).toMatchObject({ opacity: 1, translateX: 0, scaleX: 1, rotate: 0 })
@@ -83,8 +118,16 @@ it('isolates concurrent flow engines and keeps engine failure local to motion', 
 
 it('skips unsupported targets and disabled/refresh effects without starting the engine', async () => {
 	const driver = createNativeViewRouteTransitions()
-	expect(await driver.run(context, 'detail', effect, {})).toEqual({ status: 'skipped', reason: 'unsupported' })
-	expect(await driver.run({ ...context, action: 'refresh' }, 'detail', effect, new sdk.View())).toEqual({ status: 'skipped', reason: 'disabled' })
-	expect(await driver.run(context, 'none', effect, new sdk.View())).toEqual({ status: 'skipped', reason: 'disabled' })
+	expect(await driver.run(context, 'detail', effect, {})).toEqual({
+		status: 'skipped',
+		reason: 'unsupported',
+	})
+	expect(
+		await driver.run({ ...context, action: 'refresh' }, 'detail', effect, new sdk.View()),
+	).toEqual({ status: 'skipped', reason: 'disabled' })
+	expect(await driver.run(context, 'none', effect, new sdk.View())).toEqual({
+		status: 'skipped',
+		reason: 'disabled',
+	})
 	expect(sdk.animations).toHaveLength(0)
 })

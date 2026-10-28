@@ -1,4 +1,13 @@
-import { useImperativeHandle, useContext, useEffect, useId, useMemo, useRef, useState } from 'octane'
+import {
+	useImperativeHandle,
+	useContext,
+	useEffect,
+	useId,
+	useMemo,
+	useRef,
+	useState,
+} from 'octane'
+
 import type { DateTimeInputProps, ISODateString, ISODateTimeString, ISOTimeString } from './props'
 import { cx } from '@octane-xplat/lib'
 import { dateMessages } from './date-messages'
@@ -46,7 +55,10 @@ function isCoarsePointer(): boolean {
 function useCoarsePointer(): boolean {
 	const [coarse, setCoarse] = useState(isCoarsePointer)
 	useEffect(() => {
-		if (typeof matchMedia !== 'function') return
+		if (typeof matchMedia !== 'function') {
+			return
+		}
+
 		const mq = matchMedia('(pointer: coarse)')
 		const onChange = (e: any) => setCoarse(e.matches)
 		mq.addEventListener?.('change', onChange)
@@ -67,7 +79,9 @@ interface CoreProps extends DateTimeInputProps {
 
 function DateTimeInputControl(inputProps: CoreProps) @{
 	const props = useFieldControlProps(inputProps)
-	const surface = inputProps.surface === 'native' && inputProps.nativeFallback ? 'popover' : inputProps.surface
+	const surface =
+		inputProps.surface === 'native' && inputProps.nativeFallback ? 'popover' : inputProps.surface
+
 	const locale = resolveLocale(props.locale)
 	const messages = dateMessages(props.messages)
 	const generatedId = useId()
@@ -99,23 +113,32 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 	const canClear = !!props.hasClear && shown != null && !isDisabled && !isBusy
 	const showsDisabledReason = isDisabled && !!props.disabledMessage
 	const hasSeconds = !!props.hasSeconds
-	const formatDisplay = (time: ISOTimeString, seconds: boolean) => props.locale
-		? formatLocalizedTime(time, seconds, props.hourFormat ?? '12h', resolveLocale(props.locale))
-		: (props.hourFormat === '24h' ? formatDisplayTime24h : formatDisplayTime12h)(time, seconds)
+	const formatDisplay = (time: ISOTimeString, seconds: boolean) =>
+		props.locale
+			? formatLocalizedTime(time, seconds, props.hourFormat ?? '12h', resolveLocale(props.locale))
+			: (props.hourFormat === '24h' ? formatDisplayTime24h : formatDisplayTime12h)(time, seconds)
 
 	const minParts = useMemo(() => splitDateTime(props.min), [props.min])
 	const maxParts = useMemo(() => splitDateTime(props.max), [props.max])
 	const valueParts = useMemo(() => splitDateTime(shown), [shown])
 
 	const isDateDisabled = useMemo(
-		() => createDateDisabledCheck({ min: minParts.date, max: maxParts.date, dateConstraints: props.dateConstraints }),
+		() =>
+			createDateDisabledCheck({
+				min: minParts.date,
+				max: maxParts.date,
+				dateConstraints: props.dateConstraints,
+			}),
 		[minParts.date, maxParts.date, props.dateConstraints],
 	)
 
 	// The day-bound min/max only ref the time segment when the picked day IS
 	// the bound's day.
-	const timeMin = minParts.date && minParts.time && valueParts.date === minParts.date ? minParts.time : undefined
-	const timeMax = maxParts.date && maxParts.time && valueParts.date === maxParts.date ? maxParts.time : undefined
+	const timeMin =
+		minParts.date && minParts.time && valueParts.date === minParts.date ? minParts.time : undefined
+
+	const timeMax =
+		maxParts.date && maxParts.time && valueParts.date === maxParts.date ? maxParts.time : undefined
 
 	// Preserve typing on an echoed edit; external values replace the draft.
 	useEffect(() => {
@@ -129,25 +152,41 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 	}, [value])
 
 	const fireChange = (next: ISODateTimeString | null | undefined) => {
-		if (isDisabled || isBusy) return
+		if (isDisabled || isBusy) {
+			return
+		}
+
 		const emitted = next ?? null
 		lastEmitted.current = emitted
 		const parts = splitDateTime(emitted)
-		setAnnouncement(parts.date && parts.time
-			? messages.selected(`${formatDateValue(parts.date, 'date_long', locale)} ${formatDisplay(parts.time, hasSeconds)}`)
-			: messages.cleared)
+		setAnnouncement(
+			parts.date && parts.time
+				? messages.selected(
+						`${formatDateValue(parts.date, 'date_long', locale)} ${formatDisplay(parts.time, hasSeconds)}`,
+					)
+				: messages.cleared,
+		)
 
 		props.onChange?.(emitted)
 		if (props.changeAction) {
 			setBusy(true)
-			runDateChangeAction(() => props.changeAction!(emitted), () => setBusy(false))
+			runDateChangeAction(
+				() => props.changeAction!(emitted),
+				() => setBusy(false),
+			)
 		}
 	}
 
 	const commitDate = (iso: ISODateString, fromCalendar: boolean) => {
 		let time = valueParts.time ?? timeDraft ?? currentISOTime(hasSeconds)
-		if (minParts.date === iso && minParts.time && !isTimeInRange(time, minParts.time, undefined)) time = minParts.time
-		if (maxParts.date === iso && maxParts.time && !isTimeInRange(time, undefined, maxParts.time)) time = maxParts.time
+		if (minParts.date === iso && minParts.time && !isTimeInRange(time, minParts.time, undefined)) {
+			time = minParts.time
+		}
+
+		if (maxParts.date === iso && maxParts.time && !isTimeInRange(time, undefined, maxParts.time)) {
+			time = maxParts.time
+		}
+
 		setTimeDraft(undefined)
 		fireChange(combineDateTime(iso, time))
 		if (fromCalendar) {
@@ -159,7 +198,10 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 	const commitTime = (time: ISOTimeString | undefined) => {
 		if (time === undefined) {
 			setTimeDraft(undefined)
-			if (shown != null) fireChange(null)
+			if (shown != null) {
+				fireChange(null)
+			}
+
 			return
 		}
 
@@ -171,79 +213,163 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 	}
 
 	// --- date segment ---
-	const dateParsed = datePending != null && datePending.trim() ? parseDateInput(datePending, locale) : null
-	const isDateValid = isComposing || datePending == null || !datePending.trim() ? true : dateParsed !== null && !isDateDisabled(dateParsed)
-	const dateDisplay = datePending ?? (valueParts.date ? formatDateValue(valueParts.date, 'date_long', locale) : '')
+	const dateParsed =
+		datePending != null && datePending.trim() ? parseDateInput(datePending, locale) : null
+
+	const isDateValid =
+		isComposing || datePending == null || !datePending.trim()
+			? true
+			: dateParsed !== null && !isDateDisabled(dateParsed)
+
+	const dateDisplay =
+		datePending ?? (valueParts.date ? formatDateValue(valueParts.date, 'date_long', locale) : '')
 
 	const handleDateType = (e: any) => {
-		if (isDisabled) return
+		if (isDisabled) {
+			return
+		}
+
 		const text = e.target.value as string
 		setDatePending(text)
-		if (composing.current || isDateComposing(e)) return
+		if (composing.current || isDateComposing(e)) {
+			return
+		}
+
 		const parsed = parseDateInput(text, locale)
-		if (parsed && !isDateDisabled(parsed)) commitDate(plainDateToISO(parsed), false)
+		if (parsed && !isDateDisabled(parsed)) {
+			commitDate(plainDateToISO(parsed), false)
+		}
 	}
 
 	const handleDateBlur = () => {
-		if (composing.current) return
-		if (datePending == null) return
-		if (!isDateValid) setAnnouncement(messages.invalidDate)
+		if (composing.current) {
+			return
+		}
+
+		if (datePending == null) {
+			return
+		}
+
+		if (!isDateValid) {
+			setAnnouncement(messages.invalidDate)
+		}
+
 		if (!datePending.trim()) {
-			if (shown != null) fireChange(null)
+			if (shown != null) {
+				fireChange(null)
+			}
 		} else {
 			const parsed = parseDateInput(datePending, locale)
-			if (parsed && !isDateDisabled(parsed)) commitDate(plainDateToISO(parsed), false)
+			if (parsed && !isDateDisabled(parsed)) {
+				commitDate(plainDateToISO(parsed), false)
+			}
 		}
 
 		setDatePending(null)
 	}
 
 	const handleDateKey = (e: any) => {
-		if (composing.current || isDateComposing(e)) return
-		if (isDisabled || isBusy) return
-		if (e.key === 'Enter') { e.preventDefault(); handleDateBlur(); return }
-		if (e.key === 'ArrowDown' && surface === 'popover' && !isDisabled) { e.preventDefault(); setOpen('calendar') }
-		else if (e.key === 'Escape' && open) { e.preventDefault(); setOpen(null) }
+		if (composing.current || isDateComposing(e)) {
+			return
+		}
+
+		if (isDisabled || isBusy) {
+			return
+		}
+
+		if (e.key === 'Enter') {
+			e.preventDefault()
+			handleDateBlur()
+			return
+		}
+
+		if (e.key === 'ArrowDown' && surface === 'popover' && !isDisabled) {
+			e.preventDefault()
+			setOpen('calendar')
+		} else if (e.key === 'Escape' && open) {
+			e.preventDefault()
+			setOpen(null)
+		}
 	}
 
 	// --- time segment ---
-	const timeParsed = timePending != null && timePending.trim() ? parseTimeInput(timePending, hasSeconds) : null
-	const isTimeValid = isComposing || timePending == null || !timePending.trim()
-		? true
-		: timeParsed !== null && isTimeInRange(timeParsed, timeMin, timeMax)
+	const timeParsed =
+		timePending != null && timePending.trim() ? parseTimeInput(timePending, hasSeconds) : null
 
-	const timeDisplay = timePending ?? (valueParts.time ? formatDisplay(valueParts.time, hasSeconds) : '')
+	const isTimeValid =
+		isComposing || timePending == null || !timePending.trim()
+			? true
+			: timeParsed !== null && isTimeInRange(timeParsed, timeMin, timeMax)
+
+	const timeDisplay =
+		timePending ?? (valueParts.time ? formatDisplay(valueParts.time, hasSeconds) : '')
 
 	const handleTimeType = (e: any) => {
-		if (isDisabled) return
+		if (isDisabled) {
+			return
+		}
+
 		const text = e.target.value as string
 		setTimePending(text)
 		highlightFromTyping.current = true
-		if (composing.current || isDateComposing(e)) return
+		if (composing.current || isDateComposing(e)) {
+			return
+		}
+
 		const parsed = parseTimeInput(text, hasSeconds)
-		if (parsed && isTimeInRange(parsed, timeMin, timeMax)) commitTime(parsed)
+		if (parsed && isTimeInRange(parsed, timeMin, timeMax)) {
+			commitTime(parsed)
+		}
 	}
 
 	const handleTimeBlur = () => {
-		if (composing.current) return
+		if (composing.current) {
+			return
+		}
+
 		setIsTimeFocused(false)
-		if (open === 'times') setOpen(null)
-		if (timePending == null) return
-		if (!isTimeValid) setAnnouncement(messages.invalidTime)
+		if (open === 'times') {
+			setOpen(null)
+		}
+
+		if (timePending == null) {
+			return
+		}
+
+		if (!isTimeValid) {
+			setAnnouncement(messages.invalidTime)
+		}
+
 		if (!timePending.trim()) {
-			if (valueParts.time) commitTime(undefined)
+			if (valueParts.time) {
+				commitTime(undefined)
+			}
 		} else {
 			const parsed = parseTimeInput(timePending, hasSeconds)
-			if (parsed && isTimeInRange(parsed, timeMin, timeMax)) commitTime(parsed)
+			if (parsed && isTimeInRange(parsed, timeMin, timeMax)) {
+				commitTime(parsed)
+			}
 		}
 
 		setTimePending(null)
 	}
 
 	const handleTimeKey = (e: any) => {
-		if (e.defaultPrevented || isDisabled || isBusy || composing.current || isDateComposing(e)) return
-		if (e.key === 'Escape' && open === 'times') { e.preventDefault(); setOpen(null); return }
-		if (e.key === 'Tab' && open === 'times') { setOpen(null); return }
+		if (e.defaultPrevented || isDisabled || isBusy || composing.current || isDateComposing(e)) {
+			return
+		}
+
+		if (e.key === 'Escape' && open === 'times') {
+			e.preventDefault()
+			setOpen(null)
+			return
+		}
+
+		if (e.key === 'Tab' && open === 'times') {
+			setOpen(null)
+			return
+		}
+
 		if (e.key === 'ArrowDown' && e.altKey && props.timeOptionInterval && surface === 'popover') {
 			e.preventDefault()
 			setOpen('times')
@@ -262,7 +388,9 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 			e.preventDefault()
 			if (open === 'times' && !highlightFromTyping.current) {
 				const option = timeOptions[activeTimeIndex]
-				if (option) selectTimeOption(option.time)
+				if (option) {
+					selectTimeOption(option.time)
+				}
 			} else {
 				handleTimeBlur()
 				setOpen(null)
@@ -287,11 +415,17 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 	// Preset-time list (opt-in via timeOptionInterval) — same bound the typed
 	// path enforces, so no uncommittable option is listed.
 	const timeOptions = useMemo(() => {
-		if (!props.timeOptionInterval) return []
+		if (!props.timeOptionInterval) {
+			return []
+		}
+
 		const list: { time: ISOTimeString; label: string }[] = []
 		for (let m = 0; m < MINUTES_PER_DAY; m += props.timeOptionInterval) {
 			const t = formatISOTime({ hour: Math.floor(m / 60), minute: m % 60, second: 0 }, hasSeconds)
-			if (!isTimeInRange(t, timeMin, timeMax)) continue
+			if (!isTimeInRange(t, timeMin, timeMax)) {
+				continue
+			}
+
 			list.push({ time: t, label: formatDisplay(t, hasSeconds) })
 		}
 
@@ -302,12 +436,20 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 	const seedTime = typedTime ?? timeDraft ?? valueParts.time
 	const seedTimeIndex = seedTime ? timeOptions.findIndex((option) => option.time >= seedTime) : 0
 	const storedTimeIndex = timeOptions.findIndex((option) => option.time === highlightedTime)
-	const activeTimeIndex = highlightFromTyping.current || storedTimeIndex < 0
-		? (timeOptions.length ? seedTimeIndex < 0 ? timeOptions.length - 1 : seedTimeIndex : -1)
-		: storedTimeIndex
+	const activeTimeIndex =
+		highlightFromTyping.current || storedTimeIndex < 0
+			? timeOptions.length
+				? seedTimeIndex < 0
+					? timeOptions.length - 1
+					: seedTimeIndex
+				: -1
+			: storedTimeIndex
 
 	const selectTimeOption = (time: ISOTimeString) => {
-		if (!isTimeInRange(time, timeMin, timeMax)) return
+		if (!isTimeInRange(time, timeMin, timeMax)) {
+			return
+		}
+
 		commitTime(time)
 		setTimePending(null)
 		setAnnouncement(formatDisplay(time, hasSeconds))
@@ -323,7 +465,9 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 
 	useEffect(() => {
 		if (open === 'times' && activeTimeIndex >= 0) {
-			document.getElementById(`${timeListId}-${activeTimeIndex}`)?.scrollIntoView?.({ block: 'nearest' })
+			document
+				.getElementById(`${timeListId}-${activeTimeIndex}`)
+				?.scrollIntoView?.({ block: 'nearest' })
 		}
 	}, [open, activeTimeIndex, timeListId])
 
@@ -331,21 +475,39 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 	const lastDateCommit = useRef<string | null>(null)
 	const handleNativeDate = (e: any) => {
 		const raw = (e.target.value ?? '') as string
-		if (lastDateCommit.current === raw) return
+		if (lastDateCommit.current === raw) {
+			return
+		}
+
 		lastDateCommit.current = raw
-		if (!raw) { fireChange(null); return }
+		if (!raw) {
+			fireChange(null)
+			return
+		}
+
 		const parsed = parseDateInput(raw, locale)
-		if (parsed && !isDateDisabled(parsed)) commitDate(plainDateToISO(parsed), false)
+		if (parsed && !isDateDisabled(parsed)) {
+			commitDate(plainDateToISO(parsed), false)
+		}
 	}
 
 	const lastTimeCommit = useRef<string | null>(null)
 	const handleNativeTime = (e: any) => {
 		const raw = (e.target.value ?? '') as string
-		if (lastTimeCommit.current === raw) return
+		if (lastTimeCommit.current === raw) {
+			return
+		}
+
 		lastTimeCommit.current = raw
-		if (!raw) { commitTime(undefined); return }
+		if (!raw) {
+			commitTime(undefined)
+			return
+		}
+
 		const parsed = parseTimeInput(raw, true)
-		if (parsed && isTimeInRange(parsed, timeMin, timeMax)) commitTime(formatISOTime(parseISOTime(parsed)!, hasSeconds))
+		if (parsed && isTimeInRange(parsed, timeMin, timeMax)) {
+			commitTime(formatISOTime(parseISOTime(parsed)!, hasSeconds))
+		}
 	}
 
 	const clear = () => {
@@ -356,12 +518,16 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 		dateInput.current?.focus({ preventScroll: true })
 	}
 
-	const timeLabelText = props.timeLabel ?? `${props.fieldLabel ?? props.label ?? 'Date and time'} time`
+	const timeLabelText =
+		props.timeLabel ?? `${props.fieldLabel ?? props.label ?? 'Date and time'} time`
+
 	const statusType = props.status?.type
 
 	const shellNode = (
 		<div
-			ref={(el: any) => { anchor.current = el }}
+			ref={(el: any) => {
+				anchor.current = el
+			}}
 			className={cx(
 				'vx-datetimeinput',
 				`vx-datetimeinput--${surface}`,
@@ -378,7 +544,11 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 				<>
 					<button
 						type="button"
-						className={cx('vx-datetimeinput-segment', 'vx-datetimeinput-date', !valueParts.date && 'vx-datetimeinput-segment--placeholder')}
+						className={cx(
+							'vx-datetimeinput-segment',
+							'vx-datetimeinput-date',
+							!valueParts.date && 'vx-datetimeinput-segment--placeholder',
+						)}
 						disabled={isDisabled || isBusy || undefined}
 						aria-label={props.ariaLabel}
 						aria-labelledby={props.ariaLabelledBy}
@@ -386,57 +556,77 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 						aria-description={props.ariaDescription}
 						onClick={() => setOpen('sheet')}
 					>
-						<Icon name="xplat-calendar" size={14} /> {valueParts.date ? formatDateValue(valueParts.date, 'date_long', locale) : (props.placeholder ?? 'Select a date')}
+						<Icon name="xplat-calendar" size={14} />{' '}
+						{valueParts.date
+							? formatDateValue(valueParts.date, 'date_long', locale)
+							: (props.placeholder ?? 'Select a date')}
 					</button>
 					<button
 						type="button"
-						className={cx('vx-datetimeinput-segment', 'vx-datetimeinput-time', !(timeDraft ?? valueParts.time) && 'vx-datetimeinput-segment--placeholder')}
+						className={cx(
+							'vx-datetimeinput-segment',
+							'vx-datetimeinput-time',
+							!(timeDraft ?? valueParts.time) && 'vx-datetimeinput-segment--placeholder',
+						)}
 						disabled={isDisabled || isBusy || undefined}
 						aria-label={timeLabelText}
 						onClick={() => setOpen('sheet')}
 					>
-						<Icon name="xplat-clock" size={14} /> {(timeDraft ?? valueParts.time) ? formatDisplay((timeDraft ?? valueParts.time)!, hasSeconds) : (props.timePlaceholder ?? 'Select a time')}
+						<Icon name="xplat-clock" size={14} />{' '}
+						{(timeDraft ?? valueParts.time)
+							? formatDisplay((timeDraft ?? valueParts.time)!, hasSeconds)
+							: (props.timePlaceholder ?? 'Select a time')}
 					</button>
 				</>
 			) : surface === 'native' ? (
 				<>
 					<span className="vx-datetimeinput-segment vx-datetimeinput-nativeslot">
 						<input
-							ref={(el: any) => { dateInput.current = el; }}
+							ref={(el: any) => {
+								dateInput.current = el
+							}}
 							id={dateId}
 							type="date"
 							className="vx-datetimeinput-input vx-datetimeinput-nativeinput"
 							value={valueParts.date ?? ''}
 							min={minParts.date}
 							max={maxParts.date}
-							disabled={isDisabled && !showsDisabledReason || undefined}
+							disabled={(isDisabled && !showsDisabledReason) || undefined}
 							aria-disabled={showsDisabledReason || undefined}
 							readOnly={showsDisabledReason || undefined}
 							aria-label={props.ariaLabel}
 							aria-labelledby={props.ariaLabelledBy}
 							aria-describedby={props.ariaDescribedBy}
 							aria-description={props.ariaDescription}
-							aria-required={props.isRequired && !props.isOptional || undefined}
+							aria-required={(props.isRequired && !props.isOptional) || undefined}
 							aria-invalid={statusType === 'error' || undefined}
 							aria-busy={isBusy || undefined}
 							onChange={handleNativeDate}
 							onInput={handleNativeDate}
 						/>
 						<span className="vx-datetimeinput-overlay" aria-hidden="true">
-							{valueParts.date ? formatDateValue(valueParts.date, 'date_long', locale) : <span className="vx-datetimeinput-overlay--placeholder">{props.placeholder ?? 'Select a date'}</span>}
+							{valueParts.date ? (
+								formatDateValue(valueParts.date, 'date_long', locale)
+							) : (
+								<span className="vx-datetimeinput-overlay--placeholder">
+									{props.placeholder ?? 'Select a date'}
+								</span>
+							)}
 						</span>
 					</span>
 					<span className="vx-datetimeinput-segment vx-datetimeinput-nativeslot">
 						<input
-							ref={(el: any) => { timeInput.current = el }}
+							ref={(el: any) => {
+								timeInput.current = el
+							}}
 							id={timeId}
 							type="time"
 							className="vx-datetimeinput-input vx-datetimeinput-nativeinput"
-							value={(timeDraft ?? valueParts.time) ?? ''}
+							value={timeDraft ?? valueParts.time ?? ''}
 							min={timeMin}
 							max={timeMax}
 							step={hasSeconds ? 1 : 60}
-							disabled={isDisabled && !showsDisabledReason || undefined}
+							disabled={(isDisabled && !showsDisabledReason) || undefined}
 							aria-disabled={showsDisabledReason || undefined}
 							readOnly={showsDisabledReason || undefined}
 							aria-label={timeLabelText}
@@ -447,7 +637,13 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 							onInput={handleNativeTime}
 						/>
 						<span className="vx-datetimeinput-overlay" aria-hidden="true">
-							{(timeDraft ?? valueParts.time) ? formatDisplay((timeDraft ?? valueParts.time)!, hasSeconds) : <span className="vx-datetimeinput-overlay--placeholder">{props.timePlaceholder ?? 'Select a time'}</span>}
+							{(timeDraft ?? valueParts.time) ? (
+								formatDisplay((timeDraft ?? valueParts.time)!, hasSeconds)
+							) : (
+								<span className="vx-datetimeinput-overlay--placeholder">
+									{props.timePlaceholder ?? 'Select a time'}
+								</span>
+							)}
 						</span>
 					</span>
 				</>
@@ -465,41 +661,66 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 							<Icon name="xplat-calendar" size={14} />
 						</button>
 						<input
-							ref={(el: any) => { dateInput.current = el; }}
+							ref={(el: any) => {
+								dateInput.current = el
+							}}
 							id={dateId}
 							type="text"
-							className={cx('vx-datetimeinput-input', 'vx-datetimeinput-dateinput', !isDateValid && 'vx-datetimeinput-input--invalid')}
+							className={cx(
+								'vx-datetimeinput-input',
+								'vx-datetimeinput-dateinput',
+								!isDateValid && 'vx-datetimeinput-input--invalid',
+							)}
 							value={dateDisplay}
 							placeholder={props.placeholder ?? 'Select a date'}
-							disabled={isDisabled && !showsDisabledReason || undefined}
+							disabled={(isDisabled && !showsDisabledReason) || undefined}
 							aria-disabled={showsDisabledReason || undefined}
 							readOnly={showsDisabledReason || isBusy || undefined}
 							aria-label={props.ariaLabel}
 							aria-labelledby={props.ariaLabelledBy}
 							aria-describedby={props.ariaDescribedBy}
 							aria-description={props.ariaDescription}
-							aria-required={props.isRequired && !props.isOptional || undefined}
+							aria-required={(props.isRequired && !props.isOptional) || undefined}
 							aria-invalid={statusType === 'error' || !isDateValid || undefined}
 							aria-busy={isBusy || undefined}
 							aria-expanded={open === 'calendar'}
 							aria-haspopup="dialog"
 							onInput={handleDateType}
-					onCompositionStart={() => { composing.current = true; setIsComposing(true) }}
-					onCompositionEnd={(e: any) => { composing.current = false; setIsComposing(false); handleDateType(e) }}
+							onCompositionStart={() => {
+								composing.current = true
+								setIsComposing(true)
+							}}
+							onCompositionEnd={(e: any) => {
+								composing.current = false
+								setIsComposing(false)
+								handleDateType(e)
+							}}
 							onBlur={handleDateBlur}
 							onKeyDown={handleDateKey}
 						/>
 					</span>
 					<span className="vx-datetimeinput-segment vx-datetimeinput-timesegment">
 						<input
-							ref={(el: any) => { timeInput.current = el }}
+							ref={(el: any) => {
+								timeInput.current = el
+							}}
 							id={timeId}
 							type="text"
 							role={timeOptions.length ? 'combobox' : undefined}
-							className={cx('vx-datetimeinput-input', 'vx-datetimeinput-timeinput', !isTimeValid && 'vx-datetimeinput-input--invalid')}
+							className={cx(
+								'vx-datetimeinput-input',
+								'vx-datetimeinput-timeinput',
+								!isTimeValid && 'vx-datetimeinput-input--invalid',
+							)}
 							value={timeDisplay}
-							placeholder={isTimeFocused && !timeDisplay ? (props.hourFormat === '24h' ? 'e.g., 14:30' : 'e.g., 2:30 PM') : (props.timePlaceholder ?? 'Select a time')}
-							disabled={isDisabled && !showsDisabledReason || undefined}
+							placeholder={
+								isTimeFocused && !timeDisplay
+									? props.hourFormat === '24h'
+										? 'e.g., 14:30'
+										: 'e.g., 2:30 PM'
+									: (props.timePlaceholder ?? 'Select a time')
+							}
+							disabled={(isDisabled && !showsDisabledReason) || undefined}
 							aria-disabled={showsDisabledReason || undefined}
 							readOnly={showsDisabledReason || isBusy || undefined}
 							aria-label={timeLabelText}
@@ -510,29 +731,78 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 							aria-haspopup={timeOptions.length ? 'listbox' : undefined}
 							aria-controls={open === 'times' ? timeListId : undefined}
 							aria-autocomplete={timeOptions.length ? 'list' : undefined}
-							aria-activedescendant={open === 'times' && activeTimeIndex >= 0 ? `${timeListId}-${activeTimeIndex}` : undefined}
+							aria-activedescendant={
+								open === 'times' && activeTimeIndex >= 0
+									? `${timeListId}-${activeTimeIndex}`
+									: undefined
+							}
 							onInput={handleTimeType}
-					onCompositionStart={() => { composing.current = true; setIsComposing(true) }}
-					onCompositionEnd={(e: any) => { composing.current = false; setIsComposing(false); handleTimeType(e) }}
-							onFocus={() => { if (!isDisabled) { setIsTimeFocused(true); if (timeOptions.length && open !== 'times') setOpen('times') } }}
+							onCompositionStart={() => {
+								composing.current = true
+								setIsComposing(true)
+							}}
+							onCompositionEnd={(e: any) => {
+								composing.current = false
+								setIsComposing(false)
+								handleTimeType(e)
+							}}
+							onFocus={() => {
+								if (!isDisabled) {
+									setIsTimeFocused(true)
+									if (timeOptions.length && open !== 'times') {
+										setOpen('times')
+									}
+								}
+							}}
 							onBlur={handleTimeBlur}
 							onKeyDown={handleTimeKey}
 						/>
 					</span>
 				</>
 			)}
-			{canClear ? <button type="button" className="vx-datetimeinput-clear" aria-label={`Clear ${props.fieldLabel ?? props.label ?? 'date and time'}`} onClick={clear}>{'×'}</button> : null}
+			{canClear ? (
+				<button
+					type="button"
+					className="vx-datetimeinput-clear"
+					aria-label={`Clear ${props.fieldLabel ?? props.label ?? 'date and time'}`}
+					onClick={clear}
+				>
+					{'×'}
+				</button>
+			) : null}
 			{isBusy ? <ActivityIndicator busy className="vx-datetimeinput-spinner" /> : null}
-			{statusType ? <span className={cx('vx-field-icon', `vx-field-icon--${statusType}`)}>{STATUS_GLYPHS[statusType]}</span> : null}
+			{statusType ? (
+				<span className={cx('vx-field-icon', `vx-field-icon--${statusType}`)}>
+					{STATUS_GLYPHS[statusType]}
+				</span>
+			) : null}
 		</div>
 	)
 
-	useImperativeHandle(props.ref, () => ({ focus: () => dateInput.current?.focus(), blur: () => dateInput.current?.blur(), native: dateInput.current }), undefined);
+	useImperativeHandle(
+		props.ref,
+		() => ({
+			focus: () => dateInput.current?.focus(),
+			blur: () => dateInput.current?.blur(),
+			native: dateInput.current,
+		}),
+		undefined,
+	)
 
 	<>
-		{showsDisabledReason ? <Tooltip trigger={shellNode} content={props.disabledMessage!} /> : shellNode}
+		{showsDisabledReason ? (
+			<Tooltip trigger={shellNode} content={props.disabledMessage!} />
+		) : (
+			shellNode
+		)}
 		{surface === 'popover' ? (
-			<Popover anchor={anchor} open={open === 'calendar'} onDismiss={() => setOpen(null)} placement="bottom" className="vx-datetimeinput-popover">
+			<Popover
+				anchor={anchor}
+				open={open === 'calendar'}
+				onDismiss={() => setOpen(null)}
+				placement="bottom"
+				className="vx-datetimeinput-popover"
+			>
 				<Calendar
 					locale={props.locale}
 					direction={props.direction}
@@ -549,8 +819,19 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 			</Popover>
 		) : null}
 		{surface === 'popover' && timeOptions.length ? (
-			<Popover anchor={anchor} open={open === 'times'} onDismiss={() => setOpen(null)} placement="bottom" className="vx-datetimeinput-times">
-				<div id={timeListId} role="listbox" aria-label={timeLabelText} className="vx-datetimeinput-timelist">
+			<Popover
+				anchor={anchor}
+				open={open === 'times'}
+				onDismiss={() => setOpen(null)}
+				placement="bottom"
+				className="vx-datetimeinput-times"
+			>
+				<div
+					id={timeListId}
+					role="listbox"
+					aria-label={timeLabelText}
+					className="vx-datetimeinput-timelist"
+				>
 					{timeOptions.map((opt, index) => (
 						<button
 							key={opt.time}
@@ -559,7 +840,12 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 							type="button"
 							role="option"
 							aria-selected={opt.time === (timeDraft ?? valueParts.time)}
-							className={cx('vx-datetimeinput-timeoption', index === activeTimeIndex && 'vx-datetimeinput-timeoption--highlighted', opt.time === (timeDraft ?? valueParts.time) && 'vx-datetimeinput-timeoption--selected')}
+							className={cx(
+								'vx-datetimeinput-timeoption',
+								index === activeTimeIndex && 'vx-datetimeinput-timeoption--highlighted',
+								opt.time === (timeDraft ?? valueParts.time) &&
+									'vx-datetimeinput-timeoption--selected',
+							)}
 							onMouseDown={(e: any) => e.preventDefault()}
 							onClick={() => selectTimeOption(opt.time)}
 						>
@@ -570,7 +856,13 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 			</Popover>
 		) : null}
 		{surface === 'sheet' ? (
-			<BottomSheet isOpen={open === 'sheet'} onOpenChange={(isOpen) => setOpen(isOpen ? 'sheet' : null)} label={props.label ?? props.accessibilityLabel ?? 'Choose a date and time'} height="hug" className="vx-datetimeinput-sheet">
+			<BottomSheet
+				isOpen={open === 'sheet'}
+				onOpenChange={(isOpen) => setOpen(isOpen ? 'sheet' : null)}
+				label={props.label ?? props.accessibilityLabel ?? 'Choose a date and time'}
+				height="hug"
+				className="vx-datetimeinput-sheet"
+			>
 				<div className="vx-datetimeinput-sheetbody">
 					<Calendar
 						locale={props.locale}
@@ -591,14 +883,21 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 						hourFormat={props.hourFormat ?? '12h'}
 						min={timeMin}
 						max={timeMax}
-						onCommit={(t) => { commitTime(t); setOpen(null) }}
+						onCommit={(t) => {
+							commitTime(t)
+							setOpen(null)
+						}}
 						onDismiss={() => setOpen(null)}
 					/>
 				</div>
 			</BottomSheet>
 		) : null}
-		<div className="vx-sr-only" aria-live="polite" role="status">{announcement}</div>
-		<div className="vx-sr-only" aria-live="assertive" role="alert">{!isDateValid || !isTimeValid ? messages.invalidDateTime : ''}</div>
+		<div className="vx-sr-only" aria-live="polite" role="status">
+			{announcement}
+		</div>
+		<div className="vx-sr-only" aria-live="assertive" role="alert">
+			{!isDateValid || !isTimeValid ? messages.invalidDateTime : ''}
+		</div>
 	</>
 }
 
@@ -612,15 +911,24 @@ export function DateTimeInput(props: DateTimeInputProps) @{
 	const isTouch = useCoarsePointer()
 	const effective = effectivePresentation(props.presentation)
 	const surface = resolveInputSurface(effective, isTouch)
-	const nativeFallback = surface === 'native' && effective !== 'native' && (
-		!!props.hasSeconds || (props.timeIncrement ?? 1) !== 1 || props.timeOptionInterval !== undefined
-	)
+	const nativeFallback =
+		surface === 'native' &&
+		effective !== 'native' &&
+		(!!props.hasSeconds ||
+			(props.timeIncrement ?? 1) !== 1 ||
+			props.timeOptionInterval !== undefined)
 
 	const cid = useId()
 	const concrete: 'popover' | 'sheet' | 'native' = surface === 'typed' ? 'popover' : surface
 
-	const control = <DateTimeInputControl {...props} surface={concrete} nativeFallback={nativeFallback} />
-	if (inField) return control
+	const control = (
+		<DateTimeInputControl {...props} surface={concrete} nativeFallback={nativeFallback} />
+	)
+
+	if (inField) {
+		return control
+	}
+
 	return (
 		<FormField
 			inputID={props.id ?? cid}

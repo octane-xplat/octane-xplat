@@ -27,17 +27,25 @@ const passthroughSearch = (raw: Record<string, unknown>) => raw
 
 export const routes = defineRoutes([
 	defineRoute({ path: '', validateSearch: passthroughSearch }).screen(HomeScreen),
-	defineRoute({ path: '/components-patterns', validateSearch: passthroughSearch }).screen(function ComponentsPatternsRoute() {
-		return CategoryScreen({ slug: 'components-patterns' })
-	}),
-	defineRoute({ path: '/themes', validateSearch: passthroughSearch }).screen(function ThemesRoute() {
-		return CategoryScreen({ slug: 'themes' })
-	}),
+	defineRoute({ path: '/components-patterns', validateSearch: passthroughSearch }).screen(
+		function ComponentsPatternsRoute() {
+			return CategoryScreen({ slug: 'components-patterns' })
+		},
+	),
+	defineRoute({ path: '/themes', validateSearch: passthroughSearch }).screen(
+		function ThemesRoute() {
+			return CategoryScreen({ slug: 'themes' })
+		},
+	),
 	defineRoute({ path: '/tools', validateSearch: passthroughSearch }).screen(function ToolsRoute() {
 		return CategoryScreen({ slug: 'tools' })
 	}),
-	defineRoute({ path: '/templates', validateSearch: passthroughSearch }).screen(TemplatesIndexScreen),
-	defineRoute({ path: '/templates/:name', validateSearch: passthroughSearch }).screen(TemplateScreen),
+	defineRoute({ path: '/templates', validateSearch: passthroughSearch }).screen(
+		TemplatesIndexScreen,
+	),
+	defineRoute({ path: '/templates/:name', validateSearch: passthroughSearch }).screen(
+		TemplateScreen,
+	),
 	defineRoute({ path: '/pages/*rest', validateSearch: passthroughSearch }).screen(PageScreen),
 	defineRoute({ path: '/404', validateSearch: passthroughSearch }).screen(function NotFoundRoute() {
 		return NotFoundScreen({})

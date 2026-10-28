@@ -40,12 +40,16 @@ export default function Content() {
 						<label
 							id="content-label"
 							text={phase === 1 ? 'Updated content' : 'Initial content'}
-							style={phase === 2 ? {} : {
-								width: 60,
-								height: 20,
-								justifySelf: phase === 1 ? 'end' : 'center',
-								alignSelf: phase === 1 ? 'start' : 'center',
-							}}
+							style={
+								phase === 2
+									? {}
+									: {
+											width: 60,
+											height: 20,
+											justifySelf: phase === 1 ? 'end' : 'center',
+											alignSelf: phase === 1 ? 'start' : 'center',
+										}
+							}
 						/>
 					</masonview>
 				) : phase === 4 ? null : (

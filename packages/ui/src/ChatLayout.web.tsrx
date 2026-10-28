@@ -134,7 +134,10 @@ export function ChatLayout(props: ChatLayoutProps) @{
 			>
 				{props.scrollButton === undefined ? defaultScrollButton : props.scrollButton}
 				<div className={['vx-chatlayout-blur', `vx-chatlayout-blur--${density}`]} />
-				<div ref={attachDockPad} className={['vx-chatlayout-dockpad', `vx-chatlayout-dockpad--${density}`]}>
+				<div
+					ref={attachDockPad}
+					className={['vx-chatlayout-dockpad', `vx-chatlayout-dockpad--${density}`]}
+				>
 					<div className="vx-chatlayout-dockinner">{props.composer}</div>
 				</div>
 			</div>

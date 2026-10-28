@@ -8,7 +8,17 @@ import {
 	MapView as NativeMapView,
 	type Coordinate,
 } from '@nativescript/google-maps'
-import type { CameraEvent, CircleDef, MapViewHandle, MapViewProps, MarkerDef, PolygonDef, PolylineDef } from './props'
+
+import type {
+	CameraEvent,
+	CircleDef,
+	MapViewHandle,
+	MapViewProps,
+	MarkerDef,
+	PolygonDef,
+	PolylineDef,
+} from './props'
+
 import type { CameraPosition } from './props'
 
 registerElement('xplatmapview', NativeMapView)
@@ -17,6 +27,7 @@ const toCoord = (c: { latitude: number; longitude: number }): Coordinate => ({
 	lat: c.latitude,
 	lng: c.longitude,
 })
+
 const fromCoord = (c: Coordinate) => ({ latitude: c.lat, longitude: c.lng })
 
 let defIds = 0
@@ -53,6 +64,7 @@ export function MapView(props: MapViewProps) @{
 		snapshot: () => mapOf()?.snapshot(),
 		native: v,
 	})
+
 	useImperativeHandle(props.ref, () => handle(host.current), [])
 
 	useEffect(() => {
@@ -60,26 +72,31 @@ export function MapView(props: MapViewProps) @{
 		if (!v) {
 			return
 		}
+
 		v.on('ready', (e: any) => {
 			map.current = e?.map
 			syncAll()
 			latest.current.onMapReady?.()
 		})
+
 		v.on('mapTap', (e: any) => {
 			if (e?.coordinate) {
 				latest.current.onMapClick?.({ coordinates: fromCoord(e.coordinate) })
 			}
 		})
+
 		v.on('mapLongPress', (e: any) => {
 			if (e?.coordinate) {
 				latest.current.onMapLongPress?.({ coordinates: fromCoord(e.coordinate) })
 			}
 		})
+
 		v.on('cameraPosition', (e: any) => {
 			const p = e?.cameraPosition
 			if (!p) {
 				return
 			}
+
 			const out: CameraEvent = {
 				cameraPosition: {
 					coordinates: fromCoord(p.target),
@@ -90,12 +107,15 @@ export function MapView(props: MapViewProps) @{
 				state: e?.state ?? 'idle',
 				isGesture: e?.isGesture,
 			}
+
 			latest.current.onCameraMove?.(out)
 		})
+
 		v.on('markerTap', (e: any) => {
 			const def = e?.marker?.userData?.def as MarkerDef | undefined
 			def?.onTap?.()
 		})
+
 		const bag = isAndroid ? props.android : props.ios
 		if (bag) {
 			Object.assign(v, bag)
@@ -111,6 +131,7 @@ export function MapView(props: MapViewProps) @{
 		if (!g) {
 			return
 		}
+
 		const want = keyed(defs)
 		for (const [key, ref] of overlays.current) {
 			if (key.startsWith(`${kind}:`) && !want.has(key.slice(kind.length + 1))) {
@@ -118,6 +139,7 @@ export function MapView(props: MapViewProps) @{
 				overlays.current.delete(key)
 			}
 		}
+
 		for (const [key, def] of want) {
 			const fullKey = `${kind}:${key}`
 			if (!overlays.current.has(fullKey)) {
@@ -134,6 +156,7 @@ export function MapView(props: MapViewProps) @{
 		if (!g) {
 			return
 		}
+
 		const p = latest.current
 		if (p.cameraPosition) {
 			g.cameraPosition = new NativeCameraPosition(
@@ -143,12 +166,15 @@ export function MapView(props: MapViewProps) @{
 				p.cameraPosition.tilt ?? 0,
 			)
 		}
+
 		if (p.mapType) {
 			g.mapType = p.mapType
 		}
+
 		if (p.userLocationEnabled !== undefined) {
 			g.myLocationEnabled = p.userLocationEnabled
 		}
+
 		syncOverlays('marker', p.markers, (def: MarkerDef) =>
 			g.addMarker({
 				position: toCoord(def.coordinates),
@@ -161,6 +187,7 @@ export function MapView(props: MapViewProps) @{
 				userData: { def },
 			}),
 		)
+
 		syncOverlays('polyline', p.polylines, (def: PolylineDef) =>
 			g.addPolyline({
 				points: def.points.map(toCoord),
@@ -169,6 +196,7 @@ export function MapView(props: MapViewProps) @{
 				geodesic: def.geodesic,
 			}),
 		)
+
 		syncOverlays('polygon', p.polygons, (def: PolygonDef) =>
 			g.addPolygon({
 				points: def.points.map(toCoord),
@@ -178,6 +206,7 @@ export function MapView(props: MapViewProps) @{
 				strokeWidth: def.strokeWidth,
 			}),
 		)
+
 		syncOverlays('circle', p.circles, (def: CircleDef) =>
 			g.addCircle({
 				center: toCoord(def.center),

@@ -116,13 +116,22 @@ test('remote sources fetch through NSURLSession; placeholder paints while pendin
 			imageNamed: (name) => ({ named: name }),
 		},
 		NSData: {
-			alloc: () => ({ initWithBase64EncodedStringOptions: (value, options) => ({ value, options }) }),
+			alloc: () => ({
+				initWithBase64EncodedStringOptions: (value, options) => ({ value, options }),
+			}),
 		},
 		NSURL: { URLWithString: (value) => value },
 		NSURLSession: {
 			sharedSession: {
 				dataTaskWithURLCompletionHandler: (url, handler) => {
-					const task = { url, handler, resumed: false, resume() { this.resumed = true } }
+					const task = {
+						url,
+						handler,
+						resumed: false,
+						resume() {
+							this.resumed = true
+						},
+					}
 					tasks.push(task)
 					return task
 				},

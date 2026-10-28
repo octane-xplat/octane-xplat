@@ -13,11 +13,13 @@ writeFileSync(
 	join(dir, 'src', 'a.css'),
 	'@media (min-width: 300px) { .q { width: 10px } }\n@layer base { .a { width: 12px } }\n@platform macos { .m { width: 4px } }\n@platform gtk { .g { width: 6px } }\n@platform web { .w { width: 8px } }\n',
 )
+
 writeFileSync(join(dir, 'src', 'b.css'), '.b { padding: 2px 4px }\n')
 writeFileSync(
 	join(dir, 'src', 'entry.ts'),
 	"import './a.css'\nimport './b.css'\nexport const x = 1\n",
 )
+
 writeFileSync(
 	join(dir, 'src', 'gtk-entry.ts'),
 	"import Gtk from 'gi://Gtk?version=4.0'\nimport './a.css'\nexport const g = Gtk.MAJOR_VERSION\n",

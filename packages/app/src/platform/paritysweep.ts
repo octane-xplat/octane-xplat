@@ -1,6 +1,6 @@
 import { Application, knownFolders } from '@nativescript/core'
 
-import { router } from '@octane-xplat/ui/routing';
+import { router } from '@octane-xplat/ui/routing'
 import { VIRTUAL_LIST_BENCH_MODE } from './virtual-list-benchmark-mode'
 
 /** Inline-stage mount is a macOS-only path (its leaf overrides this); other

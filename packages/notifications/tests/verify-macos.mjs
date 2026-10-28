@@ -70,7 +70,11 @@ assert.match(bundled.stdout, /BUNDLE_NOTIFICATION_SUPPORT_OK/)
 console.log('Packaged native fixture: bundle identity support check passes (intercepted center).')
 
 const artifact = await buildMacOSNative(app)
-assert.deepEqual([...artifact.leaves].sort(), ['@octane-xplat/notifications', '@octane-xplat/platform'])
+assert.deepEqual([...artifact.leaves].sort(), [
+	'@octane-xplat/notifications',
+	'@octane-xplat/platform',
+])
+
 const bootstrap = join(app, 'bootstrap.js')
 await writeNativeBootstrap(artifact, bootstrap)
 const script = join(app, 'fixture.cjs')

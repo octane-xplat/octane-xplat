@@ -5,7 +5,14 @@ import type { ISODateString, ISOTimeString, ISODateTimeString, DateRange } from 
 
 export function TimeInputIncrement() @{
 	const [value, setValue] = useState<ISOTimeString | null>(null)
-	<div style={{width: 400}}>
-		<TimeInput label="Reminder" increment={15} description="15-minute intervals" value={value} onChange={setValue} />
+
+	<div style={{ width: 400 }}>
+		<TimeInput
+			label="Reminder"
+			increment={15}
+			description="15-minute intervals"
+			value={value}
+			onChange={setValue}
+		/>
 	</div>
 }

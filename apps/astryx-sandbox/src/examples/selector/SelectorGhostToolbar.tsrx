@@ -4,13 +4,22 @@ import { useState } from 'octane'
 
 export function SelectorGhostToolbar() @{
 	const [value, setValue] = useState<string | null>('all')
+
 	<Stack direction="horizontal" gap={2}>
-		<Text type="label" style={{alignSelf: 'center'}}>Filter:</Text>
-		<Selector variant="ghost" options={[
-			{ value: 'all', label: 'All projects' },
-			{ value: 'mine', label: 'My projects' },
-			{ value: 'shared', label: 'Shared with me' },
-			{ value: 'archived', label: 'Archived' },
-		]} value={value} onValueChange={setValue} placeholder="All projects" />
+		<Text type="label" style={{ alignSelf: 'center' }}>
+			Filter:
+		</Text>
+		<Selector
+			variant="ghost"
+			options={[
+				{ value: 'all', label: 'All projects' },
+				{ value: 'mine', label: 'My projects' },
+				{ value: 'shared', label: 'Shared with me' },
+				{ value: 'archived', label: 'Archived' },
+			]}
+			value={value}
+			onValueChange={setValue}
+			placeholder="All projects"
+		/>
 	</Stack>
 }

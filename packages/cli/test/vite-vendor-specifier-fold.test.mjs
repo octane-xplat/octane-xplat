@@ -32,10 +32,7 @@ const makeWorkspace = () => {
 const makePlugin = (nodeModulesDir, name, pkgJson) => {
 	const dir = join(nodeModulesDir, ...name.split('/'))
 	mkdirSync(dir, { recursive: true })
-	writeFileSync(
-		join(dir, 'package.json'),
-		JSON.stringify({ name, version: '1.0.0', ...pkgJson }),
-	)
+	writeFileSync(join(dir, 'package.json'), JSON.stringify({ name, version: '1.0.0', ...pkgJson }))
 	mkdirSync(join(dir, 'dist'), { recursive: true })
 	writeFileSync(join(dir, 'dist/index.js'), 'export const x = 1\n')
 	return dir
@@ -49,7 +46,9 @@ const makeApp = (workspaceRoot) => {
 }
 
 afterEach(() => {
-	for (const dir of dirs.splice(0)) {rmSync(dir, { recursive: true, force: true })}
+	for (const dir of dirs.splice(0)) {
+		rmSync(dir, { recursive: true, force: true })
+	}
 })
 
 describe('resolveInternalRuntimePluginBareSpecifier', () => {

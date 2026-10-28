@@ -11,10 +11,26 @@ interface User extends Record<string, unknown> {
 }
 
 const names = [
-	'Alice Johnson', 'Bob Smith', 'Charlie Brown', 'Diana Prince', 'Eve Davis',
-	'Frank Miller', 'Grace Lee', 'Hank Wilson', 'Ivy Chen', 'Jack Turner',
-	'Karen White', 'Leo Garcia', 'Mia Thompson', 'Noah Martinez', 'Olivia Clark',
-	'Paul Harris', 'Quinn Walker', 'Rachel Adams', 'Sam Robinson', 'Tina Scott',
+	'Alice Johnson',
+	'Bob Smith',
+	'Charlie Brown',
+	'Diana Prince',
+	'Eve Davis',
+	'Frank Miller',
+	'Grace Lee',
+	'Hank Wilson',
+	'Ivy Chen',
+	'Jack Turner',
+	'Karen White',
+	'Leo Garcia',
+	'Mia Thompson',
+	'Noah Martinez',
+	'Olivia Clark',
+	'Paul Harris',
+	'Quinn Walker',
+	'Rachel Adams',
+	'Sam Robinson',
+	'Tina Scott',
 ]
 
 const roles = ['Engineer', 'Designer', 'Manager', 'Admin', 'Analyst']

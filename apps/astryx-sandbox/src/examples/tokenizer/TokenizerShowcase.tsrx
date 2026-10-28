@@ -6,8 +6,17 @@ const TAGS = ['typescript', 'react', 'design-system', 'a11y', 'docs']
 const source = createStaticSource(TAGS.map((t) => ({ id: t, label: t })))
 
 export function TokenizerShowcase() @{
-	const [values, setValues] = useState<{ id: string; label: string }[]>([{ id: 'typescript', label: 'typescript' }])
-	<div style={{width: 400}}>
-		<Tokenizer label="Tags" searchSource={source} value={values} onChange={setValues} placeholder="Add a tag…" />
+	const [values, setValues] = useState<{ id: string; label: string }[]>([
+		{ id: 'typescript', label: 'typescript' },
+	])
+
+	<div style={{ width: 400 }}>
+		<Tokenizer
+			label="Tags"
+			searchSource={source}
+			value={values}
+			onChange={setValues}
+			placeholder="Add a tag…"
+		/>
 	</div>
 }

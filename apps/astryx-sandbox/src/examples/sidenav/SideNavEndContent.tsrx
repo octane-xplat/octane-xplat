@@ -1,5 +1,14 @@
 // Port of upstream SideNav/SideNavEndContent.tsx (Astryx 0.6.4, MIT).
-import { Badge, Icon, MoreMenu, SideNav, SideNavHeading, SideNavItem, SideNavSection, Text } from '@octane-xplat/ui'
+import {
+	Badge,
+	Icon,
+	MoreMenu,
+	SideNav,
+	SideNavHeading,
+	SideNavItem,
+	SideNavSection,
+	Text,
+} from '@octane-xplat/ui'
 
 export function SideNavEndContent() @{
 	<SideNav header={<SideNavHeading heading="My App" headingHref="/" />}>
@@ -19,9 +28,28 @@ export function SideNavEndContent() @{
 					/>
 				}
 			/>
-			<SideNavItem label="Projects" icon={<Icon name="sandbox-folder" />} href="/projects" endContent={<Badge label={12} />} />
-			<SideNavItem label="Analytics" icon={<Icon name="sandbox-chart" />} href="/analytics" endContent={<Badge label="New" />} />
-			<SideNavItem label="Team" icon={<Icon name="sandbox-user" />} href="/team" endContent={<Text type="supporting" color="secondary">8 members</Text>} />
+			<SideNavItem
+				label="Projects"
+				icon={<Icon name="sandbox-folder" />}
+				href="/projects"
+				endContent={<Badge label={12} />}
+			/>
+			<SideNavItem
+				label="Analytics"
+				icon={<Icon name="sandbox-chart" />}
+				href="/analytics"
+				endContent={<Badge label="New" />}
+			/>
+			<SideNavItem
+				label="Team"
+				icon={<Icon name="sandbox-user" />}
+				href="/team"
+				endContent={
+					<Text type="supporting" color="secondary">
+						8 members
+					</Text>
+				}
+			/>
 		</SideNavSection>
 	</SideNav>
 }

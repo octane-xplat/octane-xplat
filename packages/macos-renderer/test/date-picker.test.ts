@@ -39,12 +39,21 @@ function fixture() {
 	const context = runSlice(
 		dateFromMillis + '\n' + slice + '\n({ attach: (v, o, c) => attachDatePicker(v, o, c) })',
 		{
-		elementBehaviors: new Map(),
-		behaviorOf: () => undefined,
-		isManualLayoutParent: (t: string) =>
-			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
-		registerElementType: () => {},
-		
+			elementBehaviors: new Map(),
+			behaviorOf: () => undefined,
+			isManualLayoutParent: (t: string) =>
+				[
+					'gridlayout',
+					'liquidglass',
+					'absolutelayout',
+					'contentview',
+					'actionbar',
+					'docklayout',
+					'wraplayout',
+					'rootlayout',
+				].includes(t),
+			registerElementType: () => {},
+
 			NSDate: Object.assign(function NSDate() {}, {
 				dateWithTimeIntervalSince1970: (s) => ({ timeIntervalSince1970: s }),
 			}),

@@ -1,14 +1,14 @@
-import { useState, memo } from 'octane';
-import { View, HStack, Text, Pressable } from '@octane-xplat/ui';
+import { useState, memo } from 'octane'
+import { View, HStack, Text, Pressable } from '@octane-xplat/ui'
 
 // Module-scope render ledger — a mutation during render, deliberate for a
 // probe: the text the tree carries IS the observation channel.
-const renderCounts = new Map<string, number>();
+const renderCounts = new Map<string, number>()
 
 function ProbeChild(props: { name: string; n: number }) @{
-	const renders = (renderCounts.get(props.name) ?? 0) + 1;
-	renderCounts.set(props.name, renders);
-	console.log('[probe] child ' + props.name + ' render n=' + props.n + ' renders=' + renders);
+	const renders = (renderCounts.get(props.name) ?? 0) + 1
+	renderCounts.set(props.name, renders)
+	console.log('[probe] child ' + props.name + ' render n=' + props.n + ' renders=' + renders)
 
 	<HStack className="gap-2 items-center">
 		<Text className="chip">{props.name}</Text>
@@ -16,7 +16,7 @@ function ProbeChild(props: { name: string; n: number }) @{
 	</HStack>
 }
 
-const MemoChild = memo(ProbeChild, (a, b) => a.n === b.n && a.name === b.name);
+const MemoChild = memo(ProbeChild, (a, b) => a.n === b.n && a.name === b.name)
 
 /** reactive-nested-probe — reactivity granularity, read from the tree.
  *  Proves: which children re-commit when one state slice changes, and
@@ -29,9 +29,9 @@ const MemoChild = memo(ProbeChild, (a, b) => a.n === b.n && a.name === b.name);
  *  - renders staying 1 while n= text updates → fine-grained binding,
  *    the component body didn't re-run at all. */
 export function ReactiveProbe() @{
-	const [a, setA] = useState(0);
-	const [b, setB] = useState(0);
-	console.log('[probe] ReactiveProbe render a=' + a + ' b=' + b);
+	const [a, setA] = useState(0)
+	const [b, setB] = useState(0)
+	console.log('[probe] ReactiveProbe render a=' + a + ' b=' + b)
 
 	<View className="vx-app flex-1 gap-4">
 		<HStack className="gap-4">

@@ -19,9 +19,7 @@ test('lowers /\\p{…}/u and /\\P{…}/u literals with identical matching', asyn
 })
 
 test('rewrites constant new RegExp with property escapes and u flag', async () => {
-	const result = await transformNativeRegex(
-		String.raw`const regex = new RegExp("\\p{L}+", "u")`,
-	)
+	const result = await transformNativeRegex(String.raw`const regex = new RegExp("\\p{L}+", "u")`)
 	assert.ok(!result.code.includes('new RegExp'), result.code)
 	assert.ok(!result.code.includes('\\p{'), result.code)
 	assert.deepEqual(evalSource(result.code).exec('héllo')[0], 'héllo')

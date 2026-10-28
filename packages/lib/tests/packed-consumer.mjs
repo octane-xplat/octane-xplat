@@ -42,6 +42,7 @@ layout.style
 void [role, row, indexedRow, forwardedAccessibility, forwardedLayout]
 `,
 	)
+
 	run('pnpm', [
 		'exec',
 		'tsc',
@@ -60,11 +61,13 @@ void [role, row, indexedRow, forwardedAccessibility, forwardedLayout]
 		pickLayoutChildProps,
 		equalLayoutChildProps,
 	} = await loadSource(pathToFileURL(join(root, manifest.exports['.'].default)))
+
 	assert.equal(cx('host', [false, ['active']]), 'host active')
 	assert.equal(
 		equalAccessibilityProps(pickAccessibilityProps({ accessible: false }), { accessible: false }),
 		true,
 	)
+
 	assert.equal(equalLayoutChildProps(pickLayoutChildProps({ row: 0 }), { row: 0 }), true)
 	// Node tooling must load emitted JavaScript, without TS stripping in node_modules.
 	const routingEntry = manifest.exports['./route-pattern']
@@ -72,6 +75,7 @@ void [role, row, indexedRow, forwardedAccessibility, forwardedLayout]
 	const { routePatternPath, parseRouteLocation } = await import(
 		pathToFileURL(join(root, routingEntry.default)).href
 	)
+
 	assert.equal(routePatternPath('items/[id]'), '/items/:id')
 	assert.deepEqual(parseRouteLocation('/?tag=a&tag=b').search, { tag: ['a', 'b'] })
 	console.log('lib packed consumer: published source and declarations pass')

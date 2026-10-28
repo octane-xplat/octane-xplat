@@ -6,7 +6,9 @@ import type { CrashlyticsService } from './types'
 const instance = () => {
 	const c = (firebase() as any).crashlytics?.()
 	if (!c) {
-		throw new Error('unsupported: firebase crashlytics is not available — is the Firebase app configured?')
+		throw new Error(
+			'unsupported: firebase crashlytics is not available — is the Firebase app configured?',
+		)
 	}
 	return c
 }

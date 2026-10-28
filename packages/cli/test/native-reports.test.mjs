@@ -85,7 +85,13 @@ test('Apple crash originals survive source deletion and log rotation, with exact
 		() => readNativeReport(other.root, other.run, id),
 		(e) => e.code === 'not_found',
 	)
-	const raw = join(f.root, 'node_modules/.cache/xplat/sessions', f.run.sessionId, 'reports', id + '.txt')
+	const raw = join(
+		f.root,
+		'node_modules/.cache/xplat/sessions',
+		f.run.sessionId,
+		'reports',
+		id + '.txt',
+	)
 	writeFileSync(raw, 'tampered')
 	assert.throws(
 		() => readNativeReport(f.root, f.run, id),

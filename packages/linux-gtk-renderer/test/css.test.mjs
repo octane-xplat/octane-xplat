@@ -43,9 +43,7 @@ test('stylesheets cascade through the GTK driver under real GJS+GTK', async (t) 
 	// Homebrew gjs needs its lib dir on the dyld fallback path; on Linux the
 	// system GI paths are enough.
 	const dyld =
-		process.platform === 'darwin'
-			? `${execSync('brew --prefix').toString().trim()}/lib`
-			: undefined
+		process.platform === 'darwin' ? `${execSync('brew --prefix').toString().trim()}/lib` : undefined
 	const env = { ...process.env }
 	if (dyld) {
 		env.DYLD_FALLBACK_LIBRARY_PATH = [dyld, process.env.DYLD_FALLBACK_LIBRARY_PATH]
@@ -54,7 +52,11 @@ test('stylesheets cascade through the GTK driver under real GJS+GTK', async (t) 
 	}
 
 	// stderr carries console.warn — the warn-once evidence lives there.
-	const { stdout: output, stderr, status } = spawnSync('gjs', ['-m', join(outDir, 'app.js')], {
+	const {
+		stdout: output,
+		stderr,
+		status,
+	} = spawnSync('gjs', ['-m', join(outDir, 'app.js')], {
 		env,
 		encoding: 'utf8',
 	})
@@ -93,11 +95,7 @@ test('stylesheets cascade through the GTK driver under real GJS+GTK', async (t) 
 	assert.equal(r.enabledColor, '#0f0')
 
 	// Unsupported CSS property warns exactly once across both .w1 nodes.
-	assert.equal(
-		stderr.split('ignored unsupported property cursor').length - 1,
-		1,
-		stderr,
-	)
+	assert.equal(stderr.split('ignored unsupported property cursor').length - 1, 1, stderr)
 
 	// Adjacent-sibling rule re-matches after an insert (before: only the
 	// inherited host color applies).
@@ -128,7 +126,10 @@ test('stylesheets cascade through the GTK driver under real GJS+GTK', async (t) 
 	// Switch color paints the slider gizmo (red); the widget node itself
 	// does not carry a color declaration.
 	assert.ok(r.switchThumbColor, 'slider gizmo color readable')
-	assert.ok(r.switchThumbColor.r > 0.9 && r.switchThumbColor.g < 0.1, JSON.stringify(r.switchThumbColor))
+	assert.ok(
+		r.switchThumbColor.r > 0.9 && r.switchThumbColor.g < 0.1,
+		JSON.stringify(r.switchThumbColor),
+	)
 	assert.equal(r.switchOwnColor, false)
 
 	// hidden keeps space via child-invisible; collapse unmaps entirely.

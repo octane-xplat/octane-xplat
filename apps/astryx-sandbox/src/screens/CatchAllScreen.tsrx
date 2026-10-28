@@ -9,5 +9,6 @@ export function CatchAllScreen(props: { params: { rest?: string } }) @{
 	if (!props.params?.rest) {
 		return <HomeScreen />
 	}
+
 	return <NotFoundScreen />
 }

@@ -14,14 +14,18 @@ declare module '@nativescript-community/octane/intrinsics' {
 }
 
 registerElement('xplatiosdatepicker', SwiftUI)
-registerSwiftUI('xplat-swiftui-datepicker', (owner: any) =>
-	new UIDataDriver(new XplatDatePickerProvider(), owner),
+registerSwiftUI(
+	'xplat-swiftui-datepicker',
+	(owner: any) => new UIDataDriver(new XplatDatePickerProvider(), owner),
 )
 
 /** Renders a SwiftUI DatePicker through NativeScript's SwiftUI bridge. */
 export function SwiftUIDatePicker(props: SwiftUIDatePickerProps) @{
 	const controlled = props.selection !== undefined
-	const [internalSelection, setInternalSelection] = useState<Date | undefined>(props.defaultSelection)
+	const [internalSelection, setInternalSelection] = useState<Date | undefined>(
+		props.defaultSelection,
+	)
+
 	const selection = controlled ? props.selection! : internalSelection
 
 	<xplatiosdatepicker
@@ -42,10 +46,16 @@ export function SwiftUIDatePicker(props: SwiftUIDatePickerProps) @{
 		}}
 		onSwiftUIEvent={(event: any) => {
 			const millis = event.data?.date
-			if (typeof millis !== 'number') return
+			if (typeof millis !== 'number') {
+				return
+			}
+
 			const next = new Date(millis)
-			if (!controlled) setInternalSelection(next)
+			if (!controlled) {
+				setInternalSelection(next)
+			}
+
 			props.onSelectionChange?.(next)
 		}}
-	/>;
+	/>
 }

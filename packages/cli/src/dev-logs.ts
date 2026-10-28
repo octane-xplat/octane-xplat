@@ -174,6 +174,7 @@ export function createDevLogCapture(
 			if (error.code !== 'EEXIST') {
 				throw error
 			}
+
 			const recovery = lease + '.recovery'
 			let held = false
 			try {
@@ -183,12 +184,14 @@ export function createDevLogCapture(
 				} catch {
 					throw contractError('target_busy', 'Target ownership is being checked; retry.')
 				}
+
 				const owner = JSON.parse(readFileSync(lease, 'utf8'))
 				if (alive(owner.pid)) {
 					throw contractError('target_busy', 'This app target already has an active session.', {
 						context: { sessionId: owner.sessionId, targetId },
 					})
 				}
+
 				rmSync(lease)
 				try {
 					claim()
@@ -196,6 +199,7 @@ export function createDevLogCapture(
 					if (error.code === 'EEXIST') {
 						throw contractError('target_busy', 'Another session claimed this target.')
 					}
+
 					throw error
 				}
 			} finally {
@@ -316,6 +320,7 @@ export function createDevLogCapture(
 					pid: Number(processId),
 					observedAt: new Date().toISOString(),
 				})
+
 				metadata()
 			}
 		},

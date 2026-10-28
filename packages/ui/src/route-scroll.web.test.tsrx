@@ -31,8 +31,12 @@ const cleanups: (() => void)[] = []
 beforeEach(() => {
 	history.replaceState(null, '', '/')
 	vi.stubGlobal('matchMedia', (media: string) => ({
-		media, matches: false, addEventListener() {}, removeEventListener() {},
+		media,
+		matches: false,
+		addEventListener() {},
+		removeEventListener() {},
 	}))
+
 	Object.defineProperty(window, 'scrollY', { get: () => y, configurable: true })
 	y = 0
 	vi.spyOn(window, 'scrollTo').mockImplementation(() => {})

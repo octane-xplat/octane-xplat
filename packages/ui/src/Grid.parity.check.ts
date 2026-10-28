@@ -2,7 +2,6 @@ import type { ParityCheck } from './parity/check-helpers.ts'
 import { near, dims } from './parity/check-helpers.ts'
 
 export const CHECKS: ParityCheck[] = [
-
 	{
 		fixture: 'grid-layout',
 		targets: ['web', 'ios', 'android', 'macos'],
@@ -82,5 +81,5 @@ export const CHECKS: ParityCheck[] = [
 				['row span covers both fraction rows', near(rowSpan.box.y, 22, 1)],
 			]
 		},
-	}
+	},
 ]

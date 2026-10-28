@@ -21,6 +21,7 @@ import {
 	isDOMNode,
 	mergeRegister,
 } from 'lexical'
+
 import type { LexicalEditor } from 'lexical'
 import { registerRichText } from '@lexical/rich-text'
 import { registerCheckList, registerList } from '@lexical/list'
@@ -35,6 +36,7 @@ import {
 	INSERT_HORIZONTAL_RULE_COMMAND,
 	namedSignals,
 } from '@lexical/extension'
+
 import { installEditorDocument } from '@octane-xplat/richtext/browser-transport'
 import { SHARED_NODES, activeFormats, bindEditorHandle, flatOffset } from './editor-core.web'
 import type { LexicalEditorHandle } from './types'

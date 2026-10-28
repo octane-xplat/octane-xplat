@@ -4,6 +4,7 @@ import { Tab, TabList } from '@octane-xplat/ui'
 
 export function TabListTabsFillLayout() @{
 	const [value, setValue] = useState('home')
+
 	<div style={{ width: 500 }}>
 		<TabList value={value} onChange={setValue} layout="fill" hasDivider>
 			<Tab value="home" label="Home" />

@@ -87,12 +87,14 @@ test('recording evidence covers the complete job set for its track', () => {
 				const needs = Object.fromEntries(
 					Object.keys(evidence.jobs).map((job) => [job, { result: 'success' }]),
 				)
+
 				const lane = RELEASE_TRACKS[track].jobs.at(-1)
 				if (result === 'absent') {
 					delete needs[lane]
 				} else {
 					needs[lane] = { result }
 				}
+
 				const run = spawnSync(
 					process.execPath,
 					[
@@ -113,6 +115,7 @@ test('recording evidence covers the complete job set for its track', () => {
 					],
 					{ encoding: 'utf8' },
 				)
+
 				assert.equal(run.status, 0, run.stderr)
 				const actual = JSON.parse(readFileSync(join(out, 'ci-evidence.json'), 'utf8'))
 				assert.equal(actual.track, track)
@@ -283,6 +286,7 @@ function withGithubFixture(callback) {
 			cwd: directory,
 			encoding: 'utf8',
 		})
+
 		assert.equal(packed.status, 0, packed.stderr)
 		const base = `repos/${repository}/actions`
 		const responses = {
@@ -297,6 +301,7 @@ function withGithubFixture(callback) {
 				workflow_runs: [{ id: 200 }],
 			},
 		}
+
 		const data = join(directory, 'responses.json')
 		writeFileSync(data, JSON.stringify(responses))
 		const gh = join(directory, 'gh')
@@ -313,6 +318,7 @@ else {
 }
 `,
 		)
+
 		chmodSync(gh, 0o755)
 		const output = join(directory, 'output')
 		const execute = (args) =>
@@ -341,6 +347,7 @@ else {
 					},
 				},
 			)
+
 		callback({ execute, output })
 	} finally {
 		rmSync(directory, { recursive: true, force: true })
@@ -386,6 +393,7 @@ test('workflow dependencies keep nightly independent and stable exhaustive', () 
 		const checkout = stable.jobs[id].steps.find((step) =>
 			step.uses?.startsWith('actions/checkout@'),
 		)
+
 		assert.equal(checkout.with.ref, '${{ env.TESTED_SHA }}')
 	}
 	for (const id of ['packages', 'tsrx-typegen']) {

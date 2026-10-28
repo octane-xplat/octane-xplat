@@ -4,12 +4,14 @@ import type { ProbeContext } from '../../scripts/probe/context'
 
 export default function Counter() {
 	const count$ = useSignal$(0)
-	return <VStack>
-		<Text id="probe-count">{String(count$.get())}</Text>
-		<Pressable id="probe-increment" onPress={() => count$.set(count$.get() + 1)}>
-			<Text>Increment</Text>
-		</Pressable>
-	</VStack>
+	return (
+		<VStack>
+			<Text id="probe-count">{String(count$.get())}</Text>
+			<Pressable id="probe-increment" onPress={() => count$.set(count$.get() + 1)}>
+				<Text>Increment</Text>
+			</Pressable>
+		</VStack>
+	)
 }
 
 export async function run(ctx: ProbeContext) {

@@ -1,9 +1,16 @@
 // Port of upstream Table/TableColumnSettingsTable.tsx (Astryx 0.6.4, MIT).
 import { useState } from 'octane'
 import {
-	MultiSelector, Table, Text, Toolbar, VStack, proportional,
-	useTableColumnSettings, useTableColumnSettingsState,
+	MultiSelector,
+	Table,
+	Text,
+	Toolbar,
+	VStack,
+	proportional,
+	useTableColumnSettings,
+	useTableColumnSettingsState,
 } from '@octane-xplat/ui'
+
 import type { TableColumn } from '@octane-xplat/ui'
 
 interface User extends Record<string, unknown> {
@@ -16,11 +23,46 @@ interface User extends Record<string, unknown> {
 }
 
 const users: User[] = [
-	{ id: '1', name: 'Alice Johnson', email: 'alice@example.com', role: 'Engineer', department: 'Platform', status: 'Active' },
-	{ id: '2', name: 'Bob Smith', email: 'bob@example.com', role: 'Designer', department: 'Product', status: 'Active' },
-	{ id: '3', name: 'Charlie Brown', email: 'charlie@example.com', role: 'Manager', department: 'Platform', status: 'Away' },
-	{ id: '4', name: 'Diana Prince', email: 'diana@example.com', role: 'Engineer', department: 'Infra', status: 'Active' },
-	{ id: '5', name: 'Eve Davis', email: 'eve@example.com', role: 'Admin', department: 'Operations', status: 'Inactive' },
+	{
+		id: '1',
+		name: 'Alice Johnson',
+		email: 'alice@example.com',
+		role: 'Engineer',
+		department: 'Platform',
+		status: 'Active',
+	},
+	{
+		id: '2',
+		name: 'Bob Smith',
+		email: 'bob@example.com',
+		role: 'Designer',
+		department: 'Product',
+		status: 'Active',
+	},
+	{
+		id: '3',
+		name: 'Charlie Brown',
+		email: 'charlie@example.com',
+		role: 'Manager',
+		department: 'Platform',
+		status: 'Away',
+	},
+	{
+		id: '4',
+		name: 'Diana Prince',
+		email: 'diana@example.com',
+		role: 'Engineer',
+		department: 'Infra',
+		status: 'Active',
+	},
+	{
+		id: '5',
+		name: 'Eve Davis',
+		email: 'eve@example.com',
+		role: 'Admin',
+		department: 'Operations',
+		status: 'Inactive',
+	},
 ]
 
 const allColumns: TableColumn<User>[] = [

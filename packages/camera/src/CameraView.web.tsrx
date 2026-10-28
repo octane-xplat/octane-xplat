@@ -5,7 +5,7 @@ import { applyEscapeProps, layoutChildProps } from './layout-child.web'
 
 /** Live web preview backed by getUserMedia. */
 export function CameraView(props: CameraViewProps) @{
-	const hostRef = useRef<any>(null);
+	const hostRef = useRef<any>(null)
 	const video = useRef<HTMLVideoElement | null>(null)
 	const facing = props.facing ?? 'back'
 	const active = props.active !== false
@@ -13,7 +13,10 @@ export function CameraView(props: CameraViewProps) @{
 
 	useEffect(() => {
 		const element = video.current
-		if (!element || !active) return
+		if (!element || !active) {
+			return
+		}
+
 		if (props.session) {
 			if (props.facing !== undefined) {
 				props.onError?.({ message: 'camera session conflicts with facing' })
@@ -47,7 +50,10 @@ export function CameraView(props: CameraViewProps) @{
 			})
 			.then((nextStream) => {
 				if (disposed) {
-					for (const track of nextStream.getTracks()) track.stop()
+					for (const track of nextStream.getTracks()) {
+						track.stop()
+					}
+
 					return
 				}
 
@@ -67,11 +73,15 @@ export function CameraView(props: CameraViewProps) @{
 		return () => {
 			disposed = true
 			element.srcObject = null
-			if (stream) for (const track of stream.getTracks()) track.stop()
+			if (stream) {
+				for (const track of stream.getTracks()) {
+					track.stop()
+				}
+			}
 		}
 	}, [active, facing, props.session])
 
-	useImperativeHandle(props.ref, () => ({ native: hostRef.current }), undefined);
+	useImperativeHandle(props.ref, () => ({ native: hostRef.current }), undefined)
 
 	<div
 		id={props.id}
@@ -95,9 +105,12 @@ export function CameraView(props: CameraViewProps) @{
 		@if (active) {
 			<video
 				ref={(element: HTMLVideoElement | null) => {
-				hostRef.current = element;
+					hostRef.current = element
 					video.current = element
-					if (!element) return
+					if (!element) {
+						return
+					}
+
 					applyEscapeProps(element, props)
 				}}
 				muted={true}
@@ -106,9 +119,15 @@ export function CameraView(props: CameraViewProps) @{
 				onClick={(event: MouseEvent) => {
 					const onTap = props.onTap
 					const target = event.currentTarget as HTMLElement | null
-					if (!onTap || !target) return
+					if (!onTap || !target) {
+						return
+					}
+
 					const rect = target.getBoundingClientRect()
-					if (!(rect.width > 0) || !(rect.height > 0)) return
+					if (!(rect.width > 0) || !(rect.height > 0)) {
+						return
+					}
+
 					onTap({
 						x: Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width)),
 						y: Math.min(1, Math.max(0, (event.clientY - rect.top) / rect.height)),
@@ -122,7 +141,10 @@ export function CameraView(props: CameraViewProps) @{
 					transform: facing === 'front' ? 'scaleX(-1)' : undefined,
 				}}
 				onPlaying={() => {
-					if (props.session || readyFired.current) return
+					if (props.session || readyFired.current) {
+						return
+					}
+
 					readyFired.current = true
 					props.onReady?.()
 				}}

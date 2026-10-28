@@ -1,26 +1,35 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { mergeStyle, styleRecord } from './style-merge'
-import { useMemo, useRef, useState, useSyncExternalStore, useId } from 'octane';
-import type { SearchableItem, TypeaheadInputHandle, TypeaheadProps } from "./props";
-import { useSize } from './size-context';
-import { cx } from "@octane-xplat/lib";
-import { applyEscapeProps, nativeAccessibilityState } from "./escape-props";
-import { FormField } from './FormField';
-import { BaseTypeahead } from './BaseTypeahead';
-import { Token } from './Token';
-import { ActivityIndicator } from './ActivityIndicator.tsrx';
-import { Icon } from './Icon';
-import { Pressable } from './Pressable';
-import { BusyLaneProvider, createBusyIndicatorLane, type BusyIndicatorLane } from './busy-lane';
+import { useMemo, useRef, useState, useSyncExternalStore, useId } from 'octane'
+import type { SearchableItem, TypeaheadInputHandle, TypeaheadProps } from './props'
+import { useSize } from './size-context'
+import { cx } from '@octane-xplat/lib'
+import { applyEscapeProps, nativeAccessibilityState } from './escape-props'
+import { FormField } from './FormField'
+import { BaseTypeahead } from './BaseTypeahead'
+import { Token } from './Token'
+import { ActivityIndicator } from './ActivityIndicator.tsrx'
+import { Icon } from './Icon'
+import { Pressable } from './Pressable'
+import { BusyLaneProvider, createBusyIndicatorLane, type BusyIndicatorLane } from './busy-lane'
 
 /** The field's inline-end lane: busy Spinner, then the clear button. A leaf
  *  subscribing to the lane re-renders only itself per search transition. */
 function EndLane(props: { lane: BusyIndicatorLane; clear?: any }) @{
-	const isBusy = useSyncExternalStore(props.lane.subscribe, props.lane.getIsBusy);
-	if (!isBusy && props.clear == null) return null;
+	const isBusy = useSyncExternalStore(props.lane.subscribe, props.lane.getIsBusy)
+	if (!isBusy && props.clear == null) {
+		return null
+	}
 
-	<masonview className="vx-typeahead-endlane" style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex"})}>
-		{isBusy ? <masonview className="vx-typeahead-spinner" style={{display: "flex"}}><ActivityIndicator busy={true} /></masonview> : null}
+	<masonview
+		className="vx-typeahead-endlane"
+		style={mergeStyle({ flexDirection: 'row', alignItems: 'center' }, { display: 'flex' })}
+	>
+		{isBusy ? (
+			<masonview className="vx-typeahead-spinner" style={{ display: 'flex' }}>
+				<ActivityIndicator busy={true} />
+			</masonview>
+		) : null}
 		{props.clear}
 	</masonview>
 }
@@ -29,56 +38,74 @@ function EndLane(props: { lane: BusyIndicatorLane; clear?: any }) @{
  *  a Token over the input while a value is selected. Tapping the token or
  *  wrapper enters edit mode (input repopulated with the label); leaving the
  *  field without selecting restores the token. */
-export function Typeahead<T extends SearchableItem,>(props: TypeaheadProps<T>) @{
-	const size = useSize(props.size, 'md');
-	const inputId = useId();
-	const inputHandle = useRef<TypeaheadInputHandle | null>(null);
-	const tokenRef = useRef<any>(null);
-	const wrapperAnchor = useRef<any>(null);
+export function Typeahead<T extends SearchableItem>(props: TypeaheadProps<T>) @{
+	const size = useSize(props.size, 'md')
+	const inputId = useId()
+	const inputHandle = useRef<TypeaheadInputHandle | null>(null)
+	const tokenRef = useRef<any>(null)
+	const wrapperAnchor = useRef<any>(null)
 
-	const busyLane = useMemo(() => createBusyIndicatorLane(), []);
-	const [isEditing, setIsEditing] = useState(false);
-	const showToken = props.value != null && !isEditing;
+	const busyLane = useMemo(() => createBusyIndicatorLane(), [])
+	const [isEditing, setIsEditing] = useState(false)
+	const showToken = props.value != null && !isEditing
 
 	const enterEditMode = () => {
-		if (props.isDisabled || !props.value) return;
-		setIsEditing(true);
-		props.onChangeQuery?.(props.value.label);
-		inputHandle.current?.setQuery(props.value.label);
-		inputHandle.current?.focus();
-	};
+		if (props.isDisabled || !props.value) {
+			return
+		}
+
+		setIsEditing(true)
+		props.onChangeQuery?.(props.value.label)
+		inputHandle.current?.setQuery(props.value.label)
+		inputHandle.current?.focus()
+	}
 
 	const handleWrapperTap = () => {
-		if (props.isDisabled) return;
-		if (showToken) enterEditMode();
-		else inputHandle.current?.focus();
-	};
+		if (props.isDisabled) {
+			return
+		}
+
+		if (showToken) {
+			enterEditMode()
+		} else {
+			inputHandle.current?.focus()
+		}
+	}
 
 	const handleChange = (item: T | null) => {
-		setIsEditing(false);
-		props.onChange(item);
-	};
+		setIsEditing(false)
+		props.onChange(item)
+	}
 
 	const handleClear = () => {
-		setIsEditing(false);
-		props.onChange(null);
-		inputHandle.current?.focus();
-	};
+		setIsEditing(false)
+		props.onChange(null)
+		inputHandle.current?.focus()
+	}
 
 	// Focus leaving the input mid-edit restores the token.
 	const handleInputBlur = () => {
-		if (isEditing) setIsEditing(false);
-	};
+		if (isEditing) {
+			setIsEditing(false)
+		}
+	}
 
-	const startIcon = props.startIcon == null
-		? null
-		: typeof props.startIcon === 'string'
-			? <Icon name={props.startIcon} size={16} />
-			: props.startIcon;
+	const startIcon =
+		props.startIcon == null ? null : typeof props.startIcon === 'string' ? (
+			<Icon name={props.startIcon} size={16} />
+		) : (
+			props.startIcon
+		)
 
-	const forwardedRef = useMemo(() => [(h: TypeaheadInputHandle | null) => {
-							inputHandle.current = h;
-						}, props.ref], [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(
+		() => [
+			(h: TypeaheadInputHandle | null) => {
+				inputHandle.current = h
+			},
+			props.ref,
+		],
+		[props.ref, props.ios, props.android, props.web],
+	)
 
 	<FormField
 		id={props.id}
@@ -100,17 +127,28 @@ export function Typeahead<T extends SearchableItem,>(props: TypeaheadProps<T>) @
 		ios={props.ios}
 		android={props.android}
 	>
-		<masonview ref={(v: any) => {
-				wrapperAnchor.current = v;
-				if (v) applyEscapeProps(v, props);
-			}} className={cx(
+		<masonview
+			ref={(v: any) => {
+				wrapperAnchor.current = v
+				if (v) {
+					applyEscapeProps(v, props)
+				}
+			}}
+			className={cx(
 				'vx-typeahead',
 				`vx-typeahead--size-${size}`,
 				props.isDisabled && 'vx-typeahead--disabled',
 				props.status && `vx-typeahead--status-${props.status.type}`,
-			)} onTap={handleWrapperTap} accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled })} style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex"})}>
+			)}
+			onTap={handleWrapperTap}
+			accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled })}
+			style={mergeStyle({ flexDirection: 'row', alignItems: 'center' }, { display: 'flex' })}
+		>
 			{startIcon}
-			<masonview className="vx-typeahead-content" style={mergeStyle({flexGrow: 1}, {display: "grid"})}>
+			<masonview
+				className="vx-typeahead-content"
+				style={mergeStyle({ flexGrow: 1 }, { display: 'grid' })}
+			>
 				<BusyLaneProvider value={busyLane}>
 					<BaseTypeahead
 						searchSource={props.searchSource}
@@ -136,22 +174,32 @@ export function Typeahead<T extends SearchableItem,>(props: TypeaheadProps<T>) @
 						ref={forwardedRef}
 					/>
 				</BusyLaneProvider>
-				{showToken && props.value
-					? <Token
+				{showToken && props.value ? (
+					<Token
 						label={props.value.label}
 						size={size}
 						onClick={enterEditMode}
 						isDisabled={props.isDisabled}
 						className="vx-typeahead-token"
-						ref={(v: any) => { tokenRef.current = v; }}
+						ref={(v: any) => {
+							tokenRef.current = v
+						}}
 					/>
-					: null}
+				) : null}
 			</masonview>
 			<EndLane
 				lane={busyLane}
-				clear={props.hasClear !== false && props.value && !props.isDisabled
-					? <Pressable className="vx-input-clear" accessibilityLabel="Clear selection" onPress={handleClear}><label text="×" /></Pressable>
-					: null}
+				clear={
+					props.hasClear !== false && props.value && !props.isDisabled ? (
+						<Pressable
+							className="vx-input-clear"
+							accessibilityLabel="Clear selection"
+							onPress={handleClear}
+						>
+							<label text="×" />
+						</Pressable>
+					) : null
+				}
 			/>
 		</masonview>
 	</FormField>

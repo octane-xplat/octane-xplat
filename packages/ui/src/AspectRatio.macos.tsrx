@@ -16,15 +16,43 @@ export function AspectRatio(props: AspectRatioProps) @{
 	const ellipse = props.shape === 'ellipse'
 	const derivedHeight = bounds != null && bounds.width > 0 ? bounds.width / props.ratio : undefined
 
-	const hostRef = useMemo(() => refList((view: any) => applyEscapeProps(view, props), ref, props.ref), [ref, props.ref, props.ios, props.android, props.web])
+	const hostRef = useMemo(
+		() => refList((view: any) => applyEscapeProps(view, props), ref, props.ref),
+		[ref, props.ref, props.ios, props.android, props.web],
+	)
 
-	<masonview id={props.id} ref={hostRef} className={cx('vx-aspectratio', `vx-aspectratio-fit-${fit}`, ellipse && 'vx-aspectratio--ellipse', props.className)} style={mergeStyle({display: "flex"}, {
-			width: '100%',
-			...(derivedHeight !== undefined ? { height: derivedHeight } : {}),
-			...(ellipse ? { borderRadius: '50%' } : {}),
-			...styleRecord(props.style),
-		})} accessibilityLabel={props.accessibilityLabel} accessibilityRole={props.accessibilityRole} accessibilityHint={props.accessibilityHint}>
-		<masonview className="vx-aspectratio-content" style={mergeStyle({justifyContent: (fit !== 'cover' ? 'center' : undefined), alignItems: (fit !== 'cover' ? 'center' : undefined)}, mergeStyle({display: "flex"}, { flexGrow: 1 }))}>
+	<masonview
+		id={props.id}
+		ref={hostRef}
+		className={cx(
+			'vx-aspectratio',
+			`vx-aspectratio-fit-${fit}`,
+			ellipse && 'vx-aspectratio--ellipse',
+			props.className,
+		)}
+		style={mergeStyle(
+			{ display: 'flex' },
+			{
+				width: '100%',
+				...(derivedHeight !== undefined ? { height: derivedHeight } : {}),
+				...(ellipse ? { borderRadius: '50%' } : {}),
+				...styleRecord(props.style),
+			},
+		)}
+		accessibilityLabel={props.accessibilityLabel}
+		accessibilityRole={props.accessibilityRole}
+		accessibilityHint={props.accessibilityHint}
+	>
+		<masonview
+			className="vx-aspectratio-content"
+			style={mergeStyle(
+				{
+					justifyContent: fit !== 'cover' ? 'center' : undefined,
+					alignItems: fit !== 'cover' ? 'center' : undefined,
+				},
+				mergeStyle({ display: 'flex' }, { flexGrow: 1 }),
+			)}
+		>
 			{props.children}
 		</masonview>
 	</masonview>

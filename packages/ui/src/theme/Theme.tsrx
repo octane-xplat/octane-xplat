@@ -48,7 +48,10 @@ export function Theme(props: ThemeProps) @{
 	}, [props.theme])
 
 	useEffect(() => {
-		if (isNested) return
+		if (isNested) {
+			return
+		}
+
 		const unscope = setRootThemeScope(props.theme)
 		const unsync = syncDocumentRootTheme(props.theme.name, effective)
 		return () => {

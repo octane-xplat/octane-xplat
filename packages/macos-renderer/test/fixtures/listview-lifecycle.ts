@@ -129,13 +129,14 @@ export async function checkListViewLifecycle(root: any, nativeWindow: any) {
 			rowRefs[0].current === label0 &&
 			texts(row0) === 'C:1' &&
 			row0.bindingContext === 'C',
-		'ListView same-count rebind lost root/host identity or closure update: ' + JSON.stringify({
-			list: listViewRef.current === first,
-			cell: cell(first, 0) === row0,
-			label: rowRefs[0].current === label0,
-			text: texts(row0),
-			item: row0.bindingContext,
-		}),
+		'ListView same-count rebind lost root/host identity or closure update: ' +
+			JSON.stringify({
+				list: listViewRef.current === first,
+				cell: cell(first, 0) === row0,
+				label: rowRefs[0].current === label0,
+				text: texts(row0),
+				item: row0.bindingContext,
+			}),
 	)
 
 	check(

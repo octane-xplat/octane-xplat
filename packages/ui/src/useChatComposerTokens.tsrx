@@ -1,9 +1,9 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useCallback, useState } from 'octane';
-import type { UseChatComposerTokensOptions, UseChatComposerTokensReturn } from './props';
-import { isCustomToken } from './chat-tokens.tsrx';
+import { useCallback, useState } from 'octane'
+import type { UseChatComposerTokensOptions, UseChatComposerTokensReturn } from './props'
+import { isCustomToken } from './chat-tokens.tsrx'
 
-export { isCustomToken };
+export { isCustomToken }
 
 /** Token bookkeeping for the native composer input. Native has no
  *  contenteditable, so `editableRef.current` is the host object the native
@@ -22,41 +22,50 @@ export function useChatComposerTokens({
 	editableRef,
 	onEmitChange,
 }: UseChatComposerTokensOptions): UseChatComposerTokensReturn {
-	const [tokenPortals, setTokenPortals] = useState<UseChatComposerTokensReturn['tokenPortals']>([]);
+	const [tokenPortals, setTokenPortals] = useState<UseChatComposerTokensReturn['tokenPortals']>([])
 
 	const insertToken = useCallback(
 		(token: any): string | undefined => {
-			const host = editableRef.current as ComposerTokenHost | null | undefined;
-			const id = `token-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
-			const record = { id, span: null, token };
-			setTokenPortals((prev) => [...prev, record]);
-			host?.insertTokenAtCaret?.(token, id);
-			return id;
+			const host = editableRef.current as ComposerTokenHost | null | undefined
+			const id = `token-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
+			const record = { id, span: null, token }
+			setTokenPortals((prev) => [...prev, record])
+			host?.insertTokenAtCaret?.(token, id)
+			return id
 		},
 		[editableRef],
-	);
+	)
 
 	const expandToken = useCallback(
 		(id: string) => {
-			const portal = tokenPortals.find((p) => p.id === id);
-			if (!portal) return;
-			(editableRef.current as ComposerTokenHost | null | undefined)?.expandTokenToText?.(portal.token);
-			setTokenPortals((prev) => prev.filter((p) => p.id !== id));
-			onEmitChange();
+			const portal = tokenPortals.find((p) => p.id === id)
+			if (!portal) {
+				return
+			}
+
+			;(editableRef.current as ComposerTokenHost | null | undefined)?.expandTokenToText?.(
+				portal.token,
+			)
+
+			setTokenPortals((prev) => prev.filter((p) => p.id !== id))
+			onEmitChange()
 		},
 		[editableRef, tokenPortals, onEmitChange],
-	);
+	)
 
 	// Native token chips live outside the editable text — no keydown/paste
 	// interception exists; return false so callers fall through.
-	const handleKeyDown = useCallback((_e: any): boolean => false, []);
-	const handlePaste = useCallback((_e: any): boolean => false, []);
+	const handleKeyDown = useCallback((_e: any): boolean => false, [])
+	const handlePaste = useCallback((_e: any): boolean => false, [])
 
 	const cleanupPortals = useCallback(() => {
 		setTokenPortals((prev) =>
-			prev.filter((p) => (editableRef.current as ComposerTokenHost | null | undefined)?.hasToken?.(p.id) ?? true),
-		);
-	}, [editableRef]);
+			prev.filter(
+				(p) =>
+					(editableRef.current as ComposerTokenHost | null | undefined)?.hasToken?.(p.id) ?? true,
+			),
+		)
+	}, [editableRef])
 
 	return {
 		tokenPortals,
@@ -65,5 +74,5 @@ export function useChatComposerTokens({
 		handleKeyDown,
 		handlePaste,
 		cleanupPortals,
-	};
+	}
 }

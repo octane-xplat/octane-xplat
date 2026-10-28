@@ -1,28 +1,35 @@
-import { useId, useState } from 'octane';
-import type { ChatComposerDrawerProps } from './props';
-import { Badge } from './Badge.web.tsrx';
+import { useId, useState } from 'octane'
+import type { ChatComposerDrawerProps } from './props'
+import { Badge } from './Badge.web.tsrx'
 
 /** Collapsible drawer panel for a chat composer — attachments, context
  *  chips, previews. With `count`, a toggle row renders a collapsed summary
  *  (badge + label) and the content crossfades/collapses via grid rows.
  *  Without `count` the drawer is always expanded. */
 export function ChatComposerDrawer(props: ChatComposerDrawerProps) @{
-	const isControlled = props.isCollapsed !== undefined;
-	const [internalCollapsed, setInternalCollapsed] = useState(props.defaultIsCollapsed ?? false);
-	const isCollapsed = isControlled ? props.isCollapsed : internalCollapsed;
-	const canCollapse = props.count != null;
-	const contentId = useId();
-	const label = props.label ?? 'Items';
+	const isControlled = props.isCollapsed !== undefined
+	const [internalCollapsed, setInternalCollapsed] = useState(props.defaultIsCollapsed ?? false)
+	const isCollapsed = isControlled ? props.isCollapsed : internalCollapsed
+	const canCollapse = props.count != null
+	const contentId = useId()
+	const label = props.label ?? 'Items'
 
 	const toggle = () => {
-		const next = !isCollapsed;
-		if (!isControlled) setInternalCollapsed(next);
-		props.onCollapsedChange?.(next);
-	};
+		const next = !isCollapsed
+		if (!isControlled) {
+			setInternalCollapsed(next)
+		}
+
+		props.onCollapsedChange?.(next)
+	}
 
 	<div
 		id={props.id}
-		className={['vx-chatdrawer', isCollapsed ? 'vx-chatdrawer--collapsed' : undefined, props.className]}
+		className={[
+			'vx-chatdrawer',
+			isCollapsed ? 'vx-chatdrawer--collapsed' : undefined,
+			props.className,
+		]}
 		style={props.style}
 	>
 		{canCollapse ? (
@@ -36,13 +43,16 @@ export function ChatComposerDrawer(props: ChatComposerDrawerProps) @{
 				onClick={toggle}
 				onKeyDown={(e: any) => {
 					if (e.key === 'Enter' || e.key === ' ') {
-						e.preventDefault();
-						toggle();
+						e.preventDefault()
+						toggle()
 					}
 				}}
 			>
 				<div
-					className={['vx-chatdrawer-summary', !isCollapsed ? 'vx-chatdrawer-summary--hidden' : undefined]}
+					className={[
+						'vx-chatdrawer-summary',
+						!isCollapsed ? 'vx-chatdrawer-summary--hidden' : undefined,
+					]}
 					aria-hidden="true"
 				>
 					{props.collapsedSummary === undefined ? (
@@ -55,13 +65,19 @@ export function ChatComposerDrawer(props: ChatComposerDrawerProps) @{
 					)}
 				</div>
 				<div
-					className={['vx-chatdrawer-handle', isCollapsed ? 'vx-chatdrawer-handle--hidden' : undefined]}
+					className={[
+						'vx-chatdrawer-handle',
+						isCollapsed ? 'vx-chatdrawer-handle--hidden' : undefined,
+					]}
 				/>
 			</div>
 		) : null}
 		<div
 			id={contentId}
-			className={['vx-chatdrawer-content', canCollapse && isCollapsed ? 'vx-chatdrawer-content--collapsed' : undefined]}
+			className={[
+				'vx-chatdrawer-content',
+				canCollapse && isCollapsed ? 'vx-chatdrawer-content--collapsed' : undefined,
+			]}
 			{...(canCollapse && isCollapsed ? { inert: true } : {})}
 		>
 			<div className="vx-chatdrawer-inner">{props.children}</div>

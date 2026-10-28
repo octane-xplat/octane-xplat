@@ -7,5 +7,5 @@ export function CanvasDemo() @{
 		<Text id="gpu-canvas-status">
 			Canvas and WebGPU are unsupported by the experimental AppKit host.
 		</Text>
-	</View>;
+	</View>
 }

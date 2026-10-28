@@ -1,6 +1,15 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { mergeStyle } from './style-merge'
-import { useImperativeHandle, useContext, useEffect, useId, useMemo, useRef, useState } from 'octane'
+import {
+	useImperativeHandle,
+	useContext,
+	useEffect,
+	useId,
+	useMemo,
+	useRef,
+	useState,
+} from 'octane'
+
 import type { DateInputProps, ISODateString } from './props'
 import { cx } from '@octane-xplat/lib'
 import { dateMessages } from './date-messages'
@@ -54,11 +63,17 @@ function DateInputControl(inputProps: CoreProps) @{
 	const isBusy = !!props.isLoading || busy
 
 	const isDateDisabled = useMemo(
-		() => createDateDisabledCheck({ min: props.min, max: props.max, dateConstraints: props.dateConstraints }),
+		() =>
+			createDateDisabledCheck({
+				min: props.min,
+				max: props.max,
+				dateConstraints: props.dateConstraints,
+			}),
 		[props.min, props.max, props.dateConstraints],
 	)
 
-	const formatValue = (iso: ISODateString): string => formatDateValue(iso, props.format ?? 'date_long', locale)
+	const formatValue = (iso: ISODateString): string =>
+		formatDateValue(iso, props.format ?? 'date_long', locale)
 
 	// Preserve typing on an echoed edit; external values replace the draft.
 	useEffect(() => {
@@ -70,22 +85,36 @@ function DateInputControl(inputProps: CoreProps) @{
 	}, [value])
 
 	const fireChange = (next: ISODateString | null) => {
-		if (isDisabled || isBusy) return
+		if (isDisabled || isBusy) {
+			return
+		}
+
 		lastEmitted.current = next
 		props.onChange?.(next)
 		if (props.changeAction) {
 			setBusy(true)
-			runDateChangeAction(() => props.changeAction!(next), () => setBusy(false))
+			runDateChangeAction(
+				() => props.changeAction!(next),
+				() => setBusy(false),
+			)
 		}
 	}
 
-	const pendingParsed = pendingInput != null && pendingInput.trim() ? parseDateInput(pendingInput, locale) : null
-	const isPendingValid = pendingInput == null || !pendingInput.trim() ? true : pendingParsed !== null && !isDateDisabled(pendingParsed)
+	const pendingParsed =
+		pendingInput != null && pendingInput.trim() ? parseDateInput(pendingInput, locale) : null
+
+	const isPendingValid =
+		pendingInput == null || !pendingInput.trim()
+			? true
+			: pendingParsed !== null && !isDateDisabled(pendingParsed)
 
 	const commitParsed = (pd: ReturnType<typeof parseDateInput>) => {
 		if (pd && !isDateDisabled(pd)) {
 			const iso = plainDateToISO(pd)
-			if (iso !== shown) fireChange(iso)
+			if (iso !== shown) {
+				fireChange(iso)
+			}
+
 			return true
 		}
 
@@ -93,37 +122,59 @@ function DateInputControl(inputProps: CoreProps) @{
 	}
 
 	const commitPending = () => {
-		if (hasDateComposition(input.current)) return
-		if (pendingInput == null) return
+		if (hasDateComposition(input.current)) {
+			return
+		}
+
+		if (pendingInput == null) {
+			return
+		}
+
 		if (!pendingInput.trim()) {
-			if (shown != null) fireChange(null)
+			if (shown != null) {
+				fireChange(null)
+			}
 		} else {
 			commitParsed(parseDateInput(pendingInput, locale))
 		}
 
 		setPendingInput(null)
-		if (input.current) writeText(input.current, shown ? formatValue(shown as ISODateString) : '')
+		if (input.current) {
+			writeText(input.current, shown ? formatValue(shown as ISODateString) : '')
+		}
 	}
 
 	const handleTextChange = (e: any) => {
-		if (isDisabled || isWritingText(e.object)) return
+		if (isDisabled || isWritingText(e.object)) {
+			return
+		}
+
 		const text = e.value as string
 		setPendingInput(text)
-		if (hasDateComposition(input.current, e)) return
+		if (hasDateComposition(input.current, e)) {
+			return
+		}
+
 		commitParsed(parseDateInput(text, locale))
 	}
 
 	const pickFromCalendar = (iso: ISODateString) => {
 		fireChange(iso)
 		setPendingInput(null)
-		if (input.current) writeText(input.current, formatValue(iso))
+		if (input.current) {
+			writeText(input.current, formatValue(iso))
+		}
+
 		setOpen(false)
 	}
 
 	const clear = () => {
 		setPendingInput(null)
 		fireChange(null)
-		if (input.current) writeText(input.current, '')
+		if (input.current) {
+			writeText(input.current, '')
+		}
+
 		input.current?.focus?.()
 	}
 
@@ -144,21 +195,34 @@ function DateInputControl(inputProps: CoreProps) @{
 				className="vx-dateinput-toggle"
 				accessibilityLabel={open ? messages.closeCalendar : messages.openCalendar}
 				disabled={isDisabled || isBusy}
-				onPress={() => { if (!isDisabled && !isBusy) setOpen(!open) }}
+				onPress={() => {
+					if (!isDisabled && !isBusy) {
+						setOpen(!open)
+					}
+				}}
 			>
 				<Icon name="xplat-calendar" size={16} />
 			</Pressable>
 			{surface === 'popover' ? (
 				<textfield
-					ref={(v: any) => { input.current = v; }}
+					ref={(v: any) => {
+						input.current = v
+					}}
 					id={inputId}
 					className={cx('vx-dateinput-input', !isPendingValid && 'vx-dateinput-input--invalid')}
 					hint={props.placeholder ?? 'Select a date'}
 					isEnabled={!isDisabled && !isBusy}
 					editable={!isDisabled && !isBusy}
-					accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
+					accessibilityLabel={
+						props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label
+					}
 					accessibilityHint={!isPendingValid ? messages.invalidDate : props.accessibilityHint}
-					accessibilityState={nativeAccessibilityState({ disabled: isDisabled, busy: isBusy, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' || !isPendingValid })}
+					accessibilityState={nativeAccessibilityState({
+						disabled: isDisabled,
+						busy: isBusy,
+						required: props.isRequired && !props.isOptional,
+						invalid: props.status?.type === 'error' || !isPendingValid,
+					})}
 					onTextChange={handleTextChange}
 					onBlur={commitPending}
 					onReturnPress={commitPending}
@@ -166,45 +230,88 @@ function DateInputControl(inputProps: CoreProps) @{
 				/>
 			) : (
 				<Pressable
-					className={cx('vx-dateinput-input', 'vx-dateinput-segment', !shown && 'vx-dateinput-segment--placeholder')}
+					className={cx(
+						'vx-dateinput-input',
+						'vx-dateinput-segment',
+						!shown && 'vx-dateinput-segment--placeholder',
+					)}
 					disabled={isDisabled || isBusy}
-					accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
+					accessibilityLabel={
+						props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label
+					}
 					accessibilityHint={!isPendingValid ? messages.invalidDate : props.accessibilityHint}
 					accessibilityState={{ disabled: isDisabled }}
-					onPress={() => { if (!isDisabled && !isBusy) setOpen(true) }}
+					onPress={() => {
+						if (!isDisabled && !isBusy) {
+							setOpen(true)
+						}
+					}}
 				>
 					<label text={shown ? formatValue(shown) : (props.placeholder ?? 'Select a date')} />
 				</Pressable>
 			)}
-			{props.hasClear && shown != null && !isDisabled && !isBusy
-				? <Pressable className="vx-dateinput-clear" accessibilityLabel={`Clear ${props.fieldLabel ?? props.label ?? 'date'}`} onPress={clear}><label text="×" /></Pressable>
-				: null}
-			{statusText != null && props.statusVariant !== 'tooltip'
-				? <label className={cx('vx-field-icon', `vx-field-icon--${props.status!.type}`)} text={statusText} />
-				: null}
-			{statusText != null && props.statusVariant === 'tooltip'
-				? <label className={cx('vx-field-icon', `vx-field-icon--${props.status!.type}`)} text={statusText} accessibilityLabel={props.status?.message} />
-				: null}
+			{props.hasClear && shown != null && !isDisabled && !isBusy ? (
+				<Pressable
+					className="vx-dateinput-clear"
+					accessibilityLabel={`Clear ${props.fieldLabel ?? props.label ?? 'date'}`}
+					onPress={clear}
+				>
+					<label text="×" />
+				</Pressable>
+			) : null}
+			{statusText != null && props.statusVariant !== 'tooltip' ? (
+				<label
+					className={cx('vx-field-icon', `vx-field-icon--${props.status!.type}`)}
+					text={statusText}
+				/>
+			) : null}
+			{statusText != null && props.statusVariant === 'tooltip' ? (
+				<label
+					className={cx('vx-field-icon', `vx-field-icon--${props.status!.type}`)}
+					text={statusText}
+					accessibilityLabel={props.status?.message}
+				/>
+			) : null}
 		</>
 	)
 
-	useImperativeHandle(props.ref, () => ({ focus: () => input.current.focus(), blur: () => blurText(input.current), native: input.current }), undefined);
+	useImperativeHandle(
+		props.ref,
+		() => ({
+			focus: () => input.current.focus(),
+			blur: () => blurText(input.current),
+			native: input.current,
+		}),
+		undefined,
+	)
 
 	<>
-		<masonview ref={(v: any) => { anchor.current = v }} className={cx(
+		<masonview
+			ref={(v: any) => {
+				anchor.current = v
+			}}
+			className={cx(
 				'vx-dateinput',
 				`vx-dateinput--${surface}`,
 				isDisabled && 'vx-dateinput--disabled',
 				isBusy && 'vx-dateinput--loading',
 				props.status && `vx-dateinput--status-${props.status.type}`,
 				props.size && `vx-dateinput--size-${props.size}`,
-				(!isPendingValid) && 'vx-dateinput--invalid',
+				!isPendingValid && 'vx-dateinput--invalid',
 				props.className,
-			)} style={mergeStyle({display: "flex"}, props.style)}>
+			)}
+			style={mergeStyle({ display: 'flex' }, props.style)}
+		>
 			{shellContent}
 		</masonview>
 		{surface === 'popover' ? (
-			<Popover anchor={anchor} open={open} onDismiss={() => setOpen(false)} placement="bottom" className="vx-dateinput-popover">
+			<Popover
+				anchor={anchor}
+				open={open}
+				onDismiss={() => setOpen(false)}
+				placement="bottom"
+				className="vx-dateinput-popover"
+			>
 				<Calendar
 					locale={props.locale}
 					direction={props.direction}
@@ -220,7 +327,13 @@ function DateInputControl(inputProps: CoreProps) @{
 				/>
 			</Popover>
 		) : (
-			<BottomSheet isOpen={open} onOpenChange={(isOpen) => setOpen(isOpen)} label={props.label ?? props.accessibilityLabel ?? 'Choose a date'} height="hug" className="vx-dateinput-sheet">
+			<BottomSheet
+				isOpen={open}
+				onOpenChange={(isOpen) => setOpen(isOpen)}
+				label={props.label ?? props.accessibilityLabel ?? 'Choose a date'}
+				height="hug"
+				className="vx-dateinput-sheet"
+			>
 				<Calendar
 					locale={props.locale}
 					direction={props.direction}
@@ -250,13 +363,17 @@ export function DateInput(props: DateInputProps) @{
 	const inField = useContext(FieldContext) != null
 	const effective = effectivePresentation(props.presentation)
 	const resolved = resolveInputSurface(effective, true)
-	const surface: 'popover' | 'sheet' = resolved === 'popover' || resolved === 'typed' ? 'popover' : 'sheet'
+	const surface: 'popover' | 'sheet' =
+		resolved === 'popover' || resolved === 'typed' ? 'popover' : 'sheet'
+
 	const cid = useId()
 
 	const control = <DateInputControl {...props} surface={surface} />
 
 	<>
-		{inField ? control : (
+		{inField ? (
+			control
+		) : (
 			<FormField
 				inputID={props.id ?? cid}
 				label={props.label}

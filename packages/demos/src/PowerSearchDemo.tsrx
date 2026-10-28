@@ -18,10 +18,17 @@ export function PowerSearchDemo() @{
 
 	<View className="power-search-demo gap-4">
 		<Heading level={2}>Structured search</Heading>
-		<PowerSearch config={config} filters={filters} onChange={(next) => setFilters([...next])} resultCount={visible.length} />
+		<PowerSearch
+			config={config}
+			filters={filters}
+			onChange={(next) => setFilters([...next])}
+			resultCount={visible.length}
+		/>
 		<View className="gap-2">
 			@for (const book of visible; key book.title) {
-				<Text>{book.title} ({book.year})</Text>
+				<Text>
+					{book.title} ({book.year})
+				</Text>
 			}
 		</View>
 	</View>

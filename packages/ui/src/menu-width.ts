@@ -29,7 +29,10 @@ export function resolveMenuWidth(menuWidth: number | string, maximum: string): R
 
 	const width = menuWidth.trim()
 	const normalizedWidth = width.toLowerCase()
-	if (INTRINSIC_AND_CSS_WIDE_WIDTHS.has(normalizedWidth) || normalizedWidth.startsWith('fit-content(')) {
+	if (
+		INTRINSIC_AND_CSS_WIDE_WIDTHS.has(normalizedWidth) ||
+		normalizedWidth.startsWith('fit-content(')
+	) {
 		return { property: 'inlineSize', value: width }
 	}
 

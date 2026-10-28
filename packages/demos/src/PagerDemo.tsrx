@@ -1,6 +1,6 @@
-import { useState } from 'octane';
-import { Pager } from '@octane-xplat/pager';
-import { Button, Heading, Pressable, HStack, Text, View } from '@octane-xplat/ui';
+import { useState } from 'octane'
+import { Pager } from '@octane-xplat/pager'
+import { Button, Heading, Pressable, HStack, Text, View } from '@octane-xplat/ui'
 
 const PAGES = [
 	{
@@ -23,19 +23,19 @@ const PAGES = [
 		body: 'Same props, same pixels: scroll-snap on web, ViewPager2 / UICollectionView paging on native.',
 		tint: '#d97706',
 	},
-];
+]
 
 const renderPage = (page: (typeof PAGES)[number]) => @{
-	<View className="pager-page" style={{ backgroundColor: page.tint }}>
-		<Text className="pager-page-title">{page.title}</Text>
-		<Text className="pager-page-body">{page.body}</Text>
-	</View>
-};
+		<View className="pager-page" style={{ backgroundColor: page.tint }}>
+			<Text className="pager-page-title">{page.title}</Text>
+			<Text className="pager-page-body">{page.body}</Text>
+		</View>
+	}
 
 /** Shared `Pager` demo — controlled page + a self-drawn dot indicator and
  *  prev/next buttons exercising the programmatic-write path. */
 export function PagerDemo() @{
-	const [page, setPage] = useState(0);
+	const [page, setPage] = useState(0)
 
 	<View className="pager-demo gap-4">
 		<Heading level={2}>Pager</Heading>
@@ -61,7 +61,10 @@ export function PagerDemo() @{
 				<Text>Previous</Text>
 			</Button>
 			<Text className="pager-page-index">{'Page ' + (page + 1) + ' of ' + PAGES.length}</Text>
-			<Button className="btn btn-secondary" clickAction={() => setPage(Math.min(PAGES.length - 1, page + 1))}>
+			<Button
+				className="btn btn-secondary"
+				clickAction={() => setPage(Math.min(PAGES.length - 1, page + 1))}
+			>
 				<Text>Next</Text>
 			</Button>
 		</HStack>

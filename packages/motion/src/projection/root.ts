@@ -49,7 +49,9 @@ export class ProjectionRoot {
 	add(node: ProjectionNode) {
 		node.root = this
 		let index = this.nodes.length
-		while (index > 0 && this.nodes[index - 1].depth > node.depth) index--
+		while (index > 0 && this.nodes[index - 1].depth > node.depth) {
+			index--
+		}
 		this.nodes.splice(index, 0, node)
 		if (this.nodes.length === 1) {
 			this.observeStop = this.options.barrier.observe(this)
@@ -58,7 +60,9 @@ export class ProjectionRoot {
 
 	remove(node: ProjectionNode) {
 		const index = this.nodes.indexOf(node)
-		if (index === -1) return
+		if (index === -1) {
+			return
+		}
 		this.nodes.splice(index, 1)
 		node.detach()
 		if (!this.nodes.length) {
@@ -74,7 +78,9 @@ export class ProjectionRoot {
 			return
 		}
 
-		if (this.passScheduled || !this.nodes.length) return
+		if (this.passScheduled || !this.nodes.length) {
+			return
+		}
 		this.passScheduled = true
 		this.options.barrier.schedule(() => {
 			this.passScheduled = false
@@ -93,7 +99,9 @@ export class ProjectionRoot {
 	}
 
 	private ensureFrame() {
-		if (this.frameScheduled) return
+		if (this.frameScheduled) {
+			return
+		}
 		this.frameScheduled = true
 		this.options.clock.request(() => this.runFrame())
 	}
@@ -109,7 +117,9 @@ export class ProjectionRoot {
 
 		const ticks = [...this.queuedTicks.values()]
 		this.queuedTicks.clear()
-		for (const tick of ticks) tick()
+		for (const tick of ticks) {
+			tick()
+		}
 
 		if (this.needsProjectionUpdate) {
 			this.needsProjectionUpdate = false
@@ -119,7 +129,9 @@ export class ProjectionRoot {
 
 	private measureNodes() {
 		for (const node of this.nodes) {
-			if (node.hasProjected) node.hooks?.resetProjection()
+			if (node.hasProjected) {
+				node.hooks?.resetProjection()
+			}
 		}
 
 		for (const node of this.nodes) {
@@ -143,7 +155,9 @@ export class ProjectionRoot {
 		}
 
 		this.measureNodes()
-		for (const node of this.nodes) node.notifyLayoutUpdate()
+		for (const node of this.nodes) {
+			node.notifyLayoutUpdate()
+		}
 		this.updateProjection()
 	}
 
@@ -162,12 +176,24 @@ export class ProjectionRoot {
 
 	private updateProjection() {
 		this.needsProjectionUpdate = false
-		for (const node of this.nodes) propagateDirtyNodes(node)
-		for (const node of this.nodes) node.resolveTargetDelta()
-		for (const node of this.nodes) node.calcProjection()
-		for (const node of this.nodes) node.render()
-		for (const node of this.nodes) node.refreshPresented()
-		for (const node of this.nodes) cleanDirtyNodes(node)
+		for (const node of this.nodes) {
+			propagateDirtyNodes(node)
+		}
+		for (const node of this.nodes) {
+			node.resolveTargetDelta()
+		}
+		for (const node of this.nodes) {
+			node.calcProjection()
+		}
+		for (const node of this.nodes) {
+			node.render()
+		}
+		for (const node of this.nodes) {
+			node.refreshPresented()
+		}
+		for (const node of this.nodes) {
+			cleanDirtyNodes(node)
+		}
 	}
 }
 

@@ -13,9 +13,10 @@ let updatePerson = (_value: string) => {}
 function Counter() {
 	const [count, setCount] = useState(0)
 	const person = useContext(Person)
-	increment = () => setCount(value => value + 1)
+	increment = () => setCount((value) => value + 1)
 	return <button>{count + ':' + person}</button>
 }
+
 function App() {
 	const content = useOwnedContent()
 	const [person, setPerson] = useState('Avery')
@@ -23,6 +24,7 @@ function App() {
 	updatePerson = setPerson
 	return <PersonProvider value={person}>{content.element}</PersonProvider>
 }
+
 it('retains a later DOM portal and live providers when an earlier root is removed', () => {
 	const container = document.createElement('div')
 	const firstTarget = document.createElement('div')
@@ -32,7 +34,11 @@ it('retains a later DOM portal and live providers when an earlier root is remove
 	const first = owner.createRoot(firstTarget)
 	const second = owner.createRoot(secondTarget)
 	try {
-		act(() => { first.render(Counter); second.render(Counter) })
+		act(() => {
+			first.render(Counter)
+			second.render(Counter)
+		})
+
 		const button = secondTarget.querySelector('button')
 		act(() => increment())
 		expect(button?.textContent).toBe('1:Avery')
@@ -40,5 +46,7 @@ it('retains a later DOM portal and live providers when an earlier root is remove
 		expect(secondTarget.querySelector('button')).toBe(button)
 		act(() => updatePerson('Jordan'))
 		expect(button?.textContent).toBe('1:Jordan')
-	} finally { act(() => root.unmount()) }
+	} finally {
+		act(() => root.unmount())
+	}
 })

@@ -12,18 +12,35 @@ const options = [
 ]
 
 const cleanups: (() => void)[] = []
-afterEach(() => { cleanups.splice(0).forEach((cleanup) => cleanup()); vi.unstubAllGlobals() })
+afterEach(() => {
+	cleanups.splice(0).forEach((cleanup) => cleanup())
+	vi.unstubAllGlobals()
+})
 
 function mount(props: Partial<SelectProps> = {}) {
-	vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() })))
+	vi.stubGlobal(
+		'matchMedia',
+		vi.fn(() => ({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() })),
+	)
+
 	const host = document.createElement('div')
 	document.body.append(host)
 	const root = createRoot(host)
-	const render = (next: Partial<SelectProps>) => act(() => root.render(<Select label="Choice" options={options} {...next} />))
+	const render = (next: Partial<SelectProps>) =>
+		act(() => root.render(<Select label="Choice" options={options} {...next} />))
+
 	render(props)
-	cleanups.push(() => { root.unmount(); host.remove() })
+	cleanups.push(() => {
+		root.unmount()
+		host.remove()
+	})
+
 	const trigger = () => host.querySelector('.vx-select-trigger') as HTMLElement
-	const key = (value: string, target = trigger(), extra = {}) => act(() => target.dispatchEvent(new KeyboardEvent('keydown', { key: value, bubbles: true, ...extra })))
+	const key = (value: string, target = trigger(), extra = {}) =>
+		act(() =>
+			target.dispatchEvent(new KeyboardEvent('keydown', { key: value, bubbles: true, ...extra })),
+		)
+
 	const click = (target: Element) => act(() => (target as HTMLElement).click())
 	return { host, root, render, trigger, key, click }
 }
@@ -51,12 +68,20 @@ describe('Select finite-list interaction', () => {
 		ui.click(ui.trigger())
 		const search = document.querySelector('.vx-select-search') as HTMLInputElement
 		expect(document.activeElement).toBe(search)
-		act(() => { search.value = 'ber'; search.dispatchEvent(new Event('input', { bubbles: true })) })
+		act(() => {
+			search.value = 'ber'
+			search.dispatchEvent(new Event('input', { bubbles: true }))
+		})
+
 		expect(document.querySelectorAll('[role="option"]')).toHaveLength(1)
 		expect(document.querySelector('[role="group"]')?.getAttribute('aria-label')).toBe('Cities')
 		ui.key('Escape', search, { isComposing: true })
 		expect(document.querySelector('[role="listbox"]')).not.toBeNull()
-		act(() => { search.value = 'missing'; search.dispatchEvent(new Event('input', { bubbles: true })) })
+		act(() => {
+			search.value = 'missing'
+			search.dispatchEvent(new Event('input', { bubbles: true }))
+		})
+
 		expect(document.querySelector('.vx-select-empty')?.textContent).toBe('No results found')
 		expect(ui.host.querySelector('[role="status"]')?.textContent).toContain('0 results')
 		ui.key('Escape', search)
@@ -81,7 +106,11 @@ describe('Select finite-list interaction', () => {
 
 		ui.click(ui.trigger())
 		const search = document.querySelector('.vx-select-search') as HTMLInputElement
-		act(() => { search.value = 'app'; search.dispatchEvent(new Event('input', { bubbles: true })) })
+		act(() => {
+			search.value = 'app'
+			search.dispatchEvent(new Event('input', { bubbles: true }))
+		})
+
 		ui.click(document.querySelector('.vx-select-all')!)
 		expect(ui.trigger().textContent).toContain('Apple')
 		expect(ui.trigger().textContent).toContain('Apricot')
@@ -93,9 +122,19 @@ describe('Select finite-list interaction', () => {
 	})
 
 	it('closes an externally open surface when read-only and removes editing affordances', () => {
-		const onValueChange = vi.fn(), onOpenChange = vi.fn()
+		const onValueChange = vi.fn(),
+			onOpenChange = vi.fn()
+
 		const ui = mount({ open: true, hasClear: true, value: 'apple', onValueChange, onOpenChange })
-		ui.render({ open: true, hasClear: true, value: 'apple', isReadOnly: true, onValueChange, onOpenChange })
+		ui.render({
+			open: true,
+			hasClear: true,
+			value: 'apple',
+			isReadOnly: true,
+			onValueChange,
+			onOpenChange,
+		})
+
 		expect(document.querySelector('[role="listbox"]')).toBeNull()
 		expect(ui.host.querySelector('.vx-select-clear')).toBeNull()
 		expect(ui.host.querySelector('.vx-select-caret')).toBeNull()
@@ -105,15 +144,36 @@ describe('Select finite-list interaction', () => {
 	})
 
 	it('serializes one hidden input per value and keeps read-only values submittable', () => {
-		const ui = mount({ multiple: true, value: ['apple', 'berlin'], htmlName: 'choices', isReadOnly: true })
-		expect(Array.from(ui.host.querySelectorAll('input[type="hidden"]')).map((input) => (input as HTMLInputElement).value)).toEqual(['apple', 'berlin'])
+		const ui = mount({
+			multiple: true,
+			value: ['apple', 'berlin'],
+			htmlName: 'choices',
+			isReadOnly: true,
+		})
+
+		expect(
+			Array.from(ui.host.querySelectorAll('input[type="hidden"]')).map(
+				(input) => (input as HTMLInputElement).value,
+			),
+		).toEqual(['apple', 'berlin'])
 	})
 
 	it('shows pending selection, blocks another edit, and rolls back a rejected action', async () => {
 		let reject!: (error: unknown) => void
-		const action = new Promise<void>((_resolve, fail) => { reject = fail })
-		const onValueChange = vi.fn(), onChangeError = vi.fn()
-		const ui = mount({ defaultValue: 'apple', changeAction: () => action, onValueChange, onChangeError })
+		const action = new Promise<void>((_resolve, fail) => {
+			reject = fail
+		})
+
+		const onValueChange = vi.fn(),
+			onChangeError = vi.fn()
+
+		const ui = mount({
+			defaultValue: 'apple',
+			changeAction: () => action,
+			onValueChange,
+			onChangeError,
+		})
+
 		ui.click(ui.trigger())
 		ui.key('End')
 		ui.key('Enter')
@@ -121,7 +181,11 @@ describe('Select finite-list interaction', () => {
 		expect(ui.trigger().textContent).toContain('Berlin')
 		ui.key('b')
 		expect(onValueChange).toHaveBeenCalledTimes(1)
-		await act(async () => { reject(new Error('offline')); await action.catch(() => {}) })
+		await act(async () => {
+			reject(new Error('offline'))
+			await action.catch(() => {})
+		})
+
 		expect(ui.trigger().textContent).toContain('Apple')
 		expect(onValueChange).toHaveBeenLastCalledWith('apple')
 		expect(onChangeError).toHaveBeenCalledTimes(1)
@@ -130,39 +194,69 @@ describe('Select finite-list interaction', () => {
 
 	it('does not overwrite a newer controlled selection when an old commit rejects', async () => {
 		let reject!: (error: unknown) => void
-		const action = new Promise<void>((_resolve, fail) => { reject = fail })
+		const action = new Promise<void>((_resolve, fail) => {
+			reject = fail
+		})
+
 		const onValueChange = vi.fn()
 		const ui = mount({ value: 'apple', changeAction: () => action, onValueChange })
 		ui.key('b')
 		ui.render({ value: 'apricot', changeAction: () => action, onValueChange })
-		await act(async () => { reject(new Error('offline')); await action.catch(() => {}) })
+		await act(async () => {
+			reject(new Error('offline'))
+			await action.catch(() => {})
+		})
+
 		expect(onValueChange).toHaveBeenCalledTimes(1)
 		expect(ui.trigger().textContent).toContain('Apricot')
 	})
 
 	it('reports query edits and resets the query when the surface closes', () => {
-		const onChangeQuery = vi.fn(), onOpenChange = vi.fn()
+		const onChangeQuery = vi.fn(),
+			onOpenChange = vi.fn()
+
 		const ui = mount({ searchable: true, onChangeQuery, onOpenChange })
 		ui.click(ui.trigger())
 		const search = document.querySelector('.vx-select-search') as HTMLInputElement
-		act(() => { search.value = 'ber'; search.dispatchEvent(new Event('input', { bubbles: true })) })
+		act(() => {
+			search.value = 'ber'
+			search.dispatchEvent(new Event('input', { bubbles: true }))
+		})
+
 		expect(onChangeQuery).toHaveBeenLastCalledWith('ber')
 		ui.key('Escape', search)
 		expect(onChangeQuery).toHaveBeenLastCalledWith('')
 		expect(onOpenChange).toHaveBeenLastCalledWith(false)
-		expect(onChangeQuery.mock.invocationCallOrder.at(-1)!).toBeLessThan(onOpenChange.mock.invocationCallOrder.at(-1)!)
+		expect(onChangeQuery.mock.invocationCallOrder.at(-1)!).toBeLessThan(
+			onOpenChange.mock.invocationCallOrder.at(-1)!,
+		)
 	})
 
 	it('ignores a rejected commit after unmount', async () => {
 		let reject!: (error: unknown) => void
-		const action = new Promise<void>((_resolve, fail) => { reject = fail })
-		const onValueChange = vi.fn(), onChangeError = vi.fn()
-		const ui = mount({ defaultValue: 'apple', changeAction: () => action, onValueChange, onChangeError })
+		const action = new Promise<void>((_resolve, fail) => {
+			reject = fail
+		})
+
+		const onValueChange = vi.fn(),
+			onChangeError = vi.fn()
+
+		const ui = mount({
+			defaultValue: 'apple',
+			changeAction: () => action,
+			onValueChange,
+			onChangeError,
+		})
+
 		ui.key('b')
 		expect(onValueChange).toHaveBeenCalledTimes(1)
 		ui.root.unmount()
 		ui.host.remove()
-		await act(async () => { reject(new Error('offline')); await action.catch(() => {}) })
+		await act(async () => {
+			reject(new Error('offline'))
+			await action.catch(() => {})
+		})
+
 		expect(onChangeError).not.toHaveBeenCalled()
 	})
 
@@ -174,5 +268,4 @@ describe('Select finite-list interaction', () => {
 		ui.key('Tab')
 		expect(document.querySelector('[role="listbox"]')).toBeNull()
 	})
-
 })

@@ -12,26 +12,39 @@ const stats = [
 ] as const
 
 export function GridWithGridSpan() @{
-	<Grid columns={3} style={{width: "100%", maxWidth: 500, gap: 16}}>
+	<Grid columns={3} style={{ width: '100%', maxWidth: 500, gap: 16 }}>
 		<GridSpan rows={2}>
 			<Card variant="cyan">
 				<VStack gap={1}>
-					<Text type="label" className="sb-block">Featured Release</Text>
-					<Text type="supporting" className="sb-block">Astryx 4.0 is now available with new layout primitives, refreshed tokens, and improved theming support across the system.</Text>
+					<Text type="label" className="sb-block">
+						Featured Release
+					</Text>
+					<Text type="supporting" className="sb-block">
+						Astryx 4.0 is now available with new layout primitives, refreshed tokens, and improved
+						theming support across the system.
+					</Text>
 				</VStack>
 			</Card>
 		</GridSpan>
 		{stats.map(([label, note]) => (
 			<Card key={label}>
-				<Text type="label" className="sb-block">{label}</Text>
-				<Text type="supporting" className="sb-block">{note}</Text>
+				<Text type="label" className="sb-block">
+					{label}
+				</Text>
+				<Text type="supporting" className="sb-block">
+					{note}
+				</Text>
 			</Card>
 		))}
 		<GridSpan columns="full">
 			<Card variant="cyan">
 				<VStack gap={1}>
-					<Text type="label" className="sb-block">Community Showcase</Text>
-					<Text type="supporting" className="sb-block">See how teams are building with Astryx across the organization</Text>
+					<Text type="label" className="sb-block">
+						Community Showcase
+					</Text>
+					<Text type="supporting" className="sb-block">
+						See how teams are building with Astryx across the organization
+					</Text>
 				</VStack>
 			</Card>
 		</GridSpan>

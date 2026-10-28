@@ -132,6 +132,7 @@ export function createWebRenderer<const Catalog extends ContractRouteManifest>(
 					Promise.resolve(options.transfer(result.match, request)),
 					request.signal,
 				)
+
 				// Validate and detach the projection before rendering; server and browser
 				// see the same public values, including group-loader context.
 				const publicData = JSON.parse(serializePublic(projection))

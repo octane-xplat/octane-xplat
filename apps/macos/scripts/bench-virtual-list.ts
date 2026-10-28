@@ -9,6 +9,7 @@ const xplatCli = join(
 	dirname(fileURLToPath(import.meta.resolve('@octane-xplat/cli/macos'))),
 	'../cli.ts',
 )
+
 const requestedSizes = process.env.OCTANE_MACOS_VLIST_SIZES
 	? process.env.OCTANE_MACOS_VLIST_SIZES.split(',').map(Number)
 	: [500, 2000, 5000]

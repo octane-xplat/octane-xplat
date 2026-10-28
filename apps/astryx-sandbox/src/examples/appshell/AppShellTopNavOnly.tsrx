@@ -1,5 +1,15 @@
 // Port of upstream AppShell/AppShellTopNavOnly.tsx (Astryx 0.6.4, MIT).
-import { AppShell, Heading, Icon, NavIcon, Text, TopNav, TopNavHeading, TopNavItem, VStack } from '@octane-xplat/ui'
+import {
+	AppShell,
+	Heading,
+	Icon,
+	NavIcon,
+	Text,
+	TopNav,
+	TopNavHeading,
+	TopNavItem,
+	VStack,
+} from '@octane-xplat/ui'
 
 export function AppShellTopNavOnly() @{
 	<AppShell
@@ -8,7 +18,12 @@ export function AppShellTopNavOnly() @{
 		topNav={
 			<TopNav
 				label="Main navigation"
-				heading={<TopNavHeading heading="App Shell" logo={<NavIcon icon={<Icon name="sandbox-blocks" size={16} />} />} />}
+				heading={
+					<TopNavHeading
+						heading="App Shell"
+						logo={<NavIcon icon={<Icon name="sandbox-blocks" size={16} />} />}
+					/>
+				}
 				startContent={
 					<>
 						<TopNavItem label="Home" href="#" isSelected />
@@ -21,7 +36,11 @@ export function AppShellTopNavOnly() @{
 	>
 		<VStack gap={4}>
 			<Heading level={3}>Page Content</Heading>
-			<Text type="body">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</Text>
+			<Text type="body">
+				Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut
+				labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
+				laboris.
+			</Text>
 		</VStack>
 	</AppShell>
 }

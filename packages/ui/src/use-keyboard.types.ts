@@ -33,4 +33,3 @@ export interface UseKeyboardResult {
 		onKeyUp?: (event: KeyboardEvent) => void
 	}
 }
-

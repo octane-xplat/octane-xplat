@@ -21,9 +21,8 @@ export class Observable {
 	private _listeners: Map<string, Set<(args: ObservableEvent) => void>> | undefined
 
 	on(event: string, callback: (args: ObservableEvent) => void) {
-		;(this._listeners ??= new Map())
-			.get(event)
-			?.add(callback) ?? this._listeners!.set(event, new Set([callback]))
+		;(this._listeners ??= new Map()).get(event)?.add(callback) ??
+			this._listeners!.set(event, new Set([callback]))
 	}
 
 	once(event: string, callback: (args: ObservableEvent) => void) {
@@ -109,8 +108,7 @@ export class Property<Owner, T> {
 			set(this: any, value: T) {
 				const store = (this.__propValues ??= Object.create(null))
 				const old = store[key] ?? self.defaultValue
-				const equal =
-					self.options.equalityComparer?.(old, value) ?? Object.is(old, value)
+				const equal = self.options.equalityComparer?.(old, value) ?? Object.is(old, value)
 				if (equal) {
 					return
 				}
@@ -290,6 +288,7 @@ export function registerPluginElement<T extends ViewBase>(
 					for (const key of Object.keys(value)) {
 						view.style.setProp(key, value[key])
 					}
+
 					return true
 				}
 				if (prop === 'className') {

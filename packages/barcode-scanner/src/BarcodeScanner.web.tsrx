@@ -15,6 +15,7 @@ export function BarcodeScanner(props: BarcodeScannerProps) @{
 		toggleCamera: () => {},
 		native: v,
 	})
+
 	useImperativeHandle(props.ref, () => handle(video.current), [])
 
 	useEffect(() => {
@@ -24,6 +25,7 @@ export function BarcodeScanner(props: BarcodeScannerProps) @{
 			props.onError?.({ message: 'unsupported: BarcodeDetector/getUserMedia is not available' })
 			return
 		}
+
 		const el = video.current
 		if (!el) {
 			return
@@ -45,6 +47,7 @@ export function BarcodeScanner(props: BarcodeScannerProps) @{
 			if (cancelled || !el || pausedRef.current) {
 				return
 			}
+
 			try {
 				const codes = await detector.detect(el)
 				for (const code of codes ?? []) {
@@ -58,6 +61,7 @@ export function BarcodeScanner(props: BarcodeScannerProps) @{
 			} catch {
 				// A transient frame failure ends detection for this tick only.
 			}
+
 			schedule()
 		}
 
@@ -65,6 +69,7 @@ export function BarcodeScanner(props: BarcodeScannerProps) @{
 			if (cancelled) {
 				return
 			}
+
 			const rvfc = (el as any).requestVideoFrameCallback
 			if (typeof rvfc === 'function') {
 				rvfc.call(el, () => poll())
@@ -79,12 +84,16 @@ export function BarcodeScanner(props: BarcodeScannerProps) @{
 		})
 
 		mediaDevices
-			.getUserMedia({ video: { facingMode: props.facing === 'front' ? 'user' : 'environment' }, audio: false })
+			.getUserMedia({
+				video: { facingMode: props.facing === 'front' ? 'user' : 'environment' },
+				audio: false,
+			})
 			.then((s: MediaStream) => {
 				if (cancelled) {
 					s.getTracks().forEach((t) => t.stop())
 					return
 				}
+
 				stream = s
 				el.srcObject = s
 				el.play().catch(() => {})
@@ -99,6 +108,7 @@ export function BarcodeScanner(props: BarcodeScannerProps) @{
 			if (timer) {
 				clearTimeout(timer)
 			}
+
 			stream?.getTracks().forEach((t) => t.stop())
 			el.srcObject = null
 		}

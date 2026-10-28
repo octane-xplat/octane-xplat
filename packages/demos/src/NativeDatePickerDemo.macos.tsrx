@@ -7,5 +7,5 @@ export function NativeDatePickerDemo() @{
 		<Text id="native-date-picker-status">
 			Native date pickers are unsupported by the experimental AppKit host.
 		</Text>
-	</View>;
+	</View>
 }

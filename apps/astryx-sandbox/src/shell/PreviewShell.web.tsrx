@@ -26,10 +26,19 @@ import {
 	type CommandPaletteItem,
 	type TreeListNode,
 } from '@octane-xplat/ui'
+
 import { useRouterState } from '@octane-xplat/ui/routing'
 import { coverageRows, type CoverageRow } from '../coverage/coverage'
 import { sourceForRow } from '../source-registry'
-import { isEmbed, SANDBOX_THEMES, setMode, setThemeName, useThemeName, useThemePreference } from '../theme'
+import {
+	isEmbed,
+	SANDBOX_THEMES,
+	setMode,
+	setThemeName,
+	useThemeName,
+	useThemePreference,
+} from '../theme'
+
 import { followHref } from './follow-href.web'
 
 const VIEWPORT_WIDTHS: Record<string, string> = {
@@ -75,7 +84,10 @@ function buildNavTree(currentRoute: string): TreeListNode[] {
 
 	const families = new Map<string, TreeListNode[]>()
 	for (const r of coverageRows) {
-		if (r.kind !== 'template-block' || !r.family) continue
+		if (r.kind !== 'template-block' || !r.family) {
+			continue
+		}
+
 		const items = families.get(r.family) ?? []
 		items.push({ key: r.route, label: r.doc?.displayName ?? r.name ?? r.route, href: r.route })
 		families.set(r.family, items)
@@ -103,6 +115,7 @@ export function PreviewShell(props: { row: CoverageRow; children?: any }) @{
 	const [toolbarHidden, setToolbarHidden] = useState(
 		() => window.localStorage.getItem('sandbox-toolbar-hidden') === 'true',
 	)
+
 	const iframeRef = useRef<any>(null)
 	const themeName = useThemeName()
 	const mode = useThemePreference()
@@ -117,8 +130,12 @@ export function PreviewShell(props: { row: CoverageRow; children?: any }) @{
 	const [expandedKeys, setExpandedKeys] = useState<Set<any>>(
 		() => new Set(['group:pages', 'group:components', `family:${row.family}`]),
 	)
+
 	useEffect(() => {
-		setExpandedKeys((keys: Set<any>) => new Set([...keys, 'group:pages', 'group:components', `family:${row.family}`]))
+		setExpandedKeys(
+			(keys: Set<any>) =>
+				new Set([...keys, 'group:pages', 'group:components', `family:${row.family}`]),
+		)
 	}, [row.route])
 
 	useEffect(() => {
@@ -134,6 +151,7 @@ export function PreviewShell(props: { row: CoverageRow; children?: any }) @{
 				setToolbarHidden((prev: boolean) => !prev)
 			}
 		}
+
 		window.addEventListener('keydown', onKey)
 		return () => window.removeEventListener('keydown', onKey)
 	}, [])
@@ -142,7 +160,10 @@ export function PreviewShell(props: { row: CoverageRow; children?: any }) @{
 	// same 'astryx-theme-sync' message so the iframe doesn't reload).
 	useEffect(() => {
 		const frame = iframeRef.current
-		if (!frame?.contentWindow) return
+		if (!frame?.contentWindow) {
+			return
+		}
+
 		frame.contentWindow.postMessage(
 			{ type: 'astryx-theme-sync', theme: themeName, mode },
 			window.location.origin,
@@ -154,7 +175,9 @@ export function PreviewShell(props: { row: CoverageRow; children?: any }) @{
 	}
 
 	const copy = () => {
-		if (source != null) void clipboard.copy(source)
+		if (source != null) {
+			void clipboard.copy(source)
+		}
 	}
 
 	const iframeSrc = `${row.route}?embed=1&theme=${themeName}&mode=${mode}`
@@ -266,7 +289,9 @@ export function PreviewShell(props: { row: CoverageRow; children?: any }) @{
 							expandedKeys={expandedKeys}
 							onExpandedChange={setExpandedKeys}
 							onAction={(key) => {
-								if (typeof key === 'string' && key.startsWith('/')) followHref(key)
+								if (typeof key === 'string' && key.startsWith('/')) {
+									followHref(key)
+								}
 							}}
 						/>
 					</View>
@@ -301,8 +326,8 @@ export function PreviewShell(props: { row: CoverageRow; children?: any }) @{
 						) : (
 							<View className="sb-preview-nosource">
 								<Text type="body" color="secondary">
-									Source not available — this route renders the pending-port
-									placeholder. Upstream source: {row.source ?? 'unknown'}
+									Source not available — this route renders the pending-port placeholder. Upstream
+									source: {row.source ?? 'unknown'}
 								</Text>
 							</View>
 						)}

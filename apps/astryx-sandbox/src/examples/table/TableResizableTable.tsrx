@@ -34,5 +34,11 @@ export function TableResizableTable() @{
 		},
 	})
 
-	<Table data={users} columns={columns} idKey="id" hasHover plugins={{ columnResize: resizePlugin }} />
+	<Table
+		data={users}
+		columns={columns}
+		idKey="id"
+		hasHover
+		plugins={{ columnResize: resizePlugin }}
+	/>
 }

@@ -1,6 +1,14 @@
 // Port of upstream BottomSheet/BottomSheetShowcase.tsx (Astryx 0.6.4, MIT).
 import { useState } from 'octane'
-import { BottomSheet, Button, CheckboxInput, Divider, Heading, Section, VStack } from '@octane-xplat/ui'
+import {
+	BottomSheet,
+	Button,
+	CheckboxInput,
+	Divider,
+	Heading,
+	Section,
+	VStack,
+} from '@octane-xplat/ui'
 
 export function BottomSheetShowcase() @{
 	const [isOpen, setIsOpen] = useState(false)
@@ -18,7 +26,11 @@ export function BottomSheetShowcase() @{
 						<VStack gap={2}>
 							<CheckboxInput label="In stock" value={inStock} onChange={setInStock} />
 							<CheckboxInput label="On sale" value={onSale} onChange={setOnSale} />
-							<CheckboxInput label="Free shipping" value={freeShipping} onChange={setFreeShipping} />
+							<CheckboxInput
+								label="Free shipping"
+								value={freeShipping}
+								onChange={setFreeShipping}
+							/>
 						</VStack>
 						<Button label="Apply" clickAction={() => setIsOpen(false)} />
 					</VStack>

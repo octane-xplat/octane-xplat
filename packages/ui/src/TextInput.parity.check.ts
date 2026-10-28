@@ -1,8 +1,12 @@
 import type { ParityCheck } from './parity/check-helpers.ts'
-import { inputEqual, inputNaturalEqual, inputRows, inputNaturalRows } from './parity/check-helpers.ts'
+import {
+	inputEqual,
+	inputNaturalEqual,
+	inputRows,
+	inputNaturalRows,
+} from './parity/check-helpers.ts'
 
 export const CHECKS: ParityCheck[] = [
-
 	{
 		fixture: 'text-input',
 		targets: ['web', 'ios', 'android', 'macos'],
@@ -25,5 +29,5 @@ export const CHECKS: ParityCheck[] = [
 		elements: { field: 'parity-textinput' },
 		equal: inputNaturalEqual,
 		check: (m, target) => inputNaturalRows(m, target),
-	}
+	},
 ]

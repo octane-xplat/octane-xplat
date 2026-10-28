@@ -2,7 +2,6 @@ import type { ParityCheck } from './parity/check-helpers.ts'
 import { near, dims } from './parity/check-helpers.ts'
 
 export const CHECKS: ParityCheck[] = [
-
 	{
 		fixture: 'row-layout',
 		elements: { root: 'parity-row-root', first: 'parity-row-first', second: 'parity-row-second' },
@@ -24,5 +23,5 @@ export const CHECKS: ParityCheck[] = [
 				],
 			]
 		},
-	}
+	},
 ]

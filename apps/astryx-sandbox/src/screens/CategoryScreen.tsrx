@@ -2,7 +2,18 @@
 // page grid for one category.
 
 import { useState } from 'octane'
-import { Heading, Text, TextInput, VStack, View, Icon, Layout, LayoutHeader, LayoutContent } from '@octane-xplat/ui'
+import {
+	Heading,
+	Text,
+	TextInput,
+	VStack,
+	View,
+	Icon,
+	Layout,
+	LayoutHeader,
+	LayoutContent,
+} from '@octane-xplat/ui'
+
 import { categories } from '../data/sandboxPages'
 import { ProjectCard } from '../shell/ProjectCard'
 import { SandboxShell } from '../shell/SandboxShell'
@@ -45,7 +56,9 @@ export function CategoryScreen(props: { slug: string }) @{
 							/>
 							{filtered.length === 0 ? (
 								<View className="sb-empty">
-									<Text type="supporting" color="secondary">No results found.</Text>
+									<Text type="supporting" color="secondary">
+										No results found.
+									</Text>
 								</View>
 							) : (
 								<View className="sb-card-grid">

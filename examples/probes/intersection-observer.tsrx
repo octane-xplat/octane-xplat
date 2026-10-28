@@ -1,5 +1,10 @@
 import { Column, ScrollView, Text, View } from '@octane-xplat/ui'
-import { IntersectionObserver as PlatformIntersectionObserver, supported, useIntersectionObserver } from '@octane-xplat/intersection-observer'
+import {
+	IntersectionObserver as PlatformIntersectionObserver,
+	supported,
+	useIntersectionObserver,
+} from '@octane-xplat/intersection-observer'
+
 import type { ProbeContext } from '../../scripts/probe/context'
 
 let boundEl: any = null
@@ -19,21 +24,41 @@ export default function IntersectionProbe() {
 			lastRatio = e.intersectionRatio
 			callbackRatios.push(e.intersectionRatio)
 			callbackIntersections.push(e.isIntersecting)
-			entriesLog.push(JSON.stringify({ i: e.isIntersecting, r: e.intersectionRatio, br: e.boundingClientRect, ir: e.intersectionRect }))
+			entriesLog.push(
+				JSON.stringify({
+					i: e.isIntersecting,
+					r: e.intersectionRatio,
+					br: e.boundingClientRect,
+					ir: e.intersectionRect,
+				}),
+			)
 		},
 	})
 
-	return <Column>
-		<Text id="probe-visible">{String(isIntersecting)}</Text>
-		<Text id="probe-ratio">{String(entry?.intersectionRatio ?? -1)}</Text>
-		<ScrollView id="probe-scroll" ref={rootRef} style={{ height: 200 }}>
-			<Column>
-				{SPACER.map((label) => <Text key={label}>{label}</Text>)}
-				<View id="probe-target" ref={(el: any) => { boundEl = el; ref(el) }} style={{ height: 80, backgroundColor: '#4a6fa5' }} />
-				{SPACER.map((label) => <Text key={`after-${label}`}>{label}</Text>)}
-			</Column>
-		</ScrollView>
-	</Column>
+	return (
+		<Column>
+			<Text id="probe-visible">{String(isIntersecting)}</Text>
+			<Text id="probe-ratio">{String(entry?.intersectionRatio ?? -1)}</Text>
+			<ScrollView id="probe-scroll" ref={rootRef} style={{ height: 200 }}>
+				<Column>
+					{SPACER.map((label) => (
+						<Text key={label}>{label}</Text>
+					))}
+					<View
+						id="probe-target"
+						ref={(el: any) => {
+							boundEl = el
+							ref(el)
+						}}
+						style={{ height: 80, backgroundColor: '#4a6fa5' }}
+					/>
+					{SPACER.map((label) => (
+						<Text key={`after-${label}`}>{label}</Text>
+					))}
+				</Column>
+			</ScrollView>
+		</Column>
+	)
 }
 
 function scrollRange(scroller: any) {
@@ -47,7 +72,9 @@ function macOSScrollToTop(scroller: any, requestedTop: number) {
 	const viewportHeight = Number(clip.bounds.size.height)
 	const maxTop = Math.max(0, documentHeight - viewportHeight)
 	const top = Math.max(0, Math.min(maxTop, requestedTop))
-	const flippedValue = typeof docView.isFlipped === 'function' ? docView.isFlipped() : docView.isFlipped
+	const flippedValue =
+		typeof docView.isFlipped === 'function' ? docView.isFlipped() : docView.isFlipped
+
 	const flipped = flippedValue === true || Number(flippedValue) === 1
 	const y = flipped ? top : documentHeight - viewportHeight - top
 	clip.scrollToPoint({ x: 0, y })
@@ -63,11 +90,15 @@ async function scrollTargetIntoView(ctx: ProbeContext, scroller: any, target: an
 	if (ctx.target === 'macos') {
 		const docView = scroller.documentView
 		const targetRect = target.convertRectToView(target.bounds, docView)
-		const flippedValue = typeof docView.isFlipped === 'function' ? docView.isFlipped() : docView.isFlipped
+		const flippedValue =
+			typeof docView.isFlipped === 'function' ? docView.isFlipped() : docView.isFlipped
+
 		const flipped = flippedValue === true || Number(flippedValue) === 1
 		const targetTop = flipped
 			? Number(targetRect.origin.y)
-			: Number(docView.frame.size.height) - Number(targetRect.origin.y) - Number(targetRect.size.height)
+			: Number(docView.frame.size.height) -
+				Number(targetRect.origin.y) -
+				Number(targetRect.size.height)
 
 		macOSScrollToTop(scroller, targetTop - 20)
 		return
@@ -77,20 +108,36 @@ async function scrollTargetIntoView(ctx: ProbeContext, scroller: any, target: an
 	const targetY = target.getLocationOnScreen().y
 	const scrollerY = scroller.getLocationOnScreen().y
 	const offset = Number(scroller.scrollTop ?? 0) + targetY - scrollerY - 20
-	scroller.scrollTo?.({ top: Math.max(0, Math.min(scrollRange(scroller), offset)), behavior: 'instant' })
+	scroller.scrollTo?.({
+		top: Math.max(0, Math.min(scrollRange(scroller), offset)),
+		behavior: 'instant',
+	})
 }
 
-async function scrollTargetPartiallyVisible(ctx: ProbeContext, scroller: any, target: any, visibleHeight: number) {
+async function scrollTargetPartiallyVisible(
+	ctx: ProbeContext,
+	scroller: any,
+	target: any,
+	visibleHeight: number,
+) {
 	if (ctx.target === 'macos') {
 		const docView = scroller.documentView
 		const targetRect = target.convertRectToView(target.bounds, docView)
-		const flippedValue = typeof docView.isFlipped === 'function' ? docView.isFlipped() : docView.isFlipped
+		const flippedValue =
+			typeof docView.isFlipped === 'function' ? docView.isFlipped() : docView.isFlipped
+
 		const flipped = flippedValue === true || Number(flippedValue) === 1
 		const targetTop = flipped
 			? Number(targetRect.origin.y)
-			: Number(docView.frame.size.height) - Number(targetRect.origin.y) - Number(targetRect.size.height)
+			: Number(docView.frame.size.height) -
+				Number(targetRect.origin.y) -
+				Number(targetRect.size.height)
 
-		macOSScrollToTop(scroller, targetTop - Number(scroller.contentView.bounds.size.height) + visibleHeight)
+		macOSScrollToTop(
+			scroller,
+			targetTop - Number(scroller.contentView.bounds.size.height) + visibleHeight,
+		)
+
 		return
 	}
 
@@ -98,8 +145,13 @@ async function scrollTargetPartiallyVisible(ctx: ProbeContext, scroller: any, ta
 	const targetY = target.getLocationOnScreen().y
 	const scrollerY = scroller.getLocationOnScreen().y
 	const viewportHeight = scroller.getActualSize().height
-	const offset = Number(scroller.scrollTop ?? 0) + targetY - scrollerY - viewportHeight + visibleHeight
-	scroller.scrollTo?.({ top: Math.max(0, Math.min(scrollRange(scroller), offset)), behavior: 'instant' })
+	const offset =
+		Number(scroller.scrollTop ?? 0) + targetY - scrollerY - viewportHeight + visibleHeight
+
+	scroller.scrollTo?.({
+		top: Math.max(0, Math.min(scrollRange(scroller), offset)),
+		behavior: 'instant',
+	})
 }
 
 export async function run(ctx: ProbeContext) {
@@ -118,8 +170,18 @@ export async function run(ctx: ProbeContext) {
 	} else {
 		await scrollTargetPartiallyVisible(ctx, scroller, target, 24)
 		await ctx.waitFor(() => ctx.inspect('probe-visible').text === 'true')
-		await ctx.waitFor(() => Number(ctx.inspect('probe-ratio').text) > 0 && Number(ctx.inspect('probe-ratio').text) < 0.5)
-		ctx.assert('partially visible below threshold', Number(ctx.inspect('probe-ratio').text) < 0.5, true)
+		await ctx.waitFor(
+			() =>
+				Number(ctx.inspect('probe-ratio').text) > 0 &&
+				Number(ctx.inspect('probe-ratio').text) < 0.5,
+		)
+
+		ctx.assert(
+			'partially visible below threshold',
+			Number(ctx.inspect('probe-ratio').text) < 0.5,
+			true,
+		)
+
 		await ctx.waitFor(() => callbackRatios.some((ratio) => ratio > 0 && ratio < 0.5))
 		await scrollTargetIntoView(ctx, scroller, target)
 	}
@@ -131,7 +193,8 @@ export async function run(ctx: ProbeContext) {
 		'observer reported threshold sides',
 		ctx.target === 'web'
 			? callbackRatios.some((value) => value >= 0.5)
-			: callbackRatios.some((value) => value > 0 && value < 0.5) && callbackRatios.some((value) => value >= 0.5),
+			: callbackRatios.some((value) => value > 0 && value < 0.5) &&
+					callbackRatios.some((value) => value >= 0.5),
 		true,
 	)
 
@@ -158,7 +221,12 @@ export async function run(ctx: ProbeContext) {
 	}
 
 	await ctx.waitFor(() => ctx.inspect('probe-visible').text === 'false')
-	ctx.assert('reports leaving viewport', callbackIntersections[callbackIntersections.length - 1], false)
+	ctx.assert(
+		'reports leaving viewport',
+		callbackIntersections[callbackIntersections.length - 1],
+		false,
+	)
+
 	await scrollTargetIntoView(ctx, scroller, target)
 	await ctx.waitFor(() => ctx.inspect('probe-visible').text === 'true')
 	await new Promise((resolve) => setTimeout(resolve, 40))
@@ -178,7 +246,12 @@ export async function run(ctx: ProbeContext) {
 	}
 
 	await ctx.waitFor(() => ctx.inspect('probe-visible').text === 'false')
-	ctx.assert('disconnect continues to report hook exit', callbackIntersections[callbackIntersections.length - 1], false)
+	ctx.assert(
+		'disconnect continues to report hook exit',
+		callbackIntersections[callbackIntersections.length - 1],
+		false,
+	)
+
 	await scrollTargetIntoView(ctx, scroller, target)
 	await ctx.waitFor(() => ctx.inspect('probe-visible').text === 'true')
 	await new Promise((resolve) => setTimeout(resolve, 40))

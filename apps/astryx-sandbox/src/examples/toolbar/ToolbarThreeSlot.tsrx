@@ -8,7 +8,14 @@ export function ToolbarThreeSlot() @{
 			size="md"
 			dividers={['bottom']}
 			startContent={<Heading level={4}>Reports</Heading>}
-			centerContent={<Button label="Refresh" variant="ghost" icon={<Icon name="sandbox-arrow-right" />} isIconOnly />}
+			centerContent={
+				<Button
+					label="Refresh"
+					variant="ghost"
+					icon={<Icon name="sandbox-arrow-right" />}
+					isIconOnly
+				/>
+			}
 			endContent={<Button label="Export" variant="secondary" size="sm" />}
 		/>
 	</Card>

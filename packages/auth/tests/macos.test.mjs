@@ -177,7 +177,9 @@ function loadGoogle(session) {
 	const exports = {}
 	vm.runInNewContext(google, {
 		exports,
-		require: () => ({ authSession: { supported: !!session, open: (url, options) => session.open(url, options) } }),
+		require: () => ({
+			authSession: { supported: !!session, open: (url, options) => session.open(url, options) },
+		}),
 	})
 
 	return exports.googleAuth

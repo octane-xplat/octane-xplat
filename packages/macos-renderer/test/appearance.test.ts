@@ -16,11 +16,7 @@ test('standalone effective appearance is live, app-wide, and disposed', () => {
 		set appearance(value: { name: string } | null) {
 			applied = value
 			override =
-				value == null
-					? null
-					: String(value.name) === 'NSAppearanceNameDarkAqua'
-						? 'dark'
-						: 'light'
+				value == null ? null : String(value.name) === 'NSAppearanceNameDarkAqua' ? 'dark' : 'light'
 		},
 		get effectiveAppearance() {
 			return {

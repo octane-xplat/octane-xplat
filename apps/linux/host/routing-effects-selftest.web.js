@@ -129,6 +129,7 @@
 			equal(report.checks.length, 11)
 			equal([report.urlUnchanged, report.historyUnchanged], [true, true])
 		})
+
 		await check('no-browser-errors', () => equal(errors, []))
 	} catch (error) {
 		if (!failed.length) {

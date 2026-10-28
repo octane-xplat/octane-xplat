@@ -2,7 +2,8 @@
 // unsupported rather than breaking the import graph.
 import type { Contacts, PermissionResult } from './types'
 
-const unsupported = () => Promise.reject(new Error('unsupported: contacts is not available on windows'))
+const unsupported = () =>
+	Promise.reject(new Error('unsupported: contacts is not available on windows'))
 
 export const contacts: Contacts = {
 	supported: false,

@@ -1,7 +1,13 @@
 // Port of upstream Table/TableFilterableTable.tsx (Astryx 0.6.4, MIT).
 import {
-	Table, proportional, toSearchFilters, useTableFilterState, useTableFiltering, usePowerSearchConfig,
+	Table,
+	proportional,
+	toSearchFilters,
+	useTableFilterState,
+	useTableFiltering,
+	usePowerSearchConfig,
 } from '@octane-xplat/ui'
+
 import type { PowerSearchFilter, TableColumn } from '@octane-xplat/ui'
 
 interface Employee extends Record<string, unknown> {
@@ -15,8 +21,20 @@ interface Employee extends Record<string, unknown> {
 const employees: Employee[] = [
 	{ id: '1', name: 'Alice', email: 'alice@example.com', role: 'Engineer', department: 'Platform' },
 	{ id: '2', name: 'Bob', email: 'bob@example.com', role: 'Designer', department: 'Product' },
-	{ id: '3', name: 'Charlie', email: 'charlie@example.com', role: 'Manager', department: 'Platform' },
-	{ id: '4', name: 'Diana', email: 'diana@example.com', role: 'Engineer', department: 'Infrastructure' },
+	{
+		id: '3',
+		name: 'Charlie',
+		email: 'charlie@example.com',
+		role: 'Manager',
+		department: 'Platform',
+	},
+	{
+		id: '4',
+		name: 'Diana',
+		email: 'diana@example.com',
+		role: 'Engineer',
+		department: 'Infrastructure',
+	},
 	{ id: '5', name: 'Eve', email: 'eve@example.com', role: 'Admin', department: 'Operations' },
 ]
 

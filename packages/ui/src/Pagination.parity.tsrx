@@ -13,5 +13,11 @@ function PaginationFixture() @{
 }
 
 export const PARITY: ParityFixture[] = [
-	{ name: 'pagination-window', component: 'Pagination', renderer: PaginationFixture, props: {}, width: 240 },
+	{
+		name: 'pagination-window',
+		component: 'Pagination',
+		renderer: PaginationFixture,
+		props: {},
+		width: 240,
+	},
 ]

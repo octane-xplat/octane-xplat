@@ -1,41 +1,41 @@
-import { useCallback, useEffect, useRef, useState } from 'octane';
+import { useCallback, useEffect, useRef, useState } from 'octane'
 import type {
 	HoverCardOptions,
 	HoverCardPlacement,
 	HoverCardReturn,
 	PopoverPlacement,
-} from './props';
+} from './props'
 
-import { useLayer } from './use-layer';
-import { cx } from '@octane-xplat/lib';
+import { useLayer } from './use-layer'
+import { cx } from '@octane-xplat/lib'
 
 /** Elements a tap "belongs to" — under `touchTrigger: 'auto'` their tap
  *  runs the control instead of opening the card. */
 const ACTION_SELECTOR =
-	'button, a[href], input, select, textarea, summary, [role="button"], [role="link"], [contenteditable="true"]';
+	'button, a[href], input, select, textarea, summary, [role="button"], [role="link"], [contenteditable="true"]'
 
 const isFocusable = (el: HTMLElement): boolean => {
 	if (el.hasAttribute('tabindex')) {
-		return el.tabIndex >= 0;
+		return el.tabIndex >= 0
 	}
 
 	if (el.isContentEditable) {
-		return true;
+		return true
 	}
 
-	return ['A', 'BUTTON', 'INPUT', 'SELECT', 'TEXTAREA'].includes(el.tagName);
-};
+	return ['A', 'BUTTON', 'INPUT', 'SELECT', 'TEXTAREA'].includes(el.tagName)
+}
 
 export function placementFor(place: HoverCardPlacement, rtl: boolean): PopoverPlacement {
 	switch (place) {
 		case 'below':
-			return 'bottom';
+			return 'bottom'
 		case 'start':
-			return rtl ? 'right' : 'left';
+			return rtl ? 'right' : 'left'
 		case 'end':
-			return rtl ? 'left' : 'right';
+			return rtl ? 'left' : 'right'
 		default:
-			return 'top';
+			return 'top'
 	}
 }
 
@@ -61,211 +61,291 @@ export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn {
 		isDefaultOpen = false,
 		onShow,
 		onHide,
-	} = options;
+	} = options
 
+	const [uncontrolled, setUncontrolled] = useState(isDefaultOpen)
+	const controlled = isOpen !== undefined
+	const open = controlled ? isOpen === true : uncontrolled
+	const positionEl = useRef<HTMLElement | null>(null)
+	const interactionEl = useRef<HTMLElement | null>(null)
+	const cardEl = useRef<HTMLElement | null>(null)
+	const showTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+	const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+	const isTouch = useRef(false)
+	const escapeHiding = useRef(false)
 
-	const [uncontrolled, setUncontrolled] = useState(isDefaultOpen);
-	const controlled = isOpen !== undefined;
-	const open = controlled ? isOpen === true : uncontrolled;
-	const positionEl = useRef<HTMLElement | null>(null);
-	const interactionEl = useRef<HTMLElement | null>(null);
-	const cardEl = useRef<HTMLElement | null>(null);
-	const showTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-	const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-	const isTouch = useRef(false);
-	const escapeHiding = useRef(false);
-
-
-	const onShowRef = useRef(onShow);
-	onShowRef.current = onShow;
-	const onHideRef = useRef(onHide);
-	onHideRef.current = onHide;
+	const onShowRef = useRef(onShow)
+	onShowRef.current = onShow
+	const onHideRef = useRef(onHide)
+	onHideRef.current = onHide
 
 	const clearTimers = useCallback(() => {
-		if (showTimer.current) clearTimeout(showTimer.current);
-		if (hideTimer.current) clearTimeout(hideTimer.current);
-		showTimer.current = null;
-		hideTimer.current = null;
-	}, []);
+		if (showTimer.current) {
+			clearTimeout(showTimer.current)
+		}
+
+		if (hideTimer.current) {
+			clearTimeout(hideTimer.current)
+		}
+
+		showTimer.current = null
+		hideTimer.current = null
+	}, [])
 
 	const showNow = useCallback(() => {
-		clearTimers();
-		if (!controlled) setUncontrolled(true);
-		onShowRef.current?.();
-	}, [clearTimers, controlled]);
+		clearTimers()
+		if (!controlled) {
+			setUncontrolled(true)
+		}
+
+		onShowRef.current?.()
+	}, [clearTimers, controlled])
 
 	const hideNow = useCallback(() => {
-		clearTimers();
-		if (!controlled) setUncontrolled(false);
-		onHideRef.current?.();
-	}, [clearTimers, controlled]);
+		clearTimers()
+		if (!controlled) {
+			setUncontrolled(false)
+		}
+
+		onHideRef.current?.()
+	}, [clearTimers, controlled])
 
 	const scheduleShow = useCallback(() => {
-		if (!isEnabled || isOpen === false) return;
-		clearTimers();
-		showTimer.current = setTimeout(() => {
-			showTimer.current = null;
-			if (!controlled) setUncontrolled(true);
-			onShowRef.current?.();
-		}, Math.max(0, delay));
-	}, [isEnabled, isOpen, controlled, delay, clearTimers]);
+		if (!isEnabled || isOpen === false) {
+			return
+		}
+
+		clearTimers()
+		showTimer.current = setTimeout(
+			() => {
+				showTimer.current = null
+				if (!controlled) {
+					setUncontrolled(true)
+				}
+
+				onShowRef.current?.()
+			},
+			Math.max(0, delay),
+		)
+	}, [isEnabled, isOpen, controlled, delay, clearTimers])
 
 	const scheduleHide = useCallback(() => {
-		if (isOpen === true) return;
-		clearTimers();
-		hideTimer.current = setTimeout(() => {
-			hideTimer.current = null;
-			if (!controlled) setUncontrolled(false);
-			onHideRef.current?.();
-		}, Math.max(0, hideDelay));
-	}, [isOpen, controlled, hideDelay, clearTimers]);
+		if (isOpen === true) {
+			return
+		}
+
+		clearTimers()
+		hideTimer.current = setTimeout(
+			() => {
+				hideTimer.current = null
+				if (!controlled) {
+					setUncontrolled(false)
+				}
+
+				onHideRef.current?.()
+			},
+			Math.max(0, hideDelay),
+		)
+	}, [isOpen, controlled, hideDelay, clearTimers])
 
 	// --- interaction listeners on the trigger element ---
 	const onMouseEnter = useCallback(() => {
 		// A tap synthesizes mouseenter — the touch path owns that decision.
-		if (isTouch.current) return;
-		scheduleShow();
-	}, [scheduleShow]);
+		if (isTouch.current) {
+			return
+		}
+
+		scheduleShow()
+	}, [scheduleShow])
 
 	const onMouseLeave = useCallback(() => {
-		if (isTouch.current) return;
-		scheduleHide();
-	}, [scheduleHide]);
+		if (isTouch.current) {
+			return
+		}
+
+		scheduleHide()
+	}, [scheduleHide])
 
 	const onPointerDown = useCallback(
 		(event: PointerEvent) => {
 			if (event.pointerType !== 'touch') {
-				isTouch.current = false;
-				return;
+				isTouch.current = false
+				return
 			}
 
-			isTouch.current = true;
-			if (!isEnabled || touchTrigger === 'none' || controlled) return;
+			isTouch.current = true
+			if (!isEnabled || touchTrigger === 'none' || controlled) {
+				return
+			}
+
 			if (touchTrigger === 'auto') {
-				const target = event.target as HTMLElement | null;
+				const target = event.target as HTMLElement | null
 				if (target?.closest?.(ACTION_SELECTOR)) {
-					return;
+					return
 				}
 			}
 
-			open ? hideNow() : showNow();
+			open ? hideNow() : showNow()
 		},
 		[isEnabled, touchTrigger, controlled, open, showNow, hideNow],
-	);
+	)
 
 	const onFocusIn = useCallback(() => {
-		if (!isEnabled || isTouch.current) return;
-		if (escapeHiding.current) {
-			escapeHiding.current = false;
-			return;
+		if (!isEnabled || isTouch.current) {
+			return
 		}
 
-		clearTimers();
-		if (!controlled) setUncontrolled(true);
-		onShowRef.current?.();
-	}, [isEnabled, controlled, clearTimers]);
+		if (escapeHiding.current) {
+			escapeHiding.current = false
+			return
+		}
+
+		clearTimers()
+		if (!controlled) {
+			setUncontrolled(true)
+		}
+
+		onShowRef.current?.()
+	}, [isEnabled, controlled, clearTimers])
 
 	const onFocusOut = useCallback(
 		(event: FocusEvent) => {
-			const next = event.relatedTarget as HTMLElement | null;
+			const next = event.relatedTarget as HTMLElement | null
 			if (cardEl.current?.contains(next)) {
-				return;
+				return
 			}
 
-			scheduleHide();
+			scheduleHide()
 		},
 		[scheduleHide],
-	);
+	)
 
 	const interactionRef = useCallback(
 		(el: any) => {
-			const prev = interactionEl.current;
+			const prev = interactionEl.current
 			if (prev) {
-				prev.removeEventListener('mouseenter', onMouseEnter);
-				prev.removeEventListener('mouseleave', onMouseLeave);
-				prev.removeEventListener('pointerdown', onPointerDown as EventListener);
-				prev.removeEventListener('focusin', onFocusIn);
-				prev.removeEventListener('focusout', onFocusOut as EventListener);
+				prev.removeEventListener('mouseenter', onMouseEnter)
+				prev.removeEventListener('mouseleave', onMouseLeave)
+				prev.removeEventListener('pointerdown', onPointerDown as EventListener)
+				prev.removeEventListener('focusin', onFocusIn)
+				prev.removeEventListener('focusout', onFocusOut as EventListener)
 			}
 
-			interactionEl.current = el;
+			interactionEl.current = el
 			if (el) {
-				el.addEventListener('mouseenter', onMouseEnter);
-				el.addEventListener('mouseleave', onMouseLeave);
-				el.addEventListener('pointerdown', onPointerDown as EventListener);
+				el.addEventListener('mouseenter', onMouseEnter)
+				el.addEventListener('mouseleave', onMouseLeave)
+				el.addEventListener('pointerdown', onPointerDown as EventListener)
 				const attachFocus =
-					focusTrigger === 'always' || (focusTrigger === 'auto' && isFocusable(el));
+					focusTrigger === 'always' || (focusTrigger === 'auto' && isFocusable(el))
 
 				if (attachFocus) {
-					el.addEventListener('focusin', onFocusIn);
-					el.addEventListener('focusout', onFocusOut as EventListener);
+					el.addEventListener('focusin', onFocusIn)
+					el.addEventListener('focusout', onFocusOut as EventListener)
 				}
 			}
 		},
 		[focusTrigger, onMouseEnter, onMouseLeave, onPointerDown, onFocusIn, onFocusOut],
-	);
+	)
 
-	const layer = useLayer({ mode: 'context', isOpen: open, lightDismiss: isTouch.current, dismissOnEscape: true, onHide: () => {
-		if (cardEl.current?.contains(document.activeElement)) escapeHiding.current = true;
-		isTouch.current = false;
-		hideNow();
-	} });
+	const layer = useLayer({
+		mode: 'context',
+		isOpen: open,
+		lightDismiss: isTouch.current,
+		dismissOnEscape: true,
+		onHide: () => {
+			if (cardEl.current?.contains(document.activeElement)) {
+				escapeHiding.current = true
+			}
 
-	const id = layer.id;
+			isTouch.current = false
+			hideNow()
+		},
+	})
 
-	const positionRef = useCallback((el: any) => {
-		positionEl.current = el;
-		layer.ref(el);
-	}, [layer.ref]);
+	const id = layer.id
+
+	const positionRef = useCallback(
+		(el: any) => {
+			positionEl.current = el
+			layer.ref(el)
+		},
+		[layer.ref],
+	)
 
 	const ref = useCallback(
 		(el: any) => {
-			positionRef(el);
-			interactionRef(el);
+			positionRef(el)
+			interactionRef(el)
 		},
 		[positionRef, interactionRef],
-	);
+	)
 
 	// isDefaultOpen lands once.
 	useEffect(() => {
 		if (isDefaultOpen) {
-			if (!controlled) setUncontrolled(true);
-			onShowRef.current?.();
+			if (!controlled) {
+				setUncontrolled(true)
+			}
+
+			onShowRef.current?.()
 		}
 		// eslint-disable-next-line -- mount-only
-	}, []);
+	}, [])
 
-	useEffect(() => () => clearTimers(), [clearTimers]);
+	useEffect(() => () => clearTimers(), [clearTimers])
 
-
-	const renderHoverCard = useCallback((children: any, props?: Record<string, any>) => { return layer.render(
-		<div ref={(el: any) => { cardEl.current = el; }} className="vx-hovercard-content">
-						{children}
-					</div>,
-		{ placement: props?.placement ?? placement, alignment: props?.alignment ?? alignment, offset: 8,
-			finalFocusRef: interactionEl, className: cx('vx-hovercard', props?.className), style: props?.style,
-			web: {
+	const renderHoverCard = useCallback(
+		(children: any, props?: Record<string, any>) => {
+			return layer.render(
+				<div
+					ref={(el: any) => {
+						cardEl.current = el
+					}}
+					className="vx-hovercard-content"
+				>
+					{children}
+				</div>,
+				{
+					placement: props?.placement ?? placement,
+					alignment: props?.alignment ?? alignment,
+					offset: 8,
+					finalFocusRef: interactionEl,
+					className: cx('vx-hovercard', props?.className),
+					style: props?.style,
+					web: {
 						id,
 						role: label ? 'dialog' : 'group',
 						'aria-label': label || undefined,
 						onMouseEnter: () => {
-							if (isTouch.current) return;
-							clearTimers();
-						},
-						onMouseLeave: () => {
-							if (isTouch.current) return;
-							scheduleHide();
-						},
-						onFocusOut: (e: FocusEvent) => {
-							const next = e.relatedTarget as HTMLElement | null;
-							const panel = e.currentTarget as HTMLElement;
-							if (panel.contains(next) || interactionEl.current?.contains(next)) {
-								return;
+							if (isTouch.current) {
+								return
 							}
 
-							scheduleHide();
-						}, } },
-	); }, [layer.render, placement, alignment, label, id, clearTimers, scheduleHide]);
+							clearTimers()
+						},
+						onMouseLeave: () => {
+							if (isTouch.current) {
+								return
+							}
+
+							scheduleHide()
+						},
+						onFocusOut: (e: FocusEvent) => {
+							const next = e.relatedTarget as HTMLElement | null
+							const panel = e.currentTarget as HTMLElement
+							if (panel.contains(next) || interactionEl.current?.contains(next)) {
+								return
+							}
+
+							scheduleHide()
+						},
+					},
+				},
+			)
+		},
+		[layer.render, placement, alignment, label, id, clearTimers, scheduleHide],
+	)
 
 	return {
 		ref,
@@ -278,5 +358,5 @@ export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn {
 		renderHoverCard,
 		show: showNow,
 		hide: hideNow,
-	};
+	}
 }

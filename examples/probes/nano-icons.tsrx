@@ -9,13 +9,15 @@ const selection = createStore({ name: 'dot', color: '#123456', size: 24 })
 
 export default function NanoIconsProbe() {
 	const current = useStore(selection)
-	return <VStack>
-		<NanoIcon id="nano-main" {...current} label="Direction" />
-		<XplatProbeIcons.Icon id="nano-duo" name="bell" size={48} />
-		<NanoIcon id="nano-tint" name="frame" color="#aa0000" size={24} />
-		<NanoIcon id="nano-palette" name="bell" color={['#ff0000', '#00ff00']} tintMode="all" />
-		<NanoIcon id="nano-missing" name="nope" />
-	</VStack>
+	return (
+		<VStack>
+			<NanoIcon id="nano-main" {...current} label="Direction" />
+			<XplatProbeIcons.Icon id="nano-duo" name="bell" size={48} />
+			<NanoIcon id="nano-tint" name="frame" color="#aa0000" size={24} />
+			<NanoIcon id="nano-palette" name="bell" color={['#ff0000', '#00ff00']} tintMode="all" />
+			<NanoIcon id="nano-missing" name="nope" />
+		</VStack>
+	)
 }
 
 export async function run(ctx: ProbeContext) {
@@ -52,10 +54,16 @@ export async function run(ctx: ProbeContext) {
 
 	// Prop updates re-resolve color/size without rebuilding the font.
 	selection.set({ name: 'dot', color: '#00ff00', size: 40 })
-	await ctx.waitFor(() => glyphSnapshot(ctx.find('nano-main')).layers[0]?.color === 'rgb(0, 255, 0)')
+	await ctx.waitFor(
+		() => glyphSnapshot(ctx.find('nano-main')).layers[0]?.color === 'rgb(0, 255, 0)',
+	)
+
 	ctx.assert('updated width', glyphSnapshot(ctx.find('nano-main')).width, 40)
 	ctx.assert('updated height', glyphSnapshot(ctx.find('nano-main')).height, 40)
 
 	ctx.record('host geometry', ctx.inspect('nano-main'))
-	ctx.record('evidence boundary', 'font registration + label/span structure + tint resolution; no glyph pixel or raster claim')
+	ctx.record(
+		'evidence boundary',
+		'font registration + label/span structure + tint resolution; no glyph pixel or raster claim',
+	)
 }

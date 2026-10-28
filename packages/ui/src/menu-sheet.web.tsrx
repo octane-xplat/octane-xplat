@@ -9,25 +9,44 @@ import { MenuData } from './MenuParts.web.tsrx'
 export function useMenuSheet(presentation: MoreMenuPresentation | undefined): boolean {
 	const [adaptive, setAdaptive] = useState(false)
 	useEffect(() => {
-		if (presentation !== 'adaptive') { setAdaptive(false); return }
+		if (presentation !== 'adaptive') {
+			setAdaptive(false)
+			return
+		}
+
 		const query = window.matchMedia('(max-width: 768px) and (pointer: coarse)')
 		const update = () => setAdaptive(query.matches)
 		update()
 		query.addEventListener?.('change', update)
 		return () => query.removeEventListener?.('change', update)
 	}, [presentation])
+
 	return presentation === 'bottom-sheet' || (presentation === 'adaptive' && adaptive)
 }
 
 /** Menu rows presented inside a BottomSheet instead of an anchored popover.
  *  Data-mode rows reuse `MenuData` under a `MenuProvider` so `closeMenu`
  *  resolves to the sheet's dismissal. */
-export function MenuSheet(props: { open: boolean; onOpenChange: (open: boolean) => void; label?: string; items?: any; children?: any }) @{
+export function MenuSheet(props: {
+	open: boolean
+	onOpenChange: (open: boolean) => void
+	label?: string
+	items?: any
+	children?: any
+}) @{
 	const close = () => props.onOpenChange(false)
-	<BottomSheet isOpen={props.open} onOpenChange={props.onOpenChange} label={props.label ?? 'Menu'} height="hug" className="vx-menu-sheet">
+
+	<BottomSheet
+		isOpen={props.open}
+		onOpenChange={props.onOpenChange}
+		label={props.label ?? 'Menu'}
+		height="hug"
+		className="vx-menu-sheet"
+	>
 		<div className="vx-menu-sheet-list">
 			<MenuProvider value={{ closeMenu: close, menuSize: 'md' }}>
-				<MenuData items={props.items} />{props.children}
+				<MenuData items={props.items} />
+				{props.children}
 			</MenuProvider>
 		</div>
 	</BottomSheet>

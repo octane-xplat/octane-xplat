@@ -8,7 +8,13 @@ import {
 	flushUniversalSync,
 } from 'octane/universal/native'
 
-vi.mock('@nativescript/core', () => ({ ScrollView: class ScrollView {}, GridLayout: class GridLayout { disposeNativeView() {} } }))
+vi.mock('@nativescript/core', () => ({
+	ScrollView: class ScrollView {},
+	GridLayout: class GridLayout {
+		disposeNativeView() {}
+	},
+}))
+
 vi.mock('./native-portal', () => ({ createPortal: (children: any) => children }))
 vi.mock('./escape-props', () => ({ applyEscapeProps() {} }))
 vi.mock('./refresh', () => ({ createPullToRefresh: vi.fn() }))
@@ -27,7 +33,11 @@ import { RecyclerView } from './android/RecyclerView.android.tsrx'
 function createRoot() {
 	const container = createObjectContainer('nativescript')
 	const driver = createObjectDriver('nativescript')
-	const listViews: Array<{ scrollToIndex: ReturnType<typeof vi.fn>; scrollToIndexAnimated: ReturnType<typeof vi.fn> }> = []
+	const listViews: Array<{
+		scrollToIndex: ReturnType<typeof vi.fn>
+		scrollToIndexAnimated: ReturnType<typeof vi.fn>
+	}> = []
+
 	const scrollToIndex = vi.fn()
 	const scrollToIndexAnimated = vi.fn()
 	const getPublicInstance = driver.getPublicInstance.bind(driver)
@@ -42,7 +52,13 @@ function createRoot() {
 		return view
 	}
 
-	return { root: createUniversalRoot(container, driver), container, listViews, scrollToIndex, scrollToIndexAnimated }
+	return {
+		root: createUniversalRoot(container, driver),
+		container,
+		listViews,
+		scrollToIndex,
+		scrollToIndexAnimated,
+	}
 }
 
 describe('platform list handle', () => {
@@ -77,29 +93,40 @@ describe('platform list handle', () => {
 	it.each([
 		['UITableView', UITableView],
 		['RecyclerView', RecyclerView],
-	] as const)('%s restores deferred initial positions once and keeps them across page appends', async (_name, List) => {
-		const { root, listViews } = createRoot()
-		const props = { renderItem: (_item: string) => null }
-		try {
-			flushUniversalSync(() => root.render(List, { ...props, items: [], initialScrollIndex: 2 }))
-			expect(listViews).toHaveLength(0)
+	] as const)(
+		'%s restores deferred initial positions once and keeps them across page appends',
+		async (_name, List) => {
+			const { root, listViews } = createRoot()
+			const props = { renderItem: (_item: string) => null }
+			try {
+				flushUniversalSync(() => root.render(List, { ...props, items: [], initialScrollIndex: 2 }))
+				expect(listViews).toHaveLength(0)
 
-			flushUniversalSync(() => root.render(List, { ...props, items: ['a'], initialScrollIndex: 2 }))
-			expect(listViews).toHaveLength(1)
-			expect(listViews[0].scrollToIndex).not.toHaveBeenCalled()
+				flushUniversalSync(() =>
+					root.render(List, { ...props, items: ['a'], initialScrollIndex: 2 }),
+				)
 
-			flushUniversalSync(() => root.render(List, { ...props, items: ['a', 'b', 'c'], initialScrollIndex: 2 }))
-			await vi.waitFor(() => expect(listViews[0].scrollToIndex).toHaveBeenCalledTimes(1))
-			expect(listViews[0].scrollToIndex).toHaveBeenCalledWith(2)
+				expect(listViews).toHaveLength(1)
+				expect(listViews[0].scrollToIndex).not.toHaveBeenCalled()
 
-			flushUniversalSync(() => root.render(List, { ...props, items: ['a', 'b', 'c', 'd'], initialScrollIndex: 2 }))
-			expect(listViews[0].scrollToIndex).toHaveBeenCalledTimes(1)
-		} finally {
-			root.unmount()
-		}
-	})
+				flushUniversalSync(() =>
+					root.render(List, { ...props, items: ['a', 'b', 'c'], initialScrollIndex: 2 }),
+				)
+
+				await vi.waitFor(() => expect(listViews[0].scrollToIndex).toHaveBeenCalledTimes(1))
+				expect(listViews[0].scrollToIndex).toHaveBeenCalledWith(2)
+
+				flushUniversalSync(() =>
+					root.render(List, { ...props, items: ['a', 'b', 'c', 'd'], initialScrollIndex: 2 }),
+				)
+
+				expect(listViews[0].scrollToIndex).toHaveBeenCalledTimes(1)
+			} finally {
+				root.unmount()
+			}
+		},
+	)
 })
-
 
 const CellName = createContext('missing')
 const CellNameProvider: any = CellName
@@ -108,7 +135,13 @@ let cellUnmounts = 0
 function ContextRow(props: { item: string }) {
 	const name = useContext(CellName)
 	cellSeen.push(props.item + ':' + name)
-	useEffect(() => () => { cellUnmounts++ }, [])
+	useEffect(
+		() => () => {
+			cellUnmounts++
+		},
+		[],
+	)
+
 	return <label text={props.item + ':' + name} />
 }
 
@@ -116,31 +149,40 @@ const contextItems = ['first', 'second']
 const renderContextItem = (item: string) => <ContextRow item={item} />
 function ListContextWrapper(props: { value: string; List: any }) {
 	const List = props.List
-	return <CellNameProvider value={props.value}><List items={contextItems} renderItem={renderContextItem} /></CellNameProvider>
+	return (
+		<CellNameProvider value={props.value}>
+			<List items={contextItems} renderItem={renderContextItem} />
+		</CellNameProvider>
+	)
 }
 
 it.each([
 	['UITableView', UITableView],
 	['RecyclerView', RecyclerView],
-] as const)('%s owns cell content in the source tree and releases disposed hosts', async (_name, List) => {
-	cellSeen.length = 0
-	cellUnmounts = 0
-	const { root, listViews, container } = createRoot()
-	try {
-		flushUniversalSync(() => root.render(ListContextWrapper, { value: 'Avery', List }))
-		const view: any = listViews[0]
-		expect(view.props.renderItem).toBeUndefined()
-		const binding: any = { index: 0 }
-		flushUniversalSync(() => container.dispatchEvent(view, 'itemLoading', binding))
-		await vi.waitFor(() => expect(cellSeen.at(-1)).toBe('first:Avery'))
-		flushUniversalSync(() => root.render(ListContextWrapper, { value: 'Jordan', List }))
-		await vi.waitFor(() => expect(cellSeen.at(-1)).toBe('first:Jordan'))
-		binding.index = 1
-		flushUniversalSync(() => container.dispatchEvent(view, 'itemLoading', binding))
-		await vi.waitFor(() => expect(cellSeen.at(-1)).toBe('second:Jordan'))
-		binding.view.disposeNativeView()
-		await vi.waitFor(() => expect(cellUnmounts).toBe(1))
-	} finally { root.unmount() }
+] as const)(
+	'%s owns cell content in the source tree and releases disposed hosts',
+	async (_name, List) => {
+		cellSeen.length = 0
+		cellUnmounts = 0
+		const { root, listViews, container } = createRoot()
+		try {
+			flushUniversalSync(() => root.render(ListContextWrapper, { value: 'Avery', List }))
+			const view: any = listViews[0]
+			expect(view.props.renderItem).toBeUndefined()
+			const binding: any = { index: 0 }
+			flushUniversalSync(() => container.dispatchEvent(view, 'itemLoading', binding))
+			await vi.waitFor(() => expect(cellSeen.at(-1)).toBe('first:Avery'))
+			flushUniversalSync(() => root.render(ListContextWrapper, { value: 'Jordan', List }))
+			await vi.waitFor(() => expect(cellSeen.at(-1)).toBe('first:Jordan'))
+			binding.index = 1
+			flushUniversalSync(() => container.dispatchEvent(view, 'itemLoading', binding))
+			await vi.waitFor(() => expect(cellSeen.at(-1)).toBe('second:Jordan'))
+			binding.view.disposeNativeView()
+			await vi.waitFor(() => expect(cellUnmounts).toBe(1))
+		} finally {
+			root.unmount()
+		}
 
-	expect(cellUnmounts).toBe(1)
-})
+		expect(cellUnmounts).toBe(1)
+	},
+)

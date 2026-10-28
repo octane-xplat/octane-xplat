@@ -112,7 +112,7 @@ export function useChatStreamScroll({
 			return
 		}
 
-			const el = chatHost.scroll(scrollRef.current)
+		const el = chatHost.scroll(scrollRef.current)
 		if (!el?.scrollToVerticalOffset) {
 			return
 		}

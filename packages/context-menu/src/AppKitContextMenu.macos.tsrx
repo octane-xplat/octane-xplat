@@ -18,15 +18,24 @@ export function AppKitContextMenu(props: AppKitContextMenuProps) @{
 	useEffect(() => {
 		const view = anchor.current
 		const attach = host().attachContextMenu
-		if (!view || typeof attach !== 'function') return
-		return attach(
-			view,
-			{ items: latest.current.items ?? [] },
-			(id: string) => latest.current.onItemSelected?.(id),
+		if (!view || typeof attach !== 'function') {
+			return
+		}
+
+		return attach(view, { items: latest.current.items ?? [] }, (id: string) =>
+			latest.current.onItemSelected?.(id),
 		)
 	}, [props.items])
 
-	<masonview ref={(v: any) => { anchor.current = v }} id={props.id} className={props.className} style={{display: "flex", ...(props.style)}} accessibilityLabel={props.accessibilityLabel}>
+	<masonview
+		ref={(v: any) => {
+			anchor.current = v
+		}}
+		id={props.id}
+		className={props.className}
+		style={{ display: 'flex', ...props.style }}
+		accessibilityLabel={props.accessibilityLabel}
+	>
 		{props.trigger()}
-	</masonview>;
+	</masonview>
 }

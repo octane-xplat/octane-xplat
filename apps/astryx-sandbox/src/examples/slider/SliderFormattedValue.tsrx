@@ -4,5 +4,16 @@ import { useState } from 'octane'
 
 export function SliderFormattedValue() @{
 	const [value, setValue] = useState(72)
-	<Slider style={{width: 300}} label="Temperature" value={value} onValueChange={(v) => setValue(v as number)} valueDisplay="text" min={60} max={90} step={1} formatValue={(v) => `${v}°F`} />
+
+	<Slider
+		style={{ width: 300 }}
+		label="Temperature"
+		value={value}
+		onValueChange={(v) => setValue(v as number)}
+		valueDisplay="text"
+		min={60}
+		max={90}
+		step={1}
+		formatValue={(v) => `${v}°F`}
+	/>
 }

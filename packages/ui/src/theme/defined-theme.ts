@@ -66,7 +66,9 @@ export function defineTheme(input: DefineThemeInput): DefinedTheme {
 const registry = new Map<string, DefinedTheme>()
 
 export function registerTheme(theme: DefinedTheme): void {
-	if (!isDefinedTheme(theme)) {return}
+	if (!isDefinedTheme(theme)) {
+		return
+	}
 	registry.set(theme.name, theme)
 }
 
@@ -97,10 +99,13 @@ export interface ResolveThemeTokensOptions {
 export function findMatchingParen(input: string, openIndex: number): number {
 	let depth = 0
 	for (let i = openIndex; i < input.length; i++) {
-		if (input[i] === '(') {depth++}
-		else if (input[i] === ')') {
+		if (input[i] === '(') {
+			depth++
+		} else if (input[i] === ')') {
 			depth--
-			if (depth === 0) {return i}
+			if (depth === 0) {
+				return i
+			}
 		}
 	}
 	return -1
@@ -110,17 +115,23 @@ export function findMatchingParen(input: string, openIndex: number): number {
  *  the value merely embeds light-dark() inside a compound expression. */
 export function parseLightDark(value: string): [light: string, dark: string] | null {
 	const trimmed = value.trim()
-	if (!trimmed.startsWith('light-dark(')) {return null}
+	if (!trimmed.startsWith('light-dark(')) {
+		return null
+	}
 	const open = trimmed.indexOf('(')
 	const close = findMatchingParen(trimmed, open)
-	if (close !== trimmed.length - 1) {return null}
+	if (close !== trimmed.length - 1) {
+		return null
+	}
 	const body = trimmed.slice(open + 1, close)
 	let depth = 0
 	for (let i = 0; i < body.length; i++) {
 		const c = body[i]
-		if (c === '(') {depth++}
-		else if (c === ')') {depth--}
-		else if (c === ',' && depth === 0) {
+		if (c === '(') {
+			depth++
+		} else if (c === ')') {
+			depth--
+		} else if (c === ',' && depth === 0) {
 			return [body.slice(0, i).trim(), body.slice(i + 1).trim()]
 		}
 	}
@@ -130,7 +141,9 @@ export function parseLightDark(value: string): [light: string, dark: string] | n
 /** Resolve one raw token value for a mode: tuple pick, whole-value
  *  light-dark() pick, or the string unchanged. */
 export function resolveTokenValue(value: TokenValue, mode: 'light' | 'dark'): string {
-	if (Array.isArray(value)) {return mode === 'dark' ? value[1] : value[0]}
+	if (Array.isArray(value)) {
+		return mode === 'dark' ? value[1] : value[0]
+	}
 	const parsed = parseLightDark(value)
 	return parsed == null ? value : mode === 'dark' ? parsed[1] : parsed[0]
 }
@@ -144,9 +157,13 @@ function resolveReferences(resolved: Record<string, string>): Record<string, str
 		let value = resolved[key]
 		for (let i = 0; i < 8; i++) {
 			const next = value.replace(VAR_REF, (whole, name: string) => resolved[name] ?? whole)
-			if (next === value) {break}
+			if (next === value) {
+				break
+			}
+
 			value = next
 		}
+
 		resolved[key] = value
 	}
 	return resolved

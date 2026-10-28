@@ -12,5 +12,10 @@ function InputRatingFixture() @{
 }
 
 export const PARITY: ParityFixture[] = [
-	{ name: 'input-rating-selected', component: 'InputRating', renderer: InputRatingFixture, props: {} },
+	{
+		name: 'input-rating-selected',
+		component: 'InputRating',
+		renderer: InputRatingFixture,
+		props: {},
+	},
 ]

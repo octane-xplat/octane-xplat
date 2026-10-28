@@ -80,9 +80,13 @@ const TRANSFORMATIONS = new Set([
 	'scaleX',
 	'scaleY',
 ])
+
 const TRANSLATE_FNS = new Set(['translate', 'translate3d', 'translateX', 'translateY'])
 
-const STYLE_TRANSFORMATION_MAP: Record<string, (v: any) => { property: 'translate' | 'rotate' | 'scale'; value: any }> = {
+const STYLE_TRANSFORMATION_MAP: Record<
+	string,
+	(v: any) => { property: 'translate' | 'rotate' | 'scale'; value: any }
+> = {
 	scale: (value) => ({ property: 'scale', value }),
 	scale3d: (value) => ({ property: 'scale', value }),
 	scaleX: ({ x }) => ({ property: 'scale', value: { x, y: 1 } }),
@@ -154,7 +158,10 @@ function mergeTranslateAxis(values: TranslateAxis[]): TranslateAxis {
 	}
 	const unit = typeof nonZero[0] === 'object' ? nonZero[0].unit : null
 	if (unit !== null && nonZero.every((v) => typeof v === 'object' && (v as any).unit === unit)) {
-		return { unit: '%', value: nonZero.reduce((s: number, v) => s + (v as { value: number }).value, 0) }
+		return {
+			unit: '%',
+			value: nonZero.reduce((s: number, v) => s + (v as { value: number }).value, 0),
+		}
 	}
 	return nonZero.reduce((s: number, v) => s + translateToNumber(v), 0)
 }
@@ -209,7 +216,12 @@ function decompose(m: Affine): Converted {
  *  other duplicates compose through 2D affine matrices like NS. */
 export function transformConverter(text: string): Converted {
 	if (text === 'none' || text === '') {
-		return { ...IDENTITY, translate: { x: 0, y: 0 }, rotate: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 1 } }
+		return {
+			...IDENTITY,
+			translate: { x: 0, y: 0 },
+			rotate: { x: 0, y: 0, z: 0 },
+			scale: { x: 1, y: 1 },
+		}
 	}
 	const transformations = parseTransformString(text)
 	if (!transformations.length) {
@@ -228,14 +240,24 @@ export function transformConverter(text: string): Converted {
 				transformations.splice(i, 1)
 			}
 		}
-		transformations.unshift({ property: 'translate', value: { x: mergeTranslateAxis(xs), y: mergeTranslateAxis(ys) } })
+
+		transformations.unshift({
+			property: 'translate',
+			value: { x: mergeTranslateAxis(xs), y: mergeTranslateAxis(ys) },
+		})
 	}
 	const props2 = transformations.map((t) => t.property)
 	if (!props2.some((p, i) => props2.indexOf(p) !== i)) {
-		const full: Converted = { translate: { x: 0, y: 0 }, rotate: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 1 } }
+		const full: Converted = {
+			translate: { x: 0, y: 0 },
+			rotate: { x: 0, y: 0, z: 0 },
+			scale: { x: 1, y: 1 },
+		}
+
 		for (const t of transformations) {
 			;(full as any)[t.property] = t.value
 		}
+
 		return full
 	}
 	const m = transformations.map(matrixOf).reduce(multiply)

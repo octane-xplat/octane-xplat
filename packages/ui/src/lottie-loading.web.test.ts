@@ -12,11 +12,13 @@ while (!existsSync(join(workspaceRoot, 'packages/lottie/package.json'))) {
 	if (parent === workspaceRoot) {
 		throw new Error('Cannot locate the Lottie package in the framework workspace')
 	}
+
 	workspaceRoot = parent
 }
+
 const requireLottie = createRequire(join(workspaceRoot, 'packages/lottie/package.json'))
 const loadAnimation = vi.fn()
-let Lottie: typeof import('../../lottie/src/Lottie.web.tsrx')['Lottie']
+let Lottie: (typeof import('../../lottie/src/Lottie.web.tsrx'))['Lottie']
 
 beforeAll(async () => {
 	vi.doMock(requireLottie.resolve('lottie-web'), () => ({ default: { loadAnimation } }))
@@ -53,12 +55,20 @@ it('keeps controlled playback paused when loading finishes after playing becomes
 })
 
 it('uses the latest playback intent at readiness and ignores a replaced animation', () => {
-	const instances: Array<{ events: Map<string, () => void>; play: ReturnType<typeof vi.fn>; destroy: ReturnType<typeof vi.fn> }> = []
+	const instances: Array<{
+		events: Map<string, () => void>
+		play: ReturnType<typeof vi.fn>
+		destroy: ReturnType<typeof vi.fn>
+	}> = []
 	loadAnimation.mockImplementation(() => {
 		const events = new Map<string, () => void>()
 		const animation = {
-			events, addEventListener: (name: string, listener: () => void) => events.set(name, listener),
-			destroy: vi.fn(), play: vi.fn(), pause: vi.fn(), getDuration: () => 2,
+			events,
+			addEventListener: (name: string, listener: () => void) => events.set(name, listener),
+			destroy: vi.fn(),
+			play: vi.fn(),
+			pause: vi.fn(),
+			getDuration: () => 2,
 		}
 		instances.push(animation)
 		return animation

@@ -144,7 +144,9 @@ function decodeBlurHash(hash: string, width: number, height: number): Uint8Clamp
  *  @returns The ThumbHash as a Uint8Array. */
 export function rgbaToThumbHash(w: number, h: number, rgba: ArrayLike<number>): Uint8Array {
 	// Encoding an image larger than 100x100 is slow with no benefit
-	if (w > 100 || h > 100) {throw new Error(`${w}x${h} doesn't fit in 100x100`)}
+	if (w > 100 || h > 100) {
+		throw new Error(`${w}x${h} doesn't fit in 100x100`)
+	}
 	const { PI, round, max, cos, abs } = Math
 
 	// Determine the average color
@@ -197,11 +199,11 @@ export function rgbaToThumbHash(w: number, h: number, rgba: ArrayLike<number>): 
 			for (let cx = 0; cx * ny < nx * (ny - cy); cx++) {
 				let f = 0
 				for (let x = 0; x < w; x++) {
-					fx[x] = cos(((PI / w) * cx) * (x + 0.5))
+					fx[x] = cos((PI / w) * cx * (x + 0.5))
 				}
 
 				for (let y = 0; y < h; y++) {
-					for (let x = 0, fy = cos(((PI / h) * cy) * (y + 0.5)); x < w; x++) {
+					for (let x = 0, fy = cos((PI / h) * cy * (y + 0.5)); x < w; x++) {
 						f += channel[x + y * w] * fx[x] * fy
 					}
 				}
@@ -242,10 +244,18 @@ export function rgbaToThumbHash(w: number, h: number, rgba: ArrayLike<number>): 
 		(round(63 * p_scale) << 3) |
 		(round(63 * q_scale) << 9) |
 		((isLandscape ? 1 : 0) << 15)
-	const hash = [header24 & 255, (header24 >> 8) & 255, header24 >> 16, header16 & 255, header16 >> 8]
+	const hash = [
+		header24 & 255,
+		(header24 >> 8) & 255,
+		header24 >> 16,
+		header16 & 255,
+		header16 >> 8,
+	]
 	const ac_start = hasAlpha ? 6 : 5
 	let ac_index = 0
-	if (hasAlpha) {hash.push(round(15 * a_dc) | (round(15 * a_scale) << 4))}
+	if (hasAlpha) {
+		hash.push(round(15 * a_dc) | (round(15 * a_scale) << 4))
+	}
 
 	// Write the varying factors
 	for (const ac of hasAlpha ? [l_ac, p_ac, q_ac, a_ac] : [l_ac, p_ac, q_ac]) {
@@ -294,7 +304,9 @@ function thumbHashToApproximateAspectRatio(hash: Uint8Array): number {
 	return lx / ly
 }
 
-export function thumbHashToRGBA(hash: Uint8Array): { w: number; h: number; rgba: Uint8Array } | null {
+export function thumbHashToRGBA(
+	hash: Uint8Array,
+): { w: number; h: number; rgba: Uint8Array } | null {
 	if (hash.length < 5) {
 		return null
 	}

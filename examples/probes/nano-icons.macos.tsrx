@@ -14,11 +14,13 @@ const selection = createStore({ name: 'dot', color: '#123456', size: 24 })
 
 export default function NanoIconsMacosProbe() {
 	const current = useStore(selection)
-	return <VStack>
-		<NanoIcon id="nano-main" {...current} label="Direction" />
-		<ProbeIcons.Icon id="nano-duo" name="bell" size={48} />
-		<NanoIcon id="nano-missing" name="nope" />
-	</VStack>
+	return (
+		<VStack>
+			<NanoIcon id="nano-main" {...current} label="Direction" />
+			<ProbeIcons.Icon id="nano-duo" name="bell" size={48} />
+			<NanoIcon id="nano-missing" name="nope" />
+		</VStack>
+	)
 }
 
 function glyphSnapshot(ctx: ProbeContext, id: string) {
@@ -61,5 +63,8 @@ export async function run(ctx: ProbeContext) {
 	ctx.assert('updated height', glyphSnapshot(ctx, 'nano-main').height, 40)
 
 	ctx.record('host geometry', ctx.inspect('nano-main'))
-	ctx.record('evidence boundary', 'CoreText registration + label stacking + size updates; no glyph pixel claim')
+	ctx.record(
+		'evidence boundary',
+		'CoreText registration + label stacking + size updates; no glyph pixel claim',
+	)
 }

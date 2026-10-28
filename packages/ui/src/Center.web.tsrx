@@ -1,23 +1,35 @@
 import { useMemo } from 'octane'
 import { styleRecord } from './style-merge'
 import { refList } from './ref-list'
-import type { CenterProps } from './props';
-import { applyEscapeProps } from './escape-props';
-import { applyWebProps } from './platformProps.web';
-import { spacingPx } from './stack-layout';
+import type { CenterProps } from './props'
+import { applyEscapeProps } from './escape-props'
+import { applyWebProps } from './platformProps.web'
+import { spacingPx } from './stack-layout'
 
 /** Center — a row-direction flex that centers children on the main axis
  *  (`axis="horizontal"` → justify-content), the cross axis (`"vertical"`
  *  → align-items), or `both`. `isInline` renders `inline-flex`. */
 export function Center(props: CenterProps) @{
-	const axis = props.axis ?? 'both';
-	const pad = (v: number | undefined) => (v === undefined ? undefined : v);
-	const pInlineStart = pad(spacingPx(props.paddingInlineStart ?? props.paddingInline ?? props.padding));
-	const pInlineEnd = pad(spacingPx(props.paddingInlineEnd ?? props.paddingInline ?? props.padding));
-	const pBlockStart = pad(spacingPx(props.paddingBlockStart ?? props.paddingBlock ?? props.padding));
-	const pBlockEnd = pad(spacingPx(props.paddingBlockEnd ?? props.paddingBlock ?? props.padding));
+	const axis = props.axis ?? 'both'
+	const pad = (v: number | undefined) => (v === undefined ? undefined : v)
+	const pInlineStart = pad(
+		spacingPx(props.paddingInlineStart ?? props.paddingInline ?? props.padding),
+	)
 
-	const forwardedRef = useMemo(() => refList((e: any) => { if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
+	const pInlineEnd = pad(spacingPx(props.paddingInlineEnd ?? props.paddingInline ?? props.padding))
+	const pBlockStart = pad(spacingPx(props.paddingBlockStart ?? props.paddingBlock ?? props.padding))
+	const pBlockEnd = pad(spacingPx(props.paddingBlockEnd ?? props.paddingBlock ?? props.padding))
+
+	const forwardedRef = useMemo(
+		() =>
+			refList((e: any) => {
+				if (e) {
+					applyEscapeProps(e, props)
+					applyWebProps(e, props.web)
+				}
+			}, props.ref),
+		[props.ref, props.ios, props.android, props.web],
+	)
 
 	<div
 		id={props.id}

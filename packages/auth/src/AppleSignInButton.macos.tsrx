@@ -12,18 +12,41 @@ export function AppleSignInButton(props: AppleSignInButtonProps) @{
 	current.current = props
 
 	useEffect(() => {
-		if (!anchor.current) return
+		if (!anchor.current) {
+			return
+		}
+
 		handle.current = attachAppleButton(anchor.current, current.current, () => {
 			const latest = current.current
-			if (latest.disabled) return
+			if (latest.disabled) {
+				return
+			}
+
 			latest.onPress?.()
 			void appleAuth.signIn().then((result) => current.current.onResult?.(result))
 		})
 
-		return () => { handle.current?.detach(); handle.current = null }
+		return () => {
+			handle.current?.detach()
+			handle.current = null
+		}
 	}, [props.type, props.theme])
 
-	useEffect(() => { handle.current?.update(!!props.disabled) })
+	useEffect(() => {
+		handle.current?.update(!!props.disabled)
+	})
 
-	<masonview ref={(view: any) => { anchor.current = view }} id={props.id} className={props.className} style={{display: "flex", ...({ width: 240, height: 44, ...props.style })}}/>;
+	<masonview
+		ref={(view: any) => {
+			anchor.current = view
+		}}
+		id={props.id}
+		className={props.className}
+		style={{
+			display: 'flex',
+			width: 240,
+			height: 44,
+			...props.style,
+		}}
+	/>
 }

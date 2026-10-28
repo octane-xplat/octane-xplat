@@ -27,8 +27,12 @@ function dispatch(url: string | null | undefined) {
 // Foundation NSSet.allObjects is an NSArray, rather than necessarily a JS array.
 function iosValues(collection: any): any[] {
 	const values = collection?.allObjects ?? collection
-	if (!values) {return []}
-	if (Array.isArray(values)) {return values}
+	if (!values) {
+		return []
+	}
+	if (Array.isArray(values)) {
+		return values
+	}
 	const result: any[] = []
 	for (let index = 0; index < (values.count ?? 0); index++) {
 		result.push(values.objectAtIndex(index))
@@ -53,7 +57,10 @@ function wire() {
 		// before the legacy launch event. Classify it once launch identifies
 		// the cold Intent; distinct early deliveries remain warm actions.
 		for (const intent of earlyIntents.splice(0)) {
-			if (!sameIntent(intent, args.android)) {dispatch(intent.getDataString?.())}
+			if (!sameIntent(intent, args.android)) {
+				dispatch(intent.getDataString?.())
+			}
+
 			lastIntent = intent
 		}
 	})
@@ -71,18 +78,27 @@ function wire() {
 				sceneConnected = true
 				initial = urls.shift() ?? initial
 			}
-			for (const url of urls) {dispatch(url)}
+			for (const url of urls) {
+				dispatch(url)
+			}
 		})
+
 		Application.ios.on('sceneOpenURLContexts', (args: any) => {
-			for (const context of iosValues(args.urlContexts)) {dispatch(context.URL?.absoluteString)}
+			for (const context of iosValues(args.urlContexts)) {
+				dispatch(context.URL?.absoluteString)
+			}
 		})
+
 		Application.ios.on('sceneContinueUserActivity', (args: any) => {
 			dispatch(args.userActivity?.webpageURL?.absoluteString)
 		})
+
 		Application.on('openUrl', (args: any) => {
 			// Scene events are authoritative. A delegate/plugin forwarding them to
 			// the legacy bus must not deliver the same OS action twice.
-			if (sceneConnected) {return}
+			if (sceneConnected) {
+				return
+			}
 			const url = args.url?.absoluteString ?? String(args.url ?? '')
 			// UIKit can also report a launch URL through openUrl once. Keep it
 			// queued for consumeInitialUrl while bootstrap is still pending —
@@ -97,24 +113,34 @@ function wire() {
 		})
 
 		Application.on('continueActivity', (args: any) => {
-			if (sceneConnected) {return}
+			if (sceneConnected) {
+				return
+			}
 			dispatch(args.activity?.webpageURL?.absoluteString)
 		})
 	}
 
 	if (Application.android) {
 		const receiveIntent = (intent: any) => {
-			if (!intent) {return}
+			if (!intent) {
+				return
+			}
 			if (!androidLaunched) {
-				if (!earlyIntents.some((queued) => sameIntent(queued, intent))) {earlyIntents.push(intent)}
+				if (!earlyIntents.some((queued) => sameIntent(queued, intent))) {
+					earlyIntents.push(intent)
+				}
+
 				return
 			}
 			// New Intent and resume are one delivery. A distinct Intent with
 			// the same URL is still a new user action.
-			if (sameIntent(intent, lastIntent)) {return}
+			if (sameIntent(intent, lastIntent)) {
+				return
+			}
 			lastIntent = intent
 			dispatch(intent.getDataString?.())
 		}
+
 		Application.android.on('activityNewIntent', (args: any) => receiveIntent(args.intent))
 		Application.on(Application.resumeEvent, () => {
 			receiveIntent(Application.android.foregroundActivity?.getIntent?.())

@@ -1,7 +1,15 @@
 // Compile installed source with the consumer's Octane pipeline; typecheck d.ts separately.
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, realpathSync, writeFileSync } from 'node:fs'
+import {
+	existsSync,
+	mkdirSync,
+	mkdtempSync,
+	readdirSync,
+	rmSync,
+	realpathSync,
+	writeFileSync,
+} from 'node:fs'
 
 import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
@@ -38,6 +46,7 @@ try {
 		stdio: 'pipe',
 		shell: process.platform === 'win32',
 	})
+
 	const libTarball = readdirSync(libPack).find((file) => file.endsWith('.tgz'))
 
 	writeFileSync(
@@ -48,6 +57,7 @@ try {
 			dependencies: { '@octane-xplat/platform': `file:${join(temporary, tarball)}` },
 		}),
 	)
+
 	// pnpm overrides do not reach into file:-packed dependency graphs — rewrite
 	// the packed manifest's lib spec through the readPackage hook instead.
 	writeFileSync(

@@ -1,12 +1,26 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { describe, expect, it, vi } from 'vitest'
-import { createObjectContainer, createObjectDriver, createUniversalRoot, flushUniversalSync } from 'octane/universal/native'
+import {
+	createObjectContainer,
+	createObjectDriver,
+	createUniversalRoot,
+	flushUniversalSync,
+} from 'octane/universal/native'
+
 vi.mock('@nativescript/core', () => ({
 	// ui-svg's index.common.ts evaluates NS decorators at import.
-	Property: class { constructor(_opts?: any) {} register() {} },
+	Property: class {
+		constructor(_opts?: any) {}
+		register() {}
+	},
 	CSSType: () => () => {},
 	registerElement: () => {},
-	View: class {}, isIOS: true, isAndroid: false, Application: { on() {}, off() {} } }))
+	View: class {},
+	isIOS: true,
+	isAndroid: false,
+	Application: { on() {}, off() {} },
+}))
+
 vi.mock('./apply-native-modifiers.native', () => ({ applyNativeModifiers: () => {} }))
 vi.mock('./pan', () => ({ usePan: () => undefined }))
 // The universal runtime only accepts compiler-defined components — stand in
@@ -24,8 +38,11 @@ function OrphanItem() @{
 		<label text="caught" />
 	}
 }
+
 function DataSurface(props: any) @{
-	<MenuSurface {...props}><MenuData items={props.items} /></MenuSurface>
+	<MenuSurface {...props}>
+		<MenuData items={props.items} />
+	</MenuSurface>
 }
 
 import { nativeAccessibilityRole } from './escape-props'
@@ -38,11 +55,34 @@ describe('native menu action contracts (object driver)', () => {
 	it('carries checked state, disabled activation, radio ownership and explicit close ownership', async () => {
 		const container = createObjectContainer('nativescript')
 		const root = createUniversalRoot(container, createObjectDriver('nativescript'))
-		const close = vi.fn(), check = vi.fn(), radio = vi.fn(), disabled = vi.fn()
+		const close = vi.fn(),
+			check = vi.fn(),
+			radio = vi.fn(),
+			disabled = vi.fn()
+
 		const items = [
-			{ key: 'check', label: 'Archived', type: 'checkbox' as const, value: false, onValueChange: check },
-			{ type: 'action' as const, key: 'blocked', label: 'Disabled', isDisabled: true, onSelect: disabled },
-			{ key: 'sort', label: 'Sort', type: 'radio-group' as const, value: 'new', onValueChange: radio, items: [{ key: 'old', label: 'Oldest' }] },
+			{
+				key: 'check',
+				label: 'Archived',
+				type: 'checkbox' as const,
+				value: false,
+				onValueChange: check,
+			},
+			{
+				type: 'action' as const,
+				key: 'blocked',
+				label: 'Disabled',
+				isDisabled: true,
+				onSelect: disabled,
+			},
+			{
+				key: 'sort',
+				label: 'Sort',
+				type: 'radio-group' as const,
+				value: 'new',
+				onValueChange: radio,
+				items: [{ key: 'old', label: 'Oldest' }],
+			},
 		]
 
 		const row = (id: string) => all(container).find((node) => node.props?.id === id)
@@ -53,16 +93,21 @@ describe('native menu action contracts (object driver)', () => {
 			expect(row('check').props.accessibilityRole).toBe('checkbox')
 			expect(row('check').props.accessibilityState).toBe('unchecked')
 			flushUniversalSync(() => container.dispatchEvent(row('check'), 'tap', {}))
-			expect(check).toHaveBeenCalledWith(true); expect(close).not.toHaveBeenCalled()
+			expect(check).toHaveBeenCalledWith(true)
+			expect(close).not.toHaveBeenCalled()
 			expect(row('check').props.accessibilityState).toBe('unchecked')
 			flushUniversalSync(() => container.dispatchEvent(row('blocked'), 'tap', {}))
 			expect(disabled).not.toHaveBeenCalled()
 			flushUniversalSync(() => container.dispatchEvent(row('old'), 'tap', {}))
-			expect(radio).toHaveBeenCalledWith('old'); expect(close).toHaveBeenCalledTimes(1)
+			expect(radio).toHaveBeenCalledWith('old')
+			expect(close).toHaveBeenCalledTimes(1)
 			root.render(DataSurface, { items: [{ ...items[0], value: true }], closeMenu: close })
 			flushUniversalSync(() => {})
 			await vi.waitFor(() => expect(row('check').props.accessibilityState).toBe('checked'))
-		} finally { root.unmount(); flushUniversalSync(() => {}) }
+		} finally {
+			root.unmount()
+			flushUniversalSync(() => {})
+		}
 	})
 
 	it('rejects menu parts rendered outside a menu surface', () => {
@@ -73,7 +118,11 @@ describe('native menu action contracts (object driver)', () => {
 			root.render(OrphanItem, {})
 			flushUniversalSync(() => {})
 			expect(String(orphanCaught.error)).toContain('requires a menu')
-		} finally { try { root.unmount() } catch {} }
+		} finally {
+			try {
+				root.unmount()
+			} catch {}
+		}
 	})
 
 	it('provides a named Back action for touch submenu traversal', async () => {
@@ -83,12 +132,17 @@ describe('native menu action contracts (object driver)', () => {
 		try {
 			root.render(DataSurface, { items: [], closeMenu: vi.fn(), closeLevel: back, label: 'Move' })
 			flushUniversalSync(() => {})
-			const button = () => all(container).find((node) => node.props?.accessibilityLabel === 'Back to parent menu')
+			const button = () =>
+				all(container).find((node) => node.props?.accessibilityLabel === 'Back to parent menu')
+
 			await vi.waitFor(() => expect(button()).toBeTruthy())
 			flushUniversalSync(() => container.dispatchEvent(button(), 'tap', {}))
 			expect(back).toHaveBeenCalledTimes(1)
 			expect(nativeAccessibilityRole('menuitemradio')).toBe('radioButton')
-		} finally { root.unmount(); flushUniversalSync(() => {}) }
+		} finally {
+			root.unmount()
+			flushUniversalSync(() => {})
+		}
 	})
 })
 
@@ -103,7 +157,18 @@ it('keeps AppKit anchors and nested menu ownership across separate popup roots',
 	const show = vi.fn((options: any) => {
 		const container = createObjectContainer('nativescript')
 		const root = createUniversalRoot(container, createObjectDriver('nativescript'))
-		const popup = { container, root, closed: false, close: () => { popup.closed = true; root.unmount(); options.onClose?.() }, update: (props: any) => root.render(options.component, props) }
+		const popup = {
+			container,
+			root,
+			closed: false,
+			close: () => {
+				popup.closed = true
+				root.unmount()
+				options.onClose?.()
+			},
+			update: (props: any) => root.render(options.component, props),
+		}
+
 		popups.push(popup)
 		root.render(options.component, options.props)
 		return popup
@@ -112,9 +177,24 @@ it('keeps AppKit anchors and nested menu ownership across separate popup roots',
 	vi.stubGlobal('__xplatAppKit', { showAnchoredPopup: show })
 	const container = createObjectContainer('nativescript')
 	const root = createUniversalRoot(container, createObjectDriver('nativescript'))
-	const pick = vi.fn(), close = vi.fn()
+	const pick = vi.fn(),
+		close = vi.fn()
+
 	try {
-		root.render(MacMenu, { isOpen: true, button: { label: 'Actions' }, onOpenChange: close, items: [{ type: 'submenu', key: 'move', label: 'Move', items: [{ type: 'action', key: 'target', label: 'Target', onSelect: pick }] }] })
+		root.render(MacMenu, {
+			isOpen: true,
+			button: { label: 'Actions' },
+			onOpenChange: close,
+			items: [
+				{
+					type: 'submenu',
+					key: 'move',
+					label: 'Move',
+					items: [{ type: 'action', key: 'target', label: 'Target', onSelect: pick }],
+				},
+			],
+		})
+
 		flushUniversalSync(() => {})
 		await vi.waitFor(() => expect(popups).toHaveLength(1))
 		expect(show.mock.calls[0][0].anchor).toBeTruthy()
@@ -129,9 +209,13 @@ it('keeps AppKit anchors and nested menu ownership across separate popup roots',
 		await vi.waitFor(() => expect(popups).toHaveLength(3))
 		const target = all(popups[2].container).find((node) => node.props?.id === 'target')
 		flushUniversalSync(() => popups[2].container.dispatchEvent(target, 'tap', {}))
-		expect(pick).toHaveBeenCalledOnce(); expect(close).toHaveBeenCalledWith(false)
+		expect(pick).toHaveBeenCalledOnce()
+		expect(close).toHaveBeenCalledWith(false)
 		expect(popups[0].closed).toBe(false)
 	} finally {
-		root.unmount(); popups.forEach((popup) => popup.root.unmount()); flushUniversalSync(() => {}); vi.unstubAllGlobals()
+		root.unmount()
+		popups.forEach((popup) => popup.root.unmount())
+		flushUniversalSync(() => {})
+		vi.unstubAllGlobals()
 	}
 })

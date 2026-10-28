@@ -1,11 +1,4 @@
-import {
-	Application,
-	AndroidApplication,
-	ContentView,
-	Frame,
-	Page,
-	View,
-} from '@nativescript/core'
+import { Application, AndroidApplication, ContentView, Frame, Page, View } from '@nativescript/core'
 
 import type { CatalogEntry } from '../catalog'
 import type { WorkshopTarget } from '../contract'

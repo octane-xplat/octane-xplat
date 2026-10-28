@@ -34,7 +34,9 @@ async function runTask(name: string): Promise<TaskResult> {
 // a background thread; we resolve via the JS executor then mark completion.
 function iosHandle(task: any): void {
 	const identifier: string = task?.identifier ?? ''
-	const name = identifier.startsWith(TASK_PREFIX) ? identifier.slice(TASK_PREFIX.length) : identifier
+	const name = identifier.startsWith(TASK_PREFIX)
+		? identifier.slice(TASK_PREFIX.length)
+		: identifier
 	task.expirationHandler = () => {}
 	runTask(name).finally(() => {
 		try {
@@ -52,24 +54,31 @@ export const backgroundTasks: BackgroundTasks = {
 
 	async register(name: string, options?: { minimumInterval?: number }): Promise<void> {
 		if (!executors.has(name)) {
-			throw new Error(`backgroundTasks.register: '${name}' has no defineTask — declare it at module scope`)
+			throw new Error(
+				`backgroundTasks.register: '${name}' has no defineTask — declare it at module scope`,
+			)
 		}
 		registered.set(name, options?.minimumInterval ?? 0)
 		if (isIOS) {
 			if (typeof BGTaskScheduler === 'undefined') {
 				throw new Error('unsupported: BGTaskScheduler is not available')
 			}
+
 			const identifier = TASK_PREFIX + name
 			BGTaskScheduler.sharedScheduler.registerForTaskWithIdentifierLaunchHandler(
 				identifier,
 				null,
 				iosHandle,
 			)
+
 			const request = BGAppRefreshTaskRequest.alloc().initWithIdentifier(identifier)
 			const interval = options?.minimumInterval
 			if (interval) {
-				request.earliestBeginDate = (globalThis as any).NSDate.dateWithTimeIntervalSinceNow(interval)
+				request.earliestBeginDate = (globalThis as any).NSDate.dateWithTimeIntervalSinceNow(
+					interval,
+				)
 			}
+
 			BGTaskScheduler.sharedScheduler.submitTaskRequestError(request, null)
 			return
 		}
@@ -96,6 +105,7 @@ export const backgroundTasks: BackgroundTasks = {
 			if (typeof BGTaskScheduler === 'undefined') {
 				return 'unavailable'
 			}
+
 			const status = (globalThis as any).UIApplication?.sharedApplication?.backgroundRefreshStatus
 			// UIBackgroundRefreshStatus: 0 restricted, 1 denied, 2 available
 			return status === 0 || status === 1 ? 'restricted' : 'available'

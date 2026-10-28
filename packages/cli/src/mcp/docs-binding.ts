@@ -116,10 +116,12 @@ function nodeModulesDirs(dir) {
 		if (!current.endsWith(`${sep}node_modules`) && current !== 'node_modules') {
 			out.push(join(current, 'node_modules'))
 		}
+
 		const parent = dirname(current)
 		if (parent === current) {
 			break
 		}
+
 		current = parent
 	}
 	return out
@@ -148,6 +150,7 @@ export function resolveInstallations(projectRoot) {
 		if (!existsSync(scopedDir)) {
 			continue
 		}
+
 		for (const entry of readdirSync(scopedDir)) {
 			if (entry.startsWith('.')) {
 				continue

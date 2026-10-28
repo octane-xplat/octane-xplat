@@ -2,12 +2,32 @@
 import { Typeahead, TypeaheadItem, createStaticSource } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
-const COUNTRIES = ['United States', 'United Kingdom', 'Canada', 'Germany', 'France', 'Japan', 'Australia', 'Brazil', 'India', 'Spain']
+const COUNTRIES = [
+	'United States',
+	'United Kingdom',
+	'Canada',
+	'Germany',
+	'France',
+	'Japan',
+	'Australia',
+	'Brazil',
+	'India',
+	'Spain',
+]
+
 const source = createStaticSource(COUNTRIES.map((c) => ({ id: c, label: c })))
 
 export function TypeaheadShowcase() @{
 	const [value, setValue] = useState<{ id: string; label: string } | null>(null)
-	<div style={{width: 320}}>
-		<Typeahead label="Country" searchSource={source} value={value} onChange={setValue} placeholder="Start typing…" renderItem={(item) => <TypeaheadItem item={item} />} />
+
+	<div style={{ width: 320 }}>
+		<Typeahead
+			label="Country"
+			searchSource={source}
+			value={value}
+			onChange={setValue}
+			placeholder="Start typing…"
+			renderItem={(item) => <TypeaheadItem item={item} />}
+		/>
 	</div>
 }

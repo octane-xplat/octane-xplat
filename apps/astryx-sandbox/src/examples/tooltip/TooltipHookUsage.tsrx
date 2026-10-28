@@ -5,7 +5,11 @@ export function TooltipHookUsage() @{
 	const tooltip = useTooltip({ placement: 'above', delay: 100 })
 	return (
 		<Center>
-			<Button label="Using hook directly" ref={tooltip.ref} web={{ 'aria-describedby': tooltip.describedBy } as any} />
+			<Button
+				label="Using hook directly"
+				ref={tooltip.ref}
+				web={{ 'aria-describedby': tooltip.describedBy } as any}
+			/>
 			{tooltip.renderTooltip('Tooltip via hook')}
 		</Center>
 	)

@@ -236,13 +236,25 @@ export { TableRow } from './Table.macos.tsrx'
 export { TableCell } from './Table.macos.tsrx'
 export { TableHeaderCell } from './Table.macos.tsrx'
 export { TableSelectionToolbar } from './TableSelectionToolbar'
-export { proportional, generateColumns, resolveColumnWidths, defaultCellRenderer, capitalize, DEFAULT_MIN_COLUMN_WIDTH } from './table/column-utils'
+export {
+	proportional,
+	generateColumns,
+	resolveColumnWidths,
+	defaultCellRenderer,
+	capitalize,
+	DEFAULT_MIN_COLUMN_WIDTH,
+} from './table/column-utils'
+
 export { paginateData } from './table/paginate-data'
 export { useTableSelection, useTableSelectionState } from './table/use-table-selection'
 export { useTableSortable } from './table/use-table-sortable'
 export { useTableSortableState, sortTableData } from './table/use-table-sortable-state'
 export { useTablePagination } from './table/use-table-pagination'
-export { useTableColumnSettings, useTableColumnSettingsState } from './table/use-table-column-settings'
+export {
+	useTableColumnSettings,
+	useTableColumnSettingsState,
+} from './table/use-table-column-settings'
+
 export { useTableColumnResize } from './table/use-table-column-resize'
 export { useTableFilterState } from './table/use-table-filter-state'
 export { useTableFiltering } from './table/use-table-filtering'
@@ -266,12 +278,10 @@ export type {
 	TableRowStatusColor,
 	TableSemanticRowStatus,
 } from './table/types'
+
 export type { UseTableRowIndexConfig } from './table/use-table-row-index'
 export type { UseTableRowStatusConfig } from './table/use-table-row-status'
-export type {
-	UseTableTreeStateConfig,
-	UseTableTreeStateResult,
-} from './table/use-table-tree-state'
+export type { UseTableTreeStateConfig, UseTableTreeStateResult } from './table/use-table-tree-state'
 export { Timeline } from './Timeline.macos.tsrx'
 /** Expandable hierarchy, exported under Astryx's component name. */
 export { Tree as TreeList } from './Tree.macos.tsrx'
@@ -312,6 +322,7 @@ export {
 	/** RGBA pixels → `thumbhash:<base64>`. */
 	rgbaToThumbHashUri,
 } from './hash-image'
+
 export { PowerSearch, PowerSearchToken, PowerSearchFilterEditor } from './PowerSearch.macos.tsrx'
 export {
 	createPowerSearchConfig,
@@ -521,11 +532,7 @@ export { RouteOutlet } from './RouteOutlet.macos.tsrx'
 export type { ImperativeBottomSheetReturn, RouteOutletProps, RouteHeadArgs } from './props'
 
 // Registry interfaces must share the props symbol for generated augmentation.
-export type {
-	AppRouteContracts,
-	AppRouteStacks,
-	AppRouteTransitions,
-} from './props'
+export type { AppRouteContracts, AppRouteStacks, AppRouteTransitions } from './props'
 
 export { useContainerReveal } from './use-container-reveal.tsrx'
 export type { UseContainerRevealOptions, UseContainerRevealReturn } from './props'
@@ -533,7 +540,14 @@ export { useImageMode } from './use-image-mode.tsrx'
 export type { UseImageModeOptions, ImageSampleRegion } from './props'
 
 export { InternationalizationProvider } from './InternationalizationProvider.macos.tsrx'
-export { useLocale, useDirection, useTranslator, getLocaleDirection, frFR } from './internationalization'
+export {
+	useLocale,
+	useDirection,
+	useTranslator,
+	getLocaleDirection,
+	frFR,
+} from './internationalization'
+
 export type { InternationalizationProviderProps, InternationalizationMessages } from './props'
 export { useAnnounce } from './use-announce'
 export type { AnnouncePoliteness } from './use-announce'
@@ -567,5 +581,6 @@ export {
 	resolveThemeTokens,
 	defaultThemeTokens,
 } from './theme/defined-theme'
+
 export { generateThemeCss } from './theme/theme-css'
 export { useTheme, useThemeName } from './theme/use-theme'

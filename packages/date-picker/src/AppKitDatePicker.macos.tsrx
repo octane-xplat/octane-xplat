@@ -26,7 +26,10 @@ export function AppKitDatePicker(props: AppKitDatePickerProps) @{
 	useEffect(() => {
 		const view = anchor.current
 		const attach = host().attachDatePicker
-		if (!view || typeof attach !== 'function') return
+		if (!view || typeof attach !== 'function') {
+			return
+		}
+
 		// defaultSelection seeds the initial date; after that the user's
 		// pick owns the value — only the controlled `selection` is pushed.
 		handle.current = attach(
@@ -49,9 +52,17 @@ export function AppKitDatePicker(props: AppKitDatePickerProps) @{
 		handle.current?.update(options())
 	})
 
-	<masonview ref={(v: any) => { anchor.current = v }} id={props.id} className={props.className} style={{display: "flex", ...({
+	<masonview
+		ref={(v: any) => {
+			anchor.current = v
+		}}
+		id={props.id}
+		className={props.className}
+		style={{
+			display: 'flex',
 			minWidth: 240,
 			minHeight: props.pickerStyle === 'graphical' ? 300 : 26,
 			...props.style,
-		})}}/>;
+		}}
+	/>
 }

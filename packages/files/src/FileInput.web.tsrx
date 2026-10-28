@@ -1,5 +1,12 @@
 import { useEffect, useImperativeHandle, useId, useRef, useState } from 'octane'
-import { Field as FormField, Icon, Spinner as ActivityIndicator, Tooltip, useFieldControl } from '@octane-xplat/ui'
+import {
+	Field as FormField,
+	Icon,
+	Spinner as ActivityIndicator,
+	Tooltip,
+	useFieldControl,
+} from '@octane-xplat/ui'
+
 import type { FileInputFile, FileInputProps } from './props'
 import { files as fileService } from './files'
 import { cx, formatFileSize, normalizePicked, validateFiles } from './file-input-utils'
@@ -16,7 +23,9 @@ function FileInputControl(inputProps: FileInputProps) @{
 	const [busy, setBusy] = useState(false)
 	const [validationErrors, setValidationErrors] = useState<string[]>([])
 
-	const files: FileInputFile[] = props.value == null ? [] : Array.isArray(props.value) ? props.value : [props.value]
+	const files: FileInputFile[] =
+		props.value == null ? [] : Array.isArray(props.value) ? props.value : [props.value]
+
 	const isDisabled = !!props.isDisabled || !!props.isReadOnly
 	const isBusy = !!props.isLoading || busy
 	const canClear = files.length > 0 && !isDisabled && !isBusy
@@ -88,13 +97,19 @@ function FileInputControl(inputProps: FileInputProps) @{
 		setValidationErrors(errors)
 		const next = !props.isMultiple && errors.length ? files : valid
 		releaseDropped(next, [...files, ...picked])
-		if (next.length !== files.length || next.some((file, index) => file.uri !== files[index]?.uri)) {
+		if (
+			next.length !== files.length ||
+			next.some((file, index) => file.uri !== files[index]?.uri)
+		) {
 			fireChange(next)
 		}
 	}
 
 	const removeAt = (index: number) => {
-		if (isDisabled || isBusy) return
+		if (isDisabled || isBusy) {
+			return
+		}
+
 		setValidationErrors([])
 		const next = files.filter((_, i) => i !== index)
 		releaseDropped(next, files)
@@ -102,7 +117,10 @@ function FileInputControl(inputProps: FileInputProps) @{
 	}
 
 	const pick = () => {
-		if (isDisabled || isBusy) return
+		if (isDisabled || isBusy) {
+			return
+		}
+
 		// An optional custom picker can provide cloud or app-specific sources.
 		if (props.pick) {
 			Promise.resolve(props.pick({ accept: props.accept, multiple: props.isMultiple }))
@@ -132,9 +150,15 @@ function FileInputControl(inputProps: FileInputProps) @{
 		e.preventDefault()
 		e.stopPropagation()
 		setDragging(false)
-		if (isDisabled || isBusy) return
+		if (isDisabled || isBusy) {
+			return
+		}
+
 		const list = e.dataTransfer?.files
-		if (!list?.length) return
+		if (!list?.length) {
+			return
+		}
+
 		const picked: FileInputFile[] = []
 		for (let i = 0; i < list.length; i++) {
 			picked.push(mintRef(list[i]))
@@ -152,10 +176,19 @@ function FileInputControl(inputProps: FileInputProps) @{
 						<li key={`${f.uri}-${i}`} className="vx-fileinput-item">
 							<Icon name="xplat-upload" size={14} />
 							<span className="vx-fileinput-itemname">{f.name}</span>
-							{f.size != null ? <span className="vx-fileinput-itemsize">{formatFileSize(f.size)}</span> : null}
-							{!isDisabled && !isBusy
-								? <button type="button" className="vx-fileinput-itemremove" aria-label={`Remove ${f.name}`} onClick={() => removeAt(i)}>{'×'}</button>
-								: null}
+							{f.size != null ? (
+								<span className="vx-fileinput-itemsize">{formatFileSize(f.size)}</span>
+							) : null}
+							{!isDisabled && !isBusy ? (
+								<button
+									type="button"
+									className="vx-fileinput-itemremove"
+									aria-label={`Remove ${f.name}`}
+									onClick={() => removeAt(i)}
+								>
+									{'×'}
+								</button>
+							) : null}
 						</li>
 					))}
 				</ul>
@@ -163,7 +196,9 @@ function FileInputControl(inputProps: FileInputProps) @{
 			{dropzone ? (
 				<div className="vx-fileinput-dropzone-hint">
 					<Icon name="xplat-upload" size={24} />
-					<span>{isDisabled ? 'Upload disabled' : 'Drag & drop files here or click to browse'}</span>
+					<span>
+						{isDisabled ? 'Upload disabled' : 'Drag & drop files here or click to browse'}
+					</span>
 					{props.accept ? <span className="vx-fileinput-accept">{props.accept}</span> : null}
 				</div>
 			) : (
@@ -171,15 +206,16 @@ function FileInputControl(inputProps: FileInputProps) @{
 					type="button"
 					id={inputId}
 					className="vx-fileinput-trigger"
-					disabled={isDisabled && !showsDisabledReason || undefined}
+					disabled={(isDisabled && !showsDisabledReason) || undefined}
 					aria-disabled={showsDisabledReason || undefined}
 					aria-describedby={props.ariaDescribedBy}
-					aria-required={props.isRequired && !props.isOptional || undefined}
+					aria-required={(props.isRequired && !props.isOptional) || undefined}
 					aria-invalid={statusType === 'error' || undefined}
 					aria-busy={isBusy || undefined}
 					onClick={pick}
 				>
-					<Icon name="xplat-upload" size={14} /> {files.length ? 'Choose more files' : 'Choose files'}
+					<Icon name="xplat-upload" size={14} />{' '}
+					{files.length ? 'Choose more files' : 'Choose files'}
 				</button>
 			)}
 			{dropzone ? (
@@ -187,10 +223,10 @@ function FileInputControl(inputProps: FileInputProps) @{
 					type="button"
 					id={inputId}
 					className="vx-fileinput-trigger vx-fileinput-trigger--hidden"
-					disabled={isDisabled && !showsDisabledReason || undefined}
+					disabled={(isDisabled && !showsDisabledReason) || undefined}
 					aria-disabled={showsDisabledReason || undefined}
 					aria-describedby={props.ariaDescribedBy}
-					aria-required={props.isRequired && !props.isOptional || undefined}
+					aria-required={(props.isRequired && !props.isOptional) || undefined}
 					aria-invalid={statusType === 'error' || undefined}
 					aria-busy={isBusy || undefined}
 					onClick={pick}
@@ -198,18 +234,49 @@ function FileInputControl(inputProps: FileInputProps) @{
 					Browse files
 				</button>
 			) : null}
-			{canClear ? <button type="button" className="vx-fileinput-clear" aria-label={`Clear ${props.fieldLabel ?? props.label ?? 'files'}`} onClick={() => { setValidationErrors([]); releaseDropped([], files); fireChange([]) }}>{'×'}</button> : null}
+			{canClear ? (
+				<button
+					type="button"
+					className="vx-fileinput-clear"
+					aria-label={`Clear ${props.fieldLabel ?? props.label ?? 'files'}`}
+					onClick={() => {
+						setValidationErrors([])
+						releaseDropped([], files)
+						fireChange([])
+					}}
+				>
+					{'×'}
+				</button>
+			) : null}
 			{isBusy ? <ActivityIndicator busy className="vx-fileinput-spinner" /> : null}
 			{statusType ? (
-				props.statusVariant === 'tooltip' && statusMessage
-					? <Tooltip trigger={<span className={cx('vx-field-icon', `vx-field-icon--${statusType}`)}>{STATUS_GLYPHS[statusType]}</span>} content={statusMessage} />
-					: <span className={cx('vx-field-icon', `vx-field-icon--${statusType}`)}>{STATUS_GLYPHS[statusType]}</span>
+				props.statusVariant === 'tooltip' && statusMessage ? (
+					<Tooltip
+						trigger={
+							<span className={cx('vx-field-icon', `vx-field-icon--${statusType}`)}>
+								{STATUS_GLYPHS[statusType]}
+							</span>
+						}
+						content={statusMessage}
+					/>
+				) : (
+					<span className={cx('vx-field-icon', `vx-field-icon--${statusType}`)}>
+						{STATUS_GLYPHS[statusType]}
+					</span>
+				)
 			) : null}
-			{statusMessage && props.statusVariant !== 'tooltip'
-				? <span className={cx('vx-field-status', `vx-field-status--${statusType}`)} role={statusType === 'error' ? 'alert' : 'status'}>{statusMessage}</span>
-				: null}
+			{statusMessage && props.statusVariant !== 'tooltip' ? (
+				<span
+					className={cx('vx-field-status', `vx-field-status--${statusType}`)}
+					role={statusType === 'error' ? 'alert' : 'status'}
+				>
+					{statusMessage}
+				</span>
+			) : null}
 			<input
-				ref={(el: any) => { fileInput.current = el; }}
+				ref={(el: any) => {
+					fileInput.current = el
+				}}
 				type="file"
 				className="vx-fileinput-nativeinput"
 				accept={props.accept}
@@ -222,7 +289,7 @@ function FileInputControl(inputProps: FileInputProps) @{
 		</>
 	)
 
-	useImperativeHandle(props.ref, () => ({ open: pick, native: fileInput.current }), undefined);
+	useImperativeHandle(props.ref, () => ({ open: pick, native: fileInput.current }), undefined)
 
 	<div
 		className={cx(
@@ -236,8 +303,15 @@ function FileInputControl(inputProps: FileInputProps) @{
 			props.className,
 		)}
 		style={props.style}
-		onDragOver={(e: any) => { e.preventDefault(); if (!isDisabled && !isBusy) setDragging(true) }}
-		onDragEnter={(e: any) => { e.preventDefault() }}
+		onDragOver={(e: any) => {
+			e.preventDefault()
+			if (!isDisabled && !isBusy) {
+				setDragging(true)
+			}
+		}}
+		onDragEnter={(e: any) => {
+			e.preventDefault()
+		}}
 		onDragLeave={() => setDragging(false)}
 		onDrop={handleDrop}
 	>
@@ -255,7 +329,10 @@ export function FileInput(props: FileInputProps) @{
 	const { inField } = useFieldControl(props)
 	const cid = useId()
 	const control = <FileInputControl {...props} />
-	if (inField) return control
+	if (inField) {
+		return control
+	}
+
 	return (
 		<FormField
 			inputID={props.id ?? cid}

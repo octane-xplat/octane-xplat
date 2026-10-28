@@ -2,5 +2,7 @@
 import { Text, Timer } from '@octane-xplat/ui'
 
 export function TimerInline() @{
-	<Text type="body" color="primary">Processing for <Timer type="inherit" color="inherit" /></Text>
+	<Text type="body" color="primary">
+		Processing for <Timer type="inherit" color="inherit" />
+	</Text>
 }

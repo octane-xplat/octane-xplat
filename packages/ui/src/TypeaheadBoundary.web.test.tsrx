@@ -11,24 +11,39 @@ const items: SearchableItem[] = [
 ]
 
 const source: SearchSource = {
-	search: (query: string) => items.filter((item) => item.label.toLowerCase().includes(query.toLowerCase())),
+	search: (query: string) =>
+		items.filter((item) => item.label.toLowerCase().includes(query.toLowerCase())),
 	bootstrap: () => items,
 }
 
 const cleanups: (() => void)[] = []
-afterEach(() => { cleanups.splice(0).forEach((cleanup) => cleanup()); vi.unstubAllGlobals() })
+afterEach(() => {
+	cleanups.splice(0).forEach((cleanup) => cleanup())
+	vi.unstubAllGlobals()
+})
 
 function mount(node: any) {
-	vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() })))
+	vi.stubGlobal(
+		'matchMedia',
+		vi.fn(() => ({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() })),
+	)
+
 	const host = document.createElement('div')
 	document.body.append(host)
 	const root = createRoot(host)
 	act(() => root.render(node))
-	cleanups.push(() => { root.unmount(); host.remove() })
+	cleanups.push(() => {
+		root.unmount()
+		host.remove()
+	})
+
 	return host
 }
 
-const settle = () => act(async () => { await Promise.resolve() })
+const settle = () =>
+	act(async () => {
+		await Promise.resolve()
+	})
 
 describe('Typeahead family package-root boundary', () => {
 	it('exposes the family through the package barrel, not BaseTypeaheadView', () => {
@@ -44,13 +59,23 @@ describe('Typeahead family package-root boundary', () => {
 		function Fixture() @{
 			const [value, setValue] = useState<SearchableItem | null>(null)
 
-			<Typeahead label="Pick" value={value} onChange={setValue} searchSource={source} debounceMs={0} />
+			<Typeahead
+				label="Pick"
+				value={value}
+				onChange={setValue}
+				searchSource={source}
+				debounceMs={0}
+			/>
 		}
 
 		const host = mount(<Fixture />)
 		const input = host.querySelector('.vx-typeahead-input') as HTMLInputElement
 		act(() => input.focus())
-		act(() => { input.value = 'ban'; input.dispatchEvent(new Event('input', { bubbles: true })) })
+		act(() => {
+			input.value = 'ban'
+			input.dispatchEvent(new Event('input', { bubbles: true }))
+		})
+
 		await settle()
 		act(() => (document.querySelectorAll('[role="option"]')[0] as HTMLElement).click())
 		expect(host.querySelector('.vx-typeahead-token')?.textContent).toContain('Banana')
@@ -60,7 +85,13 @@ describe('Typeahead family package-root boundary', () => {
 		function Fixture() @{
 			const [value, setValue] = useState<SearchableItem[]>([])
 
-			<Tokenizer label="Tags" value={value} onChange={(next) => setValue(next)} searchSource={source} debounceMs={0} />
+			<Tokenizer
+				label="Tags"
+				value={value}
+				onChange={(next) => setValue(next)}
+				searchSource={source}
+				debounceMs={0}
+			/>
 		}
 
 		const host = mount(<Fixture />)
@@ -68,7 +99,11 @@ describe('Typeahead family package-root boundary', () => {
 		// Focusing first mirrors real interaction: the wrapper's focusin
 		// listener re-renders and refreshes the dropdown anchor ref.
 		act(() => input.focus())
-		act(() => { input.value = 'ban'; input.dispatchEvent(new Event('input', { bubbles: true })) })
+		act(() => {
+			input.value = 'ban'
+			input.dispatchEvent(new Event('input', { bubbles: true }))
+		})
+
 		await settle()
 		act(() => (document.querySelectorAll('[role="option"]')[0] as HTMLElement).click())
 		expect(host.querySelector('.vx-token')?.textContent).toContain('Banana')
@@ -84,7 +119,17 @@ describe('Typeahead family package-root boundary', () => {
 it('enters edit mode and restores the selected token on Escape and outside blur', async () => {
 	const changed = vi.fn()
 	const query = vi.fn()
-	const host = mount(<Typeahead label="Pick" value={items[0]} onChange={changed} onChangeQuery={query} searchSource={source} debounceMs={0} />)
+	const host = mount(
+		<Typeahead
+			label="Pick"
+			value={items[0]}
+			onChange={changed}
+			onChangeQuery={query}
+			searchSource={source}
+			debounceMs={0}
+		/>,
+	)
+
 	const wrapper = host.querySelector('.vx-typeahead') as HTMLElement
 	const input = host.querySelector('.vx-typeahead-input') as HTMLInputElement
 	expect(host.querySelector('.vx-typeahead-token')?.textContent).toContain('Apple')
@@ -111,13 +156,28 @@ it('enters edit mode and restores the selected token on Escape and outside blur'
 it('measures collapsed overflow, expands on focus, remeasures on resize and cleans up', async () => {
 	let resize!: () => void
 	const disconnect = vi.fn()
-	vi.stubGlobal('ResizeObserver', class {
-		constructor(callback: () => void) { resize = callback }
-		observe() {}
-		disconnect = disconnect
-	})
+	vi.stubGlobal(
+		'ResizeObserver',
+		class {
+			constructor(callback: () => void) {
+				resize = callback
+			}
+			observe() {}
+			disconnect = disconnect
+		},
+	)
 
-	const host = mount(<Tokenizer label="Tags" value={items} onChange={() => {}} searchSource={source} tokenOverflowBehavior="unfocusedInline" debounceMs={0} />)
+	const host = mount(
+		<Tokenizer
+			label="Tags"
+			value={items}
+			onChange={() => {}}
+			searchSource={source}
+			tokenOverflowBehavior="unfocusedInline"
+			debounceMs={0}
+		/>,
+	)
+
 	const wrapper = host.querySelector('.vx-tokenizer') as HTMLElement
 	const tokens = host.querySelectorAll('.vx-tokenizer-token')
 	Object.defineProperty(wrapper, 'clientWidth', { configurable: true, value: 100 })

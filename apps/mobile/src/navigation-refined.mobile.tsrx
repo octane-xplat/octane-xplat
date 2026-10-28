@@ -234,11 +234,13 @@ function RefinedRenderFailure(): any {
 }
 
 const failedRenderCatalog = defineRoutes([
-	defineRoute.withContext<{ account: { id: string } }>()({
-		path: '/render-failure/:id',
-		beforeLoad: () => ({ checked: true }),
-		loader: ({ params, context }) => ({ title: context.account.id + ':' + params.id }),
-	}).screen(RefinedRenderFailure),
+	defineRoute
+		.withContext<{ account: { id: string } }>()({
+			path: '/render-failure/:id',
+			beforeLoad: () => ({ checked: true }),
+			loader: ({ params, context }) => ({ title: context.account.id + ':' + params.id }),
+		})
+		.screen(RefinedRenderFailure),
 ])
 
 const validateFileSearch = (raw: { tab?: unknown }) => {
@@ -384,6 +386,7 @@ export function createRefinedNavigation(frame: Frame) {
 		stacks: ['other'],
 		transitions: nativeTransitions,
 	})
+
 	panePlatform.attach(panes)
 	paneNavigation = panes
 	navigation = router

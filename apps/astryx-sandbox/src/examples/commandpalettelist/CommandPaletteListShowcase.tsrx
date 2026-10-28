@@ -15,5 +15,6 @@ export function CommandPaletteListShowcase() @{
 			]),
 		[],
 	)
+
 	<CommandPalette open onOpenChange={() => {}} searchSource={source} />
 }

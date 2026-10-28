@@ -48,37 +48,68 @@ export function TiptapEditor(props: TiptapEditorProps) @{
 	// External `value` changes push setContent; editor-emitted HTML is skipped
 	// (the transaction already owns the doc).
 	useEffect(() => {
-		if (!editor) return
+		if (!editor) {
+			return
+		}
+
 		const stamp = JSON.stringify([props.json !== undefined, props.value])
-		if (stamp === lastHTMLInput.current) return
+		if (stamp === lastHTMLInput.current) {
+			return
+		}
+
 		lastHTMLInput.current = stamp
-		if (props.value === undefined || props.json !== undefined) return
-		if (props.value === lastEmitted.current) return
+		if (props.value === undefined || props.json !== undefined) {
+			return
+		}
+
+		if (props.value === lastEmitted.current) {
+			return
+		}
+
 		editor.commands.setContent(props.value)
 	}, [editor, props.value, props.json])
 
 	useEffect(() => {
-		if (!editor) return
+		if (!editor) {
+			return
+		}
+
 		const stamp = JSON.stringify(props.json)
-		if (stamp === lastJSONInput.current) return
+		if (stamp === lastJSONInput.current) {
+			return
+		}
+
 		lastJSONInput.current = stamp
-		if (props.json === undefined || stamp === lastJSON.current) return
+		if (props.json === undefined || stamp === lastJSON.current) {
+			return
+		}
+
 		editor.commands.setContent(props.json as any)
 	}, [editor, props.json])
 
 	useEffect(() => {
-		if (!editor) return
+		if (!editor) {
+			return
+		}
+
 		editor.setEditable(props.editable !== false)
 	}, [editor, props.editable])
 
 	// The handle rebinds whenever the editor instance appears — stable
 	// afterward (useEditor keeps the instance identity).
-	useImperativeHandle<TiptapEditorHandle | null>(props.ref, () => {
-		if (!editor) return null
-		bound.current = bindEditorHandle(editor)
+	useImperativeHandle<TiptapEditorHandle | null>(
+		props.ref,
+		() => {
+			if (!editor) {
+				return null
+			}
 
-		return bound.current
-	}, [editor])
+			bound.current = bindEditorHandle(editor)
+
+			return bound.current
+		},
+		[editor],
+	)
 
 	<div className={['vx-richtext', props.className]} style={props.style}>
 		<EditorContent editor={editor} />

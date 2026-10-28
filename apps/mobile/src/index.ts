@@ -840,11 +840,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
 		console.log('[probe] scrollview=' + (sv ? sv.constructor.name : 'none'))
 		sv?.scrollTo?.({ top: 200, behavior: 'instant' })
 		console.log(
-			'[assert] scroll offset: ' +
-				(sv?.scrollTop > 0 ? 'OK' : 'FAIL') +
-				' (' +
-				sv?.scrollTop +
-				')',
+			'[assert] scroll offset: ' + (sv?.scrollTop > 0 ? 'OK' : 'FAIL') + ' (' + sv?.scrollTop + ')',
 		)
 
 		const img = find('img')

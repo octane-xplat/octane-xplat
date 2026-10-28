@@ -1,7 +1,8 @@
 // Firebase Analytics — no macOS JS SDK upstream; unsupported leaf.
 import type { FirebaseAnalyticsService } from './types'
 
-const unsupported = () => Promise.reject(new Error('unsupported: firebase analytics is not available on macOS'))
+const unsupported = () =>
+	Promise.reject(new Error('unsupported: firebase analytics is not available on macOS'))
 
 export const firebaseAnalytics: FirebaseAnalyticsService = {
 	supported: false,

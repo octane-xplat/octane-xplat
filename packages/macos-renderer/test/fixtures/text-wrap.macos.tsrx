@@ -8,19 +8,30 @@ const text = 'Words that wrap across several lines in a narrow container.'
 export default function Case() {
 	const props$ = useSignal$<any>({ width: 120 })
 	update = (props) => props$.set(props)
-	return <masonview style={{ display: 'flex', flexDirection: 'column' }}>
-		<label id="wrapped" text={text} maxLines={props$.get().maxLines} whiteSpace={props$.get().whiteSpace}
-			style={{ width: props$.get().width, fontSize: 16, lineHeight: '20px' }} />
-	</masonview>
+	return (
+		<masonview style={{ display: 'flex', flexDirection: 'column' }}>
+			<label
+				id="wrapped"
+				text={text}
+				maxLines={props$.get().maxLines}
+				whiteSpace={props$.get().whiteSpace}
+				style={{ width: props$.get().width, fontSize: 16, lineHeight: '20px' }}
+			/>
+		</masonview>
+	)
 }
 
 export async function run(ctx: any) {
 	const geometry = () => {
 		const view = ctx.find('wrapped')
-		if (!view) return { width: 0, height: 0 }
+		if (!view) {
+			return { width: 0, height: 0 }
+		}
+
 		const rect = view.alignmentRectForFrame(view.frame)
 		return { width: Number(rect.size.width), height: Number(rect.size.height) }
 	}
+
 	await ctx.waitFor(() => geometry().width === 120 && geometry().height > 20)
 	const narrow = geometry()
 	ctx.assert('constrained width', narrow.width, 120)

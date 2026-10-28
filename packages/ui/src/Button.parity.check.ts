@@ -1,8 +1,12 @@
 import type { ParityCheck } from './parity/check-helpers.ts'
-import { buttonEqual, buttonNaturalEqual, buttonRows, buttonNaturalRows } from './parity/check-helpers.ts'
+import {
+	buttonEqual,
+	buttonNaturalEqual,
+	buttonRows,
+	buttonNaturalRows,
+} from './parity/check-helpers.ts'
 
 export const CHECKS: ParityCheck[] = [
-
 	{
 		fixture: 'button-basic',
 		elements: { btn: 'vx-button', label: 'parity-txt' },
@@ -30,5 +34,5 @@ export const CHECKS: ParityCheck[] = [
 		elements: { btn: 'parity-button-natural', label: 'parity-txt' },
 		equal: buttonNaturalEqual,
 		check: (m) => buttonNaturalRows(m),
-	}
+	},
 ]

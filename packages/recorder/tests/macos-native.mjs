@@ -24,6 +24,7 @@ export async function checkMacOSNative(packedRoot) {
 			fileURLToPath(new URL('../../platform', import.meta.url)),
 			join(app, 'node_modules/@octane-xplat/platform'),
 		)
+
 		await writeFile(
 			join(app, 'package.json'),
 			JSON.stringify({

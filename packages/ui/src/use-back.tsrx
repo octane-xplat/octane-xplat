@@ -1,5 +1,5 @@
-import { useEffect } from 'octane';
-import { addBackInterceptor } from './back-interceptors';
+import { useEffect } from 'octane'
+import { addBackInterceptor } from './back-interceptors'
 
 /** Component-scoped back interceptor — mounted screens register in
  *  render order, so the topmost screen's handler wins (interceptors run
@@ -7,5 +7,5 @@ import { addBackInterceptor } from './back-interceptors';
  *  true to consume the press. Android-only: iOS has no hardware back,
  *  so the handler simply never fires there. */
 export function useBackInterceptor(fn: () => boolean): void {
-	useEffect(() => addBackInterceptor(fn), [fn]);
+	useEffect(() => addBackInterceptor(fn), [fn])
 }

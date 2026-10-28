@@ -5,8 +5,15 @@ import { motion, Presence, MotionConfig } from '../src/index'
 function CounterCard() @{
 	const [count, setCount] = useState(0)
 
-	<motion.View initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 12 }} transition={{ duration: 0.25 }}>
-		<Pressable onPress={() => setCount(count + 1)}><Text>{`Count: ${count}`}</Text></Pressable>
+	<motion.View
+		initial={{ opacity: 0, y: 12 }}
+		animate={{ opacity: 1, y: 0 }}
+		exit={{ opacity: 0, y: 12 }}
+		transition={{ duration: 0.25 }}
+	>
+		<Pressable onPress={() => setCount(count + 1)}>
+			<Text>{`Count: ${count}`}</Text>
+		</Pressable>
 	</motion.View>
 }
 
@@ -16,8 +23,12 @@ export function PresenceDemo() @{
 
 	<MotionConfig reducedMotion="user">
 		<View gap={12}>
-			<Pressable onPress={() => setPresent(!present)}><Text>Toggle card</Text></Pressable>
-			<Presence present={present}><CounterCard /></Presence>
+			<Pressable onPress={() => setPresent(!present)}>
+				<Text>Toggle card</Text>
+			</Pressable>
+			<Presence present={present}>
+				<CounterCard />
+			</Presence>
 		</View>
 	</MotionConfig>
 }

@@ -10,6 +10,7 @@ import {
 	setAnalyticsCollectionEnabled,
 	setCurrentScreen,
 } from 'firebase/analytics'
+
 import type { FirebaseAnalyticsService } from './types'
 
 let analytics: any = null
@@ -29,7 +30,8 @@ export const firebaseAnalytics: FirebaseAnalyticsService = {
 	setUserId: async (id) => setUserId(analytics, id),
 	setUserProperty: async (name, value) => setUserProperties(analytics, { [name]: value }),
 	setUserProperties: async (props) => setUserProperties(analytics, props as any),
-	setAnalyticsCollectionEnabled: async (enabled) => setAnalyticsCollectionEnabled(analytics, enabled),
+	setAnalyticsCollectionEnabled: async (enabled) =>
+		setAnalyticsCollectionEnabled(analytics, enabled),
 	logScreenView: async (screenName) => setCurrentScreen(analytics, screenName),
 	setSessionTimeoutDuration: async () => {},
 	logLogin: async (method) => logEvent(analytics, 'login' as any, { method }),

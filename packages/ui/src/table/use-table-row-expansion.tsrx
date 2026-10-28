@@ -25,6 +25,7 @@ function ExpansionCell<T extends Record<string, unknown>>(props: {
 
 	const key = cfg.getRowKey(props.item)
 	const isExpanded = cfg.expandedKeys.has(key)
+
 	<masonview
 		className={isExpanded ? 'vx-table-expander vx-table-expander--expanded' : 'vx-table-expander'}
 		onTap={() => cfg.onToggle(key)}
@@ -54,6 +55,7 @@ function ExpandedPanel<T extends Record<string, unknown>>(props: {
 	if (props.prior == null) {
 		return panel
 	}
+
 	<>
 		<TableSlot value={props.prior} />
 		{panel}

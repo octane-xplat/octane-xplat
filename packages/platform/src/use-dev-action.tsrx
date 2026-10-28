@@ -47,6 +47,7 @@ export function useDevAction(spec: DevActionSpec, options?: DevActionHookOptions
 					},
 				}
 			: { ...rest, ...(availability ? { availability } : {}) }
+
 	const key = devActionDeclarationKey(declaration)
 
 	useEffect(() => {
@@ -60,6 +61,7 @@ export function useDevAction(spec: DevActionSpec, options?: DevActionHookOptions
 			(input, context) => runRef.current(input, context),
 			{ label },
 		)
+
 		return () => {
 			detach()
 			release()

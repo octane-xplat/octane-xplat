@@ -11,7 +11,9 @@ export function BannerCollapsibleContent() @{
 		collapsible={{ defaultIsOpen: true }}
 	>
 		<Stack direction="vertical" gap={2}>
-			<Text type="supporting" color="secondary">Changed settings:</Text>
+			<Text type="supporting" color="secondary">
+				Changed settings:
+			</Text>
 			<List density="compact">
 				<ListItem label="Authentication method updated" />
 				<ListItem label="Rate limits modified" />

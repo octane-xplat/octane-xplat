@@ -66,10 +66,12 @@ function fixture() {
 			},
 		} satisfies ClientRouterHost
 	})
-	const route = defineRoute.withContext<{ account: string }>()({
-		path: '/items/:id',
-		loader: ({ params, context }) => ({ title: context.account + ':' + params.id }),
-	}).screen(() => null)
+	const route = defineRoute
+		.withContext<{ account: string }>()({
+			path: '/items/:id',
+			loader: ({ params, context }) => ({ title: context.account + ':' + params.id }),
+		})
+		.screen(() => null)
 	const catalog = defineRoutes([route])
 	return {
 		runtime,

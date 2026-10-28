@@ -1,10 +1,9 @@
-import { useEffect, useRef } from 'octane';
-import type { HoverCardProps } from './props';
-import { useHoverCard } from './use-hover-card.web.tsrx';
-import { cx } from '@octane-xplat/lib';
+import { useEffect, useRef } from 'octane'
+import type { HoverCardProps } from './props'
+import { useHoverCard } from './use-hover-card.web.tsrx'
+import { cx } from '@octane-xplat/lib'
 
-const isTextOnly = (children: any) =>
-	typeof children === 'string' || typeof children === 'number';
+const isTextOnly = (children: any) => typeof children === 'string' || typeof children === 'number'
 
 /**
  * Hover/focus/tap-triggered floating card (Astryx `HoverCard`), web leaf.
@@ -27,46 +26,49 @@ export function HoverCard(props: HoverCardProps) @{
 		isDefaultOpen: props.isDefaultOpen,
 		onShow: () => props.onOpenChange?.(true),
 		onHide: () => props.onOpenChange?.(false),
-	});
+	})
 
-	const wrapper = useRef<HTMLElement | null>(null);
-	const textOnly = isTextOnly(props.children);
+	const wrapper = useRef<HTMLElement | null>(null)
+	const textOnly = isTextOnly(props.children)
 	const showIndication =
 		props.hasHoverIndication === true ||
-		((props.hasHoverIndication ?? 'auto') === 'auto' && textOnly);
+		((props.hasHoverIndication ?? 'auto') === 'auto' && textOnly)
 
 	// Position + interaction land on the first element child (the
 	// display:contents wrapper has no box to anchor against).
 	useEffect(() => {
-		if (textOnly) return;
-		const el = wrapper.current?.firstElementChild as HTMLElement | null;
-		card.ref(el);
-		if (!el || !props.label) {
-			return;
+		if (textOnly) {
+			return
 		}
 
-		const prevHaspopup = el.getAttribute('aria-haspopup');
-		el.setAttribute('aria-haspopup', 'dialog');
+		const el = wrapper.current?.firstElementChild as HTMLElement | null
+		card.ref(el)
+		if (!el || !props.label) {
+			return
+		}
+
+		const prevHaspopup = el.getAttribute('aria-haspopup')
+		el.setAttribute('aria-haspopup', 'dialog')
 		if (card.isOpen) {
-			el.setAttribute('aria-controls', card.id);
+			el.setAttribute('aria-controls', card.id)
 		}
 
 		return () => {
-			card.ref(null);
+			card.ref(null)
 			if (prevHaspopup == null) {
-				el.removeAttribute('aria-haspopup');
+				el.removeAttribute('aria-haspopup')
 			} else {
-				el.setAttribute('aria-haspopup', prevHaspopup);
+				el.setAttribute('aria-haspopup', prevHaspopup)
 			}
 
-			el.removeAttribute('aria-controls');
-		};
-	}, [textOnly, card.isOpen, props.label, card.id]);
+			el.removeAttribute('aria-controls')
+		}
+	}, [textOnly, card.isOpen, props.label, card.id])
 
 	const rendered = card.renderHoverCard(props.content, {
 		className: props.className,
 		style: props.style,
-	});
+	})
 
 	<>
 		{textOnly ? (
@@ -85,7 +87,7 @@ export function HoverCard(props: HoverCardProps) @{
 		) : (
 			<span
 				ref={(el: HTMLElement | null) => {
-					wrapper.current = el;
+					wrapper.current = el
 				}}
 				id={props.id}
 				style={{ display: 'contents' }}
@@ -95,5 +97,5 @@ export function HoverCard(props: HoverCardProps) @{
 			</span>
 		)}
 		{rendered}
-	</>;
+	</>
 }

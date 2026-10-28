@@ -74,9 +74,15 @@ if (view1) {
 		const origin = b?.origin ?? {}
 		const size = b?.size ?? {}
 		return ok2
-			? { x: origin.x ?? 0, y: origin.y ?? 0, w: size.width ?? w.get_width(), h: size.height ?? w.get_height() }
+			? {
+					x: origin.x ?? 0,
+					y: origin.y ?? 0,
+					w: size.width ?? w.get_width(),
+					h: size.height ?? w.get_height(),
+				}
 			: null
 	}
+
 	out.a = bounds(view2)
 	out.b = bounds(view3)
 
@@ -94,6 +100,7 @@ if (view1) {
 			},
 		} as UniversalHostCommand,
 	])
+
 	view1.size_allocate(rect(0, 0, 200, 60), -1)
 	out.columnA = bounds(view2)
 	out.columnB = bounds(view3)
@@ -163,6 +170,7 @@ if (view10) {
 				}
 			: null
 	}
+
 	out.translated = box(view11)
 	out.rotated = box(view12)
 	// gtk_widget_pick/contains need a mapped window; replay pick's
@@ -174,12 +182,19 @@ if (view10) {
 			[11, view11],
 		] as const) {
 			const [ok, local] = view10.compute_point(child, new Graphene.Point({ x, y }))
-			if (ok && local.x >= 0 && local.y >= 0 && local.x < child.get_width() && local.y < child.get_height()) {
+			if (
+				ok &&
+				local.x >= 0 &&
+				local.y >= 0 &&
+				local.x < child.get_width() &&
+				local.y < child.get_height()
+			) {
 				return id
 			}
 		}
 		return null
 	}
+
 	// (10, 20) is inside the translated box only; (150, 30) is inside the
 	// rotated box only (its untransformed box starts at y=50).
 	out.pickTranslated = pick(10, 20)
@@ -192,24 +207,28 @@ if (view10) {
 	view10.snapshot_child = (child: any) => {
 		painted.push(child === view11 ? 11 : child === view12 ? 12 : 0)
 	}
+
 	const recorder = new Proxy(
 		{},
 		{
-			get: (_target, name: string) => (...args: any[]) => {
-				ops.push(name)
-				if (name === 'push_rounded_clip') {
-					const rr = args[0]
-					out.clipRect = {
-						x: Math.round(rr.bounds.origin.x),
-						y: Math.round(rr.bounds.origin.y),
-						w: Math.round(rr.bounds.size.width),
-						h: Math.round(rr.bounds.size.height),
-						r: Math.round(rr.corner[0].width),
+			get:
+				(_target, name: string) =>
+				(...args: any[]) => {
+					ops.push(name)
+					if (name === 'push_rounded_clip') {
+						const rr = args[0]
+						out.clipRect = {
+							x: Math.round(rr.bounds.origin.x),
+							y: Math.round(rr.bounds.origin.y),
+							w: Math.round(rr.bounds.size.width),
+							h: Math.round(rr.bounds.size.height),
+							r: Math.round(rr.corner[0].width),
+						}
 					}
-				}
-			},
+				},
 		},
 	)
+
 	view10.vfunc_snapshot(recorder)
 	out.paintOrder = painted
 	out.clipOps = ops
@@ -231,26 +250,42 @@ registerStylesheet(
 	`@keyframes grow { from { width: 40; transform: translateX(0); } to { width: 140; transform: translateX(100); } }
 	.grow { animation: grow 400ms linear forwards; }`,
 )
-await new Promise<void>((resolve) => GLib.timeout_add(GLib.PRIORITY_DEFAULT, 0, () => (resolve(), false)))
+
+await new Promise<void>((resolve) =>
+	GLib.timeout_add(GLib.PRIORITY_DEFAULT, 0, () => (resolve(), false)),
+)
+
 apply(container, [
 	{
 		op: 'create',
 		id: 20,
 		type: 'label',
-		props: { text: 'grow', className: 'grow', style: { position: 'absolute', left: 0, top: 0, height: 20 } },
+		props: {
+			text: 'grow',
+			className: 'grow',
+			style: { position: 'absolute', left: 0, top: 0, height: 20 },
+		},
 	} as UniversalHostCommand,
 	{ op: 'insert', id: 20, parent: 10, before: null } as UniversalHostCommand,
 ])
+
 const view20 = container.nodes.get(20)?.view
 const growBox = () => {
 	view10?.size_allocate(rect(0, 0, 200, 100), -1)
 	const [ok, b] = view20.compute_bounds(view10)
 	return ok ? { x: Math.round(b.origin.x), w: Math.round(b.size.width) } : null
 }
+
 out.growStart = growBox()
-await new Promise<void>((resolve) => GLib.timeout_add(GLib.PRIORITY_DEFAULT, 200, () => (resolve(), false)))
+await new Promise<void>((resolve) =>
+	GLib.timeout_add(GLib.PRIORITY_DEFAULT, 200, () => (resolve(), false)),
+)
+
 out.growMid = growBox()
-await new Promise<void>((resolve) => GLib.timeout_add(GLib.PRIORITY_DEFAULT, 350, () => (resolve(), false)))
+await new Promise<void>((resolve) =>
+	GLib.timeout_add(GLib.PRIORITY_DEFAULT, 350, () => (resolve(), false)),
+)
+
 out.growEnd = growBox()
 
 apply(container, [
@@ -269,6 +304,7 @@ apply(container, [
 	{ op: 'remove', id: 1 } as UniversalHostCommand,
 	{ op: 'destroy', id: 1 } as UniversalHostCommand,
 ])
+
 out.destroyed = true
 
 print(`MASON_SMOKE ${JSON.stringify(out)}`)

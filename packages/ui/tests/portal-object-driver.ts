@@ -10,9 +10,12 @@ export function createPortalObjectDriver(renderer = 'nativescript') {
 		...object,
 		portals: {
 			prepareTarget(context) {
-				if (!context.target || typeof context.target !== 'object')
-					{throw new TypeError('Expected an object portal target')}
-				if (!targets.has(context.target)) {targets.set(context.target, ++sequence)}
+				if (!context.target || typeof context.target !== 'object') {
+					throw new TypeError('Expected an object portal target')
+				}
+				if (!targets.has(context.target)) {
+					targets.set(context.target, ++sequence)
+				}
 				return {
 					handle: context.createPortalTargetHandle(targets.get(context.target)!),
 					release() {},

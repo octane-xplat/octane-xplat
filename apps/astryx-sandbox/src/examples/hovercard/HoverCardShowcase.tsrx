@@ -8,7 +8,9 @@ export function HoverCardShowcase() @{
 			content={
 				<VStack gap={1} style={{ maxWidth: 200 }}>
 					<Text type="label">Hover card</Text>
-					<Text type="body" color="secondary">Preview content that appears on hover or focus without navigating.</Text>
+					<Text type="body" color="secondary">
+						Preview content that appears on hover or focus without navigating.
+					</Text>
 				</VStack>
 			}
 		>

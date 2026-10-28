@@ -16,7 +16,10 @@ export const switchScenarios: SwitchScenario[] = [
 	{ key: 'on', props: { label: 'Notifications', value: true } },
 	{ key: 'disabled-off', props: { label: 'Notifications', value: false, isDisabled: true } },
 	{ key: 'disabled-on', props: { label: 'Notifications', value: true, isDisabled: true } },
-	{ key: 'description', props: { label: 'Notifications', value: false, description: 'Email me updates' } },
+	{
+		key: 'description',
+		props: { label: 'Notifications', value: false, description: 'Email me updates' },
+	},
 	{ key: 'label-hidden', props: { label: 'Notifications', value: true, isLabelHidden: true } },
 	{ key: 'sm', props: { label: 'Notifications', value: true, size: 'sm' } },
 	{ key: 'loading', props: { label: 'Notifications', value: true, isLoading: true } },

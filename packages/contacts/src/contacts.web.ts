@@ -24,7 +24,9 @@ function asContact(native: any): Contact {
 }
 
 const unsupported = (what: string) => () =>
-	Promise.reject(new Error(`unsupported: contact ${what} is not available through the web Contact Picker`))
+	Promise.reject(
+		new Error(`unsupported: contact ${what} is not available through the web Contact Picker`),
+	)
 
 export const contacts: Contacts = {
 	supported: picker() !== null,

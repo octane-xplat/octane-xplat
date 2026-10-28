@@ -335,6 +335,7 @@ try {
 			? { result: { ...session.launch, buildIdentity: session.buildIdentity } }
 			: null
 	})
+
 	assert.equal(launched.result.readiness, 'confirmed')
 	assert.equal(launched.result.browser.launched, true)
 	browserPid = launched.result.browser.pid

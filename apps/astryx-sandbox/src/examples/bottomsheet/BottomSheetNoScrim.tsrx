@@ -10,10 +10,20 @@ export function BottomSheetNoScrim() @{
 			<VStack gap={3}>
 				<Heading level={3}>Nearby places</Heading>
 				<Text type="body">Background interactions: {backgroundClicks}</Text>
-				<Button label="Interact with page" variant="secondary" clickAction={() => setBackgroundClicks((c) => c + 1)} />
+				<Button
+					label="Interact with page"
+					variant="secondary"
+					clickAction={() => setBackgroundClicks((c) => c + 1)}
+				/>
 				<Button label="Show place details" clickAction={() => setIsOpen(true)} />
 			</VStack>
-			<BottomSheet isOpen={isOpen} onOpenChange={setIsOpen} label="Place details" height="hug" hasScrim={false}>
+			<BottomSheet
+				isOpen={isOpen}
+				onOpenChange={setIsOpen}
+				label="Place details"
+				height="hug"
+				hasScrim={false}
+			>
 				<VStack gap={4} style={{ padding: 'var(--spacing-4)' }}>
 					<Heading level={3}>Central Park</Heading>
 					<Divider />

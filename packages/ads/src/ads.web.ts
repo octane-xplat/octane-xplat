@@ -2,7 +2,9 @@
 // supported: false rather than fake parity.
 import type { Ads } from './types'
 
-const unsupported = () => { throw new Error('unsupported: AdMob is not available on web') }
+const unsupported = () => {
+	throw new Error('unsupported: AdMob is not available on web')
+}
 
 export const ads: Ads = {
 	supported: false,

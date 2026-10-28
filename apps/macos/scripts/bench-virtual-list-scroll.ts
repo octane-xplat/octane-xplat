@@ -9,6 +9,7 @@ const xplatCli = join(
 	dirname(fileURLToPath(import.meta.resolve('@octane-xplat/cli/macos'))),
 	'../cli.ts',
 )
+
 const rowCount = Number(process.env.OCTANE_MACOS_VLIST_COUNT ?? 5000)
 const eventCount = Number(process.env.OCTANE_MACOS_VLIST_EVENTS ?? 180)
 

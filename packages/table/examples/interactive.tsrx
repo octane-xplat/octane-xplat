@@ -46,7 +46,10 @@ export default function InteractiveGrid() {
 					resizableColumns
 					reorderableColumns
 					initialState={{ pagination: { pageIndex: 0, pageSize: 2 } }}
-					options={{ enableRowSelection: (row: Row<DataGridFeatures, GridRow>) => row.id !== 'b', onRowSelectionChange: setRowSelection }}
+					options={{
+						enableRowSelection: (row: Row<DataGridFeatures, GridRow>) => row.id !== 'b',
+						onRowSelectionChange: setRowSelection,
+					}}
 					renderEmpty={() => <Text id="grid-empty">No matching rows</Text>}
 				/>
 			</View>
@@ -55,17 +58,36 @@ export default function InteractiveGrid() {
 }
 
 function textOf(view: any): string {
-	if (!view) return ''
-	const cls = String(view.className ?? '')
-	if (cls.includes('vx-datagrid-selection')) return ''
-	if (cls.includes('vx-table-row') && view.children)
-		return Array.from(view.children).map(textOf).join('')
+	if (!view) {
+		return ''
+	}
 
-	if (typeof view.textContent === 'string') return view.textContent
+	const cls = String(view.className ?? '')
+	if (cls.includes('vx-datagrid-selection')) {
+		return ''
+	}
+
+	if (cls.includes('vx-table-row') && view.children) {
+		return Array.from(view.children).map(textOf).join('')
+	}
+
+	if (typeof view.textContent === 'string') {
+		return view.textContent
+	}
+
 	const nativeText = view.stringValue ?? view.title
-	if (typeof nativeText === 'string' && nativeText) return nativeText
-	if (view.subviews) return Array.from(view.subviews).map(textOf).join('')
-	if (typeof view.text === 'string' && view.text) return view.text
+	if (typeof nativeText === 'string' && nativeText) {
+		return nativeText
+	}
+
+	if (view.subviews) {
+		return Array.from(view.subviews).map(textOf).join('')
+	}
+
+	if (typeof view.text === 'string' && view.text) {
+		return view.text
+	}
+
 	let result = ''
 	view.eachChildView?.((child: any) => {
 		result += textOf(child)
@@ -120,9 +142,12 @@ export async function run(ctx: ProbeContext) {
 		const header = ctx.find('grid-th-name') as any
 		const grid = ctx.find('grid') as any
 		return (
-			header && grid &&
-			header.isLoaded !== false && grid.isLoaded !== false &&
-			header.isLayoutValid !== false && grid.isLayoutValid !== false &&
+			header &&
+			grid &&
+			header.isLoaded !== false &&
+			grid.isLoaded !== false &&
+			header.isLayoutValid !== false &&
+			grid.isLayoutValid !== false &&
 			(ctx.inspect('grid-th-name').frame?.width ?? 0) > 0
 		)
 	})

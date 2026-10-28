@@ -1,11 +1,11 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { mergeStyle, styleRecord } from './style-merge'
-import type { TokenProps } from "./props";
-import { cx } from "@octane-xplat/lib";
-import { Pressable } from './Pressable.macos.tsrx';
-import { Icon } from './Icon.macos.tsrx';
+import type { TokenProps } from './props'
+import { cx } from '@octane-xplat/lib'
+import { Pressable } from './Pressable.macos.tsrx'
+import { Icon } from './Icon.macos.tsrx'
 import { followHref } from './nav-href'
-import { useThemeScheme } from './theme/theme-scheme.macos';
+import { useThemeScheme } from './theme/theme-scheme.macos'
 
 /** Inline chrome — the AppKit host has no CSS layer; values mirror
  *  `.vx-token--*` in chrome.css for both color schemes. */
@@ -21,45 +21,51 @@ const TOKEN_COLORS: Record<string, Record<'light' | 'dark', [string, string]>> =
 	purple: { light: ['#f3e8ff', '#6b21a8'], dark: ['#581c87', '#e9d5ff'] },
 	pink: { light: ['#fce7f3', '#9d174d'], dark: ['#831843', '#fbcfe8'] },
 	gray: { light: ['#f3f4f6', '#374151'], dark: ['#374151', '#e5e7eb'] },
-};
+}
 
 /** Token — inline entity chip. macOS leaf: `href` routes through
  *  router.navigateUrl like Link; chrome is inlined (no CSS layer). */
 export function Token(props: TokenProps) @{
-	const scheme = useThemeScheme();
-	const icon = props.icon == null
-		? null
-		: typeof props.icon === 'string'
-			? <Icon name={props.icon} size={14} />
-			: props.icon;
+	const scheme = useThemeScheme()
+	const icon =
+		props.icon == null ? null : typeof props.icon === 'string' ? (
+			<Icon name={props.icon} size={14} />
+		) : (
+			props.icon
+		)
 
-	const [bg, fg] = (TOKEN_COLORS[props.color ?? 'default'] ?? TOKEN_COLORS.default)[scheme];
-	const interactive = !props.isDisabled && (props.onClick != null || props.href != null);
+	const [bg, fg] = (TOKEN_COLORS[props.color ?? 'default'] ?? TOKEN_COLORS.default)[scheme]
+	const interactive = !props.isDisabled && (props.onClick != null || props.href != null)
 
 	const activate = () => {
-		if (props.isDisabled) return;
-		if (props.href != null) {
-			followHref(props.href);
-		} else {
-			props.onClick?.();
+		if (props.isDisabled) {
+			return
 		}
-	};
 
-	const content = <>
-		{icon}
-		<label className="vx-token-label" text={props.label} style={{ color: fg }} />
-		{props.endContent}
-		{props.onRemove != null
-			? <Pressable
-				className="vx-token-remove"
-				disabled={props.isDisabled}
-				onPress={() => props.onRemove?.()}
-				accessibilityLabel={'Remove ' + props.label}
-			>
-				<label text="✕" style={{ color: fg, marginLeft: 4, width: 12, textAlign: 'center' }} />
-			</Pressable>
-			: null}
-	</>;
+		if (props.href != null) {
+			followHref(props.href)
+		} else {
+			props.onClick?.()
+		}
+	}
+
+	const content = (
+		<>
+			{icon}
+			<label className="vx-token-label" text={props.label} style={{ color: fg }} />
+			{props.endContent}
+			{props.onRemove != null ? (
+				<Pressable
+					className="vx-token-remove"
+					disabled={props.isDisabled}
+					onPress={() => props.onRemove?.()}
+					accessibilityLabel={'Remove ' + props.label}
+				>
+					<label text="✕" style={{ color: fg, marginLeft: 4, width: 12, textAlign: 'center' }} />
+				</Pressable>
+			) : null}
+		</>
+	)
 
 	const classes = cx(
 		'vx-token',
@@ -68,7 +74,7 @@ export function Token(props: TokenProps) @{
 		interactive && 'vx-token--interactive',
 		props.isDisabled && 'vx-token--disabled',
 		props.className,
-	);
+	)
 
 	const tokenStyle: Record<string, any> = {
 		flexDirection: 'row',
@@ -79,25 +85,36 @@ export function Token(props: TokenProps) @{
 		paddingRight: 8,
 		opacity: props.isDisabled ? 0.5 : 1,
 		...styleRecord(props.style),
-	};
-
-	if (interactive) {
-		return <Pressable
-			id={props.id}
-			className={classes}
-			style={tokenStyle}
-			disabled={props.isDisabled}
-			onPress={activate}
-			accessibilityLabel={props.label}
-			accessibilityHint={props.description}
-			accessibilityRole={props.href != null ? 'link' : 'button'}
-			ref={props.ref}
-		>
-			{content}
-		</Pressable>
 	}
 
-	return <masonview id={props.id} className={classes} style={mergeStyle({display: "flex"}, tokenStyle)} accessibilityLabel={props.isLabelHidden ? props.label : undefined} accessibilityHint={props.description} accessibilityState={{ disabled: props.isDisabled }}>
-		{content}
-	</masonview>
+	if (interactive) {
+		return (
+			<Pressable
+				id={props.id}
+				className={classes}
+				style={tokenStyle}
+				disabled={props.isDisabled}
+				onPress={activate}
+				accessibilityLabel={props.label}
+				accessibilityHint={props.description}
+				accessibilityRole={props.href != null ? 'link' : 'button'}
+				ref={props.ref}
+			>
+				{content}
+			</Pressable>
+		)
+	}
+
+	return (
+		<masonview
+			id={props.id}
+			className={classes}
+			style={mergeStyle({ display: 'flex' }, tokenStyle)}
+			accessibilityLabel={props.isLabelHidden ? props.label : undefined}
+			accessibilityHint={props.description}
+			accessibilityState={{ disabled: props.isDisabled }}
+		>
+			{content}
+		</masonview>
+	)
 }

@@ -8,10 +8,25 @@ const now = new Date()
 
 export function DateRangeInputWithPresets() @{
 	const [value, setValue] = useState<DateRange | null>(null)
-	<div style={{width: 400}}>
-		<DateRangeInput label="Report period" value={value} onChange={setValue} presets={[
-			{ label: 'Last 7 days', getRange: () => ({ start: iso(new Date(now.getTime() - 7 * 86400000)), end: iso(now) }) },
-			{ label: 'Last month', getRange: () => ({ start: iso(new Date(now.getFullYear(), now.getMonth() - 1, 1)), end: iso(new Date(now.getFullYear(), now.getMonth(), 0)) }) },
-		]} />
+
+	<div style={{ width: 400 }}>
+		<DateRangeInput
+			label="Report period"
+			value={value}
+			onChange={setValue}
+			presets={[
+				{
+					label: 'Last 7 days',
+					getRange: () => ({ start: iso(new Date(now.getTime() - 7 * 86400000)), end: iso(now) }),
+				},
+				{
+					label: 'Last month',
+					getRange: () => ({
+						start: iso(new Date(now.getFullYear(), now.getMonth() - 1, 1)),
+						end: iso(new Date(now.getFullYear(), now.getMonth(), 0)),
+					}),
+				},
+			]}
+		/>
 	</div>
 }

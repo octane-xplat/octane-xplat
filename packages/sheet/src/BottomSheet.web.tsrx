@@ -147,8 +147,12 @@ export function BottomSheet(props: BottomSheetProps) @{
 		}
 
 		const nextIndex = event.shiftKey
-			? index <= 0 ? stops.length - 1 : index - 1
-			: index < 0 || index === stops.length - 1 ? 0 : index + 1
+			? index <= 0
+				? stops.length - 1
+				: index - 1
+			: index < 0 || index === stops.length - 1
+				? 0
+				: index + 1
 
 		stops[nextIndex].focus({ preventScroll: true })
 	}
@@ -177,10 +181,7 @@ export function BottomSheet(props: BottomSheetProps) @{
 			}}
 			onCancel={onCancel}
 			onClick={(event: MouseEvent) => {
-				if (
-					event.target === event.currentTarget &&
-					(props.shouldDismissOnClickOutside ?? true)
-				) {
+				if (event.target === event.currentTarget && (props.shouldDismissOnClickOutside ?? true)) {
 					props.onDismissed?.()
 				}
 			}}

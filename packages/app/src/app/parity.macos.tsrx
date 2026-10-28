@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
-import { Screen, ScrollableArea, View } from '@octane-xplat/ui';
-import { ParityStage } from '../parity/stage.tsrx';
+import { Screen, ScrollableArea, View } from '@octane-xplat/ui'
+import { ParityStage } from '../parity/stage.tsrx'
 
 /** Parity route — macOS variant. The AppKit host has no CSS scrollport
  *  (.vx-app's overflow is a web token), so the stage rides a real

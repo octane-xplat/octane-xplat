@@ -2,7 +2,6 @@ import type { ParityCheck } from './parity/check-helpers.ts'
 import { near, dims, circular } from './parity/check-helpers.ts'
 
 export const CHECKS: ParityCheck[] = [
-
 	{
 		fixture: 'switch-off',
 		targets: ['web', 'ios', 'android', 'macos'],
@@ -53,5 +52,5 @@ export const CHECKS: ParityCheck[] = [
 				],
 			]
 		},
-	}
+	},
 ]

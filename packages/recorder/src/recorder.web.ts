@@ -204,6 +204,7 @@ export const createAudioRecorder = (): AudioRecorder => {
 			for (const track of nextStream.getTracks()) {
 				track.stop()
 			}
+
 			assertActive()
 		}
 		stream = nextStream

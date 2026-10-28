@@ -1,12 +1,12 @@
-import type { SkeletonProps } from "./props";
+import type { SkeletonProps } from './props'
 import { styleRecord } from './style-merge'
-import { applyEscapeProps } from "./escape-props";
+import { applyEscapeProps } from './escape-props'
 
 const radiusVar: Record<string, string> = {
 	square: 'var(--radius-none, 0)',
 	rounded: 'var(--radius-element, 6px)',
 	circle: 'var(--radius-full, 9999px)',
-};
+}
 
 /** Skeleton — placeholder block while content loads (Astryx `Skeleton`).
  *  `radius` picks the corner shape; `index` staggers the shimmer delay per

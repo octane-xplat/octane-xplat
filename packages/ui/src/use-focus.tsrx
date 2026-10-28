@@ -1,5 +1,5 @@
-import { useRef, useState } from 'octane';
-import { useFocusVisible } from './use-focus-visible';
+import { useRef, useState } from 'octane'
+import { useFocusVisible } from './use-focus-visible'
 
 /**
  * Focus-event composition — React Aria's useFocus/useFocusRing family.
@@ -38,22 +38,22 @@ export interface FocusEventPayload {
  * @see useFocusWithin, useFocusRing.
  */
 export function useFocus(options: UseFocusOptions = {}) {
-	const latest = useRef(options);
-	latest.current = options;
+	const latest = useRef(options)
+	latest.current = options
 	return {
 		focusProps: latest.current.isDisabled
 			? {}
 			: {
 					onFocus: (event?: FocusEventPayload) => {
-						latest.current.onFocus?.(event);
-						latest.current.onFocusChange?.(true);
+						latest.current.onFocus?.(event)
+						latest.current.onFocusChange?.(true)
 					},
 					onBlur: (event?: FocusEventPayload) => {
-						latest.current.onBlur?.(event);
-						latest.current.onFocusChange?.(false);
+						latest.current.onBlur?.(event)
+						latest.current.onFocusChange?.(false)
 					},
 				},
-	};
+	}
 }
 
 /**
@@ -74,8 +74,8 @@ export interface UseFocusRingResult {
  * @see UseFocusRingResult.
  */
 export function useFocusRing(): UseFocusRingResult {
-	const [isFocused, setFocused] = useState(false);
-	const { isFocusVisible, isSupported: isFocusVisibleSupported } = useFocusVisible();
+	const [isFocused, setFocused] = useState(false)
+	const { isFocusVisible, isSupported: isFocusVisibleSupported } = useFocusVisible()
 	return {
 		isFocused,
 		isFocusVisible: isFocused && isFocusVisible,
@@ -84,5 +84,5 @@ export function useFocusRing(): UseFocusRingResult {
 			onFocus: () => setFocused(true),
 			onBlur: () => setFocused(false),
 		},
-	};
+	}
 }

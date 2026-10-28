@@ -12,7 +12,10 @@ export function IconButton(props: IconButtonProps) @{
 	const disabled = !!(props.isDisabled || props.isLoading)
 	const loading = !!(props.isLoading || pending)
 	const press = () => {
-		if (disabled || (pending && !props.isInterruptible)) return
+		if (disabled || (pending && !props.isInterruptible)) {
+			return
+		}
+
 		let action: void | Promise<void> | undefined
 		try {
 			action = props.clickAction?.()
@@ -33,7 +36,27 @@ export function IconButton(props: IconButtonProps) @{
 		}
 	}
 
-	<Pressable id={props.id} className={cx('vx-button','vx-button--icon',`vx-button--${props.variant??'secondary'}`,props.className)} style={props.style} disabled={disabled} onPress={press} accessibilityLabel={props.accessibilityLabel??props.label} accessibilityRole="button">
-		{loading?<ActivityIndicator/>:<>{typeof props.icon==='string'?<Icon name={props.icon}/>:props.icon}{props.label?<Text className="vx-visually-hidden">{props.label}</Text>:null}</>}
+	<Pressable
+		id={props.id}
+		className={cx(
+			'vx-button',
+			'vx-button--icon',
+			`vx-button--${props.variant ?? 'secondary'}`,
+			props.className,
+		)}
+		style={props.style}
+		disabled={disabled}
+		onPress={press}
+		accessibilityLabel={props.accessibilityLabel ?? props.label}
+		accessibilityRole="button"
+	>
+		{loading ? (
+			<ActivityIndicator />
+		) : (
+			<>
+				{typeof props.icon === 'string' ? <Icon name={props.icon} /> : props.icon}
+				{props.label ? <Text className="vx-visually-hidden">{props.label}</Text> : null}
+			</>
+		)}
 	</Pressable>
 }

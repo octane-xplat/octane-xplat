@@ -1,5 +1,5 @@
-import type { AbsoluteProps } from './props';
-import { applyEscapeProps } from './escape-props';
+import type { AbsoluteProps } from './props'
+import { applyEscapeProps } from './escape-props'
 
 export function Absolute(props: AbsoluteProps) @{
 	<div

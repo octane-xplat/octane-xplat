@@ -3,9 +3,14 @@
 // classes in sandbox.css (.sb-bulk-*).
 import { useState } from 'octane'
 import {
-	Button, Table, TableSelectionToolbar, proportional,
-	useTableSelection, useTableSelectionState,
+	Button,
+	Table,
+	TableSelectionToolbar,
+	proportional,
+	useTableSelection,
+	useTableSelectionState,
 } from '@octane-xplat/ui'
+
 import type { TableColumn } from '@octane-xplat/ui'
 
 interface User extends Record<string, unknown> {
@@ -44,6 +49,7 @@ export function TableFloatingBulkActionsTable() @{
 		selectedKeys,
 		setSelectedKeys,
 	})
+
 	const selectionPlugin = useTableSelection<User>(selectionConfig)
 
 	<div className="sb-bulk-page">

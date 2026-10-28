@@ -178,7 +178,14 @@ test('unchanged generation preserves files and rename/removal refresh the route 
 test('generation and runtime grammar agree without executing route modules', async () => {
 	const root = await mkdtemp(join(tmpdir(), 'xplat-route-grammar-'))
 	try {
-		const paths = ['index.tsx', 'items/[id].tsx', '[[locale]]/help.tsx', 'docs/[...rest].tsx', 'help+fade.tsx']
+		const paths = [
+			'index.tsx',
+			'items/[id].tsx',
+			'[[locale]]/help.tsx',
+			'docs/[...rest].tsx',
+			'help+fade.tsx',
+		]
+
 		for (const path of paths) {
 			const file = join(root, 'src/app', path)
 			await mkdir(join(file, '..'), { recursive: true })
@@ -187,13 +194,17 @@ test('generation and runtime grammar agree without executing route modules', asy
 				'throw new Error("Discovery must not execute this module"); export default function Screen() { return null }',
 			)
 		}
+
 		await generateRoutes(root, 'src/app', undefined, { bake: false })
 		const manifest = JSON.parse(await readFile(join(root, 'src/routes.gen.manifest.json'), 'utf8'))
 		const actual = manifest.routes.map((route) => routePatternPath(route.path)).sort()
-		const expected = paths.map((path) => routePatternPath(path.replace(/(?:\+fade)?\.tsx$/, ''))).sort()
+		const expected = paths
+			.map((path) => routePatternPath(path.replace(/(?:\+fade)?\.tsx$/, '')))
+			.sort()
+
 		assert.deepEqual(actual, expected)
-		assert.equal(manifest.routes.find(route => route.name === 'help').presentation, 'push')
-		assert.equal(manifest.routes.find(route => route.name === 'help').transition, 'fade')
+		assert.equal(manifest.routes.find((route) => route.name === 'help').presentation, 'push')
+		assert.equal(manifest.routes.find((route) => route.name === 'help').transition, 'fade')
 		const types = await readFile(join(root, 'src/routes.gen.contracts.ts'), 'utf8')
 		assert.match(types, /id: string/)
 		assert.match(types, /locale\?: string/)
@@ -214,6 +225,7 @@ test('file and configured contracts infer together without executing application
 			join(root, 'node_modules/@octane-xplat/ui'),
 			'dir',
 		)
+
 		await writeFile(
 			join(root, 'xplat.routes.json'),
 			JSON.stringify({
@@ -226,6 +238,7 @@ test('file and configured contracts infer together without executing application
 				base: '/app',
 			}),
 		)
+
 		await writeFile(
 			join(root, 'src/context.ts'),
 			`
@@ -233,6 +246,7 @@ throw new Error('Configuration discovery must not execute context');
 export function createContext() { return { account: { id: 'a' } } }
 `,
 		)
+
 		await writeFile(
 			join(root, 'src/transitions.ts'),
 			`
@@ -240,6 +254,7 @@ throw new Error('Configuration discovery must not execute transitions');
 export const transitions = { peek: { kind: 'skip' } } as const
 `,
 		)
+
 		await writeFile(
 			join(root, 'src/extra.ts'),
 			`
@@ -251,6 +266,7 @@ export const extra = defineRoutes({
 })
 `,
 		)
+
 		await writeFile(
 			join(root, 'src/app/items/[id].tsx'),
 			`
@@ -276,6 +292,7 @@ export default function Screen(props: RouteProps<'/items/:id'>) {
 }
 `,
 		)
+
 		await writeFile(
 			join(root, 'consumer.ts'),
 			`
@@ -301,6 +318,7 @@ navigate({ to: '/settings', stack: 'invented' })
 navigate({ to: '/settings', transition: 'invented' })
 `,
 		)
+
 		await generateRoutes(root, 'src/app', undefined, { bake: false })
 		const catalog = await readFile(join(root, 'src/routes.gen.catalog.web.ts'), 'utf8')
 		assert.match(catalog, /from '@octane-xplat\/ui\/routing\/core'/)
@@ -323,6 +341,7 @@ navigate({ to: '/settings', transition: 'invented' })
 			assert.match(source, /transitions: routeTransitions/)
 			assert.match(source, /stacks: \["catalog"\]/)
 		}
+
 		const require = createRequire(join(workspace, 'package.json'))
 		const result = spawnSync(
 			process.execPath,
@@ -344,6 +363,7 @@ navigate({ to: '/settings', transition: 'invented' })
 			],
 			{ cwd: root, encoding: 'utf8' },
 		)
+
 		assert.equal(result.status, 0, result.stdout + result.stderr)
 	} finally {
 		await rm(root, { recursive: true, force: true })
@@ -360,6 +380,7 @@ test('separate generated catalogs contribute file and configured contracts in on
 			join(root, 'node_modules/@octane-xplat/ui'),
 			'dir',
 		)
+
 		for (const [name, parameter] of [
 			['alpha', 'id'],
 			['beta', 'slug'],
@@ -369,6 +390,7 @@ test('separate generated catalogs contribute file and configured contracts in on
 				join(root, 'src', name, name, `[${parameter}].tsx`),
 				`throw new Error('Discovery must not execute ${name}'); export default function Screen() { return null }`,
 			)
+
 			await writeFile(
 				join(root, 'src', name + '-extra.ts'),
 				`
@@ -377,14 +399,17 @@ throw new Error('Discovery must not execute configured ${name}')
 export const routes = defineRoutes([defineRoute({ path: '/${name}-extra' }).screen(() => null)])
 `,
 			)
+
 			await writeFile(
 				join(root, 'xplat.routes.json'),
 				JSON.stringify({
 					manifests: [{ module: `./src/${name}-extra.ts`, export: 'routes' }],
 				}),
 			)
+
 			await generateRoutes(root, 'src/' + name, 'src/' + name + '.gen', { bake: false })
 		}
+
 		await writeFile(
 			join(root, 'consumer.ts'),
 			`
@@ -403,6 +428,7 @@ router.push({ to: '/unregistered' })
 router.push({ to: '/beta/:slug' })
 `,
 		)
+
 		const require = createRequire(join(workspace, 'package.json'))
 		const checked = spawnSync(
 			process.execPath,
@@ -424,6 +450,7 @@ router.push({ to: '/beta/:slug' })
 			],
 			{ cwd: root, encoding: 'utf8' },
 		)
+
 		assert.equal(checked.status, 0, checked.stdout + checked.stderr)
 	} finally {
 		await rm(root, { recursive: true, force: true })
@@ -441,6 +468,7 @@ test('reusable catalogs do not register ambient routes until the generated clien
 			join(root, 'node_modules/@octane-xplat/ui'),
 			'dir',
 		)
+
 		await writeFile(
 			join(root, 'src/app/items/[id].tsx'),
 			`
@@ -488,6 +516,7 @@ const ambient: Destination = { to: '/items/:id', params: { id: 'coat' } }
 isolated.push({ to: '/items/:id' })
 `,
 		)
+
 		await writeFile(
 			join(root, 'registered.ts'),
 			`
@@ -499,6 +528,7 @@ router.push({ to: '/items/:id', params: { id: 'coat' } })
 router.push({ to: '/items/:id' })
 `,
 		)
+
 		const require = createRequire(join(workspace, 'package.json'))
 		for (const consumer of ['pure.ts', 'registered.ts']) {
 			const checked = spawnSync(
@@ -521,6 +551,7 @@ router.push({ to: '/items/:id' })
 				],
 				{ cwd: root, encoding: 'utf8' },
 			)
+
 			assert.equal(checked.status, 0, consumer + '\n' + checked.stdout + checked.stderr)
 		}
 	} finally {
@@ -535,15 +566,18 @@ test('programmatic-only apps generate and invalid configuration fails before out
 			join(root, 'extra.ts'),
 			'throw new Error("must not execute"); export const routes = {}',
 		)
+
 		await writeFile(
 			join(root, 'xplat.routes.json'),
 			JSON.stringify({ manifests: [{ module: './extra.ts', export: 'routes' }] }),
 		)
+
 		assert.equal(await generateRoutes(root, undefined, undefined, { bake: false }), 0)
 		await writeFile(
 			join(root, 'xplat.routes.json'),
 			JSON.stringify({ manifests: [{ module: './missing.ts', export: 'routes' }] }),
 		)
+
 		await assert.rejects(generateRoutes(root), /manifests\[0\].module: expected an existing/)
 	} finally {
 		await rm(root, { recursive: true, force: true })
@@ -557,6 +591,7 @@ test('baked Markdown preserves reserved route keys as own JSON data', async () =
 		for (const name of ['__proto__', 'constructor']) {
 			await writeFile(join(root, 'src/app', `${name}.md`), '# Reserved route\n\nSafe content.\n')
 		}
+
 		await generateRoutes(root, 'src/app')
 		const module = await import(pathToFileURL(join(root, 'src/routes.gen.data.ts')).href)
 		assert.deepEqual(Object.keys(module.bakedRouteData).sort(), ['__proto__', 'constructor'])
@@ -674,12 +709,19 @@ test('configured source directory wins over conventional directories during auto
 	try {
 		for (const folder of ['app', 'src/screens']) {
 			await mkdir(join(root, folder), { recursive: true })
-			await writeFile(join(root, folder, folder === 'app' ? 'wrong.tsx' : 'right.tsx'), 'export function Screen() { return null }')
+			await writeFile(
+				join(root, folder, folder === 'app' ? 'wrong.tsx' : 'right.tsx'),
+				'export function Screen() { return null }',
+			)
 		}
+
 		await writeFile(join(root, 'xplat.routes.json'), JSON.stringify({ directory: 'src/screens' }))
 		assert.equal(await generateRoutes(root, undefined, undefined, { bake: false }), 1)
 		const json = JSON.parse(await readFile(join(root, 'src/routes.gen.manifest.json'), 'utf8'))
-		assert.deepEqual(json.routes.map((route) => route.name), ['right'])
+		assert.deepEqual(
+			json.routes.map((route) => route.name),
+			['right'],
+		)
 	} finally {
 		await rm(root, { recursive: true, force: true })
 	}
@@ -834,7 +876,10 @@ fallback.data.fabricated
 
 		assert.equal(await readFile(join(root, 'src/routes.gen.data.ts'), 'utf8'), dataSource)
 		await rm(join(root, 'src/app/default.loader.ts'))
-		await assert.rejects(generateRoutes(root, 'src/app', undefined, { bake: false }), /baked route 'default'.*has no loader sibling/)
+		await assert.rejects(
+			generateRoutes(root, 'src/app', undefined, { bake: false }),
+			/baked route 'default'.*has no loader sibling/,
+		)
 	} finally {
 		await rm(root, { recursive: true, force: true })
 	}

@@ -353,8 +353,7 @@ const declarations = (state: RegistryState) =>
 				...(spec.availability?.readyWhen ? { readyWhen: spec.availability.readyWhen } : {}),
 				...(routed
 					? {
-							route:
-								typeof spec.route === 'string' ? { url: spec.route } : { fromInput: true },
+							route: typeof spec.route === 'string' ? { url: spec.route } : { fromInput: true },
 						}
 					: {}),
 				ready: live.ready,
@@ -467,7 +466,9 @@ function attachHandler(
 	options?: { label?: string },
 ): () => void {
 	if (typeof run !== 'function') {
-		throw new Error(`Invalid dev ${kind} handler for "${id}": a run(input, context) function is required`)
+		throw new Error(
+			`Invalid dev ${kind} handler for "${id}": a run(input, context) function is required`,
+		)
 	}
 
 	const state = registry()
@@ -476,7 +477,10 @@ function attachHandler(
 		throw new Error(`"${id}" is declared as a dev ${entry.kind}; cannot attach a ${kind} handler`)
 	}
 
-	const handler: HandlerEntry = { run, ...(options?.label !== undefined ? { label: options.label } : {}) }
+	const handler: HandlerEntry = {
+		run,
+		...(options?.label !== undefined ? { label: options.label } : {}),
+	}
 	const list = state.handlers.get(id)
 	if (list) {
 		list.push(handler)
@@ -603,10 +607,7 @@ export function devActionDeclarationKey(declaration: DevActionDeclaration): stri
  * (the inline declaration is ignored). The returned release function is
  * idempotent and drops the declaration when the last owner releases.
  */
-export function retainDevAction(
-	declaration: DevActionDeclaration,
-	key: string,
-): () => void {
+export function retainDevAction(declaration: DevActionDeclaration, key: string): () => void {
 	const problems = validateActionDeclaration(declaration)
 	if (problems.length) {
 		throw new Error(`Invalid dev action "${declaration?.id ?? '?'}": ${problems.join('; ')}`)
@@ -896,8 +897,7 @@ const FAILURE_STACK_MAX = 4096
 const FAILURE_RECORDS_MAX = 20
 const FAILURE_SUMMARY_SHOWN = 3
 
-const capText = (text: string, max: number) =>
-	text.length > max ? `${text.slice(0, max)}…` : text
+const capText = (text: string, max: number) => (text.length > max ? `${text.slice(0, max)}…` : text)
 
 // Cross-realm safe: duck-typed, never instanceof Error.
 const toFailureRecord = (
@@ -1141,6 +1141,7 @@ async function dispatchInvocation(rt: BridgeRuntime, request: InvocationRequest)
 					const availability = handlers.length
 						? evaluateAvailability(spec)
 						: { ready: false, reason: NO_HANDLER_REASON }
+
 					if (handlers.length && availability.ready) {
 						break
 					}
@@ -1229,9 +1230,7 @@ async function dispatchInvocation(rt: BridgeRuntime, request: InvocationRequest)
 
 				running.active.add(handler)
 				try {
-					result = (await handler.run(input.value, context)) as
-						| Record<string, unknown>
-						| undefined
+					result = (await handler.run(input.value, context)) as Record<string, unknown> | undefined
 				} catch (thrown) {
 					invocationFailures = [toFailureRecord(handlerIndex, handler.label, thrown)]
 					throw thrown
@@ -1279,9 +1278,7 @@ async function dispatchInvocation(rt: BridgeRuntime, request: InvocationRequest)
 							error: {
 								code: error instanceof DevNavigationError ? error.code : 'execution_failure',
 								message: (error as Error)?.message ?? String(error),
-								...(invocationFailures?.length
-									? { failures: invocationFailures }
-									: {}),
+								...(invocationFailures?.length ? { failures: invocationFailures } : {}),
 							},
 							...(partialEffects.length ? { partialEffects } : {}),
 							completedAt: new Date().toISOString(),

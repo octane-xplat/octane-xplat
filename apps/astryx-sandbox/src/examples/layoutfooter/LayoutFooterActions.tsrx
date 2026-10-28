@@ -6,8 +6,19 @@ export function LayoutFooterActions() @{
 		<Layout
 			style={{ width: '100%' }}
 			height="fill"
-			content={<LayoutContent><Card variant="muted" /></LayoutContent>}
-			footer={<LayoutFooter hasDivider><HStack gap={2} hAlign="end"><Button label="Cancel" variant="secondary" /><Button label="Save" variant="primary" /></HStack></LayoutFooter>}
+			content={
+				<LayoutContent>
+					<Card variant="muted" />
+				</LayoutContent>
+			}
+			footer={
+				<LayoutFooter hasDivider>
+					<HStack gap={2} hAlign="end">
+						<Button label="Cancel" variant="secondary" />
+						<Button label="Save" variant="primary" />
+					</HStack>
+				</LayoutFooter>
+			}
 		/>
 	</Center>
 }

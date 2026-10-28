@@ -1,10 +1,10 @@
 import { mergeStyle } from './style-merge'
 import { useMemo } from 'octane'
 import { refList } from './ref-list'
-import type { SectionProps } from './props';
-import { applyEscapeProps } from './escape-props';
-import { applyWebProps } from './platformProps.web';
-import { spacingPx } from './stack-layout';
+import type { SectionProps } from './props'
+import { applyEscapeProps } from './escape-props'
+import { applyWebProps } from './platformProps.web'
+import { spacingPx } from './stack-layout'
 
 /** Section — a banded container. The outer element escapes an ancestor's
  *  `--container-padding-*` (bleed); the inner element re-asserts the
@@ -14,22 +14,36 @@ import { spacingPx } from './stack-layout';
  *  structure is inert, so the outer/inner split is forward-compatible
  *  rather than dead code. */
 export function Section(props: SectionProps) @{
-	const variant = props.variant ?? 'section';
-	const dividers = new Set(props.dividers ?? []);
-	const padding = spacingPx(props.padding) ?? 16;
-	const pInlineStart = spacingPx(props.paddingInlineStart ?? props.paddingInline) ?? padding;
-	const pInlineEnd = spacingPx(props.paddingInlineEnd ?? props.paddingInline) ?? padding;
-	const pBlockStart = spacingPx(props.paddingBlockStart ?? props.paddingBlock) ?? padding;
-	const pBlockEnd = spacingPx(props.paddingBlockEnd ?? props.paddingBlock) ?? padding;
+	const variant = props.variant ?? 'section'
+	const dividers = new Set(props.dividers ?? [])
+	const padding = spacingPx(props.padding) ?? 16
+	const pInlineStart = spacingPx(props.paddingInlineStart ?? props.paddingInline) ?? padding
+	const pInlineEnd = spacingPx(props.paddingInlineEnd ?? props.paddingInline) ?? padding
+	const pBlockStart = spacingPx(props.paddingBlockStart ?? props.paddingBlock) ?? padding
+	const pBlockEnd = spacingPx(props.paddingBlockEnd ?? props.paddingBlock) ?? padding
 
-	const forwardedRef = useMemo(() => refList((e: any) => { if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(
+		() =>
+			refList((e: any) => {
+				if (e) {
+					applyEscapeProps(e, props)
+					applyWebProps(e, props.web)
+				}
+			}, props.ref),
+		[props.ref, props.ios, props.android, props.web],
+	)
 
 	<div
 		id={props.id}
 		ref={forwardedRef}
 		className={['vx-section', `vx-section--${variant}`, props.className]}
-		style={mergeStyle({marginInlineStart: 'calc(-1 * var(--container-padding-inline-start, 0px))',
-			marginInlineEnd: 'calc(-1 * var(--container-padding-inline-end, 0px))'}, props.style)}
+		style={mergeStyle(
+			{
+				marginInlineStart: 'calc(-1 * var(--container-padding-inline-start, 0px))',
+				marginInlineEnd: 'calc(-1 * var(--container-padding-inline-end, 0px))',
+			},
+			props.style,
+		)}
 		role={props.accessibilityRole}
 		aria-label={props.accessibilityLabel}
 		aria-hidden={props.accessible === false ? true : undefined}

@@ -2,8 +2,16 @@
 // route /templates/table/.
 import { useState } from 'octane'
 import {
-	Badge, Button, HStack, Layout, LayoutContent, LayoutHeader, Table, Text,
+	Badge,
+	Button,
+	HStack,
+	Layout,
+	LayoutContent,
+	LayoutHeader,
+	Table,
+	Text,
 } from '@octane-xplat/ui'
+
 import type { TableColumn } from '@octane-xplat/ui'
 
 type Item = {
@@ -29,7 +37,11 @@ const columns: TableColumn<Item>[] = [
 		key: 'status',
 		header: 'Status',
 		renderCell: (item: Item) => (
-			<span className={item.status === 'active' ? 'sb-badge sb-badge--green' : 'sb-badge sb-badge--neutral'}>
+			<span
+				className={
+					item.status === 'active' ? 'sb-badge sb-badge--green' : 'sb-badge sb-badge--neutral'
+				}
+			>
 				{item.status}
 			</span>
 		),
@@ -53,7 +65,9 @@ export function TableTemplate() @{
 		header={
 			<LayoutHeader hasDivider>
 				<HStack vAlign="center" hAlign="between">
-					<Text type="large" weight="semibold">Items</Text>
+					<Text type="large" weight="semibold">
+						Items
+					</Text>
 					<Button label="Add Item" variant="primary" />
 				</HStack>
 			</LayoutHeader>

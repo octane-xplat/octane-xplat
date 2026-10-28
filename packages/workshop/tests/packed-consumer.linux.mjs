@@ -106,6 +106,7 @@ try {
 		'gjs' in linux.requirements || linux.status === 'unsupported-host',
 		'doctor checks the GTK runtime, not WebKitGTK',
 	)
+
 	assert.doesNotMatch(JSON.stringify(linux.requirements), /webkit|adwaita|ui linux export/i)
 	console.log(`PASS packed doctor linux row: ${linux.status} on ${process.platform}`)
 
@@ -121,6 +122,7 @@ try {
 		['exec', 'xplat', 'workshop', 'list', '--target', 'linux', '--json'],
 		{ cwd: consumer, encoding: 'utf8' },
 	)
+
 	const listText = listRun.stdout
 	const list = JSON.parse(listText.slice(listText.indexOf('{')))
 	const entries = list.entries
@@ -136,22 +138,26 @@ try {
 		`export const Legacy = { id: 'platform/legacy-linux', title: 'Platform / Legacy linux', targets: ['linux'] }
 `,
 	)
+
 	const diagRun = spawnSync(
 		'pnpm',
 		['exec', 'xplat', 'workshop', 'list', '--target', 'linux', '--json'],
 		{ cwd: consumer, encoding: 'utf8' },
 	)
+
 	assert.match(
 		diagRun.stdout + diagRun.stderr,
 		/renders with GTK|stories\.gtk/i,
 		'the diagnostic tells the author the Linux workshop renders with GTK',
 	)
+
 	const diagList = JSON.parse(diagRun.stdout.slice(diagRun.stdout.indexOf('{')))
 	assert.equal(
 		diagList.entries.find((e) => e.id === 'platform/legacy-linux'),
 		undefined,
 		'a .stories.linux.* file stays out of the linux catalog',
 	)
+
 	console.log('PASS packed linux catalog: gtk leaf applies, .stories.linux.* diagnosed')
 
 	succeeded = true

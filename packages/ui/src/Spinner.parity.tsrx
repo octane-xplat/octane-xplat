@@ -11,5 +11,10 @@ function ActivityIndicatorFixture() @{
 }
 
 export const PARITY: ParityFixture[] = [
-	{ name: 'activity-indicator-busy', component: 'Spinner', renderer: ActivityIndicatorFixture, props: {} },
+	{
+		name: 'activity-indicator-busy',
+		component: 'Spinner',
+		renderer: ActivityIndicatorFixture,
+		props: {},
+	},
 ]

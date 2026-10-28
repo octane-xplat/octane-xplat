@@ -543,7 +543,13 @@ test('a signOut landing mid-refresh is not resurrected by the refresh result', a
 	let releaseRefresh
 	const entered = deferred()
 	const flow = ticketFlow({
-		overrides: { refresh: () => new Promise((resolve) => { releaseRefresh = resolve; entered.resolve() }) },
+		overrides: {
+			refresh: () =>
+				new Promise((resolve) => {
+					releaseRefresh = resolve
+					entered.resolve()
+				}),
+		},
 	})
 
 	const { fetch } = fakeFetch(() => response(200, {}))
@@ -575,7 +581,13 @@ test('a fresh signIn landing mid-refresh survives a dead-session refresh result'
 	let releaseRefresh
 	const entered = deferred()
 	const flow = ticketFlow({
-		overrides: { refresh: () => new Promise((resolve) => { releaseRefresh = resolve; entered.resolve() }) },
+		overrides: {
+			refresh: () =>
+				new Promise((resolve) => {
+					releaseRefresh = resolve
+					entered.resolve()
+				}),
+		},
 	})
 
 	const { fetch, session } = attemptThenGrant()
@@ -630,7 +642,10 @@ test('a non-replayable body surfaces the original challenge instead of a replay 
 
 function deferred() {
 	let resolve, reject
-	const promise = new Promise((res, rej) => { resolve = res; reject = rej })
+	const promise = new Promise((res, rej) => {
+		resolve = res
+		reject = rej
+	})
 	return { promise, resolve, reject }
 }
 
@@ -639,8 +654,10 @@ function lifecycleConfig(storage, overrides = {}) {
 		apiOrigin: ORIGIN,
 		storage,
 		authSession: { supported: true, open: async () => ({ type: 'success', url: 'testapp://cb' }) },
-		flow: { begin: async () => ({ url: `${ORIGIN}/login`, callbackScheme: 'testapp' }),
-			complete: async () => JSON.parse(storedCreds()) },
+		flow: {
+			begin: async () => ({ url: `${ORIGIN}/login`, callbackScheme: 'testapp' }),
+			complete: async () => JSON.parse(storedCreds()),
+		},
 		...overrides,
 	}
 }
@@ -656,7 +673,10 @@ for (const stage of ['begin', 'open', 'complete']) {
 		const original = owner[stage]
 		let calls = 0
 		owner[stage] = async (...args) => {
-			if (++calls === 1) { entered.resolve(); await finish.promise }
+			if (++calls === 1) {
+				entered.resolve()
+				await finish.promise
+			}
 			return original(...args)
 		}
 		const auth = createHostedAuth(config)
@@ -677,16 +697,21 @@ test('sign-out waits for an earlier save and removes it before a restart', async
 	const storage = memoryStore()
 	const entered = deferred()
 	const finish = deferred()
-	const config = lifecycleConfig({ ...storage, set: async (key, value) => {
-		entered.resolve()
-		await finish.promise
-		await storage.set(key, value)
-	} })
+	const config = lifecycleConfig({
+		...storage,
+		set: async (key, value) => {
+			entered.resolve()
+			await finish.promise
+			await storage.set(key, value)
+		},
+	})
 	const auth = createHostedAuth(config)
 	const signingIn = auth.signIn()
 	await entered.promise
 	let signedOut = false
-	const signingOut = auth.signOut().then(() => { signedOut = true })
+	const signingOut = auth.signOut().then(() => {
+		signedOut = true
+	})
 	await Promise.resolve()
 	assert.equal(await auth.restore(), 'unauthenticated')
 	assert.equal(signedOut, false)
@@ -703,7 +728,9 @@ test('sign-out clears and revokes credentials without requiring an earlier resto
 	storage.map.set('hosted-auth', storedCreds())
 	let revoked
 	const config = lifecycleConfig(storage)
-	config.flow.revoke = async (creds) => { revoked = creds.sessionToken }
+	config.flow.revoke = async (creds) => {
+		revoked = creds.sessionToken
+	}
 	const auth = createHostedAuth(config)
 	await auth.signOut()
 	assert.equal(revoked, 'session-token')
@@ -717,11 +744,14 @@ test('a delayed refresh save cannot return or restore a token after sign-out', a
 	storage.map.set('hosted-auth', storedCreds({ expiresAt: 0 }))
 	const entered = deferred()
 	const finish = deferred()
-	const config = lifecycleConfig({ ...storage, set: async (key, value) => {
-		entered.resolve()
-		await finish.promise
-		await storage.set(key, value)
-	} })
+	const config = lifecycleConfig({
+		...storage,
+		set: async (key, value) => {
+			entered.resolve()
+			await finish.promise
+			await storage.set(key, value)
+		},
+	})
 	config.flow.refresh = async () => JSON.parse(storedCreds({ token: 'fresh' }))
 	const auth = createHostedAuth(config)
 	const token = auth.getAccessToken()
@@ -748,7 +778,8 @@ test('a challenged request cannot replay across an account change', async () => 
 		return response(200)
 	})
 	const config = lifecycleConfig(storage, { fetch })
-	config.flow.complete = async () => JSON.parse(storedCreds({ token: 'account-b', sessionToken: 'session-b' }))
+	config.flow.complete = async () =>
+		JSON.parse(storedCreds({ token: 'account-b', sessionToken: 'session-b' }))
 	config.flow.refresh = async (creds) => ({ ...creds, token: 'account-b-refreshed' })
 	const auth = createHostedAuth(config)
 	await auth.restore()
@@ -761,16 +792,23 @@ test('a challenged request cannot replay across an account change', async () => 
 	// A retired request may reject or return its original challenge; neither
 	// outcome permits replaying its mutation on behalf of the new account.
 	await request.catch(() => {})
-	assert.equal(requests.length, 1, 'account A mutation must not be replayed after signing in as account B')
+	assert.equal(
+		requests.length,
+		1,
+		'account A mutation must not be replayed after signing in as account B',
+	)
 })
-
 
 test('a request retired during credential loading is never dispatched', async () => {
 	const { createHostedAuth } = loadHosted()
 	const entered = deferred()
 	const finish = deferred()
 	const storage = memoryStore()
-	storage.get = async () => { entered.resolve(); await finish.promise; return storedCreds() }
+	storage.get = async () => {
+		entered.resolve()
+		await finish.promise
+		return storedCreds()
+	}
 	const { fetch, requests } = fakeFetch(() => response(200))
 	const auth = createHostedAuth(lifecycleConfig(storage, { fetch }))
 	const request = auth.fetch('/api/orders', { method: 'POST', body: 'old-order' })
@@ -792,7 +830,10 @@ test('a request retired during challenge refresh returns the original response',
 	const challenge = response(401, {}, { 'www-authenticate': 'Bearer error="invalid_token"' })
 	const { fetch, requests } = fakeFetch(() => challenge)
 	const config = lifecycleConfig(storage, { fetch })
-	config.flow.refresh = async () => { entered.resolve(); return finish.promise }
+	config.flow.refresh = async () => {
+		entered.resolve()
+		return finish.promise
+	}
 	const auth = createHostedAuth(config)
 	const request = auth.fetch('/api/orders', { method: 'POST', body: 'old-order' })
 	await entered.promise
@@ -816,7 +857,10 @@ test('a request issued during sign-in cannot replay after the new session lands'
 		return requests.length === 1 ? challenge.promise : response(200)
 	})
 	const config = lifecycleConfig(storage, { fetch })
-	config.flow.complete = async () => { completing.resolve(); return finishLogin.promise }
+	config.flow.complete = async () => {
+		completing.resolve()
+		return finishLogin.promise
+	}
 	config.flow.refresh = async (creds) => ({ ...creds, token: 'account-b-refreshed' })
 	const auth = createHostedAuth(config)
 	await auth.restore()
@@ -829,5 +873,9 @@ test('a request issued during sign-in cannot replay after the new session lands'
 	assert.equal((await login).status, 'success')
 	challenge.resolve(response(401, {}, { 'www-authenticate': 'Bearer error="invalid_token"' }))
 	await request
-	assert.equal(requests.length, 1, 'installing a new session retires requests issued during sign-in')
+	assert.equal(
+		requests.length,
+		1,
+		'installing a new session retires requests issued during sign-in',
+	)
 })

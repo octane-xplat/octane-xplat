@@ -10,10 +10,14 @@ export function ScrollableAreaTwoAxisBoard() @{
 			<Grid columns={5} style={{ gap: 12, minWidth: 800, padding: 16 }}>
 				{COLUMNS.map((col) => (
 					<VStack key={col} gap={2}>
-						<Text type="label" color="secondary">{col}</Text>
+						<Text type="label" color="secondary">
+							{col}
+						</Text>
 						{CARDS.map((card) => (
 							<Card key={card} variant="muted" padding={3} width={140}>
-								<Text type="body" maxLines={2}>{col} — {card}</Text>
+								<Text type="body" maxLines={2}>
+									{col} — {card}
+								</Text>
 							</Card>
 						))}
 					</VStack>

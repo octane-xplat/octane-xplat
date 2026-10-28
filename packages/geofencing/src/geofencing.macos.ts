@@ -1,6 +1,7 @@
 import type { Geofencing, PermissionResult } from './types'
 
-const unsupported = () => Promise.reject(new Error('unsupported: geofencing is not wired on this platform'))
+const unsupported = () =>
+	Promise.reject(new Error('unsupported: geofencing is not wired on this platform'))
 
 export const geofencing: Geofencing = {
 	supported: false,

@@ -1,17 +1,37 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useMemo } from 'octane'
 import { refList } from './ref-list'
-import type { VisuallyHiddenProps } from './props';
-import { applyEscapeProps, nativeAccessibilityState, nativeAccessibilityRole} from './escape-props';
+import type { VisuallyHiddenProps } from './props'
+import { applyEscapeProps, nativeAccessibilityState, nativeAccessibilityRole } from './escape-props'
 
 /** VisuallyHidden — a 1dip, fully transparent container that keeps its
  *  subtree in the native accessibility tree (opacity:0 views stay exposed
  *  to TalkBack/VoiceOver, unlike visibility=hidden which drops them on
  *  iOS). For screen-reader labels and live-region announcements. */
 export function VisuallyHidden(props: VisuallyHiddenProps) @{
-	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(
+		() =>
+			refList((v: any) => {
+				if (v) {
+					applyEscapeProps(v, props)
+				}
+			}, props.ref),
+		[props.ref, props.ios, props.android, props.web],
+	)
 
-	<masonview id={props.id} ref={forwardedRef} className="vx-visually-hidden" accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole)} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState)} accessibilityLiveRegion={props.accessibilityLiveRegion} style={{display: "flex"}}>
+	<masonview
+		id={props.id}
+		ref={forwardedRef}
+		className="vx-visually-hidden"
+		accessible={props.accessible}
+		accessibilityLabel={props.accessibilityLabel}
+		accessibilityRole={nativeAccessibilityRole(props.accessibilityRole)}
+		accessibilityHint={props.accessibilityHint}
+		accessibilityValue={props.accessibilityValue}
+		accessibilityState={nativeAccessibilityState(props.accessibilityState)}
+		accessibilityLiveRegion={props.accessibilityLiveRegion}
+		style={{ display: 'flex' }}
+	>
 		{props.children}
 	</masonview>
 }

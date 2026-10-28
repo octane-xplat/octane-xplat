@@ -21,7 +21,12 @@ export interface ColorState {
  *  resyncs from `props.value` only when the normalized hex differs. */
 export function useColorState(props: ColorValueProps, defaultValue?: string): ColorState {
 	const initial = () =>
-		hsbForValue(null, normalizeHex(props.value ?? props.defaultValue ?? defaultValue ?? DEFAULT_PLAIN) ?? DEFAULT_PLAIN)
+		hsbForValue(
+			null,
+			normalizeHex(props.value ?? props.defaultValue ?? defaultValue ?? DEFAULT_PLAIN) ??
+				DEFAULT_PLAIN,
+		)
+
 	const [hsb, setHsb] = useState<Hsb>(initial)
 	// Live copy for end(): the state read inside a host-bound pan callback can
 	// be one render stale; the ref always carries the latest.
@@ -38,9 +43,13 @@ export function useColorState(props: ColorValueProps, defaultValue?: string): Co
 	const set = (next: Hsb) => {
 		next = clampHsb(next)
 		live.current = next
-		if (props.value === undefined) { setHsb(next) }
+		if (props.value === undefined) {
+			setHsb(next)
+		}
+
 		props.onChange?.(hsbToHex(next))
 	}
+
 	// Hex commit path (ColorField): goes through hsbForValue so achromatic
 	// input keeps the working hue.
 	const setHex = (hex: string) => set(hsbForValue(live.current, hex))

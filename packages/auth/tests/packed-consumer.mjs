@@ -61,6 +61,7 @@ function typecheck(packagePath, target, mode, exportMapIndex) {
 			join(modules, '@octane-xplat/macos-renderer'),
 			'dir',
 		)
+
 		// platform's packed declarations import the capability contract.
 		symlinkSync(join(repoRoot, 'packages/lib'), join(modules, '@octane-xplat/lib'), 'dir')
 	}

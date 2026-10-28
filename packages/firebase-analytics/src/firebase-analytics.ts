@@ -7,7 +7,9 @@ import type { FirebaseAnalyticsService } from './types'
 const analytics = () => {
 	const a = (firebase() as any).analytics?.()
 	if (!a) {
-		throw new Error('unsupported: firebase analytics is not available — is the Firebase app configured?')
+		throw new Error(
+			'unsupported: firebase analytics is not available — is the Firebase app configured?',
+		)
 	}
 	return a
 }
@@ -27,9 +29,13 @@ export const firebaseAnalytics: FirebaseAnalyticsService = {
 			analytics().setUserProperty(name, value)
 		}
 	},
-	setAnalyticsCollectionEnabled: async (enabled) => analytics().setAnalyticsCollectionEnabled(enabled),
+	setAnalyticsCollectionEnabled: async (enabled) =>
+		analytics().setAnalyticsCollectionEnabled(enabled),
 	logScreenView: async (screenName, screenClass) =>
-		analytics().logEvent('screen_view', { screen_name: screenName, screen_class: screenClass ?? screenName }),
+		analytics().logEvent('screen_view', {
+			screen_name: screenName,
+			screen_class: screenClass ?? screenName,
+		}),
 	setSessionTimeoutDuration: async (ms) => analytics().setSessionTimeoutInterval(ms),
 	logLogin: async (method) => analytics().logEvent('login', { method }),
 	logSignUp: async (method) => analytics().logEvent('sign_up', { method }),

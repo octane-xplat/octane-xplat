@@ -2,7 +2,6 @@ import type { ParityCheck } from './parity/check-helpers.ts'
 import { textAreaEqual, textAreaRows, textAreaRowsIntrinsic } from './parity/check-helpers.ts'
 
 export const CHECKS: ParityCheck[] = [
-
 	{
 		fixture: 'text-area',
 		targets: ['web', 'ios', 'android', 'macos'],
@@ -25,7 +24,8 @@ export const CHECKS: ParityCheck[] = [
 		elements: { field: 'parity-textarea' },
 		equal: textAreaEqual,
 		// Web: Astryx metrics — 2 rows × 20px leading + 8px block padding.
-		check: (m, target) => textAreaRowsIntrinsic(m, target, ['web', 'macos'].includes(target) ? 48 : 36),
+		check: (m, target) =>
+			textAreaRowsIntrinsic(m, target, ['web', 'macos'].includes(target) ? 48 : 36),
 	},
 
 	{
@@ -33,6 +33,7 @@ export const CHECKS: ParityCheck[] = [
 		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { field: 'parity-textarea' },
 		equal: textAreaEqual,
-		check: (m, target) => textAreaRowsIntrinsic(m, target, ['web', 'macos'].includes(target) ? 68 : 54),
-	}
+		check: (m, target) =>
+			textAreaRowsIntrinsic(m, target, ['web', 'macos'].includes(target) ? 68 : 54),
+	},
 ]

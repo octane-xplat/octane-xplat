@@ -48,6 +48,11 @@ export async function run(ctx: any) {
 	closePortal()
 	await ctx.waitFor(() => !ctx.find('portal-content'))
 	ctx.assert('portal cleanup detaches its native child', content.superview == null, true)
-	ctx.assert('portal cleanup preserves the target-owned child', targetOwned.superview === target, true)
+	ctx.assert(
+		'portal cleanup preserves the target-owned child',
+		targetOwned.superview === target,
+		true,
+	)
+
 	ctx.record('portal lifecycle', 'same-root context, updates, and native target cleanup')
 }

@@ -128,6 +128,7 @@ export const observeFocusedInput: KeyboardWindowSource<FocusedInputState> = (key
 						minOffsetY: 0,
 						maxOffsetY: Math.max(0, view.mason_scrollHeight - view.mason_clientHeight),
 					})
+
 					continue
 				}
 

@@ -1,18 +1,18 @@
-import type { SeparatorProps } from "./props";
-import { applyEscapeProps } from "./escape-props";
+import type { SeparatorProps } from './props'
+import { applyEscapeProps } from './escape-props'
 
 /** Separator — hairline rule (exported as `Divider`). `orientation` picks
  *  the axis; `variant` the stroke weight; `label` centers text between two
  *  rule segments; `isFullBleed` escapes the parent's inline padding. */
 export function Separator(props: SeparatorProps) @{
-	const vertical = props.orientation === 'vertical';
+	const vertical = props.orientation === 'vertical'
 	const classes = [
 		'vx-separator',
 		vertical ? 'vx-separator--v' : 'vx-separator--h',
 		props.variant === 'strong' && 'vx-separator--strong',
 		props.isFullBleed && 'vx-separator--bleed',
 		props.className,
-	];
+	]
 
 	@if (props.label != null) {
 		<div

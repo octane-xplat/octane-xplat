@@ -24,7 +24,11 @@ export function DropdownMenuNoChevron() @{
 					{ label: 'Report', onClick: () => setLastAction('Report') },
 				])}
 			/>
-			{lastAction && <Text type="supporting" color="secondary">Last action: {lastAction}</Text>}
+			{lastAction && (
+				<Text type="supporting" color="secondary">
+					Last action: {lastAction}
+				</Text>
+			)}
 		</VStack>
 	)
 }

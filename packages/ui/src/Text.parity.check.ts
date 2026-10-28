@@ -1,8 +1,13 @@
 import type { ParityCheck } from './parity/check-helpers.ts'
-import { textEqual, textLongEqual, textClassRows, textRows, textLongRows } from './parity/check-helpers.ts'
+import {
+	textEqual,
+	textLongEqual,
+	textClassRows,
+	textRows,
+	textLongRows,
+} from './parity/check-helpers.ts'
 
 export const CHECKS: ParityCheck[] = [
-
 	{
 		fixture: 'text-class-sm',
 		targets: ['web', 'ios', 'android', 'macos'],
@@ -89,5 +94,5 @@ export const CHECKS: ParityCheck[] = [
 		elements: { text: 'parity-text' },
 		equal: textEqual,
 		check: (m) => textRows(m, 20),
-	}
+	},
 ]

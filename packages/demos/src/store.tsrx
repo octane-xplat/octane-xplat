@@ -1,4 +1,4 @@
-import { createStore, useStore } from '@octane-xplat/ui/data';
+import { createStore, useStore } from '@octane-xplat/ui/data'
 
 /** Module-scope store — the one thing that CAN cross Octane roots.
  *  Pushed pages, modals, and sheets each get a fresh root, so context
@@ -7,12 +7,12 @@ import { createStore, useStore } from '@octane-xplat/ui/data';
  *  the navigation boundary. Per-reader subscription is required anyway on
  *  the universal renderer (retained children don't re-run — decision #27). */
 
-const lastDemoStore = createStore<string | null>(null);
+const lastDemoStore = createStore<string | null>(null)
 
 export function setLastDemo(id: string) {
-	lastDemoStore.set(id);
+	lastDemoStore.set(id)
 }
 
 export function useLastDemo(): string | null {
-	return useStore(lastDemoStore);
+	return useStore(lastDemoStore)
 }

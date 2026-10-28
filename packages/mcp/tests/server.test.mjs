@@ -205,16 +205,19 @@ test('diagnostics MCP tool lists retained runs and shares CLI selector and envel
 			name: 'xplat_diagnostics',
 			arguments: { sessionId: capture.sessionId, cursor: 0 },
 		})
+
 		assert.ok(
 			result.structuredContent.data.logs.records.some(
 				(record) => record.line === 'before MCP connection',
 			),
 		)
+
 		assert.equal(result.structuredContent.data.coverage.nativeReports.status, 'unsupported')
 		const invalid = await client.callTool({
 			name: 'xplat_diagnostics',
 			arguments: { sessionId: capture.sessionId, sessionId: 'sess_x' },
 		})
+
 		assert.equal(invalid.structuredContent.error.code, 'invalid_selection')
 	} finally {
 		await client.close()

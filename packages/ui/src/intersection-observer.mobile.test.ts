@@ -19,14 +19,20 @@ const { TestView, TestScrollView } = vi.hoisted(() => {
 		off(event: string, listener: () => void) {
 			this.listeners.get(event)?.delete(listener)
 		}
-		listenerCount(event: string) { return this.listeners.get(event)?.size ?? 0 }
+		listenerCount(event: string) {
+			return this.listeners.get(event)?.size ?? 0
+		}
 		emit(event: string) {
 			for (const listener of this.listeners.get(event) ?? []) {
 				listener()
 			}
 		}
-		getLocationOnScreen() { return { x: this.x, y: this.y } }
-		getActualSize() { return { width: this.width, height: this.height } }
+		getLocationOnScreen() {
+			return { x: this.x, y: this.y }
+		}
+		getActualSize() {
+			return { width: this.width, height: this.height }
+		}
 	}
 	return { TestView, TestScrollView: class extends TestView {} }
 })

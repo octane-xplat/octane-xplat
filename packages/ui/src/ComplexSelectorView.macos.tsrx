@@ -1,20 +1,20 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { mergeStyle, styleRecord } from './style-merge'
-import type { ComplexSelectorViewProps } from './complex-selector-view';
-import { useSize } from './size-context';
-import { cx } from '@octane-xplat/lib';
-import { FormField } from './FormField.macos.tsrx';
-import { Popover } from './surfaces.macos.tsrx';
-import { Pressable } from './Pressable.macos.tsrx';
-import { Icon } from './Icon.macos.tsrx';
-import { ActivityIndicator } from './controls.macos.tsrx';
+import type { ComplexSelectorViewProps } from './complex-selector-view'
+import { useSize } from './size-context'
+import { cx } from '@octane-xplat/lib'
+import { FormField } from './FormField.macos.tsrx'
+import { Popover } from './surfaces.macos.tsrx'
+import { Pressable } from './Pressable.macos.tsrx'
+import { Icon } from './Icon.macos.tsrx'
+import { ActivityIndicator } from './controls.macos.tsrx'
 
 /** Internal resolved presentation, sharing the handle’s host anchor. */
-export function ComplexSelectorView<Value,>(props: ComplexSelectorViewProps<Value>) @{
-	const { open, pending } = props.state;
-	const size = useSize(props.size, 'md');
-	const { triggerId, contentId, anchor } = props;
-	const setOpen = props.onOpenChange;
+export function ComplexSelectorView<Value>(props: ComplexSelectorViewProps<Value>) @{
+	const { open, pending } = props.state
+	const size = useSize(props.size, 'md')
+	const { triggerId, contentId, anchor } = props
+	const setOpen = props.onOpenChange
 	const content = props.children({
 		value: props.state.value,
 		onChange: props.onChange,
@@ -23,35 +23,84 @@ export function ComplexSelectorView<Value,>(props: ComplexSelectorViewProps<Valu
 		isBusy: pending || Boolean(props.isLoading),
 		triggerId,
 		contentId,
-	});
+	})
 
-	const trigger = <Pressable
-		id={triggerId}
-		ref={(view: any) => { anchor.current = view; }}
-		className={cx('vx-complex-selector-trigger', `vx-complex-selector-trigger--${props.variant ?? 'input'}`)}
-		disabled={props.isDisabled || props.isReadOnly || pending}
-		accessibilityLabel={props.label}
-		accessibilityHint={props.description}
-		accessibilityRole="button"
-		accessibilityState={{ expanded: open, disabled: props.isDisabled || pending }}
-		onPress={() => setOpen(!open)}
-	>
-		{typeof props.startIcon === 'string' ? <Icon name={props.startIcon} size={16} /> : props.startIcon}
-		<label className={cx('vx-complex-selector-value', props.triggerLabel == null && props.value == null && 'vx-complex-selector-placeholder')}
-			text={typeof props.triggerLabel === 'string' ? props.triggerLabel : (props.value == null ? (typeof props.placeholder === 'string' ? props.placeholder : '') : String(props.value))} />
-		{props.isLoading || pending ? <ActivityIndicator busy={true} /> : null}
-	</Pressable>;
+	const trigger = (
+		<Pressable
+			id={triggerId}
+			ref={(view: any) => {
+				anchor.current = view
+			}}
+			className={cx(
+				'vx-complex-selector-trigger',
+				`vx-complex-selector-trigger--${props.variant ?? 'input'}`,
+			)}
+			disabled={props.isDisabled || props.isReadOnly || pending}
+			accessibilityLabel={props.label}
+			accessibilityHint={props.description}
+			accessibilityRole="button"
+			accessibilityState={{ expanded: open, disabled: props.isDisabled || pending }}
+			onPress={() => setOpen(!open)}
+		>
+			{typeof props.startIcon === 'string' ? (
+				<Icon name={props.startIcon} size={16} />
+			) : (
+				props.startIcon
+			)}
+			<label
+				className={cx(
+					'vx-complex-selector-value',
+					props.triggerLabel == null && props.value == null && 'vx-complex-selector-placeholder',
+				)}
+				text={
+					typeof props.triggerLabel === 'string'
+						? props.triggerLabel
+						: props.value == null
+							? typeof props.placeholder === 'string'
+								? props.placeholder
+								: ''
+							: String(props.value)
+				}
+			/>
+			{props.isLoading || pending ? <ActivityIndicator busy={true} /> : null}
+		</Pressable>
+	)
 
-	const body = <>
-		{props.variant === 'ghost' ? trigger : <masonview className={cx('vx-complex-selector', `vx-complex-selector--size-${size}`, props.status && `vx-complex-selector--status-${props.status.type}`)} style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex"})}>
-			{trigger}
-		</masonview>}
-		<Popover anchor={anchor} open={open} placement={props.placement ?? 'bottom'} alignment={props.alignment ?? 'start'} onDismiss={() => setOpen(false)} className={props.contentClassName} style={props.contentStyle}>
-			<masonview id={contentId} accessibilityRole="dialog" style={{display: "grid"}}>{content}</masonview>
-		</Popover>
-	</>;
+	const body = (
+		<>
+			{props.variant === 'ghost' ? (
+				trigger
+			) : (
+				<masonview
+					className={cx(
+						'vx-complex-selector',
+						`vx-complex-selector--size-${size}`,
+						props.status && `vx-complex-selector--status-${props.status.type}`,
+					)}
+					style={mergeStyle({ flexDirection: 'row', alignItems: 'center' }, { display: 'flex' })}
+				>
+					{trigger}
+				</masonview>
+			)}
+			<Popover
+				anchor={anchor}
+				open={open}
+				placement={props.placement ?? 'bottom'}
+				alignment={props.alignment ?? 'start'}
+				onDismiss={() => setOpen(false)}
+				className={props.contentClassName}
+				style={props.contentStyle}
+			>
+				<masonview id={contentId} accessibilityRole="dialog" style={{ display: 'grid' }}>
+					{content}
+				</masonview>
+			</Popover>
+		</>
+	)
 
-	if (props.variant === 'ghost') return body;
+	if (props.variant === 'ghost') {
+		return body
+	}
 
 	<FormField
 		id={props.id}

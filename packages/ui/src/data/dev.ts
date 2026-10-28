@@ -55,19 +55,26 @@ export function inspectQueryClient(
 		if (!/^[a-zA-Z][a-zA-Z0-9._-]{0,63}$/.test(label)) {
 			throw new TypeError('Query diagnostic labels must be static names of at most 64 characters')
 		}
+
 		labels.set(definition, label)
 	}
 	const source = client[QUERY_INSPECTION]
 	const events: QueryInspectionEvent[] = []
 	let disposed = false
 	const detach = source.subscribe((event) => {
-		if (limit === 0) { return }
+		if (limit === 0) {
+			return
+		}
 		events.push(event)
-		if (events.length > limit) { events.splice(0, events.length - limit) }
+		if (events.length > limit) {
+			events.splice(0, events.length - limit)
+		}
 	})
 	return {
 		snapshot() {
-			if (disposed) { throw new Error('Query inspector is disposed') }
+			if (disposed) {
+				throw new Error('Query inspector is disposed')
+			}
 			const snapshot = source.snapshot((definition) => labels.get(definition))
 			return Object.freeze({
 				...snapshot,

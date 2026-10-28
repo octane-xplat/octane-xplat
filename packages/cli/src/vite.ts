@@ -699,9 +699,8 @@ export const sourceOnlyDeps = (projectRoot) => {
 				if (!depRoot) {
 					continue
 				}
-				const manifest = JSON.parse(
-					readFileSync(join(depRoot, 'package.json'), 'utf8'),
-				)
+
+				const manifest = JSON.parse(readFileSync(join(depRoot, 'package.json'), 'utf8'))
 
 				const exportsField = manifest.exports
 				if (

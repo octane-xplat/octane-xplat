@@ -13,5 +13,11 @@ export function CommandPaletteInputShowcase() @{
 			]),
 		[],
 	)
-	<CommandPalette open onOpenChange={() => {}} searchSource={source} placeholder="Search commands..." />
+
+	<CommandPalette
+		open
+		onOpenChange={() => {}}
+		searchSource={source}
+		placeholder="Search commands..."
+	/>
 }

@@ -23,18 +23,38 @@ export function RadioListItem(props: RadioListItemProps) @{
 		aria-disabled={disabled || undefined}
 		aria-readonly={ctx?.isReadOnly || undefined}
 		tabIndex={disabled ? undefined : 0}
-		className={['vx-radio-row', 'vx-radiolist-item', indicatorScope, selected && 'vx-radio--on', disabled && 'vx-radio--disabled', ctx?.isReadOnly && 'vx-radio--readonly', props.className]}
+		className={[
+			'vx-radio-row',
+			'vx-radiolist-item',
+			indicatorScope,
+			selected && 'vx-radio--on',
+			disabled && 'vx-radio--disabled',
+			ctx?.isReadOnly && 'vx-radio--readonly',
+			props.className,
+		]}
 		style={props.style}
 		onClick={blocked ? undefined : () => ctx?.select?.(props.value)}
 		onKeyDown={(e: any) => {
-			if (blocked || !ctx?.select) return
-			if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); ctx.select(props.value) }
+			if (blocked || !ctx?.select) {
+				return
+			}
+
+			if (e.key === ' ' || e.key === 'Enter') {
+				e.preventDefault()
+				ctx.select(props.value)
+			}
 		}}
 	>
-		<Ind state={selected ? 'checked' : 'unchecked'} size={ctx?.size === 'sm' ? 'sm' : 'md'} isDisabled={disabled} />
+		<Ind
+			state={selected ? 'checked' : 'unchecked'}
+			size={ctx?.size === 'sm' ? 'sm' : 'md'}
+			isDisabled={disabled}
+		/>
 		<span className="vx-radio-label-col">
 			{props.label != null ? <span className="vx-radio-label">{props.label}</span> : null}
-			{props.description != null ? <span className="vx-radio-description">{props.description}</span> : null}
+			{props.description != null ? (
+				<span className="vx-radio-description">{props.description}</span>
+			) : null}
 		</span>
 		{props.endContent != null ? <span className="vx-radio-end">{props.endContent}</span> : null}
 	</div>

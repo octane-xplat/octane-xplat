@@ -363,7 +363,8 @@ export async function prepareFontsource(appDir, spec, { subset = 'latin', weight
 	// Resolve through Node's walk-up (hoisted workspaces install at the
 	// workspace root) — Fontsource `exports` maps don't always re-export
 	// ./package.json, so probe the package dir rather than requiring it.
-	let pkgDir = installedPackageRoot(appDir, spec) ?? join(appDir, 'node_modules', ...spec.split('/'))
+	let pkgDir =
+		installedPackageRoot(appDir, spec) ?? join(appDir, 'node_modules', ...spec.split('/'))
 	let wasInstalled = false
 	if (!existsSync(join(pkgDir, 'package.json'))) {
 		if (!install) {

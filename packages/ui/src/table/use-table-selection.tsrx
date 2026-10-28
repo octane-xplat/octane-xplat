@@ -55,23 +55,41 @@ export function useTableSelectionState<T extends Record<string, unknown>>(
 		setSelectedKeys,
 	} = config
 
-	const getId = (item: T): string => (typeof idKey === 'function' ? idKey(item) : String(item[idKey]))
-	const getIsItemSelectableAndEnabled = (item: T) => getIsItemSelectable(item) && getIsItemEnabled(item)
+	const getId = (item: T): string =>
+		typeof idKey === 'function' ? idKey(item) : String(item[idKey])
 
-	const selectableIDs = useMemo(() => new Set(data.filter(getIsItemSelectableAndEnabled).map(getId)), [data])
+	const getIsItemSelectableAndEnabled = (item: T) =>
+		getIsItemSelectable(item) && getIsItemEnabled(item)
+
+	const selectableIDs = useMemo(
+		() => new Set(data.filter(getIsItemSelectableAndEnabled).map(getId)),
+		[data],
+	)
 
 	const frozenSelectedIDs = useMemo(() => {
 		const frozen = new Set<string>()
-		for (const id of selectedKeys) if (!selectableIDs.has(id)) frozen.add(id)
+		for (const id of selectedKeys) {
+			if (!selectableIDs.has(id)) {
+				frozen.add(id)
+			}
+		}
+
 		return frozen
 	}, [selectedKeys, selectableIDs])
 
-	const allSelectableIDs = useMemo(() => new Set([...selectedKeys, ...selectableIDs]), [selectedKeys, selectableIDs])
+	const allSelectableIDs = useMemo(
+		() => new Set([...selectedKeys, ...selectableIDs]),
+		[selectedKeys, selectableIDs],
+	)
 
 	const getAllSelected = () => {
-		if (selectableIDs.size === 0) return false
+		if (selectableIDs.size === 0) {
+			return false
+		}
+
 		return allSelectableIDs.size === selectedKeys.size
 	}
+
 	const getIsIndeterminate = () => selectedKeys.size > 0 && !getAllSelected()
 
 	const selectedKeysRef = useRef(selectedKeys)
@@ -93,8 +111,12 @@ export function useTableSelectionState<T extends Record<string, unknown>>(
 
 	const onSelectItem = ({ item, isSelected }: { item: T; isSelected: boolean }) => {
 		const next = new Set(selectedKeysRef.current)
-		if (isSelected) next.add(getId(item))
-		else next.delete(getId(item))
+		if (isSelected) {
+			next.add(getId(item))
+		} else {
+			next.delete(getId(item))
+		}
+
 		setSelectedKeys(next)
 	}
 
@@ -120,14 +142,21 @@ export function useTableSelectionState<T extends Record<string, unknown>>(
 
 const SELECTION_COLUMN_KEY = '__xds_selection'
 
-function SelectionCell<T extends Record<string, unknown>>(props: { item: T; configRef: { current: UseTableSelectionConfig<T> } }) @{
+function SelectionCell<T extends Record<string, unknown>>(props: {
+	item: T
+	configRef: { current: UseTableSelectionConfig<T> }
+}) @{
 	const config = props.configRef.current
 	const item = props.item
 	const selectable = config.getIsItemSelectable?.(item) ?? true
-	if (!selectable) return null as any
+	if (!selectable) {
+		return null as any
+	}
+
 	const isSelected = config.getIsItemSelected(item)
 	const enabled = config.getIsItemEnabled?.(item) ?? true
 	const rowLabel = config.getRowLabel?.(item)
+
 	<View className="vx-table-selection-cell">
 		<CheckboxInput
 			label={rowLabel != null ? `Select ${rowLabel}` : 'Select row'}
@@ -140,10 +169,13 @@ function SelectionCell<T extends Record<string, unknown>>(props: { item: T; conf
 	</View>
 }
 
-function SelectAllCell<T extends Record<string, unknown>>(props: { configRef: { current: UseTableSelectionConfig<T> } }) @{
+function SelectAllCell<T extends Record<string, unknown>>(props: {
+	configRef: { current: UseTableSelectionConfig<T> }
+}) @{
 	const config = props.configRef.current
 	const allSelected = config.getIsAllSelected()
 	const indeterminate = config.getIsIndeterminate?.() ?? false
+
 	<View className="vx-table-selection-cell">
 		<CheckboxInput
 			label="Select all rows"
@@ -157,7 +189,9 @@ function SelectAllCell<T extends Record<string, unknown>>(props: { configRef: { 
 
 /** Selection plugin — injects the `__xds_selection` checkbox column and
  *  marks selected rows (`aria-selected` + `vx-table-row--selected`). */
-export function useTableSelection<T extends Record<string, unknown>>(config: UseTableSelectionConfig<T>): TablePlugin<T> {
+export function useTableSelection<T extends Record<string, unknown>>(
+	config: UseTableSelectionConfig<T>,
+): TablePlugin<T> {
 	const configRef = useRef(config)
 	configRef.current = config
 
@@ -175,12 +209,19 @@ export function useTableSelection<T extends Record<string, unknown>>(config: Use
 		},
 		transformBodyRow(props, item) {
 			const cfg = configRef.current
-			if (!cfg.getIsItemSelected(item)) return props
+			if (!cfg.getIsItemSelected(item)) {
+				return props
+			}
+
 			const highlight = cfg.hasRowHighlight !== false
 			return {
 				...props,
 				htmlProps: { ...props.htmlProps, 'aria-selected': 'true' },
-				classes: [...props.classes, 'vx-table-row--selected', highlight && 'vx-table-row--selected-fill'],
+				classes: [
+					...props.classes,
+					'vx-table-row--selected',
+					highlight && 'vx-table-row--selected-fill',
+				],
 			}
 		},
 	}

@@ -44,6 +44,7 @@ assert.ok(
 	),
 	'packed renderer must ship the prebuilt Mason engine',
 )
+
 const cssEngine = await pack(join(repo, 'packages/css-engine'))
 const platform = await pack(join(repo, 'packages/platform'))
 const jsx = await pack(join(repo, 'packages/jsx'))
@@ -260,6 +261,7 @@ if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 		),
 		'packaged app must embed the Mason engine in Contents/Frameworks',
 	)
+
 	const notices = await readFile(
 		join(
 			app,
@@ -267,6 +269,7 @@ if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 		),
 		'utf8',
 	)
+
 	assert.match(notices, /@octane-xplat\/macos-renderer/)
 	assert.match(notices, /Apache License/)
 	const executable = join(

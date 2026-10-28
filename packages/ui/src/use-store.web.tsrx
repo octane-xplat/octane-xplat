@@ -1,5 +1,5 @@
-import { useRef, useSyncExternalStore } from 'octane';
-import type { ReadableStore, StoreSnapshot } from './props';
+import { useRef, useSyncExternalStore } from 'octane'
+import type { ReadableStore, StoreSnapshot } from './props'
 
 /**
  * Subscribe the calling component to a module-scope store — the reactive
@@ -14,29 +14,29 @@ import type { ReadableStore, StoreSnapshot } from './props';
  * fields, don't build objects). Pass a custom `isEqual` to compare computed
  * selections such as filtered lists.
  */
-export function useStore<T>(store: ReadableStore<T>): StoreSnapshot<T>;
+export function useStore<T>(store: ReadableStore<T>): StoreSnapshot<T>
 export function useStore<T, S>(
 	store: ReadableStore<T>,
 	select: (snapshot: StoreSnapshot<T>) => S,
 	isEqual?: (a: S, b: S) => boolean,
-): S;
+): S
 
 export function useStore<T, S>(
 	store: ReadableStore<T>,
 	select?: (snapshot: StoreSnapshot<T>) => S,
 	isEqual: (a: S, b: S) => boolean = Object.is,
 ): StoreSnapshot<T> | S {
-	const memo = useRef<{ select: typeof select; selection: unknown } | null>(null);
+	const memo = useRef<{ select: typeof select; selection: unknown } | null>(null)
 	const getSelection = (): StoreSnapshot<T> | S => {
-		const next = select === undefined ? store.getSnapshot() : select(store.getSnapshot());
-		const last = memo.current;
+		const next = select === undefined ? store.getSnapshot() : select(store.getSnapshot())
+		const last = memo.current
 		if (last !== null && last.select === select && isEqual(last.selection as S, next as S)) {
-			return last.selection as S;
+			return last.selection as S
 		}
 
-		memo.current = { select, selection: next };
-		return next;
-	};
+		memo.current = { select, selection: next }
+		return next
+	}
 
-	return useSyncExternalStore<StoreSnapshot<T> | S>(store.subscribe, getSelection);
+	return useSyncExternalStore<StoreSnapshot<T> | S>(store.subscribe, getSelection)
 }

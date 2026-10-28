@@ -118,10 +118,14 @@ export const defaultThemeTokens: Record<string, TokenValue> = {
 	'--radius-page': '28px',
 	'--radius-chat': '28px',
 	'--radius-full': '9999px',
-	'--shadow-low': '0px 1px 1px light-dark(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.2)), 0px 2px 8px light-dark(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.2))',
-	'--shadow-med': '0px 1px 2px light-dark(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.2)), 0px 2px 12px light-dark(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.2))',
-	'--shadow-high': '0px 2px 2px light-dark(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.2)), 0px 8px 24px light-dark(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.3))',
-	'--shadow-inset-hover': 'inset 0px 0px 0px 2px light-dark(rgba(5, 54, 89, 0.15), rgba(223, 226, 229, 0.2))',
+	'--shadow-low':
+		'0px 1px 1px light-dark(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.2)), 0px 2px 8px light-dark(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.2))',
+	'--shadow-med':
+		'0px 1px 2px light-dark(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.2)), 0px 2px 12px light-dark(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.2))',
+	'--shadow-high':
+		'0px 2px 2px light-dark(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.2)), 0px 8px 24px light-dark(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.3))',
+	'--shadow-inset-hover':
+		'inset 0px 0px 0px 2px light-dark(rgba(5, 54, 89, 0.15), rgba(223, 226, 229, 0.2))',
 	'--shadow-inset-selected': 'inset 0px 0px 0px 2px rgba(1, 113, 227, 0.5)',
 	'--shadow-inset-success': 'inset 0px 0px 0px 2px rgba(38, 167, 86, 0.3)',
 	'--shadow-inset-warning': 'inset 0px 0px 0px 2px rgba(226, 164, 0, 0.3)',
@@ -136,9 +140,11 @@ export const defaultThemeTokens: Record<string, TokenValue> = {
 	'--duration-slow': '975ms',
 	'--duration-slow-max': '1300ms',
 	'--ease-standard': 'cubic-bezier(0.24, 1, 0.4, 1)',
-	'--font-family-body': '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+	'--font-family-body':
+		'-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
 	'--font-family-code': '"SF Mono", Monaco, Consolas, monospace',
-	'--font-family-heading': '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+	'--font-family-heading':
+		'-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
 	'--font-size-4xs': '0.375rem',
 	'--font-size-3xs': '0.4375rem',
 	'--font-size-2xs': '0.5rem',

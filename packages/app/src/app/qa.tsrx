@@ -1,4 +1,4 @@
-import { HumanQA } from '../HumanQA.tsrx';
+import { HumanQA } from '../HumanQA.tsrx'
 
 /** qa route — the human-verdict checklist (harness probes can't assert
  *  sensory output, hit-testing, or physical hardware). Pushed into the

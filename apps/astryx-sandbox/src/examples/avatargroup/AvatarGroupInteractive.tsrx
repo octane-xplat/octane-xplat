@@ -6,9 +6,13 @@ const members = ['Sam Rivera', 'Jordan Lee', 'Alex Johnson', 'Casey Kim', 'Riley
 export function AvatarGroupInteractive() @{
 	<Stack direction="vertical" gap={2}>
 		<AvatarGroup size={32}>
-			{members.map((name) => <Avatar key={name} name={name} />)}
+			{members.map((name) => (
+				<Avatar key={name} name={name} />
+			))}
 			<AvatarGroupOverflow count={4} />
 		</AvatarGroup>
-		<Text type="supporting" color="secondary">{members.length} members + 4 more</Text>
+		<Text type="supporting" color="secondary">
+			{members.length} members + 4 more
+		</Text>
 	</Stack>
 }

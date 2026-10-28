@@ -289,7 +289,8 @@ for (const platform of ['ios', 'android']) {
 
 		it('returns a sandbox reference after writing the text', async () => {
 			await expect(files.writeText('note.txt', 'Saved note')).resolves.toEqual({
-				name: 'note.txt', uri: '/docs/note.txt',
+				name: 'note.txt',
+				uri: '/docs/note.txt',
 			})
 			expect(bridge.textWrites).toEqual([{ path: '/docs/note.txt', text: 'Saved note' }])
 		})

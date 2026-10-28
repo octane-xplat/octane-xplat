@@ -37,10 +37,15 @@ function getClient(): Payment {
 		client = new Payment()
 		client.onPurchaseUpdate = (purchases, error) => {
 			if (error) {
-				const out = { code: (error as any)?.code ?? 'ERROR', message: error.message ?? String(error) }
+				const out = {
+					code: (error as any)?.code ?? 'ERROR',
+					message: error.message ?? String(error),
+				}
+
 				for (const listener of errorListeners) {
 					listener(out)
 				}
+
 				return
 			}
 			const mapped = (purchases ?? []).map(asPurchase)

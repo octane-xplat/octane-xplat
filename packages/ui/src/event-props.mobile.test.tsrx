@@ -59,23 +59,17 @@ describe('event-prop freshness on the universal renderer', () => {
 		const root = createUniversalRoot(container, createObjectDriver('nativescript'))
 		const seen: string[] = []
 		try {
-			flushUniversalSync(() =>
-				root.render(SwapButton, { label: 'a', onTap: () => seen.push('a') }),
-			)
+			flushUniversalSync(() => root.render(SwapButton, { label: 'a', onTap: () => seen.push('a') }))
 
 			const host = container.children[0]
 			flushUniversalSync(() => container.dispatchEvent(host, 'tap', {}))
 			container.commits.length = 0
-			flushUniversalSync(() =>
-				root.render(SwapButton, { label: 'b', onTap: () => seen.push('b') }),
-			)
+			flushUniversalSync(() => root.render(SwapButton, { label: 'b', onTap: () => seen.push('b') }))
 
 			// Only the handler closure changed — same listener id, same event
 			// descriptor — so the batch re-commits the handler without an
 			// `event` command. The driver never detaches/reattaches natively.
-			expect(
-				updateCommits(container).filter((command: any) => command.op === 'event'),
-			).toEqual([])
+			expect(updateCommits(container).filter((command: any) => command.op === 'event')).toEqual([])
 
 			flushUniversalSync(() => container.dispatchEvent(host, 'tap', {}))
 			expect(seen).toEqual(['a', 'b'])

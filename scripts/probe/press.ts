@@ -9,6 +9,7 @@ export function dispatchPress(view: any) {
 		for (const observer of observers) {
 			observer.callback.call(observer.context, { eventName: 'tap', object: view })
 		}
+
 		return
 	}
 

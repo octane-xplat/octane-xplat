@@ -41,6 +41,7 @@ function RowIndexCell<T extends Record<string, unknown>>(props: {
 	if (idx == null) {
 		return null as any
 	}
+
 	<Text className="vx-table-rowindex">{idx + props.startFrom}</Text>
 }
 

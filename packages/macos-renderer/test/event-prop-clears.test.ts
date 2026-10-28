@@ -35,9 +35,9 @@ function fixture() {
 		elementBehaviors: new Map(),
 		behaviorOf: () => undefined,
 		isManualLayoutParent: (t: string) =>
-			['masonview','liquidglass','contentview','actionbar','rootlayout'].includes(t),
+			['masonview', 'liquidglass', 'contentview', 'actionbar', 'rootlayout'].includes(t),
 		registerElementType: () => {},
-		
+
 		applyProps: (_node: any, props: any) => {
 			applied.push(props)
 			Object.assign(_node.props, props)
@@ -177,6 +177,7 @@ test('contentview children keep their alignment clears alongside event clears', 
 const applyPropsSandbox: Record<string, any> = {
 	console,
 }
+
 // Mason prop dispatch in the sandbox mirrors the registered behavior: tap
 // and pan route to their action setters, style/class/a11y consume silently.
 const masonCalls = (key: string) => {
@@ -184,6 +185,7 @@ const masonCalls = (key: string) => {
 	spy.calls = [] as any[][]
 	return (applyPropsSandbox[key] ??= spy)
 }
+
 const masonPropStub = (node: any, name: string, value: any) => {
 	if (name === 'onTap' || name === 'onClick' || name === 'onPress') {
 		masonCalls('setAction')(node, value)
@@ -195,9 +197,11 @@ const masonPropStub = (node: any, name: string, value: any) => {
 	}
 	return true
 }
+
 applyPropsSandbox.elementBehaviors = new Map([
 	['masonview', { containerStyles: true, applyProp: masonPropStub }],
 ])
+
 applyPropsSandbox.behaviorOf = (t: string) => applyPropsSandbox.elementBehaviors.get(t)
 
 const applyPropsApi = runSlice(

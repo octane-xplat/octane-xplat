@@ -1,32 +1,34 @@
 import { useMemo } from 'octane'
 import { refList } from './ref-list'
-import type { ProgressBarProps } from './props';
-import { applyEscapeProps } from './escape-props';
-import { Tooltip } from './Tooltip.web.tsrx';
+import type { ProgressBarProps } from './props'
+import { applyEscapeProps } from './escape-props'
+import { Tooltip } from './Tooltip.web.tsrx'
 
-const clamp = (value: number, min: number, max: number) =>
-	Math.min(Math.max(value, min), max);
+const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max)
 
 /** ProgressBar — linear progress with an optional label/value row and track
  *  marks. role="progressbar" carries the label + value range; indeterminate
  *  mode drops aria-valuenow per the ARIA contract and animates the fill.
  *  `Meter` remains the ring form — this is the bar. */
 export function ProgressBar(props: ProgressBarProps) @{
-	const max = Math.max(props.max ?? 100, 1e-9);
-	const isIndeterminate = props.isIndeterminate ?? false;
-	const value = clamp(props.value ?? 0, 0, max);
-	const pct = (value / max) * 100;
+	const max = Math.max(props.max ?? 100, 1e-9)
+	const isIndeterminate = props.isIndeterminate ?? false
+	const value = clamp(props.value ?? 0, 0, max)
+	const pct = (value / max) * 100
 	const formatValueLabel =
-		props.formatValueLabel ?? ((v: number, m: number) => `${Math.round((v / m) * 100)}%`);
+		props.formatValueLabel ?? ((v: number, m: number) => `${Math.round((v / m) * 100)}%`)
 
-	const valueText = formatValueLabel(value, max);
-	const isDisabled = props.isDisabled ?? false;
-	const isLabelHidden = props.isLabelHidden ?? false;
-	const hasValueLabel = props.hasValueLabel ?? false;
-	const variant = props.variant ?? 'accent';
-	const marks = isIndeterminate ? [] : (props.marks ?? []);
+	const valueText = formatValueLabel(value, max)
+	const isDisabled = props.isDisabled ?? false
+	const isLabelHidden = props.isLabelHidden ?? false
+	const hasValueLabel = props.hasValueLabel ?? false
+	const variant = props.variant ?? 'accent'
+	const marks = isIndeterminate ? [] : (props.marks ?? [])
 
-	const forwardedRef = useMemo(() => refList((e: any) => applyEscapeProps(e, props), props.ref), [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(
+		() => refList((e: any) => applyEscapeProps(e, props), props.ref),
+		[props.ref, props.ios, props.android, props.web],
+	)
 
 	<div
 		ref={forwardedRef}
@@ -41,16 +43,13 @@ export function ProgressBar(props: ProgressBarProps) @{
 	>
 		{(props.label != null || isLabelHidden) && (
 			<div className="vx-progressbar-head">
-				<span
-					className={[
-						'vx-progressbar-label',
-						isLabelHidden && 'vx-visually-hidden',
-					]}
-				>
+				<span className={['vx-progressbar-label', isLabelHidden && 'vx-visually-hidden']}>
 					{props.label}
 				</span>
 				{!isIndeterminate && hasValueLabel ? (
-					<span className="vx-progressbar-value" aria-hidden="true">{valueText}</span>
+					<span className="vx-progressbar-value" aria-hidden="true">
+						{valueText}
+					</span>
 				) : null}
 			</div>
 		)}
@@ -73,8 +72,8 @@ export function ProgressBar(props: ProgressBarProps) @{
 					style={isIndeterminate ? undefined : { width: `${pct}%` }}
 				/>
 				{marks.map((mark) => {
-					const markPct = (clamp(mark.value, 0, max) / max) * 100;
-					const placement = markPct < 25 ? 'start' : markPct > 75 ? 'end' : 'middle';
+					const markPct = (clamp(mark.value, 0, max) / max) * 100
+					const placement = markPct < 25 ? 'start' : markPct > 75 ? 'end' : 'middle'
 					// The Tooltip wrapper is the absolutely-positioned box so the
 					// mark's tooltip anchor IS the mark.
 					return (
@@ -91,7 +90,7 @@ export function ProgressBar(props: ProgressBarProps) @{
 							}
 							content={mark.label}
 						/>
-					);
+					)
 				})}
 			</div>
 		</div>

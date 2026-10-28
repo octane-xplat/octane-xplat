@@ -13,15 +13,20 @@ const views: Record<string, any> = {}
 let setWide: (v: boolean) => void = () => {}
 let setOrder: (v: string[]) => void = () => {}
 
-
 function onScreen(view: any, target: 'ios' | 'android' | string) {
 	const nv = view?.nativeViewProtected ?? view?.nativeView
-	if (!nv) return null
-	const d = target === 'ios' ? 1 : nv.getResources?.()?.getDisplayMetrics?.()?.density ?? 1
+	if (!nv) {
+		return null
+	}
+
+	const d = target === 'ios' ? 1 : (nv.getResources?.()?.getDisplayMetrics?.()?.density ?? 1)
 	if (target === 'ios') {
 		const win = nv.convertRectToView?.(nv.bounds, null)
-		return win ? { x: win.origin.x / d, y: win.origin.y / d, w: win.size.width / d, h: win.size.height / d } : null
+		return win
+			? { x: win.origin.x / d, y: win.origin.y / d, w: win.size.width / d, h: win.size.height / d }
+			: null
 	}
+
 	const loc = Array.create('int', 2)
 	nv.getLocationInWindow(loc)
 	// Fold the whole ancestor scale chain: projection writes counter-scaling
@@ -35,6 +40,7 @@ function onScreen(view: any, target: 'ios' | 'android' | string) {
 		sy *= p.getScaleY()
 		p = p.getParent?.()
 	}
+
 	return {
 		x: loc[0] / d,
 		y: loc[1] / d,
@@ -48,7 +54,10 @@ const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms))
 /** Untransformed layout box (proves the commit's layout actually applied). */
 function rawLayout(v: any, target: string) {
 	const nv = v?.nativeView ?? v?.nativeViewProtected
-	if (!nv) return null
+	if (!nv) {
+		return null
+	}
+
 	if (target === 'ios') {
 		const c = nv.center
 		const b = nv.bounds
@@ -56,6 +65,7 @@ function rawLayout(v: any, target: string) {
 		const h = b?.size?.height
 		return { cx: c?.x, cy: c?.y, x: c?.x - w / 2, y: c?.y - h / 2, w, h }
 	}
+
 	const d = nv.getResources?.()?.getDisplayMetrics?.()?.density ?? 1
 	let x = 0
 	let y = 0
@@ -65,6 +75,7 @@ function rawLayout(v: any, target: string) {
 		y += n.getTop()
 		n = n.getParent?.()
 	}
+
 	return { x: x / d, y: y / d, w: nv.getWidth() / d, h: nv.getHeight() / d }
 }
 
@@ -73,31 +84,47 @@ function rawLayout(v: any, target: string) {
  * (Android). On iOS resolves on the next turn, after the commit's pass.
  */
 function captureFirstFrame(target: string, read: () => unknown): Promise<unknown> {
-	if (target !== 'android') return sleep(0).then(read)
+	if (target !== 'android') {
+		return sleep(0).then(read)
+	}
+
 	const activity =
 		(globalThis as any).Application?.android?.foregroundActivity ??
 		(globalThis as any).Application?.android?.startActivity
+
 	const decor = activity?.getWindow?.()?.getDecorView?.()
-	if (!decor) return sleep(0).then(read)
+	if (!decor) {
+		return sleep(0).then(read)
+	}
+
 	const captured = new Promise<unknown>((resolve) => {
 		const vto = decor.getViewTreeObserver()
 		const listener = new (globalThis as any).android.view.ViewTreeObserver.OnDrawListener({
 			onDraw() {
 				const nv = (views as any).parent?.nativeViewProtected ?? (views as any).parent?.nativeView
-				console.log(`PROBE dbg draw parentScaleX=${nv?.getScaleX?.()} parentTx=${nv?.getTranslationX?.()} t=${Date.now()}`)
+				console.log(
+					`PROBE dbg draw parentScaleX=${nv?.getScaleX?.()} parentTx=${nv?.getTranslationX?.()} t=${Date.now()}`,
+				)
+
 				const data = read()
 				decor.post(
 					new (globalThis as any).java.lang.Runnable({
 						run: () => vto.removeOnDrawListener(listener),
 					}),
 				)
+
 				resolve(data)
 			},
 		})
+
 		vto.addOnDrawListener(listener)
 	})
+
 	// If no draw fires (e.g. listener added mid-traversal), don't hang the run.
-	return Promise.race([captured, sleep(1500).then(() => ({ drawMissed: true, ...((read() as any) ?? {}) }))])
+	return Promise.race([
+		captured,
+		sleep(1500).then(() => ({ drawMissed: true, ...((read() as any) ?? {}) })),
+	])
 }
 
 function transforms(view: any) {
@@ -153,6 +180,7 @@ export async function run(ctx: ProbeContext) {
 		console.log(`PROBE ${id} ${JSON.stringify(data)}`)
 		ctx.record(id, data)
 	}
+
 	const target = ctx.target
 	const screen = (v: any) => onScreen(v, target)
 	Trace.enable()
@@ -162,20 +190,29 @@ export async function run(ctx: ProbeContext) {
 			console.log(`PROBE trace ${message.slice(0, 400)}`)
 		},
 	} as any)
+
 	const t0 = Date.now()
 	const step = (name: string) => console.log(`PROBE step ${name} t=${Date.now() - t0}`)
 	const uncaught: string[] = []
 	Application.on?.('uncaughtError', (a: any) => uncaught.push(String(a?.error ?? a)))
 	const batchUnsub = observeBatches({
 		didApply(container, commands) {
-			const host = (container as any)?.hostView?.constructor?.name ?? (container as any)?.constructor?.name
-			console.log(`PROBE batch t=${Date.now() - t0} host=${host} ops=${(commands as any[]).map((c) => c?.type).join(',')}`)
+			const host =
+				(container as any)?.hostView?.constructor?.name ?? (container as any)?.constructor?.name
+
+			console.log(
+				`PROBE batch t=${Date.now() - t0} host=${host} ops=${(commands as any[]).map((c) => c?.type).join(',')}`,
+			)
 		},
 	})
+
 	Application.on?.('discardedError', (a: any) => uncaught.push(`discarded:${a?.error ?? a}`))
 	views.parent = views.parent ?? ctx.find('ml-parent')
 	views.child = views.child ?? ctx.find('ml-child')
-	for (const k of ['a', 'b', 'c']) views[`row${k}`] = views[`row${k}`] ?? ctx.find(`ml-${k}`)
+	for (const k of ['a', 'b', 'c']) {
+		views[`row${k}`] = views[`row${k}`] ?? ctx.find(`ml-${k}`)
+	}
+
 	await ctx.waitFor(() => views.parent?.isLoaded, { timeout: 15000, interval: 50 })
 	await sleep(100)
 
@@ -189,6 +226,7 @@ export async function run(ctx: ProbeContext) {
 			child: screen(views.child),
 			parentRaw: rawLayout(views.parent, target),
 		}))
+
 		step('setWide')
 		setWide(true)
 		const first = (await drawPromise) as any
@@ -199,6 +237,7 @@ export async function run(ctx: ProbeContext) {
 			layoutApplied &&
 			Math.abs((firstFrame?.w ?? 0) - (before?.w ?? 0)) <= 0.5 &&
 			Math.abs((firstFrame?.x ?? 0) - (before?.x ?? 0)) <= 0.5
+
 		const pl =
 			target === 'ios'
 				? await (async () => {
@@ -208,7 +247,16 @@ export async function run(ctx: ProbeContext) {
 						return f ? { x: f.origin.x, y: f.origin.y, w: f.size.width, h: f.size.height } : null
 					})()
 				: undefined
-		log('flash', { before, firstFrame, firstChild, parentRaw: first.parentRaw, layoutApplied, noFlash, presentationLayer: pl })
+
+		log('flash', {
+			before,
+			firstFrame,
+			firstChild,
+			parentRaw: first.parentRaw,
+			layoutApplied,
+			noFlash,
+			presentationLayer: pl,
+		})
 
 		step('mid-start')
 		// Mid-animation: parent between 120 and 180 wide, child stays 50.
@@ -216,9 +264,8 @@ export async function run(ctx: ProbeContext) {
 		const mid = screen(views.parent)
 		const midChild = screen(views.child)
 		const midOk =
-			(mid?.w ?? 0) > 120 &&
-			(mid?.w ?? 0) < 180 &&
-			Math.abs((midChild?.w ?? 0) - 50) <= 0.5
+			(mid?.w ?? 0) > 120 && (mid?.w ?? 0) < 180 && Math.abs((midChild?.w ?? 0) - 50) <= 0.5
+
 		log('mid', { mid, midChild, midOk })
 
 		step('settle-start')
@@ -236,23 +283,29 @@ export async function run(ctx: ProbeContext) {
 		const ops = new Set<string>()
 		const stop = observeBatches({
 			didApply(_container, commands) {
-				for (const c of commands) ops.add(c.op)
+				for (const c of commands) {
+					ops.add(c.op)
+				}
 			},
 		})
+
 		step('reorder-start')
 		const drawPromise = captureFirstFrame(target, () => ({
 			on: ['a', 'b', 'c'].map((k) => screen(views[`row${k}`])),
 			raw: ['a', 'b', 'c'].map((k) => rawLayout(views[`row${k}`], target)),
 		}))
+
 		setOrder(['c', 'b', 'a'])
 		const first = (await drawPromise) as any
 		stop()
 		const firstFrame = first.on
 		const rawAfter = first.raw
-		const rawSwapped = Math.abs((rawAfter[0]?.y ?? 0) - 160) <= 1 && Math.abs((rawAfter[2]?.y ?? 0) - 120) <= 1
+		const rawSwapped =
+			Math.abs((rawAfter[0]?.y ?? 0) - 160) <= 1 && Math.abs((rawAfter[2]?.y ?? 0) - 120) <= 1
+
 		const startsAtBefore =
-			rawSwapped &&
-			before.every((b, i) => Math.abs((firstFrame[i]?.y ?? 0) - (b?.y ?? 0)) <= 0.5)
+			rawSwapped && before.every((b, i) => Math.abs((firstFrame[i]?.y ?? 0) - (b?.y ?? 0)) <= 0.5)
+
 		await sleep(600)
 		const after = ['a', 'b', 'c'].map((k) => screen(views[`row${k}`]))
 		const endsMoved = Math.abs((after[0]?.y ?? 0) - (before[2]?.y ?? 0)) <= 0.5
@@ -272,6 +325,6 @@ export async function run(ctx: ProbeContext) {
 		log('reorder', { error: String(error) })
 	}
 
-		log('dbg', { uncaught })
+	log('dbg', { uncaught })
 	ctx.record('done', true)
 }

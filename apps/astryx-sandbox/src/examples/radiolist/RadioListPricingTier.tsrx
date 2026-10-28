@@ -4,9 +4,34 @@ import { useState } from 'octane'
 
 export function RadioListPricingTier() @{
 	const [value, setValue] = useState('')
+
 	<RadioList label="Plan" value={value} onValueChange={setValue}>
-		<RadioListItem label="Free" value="free" endContent={<Text type="body" color="secondary">$0/mo</Text>} />
-		<RadioListItem label="Pro" value="pro" endContent={<Text type="body" color="secondary">$9/mo</Text>} />
-		<RadioListItem label="Enterprise" value="enterprise" endContent={<Text type="body" color="secondary">Custom</Text>} />
+		<RadioListItem
+			label="Free"
+			value="free"
+			endContent={
+				<Text type="body" color="secondary">
+					$0/mo
+				</Text>
+			}
+		/>
+		<RadioListItem
+			label="Pro"
+			value="pro"
+			endContent={
+				<Text type="body" color="secondary">
+					$9/mo
+				</Text>
+			}
+		/>
+		<RadioListItem
+			label="Enterprise"
+			value="enterprise"
+			endContent={
+				<Text type="body" color="secondary">
+					Custom
+				</Text>
+			}
+		/>
 	</RadioList>
 }

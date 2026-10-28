@@ -77,6 +77,7 @@ it('retains pane entries, provider values and entry-owned hooks in the real DOM 
 		if (entered.status !== 'committed') {
 			throw new Error('Expected the pane to commit')
 		}
+
 		expect(await entered.finished).toMatchObject({ status: 'skipped' })
 
 		const coat = container.querySelector('[data-item="coat"]') as HTMLButtonElement

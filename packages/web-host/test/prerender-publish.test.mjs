@@ -18,6 +18,7 @@ test('restores the previous published output when the swap rename fails', async 
 				encoding: 'utf8',
 			},
 		)
+
 		assert.equal(child.status, 0, child.stderr || child.stdout)
 		return
 	}
@@ -61,6 +62,7 @@ test('restores the previous published output when the swap rename fails', async 
 			}),
 			document: async (page) => new Response(`edition-${++edition}`, { headers: page.headers }),
 		}
+
 		const options = {
 			origin: 'https://example.com',
 			outDir,
@@ -81,6 +83,7 @@ test('restores the previous published output when the swap rename fails', async 
 			'edition-1',
 			'the previous owned output is restored in place',
 		)
+
 		assert.deepEqual(
 			(await readdir(root)).sort(),
 			['cache.json', 'html'],

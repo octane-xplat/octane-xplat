@@ -17,7 +17,7 @@ import { isDateRangeAllowed } from './calendar-core'
 const STATUS_TEXT = { error: '⚠', warning: '⚠', success: '✓' } as const
 
 function RangeControl(inputProps: DateRangeInputProps) @{
-	const hostRef = useRef<any>(null);
+	const hostRef = useRef<any>(null)
 	const props = useFieldControlProps(inputProps)
 	const locale = resolveLocale(props.locale)
 	const generatedId = useId()
@@ -32,16 +32,25 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 	const isBusy = !!props.isLoading || busy
 
 	const fireChange = (next: DateRange | null) => {
-		if (isDisabled || isBusy || next !== null && !isDateRangeAllowed(next, props)) return
+		if (isDisabled || isBusy || (next !== null && !isDateRangeAllowed(next, props))) {
+			return
+		}
+
 		props.onChange?.(next)
 		if (props.changeAction) {
 			setBusy(true)
-			runDateChangeAction(() => props.changeAction!(next), () => setBusy(false))
+			runDateChangeAction(
+				() => props.changeAction!(next),
+				() => setBusy(false),
+			)
 		}
 	}
 
 	const selectRange = (range: DateRange) => {
-		if (isDisabled || isBusy || !isDateRangeAllowed(range, props)) return
+		if (isDisabled || isBusy || !isDateRangeAllowed(range, props)) {
+			return
+		}
+
 		fireChange(range)
 		setOpen(false)
 	}
@@ -49,14 +58,26 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 	const isPresetDisabled = (preset: { getRange: () => DateRange }) =>
 		isDisabled || isBusy || !isDateRangeAllowed(preset.getRange(), props)
 
-	const displayText = shown ? `${formatDateValue(shown.start, 'date_long', locale)} – ${formatDateValue(shown.end, 'date_long', locale)}` : ''
-	const isSelectedPreset = (p: { getRange: () => DateRange }) => { const r = p.getRange(); return shown?.start === r.start && shown?.end === r.end }
+	const displayText = shown
+		? `${formatDateValue(shown.start, 'date_long', locale)} – ${formatDateValue(shown.end, 'date_long', locale)}`
+		: ''
+
+	const isSelectedPreset = (p: { getRange: () => DateRange }) => {
+		const r = p.getRange()
+		return shown?.start === r.start && shown?.end === r.end
+	}
+
 	const statusText = props.status ? STATUS_TEXT[props.status.type] : null
 
-	useImperativeHandle(props.ref, () => ({ focus: () => {}, blur: () => {}, native: hostRef.current }), undefined);
+	useImperativeHandle(
+		props.ref,
+		() => ({ focus: () => {}, blur: () => {}, native: hostRef.current }),
+		undefined,
+	)
 
 	<>
-		<masonview className={cx(
+		<masonview
+			className={cx(
 				'vx-daterangeinput',
 				isDisabled && 'vx-daterangeinput--disabled',
 				isBusy && 'vx-daterangeinput--loading',
@@ -64,36 +85,89 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 				props.size && `vx-daterangeinput--size-${props.size}`,
 				open && 'vx-daterangeinput--open',
 				props.className,
-			)} style={mergeStyle({display: "flex"}, props.style)}>
+			)}
+			style={mergeStyle({ display: 'flex' }, props.style)}
+		>
 			<Pressable
 				id={inputId}
-				className={cx('vx-daterangeinput-trigger', !shown && 'vx-daterangeinput-trigger--placeholder')}
+				className={cx(
+					'vx-daterangeinput-trigger',
+					!shown && 'vx-daterangeinput-trigger--placeholder',
+				)}
 				disabled={isDisabled || isBusy}
-				accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
+				accessibilityLabel={
+					props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label
+				}
 				accessibilityHint={props.accessibilityHint}
 				accessibilityState={{ disabled: isDisabled, busy: isBusy }}
-				ref={(v: any) => { hostRef.current = v; }}
-				onPress={() => { if (!isDisabled && !isBusy) setOpen(!open) }}
+				ref={(v: any) => {
+					hostRef.current = v
+				}}
+				onPress={() => {
+					if (!isDisabled && !isBusy) {
+						setOpen(!open)
+					}
+				}}
 			>
-				<masonview style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex"})}>
+				<masonview
+					style={mergeStyle({ flexDirection: 'row', alignItems: 'center' }, { display: 'flex' })}
+				>
 					<Icon name="xplat-calendar" size={16} />
 					<label className="vx-daterangeinput-text" text={displayText || 'Select a date range'} />
 				</masonview>
 			</Pressable>
-			{(props.hasClear ?? true) && shown != null && !isDisabled && !isBusy
-				? <Pressable className="vx-daterangeinput-clear" accessibilityLabel={`Clear ${props.fieldLabel ?? props.label ?? 'date range'}`} onPress={() => fireChange(null)}><label text="×" /></Pressable>
-				: null}
-			{statusText != null
-				? <label className={cx('vx-field-icon', `vx-field-icon--${props.status!.type}`)} text={statusText} accessibilityLabel={props.statusVariant === 'tooltip' ? props.status?.message : undefined} />
-				: null}
+			{(props.hasClear ?? true) && shown != null && !isDisabled && !isBusy ? (
+				<Pressable
+					className="vx-daterangeinput-clear"
+					accessibilityLabel={`Clear ${props.fieldLabel ?? props.label ?? 'date range'}`}
+					onPress={() => fireChange(null)}
+				>
+					<label text="×" />
+				</Pressable>
+			) : null}
+			{statusText != null ? (
+				<label
+					className={cx('vx-field-icon', `vx-field-icon--${props.status!.type}`)}
+					text={statusText}
+					accessibilityLabel={props.statusVariant === 'tooltip' ? props.status?.message : undefined}
+				/>
+			) : null}
 		</masonview>
-		<BottomSheet isOpen={open} onOpenChange={(isOpen) => setOpen(isOpen)} label={props.label ?? props.accessibilityLabel ?? 'Choose a date range'} height="hug" className="vx-daterangeinput-sheet">
-			<masonview className="vx-daterangeinput-dialog" style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
+		<BottomSheet
+			isOpen={open}
+			onOpenChange={(isOpen) => setOpen(isOpen)}
+			label={props.label ?? props.accessibilityLabel ?? 'Choose a date range'}
+			height="hug"
+			className="vx-daterangeinput-sheet"
+		>
+			<masonview
+				className="vx-daterangeinput-dialog"
+				style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}
+			>
 				{props.presets?.length ? (
 					<scrollview className="vx-daterangeinput-presets" accessibilityLabel="Presets">
-						<masonview style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
+						<masonview style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}>
 							{props.presets.map((preset, index) => (
-								<masonview key={preset.label} id={`${inputId}-preset-${index}`} onTap={() => { if (!isPresetDisabled(preset)) selectRange(preset.getRange()) }} className={cx('vx-daterangeinput-preset', isSelectedPreset(preset) && 'vx-daterangeinput-preset--selected')} accessibilityRole="button" isEnabled={!isPresetDisabled(preset)} accessibilityState={nativeAccessibilityState({ selected: isSelectedPreset(preset), disabled: isPresetDisabled(preset) })} style={{display: "flex"}}>
+								<masonview
+									key={preset.label}
+									id={`${inputId}-preset-${index}`}
+									onTap={() => {
+										if (!isPresetDisabled(preset)) {
+											selectRange(preset.getRange())
+										}
+									}}
+									className={cx(
+										'vx-daterangeinput-preset',
+										isSelectedPreset(preset) && 'vx-daterangeinput-preset--selected',
+									)}
+									accessibilityRole="button"
+									isEnabled={!isPresetDisabled(preset)}
+									accessibilityState={nativeAccessibilityState({
+										selected: isSelectedPreset(preset),
+										disabled: isPresetDisabled(preset),
+									})}
+									style={{ display: 'flex' }}
+								>
 									<label text={preset.label} />
 								</masonview>
 							))}
@@ -130,7 +204,9 @@ export function DateRangeInput(props: DateRangeInputProps) @{
 	const control = <RangeControl {...props} />
 
 	<>
-		{inField ? control : (
+		{inField ? (
+			control
+		) : (
 			<FormField
 				inputID={props.id ?? cid}
 				label={props.label}

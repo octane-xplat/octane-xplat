@@ -16,5 +16,12 @@ export function CommandPaletteListBasic() @{
 			]),
 		[],
 	)
-	<CommandPalette open onOpenChange={() => {}} searchSource={source} value={value} onValueChange={setValue} />
+
+	<CommandPalette
+		open
+		onOpenChange={() => {}}
+		searchSource={source}
+		value={value}
+		onValueChange={setValue}
+	/>
 }

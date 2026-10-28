@@ -6,7 +6,10 @@ function SelectFixture() @{
 	<Selector
 		className="parity-select-root"
 		selectionMode="single"
-		options={[{ value: 'small', label: 'Small' }, { value: 'large', label: 'Large' }]}
+		options={[
+			{ value: 'small', label: 'Small' },
+			{ value: 'large', label: 'Large' },
+		]}
 		value="small"
 		style={{ width: 160, height: 40, backgroundColor: '#f5f5f5' }}
 	/>

@@ -54,7 +54,10 @@ describe.each([
 
 		// A read-only switch reverts stray change events instead of calling
 		// onChange — the value cannot actually change.
-		flushUniversalSync(() => container.dispatchEvent(host, 'checkedChange', { value: true, object: host }))
+		flushUniversalSync(() =>
+			container.dispatchEvent(host, 'checkedChange', { value: true, object: host }),
+		)
+
 		expect(change).not.toHaveBeenCalled()
 		expect(host.checked).toBe(false)
 
@@ -70,7 +73,10 @@ describe.each([
 		expect(host.props.isEnabled).toBe(true)
 		expect(host.props.isUserInteractionEnabled).toBe(true)
 
-		flushUniversalSync(() => container.dispatchEvent(host, 'checkedChange', { value: false, object: host }))
+		flushUniversalSync(() =>
+			container.dispatchEvent(host, 'checkedChange', { value: false, object: host }),
+		)
+
 		expect(change).toHaveBeenCalledWith(false)
 		root.unmount()
 	})

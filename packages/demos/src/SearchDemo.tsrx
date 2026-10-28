@@ -1,9 +1,9 @@
-import { useState } from 'octane';
-import { Heading, SearchInput, Text, View } from '@octane-xplat/ui';
+import { useState } from 'octane'
+import { Heading, SearchInput, Text, View } from '@octane-xplat/ui'
 
 export function SearchDemo() @{
-	const [query, setQuery] = useState('sunsets');
-	const [submitted, setSubmitted] = useState('');
+	const [query, setQuery] = useState('sunsets')
+	const [submitted, setSubmitted] = useState('')
 
 	<View className="pager-demo gap-4">
 		<Heading>Search input</Heading>
@@ -16,7 +16,9 @@ export function SearchDemo() @{
 			placeholder="Search photos"
 		/>
 		<Text className="text-sm text-muted">{'Query: ' + (query || '—')}</Text>
-		{submitted !== '' ? <Text className="text-sm text-muted">{'Submitted: ' + submitted}</Text> : null}
+		{submitted !== '' ? (
+			<Text className="text-sm text-muted">{'Submitted: ' + submitted}</Text>
+		) : null}
 
 		<SearchInput
 			defaultValue="wildlife"

@@ -7,7 +7,10 @@ import { demoSession } from '../shared-query-data'
 import type { RouteLoaderArgs, RouteProps } from '../routes.gen.contracts'
 
 export function validateSearch(raw: { id?: unknown }) {
-	if (raw.id !== undefined && typeof raw.id !== 'string') throw new TypeError('id must be a string')
+	if (raw.id !== undefined && typeof raw.id !== 'string') {
+		throw new TypeError('id must be a string')
+	}
+
 	return { id: raw.id ?? '1' }
 }
 
@@ -21,12 +24,23 @@ export function CachedUser(props: RouteProps<'/cached-user'>) @{
 	const navigation = useRouter()
 	const session = useStore(demoSession)
 	const reader = useQuery$(session.queries, session.users, props.search.id)
-	const [message, setMessage] = useState('Rename confirms a server receipt; Reject rename rolls back.')
+	const [message, setMessage] = useState(
+		'Rename confirms a server receipt; Reject rename rolls back.',
+	)
+
 	const save = (name: string, reject: boolean) => {
 		setMessage('Saving…')
 		void session.saveUser(props.search.id, name + '!', reject).then(
-			() => { if (demoSession.getSnapshot() === session) setMessage('Saved. The feed also has the confirmed name.') },
-			() => { if (demoSession.getSnapshot() === session) setMessage('Save rejected. The tentative name was removed.') },
+			() => {
+				if (demoSession.getSnapshot() === session) {
+					setMessage('Saved. The feed also has the confirmed name.')
+				}
+			},
+			() => {
+				if (demoSession.getSnapshot() === session) {
+					setMessage('Save rejected. The tentative name was removed.')
+				}
+			},
 		)
 	}
 
@@ -34,7 +48,9 @@ export function CachedUser(props: RouteProps<'/cached-user'>) @{
 		<Text className="text-2xl font-semibold">Cached user</Text>
 		<Text>{'Public demo account: ' + session.account}</Text>
 		<Text id="cached-save-status">{message}</Text>
-		<Pressable id="cached-back" onPress={() => navigation.back()}><Text>Back to users</Text></Pressable>
+		<Pressable id="cached-back" onPress={() => navigation.back()}>
+			<Text>Back to users</Text>
+		</Pressable>
 		@if (!reader) {
 			<Text>Opening user…</Text>
 		} @else {
@@ -42,13 +58,23 @@ export function CachedUser(props: RouteProps<'/cached-user'>) @{
 				const user = reader.data$.get()
 				<>
 					<Text id="cached-name">{user.name}</Text>
-					<Pressable id="cached-save" onPress={() => save(user.name, false)}><Text>Rename</Text></Pressable>
-					<Pressable id="cached-reject" onPress={() => save(user.name, true)}><Text>Reject rename</Text></Pressable>
+					<Pressable id="cached-save" onPress={() => save(user.name, false)}>
+						<Text>Rename</Text>
+					</Pressable>
+					<Pressable id="cached-reject" onPress={() => save(user.name, true)}>
+						<Text>Reject rename</Text>
+					</Pressable>
 				</>
 			} @pending {
 				<Text>Loading user…</Text>
 			} @catch (error) {
-				<Pressable onPress={() => { void reader.refetch().catch(() => setMessage('Read failed. Try again.')) }}><Text>Retry user</Text></Pressable>
+				<Pressable
+					onPress={() => {
+						void reader.refetch().catch(() => setMessage('Read failed. Try again.'))
+					}}
+				>
+					<Text>Retry user</Text>
+				</Pressable>
 			}
 		}
 	</Screen>

@@ -34,7 +34,10 @@ const type = (input: HTMLInputElement, value: string) =>
 	})
 
 afterEach(() => {
-	for (const root of roots.splice(0)) act(() => root.unmount())
+	for (const root of roots.splice(0)) {
+		act(() => root.unmount())
+	}
+
 	document.body.innerHTML = ''
 })
 
@@ -150,7 +153,14 @@ describe('overlays', () => {
 
 	it('Overlay controlled open wins over defaultOpen and stays open after shade tap', () => {
 		const dismiss = vi.fn()
-		mount(Overlay, { open: true, defaultOpen: false, shadeCover: true, onDismiss: dismiss, children: 'Panel' })
+		mount(Overlay, {
+			open: true,
+			defaultOpen: false,
+			shadeCover: true,
+			onDismiss: dismiss,
+			children: 'Panel',
+		})
+
 		click(document.querySelector('.vx-overlay-shade')!)
 		expect(dismiss).toHaveBeenCalled()
 		expect(document.querySelector('.vx-overlay-content')).not.toBeNull()
@@ -169,7 +179,13 @@ describe('overlays', () => {
 		const dismiss = vi.fn()
 		const anchorEl = document.createElement('button')
 		document.body.append(anchorEl)
-		mount(Popover, { anchor: { current: anchorEl }, defaultOpen: true, onDismiss: dismiss, children: 'Inside' })
+		mount(Popover, {
+			anchor: { current: anchorEl },
+			defaultOpen: true,
+			onDismiss: dismiss,
+			children: 'Inside',
+		})
+
 		expect(document.querySelector('.vx-popover')).not.toBeNull()
 		click(document.querySelector('.vx-popover-backdrop')!)
 		expect(dismiss).toHaveBeenCalled()
@@ -198,7 +214,11 @@ describe('overlays', () => {
 		mount(BottomSheetSwitcher, {
 			defaultActiveSheet: 'one',
 			onActiveSheetChange: change,
-			children: <BottomSheet sheetId="one"><div data-sheet="one">One</div></BottomSheet>,
+			children: (
+				<BottomSheet sheetId="one">
+					<div data-sheet="one">One</div>
+				</BottomSheet>
+			),
 		})
 
 		expect(document.querySelector('[data-sheet="one"]')).not.toBeNull()
@@ -209,9 +229,20 @@ describe('overlays', () => {
 
 	it('Dialog seeds defaultOpen; Escape reports onOpenChange(false) and closes', () => {
 		const change = vi.fn()
-		mount(Dialog, { defaultOpen: true, onOpenChange: change, accessibilityLabel: 'Test dialog', children: <button>Body</button> })
+		mount(Dialog, {
+			defaultOpen: true,
+			onOpenChange: change,
+			accessibilityLabel: 'Test dialog',
+			children: <button>Body</button>,
+		})
+
 		expect(document.querySelector('.vx-dialog')).not.toBeNull()
-		act(() => document.activeElement!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })))
+		act(() =>
+			document.activeElement!.dispatchEvent(
+				new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }),
+			),
+		)
+
 		expect(change).toHaveBeenLastCalledWith(false)
 		expect(document.querySelector('.vx-dialog')).toBeNull()
 	})
@@ -219,7 +250,10 @@ describe('overlays', () => {
 	it('AlertDialog seeds defaultOpen; Cancel reports onOpenChange(false) and closes', () => {
 		const change = vi.fn()
 		mount(AlertDialog, { defaultOpen: true, onOpenChange: change, title: 'Delete item?' })
-		const cancel = [...document.querySelectorAll('.vx-alertdialog-actions .vx-button')].find((b) => b.textContent === 'Cancel')!
+		const cancel = [...document.querySelectorAll('.vx-alertdialog-actions .vx-button')].find(
+			(b) => b.textContent === 'Cancel',
+		)!
+
 		click(cancel)
 		expect(change).toHaveBeenLastCalledWith(false)
 		expect(document.querySelector('.vx-dialog')).toBeNull()

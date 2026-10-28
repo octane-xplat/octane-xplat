@@ -133,8 +133,7 @@ test('macOS validates launch URL/scheme and reports unavailable capability hones
 	const absent = load({ available: false }).auth
 	assert.equal(absent.supported, false)
 	assert.equal(await absent.isAvailable(), false)
-	await assert.rejects(
-		absent.open('https://example.test/login', { callbackScheme: 'sample' }),
-		{ name: 'UnavailabilityError' },
-	)
+	await assert.rejects(absent.open('https://example.test/login', { callbackScheme: 'sample' }), {
+		name: 'UnavailabilityError',
+	})
 })

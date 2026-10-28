@@ -27,11 +27,14 @@ export function NativeSheetDemo() @{
 			content={() => (
 				<View className="gap-3 p-5">
 					<Heading>More</Heading>
-					<Pressable className="rounded-lg border border-slate-300 p-3" onPress={() => setOpen(false)}>
+					<Pressable
+						className="rounded-lg border border-slate-300 p-3"
+						onPress={() => setOpen(false)}
+					>
 						<Text>Close from inside</Text>
 					</Pressable>
 				</View>
 			)}
 		/>
-	</View>;
+	</View>
 }

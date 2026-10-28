@@ -71,9 +71,9 @@ let layer: any = null
 function Probe(props: { fixed?: boolean }) {
 	layer = useLayer({ mode: props.fixed ? 'fixed' : 'context' })
 	return (
-		<masonview style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
+		<masonview style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}>
 			{layer.render(
-				<masonview style={{display: "grid"}}/>,
+				<masonview style={{ display: 'grid' }} />,
 				props.fixed ? { x: 10, y: 20 } : { placement: 'below' },
 			)}
 		</masonview>

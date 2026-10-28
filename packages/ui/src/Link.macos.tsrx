@@ -9,7 +9,10 @@ export function Link(props: LinkProps) @{
 		className={props.className}
 		style={props.style}
 		accessibilityRole={props.accessibilityRole ?? 'link'}
-		onPress={() => { props.onPress?.(); followHref(props.href) }}
+		onPress={() => {
+			props.onPress?.()
+			followHref(props.href)
+		}}
 	>
 		{props.children}
 	</Pressable>

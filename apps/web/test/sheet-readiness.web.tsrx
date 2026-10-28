@@ -12,7 +12,9 @@ function SheetReadiness() @{
 	}
 
 	<>
-		<button ref={sheetTrigger} id="open-platform-sheet" onClick={() => setOpen(true)}>Open platform sheet</button>
+		<button ref={sheetTrigger} id="open-platform-sheet" onClick={() => setOpen(true)}>
+			Open platform sheet
+		</button>
 		<output id="dismissals">{dismissals}</output>
 		<PlatformBottomSheet
 			id="platform-sheet-panel"
@@ -25,19 +27,29 @@ function SheetReadiness() @{
 			containerColor="rgb(240, 240, 240)"
 			contentColor="rgb(24, 24, 24)"
 			scrimColor="rgb(0 0 0 / 0.5)"
-			content={() => <>
-				<button id="platform-sheet-first">First action</button>
-				<button id="platform-sheet-last" onClick={() => setOpen(false)}>Close sheet</button>
-			</>}
+			content={() => (
+				<>
+					<button id="platform-sheet-first">First action</button>
+					<button id="platform-sheet-last" onClick={() => setOpen(false)}>
+						Close sheet
+					</button>
+				</>
+			)}
 		/>
-		<button id="open-locked-platform-sheet" onClick={() => setLocked(true)}>Open locked sheet</button>
+		<button id="open-locked-platform-sheet" onClick={() => setLocked(true)}>
+			Open locked sheet
+		</button>
 		<PlatformBottomSheet
 			label="Required actions"
 			open={locked}
 			shouldDismissOnBackPress={false}
 			shouldDismissOnClickOutside={false}
 			sheetGesturesEnabled={false}
-			content={() => <button id="close-locked-platform-sheet" onClick={() => setLocked(false)}>Close</button>}
+			content={() => (
+				<button id="close-locked-platform-sheet" onClick={() => setLocked(false)}>
+					Close
+				</button>
+			)}
 		/>
 	</>
 }

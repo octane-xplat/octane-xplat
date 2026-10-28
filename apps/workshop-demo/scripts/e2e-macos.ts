@@ -26,7 +26,11 @@ await runNativeJourney({
 
 	async leafSteps({ state, check }) {
 		let s = await state('select isolation/resources')
-		check('isolation story mounts with providers', s.phase === 'ready', s.phase + ' ' + (s.failure ?? ''))
+		check(
+			'isolation story mounts with providers',
+			s.phase === 'ready',
+			s.phase + ' ' + (s.failure ?? ''),
+		)
 
 		s = await state('press Open owned overlay')
 		check('story opens owned secondary window', s.openWindows === 1, `openWindows=${s.openWindows}`)

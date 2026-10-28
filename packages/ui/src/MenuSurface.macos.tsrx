@@ -9,9 +9,18 @@ import { Text } from './Text.macos.tsrx'
 export function MenuSurface(props: MenuSurfaceProps) @{
 	const context = { closeMenu: () => props.closeMenu(), menuSize: 'md' as const }
 
-	<View className={['vx-menu-list', props.className]} style={props.style} accessibilityRole="menu" accessibilityLabel={props.label}>
+	<View
+		className={['vx-menu-list', props.className]}
+		style={props.style}
+		accessibilityRole="menu"
+		accessibilityLabel={props.label}
+	>
 		<MenuProvider value={context}>
-			{props.closeLevel && <Pressable accessibilityLabel="Back to parent menu" onPress={props.closeLevel}><Text>Back</Text></Pressable>}
+			{props.closeLevel && (
+				<Pressable accessibilityLabel="Back to parent menu" onPress={props.closeLevel}>
+					<Text>Back</Text>
+				</Pressable>
+			)}
 			{props.children}
 		</MenuProvider>
 	</View>

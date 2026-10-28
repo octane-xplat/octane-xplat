@@ -201,17 +201,20 @@ try {
 			}
 		}
 	}
+
 	XplatWebSocketDelegate.ObjCProtocols = [NSURLSessionWebSocketDelegate]
 	// The host registers only enumerable prototype methods on native subclasses.
 	for (const key of Object.getOwnPropertyNames(XplatWebSocketDelegate.prototype)) {
 		if (key === 'constructor') {
 			continue
 		}
+
 		Object.defineProperty(XplatWebSocketDelegate.prototype, key, {
 			...Object.getOwnPropertyDescriptor(XplatWebSocketDelegate.prototype, key),
 			enumerable: true,
 		})
 	}
+
 	NativeClass(XplatWebSocketDelegate)
 
 	class WebSocket {
@@ -328,9 +331,11 @@ try {
 					data instanceof ArrayBuffer
 						? new Uint8Array(data)
 						: new Uint8Array(data.buffer, data.byteOffset, data.byteLength)
+
 				message = NSURLSessionWebSocketMessage.alloc().initWithData(
 					NSData.dataWithBytesLength(bytes, bytes.length),
 				)
+
 				size = bytes.length
 			} else {
 				message = NSURLSessionWebSocketMessage.alloc().initWithString(String(data))

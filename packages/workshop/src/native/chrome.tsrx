@@ -32,6 +32,7 @@ function StatusLine(p: { controller: NativeWorkshopController; target: WorkshopT
 		} · ${session.phase}${session.stale ? ' · STALE' : ''}${
 			session.failure ? ` · ${session.failure.phase}: ${session.failure.message}` : ''
 		}`
+
 	return <label className="xw-status" text={text} accessibilityLabel={text} />
 }
 
@@ -43,11 +44,11 @@ function Toolbar(p: {
 }) {
 	const s = useStore(p.controller.store)
 	const catalogActive =
-		!s.stageOnly &&
-		(s.mode === 'wide' ? !s.catalogCollapsed : s.panel === 'stories')
+		!s.stageOnly && (s.mode === 'wide' ? !s.catalogCollapsed : s.panel === 'stories')
+
 	const controlsActive =
-		!s.stageOnly &&
-		(s.mode === 'wide' ? !s.controlsCollapsed : s.panel === 'controls')
+		!s.stageOnly && (s.mode === 'wide' ? !s.controlsCollapsed : s.panel === 'controls')
+
 	return (
 		<masonview className="xw-toolbar" style={{ display: 'flex', flexWrap: 'wrap' }}>
 			{!s.stageOnly ? (
@@ -104,6 +105,7 @@ function CatalogGroup(p: {
 			.filter(Boolean)
 			.slice(depth)
 			.join(' / ')
+
 		const separator = tail.indexOf('/')
 		if (separator < 0) {
 			leaves.push(entry)
@@ -114,6 +116,7 @@ function CatalogGroup(p: {
 			groups.set(name, members)
 		}
 	}
+
 	return (
 		<>
 			{leaves.map((entry) => {
@@ -139,8 +142,12 @@ function CatalogGroup(p: {
 							accessibilityLabel={label}
 							onTap={() => {
 								const next = new Set(s.collapsedGroups)
-								if (collapsed) next.delete(name)
-								else next.add(name)
+								if (collapsed) {
+									next.delete(name)
+								} else {
+									next.add(name)
+								}
+
 								p.controller.store.update((v) => ({ ...v, collapsedGroups: next }))
 							}}
 						/>
@@ -169,6 +176,7 @@ function CatalogPanel(p: {
 	const entries = [...s.catalog]
 		.filter((e) => `${e.title} ${e.id}`.toLowerCase().includes(query))
 		.sort((a, b) => a.title.localeCompare(b.title) || a.id.localeCompare(b.id))
+
 	return (
 		<scrollview className="xw-panel">
 			<masonview style={{ display: 'flex', flexDirection: 'column' }}>
@@ -201,7 +209,11 @@ function CatalogPanel(p: {
 	)
 }
 
-function ControlsPanel(p: { controller: NativeWorkshopController; target: WorkshopTarget; onClose(): void }) {
+function ControlsPanel(p: {
+	controller: NativeWorkshopController
+	target: WorkshopTarget
+	onClose(): void
+}) {
 	const s = useStore(p.controller.store)
 	const story = p.controller.session.currentStory
 	const currentProps = p.controller.session.currentProps ?? {}
@@ -210,6 +222,7 @@ function ControlsPanel(p: { controller: NativeWorkshopController; target: Worksh
 			...v,
 			drafts: { ...v.drafts, [key]: String(value) },
 		}))
+
 	const commit = (key: string, value: unknown) => p.controller.control(key, value as any)
 	return (
 		<scrollview className="xw-panel">
@@ -236,12 +249,10 @@ function ControlsPanel(p: { controller: NativeWorkshopController; target: Worksh
 								type: string
 								options?: readonly (string | number | boolean)[]
 							}
+
 							const applied = `${key}: ${String(currentProps[key] ?? 'Unset')}`
 							return (
-								<masonview
-									key={key}
-									style={{ display: 'flex', flexDirection: 'column' }}
-								>
+								<masonview key={key} style={{ display: 'flex', flexDirection: 'column' }}>
 									<label className="xw-label" text={applied} accessibilityLabel={applied} />
 									{spec.type === 'boolean' ? (
 										<>
@@ -276,17 +287,13 @@ function ControlsPanel(p: { controller: NativeWorkshopController; target: Worksh
 												className="xw-field"
 												accessibilityLabel={key}
 												text={s.drafts[key] ?? String(currentProps[key] ?? '')}
-												onTextChange={(e: any) =>
-													draft(key, e?.value ?? e?.object?.text ?? '')
-												}
+												onTextChange={(e: any) => draft(key, e?.value ?? e?.object?.text ?? '')}
 											/>
 											<button
 												className="xw-action"
 												text={`Apply ${key}`}
 												accessibilityLabel={`Apply ${key}`}
-												onTap={() =>
-													commit(key, s.drafts[key] ?? String(currentProps[key] ?? ''))
-												}
+												onTap={() => commit(key, s.drafts[key] ?? String(currentProps[key] ?? ''))}
 											/>
 										</>
 									)}
@@ -320,9 +327,8 @@ function ControlsPanel(p: { controller: NativeWorkshopController; target: Worksh
 							? 'unsupported-by-story'
 							: 'unqualified backend / separate launch'
 					}${target === p.target ? ' (current host)' : ''}`
-					return (
-						<label key={target} className="xw-label" text={text} accessibilityLabel={text} />
-					)
+
+					return <label key={target} className="xw-label" text={text} accessibilityLabel={text} />
 				})}
 				<label className="xw-label" text="Stage settings" accessibilityLabel="Stage settings" />
 				<button
@@ -377,6 +383,7 @@ export function NativeWorkshopChrome(p: NativeChromeProps) {
 		if (panel === 'stories' && search.current) {
 			p.focus(search.current)
 		}
+
 		if (panel === null && opener.current) {
 			p.focus(opener.current)
 		}
@@ -384,10 +391,8 @@ export function NativeWorkshopChrome(p: NativeChromeProps) {
 
 	const wide = s.mode === 'wide' && !s.stageOnly
 	const phone = s.mode === 'phone'
-	const showCatalog =
-		!s.stageOnly && (wide ? !s.catalogCollapsed : s.panel === 'stories')
-	const showControls =
-		!s.stageOnly && (wide ? !s.controlsCollapsed : s.panel === 'controls')
+	const showCatalog = !s.stageOnly && (wide ? !s.catalogCollapsed : s.panel === 'stories')
+	const showControls = !s.stageOnly && (wide ? !s.controlsCollapsed : s.panel === 'controls')
 	const panelOpen = !s.stageOnly && (showCatalog || showControls)
 	// Phone: an open panel overlays the stage — hidden keeps the story root
 	// alive; collapse would release it on some drivers.
@@ -397,12 +402,14 @@ export function NativeWorkshopChrome(p: NativeChromeProps) {
 		s.session.phase === 'failed' ||
 		s.session.phase === 'restart-required' ||
 		s.session.phase === 'disconnected'
+
 	const stageStyle: Record<string, unknown> = {
 		flexGrow: 1,
 		...(s.stage.size === 'bounded' ? { width: 320, height: 400, alignSelf: 'center' } : {}),
 		...(s.stage.background === 'dark' ? { backgroundColor: '#242424' } : {}),
 		visibility: stageHidden ? 'hidden' : 'visible',
 	}
+
 	const closePanel = () => {
 		if (wide) {
 			p.controller.store.update((v) => ({
@@ -411,6 +418,7 @@ export function NativeWorkshopChrome(p: NativeChromeProps) {
 				controlsCollapsed: panel === 'controls' ? true : v.controlsCollapsed,
 			}))
 		}
+
 		p.controller.panel = null
 		if (opener.current) {
 			p.focus(opener.current)
@@ -418,17 +426,27 @@ export function NativeWorkshopChrome(p: NativeChromeProps) {
 	}
 
 	return (
-		<masonview className="xw-root" style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+		<masonview
+			className="xw-root"
+			style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}
+		>
 			<Toolbar
 				controller={p.controller}
 				storiesRef={(v) => {
-					if (v) opener.current = v
+					if (v) {
+						opener.current = v
+					}
 				}}
 				controlsRef={(v) => {
-					if (v) opener.current = v
+					if (v) {
+						opener.current = v
+					}
 				}}
 				onToggle={(panel, source) => {
-					if (source) opener.current = source
+					if (source) {
+						opener.current = source
+					}
+
 					p.controller.toggle(panel)
 				}}
 			/>
@@ -445,13 +463,19 @@ export function NativeWorkshopChrome(p: NativeChromeProps) {
 						style={
 							overlayPanel
 								? { display: 'flex', position: 'absolute', inset: 0 }
-								: { display: 'flex', width: wide ? 240 : undefined, flexBasis: wide ? undefined : '45%' }
+								: {
+										display: 'flex',
+										width: wide ? 240 : undefined,
+										flexBasis: wide ? undefined : '45%',
+									}
 						}
 					>
 						<CatalogPanel
 							controller={p.controller}
 							searchRef={(v) => {
-								if (v) search.current = v
+								if (v) {
+									search.current = v
+								}
 							}}
 							onClose={closePanel}
 						/>
@@ -464,7 +488,9 @@ export function NativeWorkshopChrome(p: NativeChromeProps) {
 					<masonview
 						className="xw-stage"
 						ref={(v: unknown) => {
-							if (v) p.onStage(v)
+							if (v) {
+								p.onStage(v)
+							}
 						}}
 						style={stageStyle}
 					/>
@@ -492,14 +518,14 @@ export function NativeWorkshopChrome(p: NativeChromeProps) {
 						style={
 							overlayPanel
 								? { display: 'flex', position: 'absolute', inset: 0 }
-								: { display: 'flex', width: wide ? 280 : undefined, flexBasis: wide ? undefined : '45%' }
+								: {
+										display: 'flex',
+										width: wide ? 280 : undefined,
+										flexBasis: wide ? undefined : '45%',
+									}
 						}
 					>
-						<ControlsPanel
-							controller={p.controller}
-							target={p.target}
-							onClose={closePanel}
-						/>
+						<ControlsPanel controller={p.controller} target={p.target} onClose={closePanel} />
 					</masonview>
 				) : null}
 			</masonview>

@@ -217,18 +217,34 @@ it('keeps a failed visual definition from refusing an otherwise valid commit', a
 })
 
 it('skips custom animation when the browser lacks typed transitions and still updates', async () => {
-  const records = browserTransitions(false)
-  const pending = createBrowserRouteTransitions(window).run(context, 'custom', defineWebTransition({ types: ['custom'] }), async () => committed)
-  await records[0].update()
-  const result = await pending
-  expect(result.status === 'committed' && await result.finished).toEqual({ status: 'skipped', reason: 'unsupported' })
+	const records = browserTransitions(false)
+	const pending = createBrowserRouteTransitions(window).run(
+		context,
+		'custom',
+		defineWebTransition({ types: ['custom'] }),
+		async () => committed,
+	)
+	await records[0].update()
+	const result = await pending
+	expect(result.status === 'committed' && (await result.finished)).toEqual({
+		status: 'skipped',
+		reason: 'unsupported',
+	})
 })
 
 it('commits once when the browser rejects transition startup', async () => {
-  const error = new Error('startup failed')
-  Object.defineProperty(document, 'startViewTransition', { configurable: true, value: () => { throw error } })
-  const update = vi.fn(async () => committed)
-  const result = await createBrowserRouteTransitions(window).run(context, 'fade', undefined, update)
-  expect(result.status === 'committed' && await result.finished).toEqual({ status: 'failed', error })
-  expect(update).toHaveBeenCalledOnce()
+	const error = new Error('startup failed')
+	Object.defineProperty(document, 'startViewTransition', {
+		configurable: true,
+		value: () => {
+			throw error
+		},
+	})
+	const update = vi.fn(async () => committed)
+	const result = await createBrowserRouteTransitions(window).run(context, 'fade', undefined, update)
+	expect(result.status === 'committed' && (await result.finished)).toEqual({
+		status: 'failed',
+		error,
+	})
+	expect(update).toHaveBeenCalledOnce()
 })

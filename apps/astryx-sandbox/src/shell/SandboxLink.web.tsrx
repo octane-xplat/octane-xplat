@@ -32,9 +32,18 @@ export function SandboxLink(props: SandboxLinkProps) @{
 			href={href}
 			onClick={(e: any) => {
 				onClick?.(e)
-				if (e?.defaultPrevented || isExternal(href)) return
-				if (e?.button !== undefined && e.button !== 0) return
-				if (e?.metaKey || e?.ctrlKey || e?.shiftKey || e?.altKey) return
+				if (e?.defaultPrevented || isExternal(href)) {
+					return
+				}
+
+				if (e?.button !== undefined && e.button !== 0) {
+					return
+				}
+
+				if (e?.metaKey || e?.ctrlKey || e?.shiftKey || e?.altKey) {
+					return
+				}
+
 				e?.preventDefault?.()
 				followHref(destination)
 			}}

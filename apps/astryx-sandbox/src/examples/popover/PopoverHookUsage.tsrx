@@ -6,11 +6,18 @@ export function PopoverHookUsage() @{
 	return (
 		<Center style={{ height: 240 }}>
 			<VStack gap={2}>
-				<Button label="Open actions" ref={popover.triggerRef} clickAction={popover.toggle} {...(popover.triggerProps as any)} />
+				<Button
+					label="Open actions"
+					ref={popover.triggerRef}
+					clickAction={popover.toggle}
+					{...(popover.triggerProps as any)}
+				/>
 				{popover.render(
 					<Card width={220} padding={3} variant="transparent">
 						<VStack gap={2}>
-							<Text type="body" style={{ fontWeight: 600 }}>Quick actions</Text>
+							<Text type="body" style={{ fontWeight: 600 }}>
+								Quick actions
+							</Text>
 							<Button label="Create task" size="sm" />
 							<Button label="Share report" variant="secondary" size="sm" />
 						</VStack>

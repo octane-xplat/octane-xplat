@@ -19,15 +19,33 @@ export function SegmentedControlItem(props: SegmentedControlItemProps) @{
 		aria-disabled={disabled || undefined}
 		aria-label={props.isLabelHidden ? props.label : undefined}
 		tabIndex={disabled ? undefined : 0}
-		className={['vx-segment', selected && 'vx-segment--on', disabled && 'vx-segment--disabled', props.isLabelHidden && 'vx-segment--icon-only', props.className]}
+		className={[
+			'vx-segment',
+			selected && 'vx-segment--on',
+			disabled && 'vx-segment--disabled',
+			props.isLabelHidden && 'vx-segment--icon-only',
+			props.className,
+		]}
 		style={props.style}
 		onClick={blocked ? undefined : () => ctx?.select?.(props.value)}
 		onKeyDown={(e: any) => {
-			if (blocked || !ctx?.select) return
-			if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); ctx.select(props.value) }
+			if (blocked || !ctx?.select) {
+				return
+			}
+
+			if (e.key === ' ' || e.key === 'Enter') {
+				e.preventDefault()
+				ctx.select(props.value)
+			}
 		}}
 	>
-		{props.icon != null ? <span className="vx-segment-icon" aria-hidden="true">{props.icon}</span> : null}
-		{!props.isLabelHidden ? <span className="vx-segment-label">{props.label ?? props.value}</span> : null}
+		{props.icon != null ? (
+			<span className="vx-segment-icon" aria-hidden="true">
+				{props.icon}
+			</span>
+		) : null}
+		{!props.isLabelHidden ? (
+			<span className="vx-segment-label">{props.label ?? props.value}</span>
+		) : null}
 	</div>
 }

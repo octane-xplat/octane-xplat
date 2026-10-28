@@ -24,5 +24,11 @@ function AccordionFixture() @{
 }
 
 export const PARITY: ParityFixture[] = [
-	{ name: 'accordion-one-open', component: 'Accordion', renderer: AccordionFixture, props: {}, height: 104 },
+	{
+		name: 'accordion-one-open',
+		component: 'Accordion',
+		renderer: AccordionFixture,
+		props: {},
+		height: 104,
+	},
 ]

@@ -85,9 +85,11 @@ function androidEnsure(): Promise<PermissionResult> {
 		) {
 			return Promise.resolve('granted')
 		}
+
 		if (!activity) {
 			return Promise.resolve('denied')
 		}
+
 		return new Promise<PermissionResult>((resolve) => {
 			const requestCode = contactRequestCode++
 			const event = Application.android.activityRequestPermissionsEvent

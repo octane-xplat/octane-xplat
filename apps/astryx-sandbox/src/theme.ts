@@ -17,13 +17,21 @@ import {
 	type ThemePreference,
 	type DefinedTheme,
 } from '@octane-xplat/ui'
+
 import { neutralTheme } from './themes/neutral'
 import { matchaTheme } from './themes/matcha'
 import { stoneTheme } from './themes/stone'
 import { gothicTheme } from './themes/gothic'
 import { chocolateTheme } from './themes/chocolate'
 import { y2kTheme } from './themes/y2k'
-import { readEmbedParams, readStoredMode, readStoredTheme, persistThemeMode, markEmbedRoot, listenEmbedThemeSync } from './persist'
+import {
+	readEmbedParams,
+	readStoredMode,
+	readStoredTheme,
+	persistThemeMode,
+	markEmbedRoot,
+	listenEmbedThemeSync,
+} from './persist'
 
 export const SANDBOX_THEMES = [
 	{ id: 'neutral', label: 'Neutral', theme: neutralTheme },
@@ -65,14 +73,20 @@ export function useThemeName(): SandboxThemeId {
 }
 
 export function setThemeName(id: SandboxThemeId): void {
-	if (!isSandboxTheme(id)) {return}
+	if (!isSandboxTheme(id)) {
+		return
+	}
 	themeNameStore.set(id)
-	if (!embed.isEmbed) {persistThemeMode(id, getThemePreference())}
+	if (!embed.isEmbed) {
+		persistThemeMode(id, getThemePreference())
+	}
 }
 
 export function setMode(mode: ThemePreference): void {
 	setThemePreference(mode)
-	if (!embed.isEmbed) {persistThemeMode(themeNameStore.getSnapshot(), mode)}
+	if (!embed.isEmbed) {
+		persistThemeMode(themeNameStore.getSnapshot(), mode)
+	}
 }
 
 // Embed documents: stamp the full-height root marker and follow the parent
@@ -80,8 +94,12 @@ export function setMode(mode: ThemePreference): void {
 if (embed.isEmbed) {
 	markEmbedRoot()
 	listenEmbedThemeSync((theme, mode) => {
-		if (isSandboxTheme(theme)) {themeNameStore.set(theme)}
-		if (mode) {setThemePreference(mode)}
+		if (isSandboxTheme(theme)) {
+			themeNameStore.set(theme)
+		}
+		if (mode) {
+			setThemePreference(mode)
+		}
 	})
 }
 

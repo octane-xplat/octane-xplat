@@ -29,11 +29,13 @@ describe('standard component refs on web', () => {
 		const callback = vi.fn(() => cleanup)
 		const next = { current: null as TextInputHandle | null }
 		try {
-			act(() => root.render(RefFixture, {
-				viewRef: view,
-				inputRef: [input, [callback, undefined]],
-				calendarRef: calendar,
-			}))
+			act(() =>
+				root.render(RefFixture, {
+					viewRef: view,
+					inputRef: [input, [callback, undefined]],
+					calendarRef: calendar,
+				}),
+			)
 
 			expect(view.current).toBe(container.firstElementChild)
 			expect(input.current?.native).toBe(container.querySelector('input'))

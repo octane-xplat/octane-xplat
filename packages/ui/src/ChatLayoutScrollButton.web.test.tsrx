@@ -15,7 +15,10 @@ it('removes hidden buttons from interaction and supports visibility changes', ()
 			root.render(<ChatLayoutScrollButton isVisible label="New messages" onPress={press} />),
 		)
 
-		expect(el.querySelector<HTMLElement>('[role="button"]')?.getAttribute('aria-label')).toBe('New messages')
+		expect(el.querySelector<HTMLElement>('[role="button"]')?.getAttribute('aria-label')).toBe(
+			'New messages',
+		)
+
 		act(() => el.querySelector<HTMLElement>('[role="button"]')?.click())
 		expect(press).toHaveBeenCalledTimes(1)
 		act(() => root.render(<ChatLayoutScrollButton isVisible={false} onPress={press} />))

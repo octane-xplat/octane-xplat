@@ -15,7 +15,8 @@ export default defineConfig({
 						!f.endsWith('.d.ts') &&
 						!f.includes('.test.') &&
 						!f.includes('native-catalog-vite') &&
-						!f.includes('macos/shell') && !f.includes('gtk/shell'),
+						!f.includes('macos/shell') &&
+						!f.includes('gtk/shell'),
 				),
 			],
 			formats: ['es'],

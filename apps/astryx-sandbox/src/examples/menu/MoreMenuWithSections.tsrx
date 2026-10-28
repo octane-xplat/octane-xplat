@@ -7,15 +7,23 @@ export function MoreMenuWithSections() @{
 		<MoreMenu
 			variant="secondary"
 			label="Document actions"
-			items={menuItems([
-				{ type: 'section', title: 'Actions', items: [
-					{ label: 'Edit', icon: 'sandbox-pencil-square', onClick: () => {} },
-					{ label: 'Duplicate', icon: 'sandbox-document-duplicate', onClick: () => {} },
-				]},
-				{ type: 'section', title: 'Danger zone', items: [
-					{ label: 'Delete', icon: 'sandbox-trash', onClick: () => {} },
-				]},
-			]) as any}
+			items={
+				menuItems([
+					{
+						type: 'section',
+						title: 'Actions',
+						items: [
+							{ label: 'Edit', icon: 'sandbox-pencil-square', onClick: () => {} },
+							{ label: 'Duplicate', icon: 'sandbox-document-duplicate', onClick: () => {} },
+						],
+					},
+					{
+						type: 'section',
+						title: 'Danger zone',
+						items: [{ label: 'Delete', icon: 'sandbox-trash', onClick: () => {} }],
+					},
+				]) as any
+			}
 		/>
 	)
 }

@@ -20,14 +20,20 @@ import { GridControls, GridPagination } from './GridControls.tsrx'
 /** Evaluates a column `cell`/`header` template (string | fn → node) — the
  *  DOM-free half of table-core's `flexRender`. */
 function renderTemplate(template: any, ctx: any) {
-	if (template == null) return null
+	if (template == null) {
+		return null
+	}
+
 	return typeof template === 'function' ? template(ctx) : template
 }
 
 /** Primitive template results draw as Text; nodes pass through. */
 function TemplateContent(props: { content: any }) {
 	const content = props.content
-	if (content == null || content === false) return null
+	if (content == null || content === false) {
+		return null
+	}
+
 	if (typeof content === 'string' || typeof content === 'number' || typeof content === 'bigint') {
 		return <Text>{String(content)}</Text>
 	}
@@ -243,9 +249,8 @@ export function DataGrid<TData extends RowData = any>(props: DataGridProps<TData
 	const rows = table.getRowModel().rows
 	// getRowCount uses the filtered pre-pagination model for client data.
 	// An unknown manual total must not masquerade as the loaded page length.
-	const rowCount = props.options?.manualPagination && props.options.rowCount == null
-		? -1
-		: table.getRowCount()
+	const rowCount =
+		props.options?.manualPagination && props.options.rowCount == null ? -1 : table.getRowCount()
 
 	const ariaRowCount = rowCount < 0 ? -1 : headerGroups.length + rowCount
 	return (
@@ -297,17 +302,32 @@ export function DataGrid<TData extends RowData = any>(props: DataGridProps<TData
 			<View
 				id={props.id ? `${props.id}-table` : undefined}
 				flexGrow={1}
-				web={{ role: 'table', 'aria-label': props.accessibilityLabel, 'aria-rowcount': ariaRowCount, 'aria-colcount': table.getVisibleLeafColumns().length + (props.showRowSelection ? 1 : 0) }}
+				web={{
+					role: 'table',
+					'aria-label': props.accessibilityLabel,
+					'aria-rowcount': ariaRowCount,
+					'aria-colcount': table.getVisibleLeafColumns().length + (props.showRowSelection ? 1 : 0),
+				}}
 			>
 				<View id={props.id ? `${props.id}-header` : undefined} flexShrink={0}>
 					{headerGroups.map((group) => (
-						<GridRow key={group.id} className="vx-table-head" web={{ role: 'row', 'aria-rowindex': group.depth + 1 }}>
+						<GridRow
+							key={group.id}
+							className="vx-table-head"
+							web={{ role: 'row', 'aria-rowindex': group.depth + 1 }}
+						>
 							{props.showRowSelection ? (
 								<View className="vx-datagrid-selection" web={{ role: 'columnheader' }}>
 									{group.depth === 0 ? (
 										<Checkbox
 											id={props.id ? `${props.id}-select-page` : undefined}
-											value={table.getIsAllPageRowsSelected() ? true : table.getIsSomePageRowsSelected() ? 'indeterminate' : false}
+											value={
+												table.getIsAllPageRowsSelected()
+													? true
+													: table.getIsSomePageRowsSelected()
+														? 'indeterminate'
+														: false
+											}
 											isDisabled={!rows.some((row) => row.getCanSelect())}
 											accessibilityLabel="Select current page"
 											onChange={(checked) => table.toggleAllPageRowsSelected(checked)}

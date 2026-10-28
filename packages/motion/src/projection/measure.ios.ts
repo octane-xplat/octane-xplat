@@ -8,7 +8,9 @@ import type { Box } from './types'
  */
 export function measureNativeBox(view: any): Box | null {
 	let v = view?.nativeViewProtected ?? view?.nativeView ?? view?.ios ?? null
-	if (!v) return null
+	if (!v) {
+		return null
+	}
 	const size = v.bounds.size
 	let x = 0
 	let y = 0

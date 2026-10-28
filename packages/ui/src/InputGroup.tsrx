@@ -1,13 +1,13 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { mergeStyle } from './style-merge'
-import { useMemo, useId } from 'octane';
+import { useMemo, useId } from 'octane'
 import { refList } from './ref-list'
-import type { InputGroupProps, InputGroupTextProps } from './props';
-import { cx } from '@octane-xplat/lib';
-import { applyEscapeProps, nativeAccessibilityState} from './escape-props';
-import { FormField } from './FormField';
+import type { InputGroupProps, InputGroupTextProps } from './props'
+import { cx } from '@octane-xplat/lib'
+import { applyEscapeProps, nativeAccessibilityState } from './escape-props'
+import { FormField } from './FormField'
 import { InputGroupProvider } from './input-group-context'
-import { SizeProvider, useSize } from './size-context';
+import { SizeProvider, useSize } from './size-context'
 
 /** InputGroup — a labeled, visually joined input surface: the `Field`
  *  carries label/description/status; members read `useInputGroup()` and
@@ -15,11 +15,19 @@ import { SizeProvider, useSize } from './size-context';
  *  the row is a plain flexbox; label/description/status ids still flow to
  *  members through the FieldContext. */
 export function InputGroup(props: InputGroupProps) @{
-	const groupId = useId();
-	const size = useSize(props.size, 'md');
-	const group = { isDisabled: props.isDisabled, size };
+	const groupId = useId()
+	const size = useSize(props.size, 'md')
+	const group = { isDisabled: props.isDisabled, size }
 
-	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(
+		() =>
+			refList((v: any) => {
+				if (v) {
+					applyEscapeProps(v, props)
+				}
+			}, props.ref),
+		[props.ref, props.ios, props.android, props.web],
+	)
 
 	<FormField
 		label={props.label}
@@ -40,11 +48,21 @@ export function InputGroup(props: InputGroupProps) @{
 		style={props.style}
 	>
 		<InputGroupProvider value={group}>
-		<SizeProvider value={size}>
-			<masonview ref={forwardedRef} className={cx('vx-inputgroup', props.isDisabled && 'vx-inputgroup--disabled', props.status && `vx-inputgroup--status-${props.status.type}`, `vx-inputgroup--size-${size}`)} accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled })} style={mergeStyle({flexDirection: "row", alignItems: "stretch"}, {display: "flex"})}>
-				{props.children}
-			</masonview>
-		</SizeProvider>
+			<SizeProvider value={size}>
+				<masonview
+					ref={forwardedRef}
+					className={cx(
+						'vx-inputgroup',
+						props.isDisabled && 'vx-inputgroup--disabled',
+						props.status && `vx-inputgroup--status-${props.status.type}`,
+						`vx-inputgroup--size-${size}`,
+					)}
+					accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled })}
+					style={mergeStyle({ flexDirection: 'row', alignItems: 'stretch' }, { display: 'flex' })}
+				>
+					{props.children}
+				</masonview>
+			</SizeProvider>
 		</InputGroupProvider>
 	</FormField>
 }
@@ -52,9 +70,22 @@ export function InputGroup(props: InputGroupProps) @{
 /** InputGroupText — a prefix/suffix segment inside an InputGroup. String
  *  children render as a label; components render as-is. */
 export function InputGroupText(props: InputGroupTextProps) @{
-	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(
+		() =>
+			refList((v: any) => {
+				if (v) {
+					applyEscapeProps(v, props)
+				}
+			}, props.ref),
+		[props.ref, props.ios, props.android, props.web],
+	)
 
-	<masonview id={props.id} ref={forwardedRef} className={cx('vx-inputgroup-text', props.className)} style={mergeStyle({display: "flex"}, props.style)}>
+	<masonview
+		id={props.id}
+		ref={forwardedRef}
+		className={cx('vx-inputgroup-text', props.className)}
+		style={mergeStyle({ display: 'flex' }, props.style)}
+	>
 		{typeof props.children === 'string' ? <label text={props.children} /> : props.children}
 	</masonview>
 }

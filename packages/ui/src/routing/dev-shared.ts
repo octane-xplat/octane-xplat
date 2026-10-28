@@ -9,6 +9,7 @@ import {
 	DevNavigationError,
 	type DevNavigationResult,
 } from '@octane-xplat/platform/dev-actions'
+
 import { hasNavigationBlockers, resetNavigationBlockers } from '../navigation-blocker'
 import { bindRouterFlow } from '../router-instance'
 import type { NavigationResult, RouterInstance } from '../props'
@@ -33,6 +34,7 @@ export async function runXplatNavigate(
 		`navigation to "${input.url}" did not commit (${navigation.code}, status "${navigation.status}"): ${navigation.message}`,
 	)
 }
+
 /** How often a held navigation attempt is re-checked for blockers. */
 const BLOCKER_POLL_MS = 150
 

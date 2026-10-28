@@ -27,12 +27,7 @@ function NameForm() @{
 	const [name, setName] = useState('')
 
 	<View>
-		<TextInput
-			testID="greeting.name"
-			value={name}
-			onChange={setName}
-			placeholder="Your name"
-		/>
+		<TextInput testID="greeting.name" value={name} onChange={setName} placeholder="Your name" />
 		<Pressable testID="greeting.reset" onPress={() => setName('Bob')}>
 			<Text>set bob</Text>
 		</Pressable>
@@ -61,7 +56,9 @@ function FetchLabel(props: { fail?: boolean }) @{
 	useEffect(() => {
 		let live = true
 		const timer = setTimeout(() => {
-			if (live) setState(props.fail ? 'error' : 'ready')
+			if (live) {
+				setState(props.fail ? 'error' : 'ready')
+			}
 		}, 30)
 
 		return () => {
@@ -206,5 +203,4 @@ describe('mount/unmount cleanup', () => {
 		expect(activeEffects).toBe(0)
 		expect(listeners.size).toBe(0)
 	})
-
 })

@@ -64,12 +64,11 @@ export function isSafeDestination(destination: unknown): boolean {
 		// URL-object formatters accept a protocol with or without its colon and
 		// can assemble a data media type from the host and pathname fields.
 		const normalizedProtocol = normalizeUrl(protocol)
-		const prefix = normalizedProtocol.endsWith(':')
-			? normalizedProtocol
-			: `${normalizedProtocol}:`
+		const prefix = normalizedProtocol.endsWith(':') ? normalizedProtocol : `${normalizedProtocol}:`
 		if (!isSafeUrl(prefix)) {
 			return false
 		}
+
 		const body = (host || hostname || '') as string
 		const path = typeof pathname === 'string' ? pathname : ''
 		if (!isSafeUrl(`${prefix}${body}${path}`)) {

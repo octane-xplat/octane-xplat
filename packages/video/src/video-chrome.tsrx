@@ -1,6 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useEffect, useState } from 'octane';
-import { Icon, Image, Pressable, HStack, Slider, Text, View } from '@octane-xplat/ui';
+import { useEffect, useState } from 'octane'
+import { Icon, Image, Pressable, HStack, Slider, Text, View } from '@octane-xplat/ui'
 
 /** Self-drawn video transport — the chrome half of the surface-hosted
  *  `Video` component. Identical structure to the native twin (only the
@@ -26,19 +26,22 @@ export interface VideoChromeProps {
 }
 
 function stamp(ms: number): string {
-	const total = Math.max(0, Math.floor(ms / 1000));
-	return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`;
+	const total = Math.max(0, Math.floor(ms / 1000))
+	return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`
 }
 
 export function VideoChrome(props: VideoChromeProps) @{
-	const [visible, setVisible] = useState(true);
+	const [visible, setVisible] = useState(true)
 
 	// Chrome auto-hides while playing; pausing or tapping brings it back.
 	useEffect(() => {
-		if (!props.playing || !visible) return;
-		const t = setTimeout(() => setVisible(false), 2500);
-		return () => clearTimeout(t);
-	}, [props.playing, visible]);
+		if (!props.playing || !visible) {
+			return
+		}
+
+		const t = setTimeout(() => setVisible(false), 2500)
+		return () => clearTimeout(t)
+	}, [props.playing, visible])
 
 	<>
 		@if (props.poster && !props.started) {
@@ -85,7 +88,11 @@ export function VideoChrome(props: VideoChromeProps) @{
 							accessibilityLabel={props.playing ? 'Pause' : 'Play'}
 							onPress={props.onTogglePlay}
 						>
-							<Icon name={props.playing ? 'xplat-pause' : 'xplat-play'} size={20} color="#fff" />
+							<Icon
+								name={props.playing ? 'xplat-pause' : 'xplat-play'}
+								size={20}
+								color="#fff"
+							/>
 						</Pressable>
 						<Text className="vx-video-time">{stamp(props.position)}</Text>
 						<Slider

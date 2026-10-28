@@ -1,5 +1,12 @@
 // Port of upstream Table/TableSortableTable.tsx (Astryx 0.6.4, MIT).
-import { Table, pixel, proportional, useTableSortable, useTableSortableState } from '@octane-xplat/ui'
+import {
+	Table,
+	pixel,
+	proportional,
+	useTableSortable,
+	useTableSortableState,
+} from '@octane-xplat/ui'
+
 import type { TableColumn } from '@octane-xplat/ui'
 
 interface Employee extends Record<string, unknown> {
@@ -30,6 +37,7 @@ export function TableSortableTable() @{
 		data: employees,
 		defaultSort: [{ sortKey: 'name', direction: 'ascending' }],
 	})
+
 	const sortPlugin = useTableSortable<Employee>(sortConfig)
 
 	<Table data={sortedData} columns={columns} idKey="id" hasHover plugins={{ sort: sortPlugin }} />

@@ -137,7 +137,11 @@ it('maps textTransform and fontVariationSettings', () => {
 })
 
 it('appends textStroke as 8 zero-blur text-shadows after authored shadows', () => {
-	const css = gtkStyleCss('.n1', { textShadow: '0dip 1dip 2dip black', textStroke: '2 red' }, 'label')
+	const css = gtkStyleCss(
+		'.n1',
+		{ textShadow: '0dip 1dip 2dip black', textStroke: '2 red' },
+		'label',
+	)
 	const m = /text-shadow: ([^;]+);/.exec(css)
 	assert.ok(m, 'expected a text-shadow declaration')
 	const shadows = m[1].split(', ')
@@ -171,11 +175,16 @@ it('routes control color/backgroundColor to subnodes, not the widget node', () =
 })
 
 it('resolves NS transform parts — shorthand, longhands, identity', async () => {
-	const { resolveTransform, transformSteps, paintOrder, zIndexOf } = await import('../src/transform-style.ts')
+	const { resolveTransform, transformSteps, paintOrder, zIndexOf } =
+		await import('../src/transform-style.ts')
 	assert.equal(resolveTransform({}), null)
 	assert.equal(resolveTransform({ transform: 'none' }), null)
 	assert.equal(resolveTransform({ transform: 'bogus(1)' }), null)
-	const parts = resolveTransform({ transform: 'translate(-50%, 10dip) rotate(45deg)', scaleX: 2, rotatex: 30 })
+	const parts = resolveTransform({
+		transform: 'translate(-50%, 10dip) rotate(45deg)',
+		scaleX: 2,
+		rotatex: 30,
+	})
 	assert.deepEqual(parts.translateX, { value: -0.5, unit: '%' })
 	assert.equal(parts.translateY, 10)
 	assert.equal(parts.rotate, 45)

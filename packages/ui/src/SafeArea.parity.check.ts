@@ -2,7 +2,6 @@ import type { ParityCheck } from './parity/check-helpers.ts'
 import { near, dims } from './parity/check-helpers.ts'
 
 export const CHECKS: ParityCheck[] = [
-
 	{
 		fixture: 'safe-area-layout',
 		elements: {
@@ -29,5 +28,5 @@ export const CHECKS: ParityCheck[] = [
 				],
 			]
 		},
-	}
+	},
 ]

@@ -12,10 +12,30 @@ export function TopNavMenuShowcase() @{
 				<TopNavMenu
 					label="Platform"
 					items={[
-						{ title: 'Analytics', description: 'Dashboards and reports', icon: <Icon name="sandbox-chart" />, href: '#analytics' },
-						{ title: 'Search', description: 'Full-text search', icon: <Icon name="xplat-search" />, href: '#search' },
-						{ title: 'Users', description: 'Team management', icon: <Icon name="sandbox-user" />, href: '#users' },
-						{ title: 'Settings', description: 'Workspace config', icon: <Icon name="sandbox-cog" />, href: '#settings' },
+						{
+							title: 'Analytics',
+							description: 'Dashboards and reports',
+							icon: <Icon name="sandbox-chart" />,
+							href: '#analytics',
+						},
+						{
+							title: 'Search',
+							description: 'Full-text search',
+							icon: <Icon name="xplat-search" />,
+							href: '#search',
+						},
+						{
+							title: 'Users',
+							description: 'Team management',
+							icon: <Icon name="sandbox-user" />,
+							href: '#users',
+						},
+						{
+							title: 'Settings',
+							description: 'Workspace config',
+							icon: <Icon name="sandbox-cog" />,
+							href: '#settings',
+						},
 					]}
 				/>
 			</>

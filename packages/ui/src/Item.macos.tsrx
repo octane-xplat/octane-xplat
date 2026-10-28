@@ -6,11 +6,18 @@ import { Text } from './Text.macos.tsrx'
 import { cx } from '@octane-xplat/lib'
 
 function StartContent(props: ItemSlotProps) @{
-	<masonview className={cx('vx-item-leading', props.className)} style={{display: "flex"}}>{props.children}</masonview>
+	<masonview className={cx('vx-item-leading', props.className)} style={{ display: 'flex' }}>
+		{props.children}
+	</masonview>
 }
 
 function Content(props: ItemSlotProps) @{
-	<masonview className={cx('vx-item-content', props.className)} style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>{props.children}</masonview>
+	<masonview
+		className={cx('vx-item-content', props.className)}
+		style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}
+	>
+		{props.children}
+	</masonview>
 }
 
 function Description(props: ItemSlotProps) @{
@@ -18,7 +25,9 @@ function Description(props: ItemSlotProps) @{
 }
 
 function EndContent(props: ItemSlotProps) @{
-	<masonview className={cx('vx-item-trailing', props.className)} style={{display: "flex"}}>{props.children}</masonview>
+	<masonview className={cx('vx-item-trailing', props.className)} style={{ display: 'flex' }}>
+		{props.children}
+	</masonview>
 }
 
 function ItemView(props: ItemProps) @{

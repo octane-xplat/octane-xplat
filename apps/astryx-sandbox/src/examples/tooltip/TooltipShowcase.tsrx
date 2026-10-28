@@ -3,5 +3,11 @@
 import { Button, Tooltip } from '@octane-xplat/ui'
 
 export function TooltipShowcase() @{
-	return <Tooltip trigger={<Button label="Hover me" />} content="This is a helpful tooltip" placement="top" />
+	return (
+		<Tooltip
+			trigger={<Button label="Hover me" />}
+			content="This is a helpful tooltip"
+			placement="top"
+		/>
+	)
 }

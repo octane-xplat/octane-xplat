@@ -10,14 +10,51 @@ export function TextInputTypes() @{
 	const [required, setRequired] = useState('')
 	const [optional, setOptional] = useState('')
 	const [described, setDescribed] = useState('')
-	<div style={{width: 300}}>
+
+	<div style={{ width: 300 }}>
 		<Stack direction="vertical" gap={3}>
-			<TextInput label="Default field" value={described} onChange={setDescribed} placeholder="Enter your email" description="Descriptions can be used to provide additional information about a field." />
-			<TextInput secure label="Password field" value={password} onChange={setPassword} placeholder="Enter a value" />
-			<TextInput keyboardType="email" label="Email field" value={email} onChange={setEmail} placeholder="Enter a value" />
-			<TextInput label="Field tooltip" value={tooltip} onChange={setTooltip} placeholder="Enter your API key" labelTooltip="Your unique API key for authentication. Keep this secret!" />
-			<TextInput label="Required field" value={required} onChange={setRequired} placeholder="Enter your username" isRequired />
-			<TextInput label="Optional field" value={optional} onChange={setOptional} placeholder="Enter your nickname" isOptional />
+			<TextInput
+				label="Default field"
+				value={described}
+				onChange={setDescribed}
+				placeholder="Enter your email"
+				description="Descriptions can be used to provide additional information about a field."
+			/>
+			<TextInput
+				secure
+				label="Password field"
+				value={password}
+				onChange={setPassword}
+				placeholder="Enter a value"
+			/>
+			<TextInput
+				keyboardType="email"
+				label="Email field"
+				value={email}
+				onChange={setEmail}
+				placeholder="Enter a value"
+			/>
+			<TextInput
+				label="Field tooltip"
+				value={tooltip}
+				onChange={setTooltip}
+				placeholder="Enter your API key"
+				labelTooltip="Your unique API key for authentication. Keep this secret!"
+			/>
+			<TextInput
+				label="Required field"
+				value={required}
+				onChange={setRequired}
+				placeholder="Enter your username"
+				isRequired
+			/>
+			<TextInput
+				label="Optional field"
+				value={optional}
+				onChange={setOptional}
+				placeholder="Enter your nickname"
+				isOptional
+			/>
 		</Stack>
 	</div>
 }

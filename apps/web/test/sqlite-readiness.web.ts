@@ -104,22 +104,37 @@ const run = async () => {
 
 		let entered!: () => void
 		let finish!: () => void
-		const started = new Promise<void>((resolve) => { entered = resolve })
-		const released = new Promise<void>((resolve) => { finish = resolve })
+		const started = new Promise<void>((resolve) => {
+			entered = resolve
+		})
+
+		const released = new Promise<void>((resolve) => {
+			finish = resolve
+		})
+
 		const isolated = first.transaction(async (tx) => {
 			await tx.execute('INSERT INTO records(name) VALUES (?)', ['transaction-owned'])
 			entered()
 			await released
 			throw new Error('isolated rollback')
 		})
-		const rejected = isolated.then(() => false, () => true)
+
+		const rejected = isolated.then(
+			() => false,
+			() => true,
+		)
+
 		await started
 		const outside = first.execute('INSERT INTO records(name) VALUES (?)', ['outside'])
 		finish()
 		assert(await rejected, 'isolated transaction must reject')
 		await outside
-		expectNames(await first.select<{ name: string }>('SELECT name FROM records'),
-			['first', 'outside'], 'rollback preserves unrelated queued writes')
+		expectNames(
+			await first.select<{ name: string }>('SELECT name FROM records'),
+			['first', 'outside'],
+			'rollback preserves unrelated queued writes',
+		)
+
 		await first.execute('DELETE FROM records WHERE name = ?', ['outside'])
 
 		const visited: string[] = []

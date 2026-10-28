@@ -1,16 +1,25 @@
 import { useMemo } from 'octane'
 import { refList } from './ref-list'
-import type { IndicatorProps } from './props';
-import { applyEscapeProps } from './escape-props';
-import { applyWebProps } from './platformProps.web';
+import type { IndicatorProps } from './props'
+import { applyEscapeProps } from './escape-props'
+import { applyWebProps } from './platformProps.web'
 
 /** CheckIndicator — standalone selection mark. Nothing when unchecked and
  *  childless; a check glyph when checked; `children` replace the glyph
  *  inside a stable slot. `aria-hidden`. */
 export function CheckIndicator(props: IndicatorProps<'singleSelection'>) @{
-	const size = props.size ?? 'md';
+	const size = props.size ?? 'md'
 
-	const forwardedRef = useMemo(() => refList((e: any) => { if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(
+		() =>
+			refList((e: any) => {
+				if (e) {
+					applyEscapeProps(e, props)
+					applyWebProps(e, props.web)
+				}
+			}, props.ref),
+		[props.ref, props.ios, props.android, props.web],
+	)
 
 	@if (props.children != null) {
 		<span
@@ -26,7 +35,12 @@ export function CheckIndicator(props: IndicatorProps<'singleSelection'>) @{
 		<span
 			id={props.id}
 			ref={forwardedRef}
-			className={['vx-ind-check', `vx-ind-check--${size}`, props.isDisabled ? 'vx-ind-check--disabled' : undefined, props.className]}
+			className={[
+				'vx-ind-check',
+				`vx-ind-check--${size}`,
+				props.isDisabled ? 'vx-ind-check--disabled' : undefined,
+				props.className,
+			]}
 			style={props.style}
 			aria-hidden="true"
 		>

@@ -23,7 +23,10 @@ function mount(children: any, boundary?: any) {
 }
 
 afterEach(() => {
-	for (const root of roots.splice(0)) act(() => root.unmount())
+	for (const root of roots.splice(0)) {
+		act(() => root.unmount())
+	}
+
 	document.body.innerHTML = ''
 })
 

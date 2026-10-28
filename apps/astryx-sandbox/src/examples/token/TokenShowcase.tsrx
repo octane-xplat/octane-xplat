@@ -5,6 +5,10 @@ export function TokenShowcase() @{
 	<Stack direction="horizontal" gap={2} vAlign="center">
 		<Token label="Default" />
 		<Token label="Removable" color="blue" onRemove={() => {}} />
-		<Token label="Design" color="purple" icon={<Icon name="sandbox-tag" size={16} color="inherit" />} />
+		<Token
+			label="Design"
+			color="purple"
+			icon={<Icon name="sandbox-tag" size={16} color="inherit" />}
+		/>
 	</Stack>
 }

@@ -11,12 +11,16 @@ const cards = [
 ]
 
 export function GridGalleryExample() @{
-	<Grid columns={{ minWidth: 180 }} style={{width: "100%", maxWidth: 400, gap: 20}}>
+	<Grid columns={{ minWidth: 180 }} style={{ width: '100%', maxWidth: 400, gap: 20 }}>
 		{cards.map((card) => (
 			<Card key={card.title}>
 				<VStack gap={1}>
-					<Text type="label" className="sb-block">{card.title}</Text>
-					<Text type="supporting" className="sb-block">{card.description}</Text>
+					<Text type="label" className="sb-block">
+						{card.title}
+					</Text>
+					<Text type="supporting" className="sb-block">
+						{card.description}
+					</Text>
 				</VStack>
 			</Card>
 		))}

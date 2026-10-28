@@ -51,9 +51,7 @@ test('mason-c engine drives masonview layout under real GJS+GTK', async (t) => {
 	// Homebrew gjs needs its lib dir on the dyld fallback path; on Linux the
 	// typelib's recorded .so path is enough.
 	const dyld =
-		process.platform === 'darwin'
-			? `${execSync('brew --prefix').toString().trim()}/lib`
-			: undefined
+		process.platform === 'darwin' ? `${execSync('brew --prefix').toString().trim()}/lib` : undefined
 	// XPLAT_MASON_TYPELIB drives both prepends — typelib search path and the
 	// repository library path the soname resolves through.
 	const env = { ...process.env, GI_TYPELIB_PATH: nativeDir, XPLAT_MASON_TYPELIB: nativeDir }
@@ -67,9 +65,7 @@ test('mason-c engine drives masonview layout under real GJS+GTK', async (t) => {
 		env,
 		encoding: 'utf8',
 	})
-	const line = output
-		.split('\n')
-		.find((l) => l.startsWith('MASON_SMOKE '))
+	const line = output.split('\n').find((l) => l.startsWith('MASON_SMOKE '))
 	assert.ok(line, `smoke marker missing — gjs output:\n${output}`)
 	const result = JSON.parse(line.slice('MASON_SMOKE '.length))
 
@@ -118,8 +114,14 @@ test('mason-c engine drives masonview layout under real GJS+GTK', async (t) => {
 	// Keyframe width reaches the engine; keyframe translate rides the
 	// allocation transform. Segment 0 is applied at play.
 	assert.deepEqual(result.growStart, { x: 0, w: 40 })
-	assert.ok(result.growMid.w > 60 && result.growMid.w < 120, `growMid ${JSON.stringify(result.growMid)}`)
-	assert.ok(result.growMid.x > 20 && result.growMid.x < 80, `growMid ${JSON.stringify(result.growMid)}`)
+	assert.ok(
+		result.growMid.w > 60 && result.growMid.w < 120,
+		`growMid ${JSON.stringify(result.growMid)}`,
+	)
+	assert.ok(
+		result.growMid.x > 20 && result.growMid.x < 80,
+		`growMid ${JSON.stringify(result.growMid)}`,
+	)
 	assert.deepEqual(result.growEnd, { x: 100, w: 140 })
 
 	assert.equal(result.destroyed, true)

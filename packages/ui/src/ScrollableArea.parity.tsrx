@@ -14,7 +14,11 @@ function ScrollViewLayoutFixture() @{
 }
 
 function ScrollBoxLayoutFixture() @{
-	<ScrollableArea axis="both" className="parity-scrollbox-root" style={{ width: 96, height: 48, backgroundColor: '#f5f5f5' }}>
+	<ScrollableArea
+		axis="both"
+		className="parity-scrollbox-root"
+		style={{ width: 96, height: 48, backgroundColor: '#f5f5f5' }}
+	>
 		<VStack className="parity-scrollbox-content" style={{ width: 96, height: 64 }} gap={1}>
 			<View className="parity-scrollbox-first" style={{ width: 24, height: 12 }} />
 			<View className="parity-scrollbox-second" style={{ width: 24, height: 12 }} />
@@ -23,6 +27,16 @@ function ScrollBoxLayoutFixture() @{
 }
 
 export const PARITY: ParityFixture[] = [
-	{ name: 'scroll-view-layout', component: 'ScrollableArea', renderer: ScrollViewLayoutFixture, props: {} },
-	{ name: 'scroll-box-layout', component: 'ScrollableArea', renderer: ScrollBoxLayoutFixture, props: {} },
+	{
+		name: 'scroll-view-layout',
+		component: 'ScrollableArea',
+		renderer: ScrollViewLayoutFixture,
+		props: {},
+	},
+	{
+		name: 'scroll-box-layout',
+		component: 'ScrollableArea',
+		renderer: ScrollBoxLayoutFixture,
+		props: {},
+	},
 ]

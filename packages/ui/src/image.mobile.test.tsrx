@@ -1,10 +1,17 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { describe, expect, it, vi } from 'vitest'
-import { createObjectContainer, createObjectDriver, createUniversalRoot } from 'octane/universal/native'
+import {
+	createObjectContainer,
+	createObjectDriver,
+	createUniversalRoot,
+} from 'octane/universal/native'
 
 vi.mock('@nativescript/core', () => ({
 	// ui-svg's index.common.ts evaluates NS decorators at import.
-	Property: class { constructor(_opts?: any) {} register() {} },
+	Property: class {
+		constructor(_opts?: any) {}
+		register() {}
+	},
 	CSSType: () => () => {},
 	registerElement: () => {},
 	isIOS: false,
@@ -39,7 +46,9 @@ describe('native Image sized decode', () => {
 
 		let layoutCb: (() => void) | null = null
 		host.on = (event: string, cb: () => void) => {
-			if (event === 'layoutChanged') layoutCb = cb
+			if (event === 'layoutChanged') {
+				layoutCb = cb
+			}
 		}
 
 		host.off = () => {}

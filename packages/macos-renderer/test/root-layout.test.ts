@@ -106,12 +106,21 @@ function fixture() {
 			) +
 			'\n;({insert,remove,destroy,layoutRootChildren,rootNaturalSize,validateNodeProps,applyCommand})',
 		{
-		elementBehaviors: new Map(),
-		behaviorOf: () => undefined,
-		isManualLayoutParent: (t: string) =>
-			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
-		registerElementType: () => {},
-		
+			elementBehaviors: new Map(),
+			behaviorOf: () => undefined,
+			isManualLayoutParent: (t: string) =>
+				[
+					'gridlayout',
+					'liquidglass',
+					'absolutelayout',
+					'contentview',
+					'actionbar',
+					'docklayout',
+					'wraplayout',
+					'rootlayout',
+				].includes(t),
+			registerElementType: () => {},
+
 			dockLayoutNodesByView: new WeakMap(),
 			rootLayoutNodesByView: new WeakMap(),
 			contentViewNodesByView: new WeakMap(),
@@ -288,12 +297,21 @@ test('RootLayout geometry observer releases on disposal and ignores late callbac
 		['makeRootLayout', 'destroy', 'detach', 'releasePlacementPins'].map(fn).join('\n') +
 			'\n;({makeRootLayout,destroy})',
 		{
-		elementBehaviors: new Map(),
-		behaviorOf: () => undefined,
-		isManualLayoutParent: (t: string) =>
-			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
-		registerElementType: () => {},
-		
+			elementBehaviors: new Map(),
+			behaviorOf: () => undefined,
+			isManualLayoutParent: (t: string) =>
+				[
+					'gridlayout',
+					'liquidglass',
+					'absolutelayout',
+					'contentview',
+					'actionbar',
+					'docklayout',
+					'wraplayout',
+					'rootlayout',
+				].includes(t),
+			registerElementType: () => {},
+
 			NSUserInterfaceLayoutOrientation: { Horizontal: 0, Vertical: 1 },
 			RootLayoutView: { alloc: () => ({ initWithFrame: () => view }) },
 			rootLayoutNodesByView: map,

@@ -7,7 +7,14 @@ export function ToolbarTableFilter() @{
 			label="Filter users"
 			size="sm"
 			dividers={['bottom']}
-			startContent={<TextInput placeholder="Search users" label="Search users" isLabelHidden style={{ width: 220 }} />}
+			startContent={
+				<TextInput
+					placeholder="Search users"
+					label="Search users"
+					isLabelHidden
+					style={{ width: 220 }}
+				/>
+			}
 			endContent={
 				<>
 					<Button label="Filter" variant="ghost" icon={<Icon name="sandbox-funnel" />} isIconOnly />

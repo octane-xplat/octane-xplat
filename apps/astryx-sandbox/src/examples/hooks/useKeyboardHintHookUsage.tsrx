@@ -15,14 +15,25 @@ export function useKeyboardHintHookUsage() @{
 				<>
 					<Button label="Bold" variant="ghost" icon={<Icon name="sandbox-bold" />} isIconOnly />
 					<Button label="Italic" variant="ghost" icon={<Icon name="sandbox-italic" />} isIconOnly />
-					<Button label="Underline" variant="ghost" icon={<Icon name="sandbox-underline" />} isIconOnly />
+					<Button
+						label="Underline"
+						variant="ghost"
+						icon={<Icon name="sandbox-underline" />}
+						isIconOnly
+					/>
 				</>
 			}
 		/>
 		<Section>
 			<VStack gap={1}>
-				<Text type="body" weight="bold">Keyboard-friendly by default</Text>
-				<Text type="supporting" color="secondary">Tab into the toolbar with your keyboard and Toolbar shows an ephemeral "← → to navigate" hint — powered by useKeyboardHint — so sighted keyboard users learn that arrows move within the group.</Text>
+				<Text type="body" weight="bold">
+					Keyboard-friendly by default
+				</Text>
+				<Text type="supporting" color="secondary">
+					Tab into the toolbar with your keyboard and Toolbar shows an ephemeral "← → to navigate"
+					hint — powered by useKeyboardHint — so sighted keyboard users learn that arrows move
+					within the group.
+				</Text>
 			</VStack>
 		</Section>
 	</Card>

@@ -29,5 +29,5 @@ export function NativeContextMenuDemo() @{
 			)}
 		/>
 		<Text>{`Last action: ${last}`}</Text>
-	</View>;
+	</View>
 }

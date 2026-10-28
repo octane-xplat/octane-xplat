@@ -4,6 +4,7 @@ import { Badge, Tab, TabList } from '@octane-xplat/ui'
 
 export function TabListTabsWithBadge() @{
 	const [value, setValue] = useState('inbox')
+
 	<TabList value={value} onChange={setValue}>
 		<Tab value="inbox" label="Inbox" endContent={<Badge variant="error" label="5" />} />
 		<Tab value="sent" label="Sent" />

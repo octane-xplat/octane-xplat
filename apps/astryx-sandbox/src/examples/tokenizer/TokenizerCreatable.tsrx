@@ -7,7 +7,16 @@ const source = createStaticSource(REVIEWERS.map((t) => ({ id: t, label: t })))
 
 export function TokenizerCreatable() @{
 	const [values, setValues] = useState<{ id: string; label: string }[]>([])
-	<div style={{width: 400}}>
-		<Tokenizer label="Assign reviewers" description="Type a name and press Enter to add" searchSource={source} value={values} onChange={setValues} placeholder="Add reviewer…" hasCreate />
+
+	<div style={{ width: 400 }}>
+		<Tokenizer
+			label="Assign reviewers"
+			description="Type a name and press Enter to add"
+			searchSource={source}
+			value={values}
+			onChange={setValues}
+			placeholder="Add reviewer…"
+			hasCreate
+		/>
 	</div>
 }

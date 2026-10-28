@@ -238,9 +238,10 @@ export function createListDataController<T>(options: ListDataOptions<T> = {}) {
 			commit({
 				...snapshot,
 				items: [...items],
-				selectedKeys: selectedKeys === undefined
-					? pruneSelection(snapshot.selectedKeys, removed)
-					: normalizeSelection(selectedKeys),
+				selectedKeys:
+					selectedKeys === undefined
+						? pruneSelection(snapshot.selectedKeys, removed)
+						: normalizeSelection(selectedKeys),
 			})
 		},
 	}

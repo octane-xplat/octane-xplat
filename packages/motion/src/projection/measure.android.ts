@@ -12,7 +12,9 @@ function isView(v: any): boolean {
  */
 export function measureNativeBox(view: any): Box | null {
 	let v = view?.nativeView ?? view?.android ?? null
-	if (!v) return null
+	if (!v) {
+		return null
+	}
 	const density = v.getResources()?.getDisplayMetrics?.()?.density ?? 1
 	const w = v.getWidth()
 	const h = v.getHeight()

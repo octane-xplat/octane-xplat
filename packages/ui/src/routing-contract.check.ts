@@ -167,7 +167,7 @@ function checkRouteContracts() {
 	defineRoute({ path: '/raw-parser', validateSearch: (raw: { page: number }) => raw })
 	const paged = defineRoute({
 		path: '/pages',
-		validateSearch: withSearchDecoder(schema, raw => ({ page: Number(raw.page ?? 1) })),
+		validateSearch: withSearchDecoder(schema, (raw) => ({ page: Number(raw.page ?? 1) })),
 		loader: ({ search }) => search.page,
 	}).screen((props) => {
 		const page: number = props.data

@@ -26,12 +26,15 @@ export function layoutChildProps(
 		if (props.dock === 'left' || props.dock === 'top' || props.dock === 'bottom') {
 			style.left = style.left ?? 0
 		}
+
 		if (props.dock === 'right' || props.dock === 'top' || props.dock === 'bottom') {
 			style.right = style.right ?? 0
 		}
+
 		if (props.dock === 'top' || props.dock === 'left' || props.dock === 'right') {
 			style.top = style.top ?? 0
 		}
+
 		if (props.dock === 'bottom' || props.dock === 'left' || props.dock === 'right') {
 			style.bottom = style.bottom ?? 0
 		}

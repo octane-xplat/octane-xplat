@@ -8,7 +8,9 @@ import { motion } from '../index.web'
 const rects = new Map<Element, { x: number; y: number; width: number; height: number }>()
 
 function setRect(element: Element | null, x: number, y: number, width: number, height: number) {
-	if (element) rects.set(element, { x, y, width, height })
+	if (element) {
+		rects.set(element, { x, y, width, height })
+	}
 }
 
 Element.prototype.getBoundingClientRect = function () {
@@ -38,7 +40,14 @@ function mount(component: any) {
 	document.body.append(container)
 	const root = createRoot(container)
 	act(() => root.render(component))
-	return { container, root, close() { root.unmount(); container.remove() } }
+	return {
+		container,
+		root,
+		close() {
+			root.unmount()
+			container.remove()
+		},
+	}
 }
 
 const flush = () => act(async () => {})
@@ -114,6 +123,7 @@ describe('motion layout on web', () => {
 				<motion.View id="watcher" layout />
 			</View>
 		}
+
 		const mounted = mount(<Channel />)
 		await flush()
 		gbrCalls.count = 0
@@ -134,6 +144,7 @@ describe('motion layout on web', () => {
 				transition={{ duration: 0.01 }}
 			/>
 		}
+
 		const mounted = mount(<OpacityX />)
 		const el = mounted.container.querySelector('#opx') as HTMLElement
 		setRect(el, 0, 0, 100, 100)

@@ -9,9 +9,16 @@ import { useScrollableArea } from './use-scrollable-area.macos.tsrx'
 /** Scrolls the AppKit viewport to logical-axis offsets. The clip origin's x
  * is already the inline offset; block offsets count top-down, so a
  * non-flipped document converts through the document height. */
-function scrollToOffsets(scroll: any, offset: { inline?: number; block?: number }, animated: boolean) {
+function scrollToOffsets(
+	scroll: any,
+	offset: { inline?: number; block?: number },
+	animated: boolean,
+) {
 	const clip = scroll?.contentView
-	if (!clip) {return}
+	if (!clip) {
+		return
+	}
+
 	const doc = scroll?.documentView
 	const bounds = clip.bounds
 	const docWidth = Number(doc?.frame?.size?.width ?? 0)
@@ -20,9 +27,10 @@ function scrollToOffsets(scroll: any, offset: { inline?: number; block?: number 
 	const clipHeight = Number(bounds?.size?.height ?? 0)
 	const flip = typeof doc?.isFlipped === 'function' ? doc.isFlipped() : doc?.isFlipped
 	const flipped = flip === true || Number(flip) === 1
-	const x = offset.inline == null || !Number.isFinite(offset.inline)
-		? Number(bounds?.origin?.x ?? 0)
-		: Math.max(0, Math.min(offset.inline, Math.max(0, docWidth - clipWidth)))
+	const x =
+		offset.inline == null || !Number.isFinite(offset.inline)
+			? Number(bounds?.origin?.x ?? 0)
+			: Math.max(0, Math.min(offset.inline, Math.max(0, docWidth - clipWidth)))
 
 	let y = Number(bounds?.origin?.y ?? 0)
 	if (offset.block != null && Number.isFinite(offset.block)) {
@@ -41,7 +49,9 @@ function scrollableAreaHandle(viewport: { current: any }): ScrollableAreaHandle 
 	return {
 		scrollToOffset: (offset, options) =>
 			scrollToOffsets(viewport.current, offset, options?.animated === true),
-		get native() { return viewport.current },
+		get native() {
+			return viewport.current
+		},
 	}
 }
 
@@ -56,15 +66,53 @@ export function ScrollableArea(props: ScrollableAreaProps) @{
 	const handle = useMemo(() => scrollableAreaHandle(viewport), [])
 	useImperativeHandle(props.ref, () => handle, [props.ref])
 
-	<scrollview {...area.getViewportProps({ ref: viewport })} {...layoutChildProps(props, mergeStyle({width: props.width,
-			height: props.height,
-			maxWidth: props.maxWidth,
-			minHeight: props.minHeight}, props.style))} id={props.id} className={props.className} accessibilityLabel={props.accessibilityLabel ?? props.label}>
-		<masonview {...area.getContentProps()} style={mergeStyle({flexDirection: horizontal ? 'row' : 'column'}, mergeStyle({display: "flex"}, {
-				paddingTop: spacingStep(props.paddingBlockStart) ?? spacingStep(props.paddingBlock) ?? padding ?? 0,
-				paddingBottom: spacingStep(props.paddingBlockEnd) ?? spacingStep(props.paddingBlock) ?? padding ?? 0,
-				paddingLeft: spacingStep(props.paddingInlineStart) ?? spacingStep(props.paddingInline) ?? padding ?? 0,
-				paddingRight: spacingStep(props.paddingInlineEnd) ?? spacingStep(props.paddingInline) ?? padding ?? 0,
-			}))}>{props.children}</masonview>
+	<scrollview
+		{...area.getViewportProps({ ref: viewport })}
+		{...layoutChildProps(
+			props,
+			mergeStyle(
+				{
+					width: props.width,
+					height: props.height,
+					maxWidth: props.maxWidth,
+					minHeight: props.minHeight,
+				},
+				props.style,
+			),
+		)}
+		id={props.id}
+		className={props.className}
+		accessibilityLabel={props.accessibilityLabel ?? props.label}
+	>
+		<masonview
+			{...area.getContentProps()}
+			style={mergeStyle(
+				{ flexDirection: horizontal ? 'row' : 'column' },
+				mergeStyle(
+					{ display: 'flex' },
+					{
+						paddingTop:
+							spacingStep(props.paddingBlockStart) ??
+							spacingStep(props.paddingBlock) ??
+							padding ??
+							0,
+						paddingBottom:
+							spacingStep(props.paddingBlockEnd) ?? spacingStep(props.paddingBlock) ?? padding ?? 0,
+						paddingLeft:
+							spacingStep(props.paddingInlineStart) ??
+							spacingStep(props.paddingInline) ??
+							padding ??
+							0,
+						paddingRight:
+							spacingStep(props.paddingInlineEnd) ??
+							spacingStep(props.paddingInline) ??
+							padding ??
+							0,
+					},
+				),
+			)}
+		>
+			{props.children}
+		</masonview>
 	</scrollview>
 }

@@ -9,7 +9,14 @@ routerScopeCases((component, props) => {
 	const root = createRoot(host)
 	act(() => root.render(component, props))
 	return {
-		async settle() { await act(async () => { await new Promise((resolve) => setTimeout(resolve, 0)) }) },
-		unmount() { act(() => root.unmount()); host.remove() },
+		async settle() {
+			await act(async () => {
+				await new Promise((resolve) => setTimeout(resolve, 0))
+			})
+		},
+		unmount() {
+			act(() => root.unmount())
+			host.remove()
+		},
 	}
 })

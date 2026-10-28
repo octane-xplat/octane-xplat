@@ -89,7 +89,10 @@ defineRoute({ path: '/bad-search', validateSearch: () => 42 }).screen(() => null
 				'{ "~standard": { version: 2, vendor: "fixture", validate: () => ({ value: {} }) } }',
 			],
 			['validateSearch', '(raw: { page: number }) => raw'],
-			['validateSearch', '{} as import("@octane-xplat/ui/routing/core").RouteSearchSchema<{ page: number }, { page: number }>'],
+			[
+				'validateSearch',
+				'{} as import("@octane-xplat/ui/routing/core").RouteSearchSchema<{ page: number }, { page: number }>',
+			],
 			['validateSearch', '() => 42'],
 			['validateSearch', '() => []'],
 			['validateSearch', 'async () => []'],
@@ -566,10 +569,18 @@ navigation.push({ to: '/programmatic', search: { tab: 'invented' } })
 test('generated file routes inherit parent group data without requiring it as root context', async () => {
 	const root = await fixture()
 	try {
-		await put(root, 'scopes.ts', `import { defineRouteGroup } from '@octane-xplat/ui/routing/core'
+		await put(
+			root,
+			'scopes.ts',
+			`import { defineRouteGroup } from '@octane-xplat/ui/routing/core'
 export const account = defineRouteGroup({ id: 'account', loader: () => ({ name: 'Alex' }) })
-export const project = account.group({ id: 'project', loader: ({ context }) => ({ owner: context.account.name }) })`)
-		await put(root, 'app/item.tsx', `export { project as group } from '../scopes'
+export const project = account.group({ id: 'project', loader: ({ context }) => ({ owner: context.account.name }) })`,
+		)
+
+		await put(
+			root,
+			'app/item.tsx',
+			`export { project as group } from '../scopes'
 import type { RouteHeadArgs, RouteGuardArgs, RouteLoaderArgs, RouteProps } from '../routes.gen.contracts'
 export function beforeLoad({ context }: RouteGuardArgs<'/item'>) {
  const owner: string = context.project.owner
@@ -593,13 +604,20 @@ export default function Screen(props: RouteProps<'/item'>) {
  // @ts-expect-error Parent data is inferred.
  props.context.account.invented
  return null
-}`)
+}`,
+		)
+
 		await generateRoutes(root, 'app', undefined, { bake: false })
-		await put(root, 'consumer.tsx', `import './routes.gen.types'
+		await put(
+			root,
+			'consumer.tsx',
+			`import './routes.gen.types'
 import { createRouter } from '@octane-xplat/ui/routing/core'
 import type { RouterHost } from '@octane-xplat/ui/routing/core'
 import { routes } from './routes.gen.catalog.web'
-createRouter({ catalog: routes, host: undefined as unknown as RouterHost })`)
+createRouter({ catalog: routes, host: undefined as unknown as RouterHost })`,
+		)
+
 		for (const condition of ['web', 'native', 'macos', 'linux', 'windows']) {
 			assert.deepEqual(check(root, condition), [], condition)
 		}
@@ -611,26 +629,62 @@ createRouter({ catalog: routes, host: undefined as unknown as RouterHost })`)
 test('generated catalogs split route code, keep layouts eager, and preload without running callbacks', async () => {
 	const root = await fixture()
 	try {
-		await put(root, 'app/_layout.web.tsx', `globalThis.routeEvents.push('layout'); export default function Layout() { return null }`)
-		await put(root, 'app/index.web.tsx', `globalThis.routeEvents.push('index'); export default function Home() { return null }`)
-		await put(root, 'app/item.web.tsx', `
+		await put(
+			root,
+			'app/_layout.web.tsx',
+			`globalThis.routeEvents.push('layout'); export default function Layout() { return null }`,
+		)
+
+		await put(
+			root,
+			'app/index.web.tsx',
+			`globalThis.routeEvents.push('index'); export default function Home() { return null }`,
+		)
+
+		await put(
+			root,
+			'app/item.web.tsx',
+			`
  globalThis.routeEvents.push('item-module');
  export const beforeLoad = () => { globalThis.routeEvents.push('guard') };
  export const loader = () => { globalThis.routeEvents.push('loader'); return 'loaded' };
  export default function Item() { return null }
-`)
-		await put(root, 'app/item.tsx', `throw new Error('wrong platform'); export default function Item() { return null }`)
+`,
+		)
+
+		await put(
+			root,
+			'app/item.tsx',
+			`throw new Error('wrong platform'); export default function Item() { return null }`,
+		)
+
 		await generateRoutes(root)
-		await put(root, 'runtime.ts', `
+		await put(
+			root,
+			'runtime.ts',
+			`
  import { routes } from './routes.gen.catalog.web';
  import { createRoutePreparation } from '@octane-xplat/ui/routing/core';
  export const engine = createRoutePreparation({ catalog: routes });
-`)
+`,
+		)
+
 		const bundle = await build({
-			root, configFile: false, logLevel: 'silent', resolve: { conditions: ['web'] },
-			build: { outDir: join(root, 'out'), minify: false, lib: { entry: join(root, 'runtime.ts'), formats: ['es'], fileName: () => 'runtime.mjs' } },
+			root,
+			configFile: false,
+			logLevel: 'silent',
+			resolve: { conditions: ['web'] },
+			build: {
+				outDir: join(root, 'out'),
+				minify: false,
+				lib: { entry: join(root, 'runtime.ts'), formats: ['es'], fileName: () => 'runtime.mjs' },
+			},
 		})
-		const entry = (Array.isArray(bundle) ? bundle[0] : bundle).output.find((item) => item.type === 'chunk' && item.isEntry)
+
+		const entry = (Array.isArray(bundle) ? bundle[0] : bundle).output.find(
+			(item) => item.type === 'chunk' && item.isEntry,
+		)
+
 		assert.ok(entry.dynamicImports.length >= 2, 'route files have separate import chunks')
 		assert.ok(!entry.code.includes('item-module'), 'route code is absent from initial entry')
 		globalThis.routeEvents = []

@@ -6,6 +6,7 @@ export function registerNativeBackHandler(
 ): () => void {
 	return () => {}
 }
+
 /** @internal Distinguish an activity press from a different SDK modal's event. */
 export function isNativeActivityBackEvent(_event: NativeRouterBackEvent): boolean {
 	return false

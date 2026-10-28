@@ -10,13 +10,24 @@ const plans = [
 
 export function SelectableCardShowcase() @{
 	const [selected, setSelected] = useState<string | null>('pro')
+
 	<Stack direction="horizontal" gap={3}>
 		{plans.map((plan) => (
-			<SelectableCard key={plan.id} label={plan.name} isSelected={selected === plan.id} onChange={() => setSelected(plan.id)} width={180}>
+			<SelectableCard
+				key={plan.id}
+				label={plan.name}
+				isSelected={selected === plan.id}
+				onChange={() => setSelected(plan.id)}
+				width={180}
+			>
 				<Stack direction="vertical" gap={1}>
 					<Heading level={4}>{plan.name}</Heading>
-					<Text type="large" weight="bold">{plan.price}</Text>
-					<Text type="supporting" color="secondary">{plan.desc}</Text>
+					<Text type="large" weight="bold">
+						{plan.price}
+					</Text>
+					<Text type="supporting" color="secondary">
+						{plan.desc}
+					</Text>
 				</Stack>
 			</SelectableCard>
 		))}

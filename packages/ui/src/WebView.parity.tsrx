@@ -13,5 +13,11 @@ function WebViewFixture() @{
 }
 
 export const PARITY: ParityFixture[] = [
-	{ name: 'webview-inline-document', component: 'WebView', renderer: WebViewFixture, props: {}, height: 136 },
+	{
+		name: 'webview-inline-document',
+		component: 'WebView',
+		renderer: WebViewFixture,
+		props: {},
+		height: 136,
+	},
 ]

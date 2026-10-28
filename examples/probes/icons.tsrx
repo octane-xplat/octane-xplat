@@ -11,14 +11,16 @@ addCollection(otherIconFixture)
 
 export default function IconsProbe() {
 	const current = useStore(selection)
-	return <Column>
-		<Icon id="icon-main" {...current} label="Direction" />
-		<Icon id="icon-alias" name="probe-icons:turned" color="#123456" />
-		<Icon id="icon-other" name="probe-other:dot" />
-		<Icon id="icon-gradient-a" name="probe-icons:gradient" />
-		<Icon id="icon-gradient-b" name="probe-icons:gradient" />
-		<Icon id="icon-late" name="probe-late:new" />
-	</Column>
+	return (
+		<Column>
+			<Icon id="icon-main" {...current} label="Direction" />
+			<Icon id="icon-alias" name="probe-icons:turned" color="#123456" />
+			<Icon id="icon-other" name="probe-other:dot" />
+			<Icon id="icon-gradient-a" name="probe-icons:gradient" />
+			<Icon id="icon-gradient-b" name="probe-icons:gradient" />
+			<Icon id="icon-late" name="probe-late:new" />
+		</Column>
+	)
 }
 
 export async function run(ctx: ProbeContext) {
@@ -30,7 +32,12 @@ export async function run(ctx: ProbeContext) {
 	ctx.assert('labeled icon is accessible', main.decorative, false)
 	ctx.assert('unlabeled icon is decorative', iconSnapshot(ctx.find('icon-other')).decorative, true)
 	ctx.assert('alias width', iconSnapshot(ctx.find('icon-alias')).width, 12)
-	ctx.assert('second collection multicolor body', iconSnapshot(ctx.find('icon-other')).body.includes('#ff0000'), true)
+	ctx.assert(
+		'second collection multicolor body',
+		iconSnapshot(ctx.find('icon-other')).body.includes('#ff0000'),
+		true,
+	)
+
 	const first = iconSnapshot(ctx.find('icon-gradient-a')).body.match(/id="(paint[^"]*)"/)?.[1]
 	const second = iconSnapshot(ctx.find('icon-gradient-b')).body.match(/id="(paint[^"]*)"/)?.[1]
 	ctx.assert('gradient definition exists', typeof first, 'string')
@@ -46,9 +53,24 @@ export async function run(ctx: ProbeContext) {
 	ctx.assert('prop update width', iconSnapshot(ctx.find('icon-main')).width, 20)
 	ctx.assert('prop update height', iconSnapshot(ctx.find('icon-main')).height, 40)
 
-	addCollection({ ...iconFixture, icons: { ...iconFixture.icons, wide: { body: '<path fill="currentColor" d="M1 1h30v14H1z"/>' } } })
+	addCollection({
+		...iconFixture,
+		icons: {
+			...iconFixture.icons,
+			wide: { body: '<path fill="currentColor" d="M1 1h30v14H1z"/>' },
+		},
+	})
+
 	await ctx.waitFor(() => iconSnapshot(ctx.find('icon-main')).body.includes('M1 1h30'))
-	ctx.assert('replacement updates retained child', iconSnapshot(ctx.find('icon-alias')).body.includes('M1 1h30'), true)
+	ctx.assert(
+		'replacement updates retained child',
+		iconSnapshot(ctx.find('icon-alias')).body.includes('M1 1h30'),
+		true,
+	)
+
 	ctx.record('host geometry', ctx.inspect('icon-main'))
-	ctx.record('evidence boundary', 'SVG host/source and updates; no visual drawing or OS accessibility traversal claim')
+	ctx.record(
+		'evidence boundary',
+		'SVG host/source and updates; no visual drawing or OS accessibility traversal claim',
+	)
 }

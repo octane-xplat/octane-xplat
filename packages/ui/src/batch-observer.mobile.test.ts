@@ -6,6 +6,7 @@ import {
 	observeBatches,
 	releaseNativeScriptContainer,
 } from '../node_modules/@nativescript-community/octane/dist/driver.js'
+
 import { registerElement } from '../node_modules/@nativescript-community/octane/dist/elements.js'
 import { NATIVESCRIPT_RENDERER_ID } from '../node_modules/@nativescript-community/octane/dist/config.js'
 
@@ -125,7 +126,9 @@ it('fires for nested applies with the applying depth', () => {
 
 	// The probe setter runs mid-command, while the outer apply's depth is 1.
 	;(globalThis as Record<string, unknown>).__probe = () => {
-		if (nested) return
+		if (nested) {
+			return
+		}
 		nested = true
 		apply(target)
 	}

@@ -5,7 +5,8 @@ import type { ISODateString, ISOTimeString, ISODateTimeString, DateRange } from 
 
 export function TimeInputShowcase() @{
 	const [value, setValue] = useState<ISOTimeString | null>(null)
-	<div style={{width: 400}}>
+
+	<div style={{ width: 400 }}>
 		<TimeInput label="Start time" value={value} onChange={setValue} />
 	</div>
 }

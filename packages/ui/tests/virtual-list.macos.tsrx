@@ -6,21 +6,44 @@ import type { ProbeContext } from '../../../scripts/probe/context'
 
 const items = [{ id: 'a' }, { id: 'b' }, { id: 'c' }]
 const keyExtractor = (item: { id: string }) => item.id
-const renderItem = (item: { id: string }, index: number) => <label id={'row-' + item.id} text={item.id + ':' + index} style={{ height: 32 }} />
+const renderItem = (item: { id: string }, index: number) => (
+	<label id={'row-' + item.id} text={item.id + ':' + index} style={{ height: 32 }} />
+)
 
 export default function ListReorder() @{
 	const [rows, setRows] = useState(items)
 
-	<masonview style={mergeStyle({flexDirection: "column"}, {display: "flex", ...({ width: 280, height: 240 })})}>
-		<masonview id="sort" onTap={() => setRows([...rows].reverse())} style={{display: "flex"}}><label text="Reverse" /></masonview>
-		<VirtualList id="list" style={{ height: 160 }} items={rows} keyExtractor={keyExtractor} renderItem={renderItem} />
+	<masonview
+		style={mergeStyle(
+			{ flexDirection: 'column' },
+			{
+				display: 'flex',
+				width: 280,
+				height: 240,
+			},
+		)}
+	>
+		<masonview id="sort" onTap={() => setRows([...rows].reverse())} style={{ display: 'flex' }}>
+			<label text="Reverse" />
+		</masonview>
+		<VirtualList
+			id="list"
+			style={{ height: 160 }}
+			items={rows}
+			keyExtractor={keyExtractor}
+			renderItem={renderItem}
+		/>
 	</masonview>
 }
 
 export async function run(ctx: ProbeContext) {
-	await new Promise(resolve => setTimeout(resolve, 500))
+	await new Promise((resolve) => setTimeout(resolve, 500))
 	ctx.record('initial list', ctx.inspect('list'))
-	ctx.record('mounted rows', ['row-a', 'row-b', 'row-c'].map(id => Boolean(ctx.find(id))))
+	ctx.record(
+		'mounted rows',
+		['row-a', 'row-b', 'row-c'].map((id) => Boolean(ctx.find(id))),
+	)
+
 	await ctx.waitFor(() => ctx.find('row-c'))
 	const retained = ctx.find('row-a')
 	await ctx.press('sort')
@@ -33,12 +56,25 @@ export async function run(ctx: ProbeContext) {
 	}
 
 	ctx.inspect('list')
-	ctx.record('row positions after reverse', ['row-a', 'row-b', 'row-c'].map(id => ({ id, y: y(id) })))
+	ctx.record(
+		'row positions after reverse',
+		['row-a', 'row-b', 'row-c'].map((id) => ({ id, y: y(id) })),
+	)
+
 	const doc = ctx.find('list').documentView
 	const flipped = typeof doc.isFlipped === 'function' ? doc.isFlipped() : doc.isFlipped
-	ctx.assert('native rows follow descending data', flipped ? y('row-c') < y('row-a') : y('row-c') > y('row-a'), true)
+	ctx.assert(
+		'native rows follow descending data',
+		flipped ? y('row-c') < y('row-a') : y('row-c') > y('row-a'),
+		true,
+	)
+
 	await ctx.press('sort')
 	await ctx.waitFor(() => ctx.inspect('row-a').text === 'a:0')
 	ctx.inspect('list')
-	ctx.assert('native rows restore ascending data', flipped ? y('row-a') < y('row-c') : y('row-a') > y('row-c'), true)
+	ctx.assert(
+		'native rows restore ascending data',
+		flipped ? y('row-a') < y('row-c') : y('row-a') > y('row-c'),
+		true,
+	)
 }

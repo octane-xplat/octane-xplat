@@ -3,10 +3,12 @@ import { MoreMenu } from '@octane-xplat/ui'
 
 export function MoreMenuShowcase() @{
 	return (
-		<MoreMenu items={[
-			{ type: 'action', key: 'edit', label: 'Edit', onSelect: () => {} },
-			{ type: 'action', key: 'dup', label: 'Duplicate', onSelect: () => {} },
-			{ type: 'action', key: 'del', label: 'Delete', onSelect: () => {} },
-		]} />
+		<MoreMenu
+			items={[
+				{ type: 'action', key: 'edit', label: 'Edit', onSelect: () => {} },
+				{ type: 'action', key: 'dup', label: 'Duplicate', onSelect: () => {} },
+				{ type: 'action', key: 'del', label: 'Delete', onSelect: () => {} },
+			]}
+		/>
 	)
 }

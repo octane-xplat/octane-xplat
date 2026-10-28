@@ -5,10 +5,18 @@ import type { ISODateString, ISOTimeString, ISODateTimeString, DateRange } from 
 
 export function DateInputWithValidation() @{
 	const [value, setValue] = useState<ISODateString | null>(null)
-	const status = value != null && value < '2025-01-01'
-		? { type: 'error' as const, message: 'Date must be in 2025 or later' }
-		: undefined
-	<div style={{width: 400}}>
-		<DateInput label="Effective date" isRequired status={status} value={value} onChange={setValue} />
+	const status =
+		value != null && value < '2025-01-01'
+			? { type: 'error' as const, message: 'Date must be in 2025 or later' }
+			: undefined
+
+	<div style={{ width: 400 }}>
+		<DateInput
+			label="Effective date"
+			isRequired
+			status={status}
+			value={value}
+			onChange={setValue}
+		/>
 	</div>
 }

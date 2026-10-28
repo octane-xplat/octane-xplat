@@ -261,14 +261,16 @@ function Item(props: { params: { id: string }; data: { title: string } }) {
 }
 
 function FocusPage(props: { data: { title: string } }) {
-	return <main id="focus-page">
-		<h1 id="focus-heading">{props.data.title}</h1>
-		<button id="focus-control">Continue</button>
-		<div className="routing-focus-spacer" />
-		<h2 id="part one">A section</h2>
-		<button id="focus-bottom-control">Return target</button>
-		<div className="routing-focus-spacer" />
-	</main>
+	return (
+		<main id="focus-page">
+			<h1 id="focus-heading">{props.data.title}</h1>
+			<button id="focus-control">Continue</button>
+			<div className="routing-focus-spacer" />
+			<h2 id="part one">A section</h2>
+			<button id="focus-bottom-control">Return target</button>
+			<div className="routing-focus-spacer" />
+		</main>
+	)
 }
 
 function Settings() {
@@ -343,7 +345,8 @@ const fileCatalog = sealGeneratedRouteCatalog<{
 export const catalog = mergeRouteManifests(
 	fileCatalog,
 	defineRoutes([
-		defineRoute({ path: '/focus/:id',
+		defineRoute({
+			path: '/focus/:id',
 			loader: ({ params }) => ({ title: 'Focus ' + params.id }),
 			head: ({ params: { id } }) => ({ title: 'Focus ' + id, meta: { description: 'Page ' + id } }),
 		}).screen(FocusPage),
@@ -460,18 +463,29 @@ let lastMotion: Promise<unknown> | undefined
 				},
 				find: (id) => container.querySelector('#' + id),
 				check(name, pass) {
-					if (!pass) throw new Error(name)
+					if (!pass) {
+						throw new Error(name)
+					}
+
 					checks.push(name)
 				},
 				async wait(name, predicate) {
 					const deadline = Date.now() + 10000
 					while (!predicate()) {
-						if (Date.now() > deadline) throw new Error(name)
+						if (Date.now() > deadline) {
+							throw new Error(name)
+						}
+
 						await new Promise((resolve) => setTimeout(resolve, 10))
 					}
 				},
 			})
-			return { checks, urlUnchanged: location.href === url, historyUnchanged: history.length === length }
+
+			return {
+				checks,
+				urlUnchanged: location.href === url,
+				historyUnchanged: history.length === length,
+			}
 		} finally {
 			container.remove()
 		}

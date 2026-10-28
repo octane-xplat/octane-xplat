@@ -6,11 +6,18 @@ import { Text } from './Text'
 import { cx } from '@octane-xplat/lib'
 
 function StartContent(props: ItemSlotProps) @{
-	<masonview className={cx('vx-item-leading', props.className)} style={{display: "flex"}}>{props.children}</masonview>
+	<masonview className={cx('vx-item-leading', props.className)} style={{ display: 'flex' }}>
+		{props.children}
+	</masonview>
 }
 
 function Content(props: ItemSlotProps) @{
-	<masonview className={cx('vx-item-content', props.className)} style={mergeStyle({display: "flex"})}>{props.children}</masonview>
+	<masonview
+		className={cx('vx-item-content', props.className)}
+		style={mergeStyle({ display: 'flex' })}
+	>
+		{props.children}
+	</masonview>
 }
 
 function Description(props: ItemSlotProps) @{
@@ -18,13 +25,21 @@ function Description(props: ItemSlotProps) @{
 }
 
 function EndContent(props: ItemSlotProps) @{
-	<masonview className={cx('vx-item-trailing', props.className)} style={{display: "flex"}}>{props.children}</masonview>
+	<masonview className={cx('vx-item-trailing', props.className)} style={{ display: 'flex' }}>
+		{props.children}
+	</masonview>
 }
 
 function ItemView(props: ItemProps) @{
 	<Pressable
 		id={props.id}
-		className={cx('vx-item', props.density === 'compact' && 'vx-item--compact', props.isSelected && 'vx-item--selected', props.isHighlighted && 'vx-item--highlighted', props.className)}
+		className={cx(
+			'vx-item',
+			props.density === 'compact' && 'vx-item--compact',
+			props.isSelected && 'vx-item--selected',
+			props.isHighlighted && 'vx-item--highlighted',
+			props.className,
+		)}
 		style={props.style}
 		onPress={props.onPress}
 		disabled={props.isDisabled}

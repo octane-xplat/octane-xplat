@@ -271,21 +271,15 @@ test('rejects malformed or mismatched bootstrap data before mutating DOM or hist
 	staleRoute.match.params = { id: 'forged' }
 	for (const [document_, error] of [
 		[
-			craftedDocument(
-				'{"version":2,"buildId":"test","url":"/items/coat","mode":"client"}',
-			),
+			craftedDocument('{"version":2,"buildId":"test","url":"/items/coat","mode":"client"}'),
 			/does not match/,
 		],
 		[
-			craftedDocument(
-				'{"version":1,"buildId":"test","url":"/elsewhere","mode":"client"}',
-			),
+			craftedDocument('{"version":1,"buildId":"test","url":"/elsewhere","mode":"client"}'),
 			/does not match/,
 		],
 		[
-			craftedDocument(
-				'{"version":1,"buildId":"test","url":"/items/coat","mode":"bogus"}',
-			),
+			craftedDocument('{"version":1,"buildId":"test","url":"/items/coat","mode":"bogus"}'),
 			/does not match/,
 		],
 		[craftedDocument('{not json'), /SyntaxError|JSON/],
@@ -331,6 +325,7 @@ test('fails hydration before DOM or history mutation when the route module canno
 			browser.start({ catalog: browser.failingCatalog }),
 			/Could not load the prepared document route module/,
 		)
+
 		assert.equal(browser.moduleFailures, 1)
 		assert.equal(document.getElementById('item'), node)
 		assert.ok(
@@ -343,9 +338,7 @@ test('fails hydration before DOM or history mutation when the route module canno
 })
 
 test('rejected initial navigation releases the root, listeners and the consumed payload', async () => {
-	const html = await (
-		await fixture.handler({ mode: 'client' })(request('/forbidden'))
-	).text()
+	const html = await (await fixture.handler({ mode: 'client' })(request('/forbidden'))).text()
 	const { dom, browser, document } = await browserFor(html, 'http://localhost/forbidden')
 	try {
 		await assert.rejects(browser.start(), /Initial client navigation failed/)
@@ -359,15 +352,14 @@ test('rejected initial navigation releases the root, listeners and the consumed 
 })
 
 test('a failing initial route module releases the client root', async () => {
-	const html = await (
-		await fixture.handler({ mode: 'client' })(request('/items/coat'))
-	).text()
+	const html = await (await fixture.handler({ mode: 'client' })(request('/items/coat'))).text()
 	const { dom, browser, document } = await browserFor(html)
 	try {
 		await assert.rejects(
 			browser.start({ catalog: browser.failingCatalog }),
 			/Initial client navigation failed/,
 		)
+
 		assert.equal(browser.moduleFailures, 1)
 		assert.equal(document.getElementById('__xplat_app').innerHTML, '')
 	} finally {
@@ -401,12 +393,14 @@ test('aborts a pending transfer or pending document assets when the request disc
 		const ready = new Promise((resolve) => {
 			started = resolve
 		})
+
 		const pending = fixture.handler({
 			[option]() {
 				started()
 				return new Promise(() => {})
 			},
 		})(request('/items/coat', { signal: controller.signal }))
+
 		await ready
 		controller.abort(new Error('disconnected'))
 		await assert.rejects(pending, /disconnected/, option)

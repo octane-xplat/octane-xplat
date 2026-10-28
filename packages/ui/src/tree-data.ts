@@ -283,13 +283,19 @@ export function createTreeData<T>(options: TreeDataOptions<T> = {}): TreeData<T>
 		},
 		move(key, toParentKey, toIndex) {
 			const found = find(key)
-			if (!found || (toParentKey !== null &&
-				(!find(toParentKey) || locate([found.node], toParentKey)))) {return}
+			if (
+				!found ||
+				(toParentKey !== null && (!find(toParentKey) || locate([found.node], toParentKey)))
+			) {
+				return
+			}
 
 			// Validate first, then detach and insert in one published snapshot.
 			const detached = rebuild(snapshot.items, (siblings) => {
 				const index = siblings.findIndex((node) => node.key === key)
-				if (index < 0) {return null}
+				if (index < 0) {
+					return null
+				}
 				return siblings.filter((_, i) => i !== index)
 			})!
 			const moved = { ...found.node, parentKey: toParentKey }
@@ -298,13 +304,18 @@ export function createTreeData<T>(options: TreeDataOptions<T> = {}): TreeData<T>
 				next.splice(toIndex, 0, moved)
 				return next
 			}
-			const items = toParentKey === null ? insert(detached) : rebuild(detached, (siblings) => {
-				const index = siblings.findIndex((node) => node.key === toParentKey)
-				if (index < 0) {return null}
-				const next = [...siblings]
-				next[index] = { ...siblings[index], children: insert(siblings[index].children) }
-				return next
-			})!
+			const items =
+				toParentKey === null
+					? insert(detached)
+					: rebuild(detached, (siblings) => {
+							const index = siblings.findIndex((node) => node.key === toParentKey)
+							if (index < 0) {
+								return null
+							}
+							const next = [...siblings]
+							next[index] = { ...siblings[index], children: insert(siblings[index].children) }
+							return next
+						})!
 			commit({ ...snapshot, items })
 		},
 		update(key, value) {

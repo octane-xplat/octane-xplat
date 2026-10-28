@@ -2,7 +2,6 @@ import type { ParityCheck } from './parity/check-helpers.ts'
 import { dims } from './parity/check-helpers.ts'
 
 export const CHECKS: ParityCheck[] = [
-
 	{
 		fixture: 'pagination-window',
 		targets: ['web', 'ios', 'android', 'macos'],
@@ -21,5 +20,5 @@ export const CHECKS: ParityCheck[] = [
 				['active page has a visible frame', active.box.w > 0 && active.box.h > 0],
 			]
 		},
-	}
+	},
 ]

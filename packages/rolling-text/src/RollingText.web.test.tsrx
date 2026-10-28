@@ -112,9 +112,20 @@ describe('RollingText (web leaf)', () => {
 	})
 
 	it("'latest' holds one pending destination", () => {
-		const { el, root } = mount({ value: 'a', updatePolicy: 'latest', transition: { duration: 0.3 } })
-		act(() => root.render(<RollingText value="b" updatePolicy="latest" transition={{ duration: 0.3 }} />))
-		act(() => root.render(<RollingText value="c" updatePolicy="latest" transition={{ duration: 0.3 }} />))
+		const { el, root } = mount({
+			value: 'a',
+			updatePolicy: 'latest',
+			transition: { duration: 0.3 },
+		})
+
+		act(() =>
+			root.render(<RollingText value="b" updatePolicy="latest" transition={{ duration: 0.3 }} />),
+		)
+
+		act(() =>
+			root.render(<RollingText value="c" updatePolicy="latest" transition={{ duration: 0.3 }} />),
+		)
+
 		act(() => vi.advanceTimersByTime(400)) // run toward 'b' completes
 		expect(commit(el)).toBe('bc') // the pending roll now targets 'c', 'b' exiting
 		act(() => vi.advanceTimersByTime(600))

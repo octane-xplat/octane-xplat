@@ -26,15 +26,9 @@ import {
 	mixBox,
 	transformBox,
 } from './geometry'
+
 import type { ProjectionRoot } from './root'
-import type {
-	Axis,
-	Box,
-	Delta,
-	Measurement,
-	ProjectionNodeOptions,
-	ProjectionWrite,
-} from './types'
+import type { Axis, Box, Delta, Measurement, ProjectionNodeOptions, ProjectionWrite } from './types'
 
 /** Host-side surface a projection node drives; supplied by the adapter. */
 export interface ProjectionNodeHooks {
@@ -127,8 +121,12 @@ export class ProjectionNode {
 		const dep = this.options.layoutDependency
 		const depChanged = !Object.is(dep, this.prevLayoutDependency)
 		this.prevLayoutDependency = dep
-		if (dep !== undefined && !depChanged) return
-		if (!this.layout || !this.presented) return
+		if (dep !== undefined && !depChanged) {
+			return
+		}
+		if (!this.layout || !this.presented) {
+			return
+		}
 
 		const layout = this.layout.layoutBox
 		const snapshot = createBox()
@@ -179,10 +177,8 @@ export class ProjectionNode {
 			}
 		}
 
-		const hasTargetChanged =
-			!this.targetLayout || !boxEqualsRounded(this.targetLayout, layout)
-		const hasOnlyRelativeTargetChanged =
-			!hasLayoutChanged && hasRelativeLayoutChanged
+		const hasTargetChanged = !this.targetLayout || !boxEqualsRounded(this.targetLayout, layout)
+		const hasOnlyRelativeTargetChanged = !hasLayoutChanged && hasRelativeLayoutChanged
 
 		if (
 			hasOnlyRelativeTargetChanged ||
@@ -209,7 +205,7 @@ export class ProjectionNode {
 
 	resolveTargetDelta(forceRecalculation = false) {
 		this.isSharedProjectionDirty ||= Boolean(
-			this.isProjectionDirty || this.parent?.isProjectionDirty
+			this.isProjectionDirty || this.parent?.isProjectionDirty,
 		)
 		this.isTransformDirty ||= Boolean(this.parent?.isTransformDirty)
 
@@ -220,16 +216,17 @@ export class ProjectionNode {
 			this.attemptToResolveRelativeTarget
 		)
 
-		if (canSkip) return
-		if (!this.layout || !this.options.animationType) return
+		if (canSkip) {
+			return
+		}
+		if (!this.layout || !this.options.animationType) {
+			return
+		}
 
 		this.resolvedRelativeTargetAt = this.root.frameTimestamp
 		const relativeParent = this.getClosestProjectingParent()
 
-		if (
-			relativeParent &&
-			this.linkedParentVersion !== relativeParent.layoutVersion
-		) {
+		if (relativeParent && this.linkedParentVersion !== relativeParent.layoutVersion) {
 			this.removeRelativeTarget()
 		}
 
@@ -245,24 +242,18 @@ export class ProjectionNode {
 			}
 		}
 
-		if (!this.relativeTarget && !this.targetDelta) return
+		if (!this.relativeTarget && !this.targetDelta) {
+			return
+		}
 
 		if (!this.target) {
 			this.target = createBox()
 			this.targetWithTransforms = createBox()
 		}
 
-		if (
-			this.relativeTarget &&
-			this.relativeTargetOrigin &&
-			this.relativeParent?.target
-		) {
+		if (this.relativeTarget && this.relativeTargetOrigin && this.relativeParent?.target) {
 			this.forceRelativeParentToResolveTarget()
-			calcRelativeBox(
-				this.target,
-				this.relativeTarget,
-				this.relativeParent.target,
-			)
+			calcRelativeBox(this.target, this.relativeTarget, this.relativeParent.target)
 		} else if (this.targetDelta) {
 			copyBoxInto(this.target, this.layout.layoutBox)
 			applyBoxDelta(this.target, this.targetDelta)
@@ -273,11 +264,7 @@ export class ProjectionNode {
 		if (this.attemptToResolveRelativeTarget) {
 			this.attemptToResolveRelativeTarget = false
 			if (relativeParent?.target && this.animationProgress !== 1) {
-				this.createRelativeTarget(
-					relativeParent,
-					this.target,
-					relativeParent.target,
-				)
+				this.createRelativeTarget(relativeParent, this.target, relativeParent.target)
 			} else {
 				this.removeRelativeTarget()
 			}
@@ -285,10 +272,10 @@ export class ProjectionNode {
 	}
 
 	forceRelativeParentToResolveTarget() {
-		if (!this.relativeParent) return
-		if (
-			this.relativeParent.resolvedRelativeTargetAt !== this.root.frameTimestamp
-		) {
+		if (!this.relativeParent) {
+			return
+		}
+		if (this.relativeParent.resolvedRelativeTargetAt !== this.root.frameTimestamp) {
 			this.relativeParent.resolveTargetDelta(true)
 		}
 	}
@@ -302,15 +289,11 @@ export class ProjectionNode {
 			return undefined
 		}
 
-		return this.parent.isProjecting()
-			? this.parent
-			: this.parent.getClosestProjectingParent()
+		return this.parent.isProjecting() ? this.parent : this.parent.getClosestProjectingParent()
 	}
 
 	isProjecting() {
-		return Boolean(
-			(this.relativeTarget || this.targetDelta) && this.layout
-		)
+		return Boolean((this.relativeTarget || this.targetDelta) && this.layout)
 	}
 
 	createRelativeTarget(relativeParent: ProjectionNode, layout: Box, parentLayout: Box) {
@@ -329,19 +312,29 @@ export class ProjectionNode {
 
 	calcProjection() {
 		let canSkip = true
-		if (this.isProjectionDirty || this.parent?.isProjectionDirty) canSkip = false
-		if (this.isSharedProjectionDirty || this.isTransformDirty) canSkip = false
-		if (this.resolvedRelativeTargetAt === this.root.frameTimestamp) canSkip = false
-		if (canSkip) return
+		if (this.isProjectionDirty || this.parent?.isProjectionDirty) {
+			canSkip = false
+		}
+		if (this.isSharedProjectionDirty || this.isTransformDirty) {
+			canSkip = false
+		}
+		if (this.resolvedRelativeTargetAt === this.root.frameTimestamp) {
+			canSkip = false
+		}
+		if (canSkip) {
+			return
+		}
 
 		this.isTreeAnimating = Boolean(
-			(this.parent && this.parent.isTreeAnimating) || this.currentAnimation
+			(this.parent && this.parent.isTreeAnimating) || this.currentAnimation,
 		)
 		if (!this.isTreeAnimating) {
 			this.targetDelta = this.relativeTarget = undefined
 		}
 
-		if (!this.layout || !this.options.animationType) return
+		if (!this.layout || !this.options.animationType) {
+			return
+		}
 
 		copyBoxInto(this.layoutCorrected, this.layout.layoutBox)
 
@@ -386,7 +379,9 @@ export class ProjectionNode {
 
 	applyTransformsToTarget() {
 		const { targetWithTransforms, target, layout, latestValues } = this
-		if (!targetWithTransforms || !target || !layout) return
+		if (!targetWithTransforms || !target || !layout) {
+			return
+		}
 
 		copyBoxInto(targetWithTransforms, target)
 		transformBox(targetWithTransforms, latestValues)
@@ -416,11 +411,7 @@ export class ProjectionNode {
 
 		this.applyTransformsToTarget()
 
-		if (
-			!this.currentAnimation &&
-			!this.isTreeAnimating &&
-			isDeltaZero(this.projectionDelta)
-		) {
+		if (!this.currentAnimation && !this.isTreeAnimating && isDeltaZero(this.projectionDelta)) {
 			if (this.hasProjected) {
 				this.hooks?.project(null)
 				this.hasProjected = false
@@ -436,6 +427,7 @@ export class ProjectionNode {
 				treeScale: this.treeScale,
 				latest: this.latestValues,
 			})
+
 			this.hasProjected = true
 		}
 
@@ -443,8 +435,12 @@ export class ProjectionNode {
 	}
 
 	refreshPresented() {
-		if (!this.layout) return
-		if (!this.presented) this.presented = createBox()
+		if (!this.layout) {
+			return
+		}
+		if (!this.presented) {
+			this.presented = createBox()
+		}
 		const projecting = this.isProjecting() && this.target
 		copyBoxInto(this.presented, projecting ? this.target! : this.layout.layoutBox)
 	}
@@ -481,13 +477,17 @@ export class ProjectionNode {
 					this.layout.layoutBox,
 					this.relativeParent.layout.layoutBox,
 				)
+
 				mixBox(this.relativeTarget, this.relativeTargetOrigin, relativeLayout, progress)
 
 				if (prevRelativeTarget && boxEquals(this.relativeTarget, prevRelativeTarget)) {
 					this.isProjectionDirty = false
 				}
 
-				if (!prevRelativeTarget) prevRelativeTarget = createBox()
+				if (!prevRelativeTarget) {
+					prevRelativeTarget = createBox()
+				}
+
 				copyBoxInto(prevRelativeTarget, this.relativeTarget)
 			}
 
@@ -540,25 +540,22 @@ export class ProjectionNode {
 }
 
 export function propagateDirtyNodes(node: ProjectionNode) {
-	if (!node.parent) return
+	if (!node.parent) {
+		return
+	}
 	if (!node.isProjecting()) {
 		node.isProjectionDirty = node.parent.isProjectionDirty
 	}
 
 	node.isSharedProjectionDirty ||= Boolean(
-		node.isProjectionDirty ||
-			node.parent.isProjectionDirty ||
-			node.parent.isSharedProjectionDirty,
+		node.isProjectionDirty || node.parent.isProjectionDirty || node.parent.isSharedProjectionDirty,
 	)
 
 	node.isTransformDirty ||= node.parent.isTransformDirty
 }
 
 export function cleanDirtyNodes(node: ProjectionNode) {
-	node.isProjectionDirty =
-		node.isSharedProjectionDirty =
-		node.isTransformDirty =
-			false
+	node.isProjectionDirty = node.isSharedProjectionDirty = node.isTransformDirty = false
 }
 
 const defaultLayoutTransition: Transition = {
@@ -572,16 +569,14 @@ export function resolveLayoutTransition(input: TransitionInput | undefined): Tra
 			? (input.layout ?? input.default)
 			: input
 		: undefined
-	if (!resolved || !Object.keys(resolved).length) return { ...defaultLayoutTransition }
+	if (!resolved || !Object.keys(resolved).length) {
+		return { ...defaultLayoutTransition }
+	}
 	const { staggerChildren, delayChildren, when, ...transition } = resolved
 	return transition
 }
 
-function shouldAnimatePositionOnly(
-	animationType: string | undefined,
-	snapshot: Box,
-	layout: Box,
-) {
+function shouldAnimatePositionOnly(animationType: string | undefined, snapshot: Box, layout: Box) {
 	return (
 		animationType === 'position' ||
 		(animationType === 'preserve-aspect' &&

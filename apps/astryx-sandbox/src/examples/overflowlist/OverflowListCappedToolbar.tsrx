@@ -12,11 +12,17 @@ export function OverflowListCappedToolbar() @{
 				overflowRenderer={(overflowItems: { index: number }[]) => (
 					<DropdownMenu
 						button={{ label: `+${overflowItems.length}`, variant: 'ghost', size: 'sm' }}
-						items={overflowItems.map(({ index }) => ({ type: 'action' as const, key: `action-${index}`, label: actions[index] }))}
+						items={overflowItems.map(({ index }) => ({
+							type: 'action' as const,
+							key: `action-${index}`,
+							label: actions[index],
+						}))}
 					/>
 				)}
 			>
-				{actions.map((action) => <Button key={action} label={action} size="sm" />)}
+				{actions.map((action) => (
+					<Button key={action} label={action} size="sm" />
+				))}
 			</OverflowList>
 		</Card>
 	</Center>

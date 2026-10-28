@@ -6,7 +6,13 @@
 // listener to drain buffered events.
 import { Application, Utils, isIOS } from '@nativescript/core'
 import { android } from '@octane-xplat/platform/android'
-import type { GeofenceRegion, Geofencing, PermissionResult, RegionEvent, RegionEventListener } from './types'
+import type {
+	GeofenceRegion,
+	Geofencing,
+	PermissionResult,
+	RegionEvent,
+	RegionEventListener,
+} from './types'
 
 declare const CLLocationManager: any
 declare const CLLocationManagerDelegate: any
@@ -51,6 +57,7 @@ function iosManager(): any {
 				{ name: 'XplatGeofenceDelegate', protocols: [CLLocationManagerDelegate] },
 			)
 		}
+
 		delegate = DelegateClass.new()
 		locationManager.delegate = delegate
 	}
@@ -108,8 +115,12 @@ function androidGeofencingClient(): any {
 
 function androidPendingIntent(): any {
 	const context = (Utils.android as any)?.getApplicationContext?.()
-	const intent = new android.content.Intent(context, (globalThis as any).com.octanexplat.geofencing.GeofenceReceiver.class)
-	const flags = android.app.PendingIntent.FLAG_UPDATE_CURRENT | android.app.PendingIntent.FLAG_MUTABLE
+	const intent = new android.content.Intent(
+		context,
+		(globalThis as any).com.octanexplat.geofencing.GeofenceReceiver.class,
+	)
+	const flags =
+		android.app.PendingIntent.FLAG_UPDATE_CURRENT | android.app.PendingIntent.FLAG_MUTABLE
 	return android.app.PendingIntent.getBroadcast(context, 0, intent, flags)
 }
 
@@ -118,7 +129,8 @@ function androidPendingIntent(): any {
 // on a cold start); drainQueue() runs on a short poll while the app is live
 // and again whenever a listener attaches.
 const androidUtils = Utils.android as any
-const prefs = () => androidUtils?.getApplicationContext?.()?.getSharedPreferences?.('xplat_geofence_events', 0)
+const prefs = () =>
+	androidUtils?.getApplicationContext?.()?.getSharedPreferences?.('xplat_geofence_events', 0)
 
 function drainQueue(): void {
 	const p = prefs()
@@ -133,7 +145,10 @@ function drainQueue(): void {
 		const queue = JSON.parse(raw)
 		p.edit().putString('queue', '[]').apply()
 		for (const item of queue) {
-			emit({ identifier: String(item.identifier ?? ''), eventType: item.eventType === 'exit' ? 'exit' : 'enter' })
+			emit({
+				identifier: String(item.identifier ?? ''),
+				eventType: item.eventType === 'exit' ? 'exit' : 'enter',
+			})
 		}
 	} catch {}
 }
@@ -156,10 +171,12 @@ export const geofencing: Geofencing = {
 			if (!m) {
 				return Promise.resolve('unsupported')
 			}
+
 			const status = CLLocationManager.authorizationStatus?.() ?? 0
 			if (status === 3) {
 				return Promise.resolve('granted')
 			}
+
 			m.requestAlwaysAuthorization()
 			return Promise.resolve(status === 3 ? 'granted' : 'denied')
 		}
@@ -180,6 +197,7 @@ export const geofencing: Geofencing = {
 			if (!m) {
 				throw new Error('unsupported: CLLocationManager is not available')
 			}
+
 			for (const r of regions) {
 				const center = CLLocationCoordinate2DMake(r.latitude, r.longitude)
 				const region = CLCircularRegion.alloc().initWithCenterRadiusIdentifier(
@@ -187,10 +205,12 @@ export const geofencing: Geofencing = {
 					r.radius,
 					r.identifier,
 				)
+
 				region.notifyOnEntry = r.notifyOnEnter ?? true
 				region.notifyOnExit = r.notifyOnExit ?? true
 				m.startMonitoringForRegion(region)
 			}
+
 			return
 		}
 		const client = androidGeofencingClient()
@@ -202,8 +222,14 @@ export const geofencing: Geofencing = {
 		builder.setInitialTrigger(gms.GeofencingRequest.INITIAL_TRIGGER_ENTER)
 		for (const r of regions) {
 			let transitions = 0
-			if (r.notifyOnEnter ?? true) {transitions |= gms.Geofence.GEOFENCE_TRANSITION_ENTER}
-			if (r.notifyOnExit ?? true) {transitions |= gms.Geofence.GEOFENCE_TRANSITION_EXIT}
+			if (r.notifyOnEnter ?? true) {
+				transitions |= gms.Geofence.GEOFENCE_TRANSITION_ENTER
+			}
+
+			if (r.notifyOnExit ?? true) {
+				transitions |= gms.Geofence.GEOFENCE_TRANSITION_EXIT
+			}
+
 			builder.addGeofence(
 				new gms.Geofence.Builder()
 					.setRequestId(r.identifier)
@@ -227,6 +253,7 @@ export const geofencing: Geofencing = {
 					m.stopMonitoringForRegion(region)
 				}
 			}
+
 			return
 		}
 		const client = androidGeofencingClient()

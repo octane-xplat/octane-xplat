@@ -1,20 +1,23 @@
-import { useState } from 'octane';
-import { View, HStack, Text, Pressable } from '@octane-xplat/ui';
+import { useState } from 'octane'
+import { View, HStack, Text, Pressable } from '@octane-xplat/ui'
 
-const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#'];
-const MAX = 15;
+const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#']
+const MAX = 15
 
 /** dialer — 12-key pad + digit accumulation.
  *  Proves: rapid onPress→state→commit throughput (tap bursts), a fixed-size
  *  wrap grid of identical leaves, and string-state editing (append/backspace).
  *  The Call button is a probe log only — no telephony seam yet. */
 export function Dialer() @{
-	const [digits, setDigits] = useState('');
+	const [digits, setDigits] = useState('')
 
 	const press = (k: string) => {
-		if (digits.length >= MAX) return;
-		setDigits(digits + k);
-	};
+		if (digits.length >= MAX) {
+			return
+		}
+
+		setDigits(digits + k)
+	}
 
 	<View className="vx-app flex-1 gap-4 items-center">
 		<Text className="dialer-display">{digits || 'Enter number'}</Text>

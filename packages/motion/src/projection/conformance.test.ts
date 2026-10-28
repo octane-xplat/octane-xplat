@@ -23,13 +23,17 @@ function makeClock() {
 		},
 		cancel: (id) => {
 			const index = queue.findIndex((entry) => entry.id === id)
-			if (index !== -1) queue.splice(index, 1)
+			if (index !== -1) {
+				queue.splice(index, 1)
+			}
 		},
 		advance(ms) {
 			time += ms
 			const queued = [...queue]
 			queue.length = 0
-			for (const entry of queued) entry.cb()
+			for (const entry of queued) {
+				entry.cb()
+			}
 		},
 	}
 	return clock
@@ -43,7 +47,9 @@ function makeBarrier() {
 		flush() {
 			const pending = [...scheduled]
 			scheduled.length = 0
-			for (const pass of pending) pass()
+			for (const pass of pending) {
+				pass()
+			}
 		},
 	}
 	return barrier
@@ -88,7 +94,11 @@ function setup() {
 	return { clock, root, commit }
 }
 
-function makeNode(root: ProjectionRoot, hooks: ReturnType<typeof fakeHooks>['hooks'], parent?: ProjectionNode) {
+function makeNode(
+	root: ProjectionRoot,
+	hooks: ReturnType<typeof fakeHooks>['hooks'],
+	parent?: ProjectionNode,
+) {
 	const node = new ProjectionNode(parent)
 	node.attach(hooks)
 	node.options.animationType = 'both'

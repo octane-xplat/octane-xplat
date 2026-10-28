@@ -5,7 +5,13 @@ import type { ISODateString, ISOTimeString, ISODateTimeString, DateRange } from 
 
 export function DateInputWithDescription() @{
 	const [value, setValue] = useState<ISODateString | null>(null)
-	<div style={{width: 400}}>
-		<DateInput label="Start date" description="Select when the project should begin" value={value} onChange={setValue} />
+
+	<div style={{ width: 400 }}>
+		<DateInput
+			label="Start date"
+			description="Select when the project should begin"
+			value={value}
+			onChange={setValue}
+		/>
 	</div>
 }

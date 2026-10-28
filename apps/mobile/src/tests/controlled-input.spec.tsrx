@@ -17,12 +17,7 @@ function EchoForm() @{
 	const [value, setValue] = useState('')
 
 	<View>
-		<TextInput
-			testID="echo.field"
-			value={value}
-			onChange={setValue}
-			placeholder="type here"
-		/>
+		<TextInput testID="echo.field" value={value} onChange={setValue} placeholder="type here" />
 		<Text>{'echo: ' + value}</Text>
 	</View>
 }

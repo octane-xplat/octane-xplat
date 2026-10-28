@@ -15,7 +15,9 @@ export function DividerVariants() @{
 					<Text type="body">Use your company credentials to sign in automatically.</Text>
 				</VStack>
 				<Divider variant="strong" />
-				<Text type="supporting" color="secondary">By signing in, you agree to our Terms of Service and Privacy Policy.</Text>
+				<Text type="supporting" color="secondary">
+					By signing in, you agree to our Terms of Service and Privacy Policy.
+				</Text>
 			</VStack>
 		</Card>
 	</Section>

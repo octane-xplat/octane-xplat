@@ -9,6 +9,7 @@ const SHARED = [
 	{ id: 'tax', title: 'Tax region notes', meta: 'Hugo Bernard' },
 	{ id: 'sso', title: 'SSO rollout plan', meta: 'Sofia Marchetti' },
 ]
+
 const ARCHIVED = [
 	{ id: 'roadmap', title: '2025 roadmap', meta: 'Archived in March' },
 	{ id: 'legacy', title: 'Legacy pricing', meta: 'Archived in March' },
@@ -18,13 +19,21 @@ const ARCHIVED = [
 	{ id: 'offsite', title: 'Offsite agenda', meta: 'Archived last year' },
 ]
 
-function FileGrid({ files }: { files: Array<{ id: string; title: string; meta: string }> }) @{
+function FileGrid({
+	files,
+}: {
+	files: Array<{ id: string; title: string; meta: string }>
+}) @{
 	<Grid columns={2} style={{ gap: 8 }}>
 		{files.map((file) => (
 			<Card key={file.id} variant="muted" padding={3}>
 				<VStack gap={1}>
-					<Text weight="medium" maxLines={1}>{file.title}</Text>
-					<Text type="supporting" maxLines={1}>{file.meta}</Text>
+					<Text weight="medium" maxLines={1}>
+						{file.title}
+					</Text>
+					<Text type="supporting" maxLines={1}>
+						{file.meta}
+					</Text>
 				</VStack>
 			</Card>
 		))}

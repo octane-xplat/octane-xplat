@@ -14,8 +14,7 @@ function rootViewOf(container: any): any {
 
 function decorView(): any {
 	const activity =
-		(Application as any).android?.foregroundActivity ??
-		(Application as any).foregroundActivity
+		(Application as any).android?.foregroundActivity ?? (Application as any).foregroundActivity
 	return activity?.getWindow?.()?.getDecorView?.() ?? null
 }
 
@@ -27,11 +26,15 @@ export const barrier: LayoutBarrier = {
 		const views = new Map<any, any>()
 		for (const container of pendingContainers) {
 			const view = rootViewOf(container)
-			if (view) views.set(view.getViewTreeObserver(), view)
+			if (view) {
+				views.set(view.getViewTreeObserver(), view)
+			}
 		}
 		pendingContainers.clear()
 		const decor = decorView()
-		if (decor) views.set(decor.getViewTreeObserver(), decor)
+		if (decor) {
+			views.set(decor.getViewTreeObserver(), decor)
+		}
 
 		if (!views.size) {
 			// No window to traverse (headless/tests): never leave a pass pending.
@@ -42,31 +45,46 @@ export const barrier: LayoutBarrier = {
 		let ran = false
 		const cleanupAll = () => {
 			for (const [vto, pair] of observers) {
-				if (vto.isAlive?.() === false) continue
-				if (pair.global) vto.removeOnGlobalLayoutListener?.(pair.global)
-				if (pair.pre) vto.removeOnPreDrawListener?.(pair.pre)
+				if (vto.isAlive?.() === false) {
+					continue
+				}
+
+				if (pair.global) {
+					vto.removeOnGlobalLayoutListener?.(pair.global)
+				}
+
+				if (pair.pre) {
+					vto.removeOnPreDrawListener?.(pair.pre)
+				}
 			}
 			observers.clear()
 		}
 		const run = () => {
-			if (ran) return
+			if (ran) {
+				return
+			}
 			ran = true
 			cleanupAll()
 			pass()
 		}
 
 		for (const [vto] of views) {
-			if (!vto || !VTO) continue
+			if (!vto || !VTO) {
+				continue
+			}
+
 			const pair: { global: any; pre: any } = { global: null, pre: null }
 			pair.global = new VTO.OnGlobalLayoutListener({
 				onGlobalLayout: () => run(),
 			})
+
 			pair.pre = new VTO.OnPreDrawListener({
 				onPreDraw: () => {
 					run()
 					return true
 				},
 			})
+
 			observers.set(vto, pair)
 			vto.addOnGlobalLayoutListener(pair.global)
 			vto.addOnPreDrawListener(pair.pre)
@@ -76,13 +94,18 @@ export const barrier: LayoutBarrier = {
 		// the commit caused no layout change; the pass always lands before the
 		// traversal's draw.
 		const anchor = decor ?? views.values().next().value
-		if (anchor?.postInvalidateOnAnimation) anchor.postInvalidateOnAnimation()
-		else anchor?.postInvalidate?.()
+		if (anchor?.postInvalidateOnAnimation) {
+			anchor.postInvalidateOnAnimation()
+		} else {
+			anchor?.postInvalidate?.()
+		}
 	},
 	observe(root) {
 		const stop = observeBatches({
 			didApply(container) {
-				if (container) pendingContainers.add(container)
+				if (container) {
+					pendingContainers.add(container)
+				}
 				root.invalidate('mutation')
 			},
 		})

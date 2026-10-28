@@ -1,6 +1,10 @@
 // Port of upstream (fullscreen)/pages/neutral-palette/page.tsx (Astryx 0.6.4, MIT).
 import { neutralTheme } from '../../themes/neutral'
-import { ThemePalettePreview, type TonalColor, type CoreSwatch } from '../../themePreview/ThemePalettePreview'
+import {
+	ThemePalettePreview,
+	type TonalColor,
+	type CoreSwatch,
+} from '../../themePreview/ThemePalettePreview'
 
 const TONAL_COLORS: TonalColor[] = [
 	{ name: 'Neutral', sourceHex: '#e5e5e5', note: 'C=0' },

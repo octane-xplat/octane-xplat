@@ -29,7 +29,9 @@ export function requireRouterRenderScope(
 		throw new Error('Routing hook belongs to a different router instance')
 	}
 	if (declared && !instance && !isDefaultRouter(scope.instance)) {
-		throw new Error('Pass the explicit router instance to typed routing hooks in a custom RouterProvider')
+		throw new Error(
+			'Pass the explicit router instance to typed routing hooks in a custom RouterProvider',
+		)
 	}
 	return scope
 }

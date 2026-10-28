@@ -5,10 +5,16 @@ export function DialogHeaderShowcase() @{
 	return (
 		<Dialog isOpen isInline onOpenChange={() => {}}>
 			<VStack>
-				<DialogHeader title="Edit Profile" subtitle="Update your personal information" onOpenChange={() => {}} />
+				<DialogHeader
+					title="Edit Profile"
+					subtitle="Update your personal information"
+					onOpenChange={() => {}}
+				/>
 				<VStack style={{ padding: 'var(--spacing-4)' }}>
 					<Card variant="muted">
-						<Text type="body" color="secondary">Dialog body content goes here.</Text>
+						<Text type="body" color="secondary">
+							Dialog body content goes here.
+						</Text>
 					</Card>
 				</VStack>
 			</VStack>

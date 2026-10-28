@@ -198,6 +198,7 @@ main().then(() => __xplatStopHost(), error => { console.log('MACOS_AUDIO_ERROR',
 			fileURLToPath(new URL('../../platform', import.meta.url)),
 			join(app, 'node_modules/@octane-xplat/platform'),
 		)
+
 		const artifact = await buildMacOSNative(app)
 		assert.deepEqual([...artifact.leaves].sort(), ['@octane-xplat/audio', '@octane-xplat/platform'])
 		const bootstrap = join(app, 'bootstrap.js')

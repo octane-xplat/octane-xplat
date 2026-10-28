@@ -23,6 +23,7 @@ function defaultThemeTokens() {
 		for (const declaration of match[2].matchAll(/--(color|radius|space)-([A-Za-z0-9-]+)\s*:/g)) {
 			tokens[declaration[1]].add(declaration[2])
 		}
+
 		return tokens
 	}
 

@@ -58,7 +58,13 @@ run('pnpm', ['pack', '--pack-destination', packDir], join(frameworkRoot, 'packag
 const tarballName = (pkg) => `${pkg.name.replace(/^@/, '').replace('/', '-')}-${pkg.version}.tgz`
 const createTarball = join(packDir, tarballName(createPkg))
 run('tar', ['-xzf', createTarball, '-C', extractDir])
-run('node', [join(extractDir, 'package', 'dist', 'index.js'), appDir, '--no-install', '--targets', 'web'])
+run('node', [
+	join(extractDir, 'package', 'dist', 'index.js'),
+	appDir,
+	'--no-install',
+	'--targets',
+	'web',
+])
 
 // ---- package closure: app deps + what they install --------------------------
 const appManifestPath = join(appDir, 'package.json')

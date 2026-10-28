@@ -4,10 +4,28 @@ import { useState } from 'octane'
 
 export function CheckboxListItemShowcase() @{
 	const [value, setValue] = useState<string[]>(['updates', 'security'])
+
 	<CheckboxList label="Email preferences" value={value} onValueChange={setValue} hasDividers>
-		<CheckboxListItem label="Product updates" value="updates" description="New features and improvements" />
-		<CheckboxListItem label="Security alerts" value="security" description="Important account security notifications" />
-		<CheckboxListItem label="Marketing" value="marketing" description="Tips, offers, and promotions" />
-		<CheckboxListItem label="Beta program" value="beta" description="Currently closed to new members" isDisabled />
+		<CheckboxListItem
+			label="Product updates"
+			value="updates"
+			description="New features and improvements"
+		/>
+		<CheckboxListItem
+			label="Security alerts"
+			value="security"
+			description="Important account security notifications"
+		/>
+		<CheckboxListItem
+			label="Marketing"
+			value="marketing"
+			description="Tips, offers, and promotions"
+		/>
+		<CheckboxListItem
+			label="Beta program"
+			value="beta"
+			description="Currently closed to new members"
+			isDisabled
+		/>
 	</CheckboxList>
 }

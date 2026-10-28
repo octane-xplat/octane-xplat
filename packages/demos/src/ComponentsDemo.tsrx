@@ -1,74 +1,161 @@
-import { useState } from 'octane';
+import { useState } from 'octane'
 import {
-	Accordion, Alert, AppShell, Avatar, AvatarGroup, Badge, Banner, Breadcrumbs, Button,
-	Card, CheckboxInput, CheckboxList, Chip, Collapsible, CommandPalette,
-	ContextMenu, DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuSeparator,
-	DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSubMenu, DropdownMenuItem, EmptyState, FieldGroup, Field, Heading,
-	FormLayout, InputGroup, InputGroupText, MobileNav, NavHeadingMenu,
-	NavHeadingMenuItem, NavIcon, NumberInput, InputRating, Typeahead, Tokenizer,
-	createStaticSource, Kbd, NavigationMenu, OverflowList, Pagination,
-	PinInput, ProgressGroup, RadioList, HStack, Selector, MultiSelector, Divider, Skeleton,
-	SideNav, SideNavHeading, SideNavItem, SideNavSection, Stepper, Tab, TabList,
-	TabMenu, Table, Text, TextInput, Timeline, Toolbar, TopNav, TopNavHeading,
-	TopNavItem, TreeList, User, View, registerIcons,
-} from '@octane-xplat/ui';
-import type { MenuActionData } from '@octane-xplat/ui';
+	Accordion,
+	Alert,
+	AppShell,
+	Avatar,
+	AvatarGroup,
+	Badge,
+	Banner,
+	Breadcrumbs,
+	Button,
+	Card,
+	CheckboxInput,
+	CheckboxList,
+	Chip,
+	Collapsible,
+	CommandPalette,
+	ContextMenu,
+	DropdownMenu,
+	DropdownMenuCheckboxItem,
+	DropdownMenuSeparator,
+	DropdownMenuRadioGroup,
+	DropdownMenuRadioItem,
+	DropdownMenuSubMenu,
+	DropdownMenuItem,
+	EmptyState,
+	FieldGroup,
+	Field,
+	Heading,
+	FormLayout,
+	InputGroup,
+	InputGroupText,
+	MobileNav,
+	NavHeadingMenu,
+	NavHeadingMenuItem,
+	NavIcon,
+	NumberInput,
+	InputRating,
+	Typeahead,
+	Tokenizer,
+	createStaticSource,
+	Kbd,
+	NavigationMenu,
+	OverflowList,
+	Pagination,
+	PinInput,
+	ProgressGroup,
+	RadioList,
+	HStack,
+	Selector,
+	MultiSelector,
+	Divider,
+	Skeleton,
+	SideNav,
+	SideNavHeading,
+	SideNavItem,
+	SideNavSection,
+	Stepper,
+	Tab,
+	TabList,
+	TabMenu,
+	Table,
+	Text,
+	TextInput,
+	Timeline,
+	Toolbar,
+	TopNav,
+	TopNavHeading,
+	TopNavItem,
+	TreeList,
+	User,
+	View,
+	registerIcons,
+} from '@octane-xplat/ui'
+
+import type { MenuActionData } from '@octane-xplat/ui'
 
 registerIcons({
 	'menu-dot': { svg: 'M12 5v.01M12 12v.01M12 19v.01' },
-});
+})
 
 const commandSource = createStaticSource([
-	{ id: 'home', label: 'Home', auxiliaryData: { group: 'Navigation' }, description: 'Open your workspace' },
-	{ id: 'settings', label: 'Settings', auxiliaryData: { group: 'Navigation' }, description: 'Manage preferences' },
+	{
+		id: 'home',
+		label: 'Home',
+		auxiliaryData: { group: 'Navigation' },
+		description: 'Open your workspace',
+	},
+	{
+		id: 'settings',
+		label: 'Settings',
+		auxiliaryData: { group: 'Navigation' },
+		description: 'Manage preferences',
+	},
 	{ id: 'create', label: 'Create project', auxiliaryData: { group: 'Actions' } },
-]);
+])
 
 const remoteCommandSource = {
 	bootstrap: commandSource.bootstrap,
 	search: async (query: string) => {
-		await new Promise((resolve) => setTimeout(resolve, 180));
-		if (query.trim() === 'fail') throw new Error('Demo search failure');
-		return commandSource.search(query);
+		await new Promise((resolve) => setTimeout(resolve, 180))
+		if (query.trim() === 'fail') {
+			throw new Error('Demo search failure')
+		}
+
+		return commandSource.search(query)
 	},
-};
+}
 
 const demoSelectionSource = createStaticSource([
 	{ id: 'apple', label: 'Apple' },
 	{ id: 'banana', label: 'Banana' },
 	{ id: 'cherry', label: 'Cherry' },
-]);
+])
 
 /** Phase-1 self-drawn components — one row per component, plain usage. */
 export function ComponentsDemo() @{
-	const [checked, setChecked] = useState(true);
-	const [radio, setRadio] = useState('a');
-	const [menuArchived, setMenuArchived] = useState(false);
-	const [menuSort, setMenuSort] = useState('newest');
-	const [lastMenu, setLastMenu] = useState('—');
-	const [lastCtx, setLastCtx] = useState('—');
-	const [num, setNum] = useState<number | null>(2);
-	const [pin, setPin] = useState('');
-	const [fruits, setFruits] = useState<string[]>(['apple']);
-	const [fruit, setFruit] = useState<string | null>('apple');
-	const [assignee, setAssignee] = useState<{ id: string; label: string } | null>({ id: 'apple', label: 'Apple' });
-	const [tags, setTags] = useState<Array<{ id: string; label: string }>>([{ id: 'one', label: 'One' }]);
-	const [rating, setRating] = useState(3);
-	const [checks, setChecks] = useState<string[]>(['x']);
-	const [page, setPage] = useState(4);
-	const [step, setStep] = useState(1);
-	const [nav, setNav] = useState('home');
-	const [cmdk, setCmdk] = useState(false);
-	const [remoteCmdk, setRemoteCmdk] = useState(false);
-	const [lastCommand, setLastCommand] = useState('—');
-	const [activePanel, setActivePanel] = useState('overview');
-	const [overflowCount, setOverflowCount] = useState(0);
+	const [checked, setChecked] = useState(true)
+	const [radio, setRadio] = useState('a')
+	const [menuArchived, setMenuArchived] = useState(false)
+	const [menuSort, setMenuSort] = useState('newest')
+	const [lastMenu, setLastMenu] = useState('—')
+	const [lastCtx, setLastCtx] = useState('—')
+	const [num, setNum] = useState<number | null>(2)
+	const [pin, setPin] = useState('')
+	const [fruits, setFruits] = useState<string[]>(['apple'])
+	const [fruit, setFruit] = useState<string | null>('apple')
+	const [assignee, setAssignee] = useState<{ id: string; label: string } | null>({
+		id: 'apple',
+		label: 'Apple',
+	})
+
+	const [tags, setTags] = useState<Array<{ id: string; label: string }>>([
+		{ id: 'one', label: 'One' },
+	])
+
+	const [rating, setRating] = useState(3)
+	const [checks, setChecks] = useState<string[]>(['x'])
+	const [page, setPage] = useState(4)
+	const [step, setStep] = useState(1)
+	const [nav, setNav] = useState('home')
+	const [cmdk, setCmdk] = useState(false)
+	const [remoteCmdk, setRemoteCmdk] = useState(false)
+	const [lastCommand, setLastCommand] = useState('—')
+	const [activePanel, setActivePanel] = useState('overview')
+	const [overflowCount, setOverflowCount] = useState(0)
 
 	const menuItems: MenuActionData[] = [
 		{ type: 'action', key: 'edit', label: 'Edit', onSelect: () => setLastMenu('edit') },
 		{ type: 'action', key: 'dup', label: 'Duplicate', onSelect: () => setLastMenu('dup') },
-		{ type: 'action', key: 'del', label: 'Delete', isDisabled: true, onSelect: () => setLastMenu('del') },
-	];
+		{
+			type: 'action',
+			key: 'del',
+			label: 'Delete',
+			isDisabled: true,
+			onSelect: () => setLastMenu('del'),
+		},
+	]
 
 	<View className="controls-demo gap-4">
 		<Heading level={2}>Components</Heading>
@@ -79,8 +166,12 @@ export function ComponentsDemo() @{
 				<Button className="btn btn-secondary" clickAction={() => setLastMenu('pressed')}>
 					<Text>Press me</Text>
 				</Button>
-				<Button className="btn" isLoading={true}><Text>Loading</Text></Button>
-				<Button className="btn" isDisabled={true}><Text>Disabled</Text></Button>
+				<Button className="btn" isLoading={true}>
+					<Text>Loading</Text>
+				</Button>
+				<Button className="btn" isDisabled={true}>
+					<Text>Disabled</Text>
+				</Button>
 			</HStack>
 		</View>
 
@@ -88,7 +179,11 @@ export function ComponentsDemo() @{
 			<Text className="font-bold">CheckboxInput + RadioList</Text>
 			<CheckboxInput value={checked} onChange={setChecked} label="Checked" />
 			<RadioList
-				options={[{ value: 'a', label: 'Alpha' }, { value: 'b', label: 'Beta' }, { value: 'c', label: 'Gamma', isDisabled: true }]}
+				options={[
+					{ value: 'a', label: 'Alpha' },
+					{ value: 'b', label: 'Beta' },
+					{ value: 'c', label: 'Gamma', isDisabled: true },
+				]}
 				value={radio}
 				onValueChange={setRadio}
 			/>
@@ -101,8 +196,16 @@ export function ComponentsDemo() @{
 			</Collapsible>
 			<Accordion
 				items={[
-					{ key: 'one', header: <Text className="chip">One</Text>, content: <Text>First panel.</Text> },
-					{ key: 'two', header: <Text className="chip">Two</Text>, content: <Text>Second panel.</Text> },
+					{
+						key: 'one',
+						header: <Text className="chip">One</Text>,
+						content: <Text>First panel.</Text>,
+					},
+					{
+						key: 'two',
+						header: <Text className="chip">Two</Text>,
+						content: <Text>Second panel.</Text>,
+					},
 				]}
 			/>
 		</View>
@@ -112,7 +215,11 @@ export function ComponentsDemo() @{
 			<HStack className="items-center gap-4">
 				<DropdownMenu button={{ label: 'Menu', variant: 'ghost', size: 'sm' }} items={menuItems}>
 					<DropdownMenuSeparator />
-					<DropdownMenuCheckboxItem label="Show archived" value={menuArchived} onValueChange={setMenuArchived} />
+					<DropdownMenuCheckboxItem
+						label="Show archived"
+						value={menuArchived}
+						onValueChange={setMenuArchived}
+					/>
 					<DropdownMenuRadioGroup label="Sort by" value={menuSort} onValueChange={setMenuSort}>
 						<DropdownMenuRadioItem label="Newest first" value="newest" />
 						<DropdownMenuRadioItem label="Oldest first" value="oldest" />
@@ -124,16 +231,26 @@ export function ComponentsDemo() @{
 				</DropdownMenu>
 				<Text className="text-sm text-muted">{'last: ' + lastMenu}</Text>
 			</HStack>
-			<ContextMenu trigger={<Text className="chip">Context actions</Text>} accessibilityLabel="Open context actions" items={menuItems.map((i) => ({ ...i, onSelect: () => setLastCtx(i.key) }))}>
-				<View className="cell"><Text>Right-click / long-press me ({lastCtx})</Text></View>
+			<ContextMenu
+				trigger={<Text className="chip">Context actions</Text>}
+				accessibilityLabel="Open context actions"
+				items={menuItems.map((i) => ({ ...i, onSelect: () => setLastCtx(i.key) }))}
+			>
+				<View className="cell">
+					<Text>Right-click / long-press me ({lastCtx})</Text>
+				</View>
 			</ContextMenu>
 		</View>
 
 		<View className="controls-section">
 			<Text className="font-bold">Badge / Divider / Skeleton</Text>
 			<HStack className="items-center gap-4">
-				<Badge className="chip"><Text>Badge</Text></Badge>
-				<Badge className="chip chip-on"><Text>Active</Text></Badge>
+				<Badge className="chip">
+					<Text>Badge</Text>
+				</Badge>
+				<Badge className="chip chip-on">
+					<Text>Active</Text>
+				</Badge>
 			</HStack>
 			<Divider />
 			<Skeleton width={160} height={16} />
@@ -154,8 +271,18 @@ export function ComponentsDemo() @{
 				</FormLayout>
 			</FormLayout>
 			<FieldGroup label="Sign up">
-				<Tokenizer label="Tags" searchSource={demoSelectionSource} value={tags} onChange={setTags} placeholder="Add tag…" hasCreate={true} />
-				<Field label="Quantity" status={num !== null && num > 5 ? { type: 'error', message: 'Too many' } : undefined}>
+				<Tokenizer
+					label="Tags"
+					searchSource={demoSelectionSource}
+					value={tags}
+					onChange={setTags}
+					placeholder="Add tag…"
+					hasCreate={true}
+				/>
+				<Field
+					label="Quantity"
+					status={num !== null && num > 5 ? { type: 'error', message: 'Too many' } : undefined}
+				>
 					<NumberInput value={num} onValueChange={setNum} min={0} max={9} />
 				</Field>
 				<Field label="PIN">
@@ -168,18 +295,45 @@ export function ComponentsDemo() @{
 		<View className="controls-section">
 			<Text className="font-bold">Selector / Rating / CheckboxList</Text>
 			<Selector
-				options={[{ value: 'apple', label: 'Apple' }, { value: 'banana', label: 'Banana' }, { value: 'cherry', label: 'Cherry', isDisabled: true }]}
+				options={[
+					{ value: 'apple', label: 'Apple' },
+					{ value: 'banana', label: 'Banana' },
+					{ value: 'cherry', label: 'Cherry', isDisabled: true },
+				]}
 				selectionMode="single"
 				value={fruit}
 				onValueChange={setFruit}
 				placeholder="Pick a fruit"
 				searchable={true}
 			/>
-			<MultiSelector selectionMode="multiple" label="Fruits" options={[{ value: 'apple', label: 'Apple', group: 'Fruit', description: 'Crisp and sweet' }, { value: 'banana', label: 'Banana', group: 'Fruit' }, { value: 'cherry', label: 'Cherry', isDisabled: true }]} value={fruits} onValueChange={setFruits} searchable hasSelectAll triggerDisplay="count" hasClear />
-			<Typeahead label="Fruit" searchSource={demoSelectionSource} value={assignee} onChange={setAssignee} placeholder="Pick a fruit" />
+			<MultiSelector
+				selectionMode="multiple"
+				label="Fruits"
+				options={[
+					{ value: 'apple', label: 'Apple', group: 'Fruit', description: 'Crisp and sweet' },
+					{ value: 'banana', label: 'Banana', group: 'Fruit' },
+					{ value: 'cherry', label: 'Cherry', isDisabled: true },
+				]}
+				value={fruits}
+				onValueChange={setFruits}
+				searchable
+				hasSelectAll
+				triggerDisplay="count"
+				hasClear
+			/>
+			<Typeahead
+				label="Fruit"
+				searchSource={demoSelectionSource}
+				value={assignee}
+				onChange={setAssignee}
+				placeholder="Pick a fruit"
+			/>
 			<InputRating value={rating} onValueChange={setRating} />
 			<CheckboxList
-				options={[{ value: 'x', label: 'X' }, { value: 'y', label: 'Y' }]}
+				options={[
+					{ value: 'x', label: 'X' },
+					{ value: 'y', label: 'Y' },
+				]}
 				value={checks}
 				onValueChange={setChecks}
 			/>
@@ -187,10 +341,21 @@ export function ComponentsDemo() @{
 
 		<View className="controls-section">
 			<Text className="font-bold">Wayfinding</Text>
-			<Breadcrumbs maxVisibleItems={2} items={[{ label: 'Home', onSelect: () => setNav('home') }, { label: 'Library', onSelect: () => setNav('lib') }, { label: 'Book' }]} />
+			<Breadcrumbs
+				maxVisibleItems={2}
+				items={[
+					{ label: 'Home', onSelect: () => setNav('home') },
+					{ label: 'Library', onSelect: () => setNav('lib') },
+					{ label: 'Book' },
+				]}
+			/>
 			<Pagination page={page} pageCount={12} onPageChange={setPage} />
 			<Stepper
-				steps={[{ key: 'cart', label: 'Cart' }, { key: 'ship', label: 'Ship' }, { key: 'pay', label: 'Pay' }]}
+				steps={[
+					{ key: 'cart', label: 'Cart' },
+					{ key: 'ship', label: 'Ship' },
+					{ key: 'pay', label: 'Pay' },
+				]}
 				current={step}
 				onStepChange={setStep}
 			/>
@@ -201,14 +366,37 @@ export function ComponentsDemo() @{
 					{ key: 'off', label: 'Off', disabled: true },
 				]}
 			/>
-			<Button className="btn btn-secondary" clickAction={() => setCmdk(true)}><Text>Command palette</Text></Button>
-			<CommandPalette id="demo-commands" open={cmdk} onOpenChange={setCmdk} searchMode="fuzzy" items={[
-				{ key: 'edit', label: 'Edit', group: 'Actions', onSelect: () => setLastCommand('edit') },
-				{ key: 'settings', label: 'Settings', group: 'Navigation', keywords: ['preferences'], description: 'Manage preferences', onSelect: () => setLastCommand('settings') },
-				{ key: 'delete', label: 'Delete', group: 'Actions', isDisabled: true },
-			]} />
-			<Button className="btn btn-secondary" clickAction={() => setRemoteCmdk(true)}><Text>Search remote commands</Text></Button>
-			<CommandPalette id="demo-remote-commands" open={remoteCmdk} onOpenChange={setRemoteCmdk} searchSource={remoteCommandSource} onValueChange={setLastCommand} />
+			<Button className="btn btn-secondary" clickAction={() => setCmdk(true)}>
+				<Text>Command palette</Text>
+			</Button>
+			<CommandPalette
+				id="demo-commands"
+				open={cmdk}
+				onOpenChange={setCmdk}
+				searchMode="fuzzy"
+				items={[
+					{ key: 'edit', label: 'Edit', group: 'Actions', onSelect: () => setLastCommand('edit') },
+					{
+						key: 'settings',
+						label: 'Settings',
+						group: 'Navigation',
+						keywords: ['preferences'],
+						description: 'Manage preferences',
+						onSelect: () => setLastCommand('settings'),
+					},
+					{ key: 'delete', label: 'Delete', group: 'Actions', isDisabled: true },
+				]}
+			/>
+			<Button className="btn btn-secondary" clickAction={() => setRemoteCmdk(true)}>
+				<Text>Search remote commands</Text>
+			</Button>
+			<CommandPalette
+				id="demo-remote-commands"
+				open={remoteCmdk}
+				onOpenChange={setRemoteCmdk}
+				searchSource={remoteCommandSource}
+				onValueChange={setLastCommand}
+			/>
 			<Text>Last command: {lastCommand}. Remote search: type fail to exercise Retry.</Text>
 		</View>
 
@@ -225,7 +413,10 @@ export function ComponentsDemo() @{
 								logo={<NavIcon icon="menu-dot" />}
 								menu={
 									<NavHeadingMenu>
-										<NavHeadingMenuItem label="Switch workspace" onClick={() => setLastMenu('workspace')} />
+										<NavHeadingMenuItem
+											label="Switch workspace"
+											onClick={() => setLastMenu('workspace')}
+										/>
 									</NavHeadingMenu>
 								}
 							/>
@@ -246,18 +437,32 @@ export function ComponentsDemo() @{
 					</SideNav>
 				}
 				mobileNav={{
-					content: <MobileNav header="Workspace"><Text>Choose a section</Text></MobileNav>,
+					content: (
+						<MobileNav header="Workspace">
+							<Text>Choose a section</Text>
+						</MobileNav>
+					),
 				}}
 			>
-				<Toolbar label="Page actions" startContent={<Text>Overview</Text>} endContent={<Text>Updated now</Text>} />
+				<Toolbar
+					label="Page actions"
+					startContent={<Text>Overview</Text>}
+					endContent={<Text>Updated now</Text>}
+				/>
 				<OverflowList
 					minVisibleItems={1}
 					overflowRenderer={(items) => <Text>+{items.length} more</Text>}
 					onOverflowChange={(items) => setOverflowCount(items.length)}
 				>
-					<Button><Text>Save</Text></Button>
-					<Button><Text>Share</Text></Button>
-					<Button><Text>Archive</Text></Button>
+					<Button>
+						<Text>Save</Text>
+					</Button>
+					<Button>
+						<Text>Share</Text>
+					</Button>
+					<Button>
+						<Text>Archive</Text>
+					</Button>
 				</OverflowList>
 				<TabList role="tablist" value={activePanel} onChange={setActivePanel}>
 					<Tab id="overview-tab" value="overview" label="Overview" panelId="overview-panel" />
@@ -281,17 +486,30 @@ export function ComponentsDemo() @{
 					{ key: 'name', header: 'Name' },
 					{ key: 'qty', header: 'Qty', width: { type: 'pixel', value: 50 }, align: 'end' },
 				]}
-				data={[{ name: 'Apples', qty: 4 }, { name: 'Pears', qty: 2 }, { name: 'Figs', qty: 9 }]}
+				data={[
+					{ name: 'Apples', qty: 4 },
+					{ name: 'Pears', qty: 2 },
+					{ name: 'Figs', qty: 9 },
+				]}
 				idKey="name"
 			/>
-			<Timeline items={[
-				{ key: 'a', title: 'Ordered', time: '09:12' },
-				{ key: 'b', title: 'Shipped', time: '11:40' },
-				{ key: 'c', title: 'Delivered', time: '15:03' },
-			]} />
+			<Timeline
+				items={[
+					{ key: 'a', title: 'Ordered', time: '09:12' },
+					{ key: 'b', title: 'Shipped', time: '11:40' },
+					{ key: 'c', title: 'Delivered', time: '15:03' },
+				]}
+			/>
 			<TreeList
 				nodes={[
-					{ key: 'src', label: 'src', children: [{ key: 'app', label: 'App.tsrx' }, { key: 'ui', label: 'ui', children: [{ key: 'btn', label: 'Button.tsrx' }] }] },
+					{
+						key: 'src',
+						label: 'src',
+						children: [
+							{ key: 'app', label: 'App.tsrx' },
+							{ key: 'ui', label: 'ui', children: [{ key: 'btn', label: 'Button.tsrx' }] },
+						],
+					},
 					{ key: 'docs', label: 'docs' },
 				]}
 				defaultExpandedKeys={['src']}
@@ -300,22 +518,44 @@ export function ComponentsDemo() @{
 
 		<View className="controls-section">
 			<Text className="font-bold">Callouts</Text>
-			<Alert tone="info" title="Heads up"><Text>Something worth knowing.</Text></Alert>
-			<Alert tone="error" title="Failed"><Text>Could not save.</Text></Alert>
-			<Banner onDismiss={() => setNav('dismissed')}><Text>Dismissible banner (last: {nav})</Text></Banner>
-			<Card header={<Text className="font-bold">Card header</Text>} footer={<Text className="text-sm text-muted">footer</Text>}>
+			<Alert tone="info" title="Heads up">
+				<Text>Something worth knowing.</Text>
+			</Alert>
+			<Alert tone="error" title="Failed">
+				<Text>Could not save.</Text>
+			</Alert>
+			<Banner onDismiss={() => setNav('dismissed')}>
+				<Text>Dismissible banner (last: {nav})</Text>
+			</Banner>
+			<Card
+				header={<Text className="font-bold">Card header</Text>}
+				footer={<Text className="text-sm text-muted">footer</Text>}
+			>
 				<Text>Card body.</Text>
 			</Card>
 			<HStack className="items-center gap-4">
-				<Chip selected={checked} onSelect={() => setChecked(!checked)}><Text>Chip</Text></Chip>
-				<Chip onRemove={() => setNav('chip-removed')}><Text>Removable</Text></Chip>
-				<Kbd><Text>⌘K</Text></Kbd>
+				<Chip selected={checked} onSelect={() => setChecked(!checked)}>
+					<Text>Chip</Text>
+				</Chip>
+				<Chip onRemove={() => setNav('chip-removed')}>
+					<Text>Removable</Text>
+				</Chip>
+				<Kbd>
+					<Text>⌘K</Text>
+				</Kbd>
 			</HStack>
 			<EmptyState title="Nothing here" description="Try adding an item">
-				<Button className="btn btn-secondary"><Text>Add item</Text></Button>
+				<Button className="btn btn-secondary">
+					<Text>Add item</Text>
+				</Button>
 			</EmptyState>
 			<User name="Alec Larson" description="Framework author" fallback="AL" />
-			<ProgressGroup items={[{ key: 'a', label: 'Build', value: 70 }, { key: 'b', label: 'Test', value: 35 }]} />
+			<ProgressGroup
+				items={[
+					{ key: 'a', label: 'Build', value: 70 },
+					{ key: 'b', label: 'Test', value: 35 },
+				]}
+			/>
 		</View>
 
 		<View className="controls-section">

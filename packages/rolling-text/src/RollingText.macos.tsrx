@@ -14,11 +14,28 @@ export function RollingText(props: RollingTextProps) @{
 	const { fontSize, fontFamily, fontWeight, color, ...rowStyle } = props.style ?? {}
 	const textStyle = { fontSize, fontFamily, fontWeight, color }
 
-	<masonview id={props.id} testID={props.testID ?? ''} ref={(view: any) => {
+	<masonview
+		id={props.id}
+		testID={props.testID ?? ''}
+		ref={(view: any) => {
 			roll.attachRow(view)
-		}} {...layoutChildProps(props, mergeStyle({flexDirection: "row", flexWrap: "nowrap"}, {display: "flex", ...(rowStyle)}))} className={['vx-rolling-text', props.className]} accessible={true} accessibilityRole={'text' as any} accessibilityLabel={roll.label} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
+		}}
+		{...layoutChildProps(
+			props,
+			mergeStyle({ flexDirection: 'row', flexWrap: 'nowrap' }, { display: 'flex', ...rowStyle }),
+		)}
+		className={['vx-rolling-text', props.className]}
+		accessible={true}
+		accessibilityRole={'text' as any}
+		accessibilityLabel={roll.label}
+		accessibilityLiveRegion={props.accessibilityLiveRegion as any}
+	>
 		@for (const cell of roll.cells; key cell.id) {
-			<masonview ref={roll.attachCell(cell.id)} accessible={false} style={mergeStyle({flexShrink: 0}, {display: "flex"})}>
+			<masonview
+				ref={roll.attachCell(cell.id)}
+				accessible={false}
+				style={mergeStyle({ flexShrink: 0 }, { display: 'flex' })}
+			>
 				<label
 					text={cell.unit}
 					style={textStyle}

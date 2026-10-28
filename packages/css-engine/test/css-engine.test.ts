@@ -7,6 +7,7 @@ import {
 	refreshMediaQueries,
 	setStyleEnvironment,
 } from '../src/stylesheets.ts'
+
 import { computeCascade } from '../src/cascade.ts'
 import { sampleKeyframeAnimation } from '../src/animations.ts'
 import { transformConverter } from '../src/transforms.ts'
@@ -94,7 +95,12 @@ test('animations collect per matched ruleset in cascade order', () => {
 
 test('media-gated keyframes attach only when the query matches', () => {
 	W = 400
-	setStyleEnvironment(() => ({ width: W, height: 300, colorScheme: 'light' as const, reducedMotion: false }))
+	setStyleEnvironment(() => ({
+		width: W,
+		height: 300,
+		colorScheme: 'light' as const,
+		reducedMotion: false,
+	}))
 	registerStylesheet(
 		'anim3',
 		`@media (min-width: 300px) { @keyframes wide { from { opacity: 0 } to { opacity: 1 } } }
@@ -102,8 +108,10 @@ test('media-gated keyframes attach only when the query matches', () => {
 		 .wide { animation-name: wide }
 		 .nar { animation-name: narrow }`,
 	)
-	const wide = computeCascade(node('masonview', { classes: ['wide'] }), stylesheetScope()).animations[0]
-	const narrow = computeCascade(node('masonview', { classes: ['nar'] }), stylesheetScope()).animations[0]
+	const wide = computeCascade(node('masonview', { classes: ['wide'] }), stylesheetScope())
+		.animations[0]
+	const narrow = computeCascade(node('masonview', { classes: ['nar'] }), stylesheetScope())
+		.animations[0]
 	assert.equal(wide.keyframes?.length, 2)
 	assert.equal(narrow.keyframes, undefined)
 })
@@ -112,18 +120,33 @@ test('media-gated keyframes attach only when the query matches', () => {
 
 test('refreshMediaQueries reports transitions then settles; register resets', () => {
 	W = 200
-	setStyleEnvironment(() => ({ width: W, height: 300, colorScheme: 'light' as const, reducedMotion: false }))
+	setStyleEnvironment(() => ({
+		width: W,
+		height: 300,
+		colorScheme: 'light' as const,
+		reducedMotion: false,
+	}))
 	registerStylesheet('mq1', '@media (min-width: 300px) { .mq { color: red } }')
 	// First call after register seeds the cache — may report either way; the
 	// contract is: a repeat call with no env change returns false.
 	refreshMediaQueries()
 	assert.equal(refreshMediaQueries(), false)
 	W = 500
-	setStyleEnvironment(() => ({ width: W, height: 300, colorScheme: 'light' as const, reducedMotion: false }))
+	setStyleEnvironment(() => ({
+		width: W,
+		height: 300,
+		colorScheme: 'light' as const,
+		reducedMotion: false,
+	}))
 	assert.equal(refreshMediaQueries(), true)
 	assert.equal(refreshMediaQueries(), false)
 	W = 200
-	setStyleEnvironment(() => ({ width: W, height: 300, colorScheme: 'light' as const, reducedMotion: false }))
+	setStyleEnvironment(() => ({
+		width: W,
+		height: 300,
+		colorScheme: 'light' as const,
+		reducedMotion: false,
+	}))
 	registerStylesheet('mq2', '.z { color: blue }')
 	// Re-registering resets: next call re-evaluates (min-width flipped back
 	// to false anyway, but cache must not suppress a second check).
@@ -151,6 +174,7 @@ const kf = (duration: number, decls: [string, any][], curve?: any) => ({
 	declarations: decls.map(([property, value]) => ({ property, value })),
 	curve,
 })
+
 const info = (over: Partial<KeyframeAnimationInfo> = {}): KeyframeAnimationInfo => ({
 	name: 't',
 	duration: 100,
@@ -223,7 +247,10 @@ test('sampler: iterations=2 loops the timeline', () => {
 })
 
 test('sampler: forwards fill holds the end', () => {
-	const a = info({ isForwards: true, keyframes: [kf(0, [['opacity', 0]]), kf(1, [['opacity', 1]])] })
+	const a = info({
+		isForwards: true,
+		keyframes: [kf(0, [['opacity', 0]]), kf(1, [['opacity', 1]])],
+	})
 	const s = sampleKeyframeAnimation(a, 200)
 	assert.equal(s.done, true)
 	assert.equal(s.values.opacity, 1)
@@ -231,7 +258,13 @@ test('sampler: forwards fill holds the end', () => {
 
 test('sampler: property absent from earlier keyframe animates from base', () => {
 	const a = info({
-		keyframes: [kf(0, [['opacity', 0]]), kf(1, [['opacity', 1], ['scaleX', 2]])],
+		keyframes: [
+			kf(0, [['opacity', 0]]),
+			kf(1, [
+				['opacity', 1],
+				['scaleX', 2],
+			]),
+		],
 	})
 	// scaleX only declared on the 100% keyframe — base supplies the start.
 	const s = sampleKeyframeAnimation(a, 50, { base: { scaleX: 1 } })
@@ -313,7 +346,12 @@ test('css/index.ts first-eval order registers a sheet without TDZ errors', async
 
 test('evalMediaQuery normalizes Level-4 range syntax', async () => {
 	const { evalMediaQuery, setStyleEnvironment } = await import('../src/stylesheets.ts')
-	setStyleEnvironment(() => ({ width: 500, height: 300, colorScheme: 'light' as const, reducedMotion: false }))
+	setStyleEnvironment(() => ({
+		width: 500,
+		height: 300,
+		colorScheme: 'light' as const,
+		reducedMotion: false,
+	}))
 	assert.equal(evalMediaQuery('(width>=300px)'), true)
 	assert.equal(evalMediaQuery('(min-width: 300px)'), true)
 	assert.equal(evalMediaQuery('(width<=300px)'), false)

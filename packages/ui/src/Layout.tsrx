@@ -2,7 +2,14 @@
 import { mergeStyle, styleRecord } from './style-merge'
 import { useMemo, useContext } from 'octane'
 import { refList } from './ref-list'
-import type { LayoutProps, LayoutHeaderProps, LayoutContentProps, LayoutFooterProps, LayoutPanelProps } from './props'
+import type {
+	LayoutProps,
+	LayoutHeaderProps,
+	LayoutContentProps,
+	LayoutFooterProps,
+	LayoutPanelProps,
+} from './props'
+
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props'
 import { spacingPx } from './stack-layout'
@@ -30,19 +37,36 @@ export function Layout(props: LayoutProps) @{
 	const isFill = (props.height ?? 'fill') === 'fill'
 	const pads =
 		props.padding != null
-			? { ...parentPads, outerX: spacingPx(props.padding) ?? 0, outerY: spacingPx(props.padding) ?? 0 }
+			? {
+					...parentPads,
+					outerX: spacingPx(props.padding) ?? 0,
+					outerY: spacingPx(props.padding) ?? 0,
+				}
 			: parentPads
+
 	const slots = {
 		hasHeader: props.header != null,
 		hasFooter: props.footer != null,
 		hasStart: props.start != null,
 		hasEnd: props.end != null,
 	}
+
 	const dividerValue =
-		props.defaultHasDividers != null ? { defaultHasDividers: props.defaultHasDividers } : parentDivider
+		props.defaultHasDividers != null
+			? { defaultHasDividers: props.defaultHasDividers }
+			: parentDivider
+
 	const resolvedContent = props.content ?? props.children
 
-	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props) } }, props.ref), [props.ref, props.ios, props.android, props.web])
+	const forwardedRef = useMemo(
+		() =>
+			refList((v: any) => {
+				if (v) {
+					applyEscapeProps(v, props)
+				}
+			}, props.ref),
+		[props.ref, props.ios, props.android, props.web],
+	)
 
 	<LayoutSlotsProvider value={slots}>
 		<LayoutPaddingProvider value={pads}>
@@ -51,7 +75,10 @@ export function Layout(props: LayoutProps) @{
 					id={props.id}
 					ref={forwardedRef}
 					className={cx('vx-layout', props.className)}
-					style={mergeStyle({ display: 'flex', ...(isFill ? { flexGrow: 1 } : {}) }, styleRecord(props.style))}
+					style={mergeStyle(
+						{ display: 'flex', ...(isFill ? { flexGrow: 1 } : {}) },
+						styleRecord(props.style),
+					)}
 					accessible={props.accessible}
 					accessibilityLabel={props.accessibilityLabel}
 					accessibilityRole={nativeAccessibilityRole(props.accessibilityRole)}
@@ -73,7 +100,10 @@ export function Layout(props: LayoutProps) @{
 						}}
 					>
 						<LayoutAreaProvider value="start">{props.start}</LayoutAreaProvider>
-						<masonview className="vx-layout-contentlane" style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+						<masonview
+							className="vx-layout-contentlane"
+							style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}
+						>
 							{resolvedContent}
 						</masonview>
 						<LayoutAreaProvider value="end">{props.end}</LayoutAreaProvider>
@@ -97,7 +127,15 @@ export function LayoutHeader(props: LayoutHeaderProps) @{
 	const pad = props.padding != null ? spacingPx(props.padding) : undefined
 	const padBE = props.paddingBlockEnd != null ? spacingPx(props.paddingBlockEnd) : undefined
 
-	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props) } }, props.ref), [props.ref, props.ios, props.android, props.web])
+	const forwardedRef = useMemo(
+		() =>
+			refList((v: any) => {
+				if (v) {
+					applyEscapeProps(v, props)
+				}
+			}, props.ref),
+		[props.ref, props.ios, props.android, props.web],
+	)
 
 	<masonview
 		id={props.id}
@@ -152,6 +190,7 @@ export function LayoutContent(props: LayoutContentProps) @{
 		paddingTop: pad ?? (!slots.hasHeader ? pads.outerY : pads.innerY),
 		paddingBottom: pad ?? (!slots.hasFooter ? pads.outerY : pads.innerY),
 	}
+
 	const sizeStyle = {
 		flexGrow: 1,
 		...(props.height != null ? { height: props.height } : {}),
@@ -160,7 +199,15 @@ export function LayoutContent(props: LayoutContentProps) @{
 		...(props.minHeight != null ? { minHeight: props.minHeight } : {}),
 	}
 
-	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props) } }, props.ref), [props.ref, props.ios, props.android, props.web])
+	const forwardedRef = useMemo(
+		() =>
+			refList((v: any) => {
+				if (v) {
+					applyEscapeProps(v, props)
+				}
+			}, props.ref),
+		[props.ref, props.ios, props.android, props.web],
+	)
 
 	@if (props.isScrollable !== false) {
 		<scrollview
@@ -208,7 +255,15 @@ export function LayoutFooter(props: LayoutFooterProps) @{
 	const hasDivider = props.hasDivider ?? dividerCtx?.defaultHasDividers ?? false
 	const pad = props.padding != null ? spacingPx(props.padding) : undefined
 
-	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props) } }, props.ref), [props.ref, props.ios, props.android, props.web])
+	const forwardedRef = useMemo(
+		() =>
+			refList((v: any) => {
+				if (v) {
+					applyEscapeProps(v, props)
+				}
+			}, props.ref),
+		[props.ref, props.ios, props.android, props.web],
+	)
 
 	<masonview
 		id={props.id}
@@ -227,7 +282,17 @@ export function LayoutFooter(props: LayoutFooterProps) @{
 		accessibilityLabel={props.accessibilityLabel ?? props.label}
 		accessibilityRole={nativeAccessibilityRole(props.accessibilityRole)}
 	>
-		<masonview className="vx-layout-footer-inner" style={{ display: 'flex', flexDirection: 'column', paddingLeft: pad ?? pads.outerX, paddingRight: pad ?? pads.outerX, paddingTop: pad ?? pads.innerY, paddingBottom: pad ?? pads.outerY }}>
+		<masonview
+			className="vx-layout-footer-inner"
+			style={{
+				display: 'flex',
+				flexDirection: 'column',
+				paddingLeft: pad ?? pads.outerX,
+				paddingRight: pad ?? pads.outerX,
+				paddingTop: pad ?? pads.innerY,
+				paddingBottom: pad ?? pads.outerY,
+			}}
+		>
 			{props.children}
 		</masonview>
 	</masonview>
@@ -241,12 +306,25 @@ export function LayoutPanel(props: LayoutPanelProps) @{
 	const pads = useContext(LayoutPaddingContext)
 	const pad = props.padding != null ? spacingPx(props.padding) : undefined
 
-	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props) } }, props.ref), [props.ref, props.ios, props.android, props.web])
+	const forwardedRef = useMemo(
+		() =>
+			refList((v: any) => {
+				if (v) {
+					applyEscapeProps(v, props)
+				}
+			}, props.ref),
+		[props.ref, props.ios, props.android, props.web],
+	)
 
 	<masonview
 		id={props.id}
 		ref={forwardedRef}
-		className={cx('vx-layout-panel', `vx-layout-panel--${area}`, props.hasDivider && 'vx-layout-panel--divided', props.className)}
+		className={cx(
+			'vx-layout-panel',
+			`vx-layout-panel--${area}`,
+			props.hasDivider && 'vx-layout-panel--divided',
+			props.className,
+		)}
 		style={mergeStyle(
 			{
 				display: 'flex',

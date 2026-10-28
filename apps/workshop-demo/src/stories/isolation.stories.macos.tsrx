@@ -27,7 +27,7 @@ function Isolated(props: { label?: string; fixture: Fixture }) {
 	const account = useStore(fixture.account)
 	const [local, setLocal] = useState(0)
 	return (
-		<masonview style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
+		<masonview style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}>
 			<Text testID="isolation-value">
 				{props.label ?? 'unset'} / {fixture.nested.label} / {account.name} / {local}
 			</Text>
@@ -54,9 +54,16 @@ function Isolated(props: { label?: string; fixture: Fixture }) {
 }
 
 export const Isolation = defineStory<{ label?: string }, void, Fixture>({
-	id: 'isolation/resources', title: 'Examples / Isolation and overlay', targets: ['macos'],
-	component: Isolated, args: { label: 'default' },
+	id: 'isolation/resources',
+	title: 'Examples / Isolation and overlay',
+	targets: ['macos'],
+	component: Isolated,
+	args: { label: 'default' },
 	controls: { label: { type: 'string', allowUnset: true } },
-	fixture: ({ onCleanup }) => ({ account: createStore({ name: 'account' }), nested: { label: 'fixture' }, own: onCleanup }),
+	fixture: ({ onCleanup }) => ({
+		account: createStore({ name: 'account' }),
+		nested: { label: 'fixture' },
+		own: onCleanup,
+	}),
 	providers: [AccountProvider],
 })

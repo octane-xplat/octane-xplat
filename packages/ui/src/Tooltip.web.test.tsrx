@@ -16,10 +16,18 @@ describe('Tooltip shared layer', () => {
 			const panel = document.querySelector('[role="tooltip"]')!
 			expect(panel?.textContent).toBe('First')
 			expect(button.getAttribute('aria-describedby')).toBe(panel.id)
-			expect((container.firstElementChild as HTMLElement).style.getPropertyValue('anchor-name')).toContain('--xplat-layer-')
+			expect(
+				(container.firstElementChild as HTMLElement).style.getPropertyValue('anchor-name'),
+			).toContain('--xplat-layer-')
+
 			act(() => root.render(Tooltip, { trigger: <button>Help</button>, content: 'Second' }))
 			expect(document.querySelector('[role="tooltip"]')?.textContent).toBe('Second')
-			act(() => button.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })))
+			act(() =>
+				button.dispatchEvent(
+					new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }),
+				),
+			)
+
 			expect(document.querySelector('[role="tooltip"]')).toBeNull()
 			expect(button.hasAttribute('aria-describedby')).toBe(false)
 		} finally {

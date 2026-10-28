@@ -7,10 +7,7 @@ import { fileURLToPath } from 'node:url'
 import { build } from 'vite'
 import { xplatMacOS } from '../../cli/src/macos/vite.ts'
 import { macOSExecutable } from '../../cli/src/macos/executables.ts'
-import {
-	buildMacOSNative,
-	writeNativeBootstrap,
-} from '../../cli/src/macos/native.ts'
+import { buildMacOSNative, writeNativeBootstrap } from '../../cli/src/macos/native.ts'
 import { hostBundle, validateHostBundle } from '../../cli/src/macos/jsc-host/runtime.ts'
 
 const packageRoot = fileURLToPath(new URL('..', import.meta.url))

@@ -12,12 +12,26 @@ export function useMenuSheet(presentation: MoreMenuPresentation | undefined): bo
 }
 
 /** Menu rows presented inside a BottomSheet instead of an anchored popover. */
-export function MenuSheet(props: { open: boolean; onOpenChange: (open: boolean) => void; label?: string; items?: any; children?: any }) @{
+export function MenuSheet(props: {
+	open: boolean
+	onOpenChange: (open: boolean) => void
+	label?: string
+	items?: any
+	children?: any
+}) @{
 	const close = () => props.onOpenChange(false)
-	<BottomSheet isOpen={props.open} onOpenChange={props.onOpenChange} label={props.label ?? 'Menu'} height="hug" className="vx-menu-sheet">
-		<masonview className="vx-menu-sheet-list" style={mergeStyle({display: "flex"})}>
+
+	<BottomSheet
+		isOpen={props.open}
+		onOpenChange={props.onOpenChange}
+		label={props.label ?? 'Menu'}
+		height="hug"
+		className="vx-menu-sheet"
+	>
+		<masonview className="vx-menu-sheet-list" style={mergeStyle({ display: 'flex' })}>
 			<MenuProvider value={{ closeMenu: close, menuSize: 'md' }}>
-				<MenuData items={props.items} />{props.children}
+				<MenuData items={props.items} />
+				{props.children}
 			</MenuProvider>
 		</masonview>
 	</BottomSheet>

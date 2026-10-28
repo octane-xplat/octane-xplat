@@ -2,7 +2,6 @@ import type { ParityCheck } from './parity/check-helpers.ts'
 import { near, dims } from './parity/check-helpers.ts'
 
 export const CHECKS: ParityCheck[] = [
-
 	{
 		fixture: 'stack-overlay-layout',
 		targets: ['web', 'ios', 'android', 'macos'],
@@ -40,5 +39,5 @@ export const CHECKS: ParityCheck[] = [
 				],
 			]
 		},
-	}
+	},
 ]

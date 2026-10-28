@@ -2,7 +2,6 @@ import type { ParityCheck } from './parity/check-helpers.ts'
 import { dims } from './parity/check-helpers.ts'
 
 export const CHECKS: ParityCheck[] = [
-
 	{
 		fixture: 'stepper-middle-active',
 		targets: ['web', 'ios', 'android', 'macos'],
@@ -22,5 +21,5 @@ export const CHECKS: ParityCheck[] = [
 				['active step has a visible frame', active.box.w > 0 && active.box.h > 0],
 			]
 		},
-	}
+	},
 ]

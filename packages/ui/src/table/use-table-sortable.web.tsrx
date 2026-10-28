@@ -3,14 +3,30 @@
 // sort actions also land in the header context menu.
 
 import { useRef } from 'octane'
-import type { TablePlugin, HeaderCellRenderProps, TableContextAction, TableSortState, TableSortDirection, UseTableSortableConfig } from './types'
+import type {
+	TablePlugin,
+	HeaderCellRenderProps,
+	TableContextAction,
+	TableSortState,
+	TableSortDirection,
+	UseTableSortableConfig,
+} from './types'
+
 import type { TableColumn } from '../props'
 import { Icon } from '../Icon'
 
-export function resolveSortKey<T extends Record<string, unknown>>(column: TableColumn<T>): string | null {
+export function resolveSortKey<T extends Record<string, unknown>>(
+	column: TableColumn<T>,
+): string | null {
 	const { sortable } = column
-	if (!sortable) return null
-	if (sortable === true) return column.key
+	if (!sortable) {
+		return null
+	}
+
+	if (sortable === true) {
+		return column.key
+	}
+
 	return sortable.sortKey ?? column.key
 }
 
@@ -18,9 +34,18 @@ function getHeaderLabel<T extends Record<string, unknown>>(column: TableColumn<T
 	return typeof column.header === 'string' ? column.header : column.key
 }
 
-function getNextDirection(current: TableSortDirection | null, allowUnsortedState: boolean): TableSortDirection | null {
-	if (current == null) return 'ascending'
-	if (current === 'ascending') return 'descending'
+function getNextDirection(
+	current: TableSortDirection | null,
+	allowUnsortedState: boolean,
+): TableSortDirection | null {
+	if (current == null) {
+		return 'ascending'
+	}
+
+	if (current === 'ascending') {
+		return 'descending'
+	}
+
 	return allowUnsortedState ? null : 'ascending'
 }
 
@@ -37,7 +62,13 @@ function SortHeaderButton<T extends Record<string, unknown>>(props: {
 	const direction = entry?.direction ?? null
 	const isMultiSort = config.isMultiSortEnabled === true && config.sort.length > 1
 	const rank = isMultiSort && entryIndex >= 0 ? entryIndex + 1 : null
-	const iconName = direction === 'ascending' ? 'xplat-arrow-up' : direction === 'descending' ? 'xplat-arrow-down' : 'xplat-arrows-up-down'
+	const iconName =
+		direction === 'ascending'
+			? 'xplat-arrow-up'
+			: direction === 'descending'
+				? 'xplat-arrow-down'
+				: 'xplat-arrows-up-down'
+
 	const label = getHeaderLabel(column)
 	const ariaLabel =
 		direction == null
@@ -69,8 +100,11 @@ function SortHeaderButton<T extends Record<string, unknown>>(props: {
 		} else {
 			const currentEntry = cfg.sort.find((s) => s.sortKey === sortKey)
 			const nextDir = getNextDirection(currentEntry?.direction ?? null, allowUnsorted)
-			if (nextDir == null) cfg.onSortChange([])
-			else cfg.onSortChange([{ sortKey, direction: nextDir }])
+			if (nextDir == null) {
+				cfg.onSortChange([])
+			} else {
+				cfg.onSortChange([{ sortKey, direction: nextDir }])
+			}
 		}
 	}
 
@@ -78,12 +112,21 @@ function SortHeaderButton<T extends Record<string, unknown>>(props: {
 		type="button"
 		class={cxSort(column.align, direction)}
 		aria-label={ariaLabel}
-		onClick={handleClick}>
+		onClick={handleClick}
+	>
 		<span class="vx-table-sort-label">{props.children}</span>
-		<span class={direction != null ? 'vx-table-sort-icon vx-table-sort-icon--active' : 'vx-table-sort-icon'}>
+		<span
+			class={
+				direction != null ? 'vx-table-sort-icon vx-table-sort-icon--active' : 'vx-table-sort-icon'
+			}
+		>
 			<Icon name={iconName} size={12} />
 		</span>
-		{rank != null && <span class="vx-table-sort-rank" aria-hidden="true">{rank}</span>}
+		{rank != null && (
+			<span class="vx-table-sort-rank" aria-hidden="true">
+				{rank}
+			</span>
+		)}
 	</button>
 }
 
@@ -93,21 +136,30 @@ function cxSort(align: string | undefined, direction: TableSortDirection | null)
 		align === 'end' && 'vx-table-sort-button--end',
 		align === 'center' && 'vx-table-sort-button--center',
 		direction != null && 'vx-table-sort-button--active',
-	].filter(Boolean).join(' ')
+	]
+		.filter(Boolean)
+		.join(' ')
 }
 
 /** Sortable plugin — wraps sortable header content in a sort button and
  *  contributes sort context-menu actions. */
-export function useTableSortable<T extends Record<string, unknown>, TSortKey extends string = string>(
-	config: UseTableSortableConfig<TSortKey>,
-): TablePlugin<T> {
+export function useTableSortable<
+	T extends Record<string, unknown>,
+	TSortKey extends string = string,
+>(config: UseTableSortableConfig<TSortKey>): TablePlugin<T> {
 	const configRef = useRef(config)
 	configRef.current = config
 
 	return {
-		transformHeaderCell(props: HeaderCellRenderProps, column: TableColumn<T>): HeaderCellRenderProps {
+		transformHeaderCell(
+			props: HeaderCellRenderProps,
+			column: TableColumn<T>,
+		): HeaderCellRenderProps {
 			const sortKey = resolveSortKey(column)
-			if (sortKey == null) return props
+			if (sortKey == null) {
+				return props
+			}
+
 			const entry = configRef.current.sort.find((e) => e.sortKey === sortKey)
 
 			const getSortActions = (): TableContextAction[] => {
@@ -119,16 +171,19 @@ export function useTableSortable<T extends Record<string, unknown>, TSortKey ext
 						group: 'sort',
 						label: 'Sort ascending',
 						checked: dir === 'ascending',
-						onSelect: () => c.onSortChange([{ sortKey: sortKey as TSortKey, direction: 'ascending' }]),
+						onSelect: () =>
+							c.onSortChange([{ sortKey: sortKey as TSortKey, direction: 'ascending' }]),
 					},
 					{
 						id: 'sort-desc',
 						group: 'sort',
 						label: 'Sort descending',
 						checked: dir === 'descending',
-						onSelect: () => c.onSortChange([{ sortKey: sortKey as TSortKey, direction: 'descending' }]),
+						onSelect: () =>
+							c.onSortChange([{ sortKey: sortKey as TSortKey, direction: 'descending' }]),
 					},
 				]
+
 				if (dir != null) {
 					actions.push({
 						id: 'sort-clear',
@@ -137,6 +192,7 @@ export function useTableSortable<T extends Record<string, unknown>, TSortKey ext
 						onSelect: () => c.onSortChange(c.sort.filter((e) => e.sortKey !== sortKey)),
 					})
 				}
+
 				return actions
 			}
 
@@ -160,4 +216,5 @@ export function useTableSortable<T extends Record<string, unknown>, TSortKey ext
 		},
 	}
 }
+
 export type { UseTableSortableConfig }

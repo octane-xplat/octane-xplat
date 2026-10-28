@@ -66,6 +66,7 @@ function zipEntry(archive, name) {
 			const data = archive.subarray(start, start + size)
 			return method === 8 ? inflateRawSync(data) : data
 		}
+
 		offset += 46 + nameLength + extraLength + commentLength
 	}
 	assert.fail(`ZIP entry ${name} is present`)
@@ -218,11 +219,19 @@ try {
 		readFileSync(join(packedRoot, 'platforms/android/audio.aar')),
 		'classes.jar',
 	)
+
 	const bridge = zipEntry(androidClasses, 'com/xplat/audio/AudioBridge.class')
 	const service = zipEntry(androidClasses, 'com/xplat/audio/AudioPlaybackService.class')
 	for (const method of ['isCommandIntent', 'takeQueue']) {
-		assert.ok(bridge.includes(Buffer.from(method)), `packed AudioBridge declares ${method}; rebuild the Android artifact`)
-		assert.ok(service.includes(Buffer.from(method)), `packed AudioPlaybackService calls ${method}; rebuild the Android artifact`)
+		assert.ok(
+			bridge.includes(Buffer.from(method)),
+			`packed AudioBridge declares ${method}; rebuild the Android artifact`,
+		)
+
+		assert.ok(
+			service.includes(Buffer.from(method)),
+			`packed AudioPlaybackService calls ${method}; rebuild the Android artifact`,
+		)
 	}
 
 	const exportMaps = [

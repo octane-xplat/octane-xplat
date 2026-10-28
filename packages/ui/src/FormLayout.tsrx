@@ -1,11 +1,11 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { mergeStyle } from './style-merge'
-import { useMemo, useEffect, useRef, useContext } from 'octane';
+import { useMemo, useEffect, useRef, useContext } from 'octane'
 import { refList } from './ref-list'
-import type { FormLayoutProps } from './props';
-import { cx } from '@octane-xplat/lib';
-import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props';
-import { FormLayoutContext, FormLayoutProvider } from './form-layout-context';
+import type { FormLayoutProps } from './props'
+import { cx } from '@octane-xplat/lib'
+import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props'
+import { FormLayoutContext, FormLayoutProvider } from './form-layout-context'
 
 /** FormLayout — 'vertical' is a column with 16dip gaps. 'horizontal' is a
  *  single `*`-column-per-child grid row (NativeScript's grid has no
@@ -14,32 +14,81 @@ import { FormLayoutContext, FormLayoutProvider } from './form-layout-context';
  *  context and renders its own label-beside-control row (per-field label
  *  width; the web grid's shared label column has no native analog). */
 export function FormLayout(props: FormLayoutProps) @{
-	const parent = useContext(FormLayoutContext);
-	const direction = props.direction ?? 'vertical';
-	const defaultOptionality = props.defaultOptionality ?? parent.defaultOptionality;
-	const value = { direction, defaultOptionality };
-	const host = useRef<any>(null);
+	const parent = useContext(FormLayoutContext)
+	const direction = props.direction ?? 'vertical'
+	const defaultOptionality = props.defaultOptionality ?? parent.defaultOptionality
+	const value = { direction, defaultOptionality }
+	const host = useRef<any>(null)
 
 	useEffect(() => {
-		if (direction !== 'horizontal' || !host.current) { return; }
-		const views: any[] = [];
-		host.current.eachChildView((child: any) => { views.push(child); return true; });
-		host.current.columns = Array.from({ length: Math.max(1, views.length) }, () => '*').join(',');
-		for (let index = 0; index < views.length; index++) {
-			views[index].col = index;
+		if (direction !== 'horizontal' || !host.current) {
+			return
 		}
-	}, [props.children, direction]);
 
-	const forwardedRef = useMemo(() => refList((v: any) => { host.current = v; if (v) { applyEscapeProps(v, props);  } }, props.ref), [props.ref, props.ios, props.android, props.web]);
-	const forwardedRef2 = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
+		const views: any[] = []
+		host.current.eachChildView((child: any) => {
+			views.push(child)
+			return true
+		})
+
+		host.current.columns = Array.from({ length: Math.max(1, views.length) }, () => '*').join(',')
+		for (let index = 0; index < views.length; index++) {
+			views[index].col = index
+		}
+	}, [props.children, direction])
+
+	const forwardedRef = useMemo(
+		() =>
+			refList((v: any) => {
+				host.current = v
+				if (v) {
+					applyEscapeProps(v, props)
+				}
+			}, props.ref),
+		[props.ref, props.ios, props.android, props.web],
+	)
+
+	const forwardedRef2 = useMemo(
+		() =>
+			refList((v: any) => {
+				if (v) {
+					applyEscapeProps(v, props)
+				}
+			}, props.ref),
+		[props.ref, props.ios, props.android, props.web],
+	)
 
 	<FormLayoutProvider value={value}>
 		{direction === 'horizontal' ? (
-			<masonview id={props.id} ref={forwardedRef} className={cx('vx-formlayout', 'vx-formlayout--horizontal', props.className)} style={mergeStyle({display: "grid"}, props.style)} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole)} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState)} accessibilityLiveRegion={props.accessibilityLiveRegion}>
+			<masonview
+				id={props.id}
+				ref={forwardedRef}
+				className={cx('vx-formlayout', 'vx-formlayout--horizontal', props.className)}
+				style={mergeStyle({ display: 'grid' }, props.style)}
+				accessible={props.accessible}
+				accessibilityLabel={props.accessibilityLabel}
+				accessibilityRole={nativeAccessibilityRole(props.accessibilityRole)}
+				accessibilityHint={props.accessibilityHint}
+				accessibilityValue={props.accessibilityValue}
+				accessibilityState={nativeAccessibilityState(props.accessibilityState)}
+				accessibilityLiveRegion={props.accessibilityLiveRegion}
+			>
 				{props.children}
 			</masonview>
 		) : (
-			<masonview id={props.id} ref={forwardedRef2} className={cx('vx-formlayout', `vx-formlayout--${direction}`, props.className)} style={mergeStyle({display: "flex"}, props.style)} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole)} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState)} accessibilityLiveRegion={props.accessibilityLiveRegion}>
+			<masonview
+				id={props.id}
+				ref={forwardedRef2}
+				className={cx('vx-formlayout', `vx-formlayout--${direction}`, props.className)}
+				style={mergeStyle({ display: 'flex' }, props.style)}
+				accessible={props.accessible}
+				accessibilityLabel={props.accessibilityLabel}
+				accessibilityRole={nativeAccessibilityRole(props.accessibilityRole)}
+				accessibilityHint={props.accessibilityHint}
+				accessibilityValue={props.accessibilityValue}
+				accessibilityState={nativeAccessibilityState(props.accessibilityState)}
+				accessibilityLiveRegion={props.accessibilityLiveRegion}
+			>
 				{props.children}
 			</masonview>
 		)}

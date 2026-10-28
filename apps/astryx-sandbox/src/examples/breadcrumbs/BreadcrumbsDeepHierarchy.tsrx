@@ -3,7 +3,9 @@ import { BreadcrumbItem, Breadcrumbs, Icon } from '@octane-xplat/ui'
 
 export function BreadcrumbsDeepHierarchy() @{
 	<Breadcrumbs>
-		<BreadcrumbItem href="/" startIcon={<Icon name="sandbox-home" size={16} />}>Home</BreadcrumbItem>
+		<BreadcrumbItem href="/" startIcon={<Icon name="sandbox-home" size={16} />}>
+			Home
+		</BreadcrumbItem>
 		<BreadcrumbItem href="/products">Products</BreadcrumbItem>
 		<BreadcrumbItem href="/products/electronics">Electronics</BreadcrumbItem>
 		<BreadcrumbItem href="/products/electronics/phones">Phones</BreadcrumbItem>

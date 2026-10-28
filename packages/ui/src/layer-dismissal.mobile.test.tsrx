@@ -25,7 +25,9 @@ function CardProbe(props: { open: boolean; hide: () => void }) @{
 		onHide: () => props.hide(),
 	})
 
-	<masonview ref={card.ref} style={{display: "flex"}}>{card.renderHoverCard('Card')}</masonview>
+	<masonview ref={card.ref} style={{ display: 'flex' }}>
+		{card.renderHoverCard('Card')}
+	</masonview>
 }
 
 function Entry(props: {

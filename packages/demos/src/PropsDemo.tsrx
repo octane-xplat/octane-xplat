@@ -1,28 +1,51 @@
-import { useState } from 'octane';
-import { View, HStack, Text, TextInput, Pressable } from '@octane-xplat/ui';
+import { useState } from 'octane'
+import { View, HStack, Text, TextInput, Pressable } from '@octane-xplat/ui'
 
 /** Public prop parity probe for shipped primitives. */
 export function PropsDemo() @{
-	const [secret, setSecret] = useState('octane-xplat');
-	const [value, setValue] = useState('');
-	const [editable, setEditable] = useState(true);
-	const [focusState, setFocusState] = useState('unfocused');
-	const [pressState, setPressState] = useState('Try the press callbacks');
-	const [submitState, setSubmitState] = useState('');
+	const [secret, setSecret] = useState('octane-xplat')
+	const [value, setValue] = useState('')
+	const [editable, setEditable] = useState(true)
+	const [focusState, setFocusState] = useState('unfocused')
+	const [pressState, setPressState] = useState('Try the press callbacks')
+	const [submitState, setSubmitState] = useState('')
 
 	<View className="vx-app flex-1 gap-6 props-demo">
 		<Text className="text-xl font-semibold">Primitive props</Text>
 		<View className="sink-section">
 			<Text className="section-label">Fields</Text>
-			<TextInput className="input" value={secret} onChange={setSecret} secure placeholder="Password" returnKeyType="done" onSubmit={() => setSubmitState('Password submitted')} placeholderTextColor="#64748b" />
-			<TextInput className="input" value={value} onChange={setValue} keyboardType="email" isReadOnly={!editable} placeholder="Email address" onFocus={() => setFocusState('focused')} onBlur={() => setFocusState('blurred')} onSubmit={() => setSubmitState('Email submitted')} />
+			<TextInput
+				className="input"
+				value={secret}
+				onChange={setSecret}
+				secure
+				placeholder="Password"
+				returnKeyType="done"
+				onSubmit={() => setSubmitState('Password submitted')}
+				placeholderTextColor="#64748b"
+			/>
+			<TextInput
+				className="input"
+				value={value}
+				onChange={setValue}
+				keyboardType="email"
+				isReadOnly={!editable}
+				placeholder="Email address"
+				onFocus={() => setFocusState('focused')}
+				onBlur={() => setFocusState('blurred')}
+				onSubmit={() => setSubmitState('Email submitted')}
+			/>
 			<HStack className="gap-3 items-center">
 				<Pressable className="btn btn-secondary" onPress={() => setEditable(!editable)}>
 					<Text>{editable ? 'Disable input' : 'Enable input'}</Text>
 				</Pressable>
-				<Text className="text-sm text-muted">{'Input is ' + (editable ? 'editable' : 'read only')}</Text>
+				<Text className="text-sm text-muted">
+					{'Input is ' + (editable ? 'editable' : 'read only')}
+				</Text>
 			</HStack>
-			<Text className="text-sm text-muted">{'Focus: ' + focusState + (submitState ? ' · ' + submitState : '')}</Text>
+			<Text className="text-sm text-muted">
+				{'Focus: ' + focusState + (submitState ? ' · ' + submitState : '')}
+			</Text>
 		</View>
 		<View className="sink-section">
 			<Text className="section-label">Press callbacks</Text>
@@ -41,7 +64,8 @@ export function PropsDemo() @{
 		<View className="sink-section">
 			<Text className="section-label">Text clamping</Text>
 			<Text className="props-clamp" maxLines={2}>
-				This longer sample exercises line clamping and single-line ellipsis behavior across the platform leaves.
+				This longer sample exercises line clamping and single-line ellipsis behavior across the
+				platform leaves.
 			</Text>
 		</View>
 		<View className="sink-section">

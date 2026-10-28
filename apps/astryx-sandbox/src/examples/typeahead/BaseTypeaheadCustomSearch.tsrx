@@ -7,11 +7,20 @@ const RECIPIENTS = [
 	{ id: '2', label: 'Mike Johnson', auxiliaryData: { email: 'mike@company.com' } },
 	{ id: '3', label: 'Emma Davis', auxiliaryData: { email: 'emma@company.com' } },
 ]
+
 const source = createStaticSource(RECIPIENTS, { keywords: (r) => [r.auxiliaryData?.email ?? ''] })
 
 export function BaseTypeaheadCustomSearch() @{
-	const [value, setValue] = useState<typeof RECIPIENTS[number] | null>(null)
-	<div style={{width: 400}}>
-		<BaseTypeahead label="To" searchSource={source} value={value} onChange={setValue} placeholder="name@company.com" renderItem={(item) => <TypeaheadItem item={item} description={item.auxiliaryData?.email} />} />
+	const [value, setValue] = useState<(typeof RECIPIENTS)[number] | null>(null)
+
+	<div style={{ width: 400 }}>
+		<BaseTypeahead
+			label="To"
+			searchSource={source}
+			value={value}
+			onChange={setValue}
+			placeholder="name@company.com"
+			renderItem={(item) => <TypeaheadItem item={item} description={item.auxiliaryData?.email} />}
+		/>
 	</div>
 }

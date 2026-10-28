@@ -9,11 +9,21 @@ const USERS = [
 	{ id: '4', label: 'Alex Kim', auxiliaryData: { role: 'Engineer' } },
 	{ id: '5', label: 'Jordan Lee', auxiliaryData: { role: 'Designer' } },
 ]
+
 const source = createStaticSource(USERS)
 
 export function TypeaheadSearchField() @{
-	const [value, setValue] = useState<typeof USERS[number] | null>(null)
-	<div style={{width: 320}}>
-		<Typeahead label="Search team members" isLabelHidden searchSource={source} value={value} onChange={setValue} placeholder="Search team…" renderItem={(item) => <TypeaheadItem item={item} />} />
+	const [value, setValue] = useState<(typeof USERS)[number] | null>(null)
+
+	<div style={{ width: 320 }}>
+		<Typeahead
+			label="Search team members"
+			isLabelHidden
+			searchSource={source}
+			value={value}
+			onChange={setValue}
+			placeholder="Search team…"
+			renderItem={(item) => <TypeaheadItem item={item} />}
+		/>
 	</div>
 }

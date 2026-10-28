@@ -18,13 +18,17 @@ function makeClock() {
 		},
 		cancel: (id) => {
 			const index = queue.findIndex((entry) => entry.id === id)
-			if (index !== -1) queue.splice(index, 1)
+			if (index !== -1) {
+				queue.splice(index, 1)
+			}
 		},
 		advance(ms) {
 			time += ms
 			const queued = [...queue]
 			queue.length = 0
-			for (const entry of queued) entry.cb()
+			for (const entry of queued) {
+				entry.cb()
+			}
 		},
 		pending: () => queue.length,
 	}
@@ -45,7 +49,9 @@ function makeBarrier() {
 		flush() {
 			const pending = [...scheduled]
 			scheduled.length = 0
-			for (const pass of pending) pass()
+			for (const pass of pending) {
+				pass()
+			}
 		},
 		observing: () => observing,
 	}
@@ -97,7 +103,11 @@ function setup() {
 	return { clock, barrier, root, commit, resize }
 }
 
-function makeNode(root: ProjectionRoot, hooks: ReturnType<typeof fakeHooks>['hooks'], parent?: ProjectionNode) {
+function makeNode(
+	root: ProjectionRoot,
+	hooks: ReturnType<typeof fakeHooks>['hooks'],
+	parent?: ProjectionNode,
+) {
 	const node = new ProjectionNode(parent)
 	node.attach(hooks)
 	node.options.animationType = 'both'
@@ -184,7 +194,10 @@ describe('projection update cycle', () => {
 
 		const before = box(0, 0, 50, 50)
 		for (const p of [0, 250, 500, 1000]) {
-			if (p) clock.advance(p === 1000 ? 500 : 250)
+			if (p) {
+				clock.advance(p === 1000 ? 500 : 250)
+			}
+
 			const onScreenBox = onScreen()
 			const width = onScreenBox.x.max - onScreenBox.x.min
 			expect(Math.abs(width - 50)).toBeLessThanOrEqual(0.5)
@@ -352,7 +365,9 @@ describe('projection update cycle', () => {
 		expect(node.currentAnimation).toBeUndefined()
 		expect(node.presented!.x.min).toBe(100)
 		for (const write of host.state.writes) {
-			if (write) expect(Number.isNaN(write.delta.x.translate)).toBe(false)
+			if (write) {
+				expect(Number.isNaN(write.delta.x.translate)).toBe(false)
+			}
 		}
 	})
 
@@ -372,7 +387,9 @@ describe('projection update cycle', () => {
 			parentHost.state.box = box(0, 0, 200, 100)
 			commit()
 			clock.advance(500)
-			if (extraPass) commit()
+			if (extraPass) {
+				commit()
+			}
 			expect(child.relativeTarget).toBeDefined()
 
 			const frames: Box[] = []
@@ -383,6 +400,7 @@ describe('projection update cycle', () => {
 				const projected = childWrite
 					? applyDelta(child.layout!.layoutBox, childWrite)
 					: { x: { ...child.layout!.layoutBox.x }, y: { ...child.layout!.layoutBox.y } }
+
 				frames.push(parentWrite ? applyDelta(projected, parentWrite) : projected)
 			}
 

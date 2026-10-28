@@ -4,7 +4,9 @@ import { Stack, Text, Token } from '@octane-xplat/ui'
 export function TokenRemovable() @{
 	<Stack direction="vertical" gap={10}>
 		<Stack direction="vertical" gap={2}>
-			<Text type="supporting" color="secondary">Active filters</Text>
+			<Text type="supporting" color="secondary">
+				Active filters
+			</Text>
 			<Stack direction="horizontal" gap={2} wrap="wrap">
 				<Token label="Status: Open" color="green" onRemove={() => {}} />
 				<Token label="Priority: High" color="red" onRemove={() => {}} />
@@ -12,7 +14,9 @@ export function TokenRemovable() @{
 			</Stack>
 		</Stack>
 		<Stack direction="vertical" gap={2}>
-			<Text type="supporting" color="secondary">Selected recipients</Text>
+			<Text type="supporting" color="secondary">
+				Selected recipients
+			</Text>
 			<Stack direction="horizontal" gap={2} wrap="wrap">
 				<Token label="Sarah Chen" color="blue" onRemove={() => {}} />
 				<Token label="Alex Rivera" color="blue" onRemove={() => {}} />

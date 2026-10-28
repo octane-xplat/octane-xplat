@@ -14,6 +14,7 @@ import {
 	statSync,
 	writeFileSync,
 } from 'node:fs'
+
 import { homedir } from 'node:os'
 import { join } from 'node:path'
 import { promisify } from 'node:util'
@@ -39,18 +40,22 @@ export interface NativeReport {
 	associationReason: string
 	bytes: number
 }
+
 interface FoundReport extends Omit<NativeReport, 'id' | 'bytes'> {
 	content: string
 }
+
 interface Coverage {
 	status: 'available' | 'none-found' | 'partial' | 'unavailable' | 'unsupported'
 	detail: string
 }
+
 interface Options {
 	host?: string
 	home?: string
 	exec?: (command: string, args: string[]) => Promise<string>
 }
+
 const inWindow = (run: RetainedSession, time: number) =>
 	Number.isFinite(time) &&
 	time >= Date.parse(run.startedAt) - 5000 &&
@@ -65,6 +70,7 @@ function readBounded(path: string, maxBytes = MAX_REPORT_BYTES) {
 		if (!stat.isFile() || stat.size > maxBytes) {
 			throw new Error('report-size-limit')
 		}
+
 		return readFileSync(fd, 'utf8')
 	} finally {
 		closeSync(fd)
@@ -109,36 +115,45 @@ function appleReports(run: RetainedSession, home: string) {
 				join(directory, name),
 				Math.min(MAX_REPORT_BYTES, 64 * 1024 * 1024 - scannedBytes),
 			)
+
 			scannedBytes += Buffer.byteLength(content)
 			if (scannedBytes > 64 * 1024 * 1024) {
 				partial = true
 				break
 			}
+
 			const split = content.indexOf('\n')
 			const header = JSON.parse(content.slice(0, split))
 			if (String(header.bug_type) !== '309') {
 				continue
 			}
+
 			const body = JSON.parse(content.slice(split + 1))
 			if (run.platform === 'ios' && Number(body.platform ?? header.platform) !== 7) {
 				continue
 			}
+
 			if (run.platform === 'macos' && Number(body.platform ?? header.platform) !== 1) {
 				continue
 			}
+
 			const timestamp = Date.parse(body.captureTime ?? header.timestamp)
 			if (!inWindow(run, timestamp)) {
 				continue
 			}
+
 			const sameDevice =
 				run.platform !== 'ios' || String(body.procPath ?? '').includes(`/Devices/${run.targetId}/`)
+
 			if (!sameDevice && /\/Devices\/[A-Fa-f0-9-]{36}\//.test(body.procPath ?? '')) {
 				continue
 			}
+
 			const bundleId = header.bundleID ?? body.bundleInfo?.CFBundleIdentifier
 			if (bundleId && bundleId !== run.nativeIdentity?.appId) {
 				continue
 			}
+
 			const launchTime = Date.parse(body.procLaunch)
 			const confirmed =
 				sameDevice &&
@@ -148,11 +163,13 @@ function appleReports(run: RetainedSession, home: string) {
 						process.pid === body.pid &&
 						Math.abs(Date.parse(process.observedAt) - launchTime) <= 5000,
 				)
+
 			// A cleaned-up temporary bundle may have no bundle identifier in
 			// the OS report. Only observed PID+launch ownership can admit it.
 			if (!confirmed && bundleId !== run.nativeIdentity?.appId) {
 				continue
 			}
+
 			found.push({
 				kind: 'native-crash',
 				source: 'apple-ips',
@@ -195,6 +212,7 @@ async function androidReports(run: RetainedSession, exec: NonNullable<Options['e
 		if (!/^[+-]\d{4}$/.test(zone)) {
 			throw new Error('device-time-zone-unavailable')
 		}
+
 		const output = await exec('adb', [
 			'-s',
 			device,
@@ -204,9 +222,11 @@ async function androidReports(run: RetainedSession, exec: NonNullable<Options['e
 			'exit-info',
 			appId,
 		])
+
 		if (!output.includes('ACTIVITY MANAGER PROCESS EXIT INFO')) {
 			throw new Error('exit-info-unavailable')
 		}
+
 		const found: FoundReport[] = []
 		for (const match of output.matchAll(
 			/^[ \t]*ApplicationExitInfo[^\n]*:\r?\n[\s\S]*?(?=^[ \t]*ApplicationExitInfo|^[ \t]*Historical Process Exit|^[ \t]*package:|$(?![\s\S]))/gm,
@@ -216,15 +236,18 @@ async function androidReports(run: RetainedSession, exec: NonNullable<Options['e
 			if (processName !== appId && !processName?.startsWith(appId + ':')) {
 				continue
 			}
+
 			const date = /\btimestamp=(\d{4}-\d\d-\d\d \d\d:\d\d:\d\d\.\d{3})/.exec(content)?.[1]
 			const timestamp = Date.parse(`${date?.replace(' ', 'T')}${zone}`)
 			if (!inWindow(run, timestamp)) {
 				continue
 			}
+
 			const reason = /\breason=(\d+)\s*\(([^)]+)\)/.exec(content)
 			if (!reason) {
 				throw new Error('unknown-exit-info-format')
 			}
+
 			found.push({
 				kind:
 					reason[1] === '5'
@@ -243,6 +266,7 @@ async function androidReports(run: RetainedSession, exec: NonNullable<Options['e
 				content,
 			})
 		}
+
 		if (
 			output.includes('ApplicationExitInfo') &&
 			!found.length &&
@@ -250,6 +274,7 @@ async function androidReports(run: RetainedSession, exec: NonNullable<Options['e
 		) {
 			throw new Error('unknown-exit-info-format')
 		}
+
 		return {
 			found,
 			coverage: {
@@ -280,6 +305,7 @@ function retained(appRoot: string, run: RetainedSession): NativeReport[] {
 		if (error.code === 'ENOENT') {
 			return []
 		}
+
 		throw error
 	}
 }
@@ -315,6 +341,7 @@ export async function discoverNativeReports(
 						encoding: 'utf8',
 					})
 				).stdout)
+
 		;({ found, coverage } = await androidReports(run, exec))
 	} else if ((options.host ?? process.platform) !== 'darwin') {
 		coverage = {
@@ -355,6 +382,7 @@ export async function discoverNativeReports(
 					throw error
 				}
 			}
+
 			try {
 				writeFileSync(lock, String(process.pid), { flag: 'wx', mode: 0o600 })
 				locked = true
@@ -362,6 +390,7 @@ export async function discoverNativeReports(
 				if (error.code !== 'EEXIST') {
 					throw error
 				}
+
 				return {
 					reports: retained(appRoot, run),
 					coverage: {
@@ -370,6 +399,7 @@ export async function discoverNativeReports(
 					},
 				}
 			}
+
 			reports.splice(0, reports.length, ...retained(appRoot, run))
 			let bytes = reports.reduce((sum, report) => sum + report.bytes, 0)
 			for (const { content, ...description } of found.sort((a, b) =>
@@ -379,6 +409,7 @@ export async function discoverNativeReports(
 				if (reports.some((report) => report.id === id)) {
 					continue
 				}
+
 				const size = Buffer.byteLength(content)
 				if (
 					reports.length >= MAX_REPORTS ||
@@ -388,12 +419,14 @@ export async function discoverNativeReports(
 					limited = true
 					continue
 				}
+
 				const report = {
 					...description,
 					summary: description.summary.slice(0, 512),
 					id,
 					bytes: size,
 				}
+
 				// Unique temp files and atomic renames permit concurrent readers without
 				// making reports share the log writer's rotation or sequence cursor.
 				for (const [extension, value] of [
@@ -404,6 +437,7 @@ export async function discoverNativeReports(
 					writeFileSync(temp, value, { mode: 0o600 })
 					renameSync(temp, join(directory, `${id}.${extension}`))
 				}
+
 				reports.push(report)
 				bytes += size
 			}

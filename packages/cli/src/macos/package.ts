@@ -278,7 +278,9 @@ export async function packageMacOS(appRoot) {
 
 	const octaneRoot = installedPackageRoot(appRoot, 'octane')
 	if (!octaneRoot) {
-		throw new Error('Cannot resolve octane from the app. Declare it in dependencies and run pnpm install.')
+		throw new Error(
+			'Cannot resolve octane from the app. Declare it in dependencies and run pnpm install.',
+		)
 	}
 	const octaneLicense = await readFile(join(octaneRoot, 'LICENSE'), 'utf8')
 	const nativeLicense = await readFile(join(nativeRuntimePackage, 'LICENSE'), 'utf8')
@@ -363,9 +365,7 @@ export async function packageMacOS(appRoot) {
 				...(await Promise.all(
 					(native.prebuilt ?? [])
 						.filter((library) => library.notices)
-						.map(
-							async (library) => `${library.name}\n${await readFile(library.notices, 'utf8')}`,
-						),
+						.map(async (library) => `${library.name}\n${await readFile(library.notices, 'utf8')}`),
 				)),
 			].join('\n\n'),
 		)

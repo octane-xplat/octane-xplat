@@ -94,6 +94,7 @@ try {
 			{ encoding: 'utf8' },
 		),
 	)
+
 	assert.equal(status.data.session.state, 'ready')
 	const ended = JSON.parse(
 		execFileSync(
@@ -102,6 +103,7 @@ try {
 			{ encoding: 'utf8' },
 		),
 	)
+
 	assert.equal(ended.data.result.ended, true)
 	await closed
 	const after = JSON.parse(

@@ -42,11 +42,17 @@ export function xplatInlineStylesheets() {
 					if (file.type !== 'asset' || !file.fileName.endsWith('.css')) {
 						continue
 					}
+
 					const src =
 						typeof file.source === 'string' ? file.source : new TextDecoder().decode(file.source)
+
 					// Emitted assets bypass transform (e.g. @import inlining,
 					// Bamboo's finalized sheet) — process here too.
-					sheets.push([file.fileName, processNativeCss(src, file.fileName, (m) => this.warn(m), { warned })])
+					sheets.push([
+						file.fileName,
+						processNativeCss(src, file.fileName, (m) => this.warn(m), { warned }),
+					])
+
 					// Bamboo's survival check ran at 'pre'; nothing else consumes
 					// the files — the host evaluates only the entry chunk.
 					delete bundle[file.fileName]
@@ -62,12 +68,13 @@ export function xplatInlineStylesheets() {
 				}
 
 				const pairs = sheets.map(([id, css]) => `[${JSON.stringify(id)},${JSON.stringify(css)}]`)
-				entry.code = `(globalThis.__xplatStylesheets ??= []).push(${pairs.join(',')});\n` + entry.code
+				entry.code =
+					`(globalThis.__xplatStylesheets ??= []).push(${pairs.join(',')});\n` + entry.code
 				if (entry.map?.mappings) {
 					// Shift every source mapping down one generated line.
 					entry.map.mappings = ';' + entry.map.mappings
 				}
-			}
+			},
 		},
 	}
 }

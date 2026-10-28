@@ -3,10 +3,27 @@
 import { Stack, Text, View } from '@octane-xplat/ui'
 
 const CASES: { label: string; style: Record<string, string>; text: string; box?: string }[] = [
-	{ label: 'Wrap (default)', style: {}, text: 'This text wraps normally at word boundaries when it reaches the edge.' },
-	{ label: 'Nowrap', style: { whiteSpace: 'nowrap' }, text: 'This text does not wrap and will overflow its container.', box: 'sb-example-box--truncate' },
-	{ label: 'Balance', style: { textWrap: 'balance' }, text: 'This text is balanced for better visual appearance across lines.' },
-	{ label: 'Pretty', style: { textWrap: 'pretty' }, text: 'This text uses pretty wrap to avoid orphans at the end of paragraphs.' },
+	{
+		label: 'Wrap (default)',
+		style: {},
+		text: 'This text wraps normally at word boundaries when it reaches the edge.',
+	},
+	{
+		label: 'Nowrap',
+		style: { whiteSpace: 'nowrap' },
+		text: 'This text does not wrap and will overflow its container.',
+		box: 'sb-example-box--truncate',
+	},
+	{
+		label: 'Balance',
+		style: { textWrap: 'balance' },
+		text: 'This text is balanced for better visual appearance across lines.',
+	},
+	{
+		label: 'Pretty',
+		style: { textWrap: 'pretty' },
+		text: 'This text uses pretty wrap to avoid orphans at the end of paragraphs.',
+	},
 ]
 
 export function TextWrap() @{
@@ -14,7 +31,9 @@ export function TextWrap() @{
 		<Stack direction="vertical" gap={4} style={{ maxWidth: 400 }}>
 			{CASES.map(({ label, style, text, box }) => (
 				<View key={label}>
-					<Text type="label" className="sb-block">{label}</Text>
+					<Text type="label" className="sb-block">
+						{label}
+					</Text>
 					<View className={box ?? 'sb-example-box'} style={{ width: 200 }}>
 						<Text type="body" style={style}>
 							{text}

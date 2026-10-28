@@ -10,6 +10,7 @@ const xplatCli = join(
 	dirname(fileURLToPath(import.meta.resolve('@octane-xplat/cli/macos'))),
 	'../../bin/xplat.mjs',
 )
+
 const host = spawn(process.execPath, [xplatCli, 'dev', 'macos'], {
 	cwd: fileURLToPath(new URL('..', import.meta.url)),
 	env: {

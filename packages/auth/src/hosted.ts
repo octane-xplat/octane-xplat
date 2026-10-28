@@ -60,18 +60,23 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
 
 	function storageOperation<T>(run: () => T | PromiseLike<T>): Promise<T> {
 		const result = storageTail.then(run)
-		storageTail = result.then(() => {}, () => {})
+		storageTail = result.then(
+			() => {},
+			() => {},
+		)
 		return result
 	}
 
 	async function persist(creds: HostedAuthCredentials | null) {
 		credentials = creds
 		const storage = store()
-		if (!storage) {return}
+		if (!storage) {
+			return
+		}
 		try {
-			await storageOperation(() => creds
-				? storage.set(storageKey, JSON.stringify(creds))
-				: storage.remove(storageKey))
+			await storageOperation(() =>
+				creds ? storage.set(storageKey, JSON.stringify(creds)) : storage.remove(storageKey),
+			)
 		} catch {
 			// Persistence is best-effort — the session still lives in memory.
 		}
@@ -79,13 +84,16 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
 
 	async function readStoredCredentials(): Promise<HostedAuthCredentials | null> {
 		const storage = store()
-		if (!storage) {return null}
+		if (!storage) {
+			return null
+		}
 		try {
 			const raw = await storageOperation(() => storage.get(storageKey))
 			const parsed = raw ? parseCredentials(raw) : null
 			if (!parsed && raw && credentials === undefined) {
 				await storageOperation(() => storage.remove(storageKey))
 			}
+
 			return parsed
 		} catch {
 			return null
@@ -96,7 +104,9 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
 		if (credentials === undefined) {
 			const restored = await readStoredCredentials()
 			// A sign-in or sign-out landing mid-read owns the credential slot.
-			if (credentials === undefined) {credentials = restored}
+			if (credentials === undefined) {
+				credentials = restored
+			}
 		}
 		return credentials
 	}
@@ -128,8 +138,11 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
 	function refreshedAccessToken(): Promise<string | null> {
 		if (refreshPromise === null) {
 			const request = refresh().finally(() => {
-				if (refreshPromise === request) {refreshPromise = null}
+				if (refreshPromise === request) {
+					refreshPromise = null
+				}
 			})
+
 			refreshPromise = request
 		}
 
@@ -161,11 +174,17 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
 		const owner = ++generation
 		requestGeneration++
 		refreshPromise = null
-		const request = runSignIn(owner).catch((error): HostedAuthSignInResult =>
-			owner !== generation ? { status: 'cancelled' } : { status: 'error', message: errorMessage(error) },
-		).finally(() => {
-			if (signingIn === request) {signingIn = null}
-		})
+		const request = runSignIn(owner)
+			.catch((error): HostedAuthSignInResult =>
+				owner !== generation
+					? { status: 'cancelled' }
+					: { status: 'error', message: errorMessage(error) },
+			)
+			.finally(() => {
+				if (signingIn === request) {
+					signingIn = null
+				}
+			})
 		signingIn = request
 		return request
 	}
@@ -196,10 +215,14 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
 		try {
 			attempt = await config.flow.begin({ fetch: transport, pkce })
 		} catch (error) {
-			return owner !== generation ? { status: 'cancelled' } : { status: 'error', message: errorMessage(error) }
+			return owner !== generation
+				? { status: 'cancelled' }
+				: { status: 'error', message: errorMessage(error) }
 		}
 
-		if (owner !== generation) {return { status: 'cancelled' }}
+		if (owner !== generation) {
+			return { status: 'cancelled' }
+		}
 		const result = await session.open(attempt.url, { callbackScheme: attempt.callbackScheme })
 		if (owner !== generation || result.type === 'cancel') {
 			return { status: 'cancelled' }
@@ -222,7 +245,10 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
 				pkce,
 			})
 
-			if (owner !== generation) {return { status: 'cancelled' }}
+			if (owner !== generation) {
+				return { status: 'cancelled' }
+			}
+
 			if (!isCredentials(creds)) {
 				return {
 					status: 'error',
@@ -234,7 +260,9 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
 			await persist(creds)
 			return { status: owner === generation ? 'success' : 'cancelled' }
 		} catch (error) {
-			return owner !== generation ? { status: 'cancelled' } : { status: 'error', message: errorMessage(error) }
+			return owner !== generation
+				? { status: 'cancelled' }
+				: { status: 'error', message: errorMessage(error) }
 		}
 	}
 
@@ -253,7 +281,10 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
 		}
 		const response = await transport(target, token === null ? init : withBearer(init, token))
 
-		if (owner !== requestGeneration || !isInvalidAccessTokenChallenge(response.status, response.headers)) {
+		if (
+			owner !== requestGeneration ||
+			!isInvalidAccessTokenChallenge(response.status, response.headers)
+		) {
 			return response
 		}
 
@@ -276,7 +307,8 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
 		requestGeneration++
 		signingIn = null
 		refreshPromise = null
-		const previous = credentials === undefined ? readStoredCredentials() : Promise.resolve(credentials)
+		const previous =
+			credentials === undefined ? readStoredCredentials() : Promise.resolve(credentials)
 		// Retire memory synchronously, then remove after earlier durable saves.
 		await persist(null)
 		const creds = await previous

@@ -29,12 +29,21 @@ test('AppKit meter and progressbar roles report range, value, and description', 
 	const { AccessibleHostView, applyAccessibility } = runSlice(
 		stack + '\n' + apply + '\n({ AccessibleHostView, applyAccessibility })',
 		{
-		elementBehaviors: new Map(),
-		behaviorOf: () => undefined,
-		isManualLayoutParent: (t: string) =>
-			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
-		registerElementType: () => {},
-		
+			elementBehaviors: new Map(),
+			behaviorOf: () => undefined,
+			isManualLayoutParent: (t: string) =>
+				[
+					'gridlayout',
+					'liquidglass',
+					'absolutelayout',
+					'contentview',
+					'actionbar',
+					'docklayout',
+					'wraplayout',
+					'rootlayout',
+				].includes(t),
+			registerElementType: () => {},
+
 			NSView: class {},
 			NativeClass() {},
 			interop: { types: { bool: 'bool', id: 'id' } },

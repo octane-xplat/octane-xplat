@@ -1,8 +1,27 @@
 // Port of upstream Resizable/ResizableSidebar.tsx (Astryx 0.6.4, MIT).
-import { Card, Heading, Layout, LayoutContent, LayoutPanel, List, ListItem, ResizeHandle, Text, useResizable, VStack } from '@octane-xplat/ui'
+import {
+	Card,
+	Heading,
+	Layout,
+	LayoutContent,
+	LayoutPanel,
+	List,
+	ListItem,
+	ResizeHandle,
+	Text,
+	useResizable,
+	VStack,
+} from '@octane-xplat/ui'
 
 export function ResizableSidebar() @{
-	const sidebar = useResizable({ defaultSize: 240, minSize: 160, maxSize: 360, collapsible: true, snaps: [200, 280] })
+	const sidebar = useResizable({
+		defaultSize: 240,
+		minSize: 160,
+		maxSize: 360,
+		collapsible: true,
+		snaps: [200, 280],
+	})
+
 	<Card variant="muted" height={320} width={620}>
 		<Layout
 			height="fill"
@@ -16,10 +35,17 @@ export function ResizableSidebar() @{
 								<ListItem label="Photos" />
 								<ListItem label="Archive" />
 							</List>
-							<Text type="supporting" color="secondary">{Math.round(sidebar.size)}px — snaps at 200/280</Text>
+							<Text type="supporting" color="secondary">
+								{Math.round(sidebar.size)}px — snaps at 200/280
+							</Text>
 						</VStack>
 					</LayoutPanel>
-					<ResizeHandle direction="horizontal" hasDivider resizable={sidebar.props} label="Resize sidebar" />
+					<ResizeHandle
+						direction="horizontal"
+						hasDivider
+						resizable={sidebar.props}
+						label="Resize sidebar"
+					/>
 				</>
 			}
 			content={

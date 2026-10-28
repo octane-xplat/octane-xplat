@@ -11,9 +11,18 @@ interface PresentationRegistry {
 	resolve: () => { isOpen: boolean; panelProps: any; options: any }
 }
 
-function SurfaceContent(props: { target: unknown; component: any; panelProps: any; dark: boolean; committed: () => void }) {
+function SurfaceContent(props: {
+	target: unknown
+	component: any
+	panelProps: any
+	dark: boolean
+	committed: () => void
+}) {
 	const Component = props.component
-	useLayoutEffect(() => { props.committed() })
+	useLayoutEffect(() => {
+		props.committed()
+	})
+
 	return createPortal(<Component {...props.panelProps} dark={props.dark} />, props.target)
 }
 
@@ -34,39 +43,82 @@ export function usePresentation(isOpen: boolean, component: any, panelProps: any
 			return
 		}
 
-		const next = { ...resolved.options, component: current.component, props: { ...resolved.panelProps, dark: current.dark }, dark: current.dark }
-		if (surface.current && !surface.current.closed) surface.current.update(next)
-		else {
+		const next = {
+			...resolved.options,
+			component: current.component,
+			props: { ...resolved.panelProps, dark: current.dark },
+			dark: current.dark,
+		}
+
+		if (surface.current && !surface.current.closed) {
+			surface.current.update(next)
+		} else {
 			const present = appKitHost()?.presentSurface
-			if (!present) throw new Error('AppKit host has no shared surface presenter')
-			surface.current = present({ ...next, owner: owner.current,
+			if (!present) {
+				throw new Error('AppKit host has no shared surface presenter')
+			}
+
+			surface.current = present({
+				...next,
+				owner: owner.current,
 				// Declarative content renders directly below this hook. Publishing
 				// it through an imperative store here would feed updates back into
 				// the component that publishes them on every render.
 				createContentRoot: (host: any) => {
 					setTarget(host)
-					return { render() {}, unmount() { setTarget((current: any) => current === host ? null : current) } }
-				}, onDismiss: () => {
-				const current = latest.current
-				const options = current.options
-				options.onDismiss?.()
-			} })
+					return {
+						render() {},
+						unmount() {
+							setTarget((current: any) => (current === host ? null : current))
+						},
+					}
+				},
+				onDismiss: () => {
+					const current = latest.current
+					const options = current.options
+					options.onDismiss?.()
+				},
+			})
 		}
 	}
 
-	useEffect(() => { update() }, [isOpen, component, panelProps, options, dark])
+	useEffect(() => {
+		update()
+	}, [isOpen, component, panelProps, options, dark])
 
-	useEffect(() => () => { surface.current?.close(); surface.current = null }, [])
-	return <>
-		<masonview ref={owner} style={mergeStyle({display: "flex"}, { width: 0, height: 0 })}/>
-		{target ? <SurfaceContent target={target} component={component}
-			panelProps={panelProps} dark={dark} committed={() => surface.current?.update({})} /> : null}
-	</>
+	useEffect(
+		() => () => {
+			surface.current?.close()
+			surface.current = null
+		},
+		[],
+	)
+
+	return (
+		<>
+			<masonview ref={owner} style={mergeStyle({ display: 'flex' }, { width: 0, height: 0 })} />
+			{target ? (
+				<SurfaceContent
+					target={target}
+					component={component}
+					panelProps={panelProps}
+					dark={dark}
+					committed={() => surface.current?.update({})}
+				/>
+			) : null}
+		</>
+	)
 }
 
 /** Registry-driven sheets and toast stacks retain their existing roots until
  * their portal registration/update feedback has separate runtime qualification. */
-export function useDetachedPresentation(isOpen: boolean, component: any, panelProps: any, options: any, registry?: PresentationRegistry) @{
+export function useDetachedPresentation(
+	isOpen: boolean,
+	component: any,
+	panelProps: any,
+	options: any,
+	registry?: PresentationRegistry,
+) @{
 	const owner = useRef<any>(null)
 	const surface = useRef<any>(null)
 	const latest = useRef(options)
@@ -81,35 +133,80 @@ export function useDetachedPresentation(isOpen: boolean, component: any, panelPr
 			return
 		}
 
-		const next = { ...resolved.options, component: current.component, props: { ...resolved.panelProps, dark: current.dark }, dark: current.dark }
-		if (surface.current && !surface.current.closed) surface.current.update(next)
-		else {
+		const next = {
+			...resolved.options,
+			component: current.component,
+			props: { ...resolved.panelProps, dark: current.dark },
+			dark: current.dark,
+		}
+
+		if (surface.current && !surface.current.closed) {
+			surface.current.update(next)
+		} else {
 			const present = appKitHost()?.presentSurface
-			if (!present) throw new Error('AppKit host has no shared surface presenter')
-			surface.current = present({ ...next, owner: owner.current, onDismiss: () => {
-				const current = latest.current
-				const options = current.registry?.resolve().options ?? current.options
-				options.onDismiss?.()
-			} })
+			if (!present) {
+				throw new Error('AppKit host has no shared surface presenter')
+			}
+
+			surface.current = present({
+				...next,
+				owner: owner.current,
+				onDismiss: () => {
+					const current = latest.current
+					const options = current.registry?.resolve().options ?? current.options
+					options.onDismiss?.()
+				},
+			})
 		}
 	}
 
 	useEffect(() => {
-		if (!registry) { update(); return }
+		if (!registry) {
+			update()
+			return
+		}
+
 		let mounted = true
-		queueMicrotask(() => { if (mounted) update() })
-		return () => { mounted = false }
+		queueMicrotask(() => {
+			if (mounted) {
+				update()
+			}
+		})
+
+		return () => {
+			mounted = false
+		}
 	}, [isOpen, component, panelProps, options, dark])
 
 	// Registry notifications update the detached root without rerendering the
 	// declaring root, whose child templates register fresh props after a render.
 	useEffect(() => {
-		if (!registry) return
+		if (!registry) {
+			return
+		}
+
 		let mounted = true
-		const unsubscribe = registry.subscribe(() => queueMicrotask(() => { if (mounted) update() }))
-		return () => { mounted = false; unsubscribe() }
+		const unsubscribe = registry.subscribe(() =>
+			queueMicrotask(() => {
+				if (mounted) {
+					update()
+				}
+			}),
+		)
+
+		return () => {
+			mounted = false
+			unsubscribe()
+		}
 	}, [registry?.subscribe])
 
-	useEffect(() => () => { surface.current?.close(); surface.current = null }, [])
+	useEffect(
+		() => () => {
+			surface.current?.close()
+			surface.current = null
+		},
+		[],
+	)
+
 	return owner
 }

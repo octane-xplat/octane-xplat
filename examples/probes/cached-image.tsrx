@@ -20,20 +20,22 @@ export default function CachedImageProbe() {
 	const [second, setSecond] = useState(false)
 	swap = setSecond
 	const src = second ? SECOND : FIRST
-	return <VStack>
-		<Text id="probe-label">{src}</Text>
-		<Image
-			id="probe-image"
-			src={src}
-			alt="probe"
-			contentFit="cover"
-			decodeWidth={DECODE.decodeWidth}
-			decodeHeight={DECODE.decodeHeight}
-			style={{ width: 200, height: 120 }}
-			onLoad={(e) => events.push(`load:${e.source ?? 'browser'}:${e.width}x${e.height}`)}
-			onError={(e) => events.push(`error:${String(e.error)}`)}
-		/>
-	</VStack>
+	return (
+		<VStack>
+			<Text id="probe-label">{src}</Text>
+			<Image
+				id="probe-image"
+				src={src}
+				alt="probe"
+				contentFit="cover"
+				decodeWidth={DECODE.decodeWidth}
+				decodeHeight={DECODE.decodeHeight}
+				style={{ width: 200, height: 120 }}
+				onLoad={(e) => events.push(`load:${e.source ?? 'browser'}:${e.width}x${e.height}`)}
+				onError={(e) => events.push(`error:${String(e.error)}`)}
+			/>
+		</VStack>
+	)
 }
 
 export async function run(ctx: ProbeContext) {

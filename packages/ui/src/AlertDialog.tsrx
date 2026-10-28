@@ -1,31 +1,33 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { mergeStyle } from './style-merge'
-import { useState } from 'octane';
-import type { AlertDialogProps } from './props';
-import { Dialog } from './Dialog';
-import { Button } from './Button.tsrx';
-import { Text } from './Text';
-import { cx } from '@octane-xplat/lib';
+import { useState } from 'octane'
+import type { AlertDialogProps } from './props'
+import { Dialog } from './Dialog'
+import { Button } from './Button.tsrx'
+import { Text } from './Text'
+import { cx } from '@octane-xplat/lib'
 import { android } from '@octane-xplat/platform/android'
-
 
 const ACTION_VARIANT_CLASS: Record<string, string> = {
 	primary: 'bg-primary text-onprimary',
 	secondary: 'btn-secondary',
 	ghost: 'btn-ghost',
 	destructive: 'bg-danger text-onprimary',
-};
+}
 
 /** Confirmation dialog (Astryx `AlertDialog`), native leaf — a
  *  `required`-purpose Dialog with title, description, Cancel, and one
  *  action button. */
 export function AlertDialog(props: AlertDialogProps) @{
-	const [internal, setInternal] = useState(props.defaultOpen ?? false);
-	const open = props.isOpen ?? internal;
+	const [internal, setInternal] = useState(props.defaultOpen ?? false)
+	const open = props.isOpen ?? internal
 	const requestChange = (isOpen: boolean) => {
-		if (props.isOpen === undefined) setInternal(isOpen);
-		props.onOpenChange?.(isOpen);
-	};
+		if (props.isOpen === undefined) {
+			setInternal(isOpen)
+		}
+
+		props.onOpenChange?.(isOpen)
+	}
 
 	return (
 		<Dialog
@@ -42,15 +44,20 @@ export function AlertDialog(props: AlertDialogProps) @{
 			ios={props.ios}
 			android={props.android}
 		>
-			<masonview className="vx-alertdialog-title" style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
+			<masonview
+				className="vx-alertdialog-title"
+				style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}
+			>
 				{typeof props.title === 'string' ? (
-					<label className="vx-alertdialog-heading" textWrap={true}>{props.title}</label>
+					<label className="vx-alertdialog-heading" textWrap={true}>
+						{props.title}
+					</label>
 				) : (
 					props.title
 				)}
 			</masonview>
 			{props.description != null && (
-				<masonview className="vx-alertdialog-desc" style={{display: "flex"}}>
+				<masonview className="vx-alertdialog-desc" style={{ display: 'flex' }}>
 					{typeof props.description === 'string' ? (
 						<Text>{props.description}</Text>
 					) : (
@@ -58,7 +65,13 @@ export function AlertDialog(props: AlertDialogProps) @{
 					)}
 				</masonview>
 			)}
-			<masonview className="vx-alertdialog-actions" style={mergeStyle({flexDirection: "row", justifyContent: "flex-end"}, {display: "flex"})}>
+			<masonview
+				className="vx-alertdialog-actions"
+				style={mergeStyle(
+					{ flexDirection: 'row', justifyContent: 'flex-end' },
+					{ display: 'flex' },
+				)}
+			>
 				<Button
 					className="btn btn-secondary"
 					clickAction={() => requestChange(false)}
@@ -75,5 +88,5 @@ export function AlertDialog(props: AlertDialogProps) @{
 				</Button>
 			</masonview>
 		</Dialog>
-	);
+	)
 }

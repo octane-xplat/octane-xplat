@@ -7,7 +7,14 @@
  * The `native`-conditioned View binding is asserted in selfcheck.mobile.ts —
  * shared-file rules keep `@nativescript/*` imports out of this file.
  */
-import type { Attributes, ClassValue, HostElement, JSX, NativeElements, Ref } from '../src/jsx-runtime.js'
+import type {
+	Attributes,
+	ClassValue,
+	HostElement,
+	JSX,
+	NativeElements,
+	Ref,
+} from '../src/jsx-runtime.js'
 
 import type { HostElement as MacHostElement, JSX as MacJSX } from '../src/macos.js'
 import type { NativeElements as IntrinsicsElements } from '../src/intrinsics.js'
@@ -109,6 +116,7 @@ const masonProps: JSX.IntrinsicElements['masonview'] = {
 		gap: 8,
 	},
 }
+
 void masonProps
 // @ts-expect-error no layout props on the intrinsic — style only
 const badMasonProps: JSX.IntrinsicElements['masonview'] = { flexDirection: 'row' }

@@ -10,10 +10,18 @@ const VARIANTS = [
 
 export function IconButtonFloating() @{
 	<Stack direction="vertical" gap={4}>
-		<Text type="supporting" color="secondary">FABs are usually icon-only — raise one with `elevation="high"`</Text>
+		<Text type="supporting" color="secondary">
+			FABs are usually icon-only — raise one with `elevation="high"`
+		</Text>
 		<Stack direction="horizontal" gap={3} vAlign="center">
 			{VARIANTS.map(({ variant, label }) => (
-				<IconButton key={variant} label={label} variant={variant} icon={<Icon name="sandbox-plus" />} elevation="high" />
+				<IconButton
+					key={variant}
+					label={label}
+					variant={variant}
+					icon={<Icon name="sandbox-plus" />}
+					elevation="high"
+				/>
 			))}
 		</Stack>
 	</Stack>

@@ -14,10 +14,25 @@ export function ToastStacking() @{
 	return (
 		<VStack gap={3}>
 			{MESSAGES.map((msg) => (
-				<Toast key={msg.body} type={msg.type} body={msg.body} isAutoHide={false} autoHideDuration={5000} isExiting={false} onDismiss={() => {}} />
+				<Toast
+					key={msg.body}
+					type={msg.type}
+					body={msg.body}
+					isAutoHide={false}
+					autoHideDuration={5000}
+					isExiting={false}
+					onDismiss={() => {}}
+				/>
 			))}
 			<VStack align="start">
-				<Button label="Show toast" variant="secondary" size="sm" clickAction={() => { toast(MESSAGES[countRef.current++ % MESSAGES.length]) }} />
+				<Button
+					label="Show toast"
+					variant="secondary"
+					size="sm"
+					clickAction={() => {
+						toast(MESSAGES[countRef.current++ % MESSAGES.length])
+					}}
+				/>
 			</VStack>
 		</VStack>
 	)

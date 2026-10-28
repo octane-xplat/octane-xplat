@@ -17,20 +17,31 @@ function mount(props: any = {}) {
 }
 
 afterEach(() => {
-	for (const root of roots.splice(0)) act(() => root.unmount())
+	for (const root of roots.splice(0)) {
+		act(() => root.unmount())
+	}
+
 	document.body.innerHTML = ''
 	vi.useRealTimers()
 })
 
 it('serves the placeholder through the same <img>, then swaps to src on placeholder load', () => {
-	const { img } = mount({ src: 'https://x/photo.png', placeholder: 'blurhash:LEHV6nWB2yk8pyo0adR*.7kCMdnj' })
+	const { img } = mount({
+		src: 'https://x/photo.png',
+		placeholder: 'blurhash:LEHV6nWB2yk8pyo0adR*.7kCMdnj',
+	})
+
 	expect(img.getAttribute('src')).toMatch(/^data:image\/png;base64,iVBORw0KGgo/)
 	act(() => img.dispatchEvent(new Event('load')))
 	expect(img.getAttribute('src')).toBe('https://x/photo.png')
 })
 
 it('swaps to src when the placeholder errors', () => {
-	const { img } = mount({ src: 'https://x/photo.png', placeholder: 'blurhash:LEHV6nWB2yk8pyo0adR*.7kCMdnj' })
+	const { img } = mount({
+		src: 'https://x/photo.png',
+		placeholder: 'blurhash:LEHV6nWB2yk8pyo0adR*.7kCMdnj',
+	})
+
 	act(() => img.dispatchEvent(new Event('error')))
 	expect(img.getAttribute('src')).toBe('https://x/photo.png')
 })

@@ -34,15 +34,25 @@ function matchMeta(routes: readonly RouteMeta[], segments: string[]) {
 	}
 	return null
 }
+
 function preparation(routes: readonly RouteMeta[]) {
-	return createRoutePreparation({ catalog: { screens: Object.fromEntries(routes.map(route => [route.name, C(route.name)])), routes: [...routes], layouts: {} }, stacks: ['demos'] })
+	return createRoutePreparation({
+		catalog: {
+			screens: Object.fromEntries(routes.map((route) => [route.name, C(route.name)])),
+			routes: [...routes],
+			layouts: {},
+		},
+		stacks: ['demos'],
+	})
 }
+
 function resolveRoute(routes: readonly RouteMeta[], url: string) {
 	const result = preparation(routes).resolveUrl(url)
 	return result.status === 'matched' ? { ...result.destination, name: result.name } : null
 }
-const routeHref = (routes: readonly RouteMeta[], destination: RouteDestinationInput) => preparation(routes).href(destination)
 
+const routeHref = (routes: readonly RouteMeta[], destination: RouteDestinationInput) =>
+	preparation(routes).href(destination)
 
 it('stores reserved JavaScript names as ordinary route and loader keys', () => {
 	const screen = C('Reserved')
@@ -57,8 +67,14 @@ it('stores reserved JavaScript names as ordinary route and loader keys', () => {
 })
 
 it('keeps filename animation separate from presentation in catalog JSON', () => {
-	const catalog = deriveRouteManifest({ './app/help+fade.web.tsrx': { screen: C('Help') } }, ['web'])
-	expect(manifestToJson(catalog).routes[0]).toMatchObject({ name: 'help', presentation: 'push', transition: 'fade' })
+	const catalog = deriveRouteManifest({ './app/help+fade.web.tsrx': { screen: C('Help') } }, [
+		'web',
+	])
+	expect(manifestToJson(catalog).routes[0]).toMatchObject({
+		name: 'help',
+		presentation: 'push',
+		transition: 'fade',
+	})
 })
 
 it('does not treat inherited properties as directory layouts', () => {
@@ -68,7 +84,9 @@ it('does not treat inherited properties as directory layouts', () => {
 })
 
 it('retains reserved external search keys as string data without changing their prototype', () => {
-	const params = parseRouteLocation('/?__proto__=json:%7B%22injected%22:true%7D&constructor=ordinary').search
+	const params = parseRouteLocation(
+		'/?__proto__=json:%7B%22injected%22:true%7D&constructor=ordinary',
+	).search
 	expect(Object.hasOwn(params, '__proto__')).toBe(true)
 	expect(params.__proto__).toBe('json:{"injected":true}')
 	expect(params.injected).toBeUndefined()
@@ -89,7 +107,12 @@ function manifest(files: Record<string, any>, prefer: string[] = ['web']) {
 describe('deriveRouteManifest', () => {
 	it('normalizes configured route roots without stripping parent or hidden-directory prefixes', () => {
 		for (const dir of ['./screens', '../screens', '.screens']) {
-			const routes = deriveRouteManifest({ [dir + '/items/[id].tsx']: { screen: C('Item') } }, ['web'], dir)
+			const routes = deriveRouteManifest(
+				{ [dir + '/items/[id].tsx']: { screen: C('Item') } },
+				['web'],
+				dir,
+			)
+
 			expect(routes.routes[0].name).toBe('items/:id')
 			expect(resolveRoute(routes.routes, '/items/coat')?.params).toEqual({ id: 'coat' })
 		}
@@ -164,18 +187,31 @@ describe('deriveRouteManifest', () => {
 		const loader = vi.fn(() => ({ private: true }))
 		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
 		try {
-			const invalid = () => manifest({
-				'./app/detail.tsrx': { default: C('Detail'), beforeLoad: 'yes', dataMode: 'warm', loader },
-			})
+			const invalid = () =>
+				manifest({
+					'./app/detail.tsrx': {
+						default: C('Detail'),
+						beforeLoad: 'yes',
+						dataMode: 'warm',
+						loader,
+					},
+				})
+
 			expect(invalid).toThrow(RouteManifestError)
-			try { invalid() } catch (error) {
+			try {
+				invalid()
+			} catch (error) {
 				expect((error as RouteManifestError).issues.map((issue) => issue.path)).toEqual([
-					'./app/detail.tsrx:dataMode', './app/detail.tsrx:beforeLoad',
+					'./app/detail.tsrx:dataMode',
+					'./app/detail.tsrx:beforeLoad',
 				])
 			}
+
 			expect(loader).not.toHaveBeenCalled()
 			expect(warn).not.toHaveBeenCalled()
-		} finally { warn.mockRestore() }
+		} finally {
+			warn.mockRestore()
+		}
 	})
 
 	it.each([
@@ -191,10 +227,13 @@ describe('deriveRouteManifest', () => {
 			expect.unreachable()
 		} catch (error) {
 			expect(error).toBeInstanceOf(RouteManifestError)
-			expect((error as RouteManifestError).issues).toMatchObject([{
-				code: 'route/invalid-export', path: './app/detail.tsrx:' + field,
-				hint: expect.stringContaining('before constructing the route catalog'),
-			}])
+			expect((error as RouteManifestError).issues).toMatchObject([
+				{
+					code: 'route/invalid-export',
+					path: './app/detail.tsrx:' + field,
+					hint: expect.stringContaining('before constructing the route catalog'),
+				},
+			])
 		}
 	})
 
@@ -211,9 +250,15 @@ describe('deriveRouteManifest', () => {
 	})
 
 	it('rejects malformed runtime loader metadata even when a file uses baked data', () => {
-		expect(() => manifest({ './app/detail.tsrx': {
-			default: C('Detail'), dataMode: 'baked', loader: 42,
-		} })).toThrow('route/invalid-export ./app/detail.tsrx:loader')
+		expect(() =>
+			manifest({
+				'./app/detail.tsrx': {
+					default: C('Detail'),
+					dataMode: 'baked',
+					loader: 42,
+				},
+			}),
+		).toThrow('route/invalid-export ./app/detail.tsrx:loader')
 	})
 })
 
@@ -865,7 +910,6 @@ describe('mergeRouteManifests', () => {
 })
 
 describe('schema-inferred routes', () => {
-
 	it('derives spec params from the path literal', () => {
 		expectTypeOf<RouteSpecParams<'docs/:slug'>>().toEqualTypeOf<{ slug: string }>()
 		expectTypeOf<RouteSpecParams<':locale?/docs/:doc'>>().toEqualTypeOf<{
@@ -892,10 +936,17 @@ describe('schema-inferred routes', () => {
 })
 
 it('rejects runtime catalogs that shadow a declared contract while retaining typed startup overrides', async () => {
-	const first = defineRoutes([{ path: '/known', loader: () => ({ title: 'known' }), screen: C('Known') }])
+	const first = defineRoutes([
+		{ path: '/known', loader: () => ({ title: 'known' }), screen: C('Known') },
+	])
 	const runtime = defineRuntimeRoutes([{ path: '/known', loader: () => 31, screen: C('Runtime') }])
-	expect(() => mergeRouteManifests(first, runtime)).toThrow("cannot replace a declared route contract")
+	expect(() => mergeRouteManifests(first, runtime)).toThrow(
+		'cannot replace a declared route contract',
+	)
 	const last = defineRoutes([{ path: '/known', loader: () => 42, screen: C('Last') }])
 	const merged = mergeRouteManifests(first, last)
-	expect(await createRoutePreparation({ catalog: merged }).prepare('/known')).toMatchObject({ status: 'ready', match: { data: 42 } })
+	expect(await createRoutePreparation({ catalog: merged }).prepare('/known')).toMatchObject({
+		status: 'ready',
+		match: { data: 42 },
+	})
 })

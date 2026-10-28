@@ -20,12 +20,46 @@ export function ComplexSelectorShowcase() @{
 	const grid = useGridFocus<HTMLDivElement>({ rows: 3, columns: 3 })
 	const selected = DEPARTMENTS.find((d) => d.id === department)
 
-	<div style={{width: 480}}>
-		<ComplexSelector label="Department" value={department} onChange={setDepartment} triggerLabel={selected?.label ?? 'Select department'}>
+	<div style={{ width: 480 }}>
+		<ComplexSelector
+			label="Department"
+			value={department}
+			onChange={setDepartment}
+			triggerLabel={selected?.label ?? 'Select department'}
+		>
 			{({ value, onChange, close }) => (
-				<div ref={grid.ref} onKeyDown={grid.onKeyDown} role="listbox" style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 4, padding: 8, minWidth: 360}}>
+				<div
+					ref={grid.ref}
+					onKeyDown={grid.onKeyDown}
+					role="listbox"
+					style={{
+						display: 'grid',
+						gridTemplateColumns: 'repeat(3, 1fr)',
+						gap: 4,
+						padding: 8,
+						minWidth: 360,
+					}}
+				>
 					{DEPARTMENTS.map((d) => (
-						<div key={d.id} role="option" aria-selected={value === d.id} data-grid-cell tabIndex={0} className="vx-menu-item" onClick={() => { onChange(d.id); close() }} onKeyDown={(e: any) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onChange(d.id); close() } }}>
+						<div
+							key={d.id}
+							role="option"
+							aria-selected={value === d.id}
+							data-grid-cell
+							tabIndex={0}
+							className="vx-menu-item"
+							onClick={() => {
+								onChange(d.id)
+								close()
+							}}
+							onKeyDown={(e: any) => {
+								if (e.key === 'Enter' || e.key === ' ') {
+									e.preventDefault()
+									onChange(d.id)
+									close()
+								}
+							}}
+						>
 							<Icon name={d.icon as any} size={16} />
 							<span className="vx-menu-item-label">{d.label}</span>
 						</div>

@@ -1,8 +1,8 @@
-import { useState } from 'octane';
-import { View, HStack, Text, Pressable } from '@octane-xplat/ui';
+import { useState } from 'octane'
+import { View, HStack, Text, Pressable } from '@octane-xplat/ui'
 
-const MODES = ['pulse', 'spin', 'slide'] as const;
-type Mode = (typeof MODES)[number];
+const MODES = ['pulse', 'spin', 'slide'] as const
+type Mode = (typeof MODES)[number]
 
 /** css-animation-showcase — the keyframes path (decision #22: no transitions,
  *  keyframes only; ~12 animatable props in the NS∩web set).
@@ -10,7 +10,7 @@ type Mode = (typeof MODES)[number];
  *  pulse (opacity+scale), spin (rotate), slide (translate, fill-mode
  *  forwards so the end state persists). Classes live in demo.css. */
 export function AnimShowcase() @{
-	const [active, setActive] = useState<Mode | ''>('');
+	const [active, setActive] = useState<Mode | ''>('')
 
 	<View className="vx-app flex-1 gap-4 items-center">
 		<HStack className="gap-4">

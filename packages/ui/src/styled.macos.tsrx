@@ -5,7 +5,10 @@ import { resolveStyledClasses } from './styled-variants'
 import { cx } from '@octane-xplat/lib'
 
 /** Compose CSS-backed class names onto an AppKit component factory. */
-export function styled<P extends { className?: ClassValue }, V extends Record<string, StyledVariant>>(
+export function styled<
+	P extends { className?: ClassValue },
+	V extends Record<string, StyledVariant>,
+>(
 	Base: (props: P) => any,
 	def: StyledDef<V>,
 ): (props: P & StyledVariantSelection<V>, context: any) => any {

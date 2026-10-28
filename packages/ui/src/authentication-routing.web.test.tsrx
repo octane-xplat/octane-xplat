@@ -127,37 +127,63 @@ it('drops expired account data and rechecks the current URL without a redirect l
 	expect(test.loads()).toBe(1)
 })
 
-
 it('public outlet authority retires private screens and pending work, then consumes one return', async () => {
 	let account: { id: string } | null = { id: 'a' }
 	let release!: () => void
 	const returned: string[] = []
 	const route = defineRoute.withContext<{ account: { id: string } | null }>()
-	function Private(props: { data: string }) { return <p id="authority-private">{props.data}</p> }
+	function Private(props: { data: string }) {
+		return <p id="authority-private">{props.data}</p>
+	}
+
 	configureRouter({
 		catalog: defineRoutes([
 			route({ path: '/login' }).screen(() => <p id="authority-login">Login</p>),
-			route({ path: '/private/:id', beforeLoad: ({ context }) => {
-				if (!context.account) throw new DestinationRedirect({ to: '/login' })
-				return { user: context.account }
-			}, loader: ({ context }) => context.user.id }).screen(Private),
-			route({ path: '/slow', loader: () => new Promise<string>(resolve => { release = () => resolve('old') }) }).screen(Private),
+			route({
+				path: '/private/:id',
+				beforeLoad: ({ context }) => {
+					if (!context.account) {
+						throw new DestinationRedirect({ to: '/login' })
+					}
+
+					return { user: context.account }
+				},
+				loader: ({ context }) => context.user.id,
+			}).screen(Private),
+			route({
+				path: '/slow',
+				loader: () =>
+					new Promise<string>((resolve) => {
+						release = () => resolve('old')
+					}),
+			}).screen(Private),
 		]),
 		context: () => ({ account }),
 	})
+
 	let update!: (version: number, resumeUrl?: string) => void
 	function App() {
 		const [state, setState] = useState<{ version: number; resumeUrl?: string }>({ version: 0 })
 		update = (version, resumeUrl) => setState({ version, resumeUrl })
-		return <RouteOutlet authority={state.version} resumeUrl={state.resumeUrl} onResume={result => returned.push(result.status)} />
+		return (
+			<RouteOutlet
+				authority={state.version}
+				resumeUrl={state.resumeUrl}
+				onResume={(result) => returned.push(result.status)}
+			/>
+		)
 	}
+
 	const container = document.createElement('div')
 	document.body.append(container)
 	const root = createRoot(container)
 	try {
 		history.replaceState(null, '', '/private/coat')
 		await act(() => root.render(App))
-		await vi.waitFor(() => expect(container.querySelector('#authority-private')?.textContent).toBe('a'))
+		await vi.waitFor(() =>
+			expect(container.querySelector('#authority-private')?.textContent).toBe('a'),
+		)
+
 		const old = container.querySelector('#authority-private')!
 		const pending = router.navigateUrl('/slow')
 		await vi.waitFor(() => expect(release).toBeTypeOf('function'))
@@ -189,12 +215,15 @@ it('public outlet authority retires private screens and pending work, then consu
 	}
 })
 
-
 it('consumes a rejected return URL without an automatic retry', async () => {
 	const test = await fixture()
 	await test.changeSession({ id: 'account-a' }, 'https://untrusted.invalid/private/coat')
 	await vi.waitFor(() => expect(test.returned).toEqual(['invalid-input']))
-	await act(async () => { await Promise.resolve(); await Promise.resolve() })
+	await act(async () => {
+		await Promise.resolve()
+		await Promise.resolve()
+	})
+
 	expect(test.returned).toEqual(['invalid-input'])
 	expect(test.loads()).toBe(0)
 })

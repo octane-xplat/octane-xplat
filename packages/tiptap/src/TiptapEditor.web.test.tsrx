@@ -16,7 +16,10 @@ const Shout = Extension.create({
 	name: 'shout',
 	addCommands() {
 		return {
-			shout: () => ({ commands }: any) => commands.setContent('<p>SHOUT</p>'),
+			shout:
+				() =>
+				({ commands }: any) =>
+					commands.setContent('<p>SHOUT</p>'),
 		}
 	},
 })
@@ -53,11 +56,20 @@ function mount(props: any = {}) {
 		),
 	)
 
-	return { el, root, get handle() { return handle } }
+	return {
+		el,
+		root,
+		get handle() {
+			return handle
+		},
+	}
 }
 
 afterEach(() => {
-	for (const root of roots.splice(0)) act(() => root.unmount())
+	for (const root of roots.splice(0)) {
+		act(() => root.unmount())
+	}
+
 	document.body.innerHTML = ''
 	vi.restoreAllMocks()
 })
@@ -123,23 +135,28 @@ it('never registers StarterKit twice', () => {
 
 	expect(kits).toHaveLength(1)
 	expect(handle!.native.schema.marks.link).toBeUndefined()
-	expect(warn).not.toHaveBeenCalledWith(
-		expect.stringContaining('Duplicate extension names'),
-	)
+	expect(warn).not.toHaveBeenCalledWith(expect.stringContaining('Duplicate extension names'))
 })
-
 
 it('rejects unsupported formatting before changing content or focus', () => {
 	const { handle } = mount({ value: '<p>Unchanged</p>' })
 	const before = handle!.getHTML()
-	for (const format of ['taskList', 'highlight', 'subscript', 'superscript', 'alignLeft', 'alignCenter', 'alignRight', 'link'] as const) {
+	for (const format of [
+		'taskList',
+		'highlight',
+		'subscript',
+		'superscript',
+		'alignLeft',
+		'alignCenter',
+		'alignRight',
+		'link',
+	] as const) {
 		expect(() => handle!.apply(format)).toThrow(RangeError)
 	}
 
 	expect(handle!.getHTML()).toBe(before)
 	expect(handle!.isFocused()).toBe(false)
 })
-
 
 it('rejects a format removed from the configured StarterKit', () => {
 	const { handle } = mount({ value: '<p>Unchanged</p>', web: { starterKit: { bold: false } } })

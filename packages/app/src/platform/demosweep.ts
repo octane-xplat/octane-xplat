@@ -4,7 +4,7 @@ import { getStack } from '@octane-xplat/ui/routing'
 import { findInRootLayouts } from '@octane-xplat/ui/nativescript'
 
 import { DEMOS, virtualListHandle } from '@xplat/demos'
-import { router } from '@octane-xplat/ui/routing';
+import { router } from '@octane-xplat/ui/routing'
 import { closeBottomSheet, bottomSheetHost } from './sheet'
 import { VIRTUAL_LIST_BENCH_MODE } from './virtual-list-benchmark-mode'
 
@@ -197,7 +197,10 @@ function runModalRouteProbe() {
 	}
 
 	waitFor(
-		() => viewTexts((getStack('root')?.currentPage as any)?.modal).some(t => t.includes('About (modal route)')),
+		() =>
+			viewTexts((getStack('root')?.currentPage as any)?.modal).some((t) =>
+				t.includes('About (modal route)'),
+			),
 		() => {
 			const ok = true
 			console.log('[assert] +modal route opens showModal root: ' + (ok ? 'OK' : 'FAIL'))
@@ -213,7 +216,8 @@ function runModalRouteProbe() {
 			fireTap(tapTargetForText((getStack('root')?.currentPage as any)?.modal, 'Close'))
 			setTimeout(() => {
 				console.log(
-					'[assert] modal route dismissed by owner: ' + ((getStack('root')?.currentPage as any)?.modal ? 'FAIL' : 'OK'),
+					'[assert] modal route dismissed by owner: ' +
+						((getStack('root')?.currentPage as any)?.modal ? 'FAIL' : 'OK'),
 				)
 			}, 600)
 		},

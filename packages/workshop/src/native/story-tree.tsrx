@@ -4,7 +4,11 @@ import type { MountRequest } from '../session'
 function Providers(p: { request: MountRequest; index: number }) {
 	const provider = p.request.providers[p.index] as ((props: any) => unknown) | undefined
 	if (!provider) return <{p.request.component} {...p.request.props} />
-	return <{provider} fixture={p.request.fixture}><Providers request={p.request} index={p.index + 1} /></{provider}>
+	return (
+		<{provider} fixture={p.request.fixture}>
+			<Providers request={p.request} index={p.index + 1} />
+		</{provider}>
+	)
 }
 
 export function StoryTree(p: { request: MountRequest }) @{

@@ -1,5 +1,14 @@
 // Port of upstream LayoutHeader/LayoutHeaderWithActions.tsx (Astryx 0.6.4, MIT).
-import { Button, Card, Center, Heading, HStack, Layout, LayoutContent, LayoutHeader } from '@octane-xplat/ui'
+import {
+	Button,
+	Card,
+	Center,
+	Heading,
+	HStack,
+	Layout,
+	LayoutContent,
+	LayoutHeader,
+} from '@octane-xplat/ui'
 
 export function LayoutHeaderWithActions() @{
 	<Center width={400}>
@@ -14,7 +23,11 @@ export function LayoutHeaderWithActions() @{
 					</HStack>
 				</LayoutHeader>
 			}
-			content={<LayoutContent><Card variant="muted" /></LayoutContent>}
+			content={
+				<LayoutContent>
+					<Card variant="muted" />
+				</LayoutContent>
+			}
 		/>
 	</Center>
 }

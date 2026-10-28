@@ -4,10 +4,12 @@ import test from 'node:test'
 import vm from 'node:vm'
 import ts from 'typescript'
 
-const compile = (file) => ts.transpile(
-	readFileSync(new URL(`../src/${file}.ts`, import.meta.url), 'utf8'),
-	{ module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
-)
+const compile = (file) =>
+	ts.transpile(readFileSync(new URL(`../src/${file}.ts`, import.meta.url), 'utf8'), {
+		module: ts.ModuleKind.CommonJS,
+		target: ts.ScriptTarget.ES2022,
+	})
+
 const wav = {}
 vm.runInNewContext(compile('wav'), { exports: wav })
 const recorderSource = compile('recorder.web')
@@ -18,9 +20,12 @@ function fixture(getUserMedia, options = {}) {
 	const contexts = []
 	const track = {
 		stopped: false,
-		stop() { this.stopped = true },
+		stop() {
+			this.stopped = true
+		},
 		getSettings: () => ({ channelCount: 1 }),
-		addEventListener() {}, removeEventListener() {},
+		addEventListener() {},
+		removeEventListener() {},
 	}
 	const stream = { active: true, getTracks: () => [track], getAudioTracks: () => [track] }
 	const node = () => ({ connect() {}, disconnect() {} })
@@ -30,13 +35,25 @@ function fixture(getUserMedia, options = {}) {
 			this.sampleRate = 44100
 			this.destination = {}
 			this.state = 'running'
-			if (options.addModule) { this.audioWorklet = { addModule: options.addModule } }
+			if (options.addModule) {
+				this.audioWorklet = { addModule: options.addModule }
+			}
 		}
-		createMediaStreamSource() { return node() }
-		createScriptProcessor() { return node() }
-		createGain() { return { ...node(), gain: { value: 1 } } }
-		async resume() { await options.resume?.() }
-		async close() { this.state = 'closed' }
+		createMediaStreamSource() {
+			return node()
+		}
+		createScriptProcessor() {
+			return node()
+		}
+		createGain() {
+			return { ...node(), gain: { value: 1 } }
+		}
+		async resume() {
+			await options.resume?.()
+		}
+		async close() {
+			this.state = 'closed'
+		}
 	}
 	const exports = {}
 	vm.runInNewContext(recorderSource, {
@@ -46,14 +63,26 @@ function fixture(getUserMedia, options = {}) {
 			return wav
 		},
 		AudioContext,
-		AudioWorkletNode: class { constructor() { throw new Error('worklet must not attach after disposal') } },
-		URL, Blob,
-		navigator: { mediaDevices: { getUserMedia: () => getUserMedia ? getUserMedia(stream) : Promise.resolve(stream) } },
-		setInterval, clearInterval,
+		AudioWorkletNode: class {
+			constructor() {
+				throw new Error('worklet must not attach after disposal')
+			}
+		},
+		URL,
+		Blob,
+		navigator: {
+			mediaDevices: {
+				getUserMedia: () => (getUserMedia ? getUserMedia(stream) : Promise.resolve(stream)),
+			},
+		},
+		setInterval,
+		clearInterval,
 	})
 	const recorder = exports.createAudioRecorder()
 	return {
-		recorder, track, contexts,
+		recorder,
+		track,
+		contexts,
 		async cleanup() {
 			recorder.dispose()
 			track.stop()
@@ -79,7 +108,9 @@ test('disposing a recording releases its stream and audio context', async () => 
 
 test('disposing while permission is pending prevents later microphone capture', async () => {
 	let grant
-	const permission = new Promise((resolve) => { grant = resolve })
+	const permission = new Promise((resolve) => {
+		grant = resolve
+	})
 	const { recorder, track, contexts, cleanup } = fixture(async (stream) => {
 		await permission
 		return stream
@@ -98,14 +129,20 @@ test('disposing while permission is pending prevents later microphone capture', 
 	}
 })
 
-
 for (const stage of ['addModule', 'resume']) {
 	test(`disposing during ${stage} keeps startup terminal`, async () => {
 		let release, enter
-		const waiting = new Promise((resolve) => { release = resolve })
-		const entered = new Promise((resolve) => { enter = resolve })
+		const waiting = new Promise((resolve) => {
+			release = resolve
+		})
+		const entered = new Promise((resolve) => {
+			enter = resolve
+		})
 		const { recorder, track, contexts, cleanup } = fixture(undefined, {
-			[stage]: async () => { enter(); await waiting },
+			[stage]: async () => {
+				enter()
+				await waiting
+			},
 		})
 		try {
 			const starting = recorder.start()

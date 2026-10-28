@@ -8,11 +8,26 @@ const LANGUAGES = [
 	{ id: 'py', label: 'Python', auxiliaryData: { description: 'General purpose' } },
 	{ id: 'rs', label: 'Rust', auxiliaryData: { description: 'Systems programming' } },
 ]
+
 const source = createStaticSource(LANGUAGES)
 
 export function TypeaheadItemShowcase() @{
-	const [value, setValue] = useState<typeof LANGUAGES[number] | null>(null)
-	<div style={{width: 320}}>
-		<Typeahead label="Language" searchSource={source} value={value} onChange={setValue} placeholder="Type to search…" renderItem={(item) => <TypeaheadItem item={item} icon={<Icon name="sandbox-code" size={16} />} description={item.auxiliaryData?.description} />} />
+	const [value, setValue] = useState<(typeof LANGUAGES)[number] | null>(null)
+
+	<div style={{ width: 320 }}>
+		<Typeahead
+			label="Language"
+			searchSource={source}
+			value={value}
+			onChange={setValue}
+			placeholder="Type to search…"
+			renderItem={(item) => (
+				<TypeaheadItem
+					item={item}
+					icon={<Icon name="sandbox-code" size={16} />}
+					description={item.auxiliaryData?.description}
+				/>
+			)}
+		/>
 	</div>
 }

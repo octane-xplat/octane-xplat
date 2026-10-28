@@ -4,8 +4,15 @@ import { Button, Icon, MobileNav, SideNavItem, SideNavSection } from '@octane-xp
 
 export function MobileNavShowcase() @{
 	const [isOpen, setIsOpen] = useState(false)
+
 	<>
-		<Button label="Open Navigation" icon={<Icon name="sandbox-menu" color="inherit" />} variant="ghost" clickAction={() => setIsOpen(true)} isIconOnly />
+		<Button
+			label="Open Navigation"
+			icon={<Icon name="sandbox-menu" color="inherit" />}
+			variant="ghost"
+			clickAction={() => setIsOpen(true)}
+			isIconOnly
+		/>
 		<MobileNav isOpen={isOpen} onOpenChange={(open: boolean) => setIsOpen(open)} header="My App">
 			<SideNavSection title="Main">
 				<SideNavItem label="Dashboard" icon={<Icon name="sandbox-home" />} isSelected href="/" />

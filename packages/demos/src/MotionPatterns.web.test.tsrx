@@ -52,7 +52,10 @@ const advance = async (ms: number) => {
 
 const click = (container: HTMLElement, id: string) => {
 	const el = container.querySelector<HTMLElement>('#' + id)
-	if (!el) throw new Error('missing #' + id)
+	if (!el) {
+		throw new Error('missing #' + id)
+	}
+
 	act(() => el.click())
 }
 
@@ -61,7 +64,10 @@ const segment = (container: HTMLElement, controlId: string, label: string) => {
 		(e) => e.textContent === label,
 	)
 
-	if (!el) throw new Error('missing segment ' + label)
+	if (!el) {
+		throw new Error('missing segment ' + label)
+	}
+
 	act(() => el.click())
 }
 
@@ -102,9 +108,7 @@ describe('MotionPatterns showcase', () => {
 		const { container, close } = mount()
 		await advance(400)
 		click(container, 'mp-reduce')
-		expect(container.querySelector('#mp-reduce-effective')?.textContent).toBe(
-			'Reduced (preview)',
-		)
+		expect(container.querySelector('#mp-reduce-effective')?.textContent).toBe('Reduced (preview)')
 
 		segment(container, 'mp-range', 'Month')
 		// No exit wait: the new content is present in the same commit.
@@ -173,15 +177,11 @@ describe('MotionPatterns showcase', () => {
 
 		segment(container, 'fp-group-size', '1 item')
 		await advance(600)
-		expect(
-			container.querySelectorAll('#mp-focus-group .mp-activity-item').length,
-		).toBe(1)
+		expect(container.querySelectorAll('#mp-focus-group .mp-activity-item').length).toBe(1)
 
 		segment(container, 'fp-group-size', '4 items')
 		await advance(800)
-		expect(
-			container.querySelectorAll('#mp-focus-group .mp-activity-item').length,
-		).toBe(4)
+		expect(container.querySelectorAll('#mp-focus-group .mp-activity-item').length).toBe(4)
 
 		close()
 	})
@@ -212,7 +212,10 @@ describe('MotionPatterns showcase', () => {
 		click(container, 'mp-reduce')
 		// Play is disabled while reduced — autonomous cycling never starts.
 		expect(container.querySelector('#mp-loop-toggle')?.getAttribute('aria-disabled')).toBe('true')
-		expect(container.querySelector('#mp-loop-state')?.textContent).toBe('Reduced motion — cycling off')
+		expect(container.querySelector('#mp-loop-state')?.textContent).toBe(
+			'Reduced motion — cycling off',
+		)
+
 		await advance(10000)
 		expect(container.querySelector('#mp-phrase')?.textContent).toBe('Review today')
 		// Next still changes the phrase directly.
@@ -226,7 +229,10 @@ describe('MotionPatterns showcase', () => {
 		await advance(400)
 		click(container, 'mp-loop-toggle')
 		click(container, 'mp-reduce')
-		expect(container.querySelector('#mp-loop-state')?.textContent).toBe('Reduced motion — cycling off')
+		expect(container.querySelector('#mp-loop-state')?.textContent).toBe(
+			'Reduced motion — cycling off',
+		)
+
 		close()
 	})
 

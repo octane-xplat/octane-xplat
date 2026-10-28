@@ -27,7 +27,13 @@ const animation = {
 				p: {
 					a: 1,
 					k: [
-						{ t: 0, s: [0, 50, 0], e: [100, 50, 0], o: { x: 0.33, y: 0.33 }, i: { x: 0.67, y: 0.67 } },
+						{
+							t: 0,
+							s: [0, 50, 0],
+							e: [100, 50, 0],
+							o: { x: 0.33, y: 0.33 },
+							i: { x: 0.67, y: 0.67 },
+						},
 						{ t: 30, s: [100, 50, 0] },
 					],
 				},
@@ -66,26 +72,34 @@ export default function AppKitLottieProbe() {
 	setMounted = updateMounted
 	handle = useRef<LottieHandle | null>(null)
 
-	return <masonview style={{ display: "flex", width: 160, height: 160 }}>
-		{mounted ? <Lottie
-			id="appkit-lottie"
-			style={{ width: 120, height: 120 }}
-			data={badSource || rawSource ? undefined : animation}
-			src={badSource ? '{bad' : rawSource ? JSON.stringify(animation) : undefined}
-			autoPlay={false}
-			loop={loop}
-			speed={1.5}
-			fit="contain"
-			accessibilityLabel="moving red square"
-			ref={handle}
-			onLoaded={(event) => {
-				loadedCount++
-				loadedDuration = event.duration ?? 0
-			}}
-			onEnded={() => endedCount++}
-			onError={(event) => { errorMessage = event.message }}
-		/> : <label id="appkit-lottie-unmounted">unmounted</label>}
-	</masonview>
+	return (
+		<masonview style={{ display: 'flex', width: 160, height: 160 }}>
+			{mounted ? (
+				<Lottie
+					id="appkit-lottie"
+					style={{ width: 120, height: 120 }}
+					data={badSource || rawSource ? undefined : animation}
+					src={badSource ? '{bad' : rawSource ? JSON.stringify(animation) : undefined}
+					autoPlay={false}
+					loop={loop}
+					speed={1.5}
+					fit="contain"
+					accessibilityLabel="moving red square"
+					ref={handle}
+					onLoaded={(event) => {
+						loadedCount++
+						loadedDuration = event.duration ?? 0
+					}}
+					onEnded={() => endedCount++}
+					onError={(event) => {
+						errorMessage = event.message
+					}}
+				/>
+			) : (
+				<label id="appkit-lottie-unmounted">unmounted</label>
+			)}
+		</masonview>
+	)
 }
 
 export async function run(ctx: ProbeContext) {
@@ -100,7 +114,12 @@ export async function run(ctx: ProbeContext) {
 	const player = handle.current!
 	const nativeView = player.native
 	ctx.assert('ref exposes a real AppKit view', nativeView instanceof NSView, true)
-	ctx.assert('engine view is mounted in AppKit hierarchy', nativeView.superview instanceof NSView, true)
+	ctx.assert(
+		'engine view is mounted in AppKit hierarchy',
+		nativeView.superview instanceof NSView,
+		true,
+	)
+
 	ctx.assert('engine view belongs to the probe window', nativeView.window instanceof NSWindow, true)
 
 	player.seekTo(0.4)
@@ -112,7 +131,12 @@ export async function run(ctx: ProbeContext) {
 	player.pause()
 	await new Promise((resolve) => setTimeout(resolve, 100))
 	ctx.assert('pause stops playback', player.isPlaying(), false)
-	ctx.assert('pause holds the playhead', Math.abs(player.progress() - progressBeforePause) < 0.02, true)
+	ctx.assert(
+		'pause holds the playhead',
+		Math.abs(player.progress() - progressBeforePause) < 0.02,
+		true,
+	)
+
 	ctx.assert('duration is available on the handle', player.duration(), 1000)
 
 	player.setSpeed(4)

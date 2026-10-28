@@ -71,7 +71,7 @@ export function KeyboardAvoiding(props: KeyboardAvoidingProps) @{
 		ref={forwardedRef}
 	>
 		<KeyboardAvoidanceProvider value={provided}>
-			<masonview style={{ display: "flex", flexDirection: "column" }} ref={attachContent}>
+			<masonview style={{ display: 'flex', flexDirection: 'column' }} ref={attachContent}>
 				{props.children}
 			</masonview>
 		</KeyboardAvoidanceProvider>

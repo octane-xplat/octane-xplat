@@ -11,7 +11,9 @@ export function BreadcrumbsCustomSeparator() @{
 	<Stack direction="vertical" gap={4}>
 		{SEPARATORS.map(({ char, label }) => (
 			<Stack key={label} direction="vertical" gap={1}>
-				<Text type="supporting" color="secondary">{label}</Text>
+				<Text type="supporting" color="secondary">
+					{label}
+				</Text>
 				<Breadcrumbs separator={char}>
 					<BreadcrumbItem href="/">Home</BreadcrumbItem>
 					<BreadcrumbItem href="/docs">Docs</BreadcrumbItem>

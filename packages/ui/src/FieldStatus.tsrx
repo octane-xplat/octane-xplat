@@ -7,7 +7,18 @@ import { applyEscapeProps } from './escape-props'
  *  with a tone class. */
 export function FieldStatus(props: FieldStatusComponentProps) @{
 	const variant = props.variant ?? 'detached'
-	<masonview ref={(e: any) => applyEscapeProps(e, props)} id={props.id} className={['vx-fieldstatus', `vx-fieldstatus--${props.type}`, `vx-fieldstatus--${variant}`, props.className]} style={mergeStyle({display: "flex"}, props.style)}>
+
+	<masonview
+		ref={(e: any) => applyEscapeProps(e, props)}
+		id={props.id}
+		className={[
+			'vx-fieldstatus',
+			`vx-fieldstatus--${props.type}`,
+			`vx-fieldstatus--${variant}`,
+			props.className,
+		]}
+		style={mergeStyle({ display: 'flex' }, props.style)}
+	>
 		{props.message != null ? <label className="vx-fieldstatus-text" text={props.message} /> : null}
 	</masonview>
 }

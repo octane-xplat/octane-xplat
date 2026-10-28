@@ -247,7 +247,15 @@ export function BottomSheet(props: BottomSheetProps) @{
 	// declaring component's ancestry.
 
 	<>
-		<masonview ref={(v: any) => { sentinel.current = v; }} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { width: 0, height: 0 }))}/>
+		<masonview
+			ref={(v: any) => {
+				sentinel.current = v
+			}}
+			style={mergeStyle(
+				{ flexDirection: 'column' },
+				mergeStyle({ display: 'flex' }, { width: 0, height: 0 }),
+			)}
+		/>
 		{props.sheetId == null && open && portalHost
 			? createPortal(
 					<BottomSheetBody layerDepth={dismissal.depth}>{props.children}</BottomSheetBody>,
@@ -287,14 +295,17 @@ function SwitcherPanel(props: {
 		// Size for this sheet: largest stop or the height budget.
 		host.height = detents.length
 			? detents[detents.length - 1] * screenVh()
-			: (sheetHeightDips(active.props.height, screenVh()) ?? undefined) as PercentLengthType
+			: ((sheetHeightDips(active.props.height, screenVh()) ?? undefined) as PercentLengthType)
 
 		host.accessibilityLabel = active.props.label
 		ctl.enter()
 		return () => ctl.detach()
 	}, [props.activeSheet, active])
 
-	<masonview style={{display: "flex", flexDirection: "column"}} className="vx-bottom-sheet-panel">
+	<masonview
+		style={{ display: 'flex', flexDirection: 'column' }}
+		className="vx-bottom-sheet-panel"
+	>
 		<LayerDepthProvider value={props.layerDepth}>
 			<SizeProvider value={null}>
 				<SheetContent key={props.activeSheet}>{active?.props.children}</SheetContent>
@@ -427,10 +438,16 @@ export function BottomSheetSwitcher(props: BottomSheetSwitcherProps) @{
 	useEffect(() => () => shown.current?.lifetime.close(), [])
 
 	<>
-		<BottomSheetSwitcherProvider value={handle}>
-			{props.children}
-		</BottomSheetSwitcherProvider>
-		<masonview ref={(v: any) => { sentinel.current = v; }} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { width: 0, height: 0 }))}/>
+		<BottomSheetSwitcherProvider value={handle}>{props.children}</BottomSheetSwitcherProvider>
+		<masonview
+			ref={(v: any) => {
+				sentinel.current = v
+			}}
+			style={mergeStyle(
+				{ flexDirection: 'column' },
+				mergeStyle({ display: 'flex' }, { width: 0, height: 0 }),
+			)}
+		/>
 		{activeId != null && portalHost
 			? createPortal(
 					<SwitcherPanel

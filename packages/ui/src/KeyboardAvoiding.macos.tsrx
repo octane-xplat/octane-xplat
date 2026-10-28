@@ -12,7 +12,7 @@ export function KeyboardAvoiding(props: KeyboardAvoidingProps) @{
 		id={props.id}
 		ref={forwardedRef}
 		className={cx('vx-keyboard-avoiding', props.className)}
-		style={mergeStyle({ display: "flex", flexDirection: "column" }, props.style)}
+		style={mergeStyle({ display: 'flex', flexDirection: 'column' }, props.style)}
 	>
 		{props.children}
 	</masonview>

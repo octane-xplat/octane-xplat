@@ -16,11 +16,13 @@ const captured: Record<string, unknown> = {}
 
 function Probe(props: { tag: string; size?: any; def?: any }) @{
 	captured[props.tag] = useSize(props.size, props.def)
+
 	<span data-probe={props.tag} />
 }
 
 function FieldProbe(props: { tag: string }) @{
 	captured[props.tag] = useFieldControlProps({} as any).size
+
 	<span data-probe={props.tag} />
 }
 
@@ -35,9 +37,14 @@ function mount(node: any) {
 }
 
 afterEach(() => {
-	for (const root of roots.splice(0)) act(() => root.unmount())
+	for (const root of roots.splice(0)) {
+		act(() => root.unmount())
+	}
+
 	document.body.innerHTML = ''
-	for (const k of Object.keys(captured)) delete captured[k]
+	for (const k of Object.keys(captured)) {
+		delete captured[k]
+	}
 })
 
 describe('useSize resolution (web)', () => {
@@ -57,32 +64,55 @@ describe('useSize resolution (web)', () => {
 	})
 
 	it('inherits from the enclosing provider', () => {
-		mount(<SizeProvider value="lg"><Probe tag="a" /></SizeProvider>)
+		mount(
+			<SizeProvider value="lg">
+				<Probe tag="a" />
+			</SizeProvider>,
+		)
+
 		expect(captured.a).toBe('lg')
 	})
 
 	it('prop wins over the inherited provider size', () => {
-		mount(<SizeProvider value="lg"><Probe tag="a" size="sm" /></SizeProvider>)
+		mount(
+			<SizeProvider value="lg">
+				<Probe tag="a" size="sm" />
+			</SizeProvider>,
+		)
+
 		expect(captured.a).toBe('sm')
 	})
 
 	it('inherited wins over the explicit default', () => {
-		mount(<SizeProvider value="lg"><Probe tag="a" def="sm" /></SizeProvider>)
+		mount(
+			<SizeProvider value="lg">
+				<Probe tag="a" def="sm" />
+			</SizeProvider>,
+		)
+
 		expect(captured.a).toBe('lg')
 	})
 
 	it('explicit null provider falls back to the default', () => {
-		mount(<SizeProvider value={null}><Probe tag="a" def="sm" /></SizeProvider>)
+		mount(
+			<SizeProvider value={null}>
+				<Probe tag="a" def="sm" />
+			</SizeProvider>,
+		)
+
 		expect(captured.a).toBe('sm')
 	})
 
 	it('nested providers resolve to the nearest', () => {
 		mount(
 			<SizeProvider value="sm">
-				<SizeProvider value="lg"><Probe tag="a" /></SizeProvider>
+				<SizeProvider value="lg">
+					<Probe tag="a" />
+				</SizeProvider>
 				<Probe tag="b" />
 			</SizeProvider>,
 		)
+
 		expect(captured.a).toBe('lg')
 		expect(captured.b).toBe('sm')
 	})
@@ -90,9 +120,7 @@ describe('useSize resolution (web)', () => {
 
 describe('container inheritance (web)', () => {
 	it('Toolbar cascades its size to a Button child', () => {
-		const host = mount(
-			<Toolbar label="t" size="sm" startContent={<Button label="B" />} />,
-		)
+		const host = mount(<Toolbar label="t" size="sm" startContent={<Button label="B" />} />)
 		const button = host.querySelector('.vx-button')!
 		expect(button.classList.contains('vx-button--size-sm')).toBe(true)
 	})
@@ -101,26 +129,41 @@ describe('container inheritance (web)', () => {
 		const host = mount(
 			<Toolbar label="t" size="sm" startContent={<Button label="B" size="lg" />} />,
 		)
+
 		const button = host.querySelector('.vx-button')!
 		expect(button.classList.contains('vx-button--size-lg')).toBe(true)
 	})
 
 	it('ButtonGroup inside a Toolbar inherits then re-provides', () => {
 		const host = mount(
-			<Toolbar label="t" size="lg" startContent={
-				<ButtonGroup label="g"><Button label="B" /></ButtonGroup>
-			} />,
+			<Toolbar
+				label="t"
+				size="lg"
+				startContent={
+					<ButtonGroup label="g">
+						<Button label="B" />
+					</ButtonGroup>
+				}
+			/>,
 		)
+
 		const button = host.querySelector('.vx-button')!
 		expect(button.classList.contains('vx-button--size-lg')).toBe(true)
 	})
 
 	it('an explicit ButtonGroup size beats the Toolbar size', () => {
 		const host = mount(
-			<Toolbar label="t" size="lg" startContent={
-				<ButtonGroup label="g" size="sm"><Button label="B" /></ButtonGroup>
-			} />,
+			<Toolbar
+				label="t"
+				size="lg"
+				startContent={
+					<ButtonGroup label="g" size="sm">
+						<Button label="B" />
+					</ButtonGroup>
+				}
+			/>,
 		)
+
 		const button = host.querySelector('.vx-button')!
 		expect(button.classList.contains('vx-button--size-sm')).toBe(true)
 	})
@@ -143,6 +186,7 @@ describe('layer boundary (web)', () => {
 				</Popover>
 			</SizeProvider>,
 		)
+
 		await act(async () => {})
 		expect(captured.in).toBe('sm')
 		expect(captured.layer).toBe('md')

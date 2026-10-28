@@ -79,7 +79,10 @@ test('rotation bounds disk use, reports lost history, and filtered cursors progr
 	assert.equal(tail.dropped, tail.oldestSeq - 1)
 	assert.equal(page.records.length, 2)
 	assert.ok(page.records.every((r) => r.stream === 'stderr'))
-	const last = readDevLogs(root, capture.sessionId, { cursor: page.newestSeq - 1, stream: 'stdout' })
+	const last = readDevLogs(root, capture.sessionId, {
+		cursor: page.newestSeq - 1,
+		stream: 'stdout',
+	})
 	assert.equal(last.records.length, 0)
 	assert.equal(last.nextCursor, page.newestSeq)
 	const dir = join(root, 'node_modules/.cache/xplat/sessions', capture.sessionId)

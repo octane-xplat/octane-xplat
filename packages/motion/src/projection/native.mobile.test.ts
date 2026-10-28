@@ -33,10 +33,18 @@ function fakeVto() {
 	return {
 		listeners,
 		isAlive: () => true,
-		addOnGlobalLayoutListener(l: any) { listeners.global.push(l) },
-		removeOnGlobalLayoutListener(l: any) { listeners.global.splice(listeners.global.indexOf(l), 1) },
-		addOnPreDrawListener(l: any) { listeners.pre.push(l) },
-		removeOnPreDrawListener(l: any) { listeners.pre.splice(listeners.pre.indexOf(l), 1) },
+		addOnGlobalLayoutListener(l: any) {
+			listeners.global.push(l)
+		},
+		removeOnGlobalLayoutListener(l: any) {
+			listeners.global.splice(listeners.global.indexOf(l), 1)
+		},
+		addOnPreDrawListener(l: any) {
+			listeners.pre.push(l)
+		},
+		removeOnPreDrawListener(l: any) {
+			listeners.pre.splice(listeners.pre.indexOf(l), 1)
+		},
 	}
 }
 
@@ -52,15 +60,17 @@ function installAndroid(decorView?: any) {
 	;(globalThis as any).android = {
 		view: {
 			ViewTreeObserver: {
-				OnGlobalLayoutListener: class { constructor(public impl: any) {} },
-				OnPreDrawListener: class { constructor(public impl: any) {} },
+				OnGlobalLayoutListener: class {
+					constructor(public impl: any) {}
+				},
+				OnPreDrawListener: class {
+					constructor(public impl: any) {}
+				},
 			},
 		},
 	}
 	;(Application as any).android = {
-		foregroundActivity: decorView
-			? { getWindow: () => ({ getDecorView: () => decorView }) }
-			: null,
+		foregroundActivity: decorView ? { getWindow: () => ({ getDecorView: () => decorView }) } : null,
 	}
 }
 
@@ -282,4 +292,3 @@ describe('native host projection ops', () => {
 		expect(node.scaleX).toBe(0.5)
 	})
 })
-

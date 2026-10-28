@@ -1,8 +1,8 @@
 /** @jsxImportSource @nativescript-community/octane */
-import type { HoverCardProps } from './props';
-import { useHoverCard } from './use-hover-card.tsrx';
-import { cx } from '@octane-xplat/lib';
-import { View } from './View';
+import type { HoverCardProps } from './props'
+import { useHoverCard } from './use-hover-card.tsrx'
+import { cx } from '@octane-xplat/lib'
+import { View } from './View'
 
 /** Default (macOS) leaf — pointer intent comes from the AppKit host
  *  bridge (tracking areas + anchored NSPopover); iOS/Android resolve the
@@ -23,7 +23,7 @@ export function HoverCard(props: HoverCardProps) @{
 		isDefaultOpen: props.isDefaultOpen,
 		onShow: () => props.onOpenChange?.(true),
 		onHide: () => props.onOpenChange?.(false),
-	});
+	})
 
 	<>
 		<View

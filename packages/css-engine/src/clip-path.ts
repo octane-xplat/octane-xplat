@@ -7,7 +7,14 @@
 
 export type ClipPath =
 	| { type: 'none' }
-	| { type: 'inset'; top: number; right: number; bottom: number; left: number; radii: [number, number][] }
+	| {
+			type: 'inset'
+			top: number
+			right: number
+			bottom: number
+			left: number
+			radii: [number, number][]
+	  }
 	| { type: 'circle'; radius: number; cx: number; cy: number }
 	| { type: 'ellipse'; rx: number; ry: number; cx: number; cy: number }
 	| { type: 'polygon'; points: [number, number][] }
@@ -25,9 +32,11 @@ function parseLength(text: string): number | { value: number; unit: '%' } {
 function resolveX(v: number | { value: number; unit: '%' }, w: number): number {
 	return typeof v === 'object' ? w * v.value : v
 }
+
 function resolveY(v: number | { value: number; unit: '%' }, h: number): number {
 	return typeof v === 'object' ? h * v.value : v
 }
+
 /** Percent radii resolve against the reference box diagonal per CSS
  *  (`sqrt(w²+h²)/sqrt(2)`); numbers are dips. */
 function resolveRadius(v: number | { value: number; unit: '%' }, w: number, h: number): number {
@@ -65,7 +74,11 @@ function centerAt(at: string | undefined, w: number, h: number): [number, number
  * Grammar per NS parseClipPath: `rect(t r b l)`, `inset(t r b l round radii)`,
  * `circle(r at x y)`, `ellipse(rx ry at x y)`, `polygon(x1 y1, ...)`, `none`.
  */
-export function resolveClipPath(value: string | null | undefined, width: number, height: number): ClipPath {
+export function resolveClipPath(
+	value: string | null | undefined,
+	width: number,
+	height: number,
+): ClipPath {
 	if (value == null || value === 'none' || value === '') {
 		return { type: 'none' }
 	}
@@ -81,17 +94,29 @@ export function resolveClipPath(value: string | null | undefined, width: number,
 		case 'rect':
 		case 'inset': {
 			const [edgesPart, radiiPart] = rule.split(/\bround\b/)
-			const edges = edgesPart.trim().split(/[\s,]+/).filter(Boolean)
+			const edges = edgesPart
+				.trim()
+				.split(/[\s,]+/)
+				.filter(Boolean)
+
 			const [top, right, bottom, left] = edgeParts(edges)
 			const radii: [number, number][] = []
 			if (radiiPart) {
 				// Corner groups: "rx ry / rx ry" or single pairs per corner.
 				const corners = radiiPart.trim().split('/')
 				for (const corner of corners) {
-					const [rx, ry] = corner.trim().split(/[\s,]+/).map(parseLength)
-					radii.push([resolveRadius(rx ?? 0, width, height), resolveRadius(ry ?? rx ?? 0, width, height)])
+					const [rx, ry] = corner
+						.trim()
+						.split(/[\s,]+/)
+						.map(parseLength)
+
+					radii.push([
+						resolveRadius(rx ?? 0, width, height),
+						resolveRadius(ry ?? rx ?? 0, width, height),
+					])
 				}
 			}
+
 			return {
 				type: 'inset',
 				top: resolveY(top, height),
@@ -108,8 +133,14 @@ export function resolveClipPath(value: string | null | undefined, width: number,
 			const at = atIdx === -1 ? undefined : rule.slice(atIdx + 2)
 			const [cx, cy] = centerAt(at, width, height)
 			if (shape === 'circle') {
-				return { type: 'circle', radius: resolveRadius(parseLength(sizes[0] ?? '0'), width, height), cx, cy }
+				return {
+					type: 'circle',
+					radius: resolveRadius(parseLength(sizes[0] ?? '0'), width, height),
+					cx,
+					cy,
+				}
 			}
+
 			return {
 				type: 'ellipse',
 				rx: resolveX(parseLength(sizes[0] ?? '0'), width),
@@ -123,6 +154,7 @@ export function resolveClipPath(value: string | null | undefined, width: number,
 				.split(',')
 				.map((pair) => pair.trim().split(/\s+/).map(parseLength))
 				.map(([x, y]) => [resolveX(x, width), resolveY(y ?? 0, height)])
+
 			return { type: 'polygon', points }
 		}
 		default:

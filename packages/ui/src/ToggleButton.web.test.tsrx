@@ -4,10 +4,14 @@ import { act, createRoot, useState } from 'octane'
 import { ToggleButton, ToggleButtonGroup } from './ToggleButton.web.tsrx'
 
 const roots: any[] = []
-const click = (host: Element) => act(() => host.dispatchEvent(new MouseEvent('click', { bubbles: true })))
+const click = (host: Element) =>
+	act(() => host.dispatchEvent(new MouseEvent('click', { bubbles: true })))
 
 afterEach(() => {
-	for (const root of roots.splice(0)) act(() => root.unmount())
+	for (const root of roots.splice(0)) {
+		act(() => root.unmount())
+	}
+
 	document.body.innerHTML = ''
 })
 
@@ -34,7 +38,9 @@ describe('ToggleButtonGroup (web)', () => {
 		expect(group).not.toBe(null)
 		expect(group.getAttribute('aria-label')).toBe('Filter by category')
 		const buttons = [...group.querySelectorAll('button')]
-		const visibleLabel = (b: Element) => b.querySelector('.vx-toggle-button-labelwrap span')?.textContent
+		const visibleLabel = (b: Element) =>
+			b.querySelector('.vx-toggle-button-labelwrap span')?.textContent
+
 		expect(buttons.map(visibleLabel)).toEqual(['All', 'Components & Patterns', 'Themes'])
 	})
 

@@ -4,7 +4,8 @@ import { useState } from 'octane'
 
 export function TextInputShowcase() @{
 	const [value, setValue] = useState('')
-	<div style={{width: 300}}>
+
+	<div style={{ width: 300 }}>
 		<TextInput label="Name" value={value} onChange={setValue} placeholder="Enter your name" />
 	</div>
 }

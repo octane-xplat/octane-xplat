@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { Absolute, HStack, Pressable, Screen, Text, View } from '@octane-xplat/ui';
-import { useSignal$ } from 'octane/signals/client';
-import { LiquidGlass, LiquidGlassContainer } from '@octane-xplat/ui/ios';
+import { Absolute, HStack, Pressable, Screen, Text, View } from '@octane-xplat/ui'
+import { useSignal$ } from 'octane/signals/client'
+import { LiquidGlass, LiquidGlassContainer } from '@octane-xplat/ui/ios'
 
 /** Liquid Glass probes — iOS 26+ renders real UIGlassEffect material,
  *  iOS<26 renders system material blur (the merge container stays inert).
@@ -13,7 +13,7 @@ import { LiquidGlass, LiquidGlassContainer } from '@octane-xplat/ui/ios';
  *  Sweep reads: 'glass-regular'/'glass-prop' hosts and their native
  *  UIVisualEffectView roots. */
 export function GlassDemo() @{
-	const presses$ = useSignal$(0);
+	const presses$ = useSignal$(0)
 
 	<Screen className="vx-app flex-1 gap-4">
 		<Text className="text-xl font-semibold">Liquid Glass</Text>
@@ -35,14 +35,22 @@ export function GlassDemo() @{
 				<View style={{ width: 60, height: 60, backgroundColor: '#f59e0b' }} />
 				<View style={{ width: 60, height: 60, backgroundColor: '#8b5cf6' }} />
 			</HStack>
-			<LiquidGlass id="glass-clear" variant="clear" style={{ margin: 16, padding: 16, borderRadius: 16 }}>
+			<LiquidGlass
+				id="glass-clear"
+				variant="clear"
+				style={{ margin: 16, padding: 16, borderRadius: 16 }}
+			>
 				<Text>clear variant</Text>
 			</LiquidGlass>
 		</Absolute>
 
 		<Absolute style={{ height: 100 }}>
 			<View style={{ backgroundColor: '#0ea5e9' }} />
-			<LiquidGlass id="glass-tinted" tint="#dc262688" style={{ margin: 16, padding: 16, borderRadius: 16 }}>
+			<LiquidGlass
+				id="glass-tinted"
+				tint="#dc262688"
+				style={{ margin: 16, padding: 16, borderRadius: 16 }}
+			>
 				<Text>tinted glass</Text>
 			</LiquidGlass>
 		</Absolute>
@@ -73,10 +81,20 @@ export function GlassDemo() @{
 		{/* Merged-glass region — siblings morph together across spacing.
 		    AbsoluteLayout host: children position via left/top. */}
 		<LiquidGlassContainer id="glass-container" spacing={16} style={{ height: 120 }}>
-			<LiquidGlass id="glass-a" left={20} top={20} style={{ width: 120, height: 48, borderRadius: 24 }}>
+			<LiquidGlass
+				id="glass-a"
+				left={20}
+				top={20}
+				style={{ width: 120, height: 48, borderRadius: 24 }}
+			>
 				<Text style={{ padding: 12 }}>merge A</Text>
 			</LiquidGlass>
-			<LiquidGlass id="glass-b" left={120} top={40} style={{ width: 120, height: 48, borderRadius: 24 }}>
+			<LiquidGlass
+				id="glass-b"
+				left={120}
+				top={40}
+				style={{ width: 120, height: 48, borderRadius: 24 }}
+			>
 				<Text style={{ padding: 12 }}>merge B</Text>
 			</LiquidGlass>
 		</LiquidGlassContainer>

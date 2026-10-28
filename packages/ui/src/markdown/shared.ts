@@ -38,5 +38,6 @@ export type {
 	TokenLine,
 	CodeTokenizer,
 } from '../props'
+
 export { useStreamingText } from '../use-streaming-text'
 export type { StreamingTextSpeed, UseStreamingTextOptions } from '../use-streaming-text'

@@ -1,10 +1,10 @@
-import { useState } from 'octane';
-import { Heading, RichText, RichTextSpan, Text, View } from '@octane-xplat/ui';
+import { useState } from 'octane'
+import { Heading, RichText, RichTextSpan, Text, View } from '@octane-xplat/ui'
 
 /** Rich inline runs: the same nested composition drives DOM spans and native
  * FormattedString spans, including per-run tap callbacks. */
 export function RichTextDemo() @{
-	const [lastRun, setLastRun] = useState('Nothing tapped yet');
+	const [lastRun, setLastRun] = useState('Nothing tapped yet')
 
 	<View className="rich-text-demo gap-4">
 		<Heading level={2}>Rich text</Heading>

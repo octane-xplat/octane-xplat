@@ -25,7 +25,13 @@
  *   from the caller's `base` when no earlier segment declared it.
  * - Without forwards fill the sampler returns empty `values` once done.
  */
-import { evaluateCurve, type KeyframeAnimationInfo, type ParsedKeyframe, type TimingCurve } from './keyframes.ts'
+import {
+	evaluateCurve,
+	type KeyframeAnimationInfo,
+	type ParsedKeyframe,
+	type TimingCurve,
+} from './keyframes.ts'
+
 import { resolveTranslate, type TranslateAxis } from './transforms.ts'
 
 export interface SampledValues {
@@ -62,6 +68,7 @@ function parseColor(value: any): Rgba | null {
 		if (h.length === 3 || h.length === 4) {
 			h = [...h].map((c) => c + c).join('')
 		}
+
 		const r = parseInt(h.slice(0, 2), 16)
 		const g = parseInt(h.slice(2, 4), 16)
 		const b = parseInt(h.slice(4, 6), 16)
@@ -135,6 +142,7 @@ function buildSegments(info: KeyframeAnimationInfo): Segment[] {
 		for (const keyframe of keyframes) {
 			parseKeyframe(keyframe)
 		}
+
 		// NS: shift each keyframe's declared curve onto the NEXT segment.
 		for (let index = animations.length - 1; index > 0; index--) {
 			const a1 = animations[index]
@@ -220,6 +228,7 @@ export function sampleKeyframeAnimation(
 		if (!info.isForwards) {
 			return { values: {}, done: true }
 		}
+
 		t = totalMs
 	}
 	let local = t % iterationMs
@@ -260,12 +269,14 @@ export function sampleKeyframeAnimation(
 				} else {
 					values[p] = interpolate(from, to, progress)
 				}
+
 				running[p] = values[p]
 			}
 		} else {
 			// Not reached yet.
 			break
 		}
+
 		cursor = end
 	}
 	return { values: values as Partial<SampledValues>, done }

@@ -1,6 +1,19 @@
 // Port of upstream Dialog/DialogAdaptivePresentation.tsx (Astryx 0.6.4, MIT).
 import { useState } from 'octane'
-import { BottomSheet, Button, Dialog, DialogHeader, Heading, HStack, TextArea, TextInput, useMediaQuery, VStack, Text } from '@octane-xplat/ui'
+import {
+	BottomSheet,
+	Button,
+	Dialog,
+	DialogHeader,
+	Heading,
+	HStack,
+	TextArea,
+	TextInput,
+	useMediaQuery,
+	VStack,
+	Text,
+} from '@octane-xplat/ui'
+
 import type { DialogPurpose } from '@octane-xplat/ui'
 
 const TOUCH_ORIENTED_LG_QUERY = '(max-width: 1024px) and (pointer: coarse) and (hover: none)'
@@ -21,10 +34,18 @@ function AdaptiveDialog(props: {
 	bottomSheetHeight?: 'hug' | 'capped' | 'tall' | number | string
 }) @{
 	const isTouch = useMediaQuery(TOUCH_ORIENTED_LG_QUERY)
-	const resolved = props.presentation ?? (isTouch ? (props.touchPresentation ?? 'dialog') : 'dialog')
+	const resolved =
+		props.presentation ?? (isTouch ? (props.touchPresentation ?? 'dialog') : 'dialog')
+
 	if (resolved === 'bottom-sheet') {
 		return (
-			<BottomSheet isOpen={props.isOpen} onOpenChange={props.onOpenChange} label={props.title} purpose={props.purpose ?? 'info'} height={props.bottomSheetHeight ?? 'capped'}>
+			<BottomSheet
+				isOpen={props.isOpen}
+				onOpenChange={props.onOpenChange}
+				label={props.title}
+				purpose={props.purpose ?? 'info'}
+				height={props.bottomSheetHeight ?? 'capped'}
+			>
 				<VStack gap={4} style={{ padding: 'var(--spacing-4)' }}>
 					<Heading level={3}>{props.title}</Heading>
 					{props.children}
@@ -33,8 +54,16 @@ function AdaptiveDialog(props: {
 			</BottomSheet>
 		)
 	}
+
 	return (
-		<Dialog isOpen={props.isOpen} onOpenChange={props.onOpenChange} purpose={props.purpose ?? 'info'} width={props.width ?? 480} maxHeight={props.maxHeight ?? '75dvh'} variant={resolved === 'fullscreen' ? 'fullscreen' : 'standard'}>
+		<Dialog
+			isOpen={props.isOpen}
+			onOpenChange={props.onOpenChange}
+			purpose={props.purpose ?? 'info'}
+			width={props.width ?? 480}
+			maxHeight={props.maxHeight ?? '75dvh'}
+			variant={resolved === 'fullscreen' ? 'fullscreen' : 'standard'}
+		>
 			<VStack>
 				<DialogHeader title={props.title} onOpenChange={props.onOpenChange} />
 				<VStack gap={4} style={{ padding: 'var(--spacing-4)' }}>
@@ -70,7 +99,8 @@ export function DialogAdaptivePresentation() @{
 			>
 				<VStack gap={4}>
 					<Text type="supporting" color="secondary">
-						Dialog remains the default presentation. This example opts into a Bottom Sheet only at lg and below when the device has a coarse pointer and no hover.
+						Dialog remains the default presentation. This example opts into a Bottom Sheet only at
+						lg and below when the device has a coarse pointer and no hover.
 					</Text>
 					<TextInput label="Name" value={name} onChange={setName} />
 					<TextInput label="Email" keyboardType="email" value={email} onChange={setEmail} />

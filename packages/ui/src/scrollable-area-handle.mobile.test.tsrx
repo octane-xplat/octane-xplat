@@ -39,7 +39,10 @@ it('exposes the native scroll viewport through its imperative handle', () => {
 		expect((ref.current?.native as any)?.type).toBe('scrollview')
 		expect(ref.current?.native).toBe(container.children[0])
 		ref.current!.scrollToOffset({ block: 120 })
-		expect((ref.current!.native as any).scrollTo).toHaveBeenCalledWith({ top: 120, behavior: 'instant' })
+		expect((ref.current!.native as any).scrollTo).toHaveBeenCalledWith({
+			top: 120,
+			behavior: 'instant',
+		})
 	} finally {
 		root.unmount()
 	}

@@ -13,6 +13,7 @@ export function CommandPalettePickerMode() @{
 			]),
 		[],
 	)
+
 	<CommandPalette
 		open
 		onOpenChange={() => {}}
@@ -21,7 +22,9 @@ export function CommandPalettePickerMode() @{
 		onValueChange={setTheme}
 		renderItem={(item: { label: string }, isSelected: boolean) => (
 			<>
-				<Text type="body" style={{ flex: 1 }}>{item.label}</Text>
+				<Text type="body" style={{ flex: 1 }}>
+					{item.label}
+				</Text>
 				{isSelected && <Icon name="xplat-check" size={16} />}
 			</>
 		)}

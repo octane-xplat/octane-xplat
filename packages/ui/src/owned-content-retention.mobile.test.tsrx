@@ -1,7 +1,12 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { expect, it } from 'vitest'
 import { createContext, useContext, useState } from 'octane'
-import { createObjectContainer, createUniversalRoot, flushUniversalSync } from 'octane/universal/native'
+import {
+	createObjectContainer,
+	createUniversalRoot,
+	flushUniversalSync,
+} from 'octane/universal/native'
+
 import { createPortalObjectDriver } from '../tests/portal-object-driver'
 import { useOwnedContent } from './use-owned-content.tsrx'
 import type { ContentOwner } from './owned-content'
@@ -15,10 +20,11 @@ let visible = { count: 0, person: '' }
 function Counter() {
 	const [count, setCount] = useState(0)
 	const person = useContext(Person)
-	increment = () => setCount(value => value + 1)
+	increment = () => setCount((value) => value + 1)
 	visible = { count, person }
 	return <label text={count + ':' + person} />
 }
+
 function App() {
 	const content = useOwnedContent()
 	const [person, setPerson] = useState('Avery')
@@ -26,10 +32,19 @@ function App() {
 	updatePerson = setPerson
 	return <PersonProvider value={person}>{content.element}</PersonProvider>
 }
-async function tick() { flushUniversalSync(() => {}); await new Promise(resolve => setTimeout(resolve, 0)); flushUniversalSync(() => {}) }
+
+async function tick() {
+	flushUniversalSync(() => {})
+	await new Promise((resolve) => setTimeout(resolve, 0))
+	flushUniversalSync(() => {})
+}
 
 it('retains a later portal and its context when an earlier owned root is removed', async () => {
-	const root = createUniversalRoot(createObjectContainer('nativescript'), createPortalObjectDriver())
+	const root = createUniversalRoot(
+		createObjectContainer('nativescript'),
+		createPortalObjectDriver(),
+	)
+
 	root.render(App, {})
 	await tick()
 	const first = owner.createRoot({})
@@ -47,5 +62,7 @@ it('retains a later portal and its context when an earlier owned root is removed
 		updatePerson('Jordan')
 		await tick()
 		expect(visible).toEqual({ count: 1, person: 'Jordan' })
-	} finally { root.unmount() }
+	} finally {
+		root.unmount()
+	}
 })

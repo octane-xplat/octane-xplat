@@ -2,7 +2,6 @@ import type { ParityCheck } from './parity/check-helpers.ts'
 import { dims } from './parity/check-helpers.ts'
 
 export const CHECKS: ParityCheck[] = [
-
 	{
 		fixture: 'progress-group-two-items',
 		targets: ['web', 'ios', 'android', 'macos'],
@@ -15,5 +14,5 @@ export const CHECKS: ParityCheck[] = [
 			'meter.box.h',
 		],
 		check: (m) => [dims(m('group'), 220, 88), dims(m('meter'), 24, 24)],
-	}
+	},
 ]

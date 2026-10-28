@@ -2,7 +2,6 @@ import type { ParityCheck } from './parity/check-helpers.ts'
 import { controlEqual, controlRows } from './parity/check-helpers.ts'
 
 export const CHECKS: ParityCheck[] = [
-
 	{
 		fixture: 'radio-group-selected',
 		targets: ['web', 'ios', 'android', 'macos'],
@@ -15,5 +14,5 @@ export const CHECKS: ParityCheck[] = [
 				['selected radio dot has positive bounds', selected.box?.w > 0 && selected.box?.h > 0],
 			]
 		},
-	}
+	},
 ]

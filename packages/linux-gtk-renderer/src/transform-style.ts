@@ -9,7 +9,12 @@
 // rotation, default 300), translate, rotate z, rotate x/y, scale — around
 // the view's centre, with % translates resolved against its own size.
 
-import { transformToParts, resolveTranslate, type TransformParts, type TranslateAxis } from '@octane-xplat/css-engine'
+import {
+	transformToParts,
+	resolveTranslate,
+	type TransformParts,
+	type TranslateAxis,
+} from '@octane-xplat/css-engine'
 
 type PropBag = Record<string, any>
 
@@ -46,6 +51,7 @@ function translateAxis(value: unknown): TranslateAxis | undefined {
 		if (pct) {
 			return { value: Number(pct[1]) / 100, unit: '%' }
 		}
+
 		const n = parseFloat(s)
 		return Number.isFinite(n) ? n : undefined
 	}
@@ -136,7 +142,11 @@ export type TransformStep =
 
 /** Steps in NS composition order, applied after moving the origin to the
  *  element's centre (callers wrap them in ±centre translations). */
-export function transformSteps(parts: ResolvedTransform, width: number, height: number): TransformStep[] {
+export function transformSteps(
+	parts: ResolvedTransform,
+	width: number,
+	height: number,
+): TransformStep[] {
 	const steps: TransformStep[] = []
 	if ((parts.rotateX || parts.rotateY) && parts.perspective > 0) {
 		steps.push({ kind: 'perspective', depth: parts.perspective })

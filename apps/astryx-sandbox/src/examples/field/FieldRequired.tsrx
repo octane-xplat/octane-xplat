@@ -8,8 +8,20 @@ export function FieldRequired() @{
 
 	<Center>
 		<VStack gap={4}>
-			<TextInput label="Username" isRequired value={username} onChange={setUsername} placeholder="Enter your username" />
-			<TextInput label="Backup email" isOptional value={email} onChange={setEmail} placeholder="you@example.com" />
+			<TextInput
+				label="Username"
+				isRequired
+				value={username}
+				onChange={setUsername}
+				placeholder="Enter your username"
+			/>
+			<TextInput
+				label="Backup email"
+				isOptional
+				value={email}
+				onChange={setEmail}
+				placeholder="you@example.com"
+			/>
 		</VStack>
 	</Center>
 }

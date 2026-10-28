@@ -25,10 +25,22 @@ import type {
  * import { pageSchema } from './schemas' // Application-owned scalar schema.
  * const validateSearch = withSearchDecoder(pageSchema, raw => ({ page: Number(raw.page ?? 1) }))
  */
-export function withSearchDecoder<Input extends RouteSearchRecord, Output extends RouteSearchRecord>(
-	schema: RouteSearchSchema<Input, Output> & (NoInfer<Input> extends {
-		[Key in keyof Input]: string | number | boolean | null | undefined | readonly (string | number | boolean)[]
-	} ? unknown : never),
+export function withSearchDecoder<
+	Input extends RouteSearchRecord,
+	Output extends RouteSearchRecord,
+>(
+	schema: RouteSearchSchema<Input, Output> &
+		(NoInfer<Input> extends {
+			[Key in keyof Input]:
+				| string
+				| number
+				| boolean
+				| null
+				| undefined
+				| readonly (string | number | boolean)[]
+		}
+			? unknown
+			: never),
 	decode: (raw: RawRouteSearch) => NoInfer<Input>,
 ): DecodedRouteSearchSchema<Input, Output> {
 	const standard = schema['~standard']
@@ -171,27 +183,33 @@ export const defineRoute = Object.assign(definitionsWithContext<RouteContext>(),
 	},
 })
 
-
 type GroupArgs<Context> = Omit<RoutePreparationArgs, 'context' | 'params'> & {
 	context: Context
 	params: Readonly<Record<string, string | undefined>>
 }
+
 type GroupInput<Id extends string, Context, Added, Data> = {
 	id: Id
 	beforeLoad?: (args: GroupArgs<Context>) => Added | Promise<Added>
 	loader?: (args: GroupArgs<MergedRouteContext<Context, NoInfer<Added>>>) => Data
 }
+
 type GroupContext<Id extends string, Context, Added, Data> = MergedRouteContext<
-	MergedRouteContext<Context, Added>, { [Key in Id]: Awaited<Data> }
+	MergedRouteContext<Context, Added>,
+	{ [Key in Id]: Awaited<Data> }
 >
+
 export type RouteGroupBuilder<Context extends object, Root> = RouteGroup<Context, Root> & {
 	readonly route: ReturnType<typeof definitionsWithContext<Context, Root>>
 	readonly group: ReturnType<typeof groupsWithContext<Context, Root>>
 }
+
 const routeGroups = new WeakMap<object, readonly RoutePreparationGroup[]>()
 
 /** Internal identity check shared with file-derived catalogs. */
-export function routeGroupPreparation(value: unknown): readonly RoutePreparationGroup[] | undefined {
+export function routeGroupPreparation(
+	value: unknown,
+): readonly RoutePreparationGroup[] | undefined {
 	return value !== null && typeof value === 'object' ? routeGroups.get(value) : undefined
 }
 
@@ -204,8 +222,10 @@ function groupsWithContext<Context extends object, Root = Context>(
 		} & RequiredGuard<GroupInput<Id, Context, Added, Data>, Added>,
 	): RouteGroupBuilder<GroupContext<Id, Context, Added, Data>, Root>
 	function group<const Id extends string, Added extends RouteGuardResult = void>(
-		input: GroupInput<Id, Context, Added, undefined> & { loader?: undefined } &
-			RequiredGuard<GroupInput<Id, Context, Added, undefined>, Added>,
+		input: GroupInput<Id, Context, Added, undefined> & { loader?: undefined } & RequiredGuard<
+				GroupInput<Id, Context, Added, undefined>,
+				Added
+			>,
 	): RouteGroupBuilder<GroupContext<Id, Context, Added, undefined>, Root>
 	function group(input: unknown): unknown {
 		if (!input || typeof input !== 'object' || Array.isArray(input)) {
@@ -220,11 +240,14 @@ function groupsWithContext<Context extends object, Root = Context>(
 				throw new TypeError('Expected a route group ' + field + ' callback')
 			}
 		}
-		const groups = Object.freeze([...parents, Object.freeze({
-			id: options.id,
-			beforeLoad: options.beforeLoad as RoutePreparationBehavior['beforeLoad'],
-			loader: options.loader as RoutePreparationBehavior['loader'],
-		})])
+		const groups = Object.freeze([
+			...parents,
+			Object.freeze({
+				id: options.id,
+				beforeLoad: options.beforeLoad as RoutePreparationBehavior['beforeLoad'],
+				loader: options.loader as RoutePreparationBehavior['loader'],
+			}),
+		])
 		const result = Object.freeze({
 			route: definitionsWithContext<Context, Root>(groups),
 			group: groupsWithContext<Context, Root>(groups),

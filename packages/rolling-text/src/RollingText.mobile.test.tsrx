@@ -1,6 +1,11 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { createObjectContainer, createObjectDriver, createUniversalRoot, flushUniversalSync } from 'octane/universal/native'
+import {
+	createObjectContainer,
+	createObjectDriver,
+	createUniversalRoot,
+	flushUniversalSync,
+} from 'octane/universal/native'
 
 // Native modules are stubbed — the object driver needs no real NS runtime.
 vi.mock('@nativescript/core', () => ({
@@ -67,8 +72,14 @@ describe('RollingText (native leaf, object driver)', () => {
 
 	it('updates the semantic label immediately under a queued update', () => {
 		const { container, root } = mount({ value: 'a', updatePolicy: 'latest' })
-		flushUniversalSync(() => root.render(RollingText as any, { value: 'b', updatePolicy: 'latest' }))
-		flushUniversalSync(() => root.render(RollingText as any, { value: 'c', updatePolicy: 'latest' }))
+		flushUniversalSync(() =>
+			root.render(RollingText as any, { value: 'b', updatePolicy: 'latest' }),
+		)
+
+		flushUniversalSync(() =>
+			root.render(RollingText as any, { value: 'c', updatePolicy: 'latest' }),
+		)
+
 		expect(row(container).props.accessibilityLabel).toBe('c')
 		vi.advanceTimersByTime(500)
 		flushUniversalSync(() => {})
@@ -90,9 +101,22 @@ describe('RollingText (native leaf, object driver)', () => {
 
 	it('settles the queued latest value when reduced motion becomes active', () => {
 		const { container, root } = mount({ value: 'a', updatePolicy: 'latest' })
-		flushUniversalSync(() => root.render(RollingText as any, { value: 'b', updatePolicy: 'latest' }))
-		flushUniversalSync(() => root.render(RollingText as any, { value: 'c', updatePolicy: 'latest' }))
-		flushUniversalSync(() => root.render(RollingText as any, { value: 'c', updatePolicy: 'latest', reducedMotion: 'always' }))
+		flushUniversalSync(() =>
+			root.render(RollingText as any, { value: 'b', updatePolicy: 'latest' }),
+		)
+
+		flushUniversalSync(() =>
+			root.render(RollingText as any, { value: 'c', updatePolicy: 'latest' }),
+		)
+
+		flushUniversalSync(() =>
+			root.render(RollingText as any, {
+				value: 'c',
+				updatePolicy: 'latest',
+				reducedMotion: 'always',
+			}),
+		)
+
 		expect(cellTexts(container).join('')).toBe('c')
 		vi.advanceTimersByTime(2000)
 		flushUniversalSync(() => {})

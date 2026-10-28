@@ -1,24 +1,24 @@
-import { appleAuth } from './apple.web';
-import type { AppleSignInButtonProps, SignInResult } from './types';
+import { appleAuth } from './apple.web'
+import type { AppleSignInButtonProps, SignInResult } from './types'
 
 const LABELS = {
 	default: 'Sign in with Apple',
 	signUp: 'Sign up with Apple',
 	continue: 'Continue with Apple',
-} as const;
+} as const
 
 const THEMES = {
 	black: { background: '#000', color: '#fff', border: '1px solid #000' },
 	white: { background: '#fff', color: '#000', border: '1px solid #fff' },
 	whiteOutline: { background: '#fff', color: '#000', border: '1px solid #000' },
-} as const;
+} as const
 
 /** Sign in with Apple button — web leaf. Apple's JS API renders official
  *  markup only through its own stylesheet hooks, so this is a styled fallback
  *  matching Apple's published button spec; the click runs the popup flow via
  *  `appleAuth.signIn()` and reports through `onResult`. */
 export function AppleSignInButton(props: AppleSignInButtonProps) @{
-	const theme = THEMES[props.theme ?? 'black'];
+	const theme = THEMES[props.theme ?? 'black']
 
 	<button
 		type="button"
@@ -40,9 +40,9 @@ export function AppleSignInButton(props: AppleSignInButtonProps) @{
 			...props.style,
 		}}
 		onClick={() => {
-			props.onPress?.();
+			props.onPress?.()
 			if (props.onResult) {
-				void appleAuth.signIn().then((result: SignInResult) => props.onResult?.(result));
+				void appleAuth.signIn().then((result: SignInResult) => props.onResult?.(result))
 			}
 		}}
 	>

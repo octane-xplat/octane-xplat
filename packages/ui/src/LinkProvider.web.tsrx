@@ -13,5 +13,6 @@ const LinkProviderEl: any = LinkContext
  *  already route through the canonical router via `followHref`. */
 export function LinkProvider(props: LinkProviderProps) @{
 	const value = useMemo(() => ({ component: props.component }), [props.component])
+
 	<LinkProviderEl value={value}>{props.children}</LinkProviderEl>
 }

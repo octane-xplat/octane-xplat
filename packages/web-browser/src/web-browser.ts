@@ -48,14 +48,19 @@ function iosOpen(url: string, options?: OpenBrowserOptions): Promise<WebBrowserR
 		}
 
 		let controller: any
-		if (typeof SFSafariViewControllerConfiguration !== 'undefined' && (options?.toolbarColor || options?.controlsColor)) {
+		if (
+			typeof SFSafariViewControllerConfiguration !== 'undefined' &&
+			(options?.toolbarColor || options?.controlsColor)
+		) {
 			const config = SFSafariViewControllerConfiguration.new()
 			if (options.toolbarColor) {
 				config.preferredBarTintColor = new Color(options.toolbarColor).ios
 			}
+
 			if (options.controlsColor) {
 				config.preferredControlTintColor = new Color(options.controlsColor).ios
 			}
+
 			controller = SFSafariViewController.alloc().initWithURLConfiguration(nsUrl, config)
 		} else {
 			controller = SFSafariViewController.alloc().initWithURL(nsUrl)
@@ -66,7 +71,9 @@ function iosOpen(url: string, options?: OpenBrowserOptions): Promise<WebBrowserR
 		}
 
 		presented = controller
-		presenter.presentViewControllerAnimatedCompletion(controller, true, () => resolve({ type: 'opened' }))
+		presenter.presentViewControllerAnimatedCompletion(controller, true, () =>
+			resolve({ type: 'opened' }),
+		)
 	})
 }
 
@@ -84,12 +91,15 @@ function androidOpen(url: string, options?: OpenBrowserOptions): Promise<WebBrow
 			if (options?.toolbarColor) {
 				builder.setToolbarColor(android.graphics.Color.parseColor(options.toolbarColor))
 			}
+
 			if (options?.showTitle) {
 				builder.setShowTitle(true)
 			}
+
 			if (options?.enableBarCollapsing) {
 				builder.setUrlBarHidingEnabled(true)
 			}
+
 			builder.build().launchUrl(activity, android.net.Uri.parse(url))
 			resolve({ type: 'opened' })
 		} catch {
@@ -102,7 +112,10 @@ let tabsConnection: any = null
 
 /** Android Custom Tabs service connection helper — binds the app to the
  *  browser's CustomTabsService and hands the CustomTabsClient to `run`. */
-function withTabsClient(packageName: string | undefined, run: (client: any) => void): Promise<void> {
+function withTabsClient(
+	packageName: string | undefined,
+	run: (client: any) => void,
+): Promise<void> {
 	return new Promise((resolve) => {
 		const androidUtils = Utils.android as any
 		const context = androidUtils?.getApplicationContext?.()

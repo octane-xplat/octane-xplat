@@ -924,31 +924,33 @@ it('checks unknown destinations without navigation and keeps an immutable input 
 	const platform = host()
 	const events: string[] = []
 	const routes = defineRoutes([
-		defineRoute.withContext<{ account: string }>()({
-			path: '/checked/:id',
-			validateSearch: async (raw: { page?: unknown; tag?: unknown }) => {
-				events.push('search')
-				const page = Number(raw.page ?? 1)
-				if (!Number.isSafeInteger(page) || page < 1) {
-					throw new Error('Invalid page')
-				}
-				return { page, tag: Array.isArray(raw.tag) ? raw.tag.map(String) : [] }
-			},
-			beforeLoad: () => {
-				events.push('guard')
-				return { checked: true }
-			},
-			loader: ({ params, search, context }) => {
-				events.push('load')
-				return {
-					id: params.id,
-					page: search.page,
-					tag: search.tag,
-					account: context.account,
-					checked: context.checked,
-				}
-			},
-		}).screen(() => null),
+		defineRoute
+			.withContext<{ account: string }>()({
+				path: '/checked/:id',
+				validateSearch: async (raw: { page?: unknown; tag?: unknown }) => {
+					events.push('search')
+					const page = Number(raw.page ?? 1)
+					if (!Number.isSafeInteger(page) || page < 1) {
+						throw new Error('Invalid page')
+					}
+					return { page, tag: Array.isArray(raw.tag) ? raw.tag.map(String) : [] }
+				},
+				beforeLoad: () => {
+					events.push('guard')
+					return { checked: true }
+				},
+				loader: ({ params, search, context }) => {
+					events.push('load')
+					return {
+						id: params.id,
+						page: search.page,
+						tag: search.tag,
+						account: context.account,
+						checked: context.checked,
+					}
+				},
+			})
+			.screen(() => null),
 	])
 	const navigation = createRouter({
 		catalog: routes,
@@ -1824,19 +1826,32 @@ it('bounds a cycling host handoff and retains the original context snapshot', as
 	const platform = host()
 	let calls = 0
 	let reads = 0
-	const router = createRouter({ catalog, host: platform.adapter, context: () => ({ read: ++reads }) })
-	platform.adapter.commit = async command => {
+	const router = createRouter({
+		catalog,
+		host: platform.adapter,
+		context: () => ({ read: ++reads }),
+	})
+	platform.adapter.commit = async (command) => {
 		calls++
 		const prepared = await command.prepare!('/settings')
-		return prepared.status === 'ready' ? { status: 'handoff', prepared, action: 'replace' } : prepared
+		return prepared.status === 'ready'
+			? { status: 'handoff', prepared, action: 'replace' }
+			: prepared
 	}
 	try {
-		expect(await router.push({ to: '/settings' })).toMatchObject({ status: 'failed', phase: 'commit', error: { message: 'Host handoff limit exceeded' } })
+		expect(await router.push({ to: '/settings' })).toMatchObject({
+			status: 'failed',
+			phase: 'commit',
+			error: { message: 'Host handoff limit exceeded' },
+		})
+
 		expect(calls).toBeGreaterThan(1)
 		expect(calls).toBeLessThan(20)
 		expect(reads).toBe(1)
 		expect(router.getSnapshot().route).toBeNull()
-	} finally { router.dispose() }
+	} finally {
+		router.dispose()
+	}
 })
 
 it('preloads in the selected stack without changing host state, and cancels on registry replacement', async () => {

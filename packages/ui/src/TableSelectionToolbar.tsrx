@@ -37,7 +37,12 @@ export function TableSelectionToolbar(props: TableSelectionToolbarProps) @{
 				) : (
 					<Text>{`${selection.selectedCount} selected`}</Text>
 				)}
-				<Button label={clearLabel} variant="secondary" size="sm" clickAction={selection.clearSelection} />
+				<Button
+					label={clearLabel}
+					variant="secondary"
+					size="sm"
+					clickAction={selection.clearSelection}
+				/>
 			</HStack>
 		}
 	/>

@@ -56,7 +56,8 @@ const dependencies = [
 	'@nativescript/imagepicker',
 	'@nativescript/core',
 	'@nativescript/types',
-	'@octane-xplat/platform', '@octane-xplat/lib',
+	'@octane-xplat/platform',
+	'@octane-xplat/lib',
 	'octane',
 ]
 

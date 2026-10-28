@@ -98,7 +98,12 @@ try {
 		await option.focus()
 		await page.keyboard.press('Escape')
 		await option.waitFor({ state: 'detached' })
-		await page.waitForFunction((id) => document.activeElement?.id === id, `${name}-popover-trigger`, { timeout: 10000 })
+		await page.waitForFunction(
+			(id) => document.activeElement?.id === id,
+			`${name}-popover-trigger`,
+			{ timeout: 10000 },
+		)
+
 		assert.equal(await page.getByRole('dialog', { name: dialogName, exact: true }).count(), 1)
 
 		await page.keyboard.press('Escape')
@@ -218,10 +223,21 @@ try {
 	await page.locator('#slider-before').focus()
 	await page.keyboard.press('Tab')
 	assert.equal(await focused(), 'volume')
-	for (const [key, expected] of [['ArrowRight', 0.51], ['Home', 0], ['ArrowDown', 0], ['End', 1], ['ArrowUp', 1], ['ArrowLeft', 0.99]]) {
+	for (const [key, expected] of [
+		['ArrowRight', 0.51],
+		['Home', 0],
+		['ArrowDown', 0],
+		['End', 1],
+		['ArrowUp', 1],
+		['ArrowLeft', 0.99],
+	]) {
 		await page.keyboard.press(key)
-		await page.waitForFunction((value) => Number(document.getElementById('volume')?.getAttribute('aria-valuenow')) === value, expected)
+		await page.waitForFunction(
+			(value) => Number(document.getElementById('volume')?.getAttribute('aria-valuenow')) === value,
+			expected,
+		)
 	}
+
 	await page.keyboard.press('Tab')
 	assert.equal(await focused(), 'slider-after')
 

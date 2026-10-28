@@ -9,12 +9,7 @@
 
 import { useMemo, useState } from 'octane'
 import type { DateRange, ISODateString } from './props'
-import {
-	plainDateAddMonths,
-	plainDateFromISO,
-	plainDateToISO,
-	type PlainDate,
-} from './datetime'
+import { plainDateAddMonths, plainDateFromISO, plainDateToISO, type PlainDate } from './datetime'
 
 import {
 	buildMonthGrid,
@@ -43,10 +38,19 @@ export interface UseCalendarConstraintsReturn {
  *
  * @see UseCalendarConstraintsOptions.
  */
-export function useCalendarConstraints(options: UseCalendarConstraintsOptions): UseCalendarConstraintsReturn {
+export function useCalendarConstraints(
+	options: UseCalendarConstraintsOptions,
+): UseCalendarConstraintsReturn {
 	const isDateDisabled = useMemo(
 		() => createDateDisabledCheck(options),
-		[options.min, options.max, options.dateConstraints, options.maxRangeSpan, options.minRangeSpan, options.rangeAnchor],
+		[
+			options.min,
+			options.max,
+			options.dateConstraints,
+			options.maxRangeSpan,
+			options.minRangeSpan,
+			options.rangeAnchor,
+		],
 	)
 
 	return { isDateDisabled }
@@ -75,8 +79,21 @@ export type UseCalendarDaysReturn = CalendarMonthGrid
  */
 export function useCalendarDays(options: UseCalendarDaysOptions): CalendarMonthGrid {
 	return useMemo(
-		() => buildMonthGrid(options.year, options.month, options.weekStartsOn, options.hasVariableRowCount, options.locale),
-		[options.year, options.month, options.weekStartsOn, options.hasVariableRowCount, options.locale],
+		() =>
+			buildMonthGrid(
+				options.year,
+				options.month,
+				options.weekStartsOn,
+				options.hasVariableRowCount,
+				options.locale,
+			),
+		[
+			options.year,
+			options.month,
+			options.weekStartsOn,
+			options.hasVariableRowCount,
+			options.locale,
+		],
 	)
 }
 
@@ -111,17 +128,21 @@ export interface UseCalendarNavigationReturn {
  *
  * @see UseCalendarNavigationOptions.
  */
-export function useCalendarNavigation(options: UseCalendarNavigationOptions): UseCalendarNavigationReturn {
+export function useCalendarNavigation(
+	options: UseCalendarNavigationOptions,
+): UseCalendarNavigationReturn {
 	const numberOfMonths = options.numberOfMonths ?? 1
 	const controlled = options.focusDate !== undefined
 	const [internalBase, setInternalBase] = useState<PlainDate>(() =>
-		monthStart(getInitialFocusDate({
-			focusDate: options.focusDate,
-			value: options.value,
-			min: options.min,
-			max: options.max,
-			numberOfMonths,
-		})),
+		monthStart(
+			getInitialFocusDate({
+				focusDate: options.focusDate,
+				value: options.value,
+				min: options.min,
+				max: options.max,
+				numberOfMonths,
+			}),
+		),
 	)
 
 	const controlledPd = controlled ? plainDateFromISO(options.focusDate!) : null
@@ -129,7 +150,10 @@ export function useCalendarNavigation(options: UseCalendarNavigationOptions): Us
 
 	const commit = (next: PlainDate) => {
 		const iso = plainDateToISO(next)
-		if (!controlled) setInternalBase(next)
+		if (!controlled) {
+			setInternalBase(next)
+		}
+
 		options.onFocusDateChange?.(iso)
 	}
 
@@ -140,13 +164,21 @@ export function useCalendarNavigation(options: UseCalendarNavigationOptions): Us
 		canNavigatePrevious: bounds.canNavigatePrevious,
 		canNavigateNext: bounds.canNavigateNext,
 		navigateMonths(delta: number) {
-			if (delta < 0 && !bounds.canNavigatePrevious) return
-			if (delta > 0 && !bounds.canNavigateNext) return
+			if (delta < 0 && !bounds.canNavigatePrevious) {
+				return
+			}
+
+			if (delta > 0 && !bounds.canNavigateNext) {
+				return
+			}
+
 			commit(monthStart(plainDateAddMonths(baseMonth, delta)))
 		},
 		navigateTo(date: ISODateString) {
 			const pd = plainDateFromISO(date)
-			if (pd) commit(monthStart(pd))
+			if (pd) {
+				commit(monthStart(pd))
+			}
 		},
 	}
 }

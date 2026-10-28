@@ -22,12 +22,21 @@ test('AppKit checkbox role/value/help update and disabled controls reject AX pre
 	const { AccessibleHostView, applyAccessibility } = runSlice(
 		stack + '\n' + apply + '\n({ AccessibleHostView, applyAccessibility })',
 		{
-		elementBehaviors: new Map(),
-		behaviorOf: () => undefined,
-		isManualLayoutParent: (t: string) =>
-			['gridlayout','liquidglass','absolutelayout','contentview','actionbar','docklayout','wraplayout','rootlayout'].includes(t),
-		registerElementType: () => {},
-		
+			elementBehaviors: new Map(),
+			behaviorOf: () => undefined,
+			isManualLayoutParent: (t: string) =>
+				[
+					'gridlayout',
+					'liquidglass',
+					'absolutelayout',
+					'contentview',
+					'actionbar',
+					'docklayout',
+					'wraplayout',
+					'rootlayout',
+				].includes(t),
+			registerElementType: () => {},
+
 			NSView: class {},
 			NativeClass() {},
 			interop: { types: { bool: 'bool', id: 'id' } },

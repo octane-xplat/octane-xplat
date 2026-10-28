@@ -1,6 +1,10 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { describe, expect, it, vi } from 'vitest'
-import { createObjectContainer, createObjectDriver, createUniversalRoot } from 'octane/universal/native'
+import {
+	createObjectContainer,
+	createObjectDriver,
+	createUniversalRoot,
+} from 'octane/universal/native'
 
 vi.mock('@nativescript/core', () => ({
 	isIOS: false,
@@ -35,7 +39,10 @@ describe('native button action failure reporting', () => {
 		let rejectAction: ((reason: unknown) => void) | undefined
 		root.render(Button, {
 			label: 'Save',
-			clickAction: () => new Promise<void>((_, reject) => { rejectAction = reject }),
+			clickAction: () =>
+				new Promise<void>((_, reject) => {
+					rejectAction = reject
+				}),
 			onActionError,
 		})
 

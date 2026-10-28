@@ -1,7 +1,18 @@
-import { useState } from 'octane';
-import { useImperativeBottomSheet, Pressable, HStack, Screen, BottomSheet, Text, View } from '@octane-xplat/ui';
+import { useState } from 'octane'
+import {
+	useImperativeBottomSheet,
+	Pressable,
+	HStack,
+	Screen,
+	BottomSheet,
+	Text,
+	View,
+} from '@octane-xplat/ui'
 
-function Picker(props: { params: { choices: string[] }; close: (value?: string) => void }) @{
+function Picker(props: {
+	params: { choices: string[] }
+	close: (value?: string) => void
+}) @{
 	<Screen className="demo-modal-card gap-4">
 		<Text className="font-bold">Choose a color</Text>
 		@for (const choice of props.params.choices; key choice) {
@@ -13,37 +24,40 @@ function Picker(props: { params: { choices: string[] }; close: (value?: string) 
 }
 
 /** Shared fallback — the platform modal moved out of `ui` (UIModal /
-	*  MaterialDialog in the ios + android subpaths; this file's `.ios.tsrx`
-	*  and `.android.tsrx` siblings render it there). The honest shared
-	*  surfaces are the self-drawn in-window `BottomSheet` and `Overlay`. */
+ *  MaterialDialog in the ios + android subpaths; this file's `.ios.tsrx`
+ *  and `.android.tsrx` siblings render it there). The honest shared
+ *  surfaces are the self-drawn in-window `BottomSheet` and `Overlay`. */
 export function ModalDemo() @{
-	const sheet = useImperativeBottomSheet();
-	const [declarativeOpen, setDeclarativeOpen] = useState(false);
-	const [detentOpen, setDetentOpen] = useState(false);
-	const [picked, setPicked] = useState<string | undefined>();
-	const [detentPicked, setDetentPicked] = useState<string | undefined>();
+	const sheet = useImperativeBottomSheet()
+	const [declarativeOpen, setDeclarativeOpen] = useState(false)
+	const [detentOpen, setDetentOpen] = useState(false)
+	const [picked, setPicked] = useState<string | undefined>()
+	const [detentPicked, setDetentPicked] = useState<string | undefined>()
 
 	const pick = async () => {
-		const result = await sheet.open(Picker, { choices: ['Red', 'Green', 'Blue'] });
-		setPicked(result as string | undefined);
-	};
+		const result = await sheet.open(Picker, { choices: ['Red', 'Green', 'Blue'] })
+		setPicked(result as string | undefined)
+	}
 
 	const pickDetent = async () => {
-		const result = await sheet.open(Picker, { choices: ['Peek', 'Half', 'Full'] }, {
-			snapPoints: [0.25, 0.5, 0.9],
-		});
+		const result = await sheet.open(
+			Picker,
+			{ choices: ['Peek', 'Half', 'Full'] },
+			{
+				snapPoints: [0.25, 0.5, 0.9],
+			},
+		)
 
-		setDetentPicked(result as string | undefined);
-	};
+		setDetentPicked(result as string | undefined)
+	}
 
 	<Screen className="vx-app flex-1 gap-6">
 		{sheet.element}
 		<Text className="text-xl font-semibold">Modal → BottomSheet</Text>
 		<View className="sink-section">
 			<Text className="text-sm text-muted">
-				The shared surface has no Modal — OS presentation chrome lives in
-				ui/ios (UIModal) and ui/android (MaterialDialog). This demo uses the
-				self-drawn BottomSheet instead.
+				The shared surface has no Modal — OS presentation chrome lives in ui/ios (UIModal) and
+				ui/android (MaterialDialog). This demo uses the self-drawn BottomSheet instead.
 			</Text>
 			<Pressable onPress={() => setDeclarativeOpen(true)} className="btn btn-secondary">
 				<Text>Open sheet</Text>
@@ -59,8 +73,8 @@ export function ModalDemo() @{
 		<View className="sink-section">
 			<Text className="section-label">Detents</Text>
 			<Text className="text-sm text-muted">
-				Snap heights as viewport fractions — drag the grabber between
-				detents, past the lowest to dismiss. Self-drawn; no OS sheet.
+				Snap heights as viewport fractions — drag the grabber between detents, past the lowest to
+				dismiss. Self-drawn; no OS sheet.
 			</Text>
 			<Pressable onPress={() => setDetentOpen(true)} className="btn btn-secondary">
 				<Text>Open detent sheet</Text>
@@ -70,7 +84,11 @@ export function ModalDemo() @{
 			</Pressable>
 			<Text className="text-sm text-muted">{'Picked: ' + (detentPicked ?? '—')}</Text>
 		</View>
-		<BottomSheet isOpen={declarativeOpen} label="Picker sheet" onOpenChange={(o) => setDeclarativeOpen(o)}>
+		<BottomSheet
+			isOpen={declarativeOpen}
+			label="Picker sheet"
+			onOpenChange={(o) => setDeclarativeOpen(o)}
+		>
 			<View className="demo-modal-card gap-4">
 				<Text className="font-bold">Declarative children</Text>
 				<Pressable onPress={() => setDeclarativeOpen(false)} className="btn bg-primary">
@@ -78,12 +96,17 @@ export function ModalDemo() @{
 				</Pressable>
 			</View>
 		</BottomSheet>
-		<BottomSheet isOpen={detentOpen} label="Detent picker" snapPoints={[0.25, 0.5, 0.9]} onOpenChange={(o) => setDetentOpen(o)}>
+		<BottomSheet
+			isOpen={detentOpen}
+			label="Detent picker"
+			snapPoints={[0.25, 0.5, 0.9]}
+			onOpenChange={(o) => setDetentOpen(o)}
+		>
 			<View className="demo-modal-card gap-4">
 				<Text className="font-bold">Detent sheet</Text>
 				<Text className="text-sm text-muted">
-					Snaps at 25%, 50%, 90% of the viewport height. Drag the grabber
-					or tap the shade to dismiss.
+					Snaps at 25%, 50%, 90% of the viewport height. Drag the grabber or tap the shade to
+					dismiss.
 				</Text>
 				<Pressable onPress={() => setDetentOpen(false)} className="btn bg-primary">
 					<Text className="text-onprimary">Close</Text>

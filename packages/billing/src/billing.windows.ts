@@ -1,7 +1,8 @@
 // Windows leaf — no store backend; report unsupported.
 import type { Billing } from './types'
 
-const unsupported = () => Promise.reject(new Error('unsupported: billing is not available on windows'))
+const unsupported = () =>
+	Promise.reject(new Error('unsupported: billing is not available on windows'))
 
 export const billing: Billing = {
 	supported: false,

@@ -23,7 +23,10 @@ const makePnpmApp = () => {
 	writeFileSync(join(siblingDir, 'a/package.json'), JSON.stringify({ name: 'a' }))
 	writeFileSync(join(siblingDir, 'a/x.js'), 'import "dep"\n')
 	mkdirSync(join(siblingDir, 'dep'), { recursive: true })
-	writeFileSync(join(siblingDir, 'dep/package.json'), JSON.stringify({ name: 'dep', main: './index.js' }))
+	writeFileSync(
+		join(siblingDir, 'dep/package.json'),
+		JSON.stringify({ name: 'dep', main: './index.js' }),
+	)
 	writeFileSync(join(siblingDir, 'dep/index.js'), '')
 	writeFileSync(join(siblingDir, 'dep/sub.js'), '')
 	symlinkSync(join(siblingDir, 'a'), join(root, 'node_modules/a'), 'dir')

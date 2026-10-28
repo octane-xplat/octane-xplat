@@ -18,13 +18,21 @@ export function PageScreen(props: { params: { rest?: string } }) @{
 	const row = routeRow(route)
 
 	if (!row) {
-		return <NotFoundScreen title="Not Found" message={`“${route}” is not part of the pinned sandbox route table.`} />
+		return (
+			<NotFoundScreen
+				title="Not Found"
+				message={`“${route}” is not part of the pinned sandbox route table.`}
+			/>
+		)
 	}
 
 	const Page = pageFor(route)
 
 	if (row.group === 'fullscreen') {
-		if (isEmbed) return Page ? <Page /> : <PendingScreen row={row} />
+		if (isEmbed) {
+			return Page ? <Page /> : <PendingScreen row={row} />
+		}
+
 		return <PreviewShell row={row}>{Page ? <Page /> : <PendingScreen row={row} />}</PreviewShell>
 	}
 
@@ -41,9 +49,7 @@ export function PageScreen(props: { params: { rest?: string } }) @{
 					</LayoutHeader>
 				}
 				content={
-					<LayoutContent padding={6}>
-						{Page ? <Page /> : <PendingScreen row={row} />}
-					</LayoutContent>
+					<LayoutContent padding={6}>{Page ? <Page /> : <PendingScreen row={row} />}</LayoutContent>
 				}
 			/>
 		</SandboxShell>

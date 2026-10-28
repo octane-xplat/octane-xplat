@@ -5,7 +5,7 @@ import type { ParityFixture } from './parity'
 // Inline raster keeps the fixture independent of file/network loading.
 const PARITY_IMAGE_SRC =
 	'data:image/png;base64,' +
-	'iVBORw0KGgoAAAANSUhEUgAAABAAAAAMCAYAAABr5z2BAAAAF0lEQVR4nGO4e/fuf0oww6gBowYMDwMA/TSwn5QGNeIAAAAASUVORK5CYII=';
+	'iVBORw0KGgoAAAANSUhEUgAAABAAAAAMCAYAAABr5z2BAAAAF0lEQVR4nGO4e/fuf0oww6gBowYMDwMA/TSwn5QGNeIAAAAASUVORK5CYII='
 
 function ImageFixture() @{
 	<Image

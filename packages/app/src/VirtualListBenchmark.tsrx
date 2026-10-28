@@ -7,7 +7,10 @@ import {
 	type VirtualListBenchItem,
 } from './virtual-list-benchmark'
 
-import { runVirtualListBenchmark, runVirtualListInputBenchmark } from './platform/virtual-list-benchmark'
+import {
+	runVirtualListBenchmark,
+	runVirtualListInputBenchmark,
+} from './platform/virtual-list-benchmark'
 
 const keyExtractor = (item: VirtualListBenchItem) => item.id
 const renderItem = (item: VirtualListBenchItem) => <BenchmarkRow item={item} />
@@ -35,7 +38,10 @@ export function VirtualListBenchmark(props: { fixed?: boolean } = {}) @{
 	const items = fixedMode ? VIRTUAL_LIST_BENCH_FIXED_ITEMS : VIRTUAL_LIST_BENCH_ITEMS
 
 	const start = () => {
-		if (running) return
+		if (running) {
+			return
+		}
+
 		setRunning(true)
 		setStatus('Running a 60 Hz scroll trace with deep seeks…')
 		setResult('')
@@ -55,7 +61,10 @@ export function VirtualListBenchmark(props: { fixed?: boolean } = {}) @{
 	}
 
 	const startInput = () => {
-		if (inputRunning) return
+		if (inputRunning) {
+			return
+		}
+
 		setInputRunning(true)
 		setStatus('Capturing real scroll input for 20 seconds…')
 		void runVirtualListInputBenchmark('vlist-bench-list')
@@ -85,13 +94,18 @@ export function VirtualListBenchmark(props: { fixed?: boolean } = {}) @{
 		<Pressable id="vlist-bench-input-run" onPress={startInput} className="btn btn-secondary">
 			<Text>{inputRunning ? 'Capturing input…' : 'Capture wheel / touch input'}</Text>
 		</Pressable>
-		<Text id="vlist-bench-status" className="text-sm text-muted">{status}</Text>
+		<Text id="vlist-bench-status" className="text-sm text-muted">
+			{status}
+		</Text>
 		{result ? <Text className="text-xs text-muted">{'Result: ' + result}</Text> : null}
 		<VirtualList
 			id="vlist-bench-list"
 			ref={(handle: VirtualListHandle | null) => {
-				if (handle) virtualListBenchHandles.set('vlist-bench-list', handle)
-				else virtualListBenchHandles.delete('vlist-bench-list')
+				if (handle) {
+					virtualListBenchHandles.set('vlist-bench-list', handle)
+				} else {
+					virtualListBenchHandles.delete('vlist-bench-list')
+				}
 			}}
 			className="flex-1 min-h-0"
 			items={items}

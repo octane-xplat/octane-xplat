@@ -4,5 +4,6 @@ import { useState } from 'octane'
 
 export function SwitchShowcase() @{
 	const [enabled, setEnabled] = useState(true)
+
 	<Switch label="Enable notifications" value={enabled} onChange={setEnabled} />
 }

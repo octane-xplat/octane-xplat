@@ -2,7 +2,12 @@ import { mkdtempSync, writeFileSync, mkdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { describe, expect, it } from 'vitest'
-import { withWorkshopMobile, MOBILE_CATALOG_ID, mobileCatalogCode } from '../dist/build/vite-mobile.js'
+import {
+	withWorkshopMobile,
+	MOBILE_CATALOG_ID,
+	mobileCatalogCode,
+} from '../dist/build/vite-mobile.js'
+
 import { mobilePrerequisites, mobileLaunchSpec } from '../dist/build/mobile-node.js'
 
 function consumer() {
@@ -111,4 +116,3 @@ it('requires explicit device and passes the installed CLI argv without a shell',
 		'*.stories.tsrx',
 	])
 })
-

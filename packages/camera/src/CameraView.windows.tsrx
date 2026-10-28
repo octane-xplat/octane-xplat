@@ -7,7 +7,13 @@ import type { CameraViewProps } from './props'
 import { attachSessionPreview } from './session'
 import { cameraHardwarePresent, ensureCameraPermission } from './camera-permission.windows'
 import { startCameraPreview } from './camera-session.windows'
-import { applyEscapeProps, layoutChildProps, nativeAccessibilityRole, nativeAccessibilityState } from './layout-child.windows'
+import {
+	applyEscapeProps,
+	layoutChildProps,
+	nativeAccessibilityRole,
+	nativeAccessibilityState,
+} from './layout-child.windows'
+
 import { observePreviewTap } from './preview-tap'
 
 class CameraPreview extends View {
@@ -40,7 +46,10 @@ export function CameraView(props: CameraViewProps) @{
 
 	useEffect(() => {
 		const view = host.current
-		if (!view || !active) return
+		if (!view || !active) {
+			return
+		}
+
 		let disposed = false
 		let stopPreview: (() => Promise<void>) | undefined
 		const fail = (message: string) => props.onError?.({ message })
@@ -54,10 +63,14 @@ export function CameraView(props: CameraViewProps) @{
 			try {
 				const detach = attachSessionPreview(props.session, view, {
 					onReady: () => {
-						if (!disposed) props.onReady?.()
+						if (!disposed) {
+							props.onReady?.()
+						}
 					},
 					onError: (issue) => {
-						if (!disposed) fail(issue.message)
+						if (!disposed) {
+							fail(issue.message)
+						}
 					},
 				})
 
@@ -77,7 +90,10 @@ export function CameraView(props: CameraViewProps) @{
 		}
 
 		ensureCameraPermission().then(async (granted) => {
-			if (disposed) return
+			if (disposed) {
+				return
+			}
+
 			if (!granted) {
 				fail('camera permission denied')
 				return
@@ -85,10 +101,14 @@ export function CameraView(props: CameraViewProps) @{
 
 			try {
 				stopPreview = await startCameraPreview(view, facing, () => {
-					if (!disposed) props.onReady?.()
+					if (!disposed) {
+						props.onReady?.()
+					}
 				})
 			} catch (error: any) {
-				if (!disposed) fail(error?.message ?? 'camera error')
+				if (!disposed) {
+					fail(error?.message ?? 'camera error')
+				}
 			}
 		})
 
@@ -100,13 +120,33 @@ export function CameraView(props: CameraViewProps) @{
 
 	useEffect(() => {
 		const view = host.current
-		if (!view) return
+		if (!view) {
+			return
+		}
+
 		applyEscapeProps(view.nativeViewProtected, props)
 	}, [props.ref, props.windows])
 
 	useEffect(() => observePreviewTap(host.current, props.onTap), [props.onTap])
 
-	<masonview id={props.id} className={['vx-layers', 'vx-cameraview', props.className]} {...layoutChildProps(props, {display: "grid", gridTemplateRows: "1fr", gridTemplateColumns: "1fr", ...({ backgroundColor: '#000', ...props.style })})} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
-		<camerapreview ref={bindHost} style={{gridRow: '1', gridColumn: '1'}} />
+	<masonview
+		id={props.id}
+		className={['vx-layers', 'vx-cameraview', props.className]}
+		{...layoutChildProps(props, {
+			display: 'grid',
+			gridTemplateRows: '1fr',
+			gridTemplateColumns: '1fr',
+			backgroundColor: '#000',
+			...props.style,
+		})}
+		accessible={props.accessible}
+		accessibilityLabel={props.accessibilityLabel}
+		accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any}
+		accessibilityHint={props.accessibilityHint}
+		accessibilityValue={props.accessibilityValue}
+		accessibilityState={nativeAccessibilityState(props.accessibilityState) as any}
+		accessibilityLiveRegion={props.accessibilityLiveRegion as any}
+	>
+		<camerapreview ref={bindHost} style={{ gridRow: '1', gridColumn: '1' }} />
 	</masonview>
 }

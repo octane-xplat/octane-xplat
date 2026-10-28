@@ -1,13 +1,24 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { describe, expect, it, vi } from 'vitest'
-import { createObjectContainer, createObjectDriver, createUniversalRoot, flushUniversalSync } from 'octane/universal/native'
+import {
+	createObjectContainer,
+	createObjectDriver,
+	createUniversalRoot,
+	flushUniversalSync,
+} from 'octane/universal/native'
 
 vi.mock('@nativescript/core', () => ({
 	// ui-svg's index.common.ts evaluates NS decorators at import.
-	Property: class { constructor(_opts?: any) {} register() {} },
+	Property: class {
+		constructor(_opts?: any) {}
+		register() {}
+	},
 	CSSType: () => () => {},
 	registerElement: () => {},
-	View: class {}, isIOS: false, isAndroid: true }))
+	View: class {},
+	isIOS: false,
+	isAndroid: true,
+}))
 
 import { getOutlineFromViewCapabilities, useOutlineFromView } from './outline-view.tsrx'
 
@@ -18,10 +29,10 @@ import { getOutlineFromViewCapabilities, useOutlineFromView } from './outline-vi
 let captured: any
 
 const Probe = (props: any) => @{
-	captured = useOutlineFromView(props.container)
+		captured = useOutlineFromView(props.container)
 
-	<label text="probe" />
-}
+		<label text="probe" />
+	}
 
 // The collection effect settles through microtasks before the sync flush.
 async function settle() {

@@ -20,7 +20,14 @@ export default function Case() {
 	const [open, setOpen] = useState(true)
 	updateName = setName
 	closeOwner = () => setOpen(false)
-	return <><span id="owner-state">{open ? 'open' : 'closed'}</span><Name value="outside"><Name value={name}>{open ? <Controls /> : null}</Name></Name></>
+	return (
+		<>
+			<span id="owner-state">{open ? 'open' : 'closed'}</span>
+			<Name value="outside">
+				<Name value={name}>{open ? <Controls /> : null}</Name>
+			</Name>
+		</>
+	)
 }
 
 export async function run(ctx: any) {
@@ -32,21 +39,41 @@ export async function run(ctx: any) {
 	const first = sheet.open(Content, { id: 'owned-sheet-first' }, { label: 'First' })
 	const second = sheet.open(Content, { id: 'owned-sheet-second' }, { label: 'Second' })
 	await ctx.waitFor(() => find('owned-sheet-first') && find('owned-sheet-second'))
-	ctx.assert('first sheet inherits the nearest provider', find('owned-sheet-first').textContent, 'Avery')
-	ctx.assert('second sheet inherits the nearest provider', find('owned-sheet-second').textContent, 'Avery')
+	ctx.assert(
+		'first sheet inherits the nearest provider',
+		find('owned-sheet-first').textContent,
+		'Avery',
+	)
+
+	ctx.assert(
+		'second sheet inherits the nearest provider',
+		find('owned-sheet-second').textContent,
+		'Avery',
+	)
+
 	first.close('first-result')
 	ctx.assert('close handle targets its own sheet', await first, 'first-result')
 	await ctx.waitFor(() => !find('owned-sheet-first'))
 	ctx.assert('other sheet remains mounted', find('owned-sheet-second') != null, true)
 	updateName('Jordan')
 	await ctx.waitFor(() => find('owned-sheet-second')?.textContent === 'Jordan')
-	ctx.assert('provider changes reach sheet content', find('owned-sheet-second').textContent, 'Jordan')
+	ctx.assert(
+		'provider changes reach sheet content',
+		find('owned-sheet-second').textContent,
+		'Jordan',
+	)
+
 	closeOwner()
 	await second
 	await ctx.waitFor(() => !find('owned-sheet-second'))
 	ctx.assert('owner removal releases the sheet', find('owned-sheet-second') == null, true)
 	let rejected = false
-	try { await sheet.open(Content, { id: 'late-sheet' }) } catch { rejected = true }
+	try {
+		await sheet.open(Content, { id: 'late-sheet' })
+	} catch {
+		rejected = true
+	}
+
 	ctx.assert('removed owners reject late opens', rejected, true)
 	ctx.assert('late opens create no content', find('late-sheet') == null, true)
 }

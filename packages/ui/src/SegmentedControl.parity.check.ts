@@ -2,7 +2,6 @@ import type { ParityCheck, CheckRow } from './parity/check-helpers.ts'
 import { near, controlEqual, controlRows } from './parity/check-helpers.ts'
 
 export const CHECKS: ParityCheck[] = [
-
 	{
 		fixture: 'segmented-control-selected',
 		targets: ['web', 'ios', 'android'],
@@ -34,5 +33,5 @@ export const CHECKS: ParityCheck[] = [
 
 			return rows
 		},
-	}
+	},
 ]

@@ -14,5 +14,10 @@ function NavigationMenuFixture() @{
 }
 
 export const PARITY: ParityFixture[] = [
-	{ name: 'navigation-menu-active', component: 'NavigationMenu', renderer: NavigationMenuFixture, props: {} },
+	{
+		name: 'navigation-menu-active',
+		component: 'NavigationMenu',
+		renderer: NavigationMenuFixture,
+		props: {},
+	},
 ]

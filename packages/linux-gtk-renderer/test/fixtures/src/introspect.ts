@@ -25,6 +25,7 @@ const walk = (w: Gtk.Widget | null, depth: number) => {
 		w = w.get_next_sibling()
 	}
 }
+
 walk(host, 0)
 print(JSON.stringify(seen, null, 0))
 
@@ -39,6 +40,7 @@ GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
 	loop.quit()
 	return false
 })
+
 loop.run()
 const label = all.find((w) => w.constructor.$gtype.name === 'GtkLabel')
 print(JSON.stringify({ buttonPressed: !!button, labelText: (label as any)?.label ?? null }))

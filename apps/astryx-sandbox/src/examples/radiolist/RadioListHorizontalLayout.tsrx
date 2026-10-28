@@ -4,6 +4,7 @@ import { useState } from 'octane'
 
 export function RadioListHorizontalLayout() @{
 	const [value, setValue] = useState('md')
+
 	<RadioList label="Size" horizontal value={value} onValueChange={setValue}>
 		<RadioListItem label="Small" value="sm" />
 		<RadioListItem label="Medium" value="md" />

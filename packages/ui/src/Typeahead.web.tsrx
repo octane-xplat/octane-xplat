@@ -1,24 +1,30 @@
-import { useMemo, useRef, useState, useSyncExternalStore, useId } from 'octane';
+import { useMemo, useRef, useState, useSyncExternalStore, useId } from 'octane'
 import { styleRecord } from './style-merge'
-import type { SearchableItem, TypeaheadInputHandle, TypeaheadProps } from "./props";
-import { useSize } from './size-context';
-import { applyEscapeProps } from "./escape-props";
-import { FormField } from './FormField.web.tsrx';
-import { BaseTypeahead } from './BaseTypeahead.web.tsrx';
-import { Token } from './Token.web.tsrx';
-import { ActivityIndicator } from './ActivityIndicator.web.tsrx';
-import { Icon } from './Icon.web.tsrx';
-import { Tooltip } from './Tooltip.web.tsrx';
-import { BusyLaneProvider, createBusyIndicatorLane, type BusyIndicatorLane } from './busy-lane';
+import type { SearchableItem, TypeaheadInputHandle, TypeaheadProps } from './props'
+import { useSize } from './size-context'
+import { applyEscapeProps } from './escape-props'
+import { FormField } from './FormField.web.tsrx'
+import { BaseTypeahead } from './BaseTypeahead.web.tsrx'
+import { Token } from './Token.web.tsrx'
+import { ActivityIndicator } from './ActivityIndicator.web.tsrx'
+import { Icon } from './Icon.web.tsrx'
+import { Tooltip } from './Tooltip.web.tsrx'
+import { BusyLaneProvider, createBusyIndicatorLane, type BusyIndicatorLane } from './busy-lane'
 
 /** The field's inline-end lane: busy Spinner, then the clear button. A leaf
  *  subscribing to the lane re-renders only itself per search transition. */
 function EndLane(props: { lane: BusyIndicatorLane; clear?: any }) @{
-	const isBusy = useSyncExternalStore(props.lane.subscribe, props.lane.getIsBusy);
-	if (!isBusy && props.clear == null) return null;
+	const isBusy = useSyncExternalStore(props.lane.subscribe, props.lane.getIsBusy)
+	if (!isBusy && props.clear == null) {
+		return null
+	}
 
 	<div className="vx-typeahead-endlane">
-		{isBusy ? <span className="vx-typeahead-spinner" role="status" aria-label="Loading"><ActivityIndicator busy={true} /></span> : null}
+		{isBusy ? (
+			<span className="vx-typeahead-spinner" role="status" aria-label="Loading">
+				<ActivityIndicator busy={true} />
+			</span>
+		) : null}
 		{props.clear}
 	</div>
 }
@@ -27,99 +33,126 @@ function EndLane(props: { lane: BusyIndicatorLane; clear?: any }) @{
  *  a Token painted over the input while a value is selected. Clicking the
  *  token or wrapper enters edit mode (input repopulated with the label);
  *  blur or Escape without a selection restores the token. */
-export function Typeahead<T extends SearchableItem,>(props: TypeaheadProps<T>) @{
-	const size = useSize(props.size, 'md');
-	const inputId = useId();
-	const inputRef = useRef<HTMLInputElement | null>(null);
-	const inputHandle = useRef<TypeaheadInputHandle | null>(null);
-	const wrapperRef = useRef<HTMLDivElement | null>(null);
-	const tokenRef = useRef<HTMLElement | null>(null);
-	const wrapperAnchor = useRef<any>(null);
+export function Typeahead<T extends SearchableItem>(props: TypeaheadProps<T>) @{
+	const size = useSize(props.size, 'md')
+	const inputId = useId()
+	const inputRef = useRef<HTMLInputElement | null>(null)
+	const inputHandle = useRef<TypeaheadInputHandle | null>(null)
+	const wrapperRef = useRef<HTMLDivElement | null>(null)
+	const tokenRef = useRef<HTMLElement | null>(null)
+	const wrapperAnchor = useRef<any>(null)
 
-	const showsDisabledMessage = Boolean(props.isDisabled && props.disabledMessage);
-	const busyLane = useMemo(() => createBusyIndicatorLane(), []);
-	const [isEditing, setIsEditing] = useState(false);
-	const [editingValue, setEditingValue] = useState<T | null>(null);
+	const showsDisabledMessage = Boolean(props.isDisabled && props.disabledMessage)
+	const busyLane = useMemo(() => createBusyIndicatorLane(), [])
+	const [isEditing, setIsEditing] = useState(false)
+	const [editingValue, setEditingValue] = useState<T | null>(null)
 
-	const showToken = props.value != null && !isEditing;
+	const showToken = props.value != null && !isEditing
 
 	const enterEditMode = () => {
-		if (props.isDisabled || !props.value) return;
-		setEditingValue(props.value);
-		setIsEditing(true);
-		props.onChangeQuery?.(props.value.label);
+		if (props.isDisabled || !props.value) {
+			return
+		}
+
+		setEditingValue(props.value)
+		setIsEditing(true)
+		props.onChangeQuery?.(props.value.label)
 		// The base owns its query state; setQuery pushes the label through the
 		// same search pipeline as a typed query.
-		inputHandle.current?.setQuery(props.value.label);
-		inputHandle.current?.focus();
-		const el = inputHandle.current?.native as HTMLInputElement | null;
-		el?.setSelectionRange?.(0, el.value.length);
-	};
+		inputHandle.current?.setQuery(props.value.label)
+		inputHandle.current?.focus()
+		const el = inputHandle.current?.native as HTMLInputElement | null
+		el?.setSelectionRange?.(0, el.value.length)
+	}
 
 	const restoreToken = () => {
-		setIsEditing(false);
-		setEditingValue(null);
-	};
+		setIsEditing(false)
+		setEditingValue(null)
+	}
 
 	const handleWrapperClick = () => {
-		if (props.isDisabled) return;
-		if (showToken) enterEditMode();
-		else inputHandle.current?.focus();
-	};
+		if (props.isDisabled) {
+			return
+		}
+
+		if (showToken) {
+			enterEditMode()
+		} else {
+			inputHandle.current?.focus()
+		}
+	}
 
 	// Blur out of the whole field restores the token when no selection was made.
 	const handleWrapperBlur = (e: any) => {
-		if (wrapperRef.current?.contains(e.relatedTarget)) return;
-		if (isEditing && editingValue) restoreToken();
-	};
+		if (wrapperRef.current?.contains(e.relatedTarget)) {
+			return
+		}
+
+		if (isEditing && editingValue) {
+			restoreToken()
+		}
+	}
 
 	const handleChange = (item: T | null) => {
-		restoreToken();
-		props.onChange(item);
+		restoreToken()
+		props.onChange(item)
 		if (item) {
 			// Keep keyboard users inside the component: focus the token's inner
 			// button once it renders.
 			setTimeout(() => {
-				const tokenEl = tokenRef.current;
-				(tokenEl?.querySelector('button') ?? tokenEl)?.focus?.();
-			}, 0);
+				const tokenEl = tokenRef.current
+
+				;(tokenEl?.querySelector('button') ?? tokenEl)?.focus?.()
+			}, 0)
 		}
-	};
+	}
 
 	const handleClear = (e: any) => {
-		e?.stopPropagation?.();
-		restoreToken();
-		props.onChange(null);
-		inputHandle.current?.focus();
-	};
+		e?.stopPropagation?.()
+		restoreToken()
+		props.onChange(null)
+		inputHandle.current?.focus()
+	}
 
 	// BaseTypeahead forwards keydowns here before its own navigation.
 	const handleKeyDown = (e: any) => {
-		if (e.isComposing || e.keyCode === 229) return;
-		if (e.key === 'Escape' && editingValue) {
-			e.preventDefault();
-			restoreToken();
-			inputHandle.current?.blur();
+		if (e.isComposing || e.keyCode === 229) {
+			return
 		}
-	};
 
-	const startIcon = props.startIcon == null
-		? null
-		: typeof props.startIcon === 'string'
-			? <Icon name={props.startIcon} size={16} className="vx-typeahead-icon" />
-			: props.startIcon;
+		if (e.key === 'Escape' && editingValue) {
+			e.preventDefault()
+			restoreToken()
+			inputHandle.current?.blur()
+		}
+	}
 
-	const forwardedRef = useMemo(() => [(h: TypeaheadInputHandle | null) => {
-							inputHandle.current = h;
-							inputRef.current = h?.native as HTMLInputElement | null ?? null;
-						}, props.ref], [props.ref, props.ios, props.android, props.web]);
+	const startIcon =
+		props.startIcon == null ? null : typeof props.startIcon === 'string' ? (
+			<Icon name={props.startIcon} size={16} className="vx-typeahead-icon" />
+		) : (
+			props.startIcon
+		)
+
+	const forwardedRef = useMemo(
+		() => [
+			(h: TypeaheadInputHandle | null) => {
+				inputHandle.current = h
+				inputRef.current = (h?.native as HTMLInputElement | null) ?? null
+			},
+			props.ref,
+		],
+		[props.ref, props.ios, props.android, props.web],
+	)
 
 	const wrapper = (
 		<div
 			ref={(el: any) => {
-				wrapperRef.current = el;
-				wrapperAnchor.current = el;
-				if (el) applyEscapeProps(el, props);
+				wrapperRef.current = el
+				wrapperAnchor.current = el
+				if (el) {
+					applyEscapeProps(el, props)
+				}
 			}}
 			className={[
 				'vx-typeahead',
@@ -132,16 +165,18 @@ export function Typeahead<T extends SearchableItem,>(props: TypeaheadProps<T>) @
 		>
 			{startIcon}
 			<div className="vx-typeahead-content">
-				{showToken && props.value
-					? <Token
+				{showToken && props.value ? (
+					<Token
 						label={props.value.label}
 						size={size}
 						onClick={enterEditMode}
 						isDisabled={props.isDisabled}
 						className="vx-typeahead-token"
-						ref={(el: any) => { tokenRef.current = el; }}
+						ref={(el: any) => {
+							tokenRef.current = el
+						}}
 					/>
-					: null}
+				) : null}
 				<BusyLaneProvider value={busyLane}>
 					<BaseTypeahead
 						searchSource={props.searchSource}
@@ -171,12 +206,21 @@ export function Typeahead<T extends SearchableItem,>(props: TypeaheadProps<T>) @
 			</div>
 			<EndLane
 				lane={busyLane}
-				clear={props.hasClear !== false && props.value && !props.isDisabled
-					? <button type="button" className="vx-input-clear" aria-label="Clear selection" onClick={handleClear}>{'×'}</button>
-					: null}
+				clear={
+					props.hasClear !== false && props.value && !props.isDisabled ? (
+						<button
+							type="button"
+							className="vx-input-clear"
+							aria-label="Clear selection"
+							onClick={handleClear}
+						>
+							{'×'}
+						</button>
+					) : null
+				}
 			/>
 		</div>
-	);
+	)
 
 	<FormField
 		id={props.id}
@@ -197,8 +241,10 @@ export function Typeahead<T extends SearchableItem,>(props: TypeaheadProps<T>) @
 		style={{ ...(props.width != null ? { width: props.width } : {}), ...styleRecord(props.style) }}
 		web={props.web}
 	>
-		{showsDisabledMessage
-			? <Tooltip trigger={wrapper} content={props.disabledMessage} placement="top" />
-			: wrapper}
+		{showsDisabledMessage ? (
+			<Tooltip trigger={wrapper} content={props.disabledMessage} placement="top" />
+		) : (
+			wrapper
+		)}
 	</FormField>
 }

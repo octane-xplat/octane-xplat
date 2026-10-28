@@ -76,6 +76,7 @@ function helpText(command) {
 			f.min !== undefined ? `min: ${f.min}` : null,
 			f.max !== undefined ? `max: ${f.max}` : null,
 		].filter(Boolean)
+
 		out.push(
 			`  --${f.flag}${meta}  ${f.desc ?? ''}${constraints.length ? ` (${constraints.join(', ')})` : ''}`,
 		)

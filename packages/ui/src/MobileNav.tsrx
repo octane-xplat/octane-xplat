@@ -1,17 +1,17 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { mergeStyle } from './style-merge'
-import { useContext, useId, useCallback } from 'octane';
-import type { MobileNavProps, MobileNavToggleProps } from './props';
-import { cx } from '@octane-xplat/lib';
-import { applyEscapeProps } from './escape-props';
-import { Button } from './Button.tsrx';
-import { Icon } from './Icon';
-import { Text } from './Text';
-import { Pressable } from './Pressable';
-import { AppShellMobileContext, useAppShellMobile } from './nav-contexts';
-import { SizeProvider } from './size-context';
+import { useContext, useId, useCallback } from 'octane'
+import type { MobileNavProps, MobileNavToggleProps } from './props'
+import { cx } from '@octane-xplat/lib'
+import { applyEscapeProps } from './escape-props'
+import { Button } from './Button.tsrx'
+import { Icon } from './Icon'
+import { Text } from './Text'
+import { Pressable } from './Pressable'
+import { AppShellMobileContext, useAppShellMobile } from './nav-contexts'
+import { SizeProvider } from './size-context'
 
-export { AppShellMobileContext, useAppShellMobile };
+export { AppShellMobileContext, useAppShellMobile }
 
 /** MobileNav — the navigation drawer. Inside AppShell its open state comes
  *  from context; standalone it takes `isOpen`/`onOpenChange`.
@@ -22,44 +22,77 @@ export { AppShellMobileContext, useAppShellMobile };
  *  tap closes.) Slide-in animation is not implemented on this leaf yet —
  *  the drawer appears/dismisses instantly. */
 export function MobileNav(props: MobileNavProps) @{
-	const appShell = useContext(AppShellMobileContext);
-	const fallbackId = useId();
-	const id = props.id ?? appShell.mobileNavId ?? fallbackId;
+	const appShell = useContext(AppShellMobileContext)
+	const fallbackId = useId()
+	const id = props.id ?? appShell.mobileNavId ?? fallbackId
 
-	const isControlled = props.isOpen != null;
-	const isOpen = isControlled ? props.isOpen : appShell.isMobileNavOpen;
+	const isControlled = props.isOpen != null
+	const isOpen = isControlled ? props.isOpen : appShell.isMobileNavOpen
 
 	const onOpenChange = useCallback(
 		(next: boolean) => {
 			if (props.onOpenChange) {
-				props.onOpenChange(next);
+				props.onOpenChange(next)
 			} else if (next) {
-				appShell.openMobileNav();
+				appShell.openMobileNav()
 			} else {
-				appShell.closeMobileNav();
+				appShell.closeMobileNav()
 			}
 		},
 		[props.onOpenChange, appShell],
-	);
+	)
 
 	// `auto` resolves to `start` — the toggle's position can't be read on
 	// native, and start is the platform convention (documented deviation).
-	const side = props.side === 'auto' || props.side == null ? 'start' : props.side;
-	const width = props.width ?? 320;
+	const side = props.side === 'auto' || props.side == null ? 'start' : props.side
+	const width = props.width ?? 320
 
 	@if (!isOpen) {
 		null
 	} @else {
-		<masonview ref={(v: any) => applyEscapeProps(v, props)} id={id} className={cx('vx-mobilenav', 'vx-mobilenav--' + side, 'vx-mobilenav--open', props.className)} style={mergeStyle({display: "grid"}, props.style)} accessibilityLabel={props.label ?? (typeof props.header === 'string' ? props.header : 'Navigation')}>
-			<masonview className="vx-mobilenav-backdrop" onTap={() => onOpenChange(false)} style={{display: "flex"}}/>
-			<masonview style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { width , justifySelf: side === 'start' ? 'left' : 'right'}))} className="vx-mobilenav-drawer">
+		<masonview
+			ref={(v: any) => applyEscapeProps(v, props)}
+			id={id}
+			className={cx('vx-mobilenav', 'vx-mobilenav--' + side, 'vx-mobilenav--open', props.className)}
+			style={mergeStyle({ display: 'grid' }, props.style)}
+			accessibilityLabel={
+				props.label ?? (typeof props.header === 'string' ? props.header : 'Navigation')
+			}
+		>
+			<masonview
+				className="vx-mobilenav-backdrop"
+				onTap={() => onOpenChange(false)}
+				style={{ display: 'flex' }}
+			/>
+			<masonview
+				style={mergeStyle(
+					{ flexDirection: 'column' },
+					mergeStyle(
+						{ display: 'flex' },
+						{ width, justifySelf: side === 'start' ? 'left' : 'right' },
+					),
+				)}
+				className="vx-mobilenav-drawer"
+			>
 				@if (props.header != null) {
-					<masonview className="vx-mobilenav-header" style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex"})}>
-						{typeof props.header === 'string' ? <Text className="vx-mobilenav-heading">{props.header}</Text> : props.header}
+					<masonview
+						className="vx-mobilenav-header"
+						style={mergeStyle(
+							{ flexDirection: 'row', alignItems: 'center' },
+							{ display: 'flex' },
+						)}
+					>
+						{typeof props.header === 'string' ? (
+							<Text className="vx-mobilenav-heading">{props.header}</Text>
+						) : (
+							props.header
+						)}
 					</masonview>
 				}
-				<scrollview className="vx-mobilenav-content" style={{flexGrow: 1}}>
-					<masonview style={mergeStyle({flexDirection: "column"}, {display: "flex"})}><SizeProvider value={null}>{props.children}</SizeProvider></masonview>
+				<scrollview className="vx-mobilenav-content" style={{ flexGrow: 1 }}>
+					<masonview style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}>
+						<SizeProvider value={null}>{props.children}</SizeProvider>
+					</masonview>
 				</scrollview>
 			</masonview>
 		</masonview>
@@ -69,7 +102,7 @@ export function MobileNav(props: MobileNavProps) @{
 /** MobileNavToggle — the hamburger. Renders nothing unless the AppShell
  *  mobile context says the drawer is enabled and mobile layout is active. */
 export function MobileNavToggle(props: MobileNavToggleProps) @{
-	const { isMobile, isMobileNavEnabled, toggleMobileNav } = useAppShellMobile();
+	const { isMobile, isMobileNavEnabled, toggleMobileNav } = useAppShellMobile()
 
 	@if (!isMobile || !isMobileNavEnabled) {
 		null

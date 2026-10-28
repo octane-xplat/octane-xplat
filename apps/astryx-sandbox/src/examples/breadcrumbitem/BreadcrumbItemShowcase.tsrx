@@ -4,15 +4,21 @@ import { BreadcrumbItem, Breadcrumbs, Icon, Text, VStack } from '@octane-xplat/u
 export function BreadcrumbItemShowcase() @{
 	<VStack gap={4}>
 		<VStack gap={1}>
-			<Text type="supporting" color="secondary">With start icon</Text>
+			<Text type="supporting" color="secondary">
+				With start icon
+			</Text>
 			<Breadcrumbs>
-				<BreadcrumbItem href="/" startIcon={<Icon name="sandbox-home" size={16} />}>Home</BreadcrumbItem>
+				<BreadcrumbItem href="/" startIcon={<Icon name="sandbox-home" size={16} />}>
+					Home
+				</BreadcrumbItem>
 				<BreadcrumbItem href="/docs">Docs</BreadcrumbItem>
 				<BreadcrumbItem isCurrent>Components</BreadcrumbItem>
 			</Breadcrumbs>
 		</VStack>
 		<VStack gap={1}>
-			<Text type="supporting" color="secondary">As current page (non-link)</Text>
+			<Text type="supporting" color="secondary">
+				As current page (non-link)
+			</Text>
 			<Breadcrumbs>
 				<BreadcrumbItem href="/">Home</BreadcrumbItem>
 				<BreadcrumbItem href="/settings">Settings</BreadcrumbItem>
@@ -20,7 +26,9 @@ export function BreadcrumbItemShowcase() @{
 			</Breadcrumbs>
 		</VStack>
 		<VStack gap={1}>
-			<Text type="supporting" color="secondary">Supporting variant</Text>
+			<Text type="supporting" color="secondary">
+				Supporting variant
+			</Text>
 			<Breadcrumbs variant="supporting">
 				<BreadcrumbItem href="/">Home</BreadcrumbItem>
 				<BreadcrumbItem href="/admin">Admin</BreadcrumbItem>
@@ -29,7 +37,9 @@ export function BreadcrumbItemShowcase() @{
 			</Breadcrumbs>
 		</VStack>
 		<VStack gap={1}>
-			<Text type="supporting" color="secondary">With onClick handler (no href)</Text>
+			<Text type="supporting" color="secondary">
+				With onClick handler (no href)
+			</Text>
 			<Breadcrumbs>
 				<BreadcrumbItem onPress={() => {}}>Dashboard</BreadcrumbItem>
 				<BreadcrumbItem onPress={() => {}}>Projects</BreadcrumbItem>

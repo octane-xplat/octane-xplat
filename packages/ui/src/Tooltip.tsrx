@@ -28,12 +28,18 @@ export function Tooltip(props: TooltipProps) @{
 	const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
 	const clearOpen = () => {
-		if (openTimer.current !== null) clearTimeout(openTimer.current)
+		if (openTimer.current !== null) {
+			clearTimeout(openTimer.current)
+		}
+
 		openTimer.current = null
 	}
 
 	const clearClose = () => {
-		if (closeTimer.current !== null) clearTimeout(closeTimer.current)
+		if (closeTimer.current !== null) {
+			clearTimeout(closeTimer.current)
+		}
+
 		closeTimer.current = null
 	}
 
@@ -45,10 +51,16 @@ export function Tooltip(props: TooltipProps) @{
 	}
 
 	const openNow = () => {
-		if (props.disabled || popup.current) return
+		if (props.disabled || popup.current) {
+			return
+		}
+
 		const view = anchor.current
 		const show = host().showAnchoredPopup
-		if (!view || typeof show !== 'function') return
+		if (!view || typeof show !== 'function') {
+			return
+		}
+
 		popup.current = show({
 			anchor: view,
 			placement: props.placement ?? 'top',
@@ -58,44 +70,68 @@ export function Tooltip(props: TooltipProps) @{
 	}
 
 	const startOpen = () => {
-		if (props.disabled) return
+		if (props.disabled) {
+			return
+		}
+
 		clearClose()
 		clearOpen()
-		openTimer.current = setTimeout(() => {
-			openTimer.current = null
-			openNow()
-		}, Math.max(0, props.openDelay ?? 500))
+		openTimer.current = setTimeout(
+			() => {
+				openTimer.current = null
+				openNow()
+			},
+			Math.max(0, props.openDelay ?? 500),
+		)
 	}
 
 	const scheduleClose = () => {
 		clearClose()
-		closeTimer.current = setTimeout(() => {
-			closeTimer.current = null
-			closeNow()
-		}, Math.max(0, props.closeDelay ?? 100))
+		closeTimer.current = setTimeout(
+			() => {
+				closeTimer.current = null
+				closeNow()
+			},
+			Math.max(0, props.closeDelay ?? 100),
+		)
 	}
 
 	const bindAnchor = (view: any) => {
-		if (view && view === anchor.current && detachHover.current) return
+		if (view && view === anchor.current && detachHover.current) {
+			return
+		}
+
 		anchor.current = view
 		detachHover.current?.()
 		detachHover.current = null
-		if (!view) return
+		if (!view) {
+			return
+		}
+
 		const observe = host().observeHover
-		if (typeof observe !== 'function') return
+		if (typeof observe !== 'function') {
+			return
+		}
+
 		detachHover.current = observe(view, {
 			enter: startOpen,
-			exit: () => { clearOpen(); scheduleClose() },
+			exit: () => {
+				clearOpen()
+				scheduleClose()
+			},
 		})
 	}
 
-	useEffect(() => () => {
-		clearOpen()
-		clearClose()
-		detachHover.current?.()
-		popup.current?.close()
-		popup.current = null
-	}, [])
+	useEffect(
+		() => () => {
+			clearOpen()
+			clearClose()
+			detachHover.current?.()
+			popup.current?.close()
+			popup.current = null
+		},
+		[],
+	)
 
 	<View id={props.id} className={props.className} style={props.style} ref={bindAnchor}>
 		{props.trigger}

@@ -1,7 +1,7 @@
-import { useEffect, useRef } from 'octane';
-import type { PagerProps } from './props';
-import { applyWebProps } from './platformProps.web';
-import { layoutChildProps } from './layout-child.web';
+import { useEffect, useRef } from 'octane'
+import type { PagerProps } from './props'
+import { applyWebProps } from './platformProps.web'
+import { layoutChildProps } from './layout-child.web'
 
 /** Paged horizontal container — web leaf: a mandatory scroll-snap row, one
  *  page per item at 100% host width. `onPageChange` fires on the settled
@@ -11,70 +11,88 @@ import { layoutChildProps } from './layout-child.web';
  *  through `onPageChange` — same contract as the muted property echo on
  *  native. No indicator — compose dots from Row + View outside. */
 export function Pager(props: PagerProps) @{
-	const host = useRef<HTMLElement | null>(null);
-	const latest = useRef(props);
+	const host = useRef<HTMLElement | null>(null)
+	const latest = useRef(props)
 	// The page the leaf believes it is on: seeded by `page`/`defaultPage`,
 	// updated by controlled writes and settled swipes. A scroll that lands
 	// on `current` is programmatic — the settle never reports it.
-	const current = useRef(props.page ?? props.defaultPage ?? 0);
-	const hasItems = props.items.length > 0;
-	const settle = useRef<ReturnType<typeof setTimeout> | null>(null);
+	const current = useRef(props.page ?? props.defaultPage ?? 0)
+	const hasItems = props.items.length > 0
+	const settle = useRef<ReturnType<typeof setTimeout> | null>(null)
 
 	useEffect(() => {
-		latest.current = props;
-	});
+		latest.current = props
+	})
 
 	useEffect(() => {
-		const el = host.current;
-		if (!el) return;
+		const el = host.current
+		if (!el) {
+			return
+		}
+
 		const onScroll = () => {
-			if (settle.current !== null) clearTimeout(settle.current);
-			settle.current = setTimeout(() => {
-				settle.current = null;
-				const el2 = host.current;
-				if (!el2 || el2.clientWidth === 0) return;
-				const max = Math.max(latest.current.items.length - 1, 0);
-				const next = Math.max(0, Math.min(max, Math.round(el2.scrollLeft / el2.clientWidth)));
-				if (next !== current.current) {
-					current.current = next;
-					latest.current.onPageChange?.(next);
-				}
-			}, 90);
-		};
+			if (settle.current !== null) {
+				clearTimeout(settle.current)
+			}
 
-		el.addEventListener('scroll', onScroll, { passive: true });
+			settle.current = setTimeout(() => {
+				settle.current = null
+				const el2 = host.current
+				if (!el2 || el2.clientWidth === 0) {
+					return
+				}
+
+				const max = Math.max(latest.current.items.length - 1, 0)
+				const next = Math.max(0, Math.min(max, Math.round(el2.scrollLeft / el2.clientWidth)))
+				if (next !== current.current) {
+					current.current = next
+					latest.current.onPageChange?.(next)
+				}
+			}, 90)
+		}
+
+		el.addEventListener('scroll', onScroll, { passive: true })
 		return () => {
-			el.removeEventListener('scroll', onScroll);
-			if (settle.current !== null) clearTimeout(settle.current);
-			settle.current = null;
-		};
-	}, [hasItems]);
+			el.removeEventListener('scroll', onScroll)
+			if (settle.current !== null) {
+				clearTimeout(settle.current)
+			}
+
+			settle.current = null
+		}
+	}, [hasItems])
 
 	// Each new host: jump (no animation) to the starting page — an initial position
 	// is not a scroll. Runs after the scroll listener attaches so the write
 	// still flows through the tracked-index path.
 	useEffect(() => {
-		const el = host.current;
-		if (!el) return;
-		current.current = props.page ?? current.current;
-		el.scrollLeft = current.current * el.clientWidth;
-	}, [hasItems]);
+		const el = host.current
+		if (!el) {
+			return
+		}
+
+		current.current = props.page ?? current.current
+		el.scrollLeft = current.current * el.clientWidth
+	}, [hasItems])
 
 	// Controlled writes scroll smoothly. Skipped when the page already
 	// matches `current` — a user swipe that the parent echoes back unchanged
 	// must not scroll again.
 	useEffect(() => {
-		const el = host.current;
-		if (!el || props.page === undefined || props.page === current.current) return;
-		current.current = props.page;
-		el.scrollTo({ left: props.page * el.clientWidth, behavior: 'smooth' });
-	}, [props.page]);
+		const el = host.current
+		if (!el || props.page === undefined || props.page === current.current) {
+			return
+		}
+
+		current.current = props.page
+		el.scrollTo({ left: props.page * el.clientWidth, behavior: 'smooth' })
+	}, [props.page])
 
 	@if (props.items.length > 0) {
 		<div
 			ref={(el: any) => {
-				host.current = el;
-				applyWebProps(el, props.web);
+				host.current = el
+				applyWebProps(el, props.web)
 			}}
 			id={props.id}
 			className={['vx-pager', props.className]}

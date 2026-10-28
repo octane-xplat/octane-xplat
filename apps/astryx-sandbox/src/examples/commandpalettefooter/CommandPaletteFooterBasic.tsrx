@@ -14,5 +14,15 @@ export function CommandPaletteFooterBasic() @{
 			]),
 		[],
 	)
-	<CommandPalette open onOpenChange={() => {}} searchSource={source} footer={<Text type="supporting" color="secondary">↑↓ to navigate · ↵ to select · esc to close</Text>} />
+
+	<CommandPalette
+		open
+		onOpenChange={() => {}}
+		searchSource={source}
+		footer={
+			<Text type="supporting" color="secondary">
+				↑↓ to navigate · ↵ to select · esc to close
+			</Text>
+		}
+	/>
 }

@@ -7,21 +7,27 @@ const native = vi.hoisted(() => {
 	const Application: any = { android, AndroidApplication: { activityBackPressedEvent: 'back' } }
 	return { listeners, android, Application }
 })
+
 vi.mock('@nativescript/core', () => native)
 import {
 	isNativeActivityBackEvent,
 	registerNativeBackHandler,
 } from './native-back-dispatcher.android'
+
 beforeEach(() => {
 	delete native.Application[Symbol.for('octane-xplat.routing.android-back')]
 	native.Application.android = native.android
 	native.listeners.length = 0
 })
+
 function press(cancel = false) {
 	const event = { cancel }
-	for (const listener of native.listeners) {listener(event)}
+	for (const listener of native.listeners) {
+		listener(event)
+	}
 	return event.cancel
 }
+
 it('orders interceptors before surfaces and legacy defaults, newest first within a priority', () => {
 	const calls: string[] = []
 	registerNativeBackHandler('legacy', {
@@ -56,6 +62,7 @@ it('orders interceptors before surfaces and legacy defaults, newest first within
 	expect(calls).toEqual(['new', 'old', 'surface'])
 	expect(native.listeners).toHaveLength(1)
 })
+
 it('replaces keyed registrations without letting a stale cleanup remove their replacement', () => {
 	const old = vi.fn(() => true)
 	const next = vi.fn(() => true)
@@ -68,6 +75,7 @@ it('replaces keyed registrations without letting a stale cleanup remove their re
 	detachNext()
 	expect(press()).toBe(false)
 })
+
 it('preserves an already consumed press and consumes a failing handler safely', () => {
 	const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
 	const handler = vi.fn(() => {
@@ -83,6 +91,7 @@ it('preserves an already consumed press and consumes a failing handler safely', 
 		warn.mockRestore()
 	}
 })
+
 it('keeps one listener when modules reload', async () => {
 	const old = vi.fn(() => false)
 	registerNativeBackHandler('legacy', { priority: 0, handle: old })
@@ -95,6 +104,7 @@ it('keeps one listener when modules reload', async () => {
 	expect(old).not.toHaveBeenCalled()
 	expect(next).toHaveBeenCalledOnce()
 })
+
 it('distinguishes activity events from SDK modal events and does not subscribe before Android exists', () => {
 	expect(isNativeActivityBackEvent({ cancel: false, object: native.Application })).toBe(true)
 	expect(isNativeActivityBackEvent({ cancel: false, object: {} })).toBe(false)

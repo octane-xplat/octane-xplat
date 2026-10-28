@@ -5,7 +5,11 @@ import { cx } from '@octane-xplat/lib'
 
 export function Overlay(props: OverlayProps) @{
 	@if (props.open) {
-		<masonview className={cx('vx-overlay', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style))} accessibilityLabel={props.accessibilityLabel}>
+		<masonview
+			className={cx('vx-overlay', props.className)}
+			style={mergeStyle({ flexDirection: 'column' }, mergeStyle({ display: 'flex' }, props.style))}
+			accessibilityLabel={props.accessibilityLabel}
+		>
 			{props.children}
 		</masonview>
 	}
@@ -13,7 +17,10 @@ export function Overlay(props: OverlayProps) @{
 
 export function Popover(props: PopoverProps) @{
 	@if (props.open) {
-		<masonview className={cx('vx-popover', props.className)} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, props.style))}>
+		<masonview
+			className={cx('vx-popover', props.className)}
+			style={mergeStyle({ flexDirection: 'column' }, mergeStyle({ display: 'flex' }, props.style))}
+		>
 			{props.children}
 		</masonview>
 	}

@@ -1,29 +1,29 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { mergeStyle } from './style-merge'
-import { useMemo, useRef, useState } from 'octane';
-import { appKitImageSource } from './svg-image.macos';
-import { useMeasure } from '@octane-xplat/ui';
-import type { ChartProps } from './props';
-import { computeScene } from './core/scene';
-import type { ChartScene } from './core/scene';
-import { createScrub, hitLabel } from './core/hit';
-import type { SceneHit } from './core/hit';
+import { useMemo, useRef, useState } from 'octane'
+import { appKitImageSource } from './svg-image.macos'
+import { useMeasure } from '@octane-xplat/ui'
+import type { ChartProps } from './props'
+import { computeScene } from './core/scene'
+import type { ChartScene } from './core/scene'
+import { createScrub, hitLabel } from './core/hit'
+import type { SceneHit } from './core/hit'
 
-const EMPTY_SVG = '<svg xmlns="http://www.w3.org/2000/svg"/>';
-const TIP_ESTIMATE_CHAR = 6.2;
+const EMPTY_SVG = '<svg xmlns="http://www.w3.org/2000/svg"/>'
+const TIP_ESTIMATE_CHAR = 6.2
 
 /** AppKit leaf: one NSImage plus native label and cursor overlays.
  * Click recognizers currently supply no coordinates; taps use the scene center.
  * AppKit does not deliver onTouch, so touch scrubbing is unavailable. */
 export function Chart(props: ChartProps) @{
-	const measure = useMeasure();
-	const [cursor, setCursor] = useState<SceneHit | null>(null);
-	const sceneRef = useRef<ChartScene | null>(null);
-	const propsRef = useRef(props);
-	propsRef.current = props;
+	const measure = useMeasure()
+	const [cursor, setCursor] = useState<SceneHit | null>(null)
+	const sceneRef = useRef<ChartScene | null>(null)
+	const propsRef = useRef(props)
+	propsRef.current = props
 
-	const bounds = measure.bounds;
-	const w = props.width ?? bounds?.width ?? 0;
+	const bounds = measure.bounds
+	const w = props.width ?? bounds?.width ?? 0
 	const h =
 		props.height ??
 		(props.aspectRatio && w > 0
@@ -32,7 +32,7 @@ export function Chart(props: ChartProps) @{
 				? bounds.height
 				: w > 0
 					? w / 1.6
-					: 0);
+					: 0)
 
 	const scene = useMemo(
 		() => (w > 0 && h > 0 ? computeScene(propsRef.current, w, h) : null),
@@ -47,69 +47,211 @@ export function Chart(props: ChartProps) @{
 			w,
 			h,
 		],
-	);
+	)
 
-	sceneRef.current = scene;
+	sceneRef.current = scene
 
-	const interactive = !!(props.onPress || props.onScrub || props.tooltip || props.crosshair);
+	const interactive = !!(props.onPress || props.onScrub || props.tooltip || props.crosshair)
 	const onTap = useMemo(() => {
-		const scrub = createScrub(() => sceneRef.current, () => propsRef.current, setCursor);
+		const scrub = createScrub(
+			() => sceneRef.current,
+			() => propsRef.current,
+			setCursor,
+		)
+
 		return (e?: any) => {
-			const scene = sceneRef.current;
-			scrub('tap', e?.getX?.() ?? (scene?.width ?? 0) / 2, e?.getY?.() ?? (scene?.height ?? 0) / 2);
-		};
-	}, []);
+			const scene = sceneRef.current
+			scrub('tap', e?.getX?.() ?? (scene?.width ?? 0) / 2, e?.getY?.() ?? (scene?.height ?? 0) / 2)
+		}
+	}, [])
 
-	const markup = scene?.markup ?? EMPTY_SVG;
-	const imageSource = useMemo(() => appKitImageSource(markup), [markup]);
+	const markup = scene?.markup ?? EMPTY_SVG
+	const imageSource = useMemo(() => appKitImageSource(markup), [markup])
 
-	const legend = props.legend === true ? 'bottom' : props.legend;
-	const plot = scene?.plot;
-	const dotColor = cursor && scene ? (scene.pie ? scene.pie.slices.find((s) => s.series === cursor.series && s.index === cursor.index)?.color : scene.series[cursor.series]?.color) : undefined;
-	const tipText = cursor && scene ? hitLabel(scene, cursor) : null;
-	const tipWidth = tipText ? tipText.length * TIP_ESTIMATE_CHAR + 14 : 0;
-	const tipLeft = cursor && scene ? Math.min(Math.max(0, cursor.px - tipWidth / 2), Math.max(0, scene.width - tipWidth)) : 0;
-	const tipTop = cursor ? cursor.py - 30 : 0;
+	const legend = props.legend === true ? 'bottom' : props.legend
+	const plot = scene?.plot
+	const dotColor =
+		cursor && scene
+			? scene.pie
+				? scene.pie.slices.find((s) => s.series === cursor.series && s.index === cursor.index)
+						?.color
+				: scene.series[cursor.series]?.color
+			: undefined
 
-	<masonview id={props.id} className={props.className} style={{display: "flex", ...({ flexDirection: 'column', ...props.style })}} accessible={props.accessibilityLabel != null} accessibilityRole={'image'} accessibilityLabel={props.accessibilityLabel}>
+	const tipText = cursor && scene ? hitLabel(scene, cursor) : null
+	const tipWidth = tipText ? tipText.length * TIP_ESTIMATE_CHAR + 14 : 0
+	const tipLeft =
+		cursor && scene
+			? Math.min(Math.max(0, cursor.px - tipWidth / 2), Math.max(0, scene.width - tipWidth))
+			: 0
+
+	const tipTop = cursor ? cursor.py - 30 : 0
+
+	<masonview
+		id={props.id}
+		className={props.className}
+		style={{
+			display: 'flex',
+			flexDirection: 'column',
+			...props.style,
+		}}
+		accessible={props.accessibilityLabel != null}
+		accessibilityRole={'image'}
+		accessibilityLabel={props.accessibilityLabel}
+	>
 		@if (legend === 'top' && scene) {
-			<masonview style={mergeStyle({flexDirection: "row", flexWrap: "wrap"}, {display: "flex", ...({ paddingBottom: 4 })})}>
+			<masonview
+				style={mergeStyle(
+					{ flexDirection: 'row', flexWrap: 'wrap' },
+					{
+						display: 'flex',
+						paddingBottom: 4,
+					},
+				)}
+			>
 				{scene.legend.map((item) => (
-					<masonview style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex", ...({ marginRight: 12 })})}>
-						<masonview style={{display: "flex", ...({ width: 10, height: 10, borderRadius: 2, backgroundColor: item.color, marginRight: 4 })}}/>
+					<masonview
+						style={mergeStyle(
+							{ flexDirection: 'row', alignItems: 'center' },
+							{
+								display: 'flex',
+								marginRight: 12,
+							},
+						)}
+					>
+						<masonview
+							style={{
+								display: 'flex',
+								width: 10,
+								height: 10,
+								borderRadius: 2,
+								backgroundColor: item.color,
+								marginRight: 4,
+							}}
+						/>
 						<label text={item.text} style={{ fontSize: 11 }} />
 					</masonview>
 				))}
 			</masonview>
 		}
-		<masonview ref={measure.ref} style={{display: "grid", ...({
+		<masonview
+			ref={measure.ref}
+			style={{
+				display: 'grid',
 				width: props.width,
 				height: props.height ?? (props.aspectRatio && w > 0 ? w / props.aspectRatio : undefined),
 				flexGrow: 1,
-			})}}>
-			<image id={props.id ? props.id + '-image' : undefined} src={imageSource} style={{ width: w, height: h }} accessibilityLabel="" />
-			<masonview id={props.id ? props.id + '-tap' : undefined} style={{display: "flex", ...({ width: w, height: h })}} onTap={interactive ? onTap : undefined}>	
-				<masonview id={props.id ? props.id + '-overlay' : undefined} style={{ width: w, height: h }}>
+			}}
+		>
+			<image
+				id={props.id ? props.id + '-image' : undefined}
+				src={imageSource}
+				style={{ width: w, height: h }}
+				accessibilityLabel=""
+			/>
+			<masonview
+				id={props.id ? props.id + '-tap' : undefined}
+				style={{
+					display: 'flex',
+					width: w,
+					height: h,
+				}}
+				onTap={interactive ? onTap : undefined}
+			>
+				<masonview
+					id={props.id ? props.id + '-overlay' : undefined}
+					style={{ width: w, height: h }}
+				>
 					{scene?.labels.map((l) => (
-						<label text={l.text} {...{ left: l.x, top: l.y }} style={{ width: l.width, fontSize: 10, opacity: 0.7, textAlign: l.align === 'center' ? 'center' : l.align === 'end' ? 'right' : 'left' , position: 'absolute'}} />
+						<label
+							text={l.text}
+							{...{ left: l.x, top: l.y }}
+							style={{
+								width: l.width,
+								fontSize: 10,
+								opacity: 0.7,
+								textAlign: l.align === 'center' ? 'center' : l.align === 'end' ? 'right' : 'left',
+								position: 'absolute',
+							}}
+						/>
 					))}
 					@if (cursor && props.crosshair && !scene?.pie && plot) {
-						<masonview style={{display: "flex", ...({ width: 1, height: plot.height, backgroundColor: '#8a8a8a' , position: 'absolute', left: cursor.px - 0.5, top: plot.y})}}/>
+						<masonview
+							style={{
+								display: 'flex',
+								width: 1,
+								height: plot.height,
+								backgroundColor: '#8a8a8a',
+								position: 'absolute',
+								left: cursor.px - 0.5,
+								top: plot.y,
+							}}
+						/>
 					}
 					@if (cursor && (props.crosshair || props.tooltip)) {
-						<masonview style={{display: "flex", ...({ width: 8, height: 8, borderRadius: 4, backgroundColor: dotColor ?? '#4e79a7' , position: 'absolute', left: cursor.px - 4, top: cursor.py - 4})}}/>
+						<masonview
+							style={{
+								display: 'flex',
+								width: 8,
+								height: 8,
+								borderRadius: 4,
+								backgroundColor: dotColor ?? '#4e79a7',
+								position: 'absolute',
+								left: cursor.px - 4,
+								top: cursor.py - 4,
+							}}
+						/>
 					}
 					@if (cursor && props.tooltip && tipText) {
-						<label id={props.id ? props.id + '-tooltip' : undefined} text={tipText} {...{ left: tipLeft, top: tipTop < 0 ? cursor.py + 12 : tipTop }} style={{ width: tipWidth, height: 24, backgroundColor: 'rgba(20,20,20,0.88)', borderRadius: 4, color: '#ffffff', fontSize: 11, textAlign: 'center' , position: 'absolute'}} />
+						<label
+							id={props.id ? props.id + '-tooltip' : undefined}
+							text={tipText}
+							{...{ left: tipLeft, top: tipTop < 0 ? cursor.py + 12 : tipTop }}
+							style={{
+								width: tipWidth,
+								height: 24,
+								backgroundColor: 'rgba(20,20,20,0.88)',
+								borderRadius: 4,
+								color: '#ffffff',
+								fontSize: 11,
+								textAlign: 'center',
+								position: 'absolute',
+							}}
+						/>
 					}
 				</masonview>
 			</masonview>
 		</masonview>
 		@if (legend === 'bottom' && scene) {
-			<masonview style={mergeStyle({flexDirection: "row", flexWrap: "wrap"}, {display: "flex", ...({ paddingTop: 4 })})}>
+			<masonview
+				style={mergeStyle(
+					{ flexDirection: 'row', flexWrap: 'wrap' },
+					{
+						display: 'flex',
+						paddingTop: 4,
+					},
+				)}
+			>
 				{scene.legend.map((item) => (
-					<masonview style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex", ...({ marginRight: 12 })})}>
-						<masonview style={{display: "flex", ...({ width: 10, height: 10, borderRadius: 2, backgroundColor: item.color, marginRight: 4 })}}/>
+					<masonview
+						style={mergeStyle(
+							{ flexDirection: 'row', alignItems: 'center' },
+							{
+								display: 'flex',
+								marginRight: 12,
+							},
+						)}
+					>
+						<masonview
+							style={{
+								display: 'flex',
+								width: 10,
+								height: 10,
+								borderRadius: 2,
+								backgroundColor: item.color,
+								marginRight: 4,
+							}}
+						/>
 						<label text={item.text} style={{ fontSize: 11 }} />
 					</masonview>
 				))}

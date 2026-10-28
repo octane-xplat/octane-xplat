@@ -51,6 +51,7 @@ const STATIC_ALIASES = {
 	'--font-sans': '--font-family-body',
 	'--font-mono': '--font-family-code',
 }
+
 const FILL_CANDIDATES = {
 	'--color-danger': ['color-status-fill-error', '--color-icon-red'],
 	'--color-warning': ['color-status-fill-warning', '--color-icon-yellow'],
@@ -78,7 +79,10 @@ function resolveVar(value, tokens) {
 	let v = value
 	for (let i = 0; i < 4; i++) {
 		const m = VAR_REF.exec(v)
-		if (!m) {return v}
+		if (!m) {
+			return v
+		}
+
 		v = tokens[m[1]] ?? DEFAULT_FALLBACKS[m[1]] ?? v
 	}
 	return v
@@ -97,12 +101,16 @@ function extractComponentVars(css, name, tokens) {
 		let depth = 1
 		let i = start + 1
 		for (; i < css.length; i++) {
-			if (css[i] === '{') {depth++}
-			else if (css[i] === '}') {
+			if (css[i] === '{') {
+				depth++
+			} else if (css[i] === '}') {
 				depth--
-				if (depth === 0) {break}
+				if (depth === 0) {
+					break
+				}
 			}
 		}
+
 		const body = css.slice(start + 1, i)
 		let cm
 		while ((cm = cardRe.exec(body))) {
@@ -110,16 +118,22 @@ function extractComponentVars(css, name, tokens) {
 			let bd = 1
 			let bi = bs + 1
 			for (; bi < body.length; bi++) {
-				if (body[bi] === '{') {bd++}
-				else if (body[bi] === '}') {
+				if (body[bi] === '{') {
+					bd++
+				} else if (body[bi] === '}') {
 					bd--
-					if (bd === 0) {break}
+					if (bd === 0) {
+						break
+					}
 				}
 			}
+
 			const inner = body.slice(bs + 1, bi)
 			let em
 			while ((em = declRe.exec(inner))) {
-				if (COMPONENT_VARS.includes(em[1])) {vars[em[1]] = resolveVar(em[2].trim(), tokens)}
+				if (COMPONENT_VARS.includes(em[1])) {
+					vars[em[1]] = resolveVar(em[2].trim(), tokens)
+				}
 			}
 		}
 	}
@@ -130,9 +144,13 @@ function splitTopLevel(body) {
 	let depth = 0
 	for (let i = 0; i < body.length; i++) {
 		const c = body[i]
-		if (c === '(') {depth++}
-		else if (c === ')') {depth--}
-		else if (c === ',' && depth === 0) {return i}
+		if (c === '(') {
+			depth++
+		} else if (c === ')') {
+			depth--
+		} else if (c === ',' && depth === 0) {
+			return i
+		}
 	}
 	return -1
 }
@@ -152,12 +170,16 @@ function extractTokens(css, name) {
 		let depth = 1
 		let i = start + 1
 		for (; i < css.length; i++) {
-			if (css[i] === '{') {depth++}
-			else if (css[i] === '}') {
+			if (css[i] === '{') {
+				depth++
+			} else if (css[i] === '}') {
 				depth--
-				if (depth === 0) {break}
+				if (depth === 0) {
+					break
+				}
 			}
 		}
+
 		const body = css.slice(start + 1, i)
 		// Top-level `:scope { ... }` sub-blocks only.
 		const scopeBlockRe = /(?:^|\})\s*:scope\s*\{/g
@@ -167,28 +189,43 @@ function extractTokens(css, name) {
 			let bd = 1
 			let bi = bs + 1
 			for (; bi < body.length; bi++) {
-				if (body[bi] === '{') {bd++}
-				else if (body[bi] === '}') {
+				if (body[bi] === '{') {
+					bd++
+				} else if (body[bi] === '}') {
 					bd--
-					if (bd === 0) {break}
+					if (bd === 0) {
+						break
+					}
 				}
 			}
+
 			const inner = body.slice(bs + 1, bi)
 			let em
-			while ((em = re.exec(inner))) {tokens[em[1]] = em[2].trim()}
+			while ((em = re.exec(inner))) {
+				tokens[em[1]] = em[2].trim()
+			}
 		}
 	}
-	if (Object.keys(tokens).length === 0) {throw new Error(`no @scope tokens for ${name}`)}
+	if (Object.keys(tokens).length === 0) {
+		throw new Error(`no @scope tokens for ${name}`)
+	}
 	return tokens
 }
 
 function toTuple(v) {
-	if (!v.startsWith('light-dark(') || !v.endsWith(')')) {return `'${v.replace(/'/g, "\\'")}'`}
+	if (!v.startsWith('light-dark(') || !v.endsWith(')')) {
+		return `'${v.replace(/'/g, "\\'")}'`
+	}
 	const body = v.slice('light-dark('.length, -1)
 	const idx = splitTopLevel(body)
-	if (idx === -1) {return `'${v.replace(/'/g, "\\'")}'`}
+	if (idx === -1) {
+		return `'${v.replace(/'/g, "\\'")}'`
+	}
 	const l = body.slice(0, idx).trim().replace(/'/g, "\\'")
-	const d = body.slice(idx + 1).trim().replace(/'/g, "\\'")
+	const d = body
+		.slice(idx + 1)
+		.trim()
+		.replace(/'/g, "\\'")
 	return `['${l}', '${d}']`
 }
 
@@ -200,6 +237,7 @@ const themes = readdirSync(themesDir).filter((d) => {
 		return false
 	}
 })
+
 if (themes.length === 0) {
 	console.error(`no theme packages found in ${themesDir}`)
 	process.exit(1)
@@ -219,33 +257,46 @@ for (const name of themes) {
 	// declaration already wins the key.
 	const aliases = {}
 	const put = (alias, value) => {
-		if (value !== undefined && !(alias in tokens)) {aliases[alias] = value}
+		if (value !== undefined && !(alias in tokens)) {
+			aliases[alias] = value
+		}
 	}
+
 	for (const [alias, target] of Object.entries(STATIC_ALIASES)) {
 		put(alias, tokens[target])
 	}
+
 	for (const [alias, candidates] of Object.entries(FILL_CANDIDATES)) {
 		const key = candidates.find(
 			(c) => tokens[`--astryx-theme-${name}-${c}`] !== undefined || tokens[c] !== undefined,
 		)
+
 		put(alias, tokens[`--astryx-theme-${name}-${key}`] ?? tokens[key])
 	}
 
 	const componentVars = extractComponentVars(css, name, tokens)
 
 	const lines = []
-	for (const [k, v] of Object.entries(tokens)) {lines.push(`\t'${k}': ${toTuple(v)},`)}
+	for (const [k, v] of Object.entries(tokens)) {
+		lines.push(`\t'${k}': ${toTuple(v)},`)
+	}
+
 	if (Object.keys(componentVars).length > 0) {
 		lines.push('')
 		lines.push('\t// Component-scoped overrides — upstream emits these on')
 		lines.push('\t// `.astryx-card` rules inside the theme scope; the port')
 		lines.push('\t// flattens them onto the scope for `.vx-card` to read.')
-		for (const [k, v] of Object.entries(componentVars)) {lines.push(`\t'${k}': ${toTuple(v)},`)}
+		for (const [k, v] of Object.entries(componentVars)) {
+			lines.push(`\t'${k}': ${toTuple(v)},`)
+		}
 	}
+
 	lines.push('')
 	lines.push('\t// Xplat semantic aliases — point the app token vocabulary at')
 	lines.push('\t// the upstream tokens above so shared chrome recolors.')
-	for (const [k, v] of Object.entries(aliases)) {lines.push(`\t'${k}': ${toTuple(v)},`)}
+	for (const [k, v] of Object.entries(aliases)) {
+		lines.push(`\t'${k}': ${toTuple(v)},`)
+	}
 
 	const out = `// Generated by scripts/extract-themes.mjs — do not edit by hand.
 // Port of @astryxdesign/theme-${name}@0.6.4 built tokens
@@ -261,6 +312,7 @@ ${lines.join('\n')}
 	},
 })
 `
+
 	writeFileSync(join(outDir, `${name}.ts`), out)
 	console.log(`${name}: ${count} tokens + ${Object.keys(aliases).length} aliases`)
 }

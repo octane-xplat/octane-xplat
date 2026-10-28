@@ -1,12 +1,11 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { isAndroid, isIOS } from '@nativescript/core';
-import { useImperativeHandle, useEffect, useRef } from 'octane';
-import type { WebViewProps } from "./props";
-import { cx } from "@octane-xplat/lib";
-import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from "./escape-props";
-import { layoutChildProps } from './layout-child';
+import { isAndroid, isIOS } from '@nativescript/core'
+import { useImperativeHandle, useEffect, useRef } from 'octane'
+import type { WebViewProps } from './props'
+import { cx } from '@octane-xplat/lib'
+import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props'
+import { layoutChildProps } from './layout-child'
 import { android } from '@octane-xplat/platform/android'
-
 
 function reportContentLayout(view: any, props: WebViewProps) {
 	let width = Number(view?.getActualSize?.()?.width ?? 0)
@@ -16,10 +15,14 @@ function reportContentLayout(view: any, props: WebViewProps) {
 		width = Number(size?.width ?? width)
 		height = Number(size?.height ?? 0)
 	} else if (isAndroid) {
-		height = Number(view?.android?.getContentHeight?.() ?? 0) * Number(view?.android?.getScale?.() ?? 1)
+		height =
+			Number(view?.android?.getContentHeight?.() ?? 0) * Number(view?.android?.getScale?.() ?? 1)
 	}
 
-	if (!Number.isFinite(width) || !Number.isFinite(height) || height <= 0) return
+	if (!Number.isFinite(width) || !Number.isFinite(height) || height <= 0) {
+		return
+	}
+
 	props.onLayoutContent?.({ width, height })
 	if (props.matchContents) {
 		view.height = height
@@ -30,16 +33,23 @@ function reportContentLayout(view: any, props: WebViewProps) {
 function applyNativeScrollEnabled(view: any, enabled: boolean | undefined) {
 	if (isIOS) {
 		const scrollView = view?.ios?.scrollView
-		if (scrollView) scrollView.scrollEnabled = enabled !== false
+		if (scrollView) {
+			scrollView.scrollEnabled = enabled !== false
+		}
 	} else if (isAndroid) {
 		const nativeView = view?.android
-		if (!nativeView?.setOnTouchListener) return
-		nativeView.setOnTouchListener(enabled === false
-			? new android.view.View.OnTouchListener({
-					onTouch: (_view: any, event: any) =>
-						event.getActionMasked() === android.view.MotionEvent.ACTION_MOVE,
-				})
-			: null)
+		if (!nativeView?.setOnTouchListener) {
+			return
+		}
+
+		nativeView.setOnTouchListener(
+			enabled === false
+				? new android.view.View.OnTouchListener({
+						onTouch: (_view: any, event: any) =>
+							event.getActionMasked() === android.view.MotionEvent.ACTION_MOVE,
+					})
+				: null,
+		)
 	}
 }
 
@@ -53,34 +63,62 @@ function applyNativeScrollEnabled(view: any, enabled: boolean | undefined) {
  *  a touch listener eats ACTION_MOVE (DOWN/UP still reach the page, so
  *  link taps work but drag text selection inside the frame does not). */
 export function WebView(props: WebViewProps) @{
-	const el = useRef<any>(null);
-	const loaded = useRef(false);
+	const el = useRef<any>(null)
+	const loaded = useRef(false)
 	useEffect(() => {
-		const v = el.current;
-		if (!v) return;
+		const v = el.current
+		if (!v) {
+			return
+		}
+
 		applyNativeScrollEnabled(v, props.scrollEnabled)
-		if (props.matchContents && loaded.current) reportContentLayout(v, props);
-	}, [props.scrollEnabled, props.matchContents]);
+		if (props.matchContents && loaded.current) {
+			reportContentLayout(v, props)
+		}
+	}, [props.scrollEnabled, props.matchContents])
 
-	useImperativeHandle(props.ref, () => ({
-				reload: () => el.current.reload(),
-				goBack: () => el.current.goBack(),
-				goForward: () => el.current.goForward(),
-				stopLoading: () => el.current.stopLoading(),
-				native: el.current,
-			}), []);
+	useImperativeHandle(
+		props.ref,
+		() => ({
+			reload: () => el.current.reload(),
+			goBack: () => el.current.goBack(),
+			goForward: () => el.current.goForward(),
+			stopLoading: () => el.current.stopLoading(),
+			native: el.current,
+		}),
+		[],
+	)
 
-	<webview ref={(v: any) => {
-				el.current = v;
-			if (!v) return;
-			applyEscapeProps(v, props);
-		}} id={props.id} {...layoutChildProps(props, props.style)} className={cx('vx-webview', props.className)} src={props.html !== undefined ? props.html : props.src} onLoaded={() => applyNativeScrollEnabled(el.current, props.scrollEnabled)} onLoadFinished={(e: any) => {
-			applyNativeScrollEnabled(e.object ?? el.current, props.scrollEnabled)
-			if (e.error) props.onError?.({ url: e.url, error: e.error });
-			else {
-				loaded.current = true;
-				reportContentLayout(e.object ?? el.current, props);
-				props.onLoad?.({ url: e.url });
+	<webview
+		ref={(v: any) => {
+			el.current = v
+			if (!v) {
+				return
 			}
-		}} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole)} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState)} accessibilityLiveRegion={props.accessibilityLiveRegion}/>
+
+			applyEscapeProps(v, props)
+		}}
+		id={props.id}
+		{...layoutChildProps(props, props.style)}
+		className={cx('vx-webview', props.className)}
+		src={props.html !== undefined ? props.html : props.src}
+		onLoaded={() => applyNativeScrollEnabled(el.current, props.scrollEnabled)}
+		onLoadFinished={(e: any) => {
+			applyNativeScrollEnabled(e.object ?? el.current, props.scrollEnabled)
+			if (e.error) {
+				props.onError?.({ url: e.url, error: e.error })
+			} else {
+				loaded.current = true
+				reportContentLayout(e.object ?? el.current, props)
+				props.onLoad?.({ url: e.url })
+			}
+		}}
+		accessible={props.accessible}
+		accessibilityLabel={props.accessibilityLabel}
+		accessibilityRole={nativeAccessibilityRole(props.accessibilityRole)}
+		accessibilityHint={props.accessibilityHint}
+		accessibilityValue={props.accessibilityValue}
+		accessibilityState={nativeAccessibilityState(props.accessibilityState)}
+		accessibilityLiveRegion={props.accessibilityLiveRegion}
+	/>
 }

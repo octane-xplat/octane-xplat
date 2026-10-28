@@ -527,6 +527,7 @@ if (import.meta.env.DEV) {
 }
 `,
 		)
+
 		for (const development of [true, false]) {
 			const result = await build({
 				root: consumerRoot,
@@ -536,16 +537,19 @@ if (import.meta.env.DEV) {
 				define: { 'import.meta.env.DEV': String(development) },
 				build: { write: false, minify: false, lib: { entry, formats: ['es'] } },
 			})
+
 			const output = (Array.isArray(result) ? result[0] : result).output
 			const code = output
 				.filter((item) => item.type === 'chunk')
 				.map((item) => item.code)
 				.join('\n')
+
 			assert.equal(
 				code.includes('queries.inspect.'),
 				development,
 				'inspection action is excluded by the production gate',
 			)
+
 			assert.equal(
 				code.includes('eventLimit must be'),
 				development,
@@ -699,6 +703,7 @@ assert.equal(near(10, 11), false)
 assert.equal(dims({ box: { w: 10, h: 20 } }, 10, 20)[1], true)
 `,
 	)
+
 	run(process.execPath, ['check.mjs'], nodeConsumer)
 	const packedManifest = JSON.parse(readFileSync(join(packedRoot, 'package.json'), 'utf8'))
 	const workspaceManifest = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf8'))

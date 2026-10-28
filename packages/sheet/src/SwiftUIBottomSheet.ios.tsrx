@@ -3,8 +3,17 @@ import { registerElement } from '@nativescript-community/octane'
 import type { Attributes } from '@nativescript-community/octane/intrinsics'
 import { SwiftUI, UIDataDriver, registerSwiftUI, SwiftUIManager } from '@nativescript/swift-ui'
 import { GridLayout } from '@nativescript/core'
-import { getSwiftUIHostLifecycle, registerSwiftUIHost, unregisterSwiftUIHost } from '@octane-xplat/lib'
-import { createPortal as createUniversalPortal, type UniversalRenderable } from 'octane/universal/native'
+import {
+	getSwiftUIHostLifecycle,
+	registerSwiftUIHost,
+	unregisterSwiftUIHost,
+} from '@octane-xplat/lib'
+
+import {
+	createPortal as createUniversalPortal,
+	type UniversalRenderable,
+} from 'octane/universal/native'
+
 import { useEffect, useRef, useState } from 'octane'
 import type { SwiftUIBottomSheetProps } from './ios/types'
 
@@ -18,8 +27,9 @@ declare module '@nativescript-community/octane/intrinsics' {
 }
 
 registerElement('xplatiossheet', SwiftUI)
-registerSwiftUI('xplat-swiftui-sheet', (owner: any) =>
-	new UIDataDriver(new XplatSheetProvider(), owner),
+registerSwiftUI(
+	'xplat-swiftui-sheet',
+	(owner: any) => new UIDataDriver(new XplatSheetProvider(), owner),
 )
 
 function createPortal(children: unknown, target: unknown) {
@@ -39,7 +49,7 @@ function registerHost(id: string, host: GridLayout): void {
 }
 
 function ContentRoot(props: { render: () => any }) @{
-	<>{props.render()}</>;
+	<>{props.render()}</>
 }
 
 let seq = 0
@@ -97,5 +107,5 @@ export function SwiftUIBottomSheet(props: SwiftUIBottomSheetProps) @{
 		{portalHost && props.content
 			? createPortal(<ContentRoot render={props.content} />, portalHost)
 			: null}
-	</>;
+	</>
 }

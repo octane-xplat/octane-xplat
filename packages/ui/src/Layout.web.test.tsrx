@@ -4,14 +4,20 @@ import { act, createRoot } from 'octane'
 import { Layout, LayoutHeader, LayoutContent } from './Layout.web.tsrx'
 
 const cleanups: (() => void)[] = []
-afterEach(() => { cleanups.splice(0).forEach((cleanup) => cleanup()) })
+afterEach(() => {
+	cleanups.splice(0).forEach((cleanup) => cleanup())
+})
 
 function mount(el: any) {
 	const host = document.createElement('div')
 	document.body.append(host)
 	const root = createRoot(host)
 	act(() => root.render(el))
-	cleanups.push(() => { root.unmount(); host.remove() })
+	cleanups.push(() => {
+		root.unmount()
+		host.remove()
+	})
+
 	return host
 }
 
@@ -24,6 +30,7 @@ describe('Layout (web)', () => {
 				footer={<div className="f">f</div>}
 			/>,
 		)
+
 		const inner = host.querySelector('.vx-layout-inner')!
 		expect(inner.children[0].classList.contains('vx-layout-header')).toBe(true)
 		expect(inner.children[1].classList.contains('vx-layout-middle')).toBe(true)
@@ -32,9 +39,19 @@ describe('Layout (web)', () => {
 	})
 
 	it('children are a shorthand for the content slot; content wins', () => {
-		const host = mount(<Layout><div className="kid" /></Layout>)
+		const host = mount(
+			<Layout>
+				<div className="kid" />
+			</Layout>,
+		)
+
 		expect(host.querySelector('.vx-layout-contentlane .kid')).toBeTruthy()
-		const both = mount(<Layout content={<div className="via-prop" />}><div className="via-child" /></Layout>)
+		const both = mount(
+			<Layout content={<div className="via-prop" />}>
+				<div className="via-child" />
+			</Layout>,
+		)
+
 		expect(both.querySelector('.via-prop')).toBeTruthy()
 		expect(both.querySelector('.via-child')).toBeFalsy()
 	})
@@ -56,18 +73,19 @@ describe('LayoutHeader (web)', () => {
 	})
 
 	it('falls back to the parent Layout defaultHasDividers', () => {
-		const host = mount(
-			<Layout defaultHasDividers header={<LayoutHeader>x</LayoutHeader>} />,
-		)
+		const host = mount(<Layout defaultHasDividers header={<LayoutHeader>x</LayoutHeader>} />)
 		expect(host.querySelector('.vx-layout-header')!.getAttribute('data-divider')).toBe('true')
-		const off = mount(
-			<Layout defaultHasDividers={false} header={<LayoutHeader>x</LayoutHeader>} />,
-		)
+		const off = mount(<Layout defaultHasDividers={false} header={<LayoutHeader>x</LayoutHeader>} />)
 		expect(off.querySelector('.vx-layout-header')!.getAttribute('data-divider')).toBeNull()
 	})
 
 	it('padding resolves to px on the inner --vx-lh-pad-* vars', () => {
-		const host = mount(<LayoutHeader padding={6} paddingBlockEnd={0}>x</LayoutHeader>)
+		const host = mount(
+			<LayoutHeader padding={6} paddingBlockEnd={0}>
+				x
+			</LayoutHeader>,
+		)
+
 		const inner = host.querySelector('.vx-layout-header-inner') as HTMLElement
 		expect(inner.style.getPropertyValue('--vx-lh-pad-is')).toBe('24px')
 		expect(inner.style.getPropertyValue('--vx-lh-pad-bs')).toBe('24px')
@@ -78,9 +96,14 @@ describe('LayoutHeader (web)', () => {
 describe('LayoutContent (web)', () => {
 	it('isScrollable defaults on; false removes the scroll class', () => {
 		const host = mount(<LayoutContent>c</LayoutContent>)
-		expect(host.querySelector('.vx-layout-content')!.classList.contains('vx-layout-content--scroll')).toBe(true)
+		expect(
+			host.querySelector('.vx-layout-content')!.classList.contains('vx-layout-content--scroll'),
+		).toBe(true)
+
 		const clip = mount(<LayoutContent isScrollable={false}>c</LayoutContent>)
-		expect(clip.querySelector('.vx-layout-content')!.classList.contains('vx-layout-content--scroll')).toBe(false)
+		expect(
+			clip.querySelector('.vx-layout-content')!.classList.contains('vx-layout-content--scroll'),
+		).toBe(false)
 	})
 
 	it('edge classes follow the parent Layout slots', () => {
@@ -89,7 +112,11 @@ describe('LayoutContent (web)', () => {
 		for (const edge of ['--nostart', '--noend', '--noheader', '--nofooter']) {
 			expect(cls.contains('vx-layout-content' + edge)).toBe(true)
 		}
-		const framed = mount(<Layout header={<div />} footer={<div />} content={<LayoutContent>c</LayoutContent>} />)
+
+		const framed = mount(
+			<Layout header={<div />} footer={<div />} content={<LayoutContent>c</LayoutContent>} />,
+		)
+
 		const framedCls = framed.querySelector('.vx-layout-content')!.classList
 		expect(framedCls.contains('vx-layout-content--noheader')).toBe(false)
 		expect(framedCls.contains('vx-layout-content--nofooter')).toBe(false)
@@ -102,6 +129,7 @@ describe('LayoutContent (web)', () => {
 		for (const edge of ['is', 'ie', 'bs', 'be']) {
 			expect(el.style.getPropertyValue(`--vx-lc-pad-${edge}`)).toBe('8px')
 		}
+
 		expect(el.classList.contains('vx-layout-content--nostart')).toBe(false)
 	})
 })

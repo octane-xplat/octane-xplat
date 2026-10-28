@@ -345,6 +345,7 @@ for (const fixture of fixtures) {
 		errors.push(
 			`${fixture.name}: no measured assertion is registered in ${fixture.component}.parity.check.ts`,
 		)
+
 		continue
 	}
 

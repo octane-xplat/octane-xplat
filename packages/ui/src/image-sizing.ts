@@ -85,12 +85,7 @@ export function createSizedImageBinding(
 		// issue with that axis's decode dim at 0 (source resolution on
 		// Android) rather than deadlocking an image whose second axis only
 		// materializes once its bitmap loads.
-		if (
-			!laidOut &&
-			view.isLayoutValid !== true &&
-			measuredWidth <= 0 &&
-			measuredHeight <= 0
-		) {
+		if (!laidOut && view.isLayoutValid !== true && measuredWidth <= 0 && measuredHeight <= 0) {
 			if (view.isLoaded === true) {
 				view.requestLayout?.()
 				retryHeldIssue()

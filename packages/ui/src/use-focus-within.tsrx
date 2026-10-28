@@ -1,4 +1,4 @@
-import { useRef } from 'octane';
+import { useRef } from 'octane'
 import type { FocusEventPayload } from './use-focus'
 
 /**
@@ -36,23 +36,23 @@ export interface UseFocusWithinResult {
  * @see UseFocusWithinResult.
  */
 export function useFocusWithin(options: UseFocusWithinOptions = {}): UseFocusWithinResult {
-	const latest = useRef(options);
-	latest.current = options;
-	const within = useRef(false);
+	const latest = useRef(options)
+	latest.current = options
+	const within = useRef(false)
 	const update = (next: boolean, event?: FocusEventPayload) => {
 		if (next === within.current) {
-			return;
+			return
 		}
 
-		within.current = next;
+		within.current = next
 		if (next) {
-			latest.current.onFocusWithin?.(event);
+			latest.current.onFocusWithin?.(event)
 		} else {
-			latest.current.onBlurWithin?.(event);
+			latest.current.onBlurWithin?.(event)
 		}
 
-		latest.current.onFocusWithinChange?.(next);
-	};
+		latest.current.onFocusWithinChange?.(next)
+	}
 
 	return {
 		focusWithinProps: {
@@ -60,5 +60,5 @@ export function useFocusWithin(options: UseFocusWithinOptions = {}): UseFocusWit
 			onBlur: (event?: FocusEventPayload) => update(false, event),
 		},
 		isSubtreeTrackingSupported: false,
-	};
+	}
 }

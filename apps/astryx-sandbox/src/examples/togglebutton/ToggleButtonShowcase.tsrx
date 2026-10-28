@@ -4,6 +4,7 @@ import { useState } from 'octane'
 
 export function ToggleButtonShowcase() @{
 	const [bookmarked, setBookmarked] = useState(false)
+
 	<ToggleButton label="Bookmark" isPressed={bookmarked} onPressedChange={setBookmarked}>
 		<Icon name="sandbox-bookmark" size={16} />
 	</ToggleButton>

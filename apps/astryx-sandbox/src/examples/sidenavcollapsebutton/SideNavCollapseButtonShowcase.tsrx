@@ -1,5 +1,12 @@
 // Port of upstream SideNavCollapseButton/SideNavCollapseButtonShowcase.tsx (Astryx 0.6.4, MIT).
-import { Icon, SideNav, SideNavCollapseButton, SideNavHeading, SideNavItem, SideNavSection } from '@octane-xplat/ui'
+import {
+	Icon,
+	SideNav,
+	SideNavCollapseButton,
+	SideNavHeading,
+	SideNavItem,
+	SideNavSection,
+} from '@octane-xplat/ui'
 
 export function SideNavCollapseButtonShowcase() @{
 	<SideNav

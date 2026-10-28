@@ -1,12 +1,12 @@
-import type { AnimatedImageProps } from './props';
-import { applyEscapeProps } from './escape-props.web';
+import type { AnimatedImageProps } from './props'
+import { applyEscapeProps } from './escape-props.web'
 
 const OBJECT_FIT = {
 	none: 'none',
 	fill: 'fill',
 	aspectFit: 'contain',
 	aspectFill: 'cover',
-} as const;
+} as const
 
 /** AnimatedImage — a plain <img>; browsers animate GIF/webp natively.
  *  `stretch` maps to object-fit. */

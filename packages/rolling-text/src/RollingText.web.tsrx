@@ -32,17 +32,29 @@ export function RollingText(props: RollingTextProps) @{
 		<span
 			aria-hidden="true"
 			ref={roll.attachRow}
-			style={{ display: 'inline-flex', overflow: 'hidden', whiteSpace: 'nowrap', verticalAlign: 'top' }}
+			style={{
+				display: 'inline-flex',
+				overflow: 'hidden',
+				whiteSpace: 'nowrap',
+				verticalAlign: 'top',
+			}}
 		>
 			@for (const cell of roll.cells; key cell.id) {
-				<span ref={roll.attachCell(cell.id)} style={{ display: 'inline-block', whiteSpace: 'pre' }}>
+				<span
+					ref={roll.attachCell(cell.id)}
+					style={{ display: 'inline-block', whiteSpace: 'pre' }}
+				>
 					{cell.unit}
 				</span>
 			}
 		</span>
 		<span
 			className="vx-rolling-text-value"
-			aria-live={!props.accessibilityLiveRegion || props.accessibilityLiveRegion === 'none' ? 'off' : props.accessibilityLiveRegion}
+			aria-live={
+				!props.accessibilityLiveRegion || props.accessibilityLiveRegion === 'none'
+					? 'off'
+					: props.accessibilityLiveRegion
+			}
 			style={SR_ONLY}
 		>
 			{roll.label}

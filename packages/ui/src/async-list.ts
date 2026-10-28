@@ -10,12 +10,7 @@
  * operation explicitly. The client-side mutation surface matches ListData
  * — createListData supplies it.
  */
-import {
-	createListDataController,
-	type Key,
-	type ListData,
-	type Selection,
-} from './list-data'
+import { createListDataController, type Key, type ListData, type Selection } from './list-data'
 
 import type { ReadableStore } from './props'
 

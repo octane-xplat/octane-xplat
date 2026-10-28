@@ -1,22 +1,22 @@
-import { useEffect } from 'octane';
-import { View, Text } from '@octane-xplat/ui';
-import { PARITY_FIXTURES, type ParityFixture } from './index';
-import { installParityDump } from './measure';
+import { useEffect } from 'octane'
+import { View, Text } from '@octane-xplat/ui'
+import { PARITY_FIXTURES, type ParityFixture } from './index'
+import { installParityDump } from './measure'
 
-const FIXTURES: ParityFixture[] = PARITY_FIXTURES;
+const FIXTURES: ParityFixture[] = PARITY_FIXTURES
 
-const PARITY_BOX_STYLE = { width: 220, height: 64 };
+const PARITY_BOX_STYLE = { width: 220, height: 64 }
 
 /** Parity stage — every fixture in a fixed 220×64 box so measured geometry
  *  is comparable across targets (px ≡ dip after the native css rewrite).
  *  Elements are dumped relative to their .parity-box, so label metrics and
  *  scroll position can't shift the numbers. */
 export function ParityStage() @{
-	const filter = (globalThis as any).__xplatParityFixtureFilter as string[] | undefined;
-	const fixtures = filter ? FIXTURES.filter((f) => filter.includes(f.name)) : FIXTURES;
+	const filter = (globalThis as any).__xplatParityFixtureFilter as string[] | undefined
+	const fixtures = filter ? FIXTURES.filter((f) => filter.includes(f.name)) : FIXTURES
 	useEffect(() => {
-		installParityDump();
-	}, []);
+		installParityDump()
+	}, [])
 
 	<View
 		id="parity-stage"
@@ -27,10 +27,15 @@ export function ParityStage() @{
 	>
 		@for (const f of fixtures; key f.name) {
 			<View id={'cell-' + f.name} className="parity-cell" gap={0} alignItems="start">
-				<Text className="parity-label" style={{ fontSize: 10, color: '#666666' }}>{f.name}</Text>
+				<Text className="parity-label" style={{ fontSize: 10, color: '#666666' }}>
+					{f.name}
+				</Text>
 				<View
 					className={f.wide ? 'parity-box parity-box--fill' : 'parity-box'}
-					style={{ width: f.width ?? PARITY_BOX_STYLE.width, height: f.height ?? PARITY_BOX_STYLE.height }}
+					style={{
+						width: f.width ?? PARITY_BOX_STYLE.width,
+						height: f.height ?? PARITY_BOX_STYLE.height,
+					}}
 					alignItems={f.wide ? 'stretch' : 'start'}
 				>
 					<{f.renderer} {...f.props} />

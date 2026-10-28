@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'octane';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'octane'
 import {
 	Heading,
 	HStack,
@@ -10,7 +10,7 @@ import {
 	Text,
 	View,
 	VisuallyHidden,
-} from '@octane-xplat/ui';
+} from '@octane-xplat/ui'
 
 import {
 	MotionConfig,
@@ -19,9 +19,9 @@ import {
 	useMotionValue,
 	useMotionValueEvent,
 	useReducedMotion,
-} from '@octane-xplat/motion';
+} from '@octane-xplat/motion'
 
-import { usePauseOnHidden } from './motion-patterns-lifecycle';
+import { usePauseOnHidden } from './motion-patterns-lifecycle'
 
 // Motion patterns showcase — first slice of plans/motion-primitives-patterns.md.
 // A cohesive "Activity overview" demo plus a focused view per pattern. All four
@@ -33,22 +33,22 @@ import { usePauseOnHidden } from './motion-patterns-lifecycle';
 // Reduced motion is system-first: the preview switch can only request reduced
 // motion (MotionConfig 'always'), never force full motion against the system.
 
-type RangeKey = 'today' | 'week' | 'month';
-type PatternKey = 'panels' | 'group' | 'number' | 'loop';
+type RangeKey = 'today' | 'week' | 'month'
+type PatternKey = 'panels' | 'group' | 'number' | 'loop'
 
-type ActivityItem = { id: string; title: string; detail: string };
+type ActivityItem = { id: string; title: string; detail: string }
 
 const RANGES: { value: RangeKey; label: string }[] = [
 	{ value: 'today', label: 'Today' },
 	{ value: 'week', label: 'Week' },
 	{ value: 'month', label: 'Month' },
-];
+]
 
 const RANGE_TITLE: Record<RangeKey, string> = {
 	today: 'Today',
 	week: 'This week',
 	month: 'This month',
-};
+}
 
 // Simulated sample data — no account, network, or loading state.
 const ACTIVITY: Record<RangeKey, { total: number; items: ActivityItem[] }> = {
@@ -79,59 +79,81 @@ const ACTIVITY: Record<RangeKey, { total: number; items: ActivityItem[] }> = {
 			{ id: 'm5', title: 'Weekly summaries delivered', detail: '4 issues' },
 		],
 	},
-};
+}
 
-const PHRASES = ['Review today', 'Track this week', 'Explore trends'];
+const PHRASES = ['Review today', 'Track this week', 'Explore trends']
 
-const TOTAL_SAMPLES = [0, -120, 98765];
+const TOTAL_SAMPLES = [0, -120, 98765]
 
 const formatTotal = (value: number) =>
-	Number.isFinite(value) ? String(Math.round(value)).replace(/\B(?=(\d{3})+(?!\d))/g, ',') : '—';
+	Number.isFinite(value) ? String(Math.round(value)).replace(/\B(?=(\d{3})+(?!\d))/g, ',') : '—'
 
 const PATTERNS: { key: PatternKey; label: string; recipe: string; when: string }[] = [
-	{ key: 'panels', label: 'Switch views', recipe: 'TransitionPanel', when: 'Keeps one active view while a selection settles — the outgoing view leaves before the incoming one enters.' },
-	{ key: 'group', label: 'Reveal results', recipe: 'AnimatedGroup', when: 'Introduces a short bounded group with a restrained stagger, so order reads naturally.' },
-	{ key: 'number', label: 'Update a total', recipe: 'AnimatedNumber', when: 'Moves a changing summary value toward its target without distracting from the number itself.' },
-	{ key: 'loop', label: 'Rotate supporting copy', recipe: 'TextLoop', when: 'Rotates short non-critical phrases. Always opt-in; critical copy never rotates.' },
-];
+	{
+		key: 'panels',
+		label: 'Switch views',
+		recipe: 'TransitionPanel',
+		when: 'Keeps one active view while a selection settles — the outgoing view leaves before the incoming one enters.',
+	},
+	{
+		key: 'group',
+		label: 'Reveal results',
+		recipe: 'AnimatedGroup',
+		when: 'Introduces a short bounded group with a restrained stagger, so order reads naturally.',
+	},
+	{
+		key: 'number',
+		label: 'Update a total',
+		recipe: 'AnimatedNumber',
+		when: 'Moves a changing summary value toward its target without distracting from the number itself.',
+	},
+	{
+		key: 'loop',
+		label: 'Rotate supporting copy',
+		recipe: 'TextLoop',
+		when: 'Rotates short non-critical phrases. Always opt-in; critical copy never rotates.',
+	},
+]
 
-const PANEL_TRANSITION = { duration: 0.22, ease: 'easeOut' as const };
-const ITEM_STAGGER = 0.06;
-const ITEM_DURATION = 0.24;
-const LOOP_DWELL_MS = 3200;
+const PANEL_TRANSITION = { duration: 0.22, ease: 'easeOut' as const }
+const ITEM_STAGGER = 0.06
+const ITEM_DURATION = 0.24
+const LOOP_DWELL_MS = 3200
 
 /** Wait-style swap machine: `shown` stays mounted while a changed `value`
  *  exits, then settles to the latest target (repeated presses converge on the
  *  newest selection; re-selecting `shown` mid-exit reverses in place).
  *  `immediate` (reduced motion) swaps directly with no exit wait. */
 function useWaitSwap<K>(value: K, immediate: boolean) {
-	const [shown, setShown] = useState(value);
-	const target = useRef(value);
-	target.current = value;
+	const [shown, setShown] = useState(value)
+	const target = useRef(value)
+	target.current = value
 	useLayoutEffect(() => {
-		if (immediate && shown !== value) setShown(value);
-	}, [immediate, value, shown]);
+		if (immediate && shown !== value) {
+			setShown(value)
+		}
+	}, [immediate, value, shown])
 
-	const settleExit = useCallback(() => setShown(target.current), []);
+	const settleExit = useCallback(() => setShown(target.current), [])
 	return {
 		shown: immediate ? value : shown,
 		exiting: !immediate && shown !== value,
 		settleExit,
-	};
+	}
 }
 
 /** System reduced motion is the authority; the preview can only request it. */
 function useMotionPreview() {
-	const system = useReducedMotion();
-	const [preview, setPreview] = useState(false);
-	return { system, preview, setPreview, reduced: system || preview };
+	const system = useReducedMotion()
+	const [preview, setPreview] = useState(false)
+	return { system, preview, setPreview, reduced: system || preview }
 }
 
 function ReducedMotionControl(props: {
-	id: string;
-	preview: boolean;
-	system: boolean;
-	onChange: (next: boolean) => void;
+	id: string
+	preview: boolean
+	system: boolean
+	onChange: (next: boolean) => void
 }) @{
 	<HStack className="items-center gap-3 flex-wrap">
 		<Switch
@@ -155,13 +177,16 @@ function ReducedMotionControl(props: {
  *  only; identities and reading order stay fixed. Empty sets render the
  *  readable empty state; a single item enters without artificial delay. */
 function ActivityItems(props: {
-	idPrefix: string;
-	items: ActivityItem[];
-	reduced: boolean;
-	replayId: number;
+	idPrefix: string
+	items: ActivityItem[]
+	reduced: boolean
+	replayId: number
 }) @{
 	<View className="mp-activity-list">
-		@for (const item of props.items; index i; key props.replayId + ':' + item.id + (props.reduced ? ':r' : '')) {
+		@for (const item of props.items; index i; key props.replayId +
+					':' +
+					item.id +
+					(props.reduced ? ':r' : '')) {
 			<motion.View
 				id={props.idPrefix + '-item-' + item.id}
 				className="mp-activity-item"
@@ -172,9 +197,10 @@ function ActivityItems(props: {
 				<Text>{item.title}</Text>
 				<Text className="text-sm text-muted">{item.detail}</Text>
 			</motion.View>
-		}
-		@empty {
-			<Text id={props.idPrefix + '-empty'} className="text-sm text-muted">{'No activity in this range'}</Text>
+		} @empty {
+			<Text id={props.idPrefix + '-empty'} className="text-sm text-muted">
+				{'No activity in this range'}
+			</Text>
 		}
 	</View>
 }
@@ -183,11 +209,11 @@ function ActivityItems(props: {
  *  accessibility are suspended on it), then the incoming selection enters.
  *  Under reduced motion the content swaps directly. */
 function SwapPanel(props: {
-	selected: RangeKey;
-	reduced: boolean;
-	renderPanel: (range: RangeKey) => any;
+	selected: RangeKey
+	reduced: boolean
+	renderPanel: (range: RangeKey) => any
 }) @{
-	const { shown, exiting, settleExit } = useWaitSwap(props.selected, props.reduced);
+	const { shown, exiting, settleExit } = useWaitSwap(props.selected, props.reduced)
 
 	<View className="mp-panel-slot">
 		@if (props.reduced) {
@@ -211,43 +237,45 @@ function SwapPanel(props: {
 /** Interpolated total: the displayed text tracks a MotionValue, settles to the
  *  exact target, and announces only the settled value to assistive tech. */
 function AnimatedTotal(props: { id: string; value: number; reduced: boolean }) @{
-	const mv = useMotionValue(props.value);
-	const [text, setText] = useState(() => formatTotal(props.value));
-	const [announcement, setAnnouncement] = useState('');
-	const latest = useRef(props);
-	latest.current = props;
+	const mv = useMotionValue(props.value)
+	const [text, setText] = useState(() => formatTotal(props.value))
+	const [announcement, setAnnouncement] = useState('')
+	const latest = useRef(props)
+	latest.current = props
 
-	useMotionValueEvent(mv, 'change', (next) => setText(formatTotal(next)));
+	useMotionValueEvent(mv, 'change', (next) => setText(formatTotal(next)))
 
 	useEffect(() => {
-		const target = latest.current.value;
+		const target = latest.current.value
 		if (!Number.isFinite(target)) {
-			mv.jump(0);
-			setText(formatTotal(target));
-			setAnnouncement('Total unavailable');
-			return;
+			mv.jump(0)
+			setText(formatTotal(target))
+			setAnnouncement('Total unavailable')
+			return
 		}
 
 		const settle = () => {
-			setText(formatTotal(target));
-			setAnnouncement('Total is now ' + formatTotal(target));
-		};
-
-		if (latest.current.reduced) {
-			mv.jump(target);
-			settle();
-			return;
+			setText(formatTotal(target))
+			setAnnouncement('Total is now ' + formatTotal(target))
 		}
 
-		let alive = true;
+		if (latest.current.reduced) {
+			mv.jump(target)
+			settle()
+			return
+		}
+
+		let alive = true
 		void mv.animate(target, { duration: 0.45, ease: 'easeOut' }).finished.then((result) => {
-			if (alive && result === 'finished') settle();
-		});
+			if (alive && result === 'finished') {
+				settle()
+			}
+		})
 
 		return () => {
-			alive = false;
-		};
-	}, [props.value, props.reduced]);
+			alive = false
+		}
+	}, [props.value, props.reduced])
 
 	<View className="mp-total-block">
 		<Text
@@ -266,38 +294,46 @@ function AnimatedTotal(props: { id: string; value: number; reduced: boolean }) @
 /** Whole-phrase rotation: opt-in cycling with a ≥3s dwell, wait-style phrase
  *  swaps, Pause/Resume and Next, and direct swaps under reduced motion. */
 function RotatingCopy(props: { idPrefix: string; phrases: string[]; reduced: boolean }) @{
-	const [playing, setPlaying] = useState(false);
-	const [started, setStarted] = useState(false);
-	const [index, setIndex] = useState(0);
-	const count = props.phrases.length;
-	const safeIndex = count === 0 ? 0 : index % count;
-	const { shown, exiting, settleExit } = useWaitSwap(safeIndex, props.reduced);
+	const [playing, setPlaying] = useState(false)
+	const [started, setStarted] = useState(false)
+	const [index, setIndex] = useState(0)
+	const count = props.phrases.length
+	const safeIndex = count === 0 ? 0 : index % count
+	const { shown, exiting, settleExit } = useWaitSwap(safeIndex, props.reduced)
 
-	const pause = useCallback(() => setPlaying(false), []);
-	usePauseOnHidden(pause);
+	const pause = useCallback(() => setPlaying(false), [])
+	usePauseOnHidden(pause)
 
 	// A reduced-motion change during play pauses autonomous cycling entirely.
 	useEffect(() => {
-		if (props.reduced) setPlaying(false);
-	}, [props.reduced]);
+		if (props.reduced) {
+			setPlaying(false)
+		}
+	}, [props.reduced])
 
 	useEffect(() => {
-		if (!playing || props.reduced || count < 2) return;
-		const timer = setInterval(() => setIndex((i) => (i + 1) % count), LOOP_DWELL_MS);
-		return () => clearInterval(timer);
-	}, [playing, props.reduced, count]);
+		if (!playing || props.reduced || count < 2) {
+			return
+		}
+
+		const timer = setInterval(() => setIndex((i) => (i + 1) % count), LOOP_DWELL_MS)
+		return () => clearInterval(timer)
+	}, [playing, props.reduced, count])
 
 	const toggle = () => {
-		if (playing) pause();
-		else {
-			setPlaying(true);
-			setStarted(true);
+		if (playing) {
+			pause()
+		} else {
+			setPlaying(true)
+			setStarted(true)
 		}
-	};
+	}
 
 	const next = () => {
-		if (count > 0) setIndex((i) => (i + 1) % count);
-	};
+		if (count > 0) {
+			setIndex((i) => (i + 1) % count)
+		}
+	}
 
 	<View className="mp-loop">
 		<View className="mp-loop-slot">
@@ -341,18 +377,24 @@ function RotatingCopy(props: { idPrefix: string; phrases: string[]; reduced: boo
 				<Text>Next</Text>
 			</Pressable>
 			<Text id={props.idPrefix + '-loop-state'} className="text-sm text-muted">
-				{props.reduced ? 'Reduced motion — cycling off' : count < 2 ? 'Static' : playing ? 'Playing' : 'Paused'}
+				{props.reduced
+					? 'Reduced motion — cycling off'
+					: count < 2
+						? 'Static'
+						: playing
+							? 'Playing'
+							: 'Paused'}
 			</Text>
 		</HStack>
 	</View>
 }
 
 function DashboardPanel(props: {
-	range: RangeKey;
-	items: ActivityItem[];
-	total: number;
-	reduced: boolean;
-	replayId: number;
+	range: RangeKey
+	items: ActivityItem[]
+	total: number
+	reduced: boolean
+	replayId: number
 }) @{
 	<View className="gap-3">
 		<Text className="text-sm text-muted">{RANGE_TITLE[props.range]}</Text>
@@ -367,13 +409,13 @@ function DashboardPanel(props: {
 }
 
 function FocusShell(props: {
-	id: string;
-	title: string;
-	when: string;
-	recipe: string;
-	note: string;
-	preview: ReturnType<typeof useMotionPreview>;
-	children?: any;
+	id: string
+	title: string
+	when: string
+	recipe: string
+	note: string
+	preview: ReturnType<typeof useMotionPreview>
+	children?: any
 }) @{
 	<View id={props.id} className="mp-focus">
 		<Text className="text-lg font-semibold">{props.title + ' · ' + props.recipe}</Text>
@@ -390,9 +432,9 @@ function FocusShell(props: {
 }
 
 function FocusPanels() @{
-	const preview = useMotionPreview();
-	const [range, setRange] = useState<RangeKey>('today');
-	const [empty, setEmpty] = useState(false);
+	const preview = useMotionPreview()
+	const [range, setRange] = useState<RangeKey>('today')
+	const [empty, setEmpty] = useState(false)
 
 	<MotionConfig reducedMotion={preview.preview ? 'always' : 'user'}>
 		<FocusShell
@@ -439,10 +481,10 @@ function FocusPanels() @{
 }
 
 function FocusGroup() @{
-	const preview = useMotionPreview();
-	const [size, setSize] = useState('4');
-	const [replayId, setReplayId] = useState(0);
-	const items = ACTIVITY.week.items.slice(0, Number(size));
+	const preview = useMotionPreview()
+	const [size, setSize] = useState('4')
+	const [replayId, setReplayId] = useState(0)
+	const items = ACTIVITY.week.items.slice(0, Number(size))
 
 	<MotionConfig reducedMotion={preview.preview ? 'always' : 'user'}>
 		<FocusShell
@@ -454,11 +496,7 @@ function FocusGroup() @{
 			preview={preview}
 		>
 			<HStack className="items-center gap-3 flex-wrap">
-				<Pressable
-					id="fp-group-replay"
-					className="chip"
-					onPress={() => setReplayId(replayId + 1)}
-				>
+				<Pressable id="fp-group-replay" className="chip" onPress={() => setReplayId(replayId + 1)}>
 					<Text>Replay</Text>
 				</Pressable>
 				<SegmentedControl
@@ -484,8 +522,8 @@ function FocusGroup() @{
 }
 
 function FocusNumber() @{
-	const preview = useMotionPreview();
-	const [value, setValue] = useState(1284);
+	const preview = useMotionPreview()
+	const [value, setValue] = useState(1284)
 
 	<MotionConfig reducedMotion={preview.preview ? 'always' : 'user'}>
 		<FocusShell
@@ -525,7 +563,7 @@ function FocusNumber() @{
 }
 
 function FocusLoop() @{
-	const preview = useMotionPreview();
+	const preview = useMotionPreview()
 
 	<MotionConfig reducedMotion={preview.preview ? 'always' : 'user'}>
 		<FocusShell
@@ -547,22 +585,20 @@ function FocusLoop() @{
 /** Apps → "Motion patterns". The cohesive dashboard plus a pattern index that
  *  opens each focused view. */
 export function MotionPatterns() @{
-	const preview = useMotionPreview();
-	const [range, setRange] = useState<RangeKey>('today');
+	const preview = useMotionPreview()
+	const [range, setRange] = useState<RangeKey>('today')
 	const [totals, setTotals] = useState<Record<RangeKey, number>>(() => ({
 		today: ACTIVITY.today.total,
 		week: ACTIVITY.week.total,
 		month: ACTIVITY.month.total,
-	}));
+	}))
 
-	const [replayId, setReplayId] = useState(0);
-	const [focused, setFocused] = useState<PatternKey | null>(null);
+	const [replayId, setReplayId] = useState(0)
+	const [focused, setFocused] = useState<PatternKey | null>(null)
 
-	const bumpTotal = (delta: number) =>
-		setTotals((t) => ({ ...t, [range]: t[range] + delta }));
+	const bumpTotal = (delta: number) => setTotals((t) => ({ ...t, [range]: t[range] + delta }))
 
-	const resetTotal = () =>
-		setTotals((t) => ({ ...t, [range]: ACTIVITY[range].total }));
+	const resetTotal = () => setTotals((t) => ({ ...t, [range]: ACTIVITY[range].total }))
 
 	<MotionConfig reducedMotion={preview.preview ? 'always' : 'user'}>
 		<Screen className="vx-app flex-1 gap-6">
@@ -607,11 +643,7 @@ export function MotionPatterns() @{
 							)}
 						/>
 						<HStack className="items-center gap-3 flex-wrap">
-							<Pressable
-								id="mp-replay"
-								className="chip"
-								onPress={() => setReplayId(replayId + 1)}
-							>
+							<Pressable id="mp-replay" className="chip" onPress={() => setReplayId(replayId + 1)}>
 								<Text>Replay</Text>
 							</Pressable>
 							<Pressable id="mp-inc" className="chip" onPress={() => bumpTotal(250)}>
@@ -630,9 +662,7 @@ export function MotionPatterns() @{
 								<Pressable
 									id={'mp-sample-' + sample}
 									className="chip"
-									onPress={() =>
-										setTotals((t) => ({ ...t, [range]: sample }))
-									}
+									onPress={() => setTotals((t) => ({ ...t, [range]: sample }))}
 								>
 									<Text>{formatTotal(sample)}</Text>
 								</Pressable>
@@ -649,9 +679,7 @@ export function MotionPatterns() @{
 									'mp-index-row',
 									focused === pattern.key ? 'mp-index-row--on' : '',
 								]}
-								onPress={() =>
-									setFocused(focused === pattern.key ? null : pattern.key)
-								}
+								onPress={() => setFocused(focused === pattern.key ? null : pattern.key)}
 								accessibilityState={{ selected: focused === pattern.key }}
 								accessibilityLabel={pattern.label + ' — ' + pattern.recipe}
 							>

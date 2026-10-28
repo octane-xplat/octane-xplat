@@ -1,7 +1,7 @@
-import { useState, useRef } from 'octane';
-import { View, HStack, Text, Pressable, TextInput, ScrollableArea } from '@octane-xplat/ui';
+import { useState, useRef } from 'octane'
+import { View, HStack, Text, Pressable, TextInput, ScrollableArea } from '@octane-xplat/ui'
 
-type Todo = { id: string; text: string; done: boolean };
+type Todo = { id: string; text: string; done: boolean }
 
 /** todo-jsx — the canonical keyed-mutation stress.
  *  Proves: mapped-row reconciliation under insert/remove/toggle in a
@@ -9,22 +9,25 @@ type Todo = { id: string; text: string; done: boolean };
  *  live in ui/ios + ui/android), controlled TextInput round-trip,
  *  @if empty-state. */
 export function Todo() @{
-	const [todos, setTodos] = useState<Todo[]>([]);
-	const [draft, setDraft] = useState('');
-	const nextId = useRef(0);
+	const [todos, setTodos] = useState<Todo[]>([])
+	const [draft, setDraft] = useState('')
+	const nextId = useRef(0)
 
 	const add = () => {
-		const text = draft.trim();
-		if (!text) return;
-		console.log('[probe] todo add ' + text);
-		setTodos([...todos, { id: 't' + ++nextId.current, text, done: false }]);
-		setDraft('');
-	};
+		const text = draft.trim()
+		if (!text) {
+			return
+		}
+
+		console.log('[probe] todo add ' + text)
+		setTodos([...todos, { id: 't' + ++nextId.current, text, done: false }])
+		setDraft('')
+	}
 
 	const toggle = (id: string) =>
-		setTodos(todos.map((t) => (t.id === id ? { ...t, done: !t.done } : t)));
+		setTodos(todos.map((t) => (t.id === id ? { ...t, done: !t.done } : t)))
 
-	const remove = (id: string) => setTodos(todos.filter((t) => t.id !== id));
+	const remove = (id: string) => setTodos(todos.filter((t) => t.id !== id))
 
 	const renderTodo = (t: Todo) => (
 		<HStack className="cell gap-2 items-center">
@@ -36,7 +39,7 @@ export function Todo() @{
 				<Text className="todo-check">{'✕'}</Text>
 			</Pressable>
 		</HStack>
-	);
+	)
 
 	<View className="vx-app flex-1 gap-4">
 		<HStack className="gap-2">

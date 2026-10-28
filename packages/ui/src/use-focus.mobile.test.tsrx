@@ -1,6 +1,10 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { describe, expect, it, vi } from 'vitest'
-import { createObjectContainer, createObjectDriver, createUniversalRoot } from 'octane/universal/native'
+import {
+	createObjectContainer,
+	createObjectDriver,
+	createUniversalRoot,
+} from 'octane/universal/native'
 
 vi.mock('@nativescript/core', () => ({ isIOS: false, isAndroid: true }))
 
@@ -17,15 +21,27 @@ import { FocusScope, getFocusScopeCapabilities } from './FocusScope.tsrx'
 let captured: any
 
 const Probe = (props: any) => @{
-	const { focusProps } = useFocus({ onFocus: props.onFocus, onBlur: props.onBlur, onFocusChange: props.onChange })
-	const ring = useFocusRing()
-	const focusVisible = useFocusVisible()
-	const within = useFocusWithin({ onFocusWithinChange: props.onWithin })
-	const { landmarkProps } = useLandmark({ role: 'main', label: 'Content' })
-	captured = { focusProps, ring, focusVisible, focusWithinProps: within.focusWithinProps, within, landmarkProps }
+		const { focusProps } = useFocus({
+			onFocus: props.onFocus,
+			onBlur: props.onBlur,
+			onFocusChange: props.onChange,
+		})
 
-	<label text="probe" />
-}
+		const ring = useFocusRing()
+		const focusVisible = useFocusVisible()
+		const within = useFocusWithin({ onFocusWithinChange: props.onWithin })
+		const { landmarkProps } = useLandmark({ role: 'main', label: 'Content' })
+		captured = {
+			focusProps,
+			ring,
+			focusVisible,
+			focusWithinProps: within.focusWithinProps,
+			within,
+			landmarkProps,
+		}
+
+		<label text="probe" />
+	}
 
 describe('focus hooks (universal renderer)', () => {
 	it('exposes focus callbacks and constant modality on native', () => {
@@ -37,7 +53,12 @@ describe('focus hooks (universal renderer)', () => {
 		const onBlur = vi.fn()
 		root.render(Probe, { onFocus, onBlur, onChange, onWithin })
 
-		expect(captured.focusVisible).toEqual({ isFocusVisible: false, inputModality: 'unknown', isSupported: false })
+		expect(captured.focusVisible).toEqual({
+			isFocusVisible: false,
+			inputModality: 'unknown',
+			isSupported: false,
+		})
+
 		expect(captured.ring.isFocused).toBe(false)
 		expect(captured.ring.isFocusVisible).toBe(false)
 		expect(captured.ring.isFocusVisibleSupported).toBe(false)

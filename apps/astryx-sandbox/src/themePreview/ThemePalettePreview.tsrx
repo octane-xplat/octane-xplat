@@ -27,13 +27,8 @@ import {
 	View,
 	type DefinedTheme,
 } from '@octane-xplat/ui'
-import {
-	TONE_STEPS,
-	hexToHct,
-	tonalPaletteForMode,
-	type Mode,
-	type ToneStep,
-} from './colorMath'
+
+import { TONE_STEPS, hexToHct, tonalPaletteForMode, type Mode, type ToneStep } from './colorMath'
 
 export interface TonalColor {
 	name: string
@@ -99,7 +94,14 @@ function CoreSection(props: { swatches: CoreSwatch[]; mode: Mode }) @{
 	)
 }
 
-const RAMP_TEXT = ['Display 1 · 84', 'Heading · 42', 'Title · 26', 'Body · 14', 'Label · 12', 'Caption · 11']
+const RAMP_TEXT = [
+	'Display 1 · 84',
+	'Heading · 42',
+	'Title · 26',
+	'Body · 14',
+	'Label · 12',
+	'Caption · 11',
+]
 
 function TextRampSection() @{
 	return (
@@ -120,7 +122,18 @@ function TextRampSection() @{
 }
 
 const SEMANTICS = ['accent', 'success', 'warning', 'error', 'neutral'] as const
-const CATEGORICAL = ['red', 'orange', 'yellow', 'green', 'teal', 'cyan', 'blue', 'purple', 'pink', 'gray'] as const
+const CATEGORICAL = [
+	'red',
+	'orange',
+	'yellow',
+	'green',
+	'teal',
+	'cyan',
+	'blue',
+	'purple',
+	'pink',
+	'gray',
+] as const
 
 function SemanticBadgeSection() @{
 	return (
@@ -161,10 +174,14 @@ function BannerSection() @{
 					<Text style={{ fontSize: 13 }}>Info banner — Description text for the info state.</Text>
 				</Banner>
 				<Banner className="sb-pp-banner sb-pp-banner--success">
-					<Text style={{ fontSize: 13 }}>Success banner — Description text for the success state.</Text>
+					<Text style={{ fontSize: 13 }}>
+						Success banner — Description text for the success state.
+					</Text>
 				</Banner>
 				<Banner className="sb-pp-banner sb-pp-banner--warning">
-					<Text style={{ fontSize: 13 }}>Warning banner — Description text for the warning state.</Text>
+					<Text style={{ fontSize: 13 }}>
+						Warning banner — Description text for the warning state.
+					</Text>
 				</Banner>
 				<Banner className="sb-pp-banner sb-pp-banner--error">
 					<Text style={{ fontSize: 13 }}>Error banner — Description text for the error state.</Text>
@@ -259,7 +276,11 @@ function CheckboxRadioSwitchSection() @{
 					onValueChange={() => {}}
 				/>
 				<VStack gap={2}>
-					<Switch value={checked.b} onChange={(v) => setChecked({ ...checked, b: Boolean(v) })} accessibilityLabel="Toggle" />
+					<Switch
+						value={checked.b}
+						onChange={(v) => setChecked({ ...checked, b: Boolean(v) })}
+						accessibilityLabel="Toggle"
+					/>
 					<Switch value={true} isDisabled accessibilityLabel="Disabled toggle" />
 				</VStack>
 			</HStack>
@@ -294,13 +315,23 @@ function SurfacesSection(props: { mode: Mode }) @{
 		{ label: 'muted', bg: 'var(--color-background-muted)' },
 		{ label: 'popover', bg: 'var(--color-background-popover)' },
 	]
+
 	return (
 		<View className="sb-pp-section">
 			<SectionTitle>Borders &amp; Surfaces</SectionTitle>
 			<HStack gap={3} wrap="wrap">
 				{surfaces.map((s) => (
 					<VStack gap={1} key={s.label}>
-						<View style={{ width: 72, height: 48, background: s.bg, borderRadius: 8, border: '1px solid var(--color-border)', boxShadow: `0 0 0 1px ${ring}` }} />
+						<View
+							style={{
+								width: 72,
+								height: 48,
+								background: s.bg,
+								borderRadius: 8,
+								border: '1px solid var(--color-border)',
+								boxShadow: `0 0 0 1px ${ring}`,
+							}}
+						/>
 						<Text style={{ fontSize: 11 }}>{s.label}</Text>
 					</VStack>
 				))}
@@ -345,6 +376,7 @@ function TonalSection(props: { colors: TonalColor[]; mode: Mode }) @{
 						const { hue, chroma } = hexToHct(seed.sourceHex)
 						return tonalPaletteForMode(hue, chroma, props.mode)
 					})()
+
 				const { hue, chroma } = hexToHct(seed.sourceHex)
 				return (
 					<View key={color.name} style={{ marginBottom: 10 }}>
@@ -365,7 +397,13 @@ function TonalSection(props: { colors: TonalColor[]; mode: Mode }) @{
 									/>
 								))}
 							</HStack>
-							<Text style={{ fontSize: 10, color: 'var(--color-text-secondary)', fontFamily: 'var(--font-mono)' }}>
+							<Text
+								style={{
+									fontSize: 10,
+									color: 'var(--color-text-secondary)',
+									fontFamily: 'var(--font-mono)',
+								}}
+							>
 								H:{hue.toFixed(0)} C:{chroma.toFixed(0)}
 							</Text>
 						</HStack>
@@ -399,7 +437,15 @@ function ModeColumn(props: {
 					minWidth: 0,
 				}}
 			>
-				<Text style={{ fontSize: 11, fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--color-text-secondary)' }}>
+				<Text
+					style={{
+						fontSize: 11,
+						fontWeight: 600,
+						letterSpacing: 1,
+						textTransform: 'uppercase',
+						color: 'var(--color-text-secondary)',
+					}}
+				>
 					{props.mode === 'light' ? 'Light Mode' : 'Dark Mode'}
 				</Text>
 				{props.coreSwatches && props.coreSwatches.length > 0 && (
@@ -440,7 +486,14 @@ export function ThemePalettePreview(props: ThemePalettePreviewProps) @{
 				<View style={{ maxWidth: 1400, marginLeft: 'auto', marginRight: 'auto' }}>
 					<Heading level={1}>{props.title}</Heading>
 					{props.subtitle ? (
-						<Text style={{ fontSize: 13, color: 'var(--color-text-secondary)', marginTop: 8, marginBottom: 24 }}>
+						<Text
+							style={{
+								fontSize: 13,
+								color: 'var(--color-text-secondary)',
+								marginTop: 8,
+								marginBottom: 24,
+							}}
+						>
 							{props.subtitle}
 						</Text>
 					) : null}
@@ -456,7 +509,16 @@ export function ThemePalettePreview(props: ThemePalettePreviewProps) @{
 									border: '1px solid var(--color-border)',
 								}}
 							>
-								<Text style={{ fontSize: 11, fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--color-text-secondary)', marginBottom: 16 }}>
+								<Text
+									style={{
+										fontSize: 11,
+										fontWeight: 600,
+										letterSpacing: 1,
+										textTransform: 'uppercase',
+										color: 'var(--color-text-secondary)',
+										marginBottom: 16,
+									}}
+								>
 									{m === 'light' ? 'Light Mode' : 'Dark Mode'}
 								</Text>
 								<TonalSection colors={props.tonalColors} mode={m} />
@@ -464,11 +526,29 @@ export function ThemePalettePreview(props: ThemePalettePreviewProps) @{
 						</Theme>
 					))}
 					{props.singleMode ? (
-						<ModeColumn theme={props.theme} mode={props.singleMode} coreSwatches={props.coreSwatches} extraSections={props.extraSections} leadingExtras={props.leadingExtras} />
+						<ModeColumn
+							theme={props.theme}
+							mode={props.singleMode}
+							coreSwatches={props.coreSwatches}
+							extraSections={props.extraSections}
+							leadingExtras={props.leadingExtras}
+						/>
 					) : (
 						<HStack gap={4} align="start" wrap="wrap">
-							<ModeColumn theme={props.theme} mode="light" coreSwatches={props.coreSwatches} extraSections={props.extraSections} leadingExtras={props.leadingExtras} />
-							<ModeColumn theme={props.theme} mode="dark" coreSwatches={props.coreSwatches} extraSections={props.extraSections} leadingExtras={props.leadingExtras} />
+							<ModeColumn
+								theme={props.theme}
+								mode="light"
+								coreSwatches={props.coreSwatches}
+								extraSections={props.extraSections}
+								leadingExtras={props.leadingExtras}
+							/>
+							<ModeColumn
+								theme={props.theme}
+								mode="dark"
+								coreSwatches={props.coreSwatches}
+								extraSections={props.extraSections}
+								leadingExtras={props.leadingExtras}
+							/>
 						</HStack>
 					)}
 				</View>

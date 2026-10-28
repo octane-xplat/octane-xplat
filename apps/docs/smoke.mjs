@@ -44,7 +44,7 @@ for (const k of [
 
 globalThis.requestAnimationFrame = (cb) => setTimeout(cb, 16)
 window.requestAnimationFrame = globalThis.requestAnimationFrame
-window.scrollTo = () => {};
+window.scrollTo = () => {}
 window.matchMedia ??= () => ({
 	matches: false,
 	addEventListener() {},
@@ -63,11 +63,20 @@ clearTimeout(watchdog)
 async function waitFor(name, predicate) {
 	const deadline = Date.now() + 5000
 	while (!predicate()) {
-		if (Date.now() >= deadline) {throw new Error('Timed out: ' + name)}
-		await new Promise(resolve => setTimeout(resolve, 10))
+		if (Date.now() >= deadline) {
+			throw new Error('Timed out: ' + name)
+		}
+
+		await new Promise((resolve) => setTimeout(resolve, 10))
 	}
 }
-await waitFor('initial document commit', () => window.document.querySelector('.doc-page .agent-prompt') && window.document.querySelector('.constellation svg polygon'))
+
+await waitFor(
+	'initial document commit',
+	() =>
+		window.document.querySelector('.doc-page .agent-prompt') &&
+		window.document.querySelector('.constellation svg polygon'),
+)
 
 const navigationTitle = titleOf('navigation', readFileSync('../../docs/app/navigation.md', 'utf8'))
 const root = window.document.getElementById('root')
@@ -276,7 +285,12 @@ for (const path of walkDocs('../../docs')) {
 	const slug = slugFor(dir, basename(rel, '.md'))
 	const title = titleOf(slug, readFileSync(path, 'utf8'))
 	sideItem(title)?.click()
-	await waitFor('page ' + slug, () => window.location.pathname === docPath(slug) && root.querySelector('.doc .h1')?.textContent === title)
+	await waitFor(
+		'page ' + slug,
+		() =>
+			window.location.pathname === docPath(slug) &&
+			root.querySelector('.doc .h1')?.textContent === title,
+	)
 
 	assert(
 		`page ${slug}`,
@@ -303,7 +317,10 @@ assert(
 			?.getAttribute('role') === 'listbox',
 )
 
-assert('palette layer is a modal dialog', Boolean(window.document.querySelector('.vx-cmdk-layer [role="dialog"][aria-modal="true"]')))
+assert(
+	'palette layer is a modal dialog',
+	Boolean(window.document.querySelector('.vx-cmdk-layer [role="dialog"][aria-modal="true"]')),
+)
 
 paletteInput.value = 'useRouter'
 paletteInput.dispatchEvent(new window.Event('input', { bubbles: true }))
@@ -321,7 +338,14 @@ assert(
 )
 
 paletteInput.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
-await waitFor('palette route commit', () => !window.document.getElementById('palette-query') && window.location.pathname === docPath('navigation') && root.querySelector('.doc .h1')?.textContent === navigationTitle)
+await waitFor(
+	'palette route commit',
+	() =>
+		!window.document.getElementById('palette-query') &&
+		window.location.pathname === docPath('navigation') &&
+		root.querySelector('.doc .h1')?.textContent === navigationTitle,
+)
+
 assert(
 	'palette hit navigates',
 	!window.document.getElementById('palette-query') &&
@@ -331,12 +355,18 @@ assert(
 
 // Reopen from the nav row: the click captures the row as the trigger, so
 // Escape both closes the layer and returns focus to it.
-const searchRow = [...root.querySelectorAll('.nav-row')].find((el) => el.textContent?.includes('Search'))
+const searchRow = [...root.querySelectorAll('.nav-row')].find((el) =>
+	el.textContent?.includes('Search'),
+)
+
 searchRow?.click()
 await settle()
 assert('palette reopens from nav row', Boolean(window.document.getElementById('palette-query')))
 
-window.document.getElementById('palette-query')?.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+window.document
+	.getElementById('palette-query')
+	?.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+
 await settle()
 assert('escape closes palette', !window.document.getElementById('palette-query'))
 assert('focus returns to palette trigger', window.document.activeElement === searchRow)

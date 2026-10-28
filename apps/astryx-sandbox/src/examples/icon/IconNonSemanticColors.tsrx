@@ -1,7 +1,18 @@
 // Port of upstream Icon/IconNonSemanticColors.tsx (Astryx 0.6.4, MIT).
 import { HStack, Icon, Text, VStack } from '@octane-xplat/ui'
 
-const colors = ['blue', 'red', 'green', 'gray', 'cyan', 'teal', 'yellow', 'orange', 'pink', 'purple'] as const
+const colors = [
+	'blue',
+	'red',
+	'green',
+	'gray',
+	'cyan',
+	'teal',
+	'yellow',
+	'orange',
+	'pink',
+	'purple',
+] as const
 
 export function IconNonSemanticColors() @{
 	<HStack gap={4} wrap="wrap">

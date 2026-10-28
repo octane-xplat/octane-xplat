@@ -37,13 +37,19 @@ it('assigns the source to a replacement host when content fitting changes', () =
 
 it('deduplicates an unchanged host and waits for replacement layout', () => {
 	const binding = createImageBinding({
-		getFit: () => 'contain', getPosition: () => ({}),
+		getFit: () => 'contain',
+		getPosition: () => ({}),
 		getSrc: () => ({ source: 'avatar.png', sources: null }),
-		getDecodeBounds: () => ({}), screenScale: () => 1,
+		getDecodeBounds: () => ({}),
+		screenScale: () => 1,
 	})
 	const original = imageView()
 	let writes = 0
-	Object.defineProperty(original, 'src', { set() { writes++ } })
+	Object.defineProperty(original, 'src', {
+		set() {
+			writes++
+		},
+	})
 	binding.update(original, null)
 	binding.update(original, null)
 	expect(writes).toBe(1)

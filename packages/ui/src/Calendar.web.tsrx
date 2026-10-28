@@ -44,8 +44,13 @@ export function Calendar(props: CalendarProps) @{
 	const messages = dateMessages(props.messages)
 
 	const controlled = props.value !== undefined
-	const [internalValue, setInternalValue] = useState<ISODateString | DateRange | undefined>(props.defaultValue ?? undefined)
-	const currentValue: ISODateString | DateRange | undefined = controlled ? props.value ?? undefined : internalValue
+	const [internalValue, setInternalValue] = useState<ISODateString | DateRange | undefined>(
+		props.defaultValue ?? undefined,
+	)
+
+	const currentValue: ISODateString | DateRange | undefined = controlled
+		? (props.value ?? undefined)
+		: internalValue
 
 	const [rangeAnchor, setRangeAnchor] = useState<ISODateString | null>(null)
 	const [hoveredIso, setHoveredIso] = useState<ISODateString | null>(null)
@@ -55,45 +60,69 @@ export function Calendar(props: CalendarProps) @{
 
 	const focusControlled = props.focusDate !== undefined
 	const [internalBase, setInternalBase] = useState(() =>
-		monthStart(getInitialFocusDate({
-			focusDate: props.focusDate,
-			value: currentValue,
-			min: props.min,
-			max: props.max,
-			numberOfMonths,
-		})))
+		monthStart(
+			getInitialFocusDate({
+				focusDate: props.focusDate,
+				value: currentValue,
+				min: props.min,
+				max: props.max,
+				numberOfMonths,
+			}),
+		),
+	)
 
 	const baseMonth = focusControlled
 		? monthStart(plainDateFromISO(props.focusDate!) ?? internalBase)
 		: internalBase
 
-	const setBaseMonth = (next: ReturnType<typeof monthStart>, opts?: { focusIso?: ISODateString }) => {
-		if (opts?.focusIso) setPendingFocus(opts.focusIso)
-		if (!focusControlled) setInternalBase(next)
+	const setBaseMonth = (
+		next: ReturnType<typeof monthStart>,
+		opts?: { focusIso?: ISODateString },
+	) => {
+		if (opts?.focusIso) {
+			setPendingFocus(opts.focusIso)
+		}
+
+		if (!focusControlled) {
+			setInternalBase(next)
+		}
+
 		props.onFocusDateChange?.(plainDateToISO(next))
 	}
 
 	const months = useMemo(
-		() => Array.from({ length: numberOfMonths }, (_, i) => buildMonthGrid(
-			plainDateAddMonths(baseMonth, i).year,
-			plainDateAddMonths(baseMonth, i).month,
-			weekStartsOn,
-			props.hasVariableRowCount ?? false,
-			locale,
-		)),
+		() =>
+			Array.from({ length: numberOfMonths }, (_, i) =>
+				buildMonthGrid(
+					plainDateAddMonths(baseMonth, i).year,
+					plainDateAddMonths(baseMonth, i).month,
+					weekStartsOn,
+					props.hasVariableRowCount ?? false,
+					locale,
+				),
+			),
 		[baseMonth, numberOfMonths, weekStartsOn, props.hasVariableRowCount, locale],
 	)
 
 	const isDateDisabled = useMemo(
-		() => createDateDisabledCheck({
-			min: props.min,
-			max: props.max,
-			dateConstraints: props.dateConstraints,
-			maxRangeSpan: props.maxRangeSpan,
-			minRangeSpan: props.minRangeSpan,
-			rangeAnchor: mode === 'range' ? rangeAnchor : null,
-		}),
-		[props.min, props.max, props.dateConstraints, props.maxRangeSpan, props.minRangeSpan, rangeAnchor, mode],
+		() =>
+			createDateDisabledCheck({
+				min: props.min,
+				max: props.max,
+				dateConstraints: props.dateConstraints,
+				maxRangeSpan: props.maxRangeSpan,
+				minRangeSpan: props.minRangeSpan,
+				rangeAnchor: mode === 'range' ? rangeAnchor : null,
+			}),
+		[
+			props.min,
+			props.max,
+			props.dateConstraints,
+			props.maxRangeSpan,
+			props.minRangeSpan,
+			rangeAnchor,
+			mode,
+		],
 	)
 
 	const bounds = navigationBounds(baseMonth, numberOfMonths, props.min, props.max)
@@ -102,7 +131,11 @@ export function Calendar(props: CalendarProps) @{
 	// Announce the visible month when navigation changes it (not on mount).
 	const firstLabel = useRef(true)
 	useEffect(() => {
-		if (firstLabel.current) { firstLabel.current = false; return }
+		if (firstLabel.current) {
+			firstLabel.current = false
+			return
+		}
+
 		setAnnouncement(monthYearLabel)
 	}, [monthYearLabel])
 
@@ -110,9 +143,18 @@ export function Calendar(props: CalendarProps) @{
 	// newly rendered grid.
 	const root = useRef<HTMLDivElement | null>(null)
 	useEffect(() => {
-		if (!pendingFocus || !root.current) return
-		const el = root.current.querySelector(`button[data-date="${pendingFocus}"]:not([disabled])`) as HTMLElement | null
-		if (!el) return
+		if (!pendingFocus || !root.current) {
+			return
+		}
+
+		const el = root.current.querySelector(
+			`button[data-date="${pendingFocus}"]:not([disabled])`,
+		) as HTMLElement | null
+
+		if (!el) {
+			return
+		}
+
 		el.focus()
 		setFocusIso(pendingFocus)
 		setPendingFocus(null)
@@ -123,20 +165,35 @@ export function Calendar(props: CalendarProps) @{
 	navApi.current = {
 		navigateTo: (iso: ISODateString) => {
 			const pd = plainDateFromISO(iso)
-			if (pd) setBaseMonth(monthStart(pd))
+			if (pd) {
+				setBaseMonth(monthStart(pd))
+			}
 		},
 	}
 
-	useImperativeHandle(props.ref, () => ({ navigateTo: (iso: ISODateString) => navApi.current.navigateTo(iso) }), [])
+	useImperativeHandle(
+		props.ref,
+		() => ({ navigateTo: (iso: ISODateString) => navApi.current.navigateTo(iso) }),
+		[],
+	)
 
 	const pick = (iso: ISODateString) => {
 		const pd = plainDateFromISO(iso)
-		if (!pd || isDateDisabled(pd)) return
+		if (!pd || isDateDisabled(pd)) {
+			return
+		}
+
 		if (mode === 'single') {
 			setAnnouncement(messages.selected(plainDateFormat(pd, DATE_FORMAT_WITH_WEEKDAY, locale)))
-			if (!controlled) setInternalValue(iso)
+			if (!controlled) {
+				setInternalValue(iso)
+			}
 
-			;(props.onChange as ((value: ISODateString, date: Date) => void) | undefined)?.(iso, plainDateToDate(pd))
+			;(props.onChange as ((value: ISODateString, date: Date) => void) | undefined)?.(
+				iso,
+				plainDateToDate(pd),
+			)
+
 			return
 		}
 
@@ -155,33 +212,55 @@ export function Calendar(props: CalendarProps) @{
 
 		if (result.kind === 'commit') {
 			setRangeAnchor(null)
-			if (!controlled) setInternalValue(result.range)
+			if (!controlled) {
+				setInternalValue(result.range)
+			}
 
 			;(props.onChange as ((value: DateRange) => void) | undefined)?.(result.range)
-			setAnnouncement(messages.rangeSelected(plainDateFormat(plainDateFromISO(result.range.start)!, DATE_FORMAT_WITH_WEEKDAY, locale), plainDateFormat(plainDateFromISO(result.range.end)!, DATE_FORMAT_WITH_WEEKDAY, locale)))
+			setAnnouncement(
+				messages.rangeSelected(
+					plainDateFormat(plainDateFromISO(result.range.start)!, DATE_FORMAT_WITH_WEEKDAY, locale),
+					plainDateFormat(plainDateFromISO(result.range.end)!, DATE_FORMAT_WITH_WEEKDAY, locale),
+				),
+			)
 		}
 	}
 
 	// One tab stop across both panes, repaired when constraints change.
-	const enabledCells = months.flatMap((grid) => grid.weeks.flat()).filter((day) => !day.isOutsideMonth && !isDateDisabled(day.date))
+	const enabledCells = months
+		.flatMap((grid) => grid.weeks.flat())
+		.filter((day) => !day.isOutsideMonth && !isDateDisabled(day.date))
+
 	const selectedIso = typeof currentValue === 'string' ? currentValue : currentValue?.start
-	const tabbable = enabledCells.find((day) => day.iso === focusIso)?.iso
-		?? enabledCells.find((day) => day.iso === selectedIso)?.iso
-		?? enabledCells.find((day) => day.isToday)?.iso
-		?? enabledCells[0]?.iso
+	const tabbable =
+		enabledCells.find((day) => day.iso === focusIso)?.iso ??
+		enabledCells.find((day) => day.iso === selectedIso)?.iso ??
+		enabledCells.find((day) => day.isToday)?.iso ??
+		enabledCells[0]?.iso
 
 	useEffect(() => {
-		const active = root.current?.querySelector('button[data-date]:focus') as HTMLButtonElement | null
+		const active = root.current?.querySelector(
+			'button[data-date]:focus',
+		) as HTMLButtonElement | null
+
 		if (active?.disabled && tabbable) {
-			;(root.current?.querySelector(`button[data-date="${tabbable}"]`) as HTMLElement | null)?.focus()
+			;(
+				root.current?.querySelector(`button[data-date="${tabbable}"]`) as HTMLElement | null
+			)?.focus()
 		}
 	}, [tabbable, isDateDisabled])
 
 	const handleKeyDown = (e: any) => {
-		if (e.defaultPrevented || isDateComposing(e)) return
+		if (e.defaultPrevented || isDateComposing(e)) {
+			return
+		}
+
 		// Header controls must retain their own keyboard behavior.
 		const active = e.target?.closest?.('button[data-date]')
-		if (!active || !root.current?.contains(active)) return
+		if (!active || !root.current?.contains(active)) {
+			return
+		}
+
 		if (mode === 'range' && rangeAnchor !== null && e.key === 'Escape') {
 			setRangeAnchor(null)
 			setAnnouncement(messages.rangeCleared)
@@ -190,14 +269,43 @@ export function Calendar(props: CalendarProps) @{
 			return
 		}
 
-		if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End', 'PageUp', 'PageDown'].includes(e.key)) return
+		if (
+			![
+				'ArrowLeft',
+				'ArrowRight',
+				'ArrowUp',
+				'ArrowDown',
+				'Home',
+				'End',
+				'PageUp',
+				'PageDown',
+			].includes(e.key)
+		) {
+			return
+		}
+
 		const direction = props.direction ?? getComputedStyle(root.current!).direction
-		const iso = calendarKeyTarget({ iso: active.dataset.date, event: e, months, isDisabled: isDateDisabled, rtl: direction === 'rtl', min: props.min, max: props.max })
+		const iso = calendarKeyTarget({
+			iso: active.dataset.date,
+			event: e,
+			months,
+			isDisabled: isDateDisabled,
+			rtl: direction === 'rtl',
+			min: props.min,
+			max: props.max,
+		})
+
 		e.preventDefault()
-		if (!iso) return
+		if (!iso) {
+			return
+		}
+
 		const target = plainDateFromISO(iso)!
 		const pane = monthStart(target)
-		if (plainDateIsBefore(pane, baseMonth) || plainDateIsBefore(monthStart(plainDateAddMonths(baseMonth, numberOfMonths - 1)), pane)) {
+		if (
+			plainDateIsBefore(pane, baseMonth) ||
+			plainDateIsBefore(monthStart(plainDateAddMonths(baseMonth, numberOfMonths - 1)), pane)
+		) {
 			setBaseMonth(pane, { focusIso: iso })
 			return
 		}
@@ -209,9 +317,12 @@ export function Calendar(props: CalendarProps) @{
 
 	// Preview band: anchor → hovered day while a range pick is in flight.
 	const previewEnd = mode === 'range' && rangeAnchor && hoveredIso ? hoveredIso : null
-	const previewRange: DateRange | undefined = previewEnd && rangeAnchor
-		? (rangeAnchor <= previewEnd ? { start: rangeAnchor, end: previewEnd } : { start: previewEnd, end: rangeAnchor })
-		: undefined
+	const previewRange: DateRange | undefined =
+		previewEnd && rangeAnchor
+			? rangeAnchor <= previewEnd
+				? { start: rangeAnchor, end: previewEnd }
+				: { start: previewEnd, end: rangeAnchor }
+			: undefined
 
 	const committedRange = typeof currentValue === 'object' && currentValue ? currentValue : undefined
 	const bandRange = previewRange ?? committedRange
@@ -225,16 +336,33 @@ export function Calendar(props: CalendarProps) @{
 		})
 
 		if (previewRange && !day.isOutsideMonth && !state.isDisabled) {
-			if (day.iso >= previewRange.start && day.iso <= previewRange.end && day.iso !== rangeAnchor) state.isInRange = true
-			if (day.iso === previewRange.end && day.iso !== previewRange.start) state.isRangeEnd = true
+			if (day.iso >= previewRange.start && day.iso <= previewRange.end && day.iso !== rangeAnchor) {
+				state.isInRange = true
+			}
+
+			if (day.iso === previewRange.end && day.iso !== previewRange.start) {
+				state.isRangeEnd = true
+			}
 		}
 
 		const bandNeighbor = (iso: ISODateString): boolean => {
-			if (!bandRange) return false
+			if (!bandRange) {
+				return false
+			}
+
 			const pd = plainDateFromISO(iso)
-			if (!pd) return false
-			if (pd.month !== grid.month || pd.year !== grid.year) return false
-			if (isDateDisabled(pd)) return false
+			if (!pd) {
+				return false
+			}
+
+			if (pd.month !== grid.month || pd.year !== grid.year) {
+				return false
+			}
+
+			if (isDateDisabled(pd)) {
+				return false
+			}
+
 			return iso >= bandRange.start && iso <= bandRange.end
 		}
 
@@ -244,20 +372,40 @@ export function Calendar(props: CalendarProps) @{
 		})
 
 		if (day.isOutsideMonth) {
-			return props.hasOutsideDays ?? true
-				? <span key={day.iso} role="gridcell" className="vx-calendar-day vx-calendar-day--outside" data-date={day.iso}>{day.dayOfMonth}</span>
-				: <span key={day.iso} role="gridcell" className="vx-calendar-day vx-calendar-day--empty" />
+			return (props.hasOutsideDays ?? true) ? (
+				<span
+					key={day.iso}
+					role="gridcell"
+					className="vx-calendar-day vx-calendar-day--outside"
+					data-date={day.iso}
+				>
+					{day.dayOfMonth}
+				</span>
+			) : (
+				<span key={day.iso} role="gridcell" className="vx-calendar-day vx-calendar-day--empty" />
+			)
 		}
 
 		const isTabbable = tabbable === day.iso
 		const dateLabel = plainDateFormat(day.date, DATE_FORMAT_WITH_WEEKDAY, locale)
-		const fullLabel = state.isPendingStart || state.isRangeStart ? messages.rangeStart(dateLabel)
-			: state.isRangeEnd ? messages.rangeEnd(dateLabel)
-				: state.isInRange ? messages.inRange(dateLabel)
-					: state.isSelected ? messages.selected(dateLabel) : dateLabel
+		const fullLabel =
+			state.isPendingStart || state.isRangeStart
+				? messages.rangeStart(dateLabel)
+				: state.isRangeEnd
+					? messages.rangeEnd(dateLabel)
+					: state.isInRange
+						? messages.inRange(dateLabel)
+						: state.isSelected
+							? messages.selected(dateLabel)
+							: dateLabel
 
 		return (
-			<div key={day.iso} className="vx-calendar-cell" role="gridcell" aria-selected={dayCarriesBand(state) || state.isSelected}>
+			<div
+				key={day.iso}
+				className="vx-calendar-cell"
+				role="gridcell"
+				aria-selected={dayCarriesBand(state) || state.isSelected}
+			>
 				<button
 					type="button"
 					data-date={day.iso}
@@ -294,11 +442,18 @@ export function Calendar(props: CalendarProps) @{
 	}
 
 	<div
-		ref={(el: any) => { root.current = el }}
+		ref={(el: any) => {
+			root.current = el
+		}}
 		dir={props.direction}
 		lang={locale}
 		id={props.id}
-		className={cx('vx-calendar', mode === 'range' && 'vx-calendar--range', numberOfMonths === 2 && 'vx-calendar--two-months', props.className)}
+		className={cx(
+			'vx-calendar',
+			mode === 'range' && 'vx-calendar--range',
+			numberOfMonths === 2 && 'vx-calendar--two-months',
+			props.className,
+		)}
 		style={props.style}
 		onKeyDown={handleKeyDown}
 		{...props.web}
@@ -309,39 +464,60 @@ export function Calendar(props: CalendarProps) @{
 				className="vx-calendar-nav vx-calendar-nav--prev"
 				aria-label={messages.previousMonth}
 				disabled={!bounds.canNavigatePrevious || undefined}
-				onClick={() => bounds.canNavigatePrevious && setBaseMonth(monthStart(plainDateAddMonths(baseMonth, -1)))}
+				onClick={() =>
+					bounds.canNavigatePrevious && setBaseMonth(monthStart(plainDateAddMonths(baseMonth, -1)))
+				}
 			>
 				<Icon name="xplat-chevron-left" size={16} />
 			</button>
-			<div className="vx-calendar-title" aria-hidden="true">{monthYearLabel}</div>
+			<div className="vx-calendar-title" aria-hidden="true">
+				{monthYearLabel}
+			</div>
 			<button
 				type="button"
 				className="vx-calendar-nav vx-calendar-nav--next"
 				aria-label={messages.nextMonth}
 				disabled={!bounds.canNavigateNext || undefined}
-				onClick={() => bounds.canNavigateNext && setBaseMonth(monthStart(plainDateAddMonths(baseMonth, 1)))}
+				onClick={() =>
+					bounds.canNavigateNext && setBaseMonth(monthStart(plainDateAddMonths(baseMonth, 1)))
+				}
 			>
 				<Icon name="xplat-chevron-right" size={16} />
 			</button>
 		</div>
 		<div className="vx-calendar-months">
 			{months.map((grid) => (
-				<div key={`${grid.year}-${grid.month}`} className="vx-calendar-month" role="grid" aria-label={monthLabel(grid.year, grid.month, locale)}>
+				<div
+					key={`${grid.year}-${grid.month}`}
+					className="vx-calendar-month"
+					role="grid"
+					aria-label={monthLabel(grid.year, grid.month, locale)}
+				>
 					<div className="vx-calendar-weeknames" role="row">
-						{props.hasWeekNumbers ? <span className="vx-calendar-weeknumber vx-calendar-weeknumber--head" /> : null}
-						{grid.dayNames.map((name, i) => <span key={i} className="vx-calendar-weekname" role="columnheader">{name}</span>)}
+						{props.hasWeekNumbers ? (
+							<span className="vx-calendar-weeknumber vx-calendar-weeknumber--head" />
+						) : null}
+						{grid.dayNames.map((name, i) => (
+							<span key={i} className="vx-calendar-weekname" role="columnheader">
+								{name}
+							</span>
+						))}
 					</div>
 					{grid.weeks.map((week, w) => (
 						<div key={w} className="vx-calendar-week" role="row">
-							{props.hasWeekNumbers
-								? <span className="vx-calendar-weeknumber" role="rowheader">{plainDateGetWeekNumber(week[0].date)}</span>
-								: null}
+							{props.hasWeekNumbers ? (
+								<span className="vx-calendar-weeknumber" role="rowheader">
+									{plainDateGetWeekNumber(week[0].date)}
+								</span>
+							) : null}
 							{week.map((day) => renderDay(grid, day))}
 						</div>
 					))}
 				</div>
 			))}
 		</div>
-		<div className="vx-calendar-live" aria-live="polite" role="status">{announcement}</div>
+		<div className="vx-calendar-live" aria-live="polite" role="status">
+			{announcement}
+		</div>
 	</div>
 }

@@ -17,7 +17,13 @@ export function ButtonGroup(props: ButtonGroupProps) @{
 
 	<ButtonGroupProvider value={value}>
 		<SizeProvider value={size}>
-			<masonview id={props.id} className={cx('vx-button-group', `vx-button-group--${orientation}`, props.className)} style={mergeStyle({display: "flex"}, props.style)} accessible={true} accessibilityLabel={props.label}>
+			<masonview
+				id={props.id}
+				className={cx('vx-button-group', `vx-button-group--${orientation}`, props.className)}
+				style={mergeStyle({ display: 'flex' }, props.style)}
+				accessible={true}
+				accessibilityLabel={props.label}
+			>
 				{props.children}
 			</masonview>
 		</SizeProvider>

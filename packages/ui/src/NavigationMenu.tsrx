@@ -52,8 +52,15 @@ export function NavigationMenu(
 	<masonview
 		ref={(view: any) => applyEscapeProps(view, props)}
 		id={props.id}
-		className={cx('vx-navmenu-strip', !isHorizontal && 'vx-navmenu-strip--vertical', props.className)}
-		style={mergeStyle({flexDirection: isHorizontal ? 'row' : 'column'}, mergeStyle({display: "flex"}, props.style))}
+		className={cx(
+			'vx-navmenu-strip',
+			!isHorizontal && 'vx-navmenu-strip--vertical',
+			props.className,
+		)}
+		style={mergeStyle(
+			{ flexDirection: isHorizontal ? 'row' : 'column' },
+			mergeStyle({ display: 'flex' }, props.style),
+		)}
 		accessibilityLabel={props.accessibilityLabel}
 	>
 		@for (const item of props.items; key item.key) {

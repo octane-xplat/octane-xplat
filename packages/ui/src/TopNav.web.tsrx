@@ -6,7 +6,7 @@ import type { RegisteredRouteContracts, AppRouteStacks, RouteTransitionName } fr
 import type { NavigationItemImplementation, NavigationItemsImplementation } from './nav-link'
 import { useNavigationItem } from './use-navigation-item.shared.tsrx'
 import { useLinkComponent } from './use-link-component.web.tsrx'
-import { useCallback, useContext, useMemo, useRef, useState } from 'octane';
+import { useCallback, useContext, useMemo, useRef, useState } from 'octane'
 import type {
 	TopNavHeadingProps,
 	TopNavItemProps,
@@ -15,13 +15,13 @@ import type {
 	TopNavMegaMenuItemProps,
 	TopNavMegaMenuFeaturedCardProps,
 	TopNavProps,
-} from './props';
+} from './props'
 
-import { applyEscapeProps } from './escape-props';
-import { Icon } from './Icon.web.tsrx';
-import { Text } from './Text.web.tsrx';
-import { Popover } from './Popover.web.tsrx';
-import { MobileNav, MobileNavToggle } from './MobileNav.web.tsrx';
+import { applyEscapeProps } from './escape-props'
+import { Icon } from './Icon.web.tsrx'
+import { Text } from './Text.web.tsrx'
+import { Popover } from './Popover.web.tsrx'
+import { MobileNav, MobileNavToggle } from './MobileNav.web.tsrx'
 import {
 	AppShellMobileContext,
 	NavHeadingCloseContext,
@@ -33,23 +33,30 @@ import {
 	useTopNavSlot,
 	TopNavSlotProvider,
 	NavHeadingCloseProvider,
-} from './nav-contexts';
+} from './nav-contexts'
 
-export { TopNavRenderContext, TopNavSlotContext, TopNavMobileContentContext, useTopNavRenderMode, useTopNavSlot, useTopNavMobileContent };
+export {
+	TopNavRenderContext,
+	TopNavSlotContext,
+	TopNavMobileContentContext,
+	useTopNavRenderMode,
+	useTopNavSlot,
+	useTopNavMobileContent,
+}
 
 function navIcon(icon: any, size = 16) {
-	return typeof icon === 'string' ? <Icon name={icon} size={size} /> : icon;
+	return typeof icon === 'string' ? <Icon name={icon} size={size} /> : icon
 }
 
 /** TopNav — the app's top navigation bar. Three render modes: `default`
  *  (full bar), `mobile-bar` (heading + end + toggle, set by AppShell below
  *  the breakpoint), and `drawer` (content inside the MobileNav overlay). */
 export function TopNav(props: TopNavProps) @{
-	const renderMode = useTopNavRenderMode();
-	const mobileContent = useTopNavMobileContent();
-	const label = props.label ?? 'Top navigation';
-	const startContent = props.startContent ?? props.children;
-	const hasCenter = props.centerContent != null;
+	const renderMode = useTopNavRenderMode()
+	const mobileContent = useTopNavMobileContent()
+	const label = props.label ?? 'Top navigation'
+	const startContent = props.startContent ?? props.children
+	const hasCenter = props.centerContent != null
 
 	@if (renderMode === 'mobile-bar') {
 		<nav
@@ -65,7 +72,11 @@ export function TopNav(props: TopNavProps) @{
 		</nav>
 	} @else {
 		@if (renderMode === 'drawer') {
-			<MobileNav label={label} className={['vx-topnav', 'vx-topnav--drawer', props.className]} style={props.style}>
+			<MobileNav
+				label={label}
+				className={['vx-topnav', 'vx-topnav--drawer', props.className]}
+				style={props.style}
+			>
 				{props.heading}
 				{startContent}
 				{props.centerContent}
@@ -102,27 +113,33 @@ export function TopNav(props: TopNavProps) @{
 /** TopNavHeading — the brand block: logo + heading link with optional
  *  super/subheading lines and an optional heading menu popover. */
 export function TopNavHeading(props: TopNavHeadingProps) @{
-	const anchor = useRef<any>(null);
-	const [menuOpen, setMenuOpen] = useState(false);
-	const renderMode = useTopNavRenderMode();
-	const hasLinks = !!(props.headingHref || props.superheadingHref || props.subheadingHref);
-	const hasMenu = props.menu != null;
-	const headerIsTrigger = hasMenu && !hasLinks;
-	const closeMenu = useCallback(() => setMenuOpen(false), []);
-	const closeCtx = useMemo(() => ({ closeMenu }), [closeMenu]);
+	const anchor = useRef<any>(null)
+	const [menuOpen, setMenuOpen] = useState(false)
+	const renderMode = useTopNavRenderMode()
+	const hasLinks = !!(props.headingHref || props.superheadingHref || props.subheadingHref)
+	const hasMenu = props.menu != null
+	const headerIsTrigger = hasMenu && !hasLinks
+	const closeMenu = useCallback(() => setMenuOpen(false), [])
+	const closeCtx = useMemo(() => ({ closeMenu }), [closeMenu])
 
-	const LinkEl: any = useLinkComponent(props.as);
+	const LinkEl: any = useLinkComponent(props.as)
 	const headingLink = props.heading ? (
-		<LinkEl className="vx-topnav-heading-title" href={props.headingHref}>{props.heading}</LinkEl>
-	) : null;
+		<LinkEl className="vx-topnav-heading-title" href={props.headingHref}>
+			{props.heading}
+		</LinkEl>
+	) : null
 
 	const superLink = props.superheading ? (
-		<LinkEl className="vx-topnav-heading-super" href={props.superheadingHref}>{props.superheading}</LinkEl>
-	) : null;
+		<LinkEl className="vx-topnav-heading-super" href={props.superheadingHref}>
+			{props.superheading}
+		</LinkEl>
+	) : null
 
 	const subLink = props.subheading ? (
-		<LinkEl className="vx-topnav-heading-sub" href={props.subheadingHref}>{props.subheading}</LinkEl>
-	) : null;
+		<LinkEl className="vx-topnav-heading-sub" href={props.subheadingHref}>
+			{props.subheading}
+		</LinkEl>
+	) : null
 
 	const lines = (
 		<>
@@ -130,7 +147,7 @@ export function TopNavHeading(props: TopNavHeadingProps) @{
 			{headingLink}
 			{subLink}
 		</>
-	);
+	)
 
 	<div
 		ref={(el: any) => applyEscapeProps(el, props)}
@@ -142,12 +159,18 @@ export function TopNavHeading(props: TopNavHeadingProps) @{
 			<button
 				type="button"
 				className="vx-topnav-heading-trigger"
-				ref={(el: any) => { anchor.current = el; }}
+				ref={(el: any) => {
+					anchor.current = el
+				}}
 				aria-haspopup="menu"
 				aria-expanded={hasMenu ? menuOpen : undefined}
 				onClick={() => setMenuOpen(!menuOpen)}
 			>
-				{props.logo != null ? <span className="vx-topnav-heading-logo" aria-label={props.logoLabel}>{props.logo}</span> : null}
+				{props.logo != null ? (
+					<span className="vx-topnav-heading-logo" aria-label={props.logoLabel}>
+						{props.logo}
+					</span>
+				) : null}
 				<span className="vx-topnav-heading-text">{lines}</span>
 				<Icon name="xplat-chevron-down" size={16} />
 			</button>
@@ -155,9 +178,17 @@ export function TopNavHeading(props: TopNavHeadingProps) @{
 			<>
 				{props.logo != null ? (
 					props.headingHref != null ? (
-						<LinkEl className="vx-topnav-heading-logo" href={props.headingHref} aria-label={props.logoLabel}>{props.logo}</LinkEl>
+						<LinkEl
+							className="vx-topnav-heading-logo"
+							href={props.headingHref}
+							aria-label={props.logoLabel}
+						>
+							{props.logo}
+						</LinkEl>
 					) : (
-						<span className="vx-topnav-heading-logo" aria-label={props.logoLabel}>{props.logo}</span>
+						<span className="vx-topnav-heading-logo" aria-label={props.logoLabel}>
+							{props.logo}
+						</span>
 					)
 				) : null}
 				<span className="vx-topnav-heading-text">{lines}</span>
@@ -167,7 +198,9 @@ export function TopNavHeading(props: TopNavHeadingProps) @{
 			<button
 				type="button"
 				className="vx-topnav-heading-menubtn"
-				ref={(el: any) => { anchor.current = el; }}
+				ref={(el: any) => {
+					anchor.current = el
+				}}
 				aria-haspopup="menu"
 				aria-expanded={menuOpen}
 				aria-label="Open heading menu"
@@ -178,7 +211,13 @@ export function TopNavHeading(props: TopNavHeadingProps) @{
 		) : null}
 		{props.headerEndContent}
 		<NavHeadingCloseProvider value={closeCtx}>
-			<Popover anchor={anchor} open={menuOpen} placement="bottom" onDismiss={() => setMenuOpen(false)} className="vx-headingmenu-pop">
+			<Popover
+				anchor={anchor}
+				open={menuOpen}
+				placement="bottom"
+				onDismiss={() => setMenuOpen(false)}
+				className="vx-headingmenu-pop"
+			>
 				{props.menu}
 			</Popover>
 		</NavHeadingCloseProvider>
@@ -195,13 +234,13 @@ export function TopNavItem<
 
 export function TopNavItem(props: NavigationItemImplementation<TopNavItemProps>) @{
 	const link = useNavigationItem(props)
-	const renderMode = useTopNavRenderMode();
-	const slot = useTopNavSlot();
-	const isDrawer = renderMode === 'drawer';
-	const isDisabled = link.disabled;
-	const size = props.size ?? 'md';
+	const renderMode = useTopNavRenderMode()
+	const slot = useTopNavSlot()
+	const isDrawer = renderMode === 'drawer'
+	const isDisabled = link.disabled
+	const size = props.size ?? 'md'
 
-	const activate = (e: any) => link.activateWeb(e);
+	const activate = (e: any) => link.activateWeb(e)
 	const cls = [
 		'vx-topnav-item',
 		'vx-topnav-item--' + size,
@@ -210,14 +249,20 @@ export function TopNavItem(props: NavigationItemImplementation<TopNavItemProps>)
 		props.isIconOnly && 'vx-topnav-item--icon',
 		isDisabled && 'vx-topnav-item--disabled',
 		props.className,
-	];
+	]
 
 	const content = (
 		<>
-			{props.icon != null ? <span className="vx-topnav-item-icon" aria-hidden="true">{navIcon(props.icon)}</span> : null}
-			{props.isIconOnly ? null : (props.children ?? <span className="vx-topnav-item-label">{props.label}</span>)}
+			{props.icon != null ? (
+				<span className="vx-topnav-item-icon" aria-hidden="true">
+					{navIcon(props.icon)}
+				</span>
+			) : null}
+			{props.isIconOnly
+				? null
+				: (props.children ?? <span className="vx-topnav-item-label">{props.label}</span>)}
 		</>
-	);
+	)
 
 	const shared: any = {
 		id: props.id,
@@ -227,10 +272,10 @@ export function TopNavItem(props: NavigationItemImplementation<TopNavItemProps>)
 		'aria-disabled': isDisabled || undefined,
 		'aria-label': props.isIconOnly ? props.label : undefined,
 		onClick: activate,
-	};
+	}
 
-	const ItemLinkEl: any = useLinkComponent(props.as);
-	const ItemEl: any = link.href != null && !isDisabled ? ItemLinkEl : 'button';
+	const ItemLinkEl: any = useLinkComponent(props.as)
+	const ItemEl: any = link.href != null && !isDisabled ? ItemLinkEl : 'button'
 
 	@if (link.href != null && !isDisabled) {
 		<ItemEl
@@ -257,17 +302,38 @@ export function TopNavItem(props: NavigationItemImplementation<TopNavItemProps>)
 }
 
 /** TopNavMenu — trigger that opens a list popover on hover or press. */
-function TopNavMenuRow(props: { item: NavigationItemImplementation<TopNavMenuItemData>; close(): void }) @{
+function TopNavMenuRow(props: {
+	item: NavigationItemImplementation<TopNavMenuItemData>
+	close(): void
+}) @{
 	const link = useNavigationItem(props.item)
 	const ItemEl: any = link.href != null ? 'a' : 'button'
-	<ItemEl className="vx-topnavmenu-item" role="menuitem" href={link.href} target={props.item.target} rel={props.item.rel} download={props.item.download}
-		type={link.href == null ? 'button' : undefined} tabIndex={-1}
-		aria-current={link.selected ? 'page' : undefined} aria-disabled={link.disabled || undefined}
-		onClick={(event: any) => { if (link.activateWeb(event)) props.close() }}>
-		{props.item.icon != null ? <span className="vx-topnavmenu-item-icon">{navIcon(props.item.icon)}</span> : null}
+
+	<ItemEl
+		className="vx-topnavmenu-item"
+		role="menuitem"
+		href={link.href}
+		target={props.item.target}
+		rel={props.item.rel}
+		download={props.item.download}
+		type={link.href == null ? 'button' : undefined}
+		tabIndex={-1}
+		aria-current={link.selected ? 'page' : undefined}
+		aria-disabled={link.disabled || undefined}
+		onClick={(event: any) => {
+			if (link.activateWeb(event)) {
+				props.close()
+			}
+		}}
+	>
+		{props.item.icon != null ? (
+			<span className="vx-topnavmenu-item-icon">{navIcon(props.item.icon)}</span>
+		) : null}
 		<span className="vx-topnavmenu-item-text">
 			<span className="vx-topnavmenu-item-title">{props.item.title}</span>
-			{props.item.description != null ? <span className="vx-topnavmenu-item-desc">{props.item.description}</span> : null}
+			{props.item.description != null ? (
+				<span className="vx-topnavmenu-item-desc">{props.item.description}</span>
+			) : null}
 		</span>
 	</ItemEl>
 }
@@ -278,35 +344,40 @@ export function TopNavMenu<
 	Transitions extends string = RouteTransitionName,
 >(props: TopNavMenuProps<Contracts, Stacks, Transitions>): any
 
-export function TopNavMenu(props: NavigationItemsImplementation<TopNavMenuProps, TopNavMenuItemData>) @{
-	const anchor = useRef<any>(null);
-	const [open, setOpen] = useState(false);
-	const delay = props.delay ?? 150;
-	const hideDelay = props.hideDelay ?? 200;
-	const showTimer = useRef<any>(null);
-	const hideTimer = useRef<any>(null);
+export function TopNavMenu(
+	props: NavigationItemsImplementation<TopNavMenuProps, TopNavMenuItemData>,
+) @{
+	const anchor = useRef<any>(null)
+	const [open, setOpen] = useState(false)
+	const delay = props.delay ?? 150
+	const hideDelay = props.hideDelay ?? 200
+	const showTimer = useRef<any>(null)
+	const hideTimer = useRef<any>(null)
 
 	const show = () => {
-		clearTimeout(hideTimer.current);
-		clearTimeout(showTimer.current);
-		showTimer.current = setTimeout(() => setOpen(true), delay);
-	};
+		clearTimeout(hideTimer.current)
+		clearTimeout(showTimer.current)
+		showTimer.current = setTimeout(() => setOpen(true), delay)
+	}
 
 	const hide = () => {
-		clearTimeout(showTimer.current);
-		clearTimeout(hideTimer.current);
-		hideTimer.current = setTimeout(() => setOpen(false), hideDelay);
-	};
+		clearTimeout(showTimer.current)
+		clearTimeout(hideTimer.current)
+		hideTimer.current = setTimeout(() => setOpen(false), hideDelay)
+	}
 
 	const toggle = () => {
-		clearTimeout(showTimer.current);
-		clearTimeout(hideTimer.current);
-		setOpen(!open);
-	};
+		clearTimeout(showTimer.current)
+		clearTimeout(hideTimer.current)
+		setOpen(!open)
+	}
 
 	<>
 		<button
-			ref={(el: any) => { anchor.current = el; applyEscapeProps(el, props); }}
+			ref={(el: any) => {
+				anchor.current = el
+				applyEscapeProps(el, props)
+			}}
 			id={props.id}
 			type="button"
 			className={['vx-topnav-item', 'vx-topnavmenu-trigger', props.className]}
@@ -320,8 +391,19 @@ export function TopNavMenu(props: NavigationItemsImplementation<TopNavMenuProps,
 			<span className="vx-topnav-item-label">{props.label}</span>
 			<Icon name="xplat-chevron-down" size={16} />
 		</button>
-		<Popover anchor={anchor} open={open} placement="bottom" onDismiss={() => setOpen(false)} className="vx-topnavmenu-pop">
-			<MenuSurface className="vx-topnavmenu" label={props.label} closeMenu={() => setOpen(false)} web={{ onmouseenter: () => clearTimeout(hideTimer.current), onmouseleave: hide }}>
+		<Popover
+			anchor={anchor}
+			open={open}
+			placement="bottom"
+			onDismiss={() => setOpen(false)}
+			className="vx-topnavmenu-pop"
+		>
+			<MenuSurface
+				className="vx-topnavmenu"
+				label={props.label}
+				closeMenu={() => setOpen(false)}
+				web={{ onmouseenter: () => clearTimeout(hideTimer.current), onmouseleave: hide }}
+			>
 				@for (const item of props.items; key item.title) {
 					<TopNavMenuRow item={item} close={() => setOpen(false)} />
 				}
@@ -330,43 +412,48 @@ export function TopNavMenu(props: NavigationItemsImplementation<TopNavMenuProps,
 	</>
 }
 
-
 /** TopNavMegaMenu — trigger opening a wide panel with an items grid plus an
  *  optional featured panel. */
 export function TopNavMegaMenu(props: TopNavMegaMenuProps) @{
-	const anchor = useRef<any>(null);
-	const [open, setOpen] = useState(false);
-	const delay = props.delay ?? 150;
-	const hideDelay = props.hideDelay ?? 250;
-	const showTimer = useRef<any>(null);
-	const hideTimer = useRef<any>(null);
+	const anchor = useRef<any>(null)
+	const [open, setOpen] = useState(false)
+	const delay = props.delay ?? 150
+	const hideDelay = props.hideDelay ?? 250
+	const showTimer = useRef<any>(null)
+	const hideTimer = useRef<any>(null)
 
 	const setOpenTracked = (next: boolean) => {
-		if (next !== open) props.onOpenChange?.(next);
-		setOpen(next);
-	};
+		if (next !== open) {
+			props.onOpenChange?.(next)
+		}
+
+		setOpen(next)
+	}
 
 	const show = () => {
-		clearTimeout(hideTimer.current);
-		clearTimeout(showTimer.current);
-		showTimer.current = setTimeout(() => setOpenTracked(true), delay);
-	};
+		clearTimeout(hideTimer.current)
+		clearTimeout(showTimer.current)
+		showTimer.current = setTimeout(() => setOpenTracked(true), delay)
+	}
 
 	const hide = () => {
-		clearTimeout(showTimer.current);
-		clearTimeout(hideTimer.current);
-		hideTimer.current = setTimeout(() => setOpenTracked(false), hideDelay);
-	};
+		clearTimeout(showTimer.current)
+		clearTimeout(hideTimer.current)
+		hideTimer.current = setTimeout(() => setOpenTracked(false), hideDelay)
+	}
 
 	const toggle = () => {
-		clearTimeout(showTimer.current);
-		clearTimeout(hideTimer.current);
-		setOpenTracked(!open);
-	};
+		clearTimeout(showTimer.current)
+		clearTimeout(hideTimer.current)
+		setOpenTracked(!open)
+	}
 
 	<>
 		<button
-			ref={(el: any) => { anchor.current = el; applyEscapeProps(el, props); }}
+			ref={(el: any) => {
+				anchor.current = el
+				applyEscapeProps(el, props)
+			}}
 			id={props.id}
 			type="button"
 			className={['vx-topnav-item', 'vx-topnavmegamenu-trigger', props.className]}
@@ -380,10 +467,28 @@ export function TopNavMegaMenu(props: TopNavMegaMenuProps) @{
 			<span className="vx-topnav-item-label">{props.label}</span>
 			<Icon name="xplat-chevron-down" size={16} />
 		</button>
-		<Popover anchor={anchor} open={open} placement="bottom" onDismiss={() => setOpenTracked(false)} className="vx-topnavmegamenu-pop">
-			<div className="vx-topnavmegamenu" onMouseEnter={() => clearTimeout(hideTimer.current)} onMouseLeave={hide}>
-				<MenuSurface className="vx-topnavmegamenu-items" label={props.label} closeMenu={() => setOpenTracked(false)}>{props.items}</MenuSurface>
-				{props.featured != null ? <div className="vx-topnavmegamenu-featured">{props.featured}</div> : null}
+		<Popover
+			anchor={anchor}
+			open={open}
+			placement="bottom"
+			onDismiss={() => setOpenTracked(false)}
+			className="vx-topnavmegamenu-pop"
+		>
+			<div
+				className="vx-topnavmegamenu"
+				onMouseEnter={() => clearTimeout(hideTimer.current)}
+				onMouseLeave={hide}
+			>
+				<MenuSurface
+					className="vx-topnavmegamenu-items"
+					label={props.label}
+					closeMenu={() => setOpenTracked(false)}
+				>
+					{props.items}
+				</MenuSurface>
+				{props.featured != null ? (
+					<div className="vx-topnavmegamenu-featured">{props.featured}</div>
+				) : null}
 			</div>
 		</Popover>
 	</>
@@ -396,11 +501,13 @@ export function TopNavMegaMenuItem<
 	Transitions extends string = RouteTransitionName,
 >(props: TopNavMegaMenuItemProps<Contracts, Stacks, Transitions>): any
 
-export function TopNavMegaMenuItem(props: NavigationItemImplementation<TopNavMegaMenuItemProps>) @{
+export function TopNavMegaMenuItem(
+	props: NavigationItemImplementation<TopNavMegaMenuItemProps>,
+) @{
 	const link = useNavigationItem(props)
 	const menu = useDropdownMenuContext()
-	const LinkEl: any = useLinkComponent(props.as);
-	const ItemEl: any = link.href != null ? LinkEl : 'button';
+	const LinkEl: any = useLinkComponent(props.as)
+	const ItemEl: any = link.href != null ? LinkEl : 'button'
 
 	<ItemEl
 		ref={(el: any) => applyEscapeProps(el, props)}
@@ -411,14 +518,25 @@ export function TopNavMegaMenuItem(props: NavigationItemImplementation<TopNavMeg
 		aria-current={link.selected ? 'page' : undefined}
 		aria-disabled={link.disabled || undefined}
 		tabIndex={-1}
-		href={link.href} target={props.target} rel={props.rel} download={props.download}
+		href={link.href}
+		target={props.target}
+		rel={props.rel}
+		download={props.download}
 		type={link.href == null ? 'button' : undefined}
-		onClick={(event: any) => { if (link.activateWeb(event)) menu?.closeMenu() }}
+		onClick={(event: any) => {
+			if (link.activateWeb(event)) {
+				menu?.closeMenu()
+			}
+		}}
 	>
-		{props.icon != null ? <span className="vx-topnavmegamenu-item-icon">{navIcon(props.icon, 20)}</span> : null}
+		{props.icon != null ? (
+			<span className="vx-topnavmegamenu-item-icon">{navIcon(props.icon, 20)}</span>
+		) : null}
 		<span className="vx-topnavmegamenu-item-text">
 			<span className="vx-topnavmegamenu-item-title">{props.title}</span>
-			{props.description != null ? <span className="vx-topnavmegamenu-item-desc">{props.description}</span> : null}
+			{props.description != null ? (
+				<span className="vx-topnavmegamenu-item-desc">{props.description}</span>
+			) : null}
 		</span>
 	</ItemEl>
 }
@@ -432,12 +550,18 @@ export function TopNavMegaMenuFeaturedCard(props: TopNavMegaMenuFeaturedCardProp
 		className={['vx-topnavmegamenu-card', props.className]}
 		style={props.style}
 	>
-		{props.image != null ? <img className="vx-topnavmegamenu-card-image" src={props.image} alt={props.imageAlt ?? ''} /> : null}
+		{props.image != null ? (
+			<img className="vx-topnavmegamenu-card-image" src={props.image} alt={props.imageAlt ?? ''} />
+		) : null}
 		<div className="vx-topnavmegamenu-card-body">
 			<Text className="vx-topnavmegamenu-card-title">{props.title}</Text>
-			{props.description != null ? <Text className="vx-topnavmegamenu-card-desc">{props.description}</Text> : null}
+			{props.description != null ? (
+				<Text className="vx-topnavmegamenu-card-desc">{props.description}</Text>
+			) : null}
 			{props.linkHref != null && props.linkLabel != null ? (
-				<a className="vx-topnavmegamenu-card-link" href={props.linkHref}>{props.linkLabel}</a>
+				<a className="vx-topnavmegamenu-card-link" href={props.linkHref}>
+					{props.linkLabel}
+				</a>
 			) : null}
 			{props.children}
 		</div>

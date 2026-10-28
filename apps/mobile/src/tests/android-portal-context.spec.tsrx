@@ -4,12 +4,7 @@ import { isAndroid } from '@nativescript/core'
 import { createContext, useContext, useEffect, useState } from 'octane'
 import type { View } from '@nativescript/core'
 import { Pressable, Text, View as XplatView } from '@octane-xplat/ui'
-import {
-	findByTestId,
-	mountXplat,
-	tap,
-	waitUntil,
-} from '@octane-xplat/platform/testing'
+import { findByTestId, mountXplat, tap, waitUntil } from '@octane-xplat/platform/testing'
 
 type Surface = 'sheet' | 'menu'
 
@@ -38,7 +33,7 @@ function PortalContextFixture() @{
 
 	<AccountNameProvider value={name}>
 		<rootlayout>
-			<masonview style={{display: "grid"}}>
+			<masonview style={{ display: 'grid' }}>
 				<Pressable testID="portal.update" onPress={() => setName('after')}>
 					<Text>Update context</Text>
 				</Pressable>
@@ -77,12 +72,15 @@ describe('Android plugin portals preserve context', () => {
 
 	it.skipIf(!isAndroid)('updates provider values and cleans up hosted content', async () => {
 		;({ MaterialBottomSheet: AndroidSheet } = await import('@octane-xplat/sheet/android'))
-		;({ MaterialContextMenu: AndroidContextMenu } = await import('@octane-xplat/context-menu/android'))
+
+		;({ MaterialContextMenu: AndroidContextMenu } =
+			await import('@octane-xplat/context-menu/android'))
 
 		const { view, unmount } = await mountXplat(PortalContextFixture)
 		await waitUntil(() => mounted.sheet > 0 && mounted.menu > 0, {
 			message: 'plugin portal children did not mount',
 		})
+
 		expect(rendered.sheet).toBe('before')
 		expect(rendered.menu).toBe('before')
 
@@ -92,10 +90,10 @@ describe('Android plugin portals preserve context', () => {
 		})
 
 		await tap(findByTestId<View>(view, 'portal.remove')!)
-		await waitUntil(
-			() => cleaned.sheet >= mounted.sheet && cleaned.menu >= mounted.menu,
-			{ message: 'plugin portal children stayed mounted after their owners unmounted' },
-		)
+		await waitUntil(() => cleaned.sheet >= mounted.sheet && cleaned.menu >= mounted.menu, {
+			message: 'plugin portal children stayed mounted after their owners unmounted',
+		})
+
 		await unmount()
 	})
 })

@@ -10,8 +10,15 @@ import type {
 	TableCellProps,
 	TableHeaderCellProps,
 } from './props'
+
 import type { TableContextActions, TablePlugin, TableRenderProps } from './table/types'
-import { applyPlugins, planTableRender, wrapTableContext, resolveTablePlugins } from './table/pipeline'
+import {
+	applyPlugins,
+	planTableRender,
+	wrapTableContext,
+	resolveTablePlugins,
+} from './table/pipeline'
+
 import { TableContext, TableContextProvider } from './table/table-context'
 import { TableSlot } from './table/table-slot'
 import { Empty as EmptyState } from './Empty'
@@ -19,13 +26,22 @@ import { ContextMenu } from './ContextMenu'
 import { useContext } from 'octane'
 
 function resolveContextActions(actions: TableContextActions | undefined) {
-	if (!actions) return undefined
+	if (!actions) {
+		return undefined
+	}
+
 	const list = typeof actions === 'function' ? actions() : actions
-	if (!list || list.length === 0) return undefined
+	if (!list || list.length === 0) {
+		return undefined
+	}
+
 	const items: any[] = []
 	let lastGroup: string | undefined
 	for (const action of list) {
-		if (items.length > 0 && action.group !== lastGroup) items.push({ type: 'divider' })
+		if (items.length > 0 && action.group !== lastGroup) {
+			items.push({ type: 'divider' })
+		}
+
 		lastGroup = action.group
 		items.push({
 			type: 'action',
@@ -37,11 +53,16 @@ function resolveContextActions(actions: TableContextActions | undefined) {
 			variant: action.variant === 'destructive' ? 'destructive' : undefined,
 		})
 	}
+
 	return items
 }
 
-function CellContextMenu(props: { actions: TableContextActions | undefined; children: any }) @{
+function CellContextMenu(props: {
+	actions: TableContextActions | undefined
+	children: any
+}) @{
 	const items = resolveContextActions(props.actions)
+
 	@if (items) {
 		<ContextMenu menu={items}>{props.children}</ContextMenu>
 	} @else {
@@ -50,16 +71,23 @@ function CellContextMenu(props: { actions: TableContextActions | undefined; chil
 }
 
 function ctxClasses(ctx: any, isHeaderRow: boolean) {
-	if (!ctx || isHeaderRow) return ''
+	if (!ctx || isHeaderRow) {
+		return ''
+	}
+
 	return [
 		ctx.isStriped && ctx.hasHover && 'vx-table-row--striped-hover',
 		ctx.isStriped && !ctx.hasHover && 'vx-table-row--striped',
 		ctx.hasHover && !ctx.isStriped && 'vx-table-row--hover',
-	].filter(Boolean).join(' ')
+	]
+		.filter(Boolean)
+		.join(' ')
 }
 
 /** Table — data-driven + plugin pipeline (Astryx `Table`), semantic DOM leaf. */
-export function Table<T extends Record<string, unknown> = Record<string, unknown>>(props: TableProps<T>) @{
+export function Table<T extends Record<string, unknown> = Record<string, unknown>>(
+	props: TableProps<T>,
+) @{
 	const {
 		data,
 		columns,
@@ -84,7 +112,9 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 
 	const plugins = resolveTablePlugins<T>([], pluginRecord)
 	const ctx = { density, dividers, isStriped, hasHover, verticalAlign, textOverflow }
-	const overflowClass = textOverflow === 'truncate' ? 'vx-table-cell--truncate' : 'vx-table-cell--wrap'
+	const overflowClass =
+		textOverflow === 'truncate' ? 'vx-table-cell--truncate' : 'vx-table-cell--wrap'
+
 	const tableClasses = cx(
 		'vx-table',
 		`vx-table--${density}`,
@@ -94,14 +124,28 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 	)
 
 	if (children != null) {
-		const table = applyPlugins(plugins, (p) => p.transformTable, { htmlProps: {}, classes: [] } as TableRenderProps)
+		const table = applyPlugins(plugins, (p) => p.transformTable, {
+			htmlProps: {},
+			classes: [],
+		} as TableRenderProps)
+
 		const node = (
 			<div class="vx-table-scroll">
-				<table ref={ref} id={id} {...table.htmlProps} class={cx(tableClasses, table.classes)} style={mergeStyle((table.htmlProps?.style ?? {}) as Record<string, unknown>, (style ?? {}) as Record<string, unknown>)}>
+				<table
+					ref={ref}
+					id={id}
+					{...table.htmlProps}
+					class={cx(tableClasses, table.classes)}
+					style={mergeStyle(
+						(table.htmlProps?.style ?? {}) as Record<string, unknown>,
+						(style ?? {}) as Record<string, unknown>,
+					)}
+				>
 					{children}
 				</table>
 			</div>
 		)
+
 		return (
 			<TableContextProvider value={ctx}>
 				<TableSlot value={wrapTableContext(plugins, node)} />
@@ -121,8 +165,14 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 	})
 
 	const tableStyle = mergeStyle(
-		mergeStyle((plan.table.htmlProps?.style ?? {}) as Record<string, unknown>, (style ?? {}) as Record<string, unknown>),
-		(plan.tableMinWidth > 0 ? { minWidth: `${plan.tableMinWidth}px` } : {}) as Record<string, unknown>,
+		mergeStyle(
+			(plan.table.htmlProps?.style ?? {}) as Record<string, unknown>,
+			(style ?? {}) as Record<string, unknown>,
+		),
+		(plan.tableMinWidth > 0 ? { minWidth: `${plan.tableMinWidth}px` } : {}) as Record<
+			string,
+			unknown
+		>,
 	) as Record<string, unknown>
 
 	// Extract a plugin-contributed ref so it reliably binds to the scroll div
@@ -135,7 +185,8 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 			{...scrollWrapperProps}
 			class={cx('vx-table-scroll', plan.scrollWrapper.classes)}
 			role="group"
-			aria-label="Table">
+			aria-label="Table"
+		>
 			<TableSlot value={plan.scrollWrapper.beforeTable} />
 			<table
 				ref={ref}
@@ -143,7 +194,8 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 				{...plan.table.htmlProps}
 				class={cx(tableClasses, plan.table.classes)}
 				style={tableStyle}
-				{...rest}>
+				{...rest}
+			>
 				{plan.columns.length > 0 && (
 					<thead>
 						<tr {...plan.headerRow.htmlProps} class={cx(plan.headerRow.classes)}>
@@ -154,9 +206,18 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 									<th
 										key={cell.column.key}
 										{...cell.render.htmlProps}
-										class={cx('vx-table-cell vx-table-th', `vx-table-cell--${density}`, overflowClass, cell.render.classes)}
-										style={mergeStyle(cell.widthStyle, (cell.render.htmlProps?.style ?? {}) as Record<string, unknown>)}
-										title={typeof content === 'string' && content.length > 0 ? content : undefined}>
+										class={cx(
+											'vx-table-cell vx-table-th',
+											`vx-table-cell--${density}`,
+											overflowClass,
+											cell.render.classes,
+										)}
+										style={mergeStyle(
+											cell.widthStyle,
+											(cell.render.htmlProps?.style ?? {}) as Record<string, unknown>,
+										)}
+										title={typeof content === 'string' && content.length > 0 ? content : undefined}
+									>
 										{hasSlots ? (
 											<>
 												<TableSlot value={before} />
@@ -186,24 +247,34 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 							<tr
 								key={row.key}
 								{...row.render.htmlProps}
-								class={cx('vx-table-row', ctxClasses(ctx, false), row.render.classes)}>
-								{row.render.children != null ? (row.render.children as any) : row.cells.map((cell) => (
-									<td
-										key={cell.column.key}
-										{...cell.render.htmlProps}
-										class={cx('vx-table-cell', `vx-table-cell--${density}`, overflowClass, cell.render.classes)}
-										style={cell.render.htmlProps?.style}>
-										{cell.render.contextMenuActions ? (
-											<CellContextMenu actions={cell.render.contextMenuActions}>
-												<TableSlot value={cell.content} />
-											</CellContextMenu>
-										) : (
-											<TableSlot value={cell.content} />
-										)}
-									</td>
-								))}
+								class={cx('vx-table-row', ctxClasses(ctx, false), row.render.classes)}
+							>
+								{row.render.children != null
+									? (row.render.children as any)
+									: row.cells.map((cell) => (
+											<td
+												key={cell.column.key}
+												{...cell.render.htmlProps}
+												class={cx(
+													'vx-table-cell',
+													`vx-table-cell--${density}`,
+													overflowClass,
+													cell.render.classes,
+												)}
+												style={cell.render.htmlProps?.style}
+											>
+												{cell.render.contextMenuActions ? (
+													<CellContextMenu actions={cell.render.contextMenuActions}>
+														<TableSlot value={cell.content} />
+													</CellContextMenu>
+												) : (
+													<TableSlot value={cell.content} />
+												)}
+											</td>
+										))}
 							</tr>
 						)
+
 						return row.render.afterRow ? (
 							<>
 								{rowNode}
@@ -216,7 +287,11 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 					{plan.showEmptyState && (
 						<tr>
 							<td colSpan={plan.colSpan}>
-								{emptyState != null ? <TableSlot value={emptyState} /> : <EmptyState title="No data" />}
+								{emptyState != null ? (
+									<TableSlot value={emptyState} />
+								) : (
+									<EmptyState title="No data" />
+								)}
 							</td>
 						</tr>
 					)}
@@ -236,32 +311,52 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
 // =============================================================================
 
 export function TableHeader(props: TableHeaderProps) @{
-	<thead {...props.web} class={cx('vx-table-header', props.className)} style={props.style}>{props.children as any}</thead>
+	<thead {...props.web} class={cx('vx-table-header', props.className)} style={props.style}>
+		{props.children as any}
+	</thead>
 }
 
 export function TableBody(props: TableBodyProps) @{
-	<tbody {...props.web} class={cx('vx-table-body', props.className)} style={props.style}>{props.children as any}</tbody>
+	<tbody {...props.web} class={cx('vx-table-body', props.className)} style={props.style}>
+		{props.children as any}
+	</tbody>
 }
 
 export function TableFooter(props: TableFooterProps) @{
-	<tfoot {...props.web} class={cx('vx-table-footer', props.className)} style={props.style}>{props.children as any}</tfoot>
+	<tfoot {...props.web} class={cx('vx-table-footer', props.className)} style={props.style}>
+		{props.children as any}
+	</tfoot>
 }
 
 export function TableRow(props: TableRowProps) @{
 	const ctx = useContext(TableContext as any) as any
 	const { isHeaderRow, contextMenuActions, children, className, style, web, ...rest } = props
+
 	<tr
 		{...rest}
 		{...web}
 		class={cx('vx-table-row', ctxClasses(ctx, !!isHeaderRow), className)}
-		style={style}>
+		style={style}
+	>
 		{children as any}
 	</tr>
 }
 
 export function TableCell(props: TableCellProps) @{
 	const ctx = useContext(TableContext as any) as any
-	const { contextMenuActions, children, className, style, scope, headers, colSpan, rowSpan, web, ...rest } = props
+	const {
+		contextMenuActions,
+		children,
+		className,
+		style,
+		scope,
+		headers,
+		colSpan,
+		rowSpan,
+		web,
+		...rest
+	} = props
+
 	<td
 		{...rest}
 		{...web}
@@ -277,14 +372,30 @@ export function TableCell(props: TableCellProps) @{
 			(ctx?.dividers === 'rows' || ctx?.dividers === 'grid') && 'vx-table-cell--row-divider',
 			className,
 		)}
-		style={mergeStyle((ctx?.verticalAlign ? { verticalAlign: ctx.verticalAlign } : {}) as Record<string, unknown>, (style ?? {}) as Record<string, unknown>)}>
+		style={mergeStyle(
+			(ctx?.verticalAlign ? { verticalAlign: ctx.verticalAlign } : {}) as Record<string, unknown>,
+			(style ?? {}) as Record<string, unknown>,
+		)}
+	>
 		<CellContextMenu actions={contextMenuActions}>{children as any}</CellContextMenu>
 	</td>
 }
 
 export function TableHeaderCell(props: TableHeaderCellProps) @{
 	const ctx = useContext(TableContext as any) as any
-	const { contextMenuActions, children, className, style, scope, headers, colSpan, rowSpan, web, ...rest } = props
+	const {
+		contextMenuActions,
+		children,
+		className,
+		style,
+		scope,
+		headers,
+		colSpan,
+		rowSpan,
+		web,
+		...rest
+	} = props
+
 	<th
 		{...rest}
 		{...web}
@@ -299,7 +410,11 @@ export function TableHeaderCell(props: TableHeaderCellProps) @{
 			(ctx?.dividers === 'rows' || ctx?.dividers === 'grid') && 'vx-table-cell--row-divider',
 			className,
 		)}
-		style={mergeStyle({ verticalAlign: ctx?.verticalAlign ?? 'middle' }, (style ?? {}) as Record<string, unknown>)}>
+		style={mergeStyle(
+			{ verticalAlign: ctx?.verticalAlign ?? 'middle' },
+			(style ?? {}) as Record<string, unknown>,
+		)}
+	>
 		<CellContextMenu actions={contextMenuActions}>{children as any}</CellContextMenu>
 	</th>
 }

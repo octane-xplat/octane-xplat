@@ -24,5 +24,11 @@ function PressableFixture(props: { width: number; height: number; label: string 
 }
 
 export const PARITY: ParityFixture[] = [
-	{ name: 'pressable-basic', component: 'Pressable', renderer: PressableFixture, props: { width: 220, height: 32, label: 'Go' }, wide: true },
+	{
+		name: 'pressable-basic',
+		component: 'Pressable',
+		renderer: PressableFixture,
+		props: { width: 220, height: 32, label: 'Go' },
+		wide: true,
+	},
 ]

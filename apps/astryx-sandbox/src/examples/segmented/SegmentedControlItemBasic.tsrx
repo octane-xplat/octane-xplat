@@ -4,7 +4,8 @@ import { useState } from 'octane'
 
 export function SegmentedControlItemBasic() @{
 	const [value, setValue] = useState('all')
-	<div style={{width: 400}}>
+
+	<div style={{ width: 400 }}>
 		<SegmentedControl value={value} onValueChange={setValue}>
 			<SegmentedControlItem label="All" value="all" />
 			<SegmentedControlItem label="Unread" value="unread" />

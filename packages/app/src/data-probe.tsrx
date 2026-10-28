@@ -23,11 +23,21 @@ export function DataScreen(props: { id: string }) @{
 		<Text id="data-status">{`${selection$.get()}:${snapshot.status}:${result$.latest('none')}:${snapshot.refreshing}`}</Text>
 		<Text id="data-shared">{`shared:${dataShared$.get()}`}</Text>
 		<Text id="data-module-query">{dataSharedQuery$.latest('none')}</Text>
-		<Pressable id="data-change" onPress={() => selection$.set(props.id + '-next')}><Text>Change selection</Text></Pressable>
-		<Pressable id="data-skip" onPress={() => selection$.set('')}><Text>Pause</Text></Pressable>
-		<Pressable id="data-retry" onPress={() => result$.retry({ pending: true })}><Text>Retry</Text></Pressable>
-		<Pressable id="data-refetch" onPress={() => result$.refetch()}><Text>Refetch</Text></Pressable>
-		<Pressable id="data-reset" onPress={() => result$.reset()}><Text>Reset</Text></Pressable>
+		<Pressable id="data-change" onPress={() => selection$.set(props.id + '-next')}>
+			<Text>Change selection</Text>
+		</Pressable>
+		<Pressable id="data-skip" onPress={() => selection$.set('')}>
+			<Text>Pause</Text>
+		</Pressable>
+		<Pressable id="data-retry" onPress={() => result$.retry({ pending: true })}>
+			<Text>Retry</Text>
+		</Pressable>
+		<Pressable id="data-refetch" onPress={() => result$.refetch()}>
+			<Text>Refetch</Text>
+		</Pressable>
+		<Pressable id="data-reset" onPress={() => result$.reset()}>
+			<Text>Reset</Text>
+		</Pressable>
 	</View>
 }
 
@@ -44,10 +54,14 @@ export function DataRetained(props: { pending: Promise<string>; fail: () => void
 	<View>
 		@try {
 			const value = pending === null ? 'ready' : use(pending)
-			<Pressable id="data-suspend" onPress={() => setPending(props.pending)}><Text id="data-body">{value}</Text></Pressable>
+			<Pressable id="data-suspend" onPress={() => setPending(props.pending)}>
+				<Text id="data-body">{value}</Text>
+			</Pressable>
 		} @pending {
 			<Text id="data-pending">Pending</Text>
 		}
-		<Pressable id="data-throw" onPress={props.fail}><Text>Throw once</Text></Pressable>
+		<Pressable id="data-throw" onPress={props.fail}>
+			<Text>Throw once</Text>
+		</Pressable>
 	</View>
 }

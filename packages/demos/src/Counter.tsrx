@@ -1,20 +1,34 @@
-import { useState } from 'octane';
-import { View, HStack, Text, Pressable } from '@octane-xplat/ui';
+import { useState } from 'octane'
+import { View, HStack, Text, Pressable } from '@octane-xplat/ui'
 
 /** counter-jsx / reactive-counter — the smallest state→commit cycle.
  *  Baseline probe: if this breaks, everything above it is noise. */
 export function Counter() @{
-	const [count, setCount] = useState(0);
-	const [parity, setParity] = useState(false);
-	console.log('[demo] Counter render count=' + count);
+	const [count, setCount] = useState(0)
+	const [parity, setParity] = useState(false)
+	console.log('[demo] Counter render count=' + count)
 
 	<View className="vx-app flex-1 gap-4 items-center">
 		<Text className="demo-clock">{'Demo count: ' + count}</Text>
 		<HStack className="gap-4">
-			<Pressable id="counter-dec" onPress={() => { console.log('[probe] counter -'); setCount(count - 1); }} className="btn bg-primary">
+			<Pressable
+				id="counter-dec"
+				onPress={() => {
+					console.log('[probe] counter -')
+					setCount(count - 1)
+				}}
+				className="btn bg-primary"
+			>
 				<Text className="text-onprimary">-</Text>
 			</Pressable>
-			<Pressable id="counter-inc" onPress={() => { console.log('[probe] counter +'); setCount(count + 1); }} className="btn bg-primary">
+			<Pressable
+				id="counter-inc"
+				onPress={() => {
+					console.log('[probe] counter +')
+					setCount(count + 1)
+				}}
+				className="btn bg-primary"
+			>
 				<Text className="text-onprimary">+</Text>
 			</Pressable>
 		</HStack>

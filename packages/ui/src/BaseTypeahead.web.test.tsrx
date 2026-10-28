@@ -12,18 +12,27 @@ const items: SearchableItem[] = [
 ]
 
 const cleanups: (() => void)[] = []
-afterEach(() => { cleanups.splice(0).forEach((cleanup) => cleanup()); vi.unstubAllGlobals() })
+afterEach(() => {
+	cleanups.splice(0).forEach((cleanup) => cleanup())
+	vi.unstubAllGlobals()
+})
 
 const deferred = <T,>() => {
 	let resolve!: (value: T) => void
 	let reject!: (error: unknown) => void
-	const promise = new Promise<T>((res, rej) => { resolve = res; reject = rej })
+	const promise = new Promise<T>((res, rej) => {
+		resolve = res
+		reject = rej
+	})
+
 	return { promise, resolve, reject }
 }
 
 function makeSource(overrides: Partial<SearchSource> = {}) {
 	return {
-		search: vi.fn(async (query: string) => items.filter((item) => item.label.toLowerCase().includes(query.toLowerCase()))),
+		search: vi.fn(async (query: string) =>
+			items.filter((item) => item.label.toLowerCase().includes(query.toLowerCase())),
+		),
 		bootstrap: vi.fn(async () => items),
 		...overrides,
 	}
@@ -32,7 +41,11 @@ function makeSource(overrides: Partial<SearchSource> = {}) {
 const signalOf = (call: unknown[]) => (call[1] as { signal?: AbortSignal } | undefined)?.signal
 
 function mount(props: Partial<BaseTypeaheadProps> = {}, node?: any) {
-	vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() })))
+	vi.stubGlobal(
+		'matchMedia',
+		vi.fn(() => ({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() })),
+	)
+
 	const host = document.createElement('div')
 	document.body.append(host)
 	const root = createRoot(host)
@@ -45,18 +58,34 @@ function mount(props: Partial<BaseTypeaheadProps> = {}, node?: any) {
 	}
 
 	act(() => root.render(node ?? <BaseTypeahead {...baseProps} />))
-	const unmount = () => { root.unmount(); host.remove() }
+	const unmount = () => {
+		root.unmount()
+		host.remove()
+	}
+
 	cleanups.push(unmount)
 	const input = () => host.querySelector('.vx-typeahead-input') as HTMLInputElement
-	const type = (value: string) => act(() => { input().value = value; input().dispatchEvent(new Event('input', { bubbles: true })) })
-	const key = (key: string, init: KeyboardEventInit = {}) => act(() => {
-		input().dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, ...init }))
-	})
+	const type = (value: string) =>
+		act(() => {
+			input().value = value
+			input().dispatchEvent(new Event('input', { bubbles: true }))
+		})
+
+	const key = (key: string, init: KeyboardEventInit = {}) =>
+		act(() => {
+			input().dispatchEvent(
+				new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, ...init }),
+			)
+		})
 
 	const click = (target: Element) => act(() => (target as HTMLElement).click())
 	const options = () => document.querySelectorAll('[role="option"]')
 	// One microtask turn settles the deferred search pipeline inside act.
-	const settle = () => act(async () => { await Promise.resolve() })
+	const settle = () =>
+		act(async () => {
+			await Promise.resolve()
+		})
+
 	return { host, input, type, key, click, options, settle, unmount, props: baseProps }
 }
 
@@ -66,7 +95,11 @@ describe('BaseTypeahead search coordination', () => {
 		const ui = mount({ onOpenChange })
 		ui.type('ap')
 		await ui.settle()
-		expect(ui.props.searchSource.search).toHaveBeenCalledWith('ap', expect.objectContaining({ signal: expect.any(AbortSignal) }))
+		expect(ui.props.searchSource.search).toHaveBeenCalledWith(
+			'ap',
+			expect.objectContaining({ signal: expect.any(AbortSignal) }),
+		)
+
 		expect(ui.options()).toHaveLength(2)
 		expect(document.querySelector('.vx-typeahead-empty')).toBeNull()
 		expect(ui.input().getAttribute('aria-expanded')).toBe('true')
@@ -138,7 +171,11 @@ describe('BaseTypeahead search coordination', () => {
 		await ui.settle()
 		const outside = document.createElement('button')
 		document.body.append(outside)
-		act(() => { ui.input().focus(); outside.focus() })
+		act(() => {
+			ui.input().focus()
+			outside.focus()
+		})
+
 		expect(document.querySelector('[role="listbox"]')).toBeNull()
 		expect(onOpenChange).toHaveBeenLastCalledWith(false)
 		outside.remove()
@@ -146,13 +183,19 @@ describe('BaseTypeahead search coordination', () => {
 
 	it('discards a stale resolution superseded by a newer query', async () => {
 		const stale = deferred<SearchableItem[]>()
-		const search = vi.fn((query: string) => query === 'a' ? stale.promise : Promise.resolve([items[2]]))
+		const search = vi.fn((query: string) =>
+			query === 'a' ? stale.promise : Promise.resolve([items[2]]),
+		)
+
 		const ui = mount({ searchSource: makeSource({ search }) })
 		ui.type('a')
 		ui.type('ab')
 		await ui.settle()
 		expect(ui.options()).toHaveLength(1)
-		act(() => { stale.resolve([items[0]]) })
+		act(() => {
+			stale.resolve([items[0]])
+		})
+
 		await ui.settle()
 		expect(ui.options()).toHaveLength(1)
 		expect(ui.options()[0].textContent).toContain('Banana')
@@ -164,7 +207,11 @@ describe('BaseTypeahead search coordination', () => {
 		ui.type('ap')
 		await ui.settle()
 		expect(ui.host.querySelector('.vx-typeahead-loading')).not.toBeNull()
-		await act(async () => { failing.reject(new Error('offline')); await failing.promise.catch(() => {}) })
+		await act(async () => {
+			failing.reject(new Error('offline'))
+			await failing.promise.catch(() => {})
+		})
+
 		expect(ui.options()).toHaveLength(0)
 		expect(ui.host.querySelector('.vx-typeahead-loading')).toBeNull()
 	})
@@ -197,10 +244,14 @@ describe('BaseTypeahead search coordination', () => {
 		const shared: SearchSource = {
 			bootstrap: () => [],
 			search: (_query, request) => {
-				if (request) signals.push(request.signal)
+				if (request) {
+					signals.push(request.signal)
+				}
+
 				return pending.promise
 			},
 		}
+
 		const a = mount({ searchSource: shared })
 		const b = mount({ searchSource: shared })
 
@@ -226,23 +277,38 @@ describe('BaseTypeahead search coordination', () => {
 		const ui = mount({ searchSource: makeSource({ search }) })
 		ui.type('ap')
 		ui.unmount()
-		await act(async () => { pending.resolve([items[0]]); await pending.promise })
+		await act(async () => {
+			pending.resolve([items[0]])
+			await pending.promise
+		})
+
 		expect(document.querySelector('[role="listbox"]')).toBeNull()
 	})
 
 	it('reports search progress through the BusyLane context', async () => {
 		const lane = createBusyIndicatorLane()
 		const pending = deferred<SearchableItem[]>()
-		const baseProps = { searchSource: makeSource({ search: () => pending.promise }), value: null, onChange: vi.fn(), debounceMs: 0 }
-		const ui = mount({}, (
+		const baseProps = {
+			searchSource: makeSource({ search: () => pending.promise }),
+			value: null,
+			onChange: vi.fn(),
+			debounceMs: 0,
+		}
+
+		const ui = mount(
+			{},
 			<BusyLaneProvider value={lane}>
 				<BaseTypeahead {...baseProps} />
-			</BusyLaneProvider>
-		))
+			</BusyLaneProvider>,
+		)
 
 		ui.type('ap')
 		expect(lane.getIsBusy()).toBe(true)
-		await act(async () => { pending.resolve([items[0]]); await pending.promise })
+		await act(async () => {
+			pending.resolve([items[0]])
+			await pending.promise
+		})
+
 		expect(lane.getIsBusy()).toBe(false)
 	})
 
@@ -258,6 +324,9 @@ describe('BaseTypeahead search coordination', () => {
 		ref.current.setQuery('ban')
 		await ui.settle()
 		expect(ui.input().value).toBe('ban')
-		expect(ui.props.searchSource.search).toHaveBeenCalledWith('ban', expect.objectContaining({ signal: expect.any(AbortSignal) }))
+		expect(ui.props.searchSource.search).toHaveBeenCalledWith(
+			'ban',
+			expect.objectContaining({ signal: expect.any(AbortSignal) }),
+		)
 	})
 })

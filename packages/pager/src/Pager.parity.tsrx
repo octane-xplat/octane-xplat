@@ -8,9 +8,7 @@ function PagerFixture() @{
 		className="parity-pager-root"
 		style={{ width: 220, height: 96, backgroundColor: '#f5f5f5' }}
 		items={[{ key: 'first' }, { key: 'second' }]}
-		renderItem={() => (
-			<View className="parity-pager-page" style={{ width: 220, height: 96 }} />
-		)}
+		renderItem={() => <View className="parity-pager-page" style={{ width: 220, height: 96 }} />}
 	/>
 }
 

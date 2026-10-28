@@ -7,5 +7,5 @@ export function NativeContextMenuDemo() @{
 		<Text id="native-context-menu-status">
 			Native context menus are unsupported by the experimental AppKit host.
 		</Text>
-	</View>;
+	</View>
 }

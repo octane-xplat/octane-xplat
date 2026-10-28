@@ -1,5 +1,5 @@
-import type { BlockquoteProps } from './props';
-import { applyEscapeProps } from './escape-props';
+import type { BlockquoteProps } from './props'
+import { applyEscapeProps } from './escape-props'
 
 /** Blockquote — semantic <blockquote> with an inline-start rule and an
  *  optional <cite> attribution line. A bare <cite>, never wrapped in
@@ -13,6 +13,8 @@ export function Blockquote(props: BlockquoteProps) @{
 		style={props.style}
 	>
 		{props.children}
-		{props.cite != null && props.cite !== false ? <cite className="vx-blockquote-cite">{props.cite}</cite> : null}
+		{props.cite != null && props.cite !== false ? (
+			<cite className="vx-blockquote-cite">{props.cite}</cite>
+		) : null}
 	</blockquote>
 }

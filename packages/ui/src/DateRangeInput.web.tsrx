@@ -16,7 +16,7 @@ import { isDateRangeAllowed } from './calendar-core'
 const STATUS_GLYPHS = { error: '⚠', warning: '⚠', success: '✓' } as const
 
 function RangeControl(inputProps: DateRangeInputProps) @{
-	const hostRef = useRef<any>(null);
+	const hostRef = useRef<any>(null)
 	const props = useFieldControlProps(inputProps)
 	const locale = resolveLocale(props.locale)
 	const messages = dateMessages(props.messages)
@@ -36,17 +36,34 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 	const showsDisabledReason = isDisabled && !!props.disabledMessage
 
 	const fireChange = (next: DateRange | null) => {
-		if (isDisabled || isBusy || next !== null && !isDateRangeAllowed(next, props)) return
-		setAnnouncement(next ? messages.rangeSelected(formatDateValue(next.start, 'date_long', locale), formatDateValue(next.end, 'date_long', locale)) : messages.rangeCleared)
+		if (isDisabled || isBusy || (next !== null && !isDateRangeAllowed(next, props))) {
+			return
+		}
+
+		setAnnouncement(
+			next
+				? messages.rangeSelected(
+						formatDateValue(next.start, 'date_long', locale),
+						formatDateValue(next.end, 'date_long', locale),
+					)
+				: messages.rangeCleared,
+		)
+
 		props.onChange?.(next)
 		if (props.changeAction) {
 			setBusy(true)
-			runDateChangeAction(() => props.changeAction!(next), () => setBusy(false))
+			runDateChangeAction(
+				() => props.changeAction!(next),
+				() => setBusy(false),
+			)
 		}
 	}
 
 	const selectRange = (range: DateRange) => {
-		if (isDisabled || isBusy || !isDateRangeAllowed(range, props)) return
+		if (isDisabled || isBusy || !isDateRangeAllowed(range, props)) {
+			return
+		}
+
 		fireChange(range)
 		setOpen(false)
 	}
@@ -54,14 +71,22 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 	const isPresetDisabled = (preset: { getRange: () => DateRange }) =>
 		isDisabled || isBusy || !isDateRangeAllowed(preset.getRange(), props)
 
-	const displayText = shown ? `${formatDateValue(shown.start, 'date_long', locale)} – ${formatDateValue(shown.end, 'date_long', locale)}` : ''
-	const isSelectedPreset = (p: { getRange: () => DateRange }) => { const r = p.getRange(); return shown?.start === r.start && shown?.end === r.end }
+	const displayText = shown
+		? `${formatDateValue(shown.start, 'date_long', locale)} – ${formatDateValue(shown.end, 'date_long', locale)}`
+		: ''
+
+	const isSelectedPreset = (p: { getRange: () => DateRange }) => {
+		const r = p.getRange()
+		return shown?.start === r.start && shown?.end === r.end
+	}
 
 	const statusType = props.status?.type
 
 	const shellNode = (
 		<div
-			ref={(el: any) => { anchor.current = el }}
+			ref={(el: any) => {
+				anchor.current = el
+			}}
 			className={cx(
 				'vx-daterangeinput',
 				isDisabled && 'vx-daterangeinput--disabled',
@@ -74,41 +99,91 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 			style={props.style}
 		>
 			<button
-				ref={(el: any) => { hostRef.current = el; }}
+				ref={(el: any) => {
+					hostRef.current = el
+				}}
 				id={inputId}
 				type="button"
-				className={cx('vx-daterangeinput-trigger', !shown && 'vx-daterangeinput-trigger--placeholder')}
-				disabled={isDisabled && !showsDisabledReason || undefined}
+				className={cx(
+					'vx-daterangeinput-trigger',
+					!shown && 'vx-daterangeinput-trigger--placeholder',
+				)}
+				disabled={(isDisabled && !showsDisabledReason) || undefined}
 				aria-disabled={showsDisabledReason || undefined}
 				aria-label={props.ariaLabel}
 				aria-labelledby={props.ariaLabelledBy}
 				aria-describedby={props.ariaDescribedBy}
 				aria-description={props.ariaDescription}
-				aria-required={props.isRequired && !props.isOptional || undefined}
+				aria-required={(props.isRequired && !props.isOptional) || undefined}
 				aria-invalid={statusType === 'error' || undefined}
 				aria-busy={isBusy || undefined}
 				aria-expanded={open}
 				aria-haspopup="dialog"
-				onClick={() => { if (!(showsDisabledReason) && !isBusy) setOpen(!open) }}
+				onClick={() => {
+					if (!showsDisabledReason && !isBusy) {
+						setOpen(!open)
+					}
+				}}
 			>
 				<Icon name="xplat-calendar" size={16} />
 				<span className="vx-daterangeinput-text">{displayText || 'Select a date range'}</span>
 			</button>
-			{canClear ? <button type="button" className="vx-daterangeinput-clear" aria-label={`Clear ${props.fieldLabel ?? props.label ?? 'date range'}`} onClick={(e: any) => { e.stopPropagation(); fireChange(null) }}>{'×'}</button> : null}
+			{canClear ? (
+				<button
+					type="button"
+					className="vx-daterangeinput-clear"
+					aria-label={`Clear ${props.fieldLabel ?? props.label ?? 'date range'}`}
+					onClick={(e: any) => {
+						e.stopPropagation()
+						fireChange(null)
+					}}
+				>
+					{'×'}
+				</button>
+			) : null}
 			{isBusy ? <ActivityIndicator busy className="vx-daterangeinput-spinner" /> : null}
 			{statusType ? (
-				props.statusVariant === 'tooltip' && props.status?.message
-					? <Tooltip trigger={<span className={cx('vx-field-icon', `vx-field-icon--${statusType}`)}>{STATUS_GLYPHS[statusType]}</span>} content={props.status.message} />
-					: <span className={cx('vx-field-icon', `vx-field-icon--${statusType}`)}>{STATUS_GLYPHS[statusType]}</span>
+				props.statusVariant === 'tooltip' && props.status?.message ? (
+					<Tooltip
+						trigger={
+							<span className={cx('vx-field-icon', `vx-field-icon--${statusType}`)}>
+								{STATUS_GLYPHS[statusType]}
+							</span>
+						}
+						content={props.status.message}
+					/>
+				) : (
+					<span className={cx('vx-field-icon', `vx-field-icon--${statusType}`)}>
+						{STATUS_GLYPHS[statusType]}
+					</span>
+				)
 			) : null}
 		</div>
 	)
 
-	useImperativeHandle(props.ref, () => ({ focus: () => hostRef.current.focus(), blur: () => hostRef.current.blur(), native: hostRef.current }), undefined);
+	useImperativeHandle(
+		props.ref,
+		() => ({
+			focus: () => hostRef.current.focus(),
+			blur: () => hostRef.current.blur(),
+			native: hostRef.current,
+		}),
+		undefined,
+	)
 
 	<>
-		{showsDisabledReason ? <Tooltip trigger={shellNode} content={props.disabledMessage!} /> : shellNode}
-		<Popover anchor={anchor} open={open} onDismiss={() => setOpen(false)} placement="bottom" className="vx-daterangeinput-popover">
+		{showsDisabledReason ? (
+			<Tooltip trigger={shellNode} content={props.disabledMessage!} />
+		) : (
+			shellNode
+		)}
+		<Popover
+			anchor={anchor}
+			open={open}
+			onDismiss={() => setOpen(false)}
+			placement="bottom"
+			className="vx-daterangeinput-popover"
+		>
 			<div className="vx-daterangeinput-dialog">
 				{props.presets?.length ? (
 					<div className="vx-daterangeinput-presets" role="group" aria-label="Presets">
@@ -117,10 +192,15 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 								key={preset.label}
 								id={`${inputId}-preset-${index}`}
 								type="button"
-								className={cx('vx-daterangeinput-preset', isSelectedPreset(preset) && 'vx-daterangeinput-preset--selected')}
+								className={cx(
+									'vx-daterangeinput-preset',
+									isSelectedPreset(preset) && 'vx-daterangeinput-preset--selected',
+								)}
 								aria-pressed={isSelectedPreset(preset)}
 								disabled={isPresetDisabled(preset)}
-								onClick={() => { selectRange(preset.getRange()) }}
+								onClick={() => {
+									selectRange(preset.getRange())
+								}}
 							>
 								{preset.label}
 							</button>
@@ -144,7 +224,9 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 				/>
 			</div>
 		</Popover>
-		<div className="vx-sr-only" aria-live="polite" role="status">{announcement}</div>
+		<div className="vx-sr-only" aria-live="polite" role="status">
+			{announcement}
+		</div>
 	</>
 }
 
@@ -155,7 +237,10 @@ export function DateRangeInput(props: DateRangeInputProps) @{
 	const inField = useContext(FieldContext) != null
 	const cid = useId()
 	const control = <RangeControl {...props} />
-	if (inField) return control
+	if (inField) {
+		return control
+	}
+
 	return (
 		<FormField
 			inputID={props.id ?? cid}

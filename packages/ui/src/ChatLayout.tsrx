@@ -94,7 +94,14 @@ export function ChatLayout(props: ChatLayoutProps) @{
 
 	useEffect(() => {
 		binding.current?.update()
-	}, [props.keyboardFollow, props.bottomPanelHeight, safe.bottom, homeInset, ancestor.window, ancestor.bottom])
+	}, [
+		props.keyboardFollow,
+		props.bottomPanelHeight,
+		safe.bottom,
+		homeInset,
+		ancestor.window,
+		ancestor.bottom,
+	])
 
 	// Expose the scroller through the caller's scrollRef (in/out handle).
 	const scrollContainerRef = props.scrollRef ?? scrollViewRef
@@ -120,18 +127,28 @@ export function ChatLayout(props: ChatLayoutProps) @{
 			id={props.id}
 			ref={attachRoot}
 			className={cx('vx-chatlayout', `vx-chatlayout--${density}`, props.className)}
-			style={mergeStyle({ display: "grid", flexGrow: 1 }, props.style)}
+			style={mergeStyle({ display: 'grid', flexGrow: 1 }, props.style)}
 		>
-			<scrollview ref={attachViewport} className="vx-chatlayout-scroll" orientation="vertical" style={{ gridRow: '1', gridColumn: '1' }}>
+			<scrollview
+				ref={attachViewport}
+				className="vx-chatlayout-scroll"
+				orientation="vertical"
+				style={{ gridRow: '1', gridColumn: '1' }}
+			>
 				<masonview
 					ref={attachContent}
 					className={cx('vx-chatlayout-messages', `vx-chatlayout-messages--${density}`)}
-					style={{ display: "flex", flexDirection: "column" }}
+					style={{ display: 'flex', flexDirection: 'column' }}
 				>
 					{showEmpty && props.emptyState != null ? (
 						<masonview
 							className="vx-chatlayout-empty"
-							style={{ display: "flex", alignItems: "center", justifyContent: "center", flexGrow: 1 }}
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+								flexGrow: 1,
+							}}
 						>
 							{props.emptyState}
 						</masonview>
@@ -143,7 +160,13 @@ export function ChatLayout(props: ChatLayoutProps) @{
 			<masonview
 				ref={attachDock}
 				className="vx-chatlayout-dock"
-				style={{ display: "flex", flexDirection: "column", alignSelf: "end", gridRow: '1', gridColumn: '1' }}
+				style={{
+					display: 'flex',
+					flexDirection: 'column',
+					alignSelf: 'end',
+					gridRow: '1',
+					gridColumn: '1',
+				}}
 			>
 				{props.scrollButton === undefined ? (
 					<ChatLayoutScrollButton
@@ -157,8 +180,14 @@ export function ChatLayout(props: ChatLayoutProps) @{
 				) : (
 					props.scrollButton
 				)}
-				<masonview ref={attachDockPad} className={cx('vx-chatlayout-dockpad', `vx-chatlayout-dockpad--${density}`)} style={{ display: "flex" }}>
-					<masonview className="vx-chatlayout-dockinner" style={{ display: "flex" }}>{props.composer}</masonview>
+				<masonview
+					ref={attachDockPad}
+					className={cx('vx-chatlayout-dockpad', `vx-chatlayout-dockpad--${density}`)}
+					style={{ display: 'flex' }}
+				>
+					<masonview className="vx-chatlayout-dockinner" style={{ display: 'flex' }}>
+						{props.composer}
+					</masonview>
 				</masonview>
 			</masonview>
 		</masonview>

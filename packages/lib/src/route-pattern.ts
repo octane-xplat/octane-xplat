@@ -1,6 +1,8 @@
 /** Normalize one file-router segment into the public pattern vocabulary. */
 export function normalizeRouteSegment(segment: string): string {
-	if (!segment.startsWith('[') || !segment.endsWith(']')) {return segment}
+	if (!segment.startsWith('[') || !segment.endsWith(']')) {
+		return segment
+	}
 	const inner = segment.slice(1, -1)
 	if (inner.startsWith('[') && inner.endsWith(']')) {
 		const optional = inner.slice(1, -1)
@@ -14,14 +16,18 @@ export function routeParamName(segment: string): string | undefined {
 	if (segment.startsWith(':')) {
 		return segment.endsWith('?') ? segment.slice(1, -1) : segment.slice(1)
 	}
-	if (segment.startsWith('*')) {return segment.slice(1) || '*'}
+	if (segment.startsWith('*')) {
+		return segment.slice(1) || '*'
+	}
 	return undefined
 }
 
 /** Normalize file/spec path segments, removing a trailing index component. */
 export function routePatternSegments(path: string): string[] {
 	const segments = path.split('/').filter(Boolean).map(normalizeRouteSegment)
-	if (segments[segments.length - 1] === 'index') {segments.pop()}
+	if (segments[segments.length - 1] === 'index') {
+		segments.pop()
+	}
 	return segments
 }
 
@@ -47,7 +53,9 @@ export function matchRouteSegments(
 			writable: true,
 		})
 	const walk = (pi: number, si: number): boolean => {
-		if (pi === pattern.length) {return si === segments.length}
+		if (pi === pattern.length) {
+			return si === segments.length
+		}
 		const segment = pattern[pi]
 		if (segment.startsWith('*') && pi === pattern.length - 1) {
 			assign(routeParamName(segment)!, segments.slice(si).map(decodeURIComponent).join('/'))
@@ -57,12 +65,18 @@ export function matchRouteSegments(
 			const name = routeParamName(segment)!
 			if (si < segments.length) {
 				assign(name, decode(segments[si]))
-				if (walk(pi + 1, si + 1)) {return true}
+				if (walk(pi + 1, si + 1)) {
+					return true
+				}
+
 				delete params[name]
 			}
+
 			return segment.endsWith('?') && walk(pi + 1, si)
 		}
-		return si < segments.length && segment === decodeURIComponent(segments[si]) && walk(pi + 1, si + 1)
+		return (
+			si < segments.length && segment === decodeURIComponent(segments[si]) && walk(pi + 1, si + 1)
+		)
 	}
 	return walk(0, 0) ? params : null
 }
@@ -89,24 +103,34 @@ export function parseRouteLocation(value: string, base = '/') {
 	let path = queryAt < 0 ? withoutHash : withoutHash.slice(0, queryAt)
 	const prefix = '/' + base.split('/').filter(Boolean).join('/')
 	if (prefix !== '/') {
-		if (path === prefix) {path = '/'}
-		else if (path.startsWith(prefix + '/')) {path = path.slice(prefix.length)}
-		else {throw new TypeError('URL is outside the configured route base')}
+		if (path === prefix) {
+			path = '/'
+		} else if (path.startsWith(prefix + '/')) {
+			path = path.slice(prefix.length)
+		} else {
+			throw new TypeError('URL is outside the configured route base')
+		}
 	}
 	const segments = path.split('/').filter(Boolean)
 	// Validate even unmatched paths, so malformed input cannot become not-found.
-	for (const segment of segments) {decodeURIComponent(segment)}
+	for (const segment of segments) {
+		decodeURIComponent(segment)
+	}
 	const search: RouteSearchValues = {}
 	const query = queryAt < 0 ? '' : withoutHash.slice(queryAt + 1)
 	const decode = (part: string) => decodeURIComponent(part.replace(/\+/g, ' '))
 	for (const pair of query.split('&')) {
-		if (!pair) {continue}
+		if (!pair) {
+			continue
+		}
+
 		const equalAt = pair.indexOf('=')
 		const key = decode(equalAt < 0 ? pair : pair.slice(0, equalAt))
 		const next = decode(equalAt < 0 ? '' : pair.slice(equalAt + 1))
 		const previous = Object.prototype.hasOwnProperty.call(search, key) ? search[key] : undefined
 		const data =
 			previous === undefined ? next : [...(Array.isArray(previous) ? previous : [previous]), next]
+
 		Object.defineProperty(search, key, {
 			value: data,
 			enumerable: true,
@@ -129,20 +153,29 @@ export function buildRouteLocation(
 ): string {
 	const known = new Set(pattern.flatMap((segment) => routeParamName(segment) ?? []))
 	for (const key of Object.keys(params)) {
-		if (!known.has(key)) {throw new TypeError(`Undeclared path parameter: ${key}`)}
+		if (!known.has(key)) {
+			throw new TypeError(`Undeclared path parameter: ${key}`)
+		}
 	}
 	const segments = pattern.flatMap((segment, index) => {
 		const name = routeParamName(segment)
-		if (name === undefined) {return [encodeURIComponent(segment)]}
+		if (name === undefined) {
+			return [encodeURIComponent(segment)]
+		}
 		if (segment.startsWith('*') && index !== pattern.length - 1) {
 			throw new TypeError('A catch-all must be the final segment')
 		}
 		const value = Object.prototype.hasOwnProperty.call(params, name) ? params[name] : undefined
 		if (value === undefined || value === '') {
-			if (segment.endsWith('?') || segment.startsWith('*')) {return []}
+			if (segment.endsWith('?') || segment.startsWith('*')) {
+				return []
+			}
+
 			throw new TypeError(`Missing path parameter: ${name}`)
 		}
-		if (typeof value !== 'string') {throw new TypeError(`Path parameter must be a string: ${name}`)}
+		if (typeof value !== 'string') {
+			throw new TypeError(`Path parameter must be a string: ${name}`)
+		}
 		return segment.startsWith('*')
 			? value.split('/').map(encodeURIComponent)
 			: [encodeURIComponent(value)]
@@ -150,13 +183,18 @@ export function buildRouteLocation(
 	const pairs: string[] = []
 	for (const key of Object.keys(search).sort()) {
 		const value = search[key]
-		if (value === undefined || value === null) {continue}
+		if (value === undefined || value === null) {
+			continue
+		}
+
 		for (const item of Array.isArray(value) ? value : [value]) {
 			if (
 				!['string', 'number', 'boolean'].includes(typeof item) ||
 				(typeof item === 'number' && !Number.isFinite(item))
-			)
-				{throw new TypeError(`Search value must be a finite scalar: ${key}`)}
+			) {
+				throw new TypeError(`Search value must be a finite scalar: ${key}`)
+			}
+
 			pairs.push(encodeURIComponent(key) + '=' + encodeURIComponent(String(item)))
 		}
 	}

@@ -5,7 +5,10 @@ import type { BannerAdProps } from './props'
 
 export function BannerAd(props: BannerAdProps) @{
 	useEffect(() => {
-		props.onAdEvent?.({ type: 'error', error: new Error('unsupported: AdMob is not available on web') })
+		props.onAdEvent?.({
+			type: 'error',
+			error: new Error('unsupported: AdMob is not available on web'),
+		})
 	}, [])
 
 	<div style={props.style} className={props.className} />

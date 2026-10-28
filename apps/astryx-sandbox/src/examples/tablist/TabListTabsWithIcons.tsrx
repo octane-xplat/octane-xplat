@@ -4,6 +4,7 @@ import { Icon, Tab, TabList } from '@octane-xplat/ui'
 
 export function TabListTabsWithIcons() @{
 	const [value, setValue] = useState('home')
+
 	<TabList value={value} onChange={setValue}>
 		<Tab value="home" label="Home" icon={<Icon name="sandbox-home" />} />
 		<Tab value="settings" label="Settings" icon={<Icon name="sandbox-cog" />} />

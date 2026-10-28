@@ -21,10 +21,22 @@ function normalizer(path, name) {
 }
 
 const normalizers = {
-	Octane: normalizer(new URL('../packages/ui/node_modules/octane/dist/class-names.js', import.meta.url), 'normalizeClass'),
-	NativeScript: normalizer(uiRequire.resolve('@nativescript-community/octane').replace(/index\.js$/, 'driver.js'), 'normalizeClass'),
-	macOS: normalizer(new URL('../packages/macos-renderer/src/index.ts', import.meta.url), 'normalizeClass'),
-	GTK: normalizer(new URL('../packages/linux-gtk-renderer/src/index.ts', import.meta.url), 'classList'),
+	Octane: normalizer(
+		new URL('../packages/ui/node_modules/octane/dist/class-names.js', import.meta.url),
+		'normalizeClass',
+	),
+	NativeScript: normalizer(
+		uiRequire.resolve('@nativescript-community/octane').replace(/index\.js$/, 'driver.js'),
+		'normalizeClass',
+	),
+	macOS: normalizer(
+		new URL('../packages/macos-renderer/src/index.ts', import.meta.url),
+		'normalizeClass',
+	),
+	GTK: normalizer(
+		new URL('../packages/linux-gtk-renderer/src/index.ts', import.meta.url),
+		'classList',
+	),
 }
 
 const conditionalClass = (count) => count && 'active'

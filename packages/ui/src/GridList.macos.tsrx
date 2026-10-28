@@ -29,7 +29,15 @@ export function GridList<T = any>(props: GridListProps<T>) @{
 	const anchorRef = useRef<number | null>(null)
 	const isGrid = (props.layout ?? 'grid') === 'grid'
 
-	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(
+		() =>
+			refList((v: any) => {
+				if (v) {
+					applyEscapeProps(v, props)
+				}
+			}, props.ref),
+		[props.ref, props.ios, props.android, props.web],
+	)
 
 	const press = (key: Key, index: number) => {
 		if (disabled.has(key)) {
@@ -60,8 +68,31 @@ export function GridList<T = any>(props: GridListProps<T>) @{
 		props.onSelectionChange?.(next.selection)
 	}
 
-	<masonview id={props.id} testID={props.testID ?? ''} ref={forwardedRef} {...layoutChildProps(props, mergeStyle({flexDirection: "row", flexWrap: isGrid ? 'wrap' : 'nowrap'}, {display: "flex"}))} className={cx('vx-gridlist', isGrid ? undefined : 'vx-gridlist--stack', props.className)} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole)} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={props.accessibilityState} accessibilityLiveRegion={props.accessibilityLiveRegion}>
-		@for (const entry of props.items.map((item, index) => ({ item, index, key: keys[index] })); key entry.key) {
+	<masonview
+		id={props.id}
+		testID={props.testID ?? ''}
+		ref={forwardedRef}
+		{...layoutChildProps(
+			props,
+			mergeStyle(
+				{ flexDirection: 'row', flexWrap: isGrid ? 'wrap' : 'nowrap' },
+				{ display: 'flex' },
+			),
+		)}
+		className={cx('vx-gridlist', isGrid ? undefined : 'vx-gridlist--stack', props.className)}
+		accessible={props.accessible}
+		accessibilityLabel={props.accessibilityLabel}
+		accessibilityRole={nativeAccessibilityRole(props.accessibilityRole)}
+		accessibilityHint={props.accessibilityHint}
+		accessibilityValue={props.accessibilityValue}
+		accessibilityState={props.accessibilityState}
+		accessibilityLiveRegion={props.accessibilityLiveRegion}
+	>
+		@for (const entry of props.items.map((item, index) => ({
+				item,
+				index,
+				key: keys[index],
+			})); key entry.key) {
 			<Pressable
 				className={cx(
 					'vx-gridlist-row',
@@ -78,7 +109,10 @@ export function GridList<T = any>(props: GridListProps<T>) @{
 				disabled={disabled.has(entry.key)}
 				onPress={() => press(entry.key, entry.index)}
 				accessibilityState={{
-					selected: selectionMode !== 'none' ? isGridListKeySelected(selection, entry.key) : undefined,
+					selected:
+						selectionMode !== 'none'
+							? isGridListKeySelected(selection, entry.key)
+							: undefined,
 					disabled: disabled.has(entry.key) || undefined,
 				}}
 			>

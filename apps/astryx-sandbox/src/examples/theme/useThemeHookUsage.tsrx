@@ -15,22 +15,60 @@ export function UseThemeHookUsage() @{
 		<Card width={360} padding={4}>
 			<VStack gap={3}>
 				<Text type="body" style={{ fontWeight: 700 }}>
-					{name}{' · '}{mode}
+					{name}
+					{' · '}
+					{mode}
 				</Text>
 				<View
 					accessibilityLabel="Themed bar chart"
 					style={{ width: 300, height: 120, position: 'relative' }}
 				>
-					<View className="sb-chart-bar" style={{ position: 'absolute', left: 24, top: 20, width: 64, height: 80, borderRadius: 8, backgroundColor: accent }} />
-					<View className="sb-chart-bar" style={{ position: 'absolute', left: 118, top: 48, width: 64, height: 52, borderRadius: 8, backgroundColor: muted }} />
-					<View className="sb-chart-bar" style={{ position: 'absolute', left: 212, top: 32, width: 64, height: 68, borderRadius: 8, backgroundColor: accent, opacity: 0.72 }} />
+					<View
+						className="sb-chart-bar"
+						style={{
+							position: 'absolute',
+							left: 24,
+							top: 20,
+							width: 64,
+							height: 80,
+							borderRadius: 8,
+							backgroundColor: accent,
+						}}
+					/>
+					<View
+						className="sb-chart-bar"
+						style={{
+							position: 'absolute',
+							left: 118,
+							top: 48,
+							width: 64,
+							height: 52,
+							borderRadius: 8,
+							backgroundColor: muted,
+						}}
+					/>
+					<View
+						className="sb-chart-bar"
+						style={{
+							position: 'absolute',
+							left: 212,
+							top: 32,
+							width: 64,
+							height: 68,
+							borderRadius: 8,
+							backgroundColor: accent,
+							opacity: 0.72,
+						}}
+					/>
 					<Text style={{ position: 'absolute', left: 24, top: 104, fontSize: 12, color: text }}>
 						Resolved token values
 					</Text>
 				</View>
 				<HStack gap={2}>
 					<Text type="code">--color-accent</Text>
-					<Text type="code" color="secondary">{accent}</Text>
+					<Text type="code" color="secondary">
+						{accent}
+					</Text>
 				</HStack>
 			</VStack>
 		</Card>

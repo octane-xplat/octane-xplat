@@ -1,5 +1,14 @@
 import assert from 'node:assert/strict'
-import { mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
+import {
+	mkdirSync,
+	mkdtempSync,
+	readFileSync,
+	realpathSync,
+	rmSync,
+	symlinkSync,
+	writeFileSync,
+} from 'node:fs'
+
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, it } from 'node:test'
@@ -12,6 +21,7 @@ const track = (p) => {
 	dirs.push(p)
 	return p
 }
+
 const tmp = (name) => realpathSync(track(mkdtempSync(join(tmpdir(), name))))
 
 const makePkg = (dir, manifest, files = {}) => {
@@ -48,7 +58,9 @@ const makeHoistedApp = () => {
 }
 
 afterEach(() => {
-	for (const dir of dirs.splice(0)) {rmSync(dir, { recursive: true, force: true })}
+	for (const dir of dirs.splice(0)) {
+		rmSync(dir, { recursive: true, force: true })
+	}
 })
 
 describe('installedPackageRoot', () => {
@@ -114,28 +126,38 @@ describe('hoisted workspace node_modules reads', () => {
 		})
 		// xplatNative's own boundary deps must resolve from the app.
 		for (const name of ['@octane-xplat/nativescript-mason-core', 'octane']) {
-			makePkg(join(ws, 'node_modules', name), { name, version: '0.0.0', main: 'index.js' }, {
-				'index.js': 'export {}',
-			})
+			makePkg(
+				join(ws, 'node_modules', name),
+				{ name, version: '0.0.0', main: 'index.js' },
+				{
+					'index.js': 'export {}',
+				},
+			)
 		}
-		makePkg(join(ws, 'node_modules/@nativescript-community/vite-octane'), {
-			name: '@nativescript-community/vite-octane',
-			main: 'index.js',
-		}, { 'index.js': 'export const octaneConfig = () => ({})' })
-		makePkg(join(ws, 'node_modules/@nativescript-community/octane'), {
-			name: '@nativescript-community/octane',
-			exports: { './config': './index.js', './driver': './driver.js' },
-		}, {
-			'index.js': 'export const nativeScriptRenderer = {}',
-			'driver.js': 'export {}',
-		})
+		makePkg(
+			join(ws, 'node_modules/@nativescript-community/vite-octane'),
+			{
+				name: '@nativescript-community/vite-octane',
+				main: 'index.js',
+			},
+			{ 'index.js': 'export const octaneConfig = () => ({})' },
+		)
+		makePkg(
+			join(ws, 'node_modules/@nativescript-community/octane'),
+			{
+				name: '@nativescript-community/octane',
+				exports: { './config': './index.js', './driver': './driver.js' },
+			},
+			{
+				'index.js': 'export const nativeScriptRenderer = {}',
+				'driver.js': 'export {}',
+			},
+		)
 		// vite must resolve for xplatNative's own imports — symlink the real
 		// installed package into the hoisted workspace root.
 		const { createRequire } = await import('node:module')
 		const { dirname } = await import('node:path')
-		const realVite = dirname(
-			createRequire(import.meta.url).resolve('vite/package.json'),
-		)
+		const realVite = dirname(createRequire(import.meta.url).resolve('vite/package.json'))
 		mkdirSync(join(ws, 'node_modules'), { recursive: true })
 		symlinkSync(realVite, join(ws, 'node_modules/vite'), 'dir')
 
@@ -149,6 +171,7 @@ describe('hoisted workspace node_modules reads', () => {
 				excluded.split(',').includes('rootless-dep'),
 				`NS_VENDOR_EXCLUDE ${excluded} should contain rootless-dep`,
 			)
+
 			const optExclude = config.optimizeDeps?.exclude ?? []
 			assert.ok(optExclude.includes('ns-plugin'), 'ns-plugin excluded from optimizeDeps')
 			assert.ok(
@@ -157,20 +180,27 @@ describe('hoisted workspace node_modules reads', () => {
 			)
 		} finally {
 			process.chdir(cwd)
-			if (prevExclude === undefined) {delete process.env.NS_VENDOR_EXCLUDE}
-			else {process.env.NS_VENDOR_EXCLUDE = prevExclude}
+			if (prevExclude === undefined) {
+				delete process.env.NS_VENDOR_EXCLUDE
+			} else {
+				process.env.NS_VENDOR_EXCLUDE = prevExclude
+			}
 		}
 	})
 
 	it('inspectMacOSRuntimePackage resolves a hoisted runtime package from a nested app', () => {
 		const { ws, app } = makeHoistedApp()
-		makePkg(join(ws, 'node_modules/@nativescript/macos-node-api'), {
-			name: '@nativescript/macos-node-api',
-			version: '0.4.4',
-		}, {
-			'index.d.ts': 'export {}',
-			LICENSE: 'test license',
-		})
+		makePkg(
+			join(ws, 'node_modules/@nativescript/macos-node-api'),
+			{
+				name: '@nativescript/macos-node-api',
+				version: '0.4.4',
+			},
+			{
+				'index.d.ts': 'export {}',
+				LICENSE: 'test license',
+			},
+		)
 		const info = inspectMacOSRuntimePackage(app)
 		assert.equal(info.packageManifest?.version, '0.4.4')
 		assert.deepEqual(info.missingPaths, [])

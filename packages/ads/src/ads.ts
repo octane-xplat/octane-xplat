@@ -1,6 +1,12 @@
 // Ads — native leaf over @nativescript/google-mobile-ads. Banner lives in
 // BannerAd.tsrx (a view); this service owns SDK init + fullscreen formats.
-import { InterstitialAd, MobileAds, RewardedAd, RewardedInterstitialAd } from '@nativescript/google-mobile-ads'
+import {
+	InterstitialAd,
+	MobileAds,
+	RewardedAd,
+	RewardedInterstitialAd,
+} from '@nativescript/google-mobile-ads'
+
 import type { AdEventListener, Ads, LoadedAd } from './types'
 
 const EVENT: Record<string, string> = {
@@ -15,9 +21,15 @@ const EVENT: Record<string, string> = {
 	error: 'error',
 }
 
-function wrap<T extends { adUnitId: string; loaded: boolean; load(): void; onAdEvent(l: any): void; show(o?: any): void }>(
-	ad: T,
-): LoadedAd {
+function wrap<
+	T extends {
+		adUnitId: string
+		loaded: boolean
+		load(): void
+		onAdEvent(l: any): void
+		show(o?: any): void
+	},
+>(ad: T): LoadedAd {
 	return {
 		adUnitId: ad.adUnitId,
 		get loaded() {

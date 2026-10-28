@@ -25,6 +25,7 @@ import {
 	rmSync,
 	writeFileSync,
 } from 'node:fs'
+
 import { tmpdir } from 'node:os'
 import { dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -123,15 +124,19 @@ const mode = values.mode as 'agent' | 'reference' | 'baseline'
 if (!['agent', 'reference', 'baseline'].includes(mode)) {
 	throw new Error('--mode must be agent, reference or baseline')
 }
+
 if (mode === 'agent' && !values.agent) {
 	throw new Error('--mode agent requires --agent CMD')
 }
+
 const selected = values.task?.length
 	? tasks.filter((task) => values.task!.includes(task.id))
 	: tasks
+
 if (values.task?.length && selected.length !== values.task.length) {
 	throw new Error('Unknown --task; choose from ' + tasks.map((task) => task.id).join(', '))
 }
+
 const trials = mode === 'agent' ? Number(values.trials) : 1
 const out = resolve(values.out ?? mkdtempSync(join(tmpdir(), 'xplat-routing-eval-')))
 mkdirSync(out, { recursive: true })
@@ -342,6 +347,7 @@ function grade(task: Task, app: string): Check[] {
 		const routesJson = existsSync(manifestPath)
 			? (JSON.parse(readFileSync(manifestPath, 'utf8')).routes as ManifestRoute[])
 			: []
+
 		const problem = task.manifest(routesJson, app)
 		record('route structure', !problem, problem)
 	}
@@ -385,10 +391,12 @@ for (const task of selected) {
 		} else if (mode === 'agent') {
 			agent = runAgent(task, app, join(dirname(app), 'agent.log'))
 		}
+
 		writeFileSync(join(dirname(app), 'changes.diff'), git(app, 'diff', 'HEAD').output)
 		const friction = existsSync(join(app, 'FRICTION.md'))
 			? readFileSync(join(app, 'FRICTION.md'), 'utf8').trim()
 			: undefined
+
 		const checks = grade(task, app)
 		const pass = checks.every((check) => check.pass)
 		results.push({ task: task.id, trial, mode, pass, agent, checks, friction })
@@ -403,9 +411,11 @@ writeFileSync(
 	join(out, 'results.json'),
 	JSON.stringify({ schema: 1, mode, results }, null, '\t') + '\n',
 )
+
 console.log(`[eval] results: ${join(out, 'results.json')}`)
 const passed = results.filter((result) => (result as { pass: boolean }).pass).length
 const expectation =
 	mode === 'baseline' ? passed === 0 : mode === 'reference' ? passed === results.length : true
+
 console.log(`[eval] ${passed}/${results.length} passed (${mode})`)
 process.exit(expectation ? 0 : 1)

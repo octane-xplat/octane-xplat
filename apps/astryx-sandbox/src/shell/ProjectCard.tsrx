@@ -10,8 +10,12 @@ export function ProjectCard(props: { page: SandboxPage }) @{
 		<SandboxLink className="sb-card-link" href={props.page.href}>
 			<Card className="sb-card">
 				<VStack gap={1}>
-					<Heading level={3} maxLines={1}>{props.page.name}</Heading>
-					<Text type="body" size="sm" color="secondary" maxLines={2}>{props.page.description}</Text>
+					<Heading level={3} maxLines={1}>
+						{props.page.name}
+					</Heading>
+					<Text type="body" size="sm" color="secondary" maxLines={2}>
+						{props.page.description}
+					</Text>
 				</VStack>
 			</Card>
 		</SandboxLink>

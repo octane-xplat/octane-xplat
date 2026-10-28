@@ -2,7 +2,8 @@
 // breaking the import graph.
 import type { StoreReview } from './types'
 
-const unsupported = () => Promise.reject(new Error('unsupported: no in-app review prompt on windows'))
+const unsupported = () =>
+	Promise.reject(new Error('unsupported: no in-app review prompt on windows'))
 
 export const storeReview: StoreReview = {
 	supported: false,

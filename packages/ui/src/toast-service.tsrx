@@ -1,20 +1,20 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useCallback, useContext } from 'octane';
-import { GridLayout, isAndroid, isIOS } from '@nativescript/core';
-import type { RootLayout } from '@nativescript/core';
-import { createNativeScriptRoot } from '@nativescript-community/octane';
-import type { UniversalComponent } from 'octane/universal';
-import type { ShowToastFn, ToastEntry, ToastHandle, ToastOptions, ToastPosition } from './props';
-import { ToastViewportContext } from './toast-context';
-import { dismissToast, pushToast, toastHandleFor, toastStore, toastTiming } from './toast-store';
-import { topRootLayout } from './root-layout';
-import { applyThemeClasses } from './theme/theme-host';
-import { Popover } from './Popover';
-import { Toast } from './Toast';
+import { useCallback, useContext } from 'octane'
+import { GridLayout, isAndroid, isIOS } from '@nativescript/core'
+import type { RootLayout } from '@nativescript/core'
+import { createNativeScriptRoot } from '@nativescript-community/octane'
+import type { UniversalComponent } from 'octane/universal'
+import type { ShowToastFn, ToastEntry, ToastHandle, ToastOptions, ToastPosition } from './props'
+import { ToastViewportContext } from './toast-context'
+import { dismissToast, pushToast, toastHandleFor, toastStore, toastTiming } from './toast-store'
+import { topRootLayout } from './root-layout'
+import { applyThemeClasses } from './theme/theme-host'
+import { Popover } from './Popover'
+import { Toast } from './Toast'
 
 /** Edge gap + inter-toast gap in dips. */
-const EDGE_GAP = 16;
-const STACK_GAP = 8;
+const EDGE_GAP = 16
+const STACK_GAP = 8
 
 interface ToastHost {
 	host: GridLayout
@@ -41,10 +41,7 @@ const hosts = new Map<string, ToastHost>()
 let syncing = false
 let storeSubscribed = false
 
-export function registerNativeToastViewport(
-	id: string,
-	viewport: NativeViewport,
-): () => void {
+export function registerNativeToastViewport(id: string, viewport: NativeViewport): () => void {
 	nativeViewports.set(id, viewport)
 	sync()
 	return () => {
@@ -97,9 +94,15 @@ interface ToastOwner {
 
 function detach(entry: ToastEntry) {
 	const cur = hosts.get(entry.id)
-	if (!cur) return
+	if (!cur) {
+		return
+	}
+
 	hosts.delete(entry.id)
-	if (cur.timer) clearTimeout(cur.timer)
+	if (cur.timer) {
+		clearTimeout(cur.timer)
+	}
+
 	cur.unbindTheme()
 	cur.root.unmount?.()
 	const owner = cur.host.parent as ToastOwner | undefined
@@ -111,7 +114,9 @@ function detach(entry: ToastEntry) {
 
 			;(owner.close?.(cur.host) as Promise<unknown> | undefined)?.catch((error: unknown) => {
 				console.error('[Toast] close failed', error)
-				if (owner.hasChild?.(cur.host)) owner.removeChild?.(cur.host)
+				if (owner.hasChild?.(cur.host)) {
+					owner.removeChild?.(cur.host)
+				}
 			})
 		}
 	}
@@ -126,14 +131,19 @@ function syncBuckets() {
 	const groups = new Map<string, ToastEntry[]>()
 	for (const e of list) {
 		const host = hosts.get(e.id)
-		if (!host) continue
+		if (!host) {
+			continue
+		}
+
 		const key = `${host.rl}:${positionFor(e)}`
 		const bucket = groups.get(key) ?? []
 		bucket.push(e)
 		groups.set(key, bucket)
 	}
 
-	for (const bucket of groups.values()) relayoutBucket(bucket)
+	for (const bucket of groups.values()) {
+		relayoutBucket(bucket)
+	}
 }
 
 function mount(entry: ToastEntry) {
@@ -159,7 +169,17 @@ function mount(entry: ToastEntry) {
 
 	const root = createNativeScriptRoot(host)
 	const timing = toastTiming(entry.options)
-	const rec: ToastHost = { host, root, timer: null, unbindTheme, position, timing, rl, closing: false }
+	const rec: ToastHost = {
+		host,
+		root,
+		timer: null,
+		unbindTheme,
+		position,
+		timing,
+		rl,
+		closing: false,
+	}
+
 	hosts.set(entry.id, rec)
 	// 'closed' marks RootLayout-side removal already in flight — detach
 	// must not re-enter close(). There is no scrim dismissal for toasts.
@@ -184,7 +204,10 @@ function mount(entry: ToastEntry) {
  *  left the store or fell outside their bucket's `maxVisible` window
  *  (they resurface when the stack drains — upstream parity). */
 export function sync() {
-	if (syncing) return
+	if (syncing) {
+		return
+	}
+
 	syncing = true
 	try {
 		const list = toastStore.getSnapshot()
@@ -211,7 +234,10 @@ export function sync() {
 		for (const entry of list) {
 			const cur = hosts.get(entry.id)
 			if (!visible.has(entry.id)) {
-				if (cur) detach(entry)
+				if (cur) {
+					detach(entry)
+				}
+
 				continue
 			}
 
@@ -237,10 +263,7 @@ export function sync() {
 					cur.timer = null
 					cur.timing = timing
 					if (timing.isAutoHide && !entry.exiting) {
-						cur.timer = setTimeout(
-							() => dismissToast(entry.id, 'auto'),
-							timing.autoHideDuration,
-						)
+						cur.timer = setTimeout(() => dismissToast(entry.id, 'auto'), timing.autoHideDuration)
 					}
 				}
 
@@ -300,7 +323,10 @@ function ToastEntryView(props: { entry: ToastEntry }) @{
 }
 
 function ensureSubscribed() {
-	if (storeSubscribed) return
+	if (storeSubscribed) {
+		return
+	}
+
 	storeSubscribed = true
 	toastStore.subscribe(sync)
 }

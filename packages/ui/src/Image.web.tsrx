@@ -1,8 +1,14 @@
-import type { ImageProps, ImageSourceLike } from "./props";
-import { applyEscapeProps } from "./escape-props";
-import { layoutChildProps, normStyle } from './layout-child.web';
+import type { ImageProps, ImageSourceLike } from './props'
+import { applyEscapeProps } from './escape-props'
+import { layoutChildProps, normStyle } from './layout-child.web'
 import { useLayoutEffect, useRef } from 'octane'
-import { imageSrcSet, objectPositionCSSValue, resolveContentFit, resolveContentPosition } from './image-content';
+import {
+	imageSrcSet,
+	objectPositionCSSValue,
+	resolveContentFit,
+	resolveContentPosition,
+} from './image-content'
+
 import { hashToPngBase64 } from './hash-image'
 
 /** `blurhash:`/`thumbhash:` decode to a data: PNG (./hash-image); every
@@ -27,16 +33,17 @@ function placeholderUrl(placeholder: string): string {
  *  'async' — the shared contract's default, not the browser's 'auto'). */
 export function Image(props: ImageProps) @{
 	const imgRef = useRef<HTMLImageElement | null>(null)
-	const sources = Array.isArray(props.src) ? (props.src as ImageSourceLike[]) : null;
-	const selected = sources
-		? imageSrcSet(sources)
-		: { src: props.src as string, srcSet: undefined };
+	const sources = Array.isArray(props.src) ? (props.src as ImageSourceLike[]) : null
+	const selected = sources ? imageSrcSet(sources) : { src: props.src as string, srcSet: undefined }
 
 	useLayoutEffect(() => {
 		const img = imgRef.current
 		// complete = the current src already resolved (cache/sync data URI) —
 		// showing the placeholder would flash backwards.
-		if (!img || !props.placeholder || img.complete) return
+		if (!img || !props.placeholder || img.complete) {
+			return
+		}
+
 		const placeholder = placeholderUrl(props.placeholder)
 		const { src: final, srcSet: finalSrcSet } = selected
 		// (document.createElement — `Image` here is this component, not the
@@ -75,13 +82,11 @@ export function Image(props: ImageProps) @{
 		objectFit: 'cover',
 		objectPosition: '50% 50%',
 		...normStyle(props.style),
-		...(props.contentFit !== undefined
-			? { objectFit: resolveContentFit(props.contentFit) }
-			: null),
+		...(props.contentFit !== undefined ? { objectFit: resolveContentFit(props.contentFit) } : null),
 		...(props.contentPosition !== undefined
 			? { objectPosition: objectPositionCSSValue(resolveContentPosition(props.contentPosition)) }
 			: null),
-	};
+	}
 
 	<img
 		ref={(e: any) => {

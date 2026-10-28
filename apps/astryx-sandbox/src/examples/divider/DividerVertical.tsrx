@@ -20,7 +20,9 @@ export function DividerVertical() @{
 							<VStack gap={1}>
 								<Text type="label">{label}</Text>
 								<Text type="label">{value}</Text>
-								<Text type="supporting" color="secondary">{delta}</Text>
+								<Text type="supporting" color="secondary">
+									{delta}
+								</Text>
 							</VStack>
 						</StackItem>
 					</>

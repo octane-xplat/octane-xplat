@@ -1,18 +1,25 @@
-import { useState } from 'octane';
-import { View, HStack, Text, Pressable } from '@octane-xplat/ui';
+import { useState } from 'octane'
+import { View, HStack, Text, Pressable } from '@octane-xplat/ui'
 
 const WIN = [
-	[0, 1, 2], [3, 4, 5], [6, 7, 8],
-	[0, 3, 6], [1, 4, 7], [2, 5, 8],
-	[0, 4, 8], [2, 4, 6],
-];
+	[0, 1, 2],
+	[3, 4, 5],
+	[6, 7, 8],
+	[0, 3, 6],
+	[1, 4, 7],
+	[2, 5, 8],
+	[0, 4, 8],
+	[2, 4, 6],
+]
 
 function winnerOf(b: string[]): string | null {
 	for (const [a, c, d] of WIN) {
-		if (b[a] && b[a] === b[c] && b[a] === b[d]) return b[a];
+		if (b[a] && b[a] === b[c] && b[a] === b[d]) {
+			return b[a]
+		}
 	}
 
-	return b.every((c) => c) ? 'draw' : null;
+	return b.every((c) => c) ? 'draw' : null
 }
 
 /** tic-tac-toe — deterministic game state, zero effects.
@@ -22,26 +29,29 @@ function winnerOf(b: string[]): string | null {
  *  original @if/@else-if version hit a universal-codegen bug where @else-if
  *  branches discard their output (.agents/design/demos.md findings). */
 export function TicTacToe() @{
-	const [board, setBoard] = useState<string[]>(Array(9).fill(''));
-	const [xNext, setXNext] = useState(true);
-	const winner = winnerOf(board);
+	const [board, setBoard] = useState<string[]>(Array(9).fill(''))
+	const [xNext, setXNext] = useState(true)
+	const winner = winnerOf(board)
 
 	const play = (i: number) => {
-		if (board[i] || winner) return;
-		const next = board.slice();
-		next[i] = xNext ? 'X' : 'O';
-		console.log('[probe] ttt play ' + i + ' -> ' + next[i]);
-		setBoard(next);
-		setXNext(!xNext);
-	};
+		if (board[i] || winner) {
+			return
+		}
 
-	const reset = () => { setBoard(Array(9).fill('')); setXNext(true); };
+		const next = board.slice()
+		next[i] = xNext ? 'X' : 'O'
+		console.log('[probe] ttt play ' + i + ' -> ' + next[i])
+		setBoard(next)
+		setXNext(!xNext)
+	}
 
-	const status = winner === 'draw'
-		? 'Draw.'
-		: winner
-			? winner + ' wins.'
-			: (xNext ? 'X' : 'O') + ' to play';
+	const reset = () => {
+		setBoard(Array(9).fill(''))
+		setXNext(true)
+	}
+
+	const status =
+		winner === 'draw' ? 'Draw.' : winner ? winner + ' wins.' : (xNext ? 'X' : 'O') + ' to play'
 
 	<View className="vx-app flex-1 gap-4 items-center">
 		<Text className="text-xl font-bold">{status}</Text>

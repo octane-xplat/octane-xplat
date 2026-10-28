@@ -12,8 +12,10 @@ vi.mock('@octane-xplat/ui/routing', () => ({ useRouter: () => ({ push() {}, back
 
 async function until(condition: () => boolean) {
 	const deadline = Date.now() + 5000
-	while (!condition() && Date.now() < deadline)
+	while (!condition() && Date.now() < deadline) {
 		await new Promise((resolve) => setTimeout(resolve, 0))
+	}
+
 	expect(condition()).toBe(true)
 }
 
@@ -26,19 +28,30 @@ it('renders a prepared list/detail workflow, confirmed edits, rollback, pages an
 	const inspector = inspectQueryClient(session.queries, {
 		labels: [{ definition: session.users, label: 'users.detail' }],
 	})
+
 	const hosts = [document.createElement('div'), document.createElement('div')]
 	hosts.forEach((host) => document.body.append(host))
 	const roots = hosts.map((host) => createRoot(host))
 	const click = (root: number, id: string) => {
 		const element = hosts[root].querySelector<HTMLElement>(`#${id}`)
-		if (!element) throw new Error(`Missing ${id}`)
+		if (!element) {
+			throw new Error(`Missing ${id}`)
+		}
+
 		flushSync(() => element.click())
 	}
+
 	try {
 		await session.queries.ensureData(session.feed, '')
 		const user = await session.queries.ensureData(session.users, '1')
 		roots[0].render(CachedUsers, {})
-		roots[1].render(CachedUser, { params: {}, search: { id: '1' }, data: user, context: { previousRouteName: 'cached-users' } })
+		roots[1].render(CachedUser, {
+			params: {},
+			search: { id: '1' },
+			data: user,
+			context: { previousRouteName: 'cached-users' },
+		})
+
 		await until(() => hosts[1].querySelector('#cached-name')?.textContent === 'Trace A user 1')
 		const detail = inspector.snapshot().queries.find((query) => query.label === 'users.detail')!
 		expect(
@@ -46,6 +59,7 @@ it('renders a prepared list/detail workflow, confirmed edits, rollback, pages an
 				.snapshot()
 				.events.filter((event) => event.queryId === detail.queryId && event.type === 'load'),
 		).toHaveLength(1)
+
 		click(1, 'cached-save')
 		await until(() => hosts[1].textContent?.includes('Saved.') === true)
 		expect(hosts[0].querySelector('#cached-user-1')?.textContent).toBe('Trace A user 1!')

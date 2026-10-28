@@ -28,8 +28,15 @@ export interface UseTableSortableStateResult<
 }
 
 function toSortableString(value: unknown): string {
-	if (value instanceof Date) {return value.toISOString()}
-	if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean' || typeof value === 'bigint') {
+	if (value instanceof Date) {
+		return value.toISOString()
+	}
+	if (
+		typeof value === 'string' ||
+		typeof value === 'number' ||
+		typeof value === 'boolean' ||
+		typeof value === 'bigint'
+	) {
 		return String(value)
 	}
 	return ''
@@ -41,9 +48,16 @@ function naturalCompare(a: string, b: string): number {
 	const aParts = a.toLowerCase().split(DIGIT_RUN)
 	const bParts = b.toLowerCase().split(DIGIT_RUN)
 	for (let i = 0; i < Math.min(aParts.length, bParts.length); i++) {
-		if (aParts[i] === bParts[i]) {continue}
-		const diff = i % 2 === 1 ? Number(aParts[i]) - Number(bParts[i]) : aParts[i] < bParts[i] ? -1 : 1
-		if (diff !== 0) {return diff}
+		if (aParts[i] === bParts[i]) {
+			continue
+		}
+
+		const diff =
+			i % 2 === 1 ? Number(aParts[i]) - Number(bParts[i]) : aParts[i] < bParts[i] ? -1 : 1
+
+		if (diff !== 0) {
+			return diff
+		}
 	}
 	return aParts.length - bParts.length || (a === b ? 0 : a < b ? 1 : -1)
 }
@@ -62,10 +76,18 @@ function defaultCompare<T extends Record<string, unknown>>(a: T, b: T, sortKey: 
 	const bVal = b[sortKey]
 	const aMissing = aVal == null || (typeof aVal === 'number' && Number.isNaN(aVal))
 	const bMissing = bVal == null || (typeof bVal === 'number' && Number.isNaN(bVal))
-	if (aMissing && bMissing) {return 0}
-	if (aMissing) {return 1}
-	if (bMissing) {return -1}
-	if (typeof aVal === 'number' && typeof bVal === 'number') {return aVal - bVal}
+	if (aMissing && bMissing) {
+		return 0
+	}
+	if (aMissing) {
+		return 1
+	}
+	if (bMissing) {
+		return -1
+	}
+	if (typeof aVal === 'number' && typeof bVal === 'number') {
+		return aVal - bVal
+	}
 	return compareStrings(toSortableString(aVal), toSortableString(bVal))
 }
 
@@ -74,13 +96,17 @@ export function sortTableData<T extends Record<string, unknown>, TSortKey extend
 	sortState: TableSortState<TSortKey>,
 	comparators: Partial<Record<TSortKey, TableSortComparator<T>>> | undefined,
 ): T[] {
-	if (sortState.length === 0) {return data}
+	if (sortState.length === 0) {
+		return data
+	}
 	return [...data].sort((a, b) => {
 		for (const entry of sortState) {
 			const { sortKey, direction } = entry
 			const customCmp = comparators?.[sortKey]
 			const cmp = customCmp ? customCmp(a, b) : defaultCompare(a, b, sortKey)
-			if (cmp !== 0) {return direction === 'ascending' ? cmp : -cmp}
+			if (cmp !== 0) {
+				return direction === 'ascending' ? cmp : -cmp
+			}
 		}
 		return 0
 	})

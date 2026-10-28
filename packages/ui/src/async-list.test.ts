@@ -272,9 +272,8 @@ describe('atomic async collection updates', () => {
 	it('preserves surviving selection through sort, pagination and reload', async () => {
 		let initial = [{ id: 'a' }, { id: 'b' }]
 		const list = createAsyncListData({
-			load: async ({ cursor }) => cursor === undefined
-				? { items: initial, cursor: 'next' }
-				: { items: [{ id: 'c' }] },
+			load: async ({ cursor }) =>
+				cursor === undefined ? { items: initial, cursor: 'next' } : { items: [{ id: 'c' }] },
 			sort: ({ items }) => ({ items: [...items].reverse() }),
 		})
 		await list.reload()
@@ -293,7 +292,9 @@ describe('atomic async collection updates', () => {
 	})
 
 	it('publishes loader selection, cursor and idle state with the final items', async () => {
-		const list = createAsyncListData({ load: async () => ({ items: [{ id: 1 }], selectedKeys: [1], cursor: 'next' }) })
+		const list = createAsyncListData({
+			load: async () => ({ items: [{ id: 1 }], selectedKeys: [1], cursor: 'next' }),
+		})
 		const seen: ReturnType<typeof list.getSnapshot>[] = []
 		list.subscribe(() => seen.push(list.getSnapshot()))
 		await list.reload()
@@ -307,11 +308,17 @@ describe('atomic async collection updates', () => {
 
 	it('retries a failed page with its retained cursor and keeps earlier pages', async () => {
 		const seen: (string | undefined)[] = []
-		const list = createAsyncListData({ load: async ({ cursor }) => {
-			seen.push(cursor)
-			if (seen.length === 2) {throw new Error('temporary page failure')}
-			return cursor === undefined ? { items: [{ id: 1 }], cursor: 'page-2' } : { items: [{ id: 2 }] }
-		} })
+		const list = createAsyncListData({
+			load: async ({ cursor }) => {
+				seen.push(cursor)
+				if (seen.length === 2) {
+					throw new Error('temporary page failure')
+				}
+				return cursor === undefined
+					? { items: [{ id: 1 }], cursor: 'page-2' }
+					: { items: [{ id: 2 }] }
+			},
+		})
 		await list.reload()
 		list.setSelectedKeys([1])
 		await expect(list.loadMore()).resolves.toBeUndefined()
@@ -328,7 +335,10 @@ describe('atomic async collection updates', () => {
 	})
 
 	it('preserves all selection through complete replacement', async () => {
-		const list = createAsyncListData({ initialSelectedKeys: 'all', load: async () => ({ items: [{ id: 1 }] }) })
+		const list = createAsyncListData({
+			initialSelectedKeys: 'all',
+			load: async () => ({ items: [{ id: 1 }] }),
+		})
 		await list.reload()
 		await list.reload()
 		expect(list.selectedKeys).toBe('all')

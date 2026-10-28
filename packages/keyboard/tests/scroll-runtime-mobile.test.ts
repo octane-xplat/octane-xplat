@@ -7,6 +7,7 @@ vi.mock('@nativescript/core', () => ({
 		},
 	},
 }))
+
 import { scrollRuntime } from '../src/scroll-runtime.mobile'
 
 it('writes a MasonKit scroller through mason_scrollTo', () => {

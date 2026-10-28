@@ -5,7 +5,15 @@ import type { ISODateString, ISOTimeString, ISODateTimeString, DateRange } from 
 
 export function DateInputClearable() @{
 	const [value, setValue] = useState<ISODateString | null>(null)
-	<div style={{width: 400}}>
-		<DateInput label="Start date" description="Pick a start date for your project" placeholder="YYYY-MM-DD" value={value} onChange={setValue} hasClear />
+
+	<div style={{ width: 400 }}>
+		<DateInput
+			label="Start date"
+			description="Pick a start date for your project"
+			placeholder="YYYY-MM-DD"
+			value={value}
+			onChange={setValue}
+			hasClear
+		/>
 	</div>
 }

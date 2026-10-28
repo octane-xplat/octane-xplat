@@ -126,14 +126,13 @@ out.disabledColor = colorOf(5)
 apply(container, [cmd('update', 5, { props: { text: 'd', className: 'dis', enabled: true } })])
 out.enabledColor = colorOf(5)
 
-
-
 // Adjacent-sibling rule re-matches after inserting a .first before .second.
 out.siblingBefore = colorOf(8)
 apply(container, [
 	cmd('create', 9, { type: 'label', props: { text: 'f', className: 'first' } }),
 	cmd('insert', 9, { parent: 1, before: 8 }),
 ])
+
 out.siblingAfter = colorOf(8)
 
 // className must not reach the widget's own GTK css classes — only the
@@ -150,6 +149,7 @@ apply(container, [
 	cmd('create', 10, { type: 'label', props: { text: 'r', className: 'rt' } }),
 	cmd('insert', 10, { parent: 1, before: null }),
 ])
+
 out.rtFirst = colorOf(10)
 registerStylesheet('rt', '.rt { color: #202020 }')
 await idle()
@@ -184,6 +184,7 @@ const cssNameWalk = (w, name) => {
 		if (c.get_css_name?.() === name) {
 			return c
 		}
+
 		const nested = cssNameWalk(c, name)
 		if (nested) {
 			return nested
@@ -191,13 +192,17 @@ const cssNameWalk = (w, name) => {
 	}
 	return null
 }
+
 const swView = node(13)?.view
 const swSlider = swView ? cssNameWalk(swView, 'slider') : null
-out.switchThumbColor = swSlider?.get_color?.() ? {
-	r: swSlider.get_color().red,
-	g: swSlider.get_color().green,
-	b: swSlider.get_color().blue,
-} : null
+out.switchThumbColor = swSlider?.get_color?.()
+	? {
+			r: swSlider.get_color().red,
+			g: swSlider.get_color().green,
+			b: swSlider.get_color().blue,
+		}
+	: null
+
 out.switchOwnColor = String(node(13)?.cssSignature ?? '').includes('.xplat-n')
 	? /xplat-n\d+ \{[^}]*\bcolor:/.test(String(node(13)?.cssSignature ?? ''))
 	: null
@@ -226,6 +231,7 @@ out.valign = halView?.valign ?? halView?.get_valign?.()
 const idleStyles = async () => {
 	await idle()
 }
+
 const setFlags = (id, flags) => node(id).view.set_state_flags(flags, true)
 const unsetFlags = (id, flags) => node(id).view.unset_state_flags(flags)
 
@@ -280,6 +286,7 @@ const swNode = node(25)
 if (swNode?.view) {
 	swNode.view.active = true
 }
+
 await idleStyles()
 out.checkedOpacity = node(25)?.computedStyle?.opacity
 
@@ -310,6 +317,7 @@ const sleep = (ms: number) =>
 			return false
 		})
 	})
+
 registerStylesheet(
 	'anim',
 	`@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
@@ -317,6 +325,7 @@ registerStylesheet(
 	@keyframes slide { from { transform: translateX(0); } to { transform: translateX(100); } }
 	.slide { animation-name: slide; animation-duration: 300ms; animation-timing-function: linear; }`,
 )
+
 await idle()
 apply(container, [
 	cmd('create', 40, { type: 'label', props: { text: 'f', className: 'fade' } }),
@@ -324,13 +333,17 @@ apply(container, [
 	cmd('insert', 40, { parent: null, before: null }),
 	cmd('insert', 41, { parent: null, before: null }),
 ])
+
 // Segment 0 lands synchronously at play.
 out.fadeStart = node(40)?.view?.get_opacity()
 await sleep(150)
 out.fadeMid = node(40)?.view?.get_opacity()
 out.slideMidCss = node(41)?.cssSignature
 // An inline-style restyle mid-animation must not restart it.
-apply(container, [cmd('update', 40, { props: { text: 'f', className: 'fade', style: { color: '#010203' } } })])
+apply(container, [
+	cmd('update', 40, { props: { text: 'f', className: 'fade', style: { color: '#010203' } } }),
+])
+
 out.fadeAfterInline = node(40)?.view?.get_opacity()
 await sleep(300)
 out.fadeEnd = node(40)?.view?.get_opacity()
@@ -341,6 +354,7 @@ out.slideEndCss = node(41)?.cssSignature
 apply(container, [
 	cmd('update', 40, { props: { text: 'f', className: 'fade again', style: { color: '#010203' } } }),
 ])
+
 out.fadeRestart = node(40)?.view?.get_opacity()
 // Destroy mid-animation stops it — no frame writes to a dead node.
 apply(container, [cmd('remove', 40), cmd('destroy', 40)])

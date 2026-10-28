@@ -57,10 +57,18 @@ export function Lottie(props: LottieProps) @{
 	useEffect(() => {
 		adapter.onLoaded = (duration) => {
 			const current = latest.current
-			if (current.speed !== undefined) adapter.speed = current.speed
-			if (current.progress !== undefined) adapter.seekTo(current.progress)
+			if (current.speed !== undefined) {
+				adapter.speed = current.speed
+			}
+
+			if (current.progress !== undefined) {
+				adapter.seekTo(current.progress)
+			}
+
 			current.onLoaded?.({ duration })
-			if (current.playing ?? current.autoPlay ?? true) adapter.play()
+			if (current.playing ?? current.autoPlay ?? true) {
+				adapter.play()
+			}
 		}
 
 		adapter.onEnded = () => latest.current.onEnded?.()
@@ -97,11 +105,15 @@ export function Lottie(props: LottieProps) @{
 	}, [props.fit])
 
 	useEffect(() => {
-		if (props.loop !== undefined) adapter.loop = props.loop
+		if (props.loop !== undefined) {
+			adapter.loop = props.loop
+		}
 	}, [props.loop])
 
 	useEffect(() => {
-		if (props.speed !== undefined) adapter.speed = props.speed
+		if (props.speed !== undefined) {
+			adapter.speed = props.speed
+		}
 	}, [props.speed])
 
 	useEffect(() => {
@@ -111,10 +123,27 @@ export function Lottie(props: LottieProps) @{
 	}, [props.progress])
 
 	useEffect(() => {
-		if (props.playing === undefined || adapter.durationMs === 0) return
-		if (props.playing) adapter.play()
-		else adapter.pause()
+		if (props.playing === undefined || adapter.durationMs === 0) {
+			return
+		}
+
+		if (props.playing) {
+			adapter.play()
+		} else {
+			adapter.pause()
+		}
 	}, [props.playing])
 
-	<masonview ref={(host: any) => host && adapter.mountIn(host)} id={props.id} className={props.className} {...layoutChildProps(props, {display: "flex", ...(props.style)})} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={props.accessibilityRole ?? 'image'} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={props.accessibilityState}/>
+	<masonview
+		ref={(host: any) => host && adapter.mountIn(host)}
+		id={props.id}
+		className={props.className}
+		{...layoutChildProps(props, { display: 'flex', ...props.style })}
+		accessible={props.accessible}
+		accessibilityLabel={props.accessibilityLabel}
+		accessibilityRole={props.accessibilityRole ?? 'image'}
+		accessibilityHint={props.accessibilityHint}
+		accessibilityValue={props.accessibilityValue}
+		accessibilityState={props.accessibilityState}
+	/>
 }

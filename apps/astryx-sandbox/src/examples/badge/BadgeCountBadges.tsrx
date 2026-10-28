@@ -13,7 +13,9 @@ export function BadgeCountBadges() @{
 		{COUNTS.map(({ variant, label, note }) => (
 			<Stack key={note} direction="vertical" gap={2} hAlign="center">
 				<Badge variant={variant} label={label} />
-				<Text type="supporting" color="secondary">{note}</Text>
+				<Text type="supporting" color="secondary">
+					{note}
+				</Text>
 			</Stack>
 		))}
 	</Stack>

@@ -12,5 +12,6 @@ export function CommandPaletteFooterShowcase() @{
 			]),
 		[],
 	)
+
 	<CommandPalette open onOpenChange={() => {}} searchSource={source} />
 }

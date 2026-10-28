@@ -1,7 +1,6 @@
 import './DictationLabPage.inline.css'
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 
-
 import { useState, useCallback, useRef } from 'octane'
 import { VStack, HStack } from '@octane-xplat/ui'
 import { Text, Heading } from '@octane-xplat/ui'

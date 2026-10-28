@@ -4,7 +4,18 @@
 // non-template routes in a second ledger.
 
 import { useState } from 'octane'
-import { Heading, Text, TextInput, VStack, View, Icon, Layout, LayoutHeader, LayoutContent } from '@octane-xplat/ui'
+import {
+	Heading,
+	Text,
+	TextInput,
+	VStack,
+	View,
+	Icon,
+	Layout,
+	LayoutHeader,
+	LayoutContent,
+} from '@octane-xplat/ui'
+
 import { coverageRows, coverageSummary, familyRows, type CoverageRow } from '../coverage/coverage'
 import { SandboxShell } from '../shell/SandboxShell'
 import { SandboxLink } from '../shell/SandboxLink'
@@ -20,7 +31,9 @@ function LedgerRow(props: { row: CoverageRow }) @{
 			<td>
 				<SandboxLink href={row.route}>{row.doc?.displayName ?? row.name ?? row.route}</SandboxLink>
 			</td>
-			<td>{row.kind === 'template-block' ? 'block' : row.kind === 'template-page' ? 'page' : row.kind}</td>
+			<td>
+				{row.kind === 'template-block' ? 'block' : row.kind === 'template-page' ? 'page' : row.kind}
+			</td>
 			<td>{row.family ?? '—'}</td>
 			<td>
 				<StatusBadge status={row.status} />
@@ -40,10 +53,17 @@ export function TemplatesIndexScreen() @{
 		(row.doc?.displayName ?? '').toLowerCase().includes(q) ||
 		(row.family ?? '').toLowerCase().includes(q)
 
-	const families = familyRows().map((f) => ({ ...f, rows: f.rows.filter(match) })).filter((f) => f.rows.length > 0)
+	const families = familyRows()
+		.map((f) => ({ ...f, rows: f.rows.filter(match) }))
+		.filter((f) => f.rows.length > 0)
+
 	const pageTemplates = coverageRows.filter((r) => r.kind === 'template-page' && match(r))
 	const otherRoutes = coverageRows.filter(
-		(r) => r.kind !== 'template-block' && r.kind !== 'template-page' && r.route !== '/templates/' && match(r),
+		(r) =>
+			r.kind !== 'template-block' &&
+			r.kind !== 'template-page' &&
+			r.route !== '/templates/' &&
+			match(r),
 	)
 
 	return (
@@ -76,7 +96,8 @@ export function TemplatesIndexScreen() @{
 							{families.map((family) => (
 								<View key={family.family}>
 									<Heading level={2} className="sb-family-heading">
-										{family.family} ({family.rows.filter((r) => r.status === 'ported').length}/{family.rows.length})
+										{family.family} ({family.rows.filter((r) => r.status === 'ported').length}/
+										{family.rows.length})
 									</Heading>
 									<table className="sb-ledger-table">
 										<thead>
@@ -98,7 +119,8 @@ export function TemplatesIndexScreen() @{
 							))}
 
 							<Heading level={2} className="sb-family-heading">
-								Page templates ({pageTemplates.filter((r) => r.status === 'ported').length}/{pageTemplates.length})
+								Page templates ({pageTemplates.filter((r) => r.status === 'ported').length}/
+								{pageTemplates.length})
 							</Heading>
 							<table className="sb-ledger-table">
 								<thead>

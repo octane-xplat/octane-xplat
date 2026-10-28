@@ -1,9 +1,21 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useState } from 'octane';
-import { useImperativeBottomSheet, Pressable, HStack, Screen, BottomSheet, Text, View } from '@octane-xplat/ui';
-import { UIModal, useImperativeModal } from '@octane-xplat/ui/ios';
+import { useState } from 'octane'
+import {
+	useImperativeBottomSheet,
+	Pressable,
+	HStack,
+	Screen,
+	BottomSheet,
+	Text,
+	View,
+} from '@octane-xplat/ui'
 
-function Picker(props: { params: { choices: string[] }; close: (value?: string) => void }) @{
+import { UIModal, useImperativeModal } from '@octane-xplat/ui/ios'
+
+function Picker(props: {
+	params: { choices: string[] }
+	close: (value?: string) => void
+}) @{
 	<Screen className="demo-modal-card gap-4">
 		<Text className="font-bold">Choose a color</Text>
 		@for (const choice of props.params.choices; key choice) {
@@ -15,29 +27,33 @@ function Picker(props: { params: { choices: string[] }; close: (value?: string) 
 }
 
 /** iOS platform modal — `showModal` presentation (fullscreen=false → form
-	*  sheet). The shared `ui` surface has no Modal; `BottomSheet`/`Overlay` are the
-	*  self-drawn in-window versions. Web resolves the shared `ModalDemo.tsrx`. */
+ *  sheet). The shared `ui` surface has no Modal; `BottomSheet`/`Overlay` are the
+ *  self-drawn in-window versions. Web resolves the shared `ModalDemo.tsrx`. */
 export function ModalDemo() @{
-	const sheet = useImperativeBottomSheet();
-	const modal = useImperativeModal();
-	const [declarativeOpen, setDeclarativeOpen] = useState(false);
-	const [presentation, setPresentation] = useState<'sheet' | 'fullscreen' | 'dialog'>('sheet');
-	const [picked, setPicked] = useState<string | undefined>();
-	const [detentOpen, setDetentOpen] = useState(false);
-	const [detentPicked, setDetentPicked] = useState<string | undefined>();
+	const sheet = useImperativeBottomSheet()
+	const modal = useImperativeModal()
+	const [declarativeOpen, setDeclarativeOpen] = useState(false)
+	const [presentation, setPresentation] = useState<'sheet' | 'fullscreen' | 'dialog'>('sheet')
+	const [picked, setPicked] = useState<string | undefined>()
+	const [detentOpen, setDetentOpen] = useState(false)
+	const [detentPicked, setDetentPicked] = useState<string | undefined>()
 
 	const pick = async () => {
-		const result = await modal.open(Picker, { choices: ['Red', 'Green', 'Blue'] }, { presentation });
-		setPicked(result as string | undefined);
-	};
+		const result = await modal.open(Picker, { choices: ['Red', 'Green', 'Blue'] }, { presentation })
+		setPicked(result as string | undefined)
+	}
 
 	const pickDetent = async () => {
-		const result = await sheet.open(Picker, { choices: ['Peek', 'Half', 'Full'] }, {
-			snapPoints: [0.25, 0.5, 0.9],
-		});
+		const result = await sheet.open(
+			Picker,
+			{ choices: ['Peek', 'Half', 'Full'] },
+			{
+				snapPoints: [0.25, 0.5, 0.9],
+			},
+		)
 
-		setDetentPicked(result as string | undefined);
-	};
+		setDetentPicked(result as string | undefined)
+	}
 
 	<Screen className="vx-app flex-1 gap-6">
 		{sheet.element}
@@ -69,8 +85,8 @@ export function ModalDemo() @{
 		<View className="sink-section">
 			<Text className="section-label">Detents</Text>
 			<Text className="text-sm text-muted">
-				Snap heights as viewport fractions — drag the grabber between
-				detents, past the lowest to dismiss. Self-drawn; no OS sheet.
+				Snap heights as viewport fractions — drag the grabber between detents, past the lowest to
+				dismiss. Self-drawn; no OS sheet.
 			</Text>
 			<Pressable onPress={() => setDetentOpen(true)} className="btn btn-secondary">
 				<Text>Open detent sheet</Text>
@@ -93,12 +109,17 @@ export function ModalDemo() @{
 				</Pressable>
 			</View>
 		</UIModal>
-		<BottomSheet isOpen={detentOpen} label="Detent picker" snapPoints={[0.25, 0.5, 0.9]} onOpenChange={(o) => setDetentOpen(o)}>
+		<BottomSheet
+			isOpen={detentOpen}
+			label="Detent picker"
+			snapPoints={[0.25, 0.5, 0.9]}
+			onOpenChange={(o) => setDetentOpen(o)}
+		>
 			<View className="demo-modal-card gap-4">
 				<Text className="font-bold">Detent sheet</Text>
 				<Text className="text-sm text-muted">
-					Snaps at 25%, 50%, 90% of the viewport height. Drag the grabber
-					or tap the shade to dismiss.
+					Snaps at 25%, 50%, 90% of the viewport height. Drag the grabber or tap the shade to
+					dismiss.
 				</Text>
 				<Pressable onPress={() => setDetentOpen(false)} className="btn bg-primary">
 					<Text className="text-onprimary">Close</Text>

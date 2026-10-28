@@ -1,7 +1,7 @@
-import { useRef, useState } from 'octane';
-import { Button, Heading, HStack, Text, View } from '@octane-xplat/ui';
-import { TiptapEditor, supported } from '@octane-xplat/tiptap';
-import type { TiptapEditorHandle } from '@octane-xplat/tiptap';
+import { useRef, useState } from 'octane'
+import { Button, Heading, HStack, Text, View } from '@octane-xplat/ui'
+import { TiptapEditor, supported } from '@octane-xplat/tiptap'
+import type { TiptapEditorHandle } from '@octane-xplat/tiptap'
 
 const TOOLBAR: { label: string; format?: any; call?: string }[] = [
 	{ label: 'B', format: 'bold' },
@@ -18,41 +18,44 @@ const TOOLBAR: { label: string; format?: any; call?: string }[] = [
 	{ label: '↺', call: 'undo' },
 	{ label: '↻', call: 'redo' },
 	{ label: 'JSON', call: 'json' },
-];
+]
 
 const INITIAL_HTML =
 	'<h2>Unified facade</h2>' +
 	'<p>One <strong>tiptap-shaped API</strong> — @octanejs/tiptap on web, ' +
-	'Aztec on iOS/Android, live tiptap in AppKit WebKit.</p>';
+	'Aztec on iOS/Android, live tiptap in AppKit WebKit.</p>'
 
 /** Facade demo — the same <TiptapEditor> runs tiptap on web and Aztec +
  *  tiptap-JSON interchange on iOS/Android. */
 export function TiptapEditorDemo() @{
-	const editor = useRef<TiptapEditorHandle | null>(null);
-	const [status, setStatus] = useState(supported ? 'idle' : 'unsupported');
-	const [jsonState, setJsonState] = useState('loading');
-	const [active, setActive] = useState('');
-	const [jsonTypes, setJsonTypes] = useState('');
+	const editor = useRef<TiptapEditorHandle | null>(null)
+	const [status, setStatus] = useState(supported ? 'idle' : 'unsupported')
+	const [jsonState, setJsonState] = useState('loading')
+	const [active, setActive] = useState('')
+	const [jsonTypes, setJsonTypes] = useState('')
 
 	const press = (item: (typeof TOOLBAR)[number]) => {
-		const e = editor.current;
-		if (!e) return;
-		if (item.call === 'link') {
-			e.linkTo('https://example.com', 'example');
-		} else if (item.call === 'undo') {
-			e.undo();
-		} else if (item.call === 'redo') {
-			e.redo();
-		} else if (item.call === 'json') {
-			const doc = e.getJSON();
-			const types = (doc?.content ?? []).map((n: any) => n.type).join(',');
-			setJsonTypes(types || 'null');
-			console.log('[probe] facade getJSON: ' + (types || 'null'));
-		} else if (item.format) {
-			e.apply(item.format);
-			console.log('[probe] facade apply ' + item.format + ' active=' + e.isActive(item.format));
+		const e = editor.current
+		if (!e) {
+			return
 		}
-	};
+
+		if (item.call === 'link') {
+			e.linkTo('https://example.com', 'example')
+		} else if (item.call === 'undo') {
+			e.undo()
+		} else if (item.call === 'redo') {
+			e.redo()
+		} else if (item.call === 'json') {
+			const doc = e.getJSON()
+			const types = (doc?.content ?? []).map((n: any) => n.type).join(',')
+			setJsonTypes(types || 'null')
+			console.log('[probe] facade getJSON: ' + (types || 'null'))
+		} else if (item.format) {
+			e.apply(item.format)
+			console.log('[probe] facade apply ' + item.format + ' active=' + e.isActive(item.format))
+		}
+	}
 
 	<View className="gap-4">
 		<Heading level={2}>Tiptap facade</Heading>
@@ -66,23 +69,19 @@ export function TiptapEditorDemo() @{
 			value={INITIAL_HTML}
 			placeholder="Write something…"
 			onReady={() => {
-				setStatus('ready');
-				console.log('[probe] facade ready');
+				setStatus('ready')
+				console.log('[probe] facade ready')
 			}}
 			onJSONReady={(ok) => {
-				setJsonState(ok ? 'json ok' : 'json unavailable');
-				console.log('[probe] facade json bridge: ' + ok);
+				setJsonState(ok ? 'json ok' : 'json unavailable')
+				console.log('[probe] facade json bridge: ' + ok)
 			}}
 			onSelectionChange={(e) => setActive(e.active.join(',') || '—')}
 			ref={editor}
 		/>
 		<HStack className="flex-wrap gap-2">
 			{TOOLBAR.map((item) => (
-				<Button
-					key={item.label}
-					className="btn btn-secondary"
-					clickAction={() => press(item)}
-				>
+				<Button key={item.label} className="btn btn-secondary" clickAction={() => press(item)}>
 					<Text>{item.label}</Text>
 				</Button>
 			))}

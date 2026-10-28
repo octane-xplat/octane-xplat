@@ -1618,6 +1618,7 @@ export function checkNoRouteAugmentation(program, _src, filename, options) {
 				: node.id?.type === 'Identifier'
 					? node.id.name
 					: undefined
+
 		if (typeof name === 'string' && ROUTE_AUGMENT_SOURCES.has(name)) {
 			out.push({
 				node,
@@ -1694,9 +1695,7 @@ export function checkNoInterpolatedRoutePath(program, _src, filename, options) {
 
 const objectProp = (expr, name) =>
 	expr?.type === 'ObjectExpression'
-		? (expr.properties ?? []).find(
-				(p) => p.type === 'Property' && propName(p.key) === name,
-			)
+		? (expr.properties ?? []).find((p) => p.type === 'Property' && propName(p.key) === name)
 		: undefined
 
 // An asserted `{ to }` object is a destination only when `to` looks like a
@@ -1704,7 +1703,7 @@ const objectProp = (expr, name) =>
 // animations, ranges and gradients are left alone.
 const isDestinationLike = (expr) => {
 	const to = objectProp(expr, 'to')
-	if (!to || to.value?.type !== 'Literal' && to.value?.type !== 'TemplateLiteral') {
+	if (!to || (to.value?.type !== 'Literal' && to.value?.type !== 'TemplateLiteral')) {
 		return !!objectProp(expr, 'params') || !!objectProp(expr, 'search')
 	}
 	if (startsWithSlash(to.value)) {
@@ -1737,6 +1736,7 @@ export function checkNoDestinationCast(program, _src, filename, options) {
 				node: node.value.expression,
 				message: `Casting a 'to' value bypasses declared route contracts — use a declared pattern with params, or router.validateDestination(...) for runtime data.`,
 			})
+
 			continue
 		}
 
@@ -1755,6 +1755,7 @@ export function checkNoDestinationCast(program, _src, filename, options) {
 				node,
 				message: `Destination casts bypass declared route contracts — use a declared pattern with params, or router.validateDestination(...) for runtime data.`,
 			})
+
 			continue
 		}
 
@@ -1763,6 +1764,7 @@ export function checkNoDestinationCast(program, _src, filename, options) {
 				typeof node.typeAnnotation.literal?.value === 'string' &&
 				node.typeAnnotation.literal.value.startsWith('/')) ||
 			startsWithSlash(node.expression)
+
 		if (
 			castsRouteLiteral &&
 			parent?.type === 'Property' &&

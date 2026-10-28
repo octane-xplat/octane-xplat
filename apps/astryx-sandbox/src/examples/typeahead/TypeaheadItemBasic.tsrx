@@ -8,11 +8,20 @@ const LANGUAGES = [
 	{ id: 'py', label: 'Python' },
 	{ id: 'rs', label: 'Rust' },
 ]
+
 const source = createStaticSource(LANGUAGES)
 
 export function TypeaheadItemBasic() @{
-	const [value, setValue] = useState<typeof LANGUAGES[number] | null>(null)
-	<div style={{width: 320}}>
-		<Typeahead label="Language" searchSource={source} value={value} onChange={setValue} placeholder="Type to search…" renderItem={(item) => <TypeaheadItem item={item} />} />
+	const [value, setValue] = useState<(typeof LANGUAGES)[number] | null>(null)
+
+	<div style={{ width: 320 }}>
+		<Typeahead
+			label="Language"
+			searchSource={source}
+			value={value}
+			onChange={setValue}
+			placeholder="Type to search…"
+			renderItem={(item) => <TypeaheadItem item={item} />}
+		/>
 	</div>
 }

@@ -11,6 +11,7 @@ export function CommandPaletteCustomFooter() @{
 			]),
 		[],
 	)
+
 	<CommandPalette
 		open
 		onOpenChange={() => {}}

@@ -17,7 +17,9 @@ export function ScrollableAreaShowcase() @{
 				{NOTES.map(([title, meta]) => (
 					<VStack key={title} gap={0.5}>
 						<Text weight="medium">{title}</Text>
-						<Text type="supporting" color="secondary">{meta}</Text>
+						<Text type="supporting" color="secondary">
+							{meta}
+						</Text>
 					</VStack>
 				))}
 			</VStack>

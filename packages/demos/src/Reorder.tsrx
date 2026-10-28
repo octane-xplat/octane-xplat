@@ -1,8 +1,8 @@
-import { useRef, useState } from 'octane';
-import { HStack, Text, View, setTranslate } from '@octane-xplat/ui';
-import type { PanEvent } from '@octane-xplat/ui';
+import { useRef, useState } from 'octane'
+import { HStack, Text, View, setTranslate } from '@octane-xplat/ui'
+import type { PanEvent } from '@octane-xplat/ui'
 
-type Track = { id: string; title: string; artist: string };
+type Track = { id: string; title: string; artist: string }
 
 const TRACKS: Track[] = [
 	{ id: 'a', title: 'Neon Coastline', artist: 'The Satellites' },
@@ -12,14 +12,14 @@ const TRACKS: Track[] = [
 	{ id: 'e', title: 'Slow Wave', artist: 'Tide' },
 	{ id: 'f', title: 'Signal Fires', artist: 'Mira' },
 	{ id: 'g', title: 'Last Train Home', artist: 'Junction' },
-];
+]
 
-const ROW_GAP = 8; // .reorder-row margin-bottom (demo.css)
+const ROW_GAP = 8 // .reorder-row margin-bottom (demo.css)
 
 /** Post-layout height of a bound view: NS reports dips via getActualSize,
  *  DOM reports px via bounding rect — same number, matching units. */
 const rowHeight = (el: any) =>
-	'nativeViewProtected' in el ? el.getActualSize().height : el.getBoundingClientRect().height;
+	'nativeViewProtected' in el ? el.getActualSize().height : el.getBoundingClientRect().height
 
 /** drag-to-reorder — the pan/imperative-write seam (docs/app/animation-gestures.md).
  *  Proves: onPan payload parity (began/moved/ended/cancelled, cumulative dy),
@@ -27,58 +27,78 @@ const rowHeight = (el: any) =>
  *  lift on native, and one declarative commit at drop. Drag activates on
  *  first move so plain taps never lift a row. */
 export function Reorder() @{
-	const [items, setItems] = useState(TRACKS);
-	const [lifted, setLifted] = useState<string | null>(null);
-	const views = useRef(new Map<string, any>());
-	const drag = useRef<{ id: string; from: number; hover: number; pitch: number; active: boolean } | null>(null);
+	const [items, setItems] = useState(TRACKS)
+	const [lifted, setLifted] = useState<string | null>(null)
+	const views = useRef(new Map<string, any>())
+	const drag = useRef<{
+		id: string
+		from: number
+		hover: number
+		pitch: number
+		active: boolean
+	} | null>(null)
 
-	const clearShifts = () => items.forEach((t) => setTranslate(views.current.get(t.id)));
+	const clearShifts = () => items.forEach((t) => setTranslate(views.current.get(t.id)))
 
 	const pan = (item: Track, e: PanEvent) => {
-		const el = views.current.get(item.id);
+		const el = views.current.get(item.id)
 
 		if (e.state === 'began') {
-			const from = items.indexOf(item);
-			drag.current = { id: item.id, from, hover: from, pitch: rowHeight(el) + ROW_GAP || 1, active: false };
-			return;
+			const from = items.indexOf(item)
+			drag.current = {
+				id: item.id,
+				from,
+				hover: from,
+				pitch: rowHeight(el) + ROW_GAP || 1,
+				active: false,
+			}
+
+			return
 		}
 
-		const d = drag.current;
-		if (!d || d.id !== item.id) return;
+		const d = drag.current
+		if (!d || d.id !== item.id) {
+			return
+		}
 
 		if (e.state === 'moved') {
 			if (!d.active) {
-				d.active = true;
-				setLifted(item.id);
+				d.active = true
+				setLifted(item.id)
 			}
 
-			const last = items.length - 1;
-			d.hover = Math.min(last, Math.max(0, d.from + Math.round(e.dy / d.pitch)));
-			setTranslate(el, 0, e.dy);
+			const last = items.length - 1
+			d.hover = Math.min(last, Math.max(0, d.from + Math.round(e.dy / d.pitch)))
+			setTranslate(el, 0, e.dy)
 			items.forEach((sib, i) => {
-				if (sib.id === d.id) return;
+				if (sib.id === d.id) {
+					return
+				}
+
 				const dir =
-					d.from < d.hover && i > d.from && i <= d.hover ? -1
-					: d.hover < d.from && i >= d.hover && i < d.from ? 1
-					: 0;
+					d.from < d.hover && i > d.from && i <= d.hover
+						? -1
+						: d.hover < d.from && i >= d.hover && i < d.from
+							? 1
+							: 0
 
-				setTranslate(views.current.get(sib.id), 0, dir * d.pitch);
-			});
+				setTranslate(views.current.get(sib.id), 0, dir * d.pitch)
+			})
 
-			return;
+			return
 		}
 
-		drag.current = null;
-		setLifted(null);
+		drag.current = null
+		setLifted(null)
 		if (e.state === 'ended' && d.hover !== d.from) {
-			const next = items.slice();
-			next.splice(d.from, 1);
-			next.splice(d.hover, 0, item);
-			setItems(next);
+			const next = items.slice()
+			next.splice(d.from, 1)
+			next.splice(d.hover, 0, item)
+			setItems(next)
 		}
 
-		clearShifts();
-	};
+		clearShifts()
+	}
 
 	<View className="vx-app flex-1 gap-4">
 		<Text className="text-xl font-semibold">Playlist</Text>

@@ -13,14 +13,18 @@ export function CheckboxListItem(props: CheckboxListItemProps) @{
 	const groupMode = props.value != null && ctx != null
 	const checked = groupMode
 		? Array.isArray(ctx!.selected) && (ctx!.selected as string[]).includes(props.value!)
-		: props.isChecked ?? false
+		: (props.isChecked ?? false)
+
 	const state = checked === 'indeterminate' ? 'indeterminate' : checked ? 'checked' : 'unchecked'
 	const disabled = Boolean(ctx?.isDisabled || props.isDisabled)
 	const blocked = disabled || ctx?.isReadOnly
 	const Ind = useIndicator('checkbox') ?? CheckboxIndicator
 	const toggle = () => {
-		if (groupMode) ctx!.select?.(props.value!, state !== 'checked')
-		else props.onCheck?.(state !== 'checked')
+		if (groupMode) {
+			ctx!.select?.(props.value!, state !== 'checked')
+		} else {
+			props.onCheck?.(state !== 'checked')
+		}
 	}
 
 	<div
@@ -31,18 +35,34 @@ export function CheckboxListItem(props: CheckboxListItemProps) @{
 		aria-disabled={disabled || undefined}
 		aria-readonly={ctx?.isReadOnly || undefined}
 		tabIndex={disabled ? undefined : 0}
-		className={['vx-checkbox-row', 'vx-checkboxlist-item', indicatorScope, state === 'checked' && 'vx-checkbox--on', disabled && 'vx-checkbox--disabled', ctx?.isReadOnly && 'vx-checkbox--readonly', props.className]}
+		className={[
+			'vx-checkbox-row',
+			'vx-checkboxlist-item',
+			indicatorScope,
+			state === 'checked' && 'vx-checkbox--on',
+			disabled && 'vx-checkbox--disabled',
+			ctx?.isReadOnly && 'vx-checkbox--readonly',
+			props.className,
+		]}
 		style={props.style}
 		onClick={blocked ? undefined : toggle}
 		onKeyDown={(e: any) => {
-			if (blocked) return
-			if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggle() }
+			if (blocked) {
+				return
+			}
+
+			if (e.key === ' ' || e.key === 'Enter') {
+				e.preventDefault()
+				toggle()
+			}
 		}}
 	>
 		<Ind state={state as any} size={ctx?.size === 'sm' ? 'sm' : 'md'} isDisabled={disabled} />
 		<span className="vx-checkbox-label-col">
 			{props.label != null ? <span className="vx-checkbox-label">{props.label}</span> : null}
-			{props.description != null ? <span className="vx-checkbox-description">{props.description}</span> : null}
+			{props.description != null ? (
+				<span className="vx-checkbox-description">{props.description}</span>
+			) : null}
 		</span>
 		{props.endContent != null ? <span className="vx-checkbox-end">{props.endContent}</span> : null}
 	</div>

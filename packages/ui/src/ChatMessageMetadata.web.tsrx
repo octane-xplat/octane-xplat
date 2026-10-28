@@ -1,6 +1,6 @@
-import type { ChatMessageMetadataProps, ChatMessageStatus } from './props';
-import { Icon } from './Icon.web.tsrx';
-import { useChatMessageContext } from './chat-context';
+import type { ChatMessageMetadataProps, ChatMessageStatus } from './props'
+import { Icon } from './Icon.web.tsrx'
+import { useChatMessageContext } from './chat-context'
 
 const STATUS_ICON: Record<ChatMessageStatus, string> = {
 	sending: 'xplat-clock',
@@ -8,7 +8,7 @@ const STATUS_ICON: Record<ChatMessageStatus, string> = {
 	delivered: 'xplat-check-double',
 	read: 'xplat-check-double',
 	error: 'xplat-error',
-};
+}
 
 const STATUS_LABEL: Record<ChatMessageStatus, string> = {
 	sending: 'Sending',
@@ -16,28 +16,32 @@ const STATUS_LABEL: Record<ChatMessageStatus, string> = {
 	delivered: 'Delivered',
 	read: 'Read',
 	error: 'Failed',
-};
+}
 
-const renderable = (v: any) => v != null && v !== false && v !== true;
+const renderable = (v: any) => v != null && v !== false && v !== true
 
 /** Composable metadata row for chat messages — timestamp · footer · status.
  *  Renders nothing when all three are absent. Direction reverses for the
  *  'user' sender (read from the enclosing ChatMessage). */
 export function ChatMessageMetadata(props: ChatMessageMetadataProps) @{
-	const msgContext = useChatMessageContext();
-	const sender = msgContext?.sender ?? 'assistant';
-	const hasTimestamp = renderable(props.timestamp);
-	const hasFooter = renderable(props.footer);
-	const hasStatus = props.status != null;
+	const msgContext = useChatMessageContext()
+	const sender = msgContext?.sender ?? 'assistant'
+	const hasTimestamp = renderable(props.timestamp)
+	const hasFooter = renderable(props.footer)
+	const hasStatus = props.status != null
 	if (!hasTimestamp && !hasFooter && !hasStatus) {
-		return null;
+		return null
 	}
 
-	const status = props.status!;
+	const status = props.status!
 
 	<div
 		id={props.id}
-		className={['vx-chatmeta', sender === 'user' ? 'vx-chatmeta--user' : undefined, props.className]}
+		className={[
+			'vx-chatmeta',
+			sender === 'user' ? 'vx-chatmeta--user' : undefined,
+			props.className,
+		]}
 		style={props.style}
 	>
 		{hasTimestamp ? <span>{props.timestamp}</span> : null}

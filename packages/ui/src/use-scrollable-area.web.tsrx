@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'octane';
-import type { CSSProperties } from 'octane/jsx-runtime';
+import { useCallback, useEffect, useRef, useState } from 'octane'
+import type { CSSProperties } from 'octane/jsx-runtime'
 import type {
 	HostElement,
 	ScrollAxisState,
@@ -8,11 +8,11 @@ import type {
 	UseScrollableAreaContentProps,
 	UseScrollableAreaResult,
 	UseScrollableAreaViewportProps,
-} from './props';
+} from './props'
 
-const EPS = 1;
-const AT_EDGES: ScrollAxisState = { isScrollable: false, atStart: true, atEnd: true };
-const INITIAL: ScrollableAreaState = { inline: AT_EDGES, block: AT_EDGES };
+const EPS = 1
+const AT_EDGES: ScrollAxisState = { isScrollable: false, atStart: true, atEnd: true }
+const INITIAL: ScrollableAreaState = { inline: AT_EDGES, block: AT_EDGES }
 
 /**
  * Headless scroll-viewport behavior (Astryx `useScrollableArea`), web leaf.
@@ -25,39 +25,39 @@ const INITIAL: ScrollableAreaState = { inline: AT_EDGES, block: AT_EDGES };
 export function useScrollableArea<TElement = HostElement>(
 	options: UseScrollableAreaOptions = {},
 ): UseScrollableAreaResult<TElement> {
-	const axis = options.axis ?? 'block';
-	const keyboardAccess = options.keyboardAccess;
-	const overscroll = options.overscroll ?? 'allow';
-	const stickyContainment = options.stickyContainment ?? 'whenScrollable';
-	const viewportRef = useRef<HTMLElement | null>(null);
-	const contentRef = useRef<HTMLElement | null>(null);
-	const [state, setState] = useState<ScrollableAreaState>(INITIAL);
+	const axis = options.axis ?? 'block'
+	const keyboardAccess = options.keyboardAccess
+	const overscroll = options.overscroll ?? 'allow'
+	const stickyContainment = options.stickyContainment ?? 'whenScrollable'
+	const viewportRef = useRef<HTMLElement | null>(null)
+	const contentRef = useRef<HTMLElement | null>(null)
+	const [state, setState] = useState<ScrollableAreaState>(INITIAL)
 
 	const measure = useCallback(() => {
-		const el = viewportRef.current;
+		const el = viewportRef.current
 		if (!el) {
-			return;
+			return
 		}
 
-		const inlineOk = axis === 'inline' || axis === 'both';
-		const blockOk = axis === 'block' || axis === 'both';
-		const maxX = Math.max(0, el.scrollWidth - el.clientWidth);
-		const maxY = Math.max(0, el.scrollHeight - el.clientHeight);
+		const inlineOk = axis === 'inline' || axis === 'both'
+		const blockOk = axis === 'block' || axis === 'both'
+		const maxX = Math.max(0, el.scrollWidth - el.clientWidth)
+		const maxY = Math.max(0, el.scrollHeight - el.clientHeight)
 		// RTL scrollLeft is negative in every current engine: the inline-start
 		// edge sits at -maxX, the inline-end edge at 0.
-		const rtl = getComputedStyle(el).direction === 'rtl';
-		const x = rtl ? -el.scrollLeft : el.scrollLeft;
+		const rtl = getComputedStyle(el).direction === 'rtl'
+		const x = rtl ? -el.scrollLeft : el.scrollLeft
 		const inline: ScrollAxisState = {
 			isScrollable: inlineOk && maxX > EPS,
 			atStart: !inlineOk || x <= EPS,
 			atEnd: !inlineOk || x >= maxX - EPS,
-		};
+		}
 
 		const block: ScrollAxisState = {
 			isScrollable: blockOk && maxY > EPS,
 			atStart: !blockOk || el.scrollTop <= EPS,
 			atEnd: !blockOk || el.scrollTop >= maxY - EPS,
-		};
+		}
 
 		setState((prev) =>
 			prev.inline.isScrollable === inline.isScrollable &&
@@ -68,68 +68,65 @@ export function useScrollableArea<TElement = HostElement>(
 			prev.block.atEnd === block.atEnd
 				? prev
 				: { inline, block },
-		);
-	}, [axis]);
+		)
+	}, [axis])
 
 	const bindViewport = useCallback(
 		(el: HTMLElement | null) => {
-			viewportRef.current = el;
-			measure();
+			viewportRef.current = el
+			measure()
 		},
 		[measure],
-	);
+	)
 
 	const bindContent = useCallback((el: HTMLElement | null) => {
-		contentRef.current = el;
-	}, []);
+		contentRef.current = el
+	}, [])
 
 	useEffect(() => {
-		const el = viewportRef.current;
+		const el = viewportRef.current
 		if (!el) {
-			return;
+			return
 		}
 
-		measure();
-		el.addEventListener('scroll', measure, { passive: true });
-		const observer =
-			typeof ResizeObserver === 'undefined'
-				? null
-				: new ResizeObserver(measure);
+		measure()
+		el.addEventListener('scroll', measure, { passive: true })
+		const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(measure)
 
-		observer?.observe(el);
+		observer?.observe(el)
 		if (contentRef.current) {
-			observer?.observe(contentRef.current);
+			observer?.observe(contentRef.current)
 		}
 
 		return () => {
-			el.removeEventListener('scroll', measure);
-			observer?.disconnect();
-		};
-	}, [measure]);
+			el.removeEventListener('scroll', measure)
+			observer?.disconnect()
+		}
+	}, [measure])
 
 	const getViewportProps = useCallback(
 		function getViewportProps<P extends object = {}>(
 			props?: P & Partial<UseScrollableAreaViewportProps<TElement>>,
-		): Omit<P, keyof UseScrollableAreaViewportProps<TElement>> & UseScrollableAreaViewportProps<TElement> {
-			const input = (props ?? {}) as Record<string, any>;
-			const owner = keyboardAccess?.owner ?? 'content';
-			const scrollable = state.inline.isScrollable || state.block.isScrollable;
-			const viewportTabbed =
-				owner === 'viewport' || (owner === 'contentOrViewport' && scrollable);
+		): Omit<P, keyof UseScrollableAreaViewportProps<TElement>> &
+			UseScrollableAreaViewportProps<TElement> {
+			const input = (props ?? {}) as Record<string, any>
+			const owner = keyboardAccess?.owner ?? 'content'
+			const scrollable = state.inline.isScrollable || state.block.isScrollable
+			const viewportTabbed = owner === 'viewport' || (owner === 'contentOrViewport' && scrollable)
 
 			const label =
 				owner === 'viewport' || owner === 'contentOrViewport'
 					? keyboardAccess && 'label' in keyboardAccess && keyboardAccess.label
 						? keyboardAccess.label
 						: undefined
-					: undefined;
+					: undefined
 
 			const role =
 				(owner === 'viewport' || owner === 'contentOrViewport') &&
 				keyboardAccess &&
 				'role' in keyboardAccess
 					? keyboardAccess.role
-					: undefined;
+					: undefined
 
 			return {
 				...input,
@@ -152,20 +149,21 @@ export function useScrollableArea<TElement = HostElement>(
 				'data-at-end-y': state.block.atEnd || undefined,
 				'data-sticky-containment':
 					stickyContainment === 'always' || scrollable ? 'true' : undefined,
-			} as unknown as Omit<P, keyof UseScrollableAreaViewportProps<TElement>> & UseScrollableAreaViewportProps<TElement>;
+			} as unknown as Omit<P, keyof UseScrollableAreaViewportProps<TElement>> &
+				UseScrollableAreaViewportProps<TElement>
 		},
 		[axis, keyboardAccess, overscroll, stickyContainment, state, bindViewport],
-	);
+	)
 
 	const getContentProps = useCallback(
 		function getContentProps<P extends object = {}>(
 			props?: P & Partial<UseScrollableAreaContentProps<TElement>>,
-		): Omit<P, keyof UseScrollableAreaContentProps<TElement>> & UseScrollableAreaContentProps<TElement> {
-			const input = (props ?? {}) as Record<string, any>;
-			const owner = keyboardAccess?.owner ?? 'content';
-			const scrollable = state.inline.isScrollable || state.block.isScrollable;
-			const contentTabbed =
-				owner === 'content' || (owner === 'contentOrViewport' && !scrollable);
+		): Omit<P, keyof UseScrollableAreaContentProps<TElement>> &
+			UseScrollableAreaContentProps<TElement> {
+			const input = (props ?? {}) as Record<string, any>
+			const owner = keyboardAccess?.owner ?? 'content'
+			const scrollable = state.inline.isScrollable || state.block.isScrollable
+			const contentTabbed = owner === 'content' || (owner === 'contentOrViewport' && !scrollable)
 
 			return {
 				...input,
@@ -177,10 +175,11 @@ export function useScrollableArea<TElement = HostElement>(
 						? keyboardAccess.label
 						: undefined),
 				tabIndex: input.tabIndex ?? (contentTabbed ? 0 : undefined),
-			} as unknown as Omit<P, keyof UseScrollableAreaContentProps<TElement>> & UseScrollableAreaContentProps<TElement>;
+			} as unknown as Omit<P, keyof UseScrollableAreaContentProps<TElement>> &
+				UseScrollableAreaContentProps<TElement>
 		},
 		[keyboardAccess, state, bindContent],
-	);
+	)
 
-	return { getViewportProps, getContentProps, state };
+	return { getViewportProps, getContentProps, state }
 }

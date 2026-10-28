@@ -1,22 +1,31 @@
-import type { IconProps } from './props';
-import { getIcon } from './icons';
-import { useIconRegistry } from './icon-registry-context';
-import { applyWebProps } from './platformProps.web';
+import type { IconProps } from './props'
+import { getIcon } from './icons'
+import { useIconRegistry } from './icon-registry-context'
+import { applyWebProps } from './platformProps.web'
 
-const namedSizes: Record<string, number> = { xsm: 12, sm: 16, md: 20, lg: 24, xl: 32 };
+const namedSizes: Record<string, number> = { xsm: 12, sm: 16, md: 20, lg: 24, xl: 32 }
 const namedColors: Record<string, string> = {
-	primary: 'var(--color-text)', secondary: 'var(--color-text-secondary)', tertiary: 'var(--color-text-tertiary, var(--color-text-secondary))',
-	disabled: 'var(--color-text-disabled, var(--color-text-tertiary, #999))', accent: 'var(--color-text-accent, var(--color-accent))',
-	success: 'var(--color-success)', error: 'var(--color-error)', warning: 'var(--color-warning)', inherit: 'inherit',
-};
+	primary: 'var(--color-text)',
+	secondary: 'var(--color-text-secondary)',
+	tertiary: 'var(--color-text-tertiary, var(--color-text-secondary))',
+	disabled: 'var(--color-text-disabled, var(--color-text-tertiary, #999))',
+	accent: 'var(--color-text-accent, var(--color-accent))',
+	success: 'var(--color-success)',
+	error: 'var(--color-error)',
+	warning: 'var(--color-warning)',
+	inherit: 'inherit',
+}
 
 export function Icon(props: IconProps) @{
-	const inheritedRegistry = useIconRegistry();
-	const glyph = getIcon(props.name, props.registry ?? inheritedRegistry);
-	if (!glyph) return null;
-	const size = typeof props.size === 'number' ? props.size : namedSizes[props.size ?? 'lg'] ?? 24;
-	const color = props.color != null ? namedColors[props.color] ?? props.color : undefined;
-	const labeled = props.accessibilityLabel != null;
+	const inheritedRegistry = useIconRegistry()
+	const glyph = getIcon(props.name, props.registry ?? inheritedRegistry)
+	if (!glyph) {
+		return null
+	}
+
+	const size = typeof props.size === 'number' ? props.size : (namedSizes[props.size ?? 'lg'] ?? 24)
+	const color = props.color != null ? (namedColors[props.color] ?? props.color) : undefined
+	const labeled = props.accessibilityLabel != null
 
 	@if (glyph.markup) {
 		<svg
@@ -30,8 +39,11 @@ export function Icon(props: IconProps) @{
 			aria-hidden={labeled ? undefined : 'true'}
 			style={color ? { color } : undefined}
 			ref={(el: any) => {
-				if (el) el.innerHTML = glyph.markup;
-				applyWebProps(el, props.web);
+				if (el) {
+					el.innerHTML = glyph.markup
+				}
+
+				applyWebProps(el, props.web)
 			}}
 		></svg>
 	} @else {

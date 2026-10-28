@@ -97,14 +97,20 @@ function StatusBar(props: { runtime: WorkshopRuntime }) {
 	return (
 		<header className="xw-statusbar">
 			<details className="xw-target-menu">
-				<summary className="xw-target-chip" aria-label="Workshop targets">{props.runtime.session.target}</summary>
+				<summary className="xw-target-chip" aria-label="Workshop targets">
+					{props.runtime.session.target}
+				</summary>
 				<ul>
-					{WORKSHOP_TARGETS.map((target) => <li key={target}>
-						{target}: {currentDefinition(props.runtime)?.targets !== 'all' &&
+					{WORKSHOP_TARGETS.map((target) => (
+						<li key={target}>
+							{target}:{' '}
+							{currentDefinition(props.runtime)?.targets !== 'all' &&
 							currentDefinition(props.runtime)?.targets &&
 							!currentDefinition(props.runtime)!.targets.includes(target)
-							? 'unsupported by this story' : targetStatus(props.runtime.session.target, target)}
-					</li>)}
+								? 'unsupported by this story'
+								: targetStatus(props.runtime.session.target, target)}
+						</li>
+					))}
 				</ul>
 			</details>
 			<span className="xw-title" title={s.selectedId ?? ''}>
@@ -206,13 +212,15 @@ function groupEntries(entries: CatalogEntry[], query: string): Group {
 	const root: Group = { name: '', entries: [], children: new Map() }
 	const q = query.trim().toLowerCase()
 	const filtered = q
-		? entries.filter(
-				(e) => e.id.toLowerCase().includes(q) || e.title.toLowerCase().includes(q),
-			)
+		? entries.filter((e) => e.id.toLowerCase().includes(q) || e.title.toLowerCase().includes(q))
 		: entries
 
 	for (const entry of filtered) {
-		const segments = entry.title.split('/').map((seg) => seg.trim()).filter(Boolean)
+		const segments = entry.title
+			.split('/')
+			.map((seg) => seg.trim())
+			.filter(Boolean)
+
 		let group = root
 		for (const seg of segments.slice(0, -1)) {
 			let next = group.children.get(seg)
@@ -256,16 +264,24 @@ function GroupView(props: { runtime: WorkshopRuntime; group: Group; depth: numbe
 								onClick={() =>
 									props.runtime.store.update((x) => {
 										const next = new Set(x.expanded)
-										if (next.has(key)) next.delete(key)
-										else next.add(key)
+										if (next.has(key)) {
+											next.delete(key)
+										} else {
+											next.add(key)
+										}
 
 										return { ...x, expanded: next }
 									})
 								}
 							>
-								<span className="xw-caret" aria-hidden>{open ? '▾' : '▸'}</span> {child.name}
+								<span className="xw-caret" aria-hidden>
+									{open ? '▾' : '▸'}
+								</span>{' '}
+								{child.name}
 							</button>
-							{open ? <GroupView runtime={props.runtime} group={child} depth={props.depth + 1} /> : null}
+							{open ? (
+								<GroupView runtime={props.runtime} group={child} depth={props.depth + 1} />
+							) : null}
 						</div>
 					)
 				})}
@@ -275,10 +291,16 @@ function GroupView(props: { runtime: WorkshopRuntime; group: Group; depth: numbe
 					type="button"
 					className={`xw-story ${entry.id === s.selectedId ? 'xw-story-active' : ''}`}
 					disabled={!entry.load}
-					title={entry.load ? entry.id : `${entry.id} — ${entry.reason ?? 'not supported on this target'}`}
+					title={
+						entry.load
+							? entry.id
+							: `${entry.id} — ${entry.reason ?? 'not supported on this target'}`
+					}
 					onClick={() => selectStory(props.runtime, entry)}
 				>
-					<span className="xw-story-name">{entry.title.split('/').pop()?.trim() || entry.title}</span>
+					<span className="xw-story-name">
+						{entry.title.split('/').pop()?.trim() || entry.title}
+					</span>
 					{!entry.load ? <span className="xw-story-badge">unsupported</span> : null}
 				</button>
 			))}
@@ -288,14 +310,20 @@ function GroupView(props: { runtime: WorkshopRuntime; group: Group; depth: numbe
 
 function catalogBody(s: ShellState, runtime: WorkshopRuntime, groups: Group) {
 	if (s.catalogError) {
-		return <div className="xw-error" role="alert">{s.catalogError}</div>
+		return (
+			<div className="xw-error" role="alert">
+				{s.catalogError}
+			</div>
+		)
 	}
 
 	if (s.catalog.length === 0) {
 		return (
 			<div className="xw-empty">
 				<p>No stories found.</p>
-				<p>Expected include: <code>{INCLUDE_PATTERN}</code></p>
+				<p>
+					Expected include: <code>{INCLUDE_PATTERN}</code>
+				</p>
 				<pre className="xw-example">{EMPTY_EXAMPLE}</pre>
 			</div>
 		)
@@ -308,7 +336,10 @@ function CatalogPanel(props: { runtime: WorkshopRuntime; mode: 'wide' | 'overlay
 	const s = useStore(props.runtime.store)
 	const groups = groupEntries(s.catalog, s.query)
 	return (
-		<aside className={`xw-panel xw-catalog ${props.mode === 'overlay' ? 'xw-overlay' : ''}`} aria-label="Story catalog">
+		<aside
+			className={`xw-panel xw-catalog ${props.mode === 'overlay' ? 'xw-overlay' : ''}`}
+			aria-label="Story catalog"
+		>
 			<div className="xw-panel-head">
 				<input
 					type="search"
@@ -316,9 +347,7 @@ function CatalogPanel(props: { runtime: WorkshopRuntime; mode: 'wide' | 'overlay
 					placeholder="Search stories"
 					aria-label="Search stories"
 					value={s.query}
-					onInput={(e: any) =>
-						props.runtime.store.update((x) => ({ ...x, query: e.target.value }))
-					}
+					onInput={(e: any) => props.runtime.store.update((x) => ({ ...x, query: e.target.value }))}
 				/>
 				{props.mode === 'overlay' ? (
 					<button
@@ -397,8 +426,11 @@ function ControlField(props: {
 			const fieldErrors = { ...x.fieldErrors }
 			delete fieldErrors[key]
 			const unsetKeys = new Set(x.unsetKeys)
-			if (raw === UNSET) unsetKeys.add(key)
-			else unsetKeys.delete(key)
+			if (raw === UNSET) {
+				unsetKeys.add(key)
+			} else {
+				unsetKeys.delete(key)
+			}
 
 			return { ...x, drafts, fieldErrors, unsetKeys }
 		})
@@ -434,7 +466,9 @@ function ControlField(props: {
 			>
 				{!isSet ? <option value="">(unset)</option> : null}
 				{(control.options ?? []).map((o: unknown) => (
-					<option key={String(o)} value={String(o)}>{String(o)}</option>
+					<option key={String(o)} value={String(o)}>
+						{String(o)}
+					</option>
 				))}
 			</select>
 		)
@@ -450,8 +484,13 @@ function ControlField(props: {
 				min={control.min}
 				max={control.max}
 				step={control.step}
-				onCompositionStart={() => { composing.current = true }}
-				onCompositionEnd={(e: any) => { composing.current = false; setDraft(e.target.value) }}
+				onCompositionStart={() => {
+					composing.current = true
+				}}
+				onCompositionEnd={(e: any) => {
+					composing.current = false
+					setDraft(e.target.value)
+				}}
 				onInput={(e: any) => setDraft(e.target.value)}
 				onKeyDown={(e: any) => {
 					if (e.key === 'Enter' && !e.isComposing && !composing.current) {
@@ -462,7 +501,10 @@ function ControlField(props: {
 					}
 				}}
 				onBlur={(e: any) => {
-					if (composing.current) return
+					if (composing.current) {
+						return
+					}
+
 					if ((draft ?? e.target.value) !== (isSet ? String(value ?? '') : '')) {
 						commit(draft ?? e.target.value)
 					}
@@ -475,7 +517,9 @@ function ControlField(props: {
 	return (
 		<div className="xw-field">
 			<div className="xw-field-row">
-				<label className="xw-field-label" title={key}>{key}</label>
+				<label className="xw-field-label" title={key}>
+					{key}
+				</label>
 				{field}
 				{unsettable && isSet ? (
 					<button type="button" className="xw-btn xw-unset" onClick={() => commit(UNSET)}>
@@ -492,7 +536,11 @@ function ControlField(props: {
 					</button>
 				) : null}
 			</div>
-			{error ? <div className="xw-field-error" role="alert">{error}</div> : null}
+			{error ? (
+				<div className="xw-field-error" role="alert">
+					{error}
+				</div>
+			) : null}
 		</div>
 	)
 }
@@ -503,7 +551,10 @@ function ControlsPanel(props: { runtime: WorkshopRuntime; mode: 'wide' | 'overla
 	const controls = (definition?.controls ?? {}) as Record<string, unknown>
 	const keys = Object.keys(controls)
 	return (
-		<aside className={`xw-panel xw-controls ${props.mode === 'overlay' ? 'xw-overlay' : ''}`} aria-label="Story controls">
+		<aside
+			className={`xw-panel xw-controls ${props.mode === 'overlay' ? 'xw-overlay' : ''}`}
+			aria-label="Story controls"
+		>
 			<div className="xw-panel-head">
 				<span className="xw-panel-title">Controls</span>
 				{props.mode === 'overlay' ? (
@@ -519,14 +570,34 @@ function ControlsPanel(props: { runtime: WorkshopRuntime; mode: 'wide' | 'overla
 			<div className="xw-panel-body">
 				<fieldset className="xw-environment">
 					<legend>Stage environment</legend>
-					<label>Background <select aria-label="Stage background" value={s.stageBackground}
-						onChange={(e: any) => props.runtime.store.update(x => ({ ...x, stageBackground: e.target.value }))}>
-						<option value="default">Default</option><option value="light">Light</option><option value="dark">Dark</option>
-					</select></label>
-					<label>Bounds <select aria-label="Stage bounds" value={s.stageBounds}
-						onChange={(e: any) => props.runtime.store.update(x => ({ ...x, stageBounds: e.target.value }))}>
-						<option value="available">Available space</option><option value="small">320 × 240</option><option value="medium">640 × 480</option>
-					</select></label>
+					<label>
+						Background{' '}
+						<select
+							aria-label="Stage background"
+							value={s.stageBackground}
+							onChange={(e: any) =>
+								props.runtime.store.update((x) => ({ ...x, stageBackground: e.target.value }))
+							}
+						>
+							<option value="default">Default</option>
+							<option value="light">Light</option>
+							<option value="dark">Dark</option>
+						</select>
+					</label>
+					<label>
+						Bounds{' '}
+						<select
+							aria-label="Stage bounds"
+							value={s.stageBounds}
+							onChange={(e: any) =>
+								props.runtime.store.update((x) => ({ ...x, stageBounds: e.target.value }))
+							}
+						>
+							<option value="available">Available space</option>
+							<option value="small">320 × 240</option>
+							<option value="medium">640 × 480</option>
+						</select>
+					</label>
 				</fieldset>
 				{!definition ? (
 					<div className="xw-empty">Select a story to edit its declared controls.</div>
@@ -558,11 +629,15 @@ function StageView(props: { runtime: WorkshopRuntime }) {
 		<main className="xw-stage-area" data-workshop-stage>
 			<div
 				className={`xw-stage-slot xw-background-${s.stageBackground}`}
-				style={s.stageBounds === 'available' ? undefined : {
-					width: s.stageBounds === 'small' ? 320 : 640,
-					height: s.stageBounds === 'small' ? 240 : 480,
-					flex: 'none',
-				}}
+				style={
+					s.stageBounds === 'available'
+						? undefined
+						: {
+								width: s.stageBounds === 'small' ? 320 : 640,
+								height: s.stageBounds === 'small' ? 240 : 480,
+								flex: 'none',
+							}
+				}
 				ref={(el: HTMLElement | null) => {
 					if (el && props.runtime.mountHost.parentNode !== el) {
 						el.append(props.runtime.mountHost)
@@ -571,7 +646,9 @@ function StageView(props: { runtime: WorkshopRuntime }) {
 			/>
 			{s.missingId ? (
 				<div className="xw-stage-note xw-error" role="alert">
-					<p>Story <code>{s.missingId}</code> was not found in the catalog.</p>
+					<p>
+						Story <code>{s.missingId}</code> was not found in the catalog.
+					</p>
 					<button
 						type="button"
 						className="xw-btn"
@@ -584,13 +661,21 @@ function StageView(props: { runtime: WorkshopRuntime }) {
 					</button>
 				</div>
 			) : null}
-			{session.phase === 'preparing' || session.phase === 'mounting' || session.phase === 'disposing' ? (
+			{session.phase === 'preparing' ||
+			session.phase === 'mounting' ||
+			session.phase === 'disposing' ? (
 				<div className="xw-stage-note" role="status">
-					{session.phase === 'preparing' ? 'Preparing fixtures…' : session.phase === 'mounting' ? 'Mounting…' : 'Disposing…'}
+					{session.phase === 'preparing'
+						? 'Preparing fixtures…'
+						: session.phase === 'mounting'
+							? 'Mounting…'
+							: 'Disposing…'}
 				</div>
 			) : null}
 			{session.phase === 'rebuilding' && !s.missingId ? (
-				<div className="xw-stage-note xw-subtle" role="status">Rebuilding — remounting latest successful revision…</div>
+				<div className="xw-stage-note xw-subtle" role="status">
+					Rebuilding — remounting latest successful revision…
+				</div>
 			) : null}
 			{session.phase === 'failed' && failure ? (
 				<div className="xw-stage-note xw-error" role="alert">
@@ -603,29 +688,52 @@ function StageView(props: { runtime: WorkshopRuntime }) {
 					) : null}
 					<div className="xw-error-actions">
 						{failure.phase === 'fixture' ? (
-							<button type="button" className="xw-btn" onClick={() => void props.runtime.session.reset()}>
+							<button
+								type="button"
+								className="xw-btn"
+								onClick={() => void props.runtime.session.reset()}
+							>
 								Retry
 							</button>
 						) : null}
-						<button type="button" className="xw-btn" onClick={() => { clearEdits(props.runtime); void props.runtime.session.reset() }}>
+						<button
+							type="button"
+							className="xw-btn"
+							onClick={() => {
+								clearEdits(props.runtime)
+								void props.runtime.session.reset()
+							}}
+						>
 							Reset
 						</button>
 					</div>
-					{session.stale ? <p className="xw-subtle">The last successful stage remains mounted and is marked stale.</p> : null}
+					{session.stale ? (
+						<p className="xw-subtle">
+							The last successful stage remains mounted and is marked stale.
+						</p>
+					) : null}
 				</div>
 			) : null}
 			{session.phase === 'restart-required' ? (
 				<div className="xw-stage-note xw-error" role="alert">
 					<p className="xw-error-title">Restart required</p>
-					<pre className="xw-error-detail">{failure?.message ?? 'Owned cleanup did not finish in time.'}</pre>
-					<p className="xw-subtle">Restart the workshop target (`xplat workshop dev`) to continue.</p>
+					<pre className="xw-error-detail">
+						{failure?.message ?? 'Owned cleanup did not finish in time.'}
+					</pre>
+					<p className="xw-subtle">
+						Restart the workshop target (`xplat workshop dev`) to continue.
+					</p>
 				</div>
 			) : null}
 			{session.phase === 'disconnected' ? (
-				<div className="xw-stage-note" role="status">Dev server disconnected — reconnecting…</div>
+				<div className="xw-stage-note" role="status">
+					Dev server disconnected — reconnecting…
+				</div>
 			) : null}
 			{session.stale && session.phase !== 'failed' ? (
-				<div className="xw-stale-badge" role="status">stale</div>
+				<div className="xw-stale-badge" role="status">
+					stale
+				</div>
 			) : null}
 		</main>
 	)
@@ -674,7 +782,9 @@ export function WorkshopApp(props: { runtime: WorkshopRuntime }) {
 			const active = document.activeElement
 			if (
 				active instanceof Element &&
-				active.closest('[data-workshop-stage] [role="dialog"], [data-workshop-stage] [role="alertdialog"]')
+				active.closest(
+					'[data-workshop-stage] [role="dialog"], [data-workshop-stage] [role="alertdialog"]',
+				)
 			) {
 				return
 			}
@@ -707,7 +817,10 @@ export function WorkshopApp(props: { runtime: WorkshopRuntime }) {
 			openerRef.current = null
 			requestAnimationFrame(() => {
 				const key = opener.dataset.workshopOpener ?? openerKey
-				const current = key ? document.querySelector<HTMLElement>(`[data-workshop-opener="${key}"]`) : opener
+				const current = key
+					? document.querySelector<HTMLElement>(`[data-workshop-opener="${key}"]`)
+					: opener
+
 				current?.focus()
 			})
 		}
@@ -728,7 +841,10 @@ export function WorkshopApp(props: { runtime: WorkshopRuntime }) {
 					<button
 						type="button"
 						className="xw-btn"
-						onClick={() => { clearEdits(props.runtime); void props.runtime.session.reset() }}
+						onClick={() => {
+							clearEdits(props.runtime)
+							void props.runtime.session.reset()
+						}}
 					>
 						Reset
 					</button>
@@ -741,9 +857,13 @@ export function WorkshopApp(props: { runtime: WorkshopRuntime }) {
 		<div className={`xw-root xw-${s.mode}`} ref={attachRoot}>
 			<StatusBar runtime={props.runtime} />
 			<div className="xw-body">
-				{s.mode === 'wide' && !s.catalogCollapsed ? <CatalogPanel runtime={props.runtime} mode="wide" /> : null}
+				{s.mode === 'wide' && !s.catalogCollapsed ? (
+					<CatalogPanel runtime={props.runtime} mode="wide" />
+				) : null}
 				<StageView runtime={props.runtime} />
-				{s.mode === 'wide' && !s.controlsCollapsed ? <ControlsPanel runtime={props.runtime} mode="wide" /> : null}
+				{s.mode === 'wide' && !s.controlsCollapsed ? (
+					<ControlsPanel runtime={props.runtime} mode="wide" />
+				) : null}
 				{s.mode !== 'wide' && s.auxPanel === 'stories' ? (
 					<CatalogPanel runtime={props.runtime} mode="overlay" />
 				) : null}

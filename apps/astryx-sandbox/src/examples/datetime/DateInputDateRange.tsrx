@@ -10,7 +10,16 @@ const iso = (d: Date): ISODateString => d.toISOString().slice(0, 10) as ISODateS
 
 export function DateInputDateRange() @{
 	const [value, setValue] = useState<ISODateString | null>(null)
-	<div style={{width: 400}}>
-		<DateInput label="Project deadline" description="Choose a date this month" min={iso(first)} max={iso(last)} presentation="adaptive-bottom-sheet" value={value} onChange={setValue} />
+
+	<div style={{ width: 400 }}>
+		<DateInput
+			label="Project deadline"
+			description="Choose a date this month"
+			min={iso(first)}
+			max={iso(last)}
+			presentation="adaptive-bottom-sheet"
+			value={value}
+			onChange={setValue}
+		/>
 	</div>
 }

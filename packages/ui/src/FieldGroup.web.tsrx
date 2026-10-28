@@ -1,5 +1,5 @@
-import type { FieldGroupProps } from "./props";
-import { applyEscapeProps } from "./escape-props";
+import type { FieldGroupProps } from './props'
+import { applyEscapeProps } from './escape-props'
 
 /** FieldGroup — labeled group of related fields. */
 export function FieldGroup(props: FieldGroupProps) @{

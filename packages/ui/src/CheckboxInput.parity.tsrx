@@ -7,6 +7,16 @@ function CheckboxFixture(props: { checked: boolean }) @{
 }
 
 export const PARITY: ParityFixture[] = [
-	{ name: 'checkbox-off', component: 'CheckboxInput', renderer: CheckboxFixture, props: { checked: false } },
-	{ name: 'checkbox-on', component: 'CheckboxInput', renderer: CheckboxFixture, props: { checked: true } },
+	{
+		name: 'checkbox-off',
+		component: 'CheckboxInput',
+		renderer: CheckboxFixture,
+		props: { checked: false },
+	},
+	{
+		name: 'checkbox-on',
+		component: 'CheckboxInput',
+		renderer: CheckboxFixture,
+		props: { checked: true },
+	},
 ]

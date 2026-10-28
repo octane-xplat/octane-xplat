@@ -1,8 +1,17 @@
 import { createRoot } from 'octane'
 import { RouteOutlet, Text } from '@octane-xplat/ui'
 import { configureRouter, defineRoute, defineRoutes } from '@octane-xplat/ui/routing'
-import { CachedUsers, loader as loadFeed } from '../../../../../packages/app/src/app/cached-users.tsrx'
-import { CachedUser, loader as loadUser, validateSearch } from '../../../../../packages/app/src/app/cached-user.tsrx'
+import {
+	CachedUsers,
+	loader as loadFeed,
+} from '../../../../../packages/app/src/app/cached-users.tsrx'
+
+import {
+	CachedUser,
+	loader as loadUser,
+	validateSearch,
+} from '../../../../../packages/app/src/app/cached-user.tsrx'
+
 import { routeContext } from '../../../../../packages/app/src/route-context'
 
 // Keep the real app screens, transport, and router, without importing unrelated demos.
@@ -14,7 +23,11 @@ configureRouter({
 	]),
 	context: routeContext,
 })
+
 function App() @{
-	<RouteOutlet><Text>Opening query workflow…</Text></RouteOutlet>
+	<RouteOutlet>
+		<Text>Opening query workflow…</Text>
+	</RouteOutlet>
 }
+
 createRoot(document.getElementById('root')!).render(App, {})

@@ -2,7 +2,6 @@ import type { ParityCheck } from './parity/check-helpers.ts'
 import { dims } from './parity/check-helpers.ts'
 
 export const CHECKS: ParityCheck[] = [
-
 	{
 		fixture: 'timeline-two-events',
 		targets: ['web', 'ios', 'android', 'macos'],
@@ -15,5 +14,5 @@ export const CHECKS: ParityCheck[] = [
 			'dot.box.h',
 		],
 		check: (m) => [dims(m('timeline'), 200, 112), dims(m('dot'), 10, 10)],
-	}
+	},
 ]

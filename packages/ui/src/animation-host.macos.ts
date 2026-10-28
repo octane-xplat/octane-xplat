@@ -9,7 +9,8 @@ const transformPaths: Record<string, string> = {
 
 export function readReducedMotion(): boolean {
 	return Boolean(
-		(globalThis as Record<string, any>).NSWorkspace?.sharedWorkspace?.accessibilityDisplayShouldReduceMotion,
+		(globalThis as Record<string, any>).NSWorkspace?.sharedWorkspace
+			?.accessibilityDisplayShouldReduceMotion,
 	)
 }
 

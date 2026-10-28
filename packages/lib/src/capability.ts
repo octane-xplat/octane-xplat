@@ -42,7 +42,9 @@ export class UnavailabilityError extends Error {
 
 /** Throw UnavailabilityError for `feature` unless `available` is true. */
 export function assertAvailable(feature: string, available: boolean): void {
-	if (!available) {throw new UnavailabilityError(feature)}
+	if (!available) {
+		throw new UnavailabilityError(feature)
+	}
 }
 
 /**

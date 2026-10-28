@@ -17,5 +17,10 @@ function AvatarGroupFixture() @{
 }
 
 export const PARITY: ParityFixture[] = [
-	{ name: 'avatar-group-overflow', component: 'AvatarGroup', renderer: AvatarGroupFixture, props: {} },
+	{
+		name: 'avatar-group-overflow',
+		component: 'AvatarGroup',
+		renderer: AvatarGroupFixture,
+		props: {},
+	},
 ]

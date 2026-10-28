@@ -108,7 +108,8 @@ async function run(): Promise<void> {
 				'[sweep] demos route=' +
 					JSON.stringify(router.forStack('demos').getSnapshot().route) +
 					' screen=' +
-					router.resolveUrl('/demo/counter').status === 'matched',
+					router.resolveUrl('/demo/counter').status ===
+					'matched',
 			)
 
 			console.log('[sweep] labels=' + JSON.stringify(debug.snapshot().labels))

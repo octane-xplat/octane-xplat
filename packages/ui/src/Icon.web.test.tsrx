@@ -20,6 +20,7 @@ afterEach(() => {
 	for (const root of roots.splice(0)) {
 		act(() => root.unmount())
 	}
+
 	document.body.innerHTML = ''
 })
 
@@ -36,8 +37,9 @@ describe('IconRegistryProvider (web)', () => {
 		const { el } = mount(
 			<IconRegistryProvider value={first}>
 				<Icon name="scoped-test-icon" />
-			</IconRegistryProvider>
+			</IconRegistryProvider>,
 		)
+
 		expect(el.querySelector('path')?.getAttribute('d')).toBe('M1 1h2v2H1z')
 
 		const direct = mount(<Icon name="scoped-test-icon" registry={first} />)
@@ -49,8 +51,9 @@ describe('IconRegistryProvider (web)', () => {
 		const first = mount(
 			<IconRegistryProvider value={registry}>
 				<Icon name="late-test-icon" />
-			</IconRegistryProvider>
+			</IconRegistryProvider>,
 		)
+
 		expect(first.el.querySelector('path')).toBeNull()
 
 		registry.registerIcon('late-test-icon', { svg: 'M2 2h3v3H2z' })
@@ -59,8 +62,9 @@ describe('IconRegistryProvider (web)', () => {
 		const later = mount(
 			<IconRegistryProvider value={registry}>
 				<Icon name="late-test-icon" />
-			</IconRegistryProvider>
+			</IconRegistryProvider>,
 		)
+
 		expect(later.el.querySelector('path')?.getAttribute('d')).toBe('M2 2h3v3H2z')
 	})
 })

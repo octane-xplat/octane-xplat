@@ -2,7 +2,6 @@ import type { ParityCheck } from './parity/check-helpers.ts'
 import { dims } from './parity/check-helpers.ts'
 
 export const CHECKS: ParityCheck[] = [
-
 	{
 		fixture: 'table-two-rows',
 		targets: ['web', 'ios', 'android', 'macos'],
@@ -15,5 +14,5 @@ export const CHECKS: ParityCheck[] = [
 			'cell.box.h',
 		],
 		check: (m) => [dims(m('table'), 220, 96), dims(m('cell'), 64, 24)],
-	}
+	},
 ]

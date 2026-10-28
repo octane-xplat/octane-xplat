@@ -6,8 +6,19 @@ const TAGS = ['work', 'personal', 'project']
 const source = createStaticSource(TAGS.map((t) => ({ id: t, label: t })))
 
 export function TokenizerIcon() @{
-	const [values, setValues] = useState<{ id: string; label: string }[]>([{ id: 'work', label: 'work' }, { id: 'personal', label: 'personal' }])
-	<div style={{width: 400}}>
-		<Tokenizer label="Tags" searchSource={source} value={values} onChange={setValues} placeholder="Add a tag…" startIcon={<Icon name="sandbox-tag" size={16} />} />
+	const [values, setValues] = useState<{ id: string; label: string }[]>([
+		{ id: 'work', label: 'work' },
+		{ id: 'personal', label: 'personal' },
+	])
+
+	<div style={{ width: 400 }}>
+		<Tokenizer
+			label="Tags"
+			searchSource={source}
+			value={values}
+			onChange={setValues}
+			placeholder="Add a tag…"
+			startIcon={<Icon name="sandbox-tag" size={16} />}
+		/>
 	</div>
 }

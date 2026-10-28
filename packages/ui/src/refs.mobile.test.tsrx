@@ -1,5 +1,10 @@
 /** @jsxImportSource @nativescript-community/octane */
-vi.mock('./svg', () => ({ glyphSvgMarkup: () => null, isSvgSrc: () => false, svgSource: () => null }))
+vi.mock('./svg', () => ({
+	glyphSvgMarkup: () => null,
+	isSvgSrc: () => false,
+	svgSource: () => null,
+}))
+
 import { describe, expect, it, vi } from 'vitest'
 import { nativeAccessibilityState, nativeAccessibilityRole } from './escape-props'
 import { useImperativeHandle, useMemo, useRef } from 'octane'
@@ -16,17 +21,31 @@ import type { Octane } from 'octane/jsx-runtime'
 
 vi.mock('@nativescript/core', () => ({
 	// ui-svg's index.common.ts evaluates NS decorators at import.
-	Property: class { constructor(_opts?: any) {} register() {} },
+	Property: class {
+		constructor(_opts?: any) {}
+		register() {}
+	},
 	CSSType: () => () => {},
 	registerElement: () => {},
-	View: class {}, isIOS: false, isAndroid: true }))
-vi.mock('./escape-props', () => ({ applyEscapeProps() {}, nativeAccessibilityState() {}, nativeAccessibilityRole() {} }))
+	View: class {},
+	isIOS: false,
+	isAndroid: true,
+}))
+
+vi.mock('./escape-props', () => ({
+	applyEscapeProps() {},
+	nativeAccessibilityState() {},
+	nativeAccessibilityRole() {},
+}))
 
 import { View } from './View.tsrx'
 import { TextInput } from './TextInput.tsrx'
 import { AspectRatio } from './AspectRatio.tsrx'
 
-function RefFixture(props: { viewRef?: ViewProps['ref']; inputRef?: Octane.Ref<TextInputHandle> }) @{
+function RefFixture(props: {
+	viewRef?: ViewProps['ref']
+	inputRef?: Octane.Ref<TextInputHandle>
+}) @{
 	<View ref={props.viewRef}>
 		<TextInput ref={props.inputRef} />
 	</View>
@@ -35,13 +54,15 @@ function RefFixture(props: { viewRef?: ViewProps['ref']; inputRef?: Octane.Ref<T
 function ImperativeFixture(props: { ref?: Octane.Ref<{ ready: boolean }> }) @{
 	useImperativeHandle(props.ref, () => ({ ready: true }), [])
 
-	<masonview style={{display: "flex"}}/>
+	<masonview style={{ display: 'flex' }} />
 }
 
 function MeasuredFixture() @{
 	const measurement = useMeasure()
 
-	<View ref={measurement.ref}><label text={measurement.bounds?.width} /></View>
+	<View ref={measurement.ref}>
+		<label text={measurement.bounds?.width} />
+	</View>
 }
 
 describe('standard component refs on the universal renderer', () => {
@@ -79,7 +100,10 @@ describe('standard component refs on the universal renderer', () => {
 		const cleanup = vi.fn()
 		const callback = vi.fn(() => cleanup)
 		try {
-			flushUniversalSync(() => root.render(RefFixture, { viewRef: view, inputRef: [input, [callback, undefined]] }))
+			flushUniversalSync(() =>
+				root.render(RefFixture, { viewRef: view, inputRef: [input, [callback, undefined]] }),
+			)
+
 			expect(view.current?.type).toBe('masonview')
 			expect(input.current?.native?.type).toBe('textfield')
 			expect(callback).toHaveBeenCalledExactlyOnceWith(input.current)

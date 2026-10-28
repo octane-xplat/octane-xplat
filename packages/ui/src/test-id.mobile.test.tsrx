@@ -1,6 +1,11 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { describe, expect, it, vi } from 'vitest'
-import { createObjectContainer, createObjectDriver, createUniversalRoot } from 'octane/universal/native'
+import {
+	createObjectContainer,
+	createObjectDriver,
+	createUniversalRoot,
+} from 'octane/universal/native'
+
 vi.mock('@nativescript/core', () => ({ isIOS: false, isAndroid: true }))
 vi.mock('./Icon', () => ({ Icon: () => null }))
 import { Pressable } from './Pressable'
@@ -10,12 +15,20 @@ import { TextInput } from './TextInput'
 import { SearchInput } from './SearchInput'
 
 function ActionWithChild(props: any) {
-	return <Pressable {...props}><Pressable testID="child.action" /></Pressable>
+	return (
+		<Pressable {...props}>
+			<Pressable testID="child.action" />
+		</Pressable>
+	)
 }
 
 function ContainerWithChild(props: any) {
 	const Component = props.Component
-	return <Component testID="parent"><Pressable testID="child" /></Component>
+	return (
+		<Component testID="parent">
+			<Pressable testID="child" />
+		</Component>
+	)
 }
 
 function nodes(children: any[]): any[] {
@@ -47,17 +60,25 @@ describe('automation identity binding (renderer evidence, not OS qualification)'
 		const container = createObjectContainer('nativescript')
 		const root = createUniversalRoot(container, createObjectDriver('nativescript'))
 		root.render(ContainerWithChild, { Component })
-		expect(nodes(container.children).map((node) => node.props.testID).filter(Boolean)).toEqual(['parent', 'child'])
+		expect(
+			nodes(container.children)
+				.map((node) => node.props.testID)
+				.filter(Boolean),
+		).toEqual(['parent', 'child'])
+
 		root.unmount()
 	})
 
-	it.each([TextInput, SearchInput])('targets the editable field rather than the input shell', (Component) => {
-		const container = createObjectContainer('nativescript')
-		const root = createUniversalRoot(container, createObjectDriver('nativescript'))
-		root.render(Component, { testID: 'entry', icon: false, hasClear: false })
-		const identified = nodes(container.children).filter((node) => node.props.testID)
-		expect(identified).toHaveLength(1)
-		expect(identified[0].type).toBe('textfield')
-		root.unmount()
-	})
+	it.each([TextInput, SearchInput])(
+		'targets the editable field rather than the input shell',
+		(Component) => {
+			const container = createObjectContainer('nativescript')
+			const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+			root.render(Component, { testID: 'entry', icon: false, hasClear: false })
+			const identified = nodes(container.children).filter((node) => node.props.testID)
+			expect(identified).toHaveLength(1)
+			expect(identified[0].type).toBe('textfield')
+			root.unmount()
+		},
+	)
 })

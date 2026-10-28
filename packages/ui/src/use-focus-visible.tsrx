@@ -17,7 +17,7 @@ export interface UseFocusVisibleResult {
  * modality instead of implying that pointer input was observed.
  */
 export function useFocusVisible(): UseFocusVisibleResult {
-	return { isFocusVisible: false, inputModality: 'unknown', isSupported: false };
+	return { isFocusVisible: false, inputModality: 'unknown', isSupported: false }
 }
 
 /**
@@ -26,5 +26,5 @@ export function useFocusVisible(): UseFocusVisibleResult {
  * @see useFocusRing.
  */
 export function isFocusVisible(): boolean {
-	return false;
+	return false
 }

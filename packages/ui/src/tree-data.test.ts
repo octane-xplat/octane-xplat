@@ -83,7 +83,9 @@ describe('createTreeData', () => {
 
 describe('tree move integrity', () => {
 	it.each(['a', 'a1', 'missing'])('leaves the snapshot intact for destination %s', (parent) => {
-		const tree = data([{ name: 'a', items: [{ name: 'a1' }] }, { name: 'b' }], { initialSelectedKeys: ['a1'] })
+		const tree = data([{ name: 'a', items: [{ name: 'a1' }] }, { name: 'b' }], {
+			initialSelectedKeys: ['a1'],
+		})
 		const before = tree.getSnapshot()
 		let calls = 0
 		tree.subscribe(() => calls++)
@@ -94,7 +96,9 @@ describe('tree move integrity', () => {
 	})
 
 	it('publishes one complete moved subtree and retains descendant selection', () => {
-		const tree = data([{ name: 'a', items: [{ name: 'a1' }] }, { name: 'b' }], { initialSelectedKeys: ['a1'] })
+		const tree = data([{ name: 'a', items: [{ name: 'a1' }] }, { name: 'b' }], {
+			initialSelectedKeys: ['a1'],
+		})
 		const seen: string[][] = []
 		tree.subscribe(() => seen.push(outline(tree.items)))
 		tree.move('a', 'b', 0)

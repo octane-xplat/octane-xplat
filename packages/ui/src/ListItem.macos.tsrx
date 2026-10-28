@@ -8,7 +8,11 @@ import { applyEscapeProps } from './escape-props'
 import { useListContext } from './list-context'
 import { followHref } from './nav-href'
 
-interface DelegateTarget { notify?(event?: any): void; click?(): void; focus?(): void }
+interface DelegateTarget {
+	notify?(event?: any): void
+	click?(): void
+	focus?(): void
+}
 
 /** ListItem — a `List` row: marker + startContent + label/description +
  *  endContent. `onPress`/`href` interactive; `href` resolves through the
@@ -18,8 +22,15 @@ export function ListItem(props: ListItemProps) @{
 	const interactive = props.onPress != null || props.href != null
 
 	const activate = () => {
-		if (props.isDisabled) { return }
-		if (props.onPress != null) { props.onPress(); return }
+		if (props.isDisabled) {
+			return
+		}
+
+		if (props.onPress != null) {
+			props.onPress()
+			return
+		}
+
 		if (props.delegateRef?.current != null) {
 			const target = props.delegateRef.current as DelegateTarget
 			target.notify?.({ eventName: 'tap', object: target })
@@ -28,34 +39,78 @@ export function ListItem(props: ListItemProps) @{
 			return
 		}
 
-		if (props.href != null) { followHref(props.href) }
+		if (props.href != null) {
+			followHref(props.href)
+		}
 	}
 
-	const labelNode = typeof props.label === 'string'
-		? <label className="vx-listitem-label" text={props.label} />
-		: props.label
+	const labelNode =
+		typeof props.label === 'string' ? (
+			<label className="vx-listitem-label" text={props.label} />
+		) : (
+			props.label
+		)
 
-	const descriptionNode = props.description == null ? null
-		: typeof props.description === 'string'
-			? <label className="vx-listitem-desc" text={props.description} />
-			: props.description
+	const descriptionNode =
+		props.description == null ? null : typeof props.description === 'string' ? (
+			<label className="vx-listitem-desc" text={props.description} />
+		) : (
+			props.description
+		)
 
-	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(
+		() =>
+			refList((v: any) => {
+				if (v) {
+					applyEscapeProps(v, props)
+				}
+			}, props.ref),
+		[props.ref, props.ios, props.android, props.web],
+	)
 
-	<masonview id={props.id} ref={forwardedRef} className={cx(
+	<masonview
+		id={props.id}
+		ref={forwardedRef}
+		className={cx(
 			'vx-listitem',
 			`vx-listitem--density-${ctx.density}`,
 			interactive && 'vx-listitem--interactive',
 			props.isDisabled && 'vx-listitem--disabled',
 			props.isSelected && 'vx-listitem--selected',
 			props.className,
-		)} style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, props.style))} onTap={interactive && !props.isDisabled ? activate : undefined} accessibilityLabel={props.accessibilityLabel} accessibilityRole={props.accessibilityRole ?? (props.href != null ? 'link' : props.onPress != null ? 'button' : 'text')} accessibilityState={{ disabled: props.isDisabled, selected: props.isSelected }}>
-		{props.startContent != null ? <masonview className="vx-listitem-start" style={{display: "flex"}}>{props.startContent}</masonview> : null}
-		<masonview className="vx-listitem-body" style={mergeStyle({flexDirection: "column", flexGrow: 1}, mergeStyle({display: "flex"}, { minWidth: 0 }))}>
+		)}
+		style={mergeStyle(
+			{ flexDirection: 'row', alignItems: 'center' },
+			mergeStyle({ display: 'flex' }, props.style),
+		)}
+		onTap={interactive && !props.isDisabled ? activate : undefined}
+		accessibilityLabel={props.accessibilityLabel}
+		accessibilityRole={
+			props.accessibilityRole ??
+			(props.href != null ? 'link' : props.onPress != null ? 'button' : 'text')
+		}
+		accessibilityState={{ disabled: props.isDisabled, selected: props.isSelected }}
+	>
+		{props.startContent != null ? (
+			<masonview className="vx-listitem-start" style={{ display: 'flex' }}>
+				{props.startContent}
+			</masonview>
+		) : null}
+		<masonview
+			className="vx-listitem-body"
+			style={mergeStyle(
+				{ flexDirection: 'column', flexGrow: 1 },
+				mergeStyle({ display: 'flex' }, { minWidth: 0 }),
+			)}
+		>
 			{labelNode}
 			{descriptionNode}
 			{props.children}
 		</masonview>
-		{props.endContent != null ? <masonview className="vx-listitem-end" style={{display: "flex"}}>{props.endContent}</masonview> : null}
+		{props.endContent != null ? (
+			<masonview className="vx-listitem-end" style={{ display: 'flex' }}>
+				{props.endContent}
+			</masonview>
+		) : null}
 	</masonview>
 }

@@ -5,12 +5,20 @@ import type { ParityFixture } from './parity'
 function CheckboxGroupFixture() @{
 	<CheckboxList
 		className="parity-checkboxgroup-root"
-		options={[{ value: 'email', label: 'Email' }, { value: 'sms', label: 'SMS' }]}
+		options={[
+			{ value: 'email', label: 'Email' },
+			{ value: 'sms', label: 'SMS' },
+		]}
 		value={['email']}
 		style={{ width: 180, height: 56, backgroundColor: '#f5f5f5' }}
 	/>
 }
 
 export const PARITY: ParityFixture[] = [
-	{ name: 'checkbox-group-selected', component: 'CheckboxList', renderer: CheckboxGroupFixture, props: {} },
+	{
+		name: 'checkbox-group-selected',
+		component: 'CheckboxList',
+		renderer: CheckboxGroupFixture,
+		props: {},
+	},
 ]

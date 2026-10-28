@@ -110,7 +110,10 @@ for (const [code, expected] of [
 }
 
 test('unknown error domain is denied even with a matching numeric code', async () => {
-	assert.equal((await load({ code: -6, domain: 'other' }).biometrics.requestPermissions()).status, 'denied')
+	assert.equal(
+		(await load({ code: -6, domain: 'other' }).biometrics.requestPermissions()).status,
+		'denied',
+	)
 })
 
 for (const [success, error, expected] of [

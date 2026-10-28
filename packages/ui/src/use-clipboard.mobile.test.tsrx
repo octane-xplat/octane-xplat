@@ -25,10 +25,10 @@ import type { UseClipboardOptions, UseClipboardResult } from './use-clipboard'
 let captured: UseClipboardResult
 
 const Probe = (props: { options?: UseClipboardOptions }) => @{
-	captured = useClipboard(props.options)
+		captured = useClipboard(props.options)
 
-	<label text={captured.isCopied ? 'copied' : 'idle'} />
-}
+		<label text={captured.isCopied ? 'copied' : 'idle'} />
+	}
 
 const renderClipboard = (options?: UseClipboardOptions) => {
 	const container = createObjectContainer('nativescript')

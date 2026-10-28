@@ -3,27 +3,25 @@ import type { RegisteredRouteContracts, AppRouteStacks, RouteTransitionName } fr
 import type { NavigationItemImplementation } from './nav-link'
 import { useNavigationItem } from './use-navigation-item.shared.tsrx'
 import { mergeStyle } from './style-merge'
-import { useContext, useEffect, useMemo, useRef, useState } from 'octane';
-import type { TabListProps, TabProps, TabMenuProps } from './props';
-import { useSize } from './size-context';
-import { cx } from '@octane-xplat/lib';
+import { useContext, useEffect, useMemo, useRef, useState } from 'octane'
+import type { TabListProps, TabProps, TabMenuProps } from './props'
+import { useSize } from './size-context'
+import { cx } from '@octane-xplat/lib'
 
-import { Icon } from './Icon.macos.tsrx';
-import { Text } from './Text.macos.tsrx';
-import { Popover } from './Popover.macos.tsrx';
-import { Pressable } from './Pressable.macos.tsrx';
-import { followHref } from './nav-href';
-import { TabListContext,
-	TabListProvider,
-} from './nav-contexts';
+import { Icon } from './Icon.macos.tsrx'
+import { Text } from './Text.macos.tsrx'
+import { Popover } from './Popover.macos.tsrx'
+import { Pressable } from './Pressable.macos.tsrx'
+import { followHref } from './nav-href'
+import { TabListContext, TabListProvider } from './nav-contexts'
 
-export { TabListContext };
-export { useTabListContext } from './nav-contexts';
+export { TabListContext }
+export { useTabListContext } from './nav-contexts'
 
-const SIZE_HEIGHT: Record<string, number> = { sm: 28, md: 32, lg: 36 };
+const SIZE_HEIGHT: Record<string, number> = { sm: 28, md: 32, lg: 36 }
 
 function navIcon(icon: any, size: number) {
-	return typeof icon === 'string' ? <Icon name={icon} size={size} /> : icon;
+	return typeof icon === 'string' ? <Icon name={icon} size={size} /> : icon
 }
 
 /** TabList — tab strip providing TabListContext to Tab/TabMenu children.
@@ -33,13 +31,13 @@ function navIcon(icon: any, size: number) {
  *  composite-widget arrow model on pointer platforms. `role="tablist"`
  *  switches item semantics; the strip itself doesn't gain native grouping. */
 export function TabList(props: TabListProps) @{
-	const size = useSize(props.size, 'md');
-	const overflow = props.overflow ?? 'auto';
-	const layout = props.layout ?? 'hug';
-	const hasScroll = overflow !== 'visible' && layout !== 'fill';
-	const scroller = useRef<any>(null);
-	const tabViews = useRef(new Map<string, any>());
-	const views = tabViews.current;
+	const size = useSize(props.size, 'md')
+	const overflow = props.overflow ?? 'auto'
+	const layout = props.layout ?? 'hug'
+	const hasScroll = overflow !== 'visible' && layout !== 'fill'
+	const scroller = useRef<any>(null)
+	const tabViews = useRef(new Map<string, any>())
+	const views = tabViews.current
 
 	const ctx = useMemo(
 		() => ({
@@ -57,32 +55,52 @@ export function TabList(props: TabListProps) @{
 
 	// Keep the selected tab visible when the value or the scroller changes.
 	useEffect(() => {
-		const sv = scroller.current;
-		const view = views.get(props.value);
-		if (!sv || !view) return;
-		const vp = sv.getActualSize?.().width ?? 0;
-		const offset = sv.horizontalOffset ?? 0;
-		const start = view.originX ?? 0;
-		const end = start + (view.getMeasuredWidth?.() ?? 0);
-		if (start < offset) {
-			sv.scrollToHorizontalOffset(start, true);
-		} else if (vp > 0 && end > offset + vp) {
-			sv.scrollToHorizontalOffset(end - vp, true);
+		const sv = scroller.current
+		const view = views.get(props.value)
+		if (!sv || !view) {
+			return
 		}
-	}, [props.value]);
+
+		const vp = sv.getActualSize?.().width ?? 0
+		const offset = sv.horizontalOffset ?? 0
+		const start = view.originX ?? 0
+		const end = start + (view.getMeasuredWidth?.() ?? 0)
+		if (start < offset) {
+			sv.scrollToHorizontalOffset(start, true)
+		} else if (vp > 0 && end > offset + vp) {
+			sv.scrollToHorizontalOffset(end - vp, true)
+		}
+	}, [props.value])
 
 	const row = (
-		<masonview className={cx('vx-tabstrip', props.isFullBleed && 'vx-tabstrip--bleed')} style={mergeStyle({alignItems: "flex-end"}, {display: "flex"})}>
+		<masonview
+			className={cx('vx-tabstrip', props.isFullBleed && 'vx-tabstrip--bleed')}
+			style={mergeStyle({ alignItems: 'flex-end' }, { display: 'flex' })}
+		>
 			{props.children}
 		</masonview>
-	);
+	)
 
-	const cls = cx('vx-tablist', 'vx-tablist--' + size, layout === 'fill' && 'vx-tablist--fill', props.hasDivider && 'vx-tablist--divided', props.isFullBleed && 'vx-tablist--bleed', props.className);
+	const cls = cx(
+		'vx-tablist',
+		'vx-tablist--' + size,
+		layout === 'fill' && 'vx-tablist--fill',
+		props.hasDivider && 'vx-tablist--divided',
+		props.isFullBleed && 'vx-tablist--bleed',
+		props.className,
+	)
 
 	<TabListProvider value={ctx}>
-		<masonview id={props.id} className={cls} style={mergeStyle({display: "flex"}, props.style)}>
+		<masonview id={props.id} className={cls} style={mergeStyle({ display: 'flex' }, props.style)}>
 			@if (hasScroll) {
-				<scrollview orientation="horizontal" ref={(v: any) => { scroller.current = v; }} className="vx-tabstrip-scroll" scrollBarIndicatorVisible={false}>
+				<scrollview
+					orientation="horizontal"
+					ref={(v: any) => {
+						scroller.current = v
+					}}
+					className="vx-tabstrip-scroll"
+					scrollBarIndicatorVisible={false}
+				>
 					{row}
 				</scrollview>
 			} @else {
@@ -102,41 +120,77 @@ export function Tab<
 >(props: TabProps<Contracts, Stacks, Transitions>): any
 
 export function Tab(props: NavigationItemImplementation<TabProps>) @{
-	const ctx = useContext(TabListContext);
+	const ctx = useContext(TabListContext)
 	if (ctx == null) {
-		throw new Error('Tab must be used within a TabList.');
+		throw new Error('Tab must be used within a TabList.')
 	}
 
-	const isTabs = ctx.pattern === 'tabs';
-	if (isTabs && props.to !== undefined) throw new TypeError('Typed route destinations belong in the navigation TabList pattern, not role="tablist"')
+	const isTabs = ctx.pattern === 'tabs'
+	if (isTabs && props.to !== undefined) {
+		throw new TypeError(
+			'Typed route destinations belong in the navigation TabList pattern, not role="tablist"',
+		)
+	}
+
 	const link = useNavigationItem({ ...props, href: isTabs ? undefined : props.href })
-	const isSelected = props.to !== undefined ? link.selected : ctx.value === props.value;
-	const isDisabled = link.disabled;
-	const displayIcon = isSelected && props.selectedIcon != null ? props.selectedIcon : props.icon;
-	const showLabel = !props.isLabelHidden && props.label !== '';
+	const isSelected = props.to !== undefined ? link.selected : ctx.value === props.value
+	const isDisabled = link.disabled
+	const displayIcon = isSelected && props.selectedIcon != null ? props.selectedIcon : props.icon
+	const showLabel = !props.isLabelHidden && props.label !== ''
 
 	const select = () => {
-		if (link.activateNative(isTabs ? undefined : followHref)) ctx.onChange(props.value)
-	};
+		if (link.activateNative(isTabs ? undefined : followHref)) {
+			ctx.onChange(props.value)
+		}
+	}
 
 	<Pressable
 		id={props.id}
-		ref={(v: any) => { if (v) ctx?._tabViews?.set(props.value, v); else ctx?._tabViews?.delete(props.value); }}
-		className={cx('vx-tab', isSelected && 'vx-tab--selected', ctx.layout === 'fill' && 'vx-tab--fill', props.className)}
-		style={mergeStyle({height: SIZE_HEIGHT[ctx.size]}, props.style)}
+		ref={(v: any) => {
+			if (v) {
+				ctx?._tabViews?.set(props.value, v)
+			} else {
+				ctx?._tabViews?.delete(props.value)
+			}
+		}}
+		className={cx(
+			'vx-tab',
+			isSelected && 'vx-tab--selected',
+			ctx.layout === 'fill' && 'vx-tab--fill',
+			props.className,
+		)}
+		style={mergeStyle({ height: SIZE_HEIGHT[ctx.size] }, props.style)}
 		disabled={isDisabled}
-		accessibilityRole={isDisabled ? 'none' : (ctx.pattern === 'tabs' ? 'tab' : link.href != null ? 'link' : 'button')}
+		accessibilityRole={
+			isDisabled ? 'none' : ctx.pattern === 'tabs' ? 'tab' : link.href != null ? 'link' : 'button'
+		}
 		accessibilityLabel={props.isLabelHidden ? props.label : undefined}
 		accessibilityState={{ disabled: isDisabled, selected: isSelected }}
 		onPress={select}
 	>
-		<masonview className="vx-tab-content" style={mergeStyle({flexDirection: "column", justifyContent: "flex-end", alignItems: "center"}, {display: "flex"})}>
-			<masonview style={mergeStyle({flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8}, {display: "flex"})}>
-				{displayIcon != null ? navIcon(displayIcon, ctx.size === 'lg' ? 18 : ctx.size === 'sm' ? 14 : 16) : null}
+		<masonview
+			className="vx-tab-content"
+			style={mergeStyle(
+				{ flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'center' },
+				{ display: 'flex' },
+			)}
+		>
+			<masonview
+				style={mergeStyle(
+					{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
+					{ display: 'flex' },
+				)}
+			>
+				{displayIcon != null
+					? navIcon(displayIcon, ctx.size === 'lg' ? 18 : ctx.size === 'sm' ? 14 : 16)
+					: null}
 				{showLabel ? <Text className="vx-tab-label">{props.label}</Text> : null}
 				{props.endContent != null ? props.endContent : null}
 			</masonview>
-			<masonview className={cx('vx-tab-indicator', isSelected && 'vx-tab-indicator--on')} style={{display: "flex"}}/>
+			<masonview
+				className={cx('vx-tab-indicator', isSelected && 'vx-tab-indicator--on')}
+				style={{ display: 'flex' }}
+			/>
 		</masonview>
 	</Pressable>
 }
@@ -144,49 +198,82 @@ export function Tab(props: NavigationItemImplementation<TabProps>) @{
 /** TabMenu — overflow trigger inside a TabList. Native leaf opens the
  *  shared anchored Popover with menuitemradio-style rows. */
 export function TabMenu(props: TabMenuProps) @{
-	const ctx = useContext(TabListContext);
+	const ctx = useContext(TabListContext)
 	if (ctx == null) {
-		throw new Error('TabMenu must be used within a TabList.');
+		throw new Error('TabMenu must be used within a TabList.')
 	}
 
-	const anchor = useRef<any>(null);
-	const [open, setOpen] = useState(false);
-	const selected = props.options.find((o) => o.value === ctx.value);
-	const triggerLabel = selected?.label ?? props.label;
+	const anchor = useRef<any>(null)
+	const [open, setOpen] = useState(false)
+	const selected = props.options.find((o) => o.value === ctx.value)
+	const triggerLabel = selected?.label ?? props.label
 
 	const pick = (value: string) => {
-		ctx.onChange(value);
-		setOpen(false);
-	};
+		ctx.onChange(value)
+		setOpen(false)
+	}
 
 	<>
 		<Pressable
-			ref={(v: any) => { anchor.current = v; }}
+			ref={(v: any) => {
+				anchor.current = v
+			}}
 			id={props.id}
 			className={cx('vx-tab vx-tabmenu-trigger', selected && 'vx-tab--selected', props.className)}
-			style={mergeStyle({height: SIZE_HEIGHT[ctx.size]}, props.style)}
+			style={mergeStyle({ height: SIZE_HEIGHT[ctx.size] }, props.style)}
 			accessibilityLabel={triggerLabel}
 			accessibilityHint={props.label}
 			onPress={() => setOpen(!open)}
 		>
-			<masonview className="vx-tab-content" style={mergeStyle({flexDirection: "column", justifyContent: "flex-end", alignItems: "center"}, {display: "flex"})}>
-				<masonview style={mergeStyle({flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 4}, {display: "flex"})}>
+			<masonview
+				className="vx-tab-content"
+				style={mergeStyle(
+					{ flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'center' },
+					{ display: 'flex' },
+				)}
+			>
+				<masonview
+					style={mergeStyle(
+						{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4 },
+						{ display: 'flex' },
+					)}
+				>
 					<Text className="vx-tab-label">{triggerLabel}</Text>
 					<Icon name={open ? 'xplat-chevron-up' : 'xplat-chevron-down'} size={16} />
 				</masonview>
-				<masonview className={cx('vx-tab-indicator', selected && 'vx-tab-indicator--on')} style={{display: "flex"}}/>
+				<masonview
+					className={cx('vx-tab-indicator', selected && 'vx-tab-indicator--on')}
+					style={{ display: 'flex' }}
+				/>
 			</masonview>
 		</Pressable>
-		<Popover anchor={anchor} open={open} placement="bottom" onDismiss={() => setOpen(false)} className="vx-tabmenu-pop">
-			<masonview className="vx-tabmenu" style={mergeStyle({flexDirection: "column"}, {display: "flex"})}>
+		<Popover
+			anchor={anchor}
+			open={open}
+			placement="bottom"
+			onDismiss={() => setOpen(false)}
+			className="vx-tabmenu-pop"
+		>
+			<masonview
+				className="vx-tabmenu"
+				style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}
+			>
 				<Text className="vx-tabmenu-heading">{props.label}</Text>
 				@for (const option of props.options; key option.value) {
 					<Pressable
-						className={cx('vx-tabmenu-item', ctx.value === option.value && 'vx-tabmenu-item--selected')}
+						className={cx(
+							'vx-tabmenu-item',
+							ctx.value === option.value && 'vx-tabmenu-item--selected',
+						)}
 						accessibilityState={{ selected: ctx.value === option.value }}
 						onPress={() => pick(option.value)}
 					>
-						<masonview style={mergeStyle({flexDirection: "row", alignItems: "center", gap: 8}, {display: "flex"})}>
+						<masonview
+							style={mergeStyle(
+								{ flexDirection: 'row', alignItems: 'center', gap: 8 },
+								{ display: 'flex' },
+							)}
+						>
 							{option.icon != null ? navIcon(option.icon, 16) : null}
 							<Text className="vx-tabmenu-itemcontent">{option.label}</Text>
 							{ctx.value === option.value ? <Icon name="xplat-check" size={16} /> : null}

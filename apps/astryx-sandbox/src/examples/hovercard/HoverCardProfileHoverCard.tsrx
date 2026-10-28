@@ -9,15 +9,21 @@ export function HoverCardProfileHoverCard() @{
 				<Avatar name="Jane Doe" size={48} style={{ flexShrink: 0 }} />
 				<VStack gap={1}>
 					<Heading level={3}>@janedoe</Heading>
-					<Text type="body" color="secondary">Crafting accessible, scalable design systems for modern teams.</Text>
+					<Text type="body" color="secondary">
+						Crafting accessible, scalable design systems for modern teams.
+					</Text>
 					<HStack gap={1} vAlign="center">
 						<Icon name="xplat-calendar" size={12} color="secondary" />
-						<Text type="supporting" color="secondary">March 2024</Text>
+						<Text type="supporting" color="secondary">
+							March 2024
+						</Text>
 					</HStack>
 				</VStack>
 			</HStack>
 		}
 	>
-		<Link href="#" hasUnderline>@janedoe</Link>
+		<Link href="#" hasUnderline>
+			@janedoe
+		</Link>
 	</HoverCard>
 }

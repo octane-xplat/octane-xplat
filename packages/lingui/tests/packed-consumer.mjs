@@ -11,6 +11,7 @@ import {
 	rmSync,
 	writeFileSync,
 } from 'node:fs'
+
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -21,6 +22,7 @@ function run(command, args, cwd) {
 	const result = spawnSync(command, args, { cwd, encoding: 'utf8' })
 	assert.equal(result.status, 0, result.stdout + result.stderr)
 }
+
 try {
 	const pack = join(temporary, 'pack')
 	const app = join(temporary, 'app')
@@ -29,6 +31,7 @@ try {
 		recursive: true,
 		filter: (path) => !path.includes('node_modules') && !path.includes('/locales'),
 	})
+
 	run('pnpm', ['pack', '--pack-destination', pack], root)
 	const archive = readdirSync(pack).find((name) => name.endsWith('.tgz'))
 	const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
@@ -47,6 +50,7 @@ try {
 			},
 		}),
 	)
+
 	run('pnpm', ['install', '--ignore-scripts', '--config.auto-install-peers=false'], app)
 	writeFileSync(
 		join(app, 'check.mjs'),
@@ -61,6 +65,7 @@ assert.equal(tsrxExtractor.match('src/app.tsrx'), true)
 assert.equal(typeof babelExtractor.extract, 'function')
 `,
 	)
+
 	run(process.execPath, ['check.mjs'], app)
 	run('pnpm', ['exec', 'lingui', 'extract'], app)
 	const catalog = JSON.parse(readFileSync(join(app, 'locales/en/messages.json'), 'utf8'))

@@ -14,7 +14,14 @@ export function ContextMenuBasic() @{
 				{ label: 'Delete', onClick: () => {} },
 			])}
 		>
-			<View style={{ padding: 48, border: '2px dashed var(--color-border)', borderRadius: 8, textAlign: 'center' }}>
+			<View
+				style={{
+					padding: 48,
+					border: '2px dashed var(--color-border)',
+					borderRadius: 8,
+					textAlign: 'center',
+				}}
+			>
 				Right-click or long-press this area
 			</View>
 		</ContextMenu>

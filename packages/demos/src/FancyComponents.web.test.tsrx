@@ -38,7 +38,6 @@ beforeEach(() => {
 
 		return realRect.call(this)
 	}
-
 })
 
 afterEach(() => {
@@ -71,7 +70,10 @@ const advance = async (ms: number) => {
 
 const click = (container: HTMLElement, id: string) => {
 	const el = container.querySelector<HTMLElement>('#' + id)
-	if (!el) throw new Error('missing #' + id)
+	if (!el) {
+		throw new Error('missing #' + id)
+	}
+
 	act(() => el.click())
 }
 
@@ -80,7 +82,10 @@ const segment = (container: HTMLElement, controlId: string, label: string) => {
 		(e) => e.textContent === label,
 	)
 
-	if (!el) throw new Error('missing segment ' + label)
+	if (!el) {
+		throw new Error('missing segment ' + label)
+	}
+
 	act(() => el.click())
 }
 
@@ -88,8 +93,7 @@ const text = (container: HTMLElement, id: string) =>
 	container.querySelector('#' + id)?.textContent ?? ''
 
 const trackX = (container: HTMLElement) => {
-	const transform =
-		container.querySelector<HTMLElement>('.fc-marquee-track')?.style.transform ?? ''
+	const transform = container.querySelector<HTMLElement>('.fc-marquee-track')?.style.transform ?? ''
 
 	const match = /translateX\((-?[\d.]+)px\)/.exec(transform)
 
@@ -207,9 +211,11 @@ describe('FancyComponents showcase', () => {
 		click(container, 'fc-type-replay')
 		expect(container.querySelector('.fc-typewriter-text')?.textContent).toBe('')
 		await advance(8 * 45)
-		expect('Type once, run everywhere.'.startsWith(
-			container.querySelector('.fc-typewriter-text')?.textContent ?? '',
-		)).toBe(true)
+		expect(
+			'Type once, run everywhere.'.startsWith(
+				container.querySelector('.fc-typewriter-text')?.textContent ?? '',
+			),
+		).toBe(true)
 
 		close()
 	})
@@ -254,9 +260,7 @@ describe('FancyComponents showcase', () => {
 		expect(text(container, 'fc-ticker')).toBe('12,847')
 		expect(text(container, 'fc-ticker-state')).toBe('Done')
 		// The settled value is the announced one.
-		expect(container.querySelector('#fc-ticker')?.getAttribute('aria-label')).toBe(
-			'Count: 12,847',
-		)
+		expect(container.querySelector('#fc-ticker')?.getAttribute('aria-label')).toBe('Count: 12,847')
 
 		close()
 	})
@@ -285,16 +289,12 @@ describe('FancyComponents showcase', () => {
 	it('orbits the ring, flips direction in place, and pauses mid-turn', async () => {
 		const { container, close } = mount()
 		const items = () =>
-			[...container.querySelectorAll<HTMLElement>('.fc-orbit-item')].map(
-				(el) => translate(el)!,
-			)
+			[...container.querySelectorAll<HTMLElement>('.fc-orbit-item')].map((el) => translate(el)!)
 
 		await advance(500)
 		const spaced = items()
 		// Four chips parked at quarter-ring offsets, not a stack.
-		expect(
-			new Set(spaced.map((p) => `${Math.round(p.x)},${Math.round(p.y)}`)).size,
-		).toBe(4)
+		expect(new Set(spaced.map((p) => `${Math.round(p.x)},${Math.round(p.y)}`)).size).toBe(4)
 
 		const before = spaced[0]
 		await advance(500)
@@ -374,17 +374,15 @@ describe('FancyComponents showcase', () => {
 		// holds its phase-offset drift and the ring freezes evenly spaced.
 		expect(text(container, 'fc-float-state')).toBe('Static (reduced motion)')
 		expect(text(container, 'fc-orbit-state')).toBe('Static (reduced motion)')
-		const floats = [...container.querySelectorAll<HTMLElement>('.fc-float')].map(
-			(el) => translate(el)!,
+		const floats = [...container.querySelectorAll<HTMLElement>('.fc-float')].map((el) =>
+			translate(el)!,
 		)
 
-		const orbit = [...container.querySelectorAll<HTMLElement>('.fc-orbit-item')].map(
-			(el) => translate(el)!,
+		const orbit = [...container.querySelectorAll<HTMLElement>('.fc-orbit-item')].map((el) =>
+			translate(el)!,
 		)
 
-		expect(
-			new Set(orbit.map((p) => `${Math.round(p.x)},${Math.round(p.y)}`)).size,
-		).toBe(4)
+		expect(new Set(orbit.map((p) => `${Math.round(p.x)},${Math.round(p.y)}`)).size).toBe(4)
 
 		await advance(1500)
 		expect(

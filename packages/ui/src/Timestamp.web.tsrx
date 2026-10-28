@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'octane';
-import type { TimestampProps } from './props';
-import type { TimestampTooltipLine } from './time-format';
+import { useEffect, useState } from 'octane'
+import type { TimestampProps } from './props'
+import type { TimestampTooltipLine } from './time-format'
 import {
 	DEFAULT_AUTO_THRESHOLD,
 	formatInstant,
@@ -11,24 +11,27 @@ import {
 	isRelativeFormat,
 	parseTimestampValue,
 	resolveTimestampFormat,
-} from './time-format';
+} from './time-format'
 
-import type { TimestampFormat } from './props';
-import { applyEscapeProps } from './escape-props';
-import { HoverCard } from './HoverCard.web.tsrx';
-import { Icon } from './Icon.web.tsrx';
-import { copyText } from './clipboard-write';
-import { textRoleClasses } from './text-role';
+import type { TimestampFormat } from './props'
+import { applyEscapeProps } from './escape-props'
+import { HoverCard } from './HoverCard.web.tsrx'
+import { Icon } from './Icon.web.tsrx'
+import { copyText } from './clipboard-write'
+import { textRoleClasses } from './text-role'
 
-const COPY_FEEDBACK_MS = 1500;
+const COPY_FEEDBACK_MS = 1500
 
 function CopyButton(props: { value: string; label?: string }) @{
-	const [copied, setCopied] = useState(false);
+	const [copied, setCopied] = useState(false)
 	useEffect(() => {
-		if (!copied) return;
-		const t = setTimeout(() => setCopied(false), COPY_FEEDBACK_MS);
-		return () => clearTimeout(t);
-	}, [copied]);
+		if (!copied) {
+			return
+		}
+
+		const t = setTimeout(() => setCopied(false), COPY_FEEDBACK_MS)
+		return () => clearTimeout(t)
+	}, [copied])
 
 	<button
 		type="button"
@@ -37,8 +40,10 @@ function CopyButton(props: { value: string; label?: string }) @{
 		title={copied ? 'Copied' : 'Copy'}
 		onClick={() => {
 			void copyText(props.value).then((ok) => {
-				if (ok) setCopied(true);
-			});
+				if (ok) {
+					setCopied(true)
+				}
+			})
 		}}
 	>
 		<Icon name={copied ? 'xplat-check' : 'xplat-copy'} size={12} />
@@ -46,21 +51,23 @@ function CopyButton(props: { value: string; label?: string }) @{
 }
 
 function TimestampCard(props: { lines: readonly TimestampTooltipLine[] }) @{
-	const hasLabelColumn = props.lines.some((l) => l.label != null);
-	const hasActionColumn = props.lines.some((l) => l.isCopyable);
+	const hasLabelColumn = props.lines.some((l) => l.label != null)
+	const hasActionColumn = props.lines.some((l) => l.isCopyable)
 	const template = hasLabelColumn
 		? hasActionColumn
 			? 'auto 1fr auto'
 			: 'auto 1fr'
 		: hasActionColumn
 			? '1fr auto'
-			: '1fr';
+			: '1fr'
 
 	<div className="vx-timestamp-card">
 		<div className="vx-timestamp-card-grid" style={{ gridTemplateColumns: template }}>
 			{props.lines.map((line, i) => (
 				<div key={i} className="vx-timestamp-card-row">
-					{hasLabelColumn ? <div className="vx-timestamp-card-label">{line.label ?? ''}</div> : null}
+					{hasLabelColumn ? (
+						<div className="vx-timestamp-card-label">{line.label ?? ''}</div>
+					) : null}
 					<div className="vx-timestamp-card-value">{line.value}</div>
 					{hasActionColumn ? (
 						<div className="vx-timestamp-card-action">
@@ -79,52 +86,64 @@ function TimestampCard(props: { lines: readonly TimestampTooltipLine[] }) @{
  *  `date_time`. `isLive` re-renders on the relative cadence. `hasTooltip`
  *  opens the HoverCard with one row per tooltip entry. */
 export function Timestamp(props: TimestampProps) @{
-	const format = props.format ?? 'auto';
-	const autoThresholdSeconds = props.autoThresholdSeconds ?? DEFAULT_AUTO_THRESHOLD;
-	const hasTooltip = props.hasTooltip ?? true;
-	const isLive = props.isLive ?? false;
-	const isTimezoneShown = props.isTimezoneShown ?? false;
+	const format = props.format ?? 'auto'
+	const autoThresholdSeconds = props.autoThresholdSeconds ?? DEFAULT_AUTO_THRESHOLD
+	const hasTooltip = props.hasTooltip ?? true
+	const isLive = props.isLive ?? false
+	const isTimezoneShown = props.isTimezoneShown ?? false
 
-	const date = typeof props.value === 'number'
-		? parseTimestampValue(props.value, props.valueUnit!)
-		: parseTimestampValue(props.value);
-	const invalid = Number.isNaN(date.getTime());
+	const date =
+		typeof props.value === 'number'
+			? parseTimestampValue(props.value, props.valueUnit!)
+			: parseTimestampValue(props.value)
 
-	const [now, setNow] = useState(() => new Date());
-	const relative = !invalid && isRelativeFormat(resolveTimestampFormat(format, (now.getTime() - date.getTime()) / 1000, autoThresholdSeconds));
+	const invalid = Number.isNaN(date.getTime())
+
+	const [now, setNow] = useState(() => new Date())
+	const relative =
+		!invalid &&
+		isRelativeFormat(
+			resolveTimestampFormat(format, (now.getTime() - date.getTime()) / 1000, autoThresholdSeconds),
+		)
 
 	useEffect(() => {
 		if (!isLive || invalid || !relative) {
-			return;
+			return
 		}
 
 		const tick = () => {
-			const interval = getLiveInterval((Date.now() - date.getTime()) / 1000);
+			const interval = getLiveInterval((Date.now() - date.getTime()) / 1000)
 			const t = setTimeout(() => {
-				setNow(new Date());
-				tick();
-			}, interval);
+				setNow(new Date())
+				tick()
+			}, interval)
 
-			return t;
-		};
+			return t
+		}
 
-		const interval = getLiveInterval((Date.now() - date.getTime()) / 1000);
+		const interval = getLiveInterval((Date.now() - date.getTime()) / 1000)
 		const t = setTimeout(() => {
-			setNow(new Date());
-			tick();
-		}, interval);
+			setNow(new Date())
+			tick()
+		}, interval)
 
-		return () => clearTimeout(t);
-	}, [isLive, invalid, relative, props.value]);
+		return () => clearTimeout(t)
+	}, [isLive, invalid, relative, props.value])
 
-	const diffSeconds = invalid ? 0 : (now.getTime() - date.getTime()) / 1000;
-	const resolved = resolveTimestampFormat(format, diffSeconds, autoThresholdSeconds);
+	const diffSeconds = invalid ? 0 : (now.getTime() - date.getTime()) / 1000
+	const resolved = resolveTimestampFormat(format, diffSeconds, autoThresholdSeconds)
 	const text = invalid
 		? 'Invalid Date'
-		: formatTimestampText(date, resolved as Exclude<TimestampFormat, 'auto'>, now, undefined, isTimezoneShown);
+		: formatTimestampText(
+				date,
+				resolved as Exclude<TimestampFormat, 'auto'>,
+				now,
+				undefined,
+				isTimezoneShown,
+			)
 
-	const absoluteLabel = invalid ? undefined : formatInstant(date, 'full', undefined, {});
-	const iso = invalid ? undefined : date.toISOString();
+	const absoluteLabel = invalid ? undefined : formatInstant(date, 'full', undefined, {})
+	const iso = invalid ? undefined : date.toISOString()
 
 	const lines =
 		!invalid && hasTooltip
@@ -133,14 +152,14 @@ export function Timestamp(props: TimestampProps) @{
 					props.tooltipEntries?.length ? props.tooltipEntries : [{ format: 'full' }],
 					undefined,
 				)
-			: [];
+			: []
 
 	const roleClasses = textRoleClasses({
 		type: props.type ?? 'supporting',
 		size: props.size,
 		color: props.color ?? 'secondary',
 		weight: props.weight,
-	});
+	})
 
 	const time = (
 		<time
@@ -153,7 +172,7 @@ export function Timestamp(props: TimestampProps) @{
 		>
 			{text}
 		</time>
-	);
+	)
 
 	return hasTooltip && lines.length > 0 ? (
 		<HoverCard content={<TimestampCard lines={lines} />} placement="above" label={absoluteLabel}>
@@ -161,5 +180,5 @@ export function Timestamp(props: TimestampProps) @{
 		</HoverCard>
 	) : (
 		time
-	);
+	)
 }

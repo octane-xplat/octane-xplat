@@ -17,17 +17,40 @@ export function Text(props: TextProps) @{
 		...(scale.color && { color: scale.color }),
 		...styleRecord(props.style),
 	}
-	<label id={props.id} className={cx('vx-text', props.type && `vx-text--${props.type}`, props.size && `vx-text--size-${props.size}`, props.color && `vx-text--color-${props.color}`, props.className)} style={textStyle} maxLines={maxLines > 0 ? maxLines : undefined} whiteSpace={maxLines === 1 ? 'nowrap' : undefined} textOverflow={maxLines > 0 ? 'ellipsis' : undefined} accessibilityLabel={props.accessibilityLabel} accessibilityRole={props.accessibilityRole}>
+
+	<label
+		id={props.id}
+		className={cx(
+			'vx-text',
+			props.type && `vx-text--${props.type}`,
+			props.size && `vx-text--size-${props.size}`,
+			props.color && `vx-text--color-${props.color}`,
+			props.className,
+		)}
+		style={textStyle}
+		maxLines={maxLines > 0 ? maxLines : undefined}
+		whiteSpace={maxLines === 1 ? 'nowrap' : undefined}
+		textOverflow={maxLines > 0 ? 'ellipsis' : undefined}
+		accessibilityLabel={props.accessibilityLabel}
+		accessibilityRole={props.accessibilityRole}
+	>
 		{props.children}
 	</label>
 }
 
 export function RichText(props: RichTextProps) @{
-	<label id={props.id} className={cx(props.className)} style={styleRecord(props.style)} accessibilityLabel={props.accessibilityLabel}>
+	<label
+		id={props.id}
+		className={cx(props.className)}
+		style={styleRecord(props.style)}
+		accessibilityLabel={props.accessibilityLabel}
+	>
 		{props.children}
 	</label>
 }
 
 export function RichTextSpan(props: RichTextSpanProps) @{
-	<span className={cx(props.className)} style={styleRecord(props.style)}>{props.children}</span>
+	<span className={cx(props.className)} style={styleRecord(props.style)}>
+		{props.children}
+	</span>
 }

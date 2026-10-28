@@ -5,23 +5,49 @@ import { Button, CheckboxInput, Divider, Heading, HStack, Popover, VStack } from
 export function PopoverFilterPanel() @{
 	const anchor = useRef(null)
 	const [isOpen, setIsOpen] = useState(false)
-	const [filters, setFilters] = useState({ active: true, archived: false, drafts: true, shared: false })
+	const [filters, setFilters] = useState({
+		active: true,
+		archived: false,
+		drafts: true,
+		shared: false,
+	})
+
 	const toggle = (key: keyof typeof filters) => setFilters((f) => ({ ...f, [key]: !f[key] }))
 	return (
 		<>
 			<Button ref={anchor} label="Filter" clickAction={() => setIsOpen(true)} />
-			<Popover anchor={anchor} open={isOpen} onDismiss={() => setIsOpen(false)} placement="bottom" style={{ width: 240 }}>
+			<Popover
+				anchor={anchor}
+				open={isOpen}
+				onDismiss={() => setIsOpen(false)}
+				placement="bottom"
+				style={{ width: 240 }}
+			>
 				<VStack gap={3} style={{ padding: 'var(--spacing-4)' }}>
 					<Heading level={4}>Filter by status</Heading>
 					<Divider />
 					<CheckboxInput label="Active" value={filters.active} onChange={() => toggle('active')} />
-					<CheckboxInput label="Archived" value={filters.archived} onChange={() => toggle('archived')} />
+					<CheckboxInput
+						label="Archived"
+						value={filters.archived}
+						onChange={() => toggle('archived')}
+					/>
 					<CheckboxInput label="Drafts" value={filters.drafts} onChange={() => toggle('drafts')} />
-					<CheckboxInput label="Shared with me" value={filters.shared} onChange={() => toggle('shared')} />
+					<CheckboxInput
+						label="Shared with me"
+						value={filters.shared}
+						onChange={() => toggle('shared')}
+					/>
 					<Divider />
 					<HStack gap={2} justify="end">
 						<Button label="Apply" variant="primary" clickAction={() => setIsOpen(false)} />
-						<Button label="Reset" variant="ghost" clickAction={() => setFilters({ active: true, archived: false, drafts: true, shared: false })} />
+						<Button
+							label="Reset"
+							variant="ghost"
+							clickAction={() =>
+								setFilters({ active: true, archived: false, drafts: true, shared: false })
+							}
+						/>
 					</HStack>
 				</VStack>
 			</Popover>

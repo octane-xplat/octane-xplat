@@ -1,11 +1,11 @@
-import type { AlertProps } from "./props";
-import { applyEscapeProps } from "./escape-props";
-import { Icon } from './Icon.web.tsrx';
+import type { AlertProps } from './props'
+import { applyEscapeProps } from './escape-props'
+import { Icon } from './Icon.web.tsrx'
 
 /** Alert — status callout. `tone` picks a class modifier; error gets
  *  role=alert, the rest role=status. */
 export function Alert(props: AlertProps) @{
-	const tone = props.tone ?? 'info';
+	const tone = props.tone ?? 'info'
 
 	<div
 		ref={(e: any) => applyEscapeProps(e, props)}

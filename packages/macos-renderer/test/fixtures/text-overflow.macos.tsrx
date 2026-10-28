@@ -15,9 +15,20 @@ export default function Case() {
 	})
 
 	change = (value) => props$.set(value)
-	return <masonview>
-		<label id="title" {...props$.get()} style={{ width: props$.get().width ?? 120, height: 32, lineHeight: props$.get().lineHeight , position: 'absolute'}} />
-	</masonview>
+	return (
+		<masonview>
+			<label
+				id="title"
+				{...props$.get()}
+				style={{
+					width: props$.get().width ?? 120,
+					height: 32,
+					lineHeight: props$.get().lineHeight,
+					position: 'absolute',
+				}}
+			/>
+		</masonview>
+	)
 }
 
 export async function run(ctx: any) {
@@ -27,8 +38,16 @@ export async function run(ctx: any) {
 	ctx.assert('full accessibility value', String(view.accessibilityValue), full)
 	ctx.assert('single line', Number(view.maximumNumberOfLines), 1)
 	ctx.assert('tail mode', Number(view.cell.lineBreakMode), 4)
-	const small = view.cell.cellSizeForBounds({ origin: { x: 0, y: 0 }, size: { width: 120, height: 1000 } })
-	const wide = view.cell.cellSizeForBounds({ origin: { x: 0, y: 0 }, size: { width: 900, height: 1000 } })
+	const small = view.cell.cellSizeForBounds({
+		origin: { x: 0, y: 0 },
+		size: { width: 120, height: 1000 },
+	})
+
+	const wide = view.cell.cellSizeForBounds({
+		origin: { x: 0, y: 0 },
+		size: { width: 900, height: 1000 },
+	})
+
 	ctx.record('single line measurements', {
 		narrowHeight: Number(small.height),
 		wideHeight: Number(wide.height),
@@ -44,7 +63,9 @@ export async function run(ctx: any) {
 	change({ text: 'Short', maxLines: 1, textOverflow: 'clip', lineHeight: 24 })
 	await ctx.waitFor(() => String(view.stringValue) === 'Short')
 	const paragraph = view.attributedStringValue.attributeAtIndexEffectiveRange(
-		NSParagraphStyleAttributeName, 0, null,
+		NSParagraphStyleAttributeName,
+		0,
+		null,
 	)
 
 	ctx.assert('attributed clipping', Number(paragraph.lineBreakMode), 2)

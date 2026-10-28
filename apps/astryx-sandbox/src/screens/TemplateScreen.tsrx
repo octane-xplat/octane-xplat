@@ -22,7 +22,9 @@ export function TemplateScreen(props: { params: { name: string } }) @{
 					<VStack gap={3}>
 						<Heading level={1}>Unknown template</Heading>
 						<Text type="body" color="secondary">
-							{'“'}{props.params.name}{'”'} is not one of the 714 pinned template routes.
+							{'“'}
+							{props.params.name}
+							{'”'} is not one of the 714 pinned template routes.
 						</Text>
 						<SandboxLink href="/templates/">Back to templates</SandboxLink>
 					</VStack>
@@ -34,8 +36,6 @@ export function TemplateScreen(props: { params: { name: string } }) @{
 	const Example = exampleFor(props.params.name)
 
 	return (
-		<PreviewShell row={row}>
-			{Example ? <Example /> : <PendingScreen row={row} />}
-		</PreviewShell>
+		<PreviewShell row={row}>{Example ? <Example /> : <PendingScreen row={row} />}</PreviewShell>
 	)
 }

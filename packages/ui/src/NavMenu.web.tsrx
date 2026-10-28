@@ -1,88 +1,109 @@
 import type { RegisteredRouteContracts, AppRouteStacks, RouteTransitionName } from './props'
 import type { NavigationItemImplementation } from './nav-link'
 import { useNavigationItem } from './use-navigation-item.shared.tsrx'
-import { useCallback, useContext, useMemo, useRef } from 'octane';
+import { useCallback, useContext, useMemo, useRef } from 'octane'
 import { styleRecord } from './style-merge'
-import type { NavHeadingMenuProps, NavHeadingMenuItemProps } from './props';
-import { applyEscapeProps } from './escape-props';
-import { Icon } from './Icon.web.tsrx';
-import { Text } from './Text.web.tsrx';
-import { NavHeadingCloseContext, NavHeadingMenuContext, NavHeadingMenuProvider, useNavHeadingCloseContext, useNavHeadingMenuContext } from './nav-contexts';
-import { useListFocus } from './list-focus.web.tsrx';
-import { followHref } from './nav-href.web';
+import type { NavHeadingMenuProps, NavHeadingMenuItemProps } from './props'
+import { applyEscapeProps } from './escape-props'
+import { Icon } from './Icon.web.tsrx'
+import { Text } from './Text.web.tsrx'
+import {
+	NavHeadingCloseContext,
+	NavHeadingMenuContext,
+	NavHeadingMenuProvider,
+	useNavHeadingCloseContext,
+	useNavHeadingMenuContext,
+} from './nav-contexts'
 
-export { NavHeadingMenuContext, useNavHeadingMenuContext, NavHeadingCloseContext, useNavHeadingCloseContext };
+import { useListFocus } from './list-focus.web.tsrx'
+import { followHref } from './nav-href.web'
 
-const ITEM_SELECTOR = '[role="menuitem"]:not([aria-disabled="true"])';
+export {
+	NavHeadingMenuContext,
+	useNavHeadingMenuContext,
+	NavHeadingCloseContext,
+	useNavHeadingCloseContext,
+}
+
+const ITEM_SELECTOR = '[role="menuitem"]:not([aria-disabled="true"])'
 
 /** NavHeadingMenu — menu-of-links column shown from a heading popover.
  *  role=menu + roving tabindex + arrow/Home/End + first-character
  *  typeahead + Enter/Space activation for non-anchor items; Escape closes
  *  the heading's popover via NavHeadingCloseContext. */
 export function NavHeadingMenu(props: NavHeadingMenuProps) @{
-	const closeCtx = useContext(NavHeadingCloseContext);
-	const closeMenu = closeCtx?.closeMenu;
-	const size = props.size ?? 'md';
+	const closeCtx = useContext(NavHeadingCloseContext)
+	const closeMenu = closeCtx?.closeMenu
+	const size = props.size ?? 'md'
 
 	const { listRef, handleKeyDown, handleFocus, focusItem } = useListFocus<HTMLDivElement>({
 		itemSelector: ITEM_SELECTOR,
 		orientation: 'vertical',
 		hasRovingTabIndex: true,
 		onEscape: closeMenu,
-	});
+	})
 
 	// First-character typeahead over enabled items.
-	const typeBuffer = useRef({ text: '', at: 0 });
+	const typeBuffer = useRef({ text: '', at: 0 })
 	const getItems = useCallback((): HTMLElement[] => {
-		const root = listRef.current;
-		return root ? Array.from(root.querySelectorAll<HTMLElement>(ITEM_SELECTOR)) : [];
-	}, []);
+		const root = listRef.current
+		return root ? Array.from(root.querySelectorAll<HTMLElement>(ITEM_SELECTOR)) : []
+	}, [])
 
 	const listKeyDown = useCallback(
 		(e: KeyboardEvent) => {
 			if (e.key === 'Enter' || e.key === ' ') {
-				const focused = document.activeElement as HTMLElement | null;
+				const focused = document.activeElement as HTMLElement | null
 				if (focused?.getAttribute('role') === 'menuitem') {
-					e.preventDefault();
-					focused.click();
-					return;
+					e.preventDefault()
+					focused.click()
+					return
 				}
 			}
 
 			// typeahead — printable single chars jump to the next matching label
 			if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
-				const now = Date.now();
-				if (now - typeBuffer.current.at > 500) typeBuffer.current.text = '';
-				typeBuffer.current.at = now;
-				typeBuffer.current.text += e.key.toLowerCase();
-				const items = getItems();
-				const labels = items.map((el) => (el.textContent ?? '').trim().toLowerCase());
-				const current = items.findIndex((el) => el === document.activeElement || el.contains(document.activeElement));
+				const now = Date.now()
+				if (now - typeBuffer.current.at > 500) {
+					typeBuffer.current.text = ''
+				}
+
+				typeBuffer.current.at = now
+				typeBuffer.current.text += e.key.toLowerCase()
+				const items = getItems()
+				const labels = items.map((el) => (el.textContent ?? '').trim().toLowerCase())
+				const current = items.findIndex(
+					(el) => el === document.activeElement || el.contains(document.activeElement),
+				)
+
 				for (let i = 1; i <= items.length; i++) {
-					const idx = (current + i) % items.length;
+					const idx = (current + i) % items.length
 					if (labels[idx]?.startsWith(typeBuffer.current.text)) {
-						focusItem(items[idx]);
-						e.preventDefault();
-						return;
+						focusItem(items[idx])
+						e.preventDefault()
+						return
 					}
 				}
 			}
 
-			handleKeyDown(e);
+			handleKeyDown(e)
 		},
 		[handleKeyDown, getItems, focusItem],
-	);
+	)
 
-	const ctx = useMemo(
-		() => ({ closeMenu: closeMenu ?? (() => {}), size }),
-		[closeMenu, size],
-	);
+	const ctx = useMemo(() => ({ closeMenu: closeMenu ?? (() => {}), size }), [closeMenu, size])
 
-	const inlineStyle = props.minWidth != null ? { ...styleRecord(props.style), minWidth: props.minWidth } : props.style;
+	const inlineStyle =
+		props.minWidth != null ? { ...styleRecord(props.style), minWidth: props.minWidth } : props.style
 
 	<NavHeadingMenuProvider value={ctx}>
 		<div
-			ref={(el: HTMLDivElement | null) => { listRef.current = el; if (el) applyEscapeProps(el, props); }}
+			ref={(el: HTMLDivElement | null) => {
+				listRef.current = el
+				if (el) {
+					applyEscapeProps(el, props)
+				}
+			}}
 			id={props.id}
 			className={['vx-navmenu', 'vx-navmenu--' + size, props.className]}
 			style={inlineStyle}
@@ -104,17 +125,26 @@ export function NavHeadingMenuItem<
 	Transitions extends string = RouteTransitionName,
 >(props: NavHeadingMenuItemProps<Contracts, Stacks, Transitions>): any
 
-export function NavHeadingMenuItem(props: NavigationItemImplementation<NavHeadingMenuItemProps>) @{
+export function NavHeadingMenuItem(
+	props: NavigationItemImplementation<NavHeadingMenuItemProps>,
+) @{
 	const link = useNavigationItem(props)
-	const ctx = useContext(NavHeadingMenuContext);
-	const closeCtx = useContext(NavHeadingCloseContext);
-	const isDisabled = link.disabled;
+	const ctx = useContext(NavHeadingMenuContext)
+	const closeCtx = useContext(NavHeadingCloseContext)
+	const isDisabled = link.disabled
 
 	const handleClick = (event: any) => {
-		if (link.activateWeb(event)) (ctx?.closeMenu ?? closeCtx?.closeMenu)?.()
-	};
+		if (link.activateWeb(event)) {
+			;(ctx?.closeMenu ?? closeCtx?.closeMenu)?.()
+		}
+	}
 
-	const cls = ['vx-navmenu-item', 'vx-navmenu-item--' + (ctx?.size ?? 'md'), isDisabled && 'vx-navmenu-item--disabled', props.className];
+	const cls = [
+		'vx-navmenu-item',
+		'vx-navmenu-item--' + (ctx?.size ?? 'md'),
+		isDisabled && 'vx-navmenu-item--disabled',
+		props.className,
+	]
 
 	const content = (
 		<>
@@ -124,13 +154,21 @@ export function NavHeadingMenuItem(props: NavigationItemImplementation<NavHeadin
 				</span>
 			) : null}
 			<span className="vx-navmenu-item-content">
-				{typeof props.label === 'string' ? <Text className="vx-navmenu-item-label">{props.label}</Text> : props.label}
+				{typeof props.label === 'string' ? (
+					<Text className="vx-navmenu-item-label">{props.label}</Text>
+				) : (
+					props.label
+				)}
 				{props.description != null ? (
-					typeof props.description === 'string' ? <Text className="vx-navmenu-item-desc">{props.description}</Text> : props.description
+					typeof props.description === 'string' ? (
+						<Text className="vx-navmenu-item-desc">{props.description}</Text>
+					) : (
+						props.description
+					)
 				) : null}
 			</span>
 		</>
-	);
+	)
 
 	@if (link.href != null && !isDisabled) {
 		<a
@@ -140,7 +178,10 @@ export function NavHeadingMenuItem(props: NavigationItemImplementation<NavHeadin
 			style={props.style}
 			role="menuitem"
 			tabIndex={-1}
-			href={link.href} target={props.target} rel={props.rel} download={props.download}
+			href={link.href}
+			target={props.target}
+			rel={props.rel}
+			download={props.download}
 			aria-current={link.selected ? 'page' : undefined}
 			onClick={handleClick}
 		>

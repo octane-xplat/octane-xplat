@@ -5,7 +5,10 @@ import type { SelectProps } from './web/types'
 /** Renders a labeled browser select. */
 export function Select(props: SelectProps) @{
 	const controlled = props.value !== undefined
-	const [internalValue, setInternalValue] = useState(props.defaultValue ?? props.options[0]?.value ?? '')
+	const [internalValue, setInternalValue] = useState(
+		props.defaultValue ?? props.options[0]?.value ?? '',
+	)
+
 	// Uncontrolled with a blank internal selection displays the first option
 	// once options exist — the default is auto-select-first.
 	const value = controlled ? props.value! : internalValue || (props.options[0]?.value ?? '')
@@ -21,7 +24,10 @@ export function Select(props: SelectProps) @{
 			disabled={props.disabled}
 			onChange={(event: any) => {
 				const nextValue = event.target.value as string
-				if (!controlled) setInternalValue(nextValue)
+				if (!controlled) {
+					setInternalValue(nextValue)
+				}
+
 				props.onChange?.(nextValue)
 			}}
 		>

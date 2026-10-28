@@ -1,9 +1,9 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useRef } from 'octane';
-import type { ResizeHandleProps, PanEvent } from './props';
-import { cx } from '@octane-xplat/lib';
-import { applyEscapeProps } from './escape-props';
-import { Pressable } from './Pressable';
+import { useRef } from 'octane'
+import type { ResizeHandleProps, PanEvent } from './props'
+import { cx } from '@octane-xplat/lib'
+import { applyEscapeProps } from './escape-props'
+import { Pressable } from './Pressable'
 
 /** ResizeHandle — draggable separator bound to a useResizable region.
  *  Native leaf: pan gestures drive the same _onResize{Start,Move,End,
@@ -11,49 +11,57 @@ import { Pressable } from './Pressable';
  *  pointer-platform behavior (web). The handle is focusable for
  *  assistive tech via `accessibilityRole="adjustable"`. */
 export function ResizeHandle(props: ResizeHandleProps) @{
-	const direction = props.direction ?? 'horizontal';
-	const isHorizontal = direction === 'horizontal';
-	const sign = props.isReversed ? -1 : 1;
-	const resizable = props.resizable;
-	const started = useRef(false);
-	const lastTap = useRef(0);
+	const direction = props.direction ?? 'horizontal'
+	const isHorizontal = direction === 'horizontal'
+	const sign = props.isReversed ? -1 : 1
+	const resizable = props.resizable
+	const started = useRef(false)
+	const lastTap = useRef(0)
 
 	const onPan = (e: PanEvent) => {
-		if (props.isDisabled || !resizable) return;
-		const delta = (isHorizontal ? e.dx : e.dy) * sign;
+		if (props.isDisabled || !resizable) {
+			return
+		}
+
+		const delta = (isHorizontal ? e.dx : e.dy) * sign
 		if (e.state === 'began') {
-			started.current = true;
-			resizable._onResizeStart();
+			started.current = true
+			resizable._onResizeStart()
 		} else if (e.state === 'moved') {
-			if (started.current) resizable._onResizeMove(delta);
+			if (started.current) {
+				resizable._onResizeMove(delta)
+			}
 		} else {
 			// ended / cancelled
 			if (started.current) {
-				started.current = false;
+				started.current = false
 				if (e.state === 'cancelled') {
-					resizable._onResizeCancel?.();
+					resizable._onResizeCancel?.()
 				} else {
-					resizable._onResizeEnd();
+					resizable._onResizeEnd()
 				}
 			}
 		}
-	};
+	}
 
 	const onTap = () => {
-		if (props.isDisabled || !resizable?._collapsible) return;
-		// Double-tap toggles collapse — the touch analog of dblclick.
-		const now = Date.now();
-		if (now - lastTap.current < 400) {
-			lastTap.current = 0;
-			resizable._onResizeStart();
-			resizable._onResizeMove(resizable._isCollapsed ? resizable._minSizePx : -resizable._size);
-			resizable._onResizeEnd();
-		} else {
-			lastTap.current = now;
+		if (props.isDisabled || !resizable?._collapsible) {
+			return
 		}
-	};
 
-	const collapsed = resizable?._isCollapsed ?? false;
+		// Double-tap toggles collapse — the touch analog of dblclick.
+		const now = Date.now()
+		if (now - lastTap.current < 400) {
+			lastTap.current = 0
+			resizable._onResizeStart()
+			resizable._onResizeMove(resizable._isCollapsed ? resizable._minSizePx : -resizable._size)
+			resizable._onResizeEnd()
+		} else {
+			lastTap.current = now
+		}
+	}
+
+	const collapsed = resizable?._isCollapsed ?? false
 	const pillSide =
 		props.pillPlacement === 'auto' || props.pillPlacement == null
 			? collapsed
@@ -61,7 +69,7 @@ export function ResizeHandle(props: ResizeHandleProps) @{
 				: props.isReversed
 					? 'end'
 					: 'start'
-			: props.pillPlacement;
+			: props.pillPlacement
 
 	<Pressable
 		ref={(v: any) => applyEscapeProps(v, props)}
@@ -85,6 +93,6 @@ export function ResizeHandle(props: ResizeHandleProps) @{
 		onPan={onPan}
 		onPress={onTap}
 	>
-		{props.children ?? <masonview className="vx-resize-handle-pill" style={{display: "flex"}}/>}
+		{props.children ?? <masonview className="vx-resize-handle-pill" style={{ display: 'flex' }} />}
 	</Pressable>
 }

@@ -46,7 +46,9 @@ test('padded label cell insets drawing and grows the measured size', () => {
 	// A cell without registered insets measures like a stock one.
 	const plainCell = new PaddedLabelCell()
 	assert.deepEqual(
-		plain(plainCell.cellSizeForBounds({ origin: { x: 0, y: 0 }, size: { width: 100, height: 40 } })),
+		plain(
+			plainCell.cellSizeForBounds({ origin: { x: 0, y: 0 }, size: { width: 100, height: 40 } }),
+		),
 		{ width: 100, height: 12 },
 	)
 })
@@ -102,7 +104,12 @@ test('label padding resolves the shorthand box and longhand edges onto the cell'
 	node.stylePaddingEdges = { top: 2, left: 10 }
 	writers.syncLabelPadding(node)
 	assert.deepEqual(plain(cellPaddings.get(node.view)), { top: 2, right: 6, bottom: 4, left: 10 })
-	assert.deepEqual(plain(cellPaddings.get(node.view.cell)), { top: 2, right: 6, bottom: 4, left: 10 })
+	assert.deepEqual(plain(cellPaddings.get(node.view.cell)), {
+		top: 2,
+		right: 6,
+		bottom: 4,
+		left: 10,
+	})
 	assert.equal(node.view.invalidated, true)
 	assert.equal(node.container.reconciles.at(-1), node.parent)
 
@@ -265,10 +272,11 @@ test('outline shorthand and longhands resolve to a ring spec', () => {
 		color: 'cg:#ff0000',
 		offset: 0,
 	})
-	assert.deepEqual(
-		plain(outlineSpec({ outlineWidth: 2, outlineOffset: -1 })),
-		{ width: 2, color: 'cg:focus', offset: -1 },
-	)
+	assert.deepEqual(plain(outlineSpec({ outlineWidth: 2, outlineOffset: -1 })), {
+		width: 2,
+		color: 'cg:focus',
+		offset: -1,
+	})
 	assert.equal(outlineSpec({ outline: 'none' }), null)
 	assert.equal(outlineSpec({}), null)
 })
@@ -291,6 +299,7 @@ const { styleDict: styleDictRealm } = runSlice(masonSource + '\n;({ styleDict })
 	},
 	NSViewFrameDidChangeNotification: 'frame',
 })
+
 const styleDict = (n: any) => JSON.parse(JSON.stringify(styleDictRealm(n)))
 
 const leaf = (type: string, style: Record<string, any>) => ({

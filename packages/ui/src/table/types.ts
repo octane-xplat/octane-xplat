@@ -365,8 +365,16 @@ export interface UseTableTreeDataConfig<T extends Record<string, unknown>> {
 /** Named colors supported by the custom row-status marker; raw CSS colors are
  *  passed through untouched. */
 export type TableRowStatusColor =
-	| 'accent' | 'success' | 'error' | 'warning'
-	| 'red' | 'orange' | 'green' | 'yellow' | 'blue' | 'gray'
+	| 'accent'
+	| 'success'
+	| 'error'
+	| 'warning'
+	| 'red'
+	| 'orange'
+	| 'green'
+	| 'yellow'
+	| 'blue'
+	| 'gray'
 
 /** Semantic row status — resolves to the themed status glyph and tone. */
 export interface TableSemanticRowStatus {

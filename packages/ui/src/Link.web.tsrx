@@ -1,4 +1,4 @@
-import type { LinkProps } from './props';
+import type { LinkProps } from './props'
 import { useLinkComponent } from './use-link-component.web.tsrx'
 
 /** URL anchor — external/navigation links (Astryx `Link`). `isExternalLink`
@@ -8,7 +8,8 @@ import { useLinkComponent } from './use-link-component.web.tsrx'
  *  subtree default → plain anchor. */
 export function Link(props: LinkProps) @{
 	const LinkEl: any = useLinkComponent(props.as)
-	const external = props.isExternalLink === true;
+	const external = props.isExternalLink === true
+
 	<LinkEl
 		id={props.id}
 		href={props.href}
@@ -17,10 +18,20 @@ export function Link(props: LinkProps) @{
 		role={props.accessibilityRole ?? 'link'}
 		onClick={props.onPress}
 		title={props.tooltip}
-		className={['vx-link', props.isStandalone && 'vx-link--standalone', props.hasUnderline && 'vx-link--underline', external && 'vx-link--external', props.className]}
+		className={[
+			'vx-link',
+			props.isStandalone && 'vx-link--standalone',
+			props.hasUnderline && 'vx-link--underline',
+			external && 'vx-link--external',
+			props.className,
+		]}
 		style={{ ...(props.color ? { color: props.color } : {}), ...((props.style as object) ?? {}) }}
 	>
 		{props.children}
-		{external ? <span className="vx-link-external" aria-hidden="true">{'\u2197'}</span> : null}
+		{external ? (
+			<span className="vx-link-external" aria-hidden="true">
+				{'\u2197'}
+			</span>
+		) : null}
 	</LinkEl>
 }

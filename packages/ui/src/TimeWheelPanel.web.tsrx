@@ -35,7 +35,10 @@ export function TimeWheelPanel(props: TimeWheelProps) @{
 
 	const minuteChoices = useMemo(() => {
 		const list: { value: number; label: string }[] = []
-		for (let m = 0; m < 60; m++) list.push({ value: m, label: String(m).padStart(2, '0') })
+		for (let m = 0; m < 60; m++) {
+			list.push({ value: m, label: String(m).padStart(2, '0') })
+		}
+
 		return list
 	}, [])
 
@@ -45,7 +48,10 @@ export function TimeWheelPanel(props: TimeWheelProps) @{
 	const commitValid = isTimeInRange(current, props.min, props.max)
 
 	const commit = () => {
-		if (!commitValid) return
+		if (!commitValid) {
+			return
+		}
+
 		props.onCommit(formatISOTime({ hour: hour24, minute, second }, props.hasSeconds))
 	}
 
@@ -62,7 +68,10 @@ export function TimeWheelPanel(props: TimeWheelProps) @{
 					type="button"
 					role="option"
 					aria-selected={c.value === currentValue}
-					className={cx('vx-timewheel-option', c.value === currentValue && 'vx-timewheel-option--selected')}
+					className={cx(
+						'vx-timewheel-option',
+						c.value === currentValue && 'vx-timewheel-option--selected',
+					)}
 					onClick={() => onPick(c.value)}
 				>
 					{c.label}
@@ -78,8 +87,17 @@ export function TimeWheelPanel(props: TimeWheelProps) @{
 			{props.hasSeconds ? column('Second', secondChoices, second, setSecond) : null}
 		</div>
 		<div className="vx-timewheel-actions">
-			<button type="button" className="vx-timewheel-cancel" onClick={props.onDismiss}>Cancel</button>
-			<button type="button" className="vx-timewheel-done" disabled={!commitValid || undefined} onClick={commit}>Done</button>
+			<button type="button" className="vx-timewheel-cancel" onClick={props.onDismiss}>
+				Cancel
+			</button>
+			<button
+				type="button"
+				className="vx-timewheel-done"
+				disabled={!commitValid || undefined}
+				onClick={commit}
+			>
+				Done
+			</button>
 		</div>
 	</div>
 }

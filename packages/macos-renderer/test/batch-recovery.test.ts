@@ -75,9 +75,9 @@ function fixture({ applyProps }: { applyProps?: any } = {}) {
 		),
 		behaviorOf: (type: string) => sandbox.elementBehaviors.get(type),
 		isManualLayoutParent: (t: string) =>
-			['liquidglass','contentview','actionbar','rootlayout','masonview'].includes(t),
+			['liquidglass', 'contentview', 'actionbar', 'rootlayout', 'masonview'].includes(t),
 		registerElementType: () => {},
-		
+
 		validateTextStyle,
 		nextMockActionId: 500,
 		actionHandlers,

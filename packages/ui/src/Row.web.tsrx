@@ -1,14 +1,23 @@
-import { useMemo, useRef } from 'octane';
+import { useMemo, useRef } from 'octane'
 import { refList } from './ref-list'
-import type { RowProps } from "./props";
-import { applyEscapeProps } from "./escape-props";
-import { layoutChildProps } from './layout-child.web';
-import { usePan } from './pan.web.tsrx';
+import type { RowProps } from './props'
+import { applyEscapeProps } from './escape-props'
+import { layoutChildProps } from './layout-child.web'
+import { usePan } from './pan.web.tsrx'
 export function Row(props: RowProps) @{
-	const el = useRef<HTMLElement | null>(null);
-	usePan(el, props.onPan);
+	const el = useRef<HTMLElement | null>(null)
+	usePan(el, props.onPan)
 
-	const forwardedRef = useMemo(() => refList((e: any) => { el.current = e; if (e) { applyEscapeProps(e, props);  } }, props.ref), [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(
+		() =>
+			refList((e: any) => {
+				el.current = e
+				if (e) {
+					applyEscapeProps(e, props)
+				}
+			}, props.ref),
+		[props.ref, props.ios, props.android, props.web],
+	)
 
 	<div
 		id={props.id}

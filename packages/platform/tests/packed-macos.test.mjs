@@ -32,11 +32,7 @@ test('packed macOS consumer resolves generated declarations and platform contrac
 
 	// platform's declarations reference the capability contract in
 	// @octane-xplat/lib — a real install pulls it in as a dependency.
-	const libOutput = run(
-		'pnpm',
-		['pack', '--pack-destination', directory],
-		resolve(root, '../lib'),
-	)
+	const libOutput = run('pnpm', ['pack', '--pack-destination', directory], resolve(root, '../lib'))
 	const libTarball = libOutput
 		.trim()
 		.split('\n')

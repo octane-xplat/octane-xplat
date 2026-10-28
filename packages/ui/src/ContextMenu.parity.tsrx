@@ -14,5 +14,10 @@ function ContextMenuFixture() @{
 }
 
 export const PARITY: ParityFixture[] = [
-	{ name: 'context-menu-target', component: 'ContextMenu', renderer: ContextMenuFixture, props: {} },
+	{
+		name: 'context-menu-target',
+		component: 'ContextMenu',
+		renderer: ContextMenuFixture,
+		props: {},
+	},
 ]

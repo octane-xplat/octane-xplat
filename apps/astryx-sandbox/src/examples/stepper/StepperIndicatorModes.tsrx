@@ -4,8 +4,9 @@ import { useState } from 'octane'
 
 export function StepperIndicatorModes() @{
 	const [active, setActive] = useState(2)
-	<div style={{display: 'flex', gap: 48, flexWrap: 'wrap'}}>
-		<div style={{maxWidth: 220}}>
+
+	<div style={{ display: 'flex', gap: 48, flexWrap: 'wrap' }}>
+		<div style={{ maxWidth: 220 }}>
 			<Text type="label">None</Text>
 			<Stepper activeStep={active} orientation="vertical" onStepClick={setActive}>
 				<Step step={0} label="Account" indicator="none" />
@@ -14,7 +15,7 @@ export function StepperIndicatorModes() @{
 				<Step step={3} label="Review" indicator="none" />
 			</Stepper>
 		</div>
-		<div style={{maxWidth: 220}}>
+		<div style={{ maxWidth: 220 }}>
 			<Text type="label">Auto</Text>
 			<Stepper activeStep={active} orientation="vertical" onStepClick={setActive}>
 				<Step step={0} label="Account" />
@@ -23,7 +24,7 @@ export function StepperIndicatorModes() @{
 				<Step step={3} label="Review" />
 			</Stepper>
 		</div>
-		<div style={{maxWidth: 220}}>
+		<div style={{ maxWidth: 220 }}>
 			<Text type="label">Number</Text>
 			<Stepper activeStep={active} orientation="vertical" onStepClick={setActive}>
 				<Step step={0} label="Account" indicator="number" />
@@ -32,7 +33,7 @@ export function StepperIndicatorModes() @{
 				<Step step={3} label="Review" indicator="number" />
 			</Stepper>
 		</div>
-		<div style={{maxWidth: 220}}>
+		<div style={{ maxWidth: 220 }}>
 			<Text type="label">Custom icon</Text>
 			<Stepper activeStep={active} orientation="vertical" onStepClick={setActive}>
 				<Step step={0} label="Account" indicator={<Icon name="sandbox-info" size={14} />} />

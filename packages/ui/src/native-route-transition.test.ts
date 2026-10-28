@@ -1,6 +1,11 @@
 // @vitest-environment node
 import { afterEach, expect, it, vi } from 'vitest'
-import { defineNativeTransition, resolveNativePageTransition, resolveNativeViewTransition } from './native-route-transition'
+import {
+	defineNativeTransition,
+	resolveNativePageTransition,
+	resolveNativeViewTransition,
+} from './native-route-transition'
+
 import { defineTransitions } from './route-transitions'
 import type { NativeTransitionContext } from './native-route-transition'
 import type { PreparedRouteMatch } from './props'
@@ -117,29 +122,66 @@ it('keeps page and view engines distinct and captures flat view values immutably
 	const from = { opacity: 0, translateX: 24 }
 	const viewOnly = defineNativeTransition({ view: { from, duration: 180, curve: 'easeOut' } })
 	from.translateX = 900
-	expect(resolveNativePageTransition('detail', viewOnly, context).result).toEqual({ status: 'skipped', reason: 'unsupported' })
-	expect(resolveNativeViewTransition('detail', viewOnly, { ...context, direction: 'forward' })).toEqual({ values: { opacity: 0, translateX: 24 }, duration: 180, curve: 'easeOut' })
+	expect(resolveNativePageTransition('detail', viewOnly, context).result).toEqual({
+		status: 'skipped',
+		reason: 'unsupported',
+	})
+	expect(
+		resolveNativeViewTransition('detail', viewOnly, { ...context, direction: 'forward' }),
+	).toEqual({ values: { opacity: 0, translateX: 24 }, duration: 180, curve: 'easeOut' })
 	const pageOnly = defineNativeTransition({ page: () => ({ name: 'fade' }) })
-	expect(resolveNativeViewTransition('detail', pageOnly, { ...context, direction: 'forward' })).toEqual({ status: 'skipped', reason: 'unsupported' })
+	expect(
+		resolveNativeViewTransition('detail', pageOnly, { ...context, direction: 'forward' }),
+	).toEqual({ status: 'skipped', reason: 'unsupported' })
 })
 
 it('supplies Back context to view effects and samples their reduced motion policy', () => {
-	const from = vi.fn(({ direction }: { direction: 'forward' | 'back' }) => ({ translateX: direction === 'back' ? -24 : 24 }))
+	const from = vi.fn(({ direction }: { direction: 'forward' | 'back' }) => ({
+		translateX: direction === 'back' ? -24 : 24,
+	}))
 	const definition = defineNativeTransition({ view: { from } })
 	const back = { ...context, direction: 'back' as const, action: 'back' as const }
-	expect(resolveNativeViewTransition('detail', definition, back)).toMatchObject({ values: { translateX: -24 } })
+	expect(resolveNativeViewTransition('detail', definition, back)).toMatchObject({
+		values: { translateX: -24 },
+	})
 	state.reduced = true
 	from.mockClear()
-	expect(resolveNativeViewTransition('detail', definition, back)).toEqual({ status: 'skipped', reason: 'reduced-motion' })
+	expect(resolveNativeViewTransition('detail', definition, back)).toEqual({
+		status: 'skipped',
+		reason: 'reduced-motion',
+	})
 	expect(from).not.toHaveBeenCalled()
-	expect(resolveNativeViewTransition('detail', defineNativeTransition({ view: { from }, reducedMotion: 'allow' }), back)).toMatchObject({ values: { translateX: -24 } })
+	expect(
+		resolveNativeViewTransition(
+			'detail',
+			defineNativeTransition({ view: { from }, reducedMotion: 'allow' }),
+			back,
+		),
+	).toMatchObject({ values: { translateX: -24 } })
 })
 
 it('rejects invalid static values and keeps callback failures local to motion', async () => {
-	for (const options of [{}, { view: { from: { opacity: 2 } } }, { view: { from: { translateX: Infinity } } }, { view: { from: { opacity: 0 }, duration: -1 } }, { view: { from: { target: {} } } }, { view: { from: { opacity: 0 }, curve: 'invented' } }]) {
+	for (const options of [
+		{},
+		{ view: { from: { opacity: 2 } } },
+		{ view: { from: { translateX: Infinity } } },
+		{ view: { from: { opacity: 0 }, duration: -1 } },
+		{ view: { from: { target: {} } } },
+		{ view: { from: { opacity: 0 }, curve: 'invented' } },
+	]) {
 		expect(() => Reflect.apply(defineNativeTransition, undefined, [options])).toThrow(TypeError)
 	}
-	const definition = Reflect.apply(defineNativeTransition, undefined, [{ view: { from: async () => { throw new Error('late failure') } } }])
-	expect(resolveNativeViewTransition('detail', definition, { ...context, direction: 'forward' })).toMatchObject({ status: 'failed', error: expect.any(TypeError) })
+	const definition = Reflect.apply(defineNativeTransition, undefined, [
+		{
+			view: {
+				from: async () => {
+					throw new Error('late failure')
+				},
+			},
+		},
+	])
+	expect(
+		resolveNativeViewTransition('detail', definition, { ...context, direction: 'forward' }),
+	).toMatchObject({ status: 'failed', error: expect.any(TypeError) })
 	await Promise.resolve()
 })

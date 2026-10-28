@@ -14,5 +14,6 @@ export function CommandPaletteAutoGrouped() @{
 			]),
 		[],
 	)
+
 	<CommandPalette open onOpenChange={() => {}} searchSource={source} />
 }

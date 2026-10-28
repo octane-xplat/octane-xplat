@@ -15,6 +15,7 @@ export function CommandPaletteInputBasic() @{
 			]),
 		[],
 	)
+
 	<CommandPalette
 		open
 		onOpenChange={() => {}}

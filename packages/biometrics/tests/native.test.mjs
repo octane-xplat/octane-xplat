@@ -75,8 +75,14 @@ test('ensure reports secure-lockscreen-without-biometrics as unsupported on Andr
 
 test('ensure grants usable biometrics on both leaves', async () => {
 	assert.equal((await load({ ios: false }).api.requestPermissions()).status, 'granted')
-	assert.equal((await load({ ios: true, available: { any: true } }).api.requestPermissions()).status, 'granted')
-	assert.equal((await load({ available: { any: false } }).api.requestPermissions()).status, 'unsupported')
+	assert.equal(
+		(await load({ ios: true, available: { any: true } }).api.requestPermissions()).status,
+		'granted',
+	)
+	assert.equal(
+		(await load({ available: { any: false } }).api.requestPermissions()).status,
+		'unsupported',
+	)
 })
 
 test('verify surfaces the reason through the iOS LAContext path', async () => {

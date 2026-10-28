@@ -11,13 +11,34 @@ export function PopoverSettingsPanel() @{
 	return (
 		<>
 			<Button ref={anchor} label="Settings" clickAction={() => setIsOpen(true)} />
-			<Popover anchor={anchor} open={isOpen} onDismiss={() => setIsOpen(false)} placement="bottom" style={{ width: 280 }}>
+			<Popover
+				anchor={anchor}
+				open={isOpen}
+				onDismiss={() => setIsOpen(false)}
+				placement="bottom"
+				style={{ width: 280 }}
+			>
 				<VStack gap={3} style={{ padding: 'var(--spacing-4)' }}>
 					<Heading level={4}>Settings</Heading>
 					<Divider />
-					<Switch label="Notifications" description="Receive push notifications" value={notifications} onChange={setNotifications} />
-					<Switch label="Dark mode" description="Use dark color theme" value={darkMode} onChange={setDarkMode} />
-					<Switch label="Sounds" description="Play sounds for actions" value={sounds} onChange={setSounds} />
+					<Switch
+						label="Notifications"
+						description="Receive push notifications"
+						value={notifications}
+						onChange={setNotifications}
+					/>
+					<Switch
+						label="Dark mode"
+						description="Use dark color theme"
+						value={darkMode}
+						onChange={setDarkMode}
+					/>
+					<Switch
+						label="Sounds"
+						description="Play sounds for actions"
+						value={sounds}
+						onChange={setSounds}
+					/>
 				</VStack>
 			</Popover>
 		</>

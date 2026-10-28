@@ -1,4 +1,4 @@
-import { HStack, Screen, Text, View } from '@octane-xplat/ui';
+import { HStack, Screen, Text, View } from '@octane-xplat/ui'
 
 /** Flex/text divergence probes — the spots where NS FlexboxLayout isn't web
  *  flexbox and identical markup renders differently. Each case is sized/
@@ -28,8 +28,13 @@ export function Divergence() @{
 		<View className="sink-section">
 			<Text className="section-label">line-height</Text>
 			<HStack className="dv-row items-center">
-				<Text id="dv-lh" className="dv-lh">LineHeight gyÊ</Text>
-				<Text id="dv-lh2" style={{ lineHeight: 40 }}>inline lh</Text> {/* xplat-disable-line */}
+				<Text id="dv-lh" className="dv-lh">
+					LineHeight gyÊ
+				</Text>
+				<Text id="dv-lh2" style={{ lineHeight: 40 }}>
+					inline lh
+				</Text>{' '}
+				{/* xplat-disable-line */}
 			</HStack>
 		</View>
 
@@ -37,7 +42,9 @@ export function Divergence() @{
 			<Text className="section-label">trailing item — margin-left:auto vs justify</Text>
 			<HStack className="dv-row">
 				<Text>lead</Text>
-				<Text id="dv-auto" className="dv-auto">trail</Text>
+				<Text id="dv-auto" className="dv-auto">
+					trail
+				</Text>
 			</HStack>
 			<HStack className="dv-row" hAlign="between">
 				<Text>lead</Text>
@@ -48,7 +55,9 @@ export function Divergence() @{
 		<View className="sink-section">
 			<Text className="section-label">overflow squeeze vs shrink + min-w-0</Text>
 			<HStack className="dv-row dv-row-tight">
-				<Text id="dv-wide" className="dv-wide">long intrinsic text that wants a lot of width on its own</Text>
+				<Text id="dv-wide" className="dv-wide">
+					long intrinsic text that wants a lot of width on its own
+				</Text>
 				<View id="dv-sib" className="dv-sib" />
 			</HStack>
 			<HStack className="dv-row dv-row-tight">
@@ -72,14 +81,25 @@ export function Divergence() @{
 				<HStack id="dv-collapse-row" className="items-start shrink-0">
 					<View id="dv-coll-avatar" className="dv-avatar" style={{ width: 46, height: 46 }} />
 					<View id="dv-coll-body" className="grow min-w-0" style={{ width: 0, marginLeft: 12 }}>
-						<Text id="dv-coll-text">tall intrinsic text that should keep the row open at its own measured height and wraps across lines</Text>
-						<HStack id="dv-coll-actions"><Text>actions</Text></HStack>
+						<Text id="dv-coll-text">
+							tall intrinsic text that should keep the row open at its own measured height and wraps
+							across lines
+						</Text>
+						<HStack id="dv-coll-actions">
+							<Text>actions</Text>
+						</HStack>
 					</View>
 				</HStack>
 				{/* Same shape, all-grow children — the text-coral regression. */}
 				<HStack id="dv-collapse-allgrow" className="shrink-0">
-					<View className="grow"><Text id="dv-ag-text">all-grow children, tall intrinsic text that should keep the row open at its own height</Text></View>
-					<View className="grow"><Text>second grow child</Text></View>
+					<View className="grow">
+						<Text id="dv-ag-text">
+							all-grow children, tall intrinsic text that should keep the row open at its own height
+						</Text>
+					</View>
+					<View className="grow">
+						<Text>second grow child</Text>
+					</View>
 				</HStack>
 			</View>
 		</View>

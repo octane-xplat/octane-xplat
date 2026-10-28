@@ -4,7 +4,8 @@ import { useState } from 'octane'
 
 export function SegmentedControlFillLayout() @{
 	const [value, setValue] = useState('profile')
-	<div style={{width: 500}}>
+
+	<div style={{ width: 500 }}>
 		<SegmentedControl value={value} onValueChange={setValue} layout="fill">
 			<SegmentedControlItem label="Profile" value="profile" />
 			<SegmentedControlItem label="Security" value="security" />

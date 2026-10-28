@@ -15,20 +15,19 @@ export function readNotes(root: string): Note[] {
 		if (!existsSync(directory)) {
 			continue
 		}
+
 		for (const entry of readdirSync(directory, { withFileTypes: true }).sort((a, b) =>
 			a.name < b.name ? -1 : a.name > b.name ? 1 : 0,
 		)) {
 			if (!entry.name.endsWith('.md')) {
 				continue
 			}
+
 			const path = join(directory, entry.name)
 			assert.ok(entry.isFile(), `${path}: a release note must be a regular file`)
 			const text = readFileSync(path, 'utf8').replace(/\r\n/g, '\n')
 			const header = /^---\n([\s\S]*?)\n---\n([\s\S]*)$/.exec(text)
-			assert.ok(
-				header || !text.startsWith('---'),
-				`${path}: close the YAML header or omit it`,
-			)
+			assert.ok(header || !text.startsWith('---'), `${path}: close the YAML header or omit it`)
 			let release: Release = 'lockstep'
 			let body = text
 			if (header) {
@@ -40,15 +39,18 @@ export function readNotes(root: string): Note[] {
 						Object.hasOwn(metadata, 'release'),
 					`${path}: the header must contain only release`,
 				)
+
 				release = releaseName(metadata.release)
 				body = header[2]
 			}
+
 			body = body.trim()
 			assert.match(
 				body,
 				/^### \S[^\n]*\n\s*\n\S/,
 				`${path}: use a ### title, a blank line, and a description`,
 			)
+
 			// Reserve level 1/2 headings for the logs and release sections. Ignore
 			// fenced examples, where a shell comment can start with "#" too.
 			let fence: string | undefined
@@ -73,6 +75,7 @@ export function readNotes(root: string): Note[] {
 					)
 				}
 			}
+
 			assert.ok(!fence, `${path}: close the code fence`)
 			notes.push({ path, release, kind, body })
 		}
@@ -103,15 +106,18 @@ export function renderNotes(
 			.filter((note) => note.kind === kind)
 			.map((note) => note.body)
 			.join('\n\n')
+
 		const path = join(root, file)
 		const existing = existsSync(path)
 			? readFileSync(path, 'utf8')
 			: `# ${file === 'CHANGELOG.md' ? 'Changelog' : 'Fixlog'}\n`
+
 		// Catch attempts to consume a second batch for an already recorded release.
 		assert.ok(!existing.includes(`](${url})`), `${file}: ${prefix}${version} is already recorded`)
 		if (!body) {
 			continue
 		}
+
 		const lines = existing.split('\n')
 		const firstRelease = lines.findIndex((line) => line.startsWith('## '))
 		const position = firstRelease < 0 ? lines.length : firstRelease
@@ -151,6 +157,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
 				['preview', 'prepare'].includes(command) && version && !rest.length,
 				'usage: node scripts/release-notes.ts check | <preview|prepare> <lockstep|tsrx-typegen> <version>',
 			)
+
 			const run = command === 'prepare' ? prepareNotes : renderNotes
 			const result = run(process.cwd(), releaseName(release), version)
 			process.stdout.write(result.github)

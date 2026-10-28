@@ -7,19 +7,37 @@ import { createContentOwner, type ContentOwner, type ContentEntry } from './owne
 function OwnedEntry(props: { key?: number; entry: ContentEntry }) {
 	const entry = props.entry
 	const Component = entry.component
-	useLayoutEffect(() => { entry.committed() }, [entry])
+	useLayoutEffect(() => {
+		entry.committed()
+	}, [entry])
+
 	return createPortal(<Component {...entry.props} />, entry.target)
 }
 
 function ContentOutlet(props: { owner: ContentOwner }) {
-	const entries = useSyncExternalStore(props.owner.entries.subscribe, props.owner.entries.getSnapshot, props.owner.entries.getSnapshot)
+	const entries = useSyncExternalStore(
+		props.owner.entries.subscribe,
+		props.owner.entries.getSnapshot,
+		props.owner.entries.getSnapshot,
+	)
+
 	useEffect(() => () => props.owner.dispose(), [props.owner])
-	return <>
-		<masonview ref={(view: any) => { props.owner.host = view }} style={mergeStyle({flexDirection: "column"}, mergeStyle({display: "flex"}, { width: 0, height: 0 }))}/>
-		@for (const entry of entries; key entry.id) {
-			<OwnedEntry entry={entry} />
-		}
-	</>
+	return (
+		<>
+			<masonview
+				ref={(view: any) => {
+					props.owner.host = view
+				}}
+				style={mergeStyle(
+					{ flexDirection: 'column' },
+					mergeStyle({ display: 'flex' }, { width: 0, height: 0 }),
+				)}
+			/>
+			@for (const entry of entries; key entry.id) {
+				<OwnedEntry entry={entry} />
+			}
+		</>
+	)
 }
 
 export function useOwnedContent() {

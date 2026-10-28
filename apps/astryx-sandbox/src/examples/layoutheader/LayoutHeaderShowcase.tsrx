@@ -1,5 +1,16 @@
 // Port of upstream LayoutHeader/LayoutHeaderShowcase.tsx (Astryx 0.6.4, MIT).
-import { Button, Card, Center, Heading, HStack, Layout, LayoutContent, LayoutFooter, LayoutHeader, LayoutPanel } from '@octane-xplat/ui'
+import {
+	Button,
+	Card,
+	Center,
+	Heading,
+	HStack,
+	Layout,
+	LayoutContent,
+	LayoutFooter,
+	LayoutHeader,
+	LayoutPanel,
+} from '@octane-xplat/ui'
 
 export function LayoutHeaderShowcase() @{
 	<Center width={400}>
@@ -17,9 +28,21 @@ export function LayoutHeaderShowcase() @{
 					</HStack>
 				</LayoutHeader>
 			}
-			start={<LayoutPanel hasDivider width={140}><Card variant="muted" /></LayoutPanel>}
-			content={<LayoutContent><Card variant="muted" /></LayoutContent>}
-			footer={<LayoutFooter hasDivider><Card variant="muted" /></LayoutFooter>}
+			start={
+				<LayoutPanel hasDivider width={140}>
+					<Card variant="muted" />
+				</LayoutPanel>
+			}
+			content={
+				<LayoutContent>
+					<Card variant="muted" />
+				</LayoutContent>
+			}
+			footer={
+				<LayoutFooter hasDivider>
+					<Card variant="muted" />
+				</LayoutFooter>
+			}
 		/>
 	</Center>
 }

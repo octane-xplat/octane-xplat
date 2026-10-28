@@ -1,134 +1,143 @@
 import { mergeStyle, styleRecord } from './style-merge'
-import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx';
-import { SizeProvider } from './size-context';
-import { createPortal, useContext, useEffect, useId, useRef, useState } from 'octane';
-import type { DialogHeaderProps, DialogProps } from './props';
-import { applyEscapeProps } from './escape-props';
-import { useThemeScheme } from './theme/theme-scheme';
-import { DialogContext, DialogProvider } from './dialog-context';
-import { spacingStep } from './spacing';
-import { cx } from '@octane-xplat/lib';
-import { Icon } from './Icon.web.tsrx';
-import { Pressable } from './Pressable.web.tsrx';
+import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx'
+import { SizeProvider } from './size-context'
+import { createPortal, useContext, useEffect, useId, useRef, useState } from 'octane'
+import type { DialogHeaderProps, DialogProps } from './props'
+import { applyEscapeProps } from './escape-props'
+import { useThemeScheme } from './theme/theme-scheme'
+import { DialogContext, DialogProvider } from './dialog-context'
+import { spacingStep } from './spacing'
+import { cx } from '@octane-xplat/lib'
+import { Icon } from './Icon.web.tsrx'
+import { Pressable } from './Pressable.web.tsrx'
 
 const toPx = (v: number | string | undefined) =>
-	v == null ? undefined : typeof v === 'number' ? `${v}px` : v;
+	v == null ? undefined : typeof v === 'number' ? `${v}px` : v
 
 /** Modal/inline panel rendered when isOpen — owns the real `<dialog>`
  *  element where the browser supports it (focus trap, top layer,
  *  ::backdrop, inert background are native platform behavior), plus a
  *  fallback fixed layer for engines without `HTMLDialogElement.showModal`. */
 function DialogModal(props: DialogProps) @{
-	const dark = useThemeScheme() === 'dark';
-	const titleId = useId();
-	const dialogRef = useRef<HTMLDialogElement | null>(null);
-	const layerRef = useRef<HTMLDivElement | null>(null);
-	const restoreScroll = useRef<string | null>(null);
-	const purpose = props.purpose ?? 'info';
-	const isFullscreen = props.variant === 'fullscreen';
-	const padding = spacingStep(props.padding ?? 5) ?? 20;
-	const dismiss = useRef(props.onOpenChange);
-	dismiss.current = props.onOpenChange;
-	const pos = props.position;
-	const dismissal = useLayerDismissal({ active: true, dismiss: () => dismiss.current?.(false), get behavior() { return props.purpose === 'required' ? 'block' : 'close' }, getFocusTarget: () => props.finalFocusRef?.current, contains: (target) => !!dialogRef.current?.contains(target) });
+	const dark = useThemeScheme() === 'dark'
+	const titleId = useId()
+	const dialogRef = useRef<HTMLDialogElement | null>(null)
+	const layerRef = useRef<HTMLDivElement | null>(null)
+	const restoreScroll = useRef<string | null>(null)
+	const purpose = props.purpose ?? 'info'
+	const isFullscreen = props.variant === 'fullscreen'
+	const padding = spacingStep(props.padding ?? 5) ?? 20
+	const dismiss = useRef(props.onOpenChange)
+	dismiss.current = props.onOpenChange
+	const pos = props.position
+	const dismissal = useLayerDismissal({
+		active: true,
+		dismiss: () => dismiss.current?.(false),
+		get behavior() {
+			return props.purpose === 'required' ? 'block' : 'close'
+		},
+		getFocusTarget: () => props.finalFocusRef?.current,
+		contains: (target) => !!dialogRef.current?.contains(target),
+	})
 
 	useEffect(() => {
-		const dialog = dialogRef.current;
-		const layer = layerRef.current;
+		const dialog = dialogRef.current
+		const layer = layerRef.current
 		if (!dialog) {
-			return;
+			return
 		}
 
-		const canModal = typeof dialog.showModal === 'function';
+		const canModal = typeof dialog.showModal === 'function'
 		if (canModal) {
 			try {
-				dialog.showModal();
+				dialog.showModal()
 			} catch {
-				dialog.setAttribute('open', '');
+				dialog.setAttribute('open', '')
 			}
 		} else {
-			dialog.setAttribute('open', '');
+			dialog.setAttribute('open', '')
 		}
 
 		// Page scroll lock for the modal's lifetime.
-		const root = document.documentElement;
-		restoreScroll.current = root.style.overflow || '';
-		root.style.overflow = 'hidden';
+		const root = document.documentElement
+		restoreScroll.current = root.style.overflow || ''
+		root.style.overflow = 'hidden'
 
 		// Initial focus: an explicit [data-autofocus] wins, then the
 		// DialogHeader title, then the dialog itself (showModal already
 		// focuses it; make that explicit for the fallback path).
-		const autofocusEl = dialog.querySelector<HTMLElement>('[data-autofocus]');
-		const titleEl = dialog.querySelector<HTMLElement>('[data-vx-dialog-title]');
+		const autofocusEl = dialog.querySelector<HTMLElement>('[data-autofocus]')
+		const titleEl = dialog.querySelector<HTMLElement>('[data-vx-dialog-title]')
 		if (autofocusEl) {
-			autofocusEl.focus({ preventScroll: true });
+			autofocusEl.focus({ preventScroll: true })
 		} else if (titleEl) {
-			titleEl.focus({ preventScroll: true });
+			titleEl.focus({ preventScroll: true })
 		} else if (!canModal) {
-			dialog.focus?.({ preventScroll: true });
+			dialog.focus?.({ preventScroll: true })
 		}
 
 		// An open modal without a name is an a11y defect — warn once.
-		if (
-			!props.accessibilityLabel &&
-			!dialog.hasAttribute('aria-labelledby') &&
-			!titleEl
-		) {
+		if (!props.accessibilityLabel && !dialog.hasAttribute('aria-labelledby') && !titleEl) {
 			console.warn(
 				'[Dialog] an open modal dialog has no accessible name — provide `accessibilityLabel` or render a <DialogHeader> with a title.',
-			);
+			)
 		}
 
 		// Escape: the UA fires `cancel` before closing. `required` swallows
 		// it; other purposes report the dismissal through onOpenChange.
 		const onCancel = (event: Event) => {
-			event.preventDefault();
+			event.preventDefault()
 			if (props.purpose !== 'required' && dismissal.shouldClose()) {
-				dismiss.current?.(false);
+				dismiss.current?.(false)
 			}
-		};
+		}
 
 		// Backdrop clicks land on the <dialog> itself (padding included).
 		const onClick = (event: MouseEvent) => {
 			if (event.target === event.currentTarget && purpose === 'info') {
-				dismiss.current?.(false);
+				dismiss.current?.(false)
 			}
-		};
+		}
 
 		// Fallback path (no showModal): no top layer, no inert — emulate the
 		// essentials on the wrapper layer.
-		let detachFallback: (() => void) | undefined;
+		let detachFallback: (() => void) | undefined
 		if (!canModal && layer) {
 			const onLayerClick = (event: MouseEvent) => {
 				if (event.target === layer && purpose === 'info') {
-					dismiss.current?.(false);
+					dismiss.current?.(false)
 				}
-			};
+			}
 
-			layer.addEventListener('mousedown', onLayerClick);
+			layer.addEventListener('mousedown', onLayerClick)
 			detachFallback = () => {
-				layer.removeEventListener('mousedown', onLayerClick);
-			};
+				layer.removeEventListener('mousedown', onLayerClick)
+			}
 		}
 
-		dialog.addEventListener('cancel', onCancel);
-		dialog.addEventListener('click', onClick);
+		dialog.addEventListener('cancel', onCancel)
+		dialog.addEventListener('click', onClick)
 		return () => {
-			dialog.removeEventListener('cancel', onCancel);
-			dialog.removeEventListener('click', onClick);
-			detachFallback?.();
-			root.style.overflow = restoreScroll.current ?? '';
-		};
-	}, []);
+			dialog.removeEventListener('cancel', onCancel)
+			dialog.removeEventListener('click', onClick)
+			detachFallback?.()
+			root.style.overflow = restoreScroll.current ?? ''
+		}
+	}, [])
 
 	return (
 		<div ref={layerRef} className={cx('vx-dialog-layer', dark && 'dark')}>
 			<DialogProvider value={{ titleId, isModal: true, requestClose: props.onOpenChange }}>
 				<dialog
 					ref={(el: HTMLDialogElement | null) => {
-						dialogRef.current = el;
-						applyEscapeProps(el, props);
-						{ const r = props.web?.ref; if (typeof r === 'function') r(el); }
+						dialogRef.current = el
+						applyEscapeProps(el, props)
+						{
+							const r = props.web?.ref
+							if (typeof r === 'function') {
+								r(el)
+							}
+						}
 					}}
 					id={props.id}
 					className={cx(
@@ -160,17 +169,19 @@ function DialogModal(props: DialogProps) @{
 					{...(purpose === 'required' ? { role: 'alertdialog' } : {})}
 					tabIndex={-1}
 				>
-					<LayerDepthProvider value={dismissal.depth}><SizeProvider value={null}>{props.children}</SizeProvider></LayerDepthProvider>
+					<LayerDepthProvider value={dismissal.depth}>
+						<SizeProvider value={null}>{props.children}</SizeProvider>
+					</LayerDepthProvider>
 				</dialog>
 			</DialogProvider>
 		</div>
-	);
+	)
 }
 
 /** Inline (non-modal) rendering — same panel chrome, no overlay. */
 function DialogInline(props: DialogProps) @{
-	const titleId = useId();
-	const padding = spacingStep(props.padding ?? 5) ?? 20;
+	const titleId = useId()
+	const padding = spacingStep(props.padding ?? 5) ?? 20
 
 	return (
 		<DialogProvider value={{ titleId, isModal: false, requestClose: props.onOpenChange }}>
@@ -178,9 +189,14 @@ function DialogInline(props: DialogProps) @{
 				ref={(el: any) => applyEscapeProps(el, props)}
 				id={props.id}
 				className={cx('vx-dialog', 'vx-dialog--inline', props.className)}
-				style={mergeStyle({padding: `${padding}px`,
-					width: toPx(props.width) ?? '400px',
-					maxHeight: toPx(props.maxHeight)}, props.style)}
+				style={mergeStyle(
+					{
+						padding: `${padding}px`,
+						width: toPx(props.width) ?? '400px',
+						maxHeight: toPx(props.maxHeight),
+					},
+					props.style,
+				)}
 				role={props.purpose === 'required' ? 'alertdialog' : 'dialog'}
 				aria-label={props.accessibilityLabel}
 				aria-labelledby={props.accessibilityLabel ? undefined : titleId}
@@ -188,7 +204,7 @@ function DialogInline(props: DialogProps) @{
 				{props.children}
 			</div>
 		</DialogProvider>
-	);
+	)
 }
 
 /** Modal dialog (Astryx `Dialog`). Web leaf renders a real `<dialog>` in
@@ -197,12 +213,15 @@ function DialogInline(props: DialogProps) @{
  *  'info' allows backdrop tap + Escape, 'form' keeps Escape only,
  *  'required' blocks both and carries `role="alertdialog"`. */
 export function Dialog(props: DialogProps) @{
-	const [internal, setInternal] = useState(props.defaultOpen ?? false);
-	const open = props.isOpen ?? internal;
+	const [internal, setInternal] = useState(props.defaultOpen ?? false)
+	const open = props.isOpen ?? internal
 	const requestChange = (isOpen: boolean) => {
-		if (props.isOpen === undefined) setInternal(isOpen);
-		props.onOpenChange?.(isOpen);
-	};
+		if (props.isOpen === undefined) {
+			setInternal(isOpen)
+		}
+
+		props.onOpenChange?.(isOpen)
+	}
 
 	@if (props.isInline) {
 		<DialogInline {...props} onOpenChange={requestChange} />
@@ -217,12 +236,11 @@ export function Dialog(props: DialogProps) @{
  *  dialog's label id and the modal autofocus marker; `onOpenChange`
  *  supplies the close affordance. */
 export function DialogHeader(props: DialogHeaderProps) @{
-	const ctx = useContext(DialogContext);
-	const requestClose = props.onOpenChange ?? ctx?.requestClose;
-	const pad = spacingStep(5) ?? 20;
+	const ctx = useContext(DialogContext)
+	const requestClose = props.onOpenChange ?? ctx?.requestClose
+	const pad = spacingStep(5) ?? 20
 	const compensate =
-		props.endContentEdgeCompensation === 'inline' ||
-		props.endContentEdgeCompensation === 'all';
+		props.endContentEdgeCompensation === 'inline' || props.endContentEdgeCompensation === 'all'
 
 	<>
 		<div className={cx('vx-dialog-header', props.className)} style={props.style} id={props.id}>
@@ -261,5 +279,5 @@ export function DialogHeader(props: DialogHeaderProps) @{
 			)}
 		</div>
 		{(props.hasDivider ?? true) && <div className="vx-dialog-divider" />}
-	</>;
+	</>
 }

@@ -189,10 +189,17 @@ const catalog = defineRoutes([
 
 function Owner(props: { authority: number; returnTo?: string }): any {
 	const fixture = useFixture()
-	useLayoutEffect(() => { fixture.ownerReady = props.authority }, [props.authority])
+	useLayoutEffect(() => {
+		fixture.ownerReady = props.authority
+	}, [props.authority])
+
 	return (
-		<ClientRouteOutlet host={fixture.host} authority={props.authority} resumeUrl={props.returnTo}
-			onResume={result => fixture.returned.push(result.status)}>
+		<ClientRouteOutlet
+			host={fixture.host}
+			authority={props.authority}
+			resumeUrl={props.returnTo}
+			onResume={(result) => fixture.returned.push(result.status)}
+		>
 			<Text id="native-auth-base">Account owner</Text>
 		</ClientRouteOutlet>
 	)

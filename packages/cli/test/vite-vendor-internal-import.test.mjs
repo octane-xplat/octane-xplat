@@ -10,9 +10,11 @@ const nsEntry = pathToFileURL(createRequire(import.meta.url).resolve('@nativescr
 const { ensureNativeScriptModuleBindings } = await import(
 	new URL('./hmr/server/websocket-module-bindings.js', nsEntry)
 )
+
 const { rewriteFsAbsoluteToNsM } = await import(
 	new URL('./hmr/server/websocket-module-specifiers.js', nsEntry)
 )
+
 const { registerVendorManifest, clearVendorManifest } = await import(
 	new URL('./hmr/shared/vendor/registry.js', nsEntry)
 )
@@ -38,7 +40,9 @@ const makeProject = () => {
 			join(pkgDir, 'package.json'),
 			JSON.stringify({ name, main: 'pkg', nativescript: { platforms: { android: '9.0.0' } } }),
 		)
-		for (const file of files) {writeFileSync(join(pkgDir, file), '')}
+		for (const file of files) {
+			writeFileSync(join(pkgDir, file), '')
+		}
 	}
 	makePkg(FIXTURE_PKG, ['pkg.android.js', 'pkg.common.js', 'other.js'])
 	makePkg(OTHER_PKG, ['pkg.android.js'])
@@ -62,7 +66,10 @@ afterEach(() => {
 	rmSync(dir, { recursive: true, force: true })
 })
 
-const libraryImporter = { importerIsLibrary: true, importerId: `/node_modules/${FIXTURE_PKG}/pkg.android.js` }
+const libraryImporter = {
+	importerIsLibrary: true,
+	importerId: `/node_modules/${FIXTURE_PKG}/pkg.android.js`,
+}
 
 describe('vendored package internal file imports', () => {
 	it('keeps a non-entry sibling file on /ns/m instead of folding to the vendor root', () => {
@@ -82,7 +89,10 @@ describe('vendored package internal file imports', () => {
 	it('library importer: a vendor root import keeps its clause as a static /ns/m import', () => {
 		const code = `import Observable from '${OTHER_PKG}'\n`
 		const out = ensureNativeScriptModuleBindings(code, libraryImporter)
-		assert.match(out, new RegExp(`import Observable from [\\\\'"]/ns/m/node_modules/${OTHER_PKG}[\\\\'"]`))
+		assert.match(
+			out,
+			new RegExp(`import Observable from [\\\\'"]/ns/m/node_modules/${OTHER_PKG}[\\\\'"]`),
+		)
 		assert.doesNotMatch(out, /__nsPick|__nsVendorRequire|__nsVendorRegistry\.has/)
 	})
 
@@ -98,16 +108,26 @@ describe('rewriteFsAbsoluteToNsM pnpm-store canonicalization', () => {
 	const makeStorePkg = (name, storeName, packageJson) => {
 		const storeDir = join(dir, 'node_modules', '.pnpm', storeName, 'node_modules', name)
 		mkdirSync(storeDir, { recursive: true })
-		writeFileSync(join(storeDir, 'package.json'), JSON.stringify(packageJson ?? { name, main: 'index.js' }))
+		writeFileSync(
+			join(storeDir, 'package.json'),
+			JSON.stringify(packageJson ?? { name, main: 'index.js' }),
+		)
 		return storeDir
 	}
 
 	it('canonicalizes a store path whose package resolves to the same realpath', () => {
 		const storeDir = makeStorePkg(FIXTURE_PKG, `${FIXTURE_PKG}@1.0.0`)
 		rmSync(join(dir, 'node_modules', FIXTURE_PKG), { recursive: true, force: true })
-		symlinkSync(join('.pnpm', `${FIXTURE_PKG}@1.0.0`, 'node_modules', FIXTURE_PKG), join(dir, 'node_modules', FIXTURE_PKG), 'dir')
+		symlinkSync(
+			join('.pnpm', `${FIXTURE_PKG}@1.0.0`, 'node_modules', FIXTURE_PKG),
+			join(dir, 'node_modules', FIXTURE_PKG),
+			'dir',
+		)
 		const spec = `/@fs${storeDir}/index.js?v=123`
-		assert.equal(rewriteFsAbsoluteToNsM(spec, dir, dir), `/ns/m/node_modules/${FIXTURE_PKG}/index.js?v=123`)
+		assert.equal(
+			rewriteFsAbsoluteToNsM(spec, dir, dir),
+			`/ns/m/node_modules/${FIXTURE_PKG}/index.js?v=123`,
+		)
 	})
 
 	it('keeps the store spelling when the root resolution is a different realpath', () => {
@@ -115,7 +135,10 @@ describe('rewriteFsAbsoluteToNsM pnpm-store canonicalization', () => {
 		// node_modules/<pkg> already exists as a real directory from makeProject —
 		// a different install than the store copy.
 		const spec = `/@fs${storeDir}/index.js`
-		assert.equal(rewriteFsAbsoluteToNsM(spec, dir, dir), `/ns/m/node_modules/.pnpm/${OTHER_PKG}@2.0.0/node_modules/${OTHER_PKG}/index.js`)
+		assert.equal(
+			rewriteFsAbsoluteToNsM(spec, dir, dir),
+			`/ns/m/node_modules/.pnpm/${OTHER_PKG}@2.0.0/node_modules/${OTHER_PKG}/index.js`,
+		)
 	})
 
 	it('canonicalizes when exports hide ./package.json', () => {
@@ -123,9 +146,16 @@ describe('rewriteFsAbsoluteToNsM pnpm-store canonicalization', () => {
 			name: 'xplat-exports-hidden',
 			exports: { '.': './index.js' },
 		})
-		symlinkSync(join('.pnpm', 'xplat-exports-hidden@1.0.0', 'node_modules', 'xplat-exports-hidden'), join(dir, 'node_modules', 'xplat-exports-hidden'), 'dir')
+		symlinkSync(
+			join('.pnpm', 'xplat-exports-hidden@1.0.0', 'node_modules', 'xplat-exports-hidden'),
+			join(dir, 'node_modules', 'xplat-exports-hidden'),
+			'dir',
+		)
 		const spec = `/@fs${storeDir}/sub.js`
-		assert.equal(rewriteFsAbsoluteToNsM(spec, dir, dir), '/ns/m/node_modules/xplat-exports-hidden/sub.js')
+		assert.equal(
+			rewriteFsAbsoluteToNsM(spec, dir, dir),
+			'/ns/m/node_modules/xplat-exports-hidden/sub.js',
+		)
 	})
 
 	it('leaves non-node_modules workspace paths unchanged', () => {

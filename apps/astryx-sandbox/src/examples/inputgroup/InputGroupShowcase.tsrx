@@ -6,10 +6,16 @@ export function InputGroupShowcase() @{
 	const [price, setPrice] = useState('')
 	const [url, setUrl] = useState('')
 
-	<Stack direction="vertical" gap={4} style={{maxWidth: 400, width: '100%'}}>
+	<Stack direction="vertical" gap={4} style={{ maxWidth: 400, width: '100%' }}>
 		<InputGroup label="Price">
 			<InputGroupText>$</InputGroupText>
-			<TextInput label="Amount" isLabelHidden value={price} onChange={setPrice} placeholder="0.00" />
+			<TextInput
+				label="Amount"
+				isLabelHidden
+				value={price}
+				onChange={setPrice}
+				placeholder="0.00"
+			/>
 		</InputGroup>
 		<InputGroup label="Website">
 			<InputGroupText>https://</InputGroupText>

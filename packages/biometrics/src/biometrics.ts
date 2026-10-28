@@ -37,25 +37,25 @@ export const biometrics: Permissioned<BiometricsImpl> = {
 	requestPermissions: available,
 	async verify(reason) {
 		if (verifying) {
-				return false
-			}
+			return false
+		}
 
-			verifying = true
-			try {
-				// iOS ignores `title` on its default keychain path — route
-				// through LAContext (pinFallback selects that path; customFallback
-				// keeps the biometrics-only policy) so `message` surfaces the
-				// caller's reason, matching Android's dialog title.
-				const options: VerifyBiometricOptions = isIOS
-					? { title: reason, message: reason, pinFallback: true, ios: { customFallback: true } }
-					: { title: reason }
+		verifying = true
+		try {
+			// iOS ignores `title` on its default keychain path — route
+			// through LAContext (pinFallback selects that path; customFallback
+			// keeps the biometrics-only policy) so `message` surfaces the
+			// caller's reason, matching Android's dialog title.
+			const options: VerifyBiometricOptions = isIOS
+				? { title: reason, message: reason, pinFallback: true, ios: { customFallback: true } }
+				: { title: reason }
 
-				const r = await bio.verifyBiometric(options)
-				return r.code === 0
-			} catch {
-				return false
-			} finally {
-				verifying = false
-			}
+			const r = await bio.verifyBiometric(options)
+			return r.code === 0
+		} catch {
+			return false
+		} finally {
+			verifying = false
+		}
 	},
 }

@@ -52,7 +52,9 @@ export function useTableColumnSettingsState<TColumnKey extends string = string>(
 
 	const toggleColumn = (key: TColumnKey) => {
 		const cfg = configRef.current
-		if (cfg.columns.some((c) => c.key === key && c.isAlwaysVisible)) {return}
+		if (cfg.columns.some((c) => c.key === key && c.isAlwaysVisible)) {
+			return
+		}
 		const currentSet = new Set(cfg.activeColumnKeys)
 		if (currentSet.has(key)) {
 			cfg.onChangeActiveColumnKeys(cfg.activeColumnKeys.filter((k) => k !== key))
@@ -71,15 +73,20 @@ export function useTableColumnSettingsState<TColumnKey extends string = string>(
 
 	const resetToDefault = () => {
 		const cfg = configRef.current
-		if (cfg.defaultColumnKeys) {cfg.onChangeActiveColumnKeys([...cfg.defaultColumnKeys])}
-		else {cfg.onChangeActiveColumnKeys(cfg.columns.map((c) => c.key))}
+		if (cfg.defaultColumnKeys) {
+			cfg.onChangeActiveColumnKeys([...cfg.defaultColumnKeys])
+		} else {
+			cfg.onChangeActiveColumnKeys(cfg.columns.map((c) => c.key))
+		}
 	}
 
 	const setActiveColumnKeys = (value: string[]) => {
 		const cfg = configRef.current
 		const avSet = new Set(cfg.columns.filter((c) => c.isAlwaysVisible).map((c) => c.key))
 		const valueSet = new Set(value)
-		for (const key of avSet) {valueSet.add(key)}
+		for (const key of avSet) {
+			valueSet.add(key)
+		}
 		cfg.onChangeActiveColumnKeys(Array.from(valueSet) as unknown as TColumnKey[])
 	}
 

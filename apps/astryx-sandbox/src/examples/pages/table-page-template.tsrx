@@ -8,14 +8,40 @@
 // `Text hasTabularNumbers`/`justify`/`display` map to sandbox classes.
 import { useMemo, useState } from 'octane'
 import {
-	Banner, Button, Divider, EmptyState, Heading, HStack, Icon,
-	Layout, LayoutContent, MetadataList, MetadataListItem,
-	SegmentedControl, SegmentedControlItem, StackItem, Table, Text,
-	TextInput, VStack, pixel, proportional, toSearchFilters,
-	usePowerSearchConfig, useTableFilterState, useTableFiltering,
-	useTableSortable, useTableSortableState,
+	Banner,
+	Button,
+	Divider,
+	EmptyState,
+	Heading,
+	HStack,
+	Icon,
+	Layout,
+	LayoutContent,
+	MetadataList,
+	MetadataListItem,
+	SegmentedControl,
+	SegmentedControlItem,
+	StackItem,
+	Table,
+	Text,
+	TextInput,
+	VStack,
+	pixel,
+	proportional,
+	toSearchFilters,
+	usePowerSearchConfig,
+	useTableFilterState,
+	useTableFiltering,
+	useTableSortable,
+	useTableSortableState,
 } from '@octane-xplat/ui'
-import type { PowerSearchFilter, TableColumn, TablePlugin, TableSortComparator } from '@octane-xplat/ui'
+
+import type {
+	PowerSearchFilter,
+	TableColumn,
+	TablePlugin,
+	TableSortComparator,
+} from '@octane-xplat/ui'
 
 type LineCategory = 'design' | 'development' | 'content' | 'project'
 type BillingBasis = 'hourly' | 'fixed'
@@ -41,28 +67,164 @@ const CATEGORY_LABEL: Record<LineCategory, string> = {
 }
 
 const LINE_ITEMS: LineItem[] = [
-	{ id: 'li-01', description: 'Discovery workshop', category: 'design', basis: 'fixed', quantity: 1, unitPriceCents: 240_000 },
-	{ id: 'li-02', description: 'Stakeholder interviews', category: 'design', basis: 'hourly', quantity: 12, unitPriceCents: 14_500 },
-	{ id: 'li-03', description: 'User research synthesis', category: 'design', basis: 'hourly', quantity: 18, unitPriceCents: 14_500 },
-	{ id: 'li-04', description: 'Wireframes — key templates', category: 'design', basis: 'hourly', quantity: 34, unitPriceCents: 14_500 },
-	{ id: 'li-05', description: 'Visual design system', category: 'design', basis: 'fixed', quantity: 1, unitPriceCents: 680_000 },
-	{ id: 'li-06', description: 'Page designs — 14 templates', category: 'design', basis: 'hourly', quantity: 62, unitPriceCents: 14_500 },
-	{ id: 'li-07', description: 'Prototype & usability testing', category: 'design', basis: 'hourly', quantity: 22, unitPriceCents: 14_500 },
-	{ id: 'li-08', description: 'Frontend build — component library', category: 'development', basis: 'hourly', quantity: 88, unitPriceCents: 16_500 },
-	{ id: 'li-09', description: 'Frontend build — page templates', category: 'development', basis: 'hourly', quantity: 104, unitPriceCents: 16_500 },
-	{ id: 'li-10', description: 'CMS setup & content modelling', category: 'development', basis: 'hourly', quantity: 40, unitPriceCents: 16_500 },
-	{ id: 'li-11', description: 'Search & filtering integration', category: 'development', basis: 'hourly', quantity: 26, unitPriceCents: 16_500 },
-	{ id: 'li-12', description: 'Analytics & tag manager setup', category: 'development', basis: 'hourly', quantity: 10, unitPriceCents: 16_500 },
-	{ id: 'li-13', description: 'Accessibility audit & remediation', category: 'development', basis: 'fixed', quantity: 1, unitPriceCents: 320_000 },
-	{ id: 'li-14', description: 'Cross-browser QA', category: 'development', basis: 'hourly', quantity: 24, unitPriceCents: 13_500 },
-	{ id: 'li-15', description: 'Copywriting — 14 pages', category: 'content', basis: 'hourly', quantity: 36, unitPriceCents: 12_500 },
-	{ id: 'li-16', description: 'Content migration', category: 'content', basis: 'hourly', quantity: 28, unitPriceCents: 9_500 },
-	{ id: 'li-17', description: 'Stock photography licences', category: 'content', basis: 'fixed', quantity: 24, unitPriceCents: 1_800 },
-	{ id: 'li-18', description: 'Project management — 12 weeks', category: 'project', basis: 'fixed', quantity: 12, unitPriceCents: 85_000 },
-	{ id: 'li-19', description: 'Training & handover session', category: 'project', basis: 'fixed', quantity: 2, unitPriceCents: 120_000 },
+	{
+		id: 'li-01',
+		description: 'Discovery workshop',
+		category: 'design',
+		basis: 'fixed',
+		quantity: 1,
+		unitPriceCents: 240_000,
+	},
+	{
+		id: 'li-02',
+		description: 'Stakeholder interviews',
+		category: 'design',
+		basis: 'hourly',
+		quantity: 12,
+		unitPriceCents: 14_500,
+	},
+	{
+		id: 'li-03',
+		description: 'User research synthesis',
+		category: 'design',
+		basis: 'hourly',
+		quantity: 18,
+		unitPriceCents: 14_500,
+	},
+	{
+		id: 'li-04',
+		description: 'Wireframes — key templates',
+		category: 'design',
+		basis: 'hourly',
+		quantity: 34,
+		unitPriceCents: 14_500,
+	},
+	{
+		id: 'li-05',
+		description: 'Visual design system',
+		category: 'design',
+		basis: 'fixed',
+		quantity: 1,
+		unitPriceCents: 680_000,
+	},
+	{
+		id: 'li-06',
+		description: 'Page designs — 14 templates',
+		category: 'design',
+		basis: 'hourly',
+		quantity: 62,
+		unitPriceCents: 14_500,
+	},
+	{
+		id: 'li-07',
+		description: 'Prototype & usability testing',
+		category: 'design',
+		basis: 'hourly',
+		quantity: 22,
+		unitPriceCents: 14_500,
+	},
+	{
+		id: 'li-08',
+		description: 'Frontend build — component library',
+		category: 'development',
+		basis: 'hourly',
+		quantity: 88,
+		unitPriceCents: 16_500,
+	},
+	{
+		id: 'li-09',
+		description: 'Frontend build — page templates',
+		category: 'development',
+		basis: 'hourly',
+		quantity: 104,
+		unitPriceCents: 16_500,
+	},
+	{
+		id: 'li-10',
+		description: 'CMS setup & content modelling',
+		category: 'development',
+		basis: 'hourly',
+		quantity: 40,
+		unitPriceCents: 16_500,
+	},
+	{
+		id: 'li-11',
+		description: 'Search & filtering integration',
+		category: 'development',
+		basis: 'hourly',
+		quantity: 26,
+		unitPriceCents: 16_500,
+	},
+	{
+		id: 'li-12',
+		description: 'Analytics & tag manager setup',
+		category: 'development',
+		basis: 'hourly',
+		quantity: 10,
+		unitPriceCents: 16_500,
+	},
+	{
+		id: 'li-13',
+		description: 'Accessibility audit & remediation',
+		category: 'development',
+		basis: 'fixed',
+		quantity: 1,
+		unitPriceCents: 320_000,
+	},
+	{
+		id: 'li-14',
+		description: 'Cross-browser QA',
+		category: 'development',
+		basis: 'hourly',
+		quantity: 24,
+		unitPriceCents: 13_500,
+	},
+	{
+		id: 'li-15',
+		description: 'Copywriting — 14 pages',
+		category: 'content',
+		basis: 'hourly',
+		quantity: 36,
+		unitPriceCents: 12_500,
+	},
+	{
+		id: 'li-16',
+		description: 'Content migration',
+		category: 'content',
+		basis: 'hourly',
+		quantity: 28,
+		unitPriceCents: 9_500,
+	},
+	{
+		id: 'li-17',
+		description: 'Stock photography licences',
+		category: 'content',
+		basis: 'fixed',
+		quantity: 24,
+		unitPriceCents: 1_800,
+	},
+	{
+		id: 'li-18',
+		description: 'Project management — 12 weeks',
+		category: 'project',
+		basis: 'fixed',
+		quantity: 12,
+		unitPriceCents: 85_000,
+	},
+	{
+		id: 'li-19',
+		description: 'Training & handover session',
+		category: 'project',
+		basis: 'fixed',
+		quantity: 2,
+		unitPriceCents: 120_000,
+	},
 ]
 
-const ROWS: InvoiceRow[] = LINE_ITEMS.map((item) => ({ ...item, amountCents: item.quantity * item.unitPriceCents }))
+const ROWS: InvoiceRow[] = LINE_ITEMS.map((item) => ({
+	...item,
+	amountCents: item.quantity * item.unitPriceCents,
+}))
 
 const INVOICE_SUBTOTAL_CENTS = ROWS.reduce((sum, item) => sum + item.amountCents, 0)
 
@@ -106,7 +268,9 @@ function formatCents(cents: number): string {
 }
 
 function Figure(props: { children: any; weight?: 'normal' | 'semibold' }) @{
-	<Text className="sb-tabular" weight={props.weight}>{props.children}</Text>
+	<Text className="sb-tabular" weight={props.weight}>
+		{props.children}
+	</Text>
 }
 
 function DescriptionCell(props: { item: InvoiceRow }) @{
@@ -114,6 +278,7 @@ function DescriptionCell(props: { item: InvoiceRow }) @{
 	// Upstream anchors a HoverCard to the whole row via a DOM closest('tr')
 	// escape. xplat useHoverCard binds to a component ref — anchored here on
 	// the description text (recorded adaptation).
+
 	<Text maxLines={1}>{item.description}</Text>
 }
 
@@ -132,7 +297,11 @@ const columns: TableColumn<InvoiceRow>[] = [
 		width: pixel(160),
 		sortable: true,
 		filter: 'category',
-		renderCell: (item) => <Text color="secondary" maxLines={1}>{CATEGORY_LABEL[item.category]}</Text>,
+		renderCell: (item) => (
+			<Text color="secondary" maxLines={1}>
+				{CATEGORY_LABEL[item.category]}
+			</Text>
+		),
 	},
 	{
 		key: 'quantity',
@@ -173,38 +342,73 @@ const FLUSH_START = { paddingInlineStart: 0 }
 const FLUSH_END = { paddingInlineEnd: 0 }
 
 function edgeStyle(index: number, total: number) {
-	if (index === 0) return FLUSH_START
-	if (index === total - 1) return FLUSH_END
+	if (index === 0) {
+		return FLUSH_START
+	}
+
+	if (index === total - 1) {
+		return FLUSH_END
+	}
+
 	return undefined
 }
 
 /** Zero padding on the outer cells — a complete plugin in a dozen lines,
  *  same as upstream's useFlushEdges. */
 function useFlushEdges(): TablePlugin<InvoiceRow> {
-	return useMemo<TablePlugin<InvoiceRow>>(() => ({
-		transformHeaderCell: (props: any, _column: any, columnIndex: number, cols: readonly any[]) => {
-			const style = edgeStyle(columnIndex, cols.length)
-			return style == null
-				? props
-				: { ...props, htmlProps: { ...props.htmlProps, style: { ...props.htmlProps.style, ...style } } }
-		},
-		transformBodyCell: (props: any, _column: any, _item: any, columnIndex: number, cols: readonly any[]) => {
-			const style = edgeStyle(columnIndex, cols.length)
-			return style == null
-				? props
-				: { ...props, htmlProps: { ...props.htmlProps, style: { ...props.htmlProps.style, ...style } } }
-		},
-	}), [])
+	return useMemo<TablePlugin<InvoiceRow>>(
+		() => ({
+			transformHeaderCell: (
+				props: any,
+				_column: any,
+				columnIndex: number,
+				cols: readonly any[],
+			) => {
+				const style = edgeStyle(columnIndex, cols.length)
+				return style == null
+					? props
+					: {
+							...props,
+							htmlProps: { ...props.htmlProps, style: { ...props.htmlProps.style, ...style } },
+						}
+			},
+			transformBodyCell: (
+				props: any,
+				_column: any,
+				_item: any,
+				columnIndex: number,
+				cols: readonly any[],
+			) => {
+				const style = edgeStyle(columnIndex, cols.length)
+				return style == null
+					? props
+					: {
+							...props,
+							htmlProps: { ...props.htmlProps, style: { ...props.htmlProps.style, ...style } },
+						}
+			},
+		}),
+		[],
+	)
 }
 
 const AMOUNT_COLUMN_WIDTH = 132
 
-function TotalRow(props: { label: string; value: string; emphasis?: 'muted' | 'strong' }) @{
+function TotalRow(props: {
+	label: string
+	value: string
+	emphasis?: 'muted' | 'strong'
+}) @{
 	const weight = props.emphasis === 'strong' ? 'semibold' : 'normal'
+
 	<HStack gap={6} hAlign="end" vAlign="center">
-		<Text weight={weight as any} color={props.emphasis === 'muted' ? 'secondary' : 'primary'}>{props.label}</Text>
+		<Text weight={weight as any} color={props.emphasis === 'muted' ? 'secondary' : 'primary'}>
+			{props.label}
+		</Text>
 		<VStack width={AMOUNT_COLUMN_WIDTH}>
-			<Text className="sb-tabular sb-text-end" weight={weight as any}>{props.value}</Text>
+			<Text className="sb-tabular sb-text-end" weight={weight as any}>
+				{props.value}
+			</Text>
 		</VStack>
 	</HStack>
 }
@@ -228,21 +432,29 @@ export function TablePageTemplate() @{
 		const matched = applyFilters(columnPredicates, ROWS)
 		const scoped = basis === 'all' ? matched : matched.filter((item) => item.basis === basis)
 		const term = query.trim().toLowerCase()
-		return term === '' ? scoped : scoped.filter((item) => item.description.toLowerCase().includes(term))
+		return term === ''
+			? scoped
+			: scoped.filter((item) => item.description.toLowerCase().includes(term))
 	}, [applyFilters, columnFilters, config, basis, query])
 
-	const { sortedData, sortConfig } = useTableSortableState<InvoiceRow>({ data: visible, comparators: COMPARATORS })
+	const { sortedData, sortConfig } = useTableSortableState<InvoiceRow>({
+		data: visible,
+		comparators: COMPARATORS,
+	})
+
 	const sortPlugin = useTableSortable<InvoiceRow>(sortConfig)
 	const flushPlugin = useFlushEdges()
 
-	const subtotalCents = useMemo(() => visible.reduce((sum, item) => sum + item.amountCents, 0), [visible])
+	const subtotalCents = useMemo(
+		() => visible.reduce((sum, item) => sum + item.amountCents, 0),
+		[visible],
+	)
+
 	const taxCents = Math.round(subtotalCents * TAX_RATE)
 	const totalCents = subtotalCents + taxCents
 
 	const activeFilterCount =
-		(query.trim() === '' ? 0 : 1) +
-		Object.keys(columnFilters).length +
-		(basis === 'all' ? 0 : 1)
+		(query.trim() === '' ? 0 : 1) + Object.keys(columnFilters).length + (basis === 'all' ? 0 : 1)
 
 	const clearEverything = () => {
 		setQuery('')
@@ -280,9 +492,14 @@ export function TablePageTemplate() @{
 						<SegmentedControl
 							label="Filter by billing basis"
 							value={basis}
-							onValueChange={(value: string) => setBasis(value as BillingBasis | 'all')}>
+							onValueChange={(value: string) => setBasis(value as BillingBasis | 'all')}
+						>
 							{BASIS_FILTERS.map((filter) => (
-								<SegmentedControlItem key={filter.value} value={filter.value} label={filter.label} />
+								<SegmentedControlItem
+									key={filter.value}
+									value={filter.value}
+									label={filter.label}
+								/>
 							))}
 						</SegmentedControl>
 						<VStack width={300}>
@@ -336,7 +553,11 @@ export function TablePageTemplate() @{
 										<Text weight="semibold">Filtered view — these totals are partial</Text>
 										<Text color="secondary">{`Showing ${visible.length} of ${ROWS.length} lines. The subtotal, tax, and total due above cover only the lines currently visible.`}</Text>
 									</VStack>
-									<Button label="Clear all filters" variant="secondary" clickAction={clearEverything} />
+									<Button
+										label="Clear all filters"
+										variant="secondary"
+										clickAction={clearEverything}
+									/>
 								</HStack>
 							</Banner>
 						)}

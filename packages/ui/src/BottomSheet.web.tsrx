@@ -2,7 +2,16 @@ import { SheetContent } from './sheet-content'
 import { LayerDepthContext, LayerDepthProvider } from './layer-dismissal.tsrx'
 import { styleRecord } from './style-merge'
 import { SizeProvider } from './size-context'
-import { createPortal, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'octane'
+import {
+	createPortal,
+	useContext,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'octane'
+
 import type { BottomSheetProps, BottomSheetSwitcherProps } from './props'
 import {
 	BottomSheetSwitcherContext,
@@ -112,7 +121,11 @@ function BottomSheetLayer(props: {
 		return () => ctl.detach()
 	}, [snapKey, purpose])
 
-	<div ref={layer} data-vx-modal-layer={hasScrim ? '' : undefined} className={cx('vx-sheet-layer', 'vx-bottom-sheet-layer', dark && 'dark')}>
+	<div
+		ref={layer}
+		data-vx-modal-layer={hasScrim ? '' : undefined}
+		className={cx('vx-sheet-layer', 'vx-bottom-sheet-layer', dark && 'dark')}
+	>
 		{hasScrim && (
 			<div
 				ref={backdrop}

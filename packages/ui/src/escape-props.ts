@@ -36,7 +36,6 @@ export function applyEscapeProps(
 		return
 	}
 
-
 	if (isAndroid) {
 		view.on?.('loaded', () => unclipAndroidContainer(view))
 	}

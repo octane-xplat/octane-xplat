@@ -1,34 +1,36 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { mergeStyle, styleRecord } from './style-merge'
 import { appKitHost, hostGlobal } from './host-bridge'
-import type { CitationProps } from './props';
-import { cx } from '@octane-xplat/lib';
-import { getColorScheme } from './colorScheme.macos';
-import { accentColor, mutedColor, textColor } from './scheme-colors';
-import { isSafeUrl } from './safe-url';
-import { isRenderable } from './is-renderable';
-import { Pressable } from './Pressable.macos.tsrx';
+import type { CitationProps } from './props'
+import { cx } from '@octane-xplat/lib'
+import { getColorScheme } from './colorScheme.macos'
+import { accentColor, mutedColor, textColor } from './scheme-colors'
+import { isSafeUrl } from './safe-url'
+import { isRenderable } from './is-renderable'
+import { Pressable } from './Pressable.macos.tsrx'
 
-let warnedBlockedUrl = false;
+let warnedBlockedUrl = false
 
 /** Citation — macOS leaf. Safe `url`s open via the `__xplatAppKit` bridge
  *  (globalThis.__xplatAppKit.openUrl) when present; otherwise inert. */
 export function Citation(props: CitationProps) @{
-	const scheme = getColorScheme();
-	const source = props.source;
-	const variant = props.variant ?? 'label';
-	const href = source.url;
-	const isLink = href != null && isSafeUrl(href);
+	const scheme = getColorScheme()
+	const source = props.source
+	const variant = props.variant ?? 'label'
+	const href = source.url
+	const isLink = href != null && isSafeUrl(href)
 
 	if (!warnedBlockedUrl && href != null && !isLink) {
-		warnedBlockedUrl = true;
+		warnedBlockedUrl = true
 		console.warn(
 			`[octane-xplat] Citation: blocked unsafe url ${JSON.stringify(href)} — the citation renders inert.`,
-		);
+		)
 	}
 
-	const iconSrc = typeof source.icon === 'string' ? source.icon : isRenderable(source.icon) ? null : source.src;
-	const iconNode = isRenderable(source.icon) && typeof source.icon !== 'string' ? source.icon : null;
+	const iconSrc =
+		typeof source.icon === 'string' ? source.icon : isRenderable(source.icon) ? null : source.src
+
+	const iconNode = isRenderable(source.icon) && typeof source.icon !== 'string' ? source.icon : null
 
 	const body =
 		variant === 'number' ? (
@@ -41,7 +43,10 @@ export function Citation(props: CitationProps) @{
 		) : (
 			<>
 				{iconNode != null ? (
-					<masonview className="vx-citation-icon" style={mergeStyle({display: "flex"}, { width: 16, height: 16, borderRadius: 8 })}>
+					<masonview
+						className="vx-citation-icon"
+						style={mergeStyle({ display: 'flex' }, { width: 16, height: 16, borderRadius: 8 })}
+					>
 						{iconNode}
 					</masonview>
 				) : iconSrc != null ? (
@@ -54,30 +59,47 @@ export function Citation(props: CitationProps) @{
 				) : null}
 				<label style={{ fontSize: 11, color: mutedColor(scheme) }}>{props.number}</label>
 			</>
-		);
+		)
 
-	const cls = cx('vx-citation', `vx-citation--${variant}`, isLink && 'vx-citation--link', props.className);
+	const cls = cx(
+		'vx-citation',
+		`vx-citation--${variant}`,
+		isLink && 'vx-citation--link',
+		props.className,
+	)
+
 	const shared = {
 		id: props.id,
 		className: cls,
-		style: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 4, ...styleRecord(props.style) },
+		style: {
+			flexDirection: 'row' as const,
+			alignItems: 'center' as const,
+			gap: 4,
+			...styleRecord(props.style),
+		},
 		accessibilityLabel:
-			variant === 'number' ? `Citation ${props.number}` : `${source.title ?? 'Citation'} ${props.number}`,
-	};
+			variant === 'number'
+				? `Citation ${props.number}`
+				: `${source.title ?? 'Citation'} ${props.number}`,
+	}
 
 	return isLink ? (
 		<Pressable
 			{...shared}
 			accessibilityRole="link"
 			onPress={() => {
-				appKitHost()?.openUrl?.(href);
+				appKitHost()?.openUrl?.(href)
 			}}
 		>
 			{body}
 		</Pressable>
 	) : (
-		<masonview {...shared} accessibilityRole="text" style={mergeStyle({flexDirection: "row", alignItems: "center"}, {display: "flex"})}>
+		<masonview
+			{...shared}
+			accessibilityRole="text"
+			style={mergeStyle({ flexDirection: 'row', alignItems: 'center' }, { display: 'flex' })}
+		>
 			{body}
 		</masonview>
-	);
+	)
 }

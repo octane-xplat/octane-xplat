@@ -1,6 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { ShaderEffect } from '@octane-xplat/effects/ios';
-import { HStack, Screen, Text, View } from '@octane-xplat/ui';
+import { ShaderEffect } from '@octane-xplat/effects/ios'
+import { HStack, Screen, Text, View } from '@octane-xplat/ui'
 
 /** Stitchable-Metal probe — each card is real framework content (View/Text
  *  subtree) wrapped in a ShaderEffect that applies the named shader from
@@ -33,9 +33,8 @@ export function EffectsDemo() @{
 			</ShaderEffect>
 		</HStack>
 		<Text className="text-sm text-muted">
-			Each card's subtree renders into a SwiftUI-hosted view with a
-			stitchable Metal shader applied (iOS 17+). The shader library
-			ships precompiled inside @octane-xplat/effects.
+			Each card's subtree renders into a SwiftUI-hosted view with a stitchable Metal shader applied
+			(iOS 17+). The shader library ships precompiled inside @octane-xplat/effects.
 		</Text>
-	</Screen>;
+	</Screen>
 }

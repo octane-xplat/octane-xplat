@@ -2,7 +2,6 @@ import type { ParityCheck } from './parity/check-helpers.ts'
 import { dims } from './parity/check-helpers.ts'
 
 export const CHECKS: ParityCheck[] = [
-
 	{
 		fixture: 'alert-warning',
 		targets: ['web', 'ios', 'android', 'macos'],
@@ -16,5 +15,5 @@ export const CHECKS: ParityCheck[] = [
 			'icon.box.h',
 		],
 		check: (m) => [dims(m('alert'), 220, 64), dims(m('icon'), 24, 24)],
-	}
+	},
 ]

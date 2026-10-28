@@ -1,14 +1,34 @@
 // Port of upstream (fullscreen)/pages/gothic-palette/page.tsx (Astryx 0.6.4, MIT).
 import { gothicTheme } from '../../themes/gothic'
 import { gothicPalettes } from '../../themes/gothicPalettes'
-import { ThemePalettePreview, type TonalColor, type CoreSwatch } from '../../themePreview/ThemePalettePreview'
+import {
+	ThemePalettePreview,
+	type TonalColor,
+	type CoreSwatch,
+} from '../../themePreview/ThemePalettePreview'
+
 import { DisplayTextSection } from './shared'
 
 const TONAL_COLORS: TonalColor[] = [
-	{ name: 'Gothic Neutral', sourceHex: '#96A0AB', note: 'cool blue-gray', tones: gothicPalettes.neutral },
-	{ name: 'Green', sourceHex: '#b3c79a', semantic: 'Success / sage moss', tones: gothicPalettes.green },
+	{
+		name: 'Gothic Neutral',
+		sourceHex: '#96A0AB',
+		note: 'cool blue-gray',
+		tones: gothicPalettes.neutral,
+	},
+	{
+		name: 'Green',
+		sourceHex: '#b3c79a',
+		semantic: 'Success / sage moss',
+		tones: gothicPalettes.green,
+	},
 	{ name: 'Red', sourceHex: '#c6a6a2', semantic: 'Error / dusty rose', tones: gothicPalettes.red },
-	{ name: 'Yellow', sourceHex: '#d3c490', semantic: 'Warning / aged gold', tones: gothicPalettes.yellow },
+	{
+		name: 'Yellow',
+		sourceHex: '#d3c490',
+		semantic: 'Warning / aged gold',
+		tones: gothicPalettes.yellow,
+	},
 	{ name: 'Blue', sourceHex: '#a3b5d6', note: 'periwinkle midnight', tones: gothicPalettes.blue },
 	{ name: 'Purple', sourceHex: '#b29bc4', note: 'muted plum', tones: gothicPalettes.purple },
 	{ name: 'Pink', sourceHex: '#c89aab', note: 'dusty rose', tones: gothicPalettes.pink },

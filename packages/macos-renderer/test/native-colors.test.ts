@@ -6,15 +6,26 @@ const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
 const labelColor = { semantic: 'label' }
 const placeholderColor = { semantic: 'placeholder' }
 const { syncNativeColors, setTextFieldPlaceholder } = runSlice(
-	source.slice(source.indexOf('function syncNativeColors('), source.indexOf('function fontForStyle(')) +
-		source.slice(source.indexOf('function setTextFieldPlaceholder('), source.indexOf('function makeTextField(')) +
+	source.slice(
+		source.indexOf('function syncNativeColors('),
+		source.indexOf('function fontForStyle('),
+	) +
+		source.slice(
+			source.indexOf('function setTextFieldPlaceholder('),
+			source.indexOf('function makeTextField('),
+		) +
 		'\n({ syncNativeColors, setTextFieldPlaceholder })',
 	{
 		NSColor: { labelColor, placeholderTextColor: placeholderColor },
 		nativeColor: (value: string) => ({ css: value }),
 		setLabelText() {},
-		NSFontAttributeName: 'font', NSForegroundColorAttributeName: 'color',
-		NSAttributedString: { alloc: () => ({ initWithStringAttributes: (text: string, attributes: any) => ({ text, attributes }) }) },
+		NSFontAttributeName: 'font',
+		NSForegroundColorAttributeName: 'color',
+		NSAttributedString: {
+			alloc: () => ({
+				initWithStringAttributes: (text: string, attributes: any) => ({ text, attributes }),
+			}),
+		},
 	},
 )
 

@@ -2,29 +2,29 @@ import type { RegisteredRouteContracts, AppRouteStacks, RouteTransitionName } fr
 import type { NavigationItemImplementation } from './nav-link'
 import { useNavigationItem } from './use-navigation-item.shared.tsrx'
 import { mergeStyle, styleRecord } from './style-merge'
-import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'octane';
-import type { TabListProps, TabProps, TabMenuProps, TabMenuOption } from './props';
-import { useSize } from './size-context';
-import { applyEscapeProps } from './escape-props';
-import { useLinkComponent } from './use-link-component.web.tsrx';
-import { Icon } from './Icon.web.tsrx';
-import { Popover } from './Popover.web.tsrx';
-import { followHref } from './nav-href.web';
-import { TabListContext, TabListProvider } from './nav-contexts';
-import { useListFocus } from './list-focus.web.tsrx';
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'octane'
+import type { TabListProps, TabProps, TabMenuProps, TabMenuOption } from './props'
+import { useSize } from './size-context'
+import { applyEscapeProps } from './escape-props'
+import { useLinkComponent } from './use-link-component.web.tsrx'
+import { Icon } from './Icon.web.tsrx'
+import { Popover } from './Popover.web.tsrx'
+import { followHref } from './nav-href.web'
+import { TabListContext, TabListProvider } from './nav-contexts'
+import { useListFocus } from './list-focus.web.tsrx'
 
-export { TabListContext };
-export { useTabListContext } from './nav-contexts';
+export { TabListContext }
+export { useTabListContext } from './nav-contexts'
 
 /** Focusable stops in the strip: every Tab and every TabMenu trigger. */
-const TAB_STOP_SELECTOR = '[data-tab-value],[data-tab-menu]';
+const TAB_STOP_SELECTOR = '[data-tab-value],[data-tab-menu]'
 /** Fraction of the visible strip an arrow-affordance click scrolls. */
-const SCROLL_PAGE_RATIO = 0.8;
+const SCROLL_PAGE_RATIO = 0.8
 
-const SIZE_HEIGHT: Record<string, number> = { sm: 28, md: 32, lg: 36 };
+const SIZE_HEIGHT: Record<string, number> = { sm: 28, md: 32, lg: 36 }
 
 function navIcon(icon: any, size: number) {
-	return typeof icon === 'string' ? <Icon name={icon} size={size} /> : icon;
+	return typeof icon === 'string' ? <Icon name={icon} size={size} /> : icon
 }
 
 /** TabList — tab strip providing TabListContext to Tab/TabMenu children.
@@ -32,14 +32,14 @@ function navIcon(icon: any, size: number) {
  *  tabs pattern. Owns roving-tabindex arrow navigation and horizontal
  *  overflow scrolling with edge fades + arrow affordances. */
 export function TabList(props: TabListProps) @{
-	const size = useSize(props.size, 'md');
-	const overflow = props.overflow ?? 'auto';
-	const hasScroll = overflow !== 'visible';
-	const isTabList = props.role === 'tablist';
-	const root = useRef<HTMLElement | null>(null);
-	const strip = useRef<HTMLDivElement | null>(null);
-	const [overflowStart, setOverflowStart] = useState(false);
-	const [overflowEnd, setOverflowEnd] = useState(false);
+	const size = useSize(props.size, 'md')
+	const overflow = props.overflow ?? 'auto'
+	const hasScroll = overflow !== 'visible'
+	const isTabList = props.role === 'tablist'
+	const root = useRef<HTMLElement | null>(null)
+	const strip = useRef<HTMLDivElement | null>(null)
+	const [overflowStart, setOverflowStart] = useState(false)
+	const [overflowEnd, setOverflowEnd] = useState(false)
 
 	const { listRef, handleKeyDown, handleFocus } = useListFocus<HTMLElement>({
 		itemSelector: TAB_STOP_SELECTOR,
@@ -47,64 +47,86 @@ export function TabList(props: TabListProps) @{
 		// tablist reports horizontal and leaves vertical arrows to the page.
 		orientation: isTabList ? 'horizontal' : 'both',
 		hasRovingTabIndex: true,
-	});
+	})
 
 	const updateOverflow = useCallback(() => {
-		const el = strip.current;
-		if (!el) return;
-		setOverflowStart(el.scrollLeft > 1);
-		setOverflowEnd(el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
-	}, []);
+		const el = strip.current
+		if (!el) {
+			return
+		}
+
+		setOverflowStart(el.scrollLeft > 1)
+		setOverflowEnd(el.scrollLeft + el.clientWidth < el.scrollWidth - 1)
+	}, [])
 
 	useEffect(() => {
-		const el = strip.current;
-		if (!el || !hasScroll) return;
-		updateOverflow();
-		el.addEventListener('scroll', updateOverflow, { passive: true });
-		const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(updateOverflow) : null;
-		ro?.observe(el);
-		const mo = new MutationObserver(updateOverflow);
-		mo.observe(el, { childList: true, subtree: true });
+		const el = strip.current
+		if (!el || !hasScroll) {
+			return
+		}
+
+		updateOverflow()
+		el.addEventListener('scroll', updateOverflow, { passive: true })
+		const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(updateOverflow) : null
+		ro?.observe(el)
+		const mo = new MutationObserver(updateOverflow)
+		mo.observe(el, { childList: true, subtree: true })
 		return () => {
-			el.removeEventListener('scroll', updateOverflow);
-			ro?.disconnect();
-			mo.disconnect();
-		};
-	}, [hasScroll, updateOverflow]);
+			el.removeEventListener('scroll', updateOverflow)
+			ro?.disconnect()
+			mo.disconnect()
+		}
+	}, [hasScroll, updateOverflow])
 
 	const revealSelected = useCallback(() => {
-		const el = strip.current;
-		if (!el || !hasScroll) return;
+		const el = strip.current
+		if (!el || !hasScroll) {
+			return
+		}
+
 		const stop = Array.from(el.querySelectorAll<HTMLElement>('[data-tab-value]')).find(
 			(n) => n.dataset.tabValue === props.value,
-		);
+		)
 
 		if (typeof stop?.scrollIntoView === 'function') {
-			stop.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'instant' as ScrollBehavior });
+			stop.scrollIntoView({
+				block: 'nearest',
+				inline: 'nearest',
+				behavior: 'instant' as ScrollBehavior,
+			})
 		}
-	}, [props.value, hasScroll]);
+	}, [props.value, hasScroll])
 
-	const revealed = useRef<string | null>(null);
+	const revealed = useRef<string | null>(null)
 	useEffect(() => {
-		if (revealed.current === props.value) return;
-		revealed.current = props.value;
-		revealSelected();
-	});
+		if (revealed.current === props.value) {
+			return
+		}
+
+		revealed.current = props.value
+		revealSelected()
+	})
 
 	// The selection stays visible when the strip itself resizes.
 	useEffect(() => {
-		const el = strip.current;
-		if (!el || !hasScroll || typeof ResizeObserver === 'undefined') return;
-		const ro = new ResizeObserver(revealSelected);
-		ro.observe(el);
-		return () => ro.disconnect();
-	}, [hasScroll, revealSelected]);
+		const el = strip.current
+		if (!el || !hasScroll || typeof ResizeObserver === 'undefined') {
+			return
+		}
+
+		const ro = new ResizeObserver(revealSelected)
+		ro.observe(el)
+		return () => ro.disconnect()
+	}, [hasScroll, revealSelected])
 
 	const scrollPage = useCallback((dir: -1 | 1) => {
-		const el = strip.current;
-		if (!el) return;
-		el.scrollBy({ left: dir * el.clientWidth * SCROLL_PAGE_RATIO, behavior: 'smooth' });
-	}, []);
+		const el = strip.current
+		if (!el) {
+			return
+		}
+
+		el.scrollBy({ left: dir * el.clientWidth * SCROLL_PAGE_RATIO, behavior: 'smooth' })
+	}, [])
 
 	const ctx = useMemo(
 		() => ({
@@ -115,21 +137,39 @@ export function TabList(props: TabListProps) @{
 			pattern: isTabList ? ('tabs' as const) : ('nav' as const),
 		}),
 		[props.value, props.onChange, size, props.layout, isTabList],
-	);
+	)
 
-	const label = (props.web?.['aria-label'] as string | undefined) ?? 'Tabs';
-	const fades = !hasScroll ? '' : overflowStart && overflowEnd ? 'vx-tabstrip--fade-both' : overflowStart ? 'vx-tabstrip--fade-start' : overflowEnd ? 'vx-tabstrip--fade-end' : '';
+	const label = (props.web?.['aria-label'] as string | undefined) ?? 'Tabs'
+	const fades = !hasScroll
+		? ''
+		: overflowStart && overflowEnd
+			? 'vx-tabstrip--fade-both'
+			: overflowStart
+				? 'vx-tabstrip--fade-start'
+				: overflowEnd
+					? 'vx-tabstrip--fade-end'
+					: ''
+
 	const attachRoot = (el: HTMLElement | null) => {
-		root.current = el;
-		listRef.current = el;
-		if (el) applyEscapeProps(el, props);
-	};
+		root.current = el
+		listRef.current = el
+		if (el) {
+			applyEscapeProps(el, props)
+		}
+	}
 
 	const inner = (
 		<>
 			<div
-				ref={(el: HTMLDivElement | null) => { strip.current = el; }}
-				className={['vx-tabstrip', hasScroll && 'vx-tabstrip--scroll', props.isFullBleed && 'vx-tabstrip--bleed', fades]}
+				ref={(el: HTMLDivElement | null) => {
+					strip.current = el
+				}}
+				className={[
+					'vx-tabstrip',
+					hasScroll && 'vx-tabstrip--scroll',
+					props.isFullBleed && 'vx-tabstrip--bleed',
+					fades,
+				]}
 				role={isTabList ? 'tablist' : undefined}
 				aria-label={isTabList ? label : undefined}
 				onScroll={updateOverflow}
@@ -161,15 +201,43 @@ export function TabList(props: TabListProps) @{
 				</button>
 			) : null}
 		</>
-	);
+	)
 
-	const cls = ['vx-tablist', 'vx-tablist--' + size, props.layout === 'fill' && 'vx-tablist--fill', props.hasDivider && 'vx-tablist--divided', props.isFullBleed && 'vx-tablist--bleed', props.className];
+	const cls = [
+		'vx-tablist',
+		'vx-tablist--' + size,
+		props.layout === 'fill' && 'vx-tablist--fill',
+		props.hasDivider && 'vx-tablist--divided',
+		props.isFullBleed && 'vx-tablist--bleed',
+		props.className,
+	]
 
 	<TabListProvider value={ctx}>
 		@if (isTabList) {
-			<div ref={attachRoot} id={props.id} className={cls} style={props.style} role="presentation" onKeyDown={handleKeyDown} onFocus={handleFocus}>{inner}</div>
+			<div
+				ref={attachRoot}
+				id={props.id}
+				className={cls}
+				style={props.style}
+				role="presentation"
+				onKeyDown={handleKeyDown}
+				onFocus={handleFocus}
+			>
+				{inner}
+			</div>
 		} @else {
-			<nav ref={attachRoot} id={props.id} className={cls} style={props.style} role={props.role} aria-label={props.role ? undefined : label} onKeyDown={handleKeyDown} onFocus={handleFocus}>{inner}</nav>
+			<nav
+				ref={attachRoot}
+				id={props.id}
+				className={cls}
+				style={props.style}
+				role={props.role}
+				aria-label={props.role ? undefined : label}
+				onKeyDown={handleKeyDown}
+				onFocus={handleFocus}
+			>
+				{inner}
+			</nav>
 		}
 	</TabListProvider>
 }
@@ -183,28 +251,40 @@ export function Tab<
 >(props: TabProps<Contracts, Stacks, Transitions>): any
 
 export function Tab(props: NavigationItemImplementation<TabProps>) @{
-	const ctx = useContext(TabListContext);
+	const ctx = useContext(TabListContext)
 	if (ctx == null) {
-		throw new Error('Tab must be used within a TabList.');
+		throw new Error('Tab must be used within a TabList.')
 	}
 
-	const isTabs = ctx.pattern === 'tabs';
-	if (isTabs && props.to !== undefined) throw new TypeError('Typed route destinations belong in the navigation TabList pattern, not role="tablist"')
+	const isTabs = ctx.pattern === 'tabs'
+	if (isTabs && props.to !== undefined) {
+		throw new TypeError(
+			'Typed route destinations belong in the navigation TabList pattern, not role="tablist"',
+		)
+	}
+
 	const link = useNavigationItem({ ...props, href: isTabs ? undefined : props.href })
-	const isSelected = props.to !== undefined ? link.selected : ctx.value === props.value;
-	const isLink = link.href != null && !isTabs;
-	const isDisabled = link.disabled;
-	const displayIcon = isSelected && props.selectedIcon != null ? props.selectedIcon : props.icon;
-	const showLabel = !props.isLabelHidden && props.label !== '';
+	const isSelected = props.to !== undefined ? link.selected : ctx.value === props.value
+	const isLink = link.href != null && !isTabs
+	const isDisabled = link.disabled
+	const displayIcon = isSelected && props.selectedIcon != null ? props.selectedIcon : props.icon
+	const showLabel = !props.isLabelHidden && props.label !== ''
 
 	const select = (event: any) => {
-		if (link.activateWeb(event)) ctx.onChange(props.value)
-	};
+		if (link.activateWeb(event)) {
+			ctx.onChange(props.value)
+		}
+	}
 
 	const shared: any = {
 		id: props.id,
 		'data-tab-value': props.value,
-		className: ['vx-tab', isSelected && 'vx-tab--selected', ctx.layout === 'fill' && 'vx-tab--fill', props.className],
+		className: [
+			'vx-tab',
+			isSelected && 'vx-tab--selected',
+			ctx.layout === 'fill' && 'vx-tab--fill',
+			props.className,
+		],
 		style: { height: SIZE_HEIGHT[ctx.size], ...styleRecord(props.style) },
 		tabIndex: isDisabled ? -1 : isSelected ? 0 : -1,
 		'aria-label': props.isLabelHidden ? props.label : undefined,
@@ -212,30 +292,42 @@ export function Tab(props: NavigationItemImplementation<TabProps>) @{
 		...(isTabs
 			? { role: 'tab', 'aria-selected': isSelected, 'aria-controls': props.panelId }
 			: { 'aria-current': isSelected ? (props.to !== undefined ? 'page' : 'true') : undefined }),
-	};
+	}
 
 	const content = (
 		<>
 			<span className="vx-tab-hover" aria-hidden="true" />
-			{displayIcon != null ? <span className="vx-tab-icon">{navIcon(displayIcon, ctx.size === 'lg' ? 18 : ctx.size === 'sm' ? 14 : 16)}</span> : null}
+			{displayIcon != null ? (
+				<span className="vx-tab-icon">
+					{navIcon(displayIcon, ctx.size === 'lg' ? 18 : ctx.size === 'sm' ? 14 : 16)}
+				</span>
+			) : null}
 			{showLabel ? (
 				<span className="vx-tab-labelwrap">
 					<span className="vx-tab-label">{props.label}</span>
-					<span className="vx-tab-labelsizer" aria-hidden="true">{props.label}</span>
+					<span className="vx-tab-labelsizer" aria-hidden="true">
+						{props.label}
+					</span>
 				</span>
 			) : null}
 			{props.endContent != null ? <span className="vx-tab-end">{props.endContent}</span> : null}
-			<span className={['vx-tab-indicator', isSelected && 'vx-tab-indicator--on']} aria-hidden="true" />
+			<span
+				className={['vx-tab-indicator', isSelected && 'vx-tab-indicator--on']}
+				aria-hidden="true"
+			/>
 		</>
-	);
+	)
 
-	const injected: any = useLinkComponent(props.as);
-	const LinkEl: any = isDisabled ? 'a' : injected;
+	const injected: any = useLinkComponent(props.as)
+	const LinkEl: any = isDisabled ? 'a' : injected
 
 	@if (isLink) {
 		<LinkEl
 			{...shared}
-			href={isDisabled ? undefined : link.href} target={props.target} rel={props.rel} download={props.download}
+			href={isDisabled ? undefined : link.href}
+			target={props.target}
+			rel={props.rel}
+			download={props.download}
 			onClick={select}
 			ref={(el: any) => applyEscapeProps(el, props)}
 		>
@@ -256,30 +348,38 @@ export function Tab(props: NavigationItemImplementation<TabProps>) @{
 /** TabMenu — overflow trigger inside a TabList; opens a menu of extra tab
  *  options. The selected option's label becomes the trigger text. */
 export function TabMenu(props: TabMenuProps) @{
-	const ctx = useContext(TabListContext);
+	const ctx = useContext(TabListContext)
 	if (ctx == null) {
-		throw new Error('TabMenu must be used within a TabList.');
+		throw new Error('TabMenu must be used within a TabList.')
 	}
 
-	const anchor = useRef<any>(null);
-	const [open, setOpen] = useState(false);
-	const selected = props.options.find((o) => o.value === ctx.value);
-	const triggerLabel = selected?.label ?? props.label;
+	const anchor = useRef<any>(null)
+	const [open, setOpen] = useState(false)
+	const selected = props.options.find((o) => o.value === ctx.value)
+	const triggerLabel = selected?.label ?? props.label
 
-	const menu = useListFocus<HTMLDivElement>({ itemSelector: '[role="menuitemradio"]', orientation: 'vertical', hasRovingTabIndex: true, onEscape: () => setOpen(false) });
+	const menu = useListFocus<HTMLDivElement>({
+		itemSelector: '[role="menuitemradio"]',
+		orientation: 'vertical',
+		hasRovingTabIndex: true,
+		onEscape: () => setOpen(false),
+	})
 
 	const pick = (value: string) => {
-		ctx.onChange(value);
-		setOpen(false);
-	};
+		ctx.onChange(value)
+		setOpen(false)
+	}
 
 	<>
 		<button
-			ref={(el: any) => { anchor.current = el; applyEscapeProps(el, props); }}
+			ref={(el: any) => {
+				anchor.current = el
+				applyEscapeProps(el, props)
+			}}
 			id={props.id}
 			type="button"
 			className={['vx-tab vx-tabmenu-trigger', selected && 'vx-tab--selected', props.className]}
-			style={mergeStyle({height: SIZE_HEIGHT[ctx.size]}, props.style)}
+			style={mergeStyle({ height: SIZE_HEIGHT[ctx.size] }, props.style)}
 			data-tab-menu=""
 			tabIndex={selected ? 0 : -1}
 			aria-haspopup="menu"
@@ -289,34 +389,54 @@ export function TabMenu(props: TabMenuProps) @{
 			<span className="vx-tab-hover" aria-hidden="true" />
 			<span className="vx-tab-labelwrap">
 				<span className="vx-tab-label">{triggerLabel}</span>
-				<span className="vx-tab-labelsizer" aria-hidden="true">{triggerLabel}</span>
+				<span className="vx-tab-labelsizer" aria-hidden="true">
+					{triggerLabel}
+				</span>
 			</span>
-			<span className={['vx-tabmenu-chevron', open && 'vx-tabmenu-chevron--open']} aria-hidden="true">
+			<span
+				className={['vx-tabmenu-chevron', open && 'vx-tabmenu-chevron--open']}
+				aria-hidden="true"
+			>
 				<Icon name="xplat-chevron-down" size={16} />
 			</span>
-			{selected ? <span className="vx-tab-indicator vx-tab-indicator--on" aria-hidden="true" /> : null}
+			{selected ? (
+				<span className="vx-tab-indicator vx-tab-indicator--on" aria-hidden="true" />
+			) : null}
 		</button>
-		<Popover anchor={anchor} open={open} placement="bottom" onDismiss={() => setOpen(false)} className="vx-tabmenu-pop">
+		<Popover
+			anchor={anchor}
+			open={open}
+			placement="bottom"
+			onDismiss={() => setOpen(false)}
+			className="vx-tabmenu-pop"
+		>
 			<div
-				ref={(el: HTMLDivElement | null) => { menu.listRef.current = el; }}
+				ref={(el: HTMLDivElement | null) => {
+					menu.listRef.current = el
+				}}
 				className="vx-tabmenu"
 				role="menu"
 				aria-label={props.label}
 				onKeyDown={menu.handleKeyDown}
 				onFocus={menu.handleFocus}
 			>
-				<div className="vx-tabmenu-heading" role="presentation">{props.label}</div>
+				<div className="vx-tabmenu-heading" role="presentation">
+					{props.label}
+				</div>
 				@for (const option of props.options; key option.value) {
 					<div
-						className={['vx-tabmenu-item', ctx.value === option.value && 'vx-tabmenu-item--selected']}
+						className={[
+							'vx-tabmenu-item',
+							ctx.value === option.value && 'vx-tabmenu-item--selected',
+						]}
 						role="menuitemradio"
 						tabIndex={-1}
 						aria-checked={ctx.value === option.value}
 						onClick={() => pick(option.value)}
 						onKeyDown={(e: KeyboardEvent) => {
 							if (e.key === 'Enter' || e.key === ' ') {
-								e.preventDefault();
-								pick(option.value);
+								e.preventDefault()
+								pick(option.value)
 							}
 						}}
 					>

@@ -1,9 +1,18 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { registerElement } from '@nativescript-community/octane'
 import type { Attributes } from '@nativescript-community/octane/intrinsics'
-import { ComposeDataDriver, JetpackCompose, registerJetpackCompose } from '@nativescript/jetpack-compose'
+import {
+	ComposeDataDriver,
+	JetpackCompose,
+	registerJetpackCompose,
+} from '@nativescript/jetpack-compose'
+
 import { Application, GridLayout } from '@nativescript/core'
-import { createPortal as createUniversalPortal, type UniversalRenderable } from 'octane/universal/native'
+import {
+	createPortal as createUniversalPortal,
+	type UniversalRenderable,
+} from 'octane/universal/native'
+
 import { useEffect, useRef, useState } from 'octane'
 import type { MaterialContextMenuProps } from './android/types'
 
@@ -16,8 +25,10 @@ declare module '@nativescript-community/octane/intrinsics' {
 }
 
 registerElement('xplatandroidcontextmenu', JetpackCompose)
-registerJetpackCompose('xplat-material-contextmenu', (owner: any) =>
-	new ComposeDataDriver(new com.octanexplat.contextmenu.XplatContextMenuProvider(), owner),
+registerJetpackCompose(
+	'xplat-material-contextmenu',
+	(owner: any) =>
+		new ComposeDataDriver(new com.octanexplat.contextmenu.XplatContextMenuProvider(), owner),
 )
 
 // Dash-free ids — the host-side representable appends "-<uuid>" and the
@@ -25,7 +36,7 @@ registerJetpackCompose('xplat-material-contextmenu', (owner: any) =>
 let seq = 0
 
 function TriggerRoot(props: { render: () => any }) @{
-	<>{props.render()}</>;
+	<>{props.render()}</>
 }
 
 function createPortal(children: unknown, target: unknown) {
@@ -51,7 +62,9 @@ export function MaterialContextMenu(props: MaterialContextMenuProps) @{
 		// view factory needs a real android.content.Context to build its
 		// native view.
 
-		const context = (Application.android as any).foregroundActivity ?? (Application.android as any).startActivity
+		const context =
+			(Application.android as any).foregroundActivity ?? (Application.android as any).startActivity
+
 		const nativeHost = host as any
 
 		nativeHost._setupAsRootView(context)
@@ -78,7 +91,10 @@ export function MaterialContextMenu(props: MaterialContextMenuProps) @{
 	// activation prop or the mounted host changes.
 	useEffect(() => {
 		const host = mounted.current?.host
-		if (!portalHost || !host) return
+		if (!portalHost || !host) {
+			return
+		}
+
 		const open = () => setExpanded(true)
 		const event = (props.activation ?? 'longPress') === 'singlePress' ? 'tap' : 'longPress'
 		host.on(event, open)
@@ -122,5 +138,5 @@ export function MaterialContextMenu(props: MaterialContextMenuProps) @{
 		{portalHost && props.trigger
 			? createPortal(<TriggerRoot render={props.trigger} />, portalHost)
 			: null}
-	</>;
+	</>
 }

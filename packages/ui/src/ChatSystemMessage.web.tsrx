@@ -1,22 +1,22 @@
-import type { ChatSystemMessageProps } from './props';
-import { Separator } from './Separator.web.tsrx';
+import type { ChatSystemMessageProps } from './props'
+import { Separator } from './Separator.web.tsrx'
 
 /** Centered system message — "conversation started", date separators, status
  *  changes. `divider` renders hairlines flanking the content. */
 export function ChatSystemMessage(props: ChatSystemMessageProps) @{
 	if (props.variant === 'divider') {
 		return (
-		<div
-			id={props.id}
-			className={['vx-chatsys', 'vx-chatsys--divider', props.className]}
-			style={props.style}
-			role="status"
-		>
-			<Separator />
-			<span className="vx-chatsys-content">{props.children}</span>
-			<Separator />
-		</div>
-		);
+			<div
+				id={props.id}
+				className={['vx-chatsys', 'vx-chatsys--divider', props.className]}
+				style={props.style}
+				role="status"
+			>
+				<Separator />
+				<span className="vx-chatsys-content">{props.children}</span>
+				<Separator />
+			</div>
+		)
 	}
 
 	return (
@@ -31,5 +31,5 @@ export function ChatSystemMessage(props: ChatSystemMessageProps) @{
 				{props.children}
 			</span>
 		</div>
-	);
+	)
 }

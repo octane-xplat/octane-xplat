@@ -81,7 +81,11 @@ try {
 	await page.getByRole('link', { name: 'Guides →' }).click()
 	await page.getByRole('link', { name: 'Routes from data →' }).click()
 	await page.locator('.guide-layout-banner').waitFor()
-	check('addRoutes named outlet and layout', new URL(page.url()).pathname === '/@test/guides/routes')
+	check(
+		'addRoutes named outlet and layout',
+		new URL(page.url()).pathname === '/@test/guides/routes',
+	)
+
 	check(
 		'programmatic layout applied once',
 		(await page.locator('.guide-layout-banner').count()) === 1,

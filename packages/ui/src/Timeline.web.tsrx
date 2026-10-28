@@ -1,10 +1,15 @@
-import type { TimelineProps } from "./props";
-import { applyEscapeProps } from "./escape-props";
-import { Icon } from './Icon.web.tsrx';
+import type { TimelineProps } from './props'
+import { applyEscapeProps } from './escape-props'
+import { Icon } from './Icon.web.tsrx'
 
 /** Timeline — vertical event list: dot + connector + content per item. */
 export function Timeline(props: TimelineProps) @{
-	<div ref={(e: any) => applyEscapeProps(e, props)} id={props.id} className={['vx-timeline', props.className]} style={props.style}>
+	<div
+		ref={(e: any) => applyEscapeProps(e, props)}
+		id={props.id}
+		className={['vx-timeline', props.className]}
+		style={props.style}
+	>
 		{props.items.map((item: any, i: number) => (
 			<div key={item.key} className="vx-timeline-item">
 				<div className="vx-timeline-rail" aria-hidden="true">
@@ -14,7 +19,9 @@ export function Timeline(props: TimelineProps) @{
 				<div className="vx-timeline-body">
 					{item.time != null ? <span className="vx-timeline-time">{item.time}</span> : null}
 					{item.title != null ? <span className="vx-timeline-title">{item.title}</span> : null}
-					{item.description != null ? <span className="vx-timeline-desc">{item.description}</span> : null}
+					{item.description != null ? (
+						<span className="vx-timeline-desc">{item.description}</span>
+					) : null}
 				</div>
 			</div>
 		))}

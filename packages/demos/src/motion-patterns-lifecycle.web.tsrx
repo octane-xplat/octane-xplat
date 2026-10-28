@@ -7,7 +7,9 @@ export function usePauseOnHidden(pause: () => void) {
 	latest.current = pause
 	useEffect(() => {
 		const onHidden = () => {
-			if (document.hidden) latest.current()
+			if (document.hidden) {
+				latest.current()
+			}
 		}
 
 		document.addEventListener('visibilitychange', onHidden)

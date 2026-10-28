@@ -529,7 +529,10 @@ test('a defined action without a handler announces unavailable; invoke is reject
 	const instance = await until(async () => (await bridge.call('GET', '/registry')).instances[0])
 	const action = instance.actions.find((a) => a.id === 'auth.login-as-test-admin')
 	assert.equal(action.availability.ready, false)
-	assert.match(action.availability.reason, /no handler attached; its owning component is not mounted/)
+	assert.match(
+		action.availability.reason,
+		/no handler attached; its owning component is not mounted/,
+	)
 
 	const outcome = await invokeAndAwait(bridge, instance, 'req_nohandler', action.id)
 	assert.equal(outcome.status, 'failed')
@@ -575,7 +578,9 @@ test('the most recently attached handler wins; detaching it restores the previou
 		token: bridge.token,
 		console: stub.console,
 	})
-	const definition = api.defineDevAction(declaration({ result: { fields: { who: { type: 'string' } } } }))
+	const definition = api.defineDevAction(
+		declaration({ result: { fields: { who: { type: 'string' } } } }),
+	)
 	t.after(() => definition.dispose())
 	t.after(() => api.startDevActionBridge().stop())
 
@@ -610,9 +615,7 @@ test('disposing and redefining a declaration keeps component-attached handlers w
 	const detach = api.attachDevActionHandler(definition, async () => ({ ok: true }))
 	t.after(detach)
 	definition.dispose()
-	definition = api.defineDevAction(
-		declaration({ result: { fields: { ok: { type: 'boolean' } } } }),
-	)
+	definition = api.defineDevAction(declaration({ result: { fields: { ok: { type: 'boolean' } } } }))
 	t.after(() => definition.dispose())
 
 	const revision = api.devActionsRevision()
@@ -803,11 +806,7 @@ test('failed outcomes return structured per-handler failure records with labels'
 	t.after(() => effect.dispose())
 	t.after(() => api.startDevActionBridge().stop())
 
-	api.attachDevEffectHandler(
-		effect,
-		() => {},
-		{ label: 'A' },
-	)
+	api.attachDevEffectHandler(effect, () => {}, { label: 'A' })
 	api.attachDevEffectHandler(
 		effect,
 		() => {
@@ -1110,7 +1109,10 @@ test('an unreachable handler outcome posts within half the caller deadline', asy
 	const elapsed = Date.now() - started
 	assert.equal(outcome.status, 'failed')
 	assert.equal(outcome.error.code, 'unavailable')
-	assert.match(outcome.error.message, /navigated to \/checkout but action "checkout\.confirm" is still unavailable/)
+	assert.match(
+		outcome.error.message,
+		/navigated to \/checkout but action "checkout\.confirm" is still unavailable/,
+	)
 	// Half of the 400ms bound is spent navigating + waiting so the caller's
 	// deadline still fits the remaining handler execution and outcome post.
 	assert.ok(elapsed < 400, `expected the unavailable outcome under 400ms, took ${elapsed}ms`)
@@ -1129,7 +1131,10 @@ test('a declared route without an installed navigator stays unavailable without 
 	const outcome = await invokeRouteAction(bridge, instance, 'req_nosnav', 'checkout.confirm')
 	assert.equal(outcome.status, 'failed')
 	assert.equal(outcome.error.code, 'unavailable')
-	assert.match(outcome.error.message, /route "\/checkout" is declared but no router navigator is installed/)
+	assert.match(
+		outcome.error.message,
+		/route "\/checkout" is declared but no router navigator is installed/,
+	)
 })
 
 test('the announcement discloses route, navigation effect, location, and re-announces on location change', async (t) => {

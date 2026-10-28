@@ -45,26 +45,30 @@ export function LexicalEditor(props: LexicalEditorProps) @{
 	const initialConfig = {
 		namespace: 'octane-xplat/lexical',
 		nodes: props.web?.replaceNodes
-			? props.web.nodes ?? []
+			? (props.web.nodes ?? [])
 			: [...new Set([...NODES, ...(props.web?.nodes ?? [])])],
 		editable: props.editable !== false,
-		editorState: props.json != null
-			? JSON.stringify(props.json)
-			: props.value != null
-				? (editor: any) => {
-						const dom = new DOMParser().parseFromString(props.value!, 'text/html')
-						const nodes = $generateNodesFromDOM(editor, dom)
-						$getRoot().select()
-						$insertNodes(nodes)
-					}
-				: undefined,
+		editorState:
+			props.json != null
+				? JSON.stringify(props.json)
+				: props.value != null
+					? (editor: any) => {
+							const dom = new DOMParser().parseFromString(props.value!, 'text/html')
+							const nodes = $generateNodesFromDOM(editor, dom)
+							$getRoot().select()
+							$insertNodes(nodes)
+						}
+					: undefined,
 		onError: (e: Error) => {
 			throw e
 		},
 	}
 
 	const attach = (editor: any) => {
-		if (!editor || bound.current?.native === editor) return
+		if (!editor || bound.current?.native === editor) {
+			return
+		}
+
 		editorRef.current = editor
 		bound.current = bindEditorHandle(editor)
 
@@ -77,21 +81,43 @@ export function LexicalEditor(props: LexicalEditorProps) @{
 	// (the update already owns the doc).
 	useEffect(() => {
 		const e = editorRef.current
-		if (!e) return
+		if (!e) {
+			return
+		}
+
 		const stamp = JSON.stringify([props.json !== undefined, props.value])
-		if (stamp === lastHTMLInput.current) return
+		if (stamp === lastHTMLInput.current) {
+			return
+		}
+
 		lastHTMLInput.current = stamp
-		if (props.json !== undefined || props.value === undefined || props.value === lastEmitted.current) return
+		if (
+			props.json !== undefined ||
+			props.value === undefined ||
+			props.value === lastEmitted.current
+		) {
+			return
+		}
+
 		bound.current?.setHTML(props.value)
 	}, [exposedHandle, props.value, props.json])
 
 	useEffect(() => {
 		const e = editorRef.current
-		if (!e) return
+		if (!e) {
+			return
+		}
+
 		const stamp = JSON.stringify(props.json)
-		if (stamp === lastJSONInput.current) return
+		if (stamp === lastJSONInput.current) {
+			return
+		}
+
 		lastJSONInput.current = stamp
-		if (props.json === undefined || stamp === lastJSON.current) return
+		if (props.json === undefined || stamp === lastJSON.current) {
+			return
+		}
+
 		bound.current?.setJSON(props.json)
 	}, [exposedHandle, props.json])
 

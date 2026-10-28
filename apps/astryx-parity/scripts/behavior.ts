@@ -122,7 +122,12 @@ async function runSide(browser: Browser, baseUrl: string): Promise<Observation[]
 		await waitForEvents(page, count)
 		record('pointer', 'click-sync', await events(page))
 		count = (await events(page)).length
-		await page.locator('[data-parity-key="disabled"]').locator(CONTROL).first().click({ force: true })
+		await page
+			.locator('[data-parity-key="disabled"]')
+			.locator(CONTROL)
+			.first()
+			.click({ force: true })
+
 		await waitForEvents(page, count)
 		record('pointer', 'click-disabled', await events(page))
 
@@ -138,6 +143,7 @@ async function runSide(browser: Browser, baseUrl: string): Promise<Observation[]
 			...(await controlState(page, 'async')),
 			wrapper: await page.locator('[data-parity-key="async"]').ariaSnapshot(),
 		})
+
 		count = (await events(page)).length
 		await asyncControl.click({ force: true })
 		await waitForEvents(page, count)
@@ -163,6 +169,7 @@ async function runSide(browser: Browser, baseUrl: string): Promise<Observation[]
 			events: await events(page),
 			...(await controlState(page, 'async')),
 		})
+
 		count = (await events(page)).length
 		await asyncControl.click()
 		await waitForEvents(page, count)
@@ -188,18 +195,30 @@ async function runSide(browser: Browser, baseUrl: string): Promise<Observation[]
 
 // TextInput: label-click focuses, typing reports onChange, Tab order includes
 // it, a disabled input is skipped, and its aria snapshot carries the field.
-async function textInputProbes(page: Page, baseUrl: string, record: (probe: string, step: string, value: unknown) => void) {
+async function textInputProbes(
+	page: Page,
+	baseUrl: string,
+	record: (probe: string, step: string, value: unknown) => void,
+) {
 	const url = `${baseUrl}/text-input/behavior`
 	const P = 'text-input'
 	await page.goto(url)
 	const input = page.locator('[data-parity-key="input"]').locator('input').first()
-	await page.locator('[data-parity-key="input"]').locator('label, [data-testid]').first().click({ position: { x: 2, y: 2 } }).catch(() => {})
+	await page
+		.locator('[data-parity-key="input"]')
+		.locator('label, [data-testid]')
+		.first()
+		.click({ position: { x: 2, y: 2 } })
+		.catch(() => {})
 	await settle(page)
 	record(P, 'label-click-focused', (await activeKey(page)) === 'input')
 	let count = (await events(page)).length
 	await input.fill('abc')
 	await waitForEvents(page, count)
-	record(P, 'type', { events: await events(page), value: await input.inputValue().catch(() => null) })
+	record(P, 'type', {
+		events: await events(page),
+		value: await input.inputValue().catch(() => null),
+	})
 	await page.locator('[data-parity-key="before"]').focus()
 	for (let i = 1; i <= 4; i++) {
 		await page.keyboard.press('Tab')
@@ -214,13 +233,23 @@ async function textInputProbes(page: Page, baseUrl: string, record: (probe: stri
 
 // Checkbox/Switch share a toggle probe: label-click and Space toggle the
 // controlled state; a disabled control does not toggle; aria snapshot.
-async function toggleProbes(page: Page, baseUrl: string, record: (probe: string, step: string, value: unknown) => void, name: 'checkbox' | 'switch', eventPrefix: string) {
+async function toggleProbes(
+	page: Page,
+	baseUrl: string,
+	record: (probe: string, step: string, value: unknown) => void,
+	name: 'checkbox' | 'switch',
+	eventPrefix: string,
+) {
 	const url = `${baseUrl}/${name}/behavior`
 	const controlKey = name === 'checkbox' ? 'box' : 'switch'
 	const controlSel = `[data-parity-key="${controlKey}"] input, [data-parity-key="${controlKey}"] [role="checkbox"], [data-parity-key="${controlKey}"] [role="switch"], [data-parity-key="${controlKey}"] button`
 	await page.goto(url)
 	let count = (await events(page)).length
-	await page.locator(`[data-parity-key="${controlKey}"]`).locator('label, input, [role="checkbox"], [role="switch"], button').first().click()
+	await page
+		.locator(`[data-parity-key="${controlKey}"]`)
+		.locator('label, input, [role="checkbox"], [role="switch"], button')
+		.first()
+		.click()
 	await waitForEvents(page, count)
 	record(name, 'label-click', await events(page))
 	await page.locator(controlSel).first().focus()
@@ -229,7 +258,12 @@ async function toggleProbes(page: Page, baseUrl: string, record: (probe: string,
 	await waitForEvents(page, count)
 	record(name, 'space-toggle', await events(page))
 	count = (await events(page)).length
-	await page.locator(`[data-parity-key="disabled-${name === 'checkbox' ? 'box' : 'switch'}"]`).locator('input, [role="checkbox"], [role="switch"], button').first().click({ force: true }).catch(() => {})
+	await page
+		.locator(`[data-parity-key="disabled-${name === 'checkbox' ? 'box' : 'switch'}"]`)
+		.locator('input, [role="checkbox"], [role="switch"], button')
+		.first()
+		.click({ force: true })
+		.catch(() => {})
 	await waitForEvents(page, count)
 	record(name, 'disabled-click', await events(page))
 	await page.goto(url)
@@ -240,10 +274,16 @@ async function toggleProbes(page: Page, baseUrl: string, record: (probe: string,
 		}
 	}
 	if (name === 'checkbox') {
-		const mixed = page.locator('[data-parity-key="indeterminate-box"]').locator('input, [role="checkbox"]').first()
+		const mixed = page
+			.locator('[data-parity-key="indeterminate-box"]')
+			.locator('input, [role="checkbox"]')
+			.first()
+
 		record(name, 'indeterminate', {
 			ariaChecked: await mixed.getAttribute('aria-checked').catch(() => null),
-			prop: await mixed.evaluate((el) => (el as HTMLInputElement).indeterminate ?? null).catch(() => null),
+			prop: await mixed
+				.evaluate((el) => (el as HTMLInputElement).indeterminate ?? null)
+				.catch(() => null),
 		})
 	}
 	if (name === 'switch') {
@@ -264,9 +304,11 @@ export async function runBehaviorProbes(referenceUrl: string, candidateUrl: stri
 		const referenceIndex = new Map<string, unknown>(
 			reference.map((o) => [`${o.probe}/${o.step}`, o.value] as const),
 		)
+
 		const candidateIndex = new Map<string, unknown>(
 			candidate.map((o) => [`${o.probe}/${o.step}`, o.value] as const),
 		)
+
 		const diffs: BehaviorDiff[] = []
 
 		for (const { probe, step, value } of reference) {

@@ -9,7 +9,9 @@ export function SectionWashHighlight() @{
 			<Stack direction="vertical" gap={3} hAlign="center">
 				<Stack direction="vertical" gap={1} hAlign="center">
 					<Text type="display-3">Pro Plan</Text>
-					<Text type="body" color="secondary">Everything you need to scale your team.</Text>
+					<Text type="body" color="secondary">
+						Everything you need to scale your team.
+					</Text>
 				</Stack>
 				<Stack direction="vertical" gap={2}>
 					{FEATURES.map((feature) => (
@@ -25,7 +27,9 @@ export function SectionWashHighlight() @{
 			<Stack direction="vertical" gap={2} hAlign="center">
 				<Stack direction="horizontal" gap={2} vAlign="center">
 					<Text type="display-3">$49</Text>
-					<Text type="supporting" color="secondary">/ month</Text>
+					<Text type="supporting" color="secondary">
+						/ month
+					</Text>
 				</Stack>
 				<Button label="Upgrade" variant="primary" />
 			</Stack>

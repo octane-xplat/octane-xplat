@@ -39,7 +39,10 @@ export function resetFakeRichtext() {
 }
 
 export function RichTextEditor(props: any) @{
-	if (!supported) return null
+	if (!supported) {
+		return null
+	}
+
 	const rig = useRef<FakeHost | null>(null)
 	const previousValue = useRef(props.value)
 	if (!rig.current) {
@@ -99,7 +102,10 @@ export function RichTextEditor(props: any) @{
 	rig.current.props = props
 
 	useLayoutEffect(() => {
-		if (!defer) rig.current!.attach()
+		if (!defer) {
+			rig.current!.attach()
+		}
+
 		return () => {
 			rig.current!.disposed = true
 			props.ref?.(null)
@@ -107,7 +113,10 @@ export function RichTextEditor(props: any) @{
 	}, [])
 
 	useEffect(() => {
-		if (defer || !rig.current!.handle) return
+		if (defer || !rig.current!.handle) {
+			return
+		}
+
 		if (props.value !== undefined) {
 			rig.current!.handle.setHTML(props.value)
 		}
@@ -116,11 +125,17 @@ export function RichTextEditor(props: any) @{
 	}, [])
 
 	useEffect(() => {
-		if (props.value === previousValue.current) return
+		if (props.value === previousValue.current) {
+			return
+		}
+
 		previousValue.current = props.value
-		if (!rig.current!.handle || props.value === undefined) return
+		if (!rig.current!.handle || props.value === undefined) {
+			return
+		}
+
 		rig.current!.handle.setHTML(props.value)
 	}, [props.value])
 
-	<fake-richtext-leaf />;
+	<fake-richtext-leaf />
 }

@@ -2,7 +2,6 @@ import type { ParityCheck } from './parity/check-helpers.ts'
 import { near, dims } from './parity/check-helpers.ts'
 
 export const CHECKS: ParityCheck[] = [
-
 	{
 		fixture: 'view-layout',
 		elements: {
@@ -74,5 +73,5 @@ export const CHECKS: ParityCheck[] = [
 		elements: { root: 'parity-percent-root' },
 		equal: ['root.box.x', 'root.box.y', 'root.box.w', 'root.box.h'],
 		check: (m) => [dims(m('root'), 110, 32, 1)],
-	}
+	},
 ]

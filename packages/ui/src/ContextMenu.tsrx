@@ -2,15 +2,15 @@
 import type { RegisteredRouteContracts, AppRouteStacks, RouteTransitionName } from './props'
 import type { NavigationMenuImplementation } from './nav-link'
 import { mergeStyle } from './style-merge'
-import { MenuData } from './MenuParts';
-import { MenuSurface } from './MenuSurface';
-import { useRef, useState } from 'octane';
-import type { ContextMenuProps } from "./props";
-import { cx } from "@octane-xplat/lib";
-import { applyEscapeProps } from "./escape-props";
-import { Pressable } from './Pressable';
-import { Popover } from './Popover';
-import { MenuSheet, useMenuSheet } from './menu-sheet';
+import { MenuData } from './MenuParts'
+import { MenuSurface } from './MenuSurface'
+import { useRef, useState } from 'octane'
+import type { ContextMenuProps } from './props'
+import { cx } from '@octane-xplat/lib'
+import { applyEscapeProps } from './escape-props'
+import { Pressable } from './Pressable'
+import { Popover } from './Popover'
+import { MenuSheet, useMenuSheet } from './menu-sheet'
 
 /** Self-drawn context menu — long-press opens the same anchored list as
  *  DropdownMenu, positioned over the children. There is no right-click on
@@ -22,23 +22,55 @@ export function ContextMenu<
 >(props: ContextMenuProps<Contracts, Stacks, Transitions>): any
 
 export function ContextMenu(props: NavigationMenuImplementation<ContextMenuProps>) @{
-	const anchor = useRef<any>(null);
-	const [internal, setInternal] = useState(props.defaultOpen ?? false);
-	const controlled = props.isOpen !== undefined;
-	const open = props.isOpen ?? internal;
-	const asSheet = useMenuSheet(props.presentation);
+	const anchor = useRef<any>(null)
+	const [internal, setInternal] = useState(props.defaultOpen ?? false)
+	const controlled = props.isOpen !== undefined
+	const open = props.isOpen ?? internal
+	const asSheet = useMenuSheet(props.presentation)
 
 	const setOpen = (next: boolean) => {
-		if ((props.isDisabled) && next) return;
-		if (!controlled) setInternal(next);
-		props.onOpenChange?.(next);
-	};
+		if (props.isDisabled && next) {
+			return
+		}
 
-	<masonview ref={(v: any) => { anchor.current = v; if (v) applyEscapeProps(v, props); }} id={props.id} className={cx('vx-contextmenu', props.className)} style={mergeStyle({display: "flex"}, props.style)} onLongPress={(props.isDisabled) ? undefined : () => setOpen(true)}>
+		if (!controlled) {
+			setInternal(next)
+		}
+
+		props.onOpenChange?.(next)
+	}
+
+	<masonview
+		ref={(v: any) => {
+			anchor.current = v
+			if (v) {
+				applyEscapeProps(v, props)
+			}
+		}}
+		id={props.id}
+		className={cx('vx-contextmenu', props.className)}
+		style={mergeStyle({ display: 'flex' }, props.style)}
+		onLongPress={props.isDisabled ? undefined : () => setOpen(true)}
+	>
 		{props.children}
-		{props.trigger && <Pressable accessibilityLabel={props.accessibilityLabel ?? 'Open actions'} disabled={props.isDisabled} onPress={() => setOpen(!open)}>{props.trigger}</Pressable>}
+		{props.trigger && (
+			<Pressable
+				accessibilityLabel={props.accessibilityLabel ?? 'Open actions'}
+				disabled={props.isDisabled}
+				onPress={() => setOpen(!open)}
+			>
+				{props.trigger}
+			</Pressable>
+		)}
 		@if (asSheet) {
-			<MenuSheet open={open} onOpenChange={setOpen} label={props.label ?? props.accessibilityLabel} items={props.items}>{props.menu}</MenuSheet>
+			<MenuSheet
+				open={open}
+				onOpenChange={setOpen}
+				label={props.label ?? props.accessibilityLabel}
+				items={props.items}
+			>
+				{props.menu}
+			</MenuSheet>
 		} @else {
 			<Popover
 				anchor={anchor}
@@ -48,8 +80,12 @@ export function ContextMenu(props: NavigationMenuImplementation<ContextMenuProps
 				onDismiss={() => setOpen(false)}
 				className={cx('vx-menu', props.menuClassName)}
 			>
-				<MenuSurface closeMenu={() => setOpen(false)} label={props.accessibilityLabel ?? props.label}>
-					<MenuData items={props.items} />{props.menu}
+				<MenuSurface
+					closeMenu={() => setOpen(false)}
+					label={props.accessibilityLabel ?? props.label}
+				>
+					<MenuData items={props.items} />
+					{props.menu}
 				</MenuSurface>
 			</Popover>
 		}

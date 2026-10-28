@@ -16,7 +16,15 @@ export function InputGroup(props: InputGroupProps) @{
 	const size = useSize(props.size, 'md')
 	const group = { isDisabled: props.isDisabled, size }
 
-	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(
+		() =>
+			refList((v: any) => {
+				if (v) {
+					applyEscapeProps(v, props)
+				}
+			}, props.ref),
+		[props.ref, props.ios, props.android, props.web],
+	)
 
 	<FormField
 		label={props.label}
@@ -37,19 +45,45 @@ export function InputGroup(props: InputGroupProps) @{
 		style={props.style}
 	>
 		<InputGroupProvider value={group}>
-		<SizeProvider value={size}>
-			<masonview ref={forwardedRef} className={cx('vx-inputgroup', props.isDisabled && 'vx-inputgroup--disabled', props.status && `vx-inputgroup--status-${props.status.type}`, `vx-inputgroup--size-${size}`)} accessibilityState={{ disabled: props.isDisabled }} style={mergeStyle({flexDirection: "row", alignItems: "stretch"}, {display: "flex"})}>
-				{props.children}
-			</masonview>
-		</SizeProvider>
+			<SizeProvider value={size}>
+				<masonview
+					ref={forwardedRef}
+					className={cx(
+						'vx-inputgroup',
+						props.isDisabled && 'vx-inputgroup--disabled',
+						props.status && `vx-inputgroup--status-${props.status.type}`,
+						`vx-inputgroup--size-${size}`,
+					)}
+					accessibilityState={{ disabled: props.isDisabled }}
+					style={mergeStyle({ flexDirection: 'row', alignItems: 'stretch' }, { display: 'flex' })}
+				>
+					{props.children}
+				</masonview>
+			</SizeProvider>
 		</InputGroupProvider>
 	</FormField>
 }
 
 export function InputGroupText(props: InputGroupTextProps) @{
-	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(
+		() =>
+			refList((v: any) => {
+				if (v) {
+					applyEscapeProps(v, props)
+				}
+			}, props.ref),
+		[props.ref, props.ios, props.android, props.web],
+	)
 
-	<masonview id={props.id} ref={forwardedRef} className={cx('vx-inputgroup-text', props.className)} style={mergeStyle({justifyContent: "center", alignItems: "center"}, mergeStyle({display: "flex"}, props.style))}>
+	<masonview
+		id={props.id}
+		ref={forwardedRef}
+		className={cx('vx-inputgroup-text', props.className)}
+		style={mergeStyle(
+			{ justifyContent: 'center', alignItems: 'center' },
+			mergeStyle({ display: 'flex' }, props.style),
+		)}
+	>
 		{typeof props.children === 'string' ? <label text={props.children} /> : props.children}
 	</masonview>
 }

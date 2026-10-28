@@ -13,15 +13,20 @@ let changeRows: (rows: number) => void
 export default function Fixture() {
 	const [rows, setRows] = useState(2)
 	changeRows = setRows
-	return <masonview id="parity-stage" style={{ width: 320, height: 360 }}>
-		<masonview id="cell-inputs" className="parity-cell">
-			<masonview className="parity-box" style={{ width: 320, height: 360, display: 'flex', flexDirection: 'column' }}>
-				<TextInput id="natural-input" placeholder="Name" />
-				<TextArea id="rows-area" placeholder="Notes" rows={rows} style={{ width: 180 }} />
-				<TextArea id="default-area" placeholder="Notes" style={{ width: 180 }} />
+	return (
+		<masonview id="parity-stage" style={{ width: 320, height: 360 }}>
+			<masonview id="cell-inputs" className="parity-cell">
+				<masonview
+					className="parity-box"
+					style={{ width: 320, height: 360, display: 'flex', flexDirection: 'column' }}
+				>
+					<TextInput id="natural-input" placeholder="Name" />
+					<TextArea id="rows-area" placeholder="Notes" rows={rows} style={{ width: 180 }} />
+					<TextArea id="default-area" placeholder="Notes" style={{ width: 180 }} />
+				</masonview>
 			</masonview>
 		</masonview>
-	</masonview>
+	)
 }
 
 export async function run(ctx: ProbeContext) {

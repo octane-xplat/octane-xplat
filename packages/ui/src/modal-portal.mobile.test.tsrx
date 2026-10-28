@@ -21,9 +21,11 @@ const state = vi.hoisted(() => {
 			hosts.push(this)
 		}
 	}
+
 	const presenter = {
 		showModal: vi.fn((host: any, options: any) => presentations.set(host, options)),
 	}
+
 	return { hosts, roots, portals, themes, presentations, GridLayout, presenter }
 })
 
@@ -70,6 +72,7 @@ const settle = async () => {
 
 function ModalComponent(props: { value: string }) @{
 	observedComponentProps = props
+
 	<></>
 }
 
@@ -78,11 +81,13 @@ function mount(Component: any, props: any) {
 		createObjectContainer('nativescript'),
 		createObjectDriver('nativescript'),
 	)
+
 	mounted.push(root)
 	const render = (next: any = {}) => {
 		root.render(Component, { open: true, children: 'content', ...props, ...next })
 		flushUniversalSync(() => {})
 	}
+
 	render()
 	return { root, render }
 }
@@ -98,7 +103,10 @@ beforeEach(() => {
 })
 
 afterEach(async () => {
-	for (const root of mounted.splice(0)) root.unmount()
+	for (const root of mounted.splice(0)) {
+		root.unmount()
+	}
+
 	await settle()
 })
 
@@ -113,7 +121,11 @@ describe.each([
 
 		const host = state.hosts[0]
 		expect(state.presenter.showModal).toHaveBeenCalledTimes(1)
-		expect(state.presenter.showModal).toHaveBeenCalledWith(host, expect.objectContaining({ closeCallback: expect.any(Function) }))
+		expect(state.presenter.showModal).toHaveBeenCalledWith(
+			host,
+			expect.objectContaining({ closeCallback: expect.any(Function) }),
+		)
+
 		expect(state.portals.at(-1)?.target).toBe(host)
 		expect(state.roots).toHaveLength(0)
 

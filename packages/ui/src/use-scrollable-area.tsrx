@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useCallback, useEffect, useRef, useState } from 'octane';
+import { useCallback, useEffect, useRef, useState } from 'octane'
 import type {
 	ScrollAxisState,
 	HostElement,
@@ -8,11 +8,11 @@ import type {
 	UseScrollableAreaContentProps,
 	UseScrollableAreaResult,
 	UseScrollableAreaViewportProps,
-} from './props';
+} from './props'
 
-const EPS = 1;
-const AT_EDGES: ScrollAxisState = { isScrollable: false, atStart: true, atEnd: true };
-const INITIAL: ScrollableAreaState = { inline: AT_EDGES, block: AT_EDGES };
+const EPS = 1
+const AT_EDGES: ScrollAxisState = { isScrollable: false, atStart: true, atEnd: true }
+const INITIAL: ScrollableAreaState = { inline: AT_EDGES, block: AT_EDGES }
 
 /**
  * Headless scroll-viewport behavior (Astryx `useScrollableArea`), native
@@ -27,37 +27,37 @@ const INITIAL: ScrollableAreaState = { inline: AT_EDGES, block: AT_EDGES };
 export function useScrollableArea<TElement = HostElement>(
 	options: UseScrollableAreaOptions = {},
 ): UseScrollableAreaResult<TElement> {
-	const axis = options.axis ?? 'block';
-	const viewportRef = useRef<any>(null);
-	const contentRef = useRef<any>(null);
-	const detachRef = useRef<(() => void) | null>(null);
-	const [state, setState] = useState<ScrollableAreaState>(INITIAL);
+	const axis = options.axis ?? 'block'
+	const viewportRef = useRef<any>(null)
+	const contentRef = useRef<any>(null)
+	const detachRef = useRef<(() => void) | null>(null)
+	const [state, setState] = useState<ScrollableAreaState>(INITIAL)
 
 	const measure = useCallback(() => {
-		const el = viewportRef.current;
+		const el = viewportRef.current
 		if (!el) {
-			return;
+			return
 		}
 
-		const inlineOk = axis === 'inline' || axis === 'both';
-		const blockOk = axis === 'block' || axis === 'both';
+		const inlineOk = axis === 'inline' || axis === 'both'
+		const blockOk = axis === 'block' || axis === 'both'
 		// The scrollable range is scroll extent minus viewport extent; a
 		// positive range means content overflows on that axis.
-		const maxX = Math.max(0, (Number(el.scrollWidth) || 0) - (Number(el.clientWidth) || 0));
-		const maxY = Math.max(0, (Number(el.scrollHeight) || 0) - (Number(el.clientHeight) || 0));
-		const x = Number(el.scrollLeft) || 0;
-		const y = Number(el.scrollTop) || 0;
+		const maxX = Math.max(0, (Number(el.scrollWidth) || 0) - (Number(el.clientWidth) || 0))
+		const maxY = Math.max(0, (Number(el.scrollHeight) || 0) - (Number(el.clientHeight) || 0))
+		const x = Number(el.scrollLeft) || 0
+		const y = Number(el.scrollTop) || 0
 		const inline: ScrollAxisState = {
 			isScrollable: inlineOk && maxX > EPS,
 			atStart: !inlineOk || x <= EPS,
 			atEnd: !inlineOk || x >= maxX - EPS,
-		};
+		}
 
 		const block: ScrollAxisState = {
 			isScrollable: blockOk && maxY > EPS,
 			atStart: !blockOk || y <= EPS,
 			atEnd: !blockOk || y >= maxY - EPS,
-		};
+		}
 
 		setState((prev) =>
 			prev.inline.isScrollable === inline.isScrollable &&
@@ -68,59 +68,63 @@ export function useScrollableArea<TElement = HostElement>(
 			prev.block.atEnd === block.atEnd
 				? prev
 				: { inline, block },
-		);
-	}, [axis]);
+		)
+	}, [axis])
 
 	const bindViewport = useCallback(
 		(el: any) => {
-			detachRef.current?.();
-			detachRef.current = null;
-			viewportRef.current = el;
+			detachRef.current?.()
+			detachRef.current = null
+			viewportRef.current = el
 			if (el?.on) {
-				el.on('scroll', measure);
-				el.on('layoutChanged', measure);
+				el.on('scroll', measure)
+				el.on('layoutChanged', measure)
 				detachRef.current = () => {
-					el.off?.('scroll', measure);
-					el.off?.('layoutChanged', measure);
-				};
+					el.off?.('scroll', measure)
+					el.off?.('layoutChanged', measure)
+				}
 			}
 
-			measure();
+			measure()
 		},
 		[measure],
-	);
+	)
 
 	const bindContent = useCallback((el: any) => {
-		contentRef.current = el;
-	}, []);
+		contentRef.current = el
+	}, [])
 
-	useEffect(() => () => detachRef.current?.(), []);
+	useEffect(() => () => detachRef.current?.(), [])
 
 	const getViewportProps = useCallback(
 		function getViewportProps<P extends object = {}>(
 			props?: P & Partial<UseScrollableAreaViewportProps<TElement>>,
-		): Omit<P, keyof UseScrollableAreaViewportProps<TElement>> & UseScrollableAreaViewportProps<TElement> {
-			const input = (props ?? {}) as Record<string, any>;
+		): Omit<P, keyof UseScrollableAreaViewportProps<TElement>> &
+			UseScrollableAreaViewportProps<TElement> {
+			const input = (props ?? {}) as Record<string, any>
 			return {
 				...input,
 				ref: [bindViewport, input.ref],
-			} as unknown as Omit<P, keyof UseScrollableAreaViewportProps<TElement>> & UseScrollableAreaViewportProps<TElement>;
+			} as unknown as Omit<P, keyof UseScrollableAreaViewportProps<TElement>> &
+				UseScrollableAreaViewportProps<TElement>
 		},
 		[bindViewport],
-	);
+	)
 
 	const getContentProps = useCallback(
 		function getContentProps<P extends object = {}>(
 			props?: P & Partial<UseScrollableAreaContentProps<TElement>>,
-		): Omit<P, keyof UseScrollableAreaContentProps<TElement>> & UseScrollableAreaContentProps<TElement> {
-			const input = (props ?? {}) as Record<string, any>;
+		): Omit<P, keyof UseScrollableAreaContentProps<TElement>> &
+			UseScrollableAreaContentProps<TElement> {
+			const input = (props ?? {}) as Record<string, any>
 			return {
 				...input,
 				ref: [bindContent, input.ref],
-			} as unknown as Omit<P, keyof UseScrollableAreaContentProps<TElement>> & UseScrollableAreaContentProps<TElement>;
+			} as unknown as Omit<P, keyof UseScrollableAreaContentProps<TElement>> &
+				UseScrollableAreaContentProps<TElement>
 		},
 		[bindContent],
-	);
+	)
 
-	return { getViewportProps, getContentProps, state };
+	return { getViewportProps, getContentProps, state }
 }

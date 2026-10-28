@@ -1,8 +1,8 @@
-import { modalPortalOwner } from './modal-focus.web';
+import { modalPortalOwner } from './modal-focus.web'
 import { mergeStyle, styleRecord } from './style-merge'
-import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx';
-import { SizeProvider } from './size-context';
-import { createPortal, useCallback, useEffect, useId, useRef, useState } from 'octane';
+import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx'
+import { SizeProvider } from './size-context'
+import { createPortal, useCallback, useEffect, useId, useRef, useState } from 'octane'
 import type {
 	ContextLayerReturn,
 	ContextRenderProps,
@@ -10,17 +10,17 @@ import type {
 	FixedLayerReturn,
 	FixedRenderProps,
 	LayerOptions,
-} from './props';
+} from './props'
 
-import { useThemeScheme } from './theme/theme-scheme';
-import { Popover } from './Popover';
-import type { PopoverInternalProps } from './internal-props';
-import { cx } from '@octane-xplat/lib';
-import { ownAnchorName } from './layer-position.web';
+import { useThemeScheme } from './theme/theme-scheme'
+import { Popover } from './Popover'
+import type { PopoverInternalProps } from './internal-props'
+import { cx } from '@octane-xplat/lib'
+import { ownAnchorName } from './layer-position.web'
 
 /** Popover accepts useLayer's internal geometry adapter — public props
  *  stay clean; the cast carries the internal field. */
-const PopoverWithLayerPosition = Popover as unknown as (props: PopoverInternalProps) => unknown;
+const PopoverWithLayerPosition = Popover as unknown as (props: PopoverInternalProps) => unknown
 
 interface FloatingLayerProps {
 	anchor?: { current: any }
@@ -42,54 +42,77 @@ interface FloatingLayerProps {
  *  consumer-authored position styles (context mode `positioning: 'custom'`,
  *  which can chain off `anchorId` via CSS anchor positioning). */
 function FloatingLayer(props: FloatingLayerProps) @{
-	const dark = useThemeScheme() === 'dark';
-	const sourceRef = useRef<HTMLSpanElement | null>(null);
-	const panelRef = useRef<HTMLDivElement | null>(null);
-	const [source, setSource] = useState<HTMLSpanElement | null>(null);
+	const dark = useThemeScheme() === 'dark'
+	const sourceRef = useRef<HTMLSpanElement | null>(null)
+	const panelRef = useRef<HTMLDivElement | null>(null)
+	const [source, setSource] = useState<HTMLSpanElement | null>(null)
 	// The hidden source marker keeps anchorless layers tied to their actual
 	// DOM owner, including content mounted in a separate service root.
-	useEffect(() => { setSource(sourceRef.current); }, [props.open]);
-	const owner = source ? modalPortalOwner(props.anchor?.current ?? source) : null;
-	const dismissal = useLayerDismissal({ minimumDepth: owner?.depth, contains: (target) => !!panelRef.current?.contains(target), getFocusTarget: () => props.finalFocusRef?.current ?? props.anchor?.current, get active() { return !!props.open && !!owner }, dismiss: () => props.onDismiss?.(), get behavior() { return (props.dismissOnEscape ?? props.lightDismiss) ? 'close' : 'block' } });
-	const stopPointer = (event: PointerEvent) => event.stopPropagation();
+	useEffect(() => {
+		setSource(sourceRef.current)
+	}, [props.open])
+
+	const owner = source ? modalPortalOwner(props.anchor?.current ?? source) : null
+	const dismissal = useLayerDismissal({
+		minimumDepth: owner?.depth,
+		contains: (target) => !!panelRef.current?.contains(target),
+		getFocusTarget: () => props.finalFocusRef?.current ?? props.anchor?.current,
+		get active() {
+			return !!props.open && !!owner
+		},
+		dismiss: () => props.onDismiss?.(),
+		get behavior() {
+			return (props.dismissOnEscape ?? props.lightDismiss) ? 'close' : 'block'
+		},
+	})
+
+	const stopPointer = (event: PointerEvent) => event.stopPropagation()
 	const dismiss = (event: MouseEvent) => {
-		event.preventDefault();
-		event.stopPropagation();
-		if (dismissal.shouldClose()) props.onDismiss?.();
-	};
+		event.preventDefault()
+		event.stopPropagation()
+		if (dismissal.shouldClose()) {
+			props.onDismiss?.()
+		}
+	}
 
 	<>
 		<span hidden ref={sourceRef} />
 		@if (props.open && owner) {
-			<>{createPortal(
-				<div
-					className={cx('vx-popover-layer', dark && 'dark')}
-					style={{ position: 'fixed', inset: 0, zIndex: 1000, pointerEvents: 'none' }}
-				>
-					{(props.lightDismiss ?? false) && <div
-						className="vx-popover-backdrop"
-						style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'auto' }}
-						onPointerDown={stopPointer}
-						onClick={dismiss}
-					/>}
+			<>
+				{createPortal(
 					<div
-						ref={panelRef}
-						className={cx('vx-popover', props.className)}
-						style={{
-							position: 'fixed',
-							...(props.y != null && { top: props.y }),
-							...(props.x != null && { left: props.x }),
-							zIndex: 1,
-							pointerEvents: 'auto',
-							...styleRecord(props.style),
-						}}
-						{...props.web}
+						className={cx('vx-popover-layer', dark && 'dark')}
+						style={{ position: 'fixed', inset: 0, zIndex: 1000, pointerEvents: 'none' }}
 					>
-						<LayerDepthProvider value={dismissal.depth}><SizeProvider value={null}>{props.children}</SizeProvider></LayerDepthProvider>
-					</div>
-				</div>,
-				owner.target,
-			)}</>
+						{(props.lightDismiss ?? false) && (
+							<div
+								className="vx-popover-backdrop"
+								style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'auto' }}
+								onPointerDown={stopPointer}
+								onClick={dismiss}
+							/>
+						)}
+						<div
+							ref={panelRef}
+							className={cx('vx-popover', props.className)}
+							style={{
+								position: 'fixed',
+								...(props.y != null && { top: props.y }),
+								...(props.x != null && { left: props.x }),
+								zIndex: 1,
+								pointerEvents: 'auto',
+								...styleRecord(props.style),
+							}}
+							{...props.web}
+						>
+							<LayerDepthProvider value={dismissal.depth}>
+								<SizeProvider value={null}>{props.children}</SizeProvider>
+							</LayerDepthProvider>
+						</div>
+					</div>,
+					owner.target,
+				)}
+			</>
 		}
 	</>
 }
@@ -105,46 +128,62 @@ function FloatingLayer(props: FloatingLayerProps) @{
 export function useLayer<O extends LayerOptions>(
 	options: O,
 ): O extends FixedLayerOptions ? FixedLayerReturn : ContextLayerReturn {
-	const fixed = options.mode === 'fixed';
-	const id = useId();
-	const anchorId = `--xplat-layer-${id.replace(/[^a-zA-Z0-9_-]/g, '')}`;
-	const [uncontrolled, setIsOpen] = useState(false);
-	const isOpen = options.isOpen ?? uncontrolled;
-	const controlled = options.isOpen !== undefined;
-	const openRef = useRef(false);
-	const anchor = useRef<{ current: any }>({ current: null });
-	openRef.current = isOpen;
-	const onShowRef = useRef(options.onShow);
-	onShowRef.current = options.onShow;
-	const onHideRef = useRef(options.onHide);
-	onHideRef.current = options.onHide;
+	const fixed = options.mode === 'fixed'
+	const id = useId()
+	const anchorId = `--xplat-layer-${id.replace(/[^a-zA-Z0-9_-]/g, '')}`
+	const [uncontrolled, setIsOpen] = useState(false)
+	const isOpen = options.isOpen ?? uncontrolled
+	const controlled = options.isOpen !== undefined
+	const openRef = useRef(false)
+	const anchor = useRef<{ current: any }>({ current: null })
+	openRef.current = isOpen
+	const onShowRef = useRef(options.onShow)
+	onShowRef.current = options.onShow
+	const onHideRef = useRef(options.onHide)
+	onHideRef.current = options.onHide
 
 	const show = useCallback(() => {
-		if (openRef.current) return;
-		if (!controlled) { openRef.current = true; setIsOpen(true); }
-		onShowRef.current?.();
-	}, [controlled]);
+		if (openRef.current) {
+			return
+		}
+
+		if (!controlled) {
+			openRef.current = true
+			setIsOpen(true)
+		}
+
+		onShowRef.current?.()
+	}, [controlled])
 
 	const hide = useCallback(() => {
-		if (!openRef.current) return;
-		if (!controlled) { openRef.current = false; setIsOpen(false); }
-		onHideRef.current?.();
-	}, [controlled]);
+		if (!openRef.current) {
+			return
+		}
 
+		if (!controlled) {
+			openRef.current = false
+			setIsOpen(false)
+		}
 
-	const releaseAnchor = useRef<(() => void) | null>(null);
-	const ref = useCallback((el: any) => {
-		releaseAnchor.current?.();
-		anchor.current.current = el;
-		releaseAnchor.current = el?.style ? ownAnchorName(el, anchorId) : null;
-	}, [anchorId]);
+		onHideRef.current?.()
+	}, [controlled])
 
-	useEffect(() => () => releaseAnchor.current?.(), []);
+	const releaseAnchor = useRef<(() => void) | null>(null)
+	const ref = useCallback(
+		(el: any) => {
+			releaseAnchor.current?.()
+			anchor.current.current = el
+			releaseAnchor.current = el?.style ? ownAnchorName(el, anchorId) : null
+		},
+		[anchorId],
+	)
+
+	useEffect(() => () => releaseAnchor.current?.(), [])
 
 	const render = useCallback(
 		(children: any, props?: ContextRenderProps | FixedRenderProps) => {
 			if (fixed) {
-				const p = (props ?? {}) as FixedRenderProps;
+				const p = (props ?? {}) as FixedRenderProps
 				return (
 					<FloatingLayer
 						open={isOpen}
@@ -164,16 +203,16 @@ export function useLayer<O extends LayerOptions>(
 					>
 						{children}
 					</FloatingLayer>
-				);
+				)
 			}
 
-			const p = (props ?? {}) as ContextRenderProps;
+			const p = (props ?? {}) as ContextRenderProps
 			const web = {
 				id,
 				role: p.accessibilityRole,
 				'aria-label': p.accessibilityLabel,
 				...p.web,
-			};
+			}
 
 			if (p.positioning === 'custom') {
 				return (
@@ -185,12 +224,12 @@ export function useLayer<O extends LayerOptions>(
 						dismissOnEscape={options.dismissOnEscape}
 						onDismiss={hide}
 						className={p.className}
-						style={mergeStyle({positionAnchor: anchorId}, p.style)}
+						style={mergeStyle({ positionAnchor: anchorId }, p.style)}
 						web={web}
 					>
 						{children}
 					</FloatingLayer>
-				);
+				)
 			}
 
 			return (
@@ -209,14 +248,14 @@ export function useLayer<O extends LayerOptions>(
 				>
 					{children}
 				</PopoverWithLayerPosition>
-			);
+			)
 		},
 		[fixed, isOpen, options.lightDismiss, options.dismissOnEscape, id, hide],
-	);
+	)
 
-	return (fixed
-		? { ref: undefined, id, isOpen, show, hide, render }
-		: { ref, anchorId, id, isOpen, show, hide, render }) as O extends FixedLayerOptions
-		? FixedLayerReturn
-		: ContextLayerReturn;
+	return (
+		fixed
+			? { ref: undefined, id, isOpen, show, hide, render }
+			: { ref, anchorId, id, isOpen, show, hide, render }
+	) as O extends FixedLayerOptions ? FixedLayerReturn : ContextLayerReturn
 }

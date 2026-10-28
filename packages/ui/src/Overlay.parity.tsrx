@@ -15,5 +15,10 @@ function OverlayLayoutFixture(props: { marker: string }) @{
 }
 
 export const PARITY: ParityFixture[] = [
-	{ name: 'overlay-fixed-frame', component: 'Overlay', renderer: OverlayLayoutFixture, props: { marker: 'parity-portal--overlay-fixed-frame' } },
+	{
+		name: 'overlay-fixed-frame',
+		component: 'Overlay',
+		renderer: OverlayLayoutFixture,
+		props: { marker: 'parity-portal--overlay-fixed-frame' },
+	},
 ]

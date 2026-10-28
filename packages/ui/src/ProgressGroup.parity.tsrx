@@ -14,5 +14,11 @@ function ProgressGroupFixture() @{
 }
 
 export const PARITY: ParityFixture[] = [
-	{ name: 'progress-group-two-items', component: 'ProgressGroup', renderer: ProgressGroupFixture, props: {}, height: 104 },
+	{
+		name: 'progress-group-two-items',
+		component: 'ProgressGroup',
+		renderer: ProgressGroupFixture,
+		props: {},
+		height: 104,
+	},
 ]

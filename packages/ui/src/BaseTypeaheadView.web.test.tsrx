@@ -13,7 +13,10 @@ const items: SearchableItem[] = [
 ]
 
 const cleanups: (() => void)[] = []
-afterEach(() => { cleanups.splice(0).forEach((cleanup) => cleanup()); vi.unstubAllGlobals() })
+afterEach(() => {
+	cleanups.splice(0).forEach((cleanup) => cleanup())
+	vi.unstubAllGlobals()
+})
 
 /** Resolved-state fixtures mirror what the container hands the view: ids
  *  and defaults resolved, the anchor and input slot sharing one ref the
@@ -48,23 +51,37 @@ function fixture(overrides: Partial<BaseTypeaheadViewProps> = {}): BaseTypeahead
 	}
 
 	// The container anchors the layer to its input slot by default.
-	if (overrides.anchor === undefined && overrides.inputRef === undefined) props.anchor = props.inputRef
+	if (overrides.anchor === undefined && overrides.inputRef === undefined) {
+		props.anchor = props.inputRef
+	}
+
 	return props
 }
 
 function mount(props: BaseTypeaheadViewProps, wrap?: (node: any) => any) {
-	vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() })))
+	vi.stubGlobal(
+		'matchMedia',
+		vi.fn(() => ({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() })),
+	)
+
 	const host = document.createElement('div')
 	document.body.append(host)
 	const root = createRoot(host)
 	const view = <BaseTypeaheadView {...props} />
 	act(() => root.render(wrap ? wrap(view) : view))
-	const unmount = () => { root.unmount(); host.remove() }
+	const unmount = () => {
+		root.unmount()
+		host.remove()
+	}
+
 	cleanups.push(unmount)
 	const input = () => host.querySelector('.vx-typeahead-input') as HTMLInputElement
-	const key = (key: string, init: KeyboardEventInit = {}) => act(() => {
-		input().dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, ...init }))
-	})
+	const key = (key: string, init: KeyboardEventInit = {}) =>
+		act(() => {
+			input().dispatchEvent(
+				new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, ...init }),
+			)
+		})
 
 	const click = (target: Element) => act(() => (target as HTMLElement).click())
 	return { host, props, input, key, click, unmount }
@@ -157,7 +174,11 @@ describe('BaseTypeaheadView resolved-state fixtures', () => {
 describe('BaseTypeaheadView intent wiring', () => {
 	it('reports edits as query intents without deciding them', () => {
 		const ui = mount(fixture())
-		act(() => { ui.input().value = 'ap'; ui.input().dispatchEvent(new Event('input', { bubbles: true })) })
+		act(() => {
+			ui.input().value = 'ap'
+			ui.input().dispatchEvent(new Event('input', { bubbles: true }))
+		})
+
 		expect(ui.props.onQueryChange).toHaveBeenCalledWith('ap')
 	})
 
@@ -227,12 +248,26 @@ describe('BaseTypeaheadView intent wiring', () => {
 	it('leaves IME composition keys untouched', () => {
 		const ui = mount(fixture({ open: true, results: items }))
 		act(() => {
-			ui.input().dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true, isComposing: true }))
+			ui.input().dispatchEvent(
+				new KeyboardEvent('keydown', {
+					key: 'Enter',
+					bubbles: true,
+					cancelable: true,
+					isComposing: true,
+				}),
+			)
 		})
 
 		expect(ui.props.onSelect).not.toHaveBeenCalled()
 		act(() => {
-			ui.input().dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true, keyCode: 229 } as any))
+			ui.input().dispatchEvent(
+				new KeyboardEvent('keydown', {
+					key: 'ArrowDown',
+					bubbles: true,
+					cancelable: true,
+					keyCode: 229,
+				} as any),
+			)
 		})
 
 		expect(ui.props.onHighlight).not.toHaveBeenCalled()

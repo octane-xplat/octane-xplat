@@ -14,7 +14,19 @@ const captions = new Map<string, string>()
 let setSheet: (open: boolean) => void
 
 function Value(props: { id: string }) {
-	return <label id={props.id} ref={(view: any) => { if (view) views.set(props.id, view); else views.delete(props.id) }} text={useContext(Name)} />
+	return (
+		<label
+			id={props.id}
+			ref={(view: any) => {
+				if (view) {
+					views.set(props.id, view)
+				} else {
+					views.delete(props.id)
+				}
+			}}
+			text={useContext(Name)}
+		/>
+	)
 }
 
 function Content(props: { params: { id: string } }) {
@@ -35,12 +47,23 @@ function Controls() {
 	setSheet = updateSheet
 	const [lightboxOpen, updateLightbox] = useState(false)
 	setLightbox = updateLightbox
-	return <>
-		{sheet.element}
-		<Lightbox id="owned-lightbox" isOpen={lightboxOpen} onOpenChange={updateLightbox} media={[{ type: 'video', src: '', alt: 'Test media', caption: <Caption /> }]} />
-		<Dialog isOpen={dialogOpen} onOpenChange={updateDialog} accessibilityLabel="Portal dialog"><Value id="owned-dialog" /></Dialog>
-		<BottomSheet isOpen={sheetOpen} onOpenChange={updateSheet} label="Portal sheet"><Value id="owned-declarative-sheet" /></BottomSheet>
-	</>
+	return (
+		<>
+			{sheet.element}
+			<Lightbox
+				id="owned-lightbox"
+				isOpen={lightboxOpen}
+				onOpenChange={updateLightbox}
+				media={[{ type: 'video', src: '', alt: 'Test media', caption: <Caption /> }]}
+			/>
+			<Dialog isOpen={dialogOpen} onOpenChange={updateDialog} accessibilityLabel="Portal dialog">
+				<Value id="owned-dialog" />
+			</Dialog>
+			<BottomSheet isOpen={sheetOpen} onOpenChange={updateSheet} label="Portal sheet">
+				<Value id="owned-declarative-sheet" />
+			</BottomSheet>
+		</>
+	)
 }
 
 export default function Case() {
@@ -48,7 +71,13 @@ export default function Case() {
 	const [open, setOpen] = useState(true)
 	updateName = setName
 	closeOwner = () => setOpen(false)
-	return <Screen><Provider value="outside"><Provider value={name}>{open ? <Controls /> : null}</Provider></Provider></Screen>
+	return (
+		<Screen>
+			<Provider value="outside">
+				<Provider value={name}>{open ? <Controls /> : null}</Provider>
+			</Provider>
+		</Screen>
+	)
 }
 
 export async function run(ctx: any) {
@@ -85,7 +114,12 @@ export async function run(ctx: any) {
 	await ctx.waitFor(() => !ctx.find('owned-lightbox'))
 	setSheet(true)
 	await ctx.waitFor(() => views.has('owned-declarative-sheet'))
-	ctx.assert('declarative AppKit sheet inherits context', value('owned-declarative-sheet'), 'Morgan')
+	ctx.assert(
+		'declarative AppKit sheet inherits context',
+		value('owned-declarative-sheet'),
+		'Morgan',
+	)
+
 	const final = sheet.open(Content, { id: 'owned-final' })
 	await ctx.waitFor(() => views.has('owned-final'))
 	closeOwner()
@@ -93,6 +127,11 @@ export async function run(ctx: any) {
 	await ctx.waitFor(() => views.size === 0)
 	ctx.assert('owner removal releases every AppKit surface', views.size, 0)
 	let rejected = false
-	try { await sheet.open(Content, { id: 'late' }) } catch { rejected = true }
+	try {
+		await sheet.open(Content, { id: 'late' })
+	} catch {
+		rejected = true
+	}
+
 	ctx.assert('removed AppKit owner rejects late opens', rejected, true)
 }

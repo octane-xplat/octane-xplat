@@ -19,11 +19,17 @@ const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 const container = createGtkContainer(host)
 
 function apply(commands: UniversalHostCommand[]) {
-	gtkDriver.prepareBatch(container, { renderer: 'gtk', version: 1, commands }, {
-		invokeLocalCallback() {
-			throw new Error('This ordering fixture has no event listeners')
-		},
-	}).apply()
+	gtkDriver
+		.prepareBatch(
+			container,
+			{ renderer: 'gtk', version: 1, commands },
+			{
+				invokeLocalCallback() {
+					throw new Error('This ordering fixture has no event listeners')
+				},
+			},
+		)
+		.apply()
 }
 
 function labels(): string[] {
@@ -43,6 +49,7 @@ try {
 		{ op: 'insert', id: 2, parent: null, before: null },
 		{ op: 'insert', id: 3, parent: null, before: null },
 	] as UniversalHostCommand[])
+
 	const initial = labels()
 
 	// Add B to the already mounted proxy between A and C. Its native widget
@@ -51,6 +58,7 @@ try {
 		{ op: 'create', id: 4, type: 'label', props: { text: 'B' } },
 		{ op: 'insert', id: 4, parent: 2, before: null },
 	] as UniversalHostCommand[])
+
 	const actual = labels()
 	const proxyChild = container.nodes.get(2)?.children.map((node: ElementNode) => node.props.text)
 	apply([
@@ -61,6 +69,7 @@ try {
 		{ op: 'create', id: 7, type: 'label', props: { text: 'E' } },
 		{ op: 'insert', id: 7, parent: 5, before: 6 },
 	] as UniversalHostCommand[])
+
 	const nestedBefore = labels()
 	apply([{ op: 'remove', id: 6 }] as UniversalHostCommand[])
 	const removedChild = labels()
@@ -70,11 +79,19 @@ try {
 	const removedProxy = labels()
 	apply([{ op: 'insert', id: 2, parent: null, before: 3 }] as UniversalHostCommand[])
 	const reinsertedProxy = labels()
-	print(`GTK_PROXY_ORDER ${JSON.stringify({
-		gtk: `${runtimeGtk.get_major_version()}.${runtimeGtk.get_minor_version()}.${runtimeGtk.get_micro_version()}`,
-		initial,
-		actual, proxyChild, nestedBefore, removedChild, movedProxy, removedProxy, reinsertedProxy,
-	})}`)
+	print(
+		`GTK_PROXY_ORDER ${JSON.stringify({
+			gtk: `${runtimeGtk.get_major_version()}.${runtimeGtk.get_minor_version()}.${runtimeGtk.get_micro_version()}`,
+			initial,
+			actual,
+			proxyChild,
+			nestedBefore,
+			removedChild,
+			movedProxy,
+			removedProxy,
+			reinsertedProxy,
+		})}`,
+	)
 } finally {
 	for (const node of [...container.nodes.values()].reverse()) {
 		apply([

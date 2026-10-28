@@ -95,16 +95,19 @@ export function resolveRelease(root: string, release: Release, override = '') {
 			'--',
 			...paths,
 		)
+
 		const bumps = messages.split('\0').map((message) => commitBump(message.trim()))
 		if (!bumps.some(Boolean)) {
 			return { shouldRelease: false }
 		}
+
 		if (!previous) {
 			version = '0.1.0'
 		} else {
 			const [major, minor, patch] = releaseVersion(previous.slice(prefix.length))
 				.split('.')
 				.map(Number)
+
 			version =
 				bumps.includes('breaking') && major > 0
 					? `${major + 1}.0.0`
@@ -124,11 +127,13 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
 			3,
 			'usage: node scripts/release-version.ts <lockstep|tsrx-typegen>',
 		)
+
 		const result = resolveRelease(
 			process.cwd(),
 			releaseName(process.argv[2]),
 			process.env.VERSION_OVERRIDE,
 		)
+
 		console.log(`should_release=${result.shouldRelease}`)
 		if (result.version) {
 			console.log(`version=${result.version}\ntag=${result.tag}`)

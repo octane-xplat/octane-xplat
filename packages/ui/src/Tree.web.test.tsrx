@@ -25,17 +25,24 @@ const rows = (el: HTMLElement) => [...el.querySelectorAll('.vx-tree-row')] as HT
 const click = (target: HTMLElement) => act(() => target.click())
 
 afterEach(() => {
-	for (const root of roots.splice(0)) root.unmount()
-	for (const el of hosts.splice(0)) el.remove()
+	for (const root of roots.splice(0)) {
+		root.unmount()
+	}
+
+	for (const el of hosts.splice(0)) {
+		el.remove()
+	}
 })
 
 describe('TreeList (web leaf)', () => {
 	it('expands a parent row uncontrolled and reports the full open set', () => {
 		const { el, root } = host()
 		const onExpandedChange = vi.fn()
-		act(() => root.render(
-			<Tree nodes={nodes} defaultExpandedKeys={['docs']} onExpandedChange={onExpandedChange} />,
-		))
+		act(() =>
+			root.render(
+				<Tree nodes={nodes} defaultExpandedKeys={['docs']} onExpandedChange={onExpandedChange} />,
+			),
+		)
 
 		expect(el.textContent).not.toContain('App.tsrx')
 		click(rows(el)[0])
@@ -51,18 +58,21 @@ describe('TreeList (web leaf)', () => {
 	it('follows controlled expandedKeys without mutating them', () => {
 		const { el, root } = host()
 		const onExpandedChange = vi.fn()
-		act(() => root.render(
-			<Tree nodes={nodes} expandedKeys={[]} onExpandedChange={onExpandedChange} />,
-		))
+		act(() =>
+			root.render(<Tree nodes={nodes} expandedKeys={[]} onExpandedChange={onExpandedChange} />),
+		)
 
 		click(rows(el)[0])
 		// Controlled: the row reports the requested set but stays closed.
 		expect([...(onExpandedChange.mock.calls[0][0] as Set<Key>)]).toEqual(['src'])
 		expect(el.textContent).not.toContain('App.tsrx')
 
-		act(() => root.render(
-			<Tree nodes={nodes} expandedKeys={['src']} onExpandedChange={onExpandedChange} />,
-		))
+		act(() =>
+			root.render(
+				<Tree nodes={nodes} expandedKeys={['src']} onExpandedChange={onExpandedChange} />,
+			),
+		)
+
 		expect(el.textContent).toContain('App.tsrx')
 	})
 
@@ -70,10 +80,17 @@ describe('TreeList (web leaf)', () => {
 		const { el, root } = host()
 		const onSelectionChange = vi.fn()
 		const onAction = vi.fn()
-		act(() => root.render(
-			<Tree nodes={nodes} expandedKeys={['src']} selectionMode="single"
-				onSelectionChange={onSelectionChange} onAction={onAction} />,
-		))
+		act(() =>
+			root.render(
+				<Tree
+					nodes={nodes}
+					expandedKeys={['src']}
+					selectionMode="single"
+					onSelectionChange={onSelectionChange}
+					onAction={onAction}
+				/>,
+			),
+		)
 
 		click(rows(el)[1])
 		const selection = onSelectionChange.mock.calls[0][0] as Selection
@@ -92,9 +109,11 @@ describe('TreeList (web leaf)', () => {
 	it('toggles leaf selection under multiple and reports Selection', () => {
 		const { el, root } = host()
 		const onSelectionChange = vi.fn()
-		act(() => root.render(
-			<Tree nodes={nodes} selectionMode="multiple" onSelectionChange={onSelectionChange} />,
-		))
+		act(() =>
+			root.render(
+				<Tree nodes={nodes} selectionMode="multiple" onSelectionChange={onSelectionChange} />,
+			),
+		)
 
 		click(rows(el)[1])
 		click(rows(el)[1])

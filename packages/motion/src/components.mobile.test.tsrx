@@ -1,6 +1,12 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { describe, expect, it, vi } from 'vitest'
-import { createObjectContainer, createObjectDriver, createUniversalRoot, flushUniversalSync } from 'octane/universal/native'
+import {
+	createObjectContainer,
+	createObjectDriver,
+	createUniversalRoot,
+	flushUniversalSync,
+} from 'octane/universal/native'
+
 import { motion, MotionConfig } from './index'
 
 function NativeBox(props: any) @{
@@ -42,18 +48,26 @@ import { useEffect } from 'octane'
 import { Presence } from './index'
 let nativeCleanups = 0
 function NativeChild() @{
-	useEffect(() => () => { nativeCleanups++ }, [])
+	useEffect(
+		() => () => {
+			nativeCleanups++
+		},
+		[],
+	)
 
 	<motion.View id="child" animate={{ x: 0 }} exit={{ x: 100 }} transition={{ duration: 0.1 }} />
 }
 
 function NativePresence(props: any) @{
-	<Presence present={props.present} onExitComplete={props.done}><NativeChild /></Presence>
+	<Presence present={props.present} onExitComplete={props.done}>
+		<NativeChild />
+	</Presence>
 }
 
 describe('native presence lifecycle', () => {
 	it('retains and reverses a live subtree, then removes exactly once', async () => {
-		vi.useFakeTimers(); nativeCleanups = 0
+		vi.useFakeTimers()
+		nativeCleanups = 0
 		const container = createObjectContainer('nativescript')
 		const root = createUniversalRoot(container, createObjectDriver('nativescript'))
 		const done = vi.fn()
@@ -69,20 +83,27 @@ describe('native presence lifecycle', () => {
 		flushUniversalSync(() => {})
 		expect(container.children[0]).toBe(boundary)
 		expect(boundary.children[0]).toBe(child)
-		expect(nativeCleanups).toBe(0); expect(done).not.toHaveBeenCalled()
+		expect(nativeCleanups).toBe(0)
+		expect(done).not.toHaveBeenCalled()
 		root.render(NativePresence, { present: false, done })
 		await vi.advanceTimersByTimeAsync(200)
 		flushUniversalSync(() => {})
 		expect(container.children.length).toBe(0)
-		expect(nativeCleanups).toBe(1); expect(done).toHaveBeenCalledTimes(1)
-		root.unmount(); vi.useRealTimers()
+		expect(nativeCleanups).toBe(1)
+		expect(done).toHaveBeenCalledTimes(1)
+		root.unmount()
+		vi.useRealTimers()
 	})
 })
 
 import { signal$ } from 'octane/signals'
 const destination$ = signal$(0)
 function NativeSignal() @{
-	<motion.Pressable onPress={() => destination$.set(75)} animate={{ x: destination$.get() }} transition={{ duration: 0 }} />
+	<motion.Pressable
+		onPress={() => destination$.set(75)}
+		animate={{ x: destination$.get() }}
+		transition={{ duration: 0 }}
+	/>
 }
 
 it('retargets a retained native host on a signal write', () => {
@@ -96,11 +117,21 @@ it('retargets a retained native host on a signal write', () => {
 	root.unmount()
 })
 
-import { handlers, GestureHandlerStateEvent, GestureHandlerTouchEvent, GestureState } from '../test/gesturehandler'
+import {
+	handlers,
+	GestureHandlerStateEvent,
+	GestureHandlerTouchEvent,
+	GestureState,
+} from '../test/gesturehandler'
 
 function NativeDrag() @{
 	<MotionConfig reducedMotion="always">
-		<motion.View id="native-drag" drag="x" dragConstraints={{ left: -40, right: 40 }} dragElastic={false} />
+		<motion.View
+			id="native-drag"
+			drag="x"
+			dragConstraints={{ left: -40, right: 40 }}
+			dragElastic={false}
+		/>
 	</MotionConfig>
 }
 
@@ -111,18 +142,42 @@ it('drives the retained native host from its handler and snaps reduced settlemen
 	const node: any = container.children[0]
 	const handler = handlers.findLast((h) => h.node === node)
 	expect(handler).toBeDefined()
-	handler.emit(GestureHandlerStateEvent, { state: GestureState.ACTIVE, extraData: { translationX: 10 } })
-	handler.emit(GestureHandlerTouchEvent, { state: GestureState.ACTIVE, extraData: { translationX: 20 } })
+	handler.emit(GestureHandlerStateEvent, {
+		state: GestureState.ACTIVE,
+		extraData: { translationX: 10 },
+	})
+
+	handler.emit(GestureHandlerTouchEvent, {
+		state: GestureState.ACTIVE,
+		extraData: { translationX: 20 },
+	})
+
 	expect(node.translateX).toBe(20)
-	handler.emit(GestureHandlerStateEvent, { state: GestureState.END, extraData: { translationX: 20, velocityX: 250 } })
+	handler.emit(GestureHandlerStateEvent, {
+		state: GestureState.END,
+		extraData: { translationX: 20, velocityX: 250 },
+	})
+
 	expect(node.translateX).toBe(40)
 	root.unmount()
 	expect(handler.node).toBeUndefined()
 })
 
 function NativeVariants(props: any) @{
-	<motion.View animate={props.label} variants={{ show: { transition: { duration: 0, when: 'beforeChildren' } }, hide: { transition: { duration: 0 } } }}>
-		<motion.View custom={props.custom ?? 70} variants={{ show: (custom: number) => ({ x: custom, transition: { duration: 0 } }), hide: { x: 0, transition: { duration: 0 } } }} />
+	<motion.View
+		animate={props.label}
+		variants={{
+			show: { transition: { duration: 0, when: 'beforeChildren' } },
+			hide: { transition: { duration: 0 } },
+		}}
+	>
+		<motion.View
+			custom={props.custom ?? 70}
+			variants={{
+				show: (custom: number) => ({ x: custom, transition: { duration: 0 } }),
+				hide: { x: 0, transition: { duration: 0 } },
+			}}
+		/>
 	</motion.View>
 }
 

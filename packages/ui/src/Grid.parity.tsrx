@@ -15,8 +15,20 @@ function GridLayoutFixture() @{
 		<View className="parity-grid-auto" row={1} col={0} style={{ width: 30, height: 10 }} />
 		<View className="parity-grid-fill" row={3} col={2} style={{ width: 22, height: 13 }} />
 		<View className="parity-grid-automatic" style={{ width: 22, height: 12 }} />
-		<View className="parity-grid-col-span" row={1} col={1} colSpan={2} style={{ width: 66, height: 10 }} />
-		<View className="parity-grid-row-span" row={2} col={0} rowSpan={2} style={{ width: 30, height: 26 }} />
+		<View
+			className="parity-grid-col-span"
+			row={1}
+			col={1}
+			colSpan={2}
+			style={{ width: 66, height: 10 }}
+		/>
+		<View
+			className="parity-grid-row-span"
+			row={2}
+			col={0}
+			rowSpan={2}
+			style={{ width: 30, height: 26 }}
+		/>
 	</Grid>
 }
 

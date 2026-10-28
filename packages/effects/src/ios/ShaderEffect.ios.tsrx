@@ -1,31 +1,38 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { GridLayout } from '@nativescript/core';
-import { registerElement } from '@nativescript-community/octane';
-import { getSwiftUIHostLifecycle, registerSwiftUIHost } from '@octane-xplat/lib';
-import type { Attributes } from '@nativescript-community/octane/intrinsics';
-import { SwiftUI, SwiftUIManager, UIDataDriver, registerSwiftUI } from '@nativescript/swift-ui';
-import { createPortal as createUniversalPortal, type UniversalRenderable } from 'octane/universal/native';
-import { useEffect, useRef } from 'octane';
+import { GridLayout } from '@nativescript/core'
+import { registerElement } from '@nativescript-community/octane'
+import { getSwiftUIHostLifecycle, registerSwiftUIHost } from '@octane-xplat/lib'
+import type { Attributes } from '@nativescript-community/octane/intrinsics'
+import { SwiftUI, SwiftUIManager, UIDataDriver, registerSwiftUI } from '@nativescript/swift-ui'
+import {
+	createPortal as createUniversalPortal,
+	type UniversalRenderable,
+} from 'octane/universal/native'
+
+import { useEffect, useRef } from 'octane'
 
 // Compiled into the app target from this package's platforms/ios/src —
 // the runtime exposes the @objc class by name.
-declare const XplatShaderEffectProvider: any;
-declare const NativeScriptViewFactory: { shared?: any; initShared(): void };
+declare const XplatShaderEffectProvider: any
+declare const NativeScriptViewFactory: { shared?: any; initShared(): void }
 
 declare module '@nativescript-community/octane/intrinsics' {
 	interface NativeScriptElements {
-		xplatshader: Attributes<typeof SwiftUI>;
+		xplatshader: Attributes<typeof SwiftUI>
 	}
 }
 
-registerElement('xplatshader', SwiftUI);
-registerSwiftUI('xplat-shader-effect', (owner: any) => new UIDataDriver(new XplatShaderEffectProvider(), owner));
+registerElement('xplatshader', SwiftUI)
+registerSwiftUI(
+	'xplat-shader-effect',
+	(owner: any) => new UIDataDriver(new XplatShaderEffectProvider(), owner),
+)
 
 // The provider embeds a NativeScript view by id through the plugin's
 // NativeScriptViewFactory; the shared lifecycle resolves the `xplatshader`
 // prefix. The ContentView remains a detached native host, while its Octane
 // children are rendered through a portal from the declaring root.
-const contentById = new Map<string, GridLayout>();
+const contentById = new Map<string, GridLayout>()
 // NativeScriptView(id:) appends '-<UUID>' to the id it hands back through
 // the factory, so lifecycle callbacks arrive as 'xplatshader-N-<uuid>'
 // while contentById is keyed by the JS id 'xplatshader-N'. Recover the JS
@@ -33,92 +40,96 @@ const contentById = new Map<string, GridLayout>();
 const resolveViewId = (id: string) => {
 	for (const key of contentById.keys()) {
 		if (id === key || id.startsWith(`${key}-`)) {
-			return key;
+			return key
 		}
 	}
 
-	return id;
-};
+	return id
+}
 
 // Guard the whole registration: this leaf resolves under the bare `native`
 // condition, so importing it on Android must warn rather than throw on the
 // iOS-only NativeScriptViewFactory global at module evaluation.
 if (typeof NativeScriptViewFactory === 'undefined') {
-	console.warn('@octane-xplat/effects/ios is iOS-only — this import is a no-op on other targets');
+	console.warn('@octane-xplat/effects/ios is iOS-only — this import is a no-op on other targets')
 } else {
 	// The harness uses NativeScript's Obj-C bootstrap, which leaves this
 	// SwiftUI view factory uninitialized. SwiftUIManager installs its
 	// lifecycle hooks on the singleton, so initialize it before the
 	// module-level registration.
 	if (!NativeScriptViewFactory.shared) {
-		NativeScriptViewFactory.initShared();
+		NativeScriptViewFactory.initShared()
 	}
 
 	registerSwiftUIHost('xplatshader', {
 		create: (id: string) => {
-			const view = contentById.get(resolveViewId(id));
+			const view = contentById.get(resolveViewId(id))
 			if (!view) {
 				// A miss here gets cached by the plugin and permanently
 				// locks in an empty view — never fail silently.
-				console.warn(`xplatshader: no registered content for ${id} — embedding an empty view`);
-				return new GridLayout();
+				console.warn(`xplatshader: no registered content for ${id} — embedding an empty view`)
+				return new GridLayout()
 			}
 
-			return view;
+			return view
 		},
 		destroy: (id: string) => contentById.delete(resolveViewId(id)),
-	});
-	SwiftUIManager.registerNativeScriptViews({ xplatshader: true } as any, getSwiftUIHostLifecycle() as any);
+	})
+
+	SwiftUIManager.registerNativeScriptViews(
+		{ xplatshader: true } as any,
+		getSwiftUIHostLifecycle() as any,
+	)
 }
 
-let nextId = 0;
+let nextId = 0
 
 function createPortal(children: unknown, target: unknown) {
 	return createUniversalPortal(children as UniversalRenderable, target)
 }
 
 export interface ShaderEffectProps {
-	id?: string;
-	className?: any;
-	style?: any;
+	id?: string
+	className?: any
+	style?: any
 	/** Effect name — a bundled name ('heatHaze' | 'sheen' | 'shatter') or a
 	 *  custom name registered via `XplatShaderEffectRegistry.register` in an
 	 *  app Swift file. Kind comes from the registration, not a prop. */
-	effect: string;
+	effect: string
 	/** Uniform args forwarded to the shader factory. The provider injects
 	 *  `time` (seconds since mount) and `size` (host bounds) per frame. */
-	args?: Record<string, number | number[]>;
+	args?: Record<string, number | number[]>
 	/** Drive `time` at display rate (default true). Pass false for static
 	 *  effects so the TimelineView pauses. */
-	animate?: boolean;
+	animate?: boolean
 	/** Max pixel offset distortion/layer shaders may displace — SwiftUI
 	 *  sizes the sampled region from it; too small clips the effect. */
-	maxSampleOffset?: { width: number; height: number };
+	maxSampleOffset?: { width: number; height: number }
 	/** Events from the hosted SwiftUI content (provider `onEvent`). */
-	onEvent?: (data: any) => void;
-	children?: any;
+	onEvent?: (data: any) => void
+	children?: any
 }
 
 /** Applies a named SwiftUI stitchable shader (iOS 17+) to its subtree.
  *  The subtree portals into the ContentView embedded in the hosting SwiftUI
  *  view, preserving its declaring Octane context. */
 export function ShaderEffect(props: ShaderEffectProps) @{
-	const idRef = useRef<string | null>(null);
-	idRef.current ??= `xplatshader-${++nextId}`;
-	const viewId = idRef.current;
+	const idRef = useRef<string | null>(null)
+	idRef.current ??= `xplatshader-${++nextId}`
+	const viewId = idRef.current
 
 	// Register the host view before mount completes — the SwiftUI factory
 	// may ask for it before the mount effect runs, and a missed lookup
 	// caches an empty view permanently.
-	const hostRef = useRef<GridLayout | null>(null);
-	hostRef.current ??= new GridLayout();
-	contentById.set(viewId, hostRef.current);
+	const hostRef = useRef<GridLayout | null>(null)
+	hostRef.current ??= new GridLayout()
+	contentById.set(viewId, hostRef.current)
 
 	useEffect(() => {
 		return () => {
-			contentById.delete(viewId);
-		};
-	}, [viewId]);
+			contentById.delete(viewId)
+		}
+	}, [viewId])
 
 	<>
 		<xplatshader
@@ -136,5 +147,5 @@ export function ShaderEffect(props: ShaderEffectProps) @{
 			onSwiftUIEvent={(event: any) => props.onEvent?.(event.data)}
 		/>
 		{createPortal(props.children, hostRef.current)}
-	</>;
+	</>
 }

@@ -6,7 +6,9 @@ export function ClickableCardWithNestedButton() @{
 		<Stack direction="vertical" gap={3}>
 			<Stack direction="vertical" gap={1}>
 				<Heading level={4}>Wireless Headphones</Heading>
-				<Text type="body" color="secondary">$79.99</Text>
+				<Text type="body" color="secondary">
+					$79.99
+				</Text>
 			</Stack>
 			<Button label="Add to cart" clickAction={() => {}} variant="primary" />
 		</Stack>

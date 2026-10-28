@@ -20,8 +20,16 @@ it('rejects invalid input', () => {
 
 it('round-trips hex → hsb → hex on a sample set', () => {
 	const samples = [
-		'#ff0000', '#00ff00', '#0000ff', '#ff8800', '#80ff80',
-		'#123456', '#abcdef', '#f0e1d2', '#07a1c3', '#c3a107',
+		'#ff0000',
+		'#00ff00',
+		'#0000ff',
+		'#ff8800',
+		'#80ff80',
+		'#123456',
+		'#abcdef',
+		'#f0e1d2',
+		'#07a1c3',
+		'#c3a107',
 	]
 	for (const hex of samples) {
 		expect(hsbToHex(rgbToHsb(parseHex(hex)!))).toBe(hex)

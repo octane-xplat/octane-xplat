@@ -428,6 +428,7 @@ async function waitForSession(runtime, id, state = 'ready') {
 		if (session?.state === state) {
 			return session
 		}
+
 		await new Promise((r) => setTimeout(r, 20))
 	}
 	throw Error(`Session ${id} did not reach ${state}`)

@@ -6,14 +6,8 @@ import { fileURLToPath } from 'node:url'
 import { build } from 'vite'
 import { createMacOSConfig } from '../vite.shared.mjs'
 import { macOSExecutable } from '../../../packages/cli/src/macos/executables.ts'
-import {
-	buildMacOSNative,
-	writeNativeBootstrap,
-} from '../../../packages/cli/src/macos/native.ts'
-import {
-	hostBundle,
-	validateHostBundle,
-} from '../../../packages/cli/src/macos/jsc-host/runtime.ts'
+import { buildMacOSNative, writeNativeBootstrap } from '../../../packages/cli/src/macos/native.ts'
+import { hostBundle, validateHostBundle } from '../../../packages/cli/src/macos/jsc-host/runtime.ts'
 
 const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const cliBuild = spawnSync('pnpm', ['--filter', '@octane-xplat/cli', 'build'], {

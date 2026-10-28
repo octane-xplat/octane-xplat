@@ -10,7 +10,11 @@ export function ButtonGroupShowcase() @{
 		</ButtonGroup>
 		<ButtonGroup label="Save options">
 			<Button label="Save" variant="primary" />
-			<IconButton label="Save options" variant="primary" icon={<Icon name="xplat-chevron-down" />} />
+			<IconButton
+				label="Save options"
+				variant="primary"
+				icon={<Icon name="xplat-chevron-down" />}
+			/>
 		</ButtonGroup>
 	</Stack>
 }

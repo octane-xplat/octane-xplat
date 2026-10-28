@@ -11,22 +11,56 @@ const TABS = [
 
 export function ItemDocumentTabs() @{
 	<HStack width="100%" maxWidth={600} gap={0.5} vAlign="center">
-		<HStack aria-label="Open documents" vAlign="center" paddingInline={2} paddingBlock={1} isScrollable style={{ minWidth: 0, flexShrink: 1 }}>
+		<HStack
+			aria-label="Open documents"
+			vAlign="center"
+			paddingInline={2}
+			paddingBlock={1}
+			isScrollable
+			style={{ minWidth: 0, flexShrink: 1 }}
+		>
 			{TABS.map((tab, i) => (
 				<>
-					{i > 0 ? <Divider orientation="vertical" style={{ height: 16, visibility: TABS[i - 1]?.isActive || tab.isActive ? 'hidden' : 'visible' }} /> : null}
+					{i > 0 ? (
+						<Divider
+							orientation="vertical"
+							style={{
+								height: 16,
+								visibility: TABS[i - 1]?.isActive || tab.isActive ? 'hidden' : 'visible',
+							}}
+						/>
+					) : null}
 					<Item
 						label={tab.name}
 						density="compact"
 						isSelected={tab.isActive}
 						onPress={() => {}}
-						startContent={<Icon name="sandbox-document-duplicate" size={16} color={tab.isActive ? 'primary' : 'secondary'} />}
-						endContent={<IconButton label={`Close ${tab.name}`} variant="ghost" size="sm" icon={<Icon name="xplat-close" size={16} />} />}
+						startContent={
+							<Icon
+								name="sandbox-document-duplicate"
+								size={16}
+								color={tab.isActive ? 'primary' : 'secondary'}
+							/>
+						}
+						endContent={
+							<IconButton
+								label={`Close ${tab.name}`}
+								variant="ghost"
+								size="sm"
+								icon={<Icon name="xplat-close" size={16} />}
+							/>
+						}
 						style={{ flexShrink: 1, width: 164, minWidth: 96 }}
 					/>
 				</>
 			))}
 		</HStack>
-		<IconButton label="New document" tooltip="New document" variant="ghost" size="sm" icon={<Icon name="sandbox-plus" size={16} color="secondary" />} />
+		<IconButton
+			label="New document"
+			tooltip="New document"
+			variant="ghost"
+			size="sm"
+			icon={<Icon name="sandbox-plus" size={16} color="secondary" />}
+		/>
 	</HStack>
 }

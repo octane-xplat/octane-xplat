@@ -26,6 +26,7 @@ export const Application = {
 		registerStylesheet('addCss:' + ++addCssSeq, css)
 	},
 }
+
 // NS `Screen.mainScreen` reports the main display in DIPs; AppKit points are
 // the DIP equivalent and backingScaleFactor is the pixel ratio.
 export const Screen = {
@@ -47,6 +48,7 @@ export const Screen = {
 		},
 	},
 }
+
 export const isAndroid = false
 export const isIOS = false
 export const AccessibilityRole = {

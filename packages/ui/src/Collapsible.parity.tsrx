@@ -16,5 +16,11 @@ function CollapsibleFixture() @{
 }
 
 export const PARITY: ParityFixture[] = [
-	{ name: 'collapsible-open', component: 'Collapsible', renderer: CollapsibleFixture, props: {}, height: 88 },
+	{
+		name: 'collapsible-open',
+		component: 'Collapsible',
+		renderer: CollapsibleFixture,
+		props: {},
+		height: 88,
+	},
 ]

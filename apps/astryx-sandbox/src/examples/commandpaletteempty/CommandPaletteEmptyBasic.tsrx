@@ -5,5 +5,11 @@ import { CommandPalette, createStaticSource } from '@octane-xplat/ui'
 
 export function CommandPaletteEmptyBasic() @{
 	const emptySource = useMemo(() => createStaticSource([]), [])
-	<CommandPalette open onOpenChange={() => {}} searchSource={emptySource} emptyBootstrapText="No commands available" />
+
+	<CommandPalette
+		open
+		onOpenChange={() => {}}
+		searchSource={emptySource}
+		emptyBootstrapText="No commands available"
+	/>
 }

@@ -1,18 +1,27 @@
 import { mergeStyle } from './style-merge'
 import { useMemo } from 'octane'
 import { refList } from './ref-list'
-import type { AspectRatioProps } from './props';
-import { applyEscapeProps } from './escape-props';
-import { applyWebProps } from './platformProps.web';
+import type { AspectRatioProps } from './props'
+import { applyEscapeProps } from './escape-props'
+import { applyWebProps } from './platformProps.web'
 
 /** AspectRatio — `width:100%` box sized by CSS `aspect-ratio` (inline so
  *  consumers can override; the `vx-aspectratio-fit-*` classes drive how the
  *  fill wrapper + media children cover/contain/center inside it). */
 export function AspectRatio(props: AspectRatioProps) @{
-	const fit = props.fit ?? 'cover';
-	const ellipse = props.shape === 'ellipse';
+	const fit = props.fit ?? 'cover'
+	const ellipse = props.shape === 'ellipse'
 
-	const forwardedRef = useMemo(() => refList((e: any) => { if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(
+		() =>
+			refList((e: any) => {
+				if (e) {
+					applyEscapeProps(e, props)
+					applyWebProps(e, props.web)
+				}
+			}, props.ref),
+		[props.ref, props.ios, props.android, props.web],
+	)
 
 	<div
 		id={props.id}
@@ -23,7 +32,7 @@ export function AspectRatio(props: AspectRatioProps) @{
 			ellipse ? 'vx-aspectratio--ellipse' : undefined,
 			props.className,
 		]}
-		style={mergeStyle({aspectRatio: props.ratio}, props.style)}
+		style={mergeStyle({ aspectRatio: props.ratio }, props.style)}
 		data-vx-aspectratio-fit={fit}
 		role={props.accessibilityRole}
 		aria-label={props.accessibilityLabel}

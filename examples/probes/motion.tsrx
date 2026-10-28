@@ -7,7 +7,17 @@ import {
 	useReducedMotion,
 } from '@octane-xplat/motion'
 
-import { VStack as Column, HStack as Row, VStack, HStack, Text, Pressable, TextInput, type PanEvent } from '@octane-xplat/ui'
+import {
+	VStack as Column,
+	HStack as Row,
+	VStack,
+	HStack,
+	Text,
+	Pressable,
+	TextInput,
+	type PanEvent,
+} from '@octane-xplat/ui'
+
 import { dragInput } from './motion-drag-input'
 import type { ProbeContext } from '../../scripts/probe/context'
 
@@ -25,25 +35,67 @@ function VariantProbe() @{
 	const [label, setLabel] = useState('hidden')
 	const childVariants = {
 		hidden: { x: 0, transition: { duration: 0 } },
-		visible: (custom: number) => ({ x: custom, transition: { duration: 0.08, ease: 'linear' as const } }),
+		visible: (custom: number) => ({
+			x: custom,
+			transition: { duration: 0.08, ease: 'linear' as const },
+		}),
 	}
 
 	<VStack>
-		<Pressable id="motion-variants-run" onPress={() => {
-			variantEvidence.order = []
-			setLabel('visible')
-		}}><Text>Run variants</Text></Pressable>
+		<Pressable
+			id="motion-variants-run"
+			onPress={() => {
+				variantEvidence.order = []
+				setLabel('visible')
+			}}
+		>
+			<Text>Run variants</Text>
+		</Pressable>
 		<motion.View
 			initial="hidden"
 			animate={label}
 			variants={{
 				hidden: { opacity: 0.5, transition: { duration: 0 } },
-				visible: { opacity: 1, transition: { duration: 0.1, when: 'beforeChildren', delayChildren: 0.05, staggerChildren: 0.15 } },
+				visible: {
+					opacity: 1,
+					transition: {
+						duration: 0.1,
+						when: 'beforeChildren',
+						delayChildren: 0.05,
+						staggerChildren: 0.15,
+					},
+				},
 			}}
-			onAnimationComplete={() => { variantEvidence.order.push('parent') }}
+			onAnimationComplete={() => {
+				variantEvidence.order.push('parent')
+			}}
 		>
-			<motion.View id="motion-variant-a" variants={childVariants} custom={20} onUpdate={(latest) => { variantEvidence.a = latest.x ?? 0 }} onAnimationComplete={() => { variantEvidence.order.push('a') }}><Text>Variant A</Text></motion.View>
-			<motion.View id="motion-variant-b" variants={childVariants} custom={40} onUpdate={(latest) => { variantEvidence.b = latest.x ?? 0 }} onAnimationComplete={() => { variantEvidence.order.push('b') }}><Text>Variant B</Text></motion.View>
+			<motion.View
+				id="motion-variant-a"
+				variants={childVariants}
+				custom={20}
+				onUpdate={(latest) => {
+					variantEvidence.a = latest.x ?? 0
+				}}
+				onAnimationComplete={() => {
+					variantEvidence.order.push('a')
+				}}
+			>
+				<Text>Variant A</Text>
+			</motion.View>
+			<motion.View
+				id="motion-variant-b"
+				variants={childVariants}
+				custom={40}
+				onUpdate={(latest) => {
+					variantEvidence.b = latest.x ?? 0
+				}}
+				onAnimationComplete={() => {
+					variantEvidence.order.push('b')
+				}}
+			>
+				<Text>Variant B</Text>
+			</motion.View>
 		</motion.View>
 	</VStack>
 }
@@ -65,7 +117,11 @@ function PresenceCounter(props: { onMount: () => void; onUnmount: () => void }) 
 	>
 		<HStack className="items-center gap-3">
 			<Text id="motion-presence-count">{`Retained count: ${count}`}</Text>
-			<Pressable id="motion-presence-increment" onPress={() => setCount(count + 1)} className="chip">
+			<Pressable
+				id="motion-presence-increment"
+				onPress={() => setCount(count + 1)}
+				className="chip"
+			>
 				<Text>Increment</Text>
 			</Pressable>
 		</HStack>
@@ -108,9 +164,10 @@ export default function MotionProbe() @{
 	const panOrigin = useRef(0)
 	const panPhases = useRef<string[]>([])
 	const removals = useRef(0)
-	const transition = mode === 'spring'
-		? { type: 'spring' as const, stiffness: 200, damping: 22 }
-		: { duration: 0.6, ease: 'easeOut' as const }
+	const transition =
+		mode === 'spring'
+			? { type: 'spring' as const, stiffness: 200, damping: 22 }
+			: { duration: 0.6, ease: 'easeOut' as const }
 
 	const pan = (event: PanEvent) => {
 		if (event.state === 'began') {
@@ -127,15 +184,25 @@ export default function MotionProbe() @{
 		} else if (event.state === 'ended' || event.state === 'cancelled') {
 			panPhases.current.push(event.state)
 			const velocity = event.state === 'ended' ? event.vx : 0
-			void panX.animate(0, reduced ? { duration: 0 } : {
-				type: 'spring', stiffness: 180, damping: 20, velocity,
-			}).finished.then((result) => {
-				if (result === 'finished') {
-					setPanStatus(
-						`settled x=${panX.get().toFixed(1)}; phases=${panPhases.current.join('→')}; vx=${Math.round(velocity)}`,
-					)
-				}
-			})
+			void panX
+				.animate(
+					0,
+					reduced
+						? { duration: 0 }
+						: {
+								type: 'spring',
+								stiffness: 180,
+								damping: 20,
+								velocity,
+							},
+				)
+				.finished.then((result) => {
+					if (result === 'finished') {
+						setPanStatus(
+							`settled x=${panX.get().toFixed(1)}; phases=${panPhases.current.join('→')}; vx=${Math.round(velocity)}`,
+						)
+					}
+				})
 		}
 	}
 
@@ -145,20 +212,28 @@ export default function MotionProbe() @{
 			<Text id="motion-reduced-state">{`Reduced motion: ${String(reduced)}`}</Text>
 
 			<HStack className="gap-2">
-				<Pressable id="motion-tween-to" onPress={() => {
-					const next = target === 100 ? -100 : 100
-					setMode('tween')
-					setTarget(next)
-					setDestinationStatus(`tween to ${next}`)
-				}} className="chip">
+				<Pressable
+					id="motion-tween-to"
+					onPress={() => {
+						const next = target === 100 ? -100 : 100
+						setMode('tween')
+						setTarget(next)
+						setDestinationStatus(`tween to ${next}`)
+					}}
+					className="chip"
+				>
 					<Text>Tween</Text>
 				</Pressable>
-				<Pressable id="motion-interrupt-spring" onPress={() => {
-					const next = target > 0 ? -40 : 40
-					setMode('spring')
-					setTarget(next)
-					setDestinationStatus(`spring to ${next}`)
-				}} className="chip">
+				<Pressable
+					id="motion-interrupt-spring"
+					onPress={() => {
+						const next = target > 0 ? -40 : 40
+						setMode('spring')
+						setTarget(next)
+						setDestinationStatus(`spring to ${next}`)
+					}}
+					className="chip"
+				>
 					<Text>Interrupt with spring</Text>
 				</Pressable>
 			</HStack>
@@ -178,15 +253,29 @@ export default function MotionProbe() @{
 				drag="x"
 				dragConstraints={{ left: -40, right: 40 }}
 				dragElastic={false}
-				onUpdate={(latest) => { dragSamples.push(latest.x ?? 0) }}
-				onDragStart={() => { dragPhases.push('start') }}
-				onDrag={() => { dragPhases.push('move') }}
-				onDragEnd={(_event, info) => { dragPhases.push(info.cancelled ? 'cancel' : 'end'); dragVelocity = info.velocity.x }}
+				onUpdate={(latest) => {
+					dragSamples.push(latest.x ?? 0)
+				}}
+				onDragStart={() => {
+					dragPhases.push('start')
+				}}
+				onDrag={() => {
+					dragPhases.push('move')
+				}}
+				onDragEnd={(_event, info) => {
+					dragPhases.push(info.cancelled ? 'cancel' : 'end')
+					dragVelocity = info.velocity.x
+				}}
 			>
 				<Text>Bounded declarative drag</Text>
 			</motion.View>
 
-			<motion.Row id="motion-pan-row" onPan={pan} style={{ x: panX }} className="items-center rounded-lg p-3">
+			<motion.Row
+				id="motion-pan-row"
+				onPan={pan}
+				style={{ x: panX }}
+				className="items-center rounded-lg p-3"
+			>
 				<Text>Drag target</Text>
 			</motion.Row>
 			<motion.View
@@ -194,35 +283,49 @@ export default function MotionProbe() @{
 				animate={{ scale: 1 }}
 				whileTap={{ scale: 0.6 }}
 				transition={{ duration: 0.15, ease: 'linear' }}
-				onUpdate={(latest) => { tapSamples.push(latest.scale ?? 1) }}
+				onUpdate={(latest) => {
+					tapSamples.push(latest.scale ?? 1)
+				}}
 			>
 				<Text>Tap target</Text>
 			</motion.View>
 			<HStack className="items-center gap-2">
-				<Pressable id="motion-value-cancel" onPress={() => {
-					const controls = panX.animate(100, { duration: 3 })
-					setPanStatus('MotionValue animation started')
-					setTimeout(() => controls.stop(), 150)
-					void controls.finished.then((result) => setPanStatus(`MotionValue ${result}`))
-				}} className="chip">
+				<Pressable
+					id="motion-value-cancel"
+					onPress={() => {
+						const controls = panX.animate(100, { duration: 3 })
+						setPanStatus('MotionValue animation started')
+						setTimeout(() => controls.stop(), 150)
+						void controls.finished.then((result) => setPanStatus(`MotionValue ${result}`))
+					}}
+					className="chip"
+				>
 					<Text>Start/cancel</Text>
 				</Pressable>
-				<Pressable id="motion-pacing-run" onPress={() => {
-					frameStamps = []
-					pacer.set(0)
-					void pacer.animate(100, { type: 'spring', stiffness: 140, damping: 16 })
-				}} className="chip">
+				<Pressable
+					id="motion-pacing-run"
+					onPress={() => {
+						frameStamps = []
+						pacer.set(0)
+						void pacer.animate(100, { type: 'spring', stiffness: 140, damping: 16 })
+					}}
+					className="chip"
+				>
 					<Text>Pace</Text>
 				</Pressable>
 				<Text id="motion-pan-status">{panStatus}</Text>
 			</HStack>
 
 			<HStack className="items-center gap-2">
-				<Pressable id="motion-presence-toggle" onPress={() => {
-					const next = !present
-					setPresent(next)
-					setPresenceStatus(next ? 're-entry requested' : 'exit requested')
-				}} className="chip">
+				<Pressable
+					id="motion-presence-toggle"
+					onPress={() => {
+						const next = !present
+						setPresent(next)
+						setPresenceStatus(next ? 're-entry requested' : 'exit requested')
+					}}
+					className="chip"
+				>
 					<Text>Toggle card</Text>
 				</Pressable>
 				<Text id="motion-presence-status">{presenceStatus}</Text>
@@ -238,9 +341,13 @@ export default function MotionProbe() @{
 			</Presence>
 
 			<HStack className="items-center gap-2">
-				<Pressable id="motion-disposal-toggle" onPress={() => {
-					setShowDisposable(!showDisposable)
-				}} className="chip">
+				<Pressable
+					id="motion-disposal-toggle"
+					onPress={() => {
+						setShowDisposable(!showDisposable)
+					}}
+					className="chip"
+				>
 					<Text>Toggle job</Text>
 				</Pressable>
 				<Text id="motion-disposal-status">{disposalStatus}</Text>
@@ -261,30 +368,52 @@ export async function run(ctx: ProbeContext) {
 
 	await ctx.waitFor(() => variantEvidence.order.length >= 3, { timeout: 4000 })
 	await ctx.press('motion-variants-run')
-	await ctx.waitFor(() => variantEvidence.a === 20 && variantEvidence.b === 40 && variantEvidence.order.includes('b'), { timeout: 4000 })
+	await ctx.waitFor(
+		() =>
+			variantEvidence.a === 20 && variantEvidence.b === 40 && variantEvidence.order.includes('b'),
+		{ timeout: 4000 },
+	)
+
 	ctx.assert('variants inherited custom target A', variantEvidence.a, 20)
 	ctx.assert('variants inherited custom target B', variantEvidence.b, 40)
-	ctx.assert('variants parent-before-children stagger order', variantEvidence.order.join(','), 'parent,a,b')
+	ctx.assert(
+		'variants parent-before-children stagger order',
+		variantEvidence.order.join(','),
+		'parent,a,b',
+	)
+
 	ctx.record('variants', variantEvidence)
 
 	// Mount animation lands at the resting destination.
-	await ctx.waitFor(() => ctx.inspect('motion-destination-status').text.includes('completed at'), {
-		timeout: 4000,
-	}).catch(() => ctx.record('mount-timeout-status', ctx.inspect('motion-destination-status').text))
+	await ctx
+		.waitFor(() => ctx.inspect('motion-destination-status').text.includes('completed at'), {
+			timeout: 4000,
+		})
+		.catch(() => ctx.record('mount-timeout-status', ctx.inspect('motion-destination-status').text))
 
 	// Tween to a new destination, then interrupt the next run mid-flight with a
 	// spring retarget.
 	await ctx.press('motion-tween-to')
 	ctx.record('after-tween-press', ctx.inspect('motion-destination-status').text)
-	await ctx.waitFor(() => ctx.inspect('motion-destination-status').text === 'Destination: completed at 100', {
-		timeout: 4000,
-	}).catch(() => ctx.record('tween-timeout-status', ctx.inspect('motion-destination-status').text))
+	await ctx
+		.waitFor(
+			() => ctx.inspect('motion-destination-status').text === 'Destination: completed at 100',
+			{
+				timeout: 4000,
+			},
+		)
+		.catch(() => ctx.record('tween-timeout-status', ctx.inspect('motion-destination-status').text))
 
 	await ctx.press('motion-tween-to')
 	await ctx.press('motion-interrupt-spring')
-	await ctx.waitFor(() => ctx.inspect('motion-destination-status').text === 'Destination: completed at 40', {
-		timeout: 4000,
-	}).catch(() => ctx.record('spring-timeout-status', ctx.inspect('motion-destination-status').text))
+	await ctx
+		.waitFor(
+			() => ctx.inspect('motion-destination-status').text === 'Destination: completed at 40',
+			{
+				timeout: 4000,
+			},
+		)
+		.catch(() => ctx.record('spring-timeout-status', ctx.inspect('motion-destination-status').text))
 
 	ctx.assert(
 		'spring retarget destination',
@@ -294,16 +423,20 @@ export async function run(ctx: ProbeContext) {
 
 	// Explicit MotionValue cancellation resolves cancelled, never finished.
 	await ctx.press('motion-value-cancel')
-	await ctx.waitFor(() => ctx.inspect('motion-pan-status').text === 'MotionValue cancelled', {
-		timeout: 3000,
-	}).catch(() => ctx.record('cancel-timeout-status', ctx.inspect('motion-pan-status').text))
+	await ctx
+		.waitFor(() => ctx.inspect('motion-pan-status').text === 'MotionValue cancelled', {
+			timeout: 3000,
+		})
+		.catch(() => ctx.record('cancel-timeout-status', ctx.inspect('motion-pan-status').text))
 
 	// Gesture phases: synthetic dispatch — PointerEvents on DOM targets, the
 	// native pan gesture observer (GestureTypes.pan = 8) on iOS/Android.
 	const panRow = ctx.find('motion-pan-row')
 	if (ctx.target === 'web' || ctx.target === 'linux') {
 		const fire = (type: string, x: number) =>
-			panRow.dispatchEvent(new PointerEvent(type, { clientX: x, clientY: 100, pointerId: 1, bubbles: true }))
+			panRow.dispatchEvent(
+				new PointerEvent(type, { clientX: x, clientY: 100, pointerId: 1, bubbles: true }),
+			)
 
 		fire('pointerdown', 200)
 		fire('pointermove', 240)
@@ -350,14 +483,27 @@ export async function run(ctx: ProbeContext) {
 		dragInput(box, 'start', 0)
 		await new Promise((resolve) => setTimeout(resolve, 16))
 		dragInput(box, 'move', 20, 250)
-		ctx.record('drag-live', { phases: dragPhases.slice(), samples: dragSamples.slice(), touchAction: box.style?.touchAction ?? null })
+		ctx.record('drag-live', {
+			phases: dragPhases.slice(),
+			samples: dragSamples.slice(),
+			touchAction: box.style?.touchAction ?? null,
+		})
+
 		ctx.assert('drag writes live displacement', dragSamples.at(-1), 20)
 		await new Promise((resolve) => setTimeout(resolve, 16))
 		dragInput(box, 'end', 20, 250)
 		await ctx.waitFor(() => dragSamples.at(-1) === 40, { timeout: 4000 })
 		ctx.assert('drag momentum reaches bounded destination', dragSamples.at(-1), 40)
-		ctx.assert('drag callbacks', dragPhases.join('→').includes('start→move') && dragPhases.at(-1) === 'end')
-		ctx.assert('drag hard bounds include spring samples', dragSamples.every((x) => x >= -40 && x <= 40))
+		ctx.assert(
+			'drag callbacks',
+			dragPhases.join('→').includes('start→move') && dragPhases.at(-1) === 'end',
+		)
+
+		ctx.assert(
+			'drag hard bounds include spring samples',
+			dragSamples.every((x) => x >= -40 && x <= 40),
+		)
+
 		ctx.record('drag-release-velocity', dragVelocity)
 		dragInput(box, 'start', 0)
 		dragInput(box, 'move', -100, -250)
@@ -376,9 +522,12 @@ export async function run(ctx: ProbeContext) {
 	})
 
 	await ctx.press('motion-presence-toggle')
-	await ctx.waitFor(() => ctx.inspect('motion-presence-status').text === 'mounted; prior removals=1', {
-		timeout: 4000,
-	})
+	await ctx.waitFor(
+		() => ctx.inspect('motion-presence-status').text === 'mounted; prior removals=1',
+		{
+			timeout: 4000,
+		},
+	)
 
 	ctx.assert(
 		'fresh state after completed exit',
@@ -394,7 +543,10 @@ export async function run(ctx: ProbeContext) {
 	const fireTouch = (action: 'down' | 'up') => {
 		if (ctx.target === 'web' || ctx.target === 'linux') {
 			tapBox.dispatchEvent(
-				new PointerEvent(action === 'down' ? 'pointerdown' : 'pointerup', { pointerId: 1, bubbles: true }),
+				new PointerEvent(action === 'down' ? 'pointerdown' : 'pointerup', {
+					pointerId: 1,
+					bubbles: true,
+				}),
 			)
 		} else if (ctx.target === 'ios' || ctx.target === 'android') {
 			for (const observer of tapBox.getGestureObservers?.(128) ?? []) {
@@ -404,15 +556,18 @@ export async function run(ctx: ProbeContext) {
 	}
 
 	fireTouch('down')
-	await ctx.waitFor(() => Math.min(...tapSamples) <= 0.7, { timeout: 3000 })
+	await ctx
+		.waitFor(() => Math.min(...tapSamples) <= 0.7, { timeout: 3000 })
 		.catch(() => ctx.record('tap-engage-samples', tapSamples.slice(0, 10)))
 
 	ctx.assert('whileTap engaged', Math.min(...tapSamples, 1) <= 0.7, true)
 
 	fireTouch('up')
-	await ctx.waitFor(() => tapSamples[tapSamples.length - 1] === 1, {
-		timeout: 3000,
-	}).catch(() => ctx.record('tap-restore-samples', tapSamples.slice(-10)))
+	await ctx
+		.waitFor(() => tapSamples[tapSamples.length - 1] === 1, {
+			timeout: 3000,
+		})
+		.catch(() => ctx.record('tap-restore-samples', tapSamples.slice(-10)))
 
 	ctx.assert('whileTap restores animate target', tapSamples[tapSamples.length - 1] ?? 0, 1)
 

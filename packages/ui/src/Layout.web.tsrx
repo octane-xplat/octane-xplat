@@ -1,7 +1,15 @@
 import { mergeStyle, styleRecord } from './style-merge'
 import { useMemo, useContext } from 'octane'
 import { refList } from './ref-list'
-import type { LayoutProps, LayoutHeaderProps, LayoutContentProps, LayoutFooterProps, LayoutPanelProps, SizeValue } from './props'
+import type {
+	LayoutProps,
+	LayoutHeaderProps,
+	LayoutContentProps,
+	LayoutFooterProps,
+	LayoutPanelProps,
+	SizeValue,
+} from './props'
+
 import { applyEscapeProps } from './escape-props'
 import { applyWebProps } from './platformProps.web'
 import { spacingPx } from './stack-layout'
@@ -24,10 +32,12 @@ function supportsInternalContentWidthAlignment(width: SizeValue | undefined): bo
 	if (width == null || typeof width === 'number') {
 		return true
 	}
+
 	const value = width.trim().toLowerCase()
 	if (value.includes('%')) {
 		return false
 	}
+
 	return (
 		value === '0' ||
 		/^-?(?:\d+(?:\.\d+)?|\.\d+)[a-z]+$/.test(value) ||
@@ -53,6 +63,7 @@ export function Layout(props: LayoutProps) @{
 	const hasSinglePanel = hasStart !== hasEnd
 	const usesInternalContentWidth =
 		props.contentWidth != null && supportsInternalContentWidthAlignment(props.contentWidth)
+
 	const slots = { hasHeader, hasFooter, hasStart, hasEnd }
 
 	const innerStyle: Record<string, any> = {}
@@ -61,15 +72,27 @@ export function Layout(props: LayoutProps) @{
 		innerStyle['--layout-padding-outer-x'] = px
 		innerStyle['--layout-padding-outer-y'] = px
 	}
+
 	if (props.contentWidth != null) {
-		const width = typeof props.contentWidth === 'number' ? `${props.contentWidth}px` : props.contentWidth
+		const width =
+			typeof props.contentWidth === 'number' ? `${props.contentWidth}px` : props.contentWidth
+
 		innerStyle['--layout-content-width'] = width
 		if (usesInternalContentWidth) {
 			innerStyle['--layout-alignment-width'] = width
 		}
 	}
 
-	const forwardedRef = useMemo(() => refList((e: any) => { if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web) } }, props.ref), [props.ref, props.ios, props.android, props.web])
+	const forwardedRef = useMemo(
+		() =>
+			refList((e: any) => {
+				if (e) {
+					applyEscapeProps(e, props)
+					applyWebProps(e, props.web)
+				}
+			}, props.ref),
+		[props.ref, props.ios, props.android, props.web],
+	)
 
 	const tree = (
 		<LayoutSlotsProvider value={slots}>
@@ -82,12 +105,17 @@ export function Layout(props: LayoutProps) @{
 				aria-label={props.accessibilityLabel}
 				aria-hidden={props.accessible === false ? true : undefined}
 			>
-				<div className={['vx-layout-inner', isFill ? 'vx-layout--fill' : 'vx-layout--auto']} style={innerStyle}>
+				<div
+					className={['vx-layout-inner', isFill ? 'vx-layout--fill' : 'vx-layout--auto']}
+					style={innerStyle}
+				>
 					{props.header}
 					<div
 						className={[
 							'vx-layout-middle',
-							props.contentWidth != null && (!usesInternalContentWidth || hasBothPanels) && 'vx-layout-middle--constrained',
+							props.contentWidth != null &&
+								(!usesInternalContentWidth || hasBothPanels) &&
+								'vx-layout-middle--constrained',
 							usesInternalContentWidth && !hasBothPanels && 'vx-layout-middle--query',
 							usesInternalContentWidth && hasSinglePanel && 'vx-layout-middle--singlepanel',
 							usesInternalContentWidth && hasStart && !hasEnd && 'vx-layout-middle--startpanel',
@@ -98,7 +126,10 @@ export function Layout(props: LayoutProps) @{
 						<div
 							className={[
 								'vx-layout-contentlane',
-								usesInternalContentWidth && !hasStart && !hasEnd && 'vx-layout-contentlane--singlecolumn',
+								usesInternalContentWidth &&
+									!hasStart &&
+									!hasEnd &&
+									'vx-layout-contentlane--singlecolumn',
 							]}
 						>
 							{resolvedContent}
@@ -118,6 +149,7 @@ export function Layout(props: LayoutProps) @{
 			</LayoutDividerProvider>
 		)
 	}
+
 	return tree
 }
 
@@ -139,22 +171,39 @@ export function LayoutHeader(props: LayoutHeaderProps) @{
 		innerStyle['--vx-lh-pad-bs'] = px
 		innerStyle['--vx-lh-pad-be'] = px
 	}
+
 	if (props.paddingBlockEnd != null) {
 		innerStyle['--vx-lh-pad-be'] = `${spacingPx(props.paddingBlockEnd)}px`
 	}
 
-	const forwardedRef = useMemo(() => refList((e: any) => { if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web) } }, props.ref), [props.ref, props.ios, props.android, props.web])
+	const forwardedRef = useMemo(
+		() =>
+			refList((e: any) => {
+				if (e) {
+					applyEscapeProps(e, props)
+					applyWebProps(e, props.web)
+				}
+			}, props.ref),
+		[props.ref, props.ios, props.android, props.web],
+	)
 
 	<div
 		id={props.id}
 		ref={forwardedRef}
-		className={['vx-layout-header', resolvedHasDivider && 'vx-layout-header--divided', props.className]}
-		style={mergeStyle({
-			height: props.height,
-			width: props.width,
-			maxWidth: props.maxWidth,
-			minHeight: props.minHeight,
-		}, props.style)}
+		className={[
+			'vx-layout-header',
+			resolvedHasDivider && 'vx-layout-header--divided',
+			props.className,
+		]}
+		style={mergeStyle(
+			{
+				height: props.height,
+				width: props.width,
+				maxWidth: props.maxWidth,
+				minHeight: props.minHeight,
+			},
+			props.style,
+		)}
 		role={props.role ?? props.accessibilityRole}
 		aria-label={props.accessibilityLabel ?? props.label}
 		aria-hidden={props.accessible === false ? true : undefined}
@@ -184,12 +233,33 @@ export function LayoutContent(props: LayoutContentProps) @{
 		style['--vx-lc-pad-bs'] = px
 		style['--vx-lc-pad-be'] = px
 	}
-	if (props.height != null) style.height = props.height
-	if (props.width != null) style.width = props.width
-	if (props.maxWidth != null) style.maxWidth = props.maxWidth
-	if (props.minHeight != null) style.minHeight = props.minHeight
 
-	const forwardedRef = useMemo(() => refList((e: any) => { if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web) } }, props.ref), [props.ref, props.ios, props.android, props.web])
+	if (props.height != null) {
+		style.height = props.height
+	}
+
+	if (props.width != null) {
+		style.width = props.width
+	}
+
+	if (props.maxWidth != null) {
+		style.maxWidth = props.maxWidth
+	}
+
+	if (props.minHeight != null) {
+		style.minHeight = props.minHeight
+	}
+
+	const forwardedRef = useMemo(
+		() =>
+			refList((e: any) => {
+				if (e) {
+					applyEscapeProps(e, props)
+					applyWebProps(e, props.web)
+				}
+			}, props.ref),
+		[props.ref, props.ios, props.android, props.web],
+	)
 
 	<div
 		id={props.id}
@@ -231,13 +301,34 @@ export function LayoutFooter(props: LayoutFooterProps) @{
 		innerStyle['--vx-lf-pad-be'] = px
 	}
 
-	const forwardedRef = useMemo(() => refList((e: any) => { if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web) } }, props.ref), [props.ref, props.ios, props.android, props.web])
+	const forwardedRef = useMemo(
+		() =>
+			refList((e: any) => {
+				if (e) {
+					applyEscapeProps(e, props)
+					applyWebProps(e, props.web)
+				}
+			}, props.ref),
+		[props.ref, props.ios, props.android, props.web],
+	)
 
 	<div
 		id={props.id}
 		ref={forwardedRef}
-		className={['vx-layout-footer', resolvedHasDivider && 'vx-layout-footer--divided', props.className]}
-		style={mergeStyle({ height: props.height, width: props.width, maxWidth: props.maxWidth, minHeight: props.minHeight }, props.style)}
+		className={[
+			'vx-layout-footer',
+			resolvedHasDivider && 'vx-layout-footer--divided',
+			props.className,
+		]}
+		style={mergeStyle(
+			{
+				height: props.height,
+				width: props.width,
+				maxWidth: props.maxWidth,
+				minHeight: props.minHeight,
+			},
+			props.style,
+		)}
 		role={props.role ?? props.accessibilityRole}
 		aria-label={props.accessibilityLabel ?? props.label}
 		aria-hidden={props.accessible === false ? true : undefined}
@@ -256,7 +347,16 @@ export function LayoutPanel(props: LayoutPanelProps) @{
 	const area = props.area ?? useContext(LayoutAreaContext) ?? 'start'
 	const size = props.resizable?._size ?? props.width
 
-	const forwardedRef = useMemo(() => refList((e: any) => { if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web) } }, props.ref), [props.ref, props.ios, props.android, props.web])
+	const forwardedRef = useMemo(
+		() =>
+			refList((e: any) => {
+				if (e) {
+					applyEscapeProps(e, props)
+					applyWebProps(e, props.web)
+				}
+			}, props.ref),
+		[props.ref, props.ios, props.android, props.web],
+	)
 
 	<div
 		id={props.id}

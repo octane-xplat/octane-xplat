@@ -14,5 +14,11 @@ function TimelineFixture() @{
 }
 
 export const PARITY: ParityFixture[] = [
-	{ name: 'timeline-two-events', component: 'Timeline', renderer: TimelineFixture, props: {}, height: 128 },
+	{
+		name: 'timeline-two-events',
+		component: 'Timeline',
+		renderer: TimelineFixture,
+		props: {},
+		height: 128,
+	},
 ]

@@ -12,9 +12,24 @@ export function TopNavHoverMenu() @{
 				<TopNavMenu
 					label="Products"
 					items={[
-						{ title: 'Analytics', description: 'Real-time traffic data', icon: <Icon name="sandbox-chart" />, href: '#analytics' },
-						{ title: 'Engagement', description: 'Session metrics', icon: <Icon name="sandbox-chart" />, href: '#engagement' },
-						{ title: 'Revenue', description: 'Sales tracking', icon: <Icon name="sandbox-chart" />, href: '#revenue' },
+						{
+							title: 'Analytics',
+							description: 'Real-time traffic data',
+							icon: <Icon name="sandbox-chart" />,
+							href: '#analytics',
+						},
+						{
+							title: 'Engagement',
+							description: 'Session metrics',
+							icon: <Icon name="sandbox-chart" />,
+							href: '#engagement',
+						},
+						{
+							title: 'Revenue',
+							description: 'Sales tracking',
+							icon: <Icon name="sandbox-chart" />,
+							href: '#revenue',
+						},
 					]}
 				/>
 			</>

@@ -1,10 +1,11 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { Screen, Text, Pressable } from '@octane-xplat/ui'
-import { useRouter } from '@octane-xplat/ui/routing';
+import { useRouter } from '@octane-xplat/ui/routing'
 
 /** The motion package's gesture/reduced-motion hosts are mobile-only. */
 export function MotionProbe() @{
-	const navigation = useRouter();
+	const navigation = useRouter()
+
 	<Screen className="vx-app flex-1 gap-3">
 		<Pressable id="motion-probe-back" onPress={() => navigation.back()} className="chip">
 			<Text>← Back</Text>

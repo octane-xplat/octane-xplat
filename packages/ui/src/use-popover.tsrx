@@ -20,8 +20,11 @@ export function usePopover(options: UsePopoverOptions = {}): UsePopoverReturn {
 	})
 
 	const toggle = useCallback(() => {
-		if (layer.isOpen) layer.hide()
-		else layer.show()
+		if (layer.isOpen) {
+			layer.hide()
+		} else {
+			layer.show()
+		}
 	}, [layer.isOpen, layer.show, layer.hide])
 
 	const render = useCallback(

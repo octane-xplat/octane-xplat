@@ -15,12 +15,20 @@ export function ScrollableAreaStickyGroupHeaders() @{
 					<Text
 						type="label"
 						color="secondary"
-						style={{ position: 'sticky', top: 0, background: 'var(--color-surface, #fff)', padding: '8px 16px 4px', zIndex: 1 }}
+						style={{
+							position: 'sticky',
+							top: 0,
+							background: 'var(--color-surface, #fff)',
+							padding: '8px 16px 4px',
+							zIndex: 1,
+						}}
 					>
 						{group}
 					</Text>
 					{notes.map((note) => (
-						<Text key={note} type="body" style={{ padding: '4px 16px' }}>{note}</Text>
+						<Text key={note} type="body" style={{ padding: '4px 16px' }}>
+							{note}
+						</Text>
 					))}
 				</VStack>
 			))}

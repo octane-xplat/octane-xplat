@@ -8,7 +8,10 @@ export function LayoutContentOnlyLayout() @{
 				<LayoutContent>
 					<VStack gap={3}>
 						<Heading level={4}>Simple Content</Heading>
-						<Text type="body">A layout can have just content without header or footer. This is useful for simple cards or content blocks that don't need structured sections.</Text>
+						<Text type="body">
+							A layout can have just content without header or footer. This is useful for simple
+							cards or content blocks that don't need structured sections.
+						</Text>
 					</VStack>
 				</LayoutContent>
 			}

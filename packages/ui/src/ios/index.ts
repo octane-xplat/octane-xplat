@@ -65,5 +65,4 @@ export type {
 
 export { useImperativeModal } from './use-imperative-modal.ios.tsrx'
 
-
 export type { ImperativeModalReturn } from '../props'

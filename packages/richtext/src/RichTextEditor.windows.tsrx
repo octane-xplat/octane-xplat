@@ -11,5 +11,5 @@ export function RichTextEditor(props: RichTextEditorProps) @{
 		className={props.className}
 		style={props.style}
 		text="Rich text editing is not supported on Windows yet."
-	/>;
+	/>
 }

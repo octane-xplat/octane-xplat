@@ -5,6 +5,7 @@ export interface NativeRouterBackEvent {
 	activity?: unknown
 	object?: unknown
 }
+
 export interface NativeRouterBackHandler {
 	priority: number
 	handle(event: NativeRouterBackEvent): boolean

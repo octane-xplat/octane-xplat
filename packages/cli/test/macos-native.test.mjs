@@ -1,12 +1,5 @@
 import assert from 'node:assert/strict'
-import {
-	mkdtempSync,
-	mkdirSync,
-	writeFileSync,
-	symlinkSync,
-	rmSync,
-	realpathSync,
-} from 'node:fs'
+import { mkdtempSync, mkdirSync, writeFileSync, symlinkSync, rmSync, realpathSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
@@ -127,10 +120,7 @@ function prebuiltFixture(t, { minos, bytes } = {}) {
 	const engine = join(app, 'node_modules/engine')
 	mkdirSync(join(engine, 'platforms/macos/prebuilt'), { recursive: true })
 	mkdirSync(join(engine, 'platforms/macos/licenses'), { recursive: true })
-	writeFileSync(
-		join(engine, 'platforms/macos/prebuilt/libengine.dylib'),
-		bytes ?? machO({ minos }),
-	)
+	writeFileSync(join(engine, 'platforms/macos/prebuilt/libengine.dylib'), bytes ?? machO({ minos }))
 	writeFileSync(join(engine, 'platforms/macos/licenses/engine.txt'), 'Engine License\n')
 	writeFileSync(
 		join(engine, 'package.json'),
@@ -171,10 +161,7 @@ test('a prebuilt-only package ships its dylib without a toolchain', async (t) =>
 
 test('a compile leaf keeps its notices while also shipping prebuilt libraries', (t) => {
 	const { app, leaf } = fixture(t)
-	writeFileSync(
-		join(leaf, 'platforms/macos/prebuilt.dylib'),
-		machO({ minos: '13.5' }),
-	)
+	writeFileSync(join(leaf, 'platforms/macos/prebuilt.dylib'), machO({ minos: '13.5' }))
 	writeFileSync(
 		join(leaf, 'package.json'),
 		JSON.stringify({
@@ -216,12 +203,14 @@ test('prebuilt library declarations reject invalid paths and keys', (t) => {
 		[
 			{ prebuiltLibraries: ['platforms/macos/prebuilt/libengine.so'] },
 			/must be a .dylib/,
-			(engine) =>
-				writeFileSync(join(engine, 'platforms/macos/prebuilt/libengine.so'), machO()),
+			(engine) => writeFileSync(join(engine, 'platforms/macos/prebuilt/libengine.so'), machO()),
 		],
 		[{ prebuiltLibraries: ['package.json'] }, /inside platforms\/macos/],
 		[
-			{ prebuiltLibraries: ['platforms/macos/prebuilt/libengine.dylib'], frameworks: ['Foundation'] },
+			{
+				prebuiltLibraries: ['platforms/macos/prebuilt/libengine.dylib'],
+				frameworks: ['Foundation'],
+			},
 			/requires native sources/,
 		],
 	]) {
@@ -275,7 +264,5 @@ test('the loader dlopens prebuilt libraries from packaged and source paths', asy
 
 	const dev = nativeLoader(artifact)
 	assert.match(dev, /dlopen/)
-	assert.ok(
-		dev.includes(realpathSync(join(engine, 'platforms/macos/prebuilt/libengine.dylib'))),
-	)
+	assert.ok(dev.includes(realpathSync(join(engine, 'platforms/macos/prebuilt/libengine.dylib'))))
 })

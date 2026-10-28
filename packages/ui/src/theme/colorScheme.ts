@@ -13,9 +13,7 @@ export function getColorScheme(): ColorScheme {
 	// systemAppearance() is deprecated in favor of primaryWindow, but the
 	// primary window isn't guaranteed during early boot — fall back.
 	return (
-		Application.primaryWindow?.systemAppearance?.() ??
-		Application.systemAppearance?.() ??
-		'light'
+		Application.primaryWindow?.systemAppearance?.() ?? Application.systemAppearance?.() ?? 'light'
 	)
 }
 

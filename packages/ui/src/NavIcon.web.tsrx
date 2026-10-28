@@ -1,6 +1,6 @@
-import type { NavIconProps } from './props';
-import { applyEscapeProps } from './escape-props';
-import { Icon } from './Icon.web.tsrx';
+import type { NavIconProps } from './props'
+import { applyEscapeProps } from './escape-props'
+import { Icon } from './Icon.web.tsrx'
 
 /** Circular icon container for navigation headers (TopNavHeading,
  *  SideNavHeading). Display-only — the `icon` prop takes an element or a

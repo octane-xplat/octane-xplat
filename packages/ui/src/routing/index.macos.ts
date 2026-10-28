@@ -45,7 +45,13 @@ export type {
 	ScreenTable,
 } from '../props'
 
-export { defineRoute, defineRouteGroup, withSearchDecoder, RouteSearchValidationError } from '../define-route'
+export {
+	defineRoute,
+	defineRouteGroup,
+	withSearchDecoder,
+	RouteSearchValidationError,
+} from '../define-route'
+
 export { defineTransitions } from '../route-transitions'
 export { createPaneRouterHost } from '../pane-router-client'
 export { RouterPane } from '../RouterPane.tsrx'

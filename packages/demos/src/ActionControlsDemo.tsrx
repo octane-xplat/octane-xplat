@@ -1,5 +1,17 @@
 import { useState } from 'octane'
-import { Button, ButtonGroup, ClickableCard, Heading, IconButton, MoreMenu, SelectableCard, Text, ToggleButton, ToggleButtonGroup, View } from '@octane-xplat/ui'
+import {
+	Button,
+	ButtonGroup,
+	ClickableCard,
+	Heading,
+	IconButton,
+	MoreMenu,
+	SelectableCard,
+	Text,
+	ToggleButton,
+	ToggleButtonGroup,
+	View,
+} from '@octane-xplat/ui'
 
 export function ActionControlsDemo() @{
 	const [pinned, setPinned] = useState(false)
@@ -21,10 +33,23 @@ export function ActionControlsDemo() @{
 			<ToggleButton value="list" label="List" />
 			<ToggleButton value="grid" label="Grid" />
 		</ToggleButtonGroup>
-		<MoreMenu label="More document actions" items={[
-			{ type: 'action', key: 'duplicate', label: 'Duplicate', onSelect: () => setMessage('Duplicated') },
-			{ type: 'action', key: 'archive', label: 'Archive', onSelect: () => setMessage('Archived') },
-		]} />
+		<MoreMenu
+			label="More document actions"
+			items={[
+				{
+					type: 'action',
+					key: 'duplicate',
+					label: 'Duplicate',
+					onSelect: () => setMessage('Duplicated'),
+				},
+				{
+					type: 'action',
+					key: 'archive',
+					label: 'Archive',
+					onSelect: () => setMessage('Archived'),
+				},
+			]}
+		/>
 		<ClickableCard label="Open collection" onPress={() => setMessage('Collection opened')}>
 			<Text>Open collection</Text>
 		</ClickableCard>

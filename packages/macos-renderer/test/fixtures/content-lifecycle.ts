@@ -39,7 +39,9 @@ export async function checkContentLifecycle(root: any, nativeWindow: any) {
 		const flipped = typeof parent.isFlipped === 'function' ? parent.isFlipped() : parent.isFlipped
 		return flipped
 			? Number(rect(view).origin.y)
-			: Number(parent.bounds.size.height) - Number(rect(view).origin.y) - Number(rect(view).size.height)
+			: Number(parent.bounds.size.height) -
+					Number(rect(view).origin.y) -
+					Number(rect(view).size.height)
 	}
 	const describe = (r: any) => [r.origin.x, r.origin.y, r.size.width, r.size.height].join(',')
 	check(
@@ -75,12 +77,16 @@ export async function checkContentLifecycle(root: any, nativeWindow: any) {
 	)
 
 	check(
-		debug.findId('content') === host && debug.findId('content-child') === first &&
+		debug.findId('content') === host &&
+			debug.findId('content-child') === first &&
 			debug.findId('content-label') === firstLabel,
 		'ContentView update changed host or child identity',
 	)
 
-	check(String(firstLabel.stringValue) === 'Updated content', 'ContentView reactive child update failed')
+	check(
+		String(firstLabel.stringValue) === 'Updated content',
+		'ContentView reactive child update failed',
+	)
 	check(
 		near(host.frame.size.width, 260) &&
 			near(rect(firstLabel).origin.x, 200) &&

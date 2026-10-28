@@ -12,11 +12,15 @@ const items = [
 export function OutlineDensity() @{
 	<VStack gap={4} style={{ width: 240 }}>
 		<VStack gap={1}>
-			<Text type="supporting" color="secondary">Default</Text>
+			<Text type="supporting" color="secondary">
+				Default
+			</Text>
 			<Outline items={items} activeId="density-install" />
 		</VStack>
 		<VStack gap={1}>
-			<Text type="supporting" color="secondary">Compact</Text>
+			<Text type="supporting" color="secondary">
+				Compact
+			</Text>
 			<Outline items={items} activeId="density-install" density="compact" />
 		</VStack>
 	</VStack>

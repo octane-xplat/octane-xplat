@@ -15,8 +15,11 @@ function ContextLabel() {
 	rendered.push(value)
 	useEffect(() => {
 		mounted = true
-		return () => { mounted = false }
+		return () => {
+			mounted = false
+		}
 	}, [])
+
 	return <label id="appkit-sheet-context" text={value} />
 }
 
@@ -28,11 +31,7 @@ export default function AppKitSheetPortal() {
 
 	return (
 		<SheetProvider value={name}>
-			<AppKitSheet
-				id="appkit-sheet-anchor"
-				open={open}
-				content={() => <ContextLabel />}
-			/>
+			<AppKitSheet id="appkit-sheet-anchor" open={open} content={() => <ContextLabel />} />
 		</SheetProvider>
 	)
 }
@@ -43,10 +42,11 @@ export async function run(ctx: ProbeContext) {
 
 	const beforeUpdate = rendered.length
 	updateName('Jordan')
-	await ctx.waitFor(
-		() => rendered.length > beforeUpdate && rendered.at(-1) === 'Jordan',
-		{ timeout: 5000, interval: 25 },
-	)
+	await ctx.waitFor(() => rendered.length > beforeUpdate && rendered.at(-1) === 'Jordan', {
+		timeout: 5000,
+		interval: 25,
+	})
+
 	ctx.assert('live context update reaches AppKit sheet', rendered.at(-1), 'Jordan')
 
 	setSheetOpen(false)

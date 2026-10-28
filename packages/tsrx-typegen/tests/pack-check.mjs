@@ -37,16 +37,19 @@ try {
 
 	// Packed peers need not be installed. Type-only external aliases reached
 	// through star barrels must not become phantom runtime exports.
-	verifyPackedPackage(ts, writePackage({
-		...baseFiles,
-		'package.json': JSON.stringify({
-			...JSON.parse(baseFiles['package.json']),
-			peerDependencies: { 'external-peer': '*' },
+	verifyPackedPackage(
+		ts,
+		writePackage({
+			...baseFiles,
+			'package.json': JSON.stringify({
+				...JSON.parse(baseFiles['package.json']),
+				peerDependencies: { 'external-peer': '*' },
+			}),
+			'types/index.d.ts': "export declare const value: number\nexport * from './shared.js'\n",
+			'types/shared.d.ts': "export type { ClassValue } from './props.js'\n",
+			'types/props.d.ts': "export type { ClassValue } from 'external-peer'\n",
 		}),
-		'types/index.d.ts': "export declare const value: number\nexport * from './shared.js'\n",
-		'types/shared.d.ts': "export type { ClassValue } from './props.js'\n",
-		'types/props.d.ts': "export type { ClassValue } from 'external-peer'\n",
-	}))
+	)
 
 	verifyPackedPackage(
 		ts,

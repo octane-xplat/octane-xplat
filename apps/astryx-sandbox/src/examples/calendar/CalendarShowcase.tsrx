@@ -5,5 +5,6 @@ import type { ISODateString, ISOTimeString, ISODateTimeString, DateRange } from 
 
 export function CalendarShowcase() @{
 	const [value, setValue] = useState<ISODateString | null>(null)
+
 	<Calendar value={value} onChange={setValue} />
 }

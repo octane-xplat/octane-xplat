@@ -60,8 +60,7 @@ export const categories: SandboxCategory[] = [
 	{
 		label: 'Components & Patterns',
 		slug: 'components-patterns',
-		description:
-			'Component demos, composition patterns, and interactive examples.',
+		description: 'Component demos, composition patterns, and interactive examples.',
 		pages: [
 			{
 				name: 'Mobile Prototypes',
@@ -78,8 +77,7 @@ export const categories: SandboxCategory[] = [
 			{
 				name: 'Card Examples',
 				href: '/pages/example-cards/',
-				description:
-					'Astryx components showcased in realistic card compositions',
+				description: 'Astryx components showcased in realistic card compositions',
 			},
 			{
 				name: 'Table Overview',
@@ -109,8 +107,7 @@ export const categories: SandboxCategory[] = [
 			{
 				name: 'Motion Examples',
 				href: '/pages/motion-examples/',
-				description:
-					'Duration and easing tokens applied to common animation patterns',
+				description: 'Duration and easing tokens applied to common animation patterns',
 			},
 			{
 				name: 'App Shell',
@@ -125,8 +122,7 @@ export const categories: SandboxCategory[] = [
 			{
 				name: 'Tap Targets (AA)',
 				href: '/pages/tap-targets/',
-				description:
-					'WCAG 2.5.8 AA touch-target sizes visualized on real components',
+				description: 'WCAG 2.5.8 AA touch-target sizes visualized on real components',
 			},
 		],
 	},
@@ -181,8 +177,7 @@ export const categories: SandboxCategory[] = [
 			{
 				name: 'Color Studio',
 				href: '/pages/color-studio/',
-				description:
-					'Generate and explore color palettes from an accent color or image',
+				description: 'Generate and explore color palettes from an accent color or image',
 			},
 			{
 				name: 'Palette Generator Lab',
@@ -193,16 +188,14 @@ export const categories: SandboxCategory[] = [
 			{
 				name: 'Mobile Spacing',
 				href: '/pages/mobile-spacing/',
-				description:
-					'Draft mobile semantic spacing preview with real component scale comparisons',
+				description: 'Draft mobile semantic spacing preview with real component scale comparisons',
 			},
 		],
 	},
 	{
 		label: 'Tools',
 		slug: 'tools',
-		description:
-			'Interactive tools for building and exploring Astryx components.',
+		description: 'Interactive tools for building and exploring Astryx components.',
 		pages: [
 			{
 				name: 'Layout DSL',
@@ -248,8 +241,7 @@ export const categories: SandboxCategory[] = [
 			{
 				name: 'Dictation Lab',
 				href: '/pages/dictation-lab/',
-				description:
-					'Test voice dictation, tune sound effects, and explore animation',
+				description: 'Test voice dictation, tune sound effects, and explore animation',
 			},
 			{
 				name: 'Mobile Type',

@@ -24,7 +24,9 @@ const appearance = (name: string) => ({
 
 const darkAqua = appearance('darkAqua')
 const catalogColor = (convert: () => any) => {
-	const color: any = { colorUsingColorSpace: (space: string) => (space === 'srgb' ? convert() : null) }
+	const color: any = {
+		colorUsingColorSpace: (space: string) => (space === 'srgb' ? convert() : null),
+	}
 	for (const key of ['redComponent', 'greenComponent', 'blueComponent']) {
 		Object.defineProperty(color, key, {
 			get() {

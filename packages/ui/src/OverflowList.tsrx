@@ -1,64 +1,69 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { mergeStyle, styleRecord } from './style-merge'
-import { useCallback, useEffect, useRef, useState } from 'octane';
-import type { OverflowItem, OverflowListProps } from './props';
-import { cx } from '@octane-xplat/lib';
-import { applyEscapeProps } from './escape-props';
-import { computeOverflow } from './overflow-math';
+import { useCallback, useEffect, useRef, useState } from 'octane'
+import type { OverflowItem, OverflowListProps } from './props'
+import { cx } from '@octane-xplat/lib'
+import { applyEscapeProps } from './escape-props'
+import { computeOverflow } from './overflow-math'
 
-import { toChildArray } from './child-array';
+import { toChildArray } from './child-array'
 
 /** OverflowList — renders the subset of children that fits the row and
  *  hands the rest to `overflowRenderer`. Native leaf: a hidden inert copy
  *  inside a horizontal ScrollView measures each child's intrinsic width;
  *  the visible row renders only what fits. */
 export function OverflowList(props: OverflowListProps) @{
-	const gap = (props.gap ?? 2) * 4;
-	const minVisibleItems = props.minVisibleItems ?? 0;
-	const collapseFrom = props.collapseFrom ?? 'end';
-	const observeParent = props.behavior === 'observeParent';
-	const isMultiRow = props.maxRows != null && props.maxRows > 1;
+	const gap = (props.gap ?? 2) * 4
+	const minVisibleItems = props.minVisibleItems ?? 0
+	const collapseFrom = props.collapseFrom ?? 'end'
+	const observeParent = props.behavior === 'observeParent'
+	const isMultiRow = props.maxRows != null && props.maxRows > 1
 
-	const childArray = toChildArray(props.children);
-	const itemCount = childArray.length;
+	const childArray = toChildArray(props.children)
+	const itemCount = childArray.length
 
-	const container = useRef<any>(null);
-	const measure = useRef<any>(null);
-	const [visibleCount, setVisibleCount] = useState(itemCount);
-	const [rowHeight, setRowHeight] = useState(0);
+	const container = useRef<any>(null)
+	const measure = useRef<any>(null)
+	const [visibleCount, setVisibleCount] = useState(itemCount)
+	const [rowHeight, setRowHeight] = useState(0)
 
 	const calculate = useCallback(() => {
-		const host = container.current;
-		const rows = measure.current;
-		if (!host || !rows) return;
+		const host = container.current
+		const rows = measure.current
+		if (!host || !rows) {
+			return
+		}
 
-		const parent = host.parent;
-		const availableWidth = observeParent && parent
-			? (parent.getActualSize?.().width ?? parent.getMeasuredWidth?.() ?? 0)
-			: (host.getActualSize?.().width ?? host.getMeasuredWidth?.() ?? 0);
+		const parent = host.parent
+		const availableWidth =
+			observeParent && parent
+				? (parent.getActualSize?.().width ?? parent.getMeasuredWidth?.() ?? 0)
+				: (host.getActualSize?.().width ?? host.getMeasuredWidth?.() ?? 0)
 
-		if (availableWidth <= 0) return;
+		if (availableWidth <= 0) {
+			return
+		}
 
-		const widths: number[] = [];
-		let indicatorWidth = 0;
-		let measuredRowHeight = 0;
-		const count = Math.min(itemCount, rows.getChildrenCount?.() ?? 0);
+		const widths: number[] = []
+		let indicatorWidth = 0
+		let measuredRowHeight = 0
+		const count = Math.min(itemCount, rows.getChildrenCount?.() ?? 0)
 		for (let i = 0; i < count; i++) {
-			const child = rows.getChildAt(i);
-			const w = child?.getMeasuredWidth?.() ?? 0;
-			widths.push(w);
-			measuredRowHeight = Math.max(measuredRowHeight, child?.getMeasuredHeight?.() ?? 0);
+			const child = rows.getChildAt(i)
+			const w = child?.getMeasuredWidth?.() ?? 0
+			widths.push(w)
+			measuredRowHeight = Math.max(measuredRowHeight, child?.getMeasuredHeight?.() ?? 0)
 		}
 
 		// The indicator sits after the items in the hidden copy.
-		const extra = (rows.getChildrenCount?.() ?? 0) - itemCount;
+		const extra = (rows.getChildrenCount?.() ?? 0) - itemCount
 		if (extra > 0) {
-			indicatorWidth = rows.getChildAt(itemCount)?.getMeasuredWidth?.() ?? 0;
+			indicatorWidth = rows.getChildAt(itemCount)?.getMeasuredWidth?.() ?? 0
 		}
 
 		if (!widths.length) {
-			setVisibleCount(0);
-			return;
+			setVisibleCount(0)
+			return
 		}
 
 		const result = computeOverflow({
@@ -70,46 +75,100 @@ export function OverflowList(props: OverflowListProps) @{
 			maxVisibleItems: props.maxVisibleItems,
 			maxRows: props.maxRows,
 			collapseFrom,
-		});
+		})
 
-		setVisibleCount(result.visibleCount);
-		setRowHeight((prev) => (prev === measuredRowHeight ? prev : measuredRowHeight));
-	}, [itemCount, gap, minVisibleItems, props.maxVisibleItems, props.maxRows, collapseFrom, observeParent]);
+		setVisibleCount(result.visibleCount)
+		setRowHeight((prev) => (prev === measuredRowHeight ? prev : measuredRowHeight))
+	}, [
+		itemCount,
+		gap,
+		minVisibleItems,
+		props.maxVisibleItems,
+		props.maxRows,
+		collapseFrom,
+		observeParent,
+	])
 
-	const allItems: OverflowItem[] = childArray.map((child, index) => ({ child, index }));
-	const visibleItems = collapseFrom === 'end' ? allItems.slice(0, visibleCount) : allItems.slice(itemCount - visibleCount);
-	const overflowItems = collapseFrom === 'end' ? allItems.slice(visibleCount) : allItems.slice(0, itemCount - visibleCount);
-	const hasOverflow = overflowItems.length > 0;
-	const measureIndicator = props.overflowRenderer?.(allItems) ?? null;
+	const allItems: OverflowItem[] = childArray.map((child, index) => ({ child, index }))
+	const visibleItems =
+		collapseFrom === 'end'
+			? allItems.slice(0, visibleCount)
+			: allItems.slice(itemCount - visibleCount)
 
-	const overflowKey = JSON.stringify(overflowItems.map(({ index }) => index));
-	const reportedKeyRef = useRef<string>('[]');
-	const overflowItemsRef = useRef(overflowItems);
-	overflowItemsRef.current = overflowItems;
+	const overflowItems =
+		collapseFrom === 'end'
+			? allItems.slice(visibleCount)
+			: allItems.slice(0, itemCount - visibleCount)
+
+	const hasOverflow = overflowItems.length > 0
+	const measureIndicator = props.overflowRenderer?.(allItems) ?? null
+
+	const overflowKey = JSON.stringify(overflowItems.map(({ index }) => index))
+	const reportedKeyRef = useRef<string>('[]')
+	const overflowItemsRef = useRef(overflowItems)
+	overflowItemsRef.current = overflowItems
 
 	useEffect(() => {
-		if (!props.onOverflowChange || reportedKeyRef.current === overflowKey) return;
-		reportedKeyRef.current = overflowKey;
-		props.onOverflowChange(overflowItemsRef.current);
-	});
+		if (!props.onOverflowChange || reportedKeyRef.current === overflowKey) {
+			return
+		}
 
-	const containerHeight = isMultiRow && rowHeight > 0 && props.maxRows != null
-		? rowHeight * props.maxRows + gap * (props.maxRows - 1)
-		: undefined;
+		reportedKeyRef.current = overflowKey
+		props.onOverflowChange(overflowItemsRef.current)
+	})
+
+	const containerHeight =
+		isMultiRow && rowHeight > 0 && props.maxRows != null
+			? rowHeight * props.maxRows + gap * (props.maxRows - 1)
+			: undefined
 
 	<>
 		{/* Hidden measurement copy — a horizontal ScrollView gives children an
 		    unbounded width constraint so each reports its intrinsic width;
 		    the host box is height-0 + hidden so it never paints. */}
-		<masonview height={0} visibility="hidden" className="vx-overflowlist-measure" style={{display: "flex"}}>
+		<masonview
+			height={0}
+			visibility="hidden"
+			className="vx-overflowlist-measure"
+			style={{ display: 'flex' }}
+		>
 			<scrollview orientation="horizontal" scrollBarIndicatorVisible={false}>
-				<masonview ref={(v: any) => { measure.current = v; }} onLayoutChanged={calculate} style={mergeStyle({flexDirection: "row", gap: gap}, {display: "flex"})}>
+				<masonview
+					ref={(v: any) => {
+						measure.current = v
+					}}
+					onLayoutChanged={calculate}
+					style={mergeStyle({ flexDirection: 'row', gap: gap }, { display: 'flex' })}
+				>
 					{childArray}
-					{measureIndicator != null ? <masonview style={mergeStyle({flexDirection: "row"}, {display: "flex"})}>{measureIndicator}</masonview> : null}
+					{measureIndicator != null ? (
+						<masonview style={mergeStyle({ flexDirection: 'row' }, { display: 'flex' })}>
+							{measureIndicator}
+						</masonview>
+					) : null}
 				</masonview>
 			</scrollview>
 		</masonview>
-		<masonview ref={(v: any) => { container.current = v; if (v) { applyEscapeProps(v, props); v.on?.('layoutChanged', calculate); } }} id={props.id} className={cx('vx-overflowlist', isMultiRow && 'vx-overflowlist--multirow', props.className)} style={mergeStyle({ flexWrap: isMultiRow ? 'wrap' : 'nowrap', rowGap: isMultiRow ? gap : undefined, gap: gap}, mergeStyle({display: "flex"}, { ...styleRecord(props.style), height: containerHeight }))} onLayoutChanged={calculate}>
+		<masonview
+			ref={(v: any) => {
+				container.current = v
+				if (v) {
+					applyEscapeProps(v, props)
+					v.on?.('layoutChanged', calculate)
+				}
+			}}
+			id={props.id}
+			className={cx('vx-overflowlist', isMultiRow && 'vx-overflowlist--multirow', props.className)}
+			style={mergeStyle(
+				{
+					flexWrap: isMultiRow ? 'wrap' : 'nowrap',
+					rowGap: isMultiRow ? gap : undefined,
+					gap: gap,
+				},
+				mergeStyle({ display: 'flex' }, { ...styleRecord(props.style), height: containerHeight }),
+			)}
+			onLayoutChanged={calculate}
+		>
 			{collapseFrom === 'start' && hasOverflow ? props.overflowRenderer?.(overflowItems) : null}
 			{visibleItems.map(({ child }) => child)}
 			{collapseFrom === 'end' && hasOverflow ? props.overflowRenderer?.(overflowItems) : null}

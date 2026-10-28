@@ -37,7 +37,9 @@ export const barrier: LayoutBarrier = {
 				return true
 			})
 
-			if (significant) root.invalidate('mutation')
+			if (significant) {
+				root.invalidate('mutation')
+			}
 		})
 		observer.observe(document.documentElement, {
 			subtree: true,

@@ -5,5 +5,7 @@ import type { Page } from '@nativescript/core'
  * creation hook when restoring an outlet's declaring Page after reset.
  * See .agents/docs/notes/routing-contract.md for source/runtime evidence. */
 export function prepareNavigationPage(page: Page): void {
-	if (!page.ios) {page.createNativeView()}
+	if (!page.ios) {
+		page.createNativeView()
+	}
 }

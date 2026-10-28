@@ -17,11 +17,11 @@ const warnings: string[] = []
 const reconciles: any[] = []
 
 const { applyProps } = runSlice(applyPropsSrc + '\n({ applyProps })', {
-		elementBehaviors: new Map(),
-		behaviorOf: () => undefined,
-		isManualLayoutParent: (t: string) =>
-			['masonview','liquidglass','contentview','actionbar','rootlayout'].includes(t),
-		registerElementType: () => {},
+	elementBehaviors: new Map(),
+	behaviorOf: () => undefined,
+	isManualLayoutParent: (t: string) =>
+		['masonview', 'liquidglass', 'contentview', 'actionbar', 'rootlayout'].includes(t),
+	registerElementType: () => {},
 	console: { warn: (msg: unknown) => warnings.push(String(msg)) },
 	queueLayoutReconcile: (container: any, parent: any) => reconciles.push(parent),
 	setSizeConstraint: () => {},

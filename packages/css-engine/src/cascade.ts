@@ -196,7 +196,13 @@ export function evaluateCssCalc(value: any): any {
  * Resolve one declaration into `[camelName, styleValue]` pairs.
  * var() → custom-prop substitution → calc() → pending shorthand re-expand.
  */
-function resolveDeclaration(node: CssHostNode, property: string, value: any, out: [string, any][], borderLonghands = false) {
+function resolveDeclaration(
+	node: CssHostNode,
+	property: string,
+	value: any,
+	out: [string, any][],
+	borderLonghands = false,
+) {
 	if (isCssPendingSubstitution(value)) {
 		const sub = value as CssPendingSubstitution
 		let resolved = evaluateCssVariables(node, sub.value)
@@ -255,7 +261,13 @@ const LONGHAND_TO_RENDERER: Record<string, string> = {
 	borderLeftColor: 'borderColor',
 }
 
-function pushStyleDecl(node: CssHostNode, name: string, value: any, out: [string, any][], borderLonghands: boolean) {
+function pushStyleDecl(
+	node: CssHostNode,
+	name: string,
+	value: any,
+	out: [string, any][],
+	borderLonghands: boolean,
+) {
 	if (!borderLonghands) {
 		name = LONGHAND_TO_RENDERER[name] ?? name
 	}
@@ -324,17 +336,18 @@ function attachKeyframes(info: KeyframeAnimationInfo) {
 		if (kf.name !== info.name) {
 			continue
 		}
+
 		if (kf.mediaQueryString) {
 			const list = Array.isArray(kf.mediaQueryString) ? kf.mediaQueryString : [kf.mediaQueryString]
 			if (!list.every((q) => evalMediaQuery(q))) {
 				continue
 			}
 		}
+
 		info.keyframes = keyframesArrayFromCSS(kf.keyframes as any)
 		return
 	}
 }
-
 
 /**
  * Compute the node's effective style: parent-inherited props and custom props,
@@ -377,6 +390,7 @@ export function computeCascade(
 			if (!ruleset) {
 				continue
 			}
+
 			matchedRulesets.push(ruleset)
 
 			for (const decl of ruleset.declarations) {
@@ -395,6 +409,7 @@ export function computeCascade(
 			infos = keyframeAnimationsFromCSSDeclarations(ruleset.declarations)
 			rulesetAnimations.set(ruleset, infos)
 		}
+
 		for (const info of infos ?? []) {
 			attachKeyframes(info)
 			animations.push(info)

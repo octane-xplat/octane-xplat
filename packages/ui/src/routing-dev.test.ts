@@ -112,12 +112,14 @@ it('runXplatNavigate throws DevNavigationError with navigation_failed for a refu
 	const router = fixture()
 	cleanups.push(() => router.dispose())
 	const controller = new AbortController()
-	await expect(runXplatNavigate(router, { url: '/no-such-route' }, { signal: controller.signal })).rejects.toMatchObject({
+	await expect(
+		runXplatNavigate(router, { url: '/no-such-route' }, { signal: controller.signal }),
+	).rejects.toMatchObject({
 		code: 'navigation_failed',
 	})
-	await expect(runXplatNavigate(router, { url: '/no-such-route' }, { signal: controller.signal })).rejects.toBeInstanceOf(
-		DevNavigationError,
-	)
+	await expect(
+		runXplatNavigate(router, { url: '/no-such-route' }, { signal: controller.signal }),
+	).rejects.toBeInstanceOf(DevNavigationError)
 })
 
 it('runXplatNavigate throws DevNavigationError with navigation_blocked for a held route', async () => {
@@ -131,7 +133,9 @@ it('runXplatNavigate throws DevNavigationError with navigation_blocked for a hel
 	cleanups.push(unregister)
 
 	const controller = new AbortController()
-	await expect(runXplatNavigate(router, { url: '/checkout' }, { signal: controller.signal })).rejects.toMatchObject({
+	await expect(
+		runXplatNavigate(router, { url: '/checkout' }, { signal: controller.signal }),
+	).rejects.toMatchObject({
 		code: 'navigation_blocked',
 	})
 	await tick()

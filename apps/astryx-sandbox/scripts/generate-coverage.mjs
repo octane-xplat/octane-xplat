@@ -22,11 +22,17 @@ const args = process.argv.slice(2)
 const at = args.indexOf('--astryx')
 const astryxRoot = at >= 0 ? args[at + 1] : undefined
 if (!astryxRoot) {
-	console.error('usage: generate-coverage.mjs --astryx <path to astryx checkout at the pinned commit>')
+	console.error(
+		'usage: generate-coverage.mjs --astryx <path to astryx checkout at the pinned commit>',
+	)
+
 	process.exit(2)
 }
 
-const head = execFileSync('git', ['-C', astryxRoot, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim()
+const head = execFileSync('git', ['-C', astryxRoot, 'rev-parse', 'HEAD'], {
+	encoding: 'utf8',
+}).trim()
+
 if (head !== PIN) {
 	console.error(`checkout is at ${head}, expected the pinned revision ${PIN}`)
 	process.exit(2)
@@ -51,10 +57,16 @@ const templateSources = new Map() // route → {source, doc}
 for (const family of readdirSync(blocksRoot)) {
 	const familyDir = path.join(blocksRoot, family)
 	for (const file of readdirSync(familyDir)) {
-		if (!file.endsWith('.tsx')) {continue}
+		if (!file.endsWith('.tsx')) {
+			continue
+		}
+
 		const name = file.slice(0, -4)
 		const route = `/templates/${name}/`
-		if (templateSources.has(route)) {throw new Error(`duplicate block route ${route}`)}
+		if (templateSources.has(route)) {
+			throw new Error(`duplicate block route ${route}`)
+		}
+
 		templateSources.set(route, {
 			kind: 'template-block',
 			family,
@@ -68,9 +80,15 @@ for (const family of readdirSync(blocksRoot)) {
 // Page templates: pages/<slug>/page.tsx → /templates/<slug>/
 for (const slug of readdirSync(pagesRoot)) {
 	const pageFile = path.join(pagesRoot, slug, 'page.tsx')
-	if (!existsSync(pageFile)) {continue}
+	if (!existsSync(pageFile)) {
+		continue
+	}
+
 	const route = `/templates/${slug}/`
-	if (templateSources.has(route)) {throw new Error(`page slug collides with a block route ${route}`)}
+	if (templateSources.has(route)) {
+		throw new Error(`page slug collides with a block route ${route}`)
+	}
+
 	templateSources.set(route, {
 		kind: 'template-page',
 		family: 'pages',
@@ -84,12 +102,16 @@ for (const slug of readdirSync(pagesRoot)) {
 const authored = new Map() // route → {source, group}
 for (const group of ['sandbox', 'fullscreen', 'raw']) {
 	const pagesDir = path.join(sandboxSrc, `(${group})/pages`)
-	if (!existsSync(pagesDir)) {continue}
+	if (!existsSync(pagesDir)) {
+		continue
+	}
+
 	const walk = (dir) => {
 		for (const entry of readdirSync(dir, { withFileTypes: true })) {
 			const full = path.join(dir, entry.name)
-			if (entry.isDirectory()) {walk(full)}
-			else if (entry.name === 'page.tsx') {
+			if (entry.isDirectory()) {
+				walk(full)
+			} else if (entry.name === 'page.tsx') {
 				const rel = path.relative(pagesDir, path.dirname(full))
 				authored.set(`/pages/${rel}/`, {
 					source: path.relative(astryxRoot, full),
@@ -98,15 +120,44 @@ for (const group of ['sandbox', 'fullscreen', 'raw']) {
 			}
 		}
 	}
+
 	walk(pagesDir)
 }
 
 const FIXED = new Map([
 	['/', { kind: 'fixed', source: 'apps/sandbox/src/app/(sandbox)/page.tsx', group: 'sandbox' }],
-	['/components-patterns/', { kind: 'category', source: 'apps/sandbox/src/app/(sandbox)/[category]/CategoryContent.tsx', group: 'sandbox' }],
-	['/themes/', { kind: 'category', source: 'apps/sandbox/src/app/(sandbox)/[category]/CategoryContent.tsx', group: 'sandbox' }],
-	['/tools/', { kind: 'category', source: 'apps/sandbox/src/app/(sandbox)/[category]/CategoryContent.tsx', group: 'sandbox' }],
-	['/templates/', { kind: 'template-index', source: 'apps/sandbox/src/app/(sandbox)/templates/page.tsx', group: 'sandbox' }],
+	[
+		'/components-patterns/',
+		{
+			kind: 'category',
+			source: 'apps/sandbox/src/app/(sandbox)/[category]/CategoryContent.tsx',
+			group: 'sandbox',
+		},
+	],
+	[
+		'/themes/',
+		{
+			kind: 'category',
+			source: 'apps/sandbox/src/app/(sandbox)/[category]/CategoryContent.tsx',
+			group: 'sandbox',
+		},
+	],
+	[
+		'/tools/',
+		{
+			kind: 'category',
+			source: 'apps/sandbox/src/app/(sandbox)/[category]/CategoryContent.tsx',
+			group: 'sandbox',
+		},
+	],
+	[
+		'/templates/',
+		{
+			kind: 'template-index',
+			source: 'apps/sandbox/src/app/(sandbox)/templates/page.tsx',
+			group: 'sandbox',
+		},
+	],
 	['/404/', { kind: 'fixed', source: null, group: 'sandbox' }],
 ])
 
@@ -118,26 +169,34 @@ for (const route of oracleRoutes) {
 		template.done = true
 		continue
 	}
+
 	const page = authored.get(route)
 	if (page) {
 		rows.push({ route, kind: 'page', ...page })
 		page.done = true
 		continue
 	}
+
 	const fixed = FIXED.get(route)
 	if (fixed) {
 		rows.push({ route, ...fixed })
 		continue
 	}
+
 	throw new Error(`oracle route has no upstream source: ${route}`)
 }
 
 // Bijection: every routed source maps to an oracle route and vice versa.
 for (const [route, t] of templateSources) {
-	if (!t.done) {throw new Error(`unrouted template source ${t.source} (route ${route})`)}
+	if (!t.done) {
+		throw new Error(`unrouted template source ${t.source} (route ${route})`)
+	}
 }
+
 for (const [route, p] of authored) {
-	if (!p.done) {throw new Error(`unrouted authored page ${p.source} (route ${route})`)}
+	if (!p.done) {
+		throw new Error(`unrouted authored page ${p.source} (route ${route})`)
+	}
 }
 
 // ---------- metadata + imports ----------
@@ -145,12 +204,17 @@ for (const [route, p] of authored) {
 const importRe = /import\s+(?:type\s+)?(?:([^'"]+?)\s+from\s+)?['"]([^'"]+)['"]/g
 
 function sourceImports(file) {
-	if (!file) {return {}}
+	if (!file) {
+		return {}
+	}
 	const text = readFileSync(path.join(astryxRoot, file), 'utf8')
 	const result = {}
 	for (const match of text.matchAll(importRe)) {
 		const [, clause, specifier] = match
-		if (specifier.startsWith('.') || specifier.startsWith('virtual:')) {continue}
+		if (specifier.startsWith('.') || specifier.startsWith('virtual:')) {
+			continue
+		}
+
 		const names = new Set(result[specifier] ?? [])
 		if (!clause) {
 			names.add('*')
@@ -158,26 +222,44 @@ function sourceImports(file) {
 			const trimmed = clause.trim()
 			if (trimmed.startsWith('{')) {
 				for (const part of trimmed.replace(/[{}]/g, '').split(',')) {
-					const name = part.trim().split(/\s+as\s+/)[0]?.trim()
-					if (name) {names.add(name)}
+					const name = part
+						.trim()
+						.split(/\s+as\s+/)[0]
+						?.trim()
+
+					if (name) {
+						names.add(name)
+					}
 				}
 			} else if (trimmed.includes('{')) {
 				names.add(trimmed.split('{')[0].trim().replace(/,$/, ''))
-				for (const part of trimmed.replace(/^[^{]*\{/, '').replace(/[{}]/g, '').split(',')) {
-					const name = part.trim().split(/\s+as\s+/)[0]?.trim()
-					if (name) {names.add(name)}
+				for (const part of trimmed
+					.replace(/^[^{]*\{/, '')
+					.replace(/[{}]/g, '')
+					.split(',')) {
+					const name = part
+						.trim()
+						.split(/\s+as\s+/)[0]
+						?.trim()
+
+					if (name) {
+						names.add(name)
+					}
 				}
 			} else {
 				names.add('default')
 			}
 		}
+
 		result[specifier] = [...names].sort()
 	}
 	return result
 }
 
 async function docMeta(docPath) {
-	if (!docPath || !existsSync(docPath)) {return undefined}
+	if (!docPath || !existsSync(docPath)) {
+		return undefined
+	}
 	const mod = await import(pathToFileURL(docPath).href)
 	const doc = mod.doc ?? {}
 	return {

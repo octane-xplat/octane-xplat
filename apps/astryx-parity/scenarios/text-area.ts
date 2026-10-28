@@ -26,8 +26,14 @@ export const textAreaScenarios: TextAreaScenario[] = [
 	{ key: 'description', props: { label: 'Notes', description: 'Markdown supported' } },
 	{ key: 'required', props: { label: 'Notes', isRequired: true } },
 	{ key: 'optional', props: { label: 'Notes', isOptional: true } },
-	{ key: 'error', props: { label: 'Notes', value: 'x', status: { type: 'error', message: 'Add more detail' } } },
-	{ key: 'label-hidden', props: { label: 'Notes', isLabelHidden: true, placeholder: 'Add a comment' } },
+	{
+		key: 'error',
+		props: { label: 'Notes', value: 'x', status: { type: 'error', message: 'Add more detail' } },
+	},
+	{
+		key: 'label-hidden',
+		props: { label: 'Notes', isLabelHidden: true, placeholder: 'Add a comment' },
+	},
 	{ key: 'sm', props: { label: 'Notes', size: 'sm' } },
 	{ key: 'lg', props: { label: 'Notes', size: 'lg' } },
 ]

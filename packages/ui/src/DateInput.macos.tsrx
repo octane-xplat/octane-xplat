@@ -12,12 +12,7 @@ import { FormField } from './FormField.macos.tsrx'
 import { Popover } from './Popover.macos.tsrx'
 import { FieldContext, useFieldControlProps } from './field-context'
 import { Calendar } from './Calendar.macos.tsrx'
-import {
-	formatDateValue,
-	parseDateInput,
-	plainDateToISO,
-	resolveLocale,
-} from './datetime'
+import { formatDateValue, parseDateInput, plainDateToISO, resolveLocale } from './datetime'
 
 import { createDateDisabledCheck } from './calendar-core'
 
@@ -43,11 +38,17 @@ function DateInputControl(inputProps: DateInputProps) @{
 	const isBusy = !!props.isLoading || busy
 
 	const isDateDisabled = useMemo(
-		() => createDateDisabledCheck({ min: props.min, max: props.max, dateConstraints: props.dateConstraints }),
+		() =>
+			createDateDisabledCheck({
+				min: props.min,
+				max: props.max,
+				dateConstraints: props.dateConstraints,
+			}),
 		[props.min, props.max, props.dateConstraints],
 	)
 
-	const formatValue = (iso: ISODateString): string => formatDateValue(iso, props.format ?? 'date_long', locale)
+	const formatValue = (iso: ISODateString): string =>
+		formatDateValue(iso, props.format ?? 'date_long', locale)
 
 	// Preserve typing on an echoed edit; external values replace the draft.
 	useEffect(() => {
@@ -59,22 +60,36 @@ function DateInputControl(inputProps: DateInputProps) @{
 	}, [value])
 
 	const fireChange = (next: ISODateString | null) => {
-		if (isDisabled || isBusy) return
+		if (isDisabled || isBusy) {
+			return
+		}
+
 		lastEmitted.current = next
 		props.onChange?.(next)
 		if (props.changeAction) {
 			setBusy(true)
-			runDateChangeAction(() => props.changeAction!(next), () => setBusy(false))
+			runDateChangeAction(
+				() => props.changeAction!(next),
+				() => setBusy(false),
+			)
 		}
 	}
 
-	const pendingParsed = pendingInput != null && pendingInput.trim() ? parseDateInput(pendingInput, locale) : null
-	const isPendingValid = pendingInput == null || !pendingInput.trim() ? true : pendingParsed !== null && !isDateDisabled(pendingParsed)
+	const pendingParsed =
+		pendingInput != null && pendingInput.trim() ? parseDateInput(pendingInput, locale) : null
+
+	const isPendingValid =
+		pendingInput == null || !pendingInput.trim()
+			? true
+			: pendingParsed !== null && !isDateDisabled(pendingParsed)
 
 	const commitParsed = (pd: ReturnType<typeof parseDateInput>) => {
 		if (pd && !isDateDisabled(pd)) {
 			const iso = plainDateToISO(pd)
-			if (iso !== shown) fireChange(iso)
+			if (iso !== shown) {
+				fireChange(iso)
+			}
+
 			return true
 		}
 
@@ -82,10 +97,18 @@ function DateInputControl(inputProps: DateInputProps) @{
 	}
 
 	const commitPending = () => {
-		if (hasDateComposition(input.current)) return
-		if (pendingInput == null) return
+		if (hasDateComposition(input.current)) {
+			return
+		}
+
+		if (pendingInput == null) {
+			return
+		}
+
 		if (!pendingInput.trim()) {
-			if (shown != null) fireChange(null)
+			if (shown != null) {
+				fireChange(null)
+			}
 		} else {
 			commitParsed(parseDateInput(pendingInput, locale))
 		}
@@ -94,9 +117,15 @@ function DateInputControl(inputProps: DateInputProps) @{
 	}
 
 	const handleTextChange = (text: string) => {
-		if (isDisabled) return
+		if (isDisabled) {
+			return
+		}
+
 		setPendingInput(text)
-		if (hasDateComposition(input.current)) return
+		if (hasDateComposition(input.current)) {
+			return
+		}
+
 		commitParsed(parseDateInput(text, locale))
 	}
 
@@ -110,7 +139,11 @@ function DateInputControl(inputProps: DateInputProps) @{
 	const statusText = props.status ? STATUS_TEXT[props.status.type] : null
 
 	<>
-		<masonview ref={(v: any) => { anchor.current = v }} className={cx(
+		<masonview
+			ref={(v: any) => {
+				anchor.current = v
+			}}
+			className={cx(
 				'vx-dateinput',
 				'vx-dateinput-popover',
 				isDisabled && 'vx-dateinput--disabled',
@@ -119,17 +152,28 @@ function DateInputControl(inputProps: DateInputProps) @{
 				props.size && `vx-dateinput--size-${props.size}`,
 				!isPendingValid && 'vx-dateinput--invalid',
 				props.className,
-			)} style={mergeStyle({flexDirection: "row", alignItems: "center"}, mergeStyle({display: "flex"}, props.style))}>
+			)}
+			style={mergeStyle(
+				{ flexDirection: 'row', alignItems: 'center' },
+				mergeStyle({ display: 'flex' }, props.style),
+			)}
+		>
 			<Pressable
 				className="vx-dateinput-toggle"
 				accessibilityLabel={open ? messages.closeCalendar : messages.openCalendar}
 				disabled={isDisabled || isBusy}
-				onPress={() => { if (!isDisabled && !isBusy) setOpen(!open) }}
+				onPress={() => {
+					if (!isDisabled && !isBusy) {
+						setOpen(!open)
+					}
+				}}
 			>
 				<Icon name="xplat-calendar" size={16} />
 			</Pressable>
 			<textfield
-				ref={(v: any) => { input.current = v }}
+				ref={(v: any) => {
+					input.current = v
+				}}
 				id={inputId}
 				className={cx('vx-dateinput-input', !isPendingValid && 'vx-dateinput-input--invalid')}
 				value={displayText}
@@ -138,18 +182,44 @@ function DateInputControl(inputProps: DateInputProps) @{
 				editable={!isDisabled && !isBusy}
 				onTextChange={handleTextChange}
 				onBlur={commitPending}
-				accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
+				accessibilityLabel={
+					props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label
+				}
 				accessibilityHint={!isPendingValid ? messages.invalidDate : props.accessibilityHint}
-				accessibilityState={{ disabled: isDisabled, busy: isBusy, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' || !isPendingValid }}
+				accessibilityState={{
+					disabled: isDisabled,
+					busy: isBusy,
+					required: props.isRequired && !props.isOptional,
+					invalid: props.status?.type === 'error' || !isPendingValid,
+				}}
 			/>
-			{props.hasClear && shown != null && !isDisabled && !isBusy
-				? <Pressable className="vx-dateinput-clear" accessibilityLabel={`Clear ${props.fieldLabel ?? props.label ?? 'date'}`} onPress={() => { setPendingInput(null); fireChange(null) }}><label text="×" /></Pressable>
-				: null}
-			{statusText != null
-				? <label className={cx('vx-field-icon', `vx-field-icon--${props.status!.type}`)} text={statusText} accessibilityLabel={props.statusVariant === 'tooltip' ? props.status?.message : undefined} />
-				: null}
+			{props.hasClear && shown != null && !isDisabled && !isBusy ? (
+				<Pressable
+					className="vx-dateinput-clear"
+					accessibilityLabel={`Clear ${props.fieldLabel ?? props.label ?? 'date'}`}
+					onPress={() => {
+						setPendingInput(null)
+						fireChange(null)
+					}}
+				>
+					<label text="×" />
+				</Pressable>
+			) : null}
+			{statusText != null ? (
+				<label
+					className={cx('vx-field-icon', `vx-field-icon--${props.status!.type}`)}
+					text={statusText}
+					accessibilityLabel={props.statusVariant === 'tooltip' ? props.status?.message : undefined}
+				/>
+			) : null}
 		</masonview>
-		<Popover anchor={anchor} open={open} onDismiss={() => setOpen(false)} placement="bottom" className="vx-dateinput-popover">
+		<Popover
+			anchor={anchor}
+			open={open}
+			onDismiss={() => setOpen(false)}
+			placement="bottom"
+			className="vx-dateinput-popover"
+		>
 			<Calendar
 				locale={props.locale}
 				direction={props.direction}
@@ -177,7 +247,9 @@ export function DateInput(props: DateInputProps) @{
 	const control = <DateInputControl {...props} />
 
 	<>
-		{inField ? control : (
+		{inField ? (
+			control
+		) : (
 			<FormField
 				inputID={props.id ?? cid}
 				label={props.label}

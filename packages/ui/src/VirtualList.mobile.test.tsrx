@@ -1,7 +1,12 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useState } from 'octane'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { createObjectContainer, createObjectDriver, createUniversalRoot } from 'octane/universal/native'
+import {
+	createObjectContainer,
+	createObjectDriver,
+	createUniversalRoot,
+} from 'octane/universal/native'
+
 import { VirtualList } from './VirtualList'
 import { Pressable } from './Pressable'
 import { VirtualListSizeIndex } from './virtual-list-layout'
@@ -17,7 +22,9 @@ function StatefulRow(props: { id: string }) @{
 	<label id={'row-' + props.id} text={props.id + ':' + taps} onTap={() => setTaps(taps + 1)} />
 }
 
-const renderAutomationItem = (item: { id: string }) => <Pressable id={'row-' + item.id} testID={'item.' + item.id + '.open'} />
+const renderAutomationItem = (item: { id: string }) => (
+	<Pressable id={'row-' + item.id} testID={'item.' + item.id + '.open'} />
+)
 
 const renderStatefulItem = (item: { id: string }) => <StatefulRow id={item.id} />
 
@@ -27,7 +34,11 @@ function collect(nodes: any[]): any[] {
 	return nodes.flatMap((node) => [node, ...collect(node.children ?? [])])
 }
 
-async function mount(viewportWidth = 100, itemRenderer = renderItem, extraProps: Record<string, any> = {}) {
+async function mount(
+	viewportWidth = 100,
+	itemRenderer = renderItem,
+	extraProps: Record<string, any> = {},
+) {
 	vi.useFakeTimers()
 	const container = createObjectContainer('nativescript')
 	const driver = createObjectDriver('nativescript')
@@ -40,7 +51,10 @@ async function mount(viewportWidth = 100, itemRenderer = renderItem, extraProps:
 		batch.apply = () => {
 			apply()
 			for (const node of collect(container.children)) {
-				if (node.on) continue
+				if (node.on) {
+					continue
+				}
+
 				const listeners = new Map<string, Set<(event: any) => void>>()
 				node.on = (name: string, listener: (event: any) => void) => {
 					const set = listeners.get(name) ?? new Set()
@@ -48,8 +62,15 @@ async function mount(viewportWidth = 100, itemRenderer = renderItem, extraProps:
 					listeners.set(name, set)
 				}
 
-				node.off = (name: string, listener: (event: any) => void) => listeners.get(name)?.delete(listener)
-				node.notify = (event: any) => { for (const listener of listeners.get(event.eventName) ?? []) listener(event) }
+				node.off = (name: string, listener: (event: any) => void) =>
+					listeners.get(name)?.delete(listener)
+
+				node.notify = (event: any) => {
+					for (const listener of listeners.get(event.eventName) ?? []) {
+						listener(event)
+					}
+				}
+
 				node.layoutListeners = listeners
 			}
 		}
@@ -63,7 +84,12 @@ async function mount(viewportWidth = 100, itemRenderer = renderItem, extraProps:
 	const scroll: any = container.children[0]
 	scroll.scrollTop = 0
 	scroll.getActualSize = () => ({ width: viewportWidth, height: 200 })
-	scroll.scrollTo = vi.fn((options) => { if (options?.top != null) scroll.scrollTop = options.top })
+	scroll.scrollTo = vi.fn((options) => {
+		if (options?.top != null) {
+			scroll.scrollTop = options.top
+		}
+	})
+
 	container.dispatchEvent(scroll, 'loaded', { object: scroll })
 	const content = scroll.children[0]
 	content.getActualSize = () => ({ width: 100, height: 500 * 48 })
@@ -77,20 +103,30 @@ async function mount(viewportWidth = 100, itemRenderer = renderItem, extraProps:
 	}
 
 	const measure = (id: string, height: number, emit = true) => {
-		const row = collect(container.children).find((node) =>
-			String(node.props.className).split(' ').includes('vx-virtual-list-row') && collect(node.children).some((child) => child.props.id === id),
+		const row = collect(container.children).find(
+			(node) =>
+				String(node.props.className).split(' ').includes('vx-virtual-list-row') &&
+				collect(node.children).some((child) => child.props.id === id),
 		)
 
-		if (!row) throw new Error('Missing row ' + id)
+		if (!row) {
+			throw new Error('Missing row ' + id)
+		}
+
 		row.getActualSize = () => ({ width: 100, height })
-		if (emit) row.notify({ eventName: 'layoutChanged', object: row })
+		if (emit) {
+			row.notify({ eventName: 'layoutChanged', object: row })
+		}
 	}
 
 	return { container, root, scroll, commits, move, measure, content }
 }
 
 afterEach(() => {
-	for (const root of roots.splice(0)) root.unmount()
+	for (const root of roots.splice(0)) {
+		root.unmount()
+	}
+
 	vi.useRealTimers()
 	vi.unstubAllGlobals()
 	vi.restoreAllMocks()
@@ -103,7 +139,9 @@ describe('native VirtualList scroll and measurement scheduling', () => {
 		scroll.getActualSize = () => ({ width: 402, height: 874 })
 		scroll.notify({ eventName: 'layoutChanged', object: scroll })
 		await vi.advanceTimersByTimeAsync(32)
-		const rows = () => collect(container.children).filter(node => node.props.id?.startsWith('row-'))
+		const rows = () =>
+			collect(container.children).filter((node) => node.props.id?.startsWith('row-'))
+
 		expect(rows().length).toBeLessThan(20)
 		scroll.isLayoutValid = true
 		scroll.getActualSize = () => ({ width: 100, height: 96 })
@@ -113,32 +151,43 @@ describe('native VirtualList scroll and measurement scheduling', () => {
 		const nodes = collect(container.children)
 		root.unmount()
 		await vi.advanceTimersByTimeAsync(0)
-		for (const node of nodes) expect(node.layoutListeners?.get('layoutChanged')?.size ?? 0).toBe(0)
+		for (const node of nodes) {
+			expect(node.layoutListeners?.get('layoutChanged')?.size ?? 0).toBe(0)
+		}
 	})
 
 	it('updates positioned rows and body height when all rows remain in the same visible range', async () => {
 		const { root, container, measure } = await mount()
 		root.render(VirtualList, { items: items.slice(0, 3), keyExtractor, renderItem })
-		for (let index = 0; index < 3; index++) measure('row-r' + index, 32)
+		for (let index = 0; index < 3; index++) {
+			measure('row-r' + index, 32)
+		}
+
 		await vi.advanceTimersByTimeAsync(32)
 		const nodes = collect(container.children)
-		const body = nodes.find(node => node.props.className === 'vx-virtual-list-body')
+		const body = nodes.find((node) => node.props.className === 'vx-virtual-list-body')
 		expect(body.props.style.height).toBe(96)
-		const cells = nodes.filter(node => String(node.props.className).split(' ').includes('vx-virtual-list-row'))
-		expect(cells.map(node => node.props.style?.top)).toEqual([0, 32, 64])
+		const cells = nodes.filter((node) =>
+			String(node.props.className).split(' ').includes('vx-virtual-list-row'),
+		)
+
+		expect(cells.map((node) => node.props.style?.top)).toEqual([0, 32, 64])
 	})
 
 	it('re-reads row geometry after an invalid screen-sized layout event', async () => {
 		const { container, measure } = await mount()
 		measure('row-r0', 874, false)
-		const cell = collect(container.children).find(node => String(node.props.className).split(' ').includes('vx-virtual-list-row'))
+		const cell = collect(container.children).find((node) =>
+			String(node.props.className).split(' ').includes('vx-virtual-list-row'),
+		)
+
 		cell.isLayoutValid = false
 		cell.notify({ eventName: 'layoutChanged', object: cell })
 		await vi.advanceTimersByTimeAsync(32)
 		cell.isLayoutValid = true
 		measure('row-r0', 32, false)
 		await vi.advanceTimersByTimeAsync(32)
-		const second = collect(container.children).find(node => node.props.style?.top === 32)
+		const second = collect(container.children).find((node) => node.props.style?.top === 32)
 		expect(second).toBeDefined()
 	})
 
@@ -179,17 +228,26 @@ describe('native VirtualList scroll and measurement scheduling', () => {
 	it('does not rebuild unvisited estimates when another sample preserves the type average', async () => {
 		const reset = vi.spyOn(VirtualListSizeIndex.prototype, 'reset')
 		const { measure } = await mount()
-		for (let index = 0; index < 4; index++) measure('row-r' + index, 36 + index * 12)
+		for (let index = 0; index < 4; index++) {
+			measure('row-r' + index, 36 + index * 12)
+		}
+
 		await vi.advanceTimersByTimeAsync(180)
 		const count = reset.mock.calls.length
-		for (let index = 4; index < 8; index++) measure('row-r' + index, 36 + (index % 4) * 12)
+		for (let index = 4; index < 8; index++) {
+			measure('row-r' + index, 36 + (index % 4) * 12)
+		}
+
 		await vi.advanceTimersByTimeAsync(180)
 		expect(reset).toHaveBeenCalledTimes(count)
 	})
 
 	it('retains exact row sizes when borders make content narrower than the viewport', async () => {
 		const { scroll, move, measure } = await mount(102)
-		for (let index = 0; index < 4; index++) measure('row-r' + index, 36 + index * 12)
+		for (let index = 0; index < 4; index++) {
+			measure('row-r' + index, 36 + index * 12)
+		}
+
 		await vi.advanceTimersByTimeAsync(180)
 		move(200)
 		await vi.advanceTimersByTimeAsync(32)
@@ -205,7 +263,7 @@ describe('native VirtualList scroll and measurement scheduling', () => {
 		move(480)
 		await vi.advanceTimersByTimeAsync(32)
 		measure('row-r5', 120)
-		const replacement = items.map((item, index) => index === 5 ? { ...item } : item)
+		const replacement = items.map((item, index) => (index === 5 ? { ...item } : item))
 		root.render(VirtualList, { items: replacement, keyExtractor, renderItem })
 		// The replacement has its own current geometry; the queued 120-height result is obsolete.
 		measure('row-r5', 48, false)
@@ -228,7 +286,10 @@ describe('native VirtualList scroll and measurement scheduling', () => {
 
 	it('coalesces through native animation frames and cancels a pending frame on disposal', async () => {
 		const { root, commits, move } = await mount()
-		vi.stubGlobal('requestAnimationFrame', (callback: (time: number) => void) => setTimeout(() => callback(Date.now()), 8))
+		vi.stubGlobal('requestAnimationFrame', (callback: (time: number) => void) =>
+			setTimeout(() => callback(Date.now()), 8),
+		)
+
 		const cancel = vi.fn((id: ReturnType<typeof setTimeout>) => clearTimeout(id))
 		vi.stubGlobal('cancelAnimationFrame', cancel)
 		move(240)
@@ -248,9 +309,15 @@ describe('native VirtualList scroll and measurement scheduling', () => {
 
 	it('keeps physical hosts alive on reassignment and destroys them on disposal', async () => {
 		const { container, root, move } = await mount()
-		const cells = collect(container.children).filter((node) => String(node.props.className).split(' ').includes('vx-virtual-list-cell'))
+		const cells = collect(container.children).filter((node) =>
+			String(node.props.className).split(' ').includes('vx-virtual-list-cell'),
+		)
+
 		expect(cells.length).toBeGreaterThan(0)
-		for (const cell of cells) cell.destroyNode = vi.fn()
+		for (const cell of cells) {
+			cell.destroyNode = vi.fn()
+		}
+
 		move(480)
 		await vi.advanceTimersByTimeAsync(32)
 		for (const cell of cells) {
@@ -260,7 +327,9 @@ describe('native VirtualList scroll and measurement scheduling', () => {
 
 		root.unmount()
 		await vi.advanceTimersByTimeAsync(0)
-		for (const cell of cells) expect(cell.destroyNode).toHaveBeenCalledWith(true)
+		for (const cell of cells) {
+			expect(cell.destroyNode).toHaveBeenCalledWith(true)
+		}
 	})
 
 	it('retains keyed state across prepend and resets it after leaving the window', async () => {
@@ -280,7 +349,9 @@ describe('native VirtualList scroll and measurement scheduling', () => {
 		move(4000)
 		await vi.advanceTimersByTimeAsync(32)
 		expect(findRow()).toBeUndefined()
-		for (const visible of collect(container.children).filter((node) => /^row-r/.test(String(node.props.id)))) {
+		for (const visible of collect(container.children).filter((node) =>
+			/^row-r/.test(String(node.props.id)),
+		)) {
 			expect(visible.props.text).toMatch(/:0$/)
 		}
 
@@ -291,14 +362,14 @@ describe('native VirtualList scroll and measurement scheduling', () => {
 
 	it('keeps automation IDs unique and tied to item keys after cell recycling', async () => {
 		const { container, move } = await mount(100, renderAutomationItem)
-		const identified = () => collect(container.children).filter(node => node.props.testID)
-		const originalIDs = identified().map(node => node.props.testID)
+		const identified = () => collect(container.children).filter((node) => node.props.testID)
+		const originalIDs = identified().map((node) => node.props.testID)
 		expect(originalIDs.length).toBeGreaterThan(0)
 		move(4000)
 		await vi.advanceTimersByTimeAsync(32)
 		const rows = identified()
 		expect(rows.length).toBeGreaterThan(0)
-		expect(new Set(rows.map(node => node.props.testID)).size).toBe(rows.length)
+		expect(new Set(rows.map((node) => node.props.testID)).size).toBe(rows.length)
 		for (const row of rows) {
 			expect(row.props.testID).toBe('item.' + row.props.id.slice(4) + '.open')
 			expect(originalIDs).not.toContain(row.props.testID)
@@ -306,7 +377,10 @@ describe('native VirtualList scroll and measurement scheduling', () => {
 	})
 
 	it('scrolls to a pixel offset through the imperative handle', async () => {
-		const handle = { current: null as null | { scrollToOffset(o: number, o2?: { animated?: boolean }): void } }
+		const handle = {
+			current: null as null | { scrollToOffset(o: number, o2?: { animated?: boolean }): void },
+		}
+
 		const { scroll, container } = await mount(100, renderItem, { ref: handle })
 		expect(handle.current).not.toBeNull()
 		handle.current!.scrollToOffset(480)
@@ -320,10 +394,17 @@ describe('native VirtualList scroll and measurement scheduling', () => {
 	it('scrolls to a row by index and by key through the imperative handle', async () => {
 		const handle = {
 			current: null as null | {
-				scrollToIndex(i: number, o?: { animated?: boolean; align?: 'start' | 'center' | 'end' }): void
-				scrollToItem(k: string | number, o?: { animated?: boolean; align?: 'start' | 'center' | 'end' }): void
+				scrollToIndex(
+					i: number,
+					o?: { animated?: boolean; align?: 'start' | 'center' | 'end' },
+				): void
+				scrollToItem(
+					k: string | number,
+					o?: { animated?: boolean; align?: 'start' | 'center' | 'end' },
+				): void
 			},
 		}
+
 		const { scroll } = await mount(100, renderItem, { ref: handle })
 		// Estimated rows are 48 units tall; index 10 starts at 480.
 		handle.current!.scrollToIndex(10)
@@ -341,14 +422,20 @@ describe('native VirtualList scroll and measurement scheduling', () => {
 	})
 
 	it('seeks with smooth behavior when the imperative handle requests animation', async () => {
-		const handle = { current: null as null | { scrollToOffset(o: number, o2?: { animated?: boolean }): void } }
+		const handle = {
+			current: null as null | { scrollToOffset(o: number, o2?: { animated?: boolean }): void },
+		}
+
 		const { scroll } = await mount(100, renderItem, { ref: handle })
 		handle.current!.scrollToOffset(960, { animated: true })
 		expect(scroll.scrollTo).toHaveBeenCalledWith({ top: 960, behavior: 'smooth' })
 	})
 
 	it('treats scrollToOffset before mount and non-finite offsets as no-ops', async () => {
-		const handle = { current: null as null | { scrollToOffset(o: number, o2?: { animated?: boolean }): void } }
+		const handle = {
+			current: null as null | { scrollToOffset(o: number, o2?: { animated?: boolean }): void },
+		}
+
 		const { scroll } = await mount(100, renderItem, { ref: handle })
 		handle.current!.scrollToOffset(Number.NaN)
 		expect(scroll.scrollTo).not.toHaveBeenCalled()

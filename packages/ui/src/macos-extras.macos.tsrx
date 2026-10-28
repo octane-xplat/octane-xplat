@@ -15,14 +15,28 @@ export function Meter(props: MeterProps) @{
 
 	// Track ring via layer chrome; the progress arc itself needs a stroked
 	// CAShapeLayer — not bridged yet, so the ring renders unfilled.
-	<masonview id={props.id} className={cx('vx-meter', props.className)} style={mergeStyle({display: "flex"}, {
-			width: size,
-			height: size,
-			borderWidth: strokeWidth,
-			borderColor: props.trackColor ?? '#e1ecf7',
-			borderRadius: size / 2,
-			...styleRecord(props.style),
-		})} accessibilityRole="meter" accessibilityLabel={props.accessibilityLabel} accessibilityValue={value} accessibilityMinValue={min} accessibilityMaxValue={rangeMax} accessibilityValueDescription={props.valueLabel ?? `${value} of ${rangeMax}`}>
+
+	<masonview
+		id={props.id}
+		className={cx('vx-meter', props.className)}
+		style={mergeStyle(
+			{ display: 'flex' },
+			{
+				width: size,
+				height: size,
+				borderWidth: strokeWidth,
+				borderColor: props.trackColor ?? '#e1ecf7',
+				borderRadius: size / 2,
+				...styleRecord(props.style),
+			},
+		)}
+		accessibilityRole="meter"
+		accessibilityLabel={props.accessibilityLabel}
+		accessibilityValue={value}
+		accessibilityMinValue={min}
+		accessibilityMaxValue={rangeMax}
+		accessibilityValueDescription={props.valueLabel ?? `${value} of ${rangeMax}`}
+	>
 		{props.children}
 	</masonview>
 }
@@ -35,7 +49,12 @@ export function Heading(props: HeadingProps) @{
 
 	<label
 		id={props.id}
-		className={cx('vx-heading', `vx-h${level}`, props.type && `vx-heading--${props.type}`, props.className)}
+		className={cx(
+			'vx-heading',
+			`vx-h${level}`,
+			props.type && `vx-heading--${props.type}`,
+			props.className,
+		)}
 		style={mergeStyle(
 			{
 				...(scale.fontSizePx != null && { fontSize: scale.fontSizePx }),
@@ -53,4 +72,3 @@ export function Heading(props: HeadingProps) @{
 		{props.children}
 	</label>
 }
-

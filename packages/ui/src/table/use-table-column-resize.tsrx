@@ -17,14 +17,19 @@ export interface UseTableColumnResizeConfig {
 
 /** Column resize plugin — applies controlled width overrides; the
  *  interactive separator is available on the web leaf only. */
-export function useTableColumnResize<T extends Record<string, unknown>>(config: UseTableColumnResizeConfig): TablePlugin<T> {
+export function useTableColumnResize<T extends Record<string, unknown>>(
+	config: UseTableColumnResizeConfig,
+): TablePlugin<T> {
 	const configRef = useRef(config)
 	configRef.current = config
 
 	return {
 		transformHeaderCell(props: HeaderCellRenderProps, column: TableColumn<T>) {
 			const override = configRef.current.columnWidths?.[column.key]
-			if (override == null) return props
+			if (override == null) {
+				return props
+			}
+
 			return {
 				...props,
 				htmlProps: {

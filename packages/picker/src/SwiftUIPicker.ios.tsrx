@@ -14,19 +14,29 @@ declare module '@nativescript-community/octane/intrinsics' {
 }
 
 registerElement('xplatiospicker', SwiftUI)
-registerSwiftUI('xplat-swiftui-picker', (owner: any) =>
-	new UIDataDriver(new XplatPickerProvider(), owner),
+registerSwiftUI(
+	'xplat-swiftui-picker',
+	(owner: any) => new UIDataDriver(new XplatPickerProvider(), owner),
 )
 
 /** Renders a menu-style SwiftUI Picker through NativeScript's SwiftUI bridge. */
 export function SwiftUIPicker(props: SwiftUIPickerProps) @{
 	const controlled = props.selection !== undefined
-	const [internalSelection, setInternalSelection] = useState(props.defaultSelection ?? props.options[0]?.id ?? '')
+	const [internalSelection, setInternalSelection] = useState(
+		props.defaultSelection ?? props.options[0]?.id ?? '',
+	)
+
 	// Uncontrolled with a blank internal selection displays the first option
 	// once options arrive — matching the other leaves' auto-select-first.
-	const selection = controlled ? props.selection! : internalSelection || (props.options[0]?.id ?? '')
+	const selection = controlled
+		? props.selection!
+		: internalSelection || (props.options[0]?.id ?? '')
+
 	const update = (nextSelection: string) => {
-		if (!controlled) setInternalSelection(nextSelection)
+		if (!controlled) {
+			setInternalSelection(nextSelection)
+		}
+
 		props.onSelectionChange?.(nextSelection)
 	}
 
@@ -48,7 +58,9 @@ export function SwiftUIPicker(props: SwiftUIPickerProps) @{
 		}}
 		onSwiftUIEvent={(event: any) => {
 			const nextSelection = event.data?.value
-			if (typeof nextSelection === 'string') update(nextSelection)
+			if (typeof nextSelection === 'string') {
+				update(nextSelection)
+			}
 		}}
-	/>;
+	/>
 }

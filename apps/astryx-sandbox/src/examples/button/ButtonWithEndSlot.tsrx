@@ -13,17 +13,29 @@ export function ButtonWithEndSlot() @{
 				<Button
 					label="Messages"
 					variant="primary"
-					endContent={<Badge className="sb-badge sb-badge--info"><Text>3</Text></Badge>}
+					endContent={
+						<Badge className="sb-badge sb-badge--info">
+							<Text>3</Text>
+						</Badge>
+					}
 				/>
 				<Button
 					label="Notifications"
 					variant="secondary"
-					endContent={<Badge className="sb-badge sb-badge--warning"><Text>12</Text></Badge>}
+					endContent={
+						<Badge className="sb-badge sb-badge--warning">
+							<Text>12</Text>
+						</Badge>
+					}
 				/>
 				<Button
 					label="Updates"
 					variant="ghost"
-					endContent={<Badge className="sb-badge sb-badge--neutral"><Text>New</Text></Badge>}
+					endContent={
+						<Badge className="sb-badge sb-badge--neutral">
+							<Text>New</Text>
+						</Badge>
+					}
 				/>
 			</Stack>
 		</Stack>

@@ -1,14 +1,29 @@
 /** @jsxImportSource @nativescript-community/octane */
-vi.mock('./svg', () => ({ glyphSvgMarkup: () => null, isSvgSrc: () => false, svgSource: () => null }))
+vi.mock('./svg', () => ({
+	glyphSvgMarkup: () => null,
+	isSvgSrc: () => false,
+	svgSource: () => null,
+}))
+
 import { describe, expect, it, vi } from 'vitest'
-import { createObjectContainer, createObjectDriver, createUniversalRoot } from 'octane/universal/native'
+import {
+	createObjectContainer,
+	createObjectDriver,
+	createUniversalRoot,
+} from 'octane/universal/native'
 
 vi.mock('@nativescript/core', () => ({
 	// ui-svg's index.common.ts evaluates NS decorators at import.
-	Property: class { constructor(_opts?: any) {} register() {} },
+	Property: class {
+		constructor(_opts?: any) {}
+		register() {}
+	},
 	CSSType: () => () => {},
 	registerElement: () => {},
-	View: class {}, isIOS: false, isAndroid: true }))
+	View: class {},
+	isIOS: false,
+	isAndroid: true,
+}))
 
 import { ColorArea } from './ColorArea.tsrx'
 import { ColorSlider } from './ColorSlider.tsrx'
@@ -21,13 +36,23 @@ function mount(component: any, props: any) {
 	return { container, root, host: container.children[0] }
 }
 
-const pan = (container: any, host: any, events: { deltaX: number; deltaY: number; state: number }[]) => {
-	for (const e of events) container.dispatchEvent(host, 'pan', { ...e, view: host })
+const pan = (
+	container: any,
+	host: any,
+	events: { deltaX: number; deltaY: number; state: number }[],
+) => {
+	for (const e of events) {
+		container.dispatchEvent(host, 'pan', { ...e, view: host })
+	}
 }
 
 describe('native color suite', () => {
 	it('area renders with adjustable a11y role', () => {
-		const { host, root } = mount(ColorArea, { defaultValue: '#ff0000', accessibilityLabel: 'color' })
+		const { host, root } = mount(ColorArea, {
+			defaultValue: '#ff0000',
+			accessibilityLabel: 'color',
+		})
+
 		expect(host.props.accessibilityRole).toBe('adjustable')
 		expect(host.props.accessibilityLabel).toBe('color')
 		expect(host.props.accessibilityValue).toContain('saturation 100%')
@@ -43,6 +68,7 @@ describe('native color suite', () => {
 			onChange: change,
 			onChangeEnd: end,
 		})
+
 		// The object driver never lays out — give the host a size so the pan
 		// math has a track width.
 		host.getActualSize = () => ({ width: 100, height: 24 })
@@ -51,6 +77,7 @@ describe('native color suite', () => {
 			{ deltaX: 50, deltaY: 0, state: 2 },
 			{ deltaX: 50, deltaY: 0, state: 3 },
 		])
+
 		expect(change).toHaveBeenCalled()
 		expect(end).toHaveBeenCalled()
 		root.unmount()
@@ -70,11 +97,13 @@ describe('native color suite', () => {
 			isDisabled: true,
 			onChange: change,
 		})
+
 		pan(container, host, [
 			{ deltaX: 0, deltaY: 0, state: 1 },
 			{ deltaX: 50, deltaY: 0, state: 2 },
 			{ deltaX: 50, deltaY: 0, state: 3 },
 		])
+
 		expect(change).not.toHaveBeenCalled()
 		root.unmount()
 	})

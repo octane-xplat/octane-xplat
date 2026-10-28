@@ -85,15 +85,20 @@ export function animationTimingFunctionConverter(value: string): TimingCurve {
 	throw new Error(`Invalid value for animation: ${value}`)
 }
 
-const ANIMATION_PROPERTY_HANDLERS: Record<string, (info: KeyframeAnimationInfo, value: any) => void> = {
+const ANIMATION_PROPERTY_HANDLERS: Record<
+	string,
+	(info: KeyframeAnimationInfo, value: any) => void
+> = {
 	'animation-name': (info, value) => (info.name = String(value).replace(/['"]/g, '')),
 	'animation-duration': (info, value) => (info.duration = timeConverter(String(value))),
 	'animation-delay': (info, value) => (info.delay = timeConverter(String(value))),
-	'animation-timing-function': (info, value) => (info.curve = animationTimingFunctionConverter(String(value))),
+	'animation-timing-function': (info, value) =>
+		(info.curve = animationTimingFunctionConverter(String(value))),
 	'animation-iteration-count': (info, value) =>
 		(info.iterations = value === 'infinite' ? Number.POSITIVE_INFINITY : parseFloat(value)),
 	'animation-direction': (info, value) => (info.isReverse = value === 'reverse'),
-	'animation-fill-mode': (info, value) => (info.isForwards = value === 'forwards' || value === 'both'),
+	'animation-fill-mode': (info, value) =>
+		(info.isForwards = value === 'forwards' || value === 'both'),
 }
 
 export function isAnimationDeclaration(property: string): boolean {
@@ -109,7 +114,8 @@ function keyframeAnimationsFromCSSProperty(value: any, animations: KeyframeAnima
 	const VALUE_SPLIT_RE = /\s(?![^(]*\))/
 	const MULTIPLE_SPLIT_RE = /,(?![^(]*\))/
 	const isTime = (v: string) => !!v.match(/\dm?s$/g)
-	const isTimingFunction = (v: string) => !!v.match(/ease|linear|ease-in|ease-out|ease-in-out|spring|cubic-bezier/g)
+	const isTimingFunction = (v: string) =>
+		!!v.match(/ease|linear|ease-in|ease-out|ease-in-out|spring|cubic-bezier/g)
 	const isIterationCount = (v: string) => !!v.match(/infinite|[\d.]+$/g)
 	const isDirection = (v: string) => !!v.match(/normal|reverse|alternate|alternate-reverse/g)
 	const isFillMode = (v: string) => !!v.match(/none|forwards|backwards|both/g)
@@ -125,32 +131,44 @@ function keyframeAnimationsFromCSSProperty(value: any, animations: KeyframeAnima
 		const [fillMode] = parts.filter(isFillMode)
 		const [playState] = parts.filter(isPlayState)
 		const [name] = parts.filter(
-			(v) => ![duration, delay, timing, iterationCount, direction, fillMode, playState].filter(Boolean).includes(v),
+			(v) =>
+				![duration, delay, timing, iterationCount, direction, fillMode, playState]
+					.filter(Boolean)
+					.includes(v),
 		)
+
 		if (duration) {
-		ANIMATION_PROPERTY_HANDLERS['animation-duration'](info, duration)
-	}
+			ANIMATION_PROPERTY_HANDLERS['animation-duration'](info, duration)
+		}
+
 		if (delay) {
-		ANIMATION_PROPERTY_HANDLERS['animation-delay'](info, delay)
-	}
+			ANIMATION_PROPERTY_HANDLERS['animation-delay'](info, delay)
+		}
+
 		if (timing) {
-		ANIMATION_PROPERTY_HANDLERS['animation-timing-function'](info, timing)
-	}
+			ANIMATION_PROPERTY_HANDLERS['animation-timing-function'](info, timing)
+		}
+
 		if (iterationCount) {
-		ANIMATION_PROPERTY_HANDLERS['animation-iteration-count'](info, iterationCount)
-	}
+			ANIMATION_PROPERTY_HANDLERS['animation-iteration-count'](info, iterationCount)
+		}
+
 		if (direction) {
-		ANIMATION_PROPERTY_HANDLERS['animation-direction'](info, direction)
-	}
+			ANIMATION_PROPERTY_HANDLERS['animation-direction'](info, direction)
+		}
+
 		if (fillMode) {
-		ANIMATION_PROPERTY_HANDLERS['animation-fill-mode'](info, fillMode)
-	}
+			ANIMATION_PROPERTY_HANDLERS['animation-fill-mode'](info, fillMode)
+		}
+
 		if (playState) {
 			// NS: play state parsed but not implemented.
 		}
+
 		if (name) {
-		ANIMATION_PROPERTY_HANDLERS['animation-name'](info, name)
-	}
+			ANIMATION_PROPERTY_HANDLERS['animation-name'](info, name)
+		}
+
 		animations.push(info)
 	}
 }
@@ -176,6 +194,7 @@ export function keyframeAnimationsFromCSSDeclarations(
 					info = newInfo()
 					animations.push(info)
 				}
+
 				handler(info, value)
 			}
 		}
@@ -195,8 +214,11 @@ function convertKeyframeValue(property: string, value: any): any {
 		case 'translateY': {
 			const percent = /^([+-]?(?:\d+\.?\d*|\.\d+))%$/.exec(text)
 			if (percent) {
-				return property.startsWith('translate') ? { value: Number(percent[1]) / 100, unit: '%' } : NaN
+				return property.startsWith('translate')
+					? { value: Number(percent[1]) / 100, unit: '%' }
+					: NaN
 			}
+
 			const m = /^([+-]?(?:\d+\.?\d*|\.\d+))(px|dip|pt)?$/.exec(text)
 			return m ? Number(m[1]) : NaN
 		}
@@ -234,6 +256,7 @@ export function parseKeyframeDeclarations(
 					rotateX: t.rotate.x,
 					rotateY: t.rotate.y,
 				})
+
 				break
 			}
 		}
@@ -260,20 +283,24 @@ export function keyframesArrayFromCSS(
 				if (time < 0) {
 					time = 0
 				}
+
 				if (time > 100) {
 					time = 100
 				}
 			}
+
 			let current = parsedKeyframes[time]
 			if (current === undefined) {
 				current = { duration: time, declarations: [] }
 				parsedKeyframes[time] = current
 			}
+
 			for (const declaration of keyframe.declarations) {
 				if ((declaration as any).property === 'animation-timing-function') {
 					current.curve = animationTimingFunctionConverter(String((declaration as any).value))
 				}
 			}
+
 			current.declarations = current.declarations.concat(declarations)
 		}
 	}
@@ -307,10 +334,12 @@ function cubicBezier(p1x: number, p1y: number, p2x: number, p2y: number) {
 			if (Math.abs(err) < 1e-6) {
 				return sampleY(t)
 			}
+
 			const d = sampleDerivX(t)
 			if (Math.abs(d) < 1e-6) {
 				break
 			}
+
 			t -= err / d
 		}
 		if (t < 0) {
@@ -334,16 +363,19 @@ export function evaluateCurve(curve: TimingCurve | undefined, x: number): number
 		if (curve.name === 'linear') {
 			return x
 		}
+
 		const pts = NAMED_BEZIER[curve.name]
 		if (!pts) {
 			return x
 		}
+
 		const key = curve.name
 		let f = bezierCache.get(key)
 		if (!f) {
 			f = cubicBezier(pts[0], pts[1], pts[2], pts[3])
 			bezierCache.set(key, f)
 		}
+
 		return f(x)
 	}
 	const key = `b${curve.x1},${curve.y1},${curve.x2},${curve.y2}`

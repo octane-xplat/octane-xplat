@@ -10,13 +10,23 @@ export function ScrollableAreaStickyPassthrough() @{
 				<Text
 					type="label"
 					color="secondary"
-					style={{ position: 'sticky', top: 0, left: 0, background: 'var(--color-surface, #fff)', padding: '8px 16px', display: 'block', zIndex: 1 }}
+					style={{
+						position: 'sticky',
+						top: 0,
+						left: 0,
+						background: 'var(--color-surface, #fff)',
+						padding: '8px 16px',
+						display: 'block',
+						zIndex: 1,
+					}}
 				>
 					Sticky header — stays put while scrolling either axis
 				</Text>
 				<VStack gap={1} padding={3}>
 					{ROWS.map((row) => (
-						<Text key={row} type="body" style={{ whiteSpace: 'nowrap' }}>{row} — wide content column that overflows horizontally to show two-axis scrolling</Text>
+						<Text key={row} type="body" style={{ whiteSpace: 'nowrap' }}>
+							{row} — wide content column that overflows horizontally to show two-axis scrolling
+						</Text>
 					))}
 				</VStack>
 			</div>

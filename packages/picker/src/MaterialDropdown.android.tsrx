@@ -1,7 +1,12 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { registerElement } from '@nativescript-community/octane'
 import type { Attributes } from '@nativescript-community/octane/intrinsics'
-import { ComposeDataDriver, JetpackCompose, registerJetpackCompose } from '@nativescript/jetpack-compose'
+import {
+	ComposeDataDriver,
+	JetpackCompose,
+	registerJetpackCompose,
+} from '@nativescript/jetpack-compose'
+
 import { useState } from 'octane'
 import type { MaterialDropdownProps } from './android/types'
 
@@ -14,14 +19,19 @@ declare module '@nativescript-community/octane/intrinsics' {
 }
 
 registerElement('xplatandroidpicker', JetpackCompose)
-registerJetpackCompose('xplat-material-dropdown', (owner: any) =>
-	new ComposeDataDriver(new com.octanexplat.nativepicker.XplatPickerProvider(), owner),
+registerJetpackCompose(
+	'xplat-material-dropdown',
+	(owner: any) =>
+		new ComposeDataDriver(new com.octanexplat.nativepicker.XplatPickerProvider(), owner),
 )
 
 /** Renders a Material 3 dropdown through the NativeScript Jetpack Compose bridge. */
 export function MaterialDropdown(props: MaterialDropdownProps) @{
 	const controlled = props.selectedKey !== undefined
-	const [internalKey, setInternalKey] = useState(props.defaultSelectedKey ?? props.items[0]?.key ?? '')
+	const [internalKey, setInternalKey] = useState(
+		props.defaultSelectedKey ?? props.items[0]?.key ?? '',
+	)
+
 	// Uncontrolled with a blank internal selection displays the first item
 	// once items arrive — matching the other leaves' auto-select-first.
 	const selectedKey = controlled ? props.selectedKey! : internalKey || (props.items[0]?.key ?? '')
@@ -38,7 +48,10 @@ export function MaterialDropdown(props: MaterialDropdownProps) @{
 	}
 
 	const update = (nextKey: string) => {
-		if (!controlled) setInternalKey(nextKey)
+		if (!controlled) {
+			setInternalKey(nextKey)
+		}
+
 		props.onSelectedKeyChange?.(nextKey)
 	}
 
@@ -49,7 +62,9 @@ export function MaterialDropdown(props: MaterialDropdownProps) @{
 		composeId="xplat-material-dropdown"
 		data={data}
 		onComposeEvent={(event: any) => {
-			if (typeof event.data === 'string') update(event.data)
+			if (typeof event.data === 'string') {
+				update(event.data)
+			}
 		}}
-	/>;
+	/>
 }

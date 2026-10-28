@@ -17,7 +17,21 @@ export function Heading(props: HeadingProps) @{
 		...(scale.color && { color: scale.color }),
 		...styleRecord(props.style),
 	}
-	<label id={props.id} className={cx('vx-heading', `vx-h${level}`, props.type && `vx-heading--${props.type}`, props.className)} style={headingStyle} maxLines={maxLines > 0 ? maxLines : undefined} whiteSpace={maxLines === 1 ? 'nowrap' : undefined} textOverflow={maxLines > 0 ? 'ellipsis' : undefined} accessibilityRole="heading">
+
+	<label
+		id={props.id}
+		className={cx(
+			'vx-heading',
+			`vx-h${level}`,
+			props.type && `vx-heading--${props.type}`,
+			props.className,
+		)}
+		style={headingStyle}
+		maxLines={maxLines > 0 ? maxLines : undefined}
+		whiteSpace={maxLines === 1 ? 'nowrap' : undefined}
+		textOverflow={maxLines > 0 ? 'ellipsis' : undefined}
+		accessibilityRole="heading"
+	>
 		{props.children}
 	</label>
 }

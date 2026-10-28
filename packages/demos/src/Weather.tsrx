@@ -1,22 +1,22 @@
-import { useState, useEffect } from 'octane';
-import { View, HStack, Text, Pressable } from '@octane-xplat/ui';
+import { useState, useEffect } from 'octane'
+import { View, HStack, Text, Pressable } from '@octane-xplat/ui'
 
-type Day = { id: string; name: string; icon: string; lo: number; hi: number };
+type Day = { id: string; name: string; icon: string; lo: number; hi: number }
 
-const NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-const ICONS = ['☀', '⛅', '☁', '☂', '❄'];
+const NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+const ICONS = ['☀', '⛅', '☁', '☂', '❄']
 
 function fakeForecast(): Day[] {
 	return NAMES.map((name, i) => {
-		const lo = 8 + Math.floor(Math.random() * 8);
+		const lo = 8 + Math.floor(Math.random() * 8)
 		return {
 			id: 'd' + i,
 			name,
 			icon: ICONS[Math.floor(Math.random() * ICONS.length)],
 			lo,
 			hi: lo + 4 + Math.floor(Math.random() * 8),
-		};
-	});
+		}
+	})
 }
 
 /** weather — async→state→render seam without a network.
@@ -25,19 +25,19 @@ function fakeForecast(): Day[] {
  *  platform-services surface). Repeat presses re-run the whole cycle.
  *  Also a live check on glyph coverage — ☀⛅☁☂❄ exercise Q18 fonts. */
 export function Weather() @{
-	const [days, setDays] = useState<Day[] | null>(null);
-	const [gen, setGen] = useState(0);
-	console.log('[demo] Weather render days=' + (days ? days.length : 'null'));
+	const [days, setDays] = useState<Day[] | null>(null)
+	const [gen, setGen] = useState(0)
+	console.log('[demo] Weather render days=' + (days ? days.length : 'null'))
 
 	useEffect(() => {
-		setDays(null);
+		setDays(null)
 		const t = setTimeout(() => {
-			console.log('[probe] weather loaded gen=' + gen);
-			setDays(fakeForecast());
-		}, 600);
+			console.log('[probe] weather loaded gen=' + gen)
+			setDays(fakeForecast())
+		}, 600)
 
-		return () => clearTimeout(t);
-	}, [gen]);
+		return () => clearTimeout(t)
+	}, [gen])
 
 	<View className="vx-app flex-1 gap-4">
 		<HStack className="gap-4 items-center">
@@ -48,9 +48,10 @@ export function Weather() @{
 		</HStack>
 		{/* Ternary in children position — the @if/@else version mounted
 		    neither arm on native (.agents/design/demos.md findings). */}
-		{days === null
-			? <Text className="cell">{'Loading…'}</Text>
-			: <View className="gap-2">
+		{days === null ? (
+			<Text className="cell">{'Loading…'}</Text>
+		) : (
+			<View className="gap-2">
 				@for (const d of days; key d.id) {
 					<HStack className="wx-card gap-4 items-center">
 						<Text className="wx-icon">{d.icon}</Text>
@@ -59,6 +60,6 @@ export function Weather() @{
 					</HStack>
 				}
 			</View>
-		}
+		)}
 	</View>
 }

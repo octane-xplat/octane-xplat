@@ -16,6 +16,7 @@ import {
 	diagnosticsFromLogs,
 	validateDiagnosticsSelection,
 } from '../../diagnostics.ts'
+
 import { contractError, toContractError } from '../contracts/errors.ts'
 import { createAdapters } from './adapters/index.ts'
 import { createLogBuffer } from './logs.ts'
@@ -130,11 +131,13 @@ export function createRuntimeService(context, options = {}) {
 				origin: 'agent',
 				ownership: session.ownership,
 			})
+
 			const logs = createLogBuffer()
 			logs.watch((record) => {
 				capture.observeNativeOutput(record.line)
 				capture.append(record)
 			})
+
 			entry = { logs, capture, disposers: [], lateDisposals: [], disposed: false }
 			capture.update(session)
 			capture.onStop(() => context.runtime.endSession(sessionId))
@@ -416,21 +419,26 @@ export function createRuntimeService(context, options = {}) {
 				if (!app.platforms.includes(platform)) {
 					continue
 				}
+
 				const adapter = adapters.get(platform)
 				if (!adapter) {
 					continue
 				}
+
 				const found = await adapter.discoverTargets(app, deps)
 				if (found.reason) {
 					reasons.push(found.reason)
 				}
+
 				for (const target of found.targets) {
 					if (target.availability === 'unavailable') {
 						continue
 					}
+
 					if (PLATFORMS.includes(target.targetId) && target.targetId !== platform) {
 						continue
 					}
+
 					available.push({ platform, adapter, target })
 				}
 			}
@@ -473,6 +481,7 @@ export function createRuntimeService(context, options = {}) {
 				if (requestKey && pending.requestKey && requestKey !== pending.requestKey) {
 					return { error: targetBusyError(context.sessions.get(pending.sessionId)) }
 				}
+
 				return { session: context.sessions.get(pending.sessionId), deduplicated: true }
 			}
 			const busy = liveSessionOn(app.id, platform, target.targetId)
@@ -513,6 +522,7 @@ export function createRuntimeService(context, options = {}) {
 					if (controller.signal.aborted) {
 						return
 					}
+
 					const outcome = await adapter.launch({
 						app,
 						target,
@@ -530,20 +540,24 @@ export function createRuntimeService(context, options = {}) {
 						browserMode,
 						deps,
 					})
+
 					if (controller.signal.aborted) {
 						await disposeResources(sessionId)
 						return
 					}
+
 					resources.endpoint = { url: outcome.url, browser: outcome.browser }
 					context.sessions.setLaunch(sessionId, {
 						phase: 'ready',
 						readiness: outcome.readiness ?? 'confirmed',
 						browser: outcome.browser,
 					})
+
 					context.sessions.markReady(sessionId, {
 						processKind: outcome.processKind ?? 'fresh',
 						buildIdentity: outcome.buildIdentity,
 					})
+
 					outcome.mainProcess?.exit.then(({ code, signal }) => {
 						context.sessions.markDisconnected(
 							sessionId,
@@ -557,6 +571,7 @@ export function createRuntimeService(context, options = {}) {
 					if (!controller.signal.aborted) {
 						context.sessions.markFailed(sessionId, toContractError(error))
 					}
+
 					await context.sessions.end(sessionId)
 				} finally {
 					pendingLaunches.delete(key)
@@ -720,10 +735,12 @@ export function createRuntimeService(context, options = {}) {
 					const logs = this.readLogs(args)
 					return logs.error ? logs : diagnosticsFromLogs(logs)
 				}
+
 				const selected = requireApp()
 				if (selected.error) {
 					return selected
 				}
+
 				return await retainedDiagnostics(selected.app.root, args)
 			} catch (error) {
 				return { error: toContractError(error) }
@@ -779,6 +796,7 @@ export function createRuntimeService(context, options = {}) {
 				if (selected.error) {
 					return { sessionId, ended: false, error: selected.error }
 				}
+
 				return endRetainedSession(selected.app.root, sessionId)
 			}
 			let taps = []

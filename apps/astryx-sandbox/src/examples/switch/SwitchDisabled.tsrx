@@ -4,5 +4,12 @@ import { useState } from 'octane'
 
 export function SwitchDisabled() @{
 	const [value, setValue] = useState(false)
-	<Switch label="Premium feature" description="Upgrade to enable this option" value={value} onChange={setValue} isDisabled />
+
+	<Switch
+		label="Premium feature"
+		description="Upgrade to enable this option"
+		value={value}
+		onChange={setValue}
+		isDisabled
+	/>
 }

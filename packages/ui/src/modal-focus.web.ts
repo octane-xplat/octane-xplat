@@ -24,7 +24,8 @@ function topScope(): Scope | undefined {
 
 /** Resolve child portals from their actual anchor, including service roots. */
 export function modalPortalOwner(anchor: HTMLElement): { target: HTMLElement; depth?: number } {
-	const target = anchor.closest<HTMLElement>('dialog[open],[data-vx-modal-layer]') ?? anchor.ownerDocument.body
+	const target =
+		anchor.closest<HTMLElement>('dialog[open],[data-vx-modal-layer]') ?? anchor.ownerDocument.body
 	const scope = [...scopes].reverse().find((scope) => scope.layer.contains(anchor))
 	return { target, depth: scope === undefined ? undefined : scope.depth + 1 }
 }

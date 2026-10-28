@@ -1,5 +1,12 @@
 import { useState } from 'octane'
-import { View, HStack, Text, Pressable, VirtualList as VirtualListView, type VirtualListHandle } from '@octane-xplat/ui'
+import {
+	View,
+	HStack,
+	Text,
+	Pressable,
+	VirtualList as VirtualListView,
+	type VirtualListHandle,
+} from '@octane-xplat/ui'
 
 /** Harness seam: sweep probes drive `scrollToOffset` through the public
  *  handle instead of reaching into the platform scroll view. */
@@ -20,7 +27,10 @@ const INITIAL = makeItems(500)
 const keyFor = (item: Row_) => item.id
 const typeFor = (item: Row_) => item.type
 const renderItem = (item: Row_) => <VirtualListRow item={item} />
-const renderHeader = () => <Text className="text-sm text-muted">Variable-height rows · tap rows, then reverse</Text>
+const renderHeader = () => (
+	<Text className="text-sm text-muted">Variable-height rows · tap rows, then reverse</Text>
+)
+
 const renderFooter = () => <Text className="text-sm text-muted">End of 500 rows</Text>
 const renderEmpty = () => <Text>No rows</Text>
 const renderSeparator = () => <View style={{ height: 1, backgroundColor: '#d1d5db' }} />
@@ -44,32 +54,48 @@ function VirtualListRow(props: { item: Row_ }) @{
 export function VirtualList() @{
 	const [items, setItems] = useState<Row_[]>(INITIAL)
 
-	const prepend = () => setItems((current) => [
-		{ id: 'new-' + Date.now(), label: 'Prepended', height: 68, type: 'row' },
-		...current,
-	])
+	const prepend = () =>
+		setItems((current) => [
+			{ id: 'new-' + Date.now(), label: 'Prepended', height: 68, type: 'row' },
+			...current,
+		])
 
 	const dropFirst = () => setItems((current) => current.slice(1))
 	const reverse = () => setItems((current) => [...current].reverse())
-	const growRow = () => setItems((current) => current.map((item) =>
-		item.id === 'r15' ? { ...item, height: item.height + 24 } : item,
-	))
+	const growRow = () =>
+		setItems((current) =>
+			current.map((item) => (item.id === 'r15' ? { ...item, height: item.height + 24 } : item)),
+		)
 
 	const clear = () => setItems([])
 	const restore = () => setItems(INITIAL)
 
 	<View className="vx-app flex-1 gap-3">
 		<HStack className="gap-2">
-			<Pressable id="vl-prepend" onPress={prepend} className="btn btn-secondary"><Text>Prepend</Text></Pressable>
-			<Pressable id="vl-drop" onPress={dropFirst} className="btn btn-secondary"><Text>Drop first</Text></Pressable>
-			<Pressable id="vl-reverse" onPress={reverse} className="btn btn-secondary"><Text>Reverse</Text></Pressable>
+			<Pressable id="vl-prepend" onPress={prepend} className="btn btn-secondary">
+				<Text>Prepend</Text>
+			</Pressable>
+			<Pressable id="vl-drop" onPress={dropFirst} className="btn btn-secondary">
+				<Text>Drop first</Text>
+			</Pressable>
+			<Pressable id="vl-reverse" onPress={reverse} className="btn btn-secondary">
+				<Text>Reverse</Text>
+			</Pressable>
 		</HStack>
 		<HStack className="gap-2">
-			<Pressable id="vl-grow" onPress={growRow} className="btn btn-secondary"><Text>Grow r15</Text></Pressable>
-			<Pressable id="vl-clear" onPress={clear} className="btn btn-secondary"><Text>Empty</Text></Pressable>
-			<Pressable id="vl-restore" onPress={restore} className="btn btn-secondary"><Text>Restore</Text></Pressable>
+			<Pressable id="vl-grow" onPress={growRow} className="btn btn-secondary">
+				<Text>Grow r15</Text>
+			</Pressable>
+			<Pressable id="vl-clear" onPress={clear} className="btn btn-secondary">
+				<Text>Empty</Text>
+			</Pressable>
+			<Pressable id="vl-restore" onPress={restore} className="btn btn-secondary">
+				<Text>Restore</Text>
+			</Pressable>
 		</HStack>
-		<Text className="text-sm text-muted">{items.length + ' rows · tap a row to test keyed state'}</Text>
+		<Text className="text-sm text-muted">
+			{items.length + ' rows · tap a row to test keyed state'}
+		</Text>
 		<VirtualListView
 			id="vlist"
 			ref={virtualListHandle}

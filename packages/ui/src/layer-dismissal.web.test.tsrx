@@ -21,41 +21,97 @@ function mount(Component: any, props: any) {
 }
 
 function escape(options: KeyboardEventInit = {}) {
-	const event = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true, ...options })
+	const event = new KeyboardEvent('keydown', {
+		key: 'Escape',
+		bubbles: true,
+		cancelable: true,
+		...options,
+	})
+
 	act(() => document.activeElement!.dispatchEvent(event))
 	return event
 }
 
-function Nested(props: { dialog: boolean; menu: boolean; closeDialog: any; closeMenu: any; purpose?: any }) @{
-	<Dialog isOpen={props.dialog} onOpenChange={props.closeDialog} purpose={props.purpose} accessibilityLabel="Outer">
-		<DropdownMenu isOpen={props.menu} onOpenChange={props.closeMenu} button={{ label: 'Menu' }} items={[{ type: 'action', key: 'one', label: 'One' }]} />
+function Nested(props: {
+	dialog: boolean
+	menu: boolean
+	closeDialog: any
+	closeMenu: any
+	purpose?: any
+}) @{
+	<Dialog
+		isOpen={props.dialog}
+		onOpenChange={props.closeDialog}
+		purpose={props.purpose}
+		accessibilityLabel="Outer"
+	>
+		<DropdownMenu
+			isOpen={props.menu}
+			onOpenChange={props.closeMenu}
+			button={{ label: 'Menu' }}
+			items={[{ type: 'action', key: 'one', label: 'One' }]}
+		/>
 	</Dialog>
 }
 
-function Pair(props: { outer: boolean; inner: boolean; closeOuter: any; closeInner: any }) @{
+function Pair(props: {
+	outer: boolean
+	inner: boolean
+	closeOuter: any
+	closeInner: any
+}) @{
 	const anchor = useRef<any>(null)
 
 	<>
 		<button ref={anchor}>Anchor</button>
 		<Popover open={props.outer} anchor={anchor} onDismiss={props.closeOuter}>
 			<button>Outer content</button>
-			<Popover open={props.inner} anchor={anchor} onDismiss={props.closeInner}><button>Inner content</button></Popover>
+			<Popover open={props.inner} anchor={anchor} onDismiss={props.closeInner}>
+				<button>Inner content</button>
+			</Popover>
 		</Popover>
 	</>
 }
 
-function Card(props: { open: boolean; close: any; closeDialog: any; menu?: boolean; closeMenu?: any }) @{
+function Card(props: {
+	open: boolean
+	close: any
+	closeDialog: any
+	menu?: boolean
+	closeMenu?: any
+}) @{
 	const card = useHoverCard({ isOpen: props.open, onHide: props.close, focusTrigger: 'none' })
 
 	<Dialog isOpen accessibilityLabel="Outer" onOpenChange={props.closeDialog}>
 		<button ref={card.ref}>Card</button>
-		{card.renderHoverCard(<><button>Card content</button>{props.menu && <DropdownMenu isOpen onOpenChange={props.closeMenu} button={{ label: 'Inner menu' }} items={[]} />}</>)}
+		{card.renderHoverCard(
+			<>
+				<button>Card content</button>
+				{props.menu && (
+					<DropdownMenu
+						isOpen
+						onOpenChange={props.closeMenu}
+						button={{ label: 'Inner menu' }}
+						items={[]}
+					/>
+				)}
+			</>,
+		)}
 	</Dialog>
 }
 
 function ManualLayer(props: { escape?: boolean; hide: any; closeDialog: any }) @{
-	const layer = useLayer({ mode: 'context', get dismissOnEscape() { return props.escape }, onHide: () => props.hide() })
-	useEffect(() => { layer.show() }, [])
+	const layer = useLayer({
+		mode: 'context',
+		get dismissOnEscape() {
+			return props.escape
+		},
+		onHide: () => props.hide(),
+	})
+
+	useEffect(() => {
+		layer.show()
+	}, [])
 
 	<Dialog isOpen accessibilityLabel="Outer" onOpenChange={props.closeDialog}>
 		<button ref={layer.ref}>Anchor</button>
@@ -64,13 +120,21 @@ function ManualLayer(props: { escape?: boolean; hide: any; closeDialog: any }) @
 }
 
 afterEach(() => {
-	act(() => { for (const root of roots.splice(0)) root.unmount() })
+	act(() => {
+		for (const root of roots.splice(0)) {
+			root.unmount()
+		}
+	})
+
 	document.body.replaceChildren()
 })
 
 describe('shared nested dismissal', () => {
 	it('keeps a controlled menu as owner until its parent accepts, with live callbacks', () => {
-		const closeDialog = vi.fn(), closeMenu = vi.fn(), updated = vi.fn()
+		const closeDialog = vi.fn(),
+			closeMenu = vi.fn(),
+			updated = vi.fn()
+
 		const root = mount(Nested, { dialog: true, menu: true, closeDialog, closeMenu })
 		expect(escape().defaultPrevented).toBe(true)
 		expect(closeMenu).toHaveBeenCalledWith(false)
@@ -85,7 +149,9 @@ describe('shared nested dismissal', () => {
 	})
 
 	it('ranks same-commit nested portals ahead of their parent and cleans up on removal', () => {
-		const closeOuter = vi.fn(), closeInner = vi.fn()
+		const closeOuter = vi.fn(),
+			closeInner = vi.fn()
+
 		const root = mount(Pair, { outer: true, inner: true, closeOuter, closeInner })
 		escape()
 		expect(closeInner).toHaveBeenCalledTimes(1)
@@ -99,14 +165,33 @@ describe('shared nested dismissal', () => {
 
 	it('blocks required dialogs, composing Escape and platform cancel', () => {
 		const closeDialog = vi.fn()
-		const root = mount(Nested, { dialog: true, menu: false, purpose: 'required', closeDialog, closeMenu: vi.fn() })
+		const root = mount(Nested, {
+			dialog: true,
+			menu: false,
+			purpose: 'required',
+			closeDialog,
+			closeMenu: vi.fn(),
+		})
+
 		escape()
 		expect(closeDialog).not.toHaveBeenCalled()
-		act(() => root.render(Nested, { dialog: true, menu: false, purpose: 'form', closeDialog, closeMenu: vi.fn() }))
+		act(() =>
+			root.render(Nested, {
+				dialog: true,
+				menu: false,
+				purpose: 'form',
+				closeDialog,
+				closeMenu: vi.fn(),
+			}),
+		)
+
 		expect(escape({ isComposing: true }).defaultPrevented).toBe(true)
 		expect(escape({ keyCode: 229 }).defaultPrevented).toBe(true)
 		act(() => document.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true })))
-		act(() => document.querySelector('dialog')!.dispatchEvent(new Event('cancel', { cancelable: true })))
+		act(() =>
+			document.querySelector('dialog')!.dispatchEvent(new Event('cancel', { cancelable: true })),
+		)
+
 		expect(closeDialog).not.toHaveBeenCalled()
 		act(() => document.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true })))
 		escape()
@@ -116,15 +201,20 @@ describe('shared nested dismissal', () => {
 	it('honors an editor claiming Escape', () => {
 		const closeOuter = vi.fn()
 		mount(Pair, { outer: true, inner: false, closeOuter, closeInner: vi.fn() })
-		const button = Array.from(document.querySelectorAll('button')).find(el => el.textContent === 'Outer content')!
-		button.addEventListener('keydown', event => event.preventDefault())
+		const button = Array.from(document.querySelectorAll('button')).find(
+			(el) => el.textContent === 'Outer content',
+		)!
+
+		button.addEventListener('keydown', (event) => event.preventDefault())
 		act(() => button.focus())
 		escape()
 		expect(closeOuter).not.toHaveBeenCalled()
 	})
 
 	it('a controlled hover card requests only its own close', () => {
-		const close = vi.fn(), closeDialog = vi.fn()
+		const close = vi.fn(),
+			closeDialog = vi.fn()
+
 		mount(Card, { open: true, close, closeDialog })
 		escape()
 		escape()
@@ -133,7 +223,10 @@ describe('shared nested dismissal', () => {
 	})
 
 	it('routes one Escape through dialog, hover card and its nested menu', () => {
-		const close = vi.fn(), closeDialog = vi.fn(), closeMenu = vi.fn()
+		const close = vi.fn(),
+			closeDialog = vi.fn(),
+			closeMenu = vi.fn()
+
 		const root = mount(Card, { open: true, menu: true, close, closeDialog, closeMenu })
 		escape()
 		expect(closeMenu).toHaveBeenCalledTimes(1)
@@ -146,19 +239,42 @@ describe('shared nested dismissal', () => {
 	})
 
 	it('nested popup ownership also wins over the existing sheet focus helper', () => {
-		const closeSheet = vi.fn(), closeMenu = vi.fn()
-		mount(BottomSheet, { isOpen: true, onOpenChange: closeSheet, children: <DropdownMenu isOpen onOpenChange={closeMenu} button={{ label: 'Menu' }} items={[]} /> })
+		const closeSheet = vi.fn(),
+			closeMenu = vi.fn()
+
+		mount(BottomSheet, {
+			isOpen: true,
+			onOpenChange: closeSheet,
+			children: (
+				<DropdownMenu isOpen onOpenChange={closeMenu} button={{ label: 'Menu' }} items={[]} />
+			),
+		})
+
 		escape()
 		expect(closeMenu).toHaveBeenCalledTimes(1)
 		expect(closeSheet).not.toHaveBeenCalled()
 	})
 
 	it('removing a lower dialog preserves focus in the surviving dialog', () => {
-		const lowerTarget = document.createElement('button'), upperTarget = document.createElement('button')
+		const lowerTarget = document.createElement('button'),
+			upperTarget = document.createElement('button')
+
 		document.body.append(lowerTarget, upperTarget)
 		const lowerFocus = vi.spyOn(lowerTarget, 'focus')
-		const lower = mount(Dialog, { isOpen: true, accessibilityLabel: 'Lower', finalFocusRef: { current: lowerTarget }, children: <button data-autofocus>Lower focus</button> })
-		const upper = mount(Dialog, { isOpen: true, accessibilityLabel: 'Upper', finalFocusRef: { current: upperTarget }, children: <button data-autofocus>Upper focus</button> })
+		const lower = mount(Dialog, {
+			isOpen: true,
+			accessibilityLabel: 'Lower',
+			finalFocusRef: { current: lowerTarget },
+			children: <button data-autofocus>Lower focus</button>,
+		})
+
+		const upper = mount(Dialog, {
+			isOpen: true,
+			accessibilityLabel: 'Upper',
+			finalFocusRef: { current: upperTarget },
+			children: <button data-autofocus>Upper focus</button>,
+		})
+
 		const current = document.activeElement
 		act(() => lower.render(Dialog, { isOpen: false }))
 		expect(document.activeElement).toBe(current)
@@ -168,10 +284,18 @@ describe('shared nested dismissal', () => {
 	})
 
 	it('returns accepted hover-card focus to its interaction trigger', () => {
-		const close = vi.fn(), closeDialog = vi.fn()
+		const close = vi.fn(),
+			closeDialog = vi.fn()
+
 		const root = mount(Card, { open: true, close, closeDialog })
-		const content = Array.from(document.querySelectorAll('button')).find(el => el.textContent === 'Card content')!
-		const trigger = Array.from(document.querySelectorAll('button')).find(el => el.textContent === 'Card')!
+		const content = Array.from(document.querySelectorAll('button')).find(
+			(el) => el.textContent === 'Card content',
+		)!
+
+		const trigger = Array.from(document.querySelectorAll('button')).find(
+			(el) => el.textContent === 'Card',
+		)!
+
 		act(() => content.focus())
 		escape()
 		expect(document.activeElement).toBe(content)
@@ -181,7 +305,9 @@ describe('shared nested dismissal', () => {
 	})
 
 	it('preserves manual useLayer Escape blocking and supports an independent override', () => {
-		const hide = vi.fn(), closeDialog = vi.fn()
+		const hide = vi.fn(),
+			closeDialog = vi.fn()
+
 		const root = mount(ManualLayer, { hide, closeDialog })
 		escape()
 		expect(hide).not.toHaveBeenCalled()

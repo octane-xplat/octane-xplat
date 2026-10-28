@@ -13,5 +13,11 @@ function CommandPaletteFixture() @{
 }
 
 export const PARITY: ParityFixture[] = [
-	{ name: 'command-palette-open', component: 'CommandPalette', renderer: CommandPaletteFixture, props: {}, height: 112 },
+	{
+		name: 'command-palette-open',
+		component: 'CommandPalette',
+		renderer: CommandPaletteFixture,
+		props: {},
+		height: 112,
+	},
 ]

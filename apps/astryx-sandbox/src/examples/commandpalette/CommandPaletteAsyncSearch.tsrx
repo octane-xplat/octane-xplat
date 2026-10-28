@@ -25,6 +25,7 @@ export function CommandPaletteAsyncSearch() @{
 		}),
 		[],
 	)
+
 	<CommandPalette
 		open
 		onOpenChange={() => {}}

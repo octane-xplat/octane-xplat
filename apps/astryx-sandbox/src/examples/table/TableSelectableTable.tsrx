@@ -33,6 +33,7 @@ export function TableSelectableTable() @{
 		selectedKeys,
 		setSelectedKeys,
 	})
+
 	const selectionPlugin = useTableSelection<User>(selectionConfig)
 
 	<Table data={users} columns={columns} idKey="id" plugins={{ selection: selectionPlugin }} />

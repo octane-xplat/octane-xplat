@@ -8,8 +8,12 @@ export function SpinnerWithLabel() @{
 			size="lg"
 			label={
 				<VStack gap={0} hAlign="center">
-					<Text type="body" weight="bold">Fetching data</Text>
-					<Text type="supporting" color="secondary">This may take a moment</Text>
+					<Text type="body" weight="bold">
+						Fetching data
+					</Text>
+					<Text type="supporting" color="secondary">
+						This may take a moment
+					</Text>
 				</VStack>
 			}
 			accessibilityLabel="Fetching data"

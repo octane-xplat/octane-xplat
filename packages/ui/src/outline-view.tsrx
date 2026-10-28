@@ -32,9 +32,10 @@ export function useOutlineFromView(containerRef?: unknown): OutlineItem[] {
 	const [items, setItems] = useState<OutlineItem[]>([])
 
 	useEffect(() => {
-		const view = containerRef && typeof containerRef === 'object' && 'current' in containerRef
-			? (containerRef as { current?: any }).current
-			: containerRef
+		const view =
+			containerRef && typeof containerRef === 'object' && 'current' in containerRef
+				? (containerRef as { current?: any }).current
+				: containerRef
 
 		if (!view) {
 			setItems([])

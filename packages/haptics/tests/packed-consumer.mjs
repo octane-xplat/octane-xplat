@@ -48,7 +48,8 @@ function run(command, args, cwd) {
 const dependencies = [
 	'octane',
 	'@nativescript-community/octane',
-	'@nativescript/core', '@octane-xplat/lib',
+	'@nativescript/core',
+	'@octane-xplat/lib',
 	'@nativescript/types',
 ]
 

@@ -84,8 +84,7 @@ export function useClipboard(options: UseClipboardOptions = {}): UseClipboardRes
 				// The text producer can fail before the platform write starts.
 			}
 
-			const success =
-				value !== undefined && (await copyText(value).catch(() => false))
+			const success = value !== undefined && (await copyText(value).catch(() => false))
 
 			if (success) {
 				setIsCopied(true)

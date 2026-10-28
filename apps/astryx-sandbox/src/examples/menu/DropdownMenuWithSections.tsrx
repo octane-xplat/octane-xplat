@@ -10,19 +10,31 @@ export function DropdownMenuWithSections() @{
 			<DropdownMenu
 				button={{ label: 'File', variant: 'ghost' }}
 				items={menuItems([
-					{ type: 'section', title: 'Create', items: [
-						{ label: 'New document', onClick: () => setLastAction('New document') },
-						{ label: 'New spreadsheet', onClick: () => setLastAction('New spreadsheet') },
-						{ label: 'New folder', onClick: () => setLastAction('New folder') },
-					]},
-					{ type: 'section', title: 'Manage', items: [
-						{ label: 'Share', onClick: () => setLastAction('Share') },
-						{ label: 'Move', onClick: () => setLastAction('Move') },
-						{ label: 'Archive', onClick: () => setLastAction('Archive') },
-					]},
+					{
+						type: 'section',
+						title: 'Create',
+						items: [
+							{ label: 'New document', onClick: () => setLastAction('New document') },
+							{ label: 'New spreadsheet', onClick: () => setLastAction('New spreadsheet') },
+							{ label: 'New folder', onClick: () => setLastAction('New folder') },
+						],
+					},
+					{
+						type: 'section',
+						title: 'Manage',
+						items: [
+							{ label: 'Share', onClick: () => setLastAction('Share') },
+							{ label: 'Move', onClick: () => setLastAction('Move') },
+							{ label: 'Archive', onClick: () => setLastAction('Archive') },
+						],
+					},
 				])}
 			/>
-			{lastAction && <Text type="supporting" color="secondary">Selected: {lastAction}</Text>}
+			{lastAction && (
+				<Text type="supporting" color="secondary">
+					Selected: {lastAction}
+				</Text>
+			)}
 		</VStack>
 	)
 }

@@ -50,11 +50,10 @@ export interface LogicalElement {
 export declare namespace JSX {
 	type Element = NativeNode
 	type ElementType = ElementTypeOf
-	interface IntrinsicElements
-		extends Omit<
-			NativeElements<HostElement>,
-			'proxyviewcontainer' | 'contentview' | 'rootlayout' | 'formattedstring' | 'span'
-		> {
+	interface IntrinsicElements extends Omit<
+		NativeElements<HostElement>,
+		'proxyviewcontainer' | 'contentview' | 'rootlayout' | 'formattedstring' | 'span'
+	> {
 		proxyviewcontainer: Attributes<LogicalElement>
 		contentview: Attributes<LogicalElement>
 		rootlayout: Attributes<LogicalElement>
