@@ -12,6 +12,7 @@ declare global {
 	var __xplatAppKit: {
 		/** Image-owned encoded disk bytes plus decoded memory, separate from shared HTTP caching. */
 		imageCache?: {
+			readonly supportsCachePolicy?: boolean
 			initialize(): boolean
 			prefetch(source: string): Promise<boolean>
 			isCached(source: string): 'memory' | 'disk' | 'none'

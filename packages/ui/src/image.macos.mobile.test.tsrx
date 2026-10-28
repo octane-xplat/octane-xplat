@@ -73,3 +73,19 @@ it('AppKit Image selects declared candidates after box/density changes and sourc
 		expect(env.host.props.onImageGeometryChanged).toBeUndefined()
 	} finally { env.root.unmount() }
 })
+
+it('the private engine handoff forwards bypass on the initial host while preserving public layout and resets on removal', () => {
+	const env = mount({ src: '~/photo.png', __appKitImageCachePolicy: 'none', alt: 'Photo', row: 1, flexGrow: 1, className: ['photo', { active: true }], style: 'width:40px;height:24px' })
+	try {
+		expect(Reflect.get(Image, '__xplatAppKitImagePolicy')).toBe(true); expect(env.host.props.imageCachePolicy).toBe('none')
+		expect(env.host.props.className).toBe('photo active'); expect(env.host.props.style).toContain('grid-row:2 / span 1'); expect(env.host.props.style).toContain('width:40px;height:24px')
+		env.root.render(Image, { src: '~/photo.png' }); flushUniversalSync(() => {}); expect(env.host.props.imageCachePolicy).toBe('memory-disk')
+	} finally { env.root.unmount() }
+})
+it('candidate/geometry updates preserve private policy without changing public source selection', () => {
+	const env = mount({ src: [{ uri: '~/small.png', width: 100, height: 50 }, { uri: '~/large.png', width: 200, height: 100 }], __appKitImageCachePolicy: 'none' })
+	try {
+		env.host.props.onImageGeometryChanged({ width: 100, height: 50, scale: 2 }); flushUniversalSync(() => {})
+		expect(env.host.props.src).toBe('~/large.png'); expect(env.host.props.imageCachePolicy).toBe('none')
+	} finally { env.root.unmount() }
+})

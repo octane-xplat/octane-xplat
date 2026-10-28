@@ -4780,3 +4780,78 @@ main-queue/disk I/O, HTTP redirects/errors/policy and unavailable storage,
 network cancellation/reentry, source replacement, memory lifetime/responsiveness,
 packaged image-helper imports and supported macOS versions remain unqualified.
 The image/cache and distribution evidence gates stay open; the goal is active.
+
+## AppKit per-image cache bypass
+
+Demand assumption: per-image cache control is a common need for changing or
+user-provided images; it is already part of the optional image package's public
+contract/examples. The preceding slice rejected cachePolicy="none" to avoid
+silently using persistent storage. This follow-through now implements the
+framework bypass path instead of leaving that public option rejected. Headers,
+config sizing/signatures and other engine options remain independent gaps.
+
+CoreImage keeps its source/SVG/placeholder, class/style, parent-layout and source-
+candidate normalization. The optional image leaf sends a private typed prop
+through that component; the core public ImageProps contract is unchanged. A
+private marker on the actual CoreImage function and a renderer capability flag
+must both be present before a bypass render; older/missing packages fail rather
+than silently dropping the option. Header requests still fail before loading.
+No package manifest, dependency or shared CLI/UI export manifest changed.
+
+The intrinsic imageCachePolicy carries the final per-view mode at native
+creation and on complete-prop-bag mutation. Source, placeholder and policy changes
+all re-evaluate the same final state; unchanged source/mode is idempotent. A mode
+change on the same URI increments the view's request generation and releases
+its old subscription. Default decoded/byte pools retain their existing cache
+behavior. Bypass uses separate pending pools, shares only within its mode, never
+retains a decoded cache entry, skips owned disk reads/writes/initialization, and
+uses the existing automatic-cache-disabled transport. Local/file bypass avoids
+the framework decode cache too. Displayed/placeholder bitmaps remain owned by
+the view; platform NSImage/resource internals are not claimed cache-free.
+
+Public cache clear/eviction leaves independent bypass consumers alive; their
+completion cannot warm framework caches. Bypass does not purge an older default
+entry or modify normal prefetch/display ownership. A URI cache query may still
+report an entry created by another/default view. Returning to default can reuse
+that entry; retired mode callbacks cannot replace the current view. This is a
+request policy, not a privacy/account-data purge or an image reload imperative.
+
+Sixteen cases are added, all unrun: three byte-owner, seven remote/local-view,
+two adapter/capability, two native-prop dispatch and two CoreImage wiring cases.
+The earlier rejection case is updated for implemented policy plus unsupported
+headers/invalid modes. Total relevant suites now contain twelve byte, eight
+adapter, fourteen remote-view, two prop-dispatch and six CoreImage cases, in
+addition to earlier request/placeholder coverage. Prop cases exercise source
+creation and the image dispatch branch under its complete-bag protocol; they
+do not prove actual native batch/commit order. Core cases use the object driver.
+Source review also found paint/placeholder/native-cancel reentry before the
+subscription handle is stored. The owner now claims the prior release before
+calling it, checks current generation after cancellation/decode, and either
+stores or immediately releases a late handle. Three view cases cover teardown
+while painting, cached-hit source replacement and cancellation-driven source
+replacement. These are source cases, not observed native failures. No native
+disk/network or AppKit interaction has run.
+
+The target fixture can toggle mode on the same mounted source. README, guide,
+primitive skill, recipe AC7 and the existing unreleased image-cache feature note
+reconcile the implemented subset. Source/semantic review, TS/TSRX syntax parsing
+and whitespace are the only checks performed. Exact deferred commands:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer --filter=@octane-xplat/image
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/image.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/image --filter=...@octane-xplat/ui --filter=...@octane-xplat/macos-renderer
+pnpm probe doctor
+pnpm probe run examples/probes/cached-image.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm exec turbo run test:packed --filter=@octane-xplat/image --filter=@octane-xplat/macos-renderer
+pnpm check:recipes
+```
+
+All remain deferred pending explicit human authorization for this task. No tests,
+typechecks/builds/installs, probe, OS/native automation, visual analysis or
+packaging ran. Actual cache bypass, disk absence/capacity, native same-source
+policy mutation ordering, queue/cancellation/reentry, candidate/density/layout,
+memory/bitmap lifetime, responsiveness and packed/mixed-version behavior are
+unqualified. The original image/platform evidence gates remain open; the goal
+is active and the audit snapshots are unchanged.

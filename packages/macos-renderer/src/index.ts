@@ -2615,7 +2615,7 @@ function makeImageView(props: PropBag) {
 	})
 
 	image.translatesAutoresizingMaskIntoConstraints = false
-	updateImage(image, props.src, props.placeholder)
+	updateImage(image, props.src, props.placeholder, props.imageCachePolicy)
 
 	return image
 }
@@ -7178,10 +7178,8 @@ function applyProps(node: ElementNode, props: PropBag) {
 				break
 			case 'image':
 			case 'animatedimage':
-				if (name === 'src') {
-					updateImage(node.view as NSImageView, value, node.props.placeholder)
-				} else if (name === 'placeholder') {
-					updateImage(node.view as NSImageView, node.props.src, value)
+				if (name === 'src' || name === 'placeholder' || name === 'imageCachePolicy') {
+					updateImage(node.view as NSImageView, node.props.src, node.props.placeholder, node.props.imageCachePolicy)
 				} else if (name === 'stretch' && node.type === 'animatedimage') {
 					// NSImageScaling — same constants as the objectFit writer.
 					// 'aspectFill' degrades to scale-down: AppKit has no crop

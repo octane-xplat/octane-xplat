@@ -1,6 +1,7 @@
 import type { ImageCacheConfig, ImageCacheQueryOptions, ImageCacheState, PrefetchOptions } from './props'
 import { prefetchBatch } from './prefetch-batch.ts'
 interface ImageCacheBridge {
+	readonly supportsCachePolicy?: boolean
 	initialize(): boolean
 	prefetch(source: string): Promise<boolean>
 	isCached(source: string): ImageCacheState
@@ -44,6 +45,17 @@ export function createAppKitImageCache(bridge: () => ImageCacheBridge | undefine
 
 /** Reject unsupported requests before a persistent display load can begin. */
 export function validateAppKitImageOptions(options: { cachePolicy?: string; headers?: Record<string, string> }): void {
-	if (options.cachePolicy === 'none') throw new TypeError('AppKit Image cachePolicy="none" is not implemented')
+	if (options.cachePolicy != null && options.cachePolicy !== 'none' && options.cachePolicy !== 'memory-disk') throw new TypeError('Invalid AppKit Image cache policy')
 	if (options.headers && Object.keys(options.headers).length) throw new TypeError('AppKit Image request headers are not implemented')
+}
+
+/** Private typed handoff to CoreImage, preserving its layout/source normalization. */
+export function withAppKitImagePolicy<T extends { cachePolicy?: 'memory-disk' | 'none'; headers?: Record<string, string> }>(
+	props: T, core: object, bridge: () => ImageCacheBridge | undefined = () => Reflect.get(globalThis, '__xplatAppKit')?.imageCache,
+): T & { __appKitImageCachePolicy: 'memory-disk' | 'none' } {
+	validateAppKitImageOptions(props)
+	if (props.cachePolicy === 'none' && (Reflect.get(core, '__xplatAppKitImagePolicy') !== true || bridge()?.supportsCachePolicy !== true)) {
+		throw new Error('AppKit Image cache bypass requires matching UI and renderer support')
+	}
+	return { ...props, __appKitImageCachePolicy: props.cachePolicy ?? 'memory-disk' }
 }

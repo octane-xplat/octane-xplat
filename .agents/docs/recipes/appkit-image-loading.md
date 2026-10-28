@@ -2,7 +2,7 @@
 
 ID: appkit-image-loading
 Targets: macos
-Related APIs: Image, @octane-xplat/image, ImageProps, LayoutChildProps
+Related APIs: Image, @octane-xplat/image, ImageProps, LayoutChildProps, cachePolicy
 
 ## Starting point
 
@@ -22,6 +22,8 @@ previews picked image files.
 
 - AC6: Connect default public AppKit initialize/prefetch/query/evict/clear to the same image-owned byte backend as display. Warm HTTP(S) bytes without decode, distinguish decoded memory from disk/none, honor batch concurrency and retire old disk writers on invalidation while preserving mounted delivery. Keep unrelated HTTP caches separate, permit display when disk is unavailable, reject unsupported/protected storage and configuration/header/transform claims, bind public declaration types and keep actual native/persistence/packaging gates explicit.
 
+- AC7: Honor optional Image cachePolicy="none" through a per-view private handoff without changing public UI Image props. Require matching CoreImage/renderer support before loading; preserve normalization/source candidates. Skip framework memory/disk reads/writes and disk initialization, share bypass work only within its mode, retire same-source mode changes and preserve current cancellation/delivery. Do not claim purge of older/platform caches or native qualification.
+
 ## Documentation
 
 - AC1: [AppKit image loading](../../../docs/app/components.md#image-loading-on-appkit), [layout regressions](../../../packages/ui/src/image.macos.mobile.test.tsrx) and [maintained probe](../../../examples/probes/image-loading.macos.tsrx).
@@ -34,4 +36,6 @@ previews picked image files.
 
 - AC5: [Private renderer memory contract](../../../packages/macos-renderer/README.md#render-local-images-and-overlays), six added [request-policy cases](../../../packages/macos-renderer/test/image-requests.test.ts), two [fake remote cases](../../../packages/macos-renderer/test/image-remote.test.ts) and [manual fixture](../../../examples/probes/image-memory-cache.macos.tsrx), all unrun. [Target note](../parity/appkit-progress.md#appkit-decoded-image-memory-invalidation-prerequisite) records exact deferred commands. The separate AC6 source path now connects default public helpers to image-owned disk bytes. Advanced headers/configuration/engine options and native cache qualification remain incomplete; this memory-only seam does not close those gates.
 
-- AC6: [Package subset and usage](../../../packages/image/README.md#appkit-subset), [native byte owner](../../../packages/macos-renderer/src/image-byte-cache.ts), [adapter](../../../packages/image/src/cache-bridge.macos.ts), nine [byte-cache cases](../../../packages/macos-renderer/test/image-byte-cache.test.ts), six [adapter cases](../../../packages/image/tests/cache.macos.test.ts), seven [view cases](../../../packages/macos-renderer/test/image-remote.test.ts), updated [placeholder cases](../../../packages/macos-renderer/test/image.test.ts) and [manual target fixture](../../../examples/probes/cached-image.macos.tsrx), all unrun. [Target note](../parity/appkit-progress.md#appkit-image-owned-byte-cache-and-public-helpers) records exact deferred commands. The shared mobile/web fixture now directs AppKit to its target fixture because native load/error/transform callbacks remain unsupported.
+- AC6: [Package subset and usage](../../../packages/image/README.md#appkit-subset), [native byte owner](../../../packages/macos-renderer/src/image-byte-cache.ts), [adapter](../../../packages/image/src/cache-bridge.macos.ts), twelve [byte-cache cases](../../../packages/macos-renderer/test/image-byte-cache.test.ts), eight [adapter cases](../../../packages/image/tests/cache.macos.test.ts), fourteen [view cases](../../../packages/macos-renderer/test/image-remote.test.ts), updated [placeholder cases](../../../packages/macos-renderer/test/image.test.ts) and [manual target fixture](../../../examples/probes/cached-image.macos.tsrx), all unrun. [Target note](../parity/appkit-progress.md#appkit-image-owned-byte-cache-and-public-helpers) records exact deferred commands. The shared mobile/web fixture now directs AppKit to its target fixture because native load/error/transform callbacks remain unsupported.
+
+- AC7: [Bypass usage](../../../packages/image/README.md#appkit-subset), [renderer contract](../../../packages/macos-renderer/README.md#render-local-images-and-overlays), three added [byte cases](../../../packages/macos-renderer/test/image-byte-cache.test.ts), seven added [view cases](../../../packages/macos-renderer/test/image-remote.test.ts), two added [adapter cases](../../../packages/image/tests/cache.macos.test.ts), two [prop-dispatch cases](../../../packages/macos-renderer/test/image-policy-props.test.ts), two added [CoreImage cases](../../../packages/ui/src/image.macos.mobile.test.tsrx) and the updated [target fixture](../../../examples/probes/cached-image.macos.tsrx), all unrun. [Target note](../parity/appkit-progress.md#appkit-per-image-cache-bypass) records exact deferred commands and native/persistence/packaging limits.

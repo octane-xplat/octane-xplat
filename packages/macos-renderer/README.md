@@ -349,10 +349,39 @@ await evictImage(src)
 await clearImageCaches()
 ```
 
-Nine byte-cache, six public-adapter and seven remote-view cases plus updated
+Byte-cache, adapter, remote-view, CoreImage and policy-wiring cases plus updated
 placeholder coverage are authored, all unrun. The [AppKit cache fixture](../../examples/probes/cached-image.macos.tsrx)
 only mounts controls in its runner; it does not qualify network, disk storage,
 capacity/eviction, bridge timing, cache lifetime, cancellation or packaging.
+
+
+The private imageCachePolicy intrinsic selects memory-disk (default) or none.
+Creation and mutation pass the complete final prop bag to updateImage, so a
+source/policy change cannot begin a temporary default-mode request. Each view's
+request generation includes policy. Bypass has separate, non-retaining decode
+and byte pools; it neither reads nor writes owned caches, nor initializes disk
+storage. Transport still disables automatic HTTP caching. It may share pending
+work with other bypass views, preserving final-subscriber cancellation, while
+normal prefetch/display remains independently owned. Clear does not cancel an
+unrelated bypass view, and bypass does not evict older default-mode entries.
+
+```tsx
+import { Image } from '@octane-xplat/image'
+export function Preview({ src }: { src: string }) {
+	return <Image src={src} cachePolicy="none" alt="Preview" style={{ width: 120, height: 80 }} />
+}
+```
+
+The optional leaf's private handoff keeps CoreImage's public props, layout,
+placeholder/SVG and candidate selection intact. Capability markers on the actual
+CoreImage function and renderer backend reject missing/older support before a
+bypass render. These markers are private, not a new public UI Image option.
+Paint and native-cancel reentry retain the current generation: previous handles
+are claimed before release, and late handles cannot overwrite a newer source.
+This bypass controls framework caching, not platform-internal NSImage/resource
+storage or displayed bitmap lifetime. Sixteen added byte/view/adapter/CoreImage/
+prop-dispatch cases are authored, unrun; native and packed qualification remains
+separate in the [target note](../../.agents/docs/parity/appkit-progress.md#appkit-per-image-cache-bypass).
 
 ```tsx
 import { Image } from '@octane-xplat/ui'

@@ -1106,13 +1106,15 @@ reused. Engine-specific headers, decode bounds, transitions and
 load/error callbacks remain unimplemented. AppKit does not honor decode scheduling hints. Fit/position
 use the native image's logical point dimensions, not an engine decode bound. Local placeholders remain on failure;
 remote placeholders are ignored. Real native loading, cancellation, layout,
-network errors and packaging still need qualification.
+network errors and packaging still need qualification. Use `cachePolicy="none"`
+to bypass framework memory/owned-disk caching for one view; matching UI/renderer
+support is required, and older cached entries are not purged.
 
 ```tsx
 import { Image } from '@octane-xplat/image'
 
 export function Photo({ src }: { src: string }) {
-	return <Image src={src} alt="Photo" contentFit="contain"
+	return <Image src={src} cachePolicy="none" alt="Photo" contentFit="contain"
 		placeholder="~/thumbnail.png" style={{ width: 120, height: 80 }} />
 }
 ```

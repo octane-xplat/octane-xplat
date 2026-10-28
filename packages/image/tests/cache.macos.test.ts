@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { createAppKitImageCache, validateAppKitImageOptions } from '../src/cache-bridge.macos.ts'
+import { createAppKitImageCache, validateAppKitImageOptions, withAppKitImagePolicy } from '../src/cache-bridge.macos.ts'
 
 test('the optional AppKit adapter delegates disk warming, queries, eviction and clear to the renderer owner', async () => {
 	const calls: unknown[] = [], cache = createAppKitImageCache(() => ({
@@ -43,9 +43,24 @@ test('public prefetch caps bridge concurrency and stops dequeuing after a failed
 	pending[1].resolve(false); assert.equal(await task, false); assert.equal(pending.length, 2)
 })
 
-test('unsupported display cache bypass and headers fail before a default persistent load can start', () => {
+test('display cache policies are validated and unsupported headers fail before loading', () => {
 	assert.doesNotThrow(() => validateAppKitImageOptions({}))
 	assert.doesNotThrow(() => validateAppKitImageOptions({ cachePolicy: 'memory-disk', headers: {} }))
-	assert.throws(() => validateAppKitImageOptions({ cachePolicy: 'none' }), /cachePolicy="none"/)
+	assert.doesNotThrow(() => validateAppKitImageOptions({ cachePolicy: 'none' }))
+	assert.throws(() => validateAppKitImageOptions({ cachePolicy: 'invalid' }), /Invalid/)
 	assert.throws(() => validateAppKitImageOptions({ headers: { Authorization: 'test-only' } }), /headers are not implemented/)
+})
+
+test('private policy handoff preserves source/layout props without mutating the caller and requires both capabilities', () => {
+	const props = { src: 'https://image-test/private', cachePolicy: 'none' as const, style: 'width:40px', alt: 'Photo' }
+	const core = Object.defineProperty(() => {}, '__xplatAppKitImagePolicy', { value: true })
+	const bridge = { supportsCachePolicy: true, initialize: () => true, prefetch: async () => true, isCached: () => 'none' as const, evict: () => true, clear: () => true }
+	const result = withAppKitImagePolicy(props, core, () => bridge)
+	assert.deepEqual(result, { ...props, __appKitImageCachePolicy: 'none' }); assert.equal('__appKitImageCachePolicy' in props, false)
+	assert.equal(withAppKitImagePolicy({ src: 'local', cachePolicy: undefined }, () => {}, () => undefined).__appKitImageCachePolicy, 'memory-disk')
+})
+test('missing or older UI/renderer cannot silently fall back from an uncached display request', () => {
+	const props = { cachePolicy: 'none' as const }, core = Object.defineProperty(() => {}, '__xplatAppKitImagePolicy', { value: true })
+	assert.throws(() => withAppKitImagePolicy(props, () => {}, () => undefined), /matching UI and renderer/)
+	assert.throws(() => withAppKitImagePolicy(props, core, () => undefined), /matching UI and renderer/)
 })

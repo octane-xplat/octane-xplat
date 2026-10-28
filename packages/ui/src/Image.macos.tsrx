@@ -28,12 +28,17 @@ function appKitPlaceholder(placeholder: string): string | undefined {
 // The AppKit host paints a placeholder in the same image view while loading.
 declare module '@octane-xplat/jsx/intrinsics' {
 	interface ImageProps {
+		/** Private AppKit engine request option, outside the public UI Image props. */
+		imageCachePolicy?: 'memory-disk' | 'none'
 		placeholder?: string
 		onImageGeometryChanged?: (geometry: { width: number; height: number; scale: number }) => void
 	}
 }
 
 export function Image(props: ImageProps) @{
+	// The optional image engine passes this private field through JSX spreads;
+	// keep the shared public ImageProps contract unchanged.
+	const cachePolicy = '__appKitImageCachePolicy' in props && props.__appKitImageCachePolicy === 'none' ? 'none' : 'memory-disk'
 	const [geometry, setGeometry] = useState({ width: 0, height: 0, scale: 1 })
 	const sources = Array.isArray(props.src) ? props.src : null
 	const srcString = (sources
@@ -64,6 +69,7 @@ export function Image(props: ImageProps) @{
 	<image
 		id={props.id}
 		src={src}
+		imageCachePolicy={cachePolicy}
 		placeholder={placeholder}
 		onImageGeometryChanged={sources ? onGeometry : undefined}
 		className={cx(props.className)}
@@ -71,3 +77,6 @@ export function Image(props: ImageProps) @{
 		accessibilityLabel={props.alt ?? ''}
 	/>
 }
+
+// Private capability handshake: older UI leaves must not silently drop bypass.
+Object.defineProperty(Image, '__xplatAppKitImagePolicy', { value: true })

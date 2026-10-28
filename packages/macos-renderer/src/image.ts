@@ -62,15 +62,15 @@ interface ImageRequest {
 	placeholder: string
 	placeholderImage: NSImage | null
 	generation: number
+	policy: 'memory-disk' | 'none'
 	release?: () => void
 }
 
 const requests = new WeakMap<object, ImageRequest>()
 
-/** The renderer and every mounted image share one bounded decode cache.
- * A final subscriber's removal cancels pending work instead of retaining its
- * view until a remote request eventually finishes. */
-const imageRequests = createImageRequests<NSImage>((source, complete) => {
+/** Default loads share bounded decoded requests; bypass has a separate,
+ * non-retaining pool below. The final subscriber owns cancellation. */
+function startImage(source: string, complete: (image: NSImage | null) => void, policy: 'memory-disk' | 'none') {
 	if (!/^https?:\/\//i.test(source)) {
 		const timer = setTimeout(() => {
 			let image: NSImage | null = null
@@ -88,8 +88,10 @@ const imageRequests = createImageRequests<NSImage>((source, complete) => {
 			try { image = NSImage.alloc().initWithData(result.data) } catch (error) { console.error('[macos-image] remote decode failed', error) }
 		}
 		complete(image)
-	})
-})
+	}, policy)
+}
+const imageRequests = createImageRequests<NSImage>((source, complete) => startImage(source, complete, 'memory-disk'))
+const bypassImageRequests = createImageRequests<NSImage>((source, complete) => startImage(source, complete, 'none'), 0)
 
 /** Private decoded-memory controls. Deliberately separate from the image leaf's
  * public memory+disk cache contract and NSURLSession's HTTP caching. Invalidating
@@ -103,6 +105,7 @@ export const imageMemoryCache = {
 /** Image-owned public-cache backend. Encoded disk bytes and decoded memory
  * invalidate together; mounted views retain their subscribed deliveries. */
 export const imageCache = {
+	supportsCachePolicy: true,
 	initialize: imageBytes.initialize,
 	prefetch: imageBytes.prefetch,
 	isCached(source: string): 'memory' | 'disk' | 'none' {
@@ -120,16 +123,18 @@ export const imageCache = {
  *  thumbhash:/blurhash: to data: PNGs) paints into the same view, and a failed
  *  load leaves it standing. The previous image stays visible until its
  *  replacement resolves. */
-export function updateImage(view: NSImageView, source: unknown, placeholder?: unknown) {
+export function updateImage(view: NSImageView, source: unknown, placeholder?: unknown, policy: 'memory-disk' | 'none' | null = 'memory-disk') {
+	const effectivePolicy = policy ?? 'memory-disk'
+	if (effectivePolicy !== 'memory-disk' && effectivePolicy !== 'none') throw new TypeError('Invalid AppKit image cache policy')
 	const src = String(source ?? '')
 	const ph = String(placeholder ?? '')
 	let request = requests.get(view)
 	if (!request) {
-		request = { source: '', placeholder: '', placeholderImage: null, generation: 0 }
+		request = { source: '', placeholder: '', placeholderImage: null, generation: 0, policy: effectivePolicy }
 		requests.set(view, request)
 	}
 
-	if (request.source === src && request.placeholder === ph) {
+	if (request.source === src && request.placeholder === ph && request.policy === effectivePolicy) {
 		return
 	}
 
@@ -138,12 +143,16 @@ export function updateImage(view: NSImageView, source: unknown, placeholder?: un
 	}
 
 	request.source = src
+	request.policy = effectivePolicy
 	request.placeholder = ph
 	const generation = ++request.generation
-	request.release?.()
+	const previousRelease = request.release
 	request.release = undefined
+	previousRelease?.()
+	const current = () => requests.get(view) === request && request.generation === generation
+	if (!current()) return
 	const deliver = (image: NSImage | null) => {
-		if (requests.get(view) !== request || request.generation !== generation) {
+		if (!current()) {
 			return
 		}
 
@@ -151,19 +160,21 @@ export function updateImage(view: NSImageView, source: unknown, placeholder?: un
 	}
 
 	const showPlaceholder = () => {
-		if (!ph) {
+		if (!current() || !ph) {
 			return
 		}
 
 		if (!request.placeholderImage) {
 			try {
-				request.placeholderImage = loadImage(ph)
+				const image = loadImage(ph)
+				if (!current()) return
+				request.placeholderImage = image
 			} catch (error) {
 				console.error('[macos-image] placeholder decode failed', error)
 			}
 		}
 
-		if (request.placeholderImage) {
+		if (current() && request.placeholderImage) {
 			view.image = request.placeholderImage as NSImage
 		}
 	}
@@ -176,7 +187,9 @@ export function updateImage(view: NSImageView, source: unknown, placeholder?: un
 
 	// Cached requests deliver synchronously; otherwise the placeholder stands
 	// until a decode/fetch resolves. The previous image can remain meanwhile.
-	request.release = imageRequests.subscribe(src, deliver, showPlaceholder)
+	const release = (effectivePolicy === 'none' ? bypassImageRequests : imageRequests).subscribe(src, deliver, showPlaceholder)
+	if (current()) request.release = release
+	else release()
 }
 
 /** Invalidates any in-flight decode for `view`; call when its node is destroyed. */

@@ -74,3 +74,27 @@ test('native NSDictionary response headers participate in storage policy', async
 	env.tasks[0].handler('bytes', { statusCode: 200, allHeaderFields: headers }, null); env.flush()
 	assert.equal(await warm, false); assert.equal(env.disk.size, 0)
 })
+
+test('bypass skips owned disk reads/writes and cache-directory initialization while using uncached transport', async () => {
+	const env = imageCacheFixture(), cache = createImageByteCache(() => env.native), received: any[] = []
+	env.disk.set(src, { data: 'older', storagePolicy: 0 })
+	cache.subscribe(src, (result) => received.push(result), 'none'); await env.start()
+	assert.equal(env.tasks.length, 1); assert.equal(env.tasks[0].request.cachePolicy, 1)
+	assert.equal(env.configurations.length, 1); assert.equal(env.configurations[0].URLCache, null)
+	env.tasks[0].handler('fresh', { statusCode: 200 }, null); env.flush()
+	assert.deepEqual(received, [{ data: 'fresh', stored: false }]); assert.equal(env.disk.get(src).data, 'older'); assert.equal(env.stores.length, 0)
+})
+test('bypass work shares only with bypass consumers and final removal cannot cancel a cacheable prefetch', async () => {
+	const env = imageCacheFixture(), cache = createImageByteCache(() => env.native), warm = cache.prefetch(src)
+	const first = cache.subscribe(src, () => assert.fail('retired bypass'), 'none'), second = cache.subscribe(src, () => assert.fail('retired bypass'), 'none')
+	await env.start(); assert.equal(env.tasks.length, 2)
+	first(); assert.equal(env.tasks[1].cancelled, 0); second(); assert.equal(env.tasks[1].cancelled, 1); assert.equal(env.tasks[0].cancelled, 0)
+	env.tasks[1].handler('late', { statusCode: 200 }, null); env.tasks[0].handler('cached', { statusCode: 200 }, null); env.flush()
+	assert.equal(await warm, true); assert.equal(env.disk.get(src).data, 'cached')
+})
+test('cache clear does not cancel or cache an independently owned bypass delivery', async () => {
+	const env = imageCacheFixture(), cache = createImageByteCache(() => env.native), received: any[] = []
+	cache.subscribe(src, (result) => received.push(result), 'none'); await env.start(); cache.clear()
+	env.tasks[0].handler('uncached', { statusCode: 200 }, null); env.flush()
+	assert.deepEqual(received, [{ data: 'uncached', stored: false }]); assert.equal(env.disk.size, 0); assert.equal(env.tasks[0].cancelled, 0)
+})

@@ -16,7 +16,7 @@ export function createImageByteCache(native: () => Record<string, any>) {
 		const host = native(), url = host.NSURL?.URLWithString(source)
 		return url ? host.NSURLRequest?.requestWithURLCachePolicyTimeoutInterval(url, 1, 60) : null
 	}
-	const initialize = () => {
+	const ensureSession = () => {
 		const host = native()
 		if (!session) {
 			const configuration = host.NSURLSessionConfiguration?.ephemeralSessionConfiguration
@@ -27,6 +27,11 @@ export function createImageByteCache(native: () => Record<string, any>) {
 			session = host.NSURLSession?.sessionWithConfiguration(configuration)
 			if (!session) return false
 		}
+		return true
+	}
+	const initialize = () => {
+		if (!ensureSession()) return false
+		const host = native()
 		if (storage) return true
 		try {
 			const manager = host.NSFileManager?.defaultManager
@@ -62,13 +67,13 @@ export function createImageByteCache(native: () => Record<string, any>) {
 		// later header-aware engine must give them separate cache identities.
 		return !/(?:^|,)\s*(?:no-store|no-cache|private)(?:\s|,|=|$)/i.test(read('cache-control')) && !read('vary') && !read('set-cookie')
 	}
-	const requests = createImageRequests<ImageBytes>((source, complete) => {
+	const load = (source: string, complete: (result: ImageBytes | null) => void, cacheAllowed: boolean) => {
 		const request = requestFor(source)
 		if (!request) { complete(null); return }
-		const ownedEpoch = epoch, ownedVersion = version(source)
-		const current = () => epoch === ownedEpoch && versions.get(source) === ownedVersion
+		const ownedEpoch = epoch, ownedVersion = cacheAllowed ? version(source) : undefined
+		const current = () => cacheAllowed && epoch === ownedEpoch && versions.get(source) === ownedVersion
 		const settle = (result: ImageBytes | null) => {
-			if (versions.get(source) === ownedVersion) versions.delete(source)
+			if (cacheAllowed && versions.get(source) === ownedVersion) versions.delete(source)
 			complete(result)
 		}
 		const host = native(), queue = host.NSOperationQueue?.mainQueue
@@ -78,10 +83,10 @@ export function createImageByteCache(native: () => Record<string, any>) {
 			timer = undefined
 			if (!active) return
 			try {
-				initialize()
+				if (cacheAllowed) initialize(); else ensureSession()
 				if (!session) { settle(null); return }
 				let hit: ImageBytes | null = null
-				try { hit = cached(request) } catch {}
+				try { if (cacheAllowed) hit = cached(request) } catch {}
 				if (hit) { settle({ data: hit.data, stored: current() }); return }
 				task = session.dataTaskWithRequestCompletionHandler(request, (data: any, response: any, error: any) => {
 					if (!active) return
@@ -109,11 +114,15 @@ export function createImageByteCache(native: () => Record<string, any>) {
 				task.resume()
 			} catch { active = false; try { task?.cancel() } catch {}; settle(null) }
 		}, 0)
-		return () => { active = false; if (versions.get(source) === ownedVersion) versions.delete(source); if (timer !== undefined) clearTimeout(timer); task?.cancel() }
-	}, 0)
+		return () => { active = false; if (cacheAllowed && versions.get(source) === ownedVersion) versions.delete(source); if (timer !== undefined) clearTimeout(timer); task?.cancel() }
+	}
+	const requests = createImageRequests<ImageBytes>((source, complete) => load(source, complete, true), 0)
+	const bypass = createImageRequests<ImageBytes>((source, complete) => load(source, complete, false), 0)
 	return {
 		initialize,
-		subscribe: requests.subscribe,
+		subscribe(source: string, listener: (result: ImageBytes | null) => void, policy: 'memory-disk' | 'none' = 'memory-disk') {
+			return (policy === 'none' ? bypass : requests).subscribe(source, listener)
+		},
 		prefetch(source: string): Promise<boolean> {
 			return new Promise((resolve) => { requests.subscribe(source, (result) => resolve(result?.stored === true)) })
 		},

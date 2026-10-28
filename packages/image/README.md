@@ -160,12 +160,28 @@ const refreshed = await prefetch(src)
 console.log(refreshed)
 ```
 
+Set `cachePolicy="none"` for a view that should load independently of cached
+images. It skips framework memory/disk reads and writes, uses uncached transport,
+and shares pending work only with other bypass consumers. It does not delete
+older entries, purge platform-internal storage, or release the bitmap displayed
+by that view. Changing policy on the same source retires its previous request;
+returning to the default can reuse a default-mode entry. Missing/older UI or
+renderer support fails before a bypass load rather than silently caching it.
+
+```tsx
+import { Image } from '@octane-xplat/image'
+export function UncachedPhoto({ src }: { src: string }) {
+	return <Image src={src} cachePolicy="none" alt="Photo"
+		contentFit="contain" style={{ width: 120, height: 80 }} />
+}
+```
+
 Configuration fields still lack AppKit implementations and now throw explicitly.
-Decode-transform queries report none. Display headers and cachePolicy="none"
-now throw before loading instead of silently using the persistent default.
+Decode-transform queries report none. Display headers still throw before loading. With matching UI/renderer support,
+cachePolicy="none" now bypasses framework decoded-memory and owned disk caches.
 Decode bounds, failureImage, progressive loading, transitions and onLoad/onError
 remain unimplemented. The public macOS declaration also now binds its PrefetchOptions
-parameter type. Nine byte-cache, six adapter and seven remote-view source cases
+parameter type. Byte-cache, adapter, remote-view, CoreImage and native-policy source cases
 plus updated placeholder coverage and the [AppKit fixture](../../examples/probes/cached-image.macos.tsrx)
 are authored, all unrun. Native disk/network/threading, decode/memory lifetime,
 responsiveness and packaging remain unqualified. Fit/position retain the core

@@ -101,8 +101,8 @@ the main operation queue. Native timing, rendering and packaging are unqualified
 The optional package now has source-only HTTP(S) byte prefetch, memory/disk
 query, eviction and clear through an image-owned disk cache; native qualification
 is pending. It uses a credential-free dedicated session. Prefetch headers and
-uncacheable responses resolve false. Configuration fields, display headers and
-cachePolicy="none" throw; decode-
+uncacheable responses resolve false. Configuration fields and display headers throw; cachePolicy="none" now has the
+matched UI/renderer bypass path below. Decode-
 transform queries return none. Other engine props/callbacks remain gaps. The
 private imageMemoryCache bridge controls decoded memory only; do not substitute
 it for public disk eviction or an account-data purge. Read the
@@ -124,6 +124,20 @@ const src = 'https://example.com/photo.png'
 console.log(await prefetch(src), (await isImageCached(src))[src])
 await evictImage(src)
 await clearImageCaches()
+```
+
+For the optional Image, cachePolicy="none" now bypasses framework memory/owned
+disk caches. A private per-view handoff retains CoreImage normalization; matching
+UI and renderer capabilities are required or it fails before loading. Bypass
+work shares only with bypass consumers; mode changes retire old callbacks for
+the same URI. This does not purge older entries or platform-internal caches.
+Native cache behavior and retention remain unqualified.
+
+```tsx
+import { Image } from '@octane-xplat/image'
+export function FreshPhoto({ src }: { src: string }) {
+	return <Image src={src} cachePolicy="none" alt="Photo" style={{ width: 120, height: 80 }} />
+}
 ```
 
 ## Native macOS interaction
