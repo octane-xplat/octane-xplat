@@ -1,6 +1,13 @@
+import { radiusKeys } from './projection/paint'
 import { attachPan } from './pan.web'
 import { delegatedRun } from './driver.web'
-import { buildProjectionTransform, removeBoxTransforms } from 'motion-dom'
+import {
+	buildProjectionTransform,
+	removeBoxTransforms,
+	correctBorderRadius,
+	correctBoxShadow,
+} from 'motion-dom'
+
 import type { DelegatedRequest, DelegatedRun, HostAdapter } from './host-types'
 import type { Box, Measurement, ProjectionWrite } from './projection/types'
 import type { Target } from './types'
@@ -22,6 +29,38 @@ export function attachHost(node: HTMLElement): HostAdapter {
 
 	let latestValues: Target = {}
 	let projecting = false
+	const paintKeys = [...radiusKeys, 'boxShadow'] as const
+	let paintSaved: Record<string, string> | undefined
+	let paintApplied: Record<string, string> = {}
+	const restorePaint = () => {
+		if (!paintSaved) {
+			return
+		}
+		for (const key of paintKeys) {
+			if (node.style[key] === paintApplied[key]) {
+				node.style[key] = paintSaved[key]
+			}
+		}
+		paintSaved = undefined
+	}
+	const correctPaint = (projection: ProjectionWrite) => {
+		restorePaint()
+		paintSaved = Object.fromEntries(paintKeys.map((key) => [key, node.style[key]]))
+		const baseline = getComputedStyle(node)
+		const values = Object.fromEntries(paintKeys.map((key) => [key, baseline[key]]))
+		const context = {
+			target: projection.target,
+			treeScale: projection.treeScale,
+			projectionDelta: projection.delta,
+		}
+		for (const key of radiusKeys) {
+			node.style[key] = String(correctBorderRadius.correct(values[key], context as any))
+		}
+		if (values.boxShadow && values.boxShadow !== 'none') {
+			node.style.boxShadow = String(correctBoxShadow.correct(values.boxShadow, context as any))
+		}
+		paintApplied = Object.fromEntries(paintKeys.map((key) => [key, node.style[key]]))
+	}
 
 	const write = (values: Target) => {
 		latestValues = { ...latestValues, ...values }
@@ -53,6 +92,7 @@ export function attachHost(node: HTMLElement): HostAdapter {
 		write,
 		delegate: (req: DelegatedRequest): DelegatedRun | null => delegatedRun(node, req, write),
 		restore() {
+			restorePaint()
 			projecting = false
 			node.style.transform = transform
 			node.style.transformOrigin = transformOrigin
@@ -88,18 +128,21 @@ export function attachHost(node: HTMLElement): HostAdapter {
 			return { layoutBox, measuredBox }
 		},
 		resetProjection() {
+			restorePaint()
 			if (projecting) {
 				node.style.transform = 'none'
 			}
 		},
 		project(write: ProjectionWrite | null) {
 			if (!write) {
+				restorePaint()
 				projecting = false
 				node.style.transformOrigin = transformOrigin
 				this.write(latestValues)
 				return
 			}
 
+			correctPaint(write)
 			latestValues = write.latest
 			projecting = true
 			node.style.transform = buildProjectionTransform(write.delta, write.treeScale, {

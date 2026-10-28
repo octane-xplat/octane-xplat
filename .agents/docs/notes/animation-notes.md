@@ -720,8 +720,7 @@ existing failures outside this change; changed animation files pass.
 `layoutDependency`, `onLayoutAnimationStart`/`onLayoutAnimationComplete`, and
 `transition={{ layout: {...} }}` are supported on `motion.View`, `motion.Row`,
 `motion.Pressable` and `motion.create` hosts, including experimental macOS. `layoutId`/`LayoutGroup` shared handoffs
-and retained crossfades are also supported. `layoutScroll`
-and border-radius/box-shadow correction are excluded. Browser overflow scroll offsets
+and retained crossfades are also supported. `layoutScroll` is excluded. Numeric corner radii and shadows receive paint scale correction. Browser overflow scroll offsets
 are detected automatically. The default layout transition is a 0.45 s tween.
 
 Mechanism: a node modeled on motion-dom's `create-projection-node.ts` over its
@@ -834,3 +833,19 @@ fixed layout roots, and root/anchor APIs remain outside this phase. The probe's
 Intl shim only permits UI module initialization; production Intl support is
 separate work. Recipe criteria AC6 and AC7 in `motion-patterns` cover the layout
 and shared-element workflows.
+
+
+### Phase 3 paint correction
+
+Projection uses Motion's numeric corner and single-shadow correction on web.
+NativeScript corrects resolved radius lengths and parsed shadow objects;
+AppKit's `setLayoutProjectionScale(view, scale | null)` compensates renderer-owned
+radii, masks, and shadow paths without changing authored styles or layout.
+Scalar native radii and blur/spread are exact only under uniform scale. Web
+multiple shadows retain Motion's fallback; percentage radii retain proportional
+behavior on web and NativeScript.
+
+Focused web-host and projection tests, native object-driver tests, and all 349
+AppKit renderer tests pass. The AppKit runtime harness verifies a 100→200 uniform
+resize keeps a 20pt corner radius and 12pt shadow blur, including intermediate
+frames and restoration. These assertions inspect layer geometry, not pixels.

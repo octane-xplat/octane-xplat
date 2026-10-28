@@ -14,7 +14,7 @@ function App(props: { wide: boolean; reverse: boolean }) {
 						views.parent = v
 					}}
 					transition={{ duration: 0.4, ease: 'linear' }}
-					style={{ width: props.wide ? 200 : 100, height: 100 }}
+					style={{ width: props.wide ? 200 : 100, height: props.wide ? 200 : 100, borderRadius: 20, boxShadow: '0px 4px 12px 0px black' }}
 				>
 					{(props.reverse ? ['b', 'a'] : ['a', 'b']).map((id) => (
 						<motion.View
@@ -71,6 +71,8 @@ export async function runLayout() {
 		await flush()
 		const first = views.parent.bounds.size.width * scale(views.parent)
 		check(views.parent.bounds.size.width === 200, 'new layout measured')
+		check(Math.abs(views.parent.layer.cornerRadius * scale(views.parent) - 20) < 0.5, 'initial radius correction')
+		check(Math.abs(views.parent.layer.shadowRadius * scale(views.parent) - 12) < 0.5, 'initial shadow correction')
 		check(Math.abs(first - 100) < 0.5, 'inverse projection before the next frame: ' + first)
 		check(
 			Math.abs(visual(views.parent).origin.x - parentBefore.origin.x) < 0.5,
@@ -86,9 +88,11 @@ export async function runLayout() {
 		const mid = views.parent.bounds.size.width * scale(views.parent)
 		const child = views.a.bounds.size.width * scale(views.a) * scale(views.parent)
 		check(mid > 110 && mid < 190, 'intermediate parent width: ' + mid)
+		check(Math.abs(views.parent.layer.cornerRadius * scale(views.parent) - 20) < 0.5, 'intermediate radius correction')
 		check(Math.abs(child - 50) < 0.5, 'nested correction: ' + child)
 		await sleep(400)
 		check(scale(views.parent) === 1, 'restored parent transform')
+		check(views.parent.layer.cornerRadius === 20, 'restored authored radius')
 		const before = views.a.frame.origin.y
 		const beforeVisual = visual(views.a)
 		root.render(App, { wide: true, reverse: true })

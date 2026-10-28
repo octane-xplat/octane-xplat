@@ -1,3 +1,4 @@
+import { setProjectionScale } from '../src/projection-paint.ts'
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { runSlice } from './mock-globals.ts'
@@ -17,7 +18,9 @@ import {
 // background color survives on the view otherwise.
 const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
 
+const projectionStart = source.indexOf('function setLayoutProjectionScale')
 const slices = [
+	source.slice(projectionStart, source.indexOf('\n}', projectionStart) + 2),
 	source.slice(source.indexOf('const MARGIN_SIDES'), source.indexOf('function wireViewAction')),
 	source.slice(source.indexOf('function layoutLength'), source.indexOf('function pinLayoutChild')),
 	source.slice(source.indexOf('const EDGE_INSET_PROPS'), source.indexOf('function textContent')),
@@ -152,7 +155,11 @@ const masonProp = (_node: any, name: string, value: any) => {
 	return true
 }
 
+const paintNodes = new WeakMap()
 const sandbox = {
+ cssNodesByView: paintNodes,
+ setProjectionScale,
+ CATransaction: { begin() {}, setDisableActions() {}, commit() {} },
 	elementBehaviors: new Map(
 		MASON_TYPES.map((t) => [
 			t,
@@ -283,6 +290,7 @@ const sandbox = {
 }
 
 const {
+	setLayoutProjectionScale,
 	applyStyle,
 	setNodeInlineStyle,
 	applyClassName,
@@ -293,7 +301,7 @@ const {
 } = runSlice(
 	slices.join('\n') +
 		source.slice(source.indexOf('function applyProps'), source.indexOf('function detach')) +
-		'\n({ applyStyle, setNodeInlineStyle, applyClassName, applyProps, nodeClasses, flushStyleDirty, markStyleDirty })',
+		'\n({ setLayoutProjectionScale, applyStyle, setNodeInlineStyle, applyClassName, applyProps, nodeClasses, flushStyleDirty, markStyleDirty })',
 	sandbox,
 )
 
@@ -881,4 +889,23 @@ test('transform shorthand composes translate/rotate/scale onto the layer', () =>
 	setStyle(item, {})
 	assert.equal(item.view.layer.transform?.identity, true)
 	assert.equal(item.transformApplied, false)
+})
+
+
+test('projection scales authored radii and shadows without overwriting style reconciliation', () => {
+ const item = node('masonview', { orientation: 1 })
+ item.view.frame.size.width = 200
+ item.view.frame.size.height = 100
+ paintNodes.set(item.view, item)
+ setLayoutProjectionScale(item.view, { x: 0.5, y: 0.5 })
+ setStyle(item, { borderRadius: 20, boxShadow: '0 4px 12px black' })
+ assert.equal(item.view.layer.cornerRadius, 40)
+ assert.equal(item.view.layer.shadowRadius, 24)
+ setStyle(item, { borderRadius: 30, boxShadow: '0 4px 6px black' })
+ assert.equal(item.view.layer.cornerRadius, 60)
+ assert.equal(item.view.layer.shadowRadius, 12)
+ setLayoutProjectionScale(item.view, null)
+ setStyle(item, { borderRadius: 30, boxShadow: '0 4px 6px black' })
+ assert.equal(item.view.layer.cornerRadius, 30)
+ assert.equal(item.view.layer.shadowRadius, 6)
 })

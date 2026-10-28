@@ -3,7 +3,17 @@ import type { LayoutBarrier } from './types'
 
 export const layoutSupported = true
 
-const volatileProps = new Set(['transform', 'transform-origin', 'opacity'])
+const volatileProps = new Set([
+	'transform',
+	'transform-origin',
+	'opacity',
+	'border-radius',
+	'border-top-left-radius',
+	'border-top-right-radius',
+	'border-bottom-right-radius',
+	'border-bottom-left-radius',
+	'box-shadow',
+])
 
 function stripVolatile(style: string): string {
 	return style

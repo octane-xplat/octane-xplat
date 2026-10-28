@@ -487,6 +487,7 @@ export class ProjectionNode {
 		if (this.needsRender || this.hasProjected) {
 			this.hooks?.project({
 				delta: this.projectionDeltaWithTransform!,
+				target: this.targetWithTransforms,
 				treeScale: this.treeScale,
 				latest: this.latestValues,
 			})

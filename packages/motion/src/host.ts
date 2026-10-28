@@ -1,3 +1,4 @@
+import { correctNativePaint, radiusKeys } from './projection/paint'
 import type { DelegatedRequest, DelegatedRun, HostAdapter } from './host-types'
 import type { Target } from './types'
 import { attachPan } from './pan'
@@ -52,6 +53,35 @@ export function attachHost(node: any): HostAdapter {
 		}
 	}
 
+	const paintKeys = [...radiusKeys, 'boxShadow']
+	let paintSaved: Record<string, any> | undefined
+	let paintApplied: Record<string, any> = {}
+	const restorePaint = () => {
+		if (!paintSaved || !node.style) {
+			return
+		}
+		for (const key of paintKeys) {
+			if (node.style[key] === paintApplied[key]) {
+				node.style[key] = paintSaved[key]
+			}
+		}
+		paintSaved = undefined
+	}
+	const correctPaint = (projection: import('./projection/types').ProjectionWrite) => {
+		restorePaint()
+		if (!node.style) {
+			return
+		}
+		paintSaved = Object.fromEntries(paintKeys.map((key) => [key, node.style[key]]))
+		const corrected = correctNativePaint(paintSaved, projection)
+		for (const key of Object.keys(corrected)) {
+			if (corrected[key] !== undefined) {
+				node.style[key] = corrected[key]
+			}
+		}
+		paintApplied = Object.fromEntries(paintKeys.map((key) => [key, node.style[key]]))
+	}
+
 	return {
 		pan: (axis, callbacks) => attachPan(node, axis, callbacks),
 		measureLayout() {
@@ -59,14 +89,17 @@ export function attachHost(node: any): HostAdapter {
 			return box ? { layoutBox: box, measuredBox: measureNativeBox(node, true)! } : null
 		},
 		resetProjection() {
+			restorePaint()
 			// Native measurement ignores transforms, so nothing needs clearing;
 			// render() rewrites every hasProjected node each frame anyway.
 		},
 		project(projection) {
 			if (projection === null) {
+				restorePaint()
 				write(latestValues)
 				return
 			}
+			correctPaint(projection)
 			// Channel writes reach the node, not this adapter, while projecting.
 			latestValues = { ...latestValues, ...projection.latest }
 			node.translateX = projection.delta.x.translate / projection.treeScale.x
@@ -77,7 +110,10 @@ export function attachHost(node: any): HostAdapter {
 		},
 		read: () => ({ ...original, scale: 1 }),
 		write,
-		restore: () => write(original),
+		restore: () => {
+			restorePaint()
+			write(original)
+		},
 		delegate: (req: DelegatedRequest): DelegatedRun | null => delegatedRun(node, req, write),
 		gesture(kind, callbacks) {
 			if (typeof node.on !== 'function' || typeof node.off !== 'function') {

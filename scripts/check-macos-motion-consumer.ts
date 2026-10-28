@@ -29,7 +29,7 @@ export async function checkMacOSMotionConsumer({
 	const rendererShim = join(consumerRoot, 'macos-renderer-shim.ts')
 	writeFileSync(
 		rendererShim,
-		`export * from 'octane/universal/native'\nexport { registerStylesheet } from '@octane-xplat/css-engine'\nexport { observeLayoutCommits } from ${JSON.stringify(join(repoRoot, 'packages/macos-renderer/src/layout-observers.ts'))}\n`,
+		`export * from 'octane/universal/native'\nexport { registerStylesheet } from '@octane-xplat/css-engine'\nexport { observeLayoutCommits } from ${JSON.stringify(join(repoRoot, 'packages/macos-renderer/src/layout-observers.ts'))}\nexport { setProjectionScale as setLayoutProjectionScale } from ${JSON.stringify(join(repoRoot, 'packages/macos-renderer/src/projection-paint.ts'))}\n`,
 	)
 
 	let resolvedEntry = false

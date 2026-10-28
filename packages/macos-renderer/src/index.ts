@@ -1,3 +1,4 @@
+import { setProjectionScale, correctProjectionRadii, correctProjectionShadows, type ProjectionScale } from './projection-paint'
 import '@nativescript/macos-node-api'
 import { notifyLayoutCommit, observeLayoutCommits as subscribeLayoutCommits, type LayoutCommit } from './layout-observers'
 export type { LayoutCommit } from './layout-observers'
@@ -10,6 +11,23 @@ export function observeLayoutCommits(observer: (commit: LayoutCommit) => void): 
 	}
 	return stop
 }
+/** Temporary paint compensation without changing authored styles or layout.
+ * Pass null to restore. Scalar radii/blur are exact only under uniform scale. */
+export function setLayoutProjectionScale(view: object, scale: ProjectionScale | null): void {
+	const node = cssNodesByView.get(view)
+	if (!node) return
+	const transaction = (globalThis as any).CATransaction
+	transaction.begin()
+	try {
+		transaction.setDisableActions(true)
+		setProjectionScale(view, scale)
+		syncBorderBox(node)
+		syncBoxShadow(node)
+	} finally {
+		transaction.commit()
+	}
+}
+
 import {
 	configureGesture,
 	setPressGesture,
@@ -4656,7 +4674,7 @@ function syncBorderBox(node: ElementNode) {
 	const h = Math.max(0, Number(size.height) || 0)
 	const spec = node.borderSpec
 
-	const radii = resolveBorderRadii(spec?.radii, w, h)
+	const radii = correctProjectionRadii(view, resolveBorderRadii(spec?.radii, w, h))
 	const maxRadius = Math.max(radii.topLeft, radii.topRight, radii.bottomRight, radii.bottomLeft)
 	const uniformRadius =
 		radii.topLeft === radii.topRight &&
@@ -4876,7 +4894,7 @@ function syncBoxShadow(node: ElementNode) {
 	if (!view) {
 		return
 	}
-	const shadows = node.boxShadowSpec ?? []
+	const shadows = correctProjectionShadows<ParsedBoxShadow>(view, node.boxShadowSpec ?? [])
 	const outset = shadows.find((s: ParsedBoxShadow) => !s.inset)
 	const inset = shadows.find((s: ParsedBoxShadow) => s.inset)
 	if (!outset && !inset && !node.shadowApplied && !node.insetShadowLayer) {
@@ -4893,7 +4911,7 @@ function syncBoxShadow(node: ElementNode) {
 	const size = view.frame?.size ?? { width: 0, height: 0 }
 	const w = Math.max(0, Number(size.width) || 0)
 	const h = Math.max(0, Number(size.height) || 0)
-	const radii = scaleBorderRadii(resolveBorderRadii(node.borderSpec?.radii, w, h), w, h)
+	const radii = scaleBorderRadii(correctProjectionRadii(view, resolveBorderRadii(node.borderSpec?.radii, w, h)), w, h)
 
 	if (outset) {
 		view.wantsLayer = true

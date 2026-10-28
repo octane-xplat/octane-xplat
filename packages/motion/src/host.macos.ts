@@ -1,3 +1,5 @@
+import { setLayoutProjectionScale } from '@octane-xplat/macos-renderer'
+import { paintScale } from './projection/paint'
 import type { HostAdapter } from './host-types'
 import type { Target } from './types'
 import { attachPan } from './pan.macos'
@@ -78,14 +80,20 @@ export function attachHost(node: any): HostAdapter {
 	return {
 		read: () => ({ ...original }),
 		write,
-		restore: () => write(original),
+		restore: () => {
+			setLayoutProjectionScale(node, null)
+			write(original)
+		},
 		pan: (axis, callbacks) => attachPan(node, axis, callbacks),
 		measureLayout() {
 			const box = measureNativeBox(node)
 			return box ? { layoutBox: box, measuredBox: measureNativeBox(node, true)! } : null
 		},
-		resetProjection() {},
+		resetProjection() {
+			setLayoutProjectionScale(node, null)
+		},
 		project(projection) {
+			setLayoutProjectionScale(node, projection ? paintScale(projection) : null)
 			if (!projection) {
 				write(latestValues)
 				return

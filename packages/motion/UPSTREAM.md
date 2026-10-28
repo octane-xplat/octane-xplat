@@ -484,8 +484,17 @@ walks view frames in y-down content coordinates. Layer transforms do not
 participate in measurement. Projection writes compensate for the layer's
 anchor without changing AppKit's anchor or position.
 
-**Still excluded:** `layoutScroll` and
-border-radius/box-shadow correction.
+Numeric corner radii and shadows are scale-corrected. Web reuses motion-dom's
+`correctBorderRadius` and `correctBoxShadow`; NativeScript corrects its resolved
+style lengths and parsed shadow list. AppKit uses renderer-owned paint scale
+compensation, preserving stylesheet values and mask/shadow ownership. Native
+radii use the geometric mean of the two scale axes. Scalar blur/spread and native
+corners are exact only under uniform scale; nonuniform scale is approximate.
+Motion's web corrector leaves multiple shadows unchanged. Correction resets on
+measurement, completion and detach. Authored paint updates during projection
+replace the baseline.
+
+**Still excluded:** explicit `layoutScroll`.
 Fixed-position layout roots are not supported. On native, `rotate` combined with a non-uniform
 parent treeScale is approximate (scale divides translate per axis but not the
 rotation). Reduced motion snaps instead of animating; shared crossfades own opacity

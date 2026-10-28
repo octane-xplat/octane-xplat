@@ -48,6 +48,8 @@ export interface Measurement {
 /** A per-frame projection transform handed to the host adapter. */
 export interface ProjectionWrite {
 	delta: Delta
+	/** Current projected box for percentage-based corner correction. */
+	target?: Box
 	treeScale: Point
 	latest: Target
 }

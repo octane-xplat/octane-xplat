@@ -323,3 +323,11 @@ parent's end corner; `false` disables relative attachment.
   <motion.View layout="position" layoutAnchor={{ x: 1, y: 1 }} />
 </motion.View>
 ```
+
+Numeric corner radii and shadows receive scale correction on projected hosts.
+Prefer uniform resizing when native corner/blur accuracy matters; nonuniform
+native correction is approximate. Multiple web shadows are not corrected.
+
+```tsx
+<motion.View layout style={{ borderRadius: 20, width: expanded ? 300 : 150, height: expanded ? 240 : 120 }} />
+```

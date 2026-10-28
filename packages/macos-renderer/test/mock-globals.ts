@@ -1,3 +1,4 @@
+import { correctProjectionRadii, correctProjectionShadows } from '../src/projection-paint.ts'
 import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
 import { runInNewContext } from 'node:vm'
@@ -49,7 +50,7 @@ export function sourceWithoutImports(url: URL) {
 /** `runInNewContext` for src/index.ts slices: prepends CSS_SLICE_STUBS so
  *  slices that reference cascade helpers they don't include still run. */
 export function runSlice(code: string, context?: Record<string, any>) {
-	return runInNewContext(CSS_SLICE_STUBS + code, context)
+	return runInNewContext(CSS_SLICE_STUBS + code, Object.assign(context ?? {}, { correctProjectionRadii, correctProjectionShadows }))
 }
 
 // Slices eval fragments of src/index.ts without the CSS cascade module —
