@@ -86,3 +86,42 @@ Cargo.lock, header and archive hashes, and explicitly identifies this local
 preparation. The GTK facade is then built by its maintained `build.sh`.
 The task-local archive does not establish an upstream desktop build command or
 packaged consumer support. The maintained upstream producer remains a follow-up.
+
+## Primitive and layout slice
+
+The GTK root now adds 22 runtime exports to the previous Text/Pressable pair:
+View, VStack, HStack, Grid, GridSpan, Stack, StackItem, Center, Section, Layout,
+LayoutHeader, LayoutContent, LayoutFooter, LayoutPanel, Absolute, Spacer, Badge,
+Divider, ColorSwatch, SizeContext, SizeProvider and useSize. Existing shared
+leaves are reused. The renderer dispatches pan/swipe/touch through GTK gesture
+controllers; `pan.gtk.tsrx` preserves their shared payload instead of applying
+the NativeScript numeric-state adapter. Keep the matching `.tsrx` extension:
+the preset's `.tsrx` resolution precedes `.gtk.ts`.
+
+The maintained renderer task passes 28 tests in the Linux guest, with none
+skipped. Its UI fixture performs 42 assertions, including real Mason allocation
+of a Stack row, track/span propagation, size inheritance, press/cancel/drag
+payloads, disabled-handler removal, current callbacks and teardown. The separate
+Xvfb/X11 test sends actual pointer clicks and a drag with xdotool, checks GTK
+hit-testing, verifies balanced press-in/out and receives the pan lifecycle.
+Controller-signal checks and OS-input checks are distinct; neither establishes
+visual or assistive-technology parity.
+
+The declaration fixture compares every GTK runtime export with the generated
+native public surface and checks representative prop contracts plus a rejected
+invalid direction. It compares consumer declarations, not unrelated platform
+source bodies under GTK-only conditions. The UI/dependents typecheck passes all
+58 tasks; the expanded renderer/workshop/dependents check passes all eight.
+`pack:check` validates packed exports and the declaration graph. Recipe structure
+and links pass; this slice changes available components, not CLI workflows, so
+no recipe requirements were changed. The Linux GTK packaging recipe now links
+the named primitive/pointer evidence without treating it as packaged-consumer
+verification. Coverage and execution are tracked separately in Silo
+`gtk_recipe_checks`; the legacy `recipe_audit` target constraint excludes
+Linux and is preserved. Full export qualification remains in
+progress in Silo; these assertions do not close each component's entire prop,
+keyboard, accessibility or visual contract.
+
+Nested GTK containers use their actual allocation as a temporary definite engine size while laying out children. The adapter restores authored dimensions afterward; otherwise an auto-sized Grid recomputes its children at natural width inside an already stretched GTK widget. The retained Grid fixture checks two equal columns, a spanning child, an authored-width change and clearing that width.
+
+The docs site build fails in `@tsrx/oxc@0.16.0` with `unsupported TSRX parser shape: reachable synthetic ESTree span`. It also fails with the guide restored to its original base content, while the GTK changes remain in the worktree. The diagnostic does not identify the module, so its full scope is unresolved. Both build logs are retained on andromeda in `/tmp/gtk-ui-docs-{build,baseline}.log`; the edited guide was restored after the comparison.

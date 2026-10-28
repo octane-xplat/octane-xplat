@@ -77,13 +77,39 @@ executes a single file — code splitting would produce an unloadable
 import. GTK screens use the shared JSX contract; put platform-specific
 variants in `.gtk.tsrx`/`.gtk.tsx` files.
 
-`@octane-xplat/ui` resolves a curated `gtk` export condition — `Text` and
-`Pressable` only, the leaves proven on the GTK driver. Other UI imports are
-unqualified on GTK:
+`@octane-xplat/ui` resolves a curated `gtk` export condition. It includes
+`Text`, `Pressable`, the `View`/`Stack` family, `Grid`/`GridSpan`, `Center`,
+`Section`, `Layout` regions, `Absolute`, `Spacer`, `Badge`, `Divider`,
+`ColorSwatch`, and the shared size context. For example, place a label and
+status badge in a horizontal row:
 
-```ts
-import { Text, Pressable } from '@octane-xplat/ui'
+```tsx
+import { Stack, Text, Badge } from '@octane-xplat/ui'
+
+export function BuildStatus() {
+  return (
+    <Stack direction="horizontal" gap={2}>
+      <Text>Linux build</Text>
+      <Badge label="Ready" />
+    </Stack>
+  )
+}
 ```
+
+Layout needs the repository-only [XplatMason binding](https://github.com/octane-xplat/octane-xplat/tree/main/packages/linux-gtk-renderer/native/xplatmason);
+the Gtk.Box fallback cannot provide Grid or full flex layout. Maintained GJS checks cover
+mounting, direction/spacing updates, size inheritance, gesture callbacks and
+cleanup. This subset does not qualify the complete UI, accessibility or visual
+parity. Other root UI imports remain unavailable until their GTK implementation
+is qualified. The primitive fixture has passed 42 assertions with the real
+Mason engine on Ubuntu 24.04 / GTK 4.14.5; a separate X11 pointer check exercises
+real clicks and drags. These checks do not qualify Wayland, assistive technology
+or visual parity.
+
+The binding consumes a prebuilt MasonCore archive. The published Mason fork
+currently has no desktop archive producer, so a fresh packaged consumer setup
+is still unqualified. The repository's [build record](https://github.com/octane-xplat/octane-xplat/blob/main/.agents/docs/notes/linux-gtk-ui-parity.md#mason-test-artifact-prerequisite)
+describes the pinned, locally prepared artifact used by these tests.
 
 The entry point mounts the app through the renderer's host helper. Import
 your stylesheets from the same module — the preset compiles and injects
@@ -91,6 +117,8 @@ them into the bundle:
 
 ```ts
 // src/main.ts
+import '@octane-xplat/ui/theme/tokens.css'
+import '@octane-xplat/ui/theme/chrome.css'
 import './app.css'
 import { runGtkApp } from '@octane-xplat/linux-gtk/host'
 import { App } from './App.gtk'
@@ -254,7 +282,8 @@ it works from any directory without a source checkout, Node, or pnpm.
   features of the WebKitGTK host, and they land with runtime qualification.
 - No device services (clipboard, secure storage, notifications, files) —
   the GTK host mounts widgets only.
-- OS pointer/keyboard input, Wayland, visual parity and complete shared UI
-  coverage remain unqualified. Counter and retained-pane checks establish only
-  the named widget/event/history behaviors. See the [renderer status
+- Broad pointer/keyboard coverage, Wayland, assistive technology, visual parity
+  and the complete shared UI remain unqualified. Primitive checks establish
+  only the named Mason allocations and X11 pointer behavior; counter and
+  retained-pane checks establish their named widget/event/history behaviors. See the [renderer status
   note](../../.agents/docs/notes/linux-gtk-renderer.md) for the evidence boundary.

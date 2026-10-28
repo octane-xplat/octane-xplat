@@ -38,3 +38,8 @@ on Linux instead of a WebKitGTK webview.
 - AC2: [Build output](../../../docs/platform/linux-gtk.md#develop-and-build)
   and [packaging tests](../../../packages/cli/test/linux-package.test.mjs).
 - AC3: [Missing pieces and evidence boundary](../../../docs/platform/linux-gtk.md#what-this-target-does-not-have-yet).
+
+The primitive and pointer fixtures qualify named Mason allocations and X11
+Pressable input, independently of this packaging recipe. They do not qualify
+the packaged consumer, broad keyboard/input behavior, Wayland, accessibility
+or visual parity. See the [GTK UI qualification record](../notes/linux-gtk-ui-parity.md#primitive-and-layout-slice).

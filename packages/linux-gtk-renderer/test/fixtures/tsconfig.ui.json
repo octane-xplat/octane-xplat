@@ -1,0 +1,9 @@
+{
+	"extends": "./tsconfig.routing.json",
+	"files": [
+		"../../src/gi.d.ts",
+		"src/ui-primitives.gtk.tsrx",
+		"src/ui-input.gtk.tsrx",
+		"src/ui-types.gtk.ts"
+	]
+}

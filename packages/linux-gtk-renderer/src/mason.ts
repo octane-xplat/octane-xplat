@@ -408,8 +408,25 @@ function layoutChildren(node: NodeLike, width: number, height: number) {
 		return
 	}
 
-	mason.node_compute(masonEngine()!, root, width, height)
-	const flat = records(mason.node_layout_shallow(masonEngine()!, root))
+	// GTK has already allocated this container. Treat that content box as
+	// definite while laying out its children; available-space constraints
+	// alone let an auto-sized nested grid shrink back to its natural width.
+	// Restore authored dimensions so parent measurement and later allocations
+	// never inherit a temporary fixed size.
+	const engine = masonEngine()!
+	const authored = styleDict(node)
+	mason.node_set_style(
+		engine,
+		root,
+		JSON.stringify({ ...authored, width: [1, width], height: [1, height] }),
+	)
+	let flat: ReturnType<typeof records>
+	try {
+		mason.node_compute(engine, root, width, height)
+		flat = records(mason.node_layout_shallow(engine, root))
+	} finally {
+		mason.node_set_style(engine, root, JSON.stringify(authored))
+	}
 	if (flat.length < RECORD * 2) {
 		return
 	}

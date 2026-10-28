@@ -1,6 +1,45 @@
-// GTK index — the GJS/GTK4 renderer surface. Only leaves proven on the GTK
-// driver are exported; the shared barrel pulls platform leaves the gtk
-// boundary forbids, so the gtk surface is curated like index.macos.ts.
-export { Text } from './components/content/Text'
-export { Pressable } from './components/actions/Pressable'
-export type { TextProps, PressableProps } from './props'
+// GTK/GJS surface. Add shared leaves only with maintained GTK runtime checks.
+export { Text } from './Text'
+export { Pressable } from './Pressable'
+export { View } from './View'
+export { VStack } from './VStack'
+export { HStack } from './HStack'
+export { Grid, GridSpan } from './Grid'
+export { Stack } from './Stack'
+export { StackItem } from './StackItem'
+export { Center } from './Center'
+export { Section } from './Section'
+export { Layout, LayoutHeader, LayoutContent, LayoutFooter, LayoutPanel } from './Layout'
+export { Absolute } from './Absolute'
+export { Spacer } from './Spacer'
+export { Badge } from './Badge'
+export { Separator as Divider } from './Separator'
+export { ColorSwatch } from './ColorSwatch'
+export { SizeContext, SizeProvider, useSize } from './size-context'
+export type {
+	TextProps,
+	PressableProps,
+	ViewProps,
+	VStackProps,
+	HStackProps,
+	GridProps,
+	GridSpanProps,
+	StackProps,
+	StackItemProps,
+	CenterProps,
+	SectionProps,
+	LayoutProps,
+	LayoutHeaderProps,
+	LayoutContentProps,
+	LayoutFooterProps,
+	LayoutPanelProps,
+	AbsoluteProps,
+	SpacerProps,
+	BadgeProps,
+	SeparatorProps,
+	ColorSwatchProps,
+	ElementSize,
+	PanEvent,
+	PanState,
+	SwipeEvent,
+} from './props'

@@ -243,6 +243,14 @@ declare module 'gi://Gtk?version=4.0' {
 			constructor()
 		}
 
+		class GestureDrag extends EventController {
+			constructor()
+		}
+
+		class GestureSwipe extends EventController {
+			constructor()
+		}
+
 		class GestureLongPress extends EventController {
 			constructor()
 		}

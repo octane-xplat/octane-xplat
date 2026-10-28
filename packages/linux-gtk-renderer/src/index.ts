@@ -184,6 +184,9 @@ const EVENT_PROP_TYPE: Record<
 	onLoaded: { type: 'loaded', priority: 'default' },
 	onUnloaded: { type: 'unloaded', priority: 'default' },
 	onScroll: { type: 'scroll', priority: 'continuous' },
+	onPan: { type: 'pan', priority: 'continuous' },
+	onSwipe: { type: 'swipe', priority: 'discrete' },
+	onTouch: { type: 'touch', priority: 'discrete' },
 }
 
 const EVENT_PROP = /^on([A-Z])(.*)$/
@@ -2691,7 +2694,7 @@ function connectEvent(
 	type: string,
 	listener: UniversalEventListenerDescriptor,
 ): { connections: SignalConnection[]; controllers: any[] } {
-	const handler = (..._args: any[]) => {
+	const dispatch = (payload: unknown) => {
 		if (node.muted.has(type)) {
 			return
 		}
@@ -2706,9 +2709,7 @@ function connectEvent(
 		}
 		const fire = () => {
 			try {
-				root.eventScope(listener.priority, () =>
-					root.dispatchEvent(listener.id, payloadFor(node, type)),
-				)
+				root.eventScope(listener.priority, () => root.dispatchEvent(listener.id, payload))
 			} catch (error) {
 				console.error('[linux-gtk] event handler failed', error)
 			}
@@ -2720,7 +2721,116 @@ function connectEvent(
 		}
 	}
 
+	const handler = (..._args: any[]) => dispatch(payloadFor(node, type))
+
 	switch (type) {
+		case 'touch': {
+			const gesture = new Gtk.GestureClick()
+			let pressed = false
+			const send = (action: string, x = 0, y = 0) => {
+				pressed = action === 'down'
+				dispatch({ eventName: 'touch', object: view, action, x, y })
+			}
+			view.add_controller(gesture)
+			return {
+				connections: [
+					{
+						emitter: gesture,
+						signalId: gesture.connect('pressed', (_g: any, _n: number, x: number, y: number) =>
+							send('down', x, y),
+						),
+					},
+					{
+						emitter: gesture,
+						signalId: gesture.connect('released', (_g: any, _n: number, x: number, y: number) => {
+							if (pressed) send('up', x, y)
+						}),
+					},
+					{
+						emitter: gesture,
+						signalId: gesture.connect('cancel', () => {
+							if (pressed) send('cancel')
+						}),
+					},
+				],
+				controllers: [gesture],
+			}
+		}
+		case 'pan': {
+			const gesture = new Gtk.GestureDrag()
+			let active = false
+			let x = 0,
+				y = 0,
+				time = 0
+			const send = (state: string, dx: number, dy: number) => {
+				const now = GLib.get_monotonic_time() / 1000
+				const elapsed = now - time
+				const vx = elapsed > 0 ? ((dx - x) * 1000) / elapsed : 0
+				const vy = elapsed > 0 ? ((dy - y) * 1000) / elapsed : 0
+				x = dx
+				y = dy
+				time = now
+				dispatch({ x, y, dx: x, dy: y, vx, vy, state, target: view })
+			}
+			view.add_controller(gesture)
+			return {
+				connections: [
+					{
+						emitter: gesture,
+						signalId: gesture.connect('drag-begin', () => {
+							active = true
+							x = 0
+							y = 0
+							time = GLib.get_monotonic_time() / 1000
+							send('began', 0, 0)
+						}),
+					},
+					{
+						emitter: gesture,
+						signalId: gesture.connect('drag-update', (_g: any, dx: number, dy: number) => {
+							if (active) send('moved', dx, dy)
+						}),
+					},
+					{
+						emitter: gesture,
+						signalId: gesture.connect('drag-end', (_g: any, dx: number, dy: number) => {
+							if (active) {
+								active = false
+								send('ended', dx, dy)
+							}
+						}),
+					},
+					{
+						emitter: gesture,
+						signalId: gesture.connect('cancel', () => {
+							if (active) {
+								active = false
+								send('cancelled', x, y)
+							}
+						}),
+					},
+				],
+				controllers: [gesture],
+			}
+		}
+		case 'swipe': {
+			const gesture = new Gtk.GestureSwipe()
+			view.add_controller(gesture)
+			return {
+				connections: [
+					{
+						emitter: gesture,
+						signalId: gesture.connect('swipe', (_g: any, vx: number, vy: number) => {
+							if (vx === 0 && vy === 0) return
+							dispatch({
+								direction: Math.abs(vx) >= Math.abs(vy) ? (vx > 0 ? 1 : 2) : vy > 0 ? 8 : 4,
+							})
+						}),
+					},
+				],
+				controllers: [gesture],
+			}
+		}
 		case 'tap': {
 			if (view instanceof Gtk.Button) {
 				return {

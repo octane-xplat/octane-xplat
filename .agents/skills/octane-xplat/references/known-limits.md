@@ -27,6 +27,7 @@ For a boundary or workaround investigation, read the applicable internal record:
   inner-stage width report. Do not infer width parity from height checks.
 - [AppKit verification](../../../docs/appkit-verification.md): geometry and
   lifecycle evidence, including CSS positioned edges after the layout cutover.
+- [GTK UI parity](../../../docs/notes/linux-gtk-ui-parity.md): every native root export, source candidates versus runtime evidence, current work order and the task-local MasonCore build prerequisite. Follow the curated GTK barrel; a successful bundle does not qualify an omitted component.
 - [Upstream limitations](../../../docs/upstream-limitations.md): how to verify
   and record upstream scope and local workarounds.
 - [NativeScript runtimes: V8 without ICU](../../../docs/notes/nativescript-no-icu.md):

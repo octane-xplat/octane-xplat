@@ -64,8 +64,14 @@ cross-platform native API only when that import loads safely on both iOS and
 Android. The package's `/nativescript` subpath is NativeScript integration plumbing,
 not a filename suffix; `/web` has a `web` export condition; Linux host presets choose their
 conditions separately. Check the export map rather than guessing subpaths.
-`@octane-xplat/ui` itself resolves a curated `gtk` condition — `Text` and
-`Pressable` only; importing anything else on GTK is unqualified.
+`@octane-xplat/ui` itself resolves a curated `gtk` condition. The current
+primitive/layout subset and runnable example are listed in
+[GTK setup](../../../../docs/platform/linux-gtk.md); check `index.gtk.ts`
+before choosing another root export. Full UI parity is still in progress.
+For GTK adapters, retain the shared file's source extension: a shared
+`pan.tsrx` needs `pan.gtk.tsrx`. The current GTK preset checks unsuffixed
+`.tsrx` before `.gtk.ts`, so changing the extension can silently select the
+shared host implementation.
 `/macos` and `/linux` carry AppKit- and GTK-only contracts (for example
 `useOutlineFromView` on `/macos`, `LinuxWindowHandle` on `/linux`) that are
 deliberately kept off the shared root so `@octane-xplat/ui` exports the same
