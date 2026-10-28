@@ -12,5 +12,11 @@ export function Caption() {
 }
 ```
 
+Rich text also retains the host’s stylesheet-computed line height.
+
+```css
+.caption { line-height: 24px; }
+```
+
 Native shaping and layout remain unqualified. See the
 [AppKit renderer](https://github.com/octane-xplat/octane-xplat/tree/main/packages/macos-renderer#apply-stylesheets).

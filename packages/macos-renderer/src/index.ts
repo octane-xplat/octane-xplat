@@ -5841,6 +5841,7 @@ function syncText(parent: ElementNode | null | undefined) {
 				fontWeight: parent.appliedFontWeight ?? 400,
 				color: view.textColor,
 				letterSpacing: (parent.computedStyle ?? parent.props.style ?? {}).letterSpacing,
+				lineHeight: (parent.computedStyle ?? parent.props.style ?? {}).lineHeight,
 			},
 		)
 

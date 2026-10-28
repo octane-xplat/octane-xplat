@@ -264,3 +264,39 @@ test('rich parent spacing follows computed style then inline fallback and resets
 	parent.props.style = {}
 	sync(parent); assert.equal(defaults.letterSpacing, undefined)
 })
+
+
+test('rich host line height follows computed style, inline fallback and removal', () => {
+	let defaults: any
+	const sync = runSlice(fn('syncText') + '\nsyncText', {
+		composeAttributedText: (_children, _view, _props, _font, _color, next) => { defaults = next; return 'A' },
+		fontForFamilyStyle() {}, nativeColor() {}, queueLayoutReconcile() {},
+	})
+	const parent: any = { type: 'label', children: [node('span', { text: 'A' })], props: { style: { lineHeight: 20 } },
+		computedStyle: { lineHeight: 24 }, view: { font: { pointSize: 16 }, invalidateIntrinsicContentSize() {} }, container: {}, parent: null }
+	sync(parent); assert.equal(defaults.lineHeight, 24)
+	delete parent.computedStyle
+	sync(parent); assert.equal(defaults.lineHeight, 20)
+	parent.props.style = {}
+	sync(parent); assert.equal(defaults.lineHeight, undefined)
+})
+
+test('rich paragraph height uses host defaults and removes fixed height for normal', () => {
+	const api = runSlice(sourceWithoutImports(new URL('../src/formatted-text.ts', import.meta.url)).replaceAll('export ', '') + '\n({composeAttributedText})', {
+		NSFontAttributeName: 'font', NSParagraphStyleAttributeName: 'paragraph',
+		NSLineBreakMode: { WordWrapping: 0 },
+		NSMutableParagraphStyle: { alloc: () => ({ init: () => ({}) }) },
+		NSMutableAttributedString: { alloc: () => ({ initWithString: () => ({ runs: [], appendAttributedString(run) { this.runs.push(run) } }) }) },
+		NSAttributedString: { alloc: () => ({ initWithStringAttributes: (text, attributes) => ({ text, attributes }) }) },
+	})
+	const paragraph = (lineHeight: any, inline?: number) => api.composeAttributedText(
+		[node('span', { text: 'A' })], {}, { style: { lineHeight: inline } }, () => ({}), () => ({}),
+		{ fontSize: 16, fontWeight: 400, lineHeight },
+	).runs[0].attributes.paragraph
+	assert.equal(paragraph(24, 20).minimumLineHeight, 24)
+	assert.equal(paragraph(24, 20).maximumLineHeight, 24)
+	assert.equal(paragraph(undefined, 20).minimumLineHeight, 20)
+	assert.equal(paragraph('normal', 20).minimumLineHeight, undefined)
+	assert.equal(paragraph(undefined).maximumLineHeight, undefined)
+	for (const height of [0, -1, NaN, Infinity]) assert.equal(paragraph(height).minimumLineHeight, undefined)
+})

@@ -1756,3 +1756,30 @@ Only TypeScript syntax parsing, semantic/source review and whitespace checks ran
 Native attributed text, shaping/measurement, CSS delivery, input/editing and
 packaging remain unqualified. No visual analysis, native automation, dependency
 install or evidence-gated checkbox closure occurred.
+
+
+### Formatted host line height
+
+Follow-up source review found rich composition read props.computedStyle, while
+computed cascade values live on ElementNode.computedStyle. Host stylesheet line
+height was therefore omitted unless separately present inline. syncText now
+passes effective host lineHeight in composition defaults; the paragraph uses
+that value before inline fallback. Fresh paragraph construction clears fixed
+minimum/maximum height for normal, removal or nonpositive/nonfinite input.
+No new run-local paragraph-height or arbitrary-unit API was added.
+
+Two authored source cases cover computed precedence, inline fallback, removal,
+normal reset and native paragraph dictionaries. They remain unrun. Syntax,
+semantic/source and whitespace checks only; no native measurement result.
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All commands remain deferred pending this task's explicit human authorization.
+Multiline wrapping, host sizing, baseline/line-height behavior, CSS delivery and
+packaged native editing still require qualification. No builds, package tests,
+typechecks, installs, OS automation, visual analysis or checkbox closures ran.

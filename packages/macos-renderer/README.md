@@ -190,6 +190,15 @@ export function SpacedCaption() {
 }
 ```
 
+Rich text also receives the host's computed line height, so stylesheet-derived
+values reach its paragraph attributes. Inline values are a fallback; removing
+a fixed height rebuilds the paragraph with default metrics. This source path
+has not been qualified against native multiline measurement.
+
+```css
+.multiline-caption { line-height: 24px; }
+```
+
 Current limits:
 
 - Only `:disabled` responds to state. `:hover`, `:active`, `:pressed`, and

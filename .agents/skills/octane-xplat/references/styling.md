@@ -133,6 +133,7 @@ import '@octane-xplat/ui/theme/tokens.css'
 
 AppKit formatted runs accept finite numeric `style.letterSpacing` in points,
 inherit host/ancestor spacing and reset to default with `0` or `normal`.
+Rich hosts also pass computed line height to paragraph composition.
 Do not promise arbitrary CSS units, native text measurement or pixel parity
 from the source cases; see the [renderer contract](../../../../packages/macos-renderer/README.md#apply-stylesheets).
 
@@ -143,6 +144,10 @@ export function Caption() {
 		<span text="Spaced " /><span text="default" style={{ letterSpacing: 0 }} />
 	</formattedstring></label>
 }
+```
+
+```css
+.multiline-caption { line-height: 24px; }
 ```
 
 ## Dark mode

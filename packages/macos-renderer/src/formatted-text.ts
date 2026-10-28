@@ -103,7 +103,7 @@ export function composeAttributedText(
 	const paragraph = native.NSMutableParagraphStyle.alloc().init()
 	paragraph.alignment = view.alignment ?? 0
 	paragraph.lineBreakMode = view.cell?.lineBreakMode ?? native.NSLineBreakMode.WordWrapping
-	const lineHeight = Number(props.computedStyle?.lineHeight ?? props.style?.lineHeight)
+	const lineHeight = Number(defaults.lineHeight ?? props.style?.lineHeight)
 	if (Number.isFinite(lineHeight) && lineHeight > 0) {
 		paragraph.minimumLineHeight = lineHeight
 		paragraph.maximumLineHeight = lineHeight
