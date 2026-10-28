@@ -23,3 +23,14 @@ test('temporary scale correction preserves renderer-owned paint and restores wit
 	assert.equal(correctProjectionRadii(view, radii), radii)
 	assert.equal(correctProjectionShadows(view, shadows), shadows)
 })
+
+test('percentage radii retain their proportional behavior alongside numeric corners', () => {
+	const view = {}
+	setProjectionScale(view, { x: 0.5, y: 0.5 })
+	const corrected = correctProjectionRadii(
+		view,
+		{ topLeft: 20, topRight: 20 },
+		{ topLeft: '20%', topRight: 20 },
+	)
+	assert.deepEqual(corrected, { topLeft: 20, topRight: 40 })
+})

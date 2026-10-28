@@ -4674,7 +4674,7 @@ function syncBorderBox(node: ElementNode) {
 	const h = Math.max(0, Number(size.height) || 0)
 	const spec = node.borderSpec
 
-	const radii = correctProjectionRadii(view, resolveBorderRadii(spec?.radii, w, h))
+	const radii = correctProjectionRadii(view, resolveBorderRadii(spec?.radii, w, h), spec?.radii)
 	const maxRadius = Math.max(radii.topLeft, radii.topRight, radii.bottomRight, radii.bottomLeft)
 	const uniformRadius =
 		radii.topLeft === radii.topRight &&
@@ -4911,7 +4911,7 @@ function syncBoxShadow(node: ElementNode) {
 	const size = view.frame?.size ?? { width: 0, height: 0 }
 	const w = Math.max(0, Number(size.width) || 0)
 	const h = Math.max(0, Number(size.height) || 0)
-	const radii = scaleBorderRadii(correctProjectionRadii(view, resolveBorderRadii(node.borderSpec?.radii, w, h)), w, h)
+	const radii = scaleBorderRadii(correctProjectionRadii(view, resolveBorderRadii(node.borderSpec?.radii, w, h), node.borderSpec?.radii), w, h)
 
 	if (outset) {
 		view.wantsLayer = true

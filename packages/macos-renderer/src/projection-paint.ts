@@ -16,6 +16,7 @@ export function setProjectionScale(view: object, scale: ProjectionScale | null) 
 export function correctProjectionRadii<T extends Record<string, number>>(
 	view: object,
 	radii: T,
+	authored?: Record<string, unknown>,
 ): T {
 	const scale = scales.get(view)
 	if (!scale) {
@@ -25,7 +26,12 @@ export function correctProjectionRadii<T extends Record<string, number>>(
 		Math.max(0.0001, Math.abs(scale.x)) * Math.max(0.0001, Math.abs(scale.y)),
 	)
 	return Object.fromEntries(
-		Object.entries(radii).map(([key, radius]) => [key, radius / divisor]),
+		Object.entries(radii).map(([key, radius]) => [
+			key,
+			typeof authored?.[key] === 'string' && String(authored[key]).trim().endsWith('%')
+				? radius
+				: radius / divisor,
+		]),
 	) as T
 }
 
