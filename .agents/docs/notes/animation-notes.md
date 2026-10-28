@@ -775,8 +775,11 @@ stops constructing `Intl` objects at module scope.
   `packages/cli/patches/@nativescript-community__octane@0.2.5.patch` plus the
   synced copy under `packages/patches/`; exports `observeBatches()` returning
   an unsubscribe with `willApply`/`didApply(container, commands, depth)`.
-  Scope: batch observation only; no command mutation. Upstream PR candidate:
-  not filed; dropWhen is "upstream ships a batch observer."
+  Scope: batch observation only; no command mutation; a throwing observer is
+  logged and cannot abort the batch. Upstream:
+  [nativescript-community/octane#17](https://github.com/nativescript-community/octane/pull/17)
+  proposes the same API and semantics (filed 2026-10-27, unit-tested
+  upstream only). Drop the local hunk when a release ships it.
 - NativeScript `layoutChanged` does not fire on keyed reorder or parent moves
   (P3, verified on iOS 27.0 sim + Android 15 emulator), so it can't drive
   commit detection.
