@@ -90,3 +90,40 @@ The 16 in-progress AppKit files were transferred and byte-verified; their
 uncommitted copies were removed from the shared checkout. Commit `8ac8a11db`
 remains in both histories. No dependencies were installed in the new worktree;
 syntax parsing used the original checkout's existing parser read-only.
+
+## Responsive layout and live host state
+
+The AppKit root now selects a dedicated media-query hook. It subscribes to
+primary-host-window resize notifications and evaluates width/height, pointer,
+hover and orientation using desktop traits. Native queries share a pure
+restricted evaluator; invalid pointer/hover/orientation values no longer match,
+and `and` terms are evaluated before `or` alternatives. NativeScript retains
+screen dimensions and touch traits. Arbitrary CSS, range syntax, secondary
+window ownership and reduced-motion queries remain outside this hook.
+
+The AppKit host installer used `Object.assign` on an object containing getters:
+that evaluated `appState` and `windowSize` once rather than preserving live
+reads. It now defines those descriptors on the existing renderer bridge. Window
+sizes use content bounds before outer-window frames and preserve snapshot
+identity until dimensions change. This is a source-confirmed prerequisite
+repair; runtime state/resize delivery is not yet qualified.
+
+Parser checks passed for the changed source and bridge regressions. No tests
+have executed. The maintained `responsive-layout.macos.tsrx` probe is authored
+but not run. Its programmatic resize does not establish physical pointer input
+or pixel parity. The new responsive-layout recipe records the source subset.
+
+Additional deferred commands:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/ui -- src/media-query-native.test.ts src/media-query-source.macos.test.ts
+pnpm exec turbo run test --filter=@octane-xplat/platform
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/platform --filter=@xplat/macos
+pnpm probe run examples/probes/responsive-layout.macos.tsrx --target macos --watch
+pnpm check:recipes
+```
+
+Once authorized, check app activation/deactivation, actual primary-window
+resize/rendering and subscription cleanup in addition to bridge assertions.
+Work is now on origin branch `feat/appkit-native-support`; pushing is authorized.
+The heavy-verification restriction remains unchanged.

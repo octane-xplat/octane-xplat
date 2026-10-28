@@ -342,7 +342,9 @@ function installPlatformServices() {
 	const bridge = ((globalThis as any).__xplatAppKit ??= {})
 	const services = shared.platformServices
 	const info = NSBundle.mainBundle.infoDictionary ?? {}
-	Object.assign(bridge, {
+	let windowSizeSnapshot: (WindowSize & { orientation: 'portrait' | 'landscape' }) | undefined
+	// Assigning would evaluate accessors once and freeze these live values.
+	Object.defineProperties(bridge, Object.getOwnPropertyDescriptors({
 		appInfo: {
 			supported: true,
 			version: (info as any).CFBundleShortVersionString ?? null,
@@ -356,14 +358,18 @@ function installPlatformServices() {
 			const window =
 				services.primaryWindow ?? app.keyWindow ?? app.mainWindow ?? app.windows?.firstObject
 
-			const size = window?.frame?.size ??
-				window?.contentView?.frame?.size ?? { width: 0, height: 0 }
-
-			return {
-				width: Number(size.width ?? 0),
-				height: Number(size.height ?? 0),
-				orientation: Number(size.width ?? 0) >= Number(size.height ?? 0) ? 'landscape' : 'portrait',
+			const size = window?.contentView?.bounds?.size ?? window?.contentView?.frame?.size ??
+				window?.frame?.size ?? { width: 0, height: 0 }
+			const width = Number(size.width ?? 0)
+			const height = Number(size.height ?? 0)
+			if (!windowSizeSnapshot || windowSizeSnapshot.width !== width || windowSizeSnapshot.height !== height) {
+				windowSizeSnapshot = {
+					width,
+					height,
+					orientation: width >= height ? 'landscape' : 'portrait',
+				}
 			}
+			return windowSizeSnapshot
 		},
 		announce(text: string) {
 			if (shared.running) {
@@ -480,7 +486,7 @@ function installPlatformServices() {
 		consumeInitialUrl() {
 			return services.pendingUrls.shift() ?? null
 		},
-	})
+	}))
 }
 
 try {

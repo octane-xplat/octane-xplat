@@ -89,6 +89,21 @@ export function Controls() {
 
 ## Platform-authentic subpaths
 
+For AppKit responsive choices, use `useMediaQuery`'s
+[documented native subset](../../../../docs/app/components.md#responsive-appkit-layout).
+It observes the primary host window and desktop pointer/hover traits; it does
+not provide secondary-window ownership or reduced-motion queries. Actual native
+resize/rendering remains unqualified.
+
+```tsx
+import { Text, useMediaQuery } from '@octane-xplat/ui'
+
+export function LayoutHint() {
+	const wide = useMediaQuery('(min-width: 800px)')
+	return <Text>{wide ? 'Wide' : 'Compact'}</Text>
+}
+```
+
 For experimental native macOS selection tracks, use the shared
 `SegmentedControl` and `SegmentedControlItem` names. The AppKit leaf implements
 selection and scoped arrow/Home/End handling, but OS input, focus appearance
