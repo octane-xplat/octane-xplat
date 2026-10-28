@@ -18,6 +18,7 @@
 			"@octane-xplat/sounds": ["../../packages/sounds/src/index.ts"],
 			"@octane-xplat/sounds/*": ["../../packages/sounds/src/*"],
 			"@octane-xplat/platform": ["../../packages/platform/src/index.ts"],
+			"@octane-xplat/platform/windows": ["../../packages/platform/src/types/windows.ts"],
 			"@octane-xplat/platform/*": ["../../packages/platform/src/*"],
 			"@octane-xplat/camera": ["../../packages/camera/src/index.ts"],
 			"@octane-xplat/camera/*": ["../../packages/camera/src/*"],

@@ -1164,3 +1164,30 @@ build selects the bounded public-UI common-flow case instead of the app's
 camera/file-picker/synthetic-test timers. That case does not qualify the full
 kitchen sink or optional services. No audio support checkbox or shared audit
 snapshot changed; full audio typecheck/packed/consumer checks remain outstanding.
+
+## Exact Windows projection mapping in the harness
+
+The bounded common-flow build initially failed to load
+packages/platform/src/windows, imported as @octane-xplat/platform/windows by
+media-query-host.windows.ts. The harness's platform/* TypeScript path wildcard
+bypassed the package's explicit export to src/types/windows.ts. An exact
+Windows-only mapping now points at that actual projection module. With this
+mapping, Vite successfully transformed 987 modules and emitted the bounded
+Windows bundle; the build proceeded to dotnet-tool. This is bundle evidence,
+not native compilation, launch or UI behavior. Log:
+research/windows61/windy-resolver-retry2.log.
+
+The temporary common-flow screen was moved from apps/windows/src into the
+existing packages/app workspace, whose declared JSX dependency supplies its
+native intrinsic types. That removed 23 fixture-context diagnostics. The
+remaining fixture diagnostic identified an invalid raw scrollview height prop;
+its corrected static CSS is prepared for the next build. The delegated checker
+also retains the same 12 unrelated context diagnostics. The earlier retry setup
+failed before building because PowerShell's process working directory differed
+from Set-Location; the runner now passes an absolute path to ReadAllText.
+These fixture failures are not platform capability results. The original
+owned app entry remains backed up, and the normal kitchen-sink entry has not
+been launched. The exact mapping affects the private Windows harness only;
+no public recipe, supported target, shared audit snapshot or issue checkbox
+changed. JSON parsed and whitespace checks passed; the repository formatter
+reports JSON as unsupported rather than checking it.
