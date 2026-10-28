@@ -4,6 +4,7 @@ import {
 	useImperativeHandle,
 	useCallback,
 	useEffect,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -19,12 +20,14 @@ import type {
 	TypeaheadKeyEvent,
 	TokenizerHandle,
 	TokenizerChange,
+	Renderable,
 } from './props'
 
 import { useSize } from './size-context'
 import { useFieldControlProps } from './field-context'
 import { hasDateComposition } from './date-composition.macos'
 import type { NSView } from '@octane-xplat/platform/macos'
+import { countClippedAppKitTokens } from './tokenizer-overflow.macos'
 import type { TypeaheadQueryEntries } from './internal-props'
 import { cx } from '@octane-xplat/lib'
 import { FormField } from './FormField.macos.tsrx'
@@ -48,7 +51,6 @@ function EndLane(props: {
 	lane: BusyIndicatorLane
 	endContent?: any
 	clear?: any
-	laneRef?: (v: any) => void
 }) @{
 	const isBusy = useSyncExternalStore(props.lane.subscribe, props.lane.getIsBusy)
 	if (!isBusy && props.endContent == null && props.clear == null) {
@@ -57,7 +59,6 @@ function EndLane(props: {
 
 	<masonview
 		className="vx-tokenizer-endlane"
-		ref={props.laneRef}
 		style={mergeStyle({ flexDirection: 'row', alignItems: 'center' }, { display: 'flex' })}
 	>
 		{isBusy ? (
@@ -70,6 +71,29 @@ function EndLane(props: {
 	</masonview>
 }
 
+function TokenizerToken(props: {
+	id: string
+	measure: boolean
+	register(id: string, view: NSView): () => void
+	onLayoutChanged(): void
+	children?: Renderable
+}) @{
+	// Each mounted copy owns its release. An old collapsed-row detach must
+	// never remove a newer row's registration for the same selected key.
+	const bind = useMemo(() => {
+		let release: (() => void) | undefined
+		return (view: NSView | null) => {
+			release?.(); release = undefined
+			if (view && props.measure) release = props.register(props.id, view)
+		}
+	}, [props.id, props.measure, props.register])
+	<masonview className="vx-tokenizer-token" ref={bind}
+		onLayoutChanged={props.measure ? props.onLayoutChanged : undefined}
+		style={{ display: 'flex', flexShrink: 0 }}>
+		{props.children}
+	</masonview>
+}
+
 /** AppKit token entry with current controlled selection and empty-input
  * Backspace removal. Native key/IME/focus and overflow layout remain unqualified. */
 export function Tokenizer<T extends SearchableItem>(inProps: TokenizerProps<T>) @{
@@ -79,15 +103,32 @@ export function Tokenizer<T extends SearchableItem>(inProps: TokenizerProps<T>) 
 	const blurTimer = useRef<ReturnType<typeof setTimeout> | null>(null), blurVersion = useRef(0)
 	const size = useSize(props.size, 'md')
 	const inputHandle = useRef<TypeaheadInputHandle | null>(null)
-	const wrapperRef = useRef<any>(null)
+	const wrapperRef = useRef<NSView | null>(null)
 	const panelRef = useRef<NSView | null>(null)
 	const bindPanel = useCallback((view: NSView | null) => { panelRef.current = view }, [])
-	const laneRef = useRef<any>(null)
-	const overflowRef = useRef<any>(null)
-	const tokenEls = useRef(new Map<number, any>())
+	const clipRef = useRef<NSView | null>(null), counterRef = useRef<NSView | null>(null)
+	const tokenEls = useRef(new Map<string, NSView>())
+	const reclaimedCounter = useRef<{ clip: NSView; width: number; origin: number; items: T[]; widths: number[] } | null>(null)
+	const latestMeasure = useRef<() => void>(() => {}), queuedMeasure = useRef(false), measuredCount = useRef(0)
+	const queueMeasure = useCallback(() => {
+		if (queuedMeasure.current) return
+		queuedMeasure.current = true
+		void Promise.resolve().then(() => {
+			queuedMeasure.current = false
+			if (wrapperRef.current) {
+				try { latestMeasure.current() } catch (error) { console.warn('[macos-tokenizer] measurement failed', error) }
+			}
+		})
+	}, [])
+	const bindCounter = useCallback((view: NSView | null) => { counterRef.current = view; queueMeasure() }, [])
+	const bindClip = useCallback((view: NSView | null) => { clipRef.current = view; queueMeasure() }, [])
+	const registerToken = useCallback((id: string, view: NSView) => {
+		tokenEls.current.set(id, view); queueMeasure()
+		return () => { if (tokenEls.current.get(id) === view) tokenEls.current.delete(id); queueMeasure() }
+	}, [])
 
 	const cancelBlur = () => { blurVersion.current++; if (blurTimer.current != null) clearTimeout(blurTimer.current); blurTimer.current = null }
-	const bindWrapper = useCallback((view: NSView | null) => { wrapperRef.current = view; if (!view) cancelBlur() }, [])
+	const bindWrapper = useCallback((view: NSView | null) => { wrapperRef.current = view; if (!view) cancelBlur(); else queueMeasure() }, [])
 	const bindInput = useCallback((handle: TypeaheadInputHandle | null) => { inputHandle.current = handle }, [])
 	const canChange = () => !!wrapperRef.current && !live.current.isDisabled && !live.current.isReadOnly && !writing.current
 	const inputOwnsFocus = () => {
@@ -254,49 +295,31 @@ export function Tokenizer<T extends SearchableItem>(inProps: TokenizerProps<T>) 
 	}
 	useEffect(() => () => cancelBlur(), [])
 
-	// Count tokens clipped by the single-line truncation — measured off the
-	// real layout: a token is hidden when its right edge passes the wrapper's
-	// usable width (minus the end lane and the "+N more" counter).
+	// Read actual native rectangles after commit/layout. The counter is a
+	// sibling of this viewport, so its width participates in Mason's layout.
 	const measureOverflow = () => {
-		const host = wrapperRef.current
-		if (!host) {
-			return
-		}
-
-		if (!isTruncated) {
-			if (overflowCount !== 0) {
-				setOverflowCount(0)
+		if (!wrapperRef.current) return
+		const collapsed = isLayerMode || isTruncated, clip = clipRef.current, held = reclaimedCounter.current
+		const views = props.value.map((item) => tokenEls.current.get(item.id) ?? null)
+		// After removing the counter, wait for its space to reach the viewport.
+		// Stale native layout notifications must not reserve the counter again.
+		if (collapsed && held && held.clip === clip && held.items === props.value &&
+			held.width === Number(clip?.bounds.size.width) && held.origin === Number(clip?.bounds.origin.x) &&
+			held.widths.length === views.length && held.widths.every((width, index) => width === Number(views[index]?.bounds.size.width))) return
+		reclaimedCounter.current = null
+		const hidden = !collapsed || !props.value.length ? 0 : countClippedAppKitTokens(
+			clip, views, overflowCount > 0 ? counterRef.current : null,
+		)
+		// Incomplete/detached/zero-size layout is not evidence of zero overflow.
+		if (hidden != null && hidden !== measuredCount.current) {
+			if (hidden === 0 && overflowCount > 0 && clip && countClippedAppKitTokens(clip, views) !== 0) {
+				reclaimedCounter.current = { clip, width: Number(clip.bounds.size.width), origin: Number(clip.bounds.origin.x), items: props.value, widths: views.map((view) => Number(view?.bounds.size.width)) }
 			}
-
-			return
-		}
-
-		const hostWidth = host.getActualSize?.().width ?? 0
-		const reserve =
-			(laneRef.current?.getActualSize?.().width ?? 0) +
-			(overflowRef.current?.getActualSize?.().width ?? 0) +
-			16
-
-		let hidden = 0
-		for (const v of tokenEls.current.values()) {
-			const loc = v.getLocationRelativeTo?.(host)
-			const w = v.getActualSize?.().width ?? 0
-			if (loc && loc.x + w > hostWidth - reserve) {
-				hidden++
-			}
-		}
-
-		if (hidden !== overflowCount) {
-			setOverflowCount(hidden)
+			measuredCount.current = hidden; setOverflowCount(hidden)
 		}
 	}
-
-	useEffect(() => {
-		// The layout pass hasn't run yet when value/isTruncated change — wait a
-		// tick so getActualSize reflects the new token set.
-		const t = setTimeout(measureOverflow, 0)
-		return () => clearTimeout(t)
-	}, [isTruncated, props.value])
+	latestMeasure.current = measureOverflow
+	useLayoutEffect(queueMeasure, [isLayerMode, isTruncated, props.value, size])
 
 	const startIcon =
 		props.startIcon == null ? null : typeof props.startIcon === 'string' ? (
@@ -305,7 +328,7 @@ export function Tokenizer<T extends SearchableItem>(inProps: TokenizerProps<T>) 
 			props.startIcon
 		)
 
-	const tokens = props.value.map((item, i) => {
+	const renderTokens = (measure = true) => props.value.map((item) => {
 		const onRemoveItem = () => handleRemove(item)
 		const body = props.renderToken ? (
 			props.renderToken(item, onRemoveItem)
@@ -319,22 +342,19 @@ export function Tokenizer<T extends SearchableItem>(inProps: TokenizerProps<T>) 
 		)
 
 		return (
-			<masonview
-				key={item.id}
-				className="vx-tokenizer-token"
-				ref={(v: any) => {
-					if (v) {
-						tokenEls.current.set(i, v)
-					} else {
-						tokenEls.current.delete(i)
-					}
-				}}
-				style={{ display: 'flex' }}
-			>
+			<TokenizerToken key={item.id} id={item.id} measure={measure} register={registerToken} onLayoutChanged={queueMeasure}>
 				{body}
-			</masonview>
+			</TokenizerToken>
 		)
 	})
+
+	const tokens = renderTokens()
+	const clippedTokens = (
+		<masonview className="vx-tokenizer-clip" ref={bindClip} onLayoutChanged={queueMeasure}
+			style={{ display: 'flex', flexDirection: 'row', flexWrap: 'nowrap', flexGrow: 1, flexShrink: 1, flexBasis: 0, minWidth: 0, overflow: 'hidden' }}>
+			{tokens}
+		</masonview>
+	)
 
 	const hasClearButton = Boolean(props.hasClear && props.value.length > 0 && !props.isDisabled && !props.isReadOnly)
 
@@ -390,37 +410,6 @@ export function Tokenizer<T extends SearchableItem>(inProps: TokenizerProps<T>) 
 		</Pressable>
 	) : null
 
-	const truncatedRow = (
-		<masonview
-			className={wrapperClass}
-			ref={bindWrapper}
-			onBlur={collapseSoon}
-			onLayoutChanged={measureOverflow}
-			onTap={() => {
-				if (!live.current.isDisabled) {
-					inputHandle.current?.focus()
-				}
-			}}
-			accessibilityState={{ disabled: props.isDisabled }}
-			style={mergeStyle(
-				{ flexDirection: 'row', alignItems: 'center', flexWrap: 'nowrap' },
-				{ display: 'flex' },
-			)}
-		>
-			{startIcon}
-			{tokens}
-			{isTruncated ? (
-				<label
-					ref={(v: any) => {
-						overflowRef.current = v
-					}}
-					className="vx-tokenizer-overflow"
-					text={overflowCount > 0 ? `+${overflowCount} more` : ''}
-				/>
-			) : null}
-		</masonview>
-	)
-
 	let content: any
 	if (isLayerMode) {
 		// The collapsed row anchors the popover; the full field lives inside it.
@@ -430,7 +419,7 @@ export function Tokenizer<T extends SearchableItem>(inProps: TokenizerProps<T>) 
 					className={wrapperClass}
 					ref={bindWrapper}
 					onBlur={collapseSoon}
-					onLayoutChanged={measureOverflow}
+					onLayoutChanged={queueMeasure}
 					onTap={() => {
 						if (!live.current.isDisabled) {
 							focusEntered()
@@ -443,12 +432,11 @@ export function Tokenizer<T extends SearchableItem>(inProps: TokenizerProps<T>) 
 					)}
 				>
 					{startIcon}
-					{tokens}
+					{clippedTokens}
 					<label
-						ref={(v: any) => {
-							overflowRef.current = v
-						}}
 						className="vx-tokenizer-overflow"
+						ref={bindCounter}
+						style={{ display: overflowCount > 0 ? 'flex' : 'none', flexShrink: 0 }}
 						text={overflowCount > 0 ? `+${overflowCount} more` : ''}
 					/>
 				</masonview>
@@ -469,15 +457,12 @@ export function Tokenizer<T extends SearchableItem>(inProps: TokenizerProps<T>) 
 						)}
 					>
 						{startIcon}
-						{tokens}
+						{renderTokens(false)}
 						{fieldControls}
 						<EndLane
 							lane={busyLane}
 							endContent={props.endContent}
 							clear={clearButton}
-							laneRef={(v: any) => {
-								laneRef.current = v
-							}}
 						/>
 					</masonview>
 				</Popover>
@@ -489,7 +474,7 @@ export function Tokenizer<T extends SearchableItem>(inProps: TokenizerProps<T>) 
 				className={wrapperClass}
 				ref={bindWrapper}
 				onBlur={collapseSoon}
-				onLayoutChanged={measureOverflow}
+				onLayoutChanged={queueMeasure}
 				onTap={() => {
 					if (!live.current.isDisabled) {
 						inputHandle.current?.focus()
@@ -502,13 +487,12 @@ export function Tokenizer<T extends SearchableItem>(inProps: TokenizerProps<T>) 
 				)}
 			>
 				{startIcon}
-				{tokens}
+				{isTruncated ? clippedTokens : tokens}
 				{isTruncated ? (
 					<label
-						ref={(v: any) => {
-							overflowRef.current = v
-						}}
 						className="vx-tokenizer-overflow"
+						ref={bindCounter}
+						style={{ display: overflowCount > 0 ? 'flex' : 'none', flexShrink: 0 }}
 						text={overflowCount > 0 ? `+${overflowCount} more` : ''}
 					/>
 				) : null}
@@ -517,9 +501,6 @@ export function Tokenizer<T extends SearchableItem>(inProps: TokenizerProps<T>) 
 					lane={busyLane}
 					endContent={props.endContent}
 					clear={clearButton}
-					laneRef={(v: any) => {
-						laneRef.current = v
-					}}
 				/>
 			</masonview>
 		)

@@ -13,7 +13,7 @@ and other compact application rows need this renderer prerequisite.
 
 - AC1: Apply explicit native bounds clipping for two clipped axes and explicit visibility for two visible axes. Resolve shorthand and axis overrides from the final style; keep rounded layer masking independent.
 - AC2: Restore the original native clip on style/class removal, null and unsupported mixed/scrolling forms. Preserve specialized-view and OS defaults; replacement views own a new baseline. Unowned clipping survives unrelated styles. Report unsupported forms rather than imply scroll-container support.
-- AC3: Keep source-slice evidence separate from native drawing/hit-testing/AX/shadow/resize/package behavior; record exact deferred commands. Tokenizer geometry/row refs/counter layout remain separate work.
+- AC3: Keep source-slice evidence separate from native drawing/hit-testing/AX/shadow/resize/package behavior; record exact deferred commands. Keep Tokenizer geometry/row refs/counter layout in its separate source slice; neither slice qualifies native truncation.
 
 ## Documentation
 

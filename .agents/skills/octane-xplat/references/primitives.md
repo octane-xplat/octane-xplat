@@ -1694,12 +1694,13 @@ One stable public handle exposes the live wrapper; held removal callbacks are
 inert after teardown. Delayed blur retains wrapper/panel descendant focus.
 
 ```tsx
-<Tokenizer searchSource={source} value={tags} onChange={setTags} />
+<Tokenizer label="Tags" searchSource={source} value={tags} onChange={setTags} />
 ```
 
 Seven object-driver cases and the manual fixture are authored, unrun. Native
 keys/repeat/IME/editor/blur/popup/AX and package qualification remain deferred.
-Legacy overflow measurement still needs AppKit geometry review. Use the
+The separate overflow source path below replaces legacy measurement; native
+truncation remains unqualified. Use the
 [token guide](../../../../docs/app/search-selection.md#remove-appkit-tokens-with-empty-input-backspace)
 for the supported source subset and evidence boundary.
 
@@ -1721,3 +1722,24 @@ TextInput/TextArea have no public hasAutoFocus prop; do not forward that flag to
 them. Five object-driver cases and the manual fixture are authored, unrun. Actual
 attachment/notification/focus/caret/IME/modal/AX and packaging remain unqualified.
 See [initial search focus](../../../../docs/app/power-search.md#request-initial-appkit-search-focus).
+
+## AppKit Tokenizer overflow source subset
+
+Collapsed token rows now use a native-clipped flex viewport and an outside
+counter. Current keyed refs belong only to the measured collapsed row; expanded
+layer token copies are separate. AppKit bounds/convertRectToView replace the
+NativeScript measurement APIs. Both edges handle RTL/nonzero bounds, and
+partial clipping counts as hidden. Missing/foreign/zero-size geometry keeps the
+last count. Counter-space reclamation and stale-layout ownership prevent a
+count from reserving its own space after resizing.
+
+```tsx
+<Tokenizer label="Tags" width={240} searchSource={source} value={tags}
+	onChange={setTags} tokenOverflowBehavior="unfocusedInline" />
+```
+
+Requires the renderer's native overflow clipping path. Eight geometry/five
+object-driver cases and the manual fixture are authored, unrun. Drawing,
+Mason sizing, resize/font/RTL behavior, focus/IME, hit-testing/AX and packaging
+remain unqualified. The existing Tokenizer layer host remains inline. See the
+[overflow guide](../../../../docs/app/search-selection.md#collapse-appkit-token-rows-with-native-geometry).

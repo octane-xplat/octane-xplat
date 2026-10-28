@@ -735,7 +735,7 @@ const people = [{ id: 'ada', label: 'Ada' }, { id: 'grace', label: 'Grace' }]
 const source = createStaticSource(people)
 export function PeopleTags() {
 	const [tags, setTags] = useState(people)
-	return <Tokenizer searchSource={source} value={tags} onChange={setTags} />
+	return <Tokenizer label="People" searchSource={source} value={tags} onChange={setTags} />
 }
 ```
 
@@ -743,5 +743,35 @@ Seven [object-driver cases](../../packages/ui/src/tokenizer-keys.macos.mobile.te
 and a [manual fixture](../../examples/probes/tokenizer-keys.macos.tsrx) are authored,
 all unrun. Native Backspace/repeat/IME, field-editor ownership, embedded-content
 blur timing, popup focus, accessibility and packaging remain unqualified.
-The legacy overflow measurement path also needs separate AppKit geometry review;
-this keyboard work does not establish inline/layer truncation behavior.
+The separate overflow source path below replaces legacy measurements; native
+truncation remains unqualified.
+
+## Collapse AppKit token rows with native geometry
+
+AppKit Tokenizer now puts collapsed tokens inside a native clipping viewport,
+with the count outside it. `unfocusedInline` expands on field focus; the layer
+mode measures only its collapsed row, independently of the expanded token
+copies. A partially visible token counts as clipped. Native rectangle conversion
+checks both edges, including RTL placement and nonzero native bounds origins.
+
+```tsx
+import { useState } from 'octane'
+import { Tokenizer, createStaticSource } from '@octane-xplat/ui'
+const people = [{ id: 'ada', label: 'Ada Lovelace' }, { id: 'grace', label: 'Grace Hopper' }]
+const source = createStaticSource(people)
+export function CompactPeople() {
+	const [tags, setTags] = useState(people)
+	return <Tokenizer label="People" width={240} searchSource={source} value={tags}
+		onChange={setTags} tokenOverflowBehavior="unfocusedInline" />
+}
+```
+
+Eight [geometry cases](../../packages/ui/src/tokenizer-overflow.macos.test.ts),
+five [object-driver cases](../../packages/ui/src/tokenizer-overflow.macos.mobile.test.tsrx)
+and a [manual fixture](../../examples/probes/tokenizer-overflow.macos.tsrx) are authored,
+all unrun. Missing native geometry preserves the last count. Counter removal
+waits for updated native layout before counting again. These source changes
+require the AppKit renderer's new overflow clipping path; native drawing,
+resizing, text sizing, focus/IME, hit-testing, accessibility and packaging remain
+unqualified. AppKit's Tokenizer layer still renders inline through its current
+surface implementation; this does not establish floating-layer parity.

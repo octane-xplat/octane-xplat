@@ -1111,6 +1111,5 @@ scroll view APIs for scrolling.
 
 Six source-slice style reconciliation cases and a manual fixture are authored,
 all unrun. This is source coverage, not proof of native drawing, hit-testing,
-accessibility, shadow interaction or packaged behavior. Tokenizer still needs
-its row refs, native measurement and counter layout updated before this
-renderer prerequisite establishes token truncation.
+accessibility, shadow interaction or packaged behavior. Tokenizer has a separate [native geometry source path](../../docs/app/search-selection.md#collapse-appkit-token-rows-with-native-geometry);
+its token truncation remains unqualified.

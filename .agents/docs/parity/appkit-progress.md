@@ -4262,3 +4262,55 @@ ran. Native drawing/hit-testing/AX/shadow/resize/package behavior is unqualified
 Tokenizer still needs native geometry, separate collapsed/panel row refs and
 counter layout; clipping alone does not prove token truncation. Evidence-gated
 checkboxes stay open; the persistent goal remains active.
+
+## AppKit Tokenizer native overflow geometry
+
+Demand assumption: compact token entry with long labels, adjacent editors and
+embedded actions is a common application flow; the sandbox token-entry examples
+inform the slice. Building on c2689a486's renderer clipping prerequisite, the
+AppKit leaf now puts collapsed tokens inside a clipped flex viewport, with its
+counter outside. Tokens keep natural widths. Layer mode uses separate mounted
+token copies; only the collapsed row registers measurement refs, and each mounted
+copy owns a guarded release. The unused alternate row and NativeScript
+getActualSize/getLocationRelativeTo measurements are removed.
+
+Native bounds and convertRectToView compare both edges, covering RTL positions,
+nonzero bounds origins, partial clipping and fractional tolerance. Missing,
+foreign, detached, nonfinite and zero-size geometry preserve the last count.
+Post-commit/native-layout measurement is coalesced and guarded after teardown.
+Counter reclamation checks whether every token would fit without its reserved
+space, then waits through stale viewport notifications; token width changes
+retire that wait. This avoids a count reserving its own space after a resize.
+No public API shape, dependency, manifest, runner, other-target leaf or shared
+audit snapshot changed. Shared type comments remain unchanged in this slice.
+
+Eight geometry cases and five object-driver cases are authored, all unrun.
+They cover native coordinate conversion/invalid state/RTL/counter reclamation,
+viewport/counter wiring, resize/count changes, inline focus expansion, current
+selection/mode replacement, separate layer refs, incomplete geometry, teardown
+and stale-layout/font-width transitions. Geometry/observation are fake; no native
+layout ordering is proven. The manual fixture adds width/mode/reset/reorder and
+embedded-action flows; its runner only waits/records. Guide/skill/recipes and
+feature note reconcile the source subset, and the renderer README now links it.
+
+Only source/semantic review, TypeScript/TSRX syntax parsing and whitespace checks
+ran. Exact deferred commands:
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/tokenizer-overflow.macos.test.ts src/tokenizer-overflow.macos.mobile.test.tsrx src/tokenizer-keys.macos.mobile.test.tsrx
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/macos-renderer
+pnpm probe doctor
+pnpm probe run examples/probes/tokenizer-overflow.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All remain deferred until explicit human authorization for this task. No package
+tests/typechecks/builds, installs, OS automation, visual analysis or packaging
+ran. Native drawing/Mason sizing/resize/fonts/RTL/focus/IME/hit-testing/AX and
+packaged behavior remain unqualified. Tokenizer's existing surfaces.macos
+Popover still renders inline: this slice does not establish floating-layer
+parity. Active-option AX/announcements, preset text relay, Carousel fades and
+video remain separate source gaps; Checkbox mixed rollback awaits the earlier
+human contract choice. Evidence-gated checkboxes stay open; the goal is active.
