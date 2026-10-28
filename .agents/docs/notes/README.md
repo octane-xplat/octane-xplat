@@ -31,6 +31,7 @@ source before relying on them.
 - [Image engine](image-engine-notes.md)
 - [Input readiness](input-readiness-notes.md)
 - [Lottie on AppKit](lottie-appkit-investigation.md)
+- [Native lightbox](lightbox-native.md) — iOS morph constraints and verification limits
 - [Optional service qualification](optional-service-qualification.md)
 - [OTA process](ota-process.md)
 - [OTA update gate](ota-updates.md)

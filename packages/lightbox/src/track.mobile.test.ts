@@ -1,8 +1,9 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+import { createObjectContainer, createObjectDriver, createUniversalRoot, flushUniversalSync } from 'octane/universal/native'
+import { MotionValue } from '../../motion/src/value'
+import { Track } from './track.mobile.tsrx'
 
-// Pure track-math coverage — the controller's snap/progress logic exercised
-// without the NS renderer (object-driver coverage of the rendered component
-// lives in the iOS probe).
+// Pure math and object-driver regressions complement the native iOS probe.
 describe('native track math', () => {
 	it('progress = -x / stride', async () => {
 		const { clamp } = await import('./math')
@@ -56,4 +57,55 @@ describe('createInputDispatch', () => {
 		d({ kind: 'tap', at: pt, pointer: 'touch' })
 		expect(seen).toEqual([])
 	})
+})
+it('restores the current slide and completes or cancels snaps without progress feedback', async () => {
+	vi.useFakeTimers()
+	const progress = new MotionValue(1, {
+		now: () => Date.now(),
+		request: (callback) => setTimeout(callback, 16) as any,
+		cancel: (id) => clearTimeout(id),
+	})
+	const container = createObjectContainer('nativescript')
+	const object = createObjectDriver('nativescript')
+	const parent = { getActualSize: () => ({ width: 400, height: 800 }) }
+	const root = createUniversalRoot(container, {
+		...object,
+		getPublicInstance(container, id) {
+			const view = object.getPublicInstance(container, id)
+			if (view) {Object.assign(view, { parent, getActualSize: parent.getActualSize })}
+			return view
+		},
+	})
+	const controllerRef: any = { current: null }
+	const onScrollIndex = vi.fn()
+	const props = {
+		items: [{ src: '', alt: 'One' }, { src: '', alt: 'Two' }],
+		currentIndex: 1, controllerRef, onScrollIndex, progress, zoomed: false,
+	}
+	try {
+		root.render(Track, props)
+		flushUniversalSync(() => {})
+		expect(progress.get()).toBe(1)
+		controllerRef.current.goTo(0, 'smooth')
+		await vi.advanceTimersByTimeAsync(32)
+		const mid = progress.get()
+		expect(mid).toBeGreaterThan(0)
+		expect(mid).toBeLessThan(1)
+		flushUniversalSync(() => root.render(Track, { ...props, zoomed: true }))
+		expect(progress.get()).toBe(mid)
+		await vi.advanceTimersByTimeAsync(2000)
+		expect(progress.get()).toBe(0)
+		expect(onScrollIndex).toHaveBeenCalledExactlyOnceWith(0)
+		controllerRef.current.goTo(1, 'smooth')
+		await vi.advanceTimersByTimeAsync(32)
+		controllerRef.current.freeze(1)
+		await vi.advanceTimersByTimeAsync(2000)
+		expect(progress.get()).toBe(1)
+		expect(onScrollIndex).toHaveBeenCalledTimes(1)
+	} finally {
+		root.unmount()
+		progress.destroy()
+		vi.clearAllTimers()
+		vi.useRealTimers()
+	}
 })

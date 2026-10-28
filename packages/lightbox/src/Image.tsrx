@@ -8,7 +8,7 @@ import { useMotionValue } from '@octane-xplat/motion'
 import { createClipWriter } from './clip.ios'
 import { viewRect } from './rect'
 import { SETTLE, INERTIA } from './constants'
-import { fit, lerpVisual, thumbVisualFrom, toStyle } from './math'
+import { clamp, fit, lerp, lerpVisual, thumbVisualFrom, toStyle } from './math'
 import type { Rect, Visual } from './math'
 import { createGestureMachine } from './gesture-machine'
 import type { Command, MachineEnv } from './gesture-machine'
@@ -105,13 +105,17 @@ export function Image(props: LightboxImagePartProps) @{
 	}
 
 	const anims = useRef<{ stop: () => void }[]>([])
+	const openRetry = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 	const stop = () => {
+		clearTimeout(openRetry.current)
+		openRetry.current = undefined
 		for (const a of anims.current) a.stop()
 		anims.current = []
 	}
 	const morph = useRef<Visual | null>(null)
 	const morphProgress = useMotionValue(0)
 	const morphTarget = useRef<Visual | null>(null)
+	const morphPresence = useRef({ from: 0, to: 1 })
 	const wrapRect = () => viewRect(wrapRef.current) ?? { x: 0, y: 0, w: 0, h: 0 }
 	useLayoutEffect(() => morphProgress.on('change', (p: number) => {
 		const from = morph.current
@@ -120,6 +124,7 @@ export function Image(props: LightboxImagePartProps) @{
 		if (!from || !to || !b) return
 		const bb = base()
 		apply(lerpVisual(from, to, p), bb)
+		live.current.ctx.presence.set(lerp(morphPresence.current.from, morphPresence.current.to, clamp(p, 0, 1)))
 	}), [])
 
 	const setTransform = (t: { x: number; y: number; scale: number }) => {
@@ -211,18 +216,13 @@ export function Image(props: LightboxImagePartProps) @{
 			animateIn(trigger) {
 				stop()
 				const { ctx } = live.current
-				if (!live.current.F || !box?.w) {
-					// Not yet measured (mount ordering races the layout
-					// effect): defer one frame before the fade fallback.
-					setTimeout(() => {
-						if (!morph.current && (live.current.ctx.phase === 'opening' || live.current.ctx.phase === 'open')) {
-							if (live.current.F && base().w) {
-								this.animateIn?.(trigger)
-							} else {
-								ctx.presence.set(0)
-								void ctx.presence.animate(1, ctx.options.open).finished.then(() => ctx.onOpened())
-							}
-						}
+				const size = wrapRef.current?.getActualSize?.()
+				const fitted = live.current.F
+				if (!fitted || !size?.width || !size?.height) {
+					// Native layout may take more than one frame. Start only after
+					// the fitted wrapper has bounds, so the clip uses its real size.
+					openRetry.current = setTimeout(() => {
+						if (live.current.ctx.phase === 'opening') this.animateIn(trigger)
 					}, 16)
 					return
 				}
@@ -232,11 +232,13 @@ export function Image(props: LightboxImagePartProps) @{
 				const from = thumb ?? { ...rest(b), opacity: 0 }
 				morph.current = from
 				morphTarget.current = rest(b)
+				morphPresence.current = { from: 0, to: 1 }
 				apply(from, b)
 				ctx.presence.set(0)
 				if (thumb) ctx.hideTrigger(trigger)
 				morphProgress.jump(0)
-				void morphProgress.animate(1, ctx.options.open).finished.then(() => {
+				void morphProgress.animate(1, ctx.options.open).finished.then((result) => {
+					if (result !== 'finished' || live.current.ctx.phase !== 'opening') return
 					morph.current = null
 					morphTarget.current = null
 					clip.current?.clear()
@@ -248,9 +250,7 @@ export function Image(props: LightboxImagePartProps) @{
 			async animateOut(trigger, velocity) {
 				stop()
 				const { ctx } = live.current
-				if (!live.current.F || !box?.w) {
-					await new Promise((r) => setTimeout(r, 16))
-					if (live.current.F && base().w) return this.animateOut(trigger, velocity)
+				if (!live.current.F) {
 					await ctx.presence.animate(0, ctx.options.close).finished
 					return
 				}
@@ -264,6 +264,7 @@ export function Image(props: LightboxImagePartProps) @{
 				}
 				morph.current = from
 				morphTarget.current = target()
+				morphPresence.current = { from: ctx.presence.get(), to: 0 }
 				morphProgress.jump(0)
 				await morphProgress.animate(1, ctx.options.close).finished
 				morph.current = null
@@ -282,6 +283,7 @@ export function Image(props: LightboxImagePartProps) @{
 			if (live.current.ctx.index === index) live.current.ctx.setZoomed(false)
 		}
 	}, [index])
+	useLayoutEffect(() => () => stop(), [])
 	// Start the open morph once the viewer is opening on this slide.
 	useLayoutEffect(() => {
 		if (ctx.phase === 'opening' && ctx.index === index) {

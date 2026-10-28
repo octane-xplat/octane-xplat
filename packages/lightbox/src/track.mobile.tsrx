@@ -46,17 +46,17 @@ export function Track(props: {
 }) @{
 	const clipRef = useRef<any>(null)
 	const rowRef = useRef<any>(null)
-	const live = useRef({ x: 0, stride: 1, index: 0, anim: null as any })
+	const live = useRef({ x: 0, stride: 1, index: props.currentIndex, tracking: false, anim: null as { stop(): void } | null })
 	const l = live.current
 	const count = () => props.items.length
 	// live.current.tracking flags an in-flight drag — it must live in the ref,
 	// not a per-render object, so re-renders can't clear it mid-gesture.
 
 	const stride = () => (clipRef.current?.parent as any)?.getActualSize?.()?.width ?? viewRect(clipRef.current)?.w ?? clipRef.current?.getActualSize?.().width ?? 1
-	const setX = (x: number) => {
+	const setX = (x: number, publish = true) => {
 		l.x = x
 		if (rowRef.current) rowRef.current.translateX = x
-		props.progress.set(-x / (l.stride || 1))
+		if (publish) props.progress.set(-x / (l.stride || 1))
 	}
 
 	// Size everything in explicit DIPs from the popup's measured size —
@@ -95,7 +95,7 @@ export function Track(props: {
 				layoutSlides()
 				// Only re-snap when the viewport actually resized — re-layouts
 				// from translate/row writes must not clobber an in-flight drag.
-				if (l.stride !== before && !live.current.tracking) setX(-l.index * l.stride)
+				if (l.stride !== before && !live.current.tracking && !l.anim) setX(-l.index * l.stride)
 			} finally {
 				inLayout = false
 			}
@@ -104,7 +104,7 @@ export function Track(props: {
 		clipRef.current?.on?.('layoutChanged', cb)
 		l.stride = stride()
 		// This layout effect re-runs every render — never re-snap mid-drag.
-		if (!live.current.tracking) setX(-l.index * l.stride)
+		if (!live.current.tracking && !l.anim) setX(-l.index * l.stride)
 		return () => {
 			;(clipRef.current?.parent as any)?.off?.('layoutChanged', cb)
 			clipRef.current?.off?.('layoutChanged', cb)
@@ -120,7 +120,7 @@ export function Track(props: {
 		const clip = clipRef.current
 		if (!clip) return
 		const off = attachInput(clip, { maxZoom: props.maxZoom ?? 1 }, dispatch.current)
-		return () => { off() }
+		return () => { off(); l.anim?.stop() }
 	}, [])
 
 	useLayoutEffect(() => {
@@ -132,20 +132,22 @@ export function Track(props: {
 			goTo(index, behavior) {
 				l.index = clamp(index, 0, count() - 1)
 				const target = -l.index * (l.stride = stride())
+				l.anim?.stop()
 				if (behavior === 'smooth') {
 					const mv = props.progress
-					const from = l.x
-					const to = target
-					let last = -from / l.stride
-					const off = mv.on('change', (v: number) => {
-						const dx = (v - last) * l.stride
-						last = v
-						setX(l.x - dx)
-					})
-					mv.set(-from / l.stride)
-					void mv.animate(-to / l.stride, SETTLE).finished.then(() => {
+					mv.set(-l.x / l.stride)
+					// Progress drives this update. Publishing it again from setX
+					// would cancel the animation and can recurse on rounding error.
+					const off = mv.on('change', (v: number) => setX(-v * l.stride, false))
+					const animation = mv.animate(-target / l.stride, SETTLE)
+					const playback = { stop() { off(); animation.stop(); if (l.anim === playback) l.anim = null } }
+					l.anim = playback
+					void animation.finished.then((result) => {
 						off()
-						setX(to)
+						if (l.anim !== playback) return
+						l.anim = null
+						if (result !== 'finished') return
+						setX(target)
 						props.onScrollIndex(l.index)
 					})
 				} else {
