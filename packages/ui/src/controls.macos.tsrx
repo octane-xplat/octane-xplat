@@ -4,17 +4,13 @@ import { useState } from 'octane'
 import type {
 	ActivityIndicatorProps,
 	ButtonProps,
-	CheckboxProps,
 	SearchInputProps,
 } from './props'
 
 import { Pressable } from './Pressable.macos.tsrx'
-import { CheckboxIndicator } from './CheckboxIndicator.macos.tsrx'
 import { Text } from './Text.macos.tsrx'
 import { TextInput } from './text-controls.macos.tsrx'
 import { cx } from '@octane-xplat/lib'
-import { nativeAccessibilityRole } from './escape-props'
-import { useFieldControlProps } from './field-context'
 import { useButtonGroup } from './button-group-context'
 import { useSize } from './size-context'
 import { Icon } from './Icon.macos.tsrx'
@@ -81,65 +77,7 @@ export function Button(props: ButtonProps) @{
 	</Pressable>
 }
 
-export function Checkbox(inputProps: CheckboxProps) @{
-	const props = useFieldControlProps(inputProps)
-	const [internal, setInternal] = useState(props.defaultValue ?? false)
-	const resolved = props.value ?? internal
-	const indeterminate = resolved === 'indeterminate'
-	const checked = resolved === true
-	const isBlocked = props.isDisabled || props.isReadOnly
-	const toggle = () => {
-		const next = indeterminate ? true : !checked
-		if (props.value === undefined) {
-			setInternal(next)
-		}
-
-		props.onChange?.(next)
-	}
-
-	<masonview
-		id={props.id}
-		className={cx(
-			'vx-checkbox-row',
-			checked && 'vx-checkbox--on',
-			props.isDisabled && 'vx-checkbox--disabled',
-			props.isReadOnly && 'vx-checkbox--readonly',
-			props.isLoading && 'vx-checkbox--loading',
-			props.status && `vx-checkbox--status-${props.status.type}`,
-			props.size && `vx-checkbox--size-${props.size}`,
-			props.className,
-		)}
-		style={mergeStyle(
-			{ flexDirection: 'row', alignItems: 'center', gap: props.label == null ? 0 : 8 },
-			mergeStyle(
-				{ display: 'flex' },
-				{ opacity: props.isDisabled ? 0.5 : 1, ...styleRecord(props.style) },
-			),
-		)}
-		accessibilityRole="checkbox"
-		accessibilityLabel={
-			props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label
-		}
-		accessibilityHint={props.accessibilityHint}
-		accessibilityValue={indeterminate ? 'Partially selected' : undefined}
-		accessibilityState={{
-			checked: indeterminate ? 'mixed' : checked,
-			disabled: props.isDisabled,
-			readonly: props.isReadOnly,
-			busy: props.isLoading,
-			required: props.isRequired && !props.isOptional,
-			invalid: props.status?.type === 'error',
-		}}
-		onTap={isBlocked ? undefined : toggle}
-	>
-		<CheckboxIndicator
-			state={indeterminate ? 'indeterminate' : checked ? 'checked' : 'unchecked'}
-			size={props.size === 'sm' ? 'sm' : 'md'}
-			isDisabled={props.isDisabled}
-		/>
-		{props.label != null ? <Text className="vx-checkbox-label">{props.label}</Text> : null}
-	</masonview>
-}
+export { Checkbox } from './Checkbox.macos.tsrx'
 
 export { Switch } from './Switch.macos.tsrx'
 

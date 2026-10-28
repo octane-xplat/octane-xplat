@@ -798,6 +798,9 @@
 
 
 	@platform macos {
+		.vx-checkbox-field--appkit { display: flex; flex-direction: column; }
+		.vx-checkbox-row--appkit { display: flex; flex-direction: row; align-items: center; gap: 8px; }
+		.vx-checkbox-text { flex-shrink: 1; }
 		.vx-switch-field--appkit { display: flex; flex-direction: column; }
 		.vx-switch-container--appkit { display: flex; flex-direction: row; align-items: center; gap: 8px; justify-content: flex-start; }
 		.vx-switch-container--appkit.vx-switch-container--label-start { flex-direction: row-reverse; justify-content: flex-end; }

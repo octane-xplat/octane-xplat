@@ -654,3 +654,21 @@ export function Alerts() {
 		labelPosition="start" labelSpacing="spread" width={280} />
 }
 ```
+
+
+## AppKit checkbox metadata
+
+Checkbox renders standalone label/description/status, reuses enclosing Field
+ownership, and hides text without dropping the accessible name. Metadata changes
+retain the host/state. Native input/layout/accessibility remain unqualified;
+changeAction is still ignored on AppKit, with mixed rollback contract work open.
+Use controlled state and onChange for saves; see
+[checkbox metadata](../../../../docs/app/components.md#checkbox-metadata-on-appkit).
+
+```tsx
+import { Checkbox } from '@octane-xplat/ui'
+
+export function IncludeArchived() {
+	return <Checkbox label="Include archived" description="Search older records" defaultValue />
+}
+```

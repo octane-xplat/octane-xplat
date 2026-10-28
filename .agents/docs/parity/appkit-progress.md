@@ -1225,3 +1225,40 @@ Actual CSS resolution/size geometry, status/tooltip layout, long text/wrapping,
 RTL, hit testing, focus/Tab, VoiceOver, loading presentation and packaging remain
 unqualified. No builds, tests, installs, OS automation, visual analysis or shared
 audit snapshot regeneration ran. Source audit rows are left historical.
+
+
+### AppKit checkbox metadata
+
+Checkbox is a basic form/control flow. Its AppKit source drew only an optional
+inline child label, ignored description/status/hidden-label props, and could
+duplicate a child label under an enclosing Field. A dedicated leaf now owns
+one stable compound wrapper/row, uses the existing Field text renderer for
+standalone label/description and puts status below. Parent Field retains text
+ownership. Required/optional markers, hidden accessible names, generated/native
+IDs, testID, width and composed class/style forms are forwarded. Existing
+scalar/mixed/default/controlled semantics remain; a blocked toggle also checks
+its guard directly. Static layout moved into scoped macOS CSS. No dependencies
+or public API types changed.
+
+Authored focused source cases for standalone/parent ownership, hidden metadata,
+class/style forms, mixed-to-true requests, controlled feedback, inherited gates
+and host/state retention. Syntax and whitespace only; tests have not run.
+AppKit changeAction is still ignored. Checkbox's previous mixed value cannot
+be emitted through its boolean-only onChange rollback callback; the web source
+currently collapses a failed mixed request to unchecked. This slice does not
+weaken or silently reinterpret that async contract. It requires separate shared
+API/behavior work; consumers can save from controlled onChange meanwhile.
+labelTooltip forwarding for Checkbox also remains outside this slice.
+
+Deferred commands after this task's explicit human authorization:
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/checkbox.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm check:recipes
+```
+
+Actual row/child click delivery, keyboard activation, Tab/focus, mixed VoiceOver,
+long-text/RTL layout, loading appearance and packaging remain unqualified.
+No tests, builds, installs, probes, OS automation, visual analysis or shared
+audit regeneration ran; evidence checkboxes remain open.
