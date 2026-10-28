@@ -6,7 +6,7 @@
 		"moduleResolution": "bundler",
 		"target": "esnext",
 		"jsx": "react-jsx",
-		"jsxImportSource": "octane",
+		"jsxImportSource": "@octane-xplat/jsx",
 		"declaration": true,
 		"emitDeclarationOnly": true,
 		"noEmit": false,
@@ -31,7 +31,6 @@
 		"src/cache.web.ts",
 		"src/index.ts",
 		"src/index.web.ts",
-		"src/native-elements.d.ts",
 		"src/props.ts"
 	]
 }

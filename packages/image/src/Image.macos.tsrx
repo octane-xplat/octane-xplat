@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useMemo } from 'octane'
 import type { ImageProps } from './props'
 import { hashToPngBase64 } from './hash-image'
@@ -28,6 +28,14 @@ function appKitPlaceholder(placeholder: string): string | undefined {
  *  `placeholder` paints into the same view while a load is pending, same as
  *  core. Other engine props are ignored — no cache engine exists on this
  *  target. */
+// AppKit-only: `placeholder` paints while the load resolves — NativeScript's
+// image element has no such prop, so it stays out of the shared contract.
+declare module '@octane-xplat/jsx/intrinsics' {
+	interface ImageProps {
+		placeholder?: string
+	}
+}
+
 export function Image(props: ImageProps) @{
 	const src = (Array.isArray(props.src) ? props.src[0]?.uri : props.src) ?? ''
 	const placeholder = useMemo(

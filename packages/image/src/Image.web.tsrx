@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useLayoutEffect, useRef } from 'octane'
 import type { CSSProperties } from 'octane/jsx-runtime'
 import type { ImageProps, ImageSourceLike } from './props'
