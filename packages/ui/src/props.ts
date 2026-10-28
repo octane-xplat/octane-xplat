@@ -87,6 +87,10 @@ export type PanState = 'began' | 'moved' | 'ended' | 'cancelled'
  * in CSS pixels on web or logical DIPs/points on native. Velocity uses
  * those same units per second; target is the attached host. */
 export interface PanEvent {
+	/** Current point in the attached host's top-left logical coordinates.
+	 * Currently supplied by AppKit only; use dx/dy for portable dragging. */
+	locationX?: number
+	locationY?: number
 	x: number
 	y: number
 	dx: number
@@ -2333,9 +2337,9 @@ export interface SliderMark {
 /** Slider — self-drawn track + thumb(s) with the shared field vocabulary.
  *  `value` is one number or a `[low, high]` range (two thumbs; upstream
  *  `SliderRangeSlider`). `formatValue` renders the readout and `marks` draw
- *  labeled stops. Native single-value sliders keep the OS-widget contract;
- *  range, marks, and formatted readouts are rendered only where the leaf
- *  supports them (web today — recorded gap on native). */
+ *  labeled stops. Web and AppKit leaves render
+ *  ranges, marks, and formatted readouts; other native leaves retain their
+ *  single-value widget subset. AppKit runtime qualification remains open. */
 export interface SliderProps extends FieldControlProps {
 	className?: ClassValue
 	style?: StyleProp

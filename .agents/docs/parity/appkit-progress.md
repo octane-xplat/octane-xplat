@@ -1083,7 +1083,9 @@ AppKit's usePan adapter previously assigned x/y from deltaX/deltaY, losing the
 pointer location needed to choose a range-slider thumb. The renderer now reads
 NSPanGestureRecognizer.locationInView and converts through the view's bounds to
 top-left logical points; translation and velocity stay independent deltas.
-The UI adapter forwards those actual x/y fields. Apple's [pan recognizer
+The renderer event carries actual x/y fields. Final contract review retained
+the shared adapter's documented x/y aliases for dx/dy and exposes actual
+position as optional locationX/locationY (currently AppKit only). Apple's [pan recognizer
 contract](https://developer.apple.com/documentation/appkit/nspangesturerecognizer?language=objc)
 specifies the current mouse point; the [location API](https://developer.apple.com/documentation/appkit/nsgesturerecognizer/location%28in%3A%29)
 returns the chosen view's coordinate system. These references are source evidence.
@@ -1112,3 +1114,49 @@ whitespace only; deferred: `pnpm exec turbo run test --filter=@octane-xplat/ui -
 and `pnpm exec turbo run typecheck --filter=...@octane-xplat/ui`.
 This keeps the new AppKit readout's default aligned with the web source; it is
 not browser/native runtime or pixel evidence.
+
+### AppKit settings and range sliders
+
+Demand: ControlsDemo uses a controlled bounded Slider; the public volume
+example uses a fractional 0..1 range. The previous AppKit leaf ignored the
+shared min/max/step/defaultValue contract, collapsed pairs to their high value
+and had no per-thumb hardware-key behavior. A dedicated AppKit leaf now owns
+scalar/uncontrolled/controlled values, noncrossing pairs, explicit bounds,
+positive steps, Field metadata/blocking, marks, fractional/custom text readouts
+and AppKit hover tooltips. The control palette was extracted without changes.
+Static layout stays in scoped macOS CSS; no dependency was added. Shared
+PanEvent adds optional AppKit-only locationX/locationY while preserving its
+existing x/y drag-delta aliases. Portable dragging should continue to use dx/dy.
+The props comment now distinguishes AppKit's source implementation from the
+remaining single-value native subsets.
+
+Each thumb has a real focus action, hardware-key handlers and adjustable
+accessibility metadata/actions. Arrows use the explicit step or 1% of the full
+range; Home/End request the selected thumb's current bounds. Dragging measures
+the track, selects the nearest thumb from pointer location and applies cumulative
+distance. It does not jump on track taps. Equal-distance ties choose by drag
+direction. Range thumbs cannot cross; duplicate terminal notifications are
+suppressed. Controlled drag previews reset on end/cancel; parents must accept
+change requests. Step rounding intentionally matches web's existing zero-origin
+grid, including existing floating-point precision limitations.
+
+Added object-driver source cases, a maintained initial-metadata native fixture,
+a recipe, public guidance, skill guidance and a release note. Test-mode resolution
+is still unverified. Syntax parsing and whitespace only; no tests/probes ran.
+Deferred until this task receives explicit human authorization:
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/slider.macos.mobile.test.tsrx
+pnpm exec turbo run test --filter=@octane-xplat/ui -- src/Slider.web.test.tsrx
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/macos-renderer
+pnpm probe run examples/probes/slider.macos.tsrx --target macos --watch
+pnpm check:recipes
+```
+
+Real pan thresholds/location/deltas, nested hit testing, Tab/focus, keyboard input,
+VoiceOver/range labeling, hover tooltip timing, marks/layout/clipping, CSS
+resolution, pixel parity and packaging remain unqualified. The fixture's run
+hook checks initial metadata only, not input. No builds, installs, native/OS
+or browser automation, visual analysis or shared audit regeneration ran.
+No issue evidence checkbox is closed.

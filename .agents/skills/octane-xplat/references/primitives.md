@@ -600,3 +600,21 @@ export function Quantity() {
 		units="kg" hasClear hasNumberSteppers={false} />
 }
 ```
+
+
+## AppKit sliders
+
+Use scalar or pair values with explicit bounds; controlled sliders need
+onValueChange feedback. The AppKit leaf implements steps, noncrossing range
+thumbs, marks, text/hover readouts and inherited Field blocking. Dragging stays
+delta-based; it does not jump on track taps. Native keyboard, accessibility,
+hover timing and layout remain unqualified. See [AppKit Slider](../../../../docs/app/components.md#slider-on-appkit).
+
+```tsx
+import { Slider } from '@octane-xplat/ui'
+
+export function Budget() {
+	return <Slider label="Budget" defaultValue={[20, 80]} min={0} max={100}
+		step={5} valueDisplay="text" />
+}
+```

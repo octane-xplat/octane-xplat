@@ -1,0 +1,134 @@
+/** @jsxImportSource @octane-xplat/jsx */
+import { afterEach, expect, it, vi } from 'vitest'
+import { createObjectContainer, createObjectDriver, createUniversalRoot, flushUniversalSync } from 'octane/universal/native'
+import { Slider } from './Slider.macos.tsrx'
+import { usePan } from './pan.macos.tsrx'
+import { FormField } from './FormField.macos.tsrx'
+import { moveSlider, sliderKey, sliderLimits, sliderRatio, sliderValue } from './slider-values.macos'
+
+afterEach(() => vi.unstubAllGlobals())
+function mount(component: any, props: any) {
+	vi.stubGlobal('__xplatAppKit', { keyboardEventsSupported: true })
+	const container = createObjectContainer('nativescript')
+	const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+	const render = (next: any) => { root.render(component, next); flushUniversalSync(() => {}) }
+	render(props)
+	const all = (): any[] => {
+		const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+		return container.children.flatMap(walk)
+	}
+	const named = (name: string) => all().filter((node) => String(node.props?.className).split(' ').includes(name))
+	return { root, render, all, named }
+}
+function key(thumb: any, name: string, extras = {}) {
+	const event = { key: name, code: '', defaultPrevented: false, altKey: false, ctrlKey: false, metaKey: false,
+		shiftKey: false, repeat: false, isComposing: false, preventDefault() { this.defaultPrevented = true }, stopPropagation() {}, ...extras }
+	thumb.props.onKeyDown(event)
+	flushUniversalSync(() => {})
+	return event
+}
+
+it('slider value math handles aliases, equal bounds, steps and non-crossing pairs', () => {
+	const limits = sliderLimits({ min: 10, max: 30, minValue: 0, maxValue: 100, step: 5 })
+	expect(limits).toEqual({ min: 10, max: 30, step: 5 })
+	expect(moveSlider([10, 25], 0, 99, limits)).toEqual([25, 25])
+	expect(moveSlider([15, 30], 1, -20, limits)).toEqual([15, 15])
+	expect(moveSlider(10, 1, 18, limits)).toBe(20)
+	expect(moveSlider(10, 1, NaN, limits)).toBe(10)
+	expect(sliderValue([40, -20], limits)).toEqual([10, 30])
+	expect(sliderRatio(15, { min: 10, max: 10, step: 0 })).toBe(0)
+	expect(sliderKey('ArrowUp', 10, limits)).toBe(15)
+})
+
+it('uncontrolled keys persist, while controlled values request changes without replacing their display', () => {
+	const requests: unknown[] = []
+	const env = mount(Slider, { min: 0, max: 10, step: 2, defaultValue: 4, onValueChange: (value: unknown) => requests.push(value) })
+	try {
+		expect(key(env.named('vx-slider-thumb')[0], 'ArrowRight').defaultPrevented).toBe(true)
+		expect(env.named('vx-slider-thumb')[0].props.accessibilityValue).toBe('6')
+		key(env.named('vx-slider-thumb')[0], 'End')
+		expect(env.named('vx-slider-thumb')[0].props.accessibilityValue).toBe('10')
+		env.render({ min: 0, max: 10, step: 2, value: 2, onValueChange: (value: unknown) => requests.push(value) })
+		key(env.named('vx-slider-thumb')[0], 'ArrowRight')
+		expect(requests).toEqual([6, 10, 4])
+		expect(env.named('vx-slider-thumb')[0].props.accessibilityValue).toBe('2')
+		expect(key(env.named('vx-slider-thumb')[0], 'ArrowRight', { metaKey: true }).defaultPrevented).toBe(false)
+	} finally { env.root.unmount() }
+})
+
+it('range thumbs have separate keys/bounds and cannot cross', () => {
+	const env = mount(Slider, { min: 0, max: 100, defaultValue: [20, 80], label: 'Range' })
+	try {
+		const [lower, upper] = env.named('vx-slider-thumb')
+		expect(lower.props.accessibilityLabel).toBe('Range lower value')
+		expect(upper.props.accessibilityLabel).toBe('Range upper value')
+		key(lower, 'ArrowRight')
+		expect(lower.props.accessibilityValue).toBe('21')
+		key(lower, 'End')
+		expect(lower.props.accessibilityValue).toBe('80')
+		expect(upper.props.accessibilityMinValue).toBe(80)
+		key(upper, 'Home')
+		expect(upper.props.accessibilityValue).toBe('80')
+	} finally { env.root.unmount() }
+})
+
+it('range drags select a nearby thumb from location, persist on end and retain the editing hosts', () => {
+	const requests: unknown[] = []
+	const env = mount(Slider, { min: 0, max: 100, defaultValue: [20, 80], step: 5, onValueChange: (value: unknown) => requests.push(value) })
+	try {
+		const [lower, upper] = env.named('vx-slider-thumb')
+		const host = env.named('vx-slider--appkit')[0]
+		const view = { bounds: { origin: { x: 0, y: 0 }, size: { width: 120, height: 28 } } }
+		const pan = (state: number, deltaX: number) => { host.props.onPan({ state, x: 30 + deltaX, y: 14, deltaX, deltaY: 0, velocityX: 0, velocityY: 0, view }); flushUniversalSync(() => {}) }
+		pan(1, 0); pan(2, 10); pan(3, 10)
+		expect(requests).toEqual([[30, 80]])
+		expect(env.named('vx-slider-thumb')).toEqual([lower, upper])
+		expect(lower.props.accessibilityValue).toBe('30')
+	} finally { env.root.unmount() }
+})
+
+it('field state blocks pan, keys and adjustable actions without duplicating Field metadata', () => {
+	function Parent(props: any) {
+		return <FormField label="Volume" isDisabled={props.disabled} isReadOnly={props.readonly}>
+			<Slider defaultValue={40} />
+		</FormField>
+	}
+	const env = mount(Parent, { disabled: true })
+	try {
+		expect(env.named('vx-field')).toHaveLength(1)
+		for (const state of [{ disabled: true }, { readonly: true }]) {
+			env.render(state)
+			expect(env.named('vx-slider--appkit')[0].props.onPan).toBeUndefined()
+			const thumb = env.named('vx-slider-thumb')[0]
+			expect(thumb.props.onAccessibilityIncrement).toBeUndefined()
+			expect(key(thumb, 'ArrowRight').defaultPrevented).toBe(false)
+			expect(thumb.props.accessibilityValue).toBe('40')
+		}
+	} finally { env.root.unmount() }
+})
+
+it('formats text/tooltip readouts, draws declared marks and retains inline CSS strings', async () => {
+	const env = mount(Slider, { value: 0.5, min: 0, max: 1, valueDisplay: 'text', marks: [{ value: 0, label: 'Quiet' }, { value: 1, label: 'Loud' }], style: 'width:200px' })
+	try {
+		expect(env.named('vx-slider-value')[0].props.text).toBe('0.5')
+		expect(env.named('vx-slider-mark-label').map((node) => node.props.text)).toEqual(['Quiet', 'Loud'])
+		expect(env.named('vx-slider-block')[0].props.style).toContain('width:200px')
+		env.render({ value: 0.5, valueDisplay: 'tooltip', formatValue: (value: number) => `${value * 100}%` })
+		await vi.waitFor(() => expect(env.named('vx-slider-thumb')[0].toolTip).toBe('50%'))
+		expect(env.named('vx-slider-thumb')[0].props.accessibilityValue).toBe('0.5')
+	} finally { env.root.unmount() }
+})
+
+
+it('AppKit pan keeps shared delta aliases and exposes pointer location separately', () => {
+	const events: unknown[] = []
+	function Listener() @{
+		const pan = usePan((event) => events.push(event))
+		<masonview className="pan-listener" onPan={pan} />
+	}
+	const env = mount(Listener, {})
+	try {
+		env.named('pan-listener')[0].props.onPan({ state: 2, x: 42, y: 17, deltaX: 10, deltaY: 3, view: {} })
+		expect(events).toEqual([expect.objectContaining({ x: 10, y: 3, dx: 10, dy: 3, locationX: 42, locationY: 17 })])
+	} finally { env.root.unmount() }
+})

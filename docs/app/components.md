@@ -277,6 +277,41 @@ export function Volume() {
 }
 ```
 
+### Slider on AppKit
+
+Use an uncontrolled slider for a settings range, or supply `value` and
+`onValueChange` together. The AppKit leaf implements scalar/range values,
+bounds, steps, marks and formatted readouts. Each range thumb has its own
+keyboard and accessibility adjustment handlers. Arrows request one step (1%
+of the full range when omitted); Home/End request that thumb's allowed bounds.
+
+```tsx
+import { Slider } from '@octane-xplat/ui'
+
+export function PriceRange() {
+	return <Slider label="Price range" defaultValue={[20, 80]} min={0} max={100}
+		step={5} valueDisplay="text" formatValue={(value) => `$${value}`}
+		marks={[{ value: 0, label: 'Low' }, { value: 100, label: 'High' }]} />
+}
+```
+
+Dragging uses distance from the starting point and chooses the nearest thumb;
+tapping the track does not jump the value. Thumbs cannot cross. `isDisabled`
+and `isReadOnly` also inherit from Field. Steps use the existing web grid
+anchored at zero, then clamp to bounds. Native input, Tab/VoiceOver, hover
+tooltips, layout and pixel parity remain unqualified; these changes have source
+coverage only. `valueDisplay="tooltip"` uses AppKit's hover tooltip timing.
+
+```tsx
+import { Field, Slider } from '@octane-xplat/ui'
+
+export function LockedVolume() {
+	return <Field label="Volume" isReadOnly>
+		<Slider defaultValue={0.5} min={0} max={1} valueDisplay="tooltip" />
+	</Field>
+}
+```
+
 `ColorPicker` renders a fixed layout — a saturation/brightness `ColorArea`, a
 hue `ColorSlider`, then a `ColorSwatch` and `ColorField` row — sharing one
 color state, so dragging brightness to black and back keeps the hue. Color

@@ -1,13 +1,11 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle, styleRecord } from './style-merge'
-import { useRef, useState } from 'octane'
+import { useState } from 'octane'
 import type {
 	ActivityIndicatorProps,
 	ButtonProps,
 	CheckboxProps,
-	PanEvent,
 	SearchInputProps,
-	SliderProps,
 	SwitchProps,
 } from './props'
 
@@ -16,7 +14,6 @@ import { CheckboxIndicator } from './CheckboxIndicator.macos.tsrx'
 import { Text } from './Text.macos.tsrx'
 import { TextInput } from './text-controls.macos.tsrx'
 import { cx } from '@octane-xplat/lib'
-import { usePan } from './pan.macos.tsrx'
 import { nativeAccessibilityRole } from './escape-props'
 import { useThemeScheme } from './theme/theme-scheme.macos'
 import { useFieldControlProps } from './field-context'
@@ -24,12 +21,7 @@ import { useButtonGroup } from './button-group-context'
 import { useSize } from './size-context'
 import { Icon } from './Icon.macos.tsrx'
 import { reportActionError } from './action-error'
-
-function controlColors(dark: boolean) {
-	return dark
-		? { border: '#2e2e2e', onPrimary: '#171717', primary: '#ededed', surface: '#0a0a0a' }
-		: { border: '#eaeaea', onPrimary: '#fafafa', primary: '#171717', surface: '#ffffff' }
-}
+import { controlColors } from './control-colors.macos'
 
 export function Button(props: ButtonProps) @{
 	const group = useButtonGroup()
@@ -217,109 +209,7 @@ export function Switch(inputProps: SwitchProps) @{
 	</masonview>
 }
 
-export function Slider(props: SliderProps) @{
-	const min = props.minValue ?? 0
-	const max = props.maxValue ?? 100
-	const drag = useRef<{ value0: number } | null>(null)
-	const [dragValue, setDragValue] = useState<number | null>(null)
-	const rawValue = props.value
-	const value = dragValue ?? (Array.isArray(rawValue) ? rawValue[1] : rawValue) ?? min
-	const ratio = Math.min(1, Math.max(0, (value - min) / (max - min)))
-	const colors = controlColors(useThemeScheme() === 'dark')
-	const onPan = usePan(
-		props.disabled
-			? undefined
-			: (event: PanEvent) => {
-					if (event.state === 'began') {
-						drag.current = { value0: value }
-						return
-					}
-
-					const target = event.target as
-						| { bounds?: { size?: { width?: number } }; frame?: { size?: { width?: number } } }
-						| undefined
-
-					const width = Number(target?.bounds?.size?.width ?? target?.frame?.size?.width ?? 0)
-					if (!drag.current || !width) {
-						return
-					}
-
-					if (event.state === 'moved') {
-						const next = Math.min(
-							max,
-							Math.max(min, drag.current.value0 + (event.dx / width) * (max - min)),
-						)
-
-						setDragValue(next)
-						props.onValueChange?.(next)
-					} else {
-						drag.current = null
-						setDragValue(null)
-					}
-				},
-	)
-
-	const adjustValue = (direction: number) => {
-		if (props.disabled) {
-			return
-		}
-
-		const next = Math.min(max, Math.max(min, value + direction * ((max - min) / 100)))
-		setDragValue(next)
-		props.onValueChange?.(next)
-	}
-
-	<masonview
-		id={props.id}
-		disabled={props.disabled}
-		className={cx('vx-slider', 'vx-slider--appkit', props.className)}
-		style={mergeStyle({ display: 'grid' }, { height: 28, ...styleRecord(props.style) })}
-		accessibilityRole={nativeAccessibilityRole('adjustable')}
-		accessibilityValue={String(value)}
-		accessibilityMinValue={min}
-		accessibilityMaxValue={max}
-		onAccessibilityIncrement={() => adjustValue(1)}
-		onAccessibilityDecrement={() => adjustValue(-1)}
-		onPan={onPan}
-	>
-		<masonview
-			style={mergeStyle(
-				{ display: 'flex' },
-				{ height: 4, borderRadius: 2, backgroundColor: colors.border, alignSelf: 'center' },
-			)}
-			className="vx-slider-track"
-		/>
-		<masonview
-			style={mergeStyle(
-				{ display: 'flex' },
-				{
-					width: String(ratio * 100) + '%',
-					height: 4,
-					borderRadius: 2,
-					backgroundColor: colors.primary,
-					justifySelf: 'start',
-					alignSelf: 'center',
-				},
-			)}
-			className="vx-slider-fill"
-		/>
-		<masonview
-			style={mergeStyle(
-				{ display: 'flex' },
-				{
-					width: 20,
-					height: 20,
-					backgroundColor: colors.primary,
-					left: String(ratio * 100) + '%',
-					marginLeft: -10,
-					justifySelf: 'start',
-					alignSelf: 'center',
-				},
-			)}
-			className="vx-slider-thumb"
-		/>
-	</masonview>
-}
+export { Slider } from './Slider.macos.tsrx'
 
 export { SegmentedControl } from './SegmentedControl.macos.tsrx'
 

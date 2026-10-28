@@ -818,6 +818,17 @@
 	.vx-slider--appkit > * {
 		grid-area: 1 / 1;
 	}
+	@platform macos {
+		.vx-slider-block { display: flex; flex-direction: column; }
+		.vx-slider--appkit { display: grid; flex-grow: 1; padding-left: 10px; padding-right: 10px; }
+		.vx-slider-track, .vx-slider-fill { display: flex; align-self: center; border-radius: 2px; }
+		.vx-slider-fill { justify-self: start; }
+		.vx-slider-thumb { display: flex; justify-self: start; align-self: center; margin-left: -10px; }
+		.vx-slider-marks { display: grid; height: 24px; padding-left: 10px; padding-right: 10px; grid-template-rows: 1fr; grid-template-columns: 1fr; }
+		.vx-slider-mark { display: flex; flex-direction: column; align-items: center; width: 1px; justify-self: start; grid-area: 1 / 1; }
+		.vx-slider-mark-tick { width: 1px; height: 6px; }
+		.vx-slider-mark-label { font-size: 12px; }
+	}
 	.vx-slider-thumb {
 		width: 20px;
 		height: 20px;
