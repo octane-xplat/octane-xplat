@@ -17,6 +17,6 @@ export function NotesEditor() {
 }
 ```
 
-The public TextArea component still needs row sizing, growth and placeholder
-qualification. [GTK text entry](https://octane-xplat.goddardai.org/platform/linux-gtk#text-entry)
+The public TextArea component still needs placeholder, scrolling-input and
+full field qualification. [GTK text entry](https://octane-xplat.goddardai.org/platform/linux-gtk#text-entry)
 describes the current scope.

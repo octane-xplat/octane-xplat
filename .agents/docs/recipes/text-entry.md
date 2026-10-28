@@ -28,8 +28,8 @@ space through form and overlay lifecycles.
 ## Documentation
 
 - AC1: [Control a field](../../../docs/app/text-entry.md#control-a-field) and [editing and submission](../../../docs/app/text-entry.md#preserve-editing-and-submit-deliberately).
-- AC2: [Editing and submission](../../../docs/app/text-entry.md#preserve-editing-and-submit-deliberately) and [verification boundaries](../../../docs/app/text-entry.md#verification-boundaries).
-- AC3: [Field names](../../../docs/app/text-entry.md#control-a-field), [reusable rows](../../../docs/app/primitives.md#reusable-rows), and [Q15](../../design/open-questions.md).
+- AC2: [Sizing a multiline field](../../../docs/app/text-entry.md#size-a-multiline-field), [editing and submission](../../../docs/app/text-entry.md#preserve-editing-and-submit-deliberately) and [verification boundaries](../../../docs/app/text-entry.md#verification-boundaries).
+- AC3: [Field names](../../../docs/app/text-entry.md#control-a-field), [reusable rows](../../../docs/app/primitives.md#reusable-rows), and [Q15](../../design/open-questions.md#later--finer).
 - AC4: [Release and restore focus](../../../docs/app/text-entry.md#release-and-restore-focus), [native frame tracking](../../../docs/app/software-keyboard.md), [focused-input scrolling](../../../docs/app/software-keyboard.md#keep-the-editing-field-visible), [sticky composers](../../../docs/app/software-keyboard.md#keep-a-composer-beside-the-keyboard), the maintained [form example](../../../packages/keyboard/examples/KeyboardFormDemo.tsrx), and the maintained [motion example](../../../packages/keyboard/examples/KeyboardMotionDemo.tsrx).
 - AC5: [Modal focus](../../../docs/app/text-entry.md#release-and-restore-focus), [retained exit lifecycle](../../../docs/app/animation-gestures.md#retain-content-through-exit), and [verification boundaries](../../../docs/app/text-entry.md#verification-boundaries).
 - AC7: [Read software keyboard space](../../../docs/app/text-entry.md#read-software-keyboard-space), the maintained [keyboard-space example](../../../packages/ui/examples/KeyboardSpaceDemo.tsrx), [subscription tests](../../../packages/ui/tests/keyboard-inset.test.mjs), the [compiled cross-root hook test](../../../packages/ui/src/internal/keyboard/use-keyboard-inset.mobile.test.tsrx), and [packed consumers](../../../packages/ui/tests/packed-consumer.mjs).
@@ -151,6 +151,9 @@ checks width, automatic labels/status, inherited sizing and keyboard clear/help.
 The maintained [multiline renderer fixture](../../../packages/linux-gtk-renderer/test/fixtures/src/ui-text-view.gtk.tsrx)
 also exercises actual X11 selection replacement, newline/action Return and Tab
 on the low-level textview intrinsic. It does not qualify the public TextArea.
+The [direct-source sizing fixture](../../../packages/linux-gtk-renderer/test/ui-text-area.test.mjs)
+checks rows, growth caps, authored bounds, direct/ancestor CSS font updates and
+cleanup. Its adjustment-range check does not prove wheel or scroll input.
 
 These checks contribute to AC1, Return behavior within AC2, and the TextInput
 portions of AC3/AC4. They do not establish the complete recipe:

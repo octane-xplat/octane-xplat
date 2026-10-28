@@ -10,7 +10,7 @@ export interface GtkBounds {
 	height: number
 }
 
-type RefEvent = 'loaded' | 'unloaded' | 'layoutChanged' | 'scroll' | 'pan'
+type RefEvent = 'loaded' | 'unloaded' | 'layoutChanged' | 'scroll' | 'pan' | 'fontChanged'
 type Listener = (event: { eventName: RefEvent; object: unknown; [key: string]: unknown }) => void
 
 const NUMERIC_STYLE_KEYS = new Set([
@@ -56,6 +56,7 @@ const NUMERIC_STYLE_KEYS = new Set([
 ])
 
 interface StyleHost {
+	watchFont(notify: () => void): () => void
 	read(property: string): unknown
 	write(property: string, value: number | undefined): void
 }
@@ -74,6 +75,7 @@ export function bindPublicInstance(
 	let styleHost: StyleHost | null = styles
 	let panHost: typeof subscribePan | null = subscribePan
 	let disposePan: (() => void) | null = null
+	let disposeFont: (() => void) | null = null
 	let motion: ReturnType<typeof bindMotion> | null = null
 	let disposed = false
 	let tick: number | null = null
@@ -197,12 +199,14 @@ export function bindPublicInstance(
 	view.getBounds = bounds
 	view.on = (name: RefEvent, listener: Listener) => {
 		if (disposed) return
-		if (!['loaded', 'unloaded', 'layoutChanged', 'scroll', 'pan'].includes(name)) {
+		if (!['loaded', 'unloaded', 'layoutChanged', 'scroll', 'pan', 'fontChanged'].includes(name)) {
 			throw new Error(`linux-gtk ref: unsupported subscription ${name}`)
 		}
 		let set = listeners.get(name)
 		if (!set) listeners.set(name, (set = new Set()))
 		set.add(listener)
+		if (name === 'fontChanged' && !disposeFont && styleHost)
+			disposeFont = styleHost.watchFont(() => emit('fontChanged'))
 		if (name === 'pan' && !disposePan && panHost) {
 			disposePan = panHost((payload) =>
 				emit('pan', {
@@ -225,6 +229,10 @@ export function bindPublicInstance(
 			disposePan()
 			disposePan = null
 		}
+		if (!listeners.get('fontChanged')?.size && disposeFont) {
+			disposeFont()
+			disposeFont = null
+		}
 		if (!listeners.get('layoutChanged')?.size) stop()
 	}
 	return () => {
@@ -233,6 +241,8 @@ export function bindPublicInstance(
 		panHost = null
 		motion?.dispose()
 		motion = null
+		disposeFont?.()
+		disposeFont = null
 		disposeTooltips()
 		disposeScrolling()
 		disposed = true

@@ -790,3 +790,29 @@ validation and formatting/whitespace checks pass. All 40 maintained renderer tes
 with no skips (/tmp/gtk-textview-full.log in the guest). These are real Linux guest
 checks on andromeda, not Homebrew stand-in evidence. No screenshots were
 captured or inspected.
+
+## TextArea row fitting
+
+Shared TextArea now selects a small platform fitting helper. GTK uses native
+Pango font metrics and bounded frame refitting after CSS changes; NativeScript
+retains iOS/Android line metrics and an owned loaded listener. Obsolete limits
+clear when caps, growth, explicit height or authored bounds change.
+The renderer's lazy fontChanged ref notification also catches ancestor CSS
+font changes; min/max row changes do not create a notification loop.
+
+The maintained ui-text-area fixture records native geometry and cleanup,
+separately from OS input. See [sizing evidence and remaining contracts](linux-gtk-renderer.md#textarea-row-sizing-on-gtk).
+TextArea stays unexported; root availability remains 38 values/64 types.
+
+
+Verification for this slice: all 41 maintained renderer tests pass on the
+andromeda Linux guest with no skips; the sizing fixture has 24 native-geometry
+assertions. All 58 affected/dependent Turbo typecheck tasks, the 58 Node native
+regressions plus six selected Vitest cases, and six UI package-integrity tasks
+pass. Recipe, barrel, release-note, formatting and whitespace checks pass.
+The full broad native Vitest suite was not rerun; its previously recorded
+batch-observer failure remains separate. No phone, OS scrolling, IME, AT-client,
+Wayland, HiDPI or image evidence is claimed by the sizing fixture.
+Logs: /tmp/gtk-textarea-rows-full.log in the guest, and
+/tmp/gtk-textarea-rows-types-final.log, /tmp/gtk-textarea-rows-native-final.log
+and /tmp/gtk-textarea-rows-pack-final.log on andromeda.

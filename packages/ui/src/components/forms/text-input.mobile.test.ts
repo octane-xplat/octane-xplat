@@ -25,6 +25,7 @@ vi.mock('../media/Icon.tsrx', async () => {
 import { TextInput } from './TextInput.tsrx'
 import { TextArea } from './TextArea.tsrx'
 import { SearchInput } from './SearchInput.tsrx'
+import { fitTextArea } from './text-area-fit'
 
 // NativeScript Property raises a synchronous textChange on script writes.
 // Model that event here, through the real compiled leaves and event dispatch.
@@ -94,4 +95,52 @@ describe('native controlled input writes', () => {
 			root.unmount()
 		})
 	}
+})
+
+describe('native TextArea row sizing', () => {
+	it('refits after native load and removes the loaded listener on cleanup', () => {
+		let loaded: (() => void) | undefined
+		const view = {
+			ios: { font: { lineHeight: 10 } },
+			style: {} as any,
+			on: vi.fn((_event: string, callback: () => void) => {
+				loaded = callback
+			}),
+			off: vi.fn((_event: string, callback: () => void) => {
+				if (loaded === callback) loaded = undefined
+			}),
+		}
+		const dispose = fitTextArea(view, { rows: 2 })
+		view.ios.font.lineHeight = 20
+		loaded!()
+		expect(view.style.minHeight).toBe(40)
+		dispose()
+		expect(loaded).toBeUndefined()
+		expect(view.off).toHaveBeenCalledExactlyOnceWith('loaded', expect.any(Function))
+	})
+
+	it('releases fixed and bounded limits as sizing modes change', () => {
+		const view = { ios: { font: { lineHeight: 20 } }, style: {} as any }
+		fitTextArea(view, {})
+		expect(view.style).toMatchObject({ minHeight: 60, maxHeight: 60 })
+		fitTextArea(view, { autoGrow: true, rows: 2, maxRows: 4 })
+		expect(view.style).toMatchObject({ minHeight: 40, maxHeight: 80 })
+		fitTextArea(view, { autoGrow: true, rows: 2 })
+		expect(view.style.minHeight).toBe(40)
+		expect(view.style.maxHeight).toBeUndefined()
+		fitTextArea(view, { style: { height: 30 } })
+		expect(view.style.minHeight).toBeUndefined()
+		expect(view.style.maxHeight).toBeUndefined()
+	})
+	it('preserves authored constraints and recomputes native font metrics', () => {
+		const view = { ios: { font: { lineHeight: 20 } }, style: {} as any }
+		fitTextArea(view, { rows: 2, style: { minHeight: '25%', maxHeight: 200 } })
+		expect(view.style.minHeight).toBe('25%')
+		expect(view.style.maxHeight).toBe(200)
+		fitTextArea(view, { style: { height: 30, minHeight: 15, maxHeight: 50 } })
+		expect(view.style).toMatchObject({ minHeight: 15, maxHeight: 50 })
+		view.ios.font.lineHeight = 30
+		fitTextArea(view, { rows: 2 })
+		expect(view.style).toMatchObject({ minHeight: 60, maxHeight: 60 })
+	})
 })

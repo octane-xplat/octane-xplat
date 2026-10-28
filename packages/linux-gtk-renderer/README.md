@@ -262,10 +262,11 @@ export function NotesEditor() {
 }
 ```
 
-This is renderer support, not the public TextArea component. Placeholder,
-row sizing, bounded growth and maximum length remain unqualified. GTK
-TextView has no per-field Return-caption property; the renderer reports
-that limit once when returnKeyType is supplied.
+This is renderer support; TextArea remains outside the GTK UI root.
+Placeholder, maximum length and the full field workflow remain unqualified.
+Source-harness row and growth checks are recorded in the
+[renderer note](../../.agents/docs/notes/linux-gtk-renderer.md#textarea-row-sizing-on-gtk). GTK TextView has no per-field Return-caption property;
+the renderer reports that limit once when returnKeyType is supplied.
 
 ## Apply stylesheets
 

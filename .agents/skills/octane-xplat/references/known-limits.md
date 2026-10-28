@@ -83,9 +83,12 @@ Keep width on the outer field owner and use the GTK status-variant policy
 for hover/focus tooltips. Field and TextArea remain outside the root.
 
 Treat the [multiline intrinsic checks](../../../docs/notes/linux-gtk-renderer.md#multiline-buffer-foundation)
-as renderer foundation evidence. Before exporting TextArea, qualify placeholder,
-rows/maxRows/autoGrow, internal overflow, maxLength and the shared field contract.
-A successful textview mount is insufficient.
+as renderer foundation evidence. Before exporting TextArea, qualify
+internal scroll input, placeholder/maxLength, custom line spacing and the shared
+field contract. Font-based rows/maxRows/autoGrow and constraint transitions have
+a maintained direct-source GTK fixture; that evidence does not yet qualify the
+public TextArea. Preserve the fitting effect's cleanup and defer GTK metric
+reads after fontChanged until native CSS validation has run.
 
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */

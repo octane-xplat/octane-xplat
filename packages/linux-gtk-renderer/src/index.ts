@@ -86,6 +86,7 @@ export interface ElementNode {
 	/** Physical boundary for a viewless, renderer-owned external portal root. */
 	portalHost?: GtkView
 	picture?: ReturnType<typeof bindPicture>
+	fontObservers?: Set<() => void>
 	text: string
 	props: PropBag
 	parent: ElementNode | null
@@ -1206,6 +1207,7 @@ function syncTextAlign(node: ElementNode, view: GtkView, style: PropBag) {
  *  through them) but write nothing. */
 function applyStyle(node: ElementNode, style: PropBag) {
 	const next: PropBag = node.animatedStyle ? { ...style, ...node.animatedStyle } : (style ?? {})
+	const previous = node.appliedStyle ?? {}
 	node.appliedStyle = next
 	const view = node.view
 	if (view === null) {
@@ -1216,6 +1218,13 @@ function applyStyle(node: ElementNode, style: PropBag) {
 	syncTextAlign(node, view, next)
 	applyStyleViewProps(node, view, next)
 	warnUnsupportedCssProps(node, next)
+	if (
+		node.fontObservers?.size &&
+		['fontSize', 'fontFamily', 'fontWeight', 'fontStyle', 'lineHeight', 'letterSpacing'].some(
+			(key) => previous[key] !== next[key],
+		)
+	)
+		for (const notify of [...node.fontObservers]) notify()
 }
 
 /** Every live container — stylesheet and appearance changes restyle them all. */
@@ -3324,6 +3333,13 @@ function bindNodePublicInstance(node: ElementNode): () => void {
 	const disposePublic = bindPublicInstance(
 		node,
 		{
+			watchFont: (notify) => {
+				const observers = (node.fontObservers ??= new Set())
+				observers.add(notify)
+				return () => {
+					observers.delete(notify)
+				}
+			},
 			read: (key) => {
 				const direct = node.localStyle?.[key] ?? node.computedStyle?.[key] ?? node.props[key]
 				if (direct !== undefined) return direct

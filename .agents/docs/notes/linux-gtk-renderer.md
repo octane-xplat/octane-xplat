@@ -1024,3 +1024,60 @@ validation and formatting/whitespace checks pass. All 40 maintained renderer tes
 with no skips (/tmp/gtk-textview-full.log in the guest). These are real Linux guest
 checks on andromeda, not Homebrew stand-in evidence. No screenshots were
 captured or inspected.
+
+## TextArea row sizing on GTK
+
+The maintained ui-text-area fixture mounts shared TextArea source, not a new
+GTK component copy or root export. The GTK fitting helper uses the widget's
+Pango font layout in logical pixels. The old 24-pixel fallback allocated 72
+pixels for three rows even when GTK measured a 32-pixel font line; the fixture
+records that mismatch in /tmp/gtk-textarea-rows-before.log.
+
+Gtk.TextView.get_line_yrange is not a reliable fitting input during load:
+the diagnostic run saw 0 then 51 before allocation, while the settled line
+and the independent Pango layout both measured 32. Pango avoids that buffer
+layout cache. GTK still validates changed font CSS across frame boundaries;
+the helper refits over two bounded frames, then removes its frame callback.
+It also cancels pending callbacks and native subscriptions on cleanup/unmap.
+
+The renderer ref's fontChanged subscription reports effective font-style
+changes, including ancestor selectors, inherited values, local writes and
+keyframe style application. It is lazy: widgets without subscribers allocate
+no observer set. Row min/max changes do not trigger this font event.
+The GTK helper uses that notification to schedule measurement after GTK's
+style validation; the event itself does not promise already-updated metrics.
+
+NativeScript keeps its platform font metrics (iOS font.lineHeight, Android
+getLineHeight converted to dips) and a loaded listener owned by the fitting
+effect. Both helpers clear obsolete row caps and release generated row limits
+when explicit height or authored min/max constraints take ownership. The GTK
+helper clears local ref overrides so authored CSS lengths stay declarative.
+The original row-cap/explicit-height bug is visible in stable v0.17.1's
+TextArea source; a fix note covers that shared native behavior.
+
+Runtime geometry checks cover default fixed rows, a long value within fixed
+rows, internal adjustment range, minimum/capped growth, shrink, cap removal,
+mode changes, explicit height, authored bounds, direct and ancestor font
+changes and restoration, retained widget identity, and observer/ref disposal.
+An internal adjustment range is not actual wheel/scroll-input evidence.
+Placeholder, maxLength, controlled rejection, automatic field ownership,
+custom line-spacing behavior, internal scroll input, IME and complete TextArea
+API qualification remain open before adding TextArea to index.gtk.ts.
+
+Sources: [GTK widget Pango layouts](https://docs.gtk.org/gtk4/method.Widget.create_pango_layout.html),
+[Pango pixel extents](https://docs.gtk.org/Pango/method.Layout.get_pixel_size.html).
+Actual platform evidence is the andromeda Ubuntu guest, GJS 1.80.2/GTK 4.14.5,
+not a Homebrew stand-in or a phone run.
+
+
+Verification for this slice: all 41 maintained renderer tests pass on the
+andromeda Linux guest with no skips; the sizing fixture has 24 native-geometry
+assertions. All 58 affected/dependent Turbo typecheck tasks, the 58 Node native
+regressions plus six selected Vitest cases, and six UI package-integrity tasks
+pass. Recipe, barrel, release-note, formatting and whitespace checks pass.
+The full broad native Vitest suite was not rerun; its previously recorded
+batch-observer failure remains separate. No phone, OS scrolling, IME, AT-client,
+Wayland, HiDPI or image evidence is claimed by the sizing fixture.
+Logs: /tmp/gtk-textarea-rows-full.log in the guest, and
+/tmp/gtk-textarea-rows-types-final.log, /tmp/gtk-textarea-rows-native-final.log
+and /tmp/gtk-textarea-rows-pack-final.log on andromeda.
