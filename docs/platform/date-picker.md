@@ -499,7 +499,9 @@ Home/End use the visible grid, and PageUp/PageDown request an adjacent month.
 Horizontal arrows follow explicit or provider direction. One enabled day is a
 Tab candidate across both month panes; header controls keep their own keys.
 Enter/Space selects through the existing single/range callback. Tab keeps native
-traversal, and Escape clears an unfinished range before layer dismissal:
+traversal, and Escape clears an unfinished range before layer dismissal. The
+AppKit layer monitor consults the shared renderer dispatcher first, so this local
+Escape intent does not depend on which native monitor runs first:
 
 ```tsx
 import { useState } from 'octane'

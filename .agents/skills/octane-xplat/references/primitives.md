@@ -1270,8 +1270,10 @@ Calendar now adapts calendarKeyTarget through a private per-calendar native day
 registry. One enabled day is a Tab candidate across panes. Arrows/row edges/grid
 edges/month pages share existing bounds/disabled predicates; Enter/Space uses the
 existing single/range selection owner. Explicit/provider RTL controls horizontal
-intent. An unfinished range consumes Escape locally; ordinary Escape and Tab stay
-with the surrounding layer/native traversal. Header controls retain their keys.
+intent. An unfinished range consumes Escape locally; the layer monitor asks the
+shared renderer dispatcher first and deduplicates the native event across monitor
+order. Ordinary Escape and Tab stay with the surrounding layer/native traversal.
+Header controls retain their keys.
 
 ```tsx
 import { useState } from 'octane'

@@ -1039,3 +1039,27 @@ promises, native drag source, custom hover/autoscroll or permanent grants are ad
 Four registry/one bridge/two inspection/two controller cases are authored, all
 unrun. Native ObjC/ABI registration, actual destination hit routing/drag delivery,
 Foundation values/grants, lifecycle, AX/focus and packaging remain unqualified.
+
+
+### Escape before layer dismissal
+
+The AppKit UI layer monitor explicitly dispatches Escape through the renderer's
+existing keyboard dispatcher before asking the layer stack to dismiss. The same
+native event is cached by that dispatcher, so renderer-first or layer-first local
+monitor order cannot invoke a handler twice in the source model. preventDefault
+consumes the native event and skips layer dismissal; stopPropagation alone skips
+Xplat layer dismissal while retaining the native event. Older bridges retain the
+previous layer path. This enables Calendar's unfinished-range Escape owner.
+
+```tsx
+import { Calendar } from '@octane-xplat/ui'
+
+export function StayDates() {
+	return <Calendar mode="range" maxRangeSpan={14} />
+}
+```
+
+Four authored source cases use fake NSEvent monitors, including the actual pure
+keyboard dispatcher in both orders. They remain unrun and do not prove native
+monitor registration/order, proxy identity/deduplication, popup/IME/focus/AX or
+packaged operation.

@@ -3076,3 +3076,40 @@ and packaging remain unqualified. AppKit live announcements and native time-list
 keys remain source gaps. No builds, package tests/typechecks, installs, OS
 automation, visual analysis or shared audit snapshot regeneration ran; no evidence
 checkbox is closed.
+
+
+### AppKit Escape dispatcher before layer dismissal
+
+While continuing time-entry keyboard work, found a prerequisite for the newly
+added Calendar range Escape owner: layer-keys.macos installed its own Escape
+monitor and dismissed through the layer stack without first asking the renderer.
+Its ordering relative to the renderer monitor was not guaranteed. Source model
+handlers alone could therefore not establish local Escape precedence.
+
+The AppKit layer monitor now asks the existing shared keyboard dispatcher first.
+A prevented event returns null and skips dismissal; stopped propagation alone
+skips Xplat dismissal while returning the native event. The dispatcher caches the
+same native event, preserving one handler call in either monitor order. Existing
+non-Escape, marked-text and older-bridge paths remain. Four source cases cover
+local-then-layer Escape, stop/default independence, composition/fallback, and both
+monitor orders using the actual pure dispatcher with simulated native monitors.
+All four are unrun. Source/semantic/syntax/whitespace review only. Calendar guide/
+skill/feature note and renderer contract were reconciled; date-picker AC12 remains
+the affected recipe. No public API/dependency, shared manifest or other target
+leaf changed.
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/ui -- src/layer-keys.macos.test.ts src/calendar-focus.macos.test.ts
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/calendar.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe run examples/probes/calendar-keys.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All commands remain deferred pending explicit human authorization for this task.
+Native monitor/proxy identity, actual local Escape vs popup dismissal, IME,
+ref/focus/AX and packaging remain unqualified. No builds, package tests/typechecks,
+installs, OS automation, visual analysis or shared audit regeneration ran; no
+checkbox is closed. Native time-option navigation and the shared Checkbox mixed
+rollback choice remain independent unfinished work.

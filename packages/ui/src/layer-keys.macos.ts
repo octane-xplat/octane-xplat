@@ -1,5 +1,6 @@
 import { configureLayerKeys, dispatchLayerKey } from './layer-stack'
 import { captureAppKitLayerFocus } from './layer-focus.macos'
+import { appKitHost } from './host-bridge'
 
 // AppKit has a process-local key monitor; touch targets have no shared
 // hardware Escape API. Platform back remains owned by RootLayout.
@@ -12,6 +13,12 @@ configureLayerKeys(() => {
 			if (Number(event.keyCode) !== 53) {
 				return event
 			}
+
+			// Local monitors have no guaranteed order. Give the renderer the same
+			// native event first; its dispatcher deduplicates a later monitor call.
+			const handled = appKitHost()?.dispatchKeyboardEvent?.(event)
+			if (handled?.defaultPrevented) return null
+			if (handled?.propagationStopped) return event
 
 			const responder = event.window?.firstResponder
 			const marked =
