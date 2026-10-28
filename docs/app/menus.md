@@ -203,8 +203,45 @@ export function ControlledActions({ disabled }: { disabled: boolean }) {
 ```
 
 Five authored AppKit object-driver cases remain unrun and replace popovers with
-inline content. Hardware arrow/typeahead and submenu key navigation are still
-implementation gaps; real popup/ref/focus timing, physical keys, mouse hit testing,
+inline content. A subsequent surface keyboard source path is described below; trigger arrows
+and cross-popup Tab return remain separate gaps; real popup/ref/focus timing, physical keys, mouse hit testing,
 VoiceOver and packaging remain unqualified. Shared AppKit ContextMenu still uses
 long press or its visible trigger; native secondary-click support is separate.
 The renderer's full menu-role/checked announcements also remain incomplete.
+
+
+## Navigate AppKit menu surfaces
+
+AppKit menu surfaces now have a source keyboard path: Up/Down wrap across current
+enabled rows, Home/End move to an edge, and label prefixes move focus without
+choosing. Enter/Space use the row's existing action/checkbox/radio owner. The
+forward arrow requests a submenu and the backward arrow requests its parent
+level; these directions reverse for RTL. Dropdowns request first-row focus after
+the popup attaches. IME and modified shortcuts keep their existing ownership.
+
+```tsx
+import { DropdownMenu, DropdownMenuItem, DropdownMenuSubMenu } from '@octane-xplat/ui'
+
+export function Actions() {
+	return <DropdownMenu button={{ label: 'Actions' }}>
+		<DropdownMenuItem label="Archive" onSelect={() => console.log('archive')} />
+		<DropdownMenuItem label="Remove" isDisabled />
+		<DropdownMenuSubMenu label="Export">
+			<DropdownMenuItem label="Text" onSelect={() => console.log('export')} />
+		</DropdownMenuSubMenu>
+	</DropdownMenu>
+}
+```
+
+Nested editors in endContent retain their key handling; typeahead uses string
+row labels. Escape stays with the existing layer dismissal owner. Tab requests
+closure without preventing native Tab movement. Dropdown/submenu return refs
+express anchor intent only after accepted closure; reliable cross-popup Tab
+return and opening a closed trigger with arrows still need implementation.
+
+Seven new authored policy/inline-popup cases and the maintained AppKit menu
+fixture remain unrun. Fake windows prove no physical keys or popup behavior.
+Actual initial/return focus, native Tab traversal, separate-root lifetime, RTL
+provider delivery, scrolling/reveal, mouse hit testing, VoiceOver and packaging
+remain unqualified. Secondary-click opening and full native menu AX roles/checked
+announcements remain implementation gaps.

@@ -6,9 +6,11 @@ import { ContextMenu } from './ContextMenu.macos.tsrx'
 import { MenuSurface } from './MenuSurface.macos.tsrx'
 import { DropdownMenuItem, DropdownMenuCheckboxItem, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSubMenu, DropdownMenuLink } from './MenuParts.macos.tsrx'
 import { ButtonGroupProvider } from './button-group-context'
+import { TextInput } from './text-controls.macos.tsrx'
 
 // Inline surfaces exercise source ownership only, not NSPopover/native input.
-vi.mock('./Popover.macos.tsrx', () => ({ Popover: (props: any) => props.open ? <masonview>{props.children}</masonview> : null }))
+const popup = vi.hoisted(() => ({ current: null as any }))
+vi.mock('./Popover.macos.tsrx', () => ({ Popover: (props: any) => { popup.current = props; return props.open ? <masonview>{props.children}</masonview> : null } }))
 function mount(component: any, props: any) {
 	const container = createObjectContainer('nativescript'), root = createUniversalRoot(container, createObjectDriver('nativescript'))
 	const render = (next: any) => { root.render(component, next); flushUniversalSync(() => {}) }
@@ -138,4 +140,112 @@ it('all actionable row kinds forward destructive tone and remove it on retained 
 			expect(String(hosts[index].props.className)).not.toContain('vx-menu-item--destructive')
 		}
 	} finally { env.root.unmount() }
+})
+
+
+function nativeMenuFixture() {
+	const excluded = new Set<object>(), retained = new Set<object>(), observers = new Map<object, (event: any) => void>()
+	vi.stubGlobal('__xplatAppKit', { keyboardEventsSupported: true,
+		suppressTabStop(view: object) { excluded.add(view); return () => excluded.delete(view) },
+		retainFocusTarget(view: object) { retained.add(view); return () => retained.delete(view) },
+	})
+	vi.stubGlobal('NSNotificationCenter', { defaultCenter: {
+		addObserverForNameObjectQueueUsingBlock(name, _owner, _queue, notify) {
+			const token = {}
+			if (name === ((globalThis as any).NSWindowDidUpdateNotification ?? 'NSWindowDidUpdateNotification')) observers.set(token, notify)
+			return token
+		},
+		removeObserver(token: object) { observers.delete(token) },
+	} })
+	const window = () => ({ firstResponder: null as any, recalculateKeyViewLoop() {},
+		makeFirstResponder(view: any) { if (view?.window !== this) return false; this.firstResponder = view; return true } })
+	const hydrate = (node: any, owner: any) => {
+		node.window = owner
+		node.subviews = { get count() { return node.children?.length ?? 0 }, objectAtIndex: (index: number) => node.children[index] }
+		node.bounds = {}; node.scrollRectToVisible = vi.fn()
+		node.accessibilityIsEnabled = () => !node.props?.accessibilityState?.disabled
+		for (const child of node.children ?? []) hydrate(child, owner)
+	}
+	const key = (surface: any, name: string, extra = {}) => {
+		const event: any = { key: name, code: '', altKey: false, ctrlKey: false, metaKey: false, shiftKey: false,
+			repeat: false, isComposing: false, defaultPrevented: false, stopped: false,
+			preventDefault() { this.defaultPrevented = true }, stopPropagation() { this.stopped = true }, ...extra }
+		surface.props.onKeyDown(event); return event
+	}
+	return { excluded, retained, observers, window, hydrate, key }
+}
+
+it('menu surface wires current manual focus/activation, preserves nested editors and releases native ownership', async () => {
+	const f = nativeMenuFixture(), owner = f.window(), initial = vi.fn(), updated = vi.fn(), check = vi.fn(), close = vi.fn()
+	function Rows(props: any) {
+		return <MenuSurface closeMenu={close} initialFocus="first">
+			<DropdownMenuItem id="alpha" label="Alpha" hasCloseOnSelect={false} endContent={<TextInput id="menu-editor" />} />
+			<DropdownMenuCheckboxItem id="beta" label={props.label ?? 'Beta'} value={false} onValueChange={check} />
+			<DropdownMenuItem id="blocked" label="Blocked" isDisabled />
+			<DropdownMenuItem id="gamma" label="Gamma" onSelect={props.select} isDisabled={props.disabled} hasCloseOnSelect={false} />
+		</MenuSurface>
+	}
+	const env = mount(Rows, { select: initial })
+	try {
+		const surface = lists(env)[0]; f.hydrate(surface, owner)
+		await vi.waitFor(() => { flushUniversalSync(() => {}); expect(f.observers.size).toBe(1); expect(owner.firstResponder).toBe(env.byID('alpha')) })
+		expect(f.retained.has(surface)).toBe(true)
+		expect(f.key(surface, 'ArrowDown').defaultPrevented).toBe(true)
+		expect(owner.firstResponder).toBe(env.byID('beta')); expect(check).not.toHaveBeenCalled()
+		f.key(surface, 'Enter'); expect(check).toHaveBeenCalledWith(true)
+		f.key(surface, 'End'); expect(owner.firstResponder).toBe(env.byID('gamma'))
+		const cachedPress = env.byID('gamma').props.onTap
+		env.render({ select: updated }); f.hydrate(surface, owner)
+		f.key(surface, 'Enter'); expect(updated).toHaveBeenCalledOnce(); expect(initial).not.toHaveBeenCalled()
+		env.render({ select: updated, disabled: true, label: 'Banana' }); f.hydrate(surface, owner)
+		cachedPress(); expect(updated).toHaveBeenCalledOnce()
+		f.key(surface, 'Home'); f.key(surface, 'b'); expect(owner.firstResponder).toBe(env.byID('beta'))
+		for (const notify of f.observers.values()) notify({ object: owner })
+		expect(f.excluded.has(env.byID('gamma'))).toBe(false)
+		owner.firstResponder = env.byID('menu-editor')
+		expect(f.key(surface, 'Home').defaultPrevented).toBe(false)
+		expect(f.key(surface, 'Enter').defaultPrevented).toBe(false)
+		expect(owner.firstResponder).toBe(env.byID('menu-editor'))
+		const cachedKeys = { props: { onKeyDown: surface.props.onKeyDown } }
+		env.root.unmount(); cachedPress(); expect(updated).toHaveBeenCalledOnce()
+		expect(f.key(cachedKeys, 'Enter').defaultPrevented).toBe(false)
+		expect(f.excluded.size).toBe(0); expect(f.retained.size).toBe(0)
+		await vi.waitFor(() => expect(f.observers.size).toBe(0))
+		expect(close).not.toHaveBeenCalled()
+	} finally { env.root.unmount(); vi.unstubAllGlobals() }
+})
+
+it('submenu keys stay in their popup registry and controlled close does not restore before acceptance', async () => {
+	const f = nativeMenuFixture(), main = f.window(), child = f.window(), changes = vi.fn(), close = vi.fn(), picked = vi.fn()
+	function Rows(props: any) {
+		return <MenuSurface closeMenu={close} initialFocus="first">
+			<DropdownMenuItem id="alpha" label="Alpha" />
+			<DropdownMenuSubMenu id="sub" label="More" isOpen={props.open} onOpenChange={changes}>
+				<DropdownMenuItem id="nested" label="Nested" onSelect={picked} hasCloseOnSelect={false} />
+			</DropdownMenuSubMenu>
+		</MenuSurface>
+	}
+	const env = mount(Rows, { open: false })
+	try {
+		let surfaces = lists(env); f.hydrate(surfaces[0], main)
+		await vi.waitFor(() => { flushUniversalSync(() => {}); expect(f.observers.size).toBe(1); expect(main.firstResponder).toBe(env.byID('alpha')) })
+		f.key(surfaces[0], 'End'); expect(main.firstResponder).toBe(env.byID('sub'))
+		f.key(surfaces[0], 'ArrowRight'); expect(changes).toHaveBeenLastCalledWith(true)
+		expect(lists(env)).toHaveLength(1)
+		env.render({ open: true }); surfaces = lists(env); f.hydrate(surfaces[0], main); f.hydrate(surfaces[1], child)
+		await vi.waitFor(() => { flushUniversalSync(() => {}); expect(f.observers.size).toBe(2); expect(child.firstResponder).toBe(env.byID('nested')) })
+		expect(popup.current.finalFocusRef.current).toBe(env.byID('sub')) // Ref intent only; Popover is mocked.
+		f.key(surfaces[1], 'Enter'); expect(picked).toHaveBeenCalledOnce()
+		f.key(surfaces[1], 'ArrowLeft'); expect(changes).toHaveBeenLastCalledWith(false)
+		expect(close).not.toHaveBeenCalled(); expect(lists(env)).toHaveLength(2)
+		expect(child.firstResponder).toBe(env.byID('nested'))
+		const cached = { props: { onKeyDown: surfaces[1].props.onKeyDown } }, press = env.byID('nested').props.onTap
+		env.render({ open: false }); expect(lists(env)).toHaveLength(1)
+		press(); expect(picked).toHaveBeenCalledOnce()
+		expect(f.key(cached, 'Enter').defaultPrevented).toBe(false)
+		await vi.waitFor(() => expect(f.observers.size).toBe(1))
+	} finally {
+		env.root.unmount(); expect(f.excluded.size).toBe(0); expect(f.retained.size).toBe(0)
+		expect(f.observers.size).toBe(0); vi.unstubAllGlobals()
+	}
 })

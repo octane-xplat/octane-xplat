@@ -69,6 +69,7 @@ export function DropdownMenu(props: NavigationMenuImplementation<DropdownMenuPro
 		/>
 		<Popover
 			anchor={anchor}
+			finalFocusRef={anchor}
 			open={open}
 			placement={props.placement ?? 'bottom'}
 			alignment={props.alignment}
@@ -78,6 +79,7 @@ export function DropdownMenu(props: NavigationMenuImplementation<DropdownMenuPro
 		>
 			<MenuSurface
 				closeMenu={() => setOpen(false)}
+				initialFocus="first"
 				label={props.label ?? buttonLabel}
 				className={props.className}
 				style={props.style}

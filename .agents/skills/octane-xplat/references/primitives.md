@@ -1067,6 +1067,31 @@ export function Actions({ disabled }: { disabled: boolean }) {
 }
 ```
 
-Keyboard arrow/typeahead/submenu navigation, native secondary click and full menu
-AX roles/checked announcements remain implementation gaps; native popup/ref/focus/
+The subsequent menu-surface source path covers arrows/typeahead/submenu intent;
+closed-trigger arrows, reliable cross-popup Tab return, native secondary click and
+full menu AX roles/checked announcements remain implementation gaps; native popup/ref/focus/
 input/VoiceOver behavior is unqualified. Authored inline-popup cases remain unrun.
+
+
+AppKit MenuSurface now creates a target-private current-row registry in each
+popup root. Manual arrows/edges/typeahead use native child order and skip blocked
+rows; Enter/Space and submenu direction intents call existing row owners. Row
+callbacks read current props and reject detached/disabled hosts. Initial focus
+waits for the surface window, and existing choice-helper Tab-stop claims/window
+observers are released on detach. Nested endContent editors keep their keys.
+Use string labels for typeahead; the private registry is not a public API.
+
+```tsx
+import { DropdownMenu, DropdownMenuItem } from '@octane-xplat/ui'
+
+export function Actions() {
+	return <DropdownMenu button={{ label: 'Actions' }}><DropdownMenuItem label="Archive" /></DropdownMenu>
+}
+```
+
+Escape remains owned by layer dismissal; Tab requests close without preventing
+native movement. Dropdown/submenu anchor return refs do not prove cross-window
+return. Closed-trigger arrows and reliable Tab-return intent are separate gaps.
+Seven authored policy/fake-window cases remain unrun; actual keyboard/IME/focus,
+popup timing/RTL provider inheritance, AX and packaging remain unqualified. See
+[AppKit menu surfaces](../../../../docs/menus.md#navigate-appkit-menu-surfaces).

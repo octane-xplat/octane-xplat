@@ -8,6 +8,7 @@ import type {
 
 import { useNavigationItem } from './use-navigation-item.shared.tsrx'
 import { followHref } from './nav-href.macos'
+import { useAppKitMenuRow } from './use-menu-row.macos.tsrx'
 import { useContext, useEffect, useMemo, useRef, useState } from 'octane'
 import type {
 	MenuItemProps,
@@ -49,8 +50,11 @@ export function DropdownMenuItem(props: MenuItemProps) @{
 		}
 	}
 
+	const row = useAppKitMenuRow({ label: typeof props.label === 'string' ? props.label : '',
+		disabled: Boolean(props.isDisabled), press: select })
+
 	<Pressable
-		ref={props.ref}
+		ref={props.ref ? [props.ref, row.ref] : row.ref}
 		id={props.id}
 		className={['vx-menu-item', props.variant === 'destructive' && 'vx-menu-item--destructive', props.isDisabled && 'vx-menu-item--disabled', props.className]}
 		style={props.style}
@@ -58,7 +62,7 @@ export function DropdownMenuItem(props: MenuItemProps) @{
 		disabled={props.isDisabled}
 		accessibilityLabel={typeof props.label === 'string' ? props.label : undefined}
 		accessibilityState={{ disabled: props.isDisabled }}
-		onPress={select}
+		onPress={row.press}
 	>
 		{props.icon && <Icon name={props.icon} />}
 		<Text className="vx-menu-item-label">{props.label}</Text>
@@ -87,8 +91,11 @@ export function DropdownMenuCheckboxItem(props: MenuCheckboxItemProps) @{
 		}
 	}
 
+	const row = useAppKitMenuRow({ label: typeof props.label === 'string' ? props.label : '',
+		disabled: Boolean(props.isDisabled), press: select })
+
 	<Pressable
-		ref={props.ref}
+		ref={props.ref ? [props.ref, row.ref] : row.ref}
 		id={props.id}
 		className={['vx-menu-item', props.variant === 'destructive' && 'vx-menu-item--destructive', props.isDisabled && 'vx-menu-item--disabled', props.className]}
 		style={props.style}
@@ -96,7 +103,7 @@ export function DropdownMenuCheckboxItem(props: MenuCheckboxItemProps) @{
 		disabled={props.isDisabled}
 		accessibilityLabel={typeof props.label === 'string' ? props.label : undefined}
 		accessibilityState={{ disabled: props.isDisabled, checked: props.value }}
-		onPress={select}
+		onPress={row.press}
 	>
 		<Text accessible={false}>{props.value ? '✓' : '○'}</Text>
 		{props.icon && <Icon name={props.icon} />}
@@ -167,8 +174,11 @@ export function DropdownMenuRadioItem(props: MenuRadioItemProps) @{
 		}
 	}
 
+	const row = useAppKitMenuRow({ label: typeof props.label === 'string' ? props.label : '',
+		disabled: Boolean(props.isDisabled || group.isDisabled), press: select })
+
 	<Pressable
-		ref={props.ref}
+		ref={props.ref ? [props.ref, row.ref] : row.ref}
 		id={props.id}
 		className={['vx-menu-item', props.variant === 'destructive' && 'vx-menu-item--destructive', (props.isDisabled || group.isDisabled) && 'vx-menu-item--disabled', props.className]}
 		style={props.style}
@@ -179,7 +189,7 @@ export function DropdownMenuRadioItem(props: MenuRadioItemProps) @{
 			disabled: props.isDisabled || group.isDisabled,
 			checked: group.value === props.value,
 		}}
-		onPress={select}
+		onPress={row.press}
 	>
 		<Text accessible={false}>{group.value === props.value ? '●' : '○'}</Text>
 		{props.icon && <Icon name={props.icon} />}
@@ -220,17 +230,18 @@ export function DropdownMenuLink(props: NavigationItemImplementation<MenuLinkPro
 
 	const link = useNavigationItem({ ...props, onPress: props.onSelect }, 'link')
 
+	const row = useAppKitMenuRow({ label: typeof props.label === 'string' ? props.label : '',
+		disabled: link.disabled, press: () => {
+			if (link.activateNative(followHref) && props.hasCloseOnSelect !== false) menu.closeMenu()
+		} })
+
 	<Pressable
-		ref={props.ref}
+		ref={props.ref ? [props.ref, row.ref] : row.ref}
 		id={props.id}
 		accessibilityRole="menuitem"
 		disabled={link.disabled}
 		accessibilityState={{ disabled: link.disabled, selected: link.selected }}
-		onPress={() => {
-			if (link.activateNative(followHref) && props.hasCloseOnSelect !== false) {
-				menu.closeMenu()
-			}
-		}}
+		onPress={row.press}
 		className={['vx-menu-item', props.variant === 'destructive' && 'vx-menu-item--destructive', link.disabled && 'vx-menu-item--disabled', props.className]}
 		style={props.style}
 	>
@@ -258,7 +269,6 @@ export function DropdownMenuSubMenu(
 	}
 
 	const anchor = useRef<NSView | null>(null)
-	const mergedRef = useMemo(() => (props.ref ? [anchor, props.ref] : anchor), [props.ref])
 	const [internal, setInternal] = useState(props.defaultOpen ?? false)
 	const requestedOpen = props.isOpen ?? internal
 	const open = requestedOpen && !props.isDisabled
@@ -279,6 +289,9 @@ export function DropdownMenuSubMenu(
 	}, [props.isDisabled, requestedOpen])
 
 	const closeLevel = () => setOpen(false)
+	const row = useAppKitMenuRow({ label: typeof props.label === 'string' ? props.label : '',
+		disabled: Boolean(props.isDisabled), press: () => setOpen(!open), openSubmenu: () => setOpen(true) })
+	const mergedRef = useMemo(() => props.ref ? [anchor, props.ref, row.ref] : [anchor, row.ref], [props.ref, row.ref])
 
 	<>
 		<Pressable
@@ -291,23 +304,7 @@ export function DropdownMenuSubMenu(
 			accessibilityLabel={typeof props.label === 'string' ? props.label : undefined}
 			accessibilityHint="Opens submenu"
 			accessibilityState={{ disabled: props.isDisabled, expanded: open }}
-			onPress={() => setOpen(!open)}
-			web={{
-				'aria-haspopup': 'menu',
-				'aria-expanded': open,
-				'data-menu-submenu': true,
-				onKeyDown: (event: any) => {
-					if (event.isComposing || event.keyCode === 229 || event.defaultPrevented) {
-						return
-					}
-
-					if (event.key === 'ArrowRight' && !props.isDisabled) {
-						event.preventDefault()
-						event.stopPropagation()
-						setOpen(true)
-					}
-				},
-			}}
+			onPress={row.press}
 		>
 			{props.icon && <Icon name={props.icon} />}
 			<Text>{props.label}</Text>
@@ -315,6 +312,7 @@ export function DropdownMenuSubMenu(
 		</Pressable>
 		<Popover
 			anchor={anchor}
+			finalFocusRef={anchor}
 			open={open}
 			placement="right"
 			alignment="start"
@@ -327,6 +325,7 @@ export function DropdownMenuSubMenu(
 					parent.closeMenu()
 				}}
 				closeLevel={closeLevel}
+				initialFocus="first"
 				label={typeof props.label === 'string' ? props.label : undefined}
 			>
 				<MenuData items={props.items} />

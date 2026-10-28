@@ -2507,3 +2507,53 @@ full menu AX roles/checked announcements remain implementation gaps. Native
 popup/ref/focus/Tab timing, OS hit testing, physical keys, VoiceOver and packaging
 remain unqualified. No builds, package tests/typechecks, installs, OS automation,
 visual analysis or shared audit regeneration ran; no checkbox is closed.
+
+### AppKit menu surface keyboard ownership
+
+ComponentsDemo/OverlayDemo use menus and nested choices. After b6095f8d9 repaired
+native disabled/trigger ownership, MenuSurface now owns a target-private registry
+of current row intents and concrete NSView refs. Each popup root provides its own
+registry; native child order/visibility and current disabled flags determine the
+manual navigation set. Up/Down wrap, Home/End move to edges, and 500ms label-prefix/
+repeated-character search moves focus without choosing. Enter/Space calls existing
+action/checkbox/radio/link selection owners. Forward/backward submenu arrows follow
+RTL; the obsolete web-only submenu key attachment was removed from the target.
+Row callbacks read current props and reject disabled/detached hosts.
+
+The surface waits for a native window before initial first/last/container focus,
+uses the existing choice-helper Tab-stop claims/reveal path, and releases native
+fallback focus claims/observers on detach. Dropdown/submenu request first-row focus
+and supply anchor return refs to existing Popover/layer owners; controlled close
+requests do not intentionally restore before acceptance. Surface Escape remains
+with layer dismissal; Tab requests close while preserving native Tab default.
+Nested endContent editors retain key ownership. A raw surface intrinsic is needed
+for key attachment; its prior column layout is preserved by target CSS. No new
+public props/exports/dependencies or shared manifests changed.
+
+Five authored policy cases and two fake-window/inline-popup wiring cases cover
+manual navigation/activation, RTL submenu intents, prefixes/expiry, IME/modifiers,
+empty/rejected focus, current props/disabled/detach guards, nested editor keys,
+registry isolation, controlled close intent and claimed observer/Tab/focus cleanup.
+They remain unrun; fake Popover/windows cannot prove real initial/return focus.
+The new maintained menu-keyboard.macos fixture dispatches only the existing trigger
+in its runner and synthesizes no OS keys. Docs/skill and shared-menus AC7 now cover
+the source path and gaps. Only TypeScript/TSRX syntax, semantic/source and whitespace
+checks ran; sem misparses the complex TSRX surface as deleted, but the actual export
+and parser input remain present.
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/menu-keyboard.macos.mobile.test.tsrx src/menu-family.macos.mobile.test.tsrx src/tab-list.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe run examples/probes/menu-keyboard.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All commands remain deferred pending explicit human authorization for this task.
+Closed-trigger arrow opening and reliable cross-popup Tab return remain separate
+implementation gaps, alongside native secondary click and full menu AX roles/
+checked announcements. Physical keys/IME, actual initial/return/Tab focus, separate-
+root window timing, RTL provider delivery, native reveal, nested/modal integration,
+mouse hit testing, VoiceOver and packaging remain unqualified. No builds, package
+tests/typechecks, installs, OS automation, visual analysis or shared audit snapshot
+regeneration ran; no evidence checkbox is closed.
