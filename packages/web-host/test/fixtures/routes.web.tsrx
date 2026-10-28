@@ -1,4 +1,4 @@
-/** @jsxImportSource octane */
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useId, useState } from 'octane'
 import { Text, RouteOutlet } from '@octane-xplat/ui'
 import { useRouter } from '@octane-xplat/ui/routing'

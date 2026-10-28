@@ -1,4 +1,4 @@
-/** @jsxImportSource octane */
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import type { WebDocumentProps } from '@octane-xplat/web-host/server'
 
 export function Document(props: WebDocumentProps) {

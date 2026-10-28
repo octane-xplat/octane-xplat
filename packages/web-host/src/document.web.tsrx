@@ -1,4 +1,4 @@
-/** @jsxImportSource octane */
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import type { WebAssets, WebDocumentProps } from './props'
 import { bootstrapId, rootId } from './transfer'
 

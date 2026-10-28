@@ -10,7 +10,7 @@
 			"dom"
 		],
 		"jsx": "preserve",
-		"jsxImportSource": "octane",
+		"jsxImportSource": "@octane-xplat/jsx/dom",
 		"allowImportingTsExtensions": true,
 		"declaration": true,
 		"emitDeclarationOnly": true,
