@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { act, createRoot, useEffect } from 'octane'
 import { describe, expect, it, vi } from 'vitest'
 import {
