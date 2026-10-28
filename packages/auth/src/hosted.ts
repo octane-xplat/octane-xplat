@@ -74,11 +74,19 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
 			return
 		}
 		try {
-			await storageOperation(() =>
+			const saved = await storageOperation(() =>
 				creds ? storage.set(storageKey, JSON.stringify(creds)) : storage.remove(storageKey),
 			)
-		} catch {
-			// Persistence is best-effort — the session still lives in memory.
+
+			if (!creds && saved === false) {
+				throw new Error('hostedAuth: unable to remove stored credentials')
+			}
+		} catch (cause) {
+			if (!creds) {
+				// Never expose platform errors, which may include sensitive key details.
+				throw new Error('hostedAuth: unable to remove stored credentials')
+			}
+			// Saving is best-effort; the current session remains in memory.
 		}
 	}
 
@@ -310,16 +318,22 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
 		const previous =
 			credentials === undefined ? readStoredCredentials() : Promise.resolve(credentials)
 		// Retire memory synchronously, then remove after earlier durable saves.
-		await persist(null)
-		const creds = await previous
-		if (!creds || !config.flow.revoke) {
-			return
-		}
-
+		let removalError: unknown
 		try {
-			await config.flow.revoke(creds, { fetch: transport })
-		} catch {
-			// Revocation is best-effort — local credentials are already cleared.
+			await persist(null)
+		} catch (cause) {
+			removalError = cause
+		}
+		const creds = await previous
+		if (creds && config.flow.revoke) {
+			try {
+				await config.flow.revoke(creds, { fetch: transport })
+			} catch {
+				// Server revocation is best-effort, even if local deletion failed.
+			}
+		}
+		if (removalError) {
+			throw removalError
 		}
 	}
 

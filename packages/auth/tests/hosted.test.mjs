@@ -879,3 +879,140 @@ test('a request issued during sign-in cannot replay after the new session lands'
 		'installing a new session retires requests issued during sign-in',
 	)
 })
+
+for (const failure of ['false', 'throw']) {
+	test(`sign-out reports durable deletion ${failure}, retires memory, and still revokes`, async () => {
+		const { createHostedAuth } = loadHosted()
+		let revoked = false
+		let fail = true
+		const saved = {
+			token: 'synthetic-access',
+			sessionToken: 'synthetic-session',
+			expiresAt: Date.now() + 100000,
+		}
+		const storage = memoryStore()
+		storage.map.set('hosted-auth', JSON.stringify(saved))
+		const remove = storage.remove
+		storage.remove = async (key) => {
+			if (!fail) {
+				return remove(key)
+			}
+			if (failure === 'throw') {
+				throw new Error('platform error containing secret fixture details')
+			}
+			return false
+		}
+		const client = createHostedAuth({
+			apiOrigin: ORIGIN,
+			storage,
+			flow: {
+				...ticketFlow(),
+				revoke: async () => {
+					revoked = true
+				},
+			},
+		})
+		assert.equal(await client.restore(), 'authenticated')
+		await assert.rejects(
+			client.signOut(),
+			/^Error: hostedAuth: unable to remove stored credentials$/,
+		)
+		assert.equal(revoked, true)
+		assert.equal(await client.getAccessToken(), null)
+		assert.equal(await client.restore(), 'unauthenticated')
+		fail = false
+		await client.signOut()
+		assert.equal(storage.map.has('hosted-auth'), false)
+	})
+}
+
+test('synthetic HTTP backend verifies PKCE and rotates a challenged access token', async () => {
+	const { createServer } = await import('node:http')
+	let challenge,
+		refreshed = 0,
+		revoked = 0
+	const server = createServer(async (req, res) => {
+		try {
+			let raw = ''
+			for await (const part of req) {
+				raw += part
+			}
+
+			const body = raw ? JSON.parse(raw) : {}
+			res.setHeader('content-type', 'application/json')
+			if (req.url === '/oauth2/attempt') {
+				challenge = body.challenge
+				res.end(JSON.stringify({ attempt_id: 'synthetic-attempt', state: 'synthetic-state' }))
+			} else if (req.url === '/oauth2/grant') {
+				assert.equal(createHash('sha256').update(body.verifier).digest('base64url'), challenge)
+				assert.equal(body.state, 'synthetic-state')
+				res.end(
+					JSON.stringify({
+						valid_until: Date.now() + 120000,
+						session: 'fixture-session',
+						access_token: 'fixture-initial',
+					}),
+				)
+			} else if (req.url === '/oauth2/access') {
+				assert.equal(req.headers.authorization, 'Bearer fixture-session')
+				refreshed++
+				res.end(
+					JSON.stringify({ valid_until: Date.now() + 120000, access_token: 'fixture-refreshed' }),
+				)
+			} else if (req.url === '/oauth2/revoke') {
+				revoked++
+				res.end('{}')
+			} else if (req.url === '/api/me') {
+				if (req.headers.authorization !== 'Bearer fixture-refreshed') {
+					res.writeHead(401, { 'www-authenticate': 'Bearer error="invalid_token"' })
+					res.end('{}')
+				} else {
+					res.end('{"id":"synthetic-account"}')
+				}
+			} else {
+				res.statusCode = 404
+				res.end('{}')
+			}
+		} catch {
+			res.statusCode = 500
+			res.end('{}')
+		}
+	})
+	await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
+	try {
+		const origin = `http://127.0.0.1:${server.address().port}`
+		const storage = memoryStore()
+		const client = loadHosted().createHostedAuth({
+			apiOrigin: origin,
+			fetch,
+			storage,
+			flow: ticketFlow({ origin }),
+			authSession: {
+				supported: true,
+				open: async () => ({
+					type: 'success',
+					url: 'testapp://cb?ticket=synthetic-ticket&state=synthetic-state',
+				}),
+			},
+		})
+
+		assert.equal((await client.signIn()).status, 'success')
+		const response = await client.fetch(`${origin}/api/me`)
+		assert.equal((await response.json()).id, 'synthetic-account')
+		assert.equal(refreshed, 1)
+		const restored = loadHosted().createHostedAuth({
+			apiOrigin: origin,
+			fetch,
+			storage,
+			flow: ticketFlow({ origin }),
+		})
+
+		assert.equal(await restored.restore(), 'authenticated')
+		await client.signOut()
+		assert.equal(revoked, 1)
+		assert.equal(storage.map.size, 0)
+	} finally {
+		server.closeAllConnections()
+		await new Promise((resolve) => server.close(resolve))
+	}
+})

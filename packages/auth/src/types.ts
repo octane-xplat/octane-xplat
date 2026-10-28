@@ -363,8 +363,10 @@ export interface HostedAuth {
 	/**
 	 * Retire pending sign-in/refresh work, clear memory immediately, and remove
 	 * stored credentials after earlier saves finish. Then revoke the previous
-	 * durable session via `flow.revoke` when provided. Storage and revocation
-	 * failures remain best-effort. A later explicit sign-in starts a new session.
+	 * durable session via `flow.revoke` when provided. Rejects with a sanitized
+	 * error if durable deletion fails or reports false, after attempting revoke.
+	 * Memory remains cleared; callers may retry signOut. Server revocation and
+	 * credential saves remain best-effort. A later sign-in starts a new session.
 	 */
 	signOut(): Promise<void>
 }

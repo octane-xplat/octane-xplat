@@ -148,11 +148,26 @@ await auth.signOut() // clears credentials, then attempts server revocation
 
 Sign-out clears memory immediately and waits for earlier credential saves before
 removing the stored record. It supersedes pending sign-in and refresh work:
-an earlier sign-in resolves as `cancelled`. Storage and server revocation remain
-best-effort. A later explicit sign-in starts a new session.
+an earlier sign-in resolves as `cancelled`. Server revocation and credential saves remain best-effort. Failed credential
+deletion rejects with a sanitized error after revocation is attempted. Memory
+remains signed out; report the failure and retry deletion before claiming the
+session was durably cleared. A later explicit sign-in starts a new session.
 
 ```ts
 const pending = auth.signIn()
 await auth.signOut()
 const result = await pending // status: 'cancelled' if the ceremony was still pending
+```
+
+A sign-out error can mean durable credential deletion failed even though the
+in-memory session is retired. Report that failure and allow retry; do not
+claim a future restart cannot restore the stored credential.
+
+```ts
+// Continue with the auth client defined above.
+try {
+	await auth.signOut()
+} catch {
+	console.log('Stored sign-in could not be cleared. Try signing out again.')
+}
 ```
