@@ -279,6 +279,22 @@ test('applyProps routes cleared control events to their unbind setters', () => {
 	assert.equal(ctx.setTextSubmitAction.calls.at(-1)[1], undefined)
 })
 
+test('applyProps commits native key handler updates and clears without ignored-prop warnings', () => {
+	const { node, applyProps } = applyPropsFixture('textfield')
+	const warnings: any[][] = []
+	applyPropsSandbox.console = { warn: (...args: any[]) => warnings.push(args) }
+	try {
+		applyProps(node, { onKeyDown: () => {}, onKeyUp: () => {} })
+		applyProps(node, { onKeyDown: undefined, onKeyUp: undefined })
+	} finally {
+		applyPropsSandbox.console = console
+	}
+	assert.equal(applyPropsSandbox.setKeyActions.calls.length, 2)
+	assert.equal(Reflect.get(node.props, 'onKeyDown'), undefined)
+	assert.equal(Reflect.get(node.props, 'onKeyUp'), undefined)
+	assert.equal(warnings.length, 0)
+})
+
 // A cleared prop has nothing left to apply — an unhandled name must not warn
 // as "ignored" when it arrives as a removal.
 test('applyProps warns on an unknown value but not on its clear', () => {

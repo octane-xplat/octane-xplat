@@ -2,7 +2,10 @@ import type { UseFocusVisibleResult } from './use-focus-visible.tsrx'
 
 /** @internal AppKit modality tracker. Hook readers share one native monitor;
  * a non-hook global read retains it until explicit disposal/module teardown. */
-export function createAppKitFocusVisibleSource(native: () => Record<string, any> = () => globalThis) {
+export function createAppKitFocusVisibleSource(
+	native: () => Record<string, any> = () => globalThis,
+	observeKeys?: (notify: (event: { type: number; modifierFlags: number }) => void) => () => void,
+) {
 	let state: UseFocusVisibleResult = { isFocusVisible: false, inputModality: 'unknown', isSupported: false }
 	const listeners = new Set<() => void>()
 	let release: (() => void) | undefined
@@ -36,14 +39,20 @@ export function createAppKitFocusVisibleSource(native: () => Record<string, any>
 		const center = host.NSNotificationCenter.defaultCenter
 		let monitor: unknown
 		let observer: unknown
+		let releaseKeys: (() => void) | undefined
 		const cleanup = () => {
 			try {
 				if (monitor != null) events.removeMonitor(monitor)
 			} finally {
-				if (observer != null) center.removeObserver(observer)
+				try { if (observer != null) center.removeObserver(observer) }
+				finally { releaseKeys?.() }
 			}
 		}
 		try {
+			const keyObserved = (event: { type: number; modifierFlags: number }) => {
+				if (Number(event.type) === 10 && !(Number(event.modifierFlags) & ((1 << 18) | (1 << 19) | (1 << 20)))) publish('keyboard')
+			}
+			releaseKeys = observeKeys?.(keyObserved)
 			const mask = (host.NSEventMask?.KeyDown ?? 1024) |
 				(host.NSEventMask?.LeftMouseDown ?? 2) |
 				(host.NSEventMask?.RightMouseDown ?? 8) |
@@ -51,7 +60,7 @@ export function createAppKitFocusVisibleSource(native: () => Record<string, any>
 			monitor = events.addLocalMonitorForEventsMatchingMaskHandler(mask, (event: any) => {
 				if (Number(event.type) === 10) {
 					// Modified application shortcuts do not switch to keyboard modality.
-					if (!(Number(event.modifierFlags) & ((1 << 18) | (1 << 19) | (1 << 20)))) publish('keyboard')
+					keyObserved(event)
 				} else if ([1, 3, 25].includes(Number(event.type))) {
 					publish('pointer')
 				}

@@ -26,7 +26,8 @@ export interface UseKeyboardOptions {
  * `useKeyboard` result — `keyboardProps` to spread onto the host.
  */
 export interface UseKeyboardResult {
-	/** DOM focusable elements on web/Linux; no shared native key bridge yet. */
+	/** Focusable DOM elements and native intrinsics on AppKit.
+	 * Default mobile leaves do not implement a hardware-key attachment. */
 	readonly isSupported: boolean
 	keyboardProps: {
 		onKeyDown?: (event: KeyboardEvent) => void

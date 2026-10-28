@@ -64,6 +64,19 @@ stays a required peer.
 
 ## Augmentation
 
+The shared event vocabulary includes `onKeyDown`/`onKeyUp` and the normalized
+`NativeKeyboardEvent` type. AppKit implements this attachment; declaration
+presence does not imply another native driver's support. Apps should check
+`useKeyboard().isSupported` and read the [keyboard guide](../../docs/app/keyboard-clipboard.md#handle-hardware-keys-on-appkit).
+
+```ts
+import type { NativeKeyboardEvent } from '@octane-xplat/jsx/intrinsics'
+
+function handleKey(event: NativeKeyboardEvent<object>): void {
+	if (event.key === 'Enter' && !event.isComposing) event.preventDefault()
+}
+```
+
 Leaf packages that register elements augment `NativeElements` through
 `@octane-xplat/jsx/intrinsics`:
 

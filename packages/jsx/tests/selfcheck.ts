@@ -465,3 +465,21 @@ declare const count: number
 const composedClasses: ClassValue = ['card', count && 'active', [42, 0, NaN]] as const
 const numericClasses: JSX.IntrinsicElements['masonview'] = { className: composedClasses }
 void numericClasses
+
+// Key attachment names stay in the shared vocabulary; AppKit owns the native
+// implementation. Concrete host targets remain typed in direct callbacks.
+const nativeKeys: MacJSX.IntrinsicElements['textfield'] = {
+	onKeyDown: (event) => {
+		const key: string = event.key
+		const code: string = event.code
+		const target: MacHostElement = event.currentTarget
+		event.preventDefault()
+		event.stopPropagation()
+		// @ts-expect-error platform keyCode does not escape the normalized event
+		void event.keyCode
+		void key
+		void code
+		void target
+	},
+}
+void nativeKeys

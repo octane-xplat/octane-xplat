@@ -88,6 +88,26 @@ export interface NativeEvent<TElement> {
 	readonly object: TElement
 }
 
+/** AppKit hardware-key payload. Other native drivers do not implement this
+ * attachment yet; check useKeyboard().isSupported before depending on it. */
+export interface NativeKeyboardEvent<TElement> extends NativeEvent<TElement> {
+	readonly target: TElement
+	readonly currentTarget: TElement
+	readonly key: string
+	/** Physical key position; empty when the host mapping is unknown. */
+	readonly code: string
+	readonly altKey: boolean
+	readonly ctrlKey: boolean
+	readonly metaKey: boolean
+	readonly shiftKey: boolean
+	readonly repeat: boolean
+	readonly isComposing: boolean
+	readonly defaultPrevented: boolean
+	preventDefault(): void
+	/** Stop Xplat ancestor handlers; this does not cancel the native default. */
+	stopPropagation(): void
+}
+
 /** Tap/double-tap/long-press gestures — `{object}` payload only. */
 export interface TapEvent<TElement> extends NativeEvent<TElement> {}
 export interface SwipeGestureEvent<TElement> extends NativeEvent<TElement> {
@@ -217,6 +237,10 @@ export interface CommonAttributes {
  * `onSubmit` → returnPress), focus/blur, and the view lifecycle pair.
  */
 export interface CommonEvents<TElement> {
+	/** AppKit key-down attachment; useKeyboard reports native availability. */
+	onKeyDown?: HostHandler<NativeKeyboardEvent<TElement>>
+	/** AppKit key-up attachment. Pure modifier changes are not key events here. */
+	onKeyUp?: HostHandler<NativeKeyboardEvent<TElement>>
 	onTap?: HostHandler<TapEvent<TElement>>
 	/** Alias for `onTap`. */
 	onClick?: HostHandler<TapEvent<TElement>>

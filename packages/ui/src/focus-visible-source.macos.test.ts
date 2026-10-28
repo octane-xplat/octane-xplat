@@ -106,4 +106,21 @@ describe('AppKit input modality source', () => {
 		expect(env.removed).toEqual(['monitor'])
 		cleanup()
 	})
+
+	it('receives renderer observations before native cancellation and releases the shared subscription', () => {
+		const env = host()
+		let observed!: (event: { type: number; modifierFlags: number }) => void
+		let released = false
+		const source = createAppKitFocusVisibleSource(() => env.native, (notify) => {
+			observed = notify
+			return () => { released = true }
+		})
+		const off = source.subscribe(() => {})
+		// The ordinary NSEvent monitor may never receive this cancelled key.
+		observed({ type: 10, modifierFlags: 1 << 17 })
+		expect(source.getSnapshot().isFocusVisible).toBe(true)
+		off()
+		expect(released).toBe(true)
+		expect(env.removed).toEqual(['monitor', 'observer'])
+	})
 })

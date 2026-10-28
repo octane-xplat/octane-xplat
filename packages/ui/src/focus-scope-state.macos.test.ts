@@ -20,9 +20,10 @@ function fixture() {
 			removeObserver: (token: string) => { observers.delete(token); removed.push(token) },
 		} },
 	}
-	const manager = createAppKitFocusScopeManager(() => native, () => ({
+	const bridge: Record<string, any> = {
 		retainFocusTarget: (view: any) => { retained.add(view); return () => { retained.delete(view) } },
-	}))
+	}
+	const manager = createAppKitFocusScopeManager(() => native, () => bridge)
 	const window: any = { isKeyWindow: true, firstResponder: null, reject: false }
 	window.makeFirstResponder = (target: any) => {
 		if (window.reject || target.window !== window) return false
@@ -45,7 +46,7 @@ function fixture() {
 		return { event, result: monitor(event) }
 	}
 	const update = (owner = window) => observers.get('NSWindowDidUpdateNotification')?.({ object: owner })
-	return { manager, window, view, trigger, key, update, removed, retained, observers, native }
+	return { manager, window, view, trigger, key, update, removed, retained, observers, native, bridge }
 }
 
 describe('AppKit focus scope manager', () => {
@@ -186,6 +187,23 @@ describe('AppKit focus scope manager', () => {
 		expect(env.retained.size).toBe(0)
 		expect(env.observers.size).toBe(0)
 		expect(env.removed).toHaveLength(2)
+		off()
+	})
+
+	it('dispatches attached keys before Tab containment and respects cancellation/propagation', async () => {
+		const env = fixture()
+		const a = env.view('a', true), b = env.view('b', true)
+		const off = env.manager.bind(env.view('scope', false, [a, b]), () => ({ contain: true }))
+		await Promise.resolve()
+		env.bridge.dispatchKeyboardEvent = () => ({ defaultPrevented: true, propagationStopped: false })
+		expect(env.key().result).toBeNull()
+		expect(env.window.firstResponder).toBe(a)
+		env.bridge.dispatchKeyboardEvent = () => ({ defaultPrevented: false, propagationStopped: true })
+		expect(env.key().result).not.toBeNull()
+		expect(env.window.firstResponder).toBe(a)
+		env.bridge.dispatchKeyboardEvent = () => ({ defaultPrevented: false, propagationStopped: false })
+		expect(env.key().result).toBeNull()
+		expect(env.window.firstResponder).toBe(b)
 		off()
 	})
 })

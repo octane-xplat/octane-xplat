@@ -15,7 +15,7 @@ hardware-key support on native hosts.
 
 ## Acceptance criteria
 
-- AC1: Attach normalized key handlers to a focusable DOM element and distinguish key, code, modifiers, repeat, composition, and prevention; discover unsupported native attachments.
+- AC1: Attach normalized key handlers to a focusable DOM element or AppKit native intrinsic and distinguish key, code, modifiers, repeat, composition, prevention and propagation; discover unsupported mobile attachments and the remaining AppKit modifier-only/extended-code limits.
 - AC2: Attach a text-copy trigger to Pressable, observe success/failure, and await independent attempts; distinguish text copying from paste and rich clipboard formats.
 - AC3: Migrate previous unknown-event handlers and void-return copy actions; understand that host tests do not establish OS input or clipboard permissions.
 - AC4: On web, a controlled Slider supports Tab, bounded Arrow adjustments in increments of 1% of its range, and Home/End. Disabled sliders are skipped and do not change value.
@@ -24,7 +24,7 @@ hardware-key support on native hosts.
 
 ## Documentation
 
-- AC1: [Hardware keys](../../../docs/app/keyboard-clipboard.md#handle-hardware-keys-on-web-and-linux) and [web example](../../../packages/ui/examples/KeyboardDemo.web.tsrx).
+- AC1: [DOM hardware keys](../../../docs/app/keyboard-clipboard.md#handle-hardware-keys-on-web-and-linux), [AppKit hardware keys](../../../docs/app/keyboard-clipboard.md#handle-hardware-keys-on-appkit), [web example](../../../packages/ui/examples/KeyboardDemo.web.tsrx), [native key regressions](../../../packages/macos-renderer/test/keyboard.test.ts) and [AppKit probe](../../../examples/probes/keyboard.macos.tsrx). Gap: AppKit tests, physical input, IME, cancellation, scope coordination and packaged behavior have not run; modifier-only events and extended physical codes remain incomplete.
 - AC2: [Copy feedback](../../../docs/app/keyboard-clipboard.md#copy-text-with-feedback) and [visible example](../../../packages/ui/examples/CopyTextDemo.tsrx).
 - AC3: [Migration](../../../docs/app/keyboard-clipboard.md#migrate-existing-handlers). Maintained host tests cover normalization and mocked write outcomes; OS key dispatch and clipboard permissions remain unqualified.
 - AC4: [Input components](../../../docs/app/components.md#inputs), [component regressions](../../../packages/ui/src/Slider.web.test.tsrx), and [browser input checks](../../../apps/web/scripts/input-readiness.ts).

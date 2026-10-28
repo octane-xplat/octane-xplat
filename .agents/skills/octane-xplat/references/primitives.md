@@ -89,6 +89,25 @@ export function Controls() {
 
 ## Native macOS interaction
 
+AppKit `useKeyboard` attaches key-down/up handlers to native intrinsics or
+their native ancestors. Shared View/TextInput/Pressable do not forward this
+bag. Check bridge capability and preserve composing input; modifier-only events,
+extended physical codes and real OS behavior remain gaps. See
+[AppKit hardware keys](../../../../docs/app/keyboard-clipboard.md#handle-hardware-keys-on-appkit)
+before relying on cancellation or FocusScope coordination.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { useKeyboard } from '@octane-xplat/ui'
+
+export function SearchField() {
+	const keyboard = useKeyboard({ onKeyDown: (event) => {
+		if (!event.isComposing) console.log(event.key, event.code)
+	} })
+	return <textfield accessibilityLabel="Search" {...keyboard.keyboardProps} />
+}
+```
+
 AppKit `FocusScope` implements containment/autofocus/restoration and nested
 ownership when its renderer/input bridge is available. Check
 `getFocusScopeCapabilities()`; capability presence is not OS-input evidence.

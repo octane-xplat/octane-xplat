@@ -1,10 +1,14 @@
 import { useSyncExternalStore } from 'octane'
 import { createAppKitFocusVisibleSource } from './focus-visible-source.macos'
 import type { UseFocusVisibleResult } from './use-focus-visible.tsrx'
+import { appKitHost } from './host-bridge'
 
 export type { FocusInputModality, UseFocusVisibleResult } from './use-focus-visible.tsrx'
 
-const modality = createAppKitFocusVisibleSource()
+const modality = createAppKitFocusVisibleSource(
+	() => globalThis,
+	(notify) => appKitHost()?.observeHardwareKeys?.(notify) ?? (() => {}),
+)
 const hot = (import.meta as ImportMeta & { hot?: { dispose(callback: () => void): void } }).hot
 hot?.dispose(() => modality.dispose())
 

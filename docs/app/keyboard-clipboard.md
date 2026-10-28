@@ -72,10 +72,12 @@ export function RowCopy({ text }: { text: string }) {
 
 ## Handle hardware keys on web and Linux
 
-Use this example in a `.web.tsrx` file. Spread `keyboardProps` onto a focusable
+Use this DOM example in a `.web.tsrx` file (including a Linux web host).
+Spread `keyboardProps` onto a focusable
 DOM element, such as `button`. Shared `View`, `TextInput`, and `Pressable` do
-not forward this attachment. `isSupported` is true for the web/Linux surface;
-native mobile, AppKit, and other native hosts return false with an empty bag.
+not forward this attachment. `isSupported` is true for the DOM surface;
+native mobile and other unsupported hosts return false with an empty bag.
+AppKit has a separate native-intrinsic attachment described below.
 It describes attachment support, not whether a hardware keyboard is connected.
 Software-keyboard layout belongs to `useKeyboardInset`, a separate API.
 
@@ -114,6 +116,55 @@ export function handleKey(event: KeyboardEvent): void {
 	}
 }
 ```
+
+## Handle hardware keys on AppKit
+
+In a `.macos.tsx`/`.macos.tsrx` leaf, spread `keyboardProps` onto a focusable
+native intrinsic, such as `textfield`, or onto a native ancestor of focusable
+controls. The AppKit renderer routes key-down/up from the owning window's first
+responder through registered native ancestors. Shared `View`, `TextInput` and
+`Pressable` do not forward this bag. Check `isSupported` for bridge availability;
+it does not qualify OS input or IME behavior.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { useKeyboard } from '@octane-xplat/ui'
+
+export function SearchField() {
+	const keyboard = useKeyboard({ onKeyDown: (event) => {
+		if (event.isComposing) return
+		if (event.metaKey && event.key.toLowerCase() === 'k') {
+			event.preventDefault()
+			console.log('Search command')
+		}
+	} })
+	return <textfield accessibilityLabel="Search" {...keyboard.keyboardProps} />
+}
+```
+
+AppKit `preventDefault()` stops native dispatch for that event;
+`stopPropagation()` stops Xplat ancestor handlers without cancelling the native
+default. `FocusScope` dispatches attached handlers before its Tab containment,
+with one shared result so handlers do not run twice. Logical characters follow
+the text layout; physical `code` uses known macOS key positions and is empty
+for unmapped codes. Marked text and recognized dead keys set `isComposing`;
+keep composition keys with the native editor unless interception is intentional.
+
+```ts
+import type { KeyboardEvent } from '@octane-xplat/ui'
+
+export function handleSearchKey(event: KeyboardEvent): void {
+	if (event.isComposing || !event.metaKey || event.key.toLowerCase() !== 'k') return
+	event.preventDefault()
+	event.stopPropagation()
+}
+```
+
+Modifier-only `flagsChanged` notifications and extended physical-key mappings
+remain gaps. Native menus and other nested event-tracking loops can consume
+events before local monitoring; see Apple's [local-monitor contract](https://developer.apple.com/documentation/appkit/nsevent/addlocalmonitorforevents%28matching%3Ahandler%3A%29).
+Actual physical input, text layout/IME, default cancellation, focus-scope
+interaction, teardown and packaged consumers remain unqualified.
 
 ## Migrate existing handlers
 

@@ -139,6 +139,9 @@ export function createAppKitFocusScopeManager(
 				if (!event.window) return event
 				const scope = top(event.window)
 				if (!scope) return event
+				const dispatched = bridge()?.dispatchKeyboardEvent?.(event)
+				if (dispatched?.defaultPrevented) return null
+				if (dispatched?.propagationStopped) return event
 				const raw = event.window.firstResponder
 				if (flag(raw, 'hasMarkedText')) return event
 				const candidates = stops(scope)

@@ -10,6 +10,11 @@ declare global {
 	// Cross-package bridge published by this renderer for AppKit-specific leaves
 	// (hover, popups, menus, sheets) and the VirtualList offset channel.
 	var __xplatAppKit: {
+		readonly keyboardEventsSupported?: boolean
+		/** Coordinate Xplat key handlers before an independent scope monitor. */
+		dispatchKeyboardEvent?: (event: unknown) => { defaultPrevented: boolean; propagationStopped: boolean }
+		/** Observe app key input before a handler/scope cancels native dispatch. */
+		observeHardwareKeys?: (notify: (event: { type: number; modifierFlags: number }) => void) => () => void
 		/** Retain programmatic focus on a scope box without a Tab stop/action. */
 		retainFocusTarget?: (view: import('@octane-xplat/platform/macos').NSView) => () => void
 		observeHover?: (view: import('@octane-xplat/platform/macos').NSView, handlers: any) => void

@@ -57,6 +57,8 @@ import { installAppearanceBridge } from './appearance'
 import { configureScrollAxes, observeScrollGeometry, scrollAxes } from './scroll-view'
 import { installMasonElement, makeMasonHostView } from './mason'
 import { installCompat } from './ns-compat'
+import { createAppKitKeyboardDispatcher } from './keyboard'
+import type { NativeKeyboardEvent } from '@octane-xplat/jsx/intrinsics'
 import { makeListView, updateListView, disposeListView } from './list-view'
 import { makePagerView, updatePagerView, disposePagerView } from './pager'
 import { makeVideoView, updateVideoView, disposeVideoView } from './video'
@@ -302,6 +304,7 @@ const nodeContainersByView = new WeakMap<object, RootContainer>()
 const portalHandlesByNode = new WeakMap<ElementNode, UniversalPortalTargetHandle>()
 /** Every node view, for firstResponder→node resolution (focus pseudo-classes). */
 const cssNodesByView = new WeakMap<object, ElementNode>()
+const keyboardDispatcher = createAppKitKeyboardDispatcher(() => ({ NSEvent }))
 
 function parentReference(parent: ElementNode | null | undefined): UniversalHostParent {
 	if (!parent) {
@@ -5804,6 +5807,24 @@ function syncText(parent: ElementNode | null | undefined) {
 	parent.view!.invalidateIntrinsicContentSize()
 }
 
+function setKeyActions(node: ElementNode) {
+	if (!node.view) return
+	const invoke = (name: 'onKeyDown' | 'onKeyUp', event: NativeKeyboardEvent<object>) => {
+		if (node.props.disabled === true || node.props.isEnabled === false || node.props.enabled === false) return
+		const handler = node.props[name]
+		if (typeof handler !== 'function') return
+		try {
+			node.container.root?.eventScope('discrete', () => handler(event))
+		} catch (error) {
+			console.error('[macos-event] ' + name + ' handler failed', error)
+		}
+	}
+	keyboardDispatcher.set(node.view, {
+		onKeyDown: typeof node.props.onKeyDown === 'function' ? (event) => invoke('onKeyDown', event) : undefined,
+		onKeyUp: typeof node.props.onKeyUp === 'function' ? (event) => invoke('onKeyUp', event) : undefined,
+	})
+}
+
 function dispatchTextEvent(node: ElementNode | undefined, name: string) {
 	if (!node) {
 		return
@@ -6230,6 +6251,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 		syncText(node.parent)
 		return
 	}
+	if ('onKeyDown' in props || 'onKeyUp' in props) setKeyActions(node)
 
 	const layoutChildProps: Record<string, readonly string[]> = {
 		rootlayout: ['row', 'col', 'rowSpan', 'colSpan', 'horizontalAlignment', 'verticalAlignment'],
@@ -6253,6 +6275,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 	}
 
 	for (const [name, value] of Object.entries(props)) {
+		if (name === 'onKeyDown' || name === 'onKeyUp') continue
 		if (
 			(node.layoutParent ?? node.parent) &&
 			layoutChildProps[(node.layoutParent ?? node.parent)!.type]?.includes(name)
@@ -7791,6 +7814,9 @@ function remove(container: RootContainer, parentId: UniversalHostParent, node: E
 }
 
 function destroy(node: ElementNode) {
+	if (node.view && (typeof node.props.onKeyDown === 'function' || typeof node.props.onKeyUp === 'function')) {
+		keyboardDispatcher.set(node.view)
+	}
 	node.container?.cssDirty?.delete(node)
 	cancelKeyframeAnimations(node)
 	for (const hook of node.destroyHooks ?? []) {
@@ -9956,6 +9982,13 @@ function installResizeObserver() {
 // Appearance flips change ns-light/ns-dark on roots and may flip media-gated rules.
 appKitBridge.onAppearanceChange?.(() => restyleAllContainers())
 appKitBridge.observeHover = observeHover
+Object.defineProperty(appKitBridge, 'keyboardEventsSupported', {
+	configurable: true,
+	enumerable: true,
+	get: keyboardDispatcher.available,
+})
+appKitBridge.dispatchKeyboardEvent = keyboardDispatcher.dispatch
+appKitBridge.observeHardwareKeys = keyboardDispatcher.observe
 appKitBridge.retainFocusTarget = (view: NSView) => {
 	scopeFocusTargets.set(view, (scopeFocusTargets.get(view) ?? 0) + 1)
 	let active = true

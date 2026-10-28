@@ -201,3 +201,48 @@ reorder, empty/nested scopes, outer-before-inner teardown, delayed/reparented
 views, two windows, IME candidate windows, focus restoration after removal,
 VoiceOver and repeated/HMR teardown. The programmatic probe is not OS-input
 or pixel evidence.
+
+## Native hardware-key attachment
+
+The renderer now binds key-down/up handlers to native views and routes events
+from the owning window's first responder through registered native ancestors.
+Shared field editors resolve to their text controls. Payloads include logical
+characters, known physical codes, modifiers, repeat and composition state;
+recognized dead keys are composing. The UI adapter copies portable fields so
+native targets/event objects do not escape its public event.
+
+`preventDefault` cancels native dispatch; `stopPropagation` stops Xplat ancestor
+callbacks independently. FocusScope requests dispatch before its Tab decision,
+with a shared per-event result to avoid duplicate callbacks across monitors.
+Key binding replacement/removal and node teardown release obsolete callbacks;
+the last binding/observer removal stops native monitoring. Modality readers
+subscribe before cancellation so a trapped/prevented key still counts as
+keyboard input, independent of native monitor order. Shared View/TextInput/Pressable do
+not forward the key bag — attach it to native intrinsics/ancestors.
+
+Modifier-only `flagsChanged` events and extended physical-code coverage remain
+incomplete. Local monitors do not observe events consumed in nested native
+tracking loops, per Apple's local-monitor contract. Physical input, layout/IME,
+text defaults, propagation/cancellation, focus-scope coordination, teardown and
+packaged behavior remain unqualified. Subtree focus tracking and grid keyboard
+behavior remain separate gaps.
+
+Added dispatcher/portable-adapter/prop-clear/scope-coordination regressions,
+JSX declaration self-checks and a maintained keyboard probe. Parser checks and
+`git diff --check` passed; no tests, typechecks, probe or OS interaction have
+run. Shared audit snapshots remain untouched.
+
+Deferred commands:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run test --filter=@octane-xplat/ui -- src/use-keyboard.macos.test.ts src/focus-scope-state.macos.test.ts
+pnpm exec turbo run typecheck --filter=...@octane-xplat/jsx --filter=...@octane-xplat/ui --filter=...@octane-xplat/macos-renderer
+pnpm probe run examples/probes/keyboard.macos.tsrx --target macos --watch
+pnpm check:recipes
+```
+
+After authorization, verify key-down/up, repeat, Shift and command chords,
+non-US layouts, dead keys/IME, two windows, native editing defaults, ancestor
+propagation, prevented/stopped Tab within FocusScope, binding removal and
+repeated teardown. The probe exposes state only and is not OS-input evidence.
