@@ -150,8 +150,8 @@ target; apps that import those subpaths declare their plugins directly. Missing
 required peer declarations are warnings, not a hard failure, because some
 native capabilities are optional.
 
-The starter declares only the optional UI plugins (`ui-drawer`, plus
-`gesturehandler` — see below); svg support is vendored inside
+The current starter does not declare `ui-drawer` or `gesturehandler`; svg
+support is vendored inside
 `@octane-xplat/ui` (`src/vendor/ui-svg` submodule — decision #62). It does not seed
 every platform service
 plugin: apps should add the
@@ -161,14 +161,16 @@ The shared `Drawer` is self-drawn. The optional iOS `SideDrawer` and Android
 `@octane-xplat/ui/android`; those platform subpaths use `ui-drawer`. The mobile
 harness imports these subpaths, while the Windows harness does not, so only the
 mobile app declares `ui-drawer` and `gesturehandler`.
-`gesturehandler` is required with `ui-drawer`: its iOS code reads the
+`gesturehandler` native code is required with `ui-drawer`: its iOS code reads the
 `GestureHandlerDelegate` ObjC protocol at module load, and that protocol exists
-only when the plugin's `platforms/ios` sources are compiled. This requires a
-top-level app declaration. The starter also declares both plugins for native
-apps that use those optional widgets.
-The proving app may therefore carry plugins that a particular screen does not
-render; that is an app ownership concern, not evidence that the framework
-should make those plugins transitive.
+only when the plugin's `platforms/ios` sources are compiled. NativeScript CLI
+9.1.1 traverses transitive runtime dependencies, so this does not inherently
+require a top-level app declaration. Removing an existing app-direct pin still
+requires clean native preparation/build/startup and version-resolution checks.
+The platform barrels also reach the drawer wrappers when unrelated widgets
+are imported; feature-level optionality is not enforced by those barrels.
+See the [native drawer review](../native-drawer.md) for verified boundaries,
+the provisional leaf-package recommendation, and follow-up acceptance criteria.
 
 ### Editor diagnostics and typecheck authority
 
