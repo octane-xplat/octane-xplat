@@ -1,7 +1,7 @@
 {
 	"targets": {
 		"crop": {
-			"renderer": "octane",
+			"renderer": "@octane-xplat/jsx",
 			"project": "tsconfig.types.json",
 			"outDir": "types/generated",
 			"entrypoints": {

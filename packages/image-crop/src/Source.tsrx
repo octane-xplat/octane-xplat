@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { Image } from '@octane-xplat/ui'
 import type { ImageCropProps } from './props'
 export function Source(props: Pick<ImageCropProps, 'src' | 'alt' | 'width' | 'height'>) @{

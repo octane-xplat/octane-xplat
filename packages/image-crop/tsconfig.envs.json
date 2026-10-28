@@ -7,17 +7,34 @@
 		"jsx": "react-jsx",
 		"allowImportingTsExtensions": true,
 		"paths": {
-			"@octane-xplat/ui": ["../ui/types/generated/index.d.ts"]
-		}
+			"@octane-xplat/ui": [
+				"../ui/types/generated/index.d.ts"
+			]
+		},
+		"jsxImportSource": "@octane-xplat/jsx"
 	},
 	"environments": {
 		"web": {
-			"include": ["src/**/*.ts", "src/**/*.tsrx", "examples/**/*.tsrx"],
-			"exclude": ["src/**/*.test.*", "src/**/*.macos.*"]
+			"include": [
+				"src/**/*.ts",
+				"src/**/*.tsrx",
+				"examples/**/*.tsrx"
+			],
+			"exclude": [
+				"src/**/*.test.*",
+				"src/**/*.macos.*"
+			]
 		},
 		"native": {
-			"include": ["src/**/*.ts", "src/**/*.tsrx", "examples/**/*.tsrx"],
-			"exclude": ["src/**/*.test.*", "src/**/*.macos.*"]
+			"include": [
+				"src/**/*.ts",
+				"src/**/*.tsrx",
+				"examples/**/*.tsrx"
+			],
+			"exclude": [
+				"src/**/*.test.*",
+				"src/**/*.macos.*"
+			]
 		},
 		"macos": {
 			"include": [
