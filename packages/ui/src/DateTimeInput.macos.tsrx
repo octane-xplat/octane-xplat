@@ -31,6 +31,7 @@ import {
 	parseDateInput,
 	parseTimeInput,
 	plainDateToISO,
+	plainDateFromISO,
 	resolveLocale,
 	splitDateTime,
 } from './datetime'
@@ -49,7 +50,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 	const dateInput = useRef<NSTextField | null>(null)
 	const timeInput = useRef<NSTextField | null>(null)
 	const anchor = useRef<NSView | null>(null)
-	const writing = useRef(false), actionPending = useRef(false)
+	const writing = useRef(false), actionPending = useRef(false), editing = useRef(false)
 
 	const [open, setOpenState] = useState<'calendar' | 'times' | null>(null)
 	const openRef = useRef(open); openRef.current = open
@@ -57,10 +58,15 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 	const bindAnchor = useCallback((view: NSView | null) => { anchor.current = view; if (!view) openRef.current = null }, [])
 	const bindDate = useCallback((view: NSTextField | null) => { dateInput.current = view }, [])
 	const bindTime = useCallback((view: NSTextField | null) => { timeInput.current = view }, [])
-	const [datePending, setDatePending] = useState<string | null>(null)
-	const [timePending, setTimePending] = useState<string | null>(null)
+	const [datePending, setDatePendingState] = useState<string | null>(null)
+	const [timePending, setTimePendingState] = useState<string | null>(null)
+	const dateDraft = useRef<{ text: string | null }>({ text: null }), timeTextDraft = useRef<{ text: string | null }>({ text: null })
+	const setDatePending = (text: string | null) => { dateDraft.current = { text }; if (dateInput.current) setDatePendingState(text) }
+	const setTimePending = (text: string | null) => { timeTextDraft.current = { text }; if (timeInput.current) setTimePendingState(text) }
 	const [busy, setBusy] = useState(false)
-	const [timeDraft, setTimeDraft] = useState<ISOTimeString | undefined>(undefined)
+	const [timeDraft, setTimeDraftState] = useState<ISOTimeString | undefined>(undefined)
+	const localTime = useRef<{ value: ISOTimeString | undefined }>({ value: undefined })
+	const setTimeDraft = (value: ISOTimeString | undefined) => { localTime.current = { value }; if (anchor.current) setTimeDraftState(value) }
 
 	const lastEmitted = useRef<ISODateTimeString | null | undefined>(undefined)
 	const value = props.value
@@ -70,6 +76,12 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 	const hasSeconds = !!props.hasSeconds
 	const current = useRef({ props, isDisabled, isBusy })
 	current.current = { props, isDisabled, isBusy }
+	const canEdit = () => !!anchor.current && !current.current.isDisabled && !current.current.isBusy && !writing.current && !actionPending.current
+	const editDraft = (field: { current: NSTextField | null }, action: () => void) => {
+		if (!field.current || !canEdit() || editing.current) return
+		editing.current = true
+		try { action() } finally { editing.current = false }
+	}
 	useImperativeHandle(props.ref, () => createAppKitDateFieldHandle({
 		primary: () => dateInput.current, fields: () => [dateInput.current, timeInput.current],
 		blocked: () => current.current.isDisabled || current.current.isBusy || actionPending.current,
@@ -99,6 +111,9 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 	const timeMax =
 		maxParts.date && maxParts.time && valueParts.date === maxParts.date ? maxParts.time : undefined
 
+	const values = useRef({ props, locale, hasSeconds, minParts, maxParts, valueParts, isDateDisabled, timeMin, timeMax })
+	values.current = { props, locale, hasSeconds, minParts, maxParts, valueParts, isDateDisabled, timeMin, timeMax }
+
 	// Preserve typing on an echoed edit; external values replace the draft.
 	useEffect(() => {
 		if (value !== lastEmitted.current) {
@@ -110,58 +125,64 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 		lastEmitted.current = undefined
 	}, [value])
 
-	const fireChange = (next: ISODateTimeString | null | undefined) => {
+	const fireChange = (next: ISODateTimeString | null | undefined): boolean => {
 		const live = current.current
-		if (!anchor.current || writing.current || actionPending.current || live.isDisabled || live.isBusy) return
+		if (!canEdit()) return false
 		const emitted = next ?? null
+		if (emitted === (live.props.value ?? null)) return true
 		writing.current = true
 		try {
+			const change = live.props.onChange, action = live.props.changeAction
 			lastEmitted.current = emitted
-			live.props.onChange?.(emitted)
-			if (live.props.changeAction) {
+			change?.(emitted)
+			if (action) {
 				actionPending.current = true
 				if (anchor.current) setBusy(true)
-				runDateChangeAction(() => live.props.changeAction!(emitted), () => {
+				runDateChangeAction(() => action(emitted), () => {
 					actionPending.current = false
 					if (anchor.current) setBusy(false)
 				})
 			}
+			return true
 		} finally { writing.current = false }
 	}
 
-	const commitDate = (iso: ISODateString, fromPicker: boolean) => {
-		let time = valueParts.time ?? timeDraft ?? currentISOTime(hasSeconds)
-		if (minParts.date === iso && minParts.time && !isTimeInRange(time, minParts.time, undefined)) {
-			time = minParts.time
-		}
-
-		if (maxParts.date === iso && maxParts.time && !isTimeInRange(time, undefined, maxParts.time)) {
-			time = maxParts.time
-		}
-
-		setTimeDraft(undefined)
-		fireChange(combineDateTime(iso, time))
-		if (fromPicker) {
-			setDatePending(null)
-			setOpen(null)
-		}
+	const commitDate = (iso: ISODateString, fromPicker: boolean): boolean => {
+		if (!dateInput.current || !canEdit() || (fromPicker && (editing.current || openRef.current !== 'calendar'))) return false
+		const ownClaim = !editing.current
+		if (ownClaim) editing.current = true
+		try {
+			const live = values.current, parsed = plainDateFromISO(iso)
+			const metadata = { value: live.props.value, min: live.props.min, max: live.props.max, constraints: live.props.dateConstraints, seconds: live.props.hasSeconds, locale: live.props.locale }
+			if (!parsed || live.isDateDisabled(parsed) || !canEdit()) return false
+			// Constraints may call application code; reject metadata replaced there.
+			const next = current.current.props
+			if (next.value !== metadata.value || next.min !== metadata.min || next.max !== metadata.max || next.dateConstraints !== metadata.constraints || next.hasSeconds !== metadata.seconds || next.locale !== metadata.locale) return false
+			const host = anchor.current, dateHost = dateInput.current, ownedLocalTime = localTime.current, ownedDate = dateDraft.current
+			let time = live.valueParts.time ?? ownedLocalTime.value ?? currentISOTime(live.hasSeconds)
+			if (live.minParts.date === iso && live.minParts.time && !isTimeInRange(time, live.minParts.time, undefined)) time = live.minParts.time
+			if (live.maxParts.date === iso && live.maxParts.time && !isTimeInRange(time, undefined, live.maxParts.time)) time = live.maxParts.time
+			const accepted = fireChange(combineDateTime(iso, time))
+			if (accepted && host && anchor.current === host) {
+				if (localTime.current === ownedLocalTime) setTimeDraft(undefined)
+				if (fromPicker) { if (dateInput.current === dateHost && dateDraft.current === ownedDate) setDatePending(null); if (openRef.current === 'calendar') setOpen(null) }
+			}
+			return accepted
+		} finally { if (ownClaim) editing.current = false }
 	}
 
-	const commitTime = (time: ISOTimeString | undefined) => {
+	const commitTime = (time: ISOTimeString | undefined): boolean => {
+		if (!timeInput.current || !canEdit()) return false
+		const live = values.current, host = anchor.current, ownedLocalTime = localTime.current
 		if (time === undefined) {
-			setTimeDraft(undefined)
-			if (shown != null) {
-				fireChange(null)
-			}
-
-			return
+			const accepted = live.props.value != null ? fireChange(null) : true
+			if (accepted && host && anchor.current === host && localTime.current === ownedLocalTime) setTimeDraft(undefined)
+			return accepted
 		}
-
-		if (valueParts.date) {
-			fireChange(combineDateTime(valueParts.date, time))
-		} else {
-			setTimeDraft(time)
-		}
+		if (!isTimeInRange(time, live.timeMin, live.timeMax)) return false
+		if (live.valueParts.date) return fireChange(combineDateTime(live.valueParts.date, time))
+		setTimeDraft(time)
+		return true
 	}
 
 	const dateParsed =
@@ -175,44 +196,22 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 	const dateDisplay =
 		datePending ?? (valueParts.date ? formatDateValue(valueParts.date, 'date_long', locale) : '')
 
-	const handleDateChange = (text: string) => {
-		if (isDisabled) {
-			return
-		}
-
+	const handleDateChange = (text: string) => editDraft(dateInput, () => {
 		setDatePending(text)
-		if (hasDateComposition(dateInput.current)) {
-			return
-		}
+		if (hasDateComposition(dateInput.current)) return
+		const parsed = parseDateInput(text, values.current.locale)
+		if (parsed) commitDate(plainDateToISO(parsed), false)
+	})
 
-		const parsed = parseDateInput(text, locale)
-		if (parsed && !isDateDisabled(parsed)) {
-			commitDate(plainDateToISO(parsed), false)
-		}
-	}
-
-	const commitDatePending = () => {
-		if (hasDateComposition(dateInput.current)) {
-			return
-		}
-
-		if (datePending == null) {
-			return
-		}
-
-		if (!datePending.trim()) {
-			if (shown != null) {
-				fireChange(null)
-			}
-		} else {
-			const parsed = parseDateInput(datePending, locale)
-			if (parsed && !isDateDisabled(parsed)) {
-				commitDate(plainDateToISO(parsed), false)
-			}
-		}
-
-		setDatePending(null)
-	}
+	const commitDatePending = () => editDraft(dateInput, () => {
+		if (hasDateComposition(dateInput.current)) return
+		const owned = dateDraft.current, field = dateInput.current, host = anchor.current
+		if (owned.text == null) return
+		let accepted = false
+		if (!owned.text.trim()) accepted = current.current.props.value != null ? fireChange(null) : true
+		else { const parsed = parseDateInput(owned.text, values.current.locale); if (parsed) accepted = commitDate(plainDateToISO(parsed), false) }
+		if (field && dateInput.current === field && anchor.current === host && dateDraft.current === owned && (accepted || canEdit())) setDatePending(null)
+	})
 
 	const timeParsed =
 		timePending != null && timePending.trim() ? parseTimeInput(timePending, hasSeconds) : null
@@ -228,44 +227,22 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 			? formatDisplay((timeDraft ?? valueParts.time)!, hasSeconds)
 			: '')
 
-	const handleTimeChange = (text: string) => {
-		if (isDisabled) {
-			return
-		}
-
+	const handleTimeChange = (text: string) => editDraft(timeInput, () => {
 		setTimePending(text)
-		if (hasDateComposition(timeInput.current)) {
-			return
-		}
+		if (hasDateComposition(timeInput.current)) return
+		const parsed = parseTimeInput(text, values.current.hasSeconds)
+		if (parsed) commitTime(parsed)
+	})
 
-		const parsed = parseTimeInput(text, hasSeconds)
-		if (parsed && isTimeInRange(parsed, timeMin, timeMax)) {
-			commitTime(parsed)
-		}
-	}
-
-	const commitTimePending = () => {
-		if (hasDateComposition(timeInput.current)) {
-			return
-		}
-
-		if (timePending == null) {
-			return
-		}
-
-		if (!timePending.trim()) {
-			if (valueParts.time) {
-				commitTime(undefined)
-			}
-		} else {
-			const parsed = parseTimeInput(timePending, hasSeconds)
-			if (parsed && isTimeInRange(parsed, timeMin, timeMax)) {
-				commitTime(parsed)
-			}
-		}
-
-		setTimePending(null)
-	}
+	const commitTimePending = () => editDraft(timeInput, () => {
+		if (hasDateComposition(timeInput.current)) return
+		const owned = timeTextDraft.current, field = timeInput.current, host = anchor.current
+		if (owned.text == null) return
+		let accepted = false
+		if (!owned.text.trim()) accepted = commitTime(undefined)
+		else { const parsed = parseTimeInput(owned.text, values.current.hasSeconds); if (parsed) accepted = commitTime(parsed) }
+		if (field && timeInput.current === field && anchor.current === host && timeTextDraft.current === owned && (accepted || canEdit())) setTimePending(null)
+	})
 
 	const timeOptions = useMemo(() => {
 		if (!props.timeOptionInterval) {
@@ -297,13 +274,15 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 	const closeTimes = () => { timeReturn.reset(); setOpen(null) }
 	const chooseTime = (time: ISOTimeString) => {
 		const current = timeState.current
-		if (!anchor.current || writing.current || actionPending.current || choosingTime.current || openRef.current !== 'times' || current.blocked || !current.options.some((option) => option.time === time)) return
+		if (!anchor.current || editing.current || writing.current || actionPending.current || choosingTime.current || openRef.current !== 'times' || current.blocked || !current.options.some((option) => option.time === time)) return
 		choosingTime.current = true
 		openRef.current = null // Claim before application callbacks can reenter or flush parent state.
 		timeReturn.reset()
-		try { current.commitTime(time) }
+		const host = anchor.current, field = timeInput.current, owned = timeTextDraft.current
+		let accepted = false
+		try { accepted = current.commitTime(time) }
 		finally {
-			try { if (anchor.current) { setTimePending(null); setOpen(null) } }
+			try { if (host && anchor.current === host) { if (accepted && timeInput.current === field && timeTextDraft.current === owned) setTimePending(null); if (openRef.current === null) setOpen(null) } }
 			finally { choosingTime.current = false }
 		}
 	}
@@ -314,7 +293,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 	}
 	const timeKeyDown = (event: NativeKeyboardEvent<NSView>) => {
 		const live = timeState.current
-		if (!timeInput.current || event.target !== timeInput.current || !anchor.current || writing.current || actionPending.current || choosingTime.current || live.blocked ||
+		if (!timeInput.current || event.target !== timeInput.current || !anchor.current || editing.current || writing.current || actionPending.current || choosingTime.current || live.blocked ||
 			event.defaultPrevented || event.isComposing || hasDateComposition(timeInput.current) || event.ctrlKey || event.metaKey || event.shiftKey) return
 		if (event.altKey) {
 			if (event.key === 'ArrowDown' && live.options.length) {
@@ -324,11 +303,11 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 		}
 		if (openRef.current !== null || (event.key !== 'ArrowUp' && event.key !== 'ArrowDown')) return
 		event.preventDefault(); event.stopPropagation()
-		const base = live.base ?? currentISOTime(live.hasSeconds)
+		const base = localTime.current.value ?? values.current.valueParts.time ?? currentISOTime(live.hasSeconds)
 		const next = adjustTime(base, event.key === 'ArrowUp' ? live.increment : -live.increment, live.hasSeconds)
-		if (next !== live.base && isTimeInRange(next, live.min, live.max)) {
-			live.commitTime(next)
-			if (anchor.current) setTimePending(null)
+		if (next !== base && isTimeInRange(next, live.min, live.max)) {
+			const host = anchor.current, field = timeInput.current, owned = timeTextDraft.current
+			if (live.commitTime(next) && host && anchor.current === host && timeInput.current === field && timeTextDraft.current === owned) setTimePending(null)
 		}
 	}
 
@@ -337,15 +316,15 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 		else if (!timeOptions.length && openRef.current === 'times') closeTimes()
 	}, [isDisabled, isBusy, timeOptions.length])
 
-	const clear = () => {
-		setDatePending(null)
-		setTimePending(null)
-		setTimeDraft(undefined)
-		fireChange(null)
-	}
-
-	const timeLabelText =
-		props.timeLabel ?? `${props.fieldLabel ?? props.label ?? 'Date and time'} time`
+	const clear = () => editDraft(dateInput, () => {
+		if (current.current.props.value == null) return
+		const host = anchor.current, dateField = dateInput.current, timeField = timeInput.current, date = dateDraft.current, time = timeTextDraft.current, local = localTime.current
+		if (!fireChange(null) || !host || anchor.current !== host) return
+		if (dateInput.current === dateField && dateDraft.current === date) setDatePending(null)
+		if (timeInput.current === timeField && timeTextDraft.current === time) setTimePending(null)
+		if (localTime.current === local) setTimeDraft(undefined)
+		timeReturn.reset(); setOpen(null)
+	})
 
 	const statusText = props.status ? STATUS_TEXT[props.status.type] : null
 
@@ -372,7 +351,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 				accessibilityLabel={open === 'calendar' ? messages.closeCalendar : messages.openCalendar}
 				disabled={isDisabled || isBusy}
 				onPress={() => {
-					if (anchor.current && !writing.current && !actionPending.current && !choosingTime.current && !timeState.current.blocked) {
+					if (anchor.current && !editing.current && !writing.current && !actionPending.current && !choosingTime.current && !timeState.current.blocked) {
 						timeReturn.reset(); setOpen(openRef.current === 'calendar' ? null : 'calendar')
 					}
 				}}
@@ -431,7 +410,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 					accessibilityLabel="Show preset times"
 					disabled={isDisabled || isBusy}
 					onPress={() => {
-						if (anchor.current && !writing.current && !actionPending.current && !choosingTime.current && !timeState.current.blocked && timeState.current.options.length) {
+						if (anchor.current && !editing.current && !writing.current && !actionPending.current && !choosingTime.current && !timeState.current.blocked && timeState.current.options.length) {
 							timeReturn.reset(); setOpen(openRef.current === 'times' ? null : 'times')
 						}
 					}}

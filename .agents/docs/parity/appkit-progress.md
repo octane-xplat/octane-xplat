@@ -4065,3 +4065,63 @@ PowerSearch focus, native listbox relationships/announcements, Carousel fades,
 video and date-preset text relay remain separate gaps. Checkbox mixed rollback
 awaits the previously asked human contract choice. No evidence-gated checkbox
 is closed; the persistent goal remains active.
+
+### AppKit DateTimeInput current draft ownership
+
+The preceding TimeInput slice is pushed through 74f8165a5; that was source
+progress, not native qualification. Continued the analogous composite date/time
+form flow before decorative or niche gaps. Actual AppKit source inspection found
+both text/submit paths used captured draft/locale/options and wrote pending state
+before current fireChange could reject busy/blocking/teardown. Date-less time
+could also be read from an old render or return after a cleared empty draft.
+The existing date-composition.macos.ts remains correct source for marked editors;
+no missing composition implementation is alleged or introduced.
+
+Separate ref-owned date/time text and local-time records now accompany state.
+A current edit boundary checks attached fields/root, local/inherited blocking,
+writing and pending save before draft changes. Retained handlers read current
+locale, seconds, date/time parts and endpoint bounds. Date constraints run inside
+an edit claim; reentrant draft/clear/key/preset/calendar actions are rejected,
+and critical metadata replaced by a constraint callback invalidates that request.
+Date-less time is immediately available to the next same-turn edit; empty submit
+can clear it without emitting a parent date-time. Current same-day endpoint
+clamping is retained. Identical committed values do not repeat onChange/save.
+
+Commit helpers return acceptance, capture accepted callbacks/save ownership and
+perform post-callback cleanup only for the same records/current attached hosts.
+Parent correction, field replacement and teardown own subsequent display.
+Clear/preset/step cleanup respects current draft ownership; key stepping reads
+the latest local time and keeps existing modified/composing/popup policies.
+Native save settlement avoids detached UI writes. No public type/API, new
+composition helper, renderer, dependency, shared manifest/runner, other-target
+leaf or audit snapshot changed.
+
+Eight object-driver cases are authored, all unrun. They cover both marked-editor
+forms, latest disabled/read-only/loading state, one save across both fields before
+busy render, current date/seconds/bounds via held callbacks, immediate date-less
+combination/clear, constraint/application reentry and metadata replacement,
+callback correction/teardown, duplicate-value suppression and captured accepted
+save callbacks across parent echo. Popover is mocked away; these are direct
+handler/fake-host assertions, not native editor/picker evidence. The manual
+fixture adds controlled/null-start drafts, held-save release, blocking/seconds,
+parent correction and removal. Its runner only waits/records. Guide/skill/feature
+note and appkit-time-drafts AC3/AC4 reconcile TimeInput versus composite coverage.
+Only source/semantic, TSRX syntax and whitespace review ran.
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/datetime-draft.macos.mobile.test.tsrx src/datetime-options.macos.mobile.test.tsrx src/time-draft.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/datetime-draft.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All remain deferred until explicit human authorization for this task. No package
+tests/typechecks/builds, installs, native/OS automation, visual analysis or
+packaging ran. Actual native draft/editor/IME/Return/blur/save/ref/caret/focus/AX,
+calendar/preset/key ordering and packaged behavior remain unqualified. Existing
+preset text relay, listbox/active-option relationships/announcements, Tokenizer
+Backspace, PowerSearch focus, Carousel fades and video remain separate source
+gaps. Checkbox mixed rollback still awaits the previously asked human contract
+choice. No evidence-gated checkbox is closed; the persistent goal remains active.

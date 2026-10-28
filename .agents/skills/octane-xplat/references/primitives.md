@@ -1657,4 +1657,28 @@ export function StartTime() {
 
 Six object-driver cases and a manual fixture are unrun. Native editor/IME/Return/
 blur, pending-save/caret/focus/AX and package behavior remain unqualified. The
-analogous DateTimeInput draft path remains separate work. See [time drafts](../../../../docs/platform/date-picker.md#keep-appkit-time-drafts-owned-by-the-current-edit).
+analogous DateTimeInput draft path now has the separate source below. See [time drafts](../../../../docs/platform/date-picker.md#keep-appkit-time-drafts-owned-by-the-current-edit).
+
+
+## AppKit DateTimeInput draft ownership
+
+DateTimeInput now guards both text drafts and date-less time state using current
+attachment/blocking/save ownership. Retained handlers read latest locale, date/
+time parts, seconds and endpoints. A local edit claim blocks callback reentry;
+constraint callbacks cannot commit metadata replaced during validation. Draft/
+local-time records prevent old post-callback clears from overwriting parent
+correction or teardown. Identical committed values do not repeat change/save.
+
+```tsx
+import { useState } from 'octane'
+import { DateTimeInput } from '@octane-xplat/ui'
+export function Appointment() {
+	const [value, setValue] = useState<string | null>(null)
+	return <DateTimeInput label="Appointment" value={value} onChange={setValue} hasClear />
+}
+```
+
+Eight object-driver cases and the manual fixture are unrun. Native editor/IME/
+Return/blur, save/ref/picker/keyboard/focus/AX and packaging remain unqualified;
+Popover is mocked away in the new cases. Existing composition/preset-key policy
+is retained. Read [current date-time drafts](../../../../docs/platform/date-picker.md#keep-both-appkit-date-time-drafts-current).

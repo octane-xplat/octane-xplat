@@ -812,7 +812,7 @@ and DateRangeInput do not expose this flag; their existing focus refs remain.
 ### Keep AppKit time drafts owned by the current edit
 
 TimeInput now checks current disabled/read-only/busy state and an accepted save
-before changing pending text. A rejected edit cannot replace or clear that draft.
+before changing pending text. An edit rejected by those ownership guards cannot replace or clear that draft.
 Return and blur parse the latest pending text with the current seconds/bounds;
 external parent corrections retain authority over the field.
 
@@ -832,4 +832,33 @@ commit. This is source wiring, not proof of native IME, Return/blur or caret
 ordering. Six object-driver cases and the
 [manual fixture](../../examples/probes/time-draft.macos.tsrx) are authored, all
 unrun. Save/ref/blocked callback ordering, input/focus/accessibility and packaging
-remain unqualified. DateTimeInput's analogous draft handlers are separate work.
+remain unqualified. DateTimeInput has [its own current draft ownership source](#keep-both-appkit-date-time-drafts-current), also unqualified.
+
+
+### Keep both AppKit date-time drafts current
+
+DateTimeInput now checks current attachment, blocking, reentry and save ownership
+before changing either text draft. Retained handlers use current date/time parts,
+locale, seconds and bounds. A time typed before the date stays available to the
+next edit even before rendering; clearing that date-less time does not invent a
+parent value.
+
+```tsx
+import { useState } from 'octane'
+import { DateTimeInput } from '@octane-xplat/ui'
+export function Appointment() {
+	const [appointment, setAppointment] = useState<string | null>(null)
+	return <DateTimeInput label="Appointment" value={appointment} onChange={setAppointment}
+		hasClear hasSeconds min="2026-03-05T09:00:00" max="2026-03-09T18:00:00" />
+}
+```
+
+Pending-text cleanup checks the same draft and attached host after callbacks, so
+parent correction and teardown retain authority. An unchanged committed value
+does not run another change/save callback. Completed invalid drafts retain the
+existing submit/blur behavior of reverting to the parent value. The existing AppKit marked-editor
+helper continues to defer composing text. Eight object-driver cases and the
+[manual fixture](../../examples/probes/datetime-draft.macos.tsrx) are authored, all
+unrun. The cases mock away Popover; actual native editor/IME/Return/blur/save,
+calendar/preset/keyboard interactions, focus/accessibility and packaging remain
+unqualified.
