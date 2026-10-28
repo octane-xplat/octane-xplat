@@ -165,6 +165,43 @@ export { View, Style }
 				await assert.rejects(xplatNative('production'), /Windows is unqualified/)
 			},
 		)
+
+		await t.test(
+			'Windows conditions select the desktop UI root before native mobile exports',
+			async () => {
+				writeFileSync(join(root, 'package.json'), JSON.stringify({ name: 'windows-app' }))
+				process.env.NATIVESCRIPT_BUNDLER_ENV = JSON.stringify({ platform: 'windows' })
+				const config = await xplatNative('production')
+				assert.deepEqual(config.resolve.conditions, ['windows', 'native'])
+				makePackage(
+					'@octane-xplat/ui',
+					{ exports: { '.': { windows: './windows.js', native: './mobile.js' } } },
+					'',
+				)
+				const directory = join(root, 'node_modules/@octane-xplat/ui')
+				writeFileSync(join(directory, 'windows.js'), 'export const target = "windows"')
+				writeFileSync(join(directory, 'mobile.js'), 'export const target = "mobile"')
+				const { createServer } = await import('vite')
+				const server = await createServer({
+					configFile: false,
+					root,
+					resolve: config.resolve,
+					server: { middlewareMode: true, watch: null },
+					optimizeDeps: { noDiscovery: true, include: [] },
+					logLevel: 'silent',
+				})
+				try {
+					const resolved = await server.pluginContainer.resolveId(
+						'@octane-xplat/ui',
+						join(root, 'entry.js'),
+					)
+
+					assert.equal(resolved?.id, join(directory, 'windows.js'))
+				} finally {
+					await server.close()
+				}
+			},
+		)
 	} finally {
 		process.chdir(cwd)
 		if (vendorExclude === undefined) {

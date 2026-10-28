@@ -33,6 +33,10 @@
 	"type": "module",
 	"exports": {
 		".": {
+			"windows": {
+				"types": "./types/generated/index.windows.d.ts",
+				"default": "./src/index.windows.ts"
+			},
 			"macos": {
 				"types": "./types/generated/index.macos.d.ts",
 				"default": "./src/index.macos.ts"

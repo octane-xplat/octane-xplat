@@ -973,7 +973,7 @@ export async function xplatNative(env, opts = {}) {
 				exclude: [...collectNsPluginDeps(process.cwd()), ...(opts.deps ?? [])],
 			},
 			resolve: {
-				conditions: ['native'],
+				conditions: nativePlatform() === 'windows' ? ['windows', 'native'] : ['native'],
 				// The compiler retargets hook imports to @nativescript-community/
 				// octane, but the deps-bundle scanner sees source-level 'octane'
 				// first — without this it vendors octane/dist/index.js (the full

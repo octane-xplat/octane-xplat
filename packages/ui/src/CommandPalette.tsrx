@@ -10,7 +10,7 @@ import { Screen } from '@nativescript/core'
 import { BottomSheet } from './BottomSheet.tsrx'
 import { TextInput } from './TextInput.tsrx'
 import { Pressable } from './Pressable.tsrx'
-import { announceCommandPalette } from './command-palette-accessibility.mobile'
+import { announceCommandPalette } from './command-palette-accessibility'
 import { Icon } from './Icon'
 
 function PaletteBody<T extends CommandPaletteItem>(props: {
