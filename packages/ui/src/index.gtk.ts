@@ -93,3 +93,6 @@ export type {
 	IconNameRegistry,
 	IconRegistryProviderProps,
 } from './props'
+
+export { Tooltip } from './Tooltip'
+export type { TooltipProps, PopoverPlacement } from './props'

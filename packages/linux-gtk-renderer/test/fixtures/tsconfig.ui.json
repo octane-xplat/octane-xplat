@@ -11,6 +11,7 @@
 		"src/ui-area.gtk.tsrx",
 		"src/ui-icon.gtk.tsrx",
 		"src/ui-text-entry.gtk.tsrx",
-		"src/ui-portal.gtk.tsrx"
+		"src/ui-portal.gtk.tsrx",
+		"src/ui-tooltip.gtk.tsrx"
 	]
 }

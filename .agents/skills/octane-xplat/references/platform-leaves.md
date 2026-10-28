@@ -171,7 +171,7 @@ does not mean disabled. The Entry wrapper's get_position() can return the
 ordered selection bound for a backward range on GTK 4.14.5; use the renderer
 protocol rather than duplicating selection logic. Input cancels pending repair.
 TextInput is still a direct-source qualification fixture, not a GTK root export;
-its tooltip/full-state surface and TextArea's multiline host remain open.
+its full field/state/prop surface and TextArea's multiline host remain open.
 
 For GTK descriptor events, call the universal root's dispatchEvent directly.
 It opens or inherits the proper scope; wrapping each listener's priority can
@@ -183,5 +183,26 @@ Use the same universal root to retain providers and component state; do not
 mount a separate root for overlay content. Keep the target alive through portal
 removal. External targets preserve foreign children, but CSS inherits from the
 target ancestry rather than the source component's host ancestors. Single-child
-widgets and transported targets fail explicitly. This foundation does not qualify
-the UI overlay components. See the [portal example](../../../../docs/platform/linux-gtk.md#portals-for-gtk-host-integrations).
+widgets and transported targets fail explicitly. Use the curated Tooltip below for its intent integration; other UI overlays
+remain unqualified. See the [portal example](../../../../docs/platform/linux-gtk.md#portals-for-gtk-host-integrations).
+
+GTK Tooltip is a curated root export on GTK 4.14+. Use the same shared TooltipProps;
+the .gtk leaf portals live content into a renderer-owned noninteractive GtkPopover.
+Focus opens only through a trigger that already accepts focus (for example a
+native button/textfield); the wrapper does not invent an extra tab stop. Use a
+focusable trigger when keyboard access matters. Timers, controllers, popup ticks,
+scroll listeners and accessible description references are renderer-owned and
+released on close/disposal. Keep UI leaves free of GI imports. Do not replace the
+portal with a separate root, which loses providers. GtkAccessibleList.new_from_list
+avoids the verified GTK 4.14.5 new_from_array guard bug; recheck on GTK upgrades.
+See the [tooltip example](../../../../docs/platform/linux-gtk.md#tooltips) and
+[upstream record](../../../docs/notes/linux-gtk-renderer.md#gtk-4145-accessible-list-constructor-guard).
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { Tooltip } from '@octane-xplat/ui'
+
+export function Help() {
+  return <Tooltip trigger={<button text="Details" />} content="More information" />
+}
+```

@@ -454,8 +454,54 @@ export function PortalContent(props: { target: unknown }) {
 }
 ```
 
-This low-level renderer capability does not qualify the UI's tooltip, dialog or
-other overlay components. External targets preserve caller-owned children.
+Portals supply host placement; Tooltip below adds its intent and dismissal
+behavior. Other UI overlays remain outside the qualified GTK root. External targets preserve caller-owned children.
 CSS follows the target's physical layout ancestry; Octane context follows the
 component owner. Single-child widgets such as Gtk.Label, Gtk.Button and
 Gtk.ScrolledWindow are rejected as targets, as are serialized transport targets.
+
+## Tooltips
+
+On GTK 4.14 or newer, Tooltip shows a native popover after the pointer rests on
+its trigger. Focusing a focusable child opens it immediately; leaving, blurring,
+pressing Escape or scrolling an ancestor dismisses it. Keep tooltip content
+noninteractive. The example uses a native button, which already accepts keyboard
+focus.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { Tooltip } from '@octane-xplat/ui'
+
+export function DeliveryHelp() {
+  return (
+    <Tooltip
+      trigger={<button text="Delivery details" />}
+      content="Orders ship on the next business day."
+      placement="right"
+      openDelay={300}
+    />
+  )
+}
+```
+
+Tooltip content keeps the surrounding Octane context and updates while open.
+Use contentClassName/contentStyle for the panel, className/style for its trigger
+wrapper, and disabled to cancel pending or visible content. GTK receives a
+TOOLTIP role and a DESCRIBED_BY relation; this is not a screen-reader certification.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { Tooltip } from '@octane-xplat/ui'
+
+export function SaveHelp(props: { saving: boolean }) {
+  return (
+    <Tooltip
+      trigger={<button text="Save" />}
+      content="Saves your current changes."
+      disabled={props.saving}
+      contentStyle={{ padding: 12 }}
+      closeDelay={100}
+    />
+  )
+}
+```

@@ -7,6 +7,10 @@ aliases, and the mobile `KeyboardAvoiding` override. The broader
 [Linux capability inventory](linux-gtk-capability-inventory.md) also covers
 services, leaf packages, packaging, and host infrastructure.
 
+Current availability is 37 runtime values and 57 types in index.gtk.ts, including
+Tooltip. Counts in the earlier slice records describe those commits; the JSON
+remains the original source survey and Silo holds per-export qualification.
+
 ## Reading the inventory
 
 Each module records its exported names, selected GTK/default source,
@@ -478,3 +482,40 @@ their separate actual X11 input evidence. The expanded renderer/dependent
 typecheck passes eight tasks (andromeda /tmp/gtk-portal-types-final.log).
 Recipe structure/local links and all 13 release notes validate. No mobile OS,
 IME, AT-client, Wayland or pixel evidence is added by this portal fixture.
+
+## Tooltip qualification
+
+The GTK root now adds Tooltip with shared TooltipProps and PopoverPlacement:
+37 runtime values and 57 type exports. The .gtk leaf keeps content in its original
+universal root through a portal. Renderer-owned GtkPopover/controllers implement
+hover delays, immediate child focus, Escape/blur/ancestor-scroll dismissal,
+reactive disabling, allocation tracking and cleanup. Shared FormField now imports
+the platform-resolved Tooltip basename, allowing its labelTooltip to reach GTK.
+
+The maintained ui-tooltip fixture exercises shared-field integration, primitive
+and provider-backed content, updates without remounting, native padding and
+surface coordinates, all placements, disabled intent, focus retention, accessible
+role/reference storage and cleanup. Real X11 pointer/Tab/Escape phases are separate
+from controller-signal checks. No AT-client, IME, Wayland or pixel qualification
+is claimed. GTK 4.14+ supplies the boxed reference-list API; older GTK fails with
+a direct requirement message. The verified 4.14.5 array-constructor guard and
+list-constructor workaround are recorded in the renderer note.
+
+TextInput remains a direct-source fixture until its complete field/state/prop
+surface is qualified. TextArea's multiline host and the other input families,
+overlays, navigation and theme remain open. The Tooltip addition does not change
+recipe workflows or establish packaged consumer support.
+
+The final combined real-Linux renderer suite passes all 36 tests without skips
+(guest /tmp/gtk-tooltip-tests-final.log), including 50 Tooltip assertions with
+actual X11 pointer hover/leave, Tab and Escape. Runtime: Ubuntu 24.04 amd64,
+GJS 1.80.2, GTK 4.14.5, XplatMason and private Xvfb. The retained prior fixtures
+also pass their separate actual press/drag, pull, wheel and text-entry checks.
+The expanded UI/renderer/dependent typecheck passes 58 tasks
+(andromeda /tmp/gtk-tooltip-types-complete.log); packed exports/declarations pass
+six tasks (/tmp/gtk-tooltip-pack.log). Recipe structure/local links, all 14 release
+notes and UI barrel synchronization validate. GTK source/generated barrels both
+contain 37 values and 57 types; native and GTK Tooltip declarations both take
+TooltipProps and return unknown. No mobile OS, AT-client, IME, Wayland or pixel
+qualification is added. The existing broad native batch-observer and docs-site
+parser failures remain outside this slice's passing evidence.

@@ -610,3 +610,73 @@ their separate actual X11 input evidence. The expanded renderer/dependent
 typecheck passes eight tasks (andromeda /tmp/gtk-portal-types-final.log).
 Recipe structure/local links and all 13 release notes validate. No mobile OS,
 IME, AT-client, Wayland or pixel evidence is added by this portal fixture.
+
+## GTK 4.14.5 accessible-list constructor guard
+
+Upstream GTK 4.14.5's gtk_accessible_list_new_from_array checks
+accessibles == NULL || n_accessibles == 0, rejecting a nonempty accessible
+array. The installed GTK 4.14.5 GIR exposes that constructor to GJS as
+Gtk.AccessibleList.new_from_array; passing one real GtkWidget produced the
+same GTK critical assertion in the ui-tooltip fixture
+(guest /tmp/gtk-tooltip-runtime-third.log). This is a native guard failure,
+not an inability of GJS to marshal the widget array.
+
+The [versioned GTK source](https://raw.githubusercontent.com/GNOME/gtk/4.14.5/gtk/gtkaccessible.c#L1153-L1180)
+contains the guard. The separate new_from_list constructor copies a GList
+without that guard and accepts a one-element GJS widget list. The local
+Tooltip host uses new_from_list to construct DESCRIBED_BY relation values;
+no upstream patch or new dependency is added. Recheck the array constructor
+when upgrading GTK; this record only establishes the examined 4.14.5 behavior.
+GtkAccessibleList itself is available from GTK 4.14, so the current Tooltip
+host rejects older GTK explicitly rather than silently omitting the relation.
+
+## GTK Tooltip ownership and geometry
+
+bindTooltips installs a lazy createTooltip method on retained widget refs.
+The UI .gtk leaf calls it after commit, keeps open state in Octane, and renders
+its panel through the original root's portal. No new UI dependency or GI import
+is added. GtkPopover owns the native surface; Gtk.Box is the portal target and
+exposes TOOLTIP. Primitive content is wrapped in shared Text so it becomes a
+native label rather than viewless text under a layout widget.
+
+Native motion/focus controllers drive GLib intent timers. A root key controller
+dismisses Escape, ancestor adjustment listeners dismiss scrolling, and anchor
+unmap/disposal closes. Focus remains in the trigger. A descendant focusable
+control receives DESCRIBED_BY while open, then the relation is reset on close.
+The wrapper adds no keyboard stop for a nonfocusable trigger. Shared FormField's
+unsuffixed Tooltip import permits normal per-platform resolution; its previous
+explicit .tsrx import bypassed GTK's leaf.
+
+Mason allocates logical children, while GtkPopover is an unmanaged native child.
+Calling present alone on every frame kept the old GdkPopup x coordinate after
+an anchor grew from 280 to 420 pixels. The host now observes anchor bounds and
+queues popup resize when they change before presenting. The maintained fixture
+checks actual GdkPopup coordinate movement as well as the changed anchor width.
+It stops the frame observer and adjustment subscriptions on close. Disposal also
+cancels pending GLib sources, disconnects controllers and unparents the popover;
+stale ref factories and session calls are inert.
+
+GTK compute_bounds uses the target's content origin; its own border rectangle
+can start at negative padding coordinates. The fixture verifies 12-pixel native
+padding from all four style-context edges and child-to-parent border offsets,
+not from an assumed positive child origin. This adds no renderer padding change.
+
+GTK 4.14+ is required by this Tooltip implementation for the introspectable
+accessible reference list. This is a host version boundary, not a claim that
+GTK cannot show popovers on older releases. Controller dispatch, native metadata
+and actual X11 pointer/keyboard evidence are reported separately from AT-client,
+Wayland and pixel behavior.
+
+The final combined real-Linux renderer suite passes all 36 tests without skips
+(guest /tmp/gtk-tooltip-tests-final.log), including 50 Tooltip assertions with
+actual X11 pointer hover/leave, Tab and Escape. Runtime: Ubuntu 24.04 amd64,
+GJS 1.80.2, GTK 4.14.5, XplatMason and private Xvfb. The retained prior fixtures
+also pass their separate actual press/drag, pull, wheel and text-entry checks.
+The expanded UI/renderer/dependent typecheck passes 58 tasks
+(andromeda /tmp/gtk-tooltip-types-complete.log); packed exports/declarations pass
+six tasks (/tmp/gtk-tooltip-pack.log). Recipe structure/local links, all 14 release
+notes and UI barrel synchronization validate. GTK source/generated barrels both
+contain 37 values and 57 types; native and GTK Tooltip declarations both take
+TooltipProps and return unknown. No mobile OS, AT-client, IME, Wayland or pixel
+qualification is added. The existing broad native batch-observer and docs-site
+parser failures remain outside this slice's passing evidence.

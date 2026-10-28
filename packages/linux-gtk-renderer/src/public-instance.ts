@@ -1,3 +1,4 @@
+import { bindTooltips } from './tooltip-instance.js'
 import { bindMotion } from './motion-instance.js'
 import { bindScrolling } from './scroll-instance.js'
 import type { ElementNode } from './index.js'
@@ -116,6 +117,7 @@ export function bindPublicInstance(
 			return !disposed && !!listeners.get('layoutChanged')?.size
 		})
 	}
+	const disposeTooltips = bindTooltips(view)
 	const disposeScrolling = bindScrolling(view, emit)
 	const mapped = view.connect('map', () => {
 		emit('loaded')
@@ -231,6 +233,7 @@ export function bindPublicInstance(
 		panHost = null
 		motion?.dispose()
 		motion = null
+		disposeTooltips()
 		disposeScrolling()
 		disposed = true
 		host = null

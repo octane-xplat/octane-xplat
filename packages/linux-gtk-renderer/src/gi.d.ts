@@ -76,6 +76,11 @@ declare module 'gi://Gtk?version=4.0' {
 			[key: string]: number
 		}
 
+		const AccessibleList: any
+		const AccessibleRelation: { DESCRIBED_BY: number }
+		const Popover: any
+		const EventControllerMotion: any
+		const PositionType: { TOP: number; BOTTOM: number; LEFT: number; RIGHT: number }
 		const Picture: any
 		const ContentFit: { FILL: number; CONTAIN: number; COVER: number; SCALE_DOWN: number }
 		const AccessibleState: { HIDDEN: number }
@@ -137,7 +142,7 @@ declare module 'gi://Gtk?version=4.0' {
 		}
 
 		class Box extends Widget {
-			constructor(props?: { orientation?: Orientation; spacing?: number })
+			constructor(props?: { orientation?: Orientation; spacing?: number; accessible_role?: number })
 			prepend(child: Widget): void
 			append(child: Widget): void
 			insert_child_after(child: Widget, sibling: Widget | null): void

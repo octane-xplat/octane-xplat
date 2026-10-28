@@ -167,7 +167,7 @@ export function FocusableField() {
 ```
 
 The shared TextInput source is exercised by a maintained GTK fixture; its full
-field/tooltip contract is still outside the curated UI barrel. TextArea's
+field/state/prop contract is still outside the curated UI barrel; Tooltip now has its own GTK leaf. TextArea's
 multiline host is pending. These raw-ref methods do not provide a general
 NativeScript View facade.
 
@@ -359,8 +359,40 @@ export function PortalContent(props: { target: unknown }) {
 }
 ```
 
-This does not add tooltip/dialog UI exports. Transported targets and single-child
+Other overlays need their own focus, dismissal and geometry integration; Tooltip is covered below. Transported targets and single-child
 widgets are rejected explicitly. CSS follows physical target ancestry. The
 maintained ui-portal fixture checks preparation/abort, ordering, retargeting,
 context/state, CSS refresh and disposal in GJS; it does not prove OS input,
 accessibility-client behavior or pixels.
+
+## Native tooltips
+
+The curated GTK UI root now exports Tooltip, TooltipProps and PopoverPlacement.
+The GTK leaf uses same-root universal portals into a renderer-owned GtkPopover.
+Pointer intent has open/close delays; focus on a focusable child opens immediately.
+Blur, Escape, ancestor scrolling, disabling and disposal dismiss and clean up.
+Native popup coordinates follow anchor allocation changes without a second root.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { Tooltip } from '@octane-xplat/ui'
+
+export function DeliveryHelp() {
+  return (
+    <Tooltip
+      trigger={<button text="Delivery details" />}
+      content="Orders ship on the next business day."
+      placement="right"
+      openDelay={300}
+    />
+  )
+}
+```
+
+GTK 4.14+ is required for the accessible-list reference used by DESCRIBED_BY;
+older GTK is rejected explicitly when mounting Tooltip. The panel exposes the
+native TOOLTIP role and accepts contentClassName/contentStyle. The native surface
+is noninteractive and retains trigger focus. Plain generic views are not given
+an extra tab stop; use a focusable trigger when keyboard access is required.
+The maintained ui-tooltip fixture separates real X11 pointer/Tab/Escape evidence
+from controller dispatch and checks native metadata, not pixels or an AT client.

@@ -6,8 +6,13 @@ import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { FieldProvider } from './field-context'
 import { FormLayoutContext } from './form-layout-context'
+<<<<<<< HEAD:packages/ui/src/components/forms/FormField.tsrx
 import { Tooltip } from '../overlays/Tooltip.tsrx'
 import { Pressable } from '../actions/Pressable'
+=======
+import { Tooltip } from './Tooltip'
+import { Pressable } from './Pressable'
+>>>>>>> 8392f5f1c (feat(ui): add native GTK tooltips with retained context):packages/ui/src/FormField.tsrx
 
 /** Shared field wrapper for labels, descriptions, and validation status.
  *  Under `FormLayout direction="horizontal-labels"` it renders a row; the
