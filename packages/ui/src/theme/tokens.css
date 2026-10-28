@@ -798,6 +798,7 @@
 
 
 	@platform macos {
+		.vx-pininput--appkit { display: flex; flex-direction: row; }
 		.vx-radio-group--appkit { display: flex; flex-direction: column; }
 		.vx-radio-group--appkit.vx-radio-group--row { flex-direction: row; }
 		.vx-radio-row--appkit { display: flex; flex-direction: row; align-items: center; gap: 8px; }

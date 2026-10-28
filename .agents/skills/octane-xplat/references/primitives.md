@@ -773,3 +773,21 @@ export function Plan() {
 	</RadioList>
 }
 ```
+
+
+## AppKit PIN field ownership
+
+PinInput now resolves inherited Field gates/metadata, gives each cell a unique
+ID and digit name, and cancels pending focus when blocked. One stable Field owns
+standalone metadata. Shared last-character paste and suffix-truncation editing
+remain unchanged; empty-cell Backspace/OTP autofill and native focus/IME/secure/
+VoiceOver qualification remain open. See
+[PIN fields](../../../../docs/app/primitives.md#pin-fields-on-appkit).
+
+```tsx
+import { PinInput } from '@octane-xplat/ui'
+
+export function Code() {
+	return <PinInput label="Account code" description="Enter four characters" length={4} />
+}
+```

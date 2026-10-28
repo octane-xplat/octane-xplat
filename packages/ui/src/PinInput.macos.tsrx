@@ -1,14 +1,18 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { mergeStyle } from './style-merge'
-import { useEffect, useRef, useState } from 'octane'
+import { useEffect, useId, useRef, useState } from 'octane'
 import type { PinInputProps, TextInputHandle } from './props'
 import { cx } from '@octane-xplat/lib'
-import { applyEscapeProps } from './escape-props'
+import { useFieldControl } from './field-context'
+import { FormField } from './FormField.macos.tsrx'
 import { TextInput } from './text-controls.macos.tsrx'
 
 /** PinInput — a row of single-character cells that auto-advance on entry.
  *  `onComplete` fires when every cell is filled. `secure` masks each cell. */
-export function PinInput(props: PinInputProps) @{
+export function PinInput(inputProps: PinInputProps) @{
+	const { props, inField } = useFieldControl(inputProps)
+	const generatedID = useId()
+	const controlID = props.id ?? generatedID
+	const name = props.ariaLabel ?? props.fieldLabel ?? props.label ?? 'PIN'
 	const length = props.length ?? 4
 	const [internal, setInternal] = useState('')
 	const controlled = props.value !== undefined
@@ -17,11 +21,15 @@ export function PinInput(props: PinInputProps) @{
 	const pendingFocus = useRef<number | null>(null)
 	useEffect(() => {
 		const next = pendingFocus.current
+		if (props.isDisabled || props.isReadOnly || (next !== null && next >= length)) {
+			pendingFocus.current = null
+			return
+		}
 		if (next !== null && next <= value.length) {
 			pendingFocus.current = null
 			handles.current[next]?.focus()
 		}
-	}, [value])
+	}, [value, length, props.isDisabled, props.isReadOnly])
 
 	const setValue = (next: string) => {
 		const clipped = next.slice(0, length)
@@ -56,11 +64,11 @@ export function PinInput(props: PinInputProps) @{
 		}
 	}
 
-	<masonview
-		ref={(v: any) => applyEscapeProps(v, props)}
-		id={props.id}
+	const group = <masonview
+		id={controlID}
 		className={cx(
 			'vx-pininput',
+			'vx-pininput--appkit',
 			props.isDisabled && 'vx-pininput--disabled',
 			props.isReadOnly && 'vx-pininput--readonly',
 			props.isLoading && 'vx-pininput--loading',
@@ -68,8 +76,10 @@ export function PinInput(props: PinInputProps) @{
 			props.size && `vx-pininput--size-${props.size}`,
 			props.className,
 		)}
-		style={mergeStyle({ flexDirection: 'row' }, mergeStyle({ display: 'flex' }, props.style))}
-		accessibilityLabel={props.label}
+		style={props.style}
+		accessibilityRole="group"
+		accessibilityLabel={name}
+		accessibilityHint={props.accessibilityHint}
 		accessibilityState={{
 			disabled: props.isDisabled,
 			readonly: props.isReadOnly,
@@ -78,6 +88,8 @@ export function PinInput(props: PinInputProps) @{
 	>
 		@for (const i of Array.from({ length }, (_, k) => k); key i) {
 			<TextInput
+				id={`${controlID}-digit-${i + 1}`}
+				accessibilityLabel={`${name}, digit ${i + 1} of ${length}`}
 				className="vx-pininput-cell"
 				keyboardType="number"
 				secure={props.secure}
@@ -92,4 +104,13 @@ export function PinInput(props: PinInputProps) @{
 			/>
 		}
 	</masonview>
+	@if (inField) {
+		{group}
+	} @else {
+		<FormField inputID={controlID} label={props.label} description={props.description} status={props.status}
+			statusVariant={props.statusVariant} isRequired={props.isRequired} isOptional={props.isOptional}
+			isDisabled={props.isDisabled} isReadOnly={props.isReadOnly} isLoading={props.isLoading}
+			isLabelHidden={props.isLabelHidden} disabledMessage={props.disabledMessage} labelTooltip={props.labelTooltip}
+			width={props.width} size={props.size}>{group}</FormField>
+	}
 }

@@ -2511,3 +2511,27 @@ export function Search() {
 	return <SearchInput label="Find records" defaultValue="recent" hasClear />
 }
 ```
+
+
+### PIN fields on AppKit
+
+AppKit PinInput now owns one standalone Field, or inherits an enclosing Field's
+label, description, validation and disabled/read-only state. Cells have unique
+IDs and accessible digit names. Metadata changes preserve entered values and
+hosts; blocked groups cancel pending focus advance. Controlled parents still
+apply onValueChange feedback before an unavailable next cell can be focused.
+
+```tsx
+import { PinInput } from '@octane-xplat/ui'
+
+export function Code() {
+	return <PinInput id="account-code" label="Account code" description="Enter four characters" length={4} />
+}
+```
+
+This slice preserves the shared single-character-per-edit behavior: a multi-
+character paste retains its last character, and deleting a filled cell truncates
+the suffix. Empty-cell Backspace navigation, OTP autofill, native digit filtering,
+physical focus/caret/IME, secure-field behavior and VoiceOver remain open or
+unqualified; do not infer a complete native authentication flow from source
+presence.

@@ -1618,3 +1618,34 @@ nested controls, radio grouping/VoiceOver, toolbar integration, layout and
 packaging remain unqualified/open. No builds, package tests/typechecks, installs,
 OS automation, visual analysis or shared audit regeneration ran. No evidence
 checkbox is closed.
+
+
+### AppKit PIN field ownership
+
+ComponentsDemo uses PinInput for a four-cell code. Its target leaf already used
+the shared TextInputHandle for focus, but did not resolve enclosing Field state,
+render standalone metadata, or name/identify cells independently. Under a Field,
+cells could inherit the same input ID; their editability/callback group guards
+also lacked the parent's disabled/read-only state. The target now resolves Field
+props, provides one stable standalone FormField or reuses its parent, assigns
+unique per-digit IDs/names and forwards inherited hints/state to the inputs.
+Static row layout moved into scoped macOS CSS. Entered values/hosts survive
+metadata changes. Pending focus is cleared when blocked or outside a shrunken
+length; controlled value/completion behavior otherwise remains unchanged.
+
+Authored cases cover unique IDs/names, one metadata owner, parent gates, pending
+controlled focus cancellation and validation retention. Shared last-character
+paste and suffix-truncation deletion are unchanged. Empty-cell Backspace,
+OTP autofill and native digit filtering are not implemented by this slice.
+Actual physical keyboard/caret/focus/IME, secure-field changes, VoiceOver and
+packaging remain unqualified. Syntax/whitespace only; tests are unrun.
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/pin-input.macos.mobile.test.tsrx src/text-controls.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm check:recipes
+```
+
+Commands remain deferred until this task's explicit human authorization. No
+builds, installs, tests/typechecks, probes, OS automation, visual analysis or
+shared audit regeneration ran; no evidence gate is closed.
