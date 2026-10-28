@@ -1232,3 +1232,26 @@ export function Document() {
 Two new renderer and two additional parameterized menu cases remain unrun. SDK
 source evidence is not physical keyboard, native focus/IME/AX or packaging proof.
 See [dedicated Context Menu key](../../../../docs/menus.md#use-a-dedicated-context-menu-key-on-appkit).
+
+
+AppKit menu roles now map to AXMenu/AXMenuItem. Menu row labels also provide native
+titles, including current link labels. Selected/expanded query state uses the
+native isAccessibilitySelected/isAccessibilityExpanded getters and follows parent
+feedback. Plain action dispatch does not change those values.
+
+```tsx
+import { DropdownMenu, DropdownMenuItem, DropdownMenuSubMenu } from '@octane-xplat/ui'
+
+export function Actions() {
+	return <DropdownMenu button={{ label: 'Actions' }}>
+		<DropdownMenuItem label="Archive" />
+		<DropdownMenuSubMenu label="More"><DropdownMenuItem label="Export" /></DropdownMenuSubMenu>
+	</DropdownMenu>
+}
+```
+
+Do not treat the role mapping as checked-menu or VoiceOver support. Menu mark
+attributes, expanded-state notifications and complete shown-menu/selected-child
+relationships remain gaps; checked state is separate from selected state. Two
+renderer and one link-label cases remain unrun. Native bridge/query/tree,
+VoiceOver, focus and packaging qualification remains open. See [menu metadata](../../../../docs/menus.md#appkit-menu-accessibility-metadata).

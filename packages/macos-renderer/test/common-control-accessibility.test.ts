@@ -12,7 +12,7 @@ function fixture() {
 	const disabledFocus = createDisabledFocusTargets(), tabStops = createTabStopSuppression()
 	const scopeFocus = new WeakMap()
 	const { AccessibleHostView, applyAccessibility } = runSlice(host + '\n' + apply + '\n({AccessibleHostView,applyAccessibility})', {
-		NSView: class { isAccessibilityEnabled() { return true } keyDown(event: unknown) { forwarded.push(event) } }, NativeClass() {}, interop: { types: { bool: 'bool', id: 'id' } },
+		NSView: class { get accessibilityTitle() { return 'native title' } isAccessibilityEnabled() { return true } keyDown(event: unknown) { forwarded.push(event) } }, NativeClass() {}, interop: { types: { bool: 'bool', id: 'id' } },
 		NSNumber: { numberWithDouble: (value: number) => value }, actionIdsByView: ids, actionHandlers: handlers,
 		accessibilityRoles: new Map(), accessibilityLabels: new Map(), stackAccessibilityPropsByView: new WeakMap(),
 		scopeFocusTargets: scopeFocus, disabledFocusTargets: disabledFocus, tabStopSuppression: tabStops, inputTransparentViews: new WeakSet(), invokeAction: (id: number) => handlers.get(id)(),
@@ -186,4 +186,40 @@ test('AppKit enabled protocol getter overrides the native default and follows re
 	assert.equal(f.view.isAccessibilityEnabled(), true)
 	f.set('accessibilityState', undefined)
 	assert.equal(f.view.isAccessibilityEnabled(), true)
+})
+
+
+test('menu surfaces and row kinds expose native roles and current titles without changing other native titles', () => {
+	const f = fixture()
+	assert.equal(f.exposed.accessibilityTitle.returns, 'id')
+	f.set('accessibilityRole', 'menu'); f.set('accessibilityLabel', 'Actions')
+	assert.equal(f.view.accessibilityRole(), 'AXMenu')
+	for (const role of ['menuitem', 'menuitemcheckbox', 'menuitemradio']) {
+		f.set('accessibilityRole', role)
+		assert.equal(f.view.accessibilityRole(), 'AXMenuItem')
+		assert.equal(f.view.accessibilityTitle(), 'Actions')
+		f.set('accessibilityLabel', 'Updated')
+		assert.equal(f.view.accessibilityTitle(), 'Updated')
+		f.set('accessibilityLabel', 'Actions')
+	}
+	f.set('accessibilityLabel', undefined); assert.equal(f.view.accessibilityTitle(), '')
+	f.set('accessibilityRole', 'button'); assert.equal(f.view.accessibilityRole(), 'AXButton')
+	assert.equal(f.view.accessibilityTitle(), 'native title')
+	f.set('accessibilityRole', 'unknown'); assert.equal(f.view.accessibilityRole(), 'AXGroup')
+})
+
+test('native selected/expanded getters report parent-owned state without conflating checked state or activation', () => {
+	const f = fixture(); let calls = 0
+	f.handlers.set(1, () => calls++)
+	for (const name of ['isAccessibilitySelected', 'isAccessibilityExpanded']) assert.equal(f.exposed[name].returns, 'bool')
+	f.set('accessibilityRole', 'menuitem')
+	assert.equal(f.view.isAccessibilitySelected(), false); assert.equal(f.view.isAccessibilityExpanded(), false)
+	f.set('accessibilityState', { selected: true, expanded: true })
+	assert.equal(f.view.isAccessibilitySelected(), true); assert.equal(f.view.isAccessibilityExpanded(), true)
+	f.view.accessibilityPerformPress()
+	assert.equal(calls, 1); assert.equal(f.view.isAccessibilitySelected(), true); assert.equal(f.view.isAccessibilityExpanded(), true)
+	f.set('accessibilityState', { selected: false, expanded: false, checked: true })
+	assert.equal(f.view.isAccessibilitySelected(), false); assert.equal(f.view.isAccessibilityExpanded(), false)
+	f.set('accessibilityState', undefined)
+	assert.equal(f.view.isAccessibilitySelected(), false); assert.equal(f.view.isAccessibilityExpanded(), false)
 })

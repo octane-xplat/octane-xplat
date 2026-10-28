@@ -7,6 +7,8 @@ state and close owners remain in charge; nested editors keep their menu-surface
 key handling. ContextMenu adds Shift+F10 and plain Context Menu key opening and return intent from a valid
 invoker or visible trigger. With the matching renderer it also requests opening
 from secondary-click and plain Control-primary-click inside the context scope.
+Menu surfaces/rows now map to native menu roles and row titles, and native queries
+read current selected/expanded state. Checked-menu announcements remain incomplete.
 
 ```tsx
 import { DropdownMenu, DropdownMenuItem } from '@octane-xplat/ui'

@@ -39,6 +39,8 @@ context-menu leaf has its own recipe.
 
 - AC11: AppKit secondary-click and plain Control-primary-click request shared context opening through the nearest live owned scope; pointer modality is observed before consumption, current native invoker return and disabled/teardown guards are explicit, and source evidence stays separate from native mouse/focus/AX qualification.
 
+- AC12: AppKit menu surfaces/rows map to native menu roles and current text row titles; selected/expanded protocol getters follow current parent state. Link text labels reach the host on updates/removal. Keep query metadata distinct from checked marks, state announcements/relationships and native AX/VoiceOver qualification.
+
 ## Documentation
 
 - AC1: [Start with actions](../../../docs/app/menus.md#start-with-actions), [Add choices and submenus](../../../docs/app/menus.md#add-choices-and-submenus), [UI API migrations](../../../docs/app/ui-api-migrations.md#selection-and-menu-rows), [Context actions on touch and keyboard](../../../docs/app/menus.md#context-actions-on-touch-and-keyboard), and [component demo](../../../packages/demos/src/ComponentsDemo.tsrx).
@@ -58,3 +60,5 @@ context-menu leaf has its own recipe.
 - AC10: [Context keyboard guide](../../../docs/app/menus.md#open-appkit-context-actions-from-the-keyboard), three origin-policy/three appended menu-family source cases, maintained target fixture and [target note](../parity/appkit-progress.md#appkit-context-menu-keyboard-and-invoker-return). Cases and native checks remain deferred. The [dedicated key guide](../../../docs/app/menus.md#use-a-dedicated-context-menu-key-on-appkit), two renderer cases and two additional parameterized menu cases now cover source normalization/intent without hardware proof.
 
 - AC11: [Pointer context guide](../../../docs/app/menus.md#open-appkit-context-actions-with-the-pointer), renderer context-pointer/context-subscriptions cases, appended origin/modality/menu-family cases, maintained menu-keyboard fixture and [target note](../parity/appkit-progress.md#appkit-context-pointer-ownership). All twelve new cases and native verification remain deferred.
+
+- AC12: [Menu accessibility metadata](../../../docs/app/menus.md#appkit-menu-accessibility-metadata), renderer contract, two renderer/one inline-popup source cases and [target note](../parity/appkit-progress.md#appkit-menu-role-and-state-query-metadata). All three cases and native checks remain unrun.

@@ -498,3 +498,19 @@ it('pointer context scope falls back to the visible invoker and rejects stale di
 		expect(f.owners.size).toBe(0)
 	} finally { env.root.unmount(); vi.unstubAllGlobals() }
 })
+
+
+it('AppKit menu links forward their current text label and clear it for non-text content', () => {
+	function Links(props: any) {
+		return <MenuSurface closeMenu={() => {}}><DropdownMenuLink id="named-link" label={props.label} href="https://example.test/help" /></MenuSurface>
+	}
+	const env = mount(Links, { label: 'Help' })
+	try {
+		const host = env.byID('named-link')
+		expect(host.props.accessibilityRole).toBe('menuitem')
+		expect(host.props.accessibilityLabel).toBe('Help')
+		env.render({ label: 'Documentation' }); expect(env.byID('named-link')).toBe(host)
+		expect(host.props.accessibilityLabel).toBe('Documentation')
+		env.render({ label: <label text="Rich label" /> }); expect(host.props.accessibilityLabel).toBeUndefined()
+	} finally { env.root.unmount() }
+})

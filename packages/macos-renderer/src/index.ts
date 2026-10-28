@@ -796,12 +796,15 @@ class AccessibleHostView extends NSView {
 		accessibilityPerformDecrement: { params: [], returns: interop.types.bool },
 		accessibilityRole: { params: [], returns: interop.types.id },
 		accessibilityLabel: { params: [], returns: interop.types.id },
+		accessibilityTitle: { params: [], returns: interop.types.id },
 		accessibilityValue: { params: [], returns: interop.types.id },
 		accessibilityMinValue: { params: [], returns: interop.types.id },
 		accessibilityMaxValue: { params: [], returns: interop.types.id },
 		accessibilityValueDescription: { params: [], returns: interop.types.id },
 		accessibilityHelp: { params: [], returns: interop.types.id },
 		isAccessibilityEnabled: { params: [], returns: interop.types.bool },
+		isAccessibilitySelected: { params: [], returns: interop.types.bool },
+		isAccessibilityExpanded: { params: [], returns: interop.types.bool },
 		accessibilityIsIgnored: { params: [], returns: interop.types.bool },
 	}
 
@@ -842,6 +845,8 @@ class AccessibleHostView extends NSView {
 	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
 	accessibilityRole() {
 		const role = accessibilityRoles.get(actionIdsByView.get(this) ?? -1)
+		if (role === 'menu') return 'AXMenu'
+		if (role === 'menuitem' || role === 'menuitemcheckbox' || role === 'menuitemradio') return 'AXMenuItem'
 		if (role === 'radio' || role === 'tab') return 'AXRadioButton'
 		if (role === 'tablist') return 'AXTabGroup'
 		if (role === 'switch') return 'AXCheckBox'
@@ -867,6 +872,13 @@ class AccessibleHostView extends NSView {
 	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
 	accessibilityLabel() {
 		return accessibilityLabels.get(actionIdsByView.get(this) ?? -1) ?? ''
+	}
+
+	// Menu rows need a title as well as the existing AX label. Preserve native
+	// title behavior for other roles rather than replacing it with the label.
+	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
+	accessibilityTitle() {
+		return this.accessibilityRole() === 'AXMenuItem' ? this.accessibilityLabel() : super.accessibilityTitle
 	}
 
 	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
@@ -926,6 +938,14 @@ class AccessibleHostView extends NSView {
 	// NSAccessibilityEnabledAttribute uses the protocol getter isAccessibilityEnabled.
 	isAccessibilityEnabled() {
 		return !stackAccessibilityPropsByView.get(this)?.accessibilityState?.disabled
+	}
+
+	isAccessibilitySelected() {
+		return stackAccessibilityPropsByView.get(this)?.accessibilityState?.selected === true
+	}
+
+	isAccessibilityExpanded() {
+		return stackAccessibilityPropsByView.get(this)?.accessibilityState?.expanded === true
 	}
 
 	accessibilityIsIgnored() {

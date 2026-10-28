@@ -206,7 +206,8 @@ Five authored AppKit object-driver cases remain unrun and replace popovers with
 inline content. Subsequent surface/trigger keyboard source paths are described below; reliable
 owned-dropdown Tab return intent is described below; real popup/ref/focus timing, physical keys, mouse hit testing,
 VoiceOver and packaging remain unqualified. Shared AppKit ContextMenu also has the Shift+F10 source path described below; secondary-click source ownership is described below.
-The renderer's full menu-role/checked announcements also remain incomplete.
+Basic native menu roles and state queries now have the source path described below;
+menu checkmark attributes and full assistive announcements remain incomplete.
 
 
 ## Navigate AppKit menu surfaces
@@ -269,7 +270,7 @@ older bridges retain the existing Button activation path. Nine new dispatcher/
 bridge/fake-window cases remain unrun. Native monitor order, actual ref delivery,
 physical arrows, popup first/last focus, IME, actual Tab return, VoiceOver and
 packaging remain unqualified. Owned Tab return intent is described below;
-secondary-click source ownership is described below; full menu accessibility remains a gap.
+secondary-click source ownership is described below; full menu accessibility remains a gap; basic roles/state queries are described below.
 
 
 ### Leave an owned AppKit dropdown with Tab
@@ -390,3 +391,30 @@ SDK constants establish the source mapping; they do not prove delivery from any
 physical keyboard. Actual native key/modifier/IME delivery, popup/focus/Tab return,
 VoiceOver and packaging remain unqualified. The visible trigger stays useful on
 keyboards without this key.
+
+
+### AppKit menu accessibility metadata
+
+The renderer maps shared menu surfaces to AXMenu and action/link/checkbox/radio/
+submenu rows to AXMenuItem. Text row labels also supply native titles; link rows
+now forward their label on updates. Selected and expanded state use AppKit's
+native getters, following the current parent-owned state rather than changing it
+when an action fires. Keep meaningful text labels on menu actions:
+
+```tsx
+import { DropdownMenu, DropdownMenuItem, DropdownMenuSubMenu } from '@octane-xplat/ui'
+
+export function Actions() {
+	return <DropdownMenu button={{ label: 'Actions' }}>
+		<DropdownMenuItem label="Archive" />
+		<DropdownMenuSubMenu label="More"><DropdownMenuItem label="Export" /></DropdownMenuSubMenu>
+	</DropdownMenu>
+}
+```
+
+This supplies query metadata. It does not implement menu checkmark attributes,
+expanded-state announcements or complete menu accessibility relationships. Checked
+state is separate from selected state; mapping a checkbox/radio row to AXMenuItem
+does not establish a native checked announcement. Two renderer cases and one
+link-label case remain unrun. ObjC selector registration, actual AX tree/queries,
+VoiceOver, popup/ref/focus timing and packaging remain unqualified.

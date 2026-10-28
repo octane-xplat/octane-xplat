@@ -2839,3 +2839,49 @@ packaging remain unqualified. Full menu AX roles/checked announcements remain a
 separate source gap; no evidence checkbox is closed. No builds, package
 tests/typechecks, installs, OS automation, visual analysis or shared audit
 regeneration ran.
+
+
+### AppKit menu role and state query metadata
+
+Continuing everyday menu support after the enabled-selector prerequisite, source
+review found that shared leaves already authored menu/menuitem/menuitemcheckbox/
+menuitemradio roles and selected/expanded state, but AccessibleHostView returned
+AXGroup for those roles and had no native selected/expanded getter override.
+DropdownMenuLink also omitted its text label from host AX metadata. ComponentsDemo
+uses these row families, so this is a common interaction prerequisite rather than
+a niche integration. Installed Apple SDK NSAccessibilityConstants.h and
+NSAccessibilityProtocols.h plus generated platform declarations establish the role
+constants and exact getters; Apple protocol docs corroborate the query meanings.
+This is source evidence, not an AX or assistive-technology run.
+
+The renderer now maps menu to AXMenu and all menu row roles to AXMenuItem. Row
+titles use the current AX label; other roles keep the inherited native title.
+isAccessibilitySelected/isAccessibilityExpanded expose only current strict-true
+selected/expanded state. Action dispatch cannot replace parent feedback. Checkbox/
+radio checked state is not substituted for selection or an invented menu value.
+Menu links forward current string labels and clear absent/non-text labels.
+
+Two renderer cases cover live roles/titles, inherited title fallback, exact native
+selector metadata, parent-owned query state and removal. One inline-popup link
+case covers retained host/label updates and non-text clearing. All three are
+unrun. TypeScript/TSRX syntax, semantic/source review and whitespace checks only.
+Guide/skill/renderer contract, existing feature note and shared-menus AC12 were
+reconciled. No public API/dependency, shared manifest or other platform leaf changed.
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/menu-family.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer --filter=...@octane-xplat/ui
+pnpm probe run examples/probes/menu-keyboard.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All commands remain deferred pending explicit human authorization for this task.
+Menu mark-character attributes, expanded-state notifications and complete
+shown-menu/selected-child relationships remain source gaps. Existing value-change
+policy is unchanged. Native ObjC selector/property forwarding (including inherited
+title access), actual AX roles/queries/tree, checked-state announcements, popup/
+focus timing, VoiceOver and packaging remain unqualified. No builds, package
+tests/typechecks, installs, OS automation, visual analysis or shared audit snapshot
+regeneration ran; no evidence checkbox is closed.

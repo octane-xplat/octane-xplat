@@ -979,3 +979,33 @@ export function Document() {
 Two renderer cases and two added parameterized menu cases remain unrun. Physical
 keyboard availability/delivery, native key equivalents, popup/ref/focus timing,
 IME, AX and packaging remain unqualified. No OS key synthesis was performed.
+
+
+### Menu accessibility metadata
+
+AccessibleHostView maps menu to AXMenu and menuitem/menuitemcheckbox/menuitemradio
+to AXMenuItem. Menu rows expose the current text label as accessibilityTitle;
+other roles retain their inherited native title. isAccessibilitySelected and
+isAccessibilityExpanded expose current accessibilityState.selected/expanded
+through the SDK protocol getters. Actions keep existing state/close owners and do
+not mutate those query values. Menu links now forward current text labels.
+
+```tsx
+import { DropdownMenu, DropdownMenuItem, DropdownMenuSubMenu } from '@octane-xplat/ui'
+
+export function Actions() {
+	return <DropdownMenu button={{ label: 'Actions' }}>
+		<DropdownMenuItem label="Archive" />
+		<DropdownMenuSubMenu label="More"><DropdownMenuItem label="Export" /></DropdownMenuSubMenu>
+	</DropdownMenu>
+}
+```
+
+The role constants and getter names were compared with installed Apple SDK
+NSAccessibilityConstants.h/NSAccessibilityProtocols.h and generated declarations.
+This is query metadata only: menu mark-character attributes, expanded-state
+notifications and complete shown-menu/selected-child relationships remain gaps.
+Checked state is not substituted for selection or returned as an invented menu
+value. Existing value-change policy is unchanged. Two added renderer cases and
+one inline-popup label case remain unrun; native selector/property forwarding,
+AX queries/tree, VoiceOver, focus and packaged operation remain unqualified.

@@ -241,6 +241,7 @@ export function DropdownMenuLink(props: NavigationItemImplementation<MenuLinkPro
 		id={props.id}
 		accessibilityRole="menuitem"
 		disabled={link.disabled}
+		accessibilityLabel={typeof props.label === 'string' ? props.label : undefined}
 		accessibilityState={{ disabled: link.disabled, selected: link.selected }}
 		onPress={row.press}
 		className={['vx-menu-item', props.variant === 'destructive' && 'vx-menu-item--destructive', link.disabled && 'vx-menu-item--disabled', props.className]}
