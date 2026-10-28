@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { disposeImage, updateImage } from '../src/image.ts'
+import { disposeImage, imageMemoryCache, updateImage } from '../src/image.ts'
 import { mockGlobals } from './mock-globals.ts'
 
 function fixture() {
@@ -106,4 +106,29 @@ test('a missing main-queue bridge fails without starting or permanently reservin
 		env.flush()
 		assert.deepEqual(retry.image, { data: 'retry' })
 	} finally { env.restore() }
+})
+
+test('memory eviction keeps existing image delivery alive and prevents an older HTTP load from replacing a fresh cached decode', () => {
+	const env = fixture(), src = 'https://image-test/memory-eviction'
+	const first: any = { image: null }, next: any = { image: null }, hit: any = { image: null }
+	try {
+		updateImage(first, src); imageMemoryCache.evict(src); updateImage(next, src)
+		assert.equal(env.tasks.length, 2); assert.equal(env.tasks[0].cancelled, 0)
+		env.tasks[1].handler('fresh', { statusCode: 200 }, null); env.flush()
+		env.tasks[0].handler('old', { statusCode: 200 }, null); env.flush()
+		assert.deepEqual(first.image, { data: 'old' }); assert.deepEqual(next.image, { data: 'fresh' }); assert.equal(imageMemoryCache.isCached(src), true)
+		updateImage(hit, src); assert.deepEqual(hit.image, { data: 'fresh' }); assert.equal(env.tasks.length, 2)
+		imageMemoryCache.evict(src); assert.equal(imageMemoryCache.isCached(src), false); assert.deepEqual(hit.image, { data: 'fresh' })
+	} finally { for (const view of [first, next, hit]) disposeImage(view); imageMemoryCache.evict(src); env.restore() }
+})
+test('memory clear between HTTP completion and main-queue decode cannot rewarm old data or cancel a mounted view', () => {
+	const env = fixture(), src = 'https://image-test/memory-clear'
+	const first: any = { image: null }, next: any = { image: null }
+	try {
+		updateImage(first, src); env.tasks[0].handler('old', { statusCode: 200 }, null)
+		imageMemoryCache.clear(); env.flush()
+		assert.deepEqual(first.image, { data: 'old' }); assert.equal(imageMemoryCache.isCached(src), false); assert.equal(env.tasks[0].cancelled, 0)
+		updateImage(next, src); assert.equal(env.tasks.length, 2)
+		env.tasks[1].handler('fresh', { statusCode: 200 }, null); env.flush(); assert.equal(imageMemoryCache.isCached(src), true)
+	} finally { for (const view of [first, next]) disposeImage(view); imageMemoryCache.evict(src); env.restore() }
 })

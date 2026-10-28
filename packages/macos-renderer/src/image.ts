@@ -121,6 +121,15 @@ const imageRequests = createImageRequests<NSImage>((source, complete) => {
 	return () => { active = false; task.cancel() }
 })
 
+/** Private decoded-memory controls. Deliberately separate from the image leaf's
+ * public memory+disk cache contract and NSURLSession's HTTP caching. Invalidating
+ * never blanks mounted views or cancels their remaining subscribed deliveries. */
+export const imageMemoryCache = {
+	isCached: imageRequests.isCached,
+	evict: imageRequests.evict,
+	clear: imageRequests.clear,
+}
+
 /** Points `view` at `source`. Cached decodes assign immediately; anything else
  *  decodes on a later run-loop turn — or fetches over NSURLSession for
  *  http(s) — so command batches never block on image I/O. While a load is

@@ -10,6 +10,12 @@ declare global {
 	// Cross-package bridge published by this renderer for AppKit-specific leaves
 	// (hover, popups, menus, sheets) and the VirtualList offset channel.
 	var __xplatAppKit: {
+		/** Private renderer decoded-memory cache only; no disk/HTTP-cache claim. */
+		imageMemoryCache?: {
+			isCached(source: string): boolean
+			evict(source: string): void
+			clear(): void
+		}
 		readonly keyboardEventsSupported?: boolean
 		readonly focusWithinSupported?: boolean
 		readonly contextMenuEventsSupported?: boolean

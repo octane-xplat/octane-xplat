@@ -98,8 +98,10 @@ changes (use a stable styled box); decode hints remain unimplemented; native cro
 renderer shares bounded decoded images and cancels pending work after its last
 subscriber leaves; HTTP error payloads are rejected and remote delivery enters
 the main operation queue. Native timing, rendering and packaging are unqualified.
-Engine/cache APIs and callbacks in the optional package remain unsupported;
-see [AppKit image loading](../../../../docs/app/components.md#image-loading-on-appkit).
+Engine/cache APIs and callbacks in the optional package remain unsupported.
+The renderer's private imageMemoryCache bridge controls decoded memory only; do
+not substitute it for public disk prefetch/eviction or an account-data purge.
+See [AppKit image loading](../../../../docs/app/components.md#image-loading-on-appkit).
 
 ```tsx
 import { Image } from '@octane-xplat/ui'

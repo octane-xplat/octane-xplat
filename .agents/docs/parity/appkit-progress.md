@@ -4647,3 +4647,54 @@ Native portal/context/ref/commit ordering, actual row reveal/scrolling, editor/
 IME/focus/blur, AX/announcements and packaging remain unqualified. The prior
 floating-result slice's other deferred checks still apply. The issue's native
 proof gates remain open and the persistent goal stays active.
+
+
+## AppKit decoded-image memory invalidation prerequisite
+
+Demand assumption: ordinary avatar/feed/detail image reuse is a more common app
+need than remaining niche integrations. The Services image preview and shared
+image-gallery examples establish the display path. Source audit/current leaf
+review confirms public AppKit prefetch/evict/query/configuration/clear functions
+are still stubs. The public prefetch contract promises disk bytes rather than
+decoded-memory warming, so a memory-only facade cannot honestly complete it.
+Existing renderer loads share a bounded decoded cache and NSURLSession's shared
+HTTP session; disk ownership, headers and public engine options remain separate
+implementation work. No foreign plugin/import substitution was added.
+
+The renderer's request manager now exposes private decoded-memory isCached,
+evict and clear controls, wired through its AppKit host bridge and declared
+there. Probe reads do not change LRU order. Eviction/clear remove cached decodes
+and detach old in-flight sharing/cache-write ownership; later subscribers start
+fresh work. Already subscribed views retain their deliveries and final-subscriber
+cancellation, including after native start returns late. Invalidated completions
+cannot rewarm old bytes or overwrite a newer same-source decode, and duplicate
+or cancelled completions are ignored. Clearing never blanks mounted images or
+forces an unchanged view to reload. NSURLSession HTTP caching is untouched; this
+is not disk eviction, a privacy purge or a public image-cache support claim.
+
+Six request-policy and two remote/main-queue fake cases are authored, all unrun.
+They cover recency-neutral probes, per-source eviction, clear, current deliveries,
+replacement cache ownership, final cancellation, native-start and listener reentry,
+late/duplicate completion and invalidation between remote completion and main-
+queue decode. The manual fixture exposes memory controls and mount/remove reuse;
+its runner only waits/records. Renderer README/recipe AC5 and the primitive skill
+record this prerequisite and the unchanged public boundary. No public API or
+engine behavior is completed, so no release note is added for this internal seam.
+Source/semantic review, TS/TSRX syntax parsing and whitespace are the only checks.
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer
+pnpm probe doctor
+pnpm probe run examples/probes/image-memory-cache.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All commands remain deferred until explicit human authorization for this task.
+No tests/typechecks/builds/installs, OS/native automation, visual analysis or
+packaging ran. Native decoding, memory lifetime/pressure, responsiveness,
+threading/network completion, actual disk/HTTP caching and packaged bridge
+availability remain unqualified. Public cache APIs still need owned disk/HTTP
+integration and their actual advertised semantics, followed by qualification;
+the issue's source/runtime gates remain open and the persistent goal is active.

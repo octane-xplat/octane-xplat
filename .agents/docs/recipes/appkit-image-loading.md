@@ -18,6 +18,8 @@ previews picked image files.
 
 - AC4: Compute cover/contain/fill/none/scale-down geometry with keyword, point and percentage positions, clip to the image box, handle flipped/unflipped native coordinates, redraw after size/position changes, and reset removed fit/position styles. Recognize logical-point sizing, raw CSS unit/expression limits and the missing native pixel/orientation qualification.
 
+- AC5: Provide private decoded-memory probe/evict/clear controls without claiming public memory+disk support. Invalidation retires old cache writes and shared work for later subscribers while preserving current view deliveries and final-subscriber cancellation. Reject stale/duplicate completions; keep probes independent of recency, mounted pixels and HTTP/disk cache state.
+
 ## Documentation
 
 - AC1: [AppKit image loading](../../../docs/app/components.md#image-loading-on-appkit), [layout regressions](../../../packages/ui/src/image.macos.mobile.test.tsrx) and [maintained probe](../../../examples/probes/image-loading.macos.tsrx).
@@ -27,3 +29,5 @@ previews picked image files.
 - AC4: [AppKit fit and position](../../../docs/app/components.md#image-loading-on-appkit), [geometry regressions](../../../packages/macos-renderer/test/image-fit.test.ts), [fake drawing/resize regressions](../../../packages/macos-renderer/test/image-drawing.test.ts), [style-removal regressions](../../../packages/macos-renderer/test/style-reconcile.test.ts) and [maintained fit probe](../../../examples/probes/image-fit.macos.tsrx). Tests, native drawing, resize/orientation/density and pixel checks have not run; visual analysis remains unauthorized.
 
 - AC3: [Resolution candidate selection](../../../docs/app/components.md#image-loading-on-appkit), [geometry callback regressions](../../../packages/macos-renderer/test/image-geometry.test.ts) and [component selection regressions](../../../packages/ui/src/image.macos.mobile.test.tsrx) cover source selection as a source contract. Native resize/screen transfer, density, intrinsic-only sizing and packaging remain unqualified; tests have not run.
+
+- AC5: [Private renderer memory contract](../../../packages/macos-renderer/README.md#render-local-images-and-overlays), six added [request-policy cases](../../../packages/macos-renderer/test/image-requests.test.ts), two [fake remote cases](../../../packages/macos-renderer/test/image-remote.test.ts) and [manual fixture](../../../examples/probes/image-memory-cache.macos.tsrx), all unrun. [Target note](../parity/appkit-progress.md#appkit-decoded-image-memory-invalidation-prerequisite) records exact deferred commands. Public AppKit prefetch/configuration/eviction/clear/query APIs, headers, disk behavior and engine options remain incomplete; this private seam does not close those gates.

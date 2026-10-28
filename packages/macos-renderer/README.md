@@ -281,6 +281,32 @@ newer source, and rejected HTTP responses are not decoded or cached. A bounded
 cache retains up to 64 decoded images by recent use. These are source contracts;
 actual queue delivery, cancellation and responsiveness remain unqualified.
 
+
+The private `imageMemoryCache` bridge probes/evicts decoded memory or clears all
+decoded entries. Invalidation retires old in-flight cache writes and sharing for
+new requests while keeping already subscribed view deliveries alive. The final
+remaining subscriber still owns cancellation; late or duplicate completion cannot
+replace a newer cached decode. Probes do not promote recency, and eviction does
+not blank mounted images or force them to reload. This is a prerequisite for
+cache controls, not the optional image package's memory+disk contract. It does
+not inspect or invalidate NSURLSession's HTTP cache, disk bytes, or account data.
+Public AppKit image cache functions remain stubs.
+
+```ts
+const memory = __xplatAppKit.imageMemoryCache
+if (memory) {
+	const cached = memory.isCached('https://example.com/photo.png')
+	memory.evict('https://example.com/photo.png')
+	memory.clear()
+	console.log(cached) // Decoded-memory presence only.
+}
+```
+
+Six request-policy and two fake remote/main-queue invalidation cases plus the
+[manual memory fixture](../../examples/probes/image-memory-cache.macos.tsrx) are
+authored, unrun. Native decoding, memory lifetime, networking, HTTP/disk cache
+behavior, responsiveness and packaging remain unqualified.
+
 ```tsx
 import { Image } from '@octane-xplat/ui'
 
