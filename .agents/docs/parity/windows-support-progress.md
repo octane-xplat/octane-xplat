@@ -748,3 +748,30 @@ Windows guide and primitives skill state the current subset. Existing
 platform-leaves/shared-overlays/keyboard-clipboard recipes still exclude
 Windows; no criterion, audit snapshot or evidence-gated checkbox was changed.
 This is an unreleased Windows hook repair, so no new release note was added.
+
+## Windows picker host prerequisite review
+
+The existing generated test project on windy references
+Microsoft.WindowsAppSDK 1.6.250205002. This was a read-only project-file check,
+not a regenerated current project or runtime picker test. The inspected
+NativeScript Windows source template also names that version, but its source
+cache is not proof of the installed binary's internals.
+
+Microsoft's [current picker guide](https://learn.microsoft.com/en-us/windows/apps/develop/files/using-file-folder-pickers)
+requires App SDK 1.8 or later for Microsoft.Windows.Storage.Pickers. Its
+WindowId constructor cannot be assumed present in this existing 1.6 artifact.
+The older Windows.Storage.Pickers classes require the actual owner's HWND via
+[IInitializeWithWindow](https://learn.microsoft.com/en-us/windows/apps/develop/ui/display-ui-objects).
+Constructor-time console-window association in inspected runtime source does
+not establish correct WinUI owner/modality or multi-window behavior; it was not
+verified against the pinned DLL. No qualified owner-initialization bridge is
+available in this task's evidence yet.
+
+Therefore pick/pickMultiple and user-directed export retain their explicit
+unavailable results. No SDK/package upgrade, install, host change, picker launch
+or OS automation was performed. The existing FileInputDemo asks for image/* and
+PDF attachments; that remains the demand assumption. Opening a legacy picker
+without its owner or adopting a newer namespace without its SDK would not
+complete that workflow. After authorized host work, qualify single/multiple
+selection, filters, cancellation versus failure, window ownership, read/retain
+of selected paths and absence of deletion of external files before enabling it.

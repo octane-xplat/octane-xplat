@@ -399,6 +399,12 @@ alpha.144 omits inherited methods on `OpenReadAsync` results, and the standalone
 reclamation depends on the runtime releasing its proxy. Do not infer
 attachment-dialog support from the component export.
 
+The existing Windows test project uses App SDK 1.6.250205002. The newer
+Microsoft.Windows.Storage.Pickers API requires 1.8; changing the namespace alone
+does not supply a usable picker. The older Windows.Storage.Pickers API requires
+IInitializeWithWindow bound to the actual owner HWND. Qualify that host bridge
+before enabling pick/export. See the [picker prerequisites](../../../docs/parity/windows-support-progress.md#windows-picker-host-prerequisite-review).
+
 ```ts
 import { files } from '@octane-xplat/files'
 
