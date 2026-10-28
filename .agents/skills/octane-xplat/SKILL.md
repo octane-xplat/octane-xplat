@@ -136,5 +136,8 @@ Preserve the original expectation and its basis separately from observed behavio
 and later diagnosis. Use the project's supplied feedback destination and
 [local feedback contract](../../docs/exploration.md#local-framework-feedback);
 consumer Silo data is not automatically shared with this repository. Omit secrets
-and private application data. `xplat feedback` submits externally immediately:
-invoke it only when external submission is explicitly authorized.
+and private application data. The feedback Worker accepts external reports
+only through an explicit HTTP submission; see its
+[request and deployment contract](../../../apps/feedback-worker/README.md).
+Submit externally only when explicitly authorized. `xplat feedback` is not
+currently implemented; do not treat local Silo writes as external submission.

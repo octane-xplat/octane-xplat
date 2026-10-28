@@ -1,0 +1,24 @@
+name = "octane-xplat-feedback"
+main = "src/worker.ts"
+compatibility_date = "2026-09-28"
+workers_dev = false
+preview_urls = false
+routes = [{ pattern = "octane-xplat.goddardai.org/api/feedback", zone_name = "goddardai.org" }]
+
+# Create once, then replace database_id with the returned UUID before deployment.
+# pnpm exec wrangler d1 create octane-xplat-feedback
+[[d1_databases]]
+binding = "FEEDBACK"
+database_name = "octane-xplat-feedback"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
+migrations_dir = "migrations"
+
+[[ratelimits]]
+name = "FEEDBACK_RATE_LIMITER"
+# Keep this namespace unique within the deploying Cloudflare account.
+namespace_id = "10028"
+simple = { limit = 10, period = 60 }
+
+# Report bodies must not be captured by Worker invocation logs.
+[observability]
+enabled = false

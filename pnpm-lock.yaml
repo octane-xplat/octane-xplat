@@ -259,6 +259,18 @@ importers:
         specifier: ^4.0.0
         version: 4.136.3(@cloudflare/workers-types@5.20260928.1)(@types/node@24.10.1)
 
+  apps/feedback-worker:
+    devDependencies:
+      '@cloudflare/workers-types':
+        specifier: 5.20260928.1
+        version: 5.20260928.1
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+      wrangler:
+        specifier: 4.136.3
+        version: 4.136.3(@cloudflare/workers-types@5.20260928.1)(@types/node@24.10.1)
+
   apps/linux:
     dependencies:
       '@octane-xplat/ui':

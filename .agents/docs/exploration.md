@@ -73,7 +73,8 @@ its basis before investigating further. Keep one row per distinct observation
 and do not deduplicate reports. Investigation can explain the observation,
 but must not rewrite it.
 
-Use the same observation fields and values as `xplat feedback`: `goal`,
+Use the same observation fields and values as the
+[feedback Worker](../../apps/feedback-worker/README.md): `goal`,
 `expected`, `expectation_basis`, `actual`, `target`, and `impact`; `evidence`
 and `workaround` are optional. Targets are `web`, `ios`, `android`, `macos`,
 `linux`, `windows`, or `unknown`; impacts are `blocked`, `rework`,
@@ -103,5 +104,6 @@ repository URLs, and absolute paths, and keep evidence to the smallest useful
 reproduction. Silo writes stay within this Git-scoped database unless someone
 explicitly synchronizes it. Agents whose `silo context` resolves a different
 Git repository have a different inbox. This workflow never submits reports
-to the feedback Worker; external submission remains an explicit
-`xplat feedback` action.
+to the feedback Worker; external submission requires an explicitly authorized
+HTTP request. `xplat feedback` is not currently implemented. The Worker must be
+deployed separately before its production endpoint can accept reports.
