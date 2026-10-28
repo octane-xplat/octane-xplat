@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 /**
  * Adaptive workshop shell — catalog, stage, controls, status.
  * DOM vocabulary is correct here: this is the DOM-host surface (browser and
