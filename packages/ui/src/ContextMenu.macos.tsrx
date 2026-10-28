@@ -4,7 +4,7 @@ import type { NavigationMenuImplementation } from './nav-link'
 import { mergeStyle } from './style-merge'
 import { MenuData } from './MenuParts.macos.tsrx'
 import { MenuSurface } from './MenuSurface.macos.tsrx'
-import { useRef, useState } from 'octane'
+import { useEffect, useRef, useState } from 'octane'
 import type { ContextMenuProps } from './props'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from './escape-props'
@@ -21,10 +21,11 @@ export function ContextMenu<
 >(props: ContextMenuProps<Contracts, Stacks, Transitions>): any
 
 export function ContextMenu(props: NavigationMenuImplementation<ContextMenuProps>) @{
-	const anchor = useRef<any>(null)
+	const anchor = useRef<NSView | null>(null)
 	const [internal, setInternal] = useState(props.defaultOpen ?? false)
 	const controlled = props.isOpen !== undefined
-	const open = props.isOpen ?? internal
+	const requestedOpen = props.isOpen ?? internal
+	const open = requestedOpen && !props.isDisabled
 
 	const setOpen = (next: boolean) => {
 		if (props.isDisabled && next) {
@@ -38,14 +39,19 @@ export function ContextMenu(props: NavigationMenuImplementation<ContextMenuProps
 		props.onOpenChange?.(next)
 	}
 
+	useEffect(() => {
+		if (props.isDisabled && requestedOpen) setOpen(false)
+	}, [props.isDisabled, requestedOpen])
+
 	<masonview
-		ref={(v: any) => {
+		ref={(v: NSView | null) => {
 			anchor.current = v
 			if (v) {
 				applyEscapeProps(v, props)
 			}
 		}}
 		id={props.id}
+		disabled={props.isDisabled}
 		className={cx('vx-contextmenu', props.className)}
 		style={mergeStyle({ display: 'flex' }, props.style)}
 		onLongPress={props.isDisabled ? undefined : () => setOpen(true)}

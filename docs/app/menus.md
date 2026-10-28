@@ -13,7 +13,7 @@ now include an explicit kind; mark command rows as `action`:
 
 ```tsx
 <DropdownMenu
-	trigger={<Text>Actions</Text>}
+	button={{ label: 'Actions' }}
 	items={[
 		{ type: 'action', key: 'rename', label: 'Rename', onSelect: rename },
 		{ type: 'action', key: 'remove', label: 'Remove', isDisabled: true },
@@ -43,7 +43,7 @@ function ViewActions() @{
   const [archived, setArchived] = useState(false);
   const [sort, setSort] = useState('newest');
 
-  <DropdownMenu trigger={<Text>View actions</Text>}>
+  <DropdownMenu button={{ label: 'View actions' }}>
     <DropdownMenuCheckboxItem
       label="Show archived" value={archived} onValueChange={setArchived}
     />
@@ -95,7 +95,7 @@ registry and Popover positioning; they do not install another Escape handler.
 The inherited macOS Popover does not guarantee custom alignment or offset.
 
 ```tsx
-<DropdownMenu trigger={<Text>Actions</Text>}>
+<DropdownMenu button={{ label: 'Actions' }}>
 	<DropdownMenuItem label="Save draft" onSelect={saveDraft} hasCloseOnSelect={false} />
 </DropdownMenu>
 ```
@@ -110,7 +110,7 @@ implementations and state ownership.
 
 ```tsx
 <ContextMenu
-	trigger={<Text>Actions</Text>}
+	button={{ label: 'Actions' }}
 	accessibilityLabel="Open file actions"
 	items={[{ type: 'action', key: 'rename', label: 'Rename', onSelect: rename }]}
 >
@@ -164,3 +164,47 @@ exports use the same implementations as the other menu families.
 The maintained [component demo](../../packages/demos/src/ComponentsDemo.tsrx)
 shows legacy rows, checkbox/radio choices, submenus, a visible context trigger,
 and breadcrumb overflow together.
+
+
+## AppKit menu host state
+
+On experimental AppKit, disabled action, checkbox, radio and submenu rows now
+remove native activation along with disabled metadata. A disabled radio group
+also disables its rows. DropdownMenu preserves the button ref and uses button.id
+unless the menu supplies its own id. Destructive rows forward the shared tone
+class; this does not qualify native paint.
+
+```tsx
+import { DropdownMenu, DropdownMenuItem } from '@octane-xplat/ui'
+
+export function Actions({ disabled }: { disabled: boolean }) {
+	return <DropdownMenu isDisabled={disabled} button={{ id: 'actions', label: 'Actions' }}>
+		<DropdownMenuItem label="Remove" variant="destructive" isDisabled={disabled} />
+	</DropdownMenu>
+}
+```
+
+AppKit disables the visible dropdown/context/submenu surface even when a
+controlled parent keeps requesting isOpen, and requests onOpenChange(false).
+Dropdown disablement includes its button and enclosing ButtonGroup. Reenabling
+can reopen a controlled menu whose parent still requests it; keep visibility in
+your state owner when you want a different result.
+
+```tsx
+import { useState } from 'octane'
+import { DropdownMenu, DropdownMenuItem } from '@octane-xplat/ui'
+
+export function ControlledActions({ disabled }: { disabled: boolean }) {
+	const [open, setOpen] = useState(false)
+	return <DropdownMenu isOpen={open} onOpenChange={setOpen} isDisabled={disabled} button={{ label: 'Actions' }}>
+		<DropdownMenuItem label="Archive" />
+	</DropdownMenu>
+}
+```
+
+Five authored AppKit object-driver cases remain unrun and replace popovers with
+inline content. Hardware arrow/typeahead and submenu key navigation are still
+implementation gaps; real popup/ref/focus timing, physical keys, mouse hit testing,
+VoiceOver and packaging remain unqualified. Shared AppKit ContextMenu still uses
+long press or its visible trigger; native secondary-click support is separate.
+The renderer's full menu-role/checked announcements also remain incomplete.

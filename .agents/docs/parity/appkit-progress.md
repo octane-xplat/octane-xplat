@@ -2466,3 +2466,44 @@ Actual native NSNumber/dictionary/NSURL metadata, security grants, panel accepta
 ref/focus/AX and packaging remain unqualified. No builds, package tests/typechecks,
 installs, OS automation, visual analysis or shared audit regeneration ran; no
 checkbox is closed. Drag/drop and OS content-type discovery remain separate gaps.
+
+### AppKit menu host prerequisites
+
+ComponentsDemo and OverlayDemo use shared action menus, checkbox/radio choices
+and submenus. Before keyboard navigation work, source review found disabled rows
+retained native activation handlers (despite semantic disabled state), dropdown
+button refs/IDs were overwritten, and controlled disabled menus could still show
+surfaces. AppKit action/checkbox/radio/submenu hosts now receive disabled; group
+radio state applies to the native row/class. Dropdown preserves button.ref and
+uses button.id unless its own ID overrides it. Concrete NSView anchors replace
+these touched any refs. All five actionable row kinds forward destructive tone.
+
+Effective dropdown visibility now includes own/button/ButtonGroup disablement;
+context/submenu visibility includes own disablement. Blocked surfaces suppress
+requested open immediately and request onOpenChange(false), while keeping parent
+state authoritative when enabled again. Submenu expanded metadata follows effective
+visibility. Existing Popover/layer ownership remains unchanged; no new dependencies,
+exports, shared props/manifests or other target leaves changed.
+
+Five authored target object-driver cases cover host reenable/retained identity,
+controlled checkbox/radio requests, trigger ref/ID handoff, own/button/group disabled
+visibility, context/submenu close intent and tone reset. They remain unrun and
+substitute inline content for Popover, so no real popup/focus/refs are qualified.
+Only TSRX syntax, source/semantic review and whitespace checks ran. Shared menus
+recipe AC6 and guide/skill now cover the target scope; stale Dropdown trigger
+snippets/component index were reconciled to the current button prop. Existing
+ComponentsDemo/OverlayDemo remain maintained usage harnesses.
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/menu-family.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All commands remain deferred pending explicit human authorization for this task.
+Hardware arrow/typeahead/submenu navigation, native secondary-click opening and
+full menu AX roles/checked announcements remain implementation gaps. Native
+popup/ref/focus/Tab timing, OS hit testing, physical keys, VoiceOver and packaging
+remain unqualified. No builds, package tests/typechecks, installs, OS automation,
+visual analysis or shared audit regeneration ran; no checkbox is closed.

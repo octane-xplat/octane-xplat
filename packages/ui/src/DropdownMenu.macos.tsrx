@@ -3,7 +3,7 @@ import type { RegisteredRouteContracts, AppRouteStacks, RouteTransitionName } fr
 import type { NavigationMenuImplementation } from './nav-link'
 import { MenuData } from './MenuParts.macos.tsrx'
 import { MenuSurface } from './MenuSurface.macos.tsrx'
-import { useRef, useState } from 'octane'
+import { useEffect, useMemo, useRef, useState } from 'octane'
 import type { DropdownMenuProps } from './props'
 import { cx } from '@octane-xplat/lib'
 import { Button } from './controls.macos.tsrx'
@@ -22,12 +22,15 @@ export function DropdownMenu<
 >(props: DropdownMenuProps<Contracts, Stacks, Transitions>): any
 
 export function DropdownMenu(props: NavigationMenuImplementation<DropdownMenuProps>) @{
-	const anchor = useRef<any>(null)
+	const anchor = useRef<NSView | null>(null)
 	const group = useButtonGroup()
-	const disabled = !!(props.isDisabled || group?.isDisabled)
+	const button = props.button ?? { label: 'Menu' }
+	const disabled = !!(props.isDisabled || group?.isDisabled || button.isDisabled)
+	const mergedRef = useMemo(() => button.ref ? [anchor, button.ref] : anchor, [button.ref])
 	const [internal, setInternal] = useState(props.defaultOpen ?? false)
 	const controlled = props.isOpen !== undefined
-	const open = props.isOpen ?? internal
+	const requestedOpen = props.isOpen ?? internal
+	const open = requestedOpen && !disabled
 
 	const setOpen = (next: boolean) => {
 		if (disabled && next) {
@@ -41,7 +44,10 @@ export function DropdownMenu(props: NavigationMenuImplementation<DropdownMenuPro
 		props.onOpenChange?.(next)
 	}
 
-	const button = props.button ?? { label: 'Menu' }
+	useEffect(() => {
+		if (disabled && requestedOpen) setOpen(false)
+	}, [disabled, requestedOpen])
+
 	const buttonLabel = typeof button.label === 'string' ? button.label : undefined
 	const iconOnly = button.isIconOnly === true
 	const endContent =
@@ -53,12 +59,10 @@ export function DropdownMenu(props: NavigationMenuImplementation<DropdownMenuPro
 	<>
 		<Button
 			{...button}
-			ref={(v: any) => {
-				anchor.current = v
-			}}
-			id={props.id}
+			ref={mergedRef}
+			id={props.id ?? button.id}
 			className={cx('vx-menu-trigger', button.className)}
-			isDisabled={disabled || button.isDisabled}
+			isDisabled={disabled}
 			endContent={endContent}
 			clickAction={() => setOpen(!open)}
 			accessibilityState={{ ...button.accessibilityState, expanded: open }}

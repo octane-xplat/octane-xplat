@@ -27,6 +27,8 @@ context-menu leaf has its own recipe.
 - AC4: Touch users have a visible context trigger and a named submenu Back action; hidden breadcrumb ancestors retain their actions in an accessible overflow menu. Native hardware input and OS accessibility limits are explicit.
 - AC5: Shared props and menu part exports resolve on web, mobile, and macOS without adding UI dependencies or separate layer dismissal/positioning logic.
 
+- AC6: AppKit disabled rows remove native activation and radio group state applies to hosts. Disabled dropdown/context/submenu surfaces suppress controlled open requests and report close intent; dropdowns include button/group disablement. Button refs/IDs and destructive tone survive host updates. Keep keyboard/secondary-click/AX implementation gaps and actual popup evidence explicit.
+
 ## Documentation
 
 - AC1: [Start with actions](../../../docs/app/menus.md#start-with-actions), [Add choices and submenus](../../../docs/app/menus.md#add-choices-and-submenus), [UI API migrations](../../../docs/app/ui-api-migrations.md#selection-and-menu-rows), [Context actions on touch and keyboard](../../../docs/app/menus.md#context-actions-on-touch-and-keyboard), and [component demo](../../../packages/demos/src/ComponentsDemo.tsrx).
@@ -34,3 +36,5 @@ context-menu leaf has its own recipe.
 - AC3: [Own open state](../../../docs/app/menus.md#own-open-state) and [Context actions on touch and keyboard](../../../docs/app/menus.md#context-actions-on-touch-and-keyboard).
 - AC4: [Context actions on touch and keyboard](../../../docs/app/menus.md#context-actions-on-touch-and-keyboard) and [Keep a long breadcrumb trail usable](../../../docs/app/menus.md#keep-a-long-breadcrumb-trail-usable).
 - AC5: [Add choices and submenus](../../../docs/app/menus.md#add-choices-and-submenus) and [Own open state](../../../docs/app/menus.md#own-open-state).
+
+- AC6: [AppKit menu host guide](../../../docs/app/menus.md#appkit-menu-host-state), [authored AppKit inline-popup cases](../../../packages/ui/src/menu-family.macos.mobile.test.tsrx) and [target note](../parity/appkit-progress.md#appkit-menu-host-prerequisites). Cases remain unrun; native input/ref/popup/AX qualification is deferred.

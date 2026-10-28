@@ -1046,3 +1046,27 @@ export function Name() {
 	return <TextInput label="Name" testID="profile.name" defaultValue="Ada" />
 }
 ```
+
+
+AppKit menus now align disabled row hosts with their metadata: actions, checkbox/
+radio choices and submenus lose native activation while disabled; group radio
+state applies to rows. DropdownMenu forwards button.ref and uses button.id unless
+its own id is supplied. Destructive tone classes forward across row kinds.
+Disabled dropdown/context/submenu surfaces are suppressed even when controlled
+isOpen remains true and request onOpenChange(false); Dropdown also observes
+button/ButtonGroup disablement. Use the current button prop, not the old trigger
+spelling. See the [AppKit menu contract](../../../../docs/menus.md#appkit-menu-host-state).
+
+```tsx
+import { DropdownMenu, DropdownMenuItem } from '@octane-xplat/ui'
+
+export function Actions({ disabled }: { disabled: boolean }) {
+	return <DropdownMenu isDisabled={disabled} button={{ label: 'Actions' }}>
+		<DropdownMenuItem label="Remove" variant="destructive" isDisabled={disabled} />
+	</DropdownMenu>
+}
+```
+
+Keyboard arrow/typeahead/submenu navigation, native secondary click and full menu
+AX roles/checked announcements remain implementation gaps; native popup/ref/focus/
+input/VoiceOver behavior is unqualified. Authored inline-popup cases remain unrun.

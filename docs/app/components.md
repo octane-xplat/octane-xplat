@@ -741,7 +741,7 @@ registerIndicators({ check: SelectionMark })
 | `Stepper`                                  | Multi-step progress/flow control                         | `steps`, `current`, `onStepChange`                               |
 | `NavigationMenu`                           | Simple item-array navigation strip                       | `items`, `horizontal`, `href`                                    |
 | [`CommandPalette`](command-palette.md)     | Searchable commands; mobile search sheet                 | `open`, `items` / `searchSource`, `searchMode`, `onValueChange`  |
-| `DropdownMenu`                             | Anchored action menu                                     | `trigger`, `items` / children, `placement`, `isOpen`             |
+| `DropdownMenu`                             | Anchored action menu                                     | `button`, `items` / children, `placement`, `isOpen`             |
 | `ContextMenu`                              | Secondary-press action menu                              | `items` / `menu`, `trigger`, `isOpen`, `onOpenChange`            |
 
 ### Tab strips on AppKit

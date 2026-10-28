@@ -8,7 +8,7 @@ import type {
 
 import { useNavigationItem } from './use-navigation-item.shared.tsrx'
 import { followHref } from './nav-href.macos'
-import { useContext, useMemo, useRef, useState } from 'octane'
+import { useContext, useEffect, useMemo, useRef, useState } from 'octane'
 import type {
 	MenuItemProps,
 	MenuLinkProps,
@@ -52,9 +52,10 @@ export function DropdownMenuItem(props: MenuItemProps) @{
 	<Pressable
 		ref={props.ref}
 		id={props.id}
-		className={['vx-menu-item', props.isDisabled && 'vx-menu-item--disabled', props.className]}
+		className={['vx-menu-item', props.variant === 'destructive' && 'vx-menu-item--destructive', props.isDisabled && 'vx-menu-item--disabled', props.className]}
 		style={props.style}
 		accessibilityRole="menuitem"
+		disabled={props.isDisabled}
 		accessibilityLabel={typeof props.label === 'string' ? props.label : undefined}
 		accessibilityState={{ disabled: props.isDisabled }}
 		onPress={select}
@@ -89,9 +90,10 @@ export function DropdownMenuCheckboxItem(props: MenuCheckboxItemProps) @{
 	<Pressable
 		ref={props.ref}
 		id={props.id}
-		className={['vx-menu-item', props.isDisabled && 'vx-menu-item--disabled', props.className]}
+		className={['vx-menu-item', props.variant === 'destructive' && 'vx-menu-item--destructive', props.isDisabled && 'vx-menu-item--disabled', props.className]}
 		style={props.style}
 		accessibilityRole="menuitemcheckbox"
+		disabled={props.isDisabled}
 		accessibilityLabel={typeof props.label === 'string' ? props.label : undefined}
 		accessibilityState={{ disabled: props.isDisabled, checked: props.value }}
 		onPress={select}
@@ -168,9 +170,10 @@ export function DropdownMenuRadioItem(props: MenuRadioItemProps) @{
 	<Pressable
 		ref={props.ref}
 		id={props.id}
-		className={['vx-menu-item', props.isDisabled && 'vx-menu-item--disabled', props.className]}
+		className={['vx-menu-item', props.variant === 'destructive' && 'vx-menu-item--destructive', (props.isDisabled || group.isDisabled) && 'vx-menu-item--disabled', props.className]}
 		style={props.style}
 		accessibilityRole="menuitemradio"
+		disabled={props.isDisabled || group.isDisabled}
 		accessibilityLabel={typeof props.label === 'string' ? props.label : undefined}
 		accessibilityState={{
 			disabled: props.isDisabled || group.isDisabled,
@@ -228,7 +231,7 @@ export function DropdownMenuLink(props: NavigationItemImplementation<MenuLinkPro
 				menu.closeMenu()
 			}
 		}}
-		className={['vx-menu-item', link.disabled && 'vx-menu-item--disabled', props.className]}
+		className={['vx-menu-item', props.variant === 'destructive' && 'vx-menu-item--destructive', link.disabled && 'vx-menu-item--disabled', props.className]}
 		style={props.style}
 	>
 		{props.icon && <Icon name={props.icon} />}
@@ -254,10 +257,11 @@ export function DropdownMenuSubMenu(
 		)
 	}
 
-	const anchor = useRef<any>(null)
+	const anchor = useRef<NSView | null>(null)
 	const mergedRef = useMemo(() => (props.ref ? [anchor, props.ref] : anchor), [props.ref])
 	const [internal, setInternal] = useState(props.defaultOpen ?? false)
-	const open = props.isOpen ?? internal
+	const requestedOpen = props.isOpen ?? internal
+	const open = requestedOpen && !props.isDisabled
 	const setOpen = (next: boolean) => {
 		if (next && props.isDisabled) {
 			return
@@ -270,18 +274,23 @@ export function DropdownMenuSubMenu(
 		props.onOpenChange?.(next)
 	}
 
+	useEffect(() => {
+		if (props.isDisabled && requestedOpen) setOpen(false)
+	}, [props.isDisabled, requestedOpen])
+
 	const closeLevel = () => setOpen(false)
 
 	<>
 		<Pressable
 			ref={mergedRef}
 			id={props.id}
-			className={['vx-menu-item', props.isDisabled && 'vx-menu-item--disabled', props.className]}
+			className={['vx-menu-item', props.variant === 'destructive' && 'vx-menu-item--destructive', props.isDisabled && 'vx-menu-item--disabled', props.className]}
 			style={props.style}
 			accessibilityRole="menuitem"
+			disabled={props.isDisabled}
 			accessibilityLabel={typeof props.label === 'string' ? props.label : undefined}
 			accessibilityHint="Opens submenu"
-			accessibilityState={{ disabled: props.isDisabled }}
+			accessibilityState={{ disabled: props.isDisabled, expanded: open }}
 			onPress={() => setOpen(!open)}
 			web={{
 				'aria-haspopup': 'menu',
