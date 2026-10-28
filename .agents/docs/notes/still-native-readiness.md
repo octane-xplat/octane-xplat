@@ -25,7 +25,7 @@ Maintained checks run through Turbo. Unit tests, packaged declarations, native
 builds, simulator execution, and physical acceptance are separate evidence.
 No visual analysis or physical output observation was performed.
 
-Test environment: macOS 27.0.1 (26A434), Xcode 27.0 (27A266a), iOS 27.0
+Initial local test environment: macOS 27.0.1 (26A434), Xcode 27.0 (27A266a), iOS 27.0
 simulator, Android API 35 arm64 emulator, Playwright 1.63.0 Chromium, Octane
 0.14.0, NativeScript core 9.1.3, iOS runtime 9.1.0, Android runtime 9.1.1,
 and NativeScript Octane renderer 0.2.5.
@@ -49,17 +49,24 @@ Mobile runtimes provide a streaming TextDecoder usable by Rouzer. AppKit has
 no global TextDecoder: byte streaming and the leaf's owned UTF-8 text/JSON codec
 work, but unmodified Rouzer decoding there remains unsupported.
 
-AppKit growing-queue qualification is provisional: the first cold invocation
-passed eight assertions but timed out waiting for final completion after
-pause/resume. Two warm retries passed all nine (the first in 9.1 seconds). The cause is not
-isolated; a successful retry does not close this stability concern.
+The AppKit completion timeout was reproduced on `skymac.local` (macOS 26.6.2,
+Xcode 27.1): four of five queue runs froze at position zero after rapid
+pause/unmute/resume while reporting `playing`. A standalone Objective-C probe
+reproduced it without JavaScript. The two-step AVPlayer `play` then `setRate:`
+sequence can leave this transition stalled; one `playImmediatelyAtRate:` call
+completed all three direct comparison trials. Xplat now submits that single
+native transition. Five consecutive queue runs and the packed native regression
+(three local and three HTTP rapid-resume cycles) passed after the fix. This
+closes the reproduced timeout; it does not qualify physical output or routes.
 
 Native audio's maintained runtime fixture uses silent WAV to establish queue
 progression only. It cannot prove audible MP3 output, speech pitch quality,
 seamless boundaries, background JS scheduling, or physical audio routes.
 Background AVPlayer/Media3 playback does not guarantee delivery of new queue
 items by suspended JavaScript. These gates remain open; native readiness is
-not yet complete. No performance acceptance claim is made.
+not yet complete. Foreground timing measurements have their own limited
+fixture budgets; they do not establish app startup, physical gaps, or
+background performance.
 
 Native passkey sheets, SHA-1 byte digests and oriented resize/WebP encoding
 remain explicitly deferred optional lanes. Hosted authentication is the

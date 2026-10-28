@@ -5,9 +5,18 @@ static NSDictionary *snapshot(XplatAudioPlayer *player) {
 	return [NSJSONSerialization JSONObjectWithData:[[player snapshot] dataUsingEncoding:NSUTF8StringEncoding] options:0 error:nil];
 }
 
+static BOOL waitFor(BOOL (^check)(void), NSTimeInterval timeout) {
+	NSDate *end = [NSDate dateWithTimeIntervalSinceNow:timeout];
+	while ([end timeIntervalSinceNow] > 0) {
+		if (check()) return YES;
+		[[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.01]];
+	}
+	return check();
+}
+
 int main(int argc, char **argv) {
 	@autoreleasepool {
-		NSCAssert(argc == 2, @"local source required");
+		NSCAssert(argc == 3, @"local and HTTP sources required");
 		NSString *source = @(argv[1]);
 		XplatAudioPlayer *player = [XplatAudioPlayer new];
 		[player setSource:@"invalid-source"];
@@ -48,6 +57,21 @@ int main(int argc, char **argv) {
 		NSCAssert([[player valueForKey:@"observers"] count] == 0, @"dispose removes notifications");
 		NSCAssert([other valueForKey:@"item"] != nil && [[other valueForKey:@"observers"] count] == 2, @"dispose must not affect another owner");
 		[other dispose];
+		XplatAudioPlayer *rapid = [XplatAudioPlayer new];
+		[rapid setPlaybackRate:1.75];
+		for (NSString *entry in @[source, @(argv[2])]) {
+			for (int attempt = 0; attempt < 3; attempt++) {
+				[rapid setMuted:YES];
+				[rapid setSource:entry];
+				NSCAssert(waitFor(^BOOL{ return [snapshot(rapid)[@"state"] isEqual:@"paused"]; }, 5), @"rapid fixture load failed: %@", snapshot(rapid));
+				[rapid play];
+				NSCAssert(waitFor(^BOOL{ return [snapshot(rapid)[@"state"] isEqual:@"playing"]; }, 5), @"rapid fixture play failed: %@", snapshot(rapid));
+				[rapid pause]; [rapid setMuted:NO]; [rapid play];
+				NSCAssert(waitFor(^BOOL{ return [snapshot(rapid)[@"state"] isEqual:@"ended"]; }, 5), @"rapid resume did not progress: %@", snapshot(rapid));
+			}
+		}
+		[rapid dispose];
+		puts("NATIVE_AUDIO_RAPID_RESUME_OK (local and HTTP; silent sources)");
 		puts("NATIVE_AUDIO_LIFECYCLE_OK (injected failures; no output-device evidence)");
 	}
 }

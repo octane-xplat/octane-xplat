@@ -114,8 +114,9 @@
 		self.state = @"paused";
 	}
 	self.wantsPlayback = YES;
-	[self.player play];
-	self.player.rate = self.playbackRate;
+	// Submit one playback transition. play followed by setRate can freeze at
+	// time zero during rapid pause/resume on macOS 26 (see readiness record).
+	[self.player playImmediatelyAtRate:self.playbackRate];
 	[self refresh];
 }
 

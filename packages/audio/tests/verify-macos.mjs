@@ -1,6 +1,7 @@
 // Public packed import checks and a nonvisual, silent AVPlayer target check.
 // This never establishes audible output, system controls, or interruption recovery.
 import assert from 'node:assert/strict'
+import { once } from 'node:events'
 import { spawn, spawnSync } from 'node:child_process'
 import { cp, mkdir, symlink, writeFile } from 'node:fs/promises'
 import { createServer } from 'node:http'
@@ -269,10 +270,22 @@ main().then(() => __xplatStopHost(), error => { console.log('MACOS_AUDIO_ERROR',
 		)
 
 		assert.equal(compiled.status, 0, compiled.stdout + compiled.stderr)
-		const result = spawnSync(executable, [local], { encoding: 'utf8', timeout: 10_000 })
-		assert.equal(result.status, 0, result.stdout + result.stderr)
-		assert.match(result.stdout, /NATIVE_AUDIO_LIFECYCLE_OK/)
-		console.log(result.stdout.trim())
+		// Keep the HTTP fixture's event loop alive while native playback runs.
+		const lifecycle = spawn(executable, [local, `${remote}/audio.wav`], { timeout: 30000 })
+		let lifecycleOutput = ''
+		lifecycle.stdout.on('data', (chunk) => {
+			lifecycleOutput += chunk
+		})
+
+		lifecycle.stderr.on('data', (chunk) => {
+			lifecycleOutput += chunk
+		})
+
+		const [exitCode] = await once(lifecycle, 'close')
+		assert.equal(exitCode, 0, lifecycleOutput)
+		assert.match(lifecycleOutput, /NATIVE_AUDIO_LIFECYCLE_OK/)
+		assert.match(lifecycleOutput, /NATIVE_AUDIO_RAPID_RESUME_OK/)
+		console.log(lifecycleOutput.trim())
 	} finally {
 		server.closeAllConnections()
 		await new Promise((resolve) => server.close(resolve))
