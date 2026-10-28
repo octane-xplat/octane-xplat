@@ -8,6 +8,7 @@ import { spawn } from 'node:child_process'
 import { createServer } from 'node:http'
 import { fileURLToPath } from 'node:url'
 import { audioResponse } from './fixture-server.mjs'
+const budgets = process.argv.includes('--foreground-budgets')
 const server = createServer(audioResponse)
 await new Promise((resolve, reject) => {
 	server.once('error', reject)
@@ -20,12 +21,14 @@ try {
 		[
 			'probe',
 			'run',
-			'packages/audio/tests/incremental-queue.ts',
+			budgets
+				? 'packages/audio/tests/foreground-budgets.ts'
+				: 'packages/audio/tests/incremental-queue.ts',
 			'--deps',
 			'@octane-xplat/audio',
 			'--timeout',
 			'60000',
-			...process.argv.slice(2),
+			...process.argv.slice(2).filter((argument) => argument !== '--foreground-budgets'),
 		],
 		{ cwd: fileURLToPath(new URL('../../../', import.meta.url)), stdio: 'inherit' },
 	)

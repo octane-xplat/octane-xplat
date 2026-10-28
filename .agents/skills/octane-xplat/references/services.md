@@ -389,3 +389,15 @@ finally { await reader.cancel(); reader.releaseLock() }
 
 For the tested targets and remaining physical acceptance gates, see the
 [Still-shaped readiness record](../../../docs/notes/still-native-readiness.md).
+
+
+For combined service qualification, use the
+[packed listening/settings fixture](../../../../tools/native-readiness/README.md).
+It installs tarballs outside the workspace and typechecks before running.
+Synthetic auth callbacks and silent foreground media do not establish real
+provider callbacks, audible output, or background execution. Keep those gates
+separate when interpreting a passing consumer run.
+
+```sh
+pnpm exec turbo run check:native-readiness --filter=// -- --target ios --device OWNED_UDID
+```

@@ -29,3 +29,8 @@ and stop unused requests without unbounded unread buffering.
 - AC3: [Incremental HTTP guide](../../../packages/network/README.md) and [transport regressions](../../../packages/network/tests/stream.test.mjs).
 - AC4: [Incremental HTTP guide](../../../packages/network/README.md) and [binary PUT regressions](../../../packages/network/tests/stream.test.mjs).
 - AC5: [Native setup](../../../packages/network/README.md#native-setup-and-evidence). Gap: full physical packaged-app qualification remains pending.
+
+The [packed listening/settings check](../../../tools/native-readiness/README.md)
+combines these services in an external mobile consumer. Its synthetic auth and
+silent foreground media do not close physical background, output, restart,
+or provider callback gates; see the [readiness record](../notes/still-native-readiness.md).

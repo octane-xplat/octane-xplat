@@ -25,3 +25,8 @@ retired in-memory credentials from successful durable deletion.
 - AC1: [Hosted sign-in ceremonies](../../../packages/auth/README.md#hosted-sign-in-ceremonies). Gap: packaged real-provider and OS callback delivery qualification remains pending.
 - AC2: [Hosted sign-in ceremonies](../../../packages/auth/README.md#hosted-sign-in-ceremonies) and [hosted-client regressions](../../../packages/auth/tests/hosted.test.mjs).
 - AC3: [Hosted sign-in ceremonies](../../../packages/auth/README.md#hosted-sign-in-ceremonies) and [deletion-failure regressions](../../../packages/auth/tests/hosted.test.mjs).
+
+The [packed listening/settings check](../../../tools/native-readiness/README.md)
+combines these services in an external mobile consumer. Its synthetic auth and
+silent foreground media do not close physical background, output, restart,
+or provider callback gates; see the [readiness record](../notes/still-native-readiness.md).

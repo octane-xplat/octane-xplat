@@ -2,6 +2,18 @@
 	"$schema": "https://turborepo.dev/schema.json",
 	"globalDependencies": ["tsconfig.base.json", "packages/cli/patches/**"],
 	"tasks": {
+		"//#check:native-readiness": {
+			"cache": false,
+			"passThroughEnv": [
+				"ANDROID_HOME",
+				"ANDROID_SDK_ROOT",
+				"JAVA_HOME",
+				"GRADLE_USER_HOME",
+				"VERIFY_IOS_DEVICE",
+				"VERIFY_ANDROID_DEVICE",
+				"XPLAT_IOS_DEVELOPMENT_TEAM"
+			]
+		},
 		"test:intl": {
 			"inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/scripts/intl-test-utils.mjs"],
 			"dependsOn": ["typegen", "^typegen", "^build"],

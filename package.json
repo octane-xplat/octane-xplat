@@ -73,7 +73,8 @@
 		"bench:routing-types": "node scripts/bench-routing-types.ts",
 		"eval:routing": "node scripts/eval-routing.ts",
 		"sync:compatibility": "node scripts/sync-compatibility.ts",
-		"check:compatibility": "node scripts/sync-compatibility.ts --check"
+		"check:compatibility": "node scripts/sync-compatibility.ts --check",
+		"check:native-readiness": "node tools/native-readiness/run.mjs"
 	},
 	"devDependencies": {
 		"@tsrx/core": "0.2.4",

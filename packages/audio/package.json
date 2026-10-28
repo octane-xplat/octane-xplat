@@ -54,7 +54,8 @@
 		"test:macos-runtime": "node tests/packed-consumer.mjs --macos-runtime",
 		"typecheck": "node ../../scripts/typecheck.ts",
 		"test:runtime": "node tests/runtime.mjs",
-		"test:browser": "node tests/browser.mjs"
+		"test:browser": "node tests/browser.mjs",
+		"test:macos-budgets": "node tests/profile-macos.mjs"
 	},
 	"dependencies": {
 		"@octane-xplat/platform": "workspace:*"

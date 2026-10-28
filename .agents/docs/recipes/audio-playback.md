@@ -47,3 +47,8 @@ interruption handling.
 - AC6: [macOS playback](../../../docs/platform/media-services.md#macos-playback) and the [packed macOS target check](../../../packages/audio/tests/verify-macos.mjs). Gap: audible output and physical output-device failures require hardware qualification.
 - AC7: [Playback speed and volume](../../../docs/platform/media-services.md#playback-speed-and-volume) and the [shared settings controls](../../../packages/app/src/MediaServices.tsrx).
 - AC8: [Growing queues](../../../docs/platform/media-services.md#add-items-without-restarting-the-current-track). Gap: physical background continuation with delayed appends remains unqualified.
+
+The [packed listening/settings check](../../../tools/native-readiness/README.md)
+combines these services in an external mobile consumer. Its synthetic auth and
+silent foreground media do not close physical background, output, restart,
+or provider callback gates; see the [readiness record](../notes/still-native-readiness.md).

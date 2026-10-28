@@ -1,8 +1,11 @@
-import { run } from './incremental-queue.ts'
+import { run as runQueue } from './incremental-queue.ts'
+import { run as runBudgets } from './foreground-budgets.ts'
+const run = globalThis.audioForegroundBudgets ? runBudgets : runQueue
 const cleanups = []
 globalThis.audioResult = null
 document.querySelector('button').addEventListener('click', async () => {
 	const assertions = []
+	const measurements = {}
 	try {
 		await run({
 			target: 'web',
@@ -13,7 +16,9 @@ document.querySelector('button').addEventListener('click', async () => {
 				}
 				assertions.push(name)
 			},
-			record() {},
+			record(name, value) {
+				measurements[name] = value
+			},
 			async waitFor(predicate, { timeout = 5000, interval = 20 } = {}) {
 				const until = Date.now() + timeout
 				while (!predicate()) {
@@ -26,7 +31,7 @@ document.querySelector('button').addEventListener('click', async () => {
 			},
 		})
 
-		globalThis.audioResult = { assertions }
+		globalThis.audioResult = { assertions, measurements }
 	} catch (error) {
 		globalThis.audioResult = { error: error.stack ?? String(error) }
 	} finally {
