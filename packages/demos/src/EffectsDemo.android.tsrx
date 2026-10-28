@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { ShaderEffect } from '@octane-xplat/effects/android'
 import { Screen, Text, View } from '@octane-xplat/ui'
 

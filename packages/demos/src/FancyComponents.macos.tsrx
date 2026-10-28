@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { Text, View } from '@octane-xplat/ui'
 
 /** The motion leaf's hosts are mobile + web only — same scope as the

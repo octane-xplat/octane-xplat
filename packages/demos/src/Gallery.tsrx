@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { Screen, View, HStack, Text, Pressable, ScrollableArea } from '@octane-xplat/ui'
 import { GoalCounter } from './GoalCounter.tsrx'

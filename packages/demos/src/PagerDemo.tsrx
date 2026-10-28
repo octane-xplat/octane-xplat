@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { Pager } from '@octane-xplat/pager'
 import { Button, Heading, Pressable, HStack, Text, View } from '@octane-xplat/ui'

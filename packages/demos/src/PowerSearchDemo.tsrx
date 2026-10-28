@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { Heading, PowerSearch, Text, View, createPowerSearchConfig } from '@octane-xplat/ui'
 

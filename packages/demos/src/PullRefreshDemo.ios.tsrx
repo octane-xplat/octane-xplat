@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { Text, View } from '@octane-xplat/ui'
 import { UITableView } from '@octane-xplat/ui/ios'

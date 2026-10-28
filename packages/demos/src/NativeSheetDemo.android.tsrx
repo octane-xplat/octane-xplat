@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import type { TextInputHandle } from '@octane-xplat/ui'
 import { useRef, useState } from 'octane'
 import { Heading, Pressable, Text, TextInput, View } from '@octane-xplat/ui'

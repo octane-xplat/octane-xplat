@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { FileInput } from '@octane-xplat/files'
 import type { FileInputFile } from '@octane-xplat/files'

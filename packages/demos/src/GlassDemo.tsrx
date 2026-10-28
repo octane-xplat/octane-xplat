@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { Screen, Text, View } from '@octane-xplat/ui'
 
 /** Shared fallback — Liquid Glass is iOS-authentic (UIGlassEffect, iOS 26+),

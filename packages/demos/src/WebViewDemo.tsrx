@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useRef, useState } from 'octane'
 import { Pressable, HStack, SafeArea, Screen, Text, WebView } from '@octane-xplat/ui'
 import type { WebViewHandle } from '@octane-xplat/ui'

@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { ScrollableArea, Text, View } from '@octane-xplat/ui'
 
 type Row_ = { id: string; label: string }

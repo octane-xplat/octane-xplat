@@ -1,2 +1,2 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 export { VirtualList } from './VirtualList.tsrx'

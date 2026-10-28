@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useRef, useState } from 'octane'
 import { Button, Heading, HStack, Text, View } from '@octane-xplat/ui'
 import { TiptapEditor, supported } from '@octane-xplat/tiptap'

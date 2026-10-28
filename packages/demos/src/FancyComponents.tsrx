@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { Children, descriptorChildren, useEffect, useRef, useState } from 'octane'
 import {
 	Absolute,

@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { Absolute, HStack, Pressable, Screen, Text, View } from '@octane-xplat/ui'
 import { useSignal$ } from 'octane/signals/client'
 import { LiquidGlass, LiquidGlassContainer } from '@octane-xplat/ui/ios'

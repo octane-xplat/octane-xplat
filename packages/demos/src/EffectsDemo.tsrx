@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { Screen, Text, View } from '@octane-xplat/ui'
 
 /** Shared fallback — view-effect shaders are platform-authentic

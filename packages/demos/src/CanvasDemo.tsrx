@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { Canvas } from '@octane-xplat/canvas'
 import { Heading, Text, View } from '@octane-xplat/ui'
 import { useState } from 'octane'

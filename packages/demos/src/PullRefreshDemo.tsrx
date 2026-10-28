@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { ScrollableArea, Text, View } from '@octane-xplat/ui'
 

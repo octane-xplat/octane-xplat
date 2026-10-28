@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { Heading, Text, View } from '@octane-xplat/ui'
 import { AppleSignInButton, GoogleSignInButton, appleAuth, googleAuth } from '@octane-xplat/auth'

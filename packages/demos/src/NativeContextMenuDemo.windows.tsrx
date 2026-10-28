@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { Text, View } from '@octane-xplat/ui'
 
 export function NativeContextMenuDemo() @{

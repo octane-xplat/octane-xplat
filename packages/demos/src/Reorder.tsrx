@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { useRef, useState } from 'octane'
 import { HStack, Text, View, setTranslate } from '@octane-xplat/ui'
 import type { PanEvent } from '@octane-xplat/ui'

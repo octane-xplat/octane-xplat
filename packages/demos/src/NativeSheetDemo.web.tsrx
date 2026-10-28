@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useRef, useState } from 'octane'
 import { Heading, Pressable, Text, View } from '@octane-xplat/ui'
 import { BottomSheet } from '@octane-xplat/sheet/web'

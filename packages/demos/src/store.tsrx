@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { createStore, useStore } from '@octane-xplat/ui/data'
 
 /** Module-scope store — the one thing that CAN cross Octane roots.

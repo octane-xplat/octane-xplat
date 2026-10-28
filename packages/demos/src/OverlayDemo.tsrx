@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { useRef, useState } from 'octane'
 import {
 	Dialog,

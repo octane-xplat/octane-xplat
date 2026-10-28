@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { Heading, Text, View } from '@octane-xplat/ui'
 import { SwiftUIPicker } from '@octane-xplat/picker/ios'

@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { Heading, SegmentedControl, Text, View } from '@octane-xplat/ui'
 

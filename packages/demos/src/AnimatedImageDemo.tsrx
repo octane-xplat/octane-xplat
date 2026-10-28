@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { AnimatedImage } from '@octane-xplat/gif'
 import { Heading, Text, View } from '@octane-xplat/ui'
 

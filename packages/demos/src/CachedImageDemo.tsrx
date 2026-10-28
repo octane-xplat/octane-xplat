@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { Image, isImageCached, prefetch } from '@octane-xplat/image'
 import { Button, Heading, Text, View } from '@octane-xplat/ui'
 import { useState } from 'octane'

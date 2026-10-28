@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { HStack, Screen, Text, View } from '@octane-xplat/ui'
 
 /** Flex/text divergence probes — the spots where NS FlexboxLayout isn't web

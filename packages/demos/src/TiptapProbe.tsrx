@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { useEffect, useState } from 'octane'
 import { Pressable, Screen, ScrollableArea, Text } from '@octane-xplat/ui'
 import { runTiptapProbe, type ProbeStep } from './tiptap-probe'

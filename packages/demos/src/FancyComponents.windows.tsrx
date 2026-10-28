@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { Text, View } from '@octane-xplat/ui'
 
 /** The motion leaf is verified on web, iOS, and Android — keep an explicit
