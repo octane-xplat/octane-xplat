@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/geofencing",
-	"version": "0.17.1",
+	"version": "0.18.0",
 	"description": "Region enter/exit monitoring for Octane xplat \u2014 CLLocationManager regions and GeofencingClient",
 	"keywords": [
 		"android",

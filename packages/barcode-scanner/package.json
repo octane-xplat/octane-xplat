@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/barcode-scanner",
-	"version": "0.17.1",
+	"version": "0.18.0",
 	"description": "Barcode and QR scanning for Octane xplat \u2014 ML Kit camera preview + still decode on iOS/Android, BarcodeDetector on web",
 	"keywords": [
 		"android",

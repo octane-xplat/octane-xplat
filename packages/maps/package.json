@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/maps",
-	"version": "0.17.1",
+	"version": "0.18.0",
 	"description": "Declarative map view for Octane xplat \u2014 Google Maps on iOS/Android via @nativescript/google-maps, Maps JS on web",
 	"keywords": [
 		"android",

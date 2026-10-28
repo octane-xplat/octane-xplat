@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/lib",
-	"version": "0.17.1",
+	"version": "0.18.0",
 	"description": "Internal, unstable shared utilities for Octane xplat. Breaking changes may occur at any time; external use is discouraged.",
 	"license": "MIT",
 	"repository": {

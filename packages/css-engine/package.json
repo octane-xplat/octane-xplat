@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/css-engine",
-	"version": "0.17.1",
+	"version": "0.18.0",
 	"description": "NativeScript-compatible stylesheet engine shared by the Octane desktop renderers (internal; no stable public API)",
 	"license": "MIT",
 	"repository": {

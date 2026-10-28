@@ -12,6 +12,759 @@ in the [fixlog](FIXLOG.md).
 Earlier releases retain their original combined notes; older independent
 releases remain in the [tsrx-typegen changelog](packages/tsrx-typegen/CHANGELOG.md).
 
+## [Octane Xplat 0.18.0](https://github.com/octane-xplat/octane-xplat/releases/tag/v0.18.0) - 2026-10-28
+
+### New package: `@octane-xplat/ads`
+
+Google AdMob banners, interstitials, and rewarded ads via
+`@nativescript/google-mobile-ads` — `ads.initialize()`, a `<BannerAd>` view,
+and `createInterstitial/Rewarded/RewardedInterstitial` factories with a
+normalized `AdEvent` channel. AppOpen is a documented upstream gap.
+
+### The default theme is now Astryx's palette and control geometry
+
+`chrome.css` adopts Astryx's default light/dark palette — blue primary
+(`#0064E0` light / `#2694FE` dark) replacing the black scheme — plus its
+`-apple-system` font stack, and `tokens.css` gives Button real geometry:
+28/32/36px heights, 8px/12px padding, 8px radius, 14px/500/20px labels that
+truncate with an ellipsis instead of overflowing.
+
+```css
+import '@octane-xplat/ui/theme/tokens.css'
+import '@octane-xplat/ui/theme/chrome.css'
+// Buttons now render 32px tall, blue primary, label weight 500.
+```
+
+**Breaking change:** every component's default colors and Button's default
+size, typography, and label truncation change in both light and dark modes.
+Apps that want the old look must pin the previous token values in their own
+stylesheet.
+
+[Styling tokens](https://octane-xplat.dev/app/styling/)
+
+### New package: `@octane-xplat/background-tasks`
+
+OS-scheduled periodic work via a custom bridge — `defineTask` at module
+scope (the OS can invoke on cold start), `register({minimumInterval})`,
+`unregister`, `getStatus`. iOS `BGTaskScheduler`, Android WorkManager. The
+OS picks the real cadence; web/desktop report `supported: false`.
+
+### Bamboo utilities accept every UI theme token
+
+`@octane-xplat/bamboo` utilities now accept every design token the shared UI
+theme defines — colors like `warning`, `border`, and the `syntax-*` palette,
+plus the `container` radius — instead of the previous short list. Token names
+are the theme's CSS variables without the prefix, so values come from
+`@octane-xplat/ui/theme/chrome.css` or your own `:root, .ns-root` definitions.
+
+```ts
+css({ color: 'warning', borderColor: 'border', borderRadius: 'container' })
+```
+
+[Styling](https://octane-xplat.dev/app/styling/)
+
+### New package: `@octane-xplat/barcode-scanner`
+
+Barcode and QR decoding — `<BarcodeScanner>` live view (ML Kit on
+iOS/Android, `BarcodeDetector` on web) plus `barcodeScanner.scanImage()` for
+still images. Decode-only identity: capture stays in `@octane-xplat/camera`.
+
+```tsx
+<BarcodeScanner formats={['qr']} onCodeScanned={({ data }) => open(data)} />
+```
+
+Camera permission goes through `barcodeScanner.ensure()` (the `'camera'`
+permission kind).
+
+### New package: `@octane-xplat/billing`
+
+In-app purchases and subscriptions via `@nativescript/payments` (StoreKit 2 +
+Play Billing) — product fetch, purchase events, transaction finish, restore,
+subscription management.
+
+```ts
+billing.connect()
+billing.onPurchase(async (purchases) => { /* grant + finishTransaction */ })
+await billing.requestPurchase('com.app.pro')
+```
+
+Web/desktop report `supported: false`.
+
+### Button is a real `<button>` on web
+
+`Button` now renders a native `<button type="button">` instead of
+`div[role="button"]`, gaining built-in focus, Enter/Space activation, and the
+`disabled` attribute. A `Button` with both `tooltip` and `isDisabled` uses
+`aria-disabled` and stays focusable so the tooltip remains reachable. Other
+`Pressable`-based controls still render divs.
+
+```tsx
+<Button label="Save" clickAction={save} />
+// <button type="button" class="vx-pressable vx-button …">
+```
+
+**Breaking change:** selectors and tests that target `div.vx-button` or rely
+on `tabindex`/`role="button"` must be updated to the `button` element.
+
+[Button](https://octane-xplat.dev/app/components/)
+
+### New package: `@octane-xplat/calendar`
+
+Device calendar via a custom EventKit/CalendarContract bridge —
+`getCalendars`, `getEvents(start, end)`, `createEvent`, `updateEvent`,
+`deleteEvent`, and the `'calendar'` permission kind. Web/desktop report
+`supported: false`.
+
+### Optional capabilities are flat services
+
+Every optional capability — `secureStorage`, `notifications`, `geolocation`,
+`biometrics`, `haptics`, `authSession`, `openSettings`, `webAuthn` — is now a
+flat service object instead of a `Capability` wrapper. `ensure()` splits into
+`getPermissions()` (reads, never prompts) and `requestPermissions()` (may
+prompt), both resolving `{status, granted, canAskAgain}` with
+`'granted' | 'denied' | 'undetermined' | 'unsupported'` statuses; `supported`
+and `isAvailable()` report presence, and calling a method while unsupported
+rejects `UnavailabilityError` from `@octane-xplat/lib/capability`.
+
+```ts
+import { secureStorage } from '@octane-xplat/secure-storage'
+
+// Before: (await secureStorage.ensure()) === 'granted' && secureStorage.impl!.set(...)
+// Now:
+if (secureStorage.supported) {
+	await secureStorage.set('session-token', token)
+}
+```
+
+**Breaking change:** `.ensure()` and `.impl` are gone. Check `supported` or
+`isAvailable()` before calling methods; use the permissions pair where a
+runtime permission gates the feature. `permissions.ensure(kind)` is now
+`permissions.getPermissions(kind)` / `permissions.requestPermissions(kind)`.
+
+[Using device features](https://octane-xplat.goddardai.org/platform-services/)
+
+### Show labels and list rows for checkbox lists
+
+`CheckboxList` (`CheckboxGroup`) now renders its options as a real list and adopts Astryx's field chrome:
+
+- A standalone `CheckboxList` renders its `label`, `description`, `status`, and required/optional markers through the shared field wrapper — previously only the option rows rendered.
+- Options render as `<ul>`/`<li>` list items (via `List`/`ListItem`), so row density, dividers, and semantics match `List`. New `density` and `hasDividers` props are passed through; `density="compact"` renders small checkboxes.
+- Clicking anywhere on a row toggles its option, matching Astryx.
+- The group's accessible name now comes from its visible label element (`role="group"` + `aria-labelledby`).
+
+[Input components](https://octane-xplat.goddardai.org/components#inputs)
+
+### CheckboxInput renders a native checkbox input
+
+On web, `CheckboxInput` now follows Astryx's checkbox. It renders a real `<input type="checkbox">` under the drawn box, with the label and description beside it and the status message in a tinted box below. The mixed state uses the input's `indeterminate` property instead of `aria-checked="mixed"`. The checked mark is now Astryx's check icon.
+
+If your tests or CSS select `.vx-checkbox-row[role="checkbox"]` or check `aria-checked`, select `input[type="checkbox"]` and read `checked`/`indeterminate` instead.
+
+### Color picker suite in `@octane-xplat/ui`
+
+`ColorPicker` composes a saturation/brightness `ColorArea`, a hue `ColorSlider`,
+a `ColorSwatch`, and a `ColorField` around one shared color state — the React
+Aria counterparts, self-drawn so the shared layout holds across targets.
+Values are hex strings: input accepts `'#rrggbb'`, `'#rgb'`, and a missing
+`'#'`; output is always lowercase `'#rrggbb'`.
+
+```tsx
+import { useState } from 'octane'
+import { ColorPicker } from '@octane-xplat/ui'
+
+function FavoriteColor() {
+	const [color, setColor] = useState('#4488ff')
+	return <ColorPicker value={color} onChange={setColor} />
+}
+```
+
+Limits for this release: `ColorSlider` supports only the `hue` channel, there is
+no alpha channel, drags adjust by delta (no tap-to-position), and `ColorPicker`
+has a fixed layout rather than React Aria's children composition.
+
+### New package: `@octane-xplat/contacts`
+
+Device address book — read and basic write through `@nativescript/contacts`
+on iOS/Android, Contact Picker API on web.
+
+```ts
+import { contacts } from '@octane-xplat/contacts'
+
+if ((await contacts.ensure()) === 'granted') {
+	const people = await contacts.getAll({ sort: 'lastName' })
+}
+```
+
+Web is picker-shaped (per-call user selection, read-only). `getById` is
+iOS-direct; on Android it filters a full fetch.
+
+### Dev actions can navigate to their screen first
+
+Declared development actions can now carry a `route`: when invoked while their
+owning screen is not mounted, the app navigates to the URL itself, waits for
+the screen's handler to attach, then runs the action. Generated routes also
+register a built-in `xplat.navigate` dev action in development builds, and the
+actions listing reports each instance's current `location` — agents no longer
+need to know your route structure to reach screen-owned actions.
+
+```ts
+import { defineDevAction } from '@octane-xplat/platform/dev-actions'
+
+export const saveDraft = defineDevAction({
+	id: 'form.save-draft',
+	title: 'Save form draft',
+	description: 'Persists the checkout form state that only exists in the screen.',
+	effects: { summary: 'Writes the form draft', appState: true },
+	route: '/checkout',
+})
+```
+
+[Development actions guide](https://github.com/octane-xplat/octane-xplat/blob/main/docs/testing/development-actions.md#reach-screen-owned-actions-by-route)
+
+### DropdownMenu takes a `button` prop and renders a real button
+
+`DropdownMenu` now accepts `button` — the shared `Button` props minus the press
+handler — so the trigger renders as a real `<button>` on web with correct
+`aria-haspopup="menu"`/`aria-expanded`/`disabled` semantics. New `menuWidth`
+sets the popover's minimum width (defaulting to the trigger width), and
+`hasChevron={false}` drops the trailing chevron that labelled triggers get by
+default.
+
+```tsx
+<DropdownMenu
+	button={{ label: 'Theme', icon: <Icon name="palette" />, variant: 'ghost', size: 'sm', isIconOnly: true }}
+	menuWidth={160}
+	items={[{ type: 'action', key: 'neutral', label: 'Neutral', onSelect: pick }]}
+/>
+```
+
+**Breaking change:** `trigger`, `triggerClassName`, `accessibilityLabel`, and
+`size` were removed from `DropdownMenuProps`. Pass the trigger as
+`button={{ label, icon, variant, size, isIconOnly, … }}` instead. Icon-only
+buttons are now square at the size's element height (28/32/36px) instead of a
+fixed 36px minimum. `ContextMenu` keeps its own `trigger`/`accessibilityLabel`/
+`size`.
+
+[DropdownMenu](https://octane-xplat.dev/app/components/)
+
+### New package: `@octane-xplat/firebase-analytics`
+
+Firebase Analytics — `logEvent`, user id/properties, screen views, collection
+toggle, and the small predefined-event helpers, mirroring
+`@react-native-firebase/analytics`. Shares the firebase-core bootstrap with
+`push`/`firebase-crashlytics`; web needs `init(config)`.
+
+### New package: `@octane-xplat/firebase-crashlytics`
+
+Firebase Crashlytics — `log`, `recordError`, user/attribute context,
+unsent-report controls on iOS/Android. No Crashlytics SDK exists for
+web/desktop — the leaf reports `supported: false` there (route those errors
+to `sentry` or `posthog`).
+
+### New package: `@octane-xplat/geofencing`
+
+Region enter/exit monitoring via a custom bridge — `startMonitoring(regions)`,
+`onRegionEvent` with buffered suspended-delivery replay, and the
+`'location-always'` permission kind (iOS Always, Android background
+location). iOS caps at 20 regions.
+
+### Layers and overlay contracts
+
+New public APIs in `@octane-xplat/ui` matching the Astryx layer surface:
+
+- `LayerProvider` + `LayerContext`/`useLayerContext` + `LayerToastConfig` — root-mounted toast policy (`position`, `maxVisible`, `inset`); nested providers pass through.
+- `usePopover` — headless popover: `triggerRef`/`triggerProps`, `show`/`hide`/`toggle`, `render(children, position)` over `useLayer`.
+- `useTooltip` — headless tooltip: `ref`/`positionRef`/`interactionRef`, `describedBy`, `renderTooltip`. Touch targets bind refs but never mount the hint (matches `Tooltip`).
+- `useMediaQuery` — web `matchMedia`; iOS/Android evaluate a restricted grammar (`(max|min)-(width|height)`, `pointer`, `hover`, `orientation`, `and`/`or`/`,`/`not`) against the main screen.
+- `DropdownMenu`/`ContextMenu` accept `presentation: 'popover' | 'bottom-sheet' | 'adaptive'` and `label`; menu item data gains `description` and `variant: 'destructive'`.
+- `useImperativeDialog(defaults)` merges default `DialogOptions` into every `show`.
+
+### Layout, LayoutHeader, and LayoutContent land from Astryx
+
+`@octane-xplat/ui` now ships Astryx's five-slot region primitive: `Layout`
+arranges `header`, `start`, `content`, `end`, and `footer` slots;
+`LayoutHeader` adds a padded header band with an optional `hasDivider`
+hairline; `LayoutContent` is the scrollable main region. `padding` on the
+layout sets the outer-edge padding regions read as their boundary defaults,
+and `contentWidth` constrains the aligned content lane.
+
+```tsx
+<Layout
+	header={
+		<LayoutHeader hasDivider padding={6}>
+			<Heading level={1}>Page title</Heading>
+		</LayoutHeader>
+	}
+	content={<LayoutContent padding={6}>{body}</LayoutContent>}
+/>
+```
+
+Padded hosts now publish the Astryx `--container-padding-*` custom
+properties so full-bleed children (TabList `isFullBleed`, `Section`,
+`ListItem edgeCompensation`) can escape to the container edge — previously
+internal `--vx-container-padding-*` reads moved to the upstream names.
+
+[Components](https://octane-xplat.dev/app/components/)
+
+### Load route code when it is needed
+
+Generated file routes now load their screen modules during navigation. Use
+`router.preload` to warm a destination's code earlier; guards and loaders still
+run during navigation. Layouts, Markdown and explicitly imported programmatic
+routes remain eager. Whether this creates separate files depends on the platform's bundler.
+
+```ts
+import { router } from '@octane-xplat/ui/routing'
+
+const destination = { to: '/products/:id', params: { id: 'hat' } } as const
+await router.preload(destination)
+await router.push(destination)
+```
+
+**Breaking change:** generated route modules no longer run their top-level code
+at startup. Move required startup work into your application entry, and regenerate
+route files with the updated CLI. Manifest inspection leaves unloaded callback
+information unknown instead of importing a route to inspect it.
+
+[Route preloading guide](https://github.com/octane-xplat/octane-xplat/blob/main/docs/app/navigation.md#warm-a-screen-before-opening-it)
+
+### LinkProvider + useLinkComponent: swap link elements for a whole subtree
+
+`LinkProvider` sets the default link component for every link-capable
+component beneath it — `Link`, `NavLink`, `SideNav`, `TopNav`, `TabList`,
+`Breadcrumbs`, and `TreeList` rows with `href`. Point it at your router's
+link once and navigation lands through your framework instead of full page
+loads. A per-component `as` prop still wins, and injected components receive
+`to={href}` so React Router-style links work next to `href` readers.
+Destinations pass through `isSafeDestination` before reaching the injected
+component — an unsafe URL renders an inert anchor rather than invoking the
+router.
+
+```tsx
+import { LinkProvider } from '@octane-xplat/ui'
+import { RouterLink } from './router'
+
+<LinkProvider component={RouterLink}>
+	<SideNav items={items} />
+</LinkProvider>
+```
+
+[Routing](https://octane-xplat.dev/app/routing/)
+
+### `WebSocket` is available in the macOS AppKit host
+
+Apps running on the macOS JavaScriptCore host can now use the standard
+`WebSocket` global — the same API web and iOS provide — for `ws:` and
+`wss:` URLs. It supports subprotocol negotiation, text and binary
+(`ArrayBuffer`) messages, and `open`/`message`/`error`/`close` events with
+real close codes, backed by `NSURLSessionWebSocketTask`.
+
+```ts
+const socket = new WebSocket('ws://localhost:8080')
+socket.onmessage = (event) => console.log(event.data)
+socket.send('hello')
+```
+
+`binaryType` stays `'arraybuffer'`; received binary messages deliver
+`ArrayBuffer` values.
+
+[macOS host documentation](https://octane-xplat.goddardai.org/macos-native)
+
+### Ship a prebuilt dynamic library in a macOS leaf
+
+A macOS package can now ship an already-compiled dynamic library instead of
+native sources. Declare `prebuiltLibraries` (and optionally a `notices`
+license file) in `xplat.macos` — `xplat dev` loads the library before app
+code and `xplat build` copies it into `Contents/Frameworks` and signs it
+with the app. A prebuilt-only leaf needs no compilation toolchain.
+
+```json
+{
+	"xplat": {
+		"macos": {
+			"prebuiltLibraries": ["platforms/macos/prebuilt/libengine.dylib"],
+			"notices": "platforms/macos/licenses/engine.txt"
+		}
+	}
+}
+```
+
+[macOS native packages documentation](https://octane-xplat.goddardai.org/macos-native)
+
+### The macOS renderer applies your stylesheets
+
+Apps built with `xplatMacOS` now style their AppKit views from CSS. Before,
+the renderer only recognized a small built-in list of class names. Import CSS
+from your entry module, as on iOS and Android, and `className` selectors,
+theme tokens, and Bamboo utilities apply to your views.
+
+```ts
+// src/styles.ts, imported by the macOS entry
+import '@octane-xplat/ui/theme/tokens.css'
+import '@octane-xplat/ui/theme/chrome.css'
+import 'virtual:bamboo.css'
+import './app.css'
+```
+
+Matching rules follow NativeScript, so a class means the same thing on all
+three platforms. For CSS built at runtime, call `registerStylesheet(id, css)`
+from `@octane-xplat/macos-renderer`. Only `:disabled` responds to state for
+now, and animations are not played.
+
+**Breaking change:** the built-in class names (`text-sm`, `gap-2`,
+`bg-primary`, `vx-*`, and similar) no longer style anything unless your app
+imports the stylesheets that define them.
+
+[Styling](https://octane-xplat.dev/app/styling/)
+
+### New package: `@octane-xplat/maps`
+
+Declarative `<MapView>` — Google Maps on iOS/Android/web via
+`@nativescript/google-maps` and the Maps JS API: camera, declarative markers,
+polylines, polygons, circles, tap and camera events, `animateCamera`/
+`snapshot` handle.
+
+```tsx
+<MapView
+	cameraPosition={{ coordinates: { latitude: 35.68, longitude: 139.69 }, zoom: 12 }}
+	markers={[{ coordinates: { latitude: 35.68, longitude: 139.69 }, title: 'Hotel' }]}
+/>
+```
+
+Web requires `maps.init({ apiKey })`; native keys come from app metadata.
+macOS/Windows render an unsupported stub.
+
+### Rich Markdown and streamed assistant text
+
+Markdown now renders tables, task markers, strikethrough, source citations and
+syntax-highlighted code. Compact spacing and shifted heading levels fit chat
+responses. `useStreamingText` smooths cumulative text and settles immediately
+when streaming ends or the browser requests reduced motion.
+
+```tsx
+import { Markdown, useStreamingText } from '@octane-xplat/ui/markdown'
+
+export function Response({ text, streaming }: { text: string; streaming: boolean }) {
+	const displayed = useStreamingText(text, streaming, { speed: 'fast' })
+	return <Markdown text={displayed} isStreaming={streaming} density="compact" headingLevelStart={3} />
+}
+```
+
+[Content display guide](https://octane-xplat.goddardai.org/app/content-display#markdown-documents)
+
+### Mason core is the only mobile layout engine
+
+iOS and Android apps now always build with `@octane-xplat/nativescript-mason-core`,
+which provides Mason layout containers, scrolling, styling, and safe-area `env()`
+resolution without MasonKit's HTML elements or widgets. The engine is selected
+by platform, not by dependency choice, and `xplatNative` resolves the renderer's
+existing imports to the installed core package.
+
+**Breaking change:** `@octane-xplat/nativescript-masonkit` and
+`@triniwiz/nativescript-masonkit` are no longer supported on mobile. Run
+`pnpm dlx @octane-xplat/cli@latest upgrade` to replace their pins with the core
+catalog entry; doctor and the bundler reject replaced pins until upgraded.
+Windows preview apps keep full MasonKit — core ships no Windows artifacts yet.
+
+```json
+{
+	"dependencies": {
+		"@octane-xplat/nativescript-mason-core": "catalog:xplat"
+	}
+}
+```
+
+### Adapt photo controls and reveal row actions
+
+Web apps can sample image luminance with `useImageMode` and reveal secondary
+row controls with `useContainerReveal`. Image sampling uses your fallback while
+loading or on failure; native hosts return that fallback without sampling.
+
+```tsx
+import { Text, useImageMode } from '@octane-xplat/ui'
+
+export function PhotoMode(props: { src: string }) {
+  const mode = useImageMode(props.src, { fallback: 'dark' })
+  return <Text>{mode}</Text>
+}
+```
+
+[Media contrast and row actions](https://octane-xplat.goddardai.org/app/components#media-contrast-and-row-actions)
+
+### New package: `@octane-xplat/posthog`
+
+PostHog analytics + feature flags — `posthog-js-lite` on iOS/Android
+(persisted via `ApplicationSettings`), `posthog-js` on web.
+
+```ts
+posthog.init({ apiKey: POSTHOG_KEY })
+posthog.capture('checkout_started', { items: 3 })
+posthog.isFeatureEnabled('new-paywall')
+```
+
+### New package: `@octane-xplat/sentry`
+
+Sentry errors, breadcrumbs, user context, and performance options —
+`@nativescript-community/sentry` on iOS/Android, `@sentry/browser` on web.
+
+```ts
+sentry.init({ dsn: SENTRY_DSN })
+sentry.captureException(error, { orderId })
+```
+
+### SideNav now matches the Astryx sidebar
+
+`SideNav`, `SideNavHeading`, `SideNavSection`, `SideNavItem`, and
+`SideNavCollapseButton` pick up the Astryx 0.6.4 chrome on web: 32px pill
+item rows on the label type scale (14px, 20px line), `--color-neutral`
+selected fills at weight 500, secondary icon and section-title colors,
+sticky top/bottom zones with Astryx spacing, hover/pressed overlays, focus
+rings, and theme-driven radius/element-size vars on all platforms.
+`SideNavCollapseButton` resolves its size from the size cascade (footer
+`sm`) like upstream.
+
+Labels also follow Astryx: the rail button is "Collapse sidebar"/"Expand
+sidebar", item child toggles read "Collapse {label}"/"Expand {label}", and
+the heading menu button is "Open menu". A collapsible item without its own
+action now toggles children on press with an inline chevron, icon-less
+items drop out of the collapsed rail, and the collapsed rail is 48px.
+
+**Breaking change:** default colors, spacing, and typography of every
+SideNav surface change in light and dark mode, and the sticky top/bottom
+borders are gone. Apps that pinned the old look should carry the values in
+their own stylesheet.
+
+[SideNav](https://octane-xplat.dev/app/navigation/)
+
+### New package: `@octane-xplat/store-review`
+
+The OS "rate this app" prompt — `SKStoreReviewController` on iOS and macOS,
+Play In-App Review on Android. `requestReview()` is fire-and-forget (both
+stores throttle and report no outcome); `storeUrl()` builds a store-page link
+from configured ids.
+
+```ts
+import { storeReview } from '@octane-xplat/store-review'
+
+storeReview.configure({ iosAppStoreId: '123456789' })
+if (await storeReview.isAvailable()) await storeReview.requestReview()
+```
+
+Web, Linux, and Windows report `supported: false`. On Android the in-app
+review flow only exists for Play-installed builds — `isAvailable()` reflects
+that.
+
+### Change Selector and Pagination language within a screen
+
+`InternationalizationProvider` scopes static UI strings and direction to a
+subtree. French strings, sparse overrides, and RTL pagination chevrons are
+available without changing the app's global locale.
+
+```tsx
+import { InternationalizationProvider, Selector, frFR } from '@octane-xplat/ui'
+
+<InternationalizationProvider locale="fr-FR" messages={{ 'fr-FR': frFR }}>
+  <Selector label="Region" options={[]} />
+</InternationalizationProvider>
+```
+
+`useAnnounce()` exposes polite/assertive web live regions and native platform
+announcements. Web pagination previous/next controls now accept Enter and Space.
+Native announcements do not support politeness or explicit clearing; actual
+assistive-technology delivery requires host verification. See the
+[localization guide](https://octane-xplat.goddardai.org/app/localization/).
+
+### Switch renders a native input on web
+
+On web, `Switch` now follows Astryx's switch. It renders a real `<input type="checkbox" role="switch">` over the drawn track, with the label and description beside it and the status message below. A loading switch shows a spinner in the thumb and announces "Loading" to screen readers. On every platform, the track is now Astryx's size (40×24, or 32×20 for `size="sm"`), and the thumb grows when the switch is on.
+
+If your tests select `.vx-switch[role="switch"]` or check `aria-checked`, select `input[role="switch"]` and read `checked` instead. `testID` now lands on the switch's outer element, as it does in Astryx.
+
+### Table becomes a data-driven component with a plugin pipeline
+
+`Table` now follows Astryx's contract — a breaking change from the earlier `columns`/`rows` grid:
+
+- **Data mode**: pass `data` + `columns` (`TableColumn` with `header`, `proportional()`/`pixel()` widths, `align`, `sortable`, `resizable`, `filter`, `renderCell`) plus `idKey`. `density`, `dividers`, `isStriped`, `hasHover`, `verticalAlign`, `textOverflow`, `emptyState`, and `aria-rowindex` support are built in.
+- **Children mode**: compose `TableHeader`, `TableBody`, `TableFooter`, `TableRow`, `TableCell`, and `TableHeaderCell` directly — they read styling from the table's context.
+- **Plugins**: `plugins={{ sort, selection, pagination, ... }}` runs a transform pipeline. Ten flat-table hooks ship with it: `useTableSelectionState`/`useTableSelection`, `useTableSortableState`/`useTableSortable`, `useTablePagination` (+ `paginateData`), `useTableColumnSettingsState`/`useTableColumnSettings`, `useTableColumnResize`, and `useTableFilterState`/`useTableFiltering` (+ `toSearchFilters` bridging to `PowerSearchConfig`).
+- **`TableSelectionToolbar`** renders the selection-aware bulk-action surface above a table.
+- Column sizing helpers `proportional`, `generateColumns`, `resolveColumnWidths`, `defaultCellRenderer`, and `DEFAULT_MIN_COLUMN_WIDTH` are public; `pixel` is shared with the resizable-size DSL (same `{type:'pixel', value}` shape).
+
+The old `rows`/`label`/`width: number`/`onRowPress` API is removed. Interactive column resizing currently lands its drag/keyboard separator on web; native leaves apply `columnWidths` overrides without the handle.
+
+[Table](https://octane-xplat.goddardai.org/components#table)
+
+### Group, expand, and number table rows
+
+Table plugins now support collapsible groups, nested trees, row detail panels,
+row numbers and labelled status markers. Sticky columns pin to the start or
+end of a horizontally scrolling web table; native pinning remains unsupported.
+
+```tsx
+function ExampleTable() {
+  const state = useTableTreeState({ data, idKey: 'id' })
+  const tree = useTableTreeData({ ...state.treeConfig, hasExpandAllControl: true })
+  return <Table data={state.visibleData} columns={columns} idKey="id" plugins={{ tree }} />
+}
+```
+
+[Group and expand table rows](https://octane-xplat.goddardai.org/tables)
+
+### Text and Heading gain the Astryx type scale
+
+`Text` now accepts the Astryx typography props: `type`
+(`body`/`large`/`label`/`supporting`/`code`/`display-1`–`display-3`/`inherit`),
+`size` (`4xs`–`4xl`), `color`
+(`primary`/`secondary`/`disabled`/`placeholder`/`accent`/`inherit`), `weight`
+(`normal`/`medium`/`semibold`/`bold`), and `maxLines` for ellipsis truncation.
+`Heading` applies the Astryx `--text-heading-*` scale per `level` and accepts
+`type` (display scale), `color`, `weight`, and `maxLines`.
+
+```tsx
+<Text type="body" size="sm" color="secondary" maxLines={2}>{summary}</Text>
+<Heading level={1}>Page title</Heading>
+<Heading level={3} maxLines={1}>Card title</Heading>
+```
+
+**Breaking change:** `Text`'s `numberOfLines` and `ellipsize` props are
+removed — `maxLines` replaces both (1 = single-line ellipsis, >1 =
+line-clamp). `Heading` now renders the Astryx type scale (h1 24px/600,
+h2 20px/600, h3 17px, …) instead of browser heading defaults, and a bare
+`Text` still inherits ambient typography — xplat diverges from Astryx's
+`type="body"` default deliberately, since `Text` is the shared text host
+every component composes. Pass `type="body"` for the upstream default.
+
+### TextInput shows its own field chrome
+
+A standalone `TextInput` now shows its own label, description and status message, like Astryx's text input. Before, `label` only set the accessible name, and you needed a `Field` around the input to see any of it. Inside a `Field`, nothing changes: the `Field` still draws those parts.
+
+```tsx
+<TextInput label="Email" description="We never share it" status={{ type: 'error', message: 'Enter a valid email' }} />
+```
+
+On web, the status message is announced through a page-level screen-reader region instead of an inline `role="alert"` element.
+
+### Switches and checkboxes support changeAction
+
+`Switch` and `CheckboxInput` now support Astryx's `changeAction` — an async callback that runs after `onChange`. While it runs the control shows its loading state; a rejection reverts the toggle and reports the previous value through `onChange` again. `Switch` also gains Astryx's `labelPosition="start"` (label before the track) and `labelSpacing="spread"` (label pushed to the field's opposite edge).
+
+```tsx
+<Switch label="Email updates" value={on} onChange={setOn} changeAction={savePreference} labelSpacing="spread" />
+```
+
+### Toggle controls adopt Astryx prop names
+
+`Switch`, `CheckboxInput`, `UISwitch`, and `MaterialSwitch` now use Astryx's prop names. `checked` is now `value`, `defaultChecked` is now `defaultValue`, and `onCheckedChange` is now `onChange`. On `CheckboxInput`, the `indeterminate` flag is folded into `value`: pass `value="indeterminate"` instead of `indeterminate`.
+
+```tsx
+// before
+<Switch checked={on} onCheckedChange={setOn} />
+<CheckboxInput checked={ok} indeterminate={mixed} onCheckedChange={setOk} />
+
+// after
+<Switch value={on} onChange={setOn} />
+<CheckboxInput value={mixed ? 'indeterminate' : ok} onChange={setOk} />
+```
+
+### New package: `@octane-xplat/web-browser`
+
+Open external links *inside* the app — `SFSafariViewController` on iOS, Chrome
+Custom Tabs on Android. Distinct from `platform`'s `authSession` (OAuth
+callback interception) and `<WebView>` (embedded content the app controls).
+
+```ts
+import { webBrowser } from '@octane-xplat/web-browser'
+
+await webBrowser.openBrowser('https://docs.example.com', {
+	toolbarColor: '#1a1a1a',
+	showTitle: true,
+})
+```
+
+Web falls back to `window.open`; macOS delegates to the external browser.
+`warmUp`/`coolDown`/`mayInitWithUrl` pre-warm Android's Custom Tabs service.
+
+### Serve routes as HTML or static pages
+
+The optional `@octane-xplat/web-host` package renders Web routes before they reach
+the browser. Browser startup adopts that HTML without repeating initial loaders.
+You can author the whole document as a component or use an HTML template. The
+Fetch handler works with srvx; rendering stays separate from cross-platform route data.
+
+```ts
+import { createWebHandler } from '@octane-xplat/web-host/server'
+import { catalog } from './routes.web.tsrx'
+
+export const handle = createWebHandler({
+  catalog,
+  buildId: 'store-v1',
+  assets: { scripts: ['/client.js'] },
+  transfer: match => ({ data: match.data as { name: string }, context: {} }),
+})
+```
+
+With `webHost()` installed in Vite, shared modules can expose named server-only
+re-exports. Client builds remove them and reject remaining `.server` imports.
+
+```ts
+export { requestContext } from './context.server'
+```
+
+For public pages, export a `createWebRenderer` from your compiled server entry and
+pass it to `prerender`. Content keys and renderer revisions control reuse; each
+build still assembles current document assets and browser startup data.
+
+```js
+import { prerender } from '@octane-xplat/web-host/prerender'
+import { renderer } from './dist/server/static.web.js'
+
+await prerender(renderer, {
+  origin: 'https://shop.example.com',
+  outDir: 'dist/static',
+  cacheFile: '.cache/pages.json',
+  revision: 'renderer-v1',
+  paths: [{ destination: { to: '/products/:id', params: { id: 'coat' } }, key: 'coat-v3' }],
+})
+```
+
+[Web rendering and static page guide](https://github.com/octane-xplat/octane-xplat/blob/main/docs/platform/web-rendering.md)
+
+### One native workshop chrome; Linux renders with GTK, not WebKitGTK
+
+The workshop chrome on iOS/Android, macOS, and Linux is now one Octane
+component styled by one stylesheet, instead of three separately built
+shells. Your story still runs in its own area of the window, so opening
+panels or resizing the window never restarts it.
+
+- **Linux (breaking)**: `xplat workshop dev --target linux` now draws the
+  chrome and your stories with real GTK4 widgets through
+  `@octane-xplat/linux-gtk` instead of a WebKitGTK web view. It needs `gjs`,
+  GTK4, and the `@octane-xplat/linux-gtk` package, which is only available
+  inside this repository for now. DOM stories still open with
+  `--target web`.
+- **Story file names (breaking)**: `.stories.linux.*` files are no longer
+  part of the Linux workshop. Rename them to `.stories.gtk.*`; the workshop
+  prints a reminder for each one it finds:
+
+  ```sh
+  git mv src/button.stories.linux.tsrx src/button.stories.gtk.tsrx
+  ```
+
+- **`@octane-xplat/workshop/macos` (breaking)**: the export is now
+  `NativeWorkshopController` (it replaces `MacOSWorkshopController`), next
+  to `createMacOSStageHost`:
+
+  ```ts
+  import { createMacOSStageHost, NativeWorkshopController } from '@octane-xplat/workshop/macos'
+  ```
+
+- **`@octane-xplat/ui` on GTK**: GTK bundles that import `@octane-xplat/ui`
+  get `Text` and `Pressable` only. Other components are not checked on GTK
+  yet.
+
+[Component workshop](https://github.com/octane-xplat/octane-xplat/blob/main/packages/workshop/README.md) ·
+[GTK renderer guide](https://github.com/octane-xplat/octane-xplat/blob/main/docs/platform/linux-gtk.md)
+
 ## [Unreleased]
 
 ### Breaking Changes

@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/context-menu",
-	"version": "0.17.1",
+	"version": "0.18.0",
 	"description": "Platform-specific context menu controls for Octane xplat",
 	"repository": {
 		"type": "git",

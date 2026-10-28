@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/geolocation",
-	"version": "0.17.1",
+	"version": "0.18.0",
 	"description": "Device geolocation for Octane xplat \u2014 matching web + NativeScript implementations",
 	"keywords": [
 		"android",

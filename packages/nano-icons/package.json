@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/nano-icons",
-	"version": "0.17.1",
+	"version": "0.18.0",
 	"description": "Build-time icon fonts and layered glyph rendering for Octane Xplat — SVG directories or Iconify collections compile to a TTF + typed glyph map (pipeline adapted from react-native-nano-icons)",
 	"keywords": [
 		"cross-platform",

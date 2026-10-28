@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/calendar",
-	"version": "0.17.1",
+	"version": "0.18.0",
 	"description": "Device calendar for Octane xplat \u2014 event store reads and writes via EventKit/CalendarContract",
 	"keywords": [
 		"android",

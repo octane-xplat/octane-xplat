@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/posthog",
-	"version": "0.17.1",
+	"version": "0.18.0",
 	"description": "PostHog product analytics and feature flags for Octane xplat \u2014 posthog-js-lite on native, posthog-js on web",
 	"keywords": [
 		"android",
