@@ -8,8 +8,10 @@
  *
  *  Keep entries pointed at real harness UI — a check the reviewer can't
  *  perform in this build is checklist noise. */
+import type { DeviceInfo } from '@octane-xplat/platform'
+
 export type QaSense = 'eyes' | 'ears' | 'hands'
-export type QaTarget = 'web' | 'ios' | 'android' | 'macos'
+export type QaTarget = DeviceInfo['os']
 
 export interface HumanCheck {
 	/** Stable id — surfaces in [review] log lines and the copied report. */

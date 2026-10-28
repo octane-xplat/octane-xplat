@@ -1061,3 +1061,42 @@ suspend/resume, packaged/unpackaged hosts and architectures remain unqualified.
 Physical display sleep prevention and ordinary sleep after final cleanup need
 separate human-authorized power/lifecycle checks. Constructor/method presence
 and fake dispatch do not close the keep-awake issue item.
+
+## Authorized native qualification: adoption and first typecheck
+
+The human approved the bounded native pass with "ok go": isolated dependency
+adoption, Windows harness build, and nonvisual text/keyboard, modal focus/Escape
+and scrolling checks. This permission supersedes the earlier deferral for that
+phase only; no screenshot/image analysis is authorized.
+
+The laptop's existing checkout has uncommitted Windows build work and was left
+unchanged. A separate detached repository was materialized at
+C:/Users/alecs/dev/win61-c905842a3 from local c905842a3 through a Git bundle,
+using read-only object alternates to the existing repository. No branch, reset,
+stash, push or merge occurred. Its app identifier is qualification-only
+org.octanexplat.windows61, preserving the existing package and app data.
+A frozen pnpm 11.24.0 install passed with lifecycle scripts disabled; required
+generation subsequently ran through Turbo. Patch synchronization passed.
+Log: research/windows61/windy-native-adopt.log.
+
+The installed preview core now contains the canonical f6bf77c513902a1106ad9d22f8efe024c80f0ae0a5bc3ab6e3e5fec643ef82e2
+repair. All 31 maintained keyboard/pointer regressions passed against those
+installed files via Turbo test:keyboard, exit 0. This closes the earlier
+installed-JavaScript adoption gap for that repair only; the tests still use
+mocked native events and do not establish OS input, padding/Intl binary adoption
+or app behavior. Log: research/windows61/windy-native-build.log.
+
+The first standalone Windows typecheck failed with one TS2345: HumanQA passed
+the expanded device.os union into a separate four-target QaTarget union.
+QaTarget now derives from DeviceInfo['os']; existing per-check target arrays
+are unchanged. The corrected standalone Windows typecheck passed in the retry:
+37 of 38 executed Turbo tasks succeeded; the remaining task was the separate
+native build. The latter failed its full kitchen-sink Vite boundary because
+packages/audio/src/audio.ios.ts remained reachable. No app was produced or
+launched by this attempt. Log: research/windows61/windy-native-build-retry1.log.
+
+That build's upstream delegated checker still reported 12 foreign-root/context
+errors across 11 files, including macOS focus-clock, Linux bridge imports,
+Android Utils/AndroidApplication and web-host router type identity. It explicitly
+continued under the existing configuration. The standalone pass is not a pass
+for that delegated checker; no diagnostic policy was weakened.
