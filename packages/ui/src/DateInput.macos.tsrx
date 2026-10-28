@@ -183,6 +183,7 @@ function DateInputControl(inputProps: DateInputProps) @{
 				editable={!isDisabled && !isBusy}
 				onTextChange={appKitTextChange(handleTextChange)}
 				onBlur={commitPending}
+				onSubmit={commitPending}
 				accessibilityLabel={
 					props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label
 				}

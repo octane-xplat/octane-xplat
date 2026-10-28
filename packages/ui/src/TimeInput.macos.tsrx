@@ -155,6 +155,7 @@ export function TimeInput(inputProps: TimeInputProps) @{
 				editable={!isDisabled && !isBusy}
 				onTextChange={appKitTextChange(handleTextChange)}
 				onBlur={commitPending}
+				onSubmit={commitPending}
 				accessibilityLabel={
 					props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label
 				}

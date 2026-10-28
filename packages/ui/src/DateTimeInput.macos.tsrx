@@ -325,6 +325,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 				editable={!isDisabled && !isBusy}
 				onTextChange={appKitTextChange(handleDateChange)}
 				onBlur={commitDatePending}
+				onSubmit={commitDatePending}
 				accessibilityLabel={
 					props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label
 				}
@@ -351,6 +352,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 				editable={!isDisabled && !isBusy}
 				onTextChange={appKitTextChange(handleTimeChange)}
 				onBlur={commitTimePending}
+				onSubmit={commitTimePending}
 				accessibilityHint={!isTimeValid ? messages.invalidTime : undefined}
 				accessibilityLabel={timeLabelText}
 				accessibilityState={{ disabled: isDisabled, invalid: !isTimeValid }}

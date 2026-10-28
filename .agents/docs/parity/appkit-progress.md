@@ -3113,3 +3113,35 @@ ref/focus/AX and packaging remain unqualified. No builds, package tests/typechec
 installs, OS automation, visual analysis or shared audit regeneration ran; no
 checkbox is closed. Native time-option navigation and the shared Checkbox mixed
 rollback choice remain independent unfinished work.
+
+
+### AppKit typed date-time submit wiring
+
+Continuing common scheduling entry, source inspection found that DateInput,
+TimeInput and both DateTimeInput textfields supplied blur handlers but no onSubmit,
+even though the renderer already dispatches textfield submission through its
+composition-aware target/action path. Web counterparts commit pending drafts on
+Enter. Added the four direct onSubmit bindings to the existing commit functions;
+no parser, clear/null, bounds, selection or callback type was replaced.
+
+This is straightforward handler wiring; no additional unit tests were added.
+The maintained date-submit fixture shows all segments and compares Return/blur,
+invalid/empty drafts and IME, but synthesizes no input. Source/diff, TSRX syntax
+and whitespace review only. Guide/skill, feature note and date-picker AC13 were
+reconciled. No public API/dependency, manifest or other platform leaf changed.
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/ui -- src/date-keyboard.test.ts
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe run examples/probes/date-submit.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All commands remain deferred pending explicit human authorization for this task.
+Existing parsing cases and the fixture are unrun. Native target/action and
+Return/blur order, IME, draft/caret/focus/validation, AX and packaging remain
+unqualified. Standalone time stepping and preset-list navigation remain unfinished;
+these prerequisites do not close those gaps. No package tests/typechecks, builds,
+installs, OS automation, visual analysis or shared audit snapshots ran; no evidence
+checkbox is closed.

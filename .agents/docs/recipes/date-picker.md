@@ -36,6 +36,8 @@ picker bundled with `@octane-xplat/files`.
 
 - AC12: AppKit Calendar owns current native day refs and one enabled day Tab candidate across panes, adapts shared bounded/disabled/RTL navigation, manual activation and local range Escape, and preserves header/IME/modified/native Tab ownership. Controlled page focus waits for accepted cells; window changes, other navigation and teardown invalidate pending focus/claims. Keep adapter/fake-window evidence distinct from native key/focus/popup/AX qualification and native time-list gaps.
 
+- AC13: AppKit typed DateInput, TimeInput and both DateTimeInput segments connect native submit to their existing composition-aware blur commit boundary, preserving parse/bounds/null-clear and controlled values. Keep source wiring separate from native Return/blur/IME/draft/focus/AX qualification and remaining time stepping/preset-list keyboard gaps.
+
 ## Documentation
 
 - AC1: [Portable component list](../../../docs/app/components.md#inputs) and [shared platform contract](../../../docs/platform/date-picker.md#portable-values).
@@ -55,3 +57,5 @@ picker bundled with `@octane-xplat/files`.
 - AC11: [Drop local files guide](../../../docs/platform/date-picker.md#drop-local-files-on-appkit), [files contract](../../../packages/files/README.md#appkit-local-file-drops), renderer contract, nine authored registry/bridge/inspection/controller cases, [maintained fixture](../../../examples/probes/fileinput-drop.macos.tsrx) and [target note](../parity/appkit-progress.md#appkit-local-file-drop-ownership). All cases/fixture and native qualification remain unrun.
 
 - AC12: [AppKit calendar key guide](../../../docs/platform/date-picker.md#navigate-appkit-calendar-days-with-keys), six adapter/two object-driver wiring cases, [maintained fixture](../../../examples/probes/calendar-keys.macos.tsrx) and [target note](../parity/appkit-progress.md#appkit-calendar-day-keyboard-ownership). All eight cases and native qualification remain unrun.
+
+- AC13: [Typed Return guide](../../../docs/platform/date-picker.md#commit-typed-appkit-date-and-time-drafts-with-return), [maintained fixture](../../../examples/probes/date-submit.macos.tsrx) and [target note](../parity/appkit-progress.md#appkit-typed-date-time-submit-wiring). Direct handler wiring received source/syntax review; fixture and native qualification remain unrun.

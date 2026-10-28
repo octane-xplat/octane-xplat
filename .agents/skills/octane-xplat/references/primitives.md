@@ -1294,3 +1294,24 @@ older bridges. Six adapter/two wiring cases and the maintained fixture remain
 unrun. Source intent is not physical-key, Tab/focus, popup/modal, RTL, AX/live
 announcement or package qualification. Native time-list keys remain a gap. See
 [AppKit calendar keys](../../../../docs/platform/date-picker.md#navigate-appkit-calendar-days-with-keys).
+
+
+## AppKit typed date/time Return boundary
+
+DateInput, TimeInput and both DateTimeInput textfields now route onSubmit to their
+existing blur commit function. Existing parsing/range/marked-text checks, null
+clear values and controlled parent feedback remain the contract; this adds no new
+public prop or independent key parser.
+
+```tsx
+import { TimeInput } from '@octane-xplat/ui'
+
+export function StartTime(props: { value: string | null; change(value: string | null): void }) {
+	return <TimeInput label="Start time" value={props.value} onChange={props.change} />
+}
+```
+
+The source wiring and maintained date-submit fixture do not establish physical
+Return delivery, blur ordering, IME/caret/draft/validation, focus/AX or packaging.
+All runtime checks remain deferred. Time stepping and preset-list navigation are
+still gaps. See [typed Return boundary](../../../../docs/platform/date-picker.md#commit-typed-appkit-date-and-time-drafts-with-return).

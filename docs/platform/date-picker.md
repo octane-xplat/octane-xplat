@@ -527,3 +527,34 @@ are simulated. The maintained calendar-keys fixture synthesizes no OS input.
 Physical keys/Tab, native ref/window/notification order, focus/reveal, popup and
 modal integration, geometry, RTL delivery, AX/VoiceOver and packaging remain
 unqualified. Native time-list keys and AppKit live announcements remain gaps.
+
+
+### Commit typed AppKit date and time drafts with Return
+
+AppKit DateInput, TimeInput and both DateTimeInput segments now connect native
+submit to the same draft-commit function as blur. Existing parsers, bounds and
+composition guards stay in charge: valid drafts use the normal change path,
+empty drafts request null, and pending display text resets through that boundary.
+Keep the values controlled by the parent:
+
+```tsx
+import { useState } from 'octane'
+import { DateInput, TimeInput, DateTimeInput, VStack } from '@octane-xplat/ui'
+
+export function Appointment() {
+	const [date, setDate] = useState<string | null>('2026-03-05')
+	const [time, setTime] = useState<string | null>('14:30')
+	const [datetime, setDatetime] = useState<string | null>('2026-03-05T14:30')
+	return <VStack>
+		<DateInput label="Date" value={date} onChange={setDate} />
+		<TimeInput label="Time" value={time} onChange={setTime} />
+		<DateTimeInput label="Date and time" value={datetime} onChange={setDatetime} />
+	</VStack>
+}
+```
+
+This is handler wiring, not a native Return result. The maintained date-submit
+fixture synthesizes no input and remains unrun. Actual target/action delivery,
+Return-versus-blur ordering, IME confirmation, draft/caret/focus/validation behavior,
+AX and packaging remain unqualified. Standalone time stepping and preset-list
+keyboard navigation remain separate gaps.
