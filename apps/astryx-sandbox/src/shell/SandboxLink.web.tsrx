@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 // Port of upstream src/router.tsx `SandboxLink` — internal hrefs go through
 // the canonical router (client-side navigation); external/hash links behave
 // like normal anchors. Web leaf: DOM anchor + followHref seam; components

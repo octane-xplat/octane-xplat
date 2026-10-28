@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 // Astryx 0.6.4 Table Lab (MIT). Public plugins share one deterministic dataset.
 import { useMemo, useRef, useState } from 'octane'
 import {

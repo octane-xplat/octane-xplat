@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 // Astryx 0.6.4 repository tree (MIT): search prunes branches; sort stays within siblings.
 import { useMemo, useState } from 'octane'
 import {

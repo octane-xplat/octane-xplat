@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 // Port of InternationalizationProvider examples, Astryx 0.6.4 (Meta Platforms, MIT).
 import {
 	InternationalizationProvider,

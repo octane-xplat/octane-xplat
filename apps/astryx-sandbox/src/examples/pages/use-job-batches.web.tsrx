@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useEffect, useRef, useState } from 'octane'
 
 /** Authored sandbox fetch simulation; owns and cancels its observer/timer. */

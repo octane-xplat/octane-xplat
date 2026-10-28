@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import './DocDiscoverPage.inline.css'
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 

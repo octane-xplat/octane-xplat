@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { Field } from '@octane-xplat/ui'
 import type { Renderable } from '@octane-xplat/ui'
 // Copyright (c) Meta Platforms, Inc. and affiliates.
