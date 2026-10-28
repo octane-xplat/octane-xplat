@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useImperativeHandle, useEffect, useRef, useState } from 'octane'
 import type { VideoHandle, VideoProps } from './props'
 import { applyEscapeProps } from './escape-props'

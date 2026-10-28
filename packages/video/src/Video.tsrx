@@ -1,18 +1,11 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useImperativeHandle, useCallback, useEffect, useRef, useState } from 'octane'
 import { registerElement } from '@nativescript-community/octane'
-import type { Attributes } from '@nativescript-community/octane/intrinsics'
 import { Video as NSVideo, VideoFill } from '@nstudio/nativescript-exoplayer'
 import type { VideoHandle, VideoProps } from './props'
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props'
 import { layoutChildProps } from './layout-child'
 import { VideoChrome } from './video-chrome.tsrx'
-
-declare module '@nativescript-community/octane/intrinsics' {
-	interface NativeScriptElements {
-		xplatvideo: Attributes<typeof NSVideo>
-	}
-}
 
 // @nstudio/nativescript-exoplayer — AVPlayerViewController on iOS,
 // ExoPlayer2 on Android. It is a required peer: this leaf sits in the

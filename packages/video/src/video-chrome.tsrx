@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useEffect, useState } from 'octane'
 import { Icon, Image, Pressable, HStack, Slider, Text, View } from '@octane-xplat/ui'
 
