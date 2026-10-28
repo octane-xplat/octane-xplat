@@ -484,8 +484,15 @@ participate in measurement. Projection writes compensate for the layer's
 anchor without changing AppKit's anchor or position.
 
 Numeric corner radii and shadows are scale-corrected. Web reuses motion-dom's
-`correctBorderRadius` and `correctBoxShadow`; NativeScript corrects its resolved
-style lengths and parsed shadow list. AppKit uses renderer-owned paint scale
+`correctBorderRadius` and `correctBoxShadow`; NativeScript core views correct resolved style lengths and parsed shadow lists.
+Mason core 1.0.0-beta.5 instead owns native CSS paint strings: its Core corner
+longhands can read zero despite an authored radius, and `boxShadow` is a string.
+For Mason views the adapter reads/writes `_styleHelper`'s radius/shadow strings,
+leaving Core stylesheet state untouched. This is a local integration with a
+private upstream seam, not a general NativeScript API. Replace the feature
+detection when Mason exposes a stable paint-projection API. The iOS/Android
+container probe verifies actual native geometry and the engine's paint values.
+The string shadow path shares Motion's multiple-shadow fallback. AppKit uses renderer-owned paint scale
 compensation, preserving stylesheet values and mask/shadow ownership. Native
 radii use the geometric mean of the two scale axes. Scalar blur/spread and native
 corners are exact only under uniform scale; nonuniform scale is approximate.

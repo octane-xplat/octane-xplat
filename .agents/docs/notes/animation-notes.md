@@ -879,3 +879,21 @@ Focused kernel/drag tests and the 25 native object-driver tests pass. Chromium
 verifies synthetic pointer movement through an ancestor move, continued movement,
 early release and final settlement. This is browser geometry and pointer-handler
 evidence, not physical input or hit-testing evidence.
+
+
+### Mason core paint integration
+
+The first iOS device probe disproved the assumption that Core corner longhands
+and parsed shadow arrays reflect Mason paint: `style.borderRadius` was 20 while
+`style.borderTopLeftRadius` was 0, and `style.boxShadow` was a CSS string. Mason's
+native style helper reported the actual radius/shadow strings. The adapter now
+compensates those engine values directly for Mason views, preserving Core cascade
+state. Standard NativeScript views retain the length/array path. This private
+`_styleHelper` seam is scoped and versioned in motion's UPSTREAM.md.
+
+The combined container probe now passes 18 assertions each on the iPhone 18 Pro
+simulator and Android phase0-probe AVD: numeric paint correction/restoration,
+scrolling without spurious projection, root/anchor movement, active drag through
+ancestor layout, continued movement, early release, and disabled-drag cleanup.
+It reads native boxes and paint-engine values and dispatches gesture handlers;
+it does not qualify painted pixels, physical touch, or OS hit-testing.

@@ -54,33 +54,35 @@ export function attachHost(node: any): HostAdapter {
 		}
 	}
 
-	const paintKeys = [...radiusKeys, 'boxShadow']
+	// Mason core's native paint strings are authoritative; Core longhands can be stale.
+	const paintStyle = node._styleHelper ?? node.style
+	const paintKeys = node._styleHelper ? ['borderRadius', 'boxShadow'] : [...radiusKeys, 'boxShadow']
 	let paintSaved: Record<string, any> | undefined
 	let paintApplied: Record<string, any> = {}
 	const restorePaint = () => {
-		if (!paintSaved || !node.style) {
+		if (!paintSaved || !paintStyle) {
 			return
 		}
 		for (const key of paintKeys) {
-			if (node.style[key] === paintApplied[key]) {
-				node.style[key] = paintSaved[key]
+			if (paintStyle[key] === paintApplied[key]) {
+				paintStyle[key] = paintSaved[key]
 			}
 		}
 		paintSaved = undefined
 	}
 	const correctPaint = (projection: import('./projection/types').ProjectionWrite) => {
 		restorePaint()
-		if (!node.style) {
+		if (!paintStyle) {
 			return
 		}
-		paintSaved = Object.fromEntries(paintKeys.map((key) => [key, node.style[key]]))
+		paintSaved = Object.fromEntries(paintKeys.map((key) => [key, paintStyle[key]]))
 		const corrected = correctNativePaint(paintSaved, projection)
 		for (const key of Object.keys(corrected)) {
 			if (corrected[key] !== undefined) {
-				node.style[key] = corrected[key]
+				paintStyle[key] = corrected[key]
 			}
 		}
-		paintApplied = Object.fromEntries(paintKeys.map((key) => [key, node.style[key]]))
+		paintApplied = Object.fromEntries(paintKeys.map((key) => [key, paintStyle[key]]))
 	}
 
 	return {

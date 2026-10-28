@@ -26,3 +26,11 @@ it('corrects native length units and every shadow without changing source styles
 	expect(style.borderTopLeftRadius).toBe(20)
 	expect(style.boxShadow[0].blurRadius).toBe(6)
 })
+
+it('keeps proportional radii and unexpanded CSS expressions intact', () => {
+	const write = { delta: createDelta(), treeScale: { x: 2, y: 2 }, latest: {} }
+	expect(correctNativePaint({ borderRadius: '20% / 30%' }, write).borderRadius).toBe('20% / 30%')
+	expect(
+		correctNativePaint({ borderRadius: 'var(--radius20)' }, write).borderRadius,
+	).toBeUndefined()
+})

@@ -1,3 +1,4 @@
+import { correctBoxShadow } from 'motion-dom'
 import type { ProjectionWrite } from './types'
 
 /** Total scale includes projecting ancestors. Near-zero scales cannot be inverted. */
@@ -32,7 +33,32 @@ export const radiusKeys = [
 export function correctNativePaint(style: Record<string, any>, write: ProjectionWrite) {
 	const scale = paintScale(write)
 	const corrected: Record<string, any> = {}
+	if (
+		typeof style.borderRadius === 'string' &&
+		style.borderRadius.split('/').length <= 2 &&
+		style.borderRadius.split('/').every((axis: string) =>
+			axis
+				.trim()
+				.split(/\s+/)
+				.every((token) => /^-?(?:\d+\.?\d*|\.\d+)(?:px|dip|%)?$/.test(token)),
+		)
+	) {
+		// Mason core owns resolved CSS radius strings independently of Core's longhands.
+		corrected.borderRadius = style.borderRadius.replace(/-?(?:\d*\.)?\d+(?:px|dip|%)?/g, (token) =>
+			token.endsWith('%') ? token : String(divideLength(token, scale.uniform)),
+		)
+	}
+	if (typeof style.boxShadow === 'string' && style.boxShadow && style.boxShadow !== 'none') {
+		corrected.boxShadow = correctBoxShadow.correct(style.boxShadow, {
+			treeScale: write.treeScale,
+			projectionDelta: write.delta,
+		} as any)
+	}
 	for (const key of radiusKeys) {
+		if (!(key in style)) {
+			continue
+		}
+
 		corrected[key] = divideLength(style[key], scale.uniform)
 	}
 	if (Array.isArray(style.boxShadow)) {
