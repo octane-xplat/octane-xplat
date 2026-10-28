@@ -6,9 +6,9 @@ const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
 const host = source.slice(source.indexOf('class AccessibleHostView'), source.indexOf('const masonElementRegistration'))
 const apply = source.slice(source.indexOf('function applyAccessibility('), source.indexOf('function applyProps('))
 function fixture() {
-	const ids = new WeakMap(), handlers = new Map(), notifications: unknown[] = [], events: string[] = []
+	const ids = new WeakMap(), handlers = new Map(), notifications: unknown[] = [], events: string[] = [], forwarded: unknown[] = []
 	const { AccessibleHostView, applyAccessibility } = runSlice(host + '\n' + apply + '\n({AccessibleHostView,applyAccessibility})', {
-		NSView: class {}, NativeClass() {}, interop: { types: { bool: 'bool', id: 'id' } },
+		NSView: class { keyDown(event: unknown) { forwarded.push(event) } }, NativeClass() {}, interop: { types: { bool: 'bool', id: 'id' } },
 		NSNumber: { numberWithDouble: (value: number) => value }, actionIdsByView: ids, actionHandlers: handlers,
 		accessibilityRoles: new Map(), accessibilityLabels: new Map(), stackAccessibilityPropsByView: new WeakMap(),
 		scopeFocusTargets: new WeakMap(), inputTransparentViews: new WeakSet(), invokeAction: (id: number) => handlers.get(id)(),
@@ -18,7 +18,7 @@ function fixture() {
 	ids.set(view, 1)
 	const node = { type: 'masonview', view, actionId: 1, props: {} as any,
 		container: { root: { eventScope: (kind: string, callback: () => void) => { events.push(kind); callback() } } as any } }
-	return { view, node, handlers, notifications, events, set: (name: string, value: unknown) => applyAccessibility(node, name, value) }
+	return { view, node, handlers, notifications, events, forwarded, set: (name: string, value: unknown) => applyAccessibility(node, name, value) }
 }
 
 test('self-drawn switch/tab/adjustable hosts expose native roles and values', () => {
@@ -88,4 +88,32 @@ test('ignored and read-only hosts reject press/adjustment, and value notificatio
 	f.set('accessibilityState', {}); f.set('accessibilityRole', 'none')
 	assert.equal(f.view.accessibilityIsIgnored(), true)
 	assert.equal(presses, 1)
+})
+
+
+test('self-drawn activation preserves modified shortcuts and blocked native key handling', () => {
+	const f = fixture()
+	let presses = 0
+	f.handlers.set(1, () => presses++)
+	f.set('accessibilityRole', 'button')
+	f.view.keyDown({ keyCode: 36 })
+	f.view.keyDown({ keyCode: 49 })
+	assert.equal(presses, 2)
+	for (const modifierFlags of [1 << 18, 1 << 19, 1 << 20]) {
+		for (const keyCode of [36, 49]) f.view.keyDown({ keyCode, modifierFlags })
+	}
+	assert.equal(presses, 2)
+	assert.equal(f.forwarded.length, 6)
+	f.view.keyDown({ keyCode: 36, modifierFlags: 1 << 17 }) // Shift alone retains activation.
+	assert.equal(presses, 3)
+	f.set('accessibilityState', { readonly: true })
+	f.view.keyDown({ keyCode: 49 })
+	f.set('accessibilityState', { disabled: true })
+	f.view.keyDown({ keyCode: 36 })
+	assert.equal(presses, 3)
+	assert.equal(f.forwarded.length, 8)
+	f.set('accessibilityState', {})
+	f.handlers.delete(1)
+	f.view.keyDown({ keyCode: 36 })
+	assert.equal(f.forwarded.length, 9)
 })

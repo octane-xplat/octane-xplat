@@ -1463,3 +1463,33 @@ Actual clear pointer/key activation, first-responder/caret/selection retention,
 IME candidate/commit behavior, accessibility and packaging remain unqualified.
 No builds, installs, package tests/typechecks, probes, OS automation, visual
 analysis or shared audit regeneration ran; no evidence gate is closed.
+
+
+### Preserve modified action keys
+
+AccessibleHostView previously consumed Enter/Space whenever a press handler
+existed, including Control/Option/Command combinations. The activation guard
+now preserves these modified keys for super.keyDown and checks disabled/read-only
+accessibility state before invoking the press. Unmodified and Shift-only keys
+retain the existing activation timing; repeat/key-up timing was not redesigned.
+Missing handlers also pass through. This is shared self-drawn AppKit host code,
+so it applies to button/switch/tab action hosts without changing their public API.
+
+Authored renderer cases distinguish plain/Shift activation, all three shortcut
+modifiers, read-only/disabled state and missing handlers. Source inspection also
+found the existing focus-scope fixture invoked keyDown without supplying its
+invokeAction dependency; the fixture now supplies that action dispatcher. No
+test pass is inferred from repairing an unrun fixture. TypeScript syntax and
+whitespace only; deferred:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer
+pnpm check:recipes
+```
+
+Actual OS keys/menu equivalents, application shortcut routing, Control-Space
+input-source switching, IME/dead keys, held-key repeat/key-up semantics, focus,
+VoiceOver and packaging remain unqualified. No builds, installs, package tests/
+typechecks, probes, OS automation, visual analysis or shared audit regeneration
+ran. No evidence checkbox is closed.

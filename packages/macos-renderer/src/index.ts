@@ -765,8 +765,10 @@ class AccessibleHostView extends NSView {
 	}
 
 	keyDown(event: any) {
+		const modified = Number(event.modifierFlags ?? 0) & ((1 << 18) | (1 << 19) | (1 << 20))
 		if (
-			(Number(event.keyCode) === 36 || Number(event.keyCode) === 49) &&
+			!modified && (Number(event.keyCode) === 36 || Number(event.keyCode) === 49) &&
+			this.accessibilityIsEnabled() && !stackAccessibilityPropsByView.get(this)?.accessibilityState?.readonly &&
 			typeof actionHandlers.get(actionIdsByView.get(this) ?? -1) === 'function'
 		) {
 			invokeAction(actionIdsByView.get(this)!)

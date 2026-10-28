@@ -23,6 +23,7 @@ test('AppKit scope fallback accepts programmatic focus without a Tab stop or fak
 		interop: { types: { bool: 'bool', id: 'id' } },
 		actionIdsByView: ids,
 		actionHandlers: handlers,
+		invokeAction: (id: number) => handlers.get(id)?.(),
 		scopeFocusTargets: new WeakMap(),
 		tabStopSuppression: tabStops,
 		inputTransparentViews: new WeakSet(),

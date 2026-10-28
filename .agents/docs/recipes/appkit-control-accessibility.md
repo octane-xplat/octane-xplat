@@ -14,8 +14,12 @@ Self-drawn settings controls and tab strips hosted in AppKit Mason views.
 - AC2: Native increment/decrement selectors invoke current callbacks in a discrete event scope; disabled/read-only/ignored/detached or missing callbacks reject dispatch. Prop removal clears the callback.
 - AC3: Changed value/checked/selected props post value-change notifications, avoiding initial/equal-value announcements. Keep native selector registration, notification ordering, OS input, VoiceOver, tab/panel relationships and packaging evidence separate.
 
+- AC4: Focused action hosts activate on unmodified Enter/Space and preserve Shift-only activation. Control/Option/Command combinations, disabled/read-only accessibility state and missing actions use native key handling. Keep actual shortcut/menu/input-source/OS qualification separate.
+
 ## Documentation
 
 - AC1: [Renderer contract](../../../packages/macos-renderer/README.md#self-drawn-control-accessibility) and [authored source regressions](../../../packages/macos-renderer/test/common-control-accessibility.test.ts). Tests unrun.
 - AC2: The same contract and source cases cover action dispatch/guards; [target note](../parity/appkit-progress.md#common-control-accessibility-prerequisite) records exact deferred commands.
 - AC3: The renderer contract and source regressions document notification scope and remaining native qualification gates. No runtime or assistive-technology evidence is claimed.
+
+- AC4: [Native activation contract](../../../packages/macos-renderer/README.md#self-drawn-control-keyboard-activation) and [authored shortcut/guard cases](../../../packages/macos-renderer/test/common-control-accessibility.test.ts). No actual OS key or shortcut run is claimed.

@@ -712,3 +712,20 @@ and the [AppKit role vocabulary](https://developer.apple.com/documentation/appki
 The authored source regression is `test/common-control-accessibility.test.ts`;
 it does not establish VoiceOver, native selector registration, notification
 ordering, tab/panel relationships or packaged support.
+
+### Self-drawn control keyboard activation
+
+Unmodified Enter/Space activate a focused self-drawn action host. Shift alone
+retains activation. Control/Option/Command combinations, disabled/read-only
+accessibility state and missing actions pass to the native responder's key
+handling instead. This preserves shortcut routing in source; actual OS input,
+menu/key equivalents, input-source switching and VoiceOver remain unqualified.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+export function Save({ save }: { save(): void }) {
+	return <masonview accessibilityRole="button" accessibilityLabel="Save" onTap={save}>
+		<label text="Save" />
+	</masonview>
+}
+```

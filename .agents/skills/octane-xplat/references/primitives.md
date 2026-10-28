@@ -728,3 +728,20 @@ export function Search() {
 	return <SearchInput label="Find records" hasClear defaultValue="recent" />
 }
 ```
+
+
+## AppKit action keys and shortcuts
+
+Self-drawn action hosts now reserve Enter/Space activation for unmodified or
+Shift-only keys. Control/Option/Command combinations, disabled/read-only
+accessibility state and absent actions pass through native key handling. This
+is source behavior, not proof of OS shortcuts/menu equivalents or input-source
+switching. See [native activation](../../../../packages/macos-renderer/README.md#self-drawn-control-keyboard-activation).
+
+```tsx
+import { Button } from '@octane-xplat/ui'
+
+export function Save({ save }: { save(): void }) {
+	return <Button label="Save" clickAction={save} />
+}
+```
