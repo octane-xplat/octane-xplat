@@ -80,7 +80,8 @@ variants in `.gtk.tsrx`/`.gtk.tsx` files.
 `@octane-xplat/ui` resolves a curated `gtk` export condition. It includes
 `Text`, `Pressable`, the `View`/`Stack` family, `Grid`/`GridSpan`, `Center`,
 `Section`, `Layout` regions, `Absolute`, `Spacer`, `Badge`, `Divider`,
-`ColorSwatch`, and the shared size context. For example, place a label and
+`ColorSwatch`, the shared size context, `AspectRatio`, and `useMeasure`.
+For example, place a label and
 status badge in a horizontal row:
 
 ```tsx
@@ -93,6 +94,27 @@ export function BuildStatus() {
       <Badge label="Ready" />
     </Stack>
   )
+}
+```
+
+Use `AspectRatio` to derive a container's height from its allocated width.
+`useMeasure` reports a widget's position and size relative to the app content
+surface, including movement when an ancestor scrolls. Set `observe: false`
+when you only need a snapshot.
+
+```tsx
+import { AspectRatio, Text, View, useMeasure } from '@octane-xplat/ui'
+
+export function Preview() {
+	const { ref, bounds } = useMeasure()
+	return (
+		<View ref={ref}>
+			<AspectRatio ratio={16 / 9}>
+				<Text>Preview</Text>
+			</AspectRatio>
+			<Text>{bounds ? `Width: ${bounds.width}` : 'Measuring…'}</Text>
+		</View>
+	)
 }
 ```
 

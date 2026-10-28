@@ -125,3 +125,42 @@ keyboard, accessibility or visual contract.
 Nested GTK containers use their actual allocation as a temporary definite engine size while laying out children. The adapter restores authored dimensions afterward; otherwise an auto-sized Grid recomputes its children at natural width inside an already stretched GTK widget. The retained Grid fixture checks two equal columns, a spanning child, an authored-width change and clearing that width.
 
 The docs site build fails in `@tsrx/oxc@0.16.0` with `unsupported TSRX parser shape: reachable synthetic ESTree span`. It also fails with the guide restored to its original base content, while the GTK changes remain in the worktree. The diagnostic does not identify the module, so its full scope is unresolved. Both build logs are retained on andromeda in `/tmp/gtk-ui-docs-{build,baseline}.log`; the edited guide was restored after the comparison.
+
+## Measurement slice
+
+GTK refs remain the actual Gtk.Widget. The renderer adds app-content
+`getBounds()`, allocation-size queries, and explicit `loaded`, `unloaded`,
+and `layoutChanged` subscriptions. A subscribed frame callback compares bounds,
+so ancestor scrolling and movement are observed without global screen positions.
+It is removed when the last layout listener leaves, on unmap, on host recreation,
+and on destruction. Other imperative event names currently throw.
+
+The GTK `useMeasure` leaf uses this renderer protocol; it does not import GI
+into UI or pretend a Gtk.Widget is a NativeScript View. The shared AspectRatio
+component derives height from observed allocation and remains shared. The
+curated barrel now contains 26 runtime exports and 31 type exports.
+
+The maintained `ui-measure` fixture checks app-space bounds, actual size,
+aspect-ratio layout at two parent widths, ancestor scroll movement, unchanged
+frame coalescing, independent subscription removal, ref replacement,
+`observe: false`, and unmount cleanup. Its host uses start alignment to constrain
+the test width; a GTK content host with fill alignment can stretch a child beyond
+its size request. Runtime qualification requires the real Mason typelib.
+Renderer tests run serially because windows sharing one X11 display can otherwise
+occlude the pointer fixture. No screenshots or visual analysis are involved.
+
+Authored root dimensions under a fill-aligned GTK host remain an explicit
+renderer parity gap (Silo feedback be181a83-f05c-48e7-a505-fed423af5ac6).
+Opaque JSX root-mount typing, writable ref transforms/animation, scrolling
+handles, the rest of the inputs, overlays, navigation and theme remain open.
+The named checks do not prove ellipse clipping, all fit/shape styles, keyboard,
+accessibility, Wayland, or full public-contract parity.
+
+The Linux renderer task passes all 29 tests without skips, with 13 measurement
+assertions plus the existing 42 primitive assertions and separate real X11
+pointer input. The UI/dependent typecheck passes 58 tasks; the final expanded
+renderer/dependent check passes eight. Packed exports/declarations, recipes and
+release-note validation pass. Logs on andromeda: /tmp/gtk-ui-measure-types.log,
+/tmp/gtk-ui-measure-renderer-types.log, /tmp/gtk-ui-measure-pack.log; guest runtime
+log: /tmp/gtk-ui-measure-test-final.log. The existing docs-site parser failure
+above remains unresolved; these checks do not claim a successful site build.

@@ -1,15 +1,24 @@
 ### Use shared layout primitives on GTK
 
 The experimental GTK target now exposes shared containers, stacks, grids,
-page regions, badges, dividers, color swatches and size context. Pressable
+page regions, badges, dividers, color swatches and size context.
+AspectRatio derives height from allocated width; useMeasure observes bounds
+relative to the app content, including ancestor scrolling. Pressable
 supports press-in/out, cancellation, pan and swipe callbacks. Layout uses the
 XplatMason engine; the GTK surface remains a qualified subset of the full UI.
 
 ```tsx
-import { Stack, Text, Badge } from '@octane-xplat/ui'
+import { Stack, Text, Badge, AspectRatio } from '@octane-xplat/ui'
 
 export function BuildStatus() {
-  return <Stack direction="horizontal" gap={2}><Text>Linux build</Text><Badge label="Ready" /></Stack>
+	return (
+		<AspectRatio ratio={2}>
+			<Stack direction="horizontal" gap={2}>
+				<Text>Linux build</Text>
+				<Badge label="Ready" />
+			</Stack>
+		</AspectRatio>
+	)
 }
 ```
 

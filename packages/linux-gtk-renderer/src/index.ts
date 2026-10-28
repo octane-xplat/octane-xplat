@@ -36,6 +36,8 @@ import {
 	type SampledValues,
 } from '@octane-xplat/css-engine'
 
+import { bindPublicInstance } from './public-instance.js'
+
 import { CSS_PROPS, gtkStyleCss } from './style-css.js'
 import { resolveTransform } from './transform-style.js'
 import { createUniversalRoot } from 'octane/universal/native'
@@ -3075,6 +3077,7 @@ function createNode(
 		// widget — link them before props land so style writes find it.
 		bindMasonView(view, node)
 	}
+	node.disposePublicInstance = bindPublicInstance(node)
 	wireStateFlags(node)
 	applyProps(node, props)
 	return node
@@ -3111,6 +3114,7 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 				return
 			}
 
+			node.disposePublicInstance?.()
 			node.destroyed = true
 			container.cssDirty?.delete(node)
 			cancelKeyframeAnimations(node)
@@ -3151,6 +3155,7 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 			// Rebuild the widget in place: keep logical identity and children,
 			// swap the view at the same slot, then re-parent the children.
 			const node = expect(container, command.id)
+			node.disposePublicInstance?.()
 			disposeListeners(node)
 			node.muted.clear()
 			cancelKeyframeAnimations(node)
@@ -3187,6 +3192,7 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 				bindMasonView(node.view, node)
 			}
 
+			node.disposePublicInstance = bindPublicInstance(node)
 			applyProps(node, command.props)
 			if (node.view !== null) {
 				const parentView = hostViewOf(container, node.parent)

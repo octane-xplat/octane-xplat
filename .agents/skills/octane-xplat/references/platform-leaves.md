@@ -68,6 +68,12 @@ conditions separately. Check the export map rather than guessing subpaths.
 primitive/layout subset and runnable example are listed in
 [GTK setup](../../../../docs/platform/linux-gtk.md); check `index.gtk.ts`
 before choosing another root export. Full UI parity is still in progress.
+GTK refs remain Gtk.Widget instances. Measurement uses the renderer's
+`getBounds()` app-content coordinates; do not infer global screen coordinates
+or call NativeScript's `getLocationOnScreen()`. The GTK `useMeasure` leaf
+subscribes through `on/off('layoutChanged')`, which also observes movement
+from ancestor scrolling. The current imperative subscription vocabulary is
+`loaded`, `unloaded`, and `layoutChanged`; other names throw until qualified.
 For GTK adapters, retain the shared file's source extension: a shared
 `pan.tsrx` needs `pan.gtk.tsrx`. The current GTK preset checks unsuffixed
 `.tsrx` before `.gtk.ts`, so changing the extension can silently select the

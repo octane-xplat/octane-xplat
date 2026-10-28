@@ -43,3 +43,14 @@ export type {
 	PanState,
 	SwipeEvent,
 } from './props'
+
+export { useMeasure } from './useMeasure'
+export { AspectRatio } from './AspectRatio'
+export type {
+	MeasureBounds,
+	MeasureResult,
+	UseMeasureOptions,
+	AspectRatioProps,
+	AspectRatioFit,
+	AspectRatioShape,
+} from './props'
