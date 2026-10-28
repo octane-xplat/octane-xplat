@@ -779,6 +779,21 @@ export function Upload({ percent }: { percent?: number }) {
 }
 ```
 
+AppKit Meter root/purpose/ProgressGroup paths now use one leaf. It preserves
+caller children, the existing unfilled track and authored style forms; numeric
+accessibility uses shared normalized finite bounds. Invalid/nonpositive size
+uses 24; nonfinite stroke width uses 3 and finite width clamps to size. Value
+arc/color remain gaps; do not infer a filled gauge or native AX proof.
+
+```tsx
+import { Meter, Text } from '@octane-xplat/ui'
+export function Storage() {
+	return <Meter value={6} maxValue={10} size={48} accessibilityLabel="Storage">
+		<Text>6 GB</Text>
+	</Meter>
+}
+```
+
 ## Self-drawn AppKit accessibility prerequisites
 
 The renderer now maps switch/tab/tablist/adjustable/link container roles and

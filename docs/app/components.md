@@ -321,6 +321,21 @@ export function Upload({ percent }: { percent?: number }) {
 }
 ```
 
+AppKit Meter now uses the same leaf from root, purpose imports and ProgressGroup.
+It keeps supplied content and an unfilled track, preserves style forms and uses
+normalized finite range metadata. Size defaults to 24 for invalid/nonpositive
+values; stroke width defaults to 3 for nonfinite values and clamps to the size.
+The value arc and `color` remain unimplemented. Native ring/layout/VoiceOver
+qualification is separate from this import and metadata repair.
+
+```tsx
+import { Meter, Text } from '@octane-xplat/ui'
+export function Storage() {
+	return <Meter value={6} maxValue={10} size={48} accessibilityLabel="Storage"
+		valueLabel="6 GB of 10 GB used" style="margin-left:8px"><Text>6 GB</Text></Meter>
+}
+```
+
 ### Radio choices on AppKit
 
 AppKit RadioList now shares selection between `options` and RadioListItem

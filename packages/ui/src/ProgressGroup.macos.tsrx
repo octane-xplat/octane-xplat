@@ -3,7 +3,7 @@ import { mergeStyle } from './style-merge'
 import type { ProgressGroupProps } from './props'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from './escape-props'
-import { Meter } from './macos-extras.macos.tsrx'
+import { Meter } from './Meter.macos.tsrx'
 
 /** ProgressGroup — stacked labeled Meter rows. */
 export function ProgressGroup(props: ProgressGroupProps) @{

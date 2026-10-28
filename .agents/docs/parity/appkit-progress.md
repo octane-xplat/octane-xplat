@@ -5111,3 +5111,50 @@ analysis ran. Actual theme subscription/native appearance, AX numeric-removal
 and busy/disabled interpretation, ref timing, layout/marks, contrast/pixels and
 packaging remain unqualified. Shared audit snapshots and issue evidence gates
 remain unchanged; the persistent goal stays active.
+
+
+## AppKit Meter entrypoint consolidation
+
+Progress status source review found root Meter and ProgressGroup importing a
+second implementation in macos-extras while purpose imports selected Meter.macos.
+Both used the shared range helper, but root kept an unfilled track and caller
+children while the purpose leaf substituted a text summary and dropped children.
+Root also dropped string/array styles. Consolidating the entry prerequisite is
+necessary before future measured-gauge work; ProgressGroup's CPU/memory example
+provides the everyday status-flow assumption. No native discrepancy was observed.
+
+Meter.macos is now the single implementation. The root and ProgressGroup import
+it directly; the existing macos-extras barrel re-exports that same named function
+rather than retaining another implementation. Heading is unchanged. The selected
+leaf preserves the existing root track/children behavior, merges authored styles
+under the standard override contract, and uses meterRange's normalized minimum
+alongside its maximum/value. Size defaults to 24 when nonfinite/nonpositive;
+nonfinite stroke width uses 3 and finite width clamps to [0,size]. No dependency,
+shared manifest, public prop or renderer change. A measured arc and color are
+still unimplemented; no filled ring, pixel parity or native AX support is claimed.
+
+Four source cases are authored, all unrun: barrel identity/children, normalized
+finite bounds and maxValue precedence, style forms/finite geometry/removal, and
+ProgressGroup wiring. The existing progress target fixture now mounts root Meter
+and ProgressGroup as well. Guide/skill/recipe AC5 reconcile the subset. These
+repairs concern unreleased target leaves; no release note added.
+
+Only source/semantic review, syntax parsing (five TSRX files plus the target TS
+barrel) and whitespace checks ran. Static graph callers were incomplete; actual
+root and ProgressGroup imports were inspected directly. Exact deferred commands:
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/meter.macos.mobile.test.tsrx src/progress-bar.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/progress-bar.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm exec turbo run test:packed --filter=@octane-xplat/ui
+pnpm check:recipes
+```
+
+All remain deferred pending explicit human authorization for this task. No tests,
+typechecks/builds/installs, probes, native/OS/browser automation, packaging or
+visual analysis ran. Native range normalization/AX, ring/child layout, style
+mutation, shape clipping and root/purpose packed resolution remain unqualified.
+Evidence gates and audit snapshots remain unchanged; persistent goal active.

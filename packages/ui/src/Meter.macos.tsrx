@@ -7,22 +7,25 @@ import { meterRange } from './meter-math'
 export function Meter(props: MeterProps) @{
 	const min = props.minValue ?? 0
 	const max = props.maxValue ?? props.max ?? 100
-	const { max: rangeMax, value } = meterRange(props.value, min, max)
+	const { min: rangeMin, max: rangeMax, value } = meterRange(props.value, min, max)
+	const size = Number.isFinite(props.size) && props.size! > 0 ? props.size! : 24
+	const strokeWidth = Math.max(0, Math.min(Number.isFinite(props.strokeWidth) ? props.strokeWidth! : 3, size))
+
+	// Preserve the existing track ring and caller content. A value arc still
+	// needs a drawing path; this leaf does not paint measured progress.
 
 	<masonview
 		id={props.id}
 		className={cx('vx-meter', props.className)}
+		style={mergeStyle({ display: 'flex', width: size, height: size, borderWidth: strokeWidth,
+			borderColor: props.trackColor ?? '#e1ecf7', borderRadius: size / 2 }, props.style)}
 		accessibilityRole="meter"
 		accessibilityLabel={props.accessibilityLabel}
 		accessibilityValue={String(value)}
-		accessibilityMinValue={min}
+		accessibilityMinValue={rangeMin}
 		accessibilityMaxValue={rangeMax}
 		accessibilityValueDescription={props.valueLabel ?? `${value} of ${rangeMax}`}
-		style={mergeStyle(
-			{ display: 'grid', width: props.size ?? 24, height: props.size ?? 24 },
-			props.style,
-		)}
 	>
-		<label>{String(value) + ' / ' + String(rangeMax)}</label>
+		{props.children}
 	</masonview>
 }
