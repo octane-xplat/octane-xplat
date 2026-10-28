@@ -293,3 +293,28 @@ The expanded renderer/dependent typecheck passes all eight tasks, including the
 source mount cases and rejected prop bags (/tmp/gtk-root-mount-types-final.log).
 Recipe structure/local links pass. This change is erased at compilation; it
 adds no new runtime behavior and does not claim a new GJS runtime qualification.
+
+## Cancelled native refresh gestures
+
+The shared native refresh controller used to route GestureStateTypes.cancelled
+(0) through the same threshold-release path as ended (3). A cancelled pull could
+therefore call onRefresh. Cancellation now collapses an idle reveal or preserves
+a controlled dock without invoking the callback. The existing positive release
+path is unchanged. The controller also serves the iOS table and Android
+recycler leaves; their source file is unchanged.
+
+Eight new native controller tests simulate both isIOS branches, covering
+cancellation past the threshold, a held controlled refresh, a dock deferred
+during touch, positive release and teardown. The focused Turbo test:native task
+passes (/tmp/gtk-refresh-native-focused.log). These are Node/controller tests,
+not iOS or Android OS runtime evidence.
+
+The full native task passes 452 tests and fails the unchanged
+batch-observer.mobile.test.ts expectation that an observer exception propagates;
+the installed patched driver logs it instead. The failure reproduces with only
+that existing test selected (2 pass, 1 fail). Its source, native test config/shim,
+dependency lock and canonical NativeScript patch are unchanged from origin/main
+779d104. Logs: /tmp/gtk-refresh-native-tests.log and
+/tmp/gtk-native-batch-isolated.log. This is an isolated unchanged-test reproduction,
+not a claim that a separate clean-main checkout was executed. Keep its assertion
+and report the failure rather than weakening the criterion.

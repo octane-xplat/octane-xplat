@@ -26,7 +26,7 @@ export interface RefreshController {
 	detach: () => void
 }
 
-const PAN_ENDED = new Set([0, 3]) // GestureStateTypes cancelled / ended
+const PAN_ENDED = 3 // GestureStateTypes.ended; cancellation is handled separately.
 const DOCK_ANIM_MS = 180
 
 /* UIEdgeInsetsMake is a UIKit inline function — reach it through
@@ -196,12 +196,20 @@ export function createPullToRefresh(host: RefreshHost): RefreshController {
 	}
 
 	const onPan = (e: any) => {
+		if (e.state === 0) {
+			touching = false
+			pullAcc = 0
+			if (held()) dock()
+			else collapse()
+			return
+		}
+
 		if (isIOS) {
 			// Clamped: once the user scrolls down past the held gap the
 			// indicator stays pinned — the dock is header-fixed, not a
 			// content row (uniform with the Android/web overlay).
 			const extra = iosOverscroll()
-			if (PAN_ENDED.has(e.state)) {
+			if (e.state === PAN_ENDED) {
 				touching = false
 				release(extra)
 			} else {
@@ -219,7 +227,7 @@ export function createPullToRefresh(host: RefreshHost): RefreshController {
 			return
 		}
 
-		if (PAN_ENDED.has(e.state)) {
+		if (e.state === PAN_ENDED) {
 			touching = false
 			release(pullAcc)
 			pullAcc = 0
