@@ -1,3 +1,4 @@
+/// <reference path="./gi.d.ts" />
 import type Gtk from 'gi://Gtk?version=4.0'
 import type {
 	UniversalHostDriver,

@@ -36,3 +36,17 @@ For a boundary or workaround investigation, read the applicable internal record:
 Uncharacterized lab flakes belong with their investigation records and Silo,
 not in an undated skill list. A historical failure is not automatically a
 current limitation, and a fixed fixture is not blanket platform qualification.
+
+## Install the experimental Linux GTK renderer
+
+After its first stable automated release, npm consumers install the optional renderer
+at the same Xplat release. The `0.0.1` bootstrap stub is not usable. No Mason
+binary ships: the default warns and uses approximate Gtk.Box layout; native
+Mason needs a separately pinned host build. Use the [GTK guide](../../../../docs/platform/linux-gtk.md)
+and [native setup](../../../../packages/linux-gtk-renderer/README.md#optional-native-layout).
+Do not treat publication or AT-SPI names as production qualification.
+
+```sh
+pnpm add -D @octane-xplat/linux-gtk
+pnpm exec xplat workshop doctor
+```

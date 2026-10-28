@@ -3,19 +3,34 @@
 > Package your screens as an experimental Linux app that draws real GTK4
 > widgets — no WebView.
 
-This is an advanced setup guide for an existing app inside this repository.
+This is an advanced setup guide for an existing Octane app.
 Start with [the browser app](../start/toolchain.md#create-and-run) first.
 The **GTK runtime** is the second value of `xplat.targets.linux.runtime`:
 where `"webkitgtk"` shows your web UI inside a system WebView, `"gtk"`
 renders the same components with native GTK4 widgets through the GJS
 JavaScript engine.
 
-The runtime is experimental and early. The renderer package
-(`@octane-xplat/linux-gtk`) is private to this repository — it is not on
-npm. A counter and retained route panes have run in a real GJS/GTK session
+The runtime is experimental and early. Install the experimental renderer package alongside the CLI. A counter and retained route panes have run in a real GJS/GTK session
 with programmatic event dispatch. Packaging remains build evidence; OS input,
 visual parity and the complete shared UI are not qualified by those checks. For the qualified webview
 target, see [Package a Linux WebKitGTK app](linux-package.md).
+
+## Install the renderer
+
+Run these commands in your app directory after the first stable automated GTK release
+has published. Keep Xplat packages on the same release; the one-time `0.0.1`
+registry stub has no supported API.
+
+```sh
+pnpm add @octane-xplat/linux-gtk @octane-xplat/ui octane
+pnpm add -D @octane-xplat/cli @octanejs/vite-plugin vite
+```
+
+The npm package includes JavaScript and declarations. GJS and GTK4 come from
+your Linux distribution. The default `Gtk.Box` layout needs no native build;
+it approximates flex layout and does not implement grid, reverse directions,
+or full alignment. For optional Mason layout, see the
+[renderer setup](../../packages/linux-gtk-renderer/README.md#optional-native-layout).
 
 ## Configure the app
 

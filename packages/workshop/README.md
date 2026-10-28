@@ -183,8 +183,9 @@ pnpm exec xplat workshop dev --target linux --story counter/basic
 
 The launch needs `gjs` plus the GTK4 typelib (on Debian/Ubuntu: `gjs
 libgtk-4-1 gir1.2-gtk-4.0`) and `@octane-xplat/linux-gtk` resolvable from the
-app — it is a private in-repo package, so the Linux workshop is in-repo until
-it publishes. `xplat workshop doctor` probes them without opening a window.
+app. After the first stable automated GTK release, install the optional renderer
+with `pnpm add -D @octane-xplat/linux-gtk` at the same Xplat release.
+The `0.0.1` registry stub has no supported API. `xplat workshop doctor` probes them without opening a window.
 A missing XplatMason typelib warns and falls back to `Gtk.Box` layout. On
 macOS a Homebrew GJS run is a development stand-in, not Linux qualification.
 

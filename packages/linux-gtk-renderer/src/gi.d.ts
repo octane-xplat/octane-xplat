@@ -6,6 +6,7 @@
 // starter surface; the inventory note lists this as a tracked limitation.
 declare module 'gi://Gtk?version=4.0' {
 	namespace Gtk {
+		const AccessibleRelation: { LABELLED_BY: number; [key: string]: number }
 		const MAJOR_VERSION: number
 		const MINOR_VERSION: number
 		const MICRO_VERSION: number
@@ -109,6 +110,10 @@ declare module 'gi://Gtk?version=4.0' {
 			set_opacity(opacity: number): void
 			set_focusable(focusable: boolean): void
 			set_tooltip_text(text: string | null): void
+			/** Non-varargs GtkAccessible property/value-array binding. */
+			update_property(properties: number[], values: unknown[]): void
+			reset_property(property: number): void
+			reset_relation(relation: number): void
 			grab_focus(): boolean
 			pick(x: number, y: number, flags: number): Widget | null
 			compute_bounds(target: Widget): [boolean, unknown]

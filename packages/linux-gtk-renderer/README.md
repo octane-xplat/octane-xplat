@@ -1,18 +1,76 @@
-# @octane-xplat/linux-gtk
+# Experimental GTK4 renderer for Linux
 
-Experimental GTK4 renderer for Octane on Linux, driven from GJS. This is the
-native-widget counterpart of the `webkitgtk` runtime in `apps/linux`: the
-Octane universal runtime runs **inside** GJS and mounts real GTK4 widgets —
-the same architecture `packages/macos-renderer` uses for AppKit.
+Build a native GTK4 window with Octane and GJS. This package is experimental;
+the [production feasibility gate](https://github.com/octane-xplat/octane-xplat/blob/main/.agents/design/linux-gtk-feasibility-review.md)
+still fails. Publication does not qualify complete UI parity, Wayland, IME,
+OS input, or production use.
 
-Status: **v1 scaffold, build-verified only.** The feasibility evidence for the
-approach (universal runtime loading in GJS 1.82, scheduling bridge,
-reconciliation, XTEST hit-testing) lives in
-`.agents/design/linux-gtk-feasibility-review.md` and
-`.agents/docs/notes/linux-gtk-capability-inventory.md`. Runtime verification
-of this driver is pending a Linux host — see
-`.agents/docs/notes/linux-gtk-renderer.md` for the current status and smoke
-path.
+After the first stable automated release, install matching Xplat releases in your app:
+
+```sh
+pnpm add @octane-xplat/linux-gtk @octane-xplat/ui octane
+pnpm add -D @octane-xplat/cli @octanejs/vite-plugin vite
+sudo apt install gjs gir1.2-gtk-4.0
+```
+
+GTK 4.10 or later is required by the CLI runtime check. The package ships
+JavaScript in `dist/` and TypeScript declarations. Bundle your application with
+`xplatLinuxGtk`; GJS loads the resulting app, not Node. Follow the
+[Linux GTK app guide](https://octane-xplat.goddardai.org/linux-gtk)
+for an entry point and packaging commands.
+
+```ts
+// vite.gtk.config.ts
+import { xplatLinuxGtk } from '@octane-xplat/cli/linux-gtk/vite'
+export default async (env: { mode: string }) => xplatLinuxGtk(env)
+```
+
+## Optional native layout
+
+No native binary is downloaded or compiled during installation. Without
+XplatMason the renderer warns once and uses `Gtk.Box`: ordinary rows and columns
+work, but grid, reverse directions, asymmetric gaps and full flex alignment
+remain approximate or unsupported. This is the default npm consumer path.
+
+Advanced consumers can build the included C facade on the Linux host. It needs
+a matching architecture's pinned MasonCore engine archive, C compiler,
+`pkg-config`, GTK4, JSON-GLib and GObject Introspection development tools.
+The source package does not include the engine archive or its checkout. Use the
+[engine build instructions](https://github.com/octane-xplat/nativescript-mason)
+and the artifact contract in `native/xplatmason/build.sh`; the script rejects a
+missing archive/header/manifest. Keep that external checkout pinned in your app.
+
+```sh
+# MASON_CHECKOUT points to your pinned nativescript-mason checkout, after its
+# nativescript-mason-core:build.native.desktop task has produced the archive.
+GTK_PACKAGE="$PWD/node_modules/@octane-xplat/linux-gtk"
+bash "$GTK_PACKAGE/native/xplatmason/build.sh" "$MASON_CHECKOUT"
+export GI_TYPELIB_PATH="$GTK_PACKAGE/native/xplatmason${GI_TYPELIB_PATH:+:$GI_TYPELIB_PATH}"
+export LD_LIBRARY_PATH="$GTK_PACKAGE/native/xplatmason${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+gjs -m dist/app.js
+```
+
+Ship the resulting `.so` and `.typelib` with the app for its architecture and
+preserve the engine's license notices. Native Mason builds and relocation need
+separate runtime qualification; the npm consumer check uses the Box fallback.
+
+## Accessible names and automation
+
+An explicit label reaches assistive technology through GTK's non-varargs
+property-array binding. Buttons also clear GTK's automatic mnemonic naming
+relation so the explicit label wins over their visible text. Removing the prop
+restores content naming. Widget names remain an automation fallback;
+`testID`, then `automationText`, then `id` take priority over that mirror.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+export function Save() {
+  return <button text="Save" testID="save-draft" accessibilityLabel="Save draft" />
+}
+```
+
+The release readiness note records independent AT-SPI evidence and its limits.
+A readable AT-SPI name does not establish screen-reader navigation or speech.
 
 ## Layout — the Mason engine
 
@@ -27,57 +85,9 @@ compute, the same callback contract the macOS bridge uses for NSViews.
 When the typelib is absent, `masonview` warns once and falls back to the
 `Gtk.Box` emulation — the app still runs, layout is approximate.
 
-### Building the binding (Linux build host)
-
-The artifact is not committed — build it where the renderer runs. The facade
-links the pinned MasonCore engine archive the mason checkout's core native
-build produces (`libMasonCore.a` plus its generated `mason_native.h`), so
-build that artifact first:
-
-```sh
-git clone https://github.com/octane-xplat/nativescript-mason research/nativescript-mason  # sibling checkout
-cd research/nativescript-mason && rustup run stable cargo generate-lockfile
-pnpm exec nx run nativescript-mason-core:build.native.desktop
-cd ../.. && packages/linux-gtk-renderer/native/xplatmason/build.sh
-```
-
-The build consumes `dist/native/mason-core/desktop/<rustc host triple>/` —
-`x86_64-unknown-linux-gnu` on a standard Linux box — and records the consumed
-pin in `native/xplatmason/manifest.json` (`XPLAT_MASON_CORE_MODE` /
-`XPLAT_MASON_CORE_TARGET` select another artifact). Requires pkg-config,
-`gtk4` and `json-glib-1.0` dev packages, and `gobject-introspection`
-(`g-ir-scanner`, `g-ir-compiler`). It produces:
-
-- `libxplatmason-gtk.so` — the facade, statically linked with `libMasonCore.a`
-- `XplatMason-1.0.typelib` — the namespace GJS binds through
-
-Both artifacts bind by soname only — no absolute paths are stamped in.
-Point the app at the artifact directory before launching `gjs` so the
-typelib and the library path both resolve:
-
-```sh
-XPLAT_MASON_TYPELIB=packages/linux-gtk-renderer/native/xplatmason gjs -m dist/app.js
-# or GI_TYPELIB_PATH=<that dir> plus the dir on LD_LIBRARY_PATH
-```
-
-macOS dev builds work too (Homebrew `gjs gtk4 gobject-introspection
-json-glib`); `DYLD_FALLBACK_LIBRARY_PATH=$(brew --prefix)/lib` is needed
-for brew's gjs to resolve libgjs, and the facade consumes the host archive
-(`build.native.host` in the mason checkout) via `XPLAT_MASON_CORE_MODE=host`.
-
-### Layout notes
-
-- The style dict matches the macOS contract one-for-one except `margin` and
-  `padding`: GTK's measure/allocate pipeline already folds a widget's CSS
-  margin/padding into leaf measures and child allocations, so feeding them
-  to the engine would double-count them. Percentage/auto margins and
-  paddings are the gap — GTK CSS is px-only there (tracked limitation).
-- `scrollview` stays native `Gtk.ScrolledWindow` chrome — a `masonview`
-  inside it sizes itself through the engine and scrollbars follow its
-  measure, so no special-casing is needed.
-- Direct layout props on `masonview` or on children of a Mason parent warn
-  once and are dropped — the `style`/`className` bag is the only layout
-  channel, same as macOS.
+For consumer build steps, use [Optional native layout](#optional-native-layout).
+Contributor implementation details and qualification evidence live in the
+[renderer note](https://github.com/octane-xplat/octane-xplat/blob/main/.agents/docs/notes/linux-gtk-renderer.md).
 
 ## Exports
 

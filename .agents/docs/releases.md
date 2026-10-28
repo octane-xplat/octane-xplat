@@ -306,3 +306,7 @@ Check version selection without publishing, and run the tooling regressions:
 node scripts/release-version.ts lockstep
 pnpm exec turbo run test:release --filter=//
 ```
+
+The experimental GTK renderer has a package-specific [readiness audit and exact
+credentialed bootstrap procedure](notes/linux-gtk-release.md). Its production
+feasibility gate remains separate from package publication.

@@ -1,7 +1,6 @@
 {
 	"name": "@octane-xplat/linux-gtk",
-	"version": "0.0.0",
-	"private": true,
+	"version": "0.18.0",
 	"description": "Experimental GTK4 renderer for Octane on Linux (GJS universal runtime)",
 	"license": "MIT",
 	"repository": {
@@ -10,27 +9,40 @@
 		"directory": "packages/linux-gtk-renderer"
 	},
 	"files": [
-		"src",
+		"dist",
+		"native/xplatmason/*.c",
+		"native/xplatmason/*.h",
+		"native/xplatmason/build.sh",
 		"LICENSE"
 	],
 	"type": "module",
 	"exports": {
 		".": {
-			"types": "./src/index.d.ts",
-			"import": "./src/index.ts",
-			"default": "./src/index.ts"
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js",
+			"default": "./dist/index.js"
 		},
 		"./host": {
-			"types": "./src/host.d.ts",
-			"import": "./src/host.ts",
-			"default": "./src/host.ts"
+			"types": "./dist/host.d.ts",
+			"import": "./dist/host.js",
+			"default": "./dist/host.js"
 		},
-		"./compat/native-core": "./src/native-core-shim.ts",
-		"./compat/escape-props": "./src/native-escape-props.ts"
+		"./compat/native-core": {
+			"types": "./dist/native-core-shim.d.ts",
+			"default": "./dist/native-core-shim.js"
+		},
+		"./compat/escape-props": {
+			"types": "./dist/native-escape-props.d.ts",
+			"default": "./dist/native-escape-props.js"
+		}
 	},
 	"scripts": {
 		"test": "node --test test/build.test.mjs test/mason.test.mjs test/css.test.mjs test/style-css.test.mjs",
-		"typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p test/fixtures/tsconfig.routing.json"
+		"typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p test/fixtures/tsconfig.routing.json",
+		"build": "tsc -p tsconfig.build.json && node build.mjs",
+		"prepack": "pnpm exec turbo run build --filter=@octane-xplat/linux-gtk",
+		"test:a11y": "node --test test/a11y.test.mjs",
+		"typegen": "tsc -p tsconfig.build.json && node build.mjs"
 	},
 	"devDependencies": {
 		"@octane-xplat/cli": "workspace:*",
@@ -41,10 +53,13 @@
 		"vite": "catalog:"
 	},
 	"peerDependencies": {
-		"octane": ">=0.6.3 <1"
+		"octane": ">=0.14.0 <1"
 	},
 	"dependencies": {
 		"@octane-xplat/css-engine": "workspace:*",
 		"@octane-xplat/jsx": "workspace:*"
+	},
+	"publishConfig": {
+		"access": "public"
 	}
 }

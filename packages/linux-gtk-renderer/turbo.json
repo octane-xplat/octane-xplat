@@ -1,8 +1,37 @@
 {
-	"extends": ["//"],
+	"extends": [
+		"//"
+	],
 	"tasks": {
 		"test": {
-			"cache": false
+			"cache": false,
+			"dependsOn": [
+				"build",
+				"^build",
+				"^typegen"
+			]
+		},
+		"typecheck": {
+			"dependsOn": [
+				"build",
+				"^typegen"
+			]
+		},
+		"test:a11y": {
+			"dependsOn": [
+				"build",
+				"^build",
+				"^typegen"
+			],
+			"cache": false,
+			"passThroughEnv": [
+				"XPLAT_GTK_KEEP_A11Y"
+			]
+		},
+		"typegen": {
+			"outputs": [
+				"dist/**"
+			]
 		}
 	}
 }

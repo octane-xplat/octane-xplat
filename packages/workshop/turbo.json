@@ -1,0 +1,17 @@
+{
+	"extends": [
+		"//"
+	],
+	"tasks": {
+		"test:packed:linux": {
+			"dependsOn": [
+				"build",
+				"typegen",
+				"^build",
+				"^typegen",
+				"create-octane-xplat#build"
+			],
+			"cache": false
+		}
+	}
+}

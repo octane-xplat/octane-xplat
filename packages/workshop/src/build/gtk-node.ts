@@ -16,10 +16,7 @@ const gjsEnv = () => {
 	if (process.platform === 'darwin') {
 		const prefix = spawnSync('brew', ['--prefix'], { encoding: 'utf8' }).stdout.trim()
 		if (prefix) {
-			env.DYLD_FALLBACK_LIBRARY_PATH = [
-				join(prefix, 'lib'),
-				env.DYLD_FALLBACK_LIBRARY_PATH,
-			]
+			env.DYLD_FALLBACK_LIBRARY_PATH = [join(prefix, 'lib'), env.DYLD_FALLBACK_LIBRARY_PATH]
 				.filter(Boolean)
 				.join(':')
 		}
@@ -103,7 +100,9 @@ export function gtkDoctor(root, configFile) {
 /** Generate a session-owned build directory; app entries stay untouched. */
 export async function workshopGtkDev({ root, config, story }) {
 	if (process.platform !== 'linux' && process.platform !== 'darwin') {
-		throw new Error('The GTK workshop runs on Linux, or on macOS with Homebrew gjs as a development stand-in')
+		throw new Error(
+			'The GTK workshop runs on Linux, or on macOS with Homebrew gjs as a development stand-in',
+		)
 	}
 	const missing = gtkMissingPrerequisites(root)
 	if (missing.length) {
@@ -119,7 +118,12 @@ export async function workshopGtkDev({ root, config, story }) {
 	}
 
 	const require = createRequire(join(root, 'package.json'))
-	for (const name of ['@octane-xplat/cli/linux-gtk/vite', '@octane-xplat/linux-gtk', 'octane', 'vite']) {
+	for (const name of [
+		'@octane-xplat/cli/linux-gtk/vite',
+		'@octane-xplat/linux-gtk',
+		'octane',
+		'vite',
+	]) {
 		try {
 			require.resolve(name)
 		} catch {
@@ -142,11 +146,13 @@ export async function workshopGtkDev({ root, config, story }) {
 	if (!hasTypelib) {
 		console.log(
 			'xplat workshop: XplatMason typelib not built — masonview falls back to Gtk.Box emulation ' +
-				'(packages/linux-gtk-renderer/native/xplatmason/build.sh)',
+				'(see @octane-xplat/linux-gtk README: Optional native layout)',
 		)
 	}
 
-	const { xplatLinuxGtk } = await import(pathToFileURL(require.resolve('@octane-xplat/cli/linux-gtk/vite')).href)
+	const { xplatLinuxGtk } = await import(
+		pathToFileURL(require.resolve('@octane-xplat/cli/linux-gtk/vite')).href
+	)
 
 	// Shell: one ESM file, built once, run by `gjs -m`.
 	await writeFile(
@@ -195,9 +201,12 @@ startGtkWorkshop({ bundleFile: ${JSON.stringify(bundle)}, initialStoryId: ${JSON
 		if (typeof alias === 'object' && singletons.includes(alias.find)) {
 			resolvedSingletons.add(alias.replacement)
 		}
+
 		if (typeof alias === 'object' && alias.find instanceof RegExp) {
 			for (const name of singletons) {
-				if (alias.find.test(name)) resolvedSingletons.add(alias.replacement)
+				if (alias.find.test(name)) {
+					resolvedSingletons.add(alias.replacement)
+				}
 			}
 		}
 	}
@@ -206,7 +215,10 @@ startGtkWorkshop({ bundleFile: ${JSON.stringify(bundle)}, initialStoryId: ${JSON
 		logLevel: 'error',
 		configFile: false,
 		...storySettings,
-		plugins: [nativeCatalogPlugin({ root, config, catalogFile, target: 'linux' }), ...(storySettings.plugins ?? [])],
+		plugins: [
+			nativeCatalogPlugin({ root, config, catalogFile, target: 'linux' }),
+			...(storySettings.plugins ?? []),
+		],
 		build: {
 			...storySettings.build,
 			outDir: directory,
@@ -215,9 +227,7 @@ startGtkWorkshop({ bundleFile: ${JSON.stringify(bundle)}, initialStoryId: ${JSON
 			lib: { entry: catalogFile, formats: ['cjs'], fileName: () => 'stories.cjs' },
 			rollupOptions: {
 				external: (id) =>
-					id.startsWith('gi://') ||
-					singletons.includes(id) ||
-					resolvedSingletons.has(id),
+					id.startsWith('gi://') || singletons.includes(id) || resolvedSingletons.has(id),
 				output: { inlineDynamicImports: true },
 			},
 		},
