@@ -752,3 +752,11 @@ VoiceOver, keyboard/IME and packaging remain unqualified. The existing horizonta
 label, InputGroup, date/time and typeahead callers need later native regression
 coverage. TextArea maxLength and SearchInput icon rendering remain source gaps;
 none of this closes AC3's physical-keyboard/assistive-technology gate.
+
+
+Field ownership follow-up: standalone controls retain their Field owner even
+when no label/status is supplied yet. Adding a validation message after an edit
+therefore does not change the control's component ancestry and reset its
+uncontrolled text/ref. Added an unrun object-driver identity/state regression
+for adding and removing metadata. Syntax and whitespace only; the same deferred
+text-control and native layout/IME/focus checks above apply.

@@ -187,9 +187,8 @@ function TextAreaControl(inputProps: TextAreaProps) @{
 /** An enclosing Field owns the chrome; standalone controls create it once. */
 function TextEntryField({ props, children }: { props: TextInputProps; children?: Renderable }) @{
 	const inField = useContext(FieldContext) != null
-	const needsChrome = !inField && (props.label != null || props.description != null ||
-		props.status != null || props.isRequired || props.isOptional || props.width != null)
-	@if (needsChrome) {
+	// Keep the owner stable when validation/label props appear after editing.
+	@if (!inField) {
 		<FormField
 			inputID={props.id}
 			label={props.label}

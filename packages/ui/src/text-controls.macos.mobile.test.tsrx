@@ -104,3 +104,22 @@ it('AppKit Field preserves inline CSS strings and hidden labels keep the accessi
 		expect(env.find('textview').props.accessibilityLabel).toBe('Secret')
 	} finally { env.root.unmount() }
 })
+
+
+it('adding standalone validation metadata retains the editing host and uncontrolled text', () => {
+	for (const component of [TextInput, TextArea]) {
+		const env = mount(component, { defaultValue: 'initial' })
+		const type = component === TextInput ? 'textfield' : 'textview'
+		try {
+			const control = env.find(type)
+			control.props.onTextChange('edited')
+			flushUniversalSync(() => {})
+			env.render({ label: 'Name', status: { type: 'error', message: 'Check name' } })
+			expect(env.find(type)).toBe(control)
+			expect(env.find(type).props.value).toBe('edited')
+			env.render({})
+			expect(env.find(type)).toBe(control)
+			expect(env.find(type).props.value).toBe('edited')
+		} finally { env.root.unmount() }
+	}
+})
