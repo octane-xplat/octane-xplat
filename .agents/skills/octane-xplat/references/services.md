@@ -382,6 +382,26 @@ import { auth } from './auth'
 await auth.signOut()
 ```
 
+## Windows file I/O boundary
+
+The experimental [Windows file leaf](../../../../packages/files/README.md#experimental-native-windows-file-io)
+provides text/binary I/O candidates without importing mobile picker plugins.
+Writes are temporary copies, not durable documents; release owns only those
+copies. Native Windows picking rejects as unavailable and export returns
+`unavailable`. A custom FileInput picker is app-owned. WinRT operation remains
+unqualified; do not infer attachment-dialog support from the component export.
+
+```ts
+import { files } from '@octane-xplat/files'
+
+const copy = await files.writeText('report.txt', 'Packing list')
+try {
+  const bytes = await files.readBytes(copy, { maxBytes: 1024 })
+} finally {
+  files.release(copy)
+}
+```
+
 ## Color scheme
 
 `getColorScheme()` / `useColorScheme()` — `ColorScheme = 'light'|'dark'`.

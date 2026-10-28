@@ -28,6 +28,7 @@ is complete because of these changes.
 | Command palette | Unsuffixed announcement import selects a WinUI automation-peer leaf | Screen-reader delivery and peer projection unverified |
 | Dialogs/sheets | Windows keyboard-overlay host resolves independently of the mobile-only helper | Neutral software-keyboard binding; Windows occlusion, modal focus/Tab/Escape/background exclusion and OS dismissal remain unqualified |
 | Gradient controls | Windows LinearGradientBrush helper supplies the previously missing leaf | Native bridge projection, repaint ownership and pixels unverified |
+| Files | Windows-only text/binary I/O leaf removes the mobile document-picker import; bounded reads, owned temporary writes and cleanup | Picker/export interop unavailable; WinRT stream/promise projection and actual I/O unqualified |
 | Clipboard | WinRT text read/write, format check, async bridge, flush, false/null failures | OS clipboard access, foreground restrictions and persistence need Windows checks; rich formats excluded |
 | Random | WinRT CryptographicBuffer entropy, bounded hex conversion, byte-range preservation | API binding/runtime must be checked; no JS PRNG fallback |
 | Device | Explicit Windows OS identity, core metadata | Version/model/language metadata unqualified |
@@ -52,12 +53,14 @@ the repository root when those verification phases are authorized:
 pnpm exec turbo run build --filter=@octane-xplat/cli
 pnpm exec turbo run test --filter=@octane-xplat/cli
 pnpm exec turbo run test --filter=@octane-xplat/platform
+pnpm exec turbo run test --filter=@octane-xplat/files
 pnpm exec turbo run test --filter=@octane-xplat/ui
 pnpm exec turbo run test:native --filter=@octane-xplat/ui
 pnpm exec turbo run test:packed --filter=@octane-xplat/gif
 pnpm exec turbo run typecheck --filter=...@octane-xplat/cli
 pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
 pnpm exec turbo run typecheck --filter=...@octane-xplat/platform
+pnpm exec turbo run typecheck --filter=...@octane-xplat/files
 pnpm exec turbo run typecheck --filter=...@octane-xplat/gif
 ```
 
@@ -151,3 +154,54 @@ source support. Geometry under actual scrolling remains unqualified. The shared
 `useKeyboard` still reports no native hardware-key attachment; the reviewed core
 View file does not forward KeyDown/KeyUp. A target input adapter and actual
 keyboard/focus checks remain necessary before claiming shared-keyboard support.
+
+## Windows file I/O candidate
+
+`packages/files/src/files.windows.ts` selects a Windows service without importing
+`@nativescript-community/ui-document-picker`. It implements text reads/writes,
+64 KiB binary streaming, maxBytes checks before and during reads, cancellation,
+partial-write/flush failure handling, unique temporary copies and owned-only
+asynchronous release with retry. External references are never released as owned
+files. Temporary copies are not durable documents.
+
+The six maintained regressions at `packages/files/tests/files.windows.test.mjs`
+passed through the same isolated Turbo fixture on `windy` (13 total focused tests,
+exit 0). Raw output: `research/windows61/windy-files-contracts.log`. They use mocked
+projected APIs, not real files or WinRT. Actual `DataReaderLoadOperation`, uint32
+write-result and boolean flush-result projection remain unqualified, as do
+ApplicationData availability and packaged filesystem permissions.
+
+Picker operations explicitly reject `UnavailabilityError`; export returns
+`unavailable`. The installed runtime package exposes no public bridge declaration
+for initializing a picker with a window, and no such adapter is qualified in
+this repository. This does not prove a bridge implementation is impossible.
+Microsoft's [desktop picker requirements](https://learn.microsoft.com/en-us/windows/apps/develop/files/using-file-folder-pickers#use-winrt-pickers-with-hwnd-interop)
+require HWND initialization for legacy pickers. SDK 1.8's newer WindowId-based
+picker is not a reason to claim support on the existing 1.6 preview host.
+
+Read the [Windows Files subset](../../../packages/files/README.md#experimental-native-windows-file-io)
+before using the service. The `date-picker` recipe owns FileInput's default-picker
+workflow and excludes Windows; its criteria remain unchanged. No downstream
+Windows picker workflow or recipe completion is claimed. Silo's recipe target
+constraint still prevents Windows assessments.
+
+## Resolver-test environment boundary
+
+The isolated laptop fixture attempted the maintained
+`packages/cli/test/vite-native-runtime.test.mjs` after bundling the committed CLI
+preset sources through Turbo and the existing esbuild 0.27.7. The small bundle
+build succeeded. Its runtime import of `@octane-xplat/lib/server-boundary` was
+satisfied with the committed library source; the older laptop dependency graph
+then lacked `@babel/core`, so the maintained test could not start. This is an
+environment dependency failure, not a failed Windows-condition assertion or a
+passing resolver test. No dependency install was performed.
+
+```powershell
+Set-Location "$env:USERPROFILE/dev/octane-windows-qualification"
+pnpm exec turbo --cwd "$env:USERPROFILE/dev/octane-windows61-checks-88a67da" run test:resolver --concurrency=1
+```
+
+Raw output: `research/windows61/windy-resolver-contracts.log` (exit 1 before the
+regression body). Use a current, separately installed qualification checkout
+before rerunning the maintained CLI test and production import graph. The
+scratch bundle is not the package build or a native app artifact.

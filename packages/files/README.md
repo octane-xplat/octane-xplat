@@ -65,7 +65,8 @@ const bytes = await files.readBytes(file, { maxBytes: 10 * 1024 * 1024 })
 ```
 
 `files.writeBytes(name, bytes)` mirrors `writeText`: on native it writes into
-the app sandbox (Documents) and returns a `FileRef`; on web it starts a
+the app sandbox (Documents on iOS/Android/macOS, temporary copies on experimental
+Windows) and returns a `FileRef`; on web it starts a
 browser download. `name` must be a bare file name — paths like `../x` or
 `a/b` are rejected, and `writeText` enforces the same rule.
 
@@ -242,3 +243,63 @@ routing, cursor/hover presentation, drag delivery, sandbox/grants, actual valida
 and save behavior, focus/VoiceOver and packaging remain unqualified. File promises,
 custom drag hover feedback and autoscroll remain outside this source path. Older
 renderer bridges retain picker entry.
+
+## Experimental native Windows file I/O
+
+The Windows leaf is a candidate for text and binary I/O through WinRT. It
+requires the host's `ApplicationData.Current.TemporaryFolder` and creates
+uniquely named files there, without replacing
+existing files. Keep the returned reference and release it when done. These
+files are temporary, so they are unsuitable for durable drafts or preferences.
+Actual NativeScript/WinRT operation and packaging remain unverified.
+
+```ts
+import { files } from '@octane-xplat/files'
+
+const copy = await files.writeText('report.txt', 'Packing list')
+try {
+  const text = await files.readText(copy)
+  const bytes = await files.readBytes(copy, { maxBytes: 1024 * 1024 })
+} finally {
+  files.release(copy)
+}
+```
+
+Windows binary reads use bounded chunks, check size limits before and during
+reading, and request cancellation when the abort signal fires. Binary writes
+preserve the supplied view's byte range and reject partial writes or failed
+flushes. A failed write removes its newly created copy. Release schedules
+best-effort deletion of owned copies only; it never deletes an externally
+supplied reference. A later release can retry a failed cleanup.
+
+```ts
+import { files } from '@octane-xplat/files'
+
+const backing = new Uint8Array([0, 1, 2, 0])
+const copy = await files.writeBytes('selection.bin', backing.subarray(1, 3))
+const controller = new AbortController()
+try {
+  const bytes = await files.readBytes(copy, { maxBytes: 2, signal: controller.signal })
+} finally {
+  files.release(copy)
+}
+```
+
+Native Windows picking and user-directed export are unavailable until the
+host supplies qualified picker-window interop. `pick` and `pickMultiple`
+reject with `UnavailabilityError`; export returns `unavailable`. This differs
+from user cancellation. `FileInput` reports the default picker's rejection;
+a custom `pick` prop remains an app-owned integration. No built-in attachment
+dialog support is claimed for Windows.
+
+```ts
+import { files } from '@octane-xplat/files'
+
+const result = await files.export('report.txt', new Uint8Array([65]))
+if (result === 'unavailable') {
+  // Use an app-provided destination workflow; no file was exported.
+}
+```
+
+See [Windows evidence and deferred checks](../../.agents/docs/parity/windows-support-progress.md)
+and Microsoft's [desktop picker-window requirements](https://learn.microsoft.com/en-us/windows/apps/develop/files/using-file-folder-pickers#use-winrt-pickers-with-hwnd-interop).
