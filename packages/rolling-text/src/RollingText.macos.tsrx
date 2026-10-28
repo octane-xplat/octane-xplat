@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from './style-merge'
 import type { RollingTextProps } from './props'
 import { useRollingText } from './use-rolling.tsrx'

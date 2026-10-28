@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import type { RollingTextProps } from './props'
 import { useRollingText } from './use-rolling.tsrx'
 import { layoutChildProps } from './layout-child.web'

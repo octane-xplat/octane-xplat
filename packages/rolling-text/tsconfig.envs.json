@@ -2,16 +2,34 @@
 	"extends": "../../tsconfig.base.json",
 	"environments": {
 		"web": {
-			"include": ["src/index.web.ts", "examples/**/*.tsrx"],
-			"exclude": ["**/*.test.*"]
+			"include": [
+				"src/index.web.ts",
+				"examples/**/*.tsrx"
+			],
+			"exclude": [
+				"**/*.test.*"
+			]
 		},
 		"native": {
-			"include": ["src/index.ts", "examples/**/*.tsrx"],
-			"exclude": ["**/*.test.*"]
+			"include": [
+				"src/index.ts",
+				"examples/**/*.tsrx"
+			],
+			"exclude": [
+				"**/*.test.*"
+			]
 		},
 		"macos": {
-			"include": ["src/index.ts", "examples/**/*.tsrx"],
-			"exclude": ["**/*.test.*"]
+			"include": [
+				"src/index.ts",
+				"examples/**/*.tsrx"
+			],
+			"exclude": [
+				"**/*.test.*"
+			]
 		}
+	},
+	"compilerOptions": {
+		"jsxImportSource": "@octane-xplat/jsx"
 	}
 }
