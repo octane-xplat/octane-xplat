@@ -3844,3 +3844,83 @@ responder when makeFirstResponder returns false, and the existing case asserts
 that identity. This makes the no-retry assertion independent of the already-owned
 editor short circuit. Same nine policy/six component cases, all unrun; syntax and
 whitespace only. Exact deferred commands and native limits above are unchanged.
+
+### AppKit typeahead focus and search request ownership
+
+The prior date/time autofocus and policy-runner fixes are pushed through
+17cbe4050; that was implementation progress, not runtime qualification. Continued
+search/selection focus ahead of Carousel edge fades and niche integrations.
+ComponentsDemo's controlled Fruit Typeahead and the sandbox token-label example
+establish ordinary search demand. Assumed focus bootstrap, text entry, click
+selection and safe ref actions are the next useful AppKit subset. Targeted
+source reads found BaseTypeahead had no focus/blur/autofocus wiring and its
+public handle captured a native snapshot and dereferenced a cleared ref. The
+renderer already has focus events; old comments claiming no native focus/Return
+support were stale. No source audit snapshot was regenerated.
+
+BaseTypeahead now binds focus to bootstrap/reshow and whole-field blur to close
+and cancellation. Blur is attached to the containing AppKit subtree, so moving
+into inline result content does not immediately remove click targets. Actual
+native focus/blur/click ordering is still unqualified. Stable typed input refs
+feed a live getter and current handle methods; owned blur recognizes a method or
+property field editor and preserves unrelated responders. Held handles no-op
+after teardown. hasAutoFocus reuses the existing private queued request owner.
+Native enabled/editable props reflect current local/inherited blocking; explicit
+isFocusableDisabled permits focus discovery while editing/selection stay blocked.
+The text path uses the existing raw-string AppKit facade adapter; raw strings
+were already the renderer payload, not an observed payload bug.
+
+Search ownership now invalidates immediately for every query, before debounce.
+Current source changes invalidate render ownership immediately and abort in the
+post-commit effect; no user abort callback runs from that render check. Source,
+blocking/ref changes, field leave and teardown retire timers/controllers; even a
+source ignoring abort cannot reopen a retired layer. Latest callbacks/options
+are read before acceptance; current result generations and keyed identities gate
+selection. Query/selection claims precede application reentry, and callback
+teardown prevents later UI/layer writes. Failure only clears current work.
+Existing inline result hosting is retained; no native popup engine, public type,
+dependency, shared runner/manifest or other-target leaf changes.
+
+Typeahead's wrapper resolves inherited Field state and delegates click-to-edit
+query reporting once to the engine (previously it also reported directly), blocks readonly edit/clear and
+omits the readonly clear affordance. A disabled-message field forwards existing
+focusable-disabled intent. Normal public ref ownership remains with Octane.
+The old minimal search flow is consolidated around current refs/generations;
+bootstrap and asynchronous search share acceptance checks rather than relying
+on abort cooperation.
+
+Fourteen object-driver cases are authored, all unrun. They cover focus bootstrap/
+refocus, stable hosts, raw text/search/current selection order, handle replacement/
+owned editor blur/teardown, current inherited disabled/readonly guards, disabled
+focus discovery, pre-debounce invalidation, source replacement, late bootstrap
+blur, keyed/reentrant selection, callback teardown, autofocus composition,
+wrapper duplicate-query/inherited readonly fixes, current rejection/retired failure
+and explicit focus-callback queries superseding implicit bootstrap.
+Native notifications/responders are faked and handlers are dispatched directly;
+no case establishes OS input, native blur-to-result hit testing or AX. A manual
+fixture adds competing editors, mount/removal, controlled selection, blocking,
+ref actions and autofocus toggles; its runner only waits/records. Search guide,
+skill, feature note, search-and-token-entry AC1 and appkit-typeahead-focus recipe
+reconcile the source subset and remaining keyboard/AX gaps.
+
+Only source/semantic review, TypeScript/TSRX syntax and whitespace checks ran.
+Exact commands remain deferred until explicit human authorization for this task:
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/typeahead-focus.macos.mobile.test.tsrx src/date-autofocus.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/typeahead-focus.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+No package tests/typechecks, builds, installs, native/OS automation, visual
+analysis or packaging ran. Actual renderer ref/focus/blur/field-editor/IME and
+notification ordering, debounce/source callbacks, result tap/hit testing, inline
+layout and packaged imports remain unqualified. Consumer keydown, keyboard
+option selection, listbox/active-option relationships and announcements remain
+source gaps. PowerSearch initial-focus ownership, Carousel fades, video and
+date preset text relay/listbox relationships remain separate work. Checkbox
+mixed rollback still awaits the previously asked human contract choice. No
+evidence-gated checkbox is closed; the persistent goal remains active.

@@ -5,6 +5,7 @@ import type { SearchableItem, TypeaheadInputHandle, TypeaheadProps } from './pro
 import { useSize } from './size-context'
 import { cx } from '@octane-xplat/lib'
 import { FormField } from './FormField.macos.tsrx'
+import { useFieldControlProps } from './field-context'
 import { BaseTypeahead } from './BaseTypeahead.macos.tsrx'
 import { Token } from './Token.macos.tsrx'
 import { ActivityIndicator } from './controls.macos.tsrx'
@@ -33,12 +34,11 @@ function EndLane(props: { lane: BusyIndicatorLane; clear?: any }) @{
 	</masonview>
 }
 
-/** Single-selection search-as-you-type field. macOS leaf: the AppKit
- *  textfield exposes no focus/return events, so the list opens when results
- *  exist and options are click-selected; the selected value still renders as
- *  a Token with click-to-edit and clear. `disabledMessage` surfaces through
- *  the AppKit tooltip bridge. */
-export function Typeahead<T extends SearchableItem>(props: TypeaheadProps<T>) @{
+/** AppKit search-as-you-type field with focus bootstrap and click selection.
+ * Keyboard option navigation and native listbox relationships remain gaps.
+ * The selected value uses a Token; disabledMessage uses the tooltip bridge. */
+export function Typeahead<T extends SearchableItem>(inProps: TypeaheadProps<T>) @{
+	const props = useFieldControlProps(inProps)
 	const size = useSize(props.size, 'md')
 	const inputId = useId()
 	const inputHandle = useRef<TypeaheadInputHandle | null>(null)
@@ -50,18 +50,17 @@ export function Typeahead<T extends SearchableItem>(props: TypeaheadProps<T>) @{
 	const showToken = props.value != null && !isEditing
 
 	const enterEditMode = () => {
-		if (props.isDisabled || !props.value) {
+		if (props.isDisabled || props.isReadOnly || !props.value) {
 			return
 		}
 
 		setIsEditing(true)
-		props.onChangeQuery?.(props.value.label)
 		inputHandle.current?.setQuery(props.value.label)
 		inputHandle.current?.focus()
 	}
 
 	const handleWrapperTap = () => {
-		if (props.isDisabled) {
+		if (props.isDisabled || props.isReadOnly) {
 			return
 		}
 
@@ -78,6 +77,7 @@ export function Typeahead<T extends SearchableItem>(props: TypeaheadProps<T>) @{
 	}
 
 	const handleClear = () => {
+		if (props.isDisabled || props.isReadOnly) return
 		setIsEditing(false)
 		props.onChange(null)
 		inputHandle.current?.focus()
@@ -132,6 +132,7 @@ export function Typeahead<T extends SearchableItem>(props: TypeaheadProps<T>) @{
 						minQueryLength={props.minQueryLength}
 						emptySearchResultsText={props.emptySearchResultsText}
 						isDisabled={props.isDisabled}
+						isFocusableDisabled={showsDisabledMessage}
 						hasAutoFocus={props.hasAutoFocus}
 						id={inputId}
 						onChangeQuery={props.onChangeQuery}
@@ -155,7 +156,7 @@ export function Typeahead<T extends SearchableItem>(props: TypeaheadProps<T>) @{
 			<EndLane
 				lane={busyLane}
 				clear={
-					props.hasClear !== false && props.value && !props.isDisabled ? (
+					props.hasClear !== false && props.value && !props.isDisabled && !props.isReadOnly ? (
 						<Pressable
 							className="vx-input-clear"
 							accessibilityLabel="Clear selection"

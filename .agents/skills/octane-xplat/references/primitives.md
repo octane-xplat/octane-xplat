@@ -1580,4 +1580,31 @@ Nine policy/six object-driver cases and the manual fixture are unrun. Popover is
 mocked away in component cases; this is not modal containment/native caret/IME/
 AX evidence. See [autofocus guidance](../../../../docs/platform/date-picker.md#request-initial-appkit-date-or-time-focus).
 This does not change DateTimeInput/DateRangeInput (no autofocus flag), nor qualify
-BaseTypeahead/PowerSearch initial-focus ownership.
+PowerSearch initial-focus ownership. BaseTypeahead now has the separate source path below.
+
+
+## AppKit typeahead focus and request ownership
+
+BaseTypeahead now connects input focus to bootstrap/reshow, whole-field blur to
+close/cancel, and hasAutoFocus to the existing queued AppKit owner. Native refs
+are stable; handle.native reads the current host, owned blur preserves other
+editors, and held handles do nothing after teardown. Native enabled/editable
+props and current local/inherited blocking guard editing/selection. Typeahead
+click-to-edit reports the query once and readonly fields omit clear actions.
+
+```tsx
+import { BaseTypeahead, createStaticSource } from '@octane-xplat/ui'
+const people = createStaticSource([{ id: 'ada', label: 'Ada' }])
+export function Assignee() {
+	return <BaseTypeahead searchSource={people} value={null} onChange={() => {}}
+		hasEntriesOnFocus accessibilityLabel="Assignee" />
+}
+```
+
+New queries invalidate old responses before debounce. Source replacement,
+field-leave blur, ref replacement, blocking and teardown cancel requests; late
+responses cannot reopen. Query/selection callbacks claim before reentry and
+resolve current result identities. Fourteen object-driver cases and the manual
+fixture are unrun. Results remain inline; consumer keydown/option navigation,
+IME/editor/blur/click ordering, native listbox/active-option relationships,
+announcements and packaging remain gaps or unqualified. See [AppKit typeahead](../../../../docs/app/search-selection.md#bootstrap-appkit-typeahead-results-on-focus).

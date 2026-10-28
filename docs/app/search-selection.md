@@ -432,8 +432,8 @@ accessed through `state` are direct fields on that object.
 
 `ref` supplies the handle declared by each component. Primitive containers
 supply a host view; search fields and custom selectors supply their own actions. The
-`onKeyDown` escape event is a DOM `KeyboardEvent` on web only; native text
-fields do not emit it. `htmlName` is web-only. Native and macOS links open via
+typeahead `onKeyDown` callback currently receives a DOM `KeyboardEvent` on web;
+the iOS/Android and experimental AppKit typeahead leaves do not forward it. `htmlName` is web-only. Native and macOS links open via
 the platform URL/deep-link service rather than rendering an HTML anchor.
 
 ```tsx
@@ -618,3 +618,52 @@ VoiceOver and physical remove-click isolation from the trigger remain unqualifie
 the matching renderer primary-click gate is required. Direct handler dispatch
 cannot prove OS hit testing. Alternate picker presentations and live announcements
 remain separate gaps.
+
+
+## Bootstrap AppKit typeahead results on focus
+
+The experimental AppKit BaseTypeahead source now connects input focus to
+`hasEntriesOnFocus`. Use it for a small set of initial choices, then let typing
+search the same source. `hasAutoFocus` requests initial focus through the queued
+AppKit request owner; it never activates a window. Results still render inline
+below the field.
+
+```tsx
+import { useState } from 'octane'
+import { BaseTypeahead, createStaticSource } from '@octane-xplat/ui'
+import type { SearchableItem } from '@octane-xplat/ui'
+const people = createStaticSource([{ id: 'ada', label: 'Ada' }, { id: 'grace', label: 'Grace' }])
+export function FindPerson() {
+	const [selected, setSelected] = useState<SearchableItem | null>(null)
+	return <BaseTypeahead searchSource={people} value={selected} onChange={setSelected}
+		hasEntriesOnFocus hasAutoFocus accessibilityLabel="Find a person" />
+}
+```
+
+Leaving the whole field closes results and cancels pending work. Moving into an
+inline result keeps the field alive for its click. New queries retire previous
+responses immediately, before debounce; changed sources, blocking state and
+teardown also discard late results. Disabled/read-only fields reject edits and
+selection. Existing refs read the current native host, and blur leaves unrelated
+responders alone.
+
+```tsx
+import { useRef } from 'octane'
+import { BaseTypeahead, Button, createStaticSource } from '@octane-xplat/ui'
+import type { TypeaheadInputHandle } from '@octane-xplat/ui'
+const people = createStaticSource([{ id: 'ada', label: 'Ada' }])
+export function SearchAction() {
+	const input = useRef<TypeaheadInputHandle | null>(null)
+	return <>
+		<BaseTypeahead ref={input} searchSource={people} value={null} onChange={() => {}} accessibilityLabel="Person" />
+		<Button label="Find Ada" clickAction={() => input.current?.setQuery('Ada')} />
+	</>
+}
+```
+
+Fourteen object-driver cases and a [manual fixture](../../examples/probes/typeahead-focus.macos.tsrx)
+are authored, all unrun. Source/fake dispatch does not qualify actual field-editor
+focus/blur, IME, click ordering, inline layout, keyboard option navigation,
+listbox accessibility or packaged imports. Keyboard selection/consumer keydown,
+active-option relationships and result announcements remain source gaps. The
+AppKit typeahead result host remains separate from the general native Popover.

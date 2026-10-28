@@ -1,6 +1,8 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from './style-merge'
-import { useContext } from 'octane'
+import { useCallback, useContext } from 'octane'
+import type { NSTextField } from '@octane-xplat/platform/macos'
+import { appKitTextChange } from './appkit-events.macos'
 import type { SearchableItem } from './props'
 import type { BaseTypeaheadViewProps } from './typeahead-view'
 import { cx } from '@octane-xplat/lib'
@@ -10,16 +12,15 @@ import { ActivityIndicator } from './controls.macos.tsrx'
 import { BusyLaneContext } from './busy-lane'
 import { groupTypeaheadItems } from './typeahead-source'
 
-/** BaseTypeahead presentation — resolved combobox state in, user intents
- *  out. AppKit leaf — the renderer's textfield exposes only `value` +
- *  `onTextChange`, so there is no focus, key navigation, or return-to-select;
- *  options are tap-selected. Internal only — consumers use `BaseTypeahead`. */
+/** AppKit presentation with stable input attachment and field-leave blur.
+ * Keyboard option navigation and native listbox relationships remain gaps. */
 export function BaseTypeaheadView<T extends SearchableItem>(
 	props: BaseTypeaheadViewProps<T>,
 ) @{
 	const busyLane = useContext(BusyLaneContext)
 	const groups = groupTypeaheadItems(props.results, { ungroupedFirst: true })
 	const selectedId = props.value?.id
+	const bindInput = useCallback((view: NSTextField | null) => { props.inputRef.current = view }, [props.inputRef])
 	const activeIndex =
 		props.highlightedIndex >= 0 && props.highlightedIndex < props.results.length
 			? props.highlightedIndex
@@ -27,12 +28,12 @@ export function BaseTypeaheadView<T extends SearchableItem>(
 
 	<masonview
 		className={cx('vx-typeahead', props.className)}
+		onBlur={props.onInputBlur}
 		style={mergeStyle({ flexDirection: 'column' }, mergeStyle({ display: 'flex' }, props.style))}
 	>
 		<textfield
-			ref={(v: any) => {
-				props.inputRef.current = v
-			}}
+			ref={bindInput}
+			onFocus={props.onInputFocus}
 			id={props.inputId}
 			className={cx(
 				'vx-typeahead-input',
@@ -47,8 +48,10 @@ export function BaseTypeaheadView<T extends SearchableItem>(
 				props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label
 			}
 			accessibilityHint={props.accessibilityHint}
-			accessibilityState={{ disabled: props.isDisabled }}
-			onTextChange={(value: any) => props.onQueryChange(String(value ?? ''))}
+			isEnabled={!props.isDisabled || !!props.isFocusableDisabled}
+			editable={!props.isDisabled && !props.isReadOnly}
+			accessibilityState={{ disabled: props.isDisabled, readonly: props.isReadOnly }}
+			onTextChange={appKitTextChange(props.onQueryChange)}
 		/>
 		{props.isSearching && busyLane == null ? (
 			<masonview className="vx-typeahead-loading" style={{ display: 'flex' }}>
