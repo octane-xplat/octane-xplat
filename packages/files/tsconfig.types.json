@@ -12,7 +12,7 @@
 		"allowImportingTsExtensions": true,
 		"moduleSuffixes": ["", ".web", ".ios", ".android", ".mobile", ".macos", ".linux", ".windows"],
 		"jsx": "react-jsx",
-		"jsxImportSource": "octane"
+		"jsxImportSource": "@octane-xplat/jsx"
 	},
 	"include": ["src/**/*.ts", "src/**/*.tsrx"],
 	"exclude": ["src/**/*.test.*", "src/**/*.spec.*"]

@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from './style-merge'
 import { useRef, useImperativeHandle, useId, useState } from 'octane'
 import { Field as FormField, Icon, Pressable, useFieldControl } from '@octane-xplat/ui'
