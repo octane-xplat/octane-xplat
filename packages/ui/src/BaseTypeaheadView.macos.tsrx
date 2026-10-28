@@ -6,7 +6,8 @@ import { appKitTextChange } from './appkit-events.macos'
 import type { SearchableItem } from './props'
 import type { BaseTypeaheadViewProps } from './typeahead-view'
 import { cx } from '@octane-xplat/lib'
-import { Popover } from './surfaces.macos.tsrx'
+import { TypeaheadResults } from './TypeaheadResults.macos.tsrx'
+import { appKitTypeaheadOwnsFocus } from './typeahead-layer.macos'
 import { TypeaheadItem } from './TypeaheadItem.macos.tsrx'
 import { ActivityIndicator } from './controls.macos.tsrx'
 import { BusyLaneContext } from './busy-lane'
@@ -31,7 +32,12 @@ export function BaseTypeaheadView<T extends SearchableItem>(
 
 	const live = useRef(props); live.current = props
 	const rows = useRef(new Map<string, { view: NSView }>())
-	const list = useRef<NSView | null>(null)
+	const list = useRef<NSView | null>(null), shell = useRef<NSView | null>(null)
+	const bindShell = useCallback((view: NSView | null) => { shell.current = view }, [])
+	const fieldBlur = (event: any) => {
+		if (!live.current.inputRef.current || appKitTypeaheadOwnsFocus([live.current.inputRef.current, shell.current, list.current])) return
+		live.current.onInputBlur?.(event)
+	}
 	const accessibility = useMemo(() => createAppKitTypeaheadAccessibility(() => {
 		const current = live.current, active = current.results[current.highlightedIndex]
 		return { input: current.inputRef.current, list: list.current, active: active ? rows.current.get(active.id)?.view ?? null : null,
@@ -65,7 +71,7 @@ export function BaseTypeaheadView<T extends SearchableItem>(
 
 	<masonview
 		className={cx('vx-typeahead', props.className)}
-		onBlur={props.onInputBlur}
+		ref={bindShell} onBlur={fieldBlur}
 		style={mergeStyle({ flexDirection: 'column' }, mergeStyle({ display: 'flex' }, props.style))}
 	>
 		<textfield
@@ -97,11 +103,11 @@ export function BaseTypeaheadView<T extends SearchableItem>(
 				<ActivityIndicator busy={true} />
 			</masonview>
 		) : null}
-		<Popover
-			anchor={props.anchor}
-			open={props.open}
-			className="vx-typeahead-dropdown"
-			style={{ width: props.menuWidth }}
+		<TypeaheadResults
+			anchor={props.anchor} input={() => live.current.inputRef.current}
+			open={props.open && !props.isDisabled && !props.isReadOnly}
+			width={props.menuWidth} placement={props.placement}
+			onDismiss={() => live.current.onOpenChange(false)} onBlur={fieldBlur}
 		>
 			<masonview
 				className="vx-typeahead-list"
@@ -151,6 +157,6 @@ export function BaseTypeaheadView<T extends SearchableItem>(
 					}
 				}
 			</masonview>
-		</Popover>
+		</TypeaheadResults>
 	</masonview>
 }

@@ -1612,8 +1612,8 @@ New queries invalidate old responses before debounce. Source replacement,
 field-leave blur, ref replacement, blocking and teardown cancel requests; late
 responses cannot reopen. Query/selection callbacks claim before reentry and
 resolve current result identities. Fourteen object-driver cases and the manual
-fixture are unrun. Results remain inline; keyboard intents have the source path
-below. Native role/link source wiring now follows separately; IME/editor/blur/
+fixture are unrun. Results now have the separate source-owned floating host
+below; keyboard intents have their own source path. Native role/link source wiring now follows separately; IME/editor/blur/
 click ordering, full AX behavior, announcements and packaging remain unqualified. See [AppKit typeahead](../../../../docs/app/search-selection.md#bootstrap-appkit-typeahead-results-on-focus).
 
 
@@ -1748,7 +1748,8 @@ count from reserving its own space after resizing.
 Requires the renderer's native overflow clipping path. Eight geometry/five
 object-driver cases and the manual fixture are authored, unrun. Drawing,
 Mason sizing, resize/font/RTL behavior, focus/IME, hit-testing/AX and packaging
-remain unqualified. The existing Tokenizer layer host remains inline. See the
+remain unqualified. Tokenizer's outer unfocusedLayer editor remains inline; its result list uses
+the source-owned host below. See the
 [overflow guide](../../../../docs/app/search-selection.md#collapse-appkit-token-rows-with-native-geometry).
 
 ## AppKit plain text edit ownership
@@ -1780,7 +1781,7 @@ See [AppKit edit ownership](../../../../docs/app/text-entry.md#keep-appkit-text-
 The shared AppKit result view declares combobox/listbox/option roles. The
 renderer maps editable combo boxes to AXComboBox and host list/option roles to
 AXList/AXRow, restoring specialized input role/expanded baselines when dropped.
-The private relationship owner links the current inline input/list and publishes
+The private relationship owner links the current same-window input/list and publishes
 the highlighted row as pending selected children on both, independently of the
 committed controlled value. It requests AXSelectedChildrenChanged for native row
 identity changes and never calls makeFirstResponder.
@@ -1792,8 +1793,32 @@ identity changes and never calls makeFirstResponder.
 
 Unrelated baseline links are preserved; close/block/ref/window changes restore
 metadata, and teardown retires queued work/observation. Hidden/foreign rows are
-excluded. Same-window inline hosting is the current subset. Four renderer, ten
+excluded. Same-window hosting is the current subset. Four renderer, ten
 relationship and five view cases plus a manual fixture are authored, unrun.
 Do not equate roles/links/notifications with qualified VoiceOver hierarchy,
 navigation, announcements, focus/IME or packaging. This does not qualify other
 Selector/preset lists. See [the source subset](../../../../docs/app/search-selection.md#expose-appkit-suggestion-roles-and-relationships).
+
+
+## AppKit floating typeahead source subset
+
+BaseTypeahead/Typeahead/Tokenizer results now use a private same-window source
+portal with bounded scrolling, current anchor/menuWidth/placement/direction and
+commit-gated reveal. Source providers remain around result content; input and
+result descendants share the field-leave blur boundary. The host does not focus
+or restore focus, and top-layer ownership gates controlled outside dismissal.
+Window retirement cancels the current presentation until close/open rearms it.
+
+```tsx
+<BaseTypeahead searchSource={people} value={person} onChange={setPerson}
+	hasEntriesOnFocus menuWidth={280} placement="bottom" accessibilityLabel="Person" />
+```
+
+Require the matching renderer source-outlet/staged-window-layer contract; do not
+add an inline fallback or replace it with a standalone NSPopover root. Fourteen
+controller/focus and four actual source-portal object cases plus a manual
+fixture are authored, unrun. State/key fixtures explicitly mock only this host.
+Generic Popover/useLayer standalone roots and Tokenizer's outer unfocusedLayer
+editor remain separate limitations. Native portal/context/commit/geometry,
+scroll/RTL, input/IME/blur/click, nested dismissal/AX and packaging are unqualified.
+See [floating suggestions](../../../../docs/app/search-selection.md#float-appkit-search-suggestions).

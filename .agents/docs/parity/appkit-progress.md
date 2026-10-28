@@ -4539,3 +4539,67 @@ compound blur/dismissal and current width/anchor integration are next work.
 Generic native Popover/useLayer still own detached roots. Do not treat this host
 prerequisite as a completed floating-result feature. Evidence gates stay open;
 the persistent goal remains active.
+
+## AppKit source-owned floating typeahead results
+
+Demand assumption: ComponentsDemo's Typeahead and sandbox token-entry examples
+represent ordinary assignee/tag forms; source-owned floating suggestions have
+higher demand than remaining charts/polish. This slice connects the preceding
+same-window renderer prerequisite to BaseTypeahead's AppKit view. Typeahead and
+Tokenizer inherit that result view. Tokenizer's separate outer unfocusedLayer
+editor remains inline; general native Popover/useLayer still own standalone
+roots. No shared manifest/CLI/other-target implementation or audit snapshot
+changed.
+
+The private result host publishes a native source outlet, then renders children
+through a portal under the field's declaring providers and layer depth. There is
+no separately mounted result tree or inline compatibility fallback. A matching
+source-outlet/staged-layer renderer is required; missing or legacy hosts fail
+explicitly. Source commits gate initial reveal and changed sizing. Current
+anchor/menuWidth/viewport/placement/direction choose bounded width/scroll height
+and existing flip/clamp positioning. Native layout/scroll correctness remains
+unqualified.
+
+Current native input, anchor, window and source token own each presentation.
+Replacement retires old callbacks/targets; source/window closure cancels until
+an explicit close/open rearms. Cleanup claims ownership before reentry, attempts
+observer release even after host failures and preserves original creation
+errors. Source disposal during host creation closes a late returned handle
+without post-disposal state publication. Controlled outside dismissal respects
+current top-layer permission and excludes the anchor. No focus transfer or
+restore is requested. Input/shared editor delegate and result descendants form
+one native field-leave boundary, forwarding the original event to the latest
+callback only when focus leaves both.
+
+Fourteen controller/focus cases and four actual source-portal object-driver
+cases are authored, all unrun. They describe commit/reveal, bounded/current
+geometry and RTL, owner/ref/window/source retirement, controlled/nested dismiss
+permission, missing/legacy hosts, reentrant disposal/window migration, failure
+cleanup, compound focus and provider propagation. The recording portal driver
+flattens physical targets; it does not prove native positioning or containment.
+Existing state/key/AX/token cases explicitly mock this result host and retain
+their state-policy scope. The manual fixture supplies clipped parent, 40 rows,
+provider/source/width/RTL/blocking/removal controls; its runner only waits/records.
+
+Guide, primitive/overlay skills, renderer README, release note and both affected
+recipes reconcile the source change. Source/semantic review, TypeScript/TSRX
+syntax parsing and whitespace are the only checks performed. No unit/component
+test was executed. Exact deferred commands:
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/typeahead-layer.macos.test.ts src/typeahead-results.macos.mobile.test.tsrx src/typeahead-focus.macos.mobile.test.tsrx src/typeahead-keys.macos.mobile.test.tsrx src/typeahead-accessibility.macos.mobile.test.tsrx src/tokenizer-keys.macos.mobile.test.tsrx src/tokenizer-overflow.macos.mobile.test.tsrx
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/macos-renderer
+pnpm probe doctor
+pnpm probe run examples/probes/typeahead-results.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All remain deferred until explicit human authorization for this task. No heavy
+build/typecheck/test/install, native/OS automation, visual analysis or packaging
+ran. Source portal/provider/ref/commit timing, natural scroll sizing, clipping,
+window resize/scroll/RTL, real input/caret/IME/focus/blur/click ordering, nested
+layer dismissal, native AX/announcements and packaged imports remain unqualified.
+Do not close floating-result or platform evidence gates from this implementation.
+The persistent goal remains active.

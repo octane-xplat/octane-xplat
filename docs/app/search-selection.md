@@ -626,8 +626,8 @@ remain separate gaps.
 The experimental AppKit BaseTypeahead source now connects input focus to
 `hasEntriesOnFocus`. Use it for a small set of initial choices, then let typing
 search the same source. `hasAutoFocus` requests initial focus through the queued
-AppKit request owner; it never activates a window. Results still render inline
-below the field.
+AppKit request owner; it never activates a window. Results use the experimental
+[same-window result host](#float-appkit-search-suggestions).
 
 ```tsx
 import { useState } from 'octane'
@@ -642,7 +642,7 @@ export function FindPerson() {
 ```
 
 Leaving the whole field closes results and cancels pending work. Moving into an
-inline result keeps the field alive for its click. New queries retire previous
+result keeps the field alive for its click. New queries retire previous
 responses immediately, before debounce; changed sources, blocking state and
 teardown also discard late results. Disabled/read-only fields reject edits and
 selection. Existing refs read the current native host, and blur leaves unrelated
@@ -664,7 +664,7 @@ export function SearchAction() {
 
 Fourteen object-driver cases and a [manual fixture](../../examples/probes/typeahead-focus.macos.tsrx)
 are authored, all unrun. Source/fake dispatch does not qualify actual field-editor
-focus/blur, IME, click ordering, inline layout, keyboard option navigation,
+focus/blur, IME, click ordering, layout, keyboard option navigation,
 listbox accessibility or packaged imports. Keyboard selection/consumer keydown
 now have a separate source path below. Native role/link wiring also follows
 below; result announcements and full AX qualification remain open. The
@@ -716,7 +716,7 @@ Seven policy and five object-driver cases plus the
 [manual key fixture](../../examples/probes/typeahead-keys.macos.tsrx) are authored,
 all unrun. These establish source intent only. Real field-editor/IME/repeat,
 modifier delivery, Tab/layer ordering, native highlight reveal and packaging
-remain unqualified. Results remain inline; the native role/link source subset
+remain unqualified. Floating results have the source host below; the native role/link subset
 follows below, while full accessibility and announcements remain unqualified.
 Tokenizer's separate AppKit Backspace wiring
 is described below.
@@ -774,8 +774,9 @@ all unrun. Missing native geometry preserves the last count. Counter removal
 waits for updated native layout before counting again. These source changes
 require the AppKit renderer's new overflow clipping path; native drawing,
 resizing, text sizing, focus/IME, hit-testing, accessibility and packaging remain
-unqualified. AppKit's Tokenizer layer still renders inline through its current
-surface implementation; this does not establish floating-layer parity.
+unqualified. Tokenizer's outer `unfocusedLayer` editor still uses its inline
+surface implementation. Its BaseTypeahead suggestion list now uses the separate
+result host below; neither path has native floating-layer qualification.
 
 ## Expose AppKit suggestion roles and relationships
 
@@ -800,10 +801,64 @@ export function AccessiblePeopleSearch() {
 Four renderer cases, ten [relationship cases](../../packages/ui/src/typeahead-accessibility.macos.test.ts),
 five [view cases](../../packages/ui/src/typeahead-accessibility.macos.mobile.test.tsrx)
 and a [manual fixture](../../examples/probes/typeahead-accessibility.macos.tsrx)
-are authored, all unrun. The inline input/list must share a native window.
+are authored, all unrun. The input/list must share a native window.
 Previous native links and selection metadata are restored on close, blocking,
 replacement or teardown. Selected-children notifications are requested when the
 highlighted native row changes; this does not establish spoken announcements.
 Native AX hierarchy, VoiceOver navigation/announcements, editor focus/IME,
-notification ordering and packaging still need qualification. No floating-result
-host or broader Selector/preset accessibility support is established here.
+notification ordering and packaging still need qualification. Floating-result
+hosting has the separate source implementation below. Broader Selector/preset
+accessibility support is not established here.
+
+
+## Float AppKit search suggestions
+
+Experimental AppKit BaseTypeahead now hosts suggestions outside the field's
+layout in the same native window. Typeahead and Tokenizer inherit this result
+view. Use `menuWidth` to choose a width; otherwise it follows the anchor.
+`placement` chooses the preferred side, with flipping and window bounds limiting
+the panel. Longer results have a bounded scrolling area. This requires the
+matching AppKit renderer's source-owned window-layer host; older hosts fail
+explicitly. Native layout and interaction qualification remain pending.
+
+```tsx
+import { useState } from 'octane'
+import { BaseTypeahead, createStaticSource } from '@octane-xplat/ui'
+import type { SearchableItem } from '@octane-xplat/ui'
+const people = createStaticSource([{ id: 'ada', label: 'Ada' }, { id: 'grace', label: 'Grace' }])
+export function FloatingPeople() {
+	const [person, setPerson] = useState<SearchableItem | null>(null)
+	return <BaseTypeahead searchSource={people} value={person} onChange={setPerson}
+		hasEntriesOnFocus menuWidth={280} placement="bottom" accessibilityLabel="Person" />
+}
+```
+
+Custom result content keeps the providers around the declaring field through a
+portal: one source-owned component tree displayed in another native view.
+Moving between input and result descendants stays inside the compound field;
+leaving both forwards blur. The result host does not request focus or restore it
+on close. Controlled outside dismissal respects nested layer ownership. Native
+window retirement cancels that presentation until a new close/open request.
+
+```tsx
+import { createContext, useContext } from 'octane'
+import { BaseTypeahead, Text, createStaticSource } from '@octane-xplat/ui'
+const Team = createContext('Personal'), TeamProvider: any = Team
+const people = createStaticSource([{ id: 'ada', label: 'Ada' }])
+function PersonHint() { return <Text>{useContext(Team)}</Text> }
+export function TeamSearch() {
+	return <TeamProvider value="Design">
+		<BaseTypeahead searchSource={people} value={null} onChange={() => {}}
+			hasEntriesOnFocus accessibilityLabel="Teammate" renderItem={() => <PersonHint />} />
+	</TeamProvider>
+}
+```
+
+Fourteen [controller/focus cases](../../packages/ui/src/typeahead-layer.macos.test.ts),
+four [source-portal cases](../../packages/ui/src/typeahead-results.macos.mobile.test.tsrx)
+and the [manual fixture](../../examples/probes/typeahead-results.macos.tsrx) are
+authored, all unrun. Existing state/key cases use an explicit test host.
+Actual portal/context/ref/commit ordering, native sizing/clipping/scrolling/RTL,
+editor/IME/focus/blur/click ordering, layer dismissal, VoiceOver and packaging
+remain unqualified. The general native Popover/useLayer still use standalone
+roots, and Tokenizer's outer `unfocusedLayer` editor remains inline.

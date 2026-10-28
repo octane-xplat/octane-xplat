@@ -307,9 +307,11 @@ layer?.close()
 ```
 
 Eight source cases and the manual fixture are authored, unrun. This engine seam
-does not migrate public Popover/useLayer or inline Typeahead/Tokenizer results.
+does not migrate public Popover/useLayer. Typeahead/Tokenizer suggestions now
+have the separate [source-owned result host](primitives.md#appkit-floating-typeahead-source-subset);
+Tokenizer's outer unfocusedLayer editor remains inline.
 Do not swap to native NSPopover just to make results float: its current separate
-root/window changes provider and input-focus ownership. Wire the same-window
-source portal and compound blur/dismissal boundary before claiming that flow.
+root/window changes provider and input-focus ownership. Retain the result host's same-window
+source portal and compound blur/dismissal ownership.
 Native commit/context/geometry/focus/AX and packaging qualification remains deferred.
 See [the host contract](../../../../packages/macos-renderer/README.md#stage-a-source-owned-window-layer).

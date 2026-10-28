@@ -1,5 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { expect, it, vi } from 'vitest'
+// State/key fixtures use an explicit inline test host; floating ownership has separate cases.
+vi.mock('./TypeaheadResults.macos.tsrx', () => ({ TypeaheadResults: (props: any) => props.open ? props.children ?? null : null }))
 import { createObjectContainer, createObjectDriver, createUniversalRoot, flushUniversalSync } from 'octane/universal/native'
 import { BaseTypeahead } from './BaseTypeahead.macos.tsrx'
 const items = [{ id: 'a', label: 'Ada' }, { id: 'g', label: 'Grace' }, { id: 'l', label: 'Alan' }]
