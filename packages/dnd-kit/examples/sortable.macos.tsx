@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useCallback, useRef, useState } from 'octane'
 import { Text, View, useMeasure } from '@octane-xplat/ui'
 import { SortableList } from '../src/index'

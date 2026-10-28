@@ -6,7 +6,7 @@
 		"module": "ESNext",
 		"moduleResolution": "Bundler",
 		"jsx": "react-jsx",
-		"jsxImportSource": "octane",
+		"jsxImportSource": "@octane-xplat/jsx",
 		"moduleSuffixes": [
 			"",
 			".web",

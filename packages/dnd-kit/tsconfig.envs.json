@@ -6,14 +6,29 @@
 		"moduleResolution": "Bundler",
 		"jsx": "react-jsx",
 		"paths": {
-			"@octane-xplat/ui": ["../ui/types/generated/index.d.ts"]
-		}
+			"@octane-xplat/ui": [
+				"../ui/types/generated/index.d.ts"
+			]
+		},
+		"jsxImportSource": "@octane-xplat/jsx"
 	},
 	"environments": {
-		"web": { "files": ["src/index.ts", "src/index.web.ts"] },
-		"native": { "files": ["src/index.ts"] },
+		"web": {
+			"files": [
+				"src/index.ts",
+				"src/index.web.ts"
+			]
+		},
+		"native": {
+			"files": [
+				"src/index.ts"
+			]
+		},
 		"macos": {
-			"files": ["src/index.macos.ts", "examples/sortable.macos.tsx"]
+			"files": [
+				"src/index.macos.ts",
+				"examples/sortable.macos.tsx"
+			]
 		}
 	}
 }
