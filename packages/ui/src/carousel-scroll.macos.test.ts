@@ -58,7 +58,7 @@ test('initial alignment waits for usable geometry, runs once per viewport/direct
 	h.scrollNext(); const at = f.clip.bounds.origin.x; f.control.initialize(); assert.equal(f.clip.bounds.origin.x, at)
 	f.state.reduced = true; const animated = f.animated.length; h.scrollNext(); assert.equal(f.animated.length, animated)
 	f.state.reduced = false; f.clip.animator = () => ({}); h.scrollPrev(); assert.equal(f.animated.length, animated)
-	f.control.reset(); f.control.initialize(); assert.equal(f.clip.bounds.origin.x, 0)
+	const retained = f.clip.bounds.origin.x; f.control.reset(); f.control.initialize(); assert.equal(f.clip.bounds.origin.x, retained)
 })
 test('invalid, hidden and detached geometry has no capability or writes and retained handles cannot act after teardown', () => {
 	const f = fixture(), h = f.control.handle
@@ -70,4 +70,18 @@ test('invalid, hidden and detached geometry has no capability or writes and reta
 		f.clip.bounds.size.width = 100; f.document.frame.size.width = 340; f.clip.bounds.origin.x = 0
 	}
 	f.detach(); h.scrollNext(); h.scrollTo(0); assert.equal(h.canScrollNext(), false)
+})
+
+test('nearest-edge snap uses current clamped slide geometry in both directions and skips aligned or unavailable targets', () => {
+	const f = fixture(); f.clip.bounds.origin.x = 178; f.control.snap(); assert.deepEqual(f.writes.at(-1), { x: 120, y: 37 })
+	const before = f.writes.length; f.control.snap(); assert.equal(f.writes.length, before)
+	f.state.count = 0; f.clip.bounds.origin.x = 70; f.control.snap(); assert.equal(f.writes.length, before)
+	const rtl = fixture(true); rtl.state.reduced = true; rtl.clip.bounds.origin.x = 70; rtl.control.snap()
+	assert.equal(rtl.clip.bounds.origin.x, 120); assert.equal(rtl.animated.length, 0)
+})
+test('accepted handle requests and existing native user offsets survive late initial alignment', () => {
+	const f = fixture(); f.control.handle.scrollTo(2); const before = f.writes.length
+	f.control.initialize(); assert.equal(f.clip.bounds.origin.x, 240); assert.equal(f.writes.length, before)
+	const native = fixture(); native.clip.bounds.origin.x = 75; native.control.initialize(); assert.equal(native.writes.length, 0)
+	native.control.interacted(); native.clip.bounds.origin.x = 0; native.control.initialize(); assert.equal(native.writes.length, 0)
 })

@@ -150,7 +150,9 @@ export function TripPreview() {
   Dismissal during keyboard movement releases bindings and restores eligible
   editing focus, with actual OS input qualified separately.
 
-- AC11: AppKit Carousel delivers its existing handle and optional Previous/Next controls using current native viewport/slide geometry, clamped indexed navigation, looping only with multiple overflowing slides, logical RTL alignment and reduced-motion requests. Proportional layout measures each viewport-width slide and its track extent. Preserve vertical position, child/ref ownership, current resize/scroll state and teardown guards; distinguish source/policy/wiring evidence from native layout/input/AX/package qualification and remaining snap/fade gaps.
+- AC11: AppKit Carousel delivers its existing handle and optional Previous/Next controls using current native viewport/slide geometry, clamped indexed navigation, looping only with multiple overflowing slides, logical RTL alignment and reduced-motion requests. Proportional layout measures each viewport-width slide and its track extent. Preserve vertical position, child/ref ownership, current resize/scroll state and teardown guards; distinguish source/policy/wiring evidence from native layout/input/AX/package qualification and remaining fade gaps; snap ownership is covered separately in AC12.
+
+- AC12: AppKit Carousel hasSnap uses current native user-live scroll ownership, waits through active tracking and a quiet period, supports unbracketed user updates, and never arms from generic/programmatic bounds changes. Nearest measured edges preserve current RTL/reduced-motion/vertical behavior. Cancel stale metadata/scope/programmatic intent, retire late initialization after user/handle requests, and release timers/partial observer installation. Keep authored policy/wiring and SDK evidence separate from native input/momentum/layout/AX qualification and remaining fades.
 
 ## Documentation
 
@@ -180,4 +182,6 @@ Windows is not added to this recipe’s supported targets.
 OS touch/typing in shared overlays from programmatic native-sheet, desktop, and
 browser evidence. Physical keyboard and screen-reader navigation are not implied.
 
-- AC11: [AppKit carousel guide](../../../docs/app/components.md#navigate-appkit-carousel-slides), private geometry adapter, five policy/three wiring/one motion-getter authored cases, [maintained fixture](../../../examples/probes/carousel.macos.tsrx), skill and [target note](../parity/appkit-progress.md#appkit-carousel-navigation-and-handle). All cases/fixture/package/native checks remain unrun; snap/fades remain source gaps.
+- AC11: [AppKit carousel guide](../../../docs/app/components.md#navigate-appkit-carousel-slides), private geometry adapter, five policy/three wiring/one motion-getter authored cases, [maintained fixture](../../../examples/probes/carousel.macos.tsrx), skill and [target note](../parity/appkit-progress.md#appkit-carousel-navigation-and-handle). All cases/fixture/package/native checks remain unrun; snap source ownership follows AC12; fades remain a source gap.
+
+- AC12: [AppKit snap guide](../../../docs/app/components.md#snap-appkit-carousel-slides-after-user-scrolling), private snap controller and geometry prerequisites, six policy/two geometry/two wiring authored cases, [extended maintained fixture](../../../examples/probes/carousel.macos.tsrx), skill and [target note](../parity/appkit-progress.md#appkit-carousel-user-scroll-snapping). All cases/fixture/package/native qualification remain unrun.

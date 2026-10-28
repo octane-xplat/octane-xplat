@@ -2,12 +2,12 @@
 import { afterEach, expect, it, vi } from 'vitest'
 import { createObjectContainer, createObjectDriver, createUniversalRoot, flushUniversalSync } from 'octane/universal/native'
 import { Carousel } from './Carousel.macos.tsrx'
-afterEach(() => vi.unstubAllGlobals())
+afterEach(() => { vi.useRealTimers(); vi.unstubAllGlobals() })
 function mount(extra: any = {}) {
 	const container = createObjectContainer('nativescript'), root = createUniversalRoot(container, createObjectDriver('nativescript'))
 	const window = {}, observers = new Map<any, any>(), writes: any[] = [], animated: any[] = [], ref = { current: null as any }
 	vi.stubGlobal('NSNotificationCenter', { defaultCenter: {
-		addObserverForNameObjectQueueUsingBlock(_: any, __: any, ___: any, callback: any) { const token = {}; observers.set(token, callback); return token }, removeObserver(token: any) { observers.delete(token) },
+		addObserverForNameObjectQueueUsingBlock(name: string, object: any, _: any, callback: any) { const token = {}; observers.set(token, { name, object, callback }); return token }, removeObserver(token: any) { observers.delete(token) },
 	} })
 	vi.stubGlobal('NSWorkspace', { sharedWorkspace: { accessibilityDisplayShouldReduceMotion: false } })
 	function Fixture(props: any) { return <Carousel {...props}>{props.values.map((value: string) => <label key={value} text={value} />)}</Carousel> }
@@ -32,9 +32,12 @@ function mount(extra: any = {}) {
 	}
 	const flush = () => { flushUniversalSync(() => {}); hydrate() }
 	const render = (props: any) => { root.render(Fixture, props); flush() }
-	const notify = () => { for (const callback of observers.values()) callback({ object: window }); flush() }
+	const notify = () => { for (const observer of observers.values()) observer.callback({ object: window }); flush() }
+	const user = (part: string, object = one('vx-carousel-viewport')) => {
+		for (const observer of observers.values()) if (observer.name === `NSScrollView${part}Notification`) observer.callback({ object })
+	}
 	render(base)
-	return { root, base, ref, one, slides, clip, document, observers, writes, animated, render, flush, notify }
+	return { root, base, ref, one, slides, clip, document, observers, writes, animated, render, flush, notify, user }
 }
 it('delivers the handle and buttons, measures proportional slides, and updates enabled state after native scroll events', async () => {
 	const f = mount()
@@ -72,4 +75,30 @@ it('resize/ref replacement and reduced-motion requests use current hosts; observ
 	} finally { f.root.unmount() }
 	const before = f.writes.length; held.scrollNext(); held.scrollPrev(); held.scrollTo(0)
 	expect(f.writes).toHaveLength(before); expect(next.current).toBe(null); expect(f.observers.size).toBe(0)
+})
+
+it('hasSnap waits for native user tracking to finish and settle while ordinary scroll/animation callbacks do not schedule it', async () => {
+	const f = mount({ hasSnap: true })
+	try {
+		await vi.waitFor(() => { f.flush(); expect(f.slides()[0].props.style.width).toBe(100) })
+		vi.useFakeTimers()
+		f.clip.scrollToPoint({ x: 150, y: 37 }); f.flush(); await vi.advanceTimersByTimeAsync(300); expect(f.clip.bounds.origin.x).toBe(150)
+		f.user('WillStartLiveScroll'); f.clip.scrollToPoint({ x: 180, y: 37 }); f.user('DidLiveScroll'); f.flush()
+		await vi.advanceTimersByTimeAsync(300); expect(f.clip.bounds.origin.x).toBe(180)
+		f.user('DidEndLiveScroll'); await vi.advanceTimersByTimeAsync(139); expect(f.clip.bounds.origin.x).toBe(180)
+		await vi.advanceTimersByTimeAsync(1); f.flush(); expect(f.clip.bounds.origin).toEqual({ x: 216, y: 37 })
+		const writes = f.writes.length; await vi.advanceTimersByTimeAsync(300); expect(f.writes).toHaveLength(writes)
+	} finally { f.root.unmount() }
+})
+it('programmatic moves, current hasSnap changes and unmount cancel pending native snap work and observer ownership', async () => {
+	const f = mount({ hasSnap: true })
+	try {
+		await vi.waitFor(() => { f.flush(); expect(f.slides()[0].props.style.width).toBe(100) }); vi.useFakeTimers()
+		f.clip.scrollToPoint({ x: 150, y: 37 }); f.user('DidLiveScroll'); f.ref.current.scrollTo(0); f.flush()
+		await vi.advanceTimersByTimeAsync(200); expect(f.clip.bounds.origin.x).toBe(0)
+		f.clip.scrollToPoint({ x: 150, y: 37 }); f.user('DidLiveScroll'); f.render({ ...f.base, hasSnap: false })
+		await vi.advanceTimersByTimeAsync(200); expect(f.clip.bounds.origin.x).toBe(150)
+		f.render(f.base); f.user('DidLiveScroll'); f.root.unmount(); const before = f.writes.length
+		await vi.advanceTimersByTimeAsync(200); expect(f.writes).toHaveLength(before); expect(f.observers.size).toBe(0)
+	} finally { f.root.unmount() }
 })

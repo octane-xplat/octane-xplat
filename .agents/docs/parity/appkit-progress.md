@@ -3611,3 +3611,67 @@ autofocus timing, date preset text relay/listbox relationships and live
 announcements remain gaps. Checkbox mixed rollback still awaits the previously
 asked human contract choice. No package tests/typechecks, builds, installs,
 OS automation, visual analysis or audit regeneration ran; no checkbox is closed.
+
+
+### AppKit Carousel user-scroll snapping
+
+The previous goal turn implemented navigation/handle/layout source through
+b8eff70ba and explicitly retained snap/fades. Continued hasSnap before decorative
+edge treatment because attachment/gallery input should settle coherently. The
+installed SDK's AppKit NSScrollView.h:163-177 documents main-thread user-live
+scroll notifications and explicitly says legacy mice may not bracket updates
+with start/end. Read via xcrun --show-sdk-path and targeted header inspection;
+this is API source evidence, not actual native scrolling/momentum evidence.
+
+A private per-viewport snap owner now binds WillStartLiveScroll, DidLiveScroll
+and DidEndLiveScroll, filtering native object identity and current view/window.
+Active tracking holds off the timer; an end or unbracketed user update schedules
+one trailing 140 ms quiet interval, replaced by further user updates. Generic
+onScroll/animation bounds changes only measure and cannot arm snap. Claim occurs
+before native writes; the geometry adapter chooses the current nearest clamped
+logical slide edge, skips already aligned positions, preserves vertical offsets
+and honors RTL/reduced motion. No polling, synthetic input or new layer/renderer
+engine is introduced.
+
+Valid programmatic moves cancel queued snap. Flag/count/direction/variant/gap,
+actual slide ref/structure and viewport width changes invalidate stale intent;
+incidental parent renders do not clear a live gesture. Hidden/detached/moved
+scope and teardown cancel timers, partial observer installation cleans prior
+tokens, and per-binding generations reject old native callbacks even when the
+same viewport is rebound. Old timer callbacks cannot replay. User-live activity retires
+initial alignment. A related prerequisite also marks accepted handle requests
+and preserves a nonzero pre-existing native offset, so late initialization cannot
+reset an earlier request or an unbracketed user position. Native observation still
+marks user intent with hasSnap false; it does not request snap then. Missing live
+observation leaves ordinary navigation available without a snap guarantee.
+
+Six intent-policy/two geometry/two appended object-driver cases are newly
+authored, all unrun. They cover tracked/unbracketed/after-end updates, stale timer
+claims, foreign/hidden/detached/moved/disabled scope, metadata/partial subscription
+cleanup, nearest LTR/RTL edges and motion, late initialization, actual notification
+wiring vs generic bounds changes, programmatic cancellation and teardown. Earlier
+nine Carousel cases remain unrun too. The maintained carousel fixture adds a snap
+toggle and manual input prompts; its runner synthesizes no native scroll/input.
+Guide/skill/feature note/shared-overlays AC12 and prior AC11 gap text were
+reconciled. Only source/semantic, TypeScript/TSRX syntax, targeted SDK-header reads
+and whitespace checks ran. No public API/type, dependency, shared manifest,
+other-target leaf or shared audit snapshot changed.
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/ui -- src/carousel-snap.macos.test.ts src/carousel-scroll.macos.test.ts
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/carousel.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/carousel.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All commands remain deferred pending explicit human authorization for this task.
+Native registration/ref/notification and momentum ordering, wheel/trackpad/thumb/
+keyboard delivery, layout/RTL/proportional geometry, animation/focus/AX and
+packaging remain unqualified. Edge fades, Pager/video, autofocus timing, date
+preset text relay/listbox relationships and live announcements remain source
+gaps; Checkbox mixed rollback still awaits the previously asked human contract
+choice. No package tests/typechecks, builds, installs, OS automation, visual
+analysis or audit regeneration ran; no evidence-gated checkbox is closed.

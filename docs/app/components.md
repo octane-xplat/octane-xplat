@@ -1251,7 +1251,7 @@ uses a fallback stack when needed. Anchored notifications keep the existing
 `NSPopover` path. See [macOS presentation and verification](primitives.md#macos-shared-presentations).
 Lightbox video playback and the AppKit `@octane-xplat/video` leaf remain unavailable. macOS `Overlay` retains its
 experimental inline implementation. AppKit Carousel navigation/handle source ownership
-is described below; snap and edge fades remain gaps; `ScrollableArea` supports block (the default), inline, and both-axis scrolling;
+is described below; edge fades remain a gap; `ScrollableArea` supports block (the default), inline, and both-axis scrolling;
 pull-to-refresh remains unsupported on macOS. Use the
 [app-owned refresh action](primitives.md#macos-scrolling-and-refresh) instead.
 
@@ -1319,7 +1319,46 @@ Five geometry-policy, three object-driver and one motion-getter cases plus a
 maintained fixture are authored and unrun. Source/syntax review does not qualify
 native intrinsic sizing, RTL geometry/initial alignment, scroll/animation/input,
 button overlay hit testing/keyboard activation, resize behavior, accessibility
-or packaging. hasSnap and hasEdgeFade remain unsupported by the AppKit leaf.
+or packaging. AppKit snap source ownership is described below; hasEdgeFade remains unsupported.
+
+
+### Snap AppKit carousel slides after user scrolling
+
+Set hasSnap to request the nearest measured slide edge after native user
+scrolling becomes quiet. The AppKit source uses live-scroll notifications,
+not ordinary bounds changes, so handle/button animations do not start a new
+snap cycle. A tracked gesture waits for its end and a 140 ms quiet period;
+unbracketed user notifications use the same trailing quiet period:
+
+```tsx
+import { Carousel, Text } from '@octane-xplat/ui'
+
+export function Previews() {
+	return <Carousel label="Previews" hasButtons hasSnap variant="proportional" style={{ width: 320, height: 120 }}>
+		<Text>First</Text><Text>Second</Text><Text>Third</Text>
+	</Carousel>
+}
+```
+
+The SDK notes that legacy mice can emit user-scroll updates without start/end
+pairs. Subsequent user updates replace pending work, including updates reported
+after an end notification. The adapter chooses current clamped slide coordinates,
+respects RTL/reduced motion and preserves vertical position. Valid programmatic
+moves, snap-flag/layout/child changes and scope teardown cancel old intent.
+Native user activity and accepted handle commands also retire late initial
+alignment rather than resetting the user's position:
+
+```tsx
+<Button label="Last preview" clickAction={() => carousel.current?.scrollTo(2)} />
+```
+
+Six intent-policy, two geometry and two wiring cases are authored and unrun;
+the earlier nine Carousel cases remain unrun too. The maintained fixture now
+includes a snap toggle and still synthesizes no native scroll/input. This host
+path requires the three AppKit live-scroll notifications; missing registration
+leaves basic navigation available without a snap guarantee. Native notification/
+momentum timing, wheel/trackpad/scroller/keyboard delivery, RTL/layout, animation,
+focus/AX and packaging remain unqualified. Edge fades remain a source gap.
 
 
 ## Leaf packages

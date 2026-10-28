@@ -6,21 +6,27 @@ import { spacingStep } from './spacing'
 import { cx } from '@octane-xplat/lib'
 import { useDirection } from './internationalization'
 import { createAppKitCarouselScroll } from './carousel-scroll.macos'
+import { createAppKitCarouselSnap } from './carousel-snap.macos'
 import { readReducedMotion } from './animation-host.macos'
 import { Icon } from './Icon.macos.tsrx'
 import { Pressable } from './Pressable.macos.tsrx'
 
-/** Native geometry controls/handle. Snap and edge fades remain separate gaps. */
+/** Native geometry controls/handle and user-scroll snapping. Edge fades remain a gap. */
 export function Carousel(props: CarouselProps) @{
 	const items = toChildArray(props.children), count = items.length, direction = useDirection(), rtl = direction === 'rtl'
 	const gap = spacingStep(props.gap ?? 2) ?? 8, viewport = useRef<NSScrollView | null>(null)
-	const slides = useRef(new Map<number, NSView>()), live = useRef({ count, loop: props.hasLoop === true, direction })
-	live.current = { count, loop: props.hasLoop === true, direction }
+	const slides = useRef(new Map<number, NSView>()), live = useRef({ count, loop: props.hasLoop === true, snap: props.hasSnap === true, direction })
+	live.current = { count, loop: props.hasLoop === true, snap: props.hasSnap === true, direction }
+	const beforeMove = useRef<() => void>(() => {})
 	const control = useMemo(() => createAppKitCarouselScroll({ view: () => viewport.current,
 		slides: () => Array.from({ length: live.current.count }, (_, i) => slides.current.get(i) ?? null),
 		count: () => live.current.count, loop: () => live.current.loop, direction: () => live.current.direction,
-		reducedMotion: readReducedMotion,
+		reducedMotion: readReducedMotion, beforeMove: () => beforeMove.current(),
 	}), [])
+	const snap = useMemo(() => createAppKitCarouselSnap({ view: () => viewport.current, enabled: () => live.current.snap,
+		interaction: control.interacted, snap: control.snap,
+	}), [])
+	beforeMove.current = snap.invalidate
 	useImperativeHandle(props.ref, () => control.handle, [])
 	const [measured, setMeasured] = useState({ width: 0, canPrev: false, canNext: false })
 	const previous = useRef(measured), queued = useRef(false), measuring = useRef(false), owner = useRef<NSWindow | null>(null)
@@ -29,8 +35,10 @@ export function Carousel(props: CarouselProps) @{
 		measuring.current = true
 		try {
 			const view = viewport.current
+			snap.validate()
 			if (view.window) owner.current = view.window
 			const width = control.width()
+			if (width > 0 && width !== previous.current.width) snap.invalidate()
 			const proportionalReady = width > 0 && slides.current.size === count &&
 				Number(view.documentView?.frame.size.width) >= count * width + Math.max(0, count - 1) * gap - 1 &&
 				[...slides.current.values()].every((slide) => Math.abs(Number(slide.bounds.size.width) - width) <= 1)
@@ -50,15 +58,17 @@ export function Carousel(props: CarouselProps) @{
 	}
 	const bind = useCallback((view: NSScrollView | null) => {
 		if (viewport.current !== view) control.reset()
-		viewport.current = view
+		viewport.current = view; snap.bind(view)
 		if (!view) owner.current = null
 		else queueMeasure()
 	}, [])
 	const register = useCallback((index: number, view: NSView) => {
-		slides.current.set(index, view); queueMeasure()
-		return () => { if (slides.current.get(index) === view) slides.current.delete(index); queueMeasure() }
+		slides.current.set(index, view); snap.invalidate(); queueMeasure()
+		return () => { if (slides.current.get(index) === view) { slides.current.delete(index); snap.invalidate() } queueMeasure() }
 	}, [])
 	useLayoutEffect(queueMeasure)
+	useLayoutEffect(() => snap.invalidate(), [props.hasSnap, count, direction, props.variant, gap])
+	useEffect(() => { snap.bind(viewport.current); return () => snap.dispose() }, [])
 	useEffect(() => {
 		const native = globalThis as Record<string, any>, center = native.NSNotificationCenter?.defaultCenter
 		if (!center?.addObserverForNameObjectQueueUsingBlock || !center?.removeObserver) return
@@ -69,7 +79,7 @@ export function Carousel(props: CarouselProps) @{
 		} catch (error) { console.warn('[macos-carousel] geometry observation unavailable', error); return }
 		return () => { if (token != null) center.removeObserver(token) }
 	}, [])
-	useEffect(() => () => { viewport.current = null; owner.current = null; slides.current.clear(); control.reset() }, [])
+	useEffect(() => () => { viewport.current = null; owner.current = null; snap.dispose(); slides.current.clear(); control.reset() }, [])
 	const width = props.variant === 'proportional' && measured.width > 0 ? measured.width : undefined
 
 	<masonview id={props.id} className={cx('vx-carousel', 'vx-carousel--appkit', props.className)} style={props.style}

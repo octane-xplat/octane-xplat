@@ -1504,5 +1504,30 @@ export function Previews() {
 
 Five policy/three wiring/one motion-getter cases and the maintained fixture are
 unrun. Native sizing, RTL/initial alignment, animation/input/overlay hit testing,
-keyboard/AX/resize and packaging remain unqualified. Snap and edge fades remain
-source gaps. See [AppKit carousel navigation](../../../../docs/app/components.md#navigate-appkit-carousel-slides).
+keyboard/AX/resize and packaging remain unqualified. Snap ownership follows below; edge fades remain
+a source gap. See [AppKit carousel navigation](../../../../docs/app/components.md#navigate-appkit-carousel-slides).
+
+
+## AppKit Carousel user-scroll snap ownership
+
+hasSnap now uses NSScrollView WillStartLiveScroll/DidLiveScroll/DidEndLiveScroll
+notifications, scoped to the current viewport/window. Tracking holds off snap;
+end/unbracketed user events use a trailing 140 ms quiet period. The SDK explicitly
+allows unbracketed legacy-mouse updates. Generic onScroll/native animation bounds
+changes never arm snap. Current clamped nearest-edge geometry, RTL/reduced motion
+and vertical preservation reuse the existing adapter. Programmatic moves,
+meaningful layout/cell changes, flag disablement and hidden/moved/detached scopes
+cancel stale work. Partial subscription failure releases prior tokens; teardown
+releases tokens/timers. User/handle intent retires late initial alignment.
+
+```tsx
+<Carousel label="Previews" hasButtons hasSnap variant="proportional" style={{ width: 320, height: 120 }}>
+	<Text>First</Text><Text>Second</Text>
+</Carousel>
+```
+
+Six policy/two geometry/two wiring additions and the extended fixture remain
+unrun, alongside earlier cases. Native live/momentum ordering, wheel/trackpad/
+scroller/keyboard delivery, layout/RTL/animation/AX and packaging are unqualified.
+Missing live-scroll observation does not promise snap; edge fades remain a gap.
+See [AppKit snap](../../../../docs/app/components.md#snap-appkit-carousel-slides-after-user-scrolling).
