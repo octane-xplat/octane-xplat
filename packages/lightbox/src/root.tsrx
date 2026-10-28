@@ -2,9 +2,11 @@
 // Native lightbox host: the same pure state machine as web, wired to a
 // NativeScript vocabulary (masonview/image/label) over the ui modal Overlay.
 import { createContext, useContext, useEffect, useEffectEvent, useLayoutEffect, useMemo, useRef, useState } from 'octane'
+import type { Label } from '@nativescript/core'
 import { Overlay, Pressable } from '@octane-xplat/ui'
 import { cx } from '@octane-xplat/lib'
 import { mergeStyle } from './style-merge'
+import { useDialogPart, useDialogText } from './dialog-text'
 import { useMotionValue, useReducedMotion } from '@octane-xplat/motion'
 import type { MotionValue, Transition } from '@octane-xplat/motion'
 import { OPEN, CLOSE, REDUCED } from './constants'
@@ -48,6 +50,7 @@ interface CtxOptions {
 }
 
 export interface LightboxCtx {
+	dialogText: ReturnType<typeof useDialogText>
 	items: LightboxMedia[]
 	index: number
 	phase: 'closed' | 'opening' | 'open' | 'closing'
@@ -139,6 +142,7 @@ export function Root(props: LightboxRootProps) @{
 		onIndexChange,
 		finalFocusRef,
 	} = props
+	const dialogText = useDialogText()
 	const maxZoom = props.hasZoom === false ? 1 : requestedMaxZoom
 	const [state, setState] = useState(() => ({
 		...initialState(),
@@ -237,6 +241,7 @@ export function Root(props: LightboxRootProps) @{
 
 	const ctx: LightboxCtx = useMemo(
 		() => ({
+			dialogText,
 			items: items ?? [],
 			index: state.index,
 			phase: state.phase,
@@ -280,7 +285,7 @@ export function Root(props: LightboxRootProps) @{
 			setDragging: (v) => dispatch({ kind: 'dragging', value: v }),
 			toggleUi: () => dispatch({ kind: 'toggleUi' }),
 		}),
-		[state, reducedMotion, items, maxZoom, wheelToZoom, hasBackdropDismiss, scrollTriggerOption, transition],
+		[state, dialogText, reducedMotion, items, maxZoom, wheelToZoom, hasBackdropDismiss, scrollTriggerOption, transition],
 	)
 
 	const controlledOpen = props.isOpen ?? props.defaultOpen
@@ -424,7 +429,7 @@ export function Popup(props: LightboxPartProps) @{
 		<Overlay
 			open
 			isModal
-			accessibilityLabel={ctx.items[ctx.index]?.alt ?? 'Media viewer'}
+			accessibilityLabel={ctx.dialogText.label ?? ctx.items[ctx.index]?.alt ?? 'Media viewer'}
 			onDismiss={() => ctx.close()}
 		>
 			<masonview
@@ -523,11 +528,17 @@ export function Next(props: LightboxPartProps) @{
 	return <NavButton step={1} {...props} />
 }
 export function Title(props: LightboxPartProps) @{
-	return <label className={cx('vx-lightbox-title', props.className)} style={props.style as never} id={props.id}
+	const ctx = useLightboxCtx()
+	const ref = useRef<Label | null>(null)
+	const id = useDialogPart(ctx.dialogText, 'title', props.id, props.children, ref)
+	return <label ref={ref} className={cx('vx-lightbox-title', props.className)} style={props.style as never} id={id}
 			testID={props.testID}>{props.children as never}</label>
 }
 export function Description(props: LightboxPartProps) @{
-	return <label className={cx('vx-lightbox-description', props.className)} style={props.style as never} id={props.id}
+	const ctx = useLightboxCtx()
+	const ref = useRef<Label | null>(null)
+	const id = useDialogPart(ctx.dialogText, 'description', props.id, props.children, ref)
+	return <label ref={ref} className={cx('vx-lightbox-description', props.className)} style={props.style as never} id={id}
 			testID={props.testID}>{props.children as never}</label>
 }
 

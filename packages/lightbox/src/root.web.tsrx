@@ -6,6 +6,7 @@ import { Image } from './Image.web.tsrx'
 import type { MotionValue } from '@octane-xplat/motion'
 import { cx } from '@octane-xplat/lib'
 import { mergeStyle } from './style-merge'
+import { useDialogPart, useDialogText } from './dialog-text'
 import { clamp } from './math'
 import type { Rect, Visual } from './math'
 import { reduce } from './state'
@@ -40,6 +41,7 @@ interface CtxOptions {
 }
 
 export interface LightboxCtx {
+	dialogText: ReturnType<typeof useDialogText>
 	items: LightboxMedia[]
 	index: number
 	phase: 'closed' | 'opening' | 'open' | 'closing'
@@ -116,6 +118,7 @@ export function Root(props: LightboxRootProps) {
 		onIndexChange,
 		finalFocusRef,
 	} = props
+	const dialogText = useDialogText()
 	const maxZoom = props.hasZoom === false ? 1 : requestedMaxZoom
 	const [state, setState] = useState(initialState)
 	const live = useRef(state)
@@ -254,6 +257,7 @@ export function Root(props: LightboxRootProps) {
 
 	const ctx: LightboxCtx = useMemo(
 		() => ({
+			dialogText,
 			items: items ?? [],
 			index: state.index,
 			phase: state.phase,
@@ -302,7 +306,7 @@ export function Root(props: LightboxRootProps) {
 			setDragging: (v) => dispatch({ kind: 'dragging', value: v }),
 			toggleUi: () => dispatch({ kind: 'toggleUi' }),
 		}),
-		[state, reducedMotion, items, maxZoom, wheelToZoom, hasBackdropDismiss, scrollTriggerIntoView, transition],
+		[state, dialogText, reducedMotion, items, maxZoom, wheelToZoom, hasBackdropDismiss, scrollTriggerIntoView, transition],
 	)
 
 	// Controlled/uncontrolled open + index.
@@ -469,7 +473,9 @@ export function Popup(props: LightboxPartProps) {
 		<Overlay
 			open
 			isModal
-			accessibilityLabel={ctx.items[ctx.index]?.alt ?? 'Media viewer'}
+			accessibilityLabelledBy={ctx.dialogText.labelledBy}
+			accessibilityDescribedBy={ctx.dialogText.describedBy}
+			accessibilityLabel={ctx.dialogText.label ?? ctx.items[ctx.index]?.alt ?? 'Media viewer'}
 			onDismiss={() => ctx.close()}
 		>
 		<div
@@ -733,16 +739,20 @@ export function Next(props: LightboxPartProps) {
 }
 
 export function Title(props: LightboxPartProps & { id?: string }) {
+	const ctx = useLightboxCtx()
+	const id = useDialogPart(ctx.dialogText, 'title', props.id, props.children)
 	return (
-		<h2 id={props.id ?? 'vx-lightbox-title'} className={cx('vx-lightbox-title', props.className)} style={props.style}>
+		<h2 id={id} className={cx('vx-lightbox-title', props.className)} style={props.style}>
 			{props.children as never}
 		</h2>
 	)
 }
 
 export function Description(props: LightboxPartProps & { id?: string }) {
+	const ctx = useLightboxCtx()
+	const id = useDialogPart(ctx.dialogText, 'description', props.id, props.children)
 	return (
-		<p id={props.id ?? 'vx-lightbox-description'} className={cx('vx-lightbox-description', props.className)} style={props.style}>
+		<p id={id} className={cx('vx-lightbox-description', props.className)} style={props.style}>
 			{props.children as never}
 		</p>
 	)

@@ -93,6 +93,14 @@ behavior, rather than used as evidence of parity.
   now uses SETTLE regardless of the custom close transition, covered through
   gesture dispatch. Device animation qualification is still pending.
 
+- Web Title/Description now register per-viewer IDs with Overlay's actual
+  dialog host; explicit IDs, independent viewers and removal/fallback are
+  covered by DOM tests. Native Title reads the rendered Label text and uses it
+  as the modal name. Native Description remains accessible content, without a
+  dialog-description association; neither NativeScript's action hint nor DOM
+  ID props are presented as an equivalent. Native object-driver naming checks
+  pass; screen-reader qualification and description association remain open.
+
 ## Qualification boundary
 
 This was a source and documentation audit of the pinned reference, not an

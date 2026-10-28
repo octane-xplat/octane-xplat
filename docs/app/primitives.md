@@ -1710,8 +1710,22 @@ import { Overlay, Text } from '@octane-xplat/ui'
 </Overlay>
 ```
 
+### Give a web overlay a title and description
+
+Use `accessibilityLabelledBy` and `accessibilityDescribedBy` to connect visible
+text to the web dialog. Their values are element IDs. A title association wins
+over a literal `accessibilityLabel`. Native overlays use `accessibilityLabel`
+for their name; DOM ID-based associations are web-only.
+
+```tsx
+<Overlay open isModal accessibilityLabelledBy="photo-title" accessibilityDescribedBy="photo-details">
+	<h2 id="photo-title">Trip photos</h2>
+	<p id="photo-details">Choose a photo to open it</p>
+</Overlay>
+```
+
 On Web, a shaded `Overlay` is a modal dialog and requires an
-`accessibilityLabel`; `BottomSheet` uses its required `label`. Modal focus stays
+`accessibilityLabel` or `accessibilityLabelledBy`; `BottomSheet` uses its required `label`. Modal focus stays
 inside the surface, the background leaves keyboard and accessibility queries,
 and dismissal returns focus to the opener, including when a nested surface
 closes. The maintained browser check covers Chromium, Firefox, and WebKit;

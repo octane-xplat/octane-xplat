@@ -76,3 +76,15 @@ Web has browser input coverage. Native thumbnail geometry shares the web
 layout model; device input and layout qualification for the strip are pending.
 The current iOS/Android runtime evidence covers the viewer and gestures before
 this strip was added. See the [internal evidence record](../../.agents/docs/notes/lightbox-native.md).
+
+Web Title and Description parts name and describe the dialog automatically.
+Native plain-text Title supplies the modal name; Description remains readable
+content, without a qualified native dialog-description association.
+
+```tsx
+<Lightbox.Popup>
+	<Lightbox.Title>Trip photos</Lightbox.Title>
+	<Lightbox.Description>Photos from the coast</Lightbox.Description>
+	<Lightbox.Viewport />
+</Lightbox.Popup>
+```

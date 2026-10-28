@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { afterEach, expect, it, vi } from 'vitest'
 import { createObjectContainer, createObjectDriver, createUniversalRoot, flushUniversalSync } from 'octane/universal/native'
-import { Root, Popup, Viewport, useLightboxCtx } from './root.tsrx'
+import { Root, Popup, Viewport, Title, Description, useLightboxCtx } from './root.tsrx'
 import { Lightbox } from './Lightbox.tsrx'
 vi.mock('@octane-xplat/ui', () => import('../test/content-ui.mobile.tsrx'))
 vi.mock('./clip', () => ({ createClipWriter: () => ({ setClip() {}, clear() {} }) }))
@@ -55,4 +55,25 @@ it('opens the native video alt-text fallback', async () => {
 		expect(ctx!.phase).toBe('open')
 		expect(ctx!.presence.get()).toBe(1)
 	} finally { root.unmount(); setRead(undefined); vi.clearAllTimers() }
+})
+
+function Named() { return <Root media={media} defaultOpen><Read /><Popup><Title>Gallery title</Title><Description>Extra information</Description></Popup></Root> }
+it('registers native title text for the modal accessible name', async () => {
+	vi.useFakeTimers()
+	const object = createObjectDriver('nativescript')
+	const root = createUniversalRoot(createObjectContainer('nativescript'), {
+		...object,
+		getPublicInstance(container, id) {
+			const view = object.getPublicInstance(container, id)
+			if (view) Object.assign(view, { text: 'Gallery title', on() {}, off() {} })
+			return view
+		},
+	})
+	try {
+		flushUniversalSync(() => root.render(Named, {}))
+		await vi.advanceTimersByTimeAsync(1)
+		expect(ctx!.dialogText.label).toBe('Gallery title')
+		expect(ctx!.dialogText.labelledBy).toBeTruthy()
+		expect(ctx!.dialogText.describedBy).toBeTruthy()
+	} finally { root.unmount(); vi.clearAllTimers() }
 })

@@ -178,3 +178,18 @@ Before the public cutover:
 - Complete the UI export removal, consumer/doc migration, recipes, and release
   preparation in the plan. The shared-overlays recipe still uses the public
   UI Lightbox; no public workflow or recipe has switched to the private leaf.
+
+## Dialog text audit repair
+
+Web Title and Description register instance-specific IDs with the dialog host.
+Native Title reads its rendered Label text (including textChange updates) for
+the Overlay name; native children are render descriptors, not plain strings.
+Native Description remains ordinary accessible text. The adapter does not yet
+implement a dialog-description relationship, and no screen-reader equivalence
+has been qualified. NativeScript documents accessibilityLabel for naming and
+accessibilityHint for action help; a hint is not used as a substitute description.
+See [NativeScript accessibility](https://docs.nativescript.org/guide/accessibility).
+
+Object-driver checks establish text registration and the chosen host name.
+They do not establish VoiceOver/TalkBack announcements. This partial repair
+leaves native description association open before any full-parity claim.

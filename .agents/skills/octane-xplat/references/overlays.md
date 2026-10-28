@@ -54,6 +54,17 @@ no dimmed backdrop. macOS ignores it.
 </Overlay>
 ```
 
+Web Overlay can associate its actual dialog host with title/description IDs.
+On native, supply a literal `accessibilityLabel`; DOM ID associations are not
+implemented. Do not substitute an action hint for a dialog description.
+
+```tsx
+<Overlay open isModal accessibilityLabelledBy="viewer-title" accessibilityDescribedBy="viewer-description">
+	<h2 id="viewer-title">Photos</h2>
+	<p id="viewer-description">Trip gallery</p>
+</Overlay>
+```
+
 For retained full-screen siblings, follow [retained screen layers](primitives.md#retained-screen-layers). A native overlay host does not make its own Screen an overlay.
 
 ## Platform modal widgets

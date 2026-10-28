@@ -2594,6 +2594,12 @@ export interface HeadingProps {
  * @see DialogProps, PopoverProps.
  */
 export interface OverlayProps extends TestIDProps {
+	/** Web modal title element IDs, separated by spaces. Overrides the literal
+	 * accessibilityLabel on web. Native hosts use accessibilityLabel instead. */
+	accessibilityLabelledBy?: string
+	/** Web modal description element IDs, separated by spaces. Native hosts
+	 * do not implement DOM ID-based description associations. */
+	accessibilityDescribedBy?: string
 	/** Accessible name for the modal content surface. */
 	accessibilityLabel?: string
 	/** Controlled visibility — pair with `onDismiss`. */
