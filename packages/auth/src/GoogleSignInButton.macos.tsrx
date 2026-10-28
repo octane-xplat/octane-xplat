@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { googleAuth } from './google.macos'
 import type { GoogleSignInButtonProps } from './types'
 

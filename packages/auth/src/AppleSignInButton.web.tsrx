@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { appleAuth } from './apple.web'
 import type { AppleSignInButtonProps, SignInResult } from './types'
 

@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { registerElement } from '@nativescript-community/octane'
 import { GoogleSignInButton as NSGoogleSignInButton } from '@nativescript/google-signin'
 import { googleAuth } from './google'

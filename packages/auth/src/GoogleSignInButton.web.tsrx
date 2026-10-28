@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { renderGoogleButton } from './google.web'
 import type { GoogleSignInButtonProps, SignInResult } from './types'
 

@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useEffect, useRef } from 'octane'
 import { appleAuth } from './apple.macos'
 import { attachAppleButton } from './apple-button.macos'

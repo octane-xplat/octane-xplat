@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { registerElement } from '@nativescript-community/octane'
 import * as applePlugin from '@nativescript/apple-sign-in'
 import { appleAuth } from './apple'

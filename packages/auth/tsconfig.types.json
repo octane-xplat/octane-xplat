@@ -6,7 +6,7 @@
 		"moduleResolution": "bundler",
 		"target": "esnext",
 		"jsx": "react-jsx",
-		"jsxImportSource": "octane",
+		"jsxImportSource": "@octane-xplat/jsx",
 		"declaration": true,
 		"emitDeclarationOnly": true,
 		"noEmit": false,
@@ -23,7 +23,9 @@
 			".windows"
 		],
 		"allowImportingTsExtensions": true,
-		"types": ["@nativescript/types"]
+		"types": [
+			"@nativescript/types"
+		]
 	},
 	"include": [
 		"src/apple.ts",
@@ -36,7 +38,6 @@
 		"src/GoogleSignInButton.web.tsrx",
 		"src/index.ts",
 		"src/index.web.ts",
-		"src/native-elements.d.ts",
 		"src/base64.ts",
 		"src/hosted.ts",
 		"src/sha256.ts",
