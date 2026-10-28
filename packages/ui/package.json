@@ -232,7 +232,8 @@
 		"test:overlay-keyboard:ios": "node ../../scripts/probe.ts run tests/fixtures/overlay-keyboard.ios.tsrx --target ios",
 		"test:overlay-keyboard:android": "node ../../scripts/probe.ts run tests/fixtures/overlay-keyboard.android.tsrx --target android",
 		"test:overlay-keyboard:macos": "node ../../scripts/probe.ts run tests/fixtures/overlay-keyboard.macos.tsrx --deps @octane-xplat/sheet --target macos",
-		"build": "tsc -p tsconfig.node.json"
+		"build": "tsc -p tsconfig.node.json",
+		"test:intl": "node --test tests/intl-bundle.test.mjs"
 	},
 	"dependencies": {
 		"@octane-xplat/jsx": "workspace:*",

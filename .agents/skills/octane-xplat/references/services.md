@@ -253,3 +253,28 @@ export function Status() {
 	return <Button label="Report saved" clickAction={() => announce('Saved')} />
 }
 ```
+
+### Native Intl initialization
+
+UI and the normal Lingui entry do not install Intl polyfills. On NativeScript,
+opt in before application evaluation using the localization package's separate
+entry; it owns FormatJS dependencies. Select only required APIs/data, and keep
+these imports in a `.mobile` bootstrap leaf when other hosts should retain
+built-ins. The [localization guide](../../../../docs/app/localization.md#opt-in-to-intl-on-native)
+covers per-capability entries, locale selection, explicit time zones, guarded
+global replacement, and UI fallback limits.
+
+```ts
+// intl.mobile.ts
+import '@octane-xplat/lingui/polyfills/locales/de'
+import '@octane-xplat/lingui/polyfills/collator'
+```
+
+Check individual constructors when implementing optional enhancement. A partial
+Intl namespace is valid, and a capability may be installed after a fallback
+was first used; do not cache absence permanently.
+
+```ts
+const Collator = typeof Intl === 'undefined' ? undefined : Intl.Collator
+const compare = typeof Collator === 'function' ? new Collator('en').compare : undefined
+```

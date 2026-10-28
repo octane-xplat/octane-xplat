@@ -31,7 +31,7 @@ The embedded V8 in both NativeScript runtimes is built without ICU. Every
 | ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
 | All native apps (iOS/Android/Windows) via `xplatNative`            | Babel `@babel/plugin-transform-unicode-property-regex` + `unicode-sets` compiles the escapes away at bundle/transform time (`packages/cli/src/native-regex.ts`, registered in `xplatNative`): production `transform`, dev per-module `/ns/m` serving, and an `optimizeDeps.rolldownOptions` twin. Upstream `ns-vendor-unicode-regex` already covers node_modules `.js` inside the dev-server esbuild passes (core/deps/vendor bundles) — the dev pass was never the gap; the removed patches existed because production bundles had no coverage. Replaced the `linkifyjs`/`@lexical/link`/`shaders` patches and the workshop/visual copies | Applied at build/dev-transform time. Runtime-verified 2026-10-27: production `ns build ios` (bundles `linkifyjs`, `@lexical/link`, `shaders`) boots on the iPhone 18 Pro simulator (`@nativescript/ios` 9.1.0); Android not yet re-run. Limit: literals, constant-string `new RegExp`, and static escapes in `u`-flag template patterns are covered — runtime-built patterns still throw; needed while NS runtimes lack ICU |
 | `Intl` gap — `MotionPatterns` (`packages/demos/src/MotionPatterns.tsrx`) formatted totals with a module-scope `Intl.NumberFormat`, which killed Android/iOS dev boot | Replaced with fixed en-US digit grouping (regex, no `Intl`), identical output on every platform | Applied; revisit locale-aware grouping only when NS runtimes ship ICU                                                     |
-| `Intl` gap — table sorting (`packages/ui/src/table/use-table-sortable-state.ts`) built a module-scope `Intl.Collator`, which killed iOS boot for any app bundling `@octane-xplat/ui` | Collator is created lazily when `Intl` exists; without it, string sorting falls back to an ICU-free natural-order compare (digit runs compare numerically, other text case-insensitively with a lowercase-first tie-break) | Applied; native sort order is not locale-aware — drop the fallback when NS runtimes ship ICU |
+| `Intl` gap — table sorting (`packages/ui/src/table/use-table-sortable-state.ts`) built a module-scope `Intl.Collator`, which killed iOS boot for any app bundling `@octane-xplat/ui` | Collator is created lazily when `Intl.Collator` exists; without it, string sorting falls back to an ICU-free natural-order compare (digit runs compare numerically, other text case-insensitively with a lowercase-first tie-break) | Applied; native sort order is not locale-aware — drop the fallback when NS runtimes ship ICU |
 
 ## Notes
 
@@ -96,3 +96,53 @@ performed for this proposal.
 No production dependency or formatting behavior changed. Revisit when the
 selected implementations can receive their prerequisites and locale data
 without global registration, or when the integration constraints change.
+
+## Explicit package-owned polyfill initialization
+
+Apps can now opt in through `@octane-xplat/lingui/polyfills`; neither UI nor
+Lingui's normal entry imports it. The localization leaf owns the pinned
+FormatJS dependencies. Generated static entry modules keep each capability and
+locale selectable without app-owned FormatJS dependencies or dynamic package
+specifier resolution. Generation belongs to the package's Turbo typegen task;
+its cache includes `dist/polyfills` as well as declaration output.
+
+The [public setup guide](../../../docs/app/localization.md#opt-in-to-intl-on-native)
+shows startup order, individual capabilities, locales and explicit time zones.
+For example, a native bootstrap can install just German number formatting:
+
+```ts
+import '@octane-xplat/lingui/polyfills/number/locales/de'
+```
+
+The default formatting entry includes English data and excludes Collator and
+Segmenter. Named time-zone datasets are separate opt-ins; DateTimeFormat's
+polyfill defaults to UTC. Entries use guarded `/polyfill.js` imports, not force
+imports. Guards can replace existing but incomplete constructors: Locale
+5.3.12 replaces Node 26.12.0's Locale because its feature checks include the
+`variants` accessor and Locale Info methods. Module reuse and completed locale
+registration make repeat imports safe; this is not a promise that arbitrary
+mixed versions or incomplete initialization can never replace a constructor.
+
+UI tests cover absent Intl, partial Intl, and later capability installation.
+Table checks Collator itself and no longer caches absence permanently.
+Typeahead retains its code-point fallback, and UI's direction fallback works
+without Locale. Date inputs retain the documented fixed-English fallback;
+explicit locale formatting still requires its corresponding Intl capability.
+The independent normalization gap remains: installing Intl does not repair
+NativeScript's no-op String.prototype.normalize.
+
+Validation on 2026-10-28: fresh-process Node tests cover absent/partial Intl,
+repeat guarded installation, German and regional French data, named zones,
+collation, segmentation, and import ordering. The packed consumer imports the
+published JS subpath with only a transitive FormatJS installation. Chromium's
+probe fixture passes eight formatting checks, as does the NativeScript iOS
+simulator and macOS host using the maintained `packages/lingui/tests/fixtures/intl.case.ts`.
+Android polyfill execution remains unverified. Three UI consumer bundles
+(Text, Table, Timestamp) contain no FormatJS modules. These bundle checks
+are source/build evidence, not native runtime evidence.
+
+Measured Vite ES library output (uncompressed JS bytes; not installed package
+size or device startup time): formatting entry 1,052,825; Collator entry
+8,031,981. Collator's embedded data makes its separate opt-in consequential.
+Recheck these measurements on dependency updates rather than treating them as
+size guarantees.

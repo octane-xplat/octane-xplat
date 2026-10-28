@@ -63,6 +63,10 @@ assert.match(entry, /\\.js$/)
 const { tsrxExtractor, babelExtractor } = await import('@octane-xplat/lingui/extractor')
 assert.equal(tsrxExtractor.match('src/app.tsrx'), true)
 assert.equal(typeof babelExtractor.extract, 'function')
+delete globalThis.Intl
+await import('@octane-xplat/lingui/polyfills/number/locales/de')
+assert.equal(new Intl.NumberFormat('de').format(1234.5), '1.234,5')
+assert.equal(typeof Intl.DateTimeFormat, 'undefined')
 `,
 	)
 

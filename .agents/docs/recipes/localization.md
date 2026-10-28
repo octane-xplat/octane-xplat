@@ -48,6 +48,10 @@ The reader knows the platform-services pattern and per-target leaf resolution.
   controlled selection, keep provider and host direction synchronized for RTL,
   and explain nested scope isolation, English fallback and ICU/host limits.
 
+- AC8: Opt in to package-owned Intl polyfills before native application startup,
+  select capabilities, locales and time-zone data without app-owned FormatJS
+  dependencies, and distinguish UI fallbacks from locale-aware behavior.
+
 ## Documentation
 
 - AC1: [Startup](../../../docs/app/localization.md#starting-the-runtime) — catalog
@@ -69,3 +73,7 @@ The reader knows the platform-services pattern and per-target leaf resolution.
 - AC7: [Subtree UI strings](../../../docs/app/localization.md#change-ui-strings-in-one-part-of-a-screen),
   [maintained locale examples](../../../apps/astryx-sandbox/src/examples/internationalization/InternationalizationProvider01ShippedLocale.tsrx),
   [RTL example](../../../apps/astryx-sandbox/src/examples/internationalization/InternationalizationProvider03RtlDirection.web.tsrx).
+
+- AC8: [Native Intl opt-in](../../../docs/app/localization.md#opt-in-to-intl-on-native),
+  [maintained bootstrap fixture](../../../packages/lingui/tests/fixtures/intl-bootstrap.mjs),
+  [polyfill regression](../../../packages/lingui/tests/polyfills.test.mjs).
