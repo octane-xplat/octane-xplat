@@ -722,3 +722,48 @@ policy and six object-driver cases plus a maintained fixture are authored and
 unrun. Source/syntax review does not prove native ref timing, responder/editor
 identity, blur/submit/IME/caret ordering, popup/modal integration or accessibility.
 DateInput/TimeInput hasAutoFocus attachment timing remains a separate source gap.
+
+
+### Keep AppKit date saves owned by one edit
+
+DateInput and DateRangeInput now guard changes before calling application code,
+so a callback that immediately updates the parent cannot start the same save
+again. While changeAction is pending, another edit or popup opening is excluded.
+Accepted values remain in the parent; failed saves release loading and leave
+error feedback to your app:
+
+```tsx
+import { useState } from 'octane'
+import { DateInput, DateRangeInput } from '@octane-xplat/ui'
+import type { DateRange } from '@octane-xplat/ui'
+
+export function Stay(props: {
+	saveDate(value: string | null): void | Promise<void>
+	saveRange(value: DateRange | null): void | Promise<void>
+}) {
+	const [date, setDate] = useState<string | null>(null)
+	const [range, setRange] = useState<DateRange | null>(null)
+	return <>
+		<DateInput label="Arrival" value={date} onChange={setDate} changeAction={props.saveDate} min="2026-03-05" />
+		<DateRangeInput label="Stay" value={range} onChange={setRange} changeAction={props.saveRange} maxRangeSpan={14} />
+	</>
+}
+```
+
+Selection checks current bounds, predicates and range spans before notifying the
+parent. A closed or detached picker has no selection authority. Range preset
+activation resolves the current preset with its label and evaluates its range
+once for that activation; removed or newly invalid presets are rejected. An
+already accepted save still runs if onChange removes the control, and settlement
+avoids detached loading updates. Use pure functions for constraints and preset
+ranges, since rendering can evaluate them too:
+
+```tsx
+<DateRangeInput label="Stay" value={range} onChange={setRange} changeAction={saveRange}
+	maxRangeSpan={14} presets={[{ label: 'Short stay', getRange: () => ({ start: '2026-03-06', end: '2026-03-08' }) }]} />
+```
+
+Seven object-driver cases and the maintained date-save fixture are authored and
+unrun. Source/syntax review does not prove native callback, save/blur/focus/IME,
+popup/modal, accessibility or package behavior. These guards do not add save
+cancellation, automatic parent rollback or native error announcements.

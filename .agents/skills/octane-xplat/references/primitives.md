@@ -1426,3 +1426,24 @@ export function Booking(props: { date: string | null; change(date: string | null
 Three policy/six object-driver cases and the date-focus fixture are unrun; source
 wiring is not native ref/editor/focus/IME/layer/AX qualification. DateInput/TimeInput
 hasAutoFocus remains a separate attachment-timing gap. See [date focus handles](../../../../docs/platform/date-picker.md#focus-an-appkit-date-field-from-a-form-action).
+
+
+## AppKit date/range change ownership
+
+DateInput and DateRangeInput now claim before validating/calling app callbacks,
+check current constraints and exclude reentry/pending saves. Picker callbacks
+require current open/attached ownership; blocked popups close, cached entry is
+guarded and current preset labels resolve replacement ranges. Keep constraint/
+preset getters pure: activation resolves one current range but rendering also
+calls them. Parent values remain authoritative; failure releases busy state and
+an accepted save dispatches after callback teardown without detached settlement
+UI writes.
+
+```tsx
+<DateRangeInput label="Stay" value={range} onChange={setRange}
+	changeAction={saveRange} maxRangeSpan={14} />
+```
+
+Seven object-driver cases and the date-save fixture remain unrun. Native
+callback/ref/save/blur/focus/IME/popup/AX/package behavior is unqualified; no save
+cancellation, automatic rollback or live-error delivery is added. See [date save ownership](../../../../docs/platform/date-picker.md#keep-appkit-date-saves-owned-by-one-edit).

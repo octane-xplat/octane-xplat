@@ -44,6 +44,8 @@ picker bundled with `@octane-xplat/files`.
 
 - AC16: AppKit DateTimeInput closed-field arrows adapt timeIncrement independently of preset cadence, with optional seconds, same-date midnight wrap, endpoint bounds, parent authority and date-less time drafts. Preserve open-popup/modified/composing ownership and current reentry/pending-save/detach guards. Distinguish source/object-driver evidence from native input, save/focus/AX and package qualification.
 
+- AC17: AppKit DateInput/DateRangeInput claim before validation/application callbacks, reject reentrant/pending/blocked/detached changes and validate current date/range constraints. Picker selection requires open ownership; preset activation resolves the current keyed range. Accepted saves retain callback ownership through teardown and release on failure without detached state writes or parent rollback. Keep source/object-driver evidence separate from native save/editor/focus/layer/AX qualification.
+
 ## Documentation
 
 - AC1: [Portable component list](../../../docs/app/components.md#inputs) and [shared platform contract](../../../docs/platform/date-picker.md#portable-values).
@@ -71,3 +73,5 @@ picker bundled with `@octane-xplat/files`.
 - AC15: [AppKit time stepping guide](../../../docs/platform/date-picker.md#step-appkit-time-values-with-arrow-keys), five object-driver cases, [maintained fixture](../../../examples/probes/time-step.macos.tsrx) and [target note](../parity/appkit-progress.md#appkit-timeinput-minute-key-stepping). Cases, fixture and native qualification remain unrun.
 
 - AC16: [AppKit date-time stepping guide](../../../docs/platform/date-picker.md#step-the-appkit-date-time-field-without-opening-presets), four added DateTimeInput object-driver cases, [extended maintained fixture](../../../examples/probes/preset-times.macos.tsrx) and [target note](../parity/appkit-progress.md#appkit-datetimeinput-closed-field-stepping). Cases/fixture/native qualification remain unrun.
+
+- AC17: [AppKit date save guide](../../../docs/platform/date-picker.md#keep-appkit-date-saves-owned-by-one-edit), seven object-driver cases, [maintained fixture](../../../examples/probes/date-save.macos.tsrx), skill reference and [target note](../parity/appkit-progress.md#appkit-date-and-range-save-ownership). Cases/fixture/package/native checks remain unrun.

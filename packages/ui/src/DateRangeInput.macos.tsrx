@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from './style-merge'
 import { createAppKitDateFieldHandle } from './date-field-handle.macos'
-import { useImperativeHandle, useContext, useId, useRef, useState, useCallback } from 'octane'
+import { useImperativeHandle, useContext, useEffect, useId, useRef, useState, useCallback } from 'octane'
 import type { DateRange, DateRangeInputProps } from './props'
 import type { NSView } from '@octane-xplat/platform/macos'
 import { cx } from '@octane-xplat/lib'
@@ -25,9 +25,12 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 	const generatedId = useId()
 	const inputId = props.id ?? generatedId
 
-	const [open, setOpen] = useState(false)
 	const anchor = useRef<NSView | null>(null)
-	const bindAnchor = useCallback((view: NSView | null) => { anchor.current = view }, [])
+	const [open, setOpenState] = useState(false)
+	const openRef = useRef(open); openRef.current = open
+	const writing = useRef(false), actionPending = useRef(false)
+	const setOpen = (next: boolean) => { openRef.current = next; if (anchor.current) setOpenState(next) }
+	const bindAnchor = useCallback((view: NSView | null) => { anchor.current = view; if (!view) openRef.current = false }, [])
 	const [busy, setBusy] = useState(false)
 
 	const value = props.value
@@ -36,28 +39,30 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 	const isBusy = !!props.isLoading || busy
 	const blocked = useRef(isDisabled || isBusy); blocked.current = isDisabled || isBusy
 
-	const fireChange = (next: DateRange | null) => {
-		if (isDisabled || isBusy || (next !== null && !isDateRangeAllowed(next, props))) {
-			return
-		}
+	const current = useRef(props); current.current = props
+	useEffect(() => { if (blocked.current && openRef.current) setOpen(false) }, [isDisabled, isBusy])
 
-		props.onChange?.(next)
-		if (props.changeAction) {
-			setBusy(true)
-			runDateChangeAction(
-				() => props.changeAction!(next),
-				() => setBusy(false),
-			)
-		}
+	const fireChange = (next: DateRange | null): boolean => {
+		const live = current.current
+		if (!anchor.current || blocked.current || writing.current || actionPending.current) return false
+		writing.current = true
+		try {
+			if (next !== null && !isDateRangeAllowed(next, live)) return false
+			live.onChange?.(next)
+			if (live.changeAction) {
+				actionPending.current = true
+				if (anchor.current) setBusy(true)
+				runDateChangeAction(() => live.changeAction!(next), () => {
+					actionPending.current = false
+					if (anchor.current) setBusy(false)
+				})
+			}
+			return true
+		} finally { writing.current = false }
 	}
 
 	const selectRange = (range: DateRange) => {
-		if (isDisabled || isBusy || !isDateRangeAllowed(range, props)) {
-			return
-		}
-
-		fireChange(range)
-		setOpen(false)
+		if (openRef.current && fireChange(range) && anchor.current) setOpen(false)
 	}
 
 	const isPresetDisabled = (preset: { getRange: () => DateRange }) =>
@@ -75,7 +80,7 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 	const statusText = props.status ? STATUS_TEXT[props.status.type] : null
 
 	useImperativeHandle(props.ref, () => createAppKitDateFieldHandle({
-		primary: () => hostRef.current, blocked: () => blocked.current,
+		primary: () => hostRef.current, blocked: () => blocked.current || actionPending.current,
 	}), [])
 
 	<>
@@ -109,8 +114,8 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 				accessibilityState={{ disabled: isDisabled, busy: isBusy }}
 				ref={bindHost}
 				onPress={() => {
-					if (!isDisabled && !isBusy) {
-						setOpen(!open)
+					if (anchor.current && !blocked.current && !writing.current && !actionPending.current) {
+						setOpen(!openRef.current)
 					}
 				}}
 			>
@@ -140,7 +145,7 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 		</masonview>
 		<Popover
 			anchor={anchor}
-			open={open}
+			open={open && !isDisabled && !isBusy}
 			onDismiss={() => setOpen(false)}
 			placement="bottom"
 			className="vx-daterangeinput-popover"
@@ -157,9 +162,9 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 									key={preset.label}
 									id={`${inputId}-preset-${index}`}
 									onTap={() => {
-										if (!isPresetDisabled(preset)) {
-											selectRange(preset.getRange())
-										}
+										if (!anchor.current || !openRef.current || blocked.current || writing.current || actionPending.current) return
+										const live = current.current.presets?.find((item) => item.label === preset.label)
+										if (live) selectRange(live.getRange())
 									}}
 									className={cx(
 										'vx-daterangeinput-preset',

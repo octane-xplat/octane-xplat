@@ -3372,3 +3372,57 @@ announcements remain source gaps. Checkbox mixed rollback still awaits the
 previously asked human contract choice. No package tests/typechecks, builds,
 installs, OS automation, visual analysis or shared audit snapshots ran; no
 evidence-gated checkbox is closed.
+
+
+### AppKit date and range save ownership
+
+The ref-handle slice 837b81041 was completed/pushed before continuing independent
+implementation. Source review exposed the adjacent date/range operation gap:
+fireChange called onChange before setting busy, captured old constraints and wrote
+settlement state after teardown. Reentrant parent callbacks could duplicate saves,
+and DateInput accepted calendar values without rechecking current constraints.
+The existing TimeInput/DateTimeInput write-claim pattern is reused for these
+ordinary date-entry flows rather than introducing a new shared service.
+
+DateInput and DateRangeInput now synchronously claim before validation/application
+callbacks, read current constraints and block detached/reentrant/pending writes.
+Accepted saves capture their event callbacks, dispatch after onChange teardown,
+and settle without detached busy-state updates; forward errors release claims
+and sync/async save errors release loading. Parent state is not rolled back.
+Stable open refs guard cached picker entry/selection, selection requires current
+open ownership, blocked popups close, and post-callback draft/close writes require
+attachment. DateInput validates calendar dates against current bounds/predicates.
+Range preset activation resolves the current label-keyed preset and evaluates its
+range once for that activation before current endpoint/span validation; removed
+presets are rejected. Rendering still evaluates pure getters. Existing ref focus
+also respects the immediate pending-save guard. No dependency/public type/shared
+manifest, parser policy or other-platform leaf changed.
+
+Seven authored object-driver cases (three date/range parameterized pairs and one
+preset-registry case) cover callback reentry, pending edits/popup entry and release,
+current bounds/predicates/blocking/open/detach ownership, forward/sync/async save
+errors, accepted save after teardown and replaced/removed/invalid presets. They
+and the maintained date-save fixture are unrun; the fixture mounts a manual save
+completion/failure surface and synthesizes no native callbacks/input/focus. Guide,
+skill and date-picker AC17 were reconciled. This fixes unreleased target behavior;
+no stable-release fix note is added. Only source/semantic, TSRX syntax and
+whitespace review ran.
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/date-save.macos.mobile.test.tsrx src/date-refs.macos.mobile.test.tsrx src/time-step.macos.mobile.test.tsrx src/datetime-options.macos.mobile.test.tsrx
+pnpm exec turbo run test --filter=@octane-xplat/ui -- src/datetime.test.ts src/date-entry.web.test.tsx src/date-field-handle.macos.test.ts
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/date-save.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All commands remain deferred pending explicit human authorization for this task.
+Actual native callback ordering, repeated activation, field-editor/IME/draft/caret,
+save/blur/focus and layer/FocusScope/modal integration, AX and packaging remain
+unqualified. No cancellation, automatic rollback or native error announcement is
+introduced. Autofocus timing, preset row text relay/full listbox relationships
+and live announcements remain source gaps; Checkbox mixed rollback is pending the
+previously asked contract choice. No package tests/typechecks, builds, installs,
+OS automation, visual analysis or shared audit snapshots ran; no checkbox closed.

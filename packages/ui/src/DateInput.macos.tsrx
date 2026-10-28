@@ -15,7 +15,7 @@ import { FormField } from './FormField.macos.tsrx'
 import { Popover } from './Popover.macos.tsrx'
 import { FieldContext, useFieldControlProps } from './field-context'
 import { Calendar } from './Calendar.macos.tsrx'
-import { formatDateValue, parseDateInput, plainDateToISO, resolveLocale } from './datetime'
+import { formatDateValue, parseDateInput, plainDateFromISO, plainDateToISO, resolveLocale } from './datetime'
 
 import { createDateDisabledCheck } from './calendar-core'
 
@@ -30,9 +30,12 @@ function DateInputControl(inputProps: DateInputProps) @{
 	const input = useRef<NSTextField | null>(null)
 	const anchor = useRef<NSView | null>(null)
 	const bindInput = useCallback((view: NSTextField | null) => { input.current = view }, [])
-	const bindAnchor = useCallback((view: NSView | null) => { anchor.current = view }, [])
+	const bindAnchor = useCallback((view: NSView | null) => { anchor.current = view; if (!view) openRef.current = false }, [])
 
-	const [open, setOpen] = useState(false)
+	const [open, setOpenState] = useState(false)
+	const openRef = useRef(open); openRef.current = open
+	const writing = useRef(false), actionPending = useRef(false)
+	const setOpen = (next: boolean) => { openRef.current = next; if (anchor.current) setOpenState(next) }
 	const [pendingInput, setPendingInput] = useState<string | null>(null)
 	const [busy, setBusy] = useState(false)
 
@@ -43,7 +46,7 @@ function DateInputControl(inputProps: DateInputProps) @{
 	const isBusy = !!props.isLoading || busy
 	const blocked = useRef(isDisabled || isBusy); blocked.current = isDisabled || isBusy
 	useImperativeHandle(props.ref, () => createAppKitDateFieldHandle({
-		primary: () => input.current, blocked: () => blocked.current,
+		primary: () => input.current, blocked: () => blocked.current || actionPending.current,
 	}), [])
 
 	const isDateDisabled = useMemo(
@@ -55,6 +58,10 @@ function DateInputControl(inputProps: DateInputProps) @{
 			}),
 		[props.min, props.max, props.dateConstraints],
 	)
+
+	const current = useRef({ props, isDateDisabled })
+	current.current = { props, isDateDisabled }
+	useEffect(() => { if (blocked.current && openRef.current) setOpen(false) }, [isDisabled, isBusy])
 
 	const formatValue = (iso: ISODateString): string =>
 		formatDateValue(iso, props.format ?? 'date_long', locale)
@@ -68,20 +75,27 @@ function DateInputControl(inputProps: DateInputProps) @{
 		lastEmitted.current = undefined
 	}, [value])
 
-	const fireChange = (next: ISODateString | null) => {
-		if (isDisabled || isBusy) {
-			return
-		}
-
-		lastEmitted.current = next
-		props.onChange?.(next)
-		if (props.changeAction) {
-			setBusy(true)
-			runDateChangeAction(
-				() => props.changeAction!(next),
-				() => setBusy(false),
-			)
-		}
+	const fireChange = (next: ISODateString | null): boolean => {
+		const live = current.current
+		if (!anchor.current || blocked.current || writing.current || actionPending.current) return false
+		writing.current = true
+		try {
+			if (next !== null) {
+				const parsed = plainDateFromISO(next)
+				if (!parsed || live.isDateDisabled(parsed)) return false
+			}
+			lastEmitted.current = next
+			live.props.onChange?.(next)
+			if (live.props.changeAction) {
+				actionPending.current = true
+				if (anchor.current) setBusy(true)
+				runDateChangeAction(() => live.props.changeAction!(next), () => {
+					actionPending.current = false
+					if (anchor.current) setBusy(false)
+				})
+			}
+			return true
+		} finally { writing.current = false }
 	}
 
 	const pendingParsed =
@@ -93,20 +107,13 @@ function DateInputControl(inputProps: DateInputProps) @{
 			: pendingParsed !== null && !isDateDisabled(pendingParsed)
 
 	const commitParsed = (pd: ReturnType<typeof parseDateInput>) => {
-		if (pd && !isDateDisabled(pd)) {
-			const iso = plainDateToISO(pd)
-			if (iso !== shown) {
-				fireChange(iso)
-			}
-
-			return true
-		}
-
-		return false
+		if (!pd) return false
+		const iso = plainDateToISO(pd)
+		return iso !== current.current.props.value && fireChange(iso)
 	}
 
 	const commitPending = () => {
-		if (hasDateComposition(input.current)) {
+		if (!anchor.current || blocked.current || writing.current || actionPending.current || hasDateComposition(input.current)) {
 			return
 		}
 
@@ -122,11 +129,11 @@ function DateInputControl(inputProps: DateInputProps) @{
 			commitParsed(parseDateInput(pendingInput, locale))
 		}
 
-		setPendingInput(null)
+		if (anchor.current) setPendingInput(null)
 	}
 
 	const handleTextChange = (text: string) => {
-		if (isDisabled) {
+		if (!anchor.current || blocked.current || writing.current || actionPending.current) {
 			return
 		}
 
@@ -139,9 +146,8 @@ function DateInputControl(inputProps: DateInputProps) @{
 	}
 
 	const pickFromCalendar = (iso: ISODateString) => {
-		fireChange(iso)
-		setPendingInput(null)
-		setOpen(false)
+		if (!openRef.current || !fireChange(iso)) return
+		if (anchor.current) { setPendingInput(null); setOpen(false) }
 	}
 
 	const displayText = pendingInput ?? (shown ? formatValue(shown) : '')
@@ -170,8 +176,8 @@ function DateInputControl(inputProps: DateInputProps) @{
 				accessibilityLabel={open ? messages.closeCalendar : messages.openCalendar}
 				disabled={isDisabled || isBusy}
 				onPress={() => {
-					if (!isDisabled && !isBusy) {
-						setOpen(!open)
+					if (anchor.current && !blocked.current && !writing.current && !actionPending.current) {
+						setOpen(!openRef.current)
 					}
 				}}
 			>
@@ -204,8 +210,7 @@ function DateInputControl(inputProps: DateInputProps) @{
 					className="vx-dateinput-clear"
 					accessibilityLabel={`Clear ${props.fieldLabel ?? props.label ?? 'date'}`}
 					onPress={() => {
-						setPendingInput(null)
-						fireChange(null)
+						if (fireChange(null) && anchor.current) setPendingInput(null)
 					}}
 				>
 					<label text="×" />
@@ -221,7 +226,7 @@ function DateInputControl(inputProps: DateInputProps) @{
 		</masonview>
 		<Popover
 			anchor={anchor}
-			open={open}
+			open={open && !isDisabled && !isBusy}
 			onDismiss={() => setOpen(false)}
 			placement="bottom"
 			className="vx-dateinput-popover"
