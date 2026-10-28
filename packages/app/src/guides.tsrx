@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { NavLink, Pressable, HStack, Screen, Text, View } from '@octane-xplat/ui'
 import { defineRouteGroup, defineRoutes } from '@octane-xplat/ui/routing/core'
 import { useRouter } from '@octane-xplat/ui/routing'

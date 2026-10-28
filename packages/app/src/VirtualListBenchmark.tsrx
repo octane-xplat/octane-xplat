@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { Pressable, Text, View, VirtualList, type VirtualListHandle } from '@octane-xplat/ui'
 import {

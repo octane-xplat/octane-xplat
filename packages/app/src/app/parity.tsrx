@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { Screen } from '@octane-xplat/ui'
 import { ParityStage } from '../parity/stage.tsrx'
 

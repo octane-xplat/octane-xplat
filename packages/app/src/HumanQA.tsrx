@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { Pressable, HStack, Screen, ScrollableArea, Text, View } from '@octane-xplat/ui'
 import { clipboard, device } from '@octane-xplat/platform'

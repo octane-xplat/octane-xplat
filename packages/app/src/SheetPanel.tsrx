@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { View, Text, Pressable } from '@octane-xplat/ui'
 import { closeBottomSheet } from './platform/sheet'
 

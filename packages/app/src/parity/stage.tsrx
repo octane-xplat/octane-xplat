@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { useEffect } from 'octane'
 import { View, Text } from '@octane-xplat/ui'
 import { PARITY_FIXTURES, type ParityFixture } from './index'

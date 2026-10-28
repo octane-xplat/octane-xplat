@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { HumanQA } from '../HumanQA.tsrx'
 
 /** qa route — the human-verdict checklist (harness probes can't assert

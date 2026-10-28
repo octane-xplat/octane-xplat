@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { Text, View } from '@octane-xplat/ui'
 
 /** Nested route-dir layout — wraps every screen pushed under demo/*

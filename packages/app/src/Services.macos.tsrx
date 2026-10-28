@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { secureStorage } from '@octane-xplat/secure-storage'
 import { files } from '@octane-xplat/files'

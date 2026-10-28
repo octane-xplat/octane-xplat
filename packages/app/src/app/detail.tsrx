@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { Screen, Text, Pressable } from '@octane-xplat/ui'
 import { redirect, useRouter, useRouterState } from '@octane-xplat/ui/routing'

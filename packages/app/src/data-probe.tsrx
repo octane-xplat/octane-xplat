@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { use, useState } from 'octane'
 import { query$, skip, type QueryContext } from 'octane/signals'
 import { useSignal$ } from 'octane/signals/client'

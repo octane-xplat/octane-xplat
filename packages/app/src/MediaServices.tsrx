@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { useEffect, useRef, useState } from 'octane'
 import { Text, Pressable, HStack, View } from '@octane-xplat/ui'
 import { createHaptics } from '@octane-xplat/haptics'

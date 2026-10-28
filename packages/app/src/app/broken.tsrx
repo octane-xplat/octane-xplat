@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { Pressable, Screen, Text } from '@octane-xplat/ui'
 import type { RouteErrorBoundaryProps } from '@octane-xplat/ui/routing'
 import type { RouteLoaderArgs, RouteProps } from '../routes.gen.contracts'

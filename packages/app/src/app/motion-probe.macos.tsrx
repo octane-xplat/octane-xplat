@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { Screen, Text, Pressable } from '@octane-xplat/ui'
 import { useRouter } from '@octane-xplat/ui/routing'
 

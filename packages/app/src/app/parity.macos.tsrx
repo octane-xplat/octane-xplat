@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { Screen, ScrollableArea, View } from '@octane-xplat/ui'
 import { ParityStage } from '../parity/stage.tsrx'
 

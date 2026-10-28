@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { Screen, Text } from '@octane-xplat/ui'
 import type { RouteProps } from '../routes.gen.contracts'
 

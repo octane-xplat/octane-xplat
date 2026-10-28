@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { useEffect, useRef, useState } from 'octane'
 import {
 	MotionConfig,
