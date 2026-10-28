@@ -17,7 +17,6 @@
 		"src/Lottie.tsrx",
 		"src/Lottie.web.tsrx",
 		"src/props.ts",
-		"src/native-elements.d.ts",
 		"src/references.d.ts",
 		"src/escape-props.ts",
 		"src/escape-props.web.ts",

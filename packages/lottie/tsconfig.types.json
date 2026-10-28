@@ -15,10 +15,13 @@
 			".linux",
 			".windows"
 		],
-		"lib": ["esnext", "dom"],
+		"lib": [
+			"esnext",
+			"dom"
+		],
 		"target": "esnext",
 		"jsx": "react-jsx",
-		"jsxImportSource": "octane",
+		"jsxImportSource": "@octane-xplat/jsx",
 		"declaration": true,
 		"emitDeclarationOnly": true,
 		"noEmit": false,
@@ -31,7 +34,6 @@
 		"src/Lottie.web.tsrx",
 		"src/index.ts",
 		"src/index.web.ts",
-		"src/native-elements.d.ts",
 		"src/props.ts",
 		"src/escape-props.ts",
 		"src/escape-props.web.ts",

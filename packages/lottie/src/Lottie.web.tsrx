@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import lottie, { type AnimationItem } from 'lottie-web'
 import { useState, useImperativeHandle, useEffect, useRef } from 'octane'
 import type { LottieHandle, LottieProps } from './props'

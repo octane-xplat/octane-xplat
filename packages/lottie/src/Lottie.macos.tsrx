@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useEffect, useImperativeHandle, useMemo, useRef } from 'octane'
 import { layoutChildProps } from './layout-child'
 import type { LottieHandle, LottieProps } from './props'
