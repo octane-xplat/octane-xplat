@@ -21,3 +21,42 @@ contributors can use the
 For current repository implementation candidates and deferred Windows checks,
 see the [Windows progress note](../../.agents/docs/parity/windows-support-progress.md).
 These candidates do not change the experimental support boundary.
+
+## Media-query candidate
+
+The repository has an experimental Windows `useMediaQuery` leaf for DIP
+window dimensions, orientation, pointer/hover capabilities and reduced motion.
+It prefers mouse, then pen, then touch as the primary pointer; a hybrid device
+can match both fine and coarse `any-pointer` queries. Unknown capabilities and
+unsupported features do not match, including under `not`.
+
+```tsx
+import { Text, useMediaQuery } from '@octane-xplat/ui'
+
+export function InputLayout() {
+  const compactTouch = useMediaQuery(
+    '(max-width: 1024px) and (pointer: coarse) and (hover: none)',
+  )
+  return <Text>{compactTouch ? 'Compact touch layout' : 'Standard layout'}</Text>
+}
+```
+
+The leaf samples Windows animation preferences, allowing the existing
+`useStreamingText` reduced-motion branch to settle text immediately when the
+host reports animations disabled. It refreshes on primary-root layout, the
+preview core's resize event and app launch/resume. Live device hotplug and
+settings-change delivery are unqualified.
+
+```tsx
+import { Text, useStreamingText } from '@octane-xplat/ui'
+
+export function Reply(props: { text: string; isStreaming: boolean }) {
+  const visibleText = useStreamingText(props.text, props.isStreaming)
+  return <Text>{visibleText}</Text>
+}
+```
+
+This remains a source candidate: helper tests use mocked projections, and
+read-only .NET API checks do not qualify NativeScript hook execution, actual
+WinRT projection, OS input or accessibility. See the
+[Windows evidence record](../../.agents/docs/parity/windows-support-progress.md).

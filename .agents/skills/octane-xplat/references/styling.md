@@ -353,3 +353,21 @@ and the manual fixture are authored, unrun. Native drawing/hit-testing/AX/shadow
 and packaging remain unqualified. This renderer prerequisite does not itself fix
 Tokenizer's legacy geometry, duplicate layer row refs or counter layout.
 See [the renderer subset](../../../../packages/macos-renderer/README.md#clip-appkit-container-overflow).
+
+## Windows media-query boundary
+
+The experimental [Windows media-query leaf](../../../../docs/platform/windows-setup.md#media-query-candidate)
+uses DIP window metrics and sampled input/animation capabilities. Use queries
+for conditional behavior in a compiled component or custom hook. Primary input
+prefers mouse, then pen, then touch; `any-pointer` preserves hybrid input.
+Unknown capabilities and unsupported features do not match, even under `not`.
+Updates follow root layout and app resize/launch/resume; hotplug/settings events,
+secondary windows and actual NativeScript execution remain unqualified.
+
+```tsx
+import { useMediaQuery } from '@octane-xplat/ui'
+
+export function useCompactTouchLayout() {
+  return useMediaQuery('(max-width: 1024px) and (pointer: coarse) and (hover: none)')
+}
+```

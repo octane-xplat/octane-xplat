@@ -27,6 +27,7 @@ is complete because of these changes.
 | Animated-image import | GIF manifest selects the existing Windows entry instead of an explicit mobile visual import | Existing unsupported placeholder remains; no GIF playback claim |
 | Command palette | Unsuffixed announcement import selects a WinUI automation-peer leaf | Screen-reader delivery and peer projection unverified |
 | Dialogs/sheets | Windows keyboard-overlay host resolves independently of the mobile-only helper | Neutral software-keyboard binding; Windows occlusion, modal focus/Tab/Escape/background exclusion and OS dismissal remain unqualified |
+| Media queries | Windows leaf samples fine/coarse/hybrid pointer, pen hover and animation preferences; listens to root layout and app lifecycle/resize | Helper tests and .NET API-type probes only; NativeScript projection, live hotplug/settings events and secondary windows unqualified |
 | Gradient controls | Windows LinearGradientBrush helper supplies the previously missing leaf | Native bridge projection, repaint ownership and pixels unverified |
 | Files | Windows-only text/binary I/O leaf removes the mobile document-picker import; bounded reads, owned temporary writes and cleanup | Picker/export interop unavailable; WinRT stream/promise projection and actual I/O unqualified |
 | Clipboard | WinRT text read/write, format check, async bridge, flush, false/null failures | OS clipboard access, foreground restrictions and persistence need Windows checks; rich formats excluded |
@@ -205,3 +206,57 @@ Raw output: `research/windows61/windy-resolver-contracts.log` (exit 1 before the
 regression body). Use a current, separately installed qualification checkout
 before rerunning the maintained CLI test and production import graph. The
 scratch bundle is not the package build or a native app artifact.
+
+## Windows media queries and current metric source
+
+The source at pinned NativeScript commit `abae298cee169ccd6dbd741d8c8ecc2e3d9dc13b`
+already derives [Screen.mainScreen DIPs](https://github.com/NativeScript/NativeScript/blob/abae298cee169ccd6dbd741d8c8ecc2e3d9dc13b/packages/core/platform/screen/index.windows.ts)
+from the primary window's XamlRoot and [emits orientationChanged on resize](https://github.com/NativeScript/NativeScript/blob/abae298cee169ccd6dbd741d8c8ecc2e3d9dc13b/packages/core/application/application.windows.ts#L302).
+The earlier audit's missing-window-resize description must not be treated as
+proof of absence in this preview. No replacement sizing mechanism was added;
+actual resize geometry remains unqualified.
+
+`use-media-query.windows.tsrx` adds a Windows input/animation capability leaf.
+The shared fallback's fixed coarse/no-hover traits misclassify mouse desktops;
+its grammar does not recognize the reduced-motion query used by
+`useStreamingText`. Existing adaptive-dialog and menu examples under
+`apps/astryx-sandbox/src/examples` also use the compact-touch query. The new
+helper keeps primary input, hybrid any-pointer support and unknown host data
+distinct. The preference order is mouse, pen, touch. Pen hover uses reported
+MaxPointersWithZDistance; missing capability data does not become none/false,
+and negation does not turn an unknown predicate into a match.
+
+The leaf retains a restricted native grammar: px/DIP width/height bounds and
+exact values, orientation, pointer/any-pointer, hover/any-hover,
+prefers-reduced-motion, and/or/comma and per-term not. It does not promise the
+browser's full CSS grammar. The existing [core query engine](https://github.com/NativeScript/NativeScript/blob/abae298cee169ccd6dbd741d8c8ecc2e3d9dc13b/packages/core/css-mediaquery/index.ts#L73)
+rejects string-valued pointer/hover features, so it cannot supply this behavior.
+No UI dependency was added. Root loaded/layoutChanged and application
+resize/launch/resume events resample the primary window. Input-device hotplug,
+settings-change notifications and secondary-window ownership remain unqualified;
+this does not implement hover event dispatch or focus modality.
+
+Six new tests at `packages/ui/tests/windows-media-query.test.mjs` passed on
+`windy` in the isolated Turbo fixture (19 focused tests total, exit 0). They cover
+hybrid input, touch/pen/no-pointer and unknown states, query bounds/precedence,
+root rebinding/disposal and reduced-motion sampling. One initial failure was a
+missing animation-preference default in the test fixture; after correcting the
+fixture, the complete focused run passed. Raw output:
+`research/windows61/windy-media-contracts.log`. The helper was transpiled for
+Node; the hook leaf has lint/syntax evidence only, not native renderer execution.
+
+Four additional read-only Windows PowerShell/.NET checks instantiated
+MouseCapabilities, TouchCapabilities and UISettings, checked numeric/boolean
+property types and called GetPointerDevices. All passed (exit 0), without logging
+hardware identities, capability values or user preference values. Raw output:
+`research/windows61/windy-input-api-types.log`. These prove OS API availability
+in that .NET/SSH process, not NativeScript bridge behavior. API references:
+[input capabilities](https://learn.microsoft.com/en-us/windows/apps/develop/input/identify-input-devices),
+[pen hover capacity](https://learn.microsoft.com/en-us/uwp/api/windows.devices.input.pointerdevice),
+[animation preference](https://learn.microsoft.com/en-us/uwp/api/windows.ui.viewmanagement.uisettings.animationsenabled).
+
+The native UI test task includes this helper regression. The full UI suite,
+package/dependent typecheck and actual NativeScript renderer/runtime checks
+remain deferred. Public Windows guidance and the styling skill record the
+subset. No supported downstream Windows workflow or recipe target was added;
+responsive examples already use the shared import and require no source change.
