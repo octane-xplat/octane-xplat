@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { Image, isImageCached, prefetch } from '@octane-xplat/image'
 import { Text, VStack } from '@octane-xplat/ui'
 import { useState } from 'octane'

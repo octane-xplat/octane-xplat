@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { VStack } from '@octane-xplat/ui'
 import { createStore, useStore } from '@octane-xplat/ui/data'
 import { NanoIcon } from '@octane-xplat/nano-icons'

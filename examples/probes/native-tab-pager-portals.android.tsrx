@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { BottomNavigationView } from '@octane-xplat/ui/android'
 import { Pager } from '@octane-xplat/pager'
 import { createContext, useContext, useEffect, useState } from 'octane'

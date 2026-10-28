@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import 'octane/signals'
 import { View, Text, Pressable } from '@octane-xplat/ui'
 import {

@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { Grid, Pressable, Screen, Text, View } from '@octane-xplat/ui'
 import { useState } from 'octane'
 import type { ProbeContext } from '../../scripts/probe/context'

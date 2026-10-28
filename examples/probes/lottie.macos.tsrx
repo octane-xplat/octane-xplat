@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { Lottie } from '@octane-xplat/lottie'
 import { useRef, useState } from 'octane'
 import type { LottieHandle } from '@octane-xplat/lottie'

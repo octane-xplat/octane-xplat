@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import type { TouchGestureEventData } from '@nativescript/core'
 import type { ProbeContext } from '../../scripts/probe/context'
 

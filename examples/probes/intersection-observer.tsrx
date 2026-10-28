@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { Column, ScrollView, Text, View } from '@octane-xplat/ui'
 import {
 	IntersectionObserver as PlatformIntersectionObserver,

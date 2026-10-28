@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { Pressable, Text, VStack, View, useLayer } from '@octane-xplat/ui'
 import type { ProbeContext } from '../../scripts/probe/context'
 import { LayerHost } from './LayerHost'

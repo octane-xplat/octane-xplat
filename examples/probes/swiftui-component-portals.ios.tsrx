@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { SwiftUIContextMenu } from '@octane-xplat/context-menu/ios'
 import { SwiftUIBottomSheet } from '@octane-xplat/sheet/ios'
 import { ShaderEffect } from '@octane-xplat/effects/ios'

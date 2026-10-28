@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { Chart } from '@octane-xplat/charts'
 import type { ProbeContext } from '../../scripts/probe/context'
 

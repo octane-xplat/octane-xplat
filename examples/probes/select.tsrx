@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { Selector, MultiSelector, Text, VStack } from '@octane-xplat/ui'
 import { useState } from 'octane'
 

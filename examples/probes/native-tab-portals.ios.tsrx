@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { UITabBar } from '@octane-xplat/ui/ios'
 import { createContext, useContext, useEffect, useState } from 'octane'
 import type { ProbeContext } from '../../scripts/probe/context'
