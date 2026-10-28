@@ -88,6 +88,8 @@ events, keyboard navigation or modal focus containment.
 Windows `useLayer` selects the NativeScript popup implementation. Put its trigger
 inside a `Screen`, which supplies the overlay host. Anchored layers use the
 shared Popover; fixed and custom positions use a portal on the declaring page.
+Closing the top layer attempts to return focus to the earlier control in the
+same visible, active window. A removed or disabled control is skipped.
 
 ```tsx
 import { Button, Screen, Text, useLayer } from '@octane-xplat/ui'
@@ -96,11 +98,16 @@ export function Details() {
   const layer = useLayer({ mode: 'context', lightDismiss: true })
   return <Screen>
     <Button label="Details" ref={layer.ref} clickAction={layer.show} />
-    {layer.render(<Text>Packing details</Text>, { placement: 'below' })}
+    {layer.render(<>
+      <Text>Packing details</Text>
+      <Button label="Close" clickAction={layer.hide} />
+    </>, { placement: 'below' })}
   </Screen>
 }
 ```
 
-Resolver checks confirm the Windows leaf and its NativeScript helpers. Actual
-WinUI mounting, positioning, context updates, dismissal and focus still need
-native app checks. This does not qualify every menu or tooltip that uses layers.
+Resolver checks confirm the Windows leaf and its NativeScript helpers. Focus
+return tests use mocked Windows objects. Actual WinUI mounting, positioning,
+context updates, dismissal and focus still need native app checks. Initial
+focus, Tab containment and Escape/IME behavior remain unqualified. This does not
+qualify every menu or tooltip that uses layers.

@@ -89,6 +89,7 @@ function FixedLayerMount(props: FixedSurfaceProps & { open?: boolean }) @{
 			return !!props.open
 		},
 		isPresent: () => !!shown.current,
+		getHost: () => sentinel.current,
 		dismiss: () => props.onDismiss?.(),
 		get behavior() {
 			return (props.dismissOnEscape ?? props.lightDismiss) ? 'close' : 'block'

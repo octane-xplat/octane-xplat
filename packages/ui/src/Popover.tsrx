@@ -192,6 +192,7 @@ export function Popover(props: PopoverProps) @{
 		},
 		isPresent: () => !!shown.current,
 		getFocusTarget: () => props.finalFocusRef?.current,
+		getHost: () => props.anchor?.current,
 		dismiss: requestDismiss,
 		get behavior() {
 			return props.dismissOnEscape === false ? 'block' : 'close'

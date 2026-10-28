@@ -27,6 +27,7 @@ is complete because of these changes.
 | Animated-image import | GIF manifest selects the existing Windows entry instead of an explicit mobile visual import | Existing unsupported placeholder remains; no GIF playback claim |
 | Command palette | Unsuffixed announcement import selects a WinUI automation-peer leaf | Screen-reader delivery and peer projection unverified |
 | Dialogs/sheets | Windows keyboard-overlay host resolves independently of the mobile-only helper | Neutral software-keyboard binding; Windows occlusion, modal focus/Tab/Escape/background exclusion and OS dismissal remain unqualified |
+| Floating layers/focus return | Dedicated NativeScript useLayer leaf; Windows XamlRoot-scoped return helper uses the declaring host | Minimal resolver and mocked focus contracts only; native mounting, geometry, activation/identity projection, Tab/IME and focus remain unqualified |
 | Media queries | Windows leaf samples fine/coarse/hybrid pointer, pen hover and animation preferences; listens to root layout and app lifecycle/resize | Standalone NativeScript input/preference projection passed with synthetic screen size; hook rendering, real resize, hotplug/settings events and secondary windows unqualified |
 | Gradient controls | Windows LinearGradientBrush helper supplies the previously missing leaf | Native bridge projection, repaint ownership and pixels unverified |
 | Files | Windows-only text/binary I/O leaf removes the mobile document-picker import; bounded reads, owned temporary writes and cleanup | Standalone reads/writes and owned-only release passed against a task folder; packaged TemporaryFolder, cancellation, deterministic cleanup and picker/export unqualified |
@@ -608,9 +609,10 @@ Windows previously resolved useLayer to use-layer.tsrx, which requires the
 AppKit showLayer bridge. The NativeScript implementation was only available in
 the mobile leaf, excluded from the Windows suffix chain. The new Windows leaf
 adopts that existing implementation: anchored presentation uses Popover, while
-fixed/custom surfaces use the declaring RootLayout and native portal. Its body
-matches the retained mobile implementation exactly except for its platform
-comment; public exports and signatures match. No new engine/dependency or
+fixed/custom surfaces use the declaring RootLayout and native portal. At commit
+`4809eba88`, its body matched the retained mobile implementation exactly except
+for its platform comment; public exports and signatures match. The focus-return
+work below adds an explicit Windows host getter. No new engine/dependency or
 AppKit bridge emulation was added. Mobile and AppKit source files are unchanged.
 
 `apps/astryx-sandbox/src/examples/layer/LayerHookUsage.tsrx` supplies the concrete
@@ -643,3 +645,54 @@ change is a Windows-specific leaf. No lint rule was weakened and no inactive
 placeholder sibling was introduced. Keep the two NativeScript implementations
 aligned when their common logic changes. This is an unreleased Windows backend
 repair, so no additional release note was added.
+
+## Windows layer focus-return candidate
+
+The Windows suffix chain also selected the default AppKit layer-keys helper.
+A dedicated Windows leaf now captures the declaring XamlRoot's focused control
+and returns a best-effort restore callback. The existing dismissal stack calls
+it only for the retiring top layer when restoration is enabled. The helper
+owns no listeners or subscriptions, so skipped restoration needs no cleanup.
+
+Popover passes its anchor as getHost; the Windows fixed-layer backend passes
+its declaring sentinel. These are ownership inputs already used by dialogs and
+sheets, not a new public API. An explicitly supplied but unattached host never
+falls back to the primary window. Without a host, the explicit target's root or
+Application root can provide the owner. The latest explicit target is read at
+restore time and may be a NativeScript view or a public handle containing it.
+
+Restoration requires a visible root, an Activated InputActivationListener for
+that root's AppWindowId, and an attached/enabled control still in the same root.
+A host moved to another root, foreign target, retired projection or missing
+activation/focus API skips restoration. The helper calls Focus(Programmatic);
+it never calls a window-activation API. It does not read text or credentials.
+See Microsoft's [root-scoped focus lookup](https://learn.microsoft.com/en-us/windows/windows-app-sdk/api/winrt/microsoft.ui.xaml.input.focusmanager.getfocusedelement?view=windows-app-sdk-1.8)
+and [activation listener](https://learn.microsoft.com/en-us/windows/windows-app-sdk/api/winrt/microsoft.ui.input.inputactivationlistener?view=windows-app-sdk-1.8).
+Use the explicit metadata name GetFocusedElementWithRoot: relying on generic
+overload dispatch risks the zero-argument lookup on older projections. Its
+presence, XamlRoot proxy identity and InputActivationListener behavior still
+need qualification in the pinned native host; missing APIs fail closed.
+
+Nine maintained mocked contracts passed on windy through a new isolated Turbo
+test:focus task, exit 0. Its dry run has one task and no dependency builds.
+They cover root capture, latest view/handle targets, absent hosts versus
+unattached hosts, hidden/inactive windows, foreign/moved roots, unloaded/disabled
+controls, missing APIs and throwing proxies/getters. The Windows source is
+transpiled and executed against mocked imports; no actual FocusManager, native
+control, window, OS input, UIA or renderer ran. Log:
+`research/windows61/windy-layer-focus-contracts.log`.
+
+The minimal resolver diagnostic also selects layer-keys.windows.ts and confirms
+that the Windows layer backend differs from mobile only in its platform comment
+and declaring-host getter (eight path checks plus comparison, exit 0). Log:
+`research/windows61/layer-focus-resolution.log`. Targeted formatting/lint, UI
+barrel synchronization, recipe structure and whitespace checks passed.
+
+The test is registered in UI test:native. The full suite, package/dependent
+typechecks, Windows build and app checks remain deferred at the commands above.
+After authorized native adoption, check ordinary and nested close, explicit
+finalFocusRef replacement, removed/disabled controls, owner-window changes,
+inactive/secondary windows and no foreground activation. Initial focus, Tab
+containment/background exclusion, Escape, IME and production overlay behavior
+remain separate gaps. This is an unreleased Windows fix; no new release note or
+supported recipe target was added. No evidence-gated issue checkbox was closed.

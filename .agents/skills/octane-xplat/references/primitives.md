@@ -2710,9 +2710,14 @@ tracks source, adoption and native gates separately.
 Windows useLayer selects a dedicated NativeScript leaf using Popover/RootLayout
 and the native portal. Keep it independent of the AppKit showLayer host. Anchored
 presentation needs the declaring Screen/RootLayout; fixed/custom layers also use
-that owner. Mobile and AppKit implementations remain separately owned. Source
-resolution is checked, while actual WinUI geometry, context, dismissal and focus
-are unqualified. See the [Windows layer boundary](../../../../docs/platform/windows-setup.md#floating-layer-candidate).
+that owner. The Windows focus-return leaf captures the declaring XamlRoot and
+skips inactive/hidden windows, foreign roots and removed/disabled targets. Keep
+Popover's anchor and fixed-layer sentinel as getHost inputs; do not fall back
+from an unattached supplied host to the primary window. It installs no Escape
+listener or focus trap. Source resolution and mocked focus-return contracts are
+checked; actual WinUI geometry, context, dismissal, focus and Tab/IME behavior
+are unqualified. Mobile and AppKit implementations remain separately owned. See
+the [Windows layer boundary](../../../../docs/platform/windows-setup.md#floating-layer-candidate).
 
 ```tsx
 import { Button, Text, useLayer } from '@octane-xplat/ui'
@@ -2721,7 +2726,10 @@ export function LayerTrigger() {
   const layer = useLayer({ mode: 'context', lightDismiss: true })
   return <>
     <Button label="Details" ref={layer.ref} clickAction={layer.show} />
-    {layer.render(<Text>Packing details</Text>, { placement: 'below' })}
+    {layer.render(<>
+      <Text>Packing details</Text>
+      <Button label="Close" clickAction={layer.hide} />
+    </>, { placement: 'below' })}
   </>
 }
 ```
