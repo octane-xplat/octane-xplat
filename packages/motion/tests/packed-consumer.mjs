@@ -45,7 +45,7 @@ function run(command, args, cwd) {
 }
 
 // Deps the consumer needs in scope — the package's declared dependencies and
-// peers plus the renderer's jsx-runtime source.
+// peers plus the shared JSX facade.
 const dependencies = [
 	'octane',
 	'@nativescript-community/octane',
@@ -95,6 +95,13 @@ for (const target of Object.keys(consumers)) {
 	consumers[target] += `
 import { LayoutGroup } from '@octane-xplat/motion'
 import type { Variants, AnimationDefinition, TransitionInput } from '@octane-xplat/motion'
+const containers = <motion.View layoutRoot><motion.View layout drag="x" layoutAnchor={{ x: 1, y: 1 }} style={{ borderRadius: 20 }} /></motion.View>
+const independent = <motion.View layout layoutAnchor={false} />
+// @ts-expect-error anchors require numeric coordinates
+const badAnchor = <motion.View layoutAnchor={{ x: 'end', y: 1 }} />
+void containers
+void independent
+void badAnchor
 const shared = <LayoutGroup id="tabs" inherit="id"><motion.View layoutId="underline" layoutCrossfade={false} transition={{layout: {duration: 0.3}}} /></LayoutGroup>
 // @ts-expect-error inherit has a bounded vocabulary
 const badGroup = <LayoutGroup inherit="everything" />
@@ -117,8 +124,8 @@ void invalidWhen
 `
 }
 
-// Package acceptance uses the same public numeric contract, without claiming
-// that macOS drag, transforms or system preferences are qualified.
+// Package acceptance checks the shared numeric contract. Runtime and input
+// evidence belongs to the platform harnesses, not this type-only fixture.
 consumers.macos =
 	consumers.native +
 	`
@@ -136,7 +143,20 @@ const extraFiles = {}
 // Compile the maintained guide examples against packed declarations on each
 // target, so docs cannot depend on workspace-only types or imports.
 for (const [file, names] of [
-	['docs/app/animation-gestures.md', ['ReorderingList', 'ScrollingCard', 'AnimatedTabs', 'ExpandingDetails', 'MovingHighlight', 'IndependentHighlight']],
+	[
+		'docs/app/animation-gestures.md',
+		[
+			'ReorderingList',
+			'ScrollingCard',
+			'AnimatedTabs',
+			'ExpandingDetails',
+			'MovingHighlight',
+			'IndependentHighlight',
+			'AnchoredCard',
+			'ExpandingCard',
+			'MovableCard',
+		],
+	],
 	['.changelog/motion-shared-elements.md', ['Highlight']],
 	['.agents/skills/octane-xplat/references/services.md', ['SharedCard']],
 	['packages/motion/README.md', ['LayoutCard']],
@@ -144,9 +164,9 @@ for (const [file, names] of [
 	['packages/motion/UPSTREAM.md', ['GroupNamespace', 'SharedPresence']],
 ]) {
 	const markdown = readFileSync(join(repoRoot, file), 'utf8')
-	const snippets = [...markdown.matchAll(/```tsx\n([\s\S]*?)```/g)].map(match => match[1])
+	const snippets = [...markdown.matchAll(/```tsx\n([\s\S]*?)```/g)].map((match) => match[1])
 	for (const name of names) {
-		const snippet = snippets.find(source => source.includes(`export function ${name}(`))
+		const snippet = snippets.find((source) => source.includes(`export function ${name}(`))
 		assert.ok(snippet, `Missing maintained example ${name} in ${file}`)
 		extraFiles[`example-${name}.tsx`] = snippet
 	}
@@ -158,19 +178,19 @@ for (const [file, names] of [
 // ambient declarations carry upstream lib conflicts.
 const targetConfig = {
 	macos: {
-		jsxImportSource: '@octane-xplat/macos-renderer',
+		jsxImportSource: '@octane-xplat/jsx',
 		moduleSuffixes: ['.macos', ''],
 		customConditions: ['macos', 'native'],
 		types: [],
 	},
 	web: {
-		jsxImportSource: 'octane',
+		jsxImportSource: '@octane-xplat/jsx/dom',
 		moduleSuffixes: ['.web', ''],
 		customConditions: ['web'],
 		types: [],
 	},
 	native: {
-		jsxImportSource: 'octane',
+		jsxImportSource: '@octane-xplat/jsx',
 		moduleSuffixes: ['.ios', '.android', '.mobile', ''],
 		customConditions: ['native'],
 		types: ['@nativescript/types'],
