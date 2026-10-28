@@ -13,7 +13,7 @@ function fixture(flipped = false) {
 
 	const container: any = {
 		bounds: { origin: { x: 0, y: 0 }, size: { width: 800, height: 600 } },
-		isFlipped: flipped,
+		flipped,
 		addSubview() {},
 		convertPointFromView: (point: { x: number; y: number }) => point,
 	}

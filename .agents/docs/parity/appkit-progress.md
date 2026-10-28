@@ -854,3 +854,28 @@ Real native scroll origin/resize/animation, variable-row anchoring, route state
 retention, elastic scrolling, coordinate conversion and packaging remain
 unqualified. No pixels, OS automation, native build, installs or shared audit
 regeneration ran, and no evidence checkbox is closed.
+
+
+### Renderer coordinate property alignment
+
+The same generated-property mismatch remained in observeScrollGeometry's
+initial/axis positioning, pan Y normalization, gradient resize direction,
+anchored-window-layer positioning, scroll/list/parity benchmark snapshots and
+the content-lifecycle fixture's coordinate helper. These target-specific paths
+now read NSView.flipped, matching the generated readonly property and the UI
+repair. Existing fake scroll/layer/pan/gradient shapes now use that property.
+No runtime fallback/compatibility API or shared audit regeneration was added.
+
+Affected source regression cases include initial flipped/unflipped scrolling,
+axis changes, notification teardown, pan/swipe direction and anchored layers;
+they are not executed in this task. Syntax/whitespace only. Deferred:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer
+```
+
+Native subclass getter dispatch, scrollbar/elastic/resize behavior, pan/swipe
+input, vertical gradient pixels, anchored placement, benchmark geometry and
+content-lifecycle runtime remain unqualified. No visual analysis, builds,
+OS automation, device/native probes, tests, installs or packaging ran.

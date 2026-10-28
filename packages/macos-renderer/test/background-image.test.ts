@@ -36,7 +36,7 @@ test('gradient colors, stops, resize and removal track the host bounds', () => {
 	)
 	const node: any = {
 		view: {
-			isFlipped: true,
+			flipped: true,
 			bounds: { origin: { x: 0, y: 0 }, size: { width: 100, height: 40 } },
 			layer: { insertSublayerAtIndex() {} },
 		},

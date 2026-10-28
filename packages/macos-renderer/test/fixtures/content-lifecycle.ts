@@ -36,7 +36,7 @@ export async function checkContentLifecycle(root: any, nativeWindow: any) {
 	const rect = (view: any) => view.alignmentRectForFrame(view.frame)
 	const top = (view: any) => {
 		const parent = view.superview
-		const flipped = typeof parent.isFlipped === 'function' ? parent.isFlipped() : parent.isFlipped
+		const flipped = parent.flipped
 		return flipped
 			? Number(rect(view).origin.y)
 			: Number(parent.bounds.size.height) -

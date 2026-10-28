@@ -281,7 +281,7 @@ test('AppKit pan target normalizes flipped Y, delivers pan plus swipe, and suppr
 	const f = panFixture(),
 		target = new f.ButtonActionTarget()
 
-	f.node.view.isFlipped = false
+	f.node.view.flipped = false
 	target.viewPanned(f.sender)
 	assert.deepEqual(f.events, [
 		['pan', 3, 10, -40],
@@ -299,7 +299,7 @@ test('AppKit pan target normalizes flipped Y, delivers pan plus swipe, and suppr
 	assert.equal(f.node.panGestureRecognizer.enabled, false)
 	f.node.props.disabled = false
 	f.node.props.onPan = undefined
-	f.node.view.isFlipped = () => true
+	f.node.view.flipped = true
 	f.setPanAction(f.node)
 	f.sender.state = 3
 	target.viewPanned(f.sender)

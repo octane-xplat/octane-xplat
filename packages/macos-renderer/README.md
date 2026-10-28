@@ -608,3 +608,18 @@ intrinsic sizing remain unqualified.
 	console.log({ width, height, scale })
 }} />
 ```
+
+
+### Native coordinate orientation
+
+Coordinate-sensitive renderer paths read the generated `NSView.flipped`
+property, whose Objective-C getter is `isFlipped`. This includes scroll
+initialization, pan Y normalization, gradient direction, anchored-layer position
+and benchmark snapshots. Flipped views count Y downward from the top;
+unflipped views count upward from the bottom. Mock property checks and source
+parsing do not qualify live scrolling, pointer input, overlay placement or pixels.
+
+```ts
+// Native bridge property; do not call view.isFlipped().
+const top = view.flipped ? rect.origin.y : view.bounds.size.height - rect.origin.y - rect.size.height
+```

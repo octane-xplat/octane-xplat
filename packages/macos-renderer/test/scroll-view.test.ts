@@ -31,7 +31,7 @@ function fixture(flipped = false) {
 		frame: { size: { width: 300, height: 400 } },
 		widthAnchor: anchor(),
 		heightAnchor: anchor(),
-		isFlipped: () => flipped,
+		flipped,
 	}
 
 	const view = {

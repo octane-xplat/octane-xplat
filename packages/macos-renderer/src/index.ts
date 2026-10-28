@@ -498,8 +498,7 @@ class ButtonActionTarget extends NSObject {
 
 		const translation = sender.translationInView(sender.view)
 		const velocity = sender.velocityInView(sender.view)
-		const flipped =
-			typeof sender.view.isFlipped === 'function' ? sender.view.isFlipped() : sender.view.isFlipped
+		const flipped = sender.view.flipped
 
 		const signY = flipped ? 1 : -1
 		const nativeState = Number(sender.state)
@@ -4358,7 +4357,7 @@ function syncBackgroundImage(node: ElementNode, value: any) {
 		layer.frame = view.bounds
 		layer.cornerRadius = view.layer.cornerRadius
 		const radians = (angle * Math.PI) / 180
-		const flipped = typeof view.isFlipped === 'function' ? view.isFlipped() : view.isFlipped
+		const flipped = view.flipped
 		const dx = Math.sin(radians),
 			dy = -Math.cos(radians) * (flipped ? 1 : -1)
 		const { width, height } = view.bounds.size
@@ -10271,8 +10270,7 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 				const doc = node.view!.documentView
 				const docH = Number(doc.frame.size.height)
 				const clipH = Number(clipView.bounds.size.height)
-				const flip = typeof doc.isFlipped === 'function' ? doc.isFlipped() : doc.isFlipped
-				const flipped = flip === true || Number(flip) === 1
+				const flipped = Boolean(doc.flipped)
 				const t = Math.min(Math.max(Number(top) || 0, 0), Math.max(0, docH - clipH))
 				const y = flipped ? t : docH - clipH - t
 				clipView.scrollToPoint({ x: 0, y })
@@ -10298,8 +10296,7 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 				const doc = node.view!.documentView
 				const clipH = Number(clipView.bounds.size.height)
 				const docH = Number(doc?.frame?.size?.height ?? 0)
-				const flip = typeof doc?.isFlipped === 'function' ? doc.isFlipped() : doc?.isFlipped
-				const flipped = flip === true || Number(flip) === 1
+				const flipped = Boolean(doc?.flipped)
 				const originY = Number(clipView.bounds.origin.y ?? 0)
 				// The VirtualList leaf publishes a content-space offset (anchored
 				// to its top spacer, not the document frame) — prefer it since
@@ -10445,8 +10442,7 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 				const clip = scroll.view!.contentView
 				const docH = Number(doc.frame.size.height)
 				const clipH = Number(clip.bounds.size.height)
-				const flip = typeof doc.isFlipped === 'function' ? doc.isFlipped() : doc.isFlipped
-				const flipped = flip === true || Number(flip) === 1
+				const flipped = Boolean(doc.flipped)
 				const cells = []
 				for (const cell of stage.children) {
 					if (!cell.view || !nodeClasses(cell).includes('parity-cell')) {

@@ -128,7 +128,7 @@ export function showWindowLayer(
 		const viewport = container.bounds
 		const height = viewport.size.height
 		const rect = anchor.convertRectToView(anchor.bounds, container)
-		const flipped = !!container.isFlipped
+		const flipped = container.flipped
 		const bounds = {
 			left: rect.origin.x - viewport.origin.x,
 			top: flipped

@@ -79,10 +79,7 @@ export function observeScrollGeometry(node: any, target: any, notify: () => void
 			const size = document.frame.size
 			const maxX = Math.max(0, Number(size.width) - Number(bounds.size.width))
 			const maxY = Math.max(0, Number(size.height) - Number(bounds.size.height))
-			const flip =
-				typeof document.isFlipped === 'function' ? document.isFlipped() : document.isFlipped
-
-			const flipped = flip === true || Number(flip) === 1
+			const flipped = document.flipped
 			const clamp = (value: number, max: number) => Math.min(max, Math.max(0, value))
 			const x = inline ? clamp(Number(bounds.origin.x), maxX) : 0
 			const initial = node.props.orientation != null && !node.scrollInitialPositioned
