@@ -390,8 +390,10 @@ provides text/binary I/O candidates without importing mobile picker plugins.
 Writes are temporary copies, not durable documents; release owns only those
 copies. Native Windows picking rejects as unavailable and export returns
 `unavailable`. A custom FileInput picker is app-owned. Standalone x64 NativeScript
-text/bounded-byte reads passed; app-host writes, cancellation and release remain
-unqualified. Use `OpenSequentialReadAsync` with `IInputStream.ReadAsync`:
+text/bounded-byte reads and writes, unique names and owned-only release passed
+against a task-owned folder; packaged TemporaryFolder access, app integration
+and cancellation remain unqualified. Use `OpenSequentialReadAsync` with
+`IInputStream.ReadAsync`, and `OpenAsync().GetOutputStreamAt(0)` for writes:
 alpha.144 omits inherited methods on `OpenReadAsync` results, and the standalone
 `DataReader.LoadAsync` check crashed. Input-stream `Close` is also absent, so
 reclamation depends on the runtime releasing its proxy. Do not infer

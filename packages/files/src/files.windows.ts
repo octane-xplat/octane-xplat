@@ -137,19 +137,23 @@ async function createOwned(name: string, write: (file: any) => Promise<void>): P
 async function writeBytes(name: string, bytes: Uint8Array): Promise<FileRef> {
 	return createOwned(name, async (file) => {
 		const stream = await NSWinRT.toPromise(file.OpenAsync(Windows.Storage.FileAccessMode.ReadWrite))
+		let output: any
 		try {
+			// IRandomAccessStream does not project inherited IOutputStream methods.
+			output = stream.GetOutputStreamAt(0)
 			for (let offset = 0; offset < bytes.byteLength; offset += CHUNK_SIZE) {
 				const chunk = bytes.subarray(offset, offset + CHUNK_SIZE)
-				const count = Number(await NSWinRT.toPromise(stream.WriteAsync(encode(chunk))))
+				const count = Number(await NSWinRT.toPromise(output.WriteAsync(encode(chunk))))
 				if (count !== chunk.byteLength) {
 					throw new Error('files.writeBytes: incomplete native write')
 				}
 			}
 
-			if (!(await NSWinRT.toPromise(stream.FlushAsync()))) {
+			if (!(await NSWinRT.toPromise(output.FlushAsync()))) {
 				throw new Error('files.writeBytes: native stream flush failed')
 			}
 		} finally {
+			close(output)
 			close(stream)
 		}
 	})

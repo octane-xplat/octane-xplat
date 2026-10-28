@@ -251,9 +251,10 @@ requires the host's `ApplicationData.Current.TemporaryFolder` and creates
 uniquely named files there, without replacing
 existing files. Keep the returned reference and release it when done. These
 files are temporary, so they are unsuitable for durable drafts or preferences.
-Text and bounded binary reads passed a standalone NativeScript Windows DLL
-check on x64. App-host writes, cancellation, release and packaging remain
-unqualified. The preview does not project `Close` on the input stream;
+Text/binary reads, writes and owned-only release passed a standalone NativeScript
+Windows DLL check on x64 using a task-owned folder. Packaged temporary-folder
+access, app integration, cancellation and packaging remain unqualified.
+The preview does not project `Close` on the input stream;
 reclamation depends on the runtime releasing the proxy.
 
 ```ts

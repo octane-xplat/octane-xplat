@@ -326,3 +326,54 @@ ApplicationData/package identity, cancellation, deterministic cleanup, release,
 pickers/export and production imports still need qualification. Full package
 checks and the exact deferred commands above remain deferred. No evidence-gated
 issue checkbox or supported recipe target was closed by these probes.
+
+## Windows output-stream projection repair
+
+A follow-up standalone alpha.144 x64 DLL probe reproduced
+`TypeError: stream.WriteAsync is not a function` after successful CreateFileAsync
+and OpenAsync. The failure path deleted the new copy. The binary writer now
+requests `GetOutputStreamAt(0)` from IRandomAccessStream, writes and flushes that
+IOutputStream, then attempts cleanup of both projections. Its mocked parent
+stream deliberately has no WriteAsync/FlushAsync. A new regression verifies that
+failure acquiring the output still closes the parent where supported and removes
+the new file. No fallback to unbounded FileIO or mobile plugins was added.
+
+The updated source passed actual WinRT write/read round trips for a 70,000-byte
+offset view spanning two write chunks, an empty byte view, and repeated names
+that produced distinct paths. Unicode/CRLF text writes round-tripped unchanged.
+After files.release, the owned text file was absent; a foreign task fixture
+remained readable. Release completion was checked after native async pumping,
+then independently checked through StorageFile.GetFileFromPathAsync. The binary
+fixtures were explicitly deleted by the probe. All use canned data. Logs:
+`research/windows61/windy-native-write-missing-method.log` (reproduction) and
+`research/windows61/windy-native-write.log` (final success, exit 0, both explicit
+write and release success markers).
+
+The probe supplies an actual StorageFolder for the task's scratch directory in
+place of ApplicationData.Current.TemporaryFolder. All other file, stream, buffer
+and async operations use the real projection. This qualifies that folder's
+I/O and owned-release behavior, **not** packaged app identity or the app's
+TemporaryFolder. Production imports, packaged WinUI integration, cancellation,
+partial-write/flush-failure injection and deterministic stream cleanup remain
+unqualified. No native build/install/package registration/app launch occurred.
+
+The write probe initially failed during setup because its top-level Windows
+binding collided with the runtime global. Wrapping the inlined implementation
+in a local function fixed the probe. A release-polling attempt also found no
+setTimeout in the bare runtime (the normal app obtains timers through core);
+the final probe uses host-driven phases and pumps native completions. Neither
+setup error is evidence of a file-service failure or pass. The probe now checks
+the initial JavaScript diagnostic before the completion assertion.
+
+The task-owned runner on windy is `native-write-probe.ps1` beside the earlier
+probe files. Repeat under the same device reservation:
+
+```sh
+goddard-agent resource run --json '{"resources":{"exclusive":["device:windy"]},"purpose":"Focused Windows file-write probe"}' -- ssh windy 'powershell -NoProfile -File C:/Users/alecs/dev/octane-windows61-checks-88a67da/native-write-probe.ps1'
+```
+
+The final focused Turbo suite passed all seven file tests, 20 mocked contracts
+in total (exit 0). Its result is recorded separately from the native probe in
+`research/windows61/windy-output-stream-contracts.log`. Broad package checks and
+all exact deferred commands above remain deferred. No evidence-gated issue row
+or recipe target is closed by this subset.

@@ -28,6 +28,7 @@ function fixture(bytes = new Uint8Array([1, 2, 3])) {
 		flushOK: true,
 		partialWrite: false,
 		writeError: null,
+		outputError: null,
 		deleteError: null,
 		beforeLoad: null,
 		cancelled: 0,
@@ -63,11 +64,20 @@ function fixture(bytes = new Uint8Array([1, 2, 3])) {
 			}),
 		OpenAsync: () =>
 			op({
-				WriteAsync(buffer) {
-					state.writes.push(buffer)
-					return op(buffer.length - (state.partialWrite ? 1 : 0))
+				GetOutputStreamAt(position) {
+					assert.equal(position, 0)
+					if (state.outputError) {
+						throw state.outputError
+					}
+					return {
+						WriteAsync(buffer) {
+							state.writes.push(buffer)
+							return op(buffer.length - (state.partialWrite ? 1 : 0))
+						},
+						FlushAsync: () => op(state.flushOK),
+						Close: () => state.closed.push('output'),
+					}
 				},
-				FlushAsync: () => op(state.flushOK),
 				Close: () => state.closed.push('write'),
 			}),
 	})
@@ -201,7 +211,7 @@ test('Windows sandbox writes preserve offset byte views, reject incomplete write
 	const saved = await files.writeBytes('out.bin', input)
 	assert.equal(saved.name, 'out.bin')
 	assert.deepEqual(state.writes[0], new Uint8Array([4, 5, 6]))
-	assert.deepEqual(state.closed, ['write'])
+	assert.deepEqual(state.closed, ['output', 'write'])
 	state.partialWrite = true
 	await assert.rejects(files.writeBytes('partial.bin', input), /incomplete native write/)
 	assert.equal(state.deleted.length, 1)
@@ -214,6 +224,15 @@ test('Windows sandbox writes preserve offset byte views, reject incomplete write
 	assert.equal(state.deleted.length, 3)
 	await assert.rejects(files.writeText('../outside.txt', 'draft'), /Unsafe file name/)
 	assert.equal(state.created.length, 4)
+})
+
+test('Windows output acquisition failures close the parent and remove the new file', async () => {
+	const { files, state } = fixture()
+	state.outputError = new Error('output denied')
+	await assert.rejects(files.writeBytes('out.bin', new Uint8Array([1])), /output denied/)
+	assert.deepEqual(state.closed, ['write'])
+	assert.equal(state.deleted.length, 1)
+	assert.deepEqual(state.writes, [])
 })
 
 test('Windows release deletes only owned copies and permits retry after failed cleanup', async () => {
