@@ -11,6 +11,7 @@ declare global {
 	// (hover, popups, menus, sheets) and the VirtualList offset channel.
 	var __xplatAppKit: {
 		readonly keyboardEventsSupported?: boolean
+		readonly focusWithinSupported?: boolean
 		/** Coordinate Xplat key handlers before an independent scope monitor. */
 		dispatchKeyboardEvent?: (event: unknown) => { defaultPrevented: boolean; propagationStopped: boolean }
 		/** Observe app key input before a handler/scope cancels native dispatch. */

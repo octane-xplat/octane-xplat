@@ -108,6 +108,25 @@ export function SearchField() {
 }
 ```
 
+AppKit `useFocusWithin` tracks first-responder containment on raw native
+containers; shared `View` does not forward its bag. Check
+`isSubtreeTrackingSupported`, attach to the actual ancestor, and treat separate
+popup windows and app activation independently. Shared field editors resolve
+to their owning controls. Physical input, IME and VoiceOver remain unqualified.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { useFocusWithin } from '@octane-xplat/ui'
+
+export function Fields() {
+	const within = useFocusWithin({ onBlurWithin: () => console.log('left group') })
+	return <masonview {...within.focusWithinProps}>
+		<textfield placeholder="Name" />
+		<textfield placeholder="Notes" />
+	</masonview>
+}
+```
+
 AppKit `FocusScope` implements containment/autofocus/restoration and nested
 ownership when its renderer/input bridge is available. Check
 `getFocusScopeCapabilities()`; capability presence is not OS-input evidence.

@@ -58,6 +58,7 @@ import { configureScrollAxes, observeScrollGeometry, scrollAxes } from './scroll
 import { installMasonElement, makeMasonHostView } from './mason'
 import { installCompat } from './ns-compat'
 import { createAppKitKeyboardDispatcher } from './keyboard'
+import { createAppKitFocusWithinDispatcher } from './focus-within'
 import type { NativeKeyboardEvent } from '@octane-xplat/jsx/intrinsics'
 import { makeListView, updateListView, disposeListView } from './list-view'
 import { makePagerView, updatePagerView, disposePagerView } from './pager'
@@ -305,6 +306,7 @@ const portalHandlesByNode = new WeakMap<ElementNode, UniversalPortalTargetHandle
 /** Every node view, for firstResponder→node resolution (focus pseudo-classes). */
 const cssNodesByView = new WeakMap<object, ElementNode>()
 const keyboardDispatcher = createAppKitKeyboardDispatcher(() => ({ NSEvent }))
+const focusWithinDispatcher = createAppKitFocusWithinDispatcher(() => ({ NSNotificationCenter, NSWindowDidUpdateNotification }))
 
 function parentReference(parent: ElementNode | null | undefined): UniversalHostParent {
 	if (!parent) {
@@ -5825,6 +5827,25 @@ function setKeyActions(node: ElementNode) {
 	})
 }
 
+function setFocusActions(node: ElementNode) {
+	if (!node.view) return
+	// Text delegates already report the control's own focus lifecycle.
+	if (['textfield', 'textview', 'searchbar'].includes(node.type)) return
+	const invoke = (name: 'onFocus' | 'onBlur', event: unknown) => {
+		const handler = node.props[name]
+		if (typeof handler !== 'function') return
+		try {
+			node.container.root?.eventScope('discrete', () => handler(event))
+		} catch (error) {
+			console.error('[macos-event] ' + name + ' handler failed', error)
+		}
+	}
+	focusWithinDispatcher.set(node.view, {
+		onFocus: typeof node.props.onFocus === 'function' ? (event) => invoke('onFocus', event) : undefined,
+		onBlur: typeof node.props.onBlur === 'function' ? (event) => invoke('onBlur', event) : undefined,
+	})
+}
+
 function dispatchTextEvent(node: ElementNode | undefined, name: string) {
 	if (!node) {
 		return
@@ -6252,6 +6273,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 		return
 	}
 	if ('onKeyDown' in props || 'onKeyUp' in props) setKeyActions(node)
+	if ('onFocus' in props || 'onBlur' in props) setFocusActions(node)
 
 	const layoutChildProps: Record<string, readonly string[]> = {
 		rootlayout: ['row', 'col', 'rowSpan', 'colSpan', 'horizontalAlignment', 'verticalAlignment'],
@@ -6275,7 +6297,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 	}
 
 	for (const [name, value] of Object.entries(props)) {
-		if (name === 'onKeyDown' || name === 'onKeyUp') continue
+		if (name === 'onKeyDown' || name === 'onKeyUp' || name === 'onFocus' || name === 'onBlur') continue
 		if (
 			(node.layoutParent ?? node.parent) &&
 			layoutChildProps[(node.layoutParent ?? node.parent)!.type]?.includes(name)
@@ -7814,6 +7836,9 @@ function remove(container: RootContainer, parentId: UniversalHostParent, node: E
 }
 
 function destroy(node: ElementNode) {
+	if (node.view && (typeof node.props.onFocus === 'function' || typeof node.props.onBlur === 'function')) {
+		focusWithinDispatcher.set(node.view)
+	}
 	if (node.view && (typeof node.props.onKeyDown === 'function' || typeof node.props.onKeyUp === 'function')) {
 		keyboardDispatcher.set(node.view)
 	}
@@ -9986,6 +10011,11 @@ Object.defineProperty(appKitBridge, 'keyboardEventsSupported', {
 	configurable: true,
 	enumerable: true,
 	get: keyboardDispatcher.available,
+})
+Object.defineProperty(appKitBridge, 'focusWithinSupported', {
+	configurable: true,
+	enumerable: true,
+	get: focusWithinDispatcher.available,
 })
 appKitBridge.dispatchKeyboardEvent = keyboardDispatcher.dispatch
 appKitBridge.observeHardwareKeys = keyboardDispatcher.observe

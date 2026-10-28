@@ -1,27 +1,14 @@
 import { useRef } from 'octane'
 import type { FocusEventPayload } from './use-focus'
+import { normalizeFocusWithinEvent, type FocusWithinEvent } from './focus-within-event'
+import type { UseFocusWithinOptions, UseFocusWithinResult } from './focus-within-state'
+export type { UseFocusWithinOptions, UseFocusWithinResult } from './focus-within-state'
 
 /**
  * Web leaf of useFocusWithin — real subtree semantics via relatedTarget:
  * blur counts as leaving "within" only when the newly focused node falls
  * outside the element the handlers are attached to.
  */
-export interface UseFocusWithinOptions {
-	onFocusWithin?: (event?: FocusEventPayload) => void
-	onBlurWithin?: (event?: FocusEventPayload) => void
-	onFocusWithinChange?: (isFocusWithin: boolean) => void
-}
-
-export interface UseFocusWithinResult {
-	focusWithinProps: {
-		onFocus: (event?: FocusEventPayload) => void
-		onBlur: (event?: FocusEventPayload) => void
-	}
-	/** Whether "within" tracks focus moving between subtree descendants —
-	 *  true on web via `relatedTarget` containment. */
-	isSubtreeTrackingSupported: boolean
-}
-
 export function useFocusWithin(options: UseFocusWithinOptions = {}): UseFocusWithinResult {
 	const latest = useRef(options)
 	latest.current = options
@@ -43,16 +30,17 @@ export function useFocusWithin(options: UseFocusWithinOptions = {}): UseFocusWit
 
 	return {
 		focusWithinProps: {
-			onFocus: (event?: FocusEventPayload) => update(true, event),
-			onBlur: (event?: FocusEventPayload) => {
-				const focusEvent = event as FocusEvent | undefined
+			onFocus: (event?: FocusWithinEvent) => update(true, normalizeFocusWithinEvent(event, 'focus')),
+			onBlur: (event?: FocusWithinEvent) => {
+				const normalized = normalizeFocusWithinEvent(event, 'blur')
+				const focusEvent = normalized as FocusEvent | undefined
 				const target = focusEvent?.currentTarget as Element | null
 				const related = focusEvent?.relatedTarget as Node | null
-				if (target && related && target.contains(related)) {
+				if (target && related && typeof target.contains === 'function' && target.contains(related)) {
 					return
 				}
 
-				update(false, event)
+				update(false, normalized)
 			},
 		},
 		isSubtreeTrackingSupported: true,

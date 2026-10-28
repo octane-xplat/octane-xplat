@@ -246,3 +246,45 @@ After authorization, verify key-down/up, repeat, Shift and command chords,
 non-US layouts, dead keys/IME, two windows, native editing defaults, ancestor
 propagation, prevented/stopped Tab within FocusScope, binding removal and
 repeated teardown. The probe exposes state only and is not OS-input evidence.
+
+## Subtree focus boundary attachment
+
+The AppKit renderer now registers container `onFocus`/`onBlur` handlers against
+per-window first-responder ancestry, independently of CSS selectors. A shared
+field editor resolves to its owning text control before ancestry checks.
+Moving between descendants does not emit a false exit/entry. Native text
+controls retain their existing delegate callbacks. Handler replacement keeps
+boundary state; removal and node teardown release bindings, and the last
+binding releases the notification observer. Initial observation is deferred
+until after the host commit. The hook reuses a shared callback-state helper,
+normalizes minimal native events, and reports native observer availability.
+
+Attach `useFocusWithin().focusWithinProps` to a raw native container: shared
+View does not forward these handlers. This is first-responder ownership within
+one window, not app activation or focus in separate popup windows. Window-update
+observation may coalesce transient responder changes between notifications.
+Native delivery/timing and actual OS behavior remain unqualified.
+
+Added source regressions for boundary transitions, field editors, nested groups,
+windows, callback replacement/removal, detachment and observer failure/cleanup,
+plus a maintained programmatic probe. TypeScript/TSRX parser checks and
+`git diff --check` passed. No tests, typechecks, probe, native build, OS input,
+visual analysis, dependency install or packaging ran. Existing web/mobile focus
+regressions also remain deferred because the shared event-input type changed.
+Shared audit snapshots were not regenerated; no evidence checkbox is closed.
+
+Deferred commands:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run test --filter=@octane-xplat/ui -- src/focus-within-event.test.ts src/use-focus.web.test.tsrx src/use-focus.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/macos-renderer
+pnpm probe run examples/probes/focus-within.macos.tsrx --target macos --watch
+pnpm check:recipes
+```
+
+After human authorization, verify notification timing and hook rerenders under
+physical Tab/Shift+Tab, clicks, IME, initial/delayed attachment, hide/disable,
+reparent/detach, nested groups, multiple windows, app activation, popup/editor
+ownership, VoiceOver and repeated/HMR teardown. Programmatic responder changes
+are not OS-input or accessibility proof.

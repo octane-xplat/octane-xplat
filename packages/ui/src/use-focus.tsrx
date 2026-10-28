@@ -7,11 +7,8 @@ import { useFocusVisible } from './use-focus-visible'
  * onFocus/onBlur. Web callbacks receive a DOM-shaped `FocusEventPayload`;
  * NativeScript and macOS controls may invoke them without an event.
  *
- * useFocusWithin differs by leaf: the web variant inspects relatedTarget
- * for real subtree semantics (use-focus-within.web.tsrx); the shared leaf
- * approximates within as a single-element focus toggle, which is the only
- * focus model native inputs have, and reports
- * `isSubtreeTrackingSupported: false` so callers can tell.
+ * useFocusWithin tracks descendants on web and raw AppKit containers;
+ * the default mobile leaf reports single-element focus only.
  */
 
 export interface UseFocusOptions {

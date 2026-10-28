@@ -466,8 +466,13 @@ if (result === 'unavailable') console.log('Sharing unavailable')
   the default mobile leaf reports all four false. AppKit now implements native
   containment/autofocus/restoration and per-window nested ownership when its
   renderer/input bridge is available; real OS behavior remains unqualified.
-  `useGridList().isSupported` and
-  `useFocusWithin().isSubtreeTrackingSupported` are false on native/macOS.
+  `useGridList().isSupported` is false on native/macOS.
+  `useFocusWithin().isSubtreeTrackingSupported` is false on mobile; AppKit
+  reports native observer availability for raw container attachments. Shared
+  View does not forward the handlers. It tracks per-window first-responder
+  containment, including shared field editors, without transitions between
+  descendants. Separate windows, activation and real OS delivery remain
+  unqualified; see [focus behavior](../app/primitives.md#focus-behavior).
   `useFocusVisible()` reports typed `inputModality` (`keyboard`, `pointer`, or
   `unknown`) plus `isSupported`; the default mobile leaf returns false and
   `unknown`. AppKit now has a shared native keyboard/mouse observer, with

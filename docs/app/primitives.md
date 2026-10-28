@@ -503,8 +503,8 @@ export function Example() {
 `useFocus` composes focus callbacks, and `useFocusWithin` reports when focus
 enters or leaves a group. On web, their callbacks receive a typed
 `FocusEventPayload`; on NativeScript and macOS, controls may call them without
-an event. Only web tracks focus moving between descendants, so check
-`isSubtreeTrackingSupported` before relying on group behavior elsewhere.
+an event. Web and experimental AppKit containers track descendants; check
+`isSubtreeTrackingSupported` before relying on group behavior.
 
 This example uses browser elements. Save it as `FocusExample.web.tsx` and
 import it only from a web screen; see [platform files](../platform/module-resolution.md)
@@ -523,6 +523,29 @@ export function FocusExample() {
 			<button {...focus.focusProps}>Continue</button>
 		</div>
 	)
+}
+```
+
+On AppKit, attach `focusWithinProps` to a raw native container in a `.macos.tsrx`
+file. Shared `View` does not forward these handlers. The renderer observes the
+window's first responder and emits one entry and one exit when focus crosses
+the container boundary, including shared text-field editors. Moving between
+descendants stays inside the group. This tracks responder ownership within one
+window; separate popup windows and app activation need their own handling.
+Window-update notifications may coalesce transient responder changes.
+Observer availability is not runtime qualification: real Tab, clicks, IME,
+VoiceOver and packaging have not been verified.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { useFocusWithin } from '@octane-xplat/ui'
+
+export function NameGroup() {
+	const within = useFocusWithin({ onFocusWithinChange: (inside) => console.log(inside) })
+	return <masonview {...within.focusWithinProps}>
+		<textfield placeholder="First name" />
+		<textfield placeholder="Last name" />
+	</masonview>
 }
 ```
 

@@ -310,3 +310,12 @@ test('applyProps warns on an unknown value but not on its clear', () => {
 
 	assert.equal(warnings.length, 1)
 })
+
+test('applyProps commits native focus handler updates and clears', () => {
+	const { node, applyProps } = applyPropsFixture('masonview')
+	applyProps(node, { onFocus: () => {}, onBlur: () => {} })
+	applyProps(node, { onFocus: undefined, onBlur: undefined })
+	assert.equal(applyPropsSandbox.setFocusActions.calls.length, 2)
+	assert.equal(Reflect.get(node.props, 'onFocus'), undefined)
+	assert.equal(Reflect.get(node.props, 'onBlur'), undefined)
+})
