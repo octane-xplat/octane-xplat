@@ -20,14 +20,6 @@ function appKitPlaceholder(placeholder: string): string | undefined {
 	return placeholder
 }
 
-/** Image — the AppKit host's <image>. The engine leaf has no macOS backend
- *  (Glide/SDWebImage are iOS/Android), so this mirrors the core AppKit path:
- *  local src grammar, remote http(s) fetches, first array entry for
- *  multi-source, contentFit → style.objectFit ('cover' degrades to scale-down
- *  — AppKit has no cover scaling mode); contentPosition is unimplemented here.
- *  `placeholder` paints into the same view while a load is pending, same as
- *  core. Other engine props are ignored — no cache engine exists on this
- *  target. */
 // AppKit-only: `placeholder` paints while the load resolves — NativeScript's
 // image element has no such prop, so it stays out of the shared contract.
 declare module '@octane-xplat/jsx/intrinsics' {
@@ -36,6 +28,14 @@ declare module '@octane-xplat/jsx/intrinsics' {
 	}
 }
 
+/** Image — the AppKit host's <image>. The engine leaf has no macOS backend
+ *  (Glide/SDWebImage are iOS/Android), so this mirrors the core AppKit path:
+ *  local src grammar, remote http(s) fetches, first array entry for
+ *  multi-source, contentFit → style.objectFit ('cover' degrades to scale-down
+ *  — AppKit has no cover scaling mode); contentPosition is unimplemented here.
+ *  `placeholder` paints into the same view while a load is pending, same as
+ *  core. Other engine props are ignored — no cache engine exists on this
+ *  target. */
 export function Image(props: ImageProps) @{
 	const src = (Array.isArray(props.src) ? props.src[0]?.uri : props.src) ?? ''
 	const placeholder = useMemo(
