@@ -68,6 +68,10 @@ conditions separately. Check the export map rather than guessing subpaths.
 primitive/layout subset and runnable example are listed in
 [GTK setup](../../../../docs/platform/linux-gtk.md); check `index.gtk.ts`
 before choosing another root export. Full UI parity is still in progress.
+GTK source components mount through the renderer's `GtkRoot` binding from
+`createGtkRoot` or `runGtkApp`; it checks component props while the preset
+supplies runtime metadata. Do not cast app components to Octane's
+compiler-facing `UniversalComponent` to work around opaque JSX declarations.
 GTK refs remain Gtk.Widget instances. Measurement uses the renderer's
 `getBounds()` app-content coordinates; do not infer global screen coordinates
 or call NativeScript's `getLocationOnScreen()`. The GTK `useMeasure` leaf

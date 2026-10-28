@@ -1,10 +1,9 @@
 /// <reference path="./gi.d.ts" />
 import type Gtk from 'gi://Gtk?version=4.0'
-import type {
-	UniversalHostDriver,
-	UniversalRoot,
-	UniversalRootOptions,
-} from 'octane/universal/native'
+import type { UniversalHostDriver, UniversalRootOptions } from 'octane/universal/native'
+
+import type { GtkRoot } from './root-types.js'
+export type { GtkComponent, GtkRoot } from './root-types.js'
 
 export * from 'octane/universal/native'
 
@@ -32,7 +31,7 @@ export interface GtkContainer {
 	host: GtkView
 	nodes: Map<number, ElementNode>
 	children: ElementNode[]
-	root: UniversalRoot | null
+	root: GtkRoot | null
 }
 
 export interface GtkRootOptions extends UniversalRootOptions<GtkContainer> {}
@@ -47,4 +46,4 @@ export declare function createGtkContainer(host: GtkView): GtkContainer
 export declare function createGtkRoot(
 	host: GtkView,
 	options?: GtkRootOptions,
-): { root: UniversalRoot; container: GtkContainer }
+): { root: GtkRoot; container: GtkContainer }

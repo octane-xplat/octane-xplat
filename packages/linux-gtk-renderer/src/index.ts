@@ -47,9 +47,11 @@ import type {
 	UniversalHostCommand,
 	UniversalHostDriver,
 	UniversalHostParent,
-	UniversalRoot,
 	UniversalRootOptions,
 } from 'octane/universal/native'
+
+import type { GtkRoot } from './root-types.js'
+export type { GtkComponent, GtkRoot } from './root-types.js'
 
 export const GTK_RENDERER_ID = 'gtk'
 const TEXT = '#text'
@@ -147,7 +149,7 @@ export interface GtkContainer {
 	host: GtkView
 	nodes: Map<number, ElementNode>
 	children: ElementNode[]
-	root: UniversalRoot | null
+	root: GtkRoot | null
 	/** Style restyle queue — flushed at batch end, or on one microtask
 	 *  outside a batch (GJS has no queueMicrotask). */
 	cssDirty?: Set<ElementNode>
@@ -3388,7 +3390,7 @@ export function createGtkRoot(host: GtkView, options: GtkRootOptions = {}) {
 			console.error('[linux-gtk] uncaught error', error)
 		},
 		...options,
-	})
+	}) as GtkRoot
 	container.root = root
 	return { root, container }
 }

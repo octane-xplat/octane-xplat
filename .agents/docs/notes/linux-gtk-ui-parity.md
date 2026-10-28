@@ -263,3 +263,33 @@ unchanged; widget/hook evidence is distinct from packaged-consumer verification.
 The ScrollableArea component remains absent from the GTK barrel until its
 refresh controller, indicator and both-axis handle have been qualified. Generic
 masonview overflow and input-only isScrollEnabled behavior remain open.
+
+## Source component root typing
+
+Octane 0.14.0's published universal-core declarations require UniversalComponent,
+including compiler-owned UNIVERSAL_COMPONENT metadata and a UniversalRenderable
+return. Xplat's shared JSX NativeNode is deliberately unknown in source
+declarations. Consequently a source TSRX component cannot be passed directly to
+the upstream root type, even though the GTK preset compiles that component for
+the universal runtime. This is a source-type/compiled-ABI boundary constraint,
+not evidence of a runtime renderer failure.
+
+GTK now exposes GtkRoot and GtkComponent as its source-facing binding.
+prepare/render/renderAsync infer props from the component; NoInfer on the
+props argument prevents a mismatched bag from widening the component's contract.
+createGtkRoot, container.root and the runGtkApp mount callback expose that same
+binding. The runtime object, event handling, transport, disposal and compilation
+requirements are unchanged; the binding assertion stays at createGtkRoot.
+
+The [maintained declaration fixture](../../../packages/linux-gtk-renderer/test/fixtures/src/ui-types.gtk.ts)
+accepts real TSRX source components and upstream branded components through every
+mount entry, rejects missing/wrong props, and checks assignment back to UniversalRoot.
+A separate expected-error case preserves the upstream constraint explicitly.
+This is type-level qualification. Reassess the bridging assertion when source
+declarations carry the upstream metadata/renderable contract, or Octane provides
+a source-facing mount overload; it must not become an application-level cast.
+
+The expanded renderer/dependent typecheck passes all eight tasks, including the
+source mount cases and rejected prop bags (/tmp/gtk-root-mount-types-final.log).
+Recipe structure/local links pass. This change is erased at compilation; it
+adds no new runtime behavior and does not claim a new GJS runtime qualification.
