@@ -239,3 +239,56 @@ it('hidden standalone metadata preserves its name and ghost class resets on reta
 		expect(String(host.props.className)).not.toContain('vx-select--ghost')
 	} finally { env.root.unmount() }
 })
+
+it('multi badges preserve order and fallback labels and remove through the shared state owner', () => {
+	const changes = vi.fn(), opened = vi.fn()
+	const env = mount(Select, { id: 'choice', options, selectionMode: 'multiple', defaultValue: ['c', 'a', 'missing'],
+		triggerDisplay: 'badges', onValueChange: changes, onOpenChange: opened })
+	const badges = () => env.all().filter((node) => String(node.props?.className).split(' ').includes('vx-select-badge-x'))
+	try {
+		expect(badges().map((node) => node.props.accessibilityLabel)).toEqual(['Remove Gamma', 'Remove Alpha', 'Remove missing'])
+		expect(badges()[2].props.disabled).toBe(true)
+		badges()[0].props.onTap(); flushUniversalSync(() => {})
+		expect(changes).toHaveBeenLastCalledWith(['a', 'missing'])
+		expect(badges().map((node) => node.props.accessibilityLabel)).toEqual(['Remove Alpha', 'Remove missing'])
+		expect(opened).not.toHaveBeenCalled() // Direct handler dispatch only, not native hit testing.
+	} finally { env.root.unmount() }
+})
+
+it('badge callbacks read current guards/options and cannot remove stale or detached values', () => {
+	const picks = vi.fn(), base = viewProps({ open: false, multiple: true, triggerDisplay: 'badges', onPick: picks })
+	const env = mount(SelectView, base)
+	const button = () => env.all().find((node) => node.props?.accessibilityLabel === 'Remove Alpha')
+	try {
+		const cached = button().props.onTap
+		for (const patch of [{ pending: true }, { isDisabled: true }, { isReadOnly: true }, { multiple: false },
+			{ triggerDisplay: 'labels' }, { selected: [] }, { options: [] }, { options: [{ ...options[0], isDisabled: true }] }]) {
+			env.render({ ...base, ...patch }); cached()
+		}
+		expect(picks).not.toHaveBeenCalled()
+		const replacement = { ...options[0], label: 'Updated Alpha' }
+		env.render({ ...base, options: [replacement] }); cached()
+		expect(picks).toHaveBeenCalledWith(replacement)
+		env.root.unmount(); cached()
+		expect(picks).toHaveBeenCalledTimes(1)
+	} finally { env.root.unmount() }
+})
+
+it('badge removal uses pending deduplication and restores the badge after failed save', async () => {
+	const task = deferred(), errors = vi.fn(), action = vi.fn(() => task.promise), changes = vi.fn()
+	const env = mount(Select, { id: 'choice', options, selectionMode: 'multiple', defaultValue: ['a', 'c'], triggerDisplay: 'badges',
+		changeAction: action, onChangeError: errors, onValueChange: changes })
+	try {
+		const remove = env.all().find((node) => node.props?.accessibilityLabel === 'Remove Alpha').props.onTap
+		remove(); remove(); flushUniversalSync(() => {})
+		expect(action).toHaveBeenCalledTimes(1)
+		expect(action).toHaveBeenCalledWith(['c'])
+		expect(env.all().some((node) => node.props?.accessibilityLabel === 'Remove Alpha')).toBe(false)
+		const gamma = env.all().find((node) => node.props?.accessibilityLabel === 'Remove Gamma')
+		expect(gamma.props.disabled).toBe(true)
+		const failure = new Error('save failed'); task.reject(failure)
+		await vi.waitFor(() => { flushUniversalSync(() => {}); expect(errors).toHaveBeenCalledWith(failure) })
+		expect(changes.mock.calls.map((call) => call[0])).toEqual([['c'], ['a', 'c']])
+		expect(env.all().some((node) => node.props?.accessibilityLabel === 'Remove Alpha')).toBe(true)
+	} finally { env.root.unmount() }
+})

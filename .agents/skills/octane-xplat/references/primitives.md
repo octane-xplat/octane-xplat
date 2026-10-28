@@ -961,7 +961,7 @@ export function Channels() {
 Source cases mock the popup inline and remain unrun. The keyboard source path
 now covers manual option focus, opening/commit, prefix/search keys and close/Tab
 return intent through existing layer ownership. Actual popup/key/IME/focus and
-VoiceOver behavior remain unqualified. Removable badges, alternate presentation and live announcements remain open;
+VoiceOver behavior remain unqualified. Alternate presentation and live announcements remain open;
 ghost class forwarding is now present, with native paint unqualified. See the [AppKit selection subset](../../../../docs/app/search-selection.md#appkit-finite-option-selection).
 
 
@@ -1012,5 +1012,21 @@ import { Button, ClickableCard } from '@octane-xplat/ui'
 
 export function Entry({ open, remove }: { open(): void; remove(): void }) {
 	return <ClickableCard onPress={open}><Button clickAction={remove}>Remove</Button></ClickableCard>
+}
+```
+
+
+AppKit MultiSelector now renders triggerDisplay="badges" as keyed removable
+values. Known enabled options remove through the existing state/save owner;
+unlisted/disabled options retain inert controls. Removal checks current props,
+selection and attachment, so cached handlers cannot edit after blocking or detach.
+Native click isolation depends on the matching renderer gate and remains unqualified.
+
+```tsx
+import { MultiSelector } from '@octane-xplat/ui'
+
+export function Channels() {
+	return <MultiSelector triggerDisplay="badges" defaultValue={['email']}
+		options={[{ value: 'email', label: 'Email' }, { value: 'push', label: 'Push' }]} />
 }
 ```

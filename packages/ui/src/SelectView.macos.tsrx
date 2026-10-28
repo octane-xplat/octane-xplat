@@ -259,7 +259,25 @@ export function SelectView(props: SelectViewProps) @{
 				invalid: props.status?.type === 'error', required: props.isRequired && !props.isOptional }}
 			accessibilityValue={props.triggerText}
 		>
-			{props.renderValue && selectedOption && !props.multiple ? (
+			{props.multiple && props.triggerDisplay === 'badges' && props.selected.length ? (
+				<masonview className="vx-select-badges vx-select-badges--appkit">
+					@for (const value of props.selected; key value) {
+						const option = props.options.find((item) => item.value === value)
+						<masonview className="vx-select-badge vx-select-badge--appkit">
+							<label text={option?.label ?? value} />
+							<Pressable className="vx-select-badge-x"
+								disabled={Boolean(blocked || props.pending || !option || option.isDisabled)}
+								accessibilityLabel={`Remove ${option?.label ?? value}`}
+								onPress={() => {
+									const current = live.current, choice = current.options.find((item) => item.value === value)
+									if (!anchor.current || !current.multiple || current.triggerDisplay !== 'badges' || current.isDisabled || current.isReadOnly || current.pending || !choice || choice.isDisabled || !current.selected.includes(value)) return
+									current.onPick(choice)
+								}}
+							><label text="×" /></Pressable>
+						</masonview>
+					}
+				</masonview>
+			) : props.renderValue && selectedOption && !props.multiple ? (
 				<masonview className="vx-select-value"><TextSlot>{props.renderValue(selectedOption)}</TextSlot></masonview>
 			) : (
 				<label className={cx('vx-select-value', !props.selected.length && 'vx-select-placeholder')} text={props.triggerText} />
@@ -378,4 +396,6 @@ export function SelectView(props: SelectViewProps) @{
 <style>
 	.vx-select-trigger--appkit { display: flex; flex-direction: row; align-items: center; }
 	.vx-select-surface--appkit { display: flex; flex-direction: column; }
+	.vx-select-badges--appkit { display: flex; flex-direction: row; flex-wrap: wrap; }
+	.vx-select-badge--appkit { display: flex; flex-direction: row; align-items: center; }
 </style>

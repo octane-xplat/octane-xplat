@@ -510,8 +510,7 @@ export function Region() {
 
 These changes have authored, unrun object-driver cases. The popup is replaced
 with an inline test surface in those cases, so they do not prove NSPopover
-ownership or input. A subsequent keyboard/focus source path is described below. Removable badges,
-alternate presentations and live-region announcements remain open; ghost chrome
+ownership or input. A subsequent keyboard/focus source path is described below. Alternate presentations and live-region announcements remain open; ghost chrome
 is forwarded in source but native painting remains unqualified;
 actual popup focus/input, native layout/VoiceOver and packaging remain unqualified.
 
@@ -586,8 +585,8 @@ export function Region() {
 
 The ghost variant now forwards its existing chrome class. Field layout,
 tooltips, label interaction, native accessibility relationships/announcements
-and identifier replay remain unqualified. Removable value badges and alternate
-picker presentations still need implementation; this change does not add them.
+and identifier replay remain unqualified. Alternate picker presentations still need implementation. Removable badges are
+described below; native pointer arbitration remains unqualified.
 
 ```tsx
 import { Selector } from '@octane-xplat/ui'
@@ -596,3 +595,26 @@ export function ToolbarRegion() {
 	return <Selector accessibilityLabel="Region" variant="ghost" options={[{ value: 'west', label: 'West' }]} />
 }
 ```
+
+
+## Remove selected values on AppKit
+
+Use `triggerDisplay="badges"` with MultiSelector to show each selected value as a
+removable token. Removal uses the same changeAction and rollback as list choices.
+Disabled/read-only/pending controls cannot remove values. Unlisted keys keep their
+value label and an inert remove control until the option is available again.
+
+```tsx
+import { MultiSelector } from '@octane-xplat/ui'
+
+export function Channels() {
+	return <MultiSelector label="Channels" triggerDisplay="badges" defaultValue={['email']}
+		options={[{ value: 'email', label: 'Email' }, { value: 'push', label: 'Push' }]} />
+}
+```
+
+Authored object-driver cases remain unrun. Native badge wrapping, Tab/AX focus,
+VoiceOver and physical remove-click isolation from the trigger remain unqualified;
+the matching renderer primary-click gate is required. Direct handler dispatch
+cannot prove OS hit testing. Alternate picker presentations and live announcements
+remain separate gaps.

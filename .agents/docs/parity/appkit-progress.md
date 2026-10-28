@@ -2283,3 +2283,38 @@ All commands remain deferred pending explicit human authorization for this task.
 No builds, package tests/typechecks, installs, OS automation, visual analysis or
 shared audit regeneration ran. Removable selection badges and presentation/live
 announcement gaps remain separate implementation work.
+
+### AppKit removable multi-selection badges
+
+MultiSelector/Selector multiple mode now honors triggerDisplay=badges with keyed
+native token hosts, selected-order labels and fallback labels for unlisted keys.
+Known enabled choices remove through existing onPick/shared useSelect state,
+including save ownership/deduplication/rollback. Blocked/pending/disabled/unlisted
+choices retain inert removal controls. Handlers read current props/options and
+selection and reject detached anchors or changes away from badge/multiple mode.
+The source renderer primary-click gate from c5102119d is a prerequisite, not
+native mouse proof. Only AppKit view and target fixture/cases changed; no shared
+state/export/manifest/dependency change. Existing badge chrome is reused with
+AppKit flex container classes.
+
+Three authored cases cover order/fallback/uncontrolled removal, stale guard/
+option/detach reads and pending deduplication/failed-save restoration. All remain
+unrun. Syntax/source/whitespace checks only; sem cannot resolve the TSRX SelectView
+entity and is not behavior evidence. Guide/skill, finite-select recipe AC8 and
+the existing maintained keyboard fixture now cover badge display.
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/select.macos.mobile.test.tsrx src/select-keyboard.macos.mobile.test.tsrx
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/macos-renderer
+pnpm probe run examples/probes/select-keyboard.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All commands remain deferred pending explicit human authorization for this task.
+Actual pointer isolation, badge wrapping/hit geometry, keyboard focus/Tab behavior,
+VoiceOver/AX naming and packaging remain unqualified. No build, package tests/
+typechecks, installs, OS automation, visual analysis or shared audit regeneration
+ran; no evidence checkbox is closed. Alternate picker presentations and live
+announcements remain separate implementation gaps.

@@ -16,7 +16,7 @@ export default function SelectKeyboardProbe() {
 		<label text="Use arrows, Home/End, Enter/Space, Escape and Tab. Search preserves text-editing keys." />
 		<Selector id="select-keys" testID="fruit.keyboard" label="Fruit" description="Choose using the keyboard" options={options} value={fruit} onValueChange={setFruit} />
 		<MultiSelector id="select-search-keys" label="Fruit collection" options={options} value={many}
-			onValueChange={setMany} searchable hasSelectAll />
+			onValueChange={setMany} searchable hasSelectAll triggerDisplay="badges" />
 		<label id="select-key-result" text={`${fruit ?? 'none'}; ${many.join(', ')}`} />
 	</VStack>
 }
