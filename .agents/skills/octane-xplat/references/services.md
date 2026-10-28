@@ -979,3 +979,28 @@ generic owned error; consumer callbacks keep their own errors. No busy indicator
 is added. Six action-model/three renderer cases and a manual fixture are unrun;
 hook timing, actual native action/focus/Tab/keyboard/AX, attachment/layout/lifetime
 and installed consumers remain open. See [button ownership](../../../../packages/auth/README.md#appkit-button-action-ownership).
+
+## Windows secure credentials
+
+The experimental native [secure-storage leaf](../../../../packages/secure-storage/README.md#experimental-native-windows)
+uses PasswordVault and requires package identity. Package family scopes resource
+names; this is not a security barrier from other desktop apps. Credential Locker
+may roam entries under Windows/account policy. No plaintext or mobile fallback
+is allowed. Missing keys return null; other reads reject with a sanitized error;
+writes/removals return false on failure. Empty strings are encoded internally.
+
+```ts
+import { secureStorage } from '@octane-xplat/secure-storage'
+
+async function saveToken(token: string) {
+  if (!secureStorage.supported || !(await secureStorage.isAvailable())) return false
+  return secureStorage.set('session-token', token)
+}
+```
+
+Standalone x64 vault operations passed using task namespaces, with all created
+entries removed and confirmed missing. Real packaged identity, cross-launch
+persistence, roaming/access policies and full app integration remain unqualified.
+The alpha.144 projection exposes missing-item HRESULT 0x80070490 only as a
+message suffix; preserve that distinction and never return null for every native
+exception or forward native error text. This does not enable Windows hosted auth.

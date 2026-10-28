@@ -2,7 +2,8 @@
 
 Store session tokens without displaying their contents. iOS and macOS use
 Keychain, Android uses the Keystore-backed plugin, and Linux uses the desktop
-host's Secret Service adapter. Plain browsers report `supported: false`.
+host's Secret Service adapter. Experimental packaged Windows apps have a
+Credential Locker leaf. Plain browsers report `supported: false`.
 
 ```sh
 pnpm add @octane-xplat/secure-storage
@@ -119,3 +120,49 @@ AppKit task. Only source/syntax checks ran; native class/method/dictionary/BOOL
 bridging, Keychain access, host replacement, signing/sandbox and installed
 consumers remain unqualified. A JavaScript exception guard cannot contain a
 native process abort; the CLI's leaf-loading prerequisite still applies.
+
+## Experimental native Windows
+
+The Windows leaf uses [Credential Locker](https://learn.microsoft.com/en-us/windows/apps/develop/security/credential-locker).
+It requires package identity and uses the package family as its resource
+namespace; keep that identity stable across releases. Unpackaged hosts report
+unsupported. `isAvailable()` checks that the vault can be constructed; access
+policy can still reject an operation. No mobile plugin or plaintext fallback
+is used.
+
+```ts
+import { secureStorage } from '@octane-xplat/secure-storage'
+
+async function rememberWindowsSession(token: string) {
+  if (!secureStorage.supported || !(await secureStorage.isAvailable())) return false
+  return secureStorage.set('session-token', token)
+}
+```
+
+A missing key returns `null`; other read failures reject with
+`Credential Locker read failed`, without native error contents. Saving an
+existing key replaces it, empty strings are preserved, and removing a missing
+key returns `true`. Writes/removals return `false` on access failures.
+Credential Locker can roam entries according to Windows/account policy.
+The resource namespace prevents accidental collisions; it is not a security
+boundary against other desktop apps. Microsoft's
+[vault contract](https://learn.microsoft.com/en-us/uwp/api/windows.security.credentials.passwordvault)
+allows desktop apps outside an AppContainer to access other lockers.
+
+```ts
+if (secureStorage.supported) {
+  const removed = await secureStorage.remove('session-token')
+  // Report only whether sign-out cleanup succeeded.
+}
+```
+
+Standalone NativeScript x64 checks passed round trips, replacement, empty and
+Unicode/control-character strings, namespace separation and confirmed removal
+of test entries. The probe supplied a task namespace in place of package
+identity. Real packaged identity, persistence across launches, account roaming,
+access-policy failures and production app integration remain unqualified.
+The focused mocked contracts run through Turbo without building the app:
+
+```sh
+pnpm exec turbo run test:windows --filter=@octane-xplat/secure-storage
+```

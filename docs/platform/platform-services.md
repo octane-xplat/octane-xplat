@@ -410,6 +410,18 @@ follow the [native prerequisites](macos-native.md#prepare-the-app) and
 The new bridge cases remain unrun; real Keychain, signing/sandbox and installed-app
 qualification are still pending. Availability checks do not establish those results.
 
+Experimental native Windows has a package-scoped Credential Locker leaf.
+Unpackaged hosts report unsupported; Windows/account policy can roam saved
+credentials. Standalone x64 operations passed with a task namespace, while real
+packaged identity and persistence across app launches remain unqualified. See
+the [Windows storage boundary](../../packages/secure-storage/README.md#experimental-native-windows).
+
+```ts
+if (secureStorage.supported && await secureStorage.isAvailable()) {
+	const removed = await secureStorage.remove('session-token')
+}
+```
+
 ## Generate secure random bytes
 
 Use `random` from `@octane-xplat/platform` when a feature needs values an

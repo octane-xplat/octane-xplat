@@ -377,3 +377,79 @@ in total (exit 0). Its result is recorded separately from the native probe in
 `research/windows61/windy-output-stream-contracts.log`. Broad package checks and
 all exact deferred commands above remain deferred. No evidence-gated issue row
 or recipe target is closed by this subset.
+
+## Native Windows Credential Locker candidate
+
+Common session persistence is the next everyday-service gap after file I/O.
+The shared hosted-auth adapter calls secureStorage from persist/readStoredCredentials;
+`packages/app/src/Services.macos.tsrx` is also an existing service harness. There
+is no Windows-specific sign-in example to qualify. The audit selected the
+mobile secure-storage plugin on Windows. A new Windows root export condition
+and leaf now avoid that import and use the OS PasswordVault API, without adding
+dependencies. Package/typegen manifests include the dedicated root; public
+Service<SecureStore> types remain shared.
+
+The leaf requires actual package identity and uses package family in its resource
+namespace; it reports unsupported without identity or credential classes.
+Availability constructs the vault but does not promise access policy success.
+Keys and values are JSON strings internally so empty strings and control
+characters survive WinRT's nonempty credential fields. A missing item returns
+null and removal of an absent key succeeds. Other reads reject with the fixed
+message `Credential Locker read failed`; writes/removals return false. Native
+error text, keys and values are never forwarded or logged. A read-only probe of
+a fresh absent task key found Error.message ending in `(HRESULT 0x80070490)` and
+no numeric code/hresult field; the leaf recognizes only that missing-item suffix.
+Unexpected failures do not masquerade as absence. This is alpha.144-specific
+bridge evidence, not a general WinRT error-serialization guarantee.
+
+The same existing x64 DLL passed actual PasswordVault operations in isolated
+short-lived processes: missing get/remove, overwrites, empty keys and values,
+Unicode/NUL/CRLF strings, two separate resource namespaces, and named removal.
+The final probe removed every created test entry in a finally block and verified
+all were absent, printing only roundtrip/cleanup status markers. It did not
+retrieve or enumerate unrelated vault entries. Log:
+`research/windows61/windy-native-vault.log`, exit 0. The earlier read-only error
+shape log is `research/windows61/windy-native-vault-projection.log`.
+
+The probe substitutes fresh task family names for Package.Current identity;
+credential classes and all vault operations are actual WinRT projections.
+Consequently real packaged identity, cross-launch persistence, account roaming,
+locked/access-policy failures and production import/app integration remain
+unqualified. Package family prevents accidental resource collisions, not access
+by other desktop apps. Microsoft's [PasswordVault contract](https://learn.microsoft.com/en-us/uwp/api/windows.security.credentials.passwordvault)
+allows regular desktop apps to access other user lockers; [Credential Locker](https://learn.microsoft.com/en-us/windows/apps/develop/security/credential-locker)
+can roam entries under Windows/account policy. The 20-entry limit applies to
+AppContainer apps per the [Add contract](https://learn.microsoft.com/en-us/uwp/api/windows.security.credentials.passwordvault.add).
+No local-only or isolation guarantee is added by this adapter.
+
+Five mocked Windows regressions passed in the existing isolated Turbo fixture
+(25 focused tests total, exit 0), covering Node's Windows export resolution,
+unavailable hosts, string/replacement/missing semantics, package namespaces,
+malformed values and sanitized failures. No mobile module is allowed to load in
+the adapter fixture. These are mocked host contracts, except that the root-path
+assertion invokes Node's actual conditional resolver. Log:
+`research/windows61/windy-vault-contracts.log`. Native probes inline the leaf
+and a minimal UnavailabilityError after removing imports; they do not exercise
+production bundling. The task-owned `native-vault-probe.ps1` remains beside the
+other windy runners and can be repeated under the device reservation:
+
+```sh
+goddard-agent resource run --json '{"resources":{"exclusive":["device:windy"]},"purpose":"Focused Windows credential probe"}' -- ssh windy 'powershell -NoProfile -File C:/Users/alecs/dev/octane-windows61-checks-88a67da/native-vault-probe.ps1'
+```
+
+Full maintained package checks remain deferred, including:
+
+```sh
+pnpm exec turbo run test:windows --filter=@octane-xplat/secure-storage
+pnpm exec turbo run test:packed --filter=@octane-xplat/secure-storage
+pnpm exec turbo run typecheck --filter=...@octane-xplat/secure-storage
+```
+
+A Turbo dry run also resolved only secure-storage#test:windows with no
+dependency tasks; the dry run executed no tests. The focused task is now included in
+this package's existing packed-test script. No native build, install, app launch,
+package registration or visual work ran. Public guide, package README, service
+skill and release note describe the subset. The passkey-sign-in recipe excludes
+Windows, and hosted auth remains unavailable; this does not qualify that workflow
+or add a Windows recipe target. No shared audit snapshot was regenerated and no
+evidence-gated issue row is closed.
