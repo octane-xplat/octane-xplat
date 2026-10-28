@@ -7628,8 +7628,8 @@ export interface TokenizerHandle {
 
 /** Tokenizer — multi-select field: Token chips + a BaseTypeahead input.
  *  Selecting adds a token and clears the query; Backspace on an empty input
- *  removes the last token (pointer platforms — native fields emit no key
- *  events); `hasCreate` offers a "Create \"…\"" entry for free text.
+ *  removes the last token on web and experimental AppKit (native OS
+ *  delivery remains unqualified; iOS/Android use token remove buttons); `hasCreate` offers a "Create \"…\"" entry for free text.
  *
  * @example
  * ```tsx

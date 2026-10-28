@@ -2,6 +2,7 @@
 import { mergeStyle, styleRecord } from './style-merge'
 import {
 	useImperativeHandle,
+	useCallback,
 	useEffect,
 	useMemo,
 	useRef,
@@ -15,9 +16,15 @@ import type {
 	SearchSource,
 	TokenizerProps,
 	TypeaheadInputHandle,
+	TypeaheadKeyEvent,
+	TokenizerHandle,
+	TokenizerChange,
 } from './props'
 
 import { useSize } from './size-context'
+import { useFieldControlProps } from './field-context'
+import { hasDateComposition } from './date-composition.macos'
+import type { NSView } from '@octane-xplat/platform/macos'
 import type { TypeaheadQueryEntries } from './internal-props'
 import { cx } from '@octane-xplat/lib'
 import { FormField } from './FormField.macos.tsrx'
@@ -31,6 +38,11 @@ import { Tooltip } from './Tooltip.tsrx'
 import { BusyLaneProvider, createBusyIndicatorLane, type BusyIndicatorLane } from './busy-lane'
 
 const CREATABLE_ID_PREFIX = '__xds_create__'
+const nativeValue = (view: object | null | undefined, key: string) => {
+	const value = view && Reflect.get(view, key)
+	return typeof value === 'function' ? value.call(view) : value
+}
+type TokenizerKeyEvent = TypeaheadKeyEvent & { altKey?: boolean; ctrlKey?: boolean; metaKey?: boolean; shiftKey?: boolean; stopPropagation?(): void }
 
 function EndLane(props: {
 	lane: BusyIndicatorLane
@@ -58,16 +70,44 @@ function EndLane(props: {
 	</masonview>
 }
 
-/** Multi-select field: Token chips + a BaseTypeahead input. The AppKit
- *  engine now has input key dispatch, but this wrapper does not yet wire
- *  Backspace removal. Use token ✕ or clear-all. Native layout owns truncation. */
-export function Tokenizer<T extends SearchableItem>(props: TokenizerProps<T>) @{
+/** AppKit token entry with current controlled selection and empty-input
+ * Backspace removal. Native key/IME/focus and overflow layout remain unqualified. */
+export function Tokenizer<T extends SearchableItem>(inProps: TokenizerProps<T>) @{
+	const props = useFieldControlProps(inProps)
+	const live = useRef(props); live.current = props
+	const writing = useRef(false), lastQuery = useRef('')
+	const blurTimer = useRef<ReturnType<typeof setTimeout> | null>(null), blurVersion = useRef(0)
 	const size = useSize(props.size, 'md')
 	const inputHandle = useRef<TypeaheadInputHandle | null>(null)
 	const wrapperRef = useRef<any>(null)
+	const panelRef = useRef<NSView | null>(null)
+	const bindPanel = useCallback((view: NSView | null) => { panelRef.current = view }, [])
 	const laneRef = useRef<any>(null)
 	const overflowRef = useRef<any>(null)
 	const tokenEls = useRef(new Map<number, any>())
+
+	const cancelBlur = () => { blurVersion.current++; if (blurTimer.current != null) clearTimeout(blurTimer.current); blurTimer.current = null }
+	const bindWrapper = useCallback((view: NSView | null) => { wrapperRef.current = view; if (!view) cancelBlur() }, [])
+	const bindInput = useCallback((handle: TypeaheadInputHandle | null) => { inputHandle.current = handle }, [])
+	const canChange = () => !!wrapperRef.current && !live.current.isDisabled && !live.current.isReadOnly && !writing.current
+	const inputOwnsFocus = () => {
+		const view = inputHandle.current?.native, window = nativeValue(view, 'window'), responder = window?.firstResponder
+		return !!view && !!window && (responder === view || (responder != null && responder === nativeValue(view, 'currentEditor')))
+	}
+
+	const containsFocus = (root: NSView | null) => {
+		if (!root) return false
+		const responder = nativeValue(nativeValue(root, 'window'), 'firstResponder')
+		// AppKit's shared field editor delegates to the owning text field.
+		for (const start of [responder, nativeValue(responder, 'delegate')]) {
+			const seen = new Set<object>()
+			for (let view = start; view && !seen.has(view); view = nativeValue(view, 'superview')) {
+				if (view === root) return true
+				seen.add(view)
+			}
+		}
+		return false
+	}
 
 	const busyLane = useMemo(() => createBusyIndicatorLane(), [])
 	const [isFocusedWithin, setIsFocusedWithin] = useState(false)
@@ -79,23 +119,21 @@ export function Tokenizer<T extends SearchableItem>(props: TokenizerProps<T>) @{
 	const isTruncated = !isFocusedWithin && tokenOverflowBehavior !== 'none' && props.value.length > 0
 	const isAtMax = props.maxEntries != null && props.value.length >= props.maxEntries
 
-	const handle = {
-		focus: () => {
-			if (isLayerMode) {
-				setLayerOpen(true)
-			}
-
+	const handle = useMemo<TokenizerHandle>(() => ({
+		focus() {
+			const current = live.current
+			if (!wrapperRef.current || (current.isDisabled && !current.disabledMessage)) return
+			if (current.tokenOverflowBehavior === 'unfocusedLayer') setLayerOpen(true)
 			inputHandle.current?.focus()
 		},
-		blur: () => {
+		blur() {
+			if (!wrapperRef.current) return
 			inputHandle.current?.blur()
-			setLayerOpen(false)
-			setIsFocusedWithin(false)
+			if (wrapperRef.current) { setLayerOpen(false); setIsFocusedWithin(false) }
 		},
-		native: wrapperRef.current,
-	}
-
-	useImperativeHandle(props.ref, () => ({ ...handle, native: wrapperRef.current }), [props.ref])
+		get native() { return wrapperRef.current },
+	}), [])
+	useImperativeHandle(props.ref, () => handle, [props.ref])
 
 	const selectedIds = useMemo(() => new Set(props.value.map((item) => item.id)), [props.value])
 
@@ -141,94 +179,80 @@ export function Tokenizer<T extends SearchableItem>(props: TokenizerProps<T>) @{
 
 	const queryEntries: TypeaheadQueryEntries<T> = { __queryEntries: createEntries }
 
+	const emit = (items: T[], change: TokenizerChange<T>, restoreFocus = false): boolean => {
+		if (!canChange()) return false
+		const root = wrapperRef.current, input = inputHandle.current, view = input?.native
+		const window = nativeValue(view, 'window'), responder = window?.firstResponder, notify = live.current.onChange
+		writing.current = true
+		try { notify(items, change) } finally { writing.current = false }
+		// Preserve callback-driven teardown, blocking and newer focus choices.
+		if (restoreFocus && canChange() && wrapperRef.current === root && input && inputHandle.current === input && input.native === view &&
+			window && nativeValue(view, 'window') === window && window.firstResponder === responder && !inputOwnsFocus()) input.focus()
+		return true
+	}
 	const handleAdd = (item: T | null) => {
-		if (!item || isAtMax) {
-			return
+		// BaseTypeahead clears its query before reporting selection, including
+		// a selection the controlled wrapper subsequently rejects.
+		lastQuery.current = ''
+		if (!item || !canChange()) return
+		const current = live.current
+		if (current.maxEntries != null && current.value.length >= current.maxEntries) return
+		if (item.id.startsWith(CREATABLE_ID_PREFIX)) {
+			if (!current.hasCreate) return
+			const text = item.id.slice(CREATABLE_ID_PREFIX.length)
+			if (current.value.some((value) => value.id === text)) return
+			const created = { id: text, label: text } as T
+			emit([...current.value, created], { item: created, type: 'create' }); return
 		}
-
-		if (props.hasCreate && typeof item.id === 'string' && item.id.startsWith(CREATABLE_ID_PREFIX)) {
-			const createdValue = item.id.slice(CREATABLE_ID_PREFIX.length)
-			if (selectedIds.has(createdValue)) {
-				return
-			}
-
-			const realItem = { id: createdValue, label: createdValue } as T
-			props.onChange([...props.value, realItem], { item: realItem, type: 'create' })
-			return
-		}
-
-		if (selectedIds.has(item.id)) {
-			return
-		}
-
-		props.onChange([...props.value, item], { item, type: 'add' })
+		if (!current.value.some((value) => value.id === item.id)) emit([...current.value, item], { item, type: 'add' })
 	}
-
-	const handleRemove = (item: T) => {
-		props.onChange(
-			props.value.filter((v) => v.id !== item.id),
-			{ item, type: 'remove' },
-		)
-
-		inputHandle.current?.focus()
+	const handleRemove = (item: T, restoreFocus = true): boolean => {
+		if (!canChange()) return false
+		const current = live.current, owned = current.value.find((value) => value.id === item.id)
+		return owned ? emit(current.value.filter((value) => value.id !== owned.id), { item: owned, type: 'remove' }, restoreFocus) : false
 	}
-
 	const handleClearAll = () => {
-		if (props.value.length === 0) {
-			return
-		}
-
-		props.onChange([], { item: props.value[props.value.length - 1], type: 'remove' })
-		inputHandle.current?.focus()
+		if (!canChange()) return
+		const current = live.current
+		if (current.value.length) emit([], { item: current.value[current.value.length - 1], type: 'remove' }, true)
+	}
+	const handleQueryChange = (query: string) => {
+		if (!wrapperRef.current) return
+		lastQuery.current = query
+		live.current.onChangeQuery?.(query)
+	}
+	const handleKeyDown = (event: TokenizerKeyEvent) => {
+		const view = inputHandle.current?.native
+		if (!view || !canChange() || event.defaultPrevented || hasDateComposition(view, event) ||
+			event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.key !== 'Backspace' || lastQuery.current !== '') return
+		const editor = nativeValue(view, 'currentEditor'), text = nativeValue(editor, 'string') ?? nativeValue(view, 'stringValue')
+		if (text != null && String(text) !== '') return
+		const items = live.current.value
+		if (!items.length) return
+		event.preventDefault(); event.stopPropagation?.()
+		handleRemove(items[items.length - 1], false)
 	}
 
-	// Collapse when the input's focus leaves the field. Removing a token
-	// refocuses the input, so a delayed collapse lets that refocus win.
-	const blurTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+	// Delay collapse only while this attached field still owns the request.
 	const collapseSoon = () => {
-		if (blurTimer.current) {
-			clearTimeout(blurTimer.current)
-		}
-
+		if (!wrapperRef.current) return
+		cancelBlur()
+		const owner = wrapperRef.current, version = blurVersion.current
 		blurTimer.current = setTimeout(() => {
-			setIsFocusedWithin(false)
-			setLayerOpen(false)
-			props.onBlur?.()
+			if (version !== blurVersion.current || wrapperRef.current !== owner) return
+			blurTimer.current = null
+			if (inputOwnsFocus() || containsFocus(wrapperRef.current) || containsFocus(panelRef.current)) return
+			setIsFocusedWithin(false); setLayerOpen(false)
+			live.current.onBlur?.()
 		}, 50)
 	}
-
 	const focusEntered = () => {
-		if (blurTimer.current) {
-			clearTimeout(blurTimer.current)
-			blurTimer.current = null
-		}
-
-		setIsFocusedWithin(true)
-		if (isLayerMode) {
-			setLayerOpen(true)
-		}
-
-		props.onFocus?.()
+		if (!wrapperRef.current) return
+		cancelBlur(); setIsFocusedWithin(true)
+		if (live.current.tokenOverflowBehavior === 'unfocusedLayer') setLayerOpen(true)
+		live.current.onFocus?.()
 	}
-
-	useEffect(
-		() => () => {
-			if (blurTimer.current) {
-				clearTimeout(blurTimer.current)
-			}
-		},
-		[],
-	)
-
-	useImperativeHandle(
-		props.ref,
-		() => ({
-			focus: () => inputHandle.current?.focus(),
-			blur: () => inputHandle.current?.blur(),
-			native: wrapperRef.current,
-		}),
-		[props.ref],
-	)
+	useEffect(() => () => cancelBlur(), [])
 
 	// Count tokens clipped by the single-line truncation — measured off the
 	// real layout: a token is hidden when its right edge passes the wrapper's
@@ -289,8 +313,8 @@ export function Tokenizer<T extends SearchableItem>(props: TokenizerProps<T>) @{
 			<Token
 				label={item.label}
 				size={size}
-				onRemove={props.isDisabled ? undefined : onRemoveItem}
-				isDisabled={props.isDisabled}
+				onRemove={props.isDisabled || props.isReadOnly ? undefined : onRemoveItem}
+				isDisabled={props.isDisabled || props.isReadOnly}
 			/>
 		)
 
@@ -312,7 +336,7 @@ export function Tokenizer<T extends SearchableItem>(props: TokenizerProps<T>) @{
 		)
 	})
 
-	const hasClearButton = Boolean(props.hasClear && props.value.length > 0 && !props.isDisabled)
+	const hasClearButton = Boolean(props.hasClear && props.value.length > 0 && !props.isDisabled && !props.isReadOnly)
 
 	const wrapperClass = cx(
 		'vx-tokenizer',
@@ -337,8 +361,10 @@ export function Tokenizer<T extends SearchableItem>(props: TokenizerProps<T>) @{
 				minQueryLength={props.minQueryLength}
 				emptySearchResultsText={props.emptySearchResultsText}
 				isDisabled={props.isDisabled}
+				isFocusableDisabled={!!props.isDisabled && !!props.disabledMessage}
 				hasAutoFocus={props.hasAutoFocus}
-				onChangeQuery={props.onChangeQuery}
+				onChangeQuery={handleQueryChange}
+				onKeyDown={handleKeyDown}
 				{...queryEntries}
 				debounceMs={props.debounceMs}
 				anchorRef={{ current: wrapperRef.current }}
@@ -353,9 +379,7 @@ export function Tokenizer<T extends SearchableItem>(props: TokenizerProps<T>) @{
 				}
 				onFocus={focusEntered}
 				onBlur={collapseSoon}
-				ref={(h: TypeaheadInputHandle) => {
-					inputHandle.current = h
-				}}
+				ref={bindInput}
 			/>
 		</BusyLaneProvider>
 	)
@@ -369,12 +393,11 @@ export function Tokenizer<T extends SearchableItem>(props: TokenizerProps<T>) @{
 	const truncatedRow = (
 		<masonview
 			className={wrapperClass}
-			ref={(v: any) => {
-				wrapperRef.current = v
-			}}
+			ref={bindWrapper}
+			onBlur={collapseSoon}
 			onLayoutChanged={measureOverflow}
 			onTap={() => {
-				if (!props.isDisabled) {
+				if (!live.current.isDisabled) {
 					inputHandle.current?.focus()
 				}
 			}}
@@ -405,12 +428,11 @@ export function Tokenizer<T extends SearchableItem>(props: TokenizerProps<T>) @{
 			<>
 				<masonview
 					className={wrapperClass}
-					ref={(v: any) => {
-						wrapperRef.current = v
-					}}
+					ref={bindWrapper}
+					onBlur={collapseSoon}
 					onLayoutChanged={measureOverflow}
 					onTap={() => {
-						if (!props.isDisabled) {
+						if (!live.current.isDisabled) {
 							focusEntered()
 						}
 					}}
@@ -439,6 +461,8 @@ export function Tokenizer<T extends SearchableItem>(props: TokenizerProps<T>) @{
 				>
 					<masonview
 						className="vx-tokenizer"
+						ref={bindPanel}
+						onBlur={collapseSoon}
 						style={mergeStyle(
 							{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' },
 							{ display: 'flex' },
@@ -463,12 +487,11 @@ export function Tokenizer<T extends SearchableItem>(props: TokenizerProps<T>) @{
 		content = (
 			<masonview
 				className={wrapperClass}
-				ref={(v: any) => {
-					wrapperRef.current = v
-				}}
+				ref={bindWrapper}
+				onBlur={collapseSoon}
 				onLayoutChanged={measureOverflow}
 				onTap={() => {
-					if (!props.isDisabled) {
+					if (!live.current.isDisabled) {
 						inputHandle.current?.focus()
 					}
 				}}

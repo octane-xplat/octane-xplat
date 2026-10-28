@@ -317,9 +317,10 @@ all tokens (`none`), collapse to a one-line count (`unfocusedInline`), or show
 the expanded field in an anchored layer (`unfocusedLayer`).
 
 `htmlName` adds one hidden web form input per selected item, using the item id.
-It has no native form equivalent. Backspace removes the last token only on web,
-where text key events are available; iOS and Android users remove a token with
-its ✕ button.
+It has no native form equivalent. Web and experimental AppKit remove the last
+token with unmodified Backspace when the query is empty. AppKit also checks
+native editor text and composition; actual OS delivery remains unqualified.
+iOS and Android users remove a token with its ✕ button.
 
 ```tsx
 import { useState } from 'octane'
@@ -716,5 +717,31 @@ Seven policy and five object-driver cases plus the
 all unrun. These establish source intent only. Real field-editor/IME/repeat,
 modifier delivery, Tab/layer ordering, native highlight reveal and packaging
 remain unqualified. Results remain inline; listbox/active-option accessibility
-and announcements remain gaps. Tokenizer's AppKit Backspace removal is not
-wired by this change; use each token's remove button.
+and announcements remain gaps. Tokenizer's separate AppKit Backspace wiring
+is described below.
+
+## Remove AppKit tokens with empty-input Backspace
+
+AppKit Tokenizer now requests removal of the current last token when the query
+and native editor text are empty. Modified/composing keys keep native editing.
+It uses current controlled values and disabled/read-only state; callback-driven
+focus changes and teardown take precedence over pointer-removal focus restore.
+Your `onChange` must accept the new array to remove the visible token.
+
+```tsx
+import { useState } from 'octane'
+import { Tokenizer, createStaticSource } from '@octane-xplat/ui'
+const people = [{ id: 'ada', label: 'Ada' }, { id: 'grace', label: 'Grace' }]
+const source = createStaticSource(people)
+export function PeopleTags() {
+	const [tags, setTags] = useState(people)
+	return <Tokenizer searchSource={source} value={tags} onChange={setTags} />
+}
+```
+
+Seven [object-driver cases](../../packages/ui/src/tokenizer-keys.macos.mobile.test.tsrx)
+and a [manual fixture](../../examples/probes/tokenizer-keys.macos.tsrx) are authored,
+all unrun. Native Backspace/repeat/IME, field-editor ownership, embedded-content
+blur timing, popup focus, accessibility and packaging remain unqualified.
+The legacy overflow measurement path also needs separate AppKit geometry review;
+this keyboard work does not establish inline/layer truncation behavior.

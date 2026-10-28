@@ -1633,7 +1633,8 @@ Highlight reveal uses current keyed native row leases, stays in the input's
 window and never transfers focus. Seven policy/five object-driver cases and the
 manual fixture are unrun. Native keys/IME/repeat/Tab/layer/reveal and package
 qualification remain deferred; no listbox/active-option AX or announcements are
-claimed. Tokenizer Backspace removal still needs separate wiring. Read the
+claimed. Tokenizer now separately wires empty-input Backspace; see its subset
+below. Read the
 [key guide](../../../../docs/app/search-selection.md#choose-appkit-typeahead-results-with-keys).
 
 ## AppKit TimeInput draft ownership
@@ -1682,3 +1683,22 @@ Eight object-driver cases and the manual fixture are unrun. Native editor/IME/
 Return/blur, save/ref/picker/keyboard/focus/AX and packaging remain unqualified;
 Popover is mocked away in the new cases. Existing composition/preset-key policy
 is retained. Read [current date-time drafts](../../../../docs/platform/date-picker.md#keep-both-appkit-date-time-drafts-current).
+
+## AppKit Tokenizer empty-input removal
+
+Tokenizer routes Backspace through BaseTypeahead's current-input key path.
+Both cached query and native editor text must be empty; composing/modified keys
+retain editing. Transactions read current controlled selection, inherited Field
+blocking and metadata, reject reentry and preserve callback-driven focus choices.
+One stable public handle exposes the live wrapper; held removal callbacks are
+inert after teardown. Delayed blur retains wrapper/panel descendant focus.
+
+```tsx
+<Tokenizer searchSource={source} value={tags} onChange={setTags} />
+```
+
+Seven object-driver cases and the manual fixture are authored, unrun. Native
+keys/repeat/IME/editor/blur/popup/AX and package qualification remain deferred.
+Legacy overflow measurement still needs AppKit geometry review. Use the
+[token guide](../../../../docs/app/search-selection.md#remove-appkit-tokens-with-empty-input-backspace)
+for the supported source subset and evidence boundary.

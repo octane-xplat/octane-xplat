@@ -4125,3 +4125,51 @@ preset text relay, listbox/active-option relationships/announcements, Tokenizer
 Backspace, PowerSearch focus, Carousel fades and video remain separate source
 gaps. Checkbox mixed rollback still awaits the previously asked human contract
 choice. No evidence-gated checkbox is closed; the persistent goal remains active.
+
+## AppKit Tokenizer empty-input Backspace and current selection
+
+Demand assumption: everyday tag/people entry precedes niche integrations.
+ComponentsDemo's token field and sandbox TokenizerEndContent's embedded Apply
+button inform the slice. Source review found no wrapper key hook, two public
+imperative registrations, captured removal metadata and unguarded mutation
+callbacks. AppKit now routes empty-query Backspace through BaseTypeahead's
+current-input/editor key owner. Cached query and actual native text must both
+be empty; composing, marked-editor and modified keys retain native editing.
+
+Current controlled selection, metadata, max count and inherited Field blocking
+own add/create/remove/clear. Reentry/retired selections/teardown reject mutation.
+Pointer restore preserves callback-selected focus and current native attachment.
+One memoized handle exposes a live wrapper; delayed blur cancels stale work,
+uses current callbacks and retains wrapper/panel descendant focus, including
+AppKit's field-editor delegate chain. No public type shape, dependency, renderer,
+shared manifest/runner, other-target leaf or audit snapshot changed.
+
+Seven object-driver cases are authored, all unrun: current tail/controlled echo,
+query versus editor text, modifiers/composition/marked editors, retained identity
+and blocking, callback reentry/focus/teardown, public ref ownership and delayed
+embedded-focus blur/current callbacks. These use fake hosts/direct dispatch;
+they do not prove OS input. The manual fixture includes accepted/rejected
+controlled state, an embedded action and adjacent editors; its runner only
+waits/records. Guide/skill/recipe/feature note reconcile this source subset.
+
+Only source/semantic review, TSRX/TypeScript syntax parsing and whitespace checks
+ran. Exact deferred commands:
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/tokenizer-keys.macos.mobile.test.tsrx src/typeahead-keys.macos.mobile.test.tsrx src/typeahead-focus.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/tokenizer-keys.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All remain deferred until explicit human authorization for this task. No package
+tests/typechecks/builds, installs, OS automation, visual analysis or packaging
+ran. Native keys/repeat/IME/field-editor/focus/blur/popup/AX and package behavior
+remain unqualified. Legacy optional getActualSize/getLocationRelativeTo overflow
+measurement still needs a separate AppKit geometry review; this change does
+not establish inline/layer truncation. Other remaining source gaps include
+PowerSearch focus, active-option AX/announcements, preset text relay, Carousel
+fades and video. Checkbox mixed rollback still awaits the earlier human contract
+choice. Evidence-gated checkboxes stay open; the persistent goal remains active.
