@@ -1,3 +1,4 @@
+import type { ProjectionNode } from './projection/node'
 import type { Controller } from './controller'
 import type { HostAdapter } from './host-types'
 import type { DragInfo, MotionProps } from './types'
@@ -60,6 +61,7 @@ export function attachDrag(
 	valueFor: (axis: 'x' | 'y') => MotionValue,
 	reduced: () => boolean,
 	callbacks: () => MotionProps,
+	projectionFor?: () => Pick<ProjectionNode, 'beginDrag' | 'endDrag'> | null,
 ) {
 	if (!props.drag) {
 		return () => {}
@@ -82,6 +84,7 @@ export function attachDrag(
 
 	const origin = { x: 0, y: 0 }
 	let active = false
+	let draggingProjection: Pick<ProjectionNode, 'beginDrag' | 'endDrag'> | undefined
 	const limits = (axis: 'x' | 'y') =>
 		axis === 'x'
 			? [bounds.left ?? -Infinity, bounds.right ?? Infinity]
@@ -106,6 +109,13 @@ export function attachDrag(
 				origin[axis] = channel.get()
 			}
 
+			draggingProjection = projectionFor?.() ?? undefined
+			draggingProjection?.beginDrag((shift) => {
+				for (const axis of axes) {
+					origin[axis] += shift[axis]
+					value(axis).jump(value(axis).get() + shift[axis])
+				}
+			})
 			callbacks().onDragStart?.(event, info)
 		},
 		move(event, info) {
@@ -123,6 +133,8 @@ export function attachDrag(
 
 			active = false
 			move(info)
+			draggingProjection?.endDrag()
+			draggingProjection = undefined
 			for (const axis of axes) {
 				const channel = value(axis)
 				const velocity = info.cancelled || props.dragMomentum === false ? 0 : info.velocity[axis]
@@ -148,6 +160,8 @@ export function attachDrag(
 	})
 
 	return () => {
+		draggingProjection?.endDrag()
+		draggingProjection = undefined
 		active = false
 		off()
 		for (const channel of values.values()) {

@@ -157,6 +157,14 @@ native correction is approximate. Multiple web shadows are not corrected.
 <motion.View layout style={{ borderRadius: 20, width: expanded ? 300 : 150, height: expanded ? 240 : 120 }} />
 ```
 
+Combine `drag` with `layout` when content can move during a drag. It rebases the
+drag origin and takes over interrupted layout animation without a position jump.
+Numeric bounds still apply to translation channels; this does not add `Reorder`.
+
+```tsx
+<motion.View layout drag="x" dragMomentum={false} style={{ marginLeft: shifted ? 100 : 0 }} />
+```
+
 For shared elements, give matching hosts a `layoutId` inside a distinct
 `LayoutGroup id` per independent control. A same-commit replacement animates
 without retaining the old host, using current ancestor scroll offsets; use `Presence` to retain both contents for a

@@ -125,8 +125,7 @@ live writes use `jump` so passive spring following cannot lag the pointer.
 Drag axes reject competing `animate`, `whileTap`, or `whileFocus` targets;
 `initial` seeds the position and `exit` can own it after interaction ends.
 No ref measurement, dragControls, dragListener, direction lock, propagation,
-snap-to-origin, dragTransition, onDragTransitionEnd, or layout projection is
-implemented. `drag` axis selection is not `dragDirectionLock`.
+snap-to-origin, dragTransition, or onDragTransitionEnd is implemented. `drag` axis selection is not `dragDirectionLock`.
 
 ```tsx
 import { motion, useMotionValue } from '@octane-xplat/motion'
@@ -548,3 +547,21 @@ export function SharedPresence({ present }: { present: boolean }) {
 	</Presence>
 }
 ```
+
+
+## Drag with layout projection
+
+Drag blocks new layout animations on its node and stops any running layout
+animation at its presented position, rebasing the selected translation channels.
+Every measurement rebases the drag origin and current channels by the viewport
+layout shift before projection writes. This follows Motion's `isAnimationBlocked`
+and `didUpdate` drag-origin adjustment, adapted to our post-commit measurements.
+Projected ancestors keep animating: the dragged node resolves an absolute target
+and cancels their transform through the usual tree correction. After release,
+that absolute target is retained until existing ancestor layout animations finish,
+so releasing early cannot jump into the parent's relative target. A subsequent
+layout change can start an ordinary layout animation again. Detach, disabled drag,
+and cancellation release the block.
+
+Numeric constraints retain their translation-coordinate contract. Measured ref
+constraints, drag-to-reorder and `Reorder` remain outside this work.

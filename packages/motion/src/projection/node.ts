@@ -29,7 +29,15 @@ import {
 
 import type { ProjectionRoot } from './root'
 import type { SharedStack } from './stack'
-import type { Axis, Box, Delta, Measurement, ProjectionNodeOptions, ProjectionWrite } from './types'
+import type {
+	Axis,
+	Box,
+	Delta,
+	Measurement,
+	ProjectionNodeOptions,
+	ProjectionWrite,
+	Point,
+} from './types'
 
 /** Host-side surface a projection node drives; supplied by the adapter. */
 export interface ProjectionNodeHooks {
@@ -56,6 +64,9 @@ export class ProjectionNode {
 	sharedOpacity?: number
 	private hadSharedOpacity = false
 	isPresent = true
+	isAnimationBlocked = false
+	private dragProjectionHeld = false
+	private onDragLayoutShift?: (shift: Point) => void
 	latestValues: Target = {}
 	hooks?: ProjectionNodeHooks
 
@@ -104,6 +115,8 @@ export class ProjectionNode {
 	}
 
 	detach() {
+		this.endDrag()
+		this.dragProjectionHeld = false
 		if (this.hadSharedOpacity) {
 			this.hooks?.writeOpacity?.(this.latestValues.opacity ?? 1)
 		}
@@ -118,6 +131,49 @@ export class ProjectionNode {
 		this.parent?.children.delete(this)
 	}
 
+	/** Hold the current presentation while channel values take over a drag. */
+	beginDrag(rebase: (shift: Point) => void) {
+		const shift = { x: 0, y: 0 }
+		if (this.layout && this.presented) {
+			shift.x = this.presented.x.min - this.layout.layoutBox.x.min
+			shift.y = this.presented.y.min - this.layout.layoutBox.y.min
+		}
+		this.isAnimationBlocked = true
+		this.dragProjectionHeld = true
+		this.onDragLayoutShift = rebase
+		this.currentAnimation?.stop('cancelled')
+		this.currentAnimation = undefined
+		this.shared?.complete()
+		this.targetDelta = undefined
+		this.removeRelativeTarget()
+		this.mixTargetDelta = undefined
+		rebase(shift)
+		this.isProjectionDirty = true
+		this.root.requestProjectionFrame()
+	}
+
+	/** Rebase before rendering the newly measured layout, including ancestor moves. */
+	rebaseDrag(previous: Measurement | undefined) {
+		if (!this.isAnimationBlocked || !previous || !this.layout) {
+			return
+		}
+		this.onDragLayoutShift?.({
+			x: previous.measuredBox.x.min - this.layout.measuredBox.x.min,
+			y: previous.measuredBox.y.min - this.layout.measuredBox.y.min,
+		})
+	}
+
+	endDrag() {
+		if (!this.isAnimationBlocked) {
+			return
+		}
+		this.isAnimationBlocked = false
+		this.onDragLayoutShift = undefined
+		this.removeRelativeTarget()
+		this.isProjectionDirty = true
+		this.root.invalidate('commit')
+	}
+
 	setLatestValues(values: Target) {
 		this.latestValues = values
 	}
@@ -128,6 +184,17 @@ export class ProjectionNode {
 	 * notifyLayoutUpdate + didUpdate handler.
 	 */
 	notifyLayoutUpdate() {
+		if (this.isAnimationBlocked) {
+			return
+		}
+		if (
+			this.dragProjectionHeld &&
+			this.layout &&
+			this.presented &&
+			boxEqualsRounded(this.layout.layoutBox, this.presented)
+		) {
+			return
+		}
 		if (this.shared?.lead && this.shared.lead !== this) {
 			return
 		}
@@ -223,6 +290,7 @@ export class ProjectionNode {
 					? { duration: 0 }
 					: resolveLayoutTransition(this.options.transition)
 
+			this.dragProjectionHeld = false
 			this.setAnimationOrigin(visualDelta, hasOnlyRelativeTargetChanged)
 			this.startAnimation(transition)
 		} else if (!hasLayoutChanged && !this.currentAnimation) {
@@ -244,6 +312,19 @@ export class ProjectionNode {
 		)
 		this.isTransformDirty ||= Boolean(this.parent?.isTransformDirty)
 
+		if (
+			(this.isAnimationBlocked ||
+				(this.dragProjectionHeld && this.path.some((node) => node.currentAnimation))) &&
+			this.layout
+		) {
+			this.target ??= createBox()
+			this.targetWithTransforms ??= createBox()
+			copyBoxInto(this.target, this.layout.layoutBox)
+			this.isProjectionDirty = true
+			this.scheduleRender()
+			return
+		}
+		this.dragProjectionHeld = false
 		const canSkip = !(
 			forceRecalculation ||
 			this.isProjectionDirty ||
@@ -343,7 +424,9 @@ export class ProjectionNode {
 
 	isProjecting() {
 		return Boolean(
-			(this.options.layoutRoot ||
+			(this.dragProjectionHeld ||
+				this.isAnimationBlocked ||
+				this.options.layoutRoot ||
 				this.relativeTarget ||
 				this.targetDelta ||
 				(this.shared?.lead !== this && this.shared?.transitioning)) &&
@@ -387,6 +470,8 @@ export class ProjectionNode {
 
 		this.isTreeAnimating = Boolean(
 			(this.parent && this.parent.isTreeAnimating) ||
+			this.dragProjectionHeld ||
+			this.isAnimationBlocked ||
 			this.currentAnimation ||
 			this.shared?.transitioning,
 		)

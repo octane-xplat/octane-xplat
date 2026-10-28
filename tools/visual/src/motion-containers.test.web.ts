@@ -1,3 +1,7 @@
+import { attachProjection } from '../../../packages/motion/src/projection/adapter'
+import { attachDrag } from '../../../packages/motion/src/drag'
+import { Controller } from '../../../packages/motion/src/controller'
+import type { HostAdapter } from '../../../packages/motion/src/host-types'
 import { expect, it } from 'vitest'
 import { attachHost } from '../../../packages/motion/src/host.web'
 import { ProjectionNode } from '../../../packages/motion/src/projection/node'
@@ -11,6 +15,7 @@ function harness() {
 	document.body.append(host)
 	const root = new ProjectionRoot({ clock, barrier })
 	const cleanups: (() => void)[] = []
+	const adapters = new Map<ProjectionNode, HostAdapter>()
 	const mount = (element: HTMLElement, parent?: ProjectionNode, id?: string) => {
 		const adapter = attachHost(element)
 		const node = new ProjectionNode(parent)
@@ -19,11 +24,7 @@ function harness() {
 			layoutId: id,
 			transition: { duration: 0.4, ease: 'linear' },
 		}
-		node.attach({
-			measureLayout: () => adapter.measureLayout!(),
-			resetProjection: () => adapter.resetProjection!(),
-			project: (write) => adapter.project!(write),
-		})
+		adapters.set(node, attachProjection(node, adapter))
 		root.add(node)
 		cleanups.push(() => {
 			root.remove(node)
@@ -34,6 +35,7 @@ function harness() {
 	return {
 		host,
 		root,
+		adapters,
 		mount,
 		async commit() {
 			root.invalidate('commit')
@@ -118,6 +120,73 @@ it('hands off from a scrolled source after its DOM node has been removed', async
 		expect(initial.y).toBeCloseTo(before.y, 0)
 		expect(initial.width).toBeCloseTo(before.width, 0)
 	} finally {
+		h.dispose()
+	}
+})
+
+it('keeps a dragged card under the pointer through ancestor layout changes and release', async () => {
+	const h = harness()
+	const parent = document.createElement('div'),
+		card = document.createElement('div')
+	parent.style.cssText = 'position:relative;width:300px;height:200px'
+	card.style.cssText =
+		'position:absolute;left:20px;top:20px;width:100px;height:100px;touch-action:none'
+	parent.append(card)
+	h.host.append(parent)
+	const p = h.mount(parent),
+		node = h.mount(card, p)
+	const adapter = h.adapters.get(node)!
+	const controller = new Controller(clock)
+	controller.seed(adapter.read())
+	controller.attach(adapter)
+	const props = { drag: true as const, dragMomentum: false }
+	const off = attachDrag(
+		adapter,
+		controller,
+		props,
+		(axis) => controller.value(axis),
+		() => false,
+		() => props,
+		() => node,
+	)
+	const pointer = (type: string, x: number) =>
+		card.dispatchEvent(
+			new PointerEvent(type, {
+				pointerId: 21,
+				clientX: x,
+				clientY: 30,
+				button: 0,
+				isPrimary: true,
+				bubbles: true,
+			}),
+		)
+	const frame = () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+	try {
+		await h.commit()
+		pointer('pointerdown', 30)
+		pointer('pointermove', 50)
+		await frame()
+		const before = card.getBoundingClientRect().x
+		expect(node.isAnimationBlocked).toBe(true)
+		parent.style.marginLeft = '100px'
+		card.style.left = '40px'
+		await h.commit()
+		expect(node.currentAnimation).toBeUndefined()
+		expect(card.getBoundingClientRect().x).toBeCloseTo(before, 0)
+		await sleep(120)
+		expect(card.getBoundingClientRect().x).toBeCloseTo(before, 0)
+		pointer('pointermove', 60)
+		await frame()
+		expect(card.getBoundingClientRect().x).toBeCloseTo(before + 10, 0)
+		pointer('pointerup', 60)
+		await h.commit()
+		expect(node.isAnimationBlocked).toBe(false)
+		expect(card.getBoundingClientRect().x).toBeCloseTo(before + 10, 0)
+		await sleep(450)
+		expect(card.getBoundingClientRect().x).toBeCloseTo(before + 10, 0)
+	} finally {
+		off()
+		controller.destroy()
 		h.dispose()
 	}
 })

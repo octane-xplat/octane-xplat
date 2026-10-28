@@ -153,6 +153,7 @@ export class ProjectionRoot {
 			if (measurement) {
 				const previous = node.layout
 				node.layout = measurement
+				node.rebaseDrag(previous)
 				if (!previous || !boxEqualsRounded(previous.layoutBox, measurement.layoutBox)) {
 					node.layoutVersion++
 				}

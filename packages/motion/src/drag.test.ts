@@ -1,3 +1,4 @@
+import type { ProjectionNode } from './projection/node'
 import { describe, expect, it, vi } from 'vitest'
 import { attachDrag, validateDrag } from './drag'
 import { Controller } from './controller'
@@ -5,7 +6,11 @@ import type { Clock } from './clock-types'
 import type { PanCallbacks, HostAdapter } from './host-types'
 import type { DragInfo, MotionProps } from './types'
 
-function fixture(props: MotionProps, reduced = false) {
+function fixture(
+	props: MotionProps,
+	reduced = false,
+	projection?: Pick<ProjectionNode, 'beginDrag' | 'endDrag'>,
+) {
 	let time = 0
 	let id = 0
 	const frames = new Map<number, () => void>()
@@ -47,6 +52,7 @@ function fixture(props: MotionProps, reduced = false) {
 		(axis) => controller.value(axis),
 		() => reduced,
 		() => props,
+		() => projection ?? null,
 	)
 
 	return {
@@ -164,4 +170,36 @@ describe('bounded drag', () => {
 		expect(() => validateDrag({ dragElastic: 2 })).toThrow('dragElastic')
 		expect(() => validateDrag({ drag: 'x', animate: { x: 20 } })).toThrow('both own x')
 	})
+})
+
+it('rebases drag displacement and subsequent samples through layout shifts, then releases ownership', () => {
+	let shift: (point: { x: number; y: number }) => void = () => {}
+	const projection = {
+		beginDrag: vi.fn((rebase) => {
+			shift = rebase
+			rebase({ x: -50, y: -10 })
+		}),
+		endDrag: vi.fn(),
+	}
+	const f = fixture({ drag: 'x', dragMomentum: false }, false, projection)
+	f.emit('start', 0)
+	f.emit('move', 20)
+	expect(f.controller.value('x').get()).toBe(-20)
+	expect(f.controller.value('y').get()).toBe(20)
+	shift({ x: -100, y: -100 })
+	expect(f.controller.value('x').get()).toBe(-120)
+	f.emit('move', 30)
+	expect(f.controller.value('x').get()).toBe(-110)
+	f.emit('end', 30)
+	expect(projection.endDrag).toHaveBeenCalledOnce()
+	f.off()
+	expect(projection.endDrag).toHaveBeenCalledOnce()
+})
+
+it('releases the layout block when a live drag attachment is disposed', () => {
+	const projection = { beginDrag: vi.fn(), endDrag: vi.fn() }
+	const f = fixture({ drag: true }, false, projection)
+	f.emit('start', 0)
+	f.off()
+	expect(projection.endDrag).toHaveBeenCalledOnce()
 })

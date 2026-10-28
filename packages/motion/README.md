@@ -75,3 +75,14 @@ plus layout and shared-handoff geometry checks in `test:macos-runtime`.
 Its source and published imports are checked separately from real AppKit runtime
 assertions. Live OS preference changes, broader lifecycle acceptance and input
 behavior remain unqualified.
+
+
+Combine layout projection with drag when surrounding content can move during the
+gesture. The host keeps its position through layout moves and resumes layout
+animation after release.
+
+```tsx
+<motion.View layout drag="x" dragMomentum={false} style={{ width: 100, height: 80 }} />
+```
+
+See [dragging through layout changes](https://octane-xplat.dev/app/animation-gestures#keep-dragging-through-layout-changes).

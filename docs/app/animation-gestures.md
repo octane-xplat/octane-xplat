@@ -452,6 +452,24 @@ Native handler dispatch does not prove OS touch delivery or scrolling conflicts.
 See [motion limits](../testing/known-limits.md#motion-leaf) before relying on nested control
 arbitration or full upstream drag behavior.
 
+### Keep dragging through layout changes
+
+Combine `drag` and `layout` when surrounding content can move during a drag.
+The drag takes over from the current animated position. Layout moves update the
+drag origin before drawing, so later pointer movement continues from that position.
+Release or cleanup restores ordinary layout animation. Numeric drag bounds still
+constrain movement in the host's translation coordinates.
+
+```tsx
+import { motion } from '@octane-xplat/motion'
+
+export function MovableCard(props: { shifted: boolean }) {
+  return <motion.View layout drag="x" dragMomentum={false}
+    style={{ marginLeft: props.shifted ? 100 : 0, width: 100, height: 80 }} />
+}
+```
+
+
 ## Reduced motion and lifecycle
 
 Some people set their device to reduce animation. Choose how your app should

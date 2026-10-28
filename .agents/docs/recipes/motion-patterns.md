@@ -2,7 +2,7 @@
 
 ID: motion-patterns
 Targets: web, ios, android, macos
-Related APIs: @octane-xplat/motion, Presence, motion.View, MotionConfig, useReducedMotion, useMotionValue, useMotionValueEvent, layout, layoutDependency, layoutId, LayoutGroup, SegmentedControl, Switch
+Related APIs: @octane-xplat/motion, Presence, motion.View, MotionConfig, useReducedMotion, useMotionValue, useMotionValueEvent, layout, layoutDependency, layoutId, LayoutGroup, layoutRoot, layoutAnchor, drag, SegmentedControl, Switch
 
 ## Starting point
 
@@ -31,6 +31,9 @@ before any app-level preview.
 
 - AC7: Hand off a shared element between components, crossfade retained content, reverse during animation without a position jump, isolate identical shared IDs in independent groups, and settle directly under reduced motion.
 
+- AC8: Expand a rounded card inside a scrolled container, preserve numeric corners under uniform scale, transfer shared geometry after scrolling, and keep root-relative child movement anchored.
+- AC9: Start dragging during a layout animation, move the host or an ancestor during the drag, continue pointer movement without a position jump, and release or dispose without retaining the layout block.
+
 ## Documentation
 
 - AC1: [Switch views with a wait-style swap](../../../docs/app/animation-gestures.md#switch-views-with-a-wait-style-swap) and the [maintained showcase](../../../packages/demos/src/MotionPatterns.tsrx); exiting content leaves input and the accessibility tree through [retained presence](../../../docs/app/animation-gestures.md#retain-content-through-exit).
@@ -42,3 +45,6 @@ before any app-level preview.
 - AC6: [Animate size and position changes](../../../docs/app/animation-gestures.md#layout-animations) and the [maintained layout probe](../../../examples/probes/motion-layout.tsrx); browser geometry coverage lives in `apps/visual/src/motion-layout.test.web.ts`.
 
 - AC7: [Move an element between components](../../../docs/app/animation-gestures.md#move-an-element-between-components), the [shared-element probe](../../../examples/probes/motion-shared.tsrx), and the maintained browser/AppKit geometry tests.
+
+- AC8: [Steady corners](../../../docs/app/animation-gestures.md#keep-corners-steady-while-a-card-expands), the root/anchor examples in the layout guide, and `apps/visual/src/motion-containers.test.web.ts` / AppKit runtime geometry tests. Native nonuniform corner and blur limits remain explicit.
+- AC9: [Keep dragging through layout changes](../../../docs/app/animation-gestures.md#keep-dragging-through-layout-changes), the browser pointer-dispatch test, and host-neutral drag/projection tests. Handler dispatch is not OS input evidence.

@@ -864,3 +864,18 @@ source handoff after scrolling. Source-offset unit tests cover UIKit, Android
 pixel-to-DIP conversion, and flipped AppKit ancestors. The test exposed and fixed
 an adapter reset gap: returning transform ownership with no channel values must
 clear the last projection transform.
+
+
+### Phase 4 drag and layout
+
+Projection blocks new layout animation while dragging, transfers a running
+animation to the selected channels at its presentation, and compensates viewport
+layout shifts before drawing. Ancestors can continue animating; absolute target
+projection holds the card at the pointer, including release before the ancestor
+settles. Cleanup and cancellation clear the block. Numeric constraints retain
+their translation-coordinate meaning; this does not implement `Reorder`.
+
+Focused kernel/drag tests and the 25 native object-driver tests pass. Chromium
+verifies synthetic pointer movement through an ancestor move, continued movement,
+early release and final settlement. This is browser geometry and pointer-handler
+evidence, not physical input or hit-testing evidence.

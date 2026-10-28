@@ -739,3 +739,35 @@ it('hands off from the current viewport offset when scrolling happens before sou
 	commit()
 	expect(b.presented?.y.min).toBeCloseTo(120)
 })
+
+it('hands a running layout animation to drag channels without jumping and resumes layout after release', () => {
+	const { root, commit, clock } = setup()
+	const f = fakeHooks()
+	const node = makeNode(root, f.hooks)
+	node.options.transition = { duration: 1, ease: 'linear' }
+	commit()
+	f.state.box = box(100, 0, 100, 100)
+	commit()
+	clock.advance(500)
+	expect(node.presented?.x.min).toBeCloseTo(50)
+	let x = 0
+	node.beginDrag((shift) => {
+		x += shift.x
+		node.setLatestValues({ x })
+	})
+	clock.advance(0)
+	expect(node.currentAnimation).toBeUndefined()
+	expect(x).toBeCloseTo(-50)
+	expect(applyDelta(f.state.box, f.state.writes.at(-1)!).x.min).toBeCloseTo(50)
+	f.state.box = box(200, 0, 100, 100)
+	commit()
+	expect(x).toBeCloseTo(-150)
+	expect(applyDelta(f.state.box, f.state.writes.at(-1)!).x.min).toBeCloseTo(50)
+	node.endDrag()
+	commit()
+	f.state.box = box(300, 0, 100, 100)
+	commit()
+	expect(node.isAnimationBlocked).toBe(false)
+	expect(node.currentAnimation).toBeDefined()
+	root.remove(node)
+})
