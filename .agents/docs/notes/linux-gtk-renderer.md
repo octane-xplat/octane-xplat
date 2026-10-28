@@ -560,3 +560,53 @@ renderer/dependent typecheck passes eight tasks
 (andromeda /tmp/gtk-text-ref-types-final.log). Recipes and all 12 release notes
 validate. The existing broad native batch-observer and docs-site parser
 failures are unchanged; this slice adds no mobile OS runtime qualification.
+
+## Universal portal target ownership
+
+The GTK driver's portals.prepareTarget capability registers root-scoped target
+handles with reference-counted release. Preparation validates and registers the
+target without creating widgets, changing native parents or running effects.
+Aborted preparation releases speculative registrations. Commit resolves the
+handle into the existing owned layout node, root host, or a viewless synthetic
+boundary whose portalHost points to an external Gtk.Box/Fixed/Grid.
+
+The synthetic boundary carries CSS and ordered logical children without
+installing providers or imperative ref methods on a caller-owned widget.
+External insertion finds the next managed native sibling, preserving foreign
+children. Reattaching a viewless range moves only its first physical descendants;
+children already nested inside those widgets stay there. Each descendant's own
+Fixed/Grid placement props are used, including subsequent updates. Existing
+Mason targets join the original owned layout graph, preserving ordinary children.
+
+Octane's universal core retains logical provider/state/effect ownership while
+its host commands move physical ranges. CSS inheritance follows physical layout
+ancestry. Runtime target changes retain widgets and local state. Portal removal
+and root unmount release registrations and clear refs/effects while leaving
+caller-owned target widgets and foreign children intact. The target must outlive
+its portal content. Destroyed owned refs and foreign root handles are rejected.
+
+Only local multi-child layout targets are supported: Box/Fixed/Grid, the root
+layout host, and owned Mason/viewless layout refs. Single-child widgets are
+rejected before mount; serialized transport targets have no local GtkWidget
+identity and are rejected. These are explicit driver boundaries, not upstream
+claims that tooltip/dialog behavior is impossible. The shared UI overlay
+components remain unqualified until their focus, dismissal and geometry are
+implemented and tested.
+
+The maintained ui-portal fixture uses the shared native-portal helper and real
+GJS/GTK widgets. It checks provider updates, keyed range order, state and widget
+identity during target changes, aborted preparations, foreign child preservation,
+owned Mason/viewless/root targets, external CSS refresh, Fixed/Grid placement,
+foreign handle rejection and idempotent cleanup. Controller dispatch proves
+component event ownership, not OS input or hit testing. No screenshots, AT-client
+or pixel qualification is involved.
+
+The combined real-Linux renderer suite passes all 35 tests without skips,
+including 48 portal assertions (guest /tmp/gtk-portal-combined-final.log).
+The portal fixture uses GTK 4.14.5/GJS 1.80.2 on Ubuntu 24.04 amd64 with real
+XplatMason and private Xvfb. It checks native widget properties and controller
+dispatch; the existing press/drag, pull, wheel and text-entry fixtures retain
+their separate actual X11 input evidence. The expanded renderer/dependent
+typecheck passes eight tasks (andromeda /tmp/gtk-portal-types-final.log).
+Recipe structure/local links and all 13 release notes validate. No mobile OS,
+IME, AT-client, Wayland or pixel evidence is added by this portal fixture.

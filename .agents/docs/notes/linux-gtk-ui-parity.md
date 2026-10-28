@@ -453,3 +453,28 @@ renderer/dependent typecheck passes eight tasks
 (andromeda /tmp/gtk-text-ref-types-final.log). Recipes and all 12 release notes
 validate. The existing broad native batch-observer and docs-site parser
 failures are unchanged; this slice adds no mobile OS runtime qualification.
+
+## Portal foundation for overlays
+
+The renderer now implements universal portal target registration and host
+attachment. The maintained ui-portal fixture imports the existing shared
+native-portal helper directly, retaining Octane providers and component state
+through target changes and keyed reordering. It also exercises abort/disposal,
+caller-owned GTK children, CSS refresh and Fixed/Grid placement. See
+[driver ownership](linux-gtk-renderer.md#universal-portal-target-ownership).
+
+This foundation changes no curated UI root exports: 36 runtime values and
+55 types remain qualified. Tooltips/dialogs/other overlays still need their
+platform leaves, focus/dismissal/geometry behavior and runtime qualification.
+The full parity goal remains open. No recipe workflow changes are introduced;
+these widget checks do not establish packaged consumer support.
+
+The combined real-Linux renderer suite passes all 35 tests without skips,
+including 48 portal assertions (guest /tmp/gtk-portal-combined-final.log).
+The portal fixture uses GTK 4.14.5/GJS 1.80.2 on Ubuntu 24.04 amd64 with real
+XplatMason and private Xvfb. It checks native widget properties and controller
+dispatch; the existing press/drag, pull, wheel and text-entry fixtures retain
+their separate actual X11 input evidence. The expanded renderer/dependent
+typecheck passes eight tasks (andromeda /tmp/gtk-portal-types-final.log).
+Recipe structure/local links and all 13 release notes validate. No mobile OS,
+IME, AT-client, Wayland or pixel evidence is added by this portal fixture.

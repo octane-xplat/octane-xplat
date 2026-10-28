@@ -434,3 +434,28 @@ it works from any directory without a source checkout, Node, or pnpm.
   only the named Mason allocations and X11 pointer behavior; counter and
   retained-pane checks establish their named widget/event/history behaviors. See the [renderer status
   note](../../.agents/docs/notes/linux-gtk-renderer.md) for the evidence boundary.
+
+## Portals for GTK host integrations
+
+A portal renders into another layout container while keeping its original Octane
+context and component state. Pass a live Gtk.Box, Gtk.Fixed or Gtk.Grid, the
+root's layout host, or a layout ref owned by the same root. The caller owns the
+target's lifetime; keep it alive until its portal content has been removed.
+
+```tsx
+import { Text } from '@octane-xplat/ui'
+import { createPortal, type UniversalRenderable } from '@octane-xplat/linux-gtk'
+
+export function PortalContent(props: { target: unknown }) {
+  return createPortal(
+    <Text>Content in the target container</Text> as UniversalRenderable,
+    props.target,
+  )
+}
+```
+
+This low-level renderer capability does not qualify the UI's tooltip, dialog or
+other overlay components. External targets preserve caller-owned children.
+CSS follows the target's physical layout ancestry; Octane context follows the
+component owner. Single-child widgets such as Gtk.Label, Gtk.Button and
+Gtk.ScrolledWindow are rejected as targets, as are serialized transport targets.

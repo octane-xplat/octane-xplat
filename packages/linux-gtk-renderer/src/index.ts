@@ -48,6 +48,8 @@ import type {
 	UniversalHostBatch,
 	UniversalHostCommand,
 	UniversalHostDriver,
+	UniversalPortalTargetHandle,
+	UniversalPortalTargetContext,
 	UniversalHostParent,
 	UniversalRootOptions,
 } from 'octane/universal/native'
@@ -78,6 +80,8 @@ export interface ElementNode {
 	id: number
 	type: string
 	view: GtkView | null
+	/** Physical boundary for a viewless, renderer-owned external portal root. */
+	portalHost?: GtkView
 	picture?: ReturnType<typeof bindPicture>
 	text: string
 	props: PropBag
@@ -143,6 +147,15 @@ export interface ElementNode {
 	[key: string]: any
 }
 
+interface GtkPortalTarget {
+	id: number
+	handle: UniversalPortalTargetHandle
+	target: unknown
+	parent: ElementNode | null
+	synthetic: boolean
+	references: number
+}
+
 /** Per-root state shared by the driver commands. */
 export interface GtkContainer {
 	/** The GTK widget the tree mounts into — a container (Gtk.Box, Gtk.Fixed)
@@ -151,6 +164,9 @@ export interface GtkContainer {
 	nodes: Map<number, ElementNode>
 	children: ElementNode[]
 	root: GtkRoot | null
+	portalTargets: Map<number, GtkPortalTarget>
+	portalTargetsByObject: Map<unknown, GtkPortalTarget>
+	nextPortalTarget: number
 	/** Style restyle queue — flushed at batch end, or on one microtask
 	 *  outside a batch (GJS has no queueMicrotask). */
 	cssDirty?: Set<ElementNode>
@@ -609,7 +625,7 @@ function flushStyleDirty(container: GtkContainer) {
 	const nodes = [...dirty].sort((a, b) => cssDepth(a) - cssDepth(b))
 	for (const node of nodes) {
 		// Dead nodes (destroyed/detached before the flush) skip the restyle.
-		if (!container.nodes.has(node.id)) {
+		if (node.destroyed || (!container.nodes.has(node.id) && !node.portalHost)) {
 			continue
 		}
 
@@ -1204,6 +1220,9 @@ function restyleAllContainers() {
 	for (const container of liveGtkContainers) {
 		for (const child of container.children) {
 			markStyleDirty(child, true)
+		}
+		for (const target of container.portalTargets.values()) {
+			if (target.synthetic && target.parent) markStyleDirty(target.parent, true)
 		}
 
 		flushStyleDirty(container)
@@ -2504,10 +2523,10 @@ function viewDescendants(node: ElementNode, out: GtkView[] = []): GtkView[] {
 /** The host widget this node's children attach into. */
 function hostViewOf(container: GtkContainer, parent: ElementNode | null): GtkView {
 	let cur: ElementNode | null = parent
-	while (cur !== null && cur.view === null) {
+	while (cur !== null && cur.view === null && !cur.portalHost) {
 		cur = cur.parent
 	}
-	return cur === null ? container.host : cur.view!
+	return cur?.portalHost ?? cur?.view ?? container.host
 }
 
 /** Flattened view position of `node` within its effective parent: count of
@@ -2517,10 +2536,30 @@ function viewIndexOf(
 	parent: ElementNode | null,
 	node: ElementNode,
 ): number {
+	let boundary = parent
+	while (boundary && boundary.view === null && !boundary.portalHost) boundary = boundary.parent
+	if (boundary?.portalHost) {
+		const host = boundary.portalHost
+		const first = viewDescendants(node)[0]
+		const ordered = viewDescendants(boundary)
+		const at = ordered.indexOf(first)
+		for (let i = at + 1; at >= 0 && i < ordered.length; i++) {
+			if (ordered[i].get_parent() !== host) continue
+			let index = 0
+			for (let child = host.get_first_child(); child; child = child.get_next_sibling(), index++) {
+				if (child === ordered[i]) return index
+			}
+		}
+		let length = 0
+		for (let child = host.get_first_child(); child; child = child.get_next_sibling()) length++
+		return length
+	}
 	const siblings = parent === null ? container.children : parent.children
 	// A viewless parent occupies a slice of its own effective parent.
 	let index =
-		parent !== null && parent.view === null ? viewIndexOf(container, parent.parent, parent) : 0
+		parent !== null && parent.view === null && !parent.portalHost
+			? viewIndexOf(container, parent.parent, parent)
+			: 0
 	for (const sibling of siblings) {
 		if (sibling === node) {
 			break
@@ -2624,7 +2663,7 @@ function insertViewInto(parentView: GtkView, node: ElementNode, view: GtkView, i
 }
 
 function repositionFixedChild(node: ElementNode) {
-	const parentView = node.parent?.view
+	const parentView = hostViewOf(node.container, node.parent)
 	if (!(parentView instanceof Gtk.Fixed) || node.view === null) {
 		return
 	}
@@ -2634,7 +2673,7 @@ function repositionFixedChild(node: ElementNode) {
 }
 
 function repositionGridChild(node: ElementNode) {
-	const parentView = node.parent?.view
+	const parentView = hostViewOf(node.container, node.parent)
 	if (!(parentView instanceof Gtk.Grid) || node.view === null) {
 		return
 	}
@@ -2673,7 +2712,13 @@ function detachViews(node: ElementNode) {
 /** Re-attach every view descendant of `node` in order into its effective
  *  parent view. */
 function attachViews(container: GtkContainer, node: ElementNode) {
-	const views = viewDescendants(node)
+	const nodes: ElementNode[] = []
+	const collect = (child: ElementNode) => {
+		if (child.view) nodes.push(child)
+		else child.children.forEach(collect)
+	}
+	collect(node)
+	const views = nodes.map((child) => child.view!)
 	if (views.length === 0) {
 		return
 	}
@@ -2690,8 +2735,8 @@ function attachViews(container: GtkContainer, node: ElementNode) {
 		return
 	}
 	let index = viewIndexOf(container, node.parent, node)
-	for (const view of views) {
-		insertViewInto(parentView, node, view, index++)
+	for (const child of nodes) {
+		insertViewInto(parentView, child, child.view!, index++)
 	}
 }
 
@@ -2780,15 +2825,25 @@ function resolveParent(container: GtkContainer, parent: UniversalHostParent): El
 	if (typeof parent === 'number') {
 		return expect(container, parent)
 	}
-	if (parent !== null) {
-		throw new Error('linux-gtk driver: portal targets are not supported yet.')
+	if (parent === null) return null
+	const target = typeof parent.id === 'number' ? container.portalTargets.get(parent.id) : undefined
+	if (
+		!target ||
+		parent.renderer !== GTK_RENDERER_ID ||
+		parent.root !== target.handle.root ||
+		parent.$$kind !== 'octane.universal.portal-target'
+	) {
+		throw new Error('linux-gtk driver: unknown or foreign portal target.')
 	}
-	return null
+	if (target.parent?.destroyed)
+		throw new Error('linux-gtk driver: portal target was destroyed before its content.')
+	if (target.synthetic && target.parent) markStyleDirty(target.parent, true)
+	return target.parent
 }
 
 // ---------------------------------------------------------------------------
 // Events — universal `event` commands carry {id, type, listener}; dispatch
-// goes through root.eventScope + root.dispatchEvent so callbacks run under
+// goes through root.dispatchEvent so callbacks run under
 // their owner record.
 // ---------------------------------------------------------------------------
 
@@ -3242,13 +3297,13 @@ function bindNodePublicInstance(node: ElementNode): () => void {
 	}
 }
 
-function createNode(
+function createNodeState(
 	container: GtkContainer,
 	id: number,
 	type: string,
 	props: PropBag,
+	view: GtkView | null,
 ): ElementNode {
-	const view = VIEWLESS.has(type) ? null : instantiate(type)
 	const node: ElementNode = {
 		id,
 		type,
@@ -3287,6 +3342,17 @@ function createNode(
 	node.getChildIndex = (child: ElementNode) => cssChildren(node).indexOf(child)
 	node.getChildAt = (i: number) => cssChildren(node)[i]
 	node.getChildrenCount = () => cssChildren(node).length
+	return node
+}
+
+function createNode(
+	container: GtkContainer,
+	id: number,
+	type: string,
+	props: PropBag,
+): ElementNode {
+	const view = VIEWLESS.has(type) ? null : instantiate(type)
+	const node = createNodeState(container, id, type, props, view)
 	if (view !== null && isMasonView(view)) {
 		// The layout manager's vfuncs resolve the logical node from the
 		// widget — link them before props land so style writes find it.
@@ -3297,6 +3363,102 @@ function createNode(
 	wireStateFlags(node)
 	applyProps(node, props)
 	return node
+}
+
+function preparePortalTarget(context: UniversalPortalTargetContext<GtkContainer>) {
+	if (context.transported)
+		throw new Error(
+			'linux-gtk portals require a local GtkWidget target; transported targets are unsupported.',
+		)
+	const { container, target } = context
+	let record = container.portalTargetsByObject.get(target)
+	if (!record) {
+		let parent: ElementNode | null = null
+		let synthetic = false
+		if (target instanceof Gtk.Widget) {
+			parent = [...container.nodes.values()].find((node) => node.view === target) ?? null
+			if (target !== container.host && !parent) {
+				if (isMasonHostView(target))
+					throw new Error('linux-gtk portal: a Mason target must belong to this root.')
+				if (
+					!(target instanceof Gtk.Box || target instanceof Gtk.Fixed || target instanceof Gtk.Grid)
+				)
+					throw new Error('linux-gtk portal: target must be a multi-child GTK layout container.')
+				parent = createNodeState(
+					container,
+					-(container.nextPortalTarget + 1),
+					'portal-target',
+					{},
+					null,
+				)
+				parent.portalHost = target
+				synthetic = true
+			} else if (
+				parent &&
+				!(
+					isMasonHostView(target) ||
+					target instanceof Gtk.Box ||
+					target instanceof Gtk.Fixed ||
+					target instanceof Gtk.Grid
+				)
+			) {
+				throw new Error('linux-gtk portal: target must be a multi-child GTK layout container.')
+			}
+		} else {
+			const logical = target as ElementNode | null
+			if (
+				!logical ||
+				logical.container !== container ||
+				container.nodes.get(logical.id) !== logical ||
+				logical.view !== null ||
+				CSS_INERT_TYPES.has(logical.type)
+			)
+				throw new Error('linux-gtk portal: target is not a live GTK layout ref.')
+			parent = logical
+		}
+		const host = parent ? hostViewOf(container, parent) : container.host
+		if (
+			!(
+				isMasonHostView(host) ||
+				host instanceof Gtk.Box ||
+				host instanceof Gtk.Fixed ||
+				host instanceof Gtk.Grid
+			)
+		)
+			throw new Error(
+				'linux-gtk portal: target must resolve to a multi-child GTK layout container.',
+			)
+		const id = ++container.nextPortalTarget
+		record = {
+			id,
+			handle: context.createPortalTargetHandle(id),
+			target,
+			parent,
+			synthetic,
+			references: 0,
+		}
+		container.portalTargets.set(id, record)
+		container.portalTargetsByObject.set(target, record)
+	}
+	if (record.parent?.destroyed)
+		throw new Error('linux-gtk portal: target was destroyed before its content.')
+	const handle = context.createPortalTargetHandle(record.id)
+	record.references++
+	let released = false
+	return {
+		handle,
+		release() {
+			if (released) return
+			released = true
+			if (--record!.references !== 0) return
+			container.portalTargets.delete(record!.id)
+			container.portalTargetsByObject.delete(target)
+			if (record!.synthetic && record!.parent) {
+				record!.parent.destroyed = true
+				container.cssDirty?.delete(record!.parent)
+			}
+		},
+	}
 }
 
 function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
@@ -3459,6 +3621,7 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 }
 
 export const gtkDriver: UniversalHostDriver<GtkContainer, GtkView | ElementNode | null> = {
+	portals: { prepareTarget: preparePortalTarget },
 	id: GTK_RENDERER_ID,
 	capabilities: { text: 'host', visibility: true },
 	events: {
@@ -3517,7 +3680,15 @@ export const gtkDriver: UniversalHostDriver<GtkContainer, GtkView | ElementNode 
 }
 
 export function createGtkContainer(host: GtkView): GtkContainer {
-	const container: GtkContainer = { host, nodes: new Map(), children: [], root: null }
+	const container: GtkContainer = {
+		host,
+		nodes: new Map(),
+		children: [],
+		root: null,
+		portalTargets: new Map(),
+		portalTargetsByObject: new Map(),
+		nextPortalTarget: 0,
+	}
 	liveGtkContainers.add(container)
 	// Gtk.Settings exists only after Gtk.init — the first container is the
 	// earliest point appearance watches can connect.

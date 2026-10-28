@@ -338,3 +338,29 @@ dependency builds and declaration generation still run first:
 ```sh
 xvfb-run -a pnpm exec turbo run test:runtime --filter=@octane-xplat/linux-gtk -- test/ui-icon.test.mjs
 ```
+
+## Portal targets
+
+Universal portals retain their original context and state while rendering into
+a local multi-child GTK layout target. External Box, Fixed and Grid targets
+retain caller-owned children; an owned Mason or viewless layout ref joins its
+existing layout graph. Keep the target alive until portal removal. See the
+[host integration example](../../docs/platform/linux-gtk.md#portals-for-gtk-host-integrations).
+
+```tsx
+import { Text } from '@octane-xplat/ui'
+import { createPortal, type UniversalRenderable } from '@octane-xplat/linux-gtk'
+
+export function PortalContent(props: { target: unknown }) {
+  return createPortal(
+    <Text>Content in the target container</Text> as UniversalRenderable,
+    props.target,
+  )
+}
+```
+
+This does not add tooltip/dialog UI exports. Transported targets and single-child
+widgets are rejected explicitly. CSS follows physical target ancestry. The
+maintained ui-portal fixture checks preparation/abort, ordering, retargeting,
+context/state, CSS refresh and disposal in GJS; it does not prove OS input,
+accessibility-client behavior or pixels.

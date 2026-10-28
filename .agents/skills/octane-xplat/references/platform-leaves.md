@@ -176,3 +176,12 @@ its tooltip/full-state surface and TextArea's multiline host remain open.
 For GTK descriptor events, call the universal root's dispatchEvent directly.
 It opens or inherits the proper scope; wrapping each listener's priority can
 fail when focus/blur is emitted synchronously inside a discrete press.
+
+GTK host integrations may use universal createPortal with a local multi-child
+Gtk.Box/Fixed/Grid, the root layout host, or an owned Mason/viewless layout ref.
+Use the same universal root to retain providers and component state; do not
+mount a separate root for overlay content. Keep the target alive through portal
+removal. External targets preserve foreign children, but CSS inherits from the
+target ancestry rather than the source component's host ancestors. Single-child
+widgets and transported targets fail explicitly. This foundation does not qualify
+the UI overlay components. See the [portal example](../../../../docs/platform/linux-gtk.md#portals-for-gtk-host-integrations).
