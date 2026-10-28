@@ -61,8 +61,9 @@ export function ContextMenu(props: NavigationMenuImplementation<ContextMenuProps
 	}
 	const keyDown = (event: NativeKeyboardEvent<NSView>) => {
 		const current = live.current
+		const opens = (event.key === 'F10' && event.shiftKey) || (event.key === 'ContextMenu' && !event.shiftKey)
 		if (!anchor.current || current.props.isDisabled || current.open || event.defaultPrevented || event.isComposing ||
-			event.altKey || event.ctrlKey || event.metaKey || !event.shiftKey || event.key !== 'F10') return
+			event.altKey || event.ctrlKey || event.metaKey || !opens) return
 		const target = appKitContextMenuOrigin(anchor.current, event.target)
 		if (!target) return
 		origin.current = target; returnOwner.reset()

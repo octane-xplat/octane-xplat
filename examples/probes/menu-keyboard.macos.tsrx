@@ -17,7 +17,7 @@ export default function MenuKeyboardProbe() {
 		</DropdownMenu>
 		<ContextMenu id="context-keys" label="Document actions" trigger="Context actions"
 			menu={<DropdownMenuItem label="Archive" onSelect={() => setResult('context-archive')} />}>
-			<Button id="context-item" label="Document — try Shift+F10, secondary-click or Control-click" clickAction={() => setResult('selected')} />
+			<Button id="context-item" label="Document — try Shift+F10, Context Menu key, secondary-click or Control-click" clickAction={() => setResult('selected')} />
 		</ContextMenu>
 		<label id="menu-key-result" text={`${result}; ${checked ? 'pinned' : 'unpinned'}`} />
 	</VStack>

@@ -380,7 +380,7 @@ it('nested Tab requests the whole menu chain and return refs follow accepted anc
 	} finally { env.root.unmount(); vi.unstubAllGlobals() }
 })
 
-it('ContextMenu Shift-F10 opens from owned content and records controlled Tab return through its invoker', async () => {
+it.each([{ key: 'F10', shiftKey: true }, { key: 'ContextMenu', shiftKey: false }])('ContextMenu $key opens from owned content and records controlled Tab return through its invoker', async ({ key, shiftKey }) => {
 	const f = nativeMenuFixture(), main = f.window(), panel = f.window(), changes = vi.fn()
 	const base = { id: 'context', isOpen: false, label: 'Item actions', onOpenChange: changes,
 		children: <TextInput id="context-input" />, menu: <DropdownMenuItem id="context-action" label="Archive" /> }
@@ -390,7 +390,7 @@ it('ContextMenu Shift-F10 opens from owned content and records controlled Tab re
 		expect(host.props.accessibilityLabel).toBe('Item actions')
 		const field = env.byID('context-input'), next = { window: main }; field.nextValidKeyView = next
 		main.firstResponder = field
-		expect(f.key(host, 'F10', { target: field, shiftKey: true }).stopped).toBe(true)
+		expect(f.key(host, key, { target: field, shiftKey }).stopped).toBe(true)
 		expect(changes).toHaveBeenLastCalledWith(true); expect(lists(env)).toHaveLength(0)
 		env.render({ ...base, isOpen: true }); f.hydrate(lists(env)[0], panel)
 		await vi.waitFor(() => { flushUniversalSync(() => {}); expect(panel.firstResponder).toBe(env.byID('context-action')) })
@@ -424,7 +424,7 @@ it('visible context triggers keep primitive content and provide ordinary/Tab ret
 	} finally { env.root.unmount(); vi.unstubAllGlobals() }
 })
 
-it('context keyboard guards reject stale blocked/detached/foreign/prevented/composing/modified events; originless long press retains Tab fallback', async () => {
+it.each([{ key: 'F10', shiftKey: true }, { key: 'ContextMenu', shiftKey: false }])('context $key guards reject stale blocked/detached/foreign/prevented/composing/modified events; originless long press retains Tab fallback', async ({ key, shiftKey }) => {
 	const f = nativeMenuFixture(), main = f.window(), panel = f.window(), changes = vi.fn()
 	const base = { id: 'context', isOpen: false, onOpenChange: changes, children: <TextInput id="context-input" />,
 		menu: <DropdownMenuItem id="context-action" label="Archive" /> }
@@ -432,10 +432,10 @@ it('context keyboard guards reject stale blocked/detached/foreign/prevented/comp
 	try {
 		const host = env.byID('context'); f.hydrate(host, main)
 		const field = env.byID('context-input'), cached = { props: { onKeyDown: host.props.onKeyDown } }
-		for (const extra of [{ isComposing: true }, { altKey: true }, { ctrlKey: true }, { metaKey: true }, { defaultPrevented: true }, { shiftKey: false }, { target: { window: main } }]) {
-			expect(f.key(host, 'F10', { target: field, shiftKey: true, ...extra }).stopped).toBe(false)
+		for (const extra of [{ isComposing: true }, { altKey: true }, { ctrlKey: true }, { metaKey: true }, { defaultPrevented: true }, { shiftKey: !shiftKey }, { target: { window: main } }]) {
+			expect(f.key(host, key, { target: field, shiftKey, ...extra }).stopped).toBe(false)
 		}
-		env.render({ ...base, isDisabled: true }); expect(f.key(cached, 'F10', { target: field, shiftKey: true }).defaultPrevented).toBe(false)
+		env.render({ ...base, isDisabled: true }); expect(f.key(cached, key, { target: field, shiftKey }).defaultPrevented).toBe(false)
 		expect(changes).not.toHaveBeenCalled()
 		env.render(base); host.props.onLongPress(); flushUniversalSync(() => {}); expect(changes).toHaveBeenLastCalledWith(true)
 		env.render({ ...base, isOpen: true }); f.hydrate(lists(env)[0], panel)
@@ -443,7 +443,7 @@ it('context keyboard guards reject stale blocked/detached/foreign/prevented/comp
 		expect(f.key(lists(env)[0], 'Tab').defaultPrevented).toBe(false)
 		expect(changes).toHaveBeenLastCalledWith(false)
 		env.root.unmount(); changes.mockClear()
-		expect(f.key(cached, 'F10', { target: field, shiftKey: true }).defaultPrevented).toBe(false)
+		expect(f.key(cached, key, { target: field, shiftKey }).defaultPrevented).toBe(false)
 		expect(changes).not.toHaveBeenCalled()
 	} finally { env.root.unmount(); vi.unstubAllGlobals() }
 })

@@ -1148,7 +1148,8 @@ remain unrun. Actual layer cleanup/window timing, native traversal/focus, modal/
 FocusScope and AX behavior remain unqualified; see [owned Tab return](../../../../docs/menus.md#leave-an-owned-appkit-dropdown-with-tab).
 
 
-AppKit ContextMenu now handles Shift+F10 from a still-owned focused descendant.
+AppKit ContextMenu now handles Shift+F10 or plain Context Menu key intent from a
+still-owned focused descendant.
 It stores the concrete invoker and reuses the menu return owner for ordinary and
 Tab/Shift-Tab intent. Visible triggers supply a fallback invoker and now wrap
 primitive content through TextSlot. Label fallback and expanded/disabled wrapper
@@ -1168,7 +1169,8 @@ export function Document() {
 Use trigger content for ContextMenu; only DropdownMenu accepts button. Long-press-
 only menus without a live invoker keep native Tab fallback. Six authored cases
 remain unrun; native key/gesture/ref/IME/focus/AX/packaging behavior is unqualified.
-Dedicated hardware Context Menu key normalization remains an implementation gap. See [context keyboard intent](../../../../docs/menus.md#open-appkit-context-actions-from-the-keyboard).
+Dedicated Context Menu key normalization now has a source path; actual hardware
+delivery remains unqualified. See [context keyboard intent](../../../../docs/menus.md#open-appkit-context-actions-from-the-keyboard).
 
 
 AppKit ContextMenu also owns secondary-click and plain Control-primary-click
@@ -1191,3 +1193,24 @@ Decorative hits choose an eligible focusable ancestor for return, then the visib
 trigger; originless surfaces keep native Tab fallback. Twelve authored cases are
 unrun. Physical clicks, primary-action suppression, monitor/ref/focus timing, AX,
 IME and packaging remain unqualified. See [pointer context intent](../../../../docs/menus.md#open-appkit-context-actions-with-the-pointer).
+
+
+The AppKit renderer maps HIToolbox's Context Menu virtual key and AppKit's menu
+function character to the existing NativeKeyboardEvent key="ContextMenu". No
+physical code is invented when only the function character identifies the key.
+ContextMenu uses the same owned invoker path as Shift+F10, without accepting Shift,
+Control, Option or Command combinations on the dedicated key.
+
+```tsx
+import { Button, ContextMenu, DropdownMenuItem } from '@octane-xplat/ui'
+
+export function Document() {
+	return <ContextMenu trigger="Actions" menu={<DropdownMenuItem label="Archive" />}>
+		<Button label="report.txt" clickAction={() => console.log('select')} />
+	</ContextMenu>
+}
+```
+
+Two new renderer and two additional parameterized menu cases remain unrun. SDK
+source evidence is not physical keyboard, native focus/IME/AX or packaging proof.
+See [dedicated Context Menu key](../../../../docs/menus.md#use-a-dedicated-context-menu-key-on-appkit).

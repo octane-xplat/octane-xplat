@@ -35,7 +35,7 @@ context-menu leaf has its own recipe.
 
 - AC9: Owned AppKit dropdown/submenu Tab resolves a current same-window trigger neighbor, requests close without eager focus, and consumes the key while controlled owners decide. Nested return refs follow accepted ancestor visibility. AppKit layer restoration uses explicit live target windows, stable field owners and detached/hidden/moved-fallback guards. Keep originless/unowned fallback and actual native evidence explicit.
 
-- AC10: AppKit ContextMenu Shift+F10 opens from a valid owned focused host, preserving disabled/open/IME/modifier/prevention guards and controlled state. Keyboard/visible-trigger invokers drive ordinary and Tab return; reject moved/hidden/detached origins, preserve primitive trigger content and current label/state metadata, and document originless/native fallback plus pointer qualification/key-normalization gaps.
+- AC10: AppKit ContextMenu Shift+F10 or plain Context Menu key opens from a valid owned focused host, preserving disabled/open/IME/modifier/prevention guards and controlled state. Keyboard/visible-trigger invokers drive ordinary and Tab return; reject moved/hidden/detached origins, preserve primitive trigger content and current label/state metadata, and document originless/native fallback plus pointer and hardware-key qualification limits.
 
 - AC11: AppKit secondary-click and plain Control-primary-click request shared context opening through the nearest live owned scope; pointer modality is observed before consumption, current native invoker return and disabled/teardown guards are explicit, and source evidence stays separate from native mouse/focus/AX qualification.
 
@@ -55,6 +55,6 @@ context-menu leaf has its own recipe.
 
 - AC9: [Owned Tab guide](../../../docs/app/menus.md#leave-an-owned-appkit-dropdown-with-tab), authored layer-focus/menu-return/policy/menu-family cases and [target note](../parity/appkit-progress.md#appkit-owned-menu-tab-return-intent). Cases remain unrun; maintained menu fixture describes the interaction without synthesizing OS keys.
 
-- AC10: [Context keyboard guide](../../../docs/app/menus.md#open-appkit-context-actions-from-the-keyboard), three origin-policy/three appended menu-family source cases, maintained target fixture and [target note](../parity/appkit-progress.md#appkit-context-menu-keyboard-and-invoker-return). Cases and native checks remain deferred.
+- AC10: [Context keyboard guide](../../../docs/app/menus.md#open-appkit-context-actions-from-the-keyboard), three origin-policy/three appended menu-family source cases, maintained target fixture and [target note](../parity/appkit-progress.md#appkit-context-menu-keyboard-and-invoker-return). Cases and native checks remain deferred. The [dedicated key guide](../../../docs/app/menus.md#use-a-dedicated-context-menu-key-on-appkit), two renderer cases and two additional parameterized menu cases now cover source normalization/intent without hardware proof.
 
 - AC11: [Pointer context guide](../../../docs/app/menus.md#open-appkit-context-actions-with-the-pointer), renderer context-pointer/context-subscriptions cases, appended origin/modality/menu-family cases, maintained menu-keyboard fixture and [target note](../parity/appkit-progress.md#appkit-context-pointer-ownership). All twelve new cases and native verification remain deferred.

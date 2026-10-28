@@ -307,7 +307,8 @@ The implementation records return intent; it is not proof of a native Tab result
 
 ### Open AppKit context actions from the keyboard
 
-AppKit ContextMenu now requests opening with Shift+F10 from focused content
+AppKit ContextMenu now requests opening with Shift+F10 or an unmodified Context
+Menu key from focused content
 inside its wrapper, preserving composition, modified/prevented keys and disabled
 state. It remembers that live native invoker for ordinary return and Tab/Shift-Tab
 neighbor intent. Its visible trigger also supplies a return host; plain text
@@ -332,8 +333,8 @@ owners still accept closure before layer restoration runs.
 
 Six new origin-policy/inline-popup cases remain unrun. Physical Shift+F10 delivery,
 actual invoker/popup/Tab focus, native metadata/gesture arbitration, IME, VoiceOver
-and packaging remain unqualified. Dedicated hardware Context Menu key
-normalization remains an implementation gap.
+and packaging remain unqualified. Context Menu key normalization now has the
+source path described below; actual hardware delivery remains unqualified.
 
 
 ### Open AppKit context actions with the pointer
@@ -364,3 +365,28 @@ Twelve authored dispatcher/bridge/origin/modality/menu cases remain unrun. Nativ
 mouse-down/up delivery, primary-action suppression, hit-testing, monitor ordering,
 popup/focus/ref timing, embedded engines, IME, VoiceOver and packaging remain
 unqualified. This is source implementation, not evidence of native operation.
+
+
+### Use a dedicated Context Menu key on AppKit
+
+The renderer maps AppKit's Context Menu virtual key or menu function character to
+key="ContextMenu". The shared ContextMenu requests opening from its current owned
+focused host and retains the same invoker/Tab return intent as Shift+F10. Modified,
+composing, prevented, disabled and already-open events retain their existing path.
+No special keyboard prop is required:
+
+```tsx
+import { Button, ContextMenu, DropdownMenuItem } from '@octane-xplat/ui'
+
+export function Document() {
+	return <ContextMenu trigger="Actions" menu={<DropdownMenuItem label="Archive" />}>
+		<Button label="report.txt" clickAction={() => console.log('select')} />
+	</ContextMenu>
+}
+```
+
+Two renderer cases and two additional parameterized menu cases remain unrun.
+SDK constants establish the source mapping; they do not prove delivery from any
+physical keyboard. Actual native key/modifier/IME delivery, popup/focus/Tab return,
+VoiceOver and packaging remain unqualified. The visible trigger stays useful on
+keyboards without this key.

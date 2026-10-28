@@ -2755,3 +2755,42 @@ normalization, originless/unowned Tab ownership and full menu AX roles/checked
 announcements remain implementation gaps. No builds, package tests/typechecks,
 installs, OS automation, visual analysis or shared audit snapshots ran; no evidence
 checkbox is closed.
+
+
+### AppKit dedicated Context Menu key intent
+
+Continuing the common document-action flow, source inspection found that the
+keyboard dispatcher left the dedicated Context Menu key unmapped and ContextMenu
+accepted only Shift+F10. Checked the installed Apple SDK headers (CommandLineTools
+MacOSX.sdk): HIToolbox Events.h declares kVK_ContextualMenu = 0x6E; AppKit
+NSEvent.h declares NSMenuFunctionKey = 0xF735. These are source constants, not
+runtime evidence. The renderer now normalizes the virtual key to key/code
+ContextMenu and the function character to logical key ContextMenu. Character-only
+identification preserves the reported physical code, including empty unknown
+codes. Modifier, key-up, marked-text and field-editor handling stay in the existing
+dispatcher. No new public API or dependency was introduced.
+
+ContextMenu accepts only plain dedicated-key intent (or its existing Shift+F10),
+reusing live owned invoker, disabled/open/prevented/IME guards and controlled
+acceptance/return ownership. Two Node cases were authored and two existing
+parameterized menu cases expanded to the dedicated key, adding two menu cases;
+all four are unrun. TypeScript/TSRX syntax parsing, semantic/source review and
+whitespace checks only. Guide/skill/renderer contract, existing feature note,
+maintained fixture and shared-menus AC10 were reconciled. No OS input was
+synthesized by the fixture runner.
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/menu-family.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer --filter=...@octane-xplat/ui
+pnpm probe run examples/probes/menu-keyboard.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All commands remain deferred pending explicit human authorization for this task.
+Physical keyboard availability/native delivery, modifier/key-equivalent routing,
+IME, popup/ref/focus/Tab timing, VoiceOver and packaging remain unqualified. Full
+menu AX roles/checked announcements and originless/unowned Tab ownership remain
+source gaps. No heavy checks, installs, OS automation, visual analysis or shared
+audit regeneration ran; no evidence checkbox is closed.

@@ -188,3 +188,33 @@ test('identical subscriber handlers own independent leases and disposal clears t
 	f.dispatcher.dispose(); f.send(f.event()); assert.equal(calls, 3)
 	second(); assert.deepEqual(f.removed, ['key-monitor'])
 })
+
+
+test('Context Menu virtual key and native function character normalize on down/up without inventing physical codes', () => {
+	const env = fixture(), seen: any[] = []
+	env.dispatcher.set(env.field, { onKeyDown: (event) => seen.push(event), onKeyUp: (event) => seen.push(event) })
+	for (const type of [10, 11]) {
+		env.send(env.event({ type, keyCode: 110, characters: '', charactersIgnoringModifiers: '' }))
+		env.send(env.event({ type, keyCode: 999, characters: '\uf735', charactersIgnoringModifiers: '\uf735' }))
+	}
+	assert.deepEqual(seen.map(({ key, code, eventName }) => [key, code, eventName]), [
+		['ContextMenu', 'ContextMenu', 'keyDown'], ['ContextMenu', '', 'keyDown'],
+		['ContextMenu', 'ContextMenu', 'keyUp'], ['ContextMenu', '', 'keyUp'],
+	])
+	env.dispatcher.dispose()
+})
+
+test('Context Menu normalization retains modifiers, composition, field-editor target and ordinary character defaults', () => {
+	const env = fixture(), seen: any[] = [], editor = { delegate: env.field, hasMarkedText: () => true }
+	env.field.currentEditor = () => editor; env.window.firstResponder = editor
+	env.dispatcher.set(env.field, { onKeyDown: (event) => seen.push(event) })
+	const modified = env.event({ keyCode: 110, characters: '\uf735', modifierFlags: (1 << 17) | (1 << 18) | (1 << 19) | (1 << 20) })
+	assert.equal(env.send(modified), modified)
+	assert.equal(seen[0].key, 'ContextMenu'); assert.equal(seen[0].target, env.field)
+	assert.equal(seen[0].isComposing, true)
+	for (const modifier of ['shiftKey', 'ctrlKey', 'altKey', 'metaKey']) assert.equal(seen[0][modifier], true)
+	env.window.firstResponder = env.field; env.field.currentEditor = null
+	env.send(env.event({ keyCode: 999, characters: 'x', charactersIgnoringModifiers: 'x' }))
+	assert.equal(seen[1].key, 'x'); assert.equal(seen[1].code, ''); assert.equal(seen[1].isComposing, false)
+	env.dispatcher.dispose()
+})

@@ -934,3 +934,28 @@ keep their prior modality observation path. This is separate from OS-native menu
 Twelve authored source cases remain unrun. Native hit-testing/monitor order,
 mouse-up/primary-action suppression, popup/ref/focus timing, embedded engines,
 IME, AX and packaged operation require native qualification.
+
+
+### Dedicated Context Menu key
+
+The keyboard dispatcher maps virtual key 0x6E (HIToolbox kVK_ContextualMenu) to
+key/code "ContextMenu", and AppKit's U+F735 NSMenuFunctionKey character to logical
+key "ContextMenu" while retaining the reported physical code (empty when unknown).
+The values were checked in the installed Apple SDK's Events.h/NSEvent.h. Existing
+modifiers, field-editor ownership, marked text, cancellation and key-up delivery
+remain in the same dispatcher. The shared ContextMenu consumes only unmodified,
+noncomposing, unprevented opening intent from a current owned invoker.
+
+```tsx
+import { Button, ContextMenu, DropdownMenuItem } from '@octane-xplat/ui'
+
+export function Document() {
+	return <ContextMenu trigger="Actions" menu={<DropdownMenuItem label="Archive" />}>
+		<Button label="report.txt" clickAction={() => console.log('select')} />
+	</ContextMenu>
+}
+```
+
+Two renderer cases and two added parameterized menu cases remain unrun. Physical
+keyboard availability/delivery, native key equivalents, popup/ref/focus timing,
+IME, AX and packaging remain unqualified. No OS key synthesis was performed.

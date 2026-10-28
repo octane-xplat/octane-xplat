@@ -14,6 +14,7 @@ interface KeyHandlers {
 }
 
 // macOS virtual key positions, independent of the active text layout.
+// 110 is HIToolbox kVK_ContextualMenu; AppKit NSMenuFunctionKey is U+F735.
 const CODES: Record<number, string> = {
 	0: 'KeyA', 1: 'KeyS', 2: 'KeyD', 3: 'KeyF', 4: 'KeyH', 5: 'KeyG', 6: 'KeyZ', 7: 'KeyX',
 	8: 'KeyC', 9: 'KeyV', 10: 'IntlBackslash', 11: 'KeyB', 12: 'KeyQ', 13: 'KeyW', 14: 'KeyE',
@@ -28,13 +29,13 @@ const CODES: Record<number, string> = {
 	84: 'Numpad2', 85: 'Numpad3', 86: 'Numpad4', 87: 'Numpad5', 88: 'Numpad6', 89: 'Numpad7',
 	90: 'F20', 91: 'Numpad8', 92: 'Numpad9', 93: 'IntlYen', 94: 'IntlRo', 95: 'NumpadComma', 96: 'F5',
 	97: 'F6', 98: 'F7', 99: 'F3', 100: 'F8', 101: 'F9', 102: 'Lang2', 103: 'F11', 104: 'Lang1',
-	105: 'F13', 106: 'F16', 107: 'F14', 109: 'F10', 111: 'F12', 113: 'F15', 114: 'Insert',
+	105: 'F13', 106: 'F16', 107: 'F14', 109: 'F10', 110: 'ContextMenu', 111: 'F12', 113: 'F15', 114: 'Insert',
 	115: 'Home', 116: 'PageUp', 117: 'Delete', 118: 'F4', 119: 'End', 120: 'F2', 121: 'PageDown',
 	122: 'F1', 123: 'ArrowLeft', 124: 'ArrowRight', 125: 'ArrowDown', 126: 'ArrowUp',
 }
 const KEYS: Record<number, string> = {
 	36: 'Enter', 48: 'Tab', 49: ' ', 51: 'Backspace', 53: 'Escape', 71: 'Clear', 76: 'Enter',
-	114: 'Insert', 115: 'Home', 116: 'PageUp', 117: 'Delete', 119: 'End', 121: 'PageDown',
+	110: 'ContextMenu', 114: 'Insert', 115: 'Home', 116: 'PageUp', 117: 'Delete', 119: 'End', 121: 'PageDown',
 	123: 'ArrowLeft', 124: 'ArrowRight', 125: 'ArrowDown', 126: 'ArrowUp',
 }
 function marked(view: any): boolean {
@@ -83,8 +84,9 @@ export function createAppKitKeyboardDispatcher(native: () => Record<string, any>
 		const characters = String(event.characters ?? '')
 		const unmodified = String(event.charactersIgnoringModifiers ?? '')
 		const dead = !characters && altKey && !ctrlKey && !metaKey && unmodified.length > 0
+		const logical = ctrlKey || metaKey ? unmodified || characters : characters || unmodified
 		const key = KEYS[keyCode] ?? (/^F\d+$/.test(code) ? code : dead ? 'Dead' :
-			((ctrlKey || metaKey ? unmodified || characters : characters || unmodified) || 'Unidentified'))
+			(logical === '\uf735' ? 'ContextMenu' : logical || 'Unidentified'))
 		const raw = event.window.firstResponder
 		const editor = typeof target.currentEditor === 'function' ? target.currentEditor() : target.currentEditor
 		const isComposing = dead || marked(raw) || marked(editor)
