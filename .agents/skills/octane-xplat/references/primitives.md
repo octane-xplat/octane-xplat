@@ -2706,3 +2706,22 @@ and the adapter is qualified. Do not turn source/mocked dispatch into a claim
 that menus, dialogs, IME or OS focus work. The
 [Windows key record](../../../docs/parity/windows-support-progress.md#windows-raw-key-event-prerequisite)
 tracks source, adoption and native gates separately.
+
+Windows useLayer selects a dedicated NativeScript leaf using Popover/RootLayout
+and the native portal. Keep it independent of the AppKit showLayer host. Anchored
+presentation needs the declaring Screen/RootLayout; fixed/custom layers also use
+that owner. Mobile and AppKit implementations remain separately owned. Source
+resolution is checked, while actual WinUI geometry, context, dismissal and focus
+are unqualified. See the [Windows layer boundary](../../../../docs/platform/windows-setup.md#floating-layer-candidate).
+
+```tsx
+import { Button, Text, useLayer } from '@octane-xplat/ui'
+
+export function LayerTrigger() {
+  const layer = useLayer({ mode: 'context', lightDismiss: true })
+  return <>
+    <Button label="Details" ref={layer.ref} clickAction={layer.show} />
+    {layer.render(<Text>Packing details</Text>, { placement: 'below' })}
+  </>
+}
+```

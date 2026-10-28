@@ -601,3 +601,45 @@ niche integrations. The keyboard-clipboard/shared-overlays recipes still exclude
 Windows, and no acceptance criterion or issue checkbox was closed. This is an
 internal prerequisite for an unreleased Windows API, so no release note was
 added. The primitives skill warns against advertising portable support early.
+
+## Windows floating-layer backend selection
+
+Windows previously resolved useLayer to use-layer.tsrx, which requires the
+AppKit showLayer bridge. The NativeScript implementation was only available in
+the mobile leaf, excluded from the Windows suffix chain. The new Windows leaf
+adopts that existing implementation: anchored presentation uses Popover, while
+fixed/custom surfaces use the declaring RootLayout and native portal. Its body
+matches the retained mobile implementation exactly except for its platform
+comment; public exports and signatures match. No new engine/dependency or
+AppKit bridge emulation was added. Mobile and AppKit source files are unchanged.
+
+`apps/astryx-sandbox/src/examples/layer/LayerHookUsage.tsrx` supplies the concrete
+demand: a trigger ref, show/hide and an anchored layer body. Assume this basic
+popup flow matters before specialist integrations. It already uses the shared
+API, so no example edit is needed. Its Windows runtime behavior is not qualified.
+
+A minimal Vite resolver diagnostic passed seven path checks plus a body
+comparison (exit 0): Windows selects use-layer.windows.tsrx; iOS and Android
+retain use-layer.mobile.tsrx; Windows resolves Popover, root-layout, native-portal
+and platformProps to their existing NativeScript defaults. The extension arrays
+were evaluated from the actual CLI nativePlatformExtensions function with an
+explicit target. Vite's resolver came from the existing UI toolchain, with
+config-file loading disabled. No server, browser, dependency scan, transform,
+full preset/import graph or UI was started. Log:
+`research/windows61/layer-backend-resolution.log`.
+
+Targeted TSRX formatting/lint, unchanged-body comparison, UI web-barrel check and
+whitespace checks passed. No new low-impact mirror test was added for the source
+adoption. Existing use-layer.mobile object-driver tests and full Windows
+transform/declaration/import/app checks remain deferred with the UI commands
+above; the minimal resolver is not production evidence. RootLayout ownership,
+geometry, RTL/resize, controlled/context updates, nested dismissal, keyboard/IME
+and focus still require Windows checks. No recipe target or evidence-gated
+checkbox was closed. The Windows guide and primitives skill state the boundary.
+
+A neutral shared extraction was investigated, but lint requires a supported
+renderer boundary and the AppKit default has separate ownership. The final
+change is a Windows-specific leaf. No lint rule was weakened and no inactive
+placeholder sibling was introduced. Keep the two NativeScript implementations
+aligned when their common logic changes. This is an unreleased Windows backend
+repair, so no additional release note was added.
