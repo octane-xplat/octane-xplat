@@ -2468,3 +2468,20 @@ path has runtime evidence on macOS 27.0.1; decoding on macOS 13.5 remains
 unverified. An unsupported decoder produces an empty image. See the
 [AppKit SVG notes](../../.agents/docs/notes/icon-svg-notes.md) for evidence and limits, and the
 [icons leaf](../../packages/icons/README.md) for set-agnostic Iconify rendering.
+
+
+### Clear and continue typing on AppKit
+
+AppKit TextInput and SearchInput now request focus on their retained input after
+clearing. The callbacks remain ordered `onChange('')`, then `onClear`; controlled
+parents still apply the requested value. Disabled/read-only fields do not expose
+the clear action. Native focus, caret/IME behavior and pointer/keyboard activation
+remain unqualified.
+
+```tsx
+import { SearchInput } from '@octane-xplat/ui'
+
+export function Search() {
+	return <SearchInput label="Find records" defaultValue="recent" hasClear />
+}
+```

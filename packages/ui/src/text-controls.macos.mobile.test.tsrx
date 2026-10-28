@@ -166,3 +166,47 @@ it('AppKit TextArea forwards its length limit and can remove it without replacin
 		expect(host.props.value).toBe('note')
 	} finally { env.root.unmount() }
 })
+
+
+it('AppKit clear requests preserve callback order, refocus the retained input and respect controlled feedback', () => {
+	for (const controlled of [false, true]) {
+		const events: unknown[] = []
+		const env = mount(TextInput, { defaultValue: 'query', ...(controlled ? { value: 'query' } : {}), hasClear: true,
+			onChange: (value: string) => events.push(['change', value]), onClear: () => events.push(['clear']) })
+		try {
+			const input = env.find('textfield')
+			input.window = { makeFirstResponder: (view: unknown) => events.push(['focus', view]) }
+			const clear = env.all().find((node) => String(node.props?.className).split(' ').includes('vx-input-clear'))
+			clear.props.onTap(); flushUniversalSync(() => {})
+			expect(events).toEqual([['change', ''], ['clear'], ['focus', input]])
+			expect(env.find('textfield')).toBe(input)
+			expect(input.props.value).toBe(controlled ? 'query' : '')
+		} finally { env.root.unmount() }
+	}
+})
+
+it('AppKit search clear shares focus behavior and disabled/read-only fields hide the clear action', () => {
+	const env = mount(SearchInput, { defaultValue: 'find', hasClear: true })
+	try {
+		const input = env.find('textfield'), focused: unknown[] = []
+		input.window = { makeFirstResponder: (view: unknown) => focused.push(view) }
+		const clears = () => env.all().filter((node) => String(node.props?.className).split(' ').includes('vx-input-clear'))
+		clears()[0].props.onTap(); flushUniversalSync(() => {})
+		expect(focused).toEqual([input])
+		for (const flag of ['isDisabled', 'isReadOnly']) {
+			env.render({ value: 'query', hasClear: true, [flag]: true })
+			expect(clears()).toHaveLength(0)
+		}
+	} finally { env.root.unmount() }
+})
+
+it('AppKit clear tolerates the callback unmounting its input before refocus', () => {
+	let teardown = () => {}
+	const env = mount(TextInput, { defaultValue: 'query', hasClear: true, onClear: () => teardown() })
+	const focused: unknown[] = []
+	env.find('textfield').window = { makeFirstResponder: (view: unknown) => focused.push(view) }
+	teardown = () => env.root.unmount()
+	const clear = env.all().find((node) => String(node.props?.className).split(' ').includes('vx-input-clear'))
+	expect(() => clear.props.onTap()).not.toThrow()
+	expect(focused).toEqual([])
+})

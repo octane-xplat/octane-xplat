@@ -1438,3 +1438,28 @@ The native fixture run hook checks handler selection/state only; it does not
 prove scroll visibility, keyboard input or native accessibility. No builds,
 installs, package tests/typechecks, OS automation, visual analysis or shared
 audit snapshot regeneration ran. No evidence checkbox is closed.
+
+
+### AppKit text clear focus
+
+AppKit TextInput/SearchInput exposed clear but only changed value/called onClear;
+unlike web, it never returned focus to the input. Clear now preserves callback
+order (onChange(''), onClear) and then requests the retained NSTextField as first
+responder. A callback that unmounts the input leaves its ref null, so no detached
+host is focused. Controlled parents still own display feedback; disabled/read-only
+clear suppression is unchanged. The native field ref is now concrete NSTextField.
+
+Authored source cases cover callback/focus ordering, controlled/uncontrolled
+feedback, host retention, SearchInput, blocked clear and unmount before refocus.
+Syntax/whitespace only; tests are unrun. Deferred:
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/text-controls.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm check:recipes
+```
+
+Actual clear pointer/key activation, first-responder/caret/selection retention,
+IME candidate/commit behavior, accessibility and packaging remain unqualified.
+No builds, installs, package tests/typechecks, probes, OS automation, visual
+analysis or shared audit regeneration ran; no evidence gate is closed.

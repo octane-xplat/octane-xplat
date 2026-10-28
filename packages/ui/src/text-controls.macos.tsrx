@@ -13,7 +13,7 @@ import { FormField } from './FormField.macos.tsrx'
 function TextInputControl(inputProps: TextInputProps) @{
 	const props = useFieldControlProps(inputProps)
 	const isBlocked = props.isDisabled || props.isReadOnly
-	const el = useRef<any>(null)
+	const el = useRef<NSTextField | null>(null)
 	const [internal, setInternal] = useState(props.defaultValue ?? '')
 	const value = props.value ?? internal
 	const setValue = (next: string) => {
@@ -107,6 +107,8 @@ function TextInputControl(inputProps: TextInputProps) @{
 				onPress={() => {
 					setValue('')
 					props.onClear?.()
+					const input = el.current
+					input?.window?.makeFirstResponder(input)
 				}}
 			>
 				<Text>×</Text>

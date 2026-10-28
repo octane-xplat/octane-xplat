@@ -711,3 +711,20 @@ export function Settings() {
 	return <><Switch label="Alerts" defaultValue /><Slider label="Volume" defaultValue={40} /></>
 }
 ```
+
+
+## AppKit text clear focus
+
+TextInput/SearchInput clear now requests focus on the retained native input after
+onChange('') and onClear. Controlled parents still own value feedback; callbacks
+that unmount the input do not focus the detached host. Actual focus/caret/IME and
+clear hit testing remain unqualified. See
+[clear and continue](../../../../docs/app/primitives.md#clear-and-continue-typing-on-appkit).
+
+```tsx
+import { SearchInput } from '@octane-xplat/ui'
+
+export function Search() {
+	return <SearchInput label="Find records" hasClear defaultValue="recent" />
+}
+```
