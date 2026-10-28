@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useImperativeHandle, useEffect, useMemo, useRef } from 'octane'
 import { EditorContent, useEditor } from '@octanejs/tiptap'
 import { activeFormats, bindEditorHandle, resolveExtensions } from './editor-core.web'

@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useEffect, useLayoutEffect, useRef } from 'octane'
 
 /** Faithful stand-in for @octane-xplat/richtext's native leaf in facade
