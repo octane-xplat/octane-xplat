@@ -16,4 +16,4 @@ export function Sections(props: { value: string; change(value: string): void }) 
 ```
 
 Native keys/ref/focus/return, accessibility and packaging remain unqualified.
-Focused-row removal repair remains a gap. See [AppKit overflow tabs](https://octane-xplat.goddardai.org/app/components#overflow-tabs-on-appkit).
+Focused-row repair source ownership is also present; native delivery remains unqualified. See [AppKit overflow tabs](https://octane-xplat.goddardai.org/app/components#overflow-tabs-on-appkit).

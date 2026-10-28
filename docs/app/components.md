@@ -870,11 +870,11 @@ trigger and close an open popup. Older bridges retain pointer selection:
 </TabList>
 ```
 
-Six object-driver cases and the maintained tab-menu fixture are authored and
-unrun. This source path requires matching keyboard/focus bridges; it does not
+The original six object-driver cases and maintained tab-menu fixture remain
+unrun; focused-row repair has additional unrun cases below. This source path requires matching keyboard/focus bridges; it does not
 qualify physical keys, native refs/window/focus/Tab/return, scroll reveal,
-popup/modal integration, menu radio mark announcements or packaging. Repairing
-focus after a nonempty menu removes its focused row remains a source gap.
+popup/modal integration, menu radio mark announcements or packaging. Focused-row
+repair source ownership is described in the [dynamic menu guide](../menus.md#keep-focus-owned-when-appkit-menu-rows-change); native delivery remains unqualified.
 
 ## Data display
 

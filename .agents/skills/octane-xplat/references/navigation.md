@@ -952,6 +952,7 @@ export function Sections(props: { value: string; change(value: string): void }) 
 
 Six wiring cases and the maintained tab-menu fixture remain unrun. Native key/
 ref/focus/Tab/return/scroll/popup/AX/package qualification remains open, including
-radio mark announcements. Nonempty focused-row removal repair remains a source
-gap in the reused menu surface; do not claim complete dynamic-menu qualification.
+radio mark announcements. The reused MenuSurface now has scoped focused-row
+repair source ownership; see the [dynamic menu guide](../../../../docs/menus.md#keep-focus-owned-when-appkit-menu-rows-change). That implementation is not native
+input or dynamic-menu qualification.
 See [AppKit overflow tabs](../../../../docs/app/components.md#overflow-tabs-on-appkit).

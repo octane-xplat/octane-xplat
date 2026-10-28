@@ -418,3 +418,47 @@ state is separate from selected state; mapping a checkbox/radio row to AXMenuIte
 does not establish a native checked announcement. Two renderer cases and one
 link-label case remain unrun. ObjC selector registration, actual AX tree/queries,
 VoiceOver, popup/ref/focus timing and packaging remain unqualified.
+
+
+### Keep focus owned when AppKit menu rows change
+
+An open AppKit menu now requests repair when its focused row is removed, disabled
+or hidden. The source policy uses the previous enabled-row position, choosing the
+row now at that position or the last remaining row. If none remain, it requests
+the retained menu container. Repair does not activate the new row or change the
+parent's selection. For example, an action can remove itself while keeping the
+menu open:
+
+```tsx
+import { useState } from 'octane'
+import { DropdownMenu, DropdownMenuItem } from '@octane-xplat/ui'
+
+export function Actions() {
+	const [show, setShow] = useState(true)
+	return <DropdownMenu button={{ label: 'Actions' }}>
+		{show && <DropdownMenuItem label="Remove this action" hasCloseOnSelect={false}
+			onSelect={() => setShow(false)} />}
+		<DropdownMenuItem label="Keep working" hasCloseOnSelect={false} />
+	</DropdownMenu>
+}
+```
+
+Repair stays in the captured native window and menu attachment. A current
+unrelated responder, including a nested field editor or another menu, cancels
+the pending repair. A captured row may use the menu/container, window or null
+native fallback after removal. Hide, detach, replacement and unsupported bridges
+release stale claims/intent; a refused native focus request can retry without
+activating another window. Dropdown, context, submenu and TabMenu surfaces reuse
+this owner:
+
+```tsx
+<DropdownMenuItem label="Export" isDisabled={!canExport} hasCloseOnSelect={false}
+	onSelect={exportDocument} />
+```
+
+Five policy, three object-driver surface cases and one appended TabMenu case are
+authored and unrun. The maintained menu-keyboard fixture adds self-removing and
+self-disabling actions; its runner still dispatches only the trigger and does
+not synthesize OS keys/focus. Source/syntax review does not qualify native
+responder/ref/notification order, actual fallback identity, focus refusal/IME,
+nested layers, scroll reveal, VoiceOver or packaging.

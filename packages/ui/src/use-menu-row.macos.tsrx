@@ -1,4 +1,4 @@
-import { useCallback, useContext, useId, useRef } from 'octane'
+import { useCallback, useContext, useId, useLayoutEffect, useRef } from 'octane'
 import { AppKitMenuRowsContext } from './menu-rows.macos'
 import type { AppKitMenuRow } from './menu-rows.macos'
 
@@ -15,6 +15,7 @@ export function useAppKitMenuRow(row: AppKitMenuRow) {
 	}, [])
 	const ref = useCallback((view: NSView | null) => {
 		if (own.current && registry?.views.get(key) === own.current) {
+			registry.willRemove?.(key, own.current)
 			registry.views.delete(key); registry.rows.delete(key)
 		}
 		own.current = view
@@ -22,6 +23,8 @@ export function useAppKitMenuRow(row: AppKitMenuRow) {
 			registry.views.set(key, view)
 			registry.rows.set(key, () => ({ ...latest.current, press, openSubmenu: latest.current.openSubmenu ? openSubmenu : undefined }))
 		}
+		registry?.changed?.()
 	}, [registry, key])
+	useLayoutEffect(() => { registry?.changed?.() }, [registry, row.disabled])
 	return { ref, press }
 }

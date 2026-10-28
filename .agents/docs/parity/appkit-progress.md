@@ -3481,3 +3481,66 @@ preset text relay/listbox relationships and live announcements also remain gaps;
 Checkbox mixed rollback is still pending the already asked human choice. No
 package tests/typechecks, builds, installs, OS automation, visual analysis or
 shared audit snapshot regeneration ran; no evidence-gated checkbox is closed.
+
+
+### AppKit menu row focus repair
+
+The prior goal turn added TabMenu source keyboard ownership through 7ee8671d4
+and explicitly retained the nonempty focused-row-removal gap. Continuing that
+ordinary dynamic-menu flow: MenuSurface initialized focus once but did not
+capture row detachment/disabled changes, so registered rows could disappear while
+its native responder/Tab claims still referred to the old host. ComponentsDemo
+and shared action/tab menus already consume this surface; no new native engine
+or package is needed.
+
+A private menu-focus owner now keeps enabled native row order, current focused
+row/window and pending repair intent. Row ref removal notifies before unregister;
+row-disabled metadata and surface commits queue one refresh after the commit.
+Existing window notifications cover native hidden/layout/focus changes, including
+the previous window when a root detaches. Removed/disabled/hidden current rows
+request the row now at the previous index (clamped to last), or retained menu
+container when no eligible rows remain. Keyboard navigation records its native
+focus immediately. Captured same-window row/container/window/null fallback is
+allowed; a current unrelated responder cancels repair, preserving nested editors
+and other menus. Selection is never invoked by repair.
+
+Scope/window replacement, hidden/detached roots and missing bridges release old
+claims/intent; failed native focus may retry. Epoch/ref checks reject synchronous
+teardown during a native focus request, and refresh/reset guards prevent native
+notification recursion from restoring released leases. Root teardown clears the
+attachment before releasing its focus-target lease; queued work sees current
+scope only. The existing keyboard/typeahead, layer dismissal and return owner are
+retained. No dependency, public type/prop, shared manifest, new observer family,
+other-target leaf or shared audit snapshot changed.
+
+Five pure policy/three object-driver surface/one appended TabMenu cases are
+newly authored, all unrun. They cover initial edges, same-position/all-empty
+repair, disabled/hidden and unrelated mutations, captured native fallback,
+nested/foreign responders, scope/capability/focus refusal, notification recursion,
+synchronous/queued teardown, row commit notifications and actual TabMenu
+composition. The maintained menu-keyboard fixture adds self-removing/disabling
+actions; its runner still performs only direct trigger dispatch, no native keys
+or focus. Guide/skills, the existing feature note's stale gap text, shared-menus
+AC13 and appkit-tab-navigation AC4 coverage were reconciled. This fixes an
+unreleased target gap, so no stable-release fix note is added. Only source/
+semantic, TypeScript/TSRX syntax and whitespace checks ran.
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/ui -- src/menu-focus.macos.test.ts
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/menu-focus.macos.mobile.test.tsrx src/tab-menu.macos.mobile.test.tsrx src/menu-family.macos.mobile.test.tsrx src/menu-keyboard.macos.mobile.test.tsrx src/menu-return.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/menu-keyboard.macos.tsrx --target macos --watch
+pnpm probe run examples/probes/tab-menu.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All commands remain deferred pending explicit human authorization for this task.
+Native responder/ref/notification order and fallback identity, focus refusal,
+physical keys/repeat/IME, popup/FocusScope/nested-modal integration, scroll reveal,
+AX/VoiceOver and packaging remain unqualified. Pager/video, autofocus timing,
+preset text relay/listbox relationships and live announcements remain source
+gaps; Checkbox mixed rollback is still pending the previously asked human
+choice. No package tests/typechecks, builds, installs, OS automation, visual
+analysis or audit regeneration ran; no evidence-gated checkbox is closed.

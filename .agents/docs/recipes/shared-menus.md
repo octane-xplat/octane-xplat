@@ -41,6 +41,8 @@ context-menu leaf has its own recipe.
 
 - AC12: AppKit menu surfaces/rows map to native menu roles and current text row titles; selected/expanded protocol getters follow current parent state. Link text labels reach the host on updates/removal. Keep query metadata distinct from checked marks, state announcements/relationships and native AX/VoiceOver qualification.
 
+- AC13: AppKit menu surfaces capture focused-row/window ownership, repair removed/disabled/hidden rows to the previous position or retained container, and keep selection manual. Preserve unrelated/nested-editor/other-window responders, cancel stale scope/teardown intent, coalesce row changes and release claims/observers. Distinguish policy/object-driver evidence from native ref/responder/fallback/notification/IME/layer/AX qualification.
+
 ## Documentation
 
 - AC1: [Start with actions](../../../docs/app/menus.md#start-with-actions), [Add choices and submenus](../../../docs/app/menus.md#add-choices-and-submenus), [UI API migrations](../../../docs/app/ui-api-migrations.md#selection-and-menu-rows), [Context actions on touch and keyboard](../../../docs/app/menus.md#context-actions-on-touch-and-keyboard), and [component demo](../../../packages/demos/src/ComponentsDemo.tsrx).
@@ -62,3 +64,5 @@ context-menu leaf has its own recipe.
 - AC11: [Pointer context guide](../../../docs/app/menus.md#open-appkit-context-actions-with-the-pointer), renderer context-pointer/context-subscriptions cases, appended origin/modality/menu-family cases, maintained menu-keyboard fixture and [target note](../parity/appkit-progress.md#appkit-context-pointer-ownership). All twelve new cases and native verification remain deferred.
 
 - AC12: [Menu accessibility metadata](../../../docs/app/menus.md#appkit-menu-accessibility-metadata), renderer contract, two renderer/one inline-popup source cases and [target note](../parity/appkit-progress.md#appkit-menu-role-and-state-query-metadata). All three cases and native checks remain unrun.
+
+- AC13: [Dynamic menu guide](../../../docs/app/menus.md#keep-focus-owned-when-appkit-menu-rows-change), private menu-focus owner/row notifications, five policy/three surface/one appended TabMenu cases, [extended fixture](../../../examples/probes/menu-keyboard.macos.tsrx), skill and [target note](../parity/appkit-progress.md#appkit-menu-row-focus-repair). All cases/fixture/native qualification remain unrun.

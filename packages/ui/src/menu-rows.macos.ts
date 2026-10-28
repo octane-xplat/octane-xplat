@@ -9,6 +9,8 @@ export interface AppKitMenuRow {
 export interface AppKitMenuRows {
 	views: Map<string, NSView>
 	rows: Map<string, () => AppKitMenuRow>
+	changed?(): void
+	willRemove?(key: string, view: NSView): void
 }
 /** Each popup root creates its own registry; nested surfaces never share rows. */
 export const AppKitMenuRowsContext = createContext<AppKitMenuRows | null>(null)

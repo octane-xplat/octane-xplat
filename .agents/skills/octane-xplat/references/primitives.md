@@ -1447,3 +1447,27 @@ UI writes.
 Seven object-driver cases and the date-save fixture remain unrun. Native
 callback/ref/save/blur/focus/IME/popup/AX/package behavior is unqualified; no save
 cancellation, automatic rollback or live-error delivery is added. See [date save ownership](../../../../docs/platform/date-picker.md#keep-appkit-date-saves-owned-by-one-edit).
+
+
+## AppKit dynamic-menu focus repair
+
+MenuSurface now owns previous eligible-row order and captured row/window intent.
+Registered row detach notifies before removal; disabled-row and surface commits
+coalesce refresh after native updates. Removed/disabled/hidden focused rows
+request the row now at the prior index (clamped to the last), or the retained
+container when empty. Focus changes alone never select. Captured same-window
+container/window/null fallback is allowed; unrelated/nested-editor responders
+cancel repair. Scope changes, hidden/detached roots and missing bridges release
+stale intent/claims. Ref teardown and recursive native updates cannot resurrect
+an old focus request.
+
+```tsx
+<DropdownMenu button={{ label: 'Actions' }}>
+	{show && <DropdownMenuItem label="Remove action" hasCloseOnSelect={false} onSelect={() => setShow(false)} />}
+	<DropdownMenuItem label="Continue" hasCloseOnSelect={false} />
+</DropdownMenu>
+```
+
+Five policy/three surface/one TabMenu cases and the extended menu-keyboard
+fixture remain unrun. Source ownership is not native ref/responder/fallback/
+notification/IME/layer/scroll/AX/package qualification. See [dynamic menu focus](../../../../docs/menus.md#keep-focus-owned-when-appkit-menu-rows-change).

@@ -117,3 +117,13 @@ it('older keyboard bridges retain pointer selection without a trigger key lease'
 		env.rows()[0].props.onTap(); env.flush(); expect(env.base.onChange).toHaveBeenCalledWith('settings'); expect(env.popup().open).toBe(false)
 	} finally { env.root.unmount() }
 })
+
+it('a nonempty overflow menu repairs removal of its focused option without selecting or reopening', async () => {
+	const env = mount()
+	try {
+		env.key(env.one('more'), 'ArrowUp'); await vi.waitFor(() => { env.flush(); expect(env.panel.firstResponder).toBe(env.rows()[1]) })
+		env.render({ ...env.base, options: [env.base.options[0]] })
+		await vi.waitFor(() => { env.flush(); expect(env.panel.firstResponder).toBe(env.rows()[0]) })
+		expect(env.popup().open).toBe(true); expect(env.base.onChange).not.toHaveBeenCalled()
+	} finally { env.root.unmount() }
+})

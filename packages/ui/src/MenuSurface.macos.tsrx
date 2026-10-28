@@ -1,18 +1,19 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { useCallback, useContext, useEffect, useMemo, useRef } from 'octane'
+import { useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef } from 'octane'
 import type { MenuSurfaceProps } from './props'
 import { MenuProvider } from './menu-context'
 import { AppKitMenuReturnContext } from './menu-return.macos'
 import { AppKitMenuRowsProvider } from './menu-rows.macos'
 import { createAppKitChoiceFocus } from './choice-focus.macos'
 import { createAppKitMenuKeyboard } from './menu-keyboard.macos'
+import { createAppKitMenuFocus } from './menu-focus.macos'
 import { appKitHost } from './host-bridge'
 import { useDirection } from './internationalization'
 import { useKeyboard } from './use-keyboard.macos'
 import { cx } from '@octane-xplat/lib'
 import { Pressable } from './Pressable.macos.tsrx'
 import { Text } from './Text.macos.tsrx'
-import type { AppKitMenuRow } from './menu-rows.macos'
+import type { AppKitMenuRows } from './menu-rows.macos'
 
 /** Each popup root owns its rows, native focus claims and existing close callbacks. */
 export function MenuSurface(props: MenuSurfaceProps) @{
@@ -20,10 +21,9 @@ export function MenuSurface(props: MenuSurfaceProps) @{
 	liveReturnOwner.current = returnOwner
 	const context = { closeMenu: () => props.closeMenu(), menuSize: 'md' as const }
 	const panel = useRef<NSView | null>(null), lease = useRef<(() => void) | null>(null)
-	const registry = useRef({ views: new Map<string, NSView>(), rows: new Map<string, () => AppKitMenuRow>() })
+	const registry = useRef<AppKitMenuRows>({ views: new Map(), rows: new Map() })
 	const live = useRef(props), direction = useDirection(), liveDirection = useRef(direction)
 	live.current = props; liveDirection.current = direction
-	const owner = useRef<NSWindow | null>(null), pendingFocus = useRef(true)
 	const navigation = useMemo(() => createAppKitChoiceFocus({
 		root: () => panel.current, views: registry.current.views, selected: () => undefined,
 		orientation: () => 'both', direction: () => liveDirection.current,
@@ -33,12 +33,18 @@ export function MenuSurface(props: MenuSurfaceProps) @{
 		const row = registry.current.rows.get(key)?.()
 		return row && !row.disabled ? [{ key, label: row.label, submenu: Boolean(row.openSubmenu) }] : []
 	})
+	const resetKeyboard = useRef<() => void>(() => {})
+	const focusState = useMemo(() => createAppKitMenuFocus({
+		root: () => panel.current, views: registry.current.views, eligible: () => rows().map((row) => row.key),
+		initial: () => live.current.initialFocus ?? 'container', supported: () => Boolean(appKitHost()?.keyboardEventsSupported),
+		navigation, resetKeyboard: () => resetKeyboard.current(),
+	}), [])
 	const keyboard = useMemo(() => createAppKitMenuKeyboard({
 		rows, focused: () => {
 			const focused = navigation.focusedView()
 			return [...registry.current.views].find(([, view]) => view === focused)?.[0]
 		},
-		focus: navigation.focus,
+		focus: focusState.focus,
 		press: (key) => registry.current.rows.get(key)?.().press(),
 		openSubmenu: (key) => registry.current.rows.get(key)?.().openSubmenu?.(),
 		get closeLevel() { return live.current.closeLevel },
@@ -49,25 +55,24 @@ export function MenuSurface(props: MenuSurfaceProps) @{
 		},
 		closeMenu: () => live.current.closeMenu(), direction: () => liveDirection.current,
 	}), [])
-	const initialize = () => {
-		const view = panel.current, window = view?.window
-		if (!window || !appKitHost()?.keyboardEventsSupported) return
-		if (owner.current !== window) {
-			navigation.dispose(); keyboard.reset(); owner.current = window; pendingFocus.current = true
-		}
-		navigation.synchronize()
-		if (!pendingFocus.current) return
-		const edge = live.current.initialFocus ?? 'container', enabled = rows()
-		const key = enabled[edge === 'last' ? enabled.length - 1 : 0]?.key
-		if (edge === 'container' || !key) {
-			if (window.makeFirstResponder(view)) pendingFocus.current = false
-		} else if (navigation.focus(key)) pendingFocus.current = false
+
+	resetKeyboard.current = keyboard.reset
+
+	const queued = useRef(false)
+	const refresh = () => { try { focusState.refresh() } catch (error) { console.warn('[macos-menu] focus refresh failed', error) } }
+	const queueRefresh = () => {
+		if (queued.current) return
+		queued.current = true
+		void Promise.resolve().then(() => { queued.current = false; if (panel.current) refresh() })
 	}
-	const initializeLatest = useRef(initialize)
-	initializeLatest.current = initialize
+	registry.current.changed = queueRefresh
+	registry.current.willRemove = focusState.removed
+	useLayoutEffect(queueRefresh)
+
 	const bind = useCallback((view: NSView | null) => {
+		if (panel.current === view) return
+		focusState.reset(); panel.current = null
 		lease.current?.(); lease.current = null
-		if (!view) { navigation.dispose(); keyboard.reset(); owner.current = null; pendingFocus.current = true }
 		panel.current = view
 		if (view) {
 			const retain = appKitHost()?.retainFocusTarget
@@ -76,7 +81,7 @@ export function MenuSurface(props: MenuSurfaceProps) @{
 				if (typeof release !== 'function') throw new Error('AppKit menu focus ownership unavailable')
 				lease.current = release
 			}
-			Promise.resolve().then(() => { if (panel.current === view) initializeLatest.current() })
+			queueRefresh()
 		}
 	}, [])
 	const keys = useKeyboard({ onKeyDown: (event) => {
@@ -93,11 +98,11 @@ export function MenuSurface(props: MenuSurfaceProps) @{
 		let token: unknown
 		try {
 			token = center.addObserverForNameObjectQueueUsingBlock(native.NSWindowDidUpdateNotification ?? 'NSWindowDidUpdateNotification', null, null,
-				(notification: { object: NSWindow }) => { if (notification.object === panel.current?.window) initializeLatest.current() })
+				(notification: { object: NSWindow }) => { if (focusState.observes(notification.object)) refresh() })
 		} catch (error) { console.warn('[macos-menu] focus observation unavailable', error); return }
 		return () => { if (token != null) center.removeObserver(token) }
 	}, [])
-	useEffect(() => () => { navigation.dispose(); keyboard.reset(); lease.current?.(); lease.current = null }, [])
+	useEffect(() => () => bind(null), [])
 
 	<masonview ref={bind} {...keys} className={cx('vx-menu-list', 'vx-menu-list--appkit', props.className)} style={props.style}
 		accessibilityRole="menu" accessibilityLabel={props.label}>
