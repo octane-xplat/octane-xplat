@@ -925,3 +925,16 @@ corners and scalar blur/spread retain the documented approximation. Explicit
 layoutScroll, measured drag-ref constraints, Reorder, and route transitions remain
 outside this implementation. Recipe motion-patterns AC8 and AC9 cover the new
 container and drag workflow; prior AC1–AC7 evidence remains historical.
+
+
+### Integration after rebasing onto main
+
+The Phase 3–4 commits rebased onto `024d2b604`. The container browser test
+now lives in `tools/visual/src/`, matching the harness move on main. After
+syncing this worktree's dependencies with the rebased lockfile, all 68 required
+package/dependent typecheck tasks pass, along with all 211 Motion tests across
+18 files, 28 native driver tests, 350 AppKit renderer tests, 10 lint-rule tests,
+and five Chromium container tests. The earlier four-suite parser blocker no
+longer reproduces in the full Motion suite with main's updated compiler. The
+full docs build and device runtime probes were not repeated for this rebase;
+the preceding device results describe the pre-rebase qualification.

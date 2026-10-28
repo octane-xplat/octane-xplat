@@ -42,9 +42,9 @@ before any app-level preview.
 - AC4: [Rotate supporting copy](../../../docs/app/animation-gestures.md#rotate-supporting-copy).
 - AC5: [Reduced motion and lifecycle](../../../docs/app/animation-gestures.md#reduced-motion-and-lifecycle) plus the [motion leaf limits](../../../docs/testing/known-limits.md#motion-leaf).
 
-- AC6: [Animate size and position changes](../../../docs/app/animation-gestures.md#layout-animations) and the [maintained layout probe](../../../examples/probes/motion-layout.tsrx); browser geometry coverage lives in `apps/visual/src/motion-layout.test.web.ts`.
+- AC6: [Animate size and position changes](../../../docs/app/animation-gestures.md#layout-animations) and the [maintained layout probe](../../../examples/probes/motion-layout.tsrx); browser geometry coverage lives in `tools/visual/src/motion-layout.test.web.ts`.
 
 - AC7: [Move an element between components](../../../docs/app/animation-gestures.md#move-an-element-between-components), the [shared-element probe](../../../examples/probes/motion-shared.tsrx), and the maintained browser/AppKit geometry tests.
 
-- AC8: [Steady corners](../../../docs/app/animation-gestures.md#keep-corners-steady-while-a-card-expands), the root/anchor examples in the layout guide, and `apps/visual/src/motion-containers.test.web.ts`, `packages/motion/tests/containers.mobile.tsrx`, and AppKit runtime geometry tests. Native nonuniform corner and blur limits remain explicit.
+- AC8: [Steady corners](../../../docs/app/animation-gestures.md#keep-corners-steady-while-a-card-expands), the root/anchor examples in the layout guide, and `tools/visual/src/motion-containers.test.web.ts`, `packages/motion/tests/containers.mobile.tsrx`, and AppKit runtime geometry tests. Native nonuniform corner and blur limits remain explicit.
 - AC9: [Keep dragging through layout changes](../../../docs/app/animation-gestures.md#keep-dragging-through-layout-changes), the browser pointer-dispatch test, the native container probe, AppKit callback/geometry checks, and host-neutral drag/projection tests. Handler dispatch is not OS input evidence.
