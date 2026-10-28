@@ -3,12 +3,15 @@ import type { SelectableCardProps } from './props'
 import { styleRecord } from './style-merge'
 import { Pressable } from './Pressable.macos.tsrx'
 import { cx } from '@octane-xplat/lib'
+import { TextSlot } from './text-slot'
 export function SelectableCard(props: SelectableCardProps) @{
 	<Pressable
 		id={props.id}
 		className={cx(
 			'vx-card',
 			'vx-selectable-card',
+			`vx-card--${props.variant ?? 'default'}`,
+			props.elevation && `vx-card--elev-${props.elevation}`,
 			props.isSelected && 'vx-selectable-card--selected',
 			props.isDisabled && 'vx-card--disabled',
 			props.className,
@@ -30,6 +33,6 @@ export function SelectableCard(props: SelectableCardProps) @{
 			disabled: props.isDisabled,
 		}}
 	>
-		{props.children}
+		<TextSlot>{props.children}</TextSlot>
 	</Pressable>
 }

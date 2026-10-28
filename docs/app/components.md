@@ -1324,6 +1324,20 @@ VoiceOver remain unqualified. Button tooltip presentation remains a separate
 AppKit gap; this change does not implement it.
 
 
+AppKit IconButton shares the Button implementation, including group disablement,
+metadata, URL dispatch and busy/action ownership. Its required label remains the
+accessible name while the icon stays mounted under the busy overlay. Native
+input, busy sizing, VoiceOver and tooltip presentation remain unqualified.
+
+```tsx
+import { IconButton } from '@octane-xplat/ui'
+
+export function Share({ share }: { share(): Promise<void> }) {
+	return <IconButton label="Share document" icon="share" clickAction={share} testID="document.share" />
+}
+```
+
+
 ### Save a toggle-button action on AppKit
 
 Use pressedChangeAction when a pin or favorite change needs saving. AppKit
@@ -1363,17 +1377,3 @@ geometry and packaging remain unqualified. Native toolbar/group roving keys,
 reserved semibold label width and tooltip presentation remain separate gaps.
 The maintained [AppKit toggle fixture](https://github.com/octane-xplat/octane-xplat/blob/main/examples/probes/toggle-button.macos.tsrx)
 is authored but unrun; its scripted path dispatches actions directly.
-
-
-AppKit IconButton shares the Button implementation, including group disablement,
-metadata, URL dispatch and busy/action ownership. Its required label remains the
-accessible name while the icon stays mounted under the busy overlay. Native
-input, busy sizing, VoiceOver and tooltip presentation remain unqualified.
-
-```tsx
-import { IconButton } from '@octane-xplat/ui'
-
-export function Share({ share }: { share(): Promise<void> }) {
-	return <IconButton label="Share document" icon="share" clickAction={share} testID="document.share" />
-}
-```

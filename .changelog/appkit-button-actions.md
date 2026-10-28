@@ -16,3 +16,11 @@ presentation remains unsupported. See [AppKit buttons](https://octane-xplat.godd
 IconButton now uses the same AppKit Button owner for group disablement,
 identifiers, href and pending actions, with its required label retained as the
 accessible name.
+
+```tsx
+import { IconButton } from '@octane-xplat/ui'
+
+export function Share({ share }: { share(): Promise<void> }) {
+	return <IconButton label="Share document" icon="share" clickAction={share} />
+}
+```

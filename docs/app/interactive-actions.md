@@ -51,9 +51,11 @@ is controlled and announces its checked state. Both accept `padding` in 4 px
 steps, `variant`, `elevation`, and dimensions. Web links retain anchor
 navigation semantics and reject `javascript:`, `vbscript:`, and HTML data URLs;
 iOS and Android links open through the platform URL handler. Native targets
-cannot preserve browser modifier-click or new-tab behavior. The experimental
-AppKit surface exports these controls, but its button/card `href` behavior and
-tooltip presentation are not implemented yet.
+cannot preserve browser modifier-click or new-tab behavior. AppKit now has source implementations for sanitized button/card URL dispatch;
+ClickableCard opens the URL before its onPress callback. Its href surface uses
+native link semantics, and SelectableCard keeps parent-controlled checked state.
+Native URL launch, actual input/VoiceOver and card layout remain unqualified;
+tooltip presentation is still missing.
 
 ```tsx
 import { ClickableCard, SelectableCard, Text } from '@octane-xplat/ui'
@@ -154,3 +156,26 @@ export function Example() {
 ## Try a small demo
 
 [Try the goal counter demo](../demos/goal-counter.md) with bundled local content.
+
+
+## AppKit card qualification
+
+AppKit cards now wrap primitive children in native text hosts while preserving
+supplied child components. Variant/elevation classes reach both interactive
+card leaves; native appearance remains unqualified.
+
+```tsx
+import { ClickableCard } from '@octane-xplat/ui'
+
+export function ProjectHelp() {
+	return <ClickableCard label="Open project help" href="https://example.com/help" elevation="low">
+		Read help
+	</ClickableCard>
+}
+```
+
+AppKit has no native browser target/modifier-click behavior. Nested interactive
+children have authored host-preservation cases, but OS gesture arbitration and
+hit-testing remain unqualified. The declared disabled-but-focusable
+SelectableCard behavior still lacks an AppKit implementation. These source
+changes do not qualify disabled focus, physical input, layout or packaging.

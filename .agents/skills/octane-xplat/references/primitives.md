@@ -869,6 +869,20 @@ export function Help() { return <Button href="https://example.com/help">Help</Bu
 ```
 
 
+IconButton.macos is a thin wrapper around Button.macos with isIconOnly, matching
+the shared native shape. Use the Button contract for pending/overlap/errors,
+group defaults, metadata and href. Native tooltip/presentation/input/VoiceOver
+qualification is still open.
+
+```tsx
+import { IconButton } from '@octane-xplat/ui'
+
+export function Share({ share }: { share(): Promise<void> }) {
+	return <IconButton label="Share document" icon="share" clickAction={share} />
+}
+```
+
+
 ## AppKit toggle-button saves
 
 ToggleButton delegates to the target Button action owner, so loading, errors,
@@ -891,15 +905,20 @@ input, busy geometry, tooltip, reserved semibold width and group/toolbar roving
 remain unqualified or absent. See [toggle saves](../../../../docs/app/components.md#save-a-toggle-button-action-on-appkit).
 
 
-IconButton.macos is a thin wrapper around Button.macos with isIconOnly, matching
-the shared native shape. Use the Button contract for pending/overlap/errors,
-group defaults, metadata and href. Native tooltip/presentation/input/VoiceOver
-qualification is still open.
+## AppKit interactive cards
+
+ClickableCard sanitizes href and calls the platform opener before onPress;
+URL-bearing cards expose a link role, callback-only cards a button role.
+Both interactive cards use TextSlot for primitive children and forward
+variant/elevation classes. SelectableCard remains controlled. Native appearance,
+URL launch, nested-control gesture arbitration and disabled-but-focusable
+selection cards remain unqualified or missing; native target browsing contexts
+are not implemented. See [cards](../../../../docs/app/interactive-actions.md#appkit-card-qualification).
 
 ```tsx
-import { IconButton } from '@octane-xplat/ui'
+import { ClickableCard } from '@octane-xplat/ui'
 
-export function Share({ share }: { share(): Promise<void> }) {
-	return <IconButton label="Share document" icon="share" clickAction={share} />
+export function Help() {
+	return <ClickableCard label="Open help" href="https://example.com/help" elevation="low">Help</ClickableCard>
 }
 ```

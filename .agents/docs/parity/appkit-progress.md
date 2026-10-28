@@ -1998,7 +1998,7 @@ audit regeneration ran; no evidence checkbox is closed.
 
 ### AppKit IconButton delegates to Button
 
-ActionControlsDemo places Share inside a disabled/sized ButtonGroup. The old
+ActionControlsDemo places Share inside a sized ButtonGroup and includes a separate disabled group. The old
 AppKit IconButton duplicated stale action logic, ignored group disablement,
 dropped inherited metadata/href and replaced the icon while busy. It is now the
 same thin Button wrapper as shared native/web leaves. Two appended source cases
@@ -2017,3 +2017,42 @@ Only syntax/source/semantic review and whitespace checks ran. Native mouse/keys,
 busy/icon geometry, VoiceOver, URL launch and packaging remain unqualified; no
 builds, package tests/typechecks, installs, OS automation, visual analysis or
 checkbox closure occurred.
+
+
+### AppKit interactive card links and text hosts
+
+ActionControlsDemo and maintained card examples use open/select collection
+surfaces. Demand assumption: these app navigation/selection flows precede niche
+integrations. AppKit ClickableCard ignored href; it now uses sanitizeUrl and the
+existing platform openUrl before onPress, retains disabled guards and exposes
+link semantics for href or button semantics for callback-only cards. This is
+native URL handling, not router navigation or browser target/modifier behavior.
+
+Both interactive cards use TextSlot for primitives without replacing supplied
+components. ClickableCard now forwards elevation and SelectableCard forwards
+variant/elevation, matching existing shared native presentation classes. Existing
+padding/dimension precedence and parent-owned SelectableCard requests remain.
+The public action guide's stale AppKit href absence statement is reconciled;
+IconButton guidance is now beside Button and the Share/group demand note is
+precise. No shared API/manifest/CLI or non-AppKit leaf changed.
+
+Three authored object-driver cases cover URL normalization/order/unsafe/disabled
+paths, role changes, primitive/nested host preservation, dimensions/classes and
+controlled selection/disablement. They remain unrun. Host preservation does not
+prove physical nested gesture arbitration. The declared disabled-but-focusable
+SelectableCard behavior still lacks an AppKit path: ordinary disabled hosts are
+excluded from sequential focus. This limitation remains public and unclosed.
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/interactive-cards.macos.mobile.test.tsrx src/button.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All commands remain deferred pending explicit human authorization for this task.
+Only syntax parsing, semantic/source review and whitespace checks ran. Native
+URL launch, mouse/keyboard and nested-control arbitration, VoiceOver, disabled
+focus, variant/elevation geometry/appearance and packaging remain unqualified.
+No builds, package tests/typechecks, installs, OS automation, visual analysis or
+shared audit regeneration ran; no evidence checkbox is closed.
