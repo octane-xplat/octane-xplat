@@ -720,7 +720,7 @@ existing failures outside this change; changed animation files pass.
 `layoutDependency`, `onLayoutAnimationStart`/`onLayoutAnimationComplete`, and
 `transition={{ layout: {...} }}` are supported on `motion.View`, `motion.Row`,
 `motion.Pressable` and `motion.create` hosts, including experimental macOS. `layoutId`/`LayoutGroup` shared handoffs
-and retained crossfades are also supported. `layoutScroll`/`layoutRoot`/`layoutAnchor`
+and retained crossfades are also supported. `layoutScroll`
 and border-radius/box-shadow correction are excluded. Browser overflow scroll offsets
 are detected automatically. The default layout transition is a 0.45 s tween.
 

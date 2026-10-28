@@ -313,3 +313,13 @@ load that internal feature. Web and desktop retain built-ins. UI installs no
 polyfills: test individual capabilities and retain documented fallbacks.
 FormatJS's guarded entries mutate global Intl and may replace incomplete
 implementations. Installing one leaf does not guarantee every Intl API exists.
+
+For moving containers, `layoutRoot` snaps the container and keeps child layout
+animations relative to it. `layoutAnchor={{ x: 1, y: 1 }}` attaches a child to its
+parent's end corner; `false` disables relative attachment.
+
+```tsx
+<motion.View layoutRoot>
+  <motion.View layout="position" layoutAnchor={{ x: 1, y: 1 }} />
+</motion.View>
+```

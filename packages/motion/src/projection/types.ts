@@ -67,6 +67,8 @@ export interface LayoutBarrier {
 
 export interface ProjectionNodeOptions {
 	layoutId?: string
+	layoutRoot?: boolean
+	layoutAnchor?: Point | false
 	crossfade?: boolean
 	animationType?: AnimationType
 	layoutDependency?: unknown

@@ -484,7 +484,7 @@ walks view frames in y-down content coordinates. Layer transforms do not
 participate in measurement. Projection writes compensate for the layer's
 anchor without changing AppKit's anchor or position.
 
-**Still excluded:** `layoutScroll`, `layoutRoot`, `layoutAnchor`, and
+**Still excluded:** `layoutScroll` and
 border-radius/box-shadow correction.
 Fixed-position layout roots are not supported. On native, `rotate` combined with a non-uniform
 parent treeScale is approximate (scale divides translate per axis but not the

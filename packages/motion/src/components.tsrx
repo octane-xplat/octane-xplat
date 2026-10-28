@@ -75,22 +75,26 @@ function attachProjection(node: ProjectionNode, adapter: HostAdapter): HostAdapt
 }
 
 function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
-	for (const name of [
-		'layoutScroll',
-		'layoutRoot',
-		'layoutAnchor',
-		'inherit',
-		'whileHover',
-		'whileInView',
-		'whileDrag',
-	]) {
+	for (const name of ['layoutScroll', 'inherit', 'whileHover', 'whileInView', 'whileDrag']) {
 		if (name in props) {
 			throw new Error(`motion: ${name} is outside the supported subset`)
 		}
 	}
 
-	if ((props.layout || props.layoutId !== undefined) && !layoutSupported) {
+	if ((props.layout || props.layoutRoot || props.layoutId !== undefined) && !layoutSupported) {
 		throw new Error('motion: layout is not yet supported on this platform')
+	}
+
+	if (
+		props.layoutAnchor &&
+		(!Number.isFinite(props.layoutAnchor.x) ||
+			!Number.isFinite(props.layoutAnchor.y) ||
+			props.layoutAnchor.x < 0 ||
+			props.layoutAnchor.x > 1 ||
+			props.layoutAnchor.y < 0 ||
+			props.layoutAnchor.y > 1)
+	) {
+		throw new Error('motion: layoutAnchor requires x and y between 0 and 1')
 	}
 
 	validateDrag(props)
@@ -138,7 +142,7 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
 		? props.layout === true
 			? 'both'
 			: props.layout
-		: props.layoutId !== undefined
+		: props.layoutId !== undefined || props.layoutRoot
 			? 'both'
 			: undefined
 
@@ -152,6 +156,8 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
 		const node = projRef.current
 		node.options.animationType = layoutMode
 		node.options.layoutId = layoutKey
+		node.options.layoutRoot = props.layoutRoot
+		node.options.layoutAnchor = props.layoutAnchor
 		node.options.crossfade = props.layoutCrossfade
 		node.options.layoutDependency = props.layoutDependency
 		node.options.transition = props.transition ?? config.transition
@@ -584,6 +590,8 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
 		whileFocusTransition,
 		layout,
 		layoutId,
+		layoutRoot,
+		layoutAnchor,
 		layoutCrossfade,
 		layoutDependency,
 		onLayoutAnimationStart,

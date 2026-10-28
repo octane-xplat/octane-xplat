@@ -179,13 +179,30 @@ export class ProjectionNode {
 		const hasLayoutChanged = !isDeltaZero(layoutDelta)
 		let hasRelativeLayoutChanged = false
 
-		const relativeParent = this.getClosestProjectingParent()
+		const relativeParent =
+			this.options.layoutAnchor === false ? undefined : this.getClosestProjectingParent()
 		if (relativeParent?.layout && relativeParent.presented) {
 			const relativeSnapshot = createBox()
-			calcRelativePosition(relativeSnapshot, snapshot, relativeParent.presented)
+			calcRelativePosition(
+				relativeSnapshot,
+				snapshot,
+				relativeParent.presented,
+				this.options.layoutAnchor || undefined,
+			)
 
 			const relativeLayout = createBox()
-			calcRelativePosition(relativeLayout, layout, relativeParent.layout.layoutBox)
+			calcRelativePosition(
+				relativeLayout,
+				layout,
+				relativeParent.layout.layoutBox,
+				this.options.layoutAnchor || undefined,
+			)
+
+			if (relativeParent.options.layoutRoot) {
+				this.relativeTarget = relativeLayout
+				this.relativeTargetOrigin = relativeSnapshot
+				this.relativeParent = relativeParent
+			}
 
 			if (!boxEqualsRounded(relativeSnapshot, relativeLayout)) {
 				hasRelativeLayoutChanged = true
@@ -196,13 +213,15 @@ export class ProjectionNode {
 		const hasOnlyRelativeTargetChanged = !hasLayoutChanged && hasRelativeLayoutChanged
 
 		if (
+			this.options.layoutRoot ||
 			handoff ||
 			hasOnlyRelativeTargetChanged ||
 			(hasLayoutChanged && (hasTargetChanged || !this.currentAnimation))
 		) {
-			const transition = this.options.reduced
-				? { duration: 0 }
-				: resolveLayoutTransition(this.options.transition)
+			const transition =
+				this.options.reduced || this.options.layoutRoot
+					? { duration: 0 }
+					: resolveLayoutTransition(this.options.transition)
 
 			this.setAnimationOrigin(visualDelta, hasOnlyRelativeTargetChanged)
 			this.startAnimation(transition)
@@ -240,14 +259,19 @@ export class ProjectionNode {
 		}
 
 		this.resolvedRelativeTargetAt = this.root.frameTimestamp
-		const relativeParent = this.getClosestProjectingParent()
+		const relativeParent =
+			this.options.layoutAnchor === false ? undefined : this.getClosestProjectingParent()
 
-		if (relativeParent && this.linkedParentVersion !== relativeParent.layoutVersion) {
+		if (
+			relativeParent &&
+			!relativeParent.options.layoutRoot &&
+			this.linkedParentVersion !== relativeParent.layoutVersion
+		) {
 			this.removeRelativeTarget()
 		}
 
 		if (!this.targetDelta && !this.relativeTarget) {
-			if (relativeParent?.layout) {
+			if (this.options.layoutAnchor !== false && relativeParent?.layout) {
 				this.createRelativeTarget(
 					relativeParent,
 					this.layout.layoutBox,
@@ -269,7 +293,12 @@ export class ProjectionNode {
 
 		if (this.relativeTarget && this.relativeTargetOrigin && this.relativeParent?.target) {
 			this.forceRelativeParentToResolveTarget()
-			calcRelativeBox(this.target, this.relativeTarget, this.relativeParent.target)
+			calcRelativeBox(
+				this.target,
+				this.relativeTarget,
+				this.relativeParent.target,
+				this.options.layoutAnchor || undefined,
+			)
 		} else if (this.targetDelta) {
 			copyBoxInto(this.target, this.layout.layoutBox)
 			applyBoxDelta(this.target, this.targetDelta)
@@ -279,7 +308,11 @@ export class ProjectionNode {
 
 		if (this.attemptToResolveRelativeTarget) {
 			this.attemptToResolveRelativeTarget = false
-			if (relativeParent?.target && this.animationProgress !== 1) {
+			if (
+				this.options.layoutAnchor !== false &&
+				relativeParent?.target &&
+				this.animationProgress !== 1
+			) {
 				this.createRelativeTarget(relativeParent, this.target, relativeParent.target)
 			} else {
 				this.removeRelativeTarget()
@@ -310,7 +343,8 @@ export class ProjectionNode {
 
 	isProjecting() {
 		return Boolean(
-			(this.relativeTarget ||
+			(this.options.layoutRoot ||
+				this.relativeTarget ||
 				this.targetDelta ||
 				(this.shared?.lead !== this && this.shared?.transitioning)) &&
 			this.layout,
@@ -323,7 +357,12 @@ export class ProjectionNode {
 		this.forceRelativeParentToResolveTarget()
 		this.relativeTarget = createBox()
 		this.relativeTargetOrigin = createBox()
-		calcRelativePosition(this.relativeTargetOrigin, layout, parentLayout)
+		calcRelativePosition(
+			this.relativeTargetOrigin,
+			layout,
+			parentLayout,
+			this.options.layoutAnchor || undefined,
+		)
 		copyBoxInto(this.relativeTarget, this.relativeTargetOrigin)
 	}
 
@@ -486,7 +525,9 @@ export class ProjectionNode {
 	}
 
 	setAnimationOrigin(delta: Delta, hasOnlyRelativeTargetChanged = false) {
-		this.relativeTarget = this.relativeTargetOrigin = undefined
+		if (!this.relativeParent?.options.layoutRoot) {
+			this.relativeTarget = this.relativeTargetOrigin = undefined
+		}
 		this.attemptToResolveRelativeTarget = !hasOnlyRelativeTargetChanged
 
 		const targetDelta = createDelta()
@@ -510,6 +551,7 @@ export class ProjectionNode {
 					relativeLayout,
 					this.layout.layoutBox,
 					this.relativeParent.layout.layoutBox,
+					this.options.layoutAnchor || undefined,
 				)
 
 				mixBox(this.relativeTarget, this.relativeTargetOrigin, relativeLayout, progress)

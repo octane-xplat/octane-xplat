@@ -139,6 +139,10 @@ export interface MotionProps {
 	layout?: boolean | 'position' | 'size' | 'preserve-aspect' | 'x' | 'y'
 	/** Join a shared-element transition with matching IDs in the same LayoutGroup namespace. Enables layout projection. */
 	layoutId?: string
+	/** Snap this container to its new layout; children animate relative to it. Enables projection. */
+	layoutRoot?: boolean
+	/** Relative attachment point in the parent (0 = start, 1 = end); false disables relative attachment. */
+	layoutAnchor?: { x: number; y: number } | false
 	/** Crossfade overlapping shared-element members. Set false to hide the outgoing member immediately. @default true */
 	layoutCrossfade?: boolean
 	/** When defined, layout animations only run on commits where this changed. */

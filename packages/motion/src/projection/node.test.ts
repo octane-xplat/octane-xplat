@@ -480,8 +480,17 @@ describe('shared layout projection', () => {
 		fixture.state.box = box(x, 0, width, 100)
 		let opacity = 1
 		const node = new ProjectionNode()
-		node.options = { animationType: 'both', layoutId: key, transition: { duration: 0.1, ease: 'linear' } }
-		node.attach({ ...fixture.hooks, writeOpacity: value => { opacity = value } })
+		node.options = {
+			animationType: 'both',
+			layoutId: key,
+			transition: { duration: 0.1, ease: 'linear' },
+		}
+		node.attach({
+			...fixture.hooks,
+			writeOpacity: (value) => {
+				opacity = value
+			},
+		})
 		root.add(node)
 		return { node, ...fixture, opacity: () => opacity }
 	}
@@ -539,7 +548,9 @@ describe('shared layout projection', () => {
 		expect(old.node.presented!.x.min).toBeCloseTo(midpoint)
 		expect(await oldExit).toBe('cancelled')
 		let removed = false
-		void nextExit.then(() => { removed = true })
+		void nextExit.then(() => {
+			removed = true
+		})
 		await Promise.resolve()
 		expect(removed).toBe(false)
 		clock.advance(120)
@@ -589,10 +600,16 @@ describe('shared layout projection', () => {
 	it('transfers viewport geometry between different scroll coordinate spaces', () => {
 		const { root, commit } = setup()
 		const old = member(root, 200)
-		old.node.hooks!.measureLayout = () => ({ layoutBox: box(200, 0, 100, 100), measuredBox: box(50, 0, 100, 100) })
+		old.node.hooks!.measureLayout = () => ({
+			layoutBox: box(200, 0, 100, 100),
+			measuredBox: box(50, 0, 100, 100),
+		})
 		commit()
 		const next = member(root, 500)
-		next.node.hooks!.measureLayout = () => ({ layoutBox: box(500, 0, 100, 100), measuredBox: box(400, 0, 100, 100) })
+		next.node.hooks!.measureLayout = () => ({
+			layoutBox: box(500, 0, 100, 100),
+			measuredBox: box(400, 0, 100, 100),
+		})
 		commit()
 		expect(next.node.presented!.x.min).toBe(150)
 		expect(old.node.presented!.x.min).toBe(200)
@@ -611,7 +628,12 @@ it('keeps the last channel values when shared opacity ownership ends', () => {
 	const fixture = fakeHooks()
 	fixture.state.box = box(200, 0, 100, 100)
 	let opacity = 1
-	next.attach({ ...fixture.hooks, writeOpacity: value => { opacity = value } })
+	next.attach({
+		...fixture.hooks,
+		writeOpacity: (value) => {
+			opacity = value
+		},
+	})
 	next.options = { animationType: 'both', layoutId: 'opacity', transition: { duration: 0.1 } }
 	next.latestValues = { opacity: 0.7 }
 	root.add(next)
@@ -643,4 +665,45 @@ it('composes shared geometry with different user translation channels', () => {
 	expect(applyDelta(source.state.box, source.state.writes.at(-1)!).x.min).toBeCloseTo(20)
 	clock.advance(120)
 	expect(next.latestValues.x).toBe(10)
+})
+
+it('snaps a layoutRoot while its child animates relative to its new position', () => {
+	const { root, commit, clock } = setup()
+	const parent = fakeHooks(),
+		child = fakeHooks()
+	parent.state.box = box(0, 0, 200, 200)
+	child.state.box = box(20, 20, 40, 40)
+	const p = makeNode(root, parent.hooks)
+	p.options.layoutRoot = true
+	const c = makeNode(root, child.hooks, p)
+	c.options.transition = { duration: 1, ease: 'linear' }
+	commit()
+	parent.state.box = box(100, 0, 200, 200)
+	child.state.box = box(140, 20, 40, 40)
+	commit()
+	expect(p.presented?.x.min).toBeCloseTo(100)
+	expect(c.presented?.x.min).toBeCloseTo(120)
+	clock.advance(500)
+	expect(c.presented?.x.min).toBeCloseTo(130)
+})
+
+it('anchors a relative child to the end of a resizing parent and supports opting out', () => {
+	const { root, commit } = setup()
+	const parent = fakeHooks(),
+		child = fakeHooks()
+	parent.state.box = box(0, 0, 200, 200)
+	child.state.box = box(160, 160, 40, 40)
+	const p = makeNode(root, parent.hooks)
+	const c = makeNode(root, child.hooks, p)
+	c.options.layoutAnchor = { x: 1, y: 1 }
+	commit()
+	parent.state.box = box(0, 0, 300, 300)
+	child.state.box = box(260, 260, 40, 40)
+	commit()
+	expect(c.relativeTarget?.x.min).toBeCloseTo(-40)
+	c.options.layoutAnchor = false
+	c.removeRelativeTarget()
+	c.targetDelta = undefined
+	c.resolveTargetDelta(true)
+	expect(c.relativeParent).toBeUndefined()
 })

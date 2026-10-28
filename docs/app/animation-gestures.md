@@ -725,7 +725,24 @@ export function ScrollingCard({ wide }: { wide: boolean }) {
 }
 ```
 
-`layoutScroll`, `layoutRoot`, and `layoutAnchor` are outside the supported
+Use `layoutRoot` on a container that should move immediately while its children
+animate relative to its new position. `layoutAnchor` chooses the child's attachment
+point inside a resizing parent: zero is the start, one is the end. Use `false`
+to animate the child independently of the parent's relative target.
+
+```tsx
+import { motion } from '@octane-xplat/motion'
+
+export function AnchoredCard() {
+  return (
+    <motion.View layoutRoot>
+      <motion.View layout="position" layoutAnchor={{ x: 1, y: 1 }} />
+    </motion.View>
+  )
+}
+```
+
+`layoutScroll` is outside the supported
 subset. Border-radius and box-shadow stretch during scale, and existing CSS
 transforms belong on an outer container. See
 [Motion leaf limits](../testing/known-limits.md#motion-leaf) for the full list.

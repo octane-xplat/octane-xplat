@@ -532,7 +532,7 @@ Verified 2026-10-27 by the maintained probe
 `examples/probes/motion-layout.mobile.tsrx` (iOS 27.0 simulator, Android 15 emulator;
 probe-driven geometry evidence, not visual capture or OS input).
 `layoutId`/`LayoutGroup` shared handoffs and retained crossfades are supported.
-`layoutScroll`/`layoutRoot`/`layoutAnchor`, `whileHover`/`whileInView`, keyframe arrays, and arbitrary
+`layoutScroll`, `whileHover`/`whileInView`, keyframe arrays, and arbitrary
 CSS/SVG properties are excluded. Border-radius and
 box-shadow are not scale-corrected and visibly stretch; fixed-position layout
 roots are unsupported. Browser overflow scroll offsets are detected automatically. On
