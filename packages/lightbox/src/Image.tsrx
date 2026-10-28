@@ -156,7 +156,7 @@ export function Image(props: LightboxImagePartProps) @{
 				break
 			}
 			case 'presence': ctx.presence.set(c.value); break
-			case 'restorePresence': anims.current.push(ctx.presence.animate(1, ctx.options.close)); break
+			case 'restorePresence': anims.current.push(ctx.presence.animate(1, SETTLE)); break
 			case 'dragging': ctx.setDragging(c.value); break
 			case 'close': ctx.close(c.velocity); break
 			case 'tap': {

@@ -85,6 +85,14 @@ behavior, rather than used as evidence of parity.
   teardown, preventing a late read of an unmounted image wrapper. Native OS
   input qualification remains pending.
 
+- Native distant navigation now retains the outgoing slide and begins its
+  dissolve after target content commits. FADE animates both slide opacity and
+  fractional progress; interruption, resize and teardown restore owned styles
+  and finish the pending operation. Object-driver checks cover interpolation,
+  completion, freeze cancellation and unmount. Native cancelled-pull presence
+  now uses SETTLE regardless of the custom close transition, covered through
+  gesture dispatch. Device animation qualification is still pending.
+
 ## Qualification boundary
 
 This was a source and documentation audit of the pinned reference, not an

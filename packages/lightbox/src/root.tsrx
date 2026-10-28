@@ -160,6 +160,7 @@ export function Root(props: LightboxRootProps) @{
 	const viewport = useRef<ViewportController | null>(null)
 	const openTrigger = useRef<any>(null)
 	const hidden = useRef<any[]>([])
+	const pendingFade = useRef<{ from: number; to: number } | null>(null)
 	const closeVelocity = useRef<{ x: number; y: number } | undefined>(undefined)
 
 	const hideTrigger = useEffectEvent((trigger: any) => {
@@ -212,9 +213,7 @@ export function Root(props: LightboxRootProps) @{
 					break
 				}
 				case 'fade': {
-					void viewport.current?.fade(effect.from, effect.to).then(() => {
-						if (mounted.current) dispatch({ kind: 'fadeDone', from: effect.from })
-					})
+					pendingFade.current = { from: effect.from, to: effect.to }
 					break
 				}
 				case 'notifyOpen': {
@@ -311,6 +310,20 @@ export function Root(props: LightboxRootProps) @{
 			dispatch({ kind: 'goTo', index: indexProp, count: items?.length ?? 0, reducedMotion })
 		}
 	}, [indexProp])
+
+	useLayoutEffect(() => {
+		const jump = pendingFade.current
+		if (!jump || state.phase !== 'open' || jump.to !== state.index) return
+		pendingFade.current = null
+		// The target may have been outside the render window. Begin only once
+		// its content and the held source have committed.
+		const timer = setTimeout(() => {
+			void viewport.current?.fade(jump.from, jump.to).then(() => {
+				if (mounted.current) dispatch({ kind: 'fadeDone', from: jump.from })
+			})
+		}, 0)
+		return () => clearTimeout(timer)
+	}, [state.index, state.held, state.phase])
 
 	// Hide the current thumbnail while the viewer is open.
 	useEffect(() => {
@@ -452,7 +465,7 @@ export function Viewport(props: LightboxPartProps) @{
 export function Slide(props: LightboxSlidePartProps) @{
 	const ctx = useLightboxCtx()
 	const index = props.index
-	const near = Math.abs(ctx.index - index) <= 2
+	const near = Math.abs(ctx.index - index) <= 2 || index === ctx.held
 	const current = ctx.index === index
 	return (
 		<SlideProvider value={{ index, onTap: props.onTap }}>

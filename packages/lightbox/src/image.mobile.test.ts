@@ -10,6 +10,7 @@ vi.mock('./root.tsrx', () => ({
 vi.mock('./clip', () => ({ createClipWriter: () => fixture.clip }))
 
 import { Image } from './Image.tsrx'
+import { SETTLE } from './constants'
 
 afterEach(() => {
 	vi.useRealTimers()
@@ -20,6 +21,7 @@ it.each(['open', 'close-before-layout', 'close-during-morph'])('handles delayed 
 	const closeBeforeLayout = action === 'close-before-layout'
 	vi.useFakeTimers()
 	let measured = false
+	let send: ((intent: any) => void) | undefined
 	const listeners = new Set<() => void>()
 	const slide = {
 		getActualSize: () => measured ? { width: 400, height: 800 } : { width: 0, height: 0 },
@@ -35,10 +37,10 @@ it.each(['open', 'close-before-layout', 'close-during-morph'])('handles delayed 
 	fixture.context = {
 		items: [{ src: '', alt: 'Photo', width: 800, height: 600 }],
 		index: 0, phase: 'opening', reducedMotion: false,
-		images: new Map(), viewport: { current: null }, openTrigger: { current: trigger },
+		images: new Map(), viewport: { current: { registerInput(_index: number, listener: typeof send) { send = listener; return () => {} } } }, openTrigger: { current: trigger },
 		options: { maxZoom: 4, open: { duration: 0.2 }, close: { duration: 0.2 } },
-		presence: { get: () => 1, set: vi.fn(), animate: vi.fn(() => ({ finished: Promise.resolve() })) },
-		pickTrigger: () => trigger, hideTrigger: vi.fn(), onOpened: vi.fn(), setZoomed: vi.fn(),
+		presence: { get: () => 1, set: vi.fn(), animate: vi.fn(() => ({ stop: vi.fn(), finished: Promise.resolve() })) },
+		pickTrigger: () => trigger, hideTrigger: vi.fn(), onOpened: vi.fn(), setZoomed: vi.fn(), setDragging: vi.fn(),
 	}
 	const container = createObjectContainer('nativescript')
 	const object = createObjectDriver('nativescript')
@@ -75,6 +77,14 @@ it.each(['open', 'close-before-layout', 'close-during-morph'])('handles delayed 
 			expect(fixture.context.hideTrigger).toHaveBeenCalledWith(trigger)
 			await vi.advanceTimersByTimeAsync(32)
 			expect(fixture.context.presence.set.mock.calls.some(([p]: [number]) => p > 0 && p < 1)).toBe(true)
+			if (action === 'open') {
+				fixture.context.phase = 'open'
+				send!({ kind: 'panStart', at: { x: 100, y: 100 }, pointer: 'touch' })
+				send!({ kind: 'panMove', at: { x: 100, y: 120 } })
+				send!({ kind: 'panMove', at: { x: 100, y: 130 } })
+				send!({ kind: 'panEnd', at: { x: 100, y: 130 }, velocity: { x: 0, y: 0 }, cancelled: true })
+				expect(fixture.context.presence.animate).toHaveBeenLastCalledWith(1, SETTLE)
+			}
 			if (action === 'close-during-morph') {
 				fixture.context.phase = 'closing'
 				void fixture.context.images.get(0).animateOut(trigger)

@@ -6,8 +6,8 @@
 import { useLayoutEffect, useRef } from 'octane'
 import { cx } from '@octane-xplat/lib'
 import { mergeStyle } from './style-merge'
-import type { MotionValue } from '@octane-xplat/motion'
-import { SETTLE } from './constants'
+import { useMotionValue, type MotionValue } from '@octane-xplat/motion'
+import { FADE, SETTLE } from './constants'
 import { clamp } from './math'
 import { viewRect } from './rect'
 import type { LightboxMedia, LightboxPartProps } from './props'
@@ -41,9 +41,10 @@ export function Track(props: LightboxPartProps & {
 	progress: MotionValue
 	zoomed: boolean
 }) @{
+	const fadeProgress = useMotionValue(0)
 	const clipRef = useRef<any>(null)
 	const rowRef = useRef<any>(null)
-	const live = useRef({ x: 0, stride: 1, index: props.currentIndex, tracking: false, anim: null as { stop(): void } | null })
+	const live = useRef({ x: 0, stride: 1, index: props.currentIndex, tracking: false, fade: null as { stop(): void } | null, anim: null as { stop(): void } | null })
 	const l = live.current
 	const count = () => props.items.length
 	// live.current.tracking flags an in-flight drag — it must live in the ref,
@@ -92,7 +93,10 @@ export function Track(props: LightboxPartProps & {
 				layoutSlides()
 				// Only re-snap when the viewport actually resized — re-layouts
 				// from translate/row writes must not clobber an in-flight drag.
-				if (l.stride !== before && !live.current.tracking && !l.anim) setX(-l.index * l.stride)
+				if (l.stride !== before) {
+					l.fade?.stop()
+					if (!live.current.tracking && !l.anim && !l.fade) setX(-l.index * l.stride)
+				}
 			} finally {
 				inLayout = false
 			}
@@ -101,7 +105,7 @@ export function Track(props: LightboxPartProps & {
 		clipRef.current?.on?.('layoutChanged', cb)
 		l.stride = stride()
 		// This layout effect re-runs every render — never re-snap mid-drag.
-		if (!live.current.tracking && !l.anim) setX(-l.index * l.stride)
+		if (!live.current.tracking && !l.anim && !l.fade) setX(-l.index * l.stride)
 		return () => {
 			;(clipRef.current?.parent as any)?.off?.('layoutChanged', cb)
 			clipRef.current?.off?.('layoutChanged', cb)
@@ -117,7 +121,7 @@ export function Track(props: LightboxPartProps & {
 		const clip = clipRef.current
 		if (!clip) return
 		const off = attachInput(clip, { maxZoom: props.maxZoom ?? 1 }, dispatch.current)
-		return () => { off(); l.anim?.stop() }
+		return () => { off(); l.anim?.stop(); l.fade?.stop() }
 	}, [])
 
 	useLayoutEffect(() => {
@@ -127,6 +131,7 @@ export function Track(props: LightboxPartProps & {
 				return () => { if (inputs.get(index) === send) inputs.delete(index) }
 			},
 			goTo(index, behavior) {
+				l.fade?.stop()
 				l.index = clamp(index, 0, count() - 1)
 				const target = -l.index * (l.stride = stride())
 				l.anim?.stop()
@@ -154,21 +159,49 @@ export function Track(props: LightboxPartProps & {
 				}
 			},
 			freeze(index) {
+				l.fade?.stop()
 				l.index = index
 				l.anim?.stop?.()
 				l.stride = stride()
 				setX(-index * l.stride)
 			},
-			async fade(from, to) {
-				const row = rowRef.current
-				if (!row) { this.freeze(to); return }
-				row.opacity = 0
+			fade(from, to) {
 				this.freeze(to)
-				props.progress.set(-l.x / l.stride)
-				row.opacity = 1
+				const row = rowRef.current
+				const a = row?.getChildAt?.(from)
+				const b = row?.getChildAt?.(to)
+				if (!a || !b || from === to) return Promise.resolve()
+				const saved = [a, b].map(view => ({
+					view, opacity: view.opacity ?? 1, translateX: view.translateX ?? 0, zIndex: view.zIndex ?? 0,
+				}))
+				a.translateX = saved[0].translateX + (to - from) * l.stride
+				a.zIndex = Math.max(saved[0].zIndex, saved[1].zIndex) + 1
+				b.opacity = 0
+				props.progress.set(from)
+				fadeProgress.jump(0)
+				return new Promise<void>(resolve => {
+					const off = fadeProgress.on('change', p => {
+						a.opacity = saved[0].opacity * (1 - p)
+						b.opacity = saved[1].opacity * p
+						props.progress.set(from + (to - from) * p)
+					})
+					const animation = fadeProgress.animate(1, FADE)
+					const playback = { stop() {
+						if (l.fade !== playback) return
+						l.fade = null
+						off()
+						animation.stop()
+						for (const { view, opacity, translateX, zIndex } of saved) Object.assign(view, { opacity, translateX, zIndex })
+						props.progress.set(to)
+						resolve()
+					} }
+					l.fade = playback
+					void animation.finished.then(() => playback.stop())
+				})
 			},
 			track(phase, dx, vx) {
 				if (phase === 'start') {
+					l.fade?.stop()
 					live.current.tracking = true
 					l.anim?.stop?.()
 					l.stride = stride()

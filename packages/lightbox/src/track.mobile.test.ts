@@ -3,6 +3,8 @@ import { createObjectContainer, createObjectDriver, createUniversalRoot, flushUn
 import { MotionValue } from '../../motion/src/value'
 import { Track } from './track.mobile.tsrx'
 
+vi.mock('@octane-xplat/ui', () => import('../test/content-ui.mobile.tsrx'))
+
 // Pure math and object-driver regressions complement the native iOS probe.
 describe('native track math', () => {
 	it('progress = -x / stride', async () => {
@@ -108,4 +110,49 @@ it('restores the current slide and completes or cancels snaps without progress f
 		vi.clearAllTimers()
 		vi.useRealTimers()
 	}
+})
+
+it('dissolves distant slides, interpolates progress, and restores temporary styles on cancellation', async () => {
+	vi.useFakeTimers()
+	const progress = new MotionValue(0, {
+		now: () => Date.now(), request: cb => setTimeout(cb, 16) as any, cancel: id => clearTimeout(id),
+	})
+	const slides = Array.from({ length: 6 }, () => ({ opacity: 0.8, translateX: 3, zIndex: 2 }))
+	const object = createObjectDriver('nativescript')
+	const parent = { getActualSize: () => ({ width: 400, height: 800 }) }
+	const root = createUniversalRoot(createObjectContainer('nativescript'), {
+		...object,
+		getPublicInstance(container, id) {
+			const view = object.getPublicInstance(container, id)
+			if (view) Object.assign(view, { parent, getActualSize: parent.getActualSize, getChildAt: (i: number) => slides[i] })
+			return view
+		},
+	})
+	const controllerRef: any = { current: null }
+	try {
+		flushUniversalSync(() => root.render(Track, { items: slides.map(() => ({ src: '', alt: '' })), currentIndex: 0, controllerRef, onScrollIndex() {}, progress, zoomed: false }))
+		const done = controllerRef.current.fade(0, 5)
+		expect(slides[0].translateX).toBe(2003)
+		expect(slides[5].opacity).toBe(0)
+		await vi.advanceTimersByTimeAsync(100)
+		expect(slides[0].opacity).toBeGreaterThan(0)
+		expect(slides[0].opacity).toBeLessThan(0.8)
+		expect(slides[5].opacity).toBeGreaterThan(0)
+		expect(progress.get()).toBeGreaterThan(0)
+		expect(progress.get()).toBeLessThan(5)
+		await vi.advanceTimersByTimeAsync(300)
+		await done
+		expect(progress.get()).toBe(5)
+		expect(slides.every(s => s.opacity === 0.8 && s.translateX === 3 && s.zIndex === 2)).toBe(true)
+		const interrupted = controllerRef.current.fade(5, 0)
+		await vi.advanceTimersByTimeAsync(32)
+		controllerRef.current.freeze(2)
+		await interrupted
+		expect(progress.get()).toBe(2)
+		expect(slides.every(s => s.opacity === 0.8 && s.translateX === 3 && s.zIndex === 2)).toBe(true)
+		const unmounted = controllerRef.current.fade(2, 5)
+		root.unmount()
+		await unmounted
+		expect(slides.every(s => s.opacity === 0.8 && s.translateX === 3 && s.zIndex === 2)).toBe(true)
+	} finally { root.unmount(); progress.destroy(); vi.clearAllTimers(); vi.useRealTimers() }
 })
