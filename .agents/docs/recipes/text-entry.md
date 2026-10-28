@@ -138,3 +138,20 @@ and the existing [controlled-text fixture](../../../examples/probes/controlled-t
 which adds a manual color toggle. No test or probe ran; actual native placeholder
 painting/theme/layout requires separate target qualification. This small leaf repair reuses existing
 renderer style application/removal and adds no native selector or public API.
+## GTK partial qualification
+
+The full target list above is unchanged. The experimental GTK subset now
+exports TextInput from the UI root; see [GTK text entry](../../../docs/platform/linux-gtk.md#text-entry).
+The maintained [text-entry fixture](../../../packages/linux-gtk-renderer/test/fixtures/src/ui-text-entry.gtk.tsrx)
+checks controlled writes/rejection, native cursor/selection, leading content,
+focus/blur, submission and disposal with actual X11 input. The
+[field fixture](../../../packages/linux-gtk-renderer/test/fixtures/src/ui-field-chrome.gtk.tsrx)
+checks width, automatic labels/status, inherited sizing and keyboard clear/help.
+
+These checks contribute to AC1 and the TextInput portions of AC3/AC4. They do
+not establish the complete recipe: composition/marked text and multiline
+Return (AC2), the public Field and group contracts (AC3/AC6), OSK/overlay
+avoidance and keyboard insets (AC4/AC7), NumberInput (AC8), modal isolation and
+Presence exit (AC5), and assistive-technology clients remain unqualified.
+GTK coverage and exact-criterion verification are recorded separately in Silo's
+gtk_recipe_checks; widget fixtures do not qualify packaged consumers.

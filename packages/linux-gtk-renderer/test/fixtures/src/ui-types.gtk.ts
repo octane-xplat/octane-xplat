@@ -3,10 +3,24 @@ import type * as NativeUI from '../../../../ui/types/generated/index.mobile'
 import type {
 	StackProps as GtkStackProps,
 	PressableProps as GtkPressableProps,
+	TextInputProps as GtkTextInputProps,
+	TextInputHandle as GtkTextInputHandle,
+	FieldControlProps as GtkFieldControlProps,
+	FieldControlSize as GtkFieldControlSize,
+	FieldStatusInfo as GtkFieldStatusInfo,
+	FieldStatusType as GtkFieldStatusType,
+	FieldStatusVariant as GtkFieldStatusVariant,
 } from '@octane-xplat/ui'
 import type {
 	StackProps as NativeStackProps,
 	PressableProps as NativePressableProps,
+	TextInputProps as NativeTextInputProps,
+	TextInputHandle as NativeTextInputHandle,
+	FieldControlProps as NativeFieldControlProps,
+	FieldControlSize as NativeFieldControlSize,
+	FieldStatusInfo as NativeFieldStatusInfo,
+	FieldStatusType as NativeFieldStatusType,
+	FieldStatusVariant as NativeFieldStatusVariant,
 } from '../../../../ui/types/generated/index.mobile'
 
 type Assert<T extends true> = T
@@ -24,6 +38,14 @@ type PublicValues = Assert<
 >
 type StackContract = Assert<Equal<GtkStackProps, NativeStackProps>>
 type PressableContract = Assert<Equal<GtkPressableProps, NativePressableProps>>
+type TextInputContract = Assert<Equal<GtkTextInputProps, NativeTextInputProps>>
+type TextInputHandleContract = Assert<Equal<GtkTextInputHandle, NativeTextInputHandle>>
+type FieldControlContract = Assert<Equal<GtkFieldControlProps, NativeFieldControlProps>>
+type FieldSizeContract = Assert<Equal<GtkFieldControlSize, NativeFieldControlSize>>
+type FieldStatusInfoContract = Assert<Equal<GtkFieldStatusInfo, NativeFieldStatusInfo>>
+type FieldStatusTypeContract = Assert<Equal<GtkFieldStatusType, NativeFieldStatusType>>
+type FieldStatusVariantContract = Assert<Equal<GtkFieldStatusVariant, NativeFieldStatusVariant>>
+
 // @ts-expect-error The native direction contract is retained on GTK.
 const invalidDirection: GtkStackProps['direction'] = 'sideways'
 void invalidDirection

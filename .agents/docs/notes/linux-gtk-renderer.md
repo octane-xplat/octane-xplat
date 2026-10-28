@@ -833,8 +833,8 @@ TextInput returnKeyType's done/next/go/search/send captions therefore have no
 direct Gtk.Entry mapping in the current renderer. Native Return activation and
 onSubmit are separately proven by the text-entry fixture. Do not map next to
 automatic focus advancement or activates-default: those change behavior rather
-than naming the key. The current renderer warns about the unbound prop; a later
-qualification should make the documented caption subset explicit. Revisit if
+than naming the key. The renderer now emits a specific once-per-runtime caption diagnostic;
+Return submission is preserved and the caption subset is explicit. Revisit if
 GTK adds an introspectable per-entry action hint or a platform leaf owns the
 external OSK lifecycle. This limitation remains open rather than being hidden
 by the field-width/status work.
@@ -900,3 +900,88 @@ Recipes, UI barrel synchronization, 17 release notes, formatting and whitespace
 pass. Root remains 37 values and 57 types; no new UI dependencies or public prop
 types. The broad-native batch-observer failure and docs-site parser failure
 remain outside passing evidence.
+
+## GTK TextInput root qualification
+
+The curated root adds TextInput with the native TextInputProps and
+TextInputHandle, plus FieldControlProps, FieldControlSize, FieldStatusInfo,
+FieldStatusType and FieldStatusVariant. FieldStatusInfo preserves the native
+barrel's alias; FieldStatus names a different component and is not added.
+Source/generated shape checks compare every current GTK value and all seven
+new type exports against the native barrel. Availability is now 38 values
+and 64 types; earlier counts above describe their commits.
+
+Maintained text-entry, field-chrome, accessibility and Tooltip fixtures now
+import TextInput from the curated root. The focused text-entry fixture passes
+89 real-Linux checks (/tmp/gtk-textinput-root-focused.log), including native
+computed placeholder colors and resets, all six input purposes, custom classes,
+testID/native-id fallback, leading icon/node/removal, controlled/native text
+writes, repeated rejected insertions, accepted edits, selection/focus, clear,
+Return and lifecycle ownership. Signal dispatch is distinguished from actual
+X11 typing/navigation/submission; no IME, OSK, AT-client, Wayland or pixel proof
+is implied.
+
+A leading-content change previously remounted the unkeyed textfield while
+the imperative handle still referred to the old widget. Comparing only the
+handle to a captured handle missed that; comparing container.nodes' mounted
+widget reproduces the failure (/tmp/gtk-leading-identity-before.log). The
+editor now has a stable host key. This also resolves the misleading placeholder
+color failure that read a detached old editor; no CSS-provider workaround is
+needed.
+
+Controlled edits now increment an edit revision read by the existing text
+write effect. That reconciles the parent's current value even if it rejects
+the same invalid text repeatedly without changing props. A single GtkEditable
+insertion reproduces the old failure (/tmp/gtk-controlled-insert-before.log).
+GTK4.14.5 [set_text](https://github.com/GNOME/gtk/blob/4.14.5/gtk/gtkeditable.c#L567-L579)
+composes deletion and insertion; the initial bulk-replacement probe could give
+the parent an accepted transition before the invalid insertion. Single insertion
+and actual typing provide the rejection evidence.
+The corrected probe and actual X11 reject/accept flows pass after reconciliation.
+Native object-driver tests now mutate the actual field text before dispatch
+instead of assuming a synthetic event had mutated it.
+
+NativeScript core 9.1.3 maps number to iOS NumbersAndPunctuation and Android
+signed/decimal numeric flags; decimal uses DecimalPad on iOS and equivalent
+numeric flags on Android. GTK NUMBER is therefore retained for both, rather
+than inferring DIGITS from web inputMode=numeric. GTK's purpose is a hint,
+not text validation. The pinned [iOS source](https://github.com/NativeScript/NativeScript/blob/9.1.3/packages/core/ui/editable-text-base/index.ios.ts#L48-L54) and
+[Android source](https://github.com/NativeScript/NativeScript/blob/9.1.3/packages/core/ui/editable-text-base/index.android.ts#L219-L226) were inspected through opensrc; no iOS/Android device input-method proof is added.
+
+GTK4.14.5 Entry/Text GIR and GTK4.24.1 API expose no per-field action-caption
+selector. returnKeyType now has a specific once-per-runtime diagnostic instead
+of repeated ignored-prop warnings. All five hints preserve one Return callback
+and current focus in the maintained fixture; next is not mapped to navigation.
+The exact caption boundary remains documented under GTK Entry return-key captions.
+Remaining common-renderer/visual/input-method qualification and all other
+unqualified UI families remain part of the full goal.
+
+Final GTK TextInput evidence: all 39 Linux renderer tests pass without skips
+(guest /tmp/gtk-textinput-root-tests-final.log), including the 89-check entry
+fixture, 59 field-chrome checks, 58 native accessibility comparisons and the
+existing pointer/keyboard/scroll/portal/tooltip checks. The final focused entry
+fixture adds actual X11 typing into a programmatically selected middle range
+and passes 92 checks (/tmp/gtk-textinput-root-middle.log): controlled text and
+caret remain correct and one native edit reports onChange once. Selection
+creation in this case is programmatic; no OS selection-gesture claim is added.
+Runtime: Ubuntu24.04 amd64, GJS1.80.2, GTK4.14.5, XplatMason and private Xvfb.
+
+Expanded UI/renderer/dependent typecheck passes 58 tasks
+(andromeda /tmp/gtk-textinput-root-types-final.log). All GTK runtime value
+signatures and the seven new public type aliases match the native barrel.
+Packed exports/declaration graph passes six tasks
+(/tmp/gtk-textinput-root-pack.log). Focused native checks pass 58 Node tests
+and 31 Vitest cases (/tmp/gtk-controlled-native-focused-second.log). The broad
+native suite passes 454 and fails the same recorded batch-observer exception
+expectation (/tmp/gtk-textinput-root-native.log); that suite is not reported
+as passing. Recipes, all 17 release notes, UI barrel sync, formatting and
+whitespace pass. No new UI dependency, IME/OSK/AT-client/Wayland/mobile-device/
+pixel or packaged-consumer qualification is added.
+
+Affected recipe coverage: text-entry AC1 has the scoped GTK editing evidence
+above; the remaining text-entry criteria retain composition/multiline, public
+Field/InputGroup/NumberInput, keyboard/overlay and modal gaps. component-refs
+has object-handle and mounted identity evidence; its complete ref-form/cleanup/
+composition criteria remain unqualified on GTK. linux-gtk-package keeps its
+artifact boundary and has no new packaged-consumer execution. Full criteria
+and target lists are retained; GTK assessments belong in gtk_recipe_checks.

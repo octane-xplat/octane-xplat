@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { createContext, useContext, useEffect } from 'octane'
-import { View, Text, Tooltip } from '@octane-xplat/ui'
-import { TextInput } from '../../../../ui/src/TextInput'
+import { View, Text, Tooltip, TextInput } from '@octane-xplat/ui'
 const Context = createContext('missing')
 export const lifetime = { mounts: 0, unmounts: 0 }
 function Content() @{

@@ -96,3 +96,14 @@ export type {
 
 export { Tooltip } from './Tooltip'
 export type { TooltipProps, PopoverPlacement } from './props'
+
+export { TextInput } from './TextInput'
+export type {
+	TextInputProps,
+	TextInputHandle,
+	FieldControlProps,
+	FieldControlSize,
+	FieldStatus as FieldStatusInfo,
+	FieldStatusType,
+	FieldStatusVariant,
+} from './props'

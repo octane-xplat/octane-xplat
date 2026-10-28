@@ -80,7 +80,7 @@ variants in `.gtk.tsrx`/`.gtk.tsx` files.
 `@octane-xplat/ui` resolves a curated `gtk` export condition. It includes
 `Text`, `Pressable`, the `View`/`Stack` family, `Grid`/`GridSpan`, `Center`,
 `Section`, `Layout` regions, `Absolute`, `Spacer`, `Badge`, `Divider`,
-`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, `ScrollableArea`, `Spinner`, `useScrollableArea`, `Icon`, and icon registries.
+`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, `ScrollableArea`, `Spinner`, `useScrollableArea`, `Icon`, icon registries, `Tooltip`, and `TextInput`.
 For example, place a label and
 status badge in a horizontal row:
 
@@ -145,9 +145,78 @@ export function FocusableField() {
 }
 ```
 
-TextInput and TextArea remain outside the curated GTK root while their complete
-field and multiline behavior is being qualified. The raw-field example above
-does not establish IME or screen-reader support.
+## Text entry
+
+TextInput is available from the GTK UI root. Use value with onChange to keep
+the text in your component's state, or defaultValue for an input that manages
+its own text. Pressing Return calls onSubmit; hasClear adds a keyboard-accessible
+clear action.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { useState } from 'octane'
+import { TextInput, Text, View } from '@octane-xplat/ui'
+
+export function AccountEntry() {
+  const [value, setValue] = useState('')
+  const [submitted, setSubmitted] = useState(false)
+  return (
+    <View>
+      <TextInput
+        label="Account"
+        placeholder="Work account"
+        value={value}
+        onChange={setValue}
+        hasClear
+        onSubmit={() => setSubmitted(true)}
+      />
+      <Text>{submitted ? 'Return received' : ''}</Text>
+    </View>
+  )
+}
+```
+
+keyboardType is a hint for the input method, not validation. A controlled
+parent can reject an edit by keeping its value unchanged. This example accepts
+digits and shows a validation tooltip while empty. Status messages, labels
+and leading content can change without replacing the editor.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { useState } from 'octane'
+import { TextInput } from '@octane-xplat/ui'
+
+export function ReferenceEntry() {
+  const [value, setValue] = useState('')
+  return (
+    <TextInput
+      label="Reference"
+      value={value}
+      onChange={(next) => { if (/^\d*$/.test(next)) setValue(next) }}
+      keyboardType="number"
+      isRequired
+      status={value ? undefined : { type: 'error', message: 'Enter digits' }}
+      statusVariant="tooltip"
+    />
+  )
+}
+```
+
+GTK Entry has no per-field Return-key caption selector in the inspected API.
+returnKeyType therefore keeps Return submission working and emits one diagnostic
+that its caption hint is unavailable. It does not move focus for next.
+TextArea, IME, assistive-technology clients, Wayland and visual parity remain
+outside this qualification.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { TextInput } from '@octane-xplat/ui'
+
+export function SearchEntry(props: { search: () => void }) {
+  return <TextInput placeholder="Search" returnKeyType="search" onSubmit={props.search} />
+}
+```
+
 
 Use `AspectRatio` to derive a container's height from its allocated width.
 `useMeasure` reports a widget's position and size relative to the app content
@@ -578,5 +647,5 @@ export function PointerAction(props: { disabled: boolean; save: () => void }) {
 
 Maintainer qualification now includes the [field-chrome runtime fixture](https://github.com/octane-xplat/octane-xplat/blob/main/packages/linux-gtk-renderer/test/fixtures/src/ui-field-chrome.gtk.tsrx).
 The fixture also checks editor retention while labels or validation messages change.
-TextInput and Field remain outside the curated GTK root; successful source
-fixtures do not establish complete app-facing support.
+TextInput is available from the curated root. Field remains a source-only
+fixture; its complete contract is not established by this qualification.

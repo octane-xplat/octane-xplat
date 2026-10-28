@@ -75,20 +75,29 @@ export function SaveAction(props: { disabled: boolean; save: () => void }) {
 }
 ```
 
-GTK field qualification uses TextInput source fixtures. Keep width on the outer
-field owner to avoid applying percentages twice. GTK status tooltips use the
-platform status-variant policy; do not reuse the touch-only detached fallback.
-Changing only status presentation keeps the control in the same provider slot.
-This does not add TextInput or FormField to the curated root.
+### GTK text input
+
+Use TextInput from the curated GTK root. Its controlled value, native handle,
+clear/help/status affordances and retained editor have maintained Linux checks.
+Keep width on the outer field owner and use the GTK status-variant policy
+for hover/focus tooltips. Field and TextArea remain outside the root.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { TextInput } from '@octane-xplat/ui'
+export function AccountEntry() {
+  return <TextInput label="Account" defaultValue="12" hasClear width="75%" />
+}
+```
 
 GTK Entry has no direct per-field return-key caption property in the inspected
-4.14.5 GIR or 4.24.1 API. Keep Return/onSubmit behavior separate from captions;
-do not turn returnKeyType="next" into automatic focus movement. See the
+4.14.5 GIR/4.24.1 API. returnKeyType warns once; onSubmit still receives Return.
+Do not turn next into automatic focus movement. See the
 [renderer evidence](../../../docs/notes/linux-gtk-renderer.md#gtk-entry-return-key-captions).
 
-Keep a standalone native TextInput’s automatic Field wrapper stable when labels
-or validation messages appear. Reparenting the control between conditional
-component branches remounts its state and native editor. Pass resolved defaults
-to the wrapper and original input props to the control so composed hints are
-not resolved twice. The maintained GTK field fixture covers exact entry, ref,
-selection and focus retention after actual typing.
+Keep the automatic Field wrapper and native editor key stable while chrome
+or leading content changes. Compare the mounted widget, not just a captured
+handle, when testing identity. Controlled native edits need reconciliation
+even when the parent rejects a value without changing props; the existing
+effect reads an edit revision for this. Pass original props to the control
+and resolved defaults to the wrapper so composed hints are not doubled.

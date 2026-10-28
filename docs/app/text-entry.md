@@ -8,6 +8,10 @@ state and callbacks.
 
 For a complete labeled form with validation, focus and announcement checks,
 follow [Build and test an accessible screen](accessibility.md).
+For the experimental GTK target, start with the
+[GTK TextInput guide](../platform/linux-gtk.md#text-entry). Its single-line
+subset is qualified separately; the other form, keyboard and overlay pieces
+below are not a complete GTK workflow.
 
 ## Control a field
 
@@ -282,6 +286,12 @@ touch hit-testing, VoiceOver, or TalkBack. Check those on a simulator/device
 with the target lock held, without resetting another session. Current
 runtime evidence and exact remaining cases belong in
 [input readiness notes](../../.agents/docs/notes/input-readiness-notes.md).
+
+The maintained [GTK text-entry fixture](../../packages/linux-gtk-renderer/test/fixtures/src/ui-text-entry.gtk.tsrx)
+and [runner](../../packages/linux-gtk-renderer/test/ui-text-entry.test.mjs)
+exercise Gtk.Entry with actual X11 typing, controlled rejection/acceptance and
+selection/cursor checks. These do not establish IME composition, multiline
+editing, OSK/overlay avoidance, assistive-technology clients or visual parity.
 
 ## Read software keyboard space
 

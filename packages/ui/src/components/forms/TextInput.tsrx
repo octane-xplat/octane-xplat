@@ -16,17 +16,23 @@ import { FormField } from './FormField'
  *  write coerces ios.userInteractionEnabled to NO (dead field) — the
  *  driver's skip-undefined patch covers it, the ?? stays as documentation.
  *  `text` isn't a bound prop: the leaf writes it imperatively so the
- *  Android selection survives controlled writes (see text-write). */
+ *  Android selection survives controlled writes (see text-write). The editor
+ *  has a stable host key so optional leading content cannot replace it. */
 function TextInputControl(inputProps: TextInputProps) @{
 	const props = useFieldControlProps(inputProps)
 	const el = useRef<any>(null)
 	const [internal, setInternal] = useState(props.defaultValue ?? '')
+	const [editVersion, setEditVersion] = useState(0)
 	const value = props.value ?? internal
-	useEffect(() => writeText(el.current, value), [value])
+	useEffect(() => writeText(el.current, value), [value, editVersion])
 	const isBlocked = props.isDisabled || props.isReadOnly
 	const setValue = (next: string) => {
 		if (props.value === undefined) {
 			setInternal(next)
+		} else {
+			// Reconcile even if the parent rejects an edit without changing value.
+			// A counter also handles the same rejected string entered repeatedly.
+			setEditVersion((version) => version + 1)
 		}
 
 		props.onChange?.(next)
@@ -66,6 +72,7 @@ function TextInputControl(inputProps: TextInputProps) @{
 			</masonview>
 		) : null}
 		<textfield
+			key="editor"
 			ref={(v: any) => {
 				el.current = v
 				if (!v) {

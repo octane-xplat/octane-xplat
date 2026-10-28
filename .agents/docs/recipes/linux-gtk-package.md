@@ -43,3 +43,9 @@ The primitive and pointer fixtures qualify named Mason allocations and X11
 Pressable input, independently of this packaging recipe. They do not qualify
 the packaged consumer, broad keyboard/input behavior, Wayland, accessibility
 or visual parity. See the [GTK UI qualification record](../notes/linux-gtk-ui-parity.md#primitive-and-layout-slice).
+
+The curated UI now also includes TextInput. Its
+[text-entry checks](../../../packages/linux-gtk-renderer/test/ui-text-entry.test.mjs)
+cover named native text/style/handle behavior and actual X11 editing. This
+extends widget evidence only; it does not establish AC2's packaged-consumer
+journey or remove the broader input-method/assistive-technology/Wayland gaps.

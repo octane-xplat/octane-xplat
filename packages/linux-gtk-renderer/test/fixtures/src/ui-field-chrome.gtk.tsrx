@@ -1,9 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { View } from '@octane-xplat/ui'
-import { TextInput } from '../../../../ui/src/TextInput'
-import { SizeProvider } from '../../../../ui/src/size-context'
+import { View, TextInput, SizeProvider } from '@octane-xplat/ui'
 import { FormField } from '../../../../ui/src/FormField'
-import type { TextInputHandle, FieldStatusVariant } from '../../../../ui/src/props'
+import type { TextInputHandle, FieldStatusVariant } from '@octane-xplat/ui'
 
 export const inputRef: { current: TextInputHandle | null } = { current: null }
 export const actions: string[] = []

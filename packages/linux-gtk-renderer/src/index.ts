@@ -2179,6 +2179,11 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 				if (purpose !== undefined) {
 					view.input_purpose = purpose
 				}
+			} else if (name === 'returnKeyType') {
+				warnOnce(
+					'textfield:return-key-caption',
+					'<textfield> returnKeyType captions are unavailable on GTK; Return still emits returnPress.',
+				)
 			} else if (name === 'autocorrect') {
 				// Gtk.InputHints.NO_SPELLCHECK = 2
 				const flags = Number(view.input_hints ?? 0)

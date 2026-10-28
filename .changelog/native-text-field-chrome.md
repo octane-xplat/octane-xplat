@@ -1,39 +1,35 @@
-### Keep native text-field sizing and status together
+### Build GTK forms with TextInput
 
-Native TextInput now forwards standalone width and field-wrapper state, including
-read-only, loading, size and status presentation. GTK source fixtures also gain
-keyboard-accessible clear/help controls and validation tooltips. TextInput remains
-outside the curated GTK root while its remaining input contract is qualified.
+The experimental GTK renderer now exposes TextInput from @octane-xplat/ui.
+It supports controlled or default text, field labels and status, keyboard
+clear/help actions, native focus/blur handles and validation tooltips.
+Editor text, selection and focus stay attached when field chrome or leading
+content changes. Controlled fields restore values rejected by their parent.
 
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
+import { useState } from 'octane'
 import { TextInput } from '@octane-xplat/ui'
 
-// Shared native UI; the GTK root export is still under qualification.
-export function AccountField() {
+export function ReferenceField() {
+  const [value, setValue] = useState('')
   return (
     <TextInput
-      label="Account"
+      label="Reference"
+      value={value}
+      onChange={(next) => { if (/^\d*$/.test(next)) setValue(next) }}
+      keyboardType="number"
       width="75%"
-      isLoading
-      status={{ type: 'error', message: 'Account is required' }}
+      hasClear
+      status={value ? undefined : { type: 'error', message: 'Enter digits' }}
       statusVariant="tooltip"
     />
   )
 }
 ```
 
+GTK keeps normal Return submission; its Entry API does not provide per-field
+Return-key captions. The renderer reports that boundary once when a caption
+hint is supplied.
 
-Native TextInput also keeps edited text, focus and selection when a label appears
-or disappears. Its automatic field wrapper stays mounted during the change.
-
-```tsx
-/** @jsxImportSource @octane-xplat/jsx */
-import { TextInput } from '@octane-xplat/ui'
-
-export function EditableAccount(props: { showLabel: boolean }) {
-  return <TextInput defaultValue="Account" label={props.showLabel ? 'Account' : undefined} />
-}
-```
-
-[GTK qualification](https://octane-xplat.goddardai.org/platform/linux-gtk#check-the-runtime).
+[GTK text entry](https://octane-xplat.goddardai.org/platform/linux-gtk#text-entry).

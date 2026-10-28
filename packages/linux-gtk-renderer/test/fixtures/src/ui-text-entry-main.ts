@@ -3,7 +3,16 @@ import '@octane-xplat/ui/theme/chrome.css'
 import Gtk from 'gi://Gtk?version=4.0'
 import GLib from 'gi://GLib'
 import { createGtkRoot, gtkDriver } from '@octane-xplat/linux-gtk'
-import { TextEntry, inputRef, changes, submits, focusEvents } from './ui-text-entry.gtk'
+import {
+	TextEntry,
+	inputRef,
+	changes,
+	submits,
+	focusEvents,
+	controlledRef,
+	controlledChanges,
+	controlledValue,
+} from './ui-text-entry.gtk'
 Gtk.init()
 const window = new Gtk.Window({
 	title: 'Octane GTK text entry test',
@@ -37,6 +46,21 @@ const focusedWithin = (view: any) => {
 	const focused = window.get_focus()
 	return focused === view || !!focused?.is_ancestor(view)
 }
+const placeholder = (view: any): any => {
+	if (view.get_css_name() === 'placeholder') return view
+	for (let child = view.get_first_child(); child; child = child.get_next_sibling()) {
+		const found = placeholder(child)
+		if (found) return found
+	}
+	return null
+}
+const rgb = (widget: any) => {
+	const color = widget.get_style_context().get_color()
+	return [color.red, color.green, color.blue]
+		.map((channel: number) => Math.round(channel * 255))
+		.join(',')
+}
+
 let props: Parameters<typeof TextEntry>[0] = {
 	version: 1,
 	value: 'A😀BC',
@@ -64,8 +88,8 @@ keys.connect('key-pressed', (_controller: any, key: number) => {
 })
 window.add_controller(keys)
 let osKeyboard = false
-async function inputPhase(phase: string) {
-	const bounds = entry().getBounds()
+async function inputPhase(phase: string, target = entry()) {
+	const bounds = target.getBounds()
 	const next = osAck + 1
 	print(
 		'GTK_TEXT_ENTRY_READY ' +
@@ -89,9 +113,111 @@ async function run() {
 		'stored accessible name exists',
 		Gtk.test_accessible_has_property(view, Gtk.AccessibleProperty.LABEL),
 	)
+	check(
+		'registered leading icon has a native picture',
+		[...container.nodes.values()].some((n) => n.picture && n.view?.get_paintable()),
+	)
+	props = { ...props, leading: 'node' }
+	render()
+	await pause()
+	check(
+		'custom leading content replaces the registered icon',
+		node('entry-leading').view!.get_text() === 'Leading' &&
+			node('entry').view === view &&
+			entry() === view,
+	)
+	props = { ...props, leading: 'none' }
+	render()
+	await pause()
+	check(
+		'removing leading content retains the editor',
+		![...container.nodes.values()].some((n) => n.cssClasses.has('vx-input-icon')) &&
+			node('entry').view === view &&
+			entry() === view,
+	)
+	check(
+		'leading content changes retain the actual mounted editor',
+		node('entry').view === view && inputRef.current!.native === node('entry').view,
+	)
+	const hint = placeholder(view)
+	check('placeholder uses a real native label node', hint instanceof Gtk.Label)
+	const defaultColor = rgb(hint)
+	props = {
+		...props,
+		placeholderColor: '#12ab34',
+		testID: 'account-entry',
+		className: 'account-custom',
+	}
+	render()
+	await pause()
+	check('placeholder color reaches native computed style: ' + rgb(hint), rgb(hint) === '18,171,52')
+	check('custom class is retained on the GTK input', node('entry').cssClasses.has('account-custom'))
+	check('testID reaches native automation name', view.get_name() === 'account-entry')
+	props = { ...props, placeholderColor: '#ab1234', placeholder: 'Updated hint' }
+	render()
+	await pause()
+	check(
+		'placeholder updates retain its native node',
+		placeholder(view) === hint && hint.get_text() === 'Updated hint',
+	)
+	check('placeholder color updates native computed style', rgb(hint) === '171,18,52')
+	props = { ...props, placeholderColor: undefined, testID: undefined, className: undefined }
+	render()
+	await pause()
+	check('removing custom placeholder color restores themed color', rgb(hint) === defaultColor)
+	check(
+		'removing custom class restores input classes',
+		!node('entry').cssClasses.has('account-custom') && node('entry').cssClasses.has('vx-input'),
+	)
+	check('removing testID restores native id name', view.get_name() === 'entry')
+	for (const [keyboard, purpose] of [
+		['default', Gtk.InputPurpose.FREE_FORM],
+		['email', Gtk.InputPurpose.EMAIL],
+		['number', Gtk.InputPurpose.NUMBER],
+		['decimal', Gtk.InputPurpose.NUMBER],
+		['phone', Gtk.InputPurpose.PHONE],
+		['url', Gtk.InputPurpose.URL],
+	] as const) {
+		props = { ...props, keyboard }
+		render()
+		await pause(35)
+		check(
+			'input purpose reaches GTK: ' + keyboard,
+			view.input_purpose === purpose && node('entry').view === view && entry() === view,
+		)
+	}
+	props = { ...props, keyboard: undefined }
+	render()
+	await pause()
+	check(
+		'removing input purpose restores free form',
+		view.input_purpose === Gtk.InputPurpose.FREE_FORM,
+	)
 	inputRef.current!.focus()
 	await pause()
 	check('shared handle focus reaches internal GtkText', focusedWithin(view))
+	for (const returnKey of ['done', 'next', 'go', 'search', 'send'] as const) {
+		props = { ...props, returnKey }
+		render()
+		await pause(35)
+		const count = submits.length
+		view.emit('activate')
+		check(
+			'caption hint preserves one submission: ' + returnKey,
+			submits.length === count + 1 && submits.at(-1) === props.version,
+		)
+		check(
+			'caption hint does not change focus or editor: ' + returnKey,
+			focusedWithin(view) && node('entry').view === view && entry() === view,
+		)
+	}
+	props = { ...props, returnKey: undefined }
+	render()
+	await pause()
+	check(
+		'removing caption hint retains the editor',
+		node('entry').view === view && entry() === view && focusedWithin(view),
+	)
 	view.select_region(1, 4)
 	props = { ...props, value: 'A😀BC!' }
 	render()
@@ -99,7 +225,7 @@ async function run() {
 	const [selected, start, end] = view.get_selection_bounds()
 	check('imperative controlled writes preserve selection', selected && start === 1 && end === 4)
 	check('controlled writes suppress callback echo', changes.length === 0)
-	check('native widget identity is retained', entry() === view)
+	check('native widget identity is retained', node('entry').view === view && entry() === view)
 	props = { ...props, value: 'A😀' }
 	render()
 	await pause(130)
@@ -294,6 +420,71 @@ async function run() {
 		)
 		osKeyboard = true
 	}
+	props = { ...props, controlledMode: 'reject' }
+	render()
+	await pause(180)
+	const controlled = controlledRef.current!.native as any
+	controlled.focus()
+	await pause()
+	controlled.insert_text('x', -1, 2)
+	await pause()
+	check(
+		'controlled field rejects a native edit',
+		controlled.get_text() === '12' &&
+			controlledValue.current === '12' &&
+			controlledChanges.at(-1) === '12x',
+	)
+	controlled.insert_text('x', -1, 2)
+	await pause()
+	check(
+		'controlled field rejects the same native edit again',
+		controlled.get_text() === '12' && controlledChanges.at(-1) === '12x',
+	)
+	if (osKeyboard) {
+		await inputPhase('controlled-reject', controlled)
+		check(
+			'actual controlled typing restores rejected text',
+			controlled.get_text() === '12' &&
+				controlledValue.current === '12' &&
+				focusedWithin(controlled) &&
+				controlled.get_delegate().cursor_position === 2,
+		)
+	}
+	props = { ...props, controlledMode: 'accept' }
+	render()
+	await pause()
+	if (osKeyboard) await inputPhase('controlled-accept', controlled)
+	else {
+		controlled.set_text('Accepted')
+		await pause()
+	}
+	check(
+		'controlled parent can accept native edits',
+		controlled.get_text() === 'Accepted' &&
+			controlledValue.current === 'Accepted' &&
+			(!osKeyboard ||
+				(focusedWithin(controlled) && controlled.get_delegate().cursor_position === 8)),
+	)
+	if (osKeyboard) {
+		controlled.select_region(2, 5)
+		const count = controlledChanges.length
+		await inputPhase('controlled-middle', controlled)
+		check(
+			'actual middle selection replacement keeps controlled text and cursor',
+			controlled.get_text() === 'AcXted' &&
+				controlledValue.current === 'AcXted' &&
+				controlled.get_delegate().cursor_position === 3 &&
+				focusedWithin(controlled),
+		)
+		check(
+			'one native middle edit reports onChange once',
+			controlledChanges.length === count + 1 && controlledChanges.at(-1) === 'AcXted',
+		)
+	}
+	check(
+		'acceptance and rejection retain native editor identity',
+		controlledRef.current!.native === controlled && node('entry-controlled').view === controlled,
+	)
 	const stale = entry()
 	const staleNode = node('entry')
 	root.unmount()

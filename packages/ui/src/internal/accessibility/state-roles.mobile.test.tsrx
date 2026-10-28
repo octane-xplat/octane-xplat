@@ -22,6 +22,11 @@ function setup() {
 	return { container, root }
 }
 
+function LeadingInput(props: { inputRef: any; showLeading?: boolean }) @{
+	<TextInput ref={props.inputRef} defaultValue="seed"
+		startIcon={props.showLeading ? <label text="Prefix" /> : undefined} />
+}
+
 function findNative(node: any, type: string, label?: string): any {
 	if (node.type === type && (label === undefined || node.props?.accessibilityLabel === label)) {
 		return node
@@ -46,15 +51,19 @@ describe('native text input', () => {
 		root.unmount()
 	})
 
-	it('controlled value wins over defaultValue and reports edits without self-applying', async () => {
+	it('controlled value wins and restores repeated rejected native edits', async () => {
 		const { container, root } = setup()
 		const change = vi.fn()
 		root.render(TextInput, { value: 'owned', defaultValue: 'ignored', onChange: change })
 		const field = findNative(container, 'textfield')
 		await vi.waitFor(() => expect(field.text).toBe('owned'))
-		container.dispatchEvent(field, 'textChange', { object: field, value: 'edited' })
-		expect(change).toHaveBeenLastCalledWith('edited')
-		expect(field.text).toBe('owned')
+		for (let attempt = 0; attempt < 2; attempt++) {
+			field.text = 'edited'
+			container.dispatchEvent(field, 'textChange', { object: field, value: 'edited' })
+			expect(change).toHaveBeenLastCalledWith('edited')
+			await vi.waitFor(() => expect(field.text).toBe('owned'))
+		}
+		expect(change).toHaveBeenCalledTimes(2)
 		root.unmount()
 	})
 
@@ -102,6 +111,26 @@ describe('native text input', () => {
 		expect(change).toHaveBeenCalledExactlyOnceWith('edited')
 		root.unmount()
 		expect(inputRef.current).toBeNull()
+	})
+	it('retains the editor and handle when leading content changes', async () => {
+		const { container, root } = setup()
+		const inputRef = { current: null as any }
+		const props = { inputRef }
+		root.render(LeadingInput, props)
+		const field = findNative(container, 'textfield')
+		await vi.waitFor(() => expect(field.text).toBe('seed'))
+		field.text = 'edited'
+		container.dispatchEvent(field, 'textChange', { object: field, value: 'edited' })
+		await vi.waitFor(() => expect(field.text).toBe('edited'))
+		root.render(LeadingInput, { ...props, showLeading: true })
+		await vi.waitFor(() => expect(findNative(container, 'textfield')).toBe(field))
+		expect(inputRef.current.native).toBe(field)
+		expect(field.text).toBe('edited')
+		root.render(LeadingInput, props)
+		await vi.waitFor(() => expect(findNative(container, 'textfield')).toBe(field))
+		expect(inputRef.current.native).toBe(field)
+		expect(field.text).toBe('edited')
+		root.unmount()
 	})
 })
 

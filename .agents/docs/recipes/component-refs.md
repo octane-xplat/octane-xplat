@@ -34,3 +34,17 @@ when secure mode changes, and ref clearing on unmount. Other ref forms and
 replacement are covered by the shared ref suites above.
 
 - AC4: [AppKit date focus guide](../../../docs/platform/date-picker.md#focus-an-appkit-date-field-from-a-form-action), private date-field-handle adapter, three policy/six object-driver cases, [maintained fixture](../../../examples/probes/date-focus.macos.tsrx), skill reference and [target note](../exploration.md#operational-evidence). hasAutoFocus remains separate.
+## GTK partial qualification
+
+The [GTK text-entry guide](../../../docs/platform/linux-gtk.md#text-entry) and
+[maintained fixture](../../../packages/linux-gtk-renderer/test/fixtures/src/ui-text-entry.gtk.tsrx)
+cover TextInput's object handle, real native focus/blur, ref clearing and mounted
+editor identity while leading content changes. The GTK
+[keyboard fixture](../../../packages/linux-gtk-renderer/test/fixtures/src/ui-press-keys-main.ts)
+also checks object ref replacement during a native role swap.
+
+This is a subset of AC1/AC2, not the complete workflow target list above.
+Callback/nested-array ref forms, cleanup during replacement, attachment-hook
+composition and migration need their own GTK assessment. Other control handles
+remain unqualified. Record GTK coverage separately from execution evidence in
+gtk_recipe_checks.

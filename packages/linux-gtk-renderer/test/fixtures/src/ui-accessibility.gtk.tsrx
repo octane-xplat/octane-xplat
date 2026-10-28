@@ -1,7 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { View } from '@octane-xplat/ui'
-import { TextInput } from '../../../../ui/src/TextInput'
-import type { TextInputHandle, TextInputProps } from '../../../../ui/src/props'
+import { View, TextInput } from '@octane-xplat/ui'
+import type { TextInputHandle, TextInputProps } from '@octane-xplat/ui'
 export const inputRef: { current: TextInputHandle | null } = { current: null }
 export function Accessibility(props: {
 	state?: any; input?: Partial<TextInputProps>; editBlocked?: boolean; entryState?: any;

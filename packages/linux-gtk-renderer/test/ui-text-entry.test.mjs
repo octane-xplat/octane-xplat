@@ -68,6 +68,11 @@ test(
 						throw new Error('xdotool ' + args.join(' ') + ': ' + error.message)
 					}
 				}
+				if (phase.phase === 'controlled-middle') {
+					send('type', '--clearmodifiers', '--delay', '30', 'X')
+					send('key', 'F12')
+					return
+				}
 				if (phase.phase === 'cursor') {
 					send('key', 'Left')
 					send('key', 'F12')
@@ -90,7 +95,13 @@ test(
 					'--clearmodifiers',
 					'--delay',
 					'30',
-					phase.phase === 'edit' ? 'Typed' : 'BLOCKED',
+					phase.phase === 'edit'
+						? 'Typed'
+						: phase.phase === 'controlled-reject'
+							? '12x'
+							: phase.phase === 'controlled-accept'
+								? 'Accepted'
+								: 'BLOCKED',
 				)
 				send('key', 'Return')
 				send('key', 'F12')
@@ -110,11 +121,17 @@ test(
 			child.once('close', resolve)
 		})
 		assert.equal(code, 0, stdout + '\n' + stderr + '\n' + (inputError ?? ''))
-		assert.doesNotMatch(stderr, /\[linux-gtk\] event handler failed/)
+		assert.doesNotMatch(stderr, /\[linux-gtk\] event handler failed|Gtk-CRITICAL|Gjs-CRITICAL/)
+		assert.equal(
+			(stderr.match(/returnKeyType captions are unavailable on GTK/g) ?? []).length,
+			1,
+			stderr,
+		)
+		assert.doesNotMatch(stderr, /ignored prop returnKeyType/)
 		const line = stdout.split('\n').find((line) => line.startsWith('GTK_TEXT_ENTRY '))
 		assert.ok(line, stdout)
 		const result = JSON.parse(line.slice('GTK_TEXT_ENTRY '.length))
-		assert.ok(result.checks >= (osKeyboard ? 51 : 40), JSON.stringify(result))
+		assert.ok(result.checks >= (osKeyboard ? 92 : 75), JSON.stringify(result))
 		assert.equal(result.osKeyboard, osKeyboard)
 		t.diagnostic(
 			process.platform +
