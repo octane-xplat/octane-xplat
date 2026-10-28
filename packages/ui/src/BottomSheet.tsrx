@@ -308,7 +308,7 @@ function SwitcherPanel(props: {
 	>
 		<LayerDepthProvider value={props.layerDepth}>
 			<SizeProvider value={null}>
-				<SheetContent key={props.activeSheet}>{active?.props.children}</SheetContent>
+				<SheetContent key={props.activeSheet ?? undefined}>{active?.props.children}</SheetContent>
 			</SizeProvider>
 		</LayerDepthProvider>
 	</masonview>

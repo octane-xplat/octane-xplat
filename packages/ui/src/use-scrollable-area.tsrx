@@ -24,7 +24,7 @@ const INITIAL: ScrollableAreaState = { inline: AT_EDGES, block: AT_EDGES }
  * containment to own on native, so `keyboardAccess`, `overscroll`, and
  * `stickyContainment` are accepted but inert.
  */
-export function useScrollableArea<TElement = HostElement>(
+export function useScrollableArea<TElement extends object = object>(
 	options: UseScrollableAreaOptions = {},
 ): UseScrollableAreaResult<TElement> {
 	const axis = options.axis ?? 'block'

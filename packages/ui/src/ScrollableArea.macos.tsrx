@@ -66,8 +66,14 @@ export function ScrollableArea(props: ScrollableAreaProps) @{
 	const handle = useMemo(() => scrollableAreaHandle(viewport), [])
 	useImperativeHandle(props.ref, () => handle, [props.ref])
 
+	const viewportProps = area.getViewportProps({ ref: viewport })
+	const contentProps = area.getContentProps()
+
 	<scrollview
-		{...area.getViewportProps({ ref: viewport })}
+		ref={viewportProps.ref}
+		onScroll={viewportProps.onScroll}
+		onLayoutChanged={viewportProps.onLayoutChanged}
+		orientation={viewportProps.orientation}
 		{...layoutChildProps(
 			props,
 			mergeStyle(
@@ -85,7 +91,9 @@ export function ScrollableArea(props: ScrollableAreaProps) @{
 		accessibilityLabel={props.accessibilityLabel ?? props.label}
 	>
 		<masonview
-			{...area.getContentProps()}
+			ref={contentProps.ref}
+			onLayoutChanged={contentProps.onLayoutChanged}
+			className={contentProps.className}
 			style={mergeStyle(
 				{ flexDirection: horizontal ? 'row' : 'column' },
 				mergeStyle(

@@ -44,7 +44,7 @@ export function ProgressBar(props: ProgressBarProps) @{
 		)}
 		accessibilityRole="progressbar"
 		accessibilityLabel={props.accessibilityLabel ?? props.label}
-		accessibilityValue={isIndeterminate ? undefined : value}
+		accessibilityValue={isIndeterminate ? undefined : String(value)}
 		accessibilityMinValue={0}
 		accessibilityMaxValue={max}
 		accessibilityValueDescription={isIndeterminate ? 'In progress' : valueText}

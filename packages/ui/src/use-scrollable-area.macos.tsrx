@@ -14,7 +14,7 @@ import { scrollableAreaMetrics } from './scrollable-area-metrics.macos'
 
 /** Measures the live AppKit viewport on scroll and layout. Layout measurements
  * update state without directly invoking the caller scroll handler. */
-export function useScrollableArea<TElement = HostElement>(
+export function useScrollableArea<TElement extends object = object>(
 	options: UseScrollableAreaOptions = {},
 ): UseScrollableAreaResult<TElement> {
 	const axis = options.axis ?? 'block'

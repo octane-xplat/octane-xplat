@@ -98,7 +98,7 @@ function PaletteBody<T extends CommandPaletteItem>(props: {
 					accessibilityLabel={options.label ?? 'Command palette'}
 					placeholder={options.placeholder ?? 'Search commands…'}
 					value={state.query}
-					onTextChange={controller.search}
+					onTextChange={(e: any) => controller.search(e)}
 				/>
 				<Pressable
 					id={`${props.options.id ?? 'command-palette'}-clear`}

@@ -276,7 +276,7 @@ export function Slider(props: SliderProps) @{
 		className={cx('vx-slider', 'vx-slider--appkit', props.className)}
 		style={mergeStyle({ display: 'grid' }, { height: 28, ...styleRecord(props.style) })}
 		accessibilityRole={nativeAccessibilityRole('adjustable')}
-		accessibilityValue={value}
+		accessibilityValue={String(value)}
 		accessibilityMinValue={min}
 		accessibilityMaxValue={max}
 		onAccessibilityIncrement={() => adjustValue(1)}

@@ -85,7 +85,7 @@ export function SelectView(props: SelectViewProps) @{
 						value={props.query}
 						placeholder={props.searchPlaceholder ?? translate('@astryx.selector.searchPlaceholder')}
 						accessibilityLabel={translate('@astryx.selector.searchOptions')}
-						onTextChange={props.onQueryChange}
+						onTextChange={(e: any) => props.onQueryChange(e)}
 					/>
 					{props.query ? (
 						<Pressable

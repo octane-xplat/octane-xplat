@@ -232,7 +232,7 @@ export function CodeBlock(props: CodeBlockProps) @{
 			</masonview>
 		) : null}
 		{collapsed ? null : props.maxHeight != null ? (
-			<scrollview height={props.maxHeight as PercentLengthType}>{body}</scrollview>
+			<scrollview style={{ height: props.maxHeight }}>{body}</scrollview>
 		) : (
 			body
 		)}

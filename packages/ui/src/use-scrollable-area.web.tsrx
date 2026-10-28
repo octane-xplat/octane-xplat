@@ -23,7 +23,7 @@ const INITIAL: ScrollableAreaState = { inline: AT_EDGES, block: AT_EDGES }
  * into caller props. The getters compose their internal ref with the caller's `ref`, for either
  * a host element or a shared primitive.
  */
-export function useScrollableArea<TElement = HostElement>(
+export function useScrollableArea<TElement extends object = object>(
 	options: UseScrollableAreaOptions = {},
 ): UseScrollableAreaResult<TElement> {
 	const axis = options.axis ?? 'block'

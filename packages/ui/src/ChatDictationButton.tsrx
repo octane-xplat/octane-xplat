@@ -41,7 +41,7 @@ export function ChatDictationButton(props: ChatDictationButtonProps) @{
 					{bands.slice(0, BAR_COUNT).map((level) => {
 						const scale = 0.08 + Math.min(Math.pow(level / 0.2, 0.5), 1) * 0.92
 						return (
-							<masonview className="vx-chatdict-bar" scaleY={scale} style={{ display: 'flex' }} />
+							<masonview className="vx-chatdict-bar" style={{ display: 'flex', scaleY: scale }} />
 						)
 					})}
 				</masonview>

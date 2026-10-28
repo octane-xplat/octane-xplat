@@ -32,7 +32,7 @@ export function Meter(props: MeterProps) @{
 		)}
 		accessibilityRole="meter"
 		accessibilityLabel={props.accessibilityLabel}
-		accessibilityValue={value}
+		accessibilityValue={String(value)}
 		accessibilityMinValue={min}
 		accessibilityMaxValue={rangeMax}
 		accessibilityValueDescription={props.valueLabel ?? `${value} of ${rangeMax}`}

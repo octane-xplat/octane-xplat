@@ -10,7 +10,7 @@ import { layoutChildProps } from '../layout-child'
 
 declare module '@octane-xplat/jsx/intrinsics' {
 	interface NativeElements<TElement> {
-		liquidglasscontainer: Attributes<TElement>
+		liquidglasscontainer: Attributes<TElement, { iosGlassEffect?: { spacing?: number } }>
 	}
 }
 

@@ -70,7 +70,7 @@ export function TextInput(inputProps: TextInputProps) @{
 			style={props.style}
 			isEnabled={!props.isDisabled}
 			editable={!isBlocked}
-			onTextChange={setValue}
+			onTextChange={(e: any) => setValue(e)}
 			accessibilityLabel={
 				props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label
 			}
@@ -163,7 +163,7 @@ export function TextArea(inputProps: TextAreaProps) @{
 			isEnabled={!props.isDisabled}
 			editable={!isBlocked}
 			secure={props.secure}
-			onTextChange={setValue}
+			onTextChange={(e: any) => setValue(e)}
 			accessibilityLabel={
 				props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label
 			}

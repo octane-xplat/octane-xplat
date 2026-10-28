@@ -347,7 +347,7 @@ export interface StackProps
 	web?: PlatformProps
 	id?: string
 	/** Receives the underlying host through a standard Octane ref. */
-	ref?: Octane.Ref<HostElement>
+	ref?: Octane.Ref<object>
 	/** @default 'vertical' */
 	direction?: StackDirection
 	hAlign?: StackAlignment
@@ -391,7 +391,7 @@ export interface StackItemProps extends AccessibilityProps {
 	android?: PlatformProps
 	web?: PlatformProps
 	id?: string
-	ref?: Octane.Ref<HostElement>
+	ref?: Octane.Ref<object>
 	/** Cross-axis self alignment, overriding the stack's cross alignment. */
 	crossAlignSelf?: StackItemCrossAlignSelf
 	/** @default 'static' */
@@ -595,7 +595,7 @@ export interface ViewProps
 	children?: Renderable
 	id?: string
 	/** Receives the underlying host through a standard Octane ref. */
-	ref?: Octane.Ref<HostElement>
+	ref?: Octane.Ref<object>
 	onPan?: (e: PanEvent) => void
 	onSwipe?: (e: SwipeEvent) => void
 	/** Platform-specific properties are applied after shared props. */
@@ -613,7 +613,7 @@ export interface RowProps
 	children?: Renderable
 	id?: string
 	/** Receives the underlying host through a standard Octane ref. */
-	ref?: Octane.Ref<HostElement>
+	ref?: Octane.Ref<object>
 	onPan?: (e: PanEvent) => void
 	onSwipe?: (e: SwipeEvent) => void
 	/** Platform-specific properties are applied after shared props. */
@@ -762,7 +762,7 @@ export interface PressableProps extends LayoutChildProps, FlexContainerProps, Te
 	id?: string
 	disabled?: boolean
 	/** Receives the underlying host through a standard Octane ref. */
-	ref?: Octane.Ref<HostElement>
+	ref?: Octane.Ref<object>
 	onPan?: (e: PanEvent) => void
 	onSwipe?: (e: SwipeEvent) => void
 	onPress?: () => void
@@ -1587,7 +1587,7 @@ export interface UseScrollableAreaOptions {
 /** Props returned for the viewport box by `useScrollableArea`.
  *  `TElement` identifies the host receiving the composed ref and defaults to
  *  `HostElement` when the caller does not need host-specific ref typing. */
-export interface UseScrollableAreaViewportProps<TElement = HostElement> {
+export interface UseScrollableAreaViewportProps<TElement extends object = object> {
 	ref: Octane.Ref<TElement>
 	className?: ClassValue
 	style?: StyleProp
@@ -1607,7 +1607,7 @@ export interface UseScrollableAreaViewportProps<TElement = HostElement> {
 }
 
 /** Props returned for the observed content box by `useScrollableArea`. */
-export interface UseScrollableAreaContentProps<TElement = HostElement> {
+export interface UseScrollableAreaContentProps<TElement extends object = object> {
 	ref: Octane.Ref<TElement>
 	className?: ClassValue
 	style?: StyleProp
@@ -1632,7 +1632,7 @@ export interface UseScrollableAreaContentProps<TElement = HostElement> {
  * </div>
  * ```
  */
-export interface UseScrollableAreaResult<TElement = HostElement> {
+export interface UseScrollableAreaResult<TElement extends object = object> {
 	/** Merges behavior-owned props (ref/role/tabIndex/overflow/data attrs)
 	 *  into caller props for the viewport element or native scroll view. */
 	getViewportProps<P extends object = {}>(
@@ -2101,7 +2101,7 @@ export interface SafeAreaProps {
  */
 export interface KeyboardAvoidingProps {
 	/** Underlying platform host; cleared on removal. */
-	ref?: Octane.Ref<HostElement>
+	ref?: Octane.Ref<object>
 	className?: ClassValue
 	style?: StyleProp
 	children?: Renderable
@@ -6520,7 +6520,7 @@ export type MenuItem<
  */
 export interface MenuItemProps {
 	id?: string
-	ref?: Octane.Ref<HostElement>
+	ref?: Octane.Ref<object>
 	className?: ClassValue
 	style?: StyleProp
 	label: Renderable
@@ -7518,7 +7518,7 @@ export interface TypeaheadItemProps<T extends SearchableItem = SearchableItem> {
 	/** Group label; presentational only — grouping itself is driven by
 	 *  `item.auxiliaryData.group`. */
 	group?: string
-	ref?: Octane.Ref<HostElement>
+	ref?: Octane.Ref<object>
 	ios?: PlatformProps
 	android?: PlatformProps
 	web?: PlatformProps
@@ -7579,7 +7579,7 @@ export interface TokenProps {
 	endContent?: Renderable
 	/** Hide the label visually; it stays the accessible name. */
 	isLabelHidden?: boolean
-	ref?: Octane.Ref<HostElement>
+	ref?: Octane.Ref<object>
 	ios?: PlatformProps
 	android?: PlatformProps
 	web?: PlatformProps
@@ -12039,7 +12039,7 @@ export interface ProgressBarProps {
 	/** Visually disabled (canceled/inactive operations). @default false */
 	isDisabled?: boolean
 	/** `ref` receives the host element (web) / native view. */
-	ref?: Octane.Ref<HostElement>
+	ref?: Octane.Ref<object>
 	accessible?: boolean
 	accessibilityLabel?: string
 	accessibilityHint?: string
@@ -12585,7 +12585,7 @@ export interface CenterProps extends StackPaddingProps, StackSizeProps, Accessib
 	android?: PlatformProps
 	web?: PlatformProps
 	id?: string
-	ref?: Octane.Ref<HostElement>
+	ref?: Octane.Ref<object>
 	/** @default 'both' */
 	axis?: CenterAxis
 	isInline?: boolean
@@ -12618,7 +12618,7 @@ export interface SectionProps extends StackPaddingProps, StackSizeProps, Accessi
 	android?: PlatformProps
 	web?: PlatformProps
 	id?: string
-	ref?: Octane.Ref<HostElement>
+	ref?: Octane.Ref<object>
 	/** @default 'section' */
 	variant?: SectionVariant
 	/** 'start'/'end' are logical edges — on native they map to left/right. */
@@ -12672,7 +12672,7 @@ export interface LayoutProps extends AccessibilityProps {
 	android?: PlatformProps
 	web?: PlatformProps
 	id?: string
-	ref?: Octane.Ref<HostElement>
+	ref?: Octane.Ref<object>
 	/** Top region — typically a `LayoutHeader`. */
 	header?: Renderable
 	/** Logical-start panel (left in LTR). */
@@ -12722,7 +12722,7 @@ export interface LayoutHeaderProps extends StackSizeProps, AccessibilityProps {
 	android?: PlatformProps
 	web?: PlatformProps
 	id?: string
-	ref?: Octane.Ref<HostElement>
+	ref?: Octane.Ref<object>
 	/** Themed hairline on the block-end edge. @default false (or the parent
 	 *  Layout's `defaultHasDividers`). */
 	hasDivider?: boolean
@@ -12761,7 +12761,7 @@ export interface LayoutContentProps extends StackSizeProps, AccessibilityProps {
 	android?: PlatformProps
 	web?: PlatformProps
 	id?: string
-	ref?: Octane.Ref<HostElement>
+	ref?: Octane.Ref<object>
 	/** Internal padding in spacing steps — overrides the layout-provided
 	 *  outer/inner padding on all four edges. `0` gives edge-to-edge content. */
 	padding?: SpacingStep
@@ -12789,7 +12789,7 @@ export interface LayoutFooterProps extends StackSizeProps, AccessibilityProps {
 	android?: PlatformProps
 	web?: PlatformProps
 	id?: string
-	ref?: Octane.Ref<HostElement>
+	ref?: Octane.Ref<object>
 	/** Themed hairline on the block-start edge. @default false */
 	hasDivider?: boolean
 	/** Internal padding in spacing steps; `0` docks children on the edges. */
@@ -12812,7 +12812,7 @@ export interface LayoutPanelProps extends StackSizeProps, AccessibilityProps {
 	android?: PlatformProps
 	web?: PlatformProps
 	id?: string
-	ref?: Octane.Ref<HostElement>
+	ref?: Octane.Ref<object>
 	/** Hairline on the edge facing the content lane. @default false */
 	hasDivider?: boolean
 	/** Internal padding in spacing steps (outer channel applies). */
@@ -12845,7 +12845,7 @@ export interface LayoutPanelProps extends StackSizeProps, AccessibilityProps {
 export interface VisuallyHiddenProps extends AccessibilityProps {
 	children?: Renderable
 	id?: string
-	ref?: Octane.Ref<HostElement>
+	ref?: Octane.Ref<object>
 	ios?: PlatformProps
 	android?: PlatformProps
 	web?: PlatformProps
@@ -12888,7 +12888,7 @@ export interface FocusScopeCapabilities {
 export interface FocusScopeProps extends AccessibilityProps {
 	children?: Renderable
 	id?: string
-	ref?: Octane.Ref<HostElement>
+	ref?: Octane.Ref<object>
 	className?: ClassValue
 	style?: StyleProp
 	ios?: PlatformProps
@@ -12932,7 +12932,7 @@ export interface AspectRatioProps extends AccessibilityProps {
 	android?: PlatformProps
 	web?: PlatformProps
 	id?: string
-	ref?: Octane.Ref<HostElement>
+	ref?: Octane.Ref<object>
 	/** width / height — e.g. 16/9 ≈ 1.777. Required. */
 	ratio: number
 	/** @default 'rectangle' */
@@ -12979,7 +12979,7 @@ export interface FormLayoutProps extends AccessibilityProps {
 	android?: PlatformProps
 	web?: PlatformProps
 	id?: string
-	ref?: Octane.Ref<HostElement>
+	ref?: Octane.Ref<object>
 	/** @default 'vertical' */
 	direction?: FormLayoutDirection
 	defaultOptionality?: FormOptionality
@@ -13013,7 +13013,7 @@ export interface InputGroupProps extends FieldControlProps {
 	android?: PlatformProps
 	web?: PlatformProps
 	id?: string
-	ref?: Octane.Ref<HostElement>
+	ref?: Octane.Ref<object>
 	/** Group label — required for accessibility. */
 	label: string
 	/** Tooltip text shown via an info affordance at the end of the label. */
@@ -13034,7 +13034,7 @@ export interface InputGroupTextProps {
 	android?: PlatformProps
 	web?: PlatformProps
 	id?: string
-	ref?: Octane.Ref<HostElement>
+	ref?: Octane.Ref<object>
 }
 
 // ---------- Astryx parity: content lists ----------
@@ -13073,7 +13073,7 @@ export interface ListProps extends AccessibilityProps {
 	android?: PlatformProps
 	web?: PlatformProps
 	id?: string
-	ref?: Octane.Ref<HostElement>
+	ref?: Octane.Ref<object>
 	/** @default 'balanced' */
 	density?: ListDensity
 	hasDividers?: boolean
@@ -13108,7 +13108,7 @@ export interface ListItemProps extends AccessibilityProps {
 	android?: PlatformProps
 	web?: PlatformProps
 	id?: string
-	ref?: Octane.Ref<HostElement>
+	ref?: Octane.Ref<object>
 	/** Primary text (string truncates to one line) or rich content. */
 	label: Renderable
 	description?: Renderable
@@ -13157,7 +13157,7 @@ export interface GridListProps<T = unknown> extends LayoutChildProps, Accessibil
 	android?: PlatformProps
 	web?: PlatformProps
 	id?: string
-	ref?: Octane.Ref<HostElement>
+	ref?: Octane.Ref<object>
 	items: readonly T[]
 	/** Returns each item's stable `Key`; must be unique and survive reorder.
 	 *  Defaults to `defaultItemKey` — the item's `id` or `key` property;
@@ -13236,7 +13236,7 @@ export interface IndicatorProps<F extends IndicatorFamily = IndicatorFamily> {
 	className?: ClassValue
 	style?: StyleProp
 	id?: string
-	ref?: Octane.Ref<HostElement>
+	ref?: Octane.Ref<object>
 	ios?: PlatformProps
 	android?: PlatformProps
 	web?: PlatformProps

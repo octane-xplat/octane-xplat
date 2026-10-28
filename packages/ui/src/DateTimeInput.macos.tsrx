@@ -322,7 +322,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 				placeholder={props.placeholder ?? 'Select a date'}
 				isEnabled={!isDisabled && !isBusy}
 				editable={!isDisabled && !isBusy}
-				onTextChange={handleDateChange}
+				onTextChange={(e: any) => handleDateChange(e)}
 				onBlur={commitDatePending}
 				accessibilityLabel={
 					props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label
@@ -348,7 +348,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 				placeholder={props.timePlaceholder ?? 'Select a time'}
 				isEnabled={!isDisabled && !isBusy}
 				editable={!isDisabled && !isBusy}
-				onTextChange={handleTimeChange}
+				onTextChange={(e: any) => handleTimeChange(e)}
 				onBlur={commitTimePending}
 				accessibilityHint={!isTimeValid ? messages.invalidTime : undefined}
 				accessibilityLabel={timeLabelText}

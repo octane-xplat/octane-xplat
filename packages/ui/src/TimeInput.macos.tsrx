@@ -152,7 +152,7 @@ export function TimeInput(inputProps: TimeInputProps) @{
 				placeholder={props.placeholder ?? 'Select a time'}
 				isEnabled={!isDisabled && !isBusy}
 				editable={!isDisabled && !isBusy}
-				onTextChange={handleTextChange}
+				onTextChange={(e: any) => handleTextChange(e)}
 				onBlur={commitPending}
 				accessibilityLabel={
 					props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label

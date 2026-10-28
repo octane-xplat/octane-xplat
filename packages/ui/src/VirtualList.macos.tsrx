@@ -529,14 +529,14 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 		className={cx('vx-virtual-list', props.className)}
 		style={props.style}
 		accessibilityLabel={props.accessibilityLabel}
-		onScroll={onScroll}
-		onLayoutChanged={onScrollViewLayout}
+		onScroll={(event: any) => onScroll(event)}
+		onLayoutChanged={(event: any) => onScrollViewLayout()}
 	>
 		<masonview style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}>
 			@if (props.renderHeader) {
 				<masonview
 					className="vx-virtual-list-header"
-					onLayoutChanged={onHeaderLayout}
+					onLayoutChanged={(event: any) => onHeaderLayout(event)}
 					style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}
 				>
 					{props.renderHeader()}
@@ -563,7 +563,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 					@for (const entry of visibleEntries; key entry.rowKey) {
 						<masonview
 							className="vx-virtual-list-row"
-							onLayoutChanged={(event: AppKitLayoutEvent) => onRowLayout(entry, event)}
+							onLayoutChanged={(event: any) => onRowLayout(entry, event)}
 							style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}
 						>
 							{props.renderItem(entry.item, entry.index)}
