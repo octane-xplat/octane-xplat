@@ -6,7 +6,7 @@
 
 import { useRef } from 'octane'
 import type { TablePlugin, BodyRowRenderProps, UseTableRowExpansionConfig } from './types'
-import type { TableColumn } from '../props'
+import type { Renderable, TableColumn } from '../props'
 import { pixel } from './column-utils'
 import { Icon } from '../Icon'
 import { TableSlot, tableSlot } from './table-slot'

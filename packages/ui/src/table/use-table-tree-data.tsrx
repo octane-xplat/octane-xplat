@@ -13,7 +13,7 @@ import type {
 	UseTableTreeDataConfig,
 } from './types'
 
-import type { TableColumn } from '../props'
+import type { Renderable, TableColumn } from '../props'
 import { Icon } from '../Icon'
 import { TableSlot, tableSlot } from './table-slot'
 

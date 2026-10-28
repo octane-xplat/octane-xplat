@@ -1,4 +1,5 @@
 import { setThemePreference } from '@octane-xplat/ui'
+import { Parity } from '../app/parity'
 
 let running = false
 // The AppKit route host presents pushed root routes as dialog surfaces that
@@ -71,6 +72,36 @@ function waitForDump(tries = 300): void {
 	setTimeout(() => waitForDump(tries), 100)
 }
 
+// The sweep's stdin handler runs inside a CFRunLoopTimer callback, which is a
+// valid place to drive a nested run loop — the same mechanism modal sessions
+// use. Pump DefaultMode slices between polls instead of deferring to
+// setTimeout: the outer AppKit loop can stall in a state where host timers
+// never fire (observed parked in mach_msg at 0% CPU), which starves both the
+// stage mount and a timer-driven poll loop.
+function pumpRunLoop(): boolean {
+	const runLoop = (globalThis as any).NSRunLoop?.currentRunLoop
+	const NSDate = (globalThis as any).NSDate
+	const mode = (globalThis as any).NSDefaultRunLoopMode ?? 'kCFRunLoopDefaultMode'
+	if (!runLoop || !NSDate || typeof runLoop.runModeBeforeDate !== 'function') {
+		return false
+	}
+
+	// A nil limiting date means no sources are registered in this mode —
+	// nothing left to drive (and runModeBeforeDate would busy-return).
+	if (typeof runLoop.limitDateForMode === 'function' && runLoop.limitDateForMode(mode) == null) {
+		return false
+	}
+
+	try {
+		runLoop.runModeBeforeDate(mode, NSDate.dateWithTimeIntervalSinceNow(0.1))
+	} catch (error) {
+		console.error('[parity] run-loop pump failed', error)
+		return false
+	}
+
+	return true
+}
+
 export function runParity(): void {
 	if (running) {
 		return
@@ -81,8 +112,64 @@ export function runParity(): void {
 	// The sweep compares against the web dump's light-theme facets — pin the
 	// stage to light so a dark host scheme doesn't skew the measurements.
 	setThemePreference('light')
-	openStage?.()
-	setTimeout(() => waitForDump(), 100)
+
+	// Mount the stage on a dedicated window root, which renders synchronously,
+	// rather than through the app root's deferred flush — the AppKit run loop
+	// can stall so host timers never fire (observed parked in mach_msg at 0%
+	// CPU), which can starve the inline mount's render indefinitely.
+	const controller = (globalThis as any).__xplatAppKitOpenWindow?.({
+		component: Parity,
+		title: 'parity',
+		size: { width: 1600, height: 1100 },
+	})
+	if (!controller) {
+		openStage?.()
+	}
+
+	if (!(globalThis as any).NSRunLoop?.currentRunLoop) {
+		setTimeout(() => waitForDump(), 100)
+		return
+	}
+
+	// Nested pump deadline stays under the parity driver's kill so a
+	// wedged stage reports cleanly instead of timing out silently.
+	const deadline = Date.now() + 90000
+	let lastPoll = 0
+	while (Date.now() < deadline) {
+		const now = Date.now()
+		if (now - lastPoll >= 100) {
+			lastPoll = now
+			const dump = stableDump()
+			if (dump) {
+				console.log('[parity-json] ' + JSON.stringify(dump))
+				controller?.close?.()
+				return
+			}
+		}
+
+		if (!pumpRunLoop()) {
+			break
+		}
+	}
+
+	// Animating fixtures and scroll geometry churn can keep consecutive dumps
+	// different forever — emit the last measured dump with an explicit marker
+	// rather than hanging until the driver kills the host.
+	if (lastParsed) {
+		console.log(
+			'[parity] dump never stabilized; emitting last measurement — changed: ' +
+				diffCells(prevParsed, lastParsed),
+		)
+		console.log('[parity-json] ' + JSON.stringify(lastParsed))
+	} else {
+		console.log(
+			'[parity] FAIL — stage never produced a dump; seam=' +
+				typeof (globalThis as any).__xplatParity +
+				'; changed: ' +
+				diffCells(prevParsed, lastParsed),
+		)
+	}
+	controller?.close?.()
 }
 
 if ((globalThis as any).__xplatMacOSDebug) {
