@@ -1458,3 +1458,52 @@ continues to apply. No expensive check outside that bounded phase is newly
 authorized. Wider UI package/dependent/packed checks remain outstanding at the
 earlier commands. No fully qualified Windows support or modal runtime pass
 is claimed, and the persistent goal remains active.
+
+
+## Modal candidate: recovered build and first repaired OS run
+
+SSH recovered without a new permission request. The original disconnected
+version 1.0.0.3 Turbo process was reattached rather than duplicated; it exited
+0 and its standalone Windows typecheck passed. Its delegated build checker
+nevertheless reported 23 diagnostics: the 12 earlier unrelated diagnostics
+plus 11 new errors caused by the Windows helper importing its own selected
+basename. Those errors were not accepted as a pass. Moving the unchanged
+common lifetime to overlay-lifetime-common.ts and reexporting it from the
+default leaf removed that resolver cycle. The copied implementation matches
+HEAD's original overlay-lifetime.ts byte for byte. A maintained TypeScript
+semantic test now exercises Windows moduleSuffixes resolution.
+
+The version 1.0.0.4 native graph completed 37/37 tasks (28 cached), exit0,
+in 9m57.701s. Its delegated checker returned to the same 12 diagnostics in
+11 files; no changed modal file was diagnosed. These remaining errors mean
+the delegated check is not clean despite successful native compilation.
+Logs: research/windows61/windy-modal-native-fixed.log and
+windy-modal-v4-native-task.log.
+
+The actual v4 OS run, boot mvsrk3b4, passed 11 of 12 scenario groups. The six
+input and three scrolling groups passed again. Dialog now passed pointer
+opening/initial focus and repeated Tab containment, including rejection of a
+UIA attempt to focus the background. Physical Escape dismissed the dialog,
+but the explicit focus target was not restored, so the combined Escape/return
+group failed. No modal support gate is closed. The dropped loaded-event
+transaction warning also remains. Log: research/windows61/windy-os-modal-v4.log.
+The temporary interactive task initially queued because its default settings
+required AC power. Only that owned task's battery constraints were removed;
+no system power policy or unrelated task was changed. The temporary helper
+now applies those settings when creating future owned tasks.
+
+The next candidate adds a lazy opaque key scope to the internal layer entry:
+Windows Escape selects the top layer in its own XamlRoot, even when another
+window owns a newer layer. Adapters without a scope retain existing global
+selection. The focus adapter also retains an explicit target when the scoped
+snapshot projection throws; missing snapshots never trigger an unscoped
+lookup. All 27 focused contracts, including the Windows semantic-resolution
+check, passed through uncached Turbo test:modal in 4.596s. The new modal test
+is registered in ui's maintained test:native command. Logs:
+research/windows61/windy-modal-scoped-contracts.log and
+windy-modal-scoped-contracts-detail.log. Formatter, targeted lint and
+whitespace checks passed. Version 1.0.0.5 is building with temporary fixture
+focus diagnostics; neither that source's native result nor focus-return
+behavior is established yet. Full UI/dependent/packed checks remain deferred
+at the earlier exact commands; no audit snapshot, checkbox or recipe support
+claim changed.
