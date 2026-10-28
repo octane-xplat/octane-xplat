@@ -10,6 +10,9 @@ services, leaf packages, packaging, and host infrastructure.
 Current availability is 38 runtime values and 64 types in index.gtk.ts, including
 Tooltip and TextInput. Counts in the earlier slice records describe those commits; the JSON
 remains the original source survey and Silo holds per-export qualification.
+The renderer also provides a multiline textview buffer foundation; TextArea
+remains unexported until its sizing, growth, placeholder and component contracts
+are qualified.
 
 ## Reading the inventory
 
@@ -763,3 +766,27 @@ has object-handle and mounted identity evidence; its complete ref-form/cleanup/
 composition criteria remain unqualified on GTK. linux-gtk-package keeps its
 artifact boundary and has no new packaged-consumer execution. Full criteria
 and target lists are retained; GTK assessments belong in gtk_recipe_checks.
+
+
+## Multiline editor foundation
+
+The renderer registers textview as a real Gtk.TextView backed by Gtk.TextBuffer.
+The maintained ui-text-view fixture proves native text/editability/focus,
+Unicode active-edge selection and clamping, programmatic echo suppression,
+buffer change events, defaults on prop removal, read-only accessibility metadata,
+and cleanup. Its X11 keyboard phase distinguishes actual selection replacement,
+newline/submit modes and Tab focus from direct buffer insertion. Detailed
+ownership and API boundaries are in the [renderer note](linux-gtk-renderer.md#multiline-buffer-foundation).
+
+This advances TextArea's renderer requirement without adding a GTK UI fork or
+claiming full TextArea parity. The root surface remains 38 values/64 types.
+Placeholder, rows/maxRows/autoGrow, overflow, maxLength, automatic Field wrapper
+ownership and full shared API qualification remain the next input work.
+
+Qualification for this slice: the focused Linux fixture passes 59 assertions
+on GJS 1.80.2/GTK 4.14.5, including actual X11 keyboard input. The renderer and
+its dependents pass all eight Turbo typecheck tasks. Recipe links, release-note
+validation and formatting/whitespace checks pass. All 40 maintained renderer tests pass
+with no skips (/tmp/gtk-textview-full.log in the guest). These are real Linux guest
+checks on andromeda, not Homebrew stand-in evidence. No screenshots were
+captured or inspected.

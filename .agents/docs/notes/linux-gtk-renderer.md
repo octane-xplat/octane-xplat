@@ -23,7 +23,7 @@ A first native slice of the GTK4/GJS renderer:
 - **Intrinsics implemented**: `masonview` — the single layout container;
   all layout semantics arrive through the `style`/`className` bag
   (MasonStyleProps) after the style-only cutover — `label`, `button`,
-  `scrollview`, `textfield`, `switch`, `slider`, `progress`,
+  `scrollview`, `textfield`, `textview`, `switch`, `slider`, `progress`,
   `activityindicator`; viewless `#text`, `span`, `formattedstring`,
   `contentview`, `proxyviewcontainer`, `rootlayout`. Unknown tags throw at
   create; unwired `on*` props warn once. Direct layout props on `masonview`
@@ -985,3 +985,42 @@ has object-handle and mounted identity evidence; its complete ref-form/cleanup/
 composition criteria remain unqualified on GTK. linux-gtk-package keeps its
 artifact boundary and has no new packaged-consumer execution. Full criteria
 and target lists are retained; GTK assessments belong in gtk_recipe_checks.
+
+## Multiline buffer foundation
+
+The textview intrinsic owns a real Gtk.TextView and its Gtk.TextBuffer. The
+private adapter translates its native insert/selection-bound marks into the
+same character-offset editable interface used by controlled textfield writes.
+Both preserve Unicode ranges and the active edge, clamp after shorter writes,
+suppress programmatic echoes, and cancel delayed selection repair on native
+input or disposal. Buffer changed handlers connect to the buffer and disconnect
+when the owning node retires. Public .text setters become inert on disposal.
+
+Native sensitivity and editability remain independent. Read-only accessibility
+metadata now follows either Entry or TextView. Input purpose and spellcheck
+hints restore defaults for removed or explicitly undefined properties.
+Return stays native multiline editing unless done/send has a submit handler;
+unmodified Return is then consumed once by that handler. Shift+Return retains
+newline behavior and Tab navigates focus.
+
+Sources: [TextView](https://docs.gtk.org/gtk4/class.TextView.html),
+[ordered buffer selection](https://docs.gtk.org/gtk4/method.TextBuffer.get_selection_bounds.html),
+[insert and bound mark updates](https://docs.gtk.org/gtk4/method.TextBuffer.select_range.html).
+No per-field Return caption is exposed by the inspected GTK 4.24.1 TextView
+API; runtime behavior here is GTK 4.14.5. Leave captions unsupported and revisit
+that boundary if GTK adds an action-caption API.
+The warning describes that API boundary rather than claiming tested OSK behavior.
+
+The maintained ui-text-view fixture distinguishes native buffer insertion and
+programmatic selection from X11 keyboard replacement, Return and Tab input.
+This foundation does not export TextArea. Placeholder, font-based row sizing,
+bounded growth/internal scrolling, maxLength, automatic field ownership,
+full component API parity and IME/AT-client/Wayland/pixel evidence remain open.
+
+Qualification for this slice: the focused Linux fixture passes 59 assertions
+on GJS 1.80.2/GTK 4.14.5, including actual X11 keyboard input. The renderer and
+its dependents pass all eight Turbo typecheck tasks. Recipe links, release-note
+validation and formatting/whitespace checks pass. All 40 maintained renderer tests pass
+with no skips (/tmp/gtk-textview-full.log in the guest). These are real Linux guest
+checks on andromeda, not Homebrew stand-in evidence. No screenshots were
+captured or inspected.

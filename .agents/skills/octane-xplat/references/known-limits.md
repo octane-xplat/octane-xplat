@@ -82,6 +82,11 @@ clear/help/status affordances and retained editor have maintained Linux checks.
 Keep width on the outer field owner and use the GTK status-variant policy
 for hover/focus tooltips. Field and TextArea remain outside the root.
 
+Treat the [multiline intrinsic checks](../../../docs/notes/linux-gtk-renderer.md#multiline-buffer-foundation)
+as renderer foundation evidence. Before exporting TextArea, qualify placeholder,
+rows/maxRows/autoGrow, internal overflow, maxLength and the shared field contract.
+A successful textview mount is insufficient.
+
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 import { TextInput } from '@octane-xplat/ui'

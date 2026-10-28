@@ -290,8 +290,10 @@ runtime evidence and exact remaining cases belong in
 The maintained [GTK text-entry fixture](../../packages/linux-gtk-renderer/test/fixtures/src/ui-text-entry.gtk.tsrx)
 and [runner](../../packages/linux-gtk-renderer/test/ui-text-entry.test.mjs)
 exercise Gtk.Entry with actual X11 typing, controlled rejection/acceptance and
-selection/cursor checks. These do not establish IME composition, multiline
-editing, OSK/overlay avoidance, assistive-technology clients or visual parity.
+selection/cursor checks. The [multiline renderer fixture](../../packages/linux-gtk-renderer/test/ui-text-view.test.mjs)
+checks a low-level textview with actual X11 selection replacement, Return and
+Tab. Public TextArea, IME composition, OSK/overlay avoidance,
+assistive-technology clients and visual parity remain unqualified.
 
 ## Read software keyboard space
 

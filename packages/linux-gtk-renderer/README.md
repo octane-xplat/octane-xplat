@@ -100,7 +100,7 @@ Contributor implementation details and qualification evidence live in the
 
 Implemented intrinsics: `masonview` (the single layout container — every
 layout semantic arrives through `style`/`className`), `label`, `button`,
-`scrollview`, `textfield`, `switch`, `slider`, `progress`,
+`scrollview`, `textfield`, `textview`, `switch`, `slider`, `progress`,
 `activityindicator`, `image`, `svgview`, plus viewless `#text`, `span`, `formattedstring`,
 `contentview`, `proxyviewcontainer`, `rootlayout`. Anything else throws a
 named driver error at mount.
@@ -239,6 +239,33 @@ export function SearchEntry(props: { search: () => void }) {
 ```
 
 These raw-ref methods do not provide a general NativeScript View facade.
+\n
+### Low-level multiline editor
+
+The GTK textview intrinsic supports multiline text, Unicode selection,
+read-only editing, focus and change events. Return inserts a newline;
+done or send with an onReturnPress handler submits instead. Shift+Return
+keeps a newline. Tab moves focus to the next control.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+export function NotesEditor() {
+  return (
+    <textview
+      text="First line\nSecond line"
+      returnKeyType="done"
+      onTextChange={(event) => console.log(event.value)}
+      onReturnPress={() => console.log('Submitted')}
+      style={{ width: 260, height: 120 }}
+    />
+  )
+}
+```
+
+This is renderer support, not the public TextArea component. Placeholder,
+row sizing, bounded growth and maximum length remain unqualified. GTK
+TextView has no per-field Return-caption property; the renderer reports
+that limit once when returnKeyType is supplied.
 
 ## Apply stylesheets
 

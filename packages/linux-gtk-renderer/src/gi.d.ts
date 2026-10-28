@@ -200,6 +200,13 @@ declare module 'gi://Gtk?version=4.0' {
 			visibility: boolean
 		}
 
+		const WrapMode: { WORD_CHAR: number }
+		class TextView extends Widget {
+			constructor(props?: Record<string, unknown>)
+			get_buffer(): any
+			get_editable(): boolean
+		}
+
 		class Switch extends Widget {
 			active: boolean
 		}

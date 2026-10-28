@@ -148,9 +148,13 @@ focus/blur, submission and disposal with actual X11 input. The
 [field fixture](../../../packages/linux-gtk-renderer/test/fixtures/src/ui-field-chrome.gtk.tsrx)
 checks width, automatic labels/status, inherited sizing and keyboard clear/help.
 
-These checks contribute to AC1 and the TextInput portions of AC3/AC4. They do
-not establish the complete recipe: composition/marked text and multiline
-Return (AC2), the public Field and group contracts (AC3/AC6), OSK/overlay
+The maintained [multiline renderer fixture](../../../packages/linux-gtk-renderer/test/fixtures/src/ui-text-view.gtk.tsrx)
+also exercises actual X11 selection replacement, newline/action Return and Tab
+on the low-level textview intrinsic. It does not qualify the public TextArea.
+
+These checks contribute to AC1, Return behavior within AC2, and the TextInput
+portions of AC3/AC4. They do not establish the complete recipe:
+composition/marked text (AC2), the public Field and group contracts (AC3/AC6), OSK/overlay
 avoidance and keyboard insets (AC4/AC7), NumberInput (AC8), modal isolation and
 Presence exit (AC5), and assistive-technology clients remain unqualified.
 GTK coverage and exact-criterion verification are recorded separately in Silo's

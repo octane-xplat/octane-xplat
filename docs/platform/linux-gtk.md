@@ -217,7 +217,6 @@ export function SearchEntry(props: { search: () => void }) {
 }
 ```
 
-
 Use `AspectRatio` to derive a container's height from its allocated width.
 `useMeasure` reports a widget's position and size relative to the app content
 surface, including movement when an ancestor scrolls. Set `observe: false`
@@ -374,6 +373,33 @@ styles native widget chrome underneath your CSS.
   animation: fade-in 200ms ease-out forwards;
 }
 ```
+\n
+## Low-level multiline editor
+
+The GTK textview intrinsic supports multiline text, Unicode selection,
+read-only editing, focus and change events. Return inserts a newline;
+done or send with an onReturnPress handler submits instead. Shift+Return
+keeps a newline. Tab moves focus to the next control.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+export function NotesEditor() {
+  return (
+    <textview
+      text="First line\nSecond line"
+      returnKeyType="done"
+      onTextChange={(event) => console.log(event.value)}
+      onReturnPress={() => console.log('Submitted')}
+      style={{ width: 260, height: 120 }}
+    />
+  )
+}
+```
+
+This is renderer support, not the public TextArea component. Placeholder,
+row sizing, bounded growth and maximum length remain unqualified. GTK
+TextView has no per-field Return-caption property; the renderer reports
+that limit once when returnKeyType is supplied.
 
 ## Add retained route panes
 

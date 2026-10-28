@@ -39,6 +39,7 @@ import {
 	type SampledValues,
 } from '@octane-xplat/css-engine'
 
+import { makeTextView } from './text-view.js'
 import { bindPicture } from './picture.js'
 import { bindPublicInstance } from './public-instance.js'
 
@@ -326,6 +327,8 @@ function instantiate(type: string): GtkView {
 			return new Gtk.Picture({ can_shrink: true })
 		case 'textfield':
 			return new Gtk.Entry()
+		case 'textview':
+			return makeTextView()
 		case 'switch':
 			return new Gtk.Switch()
 		case 'slider':
@@ -1633,6 +1636,7 @@ const RESET_DEFAULTS: Record<string, Record<string, unknown>> = {
 		keyboardType: 'default',
 		autocorrect: true,
 	},
+	textview: { text: '', value: '', editable: true, keyboardType: 'default', autocorrect: true },
 	switch: { checked: false },
 	slider: { value: 0, minValue: 0, maxValue: 100 },
 	progress: { value: 0, maxValue: 100 },
@@ -1940,8 +1944,12 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 		}
 		return
 	}
-	if (value === undefined && node.type === 'textfield' && name in RESET_DEFAULTS.textfield) {
-		setProp(node, name, RESET_DEFAULTS.textfield[name])
+	if (
+		value === undefined &&
+		['textfield', 'textview'].includes(node.type) &&
+		name in RESET_DEFAULTS[node.type]
+	) {
+		setProp(node, name, RESET_DEFAULTS[node.type][name])
 		return
 	}
 	if (value === undefined) {
@@ -2162,6 +2170,26 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 				warn(`<button> ignored prop ${name}`)
 			}
 
+			return
+		case 'textview':
+			if (name === 'value' || name === 'text') {
+				writeEntryText(node, view, value)
+			} else if (name === 'editable') {
+				view.set_editable(value !== false)
+			} else if (name === 'keyboardType') {
+				const purpose = INPUT_PURPOSES[String(value)]
+				if (purpose !== undefined) view.input_purpose = purpose
+			} else if (name === 'autocorrect') {
+				const flags = Number(view.input_hints ?? 0)
+				view.input_hints = value === false ? flags | 2 : flags & ~2
+			} else if (name === 'returnKeyType') {
+				warnOnce(
+					'textview:return-key-caption',
+					'<textview> returnKeyType captions are unavailable on GTK; done/send submit and other Return keys insert a newline.',
+				)
+			} else {
+				warn(`<textview> ignored prop ${name}`)
+			}
 			return
 		case 'textfield':
 			if (name === 'value' || name === 'text') {
@@ -2864,7 +2892,7 @@ function payloadFor(node: ElementNode, type: string): unknown {
 	const view = node.view
 	switch (type) {
 		case 'change':
-			if (view instanceof Gtk.Entry) {
+			if (view instanceof Gtk.Entry || view instanceof Gtk.TextView) {
 				return { eventName: 'change', object: view, value: view.get_text() }
 			}
 
@@ -2881,7 +2909,8 @@ function payloadFor(node: ElementNode, type: string): unknown {
 			return {
 				eventName: 'submit',
 				object: view,
-				value: view instanceof Gtk.Entry ? view.get_text() : undefined,
+				value:
+					view instanceof Gtk.Entry || view instanceof Gtk.TextView ? view.get_text() : undefined,
 			}
 		case 'scroll': {
 			const scrolled = view instanceof Gtk.ScrolledWindow ? view : null
@@ -3123,12 +3152,39 @@ function connectEvent(
 						? 'value-changed'
 						: 'changed'
 
+			const emitter = view instanceof Gtk.TextView ? view.get_buffer() : view
 			return {
-				connections: [{ emitter: view, signalId: view.connect(signal, handler) }],
+				connections: [{ emitter, signalId: emitter.connect(signal, handler) }],
 				controllers: [],
 			}
 		}
 		case 'submit':
+			if (view instanceof Gtk.TextView) {
+				const controller = new Gtk.EventControllerKey()
+				controller.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
+				const signalId = controller.connect(
+					'key-pressed',
+					(_: unknown, key: number, _code: number, modifiers: number) => {
+						if (
+							![Gdk.KEY_Return, Gdk.KEY_KP_Enter].includes(key) ||
+							!['done', 'send'].includes(node.props.returnKeyType) ||
+							!view.is_sensitive() ||
+							!view.get_editable() ||
+							modifiers &
+								(Gdk.ModifierType.SHIFT_MASK |
+									Gdk.ModifierType.CONTROL_MASK |
+									Gdk.ModifierType.ALT_MASK |
+									Gdk.ModifierType.SUPER_MASK |
+									Gdk.ModifierType.META_MASK)
+						)
+							return false
+						handler()
+						return true
+					},
+				)
+				view.add_controller(controller)
+				return { connections: [{ emitter: controller, signalId }], controllers: [controller] }
+			}
 			return {
 				connections: [{ emitter: view, signalId: view.connect('activate', handler) }],
 				controllers: [],
@@ -3291,7 +3347,7 @@ function bindNodePublicInstance(node: ElementNode): () => void {
 	)
 	// Native UI's text-write helper assigns .text imperatively. Route that
 	// channel through the same selection/echo contract as declarative writes.
-	let textNode: ElementNode | null = node.type === 'textfield' ? node : null
+	let textNode: ElementNode | null = ['textfield', 'textview'].includes(node.type) ? node : null
 	let disposeEntryInput: (() => void) | undefined
 	if (textNode) {
 		const view = textNode.view!

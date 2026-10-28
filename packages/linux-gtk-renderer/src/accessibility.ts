@@ -83,7 +83,8 @@ export function syncAccessibilityState(view: any, props: Bag) {
 						: Gtk.AccessibleInvalidState.FALSE
 		add('invalid', Gtk.AccessibleState.INVALID, invalid)
 	}
-	const nativeReadOnly = view instanceof Gtk.Entry ? !view.get_editable() : undefined
+	const nativeReadOnly =
+		view instanceof Gtk.Entry || view instanceof Gtk.TextView ? !view.get_editable() : undefined
 	const readOnly = state.readOnly
 	add(
 		'readOnly',
