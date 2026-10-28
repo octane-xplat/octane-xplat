@@ -958,7 +958,28 @@ export function Channels() {
 }
 ```
 
-Source cases mock the popup inline and remain unrun. Do not infer actual popup
-ownership, arrow/typeahead keys, search/return focus or VoiceOver from them.
-Removable badges, alternate presentation/ghost chrome and live announcements
-remain open. See the [AppKit selection subset](../../../../docs/app/search-selection.md#appkit-finite-option-selection).
+Source cases mock the popup inline and remain unrun. The keyboard source path
+now covers manual option focus, opening/commit, prefix/search keys and close/Tab
+return intent through existing layer ownership. Actual popup/key/IME/focus and
+VoiceOver behavior remain unqualified. Removable badges, alternate presentation/
+ghost chrome and live announcements remain open. See the [AppKit selection subset](../../../../docs/app/search-selection.md#appkit-finite-option-selection).
+
+
+AppKit Selector uses native choice ordering with a Select-specific key policy:
+arrows/Home/End/Page keys move focus without selection; Enter/Space commits;
+Escape closes. Typing searches/cycles labels or enters the local search editor.
+Editor caret/space/IME keys and modified shortcuts keep native ownership, except
+nonediting multi-picker Command/Control+A bulk selection. Tab close passes the
+anchor's same-window next/previous valid key view to the existing layer owner.
+The key bridge is required; explicitly unavailable dispatch restores ordinary
+option Tab stops. Cases/fixture are authored but unrun, so no native input,
+focus/return, containment, scrolling or AX qualification is implied.
+
+```tsx
+import { Selector } from '@octane-xplat/ui'
+
+export function Fruit() {
+	return <Selector options={[{ value: 'apple', label: 'Apple' }, { value: 'cherry', label: 'Cherry' }]}
+		searchable defaultValue="apple" />
+}
+```

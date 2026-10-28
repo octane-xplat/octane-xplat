@@ -510,6 +510,57 @@ export function Region() {
 
 These changes have authored, unrun object-driver cases. The popup is replaced
 with an inline test surface in those cases, so they do not prove NSPopover
-ownership or input. Arrow/typeahead navigation, popup/search/return focus,
-removable badges, alternate presentations, ghost chrome, live-region
-announcements, native layout/VoiceOver and packaging remain open or unqualified.
+ownership or input. A subsequent keyboard/focus source path is described below. Removable badges,
+alternate presentations, ghost chrome and live-region announcements remain open;
+actual popup focus/input, native layout/VoiceOver and packaging remain unqualified.
+
+
+## Use Selector keys on AppKit
+
+AppKit Selector now has a source keyboard path. Plain arrows open the popup and
+move option focus; Home/End and PageUp/PageDown reach the first/last enabled
+choice. Moving focus does not select it. Enter or Space commits the focused
+choice, while Escape closes the popup. Disabled choices and pending commits
+remain protected. These are authored implementation paths, not a physical-key
+verification result.
+
+```tsx
+import { Selector } from '@octane-xplat/ui'
+
+export function Fruit() {
+	return <Selector options={[
+		{ value: 'apple', label: 'Apple' },
+		{ value: 'banana', label: 'Banana', isDisabled: true },
+		{ value: 'cherry', label: 'Cherry' },
+	]} defaultValue="apple" />
+}
+```
+
+Typing matches option labels, with repeated-character cycling and a short prefix
+window. In a searchable picker, typing outside the editor starts local search
+and requests editor focus. Text-editing Home/End/Space and composing input stay
+with the editor. Command/Control+A selects visible enabled choices only in an
+open multiple picker outside the editor; inside it, the shortcut keeps its
+normal text-selection meaning.
+
+```tsx
+import { MultiSelector } from '@octane-xplat/ui'
+
+export function Fruits() {
+	return <MultiSelector options={[{ value: 'apple', label: 'Apple' }, { value: 'cherry', label: 'Cherry' }]}
+		searchable hasSelectAll />
+}
+```
+
+The popup uses existing native choice ordering and the layer's focus-return
+owner. Tab/Shift+Tab request close and pass the anchor's next/previous valid
+key view to that owner, following AppKit's
+[key-view ordering](https://developer.apple.com/documentation/appkit/nsview/nextvalidkeyview?language=objc).
+This requires the matching keyboard bridge. A host reporting no key dispatch
+keeps ordinary option Tab stops instead of suppressing unreachable choices.
+
+The new policy, focus-helper and inline-popup wiring cases remain unrun.
+They do not prove real NSPopover focus/return timing, physical keys, IME, modal
+FocusScope interactions, scrolling, VoiceOver or packaged operation. The
+[maintained AppKit keyboard fixture](https://github.com/octane-xplat/octane-xplat/blob/main/examples/probes/select-keyboard.macos.tsrx)
+is also unrun; its script only opens the trigger directly.

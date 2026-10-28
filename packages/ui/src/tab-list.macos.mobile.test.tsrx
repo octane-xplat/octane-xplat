@@ -86,8 +86,8 @@ function focusFixture(automatic = false) {
 	const a = item('a'), b = item('b'), c = item('c')
 	children.push(a, b, c)
 	let selected: string | undefined = 'b'
-	let pattern: 'tabs' | 'nav' = 'tabs', direction: 'ltr' | 'rtl' = 'ltr'
-	const bridge = () => ({ suppressTabStop: (view: object) => { excluded.add(view); return () => excluded.delete(view) } })
+	let pattern: 'tabs' | 'nav' = 'tabs', direction: 'ltr' | 'rtl' = 'ltr', keyboardSupported: boolean | undefined
+	const bridge = () => ({ keyboardEventsSupported: keyboardSupported, suppressTabStop: (view: object) => { excluded.add(view); return () => excluded.delete(view) } })
 	const navigation = createAppKitChoiceFocus({ root: () => root, views: new Map([['c', c], ['a', a], ['b', b]]) as any,
 		selected: () => selected, orientation: () => pattern === 'tabs' ? 'horizontal' : 'both', direction: () => direction, reveal: (view) => { revealed.push(view) }, onNavigate: automatic ? (key) => requests.push(key) : undefined }, bridge)
 	const key = (name: string, extras = {}) => {
@@ -97,7 +97,7 @@ function focusFixture(automatic = false) {
 		return event
 	}
 	return { navigation, excluded, revealed, requests, window, children, a, b, c, key,
-		select: (value: string | undefined) => { selected = value }, rtl: () => { direction = 'rtl' }, nav: () => { pattern = 'nav' } }
+		capability: (value: boolean) => { keyboardSupported = value }, select: (value: string | undefined) => { selected = value }, rtl: () => { direction = 'rtl' }, nav: () => { pattern = 'nav' } }
 }
 
 it('uses one registered-tab stop, native child order and manual arrow selection', () => {
@@ -187,4 +187,33 @@ it('uses the first enabled choice when a radio-like group has no selection', () 
 	f.navigation.synchronize()
 	expect(f.excluded).toEqual(new Set([f.c]))
 	f.navigation.dispose()
+})
+
+
+it('manual choice focus reuses native ordering and never requests automatic selection', () => {
+	const f = focusFixture(true)
+	expect(f.navigation.orderedKeys()).toEqual(['a', 'b', 'c'])
+	expect(f.navigation.focus('c')).toBe(true)
+	expect(f.window.firstResponder).toBe(f.c)
+	expect(f.requests).toEqual([])
+	f.c.enabled = false
+	expect(f.navigation.focus('c')).toBe(false)
+	f.select(undefined)
+	expect(f.navigation.focus(undefined, 'last')).toBe(true)
+	expect(f.window.firstResponder).toBe(f.b)
+	const previous = f.revealed.length
+	f.window.makeFirstResponder = () => false
+	expect(f.navigation.focus('a')).toBe(false)
+	expect(f.revealed).toHaveLength(previous)
+	f.navigation.dispose()
+	expect(f.excluded.size).toBe(0)
+})
+
+
+it('restores ordinary option Tab stops when the host explicitly lacks key dispatch', () => {
+	const f = focusFixture()
+	f.navigation.synchronize(); expect(f.excluded.size).toBe(2)
+	f.capability(false); f.navigation.synchronize(); expect(f.excluded.size).toBe(0)
+	f.capability(true); f.navigation.synchronize(); expect(f.excluded.size).toBe(2)
+	f.navigation.dispose(); expect(f.excluded.size).toBe(0)
 })

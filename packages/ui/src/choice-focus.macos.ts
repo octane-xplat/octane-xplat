@@ -46,7 +46,7 @@ export function createAppKitChoiceFocus(options: Options, bridge = appKitHost) {
 	const synchronize = () => {
 		const items = ordered()
 		const current = focused(items) ?? items.find((item) => item.key === options.selected()) ?? items[0]
-		const excluded = new Set(typeof bridge()?.suppressTabStop === 'function'
+		const excluded = new Set(bridge()?.keyboardEventsSupported !== false && typeof bridge()?.suppressTabStop === 'function'
 			? items.filter((item) => item !== current).map((item) => item.view) : [])
 		let changed = false
 		for (const [view, release] of leases) {
@@ -64,6 +64,17 @@ export function createAppKitChoiceFocus(options: Options, bridge = appKitHost) {
 	return {
 		synchronize,
 		focusedView: () => focused(ordered())?.view,
+		orderedKeys: () => ordered().map((item) => item.key),
+		/** Programmatic/manual focus never requests a selection change. */
+		focus(key?: string, edge: 'first' | 'last' = 'first'): boolean {
+			const items = ordered(), window = options.root()?.window
+			const target = key !== undefined ? items.find((item) => item.key === key) :
+				items.find((item) => item.key === options.selected()) ?? items[edge === 'last' ? items.length - 1 : 0]
+			if (!target || !window?.makeFirstResponder(target.view)) return false
+			options.reveal?.(target.view)
+			synchronize()
+			return true
+		},
 		keyDown(event: KeyboardEvent) {
 			if (event.defaultPrevented || event.isComposing || event.altKey || event.ctrlKey || event.metaKey) return
 			const items = ordered(), current = focused(items), window = options.root()?.window

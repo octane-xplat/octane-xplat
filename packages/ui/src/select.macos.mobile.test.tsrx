@@ -7,7 +7,8 @@ import { SelectMenu } from './aliases.macos.tsrx'
 
 // Render the child surface inline to inspect state/host contracts only.
 // This intentionally does not exercise NSPopover roots or OS focus/input.
-vi.mock('./Popover.macos.tsrx', () => ({ Popover: (props: any) => props.open ? <masonview>{props.children}</masonview> : null }))
+const popup = vi.hoisted(() => ({ props: null as any }))
+vi.mock('./Popover.macos.tsrx', () => ({ Popover: (props: any) => { popup.props = props; return props.open ? <masonview>{props.children}</masonview> : null } }))
 const options = [{ value: 'a', label: 'Alpha' }, { value: 'b', label: 'Beta', isDisabled: true }, { value: 'c', label: 'Gamma' }]
 function mount(component: any, props: any) {
 	const container = createObjectContainer('nativescript')
@@ -107,4 +108,68 @@ it('read-only/pending raw views block all selection hosts and report expanded/bu
 		expect(env.byID('choice-option-a').props.onTap).toBeUndefined()
 		expect(base.onPick).not.toHaveBeenCalled()
 	} finally { env.root.unmount() }
+})
+
+
+it('wires native trigger/surface keys, manual row focus, Tab return intent and ownership cleanup', async () => {
+	const excluded = new Set<object>(), retained = new Set<object>(), observers = new Map<object, (event: any) => void>()
+	vi.stubGlobal('__xplatAppKit', { keyboardEventsSupported: true,
+		suppressTabStop(view: object) { excluded.add(view); return () => excluded.delete(view) },
+		retainFocusTarget(view: object) { retained.add(view); return () => retained.delete(view) },
+	})
+	vi.stubGlobal('NSNotificationCenter', { defaultCenter: {
+		addObserverForNameObjectQueueUsingBlock(_name, _owner, _queue, notify) { const token = {}; observers.set(token, notify); return token },
+		removeObserver(token: object) { observers.delete(token) },
+	} })
+	const makeWindow = () => ({ firstResponder: null as any, recalculateKeyViewLoop() {}, makeFirstResponder(view: any) { this.firstResponder = view; return true } })
+	const main = makeWindow(), panel = makeWindow(), changes = vi.fn(), picks = vi.fn()
+	const base = viewProps({ open: false, onOpenChange: changes, onPick: picks })
+	const env = mount(SelectView, base)
+	const hydrate = () => {
+		const visit = (node: any, window: any) => {
+			node.window = window
+			node.subviews = { get count() { return node.children?.length ?? 0 }, objectAtIndex: (index: number) => node.children[index] }
+			node.scrollRectToVisible = vi.fn(); node.bounds = {}
+			node.accessibilityIsEnabled = () => !node.props?.accessibilityState?.disabled
+			for (const child of node.children ?? []) visit(child, window)
+		}
+		for (const node of env.all()) if (node.props?.id === 'choice') visit(node, main)
+		const surface = env.all().find((node) => String(node.props?.className).includes('vx-select-surface--appkit'))
+		if (surface) visit(surface, panel)
+		return surface
+	}
+	const key = (host: any, name: string, extra = {}) => {
+		const event: any = { key: name, code: '', altKey: false, ctrlKey: false, metaKey: false, shiftKey: false,
+			repeat: false, isComposing: false, defaultPrevented: false, preventDefault() { this.defaultPrevented = true }, stopPropagation() {}, ...extra }
+		host.props.onKeyDown(event); return event
+	}
+	try {
+		hydrate(); const trigger = env.byID('choice'); main.firstResponder = trigger
+		expect(key(trigger, 'ArrowDown').defaultPrevented).toBe(true)
+		expect(changes).toHaveBeenCalledWith(true)
+		env.render({ ...base, open: true }); const surface = hydrate()
+		await Promise.resolve()
+		expect(panel.firstResponder).toBe(env.byID('choice-option-a'))
+		expect(retained.has(surface)).toBe(true)
+		expect(key(surface, 'ArrowDown').defaultPrevented).toBe(true)
+		expect(panel.firstResponder).toBe(env.byID('choice-option-c'))
+		expect(picks).not.toHaveBeenCalled()
+		key(surface, 'Enter'); expect(picks).toHaveBeenCalledWith(options[2])
+		const cachedPick = env.byID('choice-option-c').props.onTap
+		const cachedSurface = { props: { onKeyDown: surface.props.onKeyDown } }
+		const next = { window: main }; trigger.nextValidKeyView = next
+		key(surface, 'Tab')
+		expect(changes).toHaveBeenLastCalledWith(false)
+		expect(popup.props.finalFocusRef.current).toBe(next) // Intent only; popup restoration is mocked.
+		env.render(base)
+		cachedPick(); expect(picks).toHaveBeenCalledTimes(1)
+		expect(key(cachedSurface, 'Enter').defaultPrevented).toBe(true)
+		expect(key(cachedSurface, 'Enter', { isComposing: true }).defaultPrevented).toBe(false)
+		expect(excluded.size).toBe(0)
+		expect(retained.size).toBe(0)
+	} finally {
+		env.root.unmount()
+		expect(observers.size).toBe(0)
+		vi.unstubAllGlobals()
+	}
 })

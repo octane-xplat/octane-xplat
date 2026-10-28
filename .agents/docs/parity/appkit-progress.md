@@ -2144,3 +2144,63 @@ NSPopover root/anchor lifetime, keyboard/search/return focus, real selection and
 clear gesture arbitration, VoiceOver, layout and packaging remain unqualified.
 No builds, package tests/typechecks, installs, OS automation, visual analysis or
 shared audit regeneration ran; no evidence checkbox is closed.
+
+
+### AppKit Selector keyboard and focus ownership
+
+The preceding Selector repair left all key behavior absent. This slice adapts
+the existing web key policy to native focus ownership and reuses AppKit choice
+ordering/reveal/suppression. The private helper now exposes ordered keys/manual
+focus without requesting automatic selection. An explicitly false key-dispatch
+capability releases roving Tab suppression (also benefiting existing tab/radio
+owners); matching older test adapters retain their existing unspecified behavior.
+
+The native trigger is now a concrete mason host so useKeyboard props reach an
+intrinsic. Mounted keyed row parts own stable NSView registration. A popup
+surface owns programmatic-only fallback focus, one option Tab stop and an
+observer while open. Initial focus waits for attached window/search/row refs,
+uses selected/edge choices or search, and does not disturb already marked search
+input. Typed search handoff requests caret-at-end; actual IME/caret behavior is
+not proven. Ref detachment/close releases choice claims and surface fallback;
+observer cleanup is explicit. Static trigger/surface layout is target CSS.
+
+Plain arrows/Home/End/Page keys move option focus without selection. Enter/Space
+commit, pending guards remain, Escape closes without cascading to another layer,
+closed Delete/Backspace clears and prefix/repeated-character matching follows
+the shared policy. Search typing/caret/space and IME stay native; modified keys
+pass through except nonediting multi Command/Control+A bulk choice. Nested custom
+controls keep ordinary activation keys. Tab/Shift+Tab pass same-window anchor
+nextValidKeyView/previousValidKeyView intent via Popover.finalFocusRef to existing
+layer cleanup; this is not proof of native close/return timing. Apple's
+[key-view documentation](https://developer.apple.com/documentation/appkit/nsview/nextvalidkeyview?language=objc)
+is the API basis. No new public prop or shared/non-AppKit leaf changed.
+
+Rows recheck current open/blocked/pending/catalog state and their native ref
+before picking, including callbacks retained during delayed popup teardown.
+Search/bulk callbacks also consult current ownership. A closing surface blocks
+stale plain-key activation while leaving composition and OS shortcuts alone.
+The wiring case retains old callbacks to inspect these guards; it still cannot
+prove actual native teardown ordering.
+
+Six policy cases, one inline-popup/native-shaped wiring case and two choice
+helper cases are authored, plus a maintained keyboard fixture. All remain unrun.
+The wiring test asserts focus/return intent using fake windows and substitutes
+Popover; it cannot qualify NSPopover, physical keys, layer timing or VoiceOver.
+Only TypeScript/TSRX syntax, semantic/source and whitespace checks ran.
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/select-keyboard.macos.mobile.test.tsrx src/select.macos.mobile.test.tsrx src/tab-list.macos.mobile.test.tsrx src/radio-list.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe run examples/probes/select-keyboard.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All commands remain deferred pending explicit human authorization for this task.
+Physical key/IME delivery, separate-popup root/window lifetime, actual initial/
+return/Tab focus, modal FocusScope integration, nested-input arbitration, native
+scroll reveal, VoiceOver and packaging remain unqualified. Removable badges,
+alternate presentation/ghost chrome, live announcements and standalone Field
+ownership remain separate gaps. No builds, package tests/typechecks, installs,
+OS automation, visual analysis or shared audit regeneration ran; no checkbox
+is closed.
