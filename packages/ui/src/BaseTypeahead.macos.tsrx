@@ -10,7 +10,7 @@ import { BaseTypeaheadView } from './BaseTypeaheadView.macos.tsrx'
 import { createAppKitAutoFocus } from './auto-focus.macos'
 
 /** AppKit combobox search/focus ownership. Results remain in the inline
- * presentation; native keyboard selection and listbox AX are not qualified. */
+ * presentation; keyboard intents remain source-only and listbox AX is incomplete. */
 export function BaseTypeahead<T extends SearchableItem>(inProps: BaseTypeaheadProps<T>) @{
 	const props = useFieldControlProps(inProps)
 	const inputRef = useRef<NSTextField | null>(null), busyLane = useContext(BusyLaneContext)
@@ -120,15 +120,18 @@ export function BaseTypeahead<T extends SearchableItem>(inProps: BaseTypeaheadPr
 			if (inputRef.current && generation.current === gen && !live.current.open) notify?.(false)
 		} finally { selecting.current = false }
 	}
-	const handleFocus = () => {
-		if (!inputRef.current) return
-		const gen = generation.current
-		live.current.props.onFocus?.()
-		if (!inputRef.current || blocked() || generation.current !== gen) return
+	const offerResults = () => {
+		if (!inputRef.current || blocked()) return
 		const current = live.current
 		if (current.results.length && (current.query.length || current.props.hasEntriesOnFocus) && resultsGeneration.current === generation.current) showLayer()
 		else if (!current.query.length && current.props.hasEntriesOnFocus) { const gen = cancel(); void performBootstrap(gen) }
 		else if (current.query.length && characterCount(current.query) >= (current.props.minQueryLength ?? 1)) { const gen = cancel(); void performSearch(current.query, gen) }
+	}
+	const handleFocus = () => {
+		if (!inputRef.current) return
+		const gen = generation.current
+		live.current.props.onFocus?.()
+		if (generation.current === gen) offerResults()
 	}
 	const handleBlur = () => {
 		if (!inputRef.current) return
@@ -174,6 +177,9 @@ export function BaseTypeahead<T extends SearchableItem>(inProps: BaseTypeaheadPr
 		open={open && !props.isDisabled && !props.isReadOnly} highlightedIndex={highlightedIndex}
 		isSearching={isLoading} hasSearched={hasSearched} value={props.value} emptyText={props.emptySearchResultsText ?? 'No results found'}
 		onQueryChange={handleQueryChange} onSelect={handleSelect} onInputFocus={handleFocus} onInputBlur={handleBlur}
-		onOpenChange={(next: boolean) => { if (!next) hideLayer(); else handleFocus() }}
+		onHighlight={(index: number) => {
+			if (inputRef.current && !blocked() && live.current.open && resultsGeneration.current === generation.current && index >= 0 && index < live.current.results.length) setHighlightedIndex(index)
+		}}
+		onOpenChange={(next: boolean) => { if (!next) hideLayer(); else offerResults() }}
 	/>
 }

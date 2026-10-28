@@ -1605,6 +1605,33 @@ New queries invalidate old responses before debounce. Source replacement,
 field-leave blur, ref replacement, blocking and teardown cancel requests; late
 responses cannot reopen. Query/selection callbacks claim before reentry and
 resolve current result identities. Fourteen object-driver cases and the manual
-fixture are unrun. Results remain inline; consumer keydown/option navigation,
-IME/editor/blur/click ordering, native listbox/active-option relationships,
+fixture are unrun. Results remain inline; keyboard intents have the source path
+below. IME/editor/blur/click ordering, native listbox/active-option relationships,
 announcements and packaging remain gaps or unqualified. See [AppKit typeahead](../../../../docs/app/search-selection.md#bootstrap-appkit-typeahead-results-on-focus).
+
+
+## AppKit typeahead input-owned keys
+
+BaseTypeahead now forwards the native input key payload to its existing consumer
+hook before built-in navigation. preventDefault suppresses the policy. Only the
+current input/owned field editor in its current window may act; callback-driven
+focus/ref/prop changes are rechecked. Closed ArrowDown offers eligible results;
+open arrows/Home/End highlight, Enter commits, and Escape closes only that list.
+Tab/Shift+Tab close without cancelling native traversal. Modified editing, IME,
+ordinary input and closed Escape stay with the native/default layer owner.
+
+```tsx
+import { BaseTypeahead, createStaticSource } from '@octane-xplat/ui'
+const people = createStaticSource([{ id: 'ada', label: 'Ada' }])
+export function Person() {
+	return <BaseTypeahead searchSource={people} value={null} onChange={() => {}}
+		hasEntriesOnFocus accessibilityLabel="Person" />
+}
+```
+
+Highlight reveal uses current keyed native row leases, stays in the input's
+window and never transfers focus. Seven policy/five object-driver cases and the
+manual fixture are unrun. Native keys/IME/repeat/Tab/layer/reveal and package
+qualification remain deferred; no listbox/active-option AX or announcements are
+claimed. Tokenizer Backspace removal still needs separate wiring. Read the
+[key guide](../../../../docs/app/search-selection.md#choose-appkit-typeahead-results-with-keys).

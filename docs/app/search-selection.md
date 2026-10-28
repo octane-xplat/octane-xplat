@@ -432,8 +432,8 @@ accessed through `state` are direct fields on that object.
 
 `ref` supplies the handle declared by each component. Primitive containers
 supply a host view; search fields and custom selectors supply their own actions. The
-typeahead `onKeyDown` callback currently receives a DOM `KeyboardEvent` on web;
-the iOS/Android and experimental AppKit typeahead leaves do not forward it. `htmlName` is web-only. Native and macOS links open via
+BaseTypeahead `onKeyDown` callback receives a DOM `KeyboardEvent` on web or
+Xplat's native key payload on AppKit. The iOS/Android leaves do not forward it. `htmlName` is web-only. Native and macOS links open via
 the platform URL/deep-link service rather than rendering an HTML anchor.
 
 ```tsx
@@ -664,6 +664,57 @@ export function SearchAction() {
 Fourteen object-driver cases and a [manual fixture](../../examples/probes/typeahead-focus.macos.tsrx)
 are authored, all unrun. Source/fake dispatch does not qualify actual field-editor
 focus/blur, IME, click ordering, inline layout, keyboard option navigation,
-listbox accessibility or packaged imports. Keyboard selection/consumer keydown,
-active-option relationships and result announcements remain source gaps. The
+listbox accessibility or packaged imports. Keyboard selection/consumer keydown
+now have a separate source path below; active-option relationships and result
+announcements remain gaps. The
 AppKit typeahead result host remains separate from the general native Popover.
+
+
+## Choose AppKit typeahead results with keys
+
+The experimental AppKit input now handles result navigation without moving the
+caret to an option. ArrowDown offers results when the closed field has a query
+or `hasEntriesOnFocus`. While open, Up/Down wrap the highlight, Home/End reach its
+ends, Enter selects, and Escape closes. Tab and Shift+Tab close results while
+leaving traversal to AppKit or the containing FocusScope.
+
+```tsx
+import { useState } from 'octane'
+import { BaseTypeahead, Text, createStaticSource } from '@octane-xplat/ui'
+import type { SearchableItem } from '@octane-xplat/ui'
+const people = createStaticSource([{ id: 'ada', label: 'Ada' }, { id: 'grace', label: 'Grace' }])
+export function ChoosePerson() {
+	const [selected, setSelected] = useState<SearchableItem | null>(null)
+	return <>
+		<BaseTypeahead searchSource={people} value={selected} onChange={setSelected}
+			hasEntriesOnFocus accessibilityLabel="Person" />
+		<Text>Selected: {selected?.label ?? 'none'}</Text>
+	</>
+}
+```
+
+BaseTypeahead's optional `onKeyDown` runs before built-in navigation; calling
+`preventDefault()` suppresses it. The built-in policy leaves IME, modified text
+selection, application shortcuts and ordinary editing keys to AppKit. A current
+highlight requests native ancestor scrolling when available, without taking
+focus. Consumer callbacks receive the composing flag and should respect it too.
+
+```tsx
+import { BaseTypeahead, createStaticSource } from '@octane-xplat/ui'
+const people = createStaticSource([{ id: 'ada', label: 'Ada' }])
+export function CustomNavigation() {
+	return <BaseTypeahead searchSource={people} value={null} onChange={() => {}}
+		hasEntriesOnFocus accessibilityLabel="Person"
+		onKeyDown={(event) => {
+			if (!event.isComposing && event.key === 'ArrowDown') event.preventDefault()
+		}} />
+}
+```
+
+Seven policy and five object-driver cases plus the
+[manual key fixture](../../examples/probes/typeahead-keys.macos.tsrx) are authored,
+all unrun. These establish source intent only. Real field-editor/IME/repeat,
+modifier delivery, Tab/layer ordering, native highlight reveal and packaging
+remain unqualified. Results remain inline; listbox/active-option accessibility
+and announcements remain gaps. Tokenizer's AppKit Backspace removal is not
+wired by this change; use each token's remove button.

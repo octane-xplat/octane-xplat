@@ -35,7 +35,7 @@ function EndLane(props: { lane: BusyIndicatorLane; clear?: any }) @{
 }
 
 /** AppKit search-as-you-type field with focus bootstrap and click selection.
- * Keyboard option navigation and native listbox relationships remain gaps.
+ * Input-owned keyboard selection has a source path; native listbox AX remains incomplete.
  * The selected value uses a Token; disabledMessage uses the tooltip bridge. */
 export function Typeahead<T extends SearchableItem>(inProps: TypeaheadProps<T>) @{
 	const props = useFieldControlProps(inProps)

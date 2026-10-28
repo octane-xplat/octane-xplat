@@ -3924,3 +3924,73 @@ source gaps. PowerSearch initial-focus ownership, Carousel fades, video and
 date preset text relay/listbox relationships remain separate work. Checkbox
 mixed rollback still awaits the previously asked human contract choice. No
 evidence-gated checkbox is closed; the persistent goal remains active.
+
+### AppKit typeahead input keyboard ownership
+
+The preceding focus/search slice is pushed through 1dc04c756; that was real
+source progress, not native qualification. Continued the same common people/
+label search flow rather than decorative Carousel fades or niche integrations.
+Reviewed the current AppKit renderer key protocol: it resolves the owning
+textfield from its field editor, reports composing/dead keys and distinguishes
+preventDefault from ancestor propagation. No renderer changes were needed.
+The typeahead view still had no key binding despite that existing prerequisite.
+
+A private target policy now handles only the current visible input/owned editor
+in its own window, including native method/property editor forms. Consumer
+onKeyDown runs first; cancellation and callback-driven ref/window/focus/prop
+changes are rechecked. Modified editing, composing/marked input and ordinary
+text keys preserve native defaults. Closed ArrowDown offers results only for an
+eligible query/bootstrap; open arrows wrap highlight, Home/End reach the ends,
+Enter commits and Escape consumes only the open list. Tab/Shift+Tab close without
+preventing traversal or taking ancestor FocusScope ownership. A stable per-input
+claim rejects recursive dispatch and releases on consumer errors. Highlighting
+does not move native first responder.
+
+Container highlight intents validate the live result generation/current count.
+Keyboard open intent is separate from actual focus notification, so ArrowDown
+does not synthesize onFocus callbacks. Current keyed native row leases request
+scrollRectToVisible only in the input's window while it/its editor owns focus;
+old ref callbacks cannot delete a replacement lease. Existing inline hosting
+is retained. Public/internal key comments now distinguish web/AppKit from mobile;
+no public type shape, dependency, shared runner/manifest or other-target leaf
+changed. Tokenizer's old comment claiming no AppKit key events was corrected,
+but its Backspace-removal wrapper remains explicitly unwired.
+
+Seven policy and five object-driver cases are newly authored, all unrun. They
+cover wrap/endpoints/manual commit, closed eligibility, Escape/Tab ownership,
+IME/marked editors/modifiers/ordinary editing, consumer cancellation/latest state/
+reentry/error cleanup, foreign/hidden/detached/replaced/focus-moved targets,
+field-editor forms, actual key prop/highlight/row reveal/Enter wiring, closed
+open without fake focus callbacks, current readonly state and consumer-driven
+source replacement/unmount. These use fake native responders and direct handler
+dispatch, not OS keys. The maintained key fixture adds before/after editors,
+consumer cancellation and read-only toggles; its runner only mounts/records.
+Guide/skill/feature note, appkit-typeahead-focus AC3/AC4 and shared search recipe
+platform wording reconcile the current source subset. Earlier fourteen focus
+cases also remain unrun.
+
+Only source/semantic review, TS/TSRX syntax parsing and whitespace checks ran.
+Exact deferred commands, pending explicit human authorization for this task:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/ui -- src/typeahead-keys.macos.test.ts
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/typeahead-keys.macos.mobile.test.tsrx src/typeahead-focus.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/typeahead-keys.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+No package tests/typechecks/builds, installs, native/OS automation, visual analysis
+or packaging ran. Native key/field-editor/IME/dead-key/repeat/modifier delivery,
+actual Tab/layer ordering, callback/render/ref timing, scrolling/reveal/layout,
+VoiceOver and packaged imports remain unqualified. Native listbox/active-option
+relationships and announcements, Tokenizer Backspace removal, PowerSearch focus,
+Carousel fades, video and date-preset text relay remain source gaps. Related
+source finding for follow-up: the unsuffixed date-composition helper used by
+AppKit dates checks mobile marked text and event flags only; raw AppKit text/
+submit guards need separate review. The new key policy uses renderer/native
+marked metadata directly and does not rely on that helper. Checkbox mixed
+rollback still awaits the previously asked contract choice. No evidence-gated
+checkbox is closed; the persistent goal remains active.

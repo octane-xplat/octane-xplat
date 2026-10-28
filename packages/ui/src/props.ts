@@ -7372,7 +7372,8 @@ export interface TypeaheadInputHandle {
 }
 
 /** Keydown notification on the typeahead input. Fires with the DOM
- *  KeyboardEvent on web before internal navigation (call `preventDefault`
+ *  KeyboardEvent on web, or the native key payload on AppKit, before internal
+ *  navigation (call `preventDefault`
  *  to suppress it). Never fires on iOS/Android — native text fields emit
  *  no key events — so behavior gated on it (e.g. Tokenizer's
  *  Backspace-removes-last-token) is pointer-platform only. */
@@ -7386,7 +7387,7 @@ export interface TypeaheadKeyEvent {
 	preventDefault(): void
 }
 
-/** `onKeyDown` signature for the typeahead-family input — receives `TypeaheadKeyEvent`; web fires it before internal navigation (`preventDefault` suppresses), iOS/Android never emit it.
+/** `onKeyDown` signature for the typeahead-family input — receives `TypeaheadKeyEvent`; web/AppKit fire it before internal navigation (`preventDefault` suppresses), iOS/Android never emit it.
  */
 export type TypeaheadKeyDownHandler = (event: TypeaheadKeyEvent) => void
 

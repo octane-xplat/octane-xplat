@@ -18,7 +18,7 @@ Provide local or remote searchable values with a stable identity, present useful
 - AC2: A reader can use `Typeahead` with controlled selection, accessible field text, clear/edit/restore behavior, custom result content, and a disabled reason.
 - AC3: A reader can use `Tokenizer` to add, remove, cap, create, and overflow tokens, and knows which fields serialize into a browser form.
 - AC4: A reader can use `ComplexSelector`'s named render context to render custom content, commit values, close the surface, and reflect/revert an asynchronous action.
-- AC5: A reader can account for web-only key events and form inputs, the native remove-button fallback, portable `ref`, and experimental macOS support.
+- AC5: A reader can account for web/AppKit key-event subsets and web form inputs, the mobile remove-button fallback, portable `ref`, and experimental macOS support.
 
 - AC6: A reader can use finite-list Selector with `selectionMode` tied to a string-or-null single value or string-array multiple value, or use the `MultiSelector` multiple preset, with local grouped filtering, filtered enabled-item bulk selection, pending/rejected commits, form submission, and explicit native keyboard limits.
 

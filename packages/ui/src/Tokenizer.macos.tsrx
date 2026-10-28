@@ -58,10 +58,9 @@ function EndLane(props: {
 	</masonview>
 }
 
-/** Multi-select field: Token chips + a BaseTypeahead input. Native leaf —
- *  Backspace-removes-last-token needs key events native text fields don't
- *  emit, so removal is the token ✕ (and the clear-all lane); truncation is
- *  measured off native layout (`layoutChanged`), not ResizeObserver. */
+/** Multi-select field: Token chips + a BaseTypeahead input. The AppKit
+ *  engine now has input key dispatch, but this wrapper does not yet wire
+ *  Backspace removal. Use token ✕ or clear-all. Native layout owns truncation. */
 export function Tokenizer<T extends SearchableItem>(props: TokenizerProps<T>) @{
 	const size = useSize(props.size, 'md')
 	const inputHandle = useRef<TypeaheadInputHandle | null>(null)

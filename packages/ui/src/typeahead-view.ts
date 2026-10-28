@@ -47,14 +47,14 @@ export interface BaseTypeaheadViewProps<
 	menuWidth?: number
 	placement?: PopoverPlacement
 	isFocusableDisabled?: boolean
-	/** Gates the closed-state ArrowDown open intent (web keyboard). */
+	/** Gates the closed-state ArrowDown open intent (web/AppKit keyboard). */
 	hasEntriesOnFocus?: boolean
 	inputTabIndex?: number
 	inputClassName?: any
 	inputStyle?: any
 	accessibilityLabel?: string
 	/** Consumer keydown notification — runs before internal navigation;
-	 *  `preventDefault` suppresses it. Never fires on native leaves. */
+	 *  `preventDefault` suppresses it. Web and AppKit wire it; mobile leaves do not. */
 	onKeyDown?: TypeaheadKeyDownHandler
 	/** Resolved dropdown anchor — the caller's `anchorRef` or the input. */
 	anchor: PopoverAnchorRef

@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from './style-merge'
-import { useCallback, useContext } from 'octane'
-import type { NSTextField } from '@octane-xplat/platform/macos'
+import { useCallback, useContext, useLayoutEffect, useMemo, useRef } from 'octane'
+import type { NSTextField, NSView } from '@octane-xplat/platform/macos'
 import { appKitTextChange } from './appkit-events.macos'
 import type { SearchableItem } from './props'
 import type { BaseTypeaheadViewProps } from './typeahead-view'
@@ -11,9 +11,10 @@ import { TypeaheadItem } from './TypeaheadItem.macos.tsrx'
 import { ActivityIndicator } from './controls.macos.tsrx'
 import { BusyLaneContext } from './busy-lane'
 import { groupTypeaheadItems } from './typeahead-source'
+import { createAppKitTypeaheadKeys } from './typeahead-keys.macos'
 
 /** AppKit presentation with stable input attachment and field-leave blur.
- * Keyboard option navigation and native listbox relationships remain gaps. */
+ * Keyboard intents retain input focus; native listbox relationships remain a gap. */
 export function BaseTypeaheadView<T extends SearchableItem>(
 	props: BaseTypeaheadViewProps<T>,
 ) @{
@@ -26,6 +27,30 @@ export function BaseTypeaheadView<T extends SearchableItem>(
 			? props.highlightedIndex
 			: -1
 
+	const live = useRef(props); live.current = props
+	const rows = useRef(new Map<string, { view: NSView }>())
+	const bindRow = (id: string) => {
+		let lease: { view: NSView } | undefined
+		return (view: NSView | null) => {
+			if (view) { lease = { view }; rows.current.set(id, lease) }
+			else if (rows.current.get(id) === lease) rows.current.delete(id)
+		}
+	}
+	const keys = useMemo(() => createAppKitTypeaheadKeys<T>({
+		input: () => live.current.inputRef.current,
+		state: () => { const p = live.current; return { open: p.open, blocked: !!p.isDisabled || !!p.isReadOnly, query: p.query, entriesOnFocus: !!p.hasEntriesOnFocus, items: p.results, active: p.highlightedIndex } },
+		notify: (event) => live.current.onKeyDown?.(event),
+		open: () => live.current.onOpenChange(true), close: () => live.current.onOpenChange(false),
+		highlight: (index) => live.current.onHighlight?.(index), select: (item) => live.current.onSelect(item),
+	}), [])
+	useLayoutEffect(() => {
+		if (!props.open || activeIndex < 0) return
+		const input = props.inputRef.current, row = rows.current.get(props.results[activeIndex].id)?.view
+		if (!input?.window || !row || row.window !== input.window) return
+		const editor = typeof input.currentEditor === 'function' ? input.currentEditor() : input.currentEditor
+		if (input.window.firstResponder === input || (editor != null && input.window.firstResponder === editor)) row.scrollRectToVisible?.(row.bounds)
+	}, [props.open, activeIndex, props.results])
+
 	<masonview
 		className={cx('vx-typeahead', props.className)}
 		onBlur={props.onInputBlur}
@@ -34,6 +59,7 @@ export function BaseTypeaheadView<T extends SearchableItem>(
 		<textfield
 			ref={bindInput}
 			onFocus={props.onInputFocus}
+			onKeyDown={keys}
 			id={props.inputId}
 			className={cx(
 				'vx-typeahead-input',
@@ -84,6 +110,7 @@ export function BaseTypeaheadView<T extends SearchableItem>(
 						const index = props.results.indexOf(item)
 						const isSelected = item.id === selectedId && selectedId != null
 						<masonview
+							ref={bindRow(item.id)}
 							className={cx(
 								'vx-typeahead-option',
 								`vx-typeahead-option--size-${props.size}`,
