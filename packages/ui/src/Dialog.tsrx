@@ -30,14 +30,16 @@ function DialogPanel(props: DialogProps & { layerDepth: number }) @{
 
 	<masonview
 		className="vx-dialog-host"
-		width="100%"
-		height="100%"
-		style={{ display: 'grid', gridTemplateRows: '1fr', gridTemplateColumns: '1fr' }}
+		style={{
+			display: 'grid',
+			gridTemplateRows: '1fr',
+			gridTemplateColumns: '1fr',
+			width: '100%',
+			height: '100%',
+		}}
 	>
 		<masonview
 			className={cx('vx-dialog', isFullscreen && 'vx-dialog--fullscreen', props.className)}
-			width={isFullscreen ? '100%' : undefined}
-			height={isFullscreen ? '100%' : undefined}
 			accessible={true}
 			accessibilityLabel={props.accessibilityLabel}
 			accessibilityRole={purpose === 'required' ? 'alert' : undefined}
@@ -281,7 +283,7 @@ export function DialogHeader(props: DialogHeaderProps) @{
 			)}
 		</masonview>
 		{(props.hasDivider ?? true) && (
-			<masonview className="vx-dialog-divider" height={1} style={{ display: 'grid' }} />
+			<masonview className="vx-dialog-divider" style={{ display: 'grid', height: 1 }} />
 		)}
 	</masonview>
 }

@@ -68,9 +68,12 @@ export function GridSpan(props: GridSpanProps) @{
 	<masonview
 		id={props.id}
 		className={cx('vx-gridspan', props.className)}
-		style={styleRecord(props.style)}
-		colSpan={props.columns === 'full' ? undefined : props.columns}
-		rowSpan={props.rows}
+		style={{
+			...styleRecord(props.style),
+			gridColumn:
+				props.columns === 'full' || props.columns == null ? undefined : 'span ' + props.columns,
+			gridRow: props.rows ? 'span ' + props.rows : undefined,
+		}}
 		accessibilityLabel={props.accessibilityLabel}
 	>
 		{props.children}

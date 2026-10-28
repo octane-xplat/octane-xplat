@@ -268,12 +268,14 @@ export function UITableView<T>(props: UITableViewProps<T>) @{
 					runtime={runtime.current}
 				/>
 				<masonview
-					style={mergeStyle({ display: 'flex' }, { alignSelf: 'start' })}
+					style={mergeStyle(
+						{ display: 'flex' },
+						{ alignSelf: 'start', height: REFRESH_HEADER_HEIGHT },
+					)}
 					ref={(v: any) => {
 						indicator.current = v
 					}}
 					className="vx-refresh"
-					height={REFRESH_HEADER_HEIGHT}
 					translateY={-REFRESH_HEADER_HEIGHT}
 				>
 					<ActivityIndicator />

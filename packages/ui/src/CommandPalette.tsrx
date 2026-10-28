@@ -104,7 +104,7 @@ function PaletteBody<T extends CommandPaletteItem>(props: {
 		) : null}
 		<scrollview
 			className="vx-cmdk-list"
-			height={props.options.maxHeight ?? Screen.mainScreen.heightDIPs * 0.3}
+			style={{ height: props.options.maxHeight ?? Screen.mainScreen.heightDIPs * 0.3 }}
 		>
 			<masonview
 				className="vx-menu-list"

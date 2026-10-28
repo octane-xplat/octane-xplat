@@ -119,10 +119,12 @@ export function SelectView(props: SelectViewProps) @{
 				accessibilityLiveRegion={'polite'}
 			/>
 			<scrollview
-				height={Math.min(
-					props.maxMenuHeight ?? 280,
-					Math.max(40, props.shown.length * 56 + props.groups.length * 24),
-				)}
+				style={{
+					height: Math.min(
+						props.maxMenuHeight ?? 280,
+						Math.max(40, props.shown.length * 56 + props.groups.length * 24),
+					),
+				}}
 			>
 				<masonview
 					className="vx-menu-list vx-select-list"

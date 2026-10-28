@@ -85,11 +85,9 @@ export function Thumbnail(props: ThumbnailProps) @{
 				) : null}
 				{isRenderable(props.onRemove) ? (
 					<masonview
-						width={16}
-						height={16}
 						style={mergeStyle(
 							{ justifySelf: 'end', alignSelf: 'start' },
-							mergeStyle({ display: 'grid' }, { margin: 2 }),
+							mergeStyle({ display: 'grid' }, { margin: 2, width: 16, height: 16 }),
 						)}
 					>
 						<Pressable
@@ -119,9 +117,10 @@ export function Thumbnail(props: ThumbnailProps) @{
 			ref={(v: any) => applyEscapeProps(v, props)}
 			id={props.id}
 			className={cx('vx-thumbnail', props.className)}
-			width={SIZE}
-			height={SIZE}
-			style={mergeStyle({ display: 'grid' }, props.style)}
+			style={mergeStyle(
+				mergeStyle({ display: 'grid' }, { width: SIZE, height: SIZE }),
+				props.style,
+			)}
 			accessible={true}
 			accessibilityLabel={label}
 			accessibilityRole={nativeAccessibilityRole(isRenderable(props.onPress) ? 'button' : 'image')}

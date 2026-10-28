@@ -77,10 +77,9 @@ export function ProgressBar(props: ProgressBarProps) @{
 		) : null}
 		<masonview
 			className="vx-progressbar-track"
-			height={8}
 			style={mergeStyle(
 				{ display: 'grid' },
-				{ borderRadius: 4, backgroundColor: scheme === 'dark' ? '#2e2e2e' : '#eaeaea' },
+				{ borderRadius: 4, backgroundColor: scheme === 'dark' ? '#2e2e2e' : '#eaeaea', height: 8 },
 			)}
 		>
 			<masonview
@@ -90,10 +89,10 @@ export function ProgressBar(props: ProgressBarProps) @{
 						borderRadius: 4,
 						backgroundColor: progressFillColor(variant, scheme),
 						justifySelf: 'start',
+						width: isIndeterminate ? '40%' : `${pct}%`,
 					},
 				)}
 				className={cx('vx-progressbar-fill', `vx-progressbar-fill--${variant}`)}
-				width={isIndeterminate ? '40%' : `${pct}%`}
 			/>
 			{marks.map((mark) => {
 				const markPct = clamp(mark.value, 0, max) / max
@@ -108,8 +107,6 @@ export function ProgressBar(props: ProgressBarProps) @{
 								{ backgroundColor: mutedColor(scheme), gridColumn: '2' },
 							)}
 							className="vx-progressbar-mark"
-							width={2}
-							height={8}
 							accessibilityLabel={mark.label}
 						/>
 					</masonview>

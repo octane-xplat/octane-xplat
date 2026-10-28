@@ -835,7 +835,12 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 								{ flexDirection: 'column' },
 								mergeStyle(
 									{ display: 'flex' },
-									{ position: 'absolute', left: 0, top: cell.top },
+									{
+										position: 'absolute',
+										left: 0,
+										top: cell.top,
+										width: contentWidthRef.current || viewportWidthRef.current || '100%',
+									},
 								),
 							)}
 							ref={cellCallback(cell.id)}
@@ -845,7 +850,6 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 									: 'vx-virtual-list-cell'
 							}
 							visibility={cell.entry ? 'visible' : 'collapse'}
-							width={contentWidthRef.current || viewportWidthRef.current || '100%'}
 						>
 							@for (const entry of cell.rows; key entry.rowKey) {
 								<>

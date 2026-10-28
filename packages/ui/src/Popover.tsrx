@@ -141,18 +141,15 @@ function PopoverLayer(
 	const dismiss = () => props.onDismiss?.()
 
 	<masonview
-		width="100%"
-		height="100%"
+		style={{ width: '100%', height: '100%' }}
 		className={cx('vx-popover-layer', useThemeScheme() === 'dark' && 'ns-dark')}
 	>
 		{(props.dismissOnOutsideTap ?? true) && (
 			<masonview
 				style={mergeStyle(
 					{ display: 'grid' },
-					{ position: 'absolute', backgroundColor: 'transparent' },
+					{ position: 'absolute', backgroundColor: 'transparent', width: '100%', height: '100%' },
 				)}
-				width="100%"
-				height="100%"
 				className="vx-popover-backdrop"
 				onTap={dismiss}
 			/>

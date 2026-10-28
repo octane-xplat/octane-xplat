@@ -90,12 +90,16 @@ function LightboxPanel(props: {
 			stage.current = v
 		}}
 		className={cx('vx-lightbox', props.className)}
-		width="100%"
-		height="100%"
 		onSwipe={onSwipe}
 		onPan={onStagePan}
 		accessibilityLabel={item?.alt ?? 'Media viewer'}
-		style={{ display: 'grid', gridTemplateRows: '1fr', gridTemplateColumns: '1fr' }}
+		style={{
+			display: 'grid',
+			gridTemplateRows: '1fr',
+			gridTemplateColumns: '1fr',
+			width: '100%',
+			height: '100%',
+		}}
 	>
 		{/* Tap the backdrop edges to close; the centered media eats its own
 		 *  taps through the double-tap zoom. */}

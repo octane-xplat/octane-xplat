@@ -141,13 +141,12 @@ export function ProgressBar(props: ProgressBarProps) @{
 				track.current = v
 			}}
 			className="vx-progressbar-track"
-			height={8}
 			accessible={props.accessible}
 			accessibilityRole={nativeAccessibilityRole('progressbar')}
 			accessibilityLabel={props.accessibilityLabel ?? props.label}
 			accessibilityValue={isIndeterminate ? undefined : valueText}
 			accessibilityHint={props.accessibilityHint}
-			style={mergeStyle({ display: 'grid' }, { borderRadius: 4 })}
+			style={mergeStyle({ display: 'grid' }, { borderRadius: 4, height: 8 })}
 		>
 			<masonview
 				style={mergeStyle({ display: 'flex' }, [
@@ -155,13 +154,12 @@ export function ProgressBar(props: ProgressBarProps) @{
 						borderRadius: 4,
 						backgroundColor: nativeColor(progressFillColor(variant, scheme)),
 					},
-					{ justifySelf: 'start' },
+					{ justifySelf: 'start', width: isIndeterminate ? '40%' : `${pct}%` },
 				])}
 				ref={(v: any) => {
 					fill.current = v
 				}}
 				className={cx('vx-progressbar-fill', `vx-progressbar-fill--${variant}`)}
-				width={isIndeterminate ? '40%' : `${pct}%`}
 			/>
 			{marks.map((mark) => {
 				const markPct = clamp(mark.value, 0, max) / max
@@ -176,8 +174,6 @@ export function ProgressBar(props: ProgressBarProps) @{
 								{ backgroundColor: nativeColor(mutedColor(scheme)), gridColumn: '2' },
 							)}
 							className="vx-progressbar-mark"
-							width={2}
-							height={8}
 							accessibilityLabel={mark.label}
 							accessibilityRole={nativeAccessibilityRole('none')}
 						/>

@@ -127,10 +127,9 @@ export function OverflowList(props: OverflowListProps) @{
 		    unbounded width constraint so each reports its intrinsic width;
 		    the host box is height-0 + hidden so it never paints. */}
 		<masonview
-			height={0}
 			visibility="hidden"
 			className="vx-overflowlist-measure"
-			style={{ display: 'flex' }}
+			style={{ display: 'flex', height: 0 }}
 		>
 			<scrollview orientation="horizontal" scrollBarIndicatorVisible={false}>
 				<masonview

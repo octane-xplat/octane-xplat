@@ -181,30 +181,10 @@ export interface CommonAttributes {
 	 * of being added as a regular layout child.
 	 */
 	hostSlot?: string
-	/**
-	 * Element size and attached layout properties the parent container consumes
-	 * on both drivers: `width`/`height` map to `View.width`/`height` on
-	 * NativeScript and to layout anchors in the AppKit renderer (index.ts
-	 * ~3433/3639/3783); `row`/`col`/`rowSpan`/`colSpan`/`dock`/`left`/`top`/
-	 * `right`/`bottom`/`horizontalAlignment`/`verticalAlignment` are the
-	 * attached child props NativeScript layout containers and the AppKit
-	 * `layoutChildProps` table read off children.
-	 */
-	width?: number | string
-	height?: number | string
-	row?: number | string
-	col?: number | string
-	rowSpan?: number
-	colSpan?: number
-	dock?: 'left' | 'top' | 'right' | 'bottom'
-	left?: number | string
-	top?: number | string
-	right?: number | string
-	bottom?: number | string
-	horizontalAlignment?: 'left' | 'right' | 'center' | 'stretch'
-	verticalAlignment?: 'top' | 'bottom' | 'middle' | 'stretch'
 	/** Visual-state props both drivers apply to the view itself (NS View props;
-	 * AppKit prop handling at index.ts ~3646/3657/3791/3803 and ~4442/4953). */
+	 * AppKit prop handling at index.ts ~3646/3657/3791/3803 and ~4442/4953).
+	 * Layout has no prop channel on intrinsics — it goes through `style`/`className`
+	 * (`MasonStyleProps`), matching web. */
 	opacity?: number
 	translateX?: number
 	translateY?: number

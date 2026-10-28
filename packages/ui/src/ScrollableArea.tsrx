@@ -150,7 +150,6 @@ function ScrollableAreaRefreshable(props: ScrollableAreaProps) @{
 				indicator.current = v
 			}}
 			className="vx-refresh"
-			height={REFRESH_HEADER_HEIGHT}
 			translateY={-REFRESH_HEADER_HEIGHT}
 			style={mergeStyle({ display: 'flex' }, { alignSelf: 'start' })}
 		>
