@@ -1292,7 +1292,9 @@ teardown invalidate it. Current native ownership, disabled/hidden state and
 first-responder identity guard key dispatch; pointer selection still works on
 older bridges. Six adapter/two wiring cases and the maintained fixture remain
 unrun. Source intent is not physical-key, Tab/focus, popup/modal, RTL, AX/live
-announcement or package qualification. Native time-list keys remain a gap. See
+announcement or package qualification. AppKit preset-list source ownership is
+covered below; NativeScript time-list keys and standalone AppKit time stepping
+remain gaps. See
 [AppKit calendar keys](../../../../docs/platform/date-picker.md#navigate-appkit-calendar-days-with-keys).
 
 
@@ -1313,5 +1315,34 @@ export function StartTime(props: { value: string | null; change(value: string | 
 
 The source wiring and maintained date-submit fixture do not establish physical
 Return delivery, blur ordering, IME/caret/draft/validation, focus/AX or packaging.
-All runtime checks remain deferred. Time stepping and preset-list navigation are
-still gaps. See [typed Return boundary](../../../../docs/platform/date-picker.md#commit-typed-appkit-date-and-time-drafts-with-return).
+All runtime checks remain deferred. Standalone time stepping is still a gap;
+DateTimeInput preset-list source ownership is covered below. See [typed Return boundary](../../../../docs/platform/date-picker.md#commit-typed-appkit-date-and-time-drafts-with-return).
+
+
+## AppKit DateTimeInput preset keys
+
+With timeOptionInterval, Alt+Down from the actual time field opens the preset
+popup. The native option owner seeds near current/typed time, retains one option
+Tab candidate, and uses bounded Up/Down/Home/End without changing the parent value.
+Enter/Space chooses through current time options and the existing commit path;
+row focus/highlight is distinct from committed selection.
+
+```tsx
+import { DateTimeInput } from '@octane-xplat/ui'
+
+export function Appointment(props: { value: string | null; change(value: string | null): void }) {
+	return <DateTimeInput label="Appointment" value={props.value} onChange={props.change} timeOptionInterval={15} />
+}
+```
+
+Tab/Shift-Tab records the field's current neighbor via the existing private return
+owner; ordinary layer Escape/dismissal requests the time field. Current option,
+blocked/busy/detached and reentrant-selection guards precede data callbacks.
+Native refs and popup observers/claims release on teardown, and changing options
+repairs focused rows. Older bridges keep pointer entry. Field text editing happens
+after leaving the popup: no row-to-editor text/typeahead relay is added.
+
+One renderer/four policy/five wiring cases and a maintained fixture are unrun. Native input,
+proxy/ref/window order, actual focus/Tab/return/busy timing, scroll, IME, popup/modal,
+AX/listbox relationships and packaging remain unqualified. Full option AX semantics,
+row text relay and standalone TimeInput stepping remain gaps. See [preset time keys](../../../../docs/platform/date-picker.md#choose-appkit-preset-times-with-keys).

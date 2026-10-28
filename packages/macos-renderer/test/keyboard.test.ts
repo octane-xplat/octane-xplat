@@ -218,3 +218,19 @@ test('Context Menu normalization retains modifiers, composition, field-editor ta
 	assert.equal(seen[1].key, 'x'); assert.equal(seen[1].code, ''); assert.equal(seen[1].isComposing, false)
 	env.dispatcher.dispose()
 })
+
+
+test('empty modified navigation/function characters are not dead text while real dead/marked input stays composing', () => {
+	const f = fixture(), seen: any[] = []
+	f.dispatcher.set(f.field, { onKeyDown: (event) => seen.push(event) })
+	for (const [keyCode, unmodified] of [[125, '\uf701'], [109, '\uf70d'], [999, '\uf735'], [14, 'e']] as const) {
+		f.send(f.event({ keyCode, characters: '', charactersIgnoringModifiers: unmodified, modifierFlags: 1 << 19 }))
+	}
+	assert.deepEqual(seen.map(({ key, isComposing }) => [key, isComposing]), [
+		['ArrowDown', false], ['F10', false], ['ContextMenu', false], ['Dead', true],
+	])
+	f.field.hasMarkedText = () => true
+	f.send(f.event({ keyCode: 125, characters: '', charactersIgnoringModifiers: '\uf701', modifierFlags: 1 << 19 }))
+	assert.equal(seen[4].key, 'ArrowDown'); assert.equal(seen[4].isComposing, true)
+	f.dispatcher.dispose()
+})

@@ -924,6 +924,26 @@ monitor ordering, ref delivery, physical keys, popup focus, IME, modal interacti
 AX and packaging remain unqualified; this source contract is not runtime proof.
 
 
+### Alt navigation and composition
+
+Recognized navigation/function keys with empty Alt-modified characters retain
+normal key identity instead of being marked as dead text. Printable dead keys and
+marked native editors remain composing. DateTimeInput uses this distinction for
+its guarded preset opening path:
+
+```tsx
+import { DateTimeInput } from '@octane-xplat/ui'
+
+export function Appointment() {
+	return <DateTimeInput label="Appointment" timeOptionInterval={15} />
+}
+```
+
+The appended dispatcher case is unrun. This source distinction does not qualify
+physical Alt+Down, IME, native field-editor routing or popup focus. See the
+[preset-time guide](../../docs/platform/date-picker.md#choose-appkit-preset-times-with-keys).
+
+
 ### Context pointer ownership
 
 The shared AppKit ContextMenu retains a private context-intent lease on its

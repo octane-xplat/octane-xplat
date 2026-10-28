@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { appKitTextChange } from './appkit-events.macos'
 import { mergeStyle } from './style-merge'
-import { useContext, useEffect, useId, useMemo, useRef, useState } from 'octane'
+import { useContext, useEffect, useId, useMemo, useRef, useState, useCallback } from 'octane'
 import type { DateTimeInputProps, ISODateString, ISODateTimeString, ISOTimeString } from './props'
 import { cx } from '@octane-xplat/lib'
 import { dateMessages } from './date-messages'
@@ -13,6 +13,10 @@ import { FormField } from './FormField.macos.tsrx'
 import { Popover } from './Popover.macos.tsrx'
 import { FieldContext, useFieldControlProps } from './field-context'
 import { Calendar } from './Calendar.macos.tsrx'
+import { AppKitPresetTimeList } from './PresetTimeList.macos.tsrx'
+import { createAppKitMenuReturn } from './menu-return.macos'
+import type { NativeKeyboardEvent } from '@octane-xplat/jsx/intrinsics'
+import type { NSTextField, NSView } from '@octane-xplat/platform/macos'
 import {
 	combineDateTime,
 	currentISOTime,
@@ -40,11 +44,16 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 	const messages = dateMessages(props.messages)
 	const generatedId = useId()
 	const dateId = props.id ?? generatedId
-	const dateInput = useRef<any>(null)
-	const timeInput = useRef<any>(null)
-	const anchor = useRef<any>(null)
+	const dateInput = useRef<NSTextField | null>(null)
+	const timeInput = useRef<NSTextField | null>(null)
+	const anchor = useRef<NSView | null>(null)
 
-	const [open, setOpen] = useState<'calendar' | 'times' | null>(null)
+	const [open, setOpenState] = useState<'calendar' | 'times' | null>(null)
+	const openRef = useRef(open); openRef.current = open
+	const setOpen = (next: 'calendar' | 'times' | null) => { openRef.current = next; if (anchor.current) setOpenState(next) }
+	const bindAnchor = useCallback((view: NSView | null) => { anchor.current = view; if (!view) openRef.current = null }, [])
+	const bindDate = useCallback((view: NSTextField | null) => { dateInput.current = view }, [])
+	const bindTime = useCallback((view: NSTextField | null) => { timeInput.current = view }, [])
 	const [datePending, setDatePending] = useState<string | null>(null)
 	const [timePending, setTimePending] = useState<string | null>(null)
 	const [busy, setBusy] = useState(false)
@@ -265,6 +274,42 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 		return list
 	}, [props.timeOptionInterval, hasSeconds, timeMin, timeMax, props.hourFormat, props.locale])
 
+	const choosingTime = useRef(false)
+	const timeState = useRef({ blocked: isDisabled || isBusy, options: timeOptions, commitTime })
+	timeState.current = { blocked: isDisabled || isBusy, options: timeOptions, commitTime }
+	const timeReturn = useMemo(() => createAppKitMenuReturn({ anchor: () => timeInput.current,
+		open: () => openRef.current === 'times', close: () => setOpen(null),
+	}), [])
+	const finalTimeFocus = useMemo(() => ({ get current() { return timeReturn.focusTarget() } }), [])
+	const closeTimes = () => { timeReturn.reset(); setOpen(null) }
+	const chooseTime = (time: ISOTimeString) => {
+		const current = timeState.current
+		if (!anchor.current || choosingTime.current || openRef.current !== 'times' || current.blocked || !current.options.some((option) => option.time === time)) return
+		choosingTime.current = true
+		openRef.current = null // Claim before application callbacks can reenter or flush parent state.
+		timeReturn.reset()
+		try { current.commitTime(time) }
+		finally {
+			try { if (anchor.current) { setTimePending(null); setOpen(null) } }
+			finally { choosingTime.current = false }
+		}
+	}
+	const leaveTimes = (backward: boolean) => {
+		const target = timeReturn.resolveTab(backward)
+		if (target) { timeReturn.requestTab(target); return true }
+		closeTimes(); return false
+	}
+	const timeKeyDown = (event: NativeKeyboardEvent<NSView>) => {
+		if (event.target !== timeInput.current || !anchor.current || choosingTime.current || timeState.current.blocked || !timeState.current.options.length ||
+			event.defaultPrevented || event.isComposing || hasDateComposition(timeInput.current) || event.ctrlKey || event.metaKey || event.shiftKey ||
+			!event.altKey || event.key !== 'ArrowDown') return
+		event.preventDefault(); event.stopPropagation(); timeReturn.reset(); setOpen('times')
+	}
+	useEffect(() => {
+		if ((isDisabled || isBusy) && openRef.current !== null) { timeReturn.reset(); setOpen(null) }
+		else if (!timeOptions.length && openRef.current === 'times') closeTimes()
+	}, [isDisabled, isBusy, timeOptions.length])
+
 	const clear = () => {
 		setDatePending(null)
 		setTimePending(null)
@@ -279,9 +324,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 
 	<>
 		<masonview
-			ref={(v: any) => {
-				anchor.current = v
-			}}
+			ref={bindAnchor}
 			className={cx(
 				'vx-datetimeinput',
 				'vx-datetimeinput-popover',
@@ -302,17 +345,15 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 				accessibilityLabel={open === 'calendar' ? messages.closeCalendar : messages.openCalendar}
 				disabled={isDisabled || isBusy}
 				onPress={() => {
-					if (!isDisabled && !isBusy) {
-						setOpen(open === 'calendar' ? null : 'calendar')
+					if (anchor.current && !choosingTime.current && !timeState.current.blocked) {
+						timeReturn.reset(); setOpen(openRef.current === 'calendar' ? null : 'calendar')
 					}
 				}}
 			>
 				<Icon name="xplat-calendar" size={14} />
 			</Pressable>
 			<textfield
-				ref={(v: any) => {
-					dateInput.current = v
-				}}
+				ref={bindDate}
 				id={dateId}
 				className={cx(
 					'vx-datetimeinput-input',
@@ -338,9 +379,9 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 				}}
 			/>
 			<textfield
-				ref={(v: any) => {
-					timeInput.current = v
-				}}
+				ref={bindTime}
+				id={`${dateId}-time`}
+				onKeyDown={timeKeyDown}
 				className={cx(
 					'vx-datetimeinput-input',
 					'vx-datetimeinput-timeinput',
@@ -363,8 +404,8 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 					accessibilityLabel="Show preset times"
 					disabled={isDisabled || isBusy}
 					onPress={() => {
-						if (!isDisabled && !isBusy) {
-							setOpen(open === 'times' ? null : 'times')
+						if (anchor.current && !choosingTime.current && !timeState.current.blocked && timeState.current.options.length) {
+							timeReturn.reset(); setOpen(openRef.current === 'times' ? null : 'times')
 						}
 					}}
 				>
@@ -390,7 +431,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 		</masonview>
 		<Popover
 			anchor={anchor}
-			open={open === 'calendar'}
+			open={open === 'calendar' && !isDisabled && !isBusy}
 			onDismiss={() => setOpen(null)}
 			placement="bottom"
 			className="vx-datetimeinput-popover"
@@ -412,36 +453,15 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 		{timeOptions.length ? (
 			<Popover
 				anchor={anchor}
-				open={open === 'times'}
-				onDismiss={() => setOpen(null)}
+				open={open === 'times' && !isDisabled && !isBusy}
+				onDismiss={closeTimes}
+				finalFocusRef={finalTimeFocus}
 				placement="bottom"
 				className="vx-datetimeinput-times"
 			>
-				<scrollview
-					className="vx-datetimeinput-timelist"
-					accessibilityHint={!isTimeValid ? messages.invalidTime : undefined}
-					accessibilityLabel={timeLabelText}
-				>
-					<masonview style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}>
-						{timeOptions.map((opt) => (
-							<masonview
-								key={opt.time}
-								className={cx(
-									'vx-datetimeinput-timeoption',
-									opt.time === (timeDraft ?? valueParts.time) &&
-										'vx-datetimeinput-timeoption--selected',
-								)}
-								onTap={() => {
-									commitTime(opt.time)
-									setOpen(null)
-								}}
-								style={{ display: 'flex' }}
-							>
-								<label text={opt.label} />
-							</masonview>
-						))}
-					</masonview>
-				</scrollview>
+				<AppKitPresetTimeList options={timeOptions} seed={(timePending ? parseTimeInput(timePending, hasSeconds) : null) ?? timeDraft ?? valueParts.time}
+					selected={timeDraft ?? valueParts.time} blocked={isDisabled || isBusy} label={timeLabelText}
+					hint={!isTimeValid ? messages.invalidTime : undefined} choose={chooseTime} tab={leaveTimes} />
 			</Popover>
 		) : null}
 	</>

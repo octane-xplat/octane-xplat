@@ -38,6 +38,8 @@ picker bundled with `@octane-xplat/files`.
 
 - AC13: AppKit typed DateInput, TimeInput and both DateTimeInput segments connect native submit to their existing composition-aware blur commit boundary, preserving parse/bounds/null-clear and controlled values. Keep source wiring separate from native Return/blur/IME/draft/focus/AX qualification and remaining time stepping/preset-list keyboard gaps.
 
+- AC14: AppKit DateTimeInput opens presets from current time-field Alt+Down and owns bounded native option focus/manual selection without committing on navigation. Current options/bounds/blocking and reentrant guards precede selection; Tab uses field-neighbor return intent and Escape stays with the layer. Repair changed options and release ref/window/Tab ownership. Keep policy/wiring evidence separate from native focus/IME/popup/AX/package qualification and explicit row text-relay/standalone stepping gaps.
+
 ## Documentation
 
 - AC1: [Portable component list](../../../docs/app/components.md#inputs) and [shared platform contract](../../../docs/platform/date-picker.md#portable-values).
@@ -59,3 +61,5 @@ picker bundled with `@octane-xplat/files`.
 - AC12: [AppKit calendar key guide](../../../docs/platform/date-picker.md#navigate-appkit-calendar-days-with-keys), six adapter/two object-driver wiring cases, [maintained fixture](../../../examples/probes/calendar-keys.macos.tsrx) and [target note](../parity/appkit-progress.md#appkit-calendar-day-keyboard-ownership). All eight cases and native qualification remain unrun.
 
 - AC13: [Typed Return guide](../../../docs/platform/date-picker.md#commit-typed-appkit-date-and-time-drafts-with-return), [maintained fixture](../../../examples/probes/date-submit.macos.tsrx) and [target note](../parity/appkit-progress.md#appkit-typed-date-time-submit-wiring). Direct handler wiring received source/syntax review; fixture and native qualification remain unrun.
+
+- AC14: [AppKit preset-time guide](../../../docs/platform/date-picker.md#choose-appkit-preset-times-with-keys), one renderer/four focus-policy/five object-driver cases, [maintained fixture](../../../examples/probes/preset-times.macos.tsrx) and [target note](../parity/appkit-progress.md#appkit-preset-time-option-keyboard-ownership). All ten cases and native checks remain unrun.

@@ -3145,3 +3145,64 @@ unqualified. Standalone time stepping and preset-list navigation remain unfinish
 these prerequisites do not close those gaps. No package tests/typechecks, builds,
 installs, OS automation, visual analysis or shared audit snapshots ran; no evidence
 checkbox is closed.
+
+
+### AppKit preset-time option keyboard ownership
+
+The prior turn completed real Escape/Return prerequisite source work. Continued
+DateTimeInput's preset-time gap: NativeDatePickerDemo supplies timeOptionInterval,
+and the AppKit leaf already rendered a filtered pointer list but had no field
+opening key, option registry, roving focus or key-based selection/return owner.
+The adapter reuses timeOptionIndex for bounded movement, choice-focus for native
+refs/Tab claims and the existing private popup return owner; no new layer engine,
+public API, dependency, shared manifest or other platform leaf was introduced.
+
+Alt+Down from the current noncomposing enabled time field opens presets. The popup
+requests native option focus near current/typed time, owns one option Tab candidate,
+and moves bounded Up/Down/Home/End without emitting a value. Enter/Space selects
+through current filtered options and the existing commitTime path. Native option
+highlight remains distinct from selected state. Ref/window notification refresh
+waits for attachment, repairs removed focused options, and releases claims/observer
+ownership on hide/detach. Ordinary Escape remains with the coordinated layer owner;
+Tab/Shift-Tab records a current same-window field neighbor through accepted close,
+with a field fallback. Explicit final focus uses the field's own window adapter.
+
+Date/time/anchor refs are now concrete and stable; the time field receives the
+matching `${id}-time` identifier. Open-state and choosing refs guard stale or
+reentrant option callbacks even when onChange flushes parent metadata. Current
+blocked/busy state suppresses both popup surfaces and cached toggle handlers;
+empty options close the time surface. Pointer selection remains available on older
+bridges. Date-less selection keeps existing timeDraft behavior. No parser or time
+interval/bounds generation policy changed. The renderer also stops classifying
+known navigation/function keys with empty Alt-modified characters as dead text;
+real printable dead keys and marked editors stay composing. One appended renderer
+case covers that source prerequisite; it too is unrun. The source uses native popup option
+focus rather than claiming an editable active-descendant field relationship.
+
+Four focus-policy/five object-driver cases cover seeding, bounded focus vs commit,
+manual activation, current rows, blocking/teardown, old bridges, Alt+Down guards,
+field/neighbor return intent, selection reentry and cached callbacks. All ten
+remain unrun. The maintained preset-times fixture synthesizes no OS input. Only
+TypeScript/TSRX syntax, source/semantic review and whitespace checks ran. Guide/
+skill, feature note and date-picker AC14 were reconciled. The initial semantic
+impact graph found no resolved test reach to the private control; new wiring
+cases import the target leaf explicitly but are not execution evidence.
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run test --filter=@octane-xplat/ui -- src/time-list-focus.macos.test.ts src/date-keyboard.test.ts
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/datetime-options.macos.mobile.test.tsrx src/menu-return.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer --filter=...@octane-xplat/ui
+pnpm probe run examples/probes/preset-times.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All commands remain deferred pending explicit human authorization for this task.
+Native key/ref/window/observer order, field-editor/IME, focus/Tab/return and busy
+save timing, scroll reveal, popup/FocusScope/modal integration, geometry, AX and
+packaging remain unqualified. Row-to-editor text/typeahead relay, full listbox/
+option AX relationships, standalone TimeInput stepping and AppKit live announcements
+remain gaps. Shared Checkbox mixed rollback choice is still pending. No package
+tests/typechecks, builds, installs, OS automation, visual analysis or shared audit
+snapshot regeneration ran; no evidence checkbox is closed.

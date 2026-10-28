@@ -83,9 +83,11 @@ export function createAppKitKeyboardDispatcher(native: () => Record<string, any>
 		const code = CODES[keyCode] ?? ''
 		const characters = String(event.characters ?? '')
 		const unmodified = String(event.charactersIgnoringModifiers ?? '')
-		const dead = !characters && altKey && !ctrlKey && !metaKey && unmodified.length > 0
+		const functionCode = /^F\d+$/.test(code)
+		const nonText = KEYS[keyCode] !== undefined || functionCode || /^[\uf700-\uf8ff]$/.test(unmodified)
+		const dead = !nonText && !characters && altKey && !ctrlKey && !metaKey && unmodified.length > 0
 		const logical = ctrlKey || metaKey ? unmodified || characters : characters || unmodified
-		const key = KEYS[keyCode] ?? (/^F\d+$/.test(code) ? code : dead ? 'Dead' :
+		const key = KEYS[keyCode] ?? (functionCode ? code : dead ? 'Dead' :
 			(logical === '\uf735' ? 'ContextMenu' : logical || 'Unidentified'))
 		const raw = event.window.firstResponder
 		const editor = typeof target.currentEditor === 'function' ? target.currentEditor() : target.currentEditor

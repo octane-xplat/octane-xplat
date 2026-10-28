@@ -277,9 +277,9 @@ not imply those digits can be typed back into the parser.
 
 Web selection and month changes use live regions and selected grid cells.
 Native calendars supply localized accessible names/state and the existing live
-label; native validation uses accessible hints. NativeScript calendars and native
-time lists do not yet bind hardware-key navigation. AppKit calendar day-grid
-source ownership is described below; actual delivery remains unqualified, and
+label; native validation uses accessible hints. NativeScript calendars and time
+lists do not yet bind hardware-key navigation. AppKit calendar day-grid and
+DateTimeInput preset-time source ownership are described below; actual delivery remains unqualified, and
 AppKit live-region delivery is not implemented. OS key events, focus/hit-testing, and
 VoiceOver/TalkBack announcements have not been verified by these handler and
 unit tests. Use the distinct OS-authentic leaves below when their native
@@ -526,7 +526,8 @@ Six adapter and two object-driver wiring cases remain unrun; their native object
 are simulated. The maintained calendar-keys fixture synthesizes no OS input.
 Physical keys/Tab, native ref/window/notification order, focus/reveal, popup and
 modal integration, geometry, RTL delivery, AX/VoiceOver and packaging remain
-unqualified. Native time-list keys and AppKit live announcements remain gaps.
+unqualified. AppKit preset-time source ownership is described below; NativeScript
+time-list keys, standalone AppKit time stepping and AppKit live announcements remain gaps.
 
 
 ### Commit typed AppKit date and time drafts with Return
@@ -556,5 +557,39 @@ export function Appointment() {
 This is handler wiring, not a native Return result. The maintained date-submit
 fixture synthesizes no input and remains unrun. Actual target/action delivery,
 Return-versus-blur ordering, IME confirmation, draft/caret/focus/validation behavior,
-AX and packaging remain unqualified. Standalone time stepping and preset-list
-keyboard navigation remain separate gaps.
+AX and packaging remain unqualified. Standalone time stepping remains a gap;
+DateTimeInput preset-list key source ownership is described below.
+
+
+### Choose AppKit preset times with keys
+
+Set DateTimeInput.timeOptionInterval to offer presets. On AppKit, Alt+Down from
+the time field opens the list; the clock button still opens it by pointer or its
+normal activation path. The native popup requests option focus near the current
+or typed time. Up/Down and Home/End move within current in-range rows without
+wrapping or changing the value. Enter/Space uses the existing time commit path:
+
+```tsx
+import { useState } from 'octane'
+import { DateTimeInput } from '@octane-xplat/ui'
+
+export function Appointment() {
+	const [value, setValue] = useState<string | null>('2026-03-05T14:30')
+	return <DateTimeInput label="Appointment" value={value} onChange={setValue}
+		min="2026-03-05T09:00" max="2026-03-05T17:00" timeOptionInterval={15} />
+}
+```
+
+Tab/Shift-Tab requests the current time field's next/previous valid key view
+through accepted popup closure; ordinary Escape/dismissal requests field return.
+Composition and modified shortcuts keep their existing paths. Current blocked,
+busy, empty or detached controls cannot accept stale options. Moving between
+options is separate from the parent-owned value; choosing without a date keeps
+the existing time draft. Edit text in the time field after leaving the popup.
+
+One renderer, four focus-policy and five object-driver cases remain unrun. The maintained
+preset-times fixture synthesizes no OS input. Native key/ref/window/observer
+ordering, field-editor/IME behavior, focus/Tab/return (including busy saves), scroll
+reveal, popup/modal integration, geometry, AX and packaging remain unqualified.
+Text/typeahead relay from focused rows and full listbox/option AX relationships
+are not implemented by this adapter. Standalone TimeInput stepping remains a gap.
