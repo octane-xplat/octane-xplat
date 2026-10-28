@@ -40,6 +40,8 @@ picker bundled with `@octane-xplat/files`.
 
 - AC14: AppKit DateTimeInput opens presets from current time-field Alt+Down and owns bounded native option focus/manual selection without committing on navigation. Current options/bounds/blocking and reentrant guards precede selection; Tab uses field-neighbor return intent and Escape stays with the layer. Repair changed options and release ref/window/Tab ownership. Keep policy/wiring evidence separate from native focus/IME/popup/AX/package qualification and explicit row text-relay/standalone stepping gaps.
 
+- AC15: AppKit TimeInput adapts plain current-field Up/Down to shared minute increment/seconds/midnight and min/max policies, preserving parent authority and modified/composing/native editing. Current blocking, callback reentry and pending save ownership exclude duplicate edits; detach avoids settlement UI writes. Distinguish authored object-driver evidence from native key/repeat/field-editor/IME/draft/focus/AX qualification and DateTimeInput stepping/live-announcement gaps.
+
 ## Documentation
 
 - AC1: [Portable component list](../../../docs/app/components.md#inputs) and [shared platform contract](../../../docs/platform/date-picker.md#portable-values).
@@ -63,3 +65,5 @@ picker bundled with `@octane-xplat/files`.
 - AC13: [Typed Return guide](../../../docs/platform/date-picker.md#commit-typed-appkit-date-and-time-drafts-with-return), [maintained fixture](../../../examples/probes/date-submit.macos.tsrx) and [target note](../parity/appkit-progress.md#appkit-typed-date-time-submit-wiring). Direct handler wiring received source/syntax review; fixture and native qualification remain unrun.
 
 - AC14: [AppKit preset-time guide](../../../docs/platform/date-picker.md#choose-appkit-preset-times-with-keys), one renderer/four focus-policy/five object-driver cases, [maintained fixture](../../../examples/probes/preset-times.macos.tsrx) and [target note](../parity/appkit-progress.md#appkit-preset-time-option-keyboard-ownership). All ten cases and native checks remain unrun.
+
+- AC15: [AppKit time stepping guide](../../../docs/platform/date-picker.md#step-appkit-time-values-with-arrow-keys), five object-driver cases, [maintained fixture](../../../examples/probes/time-step.macos.tsrx) and [target note](../parity/appkit-progress.md#appkit-timeinput-minute-key-stepping). Cases, fixture and native qualification remain unrun.

@@ -527,7 +527,7 @@ are simulated. The maintained calendar-keys fixture synthesizes no OS input.
 Physical keys/Tab, native ref/window/notification order, focus/reveal, popup and
 modal integration, geometry, RTL delivery, AX/VoiceOver and packaging remain
 unqualified. AppKit preset-time source ownership is described below; NativeScript
-time-list keys, standalone AppKit time stepping and AppKit live announcements remain gaps.
+time-list keys and AppKit live announcements remain gaps. AppKit time stepping is described below.
 
 
 ### Commit typed AppKit date and time drafts with Return
@@ -557,7 +557,7 @@ export function Appointment() {
 This is handler wiring, not a native Return result. The maintained date-submit
 fixture synthesizes no input and remains unrun. Actual target/action delivery,
 Return-versus-blur ordering, IME confirmation, draft/caret/focus/validation behavior,
-AX and packaging remain unqualified. Standalone time stepping remains a gap;
+AX and packaging remain unqualified. AppKit time stepping is described below;
 DateTimeInput preset-list key source ownership is described below.
 
 
@@ -592,4 +592,42 @@ preset-times fixture synthesizes no OS input. Native key/ref/window/observer
 ordering, field-editor/IME behavior, focus/Tab/return (including busy saves), scroll
 reveal, popup/modal integration, geometry, AX and packaging remain unqualified.
 Text/typeahead relay from focused rows and full listbox/option AX relationships
-are not implemented by this adapter. Standalone TimeInput stepping remains a gap.
+are not implemented by this adapter. Standalone TimeInput stepping is described below.
+
+
+### Step AppKit time values with arrow keys
+
+Set TimeInput.increment to the number of minutes per step. The AppKit source
+adapter handles plain Up/Down from its current time field, starting from the
+committed value or local current time when empty. It uses the shared midnight
+wrap and seconds policy, and emits only a result within min/max. Keep the
+accepted value in your app:
+
+```tsx
+import { useState } from 'octane'
+import { TimeInput } from '@octane-xplat/ui'
+
+export function StartTime() {
+	const [time, setTime] = useState<string | null>('14:30')
+	return <TimeInput label="Start time" value={time} onChange={setTime}
+		increment={15} min="09:00" max="17:00" hourFormat="24h" />
+}
+```
+
+A step requests the next value from the parent; it does not assume acceptance.
+After dispatching a valid step, private typed text clears so the field displays
+the current parent value, even if the parent declines the requested change. Modified keys, composing text, foreign/detached targets and blocked
+controls keep their existing key behavior. Pending changeAction work excludes
+new changes; a failed save releases loading without rolling the parent back.
+Use status for app-owned error feedback:
+
+```tsx
+<TimeInput label="Start time" value={time} onChange={setTime} increment={15}
+	changeAction={saveTime} status={saveError ? { type: 'error', message: saveError } : undefined} />
+```
+
+Five object-driver cases and the maintained time-step fixture remain unrun.
+Source/syntax review does not qualify physical keys/repeat, native field-editor
+routing, IME, caret/draft updates, asynchronous focus behavior, accessibility or
+packaging. DateTimeInput closed-field timeIncrement stepping and live
+announcements remain separate gaps.

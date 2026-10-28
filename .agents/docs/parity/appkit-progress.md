@@ -3206,3 +3206,60 @@ option AX relationships, standalone TimeInput stepping and AppKit live announcem
 remain gaps. Shared Checkbox mixed rollback choice is still pending. No package
 tests/typechecks, builds, installs, OS automation, visual analysis or shared audit
 snapshot regeneration ran; no evidence checkbox is closed.
+
+
+### AppKit TimeInput minute key stepping
+
+The preceding preset-time commit c73d9e42e added real source support and retained
+native qualification gates. The standalone TimeInput contract already exposes
+increment, while the web leaf binds Up/Down and AppKit had no key handler. This
+is an ordinary time-entry flow in the date-family examples; it takes priority
+over niche platform integrations. The assumption is that desktop time entry
+needs the existing public minute-step contract, with AppKit modified editing
+commands preserved.
+
+The target leaf now binds plain current-field Up/Down through shared adjustTime,
+currentISOTime and isTimeInRange: committed value or local current time when
+empty, configured minute increment, optional seconds, midnight wrap and rejection
+outside bounds. Valid requests clear private typed drafts after dispatch; the
+current parent value still wins even when the parent declines a change. Foreign,
+detached, blocked, prevented, modified and composing input is left alone. The
+AppKit composition leaf checks the field editor. No public type, dependency,
+shared manifest, parser policy or other platform leaf changed.
+
+The new key entry point also requires synchronous change ownership: fireChange
+claims before onChange so callback reentry/parent metadata flush cannot duplicate
+saves. Pending changeAction excludes further edits before/after rendering, retains
+the accepted event's captured save callback and releases on either outcome.
+An accepted save still dispatches if onChange unmounts, while detached settlement
+avoids busy-state writes. Failure preserves the parent value and existing
+app-owned status policy; no automatic rollback is introduced. Stable concrete
+NSTextField refs make teardown guards explicit.
+
+Five authored object-driver cases cover seconds/increment/controlled echo and
+midnight wrap, current bounds/blocking/modifiers/field-editor composition/detach,
+empty-time seeding and invalid drafts, callback reentry/pending/released failure,
+and forward callback errors/accepted save after teardown. All remain unrun. The
+maintained time-step fixture performs no native key synthesis. Only source and
+semantic review, TypeScript/TSRX syntax parsing and whitespace checks ran. Public
+guide, skill reference, feature note and date-picker AC15 were reconciled;
+documentation coverage is separate from execution evidence.
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/time-step.macos.mobile.test.tsrx src/datetime-options.macos.mobile.test.tsrx
+pnpm exec turbo run test --filter=@octane-xplat/ui -- src/datetime.test.ts
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/time-step.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All commands remain deferred pending explicit human authorization for this task.
+Physical keys/repeat, native field-editor targeting, IME, caret/draft/focus/busy
+save timing, AX/VoiceOver and packaged behavior remain unqualified. DateTimeInput
+closed-field timeIncrement stepping, row-to-editor preset text relay, complete
+listbox relationships and live announcements remain source gaps. No package
+tests/typechecks, builds, installs, OS automation, visual analysis or shared audit
+snapshot regeneration ran; no evidence-gated checkbox is closed. Checkbox mixed
+rollback remains pending the human contract choice already asked.

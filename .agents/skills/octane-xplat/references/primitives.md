@@ -1293,8 +1293,8 @@ first-responder identity guard key dispatch; pointer selection still works on
 older bridges. Six adapter/two wiring cases and the maintained fixture remain
 unrun. Source intent is not physical-key, Tab/focus, popup/modal, RTL, AX/live
 announcement or package qualification. AppKit preset-list source ownership is
-covered below; NativeScript time-list keys and standalone AppKit time stepping
-remain gaps. See
+covered below; NativeScript time-list keys remain a gap. AppKit time stepping
+is described below. See
 [AppKit calendar keys](../../../../docs/platform/date-picker.md#navigate-appkit-calendar-days-with-keys).
 
 
@@ -1315,7 +1315,7 @@ export function StartTime(props: { value: string | null; change(value: string | 
 
 The source wiring and maintained date-submit fixture do not establish physical
 Return delivery, blur ordering, IME/caret/draft/validation, focus/AX or packaging.
-All runtime checks remain deferred. Standalone time stepping is still a gap;
+All runtime checks remain deferred. AppKit time stepping is covered below;
 DateTimeInput preset-list source ownership is covered below. See [typed Return boundary](../../../../docs/platform/date-picker.md#commit-typed-appkit-date-and-time-drafts-with-return).
 
 
@@ -1345,4 +1345,29 @@ after leaving the popup: no row-to-editor text/typeahead relay is added.
 One renderer/four policy/five wiring cases and a maintained fixture are unrun. Native input,
 proxy/ref/window order, actual focus/Tab/return/busy timing, scroll, IME, popup/modal,
 AX/listbox relationships and packaging remain unqualified. Full option AX semantics,
-row text relay and standalone TimeInput stepping remain gaps. See [preset time keys](../../../../docs/platform/date-picker.md#choose-appkit-preset-times-with-keys).
+row text relay remain gaps. Standalone TimeInput stepping is covered below. See [preset time keys](../../../../docs/platform/date-picker.md#choose-appkit-preset-times-with-keys).
+
+
+## AppKit TimeInput minute stepping
+
+TimeInput binds plain Up/Down to the existing adjustTime minute policy: committed
+value (local current time when empty), midnight wrap, preserved optional seconds
+and rejection outside min/max. Parent echo remains authoritative; a requested step
+clears private draft text after dispatching a valid request, including when the
+parent declines it. Modified/prevented keys,
+marked editors, foreign/detached targets and current blocking state are guarded.
+The write claim precedes onChange reentry; changeAction owns a pending guard through
+settlement, and detached saves settle without UI state writes.
+
+```tsx
+import { TimeInput } from '@octane-xplat/ui'
+
+export function Starts(props: { value: string | null; change(value: string | null): void }) {
+	return <TimeInput label="Starts" value={props.value} onChange={props.change} increment={15} />
+}
+```
+
+Five object-driver cases and the maintained time-step fixture remain unrun.
+Physical key/repeat, field-editor/IME/caret/draft/focus/AX and packaging remain
+unqualified. DateTimeInput closed-field timeIncrement and live announcements
+remain gaps. See [AppKit time stepping](../../../../docs/platform/date-picker.md#step-appkit-time-values-with-arrow-keys).
