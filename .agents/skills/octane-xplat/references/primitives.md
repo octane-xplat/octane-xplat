@@ -791,3 +791,20 @@ export function Code() {
 	return <PinInput label="Account code" description="Enter four characters" length={4} />
 }
 ```
+
+
+## AppKit late control actions
+
+Native click recognizers now have ownership separate from accessibility IDs.
+Controls mounted disabled/read-only can install a callback later; updates reuse
+one recognizer, removal disables it and teardown removes it. This repairs source
+wiring, not actual native re-enable/hit-testing or lifecycle qualification. See
+[click ownership](../../../../packages/macos-renderer/README.md#update-self-drawn-click-actions).
+
+```tsx
+import { Checkbox } from '@octane-xplat/ui'
+
+export function Choice({ saving }: { saving: boolean }) {
+	return <Checkbox label="Include archived" isDisabled={saving} />
+}
+```

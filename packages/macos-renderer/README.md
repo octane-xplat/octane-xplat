@@ -729,3 +729,22 @@ export function Save({ save }: { save(): void }) {
 	</masonview>
 }
 ```
+
+### Update self-drawn click actions
+
+Container accessibility identity and click-recognizer ownership are independent.
+A checkbox/radio mounted without a callback can acquire its click recognizer
+when enabled later. Updating callbacks reuses one recognizer; removing a
+callback disables it, and raw disabled-prop changes update its enabled state.
+Queued callbacks retain their disabled check. Teardown disables and removes the
+owned recognizer. These paths have authored source cases, with native pointer,
+keyboard and parent/child arbitration still unqualified.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+export function Choice({ enabled, choose }: { enabled: boolean; choose(): void }) {
+	return <masonview accessibilityRole="checkbox" accessibilityLabel="Choice"
+		disabled={!enabled} accessibilityState={{ checked: false, disabled: !enabled }}
+		onTap={enabled ? choose : undefined}><label text="Choice" /></masonview>
+}
+```

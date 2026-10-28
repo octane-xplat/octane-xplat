@@ -688,7 +688,7 @@ interface MasonDeps {
 	applyStyle: (node: any, value: any) => void
 	applyClassName: (node: any, value: any) => void
 	applyAccessibility: (node: any, name: string, value: any) => void
-	/** Wires tap/click handlers + accessibility actionId onto a view. */
+	/** Allocate an action/AX identity; setAction owns click recognizers. */
 	wireAction: (view: any, props: any) => number | undefined
 	/** Tap-action update; undefined clears the binding. */
 	setAction: (node: any, value: any) => void

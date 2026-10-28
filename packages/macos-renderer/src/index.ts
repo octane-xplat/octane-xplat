@@ -243,6 +243,7 @@ export interface ElementNode {
 	container: RootContainer
 	appliedFontFamily: string | undefined
 	actionId?: number
+	clickGestureRecognizer?: NSGestureRecognizer
 	scrollObserverInstalled: boolean
 	text: string
 	// CSS adapter: cssType/cssClasses/cssPseudoClasses/computedStyle/
@@ -1386,8 +1387,8 @@ function setMarginStyle(node: ElementNode, name: string, value: any) {
  *  re-parented children land in `moved` — detaching a view that is (or
  *  contains) the first responder ends the active editing session. */
 
-/** Wires tap/click handling + the accessibility actionId onto any view —
- *  shared by stack factories and mason-backed container views. */
+/** Allocate the action/AX identity. setAction independently owns the click
+ * recognizer, including callbacks added after a semantic-only initial mount. */
 function wireViewAction(view: NSView, props: PropBag): number | undefined {
 	const interactive = typeof props.onTap === 'function' || props.accessibilityRole === 'button'
 
@@ -1399,14 +1400,6 @@ function wireViewAction(view: NSView, props: PropBag): number | undefined {
 			: undefined
 
 	if (actionId !== undefined) {
-		if (interactive) {
-			view.addGestureRecognizer(
-				configureGesture(
-					NSClickGestureRecognizer.alloc().initWithTargetAction(buttonActionTarget, 'viewPressed:'),
-				),
-			)
-		}
-
 		actionIdsByView.set(view, actionId)
 		actionHandlers.set(actionId, null)
 	}
@@ -6098,16 +6091,20 @@ function syncTextViewPlaceholder(node: ElementNode | undefined) {
 }
 
 function setAction(node: ElementNode, value: any) {
+	const active = typeof value === 'function'
 	if (node.actionId === undefined) {
+		if (!active) return
 		node.actionId = nextActionId++
 		actionIdsByView.set(node.view!, node.actionId)
 		actionHandlers.set(node.actionId, null)
-		node.view!.addGestureRecognizer(
-			configureGesture(
-				NSClickGestureRecognizer.alloc().initWithTargetAction(buttonActionTarget, 'viewPressed:'),
-			),
-		)
 	}
+	if (active && !node.clickGestureRecognizer) {
+		node.clickGestureRecognizer = configureGesture(
+			NSClickGestureRecognizer.alloc().initWithTargetAction(buttonActionTarget, 'viewPressed:'),
+		)
+		node.view!.addGestureRecognizer(node.clickGestureRecognizer)
+	}
+	if (node.clickGestureRecognizer) node.clickGestureRecognizer.enabled = active && !node.props.disabled
 
 	actionHandlers.set(
 		node.actionId,
@@ -6348,6 +6345,9 @@ function applyProps(node: ElementNode, props: PropBag) {
 	}
 
 	node.props = { ...node.props, ...props }
+	if ('disabled' in props && node.clickGestureRecognizer) {
+		node.clickGestureRecognizer.enabled = !node.props.disabled && typeof actionHandlers.get(node.actionId!) === 'function'
+	}
 	if ('id' in props) {
 		setNodeId(node, props.id)
 	}
@@ -8116,6 +8116,11 @@ function destroy(node: ElementNode) {
 	}
 
 	disposePressGestures(node)
+	if (node.clickGestureRecognizer) {
+		node.clickGestureRecognizer.enabled = false
+		node.view?.removeGestureRecognizer(node.clickGestureRecognizer)
+		node.clickGestureRecognizer = undefined
+	}
 	node.cssHoverDispose?.()
 	node.cssHoverDispose = undefined
 	setVisualStateTracking(node, null)

@@ -1649,3 +1649,38 @@ pnpm check:recipes
 Commands remain deferred until this task's explicit human authorization. No
 builds, installs, tests/typechecks, probes, OS automation, visual analysis or
 shared audit regeneration ran; no evidence gate is closed.
+
+
+### Late AppKit click-action prerequisite
+
+While implementing CheckboxList source review found that wireViewAction gave
+semantic-only controls an action ID but no recognizer. setAction installed a
+recognizer only when creating a new ID, so a checkbox/radio/switch mounted
+blocked could later have a callback but no native click path. This affects
+ordinary disable/save/re-enable form flows and precedes the list repair.
+
+Identity allocation is now separate from node-owned click recognizers. setAction
+lazily creates exactly one recognizer for a live callback even with an existing
+AX ID, updates the current callback and disables the recognizer when cleared.
+Raw disabled prop changes resync enabled state; queued callbacks retain the
+existing disabled guard. Clearing an initially noninteractive host does not
+manufacture an ID/recognizer. Destroy disables/removes the owned recognizer.
+No always-on recognizer was added to semantic-only groups.
+
+Authored source cases cover late installation, callback replacement, clear/
+re-add identity, disabled callbacks and empty clear. Existing queued-press cases
+remain. Teardown/raw-disabled integration and actual parent/child arbitration
+still require native verification. TypeScript syntax/whitespace only; no test ran.
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/checkbox.macos.mobile.test.tsrx src/switch.macos.mobile.test.tsrx src/radio-list.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer --filter=...@octane-xplat/ui
+pnpm check:recipes
+```
+
+All commands remain deferred until this task's explicit human authorization.
+Actual re-enable mouse/keyboard delivery, gesture arbitration, native recognizer
+lifecycle, VoiceOver and packaging remain unqualified. No builds, installs,
+package tests/typechecks, OS automation, visual analysis or shared audit snapshot
+regeneration ran; no evidence checkbox is closed.
