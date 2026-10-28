@@ -3,8 +3,7 @@
 	"environments": {
 		"native": {
 			"files": [
-				"src/index.ts",
-				"../ui/type-support/svg-element.d.ts"
+				"src/index.ts"
 			]
 		},
 		"web": {
