@@ -796,6 +796,18 @@
 	}
 	/* xplat-web-only:end */
 
+
+	@platform macos {
+		.vx-switch-field--appkit { display: flex; flex-direction: column; }
+		.vx-switch-container--appkit { display: flex; flex-direction: row; align-items: center; gap: 8px; justify-content: flex-start; }
+		.vx-switch-container--appkit.vx-switch-container--label-start { flex-direction: row-reverse; justify-content: flex-end; }
+		.vx-switch-container--appkit.vx-switch-container--spread { justify-content: space-between; }
+		.vx-switch--appkit { display: flex; flex-direction: row; flex-shrink: 0; border-radius: 12px; }
+		.vx-switch--appkit.vx-switch--size-sm { border-radius: 10px; }
+		.vx-switch--appkit .vx-switch-thumb { display: flex; border-radius: 10px; }
+		.vx-switch-text { flex-shrink: 1; }
+	}
+
 	/* Self-drawn slider — host is a grid (native) / relative div (web);
    track + fill + thumb overlay the same box. */
 	.vx-slider {

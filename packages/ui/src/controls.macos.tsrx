@@ -1,12 +1,11 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle, styleRecord } from './style-merge'
-import { useCallback, useRef, useState } from 'octane'
+import { useState } from 'octane'
 import type {
 	ActivityIndicatorProps,
 	ButtonProps,
 	CheckboxProps,
 	SearchInputProps,
-	SwitchProps,
 } from './props'
 
 import { Pressable } from './Pressable.macos.tsrx'
@@ -15,13 +14,11 @@ import { Text } from './Text.macos.tsrx'
 import { TextInput } from './text-controls.macos.tsrx'
 import { cx } from '@octane-xplat/lib'
 import { nativeAccessibilityRole } from './escape-props'
-import { useThemeScheme } from './theme/theme-scheme.macos'
 import { useFieldControlProps } from './field-context'
 import { useButtonGroup } from './button-group-context'
 import { useSize } from './size-context'
 import { Icon } from './Icon.macos.tsrx'
 import { reportActionError } from './action-error'
-import { controlColors } from './control-colors.macos'
 
 export function Button(props: ButtonProps) @{
 	const group = useButtonGroup()
@@ -144,102 +141,7 @@ export function Checkbox(inputProps: CheckboxProps) @{
 	</masonview>
 }
 
-export function Switch(inputProps: SwitchProps) @{
-	const props = useFieldControlProps(inputProps)
-	const [internal, setInternal] = useState(props.defaultValue ?? false)
-	const checked = props.value ?? internal
-	const [pending, setPending] = useState(false)
-	const active = useRef<symbol | null>(null)
-	const attached = useRef(true)
-	// Ref teardown also covers unmount before passive effects would run.
-	const bind = useCallback((view: NSView | null) => {
-		attached.current = Boolean(view)
-		if (!view) active.current = null
-	}, [])
-	const loading = Boolean(props.isLoading || pending)
-	const isBlocked = props.isDisabled || props.isReadOnly || pending
-	const colors = controlColors(useThemeScheme() === 'dark')
-	const toggle = () => {
-		if (!attached.current || isBlocked || active.current) return
-		const previous = checked, next = !previous
-		const uncontrolled = props.value === undefined
-		if (uncontrolled) setInternal(next)
-		props.onChange?.(next)
-		if (!props.changeAction) return
-
-		const token = Symbol('switch-action')
-		active.current = token
-		if (attached.current) setPending(true)
-		const settle = (failed: boolean) => {
-			if (!attached.current || active.current !== token) return
-			try {
-				if (failed) {
-					if (uncontrolled) setInternal(previous)
-					props.onChange?.(previous)
-				}
-			} finally {
-				active.current = null
-				setPending(false)
-			}
-		}
-		try {
-			Promise.resolve(props.changeAction(next)).then(() => settle(false), () => settle(true))
-		} catch {
-			settle(true)
-		}
-	}
-
-	<masonview
-		id={props.id}
-		ref={bind}
-		className={cx(
-			'vx-switch',
-			checked && 'vx-switch--on',
-			props.isDisabled && 'vx-switch--disabled',
-			props.isReadOnly && 'vx-switch--readonly',
-			loading && 'vx-switch--loading',
-			props.status && `vx-switch--status-${props.status.type}`,
-			props.size && `vx-switch--size-${props.size}`,
-			props.className,
-		)}
-		style={mergeStyle(
-			{ flexDirection: 'row', justifyContent: checked ? 'end' : 'start', alignItems: 'center' },
-			mergeStyle(
-				{ display: 'flex' },
-				{
-					width: 48,
-					height: 28,
-					padding: 3,
-					borderRadius: 14,
-					backgroundColor: checked ? colors.primary : colors.border,
-					...styleRecord(props.style),
-				},
-			),
-		)}
-		accessibilityRole="switch"
-		accessibilityLabel={
-			props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label
-		}
-		accessibilityHint={props.accessibilityHint}
-		accessibilityState={{
-			checked,
-			disabled: props.isDisabled,
-			readonly: props.isReadOnly,
-			busy: loading,
-			required: props.isRequired && !props.isOptional,
-			invalid: props.status?.type === 'error',
-		}}
-		onTap={isBlocked ? undefined : toggle}
-	>
-		<masonview
-			className="vx-switch-thumb"
-			style={mergeStyle(
-				{ display: 'flex' },
-				{ width: 22, height: 22, borderRadius: 11, backgroundColor: colors.surface },
-			)}
-		/>
-	</masonview>
-}
+export { Switch } from './Switch.macos.tsrx'
 
 export { Slider } from './Slider.macos.tsrx'
 

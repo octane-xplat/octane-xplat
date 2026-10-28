@@ -14,7 +14,11 @@ function mount(component: any, props: any) {
 		return container.children.map(walk).find(Boolean)
 	}
 	const tap = () => { control().props.onTap?.(); flushUniversalSync(() => {}) }
-	return { root, render, control, tap }
+	const all = (): any[] => {
+		const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+		return container.children.flatMap(walk)
+	}
+	return { root, render, control, tap, all }
 }
 function deferred() {
 	let resolve!: () => void, reject!: (error: unknown) => void
@@ -81,4 +85,50 @@ it('ignores completion after unmount and honors inherited Field blocking', async
 	task.reject(new Error('late save failure'))
 	await Promise.resolve()
 	expect(onChange).toHaveBeenCalledTimes(1)
+})
+
+
+it('renders standalone metadata, style forms and stable state as label layout changes', () => {
+	const env = mount(Switch, { id: 'alerts', defaultValue: true, label: 'Alerts', description: 'Keep me informed',
+		isRequired: true, status: { type: 'error', message: 'Save failed' }, className: ['preference', { active: true }], style: 'width:240px' })
+	try {
+		const host = env.control()
+		const labels = () => env.all().map((node) => node.props?.text).filter(Boolean)
+		expect(labels()).toEqual(expect.arrayContaining(['Alerts *', 'Keep me informed', 'Save failed']))
+		expect(host.props.id).toBe('alerts')
+		expect(host.props.accessibilityHint).toContain('Save failed')
+		expect(host.props.accessibilityState).toMatchObject({ required: true, invalid: true, checked: true })
+		const outer = env.all().find((node) => String(node.props?.className).includes('vx-switch-field--appkit'))
+		expect(outer.props.className).toContain('preference active')
+		expect(outer.props.style).toContain('width:240px')
+		env.render({ id: 'alerts', label: 'Notifications', labelPosition: 'start', labelSpacing: 'spread', size: 'sm' })
+		expect(env.control()).toBe(host)
+		expect(host.props.accessibilityState.checked).toBe(true)
+		expect(host.props.className).toContain('vx-switch--size-sm')
+		const row = env.all().find((node) => String(node.props?.className).includes('vx-switch-container--appkit'))
+		expect(row.props.className).toContain('vx-switch-container--label-start')
+		expect(row.props.className).toContain('vx-switch-container--spread')
+		expect(labels()).not.toContain('Save failed')
+		env.render({ id: 'alerts', label: 'Hidden name', description: 'Hidden description', isLabelHidden: true })
+		expect(env.control()).toBe(host)
+		expect(labels()).not.toContain('Hidden name')
+		expect(labels()).not.toContain('Hidden description')
+		expect(host.props.accessibilityLabel).toBe('Hidden name')
+	} finally { env.root.unmount() }
+})
+
+it('leaves labels and status with an enclosing Field', () => {
+	function Parent() {
+		return <FormField inputID="field-switch" label="Shared label" description="Shared description" status={{ type: 'error', message: 'Shared status' }}>
+			<Switch defaultValue />
+		</FormField>
+	}
+	const env = mount(Parent, {})
+	try {
+		const text = env.all().map((node) => node.props?.text)
+		expect(text.filter((value) => value === 'Shared label')).toHaveLength(1)
+		expect(text.filter((value) => value === 'Shared status')).toHaveLength(1)
+		expect(env.control().props.id).toBe('field-switch')
+		expect(env.control().props.accessibilityLabel).toBe('Shared label')
+	} finally { env.root.unmount() }
 })

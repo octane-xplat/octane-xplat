@@ -1189,3 +1189,39 @@ accessibility, native event timing, layout and packaging remain unqualified.
 The existing AppKit standalone label layout/labelPosition/labelSpacing subset
 still needs a separate implementation review. No builds, installs, tests,
 OS automation, visual analysis or shared audit regeneration ran.
+
+
+### AppKit switch labels and metadata
+
+Standalone Switch previously exposed its name to accessibility but never drew
+label/description/status, ignored label side/spacing and hard-coded 48x28 over
+the shared 40x24/32x20 geometry. A dedicated Switch.macos leaf now keeps one
+stable state/action owner and track host, renders standalone text through the
+existing AppKit FormField renderer (including marker/tooltip), and renders
+status detached below. An enclosing Field owns metadata instead. Hidden text
+keeps its accessible name. A stable wrapper prevents metadata changes from
+resetting uncontrolled state; CSS row reversal changes label side without
+reordering the toggle host. Classes/styles now target the compound root and
+preserve ClassValue/inline-CSS forms; id/testID still name the actual switch.
+
+Static track/row/thumb geometry uses scoped macOS CSS plus existing shared size
+classes. The palette and action token/rollback behavior are unchanged. Source
+cases cover standalone/parent metadata, required/error state, names, class/style
+forms and host/state retention across size/side/hidden changes. Added a maintained
+initial-metadata/direct-dispatch fixture. Label-click activation remains a real
+gap; source implements track activation only. Busy still reports state/classes;
+loading appearance needs separate qualification. No pixel parity is claimed.
+
+Syntax/whitespace only; tests and probes unrun. Deferred commands:
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/switch.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe run examples/probes/switch.macos.tsrx --target macos --watch
+pnpm check:recipes
+```
+
+Actual CSS resolution/size geometry, status/tooltip layout, long text/wrapping,
+RTL, hit testing, focus/Tab, VoiceOver, loading presentation and packaging remain
+unqualified. No builds, tests, installs, OS automation, visual analysis or shared
+audit snapshot regeneration ran. Source audit rows are left historical.

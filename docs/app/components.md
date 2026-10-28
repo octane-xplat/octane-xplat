@@ -295,6 +295,24 @@ export function Notifications({ save }: { save(enabled: boolean): Promise<void> 
 }
 ```
 
+Standalone AppKit switches render a label/description column beside the track
+and a detached status below. Use `labelPosition="start"` to put text first,
+`labelSpacing="spread"` to separate text and track, or `size="sm"` for the
+shared compact geometry. An enclosing Field owns this metadata instead.
+Hidden labels keep their accessible name. Native label-click activation is
+still a gap; activate the track. Layout, focus and accessibility need runtime
+qualification.
+
+```tsx
+import { Switch } from '@octane-xplat/ui'
+
+export function EmailAlerts() {
+	return <Switch label="Email alerts" description="Send a daily summary"
+		defaultValue labelPosition="start" labelSpacing="spread" width={280}
+		status={{ type: 'error', message: 'Try saving again' }} />
+}
+```
+
 ### Slider on AppKit
 
 Use an uncontrolled slider for a settings range, or supply `value` and
