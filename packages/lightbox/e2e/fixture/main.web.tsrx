@@ -1,4 +1,4 @@
-/** @jsxImportSource octane/web */
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { createRoot } from 'octane'
 import { Lightbox } from '../../src/index.web'
 
