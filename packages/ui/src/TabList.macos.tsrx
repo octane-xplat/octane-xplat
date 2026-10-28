@@ -3,7 +3,7 @@ import type { RegisteredRouteContracts, AppRouteStacks, RouteTransitionName } fr
 import type { NavigationItemImplementation } from './nav-link'
 import { useNavigationItem } from './use-navigation-item.shared.tsrx'
 import { mergeStyle } from './style-merge'
-import { useContext, useEffect, useMemo, useRef, useState } from 'octane'
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'octane'
 import type { TabListProps, TabProps, TabMenuProps } from './props'
 import { useSize } from './size-context'
 import { cx } from '@octane-xplat/lib'
@@ -14,6 +14,10 @@ import { Popover } from './Popover.macos.tsrx'
 import { Pressable } from './Pressable.macos.tsrx'
 import { followHref } from './nav-href'
 import { TabListContext, TabListProvider } from './nav-contexts'
+import { revealAppKitTab } from './tab-reveal.macos'
+import { createAppKitTabFocus } from './tab-focus.macos'
+import { useKeyboard } from './use-keyboard.macos'
+import { useDirection } from './internationalization'
 
 export { TabListContext }
 export { useTabListContext } from './nav-contexts'
@@ -24,20 +28,31 @@ function navIcon(icon: any, size: number) {
 	return typeof icon === 'string' ? <Icon name={icon} size={size} /> : icon
 }
 
-/** TabList — tab strip providing TabListContext to Tab/TabMenu children.
- *  Native leaf: a horizontal flexbox row; `overflow` `auto`/`scroll` wraps it
- *  in a horizontal scroller and the selected tab is scrolled into view. The
- *  WAI-ARIA tablist pattern carries `tab` semantics to each stop; there's no
- *  composite-widget arrow model on pointer platforms. `role="tablist"`
- *  switches item semantics; the strip itself doesn't gain native grouping. */
+/** AppKit tab strip with native horizontal reveal and registered-tab roving
+ * focus. Arrow keys move focus; the renderer owns Enter/Space activation. */
 export function TabList(props: TabListProps) @{
 	const size = useSize(props.size, 'md')
 	const overflow = props.overflow ?? 'auto'
 	const layout = props.layout ?? 'hug'
 	const hasScroll = overflow !== 'visible' && layout !== 'fill'
-	const scroller = useRef<any>(null)
-	const tabViews = useRef(new Map<string, any>())
+	const scroller = useRef<NSScrollView | null>(null)
+	const tabViews = useRef(new Map<string, NSView>())
 	const views = tabViews.current
+	const selected = useRef(props.value)
+	selected.current = props.value
+	const attachScroller = useCallback((view: NSScrollView | null) => { scroller.current = view }, [])
+	const root = useRef<NSView | null>(null)
+	const pattern = useRef(props.role === 'tablist' ? 'tabs' as const : 'nav' as const)
+	pattern.current = props.role === 'tablist' ? 'tabs' : 'nav'
+	const direction = useDirection(), liveDirection = useRef(direction)
+	liveDirection.current = direction
+	const navigation = useMemo(() => createAppKitTabFocus({
+		root: () => root.current, views, selected: () => selected.current,
+		pattern: () => pattern.current, direction: () => liveDirection.current,
+		reveal: (view) => { revealAppKitTab(scroller.current, view) },
+	}), [])
+	const attachRoot = useCallback((view: NSView | null) => { if (!view) navigation.dispose(); root.current = view }, [])
+	const { keyboardProps } = useKeyboard({ onKeyDown: navigation.keyDown })
 
 	const ctx = useMemo(
 		() => ({
@@ -53,29 +68,38 @@ export function TabList(props: TabListProps) @{
 		[props.value, props.onChange, size, layout, props.role],
 	)
 
-	// Keep the selected tab visible when the value or the scroller changes.
+	// Selection can precede layout; window updates also cover late geometry,
+	// resizing and attachment without assuming NativeScript View methods.
 	useEffect(() => {
-		const sv = scroller.current
-		const view = views.get(props.value)
-		if (!sv || !view) {
+		navigation.synchronize()
+		if (hasScroll) revealAppKitTab(scroller.current, views.get(props.value))
+	}, [props.value, hasScroll])
+	useEffect(() => {
+		const native = globalThis as Record<string, any>
+		const center = native.NSNotificationCenter?.defaultCenter
+		if (!center?.addObserverForNameObjectQueueUsingBlock || !center?.removeObserver) return
+		let token: unknown
+		try {
+			token = center.addObserverForNameObjectQueueUsingBlock(
+				native.NSWindowDidUpdateNotification ?? 'NSWindowDidUpdateNotification', null, null,
+				(notification: { object: NSWindow }) => {
+					if (root.current?.window !== notification.object) return
+					navigation.synchronize()
+					const scroll = scroller.current
+					if (hasScroll && scroll) revealAppKitTab(scroll, navigation.focusedView() ?? views.get(selected.current))
+				},
+			)
+		} catch (error) {
+			console.warn('[macos-tablist] selected-tab observation unavailable', error)
 			return
 		}
-
-		const vp = sv.getActualSize?.().width ?? 0
-		const offset = sv.horizontalOffset ?? 0
-		const start = view.originX ?? 0
-		const end = start + (view.getMeasuredWidth?.() ?? 0)
-		if (start < offset) {
-			sv.scrollToHorizontalOffset(start, true)
-		} else if (vp > 0 && end > offset + vp) {
-			sv.scrollToHorizontalOffset(end - vp, true)
-		}
-	}, [props.value])
+		return () => { if (token != null) center.removeObserver(token) }
+	}, [hasScroll])
+	useEffect(() => () => navigation.dispose(), [])
 
 	const row = (
 		<masonview
-			className={cx('vx-tabstrip', props.isFullBleed && 'vx-tabstrip--bleed')}
-			style={mergeStyle({ alignItems: 'flex-end' }, { display: 'flex' })}
+			className={cx('vx-tabstrip', 'vx-tabstrip--appkit', props.isFullBleed && 'vx-tabstrip--bleed')}
 		>
 			{props.children}
 		</masonview>
@@ -91,13 +115,14 @@ export function TabList(props: TabListProps) @{
 	)
 
 	<TabListProvider value={ctx}>
-		<masonview id={props.id} className={cls} style={mergeStyle({ display: 'flex' }, props.style)}>
+		<masonview id={props.id} ref={attachRoot} className={cls} {...keyboardProps}
+			accessibilityRole={props.role === 'tablist' ? 'tablist' : undefined}
+			accessibilityLabel={props.role === 'tablist' ? String(props.web?.['aria-label'] ?? 'Tabs') : undefined}
+			style={mergeStyle({ display: 'flex' }, props.style)}>
 			@if (hasScroll) {
 				<scrollview
 					orientation="horizontal"
-					ref={(v: any) => {
-						scroller.current = v
-					}}
+					ref={attachScroller}
 					className="vx-tabstrip-scroll"
 					scrollBarIndicatorVisible={false}
 				>
@@ -146,7 +171,7 @@ export function Tab(props: NavigationItemImplementation<TabProps>) @{
 
 	<Pressable
 		id={props.id}
-		ref={(v: any) => {
+		ref={(v: NSView | null) => {
 			if (v) {
 				ctx?._tabViews?.set(props.value, v)
 			} else {
@@ -162,9 +187,9 @@ export function Tab(props: NavigationItemImplementation<TabProps>) @{
 		style={mergeStyle({ height: SIZE_HEIGHT[ctx.size] }, props.style)}
 		disabled={isDisabled}
 		accessibilityRole={
-			isDisabled ? 'none' : ctx.pattern === 'tabs' ? 'tab' : link.href != null ? 'link' : 'button'
+			ctx.pattern === 'tabs' ? 'tab' : link.href != null ? 'link' : 'button'
 		}
-		accessibilityLabel={props.isLabelHidden ? props.label : undefined}
+		accessibilityLabel={props.label}
 		accessibilityState={{ disabled: isDisabled, selected: isSelected }}
 		onPress={select}
 	>

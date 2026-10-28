@@ -871,3 +871,28 @@ await prerender(renderer, {
   paths: [{ destination: { to: '/products/:id', params: { id: 'coat' } }, key: 'coat-v3' }],
 })
 ```
+
+
+## AppKit tab-strip input
+
+TabList now reveals selected/focused tabs through native scroll geometry and
+uses registered Tab views for roving focus. Arrows/Home/End move focus; Enter/
+Space keep the renderer's press activation. Horizontal direction follows RTL;
+role=tablist leaves vertical arrows to the page. Navigation strips accept both
+axes. TabMenu is still an independent trigger outside this Tab registry. The
+keyboard/suppression/window-update bridges are source capabilities, not OS
+qualification; native focus/Tab, scroll visibility, VoiceOver and panel relations
+remain open. See [AppKit tab strips](../../../../docs/app/components.md#tab-strips-on-appkit).
+
+```tsx
+import { useState } from 'octane'
+import { TabList, Tab } from '@octane-xplat/ui'
+
+export function Sections() {
+	const [value, setValue] = useState('overview')
+	return <TabList role="tablist" value={value} onChange={setValue}>
+		<Tab value="overview" label="Overview" />
+		<Tab value="details" label="Details" />
+	</TabList>
+}
+```

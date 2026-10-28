@@ -798,6 +798,7 @@
 
 
 	@platform macos {
+		.vx-tabstrip--appkit { display: flex; flex-direction: row; align-items: flex-end; }
 		.vx-spinner--appkit { display: flex; flex-shrink: 0; width: 20px; height: 20px; border-width: 2px; border-style: solid; border-radius: 50%; }
 		.vx-spinner--appkit.vx-spinner--size-xsm { width: 12px; height: 12px; }
 		.vx-spinner--appkit.vx-spinner--size-sm { width: 16px; height: 16px; }

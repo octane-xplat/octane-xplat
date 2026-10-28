@@ -670,6 +670,52 @@ registerIndicators({ check: SelectionMark })
 | `DropdownMenu`                             | Anchored action menu                                     | `trigger`, `items` / children, `placement`, `isOpen`             |
 | `ContextMenu`                              | Secondary-press action menu                              | `items` / `menu`, `trigger`, `isOpen`, `onOpenChange`            |
 
+### Tab strips on AppKit
+
+AppKit TabList now uses native geometry to reveal selected or keyboard-focused
+tabs horizontally while preserving the page's vertical offset. Registered Tab
+children use one roving keyboard stop when the renderer suppression bridge is
+available. Arrows and Home/End move focus without selecting; Enter/Space
+activate the focused tab. Horizontal arrows respect text direction and skip
+disabled/hidden tabs. Under `role="tablist"`, vertical arrows remain available
+to the page; navigation strips accept both axes.
+
+```tsx
+import { useState } from 'octane'
+import { TabList, Tab, Text } from '@octane-xplat/ui'
+
+export function Sections() {
+	const [value, setValue] = useState('overview')
+	return <>
+		<TabList role="tablist" value={value} onChange={setValue}>
+			<Tab value="overview" label="Overview" />
+			<Tab value="details" label="Details" />
+			<Tab value="unavailable" label="Unavailable" isDisabled />
+		</TabList>
+		<Text>{value}</Text>
+	</>
+}
+```
+
+Visible and hidden tabs now have explicit accessible names; disabled tabs keep
+their tab role and disabled state. The strip exposes native tab-group semantics.
+Keyboard event delivery, Tab order, scroll geometry, VoiceOver, panel
+relationships and layout remain unqualified. TabMenu remains an independent
+trigger outside the registered Tab arrow model. Missing keyboard/suppression
+bridges retain the corresponding native fallback; do not infer tested keyboard
+support from source presence. See the [native fixture](https://github.com/octane-xplat/octane-xplat/blob/feat/appkit-native-support/examples/probes/tab-list.macos.tsrx).
+
+```tsx
+import { TabList, Tab } from '@octane-xplat/ui'
+
+export function ControlledStrip({ value, onChange }: { value: string; onChange(value: string): void }) {
+	return <TabList role="tablist" value={value} onChange={onChange} overflow="scroll">
+		<Tab value="overview" label="Overview" />
+		<Tab value="details" label="Details" isLabelHidden icon="xplat-search" />
+	</TabList>
+}
+```
+
 `Tabs` hosts named route stacks from `TabSpec`; `TabList` is the smaller
 navigation or page-tab strip for caller-owned content. Use `TabList` without
 `role="tablist"` for navigation links; add that role when it controls

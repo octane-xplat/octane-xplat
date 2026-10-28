@@ -1382,3 +1382,59 @@ and packaging remain unqualified. No builds, package tests/typechecks, installs,
 OS automation, visual analysis or shared audit regeneration ran. The color
 control adjustment backlog still needs its own UI-handler/OS review; no evidence
 checkbox is closed by this prerequisite.
+
+
+### AppKit tab-strip focus and reveal
+
+Tabs uses the shared TabList for app pane/stack switching; controlled page tabs
+also appear in the maintained app-building examples. The AppKit strip used
+NativeScript getActualSize/horizontalOffset/originX/getMeasuredWidth and
+scrollToHorizontalOffset on native NSViews/NSScrollView, so its selected-tab
+reveal path had no native implementation. It also lacked composite keyboard
+focus, omitted visible accessible names, and hid disabled tab roles entirely.
+
+The reveal helper now converts the actual tab bounds into document coordinates,
+reads native clip/document geometry and uses the existing AppKit offset helper
+to move only horizontally. Oversized tabs align their leading edge; invalid or
+unrelated geometry is ignored; offsets clamp and equal targets do not restart
+scrolling. Instant movement avoids restarting clip animations on every window
+update. Selection changes reveal the selected tab; keyboard movement reveals
+its focused tab. Window updates reconcile geometry/attachment, preferring a
+focused registered tab while focus is in the strip. Outer vertical offsets stay
+unchanged. Native documents are still assumed to use the renderer's zero-origin
+layout convention; nonzero document-bounds behavior needs qualification.
+
+A target-specific controller traverses native child order, skips disabled/hidden
+tabs and leases Tab exclusion for all except the focused/selected/first usable
+Tab. Arrows/Home/End move focus without selecting; Enter/Space remain the
+renderer's existing press path. Horizontal arrows follow useDirection; tablist
+vertical arrows and modifier/IME keys are preserved, while nav strips accept both
+axes. Focus rejection leaves the key untouched. Existing controlled value,
+route-link activation and onPress behavior remain. TabMenu stays a separate
+trigger outside this registry; full menu/composite behavior is still open.
+Missing keyboard/suppression bridges retain their respective fallback; window
+observation is guarded, cleaned up and reports installation failure.
+
+Native tablist grouping and explicit visible/hidden tab labels now reach the
+repaired renderer role bridge. Disabled tabs retain tab/link/button semantics
+with disabled state and no press. Public props/exports are unchanged. Static
+strip layout uses scoped macOS CSS. Added source cases for geometry, manual
+focus/RTL/guards/order/lease cleanup, names/disabled/controlled selection; added
+a direct-selection fixture, guide/skill/recipe/release coverage. Syntax and
+whitespace only; no tests or probes ran. Deferred:
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/tab-list.macos.mobile.test.tsrx
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/macos-renderer
+pnpm probe run examples/probes/tab-list.macos.tsrx --target macos --watch
+pnpm check:recipes
+```
+
+Actual key/Tab delivery, responder retention/loops across windows, window-update
+observer timing, scrolling/hit testing/resize geometry, fades/overflow controls,
+VoiceOver and tab-panel relations, RTL/layout/pixels and packaging remain open.
+The native fixture run hook checks handler selection/state only; it does not
+prove scroll visibility, keyboard input or native accessibility. No builds,
+installs, package tests/typechecks, OS automation, visual analysis or shared
+audit snapshot regeneration ran. No evidence checkbox is closed.
