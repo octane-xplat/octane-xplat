@@ -1,6 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'octane'
 import { ScrollableArea, useDirection, type ScrollableAreaHandle } from '@octane-xplat/ui'
+import { cx } from '@octane-xplat/lib'
 import type { PagerProps } from './props'
 import { mergeStyle } from './style-merge'
 import { layoutChildProps } from './layout-child'
@@ -64,7 +65,7 @@ export function Pager(props: PagerProps) @{
 	const layout = layoutChildProps({ ...props, style: undefined })
 
 	@if (props.items.length) {
-		<masonview id={props.id} className={['vx-pager', 'vx-pager--appkit', props.className]} style={mergeStyle(layout.style, props.style)} onLayoutChanged={queueMeasure}
+		<masonview id={props.id} className={cx('vx-pager', 'vx-pager--appkit', props.className)} style={mergeStyle(layout.style, props.style)} onLayoutChanged={queueMeasure}
 			accessible={props.accessible} accessibilityRole={props.accessibilityRole ?? 'group'} accessibilityLabel={props.accessibilityLabel}
 			accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue ?? `Page ${control.selected() + 1} of ${props.items.length}`}
 			accessibilityState={props.accessibilityState} accessibilityLiveRegion={props.accessibilityLiveRegion}>

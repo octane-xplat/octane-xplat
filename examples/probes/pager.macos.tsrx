@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
-import { Pager } from '@octane-xplat/pager'
+import { Pager } from '../../packages/pager/src/index.macos'
 import { Button, InternationalizationProvider, Text, TextInput, VStack } from '@octane-xplat/ui'
 import type { ProbeContext } from '../../scripts/probe/context'
 export default function PagerProbe() {

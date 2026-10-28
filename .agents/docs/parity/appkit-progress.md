@@ -3746,3 +3746,11 @@ native page virtualization is not implemented. Carousel edge fades, video,
 autofocus timing and date preset text relay/listbox relationships remain source
 gaps. Checkbox mixed rollback still awaits the previously asked human contract
 choice. No evidence-gated checkbox is closed.
+
+Pager fixture/import review follow-up: the maintained AppKit host does not
+declare Pager directly, so the target-specific manual fixture imports Pager's
+explicit macOS source entry. It does not establish consumer package resolution;
+that remains a separate deferred gate. The leaf normalizes root classes with
+the existing cx utility (already declared lib dependency), matching neighboring
+UI leaves and object-driver class tokens. Syntax/whitespace only; the same
+14 cases and all native/package checks remain unrun.
