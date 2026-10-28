@@ -1599,13 +1599,15 @@ unrelated to Mason that the earlier error had hidden:
   isolated install. A temporary app-local symlink was used only to proceed.
 
 All three are now fixed. The table hooks return `tableSlot` descriptors
-(`f8f33f298`). The `/ns/m` bare-import fallback now resolves from the
-importing file (`80ba6994b`). The vendor force-include ignores
-`NODE_PATH` (`ed735537c`). A later iOS run fetched the whole module graph,
-then stopped on two new blockers:
+(`0c61785e9` on main). The `/ns/m` bare-import fallback now resolves from
+the importing file (`92130c894`). The vendor force-include ignores
+`NODE_PATH` (`a99f2ad62`). A later iOS run, made before those commits were
+rebased onto main, fetched the whole module graph and then stopped on two
+new blockers:
 
 - `ReferenceError: Intl is not defined`, raised at module scope in
-  `packages/ui/src/table/use-table-sortable-state.ts:48`.
+  `packages/ui/src/table/use-table-sortable-state.ts:48`. Main has since
+  made that collator lazy (`9cffade22`); no simulator run has rechecked it.
 - On the workshop path, a 404 for
   `/ns/m/node_modules/storybook/dist/_browser-chunks/chunk-ECQ75MKQ.js`.
 
