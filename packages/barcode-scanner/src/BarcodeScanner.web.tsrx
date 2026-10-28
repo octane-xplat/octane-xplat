@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useImperativeHandle, useEffect, useRef } from 'octane'
 import type { BarcodeScannerHandle, BarcodeScannerProps } from './props'
 import { fromDetectorFormat, toDetectorFormats } from './format-map.web'

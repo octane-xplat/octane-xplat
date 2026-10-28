@@ -6,7 +6,7 @@
 		"moduleResolution": "bundler",
 		"target": "esnext",
 		"jsx": "react-jsx",
-		"jsxImportSource": "octane",
+		"jsxImportSource": "@octane-xplat/jsx",
 		"declaration": true,
 		"emitDeclarationOnly": true,
 		"noEmit": false,

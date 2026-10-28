@@ -1,8 +1,7 @@
-import { MLKitView } from '@nativescript/mlkit-core'
-import type { Attributes } from '@nativescript-community/octane/intrinsics'
+import type { Attributes } from '@octane-xplat/jsx/intrinsics'
 
-declare module '@nativescript-community/octane/intrinsics' {
-	interface NativeScriptElements {
-		xplatbarcodescanner: Attributes<typeof MLKitView>
+declare module '@octane-xplat/jsx/intrinsics' {
+	interface NativeElements<TElement> {
+		xplatbarcodescanner: Attributes<TElement>
 	}
 }
