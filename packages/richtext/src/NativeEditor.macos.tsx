@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from './style-merge'
 import { layoutChildProps } from './layout-child'
 import { useCallback, useEffect, useImperativeHandle, useRef, useState } from 'octane'

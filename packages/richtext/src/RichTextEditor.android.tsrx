@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import {
 	useImperativeHandle,
 	useCallback,
@@ -10,7 +10,7 @@ import {
 
 import { View } from '@nativescript/core'
 import { registerElement } from '@nativescript-community/octane'
-import type { Attributes } from '@nativescript-community/octane/intrinsics'
+import type { Attributes } from '@octane-xplat/jsx/intrinsics'
 import type { RichTextEditorHandle, RichTextEditorProps, RichTextFormat } from './types'
 import { layoutChildProps } from './layout-child'
 
@@ -59,9 +59,9 @@ class AztecEditor extends View {
 	}
 }
 
-declare module '@nativescript-community/octane/intrinsics' {
-	interface NativeScriptElements {
-		xplatrichtext: Attributes<typeof AztecEditor>
+declare module '@octane-xplat/jsx/intrinsics' {
+	interface NativeElements<TElement> {
+		xplatrichtext: Attributes<TElement, {}>
 	}
 }
 
