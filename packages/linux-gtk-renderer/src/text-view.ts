@@ -1,5 +1,6 @@
 import Gtk from 'gi://Gtk?version=4.0'
 import Pango from 'gi://Pango'
+import GObject from 'gi://GObject'
 import type { GtkView } from './index.js'
 
 export interface TextViewControl {
@@ -7,6 +8,7 @@ export interface TextViewControl {
 	scroller: GtkView
 	placeholder: GtkView
 	setPlaceholder(value: unknown): void
+	setMaxLength(value: unknown): void
 	dispose(): void
 }
 
@@ -29,7 +31,38 @@ export function makeTextView(): GtkView {
 	}) as GtkView
 	const buffer = view.get_buffer()
 	view.get_text = () => buffer.get_text(...buffer.get_bounds(), true)
-	view.set_text = (text: string) => buffer.set_text(text, -1)
+	let writing = false
+	let maximum = Infinity
+	view.set_text = (text: string) => {
+		const previous = writing
+		writing = true
+		try {
+			buffer.set_text(text, -1)
+		} finally {
+			writing = previous
+		}
+	}
+	const insertion = buffer.connect('insert-text', (_: unknown, location: any, text: string) => {
+		if (writing || maximum === Infinity) return
+		let end = Math.max(0, maximum - view.get_text().length)
+		if (text.length <= end) return
+		// Count UTF-16 units like String.length, without splitting an emoji pair.
+		if (
+			end > 0 &&
+			text.charCodeAt(end - 1) >= 0xd800 &&
+			text.charCodeAt(end - 1) <= 0xdbff &&
+			text.charCodeAt(end) >= 0xdc00 &&
+			text.charCodeAt(end) <= 0xdfff
+		)
+			end--
+		const prefix = text.slice(0, end)
+		GObject.signal_stop_emission_by_name(buffer, 'insert-text')
+		if (!prefix) return
+		const offset = location.get_offset()
+		buffer.insert(location, prefix, -1)
+		// The outer GTK insertion caller still owns this iterator.
+		location.assign(buffer.get_iter_at_offset(offset + Array.from(prefix).length))
+	})
 	view.get_position = () => buffer.get_iter_at_mark(buffer.get_insert()).get_offset()
 	view.set_position = (position: number) => buffer.place_cursor(buffer.get_iter_at_offset(position))
 	view.get_selection_bounds = () => {
@@ -90,10 +123,18 @@ export function makeTextView(): GtkView {
 			else view.reset_property(Gtk.AccessibleProperty.PLACEHOLDER)
 			update()
 		},
+		setMaxLength(value) {
+			if (disposed) return
+			maximum =
+				typeof value === 'number' && Number.isFinite(value) && value >= 0
+					? Math.trunc(value)
+					: Infinity
+		},
 		dispose() {
 			if (disposed) return
 			disposed = true
 			buffer.disconnect(changed)
+			buffer.disconnect(insertion)
 			overlay.disconnect(position)
 		},
 	})

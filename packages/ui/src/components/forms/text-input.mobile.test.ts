@@ -31,6 +31,24 @@ import { fitTextArea } from './text-area-fit'
 // Model that event here, through the real compiled leaves and event dispatch.
 // This is regression coverage, not keyboard/IME/device evidence.
 describe('native controlled input writes', () => {
+	it('TextArea forwards finite, zero and removed native length limits', async () => {
+		const container = createObjectContainer('nativescript')
+		const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+		let field: any
+		const ref = (handle: any) => {
+			if (!handle) return
+			field = handle.native
+			field.style = {}
+		}
+		root.render(TextArea, { defaultValue: 'start', maxLength: 3, ref })
+		await vi.waitFor(() => expect(field?.props.maxLength).toBe(3))
+		root.render(TextArea, { defaultValue: 'start', maxLength: 0, ref })
+		await vi.waitFor(() => expect(field?.props.maxLength).toBe(0))
+		root.render(TextArea, { defaultValue: 'start', ref })
+		await vi.waitFor(() => expect(field?.props.maxLength).toBe(Infinity))
+		root.unmount()
+	})
+
 	for (const [name, Component] of [
 		['TextInput', TextInput],
 		['TextArea', TextArea],

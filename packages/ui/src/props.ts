@@ -1206,8 +1206,9 @@ export interface TextAreaProps extends Omit<TextInputProps, 'hasClear' | 'onClea
 	 *  maxHeight at measured line height (TextView's own `maxLines` only
 	 *  sets truncation on iOS — not a cap). */
 	maxRows?: number
-	/** Character cap — web enforces it via `maxlength` and draws the live
-	 *  `n/max` counter (Astryx `maxLength`); native clamps input. */
+	/** Nonnegative integer cap in UTF-16 units (String.length). Web enforces
+	 *  `maxlength` and draws the live `n/max` counter; native widgets limit
+	 *  user input using their platform's insertion rules. */
 	maxLength?: number
 	/** Leading glyph inside the field (Astryx `startIcon`). */
 	startIcon?: Renderable

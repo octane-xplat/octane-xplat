@@ -88,7 +88,10 @@ test(
 			child.once('close', resolve)
 		})
 		assert.equal(code, 0, stdout + '\n' + stderr + '\n' + (inputError ?? ''))
-		assert.doesNotMatch(stderr, /\[linux-gtk\] event handler failed|Gtk-CRITICAL|Gjs-CRITICAL/)
+		assert.doesNotMatch(
+			stderr,
+			/\[linux-gtk\] event handler failed|Gtk-CRITICAL|Gjs-CRITICAL|Invalid text buffer iterator/,
+		)
 		assert.equal(
 			(stderr.match(/returnKeyType captions are unavailable on GTK/g) ?? []).length,
 			1,
@@ -98,7 +101,7 @@ test(
 		const line = stdout.split('\n').find((line) => line.startsWith('GTK_TEXT_VIEW '))
 		assert.ok(line, stdout)
 		const result = JSON.parse(line.slice('GTK_TEXT_VIEW '.length))
-		assert.ok(result.checks >= (osKeyboard ? 65 : 35), JSON.stringify(result))
+		assert.ok(result.checks >= (osKeyboard ? 83 : 45), JSON.stringify(result))
 		assert.equal(result.osKeyboard, osKeyboard)
 		t.diagnostic(
 			process.platform +

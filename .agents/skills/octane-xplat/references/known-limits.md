@@ -84,7 +84,7 @@ for hover/focus tooltips. Field and TextArea remain outside the root.
 
 Treat the [multiline intrinsic checks](../../../docs/notes/linux-gtk-renderer.md#multiline-buffer-foundation)
 as renderer foundation evidence. Before exporting TextArea, qualify
-maxLength, text alignment, custom line spacing and the shared field/width/handle
+text alignment, custom line spacing and the shared field/width/handle
 ownership contract. Font-based rows/maxRows/autoGrow and constraint transitions have
 a maintained direct-source GTK fixture, now including X11 internal wheel input
 and native host/recreation cases; that evidence does not yet qualify public TextArea. Preserve the fitting effect's cleanup and defer GTK metric
@@ -99,7 +99,14 @@ now have direct-source GTK acceptance/rejection checks; preserve per-edit
 reconciliation even when value is unchanged. Group buffer changes using GTK
 user-action boundaries, and disconnect every grouped-action signal on disposal.
 SearchInput has the same native reconciliation fix with object-driver coverage;
-its complete GTK component is still unqualified.
+its complete GTK component is still unqualified. Multiline maxLength now has
+direct-source GTK edit/clipboard/undo checks: count UTF-16 units, preserve
+whole surrogate pairs, revalidate the borrowed insertion iterator, and dispose
+the filter. Owner writes bypass GTK's edit cap. NativeScript insertion and
+programmatic-value behavior differs by platform; see the
+[length-limit note](../../../docs/notes/linux-gtk-renderer.md#multiline-length-limits).
+Verify cached dependency source against the release commit before citing a
+version-specific limit; that note records a mismatched source cache.
 
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */

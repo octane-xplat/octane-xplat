@@ -4,7 +4,8 @@ The experimental GTK renderer now supports the textview intrinsic for
 multiline text, placeholder hints, read-only editing, focus and change events. Long text scrolls
 inside its assigned height, including read-only editors. Explicit width and
 height stay fixed as text wraps; clearing them restores automatic sizing.
-Replacing selected text reports one completed change. Return adds a line;
+Replacing selected text reports one completed change. Use maxLength to limit
+newly typed or pasted text. Return adds a line;
 done/send can submit instead. Tab moves to the next control.
 
 ```tsx
@@ -14,6 +15,7 @@ export function NotesEditor() {
     <textview
       text={'A line\n'.repeat(20)}
       hint="Write a note"
+      maxLength={200}
       accessibilityLabel="Notes"
       onTextChange={(event) => console.log(event.value)}
       style={{ width: 260, height: 120 }}
@@ -22,6 +24,6 @@ export function NotesEditor() {
 }
 ```
 
-The public TextArea component still needs maximum-length, text-alignment and
+The public TextArea component still needs text alignment and
 full field qualification. [GTK text entry](https://octane-xplat.goddardai.org/platform/linux-gtk#text-entry)
 describes the current scope.

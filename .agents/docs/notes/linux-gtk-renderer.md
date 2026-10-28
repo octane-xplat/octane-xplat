@@ -1288,3 +1288,92 @@ GTK component remains unqualified.
 Logs: guest /tmp/gtk-controlled-full.log; andromeda
 /tmp/gtk-controlled-types.log, /tmp/gtk-controlled-native-final.log and
 /tmp/gtk-controlled-pack.log.
+
+## Multiline length limits
+
+The GTK textview intrinsic now limits inserted text through TextBuffer's
+insert-text signal. It counts UTF-16 units (String.length), accepts the prefix
+that fits without splitting a surrogate pair (not a grapheme-cluster cap), and
+revalidates the borrowed
+TextIter after nested insertion. Typed/clipboard changes still use the native
+buffer, caret and undo engine. Controlled/imperative owner writes bypass the
+edit filter; zero prevents insertion and undefined/Infinity remove the cap.
+Disposal disconnects the insertion filter.
+
+The shared native TextArea leaf previously never forwarded its declared
+maxLength prop. The v0.17.1 tag also lacks the binding, so a stable fix note
+covers iOS/Android. The leaf now forwards a number or explicit Infinity;
+an omitted prop must remove a previously active cap. A selected object-driver
+test checks finite, zero and removed values.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+export function ShortNote() {
+  return <textview text="" maxLength={200}
+    onTextChange={(event) => console.log(event.value)} />
+}
+```
+
+### NativeScript source and insertion differences
+
+The npm registry identifies @nativescript/core9.1.3 with gitHead
+45b3b99afd89f19e799da84203aa19d673f7b20a, also the peeled9.1.3-core tag.
+The opensrc cache labeled9.1.3 contained package version9.1.4-next.1.
+Even an explicit-commit opensrc fetch had package version9.1.4-next.2 and
+differed from the canonical source. The exact upstream package.json at the
+registry commit says9.1.3. Do not infer a source pin from the cache path.
+The examined iOS TextView file and Android maxLength/keyboardType methods
+match the release implementation; those earlier behavior findings stand.
+
+NativeScript9.1.3's
+[iOS delegate](https://github.com/NativeScript/NativeScript/blob/45b3b99afd89f19e799da84203aa19d673f7b20a/packages/core/ui/text-view/index.ios.ts#L158-L164)
+rejects a growing replacement that exceeds maxLength. Its Android
+[maxLength setter](https://github.com/NativeScript/NativeScript/blob/45b3b99afd89f19e799da84203aa19d673f7b20a/packages/core/ui/editable-text-base/index.android.ts)
+installs the platform's InputFilter.LengthFilter.
+[AOSP's filter](https://android.googlesource.com/platform/frameworks/base/+/refs/heads/main/core/java/android/text/InputFilter.java)
+returns the prefix that fits and avoids splitting a surrogate pair.
+GTK follows that prefix policy. Oversized insertion behavior therefore already
+differs between native platforms; this is not a uniform upstream contract.
+
+Programmatic values also differ: GTK's facade and the iOS delegate path allow
+owner text beyond the edit cap, while Android's native filter can shorten
+script writes. Setting Infinity on the Android setter removes all filters,
+not just the length filter; combining custom filters needs separate native
+qualification. These are source findings for the exact SDK release and AOSP,
+not phone-runtime evidence. Xplat forwards the existing native property and
+does not replace its platform delegates or filter lifecycle.
+
+### Runtime scope
+
+Focused GTK4.14.5/GJS1.80.2 checks pass TextArea145/raw TextView83. The raw
+fixture covers UTF-16/emoji truncation, zero/removal, authoritative owner
+writes and retired-filter cleanup. Actual X11 Ctrl+V inserts an oversized
+emoji-containing clipboard value into a middle selection, yields one bounded
+callback with the native caret intact, and supports Ctrl+Z/Shift+Ctrl+Z after
+explicitly enabling native buffer undo. The test also rejects invalid-iterator
+warnings. TextArea145 proves accepted/blocked typing, zero and removal through
+the shared prop, alongside the earlier hint/row/host/edit checks.
+
+Gdk.Clipboard.set_text is C-only; bindings expose set_value as set. The initial
+clipboard probe failed before OS paste because it called set_text. Enabling
+undo before an older synthetic owner-write-inside-user-action check also
+produced GTK warnings about irreversible actions. The fixture now enables undo
+only for the native paste/undo checks. Production controlled callbacks run
+after end-user-action; a synthetic muted-write check with undo disabled is
+not proof that set_text is valid during an undo-enabled user action.
+
+Selected native tests pass 58 Node checks and 7 Vitest tests. Final full Linux
+regression passes all 42 tests with no skips, including TextArea 145 and raw
+TextView 83. All 58 affected/dependent typecheck tasks and six UI package
+validation tasks pass. Recipes, barrel checks, 22 release notes, formatting
+and whitespace pass. TextArea remains unexported pending
+stable automatic Field/width/handle ownership, text alignment, custom line
+spacing and the rest of its shared props. IME/composition, OSK, AT clients,
+Wayland, touchpad, HiDPI and images remain unqualified.
+Logs: guest /tmp/gtk-maxlength-first.log, /tmp/gtk-maxlength-input.log,
+and /tmp/gtk-maxlength-paste.log; andromeda /tmp/gtk-maxlength-native.log.
+
+Final logs: guest /tmp/gtk-maxlength-full.log; andromeda
+/tmp/gtk-maxlength-types.log and /tmp/gtk-maxlength-pack.log.
+No new dependency, public GTK root export, native facade rebuild, broad native
+suite rerun or phone-runtime qualification.

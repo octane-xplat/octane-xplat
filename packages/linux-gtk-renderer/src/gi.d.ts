@@ -475,6 +475,7 @@ declare module 'gi://GObject' {
 	namespace GObject {
 		const Value: any
 		const TYPE_INT: any
+		function signal_stop_emission_by_name(instance: any, signal: string): void
 		/** GJS type registration — returns a constructible GObject class. */
 		function registerClass(meta: any, klass?: any): any
 	}

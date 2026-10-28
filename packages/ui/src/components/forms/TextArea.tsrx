@@ -85,6 +85,7 @@ function TextAreaControl(inputProps: TextAreaProps) @{
 				props.placeholderTextColor ? { placeholderColor: props.placeholderTextColor } : {},
 			)}
 			hint={props.placeholder}
+			maxLength={props.maxLength ?? Infinity}
 			accessibilityLabel={
 				props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label
 			}

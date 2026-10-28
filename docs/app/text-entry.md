@@ -193,6 +193,28 @@ export function Notes(props: { limited: boolean }) {
 }
 ```
 
+
+## Limit a multiline field
+
+On web, iOS and Android, maxLength limits newly typed or pasted text.
+Use a nonnegative whole number; zero allows no new text. The count uses
+JavaScript's String.length, so many emoji count as two units.
+
+```tsx
+import { TextArea } from '@octane-xplat/ui'
+
+export function ShortNote() {
+  return <TextArea label="Note" defaultValue="" maxLength={200} />
+}
+```
+
+An oversized paste follows the native widget's rules: iOS rejects a growing
+insertion that exceeds the cap, while Android can keep the prefix that fits.
+App-authored values can also differ: web and iOS may display a value beyond
+the cap, while Android's native filter can shorten it. Keep supplied values
+within the cap when the same displayed text is required on every target.
+
+
 ## Release and restore focus
 
 Keep the `ref` handle for `focus()` and `blur()`. `blur()` dismisses the

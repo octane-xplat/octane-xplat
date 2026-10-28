@@ -1677,6 +1677,7 @@ const RESET_DEFAULTS: Record<string, Record<string, unknown>> = {
 		value: '',
 		hint: '',
 		placeholder: '',
+		maxLength: Infinity,
 		editable: true,
 		keyboardType: 'default',
 		autocorrect: true,
@@ -2221,6 +2222,8 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 				writeEntryText(node, view, value)
 			} else if (name === 'hint' || name === 'placeholder') {
 				node.textView!.setPlaceholder(value)
+			} else if (name === 'maxLength') {
+				node.textView!.setMaxLength(value)
 			} else if (name === 'editable') {
 				view.set_editable(value !== false)
 			} else if (name === 'keyboardType') {

@@ -393,6 +393,7 @@ export function NotesEditor(props: { readOnly?: boolean }) {
       text={'A line\n'.repeat(20)}
       editable={!props.readOnly}
       hint="Write a note"
+      maxLength={200}
       accessibilityLabel="Notes"
       returnKeyType="done"
       onTextChange={(event) => console.log(event.value)}
@@ -403,8 +404,22 @@ export function NotesEditor(props: { readOnly?: boolean }) {
 }
 ```
 
+
+maxLength caps new input in UTF-16 units, matching JavaScript String.length.
+A paste keeps the prefix that fits. For example, 😀 consumes two units and
+is kept whole. App-authored text can exceed the cap, and clearing maxLength removes
+it. The GTK TextArea component is still outside the public root.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+export function ShortNote() {
+  return <textview text="" hint="Short note" maxLength={200}
+    onTextChange={(event) => console.log(event.value)} />
+}
+```
+
 This is renderer support; TextArea remains outside the GTK UI root.
-Maximum length, text alignment and the full field workflow remain unqualified.
+Text alignment and the full field workflow remain unqualified.
 Source-harness row, growth and X11 keyboard/wheel checks are recorded in the
 [renderer note](../../.agents/docs/notes/linux-gtk-renderer.md#textarea-row-sizing-on-gtk). GTK TextView has no per-field Return-caption property;
 the renderer reports that limit once when returnKeyType is supplied.

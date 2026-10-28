@@ -112,7 +112,7 @@ test(
 		const line = stdout.split('\n').find((line) => line.startsWith('GTK_TEXT_AREA '))
 		assert.ok(line, stdout)
 		const result = JSON.parse(line.slice('GTK_TEXT_AREA '.length))
-		assert.ok(result.checks >= (osInput ? 138 : 107), JSON.stringify(result))
+		assert.ok(result.checks >= (osInput ? 145 : 107), JSON.stringify(result))
 		assert.equal(result.osInput, osInput)
 		t.diagnostic(
 			process.platform +

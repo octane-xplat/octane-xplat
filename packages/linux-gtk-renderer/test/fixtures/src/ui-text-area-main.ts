@@ -195,6 +195,42 @@ async function run() {
 		check('accepted edit keeps its native caret', view.get_position() === 2)
 		await render({ value: 'One', onChange: undefined })
 	}
+	if (GLib.getenv('GTK_TEXT_OS') === '1') {
+		const limitedEdits: string[] = []
+		await render({
+			value: '',
+			maxLength: 3,
+			onChange: (value) => {
+				limitedEdits.push(value)
+				props = { ...props, value }
+				root.render(TextAreaHarness, props)
+			},
+		})
+		view.focus()
+		await input(view, 'type-ABCD')
+		check(
+			'TextArea forwards its native character cap',
+			view.text === 'ABC' && props.value === 'ABC',
+		)
+		check(
+			'TextArea only reports accepted inserted characters',
+			limitedEdits.join(',') === 'A,AB,ABC',
+		)
+		await render({ maxLength: undefined })
+		await input(view, 'type-D')
+		check(
+			'removing TextArea cap restores native insertion',
+			view.text === 'ABCD' && props.value === 'ABCD',
+		)
+		await render({ value: '', maxLength: 0 })
+		const beforeZero = limitedEdits.length
+		await input(view, 'type-X')
+		check(
+			'zero TextArea cap blocks edits and callbacks',
+			view.text === '' && limitedEdits.length === beforeZero,
+		)
+		await render({ value: 'One', maxLength: undefined, onChange: undefined })
+	}
 	const line = view.get_line_yrange(buffer.get_start_iter())[1]
 	print(
 		'GTK_TEXT_AREA_MEASURE ' +

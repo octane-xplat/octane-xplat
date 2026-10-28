@@ -871,3 +871,14 @@ SearchInput native leaves reconcile even when the controlled value stays
 unchanged; the latter currently has object-driver evidence only. See the
 [edit transaction evidence](linux-gtk-renderer.md#controlled-multiline-edit-transactions).
 Neither component is promoted to the GTK root by this fix.
+
+### Multiline length limits
+
+GTK textview now caps insertion in UTF-16 units, preserving emoji pairs,
+native caret and native undo for bounded clipboard replacement. The shared
+native TextArea leaf forwards maxLength and explicitly removes old limits.
+NativeScript's paste and programmatic-value behavior differs on iOS/Android;
+the [length-limit evidence](linux-gtk-renderer.md#multiline-length-limits)
+records the exact release source and the source-cache mismatch.
+No GTK root exports are added; stable automatic field/width/handle ownership,
+text alignment, custom line spacing and complete shared props remain.

@@ -91,6 +91,40 @@ async function run() {
 	buffer.insert_at_cursor('!', -1)
 	check('native buffer edit sends current value', changes.at(-1) === view.text)
 	check('native edit sends one event', changes.length === 1)
+	await render({ value: '', maxLength: 4 })
+	changes.length = 0
+	buffer.insert_at_cursor('A😀BC', -1)
+	check('native insertion truncates at UTF16 cap', view.text === 'A😀B')
+	check(
+		'truncated insertion reports one bounded value',
+		changes.length === 1 && changes[0] === 'A😀B',
+	)
+	check('truncated insertion preserves the native caret', view.get_position() === 3)
+	buffer.insert_at_cursor('X', -1)
+	check(
+		'full buffer rejects additional input without callback',
+		view.text === 'A😀B' && changes.length === 1,
+	)
+	await render({ value: '', maxLength: 1 })
+	buffer.insert_at_cursor('😀Z', -1)
+	check('one free unit cannot split a surrogate pair', view.text === '' && changes.length === 1)
+	view.text = 'Owned value beyond cap'
+	check(
+		'imperative owner write remains authoritative',
+		view.text === 'Owned value beyond cap' && changes.length === 1,
+	)
+	await render({ value: 'Declared beyond cap' })
+	check(
+		'declarative owner write remains authoritative',
+		view.text === 'Declared beyond cap' && changes.length === 1,
+	)
+	await render({ value: '', maxLength: 0 })
+	buffer.insert_at_cursor('X', -1)
+	check('zero length permits no inserted text', view.text === '' && changes.length === 1)
+	await render({ maxLength: undefined })
+	buffer.insert_at_cursor('Unlimited', -1)
+	check('removed maximum restores insertion', view.text === 'Unlimited' && changes.length === 2)
+	await render({ value: 'Reset\nvalue' })
 	const beforeAction = changes.length
 	buffer.begin_user_action()
 	buffer.begin_user_action()
@@ -149,6 +183,23 @@ async function run() {
 			'OS replacement emits exactly one change: ' + JSON.stringify(changes.slice(before)),
 			changes.length === before + 1 && changes.at(-1) === 'aXc',
 		)
+		buffer.set_enable_undo(true)
+		await render({ value: 'abc', maxLength: 4 })
+		view.select_region(1, 2)
+		const beforePaste = changes.length
+		;(globalThis as any).imports.gi.Gdk.Display.get_default().get_clipboard().set('😀ZQ')
+		await input(undefined, 'ctrl+v')
+		check('OS paste accepts the complete emoji prefix within UTF16 cap', view.text === 'a😀c')
+		check(
+			'bounded paste sends one final edit',
+			changes.length === beforePaste + 1 && changes.at(-1) === 'a😀c',
+		)
+		check('bounded paste keeps the caret after the accepted prefix', view.get_position() === 2)
+		await input(undefined, 'ctrl+z')
+		check('native undo restores the selected text after bounded paste', view.text === 'abc')
+		await input(undefined, 'ctrl+shift+z')
+		check('native redo keeps the bounded result', view.text === 'a😀c')
+		await render({ maxLength: undefined })
 		for (const mode of [undefined, 'next', 'go', 'search', 'done', 'send'] as const) {
 			await render({ value: 'line', returnKey: mode, version: props.version + 1 })
 			view.set_position(4)
@@ -182,9 +233,12 @@ async function run() {
 	buffer.begin_user_action()
 	buffer.insert_at_cursor('pending', -1)
 	check('pending action has not dispatched before disposal', changes.length === oldChanges)
+	node('multiline').textView!.setMaxLength(0)
 	await render({ mounted: false })
 	buffer.end_user_action()
+	const retiredLength = view.text.length
 	buffer.insert_at_cursor('retired', -1)
+	check('retired buffer no longer has a length filter', view.text.length === retiredLength + 7)
 	check('retired buffer listener disconnected', changes.length === oldChanges)
 	const retiredText = view.text
 	view.text = 'late'
