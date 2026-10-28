@@ -674,3 +674,21 @@ export function IncludeArchived() {
 	return <Checkbox label="Include archived" description="Search older records" defaultValue />
 }
 ```
+
+
+## AppKit busy feedback
+
+Spinner now forwards named sizes, text/node labels, contrast, accessible names,
+class/style forms and busy=false removal. Switch shows a compact ring while
+saving or externally loading. The ring remains static: AppKit CSS animation
+playback is still a gap. Do not describe it as a tested animated spinner;
+layout, clipping, contrast and accessibility are unqualified. See
+[busy feedback](../../../../docs/app/components.md#busy-feedback-on-appkit).
+
+```tsx
+import { Spinner } from '@octane-xplat/ui'
+
+export function Saving() {
+	return <Spinner size="sm" label="Saving settings" />
+}
+```

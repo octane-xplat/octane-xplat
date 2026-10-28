@@ -798,6 +798,13 @@
 
 
 	@platform macos {
+		.vx-spinner--appkit { display: flex; flex-shrink: 0; width: 20px; height: 20px; border-width: 2px; border-style: solid; border-radius: 50%; }
+		.vx-spinner--appkit.vx-spinner--size-xsm { width: 12px; height: 12px; }
+		.vx-spinner--appkit.vx-spinner--size-sm { width: 16px; height: 16px; }
+		.vx-spinner--appkit.vx-spinner--size-lg { width: 24px; height: 24px; }
+		.vx-spinner--appkit.vx-spinner--size-xl { width: 32px; height: 32px; }
+		.vx-spinner-row--appkit { display: flex; flex-direction: row; align-items: center; gap: 8px; }
+		.vx-switch--appkit .vx-switch-thumb { align-items: center; justify-content: center; }
 		.vx-field-label-press--appkit { display: flex; flex-direction: column; flex-shrink: 1; }
 		.vx-checkbox-field--appkit { display: flex; flex-direction: column; }
 		.vx-checkbox-row--appkit { display: flex; flex-direction: row; align-items: center; gap: 8px; }

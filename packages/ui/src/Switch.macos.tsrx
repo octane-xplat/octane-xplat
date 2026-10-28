@@ -7,6 +7,7 @@ import { useFieldControl } from './field-context'
 import { FormField } from './FormField.macos.tsrx'
 import { useThemeScheme } from './theme/theme-scheme.macos'
 import { controlColors } from './control-colors.macos'
+import { ActivityIndicator } from './ActivityIndicator.macos.tsrx'
 import { AppKitLabelPress } from './label-press.macos.tsrx'
 
 export function Switch(inputProps: SwitchProps) @{
@@ -78,7 +79,9 @@ export function Switch(inputProps: SwitchProps) @{
 				accessibilityState={{ checked, disabled: props.isDisabled, readonly: props.isReadOnly,
 					busy: loading, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' }}
 				onTap={isBlocked ? undefined : toggle}>
-				<masonview className="vx-switch-thumb" style={{ backgroundColor: colors.surface }} />
+				<masonview className="vx-switch-thumb" style={{ backgroundColor: colors.surface }}>
+					{loading ? <ActivityIndicator size="xsm" accessibilityLabel="Loading" /> : null}
+				</masonview>
 			</masonview>
 			{hasText ?
 				<AppKitLabelPress blocked={Boolean(isBlocked)} control={() => control.current} press={toggle}>

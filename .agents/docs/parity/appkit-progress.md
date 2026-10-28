@@ -1301,3 +1301,38 @@ pnpm check:recipes
 No builds, installs, package tests/typechecks, native/OS automation, visual
 analysis, packaging or shared audit regeneration ran. Physical Tab, label mouse
 input, key-loop timing across windows and assistive technology remain unqualified.
+
+
+### AppKit busy feedback
+
+ControlsDemo pairs a busy Switch with Spinner. The AppKit shared Spinner leaf
+ignored size, label, shade and accessible name, and Switch never rendered a
+loading indicator inside its thumb. A dedicated ActivityIndicator.macos leaf
+now forwards named sizes (12/16/20/24/32), text/node labels, on-media contrast,
+composed classes/style forms and named progress semantics. A labeled ring uses
+one root ID and one progress owner. busy=false removes it. The shared ring stays
+self-drawn; raw NSProgressIndicator chrome was not substituted for shared UI.
+
+Switch now renders an xsm ring for pending saves or external isLoading. Its
+single state/save owner and rollback/label guards are unchanged. CSS owns static
+ring/row/size geometry; scheme/shade colors and user styles stay dynamic. The
+ring remains static: parsed CSS animation playback is still an AppKit gap, and
+no native animation or pixel parity is claimed. This is busy-state feedback,
+not completion of animation support. Actual per-edge border/color support and
+clipping must also be qualified.
+
+Authored object-driver source cases cover sizes, labels/nodes, contrast,
+class/style forms, one ID/progress owner and busy removal; Switch cases cover
+ring presence during a save and removal on success. Syntax/whitespace only;
+no package tests or native probes ran. Deferred:
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/activity-indicator.macos.mobile.test.tsrx src/switch.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm check:recipes
+```
+
+Actual CSS resolution, borders/contrast, compact clipping, focus/VoiceOver,
+loading timing, animation, OS input and packaging remain unqualified/open.
+No builds, installs, tests/typechecks, OS automation, visual analysis or shared
+audit snapshot regeneration ran. No evidence checkbox is closed.

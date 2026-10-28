@@ -40,11 +40,13 @@ it('calls changeAction after onChange, marks pending and prevents overlapping ac
 		expect(events).toEqual([['change', true], ['action', true]])
 		expect(env.control()).toBe(host)
 		expect(host.props.accessibilityState).toMatchObject({ checked: true, busy: true })
+		expect(env.all().filter((node) => String(node.props?.className).includes('vx-spinner--size-xsm'))).toHaveLength(1)
 		env.tap()
 		expect(events).toHaveLength(2)
 		task.resolve()
 		await vi.waitFor(() => { flushUniversalSync(() => {}); expect(host.props.accessibilityState.busy).toBe(false) })
 		expect(host.props.accessibilityState.checked).toBe(true)
+		expect(env.all().filter((node) => String(node.props?.className).includes('vx-spinner--appkit'))).toHaveLength(0)
 	} finally { env.root.unmount() }
 })
 
@@ -174,5 +176,19 @@ it('does not activate hidden, blocked or unsupported label targets', () => {
 		vi.stubGlobal('__xplatAppKit', {})
 		env.render({ label: 'Alerts' })
 		expect(labels()[0].props.onTap).toBeUndefined()
+	} finally { env.root.unmount() }
+})
+
+it('shows external loading feedback and removes it when the prop is dropped', () => {
+	const env = mount(Switch, { defaultValue: true, isLoading: true })
+	try {
+		const host = env.control()
+		const rings = () => env.all().filter((node) => String(node.props?.className).includes('vx-spinner--size-xsm'))
+		expect(rings()).toHaveLength(1)
+		expect(host.props.accessibilityState.busy).toBe(true)
+		env.render({})
+		expect(env.control()).toBe(host)
+		expect(host.props.accessibilityState).toMatchObject({ checked: true, busy: false })
+		expect(rings()).toHaveLength(0)
 	} finally { env.root.unmount() }
 })

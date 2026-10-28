@@ -277,6 +277,35 @@ export function Volume() {
 }
 ```
 
+### Busy feedback on AppKit
+
+AppKit Spinner now uses the shared named sizes, text/node labels and on-media
+contrast. `busy={false}` removes it; `accessibilityLabel` names the progress
+owner. A labeled spinner uses one root ID. The self-drawn ring is static on
+AppKit because CSS animation playback remains unsupported; it does not imply
+an animated native spinner. Appearance and accessibility remain unqualified.
+
+```tsx
+import { Spinner } from '@octane-xplat/ui'
+
+export function Saving() {
+	return <Spinner id="saving" size="sm" label="Saving settings" accessibilityLabel="Saving" />
+}
+```
+
+AppKit Switch now includes a compact ring inside its thumb while changeAction
+is pending or `isLoading` is set. Its existing busy state and pending-save
+guards remain. Native clipping, contrast, loading presentation and VoiceOver
+still need qualification.
+
+```tsx
+import { Switch } from '@octane-xplat/ui'
+
+export function Alerts({ save }: { save(next: boolean): Promise<void> }) {
+	return <Switch label="Alerts" defaultValue changeAction={save} />
+}
+```
+
 ### Checkbox metadata on AppKit
 
 Standalone AppKit Checkbox renders its label and description beside the

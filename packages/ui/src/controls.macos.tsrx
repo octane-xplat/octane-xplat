@@ -2,7 +2,6 @@
 import { mergeStyle, styleRecord } from './style-merge'
 import { useState } from 'octane'
 import type {
-	ActivityIndicatorProps,
 	ButtonProps,
 	SearchInputProps,
 } from './props'
@@ -15,6 +14,7 @@ import { useButtonGroup } from './button-group-context'
 import { useSize } from './size-context'
 import { Icon } from './Icon.macos.tsrx'
 import { reportActionError } from './action-error'
+import { ActivityIndicator } from './ActivityIndicator.macos.tsrx'
 
 export function Button(props: ButtonProps) @{
 	const group = useButtonGroup()
@@ -111,29 +111,4 @@ export function SearchInput(props: SearchInputProps) @{
 	/>
 }
 
-export function ActivityIndicator(props: ActivityIndicatorProps) @{
-	if (props.busy === false) {
-		return null
-	}
-
-	// Self-drawn ring — the vx-spinner class is inert on AppKit (no CSS
-	// layer), so the ring chrome comes from explicit border styles. There
-	// is no layer animation yet; the ring renders statically.
-	<masonview
-		id={props.id}
-		className={cx('vx-spinner', props.className)}
-		style={mergeStyle(
-			{ display: 'flex' },
-			{
-				borderWidth: 2,
-				borderTopColor: '#666666',
-				borderColor: '#666666',
-				borderRadius: 12,
-				width: 24,
-				height: 24,
-				...styleRecord(props.style),
-			},
-		)}
-		accessibilityRole="progressbar"
-	/>
-}
+export { ActivityIndicator } from './ActivityIndicator.macos.tsrx'
