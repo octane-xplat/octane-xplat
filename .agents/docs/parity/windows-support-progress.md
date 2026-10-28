@@ -835,8 +835,6 @@ metadata. Logs: `research/windows61/windy-app-info-notes-check.log` and
 passed. Exact remaining commands in the canonical workspace:
 
 ```sh
-pnpm exec xplat fmt --check packages/platform/src/app-info.windows.ts packages/platform/tests/windows-app-info.test.mjs
-node packages/lint/bin/lint.mjs packages/platform/src/app-info.windows.ts packages/platform/tests/windows-app-info.test.mjs
 pnpm check:changelog
 pnpm exec turbo run test --filter=@octane-xplat/platform
 pnpm exec turbo run typecheck --filter=...@octane-xplat/platform
@@ -852,3 +850,49 @@ Windows builds remain unqualified/deferred. A release note, service guide and
 agent guidance record the subset. The platform-leaves recipe still excludes
 Windows; no supported recipe target, shared audit snapshot or evidence-gated
 checkbox changed. Hosted auth and deep-link activation remain separate gaps.
+
+## Native connectivity ownership and Windows bridge checks
+
+The existing core Windows connectivity implementation was inspected before
+replacing it. Its actual read, NetworkStatusChanged registration and removal
+passed in the resource-reserved alpha.144 x64 DLL, exit 0. A second check
+matched its sampled connection classification against managed WinRT and checked
+that a connected reference profile was not returned as none. No network
+connection was changed or status-change delivery forced. The module body was
+transpiled from installed core 9.1.4-next.0, SHA256
+36e50258bca3bed7a7bde8d44c0cfeede63074158cd52786aa572789ce553a77.
+The host supplied an identity zonedCallback shim; this did not import the full
+NativeScript application. The DLL hash is unchanged from the earlier probes.
+Logs: `research/windows61/windy-native-connectivity-core.log` and
+`research/windows61/windy-native-connectivity-reference.log`. These checks do
+not qualify app integration, event delivery, every adapter type or reconnect.
+The one-argument asDelegate form works here; no core delegate patch was needed.
+
+Before reusing that backend for Windows queries, seven lifecycle regressions
+all failed against the retained previous platform connectivity source. They
+now pass against the repair in the isolated windy Turbo test:network-owner
+fixture, exit 0, one uncached task and no dependency builds. The tests run the
+actual TypeScript module with a fake NativeScript Connectivity object. Each
+registration owns its callback even when callbacks repeat; failed initial
+reads/callbacks and partial native startup roll back. Dispatch skips removed
+callbacks and does not deliver an extra initial event to newly added readers.
+Reentrant startup shares one monitor; teardown is idempotent. A failed rollback
+preserves the original startup error. Log:
+`research/windows61/windy-connectivity-lifecycle-contracts.log` (expected
+baseline failures and final seven-pass run kept together).
+
+This repair changes the shared NativeScript default used by iOS/Android and
+Windows; separate AppKit/browser leaves are unchanged. The initial module
+shipped in stable tags containing b24fdf3 (including v0.10.0), so a fix note was
+added. Public docs and service guidance show independent teardown. Recipes
+retain their existing target scope. NativeScript iOS/Android and real Windows
+subscription/transition behavior, full platform/dependent tests/typechecks,
+consumer/declaration checks and app builds remain deferred at the existing
+commands; this is not a Windows workflow qualification.
+
+The shared local tooling dependencies are available again. Current formatter
+and targeted lint checks now pass for the changed connectivity/environment
+files and tests, plus the earlier Windows app-info source/test. Earlier
+missing-dependency attempts remain recorded; the app-info formatter/lint debt
+is cleared. Recipe structure and whitespace checks passed. No dependency
+install or shared installation repair was performed by this task.

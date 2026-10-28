@@ -362,6 +362,25 @@ and queue behavior have not been verified for this implementation.
 
 AppKit semantics follow Apple's [announcement notification documentation](https://developer.apple.com/documentation/appkit/nsaccessibility-swift.struct/notification/announcementrequested).
 
+## Watch network state
+
+Subscribe to `connectivity` while a feature needs updates, then call the returned
+function to release that subscription. NativeScript subscribers share one OS
+monitor; registering the same callback twice still gives each registration its
+own teardown. A failed initial read, callback or monitor startup rolls back that
+registration. A connection type describes the host connection, not whether a
+particular server will answer your request.
+
+```ts
+import { connectivity, type ConnectivityState } from '@octane-xplat/platform'
+
+const onNetwork = (state: ConnectivityState) => console.log(state.online, state.type)
+const stopFirst = connectivity.subscribe(onNetwork)
+const stopSecond = connectivity.subscribe(onNetwork)
+stopFirst() // The second registration still receives updates.
+stopSecond()
+```
+
 ## Store a session token
 
 Use `@octane-xplat/secure-storage` for secrets such as a token returned by your

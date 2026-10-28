@@ -328,6 +328,20 @@ export async function showSettings() {
 }
 ```
 
+## Native connectivity ownership
+
+Framework NativeScript connectivity subscribers share one core monitor. Keep
+each returned teardown: repeated callbacks have independent registrations.
+Failed initial callbacks/reads or monitor setup roll back their registration;
+callbacks added during dispatch receive their initial state once and wait for
+the next event. Do not bypass the facade to add another core monitor owner.
+
+```ts
+import { connectivity } from '@octane-xplat/platform'
+
+const stop = connectivity.subscribe(state => console.log(state.type))
+stop()
+```
 ## SQLite transactions
 
 Use the callback's handle for every awaited transaction operation. Main-handle

@@ -47,8 +47,10 @@ function notify(value: number) {
 
 	const type = connectionType(value)
 	const state = { online: type !== 'none', type }
-	for (const listener of listeners) {
-		listener(state)
+	for (const listener of Array.from(listeners)) {
+		if (listeners.has(listener)) {
+			listener(state)
+		}
 	}
 }
 
@@ -57,8 +59,19 @@ function startMonitoring() {
 		return
 	}
 
-	Connectivity.startMonitoring(notify)
 	monitoring = true
+	try {
+		Connectivity.startMonitoring(notify)
+	} catch (error) {
+		monitoring = false
+		try {
+			Connectivity.stopMonitoring()
+		} catch {
+			// Rollback must preserve the original startup failure.
+		}
+
+		throw error
+	}
 }
 
 function stopMonitoring() {
@@ -66,18 +79,33 @@ function stopMonitoring() {
 		return
 	}
 
-	Connectivity.stopMonitoring()
 	monitoring = false
+	Connectivity.stopMonitoring()
 }
 
 export const connectivity: ConnectivityImpl = {
 	getState: read,
 	subscribe(listener) {
-		listeners.add(listener)
-		listener(read())
-		startMonitoring()
+		// A repeated callback still owns a distinct subscription and teardown.
+		const callback = (state: ConnectivityState) => listener(state)
+		listeners.add(callback)
+		try {
+			callback(read())
+			startMonitoring()
+		} catch (error) {
+			listeners.delete(callback)
+			if (listeners.size === 0) {
+				try {
+					stopMonitoring()
+				} catch {}
+			}
+
+			throw error
+		}
 		return () => {
-			listeners.delete(listener)
+			if (!listeners.delete(callback)) {
+				return
+			}
 			if (listeners.size === 0) {
 				stopMonitoring()
 			}
