@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { createRoot, useRef, useState } from 'octane'
 import { BottomSheet as PlatformBottomSheet } from '../../../packages/sheet/src/web/index'
 
