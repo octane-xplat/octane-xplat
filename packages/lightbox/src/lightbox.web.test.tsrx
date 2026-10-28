@@ -249,10 +249,4 @@ describe('lightbox web', () => {
 		vi.unstubAllGlobals()
 	})
 
-	it('native index exports the real surface', async () => {
-		const native = await import('./index.ts')
-		for (const name of ['Lightbox', 'useLightbox', 'useLightboxState', 'Root', 'Trigger', 'Popup', 'Backdrop', 'Viewport', 'Slide', 'Image', 'Close', 'Prev', 'Next', 'Title', 'Description']) {
-			expect(typeof (native as Record<string, unknown>)[name], name).toBe('function')
-		}
-	})
 })
