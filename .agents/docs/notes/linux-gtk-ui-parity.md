@@ -43,14 +43,14 @@ compatibility rather than widget execution.
 
 ## Implementation order
 
-| Priority | Work | Required evidence |
-| --- | --- | --- |
-| 1. Primitives | View, Text, Pressable, gestures, ref/property semantics, icons/images | Mount/update/dispose; pointer press/cancel/drag; attributed text and image behavior |
-| 2. Layout | Stack family, Grid, Layout regions, measurement, scrolling | XplatMason allocations, track/span changes, overflow, retained widget identity and cleanup |
-| 3. Inputs | TextInput/TextArea, selection, checkbox/radio, slider, pickers | Controlled writes without feedback loops, selection, disabled/read-only behavior, keyboard/IME and OS input |
-| 4. Overlays | Layer host, portals, menus, dialogs, sheets, tooltips, toast | Provider ownership, focus, outside dismissal, stacking, geometry and disposal |
-| 5. Navigation | Root route outlet, app/navigation chrome, retained panes and windows | Push/Back retention, route lifetimes, modal behavior and actual input |
-| 6. Theme | OS appearance, preference persistence, tokens, sizing, i18n | OS-change subscriptions, scoped updates, persistence and process restart |
+| Priority      | Work                                                                  | Required evidence                                                                                           |
+| ------------- | --------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| 1. Primitives | View, Text, Pressable, gestures, ref/property semantics, icons/images | Mount/update/dispose; pointer press/cancel/drag; attributed text and image behavior                         |
+| 2. Layout     | Stack family, Grid, Layout regions, measurement, scrolling            | XplatMason allocations, track/span changes, overflow, retained widget identity and cleanup                  |
+| 3. Inputs     | TextInput/TextArea, selection, checkbox/radio, slider, pickers        | Controlled writes without feedback loops, selection, disabled/read-only behavior, keyboard/IME and OS input |
+| 4. Overlays   | Layer host, portals, menus, dialogs, sheets, tooltips, toast          | Provider ownership, focus, outside dismissal, stacking, geometry and disposal                               |
+| 5. Navigation | Root route outlet, app/navigation chrome, retained panes and windows  | Push/Back retention, route lifetimes, modal behavior and actual input                                       |
+| 6. Theme      | OS appearance, preference persistence, tokens, sizing, i18n           | OS-change subscriptions, scoped updates, persistence and process restart                                    |
 
 Prefer renderer fixes to copies of reusable UI leaves. Add `.gtk` leaves where
 the shared implementation depends on another host's APIs. Do not export a
@@ -767,7 +767,6 @@ composition criteria remain unqualified on GTK. linux-gtk-package keeps its
 artifact boundary and has no new packaged-consumer execution. Full criteria
 and target lists are retained; GTK assessments belong in gtk_recipe_checks.
 
-
 ## Multiline editor foundation
 
 The renderer registers textview as a real Gtk.TextView backed by Gtk.TextBuffer.
@@ -804,7 +803,6 @@ The maintained ui-text-area fixture records native geometry and cleanup,
 separately from OS input. See [sizing evidence and remaining contracts](linux-gtk-renderer.md#textarea-row-sizing-on-gtk).
 TextArea stays unexported; root availability remains 38 values/64 types.
 
-
 Verification for this slice: all 41 maintained renderer tests pass on the
 andromeda Linux guest with no skips; the sizing fixture has 24 native-geometry
 assertions. All 58 affected/dependent Turbo typecheck tasks, the 58 Node native
@@ -827,7 +825,6 @@ Physical host placement, styling and lifecycle have native container cases;
 see the [renderer record](linux-gtk-renderer.md#native-multiline-scrolling-and-physical-hosts).
 TextArea remains outside the curated root pending its remaining field/input
 contracts; root availability stays 38 values/64 types.
-
 
 Verification for the scrolling-host slice: all 41 Linux renderer tests pass
 with no skips; ui-text-area has 106 assertions and ui-text-view retains 59.
@@ -882,3 +879,18 @@ the [length-limit evidence](linux-gtk-renderer.md#multiline-length-limits)
 records the exact release source and the source-cache mismatch.
 No GTK root exports are added; stable automatic field/width/handle ownership,
 text alignment, custom line spacing and complete shared props remain.
+
+### Stable TextArea field ownership and label focus
+
+The automatic field now stays mounted while chrome changes, preserving the
+native editor and uncontrolled state. Nested fields inherit defaults without
+duplicate chrome, widths or hints. Native labels request focus through a
+scoped logical id lookup; automatic TextInput/TextArea fields preserve explicit
+control ids separately from automation names.
+
+Linux runtime checks pass TextArea195/field chrome61 and all42 renderer tests.
+All58 affected/dependent typecheck tasks, six packaging tasks and selected
+native58 Node/7 Vitest tests pass. TextArea remains unexported pending text
+alignment, custom line spacing and remaining shared props; curated root
+availability stays38 values/64 types. See the
+[renderer evidence](linux-gtk-renderer.md#stable-multiline-fields-and-native-label-activation).

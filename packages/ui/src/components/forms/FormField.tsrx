@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
-import { useContext, useId } from 'octane'
+import { useContext, useId, useRef } from 'octane'
 import type { FormFieldProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
@@ -16,6 +16,7 @@ import { nativeFieldStatusVariant } from '../../field-status-variant'
  *  has no native analog. Form-wide optionality suppresses redundant markers. */
 export function FormField(props: FormFieldProps): unknown @{
 	const generatedControlId = useId()
+	const fieldRef = useRef<any>(null)
 	const form = useContext(FormLayoutContext)
 	const isHorizontalLabels = form.direction === 'horizontal-labels'
 	const controlId = props.inputID ?? generatedControlId
@@ -54,7 +55,10 @@ export function FormField(props: FormFieldProps): unknown @{
 				className="vx-field-label-row"
 				style={mergeStyle({ flexDirection: 'row', alignItems: 'center' }, { display: 'flex' })}
 			>
-				<label id={labelId} className="vx-field-label" text={labelText} />
+				<label id={labelId} className="vx-field-label" text={labelText}
+					onTap={() => {
+						if (!props.isDisabled) fieldRef.current?.getViewById?.(controlId)?.focus?.()
+					}} />
 				{props.labelTooltip != null ? (
 					<Tooltip
 						trigger={
@@ -124,7 +128,7 @@ export function FormField(props: FormFieldProps): unknown @{
 
 	@if (isHorizontalLabels) {
 		<masonview
-			ref={(v: any) => applyEscapeProps(v, props)}
+			ref={(v: any) => { fieldRef.current = v; applyEscapeProps(v, props) }}
 			id={props.id}
 			className={cx(rootClass, 'vx-field--hl')}
 			style={mergeStyle({ flexDirection: 'row' }, mergeStyle({ display: 'flex' }, fieldStyle))}
@@ -146,7 +150,7 @@ export function FormField(props: FormFieldProps): unknown @{
 		</masonview>
 	} @else {
 		<masonview
-			ref={(v: any) => applyEscapeProps(v, props)}
+			ref={(v: any) => { fieldRef.current = v; applyEscapeProps(v, props) }}
 			id={props.id}
 			className={rootClass}
 			style={mergeStyle({ display: 'flex' }, fieldStyle)}

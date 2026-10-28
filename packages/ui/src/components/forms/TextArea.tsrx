@@ -90,7 +90,13 @@ function TextAreaControl(inputProps: TextAreaProps) @{
 				props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label
 			}
 			accessibilityHint={props.accessibilityHint}
-			accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled })}
+			accessibilityState={nativeAccessibilityState({
+				disabled: props.isDisabled,
+				readOnly: props.isReadOnly,
+				required: props.isRequired,
+				busy: props.isLoading,
+				invalid: props.status?.type === 'error',
+			})}
 			keyboardType={props.keyboardType === 'default' ? undefined : props.keyboardType}
 			returnKeyType={props.returnKeyType}
 			isEnabled={!props.isDisabled}
@@ -111,33 +117,34 @@ function TextAreaControl(inputProps: TextAreaProps) @{
 
 /** Standalone text areas render Astryx's visible field chrome: outside a
  *  FormField, wrap the control in one (label, description, status). Inside a
- *  field the FormField owns that chrome, so the control renders bare. */
-export function TextArea(props: TextAreaProps): unknown @{
+ *  field the FormField owns that chrome, so the control renders bare. Keep
+ *  the automatic field owner mounted while labels and status change, so
+ *  uncontrolled text, native focus, selection and handles survive. */
+export function TextArea(inputProps: TextAreaProps): unknown @{
 	const inField = useContext(FieldContext) != null
-	const needsChrome =
-		!inField &&
-		(props.label != null ||
-			props.description != null ||
-			props.status != null ||
-			props.isRequired ||
-			props.isOptional)
+	const props = useFieldControlProps(inputProps)
 
-	@if (needsChrome) {
+	@if (inField) {
+		<TextAreaControl {...inputProps} />
+	} @else {
 		<FormField
+			inputID={props.id}
 			label={props.label}
 			description={props.description}
 			status={props.status}
+			statusVariant={props.statusVariant}
 			isRequired={props.isRequired}
 			isOptional={props.isOptional}
 			isLabelHidden={props.isLabelHidden}
 			isDisabled={props.isDisabled}
+			isReadOnly={props.isReadOnly}
+			isLoading={props.isLoading}
+			size={props.size}
 			labelTooltip={props.labelTooltip}
 			disabledMessage={props.disabledMessage}
 			width={props.width}
 		>
-			<TextAreaControl {...props} />
+			<TextAreaControl {...inputProps} />
 		</FormField>
-	} @else {
-		<TextAreaControl {...props} />
 	}
 }

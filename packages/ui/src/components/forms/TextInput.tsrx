@@ -150,6 +150,7 @@ export function TextInput(inputProps: TextInputProps): unknown @{
 		<TextInputControl {...inputProps} />
 	} @else {
 		<FormField
+			inputID={props.id}
 			label={props.label}
 			description={props.description}
 			status={props.status}

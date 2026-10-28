@@ -87,7 +87,7 @@ test(
 						String(phase.repeat ?? 6),
 						'--delay',
 						'35',
-						phase.phase === 'hint-click' ? '1' : phase.phase.endsWith('down') ? '5' : '4',
+						phase.phase.endsWith('-click') ? '1' : phase.phase.endsWith('down') ? '5' : '4',
 					)
 				}
 				send('key', 'F12')
@@ -96,7 +96,7 @@ test(
 				child.kill()
 			}
 		})
-		const deadline = setTimeout(() => child.kill(), 50000)
+		const deadline = setTimeout(() => child.kill(), 75000)
 		t.after(() => {
 			clearTimeout(deadline)
 			lines.close()
@@ -112,7 +112,7 @@ test(
 		const line = stdout.split('\n').find((line) => line.startsWith('GTK_TEXT_AREA '))
 		assert.ok(line, stdout)
 		const result = JSON.parse(line.slice('GTK_TEXT_AREA '.length))
-		assert.ok(result.checks >= (osInput ? 145 : 107), JSON.stringify(result))
+		assert.ok(result.checks >= (osInput ? 195 : 151), JSON.stringify(result))
 		assert.equal(result.osInput, osInput)
 		t.diagnostic(
 			process.platform +

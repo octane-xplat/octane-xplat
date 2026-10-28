@@ -112,7 +112,7 @@ suffix:
   `customConditions ['gtk']`, `lib ESNext` (no DOM lib), ambient
   `host-globals.d.ts`
 - `packages/cli/src/vite.mjs`: `PLATFORM_TAG` + `boundaryAllowed.gtk =
-  {'gtk'}` — `.linux` leaves are foreign in a GTK bundle (tested)
+{'gtk'}` — `.linux` leaves are foreign in a GTK bundle (tested)
 - `packages/lint/src/xplat-rules.ts`: `.gtk` in the platform suffixes, `isNativeFile`,
   and the `.gtk.tsrx` pragma rule expecting
   `/** @jsxImportSource @octane-xplat/linux-gtk */`
@@ -1068,7 +1068,6 @@ Sources: [GTK widget Pango layouts](https://docs.gtk.org/gtk4/method.Widget.crea
 Actual platform evidence is the andromeda Ubuntu guest, GJS 1.80.2/GTK 4.14.5,
 not a Homebrew stand-in or a phone run.
 
-
 Verification for this slice: all 41 maintained renderer tests pass on the
 andromeda Linux guest with no skips; the sizing fixture has 24 native-geometry
 assertions. All 58 affected/dependent Turbo typecheck tasks, the 58 Node native
@@ -1081,7 +1080,6 @@ Logs: /tmp/gtk-textarea-rows-full.log in the guest, and
 /tmp/gtk-textarea-rows-types-final.log, /tmp/gtk-textarea-rows-native-final.log
 and /tmp/gtk-textarea-rows-pack-final.log on andromeda.
 
-
 ## Native multiline scrolling and physical hosts
 
 A capped Gtk.TextView had a vertical adjustment range and native keyboard
@@ -1092,10 +1090,10 @@ Gtk.ScrolledWindow, which supplies GTK's scrolling behavior. The public ref,
 text/selection facade, CSS body, focus, accessibility metadata and text events
 remain on the real Gtk.TextView.
 
-| ElementNode field | Owner |
-| --- | --- |
-| view | Native editor and public reference |
-| layoutView | Private scrolling host, mount/measure, size, visibility, sensitivity, alignment, opacity and transforms |
+| ElementNode field | Owner                                                                                                   |
+| ----------------- | ------------------------------------------------------------------------------------------------------- |
+| view              | Native editor and public reference                                                                      |
+| layoutView        | Private scrolling host, mount/measure, size, visibility, sensitivity, alignment, opacity and transforms |
 
 Non-composite nodes keep their original single-widget path. Mason measures
 and allocates the physical host; Box, Fixed and Grid placement, viewless
@@ -1126,7 +1124,6 @@ recreation with restored focus and text-change bindings. The previous
 do not promote TextArea to the GTK UI root. Placeholder/maxLength, stable
 automatic field/controlled ownership, custom line spacing, IME/OSK/AT-client,
 Wayland/touchpad gestures, HiDPI and visual parity remain outside qualification.
-
 
 Verification for the scrolling-host slice: all 41 Linux renderer tests pass
 with no skips; ui-text-area has 106 assertions and ui-text-view retains 59.
@@ -1162,8 +1159,14 @@ and allocation signals, including role recreation.
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 export function Notes() {
-  return <textview text="" hint="Write a note" accessibilityLabel="Notes"
-    style={{ width: 260, height: 120, placeholderColor: '#777' }} />
+	return (
+		<textview
+			text=""
+			hint="Write a note"
+			accessibilityLabel="Notes"
+			style={{ width: 260, height: 120, placeholderColor: '#777' }}
+		/>
+	)
 }
 ```
 
@@ -1309,8 +1312,7 @@ test checks finite, zero and removed values.
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 export function ShortNote() {
-  return <textview text="" maxLength={200}
-    onTextChange={(event) => console.log(event.value)} />
+	return <textview text="" maxLength={200} onTextChange={(event) => console.log(event.value)} />
 }
 ```
 
@@ -1377,3 +1379,41 @@ Final logs: guest /tmp/gtk-maxlength-full.log; andromeda
 /tmp/gtk-maxlength-types.log and /tmp/gtk-maxlength-pack.log.
 No new dependency, public GTK root export, native facade rebuild, broad native
 suite rerun or phone-runtime qualification.
+
+## Stable multiline fields and native label activation
+
+Adding a label to an uncontrolled TextArea previously replaced its native
+editor. The automatic FormField now stays mounted, preserving text, focus,
+selection and the public handle across label/description/status changes.
+Resolved defaults reach the wrapper and original props reach the control;
+percentage widths and accessibility hints are applied once. The wrapper
+forwards size, status variant, read-only and loading, while native metadata
+includes required/busy/invalid. Loading alone leaves editing enabled.
+
+Native FormField labels were static in v0.17.1 too. They now resolve the
+associated control and request focus, skipping disabled fields. Automatic
+TextInput and TextArea wrappers pair inputID with an explicit child id.
+GTK getViewById follows the receiver's logical subtree, including viewless
+nodes, and ignores automation names. Destroyed nodes and disposed receivers
+are inert. This follows the existing
+[NativeScript 9.1.3 lookup contract](https://github.com/NativeScript/NativeScript/blob/45b3b99afd89f19e799da84203aa19d673f7b20a/packages/core/ui/core/view-base/index.ts#L120-L149);
+it does not invent a Page host.
+
+Actual X11 clicks focus both an automatic TextArea and a nested read-only
+editor, as well as the existing TextInput field. Direct-source tests also
+cover inherited defaults, explicit child label overrides, hint deduplication,
+width removal, busy editing, disabled behavior and stale lookup cleanup.
+A cleared accessibility flag can be explicitly false; it need not disappear.
+An explicit child label intentionally overrides its parent field label.
+Those were corrected test expectations. A missing fixture variable was also
+corrected before the final run; it was not a framework defect.
+
+On Linux GTK4.14.5/GJS1.80.2, focused checks pass TextArea195/field chrome61.
+The full renderer suite passes all42 tests with no skips. Selected native
+tests pass58 Node checks and7 Vitest tests; all58 affected/dependent typecheck
+tasks and six UI package validation tasks pass. These are Linux/X11 runtime
+checks and native object-driver checks, not phone, IME, OSK, AT-client,
+Wayland, HiDPI or visual qualification. TextArea remains outside the GTK root.
+Logs: guest /tmp/gtk-textarea-field-final-focused.log and
+/tmp/gtk-textarea-field-full.log; andromeda /tmp/gtk-textarea-field-types.log,
+/tmp/gtk-textarea-field-native-final.log and /tmp/gtk-textarea-field-pack.log.

@@ -1,7 +1,7 @@
 import { bindTooltips } from './tooltip-instance.js'
 import { bindMotion } from './motion-instance.js'
 import { bindScrolling } from './scroll-instance.js'
-import type { ElementNode } from './index.js'
+import type { ElementNode, GtkView } from './index.js'
 
 export interface GtkBounds {
 	x: number
@@ -81,6 +81,21 @@ export function bindPublicInstance(
 	let tick: number | null = null
 	let previous: string | undefined
 	const listeners = new Map<RefEvent, Set<Listener>>()
+	// Match native view lookup on the logical subtree, including viewless
+	// parents. Automation names and private GTK control hosts are separate.
+	view.getViewById = (id: string): GtkView | undefined => {
+		if (disposed) return undefined
+		const find = (current: ElementNode): GtkView | undefined => {
+			if (current.destroyed) return undefined
+			if (current.view && current.props.id === id) return current.view
+			for (const child of current.children) {
+				const match = find(child)
+				if (match) return match
+			}
+			return undefined
+		}
+		return find(node)
+	}
 	view.focus = () => !disposed && view.grab_focus()
 	view.blur = () => {
 		if (disposed) return

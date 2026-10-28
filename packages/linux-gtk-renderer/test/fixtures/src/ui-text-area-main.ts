@@ -6,6 +6,7 @@ import GLib from 'gi://GLib'
 import { createGtkRoot } from '@octane-xplat/linux-gtk'
 import {
 	TextAreaHarness,
+	NestedAreaHarness,
 	areaRef,
 	StandaloneEditor,
 	standaloneRef,
@@ -341,6 +342,242 @@ async function run() {
 	buffer.insert_at_cursor('Retired buffer edit', -1)
 	check('retired buffer cannot update the detached hint', hint.get_visible())
 	await pause(40)
+	const fieldHarness = createGtkRoot(host, {
+		onUncaughtError(error) {
+			throw error
+		},
+	})
+	let fieldProps: Parameters<typeof TextAreaHarness>[0] = {
+		defaultValue: 'Local',
+		testID: 'draft-automation',
+		rows: 2,
+		style: { fontSize: 26, padding: 0, borderWidth: 0, margin: 0 },
+	}
+	const fieldRender = async (next: Partial<typeof fieldProps>) => {
+		fieldProps = { ...fieldProps, ...next }
+		fieldHarness.root.render(TextAreaHarness, fieldProps)
+		await pause()
+	}
+	const fieldNodes = (name: string) =>
+		[...fieldHarness.container.nodes.values()].filter((n) => n.cssClasses?.has(name))
+	await fieldRender({})
+	const localArea = areaRef.current!.native as any
+	localArea.focus()
+	localArea.set_position(5)
+	if (osInput) await input(localArea, 'type-X')
+	else {
+		localArea.get_buffer().insert_at_cursor('X', -1)
+		await pause()
+	}
+	check('uncontrolled edit is retained locally', localArea.text === 'LocalX')
+	localArea.select_region(4, 1)
+	await fieldRender({ label: 'Draft' })
+	check('adding a label retains the native editor', areaRef.current!.native === localArea)
+	check('adding a label retains uncontrolled text', localArea.text === 'LocalX')
+	check('adding a label retains native focus', window.get_focus() === localArea)
+	check(
+		'adding a label retains backward selection',
+		localArea.get_position() === 1 && localArea.get_selection_bounds().slice(1).join(',') === '1,4',
+	)
+	if (osInput) {
+		window.set_focus(null)
+		await input(fieldNodes('vx-field-label')[0].view, 'label-click', 1)
+		check(
+			'automatic label focuses an explicitly identified editor',
+			window.get_focus() === localArea,
+		)
+	}
+	await fieldRender({
+		description: 'Keep this text',
+		accessibilityHint: 'Extra context',
+		width: '50%',
+		isRequired: true,
+		isReadOnly: true,
+		isLoading: true,
+		size: 'sm',
+	})
+	const chrome = fieldNodes('vx-field')[0]
+	check('standalone TextArea owns one automatic field', fieldNodes('vx-field').length === 1)
+	check('standalone width applies once to its field', close(chrome.view!.getBounds().width, 150))
+	check('field width reaches the native editor once', close(localArea.get_width(), 150))
+	check('readonly state reaches field chrome', chrome.cssClasses!.has('vx-field--readonly'))
+	check('loading state reaches field chrome', chrome.cssClasses!.has('vx-field--loading'))
+	check('size reaches field chrome', chrome.cssClasses!.has('vx-field--size-sm'))
+	check(
+		'readonly keeps a sensitive, noneditable editor',
+		localArea.is_sensitive() && !localArea.get_editable(),
+	)
+	check(
+		'required metadata reaches the editor',
+		native.test_accessible_boolean_property(localArea, Gtk.AccessibleProperty.REQUIRED, true) ===
+			null,
+	)
+	check(
+		'busy metadata reaches the editor',
+		native.test_accessible_state(localArea, Gtk.AccessibleState.BUSY, 1) === null,
+	)
+	check(
+		'visible field label names the editor',
+		native.test_accessible_string_property(localArea, Gtk.AccessibleProperty.LABEL, 'Draft') ===
+			null,
+	)
+	check(
+		'field description and own hint are combined once',
+		native.test_accessible_string_property(
+			localArea,
+			Gtk.AccessibleProperty.DESCRIPTION,
+			'Extra context. Keep this text',
+		) === null,
+	)
+	await fieldRender({ status: { type: 'error', message: 'Try again' }, statusVariant: 'tooltip' })
+	check('status variant reaches field chrome', chrome.cssClasses!.has('vx-field--status-tooltip'))
+	check('tooltip status has no duplicate inline status', fieldNodes('vx-field-status').length === 0)
+	check(
+		'error state reaches the native editor',
+		native.test_accessible_state(
+			localArea,
+			Gtk.AccessibleState.INVALID,
+			Gtk.AccessibleInvalidState.TRUE,
+		) === null,
+	)
+	check(
+		'status joins the native hint without duplication',
+		native.test_accessible_string_property(
+			localArea,
+			Gtk.AccessibleProperty.DESCRIPTION,
+			'Extra context. Keep this text. Try again',
+		) === null,
+	)
+	check(
+		'field updates retain editor and text',
+		areaRef.current!.native === localArea && localArea.text === 'LocalX',
+	)
+	await fieldRender({
+		label: undefined,
+		description: undefined,
+		status: undefined,
+		statusVariant: undefined,
+		width: undefined,
+		isRequired: false,
+		isReadOnly: false,
+		isLoading: false,
+		size: undefined,
+	})
+	check(
+		'removing chrome retains the editor and local text',
+		areaRef.current!.native === localArea && localArea.text === 'LocalX',
+	)
+	check('removing field width restores available width', close(localArea.get_width(), 300))
+	check('readonly reset reaches native editability', localArea.get_editable())
+	check(
+		'required metadata clears with the field flag',
+		native.test_accessible_boolean_property(localArea, Gtk.AccessibleProperty.REQUIRED, false) ===
+			null,
+	)
+	check(
+		'busy metadata clears with the field flag',
+		native.test_accessible_state(localArea, Gtk.AccessibleState.BUSY, 0) === null,
+	)
+	check(
+		'invalid metadata clears with status removal',
+		native.test_accessible_state(localArea, Gtk.AccessibleState.INVALID, 0) === null,
+	)
+	check(
+		'field descriptions clear while own hint stays',
+		native.test_accessible_string_property(
+			localArea,
+			Gtk.AccessibleProperty.DESCRIPTION,
+			'Extra context',
+		) === null,
+	)
+	await fieldRender({ isLoading: true })
+	check(
+		'loading keeps a sensitive editable editor',
+		localArea.is_sensitive() && localArea.get_editable(),
+	)
+	localArea.focus()
+	localArea.set_position(localArea.get_buffer().get_char_count())
+	if (osInput) await input(localArea, 'type-Y')
+	else {
+		localArea.get_buffer().insert_at_cursor('Y', -1)
+		await pause()
+	}
+	check('loading does not block native editing', localArea.text === 'LocalXY')
+	await fieldRender({ isDisabled: true, isLoading: false })
+	check(
+		'disabled state reaches the editor and chrome',
+		!localArea.is_sensitive() && chrome.cssClasses!.has('vx-field--disabled'),
+	)
+	await fieldRender({ isDisabled: false })
+	areaRef.current!.focus()
+	check('retained public handle still focuses the editor', window.get_focus() === localArea)
+	fieldHarness.root.render(NestedAreaHarness, {})
+	await pause()
+	const nestedArea = areaRef.current!.native as any
+	const nestedField = fieldNodes('vx-field')[0].view!
+	check('native ID lookup ignores automation names', nestedField.getViewById('area') === nestedArea)
+	check(
+		'native ID lookup stays within its subtree',
+		nestedField.getViewById('outside-area') === undefined,
+	)
+	check(
+		'external field does not create an automatic duplicate',
+		fieldNodes('vx-field').length === 1,
+	)
+	check(
+		'external field owns its percentage width once',
+		close(fieldNodes('vx-field')[0].view!.getBounds().width, 240) &&
+			close(nestedArea.get_width(), 240),
+	)
+	check(
+		'external field readonly state is inherited',
+		!nestedArea.get_editable() && nestedArea.is_sensitive(),
+	)
+	check(
+		'external field required metadata is inherited',
+		native.test_accessible_boolean_property(nestedArea, Gtk.AccessibleProperty.REQUIRED, true) ===
+			null,
+	)
+	check(
+		'external field busy metadata is inherited',
+		native.test_accessible_state(nestedArea, Gtk.AccessibleState.BUSY, 1) === null,
+	)
+	check(
+		'external label owns the accessible name',
+		native.test_accessible_string_property(
+			nestedArea,
+			Gtk.AccessibleProperty.LABEL,
+			'Outer notes',
+		) === null,
+	)
+	if (osInput) {
+		const label = [...fieldHarness.container.nodes.values()].find(
+			(n) => n.view instanceof Gtk.Label && n.view.get_text().startsWith('Outer notes'),
+		)!
+		window.set_focus(null)
+		await input(label.view, 'label-click', 1)
+		check(
+			'actual outer label click focuses the multiline editor',
+			window.get_focus() === nestedArea,
+		)
+	}
+	fieldHarness.root.render(NestedAreaHarness, { childLabel: 'Specific editor name' })
+	await pause()
+	check(
+		'explicit child label can override its accessible name',
+		native.test_accessible_string_property(
+			nestedArea,
+			Gtk.AccessibleProperty.LABEL,
+			'Specific editor name',
+		) === null,
+	)
+	check(
+		'child naming does not add visible field chrome',
+		fieldNodes('vx-field').length === 1 && areaRef.current!.native === nestedArea,
+	)
+	fieldHarness.root.unmount()
+	check('field-owned public handle clears on disposal', areaRef.current === null)
+	check('disposed field lookup is inert', nestedField.getViewById('area') === undefined)
 	const hosts: Array<[string, any]> = [
 		['box', new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })],
 		['fixed', new Gtk.Fixed()],

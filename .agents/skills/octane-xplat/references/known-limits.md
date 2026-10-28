@@ -67,11 +67,16 @@ behavior remain unqualified.
 import { Pressable, Text } from '@octane-xplat/ui'
 
 export function SaveAction(props: { disabled: boolean; save: () => void }) {
-  return (
-    <Pressable accessibilityRole="button" accessibilityLabel="Save" disabled={props.disabled} onPress={props.save}>
-      <Text>Save</Text>
-    </Pressable>
-  )
+	return (
+		<Pressable
+			accessibilityRole="button"
+			accessibilityLabel="Save"
+			disabled={props.disabled}
+			onPress={props.save}
+		>
+			<Text>Save</Text>
+		</Pressable>
+	)
 }
 ```
 
@@ -112,7 +117,7 @@ version-specific limit; that note records a mismatched source cache.
 /** @jsxImportSource @octane-xplat/jsx */
 import { TextInput } from '@octane-xplat/ui'
 export function AccountEntry() {
-  return <TextInput label="Account" defaultValue="12" hasClear width="75%" />
+	return <TextInput label="Account" defaultValue="12" hasClear width="75%" />
 }
 ```
 
@@ -127,3 +132,20 @@ handle, when testing identity. Controlled native edits need reconciliation
 even when the parent rejects a value without changing props; the existing
 effect reads an edit revision for this. Pass original props to the control
 and resolved defaults to the wrapper so composed hints are not doubled.
+
+### Native field ownership and lookup
+
+Keep the automatic TextArea field mounted while label, description and status
+change. Pass original control props to the child and resolved defaults to the
+wrapper so hints and percentage widths are applied once. Loading announces
+busy state without disabling editing; read-only and disabled remain separate.
+
+For an explicit child id inside Field, pair Field.inputID with that id.
+Automatic TextInput/TextArea wrappers do this themselves. Native label taps
+resolve the id inside the logical field subtree, including viewless parents;
+testID is an independent automation name. GTK getViewById becomes inert on
+disposal. Do not fabricate a Page or search outside the receiver subtree.
+
+The direct-source TextArea field checks pass on Linux, but text alignment,
+custom line spacing and remaining shared props still need qualification before
+adding it to the GTK root.

@@ -88,12 +88,12 @@ status badge in a horizontal row:
 import { Stack, Text, Badge } from '@octane-xplat/ui'
 
 export function BuildStatus() {
-  return (
-    <Stack direction="horizontal" gap={2}>
-      <Text>Linux build</Text>
-      <Badge label="Ready" />
-    </Stack>
-  )
+	return (
+		<Stack direction="horizontal" gap={2}>
+			<Text>Linux build</Text>
+			<Badge label="Ready" />
+		</Stack>
+	)
 }
 ```
 
@@ -107,7 +107,7 @@ import { Icon, createIconRegistry } from '@octane-xplat/ui'
 const icons = createIconRegistry()
 icons.registerIcon('favorite', { svg: 'M12 2 15 8 22 9 17 14 18 22 12 18 6 22 7 14 2 9 9 8z' })
 export function FavoriteIcon() {
-  return <Icon name="favorite" registry={icons} size={24} accessibilityLabel="Favorite" />
+	return <Icon name="favorite" registry={icons} size={24} accessibilityLabel="Favorite" />
 }
 ```
 
@@ -121,6 +121,17 @@ icons.registerIcon('brand', { src: '~/brand.svg' })
 icons.registerIcon('remote-brand', { src: 'https://example.com/brand.svg' })
 ```
 
+`TextInput` labels focus their associated editor when clicked. Use `id` for the
+control's identity; `testID` names are for automation and do not replace it.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { TextInput } from '@octane-xplat/ui'
+export function Account() {
+	return <TextInput id="account" testID="account-editor" label="Account" />
+}
+```
+
 For a low-level textfield, GTK refs support focus and blur. Setting editable
 to false keeps the text selectable; isEnabled=false disables interaction.
 
@@ -130,18 +141,26 @@ import type { HostElement } from '@octane-xplat/jsx/intrinsics'
 import { Pressable, Text, View } from '@octane-xplat/ui'
 
 export function FocusableField() {
-  const field = useRef<HostElement | null>(null)
-  return (
-    <View>
-      <textfield ref={field} text="Copy this text" editable={false} />
-      <Pressable onPress={() => { field.current?.focus() }}>
-        <Text>Focus the field</Text>
-      </Pressable>
-      <Pressable onPress={() => { field.current?.blur() }}>
-        <Text>Release focus</Text>
-      </Pressable>
-    </View>
-  )
+	const field = useRef<HostElement | null>(null)
+	return (
+		<View>
+			<textfield ref={field} text="Copy this text" editable={false} />
+			<Pressable
+				onPress={() => {
+					field.current?.focus()
+				}}
+			>
+				<Text>Focus the field</Text>
+			</Pressable>
+			<Pressable
+				onPress={() => {
+					field.current?.blur()
+				}}
+			>
+				<Text>Release focus</Text>
+			</Pressable>
+		</View>
+	)
 }
 ```
 
@@ -158,21 +177,21 @@ import { useState } from 'octane'
 import { TextInput, Text, View } from '@octane-xplat/ui'
 
 export function AccountEntry() {
-  const [value, setValue] = useState('')
-  const [submitted, setSubmitted] = useState(false)
-  return (
-    <View>
-      <TextInput
-        label="Account"
-        placeholder="Work account"
-        value={value}
-        onChange={setValue}
-        hasClear
-        onSubmit={() => setSubmitted(true)}
-      />
-      <Text>{submitted ? 'Return received' : ''}</Text>
-    </View>
-  )
+	const [value, setValue] = useState('')
+	const [submitted, setSubmitted] = useState(false)
+	return (
+		<View>
+			<TextInput
+				label="Account"
+				placeholder="Work account"
+				value={value}
+				onChange={setValue}
+				hasClear
+				onSubmit={() => setSubmitted(true)}
+			/>
+			<Text>{submitted ? 'Return received' : ''}</Text>
+		</View>
+	)
 }
 ```
 
@@ -187,18 +206,20 @@ import { useState } from 'octane'
 import { TextInput } from '@octane-xplat/ui'
 
 export function ReferenceEntry() {
-  const [value, setValue] = useState('')
-  return (
-    <TextInput
-      label="Reference"
-      value={value}
-      onChange={(next) => { if (/^\d*$/.test(next)) setValue(next) }}
-      keyboardType="number"
-      isRequired
-      status={value ? undefined : { type: 'error', message: 'Enter digits' }}
-      statusVariant="tooltip"
-    />
-  )
+	const [value, setValue] = useState('')
+	return (
+		<TextInput
+			label="Reference"
+			value={value}
+			onChange={(next) => {
+				if (/^\d*$/.test(next)) setValue(next)
+			}}
+			keyboardType="number"
+			isRequired
+			status={value ? undefined : { type: 'error', message: 'Enter digits' }}
+			statusVariant="tooltip"
+		/>
+	)
 }
 ```
 
@@ -213,7 +234,7 @@ outside this qualification.
 import { TextInput } from '@octane-xplat/ui'
 
 export function SearchEntry(props: { search: () => void }) {
-  return <TextInput placeholder="Search" returnKeyType="search" onSubmit={props.search} />
+	return <TextInput placeholder="Search" returnKeyType="search" onSubmit={props.search} />
 }
 ```
 
@@ -248,15 +269,19 @@ values rather than storing an inert widget property.
 import { Pressable, Text, View, useAnimation } from '@octane-xplat/ui'
 
 export function SlidePreview() {
-  const offset = useAnimation(0, 'translateX')
-  return (
-    <View>
-      <View ref={offset.ref} style={{ width: 40, height: 40, backgroundColor: 'royalblue' }} />
-      <Pressable onPress={() => { void offset.to(100, { duration: 300 }) }}>
-        <Text>Slide</Text>
-      </Pressable>
-    </View>
-  )
+	const offset = useAnimation(0, 'translateX')
+	return (
+		<View>
+			<View ref={offset.ref} style={{ width: 40, height: 40, backgroundColor: 'royalblue' }} />
+			<Pressable
+				onPress={() => {
+					void offset.to(100, { duration: 300 })
+				}}
+			>
+				<Text>Slide</Text>
+			</Pressable>
+		</View>
+	)
 }
 ```
 
@@ -272,19 +297,26 @@ import { Pressable, ScrollableArea, Spinner, Text, View } from '@octane-xplat/ui
 import type { ScrollableAreaHandle } from '@octane-xplat/ui'
 
 export function Feed(props: { refreshing: boolean; refresh: () => void }) {
-  const area = useRef<ScrollableAreaHandle | null>(null)
-  return (
-    <View>
-      <ScrollableArea ref={area} width={240} height={160}
-        refreshing={props.refreshing} onRefresh={props.refresh}>
-        <View style={{ height: 600 }}><Text>Feed content</Text></View>
-      </ScrollableArea>
-      <Pressable onPress={() => area.current?.scrollToOffset({ block: 0 }, { animated: true })}>
-        <Text>Back to top</Text>
-      </Pressable>
-      <Spinner busy={props.refreshing} size="sm" label="Refreshing" />
-    </View>
-  )
+	const area = useRef<ScrollableAreaHandle | null>(null)
+	return (
+		<View>
+			<ScrollableArea
+				ref={area}
+				width={240}
+				height={160}
+				refreshing={props.refreshing}
+				onRefresh={props.refresh}
+			>
+				<View style={{ height: 600 }}>
+					<Text>Feed content</Text>
+				</View>
+			</ScrollableArea>
+			<Pressable onPress={() => area.current?.scrollToOffset({ block: 0 }, { animated: true })}>
+				<Text>Back to top</Text>
+			</Pressable>
+			<Spinner busy={props.refreshing} size="sm" label="Refreshing" />
+		</View>
+	)
 }
 ```
 
@@ -300,14 +332,18 @@ import { Text, useScrollableArea } from '@octane-xplat/ui'
 import type { HostElement } from '@octane-xplat/jsx/intrinsics'
 
 export function FeedViewport() {
-  const area = useScrollableArea<HostElement>({ axis: 'block' })
-  return (
-    <scrollview {...area.getViewportProps()} orientation="vertical" style={{ width: 200, height: 100 }}>
-      <masonview {...area.getContentProps()} style={{ height: 600 }}>
-        <Text>{area.state.block.atEnd ? 'End of feed' : 'Scroll for more'}</Text>
-      </masonview>
-    </scrollview>
-  )
+	const area = useScrollableArea<HostElement>({ axis: 'block' })
+	return (
+		<scrollview
+			{...area.getViewportProps()}
+			orientation="vertical"
+			style={{ width: 200, height: 100 }}
+		>
+			<masonview {...area.getContentProps()} style={{ height: 600 }}>
+				<Text>{area.state.block.atEnd ? 'End of feed' : 'Scroll for more'}</Text>
+			</masonview>
+		</scrollview>
+	)
 }
 ```
 
@@ -339,12 +375,9 @@ import { runGtkApp } from '@octane-xplat/linux-gtk/host'
 import { App } from './App.gtk'
 
 export function main(): number {
-	return runGtkApp(
-		{ applicationId: 'com.example.MyApp', title: 'My App' },
-		({ root }) => {
-			root.render(App, {})
-		},
-	)
+	return runGtkApp({ applicationId: 'com.example.MyApp', title: 'My App' }, ({ root }) => {
+		root.render(App, {})
+	})
 }
 
 main()
@@ -361,19 +394,25 @@ styles native widget chrome underneath your CSS.
 ```css
 /* src/app.css */
 .save:hover {
-  background-color: #2563eb;
+	background-color: #2563eb;
 }
 
 @keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
 }
 
 .toast {
-  animation: fade-in 200ms ease-out forwards;
+	animation: fade-in 200ms ease-out forwards;
 }
 ```
+
 \n
+
 ## Low-level multiline editor
 
 The GTK textview intrinsic supports multiline text, Unicode selection,
@@ -388,22 +427,21 @@ keeps a newline. Tab moves focus to the next control.
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 export function NotesEditor(props: { readOnly?: boolean }) {
-  return (
-    <textview
-      text={'A line\n'.repeat(20)}
-      editable={!props.readOnly}
-      hint="Write a note"
-      maxLength={200}
-      accessibilityLabel="Notes"
-      returnKeyType="done"
-      onTextChange={(event) => console.log(event.value)}
-      onReturnPress={() => console.log('Submitted')}
-      style={{ width: 260, height: 120, placeholderColor: '#777' }}
-    />
-  )
+	return (
+		<textview
+			text={'A line\n'.repeat(20)}
+			editable={!props.readOnly}
+			hint="Write a note"
+			maxLength={200}
+			accessibilityLabel="Notes"
+			returnKeyType="done"
+			onTextChange={(event) => console.log(event.value)}
+			onReturnPress={() => console.log('Submitted')}
+			style={{ width: 260, height: 120, placeholderColor: '#777' }}
+		/>
+	)
 }
 ```
-
 
 maxLength caps new input in UTF-16 units, matching JavaScript String.length.
 A paste keeps the prefix that fits. For example, 😀 consumes two units and
@@ -413,13 +451,20 @@ it. The GTK TextArea component is still outside the public root.
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 export function ShortNote() {
-  return <textview text="" hint="Short note" maxLength={200}
-    onTextChange={(event) => console.log(event.value)} />
+	return (
+		<textview
+			text=""
+			hint="Short note"
+			maxLength={200}
+			onTextChange={(event) => console.log(event.value)}
+		/>
+	)
 }
 ```
 
 This is renderer support; TextArea remains outside the GTK UI root.
-Text alignment and the full field workflow remain unqualified.
+Text alignment, custom line spacing and remaining shared props are unqualified.
+Direct-source field ownership and label-click checks do not yet promote TextArea.
 Source-harness row, growth and X11 keyboard/wheel checks are recorded in the
 [renderer note](../../.agents/docs/notes/linux-gtk-renderer.md#textarea-row-sizing-on-gtk). GTK TextView has no per-field Return-caption property;
 the renderer reports that limit once when returnKeyType is supplied.
@@ -565,10 +610,10 @@ import { Text } from '@octane-xplat/ui'
 import { createPortal, type UniversalRenderable } from '@octane-xplat/linux-gtk'
 
 export function PortalContent(props: { target: unknown }) {
-  return createPortal(
-    <Text>Content in the target container</Text> as UniversalRenderable,
-    props.target,
-  )
+	return createPortal(
+		(<Text>Content in the target container</Text>) as UniversalRenderable,
+		props.target,
+	)
 }
 ```
 
@@ -591,14 +636,14 @@ focus.
 import { Tooltip } from '@octane-xplat/ui'
 
 export function DeliveryHelp() {
-  return (
-    <Tooltip
-      trigger={<button text="Delivery details" />}
-      content="Orders ship on the next business day."
-      placement="right"
-      openDelay={300}
-    />
-  )
+	return (
+		<Tooltip
+			trigger={<button text="Delivery details" />}
+			content="Orders ship on the next business day."
+			placement="right"
+			openDelay={300}
+		/>
+	)
 }
 ```
 
@@ -612,15 +657,15 @@ TOOLTIP role and a DESCRIBED_BY relation; this is not a screen-reader certificat
 import { Tooltip } from '@octane-xplat/ui'
 
 export function SaveHelp(props: { saving: boolean }) {
-  return (
-    <Tooltip
-      trigger={<button text="Save" />}
-      content="Saves your current changes."
-      disabled={props.saving}
-      contentStyle={{ padding: 12 }}
-      closeDelay={100}
-    />
-  )
+	return (
+		<Tooltip
+			trigger={<button text="Save" />}
+			content="Saves your current changes."
+			disabled={props.saving}
+			contentStyle={{ padding: 12 }}
+			closeDelay={100}
+		/>
+	)
 }
 ```
 
@@ -634,13 +679,13 @@ metadata respects native widget sensitivity.
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 export function AccountField(props: { required: boolean; loading: boolean; invalid: boolean }) {
-  return (
-    <textfield
-      accessibilityLabel="Account"
-      accessibilityState={{ required: props.required, busy: props.loading, invalid: props.invalid }}
-      text=""
-    />
-  )
+	return (
+		<textfield
+			accessibilityLabel="Account"
+			accessibilityState={{ required: props.required, busy: props.loading, invalid: props.invalid }}
+			text=""
+		/>
+	)
 }
 ```
 
@@ -653,7 +698,7 @@ been qualified with an assistive-technology client.
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 export function ReadOnlyField(props: { readOnly: boolean; disabled: boolean }) {
-  return <textfield text="Stored account" editable={!props.readOnly} isEnabled={!props.disabled} />
+	return <textfield text="Stored account" editable={!props.readOnly} isEnabled={!props.disabled} />
 }
 ```
 
@@ -669,11 +714,16 @@ Moving focus, disabling the action or removing it cancels a held key.
 import { Pressable, Text } from '@octane-xplat/ui'
 
 export function SaveAction(props: { disabled: boolean; save: () => void }) {
-  return (
-    <Pressable accessibilityRole="button" accessibilityLabel="Save" disabled={props.disabled} onPress={props.save}>
-      <Text>Save</Text>
-    </Pressable>
-  )
+	return (
+		<Pressable
+			accessibilityRole="button"
+			accessibilityLabel="Save"
+			disabled={props.disabled}
+			onPress={props.save}
+		>
+			<Text>Save</Text>
+		</Pressable>
+	)
 }
 ```
 
@@ -686,11 +736,11 @@ not activate its parent Pressable.
 import { Pressable, Text } from '@octane-xplat/ui'
 
 export function PointerAction(props: { disabled: boolean; save: () => void }) {
-  return (
-    <Pressable disabled={props.disabled} onPress={props.save}>
-      <Text>Save</Text>
-    </Pressable>
-  )
+	return (
+		<Pressable disabled={props.disabled} onPress={props.save}>
+			<Text>Save</Text>
+		</Pressable>
+	)
 }
 ```
 

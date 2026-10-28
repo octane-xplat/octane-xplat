@@ -62,9 +62,9 @@ keys.connect('key-pressed', (_controller: any, key: number) => {
 	return false
 })
 window.add_controller(keys)
-async function phase(phase: string) {
+async function phase(phase: string, point?: { x: number; y: number }) {
 	const next = ack + 1
-	print('GTK_FIELD_CHROME_READY ' + JSON.stringify({ phase }))
+	print('GTK_FIELD_CHROME_READY ' + JSON.stringify({ phase, ...point }))
 	for (let i = 0; i < 240 && ack < next; i++) await pause(20)
 	check('OS phase completed ' + phase, ack >= next)
 	await pause()
@@ -118,6 +118,18 @@ async function run() {
 		'status glyph has a native hit area',
 		status.view!.getBounds().width >= 20 && status.view!.getBounds().height >= 20,
 	)
+	if (GLib.getenv('GTK_FIELD_CHROME_OS') === '1') {
+		const label = byClass('vx-field-label').find((n) =>
+			n.view?.get_text().startsWith('Account'),
+		)!.view!
+		const bounds = label.getBounds()
+		window.set_focus(null)
+		await phase('label', { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 })
+		check(
+			'actual label click focuses the readonly TextInput',
+			window.get_focus() === field || window.get_focus()?.is_ancestor(field),
+		)
+	}
 	status.view!.focus()
 	await pause()
 	const native = popup(status.parent!.view)

@@ -87,10 +87,15 @@ import { TextArea } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function Note() {
-  const [note, setNote] = useState('')
-  return <TextArea value={note} onChange={(next) => {
-    if (!next.includes('#')) setNote(next)
-  }} />
+	const [note, setNote] = useState('')
+	return (
+		<TextArea
+			value={note}
+			onChange={(next) => {
+				if (!next.includes('#')) setNote(next)
+			}}
+		/>
+	)
 }
 ```
 
@@ -120,6 +125,21 @@ export function Example() {
 			status={{ type: 'warning', message: 'Check the spelling' }}
 		>
 			<TextInput value={name} onChange={setName} hasClear isLoading size="sm" />
+		</Field>
+	)
+}
+```
+
+When you give a control an explicit `id` inside `Field`, set `inputID` on `Field`
+to the same value. This connects label activation to the intended control.
+
+```tsx
+import { Field, TextInput } from '@octane-xplat/ui'
+
+export function Account() {
+	return (
+		<Field label="Account" inputID="account">
+			<TextInput id="account" defaultValue="" />
 		</Field>
 	)
 }
@@ -182,17 +202,9 @@ and maxHeight constraints still apply.
 import { TextArea } from '@octane-xplat/ui'
 
 export function Notes(props: { limited: boolean }) {
-  return (
-    <TextArea
-      label="Notes"
-      rows={2}
-      autoGrow
-      maxRows={props.limited ? 4 : undefined}
-    />
-  )
+	return <TextArea label="Notes" rows={2} autoGrow maxRows={props.limited ? 4 : undefined} />
 }
 ```
-
 
 ## Limit a multiline field
 
@@ -204,7 +216,7 @@ JavaScript's String.length, so many emoji count as two units.
 import { TextArea } from '@octane-xplat/ui'
 
 export function ShortNote() {
-  return <TextArea label="Note" defaultValue="" maxLength={200} />
+	return <TextArea label="Note" defaultValue="" maxLength={200} />
 }
 ```
 
@@ -213,7 +225,6 @@ insertion that exceeds the cap, while Android can keep the prefix that fits.
 App-authored values can also differ: web and iOS may display a value beyond
 the cap, while Android's native filter can shorten it. Keep supplied values
 within the cap when the same displayed text is required on every target.
-
 
 ## Release and restore focus
 

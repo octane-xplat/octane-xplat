@@ -1,6 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { View } from '@octane-xplat/ui'
 import { TextArea } from '../../../../ui/src/TextArea'
+import { FormField } from '../../../../ui/src/FormField'
 import type { TextAreaProps, TextInputHandle } from '../../../../ui/src/props'
 export const areaRef: { current: TextInputHandle | null } = { current: null }
 export function TextAreaHarness(props: TextAreaProps & { frameClass?: string }) @{
@@ -22,4 +23,14 @@ export function StandaloneEditor(props: {
 			text={props.content ?? 'First\nSecond'} style={{ width: props.width, height: props.height,
 				left: props.left, top: props.top, translateX: props.translateX, opacity: props.opacity, padding: 0, borderWidth: 0 }} />
 	</proxyviewcontainer>
+}
+
+export function NestedAreaHarness(props: { childLabel?: string }) @{
+	<View style={{ width: 300, height: 850 }}>
+		<FormField label="Outer notes" inputID="area" width="80%" isRequired isReadOnly isLoading size="sm">
+			<TextArea id="area" testID="nested-automation" ref={areaRef} label={props.childLabel} width="50%"
+				defaultValue="Nested" style={{ fontSize: 26, padding: 0, borderWidth: 0 }} />
+		</FormField>
+		<textview id="outside-area" text="Outside" style={{ width: 100, height: 60 }} />
+	</View>
 }
