@@ -88,3 +88,9 @@ it('skips disabled controls and ignores keyboard changes', () => {
 
 	expect(change).not.toHaveBeenCalled()
 })
+
+
+it('keeps fractional values in the default text readout', () => {
+	const { slider } = mount({ value: 0.5, min: 0, max: 1, valueDisplay: 'text' })
+	expect(slider.querySelector('.vx-slider-value')?.textContent).toBe('0.5')
+})

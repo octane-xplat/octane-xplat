@@ -1099,3 +1099,16 @@ pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer --filter=
 Actual recognizer location, gesture threshold/delta origin, nested hit testing,
 flipping/transforms and OS pan/swipe behavior remain unqualified. No Native/OS
 automation, visual analysis, builds, tests, installs or audit regeneration ran.
+
+
+### Fractional Slider readout prerequisite
+
+The web Slider default formatter rounded every readout to an integer, so the
+existing volume-style 0..1 example could display 0.5 as 1. Default readouts now
+use the actual number string; custom formatValue remains unchanged. Added an
+unrun web component source case. The introducing source commit 39a594966 has
+no containing local stable tag, so no stable-fix note was added. Syntax and
+whitespace only; deferred: `pnpm exec turbo run test --filter=@octane-xplat/ui -- src/Slider.web.test.tsrx`
+and `pnpm exec turbo run typecheck --filter=...@octane-xplat/ui`.
+This keeps the new AppKit readout's default aligned with the web source; it is
+not browser/native runtime or pixel evidence.

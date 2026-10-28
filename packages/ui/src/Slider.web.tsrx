@@ -36,7 +36,7 @@ export function Slider(inputProps: SliderProps) @{
 	const step = props.step ?? 0
 	const snap = (n: number) => (step > 0 ? Math.round(n / step) * step : n)
 	const ratio = (n: number) => (max === min ? 0 : (n - min) / (max - min))
-	const fmt = (n: number) => (props.formatValue ? props.formatValue(n) : String(Math.round(n)))
+	const fmt = (n: number) => (props.formatValue ? props.formatValue(n) : String(n))
 	const readout = isRange ? `${fmt(lo)} – ${fmt(hi)}` : fmt(lo)
 
 	const emit = (next: number | [number, number]) => props.onValueChange?.(next)
