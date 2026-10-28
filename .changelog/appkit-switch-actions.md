@@ -2,7 +2,9 @@
 
 AppKit Switch now invokes changeAction, reports busy while saving, and restores
 the previous value through onChange on failure. Overlapping saves are blocked;
-completion after unmount is ignored.
+completion after unmount is ignored. Save ownership now starts before onChange
+callbacks, preventing reentrant duplicate saves; cached handlers use current
+blocking props.
 
 ```tsx
 import { Switch } from '@octane-xplat/ui'

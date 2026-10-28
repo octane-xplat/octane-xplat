@@ -635,8 +635,13 @@ export function Budget() {
 
 Switch now invokes changeAction after onChange, exposes pending through busy,
 blocks overlapping saves, and reports the previous value on failure. Completion
-after unmount is ignored. Controlled parents must apply both forward and rollback
-callbacks. Native activation/loading presentation remain unqualified; see
+after unmount is ignored. Ownership starts before onChange; cached handlers use
+current props, so reentry or newly blocked state cannot duplicate an action. A
+save requested by a valid event still runs if onChange detaches the UI, but cannot
+publish pending/rollback afterward. Forward callback errors release ownership and
+propagate; rollback callback faults are logged and release busy. Controlled
+parents must apply both forward and rollback callbacks. Four added cases remain
+unrun; native activation/loading presentation remain unqualified. See
 [switch saves](../../../../docs/app/components.md#save-a-switch-setting-on-appkit).
 
 ```tsx

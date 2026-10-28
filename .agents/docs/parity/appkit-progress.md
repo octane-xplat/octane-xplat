@@ -2952,3 +2952,46 @@ Expanded the existing registry case for Every and no-copy/invalid masks; it is
 still unrun. TypeScript syntax and whitespace/source review only. The exact
 renderer test/typecheck/native probe commands above remain deferred; no native
 bridge representation, drag or OS behavior is claimed.
+
+
+### AppKit Switch callback ownership
+
+The previous turn made concrete source progress on local file drops. Returned to
+common form/save flows next: ComponentsDemo uses switch settings, and the shared
+Switch contract orders onChange before changeAction. Source inspection found the
+AppKit token was claimed after onChange, permitting reentrant duplicate toggles/
+saves before pending could render. Cached control handlers also retained old
+blocking props. A rollback callback throw could reject the settlement promise and
+cleanup could publish pending after that callback detached the host.
+
+The target now claims ownership before application callbacks and reads current
+props/value through a live ref. Forward callback errors release the claim and
+propagate without starting a save. The event's original changeAction still runs
+if onChange detaches the control, preserving save ordering/intent, while busy and
+settlement updates require the attached token owner. Rollback callback faults are
+logged; finally cleanup checks ownership again so callback-driven detach does not
+write state afterward. Existing controlled display/rollback ownership is retained.
+No public API/shared props, manifest, other target leaf or dependency changed.
+
+Four appended source cases cover immediate reentry, detached event-save dispatch,
+forward throw/recovery, rollback callback fault/cleanup and cached current props.
+All four remain unrun. TypeScript/TSRX syntax, semantic/source review and whitespace
+checks only. The semantic impact output was truncated by a broken output pipe;
+target switch tests were read directly and no test execution is inferred. Guide,
+skill, existing feature note and appkit-switch-actions AC6 were reconciled.
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/switch.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe run examples/probes/switch.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All commands remain deferred pending explicit human authorization for this task.
+Native callback/effect/ref timing, physical pointer/keyboard/label activation,
+actual busy paint, focus/Tab/AX and packaging remain unqualified. No builds,
+package tests/typechecks, installs, OS automation, visual analysis or shared audit
+snapshot regeneration ran; no evidence checkbox is closed. The separate Checkbox
+mixed rollback/type contradiction was surfaced for a human contract choice; no
+shared callback type or checkbox save behavior was silently changed.

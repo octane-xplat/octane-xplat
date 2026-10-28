@@ -405,8 +405,13 @@ Supply `changeAction` to save a toggle after `onChange`. While the action runs,
 the AppKit switch reports busy and blocks overlapping toggles. Rejection or a
 synchronous throw restores the previous uncontrolled value and calls `onChange`
 with that previous value. Controlled parents must apply the callback themselves.
-Completion after unmount is ignored. Native activation and presentation remain
-unqualified; the regression cases are authored and unrun.
+Completion after unmount is ignored. Ownership is claimed before onChange, so
+reentrant callbacks cannot start duplicate saves. Cached handlers read current
+blocking props/callbacks. An event's save still runs after onChange detaches the
+control, while pending/rollback updates do not touch detached UI. A throwing
+forward callback releases ownership and propagates; rollback callback faults are
+logged and release busy state. Native activation and presentation remain
+unqualified; four additional regression cases are authored and unrun.
 
 ```tsx
 import { Switch } from '@octane-xplat/ui'

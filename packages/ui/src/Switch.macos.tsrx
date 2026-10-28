@@ -31,18 +31,29 @@ export function Switch(inputProps: SwitchProps) @{
 	}, [])
 	const loading = Boolean(props.isLoading || pending)
 	const isBlocked = props.isDisabled || props.isReadOnly || pending
+	const latest = useRef({ props, checked })
+	latest.current = { props, checked }
 	const colors = controlColors(useThemeScheme() === 'dark')
 	const toggle = () => {
-		if (!attached.current || isBlocked || active.current) return
+		const { props, checked } = latest.current
+		if (!attached.current || props.isDisabled || props.isReadOnly || active.current) return
 		const previous = checked, next = !previous
 		const uncontrolled = props.value === undefined
-		if (uncontrolled) setInternal(next)
-		props.onChange?.(next)
-		if (!props.changeAction) return
-
 		const token = Symbol('switch-action')
-		active.current = token
-		if (attached.current) setPending(true)
+		active.current = token // Claim before application callbacks can reenter.
+		try {
+			if (uncontrolled) setInternal(next)
+			props.onChange?.(next)
+		} catch (error) {
+			if (active.current === token) active.current = null
+			throw error
+		}
+		if (!props.changeAction) {
+			if (active.current === token) active.current = null
+			return
+		}
+		// Preserve the event's save even when onChange detaches its UI owner.
+		if (attached.current && active.current === token) setPending(true)
 		const settle = (failed: boolean) => {
 			if (!attached.current || active.current !== token) return
 			try {
@@ -50,9 +61,13 @@ export function Switch(inputProps: SwitchProps) @{
 					if (uncontrolled) setInternal(previous)
 					props.onChange?.(previous)
 				}
+			} catch (error) {
+				console.error('[macos-switch] rollback failed', error)
 			} finally {
-				active.current = null
-				setPending(false)
+				if (attached.current && active.current === token) {
+					active.current = null
+					setPending(false)
+				}
 			}
 		}
 		try {

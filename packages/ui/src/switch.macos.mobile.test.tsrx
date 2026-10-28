@@ -192,3 +192,59 @@ it('shows external loading feedback and removes it when the prop is dropped', ()
 		expect(rings()).toHaveLength(0)
 	} finally { env.root.unmount() }
 })
+
+
+it('claims switch ownership before onChange reentry and preserves detached saves without UI completion', async () => {
+	const task = deferred(), changes = vi.fn(), save = vi.fn(() => task.promise)
+	let reenter = () => {}
+	const env = mount(Switch, { onChange: (value: boolean) => { changes(value); if (changes.mock.calls.length === 1) reenter() }, changeAction: save })
+	try {
+		reenter = env.control().props.onTap; reenter(); flushUniversalSync(() => {})
+		expect(changes).toHaveBeenCalledTimes(1); expect(save).toHaveBeenCalledTimes(1)
+		expect(env.control().props.accessibilityState.busy).toBe(true)
+		task.resolve(); await vi.waitFor(() => { flushUniversalSync(() => {}); expect(env.control().props.accessibilityState.busy).toBe(false) })
+	} finally { env.root.unmount() }
+	let unmount = () => {}
+	const lateTask = deferred(), lateSave = vi.fn(() => lateTask.promise), detachedChanges = vi.fn(() => unmount())
+	const detached = mount(Switch, { onChange: detachedChanges, changeAction: lateSave })
+	unmount = () => detached.root.unmount()
+	detached.control().props.onTap(); expect(lateSave).toHaveBeenCalledWith(true)
+	lateTask.reject(new Error('detached save failure')); await Promise.resolve(); await Promise.resolve()
+	expect(detachedChanges).toHaveBeenCalledTimes(1)
+})
+
+it('a throwing onChange releases switch ownership without starting a save', async () => {
+	const save = vi.fn(), env = mount(Switch, { onChange: () => { throw new Error('change failed') }, changeAction: save })
+	try {
+		expect(() => env.control().props.onTap()).toThrow('change failed')
+		expect(save).not.toHaveBeenCalled()
+		const changed = vi.fn(); env.render({ onChange: changed, changeAction: save })
+		env.tap(); expect(changed).toHaveBeenCalledOnce(); expect(save).toHaveBeenCalledOnce()
+		await vi.waitFor(() => { flushUniversalSync(() => {}); expect(env.control().props.accessibilityState.busy).toBe(false) })
+	} finally { env.root.unmount() }
+})
+
+it('rollback callback faults release switch busy ownership without a rejected settlement promise', async () => {
+	const task = deferred(), logged = vi.spyOn(console, 'error').mockImplementation(() => {})
+	const env = mount(Switch, { defaultValue: true, onChange: (value: boolean) => { if (value) throw new Error('rollback failed') }, changeAction: () => task.promise })
+	try {
+		env.tap(); task.reject(new Error('save failed'))
+		await vi.waitFor(() => { flushUniversalSync(() => {}); expect(env.control().props.accessibilityState.busy).toBe(false) })
+		expect(env.control().props.accessibilityState.checked).toBe(true)
+		expect(logged).toHaveBeenCalledWith('[macos-switch] rollback failed', expect.any(Error))
+	} finally { env.root.unmount(); logged.mockRestore() }
+})
+
+it('cached switch handlers read current blocking props and callbacks', async () => {
+	const original = vi.fn(), current = vi.fn(), save = vi.fn(), env = mount(Switch, { onChange: original })
+	try {
+		const cached = env.control().props.onTap
+		for (const blocked of [{ isDisabled: true }, { isReadOnly: true }]) {
+			env.render({ ...blocked, onChange: current, changeAction: save }); cached()
+		}
+		expect(original).not.toHaveBeenCalled(); expect(current).not.toHaveBeenCalled(); expect(save).not.toHaveBeenCalled()
+		env.render({ onChange: current, changeAction: save }); cached(); flushUniversalSync(() => {})
+		expect(original).not.toHaveBeenCalled(); expect(current).toHaveBeenCalledWith(true); expect(save).toHaveBeenCalledWith(true)
+		await vi.waitFor(() => { flushUniversalSync(() => {}); expect(env.control().props.accessibilityState.busy).toBe(false) })
+	} finally { env.root.unmount() }
+})
