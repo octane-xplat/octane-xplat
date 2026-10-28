@@ -13,7 +13,7 @@ import { reduce } from './state'
 import type { RootAction, RootEffect, RootState } from './state'
 import { viewRect } from './rect'
 import { scrollTriggerIntoView } from './scroll-sync'
-import type { ImageController } from './Image.tsrx'
+import { Image, type ImageController } from './Image.tsrx'
 import type { Intent } from './gesture-machine'
 import { Track } from './track.mobile.tsrx'
 import type {
@@ -389,6 +389,23 @@ export function Backdrop(props: LightboxPartProps) @{
 
 export function Popup(props: LightboxPartProps) @{
 	const ctx = useLightboxCtx()
+	useEffect(() => {
+		if (ctx.phase !== 'opening') return
+		let active = true
+		let stop = () => {}
+		// Child Image controllers register in layout effects. Check after that
+		// commit so delayed image layout is not mistaken for custom content.
+		const timer = setTimeout(() => {
+			if (!active || ctx.images.has(ctx.index)) return
+			ctx.presence.set(0)
+			const animation = ctx.presence.animate(1, ctx.options.open)
+			stop = () => animation.stop()
+			void animation.finished.then(result => {
+				if (active && result === 'finished') ctx.onOpened()
+			})
+		}, 0)
+		return () => { active = false; clearTimeout(timer); stop() }
+	}, [ctx.phase, ctx.index])
 	if (ctx.phase === 'closed') return null
 	return (
 		<Overlay
@@ -426,7 +443,7 @@ export function Viewport(props: LightboxPartProps) @{
 			zoomed={ctx.zoomed}
 		>
 			{props.children ?? ctx.items.map((_, i) => (
-				<Slide index={i} key={i} />
+				<Slide index={i} key={i}><Image /></Slide>
 			))}
 		</Track>
 	)

@@ -77,6 +77,14 @@ behavior, rather than used as evidence of parity.
   six web/native entry-point cases and the shared gesture suite; these do not
   qualify OS input. The native test clock also covers motion's nested imports.
 
+- Native default Viewport now supplies Image children. Popup checks for an
+  Image controller after child registration and animates presence for custom
+  or video alt-text slides; close/unmount cancels the fallback. Seven focused
+  web/native checks cover delayed image layout, custom/video opening and early
+  close. A newly exposed web opening-frame callback is also cancelled on
+  teardown, preventing a late read of an unmounted image wrapper. Native OS
+  input qualification remains pending.
+
 ## Qualification boundary
 
 This was a source and documentation audit of the pinned reference, not an

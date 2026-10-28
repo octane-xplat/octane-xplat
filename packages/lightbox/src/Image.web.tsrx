@@ -47,7 +47,10 @@ export function Image(props: LightboxImageProps) {
 	const live = useRef({ F, ctx, slide, box })
 	live.current = { F, ctx, slide, box }
 
+	const openFrame = useRef<number | null>(null)
 	const stop = () => {
+		if (openFrame.current !== null) cancelAnimationFrame(openFrame.current)
+		openFrame.current = null
 		for (const a of anims.current) a.stop()
 		anims.current = []
 	}
@@ -154,13 +157,19 @@ export function Image(props: LightboxImageProps) {
 			if (!live.current.F || !base().w) {
 				// Not yet measured (mount ordering races the layout effect):
 				// defer one frame before falling back to the presence fade.
-				requestAnimationFrame(() => {
+				openFrame.current = requestAnimationFrame(() => {
+					openFrame.current = null
+					if (!wrapRef.current) return
 					if (!morph.current && (live.current.ctx.phase === 'opening' || live.current.ctx.phase === 'open')) {
 						if (live.current.F && base().w) {
 							this.animateIn?.(trigger)
 						} else {
 							ctx.presence.set(0)
-							void ctx.presence.animate(1, ctx.options.open).finished.then(() => ctx.onOpened())
+							const animation = ctx.presence.animate(1, ctx.options.open)
+							anims.current.push(animation)
+							void animation.finished.then(result => {
+								if (result === 'finished' && wrapRef.current && live.current.ctx.phase === 'opening') ctx.onOpened()
+							})
 						}
 					}
 				})

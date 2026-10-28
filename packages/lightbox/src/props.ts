@@ -3,7 +3,7 @@ import type { MotionValue, Transition } from '@octane-xplat/motion'
 
 // ---------- lightbox ----------
 
-/** Kind of a `LightboxMedia` entry — `'image'` (default) or `'video'` (real player on web only; native reports it unsupported).
+/** Kind of a `LightboxMedia` entry — `'image'` (default) or `'video'` (real player on web only; native displays alt text).
  */
 export type LightboxMediaType = 'image' | 'video'
 
@@ -73,7 +73,7 @@ export interface LightboxOptions<T extends LightboxMedia = LightboxMedia> {
 /** Full-screen media viewer (Astryx `Lightbox`). Navigates a `media` array
  *  with prev/next controls, arrow keys (web), and swipe (native);
  *  pinch/double-tap zoom applies to images only. `type: 'video'` renders
- *  a real player only on web — native reports it unsupported.
+ *  a real player only on web — native displays alt text.
  *
  * @example
  * ```tsx
