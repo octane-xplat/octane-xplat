@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import './intl-shim'
 import { useState } from 'octane'
 import { motion } from '@octane-xplat/motion'
