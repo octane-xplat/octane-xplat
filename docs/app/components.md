@@ -360,6 +360,32 @@ export function Attachments() {
 }
 ```
 
+### Number fields on AppKit
+
+The AppKit `NumberInput` leaf implements trailing `units`, `formatValue`, optional
+steppers and a clear action. Clear reports `null` before `onClear`; `null` stays
+an explicitly controlled empty value. Standalone fields own their label,
+description, status and width; an enclosing `Field` keeps that ownership and
+its disabled/read-only state blocks both typing and steppers. Metadata and
+stepper visibility changes reuse the editing control.
+
+```tsx
+import { useState } from 'octane'
+import { NumberInput } from '@octane-xplat/ui'
+
+export function Mass() {
+	const [value, setValue] = useState<number | null>(2)
+	return <NumberInput label="Mass" value={value} onValueChange={setValue}
+		min={0} max={9} step={0.5} units="kg" width={280}
+		formatValue={(number) => number.toFixed(1)} hasClear hasNumberSteppers={false} />
+}
+```
+
+The formatter changes display text; it does not define an inverse locale or
+currency parser. Editing still uses the existing shared `parseFloat` behavior.
+Native layout, formatted/partial edits, IME, pointer and keyboard activation,
+focus, accessibility and packaging remain unqualified.
+
 ### AppKit segmented control
 
 The experimental native macOS leaf renders options or child items and supports

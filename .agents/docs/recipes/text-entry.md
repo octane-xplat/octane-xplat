@@ -107,3 +107,25 @@ The fixture's automated run only records initial native strings. No real
 keyboard/IME, selection, undo, native timing or packaged checks ran. AC1/AC2
 runtime qualification remains open even though this manual procedure is now
 covered in documentation.
+
+
+## AppKit numeric fields
+
+AC8's [AppKit guide](../../../docs/app/components.md#number-fields-on-appkit)
+now covers declared unit/formatter/stepper/clear options and standalone/enclosing
+Field ownership. Clear requests null before onClear; inherited disabled/read-only
+state blocks steppers as well as editing. [Object-driver source cases](../../../packages/ui/src/input-number.macos.mobile.test.tsrx)
+cover null/default precedence, controlled requests, uncontrolled clamped stepping,
+clear order, metadata ownership, unique IDs and stable editing-host identity.
+The [maintained native fixture](../../../examples/probes/number-input.macos.tsrx)
+records initial formatted text and a handler-driven option toggle only.
+
+Use the explicit target mode for the component cases:
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/input-number.macos.mobile.test.tsrx
+```
+
+No test/probe has run in this slice. Actual formatted/partial/locale edits, IME,
+layout, pointer/keyboard, focus, VoiceOver and packaged behavior remain open.
+The formatter is display-only and does not introduce a locale-aware parser.

@@ -1035,3 +1035,43 @@ pnpm check:recipes
 Actual target file collection, dependency resolution, compiler transforms and
 both modes' execution remain unverified. Prior authored AppKit cases are still
 unrun; adding a selectable mode does not close a native or test evidence gate.
+
+
+### AppKit NumberInput affordances and Field ownership
+
+Demand: ComponentsDemo already uses NumberInput with bounds; numeric quantities
+and optional values are everyday forms. The AppKit leaf dropped units,
+formatValue, hasNumberSteppers and hasClear from its declared prop contract.
+Those props now render the existing web-shaped affordances, including null
+before onClear and controlled-null precedence over a default. Existing bounded
+step math and parseFloat editing semantics are unchanged.
+
+NumberInput now resolves shared Field state before enabling step/clear/edit
+actions. Standalone metadata belongs to a stable FormField; an existing parent
+Field keeps ownership. Generated input IDs avoid duplicating a compound root
+ID, and explicit parent control IDs address the real text field. The inner
+TextInput inherits name/hint/status/state through the existing context. Changing
+metadata or stepper visibility is intended to preserve the editing host.
+The row specifies flexDirection/center alignment and preserves ClassValue and
+object/inline-CSS style normalization. No shared/native-mobile/default parser,
+UI package manifest, CLI or other target leaf changed.
+
+Added source cases for display/units, option removal, null/default precedence,
+controlled requests, clear ordering, clamped uncontrolled steps, Field blocking,
+metadata/ID ownership and host retention. Added a maintained nonvisual native
+fixture with initial metadata and a handler-driven option toggle. Syntax and
+whitespace only; no tests or probe ran. Deferred after human authorization:
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/input-number.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe run examples/probes/number-input.macos.tsrx --target macos --watch
+pnpm check:recipes
+```
+
+AppKit test-mode collection/resolution is still unverified. Actual control
+layout, formatted/partial/locale entry, float stepping precision, IME, clear and
+step hit testing, keyboard activation, focus/selection, VoiceOver and packaging
+remain unqualified. formatValue is display-only and has no inverse parser.
+No native/OS automation, visual analysis, builds, typechecks, installs or shared
+audit regeneration ran; no evidence checkbox is closed.

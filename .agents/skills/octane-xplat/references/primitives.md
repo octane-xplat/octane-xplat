@@ -581,3 +581,22 @@ export function Draft({ value, onChange }: { value: string; onChange(value: stri
 	return <TextArea label="Draft" value={value} onChange={onChange} />
 }
 ```
+
+
+## AppKit number fields
+
+NumberInput now wires `units`, `formatValue`, `hasNumberSteppers` and `hasClear`
+on AppKit. Clear reports null then onClear. Stable Field ownership supplies
+metadata and inherited disabled/read-only state, including stepper blocking.
+Formatting is display-only; the existing parseFloat edit behavior is unchanged.
+Native layout, formatted edits, IME, focus and accessibility remain unqualified.
+See [AppKit number fields](../../../../docs/app/components.md#number-fields-on-appkit).
+
+```tsx
+import { NumberInput } from '@octane-xplat/ui'
+
+export function Quantity() {
+	return <NumberInput label="Quantity" defaultValue={2} min={0} max={9}
+		units="kg" hasClear hasNumberSteppers={false} />
+}
+```
