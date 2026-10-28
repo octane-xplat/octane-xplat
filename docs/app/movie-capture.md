@@ -1,5 +1,7 @@
 # Record and reopen a camera movie
 
+> Show a camera preview, record a short movie, and reopen the saved result.
+
 Build a short video recorder with a live preview, a Record button, and a Stop
 button. This guide covers Android, Web, Linux, macOS, and Windows (WinUI 3)
 movie capture; iOS uses the same session interface. Windows support is
@@ -308,7 +310,7 @@ after reload. The browser's persistent-storage grant and hidden-page state are
 injected test seams. They do not prove browser persistence approval or OS page
 suspension. The
 [WebKitGTK conformance runner](../../packages/camera/tests/webkitgtk-conformance.linux.mjs)
-runs the real packaged GJS/WebKitGTK host under Xvfb with WebKit's mock capture
+requires Linux, GJS, and WebKitGTK 6.0. It runs the real packaged GJS/WebKitGTK host under Xvfb with WebKit's mock capture
 devices: real permission flow, shared-stream preview, MP4 finalization,
 app-private file commit, hidden-page interruption, preview detach,
 destinationFileUrl, disposal, and reopening after reload and process restart.
@@ -319,14 +321,13 @@ delayed storage, failure cleanup, early and repeated Stop, track loss, denied
 audio, and oversized timers.
 
 ```sh
-pnpm --filter @octane-xplat/camera test
+pnpm exec turbo run test --filter=@octane-xplat/camera
 node packages/camera/tests/browser-conformance.web.mjs
-pnpm --filter @octane-xplat/camera test:webkitgtk   # requires Linux + gjs + WebKitGTK 6.0
 pnpm probe run packages/camera/tests/movie-capture.android.tsrx \
   --target android --device DEVICE_ID --deps @octane-xplat/camera --timeout 130000
 pnpm probe run packages/camera/tests/movie-capture.macos.tsrx \
   --target macos --deps @octane-xplat/camera --timeout 120000
-pnpm --filter @xplat/macos test:camera-webview
+pnpm exec turbo run test:camera-webview --filter=@xplat/macos
 ```
 
 The Android case needs camera permission granted to its isolated test app and

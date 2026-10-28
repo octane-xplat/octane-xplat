@@ -1,12 +1,12 @@
 # `@octane-xplat/gif`
 
-```sh
-pnpm add @octane-xplat/gif
-```
-
 Animated images (GIF, animated WebP) for Octane xplat apps: a plain
 `<img>` on web and `@nativescript-community/ui-image`
 (Fresco on Android / SDWebImage on iOS) on native, with a macOS entry.
+
+```sh
+pnpm add @octane-xplat/gif
+```
 
 ```tsx
 import { AnimatedImage } from '@octane-xplat/gif'
@@ -22,7 +22,7 @@ import { AnimatedImage } from '@octane-xplat/gif'
 
 `stretch` shares the core `Image` grammar — web maps it to `object-fit`
 and the plugin accepts the same values natively. For Lottie JSON
-animations use [`@octane-xplat/lottie`](../lottie/README.md) instead.
+animations use [`@octane-xplat/lottie`](https://github.com/octane-xplat/octane-xplat/blob/main/packages/lottie/README.md) instead.
 
 ## Prefetch
 
@@ -68,5 +68,5 @@ are reachable where the engine supports them:
 ```
 
 Per-target limits are recorded in
-[known limits](../../docs/testing/known-limits.md). Exercised by
-[`AnimatedImageDemo`](../demos/src/AnimatedImageDemo.tsrx).
+[known limits](https://octane-xplat.goddardai.org/known-limits). Exercised by
+[`AnimatedImageDemo`](https://github.com/octane-xplat/octane-xplat/blob/main/packages/demos/src/AnimatedImageDemo.tsrx).

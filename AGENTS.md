@@ -36,6 +36,7 @@ working agreements and detail moved out of this entry point.
 | Build, install dependencies, patch upstream, or lint    | [Toolchain](.agents/docs/toolchain.md)                                                                               |
 | Investigate one case or add lasting test coverage       | [Probes and tests](.agents/docs/testing.md)                                                                          |
 | Write or review docs; change public behavior or setup   | [Documentation audience and coverage](.agents/docs/documentation.md)                                                 |
+| Audit or maintain public docs and package READMEs      | [Documentation quality system](.agents/docs/documentation-quality.md)                                               |
 | Explore a seam, record evidence, or update decisions    | [Exploration and Silo](.agents/docs/exploration.md)                                                                  |
 | Record upstream limitations or local workarounds        | [Upstream limitations](.agents/docs/upstream-limitations.md)                                                         |
 | Plan Coreframe's role on Xplat or an app migration      | [Coreframe role](.agents/docs/coreframe-role.md)                                                                     |
@@ -147,6 +148,11 @@ Standing criteria for judgment calls; the critical rules encode the mechanics.
   record coverage separately from verification in Silo and run
   `pnpm check:recipes`. Never weaken criteria to conceal a limitation. Report
   affected recipes and remaining gaps at handoff, or why none is affected.
+- Maintain public guides and package READMEs with the
+  [documentation quality system](.agents/docs/documentation-quality.md): review
+  the reader's path, reconcile canonical guidance, and run `pnpm check:docs`
+  and `pnpm check:doc-examples`. Mechanical checks do not replace reviewing
+  setup, API correctness, lifecycle, platform claims, and observable results.
 - When public APIs or documented behavior change, review the affected guidance
   in [the Octane skill](.agents/skills/octane-xplat/SKILL.md), including its
   references, examples, limitations, and links. Update stale information in the

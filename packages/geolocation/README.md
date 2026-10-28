@@ -1,13 +1,13 @@
 # `@octane-xplat/geolocation`
 
-```sh
-pnpm add @octane-xplat/geolocation
-```
-
 Device geolocation behind one capability object. iOS and Android run
 `@nativescript/geolocation`; web uses `navigator.geolocation`; the macOS
 AppKit target uses Core Location through a package-owned native facade. Hosts
 without that facade or location purpose strings report `supported: false`.
+
+```sh
+pnpm add @octane-xplat/geolocation
+```
 
 ```ts
 import { geolocation } from '@octane-xplat/geolocation'
@@ -43,10 +43,10 @@ if ((await geolocation.requestPermissions()).granted) {
 }
 ```
 
-Guide: [Using device features](../../docs/platform/platform-services.md)
-per-target availability: [platform notes](../../.agents/docs/notes/platform-notes.md).
+Guide: [Using device features](https://octane-xplat.goddardai.org/platform-services)
+per-target availability: [platform notes](https://github.com/octane-xplat/octane-xplat/blob/main/.agents/docs/notes/platform-notes.md).
 Exercised by the harness `Services` screen
-([`packages/app/src/Services.tsrx`](../app/src/Services.tsrx)).
+([`packages/app/src/Services.tsrx`](https://github.com/octane-xplat/octane-xplat/blob/main/packages/app/src/Services.tsrx)).
 
 ## macOS host setup
 

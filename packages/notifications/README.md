@@ -2,7 +2,7 @@
 
 Local notifications for Octane Xplat apps — immediate, OS-delivered messages
 your app fires itself. For server-delivered (APNs/FCM) push, use
-[`@octane-xplat/push`](../push/README.md).
+[`@octane-xplat/push`](https://github.com/octane-xplat/octane-xplat/blob/main/packages/push/README.md).
 
 ```sh
 pnpm add @octane-xplat/notifications
@@ -39,6 +39,6 @@ runtime dependency and use `xplat dev` or `xplat build` so the CLI loads its
 metadata; without the identity or the metadata, the leaf reports
 `supported: false`.
 
-Guide: [Send a local notification](../../docs/platform/local-notifications.md);
-[Using device features](../../docs/platform/platform-services.md);
-per-target availability: [platform notes](../../.agents/docs/notes/platform-notes.md).
+Guide: [Send a local notification](https://octane-xplat.goddardai.org/local-notifications);
+[Using device features](https://octane-xplat.goddardai.org/platform-services);
+per-target availability: [platform notes](https://github.com/octane-xplat/octane-xplat/blob/main/.agents/docs/notes/platform-notes.md).

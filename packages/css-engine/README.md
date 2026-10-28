@@ -9,5 +9,5 @@ plus keyframe, transform, and clip-path parsing. It is consumed by
 This package is internal to the framework. Its exports are not a stable
 public API and may change without notice.
 
-See [`src/vendor/README.md`](src/vendor/README.md) for the provenance of the
+See [`src/vendor/README.md`](https://github.com/octane-xplat/octane-xplat/blob/main/packages/css-engine/src/vendor/README.md) for the provenance of the
 vendored NativeScript selector engine.

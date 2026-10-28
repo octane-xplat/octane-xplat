@@ -5,6 +5,12 @@ departure-board or slot-machine counter. Characters that stay the same keep
 their place; only the changed ones roll out and in. Works on web, iOS and
 Android. macOS has the nonvisual qualification limits below.
 
+From an existing Xplat app, install the package before using the example:
+
+```sh
+pnpm add @octane-xplat/rolling-text
+```
+
 ```tsx
 import { RollingText } from '@octane-xplat/rolling-text'
 
@@ -71,12 +77,12 @@ export function Greeting() {
 - Roll distance is read from the row's current height — the first update
   before initial layout falls back to a fade.
 - macOS uses AppKit views and the system reduced-motion preference. Its
-  [qualification record](./UPSTREAM.md#macos-qualification) separates native
+  [qualification record](https://github.com/octane-xplat/octane-xplat/blob/main/packages/rolling-text/UPSTREAM.md#macos-qualification) separates native
   property checks from the remaining live OS toggle and visual gates.
   Windows/Linux leaves are not implemented yet.
 
 Derived from Scritto's survivor matching and slot-text's update policy — see
-[UPSTREAM.md](./UPSTREAM.md) for provenance and licenses.
+[UPSTREAM.md](https://github.com/octane-xplat/octane-xplat/blob/main/packages/rolling-text/UPSTREAM.md) for provenance and licenses.
 
 ## macOS text styles
 

@@ -5,7 +5,11 @@
 		// The vite config imports @octane-xplat/cli/vite, which resolves to
 		// cli/dist — build dependencies first so a fresh checkout works.
 		"build": {
-			"dependsOn": ["^typegen", "^build"]
+			"dependsOn": ["^typegen", "^build"],
+			"inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/docs/**"]
+		},
+		"test": {
+			"inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/docs/**"]
 		},
 		"test:responsive": {
 			"dependsOn": ["^typegen", "^build"],

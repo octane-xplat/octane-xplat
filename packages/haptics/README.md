@@ -1,15 +1,15 @@
 # `@octane-xplat/haptics`
 
-```sh
-pnpm add @octane-xplat/haptics
-```
-
 Haptic feedback for Octane xplat apps, in two layers. The `haptics`
 service mirrors the platform contract — `impact(style)`,
 `notification(kind)`, `selection()`. `createHaptics()` is the advanced
 engine: named presets, timed `playPattern` envelopes (`{duration, points:
 [{at, intensity, sharpness}]}`), gesture-driven realtime sessions
 (`startRealtime()` → `{update, stop}`), and cancellation.
+
+```sh
+pnpm add @octane-xplat/haptics
+```
 
 ```ts
 import { createHaptics, haptics } from '@octane-xplat/haptics'
@@ -24,7 +24,6 @@ if (engine.capabilities().presets) engine.play('success')
 if (engine.capabilities().patterns) {
 	engine.playPattern({ duration: 300, points: [{ at: 0, intensity: 1 }] })
 }
-engine.dispose()
 ```
 
 `capabilities()` reports `supported` plus `presets`, `patterns`, and
@@ -40,6 +39,7 @@ if (engine.capabilities().realtime) {
 	session.update(0.8, 0.5)
 	session.stop()
 }
+engine.dispose() // after the owner has finished all feedback
 ```
 
 Native is backed by Pulsar: Android needs compile SDK 36+ for
@@ -49,5 +49,5 @@ this package's `platforms/ios/src/**/*.swift` to `ios.NativeSource` in
 the app's NativeScript config. Web maps onto the Vibration API, which
 many desktop browsers expose but ignore.
 
-Guide: [Media services](../../docs/platform/media-services.md); per-target
-availability: [platform notes](../../.agents/docs/notes/platform-notes.md).
+Guide: [Media services](https://octane-xplat.goddardai.org/media-services); per-target
+availability: [platform notes](https://github.com/octane-xplat/octane-xplat/blob/main/.agents/docs/notes/platform-notes.md).

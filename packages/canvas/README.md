@@ -1,12 +1,12 @@
 # `@octane-xplat/canvas`
 
-```sh
-pnpm add @octane-xplat/canvas
-```
-
 A GPU/canvas surface for Octane xplat apps: the DOM `<canvas>` on web and
 `@nativescript/canvas` on iOS/Android — 2D, WebGL/WebGL2, and
 WebGPU/WGSL context kinds behind one `getContext` contract.
+
+```sh
+pnpm add @octane-xplat/canvas
+```
 
 ```tsx
 import { Canvas } from '@octane-xplat/canvas'
@@ -96,5 +96,5 @@ consumer needs one and the implementation is approved. Native desktop shader
 effects remain unsupported. A DOM webview uses the separate web implementation.
 
 Per-target limits are recorded in
-[known limits](../../docs/testing/known-limits.md). Exercised by
-[`CanvasDemo`](../demos/src/CanvasDemo.tsrx) (including a WGSL path).
+[known limits](https://octane-xplat.goddardai.org/known-limits). Exercised by
+[`CanvasDemo`](https://github.com/octane-xplat/octane-xplat/blob/main/packages/demos/src/CanvasDemo.tsrx) (including a WGSL path).

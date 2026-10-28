@@ -58,11 +58,11 @@ export function Notes() {
 
 On Android, keep HTML as the facade's canonical interchange. Tiptap JSON is a
 best-effort conversion over Aztec HTML, not a live ProseMirror document. The
-2026-10-06 [Aztec nested-tree run](../../.agents/docs/parity/nested-tree-editor.md)
+2026-10-06 [Aztec nested-tree run](https://github.com/octane-xplat/octane-xplat/blob/main/.agents/docs/parity/nested-tree-editor.md)
 preserved nested wrappers, attributes, and child order through synthetic text
 edits and save/reopen. It also flattened paragraphs and accumulated `<br>`
 elements on reopen; it did not qualify Tiptap JSON, OS input, or structural
-tree commands. See the [per-row capability record](../../.agents/docs/notes/editor-capabilities.md).
+tree commands. See the [per-row capability record](https://github.com/octane-xplat/octane-xplat/blob/main/.agents/docs/notes/editor-capabilities.md).
 
 `value`/`onChange` exchange document HTML; `editable` controls whether the
 user can edit. `getJSON`/`setJSON` exchange
@@ -117,7 +117,7 @@ pnpm install
 ```
 
 See
-[`docs/app/rich-text.md`](../../docs/app/rich-text.md) for the shared contract,
+[`docs/app/rich-text.md`](https://octane-xplat.goddardai.org/rich-text) for the shared contract,
 format vocabulary, and known limits.
 
 ## macOS AppKit
@@ -126,7 +126,7 @@ The macOS export mounts a bundled local editor document in WKWebView.
 RichText uses StarterKit; Tiptap and Lexical use their existing web facades.
 Wait for `onReady`; synchronous getters return the latest received snapshot
 and commands cross WebKit asynchronously. The `native` handle is the Swift
-host transport. See [AppKit setup and engine limits](../../docs/app/rich-text.md#macos-appkit-editing).
+host transport. See [AppKit setup and engine limits](https://octane-xplat.goddardai.org/rich-text#macos-appkit-editing).
 
 ## Native content and format limits
 
@@ -148,7 +148,7 @@ export function replaceHTML(editor: TiptapEditorHandle) {
 }
 ```
 
-Use the [platform format subset](../../docs/app/rich-text.md#format-subset)
+Use the [platform format subset](https://octane-xplat.goddardai.org/rich-text#format-subset)
 when building a toolbar. On iOS/Android, unsupported `apply` requests throw
 `RangeError` before changing content. Links require `linkTo`; iOS lacks
 `taskList` and alignment. Native JSON is a fixed-schema conversion through

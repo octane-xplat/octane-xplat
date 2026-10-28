@@ -16,48 +16,6 @@ it to add Lingui for your chosen languages, run the checks, and show you
 how to switch between them. A **macro** marks text in code and is replaced
 by the build with a translation lookup.
 
-### How the integration works
-
-These details explain which Lingui packages the setup uses.
-
-The framework's localization contract is [Lingui](https://lingui.dev)'s
-renderer-free half: `@lingui/core` plus the core Babel macros (`t`, `plural`,
-`select`, `selectOrdinal`, `msg`/`defineMessage`). Macros compile to
-`i18n._(...)` calls against a plain JavaScript catalog — nothing in the
-pipeline touches a DOM or a native widget, so the same source string localizes
-the web app and the NativeScript targets identically.
-
-```ts
-import { t, plural, select, selectOrdinal, msg, defineMessage } from '@lingui/core/macro'
-
-export function labels(unread: number, role: string, place: number) {
-	return {
-		title: t`Inbox`,
-		count: plural(unread, { one: '# message', other: '# messages' }),
-		role: select(role, { admin: 'Administrator', other: 'Member' }),
-		place: selectOrdinal(place, { one: '#st', two: '#nd', few: '#rd', other: '#th' }),
-		save: msg`Save`,
-		cancel: defineMessage({ message: 'Cancel' }),
-	}
-}
-```
-
-The JSX side of Lingui (`<Trans>`, `I18nProvider`, `useLingui` from
-`@lingui/react`) is **not** used: components subscribe through
-`useLingui()`/`useLocale()` from `@octane-xplat/lingui` instead.
-
-```tsx
-import { t } from '@lingui/core/macro'
-import { useLingui } from '@octane-xplat/lingui'
-import { Text } from '@octane-xplat/ui'
-
-export function InboxTitle() {
-	useLingui()
-
-	return <Text>{t`Inbox`}</Text>
-}
-```
-
 ## Setup
 
 ```sh
@@ -498,5 +456,47 @@ import { Button, useAnnounce } from '@octane-xplat/ui'
 export function SaveStatus() {
 	const announce = useAnnounce()
 	return <Button label="Save" clickAction={() => announce('Saved')} />
+}
+```
+
+## How the integration works
+
+These details explain which Lingui packages the setup uses.
+
+The framework's localization contract is [Lingui](https://lingui.dev)'s
+renderer-free half: `@lingui/core` plus the core Babel macros (`t`, `plural`,
+`select`, `selectOrdinal`, `msg`/`defineMessage`). Macros compile to
+`i18n._(...)` calls against a plain JavaScript catalog — nothing in the
+pipeline touches a DOM or a native widget, so the same source string localizes
+the web app and the NativeScript targets identically.
+
+```ts
+import { t, plural, select, selectOrdinal, msg, defineMessage } from '@lingui/core/macro'
+
+export function labels(unread: number, role: string, place: number) {
+	return {
+		title: t`Inbox`,
+		count: plural(unread, { one: '# message', other: '# messages' }),
+		role: select(role, { admin: 'Administrator', other: 'Member' }),
+		place: selectOrdinal(place, { one: '#st', two: '#nd', few: '#rd', other: '#th' }),
+		save: msg`Save`,
+		cancel: defineMessage({ message: 'Cancel' }),
+	}
+}
+```
+
+The JSX side of Lingui (`<Trans>`, `I18nProvider`, `useLingui` from
+`@lingui/react`) is **not** used: components subscribe through
+`useLingui()`/`useLocale()` from `@octane-xplat/lingui` instead.
+
+```tsx
+import { t } from '@lingui/core/macro'
+import { useLingui } from '@octane-xplat/lingui'
+import { Text } from '@octane-xplat/ui'
+
+export function InboxTitle() {
+	useLingui()
+
+	return <Text>{t`Inbox`}</Text>
 }
 ```

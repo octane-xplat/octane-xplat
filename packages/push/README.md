@@ -2,7 +2,7 @@
 
 Push notifications for Octane Xplat apps over Firebase Cloud Messaging on
 web, iOS, and Android. For app-fired local notifications, use
-[`@octane-xplat/notifications`](../notifications/README.md).
+[`@octane-xplat/notifications`](https://github.com/octane-xplat/octane-xplat/blob/main/packages/notifications/README.md).
 
 ```sh
 pnpm add @octane-xplat/push
@@ -38,7 +38,7 @@ push.onTokenRefresh((token) => {
 
 Native config files, iOS entitlements, and the web service worker are
 app-level setup — see the framework guide
-[`docs/platform/push-notifications.md`](../../docs/platform/push-notifications.md).
+[`docs/platform/push-notifications.md`](https://octane-xplat.goddardai.org/push-notifications).
 
 On macOS, the workspace and published package select a safe unavailable entry.
 `supported` and `configured` stay false; configuration and permission requests

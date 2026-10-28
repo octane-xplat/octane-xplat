@@ -18,12 +18,17 @@ framework; the app-building guides for downstream users live in `docs/`.
 - [Packed Android starter tests](android-starter-tests.md) — isolated consumer qualification.
 - [AppKit verification](appkit-verification.md) — geometry, overlays, and packed consumers.
 - [Documentation guidance](documentation.md) — audience and coverage rules.
+- [Documentation quality system](documentation-quality.md) — review docs and
+  package READMEs, run checks, and prevent recurring gaps.
 - [Exploration and Silo](exploration.md) — research and decision workflow.
 - [Upstream limitations](upstream-limitations.md) — record upstream constraints
   and local workarounds.
 - [Releases](releases.md) — package and publication workflow.
 
 ## Working records
+
+- [October 2026 documentation audit](documentation-audit.md) — recurring reader
+  problems, the maintenance system, and refinement boundaries.
 
 - [Native drawer dependency review](native-drawer.md) — optional plugin boundary, gesture value, and follow-up acceptance criteria.
 

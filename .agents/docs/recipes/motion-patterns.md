@@ -42,7 +42,7 @@ before any app-level preview.
 - AC4: [Rotate supporting copy](../../../docs/app/animation-gestures.md#rotate-supporting-copy).
 - AC5: [Reduced motion and lifecycle](../../../docs/app/animation-gestures.md#reduced-motion-and-lifecycle) plus the [motion leaf limits](../../../docs/testing/known-limits.md#motion-leaf).
 
-- AC6: [Animate size and position changes](../../../docs/app/animation-gestures.md#layout-animations) and the [maintained layout probe](../../../examples/probes/motion-layout.tsrx); browser geometry coverage lives in `tools/visual/src/motion-layout.test.web.ts`.
+- AC6: [Animate size and position changes](../../../docs/app/animation-gestures.md#layout-animations) and the [maintained mobile layout probe](../../../examples/probes/motion-layout.mobile.tsrx); browser geometry coverage lives in `tools/visual/src/motion-layout.test.web.ts`.
 
 - AC7: [Move an element between components](../../../docs/app/animation-gestures.md#move-an-element-between-components), the [shared-element probe](../../../examples/probes/motion-shared.tsrx), and the maintained browser/AppKit geometry tests.
 

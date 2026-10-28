@@ -29,8 +29,8 @@ context-menu leaf has its own recipe.
 
 ## Documentation
 
-- AC1: [Start with actions](../../../docs/menus.md#start-with-actions), [Add choices and submenus](../../../docs/menus.md#add-choices-and-submenus), [UI API migrations](../../../docs/app/ui-api-migrations.md#selection-and-menu-rows), [Context actions on touch and keyboard](../../../docs/menus.md#context-actions-on-touch-and-keyboard), and [component demo](../../../packages/demos/src/ComponentsDemo.tsrx).
-- AC2: [Add choices and submenus](../../../docs/menus.md#add-choices-and-submenus), [Own open state](../../../docs/menus.md#own-open-state), and [UI API migrations](../../../docs/app/ui-api-migrations.md#selection-and-menu-rows).
-- AC3: [Own open state](../../../docs/menus.md#own-open-state) and [Context actions on touch and keyboard](../../../docs/menus.md#context-actions-on-touch-and-keyboard).
-- AC4: [Context actions on touch and keyboard](../../../docs/menus.md#context-actions-on-touch-and-keyboard) and [Keep a long breadcrumb trail usable](../../../docs/menus.md#keep-a-long-breadcrumb-trail-usable).
-- AC5: [Add choices and submenus](../../../docs/menus.md#add-choices-and-submenus) and [Own open state](../../../docs/menus.md#own-open-state).
+- AC1: [Start with actions](../../../docs/app/menus.md#start-with-actions), [Add choices and submenus](../../../docs/app/menus.md#add-choices-and-submenus), [UI API migrations](../../../docs/app/ui-api-migrations.md#selection-and-menu-rows), [Context actions on touch and keyboard](../../../docs/app/menus.md#context-actions-on-touch-and-keyboard), and [component demo](../../../packages/demos/src/ComponentsDemo.tsrx).
+- AC2: [Add choices and submenus](../../../docs/app/menus.md#add-choices-and-submenus), [Own open state](../../../docs/app/menus.md#own-open-state), and [UI API migrations](../../../docs/app/ui-api-migrations.md#selection-and-menu-rows).
+- AC3: [Own open state](../../../docs/app/menus.md#own-open-state) and [Context actions on touch and keyboard](../../../docs/app/menus.md#context-actions-on-touch-and-keyboard).
+- AC4: [Context actions on touch and keyboard](../../../docs/app/menus.md#context-actions-on-touch-and-keyboard) and [Keep a long breadcrumb trail usable](../../../docs/app/menus.md#keep-a-long-breadcrumb-trail-usable).
+- AC5: [Add choices and submenus](../../../docs/app/menus.md#add-choices-and-submenus) and [Own open state](../../../docs/app/menus.md#own-open-state).

@@ -27,7 +27,7 @@ export function BrowserMessage() {
 }
 ```
 
-See [platform files and JSX types](https://octane-xplat.goddardai.org/platform/module-resolution#typescript)
+See [platform files and JSX types](https://octane-xplat.goddardai.org/module-resolution#typescript)
 when adding a native or browser implementation.
 
 ## Start a library package
@@ -99,7 +99,7 @@ your app as you replace the starter screen.
 
 Platforms added later also receive their test setup. The library template
 includes its component tests and publishing checks.
-See [checking an app](../../docs/testing/testing.md#add-automated-tests) for the
+See [checking an app](https://octane-xplat.goddardai.org/testing#add-automated-tests) for the
 commands, file conventions, and checks that still need a browser or phone.
 
 ## Keep compatible versions
@@ -117,7 +117,7 @@ pnpm xplat doctor
 
 An upgrade covers the workspace's managed dependencies and patches. Your
 app-specific packages and library consumer peer ranges remain yours. See
-[compatible versions](../cli/README.md#compatible-versions) for local links,
+[compatible versions](https://github.com/octane-xplat/octane-xplat/blob/main/packages/cli/README.md#compatible-versions) for local links,
 custom patches, deferred installs, and failure recovery.
 
 Leave the server running while you edit. After stopping it, restart from the

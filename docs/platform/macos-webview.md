@@ -237,6 +237,6 @@ with `pnpm --filter @xplat/macos webview:proof`; the verifier reports
 verifies the `camera` service end to end inside a signed bundle — permission
 status and request, app-private movie storage round-trip, private-root
 containment, and the session backend's host-storage switch. Run it with
-`pnpm --filter @xplat/macos test:camera-webview`. The full shared frontend used
+`pnpm exec turbo run test:camera-webview --filter=@xplat/macos`. The full shared frontend used
 by the configured macOS renderer starts from
 [`apps/web/src/main.tsrx`](../../apps/web/src/main.tsrx).

@@ -123,7 +123,7 @@ unverified. An OS that cannot decode the SVG produces an empty image; there is
 no fallback renderer. macOS forwards `id`/`className`, but the image host does
 not apply class-based styling. Labels map to the native accessibility label;
 unlabeled images are marked decorative. Pixel fidelity and OS accessibility
-traversal remain unverified. See [AppKit SVG notes](../../.agents/docs/notes/icon-svg-notes.md).
+traversal remain unverified. See [AppKit SVG notes](https://github.com/octane-xplat/octane-xplat/blob/main/.agents/docs/notes/icon-svg-notes.md).
 
 ```tsx
 // Direction.macos.tsx
@@ -159,7 +159,7 @@ license handling; this leaf distributes no set data.
 
 ## Verification and example
 
-The maintained [icon probe](../../examples/probes/icons.tsrx) exercises multiple
+The maintained [icon probe](https://github.com/octane-xplat/octane-xplat/blob/main/examples/probes/icons.tsrx) exercises multiple
 sets, sizing, aliases, missing names, and mounted registration/prop updates:
 
 ```sh
@@ -169,7 +169,7 @@ pnpm probe run examples/probes/icons.tsrx --target web --deps @octane-xplat/icon
 pnpm probe run examples/probes/icons.tsrx --target ios --device SIMULATOR_UDID --deps @octane-xplat/icons
 ```
 
-For package checks, run `pnpm --filter @octane-xplat/icons typegen`, `typecheck`,
+For package checks, run `pnpm exec turbo run typegen --filter=@octane-xplat/icons`, `typecheck`,
 `test`, and `pack:check`. Runtime evidence is recorded separately from builds;
 the probe proves host/source updates, not pixel parity or OS accessibility
 traversal. Run it on each target you ship.

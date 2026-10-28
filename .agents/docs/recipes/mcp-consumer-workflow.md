@@ -32,10 +32,10 @@ cleanup restricted to owned resources.
 ## Documentation
 
 - AC1: [Bound documentation](../../../packages/mcp/README.md#retrieve-the-apps-documentation), [consumer lane](../../../packages/mcp/README.md#run-the-consumer-acceptance-lane)
-- AC2: [Runtime lifecycle](../../../packages/mcp/README.md#runtime-work-item-d), [bounded inspection](../../../packages/mcp/README.md#inspect-and-interact-with-chromium)
+- AC2: [Runtime lifecycle](../../../packages/mcp/README.md#build-run-and-stop-an-app), [bounded inspection](../../../packages/mcp/README.md#inspect-and-interact-with-chromium)
 - AC3: [Input mechanisms](../../../packages/mcp/README.md#inspect-and-interact-with-chromium), [OS journey](../../../packages/mcp/README.md#run-the-consumer-acceptance-lane)
 - AC4: [Declare, invoke, and assert an action](../../../docs/testing/development-actions.md), [agent authoring guidance](../../skills/octane-xplat/references/development-actions.md), [app declaration and acceptance](../../../packages/mcp/README.md#run-the-consumer-acceptance-lane), [maintained runners](../../../packages/mcp/tests/consumer-workflow.mjs)
-- AC5: [Capture gate](../../../packages/mcp/README.md#inspect-and-interact-with-chromium), [cleanup](../../../packages/mcp/README.md#runtime-work-item-d)
+- AC5: [Capture gate](../../../packages/mcp/README.md#inspect-and-interact-with-chromium), [cleanup](../../../packages/mcp/README.md#build-run-and-stop-an-app)
 - AC6: [Remaining acceptance](../../../packages/mcp/README.md#remaining-acceptance)
 
 The packed-stdio lane ([prepare](../../../packages/mcp/tests/prepare-packed-consumer.mjs), [runner](../../../packages/mcp/tests/packed-stdio-consumer.mjs)) exercises the same criteria against packed tarballs over stdin/stdout.

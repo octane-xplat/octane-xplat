@@ -110,6 +110,9 @@
 			"dependsOn": ["@octane-xplat/ui#typegen", "@octane-xplat/cli#build"],
 			"cache": false
 		},
+		"//#test:docs": {
+			"cache": false
+		},
 		"//#test:scripts": {
 			"dependsOn": ["@octane-xplat/cli#build"],
 			"cache": false

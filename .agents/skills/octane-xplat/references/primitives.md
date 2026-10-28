@@ -266,7 +266,7 @@ export function RowActions() {
 ## Grouped and tree tables
 
 Use the bounded `Table` plugin pipeline for grouped rows, detail panels and
-trees; see [group and expand table rows](../../../../docs/tables.md) for complete
+trees; see [group and expand table rows](../../../../docs/app/tables.md) for complete
 examples. Feed `useTableGroupedRows` its post-filter/sort/page data and pass its
 returned `data` and `idKey` to Table. Pair `useTableTreeState` with
 `useTableTreeData`; sort siblings with `sortSiblings: sortable.applySort`, never

@@ -1,13 +1,13 @@
 # `@octane-xplat/sqlite`
 
-```sh
-pnpm add @octane-xplat/sqlite
-```
-
 Cross-target SQLite persistence for Octane xplat apps:
 `@nativescript-community/sqlite` on iOS/Android, a `sqlite-wasm` worker
 with OPFS persistence on web, system `libsqlite3` via C-function interop
 on the macOS AppKit host, and an explicit `supported: false` on Windows.
+
+```sh
+pnpm add @octane-xplat/sqlite
+```
 
 ```ts
 import { openDatabase, supported } from '@octane-xplat/sqlite'
@@ -76,7 +76,7 @@ try {
 }
 ```
 
-Design notes: [`.agents/docs/notes/sqlite-notes.md`](../../.agents/docs/notes/sqlite-notes.md);
-limits: [known limits](../../docs/testing/known-limits.md). Exercised by the
+Design notes: [`.agents/docs/notes/sqlite-notes.md`](https://github.com/octane-xplat/octane-xplat/blob/main/.agents/docs/notes/sqlite-notes.md);
+limits: [known limits](https://octane-xplat.goddardai.org/known-limits). Exercised by the
 harness `Services` screen
-([`packages/app/src/Services.tsrx`](../app/src/Services.tsrx)).
+([`packages/app/src/Services.tsrx`](https://github.com/octane-xplat/octane-xplat/blob/main/packages/app/src/Services.tsrx)).

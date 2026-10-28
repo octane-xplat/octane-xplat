@@ -1,14 +1,14 @@
 # `@octane-xplat/lingui`
 
-```sh
-pnpm add @octane-xplat/lingui @lingui/core
-```
-
 The Lingui localization runtime for Octane xplat apps: `@lingui/core` plus
 the core Babel macros (`t`, `plural`, `select`, `msg`) in shared code,
 with this package owning catalog loading, locale state, and per-target
 locale detection. The JSX side of Lingui (`@lingui/react`) is not used —
 components subscribe through `useLingui()`/`useLocale()`.
+
+```sh
+pnpm add @octane-xplat/lingui @lingui/core
+```
 
 ```ts
 import { catalogsFromGlob, initLingui, setLocale, i18n } from '@octane-xplat/lingui'
@@ -76,5 +76,5 @@ export default defineConfig({
 ```
 
 Full setup and catalog conventions:
-[localization guide](../../docs/app/localization.md); limits in
-[known limits](../../docs/testing/known-limits.md).
+[localization guide](https://octane-xplat.goddardai.org/localization); limits in
+[known limits](https://octane-xplat.goddardai.org/known-limits).

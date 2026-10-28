@@ -398,7 +398,7 @@ The bounded UI Table now has grouped rows, detail expansion, tree data/state,
 row numbers/status, and web sticky columns. The sandbox targets exactly
 `ebd939b665361a078015377c0dfe50cc3c1d70a4`, independently of the separate
 0.7.1 parity harness. See [sandbox coverage](../../../apps/astryx-sandbox/docs/coverage.md#unit-7--hierarchical-and-rich-tables)
-for route adaptations and open completion gates, and [table usage](../../../docs/tables.md)
+for route adaptations and open completion gates, and [table usage](../../../docs/app/tables.md)
 for public examples.
 
 ```tsx

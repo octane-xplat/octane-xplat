@@ -1,9 +1,22 @@
 # Fetching data
 
+> Load server data once, share it between screens, and handle loading and failures.
+
 Use the official shared query cache for server data that several screens read
 or edit. Start with one definition and one app client, then add policies when
 your app needs them. For a request owned by one screen or a live stream, see
 [owner-local requests](#owner-local-requests-and-streams).
+
+A **query** loads data; a **cache** keeps a result so another screen can reuse
+it. Start with the shared query example below, or choose a narrower task:
+
+| Task | Section |
+| --- | --- |
+| Recover a failed request | [Retry and error states](#recovering-failed-reads) |
+| Save an edit across screens | [Shared optimistic edits](#shared-optimistic-edits) |
+| Change accounts safely | [Account and request lifetimes](#account-and-request-lifetimes) |
+| Load one screen or consume a stream | [Requests owned by one screen](#owner-local-requests-and-streams) |
+| Try the cache without a backend | [Maintained shared workflow](#try-the-shared-workflow) |
 
 ## The shared query cache
 

@@ -8,6 +8,12 @@ card. Start with [a working screen](primitives.md) before adding movement.
 
 For hardware-key handlers and text-copy feedback, see [keys and clipboard](keyboard-clipboard.md).
 
+Start with the fade below. For a specific interaction, jump to
+[dragging](#drag-a-component), [exit animations](#retain-content-through-exit),
+[resizing and reordering](#layout-animations), or
+[shared elements](#move-an-element-between-components). Check
+[reduced motion and cleanup](#reduced-motion-and-lifecycle) before shipping.
+
 ## Animate a component
 
 From your app folder, install the optional motion package:
@@ -886,6 +892,10 @@ primitives. The harness app ships a working showcase: run `pnpm dev:web` (or
 reduced-motion preview, and the maintained source is
 [`MotionPatterns.tsrx`](../../packages/demos/src/MotionPatterns.tsrx).
 
+The fragments in this section belong inside an existing component. They show
+the changing state and rendered content; the maintained source provides the
+complete components, imports, and inputs.
+
 ### Switch views with a wait-style swap
 
 Keep the outgoing view mounted until its exit finishes, then mount the new
@@ -900,7 +910,7 @@ const [shown, setShown] = useState(selected)
 
 // Keep Presence mounted around the outgoing view until its exit completes;
 // onExitComplete sees the latest selection, so rapid presses converge on it.
-<Presence present={shown === selected} onExitComplete={() => setShown(selected)}>
+;<Presence present={shown === selected} onExitComplete={() => setShown(selected)}>
 	<motion.View exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.22 }}>
 		{renderPanel(shown)}
 	</motion.View>
@@ -1132,7 +1142,7 @@ const x = useTransform(progress, (p) => Math.sin(p * Math.PI * 2 + phase) * ampl
 const y = useTransform(progress, (p) => Math.sin(p * Math.PI * 4 + phase * 1.7) * amplitudeY)
 const rotate = useTransform(progress, (p) => Math.sin(p * Math.PI * 6 + phase * 0.6) * rotation)
 
-<motion.View style={{ x, y, rotate }}>{props.children}</motion.View>
+;<motion.View style={{ x, y, rotate }}>{props.children}</motion.View>
 ```
 
 ### Orbit a ring
@@ -1148,7 +1158,7 @@ const theta = (p: number) => (index / count + p * sign) * Math.PI * 2
 const x = useTransform(progress, (p) => center - slot / 2 + Math.cos(theta(p)) * radius)
 const y = useTransform(progress, (p) => center - slot / 2 + Math.sin(theta(p)) * radius)
 
-<Absolute style={{ width: size, height: size }}>
+;<Absolute style={{ width: size, height: size }}>
 	{/* one motion.View per child, style={{ x, y, width: slot, height: slot }} */}
 </Absolute>
 ```
@@ -1158,7 +1168,7 @@ web renderer `props.children` arrives as an opaque slot, so mark the
 component with `descriptorChildren` — the same marker ui's `List` and
 `Carousel` use — then read the array with `Children.toArray`.
 
-```tsx
+```tsrx
 import { Children, descriptorChildren } from 'octane'
 
 function RingImpl(props: { children?: any }) @{
@@ -1184,7 +1194,7 @@ the portable z-index.
 const x = useMotionValue(seedX * maxX)
 const y = useMotionValue(seedY * maxY)
 
-<motion.View
+;<motion.View
 	drag={true}
 	dragConstraints={{ left: 0, top: 0, right: maxX, bottom: maxY }}
 	dragElastic={0.2}
@@ -1201,7 +1211,7 @@ Use UI's `useAnimation` for a single value attached to a component ref. This
 works on web, iOS, Android, and native AppKit. For example, press **Slide** to
 move a card 80 points or pixels to the right, then **Return** to spring back:
 
-```tsx
+```tsrx
 import { View, Text, Pressable, useAnimation } from '@octane-xplat/ui'
 
 export function SlidingCard() @{

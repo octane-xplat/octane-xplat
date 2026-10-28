@@ -66,7 +66,7 @@ const card = css({
 })
 ```
 
-Guide: [Styling screens](../../docs/app/styling.md).
+Guide: [Styling screens](https://octane-xplat.goddardai.org/styling).
 
 ## Custom builders with unused environments
 

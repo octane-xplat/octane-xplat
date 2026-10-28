@@ -52,5 +52,5 @@ import { HStack, Text } from '@octane-xplat/ui'
 - **macOS** — an entry exists
 
 Per-target limits are recorded in
-[known limits](../../docs/testing/known-limits.md). Exercised by
-[`PagerDemo`](../demos/src/PagerDemo.tsrx).
+[known limits](https://octane-xplat.goddardai.org/known-limits). Exercised by
+[`PagerDemo`](https://github.com/octane-xplat/octane-xplat/blob/main/packages/demos/src/PagerDemo.tsrx).

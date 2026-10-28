@@ -1,5 +1,7 @@
 # Add an iOS material behind controls
 
+> Put an iOS glass or blur material behind a group of controls.
+
 Use this in an `.ios.tsrx` screen. `LiquidGlass` uses native glass on iOS 26+
 and adaptable system material blur on iOS 13–25. The blur follows the system's
 appearance; glass-only `variant`, `tint`, and effect animation settings do not

@@ -7,6 +7,13 @@ this package adds no third renderer, no runtime entry, and no startup side
 effects. Every export is declarations only: the Octane compiler lowers JSX
 before any `jsx()` factory could run, so these subpaths never execute.
 
+The app creator configures this package. For an existing custom setup, add it
+as a development dependency alongside the app's existing Octane dependency:
+
+```sh
+pnpm add -D @octane-xplat/jsx
+```
+
 ## Select a JSX source
 
 - Native files select the shared contract — `jsxImportSource` set to
@@ -33,8 +40,14 @@ platform view — name the concrete host type where the ref is declared. A
 `.ios.tsrx` leaf can use the NativeScript `View` directly:
 
 ```tsx
-const pagerRef = useRef<View | null>(null)
-return <pager ref={pagerRef} items={items} />
+/** @jsxImportSource @octane-xplat/jsx */
+import { useRef } from 'octane'
+import type { View } from '@nativescript/core'
+
+export function NativeLabel() {
+	const labelRef = useRef<View | null>(null)
+	return <label ref={labelRef} text="Trip details" />
+}
 ```
 
 Conditions change host element value types only — never intrinsic
@@ -64,3 +77,5 @@ declare module '@octane-xplat/jsx/intrinsics' {
 
 Platform-scoped registrations belong in platform-suffixed files so the added
 membership only appears where the element exists.
+
+For app configuration, follow [TypeScript and JSX setup](https://octane-xplat.goddardai.org/module-resolution#typescript).

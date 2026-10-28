@@ -1,14 +1,14 @@
 # `@octane-xplat/audio`
 
-```sh
-pnpm add @octane-xplat/audio
-```
-
 Long-form audio playback for Octane xplat apps — a queue player, not a
 sound-effect bank. iOS uses `AVPlayer`/`AVAudioSession` (interruption
 handling included) and Android uses a package-owned Media3 playback service.
 macOS uses a package-owned AVPlayer bridge. Web uses an
 `HTMLAudioElement` plus the Media Session API for system controls.
+
+```sh
+pnpm add @octane-xplat/audio
+```
 
 ```ts
 import { createAudioPlayer } from '@octane-xplat/audio'
@@ -64,12 +64,12 @@ export async function playTrack(source: string) {
 }
 ```
 
-For short UI sounds use [`@octane-xplat/sounds`](../sounds/README.md).
+For short UI sounds use [`@octane-xplat/sounds`](https://github.com/octane-xplat/octane-xplat/blob/main/packages/sounds/README.md).
 
-Guide: [Media services](../../docs/platform/media-services.md); per-target
-availability: [platform notes](../../.agents/docs/notes/platform-notes.md). Exercised by
+Guide: [Media services](https://octane-xplat.goddardai.org/media-services); per-target
+availability: [platform notes](https://github.com/octane-xplat/octane-xplat/blob/main/.agents/docs/notes/platform-notes.md). Exercised by
 the harness `MediaServices` screen
-([`packages/app/src/MediaServices.tsrx`](../app/src/MediaServices.tsrx)).
+([`packages/app/src/MediaServices.tsrx`](https://github.com/octane-xplat/octane-xplat/blob/main/packages/app/src/MediaServices.tsrx)).
 
 ## Foreground verification
 
@@ -99,5 +99,5 @@ Boundary timing comes from media positions and polling; it does not measure
 an audible gap. RSS samples cover the owned AppKit process, excluding GPU and
 other processes. Startup, leaks, durable progress, background execution and
 physical output need separate acceptance. The
-[packed listening/settings check](../../tools/native-readiness/README.md)
+[packed listening/settings check](https://github.com/octane-xplat/octane-xplat/blob/main/tools/native-readiness/README.md)
 exercises these services together in an external mobile consumer.

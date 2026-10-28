@@ -1,9 +1,5 @@
 # `@octane-xplat/share`
 
-```sh
-pnpm add @octane-xplat/share
-```
-
 The platform share sheet for Octane xplat apps. iOS and Android run
 `@nativescript/social-share` for text/URLs plus the package's own
 `UIActivityViewController`/`ACTION_SEND` path for files; web calls
@@ -11,6 +7,10 @@ The platform share sheet for Octane xplat apps. iOS and Android run
 degrades to a clipboard copy elsewhere so the call still does something
 useful; macOS forwards the payload to the AppKit host, which presents
 `NSSharingServicePicker`.
+
+```sh
+pnpm add @octane-xplat/share
+```
 
 ```ts
 import { share } from '@octane-xplat/share'
@@ -74,7 +74,7 @@ Platform notes:
   In a macOS-hosted webview the call forwards to the AppKit share picker.
 - **macOS** presents `NSSharingServicePicker` for the file.
 
-Guide: [Using device features](../../docs/platform/platform-services.md);
-per-target availability: [platform notes](../../.agents/docs/notes/platform-notes.md).
+Guide: [Using device features](https://octane-xplat.goddardai.org/platform-services);
+per-target availability: [platform notes](https://github.com/octane-xplat/octane-xplat/blob/main/.agents/docs/notes/platform-notes.md).
 Exercised by the harness `Services` screen
-([`packages/app/src/Services.tsrx`](../app/src/Services.tsrx)).
+([`packages/app/src/Services.tsrx`](https://github.com/octane-xplat/octane-xplat/blob/main/packages/app/src/Services.tsrx)).

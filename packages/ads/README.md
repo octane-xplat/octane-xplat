@@ -1,25 +1,46 @@
-# `@octane-xplat/ads`
+# @octane-xplat/ads
+
+Show Google AdMob banners and fullscreen ads in an iOS or Android app.
+Web and desktop report `supported: false`.
+
+## Show a banner
+
+Install in an existing Xplat app:
 
 ```sh
 pnpm add @octane-xplat/ads
 ```
 
-Google AdMob — `<BannerAd>` plus interstitial, rewarded, and
-rewarded-interstitial formats through `@nativescript/google-mobile-ads`.
-Mirrors `react-native-google-mobile-ads` naming (Expo's ads packages are
-deprecated). Consent (UMP/ATT) stays in the permissions seam.
+Before launching, configure the AdMob **app ID** in the native host:
+`GADApplicationIdentifier` in `App_Resources/iOS/Info.plist`, or
+`com.google.android.gms.ads.APPLICATION_ID` in the Android manifest's
+application metadata. An app ID identifies the app; an **ad unit ID** identifies
+an ad placement. Follow the [NativeScript plugin setup](https://docs.nativescript.org/plugins/google-mobile-ads)
+for the remaining platform and consent configuration. Installing the package
+does not complete that setup.
 
-```tsx
-import { ads, BannerAd } from '@octane-xplat/ads'
+Initialize once during startup, after the app's consent flow:
 
-await ads.initialize()
+```ts
+import { ads } from '@octane-xplat/ads'
 
-<BannerAd adUnitId="ca-app-pub-3940256099942544/6300978111" size="anchoredAdaptive" />
-
-const rewarded = ads.createRewardedAd('ca-app-pub-3940256099942544/5224354917')
-rewarded.onAdEvent((e) => e.type === 'earned_reward' && grant(e.reward))
-rewarded.load(); rewarded.show()
+if (ads.supported) await ads.initialize()
 ```
 
-Web/desktop report `supported: false` (AdSense is a different product).
-`createAppOpenAd` throws — upstream ships no AppOpenAd wrapper.
+Render this component from a phone screen after initialization. Supply an ad
+unit for the current platform; use your provider's test unit while developing:
+
+```tsx
+import { BannerAd } from '@octane-xplat/ads'
+
+export function SponsorBanner({ adUnitId }: { adUnitId: string }) {
+	return <BannerAd adUnitId={adUnitId} size="anchoredAdaptive" />
+}
+```
+
+A test banner should appear after loading. If it does not, check app ID,
+ad unit platform, SDK errors, and network access before trying a production ad.
+Fullscreen ads have a separate load lifecycle: wait for a loaded event before
+showing one. The package does not wrap AppOpenAd; calling that factory throws.
+See the [public contracts](https://github.com/octane-xplat/octane-xplat/blob/main/packages/ads/src/types.ts)
+for the available formats and events.

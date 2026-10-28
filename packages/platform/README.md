@@ -36,7 +36,7 @@ by service. Shared names do not imply identical availability or responses.
 The full capability map lives in the docs:
 
 - [Using device features](https://octane-xplat.goddardai.org/platform-services) — guide
-- [Platform-service notes](https://octane-xplat.goddardai.org/notes/platform-notes) — per-capability impl map
+- [Known limits](https://octane-xplat.goddardai.org/known-limits) — availability and platform differences
 
 For agents: [llms.txt](https://octane-xplat.goddardai.org/llms.txt) indexes the docs; `llms-full.txt` inlines every guide.
 

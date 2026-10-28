@@ -1,23 +1,36 @@
-# `@octane-xplat/firebase-crashlytics`
+# @octane-xplat/firebase-crashlytics
+
+Report native crashes and handled errors to Firebase Crashlytics on iOS and
+Android. Web and desktop report `supported: false`; use a JavaScript error
+reporter such as [Sentry](https://github.com/octane-xplat/octane-xplat/blob/main/packages/sentry/README.md)
+for those targets.
+
+## Report a handled test error
+
+Install in an existing Xplat app:
 
 ```sh
 pnpm add @octane-xplat/firebase-crashlytics
 ```
 
-Firebase Crashlytics — fatal crash capture plus `log`/`recordError`
-non-fatals, user + attribute context, unsent-report controls on
-iOS/Android via `@nativescript/firebase-crashlytics`. There is no
-Crashlytics JS SDK, so web/desktop report `supported: false` — route those
-errors to `@octane-xplat/sentry` or `posthog`.
+Complete the [NativeScript Firebase setup](https://firebase.nativescript.org/)
+with the app's Firebase configuration files before running this example.
+Use a test project, then call this function from a test action:
 
 ```ts
 import { crashlytics } from '@octane-xplat/firebase-crashlytics'
 
-crashlytics.setUserId(user.id)
-crashlytics.setAttribute('plan', 'pro')
-crashlytics.log('entering checkout')
-try { pay() } catch (e) { crashlytics.recordError(e) }
+export async function reportTestError() {
+	if (!crashlytics.supported) return
+	await crashlytics.setAttribute('scenario', 'documentation-example')
+	crashlytics.log('Sending a handled test error')
+	crashlytics.recordError(new Error('Xplat documentation test'))
+}
 ```
 
-Fatal reports upload on the next app launch; verify in the console after a
-relaunch, not immediately.
+Check that the handled error reaches the intended project. Native fatal-crash
+reports are sent after the next launch, so verifying them requires a separate
+crash-and-relaunch test. This example deliberately does not crash the app.
+Production symbol uploads require build configuration beyond this adapter.
+See the [public contract](https://github.com/octane-xplat/octane-xplat/blob/main/packages/firebase-crashlytics/src/types.ts)
+for collection and unsent-report controls.

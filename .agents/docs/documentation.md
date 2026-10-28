@@ -3,6 +3,10 @@
 Paths in code spans refer to the repository root. Read this reference when its
 subject applies to your task; [AGENTS.md](../../AGENTS.md) is the entry point.
 
+Use the [documentation quality system](documentation-quality.md) to apply these
+rules to public guides and package READMEs: page ownership, editorial review,
+automated checks, change-triggered maintenance, and periodic audits.
+
 ## Earn interest and keep momentum
 
 Give people room to fall in love with the framework. Help them picture

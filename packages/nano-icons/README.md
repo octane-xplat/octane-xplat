@@ -11,7 +11,7 @@ just text drawing. See [Licenses and upstream credit](#licenses-and-upstream-cre
 Reach for this package when a screen repeats icons and the artwork is a static, flat
 shape set — the font wins on repeated-instance cost and multicolor layering. For
 arbitrary SVG fidelity (gradients, filters, `<defs>` paint servers) keep using
-[`@octane-xplat/icons`](../icons).
+[`@octane-xplat/icons`](https://github.com/octane-xplat/octane-xplat/tree/main/packages/icons).
 
 ## Quick start
 
@@ -111,11 +111,15 @@ A glyph's layers stack in one layout cell: each entry in
 family, drawn top-to-bottom in source order. `color` tints by `tintMode`:
 
 ```tsx
-<MyIcon name="bell" color="#e11d48" />                       // tintMode 'currentColor' (default):
-															// only currentColor layers tint
-<MyIcon name="bell" color="#e11d48" tintMode="all" />        // every layer tinted
-<MyIcon name="bell" color={['#f59e0b', '#1d4ed8']}           // palette applies per
-	tintMode="all" />                                        // tintable-layer position
+// Inside the component that imports MyIcon from the generated module:
+<>
+	{/* Default: tint only layers authored with currentColor. */}
+	<MyIcon name="bell" color="#e11d48" />
+	{/* Tint every layer. */}
+	<MyIcon name="bell" color="#e11d48" tintMode="all" />
+	{/* Apply a palette in tintable-layer order. */}
+	<MyIcon name="bell" color={['#f59e0b', '#1d4ed8']} tintMode="all" />
+</>
 ```
 
 Without `color`, source fills render as authored; `currentColor` layers fall back to the
@@ -190,10 +194,10 @@ platform bags (`ios`, `android`, `macos`, `web`) still reach the underlying host
 Package checks:
 
 ```sh
-pnpm --filter @octane-xplat/nano-icons build
-pnpm --filter @octane-xplat/nano-icons typecheck
-pnpm --filter @octane-xplat/nano-icons test
-pnpm --filter @octane-xplat/nano-icons pack:check
+pnpm exec turbo run build --filter=@octane-xplat/nano-icons
+pnpm exec turbo run typecheck --filter=@octane-xplat/nano-icons
+pnpm exec turbo run test --filter=@octane-xplat/nano-icons
+pnpm exec turbo run pack:check --filter=@octane-xplat/nano-icons
 ```
 
 Maintained probes (nonvisual: font registration, layer structure, sizing, tint):
@@ -214,7 +218,7 @@ This package is MIT, like the rest of Octane Xplat. The geometry pipeline in
 `src/build/core` and the glyph-map/runtime model are ported or adapted from
 [react-native-nano-icons](https://github.com/software-mansion-labs/react-native-nano-icons)
 @ `3ffd367` — MIT, © Software Mansion. Third-party engine dependencies carry their own
-licenses; see [LICENSES.md](./LICENSES.md) for the full attribution text.
+licenses; see [LICENSES.md](https://github.com/octane-xplat/octane-xplat/blob/main/packages/nano-icons/LICENSES.md) for the full attribution text.
 
 Icon sets retain their own licenses exactly as with `@octane-xplat/icons`; check each
 set's `info.json` and license files before bundling.

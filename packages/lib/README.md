@@ -42,3 +42,5 @@ const sameGroups =
 	equalAccessibilityProps(props, next) && equalLayoutChildProps(props, next)
 // sameGroups is false; forwarded.row remains 0.
 ```
+
+App authors should start with [shared UI](https://octane-xplat.goddardai.org/primitives) and [device services](https://octane-xplat.goddardai.org/platform-services).

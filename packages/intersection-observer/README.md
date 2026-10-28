@@ -3,6 +3,12 @@
 Cross-platform visibility tracking for Octane xplat, mirroring the DOM
 `IntersectionObserver` contract as closely as each target allows.
 
+From an existing Xplat app, install the package before using the example:
+
+```sh
+pnpm add @octane-xplat/intersection-observer
+```
+
 ```tsx
 import { useIntersectionObserver } from '@octane-xplat/intersection-observer'
 import { View, Text } from '@octane-xplat/ui'

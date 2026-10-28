@@ -4,7 +4,13 @@ Native rich-text editing for Octane Xplat apps: WordPress Aztec's `AztecText`
 on Android — a `Spannable`-backed `EditText`, not a WebView — and
 AztecEditor-iOS (`Aztec.TextView`) on iOS through the `XplatAztecEditorView`
 Swift facade in `platforms/ios`. Web and Windows return `supported: false`;
-the [`@octane-xplat/tiptap`](../tiptap/README.md) facade covers web.
+the [`@octane-xplat/tiptap`](https://github.com/octane-xplat/octane-xplat/blob/main/packages/tiptap/README.md) facade covers web.
+
+From an existing Xplat app, install the package before using the example:
+
+```sh
+pnpm add @octane-xplat/richtext
+```
 
 ```tsx
 import { useState } from 'octane'
@@ -86,8 +92,8 @@ plugin discovery applies both when the app depends on
 `apply('taskList')` and the `align*` formats report a warning and leave the
 document unchanged, and `isActive` returns `false` for them.
 See the framework guide for the full contract and the demo:
-[`docs/app/rich-text.md`](../../docs/app/rich-text.md) and
-[`packages/demos/src/RichTextEditorDemo.tsrx`](../demos/src/RichTextEditorDemo.tsrx).
+[`docs/app/rich-text.md`](https://octane-xplat.goddardai.org/rich-text) and
+[`packages/demos/src/RichTextEditorDemo.tsrx`](https://github.com/octane-xplat/octane-xplat/blob/main/packages/demos/src/RichTextEditorDemo.tsrx).
 
 ## macOS AppKit
 
@@ -95,4 +101,4 @@ The macOS export mounts a bundled local editor document in WKWebView.
 RichText uses StarterKit; Tiptap and Lexical use their existing web facades.
 Wait for `onReady`; synchronous getters return the latest received snapshot
 and commands cross WebKit asynchronously. The `native` handle is the Swift
-host transport. See [AppKit setup and engine limits](../../docs/app/rich-text.md#macos-appkit-editing).
+host transport. See [AppKit setup and engine limits](https://octane-xplat.goddardai.org/rich-text#macos-appkit-editing).

@@ -1,5 +1,7 @@
 # Add actions and choices to a menu
 
+> Give someone a menu of actions and choices for the current task.
+
 Use `DropdownMenu` for a button that opens actions. Use `ContextMenu` for actions
 on an existing piece of content. Both come from `@octane-xplat/ui` and use the
 same menu parts on web, iOS, Android, and macOS.
@@ -29,7 +31,7 @@ Compound content means placing menu components inside the menu instead of
 supplying an array. A checkbox represents an independent yes/no choice. A
 radio group represents one choice from a named set.
 
-```tsx
+```tsrx
 import { useState } from 'octane';
 import {
   DropdownMenu, DropdownMenuItem, DropdownMenuSeparator,
@@ -132,7 +134,7 @@ and VoiceOver/TalkBack announcements have not been verified by this task.
 Native action/state regression tests use the universal object driver, not a
 running device. macOS renderer accessibility support is narrower than web ARIA;
 checked indicators are rendered, but OS checked/radio announcements are unverified.
-For platform-native OS menus, see [the separate context-menu leaf](platform/context-menu.md).
+For platform-native OS menus, see [the separate context-menu leaf](../platform/context-menu.md).
 
 ## Keep a long breadcrumb trail usable
 
@@ -159,6 +161,6 @@ menu trigger. The current page remains visible.
 `BreadcrumbMenuRadioGroup`, `BreadcrumbMenuRadioItem`, and `BreadcrumbMenuSubMenu`
 exports use the same implementations as the other menu families.
 
-The maintained [component demo](../packages/demos/src/ComponentsDemo.tsrx)
+The maintained [component demo](../../packages/demos/src/ComponentsDemo.tsrx)
 shows legacy rows, checkbox/radio choices, submenus, a visible context trigger,
 and breadcrumb overflow together.

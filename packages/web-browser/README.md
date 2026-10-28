@@ -1,14 +1,14 @@
 # `@octane-xplat/web-browser`
 
-```sh
-pnpm add @octane-xplat/web-browser
-```
-
 Open web content *inside* the app — `SFSafariViewController` on iOS, Chrome
 Custom Tabs (`androidx.browser`) on Android. This is not the OAuth session
 (`@octane-xplat/platform`'s `authSession` intercepts callback schemes) and not
 embedded content (`<WebView>` renders pages the app controls) — use it for
 links that should feel in-app but aren't yours.
+
+```sh
+pnpm add @octane-xplat/web-browser
+```
 
 ```ts
 import { webBrowser } from '@octane-xplat/web-browser'
@@ -24,3 +24,5 @@ Web falls back to `window.open`; macOS delegates to the external browser
 (`supported: false` there — it's not the in-app contract). `warmUp`/
 `coolDown`/`mayInitWithUrl` pre-warm the Android Custom Tabs service and
 no-op elsewhere.
+
+Continue with [Device feature availability](https://octane-xplat.goddardai.org/platform-services).

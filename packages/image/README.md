@@ -1,9 +1,5 @@
 # `@octane-xplat/image`
 
-```sh
-pnpm add @octane-xplat/image
-```
-
 Cached remote/local images for Octane xplat apps: a plain `<img>` on web and
 [`@nativescript-community/ui-image`](https://github.com/nativescript-community/ui-image)
 v5 on native — **Glide + okhttp3 on Android** (sized LRU memory cache, bitmap
@@ -16,6 +12,10 @@ for `@octane-xplat/ui`'s `Image` — the same name and the same prop contract
 (`src` incl. `ImageSourceLike[]` multi-source, `alt`, `placeholder`,
 `recyclingKey`, `contentFit`, `contentPosition`, layout-child props,
 `ios`/`android`/`web` bags). Switching engines is an import-path change:
+
+```sh
+pnpm add @octane-xplat/image
+```
 
 ```tsx
 import { Image } from '@octane-xplat/image' // was '@octane-xplat/ui'
@@ -124,5 +124,5 @@ cached", not "absent".
   engine there; cache helpers resolve as no-ops.
 
 Per-target limits are recorded in
-[known limits](../../docs/testing/known-limits.md). Exercised by
-[`CachedImageDemo`](../demos/src/CachedImageDemo.tsrx).
+[known limits](https://octane-xplat.goddardai.org/known-limits). Exercised by
+[`CachedImageDemo`](https://github.com/octane-xplat/octane-xplat/blob/main/packages/demos/src/CachedImageDemo.tsrx).

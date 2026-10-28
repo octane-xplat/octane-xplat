@@ -1,9 +1,5 @@
 # `@octane-xplat/media`
 
-```sh
-pnpm add @octane-xplat/media @octane-xplat/files
-```
-
 Still-image picking and OS camera capture for Octane xplat apps. iOS runs
 `@nativescript/imagepicker` + `@nativescript/camera`, Android the same
 plugins over its photo picker/camera intent; web uses `<input
@@ -11,6 +7,10 @@ type="file">` (with the `capture` attribute for camera shots, which mobile
 browsers route to the camera app). macOS AppKit uses the normal file picker
 for existing images and an app-owned Capture/Cancel sheet for still photos.
 Photos-library browsing and gallery saving remain unsupported.
+
+```sh
+pnpm add @octane-xplat/media @octane-xplat/files
+```
 
 ```ts
 import { media } from '@octane-xplat/media'
@@ -73,12 +73,12 @@ try {
 ```
 
 For a live preview surface instead of one-shot capture, use
-[`@octane-xplat/camera`](../camera/README.md)'s `CameraView`.
+[`@octane-xplat/camera`](https://github.com/octane-xplat/octane-xplat/blob/main/packages/camera/README.md)'s `CameraView`.
 
-Guide: [Using device features](../../docs/platform/platform-services.md);
-per-target availability: [platform notes](../../.agents/docs/notes/platform-notes.md).
+Guide: [Using device features](https://octane-xplat.goddardai.org/platform-services);
+per-target availability: [platform notes](https://github.com/octane-xplat/octane-xplat/blob/main/.agents/docs/notes/platform-notes.md).
 Exercised by the harness `Services` screen and
-[`CameraDemo`](../demos/src/CameraDemo.tsrx).
+[`CameraDemo`](https://github.com/octane-xplat/octane-xplat/blob/main/packages/demos/src/CameraDemo.tsrx).
 
 On AppKit, invoke capture from a user action. The first Capture press authorizes
 and starts the camera preview; the next takes the photo. Cancel or failure keeps
@@ -95,4 +95,4 @@ export async function onCapturePress() {
 }
 ```
 
-[AppKit setup and ownership example](../../docs/platform/platform-services.md#appkit-still-photos).
+[AppKit setup and ownership example](https://octane-xplat.goddardai.org/platform-services#appkit-still-photos).

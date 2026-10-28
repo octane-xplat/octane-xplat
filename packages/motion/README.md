@@ -5,14 +5,6 @@ Declarative numeric motion for Octane UI on web, iOS, Android, and the experimen
 and `transition`, or `drag` with numeric translation bounds. Bound motion
 values update hosts without rendering each frame.
 
-Imperative `MotionValue.animate` also accepts `type: 'inertia'` for
-velocity-driven release (upstream drag semantics): the `target` argument is
-ignored, so pass `value.get()`.
-
-```ts
-x.animate(x.get(), { type: 'inertia', velocity: vx, min, max, power: 0.5, timeConstant: 280 })
-```
-
 ```sh
 pnpm add @octane-xplat/motion
 ```
@@ -27,18 +19,19 @@ export function MovingCard() {
 			initial={{ opacity: 0 }}
 			animate={{ opacity: 1 }}
 			transition={{ duration: 0.3 }}
-			drag="x"
-			dragConstraints={{ left: 0, right: 120 }}
 		>
-			<Text>Drag the packing card</Text>
+			<Text>Packing card</Text>
 		</motion.View>
 	)
 }
 ```
 
+The card should fade into view. To add dragging, first complete native gesture
+setup below.
+
 iOS and Android apps using `drag` must install `@nativescript-community/gesturehandler`
 and call its `install()` before creating the root. Web does not require this
-optional peer. See [drag setup](../../docs/app/animation-gestures.md#drag-a-component).
+optional peer. See [drag setup](https://octane-xplat.goddardai.org/animation-gestures#drag-a-component).
 
 ```ts
 // bootstrap.mobile.ts — before Application.run or creating Page/Frame roots.
@@ -47,10 +40,25 @@ import { install } from '@nativescript-community/gesturehandler'
 install()
 ```
 
-See the [motion guide](../../docs/app/animation-gestures.md) and the maintained
-[MotionDemo](examples/MotionDemo.tsrx); [PresenceDemo](examples/PresenceDemo.tsrx)
-covers retained exits. The [compatibility record](UPSTREAM.md) defines the
+See the [motion guide](https://octane-xplat.goddardai.org/animation-gestures) and the maintained
+[MotionDemo](https://github.com/octane-xplat/octane-xplat/blob/main/packages/motion/examples/MotionDemo.tsrx); [PresenceDemo](https://github.com/octane-xplat/octane-xplat/blob/main/packages/motion/examples/PresenceDemo.tsrx)
+covers retained exits. The [compatibility record](https://github.com/octane-xplat/octane-xplat/blob/main/packages/motion/UPSTREAM.md) defines the
 supported subset and differences from `@octanejs/motion`.
+
+Imperative inertia continues a value using a release velocity. Put this hook
+inside a `.tsx` or `.tsrx` component; call `release` when the gesture ends:
+
+```tsx
+import { useMotionValue } from '@octane-xplat/motion'
+
+export function useHorizontalRelease() {
+	const x = useMotionValue(0)
+	const release = (velocity: number) => x.animate(x.get(), {
+		type: 'inertia', velocity, min: 0, max: 120, power: 0.5, timeConstant: 280,
+	})
+	return { x, release }
+}
+```
 
 Add `layout` to animate a resize when a prop changes:
 
@@ -63,14 +71,14 @@ export function LayoutCard({ expanded }: { expanded: boolean }) {
 ```
 
 For movement between components and crossfading content, follow the
-[shared-element guide](../../docs/app/animation-gestures.md#move-an-element-between-components).
+[shared-element guide](https://octane-xplat.goddardai.org/animation-gestures#move-an-element-between-components).
 
 Generate declarations with `pnpm exec turbo run typegen --filter=@octane-xplat/motion`;
 run DOM/engine and universal lifecycle tests with
 `pnpm exec turbo run test test:native --filter=@octane-xplat/motion`.
 Native compilation and object-driver tests are not physical-device evidence.
 
-macOS has [package-boundary acceptance and focused native-channel checks](UPSTREAM.md#macos-package-boundary),
+macOS has [package-boundary acceptance and focused native-channel checks](https://github.com/octane-xplat/octane-xplat/blob/main/packages/motion/UPSTREAM.md#macos-package-boundary),
 plus layout and shared-handoff geometry checks in `test:macos-runtime`.
 Its source and published imports are checked separately from real AppKit runtime
 assertions. Live OS preference changes, broader lifecycle acceptance and input

@@ -403,8 +403,8 @@ Engine-specific limits:
 To run the maintained checks from this repository, build the three packages
 with `pnpm --filter @octane-xplat/richtext --filter @octane-xplat/tiptap
 --filter @octane-xplat/lexical build`, then run
-`pnpm --filter @octane-xplat/richtext test:macos` and
-`pnpm --filter @octane-xplat/richtext test:packed`. These checks require an
+`pnpm exec turbo run test:macos --filter=@octane-xplat/richtext` and
+`pnpm exec turbo run test:packed --filter=@octane-xplat/richtext`. These checks require an
 Apple Silicon Mac with Xcode’s command-line tools.
 
 The maintained [isolated WebKit fixture](../../packages/richtext/test/verify-wk.mjs)

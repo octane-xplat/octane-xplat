@@ -6,10 +6,11 @@
 > Status: `0.x` — the API surface is still moving. iOS/Android targets need
 > the NativeScript toolchain (Xcode/JDK + `ns`).
 
-For a new app, start with the [creator](../create/README.md). The CLI runs
+For a new app, start with the [creator](https://github.com/octane-xplat/octane-xplat/blob/main/packages/create/README.md). The CLI runs
 configured web, iOS, and Android targets, plus opt-in experimental macOS,
-Windows, and Linux apps. The Windows scaffold has passed bundle generation
-only; launch and runtime behavior remain unverified. See [target support](https://octane-xplat.goddardai.org/spec#choose-your-targets).
+Windows, and Linux apps. Desktop setup and support depend on the selected
+host; check [target support](https://octane-xplat.goddardai.org/spec#choose-your-targets)
+before adding one to an app.
 
 For an existing app:
 
@@ -57,7 +58,7 @@ pnpm xplat build --targets web,android
 ```
 
 Linux packaging and its required manifest settings are documented in
-[Package a Linux app](../../docs/platform/linux-package.md). The CLI ships the
+[Package a Linux app](https://octane-xplat.goddardai.org/linux-package). The CLI ships the
 GJS host; Linux users supply the GTK/WebKit system runtime.
 
 ## App testing
@@ -69,7 +70,7 @@ pnpm xplat diagnostics --json                  # list this app's retained sessio
 pnpm xplat diagnostics --session SESSION_ID --json     # replace SESSION_ID with a returned sessionId
 ```
 
-See [development diagnostics](../../docs/testing/diagnostics.md) for platform
+See [development diagnostics](https://octane-xplat.goddardai.org/diagnostics) for platform
 coverage, browser forwarding, retention, and cursor-based reads.
 
 New apps include test setup for their enabled platforms, with framework-managed
@@ -112,7 +113,7 @@ skipped-file warnings, reconcile custom configuration, and adapt the sample test
 to your app. Web tests match `src/**/*.web.test.{ts,tsx,tsrx}` through
 `vitest.web.config.mts`; phone specs match `src/**/*.spec.{ts,tsx,tsrx}` through
 `vitest.config.mts` and `src/test.ts`. See the
-[testing guide](../../docs/testing/testing.md#add-automated-tests) for what each
+[testing guide](https://octane-xplat.goddardai.org/testing#add-automated-tests) for what each
 test environment can verify.
 
 ## Compatible versions
@@ -152,7 +153,7 @@ the legacy `@triniwiz` package were replaced. Scaffolded apps declare the core
 beta in `catalog:xplat`; upgrade migrates replaced engine pins and doctor
 rejects them until it runs. The Windows preview retains full MasonKit because
 core ships no Windows artifacts. See the
-[extraction design](../../.agents/design/mason-core-extraction.md) for
+[extraction design](https://github.com/octane-xplat/octane-xplat/blob/main/.agents/design/mason-core-extraction.md) for
 qualification limits.
 
 ```json
@@ -200,7 +201,7 @@ pnpm xplat doctor
 ```
 
 These are host checks; run your tests and relevant target builds after an
-upgrade. The shared [compatibility manifest](../create/compatibility.json)
+upgrade. The shared [compatibility manifest](https://github.com/octane-xplat/octane-xplat/blob/main/packages/create/compatibility.json)
 defines the set. Leaf packages continue to own their internal engine/plugin
 dependencies; those are not hidden in the CLI or indiscriminately overridden.
 
@@ -232,7 +233,7 @@ pnpm exec xplat lint src/*.ts src/*.tsrx
 TSRX runs the `xplat/*` rules through its own parser; Oxlint's built-in rules
 and automatic fixes run on regular JS/TS/JSX/TSX source. A project-root
 `.oxlintrc.json` replaces the bundled preset. See the
-[lint package](../lint/README.md#project-configuration) to retain the preset
+[lint package](https://github.com/octane-xplat/octane-xplat/blob/main/packages/lint/README.md#project-configuration) to retain the preset
 and override individual rules. Existing `xplat-lint` scripts still work:
 
 ```sh
@@ -378,7 +379,7 @@ export default defineConfig(({ mode }) => xplatMacOS(mode))
 ```
 
 It resolves the app's `@octane-xplat/macos-renderer` package and installed
-Octane compiler. See [AppKit renderer setup](../macos-renderer/README.md) for
+Octane compiler. See [AppKit renderer setup](https://github.com/octane-xplat/octane-xplat/blob/main/packages/macos-renderer/README.md) for
 application dependencies, root ownership, fonts, and development bundles.
 
 ```js

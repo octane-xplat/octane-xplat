@@ -1,101 +1,70 @@
 # @octane-xplat/ui
 
-> Build shared screens for your app, with platform-specific controls where
-> they improve the experience.
->
-> Status: `0.x` — the API surface is still moving. iOS/Android targets need
-> the NativeScript toolchain (Xcode/JDK + `ns`).
+Build shared screens with text, buttons, fields, lists, and layouts. The
+same components serve web, iOS, and Android; desktop hosts are experimental
+and have [specific support limits](https://octane-xplat.goddardai.org/spec#choose-your-targets).
+Xplat is in alpha, so APIs can change between releases.
 
-Start with the [app creator](../create/README.md) when building a new app with
-an agent. Xplat's target direction covers web, iOS, Android, macOS, Windows,
-and Linux; this package's established implementations cover web and mobile,
-with a bounded experimental macOS surface. The Windows scaffold has not yet
-been run on Windows, so UI support there remains unverified; Linux renders
-the DOM surface inside an experimental WebKitGTK host. See [target support](https://octane-xplat.goddardai.org/spec#choose-your-targets).
+For a new project, use the [first-app guide](https://octane-xplat.goddardai.org/toolchain#create-and-run).
+It configures the renderer, compiler, and styles. Installing this package alone
+does not configure an existing app.
 
-To add the UI package to an existing configured app:
+## Add a small screen
+
+In an already configured Xplat app, install the UI package and its Octane peer:
 
 ```sh
 pnpm add @octane-xplat/ui octane
 ```
 
-`octane` is a required peer; the `@nativescript/*` peers are optional and
-only needed for native targets.
-
-This component fragment assumes `save` is your app’s action handler.
-
-```tsx
-import { HStack, Text, Pressable } from '@octane-xplat/ui'
-
-;<HStack className="items-center gap-2">
-	<Text>Hello</Text>
-	<Pressable onPress={save}>
-		<Text>Save</Text>
-	</Pressable>
-</HStack>
-```
-
-The structural stylesheet is required; default component chrome is optional:
+Keep the required structural stylesheet in your app entry. The starter already
+imports it; the second import adds the optional default appearance:
 
 ```ts
 import '@octane-xplat/ui/theme/tokens.css'
-import '@octane-xplat/ui/theme/chrome.css' // optional defaults
+import '@octane-xplat/ui/theme/chrome.css'
 ```
 
-`styled()` composes class names from typed variant props — a class string
-is a boolean variant, an option→class record is an enumerated variant, and
-`defaultVariants` applies when the prop is omitted.
+Put this component in a `.tsx` or `.tsrx` screen and render it from your app.
+`useState` remembers the count; pressing the button changes the text:
 
 ```tsx
-import { styled, Pressable, Text } from '@octane-xplat/ui'
+import { useState } from 'octane'
+import { Pressable, Text, VStack } from '@octane-xplat/ui'
 
-const DangerAction = styled(Pressable, {
-	base: 'btn',
-	variants: { danger: 'bg-danger', size: { sm: 'btn-sm', lg: 'btn-lg' } },
-	defaultVariants: { size: 'sm' },
-})
-export function RemoveAction() {
+export function PackingCount() {
+	const [count, setCount] = useState(0)
 	return (
-		<DangerAction danger size="lg" onPress={() => console.log('Remove item')}>
-			<Text>Remove</Text>
-		</DangerAction>
+		<VStack>
+			<Text>{count} items packed</Text>
+			<Pressable onPress={() => setCount(count + 1)}>
+				<Text>Pack an item</Text>
+			</Pressable>
+		</VStack>
 	)
 }
 ```
 
-Links navigate to URLs or registered routes; Overlay owns a temporary surface,
-and showToast sends a notification to a mounted viewport or its fallback.
+Press **Pack an item** twice: the label should read **2 items packed**.
+Reloading resets it to zero. To keep data between sessions, follow
+[device storage](https://octane-xplat.goddardai.org/platform-services).
 
-```tsx
-import { Link, NavLink, Overlay, Text, showToast } from '@octane-xplat/ui'
+## Build the next part
 
-export function Actions() {
-	return (
-		<>
-			<Link href="https://example.com">Trip website</Link>
-			<NavLink route={{ name: 'home', stack: 'root', params: {} }}>Home</NavLink>
-			<Overlay open={false}>
-				<Text>Saved</Text>
-			</Overlay>
-		</>
-	)
-}
-showToast({ body: 'Trip saved' })
-```
+| Task                                      | Guide                                                                  |
+| ----------------------------------------- | ---------------------------------------------------------------------- |
+| Arrange text, buttons, and lists          | [Building screens](https://octane-xplat.goddardai.org/primitives)      |
+| Find a component                          | [Component index](https://octane-xplat.goddardai.org/components)       |
+| Change colors, spacing, and fonts         | [Styling screens](https://octane-xplat.goddardai.org/styling)          |
+| Connect screens with typed routes         | [Move between screens](https://octane-xplat.goddardai.org/navigation)  |
+| Load and share server data                | [Fetching data](https://octane-xplat.goddardai.org/data)               |
+| Choose a platform-specific implementation | [Platform files](https://octane-xplat.goddardai.org/module-resolution) |
 
-Docs:
+Use `className` for static styles and `style` for values calculated while the
+app runs. Keep browser APIs out of shared screens. Native targets need their
+platform toolchain; [phone setup](https://octane-xplat.goddardai.org/toolchain#run-on-ios-and-android)
+walks through it after the browser app works.
 
-- [Building screens](https://octane-xplat.goddardai.org/primitives) — the element vocabulary
-- [Styling screens](https://octane-xplat.goddardai.org/styling) — classes, tokens, runtime styles
-- [Moving between screens](https://octane-xplat.goddardai.org/navigation) — routes and links
-- [Known limits](https://octane-xplat.goddardai.org/known-limits) — broken/platform-bound seams, version-stamped
-
-For agents: [llms.txt](https://octane-xplat.goddardai.org/llms.txt) indexes the docs; `llms-full.txt` inlines every guide.
-
-Rules for consumers:
-
-- Static styles = `className`; dynamic styles = `style` objects.
-- One element vocabulary per file — platform divergence happens at file
-  boundaries (`*.web`, `.mobile`, `.ios`, `.android`, and the unsuffixed native default), not inside JSX.
-- No DOM globals in shared code; use `@octane-xplat/platform` for device
-  capabilities.
+Check [known limits](https://octane-xplat.goddardai.org/known-limits) for each
+feature and target you plan to ship. For agents,
+[llms.txt](https://octane-xplat.goddardai.org/llms.txt) indexes the same guides.

@@ -1,9 +1,23 @@
 # Move between screens
 
+> Open another screen, pass it an address, and return to where you started.
+
 Open a screen with a typed link, then return with the screen's own navigator.
 A route is an address your app knows how to display, such as `/items/coat`.
 Check [navigation limits](../testing/known-limits.md#navigation) for the
 platforms you use.
+
+Start with **Open your first route** below. Return to the later sections when
+you need a specific workflow:
+
+| Task | Section |
+| --- | --- |
+| Pass an item ID or filter | [Path, search, and loaded data](#separate-path-search-and-loaded-data) |
+| Require sign-in | [Return after sign-in](#return-after-sign-in) |
+| Show loading or recover from failure | [Pending work and failures](#handle-pending-work-and-failures) |
+| Protect an unfinished form | [Unsaved edits](#confirm-before-leaving-unsaved-edits) |
+| Open a modal screen | [Route modals](#present-a-route-modally) |
+| Open the app from a URL | [Incoming links](#handle-incoming-links) |
 
 ## Open your first route
 

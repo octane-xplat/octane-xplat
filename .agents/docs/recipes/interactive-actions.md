@@ -30,8 +30,8 @@ AppKit foundation callbacks and remaining OS-input limits are described in
 [macOS gesture callbacks](../../../packages/ui/changes/macos-gestures.md). This fixture
 does not qualify the complete action-control composition below.
 
-- AC1: [Action controls guide example](../../../docs/app/interactive-actions.md#action-controls-and-interactive-cards) and the maintained [action controls demo](../../../packages/demos/src/ActionControlsDemo.tsrx).
-- AC2: [Groups, toggles, and overflow menus](../../../docs/app/interactive-actions.md#action-controls-and-interactive-cards).
+- AC1: [Action controls guide example](../../../docs/app/interactive-actions.md#add-a-button) and the maintained [action controls demo](../../../packages/demos/src/ActionControlsDemo.tsrx).
+- AC2: [Groups, toggles, and overflow menus](../../../docs/app/interactive-actions.md#add-a-button).
 - AC3: [Interactive cards and links](../../../docs/app/interactive-actions.md#interactive-cards).
 - AC4: [Button compatibility](../../../docs/app/interactive-actions.md#button-states-and-actions).
 - AC5: [Icon registry scope](../../../docs/app/components.md#component-index) and its scoped registry example.

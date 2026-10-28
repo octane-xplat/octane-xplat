@@ -12,8 +12,8 @@ pnpm add @octane-xplat/effects
 There is no root export — import the platform entry in the matching
 platform-suffixed file:
 
-```tsx
-/** @jsxImportSource @nativescript-community/octane */
+```tsrx
+/** @jsxImportSource @octane-xplat/jsx */
 // effect.ios.tsrx
 import { ShaderEffect } from '@octane-xplat/effects/ios'
 import { Text } from '@octane-xplat/ui'
@@ -39,7 +39,7 @@ renders without the effect (the starter app's `build.xcconfig` already pins
 `useContext` values and live updates reach the effected subtree.
 
 ```tsx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 // effect.ios.tsx
 import { ShaderEffect } from '@octane-xplat/effects/ios'
 import { Text } from '@octane-xplat/ui'
@@ -60,6 +60,6 @@ export function StaticEffect() {
 
 No web implementation — guard usage behind a platform file boundary or a
 `supported` check in app code. Exercised by `EffectsDemo`
-([`packages/demos/src/EffectsDemo.ios.tsrx`](../demos/src/EffectsDemo.ios.tsrx),
+([`packages/demos/src/EffectsDemo.ios.tsrx`](https://github.com/octane-xplat/octane-xplat/blob/main/packages/demos/src/EffectsDemo.ios.tsrx),
 `.android`, `.macos`); component index:
-[`docs/app/components.md`](../../docs/app/components.md).
+[`docs/app/components.md`](https://octane-xplat.goddardai.org/components).

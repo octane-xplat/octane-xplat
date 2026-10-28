@@ -1,7 +1,7 @@
 # @octane-xplat/lint
 
 Check cross-platform code patterns in Octane Xplat apps and libraries,
-including `.tsrx` files. The [Xplat CLI](../cli/README.md#lint-and-format)
+including `.tsrx` files. The [Xplat CLI](https://github.com/octane-xplat/octane-xplat/blob/main/packages/cli/README.md#lint-and-format)
 includes this package and Oxlint; no separate lint installation or config is
 needed for its defaults:
 
@@ -120,4 +120,4 @@ console.debug('temporary diagnostic') // xplat-disable-line
 ```
 
 For a linked checkout with a missing `xplat-lint` shim, see the
-[CLI's bin repair instructions](../cli/README.md#working-against-a-local-checkout).
+[CLI's bin repair instructions](https://github.com/octane-xplat/octane-xplat/blob/main/packages/cli/README.md#working-against-a-local-checkout).

@@ -6,6 +6,12 @@ Compose on Android, and a real `NSDatePicker` on macOS. For portable form
 controls that work on every target, use `Calendar`, `DateInput`,
 `TimeInput`, `DateTimeInput`, and `DateRangeInput` from `@octane-xplat/ui`.
 
+From an existing Xplat app, install the package before using the example:
+
+```sh
+pnpm add @octane-xplat/date-picker
+```
+
 ```tsx
 import { useState } from 'octane'
 import { DateInput } from '@octane-xplat/ui'
@@ -26,7 +32,7 @@ The old `@octane-xplat/date-picker/web` `DateInput` subpath was removed because
 its browser-only string contract conflicted with the shared `DateInput` API.
 
 ```tsx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 // SwiftUIDatePickerExample.ios.tsx
 import { SwiftUIDatePicker } from '@octane-xplat/date-picker/ios'
 
@@ -43,7 +49,7 @@ export function Picker() {
 ```
 
 ```tsx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 // MaterialDatePickerExample.android.tsx
 import { MaterialDatePicker } from '@octane-xplat/date-picker/android'
 
@@ -108,10 +114,10 @@ lazy grid collapses under unbounded height), and keep `initialDate` and
 `selectableDates` identity-stable — the provider keys its state `remember`
 on them, so a per-render `new Date()` resets the selection.
 See the framework guide for details and maintained examples:
-[`docs/platform/date-picker.md`](../../docs/platform/date-picker.md).
+[`docs/platform/date-picker.md`](https://octane-xplat.goddardai.org/date-picker).
 
 ```tsx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 // Departure.android.tsx — reuse these objects while the picker is mounted.
 import { MaterialDatePicker } from '@octane-xplat/date-picker/android'
 

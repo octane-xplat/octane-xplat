@@ -24,7 +24,7 @@ All four share the same core shape — `open` to control visibility,
 `onDismissed`, and a `content` render function:
 
 ```tsx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 // Details.ios.tsx
 import { useState } from 'octane'
 import { Button, Text } from '@octane-xplat/ui'
@@ -81,3 +81,5 @@ The native implementations are adapted from `@expo/ui` (MIT,
 `packages/expo-ui` sdk-57): `ios/BottomSheetView.swift` and
 `android/.../ui/ModalBottomSheetView.kt`. Attribution headers sit on the
 ported files.
+
+Continue with [Platform sheet setup and lifecycle](https://octane-xplat.goddardai.org/sheet).

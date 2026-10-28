@@ -7,19 +7,7 @@ renderer on the JavaScriptCore NativeScript host, and **Linux** through the
 real GTK4 renderer (`@octane-xplat/linux-gtk`) in a GJS window. Authoring contract
 version: **1**.
 
-[iOS/Android launch setup](MOBILE.md) and native adapters are implemented,
-but iOS, Android and Windows remain unqualified backends — `xplat workshop
-doctor` reports them honestly. Keyboard and browser accessibility semantics
-have regression coverage; actual screen-reader announcements and OS IME input
-still require qualification on every host. On macOS, scripted interaction
-dispatches through each view's real recognizer or control action — it is not
-OS-synthesized input or hit-testing. On Linux, GTK widget input/focus, Mason layout, and reload semantics remain
-actual-Linux-host gates (non-Linux GJS is a development stand-in, not
-qualification).
-
-For Windows prerequisite reporting and the blocked native launch, see
-[Windows workshop setup status](WINDOWS.md). Windows mounting and interaction
-remain incomplete; setup checks do not qualify that host.
+Start with the browser workflow below. Check [platform support and evidence](#platform-support-and-evidence) before choosing another host.
 
 ## Try it
 
@@ -51,7 +39,13 @@ pnpm exec xplat workshop list
 
 A story is a named example of your component. Save this in
 `src/counter.stories.tsrx`; `args` supplies its initial inputs, and the controls
-form edits only the declared portable prop values.
+form edits only the declared portable prop values. IDs address stories across
+reloads. Keep `id`, `title`, and `targets` literal: discovery reads them without
+running the module. Computed metadata and duplicate IDs produce diagnostics.
+
+`state` and `fixture` are reserved props supplied by the runner. Their factories
+return fresh data for each generation. Native readers subscribe with `useStore`,
+as `Counter` does here:
 
 ```tsx
 import { Pressable, Text } from '@octane-xplat/ui'
@@ -67,7 +61,7 @@ function Counter(p: Props & { state: Store<State>; fixture: Fixture }) {
 	return (
 		<Pressable
 			accessibilityLabel="Increment"
-			onPress={() => p.state.set((s) => ({ count: s.count + p.step }))}
+			onPress={() => p.state.update((s) => ({ count: s.count + p.step }))}
 		>
 			<Text>
 				{p.label ?? p.fixture.account}: {count}
@@ -91,28 +85,6 @@ export const Basic = defineStory<Props, State, Fixture>({
 })
 ```
 
-IDs address stories across reloads. Metadata must be literal: discovery reads
-it without evaluating the story or importing an incompatible platform leaf.
-Computed metadata and duplicate IDs produce catalog diagnostics. Use literal
-strings without escape sequences and literal arrays without expression suffixes.
-
-```ts
-// Inside the Basic declaration above:
-id: 'counter/basic',
-title: 'Examples / Counter',
-targets: ['web', 'ios'],
-```
-
-`state` and `fixture` are reserved prop names. The runner supplies a fresh store
-and resolved fixture for each generation; return new nested data from factories.
-The native readers of a store must subscribe with `useStore`, as Counter does.
-
-```ts
-// Inside the Basic declaration:
-state: () => ({ count: 0 }),
-fixture: () => ({ account: 'Demo' }),
-```
-
 ## State-preserving controls vs. full reset
 
 Control edits keep the current fixture, providers, store and component-local
@@ -120,12 +92,16 @@ state. **Unset** removes an optional value; required props cannot be unset.
 Empty, non-finite or out-of-range numbers show a field error and keep the last
 valid stage value. **Reset** creates a fresh complete generation.
 
+To reuse the controls from `Basic`, declare them in the same file and set its
+`controls` property to this value:
+
 ```ts
-// Inside the Basic declaration:
-controls: {
+import type { StoryControls } from '@octane-xplat/workshop'
+
+const controls: StoryControls<Props> = {
 	step: { type: 'number', min: 1, max: 10 },
 	label: { type: 'string', allowUnset: true },
-},
+}
 ```
 
 ## Owned fixture resources
@@ -136,29 +112,33 @@ stale content mounting. Cleanup starts in reverse registration order, attempts
 all entries, and awaits the combined result before another generation. A hung
 or rejected cleanup requires target restart, including failures in late cleanup.
 
+In the same file, define this factory and set `Basic`'s `fixture` property to
+`fixture`. Resetting the story releases the old timer before starting another:
+
 ```ts
-// Replace Basic's fixture factory with this local timer example:
-fixture: ({ signal, onCleanup }) => {
+import type { FixtureFactory } from '@octane-xplat/workshop'
+
+const fixture: FixtureFactory<Fixture> = ({ signal, onCleanup }) => {
 	const timer = setInterval(() => {
 		if (!signal.aborted) console.log('Demo fixture is active')
 	}, 1000)
 	onCleanup(() => clearInterval(timer))
 	return { account: 'Demo' }
-},
+}
 ```
 
 Providers wrap the compiled component; global presets wrap story-specific
 providers. Each owned secondary root needs the same explicit provider data and
 its own registered cleanup. The maintained
-[isolation example](../../apps/workshop-demo/src/stories/isolation.stories.web.tsrx)
+[isolation example](https://github.com/octane-xplat/octane-xplat/blob/main/apps/workshop-demo/src/stories/isolation.stories.web.tsrx)
 shows an actual secondary Octane root, shared provider store, and disposal.
 
 ```tsx
 function DemoProvider(p: { fixture: Fixture; children?: unknown }) {
 	return p.children
 }
-// Inside the Basic declaration:
-providers: [DemoProvider],
+// Use this array for Basic's providers field:
+const providers = [DemoProvider]
 ```
 
 Stories do not sandbox imported module globals, external stores or OS resources.
@@ -202,11 +182,19 @@ A platform-suffixed declaration has no loader on an incompatible target.
 It stays visible with its reason. Required capabilities are currently
 unknown/unqualified in this preview and cannot silently become supported.
 
+To make an iOS-only variant, save the earlier component, imports, and types in
+`counter.stories.ios.tsrx`, and replace its story declaration with:
+
 ```ts
-// A story saved in counter.stories.ios.tsrx:
-id: 'counter/ios-only',
-title: 'Examples / iOS counter',
-targets: ['ios'],
+export const IOSOnly = defineStory<Props, State, Fixture>({
+	id: 'counter/ios-only',
+	title: 'Examples / iOS counter',
+	targets: ['ios'],
+	component: Counter,
+	args: { step: 1 },
+	state: () => ({ count: 0 }),
+	fixture: () => ({ account: 'Demo' }),
+})
 ```
 
 ## Shell
@@ -303,12 +291,12 @@ runs the same browser acceptance catalog, measures warm HMR, and checks a normal
 production bundle for story/fixture/workshop markers. Generate dependency declarations first.
 
 ```sh
-pnpm --filter @octane-xplat/lib typegen
-pnpm --filter @octane-xplat/ui typegen
-pnpm --filter @octane-xplat/workshop typegen
-pnpm --filter @octane-xplat/workshop test
-pnpm --filter @octane-xplat/workshop test:packed
-pnpm --filter @octane-xplat/workshop test:packed:linux
+pnpm exec turbo run typegen --filter=@octane-xplat/lib
+pnpm exec turbo run typegen --filter=@octane-xplat/ui
+pnpm exec turbo run typegen --filter=@octane-xplat/workshop
+pnpm exec turbo run test --filter=@octane-xplat/workshop
+pnpm exec turbo run test:packed --filter=@octane-xplat/workshop
+pnpm exec turbo run test:packed:linux --filter=@octane-xplat/workshop
 ```
 
 The packed checks compile the published source with the consumer's toolchain.
@@ -317,3 +305,19 @@ The Linux packed check verifies packed export resolution, catalog
 applicability (including the `.stories.linux.*` diagnostic lane) and
 production-build exclusion statically — the GJS window, GTK input/focus and
 reload remain actual-host gates that no static check substitutes for.
+
+## Platform support and evidence
+
+[iOS/Android launch setup](https://github.com/octane-xplat/octane-xplat/blob/main/packages/workshop/MOBILE.md) and native adapters are implemented,
+but iOS, Android and Windows remain unqualified backends — `xplat workshop
+doctor` reports them honestly. Keyboard and browser accessibility semantics
+have regression coverage; actual screen-reader announcements and OS IME input
+still require qualification on every host. On macOS, scripted interaction
+dispatches through each view's real recognizer or control action — it is not
+OS-synthesized input or hit-testing. On Linux, GTK widget input/focus, Mason layout, and reload semantics remain
+actual-Linux-host gates (non-Linux GJS is a development stand-in, not
+qualification).
+
+For Windows prerequisite reporting and the blocked native launch, see
+[Windows workshop setup status](https://github.com/octane-xplat/octane-xplat/blob/main/packages/workshop/WINDOWS.md). Windows mounting and interaction
+remain incomplete; setup checks do not qualify that host.

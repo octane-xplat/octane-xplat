@@ -27,6 +27,12 @@ can do: “Show saved orders. If there are none, explain how to add one. If
 loading fails, offer Retry.” You can also write the components yourself.
 [Create an app](../start/toolchain.md#create-and-run) first if you haven't yet.
 
+New to Xplat? Follow [the practical example](#a-practical-example) first.
+Use the rest of this page as a reference, or choose a focused guide for
+[text entry](text-entry.md), [menus](menus.md), [tables](tables.md), and
+[search and selection](search-selection.md). Advanced host details are optional
+until your screen needs them.
+
 ## The components you reach for first
 
 | I need to…                           | Use                       |
@@ -1424,12 +1430,14 @@ and `startRecording` rejects with a typed `CameraCaptureError` instead of
 fabricating a lens.
 
 ```ts
+// Continue with the camera session created above.
 const caps = await session.capabilities()
-if (!caps.supported) {
-	return // hide capture UI on this host
+if (caps.supported) {
+	const permission = await session.requestPermission('camera')
+	console.log(permission)
+} else {
+	console.log('Camera capture is unavailable on this host')
 }
-
-const permission = await session.requestPermission('camera')
 ```
 
 Output is a durable file in app-private storage (`nativeFile` output —
@@ -2081,8 +2089,7 @@ explicit message with the media description; `hasAutoPlay` remains web-only.
 
 Try the maintained [shared presentation example](../../examples/probes/shared-presentations.tsrx).
 Supply your own image source before using its lightbox buttons. The
-[isolated AppKit fixture](../../apps/macos/test/verify-overlays.mjs) runs with
-`pnpm --filter @xplat/macos test:overlays` and checks native
+[isolated AppKit fixture](../../apps/macos/test/verify-overlays.mjs) checks native
 views, geometry, updates, focus, imperative results, timers, and teardown
 without screenshots. These are native-state and handler/API checks, not proof
 of physical mouse hit-testing, OS keyboard delivery, or VoiceOver navigation.

@@ -11,13 +11,9 @@ A coding agent can help run checks and fix failures. Ask it to tell you
 which commands passed and where it ran the app. A successful browser check
 is useful; you still need to try a phone feature on a phone or simulator.
 
-> Treat your agent's report as a claim to verify: catch shared-code mistakes
-> quickly, then prove the behavior on the targets you ship.
-
-An agent will call a task done on the strength of a typecheck and a passing
-browser. For an app you intend to ship, require the evidence below — and
-repeat the important flows yourself, because the agent's environment is not
-your user's.
+Ask for the commands run, their results, and the actual runtime targets tested.
+Use that evidence to choose what still needs checking on the platforms you
+intend to ship. Repeat the important flows yourself too.
 
 ## The short feedback loop
 

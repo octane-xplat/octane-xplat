@@ -1,14 +1,14 @@
 # `@octane-xplat/biometrics`
 
-```sh
-pnpm add @octane-xplat/biometrics
-```
-
 Local biometric verification — Face ID / Touch ID / fingerprint or device
 credential — behind one capability object. iOS and Android run
 `@nativescript/biometrics`; macOS AppKit uses Apple LocalAuthentication
 for Touch ID. Web reports `supported: false` because WebAuthn requires
 a registered credential and an authentication ceremony.
+
+```sh
+pnpm add @octane-xplat/biometrics
+```
 
 ```ts
 import { biometrics } from '@octane-xplat/biometrics'
@@ -43,7 +43,7 @@ if (availability.granted) {
 }
 ```
 
-Guide: [Using device features](../../docs/platform/platform-services.md);
-per-target availability: [platform notes](../../.agents/docs/notes/platform-notes.md).
+Guide: [Using device features](https://octane-xplat.goddardai.org/platform-services);
+per-target availability: [platform notes](https://github.com/octane-xplat/octane-xplat/blob/main/.agents/docs/notes/platform-notes.md).
 Exercised by the harness `Services` screen
-([`packages/app/src/Services.tsrx`](../app/src/Services.tsrx)).
+([`packages/app/src/Services.tsrx`](https://github.com/octane-xplat/octane-xplat/blob/main/packages/app/src/Services.tsrx)).

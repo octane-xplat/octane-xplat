@@ -104,9 +104,9 @@ Neither output path is implemented by this leaf.
 From the monorepo root:
 
 ```sh
-pnpm --filter @octane-xplat/image-crop test
-pnpm --filter @octane-xplat/image-crop typecheck
-pnpm --filter @octane-xplat/image-crop typegen
+pnpm exec turbo run test --filter=@octane-xplat/image-crop
+pnpm exec turbo run typecheck --filter=@octane-xplat/image-crop
+pnpm exec turbo run typegen --filter=@octane-xplat/image-crop
 pnpm probe doctor
 pnpm probe run packages/image-crop/examples/selection.tsrx --target web --deps @octane-xplat/image-crop
 pnpm probe run packages/image-crop/tests/selection.macos.tsrx --target macos --deps @octane-xplat/image-crop

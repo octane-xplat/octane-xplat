@@ -85,7 +85,7 @@ and its OkHttp dependency. AppKit compiles the package-owned Foundation bridge.
 HTTP on development hosts still follows the app's ATS/Android network policy;
 use HTTPS in production. Do not weaken app-wide TLS settings for this API.
 
-The [readiness record](../../.agents/docs/notes/still-native-readiness.md)
+The [readiness record](https://github.com/octane-xplat/octane-xplat/blob/main/.agents/docs/notes/still-native-readiness.md)
 separates source, unit, packaged, and runtime evidence. Physical background
 execution is not implied by an open network stream. Windows and native Linux
 are unqualified; those native entries reject explicitly. A missing mobile/AppKit bridge asks for a rebuild.

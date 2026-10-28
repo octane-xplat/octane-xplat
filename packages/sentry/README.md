@@ -1,21 +1,38 @@
-# `@octane-xplat/sentry`
+# @octane-xplat/sentry
+
+Report application errors to Sentry. iOS and Android use the NativeScript
+Sentry plugin for native crash reporting; web and desktop JavaScript hosts
+use the browser adapter for JavaScript errors and breadcrumbs.
+
+## Send a handled test error
+
+Install in an existing Xplat app:
 
 ```sh
 pnpm add @octane-xplat/sentry
 ```
 
-Sentry error and performance reporting — `@nativescript-community/sentry`
-(sentry-cocoa + sentry-java) on iOS/Android, `@sentry/browser` on web and
-desktop JS hosts. Mirrors `@sentry/react-native`'s surface.
+Use a Sentry test project. Its DSN is the address the SDK uses to send reports.
+Pass that configured value at startup; shared code must not assume Node's
+`process.env` exists in a browser or native runtime:
 
 ```ts
 import { sentry } from '@octane-xplat/sentry'
 
-sentry.init({ dsn: process.env.SENTRY_DSN!, tracesSampleRate: 0.2 })
-sentry.setUser({ id: user.id })
-sentry.addBreadcrumb({ category: 'checkout', message: 'cart submitted' })
-try { pay() } catch (e) { sentry.captureException(e, { orderId }) }
+export function initializeErrorReports(dsn: string) {
+	if (!sentry.supported) return
+	sentry.init({ dsn, environment: 'development' })
+	sentry.addBreadcrumb({ category: 'example', message: 'Sending a test report' })
+	sentry.captureException(new Error('Xplat documentation test'))
+}
 ```
 
-Native crash capture is iOS/Android; web/desktop capture JS errors and
-breadcrumbs. Source-map/dSYM upload is a build recipe, not this package.
+Look for the handled test error in the selected project. If it is absent,
+check the DSN, network, environment filters, and SDK initialization. This
+example sends a handled error; it does not test a native crash.
+
+Source maps and native symbols need separate build/upload configuration to
+make production traces readable. See the
+[public adapter contract](https://github.com/octane-xplat/octane-xplat/blob/main/packages/sentry/src/types.ts)
+and [checking an app](https://octane-xplat.goddardai.org/testing) for the boundary
+between this integration check and testing the app itself.

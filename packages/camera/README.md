@@ -1,13 +1,13 @@
 # `@octane-xplat/camera`
 
-```sh
-pnpm add @octane-xplat/camera
-```
-
 Live camera preview for Octane xplat apps: `getUserMedia` video on web,
 `AVCaptureSession` on iOS, CameraX on Android,
 `AVCaptureSession` + `AVCaptureVideoPreviewLayer` on macOS (AppKit), and
 `MediaCapture` + `CaptureElement` on the Windows (WinUI 3) target.
+
+```sh
+pnpm add @octane-xplat/camera
+```
 
 ```tsx
 import { CameraView } from '@octane-xplat/camera'
@@ -25,7 +25,7 @@ export function Preview() {
 ```
 
 This is the preview surface only — for one-shot still capture and library
-picking use [`@octane-xplat/media`](../media/README.md). Permissions are
+picking use [`@octane-xplat/media`](https://github.com/octane-xplat/octane-xplat/blob/main/packages/media/README.md). Permissions are
 requested when the session starts; `onError` is how a denial shows up.
 `ref` hands you the platform surface (`HTMLVideoElement` on web) for
 controls the shared props don't cover, and the `ios`/`android`/`web`/
@@ -120,7 +120,7 @@ output in the app's private storage root instead of IndexedDB. Windows records
 through `MediaCapture` into app-private MP4 files and is pending real-host
 qualification. On Linux the GJS/WebKitGTK host owns media permissions and
 writes MP4 clips under the app's data directory.
-See [Record and reopen a camera movie](../../docs/app/movie-capture.md) for
+See [Record and reopen a camera movie](https://octane-xplat.goddardai.org/movie-capture) for
 explicit permission actions, audio, local output, and qualification limits.
 
 ```ts
@@ -130,6 +130,6 @@ await session.requestPermission('camera')
 console.log(await session.capabilities())
 ```
 
-Guide: [Building screens](../../docs/app/primitives.md) (leaf components);
-component index: [`docs/app/components.md`](../../docs/app/components.md).
-Exercised by [`CameraDemo`](../demos/src/CameraDemo.tsrx).
+Guide: [Building screens](https://octane-xplat.goddardai.org/primitives) (leaf components);
+component index: [`docs/app/components.md`](https://octane-xplat.goddardai.org/components).
+Exercised by [`CameraDemo`](https://github.com/octane-xplat/octane-xplat/blob/main/packages/demos/src/CameraDemo.tsrx).

@@ -94,9 +94,9 @@ export function readHost(host: object) {
 }
 ```
 
-The [maintained example](./examples/KeyboardMotionDemo.tsrx) uses the shared UI API.
+The [maintained example](https://github.com/octane-xplat/octane-xplat/blob/main/packages/keyboard/examples/KeyboardMotionDemo.tsrx) uses the shared UI API.
 Native layout and presentation limits are recorded in the framework's
-[software keyboard notes](../../.agents/docs/keyboard.md).
+[software keyboard notes](https://github.com/octane-xplat/octane-xplat/blob/main/.agents/docs/keyboard.md).
 
 `FocusedInputController` observes input identity, selection, input/caret bounds,
 and scroll ancestors independently of keyboard motion. Coordinates use the
@@ -113,7 +113,7 @@ export function observeEditing(host: object) {
 }
 ```
 
-See the [focused-input guide](../../docs/app/software-keyboard.md#read-focused-input-geometry)
+See the [focused-input guide](https://octane-xplat.goddardai.org/software-keyboard#read-focused-input-geometry)
 for capability limits, selection units, and immediate rechecks.
 
 Use `KeyboardAwareScrollView` for long forms. It exposes the focused field or
@@ -131,8 +131,8 @@ export function LongForm() {
 }
 ```
 
-The [form guide](../../docs/app/software-keyboard.md#keep-the-editing-field-visible)
-explains scroll policies and the [maintained form example](./examples/KeyboardFormDemo.tsrx)
+The [form guide](https://octane-xplat.goddardai.org/software-keyboard#keep-the-editing-field-visible)
+explains scroll policies and the [maintained form example](https://github.com/octane-xplat/octane-xplat/blob/main/packages/keyboard/examples/KeyboardFormDemo.tsrx)
 shows an explicit recheck.
 
 `KeyboardStickyView` translates a bottom control independently of surrounding
@@ -151,5 +151,5 @@ export function Composer() {
 }
 ```
 
-Place it at the screen's bottom. See the [sticky guide](../../docs/app/software-keyboard.md#keep-a-composer-beside-the-keyboard)
-and [maintained composer](./examples/KeyboardComposerDemo.tsrx).
+Place it at the screen's bottom. See the [sticky guide](https://octane-xplat.goddardai.org/software-keyboard#keep-a-composer-beside-the-keyboard)
+and [maintained composer](https://github.com/octane-xplat/octane-xplat/blob/main/packages/keyboard/examples/KeyboardComposerDemo.tsrx).

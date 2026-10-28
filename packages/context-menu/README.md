@@ -12,8 +12,14 @@ that renders a control, then import `SwiftUIContextMenu` from
 `@octane-xplat/context-menu/web`, or `AppKitContextMenu` from
 `@octane-xplat/context-menu/macos` in the matching platform-suffixed file.
 
+From an existing Xplat app, install the package before using the example:
+
+```sh
+pnpm add @octane-xplat/context-menu
+```
+
 ```tsx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 // SwiftUIContextMenuExample.ios.tsx
 import { SwiftUIContextMenu } from '@octane-xplat/context-menu/ios'
 import { Text } from '@octane-xplat/ui'
@@ -30,7 +36,7 @@ export function Menu() {
 ```
 
 ```tsx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 // MaterialContextMenuExample.android.tsx
 import { MaterialContextMenu } from '@octane-xplat/context-menu/android'
 import { Text } from '@octane-xplat/ui'
@@ -85,7 +91,7 @@ reported back through `onItemSelected(id)`. The iOS entry also accepts an
 optional `preview` render function (iOS 16+):
 
 ```tsx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 // Actions.ios.tsx
 import { SwiftUIContextMenu } from '@octane-xplat/context-menu/ios'
 import { Text } from '@octane-xplat/ui'
@@ -125,3 +131,5 @@ The native implementations are adapted from `@expo/ui` (MIT,
 `packages/expo-ui` sdk-57): `ios/ContextMenu/ContextMenu.swift` and
 `android/.../ui/menu/DropdownMenu*.kt`. Attribution headers sit on the
 ported files.
+
+Continue with [Platform context menus](https://octane-xplat.goddardai.org/context-menu).

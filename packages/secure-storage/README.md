@@ -1,12 +1,12 @@
 # `@octane-xplat/secure-storage`
 
-```sh
-pnpm add @octane-xplat/secure-storage
-```
-
 Store session tokens without displaying their contents. iOS and macOS use
 Keychain, Android uses the Keystore-backed plugin, and Linux uses the desktop
 host's Secret Service adapter. Plain browsers report `supported: false`.
+
+```sh
+pnpm add @octane-xplat/secure-storage
+```
 
 ```ts
 import { secureStorage } from '@octane-xplat/secure-storage'
@@ -33,17 +33,17 @@ if (secureStorage.supported) {
 ```
 
 For non-secret preferences, use `storage` from
-[`@octane-xplat/platform`](../platform/README.md) instead.
+[`@octane-xplat/platform`](https://github.com/octane-xplat/octane-xplat/blob/main/packages/platform/README.md) instead.
 
-Guide: [Using device features](../../docs/platform/platform-services.md);
-per-target availability: [platform notes](../../.agents/docs/notes/platform-notes.md).
+Guide: [Using device features](https://octane-xplat.goddardai.org/platform-services);
+per-target availability: [platform notes](https://github.com/octane-xplat/octane-xplat/blob/main/.agents/docs/notes/platform-notes.md).
 
 ## macOS AppKit
 
 Install the leaf as an app runtime dependency. Use the CLI-owned
 `pnpm xplat dev macos` or `pnpm xplat build --targets macos` workflow;
 it compiles the bundled Foundation/Security sources and loads their metadata
-before your JavaScript. See [native prerequisites](../../docs/platform/macos-native.md#prepare-the-app).
+before your JavaScript. See [native prerequisites](https://octane-xplat.goddardai.org/macos-native#prepare-the-app).
 No new UI dependency, host adapter, or runtime permission request is needed.
 A custom host without the native leaf reports unsupported.
 
@@ -63,7 +63,7 @@ return `false` when Keychain access fails. Removal returns `true` for an already
 missing key and `false` for access failures. Handle these results in your sign-in
 flow rather than falling back to preferences or browser storage.
 
-From the repository root, `pnpm --filter @octane-xplat/secure-storage test:macos`
+From the repository root, `pnpm exec turbo run test:macos --filter=@octane-xplat/secure-storage`
 checks the adapter and sanitized failures. `test:packed` checks package types;
 `test:macos-runtime` compiles a packed leaf and exercises real Keychain operations
 in an isolated host, including persistence across launches, bundle identity isolation,

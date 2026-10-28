@@ -1,5 +1,7 @@
 # Migrate selection, date, and unit values
 
+> Update existing selection, date, and unit props to the current API.
+
 This guide updates code to the explicit selection, temporal-value, and unit
 contracts in the UI package. Each section shows the new public shape.
 
@@ -35,8 +37,10 @@ For disclosure, single-open `Accordion` uses one key or `null`; multiple-open
 uses an array and requires `multiple`.
 
 ```tsx
+<>
 <Accordion items={items} open={openKey} onOpenChange={setOpenKey} />
 <Accordion multiple open={openKeys} onOpenChange={setOpenKeys} items={items} />
+</>
 ```
 
 Menu data rows now say what they do. Use `action` for a command, `link` for
@@ -81,9 +85,11 @@ reports selected dates and takes `null` to show no current selection.
 const [date, setDate] = useState<ISODateString | null>(null)
 const [quantity, setQuantity] = useState<number | null>(null)
 
+;<>
 <DateInput label="Date" value={date} onChange={setDate} hasClear />
 		<Calendar value={date} onChange={setDate} />
 <NumberInput label="Quantity" value={quantity} onValueChange={setQuantity} />
+</>
 ```
 
 Keep calendar dates (`YYYY-MM-DD`) and local wall-clock date-times
@@ -91,10 +97,12 @@ Keep calendar dates (`YYYY-MM-DD`) and local wall-clock date-times
 numeric UTC offset; numeric timestamps need an explicit Unix unit.
 
 ```tsx
+<>
 <DateInput value="2026-10-02" onChange={setDate} />
 <DateTimeInput value="2026-10-02T14:30" onChange={setLocalDateTime} />
 <Timestamp value="2026-10-02T14:30:00Z" />
 <Timestamp value={1790951400} valueUnit="unix-seconds" />
+</>
 ```
 
 Picker choice now uses only `presentation`. Remove the old `nativePicker` flag;
@@ -104,8 +112,10 @@ default, while `popover`, `bottom-sheet`, `adaptive-bottom-sheet`, and the
 time-only `text-input` mode choose other supported surfaces.
 
 ```tsx
+<>
 <DateInput label="Date" presentation="native" value={date} onChange={setDate} />
 <TimeInput label="Time" presentation="text-input" value={time} onChange={setTime} />
+</>
 ```
 
 ## Explicit units
@@ -115,9 +125,11 @@ name an instant with `Z` or an offset. `Timer.startTimeMs` is Unix
 milliseconds, and `autoThresholdSeconds` is a duration in seconds.
 
 ```tsx
+<>
 <Timestamp value={createdAtMs} valueUnit="unix-milliseconds" />
 <Timestamp value="2026-10-02T14:30:00-04:00" format="relative" />
 <Timer startTimeMs={startedAtMs} />
+</>
 ```
 
 Shared queries now separate definitions, readers, and clients. Replace

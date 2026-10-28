@@ -1,14 +1,14 @@
 # `@octane-xplat/video`
 
-```sh
-pnpm add @octane-xplat/video
-```
-
 Embedded video player for Octane xplat apps: `<video>` on web and
 `@nstudio/nativescript-exoplayer` on native (ExoPlayer on Android,
 `AVPlayerViewController` on iOS), with a macOS entry. The OS engine owns
 the pixels while all chrome is self-drawn, so `controls` looks identical
 on every target.
+
+```sh
+pnpm add @octane-xplat/video
+```
 
 ```tsx
 import { Video } from '@octane-xplat/video'
@@ -51,5 +51,5 @@ export function Player() {
 ```
 
 Per-target limits are recorded in
-[known limits](../../docs/testing/known-limits.md). Exercised by
-[`VideoDemo`](../demos/src/VideoDemo.tsrx).
+[known limits](https://octane-xplat.goddardai.org/known-limits). Exercised by
+[`VideoDemo`](https://github.com/octane-xplat/octane-xplat/blob/main/packages/demos/src/VideoDemo.tsrx).

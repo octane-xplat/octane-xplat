@@ -1,9 +1,5 @@
 # `@octane-xplat/recorder`
 
-```sh
-pnpm add @octane-xplat/recorder
-```
-
 Microphone recording for Octane xplat apps — one take produces a complete
 16-bit PCM **WAV** file (`audio/wav`). iOS and macOS drive
 `AVAudioRecorder`, Android drives `AudioRecord`, and web captures through
@@ -11,6 +7,10 @@ Microphone recording for Octane xplat apps — one take produces a complete
 dependency. The leaf owns permission, capture, metering, and honest state
 reporting; your app owns the interaction (hold-to-record, limits,
 transcription, insertion).
+
+```sh
+pnpm add @octane-xplat/recorder
+```
 
 ```ts
 import { createAudioRecorder } from '@octane-xplat/recorder'
@@ -68,7 +68,7 @@ Notes and limits:
 - The mobile native entry requires iOS or Android. macOS uses the `macos`
   export condition and its own Swift leaf; see setup below.
 
-For playback of the result see [`@octane-xplat/audio`](../audio/README.md).
+For playback of the result see [`@octane-xplat/audio`](https://github.com/octane-xplat/octane-xplat/blob/main/packages/audio/README.md).
 Permission dispatch through `@octane-xplat/platform` answers
 `permissions.ensure('microphone')`.
 
@@ -132,7 +132,7 @@ recorder.dispose()
 console.log(take.path, take.bytes.length) // app owns deletion of this finished path
 ```
 
-The [voice-memo example](../../examples/recorder/voice-memo.ts) connects cleanup
+The [voice-memo example](https://github.com/octane-xplat/octane-xplat/blob/main/examples/recorder/voice-memo.ts) connects cleanup
 to an app-owned Stop action. Adapter state/failure tests, packed public
 consumers and native bridge checks cover software behavior. Real microphone
 capture, privacy prompts, input removal, metering and foreground recovery

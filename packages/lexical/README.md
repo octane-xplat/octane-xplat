@@ -138,12 +138,12 @@ Lexical editor state that supports commands or plugins. There is no live
 `LexicalEditor` on Android: no `dispatchCommand`, no node transforms;
 `native` returns the `AztecText` and the headless editor used for
 conversions is an internal detail. The 2026-10-06
-[Aztec nested-tree run](../../.agents/docs/parity/nested-tree-editor.md)
+[Aztec nested-tree run](https://github.com/octane-xplat/octane-xplat/blob/main/.agents/docs/parity/nested-tree-editor.md)
 preserved nested wrappers, attributes, and child order through synthetic text
 edits and save/reopen, but flattened paragraphs and accumulated `<br>` elements
 on reopen. That run exercised the shared Aztec HTML leaf, not Lexical's JSON
 conversion or structural commands. See the
-[per-row capability record](../../.agents/docs/notes/editor-capabilities.md).
+[per-row capability record](https://github.com/octane-xplat/octane-xplat/blob/main/.agents/docs/notes/editor-capabilities.md).
 
 Focus callbacks report focus entering or leaving the editable surface.
 `onJSONReady(true)` fires once the web editor handle exists, so `getJSON()` is
@@ -170,7 +170,7 @@ pnpm install
 
 `@lexical/link`'s ICU-dependent URL-matcher literal is compiled away at bundle
 time by the `xplatNative` unicode-regex transform. See
-[`docs/app/rich-text.md`](../../docs/app/rich-text.md) for the shared contract,
+[`docs/app/rich-text.md`](https://octane-xplat.goddardai.org/rich-text) for the shared contract,
 format vocabulary, and known limits.
 
 ## macOS AppKit
@@ -179,7 +179,7 @@ The macOS export mounts a bundled local editor document in WKWebView.
 RichText uses StarterKit; Tiptap and Lexical use their existing web facades.
 Wait for `onReady`; synchronous getters return the latest received snapshot
 and commands cross WebKit asynchronously. The `native` handle is the Swift
-host transport. See [AppKit setup and engine limits](../../docs/app/rich-text.md#macos-appkit-editing).
+host transport. See [AppKit setup and engine limits](https://octane-xplat.goddardai.org/rich-text#macos-appkit-editing).
 
 ## Native content and format limits
 
@@ -201,7 +201,7 @@ export function replaceHTML(editor: LexicalEditorHandle) {
 }
 ```
 
-Use the [platform format subset](../../docs/app/rich-text.md#format-subset)
+Use the [platform format subset](https://octane-xplat.goddardai.org/rich-text#format-subset)
 when building a toolbar. On iOS/Android, unsupported `apply` requests throw
 `RangeError` before changing content. Links require `linkTo`; iOS lacks
 `taskList` and alignment. Native JSON is a fixed-schema conversion through

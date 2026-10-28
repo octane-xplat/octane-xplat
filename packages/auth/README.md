@@ -1,9 +1,5 @@
 # `@octane-xplat/auth`
 
-```sh
-pnpm add @octane-xplat/auth
-```
-
 Sign in with Apple and Google Sign-In for Octane xplat apps, behind one
 `AuthUser`/`AuthCredential` contract. iOS and Android use the native SDKs
 (`@nativescript/apple-sign-in`, `@nativescript/google-signin`), the browser
@@ -12,6 +8,10 @@ macOS AppKit host uses AuthenticationServices through the ObjC bridge plus
 an app-configured hosted Google flow. `createHostedAuth` adds a generic
 hosted sign-in ceremony with Bearer session transport for apps whose
 backend issues and redeems sign-in attempts.
+
+```sh
+pnpm add @octane-xplat/auth
+```
 
 ```ts
 import { appleAuth } from '@octane-xplat/auth'
@@ -63,8 +63,8 @@ Web needs registered client IDs; iOS needs the `applesignin` entitlement
 and Google's `GoogleService-Info.plist`/reversed-client-id URL scheme;
 Android needs `google-services.json` and a `serverClientId` for
 `serverAuthCode`. Guide: [Using device
-features](../../docs/platform/platform-services.md). Exercised by
-[`AuthDemo`](../demos/src/AuthDemo.tsrx).
+features](https://octane-xplat.goddardai.org/platform-services). Exercised by
+[`AuthDemo`](https://github.com/octane-xplat/octane-xplat/blob/main/packages/demos/src/AuthDemo.tsrx).
 
 ## macOS provider setup
 
@@ -78,8 +78,8 @@ alone is insufficient on AppKit. The adapter receives the configured client
 IDs, scopes, hosted domain, and per-attempt nonce; the backend must apply
 and verify them.
 
-See [macOS provider setup](../../docs/platform/platform-services.md#macos-provider-sign-in)
-and the [maintained hosted adapter](../../examples/auth/google-hosted.macos.ts).
+See [macOS provider setup](https://octane-xplat.goddardai.org/platform-services#macos-provider-sign-in)
+and the [maintained hosted adapter](https://github.com/octane-xplat/octane-xplat/blob/main/examples/auth/google-hosted.macos.ts).
 
 ## Hosted sign-in ceremonies
 

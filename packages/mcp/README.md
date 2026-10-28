@@ -44,7 +44,7 @@ the checked and packed surface is the emitted `dist/`:
 
 ```sh
 pnpm --filter @octane-xplat/mcp start -- --workspace <path>
-pnpm --filter @octane-xplat/mcp test
+pnpm exec turbo run test --filter=@octane-xplat/mcp
 ```
 
 Transport is stdio; stdout is protocol-clean (diagnostics go to stderr).
@@ -174,7 +174,7 @@ carry the runtime values and stores (re-exported from `@octane-xplat/cli`).
   files under `node_modules/.cache/xplat/dev-bridge/` and polls live
   announcements — an empty registry is never confused with a disconnected app.
 
-## Runtime (work item D)
+## Build, run, and stop an app
 
 The shared `runtime/` service (in `packages/cli/src/mcp/runtime/`, re-exported
 here) implements build/launch/attach/logs/cleanup for consumer apps

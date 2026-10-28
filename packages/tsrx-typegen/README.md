@@ -9,6 +9,7 @@ Install `tsrx-typegen` as a development tool alongside `typescript` and
 `@tsrx/typescript-plugin`, then run it against a named target:
 
 ```sh
+pnpm add -D tsrx-typegen typescript @tsrx/typescript-plugin
 pnpm exec tsrx-typegen --target octane          # generate declarations
 pnpm exec tsrx-typegen --target octane --check  # verify output is fresh
 pnpm exec tsrx-typegen --pack-check             # validate the packed tarball
@@ -67,7 +68,7 @@ the tarball. Generate before local consumer typechecks, and regenerate in
 `prepack` before validating the package. Workspaces that resolve generated
 types directly also need generation during setup and refreshes during
 development; this repository's workflow is documented in
-[Develop against generated declarations](../../.agents/docs/notes/toolchain-notes.md#develop-against-generated-declarations).
+[Develop against generated declarations](https://github.com/octane-xplat/octane-xplat/blob/main/.agents/docs/notes/toolchain-notes.md#develop-against-generated-declarations).
 
 ## Overrides and import rewriting
 

@@ -1,15 +1,15 @@
 # `@octane-xplat/table`
 
-```sh
-pnpm add @octane-xplat/table
-```
-
 Headless data grid for Octane xplat apps. The row model — sorting, filtering,
 grouping, expanding, pagination, row selection, column ordering/visibility/
 sizing — is `@tanstack/table-core` v9 (framework-agnostic, DOM-free), bound to
 component rendering through TanStack Store atoms and `useSyncExternalStore`.
 Rendering goes through shared ui primitives (`VirtualList` windowing on every
 target), so one column/state contract covers web, iOS/Android, and macOS.
+
+```sh
+pnpm add @octane-xplat/table
+```
 
 ```tsx
 import { DataGrid } from '@octane-xplat/table'
@@ -125,7 +125,7 @@ export function Orders() {
 
 Import `Text` from `@octane-xplat/ui`. Start with your application's `orders`
 array and immutable updates; IDs must remain stable through filtering, sorting,
-pages, and data replacement. The [maintained example](examples/interactive.tsrx)
+pages, and data replacement. The [maintained example](https://github.com/octane-xplat/octane-xplat/blob/main/packages/table/examples/interactive.tsrx)
 includes concrete rows and a nonvisual probe.
 
 ```ts
@@ -316,14 +316,14 @@ value or a function that updates the previous value; `useState` accepts both:
 ```tsx
 const [rowSelection, setRowSelection] =
     useState<TableState<DataGridFeatures>['rowSelection']>({})
-<DataGrid data={rows} columns={columns} getRowId={row => row.id}
+;<DataGrid data={rows} columns={columns} getRowId={row => row.id}
     showRowSelection getRowLabel={row => row.original.name}
     state={{ rowSelection }} options={{ onRowSelectionChange: setRowSelection }} />
 ```
 
 Click a checkbox and the selected count should update. A `state` snapshot
 without its update callback remains read-only — DataGrid does not silently
-take ownership. The [interactive example](examples/interactive.tsrx) uses
+take ownership. The [interactive example](https://github.com/octane-xplat/octane-xplat/blob/main/packages/table/examples/interactive.tsrx) uses
 this caller-owned selection.
 
 For server pages, supply already paged `data`, `state.pagination`, and
@@ -385,7 +385,7 @@ export function ServerPage({
 
 ## Verification and remaining parity gaps
 
-Run `pnpm --filter @octane-xplat/table typecheck`, `test`, `test:native`, `build`, and
+Run `pnpm exec turbo run typecheck --filter=@octane-xplat/table`, `test`, `test:native`, `build`, and
 `test:packed`. The source typecheck covers web and the iOS native resolution lane;
 the native build uses the same shared controls for iOS/Android. Run the fixture:
 
@@ -403,13 +403,13 @@ AppKit fixture has an unresolved filter-input timeout.
 
 Use a real booted simulator ID from `pnpm probe doctor`. Results are handler
 or pointer dispatch, not proof of OS input, hit-testing, or screen-reader
-navigation. See the [audit implementation record](../../.agents/docs/parity/astryx-parity-table.md#implementation-follow-through)
+navigation. See the [audit implementation record](https://github.com/octane-xplat/octane-xplat/blob/main/.agents/docs/parity/astryx-parity-table.md#implementation-follow-through)
 for the actual targets/results and known probe blockers.
 
 Still deferred: grouped section headers/detail/tree controls, frozen-column
 layout, PowerSearch operator/date/multi-select filter UI, richer multi-sort UX,
 column virtualization, cell editing, and OS screen-reader/input verification.
-The maintained [selection fixture](examples/selection.tsrx) checks the real
+The maintained [selection fixture](https://github.com/octane-xplat/octane-xplat/blob/main/packages/table/examples/selection.tsrx) checks the real
 VirtualList, caller state, eligible page scope, mixed controls, and a windowed
 row ordinal. Chromium and AppKit pass its handler-dispatch and host-property
 checks; iOS/Android object-driver checks cover shared controls but are not

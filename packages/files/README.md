@@ -9,6 +9,12 @@ document picker on iOS/Android, and AppKit `NSOpenPanel` on macOS. No
 app-registered picker is needed. The optional `pick` prop can replace the
 default for a custom source such as cloud storage.
 
+From an existing Xplat app, install the package before using the example:
+
+```sh
+pnpm add @octane-xplat/files
+```
+
 ```tsrx
 import { useState } from 'octane'
 import { FileInput } from '@octane-xplat/files'
@@ -95,3 +101,5 @@ picker interaction, sandbox access and packaged operation still need runtime
 qualification. MIME filters use a finite extension table; unrecognized types
 do not restrict the picker. Neither picking nor reading persists a security
 bookmark for a later app session.
+
+Continue with [File entry and picking](https://octane-xplat.goddardai.org/date-picker).

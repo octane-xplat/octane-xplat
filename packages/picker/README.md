@@ -19,7 +19,7 @@ platform-suffixed file:
 | `*.web.tsx`     | `@octane-xplat/picker/web`     | `Select`           |
 
 ```tsx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 // BagPicker.ios.tsx
 import { useState } from 'octane'
 import { SwiftUIPicker } from '@octane-xplat/picker/ios'
@@ -42,7 +42,7 @@ shapes: iOS uses SwiftUI selection IDs, Android uses Material dropdown keys and
 enabled states, and web follows browser select values.
 
 ```tsx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 // MaterialDropdownExample.android.tsx
 import { MaterialDropdown } from '@octane-xplat/picker/android'
 
@@ -75,4 +75,4 @@ export function Picker() {
 ```
 
 See the framework guide for details and maintained examples:
-[`docs/platform/native-picker.md`](../../docs/platform/native-picker.md).
+[`docs/platform/native-picker.md`](https://octane-xplat.goddardai.org/native-picker).

@@ -48,7 +48,7 @@ stable and unique within a context. `SortableList` creates its own DndContext
 and commits a new array only on a successful drop over a different list item.
 The caller saves that array. Cancellation, release outside a target, and drops
 onto a disabled target leave the order unchanged. The maintained
-[example](examples/sortable.tsx) displays the committed order above the rows
+[example](https://github.com/octane-xplat/octane-xplat/blob/main/packages/dnd-kit/examples/sortable.tsx) displays the committed order above the rows
 and uses a separate drag handle.
 
 ```tsx
@@ -265,7 +265,7 @@ On native, use a View's `getLocationOnScreen` and `getActualSize` or `useMeasure
 for viewport bounds; on web use the corresponding measured viewport bounds.
 Keep bounds and offsets in the same coordinate units: native DIPs, web CSS pixels,
 and AppKit points. AppKit geometry uses top-left window-content coordinates.
-The [macOS example](examples/sortable.macos.tsx) owns an NSScrollView, measures its
+The [macOS example](https://github.com/octane-xplat/octane-xplat/blob/main/packages/dnd-kit/examples/sortable.macos.tsx) owns an NSScrollView, measures its
 clip view, and converts its document offset into top-down points. It initializes
 at the document top and handles flipped and unflipped document views.
 
@@ -315,10 +315,10 @@ and no virtualized offscreen target discovery — only mounted, measurable
 targets participate. Use a separate DndContext in each
 native renderer root (pages and sheets do not share context).
 
-Package checks: `pnpm --filter @octane-xplat/dnd-kit typecheck`, `test`,
+Package checks: `pnpm exec turbo run typecheck --filter=@octane-xplat/dnd-kit`, `test`,
 `build`, and `pack:check`. Core tests use native-shaped geometry and the real
 abstract core — they do not establish OS input delivery or hit-testing. The web
-regression runs with `pnpm --filter @xplat/web test` (pointer events through
+regression runs with `pnpm exec turbo run test --filter=@xplat/web` (pointer events through
 bound Views, drop and cancellation). The AppKit regression runs with
 `pnpm probe run packages/dnd-kit/tests/appkit-scroll.macos.tsrx --target macos`
 (action dispatch, layer feedback, layout, auto-scroll, cleanup). `pnpm probe

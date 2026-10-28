@@ -57,7 +57,7 @@ jobs:
       - name: Repo checks
         run: >-
           pnpm check:compatibility && pnpm check:patches && pnpm check:ui-barrels && pnpm check:css &&
-          pnpm check:suffix-resolution && pnpm check:changelog
+          pnpm check:suffix-resolution && pnpm check:changelog && pnpm check:doc-examples
 
       - name: Typecheck web
         run: pnpm typecheck:web
@@ -108,6 +108,8 @@ jobs:
           # No pnpm in this job — disable v5's auto package-manager cache,
           # which would otherwise invoke pnpm for the detected lockfile.
           package-manager-cache: false
+      - name: Check public docs and package READMEs
+        run: node scripts/check-docs.ts
       - name: Check recipe structure and documentation links
         run: node scripts/check-recipes.ts
 

@@ -2,7 +2,7 @@
 
 > Add buttons, action menus, and cards someone can select or open.
 
-## Action controls and interactive cards
+## Add a button
 
 An **action** changes something, such as saving a document. A callback is the
 function your app provides to perform it. The example keeps the pinned state locally and logs the Save and Share

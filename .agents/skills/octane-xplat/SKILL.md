@@ -83,7 +83,7 @@ limitations. Do not load the entire reference tree by default.
 | Create, run, or upgrade an app                     | [Getting started](references/getting-started.md)                                                                                                 |
 | Hooks, state, context, refs, boundaries, children  | [Octane semantics](references/octane.md)                                                                                                         |
 | Choose/use a component                             | [Primitives](references/primitives.md)                                                                                                           |
-| Group, expand or pin Table rows | [Grouped and tree tables](references/primitives.md#grouped-and-tree-tables); [public examples](../../../docs/tables.md) |
+| Group, expand or pin Table rows | [Grouped and tree tables](references/primitives.md#grouped-and-tree-tables); [public examples](../../../docs/app/tables.md) |
 | Implement/debug a native leaf                      | [Driver semantics](references/primitives/driver-semantics.md)                                                                                    |
 | Platform filenames, imports, JSX types             | [Platform leaves](references/platform-leaves.md)                                                                                                 |
 | CSS, tokens, themes                                | [Styling](references/styling.md); [token definitions](references/styling/tokens.md); [theme across hosts](references/styling/root-boundaries.md) |

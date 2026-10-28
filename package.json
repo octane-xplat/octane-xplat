@@ -56,7 +56,7 @@
 		"typecheck:docs": "turbo run typecheck --filter=@xplat/docs",
 		"typecheck": "turbo run typegen && turbo run typecheck",
 		"typecheck:apps": "turbo run typegen && turbo run typecheck --filter='./apps/*'",
-		"check": "pnpm lint && pnpm check:css && pnpm check:recipes && pnpm check:changelog && pnpm check:compatibility && pnpm check:patches && pnpm check:ui-barrels && pnpm check:decisions && pnpm check:suffix-resolution && pnpm check:metallib && pnpm check:vendored",
+		"check": "pnpm lint && pnpm check:css && pnpm check:docs && pnpm check:doc-examples && pnpm check:recipes && pnpm check:changelog && pnpm check:compatibility && pnpm check:patches && pnpm check:ui-barrels && pnpm check:decisions && pnpm check:suffix-resolution && pnpm check:metallib && pnpm check:vendored",
 		"validate": "pnpm check && pnpm typecheck && pnpm test",
 		"smoke:web": "pnpm --filter @xplat/web smoke",
 		"smoke:docs": "pnpm --filter @xplat/docs smoke",
@@ -74,7 +74,10 @@
 		"eval:routing": "node scripts/eval-routing.ts",
 		"sync:compatibility": "node scripts/sync-compatibility.ts",
 		"check:compatibility": "node scripts/sync-compatibility.ts --check",
-		"check:native-readiness": "node tools/native-readiness/run.mjs"
+		"check:native-readiness": "node tools/native-readiness/run.mjs",
+		"check:docs": "node scripts/check-docs.ts",
+		"check:doc-examples": "node scripts/check-doc-examples.ts",
+		"test:docs": "node --test scripts/check-docs.test.mjs"
 	},
 	"devDependencies": {
 		"@tsrx/core": "0.2.4",

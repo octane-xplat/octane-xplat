@@ -9,7 +9,7 @@ Your application owns startup, windows, menus, host services, and custom font
 assets. The renderer owns views, layout, events, accessibility, and its hosted
 popups and sheets. It applies your stylesheets with the same selector engine
 iOS and Android use, but does not implement every NativeScript widget or CSS
-property. See the [macOS harness](../../apps/macos/README.md) for the current
+property. See the [macOS harness](https://github.com/octane-xplat/octane-xplat/blob/main/apps/macos/README.md) for the current
 component and service limits.
 
 Verification status: the image-crop integration test compiles and mounts the
@@ -25,10 +25,11 @@ dependencies. The CLI also requires the runtime to be directly declared, even
 though the renderer depends on it. Use one copy of Octane per application.
 Declare `@octane-xplat/cli`, `@octanejs/vite-plugin`, and `vite` as development
 dependencies; the preset resolves these from your app, not from the CLI.
-The maintained consumer uses Octane 0.6.3, the Vite plugin 0.1.61, Vite 8.3.0,
-and the runtime `0.4.4-next.2026-08-09-31292056208`.
+Use the release-compatible versions from the
+[AppKit setup guide](https://octane-xplat.goddardai.org/toolchain#experimental-appkit-target);
+do not copy old probe versions into a new app.
 
-Apply the framework's [patch setup](../cli/README.md)
+Apply the framework's [patch setup](https://github.com/octane-xplat/octane-xplat/blob/main/packages/cli/README.md)
 before building. For TSX checking, install TypeScript; for TSRX source, also
 install `@tsrx/typescript-plugin` and use `tsrx-tsc`.
 
@@ -235,12 +236,12 @@ export function AccountPage() {
 
 The label renders `Account: Avery` inside the `rootlayout` and reads the same
 provider value as its declaring tree. Run the maintained portal fixture with
-`pnpm --filter @octane-xplat/macos-renderer test:portals` to check context,
+`pnpm probe run packages/macos-renderer/test/fixtures/portal-lifecycle.macos.tsrx --target macos` to check context,
 provider updates, and native child cleanup.
 
-Use [the packaging guide](../../docs/start/toolchain.md#experimental-appkit-target)
+Use [the packaging guide](https://octane-xplat.goddardai.org/toolchain#experimental-appkit-target)
 for `xplat.targets.macos` metadata, signing, and CLI commands. The
-[independent fixture](test/fixtures/main.ts) demonstrates a complete host
+[independent fixture](https://github.com/octane-xplat/octane-xplat/blob/main/packages/macos-renderer/test/fixtures/main.ts) demonstrates a complete host
 entry, including startup and shutdown, without importing the harness.
 
 ## Render local images and overlays
@@ -301,7 +302,7 @@ Registration does not change the renderer default. Registered weights resolve
 to the first face at or above the requested weight, or the heaviest face.
 Invalid names, empty face lists, and missing descriptors or invalid weights are
 rejected. The renderer does not read assets, register Geist automatically, or
-write a font cache. The [harness font setup](../../apps/macos/src/fonts.ts)
+write a font cache. The [harness font setup](https://github.com/octane-xplat/octane-xplat/blob/main/apps/macos/src/fonts.ts)
 demonstrates app-owned descriptors and packaged font bytes.
 
 ```js
@@ -484,7 +485,7 @@ Call `xplatMacOS(mode, { packaged: false, hmr: true, entry: 'src/App.macos.tsx' 
 for the component bundle. It retains renderer and Octane imports so the
 CLI-managed shell can share their live instances across edits. Build the
 shell with `packaged: true`, and populate `__xplatDevModules` with the renderer
-and Octane modules. The [independent development shell](test/fixtures/dev-shell.ts)
+and Octane modules. The [independent development shell](https://github.com/octane-xplat/octane-xplat/blob/main/packages/macos-renderer/test/fixtures/dev-shell.ts)
 shows the module mapping and retained-root HMR lifecycle.
 
 ```js
@@ -526,14 +527,15 @@ export default config
 From this repository:
 
 ```sh
-pnpm --filter @octane-xplat/macos-renderer test
-pnpm --filter @octane-xplat/macos-renderer test:overflow
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm probe run packages/macos-renderer/test/fixtures/text-overflow.macos.tsrx --target macos
 pnpm probe run packages/macos-renderer/test/fixtures/text-wrap.macos.tsrx --target macos
-pnpm --filter @octane-xplat/macos-renderer test:portals
-pnpm --filter @octane-xplat/macos-renderer test:packed
-pnpm --filter @xplat/macos test:fonts
-pnpm --filter @xplat/macos test:layout-channels
+pnpm probe run packages/macos-renderer/test/fixtures/portal-lifecycle.macos.tsrx --target macos
+pnpm exec turbo run test:packed --filter=@octane-xplat/macos-renderer
 ```
+
+Font and layout-channel integration checks live in the
+[macOS harness](https://github.com/octane-xplat/octane-xplat/blob/main/apps/macos/README.md).
 
 The overflow check runs an AppKit fixture with long and short strings, assigned
 frame resizing, multiline limits, attributed line height, and prop removals. It
@@ -547,11 +549,11 @@ not OS input or hit-testing.
 
 ## Press and swipe callbacks
 
-See [macOS gesture callbacks](../ui/changes/macos-gestures.md) for shared
+See [macOS gesture callbacks](https://github.com/octane-xplat/octane-xplat/blob/main/packages/ui/changes/macos-gestures.md) for shared
 Pressable and View examples, swipe directions, and verification limits.
 The maintained nonvisual fixture checks Objective-C gesture target dispatch;
 physical OS input remains a separate manual check.
 
 ```sh
-goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit gesture verification"}' -- pnpm --filter @octane-xplat/macos-renderer test:gestures
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit gesture verification"}' -- pnpm probe run packages/macos-renderer/test/fixtures/gestures.macos.tsrx --target macos
 ```
