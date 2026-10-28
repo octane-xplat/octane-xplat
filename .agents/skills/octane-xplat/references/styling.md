@@ -131,6 +131,20 @@ import '@octane-xplat/ui/theme/tokens.css'
   limits before promising a property or pseudo-class. Note `className` is
   never forwarded to GTK widget classes — it only feeds the cascade.
 
+AppKit formatted runs accept finite numeric `style.letterSpacing` in points,
+inherit host/ancestor spacing and reset to default with `0` or `normal`.
+Do not promise arbitrary CSS units, native text measurement or pixel parity
+from the source cases; see the [renderer contract](../../../../packages/macos-renderer/README.md#apply-stylesheets).
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+export function Caption() {
+	return <label><formattedstring style={{ letterSpacing: 1 }}>
+		<span text="Spaced " /><span text="default" style={{ letterSpacing: 0 }} />
+	</formattedstring></label>
+}
+```
+
 ## Dark mode
 
 System-driven by default (`prefers-color-scheme` / NS system appearance

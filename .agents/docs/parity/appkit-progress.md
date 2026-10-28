@@ -1723,3 +1723,36 @@ Actual click/re-enable/key/Tab delivery, mixed-state VoiceOver, trailing-control
 arbitration, divider/RTL/layout appearance, custom indicators and packaging remain
 unqualified. No builds, installs, tests/typechecks, OS automation, visual analysis
 or shared audit regeneration ran; no evidence checkbox is closed.
+
+
+### Formatted text letter spacing
+
+Issue #62 identifies formatted-run spacing as absent. Plain labels already set
+NSKernAttributeName, but textRuns omitted letterSpacing and rich host defaults
+dropped it. Composition now inherits host computed/inline spacing, folds nested
+local overrides and writes finite nonzero points per run. Zero/normal resets
+omit the attribute on freshly constructed runs, matching plain-label policy.
+Apple's [kern documentation](https://developer.apple.com/documentation/foundation/nsattributedstring/key/kern)
+distinguishes omitted font defaults from explicit zero disabling kerning.
+No new direct JSX property or arbitrary CSS unit conversion is promised.
+
+Authored source cases cover inheritance, local zero/negative/normal, removed
+values, reparenting, validation, host computed/inline defaults and mocked native
+attribute dictionaries. They remain unrun. Reviewed source paths also show
+normal macOS harness imports tokens/chrome, probe case config imports tokens,
+and the AppKit Vite preset connects stylesheet queuing to the CSS registry.
+A missing import is not established; emitted CSS and actual layout remain open.
+No shared CLI change or audit snapshot regeneration was made.
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer
+pnpm check:recipes
+pnpm exec turbo run build --filter=@xplat/macos
+```
+
+All commands remain deferred until this task's explicit human authorization.
+Only TypeScript syntax parsing, semantic/source review and whitespace checks ran.
+Native attributed text, shaping/measurement, CSS delivery, input/editing and
+packaging remain unqualified. No visual analysis, native automation, dependency
+install or evidence-gated checkbox closure occurred.

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
 import { test } from 'node:test'
-import { runSlice } from './mock-globals.ts'
+import { runSlice, sourceWithoutImports } from './mock-globals.ts'
 import { textRuns, validateTextStyle } from '../src/formatted-text.ts'
 
 const node = (type: string, props: any = {}, children: any[] = []) => ({
@@ -209,4 +209,58 @@ test('logical text hosts reparent, move, remove and dispose through production o
 	assert.equal(a.parent, null)
 	assert.equal(formatted.children.length, 0)
 	assert.equal(right.view.stringValue, 'right')
+})
+
+test('formatted spacing inherits and resets across nested, removed and reparented runs', () => {
+	const local = node('span', { text: 'B', style: { letterSpacing: 0 } })
+	const tree = node('formattedstring', { style: { letterSpacing: 2 } }, [
+		node('span', { text: 'A' }), local, node('span', { text: 'C', style: { letterSpacing: -0.5 } }),
+	])
+	assert.deepEqual(textRuns(tree).map((run) => run.style.letterSpacing), [2, 0, -0.5])
+	local.props = { text: 'B' }
+	assert.equal(textRuns(tree)[1].style.letterSpacing, 2)
+	assert.equal(textRuns(node('formattedstring', { style: { letterSpacing: 1 } }, [local]))[0].style.letterSpacing, 1)
+	local.props = { text: 'B', style: { letterSpacing: 'normal' } }
+	assert.equal(textRuns(tree)[1].style.letterSpacing, 'normal')
+})
+
+test('formatted spacing validates finite positive/negative/zero points and normal', () => {
+	for (const letterSpacing of [0, 2, -0.5, 'normal']) {
+		validateTextStyle({ style: { letterSpacing } }, () => {})
+	}
+	for (const letterSpacing of [NaN, Infinity, -Infinity, '2px', {}]) {
+		assert.throws(() => validateTextStyle({ style: { letterSpacing } }, () => {}), /letterSpacing/)
+	}
+})
+
+test('native attributed runs carry spacing and omit it for zero/normal resets', () => {
+	const native = runSlice(sourceWithoutImports(new URL('../src/formatted-text.ts', import.meta.url)).replaceAll('export ', '') + '\n({composeAttributedText})', {
+		NSFontAttributeName: 'font', NSParagraphStyleAttributeName: 'paragraph', NSKernAttributeName: 'kern',
+		NSLineBreakMode: { WordWrapping: 0 },
+		NSMutableParagraphStyle: { alloc: () => ({ init: () => ({}) }) },
+		NSMutableAttributedString: { alloc: () => ({ initWithString: () => ({ runs: [], appendAttributedString(run) { this.runs.push(run) } }) }) },
+		NSAttributedString: { alloc: () => ({ initWithStringAttributes: (text, attributes) => ({ text, attributes }) }) },
+	})
+	const runs = native.composeAttributedText([
+		node('span', { text: 'inherited' }),
+		node('span', { text: 'zero', style: { letterSpacing: 0 } }),
+		node('span', { text: 'normal', style: { letterSpacing: 'normal' } }),
+		node('span', { text: 'negative', style: { letterSpacing: -1 } }),
+	], {}, {}, () => ({}), () => ({}), { fontSize: 16, fontWeight: 400, letterSpacing: 2 }).runs
+	assert.deepEqual(Array.from(runs, (run: any) => run.attributes.kern), [2, undefined, undefined, -1])
+})
+
+test('rich parent spacing follows computed style then inline fallback and resets', () => {
+	let defaults: any
+	const sync = runSlice(fn('syncText') + '\nsyncText', {
+		composeAttributedText: (_children, _view, _props, _font, _color, next) => { defaults = next; return 'A' },
+		fontForFamilyStyle() {}, nativeColor() {}, queueLayoutReconcile() {},
+	})
+	const parent: any = { type: 'label', children: [node('span', { text: 'A' })], props: { style: { letterSpacing: 1 } },
+		computedStyle: { letterSpacing: 2 }, view: { font: { pointSize: 16 }, invalidateIntrinsicContentSize() {} }, container: {}, parent: null }
+	sync(parent); assert.equal(defaults.letterSpacing, 2)
+	delete parent.computedStyle
+	sync(parent); assert.equal(defaults.letterSpacing, 1)
+	parent.props.style = {}
+	sync(parent); assert.equal(defaults.letterSpacing, undefined)
 })

@@ -15,6 +15,7 @@ const TEXT_STYLE_KEYS = [
 	'textDecoration',
 	'color',
 	'backgroundColor',
+	'letterSpacing',
 ] as const
 
 export function validateTextStyle(props: Record<string, any>, color: (value: any) => any) {
@@ -25,6 +26,10 @@ export function validateTextStyle(props: Record<string, any>, color: (value: any
 	for (const source of [props, props.style ?? {}]) {
 		if (source.fontSize != null && (!Number.isFinite(source.fontSize) || source.fontSize <= 0)) {
 			throw new Error('AppKit formatted text fontSize must be positive and finite')
+		}
+
+		if (source.letterSpacing != null && source.letterSpacing !== 'normal' && !Number.isFinite(source.letterSpacing)) {
+			throw new Error('AppKit formatted text letterSpacing must be finite points or normal')
 		}
 
 		if (source.fontFamily != null && typeof source.fontFamily !== 'string') {
@@ -138,6 +143,11 @@ export function composeAttributedText(
 		if (String(style.textDecoration).includes('line-through')) {
 			attributes[native.NSStrikethroughStyleAttributeName] = 1
 		}
+
+		const kern = Number(style.letterSpacing)
+		// Match plain labels: zero/normal reset inherited spacing by omitting
+		// an explicit kern attribute on this newly constructed run.
+		if (Number.isFinite(kern) && kern !== 0) attributes[native.NSKernAttributeName] = kern
 
 		result.appendAttributedString(
 			native.NSAttributedString.alloc().initWithStringAttributes(run.text, attributes),

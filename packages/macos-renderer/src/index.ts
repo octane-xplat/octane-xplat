@@ -5840,6 +5840,7 @@ function syncText(parent: ElementNode | null | undefined) {
 				fontSize: Number(view.font?.pointSize ?? (parent.type === 'label' ? 16 : 14)),
 				fontWeight: parent.appliedFontWeight ?? 400,
 				color: view.textColor,
+				letterSpacing: (parent.computedStyle ?? parent.props.style ?? {}).letterSpacing,
 			},
 		)
 

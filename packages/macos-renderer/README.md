@@ -158,7 +158,7 @@ and repeating gradients, and multiple background layers remain unsupported.
 ```
 
 Labels honor `padding` (the text insets and the box grows), `letter-spacing`
-on plain text, and italic `font-style`. `visibility: hidden` keeps the layout
+on plain and formatted text, and italic `font-style`. `visibility: hidden` keeps the layout
 slot while suppressing paint and input; `visibility: collapse` drops it.
 `cursor` pushes the matching AppKit cursor while the pointer is inside the
 view (`none` hides it); `user-select` toggles `selectable` on labels and
@@ -170,6 +170,24 @@ still never matches.
 .caption { padding: 2px 6px; letter-spacing: 0.5px; font-style: italic; }
 .ghost { visibility: hidden; }
 .link { cursor: pointer; user-select: none; }
+```
+
+Formatted runs inherit numeric letter spacing from their host and ancestors.
+A span can override it with finite points (including negative values); `0` or
+`normal` restores the font's default spacing. New runs omit an explicit kern
+attribute for these resets, matching plain labels. Native glyph shaping,
+measurement and CSS delivery remain unqualified.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+export function SpacedCaption() {
+	return <label>
+		<formattedstring style={{ letterSpacing: 1 }}>
+			<span text="Spaced " />
+			<span text="default" style={{ letterSpacing: 0 }} />
+		</formattedstring>
+	</label>
+}
 ```
 
 Current limits:
@@ -188,7 +206,6 @@ Current limits:
 - `transform` composes onto `CALayer.transform` in NS order (translate,
   rotate, rotateX/Y with a default 300pt perspective, scale); percent
   translates resolve against the element's own size and resync on resize.
-- `letter-spacing` does not reach `formattedstring`/`span` runs.
 - Cursor keywords without an AppKit equivalent (diagonal resizes, `wait`,
   zoom, `cell`, `help`) keep the inherited cursor.
 - Outlines always draw solid; `dotted`/`dashed`/`double` and friends
