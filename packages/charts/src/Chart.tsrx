@@ -1,7 +1,7 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from './style-merge'
 import { useMemo, useRef, useState } from 'octane'
-import { AccessibilityRole, Color } from '@nativescript/core'
+import { AccessibilityRole, Color, type View } from '@nativescript/core'
 import { useMeasure } from '@octane-xplat/ui'
 import type { ChartProps } from './props'
 import { computeScene } from './core/scene'
@@ -182,34 +182,52 @@ export function Chart(props: ChartProps) @{
 			/>
 			<masonview
 				id={props.id ? props.id + '-overlay' : undefined}
+				ref={(v: View | null) => {
+					if (v) {
+						v.isUserInteractionEnabled = interactive
+					}
+				}}
 				style={{ width: w, height: h }}
-				isUserInteractionEnabled={interactive}
 				onTouch={interactive ? onTouch : undefined}
 				onTap={interactive ? onTap : undefined}
 			>
 				{scene?.labels.map((l) => (
 					<label
-						width={l.width}
 						text={l.text}
-						textAlignment={l.align === 'center' ? 'center' : l.align === 'end' ? 'right' : 'left'}
-						style={{ fontSize: 10, opacity: 0.7, position: 'absolute', left: l.x, top: l.y }}
+						style={{
+							width: l.width,
+							textAlign: l.align === 'center' ? 'center' : l.align === 'end' ? 'right' : 'left',
+							fontSize: 10,
+							opacity: 0.7,
+							position: 'absolute',
+							left: l.x,
+							top: l.y,
+						}}
 					/>
 				))}
 				@if (cursor && props.crosshair && !scene?.pie && plot) {
 					<contentview
-						width={1}
-						height={plot.height}
-						backgroundColor={new Color('#8a8a8a')}
-						style={{ position: 'absolute', left: cursor.px - 0.5, top: plot.y }}
+						style={{
+							width: 1,
+							height: plot.height,
+							backgroundColor: new Color('#8a8a8a'),
+							position: 'absolute',
+							left: cursor.px - 0.5,
+							top: plot.y,
+						}}
 					/>
 				}
 				@if (cursor && (props.crosshair || props.tooltip)) {
 					<contentview
-						width={8}
-						height={8}
-						borderRadius={4}
-						backgroundColor={safeColor(dotColor, '#4e79a7')}
-						style={{ position: 'absolute', left: cursor.px - 4, top: cursor.py - 4 }}
+						style={{
+							width: 8,
+							height: 8,
+							borderRadius: 4,
+							backgroundColor: safeColor(dotColor, '#4e79a7'),
+							position: 'absolute',
+							left: cursor.px - 4,
+							top: cursor.py - 4,
+						}}
 					/>
 				}
 				@if (cursor && props.tooltip && tipText) {
@@ -225,7 +243,7 @@ export function Chart(props: ChartProps) @{
 							paddingRight: 6,
 						}}
 					>
-						<label text={tipText} color={new Color('#ffffff')} style={{ fontSize: 11 }} />
+						<label text={tipText} style={{ color: new Color('#ffffff'), fontSize: 11 }} />
 					</masonview>
 				}
 			</masonview>

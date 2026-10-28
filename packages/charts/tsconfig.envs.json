@@ -1,8 +1,24 @@
 {
 	"extends": "../../tsconfig.base.json",
 	"environments": {
-		"native": { "files": ["src/index.ts", "../ui/type-support/svg-element.d.ts"] },
-		"web": { "files": ["src/index.web.ts"] },
-		"macos": { "files": ["src/index.macos.ts"] }
+		"native": {
+			"files": [
+				"src/index.ts",
+				"../ui/type-support/svg-element.d.ts"
+			]
+		},
+		"web": {
+			"files": [
+				"src/index.web.ts"
+			]
+		},
+		"macos": {
+			"files": [
+				"src/index.macos.ts"
+			]
+		}
+	},
+	"compilerOptions": {
+		"jsxImportSource": "@octane-xplat/jsx"
 	}
 }

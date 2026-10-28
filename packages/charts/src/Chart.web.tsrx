@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useEffect, useMemo, useRef, useState } from 'octane'
 import { useMeasure } from '@octane-xplat/ui'
 import type { ChartProps } from './props'
