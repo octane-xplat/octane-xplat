@@ -2249,3 +2249,37 @@ Physical keys/IME, separate-root popup/focus lifetime, label/clear arbitration,
 Field geometry/ghost painting, VoiceOver, identifier discovery and packaging
 remain unqualified. No builds, package tests/typechecks, installs, OS automation,
 visual analysis or shared audit regeneration ran; no checkbox is closed.
+
+### AppKit nested primary click ownership
+
+Common cards and Selector clear controls nest actions inside clickable hosts.
+Source inspection found no explicit primary-click ownership gate; default AppKit
+arbitration was unqualified, not a demonstrated double-activation runtime bug.
+Primary action recognizers now opt into an attempt delegate which consults the
+actual native hit ancestry. Root hit testing uses content-superview coordinates.
+Registered native controls, semantic widgets (including disabled ones), and live
+action hosts block ancestor actions; decorative labels/images/groups do not.
+The gate reads current metadata/actions rather than retaining old callbacks.
+Only setAction primary clicks opt in; other gesture defaults stay unchanged.
+No public props/exports, shared manifests, dependencies or audit snapshots changed.
+
+Seven authored source cases cover hit coordinates/ancestry, invalid ownership,
+classification, live action/role updates, reuse and optional delegate lifetime.
+Only TypeScript syntax, source review and whitespace checks ran. All tests below
+remain unrun. Registered renderer nodes delimit the policy; unregistered native
+subviews retain AppKit defaults. Native callback registration, actual pointer
+activation, nested clear controls, keyboard/AX, long-press competition and hosted
+engine behavior remain unqualified; no runtime checkbox is closed.
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/select.macos.mobile.test.tsrx src/interactive-cards.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer --filter=...@octane-xplat/ui
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All commands remain deferred pending explicit human authorization for this task.
+No builds, package tests/typechecks, installs, OS automation, visual analysis or
+shared audit regeneration ran. Removable selection badges and presentation/live
+announcement gaps remain separate implementation work.

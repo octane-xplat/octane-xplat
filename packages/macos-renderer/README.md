@@ -849,3 +849,29 @@ native key-view eligibility while retaining hidden/disabled-native-field gates.
 The matching renderer bridge is required. Authored getter/ownership/object-driver
 cases remain unrun; actual Tab traversal, focus restoration, VoiceOver, window
 moves and packaged operation remain unqualified.
+
+### Nested primary clicks
+
+Primary action recognizers consult AppKit's actual hit view before accepting a
+left-mouse-down stream. A nested renderer control, semantic widget (including a
+disabled widget), or host with a live action blocks its ancestor's click. Plain
+labels, images and groups remain part of the ancestor's clickable content.
+
+```tsx
+import { Button, ClickableCard } from '@octane-xplat/ui'
+
+export function Entry({ open, remove }: { open(): void; remove(): void }) {
+	return <ClickableCard onPress={open}><Button clickAction={remove}>Remove</Button></ClickableCard>
+}
+```
+
+The gate uses the content view's superview coordinates, as required by
+[NSView.hitTest](https://developer.apple.com/documentation/appkit/nsview/hittest(_:)),
+and the optional
+[gesture attempt delegate](https://developer.apple.com/documentation/appkit/nsgesturerecognizerdelegate/gesturerecognizer(_:shouldattempttorecognizewith:)).
+It reads current renderer metadata/action ownership. Keyboard/AX activation,
+other recognizers and same-view simultaneous recognition retain their existing
+policies. Unregistered native subviews retain AppKit's default arbitration.
+Authored source cases remain unrun: native delegate registration, physical mouse
+activation, clear controls, long presses and embedded engine interaction remain
+unqualified. This source gate does not establish full nested-input support.

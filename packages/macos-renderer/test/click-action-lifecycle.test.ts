@@ -1,6 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { runSlice, sourceWithoutImports } from './mock-globals.ts'
+import { isPrimaryClickBoundary, shouldReceivePrimaryClick } from '../src/primary-click.ts'
 
 const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
 function fn(name: string) {
@@ -9,14 +10,16 @@ function fn(name: string) {
 }
 function fixture() {
 	const handlers = new Map(), ids = new WeakMap(), recognizers: any[] = [], calls: string[] = []
+	const cssNodesByView = new WeakMap()
 	const api = runSlice(fn('wireViewAction') + '\n' + fn('setAction') + '\n({wireViewAction,setAction})', {
 		actionHandlers: handlers, actionIdsByView: ids, nextActionId: 1, buttonActionTarget: {},
-		configureGesture: (recognizer: object) => recognizer,
+		configureGesture: (recognizer: any, attempt: unknown) => { recognizer.attempt = attempt; return recognizer },
+		cssNodesByView, isPrimaryClickBoundary, shouldReceivePrimaryClick,
 		NSClickGestureRecognizer: { alloc: () => ({ initWithTargetAction: () => ({ enabled: true }) }) }, console,
 	})
 	const view = { addGestureRecognizer: (recognizer: object) => recognizers.push(recognizer) }
 	const node: any = { view, props: {}, container: { root: { eventScope: (_: string, callback: () => void) => callback() } } }
-	return { ...api, handlers, ids, recognizers, calls, view, node }
+	return { ...api, handlers, ids, recognizers, calls, view, node, cssNodesByView }
 }
 
 test('semantic-only checkbox mount can acquire exactly one click recognizer later', () => {
@@ -60,4 +63,31 @@ test('clearing a noninteractive host does not manufacture an identity or recogni
 	f.setAction(f.node, undefined)
 	assert.equal(f.node.actionId, undefined)
 	assert.equal(f.recognizers.length, 0)
+})
+
+
+test('primary click wiring reads current descendant semantics and action ownership', () => {
+	const f = fixture(), view: any = f.view
+	const window: any = {}, child: any = { superview: view, window }
+	window.contentView = { hitTest: () => child }
+	view.window = window
+	const target: any = { type: 'masonview', props: {}, actionId: 99 }
+	f.cssNodesByView.set(child, target)
+	f.setAction(f.node, () => {})
+	const recognizer = f.node.clickGestureRecognizer
+	const event = { type: 1, window, locationInWindow: { x: 10, y: 10 } }
+	assert.equal(recognizer.attempt(event), true)
+	target.props = { accessibilityRole: 'button', disabled: true }
+	assert.equal(recognizer.attempt(event), false)
+	target.props = {}
+	f.handlers.set(99, () => {})
+	assert.equal(recognizer.attempt(event), false)
+	f.handlers.set(99, null)
+	assert.equal(recognizer.attempt(event), true)
+	target.type = 'textfield'
+	assert.equal(recognizer.attempt(event), false)
+	f.setAction(f.node, undefined)
+	f.setAction(f.node, () => {})
+	assert.equal(f.node.clickGestureRecognizer, recognizer)
+	assert.equal(recognizer.attempt(event), false)
 })

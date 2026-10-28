@@ -65,6 +65,7 @@ import { createAppKitKeyboardDispatcher } from './keyboard'
 import { createAppKitFocusWithinDispatcher } from './focus-within'
 import { createTabStopSuppression } from './tab-stop'
 import { createDisabledFocusTargets } from './disabled-focus'
+import { isPrimaryClickBoundary, shouldReceivePrimaryClick } from './primary-click'
 import type { NativeKeyboardEvent } from '@octane-xplat/jsx/intrinsics'
 import { makeListView, updateListView, disposeListView } from './list-view'
 import { makePagerView, updatePagerView, disposePagerView } from './pager'
@@ -6114,6 +6115,11 @@ function setAction(node: ElementNode, value: any) {
 	if (active && !node.clickGestureRecognizer) {
 		node.clickGestureRecognizer = configureGesture(
 			NSClickGestureRecognizer.alloc().initWithTargetAction(buttonActionTarget, 'viewPressed:'),
+			(event) => shouldReceivePrimaryClick(node.view, event, (view) => {
+				const target = cssNodesByView.get(view)
+				return target != null && isPrimaryClickBoundary(target.type, target.props.accessibilityRole,
+					typeof actionHandlers.get(target.actionId ?? -1) === 'function')
+			}),
 		)
 		node.view!.addGestureRecognizer(node.clickGestureRecognizer)
 	}

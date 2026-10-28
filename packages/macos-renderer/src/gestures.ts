@@ -22,6 +22,7 @@ interface GestureNode {
 
 const nodes = new WeakMap<object, GestureNode>()
 const owned = new WeakSet<object>()
+const attempts = new WeakMap<object, (event: NSEvent) => boolean>()
 
 function dispatch(node: GestureNode | undefined, name: string, event?: any) {
 	if (!node || node.props.disabled || typeof node.props[name] !== 'function') {
@@ -55,6 +56,12 @@ class GestureDelegate extends NSObject {
 	static {
 		registerGestureClass(this)
 	}
+	gestureRecognizerShouldAttemptToRecognizeWithEvent(recognizer: NSGestureRecognizer, event: NSEvent) {
+		const attempt = attempts.get(recognizer)
+		if (!attempt) return true
+		try { return attempt(event) }
+		catch (error) { console.error('[macos-event] primary click hit-test failed', error); return false }
+	}
 	gestureRecognizerShouldRecognizeSimultaneouslyWithGestureRecognizer(
 		a: NSGestureRecognizer,
 		b: NSGestureRecognizer,
@@ -66,8 +73,10 @@ class GestureDelegate extends NSObject {
 
 const delegate = GestureDelegate.new()
 
-export function configureGesture(recognizer: NSGestureRecognizer) {
+export function configureGesture(recognizer: NSGestureRecognizer, shouldAttempt?: (event: NSEvent) => boolean) {
 	owned.add(recognizer)
+	if (shouldAttempt) attempts.set(recognizer, shouldAttempt)
+	else attempts.delete(recognizer)
 	recognizer.delegate = delegate
 	recognizer.delaysPrimaryMouseButtonEvents = false
 	return recognizer

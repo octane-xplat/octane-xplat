@@ -999,3 +999,18 @@ export function Region() {
 		options={[{ value: 'west', label: 'West' }]} isRequired />
 }
 ```
+
+AppKit primary clicks now have a renderer source gate for nested controls: the
+actual native hit ancestry rejects ancestor click recognition at a registered
+native control, semantic widget (even disabled) or live action host. Decorative
+labels/images/groups remain clickable content. Use semantic controls for nested
+actions; do not attach no-op actions to layout hosts. This does not qualify
+physical pointer delivery, foreign engine views or long-press arbitration.
+
+```tsx
+import { Button, ClickableCard } from '@octane-xplat/ui'
+
+export function Entry({ open, remove }: { open(): void; remove(): void }) {
+	return <ClickableCard onPress={open}><Button clickAction={remove}>Remove</Button></ClickableCard>
+}
+```

@@ -387,3 +387,17 @@ test('pan locations use local top-down bounds independently of translation', () 
 	target.viewPanned(f.sender)
 	assert.deepEqual(points, [[20, 70, 10, -40], [20, 30, 10, 40]])
 })
+
+
+test('optional attempt gates apply only to configured recognizers and can be removed', () => {
+	const f = fixture(), event = { type: 1 }, calls: unknown[] = []
+	const recognizer = f.configureGesture({ view: {} }, (received) => { calls.push(received); return false })
+	const attempt = (r) => f.delegate.gestureRecognizerShouldAttemptToRecognizeWithEvent(r, event)
+	assert.equal(attempt(recognizer), false)
+	assert.deepEqual(calls, [event])
+	assert.equal(attempt(f.node.onTouchGestureRecognizer), true)
+	assert.equal(attempt({}), true)
+	assert.equal(f.configureGesture(recognizer), recognizer)
+	assert.equal(attempt(recognizer), true)
+	assert.deepEqual(calls, [event])
+})
