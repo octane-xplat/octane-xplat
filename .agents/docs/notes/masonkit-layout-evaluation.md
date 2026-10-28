@@ -1548,6 +1548,60 @@ does not claim iOS width parity. Follow-up must distinguish NativeScript size
 reporting from actual native layout before choosing a fix, then retain an iOS
 width regression. No visual analysis was used.
 
+### iOS layered-screen native-frame investigation (2026-10-28)
+
+The maintained `examples/probes/screen-layers.tsrx` also reproduces a native
+width error with registry core beta.5 on the arm64 iOS Simulator named
+"Mason core extraction". The original run failed on its second open/close
+cycle: the player stage became 240 points wide inside a 402-point host.
+A passive diagnostic run reproduced the error on the first cycle, so reopening
+is not a necessary trigger. The 240-point width matches the confirmation
+panel's authored width.
+
+Direct UIKit frame reads establish that this is an actual native layout error,
+beyond the earlier `getActualSize()` observations. The following widths stayed
+unchanged at 0, 16, 116 and 516 milliseconds after the stage first had a height.
+NativeScript measurements are converted from device pixels at scale 3.
+
+| View | NativeScript measured width (points) | UIKit frame width (points) |
+| --- | --- | --- |
+| Foreign Screen RootLayout | 402 | 402 |
+| Screen's inner Mason root | 402 | 240 |
+| Player stage | 240 | 240 |
+
+The inner root retained `width: 100%` and `align-items: stretch`; its
+NativeScript layout-valid flag was true despite the mismatched native frame.
+Waiting alone did not repair it. In a separate recovery control,
+`requestLayout()` followed by 100 milliseconds still left the inner root and
+stage at 240 points. Explicitly recomputing the inner root at the foreign
+host's measured 1206×2334 device-pixel bounds, then marking that size as the
+applied root compute, restored both native widths to 402 points on both cycles.
+All 34 assertions passed only in that instrumented recovery control; this is
+not a passing unmodified probe or a shipped fix.
+
+Source inspection at `core-v1.0.0-beta.5` narrows the suspect path to
+[`View.onMeasure`](https://github.com/octane-xplat/nativescript-mason/blob/core-v1.0.0-beta.5/packages/nativescript-mason-core/view/index.ios.ts),
+[`MasonElement.measure`, `deferredRootSize` and `settleDeferredSizes`](https://github.com/octane-xplat/nativescript-mason/blob/core-v1.0.0-beta.5/packages/nativescript-masonkit/src-native/mason-ios/Mason/Mason/MasonElement.swift),
+and [`setRootNativeViewFrame` in the projected `common.ts`](https://github.com/octane-xplat/nativescript-mason/blob/core-v1.0.0-beta.5/packages/nativescript-masonkit/common.ts). Intrinsic and
+host-constrained measurements share an applied native tree. The recovery trace
+contains exact 402-point measurements and frame placement followed by a
+240-point final native frame. A deferred intrinsic compute overwriting the
+host's final layout is the leading explanation; the exact overwriting native
+call has not been traced. Next, trace the native write that follows exact
+placement and test preserving the host-assigned viewport across intrinsic
+measurement. Retain an unmodified layer/reopen regression before qualifying
+a fix. No request-layout loop,
+fixed-width workaround or dependency patch was retained in Xplat.
+
+Local evidence is under `research/mason-stage-width/`: passive run
+`22e01e92-9f30-41cb-ae0c-566040f7f462` is in `native-frames-rerun.json`;
+recovery run `d0723bac-ce1f-4cfd-a844-acbad0becce3` is in
+`recovery-control.json` with a compact `recovery-summary.json`. The temporary
+instrumentation is preserved as `screen-layers-diagnostic.patch`; the maintained
+probe was restored. These cached-host runs used handler dispatch, with no OS
+input, screenshots or pixel-parity claims. The simulator was shut down after
+each run. No public workflow or recipe changed.
+
 ## iOS dev-session bootstrap gap (2026-10-27)
 
 Runtime-observed on an iPhone 18 Pro simulator while launching the
