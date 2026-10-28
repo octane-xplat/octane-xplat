@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useEffect, useCallback, useRef } from 'octane'
 import { isAndroid } from '@nativescript/core'
 import { registerElement } from '@nativescript-community/octane'

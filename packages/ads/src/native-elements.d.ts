@@ -1,8 +1,7 @@
-import { BannerAd } from '@nativescript/google-mobile-ads'
-import type { Attributes } from '@nativescript-community/octane/intrinsics'
+import type { Attributes } from '@octane-xplat/jsx/intrinsics'
 
-declare module '@nativescript-community/octane/intrinsics' {
-	interface NativeScriptElements {
-		xplatbannerad: Attributes<typeof BannerAd>
+declare module '@octane-xplat/jsx/intrinsics' {
+	interface NativeElements<TElement> {
+		xplatbannerad: Attributes<TElement, { unitId?: string }>
 	}
 }

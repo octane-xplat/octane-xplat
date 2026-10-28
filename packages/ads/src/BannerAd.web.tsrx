@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 // Banner ad — web leaf. AdMob has no web product (AdSense is a different
 // integration); renders nothing and reports once via onAdEvent error.
 import { useEffect } from 'octane'
