@@ -124,3 +124,24 @@ describe('AppKit input modality source', () => {
 		expect(env.removed).toEqual(['monitor', 'observer'])
 	})
 })
+
+it('renderer pointer observation updates modality before a consumed context intent and releases its lease', () => {
+	const env = host()
+	let pointer!: (event: { type: number; modifierFlags: number }) => void, released = 0
+	const source = createAppKitFocusVisibleSource(() => env.native, undefined, (notify) => { pointer = notify; return () => { released++ } })
+	const off = source.subscribe(() => {})
+	env.event(10); expect(source.getSnapshot().isFocusVisible).toBe(true)
+	pointer({ type: 3, modifierFlags: 0 }) // Renderer dispatch observes before context consumption.
+	expect(source.getSnapshot().inputModality).toBe('pointer')
+	env.event(10); env.event(1) // Bridged mode does not rely on the second native pointer monitor.
+	expect(source.getSnapshot().isFocusVisible).toBe(true)
+	off(); expect(released).toBe(1)
+})
+
+it('an older bridge without pointer observation retains the existing native pointer path', () => {
+	const env = host(), source = createAppKitFocusVisibleSource(() => env.native, undefined, () => undefined)
+	const off = source.subscribe(() => {})
+	env.event(10); env.event(1)
+	expect(source.getSnapshot()).toEqual({ isSupported: true, isFocusVisible: false, inputModality: 'pointer' })
+	off()
+})

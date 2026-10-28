@@ -1,4 +1,4 @@
-import type { NSEvent, NSView } from '@octane-xplat/platform/macos'
+import type { NSEvent, NSView, NSWindow } from '@octane-xplat/platform/macos'
 
 const controls = new Set([
 	'button', 'textfield', 'textview', 'searchbar', 'switch', 'slider', 'datepicker',
@@ -22,14 +22,18 @@ export function shouldReceivePrimaryClick(owner: NSView | null, event: NSEvent, 
 	if (Number(event.type) !== 1) return true // NSEventType.LeftMouseDown
 	const window = owner.window
 	if (!window || (event.window && event.window !== window)) return false
-	const root = window.contentView, point = event.locationInWindow
-	if (!root || !point || !Number.isFinite(point.x) || !Number.isFinite(point.y)) return false
-	const parent = root.superview
-	const local = parent ? parent.convertPointFromView(point, null) : point
-	const hit = root.hitTest(local)
+	const hit = appKitMouseHit(window, event.locationInWindow)
 	for (let view = hit; view; view = view.superview) {
 		if (view === owner) return true
 		if (boundary(view)) return false
 	}
 	return false
+}
+
+/** NSView.hitTest receives coordinates in its superview, not its own bounds. */
+export function appKitMouseHit(window: NSWindow | null | undefined, point: { x: number; y: number } | null | undefined): NSView | null {
+	const root = window?.contentView
+	if (!root || !point || !Number.isFinite(point.x) || !Number.isFinite(point.y)) return null
+	const parent = root.superview
+	return root.hitTest(parent ? parent.convertPointFromView(point, null) : point)
 }

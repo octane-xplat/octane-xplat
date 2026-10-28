@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest'
-import { appKitContextMenuOrigin } from './context-menu-origin.macos'
+import { appKitContextMenuOrigin, appKitContextPointerOrigin } from './context-menu-origin.macos'
 
 function fixture() {
 	const window: any = {}, root: any = { window, superview: null }, shell: any = { window, superview: root }
@@ -29,4 +29,14 @@ it('hidden/blocked origins are excluded while explicitly focusable disabled host
 	}
 	f.view.accessibilityIsEnabled = () => false; f.view.canBecomeKeyView = () => true
 	expect(appKitContextMenuOrigin(f.root, f.view)).toBe(f.view)
+})
+
+
+it('pointer hits choose an eligible focusable ancestor rather than decorative text, while foreign hits have no origin', () => {
+	const f = fixture()
+	f.shell.acceptsFirstResponder = () => true
+	expect(appKitContextPointerOrigin(f.root, f.view)).toBe(f.shell)
+	f.view.acceptsFirstResponder = true; expect(appKitContextPointerOrigin(f.root, f.view)).toBe(f.view)
+	f.view.isEnabled = false; expect(appKitContextPointerOrigin(f.root, f.view)).toBe(f.shell)
+	f.view.window = {}; expect(appKitContextPointerOrigin(f.root, f.view)).toBeNull()
 })

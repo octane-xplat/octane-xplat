@@ -62,10 +62,11 @@ import { configureScrollAxes, observeScrollGeometry, scrollAxes } from './scroll
 import { installMasonElement, makeMasonHostView } from './mason'
 import { installCompat } from './ns-compat'
 import { createAppKitKeyboardDispatcher } from './keyboard'
+import { createAppKitContextPointerDispatcher } from './context-pointer'
 import { createAppKitFocusWithinDispatcher } from './focus-within'
 import { createTabStopSuppression } from './tab-stop'
 import { createDisabledFocusTargets } from './disabled-focus'
-import { isPrimaryClickBoundary, shouldReceivePrimaryClick } from './primary-click'
+import { appKitMouseHit, isPrimaryClickBoundary, shouldReceivePrimaryClick } from './primary-click'
 import type { NativeKeyboardEvent } from '@octane-xplat/jsx/intrinsics'
 import { makeListView, updateListView, disposeListView } from './list-view'
 import { makePagerView, updatePagerView, disposePagerView } from './pager'
@@ -316,6 +317,9 @@ const portalHandlesByNode = new WeakMap<ElementNode, UniversalPortalTargetHandle
 /** Every node view, for firstResponder→node resolution (focus pseudo-classes). */
 const cssNodesByView = new WeakMap<object, ElementNode>()
 const keyboardDispatcher = createAppKitKeyboardDispatcher(() => ({ NSEvent }))
+const contextPointerDispatcher = createAppKitContextPointerDispatcher(
+	(event) => appKitMouseHit(event.window, event.locationInWindow), () => ({ NSEvent }),
+)
 const focusWithinDispatcher = createAppKitFocusWithinDispatcher(() => ({ NSNotificationCenter, NSWindowDidUpdateNotification }))
 
 function parentReference(parent: ElementNode | null | undefined): UniversalHostParent {
@@ -5937,6 +5941,36 @@ function observeViewKeys(view: NSView, handlers: {
 	return off
 }
 
+const contextSubscriptionsByNode = new WeakMap<ElementNode, Set<() => void>>()
+
+/** Shared ContextMenu owns an intent lease; OS-native menus keep their own leaf. */
+function observeContextMenu(view: NSView, handler: (target: NSView) => boolean): () => void {
+	const node = cssNodesByView.get(view)
+	if (!node) return () => {}
+	let owned = contextSubscriptionsByNode.get(node)
+	if (!owned) {
+		owned = new Set(); contextSubscriptionsByNode.set(node, owned)
+		const leases = owned
+		;(node.destroyHooks ??= []).push(() => {
+			for (const off of [...leases]) off()
+			contextSubscriptionsByNode.delete(node)
+		})
+	}
+	const leases = owned
+	let active = true
+	const release = contextPointerDispatcher.subscribe(view, (target) => {
+		if (!active || node.view !== view || cssNodesByView.get(view) !== node || node.props.disabled === true ||
+			node.props.isEnabled === false || node.props.enabled === false) return false
+		let handled = false
+		try { node.container.root?.eventScope('discrete', () => { handled = handler(target) === true }) }
+		catch (error) { console.error('[macos-context] intent failed', error); handled = true }
+		return handled
+	})
+	const off = () => { if (!active) return; active = false; release(); leases.delete(off) }
+	leases.add(off)
+	return off
+}
+
 function setKeyActions(node: ElementNode) {
 	if (!node.view) return
 	const invoke = (name: 'onKeyDown' | 'onKeyUp', event: NativeKeyboardEvent<object>) => {
@@ -10236,6 +10270,13 @@ Object.defineProperty(appKitBridge, 'focusWithinSupported', {
 appKitBridge.dispatchKeyboardEvent = keyboardDispatcher.dispatch
 appKitBridge.observeHardwareKeys = keyboardDispatcher.observe
 appKitBridge.observeViewKeys = observeViewKeys
+Object.defineProperty(appKitBridge, 'contextMenuEventsSupported', { configurable: true, enumerable: true, get: contextPointerDispatcher.available })
+appKitBridge.observeContextMenu = observeContextMenu
+appKitBridge.observePointerInput = (notify: (event: { type: number; modifierFlags: number }) => void) => {
+	const off = contextPointerDispatcher.observe(notify)
+	if (!contextPointerDispatcher.available()) { off(); throw new Error('AppKit pointer observation unavailable') }
+	return off
+}
 appKitBridge.suppressTabStop = (view: NSView) => tabStopSuppression.retain(view)
 appKitBridge.retainDisabledFocus = (view: NSView) => disabledFocusTargets.retain(view)
 appKitBridge.retainFocusTarget = (view: NSView) => {

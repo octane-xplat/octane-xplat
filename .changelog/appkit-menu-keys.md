@@ -5,7 +5,8 @@ label-prefix search, manual activation and directional submenus. Plain Down/Up
 on the closed trigger requests first/last-row opening. Existing row
 state and close owners remain in charge; nested editors keep their menu-surface
 key handling. ContextMenu adds Shift+F10 opening and return intent from a valid
-invoker or visible trigger.
+invoker or visible trigger. With the matching renderer it also requests opening
+from secondary-click and plain Control-primary-click inside the context scope.
 
 ```tsx
 import { DropdownMenu, DropdownMenuItem } from '@octane-xplat/ui'

@@ -902,3 +902,35 @@ ref teardown releases the UI attachment; node teardown is the fallback owner.
 The nine authored dispatcher/bridge/fake-window cases remain unrun. Actual native
 monitor ordering, ref delivery, physical keys, popup focus, IME, modal interaction,
 AX and packaging remain unqualified; this source contract is not runtime proof.
+
+
+### Context pointer ownership
+
+The shared AppKit ContextMenu retains a private context-intent lease on its
+existing wrapper. One local NSEvent monitor observes pointer modality before
+routing secondary-down or plain Control-primary-down to the nearest registered
+ancestor of the actual hit view. It uses the same content-view/superview hit-test
+coordinate conversion as the primary-click gate. Ordinary primary events and
+Control combinations with Shift, Option or Command retain native defaults.
+
+```tsx
+import { Button, ContextMenu, DropdownMenuItem } from '@octane-xplat/ui'
+
+export function Document() {
+	return <ContextMenu trigger="Actions" menu={<DropdownMenuItem label="Archive" />}>
+		<Button label="report.txt" clickAction={() => console.log('select')} />
+	</ContextMenu>
+}
+```
+
+Each lease releases its own entry, including reused callbacks. A declining scope
+allows an ancestor; only an accepted intent consumes the native event. Handler
+faults are logged and remain consumed. The bridge checks current node identity,
+blocked state and discrete event scope; ref teardown releases ownership and node
+teardown releases outstanding leases. Modality readers share pointer observation
+so consumed context events do not depend on a later native monitor. Older bridges
+keep their prior modality observation path. This is separate from OS-native menus.
+
+Twelve authored source cases remain unrun. Native hit-testing/monitor order,
+mouse-up/primary-action suppression, popup/ref/focus timing, embedded engines,
+IME, AX and packaged operation require native qualification.

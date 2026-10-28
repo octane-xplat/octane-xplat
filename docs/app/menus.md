@@ -205,7 +205,7 @@ export function ControlledActions({ disabled }: { disabled: boolean }) {
 Five authored AppKit object-driver cases remain unrun and replace popovers with
 inline content. Subsequent surface/trigger keyboard source paths are described below; reliable
 owned-dropdown Tab return intent is described below; real popup/ref/focus timing, physical keys, mouse hit testing,
-VoiceOver and packaging remain unqualified. Shared AppKit ContextMenu also has the Shift+F10 source path described below; native secondary-click support is separate.
+VoiceOver and packaging remain unqualified. Shared AppKit ContextMenu also has the Shift+F10 source path described below; secondary-click source ownership is described below.
 The renderer's full menu-role/checked announcements also remain incomplete.
 
 
@@ -269,7 +269,7 @@ older bridges retain the existing Button activation path. Nine new dispatcher/
 bridge/fake-window cases remain unrun. Native monitor order, actual ref delivery,
 physical arrows, popup first/last focus, IME, actual Tab return, VoiceOver and
 packaging remain unqualified. Owned Tab return intent is described below;
-secondary-click opening and full menu accessibility remain separate gaps.
+secondary-click source ownership is described below; full menu accessibility remains a gap.
 
 
 ### Leave an owned AppKit dropdown with Tab
@@ -332,5 +332,35 @@ owners still accept closure before layer restoration runs.
 
 Six new origin-policy/inline-popup cases remain unrun. Physical Shift+F10 delivery,
 actual invoker/popup/Tab focus, native metadata/gesture arbitration, IME, VoiceOver
-and packaging remain unqualified. Secondary-click opening and normalization of a
-dedicated hardware Context Menu key remain separate implementation gaps.
+and packaging remain unqualified. Dedicated hardware Context Menu key
+normalization remains an implementation gap.
+
+
+### Open AppKit context actions with the pointer
+
+With the matching AppKit renderer, secondary-click or plain Control-primary-click
+inside ContextMenu requests opening. The nearest live context scope owns the
+intent; ordinary clicks and Control combinations with Shift, Option or Command
+keep their existing behavior. Use the same component for keyboard and pointer
+opening:
+
+```tsx
+import { Button, ContextMenu, DropdownMenuItem } from '@octane-xplat/ui'
+
+export function Document() {
+	return <ContextMenu label="Document actions" trigger="Actions" menu={<DropdownMenuItem label="Archive" />}>
+		<Button label="report.txt" clickAction={() => console.log('select')} />
+	</ContextMenu>
+}
+```
+
+Hits on decorative content choose an eligible focusable ancestor as the return
+host, then fall back to the visible trigger. Without a valid invoker, native Tab
+fallback remains. Controlled owners still accept open/close requests. The renderer
+observes pointer modality before consuming an owned intent; disabled, released,
+foreign and detached scopes cannot open through a cached callback.
+
+Twelve authored dispatcher/bridge/origin/modality/menu cases remain unrun. Native
+mouse-down/up delivery, primary-action suppression, hit-testing, monitor ordering,
+popup/focus/ref timing, embedded engines, IME, VoiceOver and packaging remain
+unqualified. This is source implementation, not evidence of native operation.

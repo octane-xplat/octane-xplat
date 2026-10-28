@@ -2704,3 +2704,54 @@ packaging remain unqualified. Native secondary click and dedicated hardware
 Context Menu key normalization remain implementation gaps. No builds, package
 tests/typechecks, installs, OS automation, visual analysis or shared audit snapshots
 ran; no evidence checkbox is closed.
+
+
+### AppKit context pointer ownership
+
+ComponentsDemo's document/context actions are an everyday desktop flow; the
+previous target implementation had Shift+F10, visible-trigger and long-press
+paths but no secondary-click ownership. The AppKit renderer now retains a private
+lease on each existing ContextMenu wrapper. A single local pointer monitor sends
+secondary-down or plain Control-primary-down through the actual hit view's native
+ancestry, nearest live owner first. Ordinary primary events and Control with
+Shift/Option/Command remain native defaults. Hit testing reuses the existing
+content-view superview coordinate conversion; the primary-click gate policy is
+unchanged. This is source evidence only.
+
+Owned handlers enter discrete event scope and check current node/props; ref and
+node teardown release subscriptions. Declining handlers allow outer scopes;
+accepted intents consume the down event, and logged handler faults remain
+consumed. Pointer modality observers run before context delivery so consuming the
+event cannot starve focus-visible state of that pointer observation. Modality
+readers use the shared pointer lease when present; older bridges retain their
+previous native observation path. Decorative hits choose an eligible focusable
+ancestor as return host, then the visible trigger. Existing controlled acceptance
+and menu/layer return owners remain in charge; no public prop/dependency or shared
+package manifest changed.
+
+Five dispatcher, two renderer-bridge, one origin, two modality and two appended
+inline-popup cases were authored, all twelve unrun. The popup cases invoke fake
+bridge callbacks; they do not prove native primary-action suppression. Source
+semantic review, TypeScript/TSRX syntax parsing and whitespace checks passed.
+Guide/skill/renderer contract, existing feature note, maintained menu fixture and
+shared-menus AC11 were reconciled. The fixture runner still dispatches only the
+ordinary dropdown trigger; it synthesizes no OS key or mouse events.
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/menu-family.macos.mobile.test.tsrx src/context-menu-origin.macos.mobile.test.tsrx
+pnpm exec turbo run test --filter=@octane-xplat/ui -- src/focus-visible-source.macos.test.ts
+pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer --filter=...@octane-xplat/ui
+pnpm probe run examples/probes/menu-keyboard.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All commands remain deferred pending explicit human authorization for this task.
+Native down/up delivery, primary-action suppression, hit-testing, monitor ordering,
+popup/ref/focus/Tab timing, nested/long-press/embedded-engine arbitration, IME,
+VoiceOver and packaging remain unqualified. Dedicated hardware Context Menu key
+normalization, originless/unowned Tab ownership and full menu AX roles/checked
+announcements remain implementation gaps. No builds, package tests/typechecks,
+installs, OS automation, visual analysis or shared audit snapshots ran; no evidence
+checkbox is closed.

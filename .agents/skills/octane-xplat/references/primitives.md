@@ -1068,7 +1068,7 @@ export function Actions({ disabled }: { disabled: boolean }) {
 ```
 
 The subsequent menu-surface source path covers arrows/typeahead/submenu intent;
-originless/unowned Tab return, native secondary click and
+originless/unowned Tab return and
 full menu AX roles/checked announcements remain implementation gaps; native popup/ref/focus/
 input/VoiceOver behavior is unqualified. Authored inline-popup cases remain unrun.
 
@@ -1168,5 +1168,26 @@ export function Document() {
 Use trigger content for ContextMenu; only DropdownMenu accepts button. Long-press-
 only menus without a live invoker keep native Tab fallback. Six authored cases
 remain unrun; native key/gesture/ref/IME/focus/AX/packaging behavior is unqualified.
-Secondary click and dedicated hardware Context Menu key normalization remain
-implementation gaps. See [context keyboard intent](../../../../docs/menus.md#open-appkit-context-actions-from-the-keyboard).
+Dedicated hardware Context Menu key normalization remains an implementation gap. See [context keyboard intent](../../../../docs/menus.md#open-appkit-context-actions-from-the-keyboard).
+
+
+AppKit ContextMenu also owns secondary-click and plain Control-primary-click
+through a private renderer lease. Require the matching renderer; older bridges
+retain keyboard, visible-trigger and long-press paths. Nearest live context scope
+wins; disabled/stale scopes decline and ordinary or additionally modified primary
+clicks keep their existing path. Pointer modality is observed before consumption.
+
+```tsx
+import { Button, ContextMenu, DropdownMenuItem } from '@octane-xplat/ui'
+
+export function Document() {
+	return <ContextMenu trigger="Actions" menu={<DropdownMenuItem label="Archive" />}>
+		<Button label="report.txt" clickAction={() => console.log('select')} />
+	</ContextMenu>
+}
+```
+
+Decorative hits choose an eligible focusable ancestor for return, then the visible
+trigger; originless surfaces keep native Tab fallback. Twelve authored cases are
+unrun. Physical clicks, primary-action suppression, monitor/ref/focus timing, AX,
+IME and packaging remain unqualified. See [pointer context intent](../../../../docs/menus.md#open-appkit-context-actions-with-the-pointer).

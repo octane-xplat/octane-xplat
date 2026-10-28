@@ -5,6 +5,7 @@ import type { UseFocusVisibleResult } from './use-focus-visible.tsrx'
 export function createAppKitFocusVisibleSource(
 	native: () => Record<string, any> = () => globalThis,
 	observeKeys?: (notify: (event: { type: number; modifierFlags: number }) => void) => () => void,
+	observePointer?: (notify: (event: { type: number; modifierFlags: number }) => void) => (() => void) | undefined,
 ) {
 	let state: UseFocusVisibleResult = { isFocusVisible: false, inputModality: 'unknown', isSupported: false }
 	const listeners = new Set<() => void>()
@@ -40,28 +41,30 @@ export function createAppKitFocusVisibleSource(
 		let monitor: unknown
 		let observer: unknown
 		let releaseKeys: (() => void) | undefined
+		let releasePointer: (() => void) | undefined
 		const cleanup = () => {
 			try {
 				if (monitor != null) events.removeMonitor(monitor)
 			} finally {
 				try { if (observer != null) center.removeObserver(observer) }
-				finally { releaseKeys?.() }
+				finally { try { releaseKeys?.() } finally { releasePointer?.() } }
 			}
 		}
 		try {
 			const keyObserved = (event: { type: number; modifierFlags: number }) => {
 				if (Number(event.type) === 10 && !(Number(event.modifierFlags) & ((1 << 18) | (1 << 19) | (1 << 20)))) publish('keyboard')
 			}
+			const pointerObserved = (event: { type: number }) => { if ([1, 3, 25].includes(event.type)) publish('pointer') }
 			releaseKeys = observeKeys?.(keyObserved)
+			releasePointer = observePointer?.(pointerObserved)
 			const mask = (host.NSEventMask?.KeyDown ?? 1024) |
-				(host.NSEventMask?.LeftMouseDown ?? 2) |
-				(host.NSEventMask?.RightMouseDown ?? 8) |
-				(host.NSEventMask?.OtherMouseDown ?? 33554432)
+				(releasePointer ? 0 : ((host.NSEventMask?.LeftMouseDown ?? 2) |
+					(host.NSEventMask?.RightMouseDown ?? 8) | (host.NSEventMask?.OtherMouseDown ?? 33554432)))
 			monitor = events.addLocalMonitorForEventsMatchingMaskHandler(mask, (event: any) => {
 				if (Number(event.type) === 10) {
 					// Modified application shortcuts do not switch to keyboard modality.
 					keyObserved(event)
-				} else if ([1, 3, 25].includes(Number(event.type))) {
+				} else if (!releasePointer && [1, 3, 25].includes(Number(event.type))) {
 					publish('pointer')
 				}
 				return event // Observation never consumes a native event.

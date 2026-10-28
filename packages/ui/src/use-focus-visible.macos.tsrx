@@ -8,6 +8,7 @@ export type { FocusInputModality, UseFocusVisibleResult } from './use-focus-visi
 const modality = createAppKitFocusVisibleSource(
 	() => globalThis,
 	(notify) => appKitHost()?.observeHardwareKeys?.(notify) ?? (() => {}),
+	(notify) => appKitHost()?.observePointerInput?.(notify),
 )
 const hot = (import.meta as ImportMeta & { hot?: { dispose(callback: () => void): void } }).hot
 hot?.dispose(() => modality.dispose())

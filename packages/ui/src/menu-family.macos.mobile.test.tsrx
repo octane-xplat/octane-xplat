@@ -7,6 +7,7 @@ import { MenuSurface } from './MenuSurface.macos.tsrx'
 import { DropdownMenuItem, DropdownMenuCheckboxItem, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSubMenu, DropdownMenuLink } from './MenuParts.macos.tsrx'
 import { ButtonGroupProvider } from './button-group-context'
 import { TextInput } from './text-controls.macos.tsrx'
+import { Button } from './Button.macos.tsrx'
 
 // Inline surfaces exercise source ownership only, not NSPopover/native input.
 const popup = vi.hoisted(() => ({ current: null as any, byAnchor: new Map<object, any>() }))
@@ -444,5 +445,56 @@ it('context keyboard guards reject stale blocked/detached/foreign/prevented/comp
 		env.root.unmount(); changes.mockClear()
 		expect(f.key(cached, 'F10', { target: field, shiftKey: true }).defaultPrevented).toBe(false)
 		expect(changes).not.toHaveBeenCalled()
+	} finally { env.root.unmount(); vi.unstubAllGlobals() }
+})
+
+function contextPointerFixture() {
+	const f = nativeMenuFixture(), owners = new Map<object, (target: any) => boolean>()
+	let registered = 0, released = 0
+	Object.assign((globalThis as any).__xplatAppKit, { contextMenuEventsSupported: true,
+		observeContextMenu(view: object, handler: (target: any) => boolean) {
+			owners.set(view, handler); registered++
+			return () => { owners.delete(view); released++ }
+		},
+	})
+	return { ...f, owners, get registered() { return registered }, get released() { return released } }
+}
+
+it('context pointer intent opens from decorative content without directly invoking its primary action and retains the focus host', async () => {
+	const f = contextPointerFixture(), main = f.window(), panel = f.window(), changes = vi.fn(), primary = vi.fn()
+	const base = { id: 'context', isOpen: false, onOpenChange: changes,
+		children: <Button id="context-item" label="Item" clickAction={primary} />, menu: <DropdownMenuItem id="context-action" label="Archive" /> }
+	const env = mount(ContextMenu, base)
+	try {
+		const host = env.byID('context'); f.hydrate(host, main)
+		const button = env.byID('context-item'); button.acceptsFirstResponder = () => true
+		const label = env.all().find((node) => node.type === 'label' && node.props?.text === 'Item')
+		expect(f.owners.has(host)).toBe(true); expect(f.registered).toBe(1)
+		expect(f.owners.get(host)!(label)).toBe(true); flushUniversalSync(() => {})
+		expect(changes).toHaveBeenLastCalledWith(true); expect(primary).not.toHaveBeenCalled() // Callback wiring only; no native mouse arbitration proof.
+		expect(lists(env)).toHaveLength(0)
+		env.render({ ...base, isOpen: true }); f.hydrate(lists(env)[0], panel)
+		await vi.waitFor(() => { flushUniversalSync(() => {}); expect(panel.firstResponder).toBe(env.byID('context-action')) })
+		expect(popupFor('context').finalFocusRef.current).toBe(button)
+	} finally { env.root.unmount(); expect(f.owners.size).toBe(0); expect(f.released).toBe(1); vi.unstubAllGlobals() }
+})
+
+
+it('pointer context scope falls back to the visible invoker and rejects stale disabled/foreign/detached callbacks', async () => {
+	const f = contextPointerFixture(), main = f.window(), panel = f.window(), changes = vi.fn()
+	const base = { id: 'context', trigger: 'Actions', onOpenChange: changes, children: <label id="context-text" text="Plain content" />,
+		menu: <DropdownMenuItem id="context-action" label="Archive" /> }
+	const env = mount(ContextMenu, base)
+	try {
+		const host = env.byID('context'); f.hydrate(host, main)
+		const handler = f.owners.get(host)!, trigger = env.all().find((node) => String(node.props?.className).split(' ').includes('vx-contextmenu-trigger'))
+		expect(handler({ window: main, superview: null })).toBe(false); expect(changes).not.toHaveBeenCalled()
+		expect(handler(env.byID('context-text'))).toBe(true); flushUniversalSync(() => {}); f.hydrate(lists(env)[0], panel)
+		await vi.waitFor(() => { flushUniversalSync(() => {}); expect(panel.firstResponder).toBe(env.byID('context-action')) })
+		expect(popupFor('context').finalFocusRef.current).toBe(trigger)
+		env.render({ ...base, isDisabled: true }); changes.mockClear()
+		expect(handler(env.byID('context-text'))).toBe(false); expect(changes).not.toHaveBeenCalled()
+		env.root.unmount(); expect(handler(host)).toBe(false)
+		expect(f.owners.size).toBe(0)
 	} finally { env.root.unmount(); vi.unstubAllGlobals() }
 })

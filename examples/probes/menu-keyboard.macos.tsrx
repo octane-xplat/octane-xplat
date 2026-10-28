@@ -17,13 +17,13 @@ export default function MenuKeyboardProbe() {
 		</DropdownMenu>
 		<ContextMenu id="context-keys" label="Document actions" trigger="Context actions"
 			menu={<DropdownMenuItem label="Archive" onSelect={() => setResult('context-archive')} />}>
-			<Button id="context-item" label="Document — try Shift+F10" clickAction={() => setResult('selected')} />
+			<Button id="context-item" label="Document — try Shift+F10, secondary-click or Control-click" clickAction={() => setResult('selected')} />
 		</ContextMenu>
 		<label id="menu-key-result" text={`${result}; ${checked ? 'pinned' : 'unpinned'}`} />
 	</VStack>
 }
 
-// This runner entry dispatches only the existing trigger action; it synthesizes no OS keys.
+// This runner entry dispatches only the existing trigger action; it synthesizes no OS keys or mouse events.
 export async function run(ctx: ProbeContext) {
 	await ctx.waitFor(() => ctx.find('menu-keys'))
 	await ctx.press('menu-keys')
