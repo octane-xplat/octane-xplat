@@ -8,8 +8,9 @@
 // (extensionless first) so imports bind the unsuffixed default while each
 // variant file is checked as a program root under that same resolution.
 // Per-file @jsxImportSource pragmas select the JSX vocabulary, not a runtime
-// renderer. Existing manifests retain the `octane` default; facade-based apps
-// explicitly set @octane-xplat/jsx in top-level compilerOptions.
+// renderer: @octane-xplat/jsx for native targets, @octane-xplat/jsx/dom for
+// browser files. The program default is @octane-xplat/jsx; manifests can
+// override it in top-level compilerOptions (browser-only packages set /dom).
 //
 // TYPECHECK_ENVIRONMENTS keeps the per-platform resolution settings for
 // *consumers* of a packed package (tests/packed-consumer.mjs) — a real
@@ -60,7 +61,7 @@ export const PLATFORM_MODULE_SUFFIXES = [
 export const TYPECHECK_ENVIRONMENTS = {
 	web: {
 		compilerOptions: {
-			jsxImportSource: 'octane',
+			jsxImportSource: '@octane-xplat/jsx/dom',
 			moduleSuffixes: ['.web', ''],
 			customConditions: ['web'],
 			lib: ['ESNext', 'DOM', 'DOM.Iterable'],
@@ -68,7 +69,7 @@ export const TYPECHECK_ENVIRONMENTS = {
 	},
 	native: {
 		compilerOptions: {
-			jsxImportSource: '@nativescript-community/octane',
+			jsxImportSource: '@octane-xplat/jsx',
 			moduleSuffixes: ['.ios', '.android', '.mobile', ''],
 			customConditions: ['native'],
 			lib: ['ESNext'],
@@ -77,7 +78,7 @@ export const TYPECHECK_ENVIRONMENTS = {
 	},
 	macos: {
 		compilerOptions: {
-			jsxImportSource: '@octane-xplat/macos-renderer',
+			jsxImportSource: '@octane-xplat/jsx',
 			moduleSuffixes: ['.macos', ''],
 			customConditions: ['macos'],
 			lib: ['ESNext'],
@@ -89,7 +90,7 @@ export const TYPECHECK_ENVIRONMENTS = {
 	},
 	linux: {
 		compilerOptions: {
-			jsxImportSource: 'octane',
+			jsxImportSource: '@octane-xplat/jsx/dom',
 			moduleSuffixes: ['.linux', '.web', ''],
 			customConditions: ['linux', 'web'],
 			lib: ['ESNext', 'DOM', 'DOM.Iterable'],
@@ -110,7 +111,7 @@ export const TYPECHECK_ENVIRONMENTS = {
 	},
 	windows: {
 		compilerOptions: {
-			jsxImportSource: '@nativescript-community/octane',
+			jsxImportSource: '@octane-xplat/jsx',
 			moduleSuffixes: ['.windows', '.native', ''],
 			customConditions: ['native'],
 			lib: ['ESNext'],
@@ -305,7 +306,7 @@ const LIB_ORDER = ['ESNext', 'DOM', 'DOM.Iterable']
  * host-global packages that slice needs). The generated program unions every
  * declared environment's files, merges lib/types across
  * them, and compiles under PLATFORM_MODULE_SUFFIXES. JSX vocabulary selection is
- * per-file via @jsxImportSource pragmas; the legacy program default is `octane`.
+ * per-file via @jsxImportSource pragmas; the program default is `@octane-xplat/jsx`.
  * Everything else program-wide (paths, target, a different default
  * jsxImportSource) belongs in the manifest's top-level compilerOptions.
  */
@@ -420,7 +421,7 @@ export function expandEnvPrograms(dir, { path: manifestPath, manifest }) {
 	}
 
 	const compilerOptions = {
-		jsxImportSource: 'octane',
+		jsxImportSource: '@octane-xplat/jsx',
 		lib: orderedUnion(lib, LIB_ORDER),
 		...top,
 		moduleSuffixes: PLATFORM_MODULE_SUFFIXES,

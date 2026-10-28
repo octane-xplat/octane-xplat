@@ -44,7 +44,8 @@ export async function xplatMacOS(env, options = {}) {
 							target: 'universal',
 							server: 'unsupported',
 							text: 'host',
-							intrinsics: `${renderer}/intrinsics`,
+							// JSX typing lives in the facade; renderer keeps only its module/target.
+							intrinsics: '@octane-xplat/jsx',
 						},
 					},
 					rules: options.rules ?? [{ include: '**/*.{tsx,tsrx}', renderer: 'macos' }],

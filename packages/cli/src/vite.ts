@@ -876,7 +876,13 @@ export async function xplatNative(env, opts = {}) {
 					renderers: {
 						// The stock renderer ships validation.forbiddenGlobals/Imports
 						// by default since 0.2.1 (upstream #6).
-						registry: { nativescript: nativeScriptRenderer },
+						registry: {
+							nativescript: {
+								...nativeScriptRenderer,
+								intrinsics:
+									'@octane-xplat/jsx' /* upstream hardcodes @nativescript-community/octane; the facade is the single JSX type source now */,
+							},
+						},
 						rules: opts.rules ?? nativeRules,
 					},
 				},
