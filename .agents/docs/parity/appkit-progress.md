@@ -1493,3 +1493,34 @@ input-source switching, IME/dead keys, held-key repeat/key-up semantics, focus,
 VoiceOver and packaging remain unqualified. No builds, installs, package tests/
 typechecks, probes, OS automation, visual analysis or shared audit regeneration
 ran. No evidence checkbox is closed.
+
+
+### Logical AppKit inline scroll offsets
+
+The public ScrollableArea handle defines distance from an axis's logical start,
+but AppKit seeks/state treated inline start as physical left regardless of
+direction. The target leaf/hook now use InternationalizationProvider direction:
+RTL inline offset = maxX - physicalX, clamped at the public boundary. The stable
+handle reads live direction, the hook remeasures when direction changes without
+requiring scroll input, and inline-start/end padding swaps physical sides.
+Missing/nonfinite seek axes are still ignored; other coordinates stay intact.
+
+Internal scrollableAreaOffset/metrics stay physical because tab reveal/chat/
+VirtualList callers rely on their left/top coordinate contract; only its comment
+was clarified. No new public API/dependency or other target leaf changed. Native
+refs in the touched scroll leaf/hook now name NSScrollView. Authored source cases
+cover RTL inversion/clamps, start/end reads, live direction changes, stable handle,
+omitted/invalid axes and padding. Syntax/whitespace only; no tests ran.
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/scrollable-area-appkit.mobile.test.tsrx src/tab-list.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm check:recipes
+```
+
+These commands remain deferred until this task's explicit human authorization.
+The provider does not reorder native content or set initial clip position;
+actual RTL layout/initial placement, backing geometry, elasticity/scroll input,
+animation and packaging remain unqualified. No builds, installs, package tests/
+typechecks, probes, OS automation, visual analysis or shared audit regeneration
+ran. No evidence checkbox is closed.

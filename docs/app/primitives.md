@@ -2438,6 +2438,32 @@ export function Composer() {
 The [input probe](../../packages/app/src/Home.tsrx) includes controlled and
 uncontrolled composers.
 
+### Logical scroll offsets on AppKit
+
+ScrollableArea now reads direction from InternationalizationProvider. In RTL,
+`inline: 0` means the document's right edge; inline start/end state and padding
+follow the same direction. A live direction change remeasures state and keeps
+the imperative handle stable. Omitted axes retain their current position.
+The provider does not reorder native content or choose its initial clip
+position; those layout behaviors still require separate native qualification.
+OS scrolling, elastic offsets and animation remain unqualified.
+
+```tsx
+import { useRef } from 'octane'
+import { Button, InternationalizationProvider, ScrollableArea, Text } from '@octane-xplat/ui'
+import type { ScrollableAreaHandle } from '@octane-xplat/ui'
+
+export function RightToLeftNotes() {
+	const viewport = useRef<ScrollableAreaHandle | null>(null)
+	return <InternationalizationProvider dir="rtl">
+		<Button label="Inline start" clickAction={() => viewport.current?.scrollToOffset({ inline: 0 })} />
+		<ScrollableArea ref={viewport} axis="inline" width={240} height={80} paddingInlineStart={2}>
+			<Text>Wide notes content</Text>
+		</ScrollableArea>
+	</InternationalizationProvider>
+}
+```
+
 ## Render bundled SVG on AppKit
 
 On experimental AppKit macOS, `Image.src` accepts trusted inline SVG markup,

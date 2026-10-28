@@ -10,6 +10,8 @@ import type {
 
 import { refList } from './ref-list'
 import { INITIAL_SCROLL_STATE, sameScrollState, scrollableAreaState } from './scrollable-area-state'
+import { useDirection } from './internationalization'
+import { convertAppKitInlineOffset } from './scrollable-area-logical.macos'
 import { scrollableAreaMetrics } from './scrollable-area-metrics.macos'
 
 /** Measures the live AppKit viewport on scroll and layout. Layout measurements
@@ -18,9 +20,11 @@ export function useScrollableArea<TElement extends object = object>(
 	options: UseScrollableAreaOptions = {},
 ): UseScrollableAreaResult<TElement> {
 	const axis = options.axis ?? 'block'
+	const direction = useDirection(), directionRef = useRef(direction)
+	directionRef.current = direction
 	const axisRef = useRef(axis)
 	axisRef.current = axis
-	const viewport = useRef<any>(null)
+	const viewport = useRef<NSScrollView | null>(null)
 	const caller = useRef<Record<string, any>>({})
 	const contentCaller = useRef<Record<string, any>>({})
 	const [, setState] = useState(INITIAL_SCROLL_STATE)
@@ -32,7 +36,7 @@ export function useScrollableArea<TElement extends object = object>(
 		}
 
 		const { maxX, x, maxY, y } = scrollableAreaMetrics(viewport.current, event)
-		const next = scrollableAreaState(axisRef.current, maxX, x, maxY, y)
+		const next = scrollableAreaState(axisRef.current, maxX, convertAppKitInlineOffset(x, maxX, directionRef.current), maxY, y)
 		if (!sameScrollState(stateRef.current, next)) {
 			stateRef.current = next
 			setState(next)
@@ -40,7 +44,7 @@ export function useScrollableArea<TElement extends object = object>(
 	}, [])
 
 	const bindViewport = useCallback(
-		(view: any) => {
+		(view: NSScrollView | null) => {
 			viewport.current = view
 			if (view) {
 				measure()
@@ -86,7 +90,7 @@ export function useScrollableArea<TElement extends object = object>(
 
 	useLayoutEffect(() => {
 		measure()
-	}, [axis, measure])
+	}, [axis, direction, measure])
 
 	const getViewportProps = useCallback(
 		function getViewportProps<P extends object = {}>(

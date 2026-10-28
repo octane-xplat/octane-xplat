@@ -526,8 +526,10 @@ export function Search() {
 
 ## AppKit scroll offsets
 
-Use the portable ScrollableArea handle for top/left offsets in AppKit points.
-ScrollableArea, VirtualList and chat share clamped native seek logic; omitted
+Use the portable ScrollableArea handle for logical start/top offsets in AppKit
+points. Its inline offsets/state and inline padding follow useDirection; RTL
+start is the right edge. Internal VirtualList/chat/tab helpers retain physical
+coordinates. The shared native seek logic clamps ranges; omitted
 axes retain their origin and missing animator selectors fall back to an instant
 seek. Native coordinate reads use the generated NSView `flipped` property,
 including measurements. Source/object-driver cases do not qualify OS scrolling,

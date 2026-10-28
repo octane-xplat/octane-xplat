@@ -1,6 +1,7 @@
 import { scrollableAreaMetrics } from './scrollable-area-metrics.macos'
 
-/** AppKit logical offsets are points from the document's left/top edges. */
+/** Internal physical offsets in points from the document's left/top edges.
+ * ScrollableArea converts its public logical inline offset before calling. */
 export function scrollableAreaOffset(
 	view: any,
 	offset: { inline?: number; block?: number },

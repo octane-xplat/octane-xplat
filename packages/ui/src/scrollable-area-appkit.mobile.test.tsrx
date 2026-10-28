@@ -7,6 +7,8 @@ import {
 	flushUniversalSync,
 } from 'octane/universal/native'
 
+import { InternationalizationProvider } from './InternationalizationProvider.tsrx'
+import { convertAppKitInlineOffset } from './scrollable-area-logical.macos'
 import { ScrollableArea } from './ScrollableArea.macos.tsrx'
 import { useScrollableArea } from './use-scrollable-area.macos.tsrx'
 import { scrollableAreaState } from './scrollable-area-state'
@@ -225,4 +227,63 @@ describe('AppKit headless scroll geometry and event composition', () => {
 			expect(state.block).toEqual(state.inline)
 		}
 	})
+})
+
+
+it('converts AppKit physical/logical inline coordinates with clamped RTL inversion', () => {
+	expect(convertAppKitInlineOffset(40, 200, 'rtl')).toBe(160)
+	expect(convertAppKitInlineOffset(160, 200, 'rtl')).toBe(40)
+	expect(convertAppKitInlineOffset(-20, 200, 'rtl')).toBe(200)
+	expect(convertAppKitInlineOffset(220, 200, 'rtl')).toBe(0)
+	expect(convertAppKitInlineOffset(40, 200, 'ltr')).toBe(40)
+	expect(convertAppKitInlineOffset(40, NaN, 'rtl')).toBe(0)
+})
+
+it('reads RTL start/end edges and updates direction without a scroll event', () => {
+	function Localized(props: any) {
+		return <InternationalizationProvider dir={props.dir}><Headless axis="both" /></InternationalizationProvider>
+	}
+	const peer = geometry(true)
+	peer.contentView.bounds.origin = { x: 200, y: 0 }
+	const fx = fixture(Localized, { dir: 'rtl' }, peer)
+	try {
+		expect(area.state.inline.atStart).toBe(true)
+		expect(area.state.inline.atEnd).toBe(false)
+		fx.render({ dir: 'ltr' })
+		expect(area.state.inline.atEnd).toBe(true)
+		expect(peer.contentView.bounds.origin.x).toBe(200)
+		fx.render({ dir: 'rtl' })
+		peer.contentView.bounds.origin.x = 0
+		flushUniversalSync(() => fx.container.dispatchEvent(fx.host, 'scroll', {}))
+		expect(area.state.inline.atEnd).toBe(true)
+	} finally { fx.root.unmount() }
+})
+
+it('keeps a stable logical handle across direction changes and mirrors inline padding', () => {
+	const handle = { current: null as any }, calls: unknown[] = []
+	function Localized(props: any) {
+		return <InternationalizationProvider dir={props.dir}>
+			<ScrollableArea ref={handle} axis="both" paddingInlineStart={2} paddingInlineEnd={6} />
+		</InternationalizationProvider>
+	}
+	const peer = geometry(true)
+	Object.assign(peer.contentView, { scrollToPoint: (point: any) => calls.push(point) })
+	Object.assign(peer, { reflectScrolledClipView() {} })
+	const fx = fixture(Localized, { dir: 'rtl' }, peer)
+	try {
+		const current = handle.current
+		current.scrollToOffset({ inline: 40 })
+		expect(calls).toEqual([{ x: 160, y: 300 }])
+		const content = fx.host.children[0]
+		expect(content.props.style).toMatchObject({ paddingLeft: 24, paddingRight: 8 })
+		fx.render({ dir: 'ltr' })
+		expect(handle.current).toBe(current)
+		current.scrollToOffset({ inline: 40 })
+		expect(calls.at(-1)).toEqual({ x: 40, y: 300 })
+		expect(content.props.style).toMatchObject({ paddingLeft: 8, paddingRight: 24 })
+		current.scrollToOffset({ block: 50 })
+		expect(calls.at(-1)).toEqual({ x: 0, y: 50 })
+		current.scrollToOffset({ inline: NaN })
+		expect(calls).toHaveLength(3)
+	} finally { fx.root.unmount() }
 })

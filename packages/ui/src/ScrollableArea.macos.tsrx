@@ -5,13 +5,20 @@ import type { ScrollableAreaHandle, ScrollableAreaProps } from './props'
 import { layoutChildProps } from './layout-child'
 import { spacingStep } from './spacing'
 import { cx } from '@octane-xplat/lib'
+import { useDirection } from './internationalization'
+import { scrollableAreaMetrics } from './scrollable-area-metrics.macos'
+import { convertAppKitInlineOffset } from './scrollable-area-logical.macos'
 import { scrollableAreaOffset } from './scrollable-area-offset.macos'
 import { useScrollableArea } from './use-scrollable-area.macos.tsrx'
 
-function scrollableAreaHandle(viewport: { current: any }): ScrollableAreaHandle {
+function scrollableAreaHandle(viewport: { current: NSScrollView | null }, direction: () => 'ltr' | 'rtl'): ScrollableAreaHandle {
 	return {
-		scrollToOffset: (offset, options) =>
-			scrollableAreaOffset(viewport.current, offset, options?.animated === true),
+		scrollToOffset: (offset, options) => {
+			const inline = Number.isFinite(offset.inline)
+				? convertAppKitInlineOffset(offset.inline!, scrollableAreaMetrics(viewport.current).maxX, direction())
+				: offset.inline
+			scrollableAreaOffset(viewport.current, { ...offset, inline }, options?.animated === true)
+		},
 		get native() {
 			return viewport.current
 		},
@@ -22,11 +29,14 @@ function scrollableAreaHandle(viewport: { current: any }): ScrollableAreaHandle 
  * action outside the scrolling content. */
 export function ScrollableArea(props: ScrollableAreaProps) @{
 	const area = useScrollableArea({ axis: props.axis })
+	const direction = useDirection(), liveDirection = useRef(direction)
+	liveDirection.current = direction
+	const rtl = direction === 'rtl'
 	const horizontal = props.axis === 'inline'
 	const padding = spacingStep(props.padding)
 
-	const viewport = useRef<any>(null)
-	const handle = useMemo(() => scrollableAreaHandle(viewport), [])
+	const viewport = useRef<NSScrollView | null>(null)
+	const handle = useMemo(() => scrollableAreaHandle(viewport, () => liveDirection.current), [])
 	useImperativeHandle(props.ref, () => handle, [props.ref])
 
 	const viewportProps = area.getViewportProps({ ref: viewport })
@@ -70,12 +80,12 @@ export function ScrollableArea(props: ScrollableAreaProps) @{
 						paddingBottom:
 							spacingStep(props.paddingBlockEnd) ?? spacingStep(props.paddingBlock) ?? padding ?? 0,
 						paddingLeft:
-							spacingStep(props.paddingInlineStart) ??
+							spacingStep(rtl ? props.paddingInlineEnd : props.paddingInlineStart) ??
 							spacingStep(props.paddingInline) ??
 							padding ??
 							0,
 						paddingRight:
-							spacingStep(props.paddingInlineEnd) ??
+							spacingStep(rtl ? props.paddingInlineStart : props.paddingInlineEnd) ??
 							spacingStep(props.paddingInline) ??
 							padding ??
 							0,
