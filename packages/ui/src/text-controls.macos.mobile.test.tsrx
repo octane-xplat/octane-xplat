@@ -151,3 +151,18 @@ it('AppKit TextInput supports a caller-owned leading node and placeholder color'
 		expect(env.find('textfield').props.placeholderTextColor).toBe('#aabbcc')
 	} finally { env.root.unmount() }
 })
+
+
+it('AppKit TextArea forwards its length limit and can remove it without replacing the host', () => {
+	const env = mount(TextArea, { maxLength: 5, defaultValue: 'note' })
+	try {
+		const host = env.find('textview')
+		expect(host.props.maxLength).toBe(5)
+		env.render({ maxLength: 0 })
+		expect(env.find('textview')).toBe(host)
+		expect(host.props.maxLength).toBe(0)
+		env.render({})
+		expect(host.props.maxLength).toBeUndefined()
+		expect(host.props.value).toBe('note')
+	} finally { env.root.unmount() }
+})

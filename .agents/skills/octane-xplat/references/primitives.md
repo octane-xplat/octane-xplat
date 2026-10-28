@@ -545,3 +545,21 @@ export function Notes() {
 	</>
 }
 ```
+
+
+## AppKit multiline length limits
+
+`TextArea.maxLength` bounds committed user edits in UTF-16 units, preserving
+text outside a paste/replacement and avoiding split surrogate pairs. Marked text
+can exceed the limit until commit. Programmatic initial/external values remain
+untouched; omit the cap to remove it. This is not a grapheme count. Native IME,
+undo/redo, selection and correction-event timing remain unqualified; see
+[growing a multiline field](../../../../docs/app/primitives.md#grow-a-multiline-field).
+
+```tsx
+import { TextArea } from '@octane-xplat/ui'
+
+export function ShortNote() {
+	return <TextArea label="Short note" maxLength={80} />
+}
+```

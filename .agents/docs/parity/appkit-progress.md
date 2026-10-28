@@ -879,3 +879,61 @@ Native subclass getter dispatch, scrollbar/elastic/resize behavior, pan/swipe
 input, vertical gradient pixels, anchored placement, benchmark geometry and
 content-lifecycle runtime remain unqualified. No visual analysis, builds,
 OS automation, device/native probes, tests, installs or packaging ran.
+
+
+### AppKit TextArea length limits
+
+Demand: Home's multiline composer and the shared TextAreaProps contract make
+bounded notes/pastes a common form need. AppKit previously dropped maxLength.
+The leaf now forwards it, and the renderer remembers pre-edit text/range through
+its existing NSTextView delegate. Native text changes remove only the excess
+inserted portion, preserve the unchanged prefix/suffix, remap the current
+selection and guard the correction's nested notification. Native should-change
+approval brackets text-storage mutation with didChangeText; a veto leaves the
+native text unchanged. Reentry guards release even after failure.
+
+Marked input remains untouched while hasMarkedText is true. A committed change
+normalizes before its public callback; the native subclass's unmarkText also
+normalizes when committing does not send another change event. Programmatic
+initial/external values remain unchanged, zero rejects added units, invalid or
+omitted caps are inactive, and native ranges/lengths count UTF-16 units. A cut
+avoids half a surrogate pair; this is not a grapheme-count validator. Native
+edits without a captured range use a prefix/suffix comparison fallback.
+
+API evidence: Apple's [text-editing protocol](https://developer.apple.com/library/archive/documentation/TextFonts/Conceptual/CocoaTextArchitecture/TextEditing/TextEditing.html)
+requires should-change/did-change bracketing for text-storage mutations, and
+[unmarkText](https://developer.apple.com/documentation/appkit/nstextinputclient/unmarktext%28%29)
+accepts pending marked input. Ecosystem reference: [React Native macOS's input
+limiter](https://github.com/microsoft/react-native-macos/blob/main/packages/react-native/Libraries/Text/TextInput/RCTBaseTextInputView.mm)
+also budgets insertion length against the replaced range and retains surrounding
+text. Our helper is an independent TypeScript implementation; no dependency or
+third-party code was copied. These references do not qualify our bridge or IMEs.
+
+Added pure-range, fake text-storage/selection/veto/failure, delegate nested-event,
+explicit-unmark and leaf-forwarding regression source plus a maintained nonvisual
+native-API probe. None has run. Syntax and whitespace only. Deferred commands:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/text-controls.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer --filter=...@octane-xplat/ui
+pnpm probe run examples/probes/text-limit.macos.tsrx --target macos --watch
+pnpm check:recipes
+```
+
+Real insertion/paste/drag and replacement routing, marked/unmark notifications,
+undo/redo grouping, selection, native callback registration, correction-event
+ordering, larger text and packaging remain unqualified. The retained probe drives
+native methods directly and cannot prove physical keyboard or actual IME behavior.
+Different external controlled values arriving during composition are still not
+deferred. No visual analysis, builds, tests, native probes, OS automation,
+installs, packaging or shared audit snapshot regeneration ran. No evidence gate
+is closed by this source slice.
+
+
+Length-limit event follow-up: value dispatch compares the last reported string,
+so a wholly rejected edit does not repeat onChange with the same value. If marked
+input was already reported temporarily, restoring the prior text still reports
+that restoration. Added a source regression for this distinction. Cap prop
+reapplication initializes only once and does not erase a pending edit snapshot.
+All checks remain syntax/whitespace only; event timing/IME remain unqualified.

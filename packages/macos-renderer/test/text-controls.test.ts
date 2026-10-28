@@ -1,3 +1,4 @@
+import { enforceTextLimit, isNormalizingTextLimit, recordTextLimitEdit, rememberTextLimitValue, reportTextLimitChange } from '../src/text-limit.ts'
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { runSlice } from './mock-globals.ts'
@@ -91,6 +92,7 @@ function propsHarness() {
 	const warnings = []
 	const actionHandlers = new Map()
 	const { applyProps } = runSlice(propApplication + '\n({ applyProps })', {
+		enforceTextLimit, isNormalizingTextLimit, recordTextLimitEdit, rememberTextLimitValue, reportTextLimitChange,
 		elementBehaviors: new Map(),
 		behaviorOf: () => undefined,
 		isManualLayoutParent: (t: string) =>
@@ -231,6 +233,7 @@ test('per-edit delegate events fire the change handler while the action fires su
 	const actionIdsByView = new WeakMap()
 	const textNodesByView = new WeakMap()
 	const { ButtonActionTarget } = runSlice(targetClass + '\n({ ButtonActionTarget })', {
+		enforceTextLimit, isNormalizingTextLimit, recordTextLimitEdit, rememberTextLimitValue, reportTextLimitChange,
 		elementBehaviors: new Map(),
 		behaviorOf: () => undefined,
 		isManualLayoutParent: (t: string) =>

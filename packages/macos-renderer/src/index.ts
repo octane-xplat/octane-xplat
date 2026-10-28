@@ -39,6 +39,7 @@ import {
 
 import { showWindowLayer, type WindowLayerOptions } from './layer'
 import { disposeImage, updateImage } from './image'
+import { enforceTextLimit, isNormalizingTextLimit, recordTextLimitEdit, rememberTextLimitValue, reportTextLimitChange } from './text-limit.ts'
 import { notifyImageGeometry, setImageGeometryHandler } from './image-geometry.ts'
 import { drawImageContent, setImageDrawingStyle } from './image-drawing'
 import {
@@ -518,10 +519,12 @@ class ButtonActionTarget extends NSObject {
 	}
 
 	textDidChange(notification: NSNotification) {
+		if (isNormalizingTextLimit(notification.object)) return
 		const node = textNodesByView.get(notification.object)
+		if (node) enforceTextLimit(notification.object as NSTextView, node.props?.maxLength)
 		syncTextViewPlaceholder(node)
 		fitTextView(node)
-		invokeAction(actionIdsByView.get(notification.object))
+		if (reportTextLimitChange(notification.object as NSTextView)) invokeAction(actionIdsByView.get(notification.object))
 	}
 	controlTextDidBeginEditing(notification: NSNotification) {
 		dispatchTextEvent(textNodesByView.get(notification.object), 'onFocus')
@@ -548,6 +551,11 @@ class ButtonActionTarget extends NSObject {
 		}
 
 		node.submitHandler?.()
+		return true
+	}
+
+	textViewShouldChangeTextInRangeReplacementString(view: NSTextView, range: { location: number; length: number }, replacement: string | null) {
+		if (replacement !== null) recordTextLimitEdit(view, range)
 		return true
 	}
 
@@ -610,6 +618,15 @@ class ContentAlignedTextField extends NSSecureTextField {
 class InteractionTextView extends NSTextView {
 	static {
 		NativeClass(this)
+	}
+	unmarkText(): void {
+		super.unmarkText()
+		const node = textNodesByView.get(this)
+		if (node && enforceTextLimit(this, node.props?.maxLength) && reportTextLimitChange(this)) {
+			syncTextViewPlaceholder(node)
+			fitTextView(node)
+			invokeAction(node.actionId ?? actionIdsByView.get(this))
+		}
 	}
 	becomeFirstResponder() {
 		const accepted = super.becomeFirstResponder()
@@ -6738,7 +6755,10 @@ function applyProps(node: ElementNode, props: PropBag) {
 					// needlessly disturbs selection and in-progress marked text.
 					const next = String(value ?? '')
 					if (node.type === 'textview') {
-						if (String(node.view!.string ?? '') !== next) node.view!.string = next
+						if (String(node.view!.string ?? '') !== next) {
+							node.view!.string = next
+							rememberTextLimitValue(node.view as NSTextView)
+						}
 						syncTextViewPlaceholder(node)
 					} else if (String(node.view!.stringValue ?? '') !== next) {
 						node.view!.stringValue = next
@@ -6776,6 +6796,8 @@ function applyProps(node: ElementNode, props: PropBag) {
 					continue
 				} else if (['onFocus', 'onBlur', 'onSubmit'].includes(name)) {
 					continue
+				} else if (name === 'maxLength' && node.type === 'textview') {
+					rememberTextLimitValue(node.view as NSTextView, true)
 				} else if (name === 'rows' && node.type === 'textview') {
 					continue
 				} else if (name === 'accessible' || name.startsWith('accessibility')) {

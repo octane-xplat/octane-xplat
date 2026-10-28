@@ -2372,6 +2372,23 @@ that label and each cell gets a distinct accessible name.
 
 ## Grow a multiline field
 
+On experimental AppKit, `TextArea.maxLength` bounds committed user edits in
+UTF-16 units, like web string lengths. Pasting or replacing a selection keeps
+the existing text around the insertion; a cut does not split a surrogate pair.
+Marked text may temporarily exceed the cap until composition commits. Initial
+and external programmatic values are not truncated. Omit the cap to remove it;
+zero prevents added text, and invalid caps are ignored. Real IME, undo/redo,
+selection and native behavior remain unqualified.
+
+```tsx
+import { TextArea } from '@octane-xplat/ui'
+
+export function ShortNote() {
+	return <TextArea label="Short note" defaultValue="" maxLength={80} autoGrow maxRows={4} />
+}
+```
+
+
 Set `autoGrow` on `TextArea` to fit content as the user types or clears text.
 Omit `value` to let the field own its text; use `value` and `onChange` together
 when the app owns it. Both modes resize on input, and controlled value updates

@@ -158,6 +158,7 @@ function TextAreaControl(inputProps: TextAreaProps) @{
 			onSubmit={!isBlocked && (props.returnKeyType === 'done' || props.returnKeyType === 'send') ? props.onSubmit : undefined}
 			autoGrow={props.autoGrow}
 			maxRows={props.maxRows}
+			maxLength={props.maxLength}
 			id={props.id}
 			value={value}
 			placeholder={props.placeholder}

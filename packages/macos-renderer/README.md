@@ -623,3 +623,25 @@ parsing do not qualify live scrolling, pointer input, overlay placement or pixel
 // Native bridge property; do not call view.isFlipped().
 const top = view.flipped ? rect.origin.y : view.bounds.size.height - rect.origin.y - rect.size.height
 ```
+
+
+### Bound multiline user edits
+
+Raw `textview.maxLength` bounds committed user edits by UTF-16 length. The
+editing delegate records the pre-edit string/range; after native text changes,
+only excess inserted text is removed through text storage with the native
+should-change/did-change protocol. The correction remaps selection and suppresses
+its nested public change notification. A wholly rejected edit emits no duplicate
+value, while restoring temporarily reported composition text still reports the
+restored value. Marked input is left intact until commit;
+an explicit unmark also normalizes when no change notification follows. Values
+written programmatically are not truncated. Invalid caps are ignored.
+
+```tsx
+<textview value="" maxLength={80} onTextChange={(text) => console.log(text)} />
+```
+
+This implementation is unqualified under real IMEs, paste/drag input, undo/redo,
+selection, the Objective-C override bridge and packaged apps. A veto from the
+native should-change check leaves the text unchanged. It is not a general
+text-validation or grapheme-count API.
