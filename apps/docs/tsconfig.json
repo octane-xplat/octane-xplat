@@ -1,7 +1,7 @@
 {
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
-		"jsxImportSource": "octane",
+		"jsxImportSource": "@octane-xplat/jsx",
 		"types": ["vite/client"],
 		"lib": ["ESNext", "DOM", "DOM.Iterable"],
 		"paths": {

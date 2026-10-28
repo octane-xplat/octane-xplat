@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useState, useEffect, useRef } from 'octane'
 
 export function DemoPreview(props: { demo: string }) @{

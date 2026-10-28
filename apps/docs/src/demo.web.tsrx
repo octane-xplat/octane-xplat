@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { createRoot } from 'octane'
 import { GoalCounter } from '@xplat/demos/GoalCounter.tsrx'
 import { PackingList } from '@xplat/demos/PackingList.tsrx'

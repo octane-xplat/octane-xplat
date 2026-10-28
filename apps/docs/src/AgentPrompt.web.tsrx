@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useEffect, useRef, useState } from 'octane'
 
 /** A copyable prompt for handing a documented task to a coding agent. */

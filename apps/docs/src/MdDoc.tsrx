@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useMemo, useState, useEffect, useRef } from 'octane'
 import { View, Text } from '@octane-xplat/ui'
 import { router } from '@octane-xplat/ui/routing'

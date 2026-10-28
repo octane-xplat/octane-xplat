@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { createContext, useContext } from 'octane'
 import { View, Text, Pressable } from '@octane-xplat/ui'
 import { DOCS, type DocPage } from './docs'
