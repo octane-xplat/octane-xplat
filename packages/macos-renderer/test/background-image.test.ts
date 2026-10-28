@@ -7,7 +7,7 @@ test('gradient colors, stops, resize and removal track the host bounds', () => {
 	let resize: any, removed = 0, observerRemoved = 0
 	const layer: any = { removeFromSuperlayer() { removed++ } }
 	const { syncBackgroundImage } = runSlice(
-		source.slice(source.indexOf('function syncBackgroundImage'), source.indexOf('// borderRadius styles')) + '\n({ syncBackgroundImage })',
+		source.slice(source.indexOf('function syncBackgroundImage'), source.indexOf('const BORDER_SIDES')) + '\n({ syncBackgroundImage })',
 		{
 			CAGradientLayer: { layer: () => layer },
 			nativeColor: (color) => ({ CGColor: color }),
