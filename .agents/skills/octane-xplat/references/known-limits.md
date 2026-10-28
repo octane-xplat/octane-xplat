@@ -117,7 +117,7 @@ version-specific limit; that note records a mismatched source cache.
 /** @jsxImportSource @octane-xplat/jsx */
 import { TextInput } from '@octane-xplat/ui'
 export function AccountEntry() {
-	return <TextInput label="Account" defaultValue="12" hasClear width="75%" />
+  return <TextInput label="Account" defaultValue="12" hasClear width="75%" />
 }
 ```
 
@@ -132,6 +132,7 @@ handle, when testing identity. Controlled native edits need reconciliation
 even when the parent rejects a value without changing props; the existing
 effect reads an edit revision for this. Pass original props to the control
 and resolved defaults to the wrapper so composed hints are not doubled.
+
 
 ### Native field ownership and lookup
 

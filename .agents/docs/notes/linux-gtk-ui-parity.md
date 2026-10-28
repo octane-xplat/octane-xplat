@@ -880,6 +880,7 @@ records the exact release source and the source-cache mismatch.
 No GTK root exports are added; stable automatic field/width/handle ownership,
 text alignment, custom line spacing and complete shared props remain.
 
+
 ### Stable TextArea field ownership and label focus
 
 The automatic field now stays mounted while chrome changes, preserving the

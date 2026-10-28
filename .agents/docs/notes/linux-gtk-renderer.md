@@ -112,7 +112,7 @@ suffix:
   `customConditions ['gtk']`, `lib ESNext` (no DOM lib), ambient
   `host-globals.d.ts`
 - `packages/cli/src/vite.mjs`: `PLATFORM_TAG` + `boundaryAllowed.gtk =
-{'gtk'}` — `.linux` leaves are foreign in a GTK bundle (tested)
+  {'gtk'}` — `.linux` leaves are foreign in a GTK bundle (tested)
 - `packages/lint/src/xplat-rules.ts`: `.gtk` in the platform suffixes, `isNativeFile`,
   and the `.gtk.tsrx` pragma rule expecting
   `/** @jsxImportSource @octane-xplat/linux-gtk */`
@@ -1312,7 +1312,8 @@ test checks finite, zero and removed values.
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 export function ShortNote() {
-	return <textview text="" maxLength={200} onTextChange={(event) => console.log(event.value)} />
+  return <textview text="" maxLength={200}
+    onTextChange={(event) => console.log(event.value)} />
 }
 ```
 
@@ -1379,6 +1380,7 @@ Final logs: guest /tmp/gtk-maxlength-full.log; andromeda
 /tmp/gtk-maxlength-types.log and /tmp/gtk-maxlength-pack.log.
 No new dependency, public GTK root export, native facade rebuild, broad native
 suite rerun or phone-runtime qualification.
+
 
 ## Stable multiline fields and native label activation
 

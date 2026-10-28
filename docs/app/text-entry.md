@@ -216,7 +216,7 @@ JavaScript's String.length, so many emoji count as two units.
 import { TextArea } from '@octane-xplat/ui'
 
 export function ShortNote() {
-	return <TextArea label="Note" defaultValue="" maxLength={200} />
+  return <TextArea label="Note" defaultValue="" maxLength={200} />
 }
 ```
 

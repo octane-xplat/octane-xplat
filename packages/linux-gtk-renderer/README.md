@@ -115,7 +115,7 @@ use the same shared UI implementation.
 import { Icon } from '@octane-xplat/ui'
 
 export function SearchGlyph() {
-	return <Icon name="xplat-search" size={20} accessibilityLabel="Search" />
+  return <Icon name="xplat-search" size={20} accessibilityLabel="Search" />
 }
 ```
 
@@ -133,7 +133,7 @@ import { Icon, createIconRegistry } from '@octane-xplat/ui'
 const icons = createIconRegistry()
 icons.registerIcon('brand', { src: '~/brand.svg' })
 export function BrandGlyph() {
-	return <Icon name="brand" registry={icons} size={24} />
+  return <Icon name="brand" registry={icons} size={24} />
 }
 ```
 
@@ -187,21 +187,21 @@ import { useState } from 'octane'
 import { TextInput, Text, View } from '@octane-xplat/ui'
 
 export function AccountEntry() {
-	const [value, setValue] = useState('')
-	const [submitted, setSubmitted] = useState(false)
-	return (
-		<View>
-			<TextInput
-				label="Account"
-				placeholder="Work account"
-				value={value}
-				onChange={setValue}
-				hasClear
-				onSubmit={() => setSubmitted(true)}
-			/>
-			<Text>{submitted ? 'Return received' : ''}</Text>
-		</View>
-	)
+  const [value, setValue] = useState('')
+  const [submitted, setSubmitted] = useState(false)
+  return (
+    <View>
+      <TextInput
+        label="Account"
+        placeholder="Work account"
+        value={value}
+        onChange={setValue}
+        hasClear
+        onSubmit={() => setSubmitted(true)}
+      />
+      <Text>{submitted ? 'Return received' : ''}</Text>
+    </View>
+  )
 }
 ```
 
@@ -216,20 +216,18 @@ import { useState } from 'octane'
 import { TextInput } from '@octane-xplat/ui'
 
 export function ReferenceEntry() {
-	const [value, setValue] = useState('')
-	return (
-		<TextInput
-			label="Reference"
-			value={value}
-			onChange={(next) => {
-				if (/^\d*$/.test(next)) setValue(next)
-			}}
-			keyboardType="number"
-			isRequired
-			status={value ? undefined : { type: 'error', message: 'Enter digits' }}
-			statusVariant="tooltip"
-		/>
-	)
+  const [value, setValue] = useState('')
+  return (
+    <TextInput
+      label="Reference"
+      value={value}
+      onChange={(next) => { if (/^\d*$/.test(next)) setValue(next) }}
+      keyboardType="number"
+      isRequired
+      status={value ? undefined : { type: 'error', message: 'Enter digits' }}
+      statusVariant="tooltip"
+    />
+  )
 }
 ```
 
@@ -244,7 +242,7 @@ outside this qualification.
 import { TextInput } from '@octane-xplat/ui'
 
 export function SearchEntry(props: { search: () => void }) {
-	return <TextInput placeholder="Search" returnKeyType="search" onSubmit={props.search} />
+  return <TextInput placeholder="Search" returnKeyType="search" onSubmit={props.search} />
 }
 ```
 
@@ -265,19 +263,19 @@ keeps a newline. Tab moves focus to the next control.
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 export function NotesEditor(props: { readOnly?: boolean }) {
-	return (
-		<textview
-			text={'A line\n'.repeat(20)}
-			editable={!props.readOnly}
-			hint="Write a note"
-			maxLength={200}
-			accessibilityLabel="Notes"
-			returnKeyType="done"
-			onTextChange={(event) => console.log(event.value)}
-			onReturnPress={() => console.log('Submitted')}
-			style={{ width: 260, height: 120, placeholderColor: '#777' }}
-		/>
-	)
+  return (
+    <textview
+      text={'A line\n'.repeat(20)}
+      editable={!props.readOnly}
+      hint="Write a note"
+      maxLength={200}
+      accessibilityLabel="Notes"
+      returnKeyType="done"
+      onTextChange={(event) => console.log(event.value)}
+      onReturnPress={() => console.log('Submitted')}
+      style={{ width: 260, height: 120, placeholderColor: '#777' }}
+    />
+  )
 }
 ```
 
@@ -324,9 +322,9 @@ import './app.css'
 ```css
 /* app.css */
 .card {
-	padding: 16px;
-	background-color: var(--color-surface);
-	border-radius: 12px;
+  padding: 16px;
+  background-color: var(--color-surface);
+  border-radius: 12px;
 }
 ```
 
@@ -380,21 +378,11 @@ What a matched declaration can do:
 State selectors follow the widget's GTK state:
 
 ```css
-.save:hover {
-	background-color: #2563eb;
-}
-.save:active {
-	opacity: 0.8;
-} /* also :pressed and :highlighted */
-.field:focus {
-	border-color: #2563eb;
-}
-.toggle:checked {
-	opacity: 1;
-}
-.save:disabled {
-	opacity: 0.4;
-}
+.save:hover { background-color: #2563eb; }
+.save:active { opacity: 0.8; }        /* also :pressed and :highlighted */
+.field:focus { border-color: #2563eb; }
+.toggle:checked { opacity: 1; }
+.save:disabled { opacity: 0.4; }
 ```
 
 `:normal` matches while none of NativeScript's visual states
@@ -408,14 +396,10 @@ the animation setting changes. Roots also get `ns-portrait` or
 
 ```css
 @media (min-width: 600px) {
-	.sidebar {
-		visibility: visible;
-	}
+  .sidebar { visibility: visible; }
 }
 @media (prefers-reduced-motion: no-preference) {
-	.spinner {
-		animation: spin 1s linear infinite;
-	}
+  .spinner { animation: spin 1s linear infinite; }
 }
 ```
 
@@ -425,18 +409,10 @@ parts:
 
 ```css
 @keyframes pop {
-	from {
-		opacity: 0;
-		transform: scale(0.9);
-	}
-	to {
-		opacity: 1;
-		transform: scale(1);
-	}
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
 }
-.toast {
-	animation: pop 200ms ease-out forwards;
-}
+.toast { animation: pop 200ms ease-out forwards; }
 ```
 
 An animation starts when its widget mounts or when the widget's own
@@ -459,7 +435,7 @@ Current limits:
   every ancestor class change.
 - NativeScript has no CSS `transition`; neither does this renderer.
 - An unsupported property logs `[linux-gtk-css] ignored unsupported
-property` once per property name.
+  property` once per property name.
 - GTK's theme still styles native widget chrome (buttons, entries)
   underneath app CSS.
 
@@ -536,14 +512,14 @@ Native popup coordinates follow anchor allocation changes without a second root.
 import { Tooltip } from '@octane-xplat/ui'
 
 export function DeliveryHelp() {
-	return (
-		<Tooltip
-			trigger={<button text="Delivery details" />}
-			content="Orders ship on the next business day."
-			placement="right"
-			openDelay={300}
-		/>
-	)
+  return (
+    <Tooltip
+      trigger={<button text="Delivery details" />}
+      content="Orders ship on the next business day."
+      placement="right"
+      openDelay={300}
+    />
+  )
 }
 ```
 
@@ -566,13 +542,13 @@ disabled strings are still accepted because existing native callers send them.
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 export function AccountField(props: { required: boolean; loading: boolean; invalid: boolean }) {
-	return (
-		<textfield
-			accessibilityLabel="Account"
-			accessibilityState={{ required: props.required, busy: props.loading, invalid: props.invalid }}
-			text=""
-		/>
-	)
+  return (
+    <textfield
+      accessibilityLabel="Account"
+      accessibilityState={{ required: props.required, busy: props.loading, invalid: props.invalid }}
+      text=""
+    />
+  )
 }
 ```
 
@@ -624,11 +600,11 @@ not activate its parent Pressable.
 import { Pressable, Text } from '@octane-xplat/ui'
 
 export function PointerAction(props: { disabled: boolean; save: () => void }) {
-	return (
-		<Pressable disabled={props.disabled} onPress={props.save}>
-			<Text>Save</Text>
-		</Pressable>
-	)
+  return (
+    <Pressable disabled={props.disabled} onPress={props.save}>
+      <Text>Save</Text>
+    </Pressable>
+  )
 }
 ```
 
@@ -636,6 +612,7 @@ Maintainer qualification now includes the [field-chrome runtime fixture](https:/
 The fixture also checks editor retention while labels or validation messages change.
 TextInput is available from the curated root. Field remains a source-only
 fixture; its complete contract is not established by this qualification.
+
 
 GTK field labels now resolve their associated control by its logical id and
 request focus. A testID automation name does not replace the control id.

@@ -12,21 +12,19 @@ import { useState } from 'octane'
 import { TextInput } from '@octane-xplat/ui'
 
 export function ReferenceField() {
-	const [value, setValue] = useState('')
-	return (
-		<TextInput
-			label="Reference"
-			value={value}
-			onChange={(next) => {
-				if (/^\d*$/.test(next)) setValue(next)
-			}}
-			keyboardType="number"
-			width="75%"
-			hasClear
-			status={value ? undefined : { type: 'error', message: 'Enter digits' }}
-			statusVariant="tooltip"
-		/>
-	)
+  const [value, setValue] = useState('')
+  return (
+    <TextInput
+      label="Reference"
+      value={value}
+      onChange={(next) => { if (/^\d*$/.test(next)) setValue(next) }}
+      keyboardType="number"
+      width="75%"
+      hasClear
+      status={value ? undefined : { type: 'error', message: 'Enter digits' }}
+      statusVariant="tooltip"
+    />
+  )
 }
 ```
 
@@ -35,6 +33,7 @@ Return-key captions. The renderer reports that boundary once when a caption
 hint is supplied.
 
 [GTK text entry](https://octane-xplat.goddardai.org/platform/linux-gtk#text-entry).
+
 
 Clicking a field label focuses its associated editor; an explicit control id
 is preserved as the label target.

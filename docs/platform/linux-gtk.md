@@ -88,12 +88,12 @@ status badge in a horizontal row:
 import { Stack, Text, Badge } from '@octane-xplat/ui'
 
 export function BuildStatus() {
-	return (
-		<Stack direction="horizontal" gap={2}>
-			<Text>Linux build</Text>
-			<Badge label="Ready" />
-		</Stack>
-	)
+  return (
+    <Stack direction="horizontal" gap={2}>
+      <Text>Linux build</Text>
+      <Badge label="Ready" />
+    </Stack>
+  )
 }
 ```
 
@@ -107,7 +107,7 @@ import { Icon, createIconRegistry } from '@octane-xplat/ui'
 const icons = createIconRegistry()
 icons.registerIcon('favorite', { svg: 'M12 2 15 8 22 9 17 14 18 22 12 18 6 22 7 14 2 9 9 8z' })
 export function FavoriteIcon() {
-	return <Icon name="favorite" registry={icons} size={24} accessibilityLabel="Favorite" />
+  return <Icon name="favorite" registry={icons} size={24} accessibilityLabel="Favorite" />
 }
 ```
 
@@ -177,21 +177,21 @@ import { useState } from 'octane'
 import { TextInput, Text, View } from '@octane-xplat/ui'
 
 export function AccountEntry() {
-	const [value, setValue] = useState('')
-	const [submitted, setSubmitted] = useState(false)
-	return (
-		<View>
-			<TextInput
-				label="Account"
-				placeholder="Work account"
-				value={value}
-				onChange={setValue}
-				hasClear
-				onSubmit={() => setSubmitted(true)}
-			/>
-			<Text>{submitted ? 'Return received' : ''}</Text>
-		</View>
-	)
+  const [value, setValue] = useState('')
+  const [submitted, setSubmitted] = useState(false)
+  return (
+    <View>
+      <TextInput
+        label="Account"
+        placeholder="Work account"
+        value={value}
+        onChange={setValue}
+        hasClear
+        onSubmit={() => setSubmitted(true)}
+      />
+      <Text>{submitted ? 'Return received' : ''}</Text>
+    </View>
+  )
 }
 ```
 
@@ -206,20 +206,18 @@ import { useState } from 'octane'
 import { TextInput } from '@octane-xplat/ui'
 
 export function ReferenceEntry() {
-	const [value, setValue] = useState('')
-	return (
-		<TextInput
-			label="Reference"
-			value={value}
-			onChange={(next) => {
-				if (/^\d*$/.test(next)) setValue(next)
-			}}
-			keyboardType="number"
-			isRequired
-			status={value ? undefined : { type: 'error', message: 'Enter digits' }}
-			statusVariant="tooltip"
-		/>
-	)
+  const [value, setValue] = useState('')
+  return (
+    <TextInput
+      label="Reference"
+      value={value}
+      onChange={(next) => { if (/^\d*$/.test(next)) setValue(next) }}
+      keyboardType="number"
+      isRequired
+      status={value ? undefined : { type: 'error', message: 'Enter digits' }}
+      statusVariant="tooltip"
+    />
+  )
 }
 ```
 
@@ -234,7 +232,7 @@ outside this qualification.
 import { TextInput } from '@octane-xplat/ui'
 
 export function SearchEntry(props: { search: () => void }) {
-	return <TextInput placeholder="Search" returnKeyType="search" onSubmit={props.search} />
+  return <TextInput placeholder="Search" returnKeyType="search" onSubmit={props.search} />
 }
 ```
 
@@ -394,16 +392,12 @@ styles native widget chrome underneath your CSS.
 ```css
 /* src/app.css */
 .save:hover {
-	background-color: #2563eb;
+  background-color: #2563eb;
 }
 
 @keyframes fade-in {
-	from {
-		opacity: 0;
-	}
-	to {
-		opacity: 1;
-	}
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .toast {
@@ -427,19 +421,19 @@ keeps a newline. Tab moves focus to the next control.
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 export function NotesEditor(props: { readOnly?: boolean }) {
-	return (
-		<textview
-			text={'A line\n'.repeat(20)}
-			editable={!props.readOnly}
-			hint="Write a note"
-			maxLength={200}
-			accessibilityLabel="Notes"
-			returnKeyType="done"
-			onTextChange={(event) => console.log(event.value)}
-			onReturnPress={() => console.log('Submitted')}
-			style={{ width: 260, height: 120, placeholderColor: '#777' }}
-		/>
-	)
+  return (
+    <textview
+      text={'A line\n'.repeat(20)}
+      editable={!props.readOnly}
+      hint="Write a note"
+      maxLength={200}
+      accessibilityLabel="Notes"
+      returnKeyType="done"
+      onTextChange={(event) => console.log(event.value)}
+      onReturnPress={() => console.log('Submitted')}
+      style={{ width: 260, height: 120, placeholderColor: '#777' }}
+    />
+  )
 }
 ```
 
@@ -636,14 +630,14 @@ focus.
 import { Tooltip } from '@octane-xplat/ui'
 
 export function DeliveryHelp() {
-	return (
-		<Tooltip
-			trigger={<button text="Delivery details" />}
-			content="Orders ship on the next business day."
-			placement="right"
-			openDelay={300}
-		/>
-	)
+  return (
+    <Tooltip
+      trigger={<button text="Delivery details" />}
+      content="Orders ship on the next business day."
+      placement="right"
+      openDelay={300}
+    />
+  )
 }
 ```
 
@@ -657,15 +651,15 @@ TOOLTIP role and a DESCRIBED_BY relation; this is not a screen-reader certificat
 import { Tooltip } from '@octane-xplat/ui'
 
 export function SaveHelp(props: { saving: boolean }) {
-	return (
-		<Tooltip
-			trigger={<button text="Save" />}
-			content="Saves your current changes."
-			disabled={props.saving}
-			contentStyle={{ padding: 12 }}
-			closeDelay={100}
-		/>
-	)
+  return (
+    <Tooltip
+      trigger={<button text="Save" />}
+      content="Saves your current changes."
+      disabled={props.saving}
+      contentStyle={{ padding: 12 }}
+      closeDelay={100}
+    />
+  )
 }
 ```
 
@@ -679,13 +673,13 @@ metadata respects native widget sensitivity.
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 export function AccountField(props: { required: boolean; loading: boolean; invalid: boolean }) {
-	return (
-		<textfield
-			accessibilityLabel="Account"
-			accessibilityState={{ required: props.required, busy: props.loading, invalid: props.invalid }}
-			text=""
-		/>
-	)
+  return (
+    <textfield
+      accessibilityLabel="Account"
+      accessibilityState={{ required: props.required, busy: props.loading, invalid: props.invalid }}
+      text=""
+    />
+  )
 }
 ```
 
@@ -698,7 +692,7 @@ been qualified with an assistive-technology client.
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 export function ReadOnlyField(props: { readOnly: boolean; disabled: boolean }) {
-	return <textfield text="Stored account" editable={!props.readOnly} isEnabled={!props.disabled} />
+  return <textfield text="Stored account" editable={!props.readOnly} isEnabled={!props.disabled} />
 }
 ```
 
@@ -736,11 +730,11 @@ not activate its parent Pressable.
 import { Pressable, Text } from '@octane-xplat/ui'
 
 export function PointerAction(props: { disabled: boolean; save: () => void }) {
-	return (
-		<Pressable disabled={props.disabled} onPress={props.save}>
-			<Text>Save</Text>
-		</Pressable>
-	)
+  return (
+    <Pressable disabled={props.disabled} onPress={props.save}>
+      <Text>Save</Text>
+    </Pressable>
+  )
 }
 ```
 
