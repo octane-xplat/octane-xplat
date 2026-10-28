@@ -181,6 +181,35 @@ export interface CommonAttributes {
 	 * of being added as a regular layout child.
 	 */
 	hostSlot?: string
+	/**
+	 * Element size and attached layout properties the parent container consumes
+	 * on both drivers: `width`/`height` map to `View.width`/`height` on
+	 * NativeScript and to layout anchors in the AppKit renderer (index.ts
+	 * ~3433/3639/3783); `row`/`col`/`rowSpan`/`colSpan`/`dock`/`left`/`top`/
+	 * `right`/`bottom`/`horizontalAlignment`/`verticalAlignment` are the
+	 * attached child props NativeScript layout containers and the AppKit
+	 * `layoutChildProps` table read off children.
+	 */
+	width?: number | string
+	height?: number | string
+	row?: number | string
+	col?: number | string
+	rowSpan?: number
+	colSpan?: number
+	dock?: 'left' | 'top' | 'right' | 'bottom'
+	left?: number | string
+	top?: number | string
+	right?: number | string
+	bottom?: number | string
+	horizontalAlignment?: 'left' | 'right' | 'center' | 'stretch'
+	verticalAlignment?: 'top' | 'bottom' | 'middle' | 'stretch'
+	/** Visual-state props both drivers apply to the view itself (NS View props;
+	 * AppKit prop handling at index.ts ~3646/3657/3791/3803 and ~4442/4953). */
+	opacity?: number
+	translateX?: number
+	translateY?: number
+	zIndex?: number
+	isEnabled?: boolean
 	visibility?: 'visible' | 'hidden' | 'collapse'
 	accessible?: boolean
 	accessibilityLabel?: string
@@ -500,7 +529,8 @@ export interface WebViewProps<TElement> {
 }
 
 export interface ScrollViewProps<TElement> {
-	orientation?: 'horizontal' | 'vertical'
+	/** 'both' is consumed by the AppKit driver only (index.ts ~2589). */
+	orientation?: 'horizontal' | 'vertical' | 'both'
 	scrollBarIndicatorVisible?: boolean
 	isScrollEnabled?: boolean
 	onScroll?: HostHandler<ScrollEvent<TElement>>
@@ -509,6 +539,23 @@ export interface ScrollViewProps<TElement> {
 export interface PlaceholderProps<TElement> {
 	/** Fired once the placeholder is attached; the handler assigns `event`'s view. */
 	onCreatingView?: HostHandler<NativeEvent<TElement> & { view?: HostObject }>
+}
+
+export interface RootLayoutProps {
+	/** iOS-only safe-area escape — the NativeScript driver's RootLayout reads
+	 * it directly; AppKit's root has no equivalent. */
+	iosIgnoreSafeArea?: boolean
+}
+
+export interface LiquidGlassProps {
+	/** iOS 26+ `UIGlassEffect` configuration — consumed by the NativeScript
+	 * driver's liquid-glass view only. */
+	iosGlassEffect?: {
+		variant?: 'regular' | 'clear'
+		interactive?: boolean
+		tint?: string
+		animateChangeDuration?: number
+	}
 }
 
 // ---------------------------------------------------------------------------
@@ -632,7 +679,7 @@ export interface NativeElements<TElement> {
 	masonview: Attributes<TElement, MasonViewProps>
 	contentview: Attributes<TElement>
 	proxyviewcontainer: Attributes<TElement>
-	rootlayout: Attributes<TElement>
+	rootlayout: Attributes<TElement, RootLayoutProps>
 	// Text
 	label: Attributes<TElement, TextBaseProps>
 	formattedstring: Attributes<TElement, FormattedStringProps>
@@ -668,7 +715,7 @@ export interface NativeElements<TElement> {
 	webview: Attributes<TElement, WebViewProps<TElement>>
 	scrollview: Attributes<TElement, ScrollViewProps<TElement>>
 	placeholder: Attributes<TElement, PlaceholderProps<TElement>>
-	liquidglass: Attributes<TElement>
+	liquidglass: Attributes<TElement, LiquidGlassProps>
 	/** Compiler-produced text node — carries `props.value`, folded into the parent's text. */
 	'#text': Attributes<TElement, { value?: string }>
 	// Maintained cross-platform extensions (registered for iOS + Android).
