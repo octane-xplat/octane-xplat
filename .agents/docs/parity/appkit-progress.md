@@ -4486,3 +4486,56 @@ fully qualified combo/listbox behavior. Other Selector/preset lists, floating
 results, preset text relay, Carousel fades and video remain separate gaps.
 Checkbox mixed rollback awaits the earlier human contract choice. Evidence-gated
 checkboxes stay open; the persistent goal remains active.
+
+## AppKit source-owned window-layer prerequisite
+
+Demand assumption: floating search suggestions are a common form flow. Current
+Typeahead/Tokenizer results still use the inline surfaces.macos Popover. Source
+review found that swapping to Popover.macos directly would use an NSPopover with
+a standalone root and separate native window, changing provider/input-focus
+ownership. The existing same-window showLayer host is the appropriate engine
+prerequisite; component integration remains outstanding after this slice.
+
+WindowLayer now accepts a createContentRoot outlet in place of its standalone
+root. Optional whenCommitted gates geometry to the current content commit;
+deferPresentation/show separates preparation from visibility without a focus or
+window-activation call. Old revision callbacks cannot resize/reveal retired work.
+A malformed supplied root fails explicitly rather than falling back to detached
+ownership. Default callers retain the standalone path. This is an internal host
+seam, so no public component API or release note is added.
+
+The original window/content container owns the layer; moving or detaching the
+anchor retires it and notifies once. Optional anchor exclusion keeps compound-
+field clicks inside the dismissal boundary. Staged hosts ignore dismissal;
+visible outside events request controlled dismissal and pass through unchanged.
+Close claims first and attempts every monitor/observer/notification lease/source
+root/native-detach cleanup, then reports the first failure. Unchanged frames
+avoid native writes, and invalid geometry is rejected before reaching AppKit.
+
+Eight new source cases are authored, all unrun: custom outlet/default bypass,
+commit/deferred/stale reveal, staged/anchor dismissal, changed window, changed
+content container, cleanup failure, invalid/failed source roots and no-op/invalid
+geometry. The source-portal fixture demonstrates a provider, stage/reveal,
+updates and disposal; its runner only waits/records. No native portal or input
+was exercised. Renderer README/overlay skill/target recipe reconcile the seam.
+No dependency, manifest, UI leaf, other-target source or audit snapshot changed.
+Only source/semantic review, TypeScript/TSRX syntax parsing and whitespace ran.
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer
+pnpm probe doctor
+pnpm probe run examples/probes/window-layer-portal.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All remain deferred until explicit human authorization for this task. No package
+tests/typechecks/builds, installs, native/OS automation, visual analysis or
+packaging ran. Native source portal/context/ref/commit ordering, geometry,
+visibility, resize/scroll, focus, dismissal, AX and package behavior are unqualified.
+Typeahead/Tokenizer results remain inline; actual source-owned result hosting,
+compound blur/dismissal and current width/anchor integration are next work.
+Generic native Popover/useLayer still own detached roots. Do not treat this host
+prerequisite as a completed floating-result feature. Evidence gates stay open;
+the persistent goal remains active.

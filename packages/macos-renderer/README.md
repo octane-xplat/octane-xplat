@@ -1139,3 +1139,76 @@ with restoration and current-owner guards. Use the
 for that source subset. Four new renderer cases and the related UI cases are
 all unrun. Native hierarchy, VoiceOver actions/announcements, focus/IME and
 packaged behavior remain unqualified; raw role declarations do not prove support.
+
+### Stage a source-owned window layer
+
+The private `__xplatAppKit.showLayer` bridge can now accept a `createContentRoot`
+outlet instead of creating a standalone Octane root. A declarative caller can
+portal from its source tree into that outlet, preserving its own provider scope.
+The outlet owns disposal; this hook alone does not create a portal or inherit
+providers. `deferPresentation` keeps the native host hidden until `show()` is
+requested and the current content commit is ready.
+
+```ts
+import type { NSView } from '@octane-xplat/platform/macos'
+import type { WindowLayer, WindowLayerContentRoot, WindowLayerOptions } from './src/layer'
+export function stageLayer(
+	bridge: { showLayer(options: WindowLayerOptions): WindowLayer | null },
+	anchor: NSView,
+	createContentRoot: (host: NSView) => WindowLayerContentRoot,
+) {
+	const layer = bridge.showLayer({
+		anchor, createContentRoot, deferPresentation: true,
+		lightDismiss: true, excludeAnchorFromDismiss: true,
+		position: (bounds) => ({ left: bounds.left, top: bounds.top + bounds.height + 8 }),
+	})
+	layer?.show() // Requests reveal; a pending content commit still gates it.
+	return layer
+}
+```
+
+A custom outlet can implement `whenCommitted(callback)` to release geometry
+only after its current native children commit. Stale update callbacks and closed
+owners cannot reveal or resize the layer. The existing standalone path remains
+available when no outlet is provided. A malformed supplied outlet fails rather
+than silently replacing the source owner.
+
+```ts
+let committed = false
+const waiting: Array<() => void> = []
+export const contentRoot = {
+	render() {}, // The declaring component renders its portal content.
+	whenCommitted(callback: () => void) {
+		if (committed) callback()
+		else waiting.push(callback)
+	},
+	unmount() { committed = false; waiting.length = 0 /* Retire the source portal target here. */ },
+}
+export function sourcePortalCommitted() {
+	committed = true
+	for (const callback of waiting.splice(0)) callback()
+}
+```
+
+The host stays in its original window/content container and retires if either
+owner changes. Anchor-click exclusion is opt-in; outside interaction continues
+to request controlled dismissal without consuming the native event. Deferred
+hosts do not request dismissal before reveal. Close claims ownership first,
+attempts every cleanup step, and reports the first failure after source disposal
+and native detachment are attempted. Unchanged geometry avoids native frame
+writes; invalid geometry cannot reach AppKit.
+
+```ts
+import type { WindowLayer } from './src/layer'
+export function finishLayer(layer: WindowLayer | null) {
+	layer?.update({}, { excludeAnchorFromDismiss: false })
+	layer?.close() // Programmatic cleanup; no dismissal callback.
+}
+```
+
+Eight new source cases and the [manual source-portal fixture](../../examples/probes/window-layer-portal.macos.tsrx)
+are authored, all unrun. No public component is migrated by this renderer
+prerequisite: Typeahead/Tokenizer results remain inline, and current native
+Popover/useLayer paths still own standalone roots. Actual portal/ref/commit
+ordering, geometry, focus, dismissal, accessibility and packaging remain
+unqualified. This is not proof of floating typeahead support.

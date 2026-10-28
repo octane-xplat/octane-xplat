@@ -155,3 +155,93 @@ test('outside-dismiss support is required when requested', () => {
 		null,
 	)
 })
+
+test('source-owned outlets bypass standalone roots, receive updates and unmount once', () => {
+	const f = fixture(), rendered: unknown[] = []
+	let fallback = 0, unmounted = 0, target: unknown
+	f.deps.createRoot = () => { fallback++; throw Error('standalone root must not run') }
+	const layer = showWindowLayer({ anchor: f.anchor, props: { value: 1 }, position: () => ({ left: 10, top: 20 }),
+		createContentRoot(host) { target = host; return { render: (_component, props) => rendered.push(props), unmount() { unmounted++ } } },
+	}, f.deps)!
+	assert.equal(target, f.view); assert.equal(fallback, 0); assert.equal(f.view.hidden, false)
+	layer.update({ value: 2 }); assert.deepEqual(rendered, [{ value: 1 }, { value: 2 }])
+	layer.close(); layer.close(); assert.equal(unmounted, 1); assert.equal(f.counts().detached, 1)
+})
+
+test('deferred reveal waits for the latest content commit and retired callbacks cannot resize or reopen', () => {
+	const f = fixture(), commits: Array<() => void> = []
+	let fitted = 0
+	f.deps.fittingSize = () => { fitted++; return { width: 100, height: 80 } }
+	f.anchor.window.makeFirstResponder = () => { throw Error('layer must not change keyboard focus') }
+	const layer = showWindowLayer({ anchor: f.anchor, deferPresentation: true, position: () => ({ left: 10, top: 20 }),
+		createContentRoot: () => ({ render() {}, unmount() {}, whenCommitted(callback) { commits.push(callback) } }),
+	}, f.deps)!
+	assert.equal(f.view.hidden, true); assert.equal(fitted, 0)
+	layer.show(); assert.equal(f.view.hidden, true); assert.equal(fitted, 0)
+	layer.update({ current: true }); commits[0](); assert.equal(f.view.hidden, true); assert.equal(fitted, 0)
+	commits[1](); assert.equal(f.view.hidden, false); assert.equal(fitted, 1)
+	layer.close(); commits[1](); layer.show(); layer.update({ retired: true }); assert.equal(f.view.hidden, true); assert.equal(fitted, 1)
+})
+
+test('staged layers ignore outside interaction and optional anchor exclusion preserves compound-field clicks', () => {
+	const f = fixture()
+	let dismissals = 0
+	const layer = showWindowLayer({ anchor: f.anchor, lightDismiss: true, excludeAnchorFromDismiss: true, deferPresentation: true,
+		position: () => ({ left: 400, top: 100 }), onClose: () => dismissals++,
+	}, f.deps)!
+	f.mouse({ x: 0, y: 0 }); assert.equal(dismissals, 0)
+	layer.show(); f.mouse({ x: 110, y: 470 }); assert.equal(dismissals, 0)
+	f.mouse({ x: 0, y: 0 }); assert.equal(dismissals, 1); assert.equal(layer.closed, false)
+	layer.update({}, { excludeAnchorFromDismiss: false }); f.mouse({ x: 110, y: 470 }); assert.equal(dismissals, 2)
+	layer.close()
+})
+
+test('window replacement retires a staged owner and notifies close once before held commits', () => {
+	const f = fixture(), commits: Array<() => void> = []
+	let dismissals = 0, unmounted = 0
+	const layer = showWindowLayer({ anchor: f.anchor, deferPresentation: true, onClose: () => dismissals++, position: () => ({ left: 0, top: 0 }),
+		createContentRoot: () => ({ render() {}, unmount() { unmounted++ }, whenCommitted(callback) { commits.push(callback) } }),
+	}, f.deps)!
+	f.anchor.window = { contentView: {} }; layer.show(); commits[0]()
+	assert.equal(layer.closed, true); assert.equal(dismissals, 1); assert.equal(unmounted, 1); assert.equal(f.view.hidden, true)
+	layer.close(true); assert.equal(dismissals, 1)
+})
+
+test('the original content container owns positioning even when the native window object stays the same', () => {
+	const f = fixture()
+	let dismissals = 0
+	const layer = showWindowLayer({ anchor: f.anchor, onClose: () => dismissals++, position: () => ({ left: 0, top: 0 }) }, f.deps)!
+	f.anchor.window.contentView = {}; f.callbacks[0]()
+	assert.equal(layer.closed, true); assert.equal(dismissals, 1); assert.deepEqual(f.counts(), { unmounted: 1, detached: 1 })
+})
+
+test('native cleanup failure does not skip source disposal, other observers, notification leases or detachment', () => {
+	const f = fixture(), failure = Error('monitor cleanup failed')
+	f.anchor.postsFrameChangedNotifications = false; f.anchor.postsBoundsChangedNotifications = false
+	const layer = showWindowLayer({ anchor: f.anchor, position: () => ({ left: 0, top: 0 }) }, f.deps)!
+	f.deps.Event.removeMonitor = () => { throw failure }
+	assert.throws(() => layer.close(), (error) => error === failure)
+	assert.equal(layer.closed, true); assert.deepEqual(f.counts(), { unmounted: 1, detached: 1 }); assert.equal(f.removed.length, f.callbacks.length)
+	assert.equal(f.anchor.postsFrameChangedNotifications, false); assert.equal(f.anchor.postsBoundsChangedNotifications, false)
+	assert.doesNotThrow(() => layer.close())
+})
+
+test('invalid and failed source roots stay explicit and setup failure still disposes the source outlet', () => {
+	const invalid = fixture()
+	invalid.deps.createRoot = () => { throw Error('must not fall back') }
+	assert.throws(() => showWindowLayer({ anchor: invalid.anchor, position: () => ({ left: 0, top: 0 }), createContentRoot: () => ({}) as any }, invalid.deps), /requires render and unmount/)
+	const f = fixture(), failure = Error('source render failed')
+	let unmounted = 0
+	assert.throws(() => showWindowLayer({ anchor: f.anchor, position: () => ({ left: 0, top: 0 }), createContentRoot: () => ({ render() { throw failure }, unmount() { unmounted++ } }) }, f.deps), (error) => error === failure)
+	assert.equal(unmounted, 1); assert.equal(f.counts().detached, 1)
+})
+
+test('unchanged geometry avoids native frame writes and invalid positions dispose before reaching AppKit', () => {
+	const f = fixture()
+	let frame: any, writes = 0
+	Object.defineProperty(f.view, 'frame', { configurable: true, get: () => frame, set(value) { writes++; frame = value } })
+	const layer = showWindowLayer({ anchor: f.anchor, position: () => ({ left: 0, top: 0 }) }, f.deps)!
+	assert.equal(writes, 1); f.callbacks[0](); layer.show(); assert.equal(writes, 1)
+	assert.throws(() => layer.update({}, { position: () => ({ left: NaN, top: 0 }) }), /finite, nonnegative/)
+	assert.equal(layer.closed, true); assert.equal(writes, 1); assert.deepEqual(f.counts(), { unmounted: 1, detached: 1 })
+})

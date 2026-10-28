@@ -285,3 +285,31 @@ iOS/Android.
 same data-mode items (`description` and `variant: 'destructive'` included)
 inside a `BottomSheet`. Adaptive tracks the compact coarse-pointer query on
 web and resolves to sheet on mobile, matching `MoreMenu`.
+
+## AppKit source-owned window-layer prerequisite
+
+The private same-window showLayer host now accepts createContentRoot, optional
+whenCommitted readiness, deferPresentation and explicit show(). Declarative
+callers must actually use a native source-tree portal; a custom outlet that
+creates another standalone root still loses providers. Stale commits/closed
+owners cannot reveal. The original window/content container owns the layer;
+anchor exclusion from light dismissal is opt-in and does not consume events.
+
+```ts
+const layer = bridge.showLayer({
+	anchor, createContentRoot, deferPresentation: true,
+	lightDismiss: true, excludeAnchorFromDismiss: true,
+	position: (bounds) => ({ left: bounds.left, top: bounds.top + bounds.height + 8 }),
+})
+layer?.show()
+// On source removal:
+layer?.close()
+```
+
+Eight source cases and the manual fixture are authored, unrun. This engine seam
+does not migrate public Popover/useLayer or inline Typeahead/Tokenizer results.
+Do not swap to native NSPopover just to make results float: its current separate
+root/window changes provider and input-focus ownership. Wire the same-window
+source portal and compound blur/dismissal boundary before claiming that flow.
+Native commit/context/geometry/focus/AX and packaging qualification remains deferred.
+See [the host contract](../../../../packages/macos-renderer/README.md#stage-a-source-owned-window-layer).
