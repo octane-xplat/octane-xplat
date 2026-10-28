@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useEffect, useRef, useState } from 'octane'
 import type { MaterialDialogProps } from '../props'
 import { Frame, GridLayout } from '@nativescript/core'

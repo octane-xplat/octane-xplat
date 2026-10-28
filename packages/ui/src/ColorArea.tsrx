@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle, styleRecord } from './style-merge'
 import { useCallback, useEffect, useRef } from 'octane'
 import type { ColorAreaProps, PanEvent } from './props'

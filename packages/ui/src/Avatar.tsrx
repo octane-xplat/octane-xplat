@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle, styleRecord } from './style-merge'
 import type { AvatarProps, AvatarSize, AvatarStatusDotProps, AvatarStatusDotVariant } from './props'
 import { cx } from '@octane-xplat/lib'

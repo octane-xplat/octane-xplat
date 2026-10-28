@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { createContext, useContext, useMemo } from 'octane'
 import type { LayerContextValue, LayerProviderProps, LayerToastConfig } from './props'
 import { ToastViewport } from './toast-viewport'

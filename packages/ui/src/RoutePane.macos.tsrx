@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 // Keep inactive viewports measured: display:none collapses NSScrollView's
 // document and AppKit clamps its retained offset to zero. Hidden absolute panes
 // leave the active layout flow while preserving their viewport geometry.

@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { expect, it } from 'vitest'
 import { useLayoutEffect, useState } from 'octane'
 import {

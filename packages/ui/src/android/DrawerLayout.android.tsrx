@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { registerElement } from '@nativescript-community/octane'
 import { Drawer as NSDrawer, install } from '@nativescript-community/ui-drawer'
 import { useEffect, useRef } from 'octane'

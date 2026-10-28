@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 /** Web leaf of the named-theme provider (Astryx `Theme`).
  *
  *  Renders a display:contents scope element stamped with the theme's

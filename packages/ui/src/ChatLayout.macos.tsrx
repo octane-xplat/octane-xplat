@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from './style-merge'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'octane'
 import { bindChatKeyboard } from './chat-keyboard'

@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import type { ProgressGroupProps } from './props'
 import { applyEscapeProps } from './escape-props'
 import { Meter } from './Meter.web.tsrx'

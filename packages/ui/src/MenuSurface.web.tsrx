@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useEffect, useRef } from 'octane'
 import type { MenuSurfaceProps } from './props'
 import { MenuProvider } from './menu-context'

@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { MenuSurface } from './MenuSurface.macos.tsrx'
 import { useDropdownMenuContext } from './menu-context'
 import type { TopNavMenuItemData } from './props'

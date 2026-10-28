@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { AccessibilityRole } from '@nativescript/core'
 import type { HeadingProps } from './props'
 import { cx } from '@octane-xplat/lib'

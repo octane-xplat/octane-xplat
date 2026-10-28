@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import type { IconProps } from './props'
 import { getIcon } from './icons'
 import { useIconRegistry } from './icon-registry-context'

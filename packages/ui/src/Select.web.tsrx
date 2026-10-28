@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useState } from 'octane'
 import type { SelectProps } from './props'
 import { useFieldControlProps } from './field-context'

@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import type { RegisteredRouteContracts, AppRouteStacks, RouteTransitionName } from './props'
 import type { NavigationMenuImplementation } from './nav-link'
 import { mergeStyle } from './style-merge'

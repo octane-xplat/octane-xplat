@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useEffect, useState } from 'octane'
 import type { MoreMenuPresentation } from './props'
 import { BottomSheet } from './BottomSheet.web.tsrx'

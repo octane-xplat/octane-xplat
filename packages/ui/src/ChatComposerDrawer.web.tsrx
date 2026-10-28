@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useId, useState } from 'octane'
 import type { ChatComposerDrawerProps } from './props'
 import { Badge } from './Badge.web.tsrx'

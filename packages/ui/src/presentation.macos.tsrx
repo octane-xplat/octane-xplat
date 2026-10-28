@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from './style-merge'
 import { appKitHost, hostGlobal } from './host-bridge'
 import { useEffect, useLayoutEffect, useRef, useState } from 'octane'

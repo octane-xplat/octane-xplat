@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import type { HoverCardProps } from './props'
 import { useHoverCard } from './use-hover-card.tsrx'
 import { cx } from '@octane-xplat/lib'

@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import type { ClickableCardProps } from './props'
 import { styleRecord } from './style-merge'
 import { Pressable } from './Pressable.macos.tsrx'

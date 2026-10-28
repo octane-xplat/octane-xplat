@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 // Row-expansion plugin — universal leaf. Same contract as the web leaf; the
 // chevron is a tappable view and the detail panel is a full-width masonview
 // composed into `afterRow` (pointer context menus don't exist on native —

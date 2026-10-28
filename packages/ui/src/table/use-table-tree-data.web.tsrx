@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 // Tree-data plugin — port of upstream plugins/tree/useTableTreeData.tsx
 // (Astryx 0.6.4, MIT), web leaf. The tree affordance decorates the tree
 // column's cells in place — indent + a 24px expander (or leaf spacer) — and

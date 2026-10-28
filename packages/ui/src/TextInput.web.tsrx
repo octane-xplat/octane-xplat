@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useImperativeHandle, useRef, useState, useId } from 'octane'
 import { normStyle } from './layout-child.web'
 import type { TextInputProps } from './props'

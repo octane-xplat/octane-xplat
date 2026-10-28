@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle, styleRecord } from './style-merge'
 import type { AvatarGroupProps, AvatarGroupOverflowProps } from './props'
 import { cx } from '@octane-xplat/lib'

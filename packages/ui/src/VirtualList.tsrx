@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle, styleRecord } from './style-merge'
 import { hostGlobal } from './host-bridge'
 import { useEffect, useImperativeHandle, useMemo, useRef, useState } from 'octane'

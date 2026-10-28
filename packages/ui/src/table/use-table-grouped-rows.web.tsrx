@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 // Grouped-rows plugin — port of upstream
 // plugins/groupedRows/useTableGroupedRows.tsx (Astryx 0.6.4, MIT), web leaf.
 // Synthetic Symbol-marked Proxy header rows (field reads → '') flatten into

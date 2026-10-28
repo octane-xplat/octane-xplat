@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle, styleRecord } from './style-merge'
 import type { PercentLengthType } from '@nativescript/core'
 import { useMemo, useState } from 'octane'

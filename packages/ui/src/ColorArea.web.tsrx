@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useRef } from 'octane'
 import type { ColorAreaProps, PanEvent } from './props'
 import type { ColorAreaViewProps } from './internal-props'

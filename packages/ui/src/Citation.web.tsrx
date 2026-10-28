@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import type { CitationProps } from './props'
 import { applyEscapeProps } from './escape-props'
 import { sanitizeUrl } from './safe-url'

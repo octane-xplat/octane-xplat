@@ -1,4 +1,4 @@
-/** @jsxImportSource octane */
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useMemo } from 'octane'
 import { RouterRenderScopeProvider } from './router-hooks.tsrx'
 import { ClientRouteOutlet, type BrowserOutletHost } from './ClientRouteOutlet.web.tsrx'

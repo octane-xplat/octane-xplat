@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useEffect, useRef, useState } from 'octane'
 import type { PinInputProps, TextInputHandle } from './props'
 import { applyEscapeProps } from './escape-props'

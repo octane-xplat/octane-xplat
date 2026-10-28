@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import type { SelectorOptionProps } from './props'
 import { applyWebProps } from './platformProps.web'
 

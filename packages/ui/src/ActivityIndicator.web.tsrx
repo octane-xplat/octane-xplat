@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import type { ActivityIndicatorProps } from './props'
 import { applyWebProps } from './platformProps.web'
 

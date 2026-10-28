@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { ColorPicker } from '@octane-xplat/ui'
 import type { ProbeContext } from '../../../../scripts/probe/context'

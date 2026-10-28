@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 // Column resize plugin — universal leaf. The drag/keyboard separator is
 // web-only (pointer capture + separator semantics); native applies the same
 // controlled `columnWidths` overrides to header cells and exposes the same

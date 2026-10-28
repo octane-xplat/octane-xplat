@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import 'octane/signals'
 import { useQuery$ } from '../src/use-query'
 import type { QueryClient, QueryDefinition } from '../src/query-cache'

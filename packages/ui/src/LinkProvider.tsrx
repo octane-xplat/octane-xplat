@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useMemo } from 'octane'
 import type { LinkProviderProps } from './props'
 import { LinkContext } from './link-context'

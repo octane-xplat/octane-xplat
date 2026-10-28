@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useId, useMemo } from 'octane'
 import { markChatRow } from './chat-scroll-state'
 import type { ChatMessageProps } from './props'

@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import type { ClassValue, StyledDef, StyledVariant, StyledVariantSelection } from './props'
 import { resolveStyledClasses } from './styled-variants'
 

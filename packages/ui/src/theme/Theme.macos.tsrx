@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 /** AppKit named-theme scope; token rules are registered with the CSS engine. */
 import { useContext, useEffect, useMemo } from 'octane'
 import type { ThemeMode } from './defined-theme'

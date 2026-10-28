@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useColorScheme } from './theme/colorScheme'
 import { styleRecord } from './style-merge'
 import type { CodeProps } from './props'

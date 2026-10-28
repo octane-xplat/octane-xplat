@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { memo, useState } from 'octane'
 import { Frame, GridLayout, Page, TabView, TabViewItem } from '@nativescript/core'
 import { createPortal } from '../native-portal'

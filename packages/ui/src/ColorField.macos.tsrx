@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useRef, useState } from 'octane'
 import type { ColorFieldProps } from './props'
 import { mergeStyle, styleRecord } from './style-merge'

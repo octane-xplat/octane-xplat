@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import type { IconButtonProps } from './props'
 import { Pressable } from './Pressable.macos.tsrx'

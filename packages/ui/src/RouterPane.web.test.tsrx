@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 // @vitest-environment jsdom
 /** @jsxImportSource octane */
 import { act, createContext, createRoot, useContext, useState } from 'octane'

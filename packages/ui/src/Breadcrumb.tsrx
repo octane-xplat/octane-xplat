@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { DropdownMenu } from './DropdownMenu.tsrx'
 import { MenuData } from './MenuParts.tsrx'
 import type {

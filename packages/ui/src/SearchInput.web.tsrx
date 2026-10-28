@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useRef, useImperativeHandle, useState } from 'octane'
 import type { SearchInputProps } from './props'
 import { Icon } from './Icon.web.tsrx'

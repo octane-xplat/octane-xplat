@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from './style-merge'
 import { useEffect, useLayoutEffect, useMemo, useSyncExternalStore } from 'octane'
 import { createPortal } from './native-portal'

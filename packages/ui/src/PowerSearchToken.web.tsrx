@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import type { PowerSearchTokenProps } from './props'
 import {
 	resolveOperatorLabel,

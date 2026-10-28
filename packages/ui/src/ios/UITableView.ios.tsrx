@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../style-merge'
 import { useNativeListCells } from '../use-native-list-cells.mobile'
 // Universal hooks import from 'octane' — the compiler retargets them to the

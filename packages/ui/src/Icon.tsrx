@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import type { IconProps } from './props'
 import { getIcon } from './icons'
 import { useIconRegistry } from './icon-registry-context'

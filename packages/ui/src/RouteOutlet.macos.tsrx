@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { ClientRouteOutlet } from './ClientRouteOutlet.tsrx'
 import { useRouteOutletScope } from './route-outlet-scope.tsrx'
 import { defaultRouterRuntime } from './default-router.macos'

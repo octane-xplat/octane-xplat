@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from './style-merge'
 import type { ChatComposerToken, ChatComposerTokenCustom } from './props'
 import { cx } from '@octane-xplat/lib'

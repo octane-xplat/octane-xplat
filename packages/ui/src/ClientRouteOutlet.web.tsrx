@@ -1,4 +1,4 @@
-/** @jsxImportSource octane */
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { routeAuthorityKey, RouteOutletResume } from './route-outlet-authority.tsrx'
 import type { ClientRouteOutletProps } from './props'
 import { RouterOutletBoundary } from './router-outlet-boundary.tsrx'

@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useDirection, useTranslator } from './internationalization'
 import type { PaginationProps } from './props'
 import { applyEscapeProps } from './escape-props'

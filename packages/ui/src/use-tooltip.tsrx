@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useCallback, useEffect, useId, useRef } from 'octane'
 import type { ContextRenderProps, TooltipOptions, TooltipReturn } from './props'
 import { appKitHost } from './host-bridge'

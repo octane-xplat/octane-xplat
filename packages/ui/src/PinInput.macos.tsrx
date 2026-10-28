@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from './style-merge'
 import { useEffect, useRef, useState } from 'octane'
 import type { PinInputProps, TextInputHandle } from './props'

@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useImperativeHandle, useContext, useEffect, useRef, useState } from 'octane'
 import type { BaseTypeaheadProps, SearchableItem } from './props'
 import type { BaseTypeaheadInternalProps } from './internal-props'

@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useState } from 'octane'
 import type { BannerProps } from './props'
 import { applyEscapeProps } from './escape-props'

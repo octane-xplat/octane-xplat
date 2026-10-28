@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { RadioIndicator } from './RadioIndicator.macos.tsrx'
 import { mergeStyle } from './style-merge'
 import { useState } from 'octane'

@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useEffect, useImperativeHandle, useMemo, useRef, useState } from 'octane'
 import { styleRecord } from './style-merge'
 import type { Key, VirtualListProps, VirtualListScrollOptions } from './props'

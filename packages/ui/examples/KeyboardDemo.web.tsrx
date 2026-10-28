@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useSignal$ } from 'octane/signals/client'
 import { useKeyboard } from '@octane-xplat/ui'
 

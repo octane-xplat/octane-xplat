@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import type { ChatTokenizedTextProps } from './props'
 import { ChatTokenChip } from './chat-tokens.web.tsrx'
 import { tokenizeChatText } from './chat-tokenize'

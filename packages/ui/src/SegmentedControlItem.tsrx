@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useContext } from 'octane'
 import { mergeStyle } from './style-merge'
 import type { SegmentedControlItemProps } from './props'

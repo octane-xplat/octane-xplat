@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from './style-merge'
 import { useImperativeHandle, useContext, useEffect, useId, useRef, useState } from 'octane'
 import type { ISOTimeString, TimeInputProps } from './props'

@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useRef } from 'octane'
 import type { ColorSliderProps, PanEvent } from './props'
 import type { ColorSliderViewProps } from './internal-props'

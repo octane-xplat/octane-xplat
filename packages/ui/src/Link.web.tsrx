@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import type { LinkProps } from './props'
 import { useLinkComponent } from './use-link-component.web.tsrx'
 

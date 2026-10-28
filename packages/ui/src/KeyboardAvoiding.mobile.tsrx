@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'octane'
 import { refList } from './ref-list'
 import { Application } from '@nativescript/core'

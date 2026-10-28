@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 // The masonview wrapper is a NativeScript View — the router owns it as the SDK
 // Animation target while retained panes keep their measured/hidden state.
 import { RouterFlowVisibilityContext } from './router-hook-context'

@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useEffect, useMemo, useRef, useState } from 'octane'
 import { styleRecord } from './style-merge'
 import type { CodeBlockProps } from './props'

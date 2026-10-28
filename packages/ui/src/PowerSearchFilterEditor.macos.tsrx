@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import type { PowerSearchFilterEditorProps, FilterValue } from './props'
 import { TextInput } from './text-controls.macos.tsrx'

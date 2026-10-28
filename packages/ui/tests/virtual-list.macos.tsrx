@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../src/style-merge'
 import { useState } from 'octane'
 import { VirtualList } from '../src/VirtualList.macos.tsrx'

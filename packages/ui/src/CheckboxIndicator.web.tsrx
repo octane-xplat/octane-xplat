@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useMemo } from 'octane'
 import { cx } from '@octane-xplat/lib'
 import { refList } from './ref-list'

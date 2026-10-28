@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { mergeStyle } from './style-merge'
 import type { ChatDictationButtonProps } from './props'
 import { Icon } from './Icon.web.tsrx'

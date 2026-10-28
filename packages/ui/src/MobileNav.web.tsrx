@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { mergeStyle } from './style-merge'
 import { useCallback, useContext, useEffect, useId, useRef, useState } from 'octane'
 import type { MobileNavProps, MobileNavToggleProps } from './props'

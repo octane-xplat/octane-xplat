@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useState } from 'octane'
 import type { SegmentedControlProps } from './props'
 import { applyWebProps } from './platformProps.web'

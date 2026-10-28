@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { defineUniversalComponent, universalComponent } from 'octane/universal/native'
 import type { UniversalComponent } from 'octane/universal'
 import type { ClassValue, StyledDef, StyledVariant, StyledVariantSelection } from './props'

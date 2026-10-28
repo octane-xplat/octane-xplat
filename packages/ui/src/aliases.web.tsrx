@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { Select } from './Select.web.tsrx'
 import type { MultiSelectorProps } from './props'
 

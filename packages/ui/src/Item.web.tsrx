@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import type { ItemComponent, ItemProps, ItemSlotProps } from './props'
 import { Pressable } from './Pressable.web.tsrx'
 import { Text } from './Text.web.tsrx'

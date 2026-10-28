@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../src/style-merge'
 import { Text } from '../src/Text.tsrx'
 import { Kbd } from '../src/Kbd.tsrx'

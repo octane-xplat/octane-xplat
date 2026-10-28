@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useCallback, useRef } from 'octane'
 import { Utils } from '@nativescript/core'
 import type { PanEvent } from './props'

@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useMemo, useRef } from 'octane'
 import { Screen } from './Screen'
 import { ScrollableArea } from './ScrollableArea'

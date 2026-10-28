@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { ClientRouteOutlet } from './ClientRouteOutlet.tsrx'
 import { useRouteOutletScope } from './route-outlet-scope.tsrx'
 import { defaultRouterRuntime } from './default-router'

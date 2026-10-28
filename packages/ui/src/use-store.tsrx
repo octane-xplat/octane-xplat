@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { useRef, useSyncExternalStore } from 'octane'
 import type { ReadableStore, StoreSnapshot } from './props'
 

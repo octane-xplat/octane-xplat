@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import type { ChatSystemMessageProps } from './props'
 import { Separator } from './Separator.web.tsrx'
 

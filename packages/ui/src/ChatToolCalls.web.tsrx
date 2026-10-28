@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useId, useState } from 'octane'
 import type { ChatToolCallItem, ChatToolCallStatus, ChatToolCallsProps } from './props'
 import { Icon } from './Icon.web.tsrx'

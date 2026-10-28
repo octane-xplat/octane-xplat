@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useState } from 'octane'
 import type { ButtonProps } from './props'
 import { applyWebProps } from './platformProps.web'

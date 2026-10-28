@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useRef } from 'octane'
 import type { ToolbarProps } from './props'
 import { applyEscapeProps } from './escape-props'

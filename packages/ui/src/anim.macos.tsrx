@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useEffect, useRef } from 'octane'
 import { requestAnimationFrame, cancelAnimationFrame } from '@nativescript/core/animation-frame'
 import { createAnimatedValue } from './animated-value'

@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from './style-merge'
 import { useMemo, useState } from 'octane'
 import type { Key, Selection, TreeProps, TreeListNode } from './props'

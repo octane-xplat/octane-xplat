@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import type { SelectableCardProps } from './props'
 import { styleRecord } from './style-merge'
 import { Pressable } from './Pressable'

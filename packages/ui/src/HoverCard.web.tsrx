@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useEffect, useRef } from 'octane'
 import type { HoverCardProps } from './props'
 import { useHoverCard } from './use-hover-card.web.tsrx'

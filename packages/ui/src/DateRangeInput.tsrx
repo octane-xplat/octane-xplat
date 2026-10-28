@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from './style-merge'
 import { nativeAccessibilityState } from './escape-props'
 import { useRef, useImperativeHandle, useContext, useId, useState } from 'octane'

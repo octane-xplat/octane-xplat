@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useState, useContext } from 'octane'
 import { CollapsibleGroupContext, CollapsibleGroupProvider } from './collapsible-context'
 import type { CollapsibleProps, CollapsibleGroupProps } from './props'

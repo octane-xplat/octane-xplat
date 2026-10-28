@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import type { HStackProps } from './props'
 import { Stack } from './layout.macos.tsrx'
 

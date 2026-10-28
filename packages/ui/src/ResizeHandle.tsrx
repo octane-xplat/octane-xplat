@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useRef } from 'octane'
 import type { ResizeHandleProps, PanEvent } from './props'
 import { cx } from '@octane-xplat/lib'

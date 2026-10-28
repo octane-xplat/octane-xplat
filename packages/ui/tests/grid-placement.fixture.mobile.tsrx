@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../src/style-merge'
 import { useState } from 'octane'
 import type { ProbeContext } from '../../../scripts/probe/context'

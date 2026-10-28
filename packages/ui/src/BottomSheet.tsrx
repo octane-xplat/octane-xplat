@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from './style-merge'
 import { SheetContent } from './sheet-content'
 import type { PercentLengthType } from '@nativescript/core'

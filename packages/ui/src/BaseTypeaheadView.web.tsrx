@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useContext, useEffect } from 'octane'
 import { styleRecord } from './style-merge'
 import type { SearchableItem } from './props'

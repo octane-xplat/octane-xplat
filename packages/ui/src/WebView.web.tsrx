@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useImperativeHandle, useEffect, useRef } from 'octane'
 import type { WebViewHandle, WebViewProps } from './props'
 import { applyEscapeProps } from './escape-props'

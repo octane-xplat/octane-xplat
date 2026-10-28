@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useEffect, useLayoutEffect, useMemo, useSyncExternalStore } from 'octane'
 import { createPortal } from 'octane'
 import { createContentOwner, type ContentOwner, type ContentEntry } from './owned-content'

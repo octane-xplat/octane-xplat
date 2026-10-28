@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import type { ChatLayoutScrollButtonProps } from './props'
 import { Icon } from './Icon.web.tsrx'
 import { Pressable } from './Pressable.web.tsrx'

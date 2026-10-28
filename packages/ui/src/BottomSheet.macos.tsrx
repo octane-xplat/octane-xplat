@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { SheetContent } from './sheet-content'
 import { mergeStyle, styleRecord } from './style-merge'
 import { useContext, useEffect, useMemo, useRef, useState } from 'octane'

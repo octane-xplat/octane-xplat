@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../src/style-merge'
 export function PropRemoval(props: { text?: string; className?: string; style?: any }) @{
 	<masonview style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}>

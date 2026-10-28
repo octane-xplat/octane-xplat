@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useMemo } from 'octane'
 import { refList } from './ref-list'
 import type { ProgressBarProps } from './props'

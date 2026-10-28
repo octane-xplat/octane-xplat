@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useImperativeHandle, createPortal, useCallback, useEffect, useRef, useState } from 'octane'
 
 import type {

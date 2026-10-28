@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from './style-merge'
 import type { ChatDictationButtonProps } from './props'
 import { cx } from '@octane-xplat/lib'

@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useEffect, useState } from 'octane'
 import type { TimestampProps } from './props'
 import type { TimestampTooltipLine } from './time-format'

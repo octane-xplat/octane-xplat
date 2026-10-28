@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from './style-merge'
 import { useState } from 'octane'
 import type { ToggleButtonProps, ToggleButtonGroupProps } from './props'

@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useCallback, useEffect, useState } from 'octane'
 import type { MeasureBounds, MeasureResult, UseMeasureOptions } from './props'
 

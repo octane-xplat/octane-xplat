@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'octane'
 import { bindChatKeyboard } from './chat-keyboard'
 import { checkChatPanelHeight } from './chat-keyboard-types'

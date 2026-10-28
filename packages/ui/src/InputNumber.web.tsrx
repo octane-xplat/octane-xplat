@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useState } from 'octane'
 import type { InputNumberProps } from './props'
 import { useSize } from './size-context'

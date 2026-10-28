@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { dispatchLayerKey } from './layer-stack'
 import { useCallback, useEffect, useId, useRef, useState } from 'octane'
 import type { ChatComposerTrigger, ChatComposerTriggerItem } from './props'

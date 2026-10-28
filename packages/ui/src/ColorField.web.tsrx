@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useRef, useState } from 'octane'
 import type { ColorFieldProps } from './props'
 import { Text } from './Text'

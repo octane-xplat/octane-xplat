@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useEffect, useState } from 'octane'
 
 export interface SafeAreaInsets {

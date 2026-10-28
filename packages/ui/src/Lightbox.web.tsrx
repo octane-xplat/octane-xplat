@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { createPortal, useCallback, useEffect, useRef, useState } from 'octane'
 import type { LightboxMedia, LightboxProps } from './props'
 import { cx } from '@octane-xplat/lib'

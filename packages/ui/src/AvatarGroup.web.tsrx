@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { descriptorChildren } from 'octane'
 import type { AvatarGroupProps, AvatarGroupOverflowProps } from './props'
 import { applyEscapeProps } from './escape-props'

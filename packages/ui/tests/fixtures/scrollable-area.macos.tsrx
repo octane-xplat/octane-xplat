@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { ScrollableArea, useScrollableArea, View, Text } from '@octane-xplat/ui'
 import type { ScrollAxis, UseScrollableAreaResult } from '@octane-xplat/ui'

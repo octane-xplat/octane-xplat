@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import type { PowerSearchFilterEditorProps, FilterValue } from './props'
 import { TextInput } from './TextInput.tsrx'

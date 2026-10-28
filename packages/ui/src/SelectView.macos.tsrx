@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useTranslator } from './internationalization'
 import { mergeStyle } from './style-merge'
 import { useRef } from 'octane'

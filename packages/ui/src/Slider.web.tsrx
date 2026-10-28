@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useRef, useState } from 'octane'
 import type { PanEvent, SliderProps } from './props'
 import { useMeasure } from './useMeasure.web.tsrx'

@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useEffect, useMemo, useRef } from 'octane'
 import { GridLayout } from '@nativescript/core'
 import { useOwnedContent } from './use-owned-content'

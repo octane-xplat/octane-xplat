@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useMemo, useContext } from 'octane'
 import { refList } from './ref-list'
 import type { FormLayoutProps } from './props'

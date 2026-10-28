@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useMemo, useState } from 'octane'
 import type { Key, Selection, TreeProps, TreeListNode } from './props'
 import { applyEscapeProps } from './escape-props'

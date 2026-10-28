@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useLayoutEffect, useSyncExternalStore } from 'octane'
 import { useRouteOutletScope } from './route-outlet-scope.tsrx'
 import { styleRecord } from './style-merge'

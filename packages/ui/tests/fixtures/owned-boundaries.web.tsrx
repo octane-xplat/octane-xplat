@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { createContext, useContext, useState } from 'octane'
 import { useImperativeBottomSheet } from '@octane-xplat/ui'
 

@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import type { ColorSwatchProps } from './props'
 import { normalizeHex } from './color'
 

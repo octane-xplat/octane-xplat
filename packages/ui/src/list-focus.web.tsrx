@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { dispatchLayerKey } from './layer-stack'
 import { useCallback, useEffect, useRef } from 'octane'
 

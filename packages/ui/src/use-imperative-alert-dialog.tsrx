@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useCallback, useState } from 'octane'
 import type { AlertDialogProps, ImperativeAlertDialogReturn } from './props'
 import { AlertDialog } from './AlertDialog'

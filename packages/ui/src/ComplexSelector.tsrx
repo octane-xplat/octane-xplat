@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useImperativeHandle, useEffect, useId, useRef, useState } from 'octane'
 import type { ComplexSelectorHandle, ComplexSelectorProps } from './props'
 import { ComplexSelectorView } from './ComplexSelectorView.tsrx'

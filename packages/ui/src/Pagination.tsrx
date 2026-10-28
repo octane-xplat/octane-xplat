@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useDirection, useTranslator } from './internationalization'
 import { mergeStyle } from './style-merge'
 import type { PaginationProps } from './props'

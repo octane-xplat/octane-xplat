@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { DropdownMenu } from './DropdownMenu.macos.tsrx'
 import { MenuData } from './MenuParts.macos.tsrx'
 import type {

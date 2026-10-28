@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useImperativeHandle, useEffect, useId, useRef, useState } from 'octane'
 import type { ComplexSelectorHandle, ComplexSelectorProps } from './props'
 import { ComplexSelectorView } from './ComplexSelectorView.web.tsrx'

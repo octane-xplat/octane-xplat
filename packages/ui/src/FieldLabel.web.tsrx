@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import type { FieldLabelProps } from './props'
 import { applyWebProps } from './platformProps.web'
 import { Tooltip } from './Tooltip.web.tsrx'

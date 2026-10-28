@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useCallback, useContext } from 'octane'
 import { appKitHost, hostGlobal } from './host-bridge'
 import type { ShowToastFn, ToastOptions } from './props'

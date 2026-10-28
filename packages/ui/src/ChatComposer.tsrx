@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from './style-merge'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'octane'
 import type { ChatComposerDraft, ChatComposerInputControl, ChatComposerProps } from './props'

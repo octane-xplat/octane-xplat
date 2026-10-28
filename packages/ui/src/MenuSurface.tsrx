@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import type { MenuSurfaceProps } from './props'
 import { MenuProvider } from './menu-context'
 import { View } from './View'

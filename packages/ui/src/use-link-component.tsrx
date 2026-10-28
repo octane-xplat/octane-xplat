@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useContext } from 'octane'
 import type { LinkComponentType } from './props'
 import { LinkContext } from './link-context'

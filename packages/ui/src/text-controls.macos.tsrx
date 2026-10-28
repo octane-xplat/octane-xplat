@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from './style-merge'
 import { useImperativeHandle, useRef, useState } from 'octane'
 import type { TextAreaProps, TextInputProps } from './props'

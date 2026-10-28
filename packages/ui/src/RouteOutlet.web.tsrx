@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useLayoutEffect } from 'octane'
 import type { RouteOutletProps } from './props'
 import type { BrowserRouterHost } from './browser-router-host.web'

@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 // Sortable plugin — port of upstream plugins/sortable/useTableSortable
 // (Astryx 0.6.4, MIT), web leaf. Header sort control is a real <button>;
 // sort actions also land in the header context menu.

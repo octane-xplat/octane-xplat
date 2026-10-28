@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useEffect, useState } from 'octane'
 import { subscribeKeyboardInset } from './keyboard-inset'
 import type { UseKeyboardInsetOptions } from './props'

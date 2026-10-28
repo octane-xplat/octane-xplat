@@ -1,4 +1,4 @@
-/** @jsxImportSource octane */
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useMemo } from 'octane'
 import { refList } from './ref-list'
 import type { KeyboardAvoidingProps } from './props'

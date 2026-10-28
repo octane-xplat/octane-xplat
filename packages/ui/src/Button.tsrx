@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { Utils } from '@nativescript/core'
 import { TextSlot } from './text-slot'

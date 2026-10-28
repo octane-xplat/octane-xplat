@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle, styleRecord } from './style-merge'
 import { useCallback, useEffect, useRef, useState } from 'octane'
 import type { OverflowItem, OverflowListProps } from './props'

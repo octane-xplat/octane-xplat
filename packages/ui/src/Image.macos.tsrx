@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useMemo } from 'octane'
 import { styleRecord } from './style-merge'
 import { appKitImageSource } from './svg-image.macos'

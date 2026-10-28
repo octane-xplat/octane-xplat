@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import type { SelectProps } from './props'
 import { useFieldControlProps } from './field-context'
 import { useSelect } from './useSelect'

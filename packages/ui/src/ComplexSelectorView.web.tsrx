@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import type { ComplexSelectorViewProps } from './complex-selector-view'
 import { styleRecord } from './style-merge'
 import { useSize } from './size-context'

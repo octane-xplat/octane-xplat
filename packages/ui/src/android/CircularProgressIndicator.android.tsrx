@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import type { CircularProgressIndicatorProps } from '../props'
 import { cx } from '@octane-xplat/lib'
 import { applyNativeProps } from '../platformProps'

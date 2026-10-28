@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import type { KbdProps } from './props'
 import { applyEscapeProps } from './escape-props'
 

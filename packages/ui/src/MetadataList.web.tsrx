@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { descriptorChildren } from 'octane'
 import { useId, useState } from 'octane'
 import type { MetadataListProps } from './props'

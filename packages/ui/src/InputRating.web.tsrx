@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useState } from 'octane'
 import type { InputRatingProps } from './props'
 import { applyEscapeProps } from './escape-props'

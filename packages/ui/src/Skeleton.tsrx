@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import type { SkeletonProps } from './props'
 import { mergeStyle, styleRecord } from './style-merge'
 import { cx } from '@octane-xplat/lib'

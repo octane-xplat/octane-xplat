@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useMemo, useId } from 'octane'
 import { refList } from './ref-list'
 import type { InputGroupProps, InputGroupTextProps } from './props'

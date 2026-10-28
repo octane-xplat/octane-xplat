@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from './style-merge'
 import { useCallback, useEffect, useRef, useState } from 'octane'
 import type { PanEvent, SliderProps } from './props'

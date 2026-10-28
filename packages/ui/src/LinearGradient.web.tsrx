@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import type { LinearGradientProps } from './internal-props'
 
 /** Internal gradient surface — CSS linear-gradient on web. */

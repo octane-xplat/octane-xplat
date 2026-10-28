@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { createContext, useContext, useEffect, useState } from 'octane'
 import { RouteOutlet, Screen, useImperativeBottomSheet } from '@octane-xplat/ui'
 import { UITabBar } from '@octane-xplat/ui/ios'

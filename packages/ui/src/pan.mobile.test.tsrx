@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@nativescript/core', () => ({

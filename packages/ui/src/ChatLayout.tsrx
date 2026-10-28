@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from './style-merge'
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'octane'
 import { bindChatKeyboard } from './chat-keyboard'

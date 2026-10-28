@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 // macOS keeps the same hook name for platform import stability, but the
 // current AppKit bridge does not expose readable Heading semantics.
 import type { OutlineFromViewCapabilities, OutlineItem } from './props'

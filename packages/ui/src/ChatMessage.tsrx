@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { markChatRow } from './chat-scroll-state'
 import { mergeStyle } from './style-merge'
 import { useMemo } from 'octane'

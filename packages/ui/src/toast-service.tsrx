@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useCallback, useContext } from 'octane'
 import { GridLayout, isAndroid, isIOS } from '@nativescript/core'
 import type { RootLayout } from '@nativescript/core'

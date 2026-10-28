@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useCallback, useEffect, useRef, useState } from 'octane'
 import type { ContextRenderProps, TooltipOptions, TooltipReturn } from './props'
 import { useLayer } from './use-layer'

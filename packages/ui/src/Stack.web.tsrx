@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useMemo, useRef } from 'octane'
 import { styleRecord } from './style-merge'
 import { refList } from './ref-list'

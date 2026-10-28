@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 // Tree-data plugin — universal leaf. Same contract as the web leaf; the
 // expander is a tappable view, indent is a fixed dip inset, and row-click
 // expansion maps to the leaf's onClick → onTap row wiring (the web-only

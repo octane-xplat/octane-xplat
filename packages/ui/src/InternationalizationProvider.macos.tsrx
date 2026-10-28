@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useMemo } from 'octane'
 import type { InternationalizationProviderProps } from './props'
 import { InternationalizationContext, resolveInternationalization } from './internationalization'

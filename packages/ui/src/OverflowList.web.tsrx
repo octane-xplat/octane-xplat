@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { mergeStyle } from './style-merge'
 import { descriptorChildren } from 'octane'
 import { useCallback, useEffect, useRef, useState } from 'octane'

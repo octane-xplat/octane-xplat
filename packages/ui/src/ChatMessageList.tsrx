@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { chatMessageKey, markChatRow } from './chat-scroll-state'
 import { chatHost } from './chat-scroll-host'
 import { mergeStyle } from './style-merge'

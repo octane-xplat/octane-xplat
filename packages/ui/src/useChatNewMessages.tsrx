@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useCallback, useEffect, useRef, useState } from 'octane'
 import { bindChatReadingAnchor } from './chat-reading-anchor'
 import { chatScrollControl } from './chat-scroll-state'

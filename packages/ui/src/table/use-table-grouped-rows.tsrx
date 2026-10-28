@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 // Grouped-rows plugin — universal leaf. Same contract as the web leaf; the
 // full-width header cell is a masonview row and the chevron is a tappable
 // view (row-level toggles ride the leaf's onClick → onTap mapping).

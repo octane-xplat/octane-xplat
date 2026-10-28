@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import type { AlertProps } from './props'
 import { applyEscapeProps } from './escape-props'
 import { Icon } from './Icon.web.tsrx'

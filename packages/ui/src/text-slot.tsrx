@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { toChildArray, mapChildren } from './child-array'
 
 /** Native layouts need a text host for primitive children. Adjacent primitives

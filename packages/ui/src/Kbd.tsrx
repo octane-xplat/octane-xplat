@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import type { KbdProps } from './props'
 import { TextSlot } from './text-slot'
 import { cx } from '@octane-xplat/lib'

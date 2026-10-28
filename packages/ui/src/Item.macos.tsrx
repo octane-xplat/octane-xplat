@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from './style-merge'
 import type { ItemComponent, ItemProps, ItemSlotProps } from './props'
 import { Pressable } from './Pressable.macos.tsrx'

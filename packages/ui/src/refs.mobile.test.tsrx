@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 vi.mock('./svg', () => ({
 	glyphSvgMarkup: () => null,
 	isSvgSrc: () => false,

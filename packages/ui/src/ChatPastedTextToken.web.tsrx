@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import type { ChatComposerToken } from './props'
 import { ChatTokenChip } from './chat-tokens.web.tsrx'
 import { Tooltip } from './Tooltip.web.tsrx'

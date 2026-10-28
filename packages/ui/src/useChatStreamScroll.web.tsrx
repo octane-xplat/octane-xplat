@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useCallback, useEffect, useRef, useState } from 'octane'
 import { chatAtEnd, registerChatScrollControl } from './chat-scroll-state'
 import type {

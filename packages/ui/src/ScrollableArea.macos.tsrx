@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from './style-merge'
 import { useImperativeHandle, useMemo, useRef } from 'octane'
 import type { ScrollableAreaHandle, ScrollableAreaProps } from './props'

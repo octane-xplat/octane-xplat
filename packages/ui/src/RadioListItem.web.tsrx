@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useContext } from 'octane'
 import type { RadioListItemProps } from './props'
 import { applyWebProps } from './platformProps.web'

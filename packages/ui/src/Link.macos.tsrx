@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import type { LinkProps } from './props'
 import { Pressable } from './Pressable.macos.tsrx'
 import { followHref } from './nav-href'

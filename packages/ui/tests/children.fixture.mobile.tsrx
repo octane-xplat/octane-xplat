@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from '../src/style-merge'
 import { toChildArray, mapChildren } from '../src/child-array'
 import { List } from '../src/List.tsrx'

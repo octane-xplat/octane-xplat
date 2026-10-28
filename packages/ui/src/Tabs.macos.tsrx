@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { RouteOutlet } from './RouteOutlet.macos.tsrx'
 import { routeTabKey, useRouteTabsSelection } from './route-tabs-selection.tsrx'
 import { RoutePane } from './RoutePane'

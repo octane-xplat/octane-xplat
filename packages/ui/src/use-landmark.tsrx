@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import type { Octane } from 'octane/jsx-runtime'
 
 /**

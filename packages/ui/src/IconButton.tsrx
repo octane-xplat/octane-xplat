@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import type { IconButtonProps } from './props'
 import { Button } from './Button.tsrx'
 

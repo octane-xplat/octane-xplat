@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import type { MoreMenuPresentation } from './props'
 import { BottomSheet } from './BottomSheet'
 import { MenuProvider } from './menu-context'

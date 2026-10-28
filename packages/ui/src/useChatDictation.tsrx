@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import type { UseChatDictationOptions, UseChatDictationReturn } from './props'
 import { useSpeechRecognition } from './useSpeechRecognition.tsrx'
 

@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import type { SelectProps } from './props'
 import { useFieldControlProps } from './field-context'
 import { useSelect } from './useSelect'

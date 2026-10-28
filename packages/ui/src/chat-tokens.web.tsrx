@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import type { ChatComposerToken, ChatComposerTokenCustom } from './props'
 import { Icon } from './Icon.web.tsrx'
 

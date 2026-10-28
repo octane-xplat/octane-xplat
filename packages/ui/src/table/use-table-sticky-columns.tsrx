@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 // Sticky-columns plugin — universal leaf. Native Table leaves have no
 // horizontal scroll container to pin against, so this is a pass-through
 // plugin exposing the same config contract (recorded gap; documented in

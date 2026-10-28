@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import type { ChatMessageMetadataProps, ChatMessageStatus } from './props'
 import { Icon } from './Icon.web.tsrx'
 import { useChatMessageContext } from './chat-context'

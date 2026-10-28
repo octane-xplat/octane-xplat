@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useMemo } from 'octane'
 import { refList } from './ref-list'
 import type { VisuallyHiddenProps } from './props'

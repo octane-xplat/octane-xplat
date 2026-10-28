@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { DropdownMenu } from './DropdownMenu.web.tsrx'
 import { MenuData } from './MenuParts.web.tsrx'
 import type {

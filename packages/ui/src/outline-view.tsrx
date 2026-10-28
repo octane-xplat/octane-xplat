@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 // Native leaf — `useOutlineFromView` walks the bound view subtree once it
 // mounts (and re-walks when the container view instance changes). Views with
 // accessibilityRole 'header' contribute items. DOM discovery stays web-only

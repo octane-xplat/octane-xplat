@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import type { ColorPickerProps } from './props'
 import { ColorAreaView } from './ColorArea'
 import { ColorSliderView } from './ColorSlider'

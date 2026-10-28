@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle, styleRecord } from './style-merge'
 import { useMemo, useRef, useState, useSyncExternalStore, useId } from 'octane'
 import type { SearchableItem, TypeaheadInputHandle, TypeaheadProps } from './props'

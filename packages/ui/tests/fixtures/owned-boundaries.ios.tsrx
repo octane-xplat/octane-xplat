@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { createContext, useContext, useState } from 'octane'
 import { Screen, useImperativeBottomSheet } from '@octane-xplat/ui'
 import { UITableView, useImperativeModal } from '@octane-xplat/ui/ios'

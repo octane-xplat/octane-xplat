@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useState } from 'octane'
 import type { AlertDialogProps } from './props'
 import { Dialog } from './Dialog.web.tsrx'

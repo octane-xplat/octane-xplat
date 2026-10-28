@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useImperativeHandle, useContext, useEffect, useId, useRef, useState } from 'octane'
 import type { BaseTypeaheadProps, SearchableItem } from './props'
 import type { BaseTypeaheadInternalProps } from './internal-props'

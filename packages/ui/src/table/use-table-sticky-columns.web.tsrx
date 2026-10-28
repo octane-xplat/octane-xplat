@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 // Sticky-columns plugin — port of upstream
 // plugins/stickyColumns/useTableStickyColumns.tsx (Astryx 0.6.4, MIT), web
 // leaf. Pinned cells get inline `insetInlineStart/End` offsets plus sticky

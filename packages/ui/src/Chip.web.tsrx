@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import type { ChipProps } from './props'
 import { applyEscapeProps } from './escape-props'
 import { Pressable } from './Pressable.web.tsrx'

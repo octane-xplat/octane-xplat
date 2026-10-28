@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import type { RichTextProps, RichTextSpanProps } from './props'
 import { applyEscapeProps } from './escape-props'
 import { layoutChildProps } from './layout-child.web'

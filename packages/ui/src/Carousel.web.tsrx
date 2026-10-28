@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { descriptorChildren } from 'octane'
 import { useImperativeHandle, useCallback, useEffect, useRef, useState } from 'octane'
 import type { CarouselHandle, CarouselProps } from './props'

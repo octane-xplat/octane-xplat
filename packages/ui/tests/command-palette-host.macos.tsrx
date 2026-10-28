@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 /** Maintained nonvisual AppKit integration case; key monitors are action-dispatched. */
 import { CommandPalette, Pressable, Text, VStack } from '@octane-xplat/ui'
 import { useSignal$ } from 'octane/signals/client'

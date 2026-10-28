@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useCallback, useState } from 'octane'
 import type { DialogOptions, ImperativeDialogReturn } from './props'
 import { Dialog } from './Dialog.web.tsrx'

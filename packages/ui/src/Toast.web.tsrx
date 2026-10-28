@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { mergeStyle } from './style-merge'
 import { useCallback, useEffect, useRef } from 'octane'
 import type { ToastProps } from './props'

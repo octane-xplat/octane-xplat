@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useRef } from 'octane'
 import type { Octane } from 'octane/jsx-runtime'
 

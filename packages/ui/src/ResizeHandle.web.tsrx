@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useCallback, useEffect, useRef } from 'octane'
 import type { ResizeHandleProps } from './props'
 import { applyEscapeProps } from './escape-props'

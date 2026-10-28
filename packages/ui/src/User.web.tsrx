@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import type { UserProps } from './props'
 import { applyEscapeProps } from './escape-props'
 import { Avatar } from './Avatar.web.tsrx'

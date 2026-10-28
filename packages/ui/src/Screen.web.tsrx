@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import type { ScreenProps } from './props'
 import { applyEscapeProps } from './escape-props'
 export function Screen(props: ScreenProps) @{

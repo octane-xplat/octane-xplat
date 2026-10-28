@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useEffect, useState, useId } from 'octane'
 import { cx } from '@octane-xplat/lib'
 import type { CheckboxProps } from './props'

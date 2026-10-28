@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 // Sortable plugin — universal leaf. Same contract as the web leaf; the
 // header sort control is a pressable view + icon (no pointer context menu).
 

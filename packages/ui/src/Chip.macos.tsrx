@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import type { ChipProps } from './props'
 import { styleRecord } from './style-merge'
 import { cx } from '@octane-xplat/lib'

@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useId, useState } from 'octane'
 import type { CheckboxGroupProps } from './props'
 import { applyEscapeProps } from './escape-props'

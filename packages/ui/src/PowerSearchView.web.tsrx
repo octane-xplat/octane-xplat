@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useEffect, useRef } from 'octane'
 import type { PowerSearchHandle } from './props'
 import { useSize } from './size-context'

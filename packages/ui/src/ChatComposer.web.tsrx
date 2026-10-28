@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'octane'
 import type { ChatComposerDraft, ChatComposerInputControl, ChatComposerProps } from './props'
 import { ChatComposerProvider } from './chat-context'

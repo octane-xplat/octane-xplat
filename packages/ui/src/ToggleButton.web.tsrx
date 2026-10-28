@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useState } from 'octane'
 import type { ToggleButtonProps, ToggleButtonGroupProps } from './props'
 import { useToggleButtonGroup, ToggleButtonGroupProvider } from './toggle-button-group-context'

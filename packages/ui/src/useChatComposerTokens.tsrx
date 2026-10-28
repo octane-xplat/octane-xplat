@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useCallback, useState } from 'octane'
 import type { UseChatComposerTokensOptions, UseChatComposerTokensReturn } from './props'
 import { isCustomToken } from './chat-tokens.tsrx'

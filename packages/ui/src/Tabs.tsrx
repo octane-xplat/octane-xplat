@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { RouteOutlet } from './RouteOutlet.tsrx'
 import { routeTabKey, useRouteTabsSelection } from './route-tabs-selection.tsrx'
 import { RoutePane } from './RoutePane'

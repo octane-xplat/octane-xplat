@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/jsx */
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useState } from 'octane'
 import { ChatLayout, ChatMessageList } from '@octane-xplat/ui/chat'
 import type { ChatMessageData } from '@octane-xplat/ui/chat'

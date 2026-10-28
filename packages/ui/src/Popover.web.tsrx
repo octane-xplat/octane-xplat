@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { modalPortalOwner } from './modal-focus.web'
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx'
 import { styleRecord } from './style-merge'

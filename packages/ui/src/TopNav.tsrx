@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { MenuSurface } from './MenuSurface.tsrx'
 import { useDropdownMenuContext } from './menu-context'
 import type { TopNavMenuItemData } from './props'

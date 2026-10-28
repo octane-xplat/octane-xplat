@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useEffect, useId, useMemo, useRef } from 'octane'
 import type { ToastEntry, ToastPosition, ToastViewportProps } from './props'
 import { ToastViewportProvider, type ToastViewportContextValue } from './toast-context'

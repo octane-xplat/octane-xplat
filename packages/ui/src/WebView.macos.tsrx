@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useImperativeHandle, useRef } from 'octane'
 import type { WebViewProps } from './props'
 import { cx } from '@octane-xplat/lib'

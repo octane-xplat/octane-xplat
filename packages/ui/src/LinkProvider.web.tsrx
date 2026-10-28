@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useMemo } from 'octane'
 import type { LinkProviderProps } from './props'
 import { LinkContext } from './link-context'

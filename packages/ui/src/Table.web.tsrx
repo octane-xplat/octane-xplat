@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { cx } from '@octane-xplat/lib'
 import { mergeStyle } from './style-merge'
 import { applyEscapeProps } from './escape-props'

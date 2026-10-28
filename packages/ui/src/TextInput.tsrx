@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle, styleRecord } from './style-merge'
 import { useContext, useImperativeHandle, useEffect, useRef, useState } from 'octane'
 import type { TextInputProps } from './props'

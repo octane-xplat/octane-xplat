@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useContext } from 'octane'
 import { styleRecord } from './style-merge'
 import type { SafeAreaProps } from './props'

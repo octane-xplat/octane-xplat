@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useImperativeHandle, useContext, useId, useMemo, useRef, useState } from 'octane'
 import type { DateRange, DateRangeInputProps, ISODateString } from './props'
 import { cx } from '@octane-xplat/lib'

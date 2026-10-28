@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useMemo, useState } from 'octane'
 import type {
 	PowerSearchConfig,

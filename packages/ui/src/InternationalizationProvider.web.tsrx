@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useMemo } from 'octane'
 import type { InternationalizationProviderProps } from './props'
 import { InternationalizationContext, resolveInternationalization } from './internationalization'

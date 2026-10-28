@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { isAndroid, isIOS } from '@nativescript/core'
 import { useImperativeHandle, useEffect, useRef } from 'octane'
 import type { WebViewProps } from './props'

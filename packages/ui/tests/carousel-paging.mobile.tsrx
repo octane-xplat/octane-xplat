@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { Carousel } from '../src/Carousel'
 import { View } from '../src/View'
 import { Text } from '../src/Text'

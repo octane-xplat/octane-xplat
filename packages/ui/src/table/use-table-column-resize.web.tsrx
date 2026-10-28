@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 // Column resize plugin — port of upstream plugins/columnResize
 // (Astryx 0.6.4, MIT), web leaf. Pointer-drag + keyboard separator with
 // min/max clamps and proportional-column neighbor compensation; width

@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useLinkedState } from 'octane'
 import { useImageMode } from './use-image-mode.web.tsrx'
 import type { ThumbnailProps } from './props'

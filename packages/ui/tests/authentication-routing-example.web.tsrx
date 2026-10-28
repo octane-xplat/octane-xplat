@@ -1,4 +1,4 @@
-/** @jsxImportSource octane */
+/** @jsxImportSource @octane-xplat/jsx/dom */
 // Controlled SDK promises and real router owners; no authentication provider traffic.
 import { createRoot, flushSync, useLayoutEffect, useMemo, useState } from 'octane'
 import { createRouter } from '../src/router-instance'

@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useTranslator } from './internationalization'
 import { useEffect, useId, useRef } from 'octane'
 import type { SelectViewProps } from './select-view'

@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import type { RegisteredRouteContracts, AppRouteStacks, RouteTransitionName } from './props'
 import type { NavigationMenuImplementation } from './nav-link'
 import { MenuData } from './MenuParts.web.tsrx'

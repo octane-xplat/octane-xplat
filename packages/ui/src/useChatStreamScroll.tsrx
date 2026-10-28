@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useCallback, useEffect, useRef, useState } from 'octane'
 import { chatMessageRows } from './chat-message-rows'
 import { chatHost } from './chat-scroll-host'

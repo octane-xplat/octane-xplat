@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import type { ChatMessageBubbleProps } from './props'
 import { styleRecord } from './style-merge'
 import { useChatMessageContext } from './chat-context'

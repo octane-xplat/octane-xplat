@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useEffect, useRef, useState } from 'octane'
 import { styleRecord } from './style-merge'
 import { useLayer } from './use-layer'

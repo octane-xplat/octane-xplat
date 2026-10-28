@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 // Native GTK uses an owned widget shell without NativeScript gesture adapters.
 import { RouterFlowVisibilityContext } from './router-hook-context'
 import type { RoutePaneProps } from './props'

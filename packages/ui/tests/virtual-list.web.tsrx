@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useState } from 'octane'
 import { VirtualList } from '../src/VirtualList.web.tsrx'
 import type { ProbeContext } from '../../../scripts/probe/context'

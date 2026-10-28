@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useMemo, useRef } from 'octane'
 import { refList } from './ref-list'
 import type { ViewProps } from './props'

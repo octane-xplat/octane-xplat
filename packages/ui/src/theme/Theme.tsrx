@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 /** Shared (native-default) leaf of the named-theme provider (Astryx `Theme`).
  *
  *  Stamps the theme's `xds-theme-<name>` class plus the `.dark`/`.xds-light`

@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { isAndroid, isIOS, ImageSource, knownFolders, Screen } from '@nativescript/core'
 import { useLayoutEffect, useMemo, useRef } from 'octane'
 import type { ImageProps, ImageSourceLike } from './props'

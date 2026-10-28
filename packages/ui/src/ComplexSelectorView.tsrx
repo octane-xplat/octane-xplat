@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle, styleRecord } from './style-merge'
 import { nativeAccessibilityState } from './escape-props'
 import type { ComplexSelectorViewProps } from './complex-selector-view'

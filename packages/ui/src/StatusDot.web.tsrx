@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import type { StatusDotProps } from './props'
 import { applyEscapeProps } from './escape-props'
 import { Tooltip } from './Tooltip.web.tsrx'

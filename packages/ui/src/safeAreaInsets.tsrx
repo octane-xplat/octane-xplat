@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 import { useEffect, useState } from 'octane'
 import { Application, Screen } from '@nativescript/core'
 import { android } from '@octane-xplat/platform/android'

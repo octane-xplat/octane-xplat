@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import type { FieldStatusComponentProps } from './props'
 import { applyWebProps } from './platformProps.web'
 import { STATUS_ICON_PATHS } from './status-icons'

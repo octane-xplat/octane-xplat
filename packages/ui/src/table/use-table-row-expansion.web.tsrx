@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 // Row-expansion plugin — port of upstream
 // plugins/rowExpansion/useTableRowExpansion.tsx (Astryx 0.6.4, MIT), web
 // leaf. Leading chevron column, a lazy "Expand/Collapse row" context-menu

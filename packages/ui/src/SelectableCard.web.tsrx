@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import type { SelectableCardProps } from './props'
 import { styleRecord } from './style-merge'
 import { cx } from '@octane-xplat/lib'

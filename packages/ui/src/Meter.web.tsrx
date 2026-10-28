@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { mergeStyle } from './style-merge'
 import type { MeterProps } from './props'
 import { meterRange } from './meter-math'

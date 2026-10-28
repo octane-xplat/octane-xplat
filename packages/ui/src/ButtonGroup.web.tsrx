@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useEffect, useRef } from 'octane'
 import type { ButtonGroupProps } from './props'
 import { ButtonGroupProvider } from './button-group-context'

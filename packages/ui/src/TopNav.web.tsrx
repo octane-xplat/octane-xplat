@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { MenuSurface } from './MenuSurface.web.tsrx'
 import { useDropdownMenuContext } from './menu-context'
 import type { TopNavMenuItemData } from './props'

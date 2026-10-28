@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useState } from 'octane'
 import type { PowerSearchFilterEditorProps, FilterValue } from './props'
 import { Button } from './Button.web.tsrx'

@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from './style-merge'
 import { useEffect, useId, useMemo } from 'octane'
 import type { ToastEntry, ToastPosition, ToastViewportProps } from './props'

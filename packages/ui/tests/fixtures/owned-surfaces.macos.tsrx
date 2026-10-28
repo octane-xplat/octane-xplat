@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { createContext, useContext, useState } from 'octane'
 import { BottomSheet, Dialog, Lightbox, Screen, useImperativeBottomSheet } from '@octane-xplat/ui'
 

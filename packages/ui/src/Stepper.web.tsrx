@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import type { StepperProps } from './props'
 import { applyEscapeProps } from './escape-props'
 import { StepperProvider } from './option-list-contexts'
