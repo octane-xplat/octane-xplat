@@ -3988,9 +3988,33 @@ actual Tab/layer ordering, callback/render/ref timing, scrolling/reveal/layout,
 VoiceOver and packaged imports remain unqualified. Native listbox/active-option
 relationships and announcements, Tokenizer Backspace removal, PowerSearch focus,
 Carousel fades, video and date-preset text relay remain source gaps. Related
-source finding for follow-up: the unsuffixed date-composition helper used by
-AppKit dates checks mobile marked text and event flags only; raw AppKit text/
-submit guards need separate review. The new key policy uses renderer/native
-marked metadata directly and does not rely on that helper. Checkbox mixed
+source review correction: an existing date-composition.macos.ts leaf already
+reads AppKit currentEditor/hasMarkedText. The earlier missing-guard inference
+came from reading only the unsuffixed mobile helper and was incorrect. The key
+policy independently reads renderer/native marked metadata; actual date IME
+behavior remains unqualified. Checkbox mixed
 rollback still awaits the previously asked contract choice. No evidence-gated
 checkbox is closed; the persistent goal remains active.
+
+
+### AppKit composition platform-leaf correction
+
+Revalidated the previous turn's date-composition finding against the current
+worktree before implementing. The repository already tracks
+packages/ui/src/date-composition.macos.ts, which reads currentEditor and
+hasMarkedText in either property or receiver-bound method form, alongside event
+isComposing/keyCode 229. The AppKit suffix chain selects this leaf for unsuffixed
+date imports. Its existing date-composition.mobile.test.ts has explicit AppKit
+cases, and the prior time-step/date-time cases already model marked editors.
+None of those cases was executed. The earlier inference that AppKit lacked the
+guard was incorrect; no duplicate helper or replacement architecture is needed.
+The prior progress paragraph/issue are corrected and an append-only Silo
+observation preserves the correction to the original account.
+
+Source inspection of actual callers does show a separate draft ownership seam:
+TimeInput and DateTimeInput text/submit handlers can use captured props and clear
+or replace pending text before their current fireChange guard rejects a blocked,
+pending or detached edit. That is the next implementation work, not evidence of
+an IME guard omission. Native event/editor/IME behavior remains unqualified.
+Only source review and whitespace checks ran for this correction; all heavy and
+native verification remains deferred under the existing human boundary.
