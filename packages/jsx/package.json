@@ -68,9 +68,9 @@
 		"test:packed": "node tests/packed-consumer.mjs"
 	},
 	"devDependencies": {
-		"@nativescript/core": "9.1.2",
+		"@nativescript/core": "catalog:",
 		"@nativescript/types": "catalog:",
-		"octane": "0.6.3",
+		"octane": "catalog:",
 		"typescript": "catalog:"
 	},
 	"peerDependencies": {
