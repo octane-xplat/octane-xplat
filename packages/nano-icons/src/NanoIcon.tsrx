@@ -1,5 +1,5 @@
-/** @jsxImportSource @nativescript-community/octane */
-import { AccessibilityRole, isAndroid, isIOS } from '@nativescript/core'
+/** @jsxImportSource @octane-xplat/jsx */
+import { AccessibilityRole, isAndroid, isIOS, type View } from '@nativescript/core'
 import { useStore } from '@octane-xplat/ui/data'
 import {
 	createCharCache,
@@ -56,11 +56,18 @@ function NanoGlyphLayers(props: NanoIconProps & { glyphMap: NanoGlyphMap }) @{
 		accessible={!!props.label}
 		accessibilityRole={props.label ? AccessibilityRole.Image : undefined}
 		accessibilityLabel={props.label}
-		rotate={((props.rotate ?? 0) * 90) % 360}
-		scaleX={props.hFlip ? -1 : 1}
-		scaleY={props.vFlip ? -1 : 1}
-		style={{ width, height: size }}
-		ref={(el: any) => applyPlatformBag(el, props)}
+		style={{
+			width,
+			height: size,
+			rotate: ((props.rotate ?? 0) * 90) % 360,
+			scaleX: props.hFlip ? -1 : 1,
+			scaleY: props.vFlip ? -1 : 1,
+		}}
+		ref={(el: View | null) => {
+			if (el) {
+				applyPlatformBag(el, props)
+			}
+		}}
 	>
 		{layers.map(([codepoint, srcColor], i) => (
 			<label
@@ -68,14 +75,14 @@ function NanoGlyphLayers(props: NanoIconProps & { glyphMap: NanoGlyphMap }) @{
 				id={props.id ? props.id + ':layer-' + i : undefined}
 				accessible={false}
 				text={getChar(codepoint)}
-				style={[
-					{
-						fontFamily: family,
-						fontSize: size,
-						color: layerColor(resolveColor(i, srcColor)) as any,
-					},
-					{ position: 'absolute', left: 0, top: 0 },
-				]}
+				style={{
+					fontFamily: family,
+					fontSize: size,
+					color: layerColor(resolveColor(i, srcColor)) as any,
+					position: 'absolute',
+					left: 0,
+					top: 0,
+				}}
 			/>
 		))}
 	</masonview>

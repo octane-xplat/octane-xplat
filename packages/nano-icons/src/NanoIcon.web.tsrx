@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import {
 	createCharCache,
 	createLayerColorResolver,

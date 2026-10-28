@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useStore } from '@octane-xplat/ui/data'
 import {
 	createCharCache,
