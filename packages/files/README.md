@@ -129,3 +129,28 @@ This is per-control ownership, not a global panel broker. The seven authored
 controller cases remain unrun and do not prove native refs, panel interaction,
 focus, sandbox access, VoiceOver or packaged behavior. AppKit dropzone mode still
 provides picker presentation only; native drag/drop is unimplemented.
+
+### AppKit file metadata
+
+The default AppKit FileInput adapter adds known MIME hints from the filename
+extension and, when available, file-size metadata from Foundation. This lets
+common image picks reach `accept="image/*"` validation and gives `maxSize` a byte
+count to check. Custom pickers keep their own metadata; unknown types or failed
+metadata reads leave fields absent. The files service's FileRef contract is unchanged.
+
+```tsx
+import { FileInput } from '@octane-xplat/files'
+import type { FileInputFile } from '@octane-xplat/files'
+
+export function Images(props: { value: FileInputFile[]; change(value: FileInputFile | FileInputFile[] | null): void }) {
+	return <FileInput label="Images" value={props.value} onChange={props.change} isMultiple accept="image/*" maxSize={5000000} />
+}
+```
+
+MIME hints use a finite extension table, not OS content-type discovery or byte
+inspection. Size is a metadata snapshot: missing sizes skip maxSize, and later
+reads still need their own `readBytes` maxBytes limit. Foundation attributes use
+[FileManager attributes](https://developer.apple.com/documentation/foundation/filemanager/attributesofitem(atpath:));
+any metadata security-scope claim is released. Recognized concrete MIME aliases use the matching table hint. Five authored
+metadata/controller cases remain unrun. Real Foundation values, sandbox grants and packaged picker
+validation remain unqualified.

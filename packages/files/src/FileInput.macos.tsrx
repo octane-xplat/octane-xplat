@@ -6,6 +6,7 @@ import { Field as FormField, Icon, Pressable, useFieldControl } from '@octane-xp
 import type { FileInputFile, FileInputProps } from './props'
 import { files as fileService } from './files.macos'
 import { createAppKitFileInputState } from './file-input-state.macos'
+import { appKitFileInputDetails } from './file-input-details.macos'
 import { cx, formatFileSize } from './file-input-utils'
 
 const STATUS_TEXT = { error: '⚠', warning: '⚠', success: '✓' } as const
@@ -31,7 +32,10 @@ function FileInputControl(inputProps: FileInputProps) @{
 	latest.current = props
 	const state = useMemo(() => createAppKitFileInputState({
 		props: () => latest.current,
-		pick: (options) => options.multiple ? fileService.pickMultiple(options.accept) : fileService.pick(options.accept),
+		pick: async (options) => {
+			const picked = options.multiple ? await fileService.pickMultiple(options.accept) : await fileService.pick(options.accept)
+			return Array.isArray(picked) ? picked.map((file) => appKitFileInputDetails(file, options.accept)) : picked ? appKitFileInputDetails(picked, options.accept) : null
+		},
 		publish: (pending, errors) => { setBusy(pending); setValidationErrors(errors) },
 	}), [])
 	const bind = useCallback((view: NSView | null) => {

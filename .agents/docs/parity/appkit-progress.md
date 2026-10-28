@@ -2425,3 +2425,44 @@ typechecks, install, OS automation, visual analysis or shared audit regeneration
 ran; no evidence checkbox is closed. No fix release note is added for this
 unqualified source gap; no containing stable tag was found for the source audit
 commit in the local tag inventory.
+
+### AppKit FileInput default metadata
+
+FileInputDemo accepts image/*,.pdf, but AppKit's files picker returns only name
+and URI. FileInput MIME checks require MIME metadata, so source composition
+rejected common images after picking; missing size also skipped maxSize. The
+AppKit default component adapter now enriches picks with finite extension-based
+MIME hints and optional Foundation file-size metadata before controller validation.
+Custom pickers keep their supplied metadata; files.pick/FileRef exports and
+other targets remain unchanged. The existing AppKit MIME table moved unchanged
+to a target-private helper so picker filtering and hints share entries; a direct
+source comparison confirmed extraction preserved all entries.
+
+Metadata reads use a decoded NSURL path and best-effort NSFileManager attributes,
+accept zero/nonnegative safe byte sizes, preserve supplied metadata, and balance
+only acquired security-scope claims. Missing bridge/attributes or unknown types
+stay optional. This is filename inference, not content discovery/verification;
+metadata can become stale, missing sizes still skip maxSize, and readBytes maxBytes
+remains the actual read limit. No UniformTypeIdentifiers integration or new
+system MIME coverage is claimed. Native bridge behavior remains unqualified.
+
+Five authored cases cover the demo image filter/maxSize, NSNumber/zero/invalid
+sizes, scope balance/errors, preserved/missing/remote metadata, recognized concrete
+MIME aliases and controller validation. All remain unrun. Only TypeScript/TSRX syntax, semantic/source review,
+MIME-table source comparison and whitespace checks ran. Files/date-picker guides,
+services skill and date-picker recipe AC10 now describe this boundary; the existing
+FileInputDemo remains the maintained usage fixture.
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/files -- src/file-input-details.macos.test.ts src/file-input-state.macos.test.ts src/files.macos.test.ts
+pnpm exec turbo run typecheck --filter=...@octane-xplat/files
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm exec turbo run test:packed --filter=@octane-xplat/files
+pnpm check:recipes
+```
+
+All commands remain deferred pending explicit human authorization for this task.
+Actual native NSNumber/dictionary/NSURL metadata, security grants, panel acceptance,
+ref/focus/AX and packaging remain unqualified. No builds, package tests/typechecks,
+installs, OS automation, visual analysis or shared audit regeneration ran; no
+checkbox is closed. Drag/drop and OS content-type discovery remain separate gaps.

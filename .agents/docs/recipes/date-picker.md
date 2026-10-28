@@ -30,6 +30,8 @@ picker bundled with `@octane-xplat/files`.
 
 - AC9: AppKit FileInput owns one picker/save operation per mounted control, rejects immediate/reentrant duplicate edits, checks latest selection/constraints/blocking state before acceptance, ignores detached results/errors, reports sync/async failures, and removes by URI after reorder. Parent-owned selection is not rolled back on save failure; native drag/drop and actual panel/ref/focus qualification remain explicit gaps.
 
+- AC10: Default AppKit FileInput picks receive finite filename MIME hints and best-effort Foundation size metadata before validation; supplied metadata is preserved, unknown/failed metadata stays optional and acquired metadata security scopes are released. Distinguish metadata hints from content verification/read limits and actual native evidence.
+
 ## Documentation
 
 - AC1: [Portable component list](../../../docs/app/components.md#inputs) and [shared platform contract](../../../docs/platform/date-picker.md#portable-values).
@@ -43,3 +45,5 @@ picker bundled with `@octane-xplat/files`.
 - AC8: [Files read/write/export guide](../../../packages/files/README.md#binary-reads-writes-and-export) and [AppKit bridge regressions](../../../packages/files/src/files.macos.test.ts). Gap: bridge tests and actual AppKit picker/sandbox/packaged behavior have not been run; see [target progress](../parity/appkit-progress.md).
 
 - AC9: [AppKit attachment lifetime](../../../packages/files/README.md#appkit-attachment-picker-lifetime), [portable file guide](../../../docs/platform/date-picker.md#portable-values), [authored controller cases](../../../packages/files/src/file-input-state.macos.test.ts) and [target note](../parity/appkit-progress.md#appkit-fileinput-operation-ownership). Cases remain unrun; native UI wiring is source-reviewed only.
+
+- AC10: [AppKit metadata guide](../../../packages/files/README.md#appkit-file-metadata), default adapter source and [authored metadata/controller cases](../../../packages/files/src/file-input-details.macos.test.ts). Cases remain unrun; [target note](../parity/appkit-progress.md#appkit-fileinput-default-metadata) lists deferred native qualification.

@@ -203,8 +203,11 @@ export function SavedAttachments({ save }: { save(value: FileInputFile | FileInp
 }
 ```
 
-Controller cases remain unrun; native panel/ref/focus and packaged behavior remain
-unqualified. AppKit dropzone mode still opens the picker; native drag/drop is not
+The default AppKit adapter also supplies known filename-based MIME hints and
+optional Foundation file-size metadata for validation. Unknown metadata stays
+absent; these hints do not inspect bytes or guarantee a later read limit.
+Controller/metadata cases remain unrun; native panel/ref/focus and packaged
+behavior remain unqualified. AppKit dropzone mode still opens the picker; native drag/drop is not
 implemented. See [AppKit attachment lifetime](../../packages/files/README.md#appkit-attachment-picker-lifetime).
 
 `@octane-xplat/files` has a peer dependency on `@octane-xplat/ui` for the

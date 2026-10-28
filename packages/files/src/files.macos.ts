@@ -1,4 +1,5 @@
 // Files — AppKit host leaf.
+import { MIME_EXTENSIONS } from './file-types.macos'
 import { assertSafeFileName, concatBytes, exactBuffer, exportBusy, fileTooLarge, throwIfAborted } from './file-bytes'
 import type {
 	FileExportOptions,
@@ -9,47 +10,6 @@ import type {
 	FilePickOptions,
 } from './types'
 
-// Extensions for the common `accept` MIME tokens. UniformTypeIdentifiers is
-// not bridged in the AppKit host, so MIME filtering resolves through this
-// table; an unmapped token leaves the panel unrestricted rather than breaking
-// the pick.
-const MIME_EXTENSIONS: Record<string, string[]> = {
-	'image/*': ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'tiff', 'tif', 'heic', 'svg'],
-	'image/png': ['png'],
-	'image/jpeg': ['jpg', 'jpeg'],
-	'image/gif': ['gif'],
-	'image/webp': ['webp'],
-	'image/svg+xml': ['svg'],
-	'image/bmp': ['bmp'],
-	'image/tiff': ['tiff', 'tif'],
-	'image/heic': ['heic'],
-	'audio/*': ['mp3', 'wav', 'm4a', 'aac', 'flac', 'ogg'],
-	'audio/mpeg': ['mp3'],
-	'audio/wav': ['wav'],
-	'audio/x-wav': ['wav'],
-	'audio/mp4': ['m4a'],
-	'audio/aac': ['aac'],
-	'audio/flac': ['flac'],
-	'audio/ogg': ['ogg'],
-	'video/*': ['mp4', 'm4v', 'mov', 'webm', 'avi', 'mkv'],
-	'video/mp4': ['mp4', 'm4v'],
-	'video/quicktime': ['mov'],
-	'video/webm': ['webm'],
-	'text/*': ['txt', 'md', 'markdown', 'csv', 'tsv', 'json', 'xml', 'html', 'htm', 'css', 'log'],
-	'text/plain': ['txt', 'text', 'log'],
-	'text/markdown': ['md', 'markdown'],
-	'text/csv': ['csv'],
-	'text/tab-separated-values': ['tsv'],
-	'text/html': ['html', 'htm'],
-	'text/css': ['css'],
-	'text/xml': ['xml'],
-	'application/json': ['json'],
-	'application/pdf': ['pdf'],
-	'application/zip': ['zip'],
-	'application/x-zip-compressed': ['zip'],
-	'application/gzip': ['gz'],
-	'application/xml': ['xml'],
-}
 
 function fileURL(uri: string): any {
 	const host = globalThis as any

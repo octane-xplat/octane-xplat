@@ -479,3 +479,18 @@ export function Attachments(props: {
 	return <FileInput value={props.value} onChange={props.change} changeAction={props.save} isMultiple />
 }
 ```
+
+
+Default AppKit FileInput picks now receive finite filename MIME hints and
+best-effort Foundation size metadata before validation. Custom pickers retain
+their supplied metadata; files.pick's FileRef contract is unchanged. Unknown MIME
+hints stay absent and missing sizes skip maxSize. Treat these as metadata, never
+content verification or a memory bound; use readBytes maxBytes when reading.
+Native metadata/grants/picker behavior remains unqualified.
+
+```ts
+import { files } from '@octane-xplat/files'
+
+const file = await files.pick('image/*')
+if (file) await files.readBytes(file, { maxBytes: 5000000 })
+```
