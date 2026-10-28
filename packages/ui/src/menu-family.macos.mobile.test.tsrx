@@ -249,3 +249,75 @@ it('submenu keys stay in their popup registry and controlled close does not rest
 		expect(f.observers.size).toBe(0); vi.unstubAllGlobals()
 	}
 })
+
+function triggerKeysFixture() {
+	const f = nativeMenuFixture(), subscriptions = new Map<object, Set<any>>()
+	let registrations = 0, releases = 0
+	;(globalThis as any).__xplatAppKit.observeViewKeys = (view: object, handlers: any) => {
+		let owned = subscriptions.get(view)
+		if (!owned) { owned = new Set(); subscriptions.set(view, owned) }
+		owned.add(handlers); registrations++
+		return () => { owned.delete(handlers); if (!owned.size) subscriptions.delete(view); releases++ }
+	}
+	const key = (view: any, name: string, extra = {}) => {
+		const event: any = { key: name, code: '', target: view, altKey: false, ctrlKey: false, metaKey: false, shiftKey: false,
+			isComposing: false, repeat: false, defaultPrevented: false, stopped: false,
+			preventDefault() { this.defaultPrevented = true }, stopPropagation() { this.stopped = true }, ...extra }
+		for (const handlers of subscriptions.get(view) ?? []) handlers.onKeyDown(event)
+		flushUniversalSync(() => {}); return event
+	}
+	return { ...f, subscriptions, triggerKey: key, get registrations() { return registrations }, get releases() { return releases } }
+}
+
+it('closed dropdown trigger arrows request first/last focus on the existing Button host', async () => {
+	const f = triggerKeysFixture(), main = f.window(), panel = f.window(), changes = vi.fn(), ref = vi.fn()
+	const props = { id: 'menu', button: { label: 'Actions', ref }, onOpenChange: changes,
+		items: [{ type: 'action', key: 'alpha', label: 'Alpha' }, { type: 'action', key: 'gamma', label: 'Gamma' }] }
+	const env = mount(DropdownMenu, props)
+	try {
+		const trigger = env.byID('menu'); f.hydrate(trigger, main); main.firstResponder = trigger
+		expect(ref).toHaveBeenCalledWith(trigger)
+		expect(f.subscriptions.has(trigger)).toBe(true); expect(f.registrations).toBe(1)
+		const up = f.triggerKey(trigger, 'ArrowUp'); expect(up.defaultPrevented).toBe(true); expect(up.stopped).toBe(true)
+		expect(changes).toHaveBeenCalledWith(true)
+		let surface = lists(env)[0]; f.hydrate(surface, panel)
+		await vi.waitFor(() => { flushUniversalSync(() => {}); expect(f.observers.size).toBe(1); expect(panel.firstResponder).toBe(env.byID('gamma')) })
+		f.key(surface, 'Tab'); flushUniversalSync(() => {}); expect(lists(env)).toHaveLength(0)
+		expect(env.byID('menu')).toBe(trigger)
+		f.triggerKey(trigger, 'ArrowDown'); surface = lists(env)[0]; f.hydrate(surface, panel)
+		await vi.waitFor(() => { flushUniversalSync(() => {}); expect(panel.firstResponder).toBe(env.byID('alpha')) })
+		expect(env.byID('menu')).toBe(trigger); expect(f.registrations).toBe(1)
+	} finally {
+		env.root.unmount(); expect(f.subscriptions.size).toBe(0); expect(f.releases).toBe(1)
+		expect(f.observers.size).toBe(0); vi.unstubAllGlobals()
+	}
+})
+
+it('controlled trigger arrows preserve pending edge intent and current guards, ignore descendants and clean cached callbacks', async () => {
+	const f = triggerKeysFixture(), main = f.window(), panel = f.window(), changes = vi.fn()
+	const base = { id: 'menu', isOpen: false, onOpenChange: changes, button: { label: 'Actions', endContent: <TextInput id="trigger-editor" /> },
+		items: [{ type: 'action', key: 'alpha', label: 'Alpha' }, { type: 'action', key: 'gamma', label: 'Gamma' }] }
+	const env = mount(DropdownMenu, base)
+	try {
+		const trigger = env.byID('menu'); f.hydrate(trigger, main); main.firstResponder = trigger
+		const cached = [...f.subscriptions.get(trigger)!][0].onKeyDown
+		for (const flag of ['isComposing', 'altKey', 'ctrlKey', 'metaKey', 'shiftKey', 'defaultPrevented']) {
+			const event = f.triggerKey(trigger, 'ArrowDown', { [flag]: true }); expect(event.stopped).toBe(false)
+		}
+		expect(f.triggerKey(trigger, 'ArrowDown', { target: env.byID('trigger-editor') }).defaultPrevented).toBe(false)
+		expect(changes).not.toHaveBeenCalled()
+		f.triggerKey(trigger, 'ArrowUp'); expect(changes).toHaveBeenLastCalledWith(true); expect(lists(env)).toHaveLength(0)
+		env.render({ ...base, isOpen: true }); f.hydrate(lists(env)[0], panel)
+		await vi.waitFor(() => { flushUniversalSync(() => {}); expect(panel.firstResponder).toBe(env.byID('gamma')) })
+		changes.mockClear()
+		for (const patch of [{ isDisabled: true }, { button: { ...base.button, isDisabled: true } }]) {
+			env.render({ ...base, ...patch }); changes.mockClear()
+			expect(f.triggerKey(trigger, 'ArrowDown').defaultPrevented).toBe(false)
+			expect(changes).not.toHaveBeenCalled()
+		}
+		env.root.unmount()
+		const event: any = { target: trigger, key: 'ArrowDown', preventDefault: vi.fn(), stopPropagation: vi.fn() }
+		cached(event); expect(event.preventDefault).not.toHaveBeenCalled(); expect(changes).not.toHaveBeenCalled()
+		expect(f.subscriptions.size).toBe(0)
+	} finally { env.root.unmount(); vi.unstubAllGlobals() }
+})

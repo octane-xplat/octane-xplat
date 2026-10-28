@@ -2557,3 +2557,52 @@ root window timing, RTL provider delivery, native reveal, nested/modal integrati
 mouse hit testing, VoiceOver and packaging remain unqualified. No builds, package
 tests/typechecks, installs, OS automation, visual analysis or shared audit snapshot
 regeneration ran; no evidence checkbox is closed.
+
+### AppKit dropdown trigger arrow ownership
+
+After menu-surface keys landed in d6acdee56, the ordinary closed dropdown trigger
+still ignored Up/Down because Button/Pressable intentionally do not forward public
+keyboard props. Added private owned view-key subscriptions beside reconciled
+handlers in the existing renderer dispatcher, sharing its single native monitor.
+Prop handlers run first; same-view listeners share prevention, ancestor stopping
+remains separate from native default, and mid-delivery removed listeners are
+skipped. Leases are independent even for reused handler objects. The renderer
+bridge gates current node identity/blocked state, enters discrete event scope and
+uses one node destroy hook to release outstanding subscriptions. Ref release and
+node fallback cleanup do not replace unrelated key/modality owners.
+
+A target-private hook attaches to the DropdownMenu Button's actual NSView, reads
+current handlers and accepts only that exact target, preserving descendant editor
+keys. Plain closed-trigger Down/Up now requests first/last-row opening; the ref
+hint survives delayed controlled acceptance. Current disabled/open state, IME,
+modified/prevented events are preserved. Ordinary activation resets first-row
+intent. Existing button ID/ref/layout are retained; no wrapper, new public prop,
+workspace dependency or shared manifest change. An older/missing subscription
+bridge retains existing Button activation without the new arrow path.
+
+Four dispatcher cases, three bridge-slice cases and two fake-window/menu cases
+cover independent ownership/monitor lifetime, same-view prevention/ancestor
+ordering, mutation/disposal, node scope/disabled/stale/released guards, teardown
+without skipping other hooks, trigger edges, controlled acceptance, descendant
+keys and ref cleanup. All nine are unrun. Only TypeScript/TSRX syntax, source/
+semantic review and whitespace checks ran. The existing maintained menu-keyboard
+fixture now describes trigger arrows but its runner still dispatches only the
+ordinary trigger, with no OS key synthesis. Docs/skill, renderer README, feature
+note and shared-menus AC8 were reconciled; public props/root exports are unchanged.
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/menu-family.macos.mobile.test.tsrx src/menu-keyboard.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer --filter=...@octane-xplat/ui
+pnpm probe run examples/probes/menu-keyboard.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All commands remain deferred pending explicit human authorization for this task.
+Native monitor order/deduplication, actual view refs/registration, physical arrows/
+IME, popup initial/return focus, modal interaction, RTL provider delivery, VoiceOver
+and packaging remain unqualified. Reliable cross-popup Tab return, secondary-click
+opening and full menu AX roles/checked announcements remain separate implementation
+gaps. No builds, package tests/typechecks, installs, OS automation, visual analysis
+or shared audit snapshot regeneration ran; no evidence checkbox is closed.

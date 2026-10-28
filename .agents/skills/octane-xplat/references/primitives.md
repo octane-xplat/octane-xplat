@@ -1068,7 +1068,7 @@ export function Actions({ disabled }: { disabled: boolean }) {
 ```
 
 The subsequent menu-surface source path covers arrows/typeahead/submenu intent;
-closed-trigger arrows, reliable cross-popup Tab return, native secondary click and
+reliable cross-popup Tab return, native secondary click and
 full menu AX roles/checked announcements remain implementation gaps; native popup/ref/focus/
 input/VoiceOver behavior is unqualified. Authored inline-popup cases remain unrun.
 
@@ -1091,7 +1091,31 @@ export function Actions() {
 
 Escape remains owned by layer dismissal; Tab requests close without preventing
 native movement. Dropdown/submenu anchor return refs do not prove cross-window
-return. Closed-trigger arrows and reliable Tab-return intent are separate gaps.
+return. Closed-trigger arrow intent is now supplied by the target view-key
+attachment described below; reliable Tab-return intent remains a separate gap.
 Seven authored policy/fake-window cases remain unrun; actual keyboard/IME/focus,
 popup timing/RTL provider inheritance, AX and packaging remain unqualified. See
 [AppKit menu surfaces](../../../../docs/menus.md#navigate-appkit-menu-surfaces).
+
+
+AppKit DropdownMenu now attaches private view-key subscriptions to its actual
+Button host. Plain Down/Up on a closed enabled trigger requests first/last-row
+opening, preserving the hint until controlled acceptance. Pointer/ordinary button
+opening resets first-row intent. Current disabled/open state, composition,
+modified/prevented events and nested endContent controls reject the arrow path.
+Matching renderer observeViewKeys support is required; the helper is not a public
+useKeyboard or Button API and adds no layout wrapper.
+
+```tsx
+import { DropdownMenu, DropdownMenuItem } from '@octane-xplat/ui'
+
+export function Actions() {
+	return <DropdownMenu button={{ label: 'Actions' }}><DropdownMenuItem label="Archive" /></DropdownMenu>
+}
+```
+
+The dispatcher shares its existing native monitor with prop handlers and owned
+subscriptions, enters renderer discrete scope, preserves same-view/ancestor
+propagation semantics and releases leases on ref/node teardown. Nine authored
+cases remain unrun; physical/native monitor/ref/popup/IME/focus/AX/packaging evidence
+is still missing. See [trigger arrows](../../../../docs/menus.md#open-an-appkit-dropdown-with-arrows).

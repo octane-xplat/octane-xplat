@@ -6,7 +6,7 @@ import type { ProbeContext } from '../../scripts/probe/context'
 export default function MenuKeyboardProbe() {
 	const [checked, setChecked] = useState(false), [result, setResult] = useState('none')
 	return <VStack gap={2}>
-		<label text="Open Actions. Use arrows, Home/End, label prefixes and Enter/Space. Right opens More; Left requests its close." />
+		<label text="Focus Actions; Down/Up requests first/last-row opening. Use arrows, Home/End, label prefixes and Enter/Space. Right opens More; Left requests its close." />
 		<DropdownMenu id="menu-keys" button={{ label: 'Actions' }}>
 			<DropdownMenuItem id="menu-archive" label="Archive" onSelect={() => setResult('archive')} />
 			<DropdownMenuItem id="menu-blocked" label="Blocked" isDisabled />

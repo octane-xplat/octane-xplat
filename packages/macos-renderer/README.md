@@ -875,3 +875,30 @@ policies. Unregistered native subviews retain AppKit's default arbitration.
 Authored source cases remain unrun: native delegate registration, physical mouse
 activation, clear controls, long presses and embedded engine interaction remain
 unqualified. This source gate does not establish full nested-input support.
+
+### Composed control key ownership
+
+AppKit DropdownMenu uses a private view-key lease on its existing Button host to
+request first/last-row opening with plain Down/Up. The dispatcher shares its
+existing native monitor across reconciled handlers, owned view subscriptions and
+modality observers. The matching renderer is required; no wrapper or new public
+Button/useKeyboard prop is introduced.
+
+```tsx
+import { DropdownMenu, DropdownMenuItem } from '@octane-xplat/ui'
+
+export function Actions() {
+	return <DropdownMenu button={{ label: 'Actions' }}><DropdownMenuItem label="Archive" /></DropdownMenu>
+}
+```
+
+Prop handlers run before owned listeners; same-view listeners share prevention,
+while stopPropagation stops ancestor delivery. Released listeners are skipped
+mid-dispatch and native events remain deduplicated. Each lease releases only its
+entry. The bridge checks current node identity/blocked state, enters discrete
+event scope and registers one node teardown hook for outstanding leases. View
+ref teardown releases the UI attachment; node teardown is the fallback owner.
+
+The nine authored dispatcher/bridge/fake-window cases remain unrun. Actual native
+monitor ordering, ref delivery, physical keys, popup focus, IME, modal interaction,
+AX and packaging remain unqualified; this source contract is not runtime proof.

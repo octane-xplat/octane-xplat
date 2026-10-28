@@ -203,8 +203,8 @@ export function ControlledActions({ disabled }: { disabled: boolean }) {
 ```
 
 Five authored AppKit object-driver cases remain unrun and replace popovers with
-inline content. A subsequent surface keyboard source path is described below; trigger arrows
-and cross-popup Tab return remain separate gaps; real popup/ref/focus timing, physical keys, mouse hit testing,
+inline content. Subsequent surface/trigger keyboard source paths are described below; reliable
+cross-popup Tab return remains a separate gap; real popup/ref/focus timing, physical keys, mouse hit testing,
 VoiceOver and packaging remain unqualified. Shared AppKit ContextMenu still uses
 long press or its visible trigger; native secondary-click support is separate.
 The renderer's full menu-role/checked announcements also remain incomplete.
@@ -237,7 +237,7 @@ Nested editors in endContent retain their key handling; typeahead uses string
 row labels. Escape stays with the existing layer dismissal owner. Tab requests
 closure without preventing native Tab movement. Dropdown/submenu return refs
 express anchor intent only after accepted closure; reliable cross-popup Tab
-return and opening a closed trigger with arrows still need implementation.
+return still needs implementation. Closed-trigger arrow intent is described below.
 
 Seven new authored policy/inline-popup cases and the maintained AppKit menu
 fixture remain unrun. Fake windows prove no physical keys or popup behavior.
@@ -245,3 +245,30 @@ Actual initial/return focus, native Tab traversal, separate-root lifetime, RTL
 provider delivery, scrolling/reveal, mouse hit testing, VoiceOver and packaging
 remain unqualified. Secondary-click opening and full native menu AX roles/checked
 announcements remain implementation gaps.
+
+
+### Open an AppKit dropdown with arrows
+
+A closed, enabled AppKit DropdownMenu now requests opening with plain Down/Up
+and retains first/last-row focus intent until the controlled parent accepts it.
+The attachment uses the existing Button host, keeping its ref, ID and layout.
+Descendant controls, prevented/composing input and modified shortcuts retain
+ownership. Ordinary pointer/Enter/Space opening resets focus intent to the first row.
+
+```tsx
+import { DropdownMenu, DropdownMenuItem } from '@octane-xplat/ui'
+
+export function Actions() {
+	return <DropdownMenu button={{ id: 'actions', label: 'Actions' }}>
+		<DropdownMenuItem label="Archive" />
+		<DropdownMenuItem label="Export" />
+	</DropdownMenu>
+}
+```
+
+The matching AppKit renderer is required for the private view-key subscription;
+older bridges retain the existing Button activation path. Nine new dispatcher/
+bridge/fake-window cases remain unrun. Native monitor order, actual ref delivery,
+physical arrows, popup first/last focus, IME, Tab return, VoiceOver and packaging
+remain unqualified. Cross-popup Tab return, secondary-click opening and full menu
+accessibility remain separate gaps.

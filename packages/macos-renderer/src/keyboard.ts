@@ -57,6 +57,7 @@ export interface AppKitKeyDispatchResult {
  * including when a FocusScope monitor asks to dispatch before trapping Tab. */
 export function createAppKitKeyboardDispatcher(native: () => Record<string, any> = () => globalThis) {
 	const bindings = new Map<KeyView, KeyHandlers>()
+	const subscriptions = new Map<KeyView, Set<KeyHandlers>>()
 	const observers = new Set<(event: { type: number; modifierFlags: number }) => void>()
 	const dispatched = new WeakMap<object, AppKitKeyDispatchResult>()
 	let token: unknown
@@ -71,7 +72,7 @@ export function createAppKitKeyboardDispatcher(native: () => Record<string, any>
 		dispatched.set(event, result)
 		if (![10, 11].includes(Number(event.type))) return result
 		for (const observe of [...observers]) observe({ type: Number(event.type), modifierFlags: Number(event.modifierFlags ?? 0) })
-		if (!bindings.size || !event.window) return result
+		if ((!bindings.size && !subscriptions.size) || !event.window) return result
 		const target = targetFor(event.window)
 		if (!target) return result
 		const flags = Number(event.modifierFlags ?? 0)
@@ -91,13 +92,18 @@ export function createAppKitKeyboardDispatcher(native: () => Record<string, any>
 		for (let view: KeyView | null | undefined = target; view?.window === event.window; view = view.superview) path.push(view)
 		const name = Number(event.type) === 10 ? 'onKeyDown' : 'onKeyUp'
 		for (const view of path) {
-			bindings.get(view)?.[name]?.({
+			const payload: NativeKeyboardEvent<KeyView> = {
 				eventName: name === 'onKeyDown' ? 'keyDown' : 'keyUp', object: view, target, currentTarget: view,
 				key, code, altKey, ctrlKey, metaKey, shiftKey, repeat: Boolean(event.isARepeat), isComposing,
 				get defaultPrevented() { return result.defaultPrevented },
 				preventDefault: () => { result.defaultPrevented = true },
 				stopPropagation: () => { result.propagationStopped = true },
-			})
+			}
+			bindings.get(view)?.[name]?.(payload)
+			const owned = subscriptions.get(view)
+			for (const handlers of [...(owned ?? [])]) {
+				if (subscriptions.get(view) === owned && owned?.has(handlers)) handlers[name]?.(payload)
+			}
 			if (result.propagationStopped) break
 		}
 		return result
@@ -110,7 +116,7 @@ export function createAppKitKeyboardDispatcher(native: () => Record<string, any>
 		}
 	}
 	const ensureMonitor = () => {
-		if (!bindings.size && !observers.size) { release(); return }
+		if (!bindings.size && !subscriptions.size && !observers.size) { release(); return }
 		if (token != null || !available()) return
 		try {
 			const host = native()
@@ -130,11 +136,30 @@ export function createAppKitKeyboardDispatcher(native: () => Record<string, any>
 			else bindings.set(view, handlers)
 			ensureMonitor()
 		},
+		/** Compose owned view listeners without replacing reconciled prop handlers. */
+		subscribe(view: KeyView, handlers: KeyHandlers): () => void {
+			if (!handlers.onKeyDown && !handlers.onKeyUp) return () => {}
+			let owned = subscriptions.get(view)
+			if (!owned) { owned = new Set(); subscriptions.set(view, owned) }
+			// Each lease owns its own entry, even when a caller reuses one handler object.
+			const entry = { ...handlers }
+			const bucket = owned
+			bucket.add(entry)
+			ensureMonitor()
+			let active = true
+			return () => {
+				if (!active) return
+				active = false
+				bucket.delete(entry)
+				if (!bucket.size && subscriptions.get(view) === bucket) subscriptions.delete(view)
+				ensureMonitor()
+			}
+		},
 		observe(notify: (event: { type: number; modifierFlags: number }) => void): () => void {
 			observers.add(notify)
 			ensureMonitor()
 			return () => { observers.delete(notify); ensureMonitor() }
 		},
-		dispose(): void { bindings.clear(); observers.clear(); release() },
+		dispose(): void { bindings.clear(); subscriptions.clear(); observers.clear(); release() },
 	}
 }

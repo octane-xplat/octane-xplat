@@ -141,3 +141,50 @@ test('modality observers run before cancellation and keep observation until rele
 	off()
 	assert.deepEqual(env.removed, ['key-monitor'])
 })
+
+test('owned subscriptions compose with prop handlers and keep one monitor until the last owner releases', () => {
+	const f = fixture(), seen: string[] = []
+	f.dispatcher.set(f.field, { onKeyDown: () => seen.push('prop') })
+	const off = f.dispatcher.subscribe(f.field, { onKeyDown: () => seen.push('owned'), onKeyUp: () => seen.push('up') })
+	assert.equal(f.registrations(), 1)
+	f.send(f.event()); assert.deepEqual(seen, ['prop', 'owned'])
+	f.dispatcher.set(f.field, { onKeyDown: () => seen.push('updated') })
+	f.send(f.event()); assert.deepEqual(seen.slice(-2), ['updated', 'owned'])
+	f.dispatcher.set(f.field); assert.deepEqual(f.removed, [])
+	f.send(f.event({ type: 11 })); assert.equal(seen.at(-1), 'up')
+	off(); off(); assert.deepEqual(f.removed, ['key-monitor'])
+})
+
+test('same-view subscriptions share prevention and run before stopped ancestor propagation', () => {
+	const f = fixture(), seen: string[] = []
+	f.dispatcher.set(f.field, { onKeyDown: (event) => { seen.push('prop'); event.stopPropagation() } })
+	f.dispatcher.subscribe(f.field, { onKeyDown: (event) => { seen.push('first'); event.preventDefault() } })
+	f.dispatcher.subscribe(f.field, { onKeyDown: (event) => { seen.push('second'); assert.equal(event.defaultPrevented, true) } })
+	f.dispatcher.set(f.parent, { onKeyDown: () => seen.push('parent') })
+	const event = f.event(); assert.equal(f.send(event), null); f.dispatcher.dispatch(event)
+	assert.deepEqual(seen, ['prop', 'first', 'second'])
+	f.dispatcher.dispose()
+})
+
+test('subscription mutation skips released listeners and defers listeners added during delivery', () => {
+	const f = fixture(), seen: string[] = []
+	let offSecond = () => {}, added = false
+	f.dispatcher.subscribe(f.field, { onKeyDown: () => {
+		seen.push('first'); offSecond()
+		if (!added) { added = true; f.dispatcher.subscribe(f.field, { onKeyDown: () => seen.push('new') }) }
+	} })
+	offSecond = f.dispatcher.subscribe(f.field, { onKeyDown: () => seen.push('released') })
+	f.send(f.event()); assert.deepEqual(seen, ['first'])
+	f.send(f.event()); assert.deepEqual(seen, ['first', 'first', 'new'])
+	f.dispatcher.dispose()
+})
+
+test('identical subscriber handlers own independent leases and disposal clears them without consuming empty registrations', () => {
+	const f = fixture(); let calls = 0
+	f.dispatcher.subscribe(f.field, {})(); assert.equal(f.registrations(), 0)
+	const handlers = { onKeyDown: () => calls++ }, first = f.dispatcher.subscribe(f.field, handlers), second = f.dispatcher.subscribe(f.field, handlers)
+	f.send(f.event()); assert.equal(calls, 2)
+	first(); f.send(f.event()); assert.equal(calls, 3)
+	f.dispatcher.dispose(); f.send(f.event()); assert.equal(calls, 3)
+	second(); assert.deepEqual(f.removed, ['key-monitor'])
+})

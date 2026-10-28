@@ -16,6 +16,11 @@ declare global {
 		dispatchKeyboardEvent?: (event: unknown) => { defaultPrevented: boolean; propagationStopped: boolean }
 		/** Observe app key input before a handler/scope cancels native dispatch. */
 		observeHardwareKeys?: (notify: (event: { type: number; modifierFlags: number }) => void) => () => void
+		/** Private composed-control key lease, alongside reconciled prop handlers. */
+		observeViewKeys?: (view: import('@octane-xplat/platform/macos').NSView, handlers: {
+			onKeyDown?: (event: import('@octane-xplat/jsx/intrinsics').NativeKeyboardEvent<object>) => void
+			onKeyUp?: (event: import('@octane-xplat/jsx/intrinsics').NativeKeyboardEvent<object>) => void
+		}) => () => void
 		/** Exclude a self-drawn native host from Tab without rejecting arrow focus. */
 		suppressTabStop?: (view: import('@octane-xplat/platform/macos').NSView) => () => void
 		/** Opt a disabled self-drawn host into focus without enabling activation. */

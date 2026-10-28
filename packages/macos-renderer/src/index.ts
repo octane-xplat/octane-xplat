@@ -5897,6 +5897,46 @@ function syncText(parent: ElementNode | null | undefined) {
 	parent.view!.invalidateIntrinsicContentSize()
 }
 
+const keyboardSubscriptionsByNode = new WeakMap<ElementNode, Set<() => void>>()
+
+/** Internal composed-control attachment; node teardown owns outstanding leases. */
+function observeViewKeys(view: NSView, handlers: {
+	onKeyDown?: (event: NativeKeyboardEvent<object>) => void
+	onKeyUp?: (event: NativeKeyboardEvent<object>) => void
+}): () => void {
+	const node = cssNodesByView.get(view)
+	if (!node || (!handlers.onKeyDown && !handlers.onKeyUp)) return () => {}
+	let owned = keyboardSubscriptionsByNode.get(node)
+	if (!owned) {
+		owned = new Set()
+		keyboardSubscriptionsByNode.set(node, owned)
+		const leases = owned
+		;(node.destroyHooks ??= []).push(() => {
+			for (const off of [...leases]) off()
+			keyboardSubscriptionsByNode.delete(node)
+		})
+	}
+	const leases = owned
+	let active = true
+	const invoke = (name: 'onKeyDown' | 'onKeyUp', event: NativeKeyboardEvent<object>) => {
+		if (!active || node.view !== view || cssNodesByView.get(view) !== node || node.props.disabled === true ||
+			node.props.isEnabled === false || node.props.enabled === false) return
+		try { node.container.root?.eventScope('discrete', () => handlers[name]?.(event)) }
+		catch (error) { console.error('[macos-event] ' + name + ' subscription failed', error) }
+	}
+	const release = keyboardDispatcher.subscribe(view, {
+		onKeyDown: handlers.onKeyDown ? (event) => invoke('onKeyDown', event) : undefined,
+		onKeyUp: handlers.onKeyUp ? (event) => invoke('onKeyUp', event) : undefined,
+	})
+	const off = () => {
+		if (!active) return
+		active = false
+		release(); leases.delete(off)
+	}
+	leases.add(off)
+	return off
+}
+
 function setKeyActions(node: ElementNode) {
 	if (!node.view) return
 	const invoke = (name: 'onKeyDown' | 'onKeyUp', event: NativeKeyboardEvent<object>) => {
@@ -10195,6 +10235,7 @@ Object.defineProperty(appKitBridge, 'focusWithinSupported', {
 })
 appKitBridge.dispatchKeyboardEvent = keyboardDispatcher.dispatch
 appKitBridge.observeHardwareKeys = keyboardDispatcher.observe
+appKitBridge.observeViewKeys = observeViewKeys
 appKitBridge.suppressTabStop = (view: NSView) => tabStopSuppression.retain(view)
 appKitBridge.retainDisabledFocus = (view: NSView) => disabledFocusTargets.retain(view)
 appKitBridge.retainFocusTarget = (view: NSView) => {
