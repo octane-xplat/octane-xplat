@@ -360,6 +360,25 @@ import { environment } from '@octane-xplat/platform/environment'
 // undefined online permits work when connectivity cannot be established.
 const online = environment.getSnapshot().online
 ```
+## Windows keep-awake ownership
+
+Windows uses one WinRT DisplayRequest for its requested-tag set. Calls are
+serialized through the core UI-thread dispatcher because the SDK object is
+apartment-bound. Background activation accepts a tag without claiming an active
+inhibitor; suspend releases, resume retries remaining tags, and exit releases
+all owners. Failed release retains ownership for retry; failed resume can retry
+through activate with the existing tag. Keep the generated hook tag for
+independent screens and always release explicit tags. Never infer physical sleep
+prevention, packaged grants or real lifecycle from constructor projection and
+mocked contracts. See [keep-awake limits](../../../../docs/platform/keep-awake.md).
+
+```ts
+import { keepAwake } from '@octane-xplat/platform'
+
+await keepAwake.activate('presentation')
+const held = await keepAwake.isActivated()
+await keepAwake.deactivate('presentation')
+```
 ## SQLite transactions
 
 Use the callback's handle for every awaited transaction operation. Main-handle

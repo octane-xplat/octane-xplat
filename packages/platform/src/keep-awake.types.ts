@@ -3,7 +3,7 @@ export const KeepAwakeDefaultTag = 'KeepAwakeDefaultTag'
 
 /** Screen-sleep prevention with independent, deduplicated tag ownership. */
 export interface KeepAwakeImpl {
-	/** Request a tag; false means unsupported or not granted. Android startup may defer application. */
+	/** Request a tag; false means unsupported or not granted. Native startup/backgrounding may defer application. */
 	activate(tag?: string): Promise<boolean>
 	/** Release this tag only. Unknown tags are harmless; unsupported targets return false. */
 	deactivate(tag?: string): Promise<boolean>

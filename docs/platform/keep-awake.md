@@ -51,9 +51,10 @@ export async function present(runPresentation: () => Promise<void>) {
 All four service methods return `Promise<boolean>`. Availability means the
 mechanism exists, not that the OS will grant a request. Activation can return
 false if a browser denies it; Android accepts requests before an activity exists
-and applies them when one starts. `isActivated()` reports a held inhibitor,
-not just a requested tag. Web retains failed requests for a later visible-tab
-retry, so always deactivate when the activity ends, even after a false result.
+and applies them when one starts. Experimental Windows accepts tags while the
+app is suspended and applies them on resume. `isActivated()` reports a held
+inhibitor, not just a requested tag. Web retains failed requests for a later
+visible-tab retry, so always deactivate when the activity ends, even after a false result.
 
 ```ts
 import { keepAwake } from '@octane-xplat/platform'
@@ -70,8 +71,10 @@ Web may automatically release its lock when the tab hides or the OS changes
 power policy. Requested tags retry when the document becomes visible again.
 The optional release listener reports the affected tag (including explicit
 sentinel release); remove the listener when finished. iOS clears its flag in
-background and reapplies requested tags on resume. Android reapplies requests
-to newly started activities and clears owned windows on the last deactivation.
+background and reapplies requested tags on resume. Windows releases its display
+request on app suspension and reacquires it for remaining tags on resume.
+Android reapplies requests to newly started activities and clears owned windows
+on the last deactivation.
 
 ```ts
 import { keepAwake } from '@octane-xplat/platform'
@@ -144,6 +147,17 @@ starts idle and offers two independently mounted reading screens plus a status
 check. Native physical sleep prevention, bridge lifetime and installed-app
 behavior remain unqualified. A reported token does not prove the display stayed on.
 
+On Windows, a failed release returns false and retains ownership so cleanup can
+retry. Keep track of that result if your activity owns an explicit tag.
+
+```ts
+import { keepAwake } from '@octane-xplat/platform'
+
+export async function closePresentation(): Promise<boolean> {
+	// False means this tag still needs cleanup; call again when the host can release it.
+	return keepAwake.deactivate('presentation')
+}
+```
 ## Target limits and verification
 
 | Target  | Mechanism and limits                                                                                                                                                                                                            |
@@ -153,7 +167,7 @@ behavior remain unqualified. A reported token does not prove the display stayed 
 | Web     | Screen Wake Lock, requiring HTTPS or localhost, a visible document, and permission-policy allowance. Missing API returns false.                                                                                                 |
 | macOS   | Foundation activity token preventing idle display sleep while permitting idle system sleep; native AppKit and desktop WKWebView hosts.                                                                                          |
 | Linux   | Desktop host uses GTK `IDLE` inhibition; a zero cookie returns false. Session support varies. Without that host capability, tries the browser API if exposed by WebKitGTK. Runtime qualification requires a real Linux session. |
-| Windows | Unsupported native leaf; all service methods return false.                                                                                                                                                                      |
+| Windows | Experimental WinRT [DisplayRequest](https://learn.microsoft.com/en-us/uwp/api/windows.system.display.displayrequest); tags share one request, with creation/release dispatched to the UI thread. Background requests wait for resume. Native construction and mocked ownership passed; grants, real lifecycle and physical sleep prevention remain unqualified. |
 
 This is screen-sleep prevention, not a CPU/background-task wake lock. Linux uses
 `IDLE` rather than `SUSPEND` to preserve that boundary. OS policy still takes

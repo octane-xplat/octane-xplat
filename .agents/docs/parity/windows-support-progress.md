@@ -36,6 +36,7 @@ is complete because of these changes.
 | Controlled text | Windows text-write leaf preserves TextBox selection around guarded value updates | Mocked range/lifecycle tests only; actual WinUI selection, IME, secure fields and focus unqualified |
 | Scroll observation | Windows useScrollableArea composes viewport/content layout, scroll and lifecycle handlers | Scripted-hook/fake-metric contracts only; real compiler/renderer, Mason measurements, OS scrolling and RTL unqualified |
 | Connectivity/query environment | Windows WinRT profile-level reader and native environment export; shared monitor ownership and stopped-listener guards | 17 focused contracts and one native snapshot comparison passed; reconnect/event delivery, app/window lifecycle and real query refresh unqualified |
+| Keep-awake | Windows WinRT DisplayRequest with deduplicated tags, direct core UI dispatch and suspend/resume/exit cleanup | 12 focused contracts and native construction/method projection passed; actual grants, UI-thread/app lifecycle and physical sleep prevention unqualified |
 | Credentials | Package-family-scoped PasswordVault adapter avoids mobile plugin fallback | Standalone task-namespace operations/cleanup passed; actual packaged identity, persistence across launches and policy behavior unqualified |
 | Device | Explicit Windows OS identity, core metadata | Version/model/language metadata unqualified |
 | App metadata | Windows appInfo lazily reads package identity and four-part version | Four mocked contracts and standalone unpackaged-unavailable result passed; packaged values, startup and production integration unqualified |
@@ -981,3 +982,82 @@ pnpm exec turbo run build:windows --filter=@xplat/windows
 Real reconnect/disconnect delivery, suspend/resume across multiple windows,
 query pausing/refetch/polling in a Windows app, packed source resolution, all
 architectures and native dependency patch compatibility remain unqualified.
+
+## Windows keep-awake candidate
+
+The existing Windows leaf returned false for every operation. It now uses
+Windows.System.Display.DisplayRequest with one owned request shared by a
+set of independent tags. The maintained examples/keep-awake/ReadingScreen.tsrx
+supplies the concrete reading/presentation demand; its shared hook and source
+are unchanged. This everyday capability follows the earlier common-flow/input
+prerequisites; actual keyboard/focus/overlay qualification still requires the
+deferred core adoption and app checks. No new engine, dependency or permission
+was added, and AppKit/GTK/mobile leaves are unchanged.
+
+Creation, RequestActive and RequestRelease run through the core's direct
+Utils.dispatchToMainThread channel and a serialized operation queue. This avoids
+relying on the core isMainThread heuristic, whose missing-queue fallback is true.
+The published core 9.1.4-next.0 Windows helper forwards dispatch to
+__nsRunOnUIThread; source SHA256
+0F4FE51C9FFAB4881670DAA0142CD2F9DAE53D287FEAC747D463EAC485CBA527.
+Log: research/windows61/windy-core-mainthread-helper-source.log. This is source
+inspection of the available published artifact, not proof of actual app-thread
+execution. The same installed application source emits exit after its last
+registered window closes or on the host Exit notification, rather than every
+window close (research/windows61/windy-core-application-exit-source.log).
+Microsoft's [DisplayRequest contract](https://learn.microsoft.com/en-us/uwp/api/windows.system.display.displayrequest)
+identifies the object as non-agile and requires matched release calls.
+
+Duplicate tags do not multiply native requests. Background activation accepts
+ownership while isActivated remains false; suspension releases the held object,
+resume retries requested tags, and exit releases all owners. Failed release
+retains the request for cleanup retry. Failed resume can retry the existing tag
+rather than treating it as already held. Listeners detach on final cleanup and
+partial setup failure; retired lifecycle callbacks remain inert even after a
+new ownership cycle starts. The shared type comment now includes background
+deferral; exported types, names and method signatures are unchanged.
+
+The isolated windy Turbo test:windows-keep-awake task passed 12 contracts,
+exit 0: 11 new Windows ownership/lifecycle/failure/serialization groups and the
+existing macOS tag-set regression containing the Windows unavailable-host check.
+The latter now supplies missing-host import mocks to the implemented Windows
+leaf. Other tests in that file were filtered out, not run. The dry task has one
+uncached task and no dependency builds. Source executes with mocked Core/WinRT
+and a controlled UI-dispatch queue; it does not prove OS thread affinity,
+activity, power grants or lifecycle delivery. Log:
+`research/windows61/windy-keep-awake-contracts-final.log`.
+
+A resource-reserved standalone alpha.144 x64 DLL check constructed DisplayRequest
+and verified RequestActive/RequestRelease method projection, exit 0. It did not
+call either method, create a power request, launch UI, change timeout settings or
+wait for sleep. DLL SHA256 remains
+748D95864AC032DE2D1BB69FEC1E5B2CDD393BAA1671E349AA670160AA66D47C.
+Log: `research/windows61/windy-native-keep-awake-construction.log`.
+
+Targeted current formatter/lint, whitespace and recipe structure passed.
+Canonical release-note validation passed all 17 notes using the temporary link
+to existing yaml, removed after the check. Public keep-awake target limits,
+agent services guidance and a release note describe the candidate and preserve
+the physical-evidence boundary. The maintained reading-screen example already
+uses the shared hook, so no platform workaround or example edit was needed.
+Existing recipe scopes are unchanged; no Windows qualification was inserted
+under another target, no shared audit snapshot was regenerated and no issue
+checkbox was closed.
+
+Exact deferred package/app checks remain:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/platform
+pnpm exec turbo run typecheck --filter=...@octane-xplat/platform
+pnpm exec turbo run typegen --filter=@octane-xplat/platform
+pnpm exec turbo run pack:check --filter=@octane-xplat/platform
+pnpm exec turbo run test:packed --filter=@octane-xplat/platform
+pnpm exec turbo run build --filter=@xplat/docs
+pnpm exec turbo run build:windows --filter=@xplat/windows
+```
+
+Native app UI-thread dispatch, successful grants/releases, multiple-window
+suspend/resume, packaged/unpackaged hosts and architectures remain unqualified.
+Physical display sleep prevention and ordinary sleep after final cleanup need
+separate human-authorized power/lifecycle checks. Constructor/method presence
+and fake dispatch do not close the keep-awake issue item.

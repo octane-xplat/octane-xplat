@@ -79,7 +79,14 @@ test('macOS tag set deduplicates and retains other owners; failed native calls r
 	assert.equal(await api.isActivated(), false)
 	const absent = load('keep-awake.macos').api
 	assert.equal(await absent.activate(), false)
-	const windows = load('keep-awake.windows').api
+	const windows = load(
+		'keep-awake.windows',
+		{},
+		{
+			'@nativescript/core': { Utils: { dispatchToMainThread: (callback) => callback() } },
+			'@octane-xplat/platform/windows': { Windows: undefined },
+		},
+	).api
 	for (const name of ['activate', 'deactivate', 'isAvailable', 'isActivated']) {
 		assert.equal(await windows[name](), false)
 	}
