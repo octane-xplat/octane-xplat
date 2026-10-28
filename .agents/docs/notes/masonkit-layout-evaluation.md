@@ -1626,8 +1626,9 @@ This establishes the deferred-settling frame write that the earlier local
 investigation had not traced. Deferred intrinsic sizing applies its result to
 the live native root after the host-sized layout. The fix investigation should
 keep those intrinsic results from becoming the final applied viewport while
-preserving the measurements needed by the outer tree. A native core fix and
-its regression run remain outstanding; no sizing workaround was shipped.
+preserving the measurements needed by the outer tree. The local native fix
+and regression results follow below; registry beta.5 remains affected. No
+sizing workaround was shipped in Xplat.
 
 Trace run `c2f004cb-4352-431b-9d90-264d37ba8675` records 18 small-width frame
 writes, 17 through deferred settling. Local copies are
@@ -1637,6 +1638,63 @@ and the demangled `skymac-trace-summary.json`. The isolated remote checkout is
 were restored. One native host build was needed; the trace reused it. The
 selected simulator was shut down, and the already-running simulator was left
 alone. This remains handler-dispatch and numeric-frame evidence.
+
+#### Local native fix and simulator verification
+
+Mason source commit `0cbb3b2` in the separate local checkout
+`research/mason-core-fix` corrects the deferred viewport overwrite. It is based
+on `core-v1.0.0-beta.5` (`1f101ca`). Each compute pass supplies its current
+available box while deferred intrinsic queries settle. Settling retains the
+intrinsic measurement results, then restores the host-assigned applied layout.
+This also prevents queued work from restoring the preceding host size during
+a resize. No core JavaScript or Xplat sizing workaround changed.
+
+The maintained native regression
+`test_coreDeferredIntrinsicMeasurePreservesAssignedRootBounds` fails on the
+unfixed source at 240 versus 402 points; the existing 19 tests pass. The patched
+suite passes all 20 tests with no skips on the iOS 26.2 arm64 simulator. It covers
+intrinsic result retention, native root/stage frames, compute cache and host
+size, including pending work across narrow-width and height changes.
+
+A release simulator framework was then substituted into a temporary copy of
+the installed core package. All 34 JavaScript files remain byte-identical to
+registry beta.5. The unchanged `examples/probes/screen-layers.tsrx` passes all
+34 assertions: both open/close cycles retain a 402×874-point stage. Run
+`85c7125a-4a26-4c3e-b3b2-00a0b41b22f3` uses the same remote Xplat checkout and
+iPhone 17 simulator as the failing baseline. Inspection of the app binary
+confirms it links the new `runPass(available:_:)` implementation.
+
+**Broader resize qualification remains incomplete.** A temporary bounded
+Screen fixture, based on the maintained foreign-screen-height case, checks
+NativeScript and UIKit frames through 107×400, 107×300, 107×500, 200×500, then
+107×300. The first four steps pass all 48 assertions. The final shrink times
+out: bounds, layer and Screen reach 107×300, while the stage remains 107×500
+in both measurements. Diagnostic run `48037431-fedd-47f9-9b6f-9505f79d0cfb`
+reproduces that result. Its cause is unresolved; the native fix does not
+establish general nested-Screen resize parity. Silo records the successful
+viewport experiment separately from this failed shrink experiment and preserves
+the original expectation in feedback observation
+`1f9010a5-0e7e-4306-b258-e8e3f08fbd56`.
+
+To bound cost, the build reused unchanged Rust objects from the SHA256-verified
+beta.5 release input archive, verified all 103 C exports, and compiled only the
+Swift simulator host with two build jobs. Native builds and simulator runs used
+resource reservations; the extra resize diagnostic reused the compiled app.
+The release framework SHA256 is
+`f211788b92362ab1eb608ba0b2c8b55b960dc3b9f89869bbacba26c850827534`.
+Evidence and provenance stay in `research/mason-stage-width/`:
+`tests-red-summary.json`, `tests-green-summary.json`, `candidate.json`,
+`candidate-layers.json`, `candidate-resize.json`,
+`candidate-resize-diagnostic.json`, `candidate-linked-symbols.txt` and
+`reused-rust-engine.json`.
+
+This is an unpublished, simulator-only candidate. No device slice was rebuilt,
+no registry package was published, and Xplat's beta.5 pin remains unchanged.
+Android, AppKit, GTK and Windows were not run for this fix. The probe source and
+installed core link were restored, both task-owned simulators were shut down,
+and the user's already-running simulator was left alone. These checks use
+numeric frames and handler dispatch; they do not qualify pixels or OS input.
+No public workflow or recipe changed.
 
 ## iOS dev-session bootstrap gap (2026-10-27)
 
