@@ -2695,9 +2695,12 @@ export function DisplayName() {
 }
 ```
 
-The regression evidence is mocked projection only. Real WinUI selection/IME,
-secure-field and focus behavior remain unqualified; hardware-key forwarding and
-modal focus are separate gaps. See the [Windows record](../../../docs/parity/windows-support-progress.md).
+A bounded x64 packaged WinUI run passed physical typing/submit, public isolated
+blur/focus, an OS-selected range retained across a controlled prop write,
+readonly/disabled rejection, multiline Enter and consumed raw Return. IME,
+editable secure fields, remount/lifecycle and multiple-window behavior remain
+unqualified. Modal focus is tracked separately. See the
+[Windows record](../../../docs/parity/windows-support-progress.md).
 
 The experimental Windows core patch has a raw key-event prerequisite. Its
 nativeEvent/consumption payload is not the portable KeyboardEvent contract;
@@ -2758,7 +2761,11 @@ export function CustomViewport() {
 }
 ```
 
-The regression checks use scripted hook slots and fake Mason metrics. They do
-not prove compiler call-site transformation, renderer subscriptions or native
-scroll behavior. Keep Windows qualification pending; use the
+Alongside the scripted hook/metric regressions, a bounded x64 packaged WinUI
+run passed physical wheel input for ScrollableArea and this headless observer:
+actual offsets advanced from 0 to 72 with content/viewport metrics 816/160,
+and the hook reported overflow with atStart becoming false. Resize/content
+mutation, unsubscribe/remount, horizontal/RTL and broader compiler/lifecycle
+behavior remain unqualified; that run also logged a loaded-event transaction
+warning. Keep the wider Windows gate pending; use the
 [complete example and boundary](../../../../docs/platform/windows-setup.md#custom-scroll-viewport-candidate).

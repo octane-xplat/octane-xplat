@@ -1365,3 +1365,52 @@ and native build passed all 38 tasks (34 cache hits), exit 0, 5m4.999s
 OS results are pending. The normal kitchen-sink entry, visual parity, IME,
 multiple-window and other architectures remain unqualified. No shared audit
 snapshot, supported recipe or tracker checkbox changed.
+
+## Common-flow case v2: nine bounded OS passes
+
+The version 1.0.0.2 run (boot mvsp96ah) passed all six input scenarios: physical
+typing/submit/raw keys; public isolated blur/focus; OS-selected range 2,2 retained
+across a controlled value update; readonly/disabled/secure-readonly rejection;
+multiline Enter plus Z; and consumed raw Return suppressing submit. Both the
+component and headless scroll viewports advanced from offset 0 to 72 under
+physical wheel input, with actual content height 816 and viewport height 160.
+The hook reported block.isScrollable=true and atStart=false. These three scroll
+assertions also passed. Logs: research/windows61/windy-os-common-v2.log and
+windy-common-v2-full-console.log. This is nine bounded scenario passes, not an
+all-green suite or portable useKeyboard support.
+
+The normalized async command channel worked; its one comparison reported
+coreExists=false while asyncRead=true for the same existing native path. That
+confirms the original synchronous existence prerequisite is unusable in this
+app context; the owning adapter/version and root cause need separate work.
+The run also logged a dropped loaded-event transaction warning while navigating
+to scrolling: A universal transaction cannot be aborted after its host batch
+committed. Scroll assertions still passed. The warning remains visible and is
+recorded as an expectation mismatch, not ignored or called a clean runtime.
+
+Dialog still failed all three checks: initial focus stayed on Qualification
+open dialog after the bounded wait, Tab escaped to Qualification input page,
+and Escape did not dismiss. Explicit focus return was not isolated. The SDK
+button did not fire in the combined run immediately after overlay cleanup
+(no opening/error record). An isolated fresh-boot SDK-only run of the same
+installed app (mvspbz2e) did open ContentDialog and get through initial focus
+and Tab cycling, but programmatic UIA focus moved into the background. The
+probe stopped before Escape, so neither a complete SDK pass nor an architecture
+replacement was inferred. Log: research/windows61/windy-os-sdk-only.log.
+
+The current candidate instead preserves the existing RootLayout/portal
+presentation. A Windows-only overlay lifetime leaf guards background control
+focus and panel hit testing with shared ownership for nested/out-of-order
+cleanup, preserves the RootLayout shade, uses native Tab cycling/initial focus,
+and dispatches raw Escape from the modal host through the layer stack. Other
+overlay kinds delegate to the common lifetime. Focus restoration is deferred
+one microtask and still checks its declaring XamlRoot, activation and target.
+The first focused mock run passed 20/21 because the nested-host mock omitted
+the UIElement hit-test property; the corrected model passed. After adding
+async focus failure and empty-content fallback cases, all 23 maintained mock
+contracts passed via an uncached Turbo test:modal task in 2.311s. Log:
+research/windows61/windy-modal-contracts-final-detail.log. This does not prove
+OS modal behavior; the candidate native/typecheck build is running as version
+1.0.0.3. No public support checkbox, recipe target or shared audit was changed.
+The skill now reflects the bounded input/scroll observations and remaining
+IME/lifecycle/multiple-window gates.
