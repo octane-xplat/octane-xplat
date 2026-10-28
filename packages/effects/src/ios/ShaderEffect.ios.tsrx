@@ -1,8 +1,8 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { GridLayout } from '@nativescript/core'
 import { registerElement } from '@nativescript-community/octane'
 import { getSwiftUIHostLifecycle, registerSwiftUIHost } from '@octane-xplat/lib'
-import type { Attributes } from '@nativescript-community/octane/intrinsics'
+import type { Attributes } from '@octane-xplat/jsx/intrinsics'
 import { SwiftUI, SwiftUIManager, UIDataDriver, registerSwiftUI } from '@nativescript/swift-ui'
 import {
 	createPortal as createUniversalPortal,
@@ -16,9 +16,16 @@ import { useEffect, useRef } from 'octane'
 declare const XplatShaderEffectProvider: any
 declare const NativeScriptViewFactory: { shared?: any; initShared(): void }
 
-declare module '@nativescript-community/octane/intrinsics' {
-	interface NativeScriptElements {
-		xplatshader: Attributes<typeof SwiftUI>
+declare module '@octane-xplat/jsx/intrinsics' {
+	interface NativeElements<TElement> {
+		xplatshader: Attributes<
+			TElement,
+			{
+				swiftId?: string
+				data?: Record<string, unknown>
+				onSwiftUIEvent?: (event: { data?: unknown }) => void
+			}
+		>
 	}
 }
 
