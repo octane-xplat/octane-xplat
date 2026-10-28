@@ -668,3 +668,47 @@ NSSearchField's `text` API uses a separate path. Single-line and multiline
 submit paths check marked state before dispatching their submit action. Real field-editor ownership,
 IME candidate/confirmation timing, observer delivery/window moves, secure-mode
 changes, undo/redo, focus and packaging remain unqualified.
+
+### Self-drawn control accessibility
+
+AppKit container hosts map `switch` to a checkbox role, `tab` to a radio-button
+role, `tablist` to a tab-group role, `adjustable` to a slider role and `link` to
+a link role. Tab values use selected state; switches use checked state, and
+adjustable values are numeric. `accessible={false}` or role `none` ignores the
+host itself. This is source support; VoiceOver/native bridge qualification
+remains open.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+export function TabStop() {
+	return <masonview accessibilityRole="tab" accessibilityLabel="Overview"
+		accessibilityState={{ selected: true }} onTap={() => {}} />
+}
+```
+
+Adjustable hosts dispatch native increment/decrement selectors through the
+current callbacks in the renderer's discrete event scope. Missing callbacks,
+disabled/read-only/ignored hosts and detached roots reject adjustments. Accepted
+actions report that dispatch occurred; they do not prove a value changed.
+Subsequent value/checked/selected prop changes post `AXValueChanged`; initial
+props and equal values do not. Actual notifications and assistive interaction
+still need platform verification.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { useState } from 'octane'
+
+export function Rating() {
+	const [value, setValue] = useState(5)
+	return <masonview accessibilityRole="adjustable" accessibilityLabel="Rating"
+		accessibilityValue={value} accessibilityMinValue={0} accessibilityMaxValue={10}
+		onAccessibilityIncrement={() => setValue((number) => Math.min(10, number + 1))}
+		onAccessibilityDecrement={() => setValue((number) => Math.max(0, number - 1))} />
+}
+```
+
+Apple documents [native slider adjustment dispatch](https://developer.apple.com/documentation/appkit/nsaccessibilityslider/accessibilityperformincrement%28%29)
+and the [AppKit role vocabulary](https://developer.apple.com/documentation/appkit/nsaccessibility-swift.struct/role?language=objc).
+The authored source regression is `test/common-control-accessibility.test.ts`;
+it does not establish VoiceOver, native selector registration, notification
+ordering, tab/panel relationships or packaged support.

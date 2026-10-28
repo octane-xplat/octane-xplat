@@ -1336,3 +1336,49 @@ Actual CSS resolution, borders/contrast, compact clipping, focus/VoiceOver,
 loading timing, animation, OS input and packaging remain unqualified/open.
 No builds, installs, tests/typechecks, OS automation, visual analysis or shared
 audit snapshot regeneration ran. No evidence checkbox is closed.
+
+
+### Common-control accessibility prerequisite
+
+While prioritizing tab navigation, source review found a renderer seam that
+also invalidated earlier Switch/Slider UI-only handler assumptions: container
+switch/tab/adjustable roles fell back to AXGroup, native increment/decrement
+selectors did not exist, and accessible=false was ignored for action hosts.
+UI handlers are not native accessibility dispatch evidence. This source repair
+precedes further TabList input work.
+
+AccessibleHostView now maps switch→AXCheckBox, tab→AXRadioButton,
+tablist→AXTabGroup, adjustable→AXSlider and link→AXLink. Tab values read selected,
+switches checked, adjustable values numeric. Explicit accessible=false/role none
+ignores the host. Press rejects ignored/read-only controls. Increment/decrement
+selectors are declared to ObjC and invoke the current callback through the
+renderer's discrete event scope, rejecting missing/disabled/read-only/ignored
+or detached roots. applyProps forwards these callback props before Mason's
+per-type fallback; removal clears the stored callback. Value/checked/selected
+prop changes post AXValueChanged after actual prop updates, avoiding initial or
+equal-value announcements. Accepted dispatch does not assert a value changed.
+
+Apple's [slider action contract](https://developer.apple.com/documentation/appkit/nsaccessibilityslider/accessibilityperformincrement%28%29)
+requires value-change notification after a real change and distinguishes action
+triggering from completion. The [role vocabulary](https://developer.apple.com/documentation/appkit/nsaccessibility-swift.struct/role?language=objc)
+and local generated declarations inform the mapping. These are source/API
+references, not a native run.
+
+Authored focused renderer cases cover role/value changes, discrete dispatch,
+callback clearing, blocked/ignored/detached actions and initial/equal/changed
+notifications. TypeScript syntax parse and whitespace only; tests have not run.
+Deferred until this task receives explicit human authorization:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/slider.macos.mobile.test.tsrx src/switch.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer --filter=...@octane-xplat/ui
+pnpm check:recipes
+```
+
+Actual native selector export/JSC registration, VoiceOver, notification ordering,
+ignored-parent child flattening, tab/panel relationships, keyboard/hit testing
+and packaging remain unqualified. No builds, package tests/typechecks, installs,
+OS automation, visual analysis or shared audit regeneration ran. The color
+control adjustment backlog still needs its own UI-handler/OS review; no evidence
+checkbox is closed by this prerequisite.

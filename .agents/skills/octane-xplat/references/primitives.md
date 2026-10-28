@@ -692,3 +692,22 @@ export function Saving() {
 	return <Spinner size="sm" label="Saving settings" />
 }
 ```
+
+
+## Self-drawn AppKit accessibility prerequisites
+
+The renderer now maps switch/tab/tablist/adjustable/link container roles and
+numeric/selected values, honors accessible=false, and dispatches native
+increment/decrement callbacks in a discrete event scope. Value/selection prop
+updates post change notifications. This closes source wiring gaps, not native
+VoiceOver or selector-registration qualification. Existing UI handler cases
+alone did not prove that renderer bridge. See
+[renderer contract](../../../../packages/macos-renderer/README.md#self-drawn-control-accessibility).
+
+```tsx
+import { Slider, Switch } from '@octane-xplat/ui'
+
+export function Settings() {
+	return <><Switch label="Alerts" defaultValue /><Slider label="Volume" defaultValue={40} /></>
+}
+```

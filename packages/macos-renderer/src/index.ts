@@ -782,6 +782,8 @@ class AccessibleHostView extends NSView {
 
 	static ObjCExposedMethods = {
 		accessibilityPerformPress: { params: [], returns: interop.types.bool },
+		accessibilityPerformIncrement: { params: [], returns: interop.types.bool },
+		accessibilityPerformDecrement: { params: [], returns: interop.types.bool },
 		accessibilityRole: { params: [], returns: interop.types.id },
 		accessibilityLabel: { params: [], returns: interop.types.id },
 		accessibilityValue: { params: [], returns: interop.types.id },
@@ -802,7 +804,8 @@ class AccessibleHostView extends NSView {
 		if (
 			actionId === undefined ||
 			typeof actionHandlers.get(actionId) !== 'function' ||
-			!this.accessibilityIsEnabled()
+			!this.accessibilityIsEnabled() || this.accessibilityIsIgnored() ||
+			stackAccessibilityPropsByView.get(this)?.accessibilityState?.readonly
 		) {
 			return false
 		}
@@ -811,10 +814,29 @@ class AccessibleHostView extends NSView {
 		return true
 	}
 
+
+	accessibilityPerformIncrement() {
+		const props = stackAccessibilityPropsByView.get(this)
+		if (this.accessibilityIsIgnored() || !this.accessibilityIsEnabled() || props?.accessibilityState?.readonly ||
+			typeof props?.onAccessibilityIncrement !== 'function') return false
+		return props.onAccessibilityIncrement() !== false
+	}
+
+	accessibilityPerformDecrement() {
+		const props = stackAccessibilityPropsByView.get(this)
+		if (this.accessibilityIsIgnored() || !this.accessibilityIsEnabled() || props?.accessibilityState?.readonly ||
+			typeof props?.onAccessibilityDecrement !== 'function') return false
+		return props.onAccessibilityDecrement() !== false
+	}
+
 	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
 	accessibilityRole() {
 		const role = accessibilityRoles.get(actionIdsByView.get(this) ?? -1)
-		if (role === 'radio') return 'AXRadioButton'
+		if (role === 'radio' || role === 'tab') return 'AXRadioButton'
+		if (role === 'tablist') return 'AXTabGroup'
+		if (role === 'switch') return 'AXCheckBox'
+		if (role === 'adjustable') return 'AXSlider'
+		if (role === 'link') return 'AXLink'
 		if (role === 'radiogroup') return 'AXRadioGroup'
 		// ARIA 'meter' is AppKit's level indicator — a gauge of a scalar within
 		// a range, distinct from task progress (AXProgressIndicator).
@@ -839,7 +861,8 @@ class AccessibleHostView extends NSView {
 		const props = stackAccessibilityPropsByView.get(this)
 		const role = this.accessibilityRole()
 		if (role === 'AXRadioButton') {
-			return NSNumber.numberWithDouble(props?.accessibilityState?.checked === true ? 1 : 0)
+			return NSNumber.numberWithDouble((accessibilityRoles.get(actionIdsByView.get(this) ?? -1) === 'tab'
+				? props?.accessibilityState?.selected : props?.accessibilityState?.checked) === true ? 1 : 0)
 		}
 
 		if (role === 'AXCheckBox') {
@@ -853,7 +876,7 @@ class AccessibleHostView extends NSView {
 			)
 		}
 
-		if (role === 'AXLevelIndicator' || role === 'AXProgressIndicator') {
+		if (role === 'AXLevelIndicator' || role === 'AXProgressIndicator' || role === 'AXSlider') {
 			return NSNumber.numberWithDouble(Number(props?.accessibilityValue ?? 0))
 		}
 
@@ -889,7 +912,8 @@ class AccessibleHostView extends NSView {
 	}
 
 	accessibilityIsIgnored() {
-		return actionIdsByView.get(this) === undefined
+		const props = stackAccessibilityPropsByView.get(this)
+		return actionIdsByView.get(this) === undefined || props?.accessible === false || props?.accessibilityRole === 'none'
 	}
 }
 
@@ -6235,7 +6259,25 @@ function applyAccessibility(node: ElementNode, name: string, value: any) {
 	// to any interactive container — not just the old stack/flex hosts.
 	if (node.actionId !== undefined && node.view instanceof AccessibleHostView) {
 		const props = stackAccessibilityPropsByView.get(node.view!) ?? {}
+		if (name === 'onAccessibilityIncrement' || name === 'onAccessibilityDecrement') {
+			const handler = value
+			value = typeof handler === 'function' ? () => {
+				if (node.props.disabled || !node.container.root) return false
+				try {
+					node.container.root.eventScope('discrete', handler)
+					return true
+				} catch (error) {
+					console.error('[macos-event] accessibility adjustment failed', error)
+					return false
+				}
+			} : undefined
+		}
 		stackAccessibilityPropsByView.set(node.view!, { ...props, [name]: value })
+		const changed = name === 'accessibilityValue' ? !Object.is(props[name], value) :
+			name === 'accessibilityState' && (props[name]?.checked !== value?.checked || props[name]?.selected !== value?.selected)
+		if (changed && Object.hasOwn(props, name) && typeof NSAccessibilityPostNotification === 'function') {
+			NSAccessibilityPostNotification(node.view!, 'AXValueChanged')
+		}
 		if (name === 'accessibilityLabel') {
 			accessibilityLabels.set(node.actionId!, String(value ?? ''))
 		}
@@ -6456,6 +6498,11 @@ function applyProps(node: ElementNode, props: PropBag) {
 
 				continue
 			}
+		}
+
+		if ((name === 'onAccessibilityIncrement' || name === 'onAccessibilityDecrement') && node.view instanceof AccessibleHostView) {
+			applyAccessibility(node, name, value)
+			continue
 		}
 
 		// Registered behaviors first — mason-backed containers consume style/
