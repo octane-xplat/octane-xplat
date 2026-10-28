@@ -13,6 +13,7 @@ import type { RootAction, RootEffect, RootState } from './state'
 import { viewRect } from './rect'
 import { scrollTriggerIntoView } from './scroll-sync'
 import type { ImageController } from './Image.tsrx'
+import type { Intent } from './gesture-machine'
 import { Track } from './track.mobile.tsrx'
 import type {
 	LightboxMedia,
@@ -30,6 +31,9 @@ export interface ViewportController {
 	fade(from: number, to: number): Promise<void>
 	/** Machine `track` commands move the track directly. */
 	track(phase: 'start' | 'move' | 'end', dx: number, vx: number): void
+	/** Slides register their machine input; the track's gesture surface routes
+	 *  each gesture sequence to one slide (latched at gesture start). */
+	registerInput(index: number, send: (i: Intent) => void): () => void
 }
 
 interface CtxOptions {
@@ -403,6 +407,7 @@ export function Viewport(props: LightboxPartProps) @{
 			items={ctx.items}
 			currentIndex={ctx.index}
 			controllerRef={ctx.viewport}
+			maxZoom={ctx.options.maxZoom}
 			onScrollIndex={(i) => ctx.onScrollIndex(i)}
 			progress={ctx.progress}
 			zoomed={ctx.zoomed}

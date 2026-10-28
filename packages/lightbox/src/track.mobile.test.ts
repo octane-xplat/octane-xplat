@@ -21,3 +21,39 @@ describe('native track math', () => {
 		expect(snap(-700, 0)).toBe(2)
 	})
 })
+
+describe('createInputDispatch', () => {
+	const pt = { x: 0, y: 0 }
+	it('routes a pan sequence to the slide latched at panStart, even if index changes', async () => {
+		const { createInputDispatch } = await import('./track.mobile.tsrx')
+		let index = 1
+		const d = createInputDispatch(() => index)
+		const seen: number[] = []
+		d.inputs.set(0, () => seen.push(0))
+		d.inputs.set(1, () => seen.push(1))
+		d({ kind: 'panStart', at: pt, pointer: 'touch' })
+		index = 2
+		d({ kind: 'panMove', at: pt })
+		d({ kind: 'panEnd', at: pt, velocity: { x: 0, y: 0 }, cancelled: false })
+		expect(seen).toEqual([1, 1, 1])
+	})
+	it('taps and double taps route to the current slide', async () => {
+		const { createInputDispatch } = await import('./track.mobile.tsrx')
+		const d = createInputDispatch(() => 2)
+		const seen: string[] = []
+		d.inputs.set(2, (i: any) => seen.push(i.kind))
+		d({ kind: 'tap', at: pt, pointer: 'touch' })
+		d({ kind: 'doubleTap', at: pt })
+		expect(seen).toEqual(['tap', 'doubleTap'])
+	})
+	it('unregistered slides stop receiving intents', async () => {
+		const { createInputDispatch } = await import('./track.mobile.tsrx')
+		const d = createInputDispatch(() => 0)
+		const seen: string[] = []
+		const send = (i: any) => seen.push(i.kind)
+		d.inputs.set(0, send)
+		d.inputs.delete(0)
+		d({ kind: 'tap', at: pt, pointer: 'touch' })
+		expect(seen).toEqual([])
+	})
+})

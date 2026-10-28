@@ -5,7 +5,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'octane'
 import { cx } from '@octane-xplat/lib'
 import { useMotionValue } from '@octane-xplat/motion'
-import { attachInput } from './input.mobile'
 import { createClipWriter } from './clip.ios'
 import { viewRect } from './rect'
 import { SETTLE, INERTIA } from './constants'
@@ -199,11 +198,11 @@ export function Image(props: LightboxImagePartProps) @{
 		for (const c of machineRef.current!.send(i)) exec(c)
 	}
 
+	// The viewport owns the gesture surface (the clip never transforms, so
+	// touches always hit it); each gesture sequence latches to the slide that
+	// is current at its start and routes intents here.
 	useEffect(() => {
-		const v = wrapRef.current
-		if (!v) return
-		const off = attachInput(v, { maxZoom: ctx.options.maxZoom }, send)
-		return () => { off() }
+		return ctx.viewport.current?.registerInput(index, send)
 	}, [])
 
 	// Register the controller once mounted.

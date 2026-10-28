@@ -11,9 +11,29 @@ import { clamp } from './math'
 import { viewRect } from './rect'
 import type { LightboxMedia } from './props'
 import type { ViewportController } from './root.tsrx'
+import { attachInput } from './input.mobile'
+import type { Intent } from './gesture-machine'
+
+/** Route each gesture sequence to exactly one slide's send: the slide that is
+ *  current when the sequence starts (latched until panEnd/pinchEnd). */
+export function createInputDispatch(currentIndex: () => number) {
+	const inputs = new Map<number, (i: Intent) => void>()
+	let latched: number | null = null
+	const dispatch = (i: Intent) => {
+		if (i.kind === 'panStart' || i.kind === 'pinchStart' || i.kind === 'tap' || i.kind === 'doubleTap') {
+			latched = currentIndex()
+		}
+		const target = latched ?? currentIndex()
+		inputs.get(target)?.(i)
+		if (i.kind === 'panEnd' || i.kind === 'pinchEnd') latched = null
+	}
+	dispatch.inputs = inputs
+	return dispatch
+}
 
 export function Track(props: {
 	items: LightboxMedia[]
+	maxZoom?: number
 	currentIndex: number
 	controllerRef: { current: ViewportController | null }
 	onScrollIndex: (i: number) => void
@@ -29,8 +49,8 @@ export function Track(props: {
 	const live = useRef({ x: 0, stride: 1, index: 0, anim: null as any })
 	const l = live.current
 	const count = () => props.items.length
-	const live2 = { tracking: false }
-	const tracking = live2
+	// live.current.tracking flags an in-flight drag — it must live in the ref,
+	// not a per-render object, so re-renders can't clear it mid-gesture.
 
 	const stride = () => (clipRef.current?.parent as any)?.getActualSize?.()?.width ?? viewRect(clipRef.current)?.w ?? clipRef.current?.getActualSize?.().width ?? 1
 	const setX = (x: number) => {
@@ -75,7 +95,7 @@ export function Track(props: {
 				layoutSlides()
 				// Only re-snap when the viewport actually resized — re-layouts
 				// from translate/row writes must not clobber an in-flight drag.
-				if (l.stride !== before && !live2.tracking) setX(-l.index * l.stride)
+				if (l.stride !== before && !live.current.tracking) setX(-l.index * l.stride)
 			} finally {
 				inLayout = false
 			}
@@ -83,15 +103,32 @@ export function Track(props: {
 		;(clipRef.current?.parent as any)?.on?.('layoutChanged', cb)
 		clipRef.current?.on?.('layoutChanged', cb)
 		l.stride = stride()
-		setX(-l.index * l.stride)
+		// This layout effect re-runs every render — never re-snap mid-drag.
+		if (!live.current.tracking) setX(-l.index * l.stride)
 		return () => {
 			;(clipRef.current?.parent as any)?.off?.('layoutChanged', cb)
 			clipRef.current?.off?.('layoutChanged', cb)
 		}
 	})
 
+	// One gesture graph for the whole viewport — the clip never transforms, so
+	// touches always hit it. Each gesture sequence latches to the slide that is
+	// current at its start (l.index, not ctx.index — that lags mid-snap).
+	const dispatch = useRef(createInputDispatch(() => l.index))
+	const inputs = dispatch.current.inputs
+	useLayoutEffect(() => {
+		const clip = clipRef.current
+		if (!clip) return
+		const off = attachInput(clip, { maxZoom: props.maxZoom ?? 1 }, dispatch.current)
+		return () => { off() }
+	}, [])
+
 	useLayoutEffect(() => {
 		const controller: ViewportController = {
+			registerInput(index, send) {
+				inputs.set(index, send)
+				return () => { if (inputs.get(index) === send) inputs.delete(index) }
+			},
 			goTo(index, behavior) {
 				l.index = clamp(index, 0, count() - 1)
 				const target = -l.index * (l.stride = stride())
@@ -133,15 +170,17 @@ export function Track(props: {
 			},
 			track(phase, dx, vx) {
 				if (phase === 'start') {
-					live2.tracking = true
+					live.current.tracking = true
 					l.anim?.stop?.()
 					l.stride = stride()
 				} else if (phase === 'move') {
 					setX(-l.index * l.stride + dx)
 				} else {
 					// Snap: projected resting position decides the landing slide —
-					// same rule the web scroller's snap gives for a flick.
-					live2.tracking = false
+					// same rule the web scroller's snap gives for a flick. Use the
+					// command's total dx, not l.x, in case a re-render reset it.
+					live.current.tracking = false
+					setX(-l.index * l.stride + dx)
 					const projected = l.x + 0.2 * vx
 					const next = clamp(Math.round(-projected / l.stride), 0, count() - 1)
 					this.goTo(next, 'smooth')
