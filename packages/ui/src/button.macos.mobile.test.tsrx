@@ -44,7 +44,7 @@ it('opens sanitized href before the action and blocks unsafe schemes and disable
 
 it('retains content and host while busy, reports busy/name and rejects same-frame duplicates', async () => {
 	const task = deferred(), action = vi.fn(() => task.promise)
-	const env = mount(Button, { label: 'Save changes', clickAction: action, width: 180, onPressIn: vi.fn() })
+	const env = mount(Button, { label: 'Save changes', clickAction: action, row: 2, style: { width: 180 }, onPressIn: vi.fn() })
 	try {
 		const host = env.host(), press = host.props.onTap
 		const label = env.all().find((node) => node.props?.text === 'Save changes')
@@ -55,6 +55,7 @@ it('retains content and host while busy, reports busy/name and rejects same-fram
 		expect(host.props.accessibilityState).toMatchObject({ busy: true, disabled: true })
 		expect(host.props.accessibilityLabel).toBe('Save changes')
 		expect(String(host.props.style.width)).toContain('180')
+		expect(host.props.style.gridRow).toBe('3 / span 1')
 		expect(env.all().some((node) => String(node.props?.className).includes('vx-button-content--hidden'))).toBe(true)
 		task.resolve()
 		await vi.waitFor(() => { flushUniversalSync(() => {}); expect(host.props.accessibilityState.busy).toBeUndefined() })

@@ -1859,3 +1859,10 @@ remain unqualified. No builds, package tests/typechecks, dependency installs,
 OS automation, visual analysis or audit snapshot regeneration ran; no evidence
 checkbox is closed. Existing demos exercise the retained public API; no new
 public workflow is introduced.
+
+
+Button case review follow-up: the retained-content case now supplies width in
+its documented style channel and separately checks the inherited row prop's
+zero-based-to-CSS grid translation. This avoids asserting an undeclared Button
+width prop. Syntax/whitespace only; the case still has not run. The deferred
+commands and native limitations in the preceding section are unchanged.
