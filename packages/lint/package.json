@@ -40,7 +40,8 @@
 	"scripts": {
 		"build": "vite build",
 		"prepack": "pnpm build",
-		"typecheck": "tsc -p tsconfig.json"
+		"typecheck": "tsc -p tsconfig.json",
+		"test": "node --test --test-concurrency=1 ../../scripts/xplat-rules.test.mjs"
 	},
 	"dependencies": {
 		"@tsrx/core": "0.5.5",

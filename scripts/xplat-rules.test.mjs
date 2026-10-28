@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { parseModule } from '@tsrx/core'
-import { checkNoDomGlobals } from '../packages/lint/src/xplat-rules.ts'
+import { checkNoDomGlobals, checkNoNativeDeadStyle } from '../packages/lint/src/xplat-rules.ts'
 
 function violations(source, filename = 'sample.macos.ts') {
 	return checkNoDomGlobals(parseModule(source, filename), source, filename).map(
@@ -166,3 +166,19 @@ const style = { to: '100%' } as const`
 		)
 	})
 }
+
+test('native paint shadows are supported while unsupported style properties still report', () => {
+	for (const filename of ['sample.mobile.tsx', 'sample.macos.tsx']) {
+		const supported = 'const card = <View style={{ boxShadow: "0px 4px 12px 0px black" }} />'
+		assert.deepEqual(
+			checkNoNativeDeadStyle(parseModule(supported, filename), supported, filename),
+			[],
+		)
+
+		const unsupported = 'const card = <View style={{ float: "left" }} />'
+		assert.equal(
+			checkNoNativeDeadStyle(parseModule(unsupported, filename), unsupported, filename).length,
+			1,
+		)
+	}
+})

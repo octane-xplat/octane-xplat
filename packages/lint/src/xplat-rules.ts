@@ -843,7 +843,6 @@ function* styleObjects(program) {
 
 const DEAD_STYLE_PROPS = {
 	float: `float is unsupported on native — use flex rows`,
-	boxShadow: `boxShadow is inert on native — use the shadow-{n} utility class`,
 	transition: `CSS transitions don't exist on native — use the animation facade or @keyframes classes`,
 	animationPlayState: `animation-play-state is unsupported on native`,
 	cursor: `cursor has no meaning on native — there is no pointer to style`,
