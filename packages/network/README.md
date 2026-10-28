@@ -92,9 +92,11 @@ are unqualified; those native entries reject explicitly. A missing mobile/AppKit
 
 ## Run the maintained checks
 
-From the framework root, run the package checks through Turbo. The runtime
-fixture starts a synthetic server on port 19687 and uses the repository probe
-runner; it does not call a private backend. Keep that port free. Device runs
+From the framework root, run the package checks through Turbo. The native/AppKit runtime fixture starts a synthetic server on port 19687 and
+uses the repository probe runner. Keep that port free. The web target runs a
+headless Chromium fixture on an ephemeral local port; it checks expected HTTP
+error bodies without treating them as page-load failures. Neither fixture
+calls a private backend or captures images. Device runs
 need an owned, booted device and the normal broker reservation. Turbo forwards
 the native SDK variables for this task.
 

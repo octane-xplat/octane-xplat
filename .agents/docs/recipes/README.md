@@ -114,6 +114,10 @@ Workflows:
 - [Reorder and move draggable items](drag-and-drop.md)
 - [Record a voice memo to WAV](voice-memo.md)
 
+- [Restore and retire a hosted native session](hosted-auth-sessions.md)
+
+- [Consume an incremental HTTP response](incremental-http.md)
+
 ## Authoring contract
 
 Use one Markdown file per outcome, with these fields and sections:

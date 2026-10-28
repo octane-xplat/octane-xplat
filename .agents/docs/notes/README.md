@@ -40,6 +40,8 @@ source before relying on them.
 
 ## Platform investigations and status
 
+- [Still-shaped native readiness](still-native-readiness.md) — implemented capabilities, scoped upstream findings, and open physical qualification gates
+
 - [Linux GTK capability inventory](linux-gtk-capability-inventory.md)
 - [Linux GTK renderer](linux-gtk-renderer.md) — v1 package status, `.gtk` seam, evidence split
 - [Linux WebKit baseline](linux-webkit-baseline.md)

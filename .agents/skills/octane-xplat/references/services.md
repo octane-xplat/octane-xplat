@@ -51,7 +51,8 @@ await db.transaction(async (tx) => {
 
 Use the [hosted auth client](../../../../packages/auth/README.md#hosted-sign-in-ceremonies)
 for app-owned credential persistence and refresh. Await sign-out before treating
-durable credentials as cleared; it retires pending login/refresh and orders
+durable credentials as cleared; failed deletion rejects with a sanitized error,
+so expose the failure and allow retry. Server revocation is still attempted; it retires pending login/refresh and orders
 removal after earlier saves. A superseded login reports `cancelled`. Pending
 authenticated requests cannot replay into a later session; a request still
 loading credentials rejects when its session changes.
@@ -339,3 +340,52 @@ load that internal feature. Web and desktop retain built-ins. UI installs no
 polyfills: test individual capabilities and retain documented fallbacks.
 FormatJS's guarded entries mutate global Intl and may replace incomplete
 implementations. Installing one leaf does not guarantee every Intl API exists.
+
+### Long-form speech playback
+
+Use the audio leaf for speech speed and player gain. Mute preserves the stored
+volume; speed is clamped to 0.5–3 and volume to 0–1. Nonfinite settings reject.
+See [playback speed and volume](../../../../docs/platform/media-services.md#playback-speed-and-volume)
+for lifecycle and target qualification; changing a native property is not
+physical output evidence.
+
+```ts
+import { createAudioPlayer } from '@octane-xplat/audio'
+const player = createAudioPlayer()
+await player.setPlaybackRate(1.5)
+await player.setVolume(0.4)
+await player.setMuted(true)
+player.dispose()
+```
+
+For generated speech chunks, retain stable IDs and update future items instead
+of replacing the playing queue. Incomplete exhaustion is `waiting`; explicit
+pause cancels append auto-resume. Do not infer background JavaScript scheduling
+from audio capability flags. See [growing queues](../../../../docs/platform/media-services.md#add-items-without-restarting-the-current-track).
+
+```ts
+import { createAudioPlayer } from '@octane-xplat/audio'
+const player = createAudioPlayer()
+const first = { id: '1', source: 'https://example.com/1.mp3' }
+await player.setQueue([first], 0, { complete: false })
+await player.updateQueue([first, { id: '2', source: 'https://example.com/2.mp3' }], { complete: true })
+player.dispose()
+```
+
+### Incremental HTTP
+
+NativeScript's default fetch buffers the response. Use the network leaf for
+incremental bytes; it does not replace global fetch or provide a complete
+Fetch-compatible client adapter. Handle cancellation and the documented
+request/target subset in the [network guide](../../../../packages/network/README.md).
+
+```ts
+import { requestStream } from '@octane-xplat/network'
+const response = await requestStream('https://example.com/api/events')
+const reader = response.body.getReader()
+try { console.log((await reader.read()).value?.byteLength) }
+finally { await reader.cancel(); reader.releaseLock() }
+```
+
+For the tested targets and remaining physical acceptance gates, see the
+[Still-shaped readiness record](../../../docs/notes/still-native-readiness.md).
