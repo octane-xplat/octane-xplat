@@ -58,3 +58,17 @@ export type {
 export { setTranslate } from './translate'
 export { useAnimation } from './anim'
 export type { SetTranslate, AnimatedValue, AnimationResult } from './props'
+
+export { useScrollableArea } from './use-scrollable-area'
+export type {
+	ScrollAxis,
+	ScrollAxisState,
+	ScrollableAreaState,
+	ScrollKeyboardAccess,
+	ScrollOverscroll,
+	ScrollStickyContainment,
+	UseScrollableAreaOptions,
+	UseScrollableAreaViewportProps,
+	UseScrollableAreaContentProps,
+	UseScrollableAreaResult,
+} from './props'

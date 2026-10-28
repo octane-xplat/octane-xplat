@@ -2019,7 +2019,7 @@ export interface UseScrollableAreaOptions {
 
 /** Props returned for the viewport box by `useScrollableArea`.
  *  `TElement` identifies the host receiving the composed ref and defaults to
- *  `HostElement` when the caller does not need host-specific ref typing. */
+ *  `object`. Pass the JSX host type when spreading onto strictly typed intrinsics. */
 export interface UseScrollableAreaViewportProps<TElement extends object = object> {
 	/** Attach to the viewport element — the measured scroll container. */
 	ref: Octane.Ref<TElement>

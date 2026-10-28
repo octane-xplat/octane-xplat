@@ -296,7 +296,10 @@ function instantiate(type: string): GtkView {
 		case 'button':
 			return new Gtk.Button()
 		case 'scrollview':
-			return new Gtk.ScrolledWindow()
+			return new Gtk.ScrolledWindow({
+				hscrollbar_policy: Gtk.PolicyType.NEVER,
+				vscrollbar_policy: Gtk.PolicyType.AUTOMATIC,
+			})
 		case 'textfield':
 			return new Gtk.Entry()
 		case 'switch':
@@ -2096,22 +2099,17 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 
 			return
 		case 'scrollview':
-			if (name === 'orientation') {
-				const horizontal = value === 'horizontal'
-				view.hscrollbar_policy = Gtk.PolicyType.AUTOMATIC
-				view.vscrollbar_policy = horizontal ? Gtk.PolicyType.NEVER : Gtk.PolicyType.AUTOMATIC
-			} else if (name === 'scrollBarIndicatorVisible') {
-				// Gtk.PolicyType.NEVER hides the indicator on both axes.
-				view.hscrollbar_policy = value === false ? Gtk.PolicyType.NEVER : Gtk.PolicyType.AUTOMATIC
-				view.vscrollbar_policy = value === false ? Gtk.PolicyType.NEVER : Gtk.PolicyType.AUTOMATIC
-			} else if (name === 'isScrollEnabled') {
-				if (value === false) {
-					view.hscrollbar_policy = Gtk.PolicyType.NEVER
-					view.vscrollbar_policy = Gtk.PolicyType.NEVER
-				} else {
-					view.hscrollbar_policy = Gtk.PolicyType.AUTOMATIC
-					view.vscrollbar_policy = Gtk.PolicyType.AUTOMATIC
-				}
+			if (['orientation', 'scrollBarIndicatorVisible', 'isScrollEnabled'].includes(name)) {
+				const orientation = node.props.orientation ?? 'vertical'
+				const policy =
+					node.props.scrollBarIndicatorVisible === false
+						? Gtk.PolicyType.EXTERNAL
+						: Gtk.PolicyType.AUTOMATIC
+				const enabled = node.props.isScrollEnabled !== false
+				view.hscrollbar_policy =
+					enabled && orientation !== 'vertical' ? policy : Gtk.PolicyType.NEVER
+				view.vscrollbar_policy =
+					enabled && orientation !== 'horizontal' ? policy : Gtk.PolicyType.NEVER
 			} else {
 				warn(`<scrollview> ignored prop ${name}`)
 			}

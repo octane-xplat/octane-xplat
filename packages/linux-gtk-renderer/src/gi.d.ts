@@ -190,6 +190,11 @@ declare module 'gi://Gtk?version=4.0' {
 		}
 
 		class Adjustment {
+			get_value(): number
+			set_value(value: number): void
+			get_lower(): number
+			get_upper(): number
+			get_page_size(): number
 			constructor(props?: {
 				lower?: number
 				upper?: number
@@ -223,6 +228,9 @@ declare module 'gi://Gtk?version=4.0' {
 		}
 
 		class ScrolledWindow extends Widget {
+			constructor(props?: { hscrollbar_policy?: PolicyType; vscrollbar_policy?: PolicyType })
+			get_hadjustment(): Adjustment
+			get_vadjustment(): Adjustment
 			set_child(child: Widget | null): void
 			get_child(): Widget | null
 			hscrollbar_policy: PolicyType

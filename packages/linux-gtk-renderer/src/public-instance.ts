@@ -1,3 +1,4 @@
+import { bindScrolling } from './scroll-instance.js'
 import type { ElementNode } from './index.js'
 
 export interface GtkBounds {
@@ -7,7 +8,7 @@ export interface GtkBounds {
 	height: number
 }
 
-type LayoutEvent = 'loaded' | 'unloaded' | 'layoutChanged'
+type LayoutEvent = 'loaded' | 'unloaded' | 'layoutChanged' | 'scroll'
 type Listener = (event: { eventName: LayoutEvent; object: unknown }) => void
 
 const NUMERIC_STYLE_KEYS = new Set([
@@ -76,10 +77,10 @@ export function bindPublicInstance(node: ElementNode, styles: StyleHost): () => 
 			? { x: rect.origin.x, y: rect.origin.y, width: rect.size.width, height: rect.size.height }
 			: null
 	}
-	const emit = (eventName: LayoutEvent) => {
+	const emit = (eventName: LayoutEvent, detail: Record<string, number> = {}) => {
 		for (const listener of [...(listeners.get(eventName) ?? [])]) {
 			if (disposed) break
-			listener({ eventName, object: view })
+			listener({ eventName, object: view, ...detail })
 		}
 	}
 	const stop = () => {
@@ -98,6 +99,7 @@ export function bindPublicInstance(node: ElementNode, styles: StyleHost): () => 
 			return !disposed && !!listeners.get('layoutChanged')?.size
 		})
 	}
+	const disposeScrolling = bindScrolling(view, emit)
 	const mapped = view.connect('map', () => {
 		emit('loaded')
 		start()
@@ -168,7 +170,7 @@ export function bindPublicInstance(node: ElementNode, styles: StyleHost): () => 
 	view.getBounds = bounds
 	view.on = (name: LayoutEvent, listener: Listener) => {
 		if (disposed) return
-		if (!['loaded', 'unloaded', 'layoutChanged'].includes(name)) {
+		if (!['loaded', 'unloaded', 'layoutChanged', 'scroll'].includes(name)) {
 			throw new Error(`linux-gtk ref: unsupported subscription ${name}`)
 		}
 		let set = listeners.get(name)
@@ -182,6 +184,7 @@ export function bindPublicInstance(node: ElementNode, styles: StyleHost): () => 
 		if (!listeners.get('layoutChanged')?.size) stop()
 	}
 	return () => {
+		disposeScrolling()
 		disposed = true
 		host = null
 		styleHost = null

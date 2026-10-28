@@ -352,8 +352,13 @@ it, each with GJS 1.90.1 / GTK 4.24.1 headless evidence in
   GTK CSS equivalent inside Mason subtrees.
 - Text only folds into `label`/`button`; `#text` under other containers is
   dropped from the widget tree (logical node retained).
-- `<scrollview>` mounts a single child — the shared scrollable contract
-  needs a future viewport pass.
+- `<scrollview>` mounts a single content child; wrap multiple children in
+  a content masonview. Refs expose browser-shaped metrics, scroll/layout
+  subscriptions and clamped offset methods backed by GtkAdjustment. The
+  useScrollableArea hook has real-Linux range, resize, cleanup and X11 wheel
+  evidence in [the parity record](linux-gtk-ui-parity.md#headless-scrolling-slice).
+  Generic masonview overflow, the shared ScrollableArea refresh path, and
+  input-only disabling through isScrollEnabled remain unqualified.
 - Portals are unimplemented (`resolveParent` rejects non-null targets);
   templates/mount-template ops are unadvertised and unhandled.
 - The `native` boundary set does not include `gtk` — `.gtk` leaves are

@@ -6,6 +6,7 @@
 		"src/ui-input.gtk.tsrx",
 		"src/ui-types.gtk.ts",
 		"src/ui-measure.gtk.tsrx",
-		"src/ui-animation.gtk.tsrx"
+		"src/ui-animation.gtk.tsrx",
+		"src/ui-scroll.gtk.tsrx"
 	]
 }

@@ -219,3 +219,47 @@ Other logs: andromeda /tmp/gtk-animation-{types,pack,barrels,recipes,changelog}.
 and guest /tmp/gtk-animation-test-final.log. The existing docs-site parser
 failure is still unresolved. GTK system reduced-motion behavior for imperative
 playback and exhaustive numeric-property qualification remain open.
+
+## Headless scrolling slice
+
+The GTK barrel now exposes useScrollableArea and its ten shared types:
+29 runtime values and 44 types in the curated surface. The native hook is reused.
+Pass HostElement from @octane-xplat/jsx/intrinsics as its generic argument when
+spreading the returned refs onto strict GTK intrinsics. Its shared default is
+object; the stale props comment claiming HostElement has been corrected without
+changing the native public signature. Silo feedback
+66c5f87f-6928-4de0-9760-48d691d80850 preserves that typing mismatch.
+
+Gtk.ScrolledWindow refs now expose scrollWidth/Height, clientWidth/Height,
+scrollLeft/Top, scroll and layout subscriptions, and vertical/horizontal offset
+methods. GtkAdjustment is authoritative for dimensions, ranges and movement.
+Animated writes use a bounded monotonic-time transition; immediate writes,
+replacement, external native movement and destruction cancel the prior work.
+GTK's disabled-animation setting makes animated offsets immediate. Extent
+changes notify layout subscribers even when the viewport's bounds stay fixed.
+
+Axis and indicator settings now compose from the complete prop bag instead of
+overwriting each other. Hidden indicators use GTK_POLICY_EXTERNAL on allowed
+axes; GTK_POLICY_NEVER would let content determine the size rather than retaining
+the viewport. This distinction is documented in the
+[GTK PolicyType reference](https://docs.gtk.org/gtk4/enum.PolicyType.html).
+
+The maintained scroll fixture performs 21 assertions on real Ubuntu/GJS/GTK,
+including an actual X11 wheel event sent with xdotool. It checks both axes,
+edge flags, range clamping, intermediate animation and final offsets, replacement,
+native interruption, hidden indicators, axis changes, content resizing,
+subscription independence and teardown. All 31 renderer tests pass without
+skips; animation, measurement and primitive checks remain included. This is
+Linux Xvfb/X11 evidence, not Wayland, assistive-technology or visual evidence.
+
+The UI/dependent typecheck initially passed 57 tasks and failed the renderer
+fixture's object ref generic. The corrected renderer/dependent check passes all eight tasks
+(/tmp/gtk-scroll-renderer-types-final.log); the full initial log is
+/tmp/gtk-scroll-types.log. Packed exports/declarations, recipes and release
+notes pass. Runtime logs: guest /tmp/gtk-scroll-test-final.log; first full runtime
+run /tmp/gtk-scroll-test.log. The public setup/packaging recipe requirements are
+unchanged; widget/hook evidence is distinct from packaged-consumer verification.
+
+The ScrollableArea component remains absent from the GTK barrel until its
+refresh controller, indicator and both-axis handle have been qualified. Generic
+masonview overflow and input-only isScrollEnabled behavior remain open.

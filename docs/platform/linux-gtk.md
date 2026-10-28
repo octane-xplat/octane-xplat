@@ -80,7 +80,7 @@ variants in `.gtk.tsrx`/`.gtk.tsx` files.
 `@octane-xplat/ui` resolves a curated `gtk` export condition. It includes
 `Text`, `Pressable`, the `View`/`Stack` family, `Grid`/`GridSpan`, `Center`,
 `Section`, `Layout` regions, `Absolute`, `Spacer`, `Badge`, `Divider`,
-`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, and `useAnimation`.
+`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, and `useScrollableArea`.
 For example, place a label and
 status badge in a horizontal row:
 
@@ -136,6 +136,29 @@ export function SlidePreview() {
         <Text>Slide</Text>
       </Pressable>
     </View>
+  )
+}
+```
+
+Use `useScrollableArea` to observe scroll edges in a custom GTK viewport.
+A `scrollview` supplies scrolling; its one `masonview` child holds the content.
+Attach the hook's viewport and content props as shown below. Its state updates
+when content resizes as well as when the user scrolls. The hook does not make
+an ordinary `View` scrollable. `HostElement` describes the GTK widget type so
+the attached refs typecheck.
+
+```tsx
+import { Text, useScrollableArea } from '@octane-xplat/ui'
+import type { HostElement } from '@octane-xplat/jsx/intrinsics'
+
+export function FeedViewport() {
+  const area = useScrollableArea<HostElement>({ axis: 'block' })
+  return (
+    <scrollview {...area.getViewportProps()} orientation="vertical" style={{ width: 200, height: 100 }}>
+      <masonview {...area.getContentProps()} style={{ height: 600 }}>
+        <Text>{area.state.block.atEnd ? 'End of feed' : 'Scroll for more'}</Text>
+      </masonview>
+    </scrollview>
   )
 }
 ```
