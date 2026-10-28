@@ -55,6 +55,79 @@ static void xplat_send_event(NSApplication *app, SEL selector, NSEvent *event) {
 }
 @end
 
+// [NSApp run] never loads a nib, so nothing installs an NSApplication
+// mainMenu — without one, AppKit has no menu key equivalents and Cmd-Q,
+// Cmd-W, and the Edit menu selectors (copy:, paste:, undo:…) do not reach
+// their targets. Install the standard default before entering the run loop.
+// An app that already assigned NSApp.mainMenu from JavaScript keeps its own.
+static void install_default_main_menu(void) {
+  [NSApplication sharedApplication];
+  if (!NSApp || NSApp.mainMenu) return;
+  NSString *app = NSProcessInfo.processInfo.processName;
+  NSMenu *menubar = [[NSMenu alloc] init];
+
+  NSMenuItem *app_item = [menubar addItemWithTitle:@"" action:NULL keyEquivalent:@""];
+  NSMenu *app_menu = [[NSMenu alloc] initWithTitle:app];
+  [app_menu addItemWithTitle:[@"About " stringByAppendingString:app]
+                      action:@selector(orderFrontStandardAboutPanel:)
+               keyEquivalent:@""];
+  [app_menu addItem:[NSMenuItem separatorItem]];
+  [app_menu addItemWithTitle:[@"Hide " stringByAppendingString:app]
+                      action:@selector(hide:)
+               keyEquivalent:@"h"];
+  NSMenuItem *hide_others =
+      [app_menu addItemWithTitle:@"Hide Others"
+                          action:@selector(hideOtherApplications:)
+                   keyEquivalent:@"h"];
+  hide_others.keyEquivalentModifierMask =
+      NSEventModifierFlagOption | NSEventModifierFlagCommand;
+  [app_menu addItemWithTitle:@"Show All"
+                      action:@selector(unhideAllApplications:)
+               keyEquivalent:@""];
+  [app_menu addItem:[NSMenuItem separatorItem]];
+  [app_menu addItemWithTitle:[@"Quit " stringByAppendingString:app]
+                      action:@selector(terminate:)
+               keyEquivalent:@"q"];
+  app_item.submenu = app_menu;
+
+  NSMenuItem *edit_item = [menubar addItemWithTitle:@"" action:NULL keyEquivalent:@""];
+  NSMenu *edit_menu = [[NSMenu alloc] initWithTitle:@"Edit"];
+  [edit_menu addItemWithTitle:@"Undo" action:@selector(undo:) keyEquivalent:@"z"];
+  NSMenuItem *redo =
+      [edit_menu addItemWithTitle:@"Redo" action:@selector(redo:) keyEquivalent:@"z"];
+  redo.keyEquivalentModifierMask = NSEventModifierFlagShift | NSEventModifierFlagCommand;
+  [edit_menu addItem:[NSMenuItem separatorItem]];
+  [edit_menu addItemWithTitle:@"Cut" action:@selector(cut:) keyEquivalent:@"x"];
+  [edit_menu addItemWithTitle:@"Copy" action:@selector(copy:) keyEquivalent:@"c"];
+  [edit_menu addItemWithTitle:@"Paste" action:@selector(paste:) keyEquivalent:@"v"];
+  NSMenuItem *paste_plain = [edit_menu addItemWithTitle:@"Paste and Match Style"
+                                                 action:@selector(pasteAsPlainText:)
+                                          keyEquivalent:@"v"];
+  paste_plain.keyEquivalentModifierMask =
+      NSEventModifierFlagOption | NSEventModifierFlagShift | NSEventModifierFlagCommand;
+  [edit_menu addItemWithTitle:@"Delete" action:@selector(delete:) keyEquivalent:@""];
+  [edit_menu addItemWithTitle:@"Select All" action:@selector(selectAll:) keyEquivalent:@"a"];
+  edit_item.submenu = edit_menu;
+
+  NSMenuItem *window_item = [menubar addItemWithTitle:@"" action:NULL keyEquivalent:@""];
+  NSMenu *window_menu = [[NSMenu alloc] initWithTitle:@"Window"];
+  [window_menu addItemWithTitle:@"Minimize"
+                       action:@selector(performMiniaturize:)
+                keyEquivalent:@"m"];
+  [window_menu addItemWithTitle:@"Zoom" action:@selector(performZoom:) keyEquivalent:@""];
+  NSMenuItem *fullscreen = [window_menu addItemWithTitle:@"Enter Full Screen"
+                                                  action:@selector(toggleFullScreen:)
+                                           keyEquivalent:@"f"];
+  fullscreen.keyEquivalentModifierMask =
+      NSEventModifierFlagControl | NSEventModifierFlagCommand;
+  [window_menu addItem:[NSMenuItem separatorItem]];
+  [window_menu addItemWithTitle:@"Close" action:@selector(performClose:) keyEquivalent:@"w"];
+  window_item.submenu = window_menu;
+  NSApp.windowsMenu = window_menu;
+
+  NSApp.mainMenu = menubar;
+}
+
 typedef struct host_timer {
   int32_t id;
   js_env_t *env;
@@ -476,7 +549,10 @@ int main(int argc, char **argv) {
     if (!input_timer) return 1;
     CFRunLoopAddTimer(CFRunLoopGetMain(), input_timer, kCFRunLoopCommonModes);
   }
-  if (argc == 5 || packaged) [NSApp run];
+  if (argc == 5 || packaged) {
+    install_default_main_menu();
+    [NSApp run];
+  }
   else CFRunLoopRunInMode(kCFRunLoopDefaultMode, 1.0, false);
   fprintf(stderr, "host run loop returned\n");
   if (input_timer) {CFRunLoopTimerInvalidate(input_timer); CFRelease(input_timer);}
