@@ -4778,6 +4778,40 @@ function translateAxisValue(value: any): any {
 	return Number.isFinite(n) ? n : 0
 }
 
+// '45deg'|'0.5turn'|'1.57rad'|45|'400grad' → degrees.
+function transformAngleValue(value: any): number {
+	if (typeof value === 'number') {
+		return Number.isFinite(value) ? value : 0
+	}
+	const text = String(value ?? '').trim().toLowerCase()
+	const n = parseFloat(text)
+	if (!Number.isFinite(n)) {
+		return 0
+	}
+	if (text.endsWith('turn')) {
+		return n * 360
+	}
+	if (text.endsWith('grad')) {
+		return n * 0.9
+	}
+	if (text.endsWith('rad')) {
+		return (n * 180) / Math.PI
+	}
+	return n
+}
+
+// '150%'|1.5|'1.5' → multiplier.
+function transformScaleValue(value: any): number {
+	if (typeof value === 'number') {
+		return Number.isFinite(value) ? value : 0
+	}
+	const n = parseFloat(String(value ?? '').trim())
+	if (!Number.isFinite(n)) {
+		return 0
+	}
+	return String(value).trim().endsWith('%') ? n / 100 : n
+}
+
 const DEFAULT_PERSPECTIVE = 300
 
 // Compose the node's transform spec into a CATransform3D — NS composition
@@ -4805,19 +4839,19 @@ function syncTransform(node: ElementNode) {
 		parts.translateY = spec.translateY
 	}
 	if (spec?.scaleX !== undefined) {
-		parts.scaleX = Number(spec.scaleX)
+		parts.scaleX = transformScaleValue(spec.scaleX)
 	}
 	if (spec?.scaleY !== undefined) {
-		parts.scaleY = Number(spec.scaleY)
+		parts.scaleY = transformScaleValue(spec.scaleY)
 	}
 	if (spec?.rotate !== undefined) {
-		parts.rotate = Number(spec.rotate)
+		parts.rotate = transformAngleValue(spec.rotate)
 	}
 	if (spec?.rotateX !== undefined) {
-		parts.rotateX = Number(spec.rotateX)
+		parts.rotateX = transformAngleValue(spec.rotateX)
 	}
 	if (spec?.rotateY !== undefined) {
-		parts.rotateY = Number(spec.rotateY)
+		parts.rotateY = transformAngleValue(spec.rotateY)
 	}
 
 	const size = view.frame?.size ?? { width: 0, height: 0 }
@@ -4846,7 +4880,7 @@ function syncTransform(node: ElementNode) {
 		} else if (step.kind === 'rotate') {
 			t = CATransform3DRotate(t, (-step.args[0] * Math.PI) / 180, 0, 0, 1)
 		} else if (step.kind === 'rotate3d') {
-			const depth = Number(spec?.perspective) || DEFAULT_PERSPECTIVE
+			const depth = parseFloat(String(spec?.perspective)) || DEFAULT_PERSPECTIVE
 			if (depth > 0) {
 				try {
 					;(t as any).m34 = -1 / depth
