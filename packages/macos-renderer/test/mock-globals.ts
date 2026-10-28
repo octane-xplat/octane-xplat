@@ -75,6 +75,11 @@ if (typeof syncContainerPseudoState === 'undefined') var syncContainerPseudoStat
 if (typeof setVisualStateTracking === 'undefined') var setVisualStateTracking = () => {}
 if (typeof syncPseudoTracking === 'undefined') var syncPseudoTracking = () => {}
 if (typeof cssNodesByView === 'undefined') var cssNodesByView = new WeakMap()
+if (typeof sampleKeyframeAnimation === 'undefined') var sampleKeyframeAnimation = () => ({ values: {}, done: true })
+if (typeof resolveTranslate === 'undefined') var resolveTranslate = (v) => (typeof v === 'number' ? v : 0)
+if (typeof transformToParts === 'undefined') var transformToParts = () => undefined
+if (typeof stopSubtreeAnimations === 'undefined') var stopSubtreeAnimations = () => {}
+if (typeof cancelKeyframeAnimations === 'undefined') var cancelKeyframeAnimations = () => false
 if (typeof syncInputChrome === 'undefined') var syncInputChrome = () => {}
 if (typeof syncText === 'undefined') var syncText = () => {}
 if (typeof syncHtmlView === 'undefined') var syncHtmlView = () => {}
