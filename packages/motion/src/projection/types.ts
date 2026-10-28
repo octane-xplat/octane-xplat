@@ -66,6 +66,8 @@ export interface LayoutBarrier {
 }
 
 export interface ProjectionNodeOptions {
+	layoutId?: string
+	crossfade?: boolean
 	animationType?: AnimationType
 	layoutDependency?: unknown
 	transition?: TransitionInput

@@ -6,7 +6,7 @@ import type { Box } from './types'
  * superview's space. Scroll content offsets are not subtracted — subview
  * centers already live in content coordinates.
  */
-export function measureNativeBox(view: any): Box | null {
+export function measureNativeBox(view: any, viewport = false): Box | null {
 	let v = view?.nativeViewProtected ?? view?.nativeView ?? view?.ios ?? null
 	if (!v) {
 		return null
@@ -18,6 +18,10 @@ export function measureNativeBox(view: any): Box | null {
 		x += v.center.x - v.bounds.size.width / 2
 		y += v.center.y - v.bounds.size.height / 2
 		v = v.superview
+		if (viewport) {
+			x -= v.bounds.origin?.x ?? 0
+			y -= v.bounds.origin?.y ?? 0
+		}
 	}
 	return { x: { min: x, max: x + size.width }, y: { min: y, max: y + size.height } }
 }

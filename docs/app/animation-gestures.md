@@ -708,12 +708,101 @@ export function ScrollingCard({ wide }: { wide: boolean }) {
 }
 ```
 
-A few limits to keep in mind: `layoutId`, `LayoutGroup`, `layoutScroll`,
-`layoutRoot`, `layoutAnchor`, and `layoutCrossfade` are not part of the
-supported subset yet;
-border-radius and box-shadow stretch during scale; and existing CSS
-transforms still belong on an outer container. See
+`layoutScroll`, `layoutRoot`, and `layoutAnchor` are outside the supported
+subset. Border-radius and box-shadow stretch during scale, and existing CSS
+transforms belong on an outer container. See
 [Motion leaf limits](../testing/known-limits.md#motion-leaf) for the full list.
+
+## Move an element between components
+
+Give two motion hosts the same `layoutId` to animate a handoff between them.
+The new host starts from the old host's last presented position and size.
+Use a distinct `LayoutGroup id` for each independent control, so two tab bars
+can both name their underline `"underline"`:
+
+```tsx
+import { useState } from 'octane'
+import { LayoutGroup, motion } from '@octane-xplat/motion'
+import { HStack, Pressable, Text } from '@octane-xplat/ui'
+
+export function AnimatedTabs({ id }: { id: string }) {
+	const tabs = ['Overview', 'Activity']
+	const [selected, setSelected] = useState(tabs[0])
+	return <LayoutGroup id={id}>
+		<HStack>
+			{tabs.map(tab => (
+				<Pressable key={tab} onPress={() => setSelected(tab)}>
+					<Text>{tab}</Text>
+					{selected === tab && (
+						<motion.View layoutId="underline" style={{ width: 80, height: 2 }} />
+					)}
+				</Pressable>
+			))}
+		</HStack>
+	</LayoutGroup>
+}
+```
+
+Keep both hosts mounted with `Presence` when their contents should crossfade.
+The outgoing host follows the incoming host's animated box and stays mounted
+until the shared animation and any explicit exit animation finish. Reversing
+the selection while it moves starts from its current position:
+
+```tsx
+import { LayoutGroup, Presence, motion } from '@octane-xplat/motion'
+import { Text, View } from '@octane-xplat/ui'
+
+export function ExpandingDetails({ expanded }: { expanded: boolean }) {
+	return <LayoutGroup id="details">
+		<View style={{ position: 'relative', height: 180 }}>
+			<Presence present={!expanded} style={{ position: 'absolute', left: 0, top: 0 }}>
+				<motion.View layoutId="card" style={{ width: 120, height: 80 }}>
+					<Text>Summary</Text>
+				</motion.View>
+			</Presence>
+			<Presence present={expanded} style={{ position: 'absolute', left: 0, top: 0 }}>
+				<motion.View layoutId="card" style={{ width: 280, height: 180 }}>
+					<Text>Details</Text>
+				</motion.View>
+			</Presence>
+		</View>
+	</LayoutGroup>
+}
+```
+
+Set `layoutCrossfade={false}` on the incoming host to hide the outgoing host
+immediately while its geometry moves. Layout timing and reduced-motion settings
+apply to shared handoffs too:
+
+```tsx
+import { motion } from '@octane-xplat/motion'
+
+export function MovingHighlight() {
+	return <motion.View
+		layoutId="highlight"
+		layoutCrossfade={false}
+		transition={{ layout: { duration: 0.3, ease: 'easeOut' } }}
+		style={{ width: 80, height: 4 }}
+	/>
+}
+```
+
+Nested groups compose their ID namespaces. Set `inherit={false}` to start a
+separate namespace. Omitting a group ID inherits its parent's namespace;
+`inherit="id"` and `inherit={true}` are equivalent because every registered
+layout host already observes commits:
+
+```tsx
+import { LayoutGroup, motion } from '@octane-xplat/motion'
+
+export function IndependentHighlight() {
+	return <LayoutGroup id="page">
+		<LayoutGroup id="toolbar" inherit={false}>
+			<motion.View layoutId="highlight" style={{ width: 80, height: 4 }} />
+		</LayoutGroup>
+	</LayoutGroup>
+}
+```
 
 ## Compose motion patterns
 

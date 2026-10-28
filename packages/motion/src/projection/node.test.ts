@@ -473,3 +473,174 @@ describe('projection update cycle', () => {
 		expect(onComplete).toHaveBeenCalledTimes(1)
 	})
 })
+
+describe('shared layout projection', () => {
+	function member(root: ProjectionRoot, x: number, width = 100, key = 'card') {
+		const fixture = fakeHooks()
+		fixture.state.box = box(x, 0, width, 100)
+		let opacity = 1
+		const node = new ProjectionNode()
+		node.options = { animationType: 'both', layoutId: key, transition: { duration: 0.1, ease: 'linear' } }
+		node.attach({ ...fixture.hooks, writeOpacity: value => { opacity = value } })
+		root.add(node)
+		return { node, ...fixture, opacity: () => opacity }
+	}
+
+	it('hands off resize and position, projects both members, and restores opacity', () => {
+		const { root, commit, clock } = setup()
+		const old = member(root, 0)
+		commit()
+		const next = member(root, 200, 200)
+		commit()
+		expect(next.node.presented).toEqual(box(0, 0, 100, 100))
+		expect(old.node.presented).toEqual(next.node.presented)
+		expect(next.opacity()).toBe(0)
+		expect(old.opacity()).toBe(1)
+		clock.advance(50)
+		expect(next.node.presented!.x.min).toBeCloseTo(100)
+		expect(next.node.presented!.x.max).toBeCloseTo(250)
+		expect(old.node.presented).toEqual(next.node.presented)
+		clock.advance(60)
+		expect(next.opacity()).toBe(1)
+		expect(old.opacity()).toBe(0)
+		expect(next.node.currentAnimation).toBeUndefined()
+	})
+
+	it('keeps a same-commit unmount snapshot, then expires an unused snapshot', () => {
+		const { root, commit } = setup()
+		const old = member(root, 0)
+		commit()
+		root.remove(old.node)
+		const next = member(root, 200)
+		commit()
+		expect(next.node.presented!.x.min).toBe(0)
+		root.remove(next.node)
+		commit()
+		expect(root.sharedStacks.size).toBe(0)
+		const later = member(root, 400)
+		commit()
+		expect(later.node.currentAnimation).toBeUndefined()
+		expect(later.node.presented!.x.min).toBe(400)
+	})
+
+	it('reverses from the presented box and releases retained exits only on completion', async () => {
+		const { root, commit, clock } = setup()
+		const old = member(root, 0)
+		commit()
+		const next = member(root, 200)
+		commit()
+		const oldExit = old.node.shared!.setPresent(old.node, false)
+		commit()
+		clock.advance(40)
+		const midpoint = next.node.presented!.x.min
+		const nextExit = next.node.shared!.setPresent(next.node, false)
+		void old.node.shared!.setPresent(old.node, true)
+		commit()
+		expect(old.node.presented!.x.min).toBeCloseTo(midpoint)
+		expect(await oldExit).toBe('cancelled')
+		let removed = false
+		void nextExit.then(() => { removed = true })
+		await Promise.resolve()
+		expect(removed).toBe(false)
+		clock.advance(120)
+		expect(await nextExit).toBe('finished')
+		expect(old.node.presented!.x.min).toBe(0)
+		expect(old.opacity()).toBe(1)
+		expect(next.opacity()).toBe(0)
+	})
+
+	it('isolates IDs, supports crossfade=false, and snaps reduced motion', () => {
+		const { root, commit } = setup()
+		const old = member(root, 0)
+		member(root, 500, 100, 'other')
+		commit()
+		const next = member(root, 200)
+		next.node.options.crossfade = false
+		commit()
+		expect(old.opacity()).toBe(0)
+		expect(next.opacity()).toBe(1)
+		expect(root.sharedStacks.size).toBe(2)
+		const reduced = member(root, 400)
+		reduced.node.options.reduced = true
+		commit()
+		expect(reduced.node.presented!.x.min).toBe(400)
+		expect(reduced.node.currentAnimation).toBeUndefined()
+		expect(reduced.opacity()).toBe(1)
+	})
+
+	it('preserves visibility on an immediate reversal and keeps older followers hidden', () => {
+		const { root, commit } = setup()
+		const first = member(root, 0)
+		commit()
+		const second = member(root, 200)
+		commit()
+		void second.node.shared!.setPresent(second.node, false)
+		void first.node.shared!.setPresent(first.node, true)
+		commit()
+		expect(first.opacity()).toBe(1)
+		expect(second.opacity()).toBe(0)
+		const third = member(root, 400)
+		commit()
+		expect(second.opacity()).toBe(0)
+		expect(first.opacity()).toBe(1)
+		expect(third.opacity()).toBe(0)
+	})
+
+	it('transfers viewport geometry between different scroll coordinate spaces', () => {
+		const { root, commit } = setup()
+		const old = member(root, 200)
+		old.node.hooks!.measureLayout = () => ({ layoutBox: box(200, 0, 100, 100), measuredBox: box(50, 0, 100, 100) })
+		commit()
+		const next = member(root, 500)
+		next.node.hooks!.measureLayout = () => ({ layoutBox: box(500, 0, 100, 100), measuredBox: box(400, 0, 100, 100) })
+		commit()
+		expect(next.node.presented!.x.min).toBe(150)
+		expect(old.node.presented!.x.min).toBe(200)
+	})
+})
+
+it('keeps the last channel values when shared opacity ownership ends', () => {
+	const { root, commit, clock } = setup()
+	const first = fakeHooks()
+	const old = new ProjectionNode()
+	old.attach(first.hooks)
+	old.options = { animationType: 'both', layoutId: 'opacity' }
+	root.add(old)
+	commit()
+	const next = new ProjectionNode()
+	const fixture = fakeHooks()
+	fixture.state.box = box(200, 0, 100, 100)
+	let opacity = 1
+	next.attach({ ...fixture.hooks, writeOpacity: value => { opacity = value } })
+	next.options = { animationType: 'both', layoutId: 'opacity', transition: { duration: 0.1 } }
+	next.latestValues = { opacity: 0.7 }
+	root.add(next)
+	commit()
+	clock.advance(40)
+	next.setLatestValues({ opacity: 0.3 })
+	clock.advance(80)
+	expect(opacity).toBe(0.3)
+})
+
+it('composes shared geometry with different user translation channels', () => {
+	const { root, commit, clock } = setup()
+	const source = fakeHooks()
+	const old = new ProjectionNode()
+	old.attach(source.hooks)
+	old.options = { animationType: 'both', layoutId: 'channels' }
+	old.latestValues = { x: 20 }
+	root.add(old)
+	commit()
+	const destination = fakeHooks()
+	destination.state.box = box(200, 0, 100, 100)
+	const next = new ProjectionNode()
+	next.attach(destination.hooks)
+	next.options = { animationType: 'both', layoutId: 'channels', transition: { duration: 0.1 } }
+	next.latestValues = { x: 10 }
+	root.add(next)
+	commit()
+	expect(applyDelta(destination.state.box, destination.state.writes.at(-1)!).x.min).toBeCloseTo(20)
+	expect(applyDelta(source.state.box, source.state.writes.at(-1)!).x.min).toBeCloseTo(20)
+	clock.advance(120)
+	expect(next.latestValues.x).toBe(10)
+})

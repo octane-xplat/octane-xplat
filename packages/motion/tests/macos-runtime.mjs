@@ -17,7 +17,7 @@ try {
 	const entry = join(directory, 'entry.ts')
 	await writeFile(
 		entry,
-		`import { runChannels } from ${JSON.stringify(join(packageRoot, 'tests/channels.macos.tsx'))}\nimport { runLayout } from ${JSON.stringify(join(packageRoot, 'tests/layout.macos.tsx'))}\nNSApplication.sharedApplication\nvoid runChannels().then(runLayout).catch(error => { console.error("MOTION_LAYOUT_FAIL", error.message, error.stack); }).finally(() => (globalThis as any).__xplatStopHost())\n`,
+		`import { runChannels } from ${JSON.stringify(join(packageRoot, 'tests/channels.macos.tsx'))}\nimport { runLayout, runSharedLayout } from ${JSON.stringify(join(packageRoot, 'tests/layout.macos.tsx'))}\nNSApplication.sharedApplication\nvoid runChannels().then(runLayout).then(runSharedLayout).catch(error => { console.error("MOTION_LAYOUT_FAIL", error.message, error.stack); }).finally(() => (globalThis as any).__xplatStopHost())\n`,
 	)
 
 	const config = await xplatMacOS('development', {
@@ -63,16 +63,17 @@ try {
 		{
 			cwd: directory,
 			encoding: 'utf8',
-			timeout: 15000,
+			timeout: 30000,
 			env: { ...process.env, OCTANE_MACOS_AUTOMATION: '1' },
 		},
 	)
 
 	const output = result.stdout + result.stderr
-	assert.equal(result.status, 0, output)
+	assert.equal(result.status, 0, `signal=${result.signal} error=${result.error?.message ?? 'none'}\n${output}`)
 	assert.doesNotMatch(output, /MOTION_CHANNELS_FAIL|uncaught render error/)
 	assert.match(output, /MOTION_CHANNELS_OK/)
 	assert.match(output, /MOTION_LAYOUT_OK/)
+	assert.match(output, /MOTION_SHARED_LAYOUT_OK/)
 	console.log(output)
 } finally {
 	await rm(directory, { recursive: true, force: true })

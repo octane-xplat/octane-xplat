@@ -28,6 +28,7 @@ import {
 } from './geometry'
 
 import type { ProjectionRoot } from './root'
+import type { SharedStack } from './stack'
 import type { Axis, Box, Delta, Measurement, ProjectionNodeOptions, ProjectionWrite } from './types'
 
 /** Host-side surface a projection node drives; supplied by the adapter. */
@@ -35,6 +36,7 @@ export interface ProjectionNodeHooks {
 	measureLayout(): Measurement | null
 	resetProjection(): void
 	project(write: ProjectionWrite | null): void
+	writeOpacity?(opacity: number): void
 }
 
 const animationTarget = 1000
@@ -49,6 +51,11 @@ export class ProjectionNode {
 	children = new Set<ProjectionNode>()
 	depth = 0
 	options: ProjectionNodeOptions = {}
+	shared?: SharedStack
+	sharedHandoff = false
+	sharedOpacity?: number
+	private hadSharedOpacity = false
+	isPresent = true
 	latestValues: Target = {}
 	hooks?: ProjectionNodeHooks
 
@@ -97,6 +104,9 @@ export class ProjectionNode {
 	}
 
 	detach() {
+		if (this.hadSharedOpacity) {
+			this.hooks?.writeOpacity?.(this.latestValues.opacity ?? 1)
+		}
 		if (this.hasProjected) {
 			this.hooks?.project(null)
 			this.hasProjected = false
@@ -118,10 +128,15 @@ export class ProjectionNode {
 	 * notifyLayoutUpdate + didUpdate handler.
 	 */
 	notifyLayoutUpdate() {
+		if (this.shared?.lead && this.shared.lead !== this) {
+			return
+		}
+		const handoff = this.sharedHandoff
+		this.sharedHandoff = false
 		const dep = this.options.layoutDependency
 		const depChanged = !Object.is(dep, this.prevLayoutDependency)
 		this.prevLayoutDependency = dep
-		if (dep !== undefined && !depChanged) {
+		if (!handoff && dep !== undefined && !depChanged) {
 			return
 		}
 		if (!this.layout || !this.presented) {
@@ -181,6 +196,7 @@ export class ProjectionNode {
 		const hasOnlyRelativeTargetChanged = !hasLayoutChanged && hasRelativeLayoutChanged
 
 		if (
+			handoff ||
 			hasOnlyRelativeTargetChanged ||
 			(hasLayoutChanged && (hasTargetChanged || !this.currentAnimation))
 		) {
@@ -293,7 +309,12 @@ export class ProjectionNode {
 	}
 
 	isProjecting() {
-		return Boolean((this.relativeTarget || this.targetDelta) && this.layout)
+		return Boolean(
+			(this.relativeTarget ||
+				this.targetDelta ||
+				(this.shared?.lead !== this && this.shared?.transitioning)) &&
+			this.layout,
+		)
 	}
 
 	createRelativeTarget(relativeParent: ProjectionNode, layout: Box, parentLayout: Box) {
@@ -326,7 +347,9 @@ export class ProjectionNode {
 		}
 
 		this.isTreeAnimating = Boolean(
-			(this.parent && this.parent.isTreeAnimating) || this.currentAnimation,
+			(this.parent && this.parent.isTreeAnimating) ||
+			this.currentAnimation ||
+			this.shared?.transitioning,
 		)
 		if (!this.isTreeAnimating) {
 			this.targetDelta = this.relativeTarget = undefined
@@ -378,7 +401,8 @@ export class ProjectionNode {
 	}
 
 	applyTransformsToTarget() {
-		const { targetWithTransforms, target, layout, latestValues } = this
+		const { targetWithTransforms, target, layout } = this
+		const latestValues = this.shared?.lead?.latestValues ?? this.latestValues
 		if (!targetWithTransforms || !target || !layout) {
 			return
 		}
@@ -445,6 +469,16 @@ export class ProjectionNode {
 		copyBoxInto(this.presented, projecting ? this.target! : this.layout.layoutBox)
 	}
 
+	renderOpacity() {
+		if (this.sharedOpacity !== undefined) {
+			this.hooks?.writeOpacity?.(this.sharedOpacity)
+			this.hadSharedOpacity = true
+		} else if (this.hadSharedOpacity) {
+			this.hooks?.writeOpacity?.(this.latestValues.opacity ?? 1)
+			this.hadSharedOpacity = false
+		}
+	}
+
 	createProjectionDeltas() {
 		this.prevProjectionDelta = createDelta()
 		this.projectionDelta = createDelta()
@@ -493,6 +527,9 @@ export class ProjectionNode {
 
 			this.root.scheduleUpdateProjection()
 			this.animationProgress = progress
+			if (this.shared?.lead === this) {
+				this.shared.mix(progress)
+			}
 		}
 
 		this.mixTargetDelta(0)
@@ -527,6 +564,9 @@ export class ProjectionNode {
 
 	completeAnimation() {
 		this.currentAnimation = undefined
+		if (this.shared?.lead === this) {
+			this.shared.complete()
+		}
 	}
 
 	finishAnimation() {

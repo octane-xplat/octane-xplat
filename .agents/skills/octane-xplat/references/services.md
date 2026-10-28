@@ -139,6 +139,30 @@ export function ResizingCard({ wide }: { wide: boolean }) {
 }
 ```
 
+For shared elements, give matching hosts a `layoutId` inside a distinct
+`LayoutGroup id` per independent control. A same-commit replacement animates
+without retaining the old host; use `Presence` to retain both contents for a
+crossfade. Keep Presence boundaries mounted through the transition. See
+[shared handoffs and reversals](../../../../docs/app/animation-gestures.md#move-an-element-between-components).
+
+```tsx
+import { LayoutGroup, Presence, motion } from '@octane-xplat/motion'
+import { View } from '@octane-xplat/ui'
+
+export function SharedCard({ expanded }: { expanded: boolean }) {
+	return <LayoutGroup id="card">
+		<View style={{ position: 'relative', height: 160 }}>
+			<Presence present={!expanded} style={{ position: 'absolute', left: 0, top: 0 }}>
+				<motion.View layoutId="surface" style={{ width: 120, height: 80 }} />
+			</Presence>
+			<Presence present={expanded} style={{ position: 'absolute', left: 0, top: 0 }}>
+				<motion.View layoutId="surface" style={{ width: 240, height: 160 }} />
+			</Presence>
+		</View>
+	</LayoutGroup>
+}
+```
+
 ## Gestures
 
 Normalized payloads (primitives.md). Pan on web uses raw pointer listeners

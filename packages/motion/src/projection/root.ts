@@ -4,6 +4,7 @@ import { barrier } from './barrier'
 import type { LayoutBarrier } from './types'
 import { boxEqualsRounded } from './geometry'
 import { cleanDirtyNodes, propagateDirtyNodes, ProjectionNode } from './node'
+import { SharedStack } from './stack'
 
 export interface ProjectionRootOptions {
 	clock: Clock
@@ -17,6 +18,7 @@ export interface ProjectionRootOptions {
  */
 export class ProjectionRoot {
 	readonly nodes: ProjectionNode[] = []
+	readonly sharedStacks = new Map<string, SharedStack>()
 	readonly animationClock: Clock
 	frameTimestamp = 0
 	private frameScheduled = false
@@ -53,6 +55,16 @@ export class ProjectionRoot {
 			index--
 		}
 		this.nodes.splice(index, 0, node)
+		if (node.options.layoutId !== undefined) {
+			const key = node.options.layoutId
+			let stack = this.sharedStacks.get(key)
+			if (!stack) {
+				stack = new SharedStack()
+				this.sharedStacks.set(key, stack)
+			}
+
+			stack.add(node)
+		}
 		if (this.nodes.length === 1) {
 			this.observeStop = this.options.barrier.observe(this)
 		}
@@ -64,7 +76,9 @@ export class ProjectionRoot {
 			return
 		}
 		this.nodes.splice(index, 1)
+		node.shared?.remove(node)
 		node.detach()
+		this.invalidate('mutation')
 		if (!this.nodes.length) {
 			this.observeStop?.()
 			this.observeStop = undefined
@@ -78,7 +92,7 @@ export class ProjectionRoot {
 			return
 		}
 
-		if (this.passScheduled || !this.nodes.length) {
+		if (this.passScheduled || (!this.nodes.length && !this.sharedStacks.size)) {
 			return
 		}
 		this.passScheduled = true
@@ -155,10 +169,19 @@ export class ProjectionRoot {
 		}
 
 		this.measureNodes()
+		for (const stack of this.sharedStacks.values()) {
+			stack.prepare()
+		}
 		for (const node of this.nodes) {
 			node.notifyLayoutUpdate()
 		}
 		this.updateProjection()
+		for (const [key, stack] of this.sharedStacks) {
+			stack.settleExits()
+			if (!stack.members.length) {
+				this.sharedStacks.delete(key)
+			}
+		}
 	}
 
 	private runResizePass() {
@@ -171,6 +194,9 @@ export class ProjectionRoot {
 			}
 		}
 
+		for (const stack of this.sharedStacks.values()) {
+			stack.complete()
+		}
 		this.updateProjection()
 	}
 
@@ -180,13 +206,20 @@ export class ProjectionRoot {
 			propagateDirtyNodes(node)
 		}
 		for (const node of this.nodes) {
-			node.resolveTargetDelta()
+			if (node.shared?.lead && node.shared.lead !== node) {
+				node.shared.follow(node)
+			} else {
+				node.resolveTargetDelta()
+			}
 		}
 		for (const node of this.nodes) {
 			node.calcProjection()
 		}
 		for (const node of this.nodes) {
 			node.render()
+		}
+		for (const node of this.nodes) {
+			node.renderOpacity()
 		}
 		for (const node of this.nodes) {
 			node.refreshPresented()

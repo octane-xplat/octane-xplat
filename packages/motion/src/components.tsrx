@@ -12,6 +12,7 @@ import { validateTransitionInput } from './engine'
 import { VariantNode, isLabels, resolveVariant, playbackTransition } from './variants'
 import { MotionValue } from './value'
 import { ProjectionContext } from './projection/context.tsrx'
+import { LayoutGroupContext } from './projection/group.tsrx'
 import { ProjectionNode } from './projection/node'
 import { projectionRoot } from './projection/root'
 import { layoutSupported } from './projection/barrier'
@@ -46,6 +47,7 @@ function attachProjection(node: ProjectionNode, adapter: HostAdapter): HostAdapt
 		measureLayout: () => adapter.measureLayout?.() ?? null,
 		resetProjection: () => adapter.resetProjection?.(),
 		project: (write) => adapter.project?.(write),
+		writeOpacity: (opacity) => adapter.write({ opacity }),
 	})
 
 	return {
@@ -58,11 +60,11 @@ function attachProjection(node: ProjectionNode, adapter: HostAdapter): HostAdapt
 		project: adapter.project?.bind(adapter),
 		write(values) {
 			node.setLatestValues(values)
-			if (node.isProjecting() || node.hasProjected) {
+			if (node.isProjecting() || node.hasProjected || node.sharedOpacity !== undefined) {
 				node.isProjectionDirty = true
 				node.root.requestProjectionFrame()
-				// Opacity never projects; it stays on the plain channel write.
-				if (values.opacity !== undefined) {
+				// Shared crossfades own opacity; other opacity writes stay direct.
+				if (values.opacity !== undefined && node.sharedOpacity === undefined) {
 					adapter.write({ opacity: values.opacity })
 				}
 			} else {
@@ -74,11 +76,9 @@ function attachProjection(node: ProjectionNode, adapter: HostAdapter): HostAdapt
 
 function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
 	for (const name of [
-		'layoutId',
 		'layoutScroll',
 		'layoutRoot',
 		'layoutAnchor',
-		'layoutCrossfade',
 		'inherit',
 		'whileHover',
 		'whileInView',
@@ -89,7 +89,7 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
 		}
 	}
 
-	if (props.layout && !layoutSupported) {
+	if ((props.layout || props.layoutId !== undefined) && !layoutSupported) {
 		throw new Error('motion: layout is not yet supported on this platform')
 	}
 
@@ -130,11 +130,17 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
 	validateTransitionInput(transition)
 
 	const parentProjection = useContext(ProjectionContext)
+	const namespace = useContext(LayoutGroupContext)
+	const layoutKey =
+		props.layoutId === undefined ? undefined : JSON.stringify([...namespace, props.layoutId])
+
 	const layoutMode: AnimationType | undefined = props.layout
 		? props.layout === true
 			? 'both'
 			: props.layout
-		: undefined
+		: props.layoutId !== undefined
+			? 'both'
+			: undefined
 
 	const projRef = useRef<ProjectionNode | null>(null)
 	let projection = parentProjection
@@ -145,6 +151,8 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
 
 		const node = projRef.current
 		node.options.animationType = layoutMode
+		node.options.layoutId = layoutKey
+		node.options.crossfade = props.layoutCrossfade
 		node.options.layoutDependency = props.layoutDependency
 		node.options.transition = props.transition ?? config.transition
 		node.options.reduced = reduced
@@ -374,13 +382,27 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
 					}
 				}
 
-				return current.controller.animate(
+				const channels = current.controller.animate(
 					resolved.target,
 					playbackTransition(resolved.transition ?? playback.current.transition),
 					playback.current.reduced,
 				)
+
+				const shared = Promise.resolve().then(() => {
+					const projection = projRef.current
+					return projection?.shared?.setPresent(projection, false) ?? 'finished'
+				})
+
+				return Promise.all([channels, shared]).then(([a, b]) =>
+					a === 'finished' && b === 'finished' ? 'finished' : 'cancelled',
+				)
 			},
 			enter() {
+				const projection = projRef.current
+				if (projection?.shared) {
+					void projection.shared.setPresent(projection, true)
+				}
+
 				const resolved = resolve(latest.current.animate ?? parentVariant?.animate, latest.current)
 				const target = { ...returning.current, ...resolved.target }
 				returning.current = null
@@ -420,7 +442,7 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
 				current.controller.attach(current.adapter)
 			}
 		}
-	}, [projRef.current])
+	}, [projRef.current, layoutKey])
 
 	useLayoutEffect(() => {
 		if (projRef.current) {
@@ -561,6 +583,8 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
 		whileFocus,
 		whileFocusTransition,
 		layout,
+		layoutId,
+		layoutCrossfade,
 		layoutDependency,
 		onLayoutAnimationStart,
 		onLayoutAnimationComplete,

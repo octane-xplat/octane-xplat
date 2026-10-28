@@ -83,6 +83,7 @@ export function attachHost(node: HTMLElement): HostAdapter {
 			// stays transform-free; a projection transform is reset before reads.
 			if (!projecting) {
 				removeBoxTransforms(layoutBox, latestValues)
+				removeBoxTransforms(measuredBox, latestValues)
 			}
 			return { layoutBox, measuredBox }
 		},

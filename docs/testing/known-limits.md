@@ -531,13 +531,24 @@ children; nested `layout` children keep their size inside a scaling parent.
 Verified 2026-10-27 by the maintained probe
 `examples/probes/motion-layout.mobile.tsrx` (iOS 27.0 simulator, Android 15 emulator;
 probe-driven geometry evidence, not visual capture or OS input).
-`layoutId`/`LayoutGroup`, `layoutScroll`/`layoutRoot`/`layoutAnchor`/
-`layoutCrossfade`, `whileHover`/`whileInView`, keyframe arrays, and arbitrary
+`layoutId`/`LayoutGroup` shared handoffs and retained crossfades are supported.
+`layoutScroll`/`layoutRoot`/`layoutAnchor`, `whileHover`/`whileInView`, keyframe arrays, and arbitrary
 CSS/SVG properties are excluded. Border-radius and
 box-shadow are not scale-corrected and visibly stretch; fixed-position layout
 roots are unsupported. Browser overflow scroll offsets are detected automatically. On
 native, `rotate` with a non-uniform parent scale is approximate.
 Existing CSS transforms need an outer container.
+
+```tsx
+import { LayoutGroup, motion } from '@octane-xplat/motion'
+
+export function LayoutSelection({ selected }: { selected: number }) {
+	return <LayoutGroup id="tabs">
+		<motion.View key={selected} layoutId="underline" style={{ marginLeft: selected * 100, width: 80, height: 4 }} />
+	</LayoutGroup>
+}
+```
+
 Declarative tweens delegate to `UIViewPropertyAnimator` (iOS),
 `ViewPropertyAnimator` (Android), and WAAPI `element.animate` (web and
 webview targets); springs, reduced-motion runs, and gesture-driven values

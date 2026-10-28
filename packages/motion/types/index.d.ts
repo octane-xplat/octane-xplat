@@ -5,6 +5,7 @@ import type {
 	MotionRowProps,
 	MotionPressableProps,
 	MotionConfigProps,
+	LayoutGroupProps,
 	Target,
 	Transition,
 	TransitionInput,
@@ -26,6 +27,8 @@ export declare const motion: {
 
 /** Inherit transition and reduced-motion defaults within this root. */
 export declare const MotionConfig: UniversalComponent<MotionConfigProps>
+/** Namespace shared layout IDs; nested group IDs compose. */
+export declare const LayoutGroup: UniversalComponent<LayoutGroupProps>
 /** Observe the live system reduced-motion preference. */
 export declare function useReducedMotion(): boolean
 /** Create an owned numeric value; writes do not render components. */

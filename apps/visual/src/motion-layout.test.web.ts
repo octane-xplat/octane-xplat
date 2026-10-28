@@ -117,3 +117,74 @@ it('keeps the animation origin in content coordinates after nested scrolling', a
 		outer.remove()
 	}
 })
+
+it('shares geometry across a crossfade, reverses continuously, and isolates groups', async () => {
+	const { LayoutGroup, Presence, MotionConfig } =
+		await import('../../../packages/motion/src/index.web')
+	const host = document.createElement('div')
+	host.style.position = 'relative'
+	document.body.append(host)
+	const root = createRoot(host)
+	const card = (id: string, left: number, width: number) =>
+		createElement(motion.View, {
+			id,
+			layoutId: 'card',
+			transition: { duration: 0.4, ease: 'linear' },
+			style: { position: 'absolute', left, top: 0, width, height: 100 },
+		})
+	const view = (next: boolean, reduced = false) =>
+		createElement(MotionConfig, { reducedMotion: reduced ? 'always' : 'never' }, [
+			createElement(
+				LayoutGroup,
+				{ id: 'main' },
+				createElement(Presence, { present: !next }, card('source', 20, 100)),
+				createElement(Presence, { present: next }, card('destination', 220, 200)),
+			),
+			createElement(LayoutGroup, { id: 'isolated' }, card('isolated', 500, 100)),
+		])
+	const flush = async () => {
+		for (let i = 0; i < 12; i++) {
+			await Promise.resolve()
+		}
+	}
+	try {
+		root.render(view(false))
+		await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+		const before = host.querySelector('#source')!.getBoundingClientRect()
+		root.render(view(true))
+		await flush()
+		const destination = host.querySelector('#destination') as HTMLElement
+		expect(destination).not.toBeNull()
+		expect(destination.getBoundingClientRect().x).toBeCloseTo(before.x, 0)
+		expect(destination.getBoundingClientRect().width).toBeCloseTo(100, 0)
+		await new Promise((resolve) => setTimeout(resolve, 160))
+		const source = host.querySelector('#source') as HTMLElement
+		const mid = destination.getBoundingClientRect()
+		expect(mid.x).toBeGreaterThan(30)
+		expect(mid.x).toBeLessThan(210)
+		expect(source.getBoundingClientRect().x).toBeCloseTo(mid.x, 0)
+		expect(source.getBoundingClientRect().width).toBeCloseTo(mid.width, 0)
+		expect(Number(destination.style.opacity)).toBeGreaterThan(0)
+		expect(Number(source.style.opacity)).toBeGreaterThan(0)
+		const isolated = host.querySelector('#isolated') as HTMLElement
+		expect(isolated.style.transform).not.toContain('translate3d')
+		root.render(view(false))
+		await flush()
+		expect(source.getBoundingClientRect().x).toBeCloseTo(mid.x, 0)
+		await new Promise((resolve) => setTimeout(resolve, 550))
+		expect(host.querySelector('#destination')).toBeNull()
+		expect(source.getBoundingClientRect().x).toBeCloseTo(before.x, 0)
+		expect(source.getBoundingClientRect().width).toBeCloseTo(100, 0)
+		expect(source.style.opacity).toBe('1')
+		root.render(view(true, true))
+		await flush()
+		expect(host.querySelector('#source')).toBeNull()
+		const snapped = host.querySelector('#destination') as HTMLElement
+		expect(snapped.getBoundingClientRect().width).toBeCloseTo(200, 0)
+		expect(snapped.getBoundingClientRect().x).toBeCloseTo(220, 0)
+		expect(snapped.style.opacity).toBe('1')
+	} finally {
+		root.unmount()
+		host.remove()
+	}
+})

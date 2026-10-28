@@ -1,6 +1,6 @@
 # @octane-xplat/motion
 
-Declarative numeric motion for Octane UI on web, iOS, and Android. Use
+Declarative numeric motion for Octane UI on web, iOS, Android, and the experimental macOS host. Use
 `motion.View`, `motion.Row`, or `motion.Pressable` with `initial`, `animate`,
 and `transition`, or `drag` with numeric translation bounds. Bound motion
 values update hosts without rendering each frame.
@@ -44,12 +44,26 @@ See the [motion guide](../../docs/app/animation-gestures.md) and the maintained
 covers retained exits. The [compatibility record](UPSTREAM.md) defines the
 supported subset and differences from `@octanejs/motion`.
 
-Generate declarations with `pnpm --filter @octane-xplat/motion typegen`; run DOM/engine tests with
-`pnpm --filter @octane-xplat/motion test` and universal lifecycle tests with
-`pnpm --filter @octane-xplat/motion exec vitest run --config vitest.native.config.mts`.
+Add `layout` to animate a resize when a prop changes:
+
+```tsx
+import { motion } from '@octane-xplat/motion'
+
+export function LayoutCard({ expanded }: { expanded: boolean }) {
+	return <motion.View layout style={{ width: expanded ? 240 : 120, height: 80 }} />
+}
+```
+
+For movement between components and crossfading content, follow the
+[shared-element guide](../../docs/app/animation-gestures.md#move-an-element-between-components).
+
+Generate declarations with `pnpm exec turbo run typegen --filter=@octane-xplat/motion`;
+run DOM/engine and universal lifecycle tests with
+`pnpm exec turbo run test test:native --filter=@octane-xplat/motion`.
 Native compilation and object-driver tests are not physical-device evidence.
 
-macOS has [package-boundary acceptance and focused native-channel checks](UPSTREAM.md#macos-package-boundary).
+macOS has [package-boundary acceptance and focused native-channel checks](UPSTREAM.md#macos-package-boundary),
+plus layout and shared-handoff geometry checks in `test:macos-runtime`.
 Its source and published imports are checked separately from real AppKit runtime
 assertions. Live OS preference changes, broader lifecycle acceptance and input
 behavior remain unqualified.

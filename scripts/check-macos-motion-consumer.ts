@@ -29,7 +29,7 @@ export async function checkMacOSMotionConsumer({
 	const rendererShim = join(consumerRoot, 'macos-renderer-shim.ts')
 	writeFileSync(
 		rendererShim,
-		`export * from 'octane/universal/native'\nexport { registerStylesheet } from '@octane-xplat/css-engine'\n`,
+		`export * from 'octane/universal/native'\nexport { registerStylesheet } from '@octane-xplat/css-engine'\nexport { observeLayoutCommits } from ${JSON.stringify(join(repoRoot, 'packages/macos-renderer/src/layout-observers.ts'))}\n`,
 	)
 
 	let resolvedEntry = false
@@ -167,6 +167,7 @@ export async function checkMacOSMotionConsumer({
 			assert.deepEqual(
 				Object.keys(api).filter((name) => !name.startsWith('create')),
 				[
+					'LayoutGroup',
 					'MotionConfig',
 					'Presence',
 					'motion',

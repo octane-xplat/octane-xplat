@@ -1,5 +1,5 @@
 import type { Box } from './types'
 
-export function measureNativeBox(_view: unknown): Box | null {
+export function measureNativeBox(_view: unknown, _viewport = false): Box | null {
 	return null
 }

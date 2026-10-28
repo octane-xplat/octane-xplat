@@ -21,7 +21,10 @@ if (!(globalThis as any).Intl) {
 		DateTimeFormat: fmt,
 		RelativeTimeFormat: fmt,
 		Locale: class {
-			constructor(public locale: string) {}
+			baseName: string
+			constructor(locale: string) {
+				this.baseName = locale ?? 'en'
+			}
 		},
 	}
 }

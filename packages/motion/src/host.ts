@@ -56,7 +56,7 @@ export function attachHost(node: any): HostAdapter {
 		pan: (axis, callbacks) => attachPan(node, axis, callbacks),
 		measureLayout() {
 			const box = measureNativeBox(node)
-			return box ? { layoutBox: box, measuredBox: box } : null
+			return box ? { layoutBox: box, measuredBox: measureNativeBox(node, true)! } : null
 		},
 		resetProjection() {
 			// Native measurement ignores transforms, so nothing needs clearing;

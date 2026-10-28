@@ -125,6 +125,10 @@ export interface MotionProps {
 	whileFocusTransition?: Transition
 	/** Animate layout changes with transforms only; modes restrict the delta. */
 	layout?: boolean | 'position' | 'size' | 'preserve-aspect' | 'x' | 'y'
+	/** Join a shared-element transition with matching IDs in the same LayoutGroup namespace. Enables layout projection. */
+	layoutId?: string
+	/** Crossfade overlapping shared-element members. Set false to hide the outgoing member immediately. @default true */
+	layoutCrossfade?: boolean
 	/** When defined, layout animations only run on commits where this changed. */
 	layoutDependency?: unknown
 	onLayoutAnimationStart?: () => void
@@ -145,6 +149,22 @@ export type MotionPressableProps = Omit<PressableProps, 'style'> & MotionProps
 export interface MotionConfigProps {
 	transition?: TransitionInput
 	reducedMotion?: 'always' | 'never' | 'user'
+	children?: any
+}
+
+/**
+ * Namespace shared layout IDs. Layout changes are observed across every registered host.
+ * @example
+ * ```tsx
+ * import { LayoutGroup, motion } from '@octane-xplat/motion'
+ * <LayoutGroup id="tabs"><motion.View layoutId="underline" /></LayoutGroup>
+ * ```
+ */
+export interface LayoutGroupProps {
+	/** Namespace segment; nested IDs compose without separator collisions. Omit to inherit the parent namespace. */
+	id?: string
+	/** Inherit the parent ID namespace. `true` and `'id'` are equivalent because all layout hosts observe commits. @default true */
+	inherit?: boolean | 'id'
 	children?: any
 }
 

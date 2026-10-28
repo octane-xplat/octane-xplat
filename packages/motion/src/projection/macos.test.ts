@@ -19,6 +19,7 @@ describe('AppKit content coordinates', () => {
 			bounds: { size: { width: 50, height: 60 } },
 		}
 		expect(measureNativeBox(child)).toEqual({ x: { min: 30, max: 80 }, y: { min: 130, max: 190 } })
+		expect(measureNativeBox(child, true)).toEqual({ x: { min: 30, max: 80 }, y: { min: 90, max: 150 } })
 		expect(measureNativeBox(root)).toBeNull()
 	})
 })

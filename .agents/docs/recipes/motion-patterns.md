@@ -2,7 +2,7 @@
 
 ID: motion-patterns
 Targets: web, ios, android, macos
-Related APIs: @octane-xplat/motion, Presence, motion.View, MotionConfig, useReducedMotion, useMotionValue, useMotionValueEvent, layout, layoutDependency, SegmentedControl, Switch
+Related APIs: @octane-xplat/motion, Presence, motion.View, MotionConfig, useReducedMotion, useMotionValue, useMotionValueEvent, layout, layoutDependency, layoutId, LayoutGroup, SegmentedControl, Switch
 
 ## Starting point
 
@@ -29,6 +29,8 @@ before any app-level preview.
 
 - AC6: Animate resizing and keyed reordering from the last presented position, preserve nested child size during parent scaling, retarget without jumps, and avoid treating scrolling as a layout change. Reduced motion settles directly.
 
+- AC7: Hand off a shared element between components, crossfade retained content, reverse during animation without a position jump, isolate identical shared IDs in independent groups, and settle directly under reduced motion.
+
 ## Documentation
 
 - AC1: [Switch views with a wait-style swap](../../../docs/app/animation-gestures.md#switch-views-with-a-wait-style-swap) and the [maintained showcase](../../../packages/demos/src/MotionPatterns.tsrx); exiting content leaves input and the accessibility tree through [retained presence](../../../docs/app/animation-gestures.md#retain-content-through-exit).
@@ -38,3 +40,5 @@ before any app-level preview.
 - AC5: [Reduced motion and lifecycle](../../../docs/app/animation-gestures.md#reduced-motion-and-lifecycle) plus the [motion leaf limits](../../../docs/testing/known-limits.md#motion-leaf).
 
 - AC6: [Animate size and position changes](../../../docs/app/animation-gestures.md#layout-animations) and the [maintained layout probe](../../../examples/probes/motion-layout.tsrx); browser geometry coverage lives in `apps/visual/src/motion-layout.test.web.ts`.
+
+- AC7: [Move an element between components](../../../docs/app/animation-gestures.md#move-an-element-between-components), the [shared-element probe](../../../examples/probes/motion-shared.tsrx), and the maintained browser/AppKit geometry tests.

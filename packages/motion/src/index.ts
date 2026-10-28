@@ -23,3 +23,5 @@ export type * from './types'
 export { Presence } from './presence.tsrx'
 
 export type { TextMorphProps, TextMorphRun, TextMorphCancel } from './text-morph/props'
+
+export { LayoutGroup } from './projection/group.tsrx'

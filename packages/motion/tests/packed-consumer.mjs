@@ -93,7 +93,16 @@ void doubled
 
 for (const target of Object.keys(consumers)) {
 	consumers[target] += `
+import { LayoutGroup } from '@octane-xplat/motion'
 import type { Variants, AnimationDefinition, TransitionInput } from '@octane-xplat/motion'
+const shared = <LayoutGroup id="tabs" inherit="id"><motion.View layoutId="underline" layoutCrossfade={false} transition={{layout: {duration: 0.3}}} /></LayoutGroup>
+// @ts-expect-error inherit has a bounded vocabulary
+const badGroup = <LayoutGroup inherit="everything" />
+// @ts-expect-error shared IDs are strings
+const badShared = <motion.View layoutId={42} />
+void shared
+void badGroup
+void badShared
 const variants: Variants = { show: (custom: number) => ({ x: custom, transition: { duration: 0, when: 'beforeChildren', staggerChildren: 0.1 } }) }
 const labels: AnimationDefinition = ['show']
 const timing: TransitionInput = { default: { duration: 0.2 }, x: { delay: 0.1 }, delayChildren: 0.1, when: 'afterChildren' }
@@ -124,6 +133,24 @@ void badMacosConfig
 `
 
 const extraFiles = {}
+// Compile the maintained guide examples against packed declarations on each
+// target, so docs cannot depend on workspace-only types or imports.
+for (const [file, names] of [
+	['docs/app/animation-gestures.md', ['ReorderingList', 'ScrollingCard', 'AnimatedTabs', 'ExpandingDetails', 'MovingHighlight', 'IndependentHighlight']],
+	['.changelog/motion-shared-elements.md', ['Highlight']],
+	['.agents/skills/octane-xplat/references/services.md', ['SharedCard']],
+	['packages/motion/README.md', ['LayoutCard']],
+	['docs/testing/known-limits.md', ['LayoutSelection']],
+	['packages/motion/UPSTREAM.md', ['GroupNamespace', 'SharedPresence']],
+]) {
+	const markdown = readFileSync(join(repoRoot, file), 'utf8')
+	const snippets = [...markdown.matchAll(/```tsx\n([\s\S]*?)```/g)].map(match => match[1])
+	for (const name of names) {
+		const snippet = snippets.find(source => source.includes(`export function ${name}(`))
+		assert.ok(snippet, `Missing maintained example ${name} in ${file}`)
+		extraFiles[`example-${name}.tsx`] = snippet
+	}
+}
 
 // Mirrors the create template's per-target tsconfig: suffix typing selects
 // .web/.mobile/.ios/.android/.macos declaration variants, `types` scopes the

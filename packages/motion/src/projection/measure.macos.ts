@@ -1,7 +1,7 @@
 import type { Box } from './types'
 
 /** AppKit view geometry ignores layer transforms. Return content coordinates with y pointing down. */
-export function measureNativeBox(view: any): Box | null {
+export function measureNativeBox(view: any, viewport = false): Box | null {
 	if (!view?.superview) {
 		return null
 	}
@@ -15,6 +15,10 @@ export function measureNativeBox(view: any): Box | null {
 		const flipped = typeof parent.isFlipped === 'function' ? parent.isFlipped() : parent.isFlipped
 		x += frame.origin.x
 		y += flipped ? frame.origin.y : parent.bounds.size.height - frame.origin.y - frame.size.height
+		if (viewport) {
+			x -= parent.bounds.origin?.x ?? 0
+			y += (flipped ? -1 : 1) * (parent.bounds.origin?.y ?? 0)
+		}
 	}
 	return { x: { min: x, max: x + width }, y: { min: y, max: y + height } }
 }

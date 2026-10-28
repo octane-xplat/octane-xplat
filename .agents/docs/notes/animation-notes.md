@@ -719,17 +719,17 @@ existing failures outside this change; changed animation files pass.
 `layout` (`true | 'position' | 'size' | 'preserve-aspect' | 'x' | 'y'`),
 `layoutDependency`, `onLayoutAnimationStart`/`onLayoutAnimationComplete`, and
 `transition={{ layout: {...} }}` are supported on `motion.View`, `motion.Row`,
-`motion.Pressable` and `motion.create` hosts, including experimental macOS. `layoutId`/
-`LayoutGroup`, `layoutScroll`/`layoutRoot`/`layoutAnchor`/`layoutCrossfade`,
-border-radius/box-shadow correction are excluded. Browser overflow scroll offsets
+`motion.Pressable` and `motion.create` hosts, including experimental macOS. `layoutId`/`LayoutGroup` shared handoffs
+and retained crossfades are also supported. `layoutScroll`/`layoutRoot`/`layoutAnchor`
+and border-radius/box-shadow correction are excluded. Browser overflow scroll offsets
 are detected automatically. The default layout transition is a 0.45 s tween.
 
 Mechanism: a node modeled on motion-dom's `create-projection-node.ts` over its
 geometry helpers measures an untransformed window-space box per node, computes
 the delta against the presented snapshot, and writes inverse transforms until
 the animation catches up; `project(null)` restores merged channel values.
-Nested `layout` children get counter-scale correction. Opacity is never
-projected; layout hosts always run the JS engine (no platform animator
+Nested `layout` children get counter-scale correction. Shared crossfades temporarily
+own opacity; layout hosts always run the JS engine (no platform animator
 delegation). Reduced motion snaps. Unlike upstream's rerender snapshot, we
 measure after every commit, so keyed reorders of unchanged-prop children
 animate. The divergence is intentional: upstream misses a box change on a
@@ -800,3 +800,37 @@ stops constructing `Intl` objects at module scope.
   `CssState.onLoaded`. Observed in a probe on iOS; not investigated further;
   a programmatic `createNativeScriptRoot` subtree was used for cell-root
   evidence instead.
+
+
+### Shared elements
+
+Shared stacks are keyed by serialized namespace segments plus the layout ID.
+A stack owns its lead, one outgoing member, a presented snapshot, and pending
+exit promises. Handoffs transfer content boxes through viewport coordinates;
+iOS, Android, and AppKit measurements distinguish those spaces by subtracting
+ancestor scroll offsets only for the viewport box. Same-commit unmounts retain
+a cloned snapshot until the next measurement pass, without measuring a detached
+host. Empty stacks are then removed.
+
+The lead drives follower geometry and the crossfade curves from motion-dom.
+Re-entry preserves the incoming member's current opacity; older followers stay
+hidden when a transition is interrupted again. Opacity writes happen after
+projection writes and restore the latest controller opacity at completion.
+Presence joins channel-exit and shared-exit promises; re-entry cancels pending
+removal and promotes from the currently presented box. Group inheritance only
+controls namespaces because every registered layout host already observes commits.
+
+Runtime qualification on 2026-10-28 is nonvisual geometry evidence:
+
+| Target | Evidence |
+| --- | --- |
+| Chromium | Browser tests cover parent/child sizing, nested scrolling, shared geometry, crossfade, reversal, group isolation, and reduced-motion snap. |
+| iOS 27.0 simulator | `examples/probes/motion-shared.tsrx`: 18 assertions pass, including an unmounted underline source, retained crossfade/reversal, isolation, and reduced-motion snap. |
+| Android 15 emulator | The same 18 probe assertions pass. Mid-handoff source/destination widths agree within 0.00001 DIP. |
+| AppKit | `tests/layout.macos.tsx` covers resize/reorder origins, nested correction, shared geometry/crossfade/reversal, isolation, and reduced-motion snap. |
+
+These checks do not qualify OS input or pixel parity. Rounded corners/shadows,
+fixed layout roots, and root/anchor APIs remain outside this phase. The probe's
+Intl shim only permits UI module initialization; production Intl support is
+separate work. Recipe criteria AC6 and AC7 in `motion-patterns` cover the layout
+and shared-element workflows.

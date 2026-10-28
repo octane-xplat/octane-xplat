@@ -193,11 +193,16 @@ describe('measure', () => {
 		// Scroll lives in the scroll view's bounds.origin, never in a center,
 		// so a 120-DIP scroll leaves the content view's center unchanged.
 		const scrollView = ui(0, 200, 390, 400, win)
+		;(scrollView.bounds as any).origin = { x: 0, y: 120 }
 		const scrollContent = ui(0, 0, 390, 800, scrollView)
 		const child = ui(40, 160, 50, 50, scrollContent)
 		expect(measureIos({ nativeViewProtected: child })).toEqual({
 			x: { min: 40, max: 90 },
 			y: { min: 360, max: 410 },
+		})
+		expect(measureIos({ nativeViewProtected: child }, true)).toEqual({
+			x: { min: 40, max: 90 },
+			y: { min: 240, max: 290 },
 		})
 	})
 
@@ -213,10 +218,15 @@ describe('measure', () => {
 		})
 		const decor = av(0, 0, 800, 1600)
 		const inner = av(10, 30, 200, 100, decor)
+		;(inner as any).getScrollY = () => 40
 		const child = av(80, 60, 100, 100, inner)
 		expect(measureAndroid({ nativeView: child })).toEqual({
 			x: { min: 45, max: 95 },
 			y: { min: 45, max: 95 },
+		})
+		expect(measureAndroid({ nativeView: child }, true)).toEqual({
+			x: { min: 45, max: 95 },
+			y: { min: 25, max: 75 },
 		})
 	})
 

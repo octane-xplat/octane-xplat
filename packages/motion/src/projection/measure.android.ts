@@ -10,7 +10,7 @@ function isView(v: any): boolean {
  * the decor root, ignoring getScrollX/getScrollY and translations, then divide
  * by the display density. Stops before ViewRootImpl, which is not a View.
  */
-export function measureNativeBox(view: any): Box | null {
+export function measureNativeBox(view: any, viewport = false): Box | null {
 	let v = view?.nativeView ?? view?.android ?? null
 	if (!v) {
 		return null
@@ -24,6 +24,10 @@ export function measureNativeBox(view: any): Box | null {
 		x += v.getLeft()
 		y += v.getTop()
 		v = v.getParent?.() ?? null
+		if (viewport && isView(v)) {
+			x -= v.getScrollX?.() ?? 0
+			y -= v.getScrollY?.() ?? 0
+		}
 	}
 	x /= density
 	y /= density

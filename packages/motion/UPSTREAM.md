@@ -28,8 +28,7 @@ Source links: [Octane motion](https://github.com/octanejs/octane/tree/main/packa
 
 ## Deliberate boundaries
 
-- Numeric values only. No CSS strings, keyframe arrays, layoutId/shared-element
-  transitions, `whileHover`/`whileInView`, or broad framework-neutral re-export.
+- Numeric values only. No CSS strings, keyframe arrays, `whileHover`/`whileInView`, or broad framework-neutral re-export.
   `layout` projection itself is supported; see the section below. Bounded drag,
   variants, `whileTap`, `whileFocus`, lifecycle callbacks
   (`onAnimationStart`/`onAnimationComplete`/`onUpdate`), `motion.create`, and
@@ -484,10 +483,53 @@ walks view frames in y-down content coordinates. Layer transforms do not
 participate in measurement. Projection writes compensate for the layer's
 anchor without changing AppKit's anchor or position.
 
-**Still excluded:** `layoutId`/`LayoutGroup`, `layoutScroll`, `layoutRoot`,
-`layoutAnchor`, `layoutCrossfade`, border-radius/box-shadow correction.
+**Still excluded:** `layoutScroll`, `layoutRoot`, `layoutAnchor`, and
+border-radius/box-shadow correction.
 Fixed-position layout roots are not supported. On native, `rotate` combined with a non-uniform
 parent treeScale is approximate (scale divides translate per axis but not the
-rotation). Reduced motion snaps instead of animating; opacity is never
-projected; `project(null)` rewrites merged channel values. Pre-existing CSS
+rotation). Reduced motion snaps instead of animating; shared crossfades own opacity
+until completion; `project(null)` rewrites merged channel values. Pre-existing CSS
 transforms stay on an outer container.
+
+## Shared layout elements
+
+`layoutId` enables projection and registers a host in a shared lead/follow
+stack. `LayoutGroup` composes ID namespaces; `inherit={false}` starts from an
+empty namespace. `inherit="id"` and `true` are equivalent here: all registered
+layout hosts already observe commits, rather than relying on a React group to
+force unchanged children to render. Hosts without an explicit group ID use the
+inherited/global namespace, matching Motion's ID behavior.
+
+```tsx
+import { LayoutGroup, motion } from '@octane-xplat/motion'
+
+export function GroupNamespace() {
+	return <LayoutGroup id="tabs" inherit={false}>
+		<motion.View layoutId="underline" />
+	</LayoutGroup>
+}
+```
+
+The shared stack is modeled on Motion's `projection/shared/stack.ts`. It promotes
+an incoming or re-entering member, transfers the previous lead's presented box
+through viewport coordinates, and drives followers from the lead's animated
+box. Same-commit unmounts retain only a snapshot until the next measurement pass;
+unused empty stacks are discarded. No host measurement runs during unmount.
+Native measurement now distinguishes content coordinates from scroll-adjusted
+viewport coordinates for handoffs between containers.
+
+Crossfade curves come from motion-dom's `mixValues`. They own only opacity;
+normal channel values continue updating and regain opacity ownership on
+completion. `layoutCrossfade={false}` hides followers immediately. Retaining
+`Presence` exits wait for both their channel exit and the shared transition;
+re-entry cancels removal and promotes from the current presented box.
+
+```tsx
+import { Presence, motion } from '@octane-xplat/motion'
+
+export function SharedPresence({ present }: { present: boolean }) {
+	return <Presence present={present}>
+		<motion.View layoutId="card" layoutCrossfade={false} />
+	</Presence>
+}
+```
