@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useMemo } from 'octane'
 import { useStore } from '@octane-xplat/ui/data'
 import type { IconProps } from './props'

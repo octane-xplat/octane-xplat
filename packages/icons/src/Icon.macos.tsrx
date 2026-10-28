@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useMemo } from 'octane'
 import { Image } from '@octane-xplat/ui'
 import { useStore } from '@octane-xplat/ui/data'
