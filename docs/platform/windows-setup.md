@@ -56,7 +56,29 @@ export function Reply(props: { text: string; isStreaming: boolean }) {
 }
 ```
 
-This remains a source candidate: helper tests use mocked projections, and
-read-only .NET API checks do not qualify NativeScript hook execution, actual
-WinRT projection, OS input or accessibility. See the
+Standalone NativeScript x64 capability checks passed with a synthetic screen
+size. Hook rendering, actual geometry/resize, OS input and accessibility remain
+unqualified. See the
 [Windows evidence record](../../.agents/docs/parity/windows-support-progress.md).
+
+## Controlled-input candidate
+
+Windows controlled inputs have a selection-preserving write helper. When a
+changed value is written to a TextBox, it attempts to restore the previous caret
+or selected range, clamped to the new text length. An unchanged value is left
+alone. Use the ordinary shared input API:
+
+```tsx
+import { useState } from 'octane'
+import { TextInput } from '@octane-xplat/ui'
+
+export function DisplayName() {
+  const [name, setName] = useState('Ruby')
+  return <TextInput label="Display name" value={name} onChange={setName} />
+}
+```
+
+Projected-host tests cover selection, synchronous event echoes and native-view
+replacement. Real WinUI selection, IME composition, secure fields and focus
+transitions still need native app checks. This does not supply hardware-key
+events, keyboard navigation or modal focus containment.

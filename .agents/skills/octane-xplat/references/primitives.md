@@ -2675,3 +2675,26 @@ direct Tooltip NSPopovers and Overlay remain separate contracts. No focus trap
 or automatic editor focus is added. Actual native ref/portal/context/commit,
 geometry/RTL/scroll, nested blur/dismissal, OS input/IME/Tab/focus, VoiceOver and
 installed consumers remain unqualified; see [native custom popovers](../../../../docs/app/search-selection.md#anchor-appkit-custom-popovers).
+
+## Experimental Windows controlled text
+
+Keep controlled values on the shared TextInput/TextArea/SearchInput API.
+The Windows text-write leaf attempts to preserve TextBox selection, clamps
+ranges after shrink, suppresses synchronous write echoes, and avoids restoring
+selection on a replaced native view or after a nested newer write. PasswordBox
+uses the plain guarded write. Do not bypass this helper with direct native Text
+assignments in shared components.
+
+```tsx
+import { useState } from 'octane'
+import { TextInput } from '@octane-xplat/ui'
+
+export function DisplayName() {
+  const [name, setName] = useState('Ruby')
+  return <TextInput label="Display name" value={name} onChange={setName} />
+}
+```
+
+The regression evidence is mocked projection only. Real WinUI selection/IME,
+secure-field and focus behavior remain unqualified; hardware-key forwarding and
+modal focus are separate gaps. See the [Windows record](../../../docs/parity/windows-support-progress.md).

@@ -27,11 +27,13 @@ is complete because of these changes.
 | Animated-image import | GIF manifest selects the existing Windows entry instead of an explicit mobile visual import | Existing unsupported placeholder remains; no GIF playback claim |
 | Command palette | Unsuffixed announcement import selects a WinUI automation-peer leaf | Screen-reader delivery and peer projection unverified |
 | Dialogs/sheets | Windows keyboard-overlay host resolves independently of the mobile-only helper | Neutral software-keyboard binding; Windows occlusion, modal focus/Tab/Escape/background exclusion and OS dismissal remain unqualified |
-| Media queries | Windows leaf samples fine/coarse/hybrid pointer, pen hover and animation preferences; listens to root layout and app lifecycle/resize | Helper tests and .NET API-type probes only; NativeScript projection, live hotplug/settings events and secondary windows unqualified |
+| Media queries | Windows leaf samples fine/coarse/hybrid pointer, pen hover and animation preferences; listens to root layout and app lifecycle/resize | Standalone NativeScript input/preference projection passed with synthetic screen size; hook rendering, real resize, hotplug/settings events and secondary windows unqualified |
 | Gradient controls | Windows LinearGradientBrush helper supplies the previously missing leaf | Native bridge projection, repaint ownership and pixels unverified |
-| Files | Windows-only text/binary I/O leaf removes the mobile document-picker import; bounded reads, owned temporary writes and cleanup | Picker/export interop unavailable; WinRT stream/promise projection and actual I/O unqualified |
+| Files | Windows-only text/binary I/O leaf removes the mobile document-picker import; bounded reads, owned temporary writes and cleanup | Standalone reads/writes and owned-only release passed against a task folder; packaged TemporaryFolder, cancellation, deterministic cleanup and picker/export unqualified |
 | Clipboard | WinRT text read/write, format check, async bridge, flush, false/null failures | OS clipboard access, foreground restrictions and persistence need Windows checks; rich formats excluded |
-| Random | WinRT CryptographicBuffer entropy, bounded hex conversion, byte-range preservation | API binding/runtime must be checked; no JS PRNG fallback |
+| Random | WinRT CryptographicBuffer entropy, bounded hex conversion, byte-range preservation | Standalone NativeScript byte bounds/chunks passed; production app integration unqualified; no JS PRNG fallback |
+| Controlled text | Windows text-write leaf preserves TextBox selection around guarded value updates | Mocked range/lifecycle tests only; actual WinUI selection, IME, secure fields and focus unqualified |
+| Credentials | Package-family-scoped PasswordVault adapter avoids mobile plugin fallback | Standalone task-namespace operations/cleanup passed; actual packaged identity, persistence across launches and policy behavior unqualified |
 | Device | Explicit Windows OS identity, core metadata | Version/model/language metadata unqualified |
 | App settings | Package-family-specific Settings URI; unavailable without package identity | Packaged and unpackaged host behavior, launch acceptance and navigation unqualified |
 | Preferences | Windows leaf preserves ApplicationSettings string operations and returns false for unconfirmed blocking flush | OS persistence/crash durability unqualified; no blocking commit API bound |
@@ -473,3 +475,48 @@ pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
 A targeted JSON parse/path comparison checked that the Windows runtime/types
 paths match package.json and that the source entry exists. No broad generation
 or new test suite ran for this manifest-only change.
+
+## Windows controlled-text selection candidate
+
+The common text-write helper preserved only Android selections; Windows reached
+the plain write path. Pinned core `abae298` assigns TextBox.Text without selection
+restoration in TextBase._setNativeText. This is source evidence of missing
+preservation, **not** an OS reproduction of a cursor jump. The form example
+`apps/astryx-sandbox/src/examples/dialog/DialogFormDialog.tsrx` controls both
+TextInput and TextArea values; SearchInput, date/time inputs and composer paths
+also call this helper. Assume ordinary mid-string editing deserves priority
+over specialist integrations. Existing examples already use the shared API and
+need no source change; they are not Windows runtime passes.
+
+A Windows-only text-write leaf now snapshots SelectionStart/SelectionLength and
+calls TextBox.Select after changed controlled writes. It clips the range after
+shrink, skips unchanged values, retains synchronous echo suppression through
+nested writes, and avoids restoring an old selection after native identity or
+text was changed reentrantly. Secure/absent/invalid selection surfaces take the
+plain guarded write path. Selection restoration failure does not discard an
+accepted value; text setter failures still propagate and clear the guard.
+Public exports and signatures match the default leaf. No shared component,
+renderer, core patch, lockfile or external dependency changed. API reference:
+[WinUI TextBox.Select](https://learn.microsoft.com/en-us/windows/windows-app-sdk/api/winrt/microsoft.ui.xaml.controls.textbox.select)
+and [SelectionStart](https://learn.microsoft.com/en-us/windows/windows-app-sdk/api/winrt/microsoft.ui.xaml.controls.textbox.selectionstart).
+
+Six projected-host regressions passed on windy through the existing isolated
+Turbo fixture: range/caret retention and echo suppression; shrink/UTF-16 bounds;
+secure/missing/invalid surfaces; write/selection failures; native replacement;
+and nested writes preserving the latest value. The full focused fixture passed
+31 mocked contracts, exit 0. Log:
+`research/windows61/windy-text-write-contracts.log`. These evaluate transpiled
+source against a fake TextBox whose write resets selection; they do not execute
+a real WinUI TextBox, import the production UI root or transform hooks. No native
+UI process, OS keyboard input, screenshots or build was used for this batch.
+
+The maintained native UI task includes the new regression. Targeted lint,
+format, syntax and whitespace checks passed. UI typegen, native suite,
+package/dependent checks and Windows app verification remain deferred at the
+exact commands above. Real selection projection/lifecycle, IME, secure input,
+OS focus and form/modal keyboard behavior remain unqualified. Keyboard bridging
+still needs shared core native-event ownership (TextField already owns a KeyDown
+subscription for submit); this helper does not supply that bridge or close the
+focus/keyboard checklist. The form/overlay recipe exclusions remain unchanged.
+This fixes an unreleased Windows candidate, so no additional release note was
+added. Public Windows guidance and the primitives skill record the boundary.
