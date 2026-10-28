@@ -7,13 +7,29 @@ appId: ${APP_ID}
     id: 'lb-trigger-0'
 - assertVisible: 'state: open:0'
 - swipe:
-    start: '80%,55%'
-    end: '20%,55%'
-    duration: 700
+    start: '85%,55%'
+    end: '10%,55%'
+    duration: 350
 - assertVisible: 'state: open:1'
 - swipe:
-    start: '50%,65%'
-    end: '50%,15%'
-    duration: 400
+    start: '50%,70%'
+    end: '50%,10%'
+    duration: 600
+- extendedWaitUntil:
+    visible: 'state: closed:1'
+    timeout: 10000
+- tapOn:
+    id: 'lb-trigger-0'
+- assertVisible: 'state: open:0'
+- swipe:
+    start: '50%,70%'
+    end: '50%,10%'
+    duration: 600
+- assertVisible: 'state: closed:0'
+- tapOn:
+    id: 'lb-trigger-1'
+- assertVisible: 'state: open:1'
+- tapOn:
+    point: '50%,80%'
 - assertVisible: 'state: closed:1'
 - stopApp
