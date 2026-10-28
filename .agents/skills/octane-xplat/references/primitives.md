@@ -764,6 +764,21 @@ export function Saving() {
 ```
 
 
+AppKit ProgressBar subscribes to theme changes and preserves object/array/CSS
+styles with authored overrides. It forwards declared accessible/name/hint/value
+props. Indeterminate mode skips the formatter, readout, marks and numeric AX
+range/value, and sets busy state; disabled state is separate. Its 40% fill is
+still static. Native animation, theme presentation, layout and VoiceOver are
+unqualified; do not infer them from mounted metadata.
+
+```tsx
+import { ProgressBar } from '@octane-xplat/ui'
+export function Upload({ percent }: { percent?: number }) {
+	return <ProgressBar label="Upload" value={percent} isIndeterminate={percent === undefined}
+		hasValueLabel accessibilityHint="Keep the app open" style="width:240px" />
+}
+```
+
 ## Self-drawn AppKit accessibility prerequisites
 
 The renderer now maps switch/tab/tablist/adjustable/link container roles and

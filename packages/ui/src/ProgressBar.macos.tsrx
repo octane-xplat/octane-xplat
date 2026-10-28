@@ -1,8 +1,8 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { mergeStyle, styleRecord } from './style-merge'
+import { mergeStyle } from './style-merge'
 import type { ProgressBarProps } from './props'
 import { cx } from '@octane-xplat/lib'
-import { getColorScheme } from './colorScheme.macos'
+import { useThemeScheme } from './theme/theme-scheme.macos'
 import { mutedColor, progressFillColor, textColor } from './scheme-colors'
 
 const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max)
@@ -11,7 +11,7 @@ const clamp = (value: number, min: number, max: number) => Math.min(Math.max(val
  *  AppKit host has no JS-driven `animate` on views). Marks overlay via
  *  star-column grids like the mobile leaf. */
 export function ProgressBar(props: ProgressBarProps) @{
-	const scheme = getColorScheme()
+	const scheme = useThemeScheme()
 	const max = Math.max(props.max ?? 100, 1e-9)
 	const isIndeterminate = props.isIndeterminate ?? false
 	const value = clamp(props.value ?? 0, 0, max)
@@ -19,7 +19,7 @@ export function ProgressBar(props: ProgressBarProps) @{
 	const formatValueLabel =
 		props.formatValueLabel ?? ((v: number, m: number) => `${Math.round((v / m) * 100)}%`)
 
-	const valueText = formatValueLabel(value, max)
+	const valueText = isIndeterminate ? '' : formatValueLabel(value, max)
 	const isDisabled = props.isDisabled ?? false
 	const isLabelHidden = props.isLabelHidden ?? false
 	const hasValueLabel = props.hasValueLabel ?? false
@@ -31,22 +31,15 @@ export function ProgressBar(props: ProgressBarProps) @{
 		ref={props.ref}
 		id={props.id}
 		className={cx('vx-progressbar', `vx-progressbar--${variant}`, props.className)}
-		style={mergeStyle(
-			{ flexDirection: 'column' },
-			mergeStyle(
-				{ display: 'flex' },
-				{
-					flexDirection: 'column',
-					...(isDisabled ? { opacity: 0.38 } : {}),
-					...styleRecord(props.style),
-				},
-			),
-		)}
+		style={mergeStyle({ display: 'flex', flexDirection: 'column', ...(isDisabled ? { opacity: 0.38 } : {}) }, props.style)}
+		accessible={props.accessible}
 		accessibilityRole="progressbar"
 		accessibilityLabel={props.accessibilityLabel ?? props.label}
-		accessibilityValue={isIndeterminate ? undefined : String(value)}
-		accessibilityMinValue={0}
-		accessibilityMaxValue={max}
+		accessibilityHint={props.accessibilityHint}
+		accessibilityState={{ disabled: isDisabled, busy: isIndeterminate }}
+		accessibilityValue={isIndeterminate ? undefined : props.accessibilityValue ?? String(value)}
+		accessibilityMinValue={isIndeterminate ? undefined : 0}
+		accessibilityMaxValue={isIndeterminate ? undefined : max}
 		accessibilityValueDescription={isIndeterminate ? 'In progress' : valueText}
 	>
 		{showHead ? (

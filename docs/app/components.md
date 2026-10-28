@@ -306,6 +306,21 @@ export function Alerts({ save }: { save(next: boolean): Promise<void> }) {
 }
 ```
 
+AppKit ProgressBar now preserves object, array and CSS-string styles and follows
+the app theme. It forwards accessibility names, hints and determinate value
+overrides; unknown progress omits numeric range/value, skips the formatter,
+readout and marks, and reports busy state. Disabled progress reports disabled
+state. Unknown progress still uses a static 40% fill; animation playback,
+appearance, layout and VoiceOver remain unqualified.
+
+```tsx
+import { ProgressBar } from '@octane-xplat/ui'
+export function Upload({ percent }: { percent?: number }) {
+	return <ProgressBar label="Upload" value={percent} isIndeterminate={percent === undefined}
+		hasValueLabel accessibilityHint="Keep the app open" style="width:240px" />
+}
+```
+
 ### Radio choices on AppKit
 
 AppKit RadioList now shares selection between `options` and RadioListItem

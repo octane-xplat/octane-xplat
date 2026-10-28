@@ -5061,3 +5061,53 @@ typecheck/build/install, probe, native/OS/browser automation, packaging or visua
 analysis ran. Actual native pan/keyboard/VoiceOver timing, controlled feedback,
 focus/ref lifetime, layout/tooltips/pixels and packaged behavior remain
 unqualified. Audit snapshots and evidence gates remain unchanged; goal active.
+
+
+## AppKit ProgressBar styles theme and state
+
+ContentDisplayDemo's Upload progress and sandbox determinate/indeterminate
+examples make basic loading status the demand assumption. Source inspection
+found ProgressBar converting styles through styleRecord (dropping string/array
+styles), reading system color once without a subscription/app override, and
+calling the formatter despite isIndeterminate explicitly ignoring values. It
+also dropped declared accessibility props and retained numeric unknown-mode
+range metadata. These are source findings, not native observed failures.
+
+The leaf now uses existing mergeStyle defaults under authored styles and the
+existing useThemeScheme subscription, with no dependency or renderer changes.
+Disabled opacity remains a default; authored styles win. accessible, hint and
+determinate value override now reach the same progress owner. Disabled and
+unknown-mode busy state are explicit; unknown numeric range/value are omitted.
+Indeterminate mode does not invoke the formatter and still skips readout/marks.
+Dropping props restores the existing defaults through complete-prop-bag updates.
+The static 40% unknown fill remains a documented source limitation; no native
+animation implementation or animation parity is claimed.
+
+Four object-driver cases are authored, all unrun: style/ref/override removal,
+unknown-mode formatter/value/marks transitions, accessibility override/removal,
+and theme changes without parent-prop replacement. The new target fixture can
+toggle known/unknown, inactive state and style form; its runner only records
+that controls mounted. Guide/primitive skill and appkit-busy-feedback AC4 cover
+the subset. This is an unreleased implementation omission; no release note added.
+
+Only targeted source/semantic review, syntax parsing of three TSRX files and
+whitespace checks ran. sem reports incomplete/unresolved ProgressBar callers;
+actual AppKit leaf, shared props and demand example were inspected. Exact
+deferred commands:
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/progress-bar.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/progress-bar.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm exec turbo run test:packed --filter=@octane-xplat/ui
+pnpm check:recipes
+```
+
+All remain deferred pending explicit human authorization for this task. No test,
+typecheck/build/install, probe, native/OS/browser automation, packaging or visual
+analysis ran. Actual theme subscription/native appearance, AX numeric-removal
+and busy/disabled interpretation, ref timing, layout/marks, contrast/pixels and
+packaging remain unqualified. Shared audit snapshots and issue evidence gates
+remain unchanged; the persistent goal stays active.
