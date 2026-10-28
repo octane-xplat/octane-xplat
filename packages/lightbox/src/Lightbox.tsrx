@@ -39,7 +39,8 @@ function LightboxBase(props: LightboxProps) @{
 			defaultIndex={props.defaultIndex}
 			onOpenChange={props.onOpenChange}
 			onIndexChange={props.onIndexChange}
-			maxZoom={props.hasZoom === false ? 1 : props.maxZoom}
+			hasZoom={props.hasZoom}
+			maxZoom={props.maxZoom}
 			hasWheelZoom={props.hasWheelZoom}
 			hasBackdropDismiss={props.hasBackdropDismiss}
 			triggerScroll={props.triggerScroll}

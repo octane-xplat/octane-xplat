@@ -17,6 +17,7 @@ export default defineConfig({
 		conditions: ['native'],
 		alias: [
 			{ find: './clock', replacement: resolve(configDir, 'test/platform.ts') },
+			{ find: '../clock', replacement: resolve(configDir, 'test/platform.ts') },
 			{ find: './reduced-motion', replacement: resolve(configDir, 'test/platform.ts') },
 			{ find: /^@nativescript\/core$/, replacement: resolve(configDir, 'test/platform.ts') },
 			{ find: /^@nativescript-community\/gesturehandler$/, replacement: resolve(configDir, 'test/gesturehandler.ts') },

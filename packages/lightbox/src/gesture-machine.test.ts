@@ -216,3 +216,21 @@ describe('gesture machine', () => {
 		expect(kinds(out)).toEqual(['stop', 'settle', 'restorePresence'])
 	})
 })
+
+
+it('disabled zoom ignores pinch and clamps double tap, wheel and button zoom without disabling paging', () => {
+	const { run } = make({ maxZoom: () => 1 })
+	const a = { x: 100, y: 100 }, b = { x: 200, y: 100 }
+	expect(run({ kind: 'pinchStart', a, b }, { kind: 'pinchMove', a, b: { x: 350, y: 100 } })).toEqual([])
+	for (const intent of [
+		{ kind: 'doubleTap', at: a },
+		{ kind: 'zoomNow', scale: 8, focal: a },
+		{ kind: 'zoomBy', factor: 8 },
+	] as Intent[]) {
+		const commands = run(intent)
+		for (const command of commands) {
+			if (command.kind === 'set' || command.kind === 'settle') expect(command.t.scale).toBe(1)
+		}
+	}
+	expect(run(pan('panStart', a, { pointer: 'touch' }), pan('panMove', { x: 180, y: 100 })).map(c => c.kind)).toContain('track')
+})

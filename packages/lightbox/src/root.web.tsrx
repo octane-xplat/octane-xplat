@@ -107,7 +107,7 @@ export function Root(props: LightboxRootProps) {
 	const {
 		media: items,
 		children,
-		maxZoom = 4,
+		maxZoom: requestedMaxZoom = 4,
 		hasWheelZoom: wheelToZoom = false,
 		hasBackdropDismiss = true,
 		triggerScroll: scrollTriggerIntoView = 'smooth',
@@ -116,6 +116,7 @@ export function Root(props: LightboxRootProps) {
 		onIndexChange,
 		finalFocusRef,
 	} = props
+	const maxZoom = props.hasZoom === false ? 1 : requestedMaxZoom
 	const [state, setState] = useState(initialState)
 	const live = useRef(state)
 	live.current = state

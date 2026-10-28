@@ -69,6 +69,14 @@ text; the scroll-sync source comment implies synchronization that it does
 not perform. Those claims should be corrected alongside the corresponding
 behavior, rather than used as evidence of parity.
 
+## Repair progress
+
+- Zoom-disable normalization now belongs to both Root leaves, including direct
+  compound use, convenience components, and imperative hooks. Disabled zoom
+  ignores pinch instead of briefly rubber-banding above one. Focused checks:
+  six web/native entry-point cases and the shared gesture suite; these do not
+  qualify OS input. The native test clock also covers motion's nested imports.
+
 ## Qualification boundary
 
 This was a source and documentation audit of the pinned reference, not an

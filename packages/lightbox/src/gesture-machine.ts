@@ -223,6 +223,7 @@ export function createGestureMachine(env: MachineEnv): { send(intent: Intent): C
 				]
 			}
 			case 'pinchStart': {
+				if (env.maxZoom() <= 1) return reset()
 				if (!ready()) {
 					g = null
 					return []
