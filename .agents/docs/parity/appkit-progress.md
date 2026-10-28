@@ -1563,3 +1563,15 @@ Radio arrow navigation and a roving Tab model remain unimplemented; this slice
 does not claim a complete desktop radio composite. No builds, installs, package
 tests/typechecks, OS automation, visual analysis or shared audit regeneration ran.
 No evidence checkbox is closed.
+
+
+### Mounted native handle type follow-up
+
+Concrete NSTextField/NSScrollView refs include null for detach, while the existing
+TextInputHandle/ScrollableAreaHandle native property is declared non-null for a
+mounted owning public ref. Their getters now explicitly retain that existing
+mounted-host type. This is a source typing follow-up to the concrete-ref changes;
+runtime values/cleanup behavior and public types are unchanged. Captured stale
+handles do not extend the host lifetime. TSRX syntax and whitespace only; deferred
+`pnpm exec turbo run typecheck --filter=...@octane-xplat/ui`. No typecheck pass,
+native behavior or packaging evidence is claimed.

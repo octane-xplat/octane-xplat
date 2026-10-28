@@ -37,7 +37,8 @@ function TextInputControl(inputProps: TextInputProps) @{
 				}
 			},
 			get native() {
-				return el.current
+				// The owning public ref is delivered only for a mounted input.
+				return el.current!
 			},
 		}),
 		[],

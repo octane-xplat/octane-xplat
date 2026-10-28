@@ -20,7 +20,8 @@ function scrollableAreaHandle(viewport: { current: NSScrollView | null }, direct
 			scrollableAreaOffset(viewport.current, { ...offset, inline }, options?.animated === true)
 		},
 		get native() {
-			return viewport.current
+			// The owning public ref is delivered only for a mounted viewport.
+			return viewport.current!
 		},
 	}
 }
