@@ -45,5 +45,5 @@ interruption handling.
 - AC4: [Long-form audio](../../../docs/platform/media-services.md#long-form-audio) and [integration checks](../../../docs/platform/media-services.md#check-your-integration) cover real audio interruptions and effect/player coexistence. [Qualification boundaries](../notes/optional-service-qualification.md) track pending physical interruption and route measurements.
 - AC5: [Validation status](../../../docs/platform/media-services.md#validation-status).
 - AC6: [macOS playback](../../../docs/platform/media-services.md#macos-playback) and the [packed macOS target check](../../../packages/audio/tests/verify-macos.mjs). Gap: audible output and physical output-device failures require hardware qualification.
-- AC7: [Playback speed and volume](../../../docs/platform/media-services.md#playback-speed-and-volume).
+- AC7: [Playback speed and volume](../../../docs/platform/media-services.md#playback-speed-and-volume) and the [shared settings controls](../../../packages/app/src/MediaServices.tsrx).
 - AC8: [Growing queues](../../../docs/platform/media-services.md#add-items-without-restarting-the-current-track). Gap: physical background continuation with delayed appends remains unqualified.

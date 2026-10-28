@@ -10,6 +10,7 @@ const sample = 'https://www.w3schools.com/html/horse.mp3'
 export function MediaServices() @{
 	const [playerState, setPlayerState] = useState('idle')
 	const [position, setPosition] = useState('0 / 0s')
+	const [settings, setSettings] = useState('1× · volume 100%')
 	const hapticsRef = useRef<ReturnType<typeof createHaptics> | null>(null)
 	const realtimeRef = useRef<ReturnType<ReturnType<typeof createHaptics>['startRealtime']> | null>(
 		null,
@@ -39,6 +40,9 @@ export function MediaServices() @{
 		const unsubscribe = player.subscribe((snapshot) => {
 			setPlayerState(snapshot.state + (snapshot.track ? ' · ' + snapshot.track.id : ''))
 			setPosition(Math.floor(snapshot.currentTime) + ' / ' + Math.floor(snapshot.duration) + 's')
+			setSettings(
+				`${snapshot.playbackRate}× · volume ${Math.round(snapshot.volume * 100)}%${snapshot.muted ? ' · muted' : ''}`,
+			)
 		})
 
 		return () => {
@@ -137,6 +141,42 @@ export function MediaServices() @{
 				<Text>Seek 10s</Text>
 			</Pressable>
 		</HStack>
+		<View className="gap-2">
+			<Pressable
+				id="media-player-rate"
+				className="chip"
+				onPress={() => {
+					void player
+						.setPlaybackRate(player.snapshot().playbackRate === 1 ? 1.5 : 1)
+						.catch((error) => setPlayerState('error: ' + String(error)))
+				}}
+			>
+				<Text>Toggle 1× / 1.5×</Text>
+			</Pressable>
+			<Pressable
+				id="media-player-volume"
+				className="chip"
+				onPress={() => {
+					void player
+						.setVolume(player.snapshot().volume === 1 ? 0.5 : 1)
+						.catch((error) => setPlayerState('error: ' + String(error)))
+				}}
+			>
+				<Text>Toggle volume 50% / 100%</Text>
+			</Pressable>
+			<Pressable
+				id="media-player-mute"
+				className="chip"
+				onPress={() => {
+					void player
+						.setMuted(!player.snapshot().muted)
+						.catch((error) => setPlayerState('error: ' + String(error)))
+				}}
+			>
+				<Text>Toggle mute</Text>
+			</Pressable>
+		</View>
+		<Text id="media-player-settings">{settings}</Text>
 		<Text id="media-player-state">
 			Player: {playerState} · {position}
 		</Text>
