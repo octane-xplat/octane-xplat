@@ -342,6 +342,24 @@ import { connectivity } from '@octane-xplat/platform'
 const stop = connectivity.subscribe(state => console.log(state.type))
 stop()
 ```
+Windows supplies a WinRT state reader to that same monitor owner. Online state
+comes from the connection level, independently of the transport label: local,
+constrained and internet access allow work, including unknown transports. No
+profile/None is known offline; unavailable or malformed projection returns
+supported false. Do not label unknown adapters offline or invent VPN/Bluetooth
+classification. The Windows environment export selects the native runtime and
+declarations; query clients therefore use app suspension and connectivity by
+default. Window visibility drives NativeScript suspension; individual window
+keyboard activation is a different signal. Mocked ownership/composition and a
+sampled native read do not qualify reconnect delivery, app lifecycle or query
+refresh. See [query lifecycle](../../../../docs/app/data.md#the-shared-query-cache).
+
+```ts
+import { environment } from '@octane-xplat/platform/environment'
+
+// undefined online permits work when connectivity cannot be established.
+const online = environment.getSnapshot().online
+```
 ## SQLite transactions
 
 Use the callback's handle for every awaited transaction operation. Main-handle

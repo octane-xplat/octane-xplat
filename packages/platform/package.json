@@ -231,8 +231,8 @@
 				"default": "./src/environment.web.ts"
 			},
 			"windows": {
-				"types": "./types/generated/environment.web.d.ts",
-				"default": "./src/environment.web.ts"
+				"types": "./types/generated/environment.d.ts",
+				"default": "./src/environment.ts"
 			},
 			"web": {
 				"types": "./types/generated/environment.web.d.ts",

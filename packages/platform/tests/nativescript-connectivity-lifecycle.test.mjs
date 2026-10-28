@@ -15,6 +15,11 @@ const code = ts.transpileModule(
 	{ compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } },
 ).outputText
 
+const factoryCode = ts.transpileModule(
+	readFileSync(new URL('../src/native-connectivity.ts', import.meta.url), 'utf8'),
+	{ compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } },
+).outputText
+
 function fixture() {
 	const state = {
 		type: 1,
@@ -50,10 +55,21 @@ function fixture() {
 			}
 		},
 	}
+	const factory = {}
+	vm.runInNewContext(factoryCode, {
+		exports: factory,
+		require(id) {
+			assert.equal(id, '@nativescript/core')
+			return { Connectivity }
+		},
+	})
 	const exports = {}
 	vm.runInNewContext(code, {
 		exports,
 		require(id) {
+			if (id === './native-connectivity') {
+				return factory
+			}
 			assert.equal(id, '@nativescript/core')
 			return { Connectivity }
 		},

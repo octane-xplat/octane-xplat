@@ -179,16 +179,31 @@ export const liveScores = defineQuery(['scores'], async (league: string, { signa
 
 Clients use the platform environment automatically and release its listeners
 when their last lease ends. The browser adapter uses visibility/network events;
-NativeScript uses app suspend/resume and connectivity; AppKit uses its host
-activity and Network framework bridge. Hosts without a capability report it
-explicitly. Experimental desktop hosts without browser or AppKit services
-need a custom environment for lifecycle refresh.
+NativeScript, including experimental native Windows, uses app suspend/resume
+and connectivity; AppKit uses its host activity and Network framework bridge.
+Hosts without a capability report it explicitly. Other desktop hosts need a
+custom environment for lifecycle refresh when their adapter lacks those events.
 
 ```ts
 import { environment } from '@octane-xplat/platform/environment'
 
 const capabilities = environment.getSnapshot().capabilities
 console.log('Activity events available:', capabilities?.activity ?? false)
+```
+
+On Windows, the default client reads the WinRT connection level independently
+of the adapter's transport label. Local or limited connectivity permits requests;
+it does not guarantee that your server is reachable. Missing projection reports
+unknown connectivity rather than pausing work as offline. Activity follows
+NativeScript app suspension, which the Windows host derives from window
+visibility, rather than individual window keyboard focus. Reconnect delivery and
+query refresh in a Windows app still need runtime qualification.
+
+```ts
+import { createQueryClient } from '@octane-xplat/ui/data'
+
+// Uses the target's platform environment without a browser or custom adapter.
+const queries = createQueryClient({ namespace: 'travel' })
 ```
 
 Custom hosts can provide connectivity through an environment. Known offline

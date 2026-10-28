@@ -78,7 +78,10 @@ export function Services() @{
 						: 'unsupported')}
 			</Text>
 			<Text className="text-sm text-muted">
-				{'locale ' + locale.tag + ' · ' + (conn.online ? conn.type : 'offline')}
+				{'locale ' +
+					locale.tag +
+					' · ' +
+					(conn.supported === false ? 'network unknown' : conn.online ? conn.type : 'offline')}
 			</Text>
 			<Text className="text-sm text-muted">
 				{'window ' + win.width + '×' + win.height + ' ' + win.orientation + ' · app ' + appState}

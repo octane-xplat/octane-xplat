@@ -15,7 +15,12 @@ export const environment: RuntimeEnvironment = {
 	},
 	subscribe(listener) {
 		let active = !Application.suspended
-		const notify = () => listener({ ...environment.getSnapshot(), active })
+		let stopped = false
+		const notify = () => {
+			if (!stopped) {
+				listener({ ...environment.getSnapshot(), active })
+			}
+		}
 		const suspend = () => {
 			active = false
 			notify()
@@ -36,10 +41,15 @@ export const environment: RuntimeEnvironment = {
 		try {
 			stopNetwork = connectivity.subscribe(notify)
 		} catch (error) {
+			stopped = true
 			removeApp()
 			throw error
 		}
 		return () => {
+			if (stopped) {
+				return
+			}
+			stopped = true
 			try {
 				stopNetwork()
 			} finally {

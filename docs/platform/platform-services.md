@@ -381,6 +381,22 @@ stopFirst() // The second registration still receives updates.
 stopSecond()
 ```
 
+The experimental Windows adapter reads the current WinRT profile each time.
+Its [connection level](https://learn.microsoft.com/en-us/uwp/api/windows.networking.connectivity.networkconnectivitylevel)
+determines `online`: local, limited and internet access permit requests even
+when the transport is `unknown`. Only recognized Wi-Fi, mobile and Ethernet
+transports receive those labels. A missing binding reports `supported: false`;
+an absent profile or a `None` level reports known offline state. Native snapshot
+reading has been checked on x64; app reconnect event delivery remains unqualified.
+
+```ts
+import { connectivity } from '@octane-xplat/platform'
+
+const state = connectivity.getState()
+const status = state.supported === false ? 'unknown' : state.online ? state.type : 'offline'
+console.log(status)
+```
+
 ## Store a session token
 
 Use `@octane-xplat/secure-storage` for secrets such as a token returned by your

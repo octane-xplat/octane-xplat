@@ -2,9 +2,7 @@
 // it is a built-in service rather than a separate @nativescript/connectivity plugin.
 import { Connectivity } from '@nativescript/core'
 import type { ConnectionType, ConnectivityImpl, ConnectivityState } from './types'
-
-const listeners = new Set<(state: ConnectivityState) => void>()
-let monitoring = false
+import { createNativeConnectivity } from './native-connectivity'
 
 function connectionType(value = Connectivity.getConnectionType()): ConnectionType {
 	const types = Connectivity.connectionType as any
@@ -35,80 +33,9 @@ function connectionType(value = Connectivity.getConnectionType()): ConnectionTyp
 	return 'unknown'
 }
 
-function read(): ConnectivityState {
-	const type = connectionType()
+function read(value?: number): ConnectivityState {
+	const type = connectionType(value)
 	return { online: type !== 'none', type }
 }
 
-function notify(value: number) {
-	if (listeners.size === 0) {
-		return
-	}
-
-	const type = connectionType(value)
-	const state = { online: type !== 'none', type }
-	for (const listener of Array.from(listeners)) {
-		if (listeners.has(listener)) {
-			listener(state)
-		}
-	}
-}
-
-function startMonitoring() {
-	if (monitoring) {
-		return
-	}
-
-	monitoring = true
-	try {
-		Connectivity.startMonitoring(notify)
-	} catch (error) {
-		monitoring = false
-		try {
-			Connectivity.stopMonitoring()
-		} catch {
-			// Rollback must preserve the original startup failure.
-		}
-
-		throw error
-	}
-}
-
-function stopMonitoring() {
-	if (!monitoring) {
-		return
-	}
-
-	monitoring = false
-	Connectivity.stopMonitoring()
-}
-
-export const connectivity: ConnectivityImpl = {
-	getState: read,
-	subscribe(listener) {
-		// A repeated callback still owns a distinct subscription and teardown.
-		const callback = (state: ConnectivityState) => listener(state)
-		listeners.add(callback)
-		try {
-			callback(read())
-			startMonitoring()
-		} catch (error) {
-			listeners.delete(callback)
-			if (listeners.size === 0) {
-				try {
-					stopMonitoring()
-				} catch {}
-			}
-
-			throw error
-		}
-		return () => {
-			if (!listeners.delete(callback)) {
-				return
-			}
-			if (listeners.size === 0) {
-				stopMonitoring()
-			}
-		}
-	},
-}
+export const connectivity: ConnectivityImpl = createNativeConnectivity(Connectivity, read)

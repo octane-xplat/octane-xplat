@@ -35,6 +35,7 @@ is complete because of these changes.
 | Random | WinRT CryptographicBuffer entropy, bounded hex conversion, byte-range preservation | Standalone NativeScript byte bounds/chunks passed; production app integration unqualified; no JS PRNG fallback |
 | Controlled text | Windows text-write leaf preserves TextBox selection around guarded value updates | Mocked range/lifecycle tests only; actual WinUI selection, IME, secure fields and focus unqualified |
 | Scroll observation | Windows useScrollableArea composes viewport/content layout, scroll and lifecycle handlers | Scripted-hook/fake-metric contracts only; real compiler/renderer, Mason measurements, OS scrolling and RTL unqualified |
+| Connectivity/query environment | Windows WinRT profile-level reader and native environment export; shared monitor ownership and stopped-listener guards | 17 focused contracts and one native snapshot comparison passed; reconnect/event delivery, app/window lifecycle and real query refresh unqualified |
 | Credentials | Package-family-scoped PasswordVault adapter avoids mobile plugin fallback | Standalone task-namespace operations/cleanup passed; actual packaged identity, persistence across launches and policy behavior unqualified |
 | Device | Explicit Windows OS identity, core metadata | Version/model/language metadata unqualified |
 | App metadata | Windows appInfo lazily reads package identity and four-part version | Four mocked contracts and standalone unpackaged-unavailable result passed; packaged values, startup and production integration unqualified |
@@ -832,10 +833,10 @@ exit 0. The first transfer included macOS AppleDouble files and failed; the
 final archive contains every actual source note and no generated transfer
 metadata. Logs: `research/windows61/windy-app-info-notes-check.log` and
 `research/windows61/windy-app-info-notes-source-check.log`. Recipe structure
-passed. Exact remaining commands in the canonical workspace:
+passed. The canonical changelog check subsequently passed (see connectivity
+follow-up below). Exact remaining commands in the canonical workspace:
 
 ```sh
-pnpm check:changelog
 pnpm exec turbo run test --filter=@octane-xplat/platform
 pnpm exec turbo run typecheck --filter=...@octane-xplat/platform
 pnpm exec turbo run typegen --filter=@octane-xplat/platform
@@ -896,3 +897,87 @@ files and tests, plus the earlier Windows app-info source/test. Earlier
 missing-dependency attempts remain recorded; the app-info formatter/lint debt
 is cleared. Recipe structure and whitespace checks passed. No dependency
 install or shared installation repair was performed by this task.
+
+## Windows connectivity and default query environment
+
+The Windows environment manifest selected the browser implementation and its
+browser declarations, even though query-cache.ts imports this entry by default.
+It now selects the native environment and native declarations. The concrete
+demand is the maintained shared-query-data.ts session workflow and the Services
+network readout. Assume server-backed lists, reconnect and background polling
+matter before niche integrations. Services now displays an unavailable binding
+as network unknown, rather than offline; no app render was run.
+
+The published core profile parser returns none for unrecognized adapters. This
+is source evidence, not a reproduced unknown-adapter OS failure. The Windows
+leaf keeps the proven core status-change channel but supplies a fresh WinRT
+profile-level reader. Missing profiles/None are known offline; local, constrained
+and internet access permit work independently of the transport label. Only
+recognized Wi-Fi, mobile and Ethernet are labeled; unknown transports remain
+online when connected. Missing/malformed/throwing projection reports supported
+false, which the environment maps to online undefined so queries may run. The
+reader does not claim HTTP reachability. Microsoft's
+[connection-level contract](https://learn.microsoft.com/en-us/uwp/api/windows.networking.connectivity.networkconnectivitylevel)
+and [profile contract](https://learn.microsoft.com/en-us/uwp/api/windows.networking.connectivity.networkinformation.getinternetconnectionprofile)
+support those distinctions.
+
+The repaired subscription ownership is extracted into a small dependency-free
+helper shared by the default and Windows leaves. NativeScript imports remain
+inside those leaves; separate browser/AppKit implementations are unchanged.
+An unavailable initial Windows binding publishes its unknown snapshot without
+attaching the core monitor. Native environment teardown now suppresses queued
+callbacks, remains idempotent and removes app listeners even if network teardown
+throws. Windows Application source derives suspension from window visibility;
+this is not per-window keyboard activation. No lifecycle policy was changed.
+
+The final isolated windy Turbo test:windows-network task passed all 17 contracts,
+exit 0: seven generic subscription ownership, four Windows SDK-state groups and
+six Windows environment composition/resolution groups. Actual source modules
+run with fake Core/WinRT objects. Node condition resolution checks actual
+manifest paths for Windows runtime/types and unchanged web/macOS/iOS selection;
+it does not load generated declarations. The task is uncached, with one task
+and no dependency builds. Log:
+`research/windows61/windy-windows-network-contracts-final.log`. Before the
+teardown guard, two of the original five environment contracts failed; the
+retained baseline/candidate log is
+`research/windows61/windy-environment-contracts.log`.
+
+A resource-reserved standalone alpha.144 x64 DLL check ran the actual Windows
+reader body after type stripping/import substitution and matched supported,
+online and transport against a separately sampled managed WinRT reference,
+exit 0. No identity/network details were logged. DLL SHA256 remains
+748D95864AC032DE2D1BB69FEC1E5B2CDD393BAA1671E349AA670160AA66D47C.
+Log: `research/windows61/windy-native-connectivity-state.log`. This verifies
+one sampled native state, not every connectivity level/adapter. No network
+change, HTTP request, app bootstrap, query execution or native lifecycle event
+was performed. Core status-change delivery still needs qualification.
+
+Current targeted formatting/lint and whitespace checks passed. Recipe structure
+passed; canonical release-note validation passed all 16 notes using a temporary
+link to existing yaml, removed immediately afterward. No install or dependency
+repair occurred. This also clears the earlier app-info local changelog debt.
+Public services/query guidance, agent guidance, a release note and the maintained
+Services example distinguish unknown state and experimental Windows support.
+Reviewed recipes keep their existing targets; Windows coverage/verification was
+not inserted into another target or inferred from these contracts. Shared audit
+snapshots and issue checkboxes are unchanged.
+
+Full package/dependent tests, declarations, packed consumers, native app and docs
+builds remain deferred. Relevant exact commands, including the touched example:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/platform
+pnpm exec turbo run typecheck --filter=...@octane-xplat/platform
+pnpm exec turbo run typegen --filter=@octane-xplat/platform
+pnpm exec turbo run pack:check --filter=@octane-xplat/platform
+pnpm exec turbo run test:packed --filter=@octane-xplat/platform
+pnpm exec turbo run test --filter=@octane-xplat/ui
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm exec turbo run typecheck --filter=...@xplat/app
+pnpm exec turbo run build --filter=@xplat/docs
+pnpm exec turbo run build:windows --filter=@xplat/windows
+```
+
+Real reconnect/disconnect delivery, suspend/resume across multiple windows,
+query pausing/refetch/polling in a Windows app, packed source resolution, all
+architectures and native dependency patch compatibility remain unqualified.
