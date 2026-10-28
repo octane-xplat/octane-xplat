@@ -1866,3 +1866,43 @@ its documented style channel and separately checks the inherited row prop's
 zero-based-to-CSS grid translation. This avoids asserting an undeclared Button
 width prop. Syntax/whitespace only; the case still has not run. The deferred
 commands and native limitations in the preceding section are unchanged.
+
+
+### AppKit URL dispatch and Link composition
+
+The prior source turn completed Button URL dispatch. Follow-up review found
+nav-href.macos used __xplatAppKitOpenWindow({url}) for external links. The host
+openWindow options construct an app window and never consume url; this is a
+source contract mismatch, not a newly observed blank-window runtime result.
+The helper now uses the existing platform openUrl after sanitizeUrl; relative
+paths keep canonical routing. Callers include Link, list/sidebar/token and
+breadcrumb navigation. No shared/mobile/GTK helper or host was changed.
+
+Plain Link also ignored function as/LinkProvider and passed primitive children
+into a layout host. It now uses the existing resolver/TextSlot, forwards color/
+style and standard presentation classes, lays out an external decorative marker
+in a target CSS row, and invokes onPress before default navigation. Safe valid
+injection owns navigation; rejected destinations never reach the injected
+function. Custom intrinsic strings beyond the default a sentinel, native target
+browsing contexts and tooltip presentation remain absent. Underline is forwarded
+to primitive text hosts; arbitrary supplied components keep their own styling.
+
+Demand assumption: help/documentation links and shared navigation are common
+app flows. The maintained Link.parity fixture already composes Link with Text;
+new helper/object-driver source cases additionally cover primitive children,
+normalized URL/relative routing, no app-window call, blocked schemes, injection
+precedence/ownership, metadata and callback order. These cases remain unrun.
+Only TypeScript/TSRX syntax, semantic/source and whitespace checks ran.
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/nav-href.macos.mobile.test.tsrx src/link.macos.mobile.test.tsrx src/button.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All commands remain deferred pending this task's explicit human authorization.
+Native URL launch, router integration across consumers, key/mouse activation,
+VoiceOver, inline wrapping/appearance and packaged lifecycle remain unqualified.
+No builds, package tests/typechecks, installs, OS automation, visual analysis or
+shared audit regeneration ran; no evidence checkbox is closed.

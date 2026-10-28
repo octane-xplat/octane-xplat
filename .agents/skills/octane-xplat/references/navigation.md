@@ -896,3 +896,34 @@ export function Sections() {
 	</TabList>
 }
 ```
+
+
+## AppKit URL links
+
+AppKit followHref normalizes/sanitizes destinations first. Explicit schemes
+use the existing platform openUrl API; relative paths retain canonical router
+navigation. Do not use the native openWindow hook for external URLs: that hook
+creates an app window and does not load a URL. This helper also serves native
+list/sidebar/token/breadcrumb paths, so its change is broader than plain Link.
+
+```tsx
+import { Link } from '@octane-xplat/ui'
+
+export function Help() { return <Link href="https://example.com/help">Help</Link> }
+```
+
+Link wraps primitive children, forwards presentation classes/color, and supports
+function components from as/LinkProvider (as wins). Valid injection owns
+navigation; unsafe destinations do not reach an injected component. Native
+target browsing contexts/custom intrinsic strings/tooltip presentation remain
+unsupported or unqualified; native launch/keys/VoiceOver/wrapping/layout still
+need evidence. See the [AppKit guide](../../../../docs/app/navigation.md#open-links-on-appkit).
+
+```tsx
+import { Link } from '@octane-xplat/ui'
+
+function AppLink(props: { href: string; onPress?: () => void }) {
+	return <Link href={props.href} as="a" onPress={props.onPress}>Help</Link>
+}
+export function CustomHelp() { return <Link as={AppLink} href="https://example.com/help">Help</Link> }
+```

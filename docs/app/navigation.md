@@ -2375,3 +2375,44 @@ import './routes.gen'
 
 For native Frame debugging, read the [Frame lifecycle reference](../../.agents/skills/octane-xplat/references/navigation/native-frames.md).
 For current commands and evidence, read [navigation checks](../../.agents/docs/navigation-checks.md).
+
+
+## Open links on AppKit
+
+Use Link for an external help URL. The AppKit leaf wraps plain text in a native
+label and hands sanitized external URLs to the platform opener. Relative paths
+still go through the canonical router; prefer NavLink when authoring app routes.
+No extra native app window is created for an external link.
+
+```tsx
+import { Link } from '@octane-xplat/ui'
+
+export function HelpLink() {
+	return <Link href="https://example.com/help" isExternalLink>Read help</Link>
+}
+```
+
+LinkProvider can supply a function component for a subtree, and a Link's `as`
+prop takes precedence. A valid custom component receives the destination,
+style/classes and onPress callback and owns navigation. Unsafe destinations
+fall back to the native surface without invoking that component.
+
+```tsx
+import { Link, LinkProvider } from '@octane-xplat/ui'
+
+function HelpSurface(props: { href: string; onPress?: () => void }) {
+	return <Link href={props.href} as="a" onPress={props.onPress}>Open help</Link>
+}
+
+export function HelpLinks() {
+	return <LinkProvider component={HelpSurface}>
+		<Link href="https://example.com/help">Help</Link>
+	</LinkProvider>
+}
+```
+
+These paths have authored source cases, not a native verification run. AppKit
+`target` does not select a browser tab/window, and custom intrinsic strings
+other than the default `a` sentinel are not implemented. Tooltip presentation,
+actual URL launch, keyboard/VoiceOver activation, inline wrapping and native
+link appearance remain unqualified.

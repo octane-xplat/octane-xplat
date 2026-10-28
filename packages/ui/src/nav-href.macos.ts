@@ -1,20 +1,14 @@
-import { hostGlobal } from './host-bridge'
+import { openUrl } from '@octane-xplat/platform'
 import { router } from './default-router.macos'
+import { sanitizeUrl } from './safe-url'
 
-/** App-relative paths use canonical routing; external URLs use the host opener. */
+/** App-relative paths use canonical routing; external URLs use the OS opener. */
 export function followHref(href: string): void {
-	if (!href) {
+	const url = sanitizeUrl(href)
+	if (!url) return
+	if (/^[a-z][a-z0-9+.-]*:/i.test(url)) {
+		openUrl(url)
 		return
 	}
-
-	if (/^[a-z][a-z0-9+.-]*:/i.test(href)) {
-		const open = hostGlobal('__xplatAppKitOpenWindow')
-		if (typeof open === 'function') {
-			open({ url: href })
-		}
-
-		return
-	}
-
-	void router.navigateUrl(href)
+	void router.navigateUrl(url)
 }
