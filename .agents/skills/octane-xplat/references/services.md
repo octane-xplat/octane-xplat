@@ -17,6 +17,7 @@ never fall back to ordinary storage.
 ```ts
 import { storage } from '@octane-xplat/platform'
 
+// Windows flush() cannot confirm a blocking durable commit and returns false.
 storage.setString('bag', 'Carry-on')
 const bag = storage.getString('bag')
 ```

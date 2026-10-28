@@ -124,6 +124,19 @@ console.log(handoffConfirmed)
 These are source implementation contracts. Actual AppKit restart persistence,
 inactive/termination delivery and installed-app behavior remain unqualified.
 
+### Windows settings
+
+On experimental native Windows, writes go to the OS preferences store, but the
+host exposes no blocking commit confirmation. `storage.flush()` returns `false`
+there; it does not discard previously written preferences.
+
+```ts
+import { storage } from '@octane-xplat/platform'
+
+storage.setString('packing-draft', 'Passport')
+const handoffConfirmed = storage.flush() // false on native Windows
+```
+
 Keep tokens and other secrets out of ordinary storage; follow
 [Store a session token](#store-a-session-token) for the secure-storage setup.
 
@@ -460,7 +473,7 @@ console.log(accepted ? 'Use System Settings to change the permission' : 'Setting
 | `geolocation`                       | `getCurrentPosition(options)`                                                                | `@octane-xplat/geolocation` leaf                                                                                                                                                     |
 | `connectivity`                      | `getState()` + `subscribe(listener)`                                                         | web also exposes connection type where `navigator.connection` exists                                                                                                                 |
 | `appInfo`                           | `{ supported, version, build, bundleId }`                                                    | `supported: false` on web — a browser bundle has no trustworthy app identity                                                                                                         |
-| `openUrl(url)`                      | returns whether an outbound-link request was accepted                                        | a WKWebView sends the request asynchronously; this synchronous API cannot return the host's eventual result                                                                          |
+| `openUrl(url)`                      | returns whether an outbound-link request was accepted                                        | WKWebView and native Windows submit asynchronously; this API cannot return the host's eventual result                                                                          |
 | `random`                            | `bytes(length)`, `fill(view)` — OS CSPRNG bytes                                              | WinRT CryptographicBuffer candidate on Windows; runtime verification pending                                                                                                         |
 | `openSettings`                      | capability; `open()`                                                                         | [AppKit opens System Settings without selecting a pane](#open-settings); iOS/Android open app settings; unsupported on web                                                                                                                                                                   |
 | `media.pickImage()`, `pickImages()` | pick existing image(s)                                                                       | `@octane-xplat/media` leaf                                                                                                                                                           |

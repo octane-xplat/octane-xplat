@@ -160,16 +160,45 @@ test('Windows auth does not load Android and rejects with the capability error',
 	)
 })
 
-
 test('Windows device identity stays Windows regardless of the core OS label', () => {
 	const { device } = load('device', {
-		'@nativescript/core': { Device: {
-			os: 'Windows', osVersion: '11', model: 'Desktop', manufacturer: 'Example',
-			language: 'en_US', region: 'US',
-		} },
+		'@nativescript/core': {
+			Device: {
+				os: 'Windows',
+				osVersion: '11',
+				model: 'Desktop',
+				manufacturer: 'Example',
+				language: 'en_US',
+				region: 'US',
+			},
+		},
 	})
 	assert.equal(device.os, 'windows')
 	assert.equal(device.osVersion, '11')
 	assert.equal(device.language, 'en')
 	assert.equal(device.region, 'US')
+})
+
+test('Windows preferences retain string semantics without claiming a blocking durable commit', () => {
+	const data = new Map()
+	const { storage } = load('storage', {
+		'@nativescript/core': {
+			ApplicationSettings: {
+				getString: (key) => data.get(key),
+				setString: (key, value) => data.set(key, value),
+				remove: (key) => data.delete(key),
+				flush: () => {
+					throw new Error('must not present the core no-op as a commit')
+				},
+			},
+		},
+	})
+	assert.equal(storage.getString('missing'), null)
+	storage.setString('draft', '')
+	assert.equal(storage.getString('draft'), '')
+	storage.setString('draft', 'Passport')
+	assert.equal(storage.getString('draft'), 'Passport')
+	assert.equal(storage.flush(), false)
+	storage.remove('draft')
+	assert.equal(storage.getString('draft'), null)
 })

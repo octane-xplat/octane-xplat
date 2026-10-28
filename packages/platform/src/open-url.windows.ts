@@ -3,7 +3,7 @@ import { Windows } from '@octane-xplat/platform/windows'
 import type { Service } from '@octane-xplat/lib/capability'
 import type { OpenSettingsImpl } from './types'
 
-/** Hand an outbound URL to the NativeScript Windows launcher. */
+/** Submit an outbound URL. True acknowledges submission, not the eventual OS result. */
 export function openUrl(url: string): boolean {
 	return Utils.openUrl(url)
 }
@@ -17,7 +17,7 @@ function packageFamily(): string | null {
 	}
 }
 
-/** Opens this packaged app's Windows Settings page; unavailable without identity. */
+/** Submit this packaged app's Settings URI; unavailable without identity. */
 export const openSettings: Service<OpenSettingsImpl> = {
 	get supported() {
 		return packageFamily() !== null

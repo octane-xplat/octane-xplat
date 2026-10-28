@@ -17,7 +17,7 @@ import { storage, permissions } from '@octane-xplat/platform'
 
 storage.setString('has-seen-welcome', 'true')
 const seen = storage.getString('has-seen-welcome')
-const handoffConfirmed = storage.flush() // check the platform confirmation
+const handoffConfirmed = storage.flush() // false on native Windows
 
 const result = await permissions.requestPermissions('camera')
 ```
@@ -26,6 +26,8 @@ Request `flush()` when saving work and handle a false result or exception.
 Automatic lifecycle flushing is best effort; host handoff does not guarantee
 survival of every process or power failure. On experimental AppKit, missing
 mutation hooks retain session-only changes and make flush return false.
+Native Windows preserves string preferences but flush returns false: its host
+exposes no blocking commit confirmation.
 Native restart/lifecycle and installed-app qualification remain pending. See
 [AppKit settings](../../docs/platform/platform-services.md#appkit-settings).
 
