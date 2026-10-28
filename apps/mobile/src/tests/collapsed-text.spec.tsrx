@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { expect, it } from 'vitest'
 import { isIOS, type View as NativeView } from '@nativescript/core'
 import { Grid, Screen, Text, View } from '@octane-xplat/ui'

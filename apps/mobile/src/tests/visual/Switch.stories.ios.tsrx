@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import './stage.ios.css'
 import { Switch } from '@octane-xplat/ui'
 import { SWITCH_SCENARIO } from '../../../../visual/src/scenario'
@@ -8,17 +8,20 @@ export function SwitchStage(props: {
 	stageId: string
 	displacement?: number
 }) @{
-	<masonview width="100%" height="100%" iosOverflowSafeArea={false} style={{ display: 'grid' }}>
+	<masonview
+		iosOverflowSafeArea={false}
+		style={{ display: 'grid', width: '100%', height: '100%' }}
+	>
 		<masonview
 			style={{
 				display: 'flex',
 				justifySelf: 'center',
 				alignSelf: 'center',
+				width: 96,
+				height: 64,
 			}}
 			id={props.stageId}
 			className="visual-stage"
-			width={96}
-			height={64}
 			iosOverflowSafeArea={false}
 		>
 			<masonview translateX={props.displacement ?? 0} style={{ display: 'grid' }}>

@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { Text } from '@octane-xplat/ui'
 
 /** The UITabBar sequence runs only on iOS; the Android leaf is neutral. */

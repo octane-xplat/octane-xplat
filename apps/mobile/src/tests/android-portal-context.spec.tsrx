@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { beforeEach, describe, expect, it } from 'vitest'
 import { isAndroid } from '@nativescript/core'
 import { createContext, useContext, useEffect, useState } from 'octane'

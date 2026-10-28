@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { Pressable, Screen, Tabs, Text, View } from '@octane-xplat/ui'
 import { defineRoute } from '../../../packages/ui/src/define-route'

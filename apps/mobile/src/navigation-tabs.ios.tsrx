@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { UITabBar } from '@octane-xplat/ui/ios'
 import { Text } from '@octane-xplat/ui'

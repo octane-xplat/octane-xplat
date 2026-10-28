@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { expect, it } from 'vitest'
 import type { View as NativeView } from '@nativescript/core'
 import { FontFace, FontFaceSet } from '@nativescript/font-manager'

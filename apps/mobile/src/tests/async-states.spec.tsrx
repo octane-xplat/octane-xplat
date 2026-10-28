@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { describe, expect, it } from 'vitest'
 import { useEffect, useState } from 'octane'
 import { Text } from '@octane-xplat/ui'

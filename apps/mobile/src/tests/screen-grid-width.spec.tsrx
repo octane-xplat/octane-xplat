@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import '@octane-xplat/ui/theme/tokens.css'
 import './screen-grid-width.css'
 import { expect, it } from 'vitest'
@@ -11,7 +11,7 @@ import { mountXplat, waitUntil } from '@octane-xplat/platform/testing'
 function ScreenGridWidth(props: { bounded: boolean }) @{
 	const className = props.bounded ? 'test-screen-width-bounded' : undefined
 
-	<rootlayout width={240} height={480}>
+	<rootlayout style={{ width: 240, height: 480 }}>
 		<Screen>
 			<Grid
 				id="width-stage"

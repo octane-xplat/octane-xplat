@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { expect, it } from 'vitest'
 import { composeStory } from 'storybook/preview-api'
 import { findByTestId, mountXplat, waitUntil } from '@octane-xplat/platform/testing'

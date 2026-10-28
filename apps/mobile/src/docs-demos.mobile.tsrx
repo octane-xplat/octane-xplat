@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { Application, Frame, Page } from '@nativescript/core'
 import { renderNativeScriptApp } from '@nativescript-community/octane'
 import { useState } from 'octane'

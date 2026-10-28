@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { expect, it } from 'vitest'
 import { ImageSource, isAndroid, knownFolders, path as nsPath } from '@nativescript/core'
 import { Grid, Image, Screen, View } from '@octane-xplat/ui'
@@ -76,7 +76,7 @@ async function settle(view: any, grid: any, ids: string[]) {
 function NestedTiles() @{
 	const src = fixturePath()
 
-	<rootlayout width={402} height={480}>
+	<rootlayout style={{ width: 402, height: 480 }}>
 		<Screen>
 			<Grid id="grid" columns="*,*" style={{ width: 402 }}>
 				<View id="tile-0" row={0} col={0} style={{ height: 402 }}>
@@ -109,7 +109,7 @@ function NestedTiles() @{
 function DirectTiles() @{
 	const src = fixturePath()
 
-	<rootlayout width={402} height={480}>
+	<rootlayout style={{ width: 402, height: 480 }}>
 		<Screen>
 			<Grid id="grid" columns="*,*" style={{ width: 402 }}>
 				<View id="tile-0" row={0} col={0} style={{ height: 402 }}>
@@ -138,7 +138,7 @@ function DirectTiles() @{
 function ImageItems() @{
 	const src = fixturePath()
 
-	<rootlayout width={402} height={480}>
+	<rootlayout style={{ width: 402, height: 480 }}>
 		<Screen>
 			<Grid id="grid" columns="*,*" style={{ width: 402 }}>
 				<Image
