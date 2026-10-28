@@ -48,6 +48,7 @@ import {
 	type CssHostNode,
 	registerStylesheet,
 	onStylesheetsChanged,
+	refreshMediaQueries,
 	setStyleEnvironment,
 	stylesheetPseudoClasses,
 	stylesheetScope,
@@ -132,6 +133,7 @@ import {
 	NSVisualEffectView,
 	NSWindow,
 	NSWindowDelegate,
+	NSWindowDidResizeNotification,
 	NSWindowDidUpdateNotification,
 	NSWindowOrderingMode,
 	NSWindowStyleMask,
@@ -8961,6 +8963,50 @@ setStyleEnvironment(() => {
 	return { width, height, colorScheme, reducedMotion }
 })
 
+// ---- Media queries on resize ------------------------------------------------
+// Window resizes re-evaluate media-gated rules — the resize diff compares
+// against the primed cache, so createMacOSRoot seeds refreshMediaQueries()
+// before the first resize can land. One observer covers every container
+// window; the notification carries the resizing window as its object.
+let resizeQueued = false
+function onHostWindowResize() {
+	if (resizeQueued) {
+		return
+	}
+	resizeQueued = true
+	queueMicrotask(() => {
+		resizeQueued = false
+		if (refreshMediaQueries()) {
+			restyleAllContainers()
+		}
+	})
+}
+
+let resizeObserverInstalled = false
+function installResizeObserver() {
+	if (resizeObserverInstalled || typeof NSNotificationCenter === 'undefined') {
+		return
+	}
+	const center = NSNotificationCenter.defaultCenter
+	if (!center || typeof center.addObserverForNameObjectQueueUsingBlock !== 'function') {
+		return
+	}
+	resizeObserverInstalled = true
+	center.addObserverForNameObjectQueueUsingBlock(
+		NSWindowDidResizeNotification ?? 'NSWindowDidResizeNotification',
+		null,
+		null,
+		(notification: NSNotification) => {
+			for (const container of appKitContainers) {
+				if (container.hostView?.window === notification?.object) {
+					onHostWindowResize()
+					return
+				}
+			}
+		},
+	)
+}
+
 // Appearance flips change ns-light/ns-dark on roots and may flip media-gated rules.
 appKitBridge.onAppearanceChange?.(() => restyleAllContainers())
 appKitBridge.observeHover = observeHover
@@ -9035,6 +9081,10 @@ export function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptio
 	container.root = root
 	ownedRoots.set(hostView, root)
 	appKitContainers.add(container)
+	installResizeObserver()
+	// Prime the media-query cache so the first resize diff compares against
+	// a baseline instead of an empty cache (GTK wires its window the same way).
+	refreshMediaQueries()
 	const unmount = root.unmount.bind(root)
 	root.unmount = () => {
 		appKitContainers.delete(container)
