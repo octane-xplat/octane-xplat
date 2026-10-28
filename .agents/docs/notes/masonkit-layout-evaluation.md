@@ -1600,8 +1600,8 @@ unrelated to Mason that the earlier error had hidden:
 
 All three are now fixed. The table hooks return `tableSlot` descriptors
 (`0c61785e9` on main). The `/ns/m` bare-import fallback now resolves from
-the importing file (`92130c894`). The vendor force-include ignores
-`NODE_PATH` (`a99f2ad62`). A later iOS run, made before those commits were
+the importing file (`c5f47ae80`). The vendor force-include ignores
+`NODE_PATH` (`db746b649`). A later iOS run, made before those commits were
 rebased onto main, fetched the whole module graph and then stopped on two
 new blockers:
 
