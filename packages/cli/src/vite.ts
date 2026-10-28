@@ -283,7 +283,9 @@ export function nativeRelativeResolution() {
 
 				for (const ext of exts) {
 					if (existsSync(base + ext)) {
-						return base + ext
+						// Vite module IDs use forward slashes, including on Windows.
+						// Mixed separators create two instances of core style registries.
+						return (base + ext).replaceAll('\\', '/')
 					}
 				}
 

@@ -1259,3 +1259,58 @@ signing or launching. The phase is being cancelled, and a retry must assert
 the effective verifyDepsBeforeRun configuration before invoking pnpm exec.
 This phase has no OS behavior result and must not be counted as an install,
 launch, signing or keyboard pass. Log: research/windows61/windy-os-common-flows.log.
+
+## Windows module identity and first launch
+
+The repaired MSIX signed and verified with the existing CN=ui certificate and
+installed successfully as org.octanexplat.windows61_8w7k1f04p0kxp. No certificate
+trust was changed. Its first actual launch failed before a window was created:
+Cannot redefine property: default:width while evaluating vendor.mjs. The
+bounded driver therefore reported setup failure; no physical input, modal or
+scroll scenario ran. The owned process was closed and the temporary interactive
+scheduled task was removed. Log: research/windows61/windy-os-common-flows-retry.log.
+
+The emitted bundle contained two identical core width registrations targeting
+the same Style class. Their fingerprint matches the actual core source at
+abae298, packages/core/ui/styling/style-properties.ts:295. Evidence:
+research/windows61/windy-boot-registration-stack.log and
+windy-core-style-duplicate-count.log. The relative resolver returned backslash
+paths on Windows while other resolution paths used forward slashes. It now
+normalizes returned module IDs to forward slashes. After this single resolver
+change, the real native build passed all 38 tasks (32 cache hits), exit 0,
+and the emitted width registration count fell from two to one. All four
+maintained relative-resolution tests passed on the Windows filesystem,
+including an assertion that returned IDs contain no backslashes. Logs:
+research/windows61/windy-identity-retry2.log,
+windy-identity-resolver-tests.log and windy-identity-native-task.log. The first
+retry wrapper supplied an invalid Turbo output-logs value and failed before
+building; it was corrected to errors-only. Native build output still retains
+the delegated checker's foreign/context errors; that checker has not passed.
+
+The isolated qualification checkout temporarily adds a test:resolver script
+and Turbo task depending on the CLI build; the actual focused command is:
+
+```sh
+pnpm exec turbo run test:resolver build:windows --filter=@xplat/windows --concurrency=1 --output-logs=errors-only
+```
+
+This is a private verification alias, not a new published workflow. Current
+targeted CLI source/test format, lint and whitespace checks passed. Full CLI
+package/dependent typechecks and the rest of its suite remain outstanding:
+
+```sh
+pnpm exec turbo run typecheck --filter=...@octane-xplat/cli --concurrency=1
+pnpm exec turbo run test --filter=@octane-xplat/cli --concurrency=1
+```
+
+The effective dependency policy is now set in the owned remote
+pnpm-workspace.yaml as verifyDepsBeforeRun: warn and asserted through
+pnpm config get before execution. The ineffective owned .npmrc line was
+removed. The final policy inspection reports warn, an unchanged lockfile and
+exactly that one added workspace setting
+(research/windows61/windy-effective-dependency-policy.log). The cancelled first
+OS wrapper exited 1 before signing/launch. After policy correction, the 31
+installed-file keyboard/pointer regressions passed again without installing
+anything; they remain mocked native-event tests, not OS evidence. The next
+interactive phase uses the normalized bundle. Source/build qualification has
+not been promoted to keyboard, modal or scrolling support.

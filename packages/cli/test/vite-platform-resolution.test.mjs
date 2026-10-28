@@ -9,6 +9,7 @@ import { nativeRelativeResolution } from '../dist/vite.js'
 // default — the ns platform resolver only knows .ios/.android, so `./svg`
 // used to resolve `svg.ts` in dev and skip registerElement side effects.
 const dirs = []
+const vitePath = (path) => path.replaceAll('\\', '/')
 
 const track = (path) => {
 	dirs.push(path)
@@ -39,13 +40,14 @@ describe('nativeRelativeResolution', () => {
 		const dir = makeDir(['svg.ts', 'svg.mobile.ts'])
 		const resolved = handler('./svg', join(dir, 'Image.tsrx'), {})
 
-		assert.equal(resolved, join(dir, 'svg.mobile.ts'))
+		assert.equal(resolved, vitePath(join(dir, 'svg.mobile.ts')))
+		assert.ok(!resolved.includes('\\'))
 	})
 
 	it('resolves the shared default directly when no platform leaf exists', () => {
 		const dir = makeDir(['svg.ts'])
 
-		assert.equal(handler('./svg', join(dir, 'Image.tsrx'), {}), join(dir, 'svg.ts'))
+		assert.equal(handler('./svg', join(dir, 'Image.tsrx'), {}), vitePath(join(dir, 'svg.ts')))
 	})
 
 	it('ignores bare and absolute specifiers', () => {
@@ -61,7 +63,10 @@ describe('nativeRelativeResolution', () => {
 			process.env.NATIVESCRIPT_BUNDLER_ENV = JSON.stringify({ windows: true })
 			const dir = makeDir(['screen.ts', 'screen.ios.ts', 'screen.windows.ts'])
 			const resolve = nativeRelativeResolution().resolveId.handler
-			assert.equal(resolve('./screen', join(dir, 'main.ts'), {}), join(dir, 'screen.windows.ts'))
+			assert.equal(
+				resolve('./screen', join(dir, 'main.ts'), {}),
+				vitePath(join(dir, 'screen.windows.ts')),
+			)
 		} finally {
 			if (previous === undefined) {
 				delete process.env.NATIVESCRIPT_BUNDLER_ENV
