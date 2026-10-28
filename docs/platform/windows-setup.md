@@ -17,3 +17,7 @@ For current app target availability and limits, see
 [Choose your targets](../start/spec.md#choose-your-targets). Framework
 contributors can use the
 [internal Windows test-host runbook](../../.agents/docs/windows-test-host.md).
+
+For current repository implementation candidates and deferred Windows checks,
+see the [Windows progress note](../../.agents/docs/parity/windows-support-progress.md).
+These candidates do not change the experimental support boundary.

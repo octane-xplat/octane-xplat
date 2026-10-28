@@ -7,7 +7,7 @@
 export type AppState = 'active' | 'background' | 'inactive'
 
 export interface DeviceInfo {
-	os: 'web' | 'ios' | 'android' | 'macos'
+	os: 'web' | 'ios' | 'android' | 'macos' | 'windows'
 	osVersion: string
 	model: string
 	manufacturer: string
@@ -37,7 +37,8 @@ export interface Locale {
 /**
  * OS CSPRNG: fills buffers from the platform's cryptographic entropy source
  * (SecRandomCopyBytes on iOS/macOS, java.security.SecureRandom on Android,
- * crypto.getRandomValues on web/Linux). `supported` is false where no source
+ * crypto.getRandomValues on web/Linux, WinRT CryptographicBuffer on Windows).
+ * `supported` is false where no source
  * is bound — `fill`/`bytes` throw there rather than weaken to Math.random.
  */
 export interface RandomImpl {

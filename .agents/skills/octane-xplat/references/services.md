@@ -215,8 +215,9 @@ export function tryWatchLinks(onURL: (url: string) => void): (() => void) | null
 `random.bytes(length)` returns a `Uint8Array` of secure random bytes;
 `random.fill(view)` fills any `ArrayBufferView` in place. Web uses
 `crypto.getRandomValues`, iOS/macOS `SecRandomCopyBytes`, Android
-`java.security.SecureRandom`. `random.supported` is `false` on Windows —
-no weaker fallback exists.
+`java.security.SecureRandom`. Windows has a WinRT `CryptographicBuffer` leaf;
+check `random.supported` for binding availability. Its Windows runtime remains
+unverified; no weaker fallback exists.
 
 ```ts
 import { random } from '@octane-xplat/platform'
@@ -365,9 +366,11 @@ export async function readImages() {
 ## Hosted authentication
 
 Use the [hosted auth client](../../../../packages/auth/README.md#hosted-sign-in-ceremonies)
-for app-owned credential persistence and refresh. Await sign-out before treating
-durable credentials as cleared; failed deletion rejects with a sanitized error,
-so expose the failure and allow retry. Server revocation is still attempted; it retires pending login/refresh and orders
+for app-owned credential persistence and refresh. Windows currently reports
+`authSession.supported === false`; a desktop callback/activation adapter is still
+required. Await sign-out before treating durable credentials as cleared; failed
+deletion rejects with a sanitized error, so expose the failure and allow retry.
+Server revocation is still attempted; it retires pending login/refresh and orders
 removal after earlier saves. A superseded login reports `cancelled`. Pending
 authenticated requests cannot replay into a later session; a request still
 loading credentials rejects when its session changes.

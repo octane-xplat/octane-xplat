@@ -415,10 +415,10 @@ random.fill(salt)
 ```
 
 Browsers use `crypto.getRandomValues`, iOS and macOS use `SecRandomCopyBytes`,
-and Android uses `java.security.SecureRandom`. Every currently shipping target
-has a bound source except Windows, where `random.supported` is `false` —
-check the flag and disable or defer the feature there rather than catching
-errors or weakening the secret.
+and Android uses `java.security.SecureRandom`. The experimental Windows leaf uses
+WinRT `CryptographicBuffer`; Windows runtime verification is pending. Check
+`random.supported` before generating bytes, and disable or defer the feature
+when the host has no bound source. Never weaken the secret.
 
 ## Open settings
 
@@ -461,12 +461,12 @@ console.log(accepted ? 'Use System Settings to change the permission' : 'Setting
 | `connectivity`                      | `getState()` + `subscribe(listener)`                                                         | web also exposes connection type where `navigator.connection` exists                                                                                                                 |
 | `appInfo`                           | `{ supported, version, build, bundleId }`                                                    | `supported: false` on web — a browser bundle has no trustworthy app identity                                                                                                         |
 | `openUrl(url)`                      | returns whether an outbound-link request was accepted                                        | a WKWebView sends the request asynchronously; this synchronous API cannot return the host's eventual result                                                                          |
-| `random`                            | `bytes(length)`, `fill(view)` — OS CSPRNG bytes                                              | `supported: false` on Windows                                                                                                                                                        |
+| `random`                            | `bytes(length)`, `fill(view)` — OS CSPRNG bytes                                              | WinRT CryptographicBuffer candidate on Windows; runtime verification pending                                                                                                         |
 | `openSettings`                      | capability; `open()`                                                                         | [AppKit opens System Settings without selecting a pane](#open-settings); iOS/Android open app settings; unsupported on web                                                                                                                                                                   |
 | `media.pickImage()`, `pickImages()` | pick existing image(s)                                                                       | `@octane-xplat/media` leaf                                                                                                                                                           |
 | `media.capturePhoto()`              | still capture through the OS camera UI                                                       | `@octane-xplat/media` leaf; web uses `<input type="file" capture>` — a real camera flow on phones, a file-picker fallback on desktops                                                |
 | `webAuthn`                          | `isAvailable()`, `create(options)`, `get(options)` — raw WebAuthn over the RP's JSON options | web only; native reports `supported: false` — use `authSession`                                                                                                                      |
-| `authSession`                       | `open(url, { callbackScheme })` — hosted web ceremony in a system browser                    | iOS/macOS ASWebAuthenticationSession, Android Custom Tab + deep-link return; unsupported on web                                                                                      |
+| `authSession`                       | `open(url, { callbackScheme })` — hosted web ceremony in a system browser                    | iOS/macOS ASWebAuthenticationSession, Android Custom Tab + deep-link return; unsupported on web and Windows                                                                          |
 | `@octane-xplat/sqlite`              | `openDatabase(name)` → async `execute`/`select`/`get`/`transaction`/`userVersion`            | own leaf, not a platform service; web persists via an OPFS worker, macOS binds system libsqlite3 through host metadata interop (`db.persistent` reports); Windows `supported: false` |
 
 `media` owns the `camera` and `photos` permission requests for still capture
