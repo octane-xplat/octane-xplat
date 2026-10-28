@@ -1585,13 +1585,12 @@ Source inspection at `core-v1.0.0-beta.5` narrows the suspect path to
 and [`setRootNativeViewFrame` in the projected `common.ts`](https://github.com/octane-xplat/nativescript-mason/blob/core-v1.0.0-beta.5/packages/nativescript-masonkit/common.ts). Intrinsic and
 host-constrained measurements share an applied native tree. The recovery trace
 contains exact 402-point measurements and frame placement followed by a
-240-point final native frame. A deferred intrinsic compute overwriting the
-host's final layout is the leading explanation; the exact overwriting native
-call has not been traced. Next, trace the native write that follows exact
-placement and test preserving the host-assigned viewport across intrinsic
-measurement. Retain an unmodified layer/reopen regression before qualifying
-a fix. No request-layout loop,
-fixed-width workaround or dependency patch was retained in Xplat.
+240-point final native frame. These local traces suggested that a deferred
+intrinsic compute overwrites the host's final layout; the remote follow-up
+below captures that native call path. A correction must preserve the
+host-assigned viewport across intrinsic measurement and pass an unmodified
+layer/reopen regression. No request-layout loop, fixed-width workaround or
+dependency patch was retained in Xplat.
 
 Local evidence is under `research/mason-stage-width/`: passive run
 `22e01e92-9f30-41cb-ae0c-566040f7f462` is in `native-frames-rerun.json`;
@@ -1601,6 +1600,43 @@ instrumentation is preserved as `screen-layers-diagnostic.patch`; the maintained
 probe was restored. These cached-host runs used handler dispatch, with no OS
 input, screenshots or pixel-parity claims. The simulator was shut down after
 each run. No public workflow or recipe changed.
+
+#### Deferred native frame write confirmed on skymac.local
+
+A separate Apple Silicon host reproduces the unchanged probe on iOS 26.2
+(iPhone 17 Simulator, Xcode 27.1), using Xplat `4dd131dc` and registry core
+beta.5. The first cycle fills 402×874 points; the second leaves the player
+stage at 240×874 while its outer layers remain 402×874. The unmodified run
+`fe30c0b0-80cb-430a-99ae-3c11e91fe5e2` fails its 29th assertion.
+
+A temporary UIKit frame observer captures native call stacks without rebuilding
+core. After an explicit compute restores the inner root to 402 points, a normal
+layout request shrinks it back to 240. The captured max-content write follows
+this caller-to-callee path:
+
+```text
+MasonUIView.layoutSubviews
+  -> autoComputeIfRoot -> computeWithSize
+  -> NSCMason.settleDeferredRoots -> MasonElement.settleDeferredSizes
+  -> computeRoot -> computeMaxContent -> runPass
+  -> MasonElementHelpers.applyToView -> applyBox -> UIView.frame
+```
+
+This establishes the deferred-settling frame write that the earlier local
+investigation had not traced. Deferred intrinsic sizing applies its result to
+the live native root after the host-sized layout. The fix investigation should
+keep those intrinsic results from becoming the final applied viewport while
+preserving the measurements needed by the outer tree. A native core fix and
+its regression run remain outstanding; no sizing workaround was shipped.
+
+Trace run `c2f004cb-4352-431b-9d90-264d37ba8675` records 18 small-width frame
+writes, 17 through deferred settling. Local copies are
+`research/mason-stage-width/skymac-baseline.json`, `skymac-native-trace.json`
+and the demangled `skymac-trace-summary.json`. The isolated remote checkout is
+`~/dev/worktrees/octane-xplat/mason-stage-width-run`; its temporary probe edits
+were restored. One native host build was needed; the trace reused it. The
+selected simulator was shut down, and the already-running simulator was left
+alone. This remains handler-dispatch and numeric-frame evidence.
 
 ## iOS dev-session bootstrap gap (2026-10-27)
 
