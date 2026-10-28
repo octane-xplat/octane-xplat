@@ -101,7 +101,7 @@ router.push({ to: '/help' })
 New apps use one `tsconfig.json` with `jsxImportSource: "@octane-xplat/jsx"`.
 Browser JSX files explicitly select `@octane-xplat/jsx/dom` with a first-line
 pragma. `pnpm typecheck` checks `.tsrx` and every platform variant together.
-A combined program uses opaque native host handles; a target-specific consumer
+A combined program resolves host handles as the shared `object` type — annotate the concrete view type at each ref declaration; a target-specific consumer
 can bind concrete handles through `customConditions: ["native"]` or `["macos"]`.
 Conditions bind host types only, never the intrinsic vocabulary.
 For the JSX facade's type-only boundary and configuration examples, see

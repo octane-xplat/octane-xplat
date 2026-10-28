@@ -86,7 +86,7 @@ platform-authentic widgets are opt-in subpath imports, and a shared `.tsrx`
 importing them fails the other platform's build on purpose:
 
 ```tsx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 // PackedToggle.ios.tsrx: an explicit OS widget choice.
 import { UISwitch } from '@octane-xplat/ui/ios'
 
@@ -774,7 +774,7 @@ touch interception on iOS 26+; real OS input acceptance remains unqualified.
 Use the default for toolbars and follow the [device checks](../app/liquid-glass.md#acceptance-on-a-device).
 
 ```tsx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { Pressable, Text } from '@octane-xplat/ui'
 import { LiquidGlass } from '@octane-xplat/ui/ios'
 

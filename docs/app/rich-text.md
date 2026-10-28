@@ -62,7 +62,7 @@ For the native editor directly (iOS, Android, and macOS AppKit), add
 `@octane-xplat/richtext`:
 
 ```tsx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 // Notes.android.tsrx
 import { RichTextEditor, supported } from '@octane-xplat/richtext'
 import { Text } from '@octane-xplat/ui'
@@ -84,7 +84,7 @@ Swift Package and facade through the leaf package. The leaf reports
 unsupported. The two facade packages supply the web editors.
 
 ```tsx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 // Notes.android.tsrx
 import { RichTextEditor, supported } from '@octane-xplat/richtext'
 import { Text } from '@octane-xplat/ui'

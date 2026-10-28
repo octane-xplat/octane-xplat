@@ -226,7 +226,7 @@ app in `children` hydrates; put interactive headers or other persistent controls
 in `App`, not in `Document`.
 
 ```tsx
-/** @jsxImportSource octane */
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import type { WebDocumentProps } from '@octane-xplat/web-host/server'
 
 export function Document(props: WebDocumentProps) {
@@ -257,7 +257,7 @@ default router for a server request. Named stacks also need matching `stacks`
 options and an outlet for each visible stack.
 
 ```tsx
-/** @jsxImportSource octane */
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { RouteOutlet } from '@octane-xplat/ui'
 import { useRouter } from '@octane-xplat/ui/routing'
 import type { WebAppProps } from '@octane-xplat/web-host/client'

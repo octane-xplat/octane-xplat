@@ -191,10 +191,25 @@ export function Card() {
 }
 ```
 
-The combined program has no platform export condition, so native refs and host
-events use an opaque handle. A separate target-specific consumer program can
-bind NativeScript `View` handles with `native`, or AppKit handles with `macos`.
-Conditions change host types only. These settings add no runtime renderer:
+The combined program has no platform export condition, so the shared
+`HostElement` is `object`. Name the concrete host type where the ref is
+declared — no casts:
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+// Spinner.ios.tsx
+import type { View } from '@nativescript/core'
+import { useRef } from 'octane'
+
+export function Spinner() {
+	const view = useRef<View | null>(null)
+	return <activityindicator ref={view} busy />
+}
+```
+
+A separate target-specific consumer program can bind NativeScript `View`
+handles with `native`, or AppKit handles with `macos`. Conditions change host
+types only. These settings add no runtime renderer:
 
 ```json
 { "compilerOptions": { "jsxImportSource": "@octane-xplat/jsx", "customConditions": ["native"] } }
@@ -202,7 +217,7 @@ Conditions change host types only. These settings add no runtime renderer:
 
 An older `tsconfig.envs.json` app can opt into the facade in its top-level
 compiler options. `xplat typecheck` preserves that selection when combining
-its environments; manifests without an explicit source retain the legacy
+its environments; manifests without an explicit source resolve the facade default (`@octane-xplat/jsx`); browser-only workspaces set `@octane-xplat/jsx/dom`. The legacy
 `octane` default:
 
 ```json

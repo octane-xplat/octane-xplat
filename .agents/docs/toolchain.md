@@ -35,7 +35,7 @@ experience of agents writing Octane-xplat code effectively.
   (`environments.<env>.files|include|exclude`); `scripts/typecheck.ts`
   expands the declared environments into **one combined program** using the
   shared presets in `packages/cli/src/tsconfig-envs.ts` (lib / ambient /
-  types merged; `jsxImportSource` defaults to `octane` with per-file pragmas
+  types merged; `jsxImportSource` defaults to `@octane-xplat/jsx` (`/dom` for browser) with per-file pragmas
   on native/macOS leaves) and runs `tsrx-tsc --noEmit` on it under
   `node_modules/.cache/xplat-typecheck/`. Every program resolves under the
   fixed `moduleSuffixes` order `["" , ".web", ".ios", ".android", ".mobile",

@@ -62,7 +62,7 @@ Set these TypeScript options:
 		"module": "ESNext",
 		"moduleResolution": "Bundler",
 		"jsx": "react-jsx",
-		"jsxImportSource": "@octane-xplat/macos-renderer",
+		"jsxImportSource": "@octane-xplat/jsx",
 		"customConditions": ["macos"],
 		"moduleSuffixes": [".macos", ""],
 		"lib": ["ESNext"],
@@ -206,7 +206,7 @@ caller-owned view or a view from the same Octane root; targets owned by another
 Octane root are rejected.
 
 ```tsx
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { createContext, createPortal, useContext, useEffect, useRef, useState } from 'octane'
 
 const AccountName = createContext('Guest')
@@ -379,7 +379,7 @@ vertically centered content. The renderer recognizes these inputs on
 `flexboxlayout` and `stack`; other elements retain unsupported-style diagnostics.
 
 ```tsx
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 export function Rows() {
 	return (
 		<stack>
@@ -405,7 +405,7 @@ gap, stretch alignment, and start justification. Here, removing `style.gap`
 restores `gap-2` (8 points); removing the class then restores `gap={4}`.
 
 ```tsx
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 export function ConflictingRow({ inlineGap }: { inlineGap?: number }) {
 	return (
 		<flexboxlayout
@@ -429,7 +429,7 @@ The class forms are `flex-row`/`flex-col`, `gap-1/2/3/4/6`,
 `items-start/end/center/stretch/baseline`, and `justify-start/end/center/between`.
 
 ```tsx
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 export function AxisGap() {
 	return (
 		<flexboxlayout style={{ flexDirection: 'row', gap: 4, columnGap: 12 }}>
@@ -448,7 +448,7 @@ container channel normalization does not move `row`, `col`, spans, or absolute
 placement into styles. Keep those values on the child host.
 
 ```tsx
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 export function PositionedRow() {
 	return (
 		<absolutelayout>

@@ -61,7 +61,7 @@ selected ID is controlled with `selection` and `onSelectionChange`, or seeded
 with `defaultSelection`.
 
 ```tsx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 // Region.ios.tsrx
 import { SwiftUIPicker } from '@octane-xplat/picker/ios'
 
@@ -83,7 +83,7 @@ selected key is controlled with `selectedKey` and `onSelectedKeyChange`, or
 seeded with `defaultSelectedKey`. The whole control uses `enabled`.
 
 ```tsx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 // Region.android.tsrx
 import { MaterialDropdown } from '@octane-xplat/picker/android'
 

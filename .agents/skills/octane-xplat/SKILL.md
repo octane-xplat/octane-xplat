@@ -28,10 +28,12 @@ platform example. Platform divergence belongs at file boundaries.
 - New apps default to the shared `@octane-xplat/jsx` types. An explicit native
   pragma selects that same facade; browser intrinsic files select
   `@octane-xplat/jsx/dom`. Put a JSX pragma first when present. Types do not select
-  the renderer; retain the app's Vite presets.
-  Inside `packages/ui`, follow neighboring renderer pragmas for declaration
-  emission (for example `@octane-xplat/macos-renderer` on AppKit leaves); UI does
-  not depend on the JSX facade package.
+  the renderer; retain the app's Vite presets. Every workspace — including
+  `packages/ui` — uses the same facade.
+- Refs on native elements name the concrete host type where declared:
+  `useRef<View | null>(null)` or `(view: NSView | null) => …` — never `any` or
+  casts. An unannotated handle is the shared `HostElement` (`object`), which
+  member access and concrete-view call sites reject.
 - Use CSS/`className` for static styles and style objects for dynamic styles.
   Native authored layout uses `masonview` with layout in the style channel;
   shared components translate their semantic layout props. See

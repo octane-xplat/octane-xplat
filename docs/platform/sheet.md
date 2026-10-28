@@ -53,7 +53,7 @@ import '@octane-xplat/sheet/web/styles.css'
 ```
 
 ```tsx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 // Actions.android.tsrx
 import { MaterialBottomSheet } from '@octane-xplat/sheet/android'
 import { Pressable, Text } from '@octane-xplat/ui'
@@ -88,7 +88,7 @@ panel. “Render fn” means that content-producing function. Buttons inside
 it can call your callbacks, such as `setOpen(false)` to close the panel.
 
 ```tsx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 // Actions.android.tsrx
 import { MaterialBottomSheet } from '@octane-xplat/sheet/android'
 import { Text, Pressable, View } from '@octane-xplat/ui'
@@ -140,7 +140,7 @@ The hosted subtree keeps its own event handling — `onPress` inside the
 sheet content reaches JS normally and can drive `open` back to `false`.
 
 ```tsx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 // Actions.android.tsrx
 import { MaterialBottomSheet } from '@octane-xplat/sheet/android'
 import { Text, Pressable, View } from '@octane-xplat/ui'
@@ -174,7 +174,7 @@ value when opening it or when `onDismissed` reports that someone closed it.
 This is a **controlled** component.
 
 ```tsx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 // Actions.android.tsrx
 import { MaterialBottomSheet } from '@octane-xplat/sheet/android'
 import { Text, Pressable, View } from '@octane-xplat/ui'
@@ -217,7 +217,7 @@ ref supplies a `focus()` operation. This example returns to the draft outside
 the sheet after the native dismissal finishes.
 
 ```tsx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useRef, useState } from 'octane'
 import { Button, TextInput, View } from '@octane-xplat/ui'
 import type { TextInputHandle } from '@octane-xplat/ui'
@@ -246,7 +246,7 @@ close its dialog. Use one close-and-focus function for that callback and your
 own Done action. The return target belongs to the screen that opened it.
 
 ```tsx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { Button, TextInput, View } from '@octane-xplat/ui'
 import type { TextInputHandle } from '@octane-xplat/ui'
 import { MaterialBottomSheet } from '@octane-xplat/sheet/android'
@@ -299,7 +299,7 @@ export function AndroidEditorSheet({ open, close, editing }: {
   content:
 
   ```tsx
-  /** @jsxImportSource @octane-xplat/macos-renderer */
+  /** @jsxImportSource @octane-xplat/jsx */
   // AccountSheet.macos.tsrx
   import { AppKitSheet } from '@octane-xplat/sheet/macos'
   import { Text } from '@octane-xplat/ui'

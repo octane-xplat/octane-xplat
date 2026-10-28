@@ -6,7 +6,7 @@ appearance; glass-only `variant`, `tint`, and effect animation settings do not
 change that fallback.
 
 ```tsx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { Pressable, Text } from '@octane-xplat/ui'
 import { LiquidGlass } from '@octane-xplat/ui/ios'
 import { useSignal$ } from 'octane/signals/client'
@@ -36,7 +36,7 @@ default for toolbars with buttons until the acceptance checks below pass on
 your supported OS versions.
 
 ```tsx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { Text } from '@octane-xplat/ui'
 import { LiquidGlass } from '@octane-xplat/ui/ios'
 
@@ -56,7 +56,7 @@ installed when the native root is created and when glass props are replayed,
 so no app-side `loaded` listener or native-view mutation is needed.
 
 ```tsx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { Text } from '@octane-xplat/ui'
 import { LiquidGlass } from '@octane-xplat/ui/ios'
 
@@ -87,7 +87,7 @@ tests do **not** establish UIKit rendering or OS touch delivery.
 not merge blur surfaces on those versions.
 
 ```tsx
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { Text } from '@octane-xplat/ui'
 import { LiquidGlass, LiquidGlassContainer } from '@octane-xplat/ui/ios'
 
