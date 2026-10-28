@@ -1,0 +1,17 @@
+.ml-nav { height: 100%; flex-shrink: 0; }
+.ml-fullBtn { width: 100%; }
+.ml-actionList { margin-inline: calc(-1 * var(--spacing-3)); }
+.ml-tapControl { width: 100%; min-height: 44px; padding-inline: 12px; cursor: pointer; appearance: none; font-family: inherit; font-size: 15px; text-align: left; }
+.ml-fullBtn { width: 100%; }
+.ml-flushSheetList { margin-inline: calc(-1 * var(--spacing-3) - 4px); }
+.ml-flushSheetItem { border-radius: var(--radius-element); margin-inline: 4px; }
+.ml-flushSheetCheckList { margin-inline: calc(-1 * var(--spacing-3)); }
+.ml-rowBorder { border-bottom-width: 1; border-bottom-style: solid; border-bottom-color: var(--color-border); }
+.ml-psBox { flex-wrap: wrap; min-height: 44px; gap: 6px; cursor: pointer; }
+.ml-tokRow { gap: 8px; overflow-x: auto; }
+.ml-noShrink { flex-shrink: 0; }
+.ml-tabletNav { flex-shrink: 0; height: 100%; }
+.ml-popoverMenu { margin-top: 4px; margin-inline: -8px; }
+.ml-filterItem { margin-inline: calc(-1 * var(--spacing-2)); }
+.ml-timeChip { width: 100%; min-height: 40px; background-color: var(--color-background-muted); border-radius: var(--radius-element); }
+.ml-timeChipSelected { background-color: var(--color-accent-muted); box-shadow: var(--shadow-inset-selected); }

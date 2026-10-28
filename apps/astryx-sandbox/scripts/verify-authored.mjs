@@ -99,6 +99,24 @@ try {
 		['codeblock-perf', 'CodeBlock Performance'],
 		['dictation-lab', 'Dictation Lab'],
 		['example-cards', 'Retirement'],
+		['motion-lab', 'Motion Lab'],
+		['motion-lab/published', 'Against the published page'],
+		['motion-lab/tokens', 'Semantic motion tokens'],
+		['motion-lab/springs', 'Springs'],
+		['motion-lab/js-mirror', 'JS token mirror'],
+		['motion-lab/export', 'Export tuning'],
+		['motion-lab/exit-gap', 'The exit gap'],
+		['motion-lab/bugs', 'Small bugs'],
+		['motion-lab/violations', 'Hardcoded durations and curves'],
+		['motion-lab/rubric', 'Rubric bench'],
+		['motion-lab/reduced-motion', 'Reduced motion'],
+		['motion-lab/previews', 'Live previews'],
+		['motion-lab/preview-plan', 'Brief and measurement disagree'],
+		['motion-lab/library', 'Motion library compatibility'],
+		['motion-lab/plan', 'Plan & open questions'],
+		['motion-examples', 'Simulate reduced motion'],
+		['mobile-type', 'Mobile adaptation'],
+		['mobile-prototypes', 'Mobile Interaction Prototypes'],
 	]
 
 	for (const [route, content] of cases) {
@@ -197,6 +215,75 @@ try {
 		page.off('console', onConsole)
 	})
 
+	await test('motion lab rail swaps reduced-motion policy and compare panes', async () => {
+		await go('motion-lab/tokens')
+		const scope = page.locator('.ml-scope')
+		const pick = async (name, expected) => {
+			await page.getByRole('radio', { name, exact: true }).focus()
+			await page.keyboard.press('Space')
+			assert.equal(await scope.getAttribute('data-reduced-motion'), expected)
+		}
+		await pick('Degrade', 'degrade')
+		await pick('Delete', 'delete')
+		await pick('Off', 'off')
+		await page.getByRole('radio', { name: 'Proposed', exact: true }).focus()
+		await page.keyboard.press('Space')
+		await has('Proposed')
+		await page.getByRole('radio', { name: 'Both', exact: true }).focus()
+		await page.keyboard.press('Space')
+	})
+
+	await test('motion lab token slider tunes a token and marks the rail dirty', async () => {
+		await go('motion-lab/tokens')
+		const slider = page.getByRole('slider').first()
+		await slider.focus()
+		await page.keyboard.press('ArrowRight')
+		await page.keyboard.press('ArrowRight')
+		await has('tuned')
+		await page.getByRole('button', { name: 'Reset', exact: true }).click()
+	})
+
+	await test('motion lab bugs drawer demo derives the timer', async () => {
+		await go('motion-lab/bugs')
+		await page.getByRole('switch', { name: 'Derive the timer from the transition', exact: true }).click()
+		await has('100% of the slide runs')
+	})
+
+	await test('motion examples toggles reduced motion and opens a dialog', async () => {
+		await go('motion-examples')
+		const sw = page.getByRole('switch', { name: 'Simulate reduced motion', exact: true })
+		await sw.focus()
+		await page.keyboard.press('Space')
+		assert.equal(await sw.isChecked(), true)
+		await page.getByRole('button', { name: 'Open modal', exact: true }).click()
+		const dialog = page.locator('dialog[open]')
+		await dialog.waitFor({ state: 'attached' })
+		await page.waitForSelector('dialog[open]')
+		await dialog.press('Escape')
+		await dialog.waitFor({ state: 'detached' })
+		assert.equal(await page.locator('dialog[open]').count(), 0)
+	})
+
+	await test('mobile type toggles the adaptation switch', async () => {
+		await go('mobile-type')
+		const sw = page.getByRole('switch', { name: 'Mobile adaptation', exact: true })
+		await sw.focus()
+		await page.keyboard.press('Space')
+		assert.equal(await sw.isChecked(), false)
+		await page.keyboard.press('Space')
+		assert.equal(await sw.isChecked(), true)
+		await has('Type that scales')
+	})
+
+	await test('mobile prototypes opens a prototype from the nav', async () => {
+		await go('mobile-prototypes')
+		const nav = page.locator('nav').first()
+		const item = nav.getByRole('button').nth(2)
+		const name = await item.innerText()
+		await item.click()
+		await has(name)
+	})
+
 	for (const [route, trigger] of [
 		['topnav-menu', 'Products'],
 		['mega-menu', 'Products'],
@@ -288,7 +375,7 @@ try {
 		await go('shell-lab')
 		await page.getByRole('switch', { name: 'Banner', exact: true }).focus()
 		await page.keyboard.press('Space')
-		await has('Shell Lab — System announcement banner')
+		await page.getByText('Shell Lab — System announcement banner', { exact: true }).waitFor()
 		await page.waitForURL((url) => url.search.length > 0)
 		await page.reload({ waitUntil: 'networkidle' })
 		assert.equal(await page.getByRole('switch', { name: 'Banner', exact: true }).isChecked(), true)

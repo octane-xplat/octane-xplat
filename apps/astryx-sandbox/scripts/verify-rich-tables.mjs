@@ -245,13 +245,13 @@ export async function verifyRichTables(page, baseUrl, check) {
 	await page.getByText('No data', { exact: true }).waitFor()
 	check(
 		'unit-7 repository empty search',
-		(await page.locator('tbody tr.vx-table-row').count()) === 0,
+		(await page.locator('tbody').first().locator('tr.vx-table-row').count()) === 0,
 	)
 	await page.getByRole('textbox', { name: 'Search repository', exact: true }).fill('ci.yml')
 	check(
 		'unit-7 repository search retains ancestors',
-		(await page.locator('tbody').innerText()).includes('.github') &&
-			(await page.locator('tbody').innerText()).includes('ci.yml'),
+		(await page.locator('tbody').first().innerText()).includes('.github') &&
+			(await page.locator('tbody').first().innerText()).includes('ci.yml'),
 	)
 
 	await verifyRepositoryKeyboard(page, baseUrl, check)

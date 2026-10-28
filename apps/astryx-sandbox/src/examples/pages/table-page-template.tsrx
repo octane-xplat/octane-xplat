@@ -547,7 +547,7 @@ export function TablePageTemplate() @{
 						)}
 
 						{visible.length > 0 && activeFilterCount > 0 && (
-							<Banner icon="xplat-warning">
+							<Banner icon="xplat-warning" collapsible={false}>
 								<HStack gap={3} vAlign="center" wrap="wrap">
 									<VStack gap={1} style={{ flexGrow: 1 }}>
 										<Text weight="semibold">Filtered view — these totals are partial</Text>

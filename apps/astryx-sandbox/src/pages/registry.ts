@@ -34,7 +34,45 @@ import { ExampleCardsPage } from './authored/ExampleCardsPage'
 import { MobileSpacingPage } from './mobile-spacing/MobileSpacingPage'
 import { ShellLabPage } from './shell-lab/ShellLabPage'
 
+import { motionLabPage } from './motion-lab/MotionLabShell.web'
+import { MotionOverviewPage } from './motion-lab/MotionOverviewPage.web'
+import { PublishedGuidancePage } from './motion-lab/PublishedPage.web'
+import { MotionTokensPage } from './motion-lab/TokensPage.web'
+import { MotionSpringsPage } from './motion-lab/SpringsPage.web'
+import { MotionJsMirrorPage } from './motion-lab/JsMirrorPage.web'
+import { MotionExportPage } from './motion-lab/ExportPage.web'
+import { ExitGapPage } from './motion-lab/ExitGapPage.web'
+import { MotionBugsPage } from './motion-lab/BugsPage.web'
+import { ViolationsPage } from './motion-lab/ViolationsPage.web'
+import { MotionRubricPage } from './motion-lab/RubricPage.web'
+import { ReducedMotionPage } from './motion-lab/ReducedMotionPage.web'
+import { PreviewsPage } from './motion-lab/PreviewsPage.web'
+import { PreviewPlanPage } from './motion-lab/PreviewPlanPage.web'
+import { MotionLibraryPage } from './motion-lab/LibraryPage.web'
+import { MotionPlanPage } from './motion-lab/PlanPage.web'
+import { MotionExamplesPage } from './motion-examples/MotionExamplesPage.web'
+import { MobileTypePage } from './mobile-type/MobileTypePage.web'
+import { MobilePrototypesPage } from './mobile-prototypes/MobilePrototypesPage.web'
+
 const pages: Record<string, () => any> = {
+	'/pages/motion-lab/': motionLabPage(MotionOverviewPage),
+	'/pages/motion-lab/published/': motionLabPage(PublishedGuidancePage),
+	'/pages/motion-lab/tokens/': motionLabPage(MotionTokensPage),
+	'/pages/motion-lab/springs/': motionLabPage(MotionSpringsPage),
+	'/pages/motion-lab/js-mirror/': motionLabPage(MotionJsMirrorPage),
+	'/pages/motion-lab/export/': motionLabPage(MotionExportPage),
+	'/pages/motion-lab/exit-gap/': motionLabPage(ExitGapPage),
+	'/pages/motion-lab/bugs/': motionLabPage(MotionBugsPage),
+	'/pages/motion-lab/violations/': motionLabPage(ViolationsPage),
+	'/pages/motion-lab/rubric/': motionLabPage(MotionRubricPage),
+	'/pages/motion-lab/reduced-motion/': motionLabPage(ReducedMotionPage),
+	'/pages/motion-lab/previews/': motionLabPage(PreviewsPage),
+	'/pages/motion-lab/preview-plan/': motionLabPage(PreviewPlanPage),
+	'/pages/motion-lab/library/': motionLabPage(MotionLibraryPage),
+	'/pages/motion-lab/plan/': motionLabPage(MotionPlanPage),
+	'/pages/motion-examples/': MotionExamplesPage,
+	'/pages/mobile-type/': MobileTypePage,
+	'/pages/mobile-prototypes/': MobilePrototypesPage,
 	'/pages/mobile-spacing/': MobileSpacingPage,
 	'/pages/shell-lab/': ShellLabPage,
 

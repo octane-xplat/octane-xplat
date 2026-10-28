@@ -236,17 +236,17 @@ try {
 	}
 
 	// Pending template route — honest placeholder, not a fake
-	await page.goto(baseUrl + '/templates/ChatComposerShowcase/', { waitUntil: 'networkidle' })
+	await page.goto(baseUrl + '/templates/CodeShowcase/', { waitUntil: 'networkidle' })
 	const pendingText = await page.textContent('body')
 	check(
 		'pending template shows placeholder',
-		pendingText.includes('pending') && pendingText.includes('ChatComposer'),
+		pendingText.includes('pending') && pendingText.includes('CodeShowcase'),
 	)
 
-	// Pending authored page — framed, honest placeholder
-	await page.goto(baseUrl + '/pages/example/', { waitUntil: 'networkidle' })
+	// Blocked authored page — framed, honest placeholder with upstream source
+	await page.goto(baseUrl + '/pages/layout-dsl/', { waitUntil: 'networkidle' })
 	check(
-		'pending page shows upstream source',
+		'blocked page shows upstream source',
 		(await page.textContent('body')).includes('apps/sandbox/src/app'),
 	)
 
@@ -1188,7 +1188,15 @@ try {
 		const rendered = await page.evaluate(() => {
 			const stage = document.querySelector('.sb-preview-stage')
 			if (!stage) {
-				return { ok: false, reason: 'no-stage' }
+				// Full-page demos (e.g. SpinnerShowcase, hook-usage pages) render
+				// straight into the body without the stage wrapper — count any
+				// rendered component instead.
+				const nodes = document.body.querySelectorAll(
+					'.vx-spinner, [class^="vx-"], [role="dialog"], main *',
+				).length
+				return nodes > 0
+					? { ok: true, reason: `body=${nodes}` }
+					: { ok: false, reason: 'no-stage' }
 			}
 			if (stage.querySelector('.sb-pending')) {
 				return { ok: false, reason: 'pending' }

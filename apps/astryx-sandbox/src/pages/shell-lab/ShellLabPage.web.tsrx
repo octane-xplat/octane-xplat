@@ -1034,7 +1034,7 @@ function ShellLabContent() {
 				mobileNav={mobileNav}
 				banner={
 					config.showBanner ? (
-						<Banner onDismiss={() => handleConfigChange({ showBanner: false })}>
+						<Banner collapsible={false} onDismiss={() => handleConfigChange({ showBanner: false })}>
 							<Text>Shell Lab — System announcement banner</Text>
 						</Banner>
 					) : undefined
