@@ -4,6 +4,10 @@ This package is a private implementation preview. The public package cutover
 and macOS implementation are pending. Existing apps still use the Lightbox
 exported by `@octane-xplat/ui`.
 
+The preview has unresolved behavior gaps, including the native default
+viewport and custom-slide opening lifecycle. The [source audit](UPSTREAM.md#unfinished-behavior-and-audit-findings)
+records these gaps separately from intentional upstream adaptations.
+
 Build a custom gallery with the headless parts. Each trigger opens its media
 index; the viewport supplies image slides when you omit its children.
 
