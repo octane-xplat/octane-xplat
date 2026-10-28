@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import { act, createRoot } from 'octane'
-import { expect, it } from 'vitest'
+import { expect, it, vi } from 'vitest'
 import { Lightbox } from './index.web'
 
 it('thumbnail selection navigates and updates the current accessible item', () => {
@@ -29,3 +29,6 @@ it('thumbnail selection navigates and updates the current accessible item', () =
 		container.remove()
 	}
 })
+
+// Keep this suite on the actual Overlay without compiling unrelated UI barrel exports.
+vi.mock('@octane-xplat/ui', () => import('../test/content-ui.web.tsrx'))

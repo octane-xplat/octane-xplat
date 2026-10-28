@@ -1,12 +1,17 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import { createRoot } from 'octane'
-import { Lightbox } from '../../src/index.web'
+import { Lightbox, useLightbox } from '../../src/index.web'
 
 const items = [
 	{ src: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600"><rect fill="%23a33"/></svg>', alt: 'red', width: 800, height: 600 },
 	{ src: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600"><rect fill="%233a3"/></svg>', alt: 'green', width: 600, height: 600 },
 	{ src: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="900" height="300"><rect fill="%23337"/></svg>', alt: 'blue', width: 900, height: 300 },
 ]
+
+function AuditViewer() {
+	const lightbox = useLightbox({ media: items.slice(0, 1), hasZoom: false, maxZoom: 8 })
+	return <><button id="audit-zoom-trigger" ref={lightbox.triggerProps.ref as never} onClick={lightbox.triggerProps.onPress}>Open without zoom</button>{lightbox.element}</>
+}
 
 function App() {
 	return (
@@ -19,6 +24,8 @@ function App() {
 				))}
 				<Lightbox.Backdrop style={{ background: 'rgba(0,0,0,0.85)' }} />
 				<Lightbox.Popup>
+					<Lightbox.Title id="audit-title" className="audit-title">Trip photos</Lightbox.Title>
+					<Lightbox.Description id="audit-description" className="audit-description">Three sample images</Lightbox.Description>
 					<Lightbox.Viewport />
 					<Lightbox.Close className="fx-close">×</Lightbox.Close>
 					<Lightbox.Prev className="fx-prev">‹</Lightbox.Prev>
@@ -33,6 +40,7 @@ function App() {
 					</Lightbox.Thumbnails>
 				</Lightbox.Popup>
 			</Lightbox.Root>
+			<AuditViewer />
 		</div>
 	)
 }

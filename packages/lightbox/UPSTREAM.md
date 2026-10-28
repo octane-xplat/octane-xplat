@@ -45,7 +45,9 @@ separates those checks from actual platform input.
 
 ## Unfinished behavior and audit findings
 
-These are not approved parity exceptions. No source-backed reason was found
+The rows below preserve the original audit at `c03370f9b`; current repair
+status and verification are recorded below under Repair progress. These are
+not approved parity exceptions. No source-backed reason was found
 for treating the newly identified omissions as desired behavior. Recording a
 gap does not qualify the implementation for public cutover.
 
@@ -70,6 +72,18 @@ not perform. Those claims should be corrected alongside the corresponding
 behavior, rather than used as evidence of parity.
 
 ## Repair progress
+
+| Repair | Commit | Current boundary |
+| --- | --- | --- |
+| Zoom-disable forwarding and gesture policy | `89c3472da`, `6923327ae` | Source and shared/component checks; isolated browser checks |
+| Native default images and custom opening | `78febcf40` | Object-driver checks; device qualification pending |
+| Native dissolve and backdrop spring-back | `44d30ce99` | Numeric/object-driver checks; device qualification pending |
+| Dialog text relationships | `943740793` | Web associations and native title naming; native description association remains open |
+| Native decoded image dimensions | `3cd242787` | Observer/component checks; device loading pending |
+| Native source crop and visibility ownership | `627f938e6` | Numeric checks; device crop/morph pending |
+| Native trigger selection and scroll synchronization | `a77abb7eb` | Numeric checks; native scroll/layout pending |
+| Native keyboard-focus attempt after teardown | `e2b42aee2` | Object-driver checks; actual keyboard and accessibility focus remain unqualified |
+
 
 - Zoom-disable normalization now belongs to both Root leaves, including direct
   compound use, convenience components, and imperative hooks. Disabled zoom
@@ -153,3 +167,39 @@ Qualify native thumbnail geometry and the latest native host styling on iOS
 and Android. Then complete the AppKit work and the consumer/docs/recipe
 migration. The private preview must not be described as a completed parity
 port in the meantime.
+
+## Repair verification (2026-10-28)
+
+- Full lightbox suites: 66 web/shared and 41 native object-driver tests passed,
+  with at most two workers per suite. UI modal focus tests passed 11 cases.
+- The touched UI/lightbox packages and their dependents passed 60 Turbo
+  typecheck tasks. Recipe structure and local links passed `pnpm check:recipes`.
+- Remote WebKit 2359 / Playwright 1.63.0 on andromeda.local passed 11 focused
+  numeric checks through **isolated real UI leaves**: fitted opening bounds,
+  source hiding, dialog name/description associations, paging, disabled zoom
+  and focus return. No screenshots or image analysis were used.
+- The same browser fixture through the normal public UI barrel failed before
+  mounting: @tsrx/oxc 0.16.0 rejects Heading.web.tsrx with “unsupported TSRX
+  parser shape: reachable synthetic ESTree span”. See the
+  [toolchain limitation](../../.agents/docs/toolchain.md#ui-heading-parser-failure-in-browser-compilation).
+  Isolated mode is explicit, uses real required UI components, and does not
+  qualify the package-barrel path. Unit tests retain the actual Overlay while
+  substituting small Text/Icon hosts to avoid unrelated barrel compilation.
+- Repository lint still has unchanged errors in the motion-layout probe and
+  Divergence demo. The lightbox Maestro fixture's retired pragma and raw shared
+  element errors were repaired in `cb47e5e1d`; changed lightbox/UI files have no
+  lint errors. Existing warnings remain.
+
+Reproduce the narrow browser checks on the remote test checkout:
+
+```sh
+XPLAT_WEB_BROWSER=webkit pnpm exec turbo run test:e2e --filter=@octane-xplat/lightbox --concurrency=2 -- --audit
+# Explicit isolation while the unrelated barrel parser failure remains:
+XPLAT_WEB_BROWSER=webkit pnpm exec turbo run test:e2e --filter=@octane-xplat/lightbox --concurrency=2 -- --audit --isolate-ui
+```
+
+Remote logs: `/tmp/lightbox-audit-webkit-debug.log` (normal barrel failure) and
+`/tmp/lightbox-audit-webkit-isolated-final.log` (isolated numeric checks).
+The host still lacks the inspected simulator, adb and Maestro tooling; no
+native runtime qualification was added by these repairs. AppKit, public export
+cutover and full native accessibility qualification remain unfinished.

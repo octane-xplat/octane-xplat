@@ -624,3 +624,34 @@ still formatted. This is compiler evidence, not a renderer behavior change.
 The formatter still handles the rest of the file. Remove the directive when
 the compiler accepts the formatted keyed loops; do not remove the loop keys
 or widen component props to hide the generated diagnostic.
+
+## UI Heading parser failure in browser compilation
+
+On 2026-10-28, the lightbox repair fixture failed through the normal public UI
+barrel with @tsrx/oxc 0.16.0 and octane 0.14.0: `packages/ui/src/Heading.web.tsrx`
+raised `unsupported TSRX parser shape: reachable synthetic ESTree span` in the
+Octane Vite transform. Declaration generation and the required source checks
+still passed; they are not evidence that this browser compilation works.
+The failure reproduced locally in component tests and remotely in WebKit
+2359/Playwright 1.63.0 before the fixture mounted. No visual analysis was used.
+
+```sh
+XPLAT_WEB_BROWSER=webkit pnpm exec turbo run test:e2e --filter=@octane-xplat/lightbox -- --audit
+```
+
+The lightbox fixture has an explicit `--audit --isolate-ui` mode that imports
+only its required real UI leaves, bypassing unrelated barrel exports. Its unit
+tests keep the real Overlay and substitute small Text/Icon test hosts. These
+are test-isolation measures, not a production workaround or consumer-import
+qualification. The production dependency and normal fixture remain unchanged.
+
+```sh
+XPLAT_WEB_BROWSER=webkit pnpm exec turbo run test:e2e --filter=@octane-xplat/lightbox -- --audit --isolate-ui
+```
+
+Recheck the normal fixture after the parser/compiler or Heading syntax changes.
+Remove this isolation when the ordinary public-barrel path compiles again.
+Raw remote failure evidence: `/tmp/lightbox-audit-webkit-debug.log` on the
+isolated andromeda.local test checkout. Local feedback observation:
+`c1ba3022-51ad-4f95-bd9e-d1bd470f3fc4`. No upstream issue or root cause beyond
+the failing compiler stage was established during this repair.

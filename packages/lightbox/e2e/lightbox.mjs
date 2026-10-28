@@ -9,6 +9,8 @@ import { fileURLToPath } from 'node:url'
 const fixture = path.join(path.dirname(fileURLToPath(import.meta.url)), 'fixture')
 const BASE = 'http://localhost:4479'
 const results = []
+const auditOnly = process.argv.includes('--audit')
+const isolateUI = process.argv.includes('--isolate-ui')
 const check = (name, actual, expected) => {
 	const pass = typeof expected === 'function' ? expected(actual) : Object.is(actual, expected)
 	results.push({ name, pass, actual, expected: String(expected) })
@@ -20,7 +22,7 @@ const browserName = process.env.XPLAT_WEB_BROWSER ?? 'chromium'
 const browserType = { chromium, firefox, webkit }[browserName]
 if (!browserType) { throw new Error(`Unsupported XPLAT_WEB_BROWSER: ${browserName}`) }
 const viteBin = path.join(path.dirname(fileURLToPath(import.meta.url)), '../node_modules/.bin/vite')
-const server = spawn(viteBin, [], { cwd: fixture, stdio: 'pipe' })
+const server = spawn(viteBin, isolateUI ? ['--mode', 'isolated-ui'] : [], { cwd: fixture, stdio: 'pipe' })
 let browser
 const cdpOnly = (name) => { if (browserName !== 'chromium') { results.push({ name, pass: true, skipped: true }); console.log(`skipped (CDP-only): ${name}`); return true } return false }
 server.stdout.on('data', (c) => process.env.DEBUG_E2E && process.stdout.write(c))
@@ -55,6 +57,30 @@ try {
 	check('open morph: no clip after settle', await cur(page).evaluate((el) => el.style.clipPath), (v) => v === 'none' || v === '')
 	check('trigger hidden during open', await page.locator('.vx-lightbox-trigger').nth(0).locator('img').evaluate((el) => getComputedStyle(el).visibility), 'hidden')
 
+	if (auditOnly) {
+		const dialog = page.locator('[role="dialog"]')
+		check('dialog title association', await dialog.getAttribute('aria-labelledby'), 'audit-title')
+		check('dialog description association', await dialog.getAttribute('aria-describedby'), 'audit-description')
+		check('explicit title replaces fallback label', await dialog.getAttribute('aria-label'), null)
+		await page.keyboard.press('ArrowRight')
+		await page.waitForFunction(() => Math.abs(document.querySelector('.vx-lightbox-viewport').scrollLeft - 800) < 1)
+		check('paging settles on the next slide', await page.locator('[data-lightbox-slide][data-current]').getAttribute('aria-label'), '2 of 3')
+		await page.keyboard.press('Escape')
+		await page.waitForSelector('[data-phase]', { state: 'detached' })
+		await page.locator('#audit-zoom-trigger').click()
+		await page.waitForSelector('[data-phase="open"]')
+		await page.mouse.dblclick(400, 300)
+		await page.keyboard.press('+')
+		await page.waitForTimeout(500)
+		check('disabled double-tap and button zoom keep fitted width', (await cur(page).boundingBox())?.width, near(800))
+		await cur(page).evaluate(el => el.dispatchEvent(new WheelEvent('wheel', { bubbles: true, cancelable: true, ctrlKey: true, deltaY: -300, clientX: 400, clientY: 300 })))
+		await page.waitForTimeout(300)
+		check('disabled wheel zoom keeps fitted width', (await cur(page).boundingBox())?.width, near(800))
+		await page.keyboard.press('Escape')
+		await page.waitForSelector('[data-phase]', { state: 'detached' })
+		await page.waitForFunction(() => document.activeElement?.id === 'audit-zoom-trigger')
+		check('close returns to the active trigger', await page.evaluate(() => document.activeElement?.id), 'audit-zoom-trigger')
+	} else {
 	// Mouse paging uses the shared spring; touch keeps browser scroll-snap.
 	const currentLabel = () => page.locator('[data-lightbox-slide][data-current]').getAttribute('aria-label')
 	const viewport = page.locator('.vx-lightbox-viewport')
@@ -277,9 +303,12 @@ try {
 		(v) => v[0] && v[1])
 	await page2.close()
 
+	}
+
 	const failed = results.filter((r) => !r.pass)
 	const skipped = results.filter((r) => r.skipped)
 	if (skipped.length) {console.log(`${skipped.length} skipped (CDP-only)`)}
+	console.log(`UI imports: ${isolateUI ? 'isolated real leaves; public barrel unqualified' : 'public package barrel'}`)
 	console.log(`\n[${browserName}] ${results.length - failed.length - skipped.length}/${results.length - skipped.length} checks passed`)
 	for (const r of results) {console.log(`${r.pass ? 'PASS' : 'FAIL'} ${r.name} → ${JSON.stringify(r.actual)}`)}
 	process.exitCode = failed.length ? 1 : 0

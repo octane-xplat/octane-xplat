@@ -1,4 +1,4 @@
-/** @jsxImportSource octane/web */
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { act, createRoot } from 'octane'
 import { describe, expect, it, vi } from 'vitest'
 import { Lightbox, useLightbox } from './index.web'
@@ -250,3 +250,6 @@ describe('lightbox web', () => {
 	})
 
 })
+
+// Keep this suite on the actual Overlay without compiling unrelated UI barrel exports.
+vi.mock('@octane-xplat/ui', () => import('../test/content-ui.web.tsrx'))

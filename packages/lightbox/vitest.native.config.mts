@@ -26,5 +26,5 @@ export default defineConfig({
 		],
 		extensions: NATIVE_EXTS,
 	},
-	test: { include: ['src/**/*.mobile.test.{ts,tsx,tsrx}'], environment: 'node' },
+	test: { maxWorkers: 2, include: ['src/**/*.mobile.test.{ts,tsx,tsrx}'], environment: 'node' },
 })

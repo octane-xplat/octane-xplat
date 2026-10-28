@@ -8,6 +8,7 @@ export default defineConfig({
 		extensions: ['.web.tsrx', '.tsrx', '.web.ts', '.ts', '.mjs', '.mts', '.js', '.json'],
 	},
 	test: {
+		maxWorkers: 2,
 		include: ['src/**/*.test.{ts,tsrx}'],
 		exclude: ['**/*.mobile.test.*'],
 		environment: 'jsdom',

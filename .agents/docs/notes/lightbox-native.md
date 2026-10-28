@@ -165,12 +165,12 @@ Before the public cutover:
 
 - Qualify the new thumbnail strip and the updated native host styles on iOS
   and Android. The earlier native evidence above predates these changes.
-- Finish native page-behind scrolling: `scroll-sync.ts` currently writes the
-  existing offset back to the ancestor. The placeholder trigger visibility
-  calculation in `root.tsrx` also needs real viewport clipping before the
-  offscreen-trigger fallback can be considered qualified.
-- Handle natural native image dimensions when callers omit media width and
-  height; the current native image falls back to a square aspect ratio.
+- Qualify the repaired native page-behind scrolling, clipped trigger ranking,
+  source crops and offscreen fade fallback on actual native hosts. These now
+  have numeric source regressions; device scrolling/layout remains pending.
+- Qualify decoded natural dimensions, replacement, failures and teardown on
+  native hosts when callers omit width/height. The observer no longer treats
+  a square as the image's final natural aspect.
 - Complete the AppKit subset and run the maintained overlay fixture. The
   fixture selects `macos-arm64/host`; the current remote Intel host cannot
   run it. The inspected remote environment also lacks the iOS simulator tools, adb,
@@ -254,3 +254,16 @@ Object-driver tests cover ordering and cancellation, not actual keyboard or
 screen-reader behavior. The inspected andromeda.local host still has no simctl,
 adb or Maestro in its available tool paths. Native keyboard-focus probes and
 VoiceOver/TalkBack restoration remain open; commit-plan item 8 is partial.
+
+## Audit repair verification boundary (2026-10-28)
+
+The complete lightbox suites now pass 66 web/shared and 41 native object-driver
+cases; 11 UI modal-focus cases also pass. Required UI/lightbox dependent
+source checks passed 60 Turbo tasks. These results do not qualify OS input.
+
+Remote WebKit passed 11 focused numeric checks using explicit real-UI-leaf
+isolation. The normal public barrel fails before mounting because the pinned
+TSRX parser rejects Heading.web.tsrx. The owning [toolchain note](../toolchain.md#ui-heading-parser-failure-in-browser-compilation)
+records that failure and removal condition; do not treat isolated checks as a
+successful normal package-consumer run. Native device qualification, dialog
+description association and screen-reader focus remain pending.
