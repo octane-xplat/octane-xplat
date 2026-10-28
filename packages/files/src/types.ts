@@ -34,9 +34,9 @@ export interface FileExportOptions {
  * `saved`: the platform committed the bytes to the chosen destination —
  * bytes flushed through `ContentResolver` on Android, the export-as-copy
  * picker's destination commit on iOS, or a closed `FileSystemWritableFileStream`
- * on web. `cancelled`: the user dismissed the destination UI. `unavailable`:
+ * on web, or an atomic destination write on macOS. `cancelled`: the user dismissed the destination UI. `unavailable`:
  * the platform offers no qualified export surface (browser without the
- * File System Access API, the AppKit leaf).
+ * File System Access API, or an AppKit host without NSSavePanel).
  */
 export type FileExportResult = 'saved' | 'cancelled' | 'unavailable'
 
@@ -62,7 +62,7 @@ export interface Files {
 	writeBytes(name: string, bytes: Uint8Array): Promise<FileRef>
 	/**
 	 * User-directed export to a destination the user picks: the Android SAF
-	 * create action, iOS export-as-copy picker, web `showSaveFilePicker`.
+	 * create action, iOS export-as-copy picker, macOS NSSavePanel, web `showSaveFilePicker`.
 	 * Only one export can be in flight — a concurrent call rejects with an
 	 * `ExportBusyError`.
 	 */

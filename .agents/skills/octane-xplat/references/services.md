@@ -202,6 +202,18 @@ export function PackedLabel() {
 
 ## Choose a capability and handle availability
 
+For local document workflows, use the [files package guide](../../../../packages/files/README.md).
+Its experimental AppKit leaf implements local reads, Documents writes and
+save-panel export; do not infer sandbox, OS picker or packaged-app qualification
+from its source or bridge tests. Picked grants are session-scoped.
+
+```ts
+import { files } from '@octane-xplat/files'
+
+const file = await files.pick('text/plain')
+if (file) console.log(await files.readText(file))
+```
+
 Read the [platform services guide](../../../../docs/platform/platform-services.md)
 for current capabilities, permissions, and target behavior. Media, storage
 engines, and plugin-backed services may live in leaf packages rather than the

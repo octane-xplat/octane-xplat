@@ -29,15 +29,13 @@ export function Attachments() @{
 The portable value is `{ name, uri, size?, mimeType? }`. On web, the selected
 browser `File` is also available as `file`; its `uri` is a temporary object
 URL. Native platforms return a local path or content URI, which apps should
-retain as an opaque reference and pass to `files.readText` where supported.
-AppKit provides native picking, but its current `readText` and `writeText`
-methods are unsupported. Web file references should be released with
+retain as an opaque reference and pass to `files.readText`. AppKit reads
+local files as UTF-8 and writes into Documents. Web file references should be released with
 `files.release` when no longer needed.
 
 ```ts
 import { files } from '@octane-xplat/files'
 
-// Run in a .web.ts file: AppKit currently does not support readText.
 const file = await files.pick('text/plain')
 if (file) {
 	try {
@@ -52,7 +50,7 @@ if (file) {
 
 `files.readBytes(ref, { maxBytes?, signal? })` reads the full contents as a
 `Uint8Array`. It works on `content://` picks (read through Android's
-`ContentResolver`), iOS picker copies, sandbox files, and web object URLs.
+`ContentResolver`), iOS picker copies, macOS local files, sandbox files, and web object URLs.
 `maxBytes` rejects oversized files mid-read instead of loading them, and
 `signal` aborts the read with an `AbortError`.
 
@@ -65,12 +63,19 @@ the app sandbox (Documents) and returns a `FileRef`; on web it starts a
 browser download. `name` must be a bare file name — paths like `../x` or
 `a/b` are rejected, and `writeText` enforces the same rule.
 
+```ts
+import { files } from '@octane-xplat/files'
+
+const saved = await files.writeBytes('draft.bin', new Uint8Array([1, 2, 3]))
+```
+
 `files.export(name, bytes, { mimeType? })` asks the user where to save the
 data and resolves `saved`, `cancelled`, or `unavailable`. `saved` means the
 platform committed the bytes — Android flushes them through
 `ContentResolver` to the picked document, iOS completes the export-as-copy
-flow, and web closes a File System Access writable. Browsers without
-`showSaveFilePicker` and the AppKit leaf report `unavailable`; a share-sheet
+flow, macOS writes atomically to the `NSSavePanel` destination, and web closes
+a File System Access writable. Browsers without `showSaveFilePicker` and
+AppKit hosts without `NSSavePanel` report `unavailable`; a share-sheet
 presentation never counts as `saved`. Only one export can run at a time — a
 concurrent call rejects with an `ExportBusyError` rather than stealing the
 open picker's result.
@@ -84,3 +89,9 @@ Picked refs are only guaranteed readable within the picking session. Android
 `content://` grants are not persisted by the picker, and iOS import-mode
 copies live in a temp folder — copy what you need with `writeBytes`, and
 call `files.release(ref)` when done.
+
+The AppKit implementation is experimental. Native bridge availability, real
+picker interaction, sandbox access and packaged operation still need runtime
+qualification. MIME filters use a finite extension table; unrecognized types
+do not restrict the picker. Neither picking nor reading persists a security
+bookmark for a later app session.

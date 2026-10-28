@@ -26,6 +26,7 @@ picker bundled with `@octane-xplat/files`.
 - AC6: Maintained examples and focused tests/typechecks cover the shared API and native leaf boundary without visual inspection or device launch.
 
 - AC7: Shared web date controls support enabled-cell keyboard focus, RTL calendar navigation, IME-safe text commits, and bounded time-option navigation. Apps can supply locale and translated state messages on all targets; unsupported native key/accessibility delivery is explicit.
+- AC8: On experimental AppKit, read picked local files, write Documents files and export through a save panel; distinguish cancellation, unsupported hosts, size-limit/cancellation errors and write failures from a successful save. Security grants are session-scoped; no persistent bookmark is promised.
 
 ## Documentation
 
@@ -37,3 +38,4 @@ picker bundled with `@octane-xplat/files`.
 - AC6: [web shared-control example](../../../packages/demos/src/NativeDatePickerDemo.web.tsrx), [iOS example](../../../packages/demos/src/NativeDatePickerDemo.ios.tsrx), [Android example](../../../packages/demos/src/NativeDatePickerDemo.android.tsrx), [macOS host note](../../../packages/demos/src/NativeDatePickerDemo.macos.tsrx), and targeted typegen/tests.
 
 - AC7: [Keyboard and app language](../../../docs/platform/date-picker.md#keyboard-and-app-language), the [web demo](../../../packages/demos/src/NativeDatePickerDemo.web.tsrx), and [keyboard regressions](../../../packages/ui/src/date-entry.web.test.tsx).
+- AC8: [Files read/write/export guide](../../../packages/files/README.md#binary-reads-writes-and-export) and [AppKit bridge regressions](../../../packages/files/src/files.macos.test.ts). Gap: bridge tests and actual AppKit picker/sandbox/packaged behavior have not been run; see [target progress](../parity/appkit-progress.md).
