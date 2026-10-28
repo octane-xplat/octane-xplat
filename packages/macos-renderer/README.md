@@ -148,6 +148,14 @@ import { registerStylesheet } from '@octane-xplat/macos-renderer'
 registerStylesheet('promo', '.promo { background-color: #fde68a; }')
 ```
 
+Linear-gradient backgrounds support direction keywords, degree angles, colors,
+and percentage stops. The gradient resizes with its view. Image URLs, radial
+and repeating gradients, and multiple background layers remain unsupported.
+
+```css
+.fade { background-image: linear-gradient(to right, #152b36, transparent); }
+```
+
 Current limits:
 
 - Only `:disabled` responds to state. `:hover`, `:active`, `:pressed`, and

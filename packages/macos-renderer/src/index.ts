@@ -53,6 +53,7 @@ import {
 import { parseHtmlText, validateHtmlProps } from './html-text'
 import { resolveFont as fontForFamilyStyle } from './fonts'
 import {
+	CAGradientLayer,
 	NSAttributedString,
 	NSAutoresizingMaskOptions,
 	NSBackingStoreType,
@@ -3504,6 +3505,85 @@ function syncEdgeInsets(node: ElementNode) {
 	}
 }
 
+// CSS angles run clockwise from up. Layer coordinates follow the host view.
+function syncBackgroundImage(node: ElementNode, value: any) {
+	const view = node.view!
+	node.gradientLayer?.removeFromSuperlayer()
+	node.gradientLayer = null
+	if (node.gradientObserver) {
+		NSNotificationCenter.defaultCenter.removeObserver(node.gradientObserver)
+		node.gradientObserver = null
+	}
+	if (value == null || value === 'none') return
+	const match = /^linear-gradient\((.*)\)$/s.exec(String(value).trim())
+	if (!match) {
+		console.warn('[macos-css] unsupported backgroundImage: ' + value)
+		return
+	}
+	// Split only top-level commas: rgb()/rgba() colors contain commas too.
+	const parts: string[] = []
+	let depth = 0, start = 0
+	for (let i = 0; i < match[1].length; i++) {
+		const c = match[1][i]
+		if (c === '(') depth++
+		if (c === ')') depth--
+		if (c === ',' && depth === 0) {
+			parts.push(match[1].slice(start, i).trim())
+			start = i + 1
+		}
+	}
+	parts.push(match[1].slice(start).trim())
+	const directions: Record<string, number> = {
+		'to top': 0, 'to right': 90, 'to bottom': 180, 'to left': 270,
+		'to top right': 45, 'to right top': 45, 'to bottom right': 135,
+		'to right bottom': 135, 'to bottom left': 225, 'to left bottom': 225,
+		'to top left': 315, 'to left top': 315,
+	}
+	let angle = 180
+	if (parts[0] in directions) angle = directions[parts.shift()!]!
+	else if (/^[+-]?[\d.]+deg$/.test(parts[0])) angle = parseFloat(parts.shift()!)
+	if (parts.length < 2) return
+	const stops = parts.map((part) => {
+		const stop = /^(.*?)\s+([+-]?[\d.]+)%$/.exec(part)
+		return { color: nativeColor(stop ? stop[1] : part).CGColor, at: stop ? Number(stop[2]) / 100 : null }
+	})
+	stops[0].at ??= 0
+	stops[stops.length - 1].at ??= 1
+	let previous = 0
+	for (let i = 1; i < stops.length; i++) {
+		if (stops[i].at == null) continue
+		stops[i].at = Math.max(stops[previous].at!, stops[i].at!)
+		for (let j = previous + 1; j < i; j++) {
+			stops[j].at = stops[previous].at! + (stops[i].at! - stops[previous].at!) * (j - previous) / (i - previous)
+		}
+		previous = i
+	}
+	view.wantsLayer = true
+	const layer = CAGradientLayer.layer()
+	node.gradientLayer = layer
+	layer.colors = stops.map((stop) => stop.color)
+	layer.locations = stops.map((stop) => stop.at!)
+	view.layer.insertSublayerAtIndex(layer, 0)
+	const resize = () => {
+		layer.frame = view.bounds
+		layer.cornerRadius = view.layer.cornerRadius
+		const radians = angle * Math.PI / 180
+		const flipped = typeof view.isFlipped === 'function' ? view.isFlipped() : view.isFlipped
+		const dx = Math.sin(radians), dy = -Math.cos(radians) * (flipped ? 1 : -1)
+		const { width, height } = view.bounds.size
+		const length = Math.abs(width * dx) + Math.abs(height * dy)
+		const x = width ? dx * length / width / 2 : 0
+		const y = height ? dy * length / height / 2 : 0
+		layer.startPoint = { x: 0.5 - x, y: 0.5 - y }
+		layer.endPoint = { x: 0.5 + x, y: 0.5 + y }
+	}
+	resize()
+	view.postsFrameChangedNotifications = true
+	node.gradientObserver = NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
+		NSViewFrameDidChangeNotification, view, null, resize,
+	)
+}
+
 // borderRadius styles keep masksToBounds on only while a positive radius is
 // in effect.
 function syncCornerRadius(node: ElementNode) {
@@ -3582,7 +3662,9 @@ function resetStyle(node: ElementNode, name: string) {
 		node.type,
 	)
 
-	if (name === 'selectedBackgroundColor' && node.type === 'segmentedbar') {
+	if (name === 'backgroundImage') {
+		syncBackgroundImage(node, null)
+	} else if (name === 'selectedBackgroundColor' && node.type === 'segmentedbar') {
 		view.selectedSegmentBezelColor = nativeColor('#0000ff')
 	} else if (name === 'pointerEvents') {
 		inputTransparentViews.delete(view)
@@ -3698,7 +3780,9 @@ function applyStyle(node: ElementNode, style: PropBag) {
 			continue
 		}
 
-		if (name === 'pointerEvents') {
+		if (name === 'backgroundImage') {
+			syncBackgroundImage(node, value)
+		} else if (name === 'pointerEvents') {
 			if (value === 'none') {
 				inputTransparentViews.add(node.view!)
 			} else {
@@ -6233,6 +6317,10 @@ function destroy(node: ElementNode) {
 		node.layoutObserver = null
 	}
 
+	if (node.gradientObserver) {
+		NSNotificationCenter.defaultCenter.removeObserver(node.gradientObserver)
+		node.gradientObserver = null
+	}
 	if (node.radiusFrameObserver) {
 		NSNotificationCenter.defaultCenter.removeObserver(node.radiusFrameObserver)
 		node.radiusFrameObserver = null
