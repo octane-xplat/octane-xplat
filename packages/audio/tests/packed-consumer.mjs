@@ -87,6 +87,10 @@ const player: AudioPlayer = createAudioPlayer()
 const track: Track = { id: 'one', source: 'one.mp3' }
 const queued: Promise<void> = player.setQueue([track])
 const paused: Promise<void> = player.pause()
+const rate: Promise<void> = player.setPlaybackRate(1.5)
+const volume: number = player.snapshot().volume
+void rate
+void volume
 // @ts-expect-error Track.source is required
 const badTrack: Track = { id: 'two' }
 void queued
@@ -98,6 +102,10 @@ const player: AudioPlayer = createAudioPlayer()
 const track: Track = { id: 'one', source: 'one.mp3' }
 const queued: Promise<void> = player.setQueue([track])
 const paused: Promise<void> = player.pause()
+const rate: Promise<void> = player.setPlaybackRate(1.5)
+const volume: number = player.snapshot().volume
+void rate
+void volume
 // @ts-expect-error Track.source is required
 const badTrack: Track = { id: 'two' }
 void queued
@@ -112,7 +120,7 @@ const macosGuide = readFileSync(
 	new URL('../../../docs/platform/media-services.md', import.meta.url),
 	'utf8',
 )
-	.split('### macOS playback')[1]
+	.split('### Playback speed and volume')[1]
 	.split('## Recording audio')[0]
 
 const extraFiles = Object.fromEntries(

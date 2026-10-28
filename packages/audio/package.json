@@ -52,7 +52,9 @@
 		"test:packed": "node tests/packed-consumer.mjs",
 		"pack:check": "tsrx-typegen --pack-check",
 		"test:macos-runtime": "node tests/packed-consumer.mjs --macos-runtime",
-		"typecheck": "tsc --noEmit --strict --target esnext --module esnext --moduleResolution bundler --skipLibCheck src/audio.macos.ts"
+		"typecheck": "node ../../scripts/typecheck.ts",
+		"test:runtime": "node tests/runtime.mjs",
+		"test:browser": "node tests/browser.mjs"
 	},
 	"dependencies": {
 		"@octane-xplat/platform": "workspace:*"
@@ -64,7 +66,8 @@
 		"octane": "catalog:",
 		"tsrx-typegen": "workspace:*",
 		"typescript": "catalog:",
-		"vite": "catalog:"
+		"vite": "catalog:",
+		"playwright": "1.63.0"
 	},
 	"peerDependencies": {
 		"@nativescript-community/octane": ">=0.2.1 <1",

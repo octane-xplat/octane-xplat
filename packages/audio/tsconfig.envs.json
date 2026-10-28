@@ -1,0 +1,8 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "environments": {
+    "web": { "include": ["src/audio.web.ts", "src/index.web.ts"] },
+    "native": { "include": ["src/audio.ios.ts", "src/audio.android.ts", "src/index.ts"] },
+    "macos": { "include": ["src/audio.macos.ts", "src/index.macos.ts"] }
+  }
+}

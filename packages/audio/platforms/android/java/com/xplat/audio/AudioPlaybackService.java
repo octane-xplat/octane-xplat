@@ -20,13 +20,18 @@ import org.json.JSONObject;
 
 public final class AudioPlaybackService extends MediaSessionService {
 	private static final String TAG = "XplatAudio";
+	private static AudioPlaybackService active;
 	private ExoPlayer player;
 	private MediaSession session;
 	private Player.Listener listener;
 	private String error;
+	private float volume = 1;
+	private boolean muted;
+	private boolean queueComplete = true;
 
 	@Override public void onCreate() {
 		super.onCreate();
+		active = this;
 		player = new ExoPlayer.Builder(this).build();
 		player.setAudioAttributes(AudioAttributes.DEFAULT, true);
 		listener = new Player.Listener() {
@@ -56,7 +61,21 @@ public final class AudioPlaybackService extends MediaSessionService {
 		try {
 			switch (intent.getAction()) {
 				case AudioBridge.ACTION_QUEUE:
-					setQueue(AudioBridge.takeQueue(), intent.getIntExtra("index", 0));
+					setQueue(AudioBridge.takeQueue(intent), intent.getIntExtra("index", 0), false);
+					break;
+				case AudioBridge.ACTION_UPDATE:
+					setQueue(AudioBridge.takeQueue(intent), 0, true);
+					break;
+				case AudioBridge.ACTION_RATE:
+					player.setPlaybackParameters(new androidx.media3.common.PlaybackParameters((float) intent.getDoubleExtra("seconds", 1), 1));
+					break;
+				case AudioBridge.ACTION_VOLUME:
+					volume = (float) intent.getDoubleExtra("seconds", 1);
+					player.setVolume(muted ? 0 : volume);
+					break;
+				case AudioBridge.ACTION_MUTED:
+					muted = intent.getDoubleExtra("seconds", 0) != 0;
+					player.setVolume(muted ? 0 : volume);
 					break;
 				case AudioBridge.ACTION_PLAY: player.play(); break;
 				case AudioBridge.ACTION_PAUSE: player.pause(); break;
@@ -75,32 +94,65 @@ public final class AudioPlaybackService extends MediaSessionService {
 		return result;
 	}
 
-	private void setQueue(String encoded, int startAt) throws Exception {
-		JSONArray queue = new JSONArray(encoded == null ? "[]" : encoded);
-		player.clearMediaItems();
-		error = null;
+	private void setQueue(String encoded, int startAt, boolean update) throws Exception {
+		if (encoded == null) throw new IllegalStateException("Missing audio queue command");
+		JSONObject payload = new JSONObject(encoded);
+		JSONArray queue = payload.getJSONArray("tracks");
+		java.util.List<MediaItem> items = new java.util.ArrayList<>();
 		for (int i = 0; i < queue.length(); i++) {
 			JSONObject track = queue.getJSONObject(i);
 			String source = track.getString("source");
 			MediaMetadata metadata = new MediaMetadata.Builder()
-				.setTitle(track.optString("title", track.optString("id", "")))
+				.setTitle(track.optString("title", track.getString("id")))
 				.setArtist(track.optString("artist", ""))
 				.setAlbumTitle(track.optString("album", ""))
 				.build();
 			Uri uri = source.startsWith("/") ? Uri.fromFile(new File(source)) : Uri.parse(source);
-			player.addMediaItem(new MediaItem.Builder().setUri(uri).setMediaMetadata(metadata).build());
+			items.add(new MediaItem.Builder().setMediaId(track.getString("id")).setUri(uri).setMediaMetadata(metadata).build());
 		}
-		if (queue.length() > 0) player.seekTo(Math.max(0, Math.min(startAt, queue.length() - 1)), 0);
-		player.prepare();
+		MediaItem current = player.getCurrentMediaItem();
+		int retained = -1;
+		if (update && current != null) {
+			for (int i = 0; i < items.size(); i++) {
+				MediaItem item = items.get(i);
+				if (item.mediaId.equals(current.mediaId) && item.localConfiguration.uri.equals(current.localConfiguration.uri)) retained = i;
+			}
+		}
+		boolean waiting = !queueComplete && player.getPlaybackState() == Player.STATE_ENDED;
+		queueComplete = payload.optBoolean("complete", true);
+		error = null;
+		if (retained >= 0) {
+			// Edit around the current native MediaItem; never replace its source.
+			int oldIndex = player.getCurrentMediaItemIndex();
+			player.removeMediaItems(oldIndex + 1, player.getMediaItemCount());
+			player.removeMediaItems(0, oldIndex);
+			player.addMediaItems(0, items.subList(0, retained));
+			player.addMediaItems(items.subList(retained + 1, items.size()));
+			player.replaceMediaItem(retained, current.buildUpon().setMediaMetadata(items.get(retained).mediaMetadata).build());
+			if (waiting && player.getPlayWhenReady() && retained + 1 < items.size()) {
+				player.seekTo(retained + 1, 0);
+				player.prepare();
+			}
+		} else {
+			player.pause();
+			player.setMediaItems(items, items.isEmpty() ? 0 : Math.max(0, Math.min(startAt, items.size() - 1)), 0);
+			player.prepare();
+		}
 		publishSnapshot();
+	}
+
+	static void refreshSnapshot() {
+		AudioPlaybackService service = active;
+		if (service != null && android.os.Looper.myLooper() == android.os.Looper.getMainLooper()) service.publishSnapshot();
 	}
 
 	private void publishSnapshot() {
 		try {
 			JSONObject value = new JSONObject();
 			int index = player == null ? -1 : player.getCurrentMediaItemIndex();
-			value.put("state", error != null ? "error" : player == null || player.getMediaItemCount() == 0 ? "idle" : player.getPlaybackState() == Player.STATE_ENDED ? "ended" : player.isPlaying() ? "playing" : player.getPlaybackState() == Player.STATE_BUFFERING ? "loading" : "paused");
+			value.put("state", error != null ? "error" : player == null || player.getMediaItemCount() == 0 ? "idle" : player.getPlaybackState() == Player.STATE_ENDED ? (queueComplete ? "ended" : player.getPlayWhenReady() ? "waiting" : "paused") : player.isPlaying() ? "playing" : player.getPlaybackState() == Player.STATE_BUFFERING ? "loading" : "paused");
 			value.put("index", index);
+			if (player.getCurrentMediaItem() != null) value.put("id", player.getCurrentMediaItem().mediaId);
 			value.put("currentTime", player == null ? 0 : Math.max(0, player.getCurrentPosition()) / 1000.0);
 			value.put("duration", player == null || player.getDuration() < 0 ? 0 : player.getDuration() / 1000.0);
 			if (error != null) value.put("error", error);
@@ -109,6 +161,7 @@ public final class AudioPlaybackService extends MediaSessionService {
 	}
 
 	@Override public void onDestroy() {
+		if (active == this) active = null;
 		if (player != null) {
 			player.removeListener(listener);
 			player.release();

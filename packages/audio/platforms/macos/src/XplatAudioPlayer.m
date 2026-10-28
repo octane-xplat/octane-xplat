@@ -8,6 +8,9 @@
 @property(nonatomic, strong) NSMutableArray *observers;
 @property(nonatomic, copy) NSString *state;
 @property(nonatomic, copy) NSString *failure;
+@property(nonatomic) double playbackRate;
+@property(nonatomic) double volume;
+@property(nonatomic) BOOL muted;
 @property(nonatomic) BOOL disposed;
 @property(nonatomic) BOOL wantsPlayback;
 @property(nonatomic) NSTimeInterval loadingSince;
@@ -17,6 +20,8 @@
 - (instancetype)init {
 	if ((self = [super init])) {
 		_state = @"idle";
+		_playbackRate = 1;
+		_volume = 1;
 		_observers = [NSMutableArray new];
 	}
 	return self;
@@ -58,7 +63,10 @@
 	self.state = @"loading";
 	self.loadingSince = NSProcessInfo.processInfo.systemUptime;
 	self.item = [AVPlayerItem playerItemWithURL:url];
+	self.item.audioTimePitchAlgorithm = AVAudioTimePitchAlgorithmTimeDomain;
 	self.player = [AVPlayer playerWithPlayerItem:self.item];
+	self.player.volume = self.volume;
+	self.player.muted = self.muted;
 	__weak XplatAudioPlayer *owner = self;
 	AVPlayerItem *item = self.item;
 	NSNotificationCenter *center = NSNotificationCenter.defaultCenter;
@@ -107,7 +115,24 @@
 	}
 	self.wantsPlayback = YES;
 	[self.player play];
+	self.player.rate = self.playbackRate;
 	[self refresh];
+}
+
+- (void)setPlaybackRate:(double)rate {
+	if (self.disposed || !isfinite(rate)) return;
+	_playbackRate = fmax(0.5, fmin(3, rate));
+	if (self.wantsPlayback) self.player.rate = _playbackRate;
+}
+- (void)setVolume:(double)volume {
+	if (self.disposed || !isfinite(volume)) return;
+	_volume = fmax(0, fmin(1, volume));
+	self.player.volume = _volume;
+}
+- (void)setMuted:(BOOL)muted {
+	if (self.disposed) return;
+	_muted = muted;
+	self.player.muted = muted;
 }
 
 - (void)pause {

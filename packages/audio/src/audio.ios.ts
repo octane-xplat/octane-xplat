@@ -1,3 +1,5 @@
+import { copyQueue } from './queue'
+import { bounded } from './settings'
 import type { AudioCapabilities, AudioPlayer, AudioSnapshot, Track } from './types'
 import {
 	AVAudioSession,
@@ -50,6 +52,12 @@ export const createAudioPlayer = (): AudioPlayer => {
 	let state: AudioSnapshot['state'] = 'idle'
 	let error: Error | undefined
 	let disposed = false
+	let generation = 0
+	let playbackRate = 1
+	let volume = 1
+	let muted = false
+	let queueComplete = true
+	let waitingToResume = false
 	let wasPlayingBeforeInterruption = false
 	let timer: ReturnType<typeof setInterval> | undefined
 	let endObserver: NSObjectProtocol | undefined
@@ -65,6 +73,10 @@ export const createAudioPlayer = (): AudioPlayer => {
 
 	const snapshot = (): AudioSnapshot => ({
 		state,
+		playbackRate,
+		volume,
+		muted,
+		queueComplete,
 		track: current(),
 		currentTime: player ? seconds(player.currentTime()) : 0,
 		duration: player?.currentItem ? seconds(player.currentItem.duration) : 0,
@@ -73,7 +85,12 @@ export const createAudioPlayer = (): AudioPlayer => {
 
 	const emit = () => {
 		const value = snapshot()
+		const ownGeneration = generation
 		for (const listener of listeners) {
+			if (disposed || ownGeneration !== generation) {
+				break
+			}
+
 			listener(value)
 		}
 	}
@@ -132,6 +149,7 @@ export const createAudioPlayer = (): AudioPlayer => {
 	}
 
 	const load = async (autoplay = false) => {
+		const ownGeneration = ++generation
 		clearTrack()
 		wasPlayingBeforeInterruption = false
 		const track = current()
@@ -145,18 +163,28 @@ export const createAudioPlayer = (): AudioPlayer => {
 		state = 'loading'
 		error = undefined
 		emit()
+		if (disposed || ownGeneration !== generation) {
+			return
+		}
 		try {
 			const url = track.source.startsWith('/')
 				? NSURL.fileURLWithPath(track.source)
 				: NSURL.URLWithString(track.source)
 
 			const item = AVPlayerItem.playerItemWithURL(url)
+			item.audioTimePitchAlgorithm = AVAudioTimePitchAlgorithmTimeDomain
 			player = AVPlayer.playerWithPlayerItem(item)
+			player.volume = volume
+			player.muted = muted
 			endObserver = NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
 				AVPlayerItemDidPlayToEndTimeNotification,
 				item,
 				NSOperationQueue.mainQueue,
-				() => void advance(1),
+				() => {
+					if (!disposed && ownGeneration === generation) {
+						void advance(1).catch(() => {})
+					}
+				},
 			)
 
 			failureObserver = NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
@@ -164,6 +192,9 @@ export const createAudioPlayer = (): AudioPlayer => {
 				item,
 				NSOperationQueue.mainQueue,
 				(notification) => {
+					if (disposed || ownGeneration !== generation) {
+						return
+					}
 					const cause = notification.userInfo?.objectForKey(
 						AVPlayerItemFailedToPlayToEndTimeErrorKey,
 					)
@@ -195,7 +226,8 @@ export const createAudioPlayer = (): AudioPlayer => {
 		}
 
 		if (index + delta >= queue.length) {
-			state = 'ended'
+			state = queueComplete ? 'ended' : 'waiting'
+			waitingToResume = !queueComplete
 			player?.pause()
 			emit()
 			return
@@ -226,6 +258,7 @@ export const createAudioPlayer = (): AudioPlayer => {
 		}
 
 		player.play()
+		player.rate = playbackRate
 		state = 'playing'
 		updateNowPlaying()
 		emit()
@@ -235,6 +268,7 @@ export const createAudioPlayer = (): AudioPlayer => {
 		// An explicit pause must not be auto-resumed by a pending interruption
 		// Ended notification.
 		wasPlayingBeforeInterruption = false
+		waitingToResume = false
 		player?.pause()
 		state = 'paused'
 		updateNowPlaying()
@@ -324,12 +358,14 @@ export const createAudioPlayer = (): AudioPlayer => {
 				}
 			}
 		},
-		setQueue: async (tracks, startAt = 0) => {
+		setQueue: async (tracks, startAt = 0, options = {}) => {
 			if (disposed) {
 				throw new Error('AudioPlayer is disposed')
 			}
 
-			queue = [...tracks]
+			queue = copyQueue(tracks)
+			queueComplete = options.complete ?? true
+			waitingToResume = false
 			index = queue.length
 				? Math.max(
 						0,
@@ -350,12 +386,73 @@ export const createAudioPlayer = (): AudioPlayer => {
 			updateNowPlaying()
 			emit()
 		},
+
+		updateQueue: async (tracks, options = {}) => {
+			if (disposed) {
+				throw new Error('AudioPlayer is disposed')
+			}
+			const next = copyQueue(tracks)
+			const old = current()
+			const at = old ? next.findIndex((t) => t.id === old.id && t.source === old.source) : -1
+			queue = next
+			queueComplete = options.complete ?? queueComplete
+			if (at < 0) {
+				waitingToResume = false
+				index = next.length ? 0 : -1
+
+				await load()
+			} else {
+				index = at
+				if (state === 'waiting' && waitingToResume && index + 1 < queue.length) {
+					waitingToResume = false
+					await advance(1)
+				} else if (state === 'waiting' && queueComplete) {
+					state = 'ended'
+					waitingToResume = false
+				}
+
+				updateNowPlaying()
+				emit()
+			}
+		},
+		setPlaybackRate: async (rate) => {
+			if (disposed) {
+				throw new Error('AudioPlayer is disposed')
+			}
+			playbackRate = bounded(rate, 0.5, 3)
+			if (player && state === 'playing') {
+				player.rate = playbackRate
+			}
+			updateNowPlaying()
+			emit()
+		},
+		setVolume: async (gain) => {
+			if (disposed) {
+				throw new Error('AudioPlayer is disposed')
+			}
+			volume = bounded(gain, 0, 1)
+			if (player) {
+				player.volume = volume
+			}
+			emit()
+		},
+		setMuted: async (value) => {
+			if (disposed) {
+				throw new Error('AudioPlayer is disposed')
+			}
+			muted = value
+			if (player) {
+				player.muted = muted
+			}
+			emit()
+		},
 		dispose: () => {
 			if (disposed) {
 				return
 			}
 
 			disposed = true
+			generation++
 			clearTrack()
 			if (interruptionObserver) {
 				NSNotificationCenter.defaultCenter.removeObserver(interruptionObserver)

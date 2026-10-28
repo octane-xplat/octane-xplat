@@ -15,6 +15,9 @@ import { createAudioPlayer } from '@octane-xplat/audio'
 
 const player = createAudioPlayer()
 await player.setQueue([{ id: 'ep1', source: 'https://example.com/ep1.mp3' }])
+await player.setPlaybackRate(1.5)
+await player.setVolume(0.4)
+await player.setMuted(false)
 await player.play()
 
 const off = player.subscribe((snapshot) => {

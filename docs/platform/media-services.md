@@ -301,6 +301,66 @@ commands, interruption observation, and the app's audio background mode. Both
 platform adapters are implemented, but route and interruption coexistence with
 short effects still need device verification.
 
+### Playback speed and volume
+
+Set speech speed between 0.5× and 3× while preserving pitch. Set volume
+between 0 and 1, and mute without losing that remembered volume. Finite values
+outside those ranges are clamped; nonfinite settings reject. Settings survive
+source changes and pause/resume. These operations control the player, not the
+system's master volume.
+
+```ts
+import { createAudioPlayer } from '@octane-xplat/audio'
+
+const player = createAudioPlayer()
+await player.setPlaybackRate(1.5)
+await player.setVolume(0.4)
+await player.setMuted(true)
+await player.setQueue([{ id: 'chapter', source: 'https://example.com/chapter.mp3' }])
+await player.setMuted(false) // Returns to 0.4 volume.
+console.log(player.snapshot().playbackRate, player.snapshot().volume)
+player.dispose()
+```
+
+### Add items without restarting the current track
+
+Give every track a nonempty unique ID. Queue updates keep the current item
+when both its ID and source match, including its position, speed and volume.
+Removing that item or changing its source selects the first replacement item
+paused. Duplicate IDs reject before changing playback.
+
+```ts
+import { createAudioPlayer } from '@octane-xplat/audio'
+const player = createAudioPlayer()
+const first = { id: 'part-1', source: 'https://example.com/part-1.mp3' }
+await player.setQueue([first], 0, { complete: false })
+await player.play()
+await player.updateQueue([
+  first,
+  { id: 'part-2', source: 'https://example.com/part-2.mp3' },
+], { complete: true })
+player.dispose()
+```
+
+An incomplete queue reports `waiting` after its last item finishes. Appending
+another item resumes that waiting player; explicitly pausing cancels the
+automatic resume. Mark the queue complete when generation finishes or fails so
+its last item reports `ended`. This does not keep application JavaScript running
+indefinitely while backgrounded or establish gapless playback. iOS/macOS
+advancement currently requires JavaScript callbacks; physical background
+continuation with delayed appends remains unqualified.
+
+```ts
+import { createAudioPlayer } from '@octane-xplat/audio'
+const player = createAudioPlayer()
+const parts = [{ id: 'part', source: 'https://example.com/part.mp3' }]
+await player.setQueue(parts, 0, { complete: false })
+const off = player.subscribe(value => console.log(value.state, value.queueComplete))
+await player.updateQueue(parts, { complete: true })
+off()
+player.dispose()
+```
+
 ### macOS playback
 
 macOS uses the same public import and an AVPlayer owned by each player instance.

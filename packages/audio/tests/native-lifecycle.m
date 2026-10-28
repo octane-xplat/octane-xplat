@@ -13,10 +13,15 @@ int main(int argc, char **argv) {
 		[player setSource:@"invalid-source"];
 		NSCAssert([snapshot(player)[@"state"] isEqual:@"error"], @"invalid source must fail");
 		[player setSource:source];
+		[player setPlaybackRate:1.75];
+		[player setVolume:0.4];
+		[player setMuted:YES];
 		AVPlayerItem *oldItem = [player valueForKey:@"item"];
 		[player setSource:source];
 		AVPlayer *native = [player valueForKey:@"player"];
 		AVPlayerItem *item = native.currentItem;
+		NSCAssert(fabs(native.volume - 0.4) < 0.001 && native.muted, @"settings survive source replacement");
+		NSCAssert(item.audioTimePitchAlgorithm == AVAudioTimePitchAlgorithmTimeDomain, @"speech pitch preserved");
 		[NSNotificationCenter.defaultCenter postNotificationName:AVPlayerItemDidPlayToEndTimeNotification object:oldItem];
 		NSCAssert(![snapshot(player)[@"state"] isEqual:@"ended"], @"obsolete end notification ignored");
 		NSError *failure = [NSError errorWithDomain:@"AudioFixture" code:1 userInfo:@{NSLocalizedDescriptionKey:@"Injected output failure"}];

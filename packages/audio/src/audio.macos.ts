@@ -1,7 +1,12 @@
+import { copyQueue } from './queue'
+import { bounded } from './settings'
 import type { AudioPlayer, AudioSnapshot, Track } from './types'
 
 type NativeSnapshot = Pick<AudioSnapshot, 'state' | 'currentTime' | 'duration'> & { error?: string }
 type NativePlayer = {
+	setPlaybackRate(rate: number): void
+	setVolume(volume: number): void
+	setMuted(muted: boolean): void
 	setSource(source: string): void
 	play(): void
 	pause(): void
@@ -20,11 +25,20 @@ export const createAudioPlayer = (): AudioPlayer => {
 	let queue: Track[] = []
 	let index = -1
 	let disposed = false
+	let playbackRate = 1
+	let volume = 1
+	let muted = false
+	let queueComplete = true
+	let waitingToResume = false
 	let generation = 0
 	let playRequest = 0
 	let timer: ReturnType<typeof setInterval> | undefined
 	let pending: { promise: Promise<void>; resolve(): void; reject(error: Error): void } | undefined
-	let value: AudioSnapshot = { state: 'idle', currentTime: 0, duration: 0 }
+	let value: Omit<AudioSnapshot, 'playbackRate' | 'volume' | 'muted' | 'queueComplete'> = {
+		state: 'idle',
+		currentTime: 0,
+		duration: 0,
+	}
 
 	const assertActive = () => {
 		if (disposed) {
@@ -32,7 +46,14 @@ export const createAudioPlayer = (): AudioPlayer => {
 		}
 	}
 
-	const snapshot = () => ({ ...value, track: queue[index] ? { ...queue[index] } : undefined })
+	const snapshot = () => ({
+		...value,
+		playbackRate,
+		volume,
+		muted,
+		queueComplete,
+		track: queue[index] ? { ...queue[index] } : undefined,
+	})
 	const emit = () => {
 		const currentGeneration = generation
 		const current = snapshot()
@@ -81,7 +102,7 @@ export const createAudioPlayer = (): AudioPlayer => {
 		}
 
 		value = {
-			state: next.state,
+			state: value.state === 'waiting' && next.state === 'ended' ? 'waiting' : next.state,
 			currentTime: Number.isFinite(next.currentTime) ? Math.max(0, next.currentTime) : 0,
 			duration: Number.isFinite(next.duration) ? Math.max(0, next.duration) : 0,
 		}
@@ -110,6 +131,11 @@ export const createAudioPlayer = (): AudioPlayer => {
 				// Native notifications never own a rejected JS promise.
 				void load(true).catch(() => {})
 				return
+			}
+
+			if (!queueComplete) {
+				value = { ...value, state: 'waiting' }
+				waitingToResume = true
 			}
 
 			stopTimer()
@@ -157,6 +183,9 @@ export const createAudioPlayer = (): AudioPlayer => {
 		// Attach before bridge calls, which may fail synchronously.
 		ready.catch(() => {})
 		try {
+			native.setPlaybackRate(playbackRate)
+			native.setVolume(volume)
+			native.setMuted(muted)
 			native.setSource(queue[index]!.source)
 			timer = setInterval(tick, 100)
 			tick()
@@ -165,7 +194,14 @@ export const createAudioPlayer = (): AudioPlayer => {
 		}
 
 		await ready
-		if (autoplay && !disposed && ownGeneration === generation && ownPlayRequest === playRequest) {
+		if (
+			autoplay &&
+			value.state !== 'ended' &&
+			value.state !== 'waiting' &&
+			!disposed &&
+			ownGeneration === generation &&
+			ownPlayRequest === playRequest
+		) {
 			await play()
 		}
 	}
@@ -234,10 +270,13 @@ export const createAudioPlayer = (): AudioPlayer => {
 				listeners.delete(listener)
 			}
 		},
-		setQueue: async (tracks, startAt = 0) => {
+		setQueue: async (tracks, startAt = 0, options = {}) => {
 			assertActive()
+			const next = copyQueue(tracks)
 			playRequest++
-			queue = tracks.map((track) => ({ ...track }))
+			queue = next
+			queueComplete = options.complete ?? true
+			waitingToResume = false
 			index = queue.length
 				? Math.max(
 						0,
@@ -250,6 +289,7 @@ export const createAudioPlayer = (): AudioPlayer => {
 		play,
 		pause: async () => {
 			playRequest++
+			waitingToResume = false
 			command((player) => player.pause())
 		},
 		seek: async (seconds) => {
@@ -257,6 +297,55 @@ export const createAudioPlayer = (): AudioPlayer => {
 			if (Number.isFinite(seconds)) {
 				command((player) => player.seekSeconds(Math.max(0, seconds)))
 			}
+		},
+
+		updateQueue: async (tracks, options = {}) => {
+			assertActive()
+			const next = copyQueue(tracks)
+			const current = queue[index]
+			const at = current
+				? next.findIndex((t) => t.id === current.id && t.source === current.source)
+				: -1
+			queue = next
+			queueComplete = options.complete ?? queueComplete
+			if (at < 0) {
+				playRequest++
+				waitingToResume = false
+				index = next.length ? 0 : -1
+				await load()
+			} else {
+				index = at
+				if (value.state === 'waiting' && waitingToResume && index + 1 < queue.length) {
+					waitingToResume = false
+					index++
+					await load(true)
+				} else if (value.state === 'waiting' && queueComplete) {
+					value = { ...value, state: 'ended' }
+					waitingToResume = false
+				}
+
+				emit()
+			}
+		},
+		setPlaybackRate: async (rate) => {
+			assertActive()
+			const next = bounded(rate, 0.5, 3)
+			native?.setPlaybackRate(next)
+			playbackRate = next
+			emit()
+		},
+		setVolume: async (gain) => {
+			assertActive()
+			const next = bounded(gain, 0, 1)
+			native?.setVolume(next)
+			volume = next
+			emit()
+		},
+		setMuted: async (value) => {
+			assertActive()
+			native?.setMuted(value)
+			muted = value
+			emit()
 		},
 		dispose: () => {
 			if (disposed) {

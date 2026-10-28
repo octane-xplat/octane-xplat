@@ -1,8 +1,11 @@
+import * as queueHelpers from '../src/queue.ts'
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 import test from 'node:test'
 import vm from 'node:vm'
 import ts from 'typescript'
+
+const settings = await import('../src/settings.ts')
 
 const source = await readFile(new URL('../src/audio.ios.ts', import.meta.url), 'utf8')
 const compiled = ts.transpile(source, {
@@ -70,6 +73,7 @@ function createPlayer() {
 	}
 
 	const globals = {
+		AVAudioTimePitchAlgorithmTimeDomain: 'time-domain',
 		AVAudioSession: { sharedInstance: () => session },
 		AVAudioSessionCategoryPlayback: 'playback',
 		AVAudioSessionModeDefault: 'default',
@@ -126,6 +130,12 @@ function createPlayer() {
 		exports: module.exports,
 		module,
 		require: (specifier) => {
+			if (specifier === './queue') {
+				return queueHelpers
+			}
+			if (specifier === './settings') {
+				return settings
+			}
 			if (specifier === '@octane-xplat/platform/ios') {
 				return globals
 			}
@@ -268,5 +278,70 @@ test('iOS ignores non-Ended interruption notifications for resume', async () => 
 	// A notification carrying no type must not be treated as Ended.
 	interruption.callback({ userInfo: { objectForKey: () => undefined } })
 	assert.equal(player.snapshot().state, 'paused')
+	player.dispose()
+})
+
+test('settings survive loads and interruption recovery without unpausing', async () => {
+	const { player, nativePlayer, nowPlaying } = createPlayer()
+	await player.setPlaybackRate(1.75)
+	await player.setVolume(0.4)
+	await player.setMuted(true)
+	await player.setQueue([{ id: 'a', source: '/a.mp3' }])
+	assert.equal(nativePlayer.rate, 0)
+	assert.equal(nativePlayer.volume, 0.4)
+	assert.equal(nativePlayer.muted, true)
+	await player.play()
+	assert.equal(nativePlayer.rate, 1.75)
+	assert.equal(nowPlaying.nowPlayingInfo.playbackRate, 1.75)
+	await player.pause()
+	await player.setPlaybackRate(2)
+	assert.equal(nativePlayer.rate, 0)
+	await player.play()
+	assert.equal(nativePlayer.rate, 2)
+	await player.setMuted(false)
+	assert.equal(nativePlayer.volume, 0.4)
+	assert.equal(player.snapshot().muted, false)
+	await assert.rejects(player.setPlaybackRate(NaN), /finite/)
+	assert.equal(player.snapshot().playbackRate, 2)
+	await player.setPlaybackRate(99)
+	await player.setVolume(-2)
+	assert.equal(player.snapshot().playbackRate, 3)
+	assert.equal(player.snapshot().volume, 0)
+	player.dispose()
+	await assert.rejects(player.setVolume(1), /disposed/)
+})
+
+test('iOS preserves current item and explicit pause cancels growing-queue resume', async () => {
+	const { player, nativePlayer, observers } = createPlayer()
+	const a = { id: 'a', source: '/a.mp3' }
+	await player.setQueue([a], 0, { complete: false })
+	await player.play()
+	await player.updateQueue([{ ...a, title: 'Updated' }])
+	assert.equal(player.snapshot().state, 'playing')
+	assert.equal(player.snapshot().currentTime, 5)
+	observers.find((o) => o.name === 'ended').callback()
+	assert.equal(player.snapshot().state, 'waiting')
+	await player.pause()
+	await player.updateQueue([a, { id: 'b', source: '/b.mp3' }])
+	assert.equal(player.snapshot().track.id, 'a')
+	assert.equal(nativePlayer.paused, true)
+	await assert.rejects(player.updateQueue([a, a]), /unique/)
+	assert.equal(player.snapshot().track.id, 'a')
+	player.dispose()
+})
+
+test('iOS stale item notifications cannot end or fail a replacement', async () => {
+	const { player, observers } = createPlayer()
+	await player.setQueue([{ id: 'a', source: '/a.mp3' }])
+	const end = observers.find((o) => o.name === 'ended')
+	const failure = observers.find((o) => o.name === 'failed')
+	await player.setQueue([{ id: 'b', source: '/b.mp3' }])
+	end.callback()
+	failure.callback({
+		userInfo: { objectForKey: () => ({ localizedDescription: 'obsolete failure' }) },
+	})
+	assert.equal(player.snapshot().track.id, 'b')
+	assert.equal(player.snapshot().state, 'paused')
+	assert.equal(player.snapshot().error, undefined)
 	player.dispose()
 })

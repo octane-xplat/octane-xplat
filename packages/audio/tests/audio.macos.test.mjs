@@ -1,8 +1,11 @@
+import * as queueHelpers from '../src/queue.ts'
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 import test from 'node:test'
 import vm from 'node:vm'
 import ts from 'typescript'
+
+const settings = await import('../src/settings.ts')
 
 const source = await readFile(new URL('../src/audio.macos.ts', import.meta.url), 'utf8')
 const compiled = ts.transpile(source, {
@@ -20,6 +23,15 @@ function fixture({ missing = false, loading = false } = {}) {
 	const calls = []
 	const native = {
 		value: { state: 'idle', currentTime: 0, duration: 0 },
+		setPlaybackRate(value) {
+			this.rate = value
+		},
+		setVolume(value) {
+			this.volume = value
+		},
+		setMuted(value) {
+			this.muted = value
+		},
 		setSource(source) {
 			calls.push(['source', source])
 			this.value = { state: loading ? 'loading' : 'paused', currentTime: 0, duration: 12.5 }
@@ -53,6 +65,7 @@ function fixture({ missing = false, loading = false } = {}) {
 	vm.runInNewContext(compiled, {
 		exports: module.exports,
 		module,
+		require: (id) => (id === './queue' ? queueHelpers : settings),
 		...(missing ? {} : { XplatAudioPlayer: { new: () => native } }),
 		setInterval(callback) {
 			timers.add(callback)
@@ -281,4 +294,45 @@ test('disposal inside subscription prevents later listeners from receiving stale
 	player.subscribe((value) => seen.push(value.state))
 	await player.setQueue(tracks)
 	assert.deepEqual(seen, ['idle'])
+})
+
+test('macOS applies settings before loading and retains muted volume', async () => {
+	const { player, native } = fixture()
+	await player.setPlaybackRate(1.5)
+	await player.setVolume(0.3)
+	await player.setMuted(true)
+	await player.setQueue(tracks)
+	assert.equal(native.rate, 1.5)
+	assert.equal(native.volume, 0.3)
+	assert.equal(native.muted, true)
+	await player.setMuted(false)
+	assert.equal(player.snapshot().volume, 0.3)
+	await assert.rejects(player.setVolume(Infinity), /finite/)
+	assert.equal(native.volume, 0.3)
+	player.dispose()
+	await assert.rejects(player.setPlaybackRate(2), /disposed/)
+})
+
+test('macOS queue metadata and append preserve current source and pending load', async () => {
+	const { player, native, calls, tick } = fixture({ loading: true })
+	const ready = player.setQueue([tracks[0]], 0, { complete: false })
+	await player.updateQueue(tracks)
+	assert.equal(calls.filter(([name]) => name === 'source').length, 1)
+	native.value.state = 'paused'
+	tick()
+	await ready
+	await player.play()
+	native.value.currentTime = 4
+	await player.updateQueue(tracks.map((t) => ({ ...t, title: 'Updated' })))
+	assert.equal(player.snapshot().currentTime, 4)
+	assert.equal(player.snapshot().state, 'playing')
+	native.value.state = 'ended'
+	tick()
+	await new Promise((resolve) => setImmediate(resolve))
+	native.value.state = 'ended'
+	tick()
+	assert.equal(player.snapshot().state, 'waiting')
+	await player.updateQueue(tracks, { complete: true })
+	assert.equal(player.snapshot().state, 'ended')
+	player.dispose()
 })

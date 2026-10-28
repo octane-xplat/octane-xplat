@@ -50,6 +50,7 @@ unsupported.dispose()
 let disposed = false
 let state = 'idle'
 globalThis.XplatAudioPlayer = { new: () => ({
+  setPlaybackRate() {}, setVolume() {}, setMuted() {},
   snapshot: () => JSON.stringify({ state, currentTime: 1.25, duration: 3.5 }),
   clear() { state = 'idle' },
   setSource(source) { if (source !== '/test.wav') throw Error('source differs'); state = 'paused' },
