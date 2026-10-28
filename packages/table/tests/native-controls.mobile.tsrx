@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 /** Compiler-defined test leaves keep native control tests independent of layout. */
 import { View } from '../../ui/src/View.tsrx'
 export { View }
