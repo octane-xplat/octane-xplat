@@ -13200,15 +13200,14 @@ export interface GridListProps<T = unknown> extends LayoutChildProps, Accessibil
 	disabledKeys?: Iterable<Key>
 	/** Block deselecting the last selected key. */
 	disallowEmptySelection?: boolean
-	/** Fires when a row is activated (click/Enter on web, tap on native),
-	 *  independent of selection. */
+	/** Fires when a row is activated (click/Enter on web and AppKit, tap on
+	 * mobile), independent of selection. Space selects without activation. */
 	onAction?: (key: Key) => void
 	/** 'arrow' (default): single Tab stop + arrow-key navigation.
-	 *  'tab': every row is a Tab stop and arrows are left to content —
-	 *  use when cells contain interactive controls. Web only: grid
-	 *  keyboard navigation has no native counterpart (reported by
-	 *  `useGridList().isSupported`); native keeps tap selection and
-	 *  `onAction`. */
+	 * 'tab': every row is a Tab stop and arrows are left to content —
+	 * use when cells contain interactive controls. Implemented by the web
+	 * and AppKit GridList components; mobile keeps tap selection/onAction.
+	 * The selector-based useGridList hook remains unsupported on AppKit. */
 	keyboardNavigationBehavior?: 'arrow' | 'tab'
 	testID?: string
 }

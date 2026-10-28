@@ -632,6 +632,53 @@ export function Example() {
 }
 ```
 
+### GridList on AppKit
+
+Use `GridList` for a small collection of selectable cards or rows. On experimental
+AppKit, its default arrow mode keeps one native Tab stop. Left/Right move one
+slot; Up/Down use `columns` or the rendered row positions; Home/End move to the
+first/last enabled row. Navigation skips hidden and disabled rows, scrolls the
+focused row into view, and follows the native layout direction. Enter activates
+`onAction` and selects; Space selects without activation. Shift+Space extends
+the selection from the anchor key and skips disabled keys.
+
+```tsx
+import { GridList, Text } from '@octane-xplat/ui'
+
+export function Documents() {
+	return <GridList
+		items={[{ id: 'notes' }, { id: 'budget' }, { id: 'draft' }]}
+		columns={2}
+		selectionMode="multiple"
+		disabledKeys={['budget']}
+		renderItem={(item) => <Text>{item.id}</Text>}
+		onAction={(key) => console.log('open', key)}
+		onSelectionChange={(keys) => console.log('selected', keys)}
+	/>
+}
+```
+
+For cells containing buttons or text inputs, choose `keyboardNavigationBehavior="tab"`.
+Each enabled row keeps its native Tab stop, arrows stay with the content, and
+nested controls retain their editing/activation keys. The selector-based
+`useGridList` hook still reports false on AppKit; the component owns an explicit
+native row registry. Shift+click range selection is not implemented. Native accessibility still exposes a group and
+button rows rather than a complete grid/row model. Real OS Tab/arrow input,
+scrolling, IME, accessibility and packaging remain unqualified.
+
+```tsx
+import { GridList, TextInput } from '@octane-xplat/ui'
+
+export function EditableRows() {
+	return <GridList
+		items={[{ id: 'first' }, { id: 'second' }]}
+		layout="stack"
+		keyboardNavigationBehavior="tab"
+		renderItem={(item) => <TextInput label={item.id} />}
+	/>
+}
+```
+
 **Migrating existing code:** `Table`'s `keyFor` was renamed to `idKey`, which
 also accepts a `key`-typed row field name (`idKey="id"`); the default row key
 now reads the row's `id` or `key` property before falling back to its index.

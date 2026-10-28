@@ -466,7 +466,11 @@ if (result === 'unavailable') console.log('Sharing unavailable')
   the default mobile leaf reports all four false. AppKit now implements native
   containment/autofocus/restoration and per-window nested ownership when its
   renderer/input bridge is available; real OS behavior remains unqualified.
-  `useGridList().isSupported` is false on native/macOS.
+  `useGridList().isSupported` remains false for custom native/macOS integrations.
+  The AppKit GridList component now owns native row registration, arrow/Home/End
+  navigation, roving Tab stops and Enter/Space selection; its actual key delivery,
+  scrolling and accessibility remain unqualified. Shift+click ranges remain
+  unavailable. See [AppKit GridList](../app/components.md#gridlist-on-appkit).
   `useFocusWithin().isSubtreeTrackingSupported` is false on mobile; AppKit
   reports native observer availability for raw container attachments. Shared
   View does not forward the handlers. It tracks per-window first-responder

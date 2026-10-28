@@ -16,6 +16,8 @@ declare global {
 		dispatchKeyboardEvent?: (event: unknown) => { defaultPrevented: boolean; propagationStopped: boolean }
 		/** Observe app key input before a handler/scope cancels native dispatch. */
 		observeHardwareKeys?: (notify: (event: { type: number; modifierFlags: number }) => void) => () => void
+		/** Exclude a self-drawn native host from Tab without rejecting arrow focus. */
+		suppressTabStop?: (view: import('@octane-xplat/platform/macos').NSView) => () => void
 		/** Retain programmatic focus on a scope box without a Tab stop/action. */
 		retainFocusTarget?: (view: import('@octane-xplat/platform/macos').NSView) => () => void
 		observeHover?: (view: import('@octane-xplat/platform/macos').NSView, handlers: any) => void

@@ -308,3 +308,57 @@ GridList keyboard navigation remains an independent implementation gap.
 The inert AppKit hook cannot simply reuse DOM row selectors/tabIndex: native
 row discovery and a renderer-backed roving Tab-stop policy are prerequisites.
 The new hardware-key bridge is necessary but does not by itself supply them.
+
+## GridList native row navigation
+
+Priority assumption: the macOS VirtualList bench exercises pressable collection
+rows and the shared app uses the same desktop host; keyboard-first collection
+navigation is expected to matter more than niche media/GPU integrations.
+A targeted scan found no direct GridList adoption in existing apps/examples
+before this probe, so this is inferred demand, not observed user frequency.
+
+The AppKit GridList component now registers its actual native row views.
+A reference-counted renderer bridge excludes non-current self-drawn hosts
+from Tab without rejecting programmatic focus. Arrow mode repairs its one
+Tab stop on window updates and component commits, follows focused descendants,
+and releases exclusions on removal, mode change and unmount. Tab mode leaves
+native row/descendant stops intact. This avoids DOM selector assumptions.
+
+Arrows/Home/End navigate enabled visible rows; fixed or native-frame-measured
+columns include disabled slots so vertical movement does not collapse the grid.
+Left/Right follow native layout direction. Successful focus requests scroll
+the row into view and consume the key. Enter activates/selects; Space selects
+without activation. Shift+Space ranges use a stable key anchor, survive reorder,
+and skip disabled keys. Pointer activation focuses the selected row. Modified,
+composing, already-prevented and nested-control key events keep their existing
+behavior. The component never autofocuses just because it mounted.
+
+The public selector-based useGridList hook remains unsupported on AppKit;
+its custom-query contract is a separate gap. Shift+click ranges remain missing
+because current native tap callbacks do not carry modifier payloads. Native
+AX grid/row semantics and physical focus/scrolling remain unqualified. No audit
+checkbox is closed; the shared snapshots have not been regenerated.
+
+Added fake-host manager cases, an AccessibleHostView exclusion ownership case,
+object-driver component selection cases, and a maintained native-policy probe.
+These are authored regressions only. Syntax and whitespace checks passed;
+package tests/typechecks, native builds/probes, OS input/IME, VoiceOver, visual
+analysis, installation and packaging have NOT run.
+
+Deferred commands:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/ui -- src/grid-navigation.macos.test.ts
+pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/grid-list.macos.mobile.test.tsrx
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/macos-renderer
+pnpm probe run examples/probes/grid-list.macos.tsrx --target macos --watch
+pnpm check:recipes
+```
+
+After explicit human authorization, qualify real forward/backward Tab,
+arrows/Home/End/Enter/Space, native layout-direction behavior, incomplete rows,
+disable/hide/remove/reorder, nested grids and FocusScope, controlled selection,
+scroll visibility, nested editing/IME, two windows, delayed attachment, VoiceOver,
+HMR and packaged lifecycle. Handler dispatch or makeFirstResponder alone does
+not qualify physical input, hit testing or accessibility.

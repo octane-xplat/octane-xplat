@@ -59,6 +59,7 @@ import { installMasonElement, makeMasonHostView } from './mason'
 import { installCompat } from './ns-compat'
 import { createAppKitKeyboardDispatcher } from './keyboard'
 import { createAppKitFocusWithinDispatcher } from './focus-within'
+import { createTabStopSuppression } from './tab-stop'
 import type { NativeKeyboardEvent } from '@octane-xplat/jsx/intrinsics'
 import { makeListView, updateListView, disposeListView } from './list-view'
 import { makePagerView, updatePagerView, disposePagerView } from './pager'
@@ -700,6 +701,7 @@ const inputTransparentViews = new WeakSet<object>()
 // The macOS Slider uses the grid host as an overlay when no tracks are set.
 
 const scopeFocusTargets = new WeakMap<object, number>()
+const tabStopSuppression = createTabStopSuppression()
 
 /** Plain NSView host for interactive containers — tap/keyboard/AX actions
  *  dispatch through the shared actionId registry. Mason-backed containers
@@ -716,7 +718,7 @@ class AccessibleHostView extends NSView {
 	// Scope fallback boxes accept programmatic focus but are not Tab stops.
 	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
 	canBecomeKeyView() {
-		return !scopeFocusTargets.has(this) && this.acceptsFirstResponder() &&
+		return !scopeFocusTargets.has(this) && !tabStopSuppression.isSuppressed(this) && this.acceptsFirstResponder() &&
 			this.accessibilityIsEnabled() && !this.hiddenOrHasHiddenAncestor
 	}
 
@@ -10019,6 +10021,7 @@ Object.defineProperty(appKitBridge, 'focusWithinSupported', {
 })
 appKitBridge.dispatchKeyboardEvent = keyboardDispatcher.dispatch
 appKitBridge.observeHardwareKeys = keyboardDispatcher.observe
+appKitBridge.suppressTabStop = (view: NSView) => tabStopSuppression.retain(view)
 appKitBridge.retainFocusTarget = (view: NSView) => {
 	scopeFocusTargets.set(view, (scopeFocusTargets.get(view) ?? 0) + 1)
 	let active = true

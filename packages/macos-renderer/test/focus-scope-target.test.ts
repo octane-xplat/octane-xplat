@@ -1,6 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { runSlice, sourceWithoutImports } from './mock-globals.ts'
+import { createTabStopSuppression } from '../src/tab-stop.ts'
 
 const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
 const view = source.slice(source.indexOf('class AccessibleHostView'), source.indexOf('const masonElementRegistration'))
@@ -12,6 +13,7 @@ test('AppKit scope fallback accepts programmatic focus without a Tab stop or fak
 	const ids = new WeakMap()
 	const handlers = new Map()
 	const bridge: Record<string, any> = {}
+	const tabStops = createTabStopSuppression()
 	const { AccessibleHostView } = runSlice(view + '\n' + retain + '\n({ AccessibleHostView })', {
 		NSView: class {
 			get canBecomeKeyView() { return true }
@@ -22,6 +24,7 @@ test('AppKit scope fallback accepts programmatic focus without a Tab stop or fak
 		actionIdsByView: ids,
 		actionHandlers: handlers,
 		scopeFocusTargets: new WeakMap(),
+		tabStopSuppression: tabStops,
 		inputTransparentViews: new WeakSet(),
 		stackAccessibilityPropsByView: new WeakMap(),
 		appKitBridge: bridge,
@@ -45,4 +48,13 @@ test('AppKit scope fallback accepts programmatic focus without a Tab stop or fak
 	assert.equal(root.canBecomeKeyView(), true)
 	root.keyDown({ keyCode: 36 })
 	assert.equal(presses, 1)
+	const first = tabStops.retain(root)
+	const second = tabStops.retain(root)
+	assert.equal(root.acceptsFirstResponder(), true)
+	assert.equal(root.canBecomeKeyView(), false)
+	first()
+	first()
+	assert.equal(root.canBecomeKeyView(), false)
+	second()
+	assert.equal(root.canBecomeKeyView(), true)
 })

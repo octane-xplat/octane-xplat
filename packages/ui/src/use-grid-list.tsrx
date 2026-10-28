@@ -2,9 +2,8 @@
 import { useRef } from 'octane'
 import type { Octane } from 'octane/jsx-runtime'
 
-/** Native leaf of useGridList — arrow-key grid navigation is a web
- *  keyboard convention, so the hook returns an inert prop bag with the
- *  same shape as the web leaf. */
+/** Default useGridList hook: custom native row queries are unavailable.
+ * The AppKit GridList component owns a separate native row registry. */
 
 export interface UseGridListOptions {
 	/** Fixed column count; measured from layout when unset. */
@@ -18,9 +17,9 @@ export interface UseGridListOptions {
  */
 export interface UseGridListResult {
 	gridRef: Octane.Ref<any>
-	/** Whether the grid keyboard-navigation machinery is wired. Arrow-key
-	 *  grid navigation is a web convention — false on native, where the
-	 *  returned `gridProps` stay empty. */
+	/** Whether the grid keyboard-navigation machinery is wired. False on
+	 * native custom integrations; the AppKit GridList component implements
+	 * navigation separately through explicit native row registration. */
 	isSupported: boolean
 	gridProps: {
 		onKeyDown?: (event: unknown) => void

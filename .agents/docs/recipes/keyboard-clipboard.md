@@ -2,7 +2,7 @@
 
 ID: keyboard-clipboard
 Targets: web, ios, android, macos
-Related APIs: useKeyboard, KeyboardEvent, useClipboard, copyText, Slider, useFocusVisible, isFocusVisible, useFocusRing, FocusScope, getFocusScopeCapabilities, useFocusWithin
+Related APIs: useKeyboard, KeyboardEvent, useClipboard, copyText, Slider, useFocusVisible, isFocusVisible, useFocusRing, FocusScope, getFocusScopeCapabilities, useFocusWithin, GridList, useGridList
 
 ## Starting point
 
@@ -24,6 +24,8 @@ hardware-key support on native hosts.
 
 - AC7: On AppKit, attach focus-within handlers to a raw native container, report boundary entry/exit without false transitions between descendants, resolve text field editors, and release removed handlers. Distinguish per-window responder containment from activation, separate popup windows and OS qualification.
 
+- AC8: On AppKit GridList, navigate registered rows with arrows/Home/End and a single roving Tab stop, support native tab mode, skip disabled/hidden rows, scroll the focused row into view, and distinguish Enter activation from Space/Shift+Space selection. Preserve nested editing/composition/shortcuts and release native exclusions. Discover the custom-hook, Shift+click and OS-qualification gaps.
+
 ## Documentation
 
 - AC1: [DOM hardware keys](../../../docs/app/keyboard-clipboard.md#handle-hardware-keys-on-web-and-linux), [AppKit hardware keys](../../../docs/app/keyboard-clipboard.md#handle-hardware-keys-on-appkit), [web example](../../../packages/ui/examples/KeyboardDemo.web.tsrx), [native key regressions](../../../packages/macos-renderer/test/keyboard.test.ts) and [AppKit probe](../../../examples/probes/keyboard.macos.tsrx). Gap: AppKit tests, physical input, IME, cancellation, scope coordination and packaged behavior have not run; modifier-only events and extended physical codes remain incomplete.
@@ -34,3 +36,5 @@ hardware-key support on native hosts.
 - AC6: [Focus behavior](../../../docs/app/primitives.md#focus-behavior), [scope ownership regressions](../../../packages/ui/src/focus-scope-state.macos.test.ts), [renderer fallback regression](../../../packages/macos-renderer/test/focus-scope-target.test.ts) and [maintained scope probe](../../../examples/probes/focus-scope.macos.tsrx). Gap: tests and actual AppKit Tab/Shift+Tab, IME, focus callbacks/appearance, VoiceOver and packaged behavior have not run.
 
 - AC7: [Focus behavior](../../../docs/app/primitives.md#focus-behavior), [boundary regressions](../../../packages/macos-renderer/test/focus-within.test.ts) and [maintained probe](../../../examples/probes/focus-within.macos.tsrx). Gap: tests, native notification delivery, real Tab/click/IME, VoiceOver and packaged behavior have not run. Shared View does not forward this attachment.
+
+- AC8: [AppKit GridList](../../../docs/app/components.md#gridlist-on-appkit), [navigation regressions](../../../packages/ui/src/grid-navigation.macos.test.ts), [component selection regressions](../../../packages/ui/src/grid-list.macos.mobile.test.tsrx) and [maintained probe](../../../examples/probes/grid-list.macos.tsrx). Gap: tests/typechecks, actual native Tab/arrow input, scrolling, IME, VoiceOver and packaging have not run. The selector-based useGridList hook and Shift+click ranges remain unavailable.

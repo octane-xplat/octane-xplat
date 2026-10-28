@@ -89,6 +89,24 @@ export function Controls() {
 
 ## Native macOS interaction
 
+AppKit `GridList` now registers native rows for roving Tab stops, arrows,
+Home/End and Enter/Space activation/selection. Use `columns` for fixed grids
+and `layout="stack"` for a vertical list. Prefer `keyboardNavigationBehavior="tab"`
+when cells contain interactive controls; nested controls keep their editing
+keys. The component skips disabled keys in Shift+Space ranges; Shift+click
+ranges remain unavailable. The custom selector-based `useGridList` hook still
+reports false on AppKit. OS input, scrolling and accessibility are unqualified;
+see [AppKit GridList](../../../../docs/app/components.md#gridlist-on-appkit).
+
+```tsx
+import { GridList, Text } from '@octane-xplat/ui'
+
+export function Choices() {
+	return <GridList items={[{ id: 'one' }, { id: 'two' }]} columns={2}
+		selectionMode="single" renderItem={(item) => <Text>{item.id}</Text>} />
+}
+```
+
 AppKit `useKeyboard` attaches key-down/up handlers to native intrinsics or
 their native ancestors. Shared View/TextInput/Pressable do not forward this
 bag. Check bridge capability and preserve composing input; modifier-only events,
