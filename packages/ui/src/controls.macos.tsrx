@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle, styleRecord } from './style-merge'
-import { useState } from 'octane'
+import { useCallback, useRef, useState } from 'octane'
 import type {
 	ActivityIndicatorProps,
 	ButtonProps,
@@ -148,24 +148,56 @@ export function Switch(inputProps: SwitchProps) @{
 	const props = useFieldControlProps(inputProps)
 	const [internal, setInternal] = useState(props.defaultValue ?? false)
 	const checked = props.value ?? internal
-	const isBlocked = props.isDisabled || props.isReadOnly
+	const [pending, setPending] = useState(false)
+	const active = useRef<symbol | null>(null)
+	const attached = useRef(true)
+	// Ref teardown also covers unmount before passive effects would run.
+	const bind = useCallback((view: NSView | null) => {
+		attached.current = Boolean(view)
+		if (!view) active.current = null
+	}, [])
+	const loading = Boolean(props.isLoading || pending)
+	const isBlocked = props.isDisabled || props.isReadOnly || pending
 	const colors = controlColors(useThemeScheme() === 'dark')
 	const toggle = () => {
-		if (props.value === undefined) {
-			setInternal(!checked)
-		}
+		if (!attached.current || isBlocked || active.current) return
+		const previous = checked, next = !previous
+		const uncontrolled = props.value === undefined
+		if (uncontrolled) setInternal(next)
+		props.onChange?.(next)
+		if (!props.changeAction) return
 
-		props.onChange?.(!checked)
+		const token = Symbol('switch-action')
+		active.current = token
+		if (attached.current) setPending(true)
+		const settle = (failed: boolean) => {
+			if (!attached.current || active.current !== token) return
+			try {
+				if (failed) {
+					if (uncontrolled) setInternal(previous)
+					props.onChange?.(previous)
+				}
+			} finally {
+				active.current = null
+				setPending(false)
+			}
+		}
+		try {
+			Promise.resolve(props.changeAction(next)).then(() => settle(false), () => settle(true))
+		} catch {
+			settle(true)
+		}
 	}
 
 	<masonview
 		id={props.id}
+		ref={bind}
 		className={cx(
 			'vx-switch',
 			checked && 'vx-switch--on',
 			props.isDisabled && 'vx-switch--disabled',
 			props.isReadOnly && 'vx-switch--readonly',
-			props.isLoading && 'vx-switch--loading',
+			loading && 'vx-switch--loading',
 			props.status && `vx-switch--status-${props.status.type}`,
 			props.size && `vx-switch--size-${props.size}`,
 			props.className,
@@ -193,7 +225,7 @@ export function Switch(inputProps: SwitchProps) @{
 			checked,
 			disabled: props.isDisabled,
 			readonly: props.isReadOnly,
-			busy: props.isLoading,
+			busy: loading,
 			required: props.isRequired && !props.isOptional,
 			invalid: props.status?.type === 'error',
 		}}

@@ -618,3 +618,20 @@ export function Budget() {
 		step={5} valueDisplay="text" />
 }
 ```
+
+
+## AppKit switch saves
+
+Switch now invokes changeAction after onChange, exposes pending through busy,
+blocks overlapping saves, and reports the previous value on failure. Completion
+after unmount is ignored. Controlled parents must apply both forward and rollback
+callbacks. Native activation/loading presentation remain unqualified; see
+[switch saves](../../../../docs/app/components.md#save-a-switch-setting-on-appkit).
+
+```tsx
+import { Switch } from '@octane-xplat/ui'
+
+export function Preference({ save }: { save(next: boolean): Promise<void> }) {
+	return <Switch accessibilityLabel="Preference" defaultValue changeAction={save} />
+}
+```

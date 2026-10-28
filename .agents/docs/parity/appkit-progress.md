@@ -1160,3 +1160,32 @@ resolution, pixel parity and packaging remain unqualified. The fixture's run
 hook checks initial metadata only, not input. No builds, installs, native/OS
 or browser automation, visual analysis or shared audit regeneration ran.
 No issue evidence checkbox is closed.
+
+
+### AppKit switch save actions
+
+ControlsDemo uses Switch for everyday state; the public SwitchProps contract
+also promises changeAction and rollback. The existing AppKit leaf already
+handled controlled/default values and Field gates but silently ignored the
+save action. It now calls onChange then changeAction, marks pending busy,
+blocks overlapping saves with a synchronous token, and restores the previous
+uncontrolled state/calls onChange(previous) on rejection or synchronous action
+failure. Controlled parents own display feedback. Teardown invalidates the token
+so a late completion cannot set state or issue a rollback callback. No native
+layout/label-position behavior was expanded by this slice.
+
+Added focused source cases for order, success, failure, controlled display,
+concurrent taps, inherited gates and teardown, plus guide/skill/recipe/release
+coverage. Syntax and whitespace only; no tests/probes ran. Deferred:
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/switch.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm check:recipes
+```
+
+Actual click/key activation, focus retention, busy/loading appearance,
+accessibility, native event timing, layout and packaging remain unqualified.
+The existing AppKit standalone label layout/labelPosition/labelSpacing subset
+still needs a separate implementation review. No builds, installs, tests,
+OS automation, visual analysis or shared audit regeneration ran.

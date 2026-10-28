@@ -277,6 +277,24 @@ export function Volume() {
 }
 ```
 
+### Save a switch setting on AppKit
+
+Supply `changeAction` to save a toggle after `onChange`. While the action runs,
+the AppKit switch reports busy and blocks overlapping toggles. Rejection or a
+synchronous throw restores the previous uncontrolled value and calls `onChange`
+with that previous value. Controlled parents must apply the callback themselves.
+Completion after unmount is ignored. Native activation and presentation remain
+unqualified; the regression cases are authored and unrun.
+
+```tsx
+import { Switch } from '@octane-xplat/ui'
+
+export function Notifications({ save }: { save(enabled: boolean): Promise<void> }) {
+	return <Switch accessibilityLabel="Notifications" defaultValue={false}
+		changeAction={save} />
+}
+```
+
 ### Slider on AppKit
 
 Use an uncontrolled slider for a settings range, or supply `value` and
