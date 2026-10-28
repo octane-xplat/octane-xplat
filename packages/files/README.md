@@ -103,3 +103,29 @@ do not restrict the picker. Neither picking nor reading persists a security
 bookmark for a later app session.
 
 Continue with [File entry and picking](https://octane-xplat.goddardai.org/date-picker).
+
+## AppKit attachment picker lifetime
+
+On experimental AppKit, each FileInput owns one picker/save operation at a time.
+The trigger stays busy until picking and changeAction settle. Accepted results
+use current values, validation limits and disabled/read-only state. Picker or save
+errors become field status; the parent still owns value, so a save failure does
+not undo the parent's selection. Removing a row follows its URI after reorder.
+
+```tsx
+import { useState } from 'octane'
+import { FileInput } from '@octane-xplat/files'
+import type { FileInputFile } from '@octane-xplat/files'
+
+export function Attachments({ save }: { save(value: FileInputFile | FileInputFile[] | null): Promise<void> }) {
+	const [value, setValue] = useState<FileInputFile | FileInputFile[] | null>([])
+	return <FileInput label="Attachments" value={value} onChange={setValue} changeAction={save} isMultiple />
+}
+```
+
+Cancellation retains selection and existing validation messages. Results and
+errors after detachment are ignored; a custom picker promise is not cancelled.
+This is per-control ownership, not a global panel broker. The seven authored
+controller cases remain unrun and do not prove native refs, panel interaction,
+focus, sandbox access, VoiceOver or packaged behavior. AppKit dropzone mode still
+provides picker presentation only; native drag/drop is unimplemented.

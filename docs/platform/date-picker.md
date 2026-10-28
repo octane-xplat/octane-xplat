@@ -187,6 +187,26 @@ export function Attachments() {
 }
 ```
 
+On AppKit, FileInput keeps one picker/save operation active per control, validates
+results against current props and ignores completions after detachment. A save
+failure reports field status; your value remains parent-owned. Use changeAction
+for persistence and onChange to update your selection.
+
+```tsx
+import { useState } from 'octane'
+import { FileInput } from '@octane-xplat/files'
+import type { FileInputFile } from '@octane-xplat/files'
+
+export function SavedAttachments({ save }: { save(value: FileInputFile | FileInputFile[] | null): Promise<void> }) {
+	const [value, setValue] = useState<FileInputFile | FileInputFile[] | null>([])
+	return <FileInput label="Attachments" value={value} onChange={setValue} changeAction={save} isMultiple />
+}
+```
+
+Controller cases remain unrun; native panel/ref/focus and packaged behavior remain
+unqualified. AppKit dropzone mode still opens the picker; native drag/drop is not
+implemented. See [AppKit attachment lifetime](../../packages/files/README.md#appkit-attachment-picker-lifetime).
+
 `@octane-xplat/files` has a peer dependency on `@octane-xplat/ui` for the
 field presentation. Install both packages when using `FileInput`.
 

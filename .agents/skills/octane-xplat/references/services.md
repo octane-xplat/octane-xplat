@@ -458,3 +458,24 @@ separate when interpreting a passing consumer run.
 ```sh
 pnpm exec turbo run check:native-readiness --filter=// -- --target ios --device OWNED_UDID
 ```
+
+AppKit FileInput now owns picking and saving as one busy operation. Async results
+use current validation/values/blocking state; detached completions are ignored.
+Clear/removal share the same guard, and row removal follows URI after reorder.
+changeAction failure reports validation status without rolling back parent-owned
+value. Custom picker promises are ignored after detach, not cancelled; ownership
+is per control. Native panels/ref lifecycle/VoiceOver and drag/drop remain
+unqualified or unimplemented. See the [files contract](../../../../packages/files/README.md#appkit-attachment-picker-lifetime).
+
+```tsx
+import { FileInput } from '@octane-xplat/files'
+import type { FileInputFile } from '@octane-xplat/files'
+
+export function Attachments(props: {
+	value: FileInputFile[]
+	change(value: FileInputFile | FileInputFile[] | null): void
+	save(value: FileInputFile | FileInputFile[] | null): Promise<void>
+}) {
+	return <FileInput value={props.value} onChange={props.change} changeAction={props.save} isMultiple />
+}
+```

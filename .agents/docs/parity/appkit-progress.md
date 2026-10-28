@@ -2384,3 +2384,44 @@ Actual accessibility identifier update/removal, field-editor/native control
 identity, automation discovery/replay, VoiceOver and packaged operation remain
 unqualified. No builds, package tests/typechecks, installs, OS automation, visual
 analysis or shared audit regeneration ran; no evidence checkbox is closed.
+
+### AppKit FileInput operation ownership
+
+FileInputDemo is an ordinary attachment flow. Source review found no immediate
+picker lock, stale captured values/constraints in picker completions, sync throws
+bypassing cleanup, and no detached-result guard. The AppKit control now uses a
+small target-only controller which owns one picker/save token before calling
+user code. Picking/saving/removing/clearing share the lock. Acceptance reads
+current values/constraints/blocked state; removal looks up current URI identity
+rather than a stale index. Sync/async picker/save failures become validation
+status and release busy; cancellation retains existing selection/errors.
+Parent-owned values are not rolled back on save failure, preserving the existing
+FileInput contract. Stale detached completions cannot clear a newer attached
+operation. A custom picker is not cancelled, and this is not a global panel broker.
+
+A stable concrete NSView trigger ref owns attachment and teardown; the public
+handle reads its current native host and calls the stable controller. The target
+leaf imports files.macos explicitly, avoiding reliance on native-default plugin
+resolution at this seam. No new dependencies, shared manifests, props or non-AppKit
+leaves changed. The maintained FileInputDemo remains the usage harness. Public
+files/date-picker docs, service skill and date-picker recipe AC9 cover ownership.
+Seven authored pure-controller cases cover reentry, latest constraints/values,
+blocked results, sync failures/cancellation, detached/newer ownership, URI reorder
+and save teardown. Cases remain unrun; UI/native ref wiring is source-only.
+Only TypeScript/TSRX syntax, semantic/source review and whitespace checks ran.
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/files -- src/file-input-state.macos.test.ts src/files.macos.test.ts
+pnpm exec turbo run typecheck --filter=...@octane-xplat/files
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm exec turbo run test:packed --filter=@octane-xplat/files
+pnpm check:recipes
+```
+
+All commands remain deferred pending explicit human authorization for this task.
+Actual panel/cancel interaction, native refs/focus/AX, sandbox/grants and packaging
+remain unqualified; AppKit drag/drop is unimplemented. No build, package tests/
+typechecks, install, OS automation, visual analysis or shared audit regeneration
+ran; no evidence checkbox is closed. No fix release note is added for this
+unqualified source gap; no containing stable tag was found for the source audit
+commit in the local tag inventory.

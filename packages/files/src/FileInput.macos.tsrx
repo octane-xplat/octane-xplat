@@ -1,15 +1,17 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from './style-merge'
-import { useRef, useImperativeHandle, useId, useState } from 'octane'
+import { useCallback, useMemo, useRef, useImperativeHandle, useId, useState } from 'octane'
+import type { NSView } from '@octane-xplat/platform/macos'
 import { Field as FormField, Icon, Pressable, useFieldControl } from '@octane-xplat/ui'
 import type { FileInputFile, FileInputProps } from './props'
-import { files as fileService } from './files'
-import { cx, formatFileSize, normalizePicked, validateFiles } from './file-input-utils'
+import { files as fileService } from './files.macos'
+import { createAppKitFileInputState } from './file-input-state.macos'
+import { cx, formatFileSize } from './file-input-utils'
 
 const STATUS_TEXT = { error: '⚠', warning: '⚠', success: '✓' } as const
 
 function FileInputControl(inputProps: FileInputProps) @{
-	const hostRef = useRef<any>(null)
+	const hostRef = useRef<NSView | null>(null)
 	const { props } = useFieldControl(inputProps)
 	const generatedId = useId()
 	const inputId = props.id ?? generatedId
@@ -25,74 +27,23 @@ function FileInputControl(inputProps: FileInputProps) @{
 	const statusType = validationErrors.length ? 'error' : props.status?.type
 	const statusMessage = validationErrors.length ? validationErrors.join(' ') : props.status?.message
 
-	// `onChange` mirrors `value`'s shape: array when `isMultiple`, single ref
-	// or null otherwise.
-	const emitValue = (next: FileInputFile[]): FileInputFile | FileInputFile[] | null =>
-		props.isMultiple ? next : (next[0] ?? null)
-
-	const fireChange = (next: FileInputFile[]) => {
-		const emitted = emitValue(next)
-		props.onChange?.(emitted)
-		if (props.changeAction) {
-			setBusy(true)
-			Promise.resolve(props.changeAction(emitted))
-				.catch((error) => setValidationErrors([String(error?.message ?? error)]))
-				.finally(() => setBusy(false))
-		}
-	}
-
-	const acceptRefs = (picked: FileInputFile[]) => {
-		if (isDisabled || isBusy || !picked.length) {
-			return
-		}
-
-		const merged = props.isMultiple ? [...files, ...picked] : picked
-		const { valid, errors } = validateFiles(merged, {
-			accept: props.accept,
-			maxSize: props.maxSize,
-			maxFiles: props.maxFiles,
-		})
-
-		setValidationErrors(errors)
-		const next = !props.isMultiple && errors.length ? files : valid
-		if (
-			next.length !== files.length ||
-			next.some((file, index) => file.uri !== files[index]?.uri)
-		) {
-			fireChange(next)
-		}
-	}
-
-	const removeAt = (index: number) => {
-		if (isDisabled || isBusy) {
-			return
-		}
-
-		setValidationErrors([])
-		fireChange(files.filter((_, i) => i !== index))
-	}
-
-	const pick = () => {
-		if (isDisabled || isBusy) {
-			return
-		}
-
-		const options = { accept: props.accept, multiple: props.isMultiple }
-		const picked = props.pick
-			? props.pick(options)
-			: props.isMultiple
-				? fileService.pickMultiple(props.accept)
-				: fileService.pick(props.accept)
-
-		Promise.resolve(picked)
-			.then((result) => acceptRefs(normalizePicked(result)))
-			.catch((error) => setValidationErrors([String(error?.message ?? error)]))
-	}
+	const latest = useRef(props)
+	latest.current = props
+	const state = useMemo(() => createAppKitFileInputState({
+		props: () => latest.current,
+		pick: (options) => options.multiple ? fileService.pickMultiple(options.accept) : fileService.pick(options.accept),
+		publish: (pending, errors) => { setBusy(pending); setValidationErrors(errors) },
+	}), [])
+	const bind = useCallback((view: NSView | null) => {
+		hostRef.current = view
+		if (view) state.attach()
+		else state.detach()
+	}, [])
 
 	const dropzone = props.mode === 'dropzone'
 	const statusText = statusType ? STATUS_TEXT[statusType] : null
 
-	useImperativeHandle(props.ref, () => ({ open: pick, native: hostRef.current }), undefined)
+	useImperativeHandle(props.ref, () => ({ open: state.open, get native() { return hostRef.current } }), [])
 
 	<masonview
 		className={cx(
@@ -126,7 +77,7 @@ function FileInputControl(inputProps: FileInputProps) @{
 							<Pressable
 								className="vx-fileinput-itemremove"
 								accessibilityLabel={`Remove ${f.name}`}
-								onPress={() => removeAt(i)}
+								onPress={() => state.remove(f.uri)}
 							>
 								<label text="×" />
 							</Pressable>
@@ -136,9 +87,7 @@ function FileInputControl(inputProps: FileInputProps) @{
 			</masonview>
 		) : null}
 		<Pressable
-			ref={(v: any) => {
-				hostRef.current = v
-			}}
+			ref={bind}
 			id={inputId}
 			className="vx-fileinput-trigger"
 			disabled={isDisabled || isBusy}
@@ -147,7 +96,7 @@ function FileInputControl(inputProps: FileInputProps) @{
 			}
 			accessibilityHint={props.accessibilityHint}
 			accessibilityState={{ disabled: isDisabled, busy: isBusy } as any}
-			onPress={pick}
+			onPress={state.open}
 		>
 			<masonview
 				style={mergeStyle({ flexDirection: 'row', alignItems: 'center' }, { display: 'flex' })}
@@ -160,10 +109,7 @@ function FileInputControl(inputProps: FileInputProps) @{
 			<Pressable
 				className="vx-fileinput-clear"
 				accessibilityLabel={`Clear ${props.fieldLabel ?? props.label ?? 'files'}`}
-				onPress={() => {
-					setValidationErrors([])
-					fireChange([])
-				}}
+				onPress={state.clear}
 			>
 				<label text="×" />
 			</Pressable>
