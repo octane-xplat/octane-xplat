@@ -444,6 +444,9 @@ declare module 'gi://Gdk?version=4.0' {
 		function keyval_name(keyval: number): string | null
 		function keyval_to_unicode(keyval: number): number
 
+		const KEY_Return: number
+		const KEY_KP_Enter: number
+		const KEY_space: number
 		const Texture: any
 		class Rectangle {
 			constructor(fields?: { x?: number; y?: number; width?: number; height?: number })

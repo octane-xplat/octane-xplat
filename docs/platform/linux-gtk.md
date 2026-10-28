@@ -538,3 +538,40 @@ export function ReadOnlyField(props: { readOnly: boolean; disabled: boolean }) {
   return <textfield text="Stored account" editable={!props.readOnly} isEnabled={!props.disabled} />
 }
 ```
+
+## Keyboard press actions
+
+A Pressable with accessibilityRole="button" accepts Tab focus and activates on
+Return or Space release. With accessibilityRole="link", it activates on Return.
+Press-in runs once when the key goes down; press-out runs before activation.
+Moving focus, disabling the action or removing it cancels a held key.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { Pressable, Text } from '@octane-xplat/ui'
+
+export function SaveAction(props: { disabled: boolean; save: () => void }) {
+  return (
+    <Pressable accessibilityRole="button" accessibilityLabel="Save" disabled={props.disabled} onPress={props.save}>
+      <Text>Save</Text>
+    </Pressable>
+  )
+}
+```
+
+A Pressable without a button or link role keeps its existing pointer behavior
+and adds no keyboard stop. Keyboard events from a focused child textfield do
+not activate its parent Pressable.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { Pressable, Text } from '@octane-xplat/ui'
+
+export function PointerAction(props: { disabled: boolean; save: () => void }) {
+  return (
+    <Pressable disabled={props.disabled} onPress={props.save}>
+      <Text>Save</Text>
+    </Pressable>
+  )
+}
+```

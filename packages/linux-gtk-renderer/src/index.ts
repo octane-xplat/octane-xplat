@@ -13,6 +13,7 @@ import Gtk from 'gi://Gtk?version=4.0'
 import GLib from 'gi://GLib'
 import Gdk from 'gi://Gdk?version=4.0'
 import { syncAccessibilityState } from './accessibility.js'
+import { bindPressKeys } from './press-keyboard.js'
 import {
 	bindMasonView,
 	isMasonHostView,
@@ -1683,6 +1684,22 @@ const A11Y_ROLES: Record<string, number> = {
 	switch: Gtk.AccessibleRole.SWITCH,
 }
 
+function setAccessibleRole(node: ElementNode, value: unknown) {
+	const view = node.view
+	if (!view) return
+	node.defaultAccessibleRole ??= view.get_accessible_role()
+	const role = value == null ? node.defaultAccessibleRole : A11Y_ROLES[String(value)]
+	if (role === undefined) return
+	// GTK rejects even an identical assignment after its AT context realizes.
+	if (view.get_accessible_role() !== role) view.accessible_role = role
+	if (node.type === 'masonview')
+		view.set_focusable(
+			node.props.accessible !== false &&
+				(role === Gtk.AccessibleRole.BUTTON || role === Gtk.AccessibleRole.LINK),
+		)
+	node.pressKeys?.refresh()
+}
+
 function setOrientation(node: ElementNode, view: GtkView, direction: unknown) {
 	const vertical =
 		direction === 'column' || direction === 'vertical' || direction === 'column-reverse'
@@ -1899,6 +1916,10 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 		return
 	}
 	if (name === 'accessibilityState') return
+	if (name === 'accessibilityRole') {
+		setAccessibleRole(node, value)
+		return
+	}
 	if (name === 'accessibilityLabel' || name === 'accessibilityHint') {
 		if (!view) return
 		if (name === 'accessibilityLabel') {
@@ -2063,15 +2084,6 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 		case 'accessible':
 			view.update_state([Gtk.AccessibleState.HIDDEN], [value === false])
 			return
-		case 'accessibilityRole': {
-			// accessible-role is a real Gtk.Widget property (GTK 4.0+).
-			const role = typeof value === 'string' ? A11Y_ROLES[value] : undefined
-			if (role !== undefined) {
-				view.accessible_role = role
-			}
-
-			return
-		}
 		case 'tooltip':
 		case 'tooltipText':
 			view.set_tooltip_text(String(value ?? ''))
@@ -2367,8 +2379,7 @@ function resetProp(node: ElementNode, name: string) {
 			node.picture?.setStretch('aspectFit')
 			return
 		case 'accessibilityRole':
-			// Gtk.AccessibleRole.AUTOMATIC = 0 — the widget default.
-			view.accessible_role = 0
+			setAccessibleRole(node, undefined)
 			return
 		case 'accessibilityLabel':
 		case 'accessibilityHint':
@@ -2889,6 +2900,7 @@ function connectEvent(
 	type: string,
 	listener: UniversalEventListenerDescriptor | ((payload: any) => void),
 ): { connections: SignalConnection[]; controllers: any[] } {
+	const eventVersion = node.eventVersions?.get(type)
 	const dispatch = (payload: unknown) => {
 		if (node.muted.has(type)) {
 			return
@@ -2903,6 +2915,11 @@ function connectEvent(
 			return
 		}
 		const fire = () => {
+			if (
+				node.destroyed ||
+				(typeof listener !== 'function' && node.eventVersions?.get(type) !== eventVersion)
+			)
+				return
 			try {
 				if (typeof listener === 'function') {
 					if (root) root.eventScope('continuous', () => listener(payload))
@@ -2924,6 +2941,11 @@ function connectEvent(
 	}
 
 	const handler = (..._args: any[]) => dispatch(payloadFor(node, type))
+	if (type === 'tap') node.pressKeys?.set(type, handler)
+	if (type === 'touch')
+		node.pressKeys?.set(type, (action: string) =>
+			dispatch({ eventName: 'touch', object: view, action, x: 0, y: 0 }),
+		)
 
 	switch (type) {
 		case 'touch': {
@@ -3150,10 +3172,15 @@ function setEvent(
 	type: string,
 	listener: UniversalEventListenerDescriptor | null,
 ) {
+	if (listener === null) node.eventBindings?.delete(type)
+	else (node.eventBindings ??= new Map()).set(type, listener)
+	node.eventSerial = (node.eventSerial ?? 0) + 1
+	;(node.eventVersions ??= new Map()).set(type, node.eventSerial)
 	const view = node.view
 	if (view === null) {
 		return
 	}
+	if (listener === null) node.pressKeys?.set(type, null)
 	const previous = node.listeners.get(type)
 	if (previous !== undefined) {
 		for (const conn of previous) {
@@ -3197,6 +3224,9 @@ function setEvent(
 }
 
 function disposeListeners(node: ElementNode) {
+	node.eventBindings?.clear()
+	node.eventVersions?.clear()
+	node.pressKeys?.clear()
 	const view = node.view
 	if (view !== null) {
 		for (const connections of node.listeners.values()) {
@@ -3228,6 +3258,8 @@ function expect(container: GtkContainer, id: number): ElementNode {
 }
 
 function bindNodePublicInstance(node: ElementNode): () => void {
+	const pressKeys = node.view && node.type === 'masonview' ? bindPressKeys(node) : null
+	node.pressKeys = pressKeys
 	const disposePublic = bindPublicInstance(
 		node,
 		{
@@ -3287,6 +3319,7 @@ function bindNodePublicInstance(node: ElementNode): () => void {
 		}
 	}
 	return () => {
+		pressKeys?.dispose()
 		disposeEntryInput?.()
 		if (textNode) cancelSelectionSettle(textNode)
 		textNode = null
@@ -3531,6 +3564,17 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 			// Rebuild the widget in place: keep logical identity and children,
 			// swap the view at the same slot, then re-parent the children.
 			const node = expect(container, command.id)
+			const bindings = [...(node.eventBindings ?? new Map()).entries()]
+			const oldView = node.view
+			const oldFocus = oldView?.get_root()?.get_focus() ?? null
+			const hadFocus = oldFocus !== null && (oldFocus === oldView || oldFocus.is_ancestor(oldView))
+			const childFocus =
+				hadFocus &&
+				node.children.some((child) =>
+					viewDescendants(child).some((view) => oldFocus === view || oldFocus.is_ancestor(view)),
+				)
+					? oldFocus
+					: null
 			node.picture?.dispose()
 			node.disposePublicInstance?.()
 			disposeListeners(node)
@@ -3550,6 +3594,7 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 			node.view = VIEWLESS.has(command.type) ? null : instantiate(command.type)
 			wireStateFlags(node)
 			node.type = command.type
+			node.defaultAccessibleRole = undefined
 			node.textApplied = false
 			node.cssProvider = null
 			node.cssClass = null
@@ -3599,6 +3644,16 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 				syncExpandDeep(node)
 			}
 
+			// The core retains stable descriptors on ordinary recreated hosts;
+			// reconnect them here. A later event command can replace or remove them.
+			for (const [type, listener] of bindings) setEvent(container, node, type, listener)
+
+			if (hadFocus) {
+				// Retained children keep their native focus delegate; a replaced
+				// widget establishes its own delegate when it is still focusable.
+				;(childFocus ?? node.view)?.grab_focus()
+			}
+
 			// The new widget dropped its provider and computed bag — restyle.
 			markStyleDirty(node, true)
 			return
@@ -3621,6 +3676,17 @@ export const gtkDriver: UniversalHostDriver<GtkContainer, GtkView | ElementNode 
 	portals: { prepareTarget: preparePortalTarget },
 	id: GTK_RENDERER_ID,
 	capabilities: { text: 'host', visibility: true },
+	updates: {
+		classify(_type, previous, next) {
+			// GTK cannot change the role of a realized accessibility context.
+			// The core rebinds refs; recreate reconnects retained descriptors.
+			const role = (props: Readonly<Record<string, unknown>>) =>
+				props.accessibilityRole == null
+					? null
+					: (A11Y_ROLES[String(props.accessibilityRole)] ?? null)
+			return role(previous) === role(next) ? 'update' : 'recreate'
+		},
+	},
 	events: {
 		classify(name: string) {
 			const definition = EVENT_PROP_TYPE[name]

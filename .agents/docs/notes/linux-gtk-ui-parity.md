@@ -554,3 +554,36 @@ UI prop types and the curated 37-value/57-type root surface are unchanged.
 No mobile OS, IME, AT-client, Wayland or pixel qualification is added. Existing
 broad native batch-observer and docs-site parser failures remain outside this
 slice's passing evidence.
+
+## Pressable keyboard qualification
+
+Semantic button/link Pressables now have native focus stops and keyboard press
+ownership. Disabled maps to native sensitivity. The maintained ui-press-keys
+fixture distinguishes controller-signal checks from actual X11 Tab/Return/Space
+input; it also covers held-key cancellation, callback replacement, nested entry
+input, host role replacement and disposal. Role changes use the universal core's
+existing recreation protocol because realized GTK accessible roles are immutable.
+See [renderer details](linux-gtk-renderer.md#semantic-pressable-keyboard-ownership).
+
+The curated root stays at 37 values and 57 types. This foundation does not qualify
+all common props, other semantic roles, IME, Wayland, AT clients or pixels. No
+recipe workflow is changed; TextInput's remaining field/prop work and TextArea's
+multiline/sizing support remain pending.
+
+Qualification: the full Linux renderer suite passes 38 tests without skips
+(guest /tmp/gtk-press-keys-tests-final.log), including 48 keyboard assertions.
+The final focused fixture adds three retained-child/focus-delegate checks and
+passes 51 assertions with actual X11 Tab/Return/Space/cancellation input
+(/tmp/gtk-press-keys-focused-final.log). Runtime: Ubuntu 24.04 amd64,
+GJS 1.80.2, GTK 4.14.5, XplatMason and private Xvfb. This is real Linux evidence,
+not the Homebrew stand-in. No screenshots or AT-client/IME/Wayland/pixel evidence
+were collected.
+
+UI/renderer/dependent typechecks pass 58 tasks
+(andromeda /tmp/gtk-press-keys-types.log); subsequent renderer/fixture changes
+pass the expanded eight-task check (/tmp/gtk-press-keys-types-complete.log).
+Packed exports and declarations pass six tasks (/tmp/gtk-press-keys-pack.log).
+Recipes, all 16 release notes, synchronized UI barrels, formatting and whitespace
+checks pass. Final source-only changes after these checks format the TSRX
+fixture; behavior is unchanged. Existing broad native batch-observer and
+docs-site parser failures remain outside this slice's passing evidence.

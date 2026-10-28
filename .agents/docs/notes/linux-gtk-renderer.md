@@ -740,3 +740,51 @@ UI prop types and the curated 37-value/57-type root surface are unchanged.
 No mobile OS, IME, AT-client, Wayland or pixel qualification is added. Existing
 broad native batch-observer and docs-site parser failures remain outside this
 slice's passing evidence.
+
+## Semantic pressable keyboard ownership
+
+Mason button/link roles are focusable unless accessible=false. Lazy native key
+and focus controllers dispatch touch down/up/cancel before tap through the
+current universal event registration. Buttons accept Return/KP_Enter/Space;
+links accept Return/KP_Enter. Modifier shortcuts and focused descendant input
+remain native. Autorepeat does not duplicate press-in. Native Gtk.Button keeps
+its own key bindings. Shared Pressable now forwards disabled to isEnabled so
+native sensitivity also prevents focus and pointer input.
+
+A deferred event records its listener generation. Replacement/removal/disposal
+invalidates queued dispatch instead of calling a retired universal registration.
+A generation counter survives host recreation; cleanup clears registrations.
+
+GTK 4.14.5's [gtk_widget_set_accessible_role](https://github.com/GNOME/gtk/blob/4.14.5/gtk/gtkwidget.c#L848-L870)
+rejects writes after its AT context is realized, even when the value is unchanged.
+The renderer skips equal role writes and uses Octane 0.14.0's existing
+updates.classify='recreate' protocol for a changed normalized explicit role.
+The core rebinds public refs. The renderer reconnects retained event descriptors
+because the ordinary host path in Octane 0.14.0 does not replay unchanged
+descriptors after recreation (universal-core.ts, descriptorChanged in the normal
+event planning loop; collapsed-template paths do replay). Later event commands
+can replace or remove the restored bindings. This renderer adaptation remains
+until all upstream recreation paths replay current descriptors. The renderer retains
+logical children and restores the old focused child delegate, or focuses the
+replacement widget when possible. A role reset restores the new widget's native
+default instead of assigning enum zero (GTK ALERT). This host replacement is a
+local adaptation to GTK's immutable realized role; review when GTK changes that
+restriction. It does not promise native widget identity across role changes.
+
+Qualification: the full Linux renderer suite passes 38 tests without skips
+(guest /tmp/gtk-press-keys-tests-final.log), including 48 keyboard assertions.
+The final focused fixture adds three retained-child/focus-delegate checks and
+passes 51 assertions with actual X11 Tab/Return/Space/cancellation input
+(/tmp/gtk-press-keys-focused-final.log). Runtime: Ubuntu 24.04 amd64,
+GJS 1.80.2, GTK 4.14.5, XplatMason and private Xvfb. This is real Linux evidence,
+not the Homebrew stand-in. No screenshots or AT-client/IME/Wayland/pixel evidence
+were collected.
+
+UI/renderer/dependent typechecks pass 58 tasks
+(andromeda /tmp/gtk-press-keys-types.log); subsequent renderer/fixture changes
+pass the expanded eight-task check (/tmp/gtk-press-keys-types-complete.log).
+Packed exports and declarations pass six tasks (/tmp/gtk-press-keys-pack.log).
+Recipes, all 16 release notes, synchronized UI barrels, formatting and whitespace
+checks pass. Final source-only changes after these checks format the TSRX
+fixture; behavior is unchanged. Existing broad native batch-observer and
+docs-site parser failures remain outside this slice's passing evidence.

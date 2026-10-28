@@ -52,4 +52,25 @@ Do not treat publication or AT-SPI names as production qualification.
 ```sh
 bun add -D @octane-xplat/linux-gtk
 bun run xplat workshop doctor
+### GTK keyboard actions
+
+Give a GTK Pressable accessibilityRole="button" for Return/Space activation, or
+"link" for Return. A neutral gesture view adds no focus stop. Disabled controls
+use native sensitivity; focus loss cancels held-key activation. Changing the
+role replaces the native widget through the core's host recreation protocol;
+keep refs current and do not retain a native widget across a role change. Child
+widgets and their logical owners are retained. Other semantic roles and AT-client
+behavior remain unqualified.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { Pressable, Text } from '@octane-xplat/ui'
+
+export function SaveAction(props: { disabled: boolean; save: () => void }) {
+  return (
+    <Pressable accessibilityRole="button" accessibilityLabel="Save" disabled={props.disabled} onPress={props.save}>
+      <Text>Save</Text>
+    </Pressable>
+  )
+}
 ```
