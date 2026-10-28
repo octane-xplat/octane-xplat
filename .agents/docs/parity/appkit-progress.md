@@ -627,3 +627,22 @@ style removal, flipping/orientation, logical points/backing density, image-drive
 intrinsic layout, clipping/corners/borders, pointer passthrough, repeat teardown
 and packaged/HMR behavior. Pixel/visual comparison requires separate visual-
 analysis authorization; retained probes do not authorize or prove it.
+
+
+### Media upload documentation cleanup
+
+The shared multi-selection example now awaits each byte read before releasing
+its temporary references. Previously, returning Promise.all directly from a
+try/finally released the files immediately; even awaiting Promise.all would
+release other pending readers after the first rejection. Sequential reads
+finish or fail before cleanup starts. No public API changed.
+
+Removed the stale claim that pickers return an upload data URL: the current
+PickedImage contract is `{ name, uri }`, and uploads use files.readBytes.
+The pick-and-capture-images AC3 data-URL requirement remains unresolved and
+its partial documentation coverage is preserved. This correction does not
+qualify native file/picker timing or close a runtime checkbox.
+
+Whitespace and snippet syntax were checked only. Deferred: `pnpm check:recipes`
+and native picker/read/cleanup runs; no test, typecheck, build, packaging,
+automation or visual analysis ran for this documentation correction.

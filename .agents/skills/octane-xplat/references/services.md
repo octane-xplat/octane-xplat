@@ -80,6 +80,30 @@ await db.transaction(async (tx) => {
 })
 ```
 
+## Read picked images before releasing them
+
+`media.pickImages()` returns temporary `{ name, uri }` references, not data URLs.
+Read uploads with `files.readBytes`; await each read before owner cleanup. In a
+`try/finally`, returning an unawaited promise runs cleanup before the read finishes.
+The [media guide](../../../../docs/platform/platform-services.md#pick-and-capture-images)
+shows selection, cancellation and replacement ownership.
+
+```ts
+import { media } from '@octane-xplat/media'
+import { files } from '@octane-xplat/files'
+
+export async function readImages() {
+	const images = await media.pickImages()
+	try {
+		const bytes: Uint8Array[] = []
+		for (const image of images) bytes.push(await files.readBytes(image))
+		return bytes
+	} finally {
+		for (const image of images) files.release(image)
+	}
+}
+```
+
 ## Hosted authentication
 
 Use the [hosted auth client](../../../../packages/auth/README.md#hosted-sign-in-ceremonies)

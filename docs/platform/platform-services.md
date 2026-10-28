@@ -499,7 +499,10 @@ export async function readSelection() {
 	try {
 		const images = await media.pickImages()
 		try {
-			return Promise.all(images.map((image) => files.readBytes(image)))
+			// Finish every read before releasing its temporary source.
+			const bytes: Uint8Array[] = []
+			for (const image of images) bytes.push(await files.readBytes(image))
+			return bytes
 		} finally {
 			for (const image of images) files.release(image)
 		}
@@ -515,8 +518,9 @@ On web, `requestPermissions('camera')` neither queries nor requests camera acces
 file-input capture flow needs no browser permission, so the leaf reports
 `granted` wherever the DOM exists and `unsupported` only without one.
 Desktop browsers may open a file picker instead of a camera. Successful picks
-produce an opaque preview URI plus an upload data URL; neither is a persistent
-storage guarantee.
+return `{ name, uri }`; use `uri` for the preview and `files.readBytes(image)`
+for upload, as shown above. The picker does not return a data URL. The reference
+is temporary; keep it until all preview and upload consumers finish.
 
 Check denial and cancellation on a fresh test app without resetting an existing
 app's permissions or data. Then capture once after an already-granted permission,
