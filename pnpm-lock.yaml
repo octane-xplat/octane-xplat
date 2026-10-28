@@ -85,7 +85,6 @@ overrides:
   sameframe>playwright: 1.63.0
 
 patchedDependencies:
-  '@lexical/link@0.51.0': b7acc2eb057e7ce7fce719af708781758cc666a4e618401bed165d973aa5f4a2
   '@nativescript-community/octane@0.2.4': 08c8bb6f79fe9cff7bc2cdfd5accfc02011475a206eb94a45425e1f02ac53961
   '@nativescript-community/octane@0.2.5': 409e8e8f55034ee7157490505ea9c7394d1dc3ced7c81a71e53c70af03ef6cd8
   '@nativescript-community/vite-octane@0.2.1': 76086d1dcfd0d58d9445667bf0433aeb2d3a7804e1e2357c5d244a57cc53888d
@@ -97,9 +96,7 @@ patchedDependencies:
   '@octanejs/tiptap@0.0.52': d0289ba086910439cae2273234809337c4721470c18709472e4ed003c2eb6ada
   '@tsrx/typescript-plugin@0.4.11': d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee
   css@3.0.0: f850496626b52d1bf5ca127576a655d5e46c02def5de9905d568490d4b71959b
-  linkifyjs@4.3.3: 6b103bc96e531c5a90bc869f12bc9e28023b5e6c686c4205d96734a28526e202
   octane@0.14.0: 72aab06e2743b11bebe59fe01d29148dcfbd2bb3a381413179986b0f374ba065
-  shaders@4.0.0: 0d42f518e244d121c1445c987c64b33a723043beb956b8fce2557672cc0a254b
 
 importers:
 
@@ -490,12 +487,6 @@ importers:
         specifier: 'catalog:'
         version: 0.14.0(patch_hash=72aab06e2743b11bebe59fe01d29148dcfbd2bb3a381413179986b0f374ba065)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(@types/node@24.10.1)(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
     devDependencies:
-      '@babel/core':
-        specifier: 7.29.7
-        version: 7.29.7(supports-color@10.2.2)
-      '@babel/plugin-transform-unicode-property-regex':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7(supports-color@10.2.2))
       '@nativescript-community/vite-octane':
         specifier: 'catalog:'
         version: 0.2.1(patch_hash=76086d1dcfd0d58d9445667bf0433aeb2d3a7804e1e2357c5d244a57cc53888d)(07c65177cae3d92d7b4be49d423358bc)
@@ -1311,6 +1302,15 @@ importers:
       '@alloc/cmd-ts':
         specifier: 0.17.1
         version: 0.17.1(cac@6.7.14)(commander@14.0.3)
+      '@babel/core':
+        specifier: 7.29.7
+        version: 7.29.7(supports-color@10.2.2)
+      '@babel/plugin-transform-unicode-property-regex':
+        specifier: 7.29.7
+        version: 7.29.7(@babel/core@7.29.7(supports-color@10.2.2))
+      '@babel/plugin-transform-unicode-sets-regex':
+        specifier: 7.29.7
+        version: 7.29.7(@babel/core@7.29.7(supports-color@10.2.2))
       '@clack/prompts':
         specifier: 1.8.1
         version: 1.8.1
@@ -1513,7 +1513,7 @@ importers:
         version: 0.51.0(typescript@5.9.3)
       '@lexical/link':
         specifier: 0.51.0
-        version: 0.51.0(patch_hash=b7acc2eb057e7ce7fce719af708781758cc666a4e618401bed165d973aa5f4a2)(typescript@5.9.3)
+        version: 0.51.0(typescript@5.9.3)
       '@lexical/list':
         specifier: 0.51.0
         version: 0.51.0(typescript@5.9.3)
@@ -2157,7 +2157,7 @@ importers:
         version: 0.51.0(typescript@5.9.3)
       '@lexical/link':
         specifier: 0.51.0
-        version: 0.51.0(patch_hash=b7acc2eb057e7ce7fce719af708781758cc666a4e618401bed165d973aa5f4a2)(typescript@5.9.3)
+        version: 0.51.0(typescript@5.9.3)
       '@lexical/list':
         specifier: 0.51.0
         version: 0.51.0(typescript@5.9.3)
@@ -2991,7 +2991,7 @@ importers:
         version: link:../canvas
       shaders:
         specifier: 4.0.0
-        version: 4.0.0(patch_hash=0d42f518e244d121c1445c987c64b33a723043beb956b8fce2557672cc0a254b)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        version: 4.0.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
     devDependencies:
       '@nativescript-community/octane':
         specifier: 'catalog:'
@@ -3489,12 +3489,6 @@ importers:
 
   packages/workshop:
     dependencies:
-      '@babel/core':
-        specifier: 7.29.7
-        version: 7.29.7(supports-color@10.2.2)
-      '@babel/plugin-transform-unicode-property-regex':
-        specifier: 7.29.7
-        version: 7.29.7(@babel/core@7.29.7(supports-color@10.2.2))
       '@octane-xplat/cli':
         specifier: workspace:*
         version: link:../cli
@@ -3689,6 +3683,12 @@ packages:
     engines: {node: '>=6.9.0'}
     peerDependencies:
       '@babel/core': ^7.0.0-0
+
+  '@babel/plugin-transform-unicode-sets-regex@7.29.7':
+    resolution: {integrity: sha512-BLOhLht9DOJwIxlmp91wHvkXv1lguuHS3/FwUO8HL1H0u8s4hR1gASVFyilu9iGtcTRYqjTZmlsFFeQletntEg==}
+    engines: {node: '>=6.9.0'}
+    peerDependencies:
+      '@babel/core': ^7.0.0
 
   '@babel/runtime@7.29.10':
     resolution: {integrity: sha512-NpugTzbKgGrNe45Ui32cN8vCFFMxVtP/9rtfwv0nP5FRDAjvYBxJcLVpYA9mr1jxP6cnIT7x9LUzuDTbWYYNRA==}
@@ -11617,6 +11617,12 @@ snapshots:
       '@babel/helper-create-regexp-features-plugin': 7.29.7(@babel/core@7.29.7(supports-color@10.2.2))
       '@babel/helper-plugin-utils': 7.29.7
 
+  '@babel/plugin-transform-unicode-sets-regex@7.29.7(@babel/core@7.29.7(supports-color@10.2.2))':
+    dependencies:
+      '@babel/core': 7.29.7(supports-color@10.2.2)
+      '@babel/helper-create-regexp-features-plugin': 7.29.7(@babel/core@7.29.7(supports-color@10.2.2))
+      '@babel/helper-plugin-utils': 7.29.7
+
   '@babel/runtime@7.29.10': {}
 
   '@babel/template@7.29.7':
@@ -13256,7 +13262,7 @@ snapshots:
   '@lexical/devtools-core@0.51.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)':
     dependencies:
       '@lexical/html': 0.51.0(typescript@5.9.3)
-      '@lexical/link': 0.51.0(patch_hash=b7acc2eb057e7ce7fce719af708781758cc666a4e618401bed165d973aa5f4a2)(typescript@5.9.3)
+      '@lexical/link': 0.51.0(typescript@5.9.3)
       '@lexical/mark': 0.51.0(typescript@5.9.3)
       '@lexical/table': 0.51.0(typescript@5.9.3)
       '@lexical/utils': 0.51.0(typescript@5.9.3)
@@ -13312,7 +13318,7 @@ snapshots:
     optionalDependencies:
       typescript: 5.9.3
 
-  '@lexical/link@0.51.0(patch_hash=b7acc2eb057e7ce7fce719af708781758cc666a4e618401bed165d973aa5f4a2)(typescript@5.9.3)':
+  '@lexical/link@0.51.0(typescript@5.9.3)':
     dependencies:
       '@lexical/a11y': 0.51.0(typescript@5.9.3)
       '@lexical/extension': 0.51.0(typescript@5.9.3)
@@ -13344,7 +13350,7 @@ snapshots:
     dependencies:
       '@lexical/code-core': 0.51.0(typescript@5.9.3)
       '@lexical/internal': 0.51.0(typescript@5.9.3)
-      '@lexical/link': 0.51.0(patch_hash=b7acc2eb057e7ce7fce719af708781758cc666a4e618401bed165d973aa5f4a2)(typescript@5.9.3)
+      '@lexical/link': 0.51.0(typescript@5.9.3)
       '@lexical/list': 0.51.0(typescript@5.9.3)
       '@lexical/rich-text': 0.51.0(typescript@5.9.3)
       '@lexical/selection': 0.51.0(typescript@5.9.3)
@@ -14121,7 +14127,7 @@ snapshots:
       '@lexical/hashtag': 0.51.0(typescript@5.9.3)
       '@lexical/history': 0.51.0(typescript@5.9.3)
       '@lexical/internal': 0.51.0(typescript@5.9.3)
-      '@lexical/link': 0.51.0(patch_hash=b7acc2eb057e7ce7fce719af708781758cc666a4e618401bed165d973aa5f4a2)(typescript@5.9.3)
+      '@lexical/link': 0.51.0(typescript@5.9.3)
       '@lexical/list': 0.51.0(typescript@5.9.3)
       '@lexical/mark': 0.51.0(typescript@5.9.3)
       '@lexical/markdown': 0.51.0(typescript@5.9.3)
@@ -15014,7 +15020,7 @@ snapshots:
     dependencies:
       '@tiptap/core': 3.28.0(@tiptap/pm@3.28.0)
       '@tiptap/pm': 3.28.0
-      linkifyjs: 4.3.3(patch_hash=6b103bc96e531c5a90bc869f12bc9e28023b5e6c686c4205d96734a28526e202)
+      linkifyjs: 4.3.3
 
   '@tiptap/extension-list-item@3.28.0(@tiptap/extension-list@3.28.0(@tiptap/core@3.28.0(@tiptap/pm@3.28.0))(@tiptap/pm@3.28.0))':
     dependencies:
@@ -17195,7 +17201,7 @@ snapshots:
 
   lilconfig@3.1.3: {}
 
-  linkifyjs@4.3.3(patch_hash=6b103bc96e531c5a90bc869f12bc9e28023b5e6c686c4205d96734a28526e202): {}
+  linkifyjs@4.3.3: {}
 
   localforage@1.10.0:
     dependencies:
@@ -18618,7 +18624,7 @@ snapshots:
       safe-buffer: 5.2.1
       to-buffer: 1.2.2
 
-  shaders@4.0.0(patch_hash=0d42f518e244d121c1445c987c64b33a723043beb956b8fce2557672cc0a254b)(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
+  shaders@4.0.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
     dependencies:
       typegpu: 0.12.3
     optionalDependencies:

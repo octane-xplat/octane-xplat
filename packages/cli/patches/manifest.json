@@ -79,14 +79,6 @@
 			"dropWhen": "@tsrx/typescript-plugin sets resolveHiddenExtensions in its typescript facet upstream"
 		},
 		{
-			"specifier": "linkifyjs@4.3.3",
-			"file": "linkifyjs@4.3.3.patch",
-			"upstreamPR": "https://github.com/nfrasser/linkifyjs/pull/572",
-			"scope": "runtime",
-			"why": "linkifyjs declares /\\p{L}/u and /\\p{Emoji}/u as regex literals at module scope; NativeScript's embedded V8 builds without ICU, so the literals throw SyntaxError at parse time and poison the whole bundle (any bundled app importing @tiptap/extension-link dies on boot). Rewrites them as try/catch new RegExp builds with ASCII-range fallbacks \u2014 same behavior where ICU exists, graceful degradation where it doesn't.",
-			"dropWhen": "linkifyjs ships an ICU-free-compatible build, or the leaf stops pulling @tiptap/extension-link"
-		},
-		{
 			"specifier": "@octanejs/tiptap@0.0.52",
 			"file": "@octanejs__tiptap@0.0.52.patch",
 			"scope": "toolchain",
@@ -94,27 +86,11 @@
 			"dropWhen": "@octanejs/tiptap declares process ambiently in useEditor.ts (closed unmerged upstream) or the leaf stops typechecking its raw sources"
 		},
 		{
-			"specifier": "@lexical/link@0.51.0",
-			"file": "@lexical__link@0.51.0.patch",
-			"upstreamPR": "https://github.com/facebook/lexical/pull/9334",
-			"scope": "runtime",
-			"why": "@lexical/link declares a /\\p{L}\\p{N}/u URL matcher as a regex literal at module scope; NativeScript's embedded V8 builds without ICU, so the literal throws SyntaxError at parse time and poisons the whole bundle (any bundled app importing @lexical/link dies on boot). Same fix as linkifyjs: try/catch new RegExp with an ASCII-range fallback \u2014 the matcher only feeds autolink, which native doesn't use.",
-			"dropWhen": "upstream builds the URL matcher via new RegExp, or NS runtimes ship ICU"
-		},
-		{
 			"specifier": "@nativescript/doctor@2.0.18",
 			"file": "@nativescript__doctor@2.0.18.patch",
 			"scope": "dev",
 			"why": "@nativescript/doctor's Android runtime check reads the app's raw devDependencies specifier and npm dist-tag resolves anything that isn't a semver range \u2014 a pnpm `catalog:` pin throws 'The determined Android runtime version ... is not valid' and kills `ns build android` before toolchain checks. Resolve catalog specifiers through the installed package's manifest, reusing the existing tgz-branch mechanism.",
 			"dropWhen": "@nativescript/doctor resolves non-registry specifiers (catalog:, workspace:, link:) to the installed package version, or nativescript stops gating `ns build` on it."
-		},
-		{
-			"specifier": "shaders@4.0.0",
-			"file": "shaders@4.0.0.patch",
-			"upstreamPR": "https://github.com/software-mansion/TypeGPU/pull/3255",
-			"scope": "runtime",
-			"why": "shaders@4.0.0 inlines TypeGPU 0.12.3 into dist/core/std-ClftfWpF.js, which declares /\\p{XID_Start}/ and /\\p{XID_Continue}/ regex literals at module scope (WGSL identifier validation, external prop-chain matching, minify separator check). NativeScript's embedded V8 on iOS (@nativescript/ios 9.1.0) and Android (@nativescript/android 9.1.1, V8 14.9.207.39) is built without ICU \u2014 every \\p{\u2026} escape is a SyntaxError, even in a never-called function, so a literal fails the whole module at parse time and any bundled app importing `shaders/js` dies on boot. Rewriting to \\p{ID_Start}/\\p{L} would not help \u2014 all property escapes are rejected. The patch builds the regexes via try/catch new RegExp with ASCII/non-ASCII-range fallbacks \u2014 byte-identical .source where ICU exists. dist/js/bundle.js, react/bundle.js, and cli.js carry the same escapes but are unreachable from `shaders/js` and left unpatched.",
-			"dropWhen": "TypeGPU ships ICU-free identifier regexes and a `shaders` release bundles that TypeGPU, or NativeScript runtimes ship ICU"
 		}
 	]
 }

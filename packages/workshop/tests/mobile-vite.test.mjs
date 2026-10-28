@@ -3,7 +3,6 @@ import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { describe, expect, it } from 'vitest'
 import { withWorkshopMobile, MOBILE_CATALOG_ID, mobileCatalogCode } from '../dist/build/vite-mobile.js'
-import { transformMobileRegex } from '../dist/build/mobile-regex.js'
 import { mobilePrerequisites, mobileLaunchSpec } from '../dist/build/mobile-node.js'
 
 function consumer() {
@@ -113,16 +112,3 @@ it('requires explicit device and passes the installed CLI argv without a shell',
 	])
 })
 
-it('lowers Unicode properties in literals and constant constructors without patching globals', async () => {
-	const result = await transformMobileRegex(
-		`const a = /\\p{Emoji}/u; const b = new RegExp('\\\\p{Letter}', 'u')`,
-	)
-
-	expect(result.code).not.toContain('\\p{')
-	expect(result.code).not.toContain('new RegExp')
-	const shadowed = await transformMobileRegex(
-		`function f(RegExp) { return new RegExp('\\\\p{Letter}', 'u') }`,
-	)
-
-	expect(shadowed.code).toContain('new RegExp')
-})

@@ -237,15 +237,10 @@ pnpm --filter @xplat/visual capture:ios --web-only
 pnpm --filter @xplat/visual test:comparator
 ```
 
-The private iOS build uses Babel's Unicode-property regex transform because
-the current harness runtime rejected the lexer bundled with Storybook before
-startup. It preserves constant-constructor and literal matching without
-patching runtime globals. The normal mobile test lane does not use this
-transform. Its focused check is:
-
-```sh
-node --test apps/mobile/visual-regex.test.mjs
-```
+The private iOS build relies on the `xplatNative` preset's Unicode-property
+regex transform (`@octane-xplat/cli` `src/native-regex.ts`) because the
+harness runtime rejects `\p{…}` escapes before startup. It preserves
+constant-constructor and literal matching without patching runtime globals.
 
 Capture metadata records the base Git revision, whether the source tree was
 dirty, the scenario/content digest, runtime and pinned toolchain versions,

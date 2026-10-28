@@ -26,6 +26,7 @@ import { unwrapCssLayers } from './css-layers.ts'
 import { xplatCss } from './css-platform.ts'
 import { xplatDevBridge } from './mcp/dev-bridge.ts'
 import { masonCorePackage, masonEngine } from './mason-engine.ts'
+import { nativeUnicodeRegex } from './native-regex.ts'
 
 export { xplatCss } from './css-platform.ts'
 export { xplatDevBridge } from './mcp/dev-bridge.ts'
@@ -901,6 +902,12 @@ export async function xplatNative(env, opts = {}) {
 				decorator: { legacy: true },
 			},
 			plugins: [
+				// ICU-less V8 cannot parse \p{…} escapes — compile them out of every
+				// transformed module, including dependencies. Upstream's
+				// ns-vendor-unicode-regex only covers node_modules .js inside the
+				// dev-server esbuild passes (core/deps/vendor bundles); production
+				// rolldown chunks and per-module /ns/m serving are ours.
+				nativeUnicodeRegex(),
 				xplatCss(nativePlatform() ?? 'native'),
 				pxToDip({ masonSafeAreaEnvironment: engine === masonCorePackage }),
 				nsHmrClientWatchdog(),

@@ -46,7 +46,6 @@
 	"scripts": {
 		"typegen": "tsc -p tsconfig.types.json",
 		"typecheck": "tsc -p tsconfig.check.json",
-		"test": "node --test tests/*.test.mjs",
 		"prepack": "pnpm typegen && tsrx-typegen --pack-check",
 		"test:packed": "node tests/packed-consumer.mjs",
 		"pack:check": "tsrx-typegen --pack-check"

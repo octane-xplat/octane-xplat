@@ -1,4 +1,3 @@
-import { visualRegexPlugin } from './visual-regex.mjs'
 import { readFileSync } from 'node:fs'
 import { defineConfig } from 'vite'
 import { xplatNative } from '@octane-xplat/cli/vite'
@@ -45,7 +44,6 @@ export default defineConfig(({ mode }) =>
 					: []),
 				...(process.env.VISUAL_CAPTURE_URL
 					? [
-							visualRegexPlugin(),
 							{
 								name: 'xplat-visual-ios-host',
 								enforce: 'pre' as const,

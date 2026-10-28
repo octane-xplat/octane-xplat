@@ -75,6 +75,9 @@
 	},
 	"dependencies": {
 		"@alloc/cmd-ts": "0.17.1",
+		"@babel/core": "7.29.7",
+		"@babel/plugin-transform-unicode-property-regex": "7.29.7",
+		"@babel/plugin-transform-unicode-sets-regex": "7.29.7",
 		"@clack/prompts": "1.8.1",
 		"@octane-xplat/fmt": "0.1.0",
 		"@octane-xplat/lib": "workspace:*",

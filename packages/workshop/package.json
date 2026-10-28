@@ -79,8 +79,6 @@
 		"build": "vite build"
 	},
 	"dependencies": {
-		"@babel/core": "7.29.7",
-		"@babel/plugin-transform-unicode-property-regex": "7.29.7",
 		"@octane-xplat/cli": "workspace:*",
 		"@octane-xplat/platform": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",

@@ -57,8 +57,6 @@
 		"octane": "catalog:"
 	},
 	"devDependencies": {
-		"@babel/core": "7.29.7",
-		"@babel/plugin-transform-unicode-property-regex": "7.29.7",
 		"@nativescript-community/vite-octane": "catalog:",
 		"@nativescript/android": "9.1.1",
 		"@nativescript/ios": "9.1.0",

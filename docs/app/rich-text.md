@@ -419,9 +419,9 @@ unverified.
 On iOS and Android, the facade lazily imports the DOM-free tiptap slices and `zeed-dom` the
 first time a `TiptapEditor` mounts (or call `ensureJSONBridge()` yourself).
 `onJSONReady(ok)` reports whether the runtime hosted them — NativeScript's
-embedded V8 lacks ICU, which `linkifyjs` originally broke on; the workspace
-patch (`linkifyjs@4.3.3`) wraps its Unicode-property regexes in `new RegExp`
-with ASCII fallbacks. The `tiptap-probe` demo
+embedded V8 lacks ICU, which `linkifyjs`'s Unicode-property regexes broke on;
+the `xplatNative` Vite preset now compiles `\p{…}` escapes away at bundle time
+for every dependency, so no per-package patch is needed. The `tiptap-probe` demo
 ([`tiptap-probe.ts`](../../packages/demos/src/tiptap-probe.ts)) re-verifies the
 whole path — imports, schema, JSON→HTML, HTML→JSON — on every harness run.
 
@@ -544,10 +544,10 @@ pnpm resolves it with a peer warning and the lexical probe exercises the real
 combination. `0.2.1` ships identical sources with a `^0.7.0` peer;
 `0.2.10` is the first release declaring `^0.14.0`. The `@lexical/*` family pins
 to `0.51.0` (upstream's catalog version); mixed copies break node identity,
-so do not widen. `@lexical/link@0.51.0` carries a workspace patch —
-its module-scope `/\p{L}\p{N}/u` URL matcher is a parse-time SyntaxError on
-ICU-less runtimes; the patch builds it via `new RegExp` with an ASCII
-fallback (the matcher only feeds autolink). The zeed-dom shim additionally
+so do not widen. `@lexical/link@0.51.0`'s module-scope `/\p{L}\p{N}/u` URL
+matcher is a parse-time SyntaxError on ICU-less runtimes; the `xplatNative`
+unicode-regex transform compiles it away at bundle time (the matcher only
+feeds autolink). The zeed-dom shim additionally
 teaches `parentElement`, `null`-valued child/sibling accessors, a
 write-through `style` proxy, and `href`/`target`/`rel`/`title`
 property→attribute mapping — without those, links and alignment drop in

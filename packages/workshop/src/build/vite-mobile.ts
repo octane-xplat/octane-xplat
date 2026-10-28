@@ -2,7 +2,6 @@
 import { readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { mobileRegexPlugin } from './mobile-regex.ts'
 import { discoverStories } from './discover.ts'
 
 export const MOBILE_CATALOG_ID = '\0xplat-workshop-mobile-catalog'
@@ -104,5 +103,5 @@ if (import.meta.hot) {
 		},
 	}
 
-	return { ...config, plugins: [plugin, mobileRegexPlugin(), ...(config.plugins ?? [])] }
+	return { ...config, plugins: [plugin, ...(config.plugins ?? [])] }
 }
