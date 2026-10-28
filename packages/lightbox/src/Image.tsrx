@@ -8,7 +8,7 @@ import { useMotionValue } from '@octane-xplat/motion'
 import { createClipWriter } from './clip.ios'
 import { viewRect } from './rect'
 import { SETTLE, INERTIA } from './constants'
-import { fit, lerpVisual, toStyle } from './math'
+import { fit, lerpVisual, thumbVisualFrom, toStyle } from './math'
 import type { Rect, Visual } from './math'
 import { createGestureMachine } from './gesture-machine'
 import type { Command, MachineEnv } from './gesture-machine'
@@ -260,8 +260,7 @@ export function Image(props: LightboxImagePartProps) @{
 				const t0 = trigger ? viewRect(trigger) : null
 				const target = (): Visual => {
 					if (!thumb || !t0) return to
-					const r = viewRect(trigger)
-					return r ? { ...to, img: { x: r.x - wrapRect().x, y: r.y - wrapRect().y, w: r.w, h: r.h } } : to
+					return thumbVisual(trigger) ?? to
 				}
 				morph.current = from
 				morphTarget.current = target()
@@ -292,10 +291,10 @@ export function Image(props: LightboxImagePartProps) @{
 
 	const thumbVisual = (trigger: any): Visual | null => {
 		const tr = viewRect(trigger)
-		const wr = slideEl() ? viewRect(wrapRef.current) : null
-		if (!tr || !wr) return null
-		const img = { x: tr.x - wr.x, y: tr.y - wr.y, w: tr.w, h: tr.h }
-		return { img, clip: img, radius: 0, opacity: 1 }
+		const sr = slideEl() ? viewRect(slideEl()) : null
+		if (!tr || !sr) return null
+		const r = (trigger as any)?.borderRadius
+		return thumbVisualFrom(tr, sr, aspect, typeof r === 'number' ? r : 0)
 	}
 	const base = (): Rect => live.current.F!
 	const current = (b: Rect): Visual => ({ img: { x: b.x + x.get(), y: b.y + y.get(), w: b.w * scale.get(), h: b.h * scale.get() }, clip: b, radius: 0, opacity: 1 })
@@ -304,8 +303,8 @@ export function Image(props: LightboxImagePartProps) @{
 	const alt = props.alt ?? item?.alt ?? ''
 	if (!item) return null
 	return (
-		<masonview ref={wrapRef} className={cx('vx-lightbox-image', loaded && 'vx-lightbox-image--loaded', props.className)} style={{ position: 'absolute', ...props.style }} id={props.id}
-			testID={props.testID}>
+		<masonview ref={wrapRef} className={cx('vx-lightbox-image', loaded && 'vx-lightbox-image--loaded', props.className)} style={F ? { position: 'absolute', left: F.x, top: F.y, width: F.w, height: F.h, ...props.style } : { position: 'absolute', width: 0, height: 0, opacity: 0, ...props.style }} id={props.id}
+			testID={props.testID} originX={0} originY={0}>
 			{src ? (
 				<image
 					ref={imgRef}

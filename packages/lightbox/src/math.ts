@@ -40,6 +40,16 @@ export function intersect(a: Rect, b: Rect): Rect {
 	}
 }
 
+/** Thumb visual for the open/close morph: the trigger's screen rect mapped
+ *  into slide-local coordinates, with cover-fit image and radius clamp —
+ *  the same shape web's thumbVisual produces (native object-position is
+ *  centered, a documented limitation, so no px/py focal). */
+export function thumbVisualFrom(trigger: Rect, slide: Rect, aspect: number, radius = 0): Visual {
+	const local = { x: trigger.x - slide.x, y: trigger.y - slide.y, w: trigger.w, h: trigger.h }
+	const r = Math.min(radius, local.w / 2, local.h / 2)
+	return { img: fit(aspect, local, 'cover'), clip: local, radius: r, opacity: 1 }
+}
+
 export const scaleRect = (r: Rect, s: number): Rect => ({
 	x: r.x + (r.w * (1 - s)) / 2,
 	y: r.y + (r.h * (1 - s)) / 2,

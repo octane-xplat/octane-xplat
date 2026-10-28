@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { band, fit, intersect, lerpVisual, objectPosition, panRange, rubber, toStyle, zoomAt } from './math'
+import { band, fit, intersect, lerpVisual, objectPosition, panRange, rubber, thumbVisualFrom, toStyle, zoomAt } from './math'
 
 const box = { x: 0, y: 0, w: 100, h: 100 }
 
@@ -75,3 +75,21 @@ describe('math', () => {
 			for (const n of [f.x, f.y, f.w, f.h]) {expect(Number.isFinite(n)).toBe(true)}
 		})
 	})
+
+describe('thumbVisualFrom', () => {
+	it('cover-fits the image into the trigger rect in slide-local space', () => {
+		const v = thumbVisualFrom({ x: 10, y: 20, w: 120, h: 80 }, { x: 0, y: 0, w: 402, h: 874 }, 4 / 3)
+		expect(v.img).toEqual({ x: 10, y: 15, w: 120, h: 90 })
+		expect(v.clip).toEqual({ x: 10, y: 20, w: 120, h: 80 })
+		expect(v.opacity).toBe(1)
+	})
+	it('subtracts the slide offset', () => {
+		const v = thumbVisualFrom({ x: 110, y: 120, w: 120, h: 80 }, { x: 100, y: 100, w: 402, h: 874 }, 4 / 3)
+		expect(v.clip).toEqual({ x: 10, y: 20, w: 120, h: 80 })
+		expect(v.img.x).toBe(10)
+	})
+	it('clamps radius to half the clip shorter side', () => {
+		const v = thumbVisualFrom({ x: 0, y: 0, w: 120, h: 80 }, { x: 0, y: 0, w: 402, h: 874 }, 1, 60)
+		expect(v.radius).toBe(40)
+	})
+})
