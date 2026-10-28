@@ -16,14 +16,17 @@ import { blurText } from './text-focus'
 export function SearchInput(props: SearchInputProps): unknown @{
 	const el = useRef<any>(null)
 	const [internal, setInternal] = useState(props.defaultValue ?? '')
+	const [editVersion, setEditVersion] = useState(0)
 	const value = props.value ?? internal
 	const isBlocked = props.isDisabled || props.isReadOnly
 	const hasClear = props.hasClear !== false
-	useEffect(() => writeText(el.current, value), [value])
+	useEffect(() => writeText(el.current, value), [value, editVersion])
 
 	const setValue = (next: string) => {
 		if (props.value === undefined) {
 			setInternal(next)
+		} else {
+			setEditVersion((version) => version + 1)
 		}
 
 		props.onChange?.(next)

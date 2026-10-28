@@ -1232,3 +1232,59 @@ buffer-listener assertions remain. Focused long-content checks pass on GTK 4.14.
 including the dimension-transition cases, are recorded below.
 Logs: guest /tmp/gtk-controlled-long-host-before.log and
 /tmp/gtk-controlled-long-host-after.log.
+
+## Controlled multiline edit transactions
+
+Actual X11 selected-range replacement exposed two callbacks for one edit:
+replacing b in abc with X reported ac, then aXc. The raw buffer fixture had
+only required a final matching callback, so its older59-assertion evidence
+did not establish one-callback semantics. The stricter maintained assertion
+fails on the previous implementation in /tmp/gtk-controlled-before.log.
+
+The adapter now groups TextBuffer changed signals between
+[begin-user-action](https://docs.gtk.org/gtk4/signal.TextBuffer.begin-user-action.html)
+and [end-user-action](https://docs.gtk.org/gtk4/signal.TextBuffer.end-user-action.html).
+It dispatches the final value after the end signal's default handler; direct
+buffer changes outside an action remain immediate. Muted owner writes do
+not create a pending event. Nested/empty actions and disposal while an action
+is pending have maintained native-buffer checks. Real edits cancel pending
+selection repair as soon as a grouped change arrives. These GTK signals are
+the intended user-operation boundary; multiple low-level changed signals
+are not an upstream bug.
+
+TextArea's native shared leaf also depended only on value for reconciliation.
+A rejected edit left value unchanged, so the effect never restored it.
+TextArea now increments a per-edit revision when controlled, matching
+TextInput's existing path. Expanded object-driver coverage found the same
+issue in the independent SearchInput native leaf; it now uses the same
+reconciliation rule. The v0.17.1 tag contains both old value-only effects,
+so a stable-fix release note covers the two shared iOS/Android components.
+The macOS TextArea leaf is separate and is not part of that fix.
+
+The focused Linux run passes TextArea135 and raw TextView65, including actual
+X11 middle-selection rejection twice, parent acceptance with retained caret,
+one complete callback, nested/empty buffer actions, muted writes and disposal.
+Selected native tests pass58 Node checks and6 Vitest tests, including repeated
+rejection for TextInput/TextArea/SearchInput. Those tests are object-driver
+evidence, not phone or GTK SearchInput component qualification. The three
+additional host-size transitions and final full checks are recorded below.
+TextArea and SearchInput remain outside the GTK root.
+Logs: guest /tmp/gtk-controlled-dimensions.log and
+/tmp/gtk-controlled-long-host-after.log; andromeda
+/tmp/gtk-controlled-native-final.log.
+
+Final integration verification: all 42 Linux renderer tests pass with no skips,
+including TextArea 138 and raw TextView 65. All 58 renderer/UI/dependent Turbo
+typecheck tasks pass, as do 58 Node checks plus 6 selected native Vitest tests,
+six UI package-validation tasks, recipes, barrel checks, 21 release notes,
+formatting and whitespace. The final focused run also passes all 138 TextArea assertions after waiting
+for native layout following long-word content replacement
+(guest /tmp/gtk-controlled-area-final.log).
+No dependency or public GTK export changes. No broad native suite rerun,
+phone runtime, composition/IME, AT-client, Wayland, touchpad, HiDPI or image
+claim. Full field/width/handle ownership, maxLength, text alignment and custom
+line spacing still gate public TextArea qualification. SearchInput's complete
+GTK component remains unqualified.
+Logs: guest /tmp/gtk-controlled-full.log; andromeda
+/tmp/gtk-controlled-types.log, /tmp/gtk-controlled-native-final.log and
+/tmp/gtk-controlled-pack.log.

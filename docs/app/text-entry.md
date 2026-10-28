@@ -78,6 +78,22 @@ export function Example() {
 }
 ```
 
+On iOS and Android, keep `value` unchanged to reject an edit. This example accepts notes without
+`#`: try typing `#` and the field returns to the last accepted text, including
+when you repeat the same rejected edit.
+
+```tsx
+import { TextArea } from '@octane-xplat/ui'
+import { useState } from 'octane'
+
+export function Note() {
+  const [note, setNote] = useState('')
+  return <TextArea value={note} onChange={(next) => {
+    if (!next.includes('#')) setNote(next)
+  }} />
+}
+```
+
 `TextInput`, `TextArea`, and `SearchInput` accept the shared field props:
 `label`, `description`, `isLabelHidden`, `isDisabled`, `isReadOnly`,
 `isRequired`, `isOptional`, `size`, `status`, and `isLoading`. A standalone

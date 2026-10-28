@@ -91,6 +91,27 @@ async function run() {
 	buffer.insert_at_cursor('!', -1)
 	check('native buffer edit sends current value', changes.at(-1) === view.text)
 	check('native edit sends one event', changes.length === 1)
+	const beforeAction = changes.length
+	buffer.begin_user_action()
+	buffer.begin_user_action()
+	buffer.insert_at_cursor('A', -1)
+	buffer.insert_at_cursor('B', -1)
+	check('user action hides intermediate buffer changes', changes.length === beforeAction)
+	buffer.end_user_action()
+	check('nested action does not finish the outer edit', changes.length === beforeAction)
+	buffer.end_user_action()
+	check(
+		'outer action reports one completed value',
+		changes.length === beforeAction + 1 && changes.at(-1) === view.text,
+	)
+	const afterAction = changes.length
+	buffer.begin_user_action()
+	buffer.end_user_action()
+	check('empty user action sends no change', changes.length === afterAction)
+	buffer.begin_user_action()
+	view.text = 'Owned value'
+	buffer.end_user_action()
+	check('controlled writes inside an action suppress echoes', changes.length === afterAction)
 	await render({ editable: false, keyboard: undefined, autocorrect: false })
 	check('readOnly keeps native widget sensitive', view.is_sensitive() && !view.get_editable())
 	check('native readOnly accessibility property', readOnlyProperty(true))
@@ -124,7 +145,10 @@ async function run() {
 		await input('X')
 		check('OS keyboard replaces selected middle range', view.text === 'aXc')
 		check('OS selection replacement caret', view.get_position() === 2)
-		check('OS replacement emits change', changes.length > before && changes.at(-1) === 'aXc')
+		check(
+			'OS replacement emits exactly one change: ' + JSON.stringify(changes.slice(before)),
+			changes.length === before + 1 && changes.at(-1) === 'aXc',
+		)
 		for (const mode of [undefined, 'next', 'go', 'search', 'done', 'send'] as const) {
 			await render({ value: 'line', returnKey: mode, version: props.version + 1 })
 			view.set_position(4)
@@ -155,7 +179,11 @@ async function run() {
 		)
 	}
 	const oldChanges = changes.length
+	buffer.begin_user_action()
+	buffer.insert_at_cursor('pending', -1)
+	check('pending action has not dispatched before disposal', changes.length === oldChanges)
 	await render({ mounted: false })
+	buffer.end_user_action()
 	buffer.insert_at_cursor('retired', -1)
 	check('retired buffer listener disconnected', changes.length === oldChanges)
 	const retiredText = view.text

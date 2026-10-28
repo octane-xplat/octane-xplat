@@ -98,7 +98,7 @@ test(
 		const line = stdout.split('\n').find((line) => line.startsWith('GTK_TEXT_VIEW '))
 		assert.ok(line, stdout)
 		const result = JSON.parse(line.slice('GTK_TEXT_VIEW '.length))
-		assert.ok(result.checks >= (osKeyboard ? 59 : 29), JSON.stringify(result))
+		assert.ok(result.checks >= (osKeyboard ? 65 : 35), JSON.stringify(result))
 		assert.equal(result.osKeyboard, osKeyboard)
 		t.diagnostic(
 			process.platform +

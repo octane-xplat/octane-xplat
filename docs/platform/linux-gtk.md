@@ -377,7 +377,8 @@ styles native widget chrome underneath your CSS.
 ## Low-level multiline editor
 
 The GTK textview intrinsic supports multiline text, Unicode selection,
-focus and change events. An empty editor shows hint text, styled with
+focus and change events. Replacing selected text reports one completed
+change. An empty editor shows hint text, styled with
 placeholderColor; the hint is separate from its accessible label.
 Long text scrolls within its assigned height;
 read-only editors remain scrollable. Return inserts a newline;

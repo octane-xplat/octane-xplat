@@ -85,6 +85,13 @@ describe('native controlled input writes', () => {
 			)
 
 			expect(change).toHaveBeenCalledExactlyOnceWith('xy')
+			await vi.waitFor(() => expect(text).toBe('x'))
+			text = 'xy'
+			flushUniversalSync(() =>
+				container.dispatchEvent(node, 'textchange', { object: node, value: text }),
+			)
+			expect(change).toHaveBeenCalledTimes(2)
+			await vi.waitFor(() => expect(text).toBe('x'))
 			const dismiss = vi.fn()
 			const clearFocus = vi.fn()
 			node.android.clearFocus = clearFocus

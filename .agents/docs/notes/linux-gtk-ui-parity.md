@@ -861,3 +861,13 @@ propagation on explicit numeric axes and restores it when dimensions clear.
 The long-content and dimension-transition cases stay in the maintained host
 matrix. See the [native sizing evidence](linux-gtk-renderer.md#explicit-multiline-dimensions-in-native-hosts).
 This adds no GTK root exports.
+
+### Controlled multiline editing
+
+GTK TextBuffer actions now report one completed change for selected-range
+replacement. Direct-source TextArea runtime checks exercise repeated parent
+rejection and acceptance with the native caret retained. TextArea and
+SearchInput native leaves reconcile even when the controlled value stays
+unchanged; the latter currently has object-driver evidence only. See the
+[edit transaction evidence](linux-gtk-renderer.md#controlled-multiline-edit-transactions).
+Neither component is promoted to the GTK root by this fix.

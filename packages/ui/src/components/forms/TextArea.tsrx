@@ -21,10 +21,14 @@ function TextAreaControl(inputProps: TextAreaProps) @{
 	const submitOnReturn = props.returnKeyType === 'done' || props.returnKeyType === 'send'
 
 	const [internal, setInternal] = useState(props.defaultValue ?? '')
+	const [editVersion, setEditVersion] = useState(0)
 	const value = props.value ?? internal
 	const setValue = (next: string) => {
 		if (props.value === undefined) {
 			setInternal(next)
+		} else {
+			// Restore the owner value even when an edit is rejected unchanged.
+			setEditVersion((version) => version + 1)
 		}
 
 		props.onChange?.(next)
@@ -36,7 +40,7 @@ function TextAreaControl(inputProps: TextAreaProps) @{
 		[props.rows, props.autoGrow, props.maxRows, props.style, props.className, props.size],
 	)
 	// Imperative controlled write — Android setText resets selection to 0.
-	useEffect(() => writeText(el.current, value), [value])
+	useEffect(() => writeText(el.current, value), [value, editVersion])
 
 	useImperativeHandle(
 		props.ref,

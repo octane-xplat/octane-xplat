@@ -162,6 +162,39 @@ async function run() {
 			(key) => Math.abs(defaultHintColor[key] - themedHintColor[key]) < 0.01,
 		),
 	)
+	if (GLib.getenv('GTK_TEXT_OS') === '1') {
+		const edits: string[] = []
+		await render({ value: 'abc', onChange: (value) => edits.push(value) })
+		view.focus()
+		view.select_region(1, 2)
+		await input(view, 'type-X')
+		check(
+			'selection replacement reports one complete user edit: ' + JSON.stringify(edits),
+			edits.length === 1 && edits[0] === 'aXc',
+		)
+		check('parent rejection restores the controlled value', view.text === 'abc')
+		view.select_region(1, 2)
+		await input(view, 'type-X')
+		check('repeated rejection reports one new edit', edits.length === 2 && edits[1] === 'aXc')
+		check('repeated rejection restores the controlled value', view.text === 'abc')
+		edits.length = 0
+		await render({
+			onChange: (value) => {
+				edits.push(value)
+				props = { ...props, value }
+				root.render(TextAreaHarness, props)
+			},
+		})
+		view.set_position(1)
+		await input(view, 'type-Y')
+		check('accepting parent receives one edit', edits.length === 1 && edits[0] === 'aYbc')
+		check(
+			'accepted owner value remains in the editor',
+			view.text === 'aYbc' && props.value === 'aYbc',
+		)
+		check('accepted edit keeps its native caret', view.get_position() === 2)
+		await render({ value: 'One', onChange: undefined })
+	}
 	const line = view.get_line_yrange(buffer.get_start_iter())[1]
 	print(
 		'GTK_TEXT_AREA_MEASURE ' +

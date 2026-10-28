@@ -3,7 +3,8 @@
 The experimental GTK renderer now supports the textview intrinsic for
 multiline text, placeholder hints, read-only editing, focus and change events. Long text scrolls
 inside its assigned height, including read-only editors. Explicit width and
-height stay fixed as text wraps; clearing them restores automatic sizing. Return adds a line;
+height stay fixed as text wraps; clearing them restores automatic sizing.
+Replacing selected text reports one completed change. Return adds a line;
 done/send can submit instead. Tab moves to the next control.
 
 ```tsx

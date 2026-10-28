@@ -3208,6 +3208,40 @@ function connectEvent(
 			}
 		}
 		case 'change': {
+			if (view instanceof Gtk.TextView) {
+				const buffer = view.get_buffer()
+				let actionDepth = 0
+				let pending = false
+				// GTK may delete a selection and insert its replacement within one
+				// user action. Report the completed edit, so controlled owners never
+				// reconcile the intermediate deletion while native insertion is active.
+				return {
+					connections: [
+						{ emitter: buffer, signalId: buffer.connect('begin-user-action', () => actionDepth++) },
+						{
+							emitter: buffer,
+							signalId: buffer.connect('changed', () => {
+								if (node.muted.has('change')) return
+								if (actionDepth > 0) {
+									pending = true
+									cancelSelectionSettle(node)
+								} else handler()
+							}),
+						},
+						{
+							emitter: buffer,
+							signalId: buffer.connect_after('end-user-action', () => {
+								actionDepth = Math.max(0, actionDepth - 1)
+								if (actionDepth === 0 && pending) {
+									pending = false
+									handler()
+								}
+							}),
+						},
+					],
+					controllers: [],
+				}
+			}
 			const signal =
 				view instanceof Gtk.Switch
 					? 'notify::active'
@@ -3215,9 +3249,8 @@ function connectEvent(
 						? 'value-changed'
 						: 'changed'
 
-			const emitter = view instanceof Gtk.TextView ? view.get_buffer() : view
 			return {
-				connections: [{ emitter, signalId: emitter.connect(signal, handler) }],
+				connections: [{ emitter: view, signalId: view.connect(signal, handler) }],
 				controllers: [],
 			}
 		}
