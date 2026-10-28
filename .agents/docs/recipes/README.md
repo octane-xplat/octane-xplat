@@ -97,6 +97,7 @@ Workflows:
 - [Publish a typed component library](typed-component-library.md)
 - [Display formatted content and status](display-content.md)
 - [Add portable date and file inputs](date-picker.md)
+- [Switch views with AppKit segments](appkit-segmented-control.md)
 - [Add a platform-native context menu to an octane subtree](context-menu.md)
 - [Grow a multiline input](textarea-growth.md)
 - [Edit a PIN without shifting cells](pin-entry.md)

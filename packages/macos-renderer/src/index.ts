@@ -756,6 +756,8 @@ class AccessibleHostView extends NSView {
 	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
 	accessibilityRole() {
 		const role = accessibilityRoles.get(actionIdsByView.get(this) ?? -1)
+		if (role === 'radio') return 'AXRadioButton'
+		if (role === 'radiogroup') return 'AXRadioGroup'
 		// ARIA 'meter' is AppKit's level indicator — a gauge of a scalar within
 		// a range, distinct from task progress (AXProgressIndicator).
 		return role === 'checkbox'
@@ -778,6 +780,10 @@ class AccessibleHostView extends NSView {
 	accessibilityValue() {
 		const props = stackAccessibilityPropsByView.get(this)
 		const role = this.accessibilityRole()
+		if (role === 'AXRadioButton') {
+			return NSNumber.numberWithDouble(props?.accessibilityState?.checked === true ? 1 : 0)
+		}
+
 		if (role === 'AXCheckBox') {
 			// AppKit uses 0/1/2 for off/on/mixed checkbox values.
 			return NSNumber.numberWithDouble(

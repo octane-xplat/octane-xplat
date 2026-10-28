@@ -89,6 +89,22 @@ export function Controls() {
 
 ## Platform-authentic subpaths
 
+For experimental native macOS selection tracks, use the shared
+`SegmentedControl` and `SegmentedControlItem` names. The AppKit leaf implements
+selection and scoped arrow/Home/End handling, but OS input, focus appearance
+and VoiceOver remain unqualified. See [AppKit segments](../../../../docs/app/components.md#appkit-segmented-control).
+
+```tsx
+import { SegmentedControl, SegmentedControlItem } from '@octane-xplat/ui'
+
+export function ViewMode() {
+	return <SegmentedControl defaultValue="list" accessibilityLabel="View">
+		<SegmentedControlItem value="list" label="List" />
+		<SegmentedControlItem value="grid" label="Grid" />
+	</SegmentedControl>
+}
+```
+
 The OS widget is the value of these exports. They are intentionally absent
 from the shared root barrel.
 

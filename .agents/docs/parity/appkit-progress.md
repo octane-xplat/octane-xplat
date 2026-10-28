@@ -50,3 +50,43 @@ UTF-8 and binary round trips, picker cancellation, security-scoped access,
 readonly destinations and packaged consumer behavior require a separate
 AppKit runtime fixture and OS interaction after authorization. No command-only
 bridge test establishes those outcomes.
+
+## SegmentedControl
+
+Replaced the macOS placeholder with self-drawn options/child items, field
+state, controlled/uncontrolled selection, disabled/read-only guards, fill
+classes and icon labels. A scoped AppKit monitor implements wrapping arrows,
+Home/End, RTL horizontal order, current native subview ordering and cleanup.
+It preserves other responders/windows and modified shortcuts. The renderer
+now maps radio/radiogroup to native roles and radio checked state to 0/1.
+Enter/Space remain on its existing tappable-host path.
+
+New source, key-adapter regressions and renderer regression edits pass the
+TSRX parser. Tests have not executed. The maintained
+`examples/probes/segmented-control.macos.tsrx` covers selection dispatch only;
+it is not proof of OS keyboard navigation. Tab entry, focus appearance,
+selection rendering, VoiceOver, native events and packaged behavior remain
+open. The new `appkit-segmented-control` recipe records those gaps. Existing
+motion recipes retain their web/iOS/Android target scope.
+
+Additional commands deferred until human authorization:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/ui -- src/segmented-control-keys.macos.test.ts
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/macos-renderer
+pnpm exec turbo run test:macos --filter=@octane-xplat/ui
+pnpm probe run examples/probes/segmented-control.macos.tsrx --target macos --watch
+pnpm check:recipes
+```
+
+The probe uses direct dispatch. Separately exercise physical Tab, arrows,
+Home/End, Enter/Space, live disable/reorder/unmount, two windows and VoiceOver
+on an authorized AppKit host. No visual analysis is authorized.
+
+Work continues in the isolated detached worktree
+`/Users/alec/dev/alloc/worktrees/octane-xplat/appkit-support/octane-xplat`.
+The 16 in-progress AppKit files were transferred and byte-verified; their
+uncommitted copies were removed from the shared checkout. Commit `8ac8a11db`
+remains in both histories. No dependencies were installed in the new worktree;
+syntax parsing used the original checkout's existing parser read-only.

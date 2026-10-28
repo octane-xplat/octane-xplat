@@ -15,7 +15,7 @@ const apply = source.slice(
 	source.indexOf('function applyProps('),
 )
 
-test('AppKit checkbox role/value/help update and disabled controls reject AX press', () => {
+test('AppKit checkbox/radio roles and values update and disabled controls reject AX press', () => {
 	const ids = new WeakMap()
 	const handlers = new Map()
 	let presses = 0
@@ -68,6 +68,15 @@ test('AppKit checkbox role/value/help update and disabled controls reject AX pre
 	assert.equal(view.accessibilityIsIgnored(), false)
 	assert.equal(view.accessibilityPerformPress(), true)
 	assert.equal(presses, 1)
+	set('accessibilityRole', 'radio')
+	set('accessibilityState', { checked: true })
+	assert.equal(view.accessibilityRole(), 'AXRadioButton')
+	assert.equal(view.accessibilityValue(), 1)
+	set('accessibilityState', { checked: false })
+	assert.equal(view.accessibilityValue(), 0)
+	set('accessibilityRole', 'radiogroup')
+	assert.equal(view.accessibilityRole(), 'AXRadioGroup')
+	set('accessibilityRole', 'checkbox')
 	set('accessibilityValue', undefined)
 	set('accessibilityState', { checked: true })
 	assert.equal(view.accessibilityValue(), 1)

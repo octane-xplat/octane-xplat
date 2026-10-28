@@ -7,7 +7,6 @@ import type {
 	CheckboxProps,
 	PanEvent,
 	SearchInputProps,
-	SegmentedControlProps,
 	SliderProps,
 	SwitchProps,
 } from './props'
@@ -322,9 +321,7 @@ export function Slider(props: SliderProps) @{
 	</masonview>
 }
 
-export function SegmentedControl(_props: SegmentedControlProps) @{
-	<label className="vx-unsupported">Segmented control is unsupported by the AppKit host</label>
-}
+export { SegmentedControl } from './SegmentedControl.macos.tsrx'
 
 export function SearchInput(props: SearchInputProps) @{
 	const [internal, setInternal] = useState(props.defaultValue ?? '')

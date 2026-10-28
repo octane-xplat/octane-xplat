@@ -360,6 +360,28 @@ export function Attachments() {
 }
 ```
 
+### AppKit segmented control
+
+The experimental native macOS leaf renders options or child items and supports
+controlled/uncontrolled selection, disabled/read-only state and fill layout.
+Arrow keys wrap through enabled segments, Home/End reach the endpoints, and
+horizontal arrows follow the UI provider's text direction. Enter/Space use
+the renderer's activation path. Icon-only items retain their label for
+accessibility. OS keyboard input, Tab entry, focus appearance, VoiceOver and
+pixel parity still require qualification.
+
+```tsx
+import { SegmentedControl, SegmentedControlItem } from '@octane-xplat/ui'
+
+export function MailboxFilter() {
+	return <SegmentedControl defaultValue="inbox" layout="fill" accessibilityLabel="Mailbox">
+		<SegmentedControlItem value="inbox" label="Inbox" />
+		<SegmentedControlItem value="sent" label="Sent" />
+		<SegmentedControlItem value="archived" label="Archived" isDisabled />
+	</SegmentedControl>
+}
+```
+
 ## Content
 
 | Component        | What it is                                         | Key props                                                                                |
