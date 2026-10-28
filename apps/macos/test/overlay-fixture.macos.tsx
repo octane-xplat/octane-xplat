@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { createMacOSRoot } from '@octane-xplat/macos-renderer'
 import { Dialog } from '../../../packages/ui/src/Dialog.macos.tsrx'
 import { BottomSheet, BottomSheetSwitcher } from '../../../packages/ui/src/BottomSheet.macos.tsrx'

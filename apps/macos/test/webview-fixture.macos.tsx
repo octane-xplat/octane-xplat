@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { createMacOSRoot } from '@octane-xplat/macos-renderer'
 import { WebView } from '@octane-xplat/ui'
 import type { WebViewHandle, WebViewProps } from '@octane-xplat/ui'

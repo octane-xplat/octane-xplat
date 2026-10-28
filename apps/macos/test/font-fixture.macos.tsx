@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { createMacOSRoot } from '@octane-xplat/macos-renderer'
 import { NSFont, NSView } from '@octane-xplat/platform/macos'
 

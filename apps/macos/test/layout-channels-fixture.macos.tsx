@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from './style-merge'
 import { createMacOSRoot, type UniversalComponent } from '@octane-xplat/macos-renderer'
 import { NSWindow } from '@octane-xplat/platform/macos'

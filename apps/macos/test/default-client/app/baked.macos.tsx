@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { Text } from '@octane-xplat/ui'
 import type { RouteProps } from '../../default-routes.gen.contracts'
 export const dataMode = 'baked'

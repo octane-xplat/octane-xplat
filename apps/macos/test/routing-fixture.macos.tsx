@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { createContext, useContext, useState, useLayoutEffect, useSyncExternalStore } from 'octane'
 import type { UniversalComponent } from 'octane/universal'
 import { createMacOSRoot } from '@octane-xplat/macos-renderer'

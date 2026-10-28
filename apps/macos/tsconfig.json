@@ -1,7 +1,7 @@
 {
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
-		"jsxImportSource": "@octane-xplat/macos-renderer",
+		"jsxImportSource": "@octane-xplat/jsx",
 		"lib": ["ESNext", "DOM", "DOM.Iterable"],
 		"allowJs": true,
 		"checkJs": false,
