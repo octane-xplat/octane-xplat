@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 // App lifecycle — desktop webviews follow host window state; browsers keep
 // visibility/page-lifecycle events.
 import { useEffect, useState } from 'octane'

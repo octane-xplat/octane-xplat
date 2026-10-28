@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 // App lifecycle — native leaf. Application suspend/resume/exit events map
 // onto the shared AppState vocabulary; activityBackPressed feeds
 // useBackHandler (Android hardware back).

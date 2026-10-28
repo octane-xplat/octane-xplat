@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 // Safe-area insets — web leaf. env(safe-area-inset-*) only exists in CSS;
 // measure it once through a probe element.
 import { useEffect, useState } from 'octane'

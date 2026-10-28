@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 // Window size + orientation — desktop webviews follow the owning native window;
 // browsers use window geometry and DOM resize events.
 import { useEffect, useState } from 'octane'

@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 // Named responsive thresholds — web leaf.
 import { useEffect } from 'octane'
 import { useSignal$ } from 'octane/signals/client'

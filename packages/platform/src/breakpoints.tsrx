@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 // Named responsive thresholds — NativeScript leaf.
 import { useEffect } from 'octane'
 import { useSignal$ } from 'octane/signals/client'

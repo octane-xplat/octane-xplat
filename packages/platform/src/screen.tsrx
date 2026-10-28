@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx */
 // Window size + orientation — native leaf. Screen.mainScreen gives DIPs;
 // Application.orientationChangedEvent drives updates.
 import { useEffect, useState } from 'octane'
