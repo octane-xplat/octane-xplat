@@ -156,6 +156,26 @@ export function Summary({ points }: { points: number }) {
 }
 ```
 
+AppKit nested Text and RichText now compose logical styled runs under one text
+owner; Text inside Heading uses that owner too. RichText purpose imports use the
+same AppKit leaf as root imports. RichTextSpan.text wins over children (including
+an explicit empty string); an omitted/null text uses children. Top-level Text
+and RichText forward parent-layout props, while outer Text owns line caps and
+allows shrinking when capped. Inline runs do not own separate layout boxes or
+line caps. Per-span onPress hit testing remains unimplemented on AppKit; native
+shaping, layout, truncation and accessibility remain unqualified.
+
+```tsx
+import { Heading, RichText, RichTextSpan, Text } from '@octane-xplat/ui'
+export function Notice() {
+	return <>
+		<Heading level={2}>Your <Text weight="bold">account</Text></Heading>
+		<Text>Read the <Text style={{ fontWeight: 600 }}>latest update</Text>.</Text>
+		<RichText><RichTextSpan text="Ready to review" /></RichText>
+	</>
+}
+```
+
 ## Inputs
 
 Field controls share `label`, `description`, `isDisabled`, `isReadOnly`,

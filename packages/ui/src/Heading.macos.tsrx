@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import { AppKitTextScope } from './text-context.macos.tsrx'
 import type { HeadingProps } from './props'
 import { mergeStyle } from './style-merge'
 import { cx } from '@octane-xplat/lib'
@@ -31,6 +32,6 @@ export function Heading(props: HeadingProps) @{
 		textOverflow={maxLines > 0 ? 'ellipsis' : undefined}
 		accessibilityRole="heading"
 	>
-		{props.children}
+		<AppKitTextScope>{props.children}</AppKitTextScope>
 	</label>
 }

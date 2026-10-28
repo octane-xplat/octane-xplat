@@ -55,6 +55,24 @@ export function Summary({ points }: { points: number }) {
 }
 ```
 
+AppKit nested Text/RichText now use a text-owner context and emit logical spans;
+Heading provides that scope to nested Text too. RichText purpose/root imports
+share the AppKit leaf. RichTextSpan.text overrides children, including an empty
+string; omitted/null text falls back to children. Root Text/RichText forward
+parent-layout metadata; only the outer text host owns line caps/layout. A capped
+root Text allows shrinking. Per-span onPress is still unwired: readable runs do
+not prove glyph hit testing, native layout/AX or packed resolution.
+
+```tsx
+import { RichText, RichTextSpan, Text } from '@octane-xplat/ui'
+export function Notice() {
+	return <>
+		<Text>Read <Text weight="bold">carefully</Text>.</Text>
+		<RichText><RichTextSpan text="Ready" /></RichText>
+	</>
+}
+```
+
 **For UI contributors**, shared component prop contracts live in
 `packages/ui/src/props.ts` and feed published declarations. Consumer app
 components own their own props; do not edit framework internals to define them.

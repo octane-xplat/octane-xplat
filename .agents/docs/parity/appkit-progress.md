@@ -5291,3 +5291,60 @@ analysis ran. Actual native animation/overlay cleanup, clipping/rotation/pixels,
 reduced-motion preference/notification delivery, responsiveness/power/frame pacing,
 compiler/bundle and packed consumers remain unqualified. Audit snapshots and
 issue evidence gates remain unchanged; persistent goal active.
+
+## AppKit readable text composition and purpose entry
+
+The maintained RichTextDemo uses RichTextSpan.text for all its visible runs;
+the AppKit leaf previously ignored that prop, making those runs empty. Plain
+nested Text also produced another native label under its text parent, rather
+than a logical run. The RichText purpose entry lacked a macOS leaf and selected
+the generic native adapter with NativeScript-specific escape props/onLinkTap.
+These are common content-flow source gaps, not observed native failures.
+
+A private AppKit text-owner context now lets root Text/RichText/Heading provide
+one owner while nested Text/RichText emit logical spans. Provider components
+add no native view. Typography/styles inherit through the existing formatted
+renderer; root contexts do not leak into sibling Text. RichTextSpan now forwards
+its text prop and suppresses children when that prop is set, including an empty
+string. Unset/null text retains children, including nested styled runs. The new
+RichText.macos purpose leaf re-exports the same root implementations, avoiding
+foreign adapter selection. No manifest/dependency/public API or renderer change.
+
+Top-level Text and RichText now apply existing layoutChildProps rather than
+dropping parent grid/flex/absolute metadata. Capped Text supplies flexShrink:1
+under authored overrides so it can truncate in a row; outer hosts own maxLines
+and layout. Logical inner runs have no separate layout box/line cap. RichText's
+normalization class is retained. This does not implement per-span onPress or
+native glyph hit testing: the maintained demo's tappable flow remains incomplete,
+even when its readable content now has a source path. No link/OS-input proof is
+inferred from formatting or one text-owner context.
+
+Four object-driver cases are authored, all unrun: root/purpose identity and
+explicit/empty/fallback text; nested logical owner/run updates; Heading scope
+without sibling leakage; root layout/removal and outer Text caps/shrink. The
+target style fixture now includes nested Text, explicit rich text and fallback
+content; its runner still records mounting only. Guide/skill/appkit-text-styles
+AC4 and the unreleased feature note describe the readable subset and press gap.
+
+Only source/semantic review, six-file TSRX syntax parsing and whitespace checks
+ran. Static call graphs were incomplete; actual demand demo, purpose/root leaves,
+layout helper and renderer formatted-run/nesting paths were inspected. Exact
+deferred commands:
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/text-composition.macos.mobile.test.tsrx src/text-style.macos.mobile.test.tsrx
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/text-styles.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm exec turbo run test:packed --filter=@octane-xplat/ui
+pnpm check:recipes
+```
+
+All remain deferred pending explicit human authorization for this task. No tests,
+typechecks/builds/installs, probes, native/OS/browser automation, packaging or
+visual analysis ran. Actual context/compiler/driver ownership, run shaping and
+measurement, parent layout/truncation/AX, rich-span input and root/purpose packed
+resolution remain unqualified. Audit snapshots and evidence gates are unchanged;
+persistent goal active.
