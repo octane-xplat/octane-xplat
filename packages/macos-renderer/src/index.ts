@@ -39,6 +39,7 @@ import {
 
 import { showWindowLayer, type WindowLayerOptions } from './layer'
 import { disposeImage, updateImage } from './image'
+import { drawImageContent, setImageDrawingStyle } from './image-drawing'
 import {
 	makeTabView,
 	makeTabItem,
@@ -2469,6 +2470,17 @@ function layoutContentChild(parent: ElementNode | undefined) {
 class InputImageView extends NSImageView {
 	static {
 		NativeClass(this)
+	}
+	// Custom fit drawing must also run for layer-backed image views.
+	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
+	get wantsUpdateLayer(): boolean { return false }
+	drawRect(rect: any): void {
+		if (!drawImageContent(this)) super.drawRect(rect)
+	}
+	setFrameSize(size: { width: number; height: number }): void {
+		const previousWidth = this.frame.size.width, previousHeight = this.frame.size.height
+		super.setFrameSize(size)
+		if (size.width !== previousWidth || size.height !== previousHeight) this.needsDisplay = true
 	}
 	hitTest(point: any): any {
 		return inputTransparentViews.has(this) ? null : super.hitTest(point)
@@ -5234,9 +5246,8 @@ function resetStyle(node: ElementNode, name: string) {
 		view.selectedSegmentBezelColor = nativeColor('#0000ff')
 	} else if (name === 'pointerEvents') {
 		inputTransparentViews.delete(view)
-	} else if (name === 'objectFit' && node.type === 'image') {
-		// NSImageScaleProportionallyDown — the makeImageView/AppKit default.
-		view.imageScaling = 0
+	} else if ((name === 'objectFit' || name === 'objectPosition') && node.type === 'image') {
+		setImageDrawingStyle(view as NSImageView, name, undefined)
 	} else if (name === 'fontSize' && textControl) {
 		node.styleFontSize = undefined
 		syncNodeFont(node)
@@ -5383,18 +5394,8 @@ function applyStyle(node: ElementNode, style: PropBag) {
 			}
 		} else if (name === 'selectedBackgroundColor' && node.type === 'segmentedbar') {
 			node.view!.selectedSegmentBezelColor = nativeColor(value)
-		} else if (name === 'objectFit' && node.type === 'image') {
-			// NSImageScaling: 0 ProportionallyDown, 1 AxesIndependently,
-			// 2 None (centered, unscaled), 3 ProportionallyUpOrDown.
-			// AppKit has no cover mode — 'cover' degrades to scale-down.
-			const imageScaling: Record<string, number> = {
-				contain: 3,
-				'scale-down': 0,
-				fill: 1,
-				none: 2,
-			}
-
-			node.view!.imageScaling = imageScaling[String(value)] ?? 0
+		} else if ((name === 'objectFit' || name === 'objectPosition') && node.type === 'image') {
+			setImageDrawingStyle(node.view as NSImageView, name, value)
 		} else if (
 			name === 'fontSize' &&
 			['label', 'htmlview', 'textfield', 'textview', 'searchbar'].includes(node.type)

@@ -269,8 +269,13 @@ replacement can keep the prior image; a placeholder paints while it loads and
 remains after failure. Failed loads are not cached. Cache hits do not paint a
 pending placeholder. The optional image package uses the same AppKit leaf;
 its cache controls, engine extensions and load/error callbacks remain missing.
-Cover scaling, arbitrary content position, source-set selection and decode
-scheduling hints remain separate gaps. Full-resolution decodes can still block
+Source-set selection and decode scheduling hints remain separate gaps.
+Styled images compute cover/contain/fill/none/scale-down rectangles, align them
+with keyword/point/percentage object positions and clip to the view bounds.
+Raw objectPosition parsing supports keywords, px and percentages; unresolved
+expressions/other units warn and center. Native NSImageView still owns the
+image, intrinsic measurement and accessibility. Actual crop/orientation/density
+and drawing after resize remain unqualified. Full-resolution decodes can still block
 the UI queue; this is not the mobile Glide/SDWebImage engine.
 
 ```tsx

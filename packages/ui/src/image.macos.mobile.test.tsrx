@@ -37,3 +37,14 @@ it('AppKit Image preserves authored inline CSS and suppresses remote placeholder
 		expect(env.host.props.placeholder).toBeUndefined()
 	} finally { env.root.unmount() }
 })
+
+it('AppKit Image forwards corner/percentage positions and valid center edge offsets', () => {
+	const env = mount({ src: 'data:image/png;base64,YQ==', contentPosition: { bottom: 10, right: '25%' } })
+	try {
+		expect(env.host.props.style.objectFit).toBe('cover')
+		expect(env.host.props.style.objectPosition).toBe('bottom 10px right 25%')
+		env.root.render(Image, { src: 'data:image/png;base64,YQ==', contentPosition: { top: 'center', left: 'center' } })
+		flushUniversalSync(() => {})
+		expect(env.host.props.style.objectPosition).toBe('top 50% left 50%')
+	} finally { env.root.unmount() }
+})

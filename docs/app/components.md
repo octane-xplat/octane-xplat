@@ -714,11 +714,31 @@ export function Photo({ src }: { src: string }) {
 }
 ```
 
+AppKit now computes `cover`, `contain`, `fill`, `none` and `scale-down`
+rectangles and clips image drawing to its box. `contentPosition` accepts the
+shared keywords, point offsets and percentages; percentages use the space left
+between the image and its box, including negative space during a cover crop.
+Changing fit/position or resizing the box invalidates native drawing. Raw CSS
+`objectPosition` supports one/two-value positions and four-value edge offsets
+using keywords, `px` and percentages; other units or
+unresolved expressions warn and fall back to center. These are implementation
+contracts: actual cropping, orientation, density and pixels remain unqualified.
+
+```tsx
+import { Image } from '@octane-xplat/ui'
+
+export function Portrait({ src }: { src: string }) {
+	return <Image src={src} alt="Portrait" contentFit="cover"
+		contentPosition={{ top: 0, right: '25%' }}
+		style={{ width: 120, height: 120 }} />
+}
+```
+
 The optional image package reuses this core AppKit path. Its cache-control APIs
 remain stubs, and engine-specific headers, decode bounds, transitions and
 load/error callbacks remain unimplemented. AppKit still selects the first
-source-array item, degrades cover scaling, ignores arbitrary content position
-and does not honor decode scheduling hints. Local placeholders remain on failure;
+source-array item and does not honor decode scheduling hints. Fit/position
+use the native image's logical point dimensions, not an engine decode bound. Local placeholders remain on failure;
 remote placeholders are ignored. Real native loading, cancellation, layout,
 network errors and packaging still need qualification.
 

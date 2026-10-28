@@ -6,6 +6,7 @@ import { cx } from '@octane-xplat/lib'
 import { appKitImageSource } from './svg-image.macos'
 import { hashToPngBase64 } from './hash-image'
 import type { ImageProps } from './props'
+import { objectPositionCSSValue, resolveContentPosition } from './image-content'
 
 /** `blurhash:`/`thumbhash:` decode to a data: PNG (./hash-image — the same
  *  decode the other leaves run); `data:`/`res://`/`~/`/file paths pass through
@@ -42,12 +43,15 @@ export function Image(props: ImageProps) @{
 		[props.placeholder, svg],
 	)
 
-	// contentFit → style.objectFit (the renderer maps contain/scale-down/
-	// fill/none; 'cover' degrades to scale-down — AppKit has no cover
-	// scaling mode). contentPosition is unimplemented on this leaf.
+	// The AppKit image view normalizes fit and position while keeping native
+	// intrinsic measurement/accessibility. Percentages use the free space.
 	// `decoding` is ignored — AppKit image decodes are synchronous, and remote
 	// fetches take no decode-mode hint.
-	const style = mergeStyle({ objectFit: props.contentFit ?? 'cover' }, props.style)
+	const style = mergeStyle({
+		objectFit: props.contentFit ?? 'cover',
+		...(props.contentPosition !== undefined
+			? { objectPosition: objectPositionCSSValue(resolveContentPosition(props.contentPosition)) } : {}),
+	}, props.style)
 
 	<image
 		id={props.id}

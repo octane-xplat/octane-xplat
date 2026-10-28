@@ -560,3 +560,70 @@ and read-only hosts, rejected writes, empty/failed reads, Settings launch/failur
 image selection/cancel/replacement, screen removal with a pending picker,
 preview file ownership, repeated teardown and HMR. The retained probes do not
 replace that screen-level native workflow qualification.
+
+## Image fit and content position
+
+Priority assumption: cover is already the shared Image default, so its prior
+AppKit degradation affects normal images whenever the app omits contentFit.
+Contain-fit previews in Services.macos and shared Image consumers in Home make
+bitmap sizing an existing app flow, before niche media/GPU integrations.
+
+The AppKit NSImageView subclass now uses NSImage's public drawing API for
+styled image content. It retains native image ownership, intrinsic measurement,
+accessibility and pointer hit-testing. Cover/contain/fill/none/scale-down compute
+a logical-point destination rectangle, and keyword/point/percentage positions
+align it in the view box. Percentages apply over free space, including negative
+space when cover crops. Drawing clips to the view bounds, converts top-based
+positions for flipped/unflipped contexts, and restores graphics state in a
+finally block. The subclass explicitly chooses drawRect for layer-backed content. A real
+frame-size change invalidates drawing. Missing/empty images use the native
+drawing path. Removing styles releases drawing overrides and restores the native scaling default/path.
+
+The core Image leaf now serializes contentPosition through its shared helper;
+the optional image package already delegates to core and inherits this path.
+A prerequisite fix converts the shared typed 'center' edge value to 50%
+instead of the invalid centerpx token, including web callers of that helper.
+Conflicting edge fields now serialize with the existing contentAxisOffset
+top/left precedence rather than emitting an invalid six/eight-value CSS form.
+Raw CSS position parsing supports the one/two/four-value position forms with
+keywords, px and percentages. Other units or unresolved expressions warn once
+and center. This is a documented subset, not a full CSS parser.
+
+API/source references: Apple's
+[NSImage drawing contract](https://developer.apple.com/documentation/appkit/nsimage/draw%28in%3Afrom%3Aoperation%3Afraction%3Arespectflipped%3Ahints%3A%29)
+scales to a destination rectangle and can respect the flipped context.
+[NSView drawing-path selection](https://developer.apple.com/documentation/appkit/nsview/wantsupdatelayer)
+selects drawRect when wantsUpdateLayer is false. The
+[CSS position grammar](https://www.w3.org/TR/css-values-3/#position) separates
+keyword/length pairs from four-value edge offsets. These references motivate
+the source; they are not runtime or pixel evidence for the metadata bridge.
+
+Added pure geometry/position, fake native drawing/context cleanup, subclass
+resize/hit-testing, style apply/reset, and component-forwarding regression
+cases, plus a maintained nonvisual fit probe. Syntax and whitespace checks
+passed. No tests/typechecks, native build/probe, actual drawing, image download,
+visual analysis, OS automation, dependency installation or packaging ran.
+Source sets, decode scheduling/downsampling, engine/cache APIs and load/error
+callbacks remain separate implementation gaps. Native crop/orientation/density,
+resizing, shadows/borders/padding interaction and pixels remain unqualified.
+Shared audit snapshots were not regenerated and no evidence checkbox is closed.
+
+Deferred commands:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run test --filter=@octane-xplat/ui -- src/image-content.test.ts
+pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/image.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer --filter=...@octane-xplat/ui --filter=...@octane-xplat/image
+pnpm exec turbo run typegen --filter=@octane-xplat/ui --filter=@octane-xplat/image
+pnpm exec turbo run test:packed --filter=@octane-xplat/image
+pnpm probe run examples/probes/image-fit.macos.tsrx --target macos --watch
+pnpm check:recipes
+```
+
+After human authorization, qualify raster/SVG/placeholder swaps, actual drawRect
+registration and graphics-state restoration, all fits/position forms, live resize,
+style removal, flipping/orientation, logical points/backing density, image-driven
+intrinsic layout, clipping/corners/borders, pointer passthrough, repeat teardown
+and packaged/HMR behavior. Pixel/visual comparison requires separate visual-
+analysis authorization; retained probes do not authorize or prove it.

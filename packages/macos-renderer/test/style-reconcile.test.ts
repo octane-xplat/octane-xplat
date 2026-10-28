@@ -137,6 +137,7 @@ const frameObservers: any[] = []
 const placeholderCalls: any[] = []
 const reconciles: any[] = []
 const transformCalls: any[] = []
+const imageStyleCalls: any[] = []
 
 const MASON_TYPES = ['masonview', 'liquidglass', 'scrollview']
 
@@ -160,6 +161,7 @@ const sandbox = {
  cssNodesByView: paintNodes,
  setProjectionScale,
  CATransaction: { begin() {}, setDisableActions() {}, commit() {} },
+	setImageDrawingStyle: (view: any, name: string, value: unknown) => imageStyleCalls.push([view, name, value]),
 	elementBehaviors: new Map(
 		MASON_TYPES.map((t) => [
 			t,
@@ -908,4 +910,13 @@ test('projection scales authored radii and shadows without overwriting style rec
  setStyle(item, { borderRadius: 30, boxShadow: '0 4px 6px black' })
  assert.equal(item.view.layer.cornerRadius, 30)
  assert.equal(item.view.layer.shadowRadius, 6)
+})
+
+test('image fit/position styles reach native drawing state and dropped keys reset it', () => {
+	const image = node('image')
+	imageStyleCalls.length = 0
+	setStyle(image, { objectFit: 'cover', objectPosition: 'right 10px bottom 20px' })
+	assert.deepEqual(imageStyleCalls, [[image.view, 'objectFit', 'cover'], [image.view, 'objectPosition', 'right 10px bottom 20px']])
+	setStyle(image, {})
+	assert.deepEqual(imageStyleCalls.slice(2), [[image.view, 'objectFit', undefined], [image.view, 'objectPosition', undefined]])
 })

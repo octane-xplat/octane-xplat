@@ -78,7 +78,10 @@ for contributor checks and evidence boundaries.
 AppKit image loading now shares cancellable requests, bounds decoded images by
 recent use, rejects HTTP error payloads, and queues remote processing/delivery
 on the main operation queue. Core and optional-package images share layout and
-class normalization. Actual networking, callback threading, cancellation,
+class normalization. A native clipped drawing path now implements fit and
+keyword/point/percentage content position; unresolved CSS position expressions
+and other units warn and center. Native crop/orientation/density and resize
+behavior remain unqualified. Actual networking, callback threading, cancellation,
 responsiveness and pixels remain unqualified. Public image-cache controls and
 engine-specific features remain missing; see [AppKit image loading](../app/components.md#image-loading-on-appkit).
 

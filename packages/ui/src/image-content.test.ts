@@ -208,6 +208,8 @@ describe('objectPositionCSSValue / imageSrcSet', () => {
 		expect(objectPositionCSSValue({ top: 0, right: '25%' })).toBe('top 0px right 25%')
 		expect(objectPositionCSSValue({ bottom: 10, left: '50%' })).toBe('bottom 10px left 50%')
 		expect(objectPositionCSSValue({})).toBe('top 50% left 50%')
+		expect(objectPositionCSSValue({ top: 'center', left: 'center' })).toBe('top 50% left 50%')
+		expect(objectPositionCSSValue({ top: 10, bottom: 20, left: 30, right: 40 })).toBe('top 10px left 30px')
 	})
 
 	it('builds w-descriptor srcset from width·scale', () => {
