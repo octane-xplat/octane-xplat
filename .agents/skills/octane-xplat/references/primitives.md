@@ -1032,3 +1032,17 @@ export function Channels() {
 		options={[{ value: 'email', label: 'Email' }, { value: 'push', label: 'Push' }]} />
 }
 ```
+
+
+AppKit TextInput, TextArea and SearchInput now forward testID to the editable
+field. Updating/removing it keeps that field and its local text; shells, Field
+labels and clear actions do not inherit it. Renderer accessibilityIdentifier
+mapping is source-present; native discovery/replay remains unqualified.
+
+```tsx
+import { TextInput } from '@octane-xplat/ui'
+
+export function Name() {
+	return <TextInput label="Name" testID="profile.name" defaultValue="Ada" />
+}
+```

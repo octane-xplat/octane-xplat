@@ -210,3 +210,42 @@ it('AppKit clear tolerates the callback unmounting its input before refocus', ()
 	expect(() => clear.props.onTap()).not.toThrow()
 	expect(focused).toEqual([])
 })
+
+it('AppKit editable test IDs target retained fields and update/remove without changing input state or labels', () => {
+	for (const [component, type] of [[TextInput, 'textfield'], [TextArea, 'textview'], [SearchInput, 'textfield']] as const) {
+		const base = { id: 'profile-name', label: 'Your name', description: 'Public name', defaultValue: 'Ada', testID: 'profile.name' }
+		const env = mount(component, base)
+		try {
+			const field = env.find(type)
+			expect(field.props.testID).toBe('profile.name')
+			expect(env.all().filter((node) => node.props?.testID === 'profile.name')).toEqual([field])
+			field.props.onTextChange('Grace'); flushUniversalSync(() => {})
+			env.render({ ...base, testID: 'profile.renamed' })
+			expect(env.find(type)).toBe(field)
+			expect(field.props.testID).toBe('profile.renamed')
+			expect(field.props.id).toBe('profile-name')
+			expect(field.props.accessibilityLabel).toBe('Your name')
+			expect(field.props.value).toBe('Grace')
+			const { testID, ...withoutID } = base
+			env.render(withoutID)
+			expect(env.find(type)).toBe(field)
+			expect(field.props.testID).toBeUndefined()
+			expect(field.props.value).toBe('Grace')
+		} finally { env.root.unmount() }
+	}
+})
+
+it('parent Field metadata does not move the AppKit identifier onto its shell or clear button', () => {
+	function Named() {
+		return <FormField inputID="parent-name" label="Name"><TextInput testID="profile.name" hasClear defaultValue="Ada" /></FormField>
+	}
+	const env = mount(Named, {})
+	try {
+		const field = env.find('textfield')
+		expect(field.props.id).toBe('parent-name')
+		expect(env.all().filter((node) => node.props?.testID === 'profile.name')).toEqual([field])
+		const clear = env.all().find((node) => node.props?.accessibilityLabel === 'Clear Name')
+		expect(clear).toBeDefined()
+		expect(clear.props.testID).toBeUndefined()
+	} finally { env.root.unmount() }
+})

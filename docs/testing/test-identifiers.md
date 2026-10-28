@@ -132,7 +132,9 @@ reliable targeting; spoken accessibility semantics still belong to users.
 
 ## AppKit source implementation
 
-AppKit Pressable, Button and Selector now forward `testID` to their retained native host.
+AppKit Pressable, Button, Selector, TextInput, TextArea and SearchInput now
+forward `testID` to their retained native host. Text controls target the editable
+field; their shell, metadata and clear button do not inherit it.
 The renderer assigns it to AppKit's
 [accessibility identifier](https://developer.apple.com/documentation/appkit/nsaccessibility-c.protocol/accessibilityidentifier),
 which is separate from the CSS `id` and spoken accessibility label. Changing the

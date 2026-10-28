@@ -28,3 +28,9 @@ Argent dependency is required.
 - AC2: [Host forwarding](../../../docs/testing/test-identifiers.md#which-host-receives-the-name), [platform mapping](../../../docs/testing/test-identifiers.md#platform-mapping-and-selector-precedence)
 - AC3: [Local journey](../../../docs/testing/argent.md#start-with-a-local-journey), [services](../../../docs/testing/argent.md#discovery-and-replay-need-different-services)
 - AC4: [Maintained checks and scope](../argent.md#maintained-checks-and-scope), [fixture](../../../packages/ui/tests/fixtures/TestID.tsrx)
+
+AppKit source extension: TextInput/TextArea/SearchInput now forward testID to
+the editable field. Appended text-controls.macos.mobile.test.tsrx cases cover
+retained identity/update/removal and parent Field/shell/clear separation, but
+remain unrun. This extends AC2/AC4 source coverage, not native discovery or replay
+qualification. Exact deferred commands are in the AppKit target progress note.

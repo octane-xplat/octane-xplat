@@ -65,6 +65,7 @@ function TextInputControl(inputProps: TextInputProps) @{
 			onFocus={props.onFocus}
 			onBlur={props.onBlur}
 			id={props.id}
+			testID={props.testID}
 			value={value}
 			placeholder={props.placeholder}
 			placeholderTextColor={props.placeholderTextColor}
@@ -163,6 +164,7 @@ function TextAreaControl(inputProps: TextAreaProps) @{
 			maxRows={props.maxRows}
 			maxLength={props.maxLength}
 			id={props.id}
+			testID={props.testID}
 			value={value}
 			placeholder={props.placeholder}
 			rows={props.rows ?? (props.autoGrow ? 1 : 3)}

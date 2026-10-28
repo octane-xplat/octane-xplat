@@ -2354,3 +2354,33 @@ input/VoiceOver and packaged operation remain unqualified. OTP autofill and
 native digit filtering remain implementation gaps. No build, package test/
 typecheck, install, OS automation, visual analysis or shared audit regeneration
 ran; no evidence checkbox is closed.
+
+### AppKit editable-field test identifiers
+
+The public testing guide recommends TextInput testID for editable-field targeting.
+AppKit TextInputControl/TextAreaControl dropped that public prop; SearchInput
+inherits TextInput, so it also lost the identifier. Both native editable leaves
+now forward testID to the textfield/textview, retaining the existing renderer
+accessibilityIdentifier mapping. Shells, labels and clear buttons do not inherit
+it. No new dependency, shared API, renderer or manifest change.
+
+Two authored object-driver cases cover all three controls, identity update/removal,
+retained edited text/host/ID/spoken label, and parent Field/clear separation. They
+remain unrun. Only TSRX syntax, source review and whitespace checks ran; sem could
+not resolve these TSRX control entities. Guide/skill and agent-ui-checks recipe
+source scope were updated; the existing test-identifier public usage remains the
+maintained example. No native automation discovery/replay result is claimed.
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/text-controls.macos.mobile.test.tsrx
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All commands remain deferred pending explicit human authorization for this task.
+Actual accessibility identifier update/removal, field-editor/native control
+identity, automation discovery/replay, VoiceOver and packaged operation remain
+unqualified. No builds, package tests/typechecks, installs, OS automation, visual
+analysis or shared audit regeneration ran; no evidence checkbox is closed.
