@@ -5,6 +5,8 @@ import { useImperativeHandle, useMemo, useRef, useState } from 'octane'
 import type { Key, VirtualListProps, VirtualListScrollOptions } from './props'
 import { defaultItemKey } from './list-data'
 import { cx } from '@octane-xplat/lib'
+import { scrollableAreaOffset } from './scrollable-area-offset.macos'
+import { scrollableAreaMetrics } from './scrollable-area-metrics.macos'
 import {
 	VirtualListSizeIndex,
 	createVirtualListEntries,
@@ -19,42 +21,13 @@ type AppKitLayoutEvent = { object: any; width: number; height: number }
 
 const sameSize = (a: number, b: number) => Math.abs(a - b) < 0.5
 
-/** Scrolls an AppKit scrollview to a top-down (scrollTop-style) offset. The
- *  documentView (a vertical NSStackView) is normally flipped so clip origin y
- *  already counts from the top; the isFlipped check keeps non-flipped
- *  documents correct too. */
+/** Share top-down seeks and measurements with ScrollableArea and chat. */
 function scrollViewSetTop(scroll: any, top: number, animated = false): void {
-	const clip = scroll?.contentView
-	const doc = scroll?.documentView
-	if (!clip) {
-		return
-	}
-
-	const docHeight = Number(doc?.frame?.size?.height ?? 0)
-	const clipHeight = Number(clip.bounds?.size?.height ?? 0)
-	const flip = typeof doc?.isFlipped === 'function' ? doc.isFlipped() : doc?.isFlipped
-	const flipped = flip === true || Number(flip) === 1
-	const y = Math.max(0, flipped ? top : docHeight - clipHeight - top)
-	// NSClipView.scrollToPoint is animatable through the animator proxy;
-	// fall back to an instant write when the bridge cannot vend one.
-	const target = animated && typeof clip.animator === 'function' ? clip.animator() : clip
-	target.scrollToPoint({ x: 0, y })
-	scroll.reflectScrolledClipView(clip)
+	scrollableAreaOffset(scroll, { block: top }, animated)
 }
 
 function scrollViewOffset(scroll: any): number {
-	const clip = scroll?.contentView
-	const doc = scroll?.documentView
-	if (!clip) {
-		return 0
-	}
-
-	const docHeight = Number(doc?.frame?.size?.height ?? 0)
-	const clipHeight = Number(clip.bounds?.size?.height ?? 0)
-	const originY = Number(clip.bounds?.origin?.y ?? 0)
-	const flip = typeof doc?.isFlipped === 'function' ? doc.isFlipped() : doc?.isFlipped
-	const flipped = flip === true || Number(flip) === 1
-	return flipped ? originY : docHeight - clipHeight - originY
+	return scrollableAreaMetrics(scroll).y
 }
 
 function scrollViewViewport(scroll: any): { width: number; height: number } {
@@ -357,8 +330,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 		const clip = scroll?.contentView
 		const spacerBottomY = Number(topSpacerRef.current?.frame?.origin?.y ?? Number.NaN)
 		const doc = scroll?.documentView
-		const flip = typeof doc?.isFlipped === 'function' ? doc.isFlipped() : doc?.isFlipped
-		const flipped = flip === true || Number(flip) === 1
+		const flipped = Boolean(doc?.flipped)
 		const originY = Number(clip?.bounds?.origin?.y ?? event?.verticalOffset ?? 0)
 		const clipH = Number(clip?.bounds?.size?.height ?? 0)
 		let nextOffset: number

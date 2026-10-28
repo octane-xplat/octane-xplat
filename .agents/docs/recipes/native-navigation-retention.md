@@ -38,3 +38,13 @@ modal's presenter and prevent obsolete preparation from changing current focus.
   and [retained native controls](../../../docs/app/navigation.md#retained-native-controls)
   show the public handles. Installed-consumer checks compile both examples;
   the qualification record names each executed target and its limits.
+
+
+AppKit AC3 source follow-up: the [scrolling guide](../../../docs/app/primitives.md#macos-scrolling-and-refresh)
+now describes top-down offsets across native coordinate orientations, fitting
+content and animator fallback. ScrollableArea, VirtualList and chat share a
+native offset helper using the generated NSView.flipped property; measurement
+uses the same property. [Geometry regression source](../../../packages/ui/src/appkit-scroll-geometry.mobile.test.ts)
+and [viewport object-driver cases](../../../packages/ui/src/scrollable-area-appkit.mobile.test.tsrx)
+are authored but unrun. Route retention, actual scroll/animation/focus and
+packaging remain separate qualification gates.

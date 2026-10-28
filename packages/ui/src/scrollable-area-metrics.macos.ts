@@ -14,14 +14,13 @@ export function scrollableAreaMetrics(
 			Number(clip?.size?.height ?? event?.viewportHeight ?? 0),
 	)
 
-	const flip =
-		typeof document?.isFlipped === 'function' ? document.isFlipped() : document?.isFlipped
+	const flipped = Boolean(document?.flipped)
 
 	const y = Number(clip?.origin?.y ?? event?.verticalOffset ?? 0)
 	return {
 		maxX,
 		maxY,
 		x: Number(clip?.origin?.x ?? 0),
-		y: document && !(flip === true || Number(flip) === 1) ? maxY - y : y,
+		y: document && !flipped ? maxY - y : y,
 	}
 }

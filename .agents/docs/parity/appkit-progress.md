@@ -818,3 +818,39 @@ and packaged consumers remain unqualified. TextArea maxLength is still an
 implementation gap: partial-composition truncation, paste/replacement, undo,
 selection and external controlled writes need a coherent native edit contract;
 none has been claimed by this source slice.
+
+
+### AppKit scroll and measurement coordinates
+
+Demand: Home embeds bounded ScrollableArea content, and VirtualListBench and
+chat exercise everyday seek/anchor flows. Source review found UI metrics,
+ScrollableArea/VirtualList/chat seeks and window-content measurement reading
+isFlipped, while the generated NSView declaration exposes readonly flipped.
+These reads now use the actual bridge property. Apple's [ObjC coordinate
+property](https://developer.apple.com/documentation/appkit/nsview/isflipped?language=objc)
+is named flipped with getter=isFlipped; generated metadata is source evidence,
+not a runtime test or a newly diagnosed upstream bridge defect.
+
+ScrollableArea, VirtualList and chat now share scrollableAreaOffset.macos:
+clamp requested axes, keep omitted origins, ignore invalid/empty requests,
+leave absent view/documents alone and fall back to the real clip when an
+animator proxy lacks scrollToPoint. Short unflipped content clamps to zero
+instead of generating a negative Y. VirtualList block seeks retain X rather
+than resetting it. ScrollableArea also normalizes its ClassValue before the
+raw intrinsic, consistent with the native className contract.
+
+Updated fake native shapes to the generated property and authored round-trip
+metrics/seeks, clipping/short-content, animator fallback, invalid requests,
+nonzero window-content origins and composed-class regression cases. Syntax and
+whitespace only; no tests or native interaction ran. Deferred commands:
+
+```sh
+pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/appkit-scroll-geometry.mobile.test.ts src/scrollable-area-appkit.mobile.test.tsrx src/chat-scroll-host.macos.mobile.test.ts
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm check:recipes
+```
+
+Real native scroll origin/resize/animation, variable-row anchoring, route state
+retention, elastic scrolling, coordinate conversion and packaging remain
+unqualified. No pixels, OS automation, native build, installs or shared audit
+regeneration ran, and no evidence checkbox is closed.

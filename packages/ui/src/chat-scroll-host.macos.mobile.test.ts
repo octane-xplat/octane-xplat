@@ -8,7 +8,7 @@ it('falls back to the native clip when its animator proxy cannot scroll', () => 
 	}
 	const host = {
 		contentView: clip,
-		documentView: { frame: { size: { width: 400, height: 1000 } }, isFlipped: false },
+		documentView: { frame: { size: { width: 400, height: 1000 } }, flipped: false },
 		reflectScrolledClipView: vi.fn(),
 	}
 	chatHost.scroll(host).scrollToVerticalOffset(200, true)
@@ -39,7 +39,7 @@ it('separates unflipped range drift from manual clip movement and releases notif
 	}
 	const host: any = {
 		contentView: clip,
-		documentView: { frame: { size: { width: 400, height: 1000 } }, isFlipped: false },
+		documentView: { frame: { size: { width: 400, height: 1000 } }, flipped: false },
 	}
 	const scroll = chatHost.scroll(host),
 		first = vi.fn(),

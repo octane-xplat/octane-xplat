@@ -15,7 +15,7 @@ import type { UseScrollableAreaResult } from './props'
 function geometry(flipped = false) {
 	return {
 		contentView: { bounds: { origin: { x: 0, y: 300 }, size: { width: 100, height: 100 } } },
-		documentView: { frame: { size: { width: 300, height: 400 } }, isFlipped: () => flipped },
+		documentView: { frame: { size: { width: 300, height: 400 } }, flipped },
 	}
 }
 
@@ -43,9 +43,10 @@ describe('AppKit ScrollableArea viewport contract (object driver)', () => {
 		const object = { current: null as any }
 		const callback = vi.fn()
 		const next = { current: null as any }
-		const fx = fixture(ScrollableArea, { ref: object })
+		const fx = fixture(ScrollableArea, { ref: object, className: ['viewport', { active: true, hidden: false }] })
 		try {
 			expect(object.current.native).toBe(fx.host)
+			expect(fx.host.props.className).toBe('viewport active')
 			expect(fx.host.props.orientation).toBe('vertical')
 			fx.render({ ref: callback, axis: 'inline' })
 			expect(object.current).toBeNull()
@@ -78,7 +79,7 @@ describe('AppKit ScrollableArea viewport contract (object driver)', () => {
 						calls.push(point)
 					},
 				},
-				documentView: { frame: { size: { width: 300, height: 400 } }, isFlipped: () => false },
+				documentView: { frame: { size: { width: 300, height: 400 } }, flipped: false },
 				reflectScrolledClipView: vi.fn(),
 			},
 		)

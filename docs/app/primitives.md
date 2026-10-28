@@ -1583,6 +1583,10 @@ scrolls each logical axis to an absolute offset (AppKit points), and
 `native` is the underlying `NSScrollView` for anything the handle does not
 cover. The handle clears when the area is replaced or removed. Numeric
 dimensions use AppKit points, independent of the display's pixel density.
+Block offsets count from the top in either native coordinate orientation;
+seeks clamp to the available range, and fitting content stays at zero. Missing
+animator scrolling support falls back to an immediate seek. These source paths
+still need real native scrolling, animation and resize qualification.
 
 ```tsx
 import { useRef } from 'octane'

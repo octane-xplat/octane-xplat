@@ -9,7 +9,7 @@ export function readBounds(view: any): MeasureBounds | null {
 
 	const frame = view.convertRectToView(view.bounds, content)
 	const bounds = content.bounds
-	const flipped = typeof content.isFlipped === 'function' ? content.isFlipped() : content.isFlipped
+	const flipped = Boolean(content.flipped)
 	return {
 		x: Number(frame.origin.x) - Number(bounds.origin.x),
 		y: flipped

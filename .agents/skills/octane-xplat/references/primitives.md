@@ -522,3 +522,26 @@ export function Search() {
 	return <SearchInput label="Find" icon={false} placeholder="Search by name" />
 }
 ```
+
+
+## AppKit scroll offsets
+
+Use the portable ScrollableArea handle for top/left offsets in AppKit points.
+ScrollableArea, VirtualList and chat share clamped native seek logic; omitted
+axes retain their origin and missing animator selectors fall back to an instant
+seek. Native coordinate reads use the generated NSView `flipped` property,
+including measurements. Source/object-driver cases do not qualify OS scrolling,
+animation or virtualization performance.
+
+```tsx
+import { useRef } from 'octane'
+import { Button, ScrollableArea, type ScrollableAreaHandle } from '@octane-xplat/ui'
+
+export function Notes() {
+	const viewport = useRef<ScrollableAreaHandle | null>(null)
+	return <>
+		<Button label="Top" clickAction={() => viewport.current?.scrollToOffset({ block: 0 })} />
+		<ScrollableArea ref={viewport} height={200}>Notes</ScrollableArea>
+	</>
+}
+```

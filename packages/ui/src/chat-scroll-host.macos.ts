@@ -1,4 +1,5 @@
 import { readBounds } from './measure-bounds.macos'
+import { scrollableAreaOffset } from './scrollable-area-offset.macos'
 import { scrollableAreaMetrics } from './scrollable-area-metrics.macos'
 import type { ChatHostAdapter } from './chat-scroll-host-types'
 
@@ -60,19 +61,7 @@ export const chatHost: ChatHostAdapter = {
 					return scrollableAreaMetrics(host).maxY
 				},
 				scrollToVerticalOffset(offset: number, animated = false) {
-					const clip = host.contentView,
-						content = host.documentView
-					if (!clip || !content) {
-						return
-					}
-					const max = scrollableAreaMetrics(host).maxY
-					const top = Math.max(0, Math.min(max, offset))
-					const flipped =
-						typeof content.isFlipped === 'function' ? content.isFlipped() : content.isFlipped
-					const proxy = animated && typeof clip.animator === 'function' ? clip.animator() : null
-					const target = typeof proxy?.scrollToPoint === 'function' ? proxy : clip
-					target.scrollToPoint({ x: clip.bounds.origin.x, y: flipped ? top : max - top })
-					host.reflectScrolledClipView(clip)
+					scrollableAreaOffset(host, { block: offset }, animated)
 				},
 				on(_name: string, callback: () => void) {
 					if (listeners.has(callback)) {
