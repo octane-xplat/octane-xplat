@@ -39,6 +39,7 @@ import {
 
 import { showWindowLayer, type WindowLayerOptions } from './layer'
 import { disposeImage, updateImage } from './image'
+import { disposeTextValue, isWritingTextValue, notifyTextValueCommit, setTextValue } from './text-value.ts'
 import { enforceTextLimit, isNormalizingTextLimit, recordTextLimitEdit, rememberTextLimitValue, reportTextLimitChange } from './text-limit.ts'
 import { notifyImageGeometry, setImageGeometryHandler } from './image-geometry.ts'
 import { drawImageContent, setImageDrawingStyle } from './image-drawing'
@@ -472,6 +473,8 @@ class ButtonActionTarget extends NSObject {
 	// NSControlTextEditingDelegate: fires on every edit while a single-line
 	// field is being edited — the per-edit source for onTextChange.
 	controlTextDidChange(notification: NSNotification) {
+		if (isWritingTextValue(notification.object)) return
+		notifyTextValueCommit(notification.object)
 		const node = textNodesByView.get(notification.object)
 		if (node?.type === 'searchbar') {
 			notifySearchTextChange(node)
@@ -484,6 +487,7 @@ class ButtonActionTarget extends NSObject {
 	// change handler lives on controlTextDidChange, so the action never
 	// masquerades as a value-change event.
 	textFieldSubmitted(sender: NSObject) {
+		notifyTextValueCommit(sender)
 		textNodesByView.get(sender)?.submitHandler?.()
 	}
 
@@ -519,7 +523,8 @@ class ButtonActionTarget extends NSObject {
 	}
 
 	textDidChange(notification: NSNotification) {
-		if (isNormalizingTextLimit(notification.object)) return
+		if (isWritingTextValue(notification.object) || isNormalizingTextLimit(notification.object)) return
+		notifyTextValueCommit(notification.object)
 		const node = textNodesByView.get(notification.object)
 		if (node) enforceTextLimit(notification.object as NSTextView, node.props?.maxLength)
 		syncTextViewPlaceholder(node)
@@ -531,6 +536,7 @@ class ButtonActionTarget extends NSObject {
 	}
 
 	controlTextDidEndEditing(notification: NSNotification) {
+		notifyTextValueCommit(notification.object)
 		dispatchTextEvent(textNodesByView.get(notification.object), 'onBlur')
 	}
 
@@ -621,6 +627,7 @@ class InteractionTextView extends NSTextView {
 	}
 	unmarkText(): void {
 		super.unmarkText()
+		notifyTextValueCommit(this)
 		const node = textNodesByView.get(this)
 		if (node && enforceTextLimit(this, node.props?.maxLength) && reportTextLimitChange(this)) {
 			syncTextViewPlaceholder(node)
@@ -6155,6 +6162,45 @@ function setTextSubmitAction(node: ElementNode, value: any) {
 			: null
 }
 
+/** Each pending writer observes only its window and releases that observer
+ * after commit, replacement, a matching echo or teardown. */
+function updateNativeTextValue(node: ElementNode, value: string | undefined): void {
+	const view = node.view
+	if (!view) return
+	setTextValue(view, value, () => {
+		const multiline = node.type === 'textview'
+		const editor = (): any => multiline ? view : (typeof view.currentEditor === 'function' ? view.currentEditor() : null)
+		return {
+			read: () => String(editor()?.string ?? (multiline ? view.string : view.stringValue) ?? ''),
+			marked: () => {
+				const target = editor()
+				return Boolean(typeof target?.hasMarkedText === 'function' ? target.hasMarkedText() : target?.hasMarkedText)
+			},
+			write: (next) => {
+				const target = editor(), selection = target?.selectedRange
+				if (multiline) view.string = next
+				else view.stringValue = next
+				if (target && editor() === target && String(target.string ?? '') !== next) target.string = next
+				if (target && editor() === target && Number.isSafeInteger(selection?.location) &&
+					Number.isSafeInteger(selection?.length) && selection.location >= 0 && selection.length >= 0) {
+					const location = Math.min(selection.location, next.length)
+					target.selectedRange = { location, length: Math.max(0, Math.min(selection.location + selection.length, next.length) - location) }
+				}
+				if (multiline) {
+					rememberTextLimitValue(view as NSTextView)
+					syncTextViewPlaceholder(node)
+					fitTextView(node)
+				}
+			},
+			observeCommit: (notify) => {
+				const center = NSNotificationCenter.defaultCenter
+				const token = center.addObserverForNameObjectQueueUsingBlock(NSWindowDidUpdateNotification, view.window ?? null, null, notify)
+				return () => center.removeObserver(token)
+			},
+		}
+	})
+}
+
 /** `isEnabled`/`editable` → AppKit state. Disabled fields reject edits and
  *  selection; read-only fields stay selectable so text can be copied. */
 function syncTextControlState(node: ElementNode) {
@@ -6747,22 +6793,7 @@ function applyProps(node: ElementNode, props: PropBag) {
 			case 'textfield':
 			case 'textview':
 				if (name === 'value') {
-					if (value === undefined) {
-						continue
-					}
-
-					// A controlled echo already matches the editor. Reassigning it
-					// needlessly disturbs selection and in-progress marked text.
-					const next = String(value ?? '')
-					if (node.type === 'textview') {
-						if (String(node.view!.string ?? '') !== next) {
-							node.view!.string = next
-							rememberTextLimitValue(node.view as NSTextView)
-						}
-						syncTextViewPlaceholder(node)
-					} else if (String(node.view!.stringValue ?? '') !== next) {
-						node.view!.stringValue = next
-					}
+					updateNativeTextValue(node, value === undefined ? undefined : String(value ?? ''))
 				} else if (name === 'placeholder') {
 					if (node.type === 'textfield') {
 						continue
@@ -8038,6 +8069,7 @@ function destroy(node: ElementNode) {
 	}
 
 	if (['textfield', 'textview', 'searchbar'].includes(node.type) && node.view) {
+		disposeTextValue(node.view)
 		textNodesByView.delete(node.view)
 		actionIdsByView.delete(node.view)
 		node.view.delegate = null

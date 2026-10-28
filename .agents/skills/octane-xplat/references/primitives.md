@@ -563,3 +563,21 @@ export function ShortNote() {
 	return <TextArea label="Short note" maxLength={80} />
 }
 ```
+
+
+## Controlled AppKit text during composition
+
+TextInput/TextArea (and delegated SearchInput) keep a differing value pending
+while the native editor has marked text. The latest controlled prop applies
+after commit unless a newer matching echo cancels it; removing/unsetting the
+value cancels pending work. Writes reuse the host and clamp selection when the editor identity survives. Raw NSSearchField uses a separate path. Actual IME, focus, selection,
+window changes and packaging still require qualification; see
+[text actions](../../../../docs/app/primitives.md#text-and-keyboard-actions).
+
+```tsx
+import { TextArea } from '@octane-xplat/ui'
+
+export function Draft({ value, onChange }: { value: string; onChange(value: string): void }) {
+	return <TextArea label="Draft" value={value} onChange={onChange} />
+}
+```

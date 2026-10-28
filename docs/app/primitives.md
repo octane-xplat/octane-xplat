@@ -465,6 +465,23 @@ export function ProfileName() {
 }
 ```
 
+AppKit text controls defer a different controlled value while the native editor
+has marked text. The latest supplied value applies on a later turn after commit,
+unless a newer matching `onChange` echo supersedes it. Unsetting the value or
+removing the view cancels pending work. Changed writes reuse the view and clamp selection when the same editor survives
+the setter. They make no focus request or public change callback. Real IME, selection and event timing remain unqualified.
+
+```tsx
+import { useState } from 'octane'
+import { TextInput } from '@octane-xplat/ui'
+
+export function Name() {
+	const [value, setValue] = useState('')
+	return <TextInput label="Name" value={value} onChange={setValue} />
+}
+```
+
+
 
 `TextArea` keeps Return as a newline. On web, Cmd/Ctrl+Enter submits it.
 On iOS, Android and experimental AppKit, submission is enabled only with

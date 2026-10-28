@@ -78,3 +78,32 @@ regression source; native icon pixels/spacing/accessibility are unqualified.
 The controls leaf explicitly pins its pan import to AppKit for source/test
 resolution; the AppKit bundler already prefers the macOS suffix. TextArea maxLength remains a source gap, separate
 from these search/entry prerequisites.
+
+
+## AppKit controlled composition follow-up
+
+The [controlled-text guide](../../../docs/app/primitives.md#text-and-keyboard-actions)
+now explains deferred values, latest-value supersession, matching echo cancellation,
+unset/teardown and selection clamping. The renderer uses the live field editor
+for textfields and the textview itself for multiline input. Raw NSSearchField's
+separate text API is outside this source repair. [Writer/adapter regressions](../../../packages/macos-renderer/test/text-value.test.ts)
+and the [manual native fixture](../../../examples/probes/controlled-text.macos.tsrx)
+are authored but have not run.
+
+For later real-keyboard qualification, open the maintained fixture and test both
+fields with an input source that composes characters (for example Japanese):
+
+1. Type and replace a middle selection; record native text, app value and caret.
+2. Arm the five-second replacement and begin composition before it fires. Keep
+   a candidate marked through the replacement; confirm its marked text survives
+   while the app value changes to External N.
+3. Confirm the candidate. Record the resulting native/app values: a newer
+   onChange echo wins over the older pending external value. Repeat with more
+   composing edits before confirmation to exercise cancellation.
+4. Repeat while blurring, changing focus, hiding/removing the field and changing
+   a controlled value. Check observer/work cancellation and undo/redo separately.
+
+The fixture's automated run only records initial native strings. No real
+keyboard/IME, selection, undo, native timing or packaged checks ran. AC1/AC2
+runtime qualification remains open even though this manual procedure is now
+covered in documentation.

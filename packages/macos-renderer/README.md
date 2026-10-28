@@ -645,3 +645,25 @@ This implementation is unqualified under real IMEs, paste/drag input, undo/redo,
 selection, the Objective-C override bridge and packaged apps. A veto from the
 native should-change check leaves the text unchanged. It is not a general
 text-validation or grapheme-count API.
+
+
+### Controlled text during composition
+
+The textfield/textview `value` path reads the live native editor and skips equal
+writes. A different value waits while the editor has marked text. One pending
+latest value and one window-update observer belong to that view; commit/edit-end
+notifications or a window update schedule a later flush. A newer matching echo,
+unset value or teardown cancels the pending work. The writer reuses the native
+view and makes no focus request; changed writes clamp selection when the editor
+identity survives the setter, and multiline
+writes refresh placeholder/growth/limit snapshots. Programmatic synchronous
+change notifications are suppressed while writing.
+
+```tsx
+<textfield value={name} onTextChange={(value) => setName(value)} />
+```
+
+This path covers core TextInput, TextArea and delegated SearchInput. Raw
+NSSearchField's `text` API uses a separate path. Real field-editor ownership,
+IME candidate/confirmation timing, observer delivery/window moves, secure-mode
+changes, undo/redo, focus and packaging remain unqualified.

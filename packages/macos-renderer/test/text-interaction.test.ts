@@ -1,3 +1,4 @@
+import { disposeTextValue, isWritingTextValue, notifyTextValueCommit, setTextValue } from '../src/text-value.ts'
 import assert from 'node:assert/strict'
 import { runSlice } from './mock-globals.ts'
 import { test } from 'node:test'
@@ -33,6 +34,7 @@ function load() {
 			].includes(t),
 		registerElementType: () => {},
 
+		disposeTextValue, isWritingTextValue, notifyTextValueCommit, setTextValue,
 		textNodesByView: nodes,
 		actionIdsByView: new WeakMap(),
 		actionHandlers: new Map(),

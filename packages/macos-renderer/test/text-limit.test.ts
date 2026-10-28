@@ -1,3 +1,4 @@
+import { disposeTextValue, isWritingTextValue, notifyTextValueCommit, setTextValue } from '../src/text-value.ts'
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { enforceTextLimit, excessTextRange, isNormalizingTextLimit, recordTextLimitEdit, rememberTextLimitValue, reportTextLimitChange, type TextRange } from '../src/text-limit.ts'
@@ -86,6 +87,7 @@ test('native subclass unmark applies a deferred cap once', () => {
 	const textNodesByView = new WeakMap()
 	let unmarks = 0, normalizations = 0, changes = 0
 	const { InteractionTextView } = runSlice(body + '\n({ InteractionTextView })', {
+		notifyTextValueCommit,
 		NSTextView: class { unmarkText() { unmarks++ } }, NativeClass() {}, textNodesByView,
 		enforceTextLimit: () => ++normalizations === 1, reportTextLimitChange: () => true,
 		syncTextViewPlaceholder() {}, fitTextView() {},
@@ -111,6 +113,7 @@ test('delegate normalization exposes the corrected text once despite a nested na
 		interop: { types: { void: 'void' } }, registerGestureClass() {},
 		textNodesByView: nodes, actionIdsByView: actions,
 		enforceTextLimit, isNormalizingTextLimit, recordTextLimitEdit, reportTextLimitChange,
+		isWritingTextValue, notifyTextValueCommit,
 		syncTextViewPlaceholder() {}, fitTextView() {},
 		invokeAction: () => values.push(view.string),
 	})

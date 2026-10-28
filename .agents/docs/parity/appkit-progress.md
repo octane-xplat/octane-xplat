@@ -937,3 +937,50 @@ input was already reported temporarily, restoring the prior text still reports
 that restoration. Added a source regression for this distinction. Cap prop
 reapplication initializes only once and does not erase a pending edit snapshot.
 All checks remain syntax/whitespace only; event timing/IME remain unqualified.
+
+
+### Controlled values during native composition
+
+Demand: Home uses controlled TextInput/TextArea, so an async replacement or
+formatter can otherwise overwrite an unfinished IME candidate. Different value
+writes now wait while the live editor has marked text; native textfield reads
+use currentEditor.string instead of assuming the control's stringValue is live.
+One pending latest value, one cancellable flush and one window observer belong
+to the view only while needed. Matching latest echoes, unset values and teardown
+cancel pending work. Edit/end/submit/unmark notifications and window updates
+wake the flush after the native callback stack. A new composition delays it
+again. Changed writes reuse the host without requesting focus, synchronize an active
+field editor and clamp selection when it survives the setter, and refresh multiline placeholder/growth/limit state.
+Synchronous programmatic notifications are suppressed while writing.
+
+Apple's [NSWindow update contract](https://developer.apple.com/documentation/appkit/nswindow/update%28%29)
+and [window notification](https://developer.apple.com/documentation/appkit/nswindow/didupdatenotification?language=objc)
+provide an observation path when unmark does not send another text change.
+Observers are scoped to the current window and removed after resolution or
+cancellation. These API references are not native delivery evidence.
+
+Added fake-scheduler latest-value, matching/unset, committed-echo, new-composition,
+late-callback, teardown, equal-write and failure cases; fake native adapters cover
+field-editor reading, selection clamping and observer ownership. Added a manual
+native fixture with delayed replacements and a real-keyboard procedure in the
+text-entry recipe. Its run hook records initial strings only. All tests and
+native execution are deferred; syntax/whitespace only. Deferred commands:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer
+pnpm probe run examples/probes/controlled-text.macos.tsrx --target macos --watch
+pnpm probe run examples/probes/text-limit.macos.tsrx --target macos --watch
+pnpm check:recipes
+```
+
+Raw NSSearchField's text API is not changed. Actual IME event ordering,
+field-editor lifetime, window moves, secure-cell changes, selection, focus,
+undo/redo, observer/callback teardown and packaging remain unqualified. No
+visual analysis, OS automation, builds, tests, native probes or installs ran.
+No shared audit snapshot or evidence-gated checkbox changed.
+
+
+Deferred-writer source cases also cover nested writes (suppression stays active
+until the outer write returns) and simulated programmatic native notifications
+that must not call public onChange. These cases are authored, not executed.
