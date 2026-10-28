@@ -3353,7 +3353,8 @@ function animationBase(node: ElementNode): Partial<SampledValues> {
 	const style = node.computedStyle ?? {}
 	const frame = node.view?.frame?.size
 	const opacity = Number(style.opacity ?? node.props.opacity)
-	const parts = transformToParts(style.transform)
+	const parts =
+		typeof style.transform === 'string' ? transformToParts(style.transform) : undefined
 	return {
 		opacity: Number.isFinite(opacity) ? opacity : 1,
 		backgroundColor:
