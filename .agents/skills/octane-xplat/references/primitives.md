@@ -677,8 +677,10 @@ export function Alerts() {
 ## AppKit checkbox metadata
 
 Checkbox renders standalone label/description/status, reuses enclosing Field
-ownership, and hides text without dropping the accessible name. Metadata changes
-retain the host/state. Native input/layout/accessibility remain unqualified;
+ownership, and hides text without dropping the accessible name. labelTooltip now
+forwards to the standalone FormField info affordance; an enclosing Field keeps
+that chrome. Metadata changes retain the host/state. Native tooltip activation,
+input/layout/accessibility remain unqualified;
 changeAction is still ignored on AppKit, with mixed rollback contract work open.
 Use controlled state and onChange for saves; see
 [checkbox metadata](../../../../docs/app/components.md#checkbox-metadata-on-appkit).
@@ -687,7 +689,7 @@ Use controlled state and onChange for saves; see
 import { Checkbox } from '@octane-xplat/ui'
 
 export function IncludeArchived() {
-	return <Checkbox label="Include archived" description="Search older records" defaultValue />
+	return <Checkbox label="Include archived" labelTooltip="Include archived records" description="Search older records" defaultValue />
 }
 ```
 

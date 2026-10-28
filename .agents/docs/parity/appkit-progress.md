@@ -2995,3 +2995,27 @@ package tests/typechecks, installs, OS automation, visual analysis or shared aud
 snapshot regeneration ran; no evidence checkbox is closed. The separate Checkbox
 mixed rollback/type contradiction was surfaced for a human contract choice; no
 shared callback type or checkbox save behavior was silently changed.
+
+
+### AppKit checkbox label tooltip forwarding
+
+Checkbox already delegated standalone label/description chrome to FormField but
+omitted labelTooltip. Forwarded that existing prop; parent Field ownership and
+hidden-label suppression remain with the existing conditional chrome. Shared
+callback types and async checkbox behavior were not changed while the mixed
+rollback contract choice is pending. Guide/skill, existing feature note and
+appkit-checkbox-metadata AC1 were reconciled. This is a one-prop forwarding fix;
+no additional tests were added. Source/diff, TSRX syntax and whitespace review
+only, without native tooltip/input/focus/AX or presentation evidence.
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/checkbox.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All commands remain deferred pending explicit human authorization for this task.
+Existing source cases remain unrun. No new dependency, shared manifest/other target
+leaf, audit snapshot, OS automation or visual analysis was involved; no evidence
+checkbox is closed.

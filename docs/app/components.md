@@ -385,6 +385,8 @@ export function SelectAll({ onCheck }: { onCheck(checked: boolean): void }) {
 Standalone AppKit Checkbox renders its label and description beside the
 indicator, with status below. An enclosing Field owns this text instead.
 `isLabelHidden` hides the standalone text while retaining its accessible name.
+`labelTooltip` forwards to the label's existing info affordance; an enclosing Field
+owns that affordance instead. Native tooltip activation remains unqualified.
 Mixed state requests `true` when toggled; controlled parents apply the callback.
 Native input, nested hit testing, focus and accessibility remain unqualified.
 The AppKit leaf still ignores `changeAction`; use controlled state and save in
@@ -395,7 +397,7 @@ import { Checkbox } from '@octane-xplat/ui'
 
 export function IncludeArchived() {
 	return <Checkbox label="Include archived records" description="Search older entries"
-		defaultValue="indeterminate" status={{ type: 'warning', message: 'Some records are selected' }} />
+		labelTooltip="Include records saved in the archive" defaultValue="indeterminate" status={{ type: 'warning', message: 'Some records are selected' }} />
 }
 ```
 

@@ -45,7 +45,7 @@ export function Checkbox(inputProps: CheckboxProps) @{
 				size={props.size === 'sm' ? 'sm' : 'md'} isDisabled={props.isDisabled} />
 			{!inField && !props.isLabelHidden && (props.label != null || props.description != null) ?
 				<FormField className="vx-checkbox-text" inputID={controlID} label={props.label} description={props.description}
-					isRequired={props.isRequired} isOptional={props.isOptional} isDisabled={props.isDisabled}
+					labelTooltip={props.labelTooltip} isRequired={props.isRequired} isOptional={props.isOptional} isDisabled={props.isDisabled}
 					isReadOnly={props.isReadOnly} isLoading={props.isLoading} size={props.size} /> : null}
 		</masonview>
 		{!inField && props.status?.message != null ? <label id={`${controlID}-status`}
