@@ -14,7 +14,12 @@ function App(props: { wide: boolean; reverse: boolean }) {
 						views.parent = v
 					}}
 					transition={{ duration: 0.4, ease: 'linear' }}
-					style={{ width: props.wide ? 200 : 100, height: props.wide ? 200 : 100, borderRadius: 20, boxShadow: '0px 4px 12px 0px black' }}
+					style={{
+						width: props.wide ? 200 : 100,
+						height: props.wide ? 200 : 100,
+						borderRadius: 20,
+						boxShadow: '0px 4px 12px 0px black',
+					}}
 				>
 					{(props.reverse ? ['b', 'a'] : ['a', 'b']).map((id) => (
 						<motion.View
@@ -71,8 +76,16 @@ export async function runLayout() {
 		await flush()
 		const first = views.parent.bounds.size.width * scale(views.parent)
 		check(views.parent.bounds.size.width === 200, 'new layout measured')
-		check(Math.abs(views.parent.layer.cornerRadius * scale(views.parent) - 20) < 0.5, 'initial radius correction')
-		check(Math.abs(views.parent.layer.shadowRadius * scale(views.parent) - 12) < 0.5, 'initial shadow correction')
+		check(
+			Math.abs(views.parent.layer.cornerRadius * scale(views.parent) - 20) < 0.5,
+			'initial radius correction',
+		)
+
+		check(
+			Math.abs(views.parent.layer.shadowRadius * scale(views.parent) - 12) < 0.5,
+			'initial shadow correction',
+		)
+
 		check(Math.abs(first - 100) < 0.5, 'inverse projection before the next frame: ' + first)
 		check(
 			Math.abs(visual(views.parent).origin.x - parentBefore.origin.x) < 0.5,
@@ -88,7 +101,11 @@ export async function runLayout() {
 		const mid = views.parent.bounds.size.width * scale(views.parent)
 		const child = views.a.bounds.size.width * scale(views.a) * scale(views.parent)
 		check(mid > 110 && mid < 190, 'intermediate parent width: ' + mid)
-		check(Math.abs(views.parent.layer.cornerRadius * scale(views.parent) - 20) < 0.5, 'intermediate radius correction')
+		check(
+			Math.abs(views.parent.layer.cornerRadius * scale(views.parent) - 20) < 0.5,
+			'intermediate radius correction',
+		)
+
 		check(Math.abs(child - 50) < 0.5, 'nested correction: ' + child)
 		await sleep(400)
 		check(scale(views.parent) === 1, 'restored parent transform')
@@ -214,6 +231,153 @@ export async function runSharedLayout() {
 		console.log('MOTION_SHARED_LAYOUT_OK ' + JSON.stringify({ x, width }))
 	} finally {
 		root.unmount()
+		window.close()
+	}
+}
+
+import { ProjectionRoot } from '../src/projection/root'
+import { ProjectionNode } from '../src/projection/node'
+import { attachProjection } from '../src/projection/adapter'
+import { attachHost } from '../src/host'
+import { attachDrag } from '../src/drag'
+import { Controller } from '../src/controller'
+import { barrier } from '../src/projection/barrier'
+import { clock } from '../src/clock'
+import type { PanCallbacks } from '../src/host-types'
+import type { DragInfo } from '../src/types'
+
+const dragViews: Record<string, any> = {}
+function DragLayoutApp(props: { shifted: boolean }) {
+	return (
+		<View style={{ width: 400, height: 200 }}>
+			<View
+				ref={(view: any) => {
+					dragViews.parent = view
+				}}
+				style={{ marginLeft: props.shifted ? 100 : 0, width: 250, height: 120 }}
+			>
+				<View
+					ref={(view: any) => {
+						dragViews.card = view
+					}}
+					style={{ marginLeft: props.shifted ? 40 : 20, width: 80, height: 60 }}
+				/>
+			</View>
+		</View>
+	)
+}
+
+/** Real AppKit layout/layers with pan callback dispatch; no OS input claim. */
+export async function runDragLayout() {
+	const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
+		NSMakeRect(0, 0, 400, 200),
+		0,
+		2,
+		false,
+	)
+	window.releasedWhenClosed = false
+	const host = window.contentView
+	host.wantsLayer = true
+	const app = createMacOSRoot(host)
+	const root = new ProjectionRoot({ clock, barrier })
+	const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+	const flush = async () => {
+		for (let i = 0; i < 12; i++) {
+			await Promise.resolve()
+		}
+	}
+	const check = (value: boolean, name: string) => {
+		if (!value) {
+			throw new Error(name)
+		}
+	}
+	let off: (() => void) | undefined
+	let controller: Controller | undefined
+	let parent: ProjectionNode | undefined, card: ProjectionNode | undefined
+	try {
+		app.render(DragLayoutApp, { shifted: false })
+		await sleep(100)
+		parent = new ProjectionNode()
+		parent.options = { animationType: 'both', transition: { duration: 0.4, ease: 'linear' } }
+		const parentAdapter = attachProjection(parent, attachHost(dragViews.parent))
+		parent.setLatestValues(parentAdapter.read())
+		card = new ProjectionNode(parent)
+		card.options = { animationType: 'both', transition: { duration: 0.4, ease: 'linear' } }
+		let pan!: PanCallbacks
+		const adapter = attachProjection(card, {
+			...attachHost(dragViews.card),
+			pan(_axis, callbacks) {
+				pan = callbacks
+				return () => {}
+			},
+		})
+
+		controller = new Controller(clock)
+		controller.seed(adapter.read())
+		controller.attach(adapter)
+		root.add(parent)
+		root.add(card)
+		root.invalidate('commit')
+		const node = card,
+			channels = controller
+
+		const props = { drag: 'x' as const, dragMomentum: false }
+		off = attachDrag(
+			adapter,
+			channels,
+			props,
+			(axis) => channels.value(axis),
+			() => false,
+			() => props,
+			() => node,
+		)
+
+		await flush()
+		const info = (x: number): DragInfo => ({
+			point: { x, y: 0 },
+			offset: { x, y: 0 },
+			delta: { x, y: 0 },
+			velocity: { x: 0, y: 0 },
+			cancelled: false,
+		})
+
+		const x = () =>
+			Number(
+				dragViews.card.layer.convertRectToLayer(dragViews.card.layer.bounds, host.layer).origin.x,
+			)
+
+		pan.start({}, info(0))
+		pan.move({}, info(20))
+		await sleep(40)
+		const before = x()
+		app.render(DragLayoutApp, { shifted: true })
+		await flush()
+		check(Math.abs(x() - before) < 0.5, 'AppKit drag survives layout commit')
+		check(card.currentAnimation === undefined, 'AppKit drag blocks layout animation')
+		await sleep(120)
+		check(Math.abs(x() - before) < 0.5, 'AppKit drag holds through ancestor animation')
+		pan.move({}, info(30))
+		await sleep(40)
+		check(Math.abs(x() - before - 10) < 0.5, 'AppKit drag origin rebases')
+		pan.end({}, info(30))
+		await flush()
+		check(!card.isAnimationBlocked, 'AppKit release clears layout block')
+		check(Math.abs(x() - before - 10) < 0.5, 'AppKit early release continuity')
+		await sleep(450)
+		check(Math.abs(x() - before - 10) < 0.5, 'AppKit ancestor settlement has no drag drift')
+		console.log('MOTION_DRAG_LAYOUT_OK ' + JSON.stringify({ before, after: x() }))
+	} finally {
+		off?.()
+		controller?.destroy()
+		if (card) {
+			root.remove(card)
+		}
+
+		if (parent) {
+			root.remove(parent)
+		}
+
+		app.unmount()
 		window.close()
 	}
 }
