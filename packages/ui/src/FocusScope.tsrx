@@ -6,9 +6,8 @@ import type { FocusScopeCapabilities, FocusScopeProps } from './props'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps, nativeAccessibilityState, nativeAccessibilityRole } from './escape-props'
 
-/** Which `FocusScope` behavior flags this target honors — none on native;
- *  keyboard focus containment is a web convention, so the flags are inert
- *  and the leaf renders a plain accessible container. */
+/** Which `FocusScope` behavior flags this default mobile leaf honors — none.
+ * Desktop AppKit has a dedicated native focus implementation. */
 export function getFocusScopeCapabilities(): FocusScopeCapabilities {
 	return { contain: false, autoFocus: false, restoreFocus: false, nestedScopes: false }
 }

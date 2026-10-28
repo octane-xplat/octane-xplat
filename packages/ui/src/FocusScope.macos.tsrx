@@ -1,65 +1,59 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import { useEffect, useMemo, useRef } from 'octane'
 import { mergeStyle } from './style-merge'
-import { useMemo } from 'octane'
 import { refList } from './ref-list'
 import type { FocusScopeCapabilities, FocusScopeProps } from './props'
 import { applyEscapeProps } from './escape-props'
+import { createAppKitFocusScopeManager } from './focus-scope-state.macos'
 
-/** Which `FocusScope` behavior flags this target honors — none on macOS;
- *  keyboard focus containment is a web convention and the leaf renders a
- *  plain accessible container. */
+const scopes = createAppKitFocusScopeManager()
+const hot = (import.meta as ImportMeta & { hot?: { dispose(callback: () => void): void } }).hot
+hot?.dispose(() => scopes.dispose())
+
+/** Report native bridge capability, separately from OS input qualification. */
 export function getFocusScopeCapabilities(): FocusScopeCapabilities {
-	return { contain: false, autoFocus: false, restoreFocus: false, nestedScopes: false }
+	return scopes.capabilities()
 }
 
-// Report inert flags once per flag — the leaf can't honor them, so a caller
-// passing one should learn about it rather than assume containment.
-const warnedFocusScopeFlags = new Set<string>()
-function warnInertFocusScopeFlag(flag: 'contain' | 'autoFocus' | 'restoreFocus') {
-	if (warnedFocusScopeFlags.has(flag)) {
-		return
+const warnedFlags = new Set<string>()
+function warnUnavailableFlags(props: FocusScopeProps) {
+	const capabilities = scopes.capabilities()
+	for (const flag of ['contain', 'autoFocus', 'restoreFocus'] as const) {
+		if (props[flag] && !capabilities[flag] && !warnedFlags.has(flag)) {
+			warnedFlags.add(flag)
+			console.warn(`[octane-xplat] FocusScope: '${flag}' is unavailable in this AppKit host; check getFocusScopeCapabilities()`)
+		}
 	}
-
-	warnedFocusScopeFlags.add(flag)
-	console.warn(
-		`[octane-xplat] FocusScope: '${flag}' has no effect on this platform — getFocusScopeCapabilities() reports the supported flags`,
-	)
 }
 
-/** FocusScope macOS leaf — keyboard focus containment is a web convention;
- *  `contain`/`restoreFocus`/`autoFocus` are inert and the leaf renders a
- *  plain accessible container. Same public props as the web leaf. */
+/** AppKit focus containment/autofocus/restoration for native descendants.
+ * Nested scopes choose the innermost containing owner within each window. */
 export function FocusScope(props: FocusScopeProps) @{
-	if (props.contain) {
-		warnInertFocusScopeFlag('contain')
-	}
-
-	if (props.autoFocus) {
-		warnInertFocusScopeFlag('autoFocus')
-	}
-
-	if (props.restoreFocus) {
-		warnInertFocusScopeFlag('restoreFocus')
-	}
-
-	const forwardedRef = useMemo(
-		() =>
-			refList((v: any) => {
-				if (v) {
-					applyEscapeProps(v, props)
-				}
-			}, props.ref),
-		[props.ref, props.ios, props.android, props.web],
-	)
+	const root = useRef<NSView | null>(null)
+	const live = useRef(props)
+	live.current = props
+	const forwardedRef = useMemo(() => refList<object>(root, props.ref), [props.ref])
+	useEffect(() => {
+		const view = root.current
+		if (!view) return
+		applyEscapeProps(view, live.current)
+		const release = scopes.bind(view, () => live.current)
+		warnUnavailableFlags(live.current)
+		return release
+	}, [])
 
 	<masonview
 		id={props.id}
 		ref={forwardedRef}
 		className={props.className}
 		style={mergeStyle({ display: 'flex' }, props.style)}
+		accessible={props.accessible}
 		accessibilityLabel={props.accessibilityLabel}
 		accessibilityRole={props.accessibilityRole}
 		accessibilityHint={props.accessibilityHint}
+		accessibilityValue={props.accessibilityValue}
+		accessibilityState={props.accessibilityState}
+		accessibilityLiveRegion={props.accessibilityLiveRegion}
 	>
 		{props.children}
 	</masonview>

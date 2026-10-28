@@ -145,8 +145,8 @@ read retention and partial-registration failure. They and the maintained
 `focus-modality.macos.tsrx` probe are authored but not run. Syntax parsing and
 whitespace checks are the only validation. Actual hook updates, physical input,
 text focus callbacks, focus appearance and VoiceOver remain unqualified.
-FocusScope and subtree-focus limitations are unchanged; this is modality
-tracking rather than containment or a claim of finished focus parity.
+FocusScope is tracked separately below; subtree-focus tracking remains
+unsupported. Modality tracking is not a claim of finished focus parity.
 
 Deferred commands for this slice:
 
@@ -161,3 +161,43 @@ After authorization, exercise real Tab/Shift+Tab, pointer buttons, Command/
 Control/Option shortcuts, app deactivation, two simultaneous hook readers,
 last-reader unmount/remount and HMR cleanup. The probe only exposes state and
 initial bridge capability; that alone is not OS-input evidence.
+
+## Native FocusScope ownership
+
+The AppKit leaf now binds a native scope manager for autofocus, containment,
+restoration and nested ownership within each window. It traverses visible,
+enabled native descendants, wraps Tab/Shift+Tab in native subview order,
+preserves modified shortcuts and marked-text composition, and observes window
+updates/key activation to handle delayed attachment and outside focus moves.
+Shared field editors resolve back to their owning text controls. Restoration
+checks the saved target's window/eligibility and preserves newer independent
+scopes. Cached ancestry keeps nested return behavior independent of effect
+order and native detachment. Subtree-focus hooks are still a separate gap.
+
+The renderer now retains programmatic-focus targets for scope boxes, excluding
+them from ordinary Tab stops without adding a fake click action. Enter/Space
+still dispatch only real actions. Retention is reference-counted and released
+on teardown. `getFocusScopeCapabilities()` checks the native bridge rather than
+returning an unconditional support claim. Hosted editors and separate popup
+windows are not contained as descendants of another native scope.
+
+Source regressions and a maintained programmatic focus/restore probe are
+added. Parser and whitespace checks passed; tests, actual focus/key delivery,
+Tab policy, IME, focus appearance, VoiceOver, HMR and packaged behavior have
+NOT run. No evidence-gated checkbox is closed from this implementation.
+
+Deferred commands:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/ui -- src/focus-scope-state.macos.test.ts
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/macos-renderer
+pnpm probe run examples/probes/focus-scope.macos.tsrx --target macos --watch
+pnpm check:recipes
+```
+
+After authorization, exercise real forward/backward Tab, live disable/hide/
+reorder, empty/nested scopes, outer-before-inner teardown, delayed/reparented
+views, two windows, IME candidate windows, focus restoration after removal,
+VoiceOver and repeated/HMR teardown. The programmatic probe is not OS-input
+or pixel evidence.

@@ -55,6 +55,7 @@ test('AppKit meter and progressbar roles report range, value, and description', 
 			stackAccessibilityPropsByView: stackProps,
 			invokeAction: () => {},
 			inputTransparentViews: new WeakSet(),
+			scopeFocusTargets: new WeakMap(),
 		},
 	)
 

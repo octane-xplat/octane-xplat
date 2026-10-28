@@ -10,6 +10,8 @@ declare global {
 	// Cross-package bridge published by this renderer for AppKit-specific leaves
 	// (hover, popups, menus, sheets) and the VirtualList offset channel.
 	var __xplatAppKit: {
+		/** Retain programmatic focus on a scope box without a Tab stop/action. */
+		retainFocusTarget?: (view: import('@octane-xplat/platform/macos').NSView) => () => void
 		observeHover?: (view: import('@octane-xplat/platform/macos').NSView, handlers: any) => void
 		showAnchoredPopup?: (options: any) => void
 		showLayer?: (options: any) => any

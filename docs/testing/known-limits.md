@@ -463,7 +463,10 @@ if (result === 'unavailable') console.log('Sharing unavailable')
   — post-0.14.0·desk.
 - **Focus APIs report their supported subset** — `getFocusScopeCapabilities()`
   reports web containment/autofocus/restoration and `nestedScopes: false`;
-  native and macOS report all four false. `useGridList().isSupported` and
+  the default mobile leaf reports all four false. AppKit now implements native
+  containment/autofocus/restoration and per-window nested ownership when its
+  renderer/input bridge is available; real OS behavior remains unqualified.
+  `useGridList().isSupported` and
   `useFocusWithin().isSubtreeTrackingSupported` are false on native/macOS.
   `useFocusVisible()` reports typed `inputModality` (`keyboard`, `pointer`, or
   `unknown`) plus `isSupported`; the default mobile leaf returns false and

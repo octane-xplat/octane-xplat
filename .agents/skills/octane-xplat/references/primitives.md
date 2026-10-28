@@ -89,6 +89,24 @@ export function Controls() {
 
 ## Native macOS interaction
 
+AppKit `FocusScope` implements containment/autofocus/restoration and nested
+ownership when its renderer/input bridge is available. Check
+`getFocusScopeCapabilities()`; capability presence is not OS-input evidence.
+Use a scope for native descendants rather than adding a no-op press action
+to make a box focusable. Separate popup windows and hosted editors need their
+own focus owners. See [focus behavior](../../../../docs/app/primitives.md#focus-behavior)
+for the current subset and unqualified runtime cases.
+
+```tsx
+import { FocusScope, TextInput } from '@octane-xplat/ui'
+
+export function Details() {
+	return <FocusScope contain autoFocus restoreFocus accessibilityLabel="Details">
+		<TextInput label="Name" />
+	</FocusScope>
+}
+```
+
 AppKit `useFocusVisible` now reports keyboard/mouse modality when its native
 observer is available. Check `isSupported`; it is a bridge capability rather
 than OS-input evidence. Prefer the subscribed hook for render readers. A

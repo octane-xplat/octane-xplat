@@ -694,6 +694,8 @@ const inputTransparentViews = new WeakSet<object>()
 
 // The macOS Slider uses the grid host as an overlay when no tracks are set.
 
+const scopeFocusTargets = new WeakMap<object, number>()
+
 /** Plain NSView host for interactive containers — tap/keyboard/AX actions
  *  dispatch through the shared actionId registry. Mason-backed containers
  *  subclass this so a tappable stack/grid exposes the same accessibility
@@ -703,13 +705,20 @@ class AccessibleHostView extends NSView {
 	// keyboard as well as accessibility actions.
 	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
 	acceptsFirstResponder() {
-		return typeof actionHandlers.get(actionIdsByView.get(this) ?? -1) === 'function'
+		return typeof actionHandlers.get(actionIdsByView.get(this) ?? -1) === 'function' ||
+			(scopeFocusTargets.get(this) ?? 0) > 0
+	}
+	// Scope fallback boxes accept programmatic focus but are not Tab stops.
+	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
+	canBecomeKeyView() {
+		return !scopeFocusTargets.has(this) && this.acceptsFirstResponder() &&
+			this.accessibilityIsEnabled() && !this.hiddenOrHasHiddenAncestor
 	}
 
 	keyDown(event: any) {
 		if (
 			(Number(event.keyCode) === 36 || Number(event.keyCode) === 49) &&
-			this.acceptsFirstResponder()
+			typeof actionHandlers.get(actionIdsByView.get(this) ?? -1) === 'function'
 		) {
 			invokeAction(actionIdsByView.get(this)!)
 			return
@@ -9947,6 +9956,17 @@ function installResizeObserver() {
 // Appearance flips change ns-light/ns-dark on roots and may flip media-gated rules.
 appKitBridge.onAppearanceChange?.(() => restyleAllContainers())
 appKitBridge.observeHover = observeHover
+appKitBridge.retainFocusTarget = (view: NSView) => {
+	scopeFocusTargets.set(view, (scopeFocusTargets.get(view) ?? 0) + 1)
+	let active = true
+	return () => {
+		if (!active) return
+		active = false
+		const count = (scopeFocusTargets.get(view) ?? 1) - 1
+		if (count > 0) scopeFocusTargets.set(view, count)
+		else scopeFocusTargets.delete(view)
+	}
+}
 appKitBridge.showAnchoredPopup = showAnchoredPopup
 appKitBridge.showLayer = (options: PropBag) =>
 	showWindowLayer(options as WindowLayerOptions, {

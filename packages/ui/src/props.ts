@@ -12866,8 +12866,9 @@ export interface VisuallyHiddenProps extends AccessibilityProps {
 
 /** Per-target support for `FocusScope` behavior, read through
  *  `getFocusScopeCapabilities()`. Web honors containment, autofocus, and
- *  restoration but does not stack nested scopes. Native and macOS leaves
- *  render an accessible container only. */
+ *  restoration but does not stack nested scopes. AppKit implements all four
+ *  when its native bridge is available; the default mobile leaf is inert.
+ *  Capability presence is separate from actual OS-input qualification. */
 export interface FocusScopeCapabilities {
 	/** Tab/Shift+Tab containment inside the subtree. */
 	contain: boolean
@@ -12883,9 +12884,10 @@ export interface FocusScopeCapabilities {
  *  web leaf traps Tab inside the subtree (`contain`), can focus the first
  *  tab stop on mount (`autoFocus`), and returns focus to the previously
  *  focused element on unmount (`restoreFocus`). The web leaf does not stack
- *  nested scopes; native leaves render a plain accessible container and the
- *  three behavior flags are inert. `getFocusScopeCapabilities()` reports
- *  which behaviors the target honors.
+ *  nested scopes. AppKit uses native descendant traversal, per-window nested
+ *  ownership and first-responder restoration when its bridge is available.
+ *  The default mobile leaf renders a plain container with inert flags.
+ *  `getFocusScopeCapabilities()` reports available behavior, not OS-input proof.
  *
  * @example
  * ```tsx

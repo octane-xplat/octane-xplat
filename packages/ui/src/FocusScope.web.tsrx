@@ -13,8 +13,8 @@ import { applyWebProps } from './platformProps.web'
  *  mounted, matching modal-focus's single-owner model. */
 
 /** Which `FocusScope` behaviors this target honors. Web supports the three
- *  flags but does not stack nested scopes; native leaves report all four
- *  capabilities false. */
+ *  flags but does not stack nested scopes. Default mobile leaves report all
+ *  four false; AppKit has a separate native bridge implementation. */
 export function getFocusScopeCapabilities(): FocusScopeCapabilities {
 	return { contain: true, autoFocus: true, restoreFocus: true, nestedScopes: false }
 }

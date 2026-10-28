@@ -534,7 +534,8 @@ Hook readers share one monitor and the last unmount releases it. AppKit's
 NativeScript still reports false and unknown; `useFocusRing` exposes support
 through `isFocusVisibleSupported`. `FocusScope` reports containment, autofocus,
 restoration, and nested-scope support. Web supports the first three but does
-not stack nested scopes; NativeScript and macOS support none of these behaviors.
+not stack nested scopes. AppKit implements all four when its native bridge is
+available; the default NativeScript leaf still reports all four false.
 AppKit physical input, focus callbacks, focus appearance and VoiceOver remain
 unqualified.
 
@@ -567,6 +568,27 @@ the caller to updates; use the hook for rendering. Neither API moves focus.
 import { isFocusVisible } from '@octane-xplat/ui'
 
 const lastInputWasKeyboard = isFocusVisible()
+```
+
+On AppKit, scopes traverse enabled, visible native views in native subview order.
+The innermost containing scope owns Tab within its window; modified shortcuts
+and IME composition pass through. An empty scope can receive programmatic focus
+without becoming an ordinary Tab stop or gaining a click action. Restoration
+returns to the saved native control when it still belongs to the window,
+without overriding a newer independent scope. Only native descendants in that
+window participate; hosted editors and separate popup windows need their own
+owners. These behaviors are implemented but real OS input, focus appearance,
+IME and VoiceOver remain unqualified.
+
+```tsx
+import { FocusScope, TextInput } from '@octane-xplat/ui'
+
+export function Details() {
+	return <FocusScope contain autoFocus restoreFocus accessibilityLabel="Details">
+		<TextInput label="Name" />
+		<TextInput label="Notes" />
+	</FocusScope>
+}
 ```
 
 ### Reusable rows

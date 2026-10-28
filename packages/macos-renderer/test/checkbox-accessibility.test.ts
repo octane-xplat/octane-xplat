@@ -48,6 +48,7 @@ test('AppKit checkbox/radio roles and values update and disabled controls reject
 			stackAccessibilityPropsByView: new WeakMap(),
 			invokeAction: (id) => handlers.get(id)(),
 			inputTransparentViews: new WeakSet(),
+			scopeFocusTargets: new WeakMap(),
 		},
 	)
 
