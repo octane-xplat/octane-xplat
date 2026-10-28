@@ -572,7 +572,9 @@ test('runtime build flows through the host: job, logs, evidence, idle exit', () 
 test('session start binds an owned session and end releases it', () => {
 	const root = makeWorkspace('sessrun')
 	makeLinkedApp(root)
-	const env = { XPLAT_AGENT_HOST_IDLE_MS: '5000' }
+	// Keep the host alive through the stopped-identity assertion on busy workers.
+	// The preceding runtime-build test covers idle shutdown separately.
+	const env = { XPLAT_AGENT_HOST_IDLE_MS: '120000' }
 
 	const started = json(run(['session', 'start', 'web', '--project', root, '--json'], { env }))
 
