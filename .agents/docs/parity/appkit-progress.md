@@ -1684,3 +1684,42 @@ Actual re-enable mouse/keyboard delivery, gesture arbitration, native recognizer
 lifecycle, VoiceOver and packaging remain unqualified. No builds, installs,
 package tests/typechecks, OS automation, visual analysis or shared audit snapshot
 regeneration ran; no evidence checkbox is closed.
+
+
+### AppKit checkbox-list composition
+
+ComponentsDemo uses CheckboxList for ordinary multi-choice forms. Its AppKit
+leaf ignored CheckboxListItem children, option descriptions/endContent and
+hasDividers, and the macOS root explicitly exported generic child .tsrx code.
+The target now provides the existing CheckboxListContext to both option and
+child rows, with one checked-set owner. Uncontrolled batched writes read the
+latest set; unchanged membership requests are idempotent. Controlled parents
+still own feedback. Value-less/standalone rows use isChecked/onCheck independently,
+including mixed→true requests. Group and item disabled/read-only gates apply.
+
+The new target child exposes checkbox/name/checked/mixed semantics, descriptions/
+endContent, normalized class/style forms and indicator registry support. Root
+exports explicitly select it. One stable FormField renders standalone metadata;
+parent Field keeps ownership. Static layout is scoped macOS CSS; horizontal and
+divider classes are forwarded without claiming native appearance. Each action
+host remains an independent Tab candidate, using the repaired late-click bridge;
+there is no radio-style roving behavior for these multi-choice rows.
+
+Authored source cases cover options/children, batched/idempotent membership,
+controlled feedback, standalone mixed state, metadata/host retention and Field
+gates. Added a maintained direct-selection/select-all fixture and reconciled
+guide/skill/recipe/release coverage. Syntax/whitespace only; no tests/probe ran.
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/checkbox-list.macos.mobile.test.tsrx src/checkbox.macos.mobile.test.tsrx
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/macos-renderer
+pnpm probe run examples/probes/checkbox-list.macos.tsrx --target macos --watch
+pnpm check:recipes
+```
+
+All commands remain deferred until this task's explicit human authorization.
+Actual click/re-enable/key/Tab delivery, mixed-state VoiceOver, trailing-control
+arbitration, divider/RTL/layout appearance, custom indicators and packaging remain
+unqualified. No builds, installs, tests/typechecks, OS automation, visual analysis
+or shared audit regeneration ran; no evidence checkbox is closed.

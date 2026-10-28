@@ -798,6 +798,11 @@
 
 
 	@platform macos {
+		.vx-checkbox-group--appkit { display: flex; flex-direction: column; }
+		.vx-checkbox-group--appkit.vx-checkbox-group--row { flex-direction: row; }
+		.vx-checkboxlist-row--appkit { display: flex; flex-direction: row; align-items: center; gap: 8px; }
+		.vx-checkboxlist-label--appkit { display: flex; flex-direction: column; }
+		.vx-checkboxlist-end--appkit { display: flex; }
 		.vx-pininput--appkit { display: flex; flex-direction: row; }
 		.vx-radio-group--appkit { display: flex; flex-direction: column; }
 		.vx-radio-group--appkit.vx-radio-group--row { flex-direction: row; }

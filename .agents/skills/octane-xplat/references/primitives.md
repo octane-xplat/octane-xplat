@@ -808,3 +808,25 @@ export function Choice({ saving }: { saving: boolean }) {
 	return <Checkbox label="Include archived" isDisabled={saving} />
 }
 ```
+
+
+## AppKit checkbox-list composition
+
+CheckboxList options and CheckboxListItem children now share selection and Field
+ownership. Standalone/value-less items use controlled isChecked/onCheck, with
+native mixed-state semantics. Group writes are idempotent and uncontrolled
+batched requests preserve the latest set. Description/endContent, indicator
+registry and class/style/divider hooks are forwarded. Native clicks/Tab, nested
+controls, mixed VoiceOver and layout remain unqualified; see
+[checkbox lists](../../../../docs/app/components.md#checkbox-lists-on-appkit).
+
+```tsx
+import { CheckboxList, CheckboxListItem } from '@octane-xplat/ui'
+
+export function Features() {
+	return <CheckboxList label="Features" defaultValue={['email']}>
+		<CheckboxListItem value="email" label="Email" description="Daily summary" />
+		<CheckboxListItem value="alerts" label="Alerts" />
+	</CheckboxList>
+}
+```

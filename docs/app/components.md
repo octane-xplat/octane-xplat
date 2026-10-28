@@ -345,6 +345,41 @@ export function LockedPlan() {
 }
 ```
 
+### Checkbox lists on AppKit
+
+AppKit CheckboxList now shares a checked-value set across `options` and
+CheckboxListItem children, including descriptions and trailing content. A
+standalone item without `value` uses `isChecked`/`onCheck` instead, so it can
+represent a mixed-state “select all” row. Controlled owners apply the requested
+array or boolean feedback. Field metadata renders once and inherited disabled/
+read-only state blocks both member and standalone rows.
+
+```tsx
+import { useState } from 'octane'
+import { CheckboxList, CheckboxListItem } from '@octane-xplat/ui'
+
+export function Notifications() {
+	const [value, setValue] = useState<string[]>([])
+	return <CheckboxList label="Notifications" value={value} onValueChange={setValue}
+		options={[{ value: 'email', label: 'Email', description: 'A daily summary' }]}>
+		<CheckboxListItem value="alerts" label="Alerts" description="Immediate updates" />
+	</CheckboxList>
+}
+```
+
+Rows expose native checkbox names and mixed/checked state. Indicator overrides,
+composed class/style forms and the divider class remain available. Native input,
+independent Tab stops, mixed-state VoiceOver, nested trailing controls, divider/
+layout appearance and packaging remain unqualified.
+
+```tsx
+import { CheckboxListItem } from '@octane-xplat/ui'
+
+export function SelectAll({ onCheck }: { onCheck(checked: boolean): void }) {
+	return <CheckboxListItem label="All notifications" isChecked="indeterminate" onCheck={onCheck} />
+}
+```
+
 ### Checkbox metadata on AppKit
 
 Standalone AppKit Checkbox renders its label and description beside the
