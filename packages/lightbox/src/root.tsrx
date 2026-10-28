@@ -13,8 +13,7 @@ import { OPEN, CLOSE, REDUCED } from './constants'
 import { clamp } from './math'
 import { reduce } from './state'
 import type { RootAction, RootEffect, RootState } from './state'
-import { viewRect } from './rect'
-import { createNativeTriggerVisibility } from './native-trigger'
+import { createNativeTriggerVisibility, nativeVisibleFraction, pickNativeTrigger } from './native-trigger'
 import { scrollTriggerIntoView } from './scroll-sync'
 import { Image, type ImageController } from './Image.tsrx'
 import type { Intent } from './gesture-machine'
@@ -122,14 +121,6 @@ const initialState = (): RootState => ({
 	held: null,
 })
 
-const visibleFraction = (view: any) => {
-	const r = viewRect(view)
-	if (!r || !r.w || !r.h) return 0
-	// Full-screen surface: the visible fraction is just whether the rect is
-	// on-screen at all on native (no scroll-snap viewport to clip against).
-	return r.x + r.w > 0 && r.y + r.h > 0 && r.x < r.x + r.w + 1e9 ? 1 : 0
-}
-
 export function Root(props: LightboxRootProps) @{
 	const {
 		media: items,
@@ -171,9 +162,8 @@ export function Root(props: LightboxRootProps) @{
 
 	const pickTrigger = useEffectEvent(
 		(i: number, scroll: 'auto' | 'instant' | 'smooth' | false): any => {
-			const list = [...(triggers.get(i) ?? [])].filter((v) => v?.parent)
-			const el = list.includes(openTrigger.current) ? openTrigger.current : (list[0] ?? null)
-			if (el && scroll) scrollTriggerIntoView(el)
+			const el = pickNativeTrigger(triggers.get(i) ?? [], openTrigger.current)
+			if (el && scroll) scrollTriggerIntoView(el, scroll === 'smooth' ? 'smooth' : 'instant')
 			return el
 		},
 	)
@@ -330,8 +320,12 @@ export function Root(props: LightboxRootProps) @{
 	useEffect(() => {
 		if (state.phase !== 'open') return
 		hideTrigger(pickTrigger(state.index, false))
-		if (scrollTriggerOption) scrollTriggerIntoView(pickTrigger(state.index, false))
-	}, [state.index, state.phase])
+		const trigger = pickTrigger(state.index, false)
+		if (trigger && scrollTriggerOption && nativeVisibleFraction(trigger) < 0.99) {
+			const timer = setTimeout(() => scrollTriggerIntoView(trigger, scrollTriggerOption), 150)
+			return () => clearTimeout(timer)
+		}
+	}, [state.index, state.phase, scrollTriggerOption])
 	useLayoutEffect(() => {
 		if (state.phase === 'closed') hideTrigger(null)
 	}, [state.phase])

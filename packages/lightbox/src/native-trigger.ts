@@ -82,3 +82,17 @@ export function createNativeTriggerVisibility() {
 		}
 	}
 }
+
+/** Preserve the opening source when still attached/measurable; otherwise use
+ * the most visible registration for this media index, as upstream does. */
+export function pickNativeTrigger(candidates: Iterable<any>, opening: any) {
+	const list = [...candidates].filter(view => view?.parent)
+	if (list.includes(opening) && valid(viewRect(opening))) return opening
+	let best: any = null
+	let seen = 0
+	for (const view of list) {
+		const fraction = nativeVisibleFraction(view)
+		if (fraction > seen + 0.01) { best = view; seen = fraction }
+	}
+	return best ?? list[0] ?? null
+}

@@ -221,3 +221,18 @@ uniform-scale endpoint through this adapter; it explicitly takes the fade
 fallback. This is an adapter limitation, not a claim that NativeScript cannot
 render those modes. Native runtime qualification remains pending. Tests cover
 numeric crops and restoration of image-only visibility, not presented pixels.
+
+## Native page synchronization audit repair
+
+The no-op offset write is replaced with a nearest-edge delta in the supported
+scroll axis, clamped to the host's scrollable extent. Normal navigation uses
+the configured smooth/instant behavior after 150 ms; close requests instant
+synchronization before measuring its morph target. Disabled synchronization
+makes no scroll request. Trigger selection ranks clipped visible duplicates,
+preserving the attached measurable opening registration under upstream rules.
+
+Only ancestors exposing an offset API and scrollable extent are supported.
+Index-only ListView/RadListView hosts need an explicit index adapter; this
+repair does not guess an index or claim recycled-list support. Detached or
+unusable morph sources fade. Numeric tests cover both axes and selection;
+actual native scrolling/layout remains pending runtime qualification.

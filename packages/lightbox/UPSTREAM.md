@@ -117,6 +117,14 @@ behavior, rather than used as evidence of parity.
   raw none-stretched source falls back to fading rather than pretending its
   crop is a uniform-scale morph. Device crop/morph qualification remains open.
 
+- Native trigger selection now ranks clipped visible registrations while
+  preserving the measurable opening source. Page sync calculates a bounded
+  offset for the nearest ancestor exposing a ScrollView-style axis API,
+  honors smooth/instant/disabled options and delays open-phase sync as
+  upstream does. Index-only lists do not masquerade as offset scrollers.
+  Numeric tests cover both axes, bounds, duplicates and detached hosts.
+  Real native scrolling and post-scroll morph targets still need qualification.
+
 ## Qualification boundary
 
 This was a source and documentation audit of the pinned reference, not an
