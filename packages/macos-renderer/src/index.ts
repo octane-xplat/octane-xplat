@@ -38,7 +38,7 @@ import {
 } from './gestures'
 
 import { showWindowLayer, type WindowLayerOptions } from './layer'
-import { disposeImage, imageMemoryCache, updateImage } from './image'
+import { disposeImage, imageCache, imageMemoryCache, updateImage } from './image'
 import { disposeTextValue, isWritingTextValue, notifyTextValueCommit, setTextValue } from './text-value.ts'
 import { enforceTextLimit, isNormalizingTextLimit, recordTextLimitEdit, rememberTextLimitValue, reportTextLimitChange } from './text-limit.ts'
 import { notifyImageGeometry, setImageGeometryHandler } from './image-geometry.ts'
@@ -10376,6 +10376,7 @@ function installResizeObserver() {
 // Appearance flips change ns-light/ns-dark on roots and may flip media-gated rules.
 appKitBridge.onAppearanceChange?.(() => restyleAllContainers())
 appKitBridge.imageMemoryCache = imageMemoryCache
+appKitBridge.imageCache = imageCache
 appKitBridge.observeHover = observeHover
 Object.defineProperty(appKitBridge, 'keyboardEventsSupported', {
 	configurable: true,

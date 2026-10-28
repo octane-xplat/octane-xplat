@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { disposeImage, loadImage, updateImage } from '../src/image.ts'
 import { mockGlobals } from './mock-globals.ts'
+import { rendererImageFixture } from './fixtures/renderer-image.ts'
 
 test('embedded and local image sources decode without network access; empty sources clear', () => {
 	const restore = mockGlobals({
@@ -104,107 +105,27 @@ test('uncached sources decode off the caller path; cached, stale and disposed lo
 	}
 })
 
-test('remote sources fetch through NSURLSession; placeholder paints while pending and stands on failure', async () => {
-	const tasks: any[] = []
-	const restore = mockGlobals({
-		NSImage: {
-			alloc: () => ({
-				initWithData: (data) => ({ data }),
-				initWithContentsOfFile: (path) => ({ path }),
-				initWithContentsOfURL: (url) => ({ url }),
-			}),
-			imageNamed: (name) => ({ named: name }),
-		},
-		NSData: {
-			alloc: () => ({
-				initWithBase64EncodedStringOptions: (value, options) => ({ value, options }),
-			}),
-		},
-		NSURL: { URLWithString: (value) => value },
-		NSURLRequest: { requestWithURL: (url) => ({ url }) },
-		NSURLCache: {
-			sharedURLCache: {
-				cachedResponseForRequest: (request) => staged[request.url] ?? null,
-			},
-		},
-		NSOperationQueue: { mainQueue: { addOperationWithBlock: (block) => block() } },
-		NSURLSession: {
-			sharedSession: {
-				dataTaskWithURLCompletionHandler: (url, handler) => {
-					const task = {
-						url,
-						handler,
-						resumed: false,
-						cancel() {},
-						resume() {
-							this.resumed = true
-						},
-					}
-					tasks.push(task)
-					return task
-				},
-			},
-		},
-	})
-
-	const staged: Record<string, any> = {}
-	const placeholder = 'data:image/png;base64,YQ=='
-	const placeholderImage = { data: { value: 'YQ==', options: 0 } }
+test('remote sources use owned transport; placeholders paint while pending and remain on failure', async () => {
+	const env = rendererImageFixture(), placeholder = 'data:image/png;base64,YQ=='
+	const expected = { data: { value: 'YQ==', options: 0 } }, views: any[] = []
+	const view = () => { const next: any = { image: null }; views.push(next); return next }
 	try {
-		// While the fetch is pending, the placeholder paints into the same view.
-		const view = { image: null }
-		updateImage(view, 'https://x/photo.png', placeholder)
-		assert.deepEqual(view.image, placeholderImage)
-		assert.equal(tasks.length, 1)
-		assert.equal(tasks[0].resumed, true)
-
-		// A resolved fetch replaces the placeholder.
-		tasks[0].handler({ remote: 'photo-bytes' }, { statusCode: 200 }, null)
-		assert.deepEqual(view.image, { data: { remote: 'photo-bytes' } })
-
-		// A second view for the same URL hits the cache synchronously and
-		// never paints its placeholder.
-		const cached = { image: null }
-		updateImage(cached, 'https://x/photo.png', placeholder)
-		assert.deepEqual(cached.image, { data: { remote: 'photo-bytes' } })
-		assert.equal(tasks.length, 1)
-
-		// A failed fetch leaves the placeholder standing.
-		const failing = { image: null }
-		updateImage(failing, 'https://x/missing.png', placeholder)
-		assert.deepEqual(failing.image, placeholderImage)
-		tasks[1].handler(null, null, new Error('404'))
-		assert.deepEqual(failing.image, placeholderImage)
-
-		// No placeholder: failure clears the view.
-		const bare = { image: null }
-		updateImage(bare, 'https://x/gone.png')
-		tasks[2].handler(null, null, new Error('500'))
-		assert.equal(bare.image, null)
-
-		// A superseding source invalidates a fetch still in flight.
-		const swapped = { image: null }
-		updateImage(swapped, 'https://x/old.png', placeholder)
-		updateImage(swapped, 'data:image/png;base64,Yg==', placeholder)
-		assert.equal(tasks.length, 4)
-		tasks[3].handler({ remote: 'old-bytes' }, { statusCode: 200 }, null)
-		await new Promise((resolve) => setTimeout(resolve, 0))
+		const first = view(); env.updateImage(first, 'https://x/photo.png', placeholder)
+		assert.deepEqual(first.image, expected); await env.start(); assert.equal(env.tasks.length, 1)
+		env.tasks[0].handler({ remote: 'photo-bytes' }, { statusCode: 200 }, null); env.flush()
+		assert.deepEqual(first.image, { data: { remote: 'photo-bytes' } })
+		const cached = view(); env.updateImage(cached, 'https://x/photo.png', placeholder)
+		assert.deepEqual(cached.image, { data: { remote: 'photo-bytes' } }); assert.equal(env.tasks.length, 1)
+		const failing = view(); env.updateImage(failing, 'https://x/missing.png', placeholder)
+		assert.deepEqual(failing.image, expected); await env.start()
+		env.tasks[1].handler(null, null, Error('404')); env.flush(); assert.deepEqual(failing.image, expected)
+		const bare = view(); env.updateImage(bare, 'https://x/gone.png'); await env.start()
+		env.tasks[2].handler(null, null, Error('500')); env.flush(); assert.equal(bare.image, null)
+		const swapped = view(); env.updateImage(swapped, 'https://x/old.png', placeholder); await env.start()
+		env.updateImage(swapped, 'data:image/png;base64,Yg==', placeholder)
+		assert.equal(env.tasks.length, 4); assert.equal(env.tasks[3].cancelled, 1)
+		env.tasks[3].handler({ remote: 'old-bytes' }, { statusCode: 200 }, null); env.flush(); await env.start()
 		assert.deepEqual(swapped.image, { data: { value: 'Yg==', options: 0 } })
-
-		// An empty source with a placeholder shows the placeholder.
-		const empty = { image: null }
-		updateImage(empty, '', placeholder)
-		assert.deepEqual(empty.image, placeholderImage)
-
-		// A response staged in the shared URL cache (prefetch warm) decodes
-		// without opening a session task.
-		staged['https://x/warm.png'] = { data: { remote: 'warm-bytes' } }
-		const warmed = { image: null }
-		updateImage(warmed, 'https://x/warm.png')
-		assert.equal(tasks.length, 4)
-		await new Promise((resolve) => setTimeout(resolve, 0))
-		assert.deepEqual(warmed.image, { data: { remote: 'warm-bytes' } })
-	} finally {
-		restore()
-	}
+		const empty = view(); env.updateImage(empty, '', placeholder); assert.deepEqual(empty.image, expected)
+	} finally { for (const field of views) env.disposeImage(field) }
 })

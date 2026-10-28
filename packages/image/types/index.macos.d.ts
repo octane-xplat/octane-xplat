@@ -1,4 +1,4 @@
-import type { ImageProps } from './generated/props.js'
+import type { ImageProps, PrefetchOptions } from './generated/props.js'
 
 export type {
 	ImageCacheConfig,

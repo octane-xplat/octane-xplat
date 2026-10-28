@@ -7,11 +7,17 @@ import {
 	NSImageView,
 	NSOperationQueue,
 	NSURL,
+	NSURLSession,
+	NSURLSessionConfiguration,
 	NSURLCache,
 	NSURLRequest,
-	NSURLSession,
+	NSCachedURLResponse,
+	NSFileManager,
 } from '@octane-xplat/platform/macos'
 import { createImageRequests } from './image-requests.ts'
+import { createImageByteCache } from './image-byte-cache.ts'
+
+const imageBytes = createImageByteCache(() => ({ NSBundle, NSFileManager, NSURL, NSURLCache, NSURLRequest, NSCachedURLResponse, NSURLSessionConfiguration, NSURLSession, NSOperationQueue }))
 
 export function loadImage(source: unknown): NSImage | null {
 	const src = String(source ?? '')
@@ -76,49 +82,13 @@ const imageRequests = createImageRequests<NSImage>((source, complete) => {
 		return () => clearTimeout(timer)
 	}
 
-	// Preserve main's public prefetch/shared URL-cache path with cancellable delivery.
-	let staged: NSData | null = null
-	try {
-		const request = NSURLRequest.requestWithURL(NSURL.URLWithString(source))
-		staged = (NSURLCache.sharedURLCache.cachedResponseForRequest(request)?.data ?? null) as NSData | null
-	} catch { staged = null }
-	if (staged) {
-		const timer = setTimeout(() => {
-			let image: NSImage | null = null
-			try { image = NSImage.alloc().initWithData(staged) } catch (error) {
-				console.error('[macos-image] cached decode failed', error)
-			}
-			complete(image)
-		}, 0)
-		return () => clearTimeout(timer)
-	}
-
-	const mainQueue = NSOperationQueue.mainQueue
-	if (typeof mainQueue?.addOperationWithBlock !== 'function') { complete(null); return }
-	const url = NSURL.URLWithString(source)
-	if (!url) { complete(null); return }
-	let active = true
-	const task = NSURLSession.sharedSession.dataTaskWithURLCompletionHandler(
-		url,
-		(data: any, response: any, error: any) => {
-			if (!active) return
-			// NSURLSession completion queues are not UI queues. Decode and
-			// view delivery enter AppKit's main queue explicitly.
-			mainQueue.addOperationWithBlock(() => {
-				if (!active) return
-				let image: NSImage | null = null
-				const status = Number(response?.statusCode ?? 0)
-				if (data && !error && status >= 200 && status < 300) {
-					try { image = NSImage.alloc().initWithData(data) } catch (decodeError) {
-						console.error('[macos-image] remote decode failed', decodeError)
-					}
-				}
-				complete(image)
-			})
-		},
-	)
-	try { task.resume() } catch (error) { active = false; task.cancel(); throw error }
-	return () => { active = false; task.cancel() }
+	return imageBytes.subscribe(source, (result) => {
+		let image: NSImage | null = null
+		if (result) {
+			try { image = NSImage.alloc().initWithData(result.data) } catch (error) { console.error('[macos-image] remote decode failed', error) }
+		}
+		complete(image)
+	})
 })
 
 /** Private decoded-memory controls. Deliberately separate from the image leaf's
@@ -130,9 +100,22 @@ export const imageMemoryCache = {
 	clear: imageRequests.clear,
 }
 
+/** Image-owned public-cache backend. Encoded disk bytes and decoded memory
+ * invalidate together; mounted views retain their subscribed deliveries. */
+export const imageCache = {
+	initialize: imageBytes.initialize,
+	prefetch: imageBytes.prefetch,
+	isCached(source: string): 'memory' | 'disk' | 'none' {
+		return imageMemoryCache.isCached(source) ? 'memory' : imageBytes.isCached(source) ? 'disk' : 'none'
+	},
+	evict(source: string): boolean { imageMemoryCache.evict(source); return imageBytes.evict(source) },
+	clear(): boolean { imageMemoryCache.clear(); return imageBytes.clear() },
+}
+
 /** Points `view` at `source`. Cached decodes assign immediately; anything else
  *  decodes on a later run-loop turn — or fetches over NSURLSession for
- *  http(s) — so command batches never block on image I/O. While a load is
+ *  http(s). Implicit disk setup/read and remote decode are deferred; local
+ *  placeholder loading remains synchronous. While a load is
  *  pending, `placeholder` (a loadImage-resolvable source; the leaf resolves
  *  thumbhash:/blurhash: to data: PNGs) paints into the same view, and a failed
  *  load leaves it standing. The previous image stays visible until its

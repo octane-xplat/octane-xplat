@@ -98,9 +98,15 @@ changes (use a stable styled box); decode hints remain unimplemented; native cro
 renderer shares bounded decoded images and cancels pending work after its last
 subscriber leaves; HTTP error payloads are rejected and remote delivery enters
 the main operation queue. Native timing, rendering and packaging are unqualified.
-Engine/cache APIs and callbacks in the optional package remain unsupported.
-The renderer's private imageMemoryCache bridge controls decoded memory only; do
-not substitute it for public disk prefetch/eviction or an account-data purge.
+The optional package now has source-only HTTP(S) byte prefetch, memory/disk
+query, eviction and clear through an image-owned disk cache; native qualification
+is pending. It uses a credential-free dedicated session. Prefetch headers and
+uncacheable responses resolve false. Configuration fields, display headers and
+cachePolicy="none" throw; decode-
+transform queries return none. Other engine props/callbacks remain gaps. The
+private imageMemoryCache bridge controls decoded memory only; do not substitute
+it for public disk eviction or an account-data purge. Read the
+[cache subset](../../../../packages/image/README.md#appkit-subset) before relying on it.
 See [AppKit image loading](../../../../docs/app/components.md#image-loading-on-appkit).
 
 ```tsx
@@ -110,6 +116,14 @@ export function Photo({ src }: { src: string }) {
 	return <Image src={src} alt="Photo" flexGrow={1} contentFit="contain"
 		className={['photo', { framed: true }]} style={{ width: 120, height: 80 }} />
 }
+```
+
+```ts
+import { prefetch, isImageCached, evictImage, clearImageCaches } from '@octane-xplat/image'
+const src = 'https://example.com/photo.png'
+console.log(await prefetch(src), (await isImageCached(src))[src])
+await evictImage(src)
+await clearImageCaches()
 ```
 
 ## Native macOS interaction

@@ -4698,3 +4698,85 @@ threading/network completion, actual disk/HTTP caching and packaged bridge
 availability remain unqualified. Public cache APIs still need owned disk/HTTP
 integration and their actual advertised semantics, followed by qualification;
 the issue's source/runtime gates remain open and the persistent goal is active.
+
+## AppKit image-owned byte cache and public helpers
+
+Demand assumption remains ordinary feed/avatar/detail reuse, reflected in the
+Services preview, CachedImageDemo and maintained cached-image probe. Following
+the decoded-memory prerequisite, the current AppKit image helpers now connect
+to an image-owned byte backend instead of returning unconditional false/none.
+No mobile plugin is imported or substituted; no dependency or shared UI/CLI
+manifest changed. The image package now owns a focused Node test task for its
+private adapter; it does not import that adapter through renderer tests or
+claim coverage of its separate web Vitest cases. The native default host and matching optional image facade
+must travel together. The macOS declaration now imports PrefetchOptions locally,
+rather than referencing a name only re-exported from generated props; this is
+source correction, not a passed consumer typecheck.
+
+The backend uses Foundation URLCache with zero byte-memory capacity, a 64 MiB
+disk allowance, and an app-bundle-scoped directory under user Caches. URLSession
+is dedicated/credential-free with automatic caching disabled, so image eviction
+never clears unrelated shared HTTP responses. This changes the prior shared-
+session cookie/credential behavior and is recorded as an alpha hard cutover.
+Apple's direct-cache/configuration documentation and installed SDK signatures
+support the source API selection; native persistence/capacity are not proven.
+No custom filesystem hashing/cache format or new engine dependency was added.
+
+Display and prefetch share current byte work. Prefetch stores bytes without
+constructing NSImage; successful current 2xx responses are eligible only without
+no-store/no-cache/private, Vary or Set-Cookie markers. Stored-data readback must
+match the response before reporting true. Native dictionary headers are handled.
+Disk failure still permits network display, without claiming a warm cache.
+Decoded memory takes precedence in public queries; otherwise owned disk/none
+are reported. These are URL-identity engine bytes until explicit/OS eviction,
+not HTTP freshness revalidation. Deferred disk reads/full-resolution decode can
+still block the main loop; profiling/optimized decode scheduling remain open.
+
+Per-source leases and a clear epoch invalidate old disk writers/sharing while
+preserving existing view deliveries and final-subscriber cancellation. Old or
+cancelled queued completion cannot overwrite a newer cached response. Public
+eviction/clear invalidate both byte and decode owners; memory-only controls leave
+disk available. Current mounted pixels remain and unchanged views are not forced
+to reload. These APIs are not an account-data/privacy purge. Credential-free
+transport does not establish support for cookie- or header-authenticated images.
+
+The optional adapter reuses the existing batch concurrency helper. Missing hosts
+resolve false/none; failed clear rejects. Header prefetch resolves false instead
+of sharing protected data under a URL-only key. Configuration fields explicitly
+throw, and unsupported decode-transform probes report none. Default initialization
+is available; engine memory sizing/signatures, display headers/cachePolicy/decode
+bounds/failure images/transitions/progressive and load/error callbacks remain gaps.
+Display headers and cachePolicy="none" now throw before default persistent
+loading instead of being ignored; the private validator is covered by the adapter
+source cases. This is an explicit subset, not implemented cache-bypass behavior.
+No full engine or native platform support is claimed.
+
+Nine byte-cache cases, six public-adapter cases, seven remote-view cases and
+updated placeholder coverage are authored, all unrun. Fake view cases evaluate
+isolated source modules and recording Foundation objects; no real native cache,
+file or network work is exercised. The target cached-image fixture offers public
+prefetch/query/mount/evict/clear controls, initially without a mounted image; its
+runner only waits/records. The older mobile/web fixture directs AppKit to this
+case rather than waiting for unsupported load/error/transform callbacks. The DOM
+CachedImageDemo is unchanged because its web/mobile engine callback flow is not
+the AppKit qualification flow. Guide/README/known limits/skill/recipe AC6/release
+note reconcile this source change; immutable audit snapshots remain unchanged.
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer --filter=@octane-xplat/image
+pnpm exec turbo run typecheck --filter=...@octane-xplat/image --filter=...@octane-xplat/macos-renderer
+pnpm probe doctor
+pnpm probe run examples/probes/cached-image.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm exec turbo run test:packed --filter=@octane-xplat/image --filter=@octane-xplat/macos-renderer
+pnpm check:recipes
+```
+
+Every command remains deferred until explicit human authorization for this task.
+Only source/semantic review, TS/TSRX syntax parsing and whitespace ran. No package
+test/typecheck/build/install, probe, OS/native automation, visual analysis or
+packaging ran. Native URLCache persistence across launch, capacity/eviction,
+main-queue/disk I/O, HTTP redirects/errors/policy and unavailable storage,
+network cancellation/reentry, source replacement, memory lifetime/responsiveness,
+packaged image-helper imports and supported macOS versions remain unqualified.
+The image/cache and distribution evidence gates stay open; the goal is active.

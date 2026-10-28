@@ -63,12 +63,13 @@ Cache functions: `prefetch`, `evictImage`, `clearImageCaches`,
 `@octane-xplat/gif`'s `prefetch` carries. On web they degrade honestly:
 `prefetch` warms the browser HTTP cache through a throwaway `<img>` per URL,
 awaited until the response lands (resolves `false` if any URL fails); the
-rest are documented no-ops, and macOS `prefetch` resolves `false` since the
-AppKit host has no image pipeline.
+rest are documented no-ops. AppKit now uses an image-owned encoded-byte cache
+for HTTP(S) prefetch and the core renderer for display; see its subset below.
 
 `prefetch` options: `headers` forwards request headers to the engine —
 honored on Android and iOS with the framework patch —
-and ignored on web, where a plain `<img>` cannot send custom headers.
+and ignored on web, where a plain `<img>` cannot send custom headers. AppKit
+header-aware warming remains unsupported and resolves false when headers are supplied.
 `concurrency` caps parallel fetches JS-side (default 5).
 
 `prefetch` always warms the disk cache, and there is no memory option. A
@@ -107,7 +108,8 @@ cached", not "absent".
 The macOS leaf delegates to the core AppKit `Image`, keeping source grammar,
 local placeholders, parent layout, composed classes and style forms consistent.
 It uses the renderer's shared bounded decoded-image cache and request lifecycle,
-not Glide or SDWebImage. Last-subscriber removal cancels pending work; HTTP error
+not Glide or SDWebImage. Remote loads use a dedicated credential-free session,
+not the shared session's cookies/credentials or HTTP cache. Last-subscriber removal cancels pending work; HTTP error
 responses are not decoded or cached. Real network/main-queue behavior, layout
 and packaging remain unqualified.
 
@@ -120,22 +122,54 @@ export function Preview({ src }: { src: string }) {
 }
 ```
 
-AppKit cache-control functions remain stubs (`prefetch`/`evictImage` return
-false, cache queries return none, initialization/clear do nothing). Headers,
-cachePolicy, decode bounds, failureImage, progressive loading, transitions and
-onLoad/onError are unimplemented. Fit/position use the core AppKit clipped drawing path in logical points;
-source sets use the core box/window-density selector, while decode scheduling remains incomplete. Native fit/crop,
-orientation and density are not runtime-qualified. See
-[AppKit image loading](../../docs/app/components.md#image-loading-on-appkit).
+AppKit now provides HTTP(S) byte prefetch without decode, memory/disk presence
+queries, source eviction and clear. It uses a dedicated URLCache with zero byte-
+memory capacity and a 64 MiB disk allowance under the app's Caches directory;
+OS eviction may remove entries. A bundle identifier and writable Caches directory
+are required for disk caching; otherwise network display can still proceed.
+Display uses these bytes and separately retains
+up to 64 decoded images. Default initialization needs the matching renderer;
+missing hosts degrade to false/none. Failed clear rejects. Native persistence,
+cache capacity and packaging are unqualified.
 
 ```ts
-import { prefetch, isImageCached } from '@octane-xplat/image'
-
-// On AppKit these remain false / 'none'; this does not query the renderer cache.
-const warmed = await prefetch('https://example.com/photo.png')
-const state = await isImageCached('https://example.com/photo.png')
+import { initializeImageCache, prefetch, isImageCached, evictImage, clearImageCaches } from '@octane-xplat/image'
+initializeImageCache() // AppKit supports the default configuration only.
+const src = 'https://example.com/photo.png'
+const warmed = await prefetch(src, { concurrency: 2 })
+const state = (await isImageCached(src))[src] // 'memory', 'disk', or 'none'
+await evictImage(src)
+await clearImageCaches()
 console.log(warmed, state)
 ```
+
+Prefetch resolves false for failed/refused writes, non-HTTP sources, headers,
+or responses marked no-store/no-cache/private, Vary or Set-Cookie. Such responses
+can still display. Cached bytes use URL identity until explicit/OS eviction;
+this is not HTTP freshness revalidation. Use versioned URLs or evict before
+creating a later view for changed content. Eviction/clear preserve mounted
+pixels/current deliveries while retiring older cache writers; they do not force
+an unchanged view to reload or purge unrelated HTTP/account data.
+
+```ts
+import { evictImage, prefetch } from '@octane-xplat/image'
+const src = 'https://example.com/photo.png'
+await evictImage(src)
+const refreshed = await prefetch(src)
+// A later Image with this source can use the refreshed bytes.
+console.log(refreshed)
+```
+
+Configuration fields still lack AppKit implementations and now throw explicitly.
+Decode-transform queries report none. Display headers and cachePolicy="none"
+now throw before loading instead of silently using the persistent default.
+Decode bounds, failureImage, progressive loading, transitions and onLoad/onError
+remain unimplemented. The public macOS declaration also now binds its PrefetchOptions
+parameter type. Nine byte-cache, six adapter and seven remote-view source cases
+plus updated placeholder coverage and the [AppKit fixture](../../examples/probes/cached-image.macos.tsrx)
+are authored, all unrun. Native disk/network/threading, decode/memory lifetime,
+responsiveness and packaging remain unqualified. Fit/position retain the core
+logical-point path; see [AppKit image loading](../../docs/app/components.md#image-loading-on-appkit).
 
 ## Divergences from core `Image`
 
@@ -155,8 +189,8 @@ console.log(warmed, state)
 - Engine extras (`failureImage`, `headers`, `decodeWidth`, `decodeHeight`,
   `progressive`, `fadeDuration`, `cachePolicy`) are native-only and ignored on
   web.
-- macOS renders through the same AppKit `<image>` path as core `Image` — no
-  engine there; cache helpers resolve as no-ops.
+- macOS renders through the same AppKit `<image>` path as core `Image`, with
+  the image-owned byte-cache subset above; Glide/SDWebImage options remain gaps.
 
 Per-target limits are recorded in
 [known limits](https://octane-xplat.goddardai.org/known-limits). Exercised by

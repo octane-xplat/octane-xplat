@@ -273,7 +273,7 @@ entry, including startup and shutdown, without importing the harness.
 ## Render local images and overlays
 
 Image sources can be base64 data URIs, bundle resources, local paths,
-`file://` URLs, or HTTP(S) URLs. Remote requests use NSURLSession; their
+`file://` URLs, or HTTP(S) URLs. Remote requests use a dedicated credential-free NSURLSession; their
 processing and view delivery are queued on AppKit's main operation queue.
 Uncached local decoding runs on a later turn. Concurrent views share a load;
 the last subscriber's removal cancels it. Stale completions cannot update a
@@ -290,7 +290,8 @@ replace a newer cached decode. Probes do not promote recency, and eviction does
 not blank mounted images or force them to reload. This is a prerequisite for
 cache controls, not the optional image package's memory+disk contract. It does
 not inspect or invalidate NSURLSession's HTTP cache, disk bytes, or account data.
-Public AppKit image cache functions remain stubs.
+The public image-cache backend below combines this memory cache with
+image-owned encoded disk bytes; the private memory-only seam remains separate.
 
 ```ts
 const memory = __xplatAppKit.imageMemoryCache
@@ -306,6 +307,52 @@ Six request-policy and two fake remote/main-queue invalidation cases plus the
 [manual memory fixture](../../examples/probes/image-memory-cache.macos.tsrx) are
 authored, unrun. Native decoding, memory lifetime, networking, HTTP/disk cache
 behavior, responsiveness and packaging remain unqualified.
+
+
+The image-owned byte backend configures NSURLCache with zero byte-memory
+capacity and a 64 MiB disk allowance in the user Caches directory under
+`octane-xplat-images-v1/<bundle identifier>`. Display and prefetch share current
+byte work; prefetch never constructs NSImage. Disk read/decode are deferred from
+the caller, but a later main-loop disk read/full-size decode can still stall.
+Native memory, I/O, persistence and responsiveness remain unqualified. This uses
+[Apple's direct cache access](https://developer.apple.com/documentation/foundation/accessing-cached-data)
+and a session with [automatic caching disabled](https://developer.apple.com/documentation/foundation/urlsessionconfiguration/urlcache?language=objc).
+
+```ts
+const cache = __xplatAppKit.imageCache
+if (cache) {
+	const src = 'https://example.com/photo.png'
+	const warmed = await cache.prefetch(src)
+	console.log(warmed, cache.isCached(src))
+	cache.evict(src)
+	cache.clear()
+}
+```
+
+The session does not reuse shared cookies/credentials. Only current successful
+2xx responses without no-store/no-cache/private, Vary or Set-Cookie markers may
+write the owned cache. Write readback must match the bytes before prefetch
+reports success. Disk failure still permits display; it cannot claim warming.
+Eviction/clear retire old disk writers without stranding subscribed view delivery.
+Cached URL identity persists until explicit/OS eviction, rather than HTTP
+freshness revalidation. These operations leave unrelated HTTP caches alone.
+Public helpers require a matching host; unsupported headers/configuration/
+decode transforms and other image-engine extensions stay explicit in the
+[package subset](../image/README.md#appkit-subset).
+
+```ts
+import { prefetch, isImageCached, evictImage, clearImageCaches } from '@octane-xplat/image'
+const src = 'https://example.com/photo.png'
+const warmed = await prefetch(src, { concurrency: 2 })
+console.log(warmed, (await isImageCached(src))[src])
+await evictImage(src)
+await clearImageCaches()
+```
+
+Nine byte-cache, six public-adapter and seven remote-view cases plus updated
+placeholder coverage are authored, all unrun. The [AppKit cache fixture](../../examples/probes/cached-image.macos.tsrx)
+only mounts controls in its runner; it does not qualify network, disk storage,
+capacity/eviction, bridge timing, cache lifetime, cancellation or packaging.
 
 ```tsx
 import { Image } from '@octane-xplat/ui'

@@ -40,6 +40,7 @@ export default function CachedImageProbe() {
 }
 
 export async function run(ctx: ProbeContext) {
+	if (ctx.target === 'macos') throw new Error('Use examples/probes/cached-image.macos.tsrx; AppKit load/error and decode-transform callbacks remain unsupported')
 	await ctx.waitFor(() => ctx.find('probe-image'))
 	await ctx.waitFor(() => events.length >= 1, { timeout: 45000 })
 	ctx.assert('first load finished', events[0].startsWith('load:'), true)
@@ -94,7 +95,7 @@ export async function run(ctx: ProbeContext) {
 		ctx.assert('prefetched image reports cached', prefetched[PREFETCHED] !== 'none', true)
 		ctx.assert('disk prefetch does not warm memory', prefetched[PREFETCHED], 'disk')
 	} else {
-		// web/macos have no queryable cache — every URL reports 'none'.
+		// Web has no queryable cache. AppKit uses its separate target fixture.
 		ctx.assert('cold URL reports none', states[NEVER], 'none')
 		ctx.assert('non-native probes report none', states[FIRST], 'none')
 	}

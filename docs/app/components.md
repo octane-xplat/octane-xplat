@@ -1098,8 +1098,11 @@ export function Avatar() {
 }
 ```
 
-The optional image package reuses this core AppKit path. Its cache-control APIs
-remain stubs, and engine-specific headers, decode bounds, transitions and
+The optional image package reuses this core AppKit path and now has the
+[AppKit byte-cache subset](../../packages/image/README.md#appkit-subset) for
+prefetch, memory/disk queries, eviction and clear. Remote images now use a
+dedicated credential-free transport; shared session cookies/credentials are not
+reused. Engine-specific headers, decode bounds, transitions and
 load/error callbacks remain unimplemented. AppKit does not honor decode scheduling hints. Fit/position
 use the native image's logical point dimensions, not an engine decode bound. Local placeholders remain on failure;
 remote placeholders are ignored. Real native loading, cancellation, layout,
