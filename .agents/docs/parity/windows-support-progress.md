@@ -1314,3 +1314,54 @@ installed-file keyboard/pointer regressions passed again without installing
 anything; they remain mocked native-event tests, not OS evidence. The next
 interactive phase uses the normalized bundle. Source/build qualification has
 not been promoted to keyboard, modal or scrolling support.
+
+## First real common-flow OS results
+
+The owned package updated in place to version 1.0.0.1 with the normalized
+bundle, preserving identity/publisher and app data. Reinstalling changed
+contents at version 1.0.0.0 had correctly failed with 0x80073CFB; only the
+isolated app resource metadata was incremented. The generated package filename
+still contains 1.0.0.0, so the driver checks actual package identity and records
+the installed version rather than inferring it from the filename.
+
+Boot mvsoojim reached a real WinUI window. Actual OS checks passed for ordinary
+physical typing (ordinary to ordinaryZ), exactly one controlled change callback,
+Enter submit, raw Z key-down/key-up and Return key-up. Readonly typing was
+rejected, and disabled/secure-readonly controls were disabled and rejected
+focus. These are bounded x64 packaged-app observations, not portable useKeyboard
+support, all key/IME behavior, all input variants or a whole-platform pass.
+
+The same run failed dialog initial focus, Tab containment and Escape dismissal.
+Because Escape did not close the dialog, explicit final-focus return was not
+isolated. The fixture's file command channel never acknowledged blur, selection,
+controlled-write, consumed-Return or cleanup requests; those checks are blocked
+by the fixture and are not API failure diagnoses. Scrolling did not run after
+cleanup failed. Multiline logs record first\r\rsecond after Enter and
+first\rZ\rsecond after Z: a line break was inserted, but the original assertion
+incorrectly required a document-end caret position. It is retained as a failed
+scenario, with that assertion limitation, rather than retroactively counted
+as passed. Logs: research/windows61/windy-os-version-retry.log and
+windy-first-window-live-console.log. The earlier width-error lines in that
+retained console belong to version 1.0.0.0 before the current boot's ready marker.
+
+The revised temporary case uses a normalized Windows path and asynchronous
+WinRT PathIO through NSWinRT.toPromise, removing core File.exists as a command
+prerequisite. It records one comparison with core existence once async reading
+works. The actual installed Windows file adapter uses synchronous done callbacks
+for existence/readText; the inspected abae298 upstream source checkout has no
+Windows leaf, so the installed artifact was inspected after opensrc could not
+supply that file. This is an investigation lead, not a diagnosed filesystem bug.
+The multiline assertion now checks added line breaks plus physical Z insertion,
+without claiming document-end shortcut behavior. Scrolling uses its own OS
+page-button click after cleanup. A plain SDK ContentDialog probe separately
+checks native focus/Tab/Escape feasibility; it is not the framework Dialog.
+
+The driver rejects ready records from before the current launch, using the
+boot timestamp, and checks both foreground process and the actual process
+under the pointer before clicks/wheel input. It reads only the owned package's
+UIA/log data, never screenshots. The revised case's actual standalone typecheck
+and native build passed all 38 tasks (34 cache hits), exit 0, 5m4.999s
+(research/windows61/windy-common-v2-build.log). Its package version is 1.0.0.2;
+OS results are pending. The normal kitchen-sink entry, visual parity, IME,
+multiple-window and other architectures remain unqualified. No shared audit
+snapshot, supported recipe or tracker checkbox changed.
