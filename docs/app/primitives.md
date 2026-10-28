@@ -450,7 +450,7 @@ export function App() {
 ### Text and keyboard actions
 
 `TextArea` keeps Return as a newline. On web, Cmd/Ctrl+Enter submits it.
-On iOS and Android, submission is enabled only with
+On iOS, Android and experimental AppKit, submission is enabled only with
 `returnKeyType="done"` or `returnKeyType="send"`; other Return keys insert
 a newline. Keep `value` updated from `onChange`; the
 [text-entry guide](text-entry.md) explains how.
@@ -477,8 +477,9 @@ export function Example() {
 Some keyboards compose a character over several keystrokes, such as when
 entering Japanese text. This is called **IME composition**. Web inputs do
 not submit when Enter confirms a composed character. Avoid rewriting text
-while composition is in progress, and check the actual iOS and Android
-keyboards your app needs.
+while composition is in progress. AppKit's multiline submit delegate leaves
+marked-text confirmation to its input context; real IME behavior remains
+unqualified. Check the actual platform keyboards your app needs.
 
 In the browser, Tab can focus a `Pressable`, and Enter or Space activates it.
 `disabled` prevents activation and removes it from Tab navigation. Give an

@@ -51,3 +51,11 @@ and its Android counterpart exercise touch, typing, observed selection, sticky
 clearance, and shared-sheet editing/focus return. See [qualification and commands](../keyboard.md#final-workflow-qualification).
 This narrow journey does not establish the composition, controlled middle-edit,
 physical-keyboard, or accessibility criteria above.
+
+
+AppKit source follow-up: the shared TextArea leaf now forwards `onSubmit` for
+`done`/`send`, suppresses blocked edit/submit callbacks, and the native multiline
+delegate leaves marked-text confirmation to AppKit. [Component regressions](../../../packages/ui/src/text-controls.macos.mobile.test.tsrx)
+and [delegate regressions](../../../packages/macos-renderer/test/text-controls.test.ts)
+are authored but unrun. Real keyboard, composition and full AC2 qualification
+remain open; source dispatch is not evidence of physical input.

@@ -15,6 +15,7 @@ export function TextInput(inputProps: TextInputProps) @{
 	const [internal, setInternal] = useState(props.defaultValue ?? '')
 	const value = props.value ?? internal
 	const setValue = (next: string) => {
+		if (isBlocked) return
 		if (props.value === undefined) {
 			setInternal(next)
 		}
@@ -52,7 +53,7 @@ export function TextInput(inputProps: TextInputProps) @{
 		<textfield
 			ref={el}
 			secure={props.secure}
-			onSubmit={props.onSubmit}
+			onSubmit={isBlocked ? undefined : props.onSubmit}
 			onFocus={props.onFocus}
 			onBlur={props.onBlur}
 			id={props.id}
@@ -112,6 +113,7 @@ export function TextArea(inputProps: TextAreaProps) @{
 	const [internal, setInternal] = useState(props.defaultValue ?? '')
 	const value = props.value ?? internal
 	const setValue = (next: string) => {
+		if (isBlocked) return
 		if (props.value === undefined) {
 			setInternal(next)
 		}
@@ -143,6 +145,7 @@ export function TextArea(inputProps: TextAreaProps) @{
 			onFocus={props.onFocus}
 			onBlur={props.onBlur}
 			returnKeyType={props.returnKeyType}
+			onSubmit={!isBlocked && (props.returnKeyType === 'done' || props.returnKeyType === 'send') ? props.onSubmit : undefined}
 			autoGrow={props.autoGrow}
 			maxRows={props.maxRows}
 			id={props.id}

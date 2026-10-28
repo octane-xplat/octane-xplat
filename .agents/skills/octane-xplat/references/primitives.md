@@ -473,3 +473,20 @@ function Dictation() {
 		: <Text>Dictation is unavailable on this host.</Text>
 }
 ```
+
+
+## AppKit multiline submission
+
+Use `returnKeyType="done"` or `"send"` with `TextArea.onSubmit`; other Return
+keys keep newline behavior. Disabled/read-only controls suppress edit/submit
+callbacks. The multiline native delegate does not consume Return while marked
+text is present. This source guard is not real IME or OS-keyboard qualification;
+see [text entry](../../../../docs/app/primitives.md#enter-and-submit-text).
+
+```tsx
+import { TextArea } from '@octane-xplat/ui'
+
+export function Composer() {
+	return <TextArea returnKeyType="send" onSubmit={() => console.log('Send')} />
+}
+```

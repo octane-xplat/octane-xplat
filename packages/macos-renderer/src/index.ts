@@ -557,10 +557,15 @@ class ButtonActionTarget extends NSObject {
 		if (
 			String(selector) !== 'insertNewline:' ||
 			!node ||
-			!['done', 'send'].includes(node.props.returnKeyType)
+			!['done', 'send'].includes(node.props.returnKeyType) ||
+			node.props.editable === false || node.props.isEnabled === false
 		) {
 			return false
 		}
+
+		// Leave marked-text confirmation to AppKit's input context.
+		const marked = (view as any).hasMarkedText
+		if (typeof marked === 'function' ? marked.call(view) : marked) return false
 
 		dispatchTextEvent(node, 'onSubmit')
 		return true

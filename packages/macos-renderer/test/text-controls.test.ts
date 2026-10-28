@@ -288,3 +288,39 @@ test('per-edit delegate events fire the change handler while the action fires su
 	target.textDidChange({ object: area })
 	assert.deepEqual(events, ['change', 'submit', 'area-change'])
 })
+
+
+test('multiline submit delegate preserves ordinary Return and marked-text confirmation', () => {
+	const seen: string[] = []
+	const textNodesByView = new WeakMap()
+	const { ButtonActionTarget } = runSlice(targetClass + '\n({ ButtonActionTarget })', {
+		NSObject: class {}, NSButton: class {}, NSPanGestureRecognizer: class {}, NSNotification: class {},
+		NativeClass() {}, registerGestureClass() {},
+		interop: { types: { void: 'void', bool: 'bool', id: 'id' } },
+		NSTextViewDelegate: {}, NSTextFieldDelegate: {},
+		textNodesByView, dispatchTextEvent: (_node: unknown, event: string) => seen.push(event),
+	})
+	const target = new ButtonActionTarget()
+	const view: any = { hasMarkedText: () => false }
+	const node = { props: { returnKeyType: 'send', editable: true, isEnabled: true } }
+	textNodesByView.set(view, node)
+	assert.equal(target.textViewDoCommandBySelector(view, 'insertNewline:'), true)
+	assert.deepEqual(seen, ['onSubmit'])
+	view.hasMarkedText = () => true
+	assert.equal(target.textViewDoCommandBySelector(view, 'insertNewline:'), false)
+	view.hasMarkedText = true
+	assert.equal(target.textViewDoCommandBySelector(view, 'insertNewline:'), false)
+	view.hasMarkedText = false
+	node.props.returnKeyType = 'next'
+	assert.equal(target.textViewDoCommandBySelector(view, 'insertNewline:'), false)
+	node.props.returnKeyType = 'done'
+	node.props.editable = false
+	assert.equal(target.textViewDoCommandBySelector(view, 'insertNewline:'), false)
+	node.props.editable = true
+	node.props.isEnabled = false
+	assert.equal(target.textViewDoCommandBySelector(view, 'insertNewline:'), false)
+	node.props.isEnabled = true
+	assert.equal(target.textViewDoCommandBySelector(view, 'moveLeft:'), false)
+	assert.equal(target.textViewDoCommandBySelector(view, 'insertNewline:'), true)
+	assert.deepEqual(seen, ['onSubmit', 'onSubmit'])
+})

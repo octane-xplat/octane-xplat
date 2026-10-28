@@ -685,3 +685,34 @@ After human authorization, qualify candidate swaps with a fixed box, live resize
 backing-scale/window changes, in-flight cancellation, empty/string replacement,
 owner teardown and intrinsic-only layout. No tests/typechecks/builds, native or
 OS automation, installs, packaging or visual analysis ran in this slice.
+
+
+### Multiline submit and blocked text edits
+
+Demand: Home already exercises TextInput and TextArea. The AppKit TextArea
+leaf dropped onSubmit even though the renderer already implements done/send
+Return handling. It now forwards those actions only when enabled/editable;
+other Return types retain newline behavior. Both text controls ignore edit
+callbacks while disabled/read-only. The multiline delegate also rejects submit
+interception while hasMarkedText reports composition, accepting either method
+or BOOL bridge form. This does not alter the single-line field-editor path.
+
+Apple's [text-input marked-state contract](https://developer.apple.com/documentation/appkit/nstextinputclient/hasmarkedtext%28%29)
+and [command delegation guide](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/TextEditing/Tasks/InterceptKeys.html)
+provide API evidence only. Added object-driver leaf and fake-delegate cases;
+they are unrun. Syntax/whitespace only; no native keyboard, IME, selection,
+VoiceOver, build, packaging or OS automation ran. TextArea maxLength and
+standalone field chrome remain separate source gaps at this commit.
+
+Deferred commands:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/text-controls.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer --filter=...@octane-xplat/ui
+pnpm check:recipes
+```
+
+Real native Return/newline, done/send actions, marked-text confirmation,
+controlled edits/selection and disabled/read-only interactions require later
+human-authorized platform qualification. No evidence checkbox is closed.
