@@ -38,7 +38,6 @@ declare module '@octane-xplat/jsx/intrinsics' {
 	interface TextViewProps<TElement> {
 		returnKeyType?: string
 		keyboardType?: string
-		secure?: boolean
 		onReturnPress?: HostHandler<NativeEvent<TElement>>
 	}
 
@@ -74,7 +73,6 @@ declare module '@octane-xplat/jsx/intrinsics' {
 		value?: string
 		placeholder?: string
 		rows?: number
-		onSubmit?: HostHandler<NativeEvent<TElement>>
 	}
 
 	interface ScrollViewProps<TElement> {

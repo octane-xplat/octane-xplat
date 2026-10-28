@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import { appKitTextChange } from './appkit-events.macos'
 import { mergeStyle } from './style-merge'
 import { useImperativeHandle, useRef, useState } from 'octane'
 import type { TextAreaProps, TextInputProps } from './props'
@@ -70,7 +71,7 @@ export function TextInput(inputProps: TextInputProps) @{
 			style={props.style}
 			isEnabled={!props.isDisabled}
 			editable={!isBlocked}
-			onTextChange={(e: any) => setValue(e)}
+			onTextChange={appKitTextChange(setValue)}
 			accessibilityLabel={
 				props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label
 			}
@@ -141,7 +142,6 @@ export function TextArea(inputProps: TextAreaProps) @{
 			ref={el}
 			onFocus={props.onFocus}
 			onBlur={props.onBlur}
-			onSubmit={props.onSubmit}
 			returnKeyType={props.returnKeyType}
 			autoGrow={props.autoGrow}
 			maxRows={props.maxRows}
@@ -162,8 +162,7 @@ export function TextArea(inputProps: TextAreaProps) @{
 			style={props.style}
 			isEnabled={!props.isDisabled}
 			editable={!isBlocked}
-			secure={props.secure}
-			onTextChange={(e: any) => setValue(e)}
+			onTextChange={appKitTextChange(setValue)}
 			accessibilityLabel={
 				props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label
 			}

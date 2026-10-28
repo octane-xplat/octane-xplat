@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import { appKitTextChange } from './appkit-events.macos'
 import { useTranslator } from './internationalization'
 import { mergeStyle } from './style-merge'
 import { useRef } from 'octane'
@@ -85,7 +86,7 @@ export function SelectView(props: SelectViewProps) @{
 						value={props.query}
 						placeholder={props.searchPlaceholder ?? translate('@astryx.selector.searchPlaceholder')}
 						accessibilityLabel={translate('@astryx.selector.searchOptions')}
-						onTextChange={(e: any) => props.onQueryChange(e)}
+						onTextChange={appKitTextChange(props.onQueryChange)}
 					/>
 					{props.query ? (
 						<Pressable

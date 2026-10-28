@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import { appKitTextChange } from './appkit-events.macos'
 import { mergeStyle, styleRecord } from './style-merge'
 import { appKitHost } from './host-bridge'
 import { createPortal } from './native-portal'
@@ -98,7 +99,7 @@ function PaletteBody<T extends CommandPaletteItem>(props: {
 					accessibilityLabel={options.label ?? 'Command palette'}
 					placeholder={options.placeholder ?? 'Search commands…'}
 					value={state.query}
-					onTextChange={(e: any) => controller.search(e)}
+					onTextChange={appKitTextChange(controller.search)}
 				/>
 				<Pressable
 					id={`${props.options.id ?? 'command-palette'}-clear`}

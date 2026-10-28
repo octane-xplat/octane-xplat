@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import { appKitTextChange } from './appkit-events.macos'
 import { mergeStyle } from './style-merge'
 import { useContext, useEffect, useId, useMemo, useRef, useState } from 'octane'
 import type { ISOTimeString, TimeInputProps } from './props'
@@ -152,7 +153,7 @@ export function TimeInput(inputProps: TimeInputProps) @{
 				placeholder={props.placeholder ?? 'Select a time'}
 				isEnabled={!isDisabled && !isBusy}
 				editable={!isDisabled && !isBusy}
-				onTextChange={(e: any) => handleTextChange(e)}
+				onTextChange={appKitTextChange(handleTextChange)}
 				onBlur={commitPending}
 				accessibilityLabel={
 					props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label

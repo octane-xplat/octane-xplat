@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import { appKitTextChange } from './appkit-events.macos'
 import { mergeStyle } from './style-merge'
 import { useContext, useEffect, useId, useMemo, useRef, useState } from 'octane'
 import type { DateTimeInputProps, ISODateString, ISODateTimeString, ISOTimeString } from './props'
@@ -322,7 +323,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 				placeholder={props.placeholder ?? 'Select a date'}
 				isEnabled={!isDisabled && !isBusy}
 				editable={!isDisabled && !isBusy}
-				onTextChange={(e: any) => handleDateChange(e)}
+				onTextChange={appKitTextChange(handleDateChange)}
 				onBlur={commitDatePending}
 				accessibilityLabel={
 					props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label
@@ -348,7 +349,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 				placeholder={props.timePlaceholder ?? 'Select a time'}
 				isEnabled={!isDisabled && !isBusy}
 				editable={!isDisabled && !isBusy}
-				onTextChange={(e: any) => handleTimeChange(e)}
+				onTextChange={appKitTextChange(handleTimeChange)}
 				onBlur={commitTimePending}
 				accessibilityHint={!isTimeValid ? messages.invalidTime : undefined}
 				accessibilityLabel={timeLabelText}
