@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useCallback, useEffect, useRef, useState } from 'octane'
 import { IntersectionObserver as PlatformIntersectionObserver } from './observer.macos'
 import { sameEntry } from './entries'

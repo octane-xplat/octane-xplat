@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useCallback, useEffect, useRef, useState } from 'octane'
 import { IntersectionObserver as PlatformIntersectionObserver } from './observer'
 import { sameEntry } from './entries'
