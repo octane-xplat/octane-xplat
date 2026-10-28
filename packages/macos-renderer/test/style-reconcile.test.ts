@@ -792,3 +792,37 @@ test('CSS border-radius and border-width arrive as per-corner and per-side longh
 	assert.equal(item.borderLayer != null, true, 'non-uniform sides layer the border')
 	assert.equal(item.view.layer.mask != null, true, 'per-corner radii clip through a mask')
 })
+
+test('box-shadow paints layer shadow and trades the corner clip for it', () => {
+	const item = node('masonview', { orientation: 1 })
+	item.view.frame.size.width = 100
+	item.view.frame.size.height = 50
+	setStyle(item, { borderRadius: 8, boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)' })
+
+	assert.equal(item.view.layer.shadowRadius, 12)
+	assert.equal(item.view.layer.shadowOpacity, 1)
+	assert.deepEqual({ ...item.view.layer.shadowOffset }, { width: 0, height: -4 })
+	assert.ok(item.view.layer.shadowPath, 'silhouette follows the rounded box')
+	assert.equal(item.view.layer.masksToBounds, false, 'shadow wins over the radius clip')
+	assert.equal(item.view.postsFrameChangedNotifications, true)
+
+	setStyle(item, { borderRadius: 8 })
+	assert.equal(item.view.layer.shadowOpacity, 0)
+	assert.equal(item.view.layer.masksToBounds, true, 'radius clip restored')
+})
+
+test('inset box-shadow approximates as an even-odd inner ring', () => {
+	const item = node('masonview', { orientation: 1 })
+	item.view.frame.size.width = 100
+	item.view.frame.size.height = 50
+	setStyle(item, { boxShadow: 'inset 0 0 0 2px rgba(0, 0, 0, 0.3)' })
+
+	const ring = item.insetShadowLayer
+	assert.ok(ring, 'ring layer installed')
+	assert.equal(ring.fillRule, 'even-odd')
+	assert.ok(ring.path.ops.length > 9, 'outer and inner subpaths recorded')
+	assert.equal(item.view.layer.shadowOpacity ?? 0, 0, 'no outset shadow applied')
+
+	setStyle(item, { boxShadow: 'none' })
+	assert.equal(item.insetShadowLayer, null)
+})

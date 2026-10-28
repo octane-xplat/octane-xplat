@@ -165,6 +165,10 @@ Current limits:
 - `@keyframes` and `animation-*` are parsed but not played.
 - Labels ignore padding. Per-side borders and per-corner radii draw through a
   masked shape layer; `border-style` values paint solid.
+- `box-shadow` paints one outset shadow (first entry; spread grows the
+  silhouette) and drops the view's corner clip while it is in effect — the
+  same CALayer constraint UIKit has. The first `inset` entry approximates as
+  an inner ring and ignores blur.
 - A text field or text view drops its native bezel and background as soon
   as CSS gives it a background, border, or corner radius.
 - An unsupported property logs `[macos-css] ignored unsupported property`

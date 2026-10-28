@@ -3807,26 +3807,34 @@ function parseBorderEdge(value: any): { width: any; color: any } {
 }
 
 // Per-corner rounded-rect CGPath in the layer's y-up space — CSS top corners
-// sit at y = height. Null when the runtime globals are absent (slice tests).
-function roundedBoxCGPath(w: number, h: number, radii: Record<BorderCorner, number>): any {
+// sit at y = height. `into` appends the subpath (ring building); dx/dy shift
+// the whole rect. Null when the runtime globals are absent (slice tests).
+function roundedBoxCGPath(
+	w: number,
+	h: number,
+	radii: Record<BorderCorner, number>,
+	dx = 0,
+	dy = 0,
+	into?: any,
+): any {
 	if (typeof CGPathCreateMutable !== 'function') {
 		return null
 	}
-	const path = CGPathCreateMutable()
+	const path = into ?? CGPathCreateMutable()
 	const corner = (vx: number, vy: number, nx: number, ny: number, r: number) => {
 		if (r > 0) {
-			CGPathAddArcToPoint(path, null, vx, vy, nx, ny, r)
+			CGPathAddArcToPoint(path, null, vx + dx, vy + dy, nx + dx, ny + dy, r)
 		} else {
-			CGPathAddLineToPoint(path, null, vx, vy)
+			CGPathAddLineToPoint(path, null, vx + dx, vy + dy)
 		}
 	}
-	CGPathMoveToPoint(path, null, radii.topLeft, h)
+	CGPathMoveToPoint(path, null, radii.topLeft + dx, h + dy)
 	corner(w, h, w, h - radii.topRight, radii.topRight)
-	CGPathAddLineToPoint(path, null, w, radii.bottomRight)
+	CGPathAddLineToPoint(path, null, w + dx, radii.bottomRight + dy)
 	corner(w, 0, w - radii.bottomRight, 0, radii.bottomRight)
-	CGPathAddLineToPoint(path, null, radii.bottomLeft, 0)
+	CGPathAddLineToPoint(path, null, radii.bottomLeft + dx, 0 + dy)
 	corner(0, 0, 0, radii.bottomLeft, radii.bottomLeft)
-	CGPathAddLineToPoint(path, null, 0, h - radii.topLeft)
+	CGPathAddLineToPoint(path, null, 0 + dx, h - radii.topLeft + dy)
 	corner(0, h, radii.topLeft, h, radii.topLeft)
 	CGPathCloseSubpath(path)
 	return path
@@ -4014,7 +4022,10 @@ function syncBorderBox(node: ElementNode) {
 
 	const layers =
 		typeof CAShapeLayer !== 'undefined' && typeof CGPathCreateMutable === 'function'
-	const perCorner = maxRadius > 0 && !uniformRadius && layers
+	// An outset shadow cannot render under a mask or masksToBounds — the layer
+	// clip loses to the shadow (same CALayer constraint UIKit has).
+	const outsetShadow = node.boxShadowSpec?.some((s: any) => !s.inset) === true
+	const perCorner = maxRadius > 0 && !uniformRadius && layers && !outsetShadow
 	const layered = maxWidth > 0 && !(uniformWidth && uniformColor) && layers
 
 	if (maxRadius > 0 || maxWidth > 0) {
@@ -4040,7 +4051,7 @@ function syncBorderBox(node: ElementNode) {
 		view.layer.cornerRadius = maxRadius
 	}
 
-	const clip = maxRadius > 0
+	const clip = maxRadius > 0 && !outsetShadow
 	if (clip || node.radiusApplied) {
 		view.layer.masksToBounds = clip
 	}
@@ -4091,7 +4102,11 @@ function syncBorderBox(node: ElementNode) {
 	const percentRadius =
 		spec?.radii != null &&
 		BORDER_CORNERS.some((corner) => String(spec.radii[corner] ?? '').trim().endsWith('%'))
-	const needsSync = Boolean(percentRadius) || perCorner || layered
+	const needsSync =
+		Boolean(percentRadius) ||
+		perCorner ||
+		layered ||
+		(node.boxShadowSpec?.length ?? 0) > 0
 	if (needsSync && !node.boxFrameObserver) {
 		view.postsFrameChangedNotifications = true
 		node.boxFrameObserver =
@@ -4107,10 +4122,151 @@ function syncBorderBox(node: ElementNode) {
 	}
 }
 
-// One resync point for every box-geometry consumer — borders/radii now,
+// ---- box-shadow --------------------------------------------------------------
+
+interface ParsedBoxShadow {
+	inset: boolean
+	dx: number
+	dy: number
+	blur: number
+	spread: number
+	color: string
+}
+
+const SHADOW_LENGTH_RE = /^[+-]?(?:\d+\.?\d*|\.\d+)(?:px|dip|pt)?$/
+
+// Comma split that keeps parenthesized color functions whole.
+function splitTopLevelCommas(text: string): string[] {
+	const parts: string[] = []
+	let depth = 0
+	let start = 0
+	for (let i = 0; i <= text.length; i++) {
+		const c = text[i]
+		if (c === '(') {
+			depth++
+		} else if (c === ')') {
+			depth = Math.max(0, depth - 1)
+		}
+		if (i === text.length || (c === ',' && depth === 0)) {
+			parts.push(text.slice(start, i).trim())
+			start = i + 1
+		}
+	}
+	return parts.filter(Boolean)
+}
+
+// `box-shadow: [inset] dx dy [blur] [spread] color` — CALayer takes one
+// shadow, so the first entry of each kind wins; `none` clears.
+function parseBoxShadow(value: any): ParsedBoxShadow[] {
+	const text = String(value ?? '').trim()
+	if (!text || text === 'none') {
+		return []
+	}
+	const shadows: ParsedBoxShadow[] = []
+	for (const part of splitTopLevelCommas(text)) {
+		let inset = false
+		const lengths: number[] = []
+		let color = ''
+		for (const token of splitStyleTokens(part)) {
+			if (token.toLowerCase() === 'inset') {
+				inset = true
+				continue
+			}
+			if (lengths.length < 4 && SHADOW_LENGTH_RE.test(token)) {
+				lengths.push(parseFloat(token))
+				continue
+			}
+			color = color ? `${color} ${token}` : token
+		}
+		if (lengths.length >= 2) {
+			shadows.push({
+				inset,
+				dx: lengths[0],
+				dy: lengths[1],
+				blur: lengths[2] ?? 0,
+				spread: lengths[3] ?? 0,
+				color: color || '#000',
+			})
+		}
+	}
+	return shadows
+}
+
+// CALayer takes one shadow — the first outset entry wins, painted around a
+// shadowPath that honors the resolved corner radii (UIKit smooth-corners does
+// the same). The first inset entry approximates as an even-odd inner ring.
+function syncBoxShadow(node: ElementNode) {
+	const view = node.view
+	if (!view) {
+		return
+	}
+	const layer = view.layer
+	const shadows = node.boxShadowSpec ?? []
+	const outset = shadows.find((s: ParsedBoxShadow) => !s.inset)
+	const inset = shadows.find((s: ParsedBoxShadow) => s.inset)
+
+	const size = view.frame?.size ?? { width: 0, height: 0 }
+	const w = Math.max(0, Number(size.width) || 0)
+	const h = Math.max(0, Number(size.height) || 0)
+	const radii = scaleBorderRadii(resolveBorderRadii(node.borderSpec?.radii, w, h), w, h)
+
+	if (outset) {
+		view.wantsLayer = true
+		const s = outset.spread
+		const grown = {
+			topLeft: Math.max(0, radii.topLeft + s),
+			topRight: Math.max(0, radii.topRight + s),
+			bottomRight: Math.max(0, radii.bottomRight + s),
+			bottomLeft: Math.max(0, radii.bottomLeft + s),
+		}
+		// Spread grows the silhouette — the offset recenters the grown path.
+		layer.shadowPath = roundedBoxCGPath(w + 2 * s, h + 2 * s, grown)
+		layer.shadowColor = borderNSColor(node, outset.color)?.CGColor ?? null
+		layer.shadowOffset = { width: outset.dx - s, height: -outset.dy - s }
+		layer.shadowRadius = outset.blur
+		layer.shadowOpacity = 1
+		node.shadowApplied = true
+	} else if (node.shadowApplied) {
+		layer.shadowOpacity = 0
+		layer.shadowPath = null
+		node.shadowApplied = false
+	}
+
+	if (inset && typeof CAShapeLayer !== 'undefined') {
+		view.wantsLayer = true
+		const shape = (node.insetShadowLayer ??= CAShapeLayer.alloc().init())
+		if (shape.superlayer !== layer) {
+			layer.addSublayer(shape)
+		}
+		shape.frame = { origin: { x: 0, y: 0 }, size: { width: w, height: h } }
+		// Ring = outer outline + inner outline inset by spread (offset shifts
+		// the inner edge; blur is not representable and is dropped).
+		const edge = Math.max(0, inset.spread)
+		const inner = {
+			topLeft: Math.max(0, radii.topLeft - edge),
+			topRight: Math.max(0, radii.topRight - edge),
+			bottomRight: Math.max(0, radii.bottomRight - edge),
+			bottomLeft: Math.max(0, radii.bottomLeft - edge),
+		}
+		const ring = roundedBoxCGPath(w, h, radii)
+		if (ring) {
+			roundedBoxCGPath(w - 2 * edge, h - 2 * edge, inner, edge + inset.dx, edge - inset.dy, ring)
+		}
+		shape.path = ring
+		shape.fillRule = 'even-odd'
+		shape.fillColor = borderNSColor(node, inset.color)?.CGColor ?? null
+		shape.hidden = false
+	} else if (node.insetShadowLayer) {
+		node.insetShadowLayer.removeFromSuperlayer()
+		node.insetShadowLayer = null
+	}
+}
+
+// One resync point for every box-geometry consumer — borders/radii/shadow now,
 // transforms join in the transform writer.
 function syncBoxGeometry(node: ElementNode) {
 	syncBorderBox(node)
+	syncBoxShadow(node)
 }
 
 // Zero the margin sides a removed style owned and re-queue the mason pass.
@@ -4193,6 +4349,9 @@ function resetStyle(node: ElementNode, name: string) {
 		clearBorderSlot(node, 'colors', BORDER_COLOR_KEYS[name])
 	} else if (BORDER_EDGE_KEYS[name] != null) {
 		clearBorderEdge(node, BORDER_EDGE_KEYS[name])
+	} else if (name === 'boxShadow') {
+		node.boxShadowSpec = undefined
+		syncBoxGeometry(node)
 	} else if (name === 'cornerShape') {
 		if (view.layer) {
 			view.layer.cornerCurve = 'circular'
@@ -4386,6 +4545,9 @@ function applyStyle(node: ElementNode, style: PropBag) {
 			setBorderSlot(node, 'colors', BORDER_COLOR_KEYS[name], value)
 		} else if (BORDER_EDGE_KEYS[name] != null && node.view) {
 			setBorderEdge(node, BORDER_EDGE_KEYS[name], value)
+		} else if (name === 'boxShadow' && node.view) {
+			node.boxShadowSpec = parseBoxShadow(value)
+			syncBoxGeometry(node)
 		} else if (BORDER_STYLE_KEYS.has(name) && node.view) {
 			// Borders paint solid regardless — consume the style declaration.
 			continue
@@ -6815,6 +6977,7 @@ function destroy(node: ElementNode) {
 	node.borderSides = undefined
 	node.borderOutline = undefined
 	node.cornerMask = undefined
+	node.insetShadowLayer = null
 
 	layoutHandlers.delete(node.layoutObservedView)
 	node.layoutObservedView = null
