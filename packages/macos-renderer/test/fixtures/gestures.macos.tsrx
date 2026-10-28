@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { Pressable } from '../../../ui/src/Pressable.macos.tsrx'
 import { View } from '../../../ui/src/View.macos.tsrx'
 import { useState } from 'octane'

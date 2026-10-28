@@ -1,7 +1,14 @@
 {
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
-		"lib": ["ESNext"]
+		"lib": [
+			"ESNext"
+		],
+		"jsx": "react-jsx",
+		"jsxImportSource": "@octane-xplat/jsx"
 	},
-	"include": ["src/**/*.ts", "src/**/*.tsx"]
+	"include": [
+		"src/**/*.ts",
+		"src/**/*.tsx"
+	]
 }

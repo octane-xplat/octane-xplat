@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { createContext, useContext, useEffect, useRef, useState } from 'octane'
 import { createPortal } from 'octane/universal/native'
 

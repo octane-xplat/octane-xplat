@@ -1,4 +1,4 @@
-/** @jsxImportSource @octane-xplat/macos-renderer */
+/** @jsxImportSource @octane-xplat/jsx */
 import { createContext, useContext, useEffect, useState } from 'octane'
 
 const Name = createContext('missing')
