@@ -12,6 +12,7 @@ import { chromium, firefox, webkit } from 'playwright'
 import { verifyRichTables } from './verify-rich-tables.mjs'
 import { verifyLocale } from './verify-locale.mjs'
 import { verifyMedia } from './verify-media.mjs'
+import { verifyCoverage, verifyJourney, verifyUnit14RouteChecks } from './verify-coverage.mjs'
 
 const base =
 	process.env.BASE_URL ?? process.argv.find((a) => a.startsWith('--base='))?.split('=')[1]
@@ -145,6 +146,23 @@ if (process.argv.includes('--rich-tables-only')) {
 	process.exit(failures.length ? 1 : 0)
 }
 
+if (process.argv.includes('--coverage-only')) {
+	try {
+		await verifyCoverage(page, baseUrl, check)
+		await verifyUnit14RouteChecks(page, baseUrl, check)
+		await verifyJourney(page, baseUrl, check)
+		check('unit-14 no runtime errors', errors.length === 0, errors.slice(0, 3).join(' | '))
+	} finally {
+		await browser.close()
+	}
+
+	const failures = results.filter((r) => !r.pass)
+	console.log(
+		`${results.length - failures.length}/${results.length} unit-14 coverage checks passed (${browserName})`,
+	)
+	process.exit(failures.length ? 1 : 0)
+}
+
 if (process.argv.includes('--media-only')) {
 	try {
 		await verifyMedia(page, baseUrl, check, browser)
@@ -267,12 +285,12 @@ try {
 		)
 	}
 
-	// Pending template route — honest placeholder, not a fake
-	await page.goto(baseUrl + '/templates/CodeShowcase/', { waitUntil: 'networkidle' })
+	// Blocked template route — honest placeholder naming the recorded gap
+	await page.goto(baseUrl + '/templates/PaginationVariants/', { waitUntil: 'networkidle' })
 	const pendingText = await page.textContent('body')
 	check(
-		'pending template shows placeholder',
-		pendingText.includes('pending') && pendingText.includes('CodeShowcase'),
+		'blocked template shows placeholder',
+		pendingText.includes('blocked') && pendingText.includes('PaginationVariants'),
 	)
 
 	// Blocked authored page — framed, honest placeholder with upstream source
@@ -282,9 +300,13 @@ try {
 		(await page.textContent('body')).includes('apps/sandbox/src/app'),
 	)
 
-	// Motion-lab subtree route resolves as pending
+	// Motion-lab subtree route renders ported content (unit 13)
 	await page.goto(baseUrl + '/pages/motion-lab/bugs/', { waitUntil: 'networkidle' })
-	check('motion-lab subroute resolves', (await page.textContent('body')).includes('pending'))
+	check(
+		'motion-lab subroute renders ported content',
+		(await page.locator('.sb-pending').count()) === 0 &&
+			(((await page.textContent('body')) ?? '').trim().length > 0),
+	)
 
 	// Unknown route → 404 surface
 	await page.goto(baseUrl + '/definitely-not-a-route/', { waitUntil: 'networkidle' })
@@ -1313,6 +1335,11 @@ try {
 	}
 
 	await verifyRichTables(page, baseUrl, check)
+
+	// --- Unit 14: whole-app sign-off ---
+	await verifyCoverage(page, baseUrl, check)
+	await verifyUnit14RouteChecks(page, baseUrl, check)
+	await verifyJourney(page, baseUrl, check)
 
 	check('no page errors', errors.length === 0, errors.slice(0, 3).join(' | '))
 } finally {

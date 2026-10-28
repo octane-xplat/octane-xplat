@@ -3,12 +3,12 @@
 // ledger counts these as 'pending', never 'ported'.
 
 import { Text, Heading, VStack, HStack } from '@octane-xplat/ui'
-import { authoredPageBlockers } from '../pages/blockers'
+import { blockerFor } from '../coverage/coverage'
 import type { CoverageRow } from '../coverage/coverage'
 
 export function PendingScreen(props: { row?: CoverageRow; title?: string }) {
 	const row = props.row
-	const blocker = row ? authoredPageBlockers[row.route] : undefined
+	const blocker = row ? blockerFor(row.route) : ''
 	return (
 		<VStack gap={4} className="sb-pending">
 			<HStack gap={2} vAlign="center">

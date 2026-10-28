@@ -18,9 +18,9 @@ never dropped; the ledger at `/templates/` renders this data live.
 | fixed (`/`, `/404/`) | 2 | `(sandbox)/page.tsx`, generated | both ported |
 | category indexes | 3 | `[category]/CategoryContent.tsx` | all ported |
 | template index (`/templates/`) | 1 | `(sandbox)/templates/page.tsx` | ported as coverage ledger |
-| authored pages (`/pages/*`) | 51 | `(sandbox\|fullscreen\|raw)/pages/**/page.tsx` | 29 ported, 2 blocked, 20 pending |
-| block templates | 659 | `cli/assets/templates/blocks/components/<Family>/<Name>.tsx` | 639 ported (including the 75 unit-10 rows below), 20 pending |
-| page templates | 55 | `cli/assets/templates/pages/<slug>/page.tsx` | 6 ported, 49 pending |
+| authored pages (`/pages/*`) | 51 | `(sandbox\|fullscreen\|raw)/pages/**/page.tsx` | 47 ported, 4 blocked (theme-family, markdown-perf, layout-dsl, doc-preview) |
+| block templates | 659 | `cli/assets/templates/blocks/components/<Family>/<Name>.tsx` | 656 ported, 3 blocked (PaginationDotsCarousel, PaginationPageSize, PaginationVariants) |
+| page templates | 55 | `cli/assets/templates/pages/<slug>/page.tsx` | all 55 ported |
 
 Routing preserves the pinned URL space (trailing-slash routes resolve
 against `/templates/:name` and `/pages/*rest`; unmatched URLs land on the
@@ -143,9 +143,9 @@ is a client-routed SPA — adaptation recorded.
   upstream's `alert()` so the swap is observable in checks. The command
   palette catalog intentionally exceeds upstream (all 714 template routes +
   authored pages vs categories only).
-- Explicit `MediaTheme` examples are mapped in unit 8 below. Syntax themes,
-  color-studio/palette-generator/mobile-spacing and theme-family pages remain
-  pending (later units). The palette preview's
+- Explicit `MediaTheme` examples are mapped in unit 8 below. Syntax themes
+  landed in unit 10; color-studio, palette-generator and mobile-spacing in
+  unit 13; theme-family remains blocked. The palette preview's
   audit drawer + pending-override editor are recorded adaptations (upstream
   dev tooling); tonal snap markers omitted with them. SVG `<rect>` chart in
   useThemeHookUsage re-authored as token-painted divs (renderer has no SVG
@@ -1001,3 +1001,79 @@ existing pointer/keyboard journeys) and the shared `scripts/verify-web.mjs`
 pattern for the whole-app host bar. Results are recorded in the unit-12 commit
 report; checks use DOM text/state and real browser input only — no visual
 assertions.
+
+## Unit 14 — whole-app parity sign-off
+
+### Live reconciliation
+
+Source of truth is the dynamic join (`src/coverage/coverage.ts`): the pinned
+oracle (`src/coverage/pinned.ts`, 771 routes at upstream `ebd939b6`) joined to
+`src/examples/registry.ts` + `src/pages/registry.ts` + both blocker maps — not
+the hand-maintained tables, which had lagged. At sign-off:
+
+| Status | Count | Rows |
+| --- | --- | --- |
+| ported | 764 | every fixed, category, index, page-template and authored-page route except the blockers at right |
+| blocked | 7 | `/pages/theme-family/`, `/pages/markdown-perf/`, `/pages/layout-dsl/`, `/pages/doc-preview/` (pre-existing) + `/templates/PaginationDotsCarousel/`, `/templates/PaginationPageSize/`, `/templates/PaginationVariants/` |
+| pending | 0 | — |
+| **total** | **771** | — |
+
+This unit found 20 previously-untracked pending rows (six families: Blockquote,
+Carousel, Citation, Code, Pagination, VisuallyHidden). 17 ported through public
+APIs; the three Pagination-variant rows are recorded blocked — upstream
+exercises `variant` (`dots`/`compact`/`count`/`pages`), `totalItems`,
+`pageSize`, `pageSizeOptions` and `onPageSizeChange`, none of which exist on
+the public `Pagination` contract (unit-6 recorded the gap). No app-local
+substitute was used. Blockers now cover template rows via
+`src/examples/blockers.ts`, merged into the ledger by `blockerFor`.
+
+### Verification
+
+`scripts/verify-coverage.mjs` replays the join and asserts every one of the
+771 routes renders its recorded status (ported content vs. honest
+blocked/pending placeholder), plus rendered-content and behavior checks for
+the newly ported families (cite attribution, inline `<code>` runs, linked
+citation chips, carousel slide scroll, live-region narration) and the plan's
+whole-app journey (launch → sidebar nav → ledger search → open template →
+interact → open/dismiss palette and toast → theme switch → narrow viewport →
+Back → relaunch with retained state). Input is real Playwright browser
+automation; assertions are DOM/text only — no screenshots, no pixel claims.
+
+| Suite | Chromium | Firefox | WebKit |
+| --- | --- | --- | --- |
+| `verify-web.mjs` (full suite incl. coverage sweep + journey) | 459/459 pass | 458/459 — `no page errors` tripped on transient Google Fonts fetch failures (external, `fonts.gstatic.com` reachable; no app defect) | suite aborted at a pre-existing unit-10 assert (`'Hello Octane' !== ''`): the controlled composer clears app state but WebKit's contenteditable retains the typed text — recorded finding; `--coverage-only` rerun: 45/45 pass |
+| `verify-authored.mjs` | 62/62 pass | not run (script is Chromium-bound) | not run |
+| `verify-pages.mjs` | 61/61 pass | not run | not run |
+
+The earlier `unit-11 route TabListTabsWithIcons` `no-stage` failure seen on one
+run did not reproduce (direct probe renders content); it is a hydration-timing
+flake in that check, not a route defect.
+
+### Host gates (not run)
+
+- iOS / Android / macOS / Linux / Windows: the sandbox ships `main.web.tsrx`
+  only — no native entry exists for this app, so there is no supported host
+  check to run. Not-run, not passing.
+- OS-level input (touch, IME, assistive tech), OS clipboard, real speech:
+  not run; unit-level records keep their own qualifications.
+- Pixel/visual parity: explicitly out of scope (no visual analysis).
+- `sameframe compare` vs the live upstream sandbox: **run to completion**
+  (exit 3 — findings recorded). ~30 configured routes × 3 viewports produced
+  structural findings (0 critical on most pages; high/medium findings are
+  dominated by the reference running a post-pin upstream version — 0.7.x vs
+  the pinned 0.6.4 — plus intentional DOM-shape adaptations). Persisted
+  evidence: `artifacts/sameframe/` — supplementary, not a pass/fail gate.
+
+### Unresolved findings
+
+1. **Pagination variant contract** — three pinned routes blocked on missing
+   public `variant`/`totalItems`/`pageSize`/`pageSizeOptions`/`onPageSizeChange`
+   (recorded in `src/examples/blockers.ts`; upstream Pagination.tsx ~800 lines
+   with six variants is a framework-unit-sized port).
+2. **WebKit contenteditable clear** — `ChatComposerInputControlledInput`
+   clears the value but the editable DOM text persists on WebKit (unit-10
+   assert `'Hello Octane' !== ''`). Pre-existing; engine-specific.
+3. **External font fetch noise** — Firefox logged transient `fonts.gstatic.com`
+   download failures under load; environmental, not an app defect.
+4. **Four pre-existing authored-page blockers** — theme-family, markdown-perf,
+   layout-dsl, doc-preview (upstream-private toolchains; recorded).

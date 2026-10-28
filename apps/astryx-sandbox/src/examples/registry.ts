@@ -696,6 +696,23 @@ import { TimerTypography } from './timer/TimerTypography'
 import { TimestampRelativeFormat } from './timestamp/TimestampRelativeFormat'
 import { TimestampTimezone } from './timestamp/TimestampTimezone'
 import { TimestampTooltipTimezones } from './timestamp/TimestampTooltipTimezones'
+import { BlockquoteShowcase } from './blockquote/BlockquoteShowcase'
+import { BlockquoteTestimonials } from './blockquote/BlockquoteTestimonials'
+import { BlockquoteWithCite } from './blockquote/BlockquoteWithCite'
+import { CarouselCards } from './carousel/CarouselCards'
+import { CarouselShowcase } from './carousel/CarouselShowcase'
+import { CarouselSnap } from './carousel/CarouselSnap'
+import { CitationInlineText } from './citation/CitationInlineText'
+import { CitationShowcase } from './citation/CitationShowcase'
+import { CitationSourceList } from './citation/CitationSourceList'
+import { CodeAcrossTextSizes } from './code/CodeAcrossTextSizes'
+import { CodeInlineInParagraph } from './code/CodeInlineInParagraph'
+import { CodeShowcase } from './code/CodeShowcase'
+import { CodeVariousContent } from './code/CodeVariousContent'
+import { VisuallyHiddenLiveRegion } from './visuallyhidden/VisuallyHiddenLiveRegion'
+import { VisuallyHiddenShowcase } from './visuallyhidden/VisuallyHiddenShowcase'
+import { VisuallyHiddenStructuralHeading } from './visuallyhidden/VisuallyHiddenStructuralHeading'
+import { VisuallyHiddenSupplementaryContext } from './visuallyhidden/VisuallyHiddenSupplementaryContext'
 
 const examples: Record<string, () => any> = {
 	InternationalizationProvider01ShippedLocale,
@@ -1292,6 +1309,23 @@ const examples: Record<string, () => any> = {
 	TimerTypography,
 	TimestampRelativeFormat,
 	TimestampTimezone,
+	BlockquoteShowcase,
+	BlockquoteTestimonials,
+	BlockquoteWithCite,
+	CarouselCards,
+	CarouselShowcase,
+	CarouselSnap,
+	CitationInlineText,
+	CitationShowcase,
+	CitationSourceList,
+	CodeAcrossTextSizes,
+	CodeInlineInParagraph,
+	CodeShowcase,
+	CodeVariousContent,
+	VisuallyHiddenLiveRegion,
+	VisuallyHiddenShowcase,
+	VisuallyHiddenStructuralHeading,
+	VisuallyHiddenSupplementaryContext,
 	TimestampTooltipTimezones,
 	'table-grouped': TableGroupedTemplate,
 	'table-tree': TableTreeTemplate,
