@@ -17,7 +17,7 @@ function fixture() {
 	} }
 	const root: any = { window, userInterfaceLayoutDirection: 0 }
 	const row = (id: string, y: number) => {
-		const view: any = { window, superview: root, hidden: false, frame: { origin: { y } }, bounds: {}, scrollRectToVisible() {}, accessibilityIsEnabled: () => true }
+		const view: any = { window, superview: root, hidden: false, frame: { origin: { y } }, bounds: {}, scrollRectToVisible() {}, isAccessibilityEnabled: () => true }
 		return { key: id, view }
 	}
 	let rows = [row('a', 0), row('b', 0), row('c', 20), row('d', 20)]
@@ -80,7 +80,7 @@ it('keeps one Tab stop, moves across rows and consumes only successful navigatio
 it('skips disabled slots without collapsing measured columns and respects RTL', () => {
 	const env = fixture()
 	env.setColumns(undefined)
-	env.rows[1].view.accessibilityIsEnabled = () => false
+	env.rows[1].view.isAccessibilityEnabled = () => false
 	env.navigation.start()
 	env.window.firstResponder = env.rows[0].view
 	env.send('ArrowDown')
@@ -183,7 +183,7 @@ it('reports absent/failed observation and releases partially acquired Tab exclus
 
 it('leaves focus outside an all-disabled grid and releases every exclusion on teardown', () => {
 	const env = fixture()
-	for (const row of env.rows) row.view.accessibilityIsEnabled = () => false
+	for (const row of env.rows) row.view.isAccessibilityEnabled = () => false
 	const outside = { window: env.window }
 	env.window.firstResponder = outside
 	env.navigation.start()

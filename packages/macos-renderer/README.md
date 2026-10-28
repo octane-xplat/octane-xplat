@@ -721,6 +721,26 @@ export function TabStop() {
 }
 ```
 
+Disabled self-drawn hosts expose AppKit's `isAccessibilityEnabled` getter. The
+same native getter is read by choice, grid, scope, layer-return and context-origin
+focus policies; explicit disabled-card focus claims still allow focus without
+activation. The installed SDK declares this getter for NSAccessibilityEnabledAttribute,
+matching [Apple's protocol](https://developer.apple.com/documentation/appkit/nsaccessibilityprotocol/isaccessibilityenabled()).
+The former `accessibilityIsEnabled` spelling did not override that getter; direct
+calls to a same-named JavaScript method were insufficient evidence.
+
+```tsx
+import { Button } from '@octane-xplat/ui'
+
+export function Save() {
+	return <Button label="Save" isDisabled clickAction={() => console.log('save')} />
+}
+```
+
+The new selector/retained-state regression and updated focus/action fixtures remain
+unrun. Native selector registration, AX enabled queries, VoiceOver, real focus and
+packaging still require platform qualification.
+
 Adjustable hosts dispatch native increment/decrement selectors through the
 current callbacks in the renderer's discrete event scope. Missing callbacks,
 disabled/read-only/ignored hosts and detached roots reject adjustments. Accepted

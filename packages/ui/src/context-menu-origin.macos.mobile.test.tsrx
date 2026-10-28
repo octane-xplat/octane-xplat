@@ -23,11 +23,11 @@ it('missing or detached context hosts cannot claim an origin', () => {
 
 it('hidden/blocked origins are excluded while explicitly focusable disabled hosts remain usable', () => {
 	const f = fixture()
-	for (const patch of [{ hidden: true }, { hiddenOrHasHiddenAncestor: () => true }, { enabled: false }, { isEnabled: () => false }, { accessibilityIsEnabled: () => false }]) {
+	for (const patch of [{ hidden: true }, { hiddenOrHasHiddenAncestor: () => true }, { enabled: false }, { isEnabled: () => false }, { isAccessibilityEnabled: () => false }]) {
 		Object.assign(f.view, patch); expect(appKitContextMenuOrigin(f.root, f.view)).toBeNull()
 		for (const key of Object.keys(patch)) delete f.view[key]
 	}
-	f.view.accessibilityIsEnabled = () => false; f.view.canBecomeKeyView = () => true
+	f.view.isAccessibilityEnabled = () => false; f.view.canBecomeKeyView = () => true
 	expect(appKitContextMenuOrigin(f.root, f.view)).toBe(f.view)
 })
 

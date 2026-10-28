@@ -87,7 +87,7 @@ test('AppKit checkbox/radio roles and values update and disabled controls reject
 	assert.equal(view.accessibilityValue(), 0)
 	set('accessibilityValue', 'Sélection partielle')
 	assert.equal(view.accessibilityValue(), 0)
-	assert.equal(view.accessibilityIsEnabled(), false)
+	assert.equal(view.isAccessibilityEnabled(), false)
 	assert.equal(view.accessibilityPerformPress(), false)
 	set('accessibilityState', { checked: false })
 	handlers.set(1, null)

@@ -12,7 +12,7 @@ function fixture() {
 	const disabledFocus = createDisabledFocusTargets(), tabStops = createTabStopSuppression()
 	const scopeFocus = new WeakMap()
 	const { AccessibleHostView, applyAccessibility } = runSlice(host + '\n' + apply + '\n({AccessibleHostView,applyAccessibility})', {
-		NSView: class { keyDown(event: unknown) { forwarded.push(event) } }, NativeClass() {}, interop: { types: { bool: 'bool', id: 'id' } },
+		NSView: class { isAccessibilityEnabled() { return true } keyDown(event: unknown) { forwarded.push(event) } }, NativeClass() {}, interop: { types: { bool: 'bool', id: 'id' } },
 		NSNumber: { numberWithDouble: (value: number) => value }, actionIdsByView: ids, actionHandlers: handlers,
 		accessibilityRoles: new Map(), accessibilityLabels: new Map(), stackAccessibilityPropsByView: new WeakMap(),
 		scopeFocusTargets: scopeFocus, disabledFocusTargets: disabledFocus, tabStopSuppression: tabStops, inputTransparentViews: new WeakSet(), invokeAction: (id: number) => handlers.get(id)(),
@@ -22,7 +22,7 @@ function fixture() {
 	ids.set(view, 1)
 	const node = { type: 'masonview', view, actionId: 1, props: {} as any,
 		container: { root: { eventScope: (kind: string, callback: () => void) => { events.push(kind); callback() } } as any } }
-	return { view, node, handlers, notifications, events, forwarded, disabledFocus, tabStops, scopeFocus, set: (name: string, value: unknown) => applyAccessibility(node, name, value) }
+	return { view, exposed: AccessibleHostView.ObjCExposedMethods, node, handlers, notifications, events, forwarded, disabledFocus, tabStops, scopeFocus, set: (name: string, value: unknown) => applyAccessibility(node, name, value) }
 }
 
 test('self-drawn switch/tab/adjustable hosts expose native roles and values', () => {
@@ -152,7 +152,7 @@ test('disabled focus claims allow focus without actions and respect suppression,
 	const first = f.disabledFocus.retain(f.view), second = f.disabledFocus.retain(f.view)
 	assert.equal(f.view.acceptsFirstResponder(), true)
 	assert.equal(f.view.canBecomeKeyView(), true)
-	assert.equal(f.view.accessibilityIsEnabled(), false)
+	assert.equal(f.view.isAccessibilityEnabled(), false)
 	assert.equal(f.view.accessibilityPerformPress(), false)
 	f.view.keyDown({ keyCode: 49 })
 	assert.equal(f.forwarded.length, 1)
@@ -171,4 +171,19 @@ test('disabled focus claims allow focus without actions and respect suppression,
 	second()
 	assert.equal(f.view.canBecomeKeyView(), false)
 	assert.equal(f.view.acceptsFirstResponder(), false)
+})
+
+
+test('AppKit enabled protocol getter overrides the native default and follows retained host state', () => {
+	const f = fixture()
+	assert.equal(f.exposed.isAccessibilityEnabled.returns, 'bool')
+	assert.equal(Object.hasOwn(f.exposed, 'accessibilityIsEnabled'), false)
+	assert.equal(f.view.isAccessibilityEnabled(), true)
+	f.set('accessibilityRole', 'menuitem')
+	f.set('accessibilityState', { disabled: true })
+	assert.equal(f.view.isAccessibilityEnabled(), false)
+	f.set('accessibilityState', { disabled: false })
+	assert.equal(f.view.isAccessibilityEnabled(), true)
+	f.set('accessibilityState', undefined)
+	assert.equal(f.view.isAccessibilityEnabled(), true)
 })

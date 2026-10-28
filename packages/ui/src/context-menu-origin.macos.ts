@@ -11,7 +11,7 @@ export function appKitContextMenuOrigin(root: NSView | null, target: NSView | nu
 function eligible(view: NSView): boolean {
 	if (flag(view, 'hidden') || flag(view, 'hiddenOrHasHiddenAncestor') ||
 		!flag(view, 'enabled', true) || !flag(view, 'isEnabled', true)) return false
-	if (!flag(view, 'accessibilityIsEnabled', true) && !flag(view, 'canBecomeKeyView')) return false
+	if (!flag(view, 'isAccessibilityEnabled', true) && !flag(view, 'canBecomeKeyView')) return false
 	return true
 }
 

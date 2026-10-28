@@ -164,7 +164,7 @@ function nativeMenuFixture() {
 		node.window = owner
 		node.subviews = { get count() { return node.children?.length ?? 0 }, objectAtIndex: (index: number) => node.children[index] }
 		node.bounds = {}; node.scrollRectToVisible = vi.fn()
-		node.accessibilityIsEnabled = () => !node.props?.accessibilityState?.disabled
+		node.isAccessibilityEnabled = () => !node.props?.accessibilityState?.disabled
 		for (const child of node.children ?? []) { child.superview = node; hydrate(child, owner) }
 	}
 	const key = (surface: any, name: string, extra = {}) => {

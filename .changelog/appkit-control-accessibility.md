@@ -3,6 +3,8 @@
 The renderer now maps switch/tab/slider roles, selected and numeric values,
 and ignored container hosts. Native slider increment/decrement actions dispatch
 the current callbacks; changed value/selection props emit change notifications.
+Disabled hosts now expose the enabled getter AppKit actually queries, and native
+focus policies read that getter.
 
 ```tsx
 import { Slider, Switch } from '@octane-xplat/ui'

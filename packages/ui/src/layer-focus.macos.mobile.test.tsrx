@@ -27,14 +27,14 @@ it('fallback captures the owning field instead of a shared editor and ignores mo
 it('hidden/disabled targets are rejected while explicitly focusable disabled cards and live handles remain valid', () => {
 	const main = window(), target: any = { window: main }
 	const restore = captureAppKitLayerFocus(() => ({ native: target }))
-	for (const patch of [{ hidden: true }, { hiddenOrHasHiddenAncestor: () => true }, { enabled: false }, { isEnabled: () => false }, { accessibilityIsEnabled: () => false }]) {
+	for (const patch of [{ hidden: true }, { hiddenOrHasHiddenAncestor: () => true }, { enabled: false }, { isEnabled: () => false }, { isAccessibilityEnabled: () => false }]) {
 		Object.assign(target, patch); restore()
 		for (const key of Object.keys(patch)) delete target[key]
 	}
 	expect(main.makeFirstResponder).not.toHaveBeenCalled()
-	target.accessibilityIsEnabled = () => false; target.canBecomeKeyView = () => true; restore()
+	target.isAccessibilityEnabled = () => false; target.canBecomeKeyView = () => true; restore()
 	expect(main.makeFirstResponder).toHaveBeenCalledWith(target)
-	delete target.canBecomeKeyView; delete target.accessibilityIsEnabled; restore()
+	delete target.canBecomeKeyView; delete target.isAccessibilityEnabled; restore()
 	expect(main.makeFirstResponder).toHaveBeenCalledTimes(2)
 })
 

@@ -2794,3 +2794,48 @@ IME, popup/ref/focus/Tab timing, VoiceOver and packaging remain unqualified. Ful
 menu AX roles/checked announcements and originless/unowned Tab ownership remain
 source gaps. No heavy checks, installs, OS automation, visual analysis or shared
 audit regeneration ran; no evidence checkbox is closed.
+
+
+### AppKit native enabled selector prerequisite
+
+Before extending menu AX roles, source review found a common-control prerequisite:
+AccessibleHostView exposed accessibilityIsEnabled, while the installed Apple SDK
+NSAccessibilityProtocols.h declares accessibilityEnabled with getter
+isAccessibilityEnabled. Generated platform declarations also expose the latter.
+UI focus helpers read the former name. Direct source-slice callbacks could pass
+while never overriding the selector AppKit uses for AXEnabled. This is a verified
+source mismatch, not an observed native AX failure, and belongs to Xplat's local
+renderer rather than an asserted upstream limitation.
+
+The host now exposes/uses the correct getter for native press, adjustments, direct
+key activation and Tab eligibility. AppKit choice/grid/FocusScope/layer-return/
+context-origin eligibility reads the same native getter, preserving disabled-card
+focus claims without enabling actions. Updated target fixtures use the native
+name, including the maintained gesture case. No compatibility alias, new public
+prop, dependency, shared manifest or other platform leaf was introduced.
+
+One new selector/retained-state case checks the exposed protocol name and that
+state updates override a simulated inherited enabled default. Existing checkbox,
+common-control, grid/scope/layer/context/select/menu/tab fixtures were reconciled;
+all cases remain unrun. TypeScript/TSRX syntax, semantic/source review and
+whitespace checks only. Renderer contract/skill, existing feature note and
+appkit-control-accessibility AC5 were reconciled. No app-building workflow/API
+changed; existing component usage stays valid.
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run test --filter=@octane-xplat/ui -- src/grid-navigation.macos.test.ts src/focus-scope-state.macos.test.ts
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/context-menu-origin.macos.mobile.test.tsrx src/layer-focus.macos.mobile.test.tsrx src/select.macos.mobile.test.tsrx src/menu-family.macos.mobile.test.tsrx src/tab-list.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer --filter=...@octane-xplat/ui
+pnpm probe run packages/macos-renderer/test/fixtures/gestures.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All commands remain deferred pending explicit human authorization for this task.
+Native ObjC registration/override, AXEnabled queries, disabled/native choice focus,
+key-view traversal, layer restoration and disabled-card focus, VoiceOver and
+packaging remain unqualified. Full menu AX roles/checked announcements remain a
+separate source gap; no evidence checkbox is closed. No builds, package
+tests/typechecks, installs, OS automation, visual analysis or shared audit
+regeneration ran.

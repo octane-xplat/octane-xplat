@@ -26,7 +26,7 @@ export function createAppKitChoiceFocus(options: Options, bridge = appKitHost) {
 			if (flag(view, 'hiddenOrHasHiddenAncestor') || flag(view, 'hidden')) return
 			const key = byView.get(view)
 			if (key !== undefined) {
-				if (flag(view, 'accessibilityIsEnabled', true)) items.push({ key, view })
+				if (flag(view, 'isAccessibilityEnabled', true)) items.push({ key, view })
 				return
 			}
 			const children = view.subviews

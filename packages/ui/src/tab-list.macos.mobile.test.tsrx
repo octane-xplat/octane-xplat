@@ -82,7 +82,7 @@ function focusFixture(automatic = false) {
 	const window: any = { firstResponder: null, makeFirstResponder(view: any) { this.firstResponder = view; return true }, recalculateKeyViewLoop() {} }
 	const children: any[] = []
 	const root: any = { window, subviews: { get count() { return children.length }, objectAtIndex: (index: number) => children[index] } }
-	const item = (key: string) => ({ key, window, superview: root, hidden: false, enabled: true, accessibilityIsEnabled() { return this.enabled } })
+	const item = (key: string) => ({ key, window, superview: root, hidden: false, enabled: true, isAccessibilityEnabled() { return this.enabled } })
 	const a = item('a'), b = item('b'), c = item('c')
 	children.push(a, b, c)
 	let selected: string | undefined = 'b'

@@ -28,7 +28,7 @@ export function captureAppKitLayerFocus(getTarget?: () => any, host?: any, nativ
 			if (!target || !window || (!requested && window !== owner)) return
 			if (flag(target, 'hidden') || flag(target, 'hiddenOrHasHiddenAncestor') ||
 				!flag(target, 'enabled', true) || !flag(target, 'isEnabled', true)) return
-			if (!flag(target, 'accessibilityIsEnabled', true) && !flag(target, 'canBecomeKeyView')) return
+			if (!flag(target, 'isAccessibilityEnabled', true) && !flag(target, 'canBecomeKeyView')) return
 			// Set first responder only; never activate a window or synthesize input.
 			window.makeFirstResponder?.(target)
 		} catch (error) { console.warn('[macos-layer] focus restoration failed', error) }

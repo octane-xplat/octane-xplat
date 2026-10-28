@@ -724,6 +724,24 @@ export function Settings() {
 ```
 
 
+Read native enabled state through `isAccessibilityEnabled` on AppKit hosts.
+The renderer exposes that exact protocol getter; `accessibilityIsEnabled` is not
+its native selector. Choice/grid/scope/layer/context focus policies use the native
+getter and preserve explicit disabled-card focus claims without enabling actions.
+A direct call to a helper with the wrong name cannot establish AX enabled state.
+
+```tsx
+import { Button } from '@octane-xplat/ui'
+
+export function Save() {
+	return <Button label="Save" isDisabled clickAction={() => console.log('save')} />
+}
+```
+
+The selector/state source case and revised focus/action fixtures are unrun.
+Native selector binding, focus, VoiceOver and packaging remain unqualified.
+
+
 ## AppKit text clear focus
 
 TextInput/SearchInput clear now requests focus on the retained native input after

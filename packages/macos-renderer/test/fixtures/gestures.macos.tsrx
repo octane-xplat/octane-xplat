@@ -128,7 +128,7 @@ export async function run(ctx: any) {
 	touch.performSelector('reset')
 	invoke(pan)
 	ctx.assert('disabled suppresses queued callbacks', events.length, before)
-	ctx.assert('disabled accessibility', Boolean(view.accessibilityIsEnabled()), false)
+	ctx.assert('disabled accessibility', Boolean(view.isAccessibilityEnabled()), false)
 	disable(false)
 	await ctx.waitFor(() => Boolean(pan.enabled))
 	invoke(double)

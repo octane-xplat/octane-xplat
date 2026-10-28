@@ -29,7 +29,7 @@ function responder(window: NSWindow): any {
 }
 function enabled(view: NSView): boolean {
 	return !flag(view, 'hiddenOrHasHiddenAncestor') && !flag(view, 'hidden') &&
-		flag(view, 'enabled', true) && flag(view, 'isEnabled', true) && flag(view, 'accessibilityIsEnabled', true)
+		flag(view, 'enabled', true) && flag(view, 'isEnabled', true) && flag(view, 'isAccessibilityEnabled', true)
 }
 function columns(rows: AppKitGridRow[], fixed?: number): number {
 	if (fixed != null && Number.isFinite(fixed) && fixed >= 1) return Math.max(1, Math.floor(fixed))

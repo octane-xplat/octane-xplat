@@ -135,7 +135,7 @@ it('wires native trigger/surface keys, manual row focus, Tab return intent and o
 			node.window = window
 			node.subviews = { get count() { return node.children?.length ?? 0 }, objectAtIndex: (index: number) => node.children[index] }
 			node.scrollRectToVisible = vi.fn(); node.bounds = {}
-			node.accessibilityIsEnabled = () => !node.props?.accessibilityState?.disabled
+			node.isAccessibilityEnabled = () => !node.props?.accessibilityState?.disabled
 			for (const child of node.children ?? []) visit(child, window)
 		}
 		for (const node of env.all()) if (node.props?.id === 'choice') visit(node, main)

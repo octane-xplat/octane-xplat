@@ -769,14 +769,14 @@ class AccessibleHostView extends NSView {
 	// @ts-ignore ObjC accessor methods satisfy the generated @property member.
 	canBecomeKeyView() {
 		return !scopeFocusTargets.has(this) && !tabStopSuppression.isSuppressed(this) && this.acceptsFirstResponder() &&
-			(this.accessibilityIsEnabled() || disabledFocusTargets.allows(this)) && !this.hiddenOrHasHiddenAncestor
+			(this.isAccessibilityEnabled() || disabledFocusTargets.allows(this)) && !this.hiddenOrHasHiddenAncestor
 	}
 
 	keyDown(event: any) {
 		const modified = Number(event.modifierFlags ?? 0) & ((1 << 18) | (1 << 19) | (1 << 20))
 		if (
 			!modified && (Number(event.keyCode) === 36 || Number(event.keyCode) === 49) &&
-			this.accessibilityIsEnabled() && !stackAccessibilityPropsByView.get(this)?.accessibilityState?.readonly &&
+			this.isAccessibilityEnabled() && !stackAccessibilityPropsByView.get(this)?.accessibilityState?.readonly &&
 			typeof actionHandlers.get(actionIdsByView.get(this) ?? -1) === 'function'
 		) {
 			invokeAction(actionIdsByView.get(this)!)
@@ -801,7 +801,7 @@ class AccessibleHostView extends NSView {
 		accessibilityMaxValue: { params: [], returns: interop.types.id },
 		accessibilityValueDescription: { params: [], returns: interop.types.id },
 		accessibilityHelp: { params: [], returns: interop.types.id },
-		accessibilityIsEnabled: { params: [], returns: interop.types.bool },
+		isAccessibilityEnabled: { params: [], returns: interop.types.bool },
 		accessibilityIsIgnored: { params: [], returns: interop.types.bool },
 	}
 
@@ -814,7 +814,7 @@ class AccessibleHostView extends NSView {
 		if (
 			actionId === undefined ||
 			typeof actionHandlers.get(actionId) !== 'function' ||
-			!this.accessibilityIsEnabled() || this.accessibilityIsIgnored() ||
+			!this.isAccessibilityEnabled() || this.accessibilityIsIgnored() ||
 			stackAccessibilityPropsByView.get(this)?.accessibilityState?.readonly
 		) {
 			return false
@@ -827,14 +827,14 @@ class AccessibleHostView extends NSView {
 
 	accessibilityPerformIncrement() {
 		const props = stackAccessibilityPropsByView.get(this)
-		if (this.accessibilityIsIgnored() || !this.accessibilityIsEnabled() || props?.accessibilityState?.readonly ||
+		if (this.accessibilityIsIgnored() || !this.isAccessibilityEnabled() || props?.accessibilityState?.readonly ||
 			typeof props?.onAccessibilityIncrement !== 'function') return false
 		return props.onAccessibilityIncrement() !== false
 	}
 
 	accessibilityPerformDecrement() {
 		const props = stackAccessibilityPropsByView.get(this)
-		if (this.accessibilityIsIgnored() || !this.accessibilityIsEnabled() || props?.accessibilityState?.readonly ||
+		if (this.accessibilityIsIgnored() || !this.isAccessibilityEnabled() || props?.accessibilityState?.readonly ||
 			typeof props?.onAccessibilityDecrement !== 'function') return false
 		return props.onAccessibilityDecrement() !== false
 	}
@@ -923,7 +923,8 @@ class AccessibleHostView extends NSView {
 		return stackAccessibilityPropsByView.get(this)?.accessibilityHint ?? ''
 	}
 
-	accessibilityIsEnabled() {
+	// NSAccessibilityEnabledAttribute uses the protocol getter isAccessibilityEnabled.
+	isAccessibilityEnabled() {
 		return !stackAccessibilityPropsByView.get(this)?.accessibilityState?.disabled
 	}
 
