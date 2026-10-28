@@ -37,7 +37,13 @@ test('lingui extract finds messages in .tsrx via tsrxExtractor', () => {
 			(entry) => entry.message === 'Extraction probe from tsrx',
 		)
 
-		assert.deepEqual(tsrxEntry.origin, [['src/app.tsrx', 10]])
+		const authoredLine =
+			readFileSync(`${fixture}/src/app.tsrx`, 'utf8')
+				.split('\n')
+				.findIndex((line) => line.includes('t`Extraction probe from tsrx`')) + 1
+
+		assert.ok(authoredLine > 0)
+		assert.deepEqual(tsrxEntry.origin, [['src/app.tsrx', authoredLine]])
 	} finally {
 		rmSync(`${fixture}/locales`, { recursive: true, force: true })
 		rmSync(`${fixture}/node_modules`, { recursive: true, force: true })
