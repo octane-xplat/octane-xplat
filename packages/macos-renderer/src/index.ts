@@ -54,6 +54,13 @@ import { parseHtmlText, validateHtmlProps } from './html-text'
 import { resolveFont as fontForFamilyStyle } from './fonts'
 import {
 	CAGradientLayer,
+	CALayer,
+	CAShapeLayer,
+	CGPathAddArcToPoint,
+	CGPathAddLineToPoint,
+	CGPathCloseSubpath,
+	CGPathCreateMutable,
+	CGPathMoveToPoint,
 	NSAttributedString,
 	NSAutoresizingMaskOptions,
 	NSBackingStoreType,
@@ -182,7 +189,7 @@ export interface ElementNode {
 	// sizeConstraints, placementPins, styleBg,
 	// layoutObserver, scrollObserver, scheme, textRuns, appliedStyle,
 	// styleFont*/propFontSize, stylePaddingBox/Edges,
-	// styleRadius, ...
+	// borderSpec, ...
 	[key: string]: any
 }
 
@@ -3179,6 +3186,7 @@ function restyleNode(node: ElementNode) {
 	const { style, customProps, cssKeys, inheritedKeys } = computeCascade(
 		node as unknown as CssHostNode,
 		stylesheetScope(),
+		{ borderLonghands: true },
 	)
 	node.cssOriginKeys = cssKeys
 	node.inheritedOnlyKeys = inheritedKeys
@@ -3584,50 +3592,491 @@ function syncBackgroundImage(node: ElementNode, value: any) {
 	)
 }
 
-// borderRadius styles keep masksToBounds on only while a positive radius is
-// in effect.
-function syncCornerRadius(node: ElementNode) {
+type BorderSide = 'top' | 'right' | 'bottom' | 'left'
+type BorderCorner = 'topLeft' | 'topRight' | 'bottomRight' | 'bottomLeft'
+
+const BORDER_SIDES: readonly BorderSide[] = ['top', 'right', 'bottom', 'left']
+const BORDER_CORNERS: readonly BorderCorner[] = [
+	'topLeft',
+	'topRight',
+	'bottomRight',
+	'bottomLeft',
+]
+
+// camelCase style keys → the slot each writes; 'all' expands to every
+// side/corner. CSS border shorthands land as longhands (computeCascade
+// borderLonghands); `border`/`border-{side}` arrive whole and split here.
+const BORDER_WIDTH_KEYS: Record<string, BorderSide | 'all'> = {
+	borderWidth: 'all',
+	borderTopWidth: 'top',
+	borderRightWidth: 'right',
+	borderBottomWidth: 'bottom',
+	borderLeftWidth: 'left',
+}
+const BORDER_COLOR_KEYS: Record<string, BorderSide | 'all'> = {
+	borderColor: 'all',
+	borderTopColor: 'top',
+	borderRightColor: 'right',
+	borderBottomColor: 'bottom',
+	borderLeftColor: 'left',
+}
+const BORDER_RADIUS_KEYS: Record<string, BorderCorner | 'all'> = {
+	borderRadius: 'all',
+	borderTopLeftRadius: 'topLeft',
+	borderTopRightRadius: 'topRight',
+	borderBottomRightRadius: 'bottomRight',
+	borderBottomLeftRadius: 'bottomLeft',
+}
+const BORDER_EDGE_KEYS: Record<string, BorderSide | 'all'> = {
+	border: 'all',
+	borderTop: 'top',
+	borderRight: 'right',
+	borderBottom: 'bottom',
+	borderLeft: 'left',
+}
+// Borders paint solid regardless — consume the declarations so they don't warn.
+const BORDER_STYLE_KEYS = new Set([
+	'borderStyle',
+	'borderTopStyle',
+	'borderRightStyle',
+	'borderBottomStyle',
+	'borderLeftStyle',
+])
+
+// Whitespace split that keeps parenthesized values (rgb()/hsl()/color-mix())
+// whole — border and box-shadow shorthand tokenizing share it.
+function splitStyleTokens(text: string): string[] {
+	const tokens: string[] = []
+	let depth = 0
+	let start = -1
+	for (let i = 0; i <= text.length; i++) {
+		const c = text[i]
+		if (c === '(') {
+			depth++
+		} else if (c === ')') {
+			depth = Math.max(0, depth - 1)
+		}
+		if (i === text.length || (depth === 0 && (c === ' ' || c === '\t' || c === '\n'))) {
+			if (start >= 0) {
+				tokens.push(text.slice(start, i))
+				start = -1
+			}
+		} else if (start < 0) {
+			start = i
+		}
+	}
+	return tokens
+}
+
+// `1px`/`1`/`thin` → points; CSS keyword widths map like the web.
+function borderLength(value: any): number {
+	if (typeof value === 'number') {
+		return Number.isFinite(value) ? Math.max(0, value) : 0
+	}
+	const text = String(value ?? '').trim().toLowerCase()
+	if (text === 'thin') {
+		return 1
+	}
+	if (text === 'medium') {
+		return 3
+	}
+	if (text === 'thick') {
+		return 5
+	}
+	const points = parseFloat(text)
+	return Number.isFinite(points) ? Math.max(0, points) : 0
+}
+
+// Radius slot: points, or 'N%' of min(width, height) like the old
+// single-radius path.
+function borderRadiusPoints(value: any, width: number, height: number): number {
+	if (typeof value === 'string' && value.trim().endsWith('%')) {
+		const pct = parseFloat(value)
+		return Number.isFinite(pct) ? Math.max(0, (pct / 100) * Math.min(width, height)) : 0
+	}
+	return borderLength(value)
+}
+
+// Resolve the four corner radii in points (pre-clamp — uniformity is judged
+// here so a zero-size frame cannot collapse distinct radii).
+function resolveBorderRadii(spec: PropBag | undefined, w: number, h: number) {
+	return {
+		topLeft: borderRadiusPoints(spec?.topLeft, w, h),
+		topRight: borderRadiusPoints(spec?.topRight, w, h),
+		bottomRight: borderRadiusPoints(spec?.bottomRight, w, h),
+		bottomLeft: borderRadiusPoints(spec?.bottomLeft, w, h),
+	}
+}
+
+// CSS pairwise scale-down when adjacent radii overflow their shared edge.
+function scaleBorderRadii(radii: Record<BorderCorner, number>, w: number, h: number) {
+	let scale = 1
+	const edges: [BorderCorner, BorderCorner, number][] = [
+		['topLeft', 'topRight', w],
+		['topRight', 'bottomRight', h],
+		['bottomLeft', 'bottomRight', w],
+		['topLeft', 'bottomLeft', h],
+	]
+	for (const [a, b, edge] of edges) {
+		const sum = radii[a] + radii[b]
+		if (sum > edge && sum > 0) {
+			scale = Math.min(scale, edge / sum)
+		}
+	}
+	if (scale < 1) {
+		const scaled = { ...radii }
+		for (const corner of BORDER_CORNERS) {
+			scaled[corner] *= scale
+		}
+		return scaled
+	}
+	return radii
+}
+
+const BORDER_STYLE_WORDS = new Set([
+	'none',
+	'hidden',
+	'solid',
+	'dashed',
+	'dotted',
+	'double',
+	'groove',
+	'ridge',
+	'inset',
+	'outset',
+])
+const BORDER_WIDTH_RE = /^[+-]?(?:\d+\.?\d*|\.\d+)(?:px|dip|pt)?$|^thin$|^medium$|^thick$/i
+
+// `border[-side]: <width> <style> <color>` arrives whole (no shorthand
+// expansion upstream of the bag), so split it here. `border: 0` and
+// `border: none` zero the widths.
+function parseBorderEdge(value: any): { width: any; color: any } {
+	if (typeof value === 'number') {
+		return { width: value, color: undefined }
+	}
+	let width: any
+	let color: any
+	let none = false
+	for (const token of splitStyleTokens(String(value ?? ''))) {
+		const lower = token.toLowerCase()
+		if (BORDER_STYLE_WORDS.has(lower)) {
+			none = none || lower === 'none' || lower === 'hidden'
+			continue
+		}
+		if (width === undefined && BORDER_WIDTH_RE.test(token)) {
+			width = token
+			continue
+		}
+		color = color === undefined ? token : `${color} ${token}`
+	}
+	return { width: none ? 0 : width, color }
+}
+
+// Per-corner rounded-rect CGPath in the layer's y-up space — CSS top corners
+// sit at y = height. Null when the runtime globals are absent (slice tests).
+function roundedBoxCGPath(w: number, h: number, radii: Record<BorderCorner, number>): any {
+	if (typeof CGPathCreateMutable !== 'function') {
+		return null
+	}
+	const path = CGPathCreateMutable()
+	const corner = (vx: number, vy: number, nx: number, ny: number, r: number) => {
+		if (r > 0) {
+			CGPathAddArcToPoint(path, null, vx, vy, nx, ny, r)
+		} else {
+			CGPathAddLineToPoint(path, null, vx, vy)
+		}
+	}
+	CGPathMoveToPoint(path, null, radii.topLeft, h)
+	corner(w, h, w, h - radii.topRight, radii.topRight)
+	CGPathAddLineToPoint(path, null, w, radii.bottomRight)
+	corner(w, 0, w - radii.bottomRight, 0, radii.bottomRight)
+	CGPathAddLineToPoint(path, null, radii.bottomLeft, 0)
+	corner(0, 0, 0, radii.bottomLeft, radii.bottomLeft)
+	CGPathAddLineToPoint(path, null, 0, h - radii.topLeft)
+	corner(0, h, radii.topLeft, h, radii.topLeft)
+	CGPathCloseSubpath(path)
+	return path
+}
+
+// Trapezoid covering one side's border band between the outer rect and the
+// inner border edge — the four sides partition the ring at the miters.
+function borderSideCGPath(
+	side: BorderSide,
+	w: number,
+	h: number,
+	widths: Record<BorderSide, number>,
+): any {
+	if (typeof CGPathCreateMutable !== 'function') {
+		return null
+	}
+	const wt = widths.top
+	const wr = widths.right
+	const wb = widths.bottom
+	const wl = widths.left
+	const points: Record<BorderSide, [number, number][]> = {
+		top: [
+			[0, h],
+			[w, h],
+			[w - wr, h - wt],
+			[wl, h - wt],
+		],
+		right: [
+			[w, h],
+			[w, 0],
+			[w - wr, wb],
+			[w - wr, h - wt],
+		],
+		bottom: [
+			[w, 0],
+			[0, 0],
+			[wl, wb],
+			[w - wr, wb],
+		],
+		left: [
+			[0, 0],
+			[0, h],
+			[wl, h - wt],
+			[wl, wb],
+		],
+	}
+	const path = CGPathCreateMutable()
+	const [first, ...rest] = points[side]
+	CGPathMoveToPoint(path, null, first[0], first[1])
+	for (const [x, y] of rest) {
+		CGPathAddLineToPoint(path, null, x, y)
+	}
+	CGPathCloseSubpath(path)
+	return path
+}
+
+// Unparseable colors (color-mix, unknown functions) read as no color rather
+// than throwing mid-apply — nativeColor is strict by design elsewhere.
+function borderNSColor(node: ElementNode, value: any): NSColor | null {
+	const raw = value ?? effectiveStyle(node).color ?? '#000'
+	try {
+		return nativeColor(raw)
+	} catch {
+		return null
+	}
+}
+
+function setBorderSlot(
+	node: ElementNode,
+	group: 'widths' | 'colors' | 'radii',
+	slot: BorderSide | BorderCorner | 'all',
+	value: any,
+) {
+	const spec = (node.borderSpec ??= {})
+	const bag = (spec[group] ??= {})
+	if (slot === 'all') {
+		for (const key of group === 'radii' ? BORDER_CORNERS : BORDER_SIDES) {
+			bag[key] = value
+		}
+	} else {
+		bag[slot] = value
+	}
+	syncBorderBox(node)
+}
+
+function clearBorderSlot(
+	node: ElementNode,
+	group: 'widths' | 'colors' | 'radii',
+	slot: BorderSide | BorderCorner | 'all',
+) {
+	const bag = node.borderSpec?.[group]
+	if (bag) {
+		if (slot === 'all') {
+			for (const key of group === 'radii' ? BORDER_CORNERS : BORDER_SIDES) {
+				delete bag[key]
+			}
+		} else {
+			delete bag[slot]
+		}
+	}
+	syncBorderBox(node)
+}
+
+// `border`/`border-{side}` shorthand text feeds the same width/color slots.
+function setBorderEdge(node: ElementNode, slot: BorderSide | 'all', value: any) {
+	const { width, color } = parseBorderEdge(value)
+	const spec = (node.borderSpec ??= {})
+	const sides = slot === 'all' ? BORDER_SIDES : [slot]
+	if (width !== undefined) {
+		const widths = (spec.widths ??= {})
+		for (const side of sides) {
+			widths[side] = width
+		}
+	}
+	if (color !== undefined) {
+		const colors = (spec.colors ??= {})
+		for (const side of sides) {
+			colors[side] = color
+		}
+	}
+	syncBorderBox(node)
+}
+
+function clearBorderEdge(node: ElementNode, slot: BorderSide | 'all') {
+	const spec = node.borderSpec
+	for (const side of slot === 'all' ? BORDER_SIDES : [slot]) {
+		delete spec?.widths?.[side]
+		delete spec?.colors?.[side]
+	}
+	syncBorderBox(node)
+}
+
+function removeBorderLayers(node: ElementNode) {
+	if (node.borderLayer) {
+		node.borderLayer.removeFromSuperlayer()
+	}
+	node.borderLayer = null
+	node.borderSides = undefined
+	node.borderOutline = undefined
+}
+
+// CSS borders and radii resolve into per-side/per-corner slots on the node.
+// CALayer takes one borderWidth/borderColor/cornerRadius, so uniform boxes
+// stay on the fast path; anything else draws through masked CAShapeLayer
+// trapezoids clipped to the rounded outline.
+function syncBorderBox(node: ElementNode) {
 	const view = node.view
 	if (!view) {
 		return
 	}
 
-	const raw = node.styleRadius
-	let radius: number
-	let percentRadius = false
-	if (typeof raw === 'string' && raw.endsWith('%')) {
-		percentRadius = true
-		const pct = parseFloat(raw)
-		const size = view.frame?.size ?? { width: 0, height: 0 }
-		radius = (pct / 100) * Math.min(Number(size.width) || 0, Number(size.height) || 0)
-	} else {
-		radius = Number(raw ?? 0) || 0
+	const size = view.frame?.size ?? { width: 0, height: 0 }
+	const w = Math.max(0, Number(size.width) || 0)
+	const h = Math.max(0, Number(size.height) || 0)
+	const spec = node.borderSpec
+
+	const radii = resolveBorderRadii(spec?.radii, w, h)
+	const maxRadius = Math.max(
+		radii.topLeft,
+		radii.topRight,
+		radii.bottomRight,
+		radii.bottomLeft,
+	)
+	const uniformRadius =
+		radii.topLeft === radii.topRight &&
+		radii.topRight === radii.bottomRight &&
+		radii.bottomRight === radii.bottomLeft
+	const scaled = scaleBorderRadii(radii, w, h)
+
+	const widths: Record<BorderSide, number> = {
+		top: borderLength(spec?.widths?.top),
+		right: borderLength(spec?.widths?.right),
+		bottom: borderLength(spec?.widths?.bottom),
+		left: borderLength(spec?.widths?.left),
+	}
+	const maxWidth = Math.max(widths.top, widths.right, widths.bottom, widths.left)
+	const uniformWidth =
+		widths.top === widths.right &&
+		widths.right === widths.bottom &&
+		widths.bottom === widths.left
+	const normColor = (c: any) => (c == null ? '' : String(c).trim().toLowerCase())
+	const uniformColor = BORDER_SIDES.every(
+		(side) => normColor(spec?.colors?.[side]) === normColor(spec?.colors?.top),
+	)
+
+	const layers =
+		typeof CAShapeLayer !== 'undefined' && typeof CGPathCreateMutable === 'function'
+	const perCorner = maxRadius > 0 && !uniformRadius && layers
+	const layered = maxWidth > 0 && !(uniformWidth && uniformColor) && layers
+
+	if (maxRadius > 0 || maxWidth > 0) {
+		view.wantsLayer = true
 	}
 
-	// A percent radius resolves against the current bounds, so the view's own
-	// frame changes must re-run this — observe them while one is in effect.
-	if (percentRadius && !node.radiusFrameObserver) {
+	// Corners: a uniform radius stays on cornerRadius; per-corner radii clip
+	// through a mask path instead.
+	if (perCorner) {
+		const mask = (node.cornerMask ??= CAShapeLayer.alloc().init())
+		mask.path = roundedBoxCGPath(w, h, scaled)
+		view.layer.mask = mask
+		view.layer.cornerRadius = 0
+		node.cornerMaskApplied = true
+	} else {
+		if (node.cornerMaskApplied) {
+			view.layer.mask = null as any
+			node.cornerMaskApplied = false
+		}
+		// The fast path writes the raw value — CA caps the radius internally,
+		// and a 0×0 pre-layout frame must not zero it (the observer-less
+		// uniform case never resyncs).
+		view.layer.cornerRadius = maxRadius
+	}
+
+	const clip = maxRadius > 0
+	if (clip || node.radiusApplied) {
+		view.layer.masksToBounds = clip
+	}
+	node.radiusApplied = clip
+
+	if (layered) {
+		view.layer.borderWidth = 0
+		view.layer.borderColor = null
+		if (!node.borderLayer) {
+			node.borderLayer = CALayer.alloc().init()
+			view.layer.insertSublayerAtIndex(node.borderLayer, 0)
+		}
+		const box = node.borderLayer
+		box.frame = { origin: { x: 0, y: 0 }, size: { width: w, height: h } }
+		if (maxRadius > 0) {
+			const outline = (node.borderOutline ??= CAShapeLayer.alloc().init())
+			outline.path = roundedBoxCGPath(w, h, scaled)
+			box.mask = outline
+		} else {
+			box.mask = null as any
+		}
+		for (const side of BORDER_SIDES) {
+			const shape = ((node.borderSides ??= {})[side] ??= CAShapeLayer.alloc().init())
+			if (shape.superlayer !== box) {
+				box.addSublayer(shape)
+			}
+			if (widths[side] > 0) {
+				shape.hidden = false
+				shape.path = borderSideCGPath(side, w, h, widths)
+				shape.fillColor = borderNSColor(node, spec?.colors?.[side])?.CGColor ?? null
+			} else {
+				shape.hidden = true
+			}
+		}
+	} else {
+		removeBorderLayers(node)
+		// Uniform borders use the CALayer slots; without shape layers the top
+		// edge's values stand in — deterministic like the collapsed engine.
+		view.layer.borderWidth = widths.top
+		view.layer.borderColor =
+			maxWidth > 0 && widths.top > 0
+				? (borderNSColor(node, spec?.colors?.top)?.CGColor ?? null)
+				: null
+	}
+
+	// Percent radii, per-corner masks and layered borders all resolve against
+	// the box — resync on frame changes while any is in effect.
+	const percentRadius =
+		spec?.radii != null &&
+		BORDER_CORNERS.some((corner) => String(spec.radii[corner] ?? '').trim().endsWith('%'))
+	const needsSync = Boolean(percentRadius) || perCorner || layered
+	if (needsSync && !node.boxFrameObserver) {
 		view.postsFrameChangedNotifications = true
-		node.radiusFrameObserver =
+		node.boxFrameObserver =
 			NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
 				NSViewFrameDidChangeNotification,
 				view,
 				null,
-				() => syncCornerRadius(node),
+				() => syncBoxGeometry(node),
 			)
-	} else if (!percentRadius && node.radiusFrameObserver) {
-		NSNotificationCenter.defaultCenter.removeObserver(node.radiusFrameObserver)
-		node.radiusFrameObserver = null
+	} else if (!needsSync && node.boxFrameObserver) {
+		NSNotificationCenter.defaultCenter.removeObserver(node.boxFrameObserver)
+		node.boxFrameObserver = null
 	}
+}
 
-	if (radius <= 0 && !node.radiusApplied) {
-		return
-	}
-
-	node.radiusApplied = radius > 0
-	view.wantsLayer = true
-	view.layer.cornerRadius = Math.max(0, radius)
-	view.layer.masksToBounds = radius > 0
+// One resync point for every box-geometry consumer — borders/radii now,
+// transforms join in the transform writer.
+function syncBoxGeometry(node: ElementNode) {
+	syncBorderBox(node)
 }
 
 // Zero the margin sides a removed style owned and re-queue the mason pass.
@@ -3702,9 +4151,14 @@ function resetStyle(node: ElementNode, name: string) {
 	} else if (name === 'backgroundColor') {
 		node.styleBg = undefined
 		syncNativeColors(node)
-	} else if (name === 'borderRadius') {
-		node.styleRadius = undefined
-		syncCornerRadius(node)
+	} else if (BORDER_RADIUS_KEYS[name] != null) {
+		clearBorderSlot(node, 'radii', BORDER_RADIUS_KEYS[name])
+	} else if (BORDER_WIDTH_KEYS[name] != null) {
+		clearBorderSlot(node, 'widths', BORDER_WIDTH_KEYS[name])
+	} else if (BORDER_COLOR_KEYS[name] != null) {
+		clearBorderSlot(node, 'colors', BORDER_COLOR_KEYS[name])
+	} else if (BORDER_EDGE_KEYS[name] != null) {
+		clearBorderEdge(node, BORDER_EDGE_KEYS[name])
 	} else if (name === 'cornerShape') {
 		if (view.layer) {
 			view.layer.cornerCurve = 'circular'
@@ -3742,14 +4196,6 @@ function resetStyle(node: ElementNode, name: string) {
 		view.alignment = nodeClasses(node).includes('vx-sheet-grabber')
 			? NSTextAlignment.Center
 			: NSTextAlignment.Left
-	} else if (name === 'borderWidth') {
-		if (view.layer) {
-			view.layer.borderWidth = 0
-		}
-	} else if (name === 'borderColor') {
-		if (view.layer) {
-			view.layer.borderColor = null
-		}
 	} else if (MARGIN_SIDES[name] || name === 'margin') {
 		clearMarginStyle(node, name)
 	}
@@ -3846,9 +4292,8 @@ function applyStyle(node: ElementNode, style: PropBag) {
 			node.bgApplied = true
 			node.view.wantsLayer = true
 			node.view.layer.backgroundColor = nativeColor(value).CGColor
-		} else if (name === 'borderRadius' && node.view) {
-			node.styleRadius = value
-			syncCornerRadius(node)
+		} else if (BORDER_RADIUS_KEYS[name] != null && node.view) {
+			setBorderSlot(node, 'radii', BORDER_RADIUS_KEYS[name], value)
 		} else if (name === 'cornerShape' && node.view) {
 			node.view.wantsLayer = true
 			node.view.layer.cornerCurve =
@@ -3901,12 +4346,15 @@ function applyStyle(node: ElementNode, style: PropBag) {
 					: value === 'right'
 						? NSTextAlignment.Right
 						: NSTextAlignment.Center
-		} else if (name === 'borderWidth' && node.view) {
-			node.view.wantsLayer = true
-			node.view.layer.borderWidth = Number(value)
-		} else if (name === 'borderColor' && node.view) {
-			node.view.wantsLayer = true
-			node.view.layer.borderColor = nativeColor(value).CGColor
+		} else if (BORDER_WIDTH_KEYS[name] != null && node.view) {
+			setBorderSlot(node, 'widths', BORDER_WIDTH_KEYS[name], value)
+		} else if (BORDER_COLOR_KEYS[name] != null && node.view) {
+			setBorderSlot(node, 'colors', BORDER_COLOR_KEYS[name], value)
+		} else if (BORDER_EDGE_KEYS[name] != null && node.view) {
+			setBorderEdge(node, BORDER_EDGE_KEYS[name], value)
+		} else if (BORDER_STYLE_KEYS.has(name) && node.view) {
+			// Borders paint solid regardless — consume the style declaration.
+			continue
 		} else if (MARGIN_SIDES[name] || name === 'margin') {
 			setMarginStyle(node, name, value)
 		} else if (
@@ -6321,10 +6769,14 @@ function destroy(node: ElementNode) {
 		NSNotificationCenter.defaultCenter.removeObserver(node.gradientObserver)
 		node.gradientObserver = null
 	}
-	if (node.radiusFrameObserver) {
-		NSNotificationCenter.defaultCenter.removeObserver(node.radiusFrameObserver)
-		node.radiusFrameObserver = null
+	if (node.boxFrameObserver) {
+		NSNotificationCenter.defaultCenter.removeObserver(node.boxFrameObserver)
+		node.boxFrameObserver = null
 	}
+	node.borderLayer = null
+	node.borderSides = undefined
+	node.borderOutline = undefined
+	node.cornerMask = undefined
 
 	layoutHandlers.delete(node.layoutObservedView)
 	node.layoutObservedView = null
@@ -6908,16 +7360,40 @@ function parityStyle(node: ElementNode, facets: readonly string[]) {
 			}
 		}
 
-		if (facet === 'borderTopWidth' && view?.layer) {
-			value = view.layer.borderWidth
+		if (facet === 'borderTopWidth') {
+			const declared = node.borderSpec?.widths?.top
+			if (declared != null) {
+				value = borderLength(declared)
+			} else if (view?.layer) {
+				value = view.layer.borderWidth
+			}
 		}
 
-		if (facet === 'borderTopColor' && view?.layer?.borderColor) {
-			value = colorValue(NSColor.colorWithCGColor(view.layer.borderColor)) ?? value
+		if (facet === 'borderTopColor') {
+			const declared = node.borderSpec?.colors?.top
+			const color =
+				declared != null
+					? borderNSColor(node, declared)
+					: view?.layer?.borderColor
+						? NSColor.colorWithCGColor(view.layer.borderColor)
+						: null
+			if (color) {
+				value = colorValue(color) ?? value
+			}
 		}
 
-		if (facet === 'borderTopLeftRadius' && view?.layer) {
-			value = view.layer.cornerRadius
+		if (facet === 'borderTopLeftRadius') {
+			const declared = node.borderSpec?.radii?.topLeft
+			if (declared != null && view) {
+				const size = view.frame?.size ?? { width: 0, height: 0 }
+				value = borderRadiusPoints(
+					declared,
+					Number(size.width) || 0,
+					Number(size.height) || 0,
+				)
+			} else if (view?.layer) {
+				value = view.layer.cornerRadius
+			}
 		}
 
 		if (facet === 'opacity' && view?.alphaValue != null) {

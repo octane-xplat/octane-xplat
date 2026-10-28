@@ -273,14 +273,23 @@ function styleDict(node: NodeLike): Record<string, any> {
 			bottom: [0, padding.bottom ?? 0],
 		}
 	}
-	// Layer borders also consume space in the CSS box model.
-	if (style.borderWidth != null) {
-		const border = edgeBox(style.borderWidth)!
+	// Layer borders also consume space in the CSS box model. Per-side
+	// longhands win over the collapsed borderWidth slot.
+	const collapsedBorder = edgeBox(style.borderWidth)
+	const borderEdge = (key: string, side: 'top' | 'right' | 'bottom' | 'left') =>
+		lenDim(style[key]) ?? (collapsedBorder?.[side] != null ? [0, collapsedBorder[side]] : undefined)
+	const border = {
+		left: borderEdge('borderLeftWidth', 'left'),
+		right: borderEdge('borderRightWidth', 'right'),
+		top: borderEdge('borderTopWidth', 'top'),
+		bottom: borderEdge('borderBottomWidth', 'bottom'),
+	}
+	if (border.left || border.right || border.top || border.bottom) {
 		out.border = {
-			left: [0, border.left ?? 0],
-			right: [0, border.right ?? 0],
-			top: [0, border.top ?? 0],
-			bottom: [0, border.bottom ?? 0],
+			left: border.left ?? [0, 0],
+			right: border.right ?? [0, 0],
+			top: border.top ?? [0, 0],
+			bottom: border.bottom ?? [0, 0],
 		}
 	}
 

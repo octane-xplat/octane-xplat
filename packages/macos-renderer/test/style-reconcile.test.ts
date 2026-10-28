@@ -44,6 +44,37 @@ function anchor() {
 	}
 }
 
+// Minimal CALayer stand-in: sublayer ordering, superlayer back-reference,
+// path ops recorded by the CGPath* fakes below.
+function fakeCALayer() {
+	return {
+		sublayers: [] as any[],
+		superlayer: null as any,
+		hidden: false,
+		path: null as any,
+		fillColor: null as any,
+		frame: null as any,
+		mask: null as any,
+		addSublayer(l: any) {
+			this.sublayers.push(l)
+			l.superlayer = this
+		},
+		insertSublayerAtIndex(l: any, i: number) {
+			this.sublayers.splice(i, 0, l)
+			l.superlayer = this
+		},
+		removeFromSuperlayer() {
+			if (this.superlayer) {
+				const i = this.superlayer.sublayers.indexOf(this)
+				if (i >= 0) {
+					this.superlayer.sublayers.splice(i, 1)
+				}
+				this.superlayer = null
+			}
+		},
+	}
+}
+
 function view({ orientation } = {}) {
 	return {
 		orientation,
@@ -56,6 +87,7 @@ function view({ orientation } = {}) {
 		postsFrameChangedNotifications: false,
 		cell: { lineBreakMode: 0 },
 		layer: {
+			...fakeCALayer(),
 			setValueForKeyPath(key, value) {
 				this['kvc:' + key] = value
 			},
@@ -171,6 +203,14 @@ const sandbox = {
 		colorWithCGColor: (cg) => ({ CGColor: cg }),
 	},
 	NSView: { alloc: () => ({ initWithFrame: () => view() }) },
+	CAShapeLayer: { alloc: () => ({ init: () => fakeCALayer() }) },
+	CALayer: { alloc: () => ({ init: () => fakeCALayer() }) },
+	CGPathCreateMutable: () => ({ ops: [] as any[] }),
+	CGPathMoveToPoint: (p: any, _t: any, x: number, y: number) => p.ops.push(['M', x, y]),
+	CGPathAddLineToPoint: (p: any, _t: any, x: number, y: number) => p.ops.push(['L', x, y]),
+	CGPathAddArcToPoint: (p: any, _t: any, x1: number, y1: number, x2: number, y2: number, r: number) =>
+		p.ops.push(['A', x1, y1, x2, y2, r]),
+	CGPathCloseSubpath: (p: any) => p.ops.push(['Z']),
 	fontForFamilyStyle: (size, weight, family) => ({
 		pointSize: Number(size),
 		weight: String(weight ?? 400),
@@ -642,4 +682,113 @@ test('effectiveStyle tolerates a missing node (empty actionbar intrinsicContentS
 	)
 	assert.deepEqual({ ...effectiveStyle(undefined) }, {})
 	assert.deepEqual({ ...effectiveStyle(null) }, {})
+})
+
+test('per-side borders draw through masked shape layers and reset cleanly', () => {
+	const item = node('masonview', { orientation: 1 })
+	item.view.frame.size.width = 100
+	item.view.frame.size.height = 40
+	setStyle(item, { borderTopWidth: 2, borderBottomWidth: 4, borderColor: '#ff0000' })
+
+	assert.equal(item.view.layer.borderWidth, 0, 'per-side widths leave the collapsed slot alone')
+	const box = item.borderLayer
+	assert.ok(box, 'border layer installed under the sublayers')
+	assert.equal(box.sublayers.length, 4)
+	assert.equal(item.view.layer.sublayers[0], box)
+	assert.equal(item.view.postsFrameChangedNotifications, true)
+
+	const top = item.borderSides.top
+	assert.deepEqual(top.path.ops, [
+		['M', 0, 40],
+		['L', 100, 40],
+		['L', 100, 38],
+		['L', 0, 38],
+		['Z'],
+	])
+	assert.deepEqual({ ...top.fillColor }, { r: 1, g: 0, b: 0, a: 1 })
+	assert.equal(item.borderSides.left.hidden, true)
+	assert.equal(item.borderSides.bottom.hidden, false)
+
+	setStyle(item, {})
+	assert.equal(item.borderLayer, null)
+	assert.equal(item.view.layer.sublayers.length, 0)
+	assert.equal(frameObservers.length, 0, 'frame observer released with the borders')
+})
+
+test('uniform borders keep the single CALayer fast path', () => {
+	const item = node('masonview', { orientation: 1 })
+	setStyle(item, { borderWidth: 2, borderColor: '#ff0000' })
+
+	assert.equal(item.view.layer.borderWidth, 2)
+	assert.deepEqual({ ...item.view.layer.borderColor }, { r: 1, g: 0, b: 0, a: 1 })
+	assert.equal(item.borderLayer, null, 'no shape layers for a uniform border')
+	assert.equal(item.view.postsFrameChangedNotifications, false)
+})
+
+test('per-corner radii clip through a mask path and restore the fast path', () => {
+	const item = node('masonview', { orientation: 1 })
+	item.view.frame.size.width = 100
+	item.view.frame.size.height = 50
+	setStyle(item, { borderTopLeftRadius: 10, borderTopRightRadius: 30 })
+
+	assert.equal(item.view.layer.cornerRadius, 0)
+	assert.equal(item.view.layer.masksToBounds, true)
+	const mask = item.view.layer.mask
+	assert.deepEqual(mask?.path?.ops, [
+		['M', 10, 50],
+		['A', 100, 50, 100, 20, 30],
+		['L', 100, 0],
+		['L', 100, 0],
+		['L', 0, 0],
+		['L', 0, 0],
+		['L', 0, 40],
+		['A', 0, 50, 10, 50, 10],
+		['Z'],
+	])
+
+	setStyle(item, { borderRadius: 8 })
+	assert.equal(item.view.layer.cornerRadius, 8)
+	assert.equal(item.view.layer.mask, null, 'uniform radius restores cornerRadius')
+})
+
+test('border shorthand feeds width and color slots', () => {
+	const item = node('masonview', { orientation: 1 })
+	item.view.frame.size.width = 100
+	item.view.frame.size.height = 50
+	setStyle(item, { border: '1px solid #00ff00' })
+
+	assert.equal(item.view.layer.borderWidth, 1)
+	assert.deepEqual({ ...item.view.layer.borderColor }, { r: 0, g: 1, b: 0, a: 1 })
+
+	setStyle(item, { border: '1px solid #00ff00', borderRight: '2px dashed #0000ff' })
+	assert.equal(item.view.layer.borderWidth, 0, 'non-uniform sides go through layers')
+	const right = item.borderSides.right
+	assert.deepEqual(right.path.ops, [
+		['M', 100, 50],
+		['L', 100, 0],
+		['L', 98, 1],
+		['L', 98, 49],
+		['Z'],
+	])
+	assert.deepEqual({ ...right.fillColor }, { r: 0, g: 0, b: 1, a: 1 })
+
+	setStyle(item, { border: 0 })
+	assert.equal(item.view.layer.borderWidth, 0)
+	assert.equal(item.borderLayer, null)
+})
+
+test('CSS border-radius and border-width arrive as per-corner and per-side longhands', () => {
+	registerStylesheet(
+		'sr-borders',
+		'.card { border-radius: 4px 8px; border-width: 1px 2px; border-color: #ff0000 }',
+	)
+	const item = node('masonview', { orientation: 1 })
+	setClass(item, 'card')
+
+	assert.equal(item.computedStyle.borderTopLeftRadius, 4)
+	assert.equal(item.computedStyle.borderTopRightRadius, 8)
+	assert.equal(item.computedStyle.borderTopWidth, 1)
+	assert.equal(item.computedStyle.borderRightWidth, 2)
+	assert.equal(item.borderLayer != null, true, 'non-uniform sides layer the border')
+	assert.equal(item.view.layer.mask != null, true, 'per-corner radii clip through a mask')
 })

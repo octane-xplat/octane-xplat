@@ -163,8 +163,8 @@ Current limits:
 - Media queries are re-checked when the appearance or the stylesheets
   change, but not when a window resizes.
 - `@keyframes` and `animation-*` are parsed but not played.
-- Labels ignore padding. Per-corner radii and per-side borders collapse to a
-  single value.
+- Labels ignore padding. Per-side borders and per-corner radii draw through a
+  masked shape layer; `border-style` values paint solid.
 - A text field or text view drops its native bezel and background as soon
   as CSS gives it a background, border, or corner radius.
 - An unsupported property logs `[macos-css] ignored unsupported property`
