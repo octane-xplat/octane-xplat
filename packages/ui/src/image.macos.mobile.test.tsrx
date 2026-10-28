@@ -89,3 +89,13 @@ it('candidate/geometry updates preserve private policy without changing public s
 		expect(env.host.props.src).toBe('~/large.png'); expect(env.host.props.imageCachePolicy).toBe('none')
 	} finally { env.root.unmount() }
 })
+
+it('the private callback handoff forwards current load/error functions and removes dropped handlers', () => {
+	const calls: any[] = [], load = (event: any) => calls.push(event), error = (event: any) => calls.push(event)
+	const env = mount({ src: '~/photo.png', __appKitImageLoad: load, __appKitImageError: error })
+	try {
+		expect(Reflect.get(Image, '__xplatAppKitImageEvents')).toBe(true); expect(env.host.props.onImageLoad).toBe(load); expect(env.host.props.onImageError).toBe(error)
+		const event = { width: 64, height: 32, source: 'local' }; env.host.props.onImageLoad(event); expect(calls).toEqual([event])
+		env.root.render(Image, { src: '~/photo.png' }); flushUniversalSync(() => {}); expect(env.host.props.onImageLoad).toBeUndefined(); expect(env.host.props.onImageError).toBeUndefined()
+	} finally { env.root.unmount() }
+})

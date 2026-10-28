@@ -179,13 +179,44 @@ export function UncachedPhoto({ src }: { src: string }) {
 Configuration fields still lack AppKit implementations and now throw explicitly.
 Decode-transform queries report none. Display headers still throw before loading. With matching UI/renderer support,
 cachePolicy="none" now bypasses framework decoded-memory and owned disk caches.
-Decode bounds, failureImage, progressive loading, transitions and onLoad/onError
-remain unimplemented. The public macOS declaration also now binds its PrefetchOptions
+Decode bounds, failureImage, progressive loading and transitions remain unimplemented. The public macOS declaration also now binds its PrefetchOptions
 parameter type. Byte-cache, adapter, remote-view, CoreImage and native-policy source cases
 plus updated placeholder coverage and the [AppKit fixture](../../examples/probes/cached-image.macos.tsrx)
 are authored, all unrun. Native disk/network/threading, decode/memory lifetime,
 responsiveness and packaging remain unqualified. Fit/position retain the core
 logical-point path; see [AppKit image loading](../../docs/app/components.md#image-loading-on-appkit).
+
+AppKit `onLoad` and `onError` require matching UI and renderer support; older
+packages fail before loading. Notifications are queued after assignment and use
+the current handler in the owning root's event scope. Each current source/mode
+gets at most one terminal notification; replacing a source/mode or removing the
+view retires queued delivery. Placeholder-only updates keep the request and do
+not retry or replay events. Empty sources and placeholders emit neither event.
+
+```tsx
+import { Image } from '@octane-xplat/image'
+export function Preview({ src }: { src: string }) {
+	return <Image src={src} alt="Preview" style={{ width: 120, height: 80 }}
+		onLoad={({ width, height, source }) => console.log(width, height, source)}
+		onError={({ error }) => console.warn(error.message)} />
+}
+```
+
+Load dimensions are the largest positive reported native representation in
+pixels, or 0×0 when unavailable, never logical points. The origin is memory,
+disk, network or local at request completion, not a live cache-presence query.
+Success means image assignment completed, not that native pixels were drawn.
+Errors use a generic Error without the source URI or native NSError details;
+consumer callback exceptions are logged separately. Adding a callback after
+completion does not replay it. Fifteen added source cases are authored but
+unrun; native event timing, metadata and rendering remain unqualified.
+
+```ts
+import type { ImageLoadEvent } from '@octane-xplat/image'
+function reportLoad(event: ImageLoadEvent) {
+	console.log(event.width > 0 && event.height > 0 ? `${event.width}×${event.height}` : 'Size unavailable')
+}
+```
 
 ## Divergences from core `Image`
 

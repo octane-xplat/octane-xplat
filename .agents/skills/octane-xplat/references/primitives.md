@@ -103,7 +103,8 @@ query, eviction and clear through an image-owned disk cache; native qualificatio
 is pending. It uses a credential-free dedicated session. Prefetch headers and
 uncacheable responses resolve false. Configuration fields and display headers throw; cachePolicy="none" now has the
 matched UI/renderer bypass path below. Decode-
-transform queries return none. Other engine props/callbacks remain gaps. The
+transform queries return none. Load/error callbacks now have the matched
+UI/renderer handoff; other engine props remain gaps. The
 private imageMemoryCache bridge controls decoded memory only; do not substitute
 it for public disk eviction or an account-data purge. Read the
 [cache subset](../../../../packages/image/README.md#appkit-subset) before relying on it.
@@ -131,12 +132,21 @@ disk caches. A private per-view handoff retains CoreImage normalization; matchin
 UI and renderer capabilities are required or it fails before loading. Bypass
 work shares only with bypass consumers; mode changes retire old callbacks for
 the same URI. This does not purge older entries or platform-internal caches.
-Native cache behavior and retention remain unqualified.
+Optional onLoad/onError also require matching UI/renderer support. Current
+source/mode ownership and root-scope guards retire stale notifications; the
+latest handler receives at most one deferred terminal event. Placeholder-only
+updates retain work and emit no event; empty sources emit no event. Dimensions
+are the largest positive native representation in pixels, or 0×0 if unknown,
+never points; source reports request origin, not live cache state. Generic
+errors omit URI/NSError details. Adding handlers after completion does not replay.
+Native event timing, metadata, cache behavior and retention remain unqualified.
 
 ```tsx
 import { Image } from '@octane-xplat/image'
 export function FreshPhoto({ src }: { src: string }) {
-	return <Image src={src} cachePolicy="none" alt="Photo" style={{ width: 120, height: 80 }} />
+	return <Image src={src} cachePolicy="none" alt="Photo" style={{ width: 120, height: 80 }}
+		onLoad={(event) => console.log(event.width, event.height, event.source)}
+		onError={({ error }) => console.warn(error.message)} />
 }
 ```
 

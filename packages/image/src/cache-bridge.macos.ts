@@ -1,7 +1,8 @@
-import type { ImageCacheConfig, ImageCacheQueryOptions, ImageCacheState, PrefetchOptions } from './props'
+import type { ImageCacheConfig, ImageCacheQueryOptions, ImageCacheState, PrefetchOptions, ImageLoadEvent, ImageErrorEvent } from './props'
 import { prefetchBatch } from './prefetch-batch.ts'
 interface ImageCacheBridge {
 	readonly supportsCachePolicy?: boolean
+	readonly supportsLoadEvents?: boolean
 	initialize(): boolean
 	prefetch(source: string): Promise<boolean>
 	isCached(source: string): ImageCacheState
@@ -50,12 +51,15 @@ export function validateAppKitImageOptions(options: { cachePolicy?: string; head
 }
 
 /** Private typed handoff to CoreImage, preserving its layout/source normalization. */
-export function withAppKitImagePolicy<T extends { cachePolicy?: 'memory-disk' | 'none'; headers?: Record<string, string> }>(
+export function withAppKitImageRequest<T extends { onLoad?: (event: ImageLoadEvent) => void; onError?: (event: ImageErrorEvent) => void; cachePolicy?: 'memory-disk' | 'none'; headers?: Record<string, string> }>(
 	props: T, core: object, bridge: () => ImageCacheBridge | undefined = () => Reflect.get(globalThis, '__xplatAppKit')?.imageCache,
-): T & { __appKitImageCachePolicy: 'memory-disk' | 'none' } {
+): T & { __appKitImageCachePolicy: 'memory-disk' | 'none'; __appKitImageLoad?: (event: ImageLoadEvent) => void; __appKitImageError?: (event: ImageErrorEvent) => void } {
 	validateAppKitImageOptions(props)
 	if (props.cachePolicy === 'none' && (Reflect.get(core, '__xplatAppKitImagePolicy') !== true || bridge()?.supportsCachePolicy !== true)) {
 		throw new Error('AppKit Image cache bypass requires matching UI and renderer support')
 	}
-	return { ...props, __appKitImageCachePolicy: props.cachePolicy ?? 'memory-disk' }
+	if ((props.onLoad || props.onError) && (Reflect.get(core, '__xplatAppKitImageEvents') !== true || bridge()?.supportsLoadEvents !== true)) {
+		throw new Error('AppKit Image callbacks require matching UI and renderer support')
+	}
+	return { ...props, __appKitImageCachePolicy: props.cachePolicy ?? 'memory-disk', __appKitImageLoad: props.onLoad, __appKitImageError: props.onError }
 }

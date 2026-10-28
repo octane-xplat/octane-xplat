@@ -1,6 +1,6 @@
 import { createImageRequests } from './image-requests.ts'
 
-interface ImageBytes { data: any; stored: boolean }
+interface ImageBytes { data: any; stored: boolean; source: 'network' | 'disk' }
 /** Image-owned encoded bytes. URLCache has zero memory capacity; decoded
  * bitmaps remain owned by image-requests. No shared URL cache is modified. */
 export function createImageByteCache(native: () => Record<string, any>) {
@@ -48,7 +48,7 @@ export function createImageByteCache(native: () => Record<string, any>) {
 	}
 	const cached = (request: any): ImageBytes | null => {
 		const response = storage?.cachedResponseForRequest(request)
-		return response?.data && Number(response.storagePolicy) === 0 ? { data: response.data, stored: true } : null
+		return response?.data && Number(response.storagePolicy) === 0 ? { data: response.data, stored: true, source: 'disk' } : null
 	}
 	const canStore = (response: any) => {
 		const headers = response?.allHeaderFields
@@ -87,7 +87,7 @@ export function createImageByteCache(native: () => Record<string, any>) {
 				if (!session) { settle(null); return }
 				let hit: ImageBytes | null = null
 				try { if (cacheAllowed) hit = cached(request) } catch {}
-				if (hit) { settle({ data: hit.data, stored: current() }); return }
+				if (hit) { settle({ ...hit, stored: current() }); return }
 				task = session.dataTaskWithRequestCompletionHandler(request, (data: any, response: any, error: any) => {
 					if (!active) return
 					const deliver = () => {
@@ -105,7 +105,7 @@ export function createImageByteCache(native: () => Record<string, any>) {
 								}
 							} catch { /* Display may continue when disk storage fails. */ }
 						}
-						settle({ data, stored })
+						settle({ data, stored, source: 'network' })
 					}
 					try { queue.addOperationWithBlock(deliver) } catch {
 						timer = setTimeout(() => { timer = undefined; if (active) settle(null) }, 0)

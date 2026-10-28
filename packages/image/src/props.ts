@@ -22,7 +22,8 @@ export type {
 export type ImageCachePolicy = 'memory-disk' | 'none'
 
 export interface ImageLoadEvent {
-	/** Decoded bitmap size in pixels. */
+	/** Decoded bitmap size in pixels. AppKit reports the largest positive
+	 * representation, or 0 when pixel metadata is unavailable (never layout points). */
 	width: number
 	height: number
 	/** Where the engine served the image from. Absent on web — the browser

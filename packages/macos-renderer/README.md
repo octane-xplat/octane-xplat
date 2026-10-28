@@ -396,8 +396,10 @@ An empty source clears the view unless a placeholder is supplied. A pending
 replacement can keep the prior image; a placeholder paints while it loads and
 remains after failure. Failed loads are not cached. Cache hits do not paint a
 pending placeholder. The optional image package uses the same AppKit leaf;
-its cache controls, engine extensions and load/error callbacks remain missing.
-Source-set selection and decode scheduling hints remain separate gaps.
+its basic cache controls, bypass and load/error events now have source paths.
+See the [optional AppKit subset](../image/README.md#appkit-subset) for callback
+ownership, pixel metadata and remaining engine gaps. Source candidates are
+selected by the UI leaf; decode scheduling hints remain a separate gap.
 Styled images compute cover/contain/fill/none/scale-down rectangles, align them
 with keyword/point/percentage object positions and clip to the view bounds.
 Raw objectPosition parsing supports keywords, px and percentages; unresolved

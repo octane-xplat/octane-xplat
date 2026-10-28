@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { createAppKitImageCache, validateAppKitImageOptions, withAppKitImagePolicy } from '../src/cache-bridge.macos.ts'
+import { createAppKitImageCache, validateAppKitImageOptions, withAppKitImageRequest } from '../src/cache-bridge.macos.ts'
 
 test('the optional AppKit adapter delegates disk warming, queries, eviction and clear to the renderer owner', async () => {
 	const calls: unknown[] = [], cache = createAppKitImageCache(() => ({
@@ -55,12 +55,21 @@ test('private policy handoff preserves source/layout props without mutating the 
 	const props = { src: 'https://image-test/private', cachePolicy: 'none' as const, style: 'width:40px', alt: 'Photo' }
 	const core = Object.defineProperty(() => {}, '__xplatAppKitImagePolicy', { value: true })
 	const bridge = { supportsCachePolicy: true, initialize: () => true, prefetch: async () => true, isCached: () => 'none' as const, evict: () => true, clear: () => true }
-	const result = withAppKitImagePolicy(props, core, () => bridge)
-	assert.deepEqual(result, { ...props, __appKitImageCachePolicy: 'none' }); assert.equal('__appKitImageCachePolicy' in props, false)
-	assert.equal(withAppKitImagePolicy({ src: 'local', cachePolicy: undefined }, () => {}, () => undefined).__appKitImageCachePolicy, 'memory-disk')
+	const result = withAppKitImageRequest(props, core, () => bridge)
+	assert.deepEqual(result, { ...props, __appKitImageCachePolicy: 'none', __appKitImageLoad: undefined, __appKitImageError: undefined }); assert.equal('__appKitImageCachePolicy' in props, false)
+	assert.equal(withAppKitImageRequest({ src: 'local', cachePolicy: undefined }, () => {}, () => undefined).__appKitImageCachePolicy, 'memory-disk')
 })
 test('missing or older UI/renderer cannot silently fall back from an uncached display request', () => {
 	const props = { cachePolicy: 'none' as const }, core = Object.defineProperty(() => {}, '__xplatAppKitImagePolicy', { value: true })
-	assert.throws(() => withAppKitImagePolicy(props, () => {}, () => undefined), /matching UI and renderer/)
-	assert.throws(() => withAppKitImagePolicy(props, core, () => undefined), /matching UI and renderer/)
+	assert.throws(() => withAppKitImageRequest(props, () => {}, () => undefined), /matching UI and renderer/)
+	assert.throws(() => withAppKitImageRequest(props, core, () => undefined), /matching UI and renderer/)
+})
+test('load/error callback handoff preserves functions and fails before loading on an older UI or renderer', () => {
+	const onLoad = () => {}, onError = () => {}, props = { onLoad, onError }
+	const core = Object.defineProperty(() => {}, '__xplatAppKitImageEvents', { value: true })
+	const bridge = { supportsLoadEvents: true, initialize: () => true, prefetch: async () => true, isCached: () => 'none' as const, evict: () => true, clear: () => true }
+	const result = withAppKitImageRequest(props, core, () => bridge)
+	assert.equal(result.__appKitImageLoad, onLoad); assert.equal(result.__appKitImageError, onError)
+	assert.throws(() => withAppKitImageRequest(props, () => {}, () => bridge), /callbacks require matching/)
+	assert.throws(() => withAppKitImageRequest(props, core, () => ({ ...bridge, supportsLoadEvents: false })), /callbacks require matching/)
 })

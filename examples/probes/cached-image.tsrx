@@ -40,7 +40,7 @@ export default function CachedImageProbe() {
 }
 
 export async function run(ctx: ProbeContext) {
-	if (ctx.target === 'macos') throw new Error('Use examples/probes/cached-image.macos.tsrx; AppKit load/error and decode-transform callbacks remain unsupported')
+	if (ctx.target === 'macos') throw new Error('Use examples/probes/cached-image.macos.tsrx; AppKit decode-transform cache probes remain unsupported')
 	await ctx.waitFor(() => ctx.find('probe-image'))
 	await ctx.waitFor(() => events.length >= 1, { timeout: 45000 })
 	ctx.assert('first load finished', events[0].startsWith('load:'), true)

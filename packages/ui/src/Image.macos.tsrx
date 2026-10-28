@@ -25,11 +25,19 @@ function appKitPlaceholder(placeholder: string): string | undefined {
 	return appKitImageSource(placeholder)
 }
 
+interface AppKitImageLoad { width: number; height: number; source: 'network' | 'memory' | 'disk' | 'local' }
+interface AppKitImagePrivateEvents {
+	__appKitImageLoad?: (event: AppKitImageLoad) => void
+	__appKitImageError?: (event: { error: Error }) => void
+}
+
 // The AppKit host paints a placeholder in the same image view while loading.
 declare module '@octane-xplat/jsx/intrinsics' {
 	interface ImageProps {
 		/** Private AppKit engine request option, outside the public UI Image props. */
 		imageCachePolicy?: 'memory-disk' | 'none'
+		onImageLoad?: (event: AppKitImageLoad) => void
+		onImageError?: (event: { error: Error }) => void
 		placeholder?: string
 		onImageGeometryChanged?: (geometry: { width: number; height: number; scale: number }) => void
 	}
@@ -39,6 +47,7 @@ export function Image(props: ImageProps) @{
 	// The optional image engine passes this private field through JSX spreads;
 	// keep the shared public ImageProps contract unchanged.
 	const cachePolicy = '__appKitImageCachePolicy' in props && props.__appKitImageCachePolicy === 'none' ? 'none' : 'memory-disk'
+	const events = props as ImageProps & AppKitImagePrivateEvents
 	const [geometry, setGeometry] = useState({ width: 0, height: 0, scale: 1 })
 	const sources = Array.isArray(props.src) ? props.src : null
 	const srcString = (sources
@@ -70,6 +79,8 @@ export function Image(props: ImageProps) @{
 		id={props.id}
 		src={src}
 		imageCachePolicy={cachePolicy}
+		onImageLoad={events.__appKitImageLoad}
+		onImageError={events.__appKitImageError}
 		placeholder={placeholder}
 		onImageGeometryChanged={sources ? onGeometry : undefined}
 		className={cx(props.className)}
@@ -80,3 +91,4 @@ export function Image(props: ImageProps) @{
 
 // Private capability handshake: older UI leaves must not silently drop bypass.
 Object.defineProperty(Image, '__xplatAppKitImagePolicy', { value: true })
+Object.defineProperty(Image, '__xplatAppKitImageEvents', { value: true })

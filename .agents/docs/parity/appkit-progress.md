@@ -4855,3 +4855,67 @@ policy mutation ordering, queue/cancellation/reentry, candidate/density/layout,
 memory/bitmap lifetime, responsiveness and packed/mixed-version behavior are
 unqualified. The original image/platform evidence gates remain open; the goal
 is active and the audit snapshots are unchanged.
+
+
+## AppKit current image load and error callbacks
+
+Preview/loading/failure state is a common image flow in the repository's cached
+image demo and native file preview screens. The optional AppKit Image previously
+dropped onLoad/onError. This change adds the private typed handoff through
+CoreImage without expanding public UI ImageProps. The adapter requires separate
+UI and renderer event capabilities before loading; the private helper is now
+withAppKitImageRequest, with no compatibility alias. No dependency or manifest
+changed. Header/configuration/decode bounds/failureImage/progressive/fade remain
+gaps; this is not the mobile engine.
+
+The renderer records disk/network/local origin and distinguishes decoded-memory
+hits. It queues terminal delivery after assignment, claims notification before
+metadata/consumer reentry, then reads the current handler in the owning root's
+discrete event scope. Request generation, host view/node and root are checked
+again inside that scope. Replaced sources/modes and teardown retire notifications;
+adding handlers after completion does not replay. Callback exceptions are logged
+separately, never converted into image failures. Generic errors omit URI and
+native NSError details. Empty sources and placeholder images emit no events.
+
+Source review also found placeholder-only changes participating in request
+identity. They now preserve source/mode work, repaint current pending/failure
+chrome, and cannot cover success or retry/replay a terminal event. Placeholder
+paint failure is isolated from the actual source request. This was a source
+finding, not an observed native failure.
+
+Dimensions are the largest positive reported NSImage representation in pixels,
+or 0×0 for unknown/vector metadata; logical NSImage.size points are never used.
+Apple documents [pixelsWide](https://developer.apple.com/documentation/appkit/nsimagerep/pixelswide)
+and [pixelsHigh](https://developer.apple.com/documentation/appkit/nsimagerep/pixelshigh)
+as device units. Representation metadata does not prove which bitmap was drawn.
+The origin describes the request's serving path, not live cache presence.
+Successful assignment is not native drawing or pixel qualification.
+
+Fifteen cases were authored, all unrun: nine image-event lifecycle/reentry/error
+cases, three pixel metadata cases, one root binding case, one adapter handshake
+case and one CoreImage forwarding case. Existing byte expected values now include
+origin. The target cached-image fixture records terminal events and dimensions;
+the shared fixture still redirects AppKit because decode-transform cache probes
+are unsupported. Package/renderer READMEs, components guide, primitive skill,
+recipe AC8 and the unreleased image-cache note describe this subset.
+
+Only source/semantic review, syntax parsing of eighteen TS/TSRX files and
+whitespace checks ran. Exact deferred commands:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer --filter=@octane-xplat/image
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/image.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/image --filter=...@octane-xplat/ui --filter=...@octane-xplat/macos-renderer
+pnpm probe doctor
+pnpm probe run examples/probes/cached-image.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm exec turbo run test:packed --filter=@octane-xplat/image --filter=@octane-xplat/macos-renderer
+pnpm check:recipes
+```
+
+All remain deferred pending explicit human authorization for this task. No test,
+typecheck/build/install, probe, native/OS/browser automation, packaging or visual
+analysis ran. Actual native callback/queue/root-scope timing, metadata bridge,
+image assignment/drawing, cancellation/reentry, bitmap retention, responsiveness,
+layout/density and packed/mixed-version behavior remain unqualified. Source audit
+snapshots and issue evidence gates remain unchanged; the persistent goal is active.

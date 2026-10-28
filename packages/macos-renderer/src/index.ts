@@ -38,7 +38,7 @@ import {
 } from './gestures'
 
 import { showWindowLayer, type WindowLayerOptions } from './layer'
-import { disposeImage, imageCache, imageMemoryCache, updateImage } from './image'
+import { disposeImage, imageCache, imageMemoryCache, setImageEventHandlers, updateImage } from './image'
 import { disposeTextValue, isWritingTextValue, notifyTextValueCommit, setTextValue } from './text-value.ts'
 import { enforceTextLimit, isNormalizingTextLimit, recordTextLimitEdit, rememberTextLimitValue, reportTextLimitChange } from './text-limit.ts'
 import { notifyImageGeometry, setImageGeometryHandler } from './image-geometry.ts'
@@ -6067,6 +6067,24 @@ function observeContextMenu(view: NSView, handler: (target: NSView) => boolean):
 	return off
 }
 
+function setImageActions(node: ElementNode) {
+	const view = node.view as NSImageView | undefined
+	if (!view) return
+	const invoke = (name: string, event: unknown, current: () => boolean) => {
+		const root = node.container.root
+		if (!root || !current() || node.view !== view || cssNodesByView.get(view) !== node) return
+		root.eventScope('discrete', () => {
+			if (!current() || node.view !== view || cssNodesByView.get(view) !== node || node.container.root !== root) return
+			const handler = node.props[name]
+			if (typeof handler === 'function') handler(event)
+		})
+	}
+	setImageEventHandlers(view, {
+		onLoad: typeof node.props.onImageLoad === 'function' ? (event, current) => invoke('onImageLoad', event, current) : undefined,
+		onError: typeof node.props.onImageError === 'function' ? (event, current) => invoke('onImageError', event, current) : undefined,
+	})
+}
+
 function setKeyActions(node: ElementNode) {
 	if (!node.view) return
 	const invoke = (name: 'onKeyDown' | 'onKeyUp', event: NativeKeyboardEvent<object>) => {
@@ -6680,6 +6698,11 @@ function applyProps(node: ElementNode, props: PropBag) {
 				'bottom',
 			].includes(name)
 		) {
+			continue
+		}
+
+		if (node.type === 'image' && (name === 'onImageLoad' || name === 'onImageError')) {
+			setImageActions(node)
 			continue
 		}
 

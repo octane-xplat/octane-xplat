@@ -26,3 +26,18 @@ export function FreshPhoto({ src }: { src: string }) {
 	return <Image src={src} cachePolicy="none" alt="Photo" style={{ width: 120, height: 80 }} />
 }
 ```
+
+Optional AppKit Image now forwards onLoad/onError with current-request ownership
+and deferred root-scoped delivery. Placeholder-only updates keep the request.
+Dimensions report native representation pixels or 0×0 when unknown; callbacks
+do not prove native drawing. Matching UI/renderer support is required; native
+qualification remains pending.
+
+```tsx
+import { Image } from '@octane-xplat/image'
+export function Preview({ src }: { src: string }) {
+	return <Image src={src} alt="Preview" style={{ width: 120, height: 80 }}
+		onLoad={(event) => console.log(event.width, event.height, event.source)}
+		onError={({ error }) => console.warn(error.message)} />
+}
+```
