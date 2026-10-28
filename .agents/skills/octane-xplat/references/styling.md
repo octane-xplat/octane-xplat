@@ -232,3 +232,23 @@ Bamboo token names mirror the ui theme variables — every `--color-*`,
 app imports `chrome.css` or defines that variable itself; otherwise the
 generated declaration has no effect. The starter defines only `primary`,
 `onprimary`, `surface`, and `text`.
+
+## Experimental AppKit overflow clipping
+
+The renderer now sets NSView.clipsToBounds for two clipped axes (`hidden` or
+`clip`) and clears it for two `visible` axes. Removed styles/classes restore the
+original native value, including per-class/OS defaults; native replacement owns
+a new baseline. Rounded CALayer masks remain independent.
+
+```tsx
+<masonview style={{ width: 160, height: 48, overflow: 'hidden' }}>
+	<label text="Content remains inside this native view's bounds" />
+</masonview>
+```
+
+Mixed axes and auto/scroll values restore the native baseline and warn once per
+unsupported property; use scroll view APIs for scrolling. Six source-slice cases
+and the manual fixture are authored, unrun. Native drawing/hit-testing/AX/shadows
+and packaging remain unqualified. This renderer prerequisite does not itself fix
+Tokenizer's legacy geometry, duplicate layer row refs or counter layout.
+See [the renderer subset](../../../../packages/macos-renderer/README.md#clip-appkit-container-overflow).

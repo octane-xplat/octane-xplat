@@ -920,3 +920,78 @@ test('image fit/position styles reach native drawing state and dropped keys rese
 	setStyle(image, {})
 	assert.deepEqual(imageStyleCalls.slice(2), [[image.view, 'objectFit', undefined], [image.view, 'objectPosition', undefined]])
 })
+
+test('overflow hidden and clip set the native view clip and removal restores both OS defaults', () => {
+	for (const original of [false, true]) {
+		const item = node('masonview')
+		item.view.clipsToBounds = original
+		setStyle(item, { overflow: 'hidden' })
+		assert.equal(item.view.clipsToBounds, true)
+		setStyle(item, { overflow: 'clip' })
+		assert.equal(item.view.clipsToBounds, true)
+		setStyle(item, {})
+		assert.equal(item.view.clipsToBounds, original)
+	}
+})
+
+test('overflow visible overrides a native clip, and null restores the original baseline', () => {
+	const item = node('masonview')
+	item.view.clipsToBounds = true
+	setStyle(item, { overflow: 'visible' })
+	assert.equal(item.view.clipsToBounds, false)
+	setStyle(item, { overflow: null })
+	assert.equal(item.view.clipsToBounds, true)
+})
+
+test('overflow classes and inline overrides reconcile independently of rounded layer clipping', () => {
+	registerStylesheet('sr-overflow-clip', '.sr-overflow-clip { overflow: hidden; border-radius: 12px }')
+	const item = node('masonview')
+	item.view.clipsToBounds = false
+	setClass(item, 'sr-overflow-clip')
+	assert.equal(item.view.clipsToBounds, true)
+	assert.equal(item.view.layer.masksToBounds, true)
+	setStyle(item, { overflow: 'visible' })
+	assert.equal(item.view.clipsToBounds, false)
+	assert.equal(item.view.layer.masksToBounds, true)
+	setStyle(item, {})
+	assert.equal(item.view.clipsToBounds, true)
+	setClass(item, '')
+	assert.equal(item.view.clipsToBounds, false)
+	assert.equal(item.view.layer.masksToBounds, false)
+})
+
+test('matching explicit axes clip; a mixed-axis override restores the native baseline', () => {
+	const item = node('masonview')
+	item.view.clipsToBounds = false
+	setStyle(item, { overflowX: 'hidden', overflowY: 'clip' })
+	assert.equal(item.view.clipsToBounds, true)
+	setStyle(item, { overflow: 'hidden', overflowX: 'visible' })
+	assert.equal(item.view.clipsToBounds, false)
+	setStyle(item, { overflow: 'hidden', overflowX: 'clip' })
+	assert.equal(item.view.clipsToBounds, true)
+	setStyle(item, { overflow: 'auto' })
+	assert.equal(item.view.clipsToBounds, false)
+})
+
+test('a replacement native view captures its own clipping baseline and releases the previous view', () => {
+	const item = node('masonview')
+	item.view.clipsToBounds = false
+	setStyle(item, { overflow: 'hidden' })
+	const previous = item.view
+	item.view = view()
+	item.view.clipsToBounds = true
+	setStyle(item, { overflow: 'visible' })
+	assert.equal(previous.clipsToBounds, false)
+	assert.equal(item.view.clipsToBounds, false)
+	setStyle(item, {})
+	assert.equal(item.view.clipsToBounds, true)
+})
+
+test('unowned native clipping survives unrelated style application', () => {
+	const item = node('masonview')
+	item.view.clipsToBounds = true
+	setStyle(item, { opacity: 0.5 })
+	assert.equal(item.view.clipsToBounds, true)
+	setStyle(item, {})
+	assert.equal(item.view.clipsToBounds, true)
+})

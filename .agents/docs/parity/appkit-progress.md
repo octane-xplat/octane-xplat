@@ -4222,3 +4222,43 @@ remain unqualified. Tokenizer overflow geometry/truncation, active-option AX/
 announcements, preset text relay, Carousel fades and video remain source gaps.
 Checkbox mixed rollback still awaits the earlier human contract choice.
 Evidence-gated checkboxes stay open; the persistent goal remains active.
+
+## AppKit native overflow clipping prerequisite
+
+Tokenizer's collapsed layout needs an actual native clipping boundary before
+replacing its legacy measurements. Source review found Mason recognizes overflow
+enums for layout, but applyStyle never set NSView.clipsToBounds. The local Apple
+SDK's AppKit/NSView.h marks that property available since macOS 10.9 and states
+that the default changed from YES to NO in macOS 14, with specialized views
+supplying their own defaults. This is SDK/source evidence, not runtime proof.
+
+The AppKit style adapter now resolves final shorthand/axis declarations together:
+two hidden/clip axes set clipsToBounds, two visible axes clear it. Removal/null
+restores the original value for that native view; replacement restores the old
+view and captures the new baseline. Unowned native clipping remains untouched.
+Rounded CALayer clipping remains independent. Mixed axes and auto/scroll forms
+restore the baseline and report unsupported properties; they do not create a
+scroll container. No other target, dependency, manifest or snapshot changed.
+
+Six source-slice style reconciliation cases are authored, all unrun: both native
+defaults/removal, visible/null, CSS/inline/radius independence, explicit/mixed axes,
+replacement and unrelated styles. The manual fixture only waits/records.
+Renderer README, styling skill, recipe and feature note reconcile the subset.
+Only source/SDK/semantic review, TypeScript/TSRX syntax parsing and whitespace
+checks ran. Exact deferred commands:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer
+pnpm probe doctor
+pnpm probe run examples/probes/overflow-clip.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All remain deferred until explicit human authorization for this task. No package
+tests/typechecks/builds, installs, OS automation, visual analysis or packaging
+ran. Native drawing/hit-testing/AX/shadow/resize/package behavior is unqualified.
+Tokenizer still needs native geometry, separate collapsed/panel row refs and
+counter layout; clipping alone does not prove token truncation. Evidence-gated
+checkboxes stay open; the persistent goal remains active.

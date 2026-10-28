@@ -5505,6 +5505,9 @@ function applyStyle(node: ElementNode, style: PropBag) {
 
 		if (name === 'backgroundImage') {
 			syncBackgroundImage(node, value)
+		} else if (name === 'overflow' || name === 'overflowX' || name === 'overflowY') {
+			// Resolve both axes together after the complete style is applied.
+			continue
 		} else if (name === 'pointerEvents') {
 			if (value === 'none') {
 				inputTransparentViews.add(node.view!)
@@ -5697,6 +5700,33 @@ function applyStyle(node: ElementNode, style: PropBag) {
 				: null
 	if (layoutHost) {
 		queueLayoutReconcile(node.container, layoutHost)
+	}
+
+	// Mason's overflow enum controls layout sizing; AppKit drawing needs its
+	// own clip. Keep the original value: NSView defaults changed in macOS 14,
+	// and specialized native views can supply a different default entirely.
+	if (node.overflowClipping && node.overflowClipping.view !== node.view) {
+		node.overflowClipping.view.clipsToBounds = node.overflowClipping.original
+		node.overflowClipping = undefined
+	}
+	if (node.view) {
+		const keys = ['overflow', 'overflowX', 'overflowY'].filter((key) => next[key] != null)
+		const x = next.overflowX ?? next.overflow ?? 'visible'
+		const y = next.overflowY ?? next.overflow ?? 'visible'
+		const clipped = (x === 'hidden' || x === 'clip') && (y === 'hidden' || y === 'clip')
+		const visible = x === 'visible' && y === 'visible'
+		if (keys.length && (clipped || visible)) {
+			node.overflowClipping ??= { view: node.view, original: node.view.clipsToBounds }
+			node.view.clipsToBounds = clipped
+		} else {
+			if (node.overflowClipping) {
+				node.view.clipsToBounds = node.overflowClipping.original
+				node.overflowClipping = undefined
+			}
+			// A boolean NSView clip cannot represent mixed axes or create a
+			// scroll container. Preserve the native baseline and expose the gap.
+			for (const key of keys) warnUnsupportedCssProp(node, key)
+		}
 	}
 
 	node.appliedStyle = next

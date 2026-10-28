@@ -1083,3 +1083,34 @@ Four authored source cases use fake NSEvent monitors, including the actual pure
 keyboard dispatcher in both orders. They remain unrun and do not prove native
 monitor registration/order, proxy identity/deduplication, popup/IME/focus/AX or
 packaged operation.
+
+### Clip AppKit container overflow
+
+AppKit now maps two-axis `overflow: hidden` or `overflow: clip` to the native
+view's `clipsToBounds`. Use `visible` to clear that view clip. Removing the
+style restores that particular native view's original value; this matters
+because NSView's default changed in macOS 14 and specialized views differ.
+The setting is separate from the existing rounded CALayer mask.
+
+```tsx
+<masonview style={{ width: 160, height: 48, overflow: 'hidden' }}>
+	<masonview style={{ width: 240, height: 48, backgroundColor: '#68a' }} />
+</masonview>
+```
+
+Both explicit axes may also be clipped, or both visible. Mixed axes and
+`auto`/`scroll` overflow do not create a native scrolling container: they restore
+the native baseline and report the unsupported property. Use the existing
+scroll view APIs for scrolling.
+
+```tsx
+<masonview style={{ overflowX: 'hidden', overflowY: 'clip' }}>
+	<label text="Both axes use the native bounds clip" />
+</masonview>
+```
+
+Six source-slice style reconciliation cases and a manual fixture are authored,
+all unrun. This is source coverage, not proof of native drawing, hit-testing,
+accessibility, shadow interaction or packaged behavior. Tokenizer still needs
+its row refs, native measurement and counter layout updated before this
+renderer prerequisite establishes token truncation.
