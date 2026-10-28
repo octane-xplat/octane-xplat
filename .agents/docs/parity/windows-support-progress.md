@@ -1414,3 +1414,47 @@ OS modal behavior; the candidate native/typecheck build is running as version
 1.0.0.3. No public support checkbox, recipe target or shared audit was changed.
 The skill now reflects the bounded input/scroll observations and remaining
 IME/lifecycle/multiple-window gates.
+
+## Modal candidate: transport interruption
+
+The final 23 mock contracts passed before the native build attempt. The build
+started with the owned package version 1.0.0.3 and the existing sequential
+Turbo dependency graph, then SSH disconnected with connection reset/broken pipe
+(exit255). Subsequent bounded SSH attempts timed out on port22; the audit did
+not reach the host. Neither native compilation nor the candidate standalone
+typecheck is established by this attempt. Log:
+research/windows61/windy-modal-native-build.log. The last verified standalone
+Windows typecheck remains the v2 case, before the modal source changes.
+
+Keep the modal implementation and its maintained contracts uncommitted until
+the native attempt is inspected/recovered. Candidate file SHA256 values:
+
+- packages/ui/src/overlay-lifetime.windows.ts: 728dfe6d2a6fd7a2b1aa1ca6574a0026d8d1b7aa8bd772dfeabd8cd6ca040f5b
+- packages/ui/src/layer-keys.windows.ts: 205a3de2fab8df33269a194f54b0c3f4a7d41a3f99cf8eb69277c6f5b3b07e81
+- packages/ui/tests/windows-modal-overlay.test.mjs: 0e2b52439a584a14f5c19c4caf2a09e964060bff1d5a00d9ae3700c826820845
+- packages/ui/tests/windows-layer-focus.test.mjs: bfeb017a40670a61c0f88bc9599e83643001afaf0b854ea001cfe343cb429737
+
+The next authorized action is to reconnect to windy and inspect only the owned
+process tree/logs/MSIX before starting anything else. The disconnected SSH
+wrapper released its resource reservation, but a remote child might remain;
+reserve the device/build slot before waiting on or resuming that child. Do not
+launch a second native graph blindly. The existing audit script is
+C:/Users/alecs/dev/windows61-modal-build-audit.ps1 when the upload is present;
+otherwise upload the local /tmp/windows61-modal-build-audit.ps1 with bounded
+SSH/connect timeouts. It reports only owned process IDs and artifact metadata.
+
+If no build is running and its outcome cannot be recovered, retain version
+1.0.0.3 and rerun from the owned root (do not rerun the version-increment prep):
+
+```sh
+pnpm exec turbo run typecheck build:windows --filter=@xplat/windows --concurrency=1 --continue=dependencies-successful --output-logs=errors-only
+```
+
+Then use a separate device/desktop-input reservation for the existing owned
+install/launch/UIA wrapper and the 12-scenario common driver, which now excludes
+the separately retained SDK probe. Wake/reconnect is an external availability
+blocker, not a request for new test permission: the human's ok go authorization
+continues to apply. No expensive check outside that bounded phase is newly
+authorized. Wider UI package/dependent/packed checks remain outstanding at the
+earlier commands. No fully qualified Windows support or modal runtime pass
+is claimed, and the persistent goal remains active.
