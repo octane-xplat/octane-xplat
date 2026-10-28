@@ -3982,10 +3982,10 @@ function removeBorderLayers(node: ElementNode) {
 	node.borderOutline = undefined
 }
 
-// CSS borders and radii resolve into per-side/per-corner slots on the node.
-// CALayer takes one borderWidth/borderColor/cornerRadius, so uniform boxes
-// stay on the fast path; anything else draws through masked CAShapeLayer
-// trapezoids clipped to the rounded outline.
+// borderRadius styles and per-side border slots resolve on the node and sync
+// here. CALayer takes one borderWidth/borderColor/cornerRadius, so uniform
+// boxes stay on the fast path; anything else draws through masked
+// CAShapeLayer trapezoids clipped to the rounded outline.
 function syncBorderBox(node: ElementNode) {
 	const view = node.view
 	if (!view) {
