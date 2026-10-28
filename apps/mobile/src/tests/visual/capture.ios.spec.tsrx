@@ -5,8 +5,8 @@ import { findByTestId, mountXplat, waitUntil } from '@octane-xplat/platform/test
 import { Application } from '@nativescript/core'
 import { requestAnimationFrame } from '@nativescript/core/animation-frame'
 import meta, { SwitchStage, UncheckedLight } from './Switch.stories.ios'
-import { CAPTURE_PROFILE } from '../../../../visual/src/scenario'
-import { assertSwitchGeometry } from '../../../../visual/src/geometry'
+import { CAPTURE_PROFILE } from '../../../../../tools/visual/src/scenario'
+import { assertSwitchGeometry } from '../../../../../tools/visual/src/geometry'
 import '@octane-xplat/ui/theme/tokens.css'
 import '@octane-xplat/ui/theme/chrome.css'
 import {

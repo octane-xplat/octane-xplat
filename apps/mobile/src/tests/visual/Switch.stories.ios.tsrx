@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import './stage.ios.css'
 import { Switch } from '@octane-xplat/ui'
-import { SWITCH_SCENARIO } from '../../../../visual/src/scenario'
+import { SWITCH_SCENARIO } from '../../../../../tools/visual/src/scenario'
 
 export function SwitchStage(props: {
 	checked: boolean
@@ -32,4 +32,4 @@ export function SwitchStage(props: {
 }
 
 export default { ...SWITCH_SCENARIO, component: SwitchStage }
-export { CheckedLight, UncheckedLight } from '../../../../visual/src/scenario'
+export { CheckedLight, UncheckedLight } from '../../../../../tools/visual/src/scenario'

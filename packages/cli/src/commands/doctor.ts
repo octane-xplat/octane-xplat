@@ -91,7 +91,7 @@ const workspacePackages = (cwd) => {
 	const found = new Map()
 	let dir = resolve(cwd)
 	while (true) {
-		for (const group of ['apps', 'packages']) {
+		for (const group of ['apps', 'packages', 'tools']) {
 			const parent = join(dir, group)
 			if (!existsSync(parent)) {
 				continue

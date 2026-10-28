@@ -3,7 +3,7 @@
 > The complete over-the-air update contract: how a NativeScript app boots a
 > swapped JS bundle, what the server serves, and what to check when it breaks.
 > Mechanism evidence lives in the [bundle-redirect gate](ota-updates.md);
-> server source lives in [`apps/ota-server`](../../../apps/ota-server).
+> server source lives in [`tools/ota-server`](../../../tools/ota-server).
 >
 > **Status: client and native boot integration implemented; release lifecycle verified on iOS simulator and Android emulator.**
 > `@octane-xplat/updates` downloads, verifies and stages archives.
@@ -54,7 +54,7 @@ simulator, where container UUIDs rotate).
 
 ```
 publish:                       serve:
-  vite app/ dir ──zip──► sha256 ──► R2 bundles/<sha256>         Cloudflare Worker (apps/ota-server)
+  vite app/ dir ──zip──► sha256 ──► R2 bundles/<sha256>         Cloudflare Worker (tools/ota-server)
   pointer JSON  ──────────────► R2 channels/<chan>/<plat>.json  ┌ GET /manifest ──► reads pointer, gates, returns {version, sha256, url}
                                                               └ GET /bundles/<sha256> ──► streams zip (immutable)
 ```

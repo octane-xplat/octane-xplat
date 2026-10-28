@@ -7,6 +7,22 @@ the packages and documentation. Internal implementation notes live in
 [`.agents/docs/`](.agents/docs/README.md); design records live in
 [`.agents/design/`](.agents/design/README.md).
 
+## Workspace placement
+
+Choose a workspace's directory by its primary purpose:
+
+- `apps/` contains runnable UI applications: platform hosts, websites, sandboxes,
+  and demo or test apps that exercise real screens and app flows.
+- `tools/` contains private repository tooling and supporting services: comparison
+  runners, visual regression tooling, feedback collection, and update distribution.
+  Embedded UI fixtures do not make a tool an app.
+- `packages/` contains reusable framework libraries and distributable developer
+  tools, such as the published CLI.
+
+Keep new operational services and verification runners in `tools/`, even when
+they have a development server or deployment command. Keep package names stable
+when moving existing workspaces so package-name filters continue to work.
+
 ## Read what applies
 
 Read the relevant reference before acting in that area. These files carry the

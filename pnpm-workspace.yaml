@@ -1,5 +1,6 @@
 packages:
   - apps/*
+  - tools/*
   - packages/*
 # isolated (pnpm default): each workspace package gets real dep symlinks in its
 # own node_modules. Required by @nativescript/vite — its vendor-manifest and
@@ -79,7 +80,7 @@ overrides:
   '@tiptap/extension-text': 3.28.0
   '@tiptap/extension-underline': 3.28.0
   # sameframe 0.2.2 pins playwright 1.55.0; the repo standardizes on the
-  # 1.63.0 Chromium already used by apps/visual so one browser build serves both.
+  # 1.63.0 Chromium already used by tools/visual so one browser build serves both.
   sameframe>playwright: 1.63.0
 # Exact pins in package.json — no caret/tilde drift on fresh installs.
 saveExact: true

@@ -74,7 +74,7 @@ and do not deduplicate reports. Investigation can explain the observation,
 but must not rewrite it.
 
 Use the same observation fields and values as the
-[feedback Worker](../../apps/feedback-worker/README.md): `goal`,
+[feedback Worker](../../tools/feedback-worker/README.md): `goal`,
 `expected`, `expectation_basis`, `actual`, `target`, and `impact`; `evidence`
 and `workaround` are optional. Targets are `web`, `ios`, `android`, `macos`,
 `linux`, `windows`, or `unknown`; impacts are `blocked`, `rework`,

@@ -12,7 +12,7 @@
 > driver, `release-gate.sh` orchestration.
 >
 > The full process contract (manifest schema, server API, runbook) lives in
-> [ota-process.md](ota-process.md); server source in `apps/ota-server`.
+> [ota-process.md](ota-process.md); server source in `tools/ota-server`.
 >
 > **Remaining gaps:** iOS release was unsigned simulator-only (no signed
 > device run — no device available); Android self-restart is BAL-blocked on

@@ -18,6 +18,12 @@ app-building guides. Internal implementation guidance and records live in
 [documentation audience guidance](documentation.md#audience-and-voice) when
 writing or reviewing the guides.
 
+`apps/` holds runnable UI hosts, sites, sandboxes, and demo/test applications.
+`tools/` holds private verification runners and supporting services, including
+`visual`, `astryx-parity`, `feedback-worker`, and `ota-server`. A tool can embed
+UI fixtures without becoming an app. Reusable libraries and published developer
+tools belong in `packages/`; see [workspace placement](../../AGENTS.md#workspace-placement).
+
 ## Layout
 
 | Path                                                                                       | What it is                                                                                                                                                                                        |

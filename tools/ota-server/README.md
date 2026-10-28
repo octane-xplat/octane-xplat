@@ -29,7 +29,7 @@ This package is deploy-ready but intentionally not deployed by automation —
 Cloudflare credentials live on the operator's machine.
 
 ```sh
-cd apps/ota-server
+cd tools/ota-server
 pnpm wrangler login                                   # one-time, opens cloudflare auth
 pnpm wrangler r2 bucket create octane-xplat-ota-bundles  # one-time
 pnpm deploy                                           # wrangler deploy
@@ -42,7 +42,7 @@ Point the app's OTA client at that origin (or attach a custom domain/route in
 ## Publish a bundle
 
 ```sh
-cd apps/ota-server
+cd tools/ota-server
 pnpm publish:bundle -- --dir <built-vite-app-dir> --platform ios \
 	--version 1.4.2 --min-native 1.2.0 --channel stable
 ```

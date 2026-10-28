@@ -12,7 +12,7 @@ native runtime needs a new binary through your normal release process.
 ## Set up the binary once
 
 You need a working phone app and a deployed update server. The maintained
-[Worker/R2 backend](../../apps/ota-server/README.md#deploy-human-step) describes
+[Worker/R2 backend](../../tools/ota-server/README.md#deploy-human-step) describes
 how to create storage and deploy the server. Framework installation does not
 create a Cloudflare account or deploy a service.
 
@@ -135,7 +135,7 @@ native version yourself: it must include every native API the update calls.
 There is no automatic native dependency fingerprint check yet.
 
 ```sh
-# From the framework repository's apps/ota-server directory:
+# From the framework repository's tools/ota-server directory:
 pnpm publish:bundle -- --dir /path/to/built/app --platform ios \
   --version 2.0.0 --min-native 1.0.0 --channel staging --dry-run
 ```
@@ -195,7 +195,7 @@ export async function inspectChannel() {
 Changing a server channel back to an older pointer stops new installs of the
 bad release, but cannot repair a process that is already running bad code.
 Native boot recovery works independently of the downloaded JavaScript. See
-[server rollback](../../apps/ota-server/README.md#roll-back-a-channel) and the
+[server rollback](../../tools/ota-server/README.md#roll-back-a-channel) and the
 [process design](../../.agents/docs/notes/ota-process.md#rollback) for operator details.
 
 ## Integrity and other targets

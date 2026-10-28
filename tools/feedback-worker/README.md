@@ -12,7 +12,7 @@ From the repository root, install this workspace and apply the local migration:
 
 ```sh
 pnpm --filter @xplat/feedback-worker install --ignore-scripts
-cd apps/feedback-worker
+cd tools/feedback-worker
 pnpm exec wrangler d1 migrations apply FEEDBACK --local
 pnpm dev
 ```
@@ -42,7 +42,7 @@ These commands change the Cloudflare account selected by Wrangler. The account
 must own the `goddardai.org` zone, and `octane-xplat.goddardai.org` must have a
 [proxied DNS record](https://developers.cloudflare.com/workers/configuration/routing/routes/).
 The configured route handles only `/api/feedback`; other site paths retain their
-existing handler. Run these commands from `apps/feedback-worker`:
+existing handler. Run these commands from `tools/feedback-worker`:
 
 1. Authenticate and create the database once:
 

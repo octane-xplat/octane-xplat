@@ -1012,7 +1012,7 @@ function knownClasses(cwd) {
 		}
 	}
 
-	for (const root of ['packages', 'apps']) {
+	for (const root of ['packages', 'apps', 'tools']) {
 		const dir = join(cwd, root)
 		if (existsSync(dir)) {
 			scan(dir)

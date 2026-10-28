@@ -305,7 +305,7 @@ translation independent of transform-origin, sampling before cancellation, mid-f
 value/velocity handoff, and bezier-only gating; the retained probe passes on
 headless Chromium with delegation counters engaged (14 starts, 10 finishes, 4
 cancellations, 0 fallbacks). DOM dispatch evidence only — compositor pacing is
-not asserted. The nonvisual [cancellation geometry regression](../../apps/visual/src/motion-cancellation.test.web.ts)
+not asserted. The nonvisual [cancellation geometry regression](../../tools/visual/src/motion-cancellation.test.web.ts)
 verified centered-scale cancellation and restart continuity in real Chromium
 on 2026-10-22; it does not capture images or qualify OS input.
 

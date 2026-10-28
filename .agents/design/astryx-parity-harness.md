@@ -10,7 +10,7 @@ gives `tokens.css`/`chrome.css` fixes a repeatable check.
 
 ## Location
 
-The harness is a private app in this monorepo, `apps/astryx-parity`
+The harness is a private verification tool in this monorepo, `tools/astryx-parity`
 (`@xplat/astryx-parity`), not a separate repository:
 
 - A fix to `packages/ui` and the check that proves it land in one commit;
@@ -26,7 +26,7 @@ packages.
 ## Shape
 
 ```
-apps/astryx-parity/
+tools/astryx-parity/
   scenarios/       shared scenario data, no JSX — one spec per component
   shared/stage.css identical harness CSS on both sides (page, grid, cells)
   reference/       Vite + React 19 + pinned @astryxdesign/core (reset.css, astryx.css)
@@ -81,7 +81,7 @@ and applied an Astryx-matched token override to the candidate.
 
 Fixes must stay NativeScript-CSS compatible (for example no
 `light-dark()`), because `chrome.css` also styles native targets; this
-harness proves web only. Native parity stays chained through `apps/visual`
+harness proves web only. Native parity stays chained through `tools/visual`
 and the shared parity fixtures.
 
 ## Spike scope

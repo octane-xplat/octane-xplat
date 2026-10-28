@@ -9,12 +9,12 @@ const repository = resolve(dirname(fileURLToPath(import.meta.url)), '../../..')
 export function sourceIdentity() {
 	const hash = createHash('sha256')
 	for (const path of [
-		'apps/visual/src/scenario.ts',
-		'apps/visual/src/Switch.stories.web.tsrx',
+		'tools/visual/src/scenario.ts',
+		'tools/visual/src/Switch.stories.web.tsrx',
 		'apps/mobile/src/tests/visual/Switch.stories.ios.tsrx',
 		'packages/ui/src/Switch.tsrx',
 		'packages/ui/src/Switch.web.tsrx',
-		'apps/visual/src/stage.web.css',
+		'tools/visual/src/stage.web.css',
 		'apps/mobile/src/tests/visual/stage.ios.css',
 		'packages/ui/src/theme/tokens.css',
 		'packages/ui/src/theme/chrome.css',

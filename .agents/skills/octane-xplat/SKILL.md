@@ -138,6 +138,6 @@ and later diagnosis. Use the project's supplied feedback destination and
 consumer Silo data is not automatically shared with this repository. Omit secrets
 and private application data. The feedback Worker accepts external reports
 only through an explicit HTTP submission; see its
-[request and deployment contract](../../../apps/feedback-worker/README.md).
+[request and deployment contract](../../../tools/feedback-worker/README.md).
 Submit externally only when explicitly authorized. `xplat feedback` is not
 currently implemented; do not treat local Silo writes as external submission.

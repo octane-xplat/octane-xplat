@@ -192,8 +192,8 @@ Generate reviewable candidates only from a valid unchanged capture. Replace
 `RUN_ID` with the directory printed by the capture command:
 
 ```sh
-VIS_IOS_CAPTURE="$PWD/apps/visual/artifacts/RUN_ID/ios-0.json" pnpm --filter @xplat/visual update:ios
-VIS_CAPTURE_DIR="$PWD/apps/visual/artifacts/RUN_ID" pnpm --filter @xplat/visual promote:common
+VIS_IOS_CAPTURE="$PWD/tools/visual/artifacts/RUN_ID/ios-0.json" pnpm --filter @xplat/visual update:ios
+VIS_CAPTURE_DIR="$PWD/tools/visual/artifacts/RUN_ID" pnpm --filter @xplat/visual promote:common
 ```
 
 `update:ios` generates the regression candidate under `vis/ios/`. Common
@@ -207,7 +207,7 @@ provably unchanged, a retained run can re-bind the reference metadata instead
 of forcing a fresh capture:
 
 ```sh
-VIS_CAPTURE_DIR="$PWD/apps/visual/artifacts/RUN_ID" pnpm --filter @xplat/visual promote:common:retained
+VIS_CAPTURE_DIR="$PWD/tools/visual/artifacts/RUN_ID" pnpm --filter @xplat/visual promote:common:retained
 ```
 
 The retained path requires the capture to match its own run manifest, carry
@@ -219,7 +219,7 @@ Once candidates are approved, run the full ordinary check:
 
 ```sh
 pnpm --filter @xplat/visual capture:ios --device=SIMULATOR_UDID
-VIS_CAPTURE_DIR="$PWD/apps/visual/artifacts/RUN_ID" pnpm --filter @xplat/visual test:parity
+VIS_CAPTURE_DIR="$PWD/tools/visual/artifacts/RUN_ID" pnpm --filter @xplat/visual test:parity
 ```
 
 The ordinary run checks each iOS capture through vitest-plugin-vis in its own
