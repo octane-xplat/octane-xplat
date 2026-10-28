@@ -18,6 +18,8 @@ A finite option picker supports single/multiple choices and optional save action
 - AC5: Keyboard opening/manual option navigation, Home/End/Page keys, commit, prefix cycling, local-search handoff and nonediting multi bulk shortcuts preserve editor/IME/modified-key ownership and pending guards.
 - AC6: Native rows share focus/Tab ownership, initial focus waits for attached popup/search views, Escape restores the anchor and Tab requests same-window key-view return intent through the existing layer owner. Release observers/claims on close/detach; unavailable key dispatch preserves ordinary Tab stops. Distinguish fake wiring from real popup focus and modal integration.
 
+- AC7: Standalone Selector owns label/description/status through FormField; enclosing Field owns metadata once and supplies disabled/read-only state. Stable explicit/generated trigger IDs, testID and hidden names survive metadata updates. Ghost forwards its shared class without a native paint qualification claim.
+
 ## Documentation
 
 - AC1: [AppKit selection guide](../../../docs/app/search-selection.md#appkit-finite-option-selection) and [authored object-driver cases](../../../packages/ui/src/select.macos.mobile.test.tsrx). Tests unrun.
@@ -27,3 +29,5 @@ A finite option picker supports single/multiple choices and optional save action
 
 - AC5: [AppKit keyboard guide](../../../docs/app/search-selection.md#use-selector-keys-on-appkit), [authored key-policy cases](../../../packages/ui/src/select-keyboard.macos.mobile.test.tsrx) and [manual fixture](../../../examples/probes/select-keyboard.macos.tsrx). All unrun.
 - AC6: The guide, appended inline-popup wiring case, [choice-helper cases](../../../packages/ui/src/tab-list.macos.mobile.test.tsrx) and [target note](../parity/appkit-progress.md#appkit-selector-keyboard-and-focus-ownership) record ownership/return intent and exact deferred checks. No native return result is claimed.
+
+- AC7: [AppKit metadata guide](../../../docs/app/search-selection.md#appkit-selector-field-metadata), appended source cases and [target note](../parity/appkit-progress.md#appkit-selector-field-metadata-ownership). Tests unrun; native relationships/geometry/replay remain unqualified.

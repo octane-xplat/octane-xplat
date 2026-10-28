@@ -961,8 +961,8 @@ export function Channels() {
 Source cases mock the popup inline and remain unrun. The keyboard source path
 now covers manual option focus, opening/commit, prefix/search keys and close/Tab
 return intent through existing layer ownership. Actual popup/key/IME/focus and
-VoiceOver behavior remain unqualified. Removable badges, alternate presentation/
-ghost chrome and live announcements remain open. See the [AppKit selection subset](../../../../docs/app/search-selection.md#appkit-finite-option-selection).
+VoiceOver behavior remain unqualified. Removable badges, alternate presentation and live announcements remain open;
+ghost class forwarding is now present, with native paint unqualified. See the [AppKit selection subset](../../../../docs/app/search-selection.md#appkit-finite-option-selection).
 
 
 AppKit Selector uses native choice ordering with a Select-specific key policy:
@@ -981,5 +981,21 @@ import { Selector } from '@octane-xplat/ui'
 export function Fruit() {
 	return <Selector options={[{ value: 'apple', label: 'Apple' }, { value: 'cherry', label: 'Cherry' }]}
 		searchable defaultValue="apple" />
+}
+```
+
+
+Standalone AppKit Selector now uses FormField for metadata, while an enclosing
+Field owns its text once. Stable generated/explicit control IDs, testID, hidden
+names and inherited disablement/read-only state reach the retained trigger.
+Ghost forwards its shared chrome class. Native geometry, label/tooltip behavior,
+AX relationships and identifier replay remain unqualified; source cases are unrun.
+
+```tsx
+import { Selector } from '@octane-xplat/ui'
+
+export function Region() {
+	return <Selector label="Region" description="Choose a region" testID="profile.region"
+		options={[{ value: 'west', label: 'West' }]} isRequired />
 }
 ```

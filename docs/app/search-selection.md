@@ -511,7 +511,8 @@ export function Region() {
 These changes have authored, unrun object-driver cases. The popup is replaced
 with an inline test surface in those cases, so they do not prove NSPopover
 ownership or input. A subsequent keyboard/focus source path is described below. Removable badges,
-alternate presentations, ghost chrome and live-region announcements remain open;
+alternate presentations and live-region announcements remain open; ghost chrome
+is forwarded in source but native painting remains unqualified;
 actual popup focus/input, native layout/VoiceOver and packaging remain unqualified.
 
 
@@ -564,3 +565,34 @@ They do not prove real NSPopover focus/return timing, physical keys, IME, modal
 FocusScope interactions, scrolling, VoiceOver or packaged operation. The
 [maintained AppKit keyboard fixture](https://github.com/octane-xplat/octane-xplat/blob/main/examples/probes/select-keyboard.macos.tsrx)
 is also unrun; its script only opens the trigger directly.
+
+
+## AppKit Selector field metadata
+
+A standalone Selector now renders its label, description and validation message
+through the same FormField as other AppKit inputs. An enclosing Field owns that
+text instead. The trigger retains its control ID across metadata updates, and
+testID reaches the interactive host. Hidden labels keep an accessible name.
+
+```tsx
+import { Selector } from '@octane-xplat/ui'
+
+export function Region() {
+	return <Selector label="Region" description="Choose the region for this profile" isRequired
+		options={[{ value: 'west', label: 'West' }, { value: 'east', label: 'East' }]}
+		testID="profile.region" status={{ type: 'error', message: 'Choose a region' }} />
+}
+```
+
+The ghost variant now forwards its existing chrome class. Field layout,
+tooltips, label interaction, native accessibility relationships/announcements
+and identifier replay remain unqualified. Removable value badges and alternate
+picker presentations still need implementation; this change does not add them.
+
+```tsx
+import { Selector } from '@octane-xplat/ui'
+
+export function ToolbarRegion() {
+	return <Selector accessibilityLabel="Region" variant="ghost" options={[{ value: 'west', label: 'West' }]} />
+}
+```

@@ -238,8 +238,10 @@ export function SelectView(props: SelectViewProps) @{
 			ref={anchor}
 			{...triggerKeys}
 			id={props.id}
+			testID={props.testID}
 			className={cx(
 				'vx-pressable', 'vx-select-trigger', 'vx-select-trigger--appkit',
+				props.variant === 'ghost' && 'vx-select--ghost',
 				props.isDisabled && 'vx-select--disabled',
 				props.isReadOnly && 'vx-select--readonly',
 				busy && 'vx-select--loading',

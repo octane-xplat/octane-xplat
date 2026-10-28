@@ -106,7 +106,7 @@ export function NameField() {
 | iOS | UIKit `accessibilityIdentifier` |
 | Android | Automation identifier in accessibility `resource-id`; runtime replay remains unverified |
 | Web | DOM `data-testid`; existing DOM `id` preserved |
-| AppKit (source only) | Raw native hosts map to `accessibilityIdentifier`; Pressable/Button forward the prop; runtime selectors unqualified |
+| AppKit (source only) | Raw native hosts map to `accessibilityIdentifier`; Pressable/Button/Selector forward the prop; runtime selectors unqualified |
 | Other desktop renderers and physical devices | Not qualified; do not assume support |
 
 The bounded journey passed on an iOS simulator and Chromium. See the
@@ -132,7 +132,7 @@ reliable targeting; spoken accessibility semantics still belong to users.
 
 ## AppKit source implementation
 
-AppKit Pressable and Button now forward `testID` to their retained native host.
+AppKit Pressable, Button and Selector now forward `testID` to their retained native host.
 The renderer assigns it to AppKit's
 [accessibility identifier](https://developer.apple.com/documentation/appkit/nsaccessibility-c.protocol/accessibilityidentifier),
 which is separate from the CSS `id` and spoken accessibility label. Changing the

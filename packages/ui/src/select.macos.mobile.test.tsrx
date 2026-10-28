@@ -4,6 +4,7 @@ import { createObjectContainer, createObjectDriver, createUniversalRoot, flushUn
 import { Select } from './Select.macos.tsrx'
 import { SelectView } from './SelectView.macos.tsrx'
 import { SelectMenu } from './aliases.macos.tsrx'
+import { FormField } from './FormField.macos.tsrx'
 
 // Render the child surface inline to inspect state/host contracts only.
 // This intentionally does not exercise NSPopover roots or OS focus/input.
@@ -180,4 +181,61 @@ it('wires native trigger/surface keys, manual row focus, Tab return intent and o
 		expect(observers.size).toBe(0)
 		vi.unstubAllGlobals()
 	}
+})
+
+
+it('standalone Selector owns label/description/status and retains generated trigger identity', () => {
+	const base = { options, label: 'Region', description: 'Choose a region', defaultValue: 'a', testID: 'profile.region', isRequired: true }
+	const env = mount(Select, base)
+	const trigger = () => env.all().find((node) => String(node.props?.className).includes('vx-select-trigger--appkit'))
+	try {
+		const host = trigger(), id = host.props.id
+		expect(typeof id).toBe('string')
+		expect(host.props.testID).toBe('profile.region')
+		expect(host.props.accessibilityLabel).toBe('Region')
+		expect(host.props.accessibilityHint).toContain('Choose a region')
+		expect(host.props.accessibilityState.required).toBe(true)
+		expect(env.all().filter((node) => node.props?.text === 'Region *')).toHaveLength(1)
+		expect(env.all().filter((node) => node.props?.text === 'Choose a region')).toHaveLength(1)
+		env.render({ ...base, status: { type: 'error', message: 'Choose another region' } })
+		expect(trigger()).toBe(host)
+		expect(host.props.id).toBe(id)
+		expect(host.props.accessibilityState.invalid).toBe(true)
+		expect(host.props.accessibilityHint).toContain('Choose another region')
+		expect(env.all().filter((node) => node.props?.text === 'Choose another region')).toHaveLength(1)
+	} finally { env.root.unmount() }
+})
+
+it('an enclosing Field owns text once and supplies disabled/read-only state to Selector', () => {
+	function Wrapped(props: any) { return <FormField inputID="outer-region" label="Region" description="Parent description"
+		status={{ type: 'error', message: 'Parent status' }} isDisabled={props.disabled} isReadOnly={props.readonly}>
+		<Select options={options} defaultValue="a" />
+	</FormField> }
+	const env = mount(Wrapped, {})
+	try {
+		const host = env.byID('outer-region')
+		expect(host.props.accessibilityLabel).toBe('Region')
+		expect(host.props.accessibilityHint).toContain('Parent description')
+		for (const text of ['Region', 'Parent description', 'Parent status']) expect(env.all().filter((node) => node.props?.text === text)).toHaveLength(1)
+		env.render({ disabled: true })
+		expect(env.byID('outer-region')).toBe(host)
+		expect(host.props.onTap).toBeUndefined()
+		expect(host.props.accessibilityState.disabled).toBe(true)
+		env.render({ readonly: true })
+		expect(host.props.onTap).toBeUndefined()
+	} finally { env.root.unmount() }
+})
+
+it('hidden standalone metadata preserves its name and ghost class resets on retained triggers', () => {
+	const base = { id: 'choice', options, label: 'Region', description: 'Hidden detail', isLabelHidden: true, variant: 'ghost' }
+	const env = mount(Select, base)
+	try {
+		const host = env.byID('choice')
+		expect(host.props.accessibilityLabel).toBe('Region')
+		expect(env.all().some((node) => ['Region', 'Hidden detail'].includes(node.props?.text))).toBe(false)
+		expect(String(host.props.className)).toContain('vx-select--ghost')
+		env.render({ ...base, variant: undefined })
+		expect(env.byID('choice')).toBe(host)
+		expect(String(host.props.className)).not.toContain('vx-select--ghost')
+	} finally { env.root.unmount() }
 })

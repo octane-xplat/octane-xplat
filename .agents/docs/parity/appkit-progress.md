@@ -2211,3 +2211,41 @@ window-update claims, and the case requires one active observer before asserting
 close cleanup. This prevents an absent observer from making cleanup appear
 covered. The case remains unrun; syntax/whitespace only, with the same deferred
 commands and native qualification limits above.
+
+
+### AppKit Selector Field metadata ownership
+
+The next common form gap was standalone metadata: Select.macos resolved Field
+props but never rendered FormField labels/descriptions/status. It now uses the
+existing useFieldControl ownership boundary, generates one stable control ID and
+wraps only standalone views in FormField. Parent Field keeps text ownership and
+inherited blocked state. The existing view keeps its trigger class/style and
+selection owner; metadata updates do not intentionally replace the host. TestID
+now reaches the raw trigger and ghost forwards the existing vx-select--ghost
+class. No new public prop, external dependency or shared/non-AppKit leaf changed.
+
+Three authored cases cover standalone metadata/hints/required/status/generated
+identity, parent Field single ownership and disablement/read-only state, and
+hidden names/ghost reset on retained hosts. The maintained keyboard fixture now
+includes description/testID metadata. All remain unrun; only syntax, semantic/
+source and whitespace checks ran. Native FormField layout, label interaction,
+tooltip/AX relationships and identifier replay remain unqualified.
+
+Badge/remove controls are deliberately not added in this slice: existing clear
+controls are nested in the trigger and renderer click arbitration with interactive
+children needs a separate source/runtime review before expanding that pattern.
+This is not a new runtime finding or a reason to close any evidence gate.
+Alternate presentation, badges and live announcements remain implementation gaps.
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/select.macos.mobile.test.tsrx src/select-keyboard.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe run examples/probes/select-keyboard.macos.tsrx --target macos --watch
+pnpm check:recipes
+```
+
+All commands remain deferred pending explicit human authorization for this task.
+Physical keys/IME, separate-root popup/focus lifetime, label/clear arbitration,
+Field geometry/ghost painting, VoiceOver, identifier discovery and packaging
+remain unqualified. No builds, package tests/typechecks, installs, OS automation,
+visual analysis or shared audit regeneration ran; no checkbox is closed.
