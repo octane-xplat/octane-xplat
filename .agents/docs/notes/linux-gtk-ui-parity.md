@@ -318,3 +318,56 @@ dependency lock and canonical NativeScript patch are unchanged from origin/main
 /tmp/gtk-native-batch-isolated.log. This is an isolated unchanged-test reproduction,
 not a claim that a separate clean-main checkout was executed. Keep its assertion
 and report the failure rather than weakening the criterion.
+
+## ScrollableArea and Spinner slice
+
+The GTK barrel now adds ScrollableArea, Spinner and four associated shared types:
+31 runtime values and 48 types in the curated surface. Both components reuse
+their native source. ScrollableArea's shared refresh wrapper now applies the same
+dimension styles as its core variant, places viewport and indicator explicitly
+in one grid cell and clips overflow through GTK-scoped stylesheet rules. It expresses its initial transform through
+the style channel. The core/both-axis handle contract is preserved.
+
+GTK refs can subscribe imperatively to pan through the same GestureDrag wiring
+as declarative events, with independent subscription ownership and teardown.
+Imperative pan payloads use NativeScript's numeric states/deltaX/deltaY for the
+shared native controller; public onPan props retain normalized string states.
+The internal docking animate operation accepts translate and duration only,
+settles with finished/cancelled status, and cancels on direct transform writes
+or disposal. It is not a general NativeScript animation facade.
+
+Real GTK exposed two binding mistakes during qualification. Gtk.Widget.get_width
+reports the content width; getActualSize now reads untransformed border-box
+bounds (including CSS border) from compute_bounds(view). The GJS accessible
+property binding expects property/value arrays, not C varargs. Labels now use
+that array binding, reset through reset_property, and never substitute the
+automation name. GTK's test AT context verifies label storage; this does not
+prove screen-reader behavior. References:
+[widget width](https://docs.gtk.org/gtk4/method.Widget.get_width.html) and
+[accessible property binding](https://docs.gtk.org/gtk4/method.Accessible.update_property_value.html).
+
+An empty default testID also used to erase the widget name set by id. Identifier
+writes now derive from the complete bag: nonempty testID, then automationText,
+then id. Removing an override restores the remaining identifier; the separate
+CSS id remains stable. A dropped id clears its selector state.
+
+All 32 real-Linux renderer tests pass without skips. The new area fixture has
+31 assertions: dimensions, padding, both-axis handles, animated/omitted/clamped
+offsets, native Spinner activity and border-box size, labels and identifiers,
+refresh clipping/reveal/threshold/cancel/controlled state, callback freshness,
+busy updates and disposal. xdotool performs a real X11 pull gesture; existing
+wheel and Pressable pointer fixtures remain separate OS-input evidence.
+Log: guest /tmp/gtk-area-test-platform-final.log. No images were captured or analyzed.
+
+The full UI/dependent typecheck passed 57 tasks and rejected an invalid numeric
+Spinner size in the fixture. The public native contract uses named sizes; the
+fixture now uses md/sm without widening GTK's API. The corrected expanded
+renderer/dependent check passes all eight tasks
+(/tmp/gtk-area-css-types.log). The CSS declaration audit reports zero unsupported
+declarations; recipe structure/local links and all 11 release notes validate.
+Packed exports/declarations pass
+(/tmp/gtk-area-pack.log). The shared controller's focused eight native tests
+pass; the broad native batch-observer failure above remains unchanged.
+The docs-site parser failure remains open. These checks do not establish
+visual parity, every common/accessibility prop, Wayland, or mobile OS runtime
+qualification of the shared wrapper styling.

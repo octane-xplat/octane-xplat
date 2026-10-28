@@ -7,6 +7,7 @@
 		"src/ui-types.gtk.ts",
 		"src/ui-measure.gtk.tsrx",
 		"src/ui-animation.gtk.tsrx",
-		"src/ui-scroll.gtk.tsrx"
+		"src/ui-scroll.gtk.tsrx",
+		"src/ui-area.gtk.tsrx"
 	]
 }

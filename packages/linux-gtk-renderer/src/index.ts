@@ -1376,6 +1376,16 @@ function applyStyleExtras(node: ElementNode, view: GtkView, style: PropBag | nul
 	}
 	node.appliedOpacity = opacity
 
+	const overflow = source.overflow
+	if (overflow === 'hidden' || overflow === 'clip' || overflow === 'visible') {
+		node.originalOverflow ??= view.get_overflow()
+		view.set_overflow(overflow === 'visible' ? Gtk.Overflow.VISIBLE : Gtk.Overflow.HIDDEN)
+		node.styleOverflow = true
+	} else if (node.styleOverflow) {
+		view.set_overflow(node.originalOverflow)
+		node.styleOverflow = false
+	}
+
 	// Inside a Mason subtree the engine owns layout — the keys below are
 	// consumed by the style dict in src/mason.ts during the next
 	// measure/allocate pass, so the Gtk.Box emulation must not also apply
@@ -2203,6 +2213,7 @@ function applyProps(node: ElementNode, props: PropBag) {
  *  need their own path — every widget state a prop can write gets its
  *  documented default back here. */
 function resetProp(node: ElementNode, name: string) {
+	if (name === 'id') setNodeId(node, undefined)
 	const view = node.view
 	// Cascade-fed props reset on viewless nodes too (see setProp).
 	if (name === 'className' || name === 'class') {
@@ -2748,7 +2759,7 @@ function connectEvent(
 	node: ElementNode,
 	view: GtkView,
 	type: string,
-	listener: UniversalEventListenerDescriptor,
+	listener: UniversalEventListenerDescriptor | ((payload: any) => void),
 ): { connections: SignalConnection[]; controllers: any[] } {
 	const dispatch = (payload: unknown) => {
 		if (node.muted.has(type)) {
@@ -2760,12 +2771,17 @@ function connectEvent(
 			node.changeSeq++
 		}
 		const root = container.root
-		if (root === null) {
+		if (root === null && typeof listener !== 'function') {
 			return
 		}
 		const fire = () => {
 			try {
-				root.eventScope(listener.priority, () => root.dispatchEvent(listener.id, payload))
+				if (typeof listener === 'function') {
+					if (root) root.eventScope('continuous', () => listener(payload))
+					else listener(payload)
+				} else {
+					root!.eventScope(listener.priority, () => root!.dispatchEvent(listener.id, payload))
+				}
 			} catch (error) {
 				console.error('[linux-gtk] event handler failed', error)
 			}
@@ -2814,6 +2830,7 @@ function connectEvent(
 		}
 		case 'pan': {
 			const gesture = new Gtk.GestureDrag()
+			gesture.set_name?.('octane-pan')
 			let active = false
 			let x = 0,
 				y = 0,
@@ -3081,18 +3098,30 @@ function expect(container: GtkContainer, id: number): ElementNode {
 }
 
 function bindNodePublicInstance(node: ElementNode): () => void {
-	return bindPublicInstance(node, {
-		read: (key) => {
-			const direct = node.localStyle?.[key] ?? node.computedStyle?.[key] ?? node.props[key]
-			if (direct !== undefined) return direct
-			return (resolveTransform({ ...node.computedStyle, ...node.localStyle }) as any)?.[key]
+	return bindPublicInstance(
+		node,
+		{
+			read: (key) => {
+				const direct = node.localStyle?.[key] ?? node.computedStyle?.[key] ?? node.props[key]
+				if (direct !== undefined) return direct
+				return (resolveTransform({ ...node.computedStyle, ...node.localStyle }) as any)?.[key]
+			},
+			write: (key, value) => {
+				if (value === undefined) delete node.localStyle?.[key]
+				else (node.localStyle ??= {})[key] = value
+				markStyleDirty(node, false, false)
+			},
 		},
-		write: (key, value) => {
-			if (value === undefined) delete node.localStyle?.[key]
-			else (node.localStyle ??= {})[key] = value
-			markStyleDirty(node, false, false)
+		(listener) => {
+			const view = node.view!
+			const wired = connectEvent(node.container, node, view, 'pan', listener)
+			return () => {
+				for (const connection of wired.connections)
+					connection.emitter.disconnect(connection.signalId)
+				for (const controller of wired.controllers) view.remove_controller(controller)
+			}
 		},
-	})
+	)
 }
 
 function createNode(
@@ -3257,6 +3286,8 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 			node.appliedWidth = undefined
 			node.appliedHeight = undefined
 			node.appliedOpacity = undefined
+			node.styleOverflow = false
+			node.originalOverflow = undefined
 			node.props = command.props
 			if (node.view !== null && isMasonHostView(node.view)) {
 				bindMasonView(node.view, node)

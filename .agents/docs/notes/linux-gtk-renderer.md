@@ -357,8 +357,9 @@ it, each with GJS 1.90.1 / GTK 4.24.1 headless evidence in
   subscriptions and clamped offset methods backed by GtkAdjustment. The
   useScrollableArea hook has real-Linux range, resize, cleanup and X11 wheel
   evidence in [the parity record](linux-gtk-ui-parity.md#headless-scrolling-slice).
-  Generic masonview overflow, the shared ScrollableArea refresh path, and
-  input-only disabling through isScrollEnabled remain unqualified.
+  ScrollableArea's two-axis handles and block-axis refresh are now checked.
+  Generic masonview scrolling and input-only disabling through isScrollEnabled
+  remain unqualified; hidden/visible overflow now reaches Gtk.Widget clipping.
 - Portals are unimplemented (`resolveParent` rejects non-null targets);
   templates/mount-template ops are unadvertised and unhandled.
 - The `native` boundary set does not include `gtk` — `.gtk` leaves are

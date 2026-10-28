@@ -72,3 +72,12 @@ export type {
 	UseScrollableAreaContentProps,
 	UseScrollableAreaResult,
 } from './props'
+
+export { ScrollableArea } from './ScrollableArea'
+export { ActivityIndicator as Spinner } from './ActivityIndicator'
+export type {
+	ScrollableAreaProps,
+	ScrollableAreaHandle,
+	ActivityIndicatorProps,
+	SpinnerProps,
+} from './props'

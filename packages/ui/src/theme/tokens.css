@@ -717,6 +717,21 @@
 		justify-content: center;
 		height: 64px;
 	}
+	@platform gtk {
+		.vx-refresh-wrap {
+			grid-template-rows: 1fr;
+			grid-template-columns: 1fr;
+			overflow: hidden;
+		}
+		.vx-refresh-wrap > * {
+			grid-row: 1 / span 1;
+			grid-column: 1 / span 1;
+		}
+		.vx-refresh-wrap > .vx-scrollable {
+			min-width: 0;
+			min-height: 0;
+		}
+	}
 	/* xplat-web-only:start — the DOM leaf needs explicit clipping plus the
    absolute overlay; native clips via the wrapper grid
    (clipsToBounds/ViewGroup) and stacks children in one cell. */

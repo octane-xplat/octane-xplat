@@ -77,13 +77,17 @@ GTK refs remain Gtk.Widget instances. Measurement uses the renderer's
 or call NativeScript's `getLocationOnScreen()`. The GTK `useMeasure` leaf
 subscribes through `on/off('layoutChanged')`, which also observes movement
 from ancestor scrolling. The current imperative subscription vocabulary is
-`loaded`, `unloaded`, `layoutChanged`, and `scroll`; other names throw until qualified.
+`loaded`, `unloaded`, `layoutChanged`, `scroll`, and `pan`; other names throw until qualified.
 Use `useScrollableArea<HostElement>` with a GTK `scrollview` viewport, importing
 the host type from `@octane-xplat/jsx/intrinsics`. The shared default generic is
 `object`, whose ref cannot be spread onto strict GTK intrinsics. GtkAdjustment backs
 the browser-shaped scroll metrics and offset methods; extent changes also emit
 layout notifications. An ordinary `View` is not made scrollable by this hook.
-The shared ScrollableArea component's refresh path remains unqualified.
+ScrollableArea supports portable two-axis handles and block-axis refresh.
+Its raw ref pan subscription uses numeric NativeScript states; public onPan
+props retain the shared string states. Internal docking animate accepts only
+translate/duration and resolves a status; use useAnimation for app motion.
+getActualSize reports the untransformed border box, including CSS border.
 Use GTK `useAnimation` or `setTranslate` for numeric motion. Ref transforms
 and `view.style` feed a renderer-owned local style layer; assigning GTK's
 read-only `width`/`height` properties does not animate layout. Supported numeric

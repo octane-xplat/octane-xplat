@@ -1,3 +1,4 @@
+import { bindMotion } from './motion-instance.js'
 import { bindScrolling } from './scroll-instance.js'
 import type { ElementNode } from './index.js'
 
@@ -8,8 +9,8 @@ export interface GtkBounds {
 	height: number
 }
 
-type LayoutEvent = 'loaded' | 'unloaded' | 'layoutChanged' | 'scroll'
-type Listener = (event: { eventName: LayoutEvent; object: unknown }) => void
+type RefEvent = 'loaded' | 'unloaded' | 'layoutChanged' | 'scroll' | 'pan'
+type Listener = (event: { eventName: RefEvent; object: unknown; [key: string]: unknown }) => void
 
 const NUMERIC_STYLE_KEYS = new Set([
 	'opacity',
@@ -61,15 +62,22 @@ interface StyleHost {
 /** Keep refs as real Gtk widgets, with app-surface measurement and subscriptions.
  * A frame callback observes ancestor allocation/scroll changes too; GTK's
  * notify::width alone does not observe changes to position. */
-export function bindPublicInstance(node: ElementNode, styles: StyleHost): () => void {
+export function bindPublicInstance(
+	node: ElementNode,
+	styles: StyleHost,
+	subscribePan: (listener: (payload: any) => void) => () => void,
+): () => void {
 	const view = node.view
 	if (!view) return () => {}
 	let host: typeof view | null = node.container.host
 	let styleHost: StyleHost | null = styles
+	let panHost: typeof subscribePan | null = subscribePan
+	let disposePan: (() => void) | null = null
+	let motion: ReturnType<typeof bindMotion> | null = null
 	let disposed = false
 	let tick: number | null = null
 	let previous: string | undefined
-	const listeners = new Map<LayoutEvent, Set<Listener>>()
+	const listeners = new Map<RefEvent, Set<Listener>>()
 	const bounds = (): GtkBounds | null => {
 		if (disposed || !host || !view.get_parent()) return null
 		const [ok, rect] = view.compute_bounds(host) as [boolean, any]
@@ -77,7 +85,7 @@ export function bindPublicInstance(node: ElementNode, styles: StyleHost): () => 
 			? { x: rect.origin.x, y: rect.origin.y, width: rect.size.width, height: rect.size.height }
 			: null
 	}
-	const emit = (eventName: LayoutEvent, detail: Record<string, number> = {}) => {
+	const emit = (eventName: RefEvent, detail: Record<string, unknown> = {}) => {
 		for (const listener of [...(listeners.get(eventName) ?? [])]) {
 			if (disposed) break
 			listener({ eventName, object: view, ...detail })
@@ -135,9 +143,11 @@ export function bindPublicInstance(node: ElementNode, styles: StyleHost): () => 
 			throw new Error('linux-gtk ref: unsupported numeric style ' + name)
 		if (value != null && (typeof value !== 'number' || !Number.isFinite(value)))
 			throw new Error('linux-gtk ref: numeric style requires a finite number: ' + name)
+		motion?.beforeWrite(name)
 		for (const key of name === 'scale' ? ['scaleX', 'scaleY'] : [name])
 			styleHost.write(key, value == null ? undefined : (value as number))
 	}
+	motion = bindMotion(view, { read: readStyle, write: writeStyle })
 	view.style = new Proxy(Object.create(null), {
 		get: (_target, key) => (typeof key === 'string' ? readStyle(key) : undefined),
 		set: (_target, key, value) => {
@@ -166,24 +176,52 @@ export function bindPublicInstance(node: ElementNode, styles: StyleHost): () => 
 			set: (value) => writeStyle(name, value),
 		})
 	}
-	view.getActualSize = () => ({ width: view.get_width(), height: view.get_height() })
+	view.getActualSize = () => {
+		if (disposed) return { width: 0, height: 0 }
+		const [ok, rect] = view.compute_bounds(view) as [boolean, any]
+		return ok
+			? { width: rect.size.width, height: rect.size.height }
+			: { width: view.get_width(), height: view.get_height() }
+	}
 	view.getBounds = bounds
-	view.on = (name: LayoutEvent, listener: Listener) => {
+	view.on = (name: RefEvent, listener: Listener) => {
 		if (disposed) return
-		if (!['loaded', 'unloaded', 'layoutChanged', 'scroll'].includes(name)) {
+		if (!['loaded', 'unloaded', 'layoutChanged', 'scroll', 'pan'].includes(name)) {
 			throw new Error(`linux-gtk ref: unsupported subscription ${name}`)
 		}
 		let set = listeners.get(name)
 		if (!set) listeners.set(name, (set = new Set()))
 		set.add(listener)
+		if (name === 'pan' && !disposePan && panHost) {
+			disposePan = panHost((payload) =>
+				emit('pan', {
+					...payload,
+					state: ({ began: 1, moved: 2, ended: 3, cancelled: 0 } as Record<string, number>)[
+						payload.state
+					],
+					deltaX: payload.x,
+					deltaY: payload.y,
+				}),
+			)
+		}
+
 		if (name === 'layoutChanged') start()
 	}
-	view.off = (name: LayoutEvent, listener?: Listener) => {
+	view.off = (name: RefEvent, listener?: Listener) => {
 		if (listener) listeners.get(name)?.delete(listener)
 		else listeners.delete(name)
+		if (!listeners.get('pan')?.size && disposePan) {
+			disposePan()
+			disposePan = null
+		}
 		if (!listeners.get('layoutChanged')?.size) stop()
 	}
 	return () => {
+		disposePan?.()
+		disposePan = null
+		panHost = null
+		motion?.dispose()
+		motion = null
 		disposeScrolling()
 		disposed = true
 		host = null

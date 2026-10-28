@@ -80,7 +80,7 @@ variants in `.gtk.tsrx`/`.gtk.tsx` files.
 `@octane-xplat/ui` resolves a curated `gtk` export condition. It includes
 `Text`, `Pressable`, the `View`/`Stack` family, `Grid`/`GridSpan`, `Center`,
 `Section`, `Layout` regions, `Absolute`, `Spacer`, `Badge`, `Divider`,
-`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, and `useScrollableArea`.
+`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, `ScrollableArea`, `Spinner`, and `useScrollableArea`.
 For example, place a label and
 status badge in a horizontal row:
 
@@ -135,6 +135,34 @@ export function SlidePreview() {
       <Pressable onPress={() => { void offset.to(100, { duration: 300 }) }}>
         <Text>Slide</Text>
       </Pressable>
+    </View>
+  )
+}
+```
+
+Use `ScrollableArea` for a viewport with a portable scroll handle and optional
+pull-to-refresh on its block (vertical) axis. Give it a height so taller content
+can scroll. Your app owns the `refreshing` flag while work runs; `Spinner`
+shows that state and disappears when `busy` is false. The handle can animate
+back to the start.
+
+```tsx
+import { useRef } from 'octane'
+import { Pressable, ScrollableArea, Spinner, Text, View } from '@octane-xplat/ui'
+import type { ScrollableAreaHandle } from '@octane-xplat/ui'
+
+export function Feed(props: { refreshing: boolean; refresh: () => void }) {
+  const area = useRef<ScrollableAreaHandle | null>(null)
+  return (
+    <View>
+      <ScrollableArea ref={area} width={240} height={160}
+        refreshing={props.refreshing} onRefresh={props.refresh}>
+        <View style={{ height: 600 }}><Text>Feed content</Text></View>
+      </ScrollableArea>
+      <Pressable onPress={() => area.current?.scrollToOffset({ block: 0 }, { animated: true })}>
+        <Text>Back to top</Text>
+      </Pressable>
+      <Spinner busy={props.refreshing} size="sm" label="Refreshing" />
     </View>
   )
 }

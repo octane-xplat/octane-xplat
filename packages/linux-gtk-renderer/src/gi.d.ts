@@ -18,6 +18,11 @@ declare module 'gi://Gtk?version=4.0' {
 			VERTICAL = 1,
 		}
 
+		enum Overflow {
+			VISIBLE = 0,
+			HIDDEN = 1,
+		}
+
 		enum Align {
 			FILL = 0,
 			START = 1,
