@@ -1,6 +1,6 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { registerElement } from '@nativescript-community/octane'
-import type { Attributes } from '@nativescript-community/octane/intrinsics'
+import type { Attributes } from '@octane-xplat/jsx/intrinsics'
 import { SwiftUI, UIDataDriver, registerSwiftUI, SwiftUIManager } from '@nativescript/swift-ui'
 import { GridLayout } from '@nativescript/core'
 import {
@@ -20,9 +20,16 @@ import type { SwiftUIBottomSheetProps } from './ios/types'
 declare const XplatSheetProvider: any
 declare const NativeScriptViewFactory: any
 
-declare module '@nativescript-community/octane/intrinsics' {
-	interface NativeScriptElements {
-		xplatiossheet: Attributes<typeof SwiftUI>
+declare module '@octane-xplat/jsx/intrinsics' {
+	interface NativeElements<TElement> {
+		xplatiossheet: Attributes<
+			TElement,
+			{
+				swiftId?: string
+				data?: Record<string, unknown>
+				onSwiftUIEvent?: (event: { data?: unknown }) => void
+			}
+		>
 	}
 }
 
