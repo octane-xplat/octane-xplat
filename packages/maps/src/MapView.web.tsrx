@@ -1,3 +1,4 @@
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useImperativeHandle, useEffect, useRef } from 'octane'
 import { Loader } from '@googlemaps/js-api-loader'
 import type { MapViewHandle, MapViewProps } from './props'

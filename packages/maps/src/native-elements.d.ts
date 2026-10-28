@@ -1,8 +1,7 @@
-import { MapView } from '@nativescript/google-maps'
-import type { Attributes } from '@nativescript-community/octane/intrinsics'
+import type { Attributes } from '@octane-xplat/jsx/intrinsics'
 
-declare module '@nativescript-community/octane/intrinsics' {
-	interface NativeScriptElements {
-		xplatmapview: Attributes<typeof MapView>
+declare module '@octane-xplat/jsx/intrinsics' {
+	interface NativeElements<TElement> {
+		xplatmapview: Attributes<TElement>
 	}
 }

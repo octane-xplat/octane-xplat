@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 // Map view — windows stub. No maps engine ships a windows backend; renders
 // nothing and reports via onError once.
 import { useEffect } from 'octane'
