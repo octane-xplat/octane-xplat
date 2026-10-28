@@ -1,21 +1,41 @@
-# Shared native JSX type facade
+# Shared JSX type facade is now the repo-wide JSX vocabulary
 
-New type-only package `@octane-xplat/jsx` owns the shared native JSX contract:
-one intrinsic-element vocabulary for iOS, Android, and macOS — the 39
-NativeScript-baseline tags, the compiler-produced `#text` node, and the nine
-maintained cross-platform extension tags (`cachedimage`, `svgview`,
-`xplatvideo`, `nscanvas`, `xplatlottie`, `pager`, `animatedimage`,
-`applesigninbutton`, `googlesigninbutton`).
+Every Octane Xplat package types its JSX against the type-only facade
+`@octane-xplat/jsx` (native: iOS/Android/Windows/macOS/GTK) or
+`@octane-xplat/jsx/dom` (browser). The renderer pragmas are gone — this is
+breaking for any consumer code that still carries them:
 
-`jsx-runtime`/`jsx-dev-runtime` resolve the same contract under the `default`,
-`native`, and `macos` export conditions; conditions bind only the host element
-value type — opaque `HostElement` by default, NativeScript `View` under
-`native`, the bridged AppKit `NSView` under `macos` (which wins when both
-conditions are enabled). The shared declarations carry no `@nativescript/core`
-dependency, so macOS consumers resolve without NativeScript.
+```diff
+-/** @jsxImportSource @nativescript-community/octane */
++/** @jsxImportSource @octane-xplat/jsx */
 
-DOM types stay separate at `@octane-xplat/jsx/dom` (+ `dom/jsx-runtime`,
-`dom/jsx-dev-runtime`), re-exporting octane's own DOM JSX surface. Leaf
-packages registering elements augment `NativeElements` through
-`@octane-xplat/jsx/intrinsics`. No consumers migrate yet — authored pragmas,
-renderer intrinsics, and tsconfig `jsxImportSource` settings are unchanged.
+-/** @jsxImportSource @octane-xplat/macos-renderer */
++/** @jsxImportSource @octane-xplat/jsx */
+
+-/** @jsxImportSource octane */          // browser file
++/** @jsxImportSource @octane-xplat/jsx/dom */
+```
+
+`@octane-xplat/macos-renderer` no longer exports `./intrinsics`,
+`./jsx-runtime`, or `./jsx-dev-runtime`.
+
+The shared `HostElement` is now `object`: annotate refs with the concrete
+host type where declared instead of casting:
+
+```ts
+const ref = useRef<View | null>(null)          // NativeScript leaf
+<masonview ref={(view: NSView | null) => view?.layout()} />   // AppKit leaf
+```
+
+Leaf element registration moves to the facade intrinsics module:
+
+```ts
+declare module '@octane-xplat/jsx/intrinsics' {
+	interface NativeElements<TElement> {
+		mytag: Attributes<TElement, { prop?: string }>
+	}
+}
+```
+
+Layout on intrinsics goes through `style`/`className` only — there are no
+layout props on host elements.

@@ -80,7 +80,7 @@ Standing criteria for judgment calls; the critical rules encode the mechanics.
   `^typegen`/`^build` produce generated types and dists first. Raw commands
   skip all of that and fail on missing vendor sources or dist outputs.
 - Use **pnpm**, not npm. Declare every imported dependency; workspace dependencies
-  use `"workspace:*"`. `packages/ui` takes **no new dependencies or peers**;
+  use `"workspace:*"`. `packages/ui` takes **no new external dependencies or peers** (internal workspace packages are fine);
   plugin-backed features belong in leaf packages. A leaf package is warranted
   when a feature owns an external cost or a separate system lifecycle — a
   native plugin, a JS engine dependency, or platform host machinery (decisions
