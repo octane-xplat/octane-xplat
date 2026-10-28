@@ -1,4 +1,4 @@
-/** @jsxImportSource octane */
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { Fragment, useLayoutEffect, useRef, useState } from 'octane'
 import type { ContextMenuProps } from './web/types'
 
