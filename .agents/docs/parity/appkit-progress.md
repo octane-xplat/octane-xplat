@@ -4919,3 +4919,43 @@ analysis ran. Actual native callback/queue/root-scope timing, metadata bridge,
 image assignment/drawing, cancellation/reentry, bitmap retention, responsiveness,
 layout/density and packed/mixed-version behavior remain unqualified. Source audit
 snapshots and issue evidence gates remain unchanged; the persistent goal is active.
+
+
+## AppKit multiline placeholder color
+
+Continuing with everyday text fields after image callbacks, source review found
+TextArea dropping its inherited placeholderTextColor prop. TextInput forwards it;
+mobile/web TextArea already use it. Notes/composer entry in the maintained native
+controlled-text fixture is the demand assumption. The AppKit renderer already
+applies, updates, restores appearance and removes placeholderColor styles on its
+NSTextView placeholder label. This change needs no renderer or host API addition.
+
+The leaf now merges that prop as a default beneath authored styles using the
+existing mergeStyle utility. Object/array/CSS-string styles retain their values;
+an authored placeholderColor wins. Dropping the prop drops its override and lets
+the current authored/cascade/native style apply. Text value, editing host and
+composition ownership are unchanged. This is a small unreleased leaf omission;
+no redundant implementation-mirroring test or release note was added. Existing
+text-control suites remain unrun. Primitive guide/skill and text-entry recipe AC3
+now cover the subset, and the maintained controlled-text fixture adds a manual
+color toggle; its runner still only reads initial text metadata.
+
+Only targeted source review, syntax parsing and whitespace checks ran. Graft and
+sem did not index the TSRX TextAreaControl entity; the exact leaf span and existing
+renderer style branches were reviewed directly. Deferred commands:
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/text-controls.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/controlled-text.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm exec turbo run test:packed --filter=@octane-xplat/ui
+pnpm check:recipes
+```
+
+All remain deferred until explicit human authorization for this task. No tests,
+typechecks/builds/installs, native/OS/probe/browser automation, packaging or visual
+analysis ran. Native placeholder paint/theme/removal, layout, editing/IME and
+packaged behavior remain unqualified. Evidence gates and audit snapshots are
+unchanged; the persistent goal remains active.

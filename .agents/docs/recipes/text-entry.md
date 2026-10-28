@@ -129,3 +129,12 @@ XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xpla
 No test/probe has run in this slice. Actual formatted/partial/locale edits, IME,
 layout, pointer/keyboard, focus, VoiceOver and packaged behavior remain open.
 The formatter is display-only and does not introduce a locale-aware parser.
+
+
+AppKit AC3 placeholder follow-up: TextArea now merges placeholderTextColor under
+authored object/array/CSS-string styles; removing it releases that default while
+an explicit authored placeholderColor remains. See [search and text examples](../../../docs/app/primitives.md#when-a-screen-needs-more)
+and the existing [controlled-text fixture](../../../examples/probes/controlled-text.macos.tsrx),
+which adds a manual color toggle. No test or probe ran; actual native placeholder
+painting/theme/layout remains unqualified. This small leaf repair reuses existing
+renderer style application/removal and adds no native selector or public API.

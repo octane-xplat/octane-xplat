@@ -172,7 +172,7 @@ function TextAreaControl(inputProps: TextAreaProps) @{
 				props.size && `vx-textarea--size-${props.size}`,
 				props.className,
 			)}
-			style={props.style}
+			style={mergeStyle(props.placeholderTextColor ? { placeholderColor: props.placeholderTextColor } : {}, props.style)}
 			isEnabled={!props.isDisabled}
 			editable={!isBlocked}
 			onTextChange={appKitTextChange(entry.change)}

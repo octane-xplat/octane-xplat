@@ -1045,19 +1045,22 @@ export function Example() {
 
 Experimental AppKit now renders the default/custom search icon; `icon={false}`
 omits it. `TextInput.startIcon` also accepts a registered name or a rendered
-node, and `placeholderTextColor` reaches the AppKit field. An omitted search
+node. `placeholderTextColor` reaches AppKit TextInput and TextArea; TextArea
+merges it beneath authored styles, preserving object/array/CSS-string styles.
+Removing the prop releases its override. An omitted search
 placeholder stays omitted; supply your own text when needed. These are source
 contracts; native glyph presentation, spacing, pointer behavior and accessibility
 still need platform qualification.
 
 ```tsx
-import { SearchInput, TextInput } from '@octane-xplat/ui'
+import { SearchInput, TextInput, TextArea } from '@octane-xplat/ui'
 
 export function Filters() {
 	return <>
 		<SearchInput label="Find items" icon={false} placeholder="Search by name" />
 		<TextInput label="Account" startIcon="xplat-check" placeholder="Name"
 			placeholderTextColor="#68707e" />
+		<TextArea label="Note" placeholder="Add a note" placeholderTextColor="#68707e" />
 	</>
 }
 ```

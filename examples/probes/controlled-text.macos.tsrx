@@ -7,6 +7,7 @@ import type { ProbeContext } from '../../scripts/probe/context'
  * before its five-second timer fires. This file does not automate OS input. */
 export default function ControlledTextProbe() {
 	const [shown, setShown] = useState(true)
+	const [coloredPlaceholder, setColoredPlaceholder] = useState(false)
 	const [field, setField] = useState('Single line')
 	const [note, setNote] = useState('Multiline note')
 	const timers = useRef<Partial<Record<'field' | 'note', ReturnType<typeof setTimeout>>>>({})
@@ -29,7 +30,10 @@ export default function ControlledTextProbe() {
 		{shown ? <TextInput id="controlled-field" label="Single-line composition" value={field} onChange={setField} /> : null}
 		<Button label="Replace single line in five seconds" clickAction={() => replaceLater('field')} />
 		<Text id="controlled-field-state">{field}</Text>
-		{shown ? <TextArea id="controlled-note" label="Multiline composition" value={note} onChange={setNote} /> : null}
+		{shown ? <TextArea id="controlled-note" label="Multiline composition" value={note} onChange={setNote}
+			placeholder="Add a note" placeholderTextColor={coloredPlaceholder ? '#68707e' : undefined} /> : null}
+		<Button label="Toggle multiline placeholder color" clickAction={() => setColoredPlaceholder((value) => !value)} />
+		<Text>Empty the note to inspect placeholder color changes and removal. Mounting does not qualify native painting.</Text>
 		<Button label="Replace note in five seconds" clickAction={() => replaceLater('note')} />
 		<Text id="controlled-note-state">{note}</Text>
 	</VStack>

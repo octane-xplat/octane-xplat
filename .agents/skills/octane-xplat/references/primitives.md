@@ -552,14 +552,19 @@ export function AccountName() {
 AppKit TextInput renders `startIcon` as a registered glyph name or supplied node;
 SearchInput uses that path for the default/custom icon and omits it for
 `icon={false}`. Its omitted placeholder remains absent. Placeholder text color
-is forwarded by TextInput. Native glyph layout/accessibility remain unqualified;
+is forwarded by TextInput and merged beneath authored TextArea styles. Removing
+the TextArea prop releases its default; authored placeholderColor still wins.
+Native placeholder color, glyph layout/accessibility remain unqualified;
 see [search fields](../../../../docs/app/primitives.md#when-a-screen-needs-more).
 
 ```tsx
-import { SearchInput } from '@octane-xplat/ui'
+import { SearchInput, TextArea } from '@octane-xplat/ui'
 
 export function Search() {
-	return <SearchInput label="Find" icon={false} placeholder="Search by name" />
+	return <>
+		<SearchInput label="Find" icon={false} placeholder="Search by name" />
+		<TextArea label="Note" placeholder="Add a note" placeholderTextColor="#68707e" />
+	</>
 }
 ```
 
