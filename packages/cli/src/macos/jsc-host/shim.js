@@ -1,5 +1,11 @@
 // Small, explicit host API for the packaged CommonJS entry.
 globalThis.console = {
+	// event-target-shim (used by AbortController) asserts during dispatch.
+	assert: (condition, ...args) => {
+		if (!condition) {
+			__hostLog('Assertion failed:', ...args)
+		}
+	},
 	log: (...args) => __hostLog(...args),
 	warn: (...args) => __hostLog(...args),
 	error: (...args) =>

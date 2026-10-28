@@ -33,3 +33,36 @@ test('AppKit bootstrap supplies abort events and preserves an existing host impl
 	assert.equal(context.AbortController, controllerType)
 	assert.equal(context.AbortSignal, signalType)
 })
+
+test('abort dispatch works with the minimal native console', () => {
+	const errors = []
+	const context = vm.createContext({
+		console: { log() {}, warn() {}, error() {} },
+		__hostLog: (...values) => {
+			if (values[0] === 'Assertion failed:') {
+				errors.push(values)
+			}
+		},
+		NSFileManager: { defaultManager: {} },
+		__setTimeout: setTimeout,
+		__setInterval: setInterval,
+		__clearTimer: clearTimeout,
+		__hostNow: Date.now,
+	})
+	vm.runInContext(source, context)
+	// Match native bootstrap order: the host shim replaces console after globals.
+	vm.runInContext(
+		readFileSync(new URL('../src/macos/jsc-host/shim.js', import.meta.url), 'utf8'),
+		context,
+	)
+	const controller = new context.AbortController()
+	let aborted = false
+	controller.signal.addEventListener('abort', () => {
+		aborted = true
+	})
+	assert.doesNotThrow(() => controller.abort())
+	assert.equal(aborted, true)
+	assert.equal(errors.length, 0)
+	context.console.assert(false, 'fixture assertion')
+	assert.deepEqual(errors[0], ['Assertion failed:', 'fixture assertion'])
+})
