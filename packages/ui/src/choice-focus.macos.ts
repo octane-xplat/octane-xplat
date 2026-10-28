@@ -4,19 +4,20 @@ import { appKitHost } from './host-bridge'
 interface Options {
 	root(): NSView | null
 	views: Map<string, NSView>
-	selected(): string
-	pattern(): 'tabs' | 'nav'
+	selected(): string | undefined
+	orientation(): 'horizontal' | 'both'
 	direction(): 'ltr' | 'rtl'
 	reveal?(view: NSView): void
+	onNavigate?(key: string): void
 }
 function flag(view: NSView, name: string, fallback = false): boolean {
 	const value = (view as unknown as Record<string, unknown>)[name]
 	return value == null ? fallback : Boolean(typeof value === 'function' ? value.call(view) : value)
 }
 
-/** Focus follows native child order, independently of controlled selection.
- * Enter/Space remain owned by the renderer's single press action. */
-export function createAppKitTabFocus(options: Options, bridge = appKitHost) {
+/** Registered choices follow native child order. Tabs omit onNavigate for
+ * manual activation; radios use it to request selection after native focus. */
+export function createAppKitChoiceFocus(options: Options, bridge = appKitHost) {
 	const leases = new Map<NSView, () => void>()
 	const ordered = () => {
 		const byView = new Map([...options.views].map(([key, view]) => [view, key]))
@@ -37,11 +38,9 @@ export function createAppKitTabFocus(options: Options, bridge = appKitHost) {
 	}
 	const focused = (items: ReturnType<typeof ordered>) => {
 		const window = options.root()?.window
-		for (let view = window?.firstResponder as NSView | undefined; view?.window === window && view; view = view.superview) {
-			const item = items.find((item) => item.view === view)
-			if (item) return item
-		}
-		return undefined
+		const view = window?.firstResponder as NSView | undefined
+		// Nested controls in endContent own their keys independently.
+		return view?.window === window ? items.find((item) => item.view === view) : undefined
 	}
 	const recalculate = () => options.root()?.window?.recalculateKeyViewLoop()
 	const synchronize = () => {
@@ -56,7 +55,7 @@ export function createAppKitTabFocus(options: Options, bridge = appKitHost) {
 		for (const view of excluded) {
 			if (leases.has(view)) continue
 			const release = bridge()!.suppressTabStop(view)
-			if (typeof release !== 'function') throw new Error('AppKit tab focus ownership unavailable')
+			if (typeof release !== 'function') throw new Error('AppKit choice focus ownership unavailable')
 			leases.set(view, release)
 			changed = true
 		}
@@ -77,16 +76,17 @@ export function createAppKitTabFocus(options: Options, bridge = appKitHost) {
 				case 'ArrowLeft': next = (index + (options.direction() === 'rtl' ? 1 : items.length - 1)) % items.length; break
 				case 'ArrowRight': next = (index + (options.direction() === 'rtl' ? items.length - 1 : 1)) % items.length; break
 				case 'ArrowUp':
-					if (options.pattern() === 'tabs') return
+					if (options.orientation() === 'horizontal') return
 					next = (index + items.length - 1) % items.length; break
 				case 'ArrowDown':
-					if (options.pattern() === 'tabs') return
+					if (options.orientation() === 'horizontal') return
 					next = (index + 1) % items.length; break
 				default: return
 			}
 			if (!window.makeFirstResponder(items[next].view)) return
 			event.preventDefault()
 			options.reveal?.(items[next].view)
+			options.onNavigate?.(items[next].key)
 			synchronize()
 		},
 		dispose() {

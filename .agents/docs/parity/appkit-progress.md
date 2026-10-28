@@ -1575,3 +1575,46 @@ runtime values/cleanup behavior and public types are unchanged. Captured stale
 handles do not extend the host lifetime. TSRX syntax and whitespace only; deferred
 `pnpm exec turbo run typecheck --filter=...@octane-xplat/ui`. No typecheck pass,
 native behavior or packaging evidence is claimed.
+
+
+### AppKit radio keyboard choices
+
+RadioList now registers native option/child hosts and reuses the tab focus
+controller as an internal choice-focus helper. Tabs retain manual activation;
+ordinary form radios request selection only after Arrow/Home/End focus succeeds.
+Horizontal arrows follow direction, vertical arrows wrap, disabled/hidden items
+are skipped, and no selection falls back to the first usable Tab candidate.
+Controlled parents still decide checked-state feedback. Disabled/read-only
+groups omit key handlers. Native scrollRectToVisible requests reveal for the
+focused radio; actual focus/scroll behavior remains unqualified.
+
+The target-only registry is separate from shared selection context. Stable
+callbacks update value keys and release only their own host entry on detach.
+Window updates reconcile native ordering/focus; observers and reference-counted
+Tab exclusions release on teardown. The helper now accepts keys only from a
+registered host itself, preserving interactive endContent children's keys.
+Missing keyboard/suppression bridges retain their existing capability fallback.
+The private helper moved from tab-focus.macos.ts to choice-focus.macos.ts;
+current TabList references/tests/recipe links were updated without an alias.
+
+The [APG ordinary radio pattern](https://www.w3.org/WAI/ARIA/apg/patterns/radio/)
+informs arrow selection and one-entry focus. Its special toolbar model is not
+implemented here; toolbar-specific radio navigation remains unsupported.
+Authored cases cover automatic/manual requests, focus failure, empty selection,
+trailing children, host/value registration, blocked bridge props and observer
+cleanup. The fixture adds a disabled choice; its run hook still dispatches a
+press directly and checks state, not real keys or visibility. Syntax/whitespace
+only; no test/probe ran. Deferred:
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/radio-list.macos.mobile.test.tsrx src/tab-list.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe run examples/probes/radio-list.macos.tsrx --target macos --watch
+pnpm check:recipes
+```
+
+Actual OS arrows/Tab, native responder acceptance, reveal/observer timing,
+nested controls, radio grouping/VoiceOver, toolbar integration, layout and
+packaging remain unqualified/open. No builds, package tests/typechecks, installs,
+OS automation, visual analysis or shared audit regeneration ran. No evidence
+checkbox is closed.

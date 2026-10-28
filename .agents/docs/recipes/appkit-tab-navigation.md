@@ -16,6 +16,6 @@ A controlled settings/detail tab strip, including disabled tabs and overflow.
 
 ## Documentation
 
-- AC1: [AppKit tab guide](../../../docs/app/components.md#tab-strips-on-appkit), [focus controller](../../../packages/ui/src/tab-focus.macos.ts) and [authored cases](../../../packages/ui/src/tab-list.macos.mobile.test.tsrx). Tests are unrun.
+- AC1: [AppKit tab guide](../../../docs/app/components.md#tab-strips-on-appkit), [focus controller](../../../packages/ui/src/choice-focus.macos.ts) and [authored cases](../../../packages/ui/src/tab-list.macos.mobile.test.tsrx). Tests are unrun.
 - AC2: [Reveal helper](../../../packages/ui/src/tab-reveal.macos.ts), the same guide/tests and [maintained fixture](../../../examples/probes/tab-list.macos.tsrx). The run hook checks direct selection dispatch only, not keyboard or actual scroll visibility.
 - AC3: [Renderer semantics](../../../packages/macos-renderer/README.md#self-drawn-control-accessibility) and [target progress](../parity/appkit-progress.md#appkit-tab-strip-focus-and-reveal) record source scope, native gates and exact deferred commands.

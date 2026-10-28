@@ -2,7 +2,7 @@
 import { expect, it } from 'vitest'
 import { createObjectContainer, createObjectDriver, createUniversalRoot, flushUniversalSync } from 'octane/universal/native'
 import { TabList, Tab } from './TabList.macos.tsrx'
-import { createAppKitTabFocus } from './tab-focus.macos'
+import { createAppKitChoiceFocus } from './choice-focus.macos'
 import { revealAppKitTab } from './tab-reveal.macos'
 
 function geometry(start: number, width = 40, current = 0) {
@@ -77,26 +77,27 @@ it('names visible/hidden/disabled tabs and gives the tablist native grouping', (
 })
 
 
-function focusFixture() {
-	const excluded = new Set<object>(), revealed: object[] = []
+function focusFixture(automatic = false) {
+	const excluded = new Set<object>(), revealed: object[] = [], requests: string[] = []
 	const window: any = { firstResponder: null, makeFirstResponder(view: any) { this.firstResponder = view; return true }, recalculateKeyViewLoop() {} }
 	const children: any[] = []
 	const root: any = { window, subviews: { get count() { return children.length }, objectAtIndex: (index: number) => children[index] } }
 	const item = (key: string) => ({ key, window, superview: root, hidden: false, enabled: true, accessibilityIsEnabled() { return this.enabled } })
 	const a = item('a'), b = item('b'), c = item('c')
 	children.push(a, b, c)
-	let selected = 'b', pattern: 'tabs' | 'nav' = 'tabs', direction: 'ltr' | 'rtl' = 'ltr'
+	let selected: string | undefined = 'b'
+	let pattern: 'tabs' | 'nav' = 'tabs', direction: 'ltr' | 'rtl' = 'ltr'
 	const bridge = () => ({ suppressTabStop: (view: object) => { excluded.add(view); return () => excluded.delete(view) } })
-	const navigation = createAppKitTabFocus({ root: () => root, views: new Map([['c', c], ['a', a], ['b', b]]) as any,
-		selected: () => selected, pattern: () => pattern, direction: () => direction, reveal: (view) => { revealed.push(view) } }, bridge)
+	const navigation = createAppKitChoiceFocus({ root: () => root, views: new Map([['c', c], ['a', a], ['b', b]]) as any,
+		selected: () => selected, orientation: () => pattern === 'tabs' ? 'horizontal' : 'both', direction: () => direction, reveal: (view) => { revealed.push(view) }, onNavigate: automatic ? (key) => requests.push(key) : undefined }, bridge)
 	const key = (name: string, extras = {}) => {
 		const event: any = { key: name, defaultPrevented: false, isComposing: false, altKey: false, ctrlKey: false, metaKey: false,
 			preventDefault() { this.defaultPrevented = true }, ...extras }
 		navigation.keyDown(event)
 		return event
 	}
-	return { navigation, excluded, revealed, window, children, a, b, c, key,
-		select: (value: string) => { selected = value }, rtl: () => { direction = 'rtl' }, nav: () => { pattern = 'nav' } }
+	return { navigation, excluded, revealed, requests, window, children, a, b, c, key,
+		select: (value: string | undefined) => { selected = value }, rtl: () => { direction = 'rtl' }, nav: () => { pattern = 'nav' } }
 }
 
 it('uses one registered-tab stop, native child order and manual arrow selection', () => {
@@ -151,5 +152,39 @@ it('does not consume a key when native focus rejects the target or focus is outs
 	expect(f.revealed).toEqual([])
 	f.window.firstResponder = { window: f.window }
 	expect(f.key('Home').defaultPrevented).toBe(false)
+	f.navigation.dispose()
+})
+
+
+it('automatic choices request selection once only after successful native focus', () => {
+	const f = focusFixture(true)
+	f.window.firstResponder = f.b
+	f.key('ArrowRight')
+	expect(f.requests).toEqual(['c'])
+	f.nav(); f.key('ArrowDown')
+	expect(f.requests).toEqual(['c', 'a'])
+	f.window.makeFirstResponder = () => false
+	expect(f.key('Home').defaultPrevented).toBe(false)
+	expect(f.requests).toEqual(['c', 'a'])
+	f.navigation.dispose()
+})
+
+it('leaves keys on interactive trailing descendants to that control', () => {
+	const f = focusFixture(true)
+	f.window.firstResponder = { window: f.window, superview: f.b }
+	expect(f.key('ArrowLeft').defaultPrevented).toBe(false)
+	expect(f.requests).toEqual([])
+	f.navigation.dispose()
+})
+
+
+it('uses the first enabled choice when a radio-like group has no selection', () => {
+	const f = focusFixture(true)
+	f.select(undefined)
+	f.navigation.synchronize()
+	expect(f.excluded).toEqual(new Set([f.b, f.c]))
+	f.a.enabled = false
+	f.navigation.synchronize()
+	expect(f.excluded).toEqual(new Set([f.c]))
 	f.navigation.dispose()
 })

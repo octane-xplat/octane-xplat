@@ -1,11 +1,15 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { useId, useState } from 'octane'
+import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'octane'
 import type { RadioGroupProps } from './props'
 import { cx } from '@octane-xplat/lib'
 import { useFieldControl } from './field-context'
 import { FormField } from './FormField.macos.tsrx'
 import { RadioListProvider } from './option-list-contexts'
 import { RadioListItem } from './RadioListItem.macos.tsrx'
+import { AppKitRadioViewsProvider } from './radio-focus-context.macos'
+import { createAppKitChoiceFocus } from './choice-focus.macos'
+import { useKeyboard } from './use-keyboard.macos'
+import { useDirection } from './internationalization'
 
 /** Options and child parts share selection and Field ownership on AppKit. */
 export function RadioGroup(inputProps: RadioGroupProps) @{
@@ -19,9 +23,40 @@ export function RadioGroup(inputProps: RadioGroupProps) @{
 		if (props.value === undefined) setInternal(value)
 		props.onValueChange?.(value)
 	}
+	const root = useRef<NSView | null>(null)
+	const views = useRef(new Map<string, NSView>())
+	const direction = useDirection()
+	const live = useRef({ current, select, direction })
+	live.current = { current, select, direction }
+	const navigation = useMemo(() => createAppKitChoiceFocus({
+		root: () => root.current, views: views.current, selected: () => live.current.current,
+		orientation: () => 'both', direction: () => live.current.direction,
+		onNavigate: (value) => live.current.select(value),
+		reveal: (view) => { view.scrollRectToVisible(view.bounds) },
+	}), [])
+	const bind = useCallback((view: NSView | null) => { if (!view) navigation.dispose(); root.current = view }, [])
+	const { keyboardProps } = useKeyboard({ onKeyDown: props.isDisabled || props.isReadOnly ? undefined : navigation.keyDown })
+	useLayoutEffect(() => navigation.synchronize(), [current, props.isDisabled, props.isReadOnly])
+	useEffect(() => {
+		const native = globalThis as Record<string, any>
+		const center = native.NSNotificationCenter?.defaultCenter
+		if (!center?.addObserverForNameObjectQueueUsingBlock || !center?.removeObserver) return
+		let token: unknown
+		try {
+			token = center.addObserverForNameObjectQueueUsingBlock(
+				native.NSWindowDidUpdateNotification ?? 'NSWindowDidUpdateNotification', null, null,
+				(notification: { object: NSWindow }) => { if (notification.object === root.current?.window) navigation.synchronize() },
+			)
+		} catch (error) {
+			console.warn('[macos-radiolist] focus observation unavailable', error)
+			return
+		}
+		return () => { if (token != null) center.removeObserver(token) }
+	}, [])
+	useEffect(() => () => navigation.dispose(), [])
 	const context = { selected: current, select, isDisabled: props.isDisabled, isReadOnly: props.isReadOnly, size: props.size }
-	const group = <RadioListProvider value={context}>
-		<masonview id={controlID} className={cx('vx-radio-group', 'vx-radio-group--appkit',
+	const group = <RadioListProvider value={context}><AppKitRadioViewsProvider value={views.current}>
+		<masonview id={controlID} ref={bind} {...keyboardProps} className={cx('vx-radio-group', 'vx-radio-group--appkit',
 			props.horizontal && 'vx-radio-group--row', props.isDisabled && 'vx-radio-group--disabled',
 			props.isReadOnly && 'vx-radio-group--readonly', props.isLoading && 'vx-radio-group--loading',
 			props.status && `vx-radio-group--status-${props.status.type}`, props.size && `vx-radio-group--size-${props.size}`, props.className)}
@@ -33,7 +68,7 @@ export function RadioGroup(inputProps: RadioGroupProps) @{
 			{props.options?.map((option, index) => <RadioListItem key={option.value} {...option} id={`${controlID}-option-${index}`} />)}
 			{props.children}
 		</masonview>
-	</RadioListProvider>
+	</AppKitRadioViewsProvider></RadioListProvider>
 	@if (inField) {
 		{group}
 	} @else {

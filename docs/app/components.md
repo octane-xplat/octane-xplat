@@ -325,10 +325,14 @@ export function Plan() {
 }
 ```
 
-Standalone RadioListItem remains presentational. Native pointer/Enter/Space,
-VoiceOver/group relationships, layout and packaging remain unqualified; radio
-arrow navigation and a roving Tab model are still gaps. Indicator overrides use
-the existing registry, but custom indicator presentation also needs native
+Standalone RadioListItem remains presentational. For ordinary form groups,
+arrows and Home/End now move focus and request selection; horizontal arrows
+respect RTL. Controlled parents must accept the request to update checked state.
+Registered items use the renderer's roving Tab exclusions when available; keys
+on interactive trailing children remain with those controls. Native pointer/
+keyboard/Tab, reveal/focus, VoiceOver/group relationships and layout remain
+unqualified. Toolbar-specific radio navigation remains unsupported. Indicator
+overrides use the existing registry; their native presentation also needs
 qualification.
 
 ```tsx

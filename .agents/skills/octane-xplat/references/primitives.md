@@ -755,8 +755,12 @@ RadioList options and RadioListItem children now share the group context and
 controlled/uncontrolled selection. Native rows expose radio/checked/name
 semantics and render descriptions/endContent. Standalone Field metadata is
 stable; an enclosing Field retains ownership. The macOS root explicitly selects
-the new child leaf. Pointer/Enter/Space, VoiceOver and layout remain unqualified;
-radio arrow navigation/roving Tab remain gaps. See
+the new child leaf. Ordinary form groups now request selection after Arrow/
+Home/End focus, with RTL horizontal keys and owned roving Tab exclusions when
+the native bridges are available. Disabled/read-only groups do not install keys;
+interactive trailing children keep their own keys. Native input/Tab/reveal,
+VoiceOver and layout remain unqualified; toolbar-specific navigation is still
+unsupported. See
 [radio choices](../../../../docs/app/components.md#radio-choices-on-appkit).
 
 ```tsx

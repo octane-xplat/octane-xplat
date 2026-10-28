@@ -15,7 +15,7 @@ import { Pressable } from './Pressable.macos.tsrx'
 import { followHref } from './nav-href'
 import { TabListContext, TabListProvider } from './nav-contexts'
 import { revealAppKitTab } from './tab-reveal.macos'
-import { createAppKitTabFocus } from './tab-focus.macos'
+import { createAppKitChoiceFocus } from './choice-focus.macos'
 import { useKeyboard } from './use-keyboard.macos'
 import { useDirection } from './internationalization'
 
@@ -46,9 +46,9 @@ export function TabList(props: TabListProps) @{
 	pattern.current = props.role === 'tablist' ? 'tabs' : 'nav'
 	const direction = useDirection(), liveDirection = useRef(direction)
 	liveDirection.current = direction
-	const navigation = useMemo(() => createAppKitTabFocus({
+	const navigation = useMemo(() => createAppKitChoiceFocus({
 		root: () => root.current, views, selected: () => selected.current,
-		pattern: () => pattern.current, direction: () => liveDirection.current,
+		orientation: () => pattern.current === 'tabs' ? 'horizontal' : 'both', direction: () => liveDirection.current,
 		reveal: (view) => { revealAppKitTab(scroller.current, view) },
 	}), [])
 	const attachRoot = useCallback((view: NSView | null) => { if (!view) navigation.dispose(); root.current = view }, [])

@@ -1,9 +1,13 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { expect, it } from 'vitest'
+import { afterEach, expect, it, vi } from 'vitest'
 import { createObjectContainer, createObjectDriver, createUniversalRoot, flushUniversalSync } from 'octane/universal/native'
 import { RadioGroup } from './RadioGroup.macos.tsrx'
 import { RadioListItem } from './RadioListItem.macos.tsrx'
+import { AppKitRadioViewsProvider } from './radio-focus-context.macos'
+import { RadioListProvider } from './option-list-contexts'
 import { FormField } from './FormField.macos.tsrx'
+
+afterEach(() => vi.unstubAllGlobals())
 
 function mount(component: any, props: any) {
 	const container = createObjectContainer('nativescript')
@@ -83,4 +87,48 @@ it('inherits Field ownership/state and leaves standalone items presentational', 
 		expect(row.props.onTap).toBeUndefined()
 		expect(row.props.className).toContain('one two')
 	} finally { standalone.root.unmount() }
+})
+
+
+it('registers native child hosts, updates value keys and releases registration on detach', () => {
+	const views = new Map<string, NSView>()
+	function Fixture(props: any) {
+		return <RadioListProvider value={{ selected: props.value, select() {} }}>
+			<AppKitRadioViewsProvider value={views}><RadioListItem value={props.value} label="Choice" /></AppKitRadioViewsProvider>
+		</RadioListProvider>
+	}
+	const env = mount(Fixture, { value: 'a' })
+	const host = env.rows()[0]
+	try {
+		expect(views.get('a')).toBe(host)
+		env.render({ value: 'b' })
+		expect(env.rows()[0]).toBe(host)
+		expect(views.has('a')).toBe(false)
+		expect(views.get('b')).toBe(host)
+	} finally { env.root.unmount() }
+	expect(views.size).toBe(0)
+})
+
+it('forwards the group keyboard bridge only while changes are allowed', () => {
+	vi.stubGlobal('__xplatAppKit', { keyboardEventsSupported: true })
+	const env = mount(RadioGroup, { options: [{ value: 'a', label: 'Alpha' }] })
+	const group = () => env.all().find((node) => node.props?.accessibilityRole === 'radiogroup')
+	try {
+		expect(group().props.onKeyDown).toBeTypeOf('function')
+		for (const flag of ['isDisabled', 'isReadOnly']) {
+			env.render({ [flag]: true, options: [{ value: 'a', label: 'Alpha' }] })
+			expect(group().props.onKeyDown).toBeUndefined()
+		}
+	} finally { env.root.unmount() }
+})
+
+
+it('releases native window focus observation on unmount', async () => {
+	const token = {}, removeObserver = vi.fn(), addObserver = vi.fn(() => token)
+	vi.stubGlobal('NSNotificationCenter', { defaultCenter: { addObserverForNameObjectQueueUsingBlock: addObserver, removeObserver } })
+	const env = mount(RadioGroup, { options: [{ value: 'a', label: 'Alpha' }] })
+	try {
+		await vi.waitFor(() => expect(addObserver).toHaveBeenCalledTimes(1))
+	} finally { env.root.unmount() }
+	expect(removeObserver).toHaveBeenCalledExactlyOnceWith(token)
 })

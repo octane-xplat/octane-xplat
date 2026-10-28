@@ -7,7 +7,7 @@ export default function RadioListProbe() {
 	const [value, setValue] = useState('free')
 	return <VStack gap={2}>
 		<RadioList label="Plan" value={value} onValueChange={setValue}
-			options={[{ value: 'free', label: 'Free', description: 'Personal use' }]}>
+			options={[{ value: 'free', label: 'Free', description: 'Personal use' }, { value: 'locked', label: 'Unavailable', isDisabled: true }]}>
 			<RadioListItem id="plan-team" value="team" label="Team" description="Shared projects" />
 		</RadioList>
 		<Text id="plan-state">{value}</Text>
