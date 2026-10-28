@@ -46,5 +46,5 @@ before any app-level preview.
 
 - AC7: [Move an element between components](../../../docs/app/animation-gestures.md#move-an-element-between-components), the [shared-element probe](../../../examples/probes/motion-shared.tsrx), and the maintained browser/AppKit geometry tests.
 
-- AC8: [Steady corners](../../../docs/app/animation-gestures.md#keep-corners-steady-while-a-card-expands), the root/anchor examples in the layout guide, and `apps/visual/src/motion-containers.test.web.ts` / AppKit runtime geometry tests. Native nonuniform corner and blur limits remain explicit.
-- AC9: [Keep dragging through layout changes](../../../docs/app/animation-gestures.md#keep-dragging-through-layout-changes), the browser pointer-dispatch test, and host-neutral drag/projection tests. Handler dispatch is not OS input evidence.
+- AC8: [Steady corners](../../../docs/app/animation-gestures.md#keep-corners-steady-while-a-card-expands), the root/anchor examples in the layout guide, and `apps/visual/src/motion-containers.test.web.ts`, `packages/motion/tests/containers.mobile.tsrx`, and AppKit runtime geometry tests. Native nonuniform corner and blur limits remain explicit.
+- AC9: [Keep dragging through layout changes](../../../docs/app/animation-gestures.md#keep-dragging-through-layout-changes), the browser pointer-dispatch test, the native container probe, AppKit callback/geometry checks, and host-neutral drag/projection tests. Handler dispatch is not OS input evidence.

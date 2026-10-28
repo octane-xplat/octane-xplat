@@ -1,4 +1,5 @@
-import { parseCSSShadow } from '@nativescript/core/ui/styling/css-shadow'
+/** @jsxImportSource @octane-xplat/jsx */
+import { complex } from 'motion-dom'
 import { useState } from 'octane'
 import { View, ScrollableArea } from '@octane-xplat/ui'
 import type { ScrollableAreaHandle } from '@octane-xplat/ui'
@@ -142,7 +143,13 @@ export async function run(ctx: ProbeContext) {
 		const view = views.paint as any
 		const style = view._styleHelper ?? view.style
 		const shadow =
-			typeof style.boxShadow === 'string' ? parseCSSShadow(style.boxShadow) : style.boxShadow?.[0]
+			typeof style.boxShadow === 'string'
+				? {
+						blurRadius: complex
+							.parse(style.boxShadow)
+							.filter((value) => typeof value === 'number')[2],
+					}
+				: style.boxShadow?.[0]
 
 		const scale = box.width / box.modelWidth
 		return {
