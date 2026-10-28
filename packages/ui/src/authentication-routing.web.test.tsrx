@@ -1,6 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 // @vitest-environment jsdom
-/** @jsxImportSource octane */
 import { act, createRoot, useState } from 'octane'
 import { RouteOutlet } from './RouteOutlet.web.tsrx'
 import { configureRouter, router } from './default-router.web'

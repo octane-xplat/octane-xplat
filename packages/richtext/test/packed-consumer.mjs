@@ -30,6 +30,7 @@ for (const name of [
 	'lexical',
 	'platform',
 	'css-engine',
+	'jsx',
 	'macos-renderer',
 	'cli',
 	'lib',
@@ -70,7 +71,7 @@ await writeFile(
 
 await writeFile(
 	join(app, 'pnpm-workspace.yaml'),
-	`packages: []\nnodeLinker: isolated\nminimumReleaseAge: 0\noverrides:\n  create-octane-xplat: ${JSON.stringify(dependencies['create-octane-xplat'])}\n  '@octane-xplat/richtext': ${JSON.stringify(dependencies['@octane-xplat/richtext'])}\n  '@octane-xplat/platform': ${JSON.stringify(dependencies['@octane-xplat/platform'])}\n  '@octane-xplat/css-engine': ${JSON.stringify(dependencies['@octane-xplat/css-engine'])}\n  '@octane-xplat/lib': ${JSON.stringify(dependencies['@octane-xplat/lib'])}\n  '@tiptap/core': 3.28.0\n  '@tiptap/pm': 3.28.0\n  '@tiptap/starter-kit': 3.28.0\n`,
+	`packages: []\nnodeLinker: isolated\nminimumReleaseAge: 0\noverrides:\n  create-octane-xplat: ${JSON.stringify(dependencies['create-octane-xplat'])}\n  '@octane-xplat/richtext': ${JSON.stringify(dependencies['@octane-xplat/richtext'])}\n  '@octane-xplat/platform': ${JSON.stringify(dependencies['@octane-xplat/platform'])}\n  '@octane-xplat/css-engine': ${JSON.stringify(dependencies['@octane-xplat/css-engine'])}\n  '@octane-xplat/lib': ${JSON.stringify(dependencies['@octane-xplat/lib'])}\n  '@octane-xplat/jsx': ${JSON.stringify(dependencies['@octane-xplat/jsx'])}\n  '@tiptap/core': 3.28.0\n  '@tiptap/pm': 3.28.0\n  '@tiptap/starter-kit': 3.28.0\n`,
 )
 
 await writeFile(
@@ -83,7 +84,7 @@ await writeFile(
 			module: 'ESNext',
 			moduleResolution: 'Bundler',
 			jsx: 'react-jsx',
-			jsxImportSource: '@octane-xplat/macos-renderer',
+			jsxImportSource: '@octane-xplat/jsx',
 			customConditions: ['macos'],
 			moduleSuffixes: ['.macos', ''],
 			lib: ['ESNext'],
@@ -111,7 +112,7 @@ void elements; void bad; void badJSON; void ensureJSONBridge; void jsonBridgeRea
 
 await writeFile(
 	join(app, 'src/App.macos.tsx'),
-	`/** @jsxImportSource @octane-xplat/macos-renderer */
+	`/** @jsxImportSource @octane-xplat/jsx */
 import { RichTextEditor } from '@octane-xplat/richtext'
 import { TiptapEditor } from '@octane-xplat/tiptap'
 import { LexicalEditor } from '@octane-xplat/lexical'

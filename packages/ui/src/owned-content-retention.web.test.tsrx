@@ -1,6 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 // @vitest-environment jsdom
-/** @jsxImportSource octane */
 import { expect, it } from 'vitest'
 import { act, createContext, createRoot, useContext, useState } from 'octane'
 import { useOwnedContent } from './use-owned-content.web.tsrx'

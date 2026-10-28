@@ -1,6 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 // @vitest-environment jsdom
-/** @jsxImportSource octane */
 import { act, createContext, createRoot, useContext, useState } from 'octane'
 import { expect, it, vi } from 'vitest'
 vi.mock('./theme/theme-scheme', () => ({ useThemeScheme: () => 'light' }))

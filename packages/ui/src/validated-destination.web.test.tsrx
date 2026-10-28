@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-/** @jsxImportSource octane */
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { act, createRoot } from 'octane'
 import { expect, it } from 'vitest'
 import { CheckedLinks, checkedLinkFixture } from '../tests/validated-destination-cases.tsrx'

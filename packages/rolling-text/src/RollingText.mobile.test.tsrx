@@ -1,4 +1,4 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
 	createObjectContainer,
