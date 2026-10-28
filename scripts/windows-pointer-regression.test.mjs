@@ -3,10 +3,16 @@ import assert from 'node:assert/strict'
 import vm from 'node:vm'
 import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
+import { resolve } from 'node:path'
 // Execute the installed, patched Windows implementation without booting WinRT.
 const appRequire = createRequire(new URL('../apps/windows/package.json', import.meta.url))
-const gestureFile = appRequire.resolve('@nativescript/core/ui/gestures/index.windows.js')
-const pointerFile = appRequire.resolve('@nativescript/core/ui/gestures/pointer-events.windows.js')
+const coreFile = (path) =>
+	process.env.WINDOWS_CORE_ARTIFACT
+		? resolve(process.env.WINDOWS_CORE_ARTIFACT, path)
+		: appRequire.resolve(`@nativescript/core/${path}`)
+
+const gestureFile = coreFile('ui/gestures/index.windows.js')
+const pointerFile = coreFile('ui/gestures/pointer-events.windows.js')
 const pointerSource = readFileSync(pointerFile, 'utf8').replace(/^export /gm, '')
 const subscribeNativeEvent = vm.runInNewContext(pointerSource + '\nsubscribeNativeEvent;')
 const types = { tap: 1, doubleTap: 2, longPress: 64, touch: 128 }

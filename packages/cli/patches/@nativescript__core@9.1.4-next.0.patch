@@ -104,7 +104,7 @@ index 333ac76a172c54da8049ed6807439fa52d09a0aa..0974c33b80b8f25d0542487c7f231bdf
                  // If value is not initial or unset and view has a parent that has non-default value, use it as the reset value.
                  if (value !== 'initial' && parent && parent[sourceKey] !== 0 /* ValueSource.Default */) {
 diff --git a/ui/core/view/index.windows.d.ts b/ui/core/view/index.windows.d.ts
-index 1366081b803aa1b7130d6495704ff53f09f52afd..b55dd5d7eb442111a648f730085c6838a1e9b9ec 100644
+index 1366081b803aa1b7130d6495704ff53f09f52afd..33cf4022dc10a5ac29bc8ca8c8da9117b4cf04be 100644
 --- a/ui/core/view/index.windows.d.ts
 +++ b/ui/core/view/index.windows.d.ts
 @@ -1,19 +1,18 @@
@@ -132,8 +132,29 @@ index 1366081b803aa1b7130d6495704ff53f09f52afd..b55dd5d7eb442111a648f730085c6838
      [backgroundInternalProperty.getDefault]: () => any;
      [backgroundInternalProperty.setNative]: (value: any) => void;
      [widthProperty.setNative]: (value: CoreTypes.PercentLengthType) => void;
+@@ -83,7 +82,12 @@
+     private _applyTiledBackgroundImage;
+     private _lastLayoutW;
+     private _lastLayoutH;
++    private _keyEvents;
++    private _keyEventsSuspended;
++    private _syncKeyEvents;
+     initNativeView(): void;
++    onLoaded(): void;
++    onUnloaded(): void;
+     _getCurrentLayoutBounds(): {
+         left: number;
+         top: number;
+@@ -91,6 +95,7 @@
+         bottom: number;
+     };
+     addEventListener(eventNames: string, callback: (data: any) => void, thisArg?: any, once?: boolean): void;
++    removeEventListener(eventNames: string, callback?: (data: any) => void, thisArg?: any): void;
+     private _notifyLayoutChanged;
+     private _originIn;
+     getLocationInWindow(): Point;
 diff --git a/ui/core/view/index.windows.js b/ui/core/view/index.windows.js
-index e6dce0dfc401f6c6df59a76b21ec628836a567cc..21430f9622eda8b13bb2868f287737f03d6b70d7 100644
+index e6dce0dfc401f6c6df59a76b21ec628836a567cc..bfd904eeefa7ba4bec3fbea40b8aaac01fb9213a 100644
 --- a/ui/core/view/index.windows.js
 +++ b/ui/core/view/index.windows.js
 @@ -1,7 +1,10 @@
@@ -148,18 +169,20 @@ index e6dce0dfc401f6c6df59a76b21ec628836a567cc..21430f9622eda8b13bb2868f287737f0
  import { visibilityProperty, opacityProperty, backgroundInternalProperty, translateXProperty, translateYProperty, scaleXProperty, scaleYProperty, rotateProperty, rotateXProperty, rotateYProperty, perspectiveProperty, horizontalAlignmentProperty, verticalAlignmentProperty, paddingTopProperty, paddingRightProperty, paddingBottomProperty, paddingLeftProperty } from '../../styling/style-properties';
  import { widthProperty, heightProperty, minWidthProperty, minHeightProperty, marginLeftProperty, marginTopProperty, marginRightProperty, marginBottomProperty } from '../../styling/style-properties';
  import { layout } from '../../../utils';
-@@ -13,6 +16,7 @@ import { getClientOriginOnScreen, getCurrentWindowBounds, getCurrentWindowConten
+@@ -13,6 +16,8 @@
  import { ImageSource } from '../../../image-source';
  import { ClipPathFunction } from '../../styling/clip-path-function';
  import { nativeChildIndex, removeNativeChild } from './native-children.windows';
 +import { _ensureNativeTransforms } from './native-transforms.windows';
++import { createWindowsKeyEvents } from './key-events.windows';
  // Windows.UI.Color is a plain {A,R,G,B} struct. Bridge reads fields directly, no WinRT call needed.
  const _defaultBackground = { A: 0, R: 0, G: 0, B: 0 };
  export function getDefaultBackground() {
-@@ -83,26 +87,6 @@ function _resolveToWinColor(color) {
+@@ -82,26 +87,6 @@
+         catch (_e) { }
      }
      return null;
- }
+-}
 -export function _ensureNativeTransforms(native) {
 -    try {
 -        if (native.__ns_transforms)
@@ -179,11 +202,10 @@ index e6dce0dfc401f6c6df59a76b21ec628836a567cc..21430f9622eda8b13bb2868f287737f0
 -    catch (_e) {
 -        return null;
 -    }
--}
+ }
  const hidden = Symbol('[[hidden]]');
  function setVisibility(nativeView, value) {
-     switch (value) {
-@@ -649,6 +633,10 @@ export class View extends ViewCommon {
+@@ -649,6 +634,10 @@
          this._nativeBackgroundState = 'invalid';
          this._percentWidth = null; // null = not set
          this._percentHeight = null;
@@ -194,7 +216,7 @@ index e6dce0dfc401f6c6df59a76b21ec628836a567cc..21430f9622eda8b13bb2868f287737f0
          // Held SizeChanged delegate (prevents GC; see _ensureSizeWatch).
          this._sizeChangedDelegate = null;
          this._sizeWatchWired = false;
-@@ -1168,6 +1156,15 @@ export class View extends ViewCommon {
+@@ -1168,14 +1157,82 @@
          })
              .catch(() => { });
      }
@@ -209,18 +231,29 @@ index e6dce0dfc401f6c6df59a76b21ec628836a567cc..21430f9622eda8b13bb2868f287737f0
 +    }
      initNativeView() {
          super.initNativeView();
++        this._keyEventsSuspended = false;
++        this._syncKeyEvents();
          // Size-dependent work (percent sizing, border/shadow/clip redraw) is wired ON DEMAND via
-@@ -1177,6 +1174,56 @@ export class View extends ViewCommon {
+         // _ensureSizeWatch(). SizeChanged fires for every recycled cell + child during fast scroll;
+         // wiring it unconditionally crossed the JS bridge per cell and blocked scrolling.
+         if (this.hasListeners(ViewCommon.layoutChangedEvent)) {
              this._ensureSizeWatch();
          }
-     }
++    }
 +    onLoaded() {
++        this._keyEventsSuspended = false;
 +        super.onLoaded();
 +        this._syncPercentParent();
++        this._syncKeyEvents();
 +    }
 +    onUnloaded() {
-+        this._clearPercentParent();
-+        super.onUnloaded();
++        this._keyEventsSuspended = true;
++        try {
++            this._keyEvents?.release();
++        } finally {
++            this._clearPercentParent();
++            super.onUnloaded();
++        }
 +    }
 +    _parentChanged(oldParent) {
 +        super._parentChanged(oldParent);
@@ -263,19 +296,42 @@ index e6dce0dfc401f6c6df59a76b21ec628836a567cc..21430f9622eda8b13bb2868f287737f0
 +            if (owner.isLoaded && owner._percentParent === owner.parent)
 +                owner._applyPercentSizing();
 +        }, 0);
-+    }
+     }
      // XAML lays views out natively, so core's own layout pass (and the bounds it records) never runs:
      // read the bounds off the element. In device pixels relative to the parent, as on Android.
-     _getCurrentLayoutBounds() {
-@@ -1504,6 +1551,7 @@ export class View extends ViewCommon {
+@@ -1202,9 +1259,20 @@
+     // `layoutChanged` rides on the size watch: XAML reports size changes (SizeChanged), not moves.
+     addEventListener(eventNames, callback, thisArg, once) {
+         super.addEventListener(eventNames, callback, thisArg, once);
++        this._syncKeyEvents();
+         if (typeof eventNames === 'string' && eventNames.indexOf(ViewCommon.layoutChangedEvent) !== -1) {
+             this._ensureSizeWatch();
+         }
++    }
++    removeEventListener(eventNames, callback, thisArg) {
++        super.removeEventListener(eventNames, callback, thisArg);
++        this._syncKeyEvents();
++    }
++    _syncKeyEvents() {
++        if (this._keyEventsSuspended) return;
++        if (!this._keyEvents && !this.hasListeners('keyDown') && !this.hasListeners('keyUp')) return;
++        this._keyEvents ??= createWindowsKeyEvents(this);
++        this._keyEvents.sync();
+     }
+     // After the deferred size redraw: records the new bounds and raises `layoutChanged` for them.
+     _notifyLayoutChanged() {
+@@ -1504,6 +1572,10 @@
          step();
      }
      disposeNativeView() {
++        this._keyEventsSuspended = true;
++        let keyError;
++        try { this._keyEvents?.release(); } catch (error) { keyError = error; }
 +        this._clearPercentParent();
          const nativeView = this.nativeViewProtected;
          if (nativeView && this._sizeWatchWired) {
              nativeView.SizeChanged = null;
-@@ -1511,6 +1559,8 @@ export class View extends ViewCommon {
+@@ -1511,6 +1583,8 @@
          // Reset so a recycled view re-wires on the next size-dependent property set.
          this._sizeWatchWired = false;
          this._sizeChangedDelegate = null;
@@ -284,7 +340,15 @@ index e6dce0dfc401f6c6df59a76b21ec628836a567cc..21430f9622eda8b13bb2868f287737f0
          // Its shadow and border overlays are siblings in the old parent.
          this._viewCompositionHandler?.Free();
          this._viewCompositionHandler = null;
-@@ -1581,18 +1631,22 @@ export class View extends ViewCommon {
+@@ -1528,6 +1602,7 @@
+         this._lastPaddingSig = null;
+         this._colorAnimBrush = null;
+         super.disposeNativeView();
++        if (keyError) throw keyError;
+     }
+     _onSizeChanged() {
+         const nativeView = this.nativeViewProtected;
+@@ -1581,18 +1656,22 @@
          }
          try {
              const parentNative = this.parent?.nativeViewProtected;
@@ -301,10 +365,11 @@ index e6dce0dfc401f6c6df59a76b21ec628836a567cc..21430f9622eda8b13bb2868f287737f0
 +            if (this._percentWidth != null && parentNative?.ActualWidth > 0) {
                  const w = parentWidth * (this._percentWidth);
 -                nativeView.Width = isFinite(w) ? w : NaN;
+-            }
+-            if (this._percentHeight != null && parentHeight > 0) {
 +                if (Math.abs(nativeView.Width - w) >= 0.01 || !isFinite(nativeView.Width))
 +                    nativeView.Width = isFinite(w) ? w : NaN;
-             }
--            if (this._percentHeight != null && parentHeight > 0) {
++            }
 +            if (this._percentHeight != null && parentNative?.ActualHeight > 0) {
                  const h = parentHeight * (this._percentHeight);
 -                nativeView.Height = isFinite(h) ? h : NaN;
@@ -313,7 +378,7 @@ index e6dce0dfc401f6c6df59a76b21ec628836a567cc..21430f9622eda8b13bb2868f287737f0
              }
          }
          catch (_e) { }
-@@ -1613,10 +1667,12 @@ export class View extends ViewCommon {
+@@ -1613,10 +1692,12 @@
              const pct = value.value;
              if (this.parent instanceof View && this.parent._setChildPercentSize(this, true, pct)) {
                  this._percentWidth = null;
@@ -326,7 +391,7 @@ index e6dce0dfc401f6c6df59a76b21ec628836a567cc..21430f9622eda8b13bb2868f287737f0
              this._ensureSizeWatch(); // re-apply percent when the parent resizes
              this.nativeViewProtected.Width = NaN;
              if (pct >= 1) {
-@@ -1640,6 +1696,7 @@ export class View extends ViewCommon {
+@@ -1640,6 +1721,7 @@
              return;
          }
          this._percentWidth = null;
@@ -334,7 +399,7 @@ index e6dce0dfc401f6c6df59a76b21ec628836a567cc..21430f9622eda8b13bb2868f287737f0
          if (this.parent instanceof View)
              this.parent._setChildPercentSize(this, true, null);
          // Clear any previously set flex-basis so the C++ widget falls back to DesiredSize.
-@@ -1658,10 +1715,12 @@ export class View extends ViewCommon {
+@@ -1658,10 +1740,12 @@
              const pct = value.value;
              if (this.parent instanceof View && this.parent._setChildPercentSize(this, false, pct)) {
                  this._percentHeight = null;
@@ -347,7 +412,7 @@ index e6dce0dfc401f6c6df59a76b21ec628836a567cc..21430f9622eda8b13bb2868f287737f0
              this._ensureSizeWatch(); // re-apply percent when the parent resizes
              this.nativeViewProtected.Height = NaN;
              if (pct >= 1) {
-@@ -1684,6 +1743,7 @@ export class View extends ViewCommon {
+@@ -1684,6 +1768,7 @@
              return;
          }
          this._percentHeight = null;
@@ -1114,23 +1179,23 @@ index a47c8fb9ffbebfa81c4fa4dfc1a31cff18c77c2f..9d3b6f0c53c86126644c0fe067538ab3
 \ No newline at end of file
 diff --git a/ui/gestures/pointer-events.windows.d.ts b/ui/gestures/pointer-events.windows.d.ts
 new file mode 100644
-index 0000000000000000000000000000000000000000..a355a6930792b05c64f66f9051ad927ba3784dde
+index 0000000000000000000000000000000000000000..92d16251bf46333aaccaac8a5b0d0f6413a2c5e2
 --- /dev/null
 +++ b/ui/gestures/pointer-events.windows.d.ts
 @@ -0,0 +1,4 @@
 +type Handler = (sender: any, args: any) => void;
-+/** Share the bridge's replacement-only event property between independent owners. */
-+export declare function subscribeNativeEvent(native: any, name: string, callback: Handler, routedEvent: any, wrap: (handler: Handler) => any): () => void;
++/** Share native event ownership; higher priority runs first. */
++export declare function subscribeNativeEvent(native: any, name: string, callback: Handler, routedEvent: any, wrap: (handler: Handler) => any, priority?: number): () => void;
 +export {};
 diff --git a/ui/gestures/pointer-events.windows.js b/ui/gestures/pointer-events.windows.js
 new file mode 100644
-index 0000000000000000000000000000000000000000..f19ca9970f8f8f7ce8224f516a6bdcea740210bc
+index 0000000000000000000000000000000000000000..a91f00b138b49528669d8752f19625525c51dcf6
 --- /dev/null
 +++ b/ui/gestures/pointer-events.windows.js
 @@ -0,0 +1,66 @@
 +const nativeEvents = new WeakMap();
 +/** Share the bridge's replacement-only event property between independent owners. */
-+export function subscribeNativeEvent(native, name, callback, routedEvent, wrap) {
++export function subscribeNativeEvent(native, name, callback, routedEvent, wrap, priority = 0) {
 +    let events = nativeEvents.get(native);
 +    if (!events) {
 +        events = new Map();
@@ -1141,7 +1206,7 @@ index 0000000000000000000000000000000000000000..f19ca9970f8f8f7ce8224f516a6bdcea
 +        const subscribers = new Set();
 +        const delegate = wrap((sender, args) => {
 +            // Removal during dispatch takes effect immediately; new subscribers wait for the next event.
-+            for (const subscription of Array.from(subscribers)) {
++            for (const subscription of Array.from(subscribers).sort((a, b) => b.priority - a.priority)) {
 +                if (subscribers.has(subscription))
 +                    subscription.callback(sender, args);
 +            }
@@ -1174,7 +1239,7 @@ index 0000000000000000000000000000000000000000..f19ca9970f8f8f7ce8224f516a6bdcea
 +        entry = { subscribers, detach };
 +        events.set(name, entry);
 +    }
-+    const subscription = { callback };
++    const subscription = { callback, priority };
 +    entry.subscribers.add(subscription);
 +    let disposed = false;
 +    return () => {
@@ -1428,10 +1493,11 @@ index a88815c17ff87271143e457f7e81e3c651ef0ab3..9c0c2a7db4dcd4bcb185e1e1c0f42cfa
      _attachReturnKeyListener(): void;
  }
 diff --git a/ui/text-field/index.windows.js b/ui/text-field/index.windows.js
-index 1dcaa390d7ad1a37fecc5e0edfaa0cd38380146e..be96ae1b112f9d084c2f9ef0db48fc3de84e4bb1 100644
+index 1dcaa390d7ad1a37fecc5e0edfaa0cd38380146e..33efa5cb6bb07bcc6e4423b70ce91ac4f6558555 100644
 --- a/ui/text-field/index.windows.js
 +++ b/ui/text-field/index.windows.js
-@@ -1,8 +1,10 @@
+@@ -1,8 +1,11 @@
++import { takeWindowsKeyHandled } from '../core/view/key-events.windows';
  export * from './text-field-common';
  import { TextFieldBase, secureProperty } from './text-field-common';
  import { hintProperty, editableProperty, maxLengthProperty, keyboardTypeProperty, autocapitalizationTypeProperty } from '../editable-text-base/editable-text-base-common';
@@ -1442,7 +1508,7 @@ index 1dcaa390d7ad1a37fecc5e0edfaa0cd38380146e..be96ae1b112f9d084c2f9ef0db48fc3d
  import { nativeChildIndex } from '../core/view/native-children.windows';
  const KEYBOARD_SCOPE = {
      number: 29,
-@@ -31,7 +33,8 @@ export class TextField extends TextFieldBase {
+@@ -31,7 +34,8 @@
      constructor() {
          super(...arguments);
          this._isSecure = false;
@@ -1452,7 +1518,7 @@ index 1dcaa390d7ad1a37fecc5e0edfaa0cd38380146e..be96ae1b112f9d084c2f9ef0db48fc3d
      }
      createNativeView() {
          // `secure` is parsed before the native view is created; pick the correct control up-front.
-@@ -66,30 +69,38 @@ export class TextField extends TextFieldBase {
+@@ -66,30 +70,38 @@
          }
          catch (_e) { }
      }
@@ -1478,11 +1544,11 @@ index 1dcaa390d7ad1a37fecc5e0edfaa0cd38380146e..be96ae1b112f9d084c2f9ef0db48fc3d
 -        if (!nv) {
 +        const native = this.nativeViewProtected;
 +        if (this._returnNative === native)
-+            return;
-+        this._detachReturnKeyListener();
-+        if (!native || !this.isLoaded)
              return;
 -        }
++        this._detachReturnKeyListener();
++        if (!native || !this.isLoaded)
++            return;
          const ref = new WeakRef(this);
 -        this._keyDownDelegate = NSWinRT.asDelegate('Microsoft.UI.Xaml.Input.KeyEventHandler', (_sender, e) => {
 -            if (e.Key === Windows.System.VirtualKey.Enter) {
@@ -1492,7 +1558,7 @@ index 1dcaa390d7ad1a37fecc5e0edfaa0cd38380146e..be96ae1b112f9d084c2f9ef0db48fc3d
 +        this._returnNative = native;
 +        this._returnDisposer = subscribeNativeEvent(native, 'KeyDown', (_sender, args) => {
 +            const owner = ref.deref();
-+            if (owner?.isLoaded && owner._returnNative === native && owner.nativeViewProtected === native && owner.isEnabled && owner.editable && args.Key === Windows.System.VirtualKey.Enter) {
++            if (owner?.isLoaded && owner._returnNative === native && owner.nativeViewProtected === native && owner.isEnabled && owner.editable && !takeWindowsKeyHandled(args) && args.Key === Windows.System.VirtualKey.Enter) {
 +                owner.notify({ eventName: TextFieldBase.returnPressEvent, object: owner });
              }
 -        });
@@ -1511,7 +1577,7 @@ index 1dcaa390d7ad1a37fecc5e0edfaa0cd38380146e..be96ae1b112f9d084c2f9ef0db48fc3d
      }
      // @ts-ignore: setNative is a symbol index whose value type is widened across properties.
      [secureProperty.setNative](value) {
-@@ -99,7 +110,7 @@ export class TextField extends TextFieldBase {
+@@ -99,7 +111,7 @@
          this._isSecure = !!value;
          const prev = this.nativeViewProtected;
          // Carry the value across the swap from the JS model (source of truth), not off `prev`.
@@ -1520,7 +1586,7 @@ index 1dcaa390d7ad1a37fecc5e0edfaa0cd38380146e..be96ae1b112f9d084c2f9ef0db48fc3d
          const newView = this._isSecure ? new Microsoft.UI.Xaml.Controls.PasswordBox() : new Microsoft.UI.Xaml.Controls.TextBox();
          // Must swap in the ACTUAL visual parent (not the NS parent's nativeViewProtected).
          // Using the NS parent's Border missed the real container and the swap silently no-op'd,
-@@ -129,15 +140,11 @@ export class TextField extends TextFieldBase {
+@@ -129,15 +141,11 @@
                  }
              }
          }
@@ -1541,7 +1607,7 @@ index 1dcaa390d7ad1a37fecc5e0edfaa0cd38380146e..be96ae1b112f9d084c2f9ef0db48fc3d
      }
      [hintProperty.setNative](value) {
          const nativeView = this.nativeViewProtected;
-@@ -151,6 +158,7 @@ export class TextField extends TextFieldBase {
+@@ -151,6 +159,7 @@
          if (typeof nativeView.IsReadOnly !== 'undefined') {
              nativeView.IsReadOnly = !value;
          }
@@ -1549,3 +1615,110 @@ index 1dcaa390d7ad1a37fecc5e0edfaa0cd38380146e..be96ae1b112f9d084c2f9ef0db48fc3d
      }
      // @ts-ignore: setNative is a symbol index whose value type is widened across properties.
      [maxLengthProperty.setNative](value) {
+diff --git a/ui/core/view/key-events.windows.js b/ui/core/view/key-events.windows.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..14b1ff9da9b349bbeff736d0c05e4ab9efcbb46c
+--- /dev/null
++++ b/ui/core/view/key-events.windows.js
+@@ -0,0 +1,92 @@
++import { subscribeNativeEvent } from '../../gestures/pointer-events.windows';
++const handledKeys = new WeakSet();
++/** Consume only a key explicitly handled by this bridge, preserving legacy submit. */
++export function takeWindowsKeyHandled(args) {
++    const handled = handledKeys.has(args);
++    handledKeys.delete(args);
++    return handled;
++}
++/** Raw Windows key events. The UI adapter owns portable key normalization. */
++export function createWindowsKeyEvents(view) {
++    const ref = new WeakRef(view);
++    let enabled = true;
++    const channels = new Map();
++    const drop = (name) => {
++        const channel = channels.get(name);
++        if (!channel)
++            return;
++        channel.active = false;
++        channels.delete(name);
++        channel.off();
++    };
++    const release = () => {
++        enabled = false;
++        const errors = [];
++        for (const name of Array.from(channels.keys())) {
++            try {
++                drop(name);
++            }
++            catch (error) {
++                errors.push(error);
++            }
++        }
++        if (errors.length)
++            throw new AggregateError(errors, 'Windows key event cleanup failed');
++    };
++    const refresh = () => {
++        const owner = ref.deref();
++        const native = enabled && owner?.isLoaded ? owner.nativeViewProtected : null;
++        const added = [];
++        try {
++            for (const [name, nativeName] of [['keyDown', 'KeyDown'], ['keyUp', 'KeyUp']]) {
++                const wanted = !!native && owner.hasListeners(name);
++                const current = channels.get(name);
++                if (current && (!wanted || current.native !== native))
++                    drop(name);
++                if (!wanted || channels.has(name))
++                    continue;
++                const channel = { native, active: true, off: () => { } };
++                channels.set(name, channel);
++                added.push(name);
++                const off = subscribeNativeEvent(native, nativeName, (sender, args) => {
++                    const target = ref.deref();
++                    if (!channel.active || !target?.isLoaded || target.nativeViewProtected !== native || target.isEnabled === false || native.IsEnabled === false || !target.hasListeners(name))
++                        return;
++                    const event = args ?? sender;
++                    const wasHandled = !!event.Handled;
++                    handledKeys.delete(event);
++                    try {
++                        target.notify({ eventName: name, object: target, nativeEvent: event, preventDefault() {
++                                event.Handled = true;
++                                handledKeys.add(event);
++                            } });
++                    }
++                    finally {
++                        if (!wasHandled && event.Handled)
++                            handledKeys.add(event);
++                        // Observable removes once-handlers internally, without calling off().
++                        refresh();
++                    }
++                }, null, (handler) => NSWinRT.asDelegate('Microsoft.UI.Xaml.Input.KeyEventHandler', handler), 1);
++                channel.off = off;
++                if (!channel.active)
++                    off();
++            }
++        }
++        catch (error) {
++            const errors = [error];
++            for (const name of added.reverse()) {
++                try {
++                    drop(name);
++                }
++                catch (cleanup) {
++                    errors.push(cleanup);
++                }
++            }
++            if (errors.length > 1)
++                throw new AggregateError(errors, 'Windows key event binding failed');
++            throw error;
++        }
++    };
++    return { sync() { enabled = true; refresh(); }, release };
++}
+diff --git a/ui/core/view/key-events.windows.d.ts b/ui/core/view/key-events.windows.d.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..b09ea3e510758522b924285c2c057eeccecdad41
+--- /dev/null
++++ b/ui/core/view/key-events.windows.d.ts
+@@ -0,0 +1,3 @@
++/** Raw Windows key events. The UI adapter owns portable key normalization. */
++export declare function createWindowsKeyEvents(view: any): { sync(): void; release(): void; };
++export declare function takeWindowsKeyHandled(args: object): boolean;

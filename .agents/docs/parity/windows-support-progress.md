@@ -520,3 +520,84 @@ subscription for submit); this helper does not supply that bridge or close the
 focus/keyboard checklist. The form/overlay recipe exclusions remain unchanged.
 This fixes an unreleased Windows candidate, so no additional release note was
 added. Public Windows guidance and the primitives skill record the boundary.
+
+## Windows raw key-event prerequisite
+
+The pinned Windows View had no keyDown/keyUp notification bridge. The driver
+maps onKeyDown to keyDown, while TextField already owns a native KeyDown
+subscription for submit. The preview-core patch now adds a dedicated raw key
+module and Windows View lifecycle calls, reusing the shared event subscriber.
+Each channel attaches only while loaded and observed. Removing one leaves the
+other and TextField's submit owner intact. Unload/dispose/native replacement
+retire callbacks; late callbacks, disabled targets and stale identities do not
+forward. Once-handler removal is reconciled after Observable.notify returns.
+Cleanup tries every owned channel, and base unload/dispose still runs if detach
+fails. Retained source and published-file integration delta:
+[windows-keyboard](../../patches/windows-keyboard/README.md).
+
+```ts
+// Windows-native core event shape; this is not the portable UI KeyboardEvent.
+view.on('keyDown', (event) => {
+  if (event.nativeEvent.Key === Windows.System.VirtualKey.Enter) event.preventDefault()
+})
+```
+
+Subscriber priority makes raw callbacks run before submit in either registration
+order. Ordinary pointer/input subscribers retain priority zero and their prior
+relative order. A weak event marker records only explicit consumption by this
+bridge; TextField consumes that marker before raising returnPress. A native
+Handled flag by itself does not alter the earlier submit behavior. This also
+allows a once-handler to consume Return after Observable removes it. Portable
+key naming/code/modifier/composition normalization is still missing, so the
+public useKeyboard hook deliberately remains unsupported on Windows. Raw core
+notification is a prerequisite, not qualified menu/dialog keyboard support.
+
+Twelve new mocked key regressions and all 19 retained pointer regressions passed
+on windy in an isolated Turbo task (31 total, exit 0). They cover both key
+channels, independent removal, submit sharing, registration order/cancellation,
+prehandled legacy behavior, once-handlers, disable, unload/reload/replacement,
+disposal during dispatch, failed registration rollback and cleanup failures.
+The key suite evaluates the actual published helper and extracts the affected
+View/TextField methods with TypeScript's parser into a fake base. It does not
+instantiate the full class, NativeScript renderer, WinUI controls or WinRT event
+projection. The pointer suite reads the unchanged gesture body plus the updated
+subscriber. Log: `research/windows61/windy-keyboard-pointer-contracts.log`.
+Earlier 8/10-case runs are superseded by the final combined result.
+
+The canonical patch's seven affected Windows targets were reverse/reapplied
+against copied exact published preimages, whose original blob hashes matched
+the prior canonical patch; the result matches the tested
+candidate byte for byte. Every other patch section was compared byte for byte
+and is unchanged. To respect the no-install boundary, no pnpm patch/patch-commit
+or dependency install ran: targeted published-file diffs were generated from
+those private copies. The authored helper was syntax-transpiled to ES2021, not
+built with the package. The generated patch-package copy, manifest explanation,
+workspace metadata and lockfile hash are synchronized; pnpm check:patches passed.
+The lockfile changes only substitute the preview-core patch hash. Final SHA-256:
+`f6bf77c513902a1106ad9d22f8efe024c80f0ae0a5bc3ab6e3e5fec643ef82e2`.
+Installed dependencies and the Windows app still have the earlier patch.
+
+The new focused task has no build dependencies (confirmed by Turbo dry run), is
+uncached, and accepts WINDOWS_CORE_ARTIFACT for private candidate files. The
+retained pointer test accepts the same override. The task-owned remote fixture
+is `C:\Users\alecs\dev\octane-windows61-checks-88a67da\core-keyboard`; its Turbo
+task is test:keys. The maintained default task and frozen adoption are deferred:
+
+```sh
+pnpm install --frozen-lockfile
+pnpm exec turbo run test:keyboard --filter=@xplat/windows
+pnpm exec turbo run typecheck --filter=...@octane-xplat/cli
+pnpm exec turbo run typecheck --filter=...@octane-xplat/patches
+pnpm exec turbo run typecheck --filter=...@xplat/windows
+pnpm exec turbo run build:windows --filter=@xplat/windows
+```
+
+After authorized adoption/build, qualify real KeyDown/KeyUp projection, repeated
+keys, consumed Return, modifier/IME handling, secure replacement, focus/window
+transitions and event teardown in the packaged app. No install/build, OS input,
+UIA, screenshot or app launch ran for this batch. Existing shared forms and
+menus are the demand assumption; key-bridge prerequisites take priority over
+niche integrations. The keyboard-clipboard/shared-overlays recipes still exclude
+Windows, and no acceptance criterion or issue checkbox was closed. This is an
+internal prerequisite for an unreleased Windows API, so no release note was
+added. The primitives skill warns against advertising portable support early.

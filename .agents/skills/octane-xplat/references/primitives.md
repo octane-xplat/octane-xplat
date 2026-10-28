@@ -2698,3 +2698,11 @@ export function DisplayName() {
 The regression evidence is mocked projection only. Real WinUI selection/IME,
 secure-field and focus behavior remain unqualified; hardware-key forwarding and
 modal focus are separate gaps. See the [Windows record](../../../docs/parity/windows-support-progress.md).
+
+The experimental Windows core patch has a raw key-event prerequisite. Its
+nativeEvent/consumption payload is not the portable KeyboardEvent contract;
+portable hardware-key support stays disabled until normalization is implemented
+and the adapter is qualified. Do not turn source/mocked dispatch into a claim
+that menus, dialogs, IME or OS focus work. The
+[Windows key record](../../../docs/parity/windows-support-progress.md#windows-raw-key-event-prerequisite)
+tracks source, adoption and native gates separately.

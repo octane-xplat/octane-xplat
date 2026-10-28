@@ -1,0 +1,166 @@
+diff --git a/ui/core/view/index.windows.js b/ui/core/view/index.windows.js
+index 21430f9622eda8b13bb2868f287737f03d6b70d7..bfd904eeefa7ba4bec3fbea40b8aaac01fb9213a 100644
+--- a/ui/core/view/index.windows.js
++++ b/ui/core/view/index.windows.js
+@@ -17,6 +17,7 @@
+ import { ClipPathFunction } from '../../styling/clip-path-function';
+ import { nativeChildIndex, removeNativeChild } from './native-children.windows';
+ import { _ensureNativeTransforms } from './native-transforms.windows';
++import { createWindowsKeyEvents } from './key-events.windows';
+ // Windows.UI.Color is a plain {A,R,G,B} struct. Bridge reads fields directly, no WinRT call needed.
+ const _defaultBackground = { A: 0, R: 0, G: 0, B: 0 };
+ export function getDefaultBackground() {
+@@ -1167,6 +1168,8 @@
+     }
+     initNativeView() {
+         super.initNativeView();
++        this._keyEventsSuspended = false;
++        this._syncKeyEvents();
+         // Size-dependent work (percent sizing, border/shadow/clip redraw) is wired ON DEMAND via
+         // _ensureSizeWatch(). SizeChanged fires for every recycled cell + child during fast scroll;
+         // wiring it unconditionally crossed the JS bridge per cell and blocked scrolling.
+@@ -1175,12 +1178,19 @@
+         }
+     }
+     onLoaded() {
++        this._keyEventsSuspended = false;
+         super.onLoaded();
+         this._syncPercentParent();
++        this._syncKeyEvents();
+     }
+     onUnloaded() {
+-        this._clearPercentParent();
+-        super.onUnloaded();
++        this._keyEventsSuspended = true;
++        try {
++            this._keyEvents?.release();
++        } finally {
++            this._clearPercentParent();
++            super.onUnloaded();
++        }
+     }
+     _parentChanged(oldParent) {
+         super._parentChanged(oldParent);
+@@ -1249,9 +1259,20 @@
+     // `layoutChanged` rides on the size watch: XAML reports size changes (SizeChanged), not moves.
+     addEventListener(eventNames, callback, thisArg, once) {
+         super.addEventListener(eventNames, callback, thisArg, once);
++        this._syncKeyEvents();
+         if (typeof eventNames === 'string' && eventNames.indexOf(ViewCommon.layoutChangedEvent) !== -1) {
+             this._ensureSizeWatch();
+         }
++    }
++    removeEventListener(eventNames, callback, thisArg) {
++        super.removeEventListener(eventNames, callback, thisArg);
++        this._syncKeyEvents();
++    }
++    _syncKeyEvents() {
++        if (this._keyEventsSuspended) return;
++        if (!this._keyEvents && !this.hasListeners('keyDown') && !this.hasListeners('keyUp')) return;
++        this._keyEvents ??= createWindowsKeyEvents(this);
++        this._keyEvents.sync();
+     }
+     // After the deferred size redraw: records the new bounds and raises `layoutChanged` for them.
+     _notifyLayoutChanged() {
+@@ -1551,6 +1572,9 @@
+         step();
+     }
+     disposeNativeView() {
++        this._keyEventsSuspended = true;
++        let keyError;
++        try { this._keyEvents?.release(); } catch (error) { keyError = error; }
+         this._clearPercentParent();
+         const nativeView = this.nativeViewProtected;
+         if (nativeView && this._sizeWatchWired) {
+@@ -1578,6 +1602,7 @@
+         this._lastPaddingSig = null;
+         this._colorAnimBrush = null;
+         super.disposeNativeView();
++        if (keyError) throw keyError;
+     }
+     _onSizeChanged() {
+         const nativeView = this.nativeViewProtected;
+diff --git a/ui/core/view/index.windows.d.ts b/ui/core/view/index.windows.d.ts
+index b55dd5d7eb442111a648f730085c6838a1e9b9ec..33cf4022dc10a5ac29bc8ca8c8da9117b4cf04be 100644
+--- a/ui/core/view/index.windows.d.ts
++++ b/ui/core/view/index.windows.d.ts
+@@ -82,7 +82,12 @@
+     private _applyTiledBackgroundImage;
+     private _lastLayoutW;
+     private _lastLayoutH;
++    private _keyEvents;
++    private _keyEventsSuspended;
++    private _syncKeyEvents;
+     initNativeView(): void;
++    onLoaded(): void;
++    onUnloaded(): void;
+     _getCurrentLayoutBounds(): {
+         left: number;
+         top: number;
+@@ -90,6 +95,7 @@
+         bottom: number;
+     };
+     addEventListener(eventNames: string, callback: (data: any) => void, thisArg?: any, once?: boolean): void;
++    removeEventListener(eventNames: string, callback?: (data: any) => void, thisArg?: any): void;
+     private _notifyLayoutChanged;
+     private _originIn;
+     getLocationInWindow(): Point;
+diff --git a/ui/text-field/index.windows.js b/ui/text-field/index.windows.js
+index be96ae1b112f9d084c2f9ef0db48fc3de84e4bb1..33efa5cb6bb07bcc6e4423b70ce91ac4f6558555 100644
+--- a/ui/text-field/index.windows.js
++++ b/ui/text-field/index.windows.js
+@@ -1,3 +1,4 @@
++import { takeWindowsKeyHandled } from '../core/view/key-events.windows';
+ export * from './text-field-common';
+ import { TextFieldBase, secureProperty } from './text-field-common';
+ import { hintProperty, editableProperty, maxLengthProperty, keyboardTypeProperty, autocapitalizationTypeProperty } from '../editable-text-base/editable-text-base-common';
+@@ -97,7 +98,7 @@
+         this._returnNative = native;
+         this._returnDisposer = subscribeNativeEvent(native, 'KeyDown', (_sender, args) => {
+             const owner = ref.deref();
+-            if (owner?.isLoaded && owner._returnNative === native && owner.nativeViewProtected === native && owner.isEnabled && owner.editable && args.Key === Windows.System.VirtualKey.Enter) {
++            if (owner?.isLoaded && owner._returnNative === native && owner.nativeViewProtected === native && owner.isEnabled && owner.editable && !takeWindowsKeyHandled(args) && args.Key === Windows.System.VirtualKey.Enter) {
+                 owner.notify({ eventName: TextFieldBase.returnPressEvent, object: owner });
+             }
+         }, null, (handler) => NSWinRT.asDelegate('Microsoft.UI.Xaml.Input.KeyEventHandler', handler));
+diff --git a/ui/gestures/pointer-events.windows.js b/ui/gestures/pointer-events.windows.js
+index f19ca9970f8f8f7ce8224f516a6bdcea740210bc..a91f00b138b49528669d8752f19625525c51dcf6 100644
+--- a/ui/gestures/pointer-events.windows.js
++++ b/ui/gestures/pointer-events.windows.js
+@@ -1,6 +1,6 @@
+ const nativeEvents = new WeakMap();
+ /** Share the bridge's replacement-only event property between independent owners. */
+-export function subscribeNativeEvent(native, name, callback, routedEvent, wrap) {
++export function subscribeNativeEvent(native, name, callback, routedEvent, wrap, priority = 0) {
+     let events = nativeEvents.get(native);
+     if (!events) {
+         events = new Map();
+@@ -11,7 +11,7 @@
+         const subscribers = new Set();
+         const delegate = wrap((sender, args) => {
+             // Removal during dispatch takes effect immediately; new subscribers wait for the next event.
+-            for (const subscription of Array.from(subscribers)) {
++            for (const subscription of Array.from(subscribers).sort((a, b) => b.priority - a.priority)) {
+                 if (subscribers.has(subscription))
+                     subscription.callback(sender, args);
+             }
+@@ -44,7 +44,7 @@
+         entry = { subscribers, detach };
+         events.set(name, entry);
+     }
+-    const subscription = { callback };
++    const subscription = { callback, priority };
+     entry.subscribers.add(subscription);
+     let disposed = false;
+     return () => {
+diff --git a/ui/gestures/pointer-events.windows.d.ts b/ui/gestures/pointer-events.windows.d.ts
+index a355a6930792b05c64f66f9051ad927ba3784dde..92d16251bf46333aaccaac8a5b0d0f6413a2c5e2 100644
+--- a/ui/gestures/pointer-events.windows.d.ts
++++ b/ui/gestures/pointer-events.windows.d.ts
+@@ -1,4 +1,4 @@
+ type Handler = (sender: any, args: any) => void;
+-/** Share the bridge's replacement-only event property between independent owners. */
+-export declare function subscribeNativeEvent(native: any, name: string, callback: Handler, routedEvent: any, wrap: (handler: Handler) => any): () => void;
++/** Share native event ownership; higher priority runs first. */
++export declare function subscribeNativeEvent(native: any, name: string, callback: Handler, routedEvent: any, wrap: (handler: Handler) => any, priority?: number): () => void;
+ export {};

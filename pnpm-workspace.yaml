@@ -158,7 +158,7 @@ allowBuilds:
   '@parcel/watcher': true
   esbuild: true
   workerd: true
-  '@nativescript/core@https://pkg.pr.new/@nativescript/core@abae298(patch_hash=a2b3cd0854b048594158f665741d20d569dc8f5c6861b45191324fc8558bc504)': true
+  '@nativescript/core@https://pkg.pr.new/@nativescript/core@abae298(patch_hash=f6bf77c513902a1106ad9d22f8efe024c80f0ae0a5bc3ab6e3e5fec643ef82e2)': true
   # firebase (web push) postinstalls: @firebase/util's is a React Native
   # bundling shim, protobufjs's prints a deprecation banner — neither needed.
   '@firebase/util': false
@@ -303,11 +303,12 @@ patchedDependencies:
   # Windows preview abae298 from NativeScript#11272 retains CSS @layer cascade machinery and
   # explicit-size flex alignment, Windows pointer subscription and hover ownership,
   # cancellation/capture-loss handling and gesture separation, parent-driven percentage
-  # sizing lifecycle and padded content-box updates, input focus/blur ownership, IsEnabled
-  # forwarding, accessible names, secure readonly, and literal non-CSS property values. Also
-  # moves _ensureNativeTransforms into a leaf module to break the view-common/animation
-  # import cycle that crashed ESM bundle evaluation at startup. The #11446 frame/tab fixes
-  # are now upstream and removed. Preserves upstream transparent-background hit testing and
+  # sizing lifecycle and padded content-box updates, raw keyDown/keyUp subscription
+  # ownership, submit cancellation, and input focus/blur ownership, IsEnabled forwarding,
+  # accessible names, secure readonly, and literal non-CSS property values. Also moves
+  # _ensureNativeTransforms into a leaf module to break the view-common/animation import
+  # cycle that crashed ESM bundle evaluation at startup. The #11446 frame/tab fixes are now
+  # upstream and removed. Preserves upstream transparent-background hit testing and
   # contact-only pointer moves. Registry core 9.1.4-next.0 has no Windows implementation;
   # this patch targets the commit-pinned preview with that version.
   "@nativescript/core@9.1.4-next.0": packages/cli/patches/@nativescript__core@9.1.4-next.0.patch
