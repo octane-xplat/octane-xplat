@@ -90,10 +90,12 @@
 		height: 100%;
 	}
 
-	.vx-view,
-	.vx-drawer--appkit {
-		grid-template-rows: 1fr;
-		grid-template-columns: 1fr;
+	@platform web, macos {
+		.vx-view,
+		.vx-drawer--appkit {
+			grid-template-rows: 1fr;
+			grid-template-columns: 1fr;
+		}
 	}
 	.vx-drawer--appkit > * {
 		grid-area: 1 / 1;
@@ -182,14 +184,16 @@
 	}
 
 	/* Absolute children share one origin on every renderer. */
-	.vx-absolute {
-		position: relative;
-	}
+	@platform web, macos {
+		.vx-absolute {
+			position: relative;
+		}
 
-	.vx-absolute > * {
-		position: absolute;
-		left: 0;
-		top: 0;
+		.vx-absolute > * {
+			position: absolute;
+			left: 0;
+			top: 0;
+		}
 	}
 
 	/* xplat-web-only:start — Astryx Layout: five-slot page primitive. The
@@ -805,9 +809,11 @@
 		height: 4px;
 		vertical-align: middle;
 	}
-	.vx-slider--appkit {
-		grid-template-rows: 1fr;
-		grid-template-columns: 1fr;
+	@platform web, macos {
+		.vx-slider--appkit {
+			grid-template-rows: 1fr;
+			grid-template-columns: 1fr;
+		}
 	}
 	.vx-slider--appkit > * {
 		grid-area: 1 / 1;
