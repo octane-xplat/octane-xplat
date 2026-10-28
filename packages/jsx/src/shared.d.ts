@@ -20,8 +20,12 @@ import type { ClassValue, CSSProperties } from 'octane/jsx-runtime'
 /** JSX renderable — what a JSX expression types as and what `children` accepts. */
 export type NativeNode = unknown
 
-/** ElementType for the automatic runtime — a tag name or function component. */
-export type ElementTypeOf = string | ((props: any) => unknown)
+/**
+ * ElementType for the automatic runtime — a tag name or function component.
+ * Octane components take `(props, scope)`; one-parameter callables stay
+ * assignable because fewer required parameters satisfy a wider signature.
+ */
+export type ElementTypeOf = string | ((props: any, scope: any) => unknown)
 
 /**
  * Host ref lifecycle, matching the octane universal contract: a callback that

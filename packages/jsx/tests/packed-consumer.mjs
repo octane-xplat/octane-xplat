@@ -182,6 +182,24 @@ const badEdge = <label dock="center" />
 const badStretch = <masonview stretchLastChild={false} />
 void badEdge
 void badStretch
+
+// Two-parameter components: octane Context providers and native styled()
+// factories are callable (props, scope) — ElementTypeOf accepts them while
+// still checking props and rejecting non-callables.
+import { createContext } from 'octane'
+const Ctx = createContext('x')
+const ctxTree = <Ctx value="y"><label text="in" /></Ctx>
+void ctxTree
+declare const Styled: (props: { danger?: boolean }, scope: unknown) => unknown
+const styledOk = <Styled danger />
+// @ts-expect-error props still checked on two-parameter components
+const styledBad = <Styled danger="no" />
+void styledOk
+void styledBad
+declare const NotComponent: { a: 1 }
+// @ts-expect-error plain objects are not components
+const notComponent = <NotComponent />
+void notComponent
 `
 
 // Module augmentation through the intrinsics entry must reach the contract.
