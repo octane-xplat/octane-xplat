@@ -1068,7 +1068,7 @@ export function Actions({ disabled }: { disabled: boolean }) {
 ```
 
 The subsequent menu-surface source path covers arrows/typeahead/submenu intent;
-reliable cross-popup Tab return, native secondary click and
+ContextMenu/unowned Tab return, native secondary click and
 full menu AX roles/checked announcements remain implementation gaps; native popup/ref/focus/
 input/VoiceOver behavior is unqualified. Authored inline-popup cases remain unrun.
 
@@ -1089,10 +1089,9 @@ export function Actions() {
 }
 ```
 
-Escape remains owned by layer dismissal; Tab requests close without preventing
-native movement. Dropdown/submenu anchor return refs do not prove cross-window
+Escape remains owned by layer dismissal; unowned surfaces preserve native Tab. Dropdown/submenu anchor return refs do not prove cross-window
 return. Closed-trigger arrow intent is now supplied by the target view-key
-attachment described below; reliable Tab-return intent remains a separate gap.
+attachment described below; owned-dropdown Tab intent is now described below; native return remains unqualified.
 Seven authored policy/fake-window cases remain unrun; actual keyboard/IME/focus,
 popup timing/RTL provider inheritance, AX and packaging remain unqualified. See
 [AppKit menu surfaces](../../../../docs/menus.md#navigate-appkit-menu-surfaces).
@@ -1119,3 +1118,30 @@ subscriptions, enters renderer discrete scope, preserves same-view/ancestor
 propagation semantics and releases leases on ref/node teardown. Nine authored
 cases remain unrun; physical/native monitor/ref/popup/IME/focus/AX/packaging evidence
 is still missing. See [trigger arrows](../../../../docs/menus.md#open-an-appkit-dropdown-with-arrows).
+
+
+Owned AppKit DropdownMenu/submenu Tab now resolves the outer trigger's current
+same-window next/previous valid key view, records return intent and consumes the
+key while requesting closure. Private return owners follow accepted ancestor
+visibility: a child whose parent stays open returns to that parent's row; after
+the chain closes its ref delegates to the root neighbor. No eager makeFirstResponder
+is added to the menu handler. ContextMenu/unowned surfaces keep native Tab fallback.
+
+```tsx
+import { useState } from 'octane'
+import { DropdownMenu, DropdownMenuItem } from '@octane-xplat/ui'
+
+export function Actions() {
+	const [open, setOpen] = useState(false)
+	return <DropdownMenu isOpen={open} onOpenChange={setOpen} button={{ label: 'Actions' }}>
+		<DropdownMenuItem label="Archive" />
+	</DropdownMenu>
+}
+```
+
+The target layer focus adapter restores an explicit live native target in its own
+window; fallback ownership cannot follow a moved view. Shared field editors map
+back to controls. Native-backed handles receive attachment checks; explicit opaque focus delegates
+keep caller-owned behavior whose attachment cannot be inspected. Ten new authored cases
+remain unrun. Actual layer cleanup/window timing, native traversal/focus, modal/
+FocusScope and AX behavior remain unqualified; see [owned Tab return](../../../../docs/menus.md#leave-an-owned-appkit-dropdown-with-tab).

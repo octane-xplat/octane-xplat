@@ -9,8 +9,8 @@ import { ButtonGroupProvider } from './button-group-context'
 import { TextInput } from './text-controls.macos.tsrx'
 
 // Inline surfaces exercise source ownership only, not NSPopover/native input.
-const popup = vi.hoisted(() => ({ current: null as any }))
-vi.mock('./Popover.macos.tsrx', () => ({ Popover: (props: any) => { popup.current = props; return props.open ? <masonview>{props.children}</masonview> : null } }))
+const popup = vi.hoisted(() => ({ current: null as any, byAnchor: new Map<object, any>() }))
+vi.mock('./Popover.macos.tsrx', () => ({ Popover: (props: any) => { popup.current = props; popup.byAnchor.set(props.anchor, props); return props.open ? <masonview>{props.children}</masonview> : null } }))
 function mount(component: any, props: any) {
 	const container = createObjectContainer('nativescript'), root = createUniversalRoot(container, createObjectDriver('nativescript'))
 	const render = (next: any) => { root.render(component, next); flushUniversalSync(() => {}) }
@@ -319,5 +319,62 @@ it('controlled trigger arrows preserve pending edge intent and current guards, i
 		const event: any = { target: trigger, key: 'ArrowDown', preventDefault: vi.fn(), stopPropagation: vi.fn() }
 		cached(event); expect(event.preventDefault).not.toHaveBeenCalled(); expect(changes).not.toHaveBeenCalled()
 		expect(f.subscriptions.size).toBe(0)
+	} finally { env.root.unmount(); vi.unstubAllGlobals() }
+})
+
+
+function popupFor(id: string) {
+	return [...popup.byAnchor.values()].find((props) => props.anchor?.current?.props?.id === id)
+}
+
+it('owned dropdown Tab/Shift-Tab records same-window return intent without restoring before controlled closure', async () => {
+	const f = nativeMenuFixture(), main = f.window(), panel = f.window(), changes = vi.fn()
+	const props = { id: 'menu', isOpen: true, onOpenChange: changes, button: { label: 'Actions' }, items: [{ type: 'action', key: 'alpha', label: 'Alpha' }] }
+	const env = mount(DropdownMenu, props)
+	try {
+		const trigger = env.byID('menu'), next = { window: main }, previous = { window: main }
+		f.hydrate(trigger, main); trigger.nextValidKeyView = next; trigger.previousValidKeyView = previous
+		const surface = lists(env)[0]; f.hydrate(surface, panel)
+		const restore = vi.spyOn(main, 'makeFirstResponder')
+		await vi.waitFor(() => { flushUniversalSync(() => {}); expect(panel.firstResponder).toBe(env.byID('alpha')) })
+		const owner = popupFor('menu')
+		expect(f.key(surface, 'Tab').defaultPrevented).toBe(true)
+		expect(changes).toHaveBeenCalledWith(false); expect(lists(env)).toHaveLength(1)
+		expect(owner.finalFocusRef.current).toBe(next); expect(restore).not.toHaveBeenCalled()
+		expect(f.key(surface, 'Tab', { shiftKey: true }).stopped).toBe(true)
+		expect(owner.finalFocusRef.current).toBe(previous)
+		env.render({ ...props, isOpen: false }); expect(lists(env)).toHaveLength(0)
+		expect(owner.finalFocusRef.current).toBe(previous) // Intent only; the actual Popover is mocked.
+		expect(restore).not.toHaveBeenCalled()
+	} finally { env.root.unmount(); vi.unstubAllGlobals() }
+})
+
+it('nested Tab requests the whole menu chain and return refs follow accepted ancestor visibility', async () => {
+	const f = nativeMenuFixture(), main = f.window(), parentWindow = f.window(), childWindow = f.window()
+	const rootClose = vi.fn(), subClose = vi.fn()
+	function Menus(props: any) {
+		return <DropdownMenu id="menu" isOpen={props.root} onOpenChange={rootClose} button={{ label: 'Actions' }}>
+			<DropdownMenuSubMenu id="sub" label="More" isOpen={props.sub} onOpenChange={subClose}>
+				<DropdownMenuItem id="nested" label="Nested" />
+			</DropdownMenuSubMenu>
+		</DropdownMenu>
+	}
+	const env = mount(Menus, { root: true, sub: true })
+	try {
+		const trigger = env.byID('menu'), next = { window: main }
+		f.hydrate(trigger, main); trigger.nextValidKeyView = next
+		const surfaces = lists(env); f.hydrate(surfaces[0], parentWindow); f.hydrate(surfaces[1], childWindow)
+		await vi.waitFor(() => { flushUniversalSync(() => {}); expect(f.observers.size).toBe(2); expect(childWindow.firstResponder).toBe(env.byID('nested')) })
+		const outer = popupFor('menu'), inner = popupFor('sub'), sub = env.byID('sub')
+		expect(f.key(surfaces[1], 'Tab').defaultPrevented).toBe(true)
+		expect(rootClose).toHaveBeenCalledWith(false); expect(subClose).toHaveBeenCalledWith(false)
+		expect(lists(env)).toHaveLength(2)
+		expect(outer.finalFocusRef.current).toBe(next)
+		expect(inner.finalFocusRef.current).toBe(sub)
+		env.render({ root: true, sub: false }); expect(lists(env)).toHaveLength(1)
+		expect(inner.finalFocusRef.current).toBe(sub)
+		env.render({ root: false, sub: false }); expect(lists(env)).toHaveLength(0)
+		expect(inner.finalFocusRef.current).toBe(next)
+		expect(outer.finalFocusRef.current).toBe(next)
 	} finally { env.root.unmount(); vi.unstubAllGlobals() }
 })

@@ -9,6 +9,7 @@ interface Options {
 	openSubmenu(key: string): void
 	closeLevel?: () => void
 	closeMenu(): void
+	closeOnTab?(backward: boolean): boolean
 	direction(): 'ltr' | 'rtl'
 }
 
@@ -20,7 +21,12 @@ export function createAppKitMenuKeyboard(options: Options, now = Date.now) {
 		reset,
 		keyDown(event: KeyboardEvent) {
 			if (event.defaultPrevented || event.isComposing || event.altKey || event.ctrlKey || event.metaKey) return
-			if (event.key === 'Tab') { reset(); options.closeMenu(); return } // Preserve native Tab movement.
+			if (event.key === 'Tab') {
+				reset()
+				if (options.closeOnTab?.(event.shiftKey)) { event.preventDefault(); event.stopPropagation() }
+				else options.closeMenu() // Unowned surfaces retain the native Tab default.
+				return
+			}
 			if (event.key === 'Escape') return // The existing layer owns Escape and accepted-close restoration.
 			const rows = options.rows(), focused = options.focused(), index = rows.findIndex((row) => row.key === focused)
 			const stop = () => { event.preventDefault(); event.stopPropagation() }

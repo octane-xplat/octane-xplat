@@ -72,3 +72,21 @@ it('composition/prevented/modified events and unsuccessful or empty focus moves 
 	f.rows.length = 0
 	for (const name of ['ArrowUp', 'ArrowDown', 'Home', 'End', 'Enter', ' ']) expect(f.key(name).defaultPrevented).toBe(false)
 })
+
+it('owned Tab return preserves direction and consumes only an accepted return-intent owner', () => {
+	let owned = true, closes = 0
+	const directions: boolean[] = []
+	const policy = createAppKitMenuKeyboard({ rows: () => [], focused: () => undefined, focus: () => false,
+		press: () => {}, openSubmenu: () => {}, direction: () => 'ltr', closeMenu: () => { closes++ },
+		closeOnTab: (backward) => { directions.push(backward); return owned },
+	})
+	const key = (shiftKey: boolean) => {
+		const event = { key: 'Tab', code: 'Tab', shiftKey, altKey: false, ctrlKey: false, metaKey: false, repeat: false,
+			isComposing: false, defaultPrevented: false, stopped: false,
+			preventDefault() { this.defaultPrevented = true }, stopPropagation() { this.stopped = true } }
+		policy.keyDown(event); return event
+	}
+	expect(key(false).defaultPrevented).toBe(true); expect(key(true).stopped).toBe(true)
+	expect(directions).toEqual([false, true]); expect(closes).toBe(0)
+	owned = false; expect(key(false).defaultPrevented).toBe(false); expect(closes).toBe(1)
+})

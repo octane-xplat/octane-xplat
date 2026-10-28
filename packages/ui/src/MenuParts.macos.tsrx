@@ -9,7 +9,8 @@ import type {
 import { useNavigationItem } from './use-navigation-item.shared.tsrx'
 import { followHref } from './nav-href.macos'
 import { useAppKitMenuRow } from './use-menu-row.macos.tsrx'
-import { useContext, useEffect, useMemo, useRef, useState } from 'octane'
+import { AppKitMenuReturnContext, AppKitMenuReturnProvider, createAppKitMenuReturn } from './menu-return.macos'
+import { useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'octane'
 import type {
 	MenuItemProps,
 	MenuLinkProps,
@@ -261,6 +262,7 @@ export function DropdownMenuSubMenu<
 export function DropdownMenuSubMenu(
 	props: NavigationMenuImplementation<MenuSubMenuProps>,
 ) @{
+	const parentReturn = useContext(AppKitMenuReturnContext)
 	const parent = useDropdownMenuContext()
 	if (!parent) {
 		throw new Error(
@@ -288,9 +290,17 @@ export function DropdownMenuSubMenu(
 		if (props.isDisabled && requestedOpen) setOpen(false)
 	}, [props.isDisabled, requestedOpen])
 
-	const closeLevel = () => setOpen(false)
+	const liveReturn = useRef({ open, parent: parentReturn, close: () => setOpen(false) })
+	liveReturn.current = { open, parent: parentReturn, close: () => setOpen(false) }
+	const returnOwner = useMemo(() => createAppKitMenuReturn({ anchor: () => anchor.current,
+		open: () => liveReturn.current.open, parent: () => liveReturn.current.parent,
+		close: () => liveReturn.current.close() }), [])
+	const finalFocus = useMemo(() => ({ get current() { return returnOwner.focusTarget() } }), [])
+	useLayoutEffect(() => { if (open) returnOwner.reset() }, [open])
+	const closeLevel = () => { returnOwner.reset(); setOpen(false) }
 	const row = useAppKitMenuRow({ label: typeof props.label === 'string' ? props.label : '',
-		disabled: Boolean(props.isDisabled), press: () => setOpen(!open), openSubmenu: () => setOpen(true) })
+		disabled: Boolean(props.isDisabled), press: () => { returnOwner.reset(); setOpen(!open) },
+		openSubmenu: () => { returnOwner.reset(); setOpen(true) } })
 	const mergedRef = useMemo(() => props.ref ? [anchor, props.ref, row.ref] : [anchor, row.ref], [props.ref, row.ref])
 
 	<>
@@ -312,13 +322,14 @@ export function DropdownMenuSubMenu(
 		</Pressable>
 		<Popover
 			anchor={anchor}
-			finalFocusRef={anchor}
+			finalFocusRef={finalFocus}
 			open={open}
 			placement="right"
 			alignment="start"
-			onDismiss={() => setOpen(false)}
+			onDismiss={closeLevel}
 			className="vx-menu"
 		>
+			<AppKitMenuReturnProvider value={parentReturn ? returnOwner : null}>
 			<MenuSurface
 				closeMenu={() => {
 					setOpen(false)
@@ -331,6 +342,7 @@ export function DropdownMenuSubMenu(
 				<MenuData items={props.items} />
 				{props.children}
 			</MenuSurface>
+			</AppKitMenuReturnProvider>
 		</Popover>
 	</>
 }

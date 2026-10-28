@@ -204,7 +204,7 @@ export function ControlledActions({ disabled }: { disabled: boolean }) {
 
 Five authored AppKit object-driver cases remain unrun and replace popovers with
 inline content. Subsequent surface/trigger keyboard source paths are described below; reliable
-cross-popup Tab return remains a separate gap; real popup/ref/focus timing, physical keys, mouse hit testing,
+owned-dropdown Tab return intent is described below; real popup/ref/focus timing, physical keys, mouse hit testing,
 VoiceOver and packaging remain unqualified. Shared AppKit ContextMenu still uses
 long press or its visible trigger; native secondary-click support is separate.
 The renderer's full menu-role/checked announcements also remain incomplete.
@@ -234,10 +234,9 @@ export function Actions() {
 ```
 
 Nested editors in endContent retain their key handling; typeahead uses string
-row labels. Escape stays with the existing layer dismissal owner. Tab requests
-closure without preventing native Tab movement. Dropdown/submenu return refs
-express anchor intent only after accepted closure; reliable cross-popup Tab
-return still needs implementation. Closed-trigger arrow intent is described below.
+row labels. Escape stays with the existing layer dismissal owner. Unowned surfaces request Tab closure without preventing native movement.
+Dropdown/submenu return refs follow accepted closure; owned Tab return and
+closed-trigger arrow intent are described below.
 
 Seven new authored policy/inline-popup cases and the maintained AppKit menu
 fixture remain unrun. Fake windows prove no physical keys or popup behavior.
@@ -269,6 +268,38 @@ export function Actions() {
 The matching AppKit renderer is required for the private view-key subscription;
 older bridges retain the existing Button activation path. Nine new dispatcher/
 bridge/fake-window cases remain unrun. Native monitor order, actual ref delivery,
-physical arrows, popup first/last focus, IME, Tab return, VoiceOver and packaging
-remain unqualified. Cross-popup Tab return, secondary-click opening and full menu
-accessibility remain separate gaps.
+physical arrows, popup first/last focus, IME, actual Tab return, VoiceOver and
+packaging remain unqualified. Owned Tab return intent is described below;
+secondary-click opening and full menu accessibility remain separate gaps.
+
+
+### Leave an owned AppKit dropdown with Tab
+
+Owned dropdowns and their submenus now record Tab/Shift-Tab return intent using
+the trigger's current next/previous valid key view. A foreign or missing candidate
+falls back to the trigger. The key requests closure and is consumed while the
+controlled owner decides; it does not move focus immediately. Ordinary dismissal
+still requests the anchor. Keep isOpen synchronized through onOpenChange.
+
+```tsx
+import { useState } from 'octane'
+import { DropdownMenu, DropdownMenuItem } from '@octane-xplat/ui'
+
+export function Actions() {
+	const [open, setOpen] = useState(false)
+	return <DropdownMenu isOpen={open} onOpenChange={setOpen} button={{ label: 'Actions' }}>
+		<DropdownMenuItem label="Archive" />
+	</DropdownMenu>
+}
+```
+
+Nested return refs choose the closest accepted open ancestor, then the outer
+trigger's requested neighbor once the chain closes. The AppKit focus adapter
+uses an explicit target's own window, resolves shared field editors to their
+owning controls, and rejects detached/hidden targets or moved fallback controls.
+Context menus and unowned surfaces retain native Tab fallback in this slice.
+
+Ten new focus/return-policy/fake-window cases remain unrun. Native cleanup order,
+actual key-view traversal and focus restoration, window activation timing,
+FocusScope/modal integration, IME, VoiceOver and packaging remain unqualified.
+The implementation records return intent; it is not proof of a native Tab result.

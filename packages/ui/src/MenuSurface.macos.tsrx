@@ -1,7 +1,8 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { useCallback, useEffect, useMemo, useRef } from 'octane'
+import { useCallback, useContext, useEffect, useMemo, useRef } from 'octane'
 import type { MenuSurfaceProps } from './props'
 import { MenuProvider } from './menu-context'
+import { AppKitMenuReturnContext } from './menu-return.macos'
 import { AppKitMenuRowsProvider } from './menu-rows.macos'
 import { createAppKitChoiceFocus } from './choice-focus.macos'
 import { createAppKitMenuKeyboard } from './menu-keyboard.macos'
@@ -15,6 +16,8 @@ import type { AppKitMenuRow } from './menu-rows.macos'
 
 /** Each popup root owns its rows, native focus claims and existing close callbacks. */
 export function MenuSurface(props: MenuSurfaceProps) @{
+	const returnOwner = useContext(AppKitMenuReturnContext), liveReturnOwner = useRef(returnOwner)
+	liveReturnOwner.current = returnOwner
 	const context = { closeMenu: () => props.closeMenu(), menuSize: 'md' as const }
 	const panel = useRef<NSView | null>(null), lease = useRef<(() => void) | null>(null)
 	const registry = useRef({ views: new Map<string, NSView>(), rows: new Map<string, () => AppKitMenuRow>() })
@@ -39,6 +42,11 @@ export function MenuSurface(props: MenuSurfaceProps) @{
 		press: (key) => registry.current.rows.get(key)?.().press(),
 		openSubmenu: (key) => registry.current.rows.get(key)?.().openSubmenu?.(),
 		get closeLevel() { return live.current.closeLevel },
+		closeOnTab: (backward) => {
+			const owner = liveReturnOwner.current, target = owner?.resolveTab(backward)
+			if (!owner || !target) return false
+			owner.requestTab(target); return true
+		},
 		closeMenu: () => live.current.closeMenu(), direction: () => liveDirection.current,
 	}), [])
 	const initialize = () => {

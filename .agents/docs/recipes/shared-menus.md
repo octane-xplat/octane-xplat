@@ -29,9 +29,11 @@ context-menu leaf has its own recipe.
 
 - AC6: AppKit disabled rows remove native activation and radio group state applies to hosts. Disabled dropdown/context/submenu surfaces suppress controlled open requests and report close intent; dropdowns include button/group disablement. Button refs/IDs and destructive tone survive host updates. Keep keyboard/secondary-click/AX implementation gaps and actual popup evidence explicit.
 
-- AC7: AppKit menu surfaces register current rows per popup and use native order for wrapping arrows, Home/End and prefix/manual activation, with RTL submenu intents and current disabled/detached guards. Initial focus waits for attachment; release row/Tab/window ownership. Preserve nested editor/IME/modified keys and existing Escape/accepted-close ownership. Keep trigger-opening source intent, cross-popup Tab return and native evidence distinct.
+- AC7: AppKit menu surfaces register current rows per popup and use native order for wrapping arrows, Home/End and prefix/manual activation, with RTL submenu intents and current disabled/detached guards. Initial focus waits for attachment; release row/Tab/window ownership. Preserve nested editor/IME/modified keys and existing Escape/accepted-close ownership. Keep trigger-opening source intent, owned Tab-return intent and native evidence distinct.
 
 - AC8: Closed AppKit dropdown Down/Up requests first/last-row opening on the existing Button host, retaining controlled pending intent and rejecting current blocked/open/descendant/IME/modified/prevented keys. Owned subscriptions compose with prop handlers on the shared monitor, enter discrete scope and release on ref/node destruction. Preserve Button ref/ID/layout and ordinary activation; report native evidence separately.
+
+- AC9: Owned AppKit dropdown/submenu Tab resolves a current same-window trigger neighbor, requests close without eager focus, and consumes the key while controlled owners decide. Nested return refs follow accepted ancestor visibility. AppKit layer restoration uses explicit live target windows, stable field owners and detached/hidden/moved-fallback guards. Keep ContextMenu/unowned fallback and actual native evidence explicit.
 
 ## Documentation
 
@@ -46,3 +48,5 @@ context-menu leaf has its own recipe.
 - AC7: [AppKit surface keyboard guide](../../../docs/app/menus.md#navigate-appkit-menu-surfaces), [authored policy cases](../../../packages/ui/src/menu-keyboard.macos.mobile.test.tsrx), appended [fake-window wiring cases](../../../packages/ui/src/menu-family.macos.mobile.test.tsrx), [maintained target fixture](../../../examples/probes/menu-keyboard.macos.tsrx) and [target note](../parity/appkit-progress.md#appkit-menu-surface-keyboard-ownership). All cases/fixture remain unrun.
 
 - AC8: [Trigger arrow guide](../../../docs/app/menus.md#open-an-appkit-dropdown-with-arrows), appended dispatcher/bridge/menu-family source cases, [renderer ownership contract](../../../packages/macos-renderer/README.md#composed-control-key-ownership), maintained menu-keyboard fixture and [target note](../parity/appkit-progress.md#appkit-dropdown-trigger-arrow-ownership). All authored cases and native checks remain deferred.
+
+- AC9: [Owned Tab guide](../../../docs/app/menus.md#leave-an-owned-appkit-dropdown-with-tab), authored layer-focus/menu-return/policy/menu-family cases and [target note](../parity/appkit-progress.md#appkit-owned-menu-tab-return-intent). Cases remain unrun; maintained menu fixture describes the interaction without synthesizing OS keys.

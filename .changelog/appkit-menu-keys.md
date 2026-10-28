@@ -13,6 +13,6 @@ export function Actions() {
 }
 ```
 
-Native key/focus/popup/VoiceOver behavior remains unqualified. Reliable cross-popup
-Tab return remains a separate gap. See the
+Native key/focus/popup/VoiceOver behavior remains unqualified. Owned dropdown Tab/Shift-Tab now records adjacent-trigger return intent through
+accepted ancestor closure; actual native Tab return remains unqualified. See the
 [AppKit menu guide](https://octane-xplat.goddardai.org/menus#navigate-appkit-menu-surfaces).

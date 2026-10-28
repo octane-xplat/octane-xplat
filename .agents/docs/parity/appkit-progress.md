@@ -2606,3 +2606,52 @@ and packaging remain unqualified. Reliable cross-popup Tab return, secondary-cli
 opening and full menu AX roles/checked announcements remain separate implementation
 gaps. No builds, package tests/typechecks, installs, OS automation, visual analysis
 or shared audit snapshot regeneration ran; no evidence checkbox is closed.
+
+### AppKit owned menu Tab return intent
+
+Menu surfaces still used native Tab after requesting close, leaving a separate
+popup window to decide movement. Source review found a prerequisite in generic
+layer focus restoration: it always called the initially captured window even
+when an explicit final target belonged to a different live window, and retained
+shared field editors rather than their stable owner. Added an AppKit layer-keys
+leaf with the same public capture signature and unchanged Escape monitor source;
+its focus adapter uses the explicit target's window, resolves field editors,
+rejects detached/hidden/disabled targets and moved fallback views, and honors
+explicitly focusable disabled-card claims. Its native-host path sets first responder without adding
+window activation. Actual native behavior is unqualified.
+
+Owned DropdownMenu and submenus now provide private return owners within each
+popup root. Tab/Shift-Tab resolves the outer trigger's current same-window next/
+previous valid key view (or the trigger fallback), records intent and requests
+closure; the policy consumes owned Tab without eagerly moving focus. Dynamic
+return refs choose the closest accepted open ancestor's row, delegating to the
+root target after the chain closes. Thus an accepted child close with a declined
+root close does not intentionally jump into the app window. Existing layer
+accepted-close restoration remains the only execution owner. Ordinary dismissal/
+trigger actions reset Tab intent. ContextMenu and unowned surfaces retain native
+Tab fallback; no new public props, dependencies or shared file changes were made.
+
+Four layer-focus, three return-owner, one policy and two inline-popup cases cover
+explicit windows/field owners, native flags, nested accepted visibility, same-window
+neighbors/stale targets, direction/fallback, controlled return intent and absence
+of eager focus calls. All ten are unrun. Only TypeScript/TSRX syntax, semantic/
+source and whitespace checks ran. Existing menu fixture text, guide/skill, feature
+note and shared-menus AC9 were reconciled. The runner still dispatches only the
+ordinary trigger and does not synthesize OS keys. The new target Escape setup was
+copied unchanged from the existing default; no new Escape dispatch result is claimed.
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/layer-focus.macos.mobile.test.tsrx src/menu-return.macos.mobile.test.tsrx src/menu-keyboard.macos.mobile.test.tsrx src/menu-family.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe run examples/probes/menu-keyboard.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All commands remain deferred pending explicit human authorization for this task.
+Native effect/cleanup order, actual Tab traversal and focus restoration, key-window
+activation timing, secure-field/IME behavior, modal/FocusScope interaction, AX and
+packaging remain unqualified. ContextMenu/unowned Tab intent, secondary click and
+full menu AX roles/checked announcements remain implementation gaps. Native-backed focus handles receive attachment checks; explicit opaque custom
+focus delegates preserve caller-owned behavior whose attachment cannot be inspected. No builds, package tests/typechecks, installs,
+OS automation, visual analysis or shared audit snapshots ran; no checkbox is closed.

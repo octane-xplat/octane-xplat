@@ -11,6 +11,7 @@ import { Icon } from './Icon.macos.tsrx'
 import { Popover } from './Popover.macos.tsrx'
 import { useButtonGroup } from './button-group-context'
 import { useAppKitViewKeys } from './use-view-keys.macos.tsrx'
+import { AppKitMenuReturnProvider, createAppKitMenuReturn } from './menu-return.macos'
 
 /** Self-drawn dropdown menu — a shared-`Button` trigger (`button` props,
  *  Astryx `button`) plus an anchored item list via Popover. The same
@@ -45,6 +46,14 @@ export function DropdownMenu(props: NavigationMenuImplementation<DropdownMenuPro
 		props.onOpenChange?.(next)
 	}
 
+
+	const liveReturn = useRef({ open, close: () => setOpen(false) })
+	liveReturn.current = { open, close: () => setOpen(false) }
+	const returnOwner = useMemo(() => createAppKitMenuReturn({ anchor: () => anchor.current,
+		open: () => liveReturn.current.open, close: () => liveReturn.current.close() }), [])
+	const finalFocus = useMemo(() => ({ get current() { return returnOwner.focusTarget() } }), [])
+	const closeMenu = () => { returnOwner.reset(); setOpen(false) }
+
 	const keys = useAppKitViewKeys({ onKeyDown: (event) => {
 		if (disabled || open || event.defaultPrevented || event.isComposing ||
 			event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return
@@ -53,7 +62,7 @@ export function DropdownMenu(props: NavigationMenuImplementation<DropdownMenuPro
 		event.preventDefault(); event.stopPropagation(); setOpen(true)
 	} })
 	const mergedRef = useMemo(() => button.ref ? [anchor, keys.ref, button.ref] : [anchor, keys.ref], [button.ref, keys.ref])
-	useLayoutEffect(() => { if (!open) initialFocus.current = 'first' }, [open])
+	useLayoutEffect(() => { if (!open) initialFocus.current = 'first'; else returnOwner.reset() }, [open])
 
 	useEffect(() => {
 		if (disabled && requestedOpen) setOpen(false)
@@ -75,21 +84,22 @@ export function DropdownMenu(props: NavigationMenuImplementation<DropdownMenuPro
 			className={cx('vx-menu-trigger', button.className)}
 			isDisabled={disabled}
 			endContent={endContent}
-			clickAction={() => { initialFocus.current = 'first'; setOpen(!open) }}
+			clickAction={() => { returnOwner.reset(); initialFocus.current = 'first'; setOpen(!open) }}
 			accessibilityState={{ ...button.accessibilityState, expanded: open }}
 		/>
 		<Popover
 			anchor={anchor}
-			finalFocusRef={anchor}
+			finalFocusRef={finalFocus}
 			open={open}
 			placement={props.placement ?? 'bottom'}
 			alignment={props.alignment}
-			onDismiss={() => setOpen(false)}
+			onDismiss={closeMenu}
 			className={cx('vx-menu', props.menuClassName)}
 			style={typeof props.menuWidth === 'number' ? { minWidth: props.menuWidth } : undefined}
 		>
+			<AppKitMenuReturnProvider value={returnOwner}>
 			<MenuSurface
-				closeMenu={() => setOpen(false)}
+				closeMenu={closeMenu}
 				initialFocus={initialFocus.current}
 				label={props.label ?? buttonLabel}
 				className={props.className}
@@ -98,6 +108,7 @@ export function DropdownMenu(props: NavigationMenuImplementation<DropdownMenuPro
 				<MenuData items={props.items} />
 				{props.children}
 			</MenuSurface>
+			</AppKitMenuReturnProvider>
 		</Popover>
 	</>
 }
