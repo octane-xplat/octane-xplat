@@ -14,6 +14,7 @@ Ported from [`frontendsupply/lightbox`](https://github.com/frontendsupply/lightb
 | Root phase machine | `lightbox.tsx` root — `openAt`, `close`, `goTo` jump/held bookkeeping, `onScrollIndex`, `onOpened` guards | `src/state.ts` reducer + effects |
 | Tap timing | `lightbox.tsx` `onTap` — 300 ms / 30 px window, 260 ms delay, mouse/backdrop passthrough | `src/tap-detector.ts` |
 | Motion specs | `lightbox.tsx` L154–161 — OPEN 380/34, CLOSE 520/46, SETTLE 420/42, FADE 0.24 s, REDUCED 0.16 s, inertia `{power 0.5, timeConstant 280, bounceStiffness 360, bounceDamping 36}` | `src/constants.ts` |
+| Thumbnail strip | `lightbox.tsx` L1380–1520 — thumbnail registration, fractional indicator position/size, centered strip, indexed activation | `src/thumbnail-layout.ts` plus web/native `thumbnails` leaves; sparse mounted indices interpolate between their actual media indices |
 
 ## Deliberate differences
 

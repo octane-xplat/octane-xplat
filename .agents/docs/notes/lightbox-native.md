@@ -125,3 +125,56 @@ and Android permits a null
 The assertions cover subclass creation and restoring the previous provider;
 they do not change the Android writer's behavior. Recheck these assertions
 when upgrading the Android declarations.
+
+## Phase 5 preview and verification
+
+The private leaf now has `Thumbnails`, `Thumbnail`, and `ThumbnailIndicator`
+parts. Web and native use the same thumbnail geometry model; each leaf owns
+measurement, indicator writes, and strip scrolling.
+
+```tsx
+<Lightbox.Thumbnails>
+	<Lightbox.Thumbnail index={0}><Text>Coast</Text></Lightbox.Thumbnail>
+	<Lightbox.Thumbnail index={1}><Text>Forest</Text></Lightbox.Thumbnail>
+	<Lightbox.ThumbnailIndicator />
+</Lightbox.Thumbnails>
+```
+
+Verified on 2026-10-28 on a remote Intel Mac running macOS 15.7.7:
+
+- Playwright 1.63.0 / WebKit 2359 passed 31 numeric browser checks. New
+  coverage includes slow mouse drags, fast flicks, zoomed panning, unequal
+  thumbnail dimensions at fractional progress, indexed activation, and strip
+  centering. The Chromium-only touch check was skipped. No screenshots or
+  image analysis were used.
+- The focused suites passed 58 web/shared tests and 22 native object-driver
+  tests. These include the shared hook contract and thumbnail geometry;
+  object-driver results do not establish native layout or input behavior.
+- The touched-package/dependents source typecheck passed through Turbo.
+  Lint passed with the existing image-class and tap-test warnings.
+
+Local ignored logs are under `research/lightbox-probes/logs/` as
+`phase5-webkit-2026-10-28.log`, `phase5-unit-2026-10-28.log`, and
+`phase5-typecheck-2026-10-28.log`.
+
+The viewport keeps the latest index callback in a ref. Otherwise an index
+change can reattach its scroll effect and force the viewport to a whole slide,
+destroying fractional progress before the indicator has finished moving.
+
+Before the public cutover:
+
+- Qualify the new thumbnail strip and the updated native host styles on iOS
+  and Android. The earlier native evidence above predates these changes.
+- Finish native page-behind scrolling: `scroll-sync.ts` currently writes the
+  existing offset back to the ancestor. The placeholder trigger visibility
+  calculation in `root.tsrx` also needs real viewport clipping before the
+  offscreen-trigger fallback can be considered qualified.
+- Handle natural native image dimensions when callers omit media width and
+  height; the current native image falls back to a square aspect ratio.
+- Complete the AppKit subset and run the maintained overlay fixture. The
+  fixture selects `macos-arm64/host`; the current remote Intel host cannot
+  run it. The inspected remote environment also lacks the iOS simulator tools, adb,
+  and Maestro.
+- Complete the UI export removal, consumer/doc migration, recipes, and release
+  preparation in the plan. The shared-overlays recipe still uses the public
+  UI Lightbox; no public workflow or recipe has switched to the private leaf.

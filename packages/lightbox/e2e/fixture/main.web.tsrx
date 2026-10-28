@@ -23,6 +23,14 @@ function App() {
 					<Lightbox.Close className="fx-close">×</Lightbox.Close>
 					<Lightbox.Prev className="fx-prev">‹</Lightbox.Prev>
 					<Lightbox.Next className="fx-next">›</Lightbox.Next>
+					<Lightbox.Thumbnails style={{ position: 'absolute', left: 0, bottom: 0, width: 120, height: 50, gap: 10 }}>
+						{items.map((item, index) => (
+							<Lightbox.Thumbnail key={index} index={index} style={{ width: 40 + index * 20, height: 40, padding: 0, border: 0 }}>
+								{item.alt}
+							</Lightbox.Thumbnail>
+						))}
+						<Lightbox.ThumbnailIndicator style={{ border: '2px solid white', boxSizing: 'border-box' }} />
+					</Lightbox.Thumbnails>
 				</Lightbox.Popup>
 			</Lightbox.Root>
 		</div>

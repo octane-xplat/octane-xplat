@@ -8,6 +8,7 @@ export type {
 	LightboxRootProps,
 	LightboxTriggerPartProps,
 	LightboxSlidePartProps,
+	LightboxThumbnailPartProps,
 	LightboxImagePartProps,
 	LightboxTriggerProps,
 	UseLightboxOptions,
@@ -32,3 +33,5 @@ export {
 	useLightboxState,
 } from './root.tsrx'
 export { Image } from './Image.tsrx'
+
+export { Thumbnails, Thumbnail, ThumbnailIndicator } from './thumbnails.tsrx'

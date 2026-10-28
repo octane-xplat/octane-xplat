@@ -1,0 +1,13 @@
+.vx-lightbox-thumbnails { overflow: hidden; }
+.vx-lightbox-thumbnails-row {
+	position: relative;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+.vx-lightbox-thumbnail { flex-shrink: 0; }
+.vx-lightbox-thumbnail-indicator {
+	position: absolute;
+	left: 0;
+	top: 0;
+}

@@ -5,6 +5,11 @@ export type {
 	LightboxOptions,
 	LightboxProps,
 	LightboxRootProps,
+	LightboxPartProps,
+	LightboxTriggerPartProps,
+	LightboxSlidePartProps,
+	LightboxImagePartProps,
+	LightboxThumbnailPartProps,
 	LightboxTriggerProps,
 	UseLightboxOptions,
 	UseLightboxReturn,
@@ -32,3 +37,7 @@ export const Title = (() => unsupported('Title')) as never
 export const Description = (() => unsupported('Description')) as never
 export const useLightbox = () => unsupported('useLightbox')
 export const useLightboxState = () => unsupported('useLightboxState')
+
+export const Thumbnails = (() => unsupported('Thumbnails')) as never
+export const Thumbnail = (() => unsupported('Thumbnail')) as never
+export const ThumbnailIndicator = (() => unsupported('ThumbnailIndicator')) as never

@@ -1,5 +1,14 @@
 # Overlays — Sheet, Overlay, and platform modals
 
+For app lightboxes, keep using the public UI export until the package cutover.
+`@octane-xplat/lightbox` is a private implementation preview; its headless
+thumbnail parts do not yet have native device qualification. See the
+[port evidence and remaining work](../../../docs/notes/lightbox-native.md).
+
+```tsx
+import { Lightbox } from '@octane-xplat/ui'
+```
+
 The shared root package exports `BottomSheet`, `Overlay`, and `Popover`,
 plus `openBottomSheet`/`closeBottomSheet`. `Sheet` and `openSheet` below are
 older names retained in the headings for existing links. Modal widgets with OS

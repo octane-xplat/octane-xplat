@@ -1,0 +1,15 @@
+.vx-lightbox-thumbnails {
+	position: relative;
+	display: flex;
+	align-items: center;
+	overflow-x: auto;
+	scrollbar-width: none;
+	scroll-behavior: auto;
+}
+.vx-lightbox-thumbnail { flex: none; }
+.vx-lightbox-thumbnail-indicator {
+	position: absolute;
+	left: 0;
+	top: 0;
+	pointer-events: none;
+}

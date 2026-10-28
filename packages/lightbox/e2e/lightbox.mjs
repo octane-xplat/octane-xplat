@@ -235,6 +235,22 @@ try {
 		check('pinch below fit closes', await page.locator('[data-phase]').count(), 0)
 	}
 
+	// --- thumbnail indicator follows fractional paging, then selection navigates ---
+	await page.locator('.vx-lightbox-trigger').nth(0).click()
+	await page.waitForSelector('[data-phase="open"]')
+	await viewport.evaluate((el) => { el.style.scrollSnapType = 'none'; el.scrollLeft = 400 })
+	await page.waitForTimeout(100)
+	const indicator = page.locator('.vx-lightbox-thumbnail-indicator')
+	check('thumbnail indicator interpolates position', await indicator.evaluate((el) => Number(/translate\(([-\d.]+)px/.exec(el.style.transform)?.[1])), near(25))
+	check('thumbnail indicator interpolates unequal widths', await indicator.evaluate((el) => parseFloat(el.style.width)), near(50))
+	await viewport.evaluate((el) => { el.style.scrollSnapType = 'x mandatory' })
+	await page.locator('[data-lightbox-thumbnail]').nth(2).click()
+	await page.waitForFunction(() => document.querySelector('.vx-lightbox-viewport').scrollLeft > 1599)
+	check('thumbnail activation navigates', await currentLabel(), '3 of 3')
+	check('thumbnail strip follows selection', await page.locator('.vx-lightbox-thumbnails').evaluate((el) => el.scrollLeft), near(80))
+	await page.keyboard.press('Escape')
+	await page.waitForSelector('[data-phase]', { state: 'detached' })
+
 	// --- reduced motion fades (no morph clip-path, presence goes 0→1) ---
 	const page2 = await browser.newPage({ viewport: { width: 800, height: 600 }, reducedMotion: 'reduce' })
 	await page2.goto(BASE, { waitUntil: 'domcontentloaded' })

@@ -5,6 +5,11 @@ export type {
 	LightboxOptions,
 	LightboxProps,
 	LightboxRootProps,
+	LightboxPartProps,
+	LightboxTriggerPartProps,
+	LightboxSlidePartProps,
+	LightboxImagePartProps,
+	LightboxThumbnailPartProps,
 	LightboxTriggerProps,
 	UseLightboxOptions,
 	UseLightboxReturn,
@@ -14,10 +19,11 @@ export type {
 import { Lightbox as LightboxImpl } from './Lightbox.web.tsrx'
 import { Backdrop, Close, Description, Next, Popup, Prev, Root, Slide, Title, Trigger, Viewport } from './root.web.tsrx'
 import { Image } from './Image.web.tsrx'
+import { Thumbnails, Thumbnail, ThumbnailIndicator } from './thumbnails.web.tsrx'
 
 export { useLightbox } from './use-lightbox.web.tsrx'
 export { useLightboxState } from './root.web.tsrx'
-export { Root, Trigger, Popup, Backdrop, Viewport, Slide, Image, Close, Prev, Next, Title, Description }
+export { Root, Trigger, Popup, Backdrop, Viewport, Slide, Image, Close, Prev, Next, Title, Description, Thumbnails, Thumbnail, ThumbnailIndicator }
 
 /** The convenience viewer with the headless parts as statics —
  *  `Lightbox.Root`, `Lightbox.Trigger`, …. */
@@ -34,6 +40,9 @@ export const Lightbox = Object.assign(LightboxImpl, {
 	Next,
 	Title,
 	Description,
+	Thumbnails,
+	Thumbnail,
+	ThumbnailIndicator,
 }) as typeof LightboxImpl & {
 	Root: typeof Root
 	Trigger: typeof Trigger
@@ -47,4 +56,7 @@ export const Lightbox = Object.assign(LightboxImpl, {
 	Next: typeof Next
 	Title: typeof Title
 	Description: typeof Description
+	Thumbnails: typeof Thumbnails
+	Thumbnail: typeof Thumbnail
+	ThumbnailIndicator: typeof ThumbnailIndicator
 }

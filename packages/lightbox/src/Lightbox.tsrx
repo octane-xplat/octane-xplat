@@ -6,6 +6,7 @@ import { cx } from '@octane-xplat/lib'
 import type { LightboxProps } from './props'
 import { Backdrop, Close, Description, Next, Popup, Prev, Root, Slide, Title, Trigger, useLightboxState, Viewport } from './root.tsrx'
 import { Image } from './Image.tsrx'
+import { Thumbnails, Thumbnail, ThumbnailIndicator } from './thumbnails.tsrx'
 
 function DefaultSlide(props: { index: number; hasAutoPlay: boolean }) @{
 	const state = useLightboxState()
@@ -65,7 +66,7 @@ function LightboxBase(props: LightboxProps) @{
 }
 
 export const Lightbox = Object.assign(LightboxBase, {
-	Root, Trigger, Popup, Backdrop, Viewport, Slide, Image, Close, Prev, Next, Title, Description,
+	Root, Trigger, Popup, Backdrop, Viewport, Slide, Image, Close, Prev, Next, Title, Description, Thumbnails, Thumbnail, ThumbnailIndicator,
 }) as typeof LightboxBase & {
 	Root: typeof Root
 	Trigger: typeof Trigger
@@ -79,4 +80,7 @@ export const Lightbox = Object.assign(LightboxBase, {
 	Next: typeof Next
 	Title: typeof Title
 	Description: typeof Description
+	Thumbnails: typeof Thumbnails
+	Thumbnail: typeof Thumbnail
+	ThumbnailIndicator: typeof ThumbnailIndicator
 }

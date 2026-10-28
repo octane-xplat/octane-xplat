@@ -6,6 +6,7 @@ import type {
 	LightboxProps,
 	LightboxRootProps,
 	LightboxSlidePartProps,
+	LightboxThumbnailPartProps,
 	LightboxTapEvent,
 	LightboxTriggerPartProps,
 	LightboxTriggerProps,
@@ -19,6 +20,7 @@ export type {
 	LightboxPartProps,
 	LightboxTriggerPartProps,
 	LightboxSlidePartProps,
+	LightboxThumbnailPartProps,
 	LightboxImagePartProps,
 	LightboxMedia,
 	LightboxMediaType,
@@ -45,6 +47,9 @@ export declare const Prev: UniversalComponent<LightboxPartProps>
 export declare const Next: UniversalComponent<LightboxPartProps>
 export declare const Title: UniversalComponent<LightboxPartProps>
 export declare const Description: UniversalComponent<LightboxPartProps>
+export declare const Thumbnails: UniversalComponent<LightboxPartProps>
+export declare const Thumbnail: UniversalComponent<LightboxThumbnailPartProps>
+export declare const ThumbnailIndicator: UniversalComponent<LightboxPartProps>
 
 declare const LightboxBase: UniversalComponent<LightboxProps>
 /** The convenience viewer with the headless parts as statics. */
@@ -61,6 +66,9 @@ export declare const Lightbox: typeof LightboxBase & {
 	Next: typeof Next
 	Title: typeof Title
 	Description: typeof Description
+	Thumbnails: typeof Thumbnails
+	Thumbnail: typeof Thumbnail
+	ThumbnailIndicator: typeof ThumbnailIndicator
 }
 
 export declare function useLightbox(options: UseLightboxOptions): UseLightboxReturn
