@@ -12,6 +12,8 @@ export type { TabSpec } from './props'
 export function Tabs(props: TabsProps): any {
 	const selection = useRouteTabsSelection(props)
 	const idPrefix = props.id ?? selection.panelId
+	// Reflow exposes synthetic @for key type errors; see .agents/docs/toolchain.md.
+	// prettier-ignore
 	return <>
 		<masonview id={props.id} className={cx('vx-tabs', props.className)} style={mergeStyle({display: "grid", gridTemplateRows: "auto 1fr"}, props.style)}>
 			<TabList className="vx-tabbar" role="tablist" layout="fill" hasDivider value={selection.selectedKey} onChange={selection.select} style={{ gridRow: "1" }}>

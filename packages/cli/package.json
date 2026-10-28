@@ -79,7 +79,7 @@
 		"@babel/plugin-transform-unicode-property-regex": "7.29.7",
 		"@babel/plugin-transform-unicode-sets-regex": "7.29.7",
 		"@clack/prompts": "1.8.1",
-		"@octane-xplat/fmt": "0.1.0",
+		"@octane-xplat/fmt": "0.1.1",
 		"@octane-xplat/lib": "workspace:*",
 		"@octane-xplat/lint": "workspace:*",
 		"@tsrx/core": "0.2.4",

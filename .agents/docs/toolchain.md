@@ -530,3 +530,44 @@ Constraints this creates:
   the shape `packages/platform/src/dev-bridge.ts` adopted after a
   `globalThis`-only read stayed undefined on NativeScript (device shims are
   module-scope consts, not globals).
+
+## TSRX fragment initializers in the formatter
+
+`@octane-xplat/fmt` 0.1.1 fixes ambient declaration parsing (`.d.ts`, `.d.mts`,
+`.d.cts`), but rejects an unparenthesized multiline fragment initializer inside
+an `@{}` function followed by `@if`, reporting `TSRX_LIFT: formatted TSRX
+structure differs from the input`. Parenthesizing the initializer lets the same
+source format successfully. `packages/ui/src/modal-focus.web.test.tsrx` uses
+this workaround; keep it until the formatter accepts the unparenthesized form.
+This was verified through the formatter's Node API and `pnpm format`, not a
+renderer runtime test.
+
+```tsrx
+function Example(props: { visible: boolean }) @{
+	const content = (
+		<>
+			<button>Choose</button>
+		</>
+	)
+
+	@if (props.visible) {
+		<div>{content}</div>
+	} @else {
+		<p>Hidden</p>
+	}
+}
+```
+
+## Formatting can expose synthetic TSRX key diagnostics
+
+With `@tsrx/typescript-plugin` 0.4.11, formatting the native `Tabs.tsrx` return
+block makes UI declaration generation report TS2322 for synthetic `key` props
+on `Tab` and `RoutePane`. The authored source only supplies `@for` keys, not
+component `key` props. Restoring the original return layout passes
+`turbo run typegen --filter=@octane-xplat/ui` with the rest of the repository
+still formatted. This is compiler evidence, not a renderer behavior change.
+
+`packages/ui/src/Tabs.tsrx` retains that return layout with `prettier-ignore`.
+The formatter still handles the rest of the file. Remove the directive when
+the compiler accepts the formatted keyed loops; do not remove the loop keys
+or widen component props to hide the generated diagnostic.

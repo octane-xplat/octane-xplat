@@ -1315,8 +1315,8 @@ importers:
         specifier: 1.8.1
         version: 1.8.1
       '@octane-xplat/fmt':
-        specifier: 0.1.0
-        version: 0.1.0
+        specifier: 0.1.1
+        version: 0.1.1
       '@octane-xplat/lib':
         specifier: workspace:*
         version: link:../lib
@@ -5730,52 +5730,52 @@ packages:
   '@nstudio/nativescript-exoplayer@6.2.0':
     resolution: {integrity: sha512-drZ1YHJciuCtkaWutHGYpzEdP6H1d7OrZusKH7sd1yJyTqx/7boFE49pjbEMS+5q2D4TVcbdBfW2k3tEv1CuUw==}
 
-  '@octane-xplat/fmt-darwin-arm64@0.1.0':
-    resolution: {integrity: sha512-ILEy9xjQc5X9w9njTnqZfmOoXAUJm0+go8LjCNzfv6VoJ2bQ6GqtaArlUH553r/nChTYlyLikwuZ8kHhvyJYhQ==}
+  '@octane-xplat/fmt-darwin-arm64@0.1.1':
+    resolution: {integrity: sha512-5hxFRqxupOoqTxYkPju5JdxnVuuTlC41kYozyKhW4AGb2Xh9dSJs29XL1p5mUDTEOEV8iH0fqpk9r2e/m9SxNQ==}
     cpu: [arm64]
     os: [darwin]
 
-  '@octane-xplat/fmt-darwin-x64@0.1.0':
-    resolution: {integrity: sha512-zk57guNNqKQdaozkxvfOZblJQjbLHuiy3qkC63Ooe5cR5+LgZwuHFpW+ApCp1DBPgI0lZfhUdV8wwN3kszyqoA==}
+  '@octane-xplat/fmt-darwin-x64@0.1.1':
+    resolution: {integrity: sha512-HlZ7KdozSYxPhQ2uzH0xOWQWEF/JnUdZKKDNEcFiR58U0aPlGqPCBmQefAWmVCeKUhaf7fqZitBwwtQiAO2nRg==}
     cpu: [x64]
     os: [darwin]
 
-  '@octane-xplat/fmt-linux-arm64-gnu@0.1.0':
-    resolution: {integrity: sha512-v+LqoDGYEXbTNU5zg+0BeyD/0Y6VzZ4Bke9z4ZuBDdKPvNRRp1Vs9phTTqJ8Mk6nDrCYIY+hh2w2hNxn/RdyPw==}
+  '@octane-xplat/fmt-linux-arm64-gnu@0.1.1':
+    resolution: {integrity: sha512-3x+RBTWxzOn9pLYJnrWRiDKUg7OxkuDbhVZF1drva1hwsWLkFQcH+dRDA2KXQGdBygePk3goxh3buNK94k/ldQ==}
     cpu: [arm64]
     os: [linux]
     libc: [glibc]
 
-  '@octane-xplat/fmt-linux-arm64-musl@0.1.0':
-    resolution: {integrity: sha512-hntwJE0RVJ+u5s0hKqicXQ1tXPD/NYPqcNQRY6eLZZcyvz1REhIv7RdqI/FPaSe/lnfXrIHpUGdQ7D6Xdqe9lQ==}
+  '@octane-xplat/fmt-linux-arm64-musl@0.1.1':
+    resolution: {integrity: sha512-LIcpsPHfgHbkViBvcC4swcsOAgs8C7iP7tdraI1t7tqyjhDT6/3KOi7kA2l0UAfEFYhGfYeo9+ibLt2XAXByrQ==}
     cpu: [arm64]
     os: [linux]
     libc: [musl]
 
-  '@octane-xplat/fmt-linux-x64-gnu@0.1.0':
-    resolution: {integrity: sha512-Xi4Y9o07B+eWiTIjfVnQYaB+TcuCaHqP5I3OczAFbwBJ2aGClzb0thAK2fGGEfLwCFUr9o5x9hOQ/8sEYaLg+A==}
+  '@octane-xplat/fmt-linux-x64-gnu@0.1.1':
+    resolution: {integrity: sha512-scyp+Jw31pyYEqnhAYfj3POfRD6Y+qkfvJ09Rtw6iz09brSWYqVw8IpIqX+f/TS3QI7TJEY4rtF3g4hOADrHQw==}
     cpu: [x64]
     os: [linux]
     libc: [glibc]
 
-  '@octane-xplat/fmt-linux-x64-musl@0.1.0':
-    resolution: {integrity: sha512-FfQ7+BwGWxI8Q25iaR8+d5fq+/JZgdhil26GvMbBaaGtwhrElMS39Cwgn5w4gKoQGL7oMoqtKJaWwrlO9OtkRA==}
+  '@octane-xplat/fmt-linux-x64-musl@0.1.1':
+    resolution: {integrity: sha512-d0woaIAa5tVNH3B7xYC+KHLCVli9gAgNiZlJquaWPSUnMPt3QWi/DWYslRt4T7z3FFlS3zAw6S+soZ9bS3Fhmg==}
     cpu: [x64]
     os: [linux]
     libc: [musl]
 
-  '@octane-xplat/fmt-win32-arm64@0.1.0':
-    resolution: {integrity: sha512-6WTuXJW2/5+HG0OFOK03cLUgIzzoQOqw5SrNNnD04PpeG6z9TT5eQk9eVESlO+8lwf85eLYy5xrdtxdz05wM9w==}
+  '@octane-xplat/fmt-win32-arm64@0.1.1':
+    resolution: {integrity: sha512-N2A/0injv5mA2k6i8HG0uuwePGsU4upjCMBe+CZm7mYRqoo9aQ85p94rTJQ/hNhYb9bbVXgzQSedSBW/dFIG/A==}
     cpu: [arm64]
     os: [win32]
 
-  '@octane-xplat/fmt-win32-x64@0.1.0':
-    resolution: {integrity: sha512-fxslFnHffqkXvT8AVGfY5Xt1Ej/hgSZRA7hKFV+u9XjJUunwZfDBzb+af+z5NncC08GuUEjBkEWnh8T+HT4eNg==}
+  '@octane-xplat/fmt-win32-x64@0.1.1':
+    resolution: {integrity: sha512-b1gjPIz2dAmmo7Knb/+9LovL5zA+3Hu1MlNeBCzT1xBmhBB3L67MWbwWfGMmaJ91ZHQRiZSErzSN/M1d9IRR6w==}
     cpu: [x64]
     os: [win32]
 
-  '@octane-xplat/fmt@0.1.0':
-    resolution: {integrity: sha512-qwJgl0ZPHBeZ4evrdiP7j0ohSOJb/NqNThw54d+EgxLiqKUlyEzmcrZRSR2CR6UJvix67GwnbKqVZ82eguYQAQ==}
+  '@octane-xplat/fmt@0.1.1':
+    resolution: {integrity: sha512-mAWTTM1WBzth8u/x2gG96TIPerAyeb/r6dog5pBxNU4XUxuX18hk8mP8brqH+CaAKw3zx8KFVkYGDexq2rScGQ==}
     engines: {node: '>=18'}
 
   '@octane-xplat/nativescript-mason-core@1.0.0-beta.5':
@@ -14063,40 +14063,40 @@ snapshots:
 
   '@nstudio/nativescript-exoplayer@6.2.0': {}
 
-  '@octane-xplat/fmt-darwin-arm64@0.1.0':
+  '@octane-xplat/fmt-darwin-arm64@0.1.1':
     optional: true
 
-  '@octane-xplat/fmt-darwin-x64@0.1.0':
+  '@octane-xplat/fmt-darwin-x64@0.1.1':
     optional: true
 
-  '@octane-xplat/fmt-linux-arm64-gnu@0.1.0':
+  '@octane-xplat/fmt-linux-arm64-gnu@0.1.1':
     optional: true
 
-  '@octane-xplat/fmt-linux-arm64-musl@0.1.0':
+  '@octane-xplat/fmt-linux-arm64-musl@0.1.1':
     optional: true
 
-  '@octane-xplat/fmt-linux-x64-gnu@0.1.0':
+  '@octane-xplat/fmt-linux-x64-gnu@0.1.1':
     optional: true
 
-  '@octane-xplat/fmt-linux-x64-musl@0.1.0':
+  '@octane-xplat/fmt-linux-x64-musl@0.1.1':
     optional: true
 
-  '@octane-xplat/fmt-win32-arm64@0.1.0':
+  '@octane-xplat/fmt-win32-arm64@0.1.1':
     optional: true
 
-  '@octane-xplat/fmt-win32-x64@0.1.0':
+  '@octane-xplat/fmt-win32-x64@0.1.1':
     optional: true
 
-  '@octane-xplat/fmt@0.1.0':
+  '@octane-xplat/fmt@0.1.1':
     optionalDependencies:
-      '@octane-xplat/fmt-darwin-arm64': 0.1.0
-      '@octane-xplat/fmt-darwin-x64': 0.1.0
-      '@octane-xplat/fmt-linux-arm64-gnu': 0.1.0
-      '@octane-xplat/fmt-linux-arm64-musl': 0.1.0
-      '@octane-xplat/fmt-linux-x64-gnu': 0.1.0
-      '@octane-xplat/fmt-linux-x64-musl': 0.1.0
-      '@octane-xplat/fmt-win32-arm64': 0.1.0
-      '@octane-xplat/fmt-win32-x64': 0.1.0
+      '@octane-xplat/fmt-darwin-arm64': 0.1.1
+      '@octane-xplat/fmt-darwin-x64': 0.1.1
+      '@octane-xplat/fmt-linux-arm64-gnu': 0.1.1
+      '@octane-xplat/fmt-linux-arm64-musl': 0.1.1
+      '@octane-xplat/fmt-linux-x64-gnu': 0.1.1
+      '@octane-xplat/fmt-linux-x64-musl': 0.1.1
+      '@octane-xplat/fmt-win32-arm64': 0.1.1
+      '@octane-xplat/fmt-win32-x64': 0.1.1
 
   '@octane-xplat/nativescript-mason-core@1.0.0-beta.5(@nativescript/core@9.1.3(patch_hash=5aef06c2379d66b40bd7d65dfb6e47db1b26ff1a409112e26bcb22a50a02b15f))':
     dependencies:

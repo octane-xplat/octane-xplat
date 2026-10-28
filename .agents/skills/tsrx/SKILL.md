@@ -66,6 +66,30 @@ Use templates as expressions, directly inside JSX layout, or as function bodies.
 const card = <section>@{ <p>Trip summary</p> }</section>
 ```
 
+When `@octane-xplat/fmt` 0.1.1 reports `TSRX_LIFT` for a multiline fragment
+initializer in an `@{}` function, parenthesize that initializer. The formatter
+currently rejects the unparenthesized form before `@if`; see the
+[verified limitation](../../docs/toolchain.md#tsrx-fragment-initializers-in-the-formatter).
+
+```tsrx
+function Example(props: { visible: boolean }) @{
+  const content = (
+    <>
+      <button>Choose</button>
+    </>
+  )
+
+  @if (props.visible) {
+    <div>{content}</div>
+  }
+}
+```
+
+Keep the native `Tabs.tsrx` return block's formatter directive until the
+[synthetic key diagnostic limitation](../../docs/toolchain.md#formatting-can-expose-synthetic-tsrx-key-diagnostics)
+is resolved. Do not remove `@for` keys or add component props to suppress
+compiler-generated `key` errors.
+
 ## JSX Conveniences
 
 - JS comments may appear directly in JSX: `// ...` and `/* ... */`.

@@ -31,6 +31,25 @@ test('fmt writes changes, then check is clean', (t) => {
 	assert.equal(run(['fmt', '--check'], dir).status, 0)
 })
 
+test('fmt preserves ambient declaration mode for TypeScript declaration files', (t) => {
+	const files = Object.fromEntries(
+		['d.ts', 'd.mts', 'd.cts'].map((extension) => [
+			`types/contracts.${extension}`,
+			'export const contract:{value:string}\n',
+		]),
+	)
+	const dir = app(t, files)
+	const result = run(['fmt'], dir)
+	assert.equal(result.status, 0, result.stderr)
+	for (const path of Object.keys(files)) {
+		assert.equal(
+			readFileSync(join(dir, path), 'utf8'),
+			'export const contract: { value: string }\n',
+		)
+	}
+	assert.equal(run(['fmt', '--check'], dir).status, 0)
+})
+
 test('fmt --stdin-filepath formats stdin to stdout without writing', (t) => {
 	const dir = app(t, { 'src/a.ts': MESSY })
 	const out = run(['fmt', '--stdin-filepath', 'src/a.ts'], dir, MESSY)

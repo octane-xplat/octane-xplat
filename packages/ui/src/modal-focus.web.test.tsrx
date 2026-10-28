@@ -90,12 +90,12 @@ describe('modal focus isolation', () => {
 
 function ModalPopover(props: { sheet?: boolean; popover: boolean; closePopover: () => void; closeModal: () => void }) @{
 	const anchor = useRef<HTMLButtonElement | null>(null)
-	const content = <>
+	const content = (<>
 		<button ref={anchor} id="popover-anchor">Choose</button>
 		<Popover anchor={anchor} open={props.popover} onDismiss={props.closePopover}>
 			<button id="popover-option">Option</button>
 		</Popover>
-	</>
+	</>)
 	@if (props.sheet) {
 		<BottomSheet isOpen label="Owner" onOpenChange={props.closeModal}>{content}</BottomSheet>
 	} @else {
