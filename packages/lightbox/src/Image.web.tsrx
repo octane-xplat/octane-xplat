@@ -301,7 +301,7 @@ export function Image(props: LightboxImageProps) {
 				break
 			}
 			case 'track':
-				// Web paging is scroll-snap's; the self-drawn track is native-only (Phase 3+).
+				ctx.viewport.current?.track(c.phase, c.dx, c.vx)
 				break
 		}
 	}
@@ -327,8 +327,12 @@ export function Image(props: LightboxImageProps) {
 		let moved = false
 		let down: XY | null = null
 		let downPointer = ''
+		let mouseOrigin: XY | null = null
 		const send = (i: Intent) => {
-			for (const c of machine.send(i)) exec(c)
+			for (const c of machine.send(i)) {
+				// Touch and trackpad paging retain the browser's native scroll-snap.
+				if (c.kind !== 'track' || downPointer === 'mouse') exec(c)
+			}
 		}
 		const velocity = (): XY => {
 			const now = performance.now()
@@ -358,6 +362,7 @@ export function Image(props: LightboxImageProps) {
 			if (pointers.size === 1) {
 				down = { x: e.clientX, y: e.clientY }
 				downPointer = e.pointerType || 'touch'
+				mouseOrigin = downPointer === 'mouse' ? slideOrigin() : null
 				moved = false
 				moves.length = 0
 				moves.push({ t: performance.now(), p: { x: e.clientX, y: e.clientY } })
@@ -401,6 +406,7 @@ export function Image(props: LightboxImageProps) {
 				detector.up(atSlide, pointer, waitForDouble, (i) => send(i))
 			}
 			down = null
+			mouseOrigin = null
 		}
 		const insideImage = (cx2: number, cy2: number) => {
 			const r = el.getBoundingClientRect()
@@ -412,7 +418,9 @@ export function Image(props: LightboxImageProps) {
 			return { x: r.left + s.clientLeft, y: r.top + s.clientTop }
 		}
 		const toSlide = (cx2: number, cy2: number): XY => {
-			const o = slideOrigin()
+			// The slide moves under a captured mouse pointer while paging. Keep
+			// its original coordinate space so scroll displacement isn't added twice.
+			const o = mouseOrigin ?? slideOrigin()
 			return { x: cx2 - o.x, y: cy2 - o.y }
 		}
 

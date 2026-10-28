@@ -1,6 +1,6 @@
 /* eslint-disable xplat/no-dom-globals — evaluate bodies run in the browser */
 // Browser-synthesized input coverage for the web lightbox. Serves the fixture
-// with vite dev, drives Chromium via Playwright; asserts geometry numerically.
+// with vite dev, drives one Playwright browser; asserts geometry numerically.
 import { chromium, firefox, webkit } from 'playwright'
 import { spawn } from 'node:child_process'
 import path from 'node:path'
@@ -16,11 +16,12 @@ const check = (name, actual, expected) => {
 }
 const near = (expected, tol = 1) => (v) => typeof v === 'number' && Math.abs(v - expected) <= tol
 
-const viteBin = path.join(path.dirname(fileURLToPath(import.meta.url)), '../node_modules/.bin/vite')
-const server = spawn(viteBin, [], { cwd: fixture, stdio: 'pipe' })
 const browserName = process.env.XPLAT_WEB_BROWSER ?? 'chromium'
 const browserType = { chromium, firefox, webkit }[browserName]
 if (!browserType) { throw new Error(`Unsupported XPLAT_WEB_BROWSER: ${browserName}`) }
+const viteBin = path.join(path.dirname(fileURLToPath(import.meta.url)), '../node_modules/.bin/vite')
+const server = spawn(viteBin, [], { cwd: fixture, stdio: 'pipe' })
+let browser
 const cdpOnly = (name) => { if (browserName !== 'chromium') { results.push({ name, pass: true, skipped: true }); console.log(`skipped (CDP-only): ${name}`); return true } return false }
 server.stdout.on('data', (c) => process.env.DEBUG_E2E && process.stdout.write(c))
 server.stderr.on('data', (c) => process.env.DEBUG_E2E && process.stderr.write(c))
@@ -32,7 +33,7 @@ const ready = new Promise((res, rej) => {
 
 try {
 	await ready
-	const browser = await browserType.launch()
+	browser = await browserType.launch()
 	const page = await browser.newPage({ viewport: { width: 800, height: 600 } })
 	page.on('pageerror', (e) => results.push({ name: 'pageerror', pass: false, actual: String(e) }))
 	page.on('console', (m) => { if (m.type() === 'error') {results.push({ name: 'console.error', pass: false, actual: m.text() })} })
@@ -53,6 +54,42 @@ try {
 	check('open morph: fitted height', imgRect?.height, near(600))
 	check('open morph: no clip after settle', await cur(page).evaluate((el) => el.style.clipPath), (v) => v === 'none' || v === '')
 	check('trigger hidden during open', await page.locator('.vx-lightbox-trigger').nth(0).locator('img').evaluate((el) => getComputedStyle(el).visibility), 'hidden')
+
+	// Mouse paging uses the shared spring; touch keeps browser scroll-snap.
+	const currentLabel = () => page.locator('[data-lightbox-slide][data-current]').getAttribute('aria-label')
+	const viewport = page.locator('.vx-lightbox-viewport')
+	await page.mouse.move(700, 300)
+	await page.mouse.down()
+	for (let i = 1; i <= 12; i++) { await page.mouse.move(700 - i * 42, 300); await page.waitForTimeout(40) }
+	check('mouse drag keeps origin slide active until release', await currentLabel(), '1 of 3')
+	await page.waitForTimeout(200)
+	await page.mouse.up()
+	await page.waitForTimeout(1200)
+	check('slow mouse drag past half pages', await currentLabel(), '2 of 3')
+	check('mouse drag restores scroll snap', await viewport.evaluate((el) => el.style.scrollSnapType), 'x mandatory')
+	check('slow mouse drag settles at one slide', await viewport.evaluate((el) => el.scrollLeft), near(800))
+	await page.keyboard.press('ArrowLeft')
+	await page.waitForFunction(() => document.querySelector('.vx-lightbox-viewport').scrollLeft < 1)
+
+	await page.mouse.move(600, 300)
+	await page.mouse.down()
+	for (let i = 1; i <= 4; i++) { await page.mouse.move(600 - i * 40, 300); await page.waitForTimeout(12) }
+	await page.mouse.up()
+	await page.waitForTimeout(1200)
+	check('short fast mouse flick pages', await currentLabel(), '2 of 3')
+	check('mouse flick restores scroll snap', await viewport.evaluate((el) => el.style.scrollSnapType), 'x mandatory')
+
+	await page.mouse.dblclick(400, 300)
+	await page.waitForTimeout(600)
+	await page.mouse.move(400, 300)
+	await page.mouse.down()
+	await page.mouse.move(200, 300, { steps: 10 })
+	await page.mouse.up()
+	await page.waitForTimeout(600)
+	check('zoomed mouse drag keeps the slide', await currentLabel(), '2 of 3')
+	check('zoomed mouse drag pans the image', await cur(page).evaluate((el) => /translate\((-?[\d.]+)px/.exec(el.style.transform)?.[1] ?? '0'), (v) => Math.abs(parseFloat(v)) > 10)
+	await page.keyboard.press('ArrowLeft')
+	await page.waitForTimeout(500)
 
 	// --- keyboard nav advances index ---
 	await page.keyboard.press('ArrowRight')
@@ -229,12 +266,15 @@ try {
 	if (skipped.length) {console.log(`${skipped.length} skipped (CDP-only)`)}
 	console.log(`\n[${browserName}] ${results.length - failed.length - skipped.length}/${results.length - skipped.length} checks passed`)
 	for (const r of results) {console.log(`${r.pass ? 'PASS' : 'FAIL'} ${r.name} → ${JSON.stringify(r.actual)}`)}
-	await browser.close()
-	server.kill()
-	process.exit(failed.length ? 1 : 0)
+	process.exitCode = failed.length ? 1 : 0
 } catch (e) {
 	console.error(e)
 	for (const r of results) {console.log(`${r.pass ? 'PASS' : 'FAIL'} ${r.name} → ${JSON.stringify(r.actual)}`)}
-	server.kill()
-	process.exit(1)
+	process.exitCode = 1
+} finally {
+	try {
+		await browser?.close()
+	} finally {
+		server.kill()
+	}
 }

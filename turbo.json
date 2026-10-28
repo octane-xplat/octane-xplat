@@ -55,6 +55,13 @@
 			"dependsOn": ["^typegen", "^build"],
 			"outputs": []
 		},
+		// Browser input/geometry checks run locally, outside the PR checks job.
+		"@octane-xplat/lightbox#test:e2e": {
+			"dependsOn": ["^typegen", "^build"],
+			"env": ["XPLAT_WEB_BROWSER"],
+			"passThroughEnv": ["DEBUG_E2E"],
+			"cache": false
+		},
 		"test:macos": {
 			"dependsOn": ["^typegen"],
 			"outputs": []

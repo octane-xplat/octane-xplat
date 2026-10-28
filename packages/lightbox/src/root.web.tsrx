@@ -10,7 +10,7 @@ import { clamp } from './math'
 import type { Rect, Visual } from './math'
 import { reduce } from './state'
 import type { RootAction, RootEffect, RootState } from './state'
-import { CLOSE, FADE, OPEN, REDUCED } from './constants'
+import { CLOSE, FADE, OPEN, REDUCED, SETTLE } from './constants'
 import type { Transition } from '@octane-xplat/motion'
 import { lockScroll, thumbImg, visibleFraction } from './web-dom.web'
 import type { LightboxMedia, LightboxPartProps, LightboxRootProps, LightboxSlidePartProps, LightboxTapEvent, LightboxTriggerPartProps, UseLightboxState } from './props'
@@ -26,6 +26,7 @@ export interface ViewportController {
 	goTo(index: number, behavior: 'auto' | 'instant' | 'smooth'): void
 	freeze(index: number): void
 	fade(from: number, to: number): Promise<void>
+	track(phase: 'start' | 'move' | 'end', dx: number, vx: number): void
 }
 
 interface CtxOptions {
@@ -492,21 +493,40 @@ export function Viewport(props: LightboxPartProps) {
 	const ctx = useLightboxCtx()
 	const ref = useRef<HTMLDivElement | null>(null)
 	const count = ctx.items.length
-	const { viewport, onScrollIndex } = ctx
+	const { viewport } = ctx
+	// Publishing a fractional scroll can change the current index. Keep the
+	// listener stable so that update does not remount and re-snap the scroller.
+	const onScrollIndex = useRef(ctx.onScrollIndex)
+	onScrollIndex.current = ctx.onScrollIndex
 	const { progress, reducedMotion } = ctx
 	const fadeP = useMotionValue(0)
+	const trackP = useMotionValue(0)
 
 	useLayoutEffect(() => {
 		const el = ref.current
 		if (!el) return
 		// Held while a crossfade has moved a slide out of place: measuring then would include its transform.
 		let fixedStride: number | null = null
+		let dragStart: number | null = null
+		let originalSnap: string | null = null
+		let snapping: { stop(): void } | null = null
+		const restoreSnap = () => {
+			if (originalSnap !== null) el.style.scrollSnapType = originalSnap
+			originalSnap = null
+		}
+		const stopTrack = () => {
+			dragStart = null
+			snapping?.stop()
+			snapping = null
+			restoreSnap()
+		}
 		const stride = () => {
 			if (fixedStride !== null) return fixedStride
 			const [a, b] = el.children as unknown as HTMLElement[]
 			return a && b ? b.getBoundingClientRect().left - a.getBoundingClientRect().left : el.clientWidth
 		}
 		const to = (i: number, behavior: 'auto' | 'instant' | 'smooth') => {
+			stopTrack()
 			const left = clamp(i, 0, count - 1) * stride()
 			if (typeof el.scrollTo === 'function') el.scrollTo({ left, behavior })
 			else el.scrollLeft = left
@@ -514,6 +534,37 @@ export function Viewport(props: LightboxPartProps) {
 		let fading: { finish(): void } | null = null
 		viewport.current = {
 			goTo: to,
+			track(phase, dx, vx) {
+				if (phase === 'start') {
+					stopTrack()
+					dragStart = el.scrollLeft
+					originalSnap = el.style.scrollSnapType
+					el.style.scrollSnapType = 'none'
+					el.scrollTo?.({ left: dragStart, behavior: 'instant' })
+				} else if (dragStart !== null) {
+					el.scrollLeft = dragStart - dx
+					if (phase === 'move') return
+					dragStart = null
+					const width = stride()
+					const index = clamp(Math.round((el.scrollLeft - 0.2 * vx) / width), 0, count - 1)
+					const target = index * width
+					trackP.jump(el.scrollLeft)
+					const off = trackP.on('change', (left: number) => { el.scrollLeft = left })
+					const animation = trackP.animate(target, reducedMotion ? REDUCED : { ...SETTLE, velocity: -vx })
+					const playback = { stop() { off(); animation.stop() } }
+					snapping = playback
+					void animation.finished.then((result) => {
+						off()
+						if (snapping !== playback) return
+						snapping = null
+						restoreSnap()
+						if (result !== 'finished') return
+						el.scrollLeft = target
+						progress.set(index)
+						onScrollIndex.current(index)
+					})
+				}
+			},
 			// Not 'instant': Chromium lets an in-flight smooth scroll override an instant one on the next
 			// frame; a smooth scroll to the current slide replaces it cleanly.
 			freeze: (i) => to(i, reducedMotion ? 'auto' : 'smooth'),
@@ -564,15 +615,17 @@ export function Viewport(props: LightboxPartProps) {
 		const onScroll = () => {
 			const p = el.scrollLeft / stride()
 			if (!fading) progress.set(p)
-			onScrollIndex(clamp(Math.round(p), 0, count - 1))
+			// Keep the originating slide active until its mouse gesture settles.
+			if (dragStart === null && !snapping) onScrollIndex.current(clamp(Math.round(p), 0, count - 1))
 		}
 		el.addEventListener('scroll', onScroll, { passive: true })
 		return () => {
 			fading?.finish()
 			el.removeEventListener('scroll', onScroll)
+			stopTrack()
 			viewport.current = null
 		}
-	}, [viewport, onScrollIndex, count, progress, reducedMotion])
+	}, [viewport, onScrollIndex, count, progress, reducedMotion, trackP])
 
 	return (
 		<div
