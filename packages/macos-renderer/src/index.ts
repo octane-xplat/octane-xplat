@@ -864,6 +864,8 @@ class AccessibleHostView extends NSView {
 		if (role === 'adjustable') return 'AXSlider'
 		if (role === 'link') return 'AXLink'
 		if (role === 'radiogroup') return 'AXRadioGroup'
+		if (role === 'listbox') return 'AXList'
+		if (role === 'option') return 'AXRow'
 		if (role === 'button' && typeof stackAccessibilityPropsByView.get(this)?.accessibilityState?.pressed === 'boolean') {
 			return 'AXCheckBox'
 		}
@@ -6481,14 +6483,37 @@ function applyAccessibility(node: ElementNode, name: string, value: any) {
 	if (['textfield', 'textview', 'searchbar'].includes(node.type)) {
 		if (name === 'accessibilityLabel') {
 			node.view!.setAccessibilityLabel?.(String(value ?? ''))
+		} else if (name === 'accessibilityRole') {
+			const view = node.view!
+			if (node.nativeTextRole && node.nativeTextRole.view !== view) {
+				node.nativeTextRole.view.accessibilityRole = node.nativeTextRole.original
+				node.nativeTextRole = undefined
+			}
+			if (value === 'combobox') {
+				node.nativeTextRole ??= { view, original: view.accessibilityRole }
+				view.accessibilityRole = 'AXComboBox'
+			} else if (node.nativeTextRole) {
+				view.accessibilityRole = node.nativeTextRole.original
+				node.nativeTextRole = undefined
+			}
+		} else if (name === 'accessibilityState') {
+			const view = node.view!
+			if (node.type === 'textview') view.setAccessibilityEnabled?.(value?.disabled !== true)
+			if (node.nativeTextExpanded && node.nativeTextExpanded.view !== view) {
+				node.nativeTextExpanded.view.accessibilityExpanded = node.nativeTextExpanded.original
+				node.nativeTextExpanded = undefined
+			}
+			if (typeof value?.expanded === 'boolean') {
+				node.nativeTextExpanded ??= { view, original: view.accessibilityExpanded }
+				view.accessibilityExpanded = value.expanded
+			} else if (node.nativeTextExpanded) {
+				view.accessibilityExpanded = node.nativeTextExpanded.original
+				node.nativeTextExpanded = undefined
+			}
 		} else if (name === 'accessibilityHint') {
 			node.view!.setAccessibilityHint?.(String(value ?? ''))
 		} else if (name === 'accessible') {
 			node.view!.setAccessibilityElement?.(value !== false)
-		} else if (name === 'accessibilityState' && node.type === 'textview') {
-			// NSTextField reports AX enabled through its `enabled` flag;
-			// NSTextView has no enabled state, so it is mirrored here.
-			node.view!.setAccessibilityEnabled?.(value?.disabled !== true)
 		}
 	}
 }

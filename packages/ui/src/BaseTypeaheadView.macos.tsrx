@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from './style-merge'
-import { useCallback, useContext, useLayoutEffect, useMemo, useRef } from 'octane'
+import { useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef } from 'octane'
 import type { NSTextField, NSView } from '@octane-xplat/platform/macos'
 import { appKitTextChange } from './appkit-events.macos'
 import type { SearchableItem } from './props'
@@ -12,16 +12,18 @@ import { ActivityIndicator } from './controls.macos.tsrx'
 import { BusyLaneContext } from './busy-lane'
 import { groupTypeaheadItems } from './typeahead-source'
 import { createAppKitTypeaheadKeys } from './typeahead-keys.macos'
+import { createAppKitTypeaheadAccessibility } from './typeahead-accessibility.macos'
 
 /** AppKit presentation with stable input attachment and field-leave blur.
- * Keyboard intents retain input focus; native listbox relationships remain a gap. */
+ * Keyboard intents retain input focus; AX roles/links follow pending highlight.
+ * Native accessibility behavior and announcements remain unqualified. */
 export function BaseTypeaheadView<T extends SearchableItem>(
 	props: BaseTypeaheadViewProps<T>,
 ) @{
 	const busyLane = useContext(BusyLaneContext)
 	const groups = groupTypeaheadItems(props.results, { ungroupedFirst: true })
 	const selectedId = props.value?.id
-	const bindInput = useCallback((view: NSTextField | null) => { props.inputRef.current = view }, [props.inputRef])
+	const bindInput = useCallback((view: NSTextField | null) => { props.inputRef.current = view; accessibility.update() }, [props.inputRef])
 	const activeIndex =
 		props.highlightedIndex >= 0 && props.highlightedIndex < props.results.length
 			? props.highlightedIndex
@@ -29,11 +31,21 @@ export function BaseTypeaheadView<T extends SearchableItem>(
 
 	const live = useRef(props); live.current = props
 	const rows = useRef(new Map<string, { view: NSView }>())
+	const list = useRef<NSView | null>(null)
+	const accessibility = useMemo(() => createAppKitTypeaheadAccessibility(() => {
+		const current = live.current, active = current.results[current.highlightedIndex]
+		return { input: current.inputRef.current, list: list.current, active: active ? rows.current.get(active.id)?.view ?? null : null,
+			open: current.open, blocked: !!current.isDisabled || !!current.isReadOnly }
+	}), [])
+	const bindList = useCallback((view: NSView | null) => { list.current = view; accessibility.update() }, [])
+	useLayoutEffect(() => accessibility.update(), null)
+	useEffect(() => () => accessibility.dispose(), [])
 	const bindRow = (id: string) => {
 		let lease: { view: NSView } | undefined
 		return (view: NSView | null) => {
 			if (view) { lease = { view }; rows.current.set(id, lease) }
 			else if (rows.current.get(id) === lease) rows.current.delete(id)
+			accessibility.update()
 		}
 	}
 	const keys = useMemo(() => createAppKitTypeaheadKeys<T>({
@@ -76,7 +88,8 @@ export function BaseTypeaheadView<T extends SearchableItem>(
 			accessibilityHint={props.accessibilityHint}
 			isEnabled={!props.isDisabled || !!props.isFocusableDisabled}
 			editable={!props.isDisabled && !props.isReadOnly}
-			accessibilityState={{ disabled: props.isDisabled, readonly: props.isReadOnly }}
+			accessibilityRole="combobox"
+			accessibilityState={{ disabled: props.isDisabled, readonly: props.isReadOnly, expanded: props.open && !props.isDisabled && !props.isReadOnly }}
 			onTextChange={appKitTextChange(props.onQueryChange)}
 		/>
 		{props.isSearching && busyLane == null ? (
@@ -92,6 +105,8 @@ export function BaseTypeaheadView<T extends SearchableItem>(
 		>
 			<masonview
 				className="vx-typeahead-list"
+				ref={bindList} accessibilityRole="listbox"
+				accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label ?? 'Suggestions'}
 				style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}
 			>
 				{props.results.length === 0 && props.hasSearched ? (
@@ -118,7 +133,8 @@ export function BaseTypeaheadView<T extends SearchableItem>(
 								isSelected && 'vx-typeahead-option--selected',
 							)}
 							onTap={() => props.onSelect(item)}
-							accessibilityState={{ selected: isSelected }}
+							accessibilityRole="option" accessibilityLabel={item.label}
+							accessibilityState={{ selected: index === activeIndex, disabled: props.isDisabled, readonly: props.isReadOnly }}
 							style={mergeStyle(
 								{ flexDirection: 'row', alignItems: 'center' },
 								{ display: 'flex' },

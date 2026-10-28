@@ -666,8 +666,8 @@ Fourteen object-driver cases and a [manual fixture](../../examples/probes/typeah
 are authored, all unrun. Source/fake dispatch does not qualify actual field-editor
 focus/blur, IME, click ordering, inline layout, keyboard option navigation,
 listbox accessibility or packaged imports. Keyboard selection/consumer keydown
-now have a separate source path below; active-option relationships and result
-announcements remain gaps. The
+now have a separate source path below. Native role/link wiring also follows
+below; result announcements and full AX qualification remain open. The
 AppKit typeahead result host remains separate from the general native Popover.
 
 
@@ -716,8 +716,9 @@ Seven policy and five object-driver cases plus the
 [manual key fixture](../../examples/probes/typeahead-keys.macos.tsrx) are authored,
 all unrun. These establish source intent only. Real field-editor/IME/repeat,
 modifier delivery, Tab/layer ordering, native highlight reveal and packaging
-remain unqualified. Results remain inline; listbox/active-option accessibility
-and announcements remain gaps. Tokenizer's separate AppKit Backspace wiring
+remain unqualified. Results remain inline; the native role/link source subset
+follows below, while full accessibility and announcements remain unqualified.
+Tokenizer's separate AppKit Backspace wiring
 is described below.
 
 ## Remove AppKit tokens with empty-input Backspace
@@ -775,3 +776,34 @@ require the AppKit renderer's new overflow clipping path; native drawing,
 resizing, text sizing, focus/IME, hit-testing, accessibility and packaging remain
 unqualified. AppKit's Tokenizer layer still renders inline through its current
 surface implementation; this does not establish floating-layer parity.
+
+## Expose AppKit suggestion roles and relationships
+
+AppKit BaseTypeahead now declares an editable combo box, a suggestion list and
+named option rows. Typeahead and Tokenizer inherit this result view. Native
+pending selection follows the highlighted suggestion; it does not replace your
+controlled value before `onChange`. Closed or blocked lists release their links,
+and removed/replaced rows cannot remain the active native selection.
+
+```tsx
+import { useState } from 'octane'
+import { BaseTypeahead, createStaticSource } from '@octane-xplat/ui'
+import type { SearchableItem } from '@octane-xplat/ui'
+const source = createStaticSource([{ id: 'ada', label: 'Ada' }, { id: 'grace', label: 'Grace' }])
+export function AccessiblePeopleSearch() {
+	const [person, setPerson] = useState<SearchableItem | null>(null)
+	return <BaseTypeahead searchSource={source} value={person} onChange={setPerson}
+		hasEntriesOnFocus accessibilityLabel="Choose a person" />
+}
+```
+
+Four renderer cases, ten [relationship cases](../../packages/ui/src/typeahead-accessibility.macos.test.ts),
+five [view cases](../../packages/ui/src/typeahead-accessibility.macos.mobile.test.tsrx)
+and a [manual fixture](../../examples/probes/typeahead-accessibility.macos.tsrx)
+are authored, all unrun. The inline input/list must share a native window.
+Previous native links and selection metadata are restored on close, blocking,
+replacement or teardown. Selected-children notifications are requested when the
+highlighted native row changes; this does not establish spoken announcements.
+Native AX hierarchy, VoiceOver navigation/announcements, editor focus/IME,
+notification ordering and packaging still need qualification. No floating-result
+host or broader Selector/preset accessibility support is established here.

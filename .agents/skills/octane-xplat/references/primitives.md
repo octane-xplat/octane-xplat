@@ -1613,8 +1613,8 @@ field-leave blur, ref replacement, blocking and teardown cancel requests; late
 responses cannot reopen. Query/selection callbacks claim before reentry and
 resolve current result identities. Fourteen object-driver cases and the manual
 fixture are unrun. Results remain inline; keyboard intents have the source path
-below. IME/editor/blur/click ordering, native listbox/active-option relationships,
-announcements and packaging remain gaps or unqualified. See [AppKit typeahead](../../../../docs/app/search-selection.md#bootstrap-appkit-typeahead-results-on-focus).
+below. Native role/link source wiring now follows separately; IME/editor/blur/
+click ordering, full AX behavior, announcements and packaging remain unqualified. See [AppKit typeahead](../../../../docs/app/search-selection.md#bootstrap-appkit-typeahead-results-on-focus).
 
 
 ## AppKit typeahead input-owned keys
@@ -1639,8 +1639,8 @@ export function Person() {
 Highlight reveal uses current keyed native row leases, stays in the input's
 window and never transfers focus. Seven policy/five object-driver cases and the
 manual fixture are unrun. Native keys/IME/repeat/Tab/layer/reveal and package
-qualification remain deferred; no listbox/active-option AX or announcements are
-claimed. Tokenizer now separately wires empty-input Backspace; see its subset
+qualification remain deferred. The separate role/link source subset below does
+not qualify native AX behavior or announcements. Tokenizer now separately wires empty-input Backspace; see its subset
 below. Read the
 [key guide](../../../../docs/app/search-selection.md#choose-appkit-typeahead-results-with-keys).
 
@@ -1774,3 +1774,26 @@ fields may request focus; disabled fields do not. isLoading remains descriptive.
 Ten object-driver cases and a manual fixture are authored, unrun. Native editing,
 IME/caret/Return/clear/focus ordering, accessibility and packaging are unqualified.
 See [AppKit edit ownership](../../../../docs/app/text-entry.md#keep-appkit-text-actions-owned-by-the-current-field).
+
+## AppKit typeahead native accessibility relationships
+
+The shared AppKit result view declares combobox/listbox/option roles. The
+renderer maps editable combo boxes to AXComboBox and host list/option roles to
+AXList/AXRow, restoring specialized input role/expanded baselines when dropped.
+The private relationship owner links the current inline input/list and publishes
+the highlighted row as pending selected children on both, independently of the
+committed controlled value. It requests AXSelectedChildrenChanged for native row
+identity changes and never calls makeFirstResponder.
+
+```tsx
+<BaseTypeahead searchSource={people} value={person} onChange={setPerson}
+	hasEntriesOnFocus accessibilityLabel="Choose a person" />
+```
+
+Unrelated baseline links are preserved; close/block/ref/window changes restore
+metadata, and teardown retires queued work/observation. Hidden/foreign rows are
+excluded. Same-window inline hosting is the current subset. Four renderer, ten
+relationship and five view cases plus a manual fixture are authored, unrun.
+Do not equate roles/links/notifications with qualified VoiceOver hierarchy,
+navigation, announcements, focus/IME or packaging. This does not qualify other
+Selector/preset lists. See [the source subset](../../../../docs/app/search-selection.md#expose-appkit-suggestion-roles-and-relationships).

@@ -13,9 +13,11 @@ and the sandbox's token-entry examples. Native support remains experimental.
 
 - AC1: Connect existing focus/bootstrap and autofocus flags. Retain stable native attachment, current live handles and owned blur, native enabled/editable state and inherited blocking. Keep field-leave blur separate from moving into inline results.
 - AC2: Invalidate responses immediately on new queries before debounce, source changes, field leave, native ref replacement and teardown. Observe latest callbacks/options, request abort, current keyed selection and callback reentry; retired work cannot reopen results or act after unmount. Typeahead edit reports one query and readonly controls omit clear/edit changes.
-- AC3: Separate authored source/fake dispatch from actual native input/editor/IME/focus/blur/click/notification ordering, layout, keyboard/listbox accessibility and packaging. Separate keyboard/consumer callback source coverage from remaining AX relationships/announcements and native qualification.
+- AC3: Separate authored source/fake dispatch from actual native input/editor/IME/focus/blur/click/notification ordering, layout, keyboard/listbox accessibility and packaging. Separate keyboard/consumer callback and role/link source coverage from full AX behavior/announcements and native qualification.
 
 - AC4: Only the current input/owned editor may handle keys. Notify the consumer first and honor preventDefault/current props/ref/window/focus and reentry. Unmodified arrows/Home/End highlight without committing, Enter selects, Escape consumes only an open list, and Tab/Shift+Tab close without cancelling traversal. Preserve modified/IME editing, reveal current keyed rows without focus transfer and qualify actual OS delivery separately.
+
+- AC5: Expose native editable-combo/list/option roles, names and expanded state. Link the current same-window inline input/list and highlighted pending row independently of committed value; preserve baseline native metadata. Current row/window/visibility/blocking and teardown own cleanup. Request selected-children notifications without asserting actual VoiceOver hierarchy/announcements.
 
 ## Documentation
 
@@ -24,3 +26,5 @@ and the sandbox's token-entry examples. Native support remains experimental.
 - AC3: [Target note](../parity/appkit-progress.md#appkit-typeahead-focus-and-search-request-ownership) records exact deferred commands and remaining gates. Results retain the existing inline presentation, without claiming native popup/keyboard/AX parity.
 
 - AC4: [AppKit key guide](../../../docs/app/search-selection.md#choose-appkit-typeahead-results-with-keys), [policy](../../../packages/ui/src/typeahead-keys.macos.ts), seven [policy cases](../../../packages/ui/src/typeahead-keys.macos.test.ts), five [wiring cases](../../../packages/ui/src/typeahead-keys.macos.mobile.test.tsrx) and [manual fixture](../../../examples/probes/typeahead-keys.macos.tsrx), all unrun. Native input/repeat/IME/Tab/layer/reveal/AX and packaging remain unqualified.
+
+- AC5: [Role/link guide](../../../docs/app/search-selection.md#expose-appkit-suggestion-roles-and-relationships), [relationship owner](../../../packages/ui/src/typeahead-accessibility.macos.ts), four [renderer cases](../../../packages/macos-renderer/test/common-control-accessibility.test.ts), ten [relationship cases](../../../packages/ui/src/typeahead-accessibility.macos.test.ts), five [view cases](../../../packages/ui/src/typeahead-accessibility.macos.mobile.test.tsrx) and [manual fixture](../../../examples/probes/typeahead-accessibility.macos.tsrx), all unrun. [Target note](../parity/appkit-progress.md#appkit-typeahead-native-roles-and-relationships) records exact deferred commands and full native AX/announcement qualification limits.

@@ -4421,3 +4421,68 @@ tests/typechecks/builds, installs, OS automation, visual analysis or packaging
 ran. Native pointer/keyboard/Tab/RTL/focus/reveal/group relationships/VoiceOver,
 layout and package behavior remain unqualified. Toolbar-specific radio navigation
 remains unsupported. Evidence-gated checkboxes stay open; the goal remains active.
+
+## AppKit typeahead native roles and relationships
+
+Demand assumption: ComponentsDemo's people search and token-entry examples make
+accessible suggestions a common application flow. Selector already has a local
+AppKit keyboard/selection path; video remains a separate native placeholder.
+Source review found the typeahead view had no combo/list/option roles or native
+input/list/highlight relationships. The renderer's editable controls ignored
+accessibilityRole and expanded state, so those prerequisites are fixed first.
+
+The renderer maps native editable combobox to AXComboBox, host listbox/option to
+AXList/AXRow and explicit input expanded state to native metadata. Dropped/null
+role/expanded overrides restore each view's original metadata; replacement
+releases old owners and captures fresh baselines. Existing multiline enabled
+mirroring and other host roles remain intact.
+
+The AppKit result view now names options/list and exposes pending AX selection
+from highlight, independently of the committed controlled value/checkmark.
+A private owner links the same-window inline input/list, preserves unrelated
+baseline links and publishes the highlighted current descendant as selected
+children on both. Hidden/foreign/detached rows are excluded. Row identity changes
+request AXSelectedChildrenChanged. Close/block/ref/window changes restore
+metadata; late attachment uses scoped window-update observation. Queued work,
+partial native-write failure and teardown release ownership. No focus-changing
+API is called by this helper. Native AX hierarchy/navigation/spoken output are
+not proven by this source model; the existing inline host remains unchanged.
+
+API evidence: Apple's [selected-children property](https://developer.apple.com/documentation/appkit/nsaccessibility-c.protocol/accessibilityselectedchildren)
+represents current selected child elements; [linked UI elements](https://developer.apple.com/documentation/appkit/nsaccessibility-c.protocol/accessibilitylinkeduielements?language=objc)
+defines relationships between UI elements. Local AppKit declarations also expose
+the role/expanded/selected-children/link setters and notification constant.
+These establish API availability/meaning only, not our native tree's correctness
+or VoiceOver behavior. No third-party source was copied or dependency added.
+
+Four renderer source-slice cases, ten relationship cases and five object-driver
+view cases are authored, all unrun. They cover native role/expanded restoration,
+replacement, preserved links/current pending row, invalid visibility/window,
+late attachment/old-window detach, NSArray baselines, disposal/partial-write
+cleanup and actual view role/key/result/blocking wiring. Native metadata/views/
+observation are fake; no OS AX query occurred. The new fixture only waits/records.
+Guide/skill/recipe AC5/renderer README/feature note reconcile the subset. No public
+API shape, dependency, manifest, other-target leaf or audit snapshot changed.
+
+Only source/API/semantic review, TypeScript/TSRX syntax parsing and whitespace
+checks ran. Exact deferred commands:
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/typeahead-accessibility.macos.test.ts src/typeahead-accessibility.macos.mobile.test.tsrx src/typeahead-keys.macos.mobile.test.tsrx src/typeahead-focus.macos.mobile.test.tsrx
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/macos-renderer
+pnpm probe doctor
+pnpm probe run examples/probes/typeahead-accessibility.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm check:recipes
+```
+
+All remain deferred until explicit human authorization for this task. No package
+tests/typechecks/builds, installs, native/OS/AX automation, visual analysis or
+packaging ran. Native hierarchy, VoiceOver navigation/actions/announcements,
+editor focus/IME/notification ordering and package behavior remain unqualified.
+Selected-children notification requests do not establish live announcements or
+fully qualified combo/listbox behavior. Other Selector/preset lists, floating
+results, preset text relay, Carousel fades and video remain separate gaps.
+Checkbox mixed rollback awaits the earlier human contract choice. Evidence-gated
+checkboxes stay open; the persistent goal remains active.

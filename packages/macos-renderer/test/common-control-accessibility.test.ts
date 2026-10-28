@@ -22,7 +22,7 @@ function fixture() {
 	ids.set(view, 1)
 	const node = { type: 'masonview', view, actionId: 1, props: {} as any,
 		container: { root: { eventScope: (kind: string, callback: () => void) => { events.push(kind); callback() } } as any } }
-	return { view, exposed: AccessibleHostView.ObjCExposedMethods, node, handlers, notifications, events, forwarded, disabledFocus, tabStops, scopeFocus, set: (name: string, value: unknown) => applyAccessibility(node, name, value) }
+	return { applyAccessibility, view, exposed: AccessibleHostView.ObjCExposedMethods, node, handlers, notifications, events, forwarded, disabledFocus, tabStops, scopeFocus, set: (name: string, value: unknown) => applyAccessibility(node, name, value) }
 }
 
 test('self-drawn switch/tab/adjustable hosts expose native roles and values', () => {
@@ -222,4 +222,38 @@ test('native selected/expanded getters report parent-owned state without conflat
 	assert.equal(f.view.isAccessibilitySelected(), false); assert.equal(f.view.isAccessibilityExpanded(), false)
 	f.set('accessibilityState', undefined)
 	assert.equal(f.view.isAccessibilitySelected(), false); assert.equal(f.view.isAccessibilityExpanded(), false)
+})
+
+
+test('listbox and option hosts expose native list/row roles and current selected state', () => {
+	const f = fixture()
+	f.set('accessibilityRole', 'listbox'); assert.equal(f.view.accessibilityRole(), 'AXList')
+	f.set('accessibilityRole', 'option'); assert.equal(f.view.accessibilityRole(), 'AXRow')
+	f.set('accessibilityState', { selected: true }); assert.equal(f.view.isAccessibilitySelected(), true)
+	f.set('accessibilityState', { selected: false }); assert.equal(f.view.isAccessibilitySelected(), false)
+})
+
+test('editable combobox role restores the specialized native baseline when dropped or unsupported', () => {
+	const f = fixture(), view = { accessibilityRole: 'AXTextField' }, node: any = { type: 'textfield', view }
+	f.applyAccessibility(node, 'accessibilityRole', 'combobox'); assert.equal(view.accessibilityRole, 'AXComboBox')
+	f.applyAccessibility(node, 'accessibilityRole', undefined); assert.equal(view.accessibilityRole, 'AXTextField')
+	f.applyAccessibility(node, 'accessibilityRole', 'combobox'); f.applyAccessibility(node, 'accessibilityRole', 'unknown'); assert.equal(view.accessibilityRole, 'AXTextField')
+})
+
+test('native expanded state restores its baseline without changing multiline enabled-state mirroring', () => {
+	const f = fixture(), enabled: boolean[] = [], view = { accessibilityExpanded: true, setAccessibilityEnabled: (value: boolean) => enabled.push(value) }, node: any = { type: 'textview', view }
+	f.applyAccessibility(node, 'accessibilityState', { expanded: false, disabled: true }); assert.equal(view.accessibilityExpanded, false)
+	f.applyAccessibility(node, 'accessibilityState', { expanded: true }); assert.equal(view.accessibilityExpanded, true)
+	f.applyAccessibility(node, 'accessibilityState', { expanded: false }); f.applyAccessibility(node, 'accessibilityState', undefined); assert.equal(view.accessibilityExpanded, true)
+	assert.deepEqual(enabled, [false, true, true, true])
+})
+
+test('replacement native inputs release old role/expanded overrides and own a fresh baseline', () => {
+	const f = fixture(), previous = { accessibilityRole: 'AXTextField', accessibilityExpanded: false }, node: any = { type: 'textfield', view: previous }
+	f.applyAccessibility(node, 'accessibilityRole', 'combobox'); f.applyAccessibility(node, 'accessibilityState', { expanded: true })
+	const next = { accessibilityRole: 'AXSearchField', accessibilityExpanded: true }; node.view = next
+	f.applyAccessibility(node, 'accessibilityRole', 'combobox'); f.applyAccessibility(node, 'accessibilityState', { expanded: false })
+	assert.deepEqual(previous, { accessibilityRole: 'AXTextField', accessibilityExpanded: false })
+	f.applyAccessibility(node, 'accessibilityRole', null); f.applyAccessibility(node, 'accessibilityState', {})
+	assert.deepEqual(next, { accessibilityRole: 'AXSearchField', accessibilityExpanded: true })
 })

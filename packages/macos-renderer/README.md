@@ -1113,3 +1113,29 @@ Six source-slice style reconciliation cases and a manual fixture are authored,
 all unrun. This is source coverage, not proof of native drawing, hit-testing,
 accessibility, shadow interaction or packaged behavior. Tokenizer has a separate [native geometry source path](../../docs/app/search-selection.md#collapse-appkit-token-rows-with-native-geometry);
 its token truncation remains unqualified.
+
+### Editable combo boxes and suggestion roles
+
+The AppKit adapter now maps `combobox` on native text inputs to `AXComboBox` and
+applies explicit `accessibilityState.expanded`. Dropping either override restores
+that native view's original metadata, including specialized native roles; native
+replacement releases the old override and captures a fresh baseline. Mason hosts
+map `listbox` to `AXList` and `option` to `AXRow`; option selection uses the existing
+native selected-state getter.
+
+```tsx
+<textfield accessibilityRole="combobox" accessibilityLabel="Choose a person"
+	accessibilityState={{ expanded: true }} />
+<masonview accessibilityRole="listbox" accessibilityLabel="People">
+	<masonview accessibilityRole="option" accessibilityLabel="Ada"
+		accessibilityState={{ selected: true }} />
+</masonview>
+```
+
+Roles alone do not link the controls. The shared AppKit typeahead adds native
+linked-element and selected-children metadata for its current inline result list,
+with restoration and current-owner guards. Use the
+[typeahead component](../../docs/app/search-selection.md#expose-appkit-suggestion-roles-and-relationships)
+for that source subset. Four new renderer cases and the related UI cases are
+all unrun. Native hierarchy, VoiceOver actions/announcements, focus/IME and
+packaged behavior remain unqualified; raw role declarations do not prove support.
