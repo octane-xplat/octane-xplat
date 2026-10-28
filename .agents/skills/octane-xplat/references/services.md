@@ -217,8 +217,9 @@ export function tryWatchLinks(onURL: (url: string) => void): (() => void) | null
 `random.fill(view)` fills any `ArrayBufferView` in place. Web uses
 `crypto.getRandomValues`, iOS/macOS `SecRandomCopyBytes`, Android
 `java.security.SecureRandom`. Windows has a WinRT `CryptographicBuffer` leaf;
-check `random.supported` for binding availability. Its Windows runtime remains
-unverified; no weaker fallback exists.
+check `random.supported` for binding availability. A standalone x64 NativeScript
+DLL check passed, including a large offset byte view; app-host integration
+remains unqualified. No weaker fallback exists.
 
 ```ts
 import { random } from '@octane-xplat/platform'
@@ -388,8 +389,13 @@ The experimental [Windows file leaf](../../../../packages/files/README.md#experi
 provides text/binary I/O candidates without importing mobile picker plugins.
 Writes are temporary copies, not durable documents; release owns only those
 copies. Native Windows picking rejects as unavailable and export returns
-`unavailable`. A custom FileInput picker is app-owned. WinRT operation remains
-unqualified; do not infer attachment-dialog support from the component export.
+`unavailable`. A custom FileInput picker is app-owned. Standalone x64 NativeScript
+text/bounded-byte reads passed; app-host writes, cancellation and release remain
+unqualified. Use `OpenSequentialReadAsync` with `IInputStream.ReadAsync`:
+alpha.144 omits inherited methods on `OpenReadAsync` results, and the standalone
+`DataReader.LoadAsync` check crashed. Input-stream `Close` is also absent, so
+reclamation depends on the runtime releasing its proxy. Do not infer
+attachment-dialog support from the component export.
 
 ```ts
 import { files } from '@octane-xplat/files'

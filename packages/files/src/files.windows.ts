@@ -34,8 +34,13 @@ function encode(bytes: Uint8Array): any {
 	return Windows.Security.Cryptography.CryptographicBuffer.DecodeFromHexString(hex)
 }
 
-async function load(reader: any, count: number, signal?: AbortSignal): Promise<number> {
-	const operation = reader.LoadAsync(count)
+async function readBuffer(input: any, count: number, signal?: AbortSignal): Promise<any> {
+	const streams = Windows.Storage.Streams
+	const operation = input.ReadAsync(
+		new streams.Buffer(count),
+		count,
+		streams.InputStreamOptions.None,
+	)
 	const cancel = () => {
 		try {
 			operation.Cancel?.()
@@ -48,7 +53,7 @@ async function load(reader: any, count: number, signal?: AbortSignal): Promise<n
 	try {
 		const result = await NSWinRT.toPromise(operation)
 		throwIfAborted(signal)
-		return Number(result)
+		return result
 	} catch (error) {
 		throwIfAborted(signal)
 		throw error
@@ -65,24 +70,28 @@ async function readBytes(ref: FileRef, options: FileReadBytesOptions = {}): Prom
 	throwIfAborted(signal)
 	const file = await NSWinRT.toPromise(Windows.Storage.StorageFile.GetFileFromPathAsync(ref.uri))
 	throwIfAborted(signal)
-	const stream = await NSWinRT.toPromise(file.OpenReadAsync())
-	let input: any
-	let reader: any
-	try {
+	if (maxBytes != null) {
+		const properties = await NSWinRT.toPromise(file.GetBasicPropertiesAsync())
 		throwIfAborted(signal)
-		if (maxBytes != null && Number(stream.Size) > maxBytes) {
+		if (Number(properties.Size) > maxBytes) {
 			throw fileTooLarge(ref.name, maxBytes)
 		}
-
-		input = stream.GetInputStreamAt(0)
-		reader = new Windows.Storage.Streams.DataReader(input)
+	}
+	// OpenReadAsync projects IRandomAccessStreamWithContentType without inherited
+	// stream methods in alpha.144. Request IInputStream directly instead.
+	const input = await NSWinRT.toPromise(file.OpenSequentialReadAsync())
+	try {
+		throwIfAborted(signal)
 		const chunks: Uint8Array[] = []
 		let total = 0
 		while (true) {
 			throwIfAborted(signal)
 			// One sentinel byte detects a file growing past the bound mid-read.
 			const request = maxBytes == null ? CHUNK_SIZE : Math.min(CHUNK_SIZE, maxBytes - total + 1)
-			const count = await load(reader, request, signal)
+			// DataReader.LoadAsync's specialized async operation crashes the standalone
+			// alpha.144 host. IInputStream.ReadAsync uses the working buffer projection.
+			const buffer = await readBuffer(input, request, signal)
+			const count = Number(buffer.Length)
 			if (!Number.isInteger(count) || count < 0 || count > request) {
 				throw new Error('files.readBytes: invalid native read length')
 			}
@@ -96,17 +105,10 @@ async function readBytes(ref: FileRef, options: FileReadBytesOptions = {}): Prom
 				throw fileTooLarge(ref.name, maxBytes)
 			}
 
-			chunks.push(decode(reader.ReadBuffer(count), count))
+			chunks.push(decode(buffer, count))
 		}
 	} finally {
-		// Detach before closing to keep the input/parent stream ownership explicit.
-		try {
-			reader?.DetachStream()
-		} catch {}
-
-		close(reader)
 		close(input)
-		close(stream)
 	}
 }
 

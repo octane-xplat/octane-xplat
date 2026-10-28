@@ -260,3 +260,69 @@ package/dependent typecheck and actual NativeScript renderer/runtime checks
 remain deferred. Public Windows guidance and the styling skill record the
 subset. No supported downstream Windows workflow or recipe target was added;
 responsive examples already use the shared import and require no source change.
+
+## Standalone NativeScript DLL checks on windy
+
+Using the existing `@nativescript/windows@0.1.0-alpha.144` x64 DLL, a short-lived
+PowerShell process initialized the runtime, ran transpiled source, consumed the
+last-JS-error diagnostic and deinitialized it. No native build, dependency
+install, package registration or app launch was performed. Device ownership was
+reserved with `goddard-agent resource run` using `exclusive: ["device:windy"]`.
+The DLL was read from the existing experiment's
+`apps/windows/platforms/windows/libs/x64/nativescript.dll`; SHA-256:
+`748D95864AC032DE2D1BB69FEC1E5B2CDD393BAA1671E349AA670160AA66D47C`.
+
+Three focused checks passed, each exit 0 and its explicit success marker:
+
+- Random: the actual CryptographicBuffer projection filled a 70,000-byte
+  DataView spanning two chunks, preserved surrounding sentinel bytes and
+  returned the same view; a separate 32-byte request retained its length.
+  This does not statistically certify entropy. Log:
+  `research/windows61/windy-native-random.log`.
+- Input capabilities: actual mouse/touch property types, pointer-vector
+  Size/GetAt, pointer enum comparison and animation-preference projection
+  passed. The helper produced known traits. Screen was deliberately supplied
+  as a synthetic 800×600 object; no hook, geometry, resize, hotplug or UI event
+  claim follows. No hardware/preference values were logged. Log:
+  `research/windows61/windy-native-media.log`.
+- Files: the updated source read every byte of a task-owned 70,000-byte fixture
+  across 64 KiB chunks, rejected a 69,999-byte limit and read UTF-8 text including
+  a snowman. This used actual StorageFile/WinRT async operations and timer/message
+  pumping. Log: `research/windows61/windy-native-files.log`.
+
+The file probe exposed gaps hidden by the mocks. `OpenReadAsync` returned a
+projection without inherited GetInputStreamAt; the leaf now requests the input
+interface directly through OpenSequentialReadAsync. GetBasicPropertiesAsync
+supplies the initial size bound. DataReader.LoadAsync then caused an access
+violation in this standalone host after requesting the load; two isolated
+processes reproduced it. This does not establish whether the packaged WinUI
+host has the same fault. Direct IInputStream.ReadAsync with bounded Buffer
+objects passed and replaces that route. Input-stream Close is also absent in
+this projection, so explicit close remains best effort and reclamation depends
+on runtime proxy release. Deterministic handle cleanup is **not** qualified.
+Failure logs: `windy-native-files-sequential-crash.log`,
+`windy-native-files-load-crash.log`, `windy-native-files-close-projection.log`
+under `research/windows61/`. An initial fixture path used mixed separators;
+canonicalizing the task-owned Windows path resolved its earlier async-open
+error. Neither that fixture error nor the native crashes are passing evidence.
+
+Task-owned reproduction files remain on windy at
+`C:\Users\alecs\dev\octane-windows61-checks-88a67da`: `native-media-probe.ps1`,
+`native-files-probe.ps1`, and `native-smoke/random-smoke.js`. The probes inline
+transpiled repository implementations after removing imports; file-byte helpers
+are included, and media uses synthetic Screen/Application objects. They do not
+exercise production export resolution, bundling, hooks or the full app. Repeat
+one probe under a device reservation, for example:
+
+```sh
+goddard-agent resource run --json '{"resources":{"exclusive":["device:windy"]},"purpose":"Focused Windows file-read probe"}' -- ssh windy 'powershell -NoProfile -File C:/Users/alecs/dev/octane-windows61-checks-88a67da/native-files-probe.ps1'
+```
+
+After updating the stream-shaped fixture, all 19 focused mocked contracts passed
+again through the isolated Turbo task (exit 0), including read cancellation,
+size growth and cleanup where the host supplies Close. Log:
+`research/windows61/windy-direct-stream-contracts.log`. App-host writes,
+ApplicationData/package identity, cancellation, deterministic cleanup, release,
+pickers/export and production imports still need qualification. Full package
+checks and the exact deferred commands above remain deferred. No evidence-gated
+issue checkbox or supported recipe target was closed by these probes.

@@ -13,6 +13,7 @@ export function useCompactTouchLayout() {
 }
 ```
 
-Actual NativeScript hook execution and WinRT projection remain unverified;
-live device/settings changes and secondary-window behavior are unqualified.
+Standalone x64 NativeScript input/preference projection checks passed. Actual
+hook execution, live device/settings changes and secondary-window behavior
+remain unqualified.
 [Windows media-query boundary](https://github.com/octane-xplat/octane-xplat/blob/main/docs/platform/windows-setup.md#media-query-candidate)

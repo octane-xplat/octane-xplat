@@ -42,14 +42,25 @@ function fixture(bytes = new Uint8Array([1, 2, 3])) {
 			}
 			return op(undefined)
 		},
-		OpenReadAsync() {
-			const stream = {
-				Size: state.size,
-				Close: () => state.closed.push('stream'),
-				GetInputStreamAt: () => ({ position: 0, Close: () => state.closed.push('input') }),
-			}
-			return op(stream)
-		},
+		GetBasicPropertiesAsync: () => op({ Size: state.size }),
+		OpenSequentialReadAsync: () =>
+			op({
+				position: 0,
+				Close: () => state.closed.push('input'),
+				ReadAsync(buffer, count, options) {
+					assert.equal(buffer.Capacity, count)
+					assert.equal(options, 0)
+					state.reads.push(count)
+					const bytes = state.bytes.slice(this.position, this.position + count)
+					this.position += bytes.length
+					return {
+						...op({ bytes, Length: bytes.length }, 'load'),
+						Cancel() {
+							state.cancelled++
+						},
+					}
+				},
+			}),
 		OpenAsync: () =>
 			op({
 				WriteAsync(buffer) {
@@ -64,7 +75,7 @@ function fixture(bytes = new Uint8Array([1, 2, 3])) {
 		Security: {
 			Cryptography: {
 				CryptographicBuffer: {
-					EncodeToHexString: (buffer) => Buffer.from(buffer).toString('hex'),
+					EncodeToHexString: (buffer) => Buffer.from(buffer.bytes ?? buffer).toString('hex'),
 					DecodeFromHexString: (hex) => new Uint8Array(Buffer.from(hex, 'hex')),
 				},
 			},
@@ -96,31 +107,10 @@ function fixture(bytes = new Uint8Array([1, 2, 3])) {
 				},
 			},
 			Streams: {
-				DataReader: class {
-					constructor(input) {
-						this.input = input
-						this.current = new Uint8Array()
-					}
-					LoadAsync(count) {
-						state.reads.push(count)
-						this.current = state.bytes.slice(this.input.position, this.input.position + count)
-						this.input.position += this.current.length
-						return {
-							...op(this.current.length, 'load'),
-							Cancel() {
-								state.cancelled++
-							},
-						}
-					}
-					ReadBuffer(count) {
-						assert.equal(count, this.current.length)
-						return this.current
-					}
-					DetachStream() {
-						this.input = null
-					}
-					Close() {
-						state.closed.push('reader')
+				InputStreamOptions: { None: 0 },
+				Buffer: class {
+					constructor(capacity) {
+						this.Capacity = capacity
 					}
 				},
 			},
@@ -171,7 +161,7 @@ test('Windows binary reads are chunked, preserve bytes and close each owned stre
 	const { files, state } = fixture(bytes)
 	assert.deepEqual(await files.readBytes(ref), bytes)
 	assert.deepEqual(state.reads, [65536, 65536, 65536])
-	assert.deepEqual(state.closed, ['reader', 'input', 'stream'])
+	assert.deepEqual(state.closed, ['input'])
 	assert.equal(await files.readText(ref), 'line one\r\nΩ')
 })
 
@@ -179,7 +169,7 @@ test('Windows binary size bounds reject before loading oversized files and catch
 	const { files, state } = fixture()
 	await assert.rejects(files.readBytes(ref, { maxBytes: 2 }), /exceeds/)
 	assert.deepEqual(state.reads, [])
-	assert.deepEqual(state.closed, ['stream'])
+	assert.deepEqual(state.closed, [])
 	state.size = 1 // The file grew after its size was reported.
 	await assert.rejects(files.readBytes(ref, { maxBytes: 2 }), /exceeds/)
 	assert.deepEqual(state.reads, [3])
@@ -195,7 +185,7 @@ test('Windows reads cancel an active operation and close resources on abort', as
 	state.beforeLoad = () => controller.abort()
 	await assert.rejects(files.readBytes(ref, { signal: controller.signal }), { name: 'AbortError' })
 	assert.equal(state.cancelled, 1)
-	assert.deepEqual(state.closed, ['reader', 'input', 'stream'])
+	assert.deepEqual(state.closed, ['input'])
 	const already = new AbortController()
 	already.abort()
 	const other = fixture()
