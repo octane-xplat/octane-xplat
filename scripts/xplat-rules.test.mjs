@@ -54,45 +54,57 @@ for (const [label, module] of [['published lint', '../packages/lint/src/xplat-ru
 		)
 	})
 
-	test(`${label} accepts GTK framework renderer declarations without weakening app pragmas`, async () => {
+	test(`${label} requires the facade pragma on every native file and rejects retired pragmas`, async () => {
 		const { checkNativePragmaFirstLine } = await import(module)
-		const source =
-			'/** @jsxImportSource @nativescript-community/octane */\nexport function Pane() { return <masonview /> }'
-		for (const filename of [
-			'packages/ui/src/RoutePane.gtk.tsrx',
-			'/repo/packages/ui/src/RoutePane.gtk.tsrx',
-		]) {
-			assert.deepEqual(
-				checkNativePragmaFirstLine(parseModule(source, filename), source, filename),
-				[],
-			)
-		}
-		for (const filename of ['apps/demo/src/App.gtk.tsrx', 'packages/other/src/Pane.gtk.tsrx']) {
-			assert.equal(
-				checkNativePragmaFirstLine(parseModule(source, filename), source, filename).length,
-				1,
-			)
-		}
-	})
-
-	test(`${label} accepts facade and legacy native pragmas`, async () => {
-		const { checkNativePragmaFirstLine } = await import(module)
-		const filename = 'Card.mobile.tsrx'
 		const body = 'export function Card() @{ <gridlayout /> }'
-		for (const sourceName of ['@octane-xplat/jsx', '@nativescript-community/octane']) {
-			const source = `/** @jsxImportSource ${sourceName} */\n${body}`
+		// Native-suffixed files accept only the facade pragma.
+		for (const filename of [
+			'Card.mobile.tsrx',
+			'packages/ui/src/RoutePane.gtk.tsrx',
+			'Card.macos.tsrx',
+		]) {
+			const source = '/** @jsxImportSource @octane-xplat/jsx */\n' + body
 			assert.deepEqual(
 				checkNativePragmaFirstLine(parseModule(source, filename), source, filename),
 				[],
+				filename,
 			)
 		}
+		// Every retired pragma is rejected wherever it appears.
+		for (const retired of [
+			'@nativescript-community/octane',
+			'@octane-xplat/macos-renderer',
+			'octane',
+		]) {
+			const source = `/** @jsxImportSource ${retired} */\n${body}`
+			for (const filename of ['Card.mobile.tsrx', 'App.web.tsrx', 'Page.linux.tsrx']) {
+				assert.equal(
+					checkNativePragmaFirstLine(parseModule(source, filename), source, filename).length,
+					1,
+					filename + ' ' + retired,
+				)
+			}
+		}
+		// The native facade pragma on a browser file is rejected.
+		for (const filename of ['App.web.tsrx', 'Panel.linux.tsrx']) {
+			const source = '/** @jsxImportSource @octane-xplat/jsx */\n' + body
+			const failures = checkNativePragmaFirstLine(parseModule(source, filename), source, filename)
+			assert.equal(failures.length, 1, filename)
+			assert.match(failures[0].message, /@octane-xplat\/jsx\/dom/)
+		}
+		// A native file with no pragma (or a displaced one) still fails.
 		for (const prefix of [
 			'',
 			'/** @jsxImportSource @octane-xplat/jsx/dom */\n',
 			'// before\n/** @jsxImportSource @octane-xplat/jsx */\n',
 		]) {
 			const source = prefix + body
-			const failures = checkNativePragmaFirstLine(parseModule(source, filename), source, filename)
+			const failures = checkNativePragmaFirstLine(
+				parseModule(source, 'Card.mobile.tsrx'),
+				source,
+				'Card.mobile.tsrx',
+			)
+
 			assert.equal(failures.length, 1)
 			assert.match(failures[0].message, /@octane-xplat\/jsx/)
 		}
