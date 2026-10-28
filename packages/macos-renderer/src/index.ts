@@ -206,6 +206,8 @@ type PropBag = Record<string, any>
 
 /** The payload `onPan` listeners receive from `ButtonActionTarget.viewPanned`. */
 interface PanEvent {
+	x: number
+	y: number
 	deltaX: number
 	deltaY: number
 	velocityX: number
@@ -507,6 +509,8 @@ class ButtonActionTarget extends NSObject {
 
 		const translation = sender.translationInView(sender.view)
 		const velocity = sender.velocityInView(sender.view)
+		const location = sender.locationInView(sender.view)
+		const bounds = sender.view.bounds
 		const flipped = sender.view.flipped
 
 		const signY = flipped ? 1 : -1
@@ -514,6 +518,8 @@ class ButtonActionTarget extends NSObject {
 		const state = nativeState === 1 ? 1 : nativeState === 2 ? 2 : nativeState === 3 ? 3 : 0
 		try {
 			handler({
+				x: Number(location.x) - Number(bounds.origin.x),
+				y: flipped ? Number(location.y) - Number(bounds.origin.y) : Number(bounds.origin.y) + Number(bounds.size.height) - Number(location.y),
 				deltaX: Number(translation.x ?? 0),
 				deltaY: Number(translation.y ?? 0) * signY,
 				velocityX: Number(velocity.x ?? 0),

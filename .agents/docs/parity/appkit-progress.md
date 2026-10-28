@@ -1075,3 +1075,27 @@ step hit testing, keyboard activation, focus/selection, VoiceOver and packaging
 remain unqualified. formatValue is display-only and has no inverse parser.
 No native/OS automation, visual analysis, builds, typechecks, installs or shared
 audit regeneration ran; no evidence checkbox is closed.
+
+
+### Pan location prerequisite for common controls
+
+AppKit's usePan adapter previously assigned x/y from deltaX/deltaY, losing the
+pointer location needed to choose a range-slider thumb. The renderer now reads
+NSPanGestureRecognizer.locationInView and converts through the view's bounds to
+top-left logical points; translation and velocity stay independent deltas.
+The UI adapter forwards those actual x/y fields. Apple's [pan recognizer
+contract](https://developer.apple.com/documentation/appkit/nspangesturerecognizer?language=objc)
+specifies the current mouse point; the [location API](https://developer.apple.com/documentation/appkit/nsgesturerecognizer/location%28in%3A%29)
+returns the chosen view's coordinate system. These references are source evidence.
+
+Added flipped/unflipped, nonzero-bounds source cases. Syntax/whitespace only;
+regressions and real input remain unrun. Deferred commands:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer --filter=...@octane-xplat/ui
+```
+
+Actual recognizer location, gesture threshold/delta origin, nested hit testing,
+flipping/transforms and OS pan/swipe behavior remain unqualified. No Native/OS
+automation, visual analysis, builds, tests, installs or audit regeneration ran.

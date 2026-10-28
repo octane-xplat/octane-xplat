@@ -267,9 +267,11 @@ function panFixture() {
 	}
 
 	api.setPanAction(f.node)
+	f.node.view.bounds = { origin: { x: 10, y: 20 }, size: { width: 100, height: 100 } }
 	const sender = {
 		view: f.node.view,
 		state: 3,
+		locationInView: () => ({ x: 30, y: 50 }),
 		translationInView: () => ({ x: 10, y: 40 }),
 		velocityInView: () => ({ x: 2, y: 3 }),
 	}
@@ -371,4 +373,17 @@ test('JSC gesture registration makes native callbacks enumerable before registra
 	register(Callback)
 	assert.equal(registered, Callback)
 	assert.deepEqual(Object.keys(Callback.prototype), ['delivered:'])
+})
+
+
+test('pan locations use local top-down bounds independently of translation', () => {
+	const f = panFixture(), target = new f.ButtonActionTarget()
+	const points: unknown[] = []
+	f.node.props.onPan = (event) => points.push([event.x, event.y, event.deltaX, event.deltaY])
+	f.setPanAction(f.node)
+	f.node.view.flipped = false
+	target.viewPanned(f.sender)
+	f.node.view.flipped = true
+	target.viewPanned(f.sender)
+	assert.deepEqual(points, [[20, 70, 10, -40], [20, 30, 10, 40]])
 })
