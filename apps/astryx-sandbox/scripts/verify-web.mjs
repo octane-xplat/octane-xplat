@@ -65,6 +65,38 @@ page.on('console', (m) => {
 	}
 })
 
+const verifySpinnerShowcase = async () => {
+	await page.goto(baseUrl + '/templates/SpinnerShowcase/', { waitUntil: 'networkidle' })
+	const spinner = page.locator('.sb-preview-stage .vx-spinner')
+	const count = await spinner.count()
+	const role = count === 1 ? await spinner.getAttribute('role') : null
+	const dimensions =
+		count === 1
+			? await spinner.evaluate((element) => [element.style.width, element.style.height])
+			: []
+	const rendered = count === 1 && role === 'progressbar' && dimensions.join('x') === '24pxx24px'
+	check(
+		'SpinnerShowcase renders its large spinner',
+		rendered,
+		`count=${count} role=${role} size=${dimensions.join('x')}`,
+	)
+}
+
+if (process.argv.includes('--spinner-only')) {
+	try {
+		await verifySpinnerShowcase()
+		check('SpinnerShowcase no runtime errors', errors.length === 0, errors.slice(0, 3).join(' | '))
+	} finally {
+		await browser.close()
+	}
+
+	const failures = results.filter((result) => !result.pass)
+	console.log(
+		`${results.length - failures.length}/${results.length} SpinnerShowcase checks passed (${browserName})`,
+	)
+	process.exit(failures.length ? 1 : 0)
+}
+
 if (process.argv.includes('--content-chat-only')) {
 	try {
 		await verifyContentChat(page, baseUrl, check)
@@ -1226,6 +1258,8 @@ try {
 		unit11Failures === 0,
 		`${unit11Examples.length} routes, ${unit11Failures} failures`,
 	)
+
+	await verifySpinnerShowcase()
 
 	// Interaction spot checks for meaningful behavior.
 	await page.goto(baseUrl + '/templates/CollapsibleShowcase/', { waitUntil: 'networkidle' })
