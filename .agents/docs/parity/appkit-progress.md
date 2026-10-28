@@ -1262,3 +1262,42 @@ Actual row/child click delivery, keyboard activation, Tab/focus, mixed VoiceOver
 long-text/RTL layout, loading appearance and packaging remain unqualified.
 No tests, builds, installs, probes, OS automation, visual analysis or shared
 audit regeneration ran; evidence checkboxes remain open.
+
+
+### AppKit switch label activation
+
+The previous metadata slice left standalone label activation unimplemented.
+A pointer label wrapper now invokes the same toggle/save owner and requests
+focus on the actual switch. The existing renderer suppressTabStop lease keeps
+the wrapper out of sequential Tab traversal without introducing a renderer
+flag or misusing FocusScope targets. It releases exactly its own reference-counted
+claim on detach and refreshes an attached window's key-view loop. The wrapper
+is explicitly ignored as an accessibility element; its children retain their
+existing semantics. Tooltip child controls keep their own action path, but
+actual parent/child arbitration is not proven by source dispatch.
+
+The label action is enabled only when the renderer suppression function exists;
+otherwise track activation remains. Disabled/read-only/pending and hidden
+labels cannot invoke it. One state owner handles track/label requests, async
+pending and rollback; the action target/lease persists through metadata updates.
+No new public API/dependency or renderer traversal behavior was added.
+
+Authored source cases cover label-to-toggle/save ordering, focus target, failure
+rollback, busy blocking, missing bridge, disabled/read-only/hidden labels and
+lease release on unmount. Syntax/whitespace only; tests and probes are unrun.
+The earlier label-click gap is now implemented in source; actual mouse hit
+testing, tooltip arbitration, focus/Tab and VoiceOver gates remain open.
+
+Deferred after this task's explicit human authorization:
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/switch.macos.mobile.test.tsrx
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer -- test/focus-scope-target.test.ts
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe run examples/probes/switch.macos.tsrx --target macos --watch
+pnpm check:recipes
+```
+
+No builds, installs, package tests/typechecks, native/OS automation, visual
+analysis, packaging or shared audit regeneration ran. Physical Tab, label mouse
+input, key-loop timing across windows and assistive technology remain unqualified.

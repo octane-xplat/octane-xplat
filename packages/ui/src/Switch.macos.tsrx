@@ -7,6 +7,7 @@ import { useFieldControl } from './field-context'
 import { FormField } from './FormField.macos.tsrx'
 import { useThemeScheme } from './theme/theme-scheme.macos'
 import { controlColors } from './control-colors.macos'
+import { AppKitLabelPress } from './label-press.macos.tsrx'
 
 export function Switch(inputProps: SwitchProps) @{
 	const { props, inField } = useFieldControl(inputProps)
@@ -20,8 +21,10 @@ export function Switch(inputProps: SwitchProps) @{
 	const [pending, setPending] = useState(false)
 	const active = useRef<symbol | null>(null)
 	const attached = useRef(true)
+	const control = useRef<NSView | null>(null)
 	// Ref teardown also covers unmount before passive effects would run.
 	const bind = useCallback((view: NSView | null) => {
+		control.current = view
 		attached.current = Boolean(view)
 		if (!view) active.current = null
 	}, [])
@@ -78,9 +81,11 @@ export function Switch(inputProps: SwitchProps) @{
 				<masonview className="vx-switch-thumb" style={{ backgroundColor: colors.surface }} />
 			</masonview>
 			{hasText ?
+				<AppKitLabelPress blocked={Boolean(isBlocked)} control={() => control.current} press={toggle}>
 				<FormField className={cx('vx-switch-text', size === 'sm' && 'vx-switch-text--sm')} inputID={controlID} label={props.label} description={props.description}
 					labelTooltip={props.labelTooltip} isRequired={props.isRequired} isOptional={props.isOptional}
-					isDisabled={props.isDisabled} isReadOnly={props.isReadOnly} isLoading={loading} size={size} /> : null}
+					isDisabled={props.isDisabled} isReadOnly={props.isReadOnly} isLoading={loading} size={size} />
+				</AppKitLabelPress> : null}
 		</masonview>
 		{ownChrome && props.status?.message != null ? <label id={`${controlID}-status`}
 			className={cx('vx-field-status', `vx-field-status--${props.status.type}`, 'vx-field-status--detached')}

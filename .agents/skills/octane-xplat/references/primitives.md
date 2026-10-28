@@ -642,8 +642,10 @@ export function Preference({ save }: { save(next: boolean): Promise<void> }) {
 Standalone Switch renders its label, description and detached status; parent
 Field keeps ownership when present. labelPosition/labelSpacing and sm/md classes
 use the shared geometry; metadata changes retain the toggle's state/host. Hidden
-labels keep the accessible name. Track activation is implemented; label-click
-activation remains a gap. Native layout/focus/VoiceOver are unqualified. See
+labels keep the accessible name. Label presses now share the toggle/save owner,
+focus the control and lease Tab exclusion for the label target. Without the
+renderer suppression capability only track activation is enabled. Native hit
+testing, tooltip arbitration, Tab/focus/layout/VoiceOver are unqualified. See
 [switch settings](../../../../docs/app/components.md#save-a-switch-setting-on-appkit).
 
 ```tsx

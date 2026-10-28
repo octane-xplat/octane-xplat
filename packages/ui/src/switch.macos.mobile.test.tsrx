@@ -1,8 +1,10 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { expect, it, vi } from 'vitest'
+import { afterEach, expect, it, vi } from 'vitest'
 import { createObjectContainer, createObjectDriver, createUniversalRoot, flushUniversalSync } from 'octane/universal/native'
 import { Switch } from './controls.macos.tsrx'
 import { FormField } from './FormField.macos.tsrx'
+
+afterEach(() => vi.unstubAllGlobals())
 
 function mount(component: any, props: any) {
 	const container = createObjectContainer('nativescript')
@@ -130,5 +132,47 @@ it('leaves labels and status with an enclosing Field', () => {
 		expect(text.filter((value) => value === 'Shared status')).toHaveLength(1)
 		expect(env.control().props.id).toBe('field-switch')
 		expect(env.control().props.accessibilityLabel).toBe('Shared label')
+	} finally { env.root.unmount() }
+})
+
+
+it('routes label presses through the same save owner and releases Tab exclusion', async () => {
+	const release = vi.fn(), suppress = vi.fn(() => release), focus = vi.fn()
+	vi.stubGlobal('__xplatAppKit', { suppressTabStop: suppress })
+	const task = deferred(), changes: boolean[] = [], save = vi.fn(() => task.promise)
+	const env = mount(Switch, { label: 'Alerts', defaultValue: false, changeAction: save, onChange: (value: boolean) => changes.push(value) })
+	const label = () => env.all().find((node) => node.props?.className === 'vx-field-label-press--appkit')
+	try {
+		const host = env.control()
+		host.window = { makeFirstResponder: focus }
+		expect(suppress).toHaveBeenCalledTimes(1)
+		label().props.onTap(); flushUniversalSync(() => {})
+		expect(focus).toHaveBeenCalledWith(host)
+		expect(changes).toEqual([true])
+		expect(save).toHaveBeenCalledWith(true)
+		expect(host.props.accessibilityState.busy).toBe(true)
+		expect(label().props.onTap).toBeUndefined()
+		task.reject(new Error('save failed'))
+		await vi.waitFor(() => { flushUniversalSync(() => {}); expect(changes).toEqual([true, false]) })
+		expect(env.control()).toBe(host)
+		expect(suppress).toHaveBeenCalledTimes(1)
+		expect(release).not.toHaveBeenCalled()
+	} finally { env.root.unmount() }
+	expect(release).toHaveBeenCalledTimes(1)
+})
+
+it('does not activate hidden, blocked or unsupported label targets', () => {
+	vi.stubGlobal('__xplatAppKit', { suppressTabStop: () => () => {} })
+	const env = mount(Switch, { label: 'Alerts', isReadOnly: true })
+	const labels = () => env.all().filter((node) => node.props?.className === 'vx-field-label-press--appkit')
+	try {
+		expect(labels()[0].props.onTap).toBeUndefined()
+		env.render({ label: 'Alerts', isDisabled: true })
+		expect(labels()[0].props.onTap).toBeUndefined()
+		env.render({ label: 'Alerts', isLabelHidden: true })
+		expect(labels()).toHaveLength(0)
+		vi.stubGlobal('__xplatAppKit', {})
+		env.render({ label: 'Alerts' })
+		expect(labels()[0].props.onTap).toBeUndefined()
 	} finally { env.root.unmount() }
 })

@@ -318,9 +318,11 @@ Standalone AppKit switches render a label/description column beside the track
 and a detached status below. Use `labelPosition="start"` to put text first,
 `labelSpacing="spread"` to separate text and track, or `size="sm"` for the
 shared compact geometry. An enclosing Field owns this metadata instead.
-Hidden labels keep their accessible name. Native label-click activation is
-still a gap; activate the track. Layout, focus and accessibility need runtime
-qualification.
+Hidden labels keep their accessible name. Label presses now use the same
+toggle/save path and request focus on the switch; the label target uses the
+renderer's Tab-stop suppression lease. If that bridge capability is absent,
+activate the track. Actual label hit testing, tooltip arbitration, focus, Tab
+order, layout and accessibility still need native qualification.
 
 ```tsx
 import { Switch } from '@octane-xplat/ui'
