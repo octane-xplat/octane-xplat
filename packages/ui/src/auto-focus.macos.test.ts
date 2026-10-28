@@ -5,7 +5,7 @@ const tick = async () => { await Promise.resolve(); await Promise.resolve() }
 function fixture(mode = 'normal') {
 	const calls: unknown[] = [], observers = new Map<object, any>(), monitors = new Map<object, (event: unknown) => unknown>()
 	let requested = true, blocked = false
-	const window: any = { firstResponder: {}, makeFirstResponder(view: unknown) { calls.push(view); window.firstResponder = view; return mode !== 'refuse' } }
+	const window: any = { firstResponder: {}, makeFirstResponder(view: unknown) { calls.push(view); if (mode !== 'refuse') window.firstResponder = view; return mode !== 'refuse' } }
 	const view: any = { window: null, hidden: false }
 	const host: any = { NSNotificationCenter: { defaultCenter: {
 		addObserverForNameObjectQueueUsingBlock(name: string, _: unknown, __: unknown, callback: any) { if (mode === 'partial' && observers.size) throw Error('unavailable'); const token = {}; observers.set(token, { name, callback }); return token },
@@ -80,7 +80,7 @@ test('missing/partial observation permits an attached post-commit attempt but no
 test('already-owned field editors and native refusal do not create repeated focus requests', async () => {
 	const f = fixture(); f.view.window = f.window; const editor = {}; f.view.currentEditor = () => editor; f.window.firstResponder = editor
 	f.control.bind(f.view); await tick(); assert.equal(f.calls.length, 0); assert.equal(f.observers.size, 0)
-	const refused = fixture('refuse'); refused.view.window = refused.window; refused.control.bind(refused.view); await tick(); refused.control.update(); await tick(); assert.equal(refused.calls.length, 1)
+	const refused = fixture('refuse'), initial = refused.window.firstResponder; refused.view.window = refused.window; refused.control.bind(refused.view); await tick(); refused.control.update(); await tick(); assert.equal(refused.calls.length, 1); assert.equal(refused.window.firstResponder, initial)
 })
 test('two pending fields attached in one commit preserve the first successful responder claim', async () => {
 	const first = fixture(), second = fixture(); first.control.bind(first.view); second.control.bind(second.view)

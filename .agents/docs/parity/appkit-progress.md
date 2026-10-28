@@ -3838,3 +3838,9 @@ ref once on its flag effect and late attachment remains unqualified. Carousel
 edge fades, video, date preset text relay/listbox relationships remain source
 gaps. Checkbox mixed rollback awaits the previously asked human contract choice.
 No evidence-gated checkbox is closed; the overall goal remains active.
+
+Autofocus policy review follow-up: the refusal fake now keeps its original
+responder when makeFirstResponder returns false, and the existing case asserts
+that identity. This makes the no-retry assertion independent of the already-owned
+editor short circuit. Same nine policy/six component cases, all unrun; syntax and
+whitespace only. Exact deferred commands and native limits above are unchanged.
