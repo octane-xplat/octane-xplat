@@ -99,3 +99,29 @@ Android API 35 Google APIs arm64, emulator 37.1.11, and the host GPU (Apple M4):
   `research/maestro/android/1793163729524/report.xml` (one test, zero failures).
 
 macOS qualification and the public package cutover are still pending.
+
+## Source checks and shared hook contracts
+
+The private package now checks its web, native, Android clipping, and macOS
+entry sources through `tsconfig.envs.json`. Declaration generation alone
+previously checked the props and hand-maintained declarations, leaving native
+hook return values unchecked. `useLightboxState()` now returns the shared
+`items`, `item`, `count`, visibility, navigation, and zoom methods;
+`useLightbox()` supplies both default and indexed trigger props.
+
+```tsx
+const state = useLightboxState()
+state.next()
+state.resetZoom()
+```
+
+Two Android bridge declarations need narrow local type assertions with
+`@nativescript/types-android` 9.1.1: `ViewOutlineProvider.extend` is missing,
+and `View.setOutlineProvider` does not accept `null` in its TypeScript
+signature. NativeScript documents the runtime
+[`extend` mechanism](https://docs.nativescript.org/guide/extending-classes-and-implementing-interfaces-android),
+and Android permits a null
+[`outline provider`](https://developer.android.com/reference/android/view/View#setOutlineProvider(android.view.ViewOutlineProvider)).
+The assertions cover subclass creation and restoring the previous provider;
+they do not change the Android writer's behavior. Recheck these assertions
+when upgrading the Android declarations.

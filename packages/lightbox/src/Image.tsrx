@@ -1,9 +1,10 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 // Native slide image: owns the morph channel, the gesture surface, and the
 // zoom/pan transform — same shape as Image.web.tsrx but the frame writes go to
 // NativeScript view properties and gestures come from gesturehandler.
 import { useEffect, useLayoutEffect, useRef, useState } from 'octane'
 import { cx } from '@octane-xplat/lib'
+import { mergeStyle } from './style-merge'
 import { useMotionValue } from '@octane-xplat/motion'
 import { createClipWriter } from './clip'
 import { viewRect } from './rect'
@@ -81,6 +82,10 @@ export function Image(props: LightboxImagePartProps) @{
 		}
 	}
 	useLayoutEffect(() => {
+		if (wrapRef.current) {
+			wrapRef.current.originX = 0
+			wrapRef.current.originY = 0
+		}
 		const offs = [x.on('change', sync), y.on('change', sync), scale.on('change', sync)]
 		sync()
 		return () => offs.forEach((f) => f())
@@ -154,7 +159,6 @@ export function Image(props: LightboxImagePartProps) @{
 			case 'restorePresence': anims.current.push(ctx.presence.animate(1, ctx.options.close)); break
 			case 'dragging': ctx.setDragging(c.value); break
 			case 'close': ctx.close(c.velocity); break
-			case 'toggleUi': ctx.toggleUi(); break
 			case 'tap': {
 				const e = {
 					index: live.current.index,
@@ -181,8 +185,6 @@ export function Image(props: LightboxImagePartProps) @{
 				else v?.track(c.phase, c.dx, c.vx)
 				break
 			}
-			case 'zoomed': ctx.setZoomed(true); break
-			case 'noop': break
 			default: break
 		}
 	}
@@ -306,15 +308,13 @@ export function Image(props: LightboxImagePartProps) @{
 	const alt = props.alt ?? item?.alt ?? ''
 	if (!item) return null
 	return (
-		<masonview ref={wrapRef} className={cx('vx-lightbox-image', loaded && 'vx-lightbox-image--loaded', props.className)} style={F ? { position: 'absolute', left: F.x, top: F.y, width: F.w, height: F.h, ...props.style } : { position: 'absolute', width: 0, height: 0, opacity: 0, ...props.style }} id={props.id}
-			testID={props.testID} originX={0} originY={0}>
+		<masonview ref={wrapRef} className={cx('vx-lightbox-image', loaded && 'vx-lightbox-image--loaded', props.className)} style={mergeStyle(F ? { position: 'absolute', left: F.x, top: F.y, width: F.w, height: F.h } : { position: 'absolute', width: 0, height: 0, opacity: 0 }, props.style)} id={props.id}
+			testID={props.testID}>
 			{src ? (
 				<image
 					ref={imgRef}
 					src={src}
-					alt={alt}
-					srcSet={props.srcSet}
-					sizes={props.sizes}
+					accessibilityLabel={alt}
 					style={{ width: '100%', height: '100%' }}
 					onLoaded={() => setLoaded(true)}
 				/>

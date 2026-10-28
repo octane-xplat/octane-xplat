@@ -1,9 +1,10 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 // Native lightbox host: the same pure state machine as web, wired to a
 // NativeScript vocabulary (masonview/image/label) over the ui modal Overlay.
 import { createContext, useContext, useEffect, useEffectEvent, useLayoutEffect, useMemo, useRef, useState } from 'octane'
 import { Overlay, Pressable } from '@octane-xplat/ui'
 import { cx } from '@octane-xplat/lib'
+import { mergeStyle } from './style-merge'
 import { useMotionValue, useReducedMotion } from '@octane-xplat/motion'
 import type { MotionValue, Transition } from '@octane-xplat/motion'
 import { OPEN, CLOSE, REDUCED } from './constants'
@@ -85,6 +86,13 @@ export const LightboxContext = createContext<LightboxCtx | null>(null)
 export const InternalTriggersContext = createContext<Map<number, Set<any>> | null>(null)
 export const SlideContext = createContext<SlideCtx | null>(null)
 
+// Native bundlers retarget Octane contexts to the universal renderer. JSX
+// supplies the render scope internally; callers only supply provider props.
+type NativeProvider<T> = (props: { value: T; children?: unknown }) => unknown
+const LightboxProvider = LightboxContext as unknown as NativeProvider<LightboxCtx>
+const SlideProvider = SlideContext as unknown as NativeProvider<SlideCtx>
+export const InternalTriggersProvider = InternalTriggersContext as unknown as NativeProvider<Map<number, Set<any>>>
+
 export function useLightboxCtx() @{
 	const ctx = useContext(LightboxContext)
 	if (!ctx) {
@@ -131,12 +139,20 @@ export function Root(props: LightboxRootProps) @{
 		onIndexChange,
 		finalFocusRef,
 	} = props
-	const [state, setState] = useState(initialState)
+	const [state, setState] = useState(() => ({
+		...initialState(),
+		index: clamp(props.index ?? props.defaultIndex ?? 0, 0, Math.max(0, items.length - 1)),
+	}))
 	const live = useRef(state)
 	live.current = state
+	const mounted = useRef(true)
+	useLayoutEffect(() => {
+		mounted.current = true
+		return () => { mounted.current = false }
+	}, [])
 	const reducedMotion = useReducedMotion() ?? false
 	const presence = useMotionValue(0)
-	const progress = useMotionValue(0)
+	const progress = useMotionValue(state.index)
 	const sharedTriggers = useContext(InternalTriggersContext)
 	const [triggers] = useState(() => sharedTriggers ?? new Map<number, Set<any>>())
 	const [images] = useState(() => new Map<number, ImageController>())
@@ -186,7 +202,7 @@ export function Root(props: LightboxRootProps) @{
 						? image.animateOut(trigger, velocity)
 						: presence.animate(0, reducedMotion ? REDUCED : (transition ?? CLOSE)).finished.then(() => {})
 					void Promise.race([animation, new Promise((r) => setTimeout(r, 1500))]).then(() => {
-						dispatch({ kind: 'closed' })
+						if (mounted.current) dispatch({ kind: 'closed' })
 					})
 					break
 				}
@@ -196,7 +212,7 @@ export function Root(props: LightboxRootProps) @{
 				}
 				case 'fade': {
 					void viewport.current?.fade(effect.from, effect.to).then(() => {
-						dispatch({ kind: 'fadeDone', from: effect.from })
+						if (mounted.current) dispatch({ kind: 'fadeDone', from: effect.from })
 					})
 					break
 				}
@@ -305,7 +321,7 @@ export function Root(props: LightboxRootProps) @{
 		if (state.phase === 'closed') hideTrigger(null)
 	}, [state.phase])
 
-	return <LightboxContext value={ctx}>{children ?? null}</LightboxContext>
+	return <LightboxProvider value={ctx}>{children ?? null}</LightboxProvider>
 }
 
 // ---------- parts ----------
@@ -358,7 +374,7 @@ export function Backdrop(props: LightboxPartProps) @{
 		<masonview
 			ref={ref as never}
 			className={cx('vx-lightbox-backdrop', props.className)}
-			style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.9)', ...props.style }}
+			style={mergeStyle({ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.9)' }, props.style)}
 			id={props.id}
 			testID={props.testID}
 			onTap={() => {
@@ -382,11 +398,7 @@ export function Popup(props: LightboxPartProps) @{
 		>
 			<masonview
 				className={cx('vx-lightbox-popup', `vx-lightbox-popup--${ctx.phase}`, ctx.zoomed && 'vx-lightbox-popup--zoomed', ctx.dragging && 'vx-lightbox-popup--dragging', ctx.uiHidden && 'vx-lightbox-popup--ui-hidden', props.className)}
-				horizontalAlignment="stretch"
-				verticalAlignment="stretch"
-				width="100%"
-				height="100%"
-				style={props.style as never}
+				style={mergeStyle({ width: '100%', height: '100%', alignSelf: 'stretch' }, props.style)}
 				id={props.id}
 				testID={props.testID}
 			>
@@ -425,7 +437,7 @@ export function Slide(props: LightboxSlidePartProps) @{
 	const near = Math.abs(ctx.index - index) <= 2
 	const current = ctx.index === index
 	return (
-		<SlideContext value={{ index, onTap: props.onTap }}>
+		<SlideProvider value={{ index, onTap: props.onTap }}>
 			<masonview
 				className={cx('vx-lightbox-slide', current && 'vx-lightbox-slide--current', props.className)}
 				style={props.style as never}
@@ -434,7 +446,7 @@ export function Slide(props: LightboxSlidePartProps) @{
 			>
 				{near ? (props.children as never) ?? null : null}
 			</masonview>
-		</SlideContext>
+		</SlideProvider>
 	)
 }
 
@@ -492,21 +504,26 @@ export function Description(props: LightboxPartProps) @{
 
 export function useLightboxState<T extends LightboxMedia = LightboxMedia>(): UseLightboxState<T> {
 	const ctx = useLightboxCtx()
+	const image = () => ctx.images.get(ctx.index)
 	return {
-		data: ctx.items as T[],
+		items: ctx.items as T[],
+		item: ctx.items[ctx.index] as T,
 		index: ctx.index,
+		count: ctx.items.length,
 		phase: ctx.phase,
+		open: ctx.phase !== 'closed',
 		zoomed: ctx.zoomed,
 		dragging: ctx.dragging,
 		uiHidden: ctx.uiHidden,
 		presence: ctx.presence,
 		progress: ctx.progress,
-		openAt: (i, trigger) => ctx.openAt(i, trigger),
-		close: (velocity) => ctx.close(velocity),
-		goTo: (i) => ctx.goTo(i),
-		setZoomed: (v) => ctx.setZoomed(v),
-		toggleUi: () => ctx.toggleUi(),
-		images: ctx.images as never,
-		triggers: ctx.triggers as never,
+		openAt: ctx.openAt,
+		close: () => ctx.close(),
+		goTo: ctx.goTo,
+		next: () => ctx.goTo(ctx.index + 1),
+		prev: () => ctx.goTo(ctx.index - 1),
+		zoomIn: () => image()?.zoomBy(1.6),
+		zoomOut: () => image()?.zoomBy(1 / 1.6),
+		resetZoom: () => image()?.resetZoom(),
 	}
 }

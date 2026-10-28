@@ -1,0 +1,17 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"target": "ES2022",
+		"jsx": "react-jsx",
+		"types": ["@nativescript/types"],
+		"paths": {
+			"@octane-xplat/ui": ["../ui/types/generated/index.d.ts"],
+			"@octane-xplat/motion": ["../motion/types/index.d.ts"]
+		}
+	},
+	"environments": {
+		"web": { "files": ["src/index.web.ts"] },
+		"native": { "files": ["src/index.ts", "src/clip.android.ts"] },
+		"macos": { "files": ["src/index.macos.ts"] }
+	}
+}

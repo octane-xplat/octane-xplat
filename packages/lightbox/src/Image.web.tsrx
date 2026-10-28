@@ -1,8 +1,9 @@
-/** @jsxImportSource octane/web */
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'octane'
 import { useMotionValue } from '@octane-xplat/motion'
 import type { AnimationControls } from '@octane-xplat/motion'
 import { cx } from '@octane-xplat/lib'
+import { mergeStyle } from './style-merge'
 import { clamp, fit, lerpVisual, toStyle } from './math'
 import type { Rect, Visual } from './math'
 import { createGestureMachine } from './gesture-machine'
@@ -13,14 +14,8 @@ import { useLightboxCtx, useSlideCtx } from './root.web.tsrx'
 import type { ImageController } from './root.web.tsrx'
 import { fadeVisual, radiusOf, shiftVisual, thumbImg, thumbVisual, toRect } from './web-dom.web'
 
-export interface LightboxImageProps {
-	src?: string
-	alt?: string
-	srcSet?: string
-	sizes?: string
-	className?: string
-	style?: Record<string, unknown>
-}
+import type { LightboxImagePartProps } from './props'
+export type LightboxImageProps = LightboxImagePartProps
 
 const center = (r: Rect) => ({ x: r.x + r.w / 2, y: r.y + r.h / 2 })
 const clipPathOf = (inset: { top: number; right: number; bottom: number; left: number }, radius: number) =>
@@ -567,7 +562,7 @@ export function Image(props: LightboxImageProps) {
 				decoding="async"
 				onLoad={onLoad}
 				className={props.className}
-				style={{ ...fill, ...props.style }}
+				style={mergeStyle(fill, props.style)}
 			/>
 		</div>
 	)

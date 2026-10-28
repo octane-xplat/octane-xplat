@@ -1,10 +1,11 @@
-/** @jsxImportSource octane/web */
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { createContext, createPortal, useContext, useEffect, useEffectEvent, useLayoutEffect, useMemo, useRef, useState } from 'octane'
 import { Overlay } from '@octane-xplat/ui'
 import { useMotionValue, useReducedMotion } from '@octane-xplat/motion'
 import { Image } from './Image.web.tsrx'
 import type { MotionValue } from '@octane-xplat/motion'
 import { cx } from '@octane-xplat/lib'
+import { mergeStyle } from './style-merge'
 import { clamp } from './math'
 import type { Rect, Visual } from './math'
 import { reduce } from './state'
@@ -407,7 +408,7 @@ export function Backdrop(props: LightboxPartProps) {
 		<div
 			ref={ref}
 			className={cx('vx-lightbox-backdrop', props.className)}
-			style={{ position: 'fixed', inset: 0, ...props.style }}
+			style={mergeStyle({ position: 'fixed', inset: 0 }, props.style)}
 			data-testid={props.testID}
 		>
 			{props.children as never}
@@ -473,7 +474,7 @@ export function Popup(props: LightboxPartProps) {
 			ref={ref}
 			tabIndex={-1}
 			className={cx('vx-lightbox-popup', mods, ctx.zoomed && 'vx-lightbox-popup--zoomed', ctx.dragging && 'vx-lightbox-popup--dragging', ctx.uiHidden && 'vx-lightbox-popup--ui-hidden', props.className)}
-			style={{ position: 'fixed', inset: 0, ...props.style }}
+			style={mergeStyle({ position: 'fixed', inset: 0 }, props.style)}
 			data-testid={props.testID}
 			data-phase={ctx.phase}
 			data-zoomed={ctx.zoomed ? '' : undefined}
@@ -578,7 +579,7 @@ export function Viewport(props: LightboxPartProps) {
 			ref={ref}
 			aria-roledescription="carousel"
 			className={cx('vx-lightbox-viewport', ctx.zoomed && 'vx-lightbox-viewport--zoomed', props.className)}
-			style={{
+			style={mergeStyle({
 				display: 'flex',
 				position: 'relative',
 				height: '100%',
@@ -586,8 +587,7 @@ export function Viewport(props: LightboxPartProps) {
 				overflowY: 'hidden',
 				scrollSnapType: 'x mandatory',
 				overscrollBehavior: 'contain',
-				...props.style,
-			}}
+			}, props.style)}
 			data-testid={props.testID}
 		>
 			{(props.children ??
@@ -616,14 +616,13 @@ export function Slide(props: LightboxSlidePartProps) {
 				aria-hidden={current ? undefined : true}
 				inert={!current}
 				className={cx('vx-lightbox-slide', current && 'vx-lightbox-slide--current', props.className)}
-				style={{
+				style={mergeStyle({
 					flex: '0 0 100%',
 					position: 'relative',
 					overflow: 'clip',
 					scrollSnapAlign: 'center',
 					scrollSnapStop: 'always',
-					...props.style,
-				}}
+				}, props.style)}
 				data-testid={props.testID}
 				{...(current ? { 'data-current': '' } : {})}
 			>
@@ -719,5 +718,5 @@ export function useLightboxState<T extends LightboxMedia = LightboxMedia>(): Use
 		zoomIn: () => image()?.zoomBy(1.6),
 		zoomOut: () => image()?.zoomBy(1 / 1.6),
 		resetZoom: () => image()?.resetZoom(),
-	} as UseLightboxState<T>
+	}
 }

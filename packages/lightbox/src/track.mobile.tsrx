@@ -1,15 +1,16 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 // Self-drawn paging track: a horizontal row of slide-sized panes driven by a
 // single translateX. Machine `track` commands pull it; release snaps to the
 // nearest slide with the SETTLE spring — the native counterpart of web's
 // scroll-snap viewport, with the same `progress = -x / stride` semantics.
 import { useLayoutEffect, useRef } from 'octane'
 import { cx } from '@octane-xplat/lib'
+import { mergeStyle } from './style-merge'
 import type { MotionValue } from '@octane-xplat/motion'
 import { SETTLE } from './constants'
 import { clamp } from './math'
 import { viewRect } from './rect'
-import type { LightboxMedia } from './props'
+import type { LightboxMedia, LightboxPartProps } from './props'
 import type { ViewportController } from './root.tsrx'
 import { attachInput } from './input.mobile'
 import type { Intent } from './gesture-machine'
@@ -31,7 +32,7 @@ export function createInputDispatch(currentIndex: () => number) {
 	return dispatch
 }
 
-export function Track(props: {
+export function Track(props: LightboxPartProps & {
 	items: LightboxMedia[]
 	maxZoom?: number
 	currentIndex: number
@@ -39,10 +40,6 @@ export function Track(props: {
 	onScrollIndex: (i: number) => void
 	progress: MotionValue
 	zoomed: boolean
-	children?: unknown
-	className?: string
-	style?: Record<string, unknown>
-	testID?: string
 }) @{
 	const clipRef = useRef<any>(null)
 	const rowRef = useRef<any>(null)
@@ -194,8 +191,8 @@ export function Track(props: {
 	})
 
 	return (
-		<masonview ref={clipRef} className={cx('vx-lightbox-viewport', props.className)} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, overflow: 'hidden', ...props.style }} id={props.id}
-			testID={props.testID} clipToBounds>
+		<masonview ref={clipRef} className={cx('vx-lightbox-viewport', props.className)} style={mergeStyle({ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, overflow: 'hidden' }, props.style)} id={props.id}
+			testID={props.testID}>
 			<masonview ref={rowRef} className="vx-lightbox-track" style={{ position: 'absolute', left: 0, top: 0, flexDirection: 'row' }}>
 				{props.children as never}
 			</masonview>

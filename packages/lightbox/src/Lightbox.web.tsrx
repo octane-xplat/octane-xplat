@@ -1,4 +1,4 @@
-/** @jsxImportSource octane/web */
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useState } from 'octane'
 import { Icon, Pressable, Text } from '@octane-xplat/ui'
 import type { ClassValue } from '@octane-xplat/ui'

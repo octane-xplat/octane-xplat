@@ -126,15 +126,7 @@ export interface LightboxTriggerProps {
 
 /** Options for `useLightbox` — the `media` array, controlled `index`/`onIndexChange` or `defaultIndex`, and zoom/autoplay flags matching `LightboxProps`.
  */
-export interface UseLightboxOptions {
-	media: LightboxMedia[]
-	index?: number
-	defaultIndex?: number
-	onIndexChange?: (index: number) => void
-	hasZoom?: boolean
-	hasAutoPlay?: boolean
-	finalFocusRef?: { current: HostElement | null }
-}
+export interface UseLightboxOptions extends Omit<LightboxOptions, 'isOpen' | 'defaultOpen'> {}
 
 /** `useLightbox` result — `open(index)`/`close`, live `isOpen`/`index`, and `element`: the `Lightbox` node to render in the tree.
  */

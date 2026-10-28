@@ -1,9 +1,7 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 // Astryx convenience component: the default anatomy (close, prev/next,
 // counter, caption) assembled from the headless parts.
-import { useState } from 'octane'
 import { Text } from '@octane-xplat/ui'
-import type { ClassValue } from '@octane-xplat/ui'
 import { cx } from '@octane-xplat/lib'
 import type { LightboxProps } from './props'
 import { Backdrop, Close, Description, Next, Popup, Prev, Root, Slide, Title, Trigger, useLightboxState, Viewport } from './root.tsrx'
@@ -12,7 +10,8 @@ import { Image } from './Image.tsrx'
 function DefaultSlide(props: { index: number; hasAutoPlay: boolean }) @{
 	const state = useLightboxState()
 	const item = state.items[props.index]
-	// Native video lands with the platform media leaf; images are the default.
+	// Keep the convenience viewer’s explicit native video fallback.
+	if (item?.type === 'video') return <Text>{item.alt}</Text>
 	return <Image src={item?.src} alt={item?.alt} />
 }
 
@@ -46,25 +45,21 @@ function LightboxBase(props: LightboxProps) @{
 			transition={props.transition}
 			finalFocusRef={props.finalFocusRef}
 		>
-			{props.children ?? (
-				<>
-					<Popup>
-						<Backdrop />
-						<Viewport>
-							{props.media?.map((_, i) => (
-								<Slide key={i} index={i}>
-									<DefaultSlide index={i} hasAutoPlay={!!props.hasAutoPlay} />
-								</Slide>
-							))}
-						</Viewport>
-						<Close className="vx-lightbox-close"><Text>{'×'}</Text></Close>
-						<Prev className="vx-lightbox-prev"><Text>{'‹'}</Text></Prev>
-						<Next className="vx-lightbox-next"><Text>{'›'}</Text></Next>
-						<Counter />
-						<Caption />
-					</Popup>
-				</>
-			)}
+			<Popup className={cx('vx-lightbox-layer', props.className)} style={props.style} id={props.id}>
+				<Backdrop />
+				<Viewport>
+					{props.media?.map((_, i) => (
+						<Slide key={i} index={i}>
+							<DefaultSlide index={i} hasAutoPlay={!!props.hasAutoPlay} />
+						</Slide>
+					))}
+				</Viewport>
+				<Close className="vx-lightbox-close"><Text>{'×'}</Text></Close>
+				<Prev className="vx-lightbox-prev"><Text>{'‹'}</Text></Prev>
+				<Next className="vx-lightbox-next"><Text>{'›'}</Text></Next>
+				<Counter />
+				<Caption />
+			</Popup>
 		</Root>
 	)
 }

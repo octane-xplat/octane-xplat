@@ -1,10 +1,10 @@
-/** @jsxImportSource @nativescript-community/octane */
+/** @jsxImportSource @octane-xplat/jsx */
 import { useCallback, useState } from 'octane'
 import type { LightboxTriggerProps, UseLightboxOptions, UseLightboxReturn } from './props'
 import { Lightbox } from './Lightbox.tsrx'
-import { InternalTriggersContext } from './root.tsrx'
+import { InternalTriggersProvider } from './root.tsrx'
 
-export function useLightbox(options: UseLightboxOptions) @{
+export function useLightbox(options: UseLightboxOptions): UseLightboxReturn @{
 	const [isOpen, setIsOpen] = useState(false)
 	const [internal, setInternal] = useState(options.defaultIndex ?? 0)
 	const index = options.index ?? internal
@@ -33,7 +33,7 @@ export function useLightbox(options: UseLightboxOptions) @{
 		[open],
 	)
 	const element = (
-		<InternalTriggersContext value={triggers}>
+		<InternalTriggersProvider value={triggers}>
 		<Lightbox
 			media={options.media}
 			isOpen={isOpen}
@@ -49,7 +49,7 @@ export function useLightbox(options: UseLightboxOptions) @{
 			hasAutoPlay={options.hasAutoPlay}
 			finalFocusRef={options.finalFocusRef}
 		/>
-		</InternalTriggersContext>
+		</InternalTriggersProvider>
 	)
-	return { element, open, close, isOpen, index, getTriggerProps }
+	return { element, open, close, isOpen, index, triggerProps: getTriggerProps(0), getTriggerProps }
 }

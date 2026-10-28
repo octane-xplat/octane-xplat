@@ -17,7 +17,12 @@ export function createClipWriter(view: any): ClipWriter {
 			if (!native) {return}
 			Object.assign(current, inset, { radius })
 			if (!provider) {
-				const Outline = android.view.ViewOutlineProvider.extend({
+				// NativeScript exposes Java subclassing at runtime; the generated
+				// Android declarations do not include this bridge method.
+				const OutlineBase = android.view.ViewOutlineProvider as typeof android.view.ViewOutlineProvider & {
+					extend(methods: { getOutline(view: android.view.View, outline: android.graphics.Outline): void }): new () => android.view.ViewOutlineProvider
+				}
+				const Outline = OutlineBase.extend({
 					getOutline(target: android.view.View, outline: android.graphics.Outline) {
 						const left = px(current.left)
 						const top = px(current.top)
@@ -40,7 +45,9 @@ export function createClipWriter(view: any): ClipWriter {
 		},
 		clear() {
 			if (host && provider && host.getOutlineProvider() === provider) {
-				host.setOutlineProvider(previous)
+				// Android accepts null to disable outline generation; its generated
+				// NativeScript signature omits this nullable case.
+				host.setOutlineProvider(previous!)
 				host.setClipToOutline(wasClipped)
 				host.invalidateOutline()
 			}

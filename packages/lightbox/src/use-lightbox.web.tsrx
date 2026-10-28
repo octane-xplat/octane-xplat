@@ -1,4 +1,4 @@
-/** @jsxImportSource octane/web */
+/** @jsxImportSource @octane-xplat/jsx/dom */
 import { useCallback, useState } from 'octane'
 import type { LightboxTriggerProps, UseLightboxOptions, UseLightboxReturn } from './props'
 import { Lightbox } from './Lightbox.web.tsrx'
@@ -51,12 +51,18 @@ export function useLightbox(options: UseLightboxOptions): UseLightboxReturn {
 		<Lightbox
 			isOpen={isOpen}
 			onOpenChange={(o: boolean) => {
-				if (!o) setIsOpen(false)
+				setIsOpen(o)
+				options.onOpenChange?.(o)
 			}}
 			media={options.media}
 			index={index}
 			onIndexChange={setIndex}
 			hasZoom={options.hasZoom}
+			maxZoom={options.maxZoom}
+			hasBackdropDismiss={options.hasBackdropDismiss}
+			hasWheelZoom={options.hasWheelZoom}
+			triggerScroll={options.triggerScroll}
+			transition={options.transition}
 			hasAutoPlay={options.hasAutoPlay}
 			finalFocusRef={options.finalFocusRef}
 		/>
