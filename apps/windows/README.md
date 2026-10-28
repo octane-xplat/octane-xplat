@@ -77,3 +77,11 @@ pnpm -C apps/windows xplat dev windows
 
 `pnpm -C apps/windows xplat doctor` checks the win32 host, exact
 `@nativescript/windows` pin, .NET SDK ≥ 10, and the Developer Mode registry flag.
+
+Build from the repository root through Turbo. Its existing app-generation
+dependency runs in the same graph, so the sequential limit also covers
+generation; the Windows build script starts NativeScript directly.
+
+```sh
+pnpm exec turbo run build:windows --filter=@xplat/windows --concurrency=1 -- --release
+```

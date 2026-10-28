@@ -1100,3 +1100,38 @@ errors across 11 files, including macOS focus-clock, Linux bridge imports,
 Android Utils/AndroidApplication and web-host router type identity. It explicitly
 continued under the existing configuration. The standalone pass is not a pass
 for that delegated checker; no diagnostic policy was weakened.
+
+## Windows build orchestration repair
+
+The first release-build attempt reached the app's build script, which invoked
+pnpm -w gen:app after the outer Turbo graph had already generated the app.
+That nested Turbo process repeated declaration generation and ran tasks in
+parallel despite the outer --concurrency=1 limit. The owned build process tree
+was stopped before native compilation to avoid exhausting the 8 GB laptop;
+that cancelled attempt is not a build pass (windy-native-build.log).
+
+The Windows build script now starts ns build windows directly. Its existing
+@xplat/app#gen prerequisite remains in apps/windows/turbo.json. The retry's
+actual dry graph contains exactly one app-generation task ordered before the
+Windows build. The live graph generated once, then entered NativeScript/Vite;
+no second graph was spawned. The full build subsequently failed the real iOS
+audio boundary described above. apps/windows/.gitignore now excludes the
+generated platforms host, intermediates and binaries; the README gives the
+Turbo release command. No package dependency or lockfile changed.
+
+The isolated qualification checkout additionally places --release in its app
+script to share one graph with standalone typecheck, and narrows only the root
+submodule-helper hash inputs to its script, .gitmodules and vendor sources.
+The helper still runs uncached and all dependency ordering is preserved; no
+check or prerequisite is skipped. These are qualification-only metadata edits,
+not local shared-Turbo changes. They prevent unrelated fixture/output churn
+from repeatedly rebuilding all declaration prerequisites. Exact invocation:
+
+```sh
+pnpm exec turbo run typecheck build:windows --filter=@xplat/windows --concurrency=1 --continue=dependencies-successful
+```
+
+Current targeted format/lint, recipe structure and whitespace checks passed.
+This repairs private harness orchestration; no supported public recipe target,
+Windows rendering/input qualification, shared audit snapshot or issue checkbox
+changed. The app's default synthetic self-test entry has not been launched.
