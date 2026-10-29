@@ -55,7 +55,8 @@ function LightboxPanel(
 				</Button>
 			</masonview>
 			<masonview ref={stage} className="vx-lightbox-stage" style={{ display: 'flex', flexDirection: 'column', flexGrow: 1, minHeight: 0 }}
-				onDoubleTap={() => gestures.toggleZoom()} onSwipe={(event) => gestures.swipe(event.direction)}>
+				onDoubleTap={item && item.type !== 'video' && props.hasZoom !== false ? () => gestures.toggleZoom() : undefined}
+				onSwipe={props.media.length > 1 ? (event) => gestures.swipe(event.direction) : undefined}>
 				{item?.type === 'video' ? (
 				<xplatvideo
 					className="vx-lightbox-media"

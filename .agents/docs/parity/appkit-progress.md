@@ -5821,3 +5821,14 @@ native presentation and clean packaged consumers remain unqualified. This does
 not claim fluid two-finger scroll-wheel paging or system-gesture interception.
 Lightbox video remains a source gap; audit snapshots and evidence checkboxes are
 unchanged. Persistent goal active.
+
+
+### Disabled Lightbox gesture bindings
+
+Final source review additionally removes the double-click binding for disabled
+zoom or video fallback and the pointer-swipe binding for a single-item gallery.
+This lets the existing renderer disable those recognizers instead of relying
+solely on handler guards. The mounted source case asserts binding removal and
+an inert retained zoom handler. Targeted two-file TSRX syntax/whitespace review
+passed; the case and all prior deferred checks remain unrun, with no new native
+input or cleanup proof.

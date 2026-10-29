@@ -19,9 +19,9 @@ it('AppKit panel wires current zoom/swipe policy and media replacement while lat
 	const all = (): any[] => { const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]; return container.children.flatMap(walk) }
 	try {
 		render(); const stage = all().find((node) => node.props?.className === 'vx-lightbox-stage'), scroll = all().find((node) => node.type === 'scrollview')
-		stage.props.onDoubleTap(); expect(zooms).toEqual([2]); stage.props.onSwipe({ direction: 2 }); expect(changes).toEqual([])
+		const retainedToggle = stage.props.onDoubleTap; retainedToggle(); expect(zooms).toEqual([2]); stage.props.onSwipe({ direction: 2 }); expect(changes).toEqual([])
 		stage.props.onDoubleTap(); stage.props.onSwipe({ direction: 2 }); flushUniversalSync(() => {}); expect(changes).toEqual([1]); expect(scroll.magnification).toBe(1)
-		render({ index: 0, hasZoom: false, onIndexChange: (index: number) => current.push(index) }); stage.props.onSwipe({ direction: 2 }); expect(current).toEqual([1]); stage.props.onDoubleTap(); expect(zooms).toEqual([2, 1])
+		render({ index: 0, hasZoom: false, onIndexChange: (index: number) => current.push(index) }); stage.props.onSwipe({ direction: 2 }); expect(current).toEqual([1]); expect(stage.props.onDoubleTap).toBeUndefined(); retainedToggle(); expect(zooms).toEqual([2, 1])
 		root.unmount(); stage.props.onSwipe({ direction: 1 }); expect(current).toEqual([1])
 	} finally { root.unmount() }
 })
