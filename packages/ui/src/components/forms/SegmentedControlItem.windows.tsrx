@@ -2,12 +2,12 @@
 import { useCallback, useContext, useEffect, useRef } from 'octane'
 import type { View } from '@nativescript/core'
 import { WindowsRadioContext } from './radio-context.windows'
-import { useMeasure } from './useMeasure'
+import { useMeasure } from '../layout/useMeasure'
 import './radio-control.windows'
 import './RadioGroup.windows.css'
-import { mergeStyle } from './style-merge'
-import type { SegmentedControlItemProps } from './props'
-import { applyEscapeProps } from './escape-props'
+import { mergeStyle } from '../../internal/layout/style-merge'
+import type { SegmentedControlItemProps } from '../../props'
+import { applyEscapeProps } from '../overlays/escape-props'
 import { SegmentedControlContext } from './option-list-contexts'
 
 /** `SegmentedControlItem` — one segment inside a `SegmentedControl`

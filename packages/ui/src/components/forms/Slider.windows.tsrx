@@ -2,13 +2,13 @@
 import { useCallback, useEffect, useRef, useState } from 'octane'
 import type { View } from '@nativescript/core'
 import { cx } from '@octane-xplat/lib'
-import type { SliderProps } from './props'
+import type { SliderProps } from '../../props'
 import { useFieldControl } from './field-context'
 import { FormField } from './FormField'
-import { applyEscapeProps } from './escape-props'
-import { mergeStyle } from './style-merge'
-import { useMeasure } from './useMeasure'
-import { usePan } from './pan'
+import { applyEscapeProps } from '../overlays/escape-props'
+import { mergeStyle } from '../../internal/layout/style-merge'
+import { useMeasure } from '../layout/useMeasure'
+import { usePan } from '../layout/pan'
 import {
 	moveSliderThumb,
 	normalizeSliderValue,

@@ -1,10 +1,10 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { mergeStyle } from './style-merge'
+import { mergeStyle } from '../../internal/layout/style-merge'
 import { useState } from 'octane'
 import type { View } from '@nativescript/core'
-import type { CheckboxGroupProps } from './props'
+import type { CheckboxGroupProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
-import { applyEscapeProps, nativeAccessibilityState } from './escape-props'
+import { applyEscapeProps, nativeAccessibilityState } from '../overlays/escape-props'
 import { Checkbox } from './Checkbox'
 import { useFieldControlProps } from './field-context'
 import { CheckboxListProvider } from './option-list-contexts'

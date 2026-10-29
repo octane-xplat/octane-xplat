@@ -5,7 +5,10 @@ import vm from 'node:vm'
 import ts from 'typescript'
 
 const source = ts.transpileModule(
-	readFileSync(new URL('../src/layer-keys.windows.ts', import.meta.url), 'utf8'),
+	readFileSync(
+		new URL('../src/components/overlays/layer-keys.windows.ts', import.meta.url),
+		'utf8',
+	),
 	{ compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } },
 ).outputText
 
@@ -64,7 +67,10 @@ function fixture(options = {}) {
 	}
 	const exits = {}
 	const exitSource = ts.transpileModule(
-		readFileSync(new URL('../src/windows-overlay-exit.ts', import.meta.url), 'utf8'),
+		readFileSync(
+			new URL('../src/components/overlays/windows-overlay-exit.ts', import.meta.url),
+			'utf8',
+		),
 		{
 			compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
 		},

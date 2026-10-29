@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'octane'
 import { View } from '@nativescript/core'
 import type { ViewBase } from '@nativescript/core'
 import { NSWinRT } from '@octane-xplat/platform/windows'
-import type { MeasureBounds, MeasureResult, UseMeasureOptions } from './props'
+import type { MeasureBounds, MeasureResult, UseMeasureOptions } from '../../props'
 
 // The preview's event-property projection owns one JS handler per native event.
 // Multiplex hook readers rather than replacing each other's LayoutUpdated delegate.

@@ -16,7 +16,7 @@ test('Windows gradients need no ColorHelper projection and replace the previous 
 		b = 255
 	}
 	const source = readFileSync(
-		new URL('../src/linear-gradient-apply.windows.ts', import.meta.url),
+		new URL('../src/components/media/linear-gradient-apply.windows.ts', import.meta.url),
 		'utf8',
 	)
 	const compiled = ts.transpile(source, {

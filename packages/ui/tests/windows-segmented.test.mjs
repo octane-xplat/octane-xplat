@@ -63,25 +63,28 @@ export class WindowsRadioGroup {
 
 const field = compiled(
 	'field',
-	readFileSync(new URL('../src/field-context.ts', import.meta.url), 'utf8'),
+	readFileSync(new URL('../src/components/forms/field-context.ts', import.meta.url), 'utf8'),
 	{
 		'./form-layout-context': support,
 		'./input-group-context': support,
-		'./size-context': support,
+		'../layout/size-context': support,
 	},
 	false,
 )
 
 const contexts = compiled(
 	'contexts',
-	readFileSync(new URL('../src/option-list-contexts.ts', import.meta.url), 'utf8'),
+	readFileSync(new URL('../src/components/forms/option-list-contexts.ts', import.meta.url), 'utf8'),
 	{},
 	false,
 )
 
 const nativeContext = compiled(
 	'native-context',
-	readFileSync(new URL('../src/radio-context.windows.ts', import.meta.url), 'utf8'),
+	readFileSync(
+		new URL('../src/components/forms/radio-context.windows.ts', import.meta.url),
+		'utf8',
+	),
 	{},
 	false,
 )
@@ -89,28 +92,31 @@ const nativeContext = compiled(
 const item = compiled(
 	'item',
 	readFileSync(
-		new URL('../src/SegmentedControlItem.windows.tsrx', import.meta.url),
+		new URL('../src/components/forms/SegmentedControlItem.windows.tsrx', import.meta.url),
 		'utf8',
 	).replace(/^import ['"].*['"]\s*;?$/gm, ''),
 	{
-		'./escape-props': support,
-		'./style-merge': support,
+		'../overlays/escape-props': support,
+		'../../internal/layout/style-merge': support,
 		'./option-list-contexts': contexts,
 		'./radio-context.windows': nativeContext,
-		'./useMeasure': support,
+		'../layout/useMeasure': support,
 	},
 )
 
 const control = compiled(
 	'control',
-	readFileSync(new URL('../src/SegmentedControl.windows.tsrx', import.meta.url), 'utf8'),
+	readFileSync(
+		new URL('../src/components/forms/SegmentedControl.windows.tsrx', import.meta.url),
+		'utf8',
+	),
 	{
 		'./radio-control.windows': support,
 		'./radio-context.windows': nativeContext,
 		'./SegmentedControlItem.windows': item,
-		'./style-merge': support,
+		'../../internal/layout/style-merge': support,
 		'@octane-xplat/lib': support,
-		'./escape-props': support,
+		'../overlays/escape-props': support,
 		'./field-context': field,
 		'./option-list-contexts': contexts,
 	},

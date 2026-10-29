@@ -6,7 +6,10 @@ import ts from 'typescript'
 
 // Projected-host contracts only; no real input devices, WinRT or renderer are used.
 const source = ts.transpile(
-	readFileSync(new URL('../src/media-query-host.windows.ts', import.meta.url), 'utf8'),
+	readFileSync(
+		new URL('../src/internal/platform/media-query-host.windows.ts', import.meta.url),
+		'utf8',
+	),
 	{
 		module: ts.ModuleKind.CommonJS,
 		target: ts.ScriptTarget.ES2022,

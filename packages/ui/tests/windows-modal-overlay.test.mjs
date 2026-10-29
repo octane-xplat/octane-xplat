@@ -25,9 +25,9 @@ const settle = async () => {
 function fixture({ deferClose = false } = {}) {
 	const state = { focus: [], errors: [], opened: 0, closed: 0, dismissed: 0, closers: [] }
 	const console = { error: (...args) => state.errors.push(args) }
-	const base = load('../src/overlay-lifetime-common.ts', undefined, console)
-	const exits = load('../src/windows-overlay-exit.ts', undefined, console)
-	const layers = load('../src/layer-stack.ts', undefined, console)
+	const base = load('../src/components/overlays/overlay-lifetime-common.ts', undefined, console)
+	const exits = load('../src/components/overlays/windows-overlay-exit.ts', undefined, console)
+	const layers = load('../src/components/overlays/layer-stack.ts', undefined, console)
 	const xamlRoot = {}
 	const child = (enabled = true) => ({
 		isEnabled: enabled,
@@ -112,7 +112,7 @@ function fixture({ deferClose = false } = {}) {
 		}
 	}
 	const api = load(
-		'../src/overlay-lifetime.windows.ts',
+		'../src/components/overlays/overlay-lifetime.windows.ts',
 		(name) => {
 			if (name === './overlay-lifetime-common') {
 				return base
@@ -378,7 +378,9 @@ test('Windows suffix type resolution keeps the common lifetime separate from the
 
 		const program = ts.createProgram({
 			rootNames: [
-				fileURLToPath(new URL('../src/overlay-lifetime.windows.ts', import.meta.url)),
+				fileURLToPath(
+					new URL('../src/components/overlays/overlay-lifetime.windows.ts', import.meta.url),
+				),
 				env,
 			],
 			options: {

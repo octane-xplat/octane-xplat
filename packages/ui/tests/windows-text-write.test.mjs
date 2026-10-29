@@ -5,7 +5,7 @@ import vm from 'node:vm'
 import ts from 'typescript'
 
 const source = ts.transpileModule(
-	readFileSync(new URL('../src/text-write.windows.ts', import.meta.url), 'utf8'),
+	readFileSync(new URL('../src/components/forms/text-write.windows.ts', import.meta.url), 'utf8'),
 	{ compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } },
 ).outputText
 

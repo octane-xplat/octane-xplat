@@ -75,12 +75,12 @@ export function Checkbox(props) @{
 const imports = Object.fromEntries(
 	[
 		'@octane-xplat/lib',
-		'./escape-props',
+		'../overlays/escape-props',
 		'./field-context',
 		'./option-list-contexts',
-		'./style-merge',
-		'./use-indicator',
-		'./useMeasure',
+		'../../internal/layout/style-merge',
+		'../feedback/use-indicator',
+		'../layout/useMeasure',
 	].map((name) => [name, support]),
 )
 
@@ -92,17 +92,20 @@ export {indicatorScope} from ${JSON.stringify(support)};`,
 
 const groupUrl = compiled(
 	'group',
-	readFileSync(new URL('../src/CheckboxGroup.windows.tsrx', import.meta.url), 'utf8'),
+	readFileSync(
+		new URL('../src/components/forms/CheckboxGroup.windows.tsrx', import.meta.url),
+		'utf8',
+	),
 	{ ...imports, './Checkbox': visuals },
 )
 
 const itemUrl = compiled(
 	'item',
-	readFileSync(new URL('../src/CheckboxListItem.windows.tsrx', import.meta.url), 'utf8').replace(
-		/^import ['"]\.\/(?:checkbox-control|Checkbox\.windows\.css)['"]\s*;?$/gm,
-		'',
-	),
-	{ ...imports, './indicators': indicators },
+	readFileSync(
+		new URL('../src/components/forms/CheckboxListItem.windows.tsrx', import.meta.url),
+		'utf8',
+	).replace(/^import ['"]\.\/(?:checkbox-control|Checkbox\.windows\.css)['"]\s*;?$/gm, ''),
+	{ ...imports, '../feedback/indicators': indicators },
 )
 
 const fixturesUrl = compiled(

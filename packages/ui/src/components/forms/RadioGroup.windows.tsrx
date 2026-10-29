@@ -1,20 +1,20 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { mergeStyle } from './style-merge'
+import { mergeStyle } from '../../internal/layout/style-merge'
 import { useCallback, useEffect, useRef, useState } from 'octane'
 import type { View } from '@nativescript/core'
 import { WindowsRadioGroup } from './radio-control.windows'
 import { WindowsRadioProvider } from './radio-context.windows'
-import { SegmentedControlItem } from './SegmentedControlItem.windows'
-import type { SegmentedControlProps } from './props'
+import { RadioListItem } from './RadioListItem.windows'
+import type { RadioGroupProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
-import { applyEscapeProps, nativeAccessibilityState } from './escape-props'
+import { applyEscapeProps, nativeAccessibilityState } from '../overlays/escape-props'
 import { useFieldControlProps } from './field-context'
-import { SegmentedControlProvider } from './option-list-contexts'
+import { RadioListProvider } from './option-list-contexts'
 
-/** Self-drawn segmented control — equal-width segments in a track, one
- *  selected (`--on`). Options come from `options` or `SegmentedControlItem`
- *  children; `layout="fill"` stretches segments to the full width. */
-export function SegmentedControl(inputProps: SegmentedControlProps) @{
+/** Self-drawn radio group — dot options in a column (or row with
+ *  `horizontal`). Options come from the `options` prop or `RadioListItem`
+ *  children (Astryx child part). */
+export function RadioGroup(inputProps: RadioGroupProps) @{
 	const props = useFieldControlProps(inputProps)
 	const [internal, setInternal] = useState(props.defaultValue)
 	const current = props.value ?? internal
@@ -62,16 +62,19 @@ export function SegmentedControl(inputProps: SegmentedControlProps) @{
 		ref={bindRoot}
 		id={props.id}
 		className={cx(
-			'vx-segmented',
-			props.layout === 'fill' && 'vx-segmented--fill',
-			props.isDisabled && 'vx-segmented--disabled',
-			props.isReadOnly && 'vx-segmented--readonly',
-			props.isLoading && 'vx-segmented--loading',
-			props.status && `vx-segmented--status-${props.status.type}`,
-			props.size && `vx-segmented--size-${props.size}`,
+			'vx-radio-group',
+			props.horizontal && 'vx-radio-group--row',
+			props.isDisabled && 'vx-radio-group--disabled',
+			props.isReadOnly && 'vx-radio-group--readonly',
+			props.isLoading && 'vx-radio-group--loading',
+			props.status && `vx-radio-group--status-${props.status.type}`,
+			props.size && `vx-radio-group--size-${props.size}`,
 			props.className,
 		)}
-		style={mergeStyle({ display: 'flex' }, props.style)}
+		style={mergeStyle(
+			{ flexDirection: props.horizontal ? 'row' : 'column' },
+			mergeStyle({ display: 'flex' }, props.style),
+		)}
 		accessibilityLabel={
 			props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label
 		}
@@ -79,17 +82,12 @@ export function SegmentedControl(inputProps: SegmentedControlProps) @{
 		accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled })}
 	>
 		<WindowsRadioProvider value={group}>
-			<SegmentedControlProvider value={ctx}>
+			<RadioListProvider value={ctx}>
 				{(props.options ?? []).map((opt) => (
-					<SegmentedControlItem
-						key={opt.value}
-						value={opt.value}
-						label={opt.label}
-						isDisabled={opt.isDisabled}
-					/>
+					<RadioListItem key={opt.value} {...opt} />
 				))}
 				{props.children}
-			</SegmentedControlProvider>
+			</RadioListProvider>
 		</WindowsRadioProvider>
 	</masonview>
 }

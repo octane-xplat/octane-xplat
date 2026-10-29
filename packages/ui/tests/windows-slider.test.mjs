@@ -63,18 +63,18 @@ export const usePan=callback=>callback;`,
 
 const field = compiled(
 	'field',
-	readFileSync(new URL('../src/field-context.ts', import.meta.url), 'utf8'),
+	readFileSync(new URL('../src/components/forms/field-context.ts', import.meta.url), 'utf8'),
 	{
 		'./form-layout-context': support,
 		'./input-group-context': support,
-		'./size-context': support,
+		'../layout/size-context': support,
 	},
 	false,
 )
 
 const model = compiled(
 	'model',
-	readFileSync(new URL('../src/slider-model.windows.ts', import.meta.url), 'utf8'),
+	readFileSync(new URL('../src/components/forms/slider-model.windows.ts', import.meta.url), 'utf8'),
 	{},
 	false,
 )
@@ -86,18 +86,18 @@ const chrome = compiled(
 
 const slider = compiled(
 	'slider',
-	readFileSync(new URL('../src/Slider.windows.tsrx', import.meta.url), 'utf8').replace(
-		/^import ['"]\.\/(?:slider-control|Slider\.windows\.css)['"]\s*;?$/gm,
-		'',
-	),
+	readFileSync(
+		new URL('../src/components/forms/Slider.windows.tsrx', import.meta.url),
+		'utf8',
+	).replace(/^import ['"]\.\/(?:slider-control|Slider\.windows\.css)['"]\s*;?$/gm, ''),
 	{
 		'@octane-xplat/lib': support,
 		'./field-context': field,
 		'./FormField': chrome,
-		'./escape-props': support,
-		'./style-merge': support,
-		'./useMeasure': support,
-		'./pan': support,
+		'../overlays/escape-props': support,
+		'../../internal/layout/style-merge': support,
+		'../layout/useMeasure': support,
+		'../layout/pan': support,
 		'./slider-control': support,
 		'./slider-model.windows': model,
 	},

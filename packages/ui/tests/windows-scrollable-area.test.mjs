@@ -20,8 +20,8 @@ function evaluate(file, dependencies = {}, context = {}) {
 	return exports
 }
 
-const stateModule = evaluate('../src/scrollable-area-state.ts')
-const refsModule = evaluate('../src/ref-list.ts')
+const stateModule = evaluate('../src/components/layout/scrollable-area-state.ts')
+const refsModule = evaluate('../src/internal/accessibility/ref-list.ts')
 
 // Scripted hook slots exercise source logic without claiming an Octane compiler,
 // renderer or WinUI pass. This hook has no conditional or repeated hook calls.
@@ -66,10 +66,10 @@ function fixture() {
 		},
 	}
 	const { useScrollableArea } = evaluate(
-		'../src/use-scrollable-area.windows.tsrx',
+		'../src/components/layout/use-scrollable-area.windows.tsrx',
 		{
 			octane: hooks,
-			'./ref-list': refsModule,
+			'../../internal/accessibility/ref-list': refsModule,
 			'./scrollable-area-state': stateModule,
 		},
 		{ queueMicrotask: (callback) => microtasks.push(callback) },

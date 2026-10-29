@@ -5,9 +5,9 @@ import type {
 	UseScrollableAreaOptions,
 	UseScrollableAreaResult,
 	UseScrollableAreaViewportProps,
-} from './props'
+} from '../../props'
 
-import { refList } from './ref-list'
+import { refList } from '../../internal/accessibility/ref-list'
 import { INITIAL_SCROLL_STATE, sameScrollState, scrollableAreaState } from './scrollable-area-state'
 // Mason's Windows view exposes these metrics in layout units, not backing pixels.
 const metric = (value: unknown): number => {

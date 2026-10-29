@@ -1,10 +1,10 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { mergeStyle } from './style-merge'
+import { mergeStyle } from '../../internal/layout/style-merge'
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx'
-import { SizeProvider } from './size-context'
+import { SizeProvider } from '../layout/size-context'
 import { useCallback, useEffect, useId, useRef, useState } from 'octane'
 import { GridLayout } from '@nativescript/core'
-import { createPortal } from './native-portal'
+import { createPortal } from '../../internal/platform/native-portal'
 import type {
 	ContextLayerReturn,
 	ContextRenderProps,
@@ -12,15 +12,15 @@ import type {
 	FixedLayerReturn,
 	FixedRenderProps,
 	LayerOptions,
-} from './props'
+} from '../../props'
 
 import { Popover } from './Popover'
-import type { PopoverInternalProps } from './internal-props'
-import { applyNativeProps } from './platformProps'
-import { useThemeScheme } from './theme/theme-scheme'
-import { applyThemeClasses } from './theme/theme-host'
+import type { PopoverInternalProps } from '../../internal-props'
+import { applyNativeProps } from '../../internal/platform/platformProps'
+import { useThemeScheme } from '../../theme/theme-scheme'
+import { applyThemeClasses } from '../../theme/theme-host'
 import { cx } from '@octane-xplat/lib'
-import { rootLayoutFor } from './root-layout'
+import { rootLayoutFor } from '../layout/root-layout'
 import { createOverlayLifetime } from './overlay-lifetime'
 import { layerOffset } from './popover-position'
 

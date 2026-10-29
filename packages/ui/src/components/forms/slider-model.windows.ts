@@ -1,4 +1,4 @@
-import type { SliderProps } from './props'
+import type { SliderProps } from '../../props'
 
 export type SliderValue = number | [number, number]
 export type SliderThumb = 'lower' | 'upper'
