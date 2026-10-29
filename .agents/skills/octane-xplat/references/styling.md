@@ -138,9 +138,12 @@ import '@octane-xplat/ui/theme/tokens.css'
   linear-gradient backgrounds support direction keywords, degree angles and
   percentage stops (no image URLs or multiple layers). Labels honor padding,
   letter-spacing and italic; `visibility` hides or collapses; `cursor` and
-  `user-select` apply. Only `:disabled` responds to state; GTK also matches the NativeScript
-  visual states plus `:hover`, re-checks media queries on resize, and plays
-  `@keyframes`. Both ignore some properties. Check each renderer's
+  `user-select` apply. Both match `:hover`, `:focus` and the NativeScript
+  visual states and re-check media queries on window resize. AppKit derives
+  focus states from the first responder, evaluates media queries against the
+  largest window for every window, and has not runtime-qualified state
+  delivery. GTK plays `@keyframes`; AppKit keyframes are a source path only.
+  Both ignore some properties. Check each renderer's
   [Apply stylesheets](../../../../packages/macos-renderer/README.md#apply-stylesheets)
   ([GTK](../../../../packages/linux-gtk-renderer/README.md#apply-stylesheets))
   limits before promising a property or pseudo-class. Note `className` is

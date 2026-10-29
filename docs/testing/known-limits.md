@@ -31,8 +31,9 @@ harness motion-package route remains unsupported because its gesture and
 reduced-motion hosts are mobile-only; the separate AppKit UI ref-animation
 fixture does not establish motion-package support. AppKit applies app and
 Bamboo stylesheets, with the [limits listed for the renderer](../../packages/macos-renderer/README.md#apply-stylesheets):
-only `:disabled` responds to state, media queries ignore window resizes, and
-animations are not played. See the
+state selectors and window-resize media queries have source support that has
+not been checked on a running Mac, media queries use one viewport for every
+window, and keyframe playback is limited to a source path. See the
 [Lottie integration record](../../.agents/docs/notes/lottie-appkit-investigation.md) and
 [non-visual macOS checks](../../apps/macos/README.md#non-visual-smoke-checks) for
 the runtime evidence and its boundaries.

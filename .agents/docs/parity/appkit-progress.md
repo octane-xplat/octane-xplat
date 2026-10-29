@@ -9921,3 +9921,55 @@ pnpm check:changelog
 
 Clean-worktree rebase/local-main merge and feature-branch publication follow the
 human's Git workflow; they supply no native qualification. Goal remains active.
+
+## AppKit CSS state selectors and resize media
+
+Demand assumption: hover rows, pressed buttons, keyboard focus rings and
+narrow-window layouts are everyday stylesheet needs. Source review found the
+renderer already wires `:hover` (tracking area), `:active`/`:pressed`/
+`:highlighted` (passive press recognizer), `:focus`/`:focus-visible`/
+`:focus-within` (window first responder), switch `:checked`, `:disabled` and
+`:normal` since d0dd2418b, and re-evaluates stylesheet `@media` on host window
+resize since 6342fd4a3. Neither is in v0.18.0. The renderer README, known-limits
+page, Octane styling reference and issue #62 still said only `:disabled`
+responds and media ignore resize. Those claims are corrected.
+
+One source defect was repaired: CSS `:focus-visible` read only
+`NSWindow.keyViewSelectionDirection` during the later window-update
+notification. Apple documents it as the direction currently used to change key
+view, so Tab focus probably reads DirectSelection there (hypothesis; not
+reproduced natively). `installCssModalityObserver` now records the last input
+modality through the existing renderer key/pointer dispatchers (unmodified or
+Shift keyDown = keyboard; left/right/other mouse down = pointer; never consumes
+events), installed only when a stylesheet uses `:focus-visible`.
+`syncContainerFocus` matches text entry (`textfield`/`textview`/`searchbar`,
+browser parity), a non-zero traversal direction, or keyboard modality.
+Maintained consumer: the AppKit column resize handle's `:focus-visible` rule.
+
+Media rules use one process-wide viewport, the largest host window's content
+area; secondary windows cannot have their own media results. This is documented
+as a limit, not changed.
+
+Three new cases in `css-machinery.test.ts`, all UNRUN: modality observer,
+`:focus-visible` resolution (modality/direction/text entry/field editor), and
+the resize observer (single install, foreign-window filtering, microtask
+coalescing, restyle gated on media changes). Recipe `appkit-responsive-layout`
+gains AC7 for stylesheet resize media. Release note
+`.changelog/appkit-css-states.md` covers the unreleased feature. Lightweight
+verification only: two TS files parsed with zero diagnostics, whitespace check.
+Actual tracking-area hover, press delivery, OS Tab/field-editor focus,
+modality ordering, window resize/restyle timing, VoiceOver and pixels remain
+unqualified.
+
+Exact deferred commands (DO NOT RUN until explicit human authorization):
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer -- test/css-machinery.test.ts
+pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer
+pnpm probe run examples/probes/container-reveal.macos.tsrx --target macos --watch
+pnpm probe run examples/probes/responsive-layout.macos.tsrx --target macos --watch
+pnpm check:recipes
+pnpm check:docs
+pnpm check:doc-examples
+pnpm check:changelog
+```

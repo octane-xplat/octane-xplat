@@ -277,14 +277,16 @@ on plain and formatted text, and italic `font-style`. `visibility: hidden` keeps
 slot while suppressing paint and input; `visibility: collapse` drops it.
 `cursor` pushes the matching AppKit cursor while the pointer is inside the
 view (`none` hides it); `user-select` toggles `selectable` on labels and
-html views. `outline`/`outline-*` draws a solid ring outside the border edge
-— focus-ring styles land when a stylesheet declares them, though `:focus`
-still never matches.
+html views. `outline`/`outline-*` draws a solid ring outside the border edge,
+so a `:focus` or `:focus-visible` rule can draw a focus ring.
 
 ```css
 .caption { padding: 2px 6px; letter-spacing: 0.5px; font-style: italic; }
 .ghost { visibility: hidden; }
 .link { cursor: pointer; user-select: none; }
+.row:hover { background-color: #eef3ff; }
+.action:focus-visible { outline: 2px solid #1677ff; }
+@media (max-width: 600px) { .sidebar { display: none; } }
 ```
 
 Formatted runs inherit numeric letter spacing from their host and ancestors.
@@ -341,10 +343,18 @@ This is not full CSS border/outline or pixel parity. See [AppKit borders](../../
 
 Current limits:
 
-- Only `:disabled` responds to state. `:hover`, `:active`, `:pressed`, and
-  `:focus` rules never match yet.
-- Media queries are re-checked when the appearance or the stylesheets
-  change, but not when a window resizes.
+- State selectors follow AppKit state: `:hover` (a tracking area),
+  `:active`/`:pressed`/`:highlighted` (a passive press recognizer), `:focus`,
+  `:focus-visible` and `:focus-within` (the window's first responder),
+  `:checked` on switches, `:disabled` and `:normal`. A view only gets this
+  tracking when some registered selector uses the state. `:focus-visible`
+  matches text entry, Tab traversal and focus after unmodified keyboard input;
+  pointer focus on other views does not match. Real pointer, keyboard and focus
+  delivery has not been checked on a running Mac.
+- Media queries are re-checked when the appearance or the stylesheets change
+  and when a host window resizes (coalesced into one restyle). Width and height
+  come from a single viewport, the largest host window's content area, so a
+  secondary window cannot have its own media results.
 - Matched keyframes now have a shared sampler/timer source path. Explicit
   animation:none/animation-name:none resets earlier accumulated tracks; this
   is not full browser animation-cascade parity. AppKit busy-control rules use
