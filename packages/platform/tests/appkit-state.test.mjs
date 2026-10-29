@@ -6,7 +6,7 @@ import ts from 'typescript'
 
 // Future source models; no Octane compiler, native window or OS event is exercised.
 const files = ['appkit-state.macos.ts', 'screen.macos.tsrx', 'lifecycle.macos.tsrx',
-	'safe-area.macos.tsrx', 'breakpoints.macos.tsrx', 'index.macos.ts']
+	'safe-area.macos.tsrx', 'breakpoints.macos.tsrx', 'locale.macos.ts', 'device.macos.ts', 'index.macos.ts']
 const compiled = Object.fromEntries(await Promise.all(files.map(async file => [file, ts.transpile(
 	await readFile(new URL(`../src/${file}`, import.meta.url), 'utf8'),
 	{ module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },

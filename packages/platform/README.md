@@ -58,6 +58,20 @@ export function ReadingScreen() {
 }
 ```
 
+For AppKit locale metadata, root and direct imports share a module-load snapshot.
+`Intl.Locale` separates language/region while keeping script/extension subtags in
+the full tag. Missing/invalid Intl falls back to English with no region. This
+is not a live preferred-language list; device model/version discovery and native
+qualification remain open. See [AppKit metadata](../../docs/platform/platform-services.md#read-appkit-locale-and-device-metadata).
+
+```ts
+import { locale, device } from '@octane-xplat/platform'
+
+const initialLanguage = locale.language
+const region = locale.region
+const platform = device.os
+```
+
 On experimental AppKit, `openSettings` opens the installed System Settings
 application without choosing a pane. Check availability before an explicit
 user action; acceptance does not confirm presentation or a permission change.

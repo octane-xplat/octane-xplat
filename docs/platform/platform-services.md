@@ -169,6 +169,42 @@ export function ReadingScreen() {
 }
 ```
 
+## Read AppKit locale and device metadata
+
+Use `locale` for the runtime's formatting locale and `device` for the AppKit
+identity. The root and direct `locale`/`device` imports select the same objects.
+A tag such as `zh-Hant-TW` keeps its script in `tag`, with language `zh` and
+region `TW`; a language-only tag has an empty region:
+
+```ts
+import { locale, device } from '@octane-xplat/platform'
+import { locale as directLocale } from '@octane-xplat/platform/locale'
+import { device as directDevice } from '@octane-xplat/platform/device'
+
+console.log(locale.tag, locale.language, locale.region)
+console.log(device.os) // macos in a native AppKit app
+console.log(locale === directLocale, device === directDevice) // true
+```
+
+AppKit reads `Intl.DateTimeFormat().resolvedOptions().locale` once when the
+module loads and parses it with `Intl.Locale`. Missing, throwing or invalid Intl
+reads/parsing use `{ tag: 'en', language: 'en', region: '' }`. This snapshot does
+not subscribe to OS preference changes or enumerate preferred languages. Device
+identity remains `macos`, `Mac`, `Apple`, with OS version `unknown`; no hardware
+model/version discovery is claimed. Choose your app's translated catalogs through
+[Lingui](../app/localization.md#locale-detection), independently of this metadata:
+
+```ts
+import { locale } from '@octane-xplat/platform/locale'
+import { matchLocale } from '@octane-xplat/lingui'
+
+const initialLanguage = matchLocale(locale.tag, ['en', 'zh'], 'en')
+```
+
+These native leaves avoid the phone `Device` import. Actual JavaScriptCore Intl
+behavior, generated/installed resolution and OS preference/relaunch behavior
+remain unqualified; source models do not establish those runtime results.
+
 ## Read AppKit window and activity state
 
 In a native macOS screen, use the primary window's content size to choose a

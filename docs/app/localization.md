@@ -268,6 +268,18 @@ The system source is per target:
 | iOS, Android   | `@nativescript/core` `Device.language`           |
 | macOS, Windows | `Intl.DateTimeFormat().resolvedOptions().locale` |
 
+For AppKit runtime metadata, the platform's `locale` snapshot preserves script
+and region parts without confusing one for the other. Feed its full tag into
+`matchLocale` when you explicitly choose that snapshot as the candidate; Lingui's
+own system detector is unchanged. See [snapshot/fallback limits](../platform/platform-services.md#read-appkit-locale-and-device-metadata).
+
+```ts
+import { locale } from '@octane-xplat/platform/locale'
+import { matchLocale } from '@octane-xplat/lingui'
+
+const candidate = matchLocale(locale.tag, ['en', 'zh'], 'en')
+```
+
 ## Native formatting data
 
 On iOS and Android, importing the Lingui integration installs the Intl APIs

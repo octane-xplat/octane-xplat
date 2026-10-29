@@ -191,6 +191,30 @@ import { random } from '@octane-xplat/platform'
 const nonce = random.bytes(16)
 ```
 
+## AppKit locale and device imports
+
+The platform root and canonical locale/device subpaths (including existing .ts
+spellings) select dedicated AppKit runtime and generated-type leaves. Do not use
+phone Device or add it to the renderer shim for these services. The locale is an
+Intl formatting snapshot at module load: Intl.Locale preserves the full script/
+extension tag while separating language and region. Unavailable/invalid Intl
+reads/parsing fall back to en with an empty region. Device remains macos/Mac/Apple,
+osVersion unknown; this adds no preferred-language enumeration, live OS-locale
+subscription or hardware/version discovery. Lingui's own detector is unchanged.
+Source/packed-consumer cases are authored but unrun; JSC/OS/installed behavior
+remains unqualified. See [metadata contract](../../../../docs/platform/platform-services.md#read-appkit-locale-and-device-metadata).
+
+```ts
+import { locale, device } from '@octane-xplat/platform'
+import { locale as directLocale } from '@octane-xplat/platform/locale'
+import { device as directDevice } from '@octane-xplat/platform/device.ts'
+
+const initialLanguage = locale.language
+const region = locale.region
+// Root and direct imports use the same AppKit snapshots.
+const same = locale === directLocale && device === directDevice
+```
+
 ## Copy text on AppKit
 
 AppKit `clipboard.canCopy` checks write access independently of read access.

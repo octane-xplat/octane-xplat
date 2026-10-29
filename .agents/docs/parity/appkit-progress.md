@@ -8142,3 +8142,73 @@ packaging ran. Actual hook/effect/timer ownership, keyboard/pointer activation,
 VoiceOver, bridge rejection timing, navigation retention and installed consumers
 remain unqualified on AppKit; shared mobile/web runtime is also unverified for
 this change. Qualification checkboxes stay open; persistent goal stays active.
+
+## AppKit locale and device purpose imports
+
+Demand assumption: ordinary localized forms/settings need correct language and
+region metadata before optional integrations. The localization guide uses system
+locale detection and explicit matching; the maintained HumanQA flow consumes
+device information. Source review found canonical/explicit .ts locale/device
+subpaths still mapped to generic files importing NativeScript Device, which the
+AppKit shim does not export. The AppKit root had separate metadata and split the
+second locale subtag as a region, so zh-Hant-TW produced region Hant. Its top-level
+Intl read could also throw during import. These are source/import risks, not a
+newly executed native or production-bundle failure.
+
+Dedicated locale/device AppKit leaves now share one module-load snapshot with
+the root. Intl.DateTimeFormat provides the formatting locale; Intl.Locale parses
+and canonicalizes the full tag, preserving script/extension subtags while
+separating language and region (including numeric regions). Underscores normalize
+to hyphens. Unavailable, throwing or invalid Intl read/parsing falls back to
+tag/language en and an empty region. No fallback parser, dependency, OS preference
+subscription or preferred-language enumeration is added. Device retains the
+existing macos/Mac/Apple identity and unknown OS version; hardware/model/version
+discovery is outside this repair. Lingui's own detector and other-target leaves
+remain unchanged. App catalog selection stays an explicit separate step.
+
+Four explicit metadata export keys pair macos runtime/generated declaration
+paths for canonical and existing .ts spellings; non-macOS defaults retain the
+old wildcard paths. The platform root re-exports the same leaf objects. The
+existing state fixture includes these dependencies. Four new source models cover
+canonical script/numeric/extension/language-only tags, unavailable/invalid Intl,
+root/purpose identity/snapshot lifetime and export conditions. Packed source
+checks add an isolated metadata lane (so root imports cannot mask a broken
+purpose path), and existing Bundler/NodeNext/declaration-only AppKit consumers
+include the canonical/explicit paths. All models/packed checks are authored UNRUN.
+No renderer/compiler/native execution is implied by a fake Intl/module graph.
+
+Guide, localization cross-link, package README, Octane services reference and
+appkit-locale-metadata recipe document snapshot/fallback and qualification limits.
+Semantic impact reports incomplete, heavily name-colliding edges; target imports
+and the existing localization/HumanQA entry points were reviewed directly. The
+entity history command returned no root-locale changes; exact v0.18.0 source
+still contains the root split and wildcard map, establishing released behavior
+for the fix note without inventing entity history. No shared CLI/Vite/UI manifest,
+public type shape, generated declarations or shared audit snapshot changed.
+No React Aria presence-level equivalent changes are involved.
+
+Exact deferred commands, pending this human's verification go-ahead:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/platform
+pnpm exec turbo run typecheck --filter=...@octane-xplat/platform
+pnpm exec turbo run typegen --filter=@octane-xplat/platform
+pnpm exec turbo run test:packed --filter=@octane-xplat/platform
+pnpm exec turbo run pack:check --filter=@octane-xplat/platform
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit locale metadata package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+pnpm check:docs
+pnpm check:doc-examples
+```
+
+check:docs/check:doc-examples remain absent in this isolated revision; shared
+in-flight tooling was not copied. Seven source files and six scoped documentation fences syntax parsed. One
+manifest parsed; four AppKit runtime export paths and 18 local documentation
+paths/anchors exist. Staged semantic/whitespace review completes the permitted
+source checks only. No tests, compiler transforms, typechecks,
+typegen, builds, probes, native/OS/AX/visual analysis, preference reads/changes or
+packaging ran. Actual JavaScriptCore Intl/locale data, generated declarations,
+installed consumer resolution, cold/relaunch behavior, OS preference changes,
+RTL/component output and supported macOS versions remain unqualified. The
+snapshot does not promise live OS changes. Evidence-gated checkboxes stay open;
+persistent goal remains active.

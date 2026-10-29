@@ -240,6 +240,38 @@
 			},
 			"types": "./types/generated/environment.d.ts",
 			"default": "./src/environment.ts"
+		},
+		"./locale": {
+			"macos": {
+				"types": "./types/generated/locale.macos.d.ts",
+				"default": "./src/locale.macos.ts"
+			},
+			"types": "./types/generated/locale.d.ts",
+			"default": "./src/locale"
+		},
+		"./locale.ts": {
+			"macos": {
+				"types": "./types/generated/locale.macos.d.ts",
+				"default": "./src/locale.macos.ts"
+			},
+			"types": "./types/generated/locale.d.ts",
+			"default": "./src/locale.ts"
+		},
+		"./device": {
+			"macos": {
+				"types": "./types/generated/device.macos.d.ts",
+				"default": "./src/device.macos.ts"
+			},
+			"types": "./types/generated/device.d.ts",
+			"default": "./src/device"
+		},
+		"./device.ts": {
+			"macos": {
+				"types": "./types/generated/device.macos.d.ts",
+				"default": "./src/device.macos.ts"
+			},
+			"types": "./types/generated/device.d.ts",
+			"default": "./src/device.ts"
 		}
 	},
 	"publishConfig": {

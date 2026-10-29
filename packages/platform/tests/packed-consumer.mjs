@@ -167,6 +167,20 @@ try {
 		if (target !== 'macos') subpaths.push('/clipboard', '/keep-awake')
 		else subpaths.push('/use-keep-awake', '/connectivity', '/storage')
 
+		const metadataContents = ['/locale', '/device', '/locale.ts', '/device.ts']
+			.map((subpath, i) => `import * as metadata${i} from '@octane-xplat/platform${subpath}'; console.log(metadata${i});`)
+			.join('\n')
+		// Keep metadata separate from the root, so root re-exports cannot mask a
+		// broken purpose condition. Includes canonical and existing .ts spellings.
+		const metadata = await compile(metadataContents)
+		if (target === 'macos') {
+			for (const service of ['locale', 'device']) {
+				assert.ok(metadata.files.includes(`${installed}/src/${service}.macos.ts`))
+				assert.ok(!metadata.files.includes(`${installed}/src/${service}.ts`))
+			}
+			assert.doesNotMatch(metadata.code, /@nativescript\/core/, 'AppKit metadata avoids the phone Device import')
+		}
+
 		const contents = subpaths
 			.map(
 				(subpath, i) =>
@@ -250,7 +264,7 @@ try {
 			}
 		}
 
-		writeFileSync(join(temporary, 'consumer.ts'), contents + '\n' + legacyContents)
+		writeFileSync(join(temporary, 'consumer.ts'), contents + '\n' + legacyContents + '\n' + metadataContents)
 		for (const mode of [ts.ModuleResolutionKind.Bundler, ts.ModuleResolutionKind.NodeNext]) {
 			const program = ts.createProgram([join(temporary, 'consumer.ts')], {
 				strict: true,

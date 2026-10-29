@@ -1,12 +1,7 @@
 import { UnavailabilityError } from '@octane-xplat/lib/capability'
 import type { Service } from '@octane-xplat/lib/capability'
 import { host } from './appkit-host'
-import type {
-	AppInfo,
-	DeviceInfo,
-	Locale,
-	WebAuthnImpl,
-} from './types'
+import type { AppInfo, WebAuthnImpl } from './types'
 
 export type {
 	AppState,
@@ -41,17 +36,8 @@ export type {
 	Service,
 } from '@octane-xplat/lib/capability'
 
-const language = Intl.DateTimeFormat().resolvedOptions().locale
-const [languageTag = '', region = ''] = language.split(/[-_]/)
-
-export const device: DeviceInfo = {
-	os: 'macos',
-	osVersion: 'unknown',
-	model: 'Mac',
-	manufacturer: 'Apple',
-	language: languageTag,
-	region,
-}
+export { device } from './device.macos'
+export { locale } from './locale.macos'
 
 export const appInfo: AppInfo = {
 	get supported() {
@@ -67,8 +53,6 @@ export const appInfo: AppInfo = {
 		return host().appInfo?.bundleId ?? null
 	},
 }
-
-export const locale: Locale = { tag: language, language: languageTag, region }
 
 export { connectivity } from './connectivity.macos'
 
