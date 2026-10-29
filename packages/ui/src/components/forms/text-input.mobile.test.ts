@@ -48,7 +48,9 @@ describe('native controlled input writes', () => {
 		const root = createUniversalRoot(container, createObjectDriver('nativescript'))
 		let field: any
 		const ref = (handle: any) => {
-			if (!handle) return
+			if (!handle) {
+				return
+			}
 			field = handle.native
 			field.style = {}
 		}
@@ -144,7 +146,9 @@ describe('native TextArea row sizing', () => {
 				loaded = callback
 			}),
 			off: vi.fn((_event: string, callback: () => void) => {
-				if (loaded === callback) loaded = undefined
+				if (loaded === callback) {
+					loaded = undefined
+				}
 			}),
 		}
 		const dispose = fitTextArea(view, { rows: 2 })

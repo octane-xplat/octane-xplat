@@ -7,7 +7,7 @@ import { createInterface } from 'node:readline'
 import test from 'node:test'
 import { build } from 'vite'
 import { xplatLinuxGtk } from '../../cli/src/linux-gtk/vite.ts'
-for (const fallback of [false, true])
+for (const fallback of [false, true]) {
 	test(
 		'GTK radio lists preserve fields and grouped keyboard navigation (' +
 			(fallback ? 'Gtk.Box' : 'Mason') +
@@ -44,10 +44,11 @@ for (const fallback of [false, true])
 				GTK_RADIO_FALLBACK: fallback ? '1' : '0',
 			}
 			if (fallback) {
-				if (env.GI_TYPELIB_PATH)
+				if (env.GI_TYPELIB_PATH) {
 					env.GI_TYPELIB_PATH = env.GI_TYPELIB_PATH.split(':')
 						.filter((path) => path !== nativeDir)
 						.join(':')
+				}
 				const installed = spawnSync(
 					'gjs',
 					[
@@ -76,7 +77,9 @@ for (const fallback of [false, true])
 			const lines = createInterface({ input: child.stdout })
 			lines.on('line', (line) => {
 				stdout += line + '\n'
-				if (!line.startsWith('GTK_RADIO_READY ')) return
+				if (!line.startsWith('GTK_RADIO_READY ')) {
+					return
+				}
 				try {
 					const phase = JSON.parse(line.slice('GTK_RADIO_READY '.length))
 					const id = execFileSync(
@@ -91,7 +94,9 @@ for (const fallback of [false, true])
 					if (phase.point) {
 						send('mousemove', '--window', id, String(phase.point.x), String(phase.point.y))
 						send('click', '1')
-					} else send('key', phase.key)
+					} else {
+						send('key', phase.key)
+					}
 					send('key', 'F12')
 				} catch (error) {
 					inputError = error
@@ -102,7 +107,9 @@ for (const fallback of [false, true])
 			t.after(() => {
 				clearTimeout(timer)
 				lines.close()
-				if (child.exitCode === null) child.kill()
+				if (child.exitCode === null) {
+					child.kill()
+				}
 			})
 			const code = await new Promise((resolve, reject) => {
 				child.once('error', reject)
@@ -135,3 +142,4 @@ for (const fallback of [false, true])
 			)
 		},
 	)
+}

@@ -26,7 +26,9 @@ const pause = (ms = 100) =>
 	)
 let checks = 0
 const check = (name: string, ok: boolean) => {
-	if (!ok) throw new Error(name)
+	if (!ok) {
+		throw new Error(name)
+	}
 	checks++
 }
 const node = (id: string) => [...container.nodes.values()].find((n) => n.props.id === id)!
@@ -40,7 +42,9 @@ let acknowledgments = 0
 const keys = new Gtk.EventControllerKey()
 keys.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
 keys.connect('key-pressed', (_: unknown, key: number) => {
-	if (key !== 65481) return false
+	if (key !== 65481) {
+		return false
+	}
 	acknowledgments++
 	return true
 })
@@ -48,7 +52,9 @@ window.add_controller(keys)
 async function input(text?: string, key?: string) {
 	const ack = acknowledgments + 1
 	print('GTK_TEXT_VIEW_READY ' + JSON.stringify({ text, key }))
-	for (let i = 0; i < 200 && acknowledgments < ack; i++) await pause(25)
+	for (let i = 0; i < 200 && acknowledgments < ack; i++) {
+		await pause(25)
+	}
 	check('OS input acknowledgment', acknowledgments >= ack)
 	await pause()
 }
@@ -208,7 +214,9 @@ async function run() {
 			const submit = mode === 'done' || mode === 'send'
 			check('Return behavior for ' + mode, view.text === (submit ? 'line' : 'line\n'))
 			check('submit behavior for ' + mode, submits.length === count + (submit ? 1 : 0))
-			if (submit) check('submit uses current handler', submits.at(-1) === props.version)
+			if (submit) {
+				check('submit uses current handler', submits.at(-1) === props.version)
+			}
 		}
 		await render({ value: 'Shift', returnKey: 'done' })
 		view.set_position(5)
@@ -264,4 +272,6 @@ run()
 	})
 	.finally(() => loop.quit())
 loop.run()
-if (failure) throw failure
+if (failure) {
+	throw failure
+}

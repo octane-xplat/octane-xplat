@@ -51,7 +51,9 @@ test(
 		const lines = createInterface({ input: child.stdout })
 		lines.on('line', (line) => {
 			stdout += line + '\n'
-			if (!line.startsWith('GTK_TEXT_VIEW_READY ')) return
+			if (!line.startsWith('GTK_TEXT_VIEW_READY ')) {
+				return
+			}
 			try {
 				const phase = JSON.parse(line.slice('GTK_TEXT_VIEW_READY '.length))
 				const id = execFileSync(
@@ -69,8 +71,12 @@ test(
 					}
 				}
 				send('windowfocus', id)
-				if (phase.text) send('type', '--clearmodifiers', '--delay', '30', phase.text)
-				if (phase.key) send('key', '--clearmodifiers', phase.key)
+				if (phase.text) {
+					send('type', '--clearmodifiers', '--delay', '30', phase.text)
+				}
+				if (phase.key) {
+					send('key', '--clearmodifiers', phase.key)
+				}
 				send('key', 'F12')
 			} catch (error) {
 				inputError = error
@@ -81,7 +87,9 @@ test(
 		t.after(() => {
 			clearTimeout(deadline)
 			lines.close()
-			if (child.exitCode === null) child.kill()
+			if (child.exitCode === null) {
+				child.kill()
+			}
 		})
 		const code = await new Promise((resolve, reject) => {
 			child.once('error', reject)

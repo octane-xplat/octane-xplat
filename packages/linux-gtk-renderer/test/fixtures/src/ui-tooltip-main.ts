@@ -30,13 +30,18 @@ const pause = (ms = 100) =>
 	)
 let checks = 0
 const check = (name: string, ok: boolean) => {
-	if (!ok) throw new Error(name)
+	if (!ok) {
+		throw new Error(name)
+	}
 	checks++
 }
 const node = (id: string) => [...container.nodes.values()].find((n) => n.props.id === id)!
 const popup = (anchor: any) => {
-	for (let child = anchor.get_first_child(); child; child = child.get_next_sibling())
-		if (child instanceof Gtk.Popover) return child
+	for (let child = anchor.get_first_child(); child; child = child.get_next_sibling()) {
+		if (child instanceof Gtk.Popover) {
+			return child
+		}
+	}
 	throw new Error('no native popover')
 }
 const emit = (anchor: any, type: string) => {
@@ -44,8 +49,11 @@ const emit = (anchor: any, type: string) => {
 	for (let i = 0; i < model.get_n_items(); i++) {
 		const controller = model.get_item(i)
 		if (controller instanceof Gtk.EventControllerMotion) {
-			if (type === 'enter') controller.emit('enter', 0, 0)
-			else controller.emit('leave')
+			if (type === 'enter') {
+				controller.emit('enter', 0, 0)
+			} else {
+				controller.emit('leave')
+			}
 		}
 	}
 }
@@ -73,7 +81,9 @@ async function phase(name: string) {
 				y: bounds.y + bounds.height / 2,
 			}),
 	)
-	for (let i = 0; i < 250 && ack < next; i++) await pause(20)
+	for (let i = 0; i < 250 && ack < next; i++) {
+		await pause(20)
+	}
 	check('OS phase completed ' + name, ack >= next)
 	await pause(140)
 }
@@ -349,4 +359,6 @@ run()
 		loop.quit()
 	})
 loop.run()
-if (failure) throw failure
+if (failure) {
+	throw failure
+}

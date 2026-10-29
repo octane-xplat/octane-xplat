@@ -52,7 +52,9 @@ test(
 		const lines = createInterface({ input: child.stdout })
 		lines.on('line', (line) => {
 			stdout += line + '\n'
-			if (!line.startsWith('GTK_FIELD_CHROME_READY ')) return
+			if (!line.startsWith('GTK_FIELD_CHROME_READY ')) {
+				return
+			}
 			try {
 				const phase = JSON.parse(line.slice('GTK_FIELD_CHROME_READY '.length))
 				const id = execFileSync(
@@ -76,10 +78,15 @@ test(
 				} else if (phase.phase === 'edit') {
 					send('key', 'ctrl+a')
 					send('type', '--clearmodifiers', '--delay', '1', 'Edited account')
-				} else if (phase.phase === 'clear-focus' || phase.phase === 'info') send('key', 'Tab')
-				else if (phase.phase === 'clear') send('key', 'Return')
-				else if (phase.phase === 'escape') send('key', 'Escape')
-				else if (phase.phase === 'status') send('key', 'Tab', 'Tab')
+				} else if (phase.phase === 'clear-focus' || phase.phase === 'info') {
+					send('key', 'Tab')
+				} else if (phase.phase === 'clear') {
+					send('key', 'Return')
+				} else if (phase.phase === 'escape') {
+					send('key', 'Escape')
+				} else if (phase.phase === 'status') {
+					send('key', 'Tab', 'Tab')
+				}
 				send('key', 'F12')
 			} catch (error) {
 				inputError = error
@@ -90,7 +97,9 @@ test(
 		t.after(() => {
 			clearTimeout(timer)
 			lines.close()
-			if (child.exitCode === null) child.kill()
+			if (child.exitCode === null) {
+				child.kill()
+			}
 		})
 		const code = await new Promise((resolve, reject) => {
 			child.once('error', reject)

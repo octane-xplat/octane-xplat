@@ -35,12 +35,16 @@ let checks = 0
 const failures: string[] = []
 const check = (name: string, ok: boolean) => {
 	checks++
-	if (!ok) failures.push(name)
+	if (!ok) {
+		failures.push(name)
+	}
 }
 const node = (id: string) => [...container.nodes.values()].find((n) => n.props.id === id)!
 const owner = (value: any) => {
 	const form = node('toggle-fields')
-	while (value.parent && value.parent !== form) value = value.parent
+	while (value.parent && value.parent !== form) {
+		value = value.parent
+	}
 	return value
 }
 const labels = (name: string) =>
@@ -71,7 +75,9 @@ async function clickLabel(value: any) {
 				y: Math.floor(bounds.y + bounds.height / 2),
 			}),
 	)
-	for (let i = 0; i < 250 && ack < next; i++) await pause(20)
+	for (let i = 0; i < 250 && ack < next; i++) {
+		await pause(20)
+	}
 	check('OS label input acknowledged', ack >= next)
 	await pause()
 }
@@ -501,7 +507,9 @@ async function run() {
 	check('unmount clears native host', host.get_first_child() == null)
 	window.destroy()
 	print('GTK_TOGGLE_FIELD_RESULTS ' + JSON.stringify({ checks, failures, osInput }))
-	if (failures.length) throw new Error(failures.join('; '))
+	if (failures.length) {
+		throw new Error(failures.join('; '))
+	}
 	print(
 		'GTK_TOGGLE_FIELDS ' +
 			JSON.stringify({
@@ -525,4 +533,6 @@ run().catch((error) => {
 	}
 })
 loop.run()
-if (failed) (globalThis as any).imports.system.exit(1)
+if (failed) {
+	;(globalThis as any).imports.system.exit(1)
+}

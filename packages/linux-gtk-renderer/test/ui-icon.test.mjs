@@ -51,8 +51,11 @@ test(
 				})
 				res.end(svg)
 			}
-			if (req.url.endsWith('/slow.svg')) setTimeout(respond, 200)
-			else respond()
+			if (req.url.endsWith('/slow.svg')) {
+				setTimeout(respond, 200)
+			} else {
+				respond()
+			}
 		})
 		await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
 		t.after(() => server.close())
@@ -76,7 +79,9 @@ test(
 		const deadline = setTimeout(() => child.kill(), 30000)
 		t.after(() => {
 			clearTimeout(deadline)
-			if (child.exitCode === null) child.kill()
+			if (child.exitCode === null) {
+				child.kill()
+			}
 		})
 		const code = await new Promise((resolve, reject) => {
 			child.once('error', reject)

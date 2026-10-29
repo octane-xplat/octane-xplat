@@ -33,7 +33,9 @@ const pause = () =>
 const loop = GLib.MainLoop.new(null, false)
 let checks = 0
 const check = (name: string, ok: boolean) => {
-	if (!ok) throw new Error(name)
+	if (!ok) {
+		throw new Error(name)
+	}
 	checks++
 }
 const groupProps = (display = 'flex') => ({
@@ -206,4 +208,6 @@ run().catch((error) => {
 	}
 })
 loop.run()
-if (failed) (globalThis as any).imports.system.exit(1)
+if (failed) {
+	;(globalThis as any).imports.system.exit(1)
+}

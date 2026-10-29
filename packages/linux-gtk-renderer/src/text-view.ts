@@ -15,7 +15,9 @@ export interface TextViewControl {
 const controls = new WeakMap<GtkView, TextViewControl>()
 
 export function takeTextViewControl(view: GtkView | null): TextViewControl | undefined {
-	if (!view) return undefined
+	if (!view) {
+		return undefined
+	}
 	const control = controls.get(view)
 	controls.delete(view)
 	return control
@@ -43,9 +45,13 @@ export function makeTextView(): GtkView {
 		}
 	}
 	const insertion = buffer.connect('insert-text', (_: unknown, location: any, text: string) => {
-		if (writing || maximum === Infinity) return
+		if (writing || maximum === Infinity) {
+			return
+		}
 		let end = Math.max(0, maximum - view.get_text().length)
-		if (text.length <= end) return
+		if (text.length <= end) {
+			return
+		}
 		// Count UTF-16 units like String.length, without splitting an emoji pair.
 		if (
 			end > 0 &&
@@ -53,11 +59,14 @@ export function makeTextView(): GtkView {
 			text.charCodeAt(end - 1) <= 0xdbff &&
 			text.charCodeAt(end) >= 0xdc00 &&
 			text.charCodeAt(end) <= 0xdfff
-		)
+		) {
 			end--
+		}
 		const prefix = text.slice(0, end)
 		GObject.signal_stop_emission_by_name(buffer, 'insert-text')
-		if (!prefix) return
+		if (!prefix) {
+			return
+		}
 		const offset = location.get_offset()
 		buffer.insert(location, prefix, -1)
 		// The outer GTK insertion caller still owns this iterator.
@@ -98,9 +107,13 @@ export function makeTextView(): GtkView {
 	const position = overlay.connect(
 		'get-child-position',
 		(_: unknown, child: unknown, allocation: any) => {
-			if (child !== placeholder) return false
+			if (child !== placeholder) {
+				return false
+			}
 			const [ok, bounds] = view.compute_bounds(overlay)
-			if (!ok) return false
+			if (!ok) {
+				return false
+			}
 			const visible = view.get_visible_rect()
 			const [x, y] = view.buffer_to_window_coords(Gtk.TextWindowType.WIDGET, visible.x, visible.y)
 			allocation.x = Math.round(bounds.origin.x + x)
@@ -116,22 +129,31 @@ export function makeTextView(): GtkView {
 		scroller: viewport,
 		placeholder,
 		setPlaceholder(value) {
-			if (disposed) return
+			if (disposed) {
+				return
+			}
 			hint = String(value ?? '')
 			placeholder.set_label(hint)
-			if (hint) view.update_property([Gtk.AccessibleProperty.PLACEHOLDER], [hint])
-			else view.reset_property(Gtk.AccessibleProperty.PLACEHOLDER)
+			if (hint) {
+				view.update_property([Gtk.AccessibleProperty.PLACEHOLDER], [hint])
+			} else {
+				view.reset_property(Gtk.AccessibleProperty.PLACEHOLDER)
+			}
 			update()
 		},
 		setMaxLength(value) {
-			if (disposed) return
+			if (disposed) {
+				return
+			}
 			maximum =
 				typeof value === 'number' && Number.isFinite(value) && value >= 0
 					? Math.trunc(value)
 					: Infinity
 		},
 		dispose() {
-			if (disposed) return
+			if (disposed) {
+				return
+			}
 			disposed = true
 			buffer.disconnect(changed)
 			buffer.disconnect(insertion)

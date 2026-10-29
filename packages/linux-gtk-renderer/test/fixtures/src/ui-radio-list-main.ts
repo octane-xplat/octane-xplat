@@ -29,7 +29,9 @@ let checks = 0
 const failures: string[] = []
 const check = (name: string, ok: boolean) => {
 	checks++
-	if (!ok) failures.push(name)
+	if (!ok) {
+		failures.push(name)
+	}
 }
 const node = (id: string) => [...container.nodes.values()].find((n) => n.props.id === id)!
 const classes = (n: any): string[] =>
@@ -38,8 +40,11 @@ const classes = (n: any): string[] =>
 		: String(n.props.className ?? '')
 	).split(' ')
 const descendant = (parent: any, child: any) => {
-	for (let current = child.parent; current; current = current.parent)
-		if (current === parent) return true
+	for (let current = child.parent; current; current = current.parent) {
+		if (current === parent) {
+			return true
+		}
+	}
 	return false
 }
 const rows = (parent: any) =>
@@ -84,13 +89,14 @@ async function point(view: any) {
 				},
 			}),
 	)
-	for (let i = 0; i < 250 && ack < next; i++)
+	for (let i = 0; i < 250 && ack < next; i++) {
 		await new Promise<void>((resolve) =>
 			GLib.timeout_add(GLib.PRIORITY_DEFAULT, 20, () => {
 				resolve()
 				return false
 			}),
 		)
+	}
 	check('OS pointer phase acknowledged', ack >= next)
 	await pause()
 }
@@ -115,7 +121,9 @@ async function run() {
 			view.get_accessible_role() === Gtk.AccessibleRole.RADIO_GROUP,
 		)
 		check(id + ' applies width to the complete field', Math.abs(view.getBounds().width - 220) <= 2)
-		if (fallback) check(id + ' uses the Gtk.Box fallback host', view instanceof Gtk.Box)
+		if (fallback) {
+			check(id + ' uses the Gtk.Box fallback host', view instanceof Gtk.Box)
+		}
 		if (native) {
 			check(
 				id + ' inherits required metadata',
@@ -251,7 +259,7 @@ async function run() {
 			'read-only arrows can move focus without changing selection',
 			window.get_focus() === options[2].view && changes.length === 5,
 		)
-		if (native)
+		if (native) {
 			check(
 				'read-only selection metadata stays on the original option',
 				native.test_accessible_state(
@@ -260,6 +268,7 @@ async function run() {
 					Gtk.AccessibleTristate.TRUE,
 				) === null,
 			)
+		}
 
 		root.render(RadioScene, { disabled: true })
 		await pause()
@@ -628,7 +637,9 @@ async function run() {
 	)
 	window.destroy()
 	print('GTK_RADIO_RESULTS ' + JSON.stringify({ checks, failures, osInput, fallback }))
-	if (failures.length) throw new Error(failures.join('; '))
+	if (failures.length) {
+		throw new Error(failures.join('; '))
+	}
 	print(
 		'GTK_RADIO ' +
 			JSON.stringify({
@@ -653,4 +664,6 @@ run().catch((error) => {
 	}
 })
 loop.run()
-if (failed) (globalThis as any).imports.system.exit(1)
+if (failed) {
+	;(globalThis as any).imports.system.exit(1)
+}

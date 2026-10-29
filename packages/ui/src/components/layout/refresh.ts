@@ -199,8 +199,11 @@ export function createPullToRefresh(host: RefreshHost): RefreshController {
 		if (e.state === 0) {
 			touching = false
 			pullAcc = 0
-			if (held()) dock()
-			else collapse()
+			if (held()) {
+				dock()
+			} else {
+				collapse()
+			}
 			return
 		}
 

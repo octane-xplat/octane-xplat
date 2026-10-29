@@ -41,13 +41,16 @@ const pause = () =>
 	)
 let checks = 0
 const check = (name: string, ok: boolean) => {
-	if (!ok) throw new Error(name)
+	if (!ok) {
+		throw new Error(name)
+	}
 	checks++
 }
 const children = (widget: any) => {
 	const result: any[] = []
-	for (let child = widget.get_first_child(); child; child = child.get_next_sibling())
+	for (let child = widget.get_first_child(); child; child = child.get_next_sibling()) {
 		result.push(child)
+	}
 	return result
 }
 const text = (name: string) => refs['label-' + name].get_text()
@@ -61,7 +64,9 @@ async function run() {
 		children(a).length === 1 && children(host).length === 0,
 	)
 	check('preparation never creates host nodes', container.nodes.size === 0)
-	if (attempt.status !== 'prepared') throw new Error('unexpected suspension')
+	if (attempt.status !== 'prepared') {
+		throw new Error('unexpected suspension')
+	}
 	attempt.abort()
 	check(
 		'aborted preparation releases target registrations',
@@ -112,7 +117,9 @@ async function run() {
 	const controllers = action.observe_controllers()
 	for (let i = 0; i < controllers.get_n_items(); i++) {
 		const controller = controllers.get_item(i)
-		if (controller instanceof Gtk.GestureClick) controller.emit('released', 1, 1, 1)
+		if (controller instanceof Gtk.GestureClick) {
+			controller.emit('released', 1, 1, 1)
+		}
 	}
 	await pause()
 	check('portal action retains its nested label', children(action).length === 1)
@@ -135,7 +142,9 @@ async function run() {
 		'retarget preparation does not move widgets',
 		label.get_parent() === a && children(b).length === 1,
 	)
-	if (moving.status !== 'prepared') throw new Error('unexpected suspension')
+	if (moving.status !== 'prepared') {
+		throw new Error('unexpected suspension')
+	}
 	moving.abort()
 	check(
 		'aborted retarget releases only speculative target',
@@ -253,8 +262,11 @@ async function run() {
 		[new Gtk.Grid(), 'grid'],
 	] as const) {
 		const foreign = new Gtk.Label({ label: 'Unmanaged' })
-		if (type === 'fixed') (target as any).put(foreign, 0, 0)
-		else (target as any).attach(foreign, 0, 0, 1, 1)
+		if (type === 'fixed') {
+			;(target as any).put(foreign, 0, 0)
+		} else {
+			;(target as any).attach(foreign, 0, 0, 1, 1)
+		}
 		const registration = gtkDriver.portals!.prepareTarget({
 			container: probe,
 			target,
@@ -359,4 +371,6 @@ run()
 		loop.quit()
 	})
 loop.run()
-if (failure) throw failure
+if (failure) {
+	throw failure
+}

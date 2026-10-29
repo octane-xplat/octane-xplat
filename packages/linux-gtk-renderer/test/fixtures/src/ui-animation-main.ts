@@ -28,7 +28,9 @@ const pause = (ms = 80) =>
 	)
 let checks = 0
 const check = (label: string, ok: boolean) => {
-	if (!ok) throw new Error(label)
+	if (!ok) {
+		throw new Error(label)
+	}
 	checks++
 }
 const node = (id: string) => [...container.nodes.values()].find((n) => n.props.id === id)!
@@ -185,4 +187,6 @@ run()
 	})
 	.finally(() => loop.quit())
 loop.run()
-if (failure) throw failure
+if (failure) {
+	throw failure
+}

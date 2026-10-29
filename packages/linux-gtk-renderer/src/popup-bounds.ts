@@ -5,12 +5,16 @@ import type { GtkBounds } from './public-instance.js'
  * those native coordinate spaces without requiring desktop/global coordinates. */
 function surfaceOrigin(native: any) {
 	let surface = native.get_surface()
-	if (!surface) return null
+	if (!surface) {
+		return null
+	}
 	let x = 0,
 		y = 0
 	while (typeof surface.get_parent === 'function') {
 		const parent = surface.get_parent()
-		if (!parent) return null
+		if (!parent) {
+			return null
+		}
 		x += surface.get_position_x()
 		y += surface.get_position_y()
 		surface = parent
@@ -24,17 +28,25 @@ function surfaceOrigin(native: any) {
 export function popupBounds(view: any, host: any): GtkBounds | null {
 	const native = view.get_native(),
 		hostNative = host.get_native()
-	if (!native || !hostNative || native === hostNative) return null
+	if (!native || !hostNative || native === hostNative) {
+		return null
+	}
 	const source = surfaceOrigin(native),
 		target = surfaceOrigin(hostNative)
-	if (!source || !target || source.surface !== target.surface) return null
+	if (!source || !target || source.surface !== target.surface) {
+		return null
+	}
 	const [ok, rect] = view.compute_bounds(view)
-	if (!ok) return null
+	if (!ok) {
+		return null
+	}
 	const points: Array<{ x: number; y: number }> = []
 	for (const x of [rect.origin.x, rect.origin.x + rect.size.width]) {
 		for (const y of [rect.origin.y, rect.origin.y + rect.size.height]) {
 			const [fromOk, from] = view.compute_point(native, new Graphene.Point({ x, y }))
-			if (!fromOk) return null
+			if (!fromOk) {
+				return null
+			}
 			const [toOk, to] = hostNative.compute_point(
 				host,
 				new Graphene.Point({
@@ -42,7 +54,9 @@ export function popupBounds(view: any, host: any): GtkBounds | null {
 					y: from.y + source.y - target.y,
 				}),
 			)
-			if (!toOk) return null
+			if (!toOk) {
+				return null
+			}
 			points.push(to)
 		}
 	}
@@ -50,6 +64,8 @@ export function popupBounds(view: any, host: any): GtkBounds | null {
 		y = Math.min(...points.map((point) => point.y))
 	const right = Math.max(...points.map((point) => point.x)),
 		bottom = Math.max(...points.map((point) => point.y))
-	if (![x, y, right, bottom].every(Number.isFinite)) return null
+	if (![x, y, right, bottom].every(Number.isFinite)) {
+		return null
+	}
 	return { x, y, width: right - x, height: bottom - y }
 }

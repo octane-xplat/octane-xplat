@@ -27,14 +27,19 @@ const pause = (ms = 160) =>
 let checks = 0,
 	ack = 0
 const check = (name: string, ok: boolean) => {
-	if (!ok) throw new Error(name)
+	if (!ok) {
+		throw new Error(name)
+	}
 	checks++
 }
 const node = (id: string) => [...container.nodes.values()].find((n) => n.props.id === id)!
 const controller = (view: any) => {
 	const all = view.observe_controllers()
-	for (let i = 0; i < all.get_n_items(); i++)
-		if (all.get_item(i) instanceof Gtk.EventControllerKey) return all.get_item(i)
+	for (let i = 0; i < all.get_n_items(); i++) {
+		if (all.get_item(i) instanceof Gtk.EventControllerKey) {
+			return all.get_item(i)
+		}
+	}
 	throw new Error('no toggle keyboard controller')
 }
 const down = (view: any, key = Gdk.KEY_space) => controller(view).emit('key-pressed', key, 0, 0)
@@ -52,7 +57,9 @@ window.add_controller(keys)
 async function phase(name: string) {
 	const next = ack + 1
 	print('GTK_TOGGLE_CONTROLS_READY ' + JSON.stringify({ phase: name }))
-	for (let i = 0; i < 250 && ack < next; i++) await pause(20)
+	for (let i = 0; i < 250 && ack < next; i++) {
+		await pause(20)
+	}
 	check('OS phase completed ' + name, ack >= next)
 	await pause()
 }
@@ -208,4 +215,6 @@ run().catch((error) => {
 	}
 })
 loop.run()
-if (failed) (globalThis as any).imports.system.exit(1)
+if (failed) {
+	;(globalThis as any).imports.system.exit(1)
+}

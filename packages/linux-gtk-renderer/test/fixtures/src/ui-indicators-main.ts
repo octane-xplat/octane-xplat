@@ -36,13 +36,17 @@ const pause = (ms = 180) =>
 	)
 let checks = 0
 const check = (name: string, ok: boolean) => {
-	if (!ok) throw new Error(name)
+	if (!ok) {
+		throw new Error(name)
+	}
 	checks++
 }
 const find = (id: string) => [...container.nodes.values()].find((n) => n.props.id === id)
 const node = (id: string) => {
 	const value = find(id)
-	if (!value) throw new Error('missing ' + id)
+	if (!value) {
+		throw new Error('missing ' + id)
+	}
 	return value
 }
 const child = (id: string) => node(id).children[0]
@@ -249,4 +253,6 @@ run().catch((error) => {
 	}
 })
 loop.run()
-if (failed) (globalThis as any).imports.system.exit(1)
+if (failed) {
+	;(globalThis as any).imports.system.exit(1)
+}

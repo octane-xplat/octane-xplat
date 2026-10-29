@@ -11,7 +11,9 @@ const integer = (value: number) => {
 	return boxed
 }
 function inputState(value: unknown): Bag {
-	if (typeof value === 'object' && value !== null) return value as Bag
+	if (typeof value === 'object' && value !== null) {
+		return value as Bag
+	}
 	switch (value) {
 		case 'disabled':
 			return { disabled: true }
@@ -38,23 +40,32 @@ export function syncAccessibilityState(view: any, props: Bag) {
 		value: boolean | number | undefined,
 		kind: Binding['kind'] = 'state',
 	) => {
-		if (value !== undefined) next.set(key, { kind, id, value })
+		if (value !== undefined) {
+			next.set(key, { kind, id, value })
+		}
 	}
 	const sensitive = view.is_sensitive()
-	if (state.disabled != null || before.has('disabled'))
+	if (state.disabled != null || before.has('disabled')) {
 		add('disabled', Gtk.AccessibleState.DISABLED, state.disabled === true || !sensitive)
-	if (state.busy != null) add('busy', Gtk.AccessibleState.BUSY, Boolean(state.busy))
-	if (state.hidden != null || props.accessible != null || before.has('hidden'))
+	}
+	if (state.busy != null) {
+		add('busy', Gtk.AccessibleState.BUSY, Boolean(state.busy))
+	}
+	if (state.hidden != null || props.accessible != null || before.has('hidden')) {
 		add(
 			'hidden',
 			Gtk.AccessibleState.HIDDEN,
 			state.hidden === true || props.accessible === false || !view.get_mapped(),
 		)
-	for (const key of ['selected', 'expanded', 'visited'] as const)
-		if (state[key] != null) add(key, Gtk.AccessibleState[key.toUpperCase()], state[key] ? 1 : 0)
+	}
+	for (const key of ['selected', 'expanded', 'visited'] as const) {
+		if (state[key] != null) {
+			add(key, Gtk.AccessibleState[key.toUpperCase()], state[key] ? 1 : 0)
+		}
+	}
 	for (const key of ['checked', 'pressed'] as const) {
 		const value = state[key]
-		if (value != null)
+		if (value != null) {
 			add(
 				key,
 				Gtk.AccessibleState[key.toUpperCase()],
@@ -64,13 +75,15 @@ export function syncAccessibilityState(view: any, props: Bag) {
 						? Gtk.AccessibleTristate.TRUE
 						: Gtk.AccessibleTristate.FALSE,
 			)
+		}
 	}
-	if (state.checked == null && view instanceof Gtk.Switch && before.has('checked'))
+	if (state.checked == null && view instanceof Gtk.Switch && before.has('checked')) {
 		add(
 			'checked',
 			Gtk.AccessibleState.CHECKED,
 			view.get_active() ? Gtk.AccessibleTristate.TRUE : Gtk.AccessibleTristate.FALSE,
 		)
+	}
 	if (state.invalid != null) {
 		const value = state.invalid
 		const invalid =
@@ -92,23 +105,38 @@ export function syncAccessibilityState(view: any, props: Bag) {
 		readOnly != null ? Boolean(readOnly) || nativeReadOnly === true : nativeReadOnly,
 		'property',
 	)
-	if (state.required != null)
+	if (state.required != null) {
 		add('required', Gtk.AccessibleProperty.REQUIRED, Boolean(state.required), 'property')
+	}
 	for (const [key, binding] of before) {
-		if (next.has(key)) continue
-		if (binding.kind === 'state') view.reset_state(binding.id)
-		else view.reset_property(binding.id)
+		if (next.has(key)) {
+			continue
+		}
+		if (binding.kind === 'state') {
+			view.reset_state(binding.id)
+		} else {
+			view.reset_property(binding.id)
+		}
 	}
 	for (const binding of next.values()) {
 		const value = typeof binding.value === 'number' ? integer(binding.value) : binding.value
-		if (binding.kind === 'state') view.update_state([binding.id], [value])
-		else view.update_property([binding.id], [value])
+		if (binding.kind === 'state') {
+			view.update_state([binding.id], [value])
+		} else {
+			view.update_property([binding.id], [value])
+		}
 	}
 	// Natural GTK state may change independently of the authored metadata.
 	// Do not retain native restorations as active declarative overrides.
-	if (state.disabled == null) next.delete('disabled')
-	if (state.hidden == null && props.accessible == null) next.delete('hidden')
-	if (state.checked == null) next.delete('checked')
+	if (state.disabled == null) {
+		next.delete('disabled')
+	}
+	if (state.hidden == null && props.accessible == null) {
+		next.delete('hidden')
+	}
+	if (state.checked == null) {
+		next.delete('checked')
+	}
 	previous.set(view, next)
 }
 
@@ -119,11 +147,15 @@ export function bindAccessibilityMapping(view: any, getProps: () => Bag): () => 
 	let active = true
 	const mapped = () => {
 		Promise.resolve().then(() => {
-			if (active && view.get_mapped()) syncAccessibilityState(view, getProps())
+			if (active && view.get_mapped()) {
+				syncAccessibilityState(view, getProps())
+			}
 		})
 	}
 	const connection = view.connect('map', mapped)
-	if (view.get_mapped()) mapped()
+	if (view.get_mapped()) {
+		mapped()
+	}
 	return () => {
 		active = false
 		view.disconnect(connection)

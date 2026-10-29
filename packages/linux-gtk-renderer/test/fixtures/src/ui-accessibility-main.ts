@@ -23,7 +23,9 @@ const pause = () =>
 	)
 let checks = 0
 const check = (name: string, ok: boolean) => {
-	if (!ok) throw new Error(name)
+	if (!ok) {
+		throw new Error(name)
+	}
 	checks++
 }
 const node = (id: string) => [...container.nodes.values()].find((n) => n.props.id === id)!
@@ -55,8 +57,9 @@ async function run() {
 	window.present()
 	await pause()
 	native = (globalThis as any).imports.gi.XplatMason
-	if (!native.test_accessible_state)
+	if (!native.test_accessible_state) {
 		throw new Error('Rebuild XplatMason for native accessibility assertions')
+	}
 	const box = node('a11y-state').view!,
 		entry = node('a11y-entry').view!,
 		toggle = node('a11y-switch').view!
@@ -107,8 +110,9 @@ async function run() {
 		BUSY: true,
 		EXPANDED: false,
 		INVALID: Gtk.AccessibleInvalidState.TRUE,
-	}))
+	})) {
 		state(box, key, value)
+	}
 	property(box, 'REQUIRED', true)
 	property(box, 'READ_ONLY', true)
 	check('accessibility-only disabled does not change interaction', box.get_sensitive())
@@ -135,18 +139,20 @@ async function run() {
 		BUSY: false,
 		EXPANDED: true,
 		INVALID: Gtk.AccessibleInvalidState.GRAMMAR,
-	}))
+	})) {
 		state(box, key, value)
+	}
 	property(box, 'REQUIRED', false)
 	property(box, 'READ_ONLY', false)
 	props = {}
 	render()
 	await pause()
-	for (const key of ['SELECTED', 'CHECKED', 'PRESSED', 'BUSY', 'EXPANDED', 'INVALID'])
+	for (const key of ['SELECTED', 'CHECKED', 'PRESSED', 'BUSY', 'EXPANDED', 'INVALID']) {
 		check(
 			'removed state resets ' + key,
 			!Gtk.test_accessible_has_state(box, Gtk.AccessibleState[key]),
 		)
+	}
 	check(
 		'removed required property resets',
 		!Gtk.test_accessible_has_property(box, Gtk.AccessibleProperty.REQUIRED),
@@ -277,4 +283,6 @@ run()
 		loop.quit()
 	})
 loop.run()
-if (failure) throw failure
+if (failure) {
+	throw failure
+}

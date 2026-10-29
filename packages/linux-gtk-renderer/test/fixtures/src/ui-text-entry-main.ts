@@ -37,7 +37,9 @@ const pause = (ms = 100) =>
 	)
 let checks = 0
 const check = (name: string, ok: boolean) => {
-	if (!ok) throw new Error(name)
+	if (!ok) {
+		throw new Error(name)
+	}
 	checks++
 }
 const node = (id: string) => [...container.nodes.values()].find((n) => n.props.id === id)!
@@ -47,10 +49,14 @@ const focusedWithin = (view: any) => {
 	return focused === view || !!focused?.is_ancestor(view)
 }
 const placeholder = (view: any): any => {
-	if (view.get_css_name() === 'placeholder') return view
+	if (view.get_css_name() === 'placeholder') {
+		return view
+	}
 	for (let child = view.get_first_child(); child; child = child.get_next_sibling()) {
 		const found = placeholder(child)
-		if (found) return found
+		if (found) {
+			return found
+		}
 	}
 	return null
 }
@@ -95,7 +101,9 @@ async function inputPhase(phase: string, target = entry()) {
 		'GTK_TEXT_ENTRY_READY ' +
 			JSON.stringify({ phase, x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 }),
 	)
-	for (let i = 0; i < 240 && osAck < next; i++) await pause(30)
+	for (let i = 0; i < 240 && osAck < next; i++) {
+		await pause(30)
+	}
 	check('OS phase completed: ' + phase, osAck >= next)
 }
 async function run() {
@@ -363,7 +371,9 @@ async function run() {
 	const controllers = clear.observe_controllers()
 	for (let i = 0; i < controllers.get_n_items(); i++) {
 		const controller = controllers.get_item(i)
-		if (controller instanceof Gtk.GestureClick) controller.emit('released', 1, 1, 1)
+		if (controller instanceof Gtk.GestureClick) {
+			controller.emit('released', 1, 1, 1)
+		}
 	}
 	await pause()
 	check(
@@ -453,8 +463,9 @@ async function run() {
 	props = { ...props, controlledMode: 'accept' }
 	render()
 	await pause()
-	if (osKeyboard) await inputPhase('controlled-accept', controlled)
-	else {
+	if (osKeyboard) {
+		await inputPhase('controlled-accept', controlled)
+	} else {
 		controlled.set_text('Accepted')
 		await pause()
 	}
@@ -517,4 +528,6 @@ run()
 		loop.quit()
 	})
 loop.run()
-if (failure) throw failure
+if (failure) {
+	throw failure
+}

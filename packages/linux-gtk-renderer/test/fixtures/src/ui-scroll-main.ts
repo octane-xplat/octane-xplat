@@ -29,7 +29,9 @@ const pause = (ms = 100) =>
 let checks = 0
 let osWheel = false
 const check = (label: string, ok: boolean) => {
-	if (!ok) throw new Error(label)
+	if (!ok) {
+		throw new Error(label)
+	}
 	checks++
 }
 const props = { axis: 'both' as const, width: 600, height: 400 }
@@ -177,7 +179,9 @@ async function run() {
 				return false
 			})
 			const wheel = () => {
-				if (view.scrollTop <= 0) return
+				if (view.scrollTop <= 0) {
+					return
+				}
 				view.off('scroll', wheel)
 				GLib.source_remove(timeout)
 				resolve()
@@ -222,4 +226,6 @@ run()
 	})
 	.finally(() => loop.quit())
 loop.run()
-if (failure) throw failure
+if (failure) {
+	throw failure
+}

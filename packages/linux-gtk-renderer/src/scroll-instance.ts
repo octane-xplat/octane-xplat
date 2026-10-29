@@ -8,7 +8,9 @@ type Notify = (event: 'scroll' | 'layoutChanged', detail?: Record<string, number
 /** GtkAdjustment owns viewport extent, document extent and clamped offsets.
  * Keep user input, imperative writes and animated offsets on that same surface. */
 export function bindScrolling(view: GtkView, notify: Notify): () => void {
-	if (!(view instanceof Gtk.ScrolledWindow)) return () => {}
+	if (!(view instanceof Gtk.ScrolledWindow)) {
+		return () => {}
+	}
 	const axes = {
 		inline: view.get_hadjustment(),
 		block: view.get_vadjustment(),
@@ -22,7 +24,9 @@ export function bindScrolling(view: GtkView, notify: Notify): () => void {
 	const detail = () => ({ scrollX: offset('inline'), scrollY: offset('block') })
 	const stop = (axis: Axis) => {
 		const run = playback.get(axis)
-		if (run) GLib.source_remove(run.source)
+		if (run) {
+			GLib.source_remove(run.source)
+		}
 		playback.delete(axis)
 	}
 	const write = (axis: Axis, value: number) => {
@@ -34,7 +38,9 @@ export function bindScrolling(view: GtkView, notify: Notify): () => void {
 		}
 	}
 	const scroll = (axis: Axis, value: number, animated = false) => {
-		if (disposed || !Number.isFinite(value)) return
+		if (disposed || !Number.isFinite(value)) {
+			return
+		}
 		stop(axis)
 		const target = Math.max(0, Math.min(maximum(axis), value))
 		if (!animated || (Gtk as any).Settings.get_default()?.gtk_enable_animations === false) {
@@ -42,15 +48,23 @@ export function bindScrolling(view: GtkView, notify: Notify): () => void {
 			return
 		}
 		const from = offset(axis)
-		if (target === from) return
+		if (target === from) {
+			return
+		}
 		const start = GLib.get_monotonic_time() / 1000
 		const run = { source: 0 }
 		run.source = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 16, () => {
-			if (disposed || playback.get(axis) !== run) return false
+			if (disposed || playback.get(axis) !== run) {
+				return false
+			}
 			const progress = Math.min(1, (GLib.get_monotonic_time() / 1000 - start) / 250)
 			write(axis, from + (target - from) * (1 - (1 - progress) ** 3))
-			if (playback.get(axis) !== run) return false
-			if (progress < 1) return true
+			if (playback.get(axis) !== run) {
+				return false
+			}
+			if (progress < 1) {
+				return true
+			}
 			playback.delete(axis)
 			return false
 		})
@@ -62,7 +76,9 @@ export function bindScrolling(view: GtkView, notify: Notify): () => void {
 		connections.push({
 			adjustment,
 			id: adjustment.connect('value-changed', () => {
-				if (!writing.has(axis)) stop(axis)
+				if (!writing.has(axis)) {
+					stop(axis)
+				}
 				notify('scroll', detail())
 			}),
 		})
@@ -105,6 +121,8 @@ export function bindScrolling(view: GtkView, notify: Notify): () => void {
 		disposed = true
 		stop('inline')
 		stop('block')
-		for (const { adjustment, id } of connections) adjustment.disconnect(id)
+		for (const { adjustment, id } of connections) {
+			adjustment.disconnect(id)
+		}
 	}
 }

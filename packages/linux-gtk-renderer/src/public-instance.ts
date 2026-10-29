@@ -80,7 +80,9 @@ export function bindPublicInstance(
 	subscribePan: (listener: (payload: any) => void) => () => void,
 ): () => void {
 	const view = node.view
-	if (!view) return () => {}
+	if (!view) {
+		return () => {}
+	}
 	let host: typeof view | null = node.container.host
 	let styleHost: StyleHost | null = styles
 	let panHost: typeof subscribePan | null = subscribePan
@@ -94,13 +96,21 @@ export function bindPublicInstance(
 	// Match native view lookup on the logical subtree, including viewless
 	// parents. Automation names and private GTK control hosts are separate.
 	view.getViewById = (id: string): GtkView | undefined => {
-		if (disposed) return undefined
+		if (disposed) {
+			return undefined
+		}
 		const find = (current: ElementNode): GtkView | undefined => {
-			if (current.destroyed) return undefined
-			if (current.view && current.props.id === id) return current.view
+			if (current.destroyed) {
+				return undefined
+			}
+			if (current.view && current.props.id === id) {
+				return current.view
+			}
 			for (const child of current.children) {
 				const match = find(child)
-				if (match) return match
+				if (match) {
+					return match
+				}
 			}
 			return undefined
 		}
@@ -108,15 +118,21 @@ export function bindPublicInstance(
 	}
 	view.focus = () => !disposed && view.grab_focus()
 	view.blur = () => {
-		if (disposed) return
+		if (disposed) {
+			return
+		}
 		const root = view.get_root()
 		const focused = root?.get_focus()
 		// Entry delegates focus to its internal GtkText. Only release focus
 		// owned by this widget; a stale blur must not clear a sibling's focus.
-		if (focused && (focused === view || focused.is_ancestor(view))) root.set_focus(null)
+		if (focused && (focused === view || focused.is_ancestor(view))) {
+			root.set_focus(null)
+		}
 	}
 	const bounds = (): GtkBounds | null => {
-		if (disposed || !host || !view.get_parent()) return null
+		if (disposed || !host || !view.get_parent()) {
+			return null
+		}
 		const [ok, rect] = view.compute_bounds(host) as [boolean, any]
 		return ok
 			? { x: rect.origin.x, y: rect.origin.y, width: rect.size.width, height: rect.size.height }
@@ -124,16 +140,22 @@ export function bindPublicInstance(
 	}
 	const emit = (eventName: RefEvent, detail: Record<string, unknown> = {}) => {
 		for (const listener of [...(listeners.get(eventName) ?? [])]) {
-			if (disposed) break
+			if (disposed) {
+				break
+			}
 			listener({ eventName, object: view, ...detail })
 		}
 	}
 	const stop = () => {
-		if (tick !== null) view.remove_tick_callback(tick)
+		if (tick !== null) {
+			view.remove_tick_callback(tick)
+		}
 		tick = null
 	}
 	const start = () => {
-		if (disposed || tick !== null || !listeners.get('layoutChanged')?.size) return
+		if (disposed || tick !== null || !listeners.get('layoutChanged')?.size) {
+			return
+		}
 		previous = undefined
 		tick = view.add_tick_callback(() => {
 			const next = JSON.stringify(bounds())
@@ -158,7 +180,9 @@ export function bindPublicInstance(
 	const readStyle = (name: string) => {
 		const key = name === 'scale' ? 'scaleX' : name
 		const value = styleHost?.read(key)
-		if (value != null) return value
+		if (value != null) {
+			return value
+		}
 		switch (key) {
 			case 'scaleX':
 			case 'scaleY':
@@ -177,14 +201,19 @@ export function bindPublicInstance(
 	}
 
 	const writeStyle = (name: string, value: unknown) => {
-		if (!styleHost) return
-		if (!NUMERIC_STYLE_KEYS.has(name))
+		if (!styleHost) {
+			return
+		}
+		if (!NUMERIC_STYLE_KEYS.has(name)) {
 			throw new Error('linux-gtk ref: unsupported numeric style ' + name)
-		if (value != null && (typeof value !== 'number' || !Number.isFinite(value)))
+		}
+		if (value != null && (typeof value !== 'number' || !Number.isFinite(value))) {
 			throw new Error('linux-gtk ref: numeric style requires a finite number: ' + name)
+		}
 		motion?.beforeWrite(name)
-		for (const key of name === 'scale' ? ['scaleX', 'scaleY'] : [name])
+		for (const key of name === 'scale' ? ['scaleX', 'scaleY'] : [name]) {
 			styleHost.write(key, value == null ? undefined : (value as number))
+		}
 	}
 	motion = bindMotion(view, { read: readStyle, write: writeStyle })
 	view.style = new Proxy(Object.create(null), {
@@ -216,7 +245,9 @@ export function bindPublicInstance(
 		})
 	}
 	view.getActualSize = () => {
-		if (disposed) return { width: 0, height: 0 }
+		if (disposed) {
+			return { width: 0, height: 0 }
+		}
 		const [ok, rect] = view.compute_bounds(view) as [boolean, any]
 		return ok
 			? { width: rect.size.width, height: rect.size.height }
@@ -224,7 +255,9 @@ export function bindPublicInstance(
 	}
 	view.getBounds = bounds
 	view.on = (name: RefEvent, listener: Listener) => {
-		if (disposed) return
+		if (disposed) {
+			return
+		}
 		if (
 			![
 				'loaded',
@@ -240,11 +273,16 @@ export function bindPublicInstance(
 			throw new Error(`linux-gtk ref: unsupported subscription ${name}`)
 		}
 		let set = listeners.get(name)
-		if (!set) listeners.set(name, (set = new Set()))
+		if (!set) {
+			listeners.set(name, (set = new Set()))
+		}
 		set.add(listener)
-		if (name === 'accessibilityIncrement' || name === 'accessibilityDecrement') range.refresh()
-		if (name === 'fontChanged' && !disposeFont && styleHost)
+		if (name === 'accessibilityIncrement' || name === 'accessibilityDecrement') {
+			range.refresh()
+		}
+		if (name === 'fontChanged' && !disposeFont && styleHost) {
 			disposeFont = styleHost.watchFont(() => emit('fontChanged'))
+		}
 		if (name === 'pan' && !disposePan && panHost) {
 			disposePan = panHost((payload) =>
 				emit('pan', {
@@ -258,11 +296,16 @@ export function bindPublicInstance(
 			)
 		}
 
-		if (name === 'layoutChanged') start()
+		if (name === 'layoutChanged') {
+			start()
+		}
 	}
 	view.off = (name: RefEvent, listener?: Listener) => {
-		if (listener) listeners.get(name)?.delete(listener)
-		else listeners.delete(name)
+		if (listener) {
+			listeners.get(name)?.delete(listener)
+		} else {
+			listeners.delete(name)
+		}
 		if (!listeners.get('pan')?.size && disposePan) {
 			disposePan()
 			disposePan = null
@@ -271,7 +314,9 @@ export function bindPublicInstance(
 			disposeFont()
 			disposeFont = null
 		}
-		if (!listeners.get('layoutChanged')?.size) stop()
+		if (!listeners.get('layoutChanged')?.size) {
+			stop()
+		}
 	}
 	return () => {
 		disposePan?.()

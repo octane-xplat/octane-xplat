@@ -461,7 +461,9 @@ function layoutChildren(node: NodeLike, width: number, height: number) {
 
 		// Mason keeps hidden nodes in record order, but GTK must not allocate
 		// an invisible editor at its zero-size display:none rectangle.
-		if (!child.get_visible()) continue
+		if (!child.get_visible()) {
+			continue
+		}
 
 		// Mason returns a border box after placing its margins. GTK expects
 		// the surrounding margin box and consumes its CSS margin itself.

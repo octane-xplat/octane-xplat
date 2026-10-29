@@ -14,8 +14,9 @@ type Options = {
 /** A noninteractive native tooltip surface. UI content stays in its original
  * universal root through a portal into target; this object owns only GTK. */
 function createTooltip(anchor: any, initial: Options) {
-	if (!Gtk.AccessibleList)
+	if (!Gtk.AccessibleList) {
 		throw new Error('GTK Tooltip requires GTK 4.14 or newer for accessible description references.')
+	}
 	const interaction = initial.interactionTarget ?? anchor
 	let options = initial
 	let disposed = false
@@ -40,18 +41,29 @@ function createTooltip(anchor: any, initial: Options) {
 		connections.push([object, object.connect(signal, handler)])
 	const clear = (kind: 'open' | 'close') => {
 		const source = kind === 'open' ? opening : closing
-		if (source !== null) GLib.source_remove(source)
-		if (kind === 'open') opening = null
-		else closing = null
+		if (source !== null) {
+			GLib.source_remove(source)
+		}
+		if (kind === 'open') {
+			opening = null
+		} else {
+			closing = null
+		}
 	}
 	const stopPositioning = () => {
-		if (tick !== null) anchor.remove_tick_callback(tick)
+		if (tick !== null) {
+			anchor.remove_tick_callback(tick)
+		}
 		tick = null
-		for (const [object, id] of scrollConnections) object.disconnect(id)
+		for (const [object, id] of scrollConnections) {
+			object.disconnect(id)
+		}
 		scrollConnections = []
 	}
 	const hide = () => {
-		if (described) described.reset_relation(Gtk.AccessibleRelation.DESCRIBED_BY)
+		if (described) {
+			described.reset_relation(Gtk.AccessibleRelation.DESCRIBED_BY)
+		}
 		described = null
 		clear('open')
 		clear('close')
@@ -68,12 +80,16 @@ function createTooltip(anchor: any, initial: Options) {
 	const open = () => {
 		clear('open')
 		clear('close')
-		if (!disposed && !options.disabled) options.onOpen()
+		if (!disposed && !options.disabled) {
+			options.onOpen()
+		}
 	}
 	const enter = () => {
 		clear('open')
 		clear('close')
-		if (disposed || options.disabled) return
+		if (disposed || options.disabled) {
+			return
+		}
 		opening = GLib.timeout_add(GLib.PRIORITY_DEFAULT, Math.max(0, options.openDelay ?? 500), () => {
 			opening = null
 			open()
@@ -83,7 +99,9 @@ function createTooltip(anchor: any, initial: Options) {
 	const leave = () => {
 		clear('open')
 		clear('close')
-		if (disposed) return
+		if (disposed) {
+			return
+		}
 		closing = GLib.timeout_add(
 			GLib.PRIORITY_DEFAULT,
 			Math.max(0, options.closeDelay ?? 100),
@@ -103,9 +121,13 @@ function createTooltip(anchor: any, initial: Options) {
 	connect(focus, 'leave', close)
 	interaction.add_controller(focus)
 	connect(anchor, 'unmap', close)
-	if (interaction !== anchor) connect(interaction, 'unmap', close)
+	if (interaction !== anchor) {
+		connect(interaction, 'unmap', close)
+	}
 	connect(popover, 'closed', () => {
-		if (!visible || disposed) return
+		if (!visible || disposed) {
+			return
+		}
 		visible = false
 		stopPositioning()
 		options.onClose()
@@ -114,7 +136,9 @@ function createTooltip(anchor: any, initial: Options) {
 	const keys = new Gtk.EventControllerKey()
 	keys.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
 	connect(keys, 'key-pressed', (_controller, key) => {
-		if (key !== 65307 || disposed) return false
+		if (key !== 65307 || disposed) {
+			return false
+		}
 		const consume = visible
 		close()
 		return consume
@@ -141,27 +165,40 @@ function createTooltip(anchor: any, initial: Options) {
 			right: Gtk.PositionType.RIGHT,
 		}
 		popover.set_position(positions[options.placement ?? 'top'])
-		if (visible) present()
+		if (visible) {
+			present()
+		}
 	}
 	return {
 		target,
 		popover,
 		configure(next: Options) {
-			if (disposed) return
+			if (disposed) {
+				return
+			}
 			options = next
 			position()
-			if (options.disabled) close()
+			if (options.disabled) {
+				close()
+			}
 		},
 		show() {
-			if (disposed || options.disabled || visible || !anchor.get_mapped()) return
+			if (disposed || options.disabled || visible || !anchor.get_mapped()) {
+				return
+			}
 			visible = true
 			const recipient = (widget: any): any => {
-				if (widget === popover) return null
-				if (widget instanceof Gtk.Entry || widget instanceof Gtk.Button || widget.get_focusable())
+				if (widget === popover) {
+					return null
+				}
+				if (widget instanceof Gtk.Entry || widget instanceof Gtk.Button || widget.get_focusable()) {
 					return widget
+				}
 				for (let child = widget.get_first_child(); child; child = child.get_next_sibling()) {
 					const found = recipient(child)
-					if (found) return found
+					if (found) {
+						return found
+					}
 				}
 				return null
 			}
@@ -172,9 +209,12 @@ function createTooltip(anchor: any, initial: Options) {
 			)
 			position()
 			for (let parent = anchor.get_parent(); parent; parent = parent.get_parent()) {
-				if (!(parent instanceof Gtk.ScrolledWindow)) continue
-				for (const adjustment of [parent.hadjustment, parent.vadjustment])
+				if (!(parent instanceof Gtk.ScrolledWindow)) {
+					continue
+				}
+				for (const adjustment of [parent.hadjustment, parent.vadjustment]) {
 					scrollConnections.push([adjustment, adjustment.connect('value-changed', close)])
+				}
 			}
 			popover.popup()
 			tick = anchor.add_tick_callback(() => {
@@ -187,13 +227,19 @@ function createTooltip(anchor: any, initial: Options) {
 			})
 		},
 		hide: () => {
-			if (!disposed) hide()
+			if (!disposed) {
+				hide()
+			}
 		},
 		dispose() {
-			if (disposed) return
+			if (disposed) {
+				return
+			}
 			disposed = true
 			hide()
-			for (const [object, id] of connections) object.disconnect(id)
+			for (const [object, id] of connections) {
+				object.disconnect(id)
+			}
 			interaction.remove_controller(motion)
 			interaction.remove_controller(focus)
 			window?.remove_controller(keys)
@@ -206,7 +252,9 @@ export function bindTooltips(view: any): () => void {
 	let disposed = false
 	const sessions = new Set<ReturnType<typeof createTooltip>>()
 	view.createTooltip = (options: Options) => {
-		if (disposed) return null
+		if (disposed) {
+			return null
+		}
 		const session = createTooltip(view, options)
 		sessions.add(session)
 		const release = session.dispose
@@ -218,7 +266,9 @@ export function bindTooltips(view: any): () => void {
 	}
 	return () => {
 		disposed = true
-		for (const session of sessions) session.dispose()
+		for (const session of sessions) {
+			session.dispose()
+		}
 		sessions.clear()
 	}
 }

@@ -41,12 +41,16 @@ const pause = (ms = 160) =>
 	)
 // A window-child replacement may allocate on a later GTK frame under load.
 const waitForAllocation = async (ready: () => boolean) => {
-	for (let attempt = 0; attempt < 120 && !ready(); attempt++) await pause(25)
+	for (let attempt = 0; attempt < 120 && !ready(); attempt++) {
+		await pause(25)
+	}
 	return ready()
 }
 let checks = 0
 const check = (name: string, ok: boolean) => {
-	if (!ok) throw new Error(name)
+	if (!ok) {
+		throw new Error(name)
+	}
 	checks++
 }
 const close = (a: number, b: number) => Math.abs(a - b) <= 2
@@ -61,7 +65,9 @@ let acknowledgments = 0
 const keys = new Gtk.EventControllerKey()
 keys.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
 keys.connect('key-pressed', (_: unknown, key: number) => {
-	if (key !== 65481) return false
+	if (key !== 65481) {
+		return false
+	}
 	acknowledgments++
 	return true
 })
@@ -78,7 +84,9 @@ async function input(view: any, phase: string, repeat = 6, offsetY = 0) {
 				repeat,
 			}),
 	)
-	for (let i = 0; i < 200 && acknowledgments < ack; i++) await pause(25)
+	for (let i = 0; i < 200 && acknowledgments < ack; i++) {
+		await pause(25)
+	}
 	check('OS phase completed: ' + phase, acknowledgments >= ack)
 	await pause(300)
 }
@@ -556,8 +564,9 @@ async function run() {
 		fieldEvents.join(',') === 'blur,focus' && window.get_focus() === localArea,
 	)
 	localArea.set_position(5)
-	if (osInput) await input(localArea, 'type-X')
-	else {
+	if (osInput) {
+		await input(localArea, 'type-X')
+	} else {
 		localArea.get_buffer().insert_at_cursor('X', -1)
 		await pause()
 	}
@@ -689,8 +698,9 @@ async function run() {
 	)
 	localArea.focus()
 	localArea.set_position(localArea.get_buffer().get_char_count())
-	if (osInput) await input(localArea, 'type-Y')
-	else {
+	if (osInput) {
+		await input(localArea, 'type-Y')
+	} else {
 		localArea.get_buffer().insert_at_cursor('Y', -1)
 		await pause()
 	}
@@ -961,4 +971,6 @@ run()
 	})
 	.finally(() => loop.quit())
 loop.run()
-if (failure) throw failure
+if (failure) {
+	throw failure
+}

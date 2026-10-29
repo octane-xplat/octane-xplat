@@ -31,13 +31,14 @@ test('numeric animation and translation update real GTK geometry and settle on c
 		return
 	}
 	const env = { ...process.env, ...(hasMason ? { XPLAT_MASON_TYPELIB: nativeDir } : {}) }
-	if (process.platform === 'darwin')
+	if (process.platform === 'darwin') {
 		env.DYLD_FALLBACK_LIBRARY_PATH = [
 			join(execFileSync('brew', ['--prefix'], { encoding: 'utf8' }).trim(), 'lib'),
 			env.DYLD_FALLBACK_LIBRARY_PATH,
 		]
 			.filter(Boolean)
 			.join(':')
+	}
 	const result = spawnSync('gjs', ['-m', bundle], { env, encoding: 'utf8', timeout: 20000 })
 	assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`)
 	const line = result.stdout.split('\n').find((s) => s.startsWith('GTK_UI_ANIMATION '))

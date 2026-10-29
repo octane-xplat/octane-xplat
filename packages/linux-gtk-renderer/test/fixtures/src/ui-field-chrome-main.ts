@@ -29,7 +29,9 @@ const pause = (ms = 100) =>
 	)
 let checks = 0
 const check = (name: string, ok: boolean) => {
-	if (!ok) throw new Error(name)
+	if (!ok) {
+		throw new Error(name)
+	}
 	checks++
 }
 const node = (id: string) => [...container.nodes.values()].find((n) => n.props.id === id)!
@@ -37,14 +39,21 @@ const byClass = (name: string) =>
 	[...container.nodes.values()].filter((n) => n.cssClasses?.has(name))
 const fieldOwner = (id: string) => {
 	let owner = node(id).parent
-	while (owner && !owner.cssClasses?.has('vx-field')) owner = owner.parent
-	if (!owner) throw new Error('No field owner for ' + id)
+	while (owner && !owner.cssClasses?.has('vx-field')) {
+		owner = owner.parent
+	}
+	if (!owner) {
+		throw new Error('No field owner for ' + id)
+	}
 	return owner
 }
 const near = (actual: number, expected: number) => Math.abs(actual - expected) < 2
 const popup = (anchor: any) => {
-	for (let child = anchor.get_first_child(); child; child = child.get_next_sibling())
-		if (child instanceof Gtk.Popover) return child
+	for (let child = anchor.get_first_child(); child; child = child.get_next_sibling()) {
+		if (child instanceof Gtk.Popover) {
+			return child
+		}
+	}
 	throw new Error('no native status popover')
 }
 let props: Parameters<typeof FieldChrome>[0] = {
@@ -71,7 +80,9 @@ window.add_controller(keys)
 async function phase(phase: string, point?: { x: number; y: number }) {
 	const next = ack + 1
 	print('GTK_FIELD_CHROME_READY ' + JSON.stringify({ phase, ...point }))
-	for (let i = 0; i < 240 && ack < next; i++) await pause(20)
+	for (let i = 0; i < 240 && ack < next; i++) {
+		await pause(20)
+	}
 	check('OS phase completed ' + phase, ack >= next)
 	await pause()
 }
@@ -329,4 +340,6 @@ run()
 		loop.quit()
 	})
 loop.run()
-if (failure) throw failure
+if (failure) {
+	throw failure
+}

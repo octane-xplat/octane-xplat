@@ -51,7 +51,9 @@ test(
 		const lines = createInterface({ input: child.stdout })
 		lines.on('line', (line) => {
 			stdout += line + '\n'
-			if (!line.startsWith('GTK_SEARCH_READY ')) return
+			if (!line.startsWith('GTK_SEARCH_READY ')) {
+				return
+			}
 			try {
 				const phase = JSON.parse(line.slice('GTK_SEARCH_READY '.length))
 				const id = execFileSync(
@@ -63,9 +65,11 @@ test(
 					.split('\n')[0]
 				const send = (...args) => execFileSync('xdotool', args, { env, timeout: 7000 })
 				send('windowfocus', id)
-				if (phase.type != null) send('type', '--clearmodifiers', '--delay', '35', phase.type)
-				else if (phase.key) send('key', '--clearmodifiers', phase.key)
-				else {
+				if (phase.type != null) {
+					send('type', '--clearmodifiers', '--delay', '35', phase.type)
+				} else if (phase.key) {
+					send('key', '--clearmodifiers', phase.key)
+				} else {
 					send(
 						'mousemove',
 						'--window',
@@ -85,7 +89,9 @@ test(
 		t.after(() => {
 			clearTimeout(deadline)
 			lines.close()
-			if (child.exitCode === null) child.kill()
+			if (child.exitCode === null) {
+				child.kill()
+			}
 		})
 		const code = await new Promise((resolve, reject) => {
 			child.once('error', reject)

@@ -35,9 +35,12 @@ export function bindRangeInstance(
 		value: number
 		text: string
 	}) => {
-		if (disposed) return
-		if (![range.min, range.max, range.value].every(Number.isFinite) || range.max < range.min)
+		if (disposed) {
+			return
+		}
+		if (![range.min, range.max, range.value].every(Number.isFinite) || range.max < range.min) {
 			throw new TypeError('linux-gtk accessibility range requires finite ordered bounds')
+		}
 		view.update_property(
 			[
 				Gtk.AccessibleProperty.VALUE_MIN,
@@ -55,7 +58,9 @@ export function bindRangeInstance(
 	}
 	return {
 		refresh() {
-			if (disposed || keys) return
+			if (disposed || keys) {
+				return
+			}
 			keys = new Gtk.EventControllerKey()
 			connect(keys, 'key-pressed', (_: unknown, key: number, _code: number, modifiers: number) => {
 				if (
@@ -65,8 +70,9 @@ export function bindRangeInstance(
 					!view.get_focusable() ||
 					!view.is_sensitive() ||
 					modifiers & shortcuts
-				)
+				) {
 					return false
+				}
 				let direction: 'accessibilityIncrement' | 'accessibilityDecrement',
 					action: string | undefined
 				switch (key) {
@@ -89,7 +95,9 @@ export function bindRangeInstance(
 					default:
 						return false
 				}
-				if (!hasListener(direction)) return false
+				if (!hasListener(direction)) {
+					return false
+				}
 				emit(direction, { action })
 				return true
 			})
@@ -103,17 +111,26 @@ export function bindRangeInstance(
 					view.get_focusable() &&
 					view.get_focus_on_click() &&
 					view.is_sensitive()
-				)
+				) {
 					view.grab_focus()
+				}
 			})
 			view.add_controller(pointer)
 		},
 		dispose() {
-			if (disposed) return
+			if (disposed) {
+				return
+			}
 			disposed = true
-			for (const [object, id] of connections) object.disconnect(id)
-			if (keys) view.remove_controller(keys)
-			if (pointer) view.remove_controller(pointer)
+			for (const [object, id] of connections) {
+				object.disconnect(id)
+			}
+			if (keys) {
+				view.remove_controller(keys)
+			}
+			if (pointer) {
+				view.remove_controller(pointer)
+			}
 		},
 	}
 }

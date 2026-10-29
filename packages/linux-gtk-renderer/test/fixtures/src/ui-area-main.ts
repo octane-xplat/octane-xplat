@@ -29,7 +29,9 @@ const pause = (ms = 100) =>
 let checks = 0
 let osPull = false
 const check = (label: string, ok: boolean) => {
-	if (!ok) throw new Error(label)
+	if (!ok) {
+		throw new Error(label)
+	}
 	checks++
 }
 const node = (id: string, type?: string) =>
@@ -42,8 +44,9 @@ const dragFor = (view: any) => {
 	const controllers = view.observe_controllers()
 	for (let i = 0; i < controllers.get_n_items(); i++) {
 		const controller = controllers.get_item(i)
-		if (controller instanceof Gtk.GestureDrag && controller.get_name?.() === 'octane-pan')
+		if (controller instanceof Gtk.GestureDrag && controller.get_name?.() === 'octane-pan') {
 			return controller
+		}
 	}
 	throw new Error('Missing imperative pan controller')
 }
@@ -277,4 +280,6 @@ run()
 	})
 	.finally(() => loop.quit())
 loop.run()
-if (failure) throw failure
+if (failure) {
+	throw failure
+}

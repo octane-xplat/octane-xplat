@@ -39,7 +39,9 @@ test('GTK Pressable receives X11 pointer press and pan through OS hit-testing', 
 		stdio: ['ignore', 'pipe', 'pipe'],
 	})
 	t.after(() => {
-		if (child.exitCode === null) child.kill('SIGTERM')
+		if (child.exitCode === null) {
+			child.kill('SIGTERM')
+		}
 	})
 	let stderr = ''
 	child.stderr.on('data', (b) => {
@@ -53,8 +55,12 @@ test('GTK Pressable receives X11 pointer press and pan through OS hit-testing', 
 	})
 	const lines = createInterface({ input: child.stdout })
 	lines.on('line', (line) => {
-		if (line.startsWith('GTK_UI_INPUT_READY ')) resolveReady(JSON.parse(line.slice(19)))
-		if (line.startsWith('GTK_UI_INPUT ')) events.push(JSON.parse(line.slice(13)))
+		if (line.startsWith('GTK_UI_INPUT_READY ')) {
+			resolveReady(JSON.parse(line.slice(19)))
+		}
+		if (line.startsWith('GTK_UI_INPUT ')) {
+			events.push(JSON.parse(line.slice(13)))
+		}
 	})
 	const closed = new Promise((resolve, reject) => {
 		child.once('error', reject)

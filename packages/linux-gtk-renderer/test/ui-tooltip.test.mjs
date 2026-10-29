@@ -52,7 +52,9 @@ test(
 		const lines = createInterface({ input: child.stdout })
 		lines.on('line', (line) => {
 			stdout += line + '\n'
-			if (!line.startsWith('GTK_TOOLTIP_READY ')) return
+			if (!line.startsWith('GTK_TOOLTIP_READY ')) {
+				return
+			}
 			try {
 				const phase = JSON.parse(line.slice('GTK_TOOLTIP_READY '.length))
 				const id = execFileSync(
@@ -64,7 +66,7 @@ test(
 					.split('\n')[0]
 				const send = (...args) => execFileSync('xdotool', args, { env, timeout: 7000 })
 				send('windowfocus', id)
-				if (phase.phase === 'hover')
+				if (phase.phase === 'hover') {
 					send(
 						'mousemove',
 						'--window',
@@ -72,9 +74,13 @@ test(
 						String(Math.round(phase.x)),
 						String(Math.round(phase.y)),
 					)
-				else if (phase.phase === 'leave') send('mousemove', '--window', id, '390', '340')
-				else if (phase.phase === 'focus') send('key', 'Tab')
-				else if (phase.phase === 'escape') send('key', 'Escape')
+				} else if (phase.phase === 'leave') {
+					send('mousemove', '--window', id, '390', '340')
+				} else if (phase.phase === 'focus') {
+					send('key', 'Tab')
+				} else if (phase.phase === 'escape') {
+					send('key', 'Escape')
+				}
 				send('key', 'F12')
 			} catch (error) {
 				inputError = error
@@ -85,7 +91,9 @@ test(
 		t.after(() => {
 			clearTimeout(timer)
 			lines.close()
-			if (child.exitCode === null) child.kill()
+			if (child.exitCode === null) {
+				child.kill()
+			}
 		})
 		const code = await new Promise((resolve, reject) => {
 			child.once('error', reject)

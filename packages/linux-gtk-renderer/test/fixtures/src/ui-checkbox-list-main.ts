@@ -35,19 +35,25 @@ let checks = 0
 const failures: string[] = []
 const check = (name: string, ok: boolean) => {
 	checks++
-	if (!ok) failures.push(name)
+	if (!ok) {
+		failures.push(name)
+	}
 }
 const nodes = (name: string) => [...container.nodes.values()].filter((n) => n.cssClasses?.has(name))
 const rows = () => {
 	const owner = nodes('vx-checkbox-group')[0]
-	if (!owner) return nodes('vx-checkbox-row')
+	if (!owner) {
+		return nodes('vx-checkbox-row')
+	}
 	const found: (typeof owner)[] = []
 	const walk = (node: typeof owner) => {
 		if (node.cssClasses?.has('vx-checkbox-row')) {
 			found.push(node)
 			return
 		}
-		for (const child of node.children) walk(child)
+		for (const child of node.children) {
+			walk(child)
+		}
 	}
 	walk(owner)
 	return found
@@ -75,7 +81,9 @@ let acknowledgments = 0
 const keys = new Gtk.EventControllerKey()
 keys.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
 keys.connect('key-pressed', (_: unknown, key: number) => {
-	if (key !== 65481) return false
+	if (key !== 65481) {
+		return false
+	}
 	acknowledgments++
 	return true
 })
@@ -92,7 +100,9 @@ async function input(view: any, action: { type?: string; key?: string; click?: b
 				y: bounds.y + bounds.height / 2,
 			}),
 	)
-	for (let i = 0; i < 200 && acknowledgments < ack; i++) await pause(25)
+	for (let i = 0; i < 200 && acknowledgments < ack; i++) {
+		await pause(25)
+	}
 	check('OS phase completed', acknowledgments >= ack)
 	await pause()
 }
@@ -488,7 +498,9 @@ async function run() {
 					Gtk.get_major_version() + '.' + Gtk.get_minor_version() + '.' + Gtk.get_micro_version(),
 			}),
 	)
-	if (failures.length) throw new Error(failures.join('; '))
+	if (failures.length) {
+		throw new Error(failures.join('; '))
+	}
 	window.destroy()
 	loop.quit()
 }
@@ -504,4 +516,6 @@ run().catch((error) => {
 	loop.quit()
 })
 loop.run()
-if (failed) (globalThis as any).imports.system.exit(1)
+if (failed) {
+	;(globalThis as any).imports.system.exit(1)
+}

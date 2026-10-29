@@ -40,13 +40,14 @@ test('ScrollableArea handles and refresh lifecycle work on real GTK with native 
 		GTK_A11Y: 'test',
 		GTK_TEST_PULL: osPull ? '1' : '0',
 	}
-	if (process.platform === 'darwin')
+	if (process.platform === 'darwin') {
 		env.DYLD_FALLBACK_LIBRARY_PATH = [
 			join(execFileSync('brew', ['--prefix'], { encoding: 'utf8' }).trim(), 'lib'),
 			env.DYLD_FALLBACK_LIBRARY_PATH,
 		]
 			.filter(Boolean)
 			.join(':')
+	}
 	const child = spawn('gjs', ['-m', bundle], { env, stdio: ['ignore', 'pipe', 'pipe'] })
 	let stdout = '',
 		stderr = '',
@@ -57,7 +58,9 @@ test('ScrollableArea handles and refresh lifecycle work on real GTK with native 
 	const lines = createInterface({ input: child.stdout })
 	lines.on('line', (line) => {
 		stdout += line + '\n'
-		if (line !== 'GTK_UI_AREA_READY') return
+		if (line !== 'GTK_UI_AREA_READY') {
+			return
+		}
 		try {
 			const id = execFileSync(
 				'xdotool',
@@ -110,7 +113,9 @@ test('ScrollableArea handles and refresh lifecycle work on real GTK with native 
 	t.after(() => {
 		clearTimeout(deadline)
 		lines.close()
-		if (child.exitCode === null) child.kill()
+		if (child.exitCode === null) {
+			child.kill()
+		}
 	})
 	const code = await new Promise((resolve, reject) => {
 		child.once('error', reject)

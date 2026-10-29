@@ -31,7 +31,9 @@ let checks = 0
 const failures: string[] = []
 const check = (name: string, ok: boolean) => {
 	checks++
-	if (!ok) failures.push(name)
+	if (!ok) {
+		failures.push(name)
+	}
 }
 const close = (actual: number, expected: number) => Math.abs(actual - expected) <= 1
 const node = (name: string) => [...container.nodes.values()].find((n) => n.cssClasses?.has(name))!
@@ -224,7 +226,9 @@ async function run() {
 					Gtk.get_major_version() + '.' + Gtk.get_minor_version() + '.' + Gtk.get_micro_version(),
 			}),
 	)
-	if (failures.length) throw new Error(failures.join('; '))
+	if (failures.length) {
+		throw new Error(failures.join('; '))
+	}
 	window.destroy()
 	loop.quit()
 }
@@ -241,4 +245,6 @@ run().catch((error) => {
 	loop.quit()
 })
 loop.run()
-if (failed) (globalThis as any).imports.system.exit(1)
+if (failed) {
+	;(globalThis as any).imports.system.exit(1)
+}

@@ -15,7 +15,9 @@ export function bindMotion(view: GtkView, style: MotionStyle) {
 	let sampling = false
 	let pending: { source: number; settle: (result: MotionResult) => void } | null = null
 	const cancel = () => {
-		if (!pending) return
+		if (!pending) {
+			return
+		}
 		GLib.source_remove(pending.source)
 		pending.settle({ status: 'cancelled' })
 		pending = null
@@ -27,20 +29,25 @@ export function bindMotion(view: GtkView, style: MotionStyle) {
 		if (
 			!definition ||
 			Object.keys(definition).some((key) => key !== 'translate' && key !== 'duration')
-		)
+		) {
 			throw new Error('linux-gtk ref: unsupported animation definition')
+		}
 		const { x, y } = definition.translate ?? {}
 		const duration = definition.duration ?? 300
-		if (![x, y, duration].every(Number.isFinite) || duration < 0)
+		if (![x, y, duration].every(Number.isFinite) || duration < 0) {
 			throw new Error(
 				'linux-gtk ref: translate animation requires finite coordinates and a nonnegative duration',
 			)
+		}
 		const fromX = Number(style.read('translateX'))
 		const fromY = Number(style.read('translateY'))
-		if (!Number.isFinite(fromX) || !Number.isFinite(fromY))
+		if (!Number.isFinite(fromX) || !Number.isFinite(fromY)) {
 			throw new Error('linux-gtk ref: translate animation requires numeric starting values')
+		}
 		cancel()
-		if (disposed) return Promise.resolve({ status: 'cancelled' })
+		if (disposed) {
+			return Promise.resolve({ status: 'cancelled' })
+		}
 		const sample = (progress: number) => {
 			sampling = true
 			try {
@@ -58,11 +65,17 @@ export function bindMotion(view: GtkView, style: MotionStyle) {
 			const start = GLib.get_monotonic_time() / 1000
 			const run = { source: 0, settle: resolve }
 			run.source = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 16, () => {
-				if (pending !== run || disposed) return false
+				if (pending !== run || disposed) {
+					return false
+				}
 				const progress = Math.min(1, (GLib.get_monotonic_time() / 1000 - start) / duration)
 				sample(progress)
-				if (pending !== run) return false
-				if (progress < 1) return true
+				if (pending !== run) {
+					return false
+				}
+				if (progress < 1) {
+					return true
+				}
 				pending = null
 				resolve({ status: 'finished' })
 				return false
@@ -72,7 +85,9 @@ export function bindMotion(view: GtkView, style: MotionStyle) {
 	}
 	return {
 		beforeWrite(property: string) {
-			if (!sampling && (property === 'translateX' || property === 'translateY')) cancel()
+			if (!sampling && (property === 'translateX' || property === 'translateY')) {
+				cancel()
+			}
 		},
 		dispose() {
 			disposed = true

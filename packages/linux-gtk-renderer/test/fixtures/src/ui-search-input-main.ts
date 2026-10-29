@@ -28,7 +28,9 @@ const pause = (ms = 160) =>
 	)
 let checks = 0
 const check = (name: string, ok: boolean) => {
-	if (!ok) throw new Error(name)
+	if (!ok) {
+		throw new Error(name)
+	}
 	checks++
 }
 const close = (a: number, b: number) => Math.abs(a - b) <= 2
@@ -47,7 +49,9 @@ let acknowledgments = 0
 const keys = new Gtk.EventControllerKey()
 keys.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
 keys.connect('key-pressed', (_: unknown, key: number) => {
-	if (key !== 65481) return false
+	if (key !== 65481) {
+		return false
+	}
 	acknowledgments++
 	return true
 })
@@ -64,7 +68,9 @@ async function input(view: any, action: { type?: string; key?: string; click?: b
 				y: bounds.y + bounds.height / 2,
 			}),
 	)
-	for (let i = 0; i < 200 && acknowledgments < ack; i++) await pause(25)
+	for (let i = 0; i < 200 && acknowledgments < ack; i++) {
+		await pause(25)
+	}
 	check('OS phase completed', acknowledgments >= ack)
 	await pause()
 }
@@ -115,8 +121,9 @@ async function run() {
 	await render({ value: 'abc', onChange: (value) => changes.push(value) })
 	entry.focus()
 	entry.select_region(1, 2)
-	if (osInput) await input(entry, { type: 'X' })
-	else {
+	if (osInput) {
+		await input(entry, { type: 'X' })
+	} else {
 		entry.set_text('aXc')
 		await pause()
 	}
@@ -141,8 +148,9 @@ async function run() {
 	}
 	await render({ onChange: accept, onClear: () => order.push('clear') })
 	entry.set_position(1)
-	if (osInput) await input(entry, { type: 'Y' })
-	else {
+	if (osInput) {
+		await input(entry, { type: 'Y' })
+	} else {
 		entry.set_text('aYbc')
 		await pause()
 	}
@@ -159,7 +167,9 @@ async function run() {
 		check('accepted clear updates the controlled owner', entry.text === '' && props.value === '')
 		check('clear returns focus to the retained editor', focused())
 		check('empty text retires its clear affordance', nodes('vx-search-clear').length === 0)
-	} else await render({ value: '' })
+	} else {
+		await render({ value: '' })
+	}
 	await render({ value: 'keep' })
 	entry.focus()
 	await pause()
@@ -219,7 +229,9 @@ async function run() {
 	check('disabled reaches native sensitivity', !entry.is_sensitive())
 	check('disabled removes clear action', nodes('vx-search-clear').length === 0)
 	const beforeDisabled = entry.text
-	if (osInput) await input(entry, { type: 'Z' })
+	if (osInput) {
+		await input(entry, { type: 'Z' })
+	}
 	check('disabled typing leaves the owner unchanged', entry.text === beforeDisabled)
 	await render({ isDisabled: false, isLoading: true })
 	check(
@@ -230,8 +242,9 @@ async function run() {
 	check('loading preserves the clear affordance', nodes('vx-search-clear').length === 1)
 	entry.focus()
 	entry.set_position(entry.get_text_length())
-	if (osInput) await input(entry, { type: 'Q' })
-	else {
+	if (osInput) {
+		await input(entry, { type: 'Q' })
+	} else {
 		entry.set_text(beforeDisabled + 'Q')
 		await pause()
 	}
@@ -369,4 +382,6 @@ run().catch((error) => {
 	loop.quit()
 })
 loop.run()
-if (failed) (globalThis as any).imports.system.exit(1)
+if (failed) {
+	;(globalThis as any).imports.system.exit(1)
+}

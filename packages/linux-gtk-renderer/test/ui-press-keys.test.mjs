@@ -52,7 +52,9 @@ test(
 		const lines = createInterface({ input: child.stdout })
 		lines.on('line', (line) => {
 			stdout += line + '\n'
-			if (!line.startsWith('GTK_PRESS_KEYS_READY ')) return
+			if (!line.startsWith('GTK_PRESS_KEYS_READY ')) {
+				return
+			}
 			try {
 				const phase = JSON.parse(line.slice('GTK_PRESS_KEYS_READY '.length))
 				const id = execFileSync(
@@ -64,12 +66,19 @@ test(
 					.split('\n')[0]
 				const send = (...args) => execFileSync('xdotool', args, { env, timeout: 7000 })
 				send('windowfocus', id)
-				if (phase.phase === 'tab') send('key', 'Tab')
-				else if (phase.phase === 'space') send('key', 'space')
-				else if (phase.phase === 'return') send('key', 'Return')
-				else if (phase.phase === 'hold') send('keydown', 'space')
-				else if (phase.phase === 'release') send('keyup', 'space')
-				else if (phase.phase === 'child') send('key', 'space')
+				if (phase.phase === 'tab') {
+					send('key', 'Tab')
+				} else if (phase.phase === 'space') {
+					send('key', 'space')
+				} else if (phase.phase === 'return') {
+					send('key', 'Return')
+				} else if (phase.phase === 'hold') {
+					send('keydown', 'space')
+				} else if (phase.phase === 'release') {
+					send('keyup', 'space')
+				} else if (phase.phase === 'child') {
+					send('key', 'space')
+				}
 				send('key', 'F12')
 			} catch (error) {
 				inputError = error
@@ -80,7 +89,9 @@ test(
 		t.after(() => {
 			clearTimeout(timer)
 			lines.close()
-			if (child.exitCode === null) child.kill()
+			if (child.exitCode === null) {
+				child.kill()
+			}
 		})
 		const code = await new Promise((resolve, reject) => {
 			child.once('error', reject)

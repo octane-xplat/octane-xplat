@@ -54,7 +54,9 @@ export async function runGtkUiFixture(t, { stem, title, marker, minChecks, input
 	const ready = marker + '_READY '
 	lines.on('line', (line) => {
 		stdout += line + '\n'
-		if (!osInput || !line.startsWith(ready)) return
+		if (!osInput || !line.startsWith(ready)) {
+			return
+		}
 		try {
 			const phase = JSON.parse(line.slice(ready.length))
 			const id = execFileSync('xdotool', ['search', '--onlyvisible', '--name', '^' + title + '$'], {
@@ -65,9 +67,11 @@ export async function runGtkUiFixture(t, { stem, title, marker, minChecks, input
 				.split('\n')[0]
 			const send = (...args) => execFileSync('xdotool', args, { env, timeout: 7000 })
 			send('windowfocus', id)
-			if (phase.type != null) send('type', '--clearmodifiers', '--delay', '35', '--', phase.type)
-			else if (phase.key) send('key', '--clearmodifiers', phase.key)
-			else if (phase.drag) {
+			if (phase.type != null) {
+				send('type', '--clearmodifiers', '--delay', '35', '--', phase.type)
+			} else if (phase.key) {
+				send('key', '--clearmodifiers', phase.key)
+			} else if (phase.drag) {
 				const x = Math.round(phase.x),
 					y = Math.round(phase.y)
 				send('mousemove', '--window', id, String(x), String(y))
@@ -88,7 +92,9 @@ export async function runGtkUiFixture(t, { stem, title, marker, minChecks, input
 				}
 			} else {
 				send('mousemove', '--window', id, String(Math.round(phase.x)), String(Math.round(phase.y)))
-				if (!phase.hover) send('click', '1')
+				if (!phase.hover) {
+					send('click', '1')
+				}
 			}
 			send('key', 'F12')
 		} catch (error) {
@@ -100,7 +106,9 @@ export async function runGtkUiFixture(t, { stem, title, marker, minChecks, input
 	t.after(() => {
 		clearTimeout(deadline)
 		lines.close()
-		if (child.exitCode === null) child.kill()
+		if (child.exitCode === null) {
+			child.kill()
+		}
 	})
 	const code = await new Promise((resolve, reject) => {
 		child.once('error', reject)

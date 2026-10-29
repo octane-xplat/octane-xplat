@@ -25,13 +25,17 @@ const pause = (ms = 100) =>
 	)
 let checks = 0
 const check = (name: string, ok: boolean) => {
-	if (!ok) throw new Error(name)
+	if (!ok) {
+		throw new Error(name)
+	}
 	checks++
 }
 const node = (id: string) => [...container.nodes.values()].find((n) => n.props.id === id)!
 const picture = (id: string) => node(id).view!
 const loaded = async (id: string) => {
-	for (let i = 0; i < 100 && picture(id).isLoading; i++) await pause(30)
+	for (let i = 0; i < 100 && picture(id).isLoading; i++) {
+		await pause(30)
+	}
 	check(
 		id + ' loaded: ' + String(picture(id).imageError?.message ?? ''),
 		!picture(id).isLoading && !!picture(id).get_paintable(),
@@ -198,7 +202,9 @@ async function run() {
 	dropRaw = false
 	source = remote + '/missing.svg'
 	render()
-	for (let i = 0; i < 100 && raw.isLoading; i++) await pause(30)
+	for (let i = 0; i < 100 && raw.isLoading; i++) {
+		await pause(30)
+	}
 	check(
 		'HTTP failure reaches explicit error state',
 		raw.get_paintable() === null && raw.imageError != null && !raw.isLoading,
@@ -241,4 +247,6 @@ run()
 		loop.quit()
 	})
 loop.run()
-if (failure) throw failure
+if (failure) {
+	throw failure
+}

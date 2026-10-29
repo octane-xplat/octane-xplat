@@ -52,7 +52,9 @@ test(
 		const lines = createInterface({ input: child.stdout })
 		lines.on('line', (line) => {
 			stdout += line + '\n'
-			if (!line.startsWith('GTK_TOGGLE_FIELDS_READY ')) return
+			if (!line.startsWith('GTK_TOGGLE_FIELDS_READY ')) {
+				return
+			}
 			try {
 				const phase = JSON.parse(line.slice('GTK_TOGGLE_FIELDS_READY '.length))
 				const id = execFileSync(
@@ -67,9 +69,13 @@ test(
 				if (phase.phase === 'label') {
 					send('mousemove', '--window', id, String(phase.x), String(phase.y))
 					send('click', '1')
-				} else if (phase.phase === 'tab') send('key', 'Tab')
-				else if (phase.phase === 'space') send('key', 'space')
-				else if (phase.phase === 'return') send('key', 'Return')
+				} else if (phase.phase === 'tab') {
+					send('key', 'Tab')
+				} else if (phase.phase === 'space') {
+					send('key', 'space')
+				} else if (phase.phase === 'return') {
+					send('key', 'Return')
+				}
 				send('key', 'F12')
 			} catch (error) {
 				inputError = error
@@ -80,7 +86,9 @@ test(
 		t.after(() => {
 			clearTimeout(timer)
 			lines.close()
-			if (child.exitCode === null) child.kill()
+			if (child.exitCode === null) {
+				child.kill()
+			}
 		})
 		const code = await new Promise((resolve, reject) => {
 			child.once('error', reject)

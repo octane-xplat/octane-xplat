@@ -51,7 +51,9 @@ test(
 		const lines = createInterface({ input: child.stdout })
 		lines.on('line', (line) => {
 			stdout += line + '\n'
-			if (!line.startsWith('GTK_TEXT_ENTRY_READY ')) return
+			if (!line.startsWith('GTK_TEXT_ENTRY_READY ')) {
+				return
+			}
 			try {
 				const phase = JSON.parse(line.slice('GTK_TEXT_ENTRY_READY '.length))
 				const id = execFileSync(
@@ -114,7 +116,9 @@ test(
 		t.after(() => {
 			clearTimeout(deadline)
 			lines.close()
-			if (child.exitCode === null) child.kill()
+			if (child.exitCode === null) {
+				child.kill()
+			}
 		})
 		const code = await new Promise((resolve, reject) => {
 			child.once('error', reject)

@@ -39,7 +39,9 @@ function setup(ios: boolean) {
 	const cfg = { current: { refreshing: false, onRefresh: vi.fn() } }
 	const controller = createPullToRefresh({ scroller, indicator, isAtTop: () => true, cfg })
 	const emit = (state: number, deltaY = 0) => {
-		if (ios) scroller.ios.contentOffset.y = -deltaY - scroller.ios.contentInset.top
+		if (ios) {
+			scroller.ios.contentOffset.y = -deltaY - scroller.ios.contentInset.top
+		}
 		listeners.get('pan')?.({ state, deltaY })
 	}
 	return { scroller, indicator, cfg, controller, emit, listeners }
@@ -54,7 +56,9 @@ describe.each([false, true])('native refresh cancellation (iOS=%s)', (ios) => {
 			host.emit(0, 200)
 			expect(host.cfg.current.onRefresh).not.toHaveBeenCalled()
 			expect(host.indicator.translateY).toBe(-64)
-			if (!ios) expect(host.scroller.translateY).toBe(0)
+			if (!ios) {
+				expect(host.scroller.translateY).toBe(0)
+			}
 		} finally {
 			host.controller.detach()
 		}
@@ -69,8 +73,11 @@ describe.each([false, true])('native refresh cancellation (iOS=%s)', (ios) => {
 			host.emit(0, 200)
 			expect(host.cfg.current.onRefresh).not.toHaveBeenCalled()
 			expect(host.indicator.translateY).toBe(0)
-			if (ios) expect(host.scroller.ios.contentInset.top).toBe(64)
-			else expect(host.scroller.translateY).toBe(64)
+			if (ios) {
+				expect(host.scroller.ios.contentInset.top).toBe(64)
+			} else {
+				expect(host.scroller.translateY).toBe(64)
+			}
 		} finally {
 			host.controller.detach()
 		}
@@ -84,8 +91,11 @@ describe.each([false, true])('native refresh cancellation (iOS=%s)', (ios) => {
 			host.emit(0)
 			expect(host.cfg.current.onRefresh).not.toHaveBeenCalled()
 			expect(host.indicator.translateY).toBe(0)
-			if (ios) expect(host.scroller.ios.contentInset.top).toBe(64)
-			else expect(host.scroller.translateY).toBe(64)
+			if (ios) {
+				expect(host.scroller.ios.contentInset.top).toBe(64)
+			} else {
+				expect(host.scroller.translateY).toBe(64)
+			}
 		} finally {
 			host.controller.detach()
 		}

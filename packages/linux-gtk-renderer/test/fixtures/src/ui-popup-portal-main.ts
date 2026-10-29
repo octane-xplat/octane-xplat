@@ -43,7 +43,9 @@ let checks = 0
 const failures: string[] = []
 const check = (name: string, ok: boolean) => {
 	checks++
-	if (!ok) failures.push(name)
+	if (!ok) {
+		failures.push(name)
+	}
 }
 const near = (a: number, b: number) => Math.abs(a - b) <= 1
 let props: Parameters<typeof Portals>[0] = { target, value: 'first', order: ['a'] }
@@ -58,7 +60,9 @@ for (const widget of [window, popover, nested]) {
 	const keys = new Gtk.EventControllerKey()
 	keys.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
 	keys.connect('key-pressed', (_controller: any, key: number) => {
-		if (key !== 65481) return false
+		if (key !== 65481) {
+			return false
+		}
 		ack++
 		return true
 	})
@@ -70,7 +74,9 @@ for (const widget of [window, popover, nested]) {
 const expected = (widget: any) => {
 	const native = widget.get_native()
 	const [ok, rect] = widget.compute_bounds(native)
-	if (!ok) throw new Error('No bounds within native')
+	if (!ok) {
+		throw new Error('No bounds within native')
+	}
 	const [tx, ty] = native.get_surface_transform()
 	let x = rect.origin.x - tx,
 		y = rect.origin.y - ty
@@ -83,7 +89,9 @@ const expected = (widget: any) => {
 		y += surface.get_position_y()
 	}
 	const [hostOk, origin] = host.compute_point(window, new Graphene.Point({ x: 0, y: 0 }))
-	if (!hostOk) throw new Error('No root host origin')
+	if (!hostOk) {
+		throw new Error('No root host origin')
+	}
 	const [wx, wy] = window.get_surface_transform()
 	return {
 		x: x + wx - origin.x,
@@ -109,14 +117,18 @@ const measure = (name: string, widget: any) => {
 async function input(widget: any, key?: string) {
 	const r = expected(widget)
 	const [ok, origin] = host.compute_point(window, new Graphene.Point({ x: 0, y: 0 }))
-	if (!ok) throw new Error('No input origin')
+	if (!ok) {
+		throw new Error('No input origin')
+	}
 	// Round-trip pointer entry before pressing on a different native surface.
 	// A single immediate move/click was intermittent after nested retargeting.
 	const point = { x: r.x + origin.x + r.width / 2, y: r.y + origin.y + r.height / 2 }
 	for (const action of key ? [{ key }] : [{ hover: true }, {}]) {
 		const next = ack + 1
 		print('GTK_POPUP_PORTAL_READY ' + JSON.stringify({ ...point, ...action }))
-		for (let i = 0; i < 200 && ack < next; i++) await pause(25)
+		for (let i = 0; i < 200 && ack < next; i++) {
+			await pause(25)
+		}
 		check('actual OS action acknowledged', ack >= next)
 		await pause()
 	}
@@ -141,10 +153,14 @@ async function run() {
 		{ scaleX: 1.3, scaleY: 0.8 },
 		{ rotate: 12 },
 	]) {
-		for (const [name, value] of Object.entries(style)) action.style[name] = value
+		for (const [name, value] of Object.entries(style)) {
+			action.style[name] = value
+		}
 		await pause()
 		measure('transformed popup action ' + JSON.stringify(style), action)
-		for (const name of Object.keys(style)) delete action.style[name]
+		for (const name of Object.keys(style)) {
+			delete action.style[name]
+		}
 		await pause()
 	}
 	fixed.move(host, 60, 45)
@@ -244,7 +260,9 @@ async function run() {
 				gtk: [Gtk.MAJOR_VERSION, Gtk.MINOR_VERSION, Gtk.MICRO_VERSION].join('.'),
 			}),
 	)
-	if (failures.length) throw new Error(failures.join('; '))
+	if (failures.length) {
+		throw new Error(failures.join('; '))
+	}
 }
 let failed = false
 run()
@@ -255,13 +273,21 @@ run()
 	})
 	.finally(() => {
 		nested.popdown()
-		if (nested.get_parent()) nested.unparent()
+		if (nested.get_parent()) {
+			nested.unparent()
+		}
 		popover.popdown()
-		if (popover.get_parent()) popover.unparent()
+		if (popover.get_parent()) {
+			popover.unparent()
+		}
 		root.unmount()
-		for (const [widget, controller] of controllers) widget.remove_controller(controller)
+		for (const [widget, controller] of controllers) {
+			widget.remove_controller(controller)
+		}
 		window.destroy()
 		loop.quit()
 	})
 loop.run()
-if (failed) imports.system.exit(1)
+if (failed) {
+	imports.system.exit(1)
+}

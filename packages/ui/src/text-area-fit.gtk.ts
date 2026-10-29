@@ -7,7 +7,9 @@ export function fitTextArea(
 	view: any,
 	props: Pick<TextAreaProps, 'rows' | 'autoGrow' | 'maxRows' | 'style'>,
 ): () => void {
-	if (!view) return () => {}
+	if (!view) {
+		return () => {}
+	}
 	const fit = () => {
 		const style = styleRecord(props.style)
 		const explicitHeight = style?.height != null
@@ -36,7 +38,9 @@ export function fitTextArea(
 	}
 	let tick: number | null = null
 	const stop = () => {
-		if (tick !== null) view.remove_tick_callback(tick)
+		if (tick !== null) {
+			view.remove_tick_callback(tick)
+		}
 		tick = null
 	}
 	const schedule = () => {
@@ -46,7 +50,9 @@ export function fitTextArea(
 		// validation, then stop; leave no permanent frame-clock reader.
 		tick = view.add_tick_callback(() => {
 			fit()
-			if (++frames < 2) return true
+			if (++frames < 2) {
+				return true
+			}
 			tick = null
 			return false
 		})
