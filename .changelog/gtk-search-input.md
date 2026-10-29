@@ -16,4 +16,4 @@ export function Search() {
 }
 ```
 
-[GTK search fields](https://octane-xplat.goddardai.org/platform/linux-gtk#search-fields)
+[GTK search fields](https://octane-xplat.goddardai.org/linux-gtk#search-fields)

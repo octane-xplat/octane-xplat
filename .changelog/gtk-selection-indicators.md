@@ -18,4 +18,4 @@ export function SelectionMarks() {
 }
 ```
 
-[GTK indicators](https://octane-xplat.goddardai.org/platform/linux-gtk#draw-selection-indicators)
+[GTK indicators](https://octane-xplat.goddardai.org/linux-gtk#draw-selection-indicators)

@@ -66,4 +66,4 @@ export function FocusableField() {
 ```
 
 Layout uses the XplatMason engine; the GTK surface remains a qualified subset
-of the full UI. [GTK setup and support limits](https://octane-xplat.goddardai.org/platform/linux-gtk)
+of the full UI. [GTK setup and support limits](https://octane-xplat.goddardai.org/linux-gtk)

@@ -15,4 +15,4 @@ export function PortalContent(props: { target: unknown }) {
 
 Targets must be local multi-child layout containers and remain alive until
 portal removal. UI tooltip and dialog components remain outside the qualified
-GTK exports. See [GTK portal targets](https://octane-xplat.goddardai.org/platform/linux-gtk#portals-for-gtk-host-integrations).
+GTK exports. See [GTK portal targets](https://octane-xplat.goddardai.org/linux-gtk#portals-for-gtk-host-integrations).

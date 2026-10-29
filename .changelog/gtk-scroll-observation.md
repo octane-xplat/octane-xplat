@@ -23,7 +23,7 @@ export function FeedViewport() {
 Attach it to a GTK scrollview, with one content layout inside. Ordinary View
 containers do not become scrollable by attaching the hook.
 
-[GTK setup and supported UI](https://octane-xplat.goddardai.org/platform/linux-gtk)
+[GTK setup and supported UI](https://octane-xplat.goddardai.org/linux-gtk)
 
 ScrollableArea now provides portable offset handles, including two-axis scrolling,
 and block-axis pull-to-refresh on GTK. Spinner exposes native activity with

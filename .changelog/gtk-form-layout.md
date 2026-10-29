@@ -18,4 +18,4 @@ export function Name() {
 ```
 
 GTK horizontal labels use separate rows per field rather than a shared label
-column. [GTK setup](https://octane-xplat.goddardai.org/platform/linux-gtk)
+column. [GTK setup](https://octane-xplat.goddardai.org/linux-gtk)

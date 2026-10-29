@@ -17,4 +17,4 @@ export function Preferences() {
 }
 ```
 
-[Linux GTK toggle fields](https://octane-xplat.goddardai.org/platform/linux-gtk#toggle-fields)
+[Linux GTK toggle fields](https://octane-xplat.goddardai.org/linux-gtk#toggle-fields)

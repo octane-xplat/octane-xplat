@@ -23,4 +23,4 @@ export function DeliveryHelp() {
 
 Use contentClassName/contentStyle to style the noninteractive panel. Native
 description references, timers and popup observers are cleaned up on close or
-unmount. [GTK tooltip setup and limits](https://octane-xplat.goddardai.org/platform/linux-gtk#tooltips).
+unmount. [GTK tooltip setup and limits](https://octane-xplat.goddardai.org/linux-gtk#tooltips).

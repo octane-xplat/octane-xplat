@@ -17,4 +17,4 @@ export function SaveAction(props: { disabled: boolean; save: () => void }) {
 }
 ```
 
-[GTK keyboard actions](https://octane-xplat.goddardai.org/platform/linux-gtk#keyboard-press-actions).
+[GTK keyboard actions](https://octane-xplat.goddardai.org/linux-gtk#keyboard-press-actions).

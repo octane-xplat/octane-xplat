@@ -20,4 +20,4 @@ export function Selection(props: { selected: boolean; toggle: () => void }) {
 
 The shared CheckboxInput and Switch components remain outside the curated GTK
 root while their remaining contracts are qualified.
-[GTK keyboard actions](https://octane-xplat.goddardai.org/platform/linux-gtk#keyboard-press-actions)
+[GTK keyboard actions](https://octane-xplat.goddardai.org/linux-gtk#keyboard-press-actions)

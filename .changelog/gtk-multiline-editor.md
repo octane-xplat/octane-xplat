@@ -37,5 +37,5 @@ export function Notes() {
 }
 ```
 
-[GTK text entry](https://octane-xplat.goddardai.org/platform/linux-gtk#multiline-fields)
+[GTK text entry](https://octane-xplat.goddardai.org/linux-gtk#multiline-fields)
 describes the supported behavior and runtime limits.

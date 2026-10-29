@@ -12,4 +12,4 @@ export function SearchIcon() {
 }
 ```
 
-[GTK setup and source requirements](https://octane-xplat.goddardai.org/platform/linux-gtk)
+[GTK setup and source requirements](https://octane-xplat.goddardai.org/linux-gtk)

@@ -17,4 +17,4 @@ export function Price() {
 }
 ```
 
-[GTK setup](https://octane-xplat.goddardai.org/platform/linux-gtk)
+[GTK setup](https://octane-xplat.goddardai.org/linux-gtk)

@@ -18,4 +18,4 @@ export function AccountField(props: { required: boolean; loading: boolean; inval
 }
 ```
 
-[GTK control state](https://octane-xplat.goddardai.org/platform/linux-gtk#control-accessibility-state).
+[GTK control state](https://octane-xplat.goddardai.org/linux-gtk#control-accessibility-state).
