@@ -1,6 +1,7 @@
 # Windows native support candidates
 
-Issue: [Windows #61](https://github.com/octane-xplat/octane-xplat/issues/61).
+Issue: [Windows #79](https://github.com/octane-xplat/octane-xplat/issues/79), which
+succeeds the closed tracker [#61](https://github.com/octane-xplat/octane-xplat/issues/61).
 This note records implementation candidates after audit commit `720c9ef93`.
 The shared [export audit](native-desktop-support.md) remains a historical snapshot;
 its TSVs, findings and hashes have not been regenerated during parallel work.
