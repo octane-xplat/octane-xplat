@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from './style-merge'
-import { useMemo, useRef, useState } from 'octane'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'octane'
 import { appKitImageSource } from './svg-image.macos'
 import { useMeasure } from '@octane-xplat/ui'
 import type { ChartProps } from './props'
@@ -8,13 +8,16 @@ import { computeScene } from './core/scene'
 import type { ChartScene } from './core/scene'
 import { createScrub, hitLabel } from './core/hit'
 import type { SceneHit } from './core/hit'
+import { createAppKitChartPointer } from './appkit-pointer.macos'
 
 const EMPTY_SVG = '<svg xmlns="http://www.w3.org/2000/svg"/>'
 const TIP_ESTIMATE_CHAR = 6.2
 
 /** AppKit leaf: one NSImage plus native label and cursor overlays.
- * Click recognizers currently supply no coordinates; taps use the scene center.
- * AppKit does not deliver onTouch, so touch scrubbing is unavailable. */
+ * Hover/drag/click coordinates come from renderer tracking areas, pan
+ * recognizer location and the current mouse event; native delivery is
+ * unqualified. AppKit does not deliver onTouch, so touch scrubbing is
+ * unavailable. */
 export function Chart(props: ChartProps) @{
 	const measure = useMeasure()
 	const [cursor, setCursor] = useState<SceneHit | null>(null)
@@ -52,18 +55,30 @@ export function Chart(props: ChartProps) @{
 	sceneRef.current = scene
 
 	const interactive = !!(props.onPress || props.onScrub || props.tooltip || props.crosshair)
-	const onTap = useMemo(() => {
-		const scrub = createScrub(
-			() => sceneRef.current,
-			() => propsRef.current,
-			setCursor,
-		)
-
-		return (e?: any) => {
-			const scene = sceneRef.current
-			scrub('tap', e?.getX?.() ?? (scene?.width ?? 0) / 2, e?.getY?.() ?? (scene?.height ?? 0) / 2)
+	const pointer = useMemo(
+		() =>
+			createAppKitChartPointer(
+				createScrub(
+					() => sceneRef.current,
+					() => propsRef.current,
+					setCursor,
+				),
+				() => ({
+					width: sceneRef.current?.width ?? 0,
+					height: sceneRef.current?.height ?? 0,
+				}),
+			),
+		[],
+	)
+	const [tapView, setTapView] = useState<any>(null)
+	const bindTapView = useCallback((view: any) => setTapView(view), [])
+	useEffect(() => {
+		if (!interactive || !tapView) {
+			return
 		}
-	}, [])
+
+		return pointer.observe(tapView)
+	}, [interactive, tapView, pointer])
 
 	const markup = scene?.markup ?? EMPTY_SVG
 	const imageSource = useMemo(() => appKitImageSource(markup), [markup])
@@ -151,12 +166,14 @@ export function Chart(props: ChartProps) @{
 			/>
 			<masonview
 				id={props.id ? props.id + '-tap' : undefined}
+				ref={bindTapView}
 				style={{
 					display: 'flex',
 					width: w,
 					height: h,
 				}}
-				onTap={interactive ? onTap : undefined}
+				onPan={interactive ? pointer.pan : undefined}
+				onTap={interactive ? () => pointer.tap(tapView) : undefined}
 			>
 				<masonview
 					id={props.id ? props.id + '-overlay' : undefined}

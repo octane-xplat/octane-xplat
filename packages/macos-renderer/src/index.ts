@@ -71,6 +71,7 @@ import { installMasonElement, makeMasonHostView } from './mason'
 import { installCompat } from './ns-compat'
 import { createAppKitKeyboardDispatcher } from './keyboard'
 import { createAppKitContextPointerDispatcher } from './context-pointer'
+import { createAppKitPointerMotion } from './pointer-motion'
 import { createAppKitFileDropRegistry } from './file-drop'
 import { createAppKitFocusWithinDispatcher } from './focus-within'
 import { createTabStopSuppression } from './tab-stop'
@@ -9640,6 +9641,9 @@ function measureParity(container: RootContainer, facets: readonly string[]) {
 const hoverRecordsByArea = new Map<object, any>()
 const hoverRecordByView = new WeakMap<object, any>()
 const openPopups = new Set<any>()
+// Pointer-motion areas share the hover target but not its records —
+// dispatchHover only sees hoverRecordsByArea entries.
+const pointerMotion = createAppKitPointerMotion()
 
 const TRACKING_OPTS = (
 	typeof NSTrackingAreaOptions === 'undefined' ? {} : NSTrackingAreaOptions
@@ -9756,6 +9760,7 @@ try {
 		static ObjCExposedMethods = {
 			mouseEntered: { params: [NSEvent], returns: interop.types.void },
 			mouseExited: { params: [NSEvent], returns: interop.types.void },
+			mouseMoved: { params: [NSEvent], returns: interop.types.void },
 		}
 
 		static {
@@ -9764,10 +9769,16 @@ try {
 
 		mouseEntered(event: NSEvent) {
 			dispatchHover(event?.trackingArea, 'enter')
+			pointerMotion.dispatch(event?.trackingArea, 'enter', event)
 		}
 
 		mouseExited(event: NSEvent) {
 			dispatchHover(event?.trackingArea, 'exit')
+			pointerMotion.dispatch(event?.trackingArea, 'exit', event)
+		}
+
+		mouseMoved(event: NSEvent) {
+			pointerMotion.dispatch(event?.trackingArea, 'move', event)
 		}
 	}
 
@@ -10717,6 +10728,9 @@ appKitBridge.onAppearanceChange?.(() => restyleAllContainers())
 appKitBridge.imageMemoryCache = imageMemoryCache
 appKitBridge.imageCache = imageCache
 appKitBridge.observeHover = observeHover
+appKitBridge.observePointerMotion = (view: NSView, handlers: { move(x: number, y: number): void; exit(): void }) =>
+	pointerMotion.observe(view, handlers, hoverTrackingTarget)
+appKitBridge.locatePointer = (view: NSView) => pointerMotion.locate(view)
 appKitBridge.retainTableStickyPlacement = stickyPlacements.retain
 Object.defineProperty(appKitBridge, 'containerRevealSupported', {
 	configurable: true,

@@ -10021,3 +10021,50 @@ pnpm check:docs
 pnpm check:doc-examples
 pnpm check:changelog
 ```
+
+## AppKit Chart pointer scrubbing
+
+Tracked in #78. At 838b4cf9b the AppKit Chart leaf only had a tap recognizer
+without coordinates, so `onPress` always hit the scene center. AppKit had no
+hover or drag scrubbing, while web drives `createScrub` from pointer events.
+Charts are lower demand than controls, but hover tooltips are the expected
+desktop chart interaction.
+
+The renderer gains `pointer-motion.ts`: per-lease NSTrackingAreas with
+entered/exited/moved options (ActiveAlways, InVisibleRect), dispatched through
+the existing hover tracking target's new `mouseMoved:` method. These records
+are separate from `hoverRecordsByArea`, so cursor, tooltip and CSS hover
+records keep their one-area-per-view behavior. `viewPoint` converts window
+points to top-left view coordinates with the same math as pan events.
+`locatePointer` reads the current mouse down/up event only when it belongs to
+the view's window. The bridge exposes `observePointerMotion` and
+`locatePointer`; no event monitors or polling were added.
+
+`charts/src/appkit-pointer.macos.ts` maps raw renderer pan events onto scrub
+phases: began gives down at the start point then move, changed gives move,
+ended gives up, and cancelled or a non-finite end gives cancel. Hover/leave
+are suppressed during a drag, so an exit mid-drag does not reset the scrub.
+Taps use the located point, falling back to the center. The leaf observes
+motion only while interactive. It still consumes the renderer's raw pan
+shape because charts has no runtime dependency on the ui `usePan` helper.
+
+Fourteen new cases, all UNRUN: seven renderer pointer-motion cases (conversion,
+option mask, dispatch phases, release, lease independence, error isolation,
+capability absence, locate filtering) and seven chart adapter cases. The charts
+README gains a pointer section; release note `.changelog/appkit-chart-pointer.md`.
+No recipe covers chart interaction. Lightweight verification only: six TS files
+parsed with zero diagnostics, the TSRX additions parse-checked in isolation,
+whitespace clean. Actual tracking-area delivery, currentEvent timing inside the
+click recognizer, pan/click coexistence on one view, coordinates under
+scaling/RTL, and pixels remain unqualified.
+
+Exact deferred commands (DO NOT RUN until explicit human authorization):
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer -- test/pointer-motion.test.ts
+pnpm exec turbo run test --filter=@octane-xplat/charts -- tests/appkit-pointer.test.ts
+pnpm exec turbo run typecheck --filter=...@octane-xplat/macos-renderer --filter=...@octane-xplat/charts
+pnpm check:docs
+pnpm check:doc-examples
+pnpm check:changelog
+```

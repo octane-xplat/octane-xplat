@@ -55,6 +55,10 @@ declare global {
 		/** Retain programmatic focus on a scope box without a Tab stop/action. */
 		retainFocusTarget?: (view: import('@octane-xplat/platform/macos').NSView) => () => void
 		observeHover?: (view: import('@octane-xplat/platform/macos').NSView, handlers: any) => void
+		/** NSTrackingArea move/exit lease per call — hover-style coordinates, no event monitor. */
+		observePointerMotion?: (view: import('@octane-xplat/platform/macos').NSView, handlers: { move(x: number, y: number): void; exit(): void }) => () => void
+		/** Current mouse event's point in view coordinates; valid only inside the dispatch (tap). */
+		locatePointer?: (view: import('@octane-xplat/platform/macos').NSView) => { x: number; y: number } | null
 		showAnchoredPopup?: (options: any) => void
 		showLayer?: (options: any) => any
 		attachContextMenu?: (

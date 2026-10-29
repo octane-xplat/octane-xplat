@@ -1,0 +1,87 @@
+import type { ScrubPhase } from './core/hit'
+
+export interface AppKitChartPointerBridge {
+	observePointerMotion?(
+		view: unknown,
+		handlers: { move(x: number, y: number): void; exit(): void },
+	): () => void
+	locatePointer?(view: unknown): { x: number; y: number } | null
+}
+
+/** Raw renderer onPan event — top-left x/y and the NSPanGestureRecognizer
+ *  state (1 began / 2 changed / 3 ended / anything else cancelled). */
+export interface AppKitPanEvent {
+	x: number
+	y: number
+	deltaX: number
+	deltaY: number
+	state: number
+}
+
+const finite = (x: number, y: number) => Number.isFinite(x) && Number.isFinite(y)
+
+/** Normalizes the AppKit pointer sources — pan recognizer deltas, tracking-
+ *  area motion and the current mouse event — onto the shared scrub phases,
+ *  mirroring the DOM listeners in Chart.web. */
+export function createAppKitChartPointer(
+	scrub: (phase: ScrubPhase, x: number, y: number) => void,
+	size: () => { width: number; height: number },
+	bridge: () => AppKitChartPointerBridge | undefined = () =>
+		Reflect.get(globalThis, '__xplatAppKit'),
+) {
+	let panning = false
+	return {
+		pan(event: AppKitPanEvent): void {
+			const state = Number(event.state)
+			const point = finite(event.x, event.y) ? { x: event.x, y: event.y } : null
+			if (state === 1) {
+				if (!point) {
+					return
+				}
+
+				// x/y includes the current delta — subtract it for the press start.
+				panning = true
+				scrub('down', point.x - Number(event.deltaX ?? 0), point.y - Number(event.deltaY ?? 0))
+				scrub('move', point.x, point.y)
+			} else if (state === 2) {
+				if (panning && point) {
+					scrub('move', point.x, point.y)
+				}
+			} else if (panning) {
+				scrub(state === 3 && point ? 'up' : 'cancel', point?.x ?? 0, point?.y ?? 0)
+				panning = false
+			}
+		},
+		tap(view: unknown): void {
+			const point = bridge()?.locatePointer?.(view)
+			if (point && finite(point.x, point.y)) {
+				scrub('tap', point.x, point.y)
+				return
+			}
+
+			const { width, height } = size()
+			scrub('tap', width / 2, height / 2)
+		},
+		observe(view: unknown): () => void {
+			const observePointerMotion = bridge()?.observePointerMotion
+			if (!view || !observePointerMotion) {
+				return () => {}
+			}
+
+			// An AppKit exit mid-drag must not reset the scrub — the pan
+			// recognizer keeps delivering while pressed outside the view.
+			return observePointerMotion(view, {
+				move(x, y) {
+					if (!panning) {
+						scrub('hover', x, y)
+					}
+				},
+				exit() {
+					if (!panning) {
+						scrub('leave', 0, 0)
+					}
+				},
+			})
+		},
+	}
+}

@@ -66,6 +66,38 @@ const progress: SeriesSpec[] = [
 ]
 ```
 
+## Respond to pointing and tapping
+
+Add `tooltip` or `crosshair` to show the value under the pointer, `onScrub` to
+follow it, and `onPress` to react when someone picks a datum. On web and macOS
+AppKit, hovering moves the cursor, dragging scrubs and clicking presses the
+point under the pointer. On iOS and Android, touching and dragging scrubs and
+tapping presses.
+
+```tsx
+import { useState } from 'octane'
+import { Chart, type ChartHit } from '@octane-xplat/charts'
+
+export function StepsChart() {
+	const [picked, setPicked] = useState<ChartHit | null>(null)
+	return (
+		<Chart
+			type="line"
+			width={320}
+			height={200}
+			tooltip
+			crosshair
+			onPress={setPicked}
+			accessibilityLabel={picked ? `Picked ${picked.y} steps` : 'Steps per day'}
+			data={[{ name: 'Steps', values: [{ x: 1, y: 4200 }, { x: 2, y: 6100 }, { x: 3, y: 5300 }] }]}
+		/>
+	)
+}
+```
+
+AppKit hover, drag and click coordinates come from source that has not yet
+been checked on a running Mac.
+
 The shared geometry uses D3 and SVG. This does not establish identical font
 metrics, assistive-technology behavior, or OS input on every host. Check the
 [target limits](https://octane-xplat.goddardai.org/known-limits) and run the
