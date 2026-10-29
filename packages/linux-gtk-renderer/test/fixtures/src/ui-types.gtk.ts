@@ -132,3 +132,5 @@ type InputRatingPropsContract = Assert<Equal<GtkUI.InputRatingProps, NativeUI.In
 
 type SelectorOptionContract = Assert<Equal<GtkUI.SelectorOptionProps, NativeUI.SelectorOptionProps>>
 type PopoverContract = Assert<Equal<GtkUI.PopoverProps, NativeUI.PopoverProps>>
+type SelectorContract = Assert<Equal<GtkUI.SelectorProps, NativeUI.SelectorProps>>
+type MultiSelectorContract = Assert<Equal<GtkUI.MultiSelectorProps, NativeUI.MultiSelectorProps>>

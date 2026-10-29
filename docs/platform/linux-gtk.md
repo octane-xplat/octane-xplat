@@ -80,7 +80,7 @@ variants in `.gtk.tsrx`/`.gtk.tsx` files.
 `@octane-xplat/ui` resolves a curated `gtk` export condition. It includes
 `Text`, `Pressable`, the `View`/`Stack` family, `Grid`/`GridSpan`, `Center`,
 `Section`, `Layout` regions, `Absolute`, `Spacer`, `Badge`, `Divider`,
-`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, `ScrollableArea`, `Spinner`, `useScrollableArea`, `Icon`, icon registries, `Tooltip`, `TextInput`, `TextArea`, `SearchInput`, `Field`, `FormLayout`, `InputGroup`, `InputGroupText`, `FieldGroup`, `useFieldControl`, the selection indicators, indicator registries, CheckboxInput, Switch, RadioList, RadioListItem, NumberInput, CheckboxList, CheckboxListItem, SegmentedControl, SegmentedControlItem, PinInput, Slider, InputRating, SelectorOption and Popover.
+`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, `ScrollableArea`, `Spinner`, `useScrollableArea`, `Icon`, icon registries, `Tooltip`, `TextInput`, `TextArea`, `SearchInput`, `Field`, `FormLayout`, `InputGroup`, `InputGroupText`, `FieldGroup`, `useFieldControl`, the selection indicators, indicator registries, CheckboxInput, Switch, RadioList, RadioListItem, NumberInput, CheckboxList, CheckboxListItem, SegmentedControl, SegmentedControlItem, PinInput, Slider, InputRating, SelectorOption, Popover, Selector and MultiSelector.
 For example, place a label and
 status badge in a horizontal row:
 
@@ -227,8 +227,8 @@ export function RoomOption(props: { disabled?: boolean }) {
 }
 ```
 
-The GTK root does not yet expose Selector or MultiSelector. Their popup,
-search and selection workflows require separate qualification.
+Selector and MultiSelector expose the shared finite-list picker on GTK —
+see [choose one or many options](#choose-one-or-many-options).
 
 ## Show and hide retained content
 
@@ -1139,6 +1139,58 @@ Content keeps its Octane context and updates while open. `placement` picks a
 side, `alignment` lines it up, and `offset` takes a number or px string.
 GTK flips sides and clamps to the window when the popup would not fit.
 Pointer and keyboard dispatch stay with the top layer when popovers nest.
+
+## Choose one or many options
+
+On GTK 4.14 or newer, `Selector` opens a finite list in a Popover anchored
+to its trigger, and `MultiSelector` presets `selectionMode="multiple"`.
+Pass `options`, read selection through `value`/`onValueChange` (a string or
+null for Selector, a string array for MultiSelector), or use
+`defaultValue`/`defaultOpen` for uncontrolled state. `searchable` adds a
+focused filter input; `hasSelectAll`, `hasClear`, `placeholder`,
+`emptyText` and `triggerDisplay` shape the chrome.
+
+```tsx
+import { useState } from 'octane'
+import { Selector, MultiSelector } from '@octane-xplat/ui'
+
+const people = [
+  { value: 'ada', label: 'Ada' },
+  { value: 'sam', label: 'Sam', description: 'On leave' },
+  { value: 'jo', label: 'Jo', isDisabled: true },
+]
+
+export function Assignee() {
+  const [who, setWho] = useState<string | null>(null)
+  const [reviewers, setReviewers] = useState<string[]>([])
+  return (
+    <>
+      <Selector
+        label="Assignee"
+        options={people}
+        value={who}
+        onValueChange={setWho}
+        placeholder="Pick someone"
+        searchable
+      />
+      <MultiSelector
+        label="Reviewers"
+        options={people}
+        value={reviewers}
+        onValueChange={setReviewers}
+        hasSelectAll
+      />
+    </>
+  )
+}
+```
+
+Escape and outside taps request dismissal; a single pick closes Selector
+while MultiSelector stays open and toggles. Focus returns to the trigger.
+Group options with `group`, disable the field with `isDisabled`, and wrap
+in `Field` for label, description, required and status chrome. Arrow-key
+listbox navigation is web-only today, so on GTK pick options with the
+pointer. Placement and dismissal are qualified under X11/Xvfb only.
 
 ## Control accessibility state
 

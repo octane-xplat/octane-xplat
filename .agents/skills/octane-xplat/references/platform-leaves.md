@@ -307,5 +307,13 @@ SelectorOption reuses its shared native presentation leaf on GTK. Its icon
 lane is decorative, and disabled styling uses the web modifier class; the
 parent owns selection/actions. The GTK renderer handles outer CSS margins,
 container padding/border sizing and direction resets. Do not add compensating
-UI widths or reverse child arrays. Selector/MultiSelector's popup boundary
-remains unqualified.
+UI widths or reverse child arrays.
+
+Selector and MultiSelector are curated root exports on GTK 4.14+. They reuse
+the shared Select/SelectView leaves: the Pressable trigger resolves a ref
+that the GTK Popover session anchors to, and menu content portals through
+the original universal root. `useSelect` seeds defaultOpen/defaultValue once
+per mount — controlled↔uncontrolled switches on the same element keep prior
+state, matching React semantics. Escape/outside-tap authority, focus return
+and session teardown come from the shared Popover path. Arrow-key listbox
+navigation is a web-only SelectView feature.

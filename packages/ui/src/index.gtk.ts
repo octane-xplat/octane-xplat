@@ -100,6 +100,20 @@ export type { TooltipProps, PopoverPlacement } from './props'
 export { Popover } from './Popover'
 export type { PopoverProps, PopoverAlignment, PopoverAnchorRef } from './props'
 
+export { Select as Selector } from './Select'
+export { SelectMenu as MultiSelector } from './aliases'
+export type {
+	SelectorProps,
+	MultiSelectorProps,
+	SelectOption,
+	SelectProps,
+	SelectBaseProps,
+	SelectSingleProps,
+	SelectMultipleProps,
+	SelectPresentation,
+	SelectVariant,
+} from './props'
+
 export { TextInput } from './TextInput'
 export type {
 	TextInputProps,

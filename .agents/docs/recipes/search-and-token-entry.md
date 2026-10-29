@@ -38,11 +38,14 @@ Provide local or remote searchable values with a stable identity, present useful
 
 ## GTK coverage
 
-SelectorOption's standalone presentation part is available from the curated
-GTK root. Its icon/text layout and native metadata do not qualify AC6's
-finite-list popup, filtering, selection or async commit workflow; Selector and
-MultiSelector remain unavailable there. See
-[GTK option content](../../../docs/platform/linux-gtk.md#present-option-content)
+Selector and MultiSelector are curated GTK root exports: the finite-list
+popup, grouped filtering, selection toggles and select-all workflows now
+execute on GTK 4.14+, partially covering AC6 (pointer-driven selection;
+async `changeAction` commits and HTML form submission are still unqualified,
+and arrow-key listbox navigation is a web-only feature). SelectorOption's
+standalone presentation part remains available — see
+[GTK option content](../../../docs/platform/linux-gtk.md#present-option-content),
+[GTK selectors](../../../docs/platform/linux-gtk.md#choose-one-or-many-options),
 and the maintained
-[GTK part case](../../../packages/linux-gtk-renderer/test/fixtures/src/ui-selector-option-main.ts).
+[GTK case](../../../packages/linux-gtk-renderer/test/fixtures/src/ui-selector-main.ts).
 The remaining search/token criteria have no GTK workflow execution.

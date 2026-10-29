@@ -90,7 +90,8 @@ export function Popover(props: PopoverProps) @{
 	const [anchor, setAnchor] = useState<any>(null)
 	const open = props.open ?? internal
 	useEffect(() => {
-		const next = props.anchor?.current ?? null
+		const raw = props.anchor?.current ?? null
+		const next = (raw as any)?.native !== undefined ? (raw as any).native : raw
 		if (next !== anchor) { setAnchor(next) }
 	}, null)
 	const requestDismiss = () => {

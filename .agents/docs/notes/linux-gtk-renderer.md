@@ -2851,3 +2851,43 @@ children trigger it identically. useContext/useState alone do not.
 Workaround: export one of the components, or hoist the child component to a
 sibling so only one slot-compiled call remains per file. Recheck on octane
 compiler upgrades.
+
+## GTK Selector and MultiSelector finite-list qualification
+
+`ui-selector.test.mjs` drives `fixtures/src/ui-selector-main.ts` +
+`fixtures/src/ui-selector.gtk.tsrx` through the shared Select/SelectView
+leaves. The trigger, menu and search field are real GTK widgets; the menu
+portals through the GTK Popover session. 70 checks, all passing with no
+skips; the OS phase uses real xdotool clicks and keystrokes
+(`GTK_SELECTOR_OS=1`).
+
+- Public-root exports: `Selector`, `MultiSelector`, `SelectorProps`,
+  `MultiSelectorProps`, `SelectOption`, `SelectProps`, `SelectBaseProps`,
+  `SelectSingleProps`, `SelectMultipleProps`, `SelectPresentation`,
+  `SelectVariant`.
+- Controlled open/value: `open` maps and unmaps the Gtk.Popover; option taps
+  report through `onValueChange` without self-closing.
+- Uncontrolled: `defaultOpen`+`defaultValue` mount open on a fresh instance;
+  a single pick, Escape and outside taps close the list themselves
+  (`useSelect` seeds `defaultOpen`/`defaultValue` once per mount — the
+  fixture mounts a fresh element per uncontrolled case, matching React
+  semantics rather than renderer behavior).
+- `dismissOnEscape`/outside-tap map through the shared Popover dismissal
+  authority: Escape and outside clicks request `onDismiss` while controlled
+  popovers stay open until the parent closes them; `dismissOnOutsideTap`
+  consumption keeps background Pressables quiet.
+- Searchable query filtering removes nonmatching options and focuses the
+  search TextInput once per open; grouped headings, disabled options and a
+  disabled field keep their metadata (`accessibilityRole('button')`,
+  selected/disabled state) on the option masonry rows.
+- MultiSelector: pick toggles stay open, select-all walks
+  indeterminate → checked, and Field supplies label/status/required chrome.
+- Teardown: unmount drops all managed nodes, releases the shared window
+  controllers, returns `popoverChromeUsers()` to 0 and leaves stale anchors
+  unable to create popups.
+
+Log: guest `/tmp/gtk-run.log` (`run-gtk.sh test/ui-selector.test.mjs`).
+
+Limits: X11/Xvfb evidence only — no Wayland/xdg-popup constraint, visual or
+AT-client qualification. Arrow-key navigation inside the listbox is not in
+the shared SelectView contract (web-only leaf), so it is out of scope here.

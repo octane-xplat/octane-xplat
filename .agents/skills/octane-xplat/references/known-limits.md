@@ -290,8 +290,8 @@ sibling; it is not full PowerSearch GTK qualification.
 
 SelectorOption presents an icon, label and description; it has no selection
 or press owner. isDisabled adds the same modifier class as web. Selector and
-MultiSelector remain absent from the curated root until popup/search/input
-contracts pass. Do not substitute the presentation part for a selection field.
+MultiSelector are public root exports sharing the Popover-backed finite-list
+menu; arrow-key listbox navigation is a web-only SelectView feature. Do not substitute the presentation part for a selection field.
 
 GTK Mason owns border-box sizes and CSS margin spacing; keep margins outside
 authored width/height. The renderer bridge consumes GTK margin/padding/border

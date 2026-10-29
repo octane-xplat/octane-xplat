@@ -7,7 +7,7 @@ aliases, and the mobile `KeyboardAvoiding` override. The broader
 [Linux capability inventory](linux-gtk-capability-inventory.md) also covers
 services, leaf packages, packaging, and host infrastructure.
 
-Current availability is 69 runtime values and 108 types in index.gtk.ts, including
+Current availability is 71 runtime values and 117 types in index.gtk.ts, including
 Tooltip, the text-entry controls, field/group owners, selection indicators,
 CheckboxInput, Switch, RadioList, RadioListItem, NumberInput, CheckboxList, CheckboxListItem, SegmentedControl, SegmentedControlItem, PinInput, Slider, InputRating and SelectorOption. Counts in the earlier slice records describe those commits; the JSON
 remains the original source survey and Silo holds per-export qualification.
@@ -1238,4 +1238,31 @@ pass. See
 for the set_pointing_to rationale, exact logs and limits.
 
 Placement proven under X11/Xvfb only; Wayland/xdg-popup constraint behavior,
+visual parity and assistive-client output stay unqualified.
+
+### Public GTK selector
+
+Selector and MultiSelector reuse the shared Select/SelectView leaves: the
+trigger is a Pressable, the finite-list menu portals through the now-public
+GTK Popover, and SelectMenu presets selectionMode='multiple'. Nine shared
+prop/option types export beside them (SelectorProps, MultiSelectorProps,
+SelectOption, SelectProps, SelectBaseProps, SelectSingleProps,
+SelectMultipleProps, SelectPresentation, SelectVariant). Availability is 71
+values and 117 types.
+
+The 70-check Linux fixture passes without skips, covering controlled and
+uncontrolled open/value authority, real-pointer trigger/option/outside
+clicks, real-key Escape dismissal, option ids and selection/disabled
+metadata, disabled options and a disabled field, searchable query filtering
+with a focused search input, grouped options, multi-pick toggle that keeps
+the list open, select-all state transitions, Field label/status/required
+integration, focus return to the trigger, and popup/controller/display-CSS
+teardown. Popover, SelectorOption and popup-events fixtures all pass beside
+it. All 62 affected typecheck tasks and the packed export validation pass.
+Uncontrolled mount semantics match shared useState behavior exactly:
+defaultOpen/defaultValue seed once per mounted instance.
+
+Arrow-key navigation inside the listbox is a web-only SelectView feature
+(no key handling exists in the shared leaf), so GTK lists pointer and key
+dismissal only. Placement/behavior proven under X11/Xvfb only; Wayland,
 visual parity and assistive-client output stay unqualified.
