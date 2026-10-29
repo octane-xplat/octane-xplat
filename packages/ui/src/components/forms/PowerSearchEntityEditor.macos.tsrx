@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import './PowerSearchEntityEditor.macos.css'
 import { useEffect, useRef, useState } from 'octane'
 import type { PowerSearchFilterEditorProps, PowerSearchField, PowerSearchOperator, SearchableItem, SearchSource, TextInputHandle } from '../../props'
 import { Tokenizer } from './Tokenizer.macos.tsrx'
@@ -99,7 +100,3 @@ export function PowerSearchEntityEditor(props: Props) @{
 		</masonview>
 	</masonview>
 }
-<style>
-	.vx-power-search-entity-editor, .vx-power-search-entity-bulk { display: flex; flex-direction: column; gap: 8; }
-	.vx-power-search-entity-actions { display: flex; flex-direction: row; flex-wrap: wrap; gap: 8; }
-</style>

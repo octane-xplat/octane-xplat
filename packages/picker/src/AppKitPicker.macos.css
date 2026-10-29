@@ -1,0 +1,2 @@
+.xplat-appkit-picker { display: flex; flex-direction: column; gap: 4; }
+.xplat-appkit-picker-control { display: flex; min-width: 160; min-height: 26; }

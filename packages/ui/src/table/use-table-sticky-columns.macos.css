@@ -1,0 +1,4 @@
+.vx-table-cell--sticky-appkit {
+	background-color: var(--table-sticky-background, var(--color-background-card, #fff));
+	background-image: linear-gradient(var(--table-row-overlay, transparent), var(--table-row-overlay, transparent));
+}

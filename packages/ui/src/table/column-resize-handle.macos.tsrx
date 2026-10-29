@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import './column-resize-handle.macos.css'
 import { useCallback, useEffect, useRef, useState } from 'octane'
 import { useKeyboard } from '../internal/keyboard/use-keyboard.macos'
 import { usePan } from '../components/layout/pan.macos.tsrx'
@@ -75,8 +76,3 @@ export function AppKitColumnResizeHandle(props: { columnKey: string; label: stri
 		<masonview className="vx-table-resize-appkit-line" />
 	</masonview>
 }
-<style>
-	.vx-table-resize-appkit { position: absolute; top: 0; bottom: 0; width: 8px; cursor: col-resize; display: flex; align-items: center; justify-content: center; }
-	.vx-table-resize-appkit-line { width: 1px; height: 60%; background-color: var(--color-border, #777); }
-	.vx-table-resize-appkit--active .vx-table-resize-appkit-line, .vx-table-resize-appkit:focus-visible .vx-table-resize-appkit-line { width: 2px; background-color: var(--color-accent, #1677ff); }
-</style>

@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import './Pager.macos.css'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'octane'
 import { ScrollableArea, useDirection, type ScrollableAreaHandle } from '@octane-xplat/ui'
 import { cx } from '@octane-xplat/lib'
@@ -85,8 +86,3 @@ export function Pager(props: PagerProps) @{
 		<>{props.renderEmpty?.()}</>
 	}
 }
-<style>
-	.vx-pager--appkit { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
-	.vx-pager-track--appkit { display: flex; flex-shrink: 0; }
-	.vx-pager-page--appkit { display: flex; flex-direction: column; flex-grow: 0; flex-shrink: 0; overflow: hidden; }
-</style>

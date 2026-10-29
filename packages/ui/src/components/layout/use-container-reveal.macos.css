@@ -1,0 +1,4 @@
+.vx-appkit-reveal-container { --vx-appkit-reveal-opacity: 0; }
+.vx-appkit-reveal-container:hover { --vx-appkit-reveal-opacity: 1; }
+.vx-appkit-reveal-container:focus-within { --vx-appkit-reveal-opacity: 1; }
+.vx-appkit-reveal-content { opacity: var(--vx-appkit-reveal-opacity, 1); }

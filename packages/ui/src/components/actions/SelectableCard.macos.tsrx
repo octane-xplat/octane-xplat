@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import './SelectableCard.macos.css'
 import type { SelectableCardProps } from '../../props'
 import { styleRecord } from '../../internal/layout/style-merge'
 import { useCallback, useLayoutEffect, useRef } from 'octane'
@@ -63,10 +64,3 @@ export function SelectableCard(props: SelectableCardProps) @{
 		<TextSlot>{props.children}</TextSlot>
 	</masonview>
 }
-
-<style>
-	.vx-selectable-card--appkit {
-		display: flex;
-		flex-direction: column;
-	}
-</style>

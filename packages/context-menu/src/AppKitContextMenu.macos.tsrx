@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import './AppKitContextMenu.macos.css'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'octane'
 import type { AppKitContextMenuProps } from './macos/types'
 import { createContextMenuOwner } from './context-menu-owner.macos'
@@ -36,6 +37,3 @@ export function AppKitContextMenu(props: AppKitContextMenuProps) @{
 		}
 	</masonview>
 }
-<style>
-	.xplat-appkit-context-menu { display: flex; }
-</style>

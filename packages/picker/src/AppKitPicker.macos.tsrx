@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import './AppKitPicker.macos.css'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'octane'
 import { createPickerOwner, type PickerAttach } from './picker-owner.macos'
 import type { AppKitPickerProps } from './macos/types'
@@ -24,7 +25,3 @@ export function AppKitPicker(props: AppKitPickerProps) @{
 		@if (owner.getStatus() === 'unavailable') { <label text="Selection is unavailable in this app." accessibilityLiveRegion="polite" /> }
 	</masonview>
 }
-<style>
-	.xplat-appkit-picker { display: flex; flex-direction: column; gap: 4; }
-	.xplat-appkit-picker-control { display: flex; min-width: 160; min-height: 26; }
-</style>

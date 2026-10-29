@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import './Link.macos.css'
 import { cx } from '@octane-xplat/lib'
 import type { LinkProps } from '../../props'
 import { Pressable } from '../actions/Pressable.macos.tsrx'
@@ -27,10 +28,3 @@ export function Link(props: LinkProps) @{
 		{props.isExternalLink ? <label className="vx-link-external" text="↗" accessible={false} /> : null}
 	</Pressable>
 }
-
-<style>
-	.vx-link--appkit {
-		flex-direction: row;
-		align-items: center;
-	}
-</style>

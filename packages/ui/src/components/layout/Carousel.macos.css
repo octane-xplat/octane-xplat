@@ -1,0 +1,5 @@
+.vx-carousel--appkit { display: grid; grid-template-rows: 1fr; grid-template-columns: 1fr; }
+.vx-carousel-viewport--appkit { width: 100%; height: 100%; grid-row: 1; grid-column: 1; }
+.vx-carousel-track--appkit { display: flex; flex-shrink: 0; }
+.vx-carousel-slide--appkit { display: flex; flex-grow: 0; flex-shrink: 0; }
+.vx-carousel-btn--appkit { display: flex; grid-row: 1; grid-column: 1; align-self: center; margin-left: 8px; margin-right: 8px; }

@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import './MenuSurface.macos.css'
 import { useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef } from 'octane'
 import type { MenuSurfaceProps } from '../../props'
 import { MenuProvider } from './menu-context'
@@ -118,7 +119,3 @@ export function MenuSurface(props: MenuSurfaceProps) @{
 		</MenuProvider>
 	</masonview>
 }
-
-<style>
-	.vx-menu-list--appkit { display: flex; flex-direction: column; }
-</style>

@@ -1,0 +1,4 @@
+.vx-select-trigger--appkit { display: flex; flex-direction: row; align-items: center; }
+.vx-select-surface--appkit { display: flex; flex-direction: column; }
+.vx-select-badges--appkit { display: flex; flex-direction: row; flex-wrap: wrap; }
+.vx-select-badge--appkit { display: flex; flex-direction: row; align-items: center; }

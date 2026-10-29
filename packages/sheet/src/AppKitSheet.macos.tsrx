@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import './AppKitSheet.macos.css'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'octane'
 import { createPortal, type UniversalRenderable } from 'octane/universal/native'
 import { cx } from '@octane-xplat/lib'
@@ -37,7 +38,3 @@ export function AppKitSheet(props: AppKitSheetProps) @{
 		{props.open && target ? createPortal(<ContentRoot {...props} /> as UniversalRenderable, target) : null}
 	</>
 }
-<style>
-	.xplat-appkit-sheet-anchor { display: flex; }
-	.xplat-appkit-sheet-content { display: flex; flex-direction: column; }
-</style>

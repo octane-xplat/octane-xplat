@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import './PowerSearchDateRangeEditor.macos.css'
 import { useEffect, useRef, useState } from 'octane'
 import type { PowerSearchFilterEditorProps, PowerSearchField, PowerSearchOperator, TextInputHandle } from '../../props'
 import { TextInput } from './text-controls.macos.tsrx'
@@ -100,7 +101,3 @@ export function PowerSearchDateRangeEditor(props: Props) @{
 		</masonview>
 	</masonview>
 }
-<style>
-	.vx-power-search-range-editor, .vx-power-search-range-part { display: flex; flex-direction: column; gap: 8; }
-	.vx-power-search-range-presets, .vx-power-search-range-actions { display: flex; flex-direction: row; flex-wrap: wrap; gap: 8; }
-</style>

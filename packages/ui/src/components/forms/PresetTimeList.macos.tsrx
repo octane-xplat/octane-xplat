@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import './PresetTimeList.macos.css'
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'octane'
 import { cx } from '@octane-xplat/lib'
 import { createAppKitTimeListFocus, type AppKitTimeOption } from './time-list-focus.macos'
@@ -53,7 +54,3 @@ export function AppKitPresetTimeList(props: Props) @{
 		</masonview>
 	</scrollview>
 }
-<style>
-	.vx-timelist--appkit { display: flex; flex-direction: column; }
-	.vx-timeoption--appkit { display: flex; }
-</style>

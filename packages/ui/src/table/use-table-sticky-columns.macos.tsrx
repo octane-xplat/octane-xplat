@@ -1,3 +1,4 @@
+import './use-table-sticky-columns.macos.css'
 import { useEffect, useLayoutEffect, useMemo, useRef } from 'octane'
 import type { TableColumn } from '../props'
 import type { TablePlugin, UseTableStickyColumnsConfig, HeaderCellRenderProps, BodyCellRenderProps } from './types'
@@ -29,9 +30,3 @@ export function useTableStickyColumns<T extends Record<string, unknown>>(config:
 	const enabled = Boolean(config.startKeys?.length || config.endKeys?.length)
 	return enabled && typeof appKitHost()?.retainTableStickyPlacement === 'function' ? plugin : {}
 }
-<style>
-	.vx-table-cell--sticky-appkit {
-		background-color: var(--table-sticky-background, var(--color-background-card, #fff));
-		background-image: linear-gradient(var(--table-row-overlay, transparent), var(--table-row-overlay, transparent));
-	}
-</style>

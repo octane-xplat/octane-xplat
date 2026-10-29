@@ -1,0 +1,2 @@
+.vx-power-search-range-editor, .vx-power-search-range-part { display: flex; flex-direction: column; gap: 8; }
+.vx-power-search-range-presets, .vx-power-search-range-actions { display: flex; flex-direction: row; flex-wrap: wrap; gap: 8; }

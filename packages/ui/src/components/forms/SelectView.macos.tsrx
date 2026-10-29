@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import './SelectView.macos.css'
 import { appKitTextChange } from '../../internal/platform/appkit-events.macos'
 import { useTranslator } from '../../internal/platform/internationalization'
 import { mergeStyle } from '../../internal/layout/style-merge'
@@ -392,10 +393,3 @@ export function SelectView(props: SelectViewProps) @{
 		</Popover>
 	</>
 }
-
-<style>
-	.vx-select-trigger--appkit { display: flex; flex-direction: row; align-items: center; }
-	.vx-select-surface--appkit { display: flex; flex-direction: column; }
-	.vx-select-badges--appkit { display: flex; flex-direction: row; flex-wrap: wrap; }
-	.vx-select-badge--appkit { display: flex; flex-direction: row; align-items: center; }
-</style>

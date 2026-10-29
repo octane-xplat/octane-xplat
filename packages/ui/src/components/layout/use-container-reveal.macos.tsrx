@@ -1,3 +1,4 @@
+import './use-container-reveal.macos.css'
 import type { UseContainerRevealOptions, UseContainerRevealReturn } from '../../props'
 import { appKitHost } from '../../internal/platform/host-bridge'
 
@@ -10,9 +11,3 @@ export function useContainerReveal(options: UseContainerRevealOptions = {}): Use
 		getContentRevealProps: () => enabled() ? { className: 'vx-appkit-reveal-content' } : {},
 	}
 }
-<style>
-	.vx-appkit-reveal-container { --vx-appkit-reveal-opacity: 0; }
-	.vx-appkit-reveal-container:hover { --vx-appkit-reveal-opacity: 1; }
-	.vx-appkit-reveal-container:focus-within { --vx-appkit-reveal-opacity: 1; }
-	.vx-appkit-reveal-content { opacity: var(--vx-appkit-reveal-opacity, 1); }
-</style>

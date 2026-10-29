@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import './Carousel.macos.css'
 import { useCallback, useEffect, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState } from 'octane'
 import type { CarouselProps } from '../../props'
 import { toChildArray, mapChildren } from '../../internal/rendering/child-array'
@@ -115,10 +116,3 @@ function AppKitCarouselSlide(props: { index: number; count: number; width?: numb
 		accessibilityRole="group" accessibilityLabel={`Slide ${props.index + 1} of ${props.count}`}
 		style={{ width: props.width, flexBasis: props.width ?? 'auto' }}>{props.children}</masonview>
 }
-<style>
-	.vx-carousel--appkit { display: grid; grid-template-rows: 1fr; grid-template-columns: 1fr; }
-	.vx-carousel-viewport--appkit { width: 100%; height: 100%; grid-row: 1; grid-column: 1; }
-	.vx-carousel-track--appkit { display: flex; flex-shrink: 0; }
-	.vx-carousel-slide--appkit { display: flex; flex-grow: 0; flex-shrink: 0; }
-	.vx-carousel-btn--appkit { display: flex; grid-row: 1; grid-column: 1; align-self: center; margin-left: 8px; margin-right: 8px; }
-</style>

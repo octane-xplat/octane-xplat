@@ -1,0 +1,2 @@
+.vx-power-search-entity-editor, .vx-power-search-entity-bulk { display: flex; flex-direction: column; gap: 8; }
+.vx-power-search-entity-actions { display: flex; flex-direction: row; flex-wrap: wrap; gap: 8; }

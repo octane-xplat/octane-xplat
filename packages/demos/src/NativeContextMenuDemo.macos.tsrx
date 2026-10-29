@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import './NativeContextMenuDemo.macos.css'
 import { useEffect, useRef, useState } from 'octane'
 import { Button, Heading, Text, TextInput, View } from '@octane-xplat/ui'
 import { AppKitContextMenu } from '@octane-xplat/context-menu/macos'
@@ -53,6 +54,3 @@ export function NativeContextMenuDemo() @{
 		<Text>Actions update this status only. Test pointer/Control-click, nested and late children, native edit menus, menu replacement while open, disabled actions, Tab/VoiceOver and cleanup manually. Native behavior remains unqualified; destructive items use normal AppKit rows.</Text>
 	</View>
 }
-<style>
-	.native-context-menu-card { padding: 12; border-width: 1; border-color: #94a3b8; }
-</style>

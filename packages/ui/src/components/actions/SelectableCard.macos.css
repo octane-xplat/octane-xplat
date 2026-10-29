@@ -1,0 +1,4 @@
+.vx-selectable-card--appkit {
+	display: flex;
+	flex-direction: column;
+}

@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import './AppKitDatePicker.macos.css'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'octane'
 import type { AppKitDatePickerProps } from './macos/types'
 import { createDatePickerOwner } from './date-picker-owner.macos'
@@ -34,6 +35,3 @@ export function AppKitDatePicker(props: AppKitDatePickerProps) @{
 		@if (owner.getStatus() === 'unavailable') { <label text="Date selection is unavailable in this app." accessibilityLiveRegion="polite" /> }
 	</masonview>
 }
-<style>
-	.xplat-appkit-date-picker { display: flex; min-width: 240; }
-</style>
