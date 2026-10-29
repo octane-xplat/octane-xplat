@@ -1,7 +1,8 @@
 # @octane-xplat/barcode-scanner
 
 Read QR codes and barcodes from a live camera or an existing image. iOS and
-Android use ML Kit; browser availability depends on `BarcodeDetector`.
+Android use ML Kit; native macOS decodes images with Apple's Vision framework;
+browser availability depends on `BarcodeDetector`.
 Use [media picking](https://octane-xplat.goddardai.org/platform-services#pick-and-capture-images)
 when the app needs to choose or capture a photo first.
 
@@ -29,6 +30,22 @@ export async function readQr(image: unknown): Promise<string | null> {
 
 Try a known QR image, then an image without a code. Surface read/decode errors
 to the person using the app; do not treat a decoding failure as a valid code.
+
+On native macOS, `scanImage` reads a local file path, a `file:` URL, a picked
+file's `{ uri }` or an `NSImage`. Remote URLs are rejected, so download the
+image first. Bounds are in the image's pixels, measured from the top-left
+corner. Live camera scanning is not available on macOS, so `ensure()` returns
+`'unsupported'` there. Decoding has not yet been checked on a running Mac.
+
+```ts
+import { barcodeScanner } from '@octane-xplat/barcode-scanner'
+
+export async function readProductCode(path: string): Promise<string | null> {
+	const codes = await barcodeScanner.scanImage(path, ['ean13', 'upc_a'])
+	return codes[0]?.data ?? null
+}
+```
+
 For live capture, configure camera usage text in the native app and request
 permission from a user action before mounting the scanner:
 

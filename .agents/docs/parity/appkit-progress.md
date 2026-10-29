@@ -10166,3 +10166,44 @@ Planned shape, pending that probe: universal (arm64 + x86_64) binaries and one
 `.app`/`.dmg`, with per-architecture metadata files selected by the host at
 compile time. The prebuilt manifest declares its architectures, and packaging
 builds exactly the declared set.
+
+## AppKit barcode still-image decoding
+
+`packages/barcode-scanner/src/barcode-scanner.macos.ts` now decodes still
+images through Vision instead of reporting `supported: false`. `scanImage`
+takes a path, a `file:` URL, `{ uri }` or an `NSImage`. Remote URLs reject,
+and so do unreadable images and a failed `performRequestsError`.
+Symbologies are prefixed string literals, because the generated metadata
+targets macOS 11 and omits `VNBarcodeSymbologyCodabar`. The assumption that
+each constant's value equals its name is unverified on a running Mac.
+
+- **Formats:** omitted formats request the whole Xplat vocabulary.
+- **UPC-A:** Vision reports UPC-A as a leading-zero EAN-13; this is rewritten
+  to `upc_a` unless only `ean13` was requested.
+- **Bounds:** converted from Vision's normalized bottom-left box into CGImage
+  pixels with a top-left origin. EXIF orientation is not applied.
+- **Threading:** decoding runs synchronously on the main thread.
+- **Live scanning:** stays unavailable, and `ensure()` reports `'unsupported'`.
+- **Permission owner:** the macOS leaf no longer registers a camera owner. It
+  had registered a bare function, but `@octane-xplat/platform` permissions
+  expect `{ getPermissions, requestPermissions }`. The iOS/Android, web and
+  Windows barcode leaves (and others, such as `contacts`) have the same
+  bare-function registration; that cross-platform bug is logged in Silo
+  `feedback_observations` and is not owned by this target.
+
+Six node:test cases in `packages/barcode-scanner/tests/macos.test.ts`, all
+UNRUN, drive the leaf in a vm with stub Vision/AppKit globals (haptics
+pattern). They do not exercise Vision. The package gained a `test` script; the
+README and release note `.changelog/macos-barcode-image-decoding.md` are
+updated. Lightweight verification only: both TS files parsed with zero
+diagnostics, whitespace clean.
+
+Exact deferred commands (DO NOT RUN until explicit human authorization):
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/barcode-scanner
+pnpm exec turbo run typecheck --filter=...@octane-xplat/barcode-scanner
+pnpm check:docs
+pnpm check:doc-examples
+pnpm check:changelog
+```

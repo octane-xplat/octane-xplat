@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/barcode-scanner",
 	"version": "0.18.0",
-	"description": "Barcode and QR scanning for Octane xplat \u2014 ML Kit camera preview + still decode on iOS/Android, BarcodeDetector on web",
+	"description": "Barcode and QR scanning for Octane xplat \u2014 ML Kit camera preview + still decode on iOS/Android, Vision still decode on macOS, BarcodeDetector on web",
 	"keywords": [
 		"android",
 		"cross-platform",
@@ -61,6 +61,7 @@
 		"typegen": "tsrx-typegen --target octane",
 		"prepack": "pnpm typegen && tsrx-typegen --pack-check",
 		"pack:check": "tsrx-typegen --pack-check",
+		"test": "node --test tests/*.test.ts",
 		"typecheck": "node ../../scripts/typecheck.ts"
 	},
 	"devDependencies": {
