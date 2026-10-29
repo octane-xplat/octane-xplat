@@ -297,6 +297,19 @@ for (const path of walkDocs('../../docs')) {
 		window.location.pathname === docPath(slug) &&
 			root.querySelector('.doc .h1')?.textContent === title,
 	)
+	const headings = parseMd(readFileSync(path, 'utf8')).filter((block) => block.kind === 'h')
+	assert(
+		`page ${slug} uses semantic headings with section anchors`,
+		headings.length > 0 &&
+			headings.every((heading) => {
+				const element = window.document.getElementById(heading.id)
+				return (
+					element?.tagName === `H${heading.level}` &&
+					root.querySelector('.doc')?.contains(element) &&
+					element.textContent === heading.text
+				)
+			}),
+	)
 }
 
 // Cmd-K palette: open via the global shortcut, query for an API symbol,

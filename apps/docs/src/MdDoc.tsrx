@@ -234,10 +234,11 @@ function BlockView(props: {
 }) @{
 	const b = props.b
 	if (b.kind === 'h') {
+		const Tag = `h${b.level}` as 'h1' | 'h2' | 'h3' | 'h4'
 		return (
-			<Text id={b.id} className={`h${b.level}`}>
+			<Tag id={b.id} className={`h${b.level}`}>
 				{b.text}
-			</Text>
+			</Tag>
 		)
 	}
 
