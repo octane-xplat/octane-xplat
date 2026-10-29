@@ -180,3 +180,6 @@ export type { PinInputProps } from './props'
 
 export { Slider } from './Slider'
 export type { SliderProps, SliderMark } from './props'
+
+export { InputRating } from './InputRating'
+export type { InputRatingProps } from './props'

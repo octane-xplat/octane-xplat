@@ -179,6 +179,14 @@ root yet: its broader alignment, trigger, controlled-state and callback options
 still need their own qualification. Numeric metadata and actual keys/drags
 do not establish an AT-client set-value or speech pass.
 
+InputRating uses one group field and the existing radio keyboard path.
+Distinguish the filled prefix (score <= value) from the single checked score
+(score === value). Keep numbered names, duplicate suppression, local defaults
+and controlled rejection. Registered glyph names take priority over a
+single-character fallback; pass the glyph class and explicit common icon size.
+Use framework style.direction for RTL tests: GTK's raw set_direction changes
+one widget, while the framework cascades the authored direction to children.
+
 Treat the [multiline intrinsic checks](../../../docs/notes/linux-gtk-renderer.md#multiline-buffer-foundation)
 alongside the maintained public-root TextArea fixture. Persistent field/width/
 handle ownership and the supported shared control props have runtime checks. Font-based rows/maxRows/autoGrow and constraint transitions have

@@ -80,7 +80,7 @@ variants in `.gtk.tsrx`/`.gtk.tsx` files.
 `@octane-xplat/ui` resolves a curated `gtk` export condition. It includes
 `Text`, `Pressable`, the `View`/`Stack` family, `Grid`/`GridSpan`, `Center`,
 `Section`, `Layout` regions, `Absolute`, `Spacer`, `Badge`, `Divider`,
-`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, `ScrollableArea`, `Spinner`, `useScrollableArea`, `Icon`, icon registries, `Tooltip`, `TextInput`, `TextArea`, `SearchInput`, `Field`, `FormLayout`, `InputGroup`, `InputGroupText`, `FieldGroup`, `useFieldControl`, the selection indicators, indicator registries, CheckboxInput, Switch, RadioList, RadioListItem, NumberInput, CheckboxList, CheckboxListItem, SegmentedControl, SegmentedControlItem, PinInput and Slider.
+`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, `ScrollableArea`, `Spinner`, `useScrollableArea`, `Icon`, icon registries, `Tooltip`, `TextInput`, `TextArea`, `SearchInput`, `Field`, `FormLayout`, `InputGroup`, `InputGroupText`, `FieldGroup`, `useFieldControl`, the selection indicators, indicator registries, CheckboxInput, Switch, RadioList, RadioListItem, NumberInput, CheckboxList, CheckboxListItem, SegmentedControl, SegmentedControlItem, PinInput, Slider and InputRating.
 For example, place a label and
 status badge in a horizontal row:
 
@@ -382,6 +382,36 @@ export function Quantity() {
         hasNumberSteppers={false} hasClear onClear={() => console.log('Cleared')} />
     </Field>
   )
+}
+```
+
+## Ratings
+
+Use InputRating for one score from 1 to max. It starts unrated when no value
+is supplied; defaultValue seeds a local score once. The filled glyphs show the
+score, while only the chosen score is marked checked. Tab enters the group,
+arrow keys move between scores, and Space selects the focused score.
+
+```tsx
+import { InputRating } from '@octane-xplat/ui'
+
+export function TripRating() {
+  return <InputRating label="Trip rating" width={280} max={5} defaultValue={3} />
+}
+```
+
+Use value with onValueChange for a controlled score. Keeping value unchanged
+rejects a selection. icon accepts one text character or a registered icon name;
+registered names take priority over text fallback.
+
+```tsx
+import { useState } from 'octane'
+import { InputRating } from '@octane-xplat/ui'
+
+export function ControlledRating() {
+  const [score, setScore] = useState(0)
+  return <InputRating label="Trip rating" width={280} max={5} icon="☆"
+    value={score} onValueChange={setScore} />
 }
 ```
 

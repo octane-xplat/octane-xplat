@@ -276,6 +276,11 @@ leave the shared PanEvent delta contract intact. Tooltip positioning can use
 a different native view from its hover/focus owner, so keep description
 relations on the interaction owner and popup geometry on the thumb.
 
+InputRating reuses radio-group semantics and one native field frame. Its
+filled prefix is visual state; checked metadata identifies only one score.
+Web uses matching roving focus, arrows/Space and readonly navigation. Glyph
+changes and scoped icon providers must retain the score widgets.
+
 For native GTK assertion fixtures, rebuild the XplatMason typelib and use its
 fixed-signature test_accessible_state, test_accessible_boolean_property and
 test_accessible_string_property

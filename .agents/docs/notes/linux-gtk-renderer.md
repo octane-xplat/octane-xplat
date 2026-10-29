@@ -2506,3 +2506,57 @@ proof is claimed. Range keyboard input controls the upper endpoint, matching
 the web leaf; independent lower-thumb keyboard access remains a shared UI
 gap. Text-entry AC3 remains partial/not-run for its complete criterion; AC8
 retains complete/runtime-tested status. No partial-surface PR is opened.
+
+
+## GTK rating qualification
+
+At 004218d60 the direct-source baseline completed 36 checks with 18 failures:
+field owner/label/width, group role/required state, score roles/focus/names/
+checked state, busy/invalid/read-only metadata, sensitivity and inherited
+read-only metadata were missing. Filled-prefix state, controlled/local
+defaults, retained updates and disposal passed. Feedback
+dd720f41-86b9-48d6-88ed-7281dc3387f3 and guest /tmp/gtk-rating-first.log preserve
+the expectation and metadata/geometry/lifecycle result.
+
+The shared native leaf now reuses one NativeToggleField and the existing GTK
+radio-group path. Names and ids identify each score; exactly one radio is
+checked while glyphs through that score are filled. Native sensitivity and
+field state apply to group/cells. Duplicate selections are suppressed. Glyph
+resolution prefers registered names, then a single text character; Icon uses
+the same 20px glyph size and class. No renderer fork or dependency was needed.
+
+The corrected baseline passes 36 checks. The expanded actual X11 case
+completed 106 checks with one RTL failure. The fixture had called GTK's raw
+set_direction on the group, which changes one widget rather than cascading
+the framework style to children. A raw GTK probe returned parent RTL (2) and
+child LTR (1). The fixture now uses style.direction, asserts every score's
+direction and reversed physical order, and passes 108 checks. Feedback
+6c759655-45b0-4d0d-8445-c46d80543067 preserves this expectation mismatch.
+[GTK documents per-widget direction and its default](https://docs.gtk.org/gtk4/method.Widget.set_direction.html).
+Logs: guest /tmp/gtk-rating-{foundation,input,contracts}.log.
+
+The 108-check case covers one Tab entry/exit, arrows and wrapping, Space,
+pointer focus/selection, duplicate suppression, readonly focus without edits,
+disabled input, repeated controlled rejection and acceptance, local default/
+edit retention, text and scoped SVG glyphs, registry priority, retained score
+widgets, label/name/size/class/style/optionality/width/max transitions and
+cleanup. Seven web unit cases pass for matching field/single-score semantics,
+roving focus, controlled/default state, readonly navigation, glyph changes and
+RTL. Six focused typecheck tasks pass. Logs: andromeda
+/tmp/gtk-rating-web.log and /tmp/gtk-rating-input-types.log.
+
+InputRating and its existing prop type are now public GTK root exports
+(67 values and 104 types). The full registered Linux sweep passes all 58 tests
+without skips, including this 108-check public-root case. All 62 affected/
+dependent typecheck tasks, a subsequent 12-task focused type/native/package run
+(58 Node and 464 native tests), 84 selected web tests and 28 docs build/test
+tasks pass. Static checks pass for 141 docs pages, 1,143 parsing examples,
+65 release notes, recipes and UI barrels. Logs: guest
+/tmp/gtk-rating-root-full.log; andromeda
+/tmp/gtk-rating-root-{types,regression,web,doc-site}.log and
+/tmp/gtk-rating-doc-checks.log.
+
+Text-entry AC3 gains the rating field, score metadata and input evidence;
+its full assistive-client criterion remains partial/not-run. AC8 remains
+complete/runtime-tested from numeric fields. No phone runtime, images/pixels,
+IME, Wayland or assistive-client output is qualified.

@@ -206,6 +206,13 @@ authority and thumb-anchored value hints. Keyboard range input adjusts the
 upper endpoint. This does not establish independent lower-thumb keyboard
 access or assistive-client set-value behavior.
 
+The public-root [rating fixture](../../../packages/linux-gtk-renderer/test/ui-rating.test.mjs)
+adds AC3 field evidence for one named radio group with one checked score,
+numbered cells and a separate filled prefix. Actual X11 input covers grouped
+focus, arrows/Space/pointer selection, controlled/local authority and readonly
+navigation. Glyph/provider and metadata/layout updates have separate checks;
+assistive-client output remains outside this evidence.
+
 These checks contribute to AC1, Return behavior within AC2, Field portions of
 AC3/AC4 and the GTK group contract in AC6. They do not establish the complete
 recipe: composition/marked text (AC2), AT clients (AC3), OSK/overlay avoidance

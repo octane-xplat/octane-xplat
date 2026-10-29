@@ -7,9 +7,9 @@ aliases, and the mobile `KeyboardAvoiding` override. The broader
 [Linux capability inventory](linux-gtk-capability-inventory.md) also covers
 services, leaf packages, packaging, and host infrastructure.
 
-Current availability is 66 runtime values and 103 types in index.gtk.ts, including
+Current availability is 67 runtime values and 104 types in index.gtk.ts, including
 Tooltip, the text-entry controls, field/group owners, selection indicators,
-CheckboxInput, Switch, RadioList, RadioListItem, NumberInput, CheckboxList, CheckboxListItem, SegmentedControl, SegmentedControlItem, PinInput and Slider. Counts in the earlier slice records describe those commits; the JSON
+CheckboxInput, Switch, RadioList, RadioListItem, NumberInput, CheckboxList, CheckboxListItem, SegmentedControl, SegmentedControlItem, PinInput, Slider and InputRating. Counts in the earlier slice records describe those commits; the JSON
 remains the original source survey and Silo holds per-export qualification.
 TextArea uses the shared native leaf with GTK fitting and native TextView
 support. The current root qualification and remaining limits are recorded
@@ -1174,4 +1174,24 @@ lower-endpoint keyboard access is a shared UI gap. The internal GTK
 use-tooltip leaf is not a public root export until its other options have
 independent proof. Text-entry AC3 remains partial and AC8 remains
 complete/runtime-tested. Remaining inputs/parts, Image, overlays, navigation,
+theme, services and View contracts stay under the full goal.
+
+### Public GTK ratings
+
+InputRating and its existing prop type reuse the shared native field and
+radio-group input. The native and web leaves keep exactly one checked score,
+a filled prefix, local/controlled ownership, numbered names and text or
+registered glyphs. Availability is 67 values and 104 types.
+
+The 58-case registered Linux sweep passes without skips, including 108 actual
+X11/native metadata/geometry/lifecycle rating checks. All 62 affected typecheck
+tasks, a subsequent 12-task focused type/native/package run, 84 selected web
+tests and 28 docs build/test tasks pass. See
+[the rating evidence](linux-gtk-renderer.md#gtk-rating-qualification) for
+baselines, the corrected RTL fixture assumption, exact logs and limits.
+
+Text-entry AC3 remains partial/not-run for its full assistive-client criterion;
+AC8 remains complete/runtime-tested. Selection controls depend on the still
+unqualified Popover layer; their standalone SelectorOption part can be
+qualified independently. Remaining inputs/parts, Image, overlays, navigation,
 theme, services and View contracts stay under the full goal.
