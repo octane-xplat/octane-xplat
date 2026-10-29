@@ -9457,3 +9457,64 @@ documentation-quality reference was read from the original checkout. No tests,
 typegen, typechecks, builds, installs, probes, native/OS automation, packaging,
 visual analysis or additional task/agent ran. All evidence-gated checkboxes and
 native qualification remain open.
+
+## AppKit toggle accepted value ownership
+
+Demand assumption: pin/favorite saves and ordinary toolbar choices use the
+ToggleButton/ActionControlsDemo path. After the Button prerequisite at d1a6f82b2,
+source review found ToggleButton's current ref mirrored controlled/group display
+on every render. An already accepted Button callback could then retain old props
+but read a new parent's pressed value after synchronous URL dispatch, mixing two
+owners. These are source findings, not native timing or executed failure evidence.
+
+The AppKit leaf now keeps local intent separately and computes a controlled
+request from its captured isPressed prop. Current Button ownership still chooses
+the callback at acceptance; that callback's notification/save/error contract is
+retained across URL-driven parent updates. Local changes update intent before
+notification and keep it through controlled/group mode changes. A throwing
+notification retains the local flip, skips save and reports through Button.
+Existing group membership, optimistic no-rollback policy, busy/interruptible
+ownership, icons, metadata and public types remain. No dependency, manifest,
+shared hook or other-target leaf changed.
+
+Three new object-driver cases (nine toggle cases total), all UNRUN, cover
+controlled URL-driven parent replacement, local-to-controlled URL handoff/exit,
+and notification error/retained intent/retry. The existing toggle fixture adds
+human-operated controlled/local mode, parent value and request acceptance controls.
+Its unchanged scripted path directly dispatches Pin and Complete save and reads
+native pressed metadata; it synthesizes no OS input and does not run the new
+mode trials. No test, fixture or URL dispatch ran.
+
+Guide/Octane reference, appkit-toggle-actions AC5 and the existing unreleased
+feature note reconcile this source boundary. Local history identifies 866fd2c as
+the action-owner change and no stable local v-tag contains it; no registry audit
+is claimed. No shared audit snapshot was regenerated.
+
+Lightweight verification: three TSRX source/test/fixture files and four scoped
+TSX fences parsed; four added/changed local targets/anchors resolved; staged semantic
+and whitespace review completed. Zero tests/compiler transforms/native operations.
+Actual synchronous platform URL callbacks, controlled writeback, native ref/effect
+ordering, physical click/key delivery, focus, busy geometry, toolbar/group roving,
+tooltip, reserved semibold width, VoiceOver, installed consumers and pixels remain
+unqualified or separate gaps. Evidence-gated issue checkboxes remain open.
+
+Exact deferred commands (DO NOT RUN until this task has explicit human
+verification authorization; resource admission is not visual-analysis approval):
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/toggle-button.macos.mobile.test.tsrx src/button.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm exec turbo run test:packed --filter=@octane-xplat/ui
+pnpm exec turbo run pack:check --filter=@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/toggle-button.macos.tsrx --target macos --watch
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit accepted toggle value package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+pnpm check:docs
+pnpm check:doc-examples
+pnpm check:changelog
+```
+
+check:docs/check:doc-examples remain absent from this worktree. No tests, typegen,
+typechecks, builds, installs, probes, native/OS automation, packaging, visual
+analysis or additional task/agent ran. The goal remains active.

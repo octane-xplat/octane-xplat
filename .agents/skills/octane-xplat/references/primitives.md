@@ -1297,7 +1297,11 @@ ToggleButton delegates to the target Button action owner, so loading, errors,
 overlap, metadata and teardown follow that leaf. Standalone uncontrolled choice
 flips optimistically before onPressedChange/pressedChangeAction. Rejection
 reports onActionError without rollback; controlled isPressed still follows the
-parent. Group value membership ignores member save actions.
+parent. Local intent is separate from controlled/group display; an accepted
+Button callback uses its captured controlled value across URL-driven parent
+updates and preserves local intent across mode changes. A throwing
+onPressedChange retains the local flip, skips the save and uses Button's error
+path. Group value membership ignores member save actions.
 
 ```tsx
 import { ToggleButton } from '@octane-xplat/ui'

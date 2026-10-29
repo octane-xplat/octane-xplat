@@ -11,13 +11,14 @@ export function ToggleButton(props: ToggleButtonProps) @{
 	const [local, setLocal] = useState(!!props.isPressed)
 	const inGroup = group != null && props.value != null
 	const pressed = inGroup ? group!.selectedValues.has(props.value!) : (props.isPressed ?? local)
-	const current = useRef(pressed)
-	current.current = pressed
+	// Keep local intent separate from controlled/group display. An accepted
+	// Button callback retains its props even if URL dispatch updates the parent.
+	const current = useRef(local)
 	const disabled = Boolean(props.isDisabled || group?.isDisabled)
 	const activate = () => {
 		if (disabled) return
 		if (inGroup) { group!.toggle(props.value!); return }
-		const next = !current.current
+		const next = !(props.isPressed ?? current.current)
 		if (props.isPressed === undefined) { current.current = next; setLocal(next) }
 		props.onPressedChange?.(next)
 		return props.pressedChangeAction?.(next)

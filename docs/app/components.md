@@ -1789,7 +1789,11 @@ ToggleButton now uses Button's action owner: it flips the uncontrolled choice,
 calls onPressedChange, then runs the save action with a busy indicator. Normal
 pending actions block duplicates; isInterruptible allows overlap and keeps busy
 state until every call settles. A rejected save reports onActionError and keeps
-the optimistic choice. It does not roll the choice back.
+the optimistic choice. It does not roll the choice back. Local intent stays
+separate from controlled/group display. An accepted callback uses its captured
+controlled value even if URL dispatch updates the parent before that callback;
+local mode changes keep prior local intent. If onPressedChange throws, the local
+flip remains, the save is skipped and Button reports the error.
 
 ```tsx
 import { ToggleButton } from '@octane-xplat/ui'

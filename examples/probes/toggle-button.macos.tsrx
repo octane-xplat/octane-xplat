@@ -5,9 +5,13 @@ import type { ProbeContext } from '../../scripts/probe/context'
 
 export default function ToggleSaveProbe() {
 	const [status, setStatus] = useState('Idle')
+	const [controlled, setControlled] = useState(false), [pressed, setPressed] = useState(false)
+	const [accept, setAccept] = useState(true)
 	const pending = useRef<{ resolve(): void; reject(error: unknown): void } | null>(null)
 	return <VStack gap={2}>
 		<ToggleButton id="toggle-pin" label="Pin" testID="toggle.pin"
+			isPressed={controlled ? pressed : undefined}
+			onPressedChange={(next) => { if (controlled && accept) setPressed(next) }}
 			pressedChangeAction={() => { setStatus('Saving'); return new Promise<void>((resolve, reject) => { pending.current = { resolve, reject } }) }}
 			onActionError={() => setStatus('Failed; optimistic state retained')} />
 		<Button id="toggle-save" label="Complete save" clickAction={() => {
@@ -16,6 +20,10 @@ export default function ToggleSaveProbe() {
 		<Button id="toggle-fail" label="Fail save" clickAction={() => {
 			const task = pending.current; pending.current = null; task?.reject(new Error('Save failed'))
 		}} />
+		<Button label="Toggle controlled mode" clickAction={() => setControlled((value) => !value)} />
+		<Button label="Toggle controlled parent value" clickAction={() => setPressed((value) => !value)} />
+		<Button label="Toggle controlled request acceptance" clickAction={() => setAccept((value) => !value)} />
+		<label text={`mode:${controlled ? 'controlled' : 'local'}; parent:${pressed}; accept:${accept}`} />
 		<label id="toggle-status" text={status} />
 	</VStack>
 }

@@ -2,6 +2,9 @@
 import { expect, it, vi } from 'vitest'
 import { createObjectContainer, createObjectDriver, createUniversalRoot, flushUniversalSync } from 'octane/universal/native'
 import { ToggleButton, ToggleButtonGroup } from './ToggleButton.macos.tsrx'
+import { openUrl } from '@octane-xplat/platform'
+
+vi.mock('@octane-xplat/platform', async (original) => ({ ...await original<typeof import('@octane-xplat/platform')>(), openUrl: vi.fn() }))
 
 function mount(component: any, props: any) {
 	const container = createObjectContainer('nativescript')
@@ -119,4 +122,52 @@ it('reports sync failures and ignores cached actions after unmount', () => {
 	press(); expect(errors).toHaveBeenCalledWith(error)
 	env.root.unmount(); press()
 	expect(action).toHaveBeenCalledTimes(1)
+})
+
+
+it('accepted controlled toggle callbacks retain their value across a URL-driven parent update', () => {
+	const events: unknown[] = []
+	let update = () => {}
+	vi.mocked(openUrl).mockReset().mockImplementation(() => { update(); return true })
+	const env = mount(ToggleButton, { label: 'Pin', href: 'https://example.com/help', isPressed: false,
+		onPressedChange: (value: boolean) => events.push(['accepted-change', value]),
+		pressedChangeAction: (value: boolean) => { events.push(['accepted-save', value]) } })
+	try {
+		const press = env.buttons()[0].props.onTap
+		update = () => env.render({ label: 'Current', isPressed: true,
+			onPressedChange: (value: boolean) => events.push(['current', value]) })
+		press(); flushUniversalSync(() => {})
+		expect(events).toEqual([['accepted-change', true], ['accepted-save', true]])
+		expect(env.buttons()[0].props.accessibilityState.pressed).toBe(true)
+		press(); expect(events).toEqual([['accepted-change', true], ['accepted-save', true], ['current', false]])
+	} finally { env.root.unmount(); vi.mocked(openUrl).mockReset() }
+})
+
+it('an accepted local toggle retains local intent through URL-driven controlled mode entry and exit', () => {
+	const events: boolean[] = []
+	let update = () => {}
+	vi.mocked(openUrl).mockReset().mockImplementation(() => { update(); return true })
+	const env = mount(ToggleButton, { label: 'Pin', href: 'https://example.com/help', onPressedChange: (value: boolean) => events.push(value) })
+	try {
+		const press = env.buttons()[0].props.onTap
+		update = () => env.render({ label: 'Controlled', isPressed: true })
+		press(); flushUniversalSync(() => {}); expect(events).toEqual([true])
+		env.render({ label: 'Local', onPressedChange: (value: boolean) => events.push(value) })
+		expect(env.buttons()[0].props.accessibilityState.pressed).toBe(true)
+		press(); flushUniversalSync(() => {})
+		expect(events).toEqual([true, false]); expect(env.buttons()[0].props.accessibilityState.pressed).toBe(false)
+	} finally { env.root.unmount(); vi.mocked(openUrl).mockReset() }
+})
+
+it('a throwing accepted toggle notification preserves local intent and skips its save callback', () => {
+	const failure = new Error('notification'), errors = vi.fn(), save = vi.fn()
+	const env = mount(ToggleButton, { label: 'Pin', onPressedChange: () => { throw failure }, pressedChangeAction: save, onActionError: errors })
+	try {
+		const press = env.buttons()[0].props.onTap
+		press(); flushUniversalSync(() => {})
+		expect(errors).toHaveBeenCalledWith(failure); expect(save).not.toHaveBeenCalled()
+		expect(env.buttons()[0].props.accessibilityState.pressed).toBe(true)
+		env.render({ label: 'Pin', pressedChangeAction: save, onActionError: errors })
+		press(); expect(save).toHaveBeenCalledWith(false)
+	} finally { env.root.unmount() }
 })
