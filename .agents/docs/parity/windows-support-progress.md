@@ -5,6 +5,13 @@ This note records implementation candidates after audit commit `720c9ef93`.
 The shared [export audit](native-desktop-support.md) remains a historical snapshot;
 its TSVs, findings and hashes have not been regenerated during parallel work.
 
+Current bounded native results: Switch passed10common-input groups plus6
+repeated async rollback trials; CheckboxInput passed15input/state groups.
+The latest [Switch](#v17-qualifies-common-shared-switch-input-flows) and
+[CheckboxInput](#v20-qualifies-common-checkboxinput-flows) sections retain exact
+artifacts, failed predecessors and qualification limits. Full Windows support
+and the broader component rows remain unqualified.
+
 ## Priorities and evidence boundary
 
 Prioritize app startup, forms, navigation, overlays, scrolling and everyday
@@ -14,12 +21,17 @@ the shared app and demos. Assume those common flows matter more than optional
 billing, ads and specialist integrations.
 
 The initial pass used source inspection, targeted lint/format, syntax/manifest
-checks and diff review. Focused laptop test results are recorded below. No compilation, broad tests, package installation, Windows launch,
-OS input, UIA, screenshots, packaging or distribution qualification was run.
+checks and diff review. That source-only pass did not compile, launch Windows,
+exercise OS input/UIA, install packages or qualify packaging/distribution.
+Subsequent authorized laptop results are recorded below. Screenshots and visual
+analysis have not been used.
 The existing source audit is not runtime proof. No evidence-gated issue checkbox
 is complete because of these changes.
 
-## Implemented candidates
+## Initial candidates
+
+This table preserves the initial source-pass dispositions. Later sections
+record the narrower runtime assertions and their remaining gates.
 
 | Area | Candidate | Remaining boundary |
 | --- | --- | --- |
@@ -2299,3 +2311,178 @@ the two changed guides and release note, using these worktree files explicitly.
 It does not replace the unavailable full docs/changelog checks. Semantic impact
 inspection cannot resolve the string-registered input or all TSRX export users;
 the actual native fixture and VM test evidence above cover the bounded claims.
+
+## Windows CheckboxInput candidate
+
+Next demand assumption: basic checkbox forms and choice lists matter before
+niche integrations. The current ControlsDemo/Test evidence specifically uses
+Switch; it does not demonstrate a Windows Checkbox app flow. The public
+CheckboxInput/CheckboxList surfaces supply the adjacent form requirement.
+
+The unsuffixed Checkbox implementation draws an indicator and toggles on tap.
+The Windows candidate retains the indicator registry and shared field props,
+and adds a transparent WinUI CheckBox over the measured row. It uses native
+CheckBox/TogglePattern semantics, including IsChecked=null for mixed state.
+Leaving mixed state requests true regardless of WinUI's own toggle cycle.
+The existing Windows SVG leaf remains the indicator prerequisite; no mobile
+plugin or new dependency is introduced. No visual parity is claimed.
+
+Fifteen focused controller VM contracts passed via one uncached Turbo
+test:checkbox task,2.696s,exit0. Four mixed-state cases supplement the11
+guard/lifecycle cases used for Switch. Log:
+research/windows61/windy-checkbox-source-contracts-detail.log. Targeted
+formatter/lint/whitespace checks pass. These are source contracts, not WinUI
+nullable-state, geometry, keyboard or UIA proof.
+
+V18's bounded native graph passed38/38tasks,28cached,7m44.513s,exit0.
+Standalone checker emitted no diagnostics; delegated checker retained the same
+12diagnostics in11otherfiles, and the existing three MSBuild warnings remain.
+A15group nonvisual driver ran
+for common input, controlled/uncontrolled state, mixed acceptance/rejection,
+readonly/disabled guards, hidden labels, async rollback and remount. Its
+geometry oracle compares UIA/input bounds with the measured row, rather than
+assuming a fixed row width. Bootmvt4wyeq passed12/15groups,exit1. Native
+CheckBox minimums120x32 remained even after replacing its template; actual
+input height32 exceeded the24-DIP row. Mixed rejection and readonly mixed
+retention also failed. The accepted mixed request, uncontrolled mixed default,
+ordinary controlled/uncontrolled input, Tab order, disabled/readonly boolean
+guards, hidden label, async label rollback and remount groups passed.
+The geometry group stopped at its first failing input; it did not establish
+initial native mixed state for the remaining peers.
+
+The16contract candidate clears native MinWidth/MinHeight and enables
+IsThreeState only while the model is mixed, retaining binary activation for
+ordinary values. Microsoft's [IsChecked documentation](https://learn.microsoft.com/en-us/windows/windows-app-sdk/api/winrt/microsoft.ui.xaml.controls.primitives.togglebutton.ischecked?view=windows-app-sdk-1.6)
+requires IsThreeState=true to report mixed state. No nullable bridge bug was
+isolated or claimed. The mock now rejects mixed writes without that flag, and
+asserts cleared native minimums and flag transitions. All16contracts pass via
+one uncached Turbo task,2.024s,exit0. V19's bounded native graph is running.
+No full component qualification is recorded yet; source remains uncommitted.
+Records: research/windows61/windy-native-v18-checkbox.log,
+windy-v18-native-exit.json, windy-v18-typecheck.log,
+windy-v18-native-task.log, windy-os-shared-checkbox-v18.log,
+windy-v18-checkbox-os-results.json, windy-v18-checkbox-full-console.log and
+windy-checkbox-source-contracts-16.log. The original mismatch is preserved in
+Silo feedback_observations with marker windows61-checkbox-v18-minimums-mixed.
+
+The CheckboxList option path remains separate: CheckboxGroup.tsrx imports
+./Checkbox.tsrx explicitly, and CheckboxListItem has its own tap-based control.
+This standalone CheckboxInput candidate does not establish their Windows
+resolution, focus, keyboard or group semantics. Reassess that import prerequisite
+before promoting list behavior. The platform-leaves/shared-layout recipes do
+not include Windows; no such target is added or relabeled from this fixture.
+
+### V19 retains the native mixed-state failure
+
+V19 graph passed38/38tasks,28cached,7m51.023s,exit0, with the same standalone
+checker/delegated diagnostic/MSBuild warning boundaries. Owned MSIX1.0.0.19,
+bootmvt5desh, again passed12/15groups,exit1. Native minimums are now zero;
+all36recorded Core input/row sizes and positions match. The first seven UIA
+peers also matched their measured row geometry (400x24DIP,small400x20DIP).
+The peer/state group then failed at the first mixed initial state. Rejected
+and readonly mixed state still failed; the other12groups passed. Enabling
+IsThreeState alone therefore does not repair the observed native behavior.
+
+The next candidate writes null through
+DependencyObject.SetValue(ToggleButton.IsCheckedProperty,null), keeping the
+verified direct Boolean setter for ordinary values. Sixteen source contracts
+pass through one uncached Turbo task,2.246s,exit0; they now exercise the
+dependency-property route. V20's native graph is running with additional
+read-only native IsThreeState/IsChecked projection diagnostics. This route is
+not a native repair pass yet. No runtime projection defect or null coercion
+mechanism has been isolated from the earlier results alone.
+
+Records: research/windows61/windy-native-v19-checkbox.log,
+windy-v19-native-exit.json, windy-v19-typecheck.log,
+windy-v19-native-task.log, windy-os-shared-checkbox-v19.log,
+windy-v19-checkbox-os-results.json, windy-v19-checkbox-full-console.log,
+windy-v19-checkbox-current-boot-console.json and
+windy-checkbox-dependency-contracts.log. Source remains uncommitted.
+
+### V20 qualifies common CheckboxInput flows
+
+V20 graph passed38/38tasks,28cached,6m27.628s,exit0. The standalone Windows
+checker emitted no diagnostics. The delegated native checker still reports
+12diagnostics in11otherfiles and the same three MSBuild warnings. This is
+the previously authorized bounded graph, not full UI/dependent qualification.
+
+Owned x64 WinUI MSIX1.0.0.20, bootmvt5tay0, passed15/15nonvisual OS groups,
+exit0 on windy, OS10.0.26200.0, WinAppSDK1.6.250205002:
+
+- Twelve named native CheckBox/TogglePattern peers initialize with the declared
+  Boolean or mixed state and expected enabled flags. Normal/readonly peers are
+  focusable; disabled is not.
+- Physical Tab preserves order, includes readonly and skips disabled.
+- Controlled pointer, Space and UIA requests produce true,false,true; a
+  programmatic prop reset changes native state without a callback echo.
+- Rejected controlled requests retain Off; readonly and disabled Boolean
+  controls reject changes and disabled rejects focus/automation.
+- Uncontrolled keyboard/pointer state and small input pointer activation work.
+- Label activation runs exactly one async action, reports true,false and
+  returns native state to Off on rejection.
+- Mixed activation requests true, then follows ordinary Boolean changes.
+  Rejected pointer/Space/UIA requests retain mixed and always request true.
+  Readonly mixed remains focusable and retains mixed without callbacks.
+- An uncontrolled mixed default becomes true then false; hidden label text is
+  absent while the explicit accessible name remains keyboard-usable.
+- Remount restores defaults and binds one live handler.
+
+All12UIA inputs matched their measured rows:400x24DIP,small400x20DIP, at200%
+DPI. All36Core input/row size and position snapshots matched. Stock native
+minimums are zero. The diagnostic reads IsChecked=null with IsThreeState=true
+for all four mixed models. Boolean getters remain IReference<Boolean> objects
+whose Value is false at startup; no object-to-Boolean comparison is used.
+
+Writing null through DependencyObject.SetValue(IsCheckedProperty,null) repairs
+the mixed-state checks that failed with direct nullable assignment in v19.
+This is a target-local workaround for the pinned Windows preview projection;
+its internal boxing/coercion mechanism was not audited. Reassess the route on
+runtime upgrades. Sixteen VM contracts protect the adapter, including that
+dependency-property route, minimum-size/three-state settings, event guards,
+model rejection and callback/native-view lifecycle. Their final uncached
+Turbo task passed2.246s,exit0. No new dependency or native runtime patch was
+introduced. Existing startup filesystem checks also passed7/7; they do not
+expand the earlier filesystem qualification boundary.
+
+Final read-only audit found zero owned app processes and unchanged nativescript.dll
+SHA256748D95864AC032DE2D1BB69FEC1E5B2CDD393BAA1671E349AA670160AA66D47C.
+The native build/input reservations were released. Existing certificate/trust
+was reused. No dependency install, visual analysis, push or merge occurred.
+
+Records under research/windows61/:windy-native-v20-checkbox.log,
+windy-v20-native-exit.json, windy-v20-typecheck.log,
+windy-v20-native-task.log, windy-os-shared-checkbox-v20.log,
+windy-v20-checkbox-os-results.json, windy-v20-checkbox-full-console.log,
+windy-v20-checkbox-current-boot-console.json,
+windy-v20-checkbox-installed-package.json and
+windy-v20-final-package-audit.log. Drivers/fixtures remain in ignored
+research/windows61/native-common-flows/. Earlier v18/v19 failures are retained.
+
+Public Windows setup, the Octane primitives reference and a release note now
+describe the bounded feature. Twenty-nine changed-guide/release-note fences
+parse using the shared checkout's checker functions against these worktree
+files explicitly; this is syntax-only evidence. Targeted formatter/lint,
+whitespace and pnpm check:recipes pass. No recipe target is promoted: relevant
+recipes exclude Windows and no maintained consumer workflow was qualified.
+The full docs commands remain absent from this isolated revision, and
+check:changelog remains blocked by the missing yaml dependency. No pass is
+claimed for any of them.
+
+ui:CheckboxInput stays pending for full Field/prop behavior, resizing,
+mixed-state async rejection, concurrent actions/disposal, Narrator/visual
+parity, other architectures/versions, unpackaged runs and downstream consumer
+packaging. CheckboxList/CheckboxListItem have separate import/input/group gates.
+Earlier CLI/patches dependent checks remain deferred; current exact UI/docs
+gates remain:
+
+```sh
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm exec turbo run test:native --filter=@octane-xplat/ui
+pnpm exec turbo run test:packed --filter=@octane-xplat/ui
+pnpm check:docs
+pnpm check:doc-examples
+pnpm check:changelog
+```
+
+The persistent Windows task remains active. Bounded input evidence does not
+close the full component or platform-support checkboxes.

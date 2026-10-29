@@ -2763,6 +2763,29 @@ Shared-component pointer, Tab/Space, TogglePattern, state, async rollback and
 remount checks passed in packaged x64 WinUI. Keep the wider
 [Windows qualification boundary](../../../../docs/platform/windows-setup.md#switch-input).
 
+## Experimental Windows CheckboxInput
+
+The Windows Checkbox leaf keeps the shared indicator registry and supplies a
+transparent WinUI CheckBox input. The public root name remains CheckboxInput:
+
+```tsx
+import { CheckboxInput } from '@octane-xplat/ui'
+
+export function SelectItems() {
+	return <CheckboxInput label="Select items" defaultValue="indeterminate" />
+}
+```
+
+Clear native minimum sizes even with a replacement template. Enable
+IsThreeState while the model is mixed so UIA reports it; keep ordinary
+activation binary and normalize requests leaving mixed state to true. The
+adapter shares Switch's measured-input and owned-delegate write workarounds.
+Direct nullable IsChecked writes failed mixed-state checks in the preview;
+write null through DependencyObject.SetValue(IsCheckedProperty,null). The
+packaged x64 input/state/mixed/geometry/remount checks pass. Keep the
+[Windows qualification boundary](../../../../docs/platform/windows-setup.md#checkbox-input)
+and the separate CheckboxList/CheckboxListItem gates.
+
 ## Experimental Windows Dialog
 
 Keep Dialog's Windows lifetime separate from generic `useLayer` qualification.

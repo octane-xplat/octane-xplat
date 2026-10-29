@@ -107,6 +107,32 @@ remount. Normal and small inputs matched their tracks' measured bounds.
 Screen-reader announcements, visual parity, dynamic resizing, the full field
 prop contract, other architectures and downstream packaging remain unqualified.
 
+## Checkbox input
+
+The Windows `CheckboxInput` keeps the shared indicator and label,
+with a native checkbox for keyboard input and Windows toggle automation.
+Use `'indeterminate'` for a partially selected checkbox; activating it requests
+`true` through `onChange`:
+
+```tsx
+import { useState } from 'octane'
+import { CheckboxInput } from '@octane-xplat/ui'
+
+export function SelectItems() {
+  const [selected, setSelected] = useState<boolean | 'indeterminate'>('indeterminate')
+  return <CheckboxInput label="Select items" value={selected} onChange={setSelected} />
+}
+```
+
+Bounded packaged x64 checks passed native CheckBox/TogglePattern names and
+state, pointer/Tab/Space input, controlled and uncontrolled state, mixed-state
+acceptance/rejection, readonly/disabled guards, hidden labels, label async
+rollback and remount. Native input bounds matched the measured rows.
+The complete field prop contract, resizing, mixed-state async rejection,
+concurrent actions/disposal, screen-reader and visual parity, and downstream
+consumer packaging remain unqualified. CheckboxList and CheckboxListItem need
+separate keyboard and group qualification.
+
 ## Floating-layer candidate
 
 Windows `useLayer` selects the NativeScript popup implementation. Put its trigger
