@@ -3228,6 +3228,9 @@
 	border-top-color: var(--color-border, #ddd);
 	border-top-style: solid;
 }
+.vx-segmented--native { flex-direction: row; align-self: flex-start; }
+.vx-segment--native { flex-direction: row; align-items: center; justify-content: center; gap: 4px; }
+.vx-segment--native .vx-segment-icon { flex-shrink: 0; }
 .vx-segmented--fill { display: flex; width: 100%; }
 .vx-segmented--fill .vx-segment { flex: 1; }
 .vx-segment-icon { display: inline-flex; /* xplat-web-only:start */ margin-inline-end: 4px; /* xplat-web-only:end */ }

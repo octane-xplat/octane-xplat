@@ -260,6 +260,11 @@ fallback while preserving group on GTK. Native-only layout classes describe
 this leaf's tree. Keep pointer focus in the renderer's custom-toggle controller
 so read-only checkboxes and switches can focus without selection handlers.
 
+SegmentedControl and its child part use the same radio/radiogroup adapter as
+RadioList. The native field frame owns width and chrome; option and child-part
+rendering share one row implementation. Native-only layout classes preserve
+hug/fill geometry and icon spacing without changing the web leaf.
+
 For native GTK assertion fixtures, rebuild the XplatMason typelib and use its
 fixed-signature test_accessible_state, test_accessible_boolean_property and
 test_accessible_string_property

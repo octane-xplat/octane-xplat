@@ -80,7 +80,7 @@ variants in `.gtk.tsrx`/`.gtk.tsx` files.
 `@octane-xplat/ui` resolves a curated `gtk` export condition. It includes
 `Text`, `Pressable`, the `View`/`Stack` family, `Grid`/`GridSpan`, `Center`,
 `Section`, `Layout` regions, `Absolute`, `Spacer`, `Badge`, `Divider`,
-`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, `ScrollableArea`, `Spinner`, `useScrollableArea`, `Icon`, icon registries, `Tooltip`, `TextInput`, `TextArea`, `SearchInput`, `Field`, `FormLayout`, `InputGroup`, `InputGroupText`, `FieldGroup`, `useFieldControl`, the selection indicators, indicator registries, CheckboxInput, Switch, RadioList, RadioListItem, NumberInput, CheckboxList and CheckboxListItem.
+`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, `ScrollableArea`, `Spinner`, `useScrollableArea`, `Icon`, icon registries, `Tooltip`, `TextInput`, `TextArea`, `SearchInput`, `Field`, `FormLayout`, `InputGroup`, `InputGroupText`, `FieldGroup`, `useFieldControl`, the selection indicators, indicator registries, CheckboxInput, Switch, RadioList, RadioListItem, NumberInput, CheckboxList, CheckboxListItem, SegmentedControl and SegmentedControlItem.
 For example, place a label and
 status badge in a horizontal row:
 
@@ -258,6 +258,49 @@ export function Payment() {
         <RadioListItem value="cash" label="Cash" isDisabled />
       </RadioList>
     </Field>
+  )
+}
+```
+
+## Segmented choices
+
+Use SegmentedControl for one compact choice, such as Grid or List. defaultValue
+lets the control keep its selection. layout="fill" shares the available width
+equally; omit layout for a track that hugs its content.
+
+```tsx
+import { SegmentedControl } from '@octane-xplat/ui'
+
+export function ViewChoice() {
+  return <SegmentedControl label="View" width={280} layout="fill"
+    defaultValue="grid" options={[
+      { value: 'grid', label: 'Grid' },
+      { value: 'list', label: 'List' },
+    ]} />
+}
+```
+
+Use SegmentedControlItem children for icons or an icon-only segment. Keep
+label set when isLabelHidden hides its visible text. Pair value with
+onValueChange to own the selection; Tab, arrow keys, Space and clicks use the
+same single-choice group.
+
+```tsx
+import { useState } from 'octane'
+import { SegmentedControl, SegmentedControlItem, Text, View } from '@octane-xplat/ui'
+
+export function ViewPicker() {
+  const [mode, setMode] = useState('grid')
+  return (
+    <View>
+      <SegmentedControl label="View" width={280} layout="fill"
+        value={mode} onValueChange={setMode}>
+        <SegmentedControlItem value="grid" label="Grid" isLabelHidden icon={<Text>G</Text>} />
+        <SegmentedControlItem value="list" label="List" icon={<Text>L</Text>} />
+        <SegmentedControlItem value="print" label="Print" isDisabled />
+      </SegmentedControl>
+      <Text>Selected: {mode}</Text>
+    </View>
   )
 }
 ```

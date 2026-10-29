@@ -2302,3 +2302,64 @@ availability note covers the newly curated controls and later child-part
 features. No dependency was added; no phone runtime, images/pixels, IME,
 Wayland or AT-client speech/navigation was qualified. Remaining UI exports
 stay under the full parity goal, with no partial-surface PR.
+
+
+## GTK segmented-control qualification
+
+At e63aa9e07 the maintained direct-source baseline completed 43 checks with
+27 failures: missing field ownership/width, radio-group and segment roles,
+checked state, ordinary names, native sensitivity/focus and group
+required/read-only/busy/invalid metadata. Fill geometry and icon-only rendering
+worked. Feedback 5b043ac1-4c2e-46c7-9301-3b8412ce10f9 preserves the expectation;
+guest /tmp/gtk-segmented-first.log records the property/geometry/lifecycle run,
+without OS input.
+
+The shared native group now owns one persistent field frame and checked-value
+provider. Options and child parts use the same segment implementation. GTK
+retains radio/radiogroup semantics through the existing adapter; NativeScript
+retains the documented composite-role fallback. Native-only classes define
+track direction, hug alignment and icon spacing. A child outside its owner is
+presentational. No renderer fork or dependency was needed.
+
+The corrected baseline passes all 43 checks. The first real X11 expansion
+passes 87 checks for one Tab entry/exit, arrows skipping disabled options,
+Space and pointer selection, duplicate suppression, local state, controlled
+acceptance/rejection, retained rows and read-only/disabled behavior. Existing
+RadioList cases still pass 107 Mason and 59 Gtk.Box checks. Six focused
+typegen/renderer tasks and the native regression suite pass 58 Node checks
+plus 464 object-driver tests. Logs: guest /tmp/gtk-segmented-{foundation,input}.log;
+andromeda /tmp/gtk-segmented-{input-types,native}.log.
+
+The broader direct-source case passes 120 checks with actual X11 input. It adds
+hug/fill transitions, percentage and authored width, name/size/required/style/
+class resets, hidden headings, unique ids, keyed reorder/removal, empty and
+repopulated groups, parent Field authority and three-enabled-choice RTL
+navigation. Six focused typegen/renderer tasks pass. Logs: guest
+/tmp/gtk-segmented-contracts.log and andromeda
+/tmp/gtk-segmented-contracts-types.log.
+
+New cases share test/gjs-ui-fixture.mjs for the existing build/native-prerequisite,
+result and optional F12 input protocol. Baselines explicitly disable input;
+OS runs report actual keyboard/click execution separately. Standalone behavior
+is checked through native role/focus, rather than treating serialized props as
+a record of installed event bindings.
+
+Public-root SegmentedControl/Item and both existing prop types are qualified,
+giving 64 values and 100 types. All 55 maintained Linux renderer tests pass
+without skips, including the public 120-check case. All 62 affected/dependent
+typecheck tasks pass with exact native equality for every GTK value and both
+new types. Native tests pass 58 Node checks and 464 object-driver tests;
+selected web field/role tests pass 48 across two files. Six packed-export/
+declaration tasks and 28 docs build/test tasks pass. Docs checks cover 141
+pages/links, 1137 parsing examples, 59 release notes, recipes, UI barrels,
+focused TS/JSON/test formatting and whitespace.
+Logs: guest /tmp/gtk-segmented-root-full.log; andromeda
+/tmp/gtk-segmented-root-{types,native,web,pack,doc-site}.log.
+
+The stable v0.17.1 native control already declared field width but ignored it;
+that correction gets a fix note. The availability note covers the GTK exports
+and child parts. Text-entry AC3 gains this field/input evidence while retaining
+partial/not-run status for the complete criterion; AC8 retains its earlier
+complete/runtime-tested assessment. No phone runtime, images/pixels, IME,
+Wayland or AT-client output was qualified. Other exports remain under the
+full parity goal; no partial-surface PR has been opened.

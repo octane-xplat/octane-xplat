@@ -115,3 +115,10 @@ type CheckboxListPropsContract = Assert<Equal<GtkUI.CheckboxListProps, NativeUI.
 type CheckboxListItemPropsContract = Assert<
 	Equal<GtkUI.CheckboxListItemProps, NativeUI.CheckboxListItemProps>
 >
+
+type SegmentedControlPropsContract = Assert<
+	Equal<GtkUI.SegmentedControlProps, NativeUI.SegmentedControlProps>
+>
+type SegmentedControlItemPropsContract = Assert<
+	Equal<GtkUI.SegmentedControlItemProps, NativeUI.SegmentedControlItemProps>
+>

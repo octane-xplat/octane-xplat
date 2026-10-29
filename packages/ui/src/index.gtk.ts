@@ -170,3 +170,7 @@ export type { InputNumberProps, NumberInputProps } from './props'
 export { CheckboxGroup as CheckboxList } from './CheckboxGroup'
 export { CheckboxListItem } from './CheckboxListItem'
 export type { CheckboxGroupProps, CheckboxListProps, CheckboxListItemProps } from './props'
+
+export { SegmentedControl } from './SegmentedControl'
+export { SegmentedControlItem } from './SegmentedControlItem'
+export type { SegmentedControlProps, SegmentedControlItemProps } from './props'

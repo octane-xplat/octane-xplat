@@ -187,6 +187,12 @@ mixed checkboxes. It covers group names/state/width, actual keyboard/pointer
 ownership, selection authority, density/dividers, wrapping and retained updates.
 This is separate from assistive-client speech or navigation.
 
+The public-root [segmented control fixture](../../../packages/linux-gtk-renderer/test/ui-segmented-control.test.mjs)
+adds AC3 field evidence for compact single-choice groups, including icon-only
+names, inherited state, width ownership and actual grouped keyboard/pointer
+input. Hug/fill geometry, RTL and retained updates have separate checks.
+These do not establish assistive-client speech or navigation.
+
 These checks contribute to AC1, Return behavior within AC2, Field portions of
 AC3/AC4 and the GTK group contract in AC6. They do not establish the complete
 recipe: composition/marked text (AC2), AT clients (AC3), OSK/overlay avoidance

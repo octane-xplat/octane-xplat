@@ -149,6 +149,14 @@ clear its own engine border for that compute. Natural measurement instead
 computes the authored border box and returns the content contribution GTK
 expects. Preserve both fixed-size and automatic measure/allocate checks.
 
+SegmentedControl options and SegmentedControlItem children share the native
+single-choice owner and GTK radio-group path. Keep one field frame, checked
+radio state, native sensitivity and grouped input. An item outside its owner
+is presentational. layout="fill" shares the track width; the default hugs
+content. Icon-only items retain their label as the name. Preserve controlled
+rejection, local defaults, keyed updates and RTL behavior when changing this
+leaf. The existing NativeScript composite-role fallback still applies.
+
 Treat the [multiline intrinsic checks](../../../docs/notes/linux-gtk-renderer.md#multiline-buffer-foundation)
 alongside the maintained public-root TextArea fixture. Persistent field/width/
 handle ownership and the supported shared control props have runtime checks. Font-based rows/maxRows/autoGrow and constraint transitions have

@@ -670,7 +670,7 @@ The fixture also checks editor retention while labels or validation messages cha
 TextInput and Field are available from the curated root. The current
 [field and selection guide](https://octane-xplat.goddardai.org/linux-gtk#single-choice-fields)
 also covers FormLayout, InputGroup, FieldGroup, CheckboxInput, Switch, RadioList,
-RadioListItem, NumberInput, CheckboxList and CheckboxListItem; maintained fixtures qualify named behavior rather than the
+RadioListItem, NumberInput, CheckboxList, CheckboxListItem and the SegmentedControl family; maintained fixtures qualify named behavior rather than the
 complete assistive-client or visual contract.
 
 

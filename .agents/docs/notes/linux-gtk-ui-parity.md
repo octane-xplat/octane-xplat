@@ -7,9 +7,9 @@ aliases, and the mobile `KeyboardAvoiding` override. The broader
 [Linux capability inventory](linux-gtk-capability-inventory.md) also covers
 services, leaf packages, packaging, and host infrastructure.
 
-Current availability is 62 runtime values and 98 types in index.gtk.ts, including
+Current availability is 64 runtime values and 100 types in index.gtk.ts, including
 Tooltip, the text-entry controls, field/group owners, selection indicators,
-CheckboxInput, Switch, RadioList, RadioListItem, NumberInput, CheckboxList and CheckboxListItem. Counts in the earlier slice records describe those commits; the JSON
+CheckboxInput, Switch, RadioList, RadioListItem, NumberInput, CheckboxList, CheckboxListItem, SegmentedControl and SegmentedControlItem. Counts in the earlier slice records describe those commits; the JSON
 remains the original source survey and Silo holds per-export qualification.
 TextArea uses the shared native leaf with GTK fitting and native TextView
 support. The current root qualification and remaining limits are recorded
@@ -1111,3 +1111,22 @@ for baseline failures, fixes and limits. Text-entry AC3 remains partial; AC8
 keeps its earlier complete/runtime-tested assessment. Remaining inputs/parts,
 Image, overlays, navigation, theme and services stay under the full goal.
 No partial-surface PR has been opened.
+
+
+### Public GTK segmented controls
+
+SegmentedControl and SegmentedControlItem, plus both existing prop types, reuse
+the shared native leaves and GTK radio-group input path. Options and child
+parts share one field/selection owner; an ownerless part stays presentational.
+Availability is 64 values and 100 types.
+
+The public case passes 120 checks with actual X11 input, including local and
+controlled selection, grouped focus, disabled/read-only behavior, icon-only
+names, hug/fill sizing, width/name/size/style resets, keyed updates, parent Field
+authority and RTL. All 55 Linux renderer tests pass without skips; 62 affected
+typecheck tasks, 58 Node checks, 464 native object-driver tests, 48 selected web
+tests, six package tasks and 28 docs build/test tasks pass. See
+[the segmented-control evidence](linux-gtk-renderer.md#gtk-segmented-control-qualification)
+for the baseline and limits. Text-entry AC3 remains partial and AC8 remains
+complete/runtime-tested. Remaining inputs/parts, Image, overlays, navigation,
+theme and services stay under the full goal. No partial-surface PR is opened.
