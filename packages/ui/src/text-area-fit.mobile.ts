@@ -6,7 +6,9 @@ export function fitTextArea(
 	view: any,
 	props: Pick<TextAreaProps, 'rows' | 'autoGrow' | 'maxRows' | 'style'>,
 ): () => void {
-	if (!view) return () => {}
+	if (!view) {
+		return () => {}
+	}
 	const fit = () => {
 		const style = styleRecord(props.style)
 		if (style?.height != null) {

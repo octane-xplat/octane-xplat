@@ -2752,3 +2752,43 @@ andromeda /tmp/gtk-popup-events-types-final.log. The regular renderer task now
 registers the event case. The full renderer sweep was not rerun for this new,
 internal helper. PR #77 is a draft; its initial CI run stopped at repository
 lint, which is being reconciled separately from this runtime qualification.
+
+## PR #77 lint reconciliation
+
+The first draft PR CI run 40905401164 stopped at lint with 562 errors. A
+separate clean checkout of origin/main at 429ca1d87 reproduces 59 errors with the
+same configured linter. The scoped cleanup adds required braces in 72 modified
+PR files. Before formatting, all non-brace token streams match the originals;
+after formatting, all non-brace/non-semicolon token streams still match.
+No lint configuration, severity or exclusion changed.
+
+The phone text-area sizing helper is now text-area-fit.mobile.ts. It imports
+NativeScript Utils and is selected by the native resolver; the GTK peer remains
+text-area-fit.gtk.ts. The unsuffixed TextArea import and native-test resolver
+continue to select the appropriate leaf. A shared .ts helper without a web peer
+does not satisfy the repository's native-import boundary.
+
+The final full lint run reports 59 errors. Their rule, message, path, line and
+column fingerprints exactly match the independently executed main baseline:
+zero introduced or removed errors. These are repository baseline failures,
+including the network browser fixture's DOM-global violation, and remain
+visible rather than being excluded by this PR. Warning counts differ because
+this PR introduces additional source. Logs on andromeda:
+ /tmp/gtk-ui-main-lint-baseline-node.log,
+ /tmp/gtk-pr77-lint-final.log and
+ /tmp/gtk-pr77-lint-baseline-comparison.json.
+The isolated baseline checkout is /tmp/gtk-ui-main-lint-20261029.
+
+After cleanup, all 62 UI/renderer dependent typecheck tasks pass. The focused
+12-task native/type/package check passes 58 Node tests, 464 native UI tests
+in 86 files, and packed-export/declaration validation. Real Linux GTK runtime
+passes the event hub (61 assertions), popup portal (56) and TextArea (260 with
+keyboard/wheel input) cases together without skips. The full renderer sweep
+was not rerun after the mechanical brace cleanup. Documentation checks pass:
+141 pages, 1146 parsing examples, recipes, UI barrels and 66 release notes.
+No public recipe acceptance state is promoted by these internal changes.
+
+Final evidence: andromeda /tmp/gtk-pr77-lint-{types,native-pack,docs}.log and
+guest /tmp/gtk-pr77-lint-runtime.log. The source-only brace/token verification
+is separate from these executed tests. No visual, Wayland, real IME or
+assistive-client qualification is implied.
