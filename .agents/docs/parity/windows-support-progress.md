@@ -1808,3 +1808,61 @@ Inspect the same owned process tree and the .turbo logs after reconnection.
 A wake/reconnect request was sent; this is availability recovery, not new test
 permission. No v7 native build, standalone typecheck, prerequisite or OS-input
 pass is claimed yet. The last completed OS run remains v6 on the earlier core.
+
+
+V7 recovery tooling is prepared locally at
+/tmp/windows61-v7-recovery-audit.ps1. It reads the owned terminal record,
+process tree, task-log tails and MSIX timestamps, plus recent Kernel-Power
+IDs/times without event payloads. Upload/run it only after SSH reconnects;
+it does not start, kill or restart a graph. The original local exec session
+was2330 and its resource reservation455be34f-b022-4812-98b6-0c255fa8caaa
+(device:windy + native_builds1) remained live at the last check. A live local
+SSH handle is not remote compilation proof. If that handle disappears, inspect
+remote state and re-reserve before waiting on any surviving remote child.
+
+## V7 terminal recovery and explicit filesystem bridge repair
+
+The recovered remote terminal record reports native graph exit0 at
+2026-10-29T01:29:52Z. The standalone Windows typecheck emitted no diagnostics;
+the native delegated checker still reported the previously recorded12 diagnostics
+in11 files. No owned build process remained. Only the verified stale local SSH
+transport was terminated; its outer255 is not the native build result. Recovered
+records: research/windows61/windy-v7-native-exit.json,
+windy-v7-native-task.log and windy-v7-typecheck.log. The v7 MSIX identity version
+is1.0.0.7. The earlier live-handle/recovery paragraph is historical.
+
+Actual packaged v7 execution exposed a prerequisite failure missed by the
+fake host: Core's global System is its import shim, without System.IO. The first
+run (boot mvsveg94) passed six input groups and component wheel scrolling, but
+failed filesystem setup and pointer bounds for modal/headless targets. A second
+run (boot mvsvzqjz), maximizing only the owned window, passed all six input and
+four modal groups. Filesystem setup still failed and the scroll page viewport
+was not found, so neither run passed the14-group gate. The second failure is
+recorded as setup evidence, not proof that modal focus or scrolling regressed.
+Logs: research/windows61/windy-os-common-v7.log and
+windy-os-common-v7-maximized.log. No checkbox is closed from these results.
+
+A standalone native probe against the exact alpha144 DLL and packaged
+DotNetBridge payload proved NSWinRT.dotnet.invoke('', 'System.IO.File', ...)
+and Directory calls still work after replacing System with an import-only
+shim. Real owned scratch files were found, new files created empty, existing
+contents preserved with OpenOrCreate and streams disposed. Enum fields cannot
+be fetched with dotnet.get (it looks for property getters); the repair uses
+named constants for documented FileMode/OpenOrCreate4, FileAccess/ReadWrite3
+and FileShare/ReadWrite3. Log: research/windows61/windy-fs-direct-enums.log.
+This establishes bridge feasibility, not packaged Core filesystem success.
+
+The follow-up patch calls that explicit bridge, preserves the global import
+shim, rejects missing/nonboolean existence projections and keeps nontruncating
+creation/disposal. Eleven local distributed-artifact VM contracts passed through
+the uncached Turbo filesystem task. The fixture now has Core's actual import
+shim and an explicit bridge, preventing the earlier false assumption. Exact
+patch application/reversal passed and all preceding Core patch sections remain
+byte-identical. Canonical patch SHA256:
+3be9208c20f59e776d906b8239dac542218415aa85d31dc140893eba8200f2b3.
+The temporary native oracle uses the explicit bridge too. Follow-up adoption,
+v8 build and actual native checks remain pending here; no native pass is claimed.
+Broad package/dependent typechecks, packed-consumer tests, visual checks,
+IME/multiwindow and generic layer qualification remain deferred. Required future
+package checks include turbo run typecheck --filter=...@octane-xplat/cli and
+--filter=...@octane-xplat/patches; no merge or full support claim is made.

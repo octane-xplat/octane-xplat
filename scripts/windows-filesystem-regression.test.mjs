@@ -58,7 +58,17 @@ function fixture() {
 		},
 	}
 	const context = {
-		System: { IO: io },
+		// Core installs this import shim before app code runs; it has no System.IO.
+		System: { import() {} },
+		NSWinRT: {
+			dotnet: {
+				invoke(assembly, type, method, args) {
+					assert.equal(assembly, '')
+					assert.ok(type.startsWith('System.IO.'))
+					return io[type.slice('System.IO.'.length)][method](...args)
+				},
+			},
+		},
 		Windows: {
 			Storage: {
 				StorageFolder: {
@@ -164,7 +174,7 @@ test('Windows projection failures are not mistaken for file absence or followed 
 	for (const failure of ['missing', 'throws', 'non-boolean']) {
 		const { access, state, io, context } = fixture()
 		if (failure === 'missing') {
-			delete context.System
+			delete context.NSWinRT
 		}
 
 		if (failure === 'throws') {
@@ -259,4 +269,13 @@ test('Windows folder creation reports failure or a colliding file without fabric
 
 		assert.deepEqual(state.writes, [])
 	}
+})
+
+test('Windows filesystem leaves the Core System import shim unchanged', () => {
+	const { access, context } = fixture()
+	const system = context.System
+	assert.equal(access.fileExists(file), false)
+	assert.equal(access.getFile(file).path, file)
+	assert.equal(context.System, system)
+	assert.equal(context.System.IO, undefined)
 })
