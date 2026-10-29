@@ -4,11 +4,16 @@ import { Button, Heading, RichText, RichTextSpan, Text, VStack } from '@octane-x
 import type { ProbeContext } from '../../scripts/probe/context'
 export default function TextStylesProbe() {
 	const [large, setLarge] = useState(false), [css, setCSS] = useState(false), [styled, setStyled] = useState(true)
+	const [described, setDescribed] = useState(true), [hiddenFromAX, setHiddenFromAX] = useState(false)
 	const fontSize = large ? 28 : 18, style = !styled ? undefined : css ? `font-size:${fontSize}px;letter-spacing:1px` : { fontSize, letterSpacing: 1 }
 	return <VStack gap={2}>
 		<Heading id="styled-heading" level={2} maxLines={1} style={style}>AppKit <Text weight="bold">heading run</Text></Heading>
-		<Text id="styled-text" type="body" style={style}>Text with <Text style={{ fontWeight: 600 }}>nested typography</Text></Text>
+		<Text id="styled-text" type="body" style={style} accessible={!hiddenFromAX}
+			accessibilityHint={described ? 'Review the text preview.' : undefined}
+			accessibilityValue={described ? 'Preview with nested typography' : undefined}>Text with <Text style={{ fontWeight: 600 }}>nested typography</Text></Text>
 		<RichText id="styled-rich" style={style}><RichTextSpan text={styled ? 'Explicit rich run' : undefined} style={styled ? 'font-weight:600;letter-spacing:2px' : undefined}>Fallback child text</RichTextSpan><Text> and shared Text</Text></RichText>
+		<Button label="Toggle text descriptions" clickAction={() => setDescribed((current) => !current)} />
+		<Button label="Toggle text accessibility visibility" clickAction={() => setHiddenFromAX((current) => !current)} />
 		<Button label="Toggle text size" clickAction={() => setLarge((current) => !current)} />
 		<Button label="Toggle declaration string" clickAction={() => setCSS((current) => !current)} />
 		<Button label="Remove or restore style" clickAction={() => setStyled((current) => !current)} />

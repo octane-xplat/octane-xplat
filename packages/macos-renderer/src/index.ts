@@ -6499,8 +6499,18 @@ function applyAccessibility(node: ElementNode, name: string, value: any) {
 		}
 	}
 
-	if (['label', 'htmlview'].includes(node.type) && name === 'accessibilityLabel') {
-		node.view!.setAccessibilityLabel?.(String(value ?? ''))
+	if (['label', 'htmlview'].includes(node.type)) {
+		if (name === 'accessibilityLabel') {
+			node.view!.setAccessibilityLabel?.(String(value ?? ''))
+		} else if (name === 'accessibilityHint') {
+			node.view!.accessibilityHelp = (value == null ? null : String(value)) as string
+		} else if (name === 'accessibilityValue') {
+			// Keep the native static-text value tied to visible content; the
+			// authored portable value describes it without writing stringValue.
+			node.view!.accessibilityValueDescription = (value == null ? null : String(value)) as string
+		} else if (name === 'accessible') {
+			node.view!.setAccessibilityElement(value !== false)
+		}
 	}
 
 	if (['textfield', 'textview', 'searchbar'].includes(node.type)) {

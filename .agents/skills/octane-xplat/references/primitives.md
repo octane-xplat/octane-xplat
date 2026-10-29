@@ -73,6 +73,23 @@ export function Notice() {
 }
 ```
 
+Outer AppKit Text now forwards testID, accessible, hint and value alongside the
+name. Native label/htmlview hints use accessibilityHelp; portable value text
+uses accessibilityValueDescription without rewriting displayed text. Dropping
+descriptions clears them to nil; dropping accessible restores participation.
+Inline runs have no separate native owner. This does not add Text state/live
+announcements or heading-role/level mappings, nor establish VoiceOver behavior.
+
+```tsx
+import { Text } from '@octane-xplat/ui'
+export function Count({ count }: { count: number }) {
+	return <Text testID="item-count" accessibilityLabel="Items"
+		accessibilityValue={`${count} items`} accessibilityHint="Review the collection.">
+		{count}
+	</Text>
+}
+```
+
 **For UI contributors**, shared component prop contracts live in
 `packages/ui/src/props.ts` and feed published declarations. Consumer app
 components own their own props; do not edit framework internals to define them.

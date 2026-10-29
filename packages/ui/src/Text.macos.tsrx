@@ -29,6 +29,7 @@ export function Text(props: TextProps) @{
 	} @else {
 		<label
 			id={props.id}
+			testID={props.testID}
 			className={cx(
 				'vx-text',
 				props.type && `vx-text--${props.type}`,
@@ -40,8 +41,11 @@ export function Text(props: TextProps) @{
 			maxLines={maxLines > 0 ? maxLines : undefined}
 			whiteSpace={maxLines === 1 ? 'nowrap' : undefined}
 			textOverflow={maxLines > 0 ? 'ellipsis' : undefined}
+			accessible={props.accessible}
 			accessibilityLabel={props.accessibilityLabel}
 			accessibilityRole={props.accessibilityRole}
+			accessibilityHint={props.accessibilityHint}
+			accessibilityValue={props.accessibilityValue}
 		>
 			<AppKitTextScope>{props.children}</AppKitTextScope>
 		</label>

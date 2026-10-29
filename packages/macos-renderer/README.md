@@ -107,6 +107,22 @@ that view and call `unmount()` before disposing the host. Root creation does
 not create a window or start the application run loop. The package also
 re-exports Octane's universal native runtime for compiler and hook imports.
 
+## Readable text accessibility descriptions
+
+Native label and htmlview hosts now apply accessibilityHint as AppKit help text,
+accessibilityValue as a value description, and accessible through element
+participation. The native static-text value stays tied to visible content;
+setting a description does not write stringValue. Empty descriptions remain
+explicit empty strings; unset/null clears to nil. Removing accessible restores
+participation. This does not implement live regions, arbitrary Text roles/states,
+heading levels or per-run actions. Source cases are authored but unrun; actual
+VoiceOver output, navigation and native reset behavior remain unqualified.
+
+```tsx
+<label text="12" accessibilityLabel="Items" accessibilityHint="Review the collection."
+	accessibilityValue="12 items" accessible={true} />
+```
+
 ## Apply stylesheets
 
 Inline style declaration strings now normalize before native prop validation,

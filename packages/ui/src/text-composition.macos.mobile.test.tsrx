@@ -57,3 +57,13 @@ it('AppKit top-level Text and RichText preserve declared parent layout and outer
 		} finally { env.root.unmount() }
 	}
 })
+
+it('AppKit outer Text forwards declared identity/description/visibility metadata and releases removed overrides', () => {
+	const env = mount(Text, { id: 'count', testID: 'count-test', accessible: false, accessibilityLabel: 'Items', accessibilityHint: 'Open the collection.', accessibilityValue: '12 items', children: '12' })
+	try {
+		const host = env.all().find((node) => node.type === 'label')
+		expect(host.props.testID).toBe('count-test'); expect(host.props.accessible).toBe(false); expect(host.props.accessibilityLabel).toBe('Items'); expect(host.props.accessibilityHint).toBe('Open the collection.'); expect(host.props.accessibilityValue).toBe('12 items')
+		env.render({ id: 'count', children: '13' }); expect(env.all().find((node) => node.type === 'label')).toBe(host)
+		for (const name of ['testID', 'accessible', 'accessibilityLabel', 'accessibilityHint', 'accessibilityValue']) expect(host.props[name]).toBeUndefined()
+	} finally { env.root.unmount() }
+})

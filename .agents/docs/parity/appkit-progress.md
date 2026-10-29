@@ -5348,3 +5348,53 @@ visual analysis ran. Actual context/compiler/driver ownership, run shaping and
 measurement, parent layout/truncation/AX, rich-span input and root/purpose packed
 resolution remain unqualified. Audit snapshots and evidence gates are unchanged;
 persistent goal active.
+
+## AppKit readable text accessibility descriptions
+
+Ordinary count/status text commonly needs a meaningful description and an
+explicit accessible owner. Source review found Text dropping its declared testID,
+accessible, accessibilityHint and accessibilityValue props; native label/htmlview
+accessibility handling only applied the name. This was a source finding, not an
+observed VoiceOver failure. Prior composition changes did not establish metadata
+support merely by retaining one outer text host.
+
+Outer Text now forwards those declared fields. The renderer applies accessible
+through setAccessibilityElement, hint through accessibilityHelp, and portable
+value through accessibilityValueDescription. Apple's [help contract](https://developer.apple.com/documentation/appkit/nsaccessibility-c.protocol/accessibilityhelp)
+and [value-description contract](https://developer.apple.com/documentation/appkit/nsaccessibility-c.protocol/accessibilityvaluedescription)
+support these properties; the latter supplies a human-readable description of
+an existing value. This mapping deliberately keeps static text's native value
+connected to visible contents rather than changing stringValue. Empty strings
+remain explicit; unset/null clears descriptions to nil. Removing accessible
+restores participation, consistent with the existing editable-text handling.
+No new public API, dependency, manifest or host class was introduced.
+
+This is the readable-label/htmlview subset. Arbitrary Text state/live-region
+announcements and heading-role/level mapping are still gaps; no new inner-run
+native owner or per-span action exists. Two cases are authored, all unrun: one
+UI identity/description/visibility forwarding/removal case and one real renderer
+function slice applying/resetting label/htmlview properties while visible text
+stays unchanged. The fixture adds description/AX-visibility toggles, but its
+runner still records mounting only. Guide/skill/renderer README and recipe AC5
+cover this subset. These repair an unreleased omission; no release note added.
+
+Only source/semantic review, TS/TSRX syntax parsing and whitespace checks ran.
+Exact deferred commands:
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/text-composition.macos.mobile.test.tsrx src/text-style.macos.mobile.test.tsrx
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/macos-renderer
+pnpm probe doctor
+pnpm probe run examples/probes/text-styles.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm exec turbo run test:packed --filter=@octane-xplat/ui --filter=@octane-xplat/macos-renderer
+pnpm check:recipes
+```
+
+All remain deferred pending explicit human authorization for this task. No tests,
+typechecks/builds/installs, probes, native/OS/browser automation, packaging or
+visual analysis ran. Actual native property/BOOL bridge behavior, static-text
+value-description interpretation, VoiceOver/hierarchy/navigation, metadata
+update/removal, testID/native identity and packed consumers remain unqualified.
+Audit snapshots and evidence gates remain unchanged; persistent goal active.

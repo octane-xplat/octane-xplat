@@ -176,6 +176,25 @@ export function Notice() {
 }
 ```
 
+Outer AppKit Text now forwards testID, accessible, accessibilityHint and
+accessibilityValue as well as its existing accessible name. Hints use native
+help text; the portable value uses a native value description so visible text
+stays intact. Removing those descriptions clears them to nil; removing an
+explicit accessibility visibility override restores element participation.
+Inner runs still belong to their outer owner. Text state/live announcements and
+heading-role/level mapping remain separate gaps; actual VoiceOver behavior
+and native update/removal still need qualification.
+
+```tsx
+import { Text } from '@octane-xplat/ui'
+export function Count({ count }: { count: number }) {
+	return <Text testID="item-count" accessibilityLabel="Items"
+		accessibilityHint="Review the collection." accessibilityValue={`${count} items`}>
+		{count}
+	</Text>
+}
+```
+
 ## Inputs
 
 Field controls share `label`, `description`, `isDisabled`, `isReadOnly`,
