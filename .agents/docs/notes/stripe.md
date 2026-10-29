@@ -149,3 +149,35 @@ the outstanding positive payment/loaded-sheet retry/redirect/wallet evidence.
 
 The authoritative SDK product list is its
 [26.15.1 Package.swift](https://github.com/stripe/stripe-ios/blob/26.15.1/Package.swift).
+
+
+## Installed packed SPM consumer
+
+The optional --runtime mode now reuses the compiled unsigned executable with
+refreshed release JavaScript. The entry imports @octane-xplat/stripe from the
+unpacked archive, not workspace source. skymac.local's owned iOS26.2 simulator
+passes twelve assertions: bridge resolution, initially idle presenter, guest
+preparation, duplicate and active-reset guards, actual OS loading-controller
+presentation, SPM SDK invalid-credential failure, presenter release, idle
+reset/disposed refusal and unrelated return-URL rejection. The first run passed
+ten checks in49 seconds; the final run added the two OS presenter assertions
+and passed in44 seconds with no native rebuild. The task reserves the simulator
+and the shell shuts it down afterward. It uses the remote Octane0.11.0 runtime,
+within this leaf's declared peer range; it does not exercise useStripe rendering
+or qualify the current native hook runtime.
+
+No valid Intent, publishable credential, card detail, wallet merchant setup,
+real payment, screenshot or visual analysis is used. SDK presentation is
+attempted with invalid public fixtures; this is not a loaded secure checkout
+or a successful payment. The first runtime output retained an old static
+checkoutPresented:false marker from build-only mode; the assertion list records
+the actual presentation attempt. The fixture now reports presentationAttempted
+and paymentAuthorized separately. No runtime test was repeated just for that
+logging correction.
+
+Logs: /tmp/xplat-stripe-spm-runtime-initial.log (first run) and
+/tmp/xplat-stripe-spm-runtime-final.log (final twelve assertions). The runtime fixture is source-checked,
+and its --runtime option requires the owned XPLAT_IOS_DEVICE. Use it without
+--build to preserve the compiled native executable. Positive payment, loaded-
+sheet cancellation/retry, authentication redirects, wallets and signed consumer
+qualification remain open.

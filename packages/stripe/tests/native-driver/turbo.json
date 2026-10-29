@@ -15,7 +15,11 @@
 		},
 		"test:ios-spm": {
 			"cache": false,
-			"passThroughEnv": ["XPLAT_NATIVE_TEST_REPO", "XPLAT_STRIPE_CONSUMER_ARCHIVE"]
+			"passThroughEnv": [
+				"XPLAT_NATIVE_TEST_REPO",
+				"XPLAT_STRIPE_CONSUMER_ARCHIVE",
+				"XPLAT_IOS_DEVICE"
+			]
 		}
 	}
 }

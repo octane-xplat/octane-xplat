@@ -12,7 +12,12 @@
 			"exclude": ["src/**/*.ios.ts", "src/**/*.android.ts", "src/**/*.macos.ts"]
 		},
 		"native": {
-			"include": ["src/**/*.ts", "src/**/*.tsx", "tests/runtime.ios.ts"],
+			"include": [
+				"src/**/*.ts",
+				"src/**/*.tsx",
+				"tests/runtime.ios.ts",
+				"tests/spm-runtime.ios.ts"
+			],
 			"exclude": ["src/**/*.web.ts", "src/**/*.macos.ts"]
 		},
 		"macos": {

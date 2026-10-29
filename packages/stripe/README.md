@@ -302,7 +302,10 @@ skymac.local passed ten assertions for initialization, concurrency,
 invalid-credential SDK failure and presenter cleanup using the official binary
 SDK. A separate packed consumer now validates the public SPM products and builds
 the SDK26.15.1 source and packaged Swift bridge into an unsigned simulator app.
-It does not launch checkout or prove a completed payment.
+Twelve installed-consumer assertions also pass for initialization, concurrency,
+actual SDK loading-controller presentation, invalid-credential failure,
+return-URL rejection and presenter cleanup. That
+run reuses the executable with refreshed JavaScript; it does not prove a payment.
 
 A successful test payment, loaded-sheet cancellation/retry, redirects, wallets
 and signed installed consumers remain unverified. Android runtime is explicitly
