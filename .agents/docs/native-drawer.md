@@ -1,10 +1,31 @@
 # Native drawer dependency review
 
-Recommend retaining `@nativescript-community/ui-drawer` for opt-in mobile
-gestures in a dedicated leaf package, removing its wrappers from the UI platform
-barrels. Keep shared `Drawer` as the dependency-free choice. This applies the
-existing leaf criteria (#51, #53, #60); it does not authorize implementation.
-Decision #132 is provisional pending packed-consumer and native qualification.
+Decision #133 replaces the initial recommendation (#132): `Drawer` itself
+moves to `@octane-xplat/drawer`, with one public API and mobile edge/drag
+gestures enabled by default. UI no longer exports Drawer, SideDrawer,
+DrawerLayout, or their prop aliases. The user authorized this cutover after
+Annotation 1 rejected a weaker mobile shared Drawer.
+
+```tsx
+import { Drawer } from '@octane-xplat/drawer'
+
+export function Example() {
+	return <Drawer defaultOpen main={null} drawer={null} />
+}
+```
+
+The leaf owns ui-drawer 0.1.32 and pins gesturehandler 2.1.0 as runtime
+dependencies. Web and desktop retain composed panels with the gesture subset
+explicit. UI does not depend on or re-export the leaf. Application setup and
+migration are in the [drawer guide](../../docs/app/drawer.md).
+
+npm dependencies do not vary by export condition: web-only Drawer consumers
+also install these mobile packages, although the packed web bundle excludes
+them. In NativeScript apps, installing this leaf opts into native plugin
+discovery even if its JS exports are unused. Apps using unrelated widgets
+should neither install the leaf nor declare its plugins.
+
+## Historical source review
 
 Reviewed 2026-10-28 at `2368e3f29819effb109c107787b5de316184fdb1` (UI
 0.18.0), with the relevant files unchanged at `1cf448ba4`. Opals evidence is
@@ -12,7 +33,12 @@ from alignment commit `e0330bf8`, published 0.18.0 by default and currently
 linked to this checkout. Opals was read only. Evidence here is source and
 existing development artifacts; no devices, screenshots, or release builds ran.
 
-## Current boundaries
+Rechecked against pre-cutover HEAD `ee242b434b13c534794947488d7ecc919f9ce887`:
+the four native barrel/wrapper files match the original review, and the UI
+manifest still lists ui-drawer only in devDependencies. The implementation
+checks below are separate from that historical review.
+
+## Boundaries at the reviewed revision
 
 | Boundary            | Verified finding                                                                                                               | Consequence                                                                                        |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
@@ -68,13 +94,13 @@ not the stale `gitHead` fields in their manifests, to inspect release source.
 | Shared Drawer   | Mason/native and DOM implementations conditionally render a left panel and dismissible backdrop; no pan handler                                                                    | Reuse suits explicit open/dismiss flows, but would remove the plugin's continuous drag and edge gestures                                               |
 | Wrapper state   | Both wrappers drive left-side imperative open/close from `props.open`, swallow promise errors, and do not connect plugin dismissal events                                          | Shared prop aliases overstate equivalence: `defaultOpen` and `onDismiss` are not implemented there; gesture closure can disagree with controlled state |
 
-The common slot shape is visible in the existing shared API:
+The main/panel slot shape is retained in the current package API:
 
 ```tsx
-import { Drawer } from "@octane-xplat/ui";
+import { Drawer } from '@octane-xplat/drawer'
 
 export function DrawerExample() {
-  return <Drawer defaultOpen main={null} drawer={null} />;
+	return <Drawer defaultOpen main={null} drawer={null} />
 }
 ```
 
@@ -118,66 +144,128 @@ were not remeasured. None establishes IPA/APK growth, startup time, memory,
 gesture contention, or accessibility cost. No such deltas were measured here.
 The boundary recommendation does not depend on a particular size saving.
 
-## Smallest coherent follow-up
+## Implementation and qualification
 
-Prefer an opt-in `@octane-xplat/drawer` leaf with explicit mobile entry points.
-It should own ui-drawer as a real runtime dependency, following #51/#60, with
-an explicit compatible gesturehandler version policy. A separate optional
-export inside UI could sever barrel reachability but would retain the
-undeclared-plugin exception and complicate installation guidance. Adding the
-plugin to UI would make native discovery costs apply to unrelated apps. A new
-gesture engine or AndroidX-specific rewrite adds unnecessary implementation
-and parity work before the current engine is qualified.
+The mobile binding serializes prop changes behind plugin completion events,
+seeds uncontrolled state once, and reports user edge opening/dismissal through
+`onOpenChange`. Controlled owners accept or reject requests through `open`.
+Programmatic transitions do not echo callbacks. Web keyboard handling traps
+focus, dismisses on Escape, and restores prior focus. Provide visible controls
+on every target; this does not establish full native accessibility support.
 
-Acceptance criteria for a separately authorized implementation:
+```tsx
+import { useState } from 'octane'
+import { Drawer } from '@octane-xplat/drawer'
 
-1. **Hard package boundary:** remove SideDrawer/DrawerLayout value and owning
-   prop exports from UI platform barrels; put the native wrappers and types
-   in the leaf. Do not leave compatibility re-exports that reconnect the graph.
-   Retain current component names in the leaf if useful, while explicitly
-   describing their custom implementation. Web/desktop remain on shared
-   Drawer with the gesture difference documented; do not silently substitute it.
-2. **Declared ownership:** a clean packed consumer installs the drawer leaf
-   without app-direct ui-drawer/gesturehandler declarations. Verify one aligned
-   gesturehandler version, transitive native discovery, native HTTP module
-   resolution in development, and bundled startup on iOS and Android under
-   supported package-manager layouts. Add an app-direct pin only if a specific
-   reproducible tooling limitation requires it and record that limitation.
-3. **No unused initialization:** a minimal packed LiquidGlass consumer and an
-   unrelated Android-widget consumer resolve/build/start without the drawer
-   leaf or plugins installed. Their development and release module graphs
-   exclude ui-drawer and drawer-specific installation. Shared Drawer also works
-   without the plugin. If another feature needs gesturehandler, do not claim
-   its removal as a drawer saving.
-4. **Honest lifecycle/state:** registration and installation occur only through
-   the opt-in feature and are idempotent. Account for upstream's own import
-   effects rather than marking side-effectful code pure. Reconcile controlled
-   open state, initial/default state, gesture/backdrop dismissal callbacks,
-   interrupted animations, errors, remount and disposal. Use the shared prop
-   contract only where the actual behavior matches it.
-5. **Mobile behavior:** qualify real edge drags, velocity/cancellation,
-   scroll arbitration, iOS Back gestures, Android Back, RTL, rotation and
-   safe-area layout. Qualify accessible open/close controls, focus entry/return,
-   background accessibility isolation, VoiceOver/TalkBack and reduced motion.
-   Handler dispatch alone does not pass OS-input criteria. Use nonvisual
-   evidence unless visual analysis is separately authorized.
-6. **Migration and guidance:** make the cutover a breaking Conventional Commit
-   and release note with exact new imports/install steps. Update docs, wrapper
-   comments, the primitives/known-limits skill references, mobile harness,
-   packed-consumer assumptions and relevant navigation-shell recipe coverage.
-   Check compatibility/upgrade manifests and starter tests; the current starter
-   manifest already omits both plugins, despite the old note saying otherwise.
-   Run affected packages/dependents typechecks through Turbo, focused packed
-   checks, `pnpm check:recipes`, and required release/package checks.
+export function ControlledDrawer() {
+	const [open, setOpen] = useState(false)
+	return <Drawer open={open} onOpenChange={setOpen} main={null} drawer={null} />
+}
+```
 
-Reserve native build/device resources for those follow-up phases. No release
-size benchmark is needed to choose the boundary; a bounded paired release
-build is appropriate only if quantitative savings become a release claim.
+### Upstream animation workaround
+
+ui-drawer v0.1.32's `open()` calls `animateToPosition()` without awaiting or
+returning it (`src/ui-drawer/index.ts:948–964` in the release tag). Source
+inspection proves the promise is not an animation-completion boundary. The
+leaf waits for `open`/`close` events, and its private subclass catches failures
+at `animateToPosition` to prevent fire-and-forget animation rejections. It
+reports those through `onError` (or console error when omitted). No upstream
+patch is carried. Reassess the workaround when upgrading: it can be removed
+when upstream propagates animation completion/failure from every call site.
+
+Duplicate searches on 2026-10-29 for `animateToPosition` and `open promise
+animation` found no focused completion/failure issue. The former returned
+[upstream #23](https://github.com/nativescript-community/ui-drawer/issues/23),
+which concerns Vue3 component registration. No external report was submitted.
+
+```tsx
+import { Drawer } from '@octane-xplat/drawer'
+
+export function CheckedDrawer() {
+	return <Drawer main={null} drawer={null} onError={(error) => console.error(error)} />
+}
+```
+
+### Verified native lifecycle
+
+The isolated iOS probe passed seven assertions on `skymac.local` using an
+iPhone 17 Pro simulator (iOS 26.2): host discovery, default opening, attached gesture handler, 280-dip
+panel width, main slot, native close, and the dismissal callback. The measured
+host/main were 320×480 dips and the panel 280×480. This is native layout and
+handler evidence; it does not qualify OS-input gestures or accessibility.
+The probe runner seeds gesturehandler directly, so this run does not establish
+clean transitive-only native plugin discovery. The mobile harness retains its
+independent gesturehandler declaration for Motion.
+
+The first runtime probe found that the host's initial layout could precede the
+panel's readiness: defaultOpen stayed closed despite later valid slot bounds.
+The wrapper now observes the panel's layout, defers its readiness check until
+that event's listeners complete, and gates opening on the plugin's isSideReady.
+The maintained mobile test covers initial opening after slot layout.
+
+### Focused verification
+
+- Drawer unit/component suites: ten passing tests across six native
+  binding tests and four web tests, including focus wrapping and queued
+  controlled-state acceptance. These use a fake native host and jsdom.
+- Existing UI state-role suite: 17 web tests passed after moving Drawer coverage.
+- Packed consumer: six declaration conditions passed; its web bundle excludes
+  mobile plugins, and source-built iOS/Android UI barrels exclude drawer
+  initialization with third-party native runtimes externalized.
+- Targeted typechecks passed for UI, Drawer and the creator; the demos' required
+  declaration generation passed. A complete dependent-app typecheck sweep was
+  not repeated after the user's request to limit heavy checks.
+- macOS on `skymac.local`: four AppKit probe assertions passed for mount,
+  panel presence, close and reopen through explicit controls. These dispatch
+  handlers; they do not establish OS input, appearance or accessibility parity.
+- GTK leaf on Linux/GJS 1.80.2 through `andromeda.local`: importing the
+  type-stripped GTK implementation succeeds without mobile dependencies and
+  rendering throws the documented unsupported error. No GTK panel is claimed.
+- Windows: export/declaration checks only; `ssh windy` confirmed tooling, but
+  another qualification run owned the device. Android: unverified at the
+  user's request. No release builds, images or release-size comparisons ran.
+
+Repository recipe checking remains blocked by the existing missing
+`motion-layout.tsrx` link in `motion-patterns.md`; the new `drawer` recipe has
+no reported structural/link error. Existing unrelated changelog/CSS/parity
+coverage failures were left unchanged. UI-barrel, compatibility and decision
+mirror checks passed (the latter retains existing warnings).
+
+### Remaining target qualification
+
+Source and unit checks do not prove real edge drags, velocity/cancellation,
+scroll arbitration, iOS Back-gesture coexistence, Android Back, RTL, rotation,
+safe-area layout, VoiceOver/TalkBack focus isolation or reduced-motion OS
+integration. The implementation currently uses a physical left edge, matching
+the former wrappers; logical RTL edge selection remains a limitation. Web and
+desktop have no edge recognizer. GTK4/GJS is not qualified by the Linux WebView
+entry. Do not relabel these limitations as OS-native appearance or full parity.
+
+Maintain packed consumer checks for the new package and unrelated UI platform
+barrels, mobile startup/layout checks, and the existing Drawer parity fixture
+in the owning leaf. Reserve build/device resources for native validation; no
+release-size delta is claimed. Initial npm stub/trusted-publisher setup remains
+a release prerequisite, not an authorized publication action in this task.
+
+Follow-up acceptance criteria:
+
+- A clean packed native consumer installs only the drawer package and its
+  renderer peers, prepares/builds/starts successfully, and resolves the pinned
+  gesturehandler version without an app-direct plugin declaration. Android
+  remains unverified until a device is available; preserve Opals' pins meanwhile.
+- Real mobile input opens from the edge, drags closed, cancels and settles at
+  velocity, and emits one state request per user transition. Check controlled
+  acceptance/rejection and scroll/system Back coexistence on each OS.
+- Native screen-reader navigation isolates the open panel and restores focus;
+  visible close controls work without gestures. Check OS reduced-motion,
+  rotation and safe-area behavior separately from synthetic handler tests.
+- Bootstrap the new npm package and trusted publisher before the first lockstep
+  release. No compatibility aliases restore the removed UI exports.
 
 Existing Silo feedback already records undeclared drawer declaration imports;
-GitHub issue searches for drawer/ui-drawer found no focused duplicate. This
-review records the additional initialization/appearance mismatch locally. No
-upstream issue was submitted: the confirmed defects belong to Xplat, and no
-external report was authorized. No runtime/public workflow changed in this
-review; recipe reconciliation and platform qualification remain acceptance
-criteria rather than claimed passes.
+the initial GitHub drawer/ui-drawer searches found no focused duplicate. The
+initial review recorded the additional initialization/appearance mismatch
+locally. No external issue was submitted. Recipe `drawer` owns the standalone
+contract; `navigation-shell` remains about AppShell/MobileNav, which do not
+import this component.

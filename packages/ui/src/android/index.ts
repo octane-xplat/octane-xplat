@@ -16,7 +16,6 @@ export { RecyclerView } from './RecyclerView.android.tsrx'
 export { BottomNavigationView } from './BottomNavigationView.android.tsrx'
 export { MaterialDialog } from './MaterialDialog.android.tsrx'
 export { openModal } from './openModal.android'
-export { DrawerLayout } from './DrawerLayout.android.tsrx'
 export { PlatformIcon } from './icon.android'
 export { modifier } from '../internal/layout/modifier-factories'
 
@@ -28,7 +27,6 @@ export type {
 	RecyclerViewHandle,
 	BottomNavigationViewProps,
 	MaterialDialogProps,
-	DrawerLayoutProps,
 	ModalHandle,
 	ModalOpenOptions,
 	ModalProps,

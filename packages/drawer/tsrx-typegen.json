@@ -1,0 +1,34 @@
+{
+	"targets": {
+		"drawer": {
+			"renderer": "@octane-xplat/jsx",
+			"project": "tsconfig.types.json",
+			"outDir": "types/generated",
+			"entrypoints": {
+				".": {
+					"source": "src/index.ts",
+					"runtime": [
+						"./src/index.ts",
+						"./src/index.web.ts",
+						"./src/index.macos.ts",
+						"./src/index.windows.ts",
+						"./src/index.gtk.ts"
+					],
+					"types": [
+						"./types/generated/index.d.ts",
+						"./types/generated/index.web.d.ts",
+						"./types/generated/index.macos.d.ts",
+						"./types/generated/index.windows.d.ts",
+						"./types/generated/index.gtk.d.ts"
+					]
+				}
+			}
+		}
+	},
+	"overrides": {
+		"index.d.ts": "types/overrides/index.d.ts",
+		"index.web.d.ts": "types/overrides/index.web.d.ts",
+		"index.macos.d.ts": "types/overrides/index.macos.d.ts",
+		"index.windows.d.ts": "types/overrides/index.windows.d.ts"
+	}
+}

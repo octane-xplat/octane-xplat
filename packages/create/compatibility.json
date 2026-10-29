@@ -27,6 +27,7 @@
 		"@octane-xplat/date-picker",
 		"@octane-xplat/desktop-webview",
 		"@octane-xplat/dnd-kit",
+		"@octane-xplat/drawer",
 		"@octane-xplat/effects",
 		"@octane-xplat/files",
 		"@octane-xplat/fingerprint",

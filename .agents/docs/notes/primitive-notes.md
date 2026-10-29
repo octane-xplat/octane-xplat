@@ -69,13 +69,24 @@ const proposedProps: PrimitiveProps = { className: 'card', ios: { opacity: 0.9 }
 
 ## Core inventory
 
+Drawer is now owned by `@octane-xplat/drawer` (#133), including mobile gestures;
+see the [drawer guide](../../../docs/app/drawer.md) for its shared API.
+
+```tsx
+import { Drawer } from '@octane-xplat/drawer'
+
+export function ExampleDrawer() {
+	return <Drawer defaultOpen main={null} drawer={null} />
+}
+```
+
 > **2026-10 taxonomy:** the shared surface is now "same props → same pixels".
-> `Switch`/`Slider`/`Spinner`/`Tabs`/`Drawer` are self-drawn;
+> `Switch`/`Slider`/`Spinner`/`Tabs` are self-drawn;
 > the OS-backed versions moved to `@octane-xplat/ui/{ios,android}` under
 > their OS names (`UISwitch`, `MaterialSwitch`, `UISlider`, `SeekBar`,
 > `UIActivityIndicatorView`, `CircularProgressIndicator`, `UITableView`,
 > `RecyclerView`, `UITabBar`, `BottomNavigationView`, `UIModal`,
-> `MaterialDialog`, `SideDrawer`, `DrawerLayout`, `LiquidGlass`/
+> `MaterialDialog`, `LiquidGlass`/
 > `LiquidGlassContainer`). `HoverCard`/`Tooltip` moved to the root barrel
 > (decision #69 — touch leaves pass through, pointer platforms own the hint
 > layer). Shared `List`,
@@ -418,7 +429,8 @@ that's within one root, so context survives; model it as slot props
 `<Drawer main={…} drawer={…}>`).
 
 ```tsx
-import { Drawer, Text } from '@octane-xplat/ui'
+import { Drawer } from '@octane-xplat/drawer'
+import { Text } from '@octane-xplat/ui'
 
 export function Example() {
 	return <Drawer main={<Text>Main content</Text>} drawer={<Text>Menu</Text>} open={false} />

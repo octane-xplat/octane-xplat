@@ -24,7 +24,6 @@ export { UITableView } from './UITableView.ios.tsrx'
 export { UITabBar } from './UITabBar.ios.tsrx'
 export { UIModal } from './UIModal.ios.tsrx'
 export { openModal } from './openModal.ios'
-export { SideDrawer } from './SideDrawer.ios.tsrx'
 export { LiquidGlass } from './LiquidGlass.ios.tsrx'
 export { LiquidGlassContainer } from './LiquidGlassContainer.ios.tsrx'
 export { PlatformIcon } from './icon.ios'
@@ -38,7 +37,6 @@ export type {
 	UITableViewHandle,
 	UITabBarProps,
 	UIModalProps,
-	SideDrawerProps,
 	LiquidGlassProps,
 	LiquidGlassContainerProps,
 	GlassConfig,

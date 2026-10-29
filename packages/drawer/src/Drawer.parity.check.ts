@@ -1,5 +1,5 @@
-import type { ParityCheck } from '../../parity/check-helpers.ts'
-import { near, dims } from '../../parity/check-helpers.ts'
+import type { ParityCheck } from '@octane-xplat/ui/parity/check-helpers'
+import { near, dims } from '@octane-xplat/ui/parity/check-helpers'
 
 export const CHECKS: ParityCheck[] = [
 	{

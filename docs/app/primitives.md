@@ -863,8 +863,6 @@ export function SavedTabs() {
 | `SeekBar`                   | unavailable                  | unavailable                                   | `slider` → SeekBar                     | `platform-authentic`  |
 | `UIActivityIndicatorView`   | unavailable                  | `activityindicator` → UIActivityIndicatorView | unavailable                            | `platform-authentic`  |
 | `CircularProgressIndicator` | unavailable                  | unavailable                                   | `activityindicator` → ProgressBar      | `platform-authentic`  |
-| `SideDrawer`                | unavailable                  | ui-drawer host view                           | unavailable                            | `platform-authentic`  |
-| `DrawerLayout`              | unavailable                  | unavailable                                   | ui-drawer host view                    | `platform-authentic`  |
 | `LiquidGlass`               | unavailable                  | NativeScript glass effect view                | unavailable                            | `platform-authentic`  |
 | `LiquidGlassContainer`      | unavailable                  | NativeScript glass effect view                | unavailable                            | `platform-authentic`  |
 
@@ -2604,6 +2602,9 @@ path has runtime evidence on macOS 27.0.1; decoding on macOS 13.5 remains
 unverified. An unsupported decoder produces an empty image. See the
 [AppKit SVG notes](../../.agents/docs/notes/icon-svg-notes.md) for evidence and limits, and the
 [icons leaf](../../packages/icons/README.md) for set-agnostic Iconify rendering.
+
+For a side drawer with mobile edge gestures, use the optional
+[Drawer package](drawer.md).
 
 
 ### Clear and continue typing on AppKit

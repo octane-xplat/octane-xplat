@@ -73,7 +73,6 @@ async function typecheck(packagePath, target, mode, exportMapIndex, peers = 'all
 				: [
 						'octane',
 						'@nativescript-community/octane',
-						'@nativescript-community/ui-drawer',
 						'@nativescript/core',
 						'@nativescript/types',
 					]

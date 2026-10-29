@@ -826,7 +826,6 @@ export { useGridFocus } from './components/collections/use-grid-focus'
 export type { GridFocusOptions, GridFocusResult } from './components/collections/use-grid-focus'
 export { SafeArea } from './components/layout/SafeArea'
 export { KeyboardAvoiding } from './components/layout/KeyboardAvoiding'
-export { Drawer } from './components/overlays/Drawer'
 export { useSafeAreaInsets } from './components/layout/safeAreaInsets'
 export type { SafeAreaInsets } from './components/layout/safeAreaInsets'
 export { useMeasure } from './components/layout/useMeasure'
@@ -1042,7 +1041,6 @@ export type {
 	TreeListProps,
 	EmptyStateProps,
 	SpinnerProps,
-	DrawerProps,
 	GridProps,
 	GridTrack,
 	GridTrackList,

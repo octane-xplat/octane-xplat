@@ -229,16 +229,17 @@ function packageEntry(packageRoot: string, condition: string) {
 	const manifestPath = join(packageRoot, 'package.json')
 	const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
 	const entry = manifest.exports?.['.']?.[condition]
-	if (typeof entry !== 'string') {
+	const runtime = typeof entry === 'string' ? entry : entry?.default
+	if (typeof runtime !== 'string') {
 		throw new Error(`${manifestPath}: expected a string "${condition}" export for "."`)
 	}
 
-	return join(packageRoot, entry)
+	return join(packageRoot, runtime)
 }
 
 const sharedRendererExports = exportNames(join(root, 'packages/ui/src/index.shared.ts'))
 
-for (const pkg of ['pager', 'video']) {
+for (const pkg of ['pager', 'video', 'drawer']) {
 	const packageRoot = join(root, `packages/${pkg}`)
 	const web = exportNames(packageEntry(packageRoot, 'web'))
 	const native = exportNames(packageEntry(packageRoot, 'native'))

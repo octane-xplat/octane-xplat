@@ -23,6 +23,7 @@
 		"@octane-xplat/canvas": "workspace:*",
 		"@octane-xplat/context-menu": "workspace:*",
 		"@octane-xplat/date-picker": "workspace:*",
+		"@octane-xplat/drawer": "workspace:*",
 		"@octane-xplat/effects": "workspace:*",
 		"@octane-xplat/files": "workspace:*",
 		"@octane-xplat/gif": "workspace:*",

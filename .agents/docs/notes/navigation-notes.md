@@ -203,7 +203,7 @@ pushRoute({ stack: 'root', name: 'detail', params: { id: 'coat' } })
 | `<Link to="/chat/3">`         | `<a href>`                                                      | `frame.navigate()` + params                                                |
 | `Stack` layout                | history stack                                                   | `frame` pages (real nav transitions)                                       |
 | `Tabs` layout                 | tab bar + outlet                                                | iOS `TabView`; Android fixed tab row + swapped pane                        |
-| `Drawer` layout               | slide-over panel                                                | `ui-drawer` w/ `hostSlot` mains/drawer                                     |
+| `Drawer` layout               | slide-over panel                                                | `@octane-xplat/drawer` (mobile ui-drawer engine; composed web/desktop panels)                                     |
 | `Modal` route                 | overlay route (URL preserved)                                   | `showModal` → **separate Octane root**                                     |
 | `useNavigate()`/`useParams()` | router hooks                                                    | facade over `Frame` API                                                    |
 | back                          | popstate                                                        | `frame.goBack()` + Android `activityBackPressed`                           |

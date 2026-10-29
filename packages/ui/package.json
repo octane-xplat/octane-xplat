@@ -233,7 +233,8 @@
 		"test:overlay-keyboard:android": "node ../../scripts/probe.ts run tests/fixtures/overlay-keyboard.android.tsrx --target android",
 		"test:overlay-keyboard:macos": "node ../../scripts/probe.ts run tests/fixtures/overlay-keyboard.macos.tsrx --deps @octane-xplat/sheet --target macos",
 		"build": "tsc -p tsconfig.node.json",
-		"test:intl": "node --test tests/intl-bundle.test.mjs"
+		"test:intl": "node --test tests/intl-bundle.test.mjs",
+		"typecheck": "tsrx-tsc --noEmit -p tsconfig.types.json"
 	},
 	"dependencies": {
 		"@octane-xplat/camera": "workspace:*",
@@ -243,7 +244,6 @@
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "catalog:",
-		"@nativescript-community/ui-drawer": "0.1.32",
 		"@nativescript/core": "catalog:",
 		"@nativescript/types": "catalog:",
 		"@octane-xplat/macos-renderer": "workspace:*",

@@ -15,7 +15,6 @@ import { TextInput } from '../../components/forms/TextInput.tsrx'
 import { Switch } from '../../components/forms/Switch.tsrx'
 import { Checkbox } from '../../components/forms/Checkbox.tsrx'
 import { RadioGroup } from '../../components/forms/RadioGroup.tsrx'
-import { Drawer } from '../../components/overlays/Drawer.tsrx'
 
 function setup() {
 	const container = createObjectContainer('nativescript')
@@ -154,20 +153,6 @@ describe('native choices', () => {
 		container.dispatchEvent(group.children[0], 'tap', {})
 		expect(change).toHaveBeenLastCalledWith('a')
 		expect(String(group.children[0].props.className)).not.toContain('vx-radio--on')
-		root.unmount()
-	})
-})
-
-describe('native overlay surfaces', () => {
-	it('Drawer seeds defaultOpen and closes itself on backdrop tap', () => {
-		const { container, root } = setup()
-		const dismiss = vi.fn()
-		root.render(Drawer, { defaultOpen: true, onDismiss: dismiss, main: 'Main', drawer: 'Drawer' })
-		const host = container.children[0]
-		expect(host.children.length).toBe(3)
-		container.dispatchEvent(host.children[1], 'tap', {})
-		expect(dismiss).toHaveBeenCalled()
-		expect(host.children.length).toBe(1)
 		root.unmount()
 	})
 })

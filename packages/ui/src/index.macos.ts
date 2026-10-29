@@ -296,7 +296,6 @@ export { Empty as EmptyState } from './components/feedback/Empty.macos.tsrx'
 export { Banner } from './components/feedback/Banner.macos.tsrx'
 export { User } from './components/content/User.macos.tsrx'
 export { ProgressGroup } from './components/feedback/ProgressGroup.macos.tsrx'
-export { Drawer } from './components/overlays/Drawer.macos.tsrx'
 
 export { HoverCard } from './components/overlays/HoverCard.tsrx'
 export { useHoverCard } from './components/overlays/use-hover-card.tsrx'

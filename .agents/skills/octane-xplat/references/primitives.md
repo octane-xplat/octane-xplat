@@ -122,7 +122,7 @@ visual components stay at the root.
 Check the [normalization contract](../../../../docs/start/architecture.md#normalization-classes)
 when deciding which appearance and behavior must match across targets.
 
-`Switch`, `Slider`, `Spinner`, `Tabs`, `Drawer`, and the color suite
+`Switch`, `Slider`, `Spinner`, `Tabs`, and the color suite
 (`ColorPicker`, `ColorArea`, `ColorSlider`, `ColorSwatch`, `ColorField`) are
 self-drawn shared components: their shared props produce the same component
 design across targets, rather than exposing OS chrome. Color parts report
@@ -133,14 +133,17 @@ increment/decrement on iOS, Android and AppKit (hue 10°, brightness 5%);
 AppKit keyboard/VoiceOver delivery is unqualified. `Slider` follows pan
 deltas and does not jump to a tapped track position. On web it is a Tab stop:
 Arrow keys change 1% of its range, and Home/End choose the bounds. Pair
-`value` with `onValueChange` to display the change. `Drawer` has no edge-swipe
-gesture on web; provide a visible toggle. `TextInput`, `TextArea`, and
+`value` with `onValueChange` to display the change. `Drawer` lives in the optional `@octane-xplat/drawer` package and includes
+edge opening and drag dismissal on mobile. Pair controlled `open` with
+`onOpenChange`; web/desktop require explicit controls. Read the
+[drawer guide](../../../../docs/app/drawer.md) when adding or migrating one. `TextInput`, `TextArea`, and
 `ScrollableArea` remain OS-backed with normalized chrome because text editing and
 scroll behavior belong to the platform.
 
 ```tsx
 import { useState } from 'octane'
-import { Drawer, Switch, Slider, Spinner, TextInput } from '@octane-xplat/ui'
+import { Switch, Slider, Spinner, TextInput } from '@octane-xplat/ui'
+import { Drawer } from '@octane-xplat/drawer'
 
 export function Controls() {
 	const [packed, setPacked] = useState(false)

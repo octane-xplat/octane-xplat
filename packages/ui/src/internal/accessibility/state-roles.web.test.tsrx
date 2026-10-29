@@ -8,7 +8,6 @@ import { Switch } from '../../components/forms/Switch.web.tsrx'
 import { Checkbox } from '../../components/forms/Checkbox.web.tsrx'
 import { RadioGroup } from '../../components/forms/RadioGroup.web.tsrx'
 import { Overlay } from '../../components/overlays/Overlay.web.tsrx'
-import { Drawer } from '../../components/overlays/Drawer.web.tsrx'
 import { Popover } from '../../components/overlays/Popover.web.tsrx'
 import { BottomSheet, BottomSheetSwitcher } from '../../components/overlays/BottomSheet.web.tsrx'
 import { Dialog } from '../../components/overlays/Dialog.web.tsrx'
@@ -165,15 +164,6 @@ describe('overlays', () => {
 		click(document.querySelector('.vx-overlay-shade')!)
 		expect(dismiss).toHaveBeenCalled()
 		expect(document.querySelector('.vx-overlay-content')).not.toBeNull()
-	})
-
-	it('Drawer seeds defaultOpen and closes itself on backdrop tap', () => {
-		const dismiss = vi.fn()
-		mount(Drawer, { defaultOpen: true, onDismiss: dismiss, main: 'Main', drawer: 'Drawer' })
-		expect(document.querySelector('.vx-drawer-panel')).not.toBeNull()
-		click(document.querySelector('.vx-drawer-backdrop')!)
-		expect(dismiss).toHaveBeenCalled()
-		expect(document.querySelector('.vx-drawer-panel')).toBeNull()
 	})
 
 	it('Popover seeds defaultOpen with an anchor and dismisses on outside tap', () => {

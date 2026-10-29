@@ -398,8 +398,6 @@ try {
 			for (const name of [
 				'@octane-xplat/effects',
 				'@octane-xplat/image',
-				'@nativescript-community/gesturehandler',
-				'@nativescript-community/ui-drawer',
 				'@nativescript/unit-test-runner',
 				'@nativescript/macos-node-api',
 			]) {

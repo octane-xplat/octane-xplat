@@ -96,7 +96,7 @@ engine-specific features remain missing; see [AppKit image loading](../app/compo
 ## Where the real OS widgets live
 
 The shared UI surface aims for consistent behavior on its supported targets — self-drawn
-controls (`Switch`, `Slider`, `Spinner`, `Tabs`, `Drawer`, `BottomSheet`,
+controls (`Switch`, `Slider`, `Spinner`, `Tabs`, `BottomSheet`,
 `Dialog`, `AlertDialog`), chrome-reset OS controls (`TextInput`, `TextArea`,
 `SearchInput`), and hosted surfaces (`WebView`, `Video`, `CameraView`)
 whose parity claim stops at the frame plus self-drawn chrome. The
@@ -118,7 +118,6 @@ export function PackedToggle(props: { packed: boolean; onChange: (value: boolean
 | Recycled list                          | `ScrollableArea` + `@for`                                                          | `UITableView` (`ui/ios`)                                         | `RecyclerView` (`ui/android`)                                                       |
 | Shared modal surface                   | `Dialog`, `AlertDialog`, `BottomSheet`                                             | shared self-drawn surfaces                                       | shared self-drawn surfaces                                                          |
 | Platform modal dialog                  | —                                                                                  | `UIModal` / `openModal` (`ui/ios`)                               | `MaterialDialog` / `openModal` (`ui/android`)                                       |
-| Edge-swipe drawer                      | `Drawer` (self-drawn, no edge swipe)                                               | `SideDrawer` (`ui/ios`)                                          | `DrawerLayout` (`ui/android`)                                                       |
 | OS switch / slider / spinner / tab bar | shared self-drawn set                                                              | `UISwitch` / `UISlider` / `UIActivityIndicatorView` / `UITabBar` | `MaterialSwitch` / `SeekBar` / `CircularProgressIndicator` / `BottomNavigationView` |
 | Hover interactions                     | `HoverCard`, `Tooltip` (shared; macOS HoverCard = in-window layer via host bridge) | `HoverCard` opens on tap; `Tooltip` passes through               | `HoverCard` opens on tap; `Tooltip` passes through                                  |
 | Liquid glass                           | —                                                                                  | `LiquidGlass` / `LiquidGlassContainer` (`ui/ios`)                | —                                                                                   |
@@ -867,3 +866,6 @@ export function Toolbar() {
 	)
 }
 ```
+
+Drawer is an optional package with one API and mobile gestures; see the
+[drawer setup and migration guide](../app/drawer.md).

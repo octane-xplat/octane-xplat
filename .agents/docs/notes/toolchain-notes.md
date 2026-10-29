@@ -150,27 +150,23 @@ target; apps that import those subpaths declare their plugins directly. Missing
 required peer declarations are warnings, not a hard failure, because some
 native capabilities are optional.
 
-The current starter does not declare `ui-drawer` or `gesturehandler`; svg
-support is vendored inside
-`@octane-xplat/ui` (`src/vendor/ui-svg` submodule — decision #62). It does not seed
-every platform service
-plugin: apps should add the
-plugins for the services they import, and `doctor` names the missing package.
-The shared `Drawer` is self-drawn. The optional iOS `SideDrawer` and Android
-`DrawerLayout` widgets live in `@octane-xplat/ui/ios` and
-`@octane-xplat/ui/android`; those platform subpaths use `ui-drawer`. The mobile
-harness imports these subpaths, while the Windows harness does not, so only the
-mobile app declares `ui-drawer` and `gesturehandler`.
-`gesturehandler` native code is required with `ui-drawer`: its iOS code reads the
-`GestureHandlerDelegate` ObjC protocol at module load, and that protocol exists
-only when the plugin's `platforms/ios` sources are compiled. NativeScript CLI
-9.1.1 traverses transitive runtime dependencies, so this does not inherently
-require a top-level app declaration. Removing an existing app-direct pin still
-requires clean native preparation/build/startup and version-resolution checks.
-The platform barrels also reach the drawer wrappers when unrelated widgets
-are imported; feature-level optionality is not enforced by those barrels.
-See the [native drawer review](../native-drawer.md) for verified boundaries,
-the provisional leaf-package recommendation, and follow-up acceptance criteria.
+The starter does not declare drawer plugins. `@octane-xplat/drawer` owns
+ui-drawer and its aligned gesturehandler dependency; unrelated UI platform
+widgets have no drawer import edge. Its mobile implementation provides edge
+opening and drag dismissal through the same Drawer API used on web/desktop.
+
+```tsx
+import { Drawer } from '@octane-xplat/drawer'
+
+export function Example() {
+	return <Drawer defaultOpen main={null} drawer={null} />
+}
+```
+
+NativeScript CLI 9.1.1 traverses transitive runtime dependencies. The iOS
+`GestureHandlerDelegate` protocol must be compiled, but that does not inherently
+require an app-direct declaration. See the [drawer implementation evidence](../native-drawer.md)
+for source evidence, qualification, and the historical barrel-coupling review.
 
 ### Editor diagnostics and typecheck authority
 

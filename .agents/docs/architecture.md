@@ -40,7 +40,7 @@ carried on the package (#62).
 8. Shared `@octane-xplat/ui` delivers same props → same pixels. Every
    shared component carries a normalization class (see
    `docs/start/architecture.md`): `self-drawn` (`Switch`, `Slider`,
-   `ActivityIndicator`, `Tabs`, `Drawer`, `SegmentedControl`),
+   `ActivityIndicator`, `Tabs`, `SegmentedControl`),
    `chrome-reset` OS controls (`TextInput`, `TextArea`, `ScrollView`,
    `SearchInput`), or `hosted` OS surfaces (`WebView`, `Video`,
    `CameraView`) where the parity claim covers the frame plus whatever
@@ -48,7 +48,7 @@ carried on the package (#62).
    widgets live behind `@octane-xplat/ui/{ios,android,web}` under OS
    names (`UISwitch`, `MaterialSwitch`, `UITableView`, `RecyclerView`,
    `UIModal`, `MaterialDialog`, `UITabBar`, `BottomNavigationView`,
-   `SideDrawer`, `DrawerLayout`, `LiquidGlass`, `Hoverable`) — each
+   `LiquidGlass`, `Hoverable`) — each
    subpath resolves only on its platform, and
    `xplat/platform-subpath-import` requires a matching file suffix. An
    idiom may ship in two classes at once (shared `refreshing`/`onRefresh`
@@ -64,3 +64,6 @@ carried on the package (#62).
    types. Keep shared prop types in `props.ts`; platform differences belong
    in the implementation, not in the exported contract. For intentional
    pass-through behavior, follow the criteria in `docs/start/architecture.md`.
+
+Drawer is owned by `@octane-xplat/drawer` (#133), including its mobile gesture
+plugin dependency. UI must not re-export it or depend on the drawer leaf.

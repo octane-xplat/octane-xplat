@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import { Drawer } from '@octane-xplat/drawer'
 import { useState } from 'octane'
 import {
-	Drawer,
 	Pressable,
 	HStack,
 	SafeArea,
@@ -41,7 +41,7 @@ export function DeviceDemo() @{
 				</HStack>
 				<Drawer
 					open={drawerOpen}
-					onDismiss={() => setDrawerOpen(false)}
+					onOpenChange={setDrawerOpen}
 					className="device-drawer"
 					main={
 						<View className="device-drawer-main">
@@ -51,6 +51,9 @@ export function DeviceDemo() @{
 					drawer={
 						<View className="device-drawer-content">
 							<Text>Drawer panel</Text>
+							<Pressable className="btn btn-secondary" onPress={() => setDrawerOpen(false)}>
+								<Text>Close drawer</Text>
+							</Pressable>
 						</View>
 					}
 				/>

@@ -1,0 +1,35 @@
+@layer components {
+	.vx-drawer-panel {
+		width: 280px;
+		background-color: var(--color-surface, #ffffff);
+	}
+	.vx-drawer-backdrop {
+		background-color: rgba(0, 0, 0, 0.4);
+	}
+	/* xplat-web-only:start */
+	.vx-drawer {
+		display: flex;
+		flex-direction: row;
+		position: relative;
+		overflow: hidden;
+	}
+	.vx-drawer-main {
+		display: flex;
+		flex: 1;
+		min-width: 0;
+	}
+	.vx-drawer-backdrop {
+		position: absolute;
+		inset: 0;
+	}
+	.vx-drawer-panel {
+		position: absolute;
+		z-index: 1;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		overflow: auto;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+	}
+	/* xplat-web-only:end */
+}

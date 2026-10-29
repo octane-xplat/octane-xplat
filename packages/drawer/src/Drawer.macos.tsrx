@@ -1,14 +1,10 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { mergeStyle } from '../../internal/layout/style-merge'
+import { mergeStyle } from './style-merge'
 import { useState } from 'octane'
-import type { DrawerProps } from '../../props'
+import type { DrawerProps } from './props'
 import { cx } from '@octane-xplat/lib'
-import { applyEscapeProps } from './escape-props'
 
-/** Self-drawn drawer — grid host: `main` fills the cell, backdrop + left
- *  panel overlay it while `open`. Identical pixels/behavior across targets
- *  (backdrop tap fires `onDismiss` on both). The edge-gesture plugin widget
- *  lives in `ui/android` (DrawerLayout) and `ui/ios` (SideDrawer). */
+/** Composed desktop/web Drawer. Mobile uses the same props with native edge gestures. */
 export function Drawer(props: DrawerProps) @{
 	const [internal, setInternal] = useState(props.defaultOpen ?? false)
 	const open = props.open ?? internal
@@ -17,12 +13,13 @@ export function Drawer(props: DrawerProps) @{
 			setInternal(false)
 		}
 
+		props.onOpenChange?.(false)
 		props.onDismiss?.()
 	}
 
 	<masonview
 		id={props.id}
-		ref={(v: any) => applyEscapeProps(v, props)}
+
 		className={cx('vx-drawer', 'vx-drawer--appkit', props.className)}
 		style={mergeStyle({ display: 'grid' }, props.style)}
 	>
@@ -42,7 +39,7 @@ export function Drawer(props: DrawerProps) @{
 				className="vx-drawer-panel"
 				style={mergeStyle(
 					{ display: 'flex' },
-					{ width: 280, backgroundColor: '#ffffff', justifySelf: 'start' },
+					{ width: props.width ?? 280, backgroundColor: '#ffffff', justifySelf: 'start' },
 				)}
 			>
 				{props.drawer}

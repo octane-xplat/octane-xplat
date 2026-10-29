@@ -134,6 +134,8 @@ Workflows:
 
 - [Consume an incremental HTTP response](incremental-http.md)
 
+- [Add a side drawer](drawer.md)
+
 ## Authoring contract
 
 Use one Markdown file per outcome, with these fields and sections:

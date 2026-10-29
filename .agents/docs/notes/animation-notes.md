@@ -183,9 +183,9 @@ on iOS (the shared `UIGestureRecognizerDelegate` already supports
 and `CustomPanGestureDetector` on Android, which starts tracking on the first
 `ACTION_MOVE` — no touch slop — and nothing calls
 `requestDisallowInterceptTouchEvent`, so pan inside `ScrollView` is currently
-unhandled. `@nativescript-community/gesturehandler` is an app dependency for
-the native `ui-drawer` widgets; `@octane-xplat/ui` does not declare it as a
-peer. It ports RNGH semantics
+unhandled. `@nativescript-community/gesturehandler` is owned by the optional
+`@octane-xplat/drawer` package for mobile drawers; `@octane-xplat/ui` does not
+declare it as a peer. It ports RNGH semantics
 (`Manager`, `PanGestureHandler` with `minDist`/`activeOffset*`/`failOffset*`,
 `NativeViewGestureHandler` with `shouldActivateOnStart`/`disallowInterruption`).
 Adopting it for the gesture surface replaces building arbitration on raw NS

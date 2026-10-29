@@ -1489,7 +1489,7 @@ export function Example() {
 
 | Component                 | What it is                                        | Key props                                                      |
 | ------------------------- | ------------------------------------------------- | -------------------------------------------------------------- |
-| `Overlay`                 | Content above the screen                          | `open`, `defaultOpen`, `onDismiss`, `shadeCover`, `isModal`    |
+| `Overlay`                 | Content above the screen                          | `open`, `defaultOpen`, `onOpenChange`, `onDismiss`, `shadeCover`, `isModal`    |
 | `Popover`                 | Anchored floating content                         | `anchor`, `open`, `defaultOpen`, `placement`, `onDismiss`      |
 | `useLayer`                | Anchored/fixed overlay primitive (hook)           | `mode`, `ref`, `show`, `hide`, `isOpen`, `render`              |
 | `Tooltip`                 | Pointer hover hint                                | `trigger`, `content`, `openDelay`                              |
@@ -1501,7 +1501,7 @@ export function Example() {
 | `Carousel`                | Horizontally scrolling child slides               | `children`, `gap`, `hasButtons`, `hasSnap`, `ref`              |
 | `Lightbox`                | Fullscreen image or video gallery                 | `media`, `isOpen`, `index`, `onIndexChange`                    |
 | `Toast` / `ToastViewport` | Transient notification card and stack             | `showToast`, `useToast`, `position`, `maxVisible`              |
-| `Drawer`                  | Edge drawer                                       | `main`, `drawer`, `open`, `defaultOpen`, `onDismiss`           |
+| `Drawer` (`@octane-xplat/drawer`) | Edge drawer                                       | `main`, `drawer`, `open`, `defaultOpen`, `onOpenChange`, `onDismiss`           |
 
 Use `Dialog` for optional or informational modal content and `AlertDialog` when
 the user must choose an action. `BottomSheet` is the shared in-window surface;
@@ -1734,6 +1734,9 @@ export function FileActions() {
   )
 }
 ```
+
+[Install or migrate Drawer](drawer.md) for mobile edge gestures and the shared
+web/desktop panel API.
 
 
 ### AppKit button actions and links

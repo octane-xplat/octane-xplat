@@ -2130,38 +2130,6 @@ export interface UseKeyboardInsetOptions {
 	enabled?: boolean
 }
 
-/** Slide-over drawer (self-drawn). `main`/`drawer` are the two surfaces; `open`+`onDismiss` control visibility (`defaultOpen` for uncontrolled), and a backdrop tap fires `onDismiss`. For OS-authentic drawers use `SideDrawer` (`ui/ios`) or `DrawerLayout` (`ui/android`).
- *
- * @example
- * ```tsx
- * import { Drawer, NavigationMenu, View } from '@octane-xplat/ui'
- *
- * <Drawer open={open} onDismiss={() => setOpen(false)} main={<View />} drawer={<NavigationMenu items={navItems} />} />
- * ```
- */
-export interface DrawerProps {
-	className?: ClassValue
-	style?: StyleProp
-	id?: string
-	main?: Renderable
-	drawer?: Renderable
-	/** Controlled visibility — pair with `onDismiss`. */
-	open?: boolean
-	/** Initial visibility for uncontrolled use; `open` wins when both are
-	 *  set. Uncontrolled dismissal closes the drawer itself. */
-	defaultOpen?: boolean
-	/** Backdrop tap — the self-drawn leaf fires it on both platforms. */
-	onDismiss?: () => void
-	ios?: PlatformProps
-	android?: PlatformProps
-	web?: PlatformProps
-}
-
-/** Props accepted by `SideDrawer` (`@octane-xplat/ui/ios`). */
-export type SideDrawerProps = PlatformWidgetProps<DrawerProps>
-/** Props accepted by `DrawerLayout` (`@octane-xplat/ui/android`). */
-export type DrawerLayoutProps = PlatformWidgetProps<DrawerProps>
-
 /** Shared self-drawn switch — identical pixels on every target (the `Switch` parity class). Controlled `value`+`onChange`, or uncontrolled `defaultValue`; field vocabulary (`label`, `status`, `isDisabled`) via `FieldControlProps`. For the OS widget use `UISwitch`/`MaterialSwitch`.
  *
  * @example
