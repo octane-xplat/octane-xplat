@@ -2071,3 +2071,118 @@ undefined; no install or global configuration change was made to repair this
 metadata warning. verifyDepsBeforeRun=warn remained asserted. A read-only final
 audit reconfirmed the installed Core filesystem SHA256ef4e9080… and zero owned
 app processes. Environment metadata reproducibility remains a recorded limitation.
+
+## Windows Switch engine and shared-component candidate
+
+Demand remains common forms: ControlsDemo and Test use Switch. The existing
+self-drawn native track handles taps but has no native keyboard/TogglePattern
+input. No shared audit snapshot or broad issue checkbox was changed.
+
+A preliminary file-stream cleanup probe could not qualify deterministic
+closure. The runtime exposes neither input.Close nor IClosable.prototype.Close;
+an exclusive .NET open also succeeded before any attempted closure, despite
+retaining the native input proxy. That oracle therefore did not demonstrate a
+live handle conflict. No handle-leak claim, unsafe pointer workaround or new
+files implementation was added. Log: research/windows61/windy-native-stream-close.log.
+
+The temporary WinUI ToggleButton probe initially failed because IsChecked is
+projected as an IReference<Boolean> object, rather than a JS Boolean. V12
+passed two groups and failed five; boot mvt0dexj records the actual typeof and
+projection name. V13 uses Checked/Unchecked event identity and a transparent
+ControlTemplate. Its native graph passed38/38tasks,34cached,4m26.598s,exit0.
+Standalone Windows checker emitted no diagnostics; delegated checker retained
+12diagnostics in11otherfiles and the existing three MSBuild warnings.
+
+The first v13 OS run passed five groups and failed two pointer assertions due
+to a PowerShell5 scalar-count error in the driver. The same package, with array
+counts corrected, passed7/7groups, boot mvt0pq8u, exit0: four TogglePattern peers
+with enabled/focusable states, physical pointer/Space/automation activation,
+accepted/rejected controlled requests, readonly rejection and disabled
+focus/automation rejection. This qualifies the bounded native engine, not the
+shared Switch component. Failed runs remain retained. Logs:
+research/windows61/windy-native-v13-toggle.log,
+windy-v13-native-exit.json, windy-v13-typecheck.log,
+windy-v12-toggle-os-results.json, windy-v13-toggle-os-results.json,
+windy-os-toggle-engine-v13-retry.log and windy-v13-toggle-retry-os-results.json.
+
+The Windows-only shared candidate retains the shared track/thumb and adds a
+transparent native input. Its controller guards programmatic echoes, blocks
+readonly/model-disabled/native-disabled requests, reads callback replacements,
+and unbinds stale native handlers while preserving the callback on native
+recreation. Nine focused VM contracts passed through one uncached Turbo task
+in2.683s, exit0. They are included in the maintained test:native list. This is
+source-contract evidence, not OS interaction evidence. Log:
+research/windows61/windy-toggle-source-contracts-detail.log.
+
+V14 built38/38tasks,28cached,6m6.395s,exit0, with the same checker/warning
+boundaries. Native component setup failed: the unlabelled Switch input was
+missing. The owned UIA diagnostic found only the labelled async input, with
+empty/offscreen bounds. Bundle inspection confirmed the correct Windows leaf,
+private input registration and CSS were packaged. It also showed the candidate's
+bare {track} TSRX else branch compiled to an empty range. Per the TSRX skill,
+that branch now ends in an explicit JSX fragment. This was a candidate authoring
+error, not an upstream compiler defect.
+
+The cached MasonKit1.0.0-beta.126 foreign-layout source explains a second
+prerequisite: Windows leaves width/height to XAML and mirrors position/insets
+into Mason. The candidate's percentage dimensions are replaced by all four
+edge insets. V15 is running to test the actual resulting geometry; no native
+layout repair or shared-component pass is claimed yet. Retained records:
+research/windows61/windy-native-v14-shared-switch.log,
+windy-v14-native-exit.json, windy-v14-typecheck.log,
+windy-v14-shared-os-results.json,
+windy-os-shared-switch-v14-diagnostic.log and
+windy-v14-shared-diagnostic-os-results.json.
+
+Targeted lint, formatter and whitespace checks pass. pnpm check:recipes passes;
+no recipe target was promoted. The new documentation commands are absent in
+this isolated revision: pnpm check:docs and pnpm check:doc-examples both exit1
+with command-not-found. A syntax-only supplement imported the shared checkout's
+checker functions and parsed26fences in the two changed guides. An existing
+adjacent-JSX typography example in the touched skill reference was wrapped in
+a fragment so it parses. This is not import/type/runtime or full documentation
+qualification. Public setup and skill guidance retain candidate boundaries.
+
+Remaining broad gates and exact commands stay deferred:
+
+```sh
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm exec turbo run test:native --filter=@octane-xplat/ui
+pnpm exec turbo run test:packed --filter=@octane-xplat/ui
+pnpm check:docs
+pnpm check:doc-examples
+```
+
+The latter two require the repository revision that supplies those scripts.
+V15 uses the already-authorized bounded graph and owned Windows app/input
+workflow; no unrelated dependency installation, native binary rebuild, visual
+analysis, push or merge is authorized or implied. Source is an uncommitted
+candidate until its remaining integration problem is resolved.
+
+### V15 keeps layout and rollback gates open
+
+V15 graph passed38/38tasks,28cached,6m11.902s,exit0. The standalone checker
+emitted no diagnostics; delegated/checker warnings are unchanged. Bootmvt1kr6s
+failed eight of ten shared groups. The fragment repair exposed all controls
+and physical Tab order passed, including readonly focus and disabled exclusion.
+Readonly/disabled rejection also passed. All input bounds remained empty,
+so pointer tests failed their required on-screen guard. Failures after an
+aborted pointer group are not evidence of extra model callbacks; the prop-write
+scenario now snapshots its own count and establishes its own checked setup.
+
+The same v15 binary ran an independent state diagnostic, bootmvt1sz58:
+physical Space accepted true, UIA toggle accepted false, and programmatic
+controlled reset passed without a callback echo. Label activation produced
+exactly true then false callbacks and one action, but the native async peer
+remained checked. That last group failed. Callback dispatch alone therefore
+does not establish rollback. NativeScript's cached Property source defaults
+to the declared false value when no getDefault method exists; an unverified
+getDefault workaround was not added.
+
+Records: research/windows61/windy-v15-shared-os-results.json,
+windy-v15-shared-current-boot-console.log,
+windy-os-shared-switch-v15-state.log and windy-v15-state-os-results.json.
+V16 adds a Mason overlay container with the plain native control as a flex
+child, plus temporary core/native layout/model snapshots and three layout
+probe variants. Its graph is running. These are candidates, not a claimed
+layout or rollback repair. No implementation commit is made while unresolved.
