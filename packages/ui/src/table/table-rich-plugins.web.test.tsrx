@@ -2,7 +2,7 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, createRoot, useState } from 'octane'
-import { Table } from '../Table.web.tsrx'
+import { Table } from './Table.web.tsrx'
 import { useTableGroupedRows } from './use-table-grouped-rows'
 import { useTableRowIndex } from './use-table-row-index'
 import { useTableRowStatus } from './use-table-row-status'

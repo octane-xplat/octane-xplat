@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import {Text} from '../../../packages/ui/src/Text.tsrx'
+import {Text} from '../../../packages/ui/src/components/content/Text.tsrx'
 import {isAndroid,isIOS} from '@nativescript/core'
 import {signal$} from 'octane/signals'
 import type {ProbeContext} from '../../../scripts/probe/context'

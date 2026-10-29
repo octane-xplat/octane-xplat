@@ -2,7 +2,7 @@
 // Parity comparator — reads measured dumps from parity-report/<target>.json
 // (written by apps/web/scripts/parity.ts, the native sweep step, ...) and
 // evaluates the per-component check modules co-located with the fixtures:
-// packages/<pkg>/src/<Component>.parity.check.ts. Each module exports a
+// packages/<pkg>/src/**/<Component>.parity.check.ts. Each module exports a
 // CHECKS array of per-target invariants plus cross-target `equal` facets.
 //
 //   pnpm parity            → require web, iOS, and Android; evaluate every dump present

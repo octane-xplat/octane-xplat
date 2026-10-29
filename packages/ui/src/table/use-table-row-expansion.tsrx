@@ -8,7 +8,7 @@ import { useRef } from 'octane'
 import type { TablePlugin, BodyRowRenderProps, UseTableRowExpansionConfig } from './types'
 import type { Renderable, TableColumn } from '../props'
 import { pixel } from './column-utils'
-import { Icon } from '../Icon'
+import { Icon } from '../components/media/Icon'
 import { TableSlot, tableSlot } from './table-slot'
 
 const EXPANSION_COLUMN_WIDTH = pixel(40)

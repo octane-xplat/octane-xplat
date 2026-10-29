@@ -123,7 +123,7 @@ database, a content directory, or a host framework's own route model.
 
 - AC5: [Parent group preparation](../../../docs/app/navigation.md#prepare-a-group-of-routes), [Flow-owned loading and recovery](../../../docs/app/navigation.md#handle-pending-work-and-failures), [Loader and presentation behavior](../../../docs/app/navigation.md#present-a-route-modally)
   and [guard behavior](../../../docs/app/navigation.md#guard-a-route-and-supply-context).
-  Regression example: `packages/ui/src/router-instance.test.ts` and `browser-router-host.web.test.tsrx`.
+  Regression example: `packages/ui/src/routing/router-instance.test.ts` and `browser-router-host.web.test.tsrx`.
 - AC6: [Default client scope](../../../docs/app/navigation.md#what-the-route-generator-writes)
   and [owned runtime registrations](../../../docs/app/navigation.md#own-runtime-registrations),
   plus [checked object destinations](../../../docs/app/navigation.md#validate-a-destination-from-data).
@@ -133,7 +133,7 @@ database, a content directory, or a host framework's own route model.
   source repairs; shared workspace routes have one package-owned watcher.
   Output relocation and arbitrary filesystem reads require the explicit workflow
   in the guide. Runtime hot reload remains separate from generated-file evidence.
-  Maintained protocol fixtures: `packages/ui/src/route-registry.test.ts`,
+  Maintained protocol fixtures: `packages/ui/src/routing/route-registry.test.ts`,
   `router-instance.test.ts`, and `routing-package.test.ts`. These establish
   core behavior and consumer types, not platform host integration.
 

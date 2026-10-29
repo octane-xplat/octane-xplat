@@ -405,7 +405,7 @@ export function ClearAndMove() {
 }
 ```
 
-Ten [object-driver cases](../../packages/ui/src/text-entry-ownership.macos.mobile.test.tsrx)
+Ten [object-driver cases](../../packages/ui/src/components/forms/text-entry-ownership.macos.mobile.test.tsrx)
 and a [manual fixture](../../examples/probes/text-entry-ownership.macos.tsrx) are
 authored, all unrun. These source guards do not prove actual native editing,
 IME, caret/selection, Return/clear hit-testing, focus/notification ordering,

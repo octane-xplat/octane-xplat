@@ -9,7 +9,7 @@ import {
 	FocusedInputController,
 } from '../../src/index'
 
-import { measureKeyboardHost } from '../../../ui/src/keyboard-host-bounds'
+import { measureKeyboardHost } from '../../../ui/src/internal/keyboard/keyboard-host-bounds'
 import type { ProbeContext } from '../../../../scripts/probe/context'
 let show = (_open: boolean) => {}
 export default function OsInputJourney() @{

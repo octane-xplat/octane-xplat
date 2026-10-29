@@ -5,9 +5,9 @@ export {
 	defineRouteGroup,
 	withSearchDecoder,
 	RouteSearchValidationError,
-} from '../define-route'
+} from './define-route'
 
-export { defineTransitions } from '../route-transitions'
+export { defineTransitions } from './route-transitions'
 export {
 	defineRoutes,
 	defineRuntimeRoutes,
@@ -16,7 +16,7 @@ export {
 	mergeRouteManifests,
 	manifestToJson,
 	RouteManifestError,
-} from '../route-table'
+} from './route-table'
 
 export {
 	createRoutePreparation,
@@ -24,7 +24,7 @@ export {
 	redirect,
 	RouteForbidden,
 	RouteResourceNotFound,
-} from '../routing-core'
+} from './routing-core'
 
 export type {
 	AbsoluteRoutePath,
@@ -115,11 +115,11 @@ export type {
 	NativeTransitionDefinition,
 } from '../props'
 
-export { createRouter } from '../router-instance'
+export { createRouter } from './router-instance'
 
-export { RouteRegistrationError } from '../route-registry'
+export { RouteRegistrationError } from './route-registry'
 
 /** @internal Generated contract boundary; application routes use defineRoute. */
-export { sealGeneratedRouteCatalog } from '../route-contract-scope'
+export { sealGeneratedRouteCatalog } from './route-contract-scope'
 
-export type { RouteGroupBuilder } from '../define-route'
+export type { RouteGroupBuilder } from './define-route'

@@ -46,9 +46,9 @@ There is no internal open-state fallback when `onOpenChange` is omitted.
 
 | Target / file                                                                | Behavior established by source                                                                                                                   | Important boundary                                                                                                                                                                                                                                             |
 | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [Native default](../../../packages/ui/src/CommandPalette.tsrx) (iOS/Android) | RootLayout `Overlay`, shade dismissal, text input, tap rows, submit first result if enabled; panel `marginTop={80}` and screen-derived max width | Plain flex layouts, no result scroll container, highlight state, or palette hardware-key handler                                                                                                                                                               |
-| [Web](../../../packages/ui/src/CommandPalette.web.tsrx)                      | Body-portal overlay, Escape listener, listbox/options, click rows, submit first result if enabled                                                | `Overlay.web.tsrx` delegates modal focus isolation, initial focus, Tab containment and focus return to `modal-focus.web.ts`; these are existing capabilities                                                                                                   |
-| [macOS](../../../packages/ui/src/CommandPalette.macos.tsrx)                  | Filtered label/icon rows and tap selection; top offset 80                                                                                        | Imported `surfaces.macos.tsrx` `Overlay` only conditionally renders a flex layout: it ignores `shadeCover`/`onDismiss`. Imported `text-controls.macos.tsrx` `TextInput` ignores `onSubmit`. Shade/Enter promises are therefore unsupported by this composition |
+| [Native default](../../../packages/ui/src/components/overlays/CommandPalette.tsrx) (iOS/Android) | RootLayout `Overlay`, shade dismissal, text input, tap rows, submit first result if enabled; panel `marginTop={80}` and screen-derived max width | Plain flex layouts, no result scroll container, highlight state, or palette hardware-key handler                                                                                                                                                               |
+| [Web](../../../packages/ui/src/components/overlays/CommandPalette.web.tsrx)                      | Body-portal overlay, Escape listener, listbox/options, click rows, submit first result if enabled                                                | `Overlay.web.tsrx` delegates modal focus isolation, initial focus, Tab containment and focus return to `modal-focus.web.ts`; these are existing capabilities                                                                                                   |
+| [macOS](../../../packages/ui/src/components/overlays/CommandPalette.macos.tsrx)                  | Filtered label/icon rows and tap selection; top offset 80                                                                                        | Imported `surfaces.macos.tsrx` `Overlay` only conditionally renders a flex layout: it ignores `shadeCover`/`onDismiss`. Imported `text-controls.macos.tsrx` `TextInput` ignores `onSubmit`. Shade/Enter promises are therefore unsupported by this composition |
 
 The shared props comment promises Enter selects a **highlighted** match; the
 leaves have no highlight model and request `shown[0]` instead. A disabled first
@@ -199,9 +199,9 @@ importance below is a recommendation, not upstream native behavior evidence.
 
 Xplat already has `SearchableItem`, `SearchSource`, and
 `CreateStaticSourceOptions` in [`props.ts`](../../../packages/ui/src/props.ts), plus
-[`createStaticSource` and `groupTypeaheadItems`](../../../packages/ui/src/typeahead-source.ts).
+[`createStaticSource` and `groupTypeaheadItems`](../../../packages/ui/src/components/forms/typeahead-source.ts).
 They match the relevant source shape and grouping order (default ungrouped-last).
-[`typeahead-source.test.ts`](../../../packages/ui/src/typeahead-source.test.ts) asserts
+[`typeahead-source.test.ts`](../../../packages/ui/src/components/forms/typeahead-source.test.ts) asserts
 trimmed keyword/label matching and stable grouping, but CommandPalette currently
 uses none of them. This reuse reduces API/dependency cost; it does not establish
 palette lifecycle or keyboard correctness. `packages/ui` must gain no new
@@ -244,9 +244,9 @@ prove iOS/Android native search-sheet behavior.
   palette from a button and reuses Edit/Duplicate/disabled Delete menu items.
   It has no shortcut opener, grouping, async source, history, empty state, or
   picker example. Selection updates the shared `lastMenu` state.
-- [`CommandPaletteFixture`](../../../packages/ui/src/CommandPalette.parity.tsrx) mounts one
+- [`CommandPaletteFixture`](../../../packages/ui/src/components/overlays/CommandPalette.parity.tsrx) mounts one
   static item in an always-open 200×96 panel. The `command-palette-open` check in
-  [`CommandPalette.parity.check.ts`](../../../packages/ui/src/CommandPalette.parity.check.ts) checks frame/background and
+  [`CommandPalette.parity.check.ts`](../../../packages/ui/src/components/overlays/CommandPalette.parity.check.ts) checks frame/background and
   list width for web/iOS/Android/macOS, not search, keyboard, selection, or
   dismissal. Those definitions are not proof that each target passed now.
 - An exhaustive repository text search found no dedicated maintained

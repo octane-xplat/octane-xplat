@@ -1,8 +1,8 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useEffect, useState } from 'octane'
 import { File } from '@nativescript/core/file-system'
-import { TextInput } from '../../../packages/ui/src/TextInput'
-import { TextArea } from '../../../packages/ui/src/TextArea'
+import { TextInput } from '../../../packages/ui/src/components/forms/TextInput'
+import { TextArea } from '../../../packages/ui/src/components/forms/TextArea'
 import type { TextInputHandle } from '../../../packages/ui/src/props'
 
 const commandPath = 'C:/Users/octane/dev/input-contract-command.json'

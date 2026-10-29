@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs'
 import ts from 'typescript'
 // Isolate the imperative service from its AppKit-rendered content wrapper.
 const source = readFileSync(
-	new URL('../src/bottom-sheet-service.macos.ts', import.meta.url),
+	new URL('../src/components/overlays/bottom-sheet-service.macos.ts', import.meta.url),
 	'utf8',
 )
 	.replace(

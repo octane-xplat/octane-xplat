@@ -39,4 +39,4 @@ the behavior differences between DOM and NativeScript.
 
 - AC6: [Retained screen layers](../../../docs/app/primitives.md#layer-a-screen-over-retained-content), [agent guidance](../../skills/octane-xplat/references/primitives.md#retained-screen-layers), maintained [geometry fixture](../../../examples/probes/screen-layers.tsrx), and [intrinsic-content/parent-resize regression](../../../apps/mobile/src/tests/foreign-screen-height.spec.tsrx).
 
-- AC7: [Safe-area edges and the native Page host](../../../docs/app/primitives.md#safe-area-edges), [Page measurement tests](../../../packages/ui/src/full-screen-page.mobile.test.ts), and [native first-mount fixture](../../../examples/probes/screen-safe-area.ios.tsrx).
+- AC7: [Safe-area edges and the native Page host](../../../docs/app/primitives.md#safe-area-edges), [Page measurement tests](../../../packages/ui/src/components/layout/full-screen-page.mobile.test.ts), and [native first-mount fixture](../../../examples/probes/screen-safe-area.ios.tsrx).

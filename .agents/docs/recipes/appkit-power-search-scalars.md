@@ -22,6 +22,6 @@ take priority over custom/nested editor expansion.
 ## Documentation
 
 - AC1–AC4: [Public numeric/scalar workflow](../../../docs/app/power-search.md#validate-native-appkit-numeric-filters), Octane primitives reference, feature note and [target note](../parity/appkit-progress.md#appkit-powersearch-scalar-drafts-and-numeric-validation).
-- AC1: [Numeric model cases](../../../packages/ui/src/power-search-number.macos.mobile.test.ts), authored but unrun.
-- AC2–AC3: [Mocked-control editor cases](../../../packages/ui/src/power-search-scalar-editor.macos.mobile.test.tsrx), authored but unrun; not native control/input proof.
+- AC1: [Numeric model cases](../../../packages/ui/src/components/forms/power-search-number.macos.mobile.test.ts), authored but unrun.
+- AC2–AC3: [Mocked-control editor cases](../../../packages/ui/src/components/forms/power-search-scalar-editor.macos.mobile.test.tsrx), authored but unrun; not native control/input proof.
 - AC4: [Manual fixture](../../../examples/probes/power-search-scalars.macos.tsrx), authored but unrun; mounts only, applies no filter automatically.

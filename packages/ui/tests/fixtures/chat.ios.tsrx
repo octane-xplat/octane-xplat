@@ -1,11 +1,11 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { mergeStyle } from '../../src/style-merge'
+import { mergeStyle } from '../../src/internal/layout/style-merge'
 import { useState } from 'octane'
 import { ChatLayout, ChatMessageList, useChatLayoutContext } from '@octane-xplat/ui/chat'
 import type { ChatMessageData } from '@octane-xplat/ui/chat'
 import { TextInput } from '@octane-xplat/ui'
 import { KeyboardController } from '../../../keyboard/src/index'
-import { chatHost } from '../../src/chat-scroll-host'
+import { chatHost } from '../../src/chat/chat-scroll-host'
 import type { ProbeContext } from '../../../../scripts/probe/context'
 let seenContext: any = null
 function ContextCheck() {

@@ -4,7 +4,7 @@ import { Drawer as NSDrawer, install } from '@nativescript-community/ui-drawer'
 import { useEffect, useRef } from 'octane'
 import type { DrawerLayoutProps } from '../props'
 import { cx } from '@octane-xplat/lib'
-import { applyEscapeProps } from '../escape-props'
+import { applyEscapeProps } from '../components/overlays/escape-props'
 
 // Optional peer: this leaf resolves only when the app ships the plugin
 // (isolated linker resolves it under the app root). install() registers the

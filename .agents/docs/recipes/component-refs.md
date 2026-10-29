@@ -24,8 +24,8 @@ hooks, and release ref ownership correctly. Migrate existing Xplat bind usage.
 
 ## Documentation
 
-- AC1: [AppKit logical TabView item refs](../notes/appkit-native-intrinsics.md#tabview-host-and-minimal-logical-items), maintained [TabView fixture](../../../packages/macos-renderer/test/fixtures/Tab.macos.tsx), and [Refs](../../../docs/app/primitives.md#refs), [focus handles](../../../docs/app/text-entry.md#release-and-restore-focus), and maintained [web ref fixture](../../../packages/ui/src/refs.web.test.tsrx).
-- AC2: [TabView content-root lifecycle](../../../packages/macos-renderer/test/fixtures/tab-lifecycle.ts), [Ref lifecycle](../../../docs/app/primitives.md#refs), maintained [web ref tests](../../../packages/ui/src/refs.web.test.tsrx), and [universal ref tests](../../../packages/ui/src/refs.mobile.test.tsrx).
+- AC1: [AppKit logical TabView item refs](../notes/appkit-native-intrinsics.md#tabview-host-and-minimal-logical-items), maintained [TabView fixture](../../../packages/macos-renderer/test/fixtures/Tab.macos.tsx), and [Refs](../../../docs/app/primitives.md#refs), [focus handles](../../../docs/app/text-entry.md#release-and-restore-focus), and maintained [web ref fixture](../../../packages/ui/src/internal/accessibility/refs.web.test.tsrx).
+- AC2: [TabView content-root lifecycle](../../../packages/macos-renderer/test/fixtures/tab-lifecycle.ts), [Ref lifecycle](../../../docs/app/primitives.md#refs), maintained [web ref tests](../../../packages/ui/src/internal/accessibility/refs.web.test.tsrx), and [universal ref tests](../../../packages/ui/src/internal/accessibility/refs.mobile.test.tsrx).
 - AC3: [Refs](../../../docs/app/primitives.md#refs), [migration](../../../docs/app/primitives.md#migrate-from-bind), [intersection example](../../../examples/probes/intersection-observer.tsrx), and [drag and drop composition](../../../packages/dnd-kit/README.md#compose-drag-and-drop).
 
 The [AppKit text fixture](../../../apps/macos/test/text-controls-fixture.macos.tsx)

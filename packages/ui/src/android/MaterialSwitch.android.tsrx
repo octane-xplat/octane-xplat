@@ -6,9 +6,9 @@ import {
 	applyEscapeProps,
 	nativeAccessibilityRole,
 	nativeAccessibilityState,
-} from '../escape-props'
+} from '../components/overlays/escape-props'
 
-import { useFieldControlProps } from '../field-context'
+import { useFieldControlProps } from '../components/forms/field-context'
 
 /** MaterialSwitch — the platform widget (Material SwitchMaterial via
  *  NativeScript `switch`). OS chrome is the point here; the self-drawn

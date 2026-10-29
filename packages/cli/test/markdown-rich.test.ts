@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { mdToDoc } from '../src/markdown.ts'
-import { parseMdDoc } from '../../ui/src/markdown-parse.ts'
+import { parseMdDoc } from '../../ui/src/markdown/markdown-parse.ts'
 
 for (const source of [
 	'[note] Read the [guide](https://example.com/guide).',

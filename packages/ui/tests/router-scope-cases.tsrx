@@ -1,10 +1,10 @@
 import { useSyncExternalStore } from 'octane'
 import { expect, it } from 'vitest'
-import { createRouter } from '../src/router-instance'
-import { defineRoute } from '../src/define-route'
-import { defineRoutes, defineRuntimeRoutes } from '../src/route-table'
-import { createStore } from '../src/store'
-import { createRouterRenderScope } from '../src/router-render-scope'
+import { createRouter } from '../src/routing/router-instance'
+import { defineRoute } from '../src/routing/define-route'
+import { defineRoutes, defineRuntimeRoutes } from '../src/routing/route-table'
+import { createStore } from '../src/data/store'
+import { createRouterRenderScope } from '../src/routing/router-render-scope'
 import {
 	RouterProvider,
 	RouterRenderScopeProvider,
@@ -15,7 +15,7 @@ import {
 	useNavigationBlocker,
 	useRouteMatch,
 	useCanGoBack,
-} from '../src/router-hooks.tsrx'
+} from '../src/routing/router-hooks.tsrx'
 
 import type {
 	PreparedRouteMatch,

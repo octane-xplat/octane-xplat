@@ -1,18 +1,18 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { createMacOSRoot } from '@octane-xplat/macos-renderer'
-import { Dialog } from '../../../packages/ui/src/Dialog.macos.tsrx'
-import { BottomSheet, BottomSheetSwitcher } from '../../../packages/ui/src/BottomSheet.macos.tsrx'
-import { Lightbox } from '../../../packages/ui/src/Lightbox.macos.tsrx'
-import { useImperativeDialog } from '../../../packages/ui/src/use-imperative-dialog.macos.tsrx'
-import { useImperativeAlertDialog } from '../../../packages/ui/src/use-imperative-alert-dialog.macos.tsrx'
-import { useLightbox } from '../../../packages/ui/src/use-lightbox.macos.tsrx'
-import { ToastViewport } from '../../../packages/ui/src/toast-viewport.macos.tsrx'
-import { showToast, useToast } from '../../../packages/ui/src/toast-service.macos.tsrx'
-import { toastStore } from '../../../packages/ui/src/toast-store'
+import { Dialog } from '../../../packages/ui/src/components/overlays/Dialog.macos.tsrx'
+import { BottomSheet, BottomSheetSwitcher } from '../../../packages/ui/src/components/overlays/BottomSheet.macos.tsrx'
+import { Lightbox } from '../../../packages/ui/src/components/overlays/Lightbox.macos.tsrx'
+import { useImperativeDialog } from '../../../packages/ui/src/components/overlays/use-imperative-dialog.macos.tsrx'
+import { useImperativeAlertDialog } from '../../../packages/ui/src/components/overlays/use-imperative-alert-dialog.macos.tsrx'
+import { useLightbox } from '../../../packages/ui/src/components/overlays/use-lightbox.macos.tsrx'
+import { ToastViewport } from '../../../packages/ui/src/components/overlays/toast-viewport.macos.tsrx'
+import { showToast, useToast } from '../../../packages/ui/src/components/overlays/toast-service.macos.tsrx'
+import { toastStore } from '../../../packages/ui/src/components/overlays/toast-store'
 import {
 	openBottomSheet,
 	closeBottomSheet,
-} from '../../../packages/ui/src/bottom-sheet-service.macos'
+} from '../../../packages/ui/src/components/overlays/bottom-sheet-service.macos'
 
 import { NSApplication, NSScrollView, NSView, NSWindow } from '@octane-xplat/platform/macos'
 

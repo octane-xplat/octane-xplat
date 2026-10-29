@@ -7,7 +7,7 @@ export {
 	keyboardHostOverlap,
 	keyboardHostDisplacement,
 	observeKeyboardDestination,
-} from '../keyboard-inset'
+} from '../internal/keyboard/keyboard-inset'
 
-export { KeyboardAvoidanceContext } from '../keyboard-avoidance-context'
-export { ConsumedInsetsContext } from '../inset-consumption'
+export { KeyboardAvoidanceContext } from '../internal/keyboard/keyboard-avoidance-context'
+export { ConsumedInsetsContext } from '../components/layout/inset-consumption'

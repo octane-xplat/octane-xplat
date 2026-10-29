@@ -1,14 +1,14 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { createContext, useContext, useLayoutEffect, useState, useSyncExternalStore } from 'octane'
-import { createStore } from '../../../packages/ui/src/store'
+import { createStore } from '../../../packages/ui/src/data/store'
 import type { Frame } from '@nativescript/core'
 import { getStack } from '@octane-xplat/ui/routing'
-import { sealGeneratedRouteCatalog } from '../../../packages/ui/src/route-contract-scope'
-import { defineTransitions } from '../../../packages/ui/src/route-transitions'
-import { defineNativeTransition } from '../../../packages/ui/src/native-route-transition'
+import { sealGeneratedRouteCatalog } from '../../../packages/ui/src/routing/route-contract-scope'
+import { defineTransitions } from '../../../packages/ui/src/routing/route-transitions'
+import { defineNativeTransition } from '../../../packages/ui/src/routing/native-route-transition'
 import { createFixtureTransition } from './navigation-transition'
 import { nativeMotion } from './navigation-motion'
-import { createNativeModalRouterHost } from '../../../packages/ui/src/native-modal-router-host'
+import { createNativeModalRouterHost } from '../../../packages/ui/src/routing/native-modal-router-host'
 import type {
 	ContractsOf,
 	NavigationBlockerState,
@@ -20,28 +20,28 @@ import type {
 	ValidatedDestination,
 } from '../../../packages/ui/src/props'
 
-import { ClientRouteOutlet } from '../../../packages/ui/src/ClientRouteOutlet.tsrx'
-import { createRenderRouterHost } from '../../../packages/ui/src/render-router-host'
-import { RenderRouteOutlet } from '../../../packages/ui/src/RenderRouteOutlet.tsrx'
-import { createRouter } from '../../../packages/ui/src/router-instance'
-import { RouteForbidden, DestinationRedirect } from '../../../packages/ui/src/routing-core'
-import { defineRoute } from '../../../packages/ui/src/define-route'
+import { ClientRouteOutlet } from '../../../packages/ui/src/routing/ClientRouteOutlet.tsrx'
+import { createRenderRouterHost } from '../../../packages/ui/src/routing/render-router-host'
+import { RenderRouteOutlet } from '../../../packages/ui/src/routing/RenderRouteOutlet.tsrx'
+import { createRouter } from '../../../packages/ui/src/routing/router-instance'
+import { RouteForbidden, DestinationRedirect } from '../../../packages/ui/src/routing/routing-core'
+import { defineRoute } from '../../../packages/ui/src/routing/define-route'
 import {
 	defineRoutes,
 	deriveRouteManifest,
 	mergeRouteManifests,
-} from '../../../packages/ui/src/route-table'
+} from '../../../packages/ui/src/routing/route-table'
 
 import {
 	getRouteApi,
 	useRouter,
 	useRouterState,
 	useNavigationBlocker,
-} from '../../../packages/ui/src/router-hooks.tsrx'
+} from '../../../packages/ui/src/routing/router-hooks.tsrx'
 
-import { RouteOutlet } from '../../../packages/ui/src/RouteOutlet.tsrx'
-import { Tabs } from '../../../packages/ui/src/Tabs.tsrx'
-import { defaultRouterRuntime } from '../../../packages/ui/src/default-router'
+import { RouteOutlet } from '../../../packages/ui/src/routing/RouteOutlet.tsrx'
+import { Tabs } from '../../../packages/ui/src/components/collections/Tabs.tsrx'
+import { defaultRouterRuntime } from '../../../packages/ui/src/routing/default-router'
 import {
 	defineRoute as defineClientRoute,
 	defineRoutes as defineClientRoutes,

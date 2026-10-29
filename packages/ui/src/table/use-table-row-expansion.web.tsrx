@@ -17,8 +17,8 @@ import type {
 
 import type { TableColumn } from '../props'
 import { pixel } from './column-utils'
-import { Icon } from '../Icon'
-import { VisuallyHidden } from '../VisuallyHidden'
+import { Icon } from '../components/media/Icon'
+import { VisuallyHidden } from '../components/content/VisuallyHidden'
 
 const EXPANSION_COLUMN_WIDTH = pixel(40)
 

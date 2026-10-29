@@ -1,9 +1,9 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle } from './style-merge'
 import { useRef, useState } from 'octane'
-import { TextInput } from '../../../packages/ui/src/TextInput.tsrx'
-import { TextArea } from '../../../packages/ui/src/TextArea.tsrx'
-import { KeyboardAvoiding } from '../../../packages/ui/src/KeyboardAvoiding.mobile.tsrx'
+import { TextInput } from '../../../packages/ui/src/components/forms/TextInput.tsrx'
+import { TextArea } from '../../../packages/ui/src/components/forms/TextArea.tsrx'
+import { KeyboardAvoiding } from '../../../packages/ui/src/components/layout/KeyboardAvoiding.mobile.tsrx'
 
 /** Mount in a dedicated native root. Baseline write intentionally bypasses the
  * controlled-write helper to reproduce the previous echo path. No IME/AT pass

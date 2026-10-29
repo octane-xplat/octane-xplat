@@ -298,7 +298,7 @@ experience of agents writing Octane-xplat code effectively.
   removing the style spread or ref, and passed after replacing the computed tag.
   Heading uses a capitalized `Tag` variable and `<Tag>…</Tag>` instead;
   this keeps the selected HTML heading level. The maintained DOM regression is
-  `packages/ui/src/text-scale.web.test.tsrx`; table and motion tests also compile
+  `packages/ui/src/components/forms/text-scale.web.test.tsrx`; table and motion tests also compile
   Heading through the UI barrel. This is source/compiler evidence, not native
   device evidence. No dependency or parser patch was added. Recheck computed
   tags when upgrading the [Octane compiler](https://github.com/octanejs/octane/tree/octane%400.14.0/packages/octane/src/compiler)
@@ -590,7 +590,7 @@ Constraints this creates:
 `.d.cts`), but rejects an unparenthesized multiline fragment initializer inside
 an `@{}` function followed by `@if`, reporting `TSRX_LIFT: formatted TSRX
 structure differs from the input`. Parenthesizing the initializer lets the same
-source format successfully. `packages/ui/src/modal-focus.web.test.tsrx` uses
+source format successfully. `packages/ui/src/components/overlays/modal-focus.web.test.tsrx` uses
 this workaround; keep it until the formatter accepts the unparenthesized form.
 This was verified through the formatter's Node API and `pnpm format`, not a
 renderer runtime test.
@@ -620,7 +620,7 @@ component `key` props. Restoring the original return layout passes
 `turbo run typegen --filter=@octane-xplat/ui` with the rest of the repository
 still formatted. This is compiler evidence, not a renderer behavior change.
 
-`packages/ui/src/Tabs.tsrx` retains that return layout with `prettier-ignore`.
+`packages/ui/src/components/collections/Tabs.tsrx` retains that return layout with `prettier-ignore`.
 The formatter still handles the rest of the file. Remove the directive when
 the compiler accepts the formatted keyed loops; do not remove the loop keys
 or widen component props to hide the generated diagnostic.
@@ -628,7 +628,7 @@ or widen component props to hide the generated diagnostic.
 ## UI Heading parser failure in browser compilation
 
 On 2026-10-28, the lightbox repair fixture failed through the normal public UI
-barrel with @tsrx/oxc 0.16.0 and octane 0.14.0: `packages/ui/src/Heading.web.tsrx`
+barrel with @tsrx/oxc 0.16.0 and octane 0.14.0: `packages/ui/src/components/content/Heading.web.tsrx`
 raised `unsupported TSRX parser shape: reachable synthetic ESTree span` in the
 Octane Vite transform. Declaration generation and the required source checks
 still passed; they are not evidence that this browser compilation works.

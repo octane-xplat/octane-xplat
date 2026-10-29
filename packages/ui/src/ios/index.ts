@@ -28,7 +28,7 @@ export { SideDrawer } from './SideDrawer.ios.tsrx'
 export { LiquidGlass } from './LiquidGlass.ios.tsrx'
 export { LiquidGlassContainer } from './LiquidGlassContainer.ios.tsrx'
 export { PlatformIcon } from './icon.ios'
-export { modifier } from '../modifier-factories'
+export { modifier } from '../internal/layout/modifier-factories'
 
 export type {
 	UISwitchProps,

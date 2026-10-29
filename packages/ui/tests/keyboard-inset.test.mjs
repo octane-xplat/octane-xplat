@@ -9,7 +9,7 @@ import * as properties from '../../platform/src/keyboard-property.ts'
 
 // Host doubles prove subscription/state logic, not OS keyboard delivery.
 const compiled = ts.transpile(
-	readFileSync(new URL('../src/keyboard-inset.ts', import.meta.url), 'utf8'),
+	readFileSync(new URL('../src/internal/keyboard/keyboard-inset.ts', import.meta.url), 'utf8'),
 	{
 		module: ts.ModuleKind.CommonJS,
 		target: ts.ScriptTarget.ES2022,

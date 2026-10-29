@@ -6,7 +6,7 @@ import { useMemo } from 'octane'
 import type { TablePlugin } from './types'
 import type { Renderable, TableColumn } from '../props'
 import { pixel } from './column-utils'
-import { Text } from '../Text'
+import { Text } from '../components/content/Text'
 import { tableSlot } from './table-slot'
 
 /**

@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useCallback, useEffect, useRef, useState } from 'octane'
-import { useKeyboard } from '../use-keyboard.macos'
-import { usePan } from '../pan.macos.tsrx'
+import { useKeyboard } from '../internal/keyboard/use-keyboard.macos'
+import { usePan } from '../components/layout/pan.macos.tsrx'
 import type { AppKitColumnResizeState, AppKitResizeScope } from './column-resize-state.macos'
 
 export function AppKitColumnResizeHandle(props: { columnKey: string; label: string; width: number; direction: 'ltr' | 'rtl'; state: AppKitColumnResizeState }) @{

@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'octane'
-import { getColorScheme, subscribeSystemScheme } from '../colorScheme.macos'
+import { getColorScheme, subscribeSystemScheme } from './colorScheme.macos'
 import type { ColorScheme } from '../props'
 
 /** The app's theme preference — an explicit 'light'/'dark' override or

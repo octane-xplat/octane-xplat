@@ -12,7 +12,7 @@ import type {
 } from './types'
 
 import type { TableColumn } from '../props'
-import { Icon } from '../Icon'
+import { Icon } from '../components/media/Icon'
 import { TableSlot, tableSlot } from './table-slot'
 
 export function resolveSortKey<T extends Record<string, unknown>>(

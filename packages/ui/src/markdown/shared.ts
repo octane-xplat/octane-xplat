@@ -1,7 +1,7 @@
 // Renderer-neutral Markdown document, streaming, outline and syntax contracts.
-export { parseMdDoc, parseMdNodes, mdInlineText } from '../markdown-parse'
-export { createMarkdownStreamParser } from '../markdown-stream'
-export type { MarkdownStreamParser } from '../markdown-stream'
+export { parseMdDoc, parseMdNodes, mdInlineText } from './markdown-parse'
+export { createMarkdownStreamParser } from './markdown-stream'
+export type { MarkdownStreamParser } from './markdown-stream'
 export {
 	outlineFromDoc,
 	parseOutlineFromMarkdown,
@@ -9,9 +9,9 @@ export {
 	inlineMarkdownText,
 	slugify,
 	uniqueSlug,
-} from '../outline-utils'
+} from '../components/collections/outline-utils'
 
-export { useOutlineFromDoc, useOutlineFromMarkdown } from '../outline-hooks.tsrx'
+export { useOutlineFromDoc, useOutlineFromMarkdown } from '../components/collections/outline-hooks.tsrx'
 export {
 	tokenize,
 	tokenizeAsync,
@@ -20,9 +20,9 @@ export {
 	TOKEN_TYPES,
 	syntaxTokenVar,
 	syntaxTokenVarRef,
-} from '../code-tokenizer'
+} from './code-tokenizer'
 
-export type { SyntaxTokenType } from '../code-tokenizer'
+export type { SyntaxTokenType } from './code-tokenizer'
 export type {
 	MdDoc,
 	MdNode,
@@ -39,5 +39,5 @@ export type {
 	CodeTokenizer,
 } from '../props'
 
-export { useStreamingText } from '../use-streaming-text'
-export type { StreamingTextSpeed, UseStreamingTextOptions } from '../use-streaming-text'
+export { useStreamingText } from '../components/content/use-streaming-text'
+export type { StreamingTextSpeed, UseStreamingTextOptions } from '../components/content/use-streaming-text'

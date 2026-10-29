@@ -32,7 +32,7 @@ space through form and overlay lifecycles.
 - AC3: [Field names](../../../docs/app/text-entry.md#control-a-field), [reusable rows](../../../docs/app/primitives.md#reusable-rows), and [Q15](../../design/open-questions.md#later--finer).
 - AC4: [Release and restore focus](../../../docs/app/text-entry.md#release-and-restore-focus), [native frame tracking](../../../docs/app/software-keyboard.md), [focused-input scrolling](../../../docs/app/software-keyboard.md#keep-the-editing-field-visible), [sticky composers](../../../docs/app/software-keyboard.md#keep-a-composer-beside-the-keyboard), the maintained [form example](../../../packages/keyboard/examples/KeyboardFormDemo.tsrx), and the maintained [motion example](../../../packages/keyboard/examples/KeyboardMotionDemo.tsrx).
 - AC5: [Modal focus](../../../docs/app/text-entry.md#release-and-restore-focus), [retained exit lifecycle](../../../docs/app/animation-gestures.md#retain-content-through-exit), and [verification boundaries](../../../docs/app/text-entry.md#verification-boundaries).
-- AC7: [Read software keyboard space](../../../docs/app/text-entry.md#read-software-keyboard-space), the maintained [keyboard-space example](../../../packages/ui/examples/KeyboardSpaceDemo.tsrx), [subscription tests](../../../packages/ui/tests/keyboard-inset.test.mjs), the [compiled cross-root hook test](../../../packages/ui/src/use-keyboard-inset.mobile.test.tsrx), and [packed consumers](../../../packages/ui/tests/packed-consumer.mjs).
+- AC7: [Read software keyboard space](../../../docs/app/text-entry.md#read-software-keyboard-space), the maintained [keyboard-space example](../../../packages/ui/examples/KeyboardSpaceDemo.tsrx), [subscription tests](../../../packages/ui/tests/keyboard-inset.test.mjs), the [compiled cross-root hook test](../../../packages/ui/src/internal/keyboard/use-keyboard-inset.mobile.test.tsrx), and [packed consumers](../../../packages/ui/tests/packed-consumer.mjs).
 - AC6: [Building screens: grouped fields](../../../docs/app/primitives.md#grouped-fields) and the maintained [ComponentsDemo](../../../packages/demos/src/ComponentsDemo.tsrx).
 - AC8: [Component input contracts](../../../docs/app/components.md#inputs), [UI API migrations](../../../docs/app/ui-api-migrations.md#empty-values-and-time-domains), and the maintained [ComponentsDemo](../../../packages/demos/src/ComponentsDemo.tsrx).
 
@@ -55,7 +55,7 @@ physical-keyboard, or accessibility criteria above.
 
 AppKit source follow-up: the shared TextArea leaf now forwards `onSubmit` for
 `done`/`send`, suppresses blocked edit/submit callbacks, and the native multiline
-delegate leaves marked-text confirmation to AppKit. [Component regressions](../../../packages/ui/src/text-controls.macos.mobile.test.tsrx)
+delegate leaves marked-text confirmation to AppKit. [Component regressions](../../../packages/ui/src/components/forms/text-controls.macos.mobile.test.tsrx)
 and [delegate regressions](../../../packages/macos-renderer/test/text-controls.test.ts)
 are authored but unrun. Real keyboard, composition and full AC2 qualification
 remain open; source dispatch is not evidence of physical input.
@@ -63,7 +63,7 @@ remain open; source dispatch is not evidence of physical input.
 
 AppKit AC3 documentation now covers standalone TextInput/TextArea/SearchInput
 field chrome and reuse of an enclosing Field; see [text and keyboard actions](../../../docs/app/primitives.md#text-and-keyboard-actions)
-and the [object-driver field regressions](../../../packages/ui/src/text-controls.macos.mobile.test.tsrx).
+and the [object-driver field regressions](../../../packages/ui/src/components/forms/text-controls.macos.mobile.test.tsrx).
 Default Field layout is a column and authored CSS strings are retained. These
 are source/documentation claims only; actual layout, label interaction, keyboard
 activation and VoiceOver remain unqualified. Other native-control families and
@@ -114,7 +114,7 @@ covered in documentation.
 AC8's [AppKit guide](../../../docs/app/components.md#number-fields-on-appkit)
 now covers declared unit/formatter/stepper/clear options and standalone/enclosing
 Field ownership. Clear requests null before onClear; inherited disabled/read-only
-state blocks steppers as well as editing. [Object-driver source cases](../../../packages/ui/src/input-number.macos.mobile.test.tsrx)
+state blocks steppers as well as editing. [Object-driver source cases](../../../packages/ui/src/components/forms/input-number.macos.mobile.test.tsrx)
 cover null/default precedence, controlled requests, uncontrolled clamped stepping,
 clear order, metadata ownership, unique IDs and stable editing-host identity.
 The [maintained native fixture](../../../examples/probes/number-input.macos.tsrx)

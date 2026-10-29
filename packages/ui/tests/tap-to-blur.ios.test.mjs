@@ -4,7 +4,7 @@ import test from 'node:test'
 import vm from 'node:vm'
 import ts from 'typescript'
 
-const source = await readFile(new URL('../src/tap-to-blur.ios.ts', import.meta.url), 'utf8')
+const source = await readFile(new URL('../src/internal/keyboard/tap-to-blur.ios.ts', import.meta.url), 'utf8')
 const compiled = ts.transpile(source, {
 	module: ts.ModuleKind.CommonJS,
 	target: ts.ScriptTarget.ES2022,

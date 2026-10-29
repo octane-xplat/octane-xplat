@@ -1,8 +1,8 @@
 {
 	"extends": "./tsconfig.json",
 	"include": [
-		"../../../../../packages/ui/src/default-router.web.ts",
-		"../../../../../packages/ui/src/RouteOutlet.web.tsrx",
-		"../../../../../packages/ui/src/Tabs.web.tsrx"
+		"../../../../../packages/ui/src/routing/default-router.web.ts",
+		"../../../../../packages/ui/src/routing/RouteOutlet.web.tsrx",
+		"../../../../../packages/ui/src/components/collections/Tabs.web.tsrx"
 	]
 }

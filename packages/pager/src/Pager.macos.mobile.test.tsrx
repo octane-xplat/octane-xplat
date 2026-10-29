@@ -1,14 +1,14 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { afterEach, expect, it, vi } from 'vitest'
 import { createObjectContainer, createObjectDriver, createUniversalRoot, flushUniversalSync } from 'octane/universal/native'
-import { InternationalizationProvider } from '../../ui/src/InternationalizationProvider.tsrx'
+import { InternationalizationProvider } from '../../ui/src/components/forms/InternationalizationProvider.tsrx'
 import { Pager } from './Pager.macos.tsrx'
 // Exercise the real AppKit viewport without selecting the mobile UI barrel in
 // this package's existing native test configuration. Production resolution is a
 // separate deferred gate; this mock does not establish it.
 vi.mock('@octane-xplat/ui', async () => ({
-	ScrollableArea: (await import('../../ui/src/ScrollableArea.macos.tsrx')).ScrollableArea,
-	useDirection: (await import('../../ui/src/internationalization.tsx')).useDirection,
+	ScrollableArea: (await import('../../ui/src/components/layout/ScrollableArea.macos.tsrx')).ScrollableArea,
+	useDirection: (await import('../../ui/src/internal/platform/internationalization.tsx')).useDirection,
 }))
 afterEach(() => { vi.useRealTimers(); vi.unstubAllGlobals() })
 function mount(extra: any = {}) {

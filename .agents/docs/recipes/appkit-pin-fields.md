@@ -16,6 +16,6 @@ A multi-cell code entry control, standalone or inside an existing Field.
 
 ## Documentation
 
-- AC1: [PIN field guide](../../../docs/app/primitives.md#pin-fields-on-appkit) and [authored source cases](../../../packages/ui/src/pin-input.macos.mobile.test.tsrx). Tests unrun.
+- AC1: [PIN field guide](../../../docs/app/primitives.md#pin-fields-on-appkit) and [authored source cases](../../../packages/ui/src/components/forms/pin-input.macos.mobile.test.tsrx). Tests unrun.
 - AC2: The same cases cover inherited blocking and pending-focus cancellation; [target note](../parity/appkit-progress.md#appkit-pin-field-ownership) records exact deferred commands.
 - AC3: The guide/target note retain last-character paste, suffix deletion, empty-cell Backspace and OTP/native qualification boundaries. No OS input/secure-field evidence is claimed.

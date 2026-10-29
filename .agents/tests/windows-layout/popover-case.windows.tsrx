@@ -1,8 +1,8 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import {useRef,useState,useEffect} from 'octane'
-import {Screen} from '../../../packages/ui/src/Screen.tsrx'
-import {View} from '../../../packages/ui/src/View.tsrx'
-import {Popover} from '../../../packages/ui/src/Popover.tsrx'
+import {Screen} from '../../../packages/ui/src/components/layout/Screen.tsrx'
+import {View} from '../../../packages/ui/src/components/layout/View.tsrx'
+import {Popover} from '../../../packages/ui/src/components/overlays/Popover.tsrx'
 export function WindowsUICase() @{
  const anchor=useRef<any>(null);const [open,setOpen]=useState(false);
  useEffect(()=>{const t=setTimeout(()=>setOpen(true),1000);return()=>clearTimeout(t)},[]);

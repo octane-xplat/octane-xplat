@@ -3,7 +3,7 @@ import { bestImageSource, contentRect } from './image-content'
 
 /** View-sized decode + srcset selection + content-rect layout for the
  *  ui-image `Img` leaf. Mirrors the core Image binding semantics
- *  (packages/ui/src/image-sizing.ts + image-content-binding.ts):
+ *  (packages/ui/src/components/media/image-sizing.ts + image-content-binding.ts):
  *
  *  `src` never goes through JSX — the binding holds it until the view's
  *  first real layout, writes decodeWidth/decodeHeight in device pixels,

@@ -450,7 +450,7 @@ export function CurrentPlan({ locked }: { locked: boolean }) {
 }
 ```
 
-Eight [ownership cases](../../packages/ui/src/radio-ownership.macos.mobile.test.tsrx)
+Eight [ownership cases](../../packages/ui/src/components/forms/radio-ownership.macos.mobile.test.tsrx)
 are authored, all unrun. Fake row/responder dispatch does not prove native
 pointer, keyboard, focus, accessibility or packaging behavior.
 
@@ -1062,7 +1062,7 @@ The original six object-driver cases and maintained tab-menu fixture remain
 unrun; focused-row repair has additional unrun cases below. This source path requires matching keyboard/focus bridges; it does not
 qualify physical keys, native refs/window/focus/Tab/return, scroll reveal,
 popup/modal integration, menu radio mark announcements or packaging. Focused-row
-repair source ownership is described in the [dynamic menu guide](../menus.md#keep-focus-owned-when-appkit-menu-rows-change); native delivery remains unqualified.
+repair source ownership is described in the [dynamic menu guide](menus.md#keep-focus-owned-when-appkit-menu-rows-change); native delivery remains unqualified.
 
 ## Data display
 

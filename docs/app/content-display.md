@@ -233,7 +233,7 @@ const highlighted = tokenize('const ready = true', 'typescript')
 
 > Runtime evidence: convergence (every-character chunking → identical AST as
 > the full parse), withholding, and settled-block reference stability are
-> covered by `packages/ui/src/markdown-stream.test.ts` and
+> covered by `packages/ui/src/markdown/markdown-stream.test.ts` and
 > `markdown-stream.mobile.test.ts` (web + native-rendered suites). The fade
 > animation itself is web CSS and unverified on native targets.
 

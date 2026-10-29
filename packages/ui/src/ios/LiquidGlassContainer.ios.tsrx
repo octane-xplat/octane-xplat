@@ -5,8 +5,8 @@ import { registerElement } from '@nativescript-community/octane'
 import type { Attributes } from '@octane-xplat/jsx/intrinsics'
 import type { LiquidGlassContainerProps } from '../props'
 import { cx } from '@octane-xplat/lib'
-import { applyEscapeProps } from '../escape-props'
-import { layoutChildProps } from '../layout-child'
+import { applyEscapeProps } from '../components/overlays/escape-props'
+import { layoutChildProps } from '../components/layout/layout-child'
 
 declare module '@octane-xplat/jsx/intrinsics' {
 	interface NativeElements<TElement> {

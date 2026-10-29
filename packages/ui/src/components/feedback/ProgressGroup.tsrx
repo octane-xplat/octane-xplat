@@ -1,0 +1,25 @@
+/** @jsxImportSource @octane-xplat/jsx */
+import { mergeStyle } from '../../internal/layout/style-merge'
+import type { ProgressGroupProps } from '../../props'
+import { cx } from '@octane-xplat/lib'
+import { applyEscapeProps } from '../overlays/escape-props'
+import { Meter } from './Meter'
+
+/** ProgressGroup — stacked labeled Meter rows. */
+export function ProgressGroup(props: ProgressGroupProps) @{
+	<masonview
+		ref={(v: any) => applyEscapeProps(v, props)}
+		id={props.id}
+		className={cx('vx-progressgroup', props.className)}
+		style={mergeStyle({ display: 'flex' }, props.style)}
+	>
+		@for (const item of props.items; key item.key) {
+			<masonview className="vx-progressgroup-row" style={{ display: 'flex' }}>
+				<Meter value={item.value} max={item.max} accessibilityLabel={item.label} />
+				{item.label != null ? (
+					<label className="vx-progressgroup-label" text={item.label} />
+				) : null}
+			</masonview>
+		}
+	</masonview>
+}

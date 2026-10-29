@@ -14,7 +14,7 @@ import type {
 } from './types'
 
 import type { Renderable, TableColumn } from '../props'
-import { Icon } from '../Icon'
+import { Icon } from '../components/media/Icon'
 import { TableSlot, tableSlot } from './table-slot'
 
 /** Indent step per level (dips), matching the web spacing tokens. */

@@ -2,21 +2,21 @@
 // @octane-xplat/ui/routing — route authoring, navigation, back handling, and
 // router state. Route presentation (Link, NavLink, Tabs, AppShell) stays at
 // the package root; this entrypoint owns the router itself.
-export { registerStack, getStack, stackEntries } from '../stacks.web'
-export { addBackInterceptor } from '../back-interceptors.web'
+export { registerStack, getStack, stackEntries } from '../components/layout/stacks.web'
+export { addBackInterceptor } from './back-interceptors.web'
 
-export { RouteBoundary } from '../RouteBoundary'
-export { useBackInterceptor } from '../use-back'
+export { RouteBoundary } from './RouteBoundary'
+export { useBackInterceptor } from './use-back'
 export {
 	defineRoute,
 	defineRouteGroup,
 	withSearchDecoder,
 	RouteSearchValidationError,
-} from '../define-route'
+} from './define-route'
 
-export { defineTransitions } from '../route-transitions'
-export { createPaneRouterHost } from '../pane-router-client'
-export { RouterPane } from '../RouterPane.tsrx'
+export { defineTransitions } from './route-transitions'
+export { createPaneRouterHost } from './pane-router-client'
+export { RouterPane } from './RouterPane.tsrx'
 export type { PaneRouterHost, RouterPaneProps } from '../props'
 
 export {
@@ -27,7 +27,7 @@ export {
 	manifestToJson,
 	formatRouteDiagnostic,
 	RouteManifestError,
-} from '../route-table'
+} from './route-table'
 
 export type {
 	AbsoluteRoutePath,
@@ -129,9 +129,9 @@ export type {
 	ScreenTable,
 } from '../props'
 
-export { createRouter } from '../router-instance'
+export { createRouter } from './router-instance'
 
-export { RouteRegistrationError } from '../route-registry'
+export { RouteRegistrationError } from './route-registry'
 
 export {
 	RouterProvider,
@@ -142,17 +142,17 @@ export {
 	useCanGoBack,
 	useRouteMatch,
 	getRouteApi,
-} from '../router-hooks.web.tsrx'
+} from './router-hooks.web.tsrx'
 
 export type { RouterProviderProps, RouteApi, RouteSearchUpdater } from '../props'
 
-export { router, configureRouter } from '../default-router.web'
+export { router, configureRouter } from './default-router.web'
 
 export {
 	redirect,
 	DestinationRedirect,
 	RouteForbidden,
 	RouteResourceNotFound,
-} from '../routing-core'
+} from './routing-core'
 
-export type { RouteGroupBuilder } from '../define-route'
+export type { RouteGroupBuilder } from './define-route'

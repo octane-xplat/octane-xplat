@@ -27,8 +27,8 @@ Provide local or remote searchable values with a stable identity, present useful
 ## Documentation
 
 - AC1: AppKit focus/request source scope is documented in [bootstrap on focus](../../../docs/app/search-selection.md#bootstrap-appkit-typeahead-results-on-focus); fourteen authored target cases and native qualification remain unrun. [Build a search source](../../../docs/app/search-selection.md#supply-search-results) and [the maintained demo](../../../packages/demos/src/ComponentsDemo.tsrx).
-- AC2: [Choose one result](../../../docs/app/search-selection.md#choose-one-result) and [the parity fixture](../../../packages/ui/src/Typeahead.parity.tsrx).
-- AC3: [Choose many or create values](../../../docs/app/search-selection.md#choose-many-or-create-values) and [the parity fixture](../../../packages/ui/src/Tokenizer.parity.tsrx).
+- AC2: [Choose one result](../../../docs/app/search-selection.md#choose-one-result) and [the parity fixture](../../../packages/ui/src/components/forms/Typeahead.parity.tsrx).
+- AC3: [Choose many or create values](../../../docs/app/search-selection.md#choose-many-or-create-values) and [the parity fixture](../../../packages/ui/src/components/forms/Tokenizer.parity.tsrx).
 - AC4: [Build a custom picker](../../../docs/app/search-selection.md#build-a-custom-picker).
 - AC5: [Platform boundaries](../../../docs/app/search-selection.md#platform-boundaries) and [known limits](../../../docs/testing/known-limits.md).
 

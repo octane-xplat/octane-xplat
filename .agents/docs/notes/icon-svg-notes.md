@@ -42,7 +42,7 @@ export function svgDataUri(markup: string): string {
 Here `4` is `NSUTF8StringEncoding`. The implementation handles failed UTF-8 encoding explicitly. It needs no DOM,
 Node buffer, network service, custom native library, or new UI dependency.
 
-`packages/ui/src/Image.macos.tsrx` already forwards `src` and styles to the
+`packages/ui/src/components/media/Image.macos.tsrx` already forwards `src` and styles to the
 AppKit `<image>` host. `makeImageView` and the image `src` update branch in
 `apps/macos/src/renderer/index.mjs` decode base64 data and call
 `NSImage.alloc().initWithData(data)`. The public

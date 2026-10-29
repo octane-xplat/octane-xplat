@@ -2507,13 +2507,13 @@ the proposed spellings in this plan.
 | -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
 | [Current route types](../../packages/ui/src/props.ts)                | Destinations, inferred contracts, preparation/results, router ownership and host protocols. |
 | [Routing exports](../../packages/ui/src/routing/index.ts)            | Current public operation and type surface.                                                     |
-| [Route catalog](../../packages/ui/src/route-table.ts) | Manifest derivation, file metadata, layouts and catalog diagnostics. |
+| [Route catalog](../../packages/ui/src/routing/route-table.ts) | Manifest derivation, file metadata, layouts and catalog diagnostics. |
 | [URL grammar](../../packages/lib/src/route-pattern.ts) | Shared normalization, strict matching and URL serialization. |
-| [Router instances](../../packages/ui/src/router-instance.ts) | Instance/flow ownership, cancellation, registry layers and facade operations. |
-| [Preparation](../../packages/ui/src/routing-core.ts) | Host-independent validation, guards, context, loaders and terminal outcomes. |
-| [Web host](../../packages/ui/src/browser-router-host.web.ts) | Browser history, prepared entries and DOM commit receipts. |
-| [Native host](../../packages/ui/src/native-modal-router-host.ts) | Frame, pane and modal integration within one native instance. |
-| [Pane host](../../packages/ui/src/pane-router-host.ts) | Retained pane histories, including AppKit's current host subset. |
+| [Router instances](../../packages/ui/src/routing/router-instance.ts) | Instance/flow ownership, cancellation, registry layers and facade operations. |
+| [Preparation](../../packages/ui/src/routing/routing-core.ts) | Host-independent validation, guards, context, loaders and terminal outcomes. |
+| [Web host](../../packages/ui/src/routing/browser-router-host.web.ts) | Browser history, prepared entries and DOM commit receipts. |
+| [Native host](../../packages/ui/src/routing/native-modal-router-host.ts) | Frame, pane and modal integration within one native instance. |
+| [Pane host](../../packages/ui/src/routing/pane-router-host.ts) | Retained pane histories, including AppKit's current host subset. |
 | [Route generator](../../packages/cli/src/commands/routes.ts)         | Current emitted types, augmentation, platform manifests, and baking.                           |
 | [Application route contribution](../../packages/app/src/routes.ts)   | Generated catalog consumption and incoming-link wiring.                     |
 | [Navigation guide](../../docs/app/navigation.md)                     | Current workflows, limits, baked data, boundaries, and provider-preserving outlets.            |

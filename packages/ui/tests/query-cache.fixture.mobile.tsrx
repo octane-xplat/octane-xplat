@@ -1,8 +1,8 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import 'octane/signals'
-import { useQuery$ } from '../src/use-query'
-import type { QueryClient, QueryDefinition } from '../src/query-cache'
-import type { CursorQueryDefinition } from '../src/cursor-query'
+import { useQuery$ } from '../src/data/use-query'
+import type { QueryClient, QueryDefinition } from '../src/data/query-cache'
+import type { CursorQueryDefinition } from '../src/data/cursor-query'
 
 export function InstanceProfile(props: {
 	id: string

@@ -26,5 +26,5 @@ loading/error props on a screen that never committed.
 
 - AC1: [Handle pending work and failures](../../../docs/app/navigation.md#handle-pending-work-and-failures) and the maintained production [browser fixture](../../../apps/web/tests/fixtures/routing-contract/fixture.web.tsrx).
 - AC2: [Handle pending work and failures](../../../docs/app/navigation.md#handle-pending-work-and-failures) explains result kinds, feedback placement, local errors and render-boundary reset.
-- AC3: [Handle pending work and failures](../../../docs/app/navigation.md#handle-pending-work-and-failures), [router protocol tests](../../../packages/ui/src/router-instance.test.ts), and [release checks](../navigation-checks.md).
+- AC3: [Handle pending work and failures](../../../docs/app/navigation.md#handle-pending-work-and-failures), [router protocol tests](../../../packages/ui/src/routing/router-instance.test.ts), and [release checks](../navigation-checks.md).
 - AC4: [Bind a custom router to rendering](../../../docs/app/navigation.md#bind-a-custom-router-to-rendering), [provider ownership](../../../docs/app/navigation.md#preserve-providers-across-native-pages), and shared [renderer cases](../../../packages/ui/tests/router-scope-cases.tsrx).

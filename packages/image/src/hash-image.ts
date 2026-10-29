@@ -1,4 +1,4 @@
-/** VENDORED from packages/ui/src/hash-image.ts — keep in sync.
+/** VENDORED from packages/ui/src/components/media/hash-image.ts — keep in sync.
  *  Placeholder-hash codecs shared by the Image leaves: `blurhash:` and
  *  `thumbhash:` URIs decode to a PNG in pure JS so a placeholder is a real
  *  image on every platform — ImageSource.fromBase64Sync on native, a

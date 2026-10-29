@@ -1,10 +1,10 @@
 // @octane-xplat/ui/routing on macOS — same names as the shared routing
 // barrel, bound to the AppKit route leaves.
-export { registerStack, getStack, stackEntries } from '../stacks.macos'
-export { addBackInterceptor } from '../back-interceptors.macos'
+export { registerStack, getStack, stackEntries } from '../components/layout/stacks.macos'
+export { addBackInterceptor } from './back-interceptors.macos'
 
-export { RouteBoundary } from '../RouteBoundary.macos.tsrx'
-export { useBackInterceptor } from '../use-back.tsrx'
+export { RouteBoundary } from './RouteBoundary.macos.tsrx'
+export { useBackInterceptor } from './use-back.tsrx'
 
 export {
 	deriveRouteManifest,
@@ -14,7 +14,7 @@ export {
 	manifestToJson,
 	formatRouteDiagnostic,
 	RouteManifestError,
-} from '../route-table'
+} from './route-table'
 
 export type {
 	RouteBoundaryProps,
@@ -50,11 +50,11 @@ export {
 	defineRouteGroup,
 	withSearchDecoder,
 	RouteSearchValidationError,
-} from '../define-route'
+} from './define-route'
 
-export { defineTransitions } from '../route-transitions'
-export { createPaneRouterHost } from '../pane-router-client'
-export { RouterPane } from '../RouterPane.tsrx'
+export { defineTransitions } from './route-transitions'
+export { createPaneRouterHost } from './pane-router-client'
+export { RouterPane } from './RouterPane.tsrx'
 export type { PaneRouterHost, RouterPaneProps } from '../props'
 export type {
 	AbsoluteRoutePath,
@@ -130,9 +130,9 @@ export type {
 	NativeTransitionDefinition,
 } from '../props'
 
-export { createRouter } from '../router-instance'
+export { createRouter } from './router-instance'
 
-export { RouteRegistrationError } from '../route-registry'
+export { RouteRegistrationError } from './route-registry'
 
 export {
 	RouterProvider,
@@ -143,17 +143,17 @@ export {
 	useCanGoBack,
 	useRouteMatch,
 	getRouteApi,
-} from '../router-hooks.tsrx'
+} from './router-hooks.tsrx'
 
 export type { RouterProviderProps, RouteApi, RouteSearchUpdater } from '../props'
 
-export { router, configureRouter } from '../default-router.macos'
+export { router, configureRouter } from './default-router.macos'
 
 export {
 	redirect,
 	DestinationRedirect,
 	RouteForbidden,
 	RouteResourceNotFound,
-} from '../routing-core'
+} from './routing-core'
 
-export type { RouteGroupBuilder } from '../define-route'
+export type { RouteGroupBuilder } from './define-route'

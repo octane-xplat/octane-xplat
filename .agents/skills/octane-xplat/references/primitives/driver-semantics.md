@@ -180,7 +180,7 @@ that reads shared state subscribes** — `useStore(store)` /
 `useStore(store, select)` from `@octane-xplat/ui/data` (over
 `useSyncExternalStore`; a subscriber is marked dirty and always re-runs).
 `createStore(initial)` makes a minimal `{getSnapshot,set,update,subscribe}` store.
-Pinned by `packages/ui/src/store.mobile.test.tsrx` + `store.web.test.tsrx`.
+Pinned by `packages/ui/src/data/store.mobile.test.tsrx` + `store.web.test.tsrx`.
 
 ```tsx
 import { Text } from '@octane-xplat/ui'

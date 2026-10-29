@@ -28,7 +28,7 @@ import {
 	routeParamName as segmentParam,
 } from '@octane-xplat/lib/route-pattern'
 
-// Mirror of packages/ui/src/route-table.ts conventions — the CLI walks the
+// Mirror of packages/ui/src/routing/route-table.ts conventions — the CLI walks the
 // route dir off disk (no vite glob), so the derivation is re-implemented
 // here. Keep the two in sync: same suffix strip order, same index/_layout
 // rules. All platform variants count — the union is cross-platform.

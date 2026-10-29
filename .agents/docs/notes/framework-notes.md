@@ -225,5 +225,5 @@ function If(props: { h?: boolean; children?: any }) @{
 
 **Workaround:** build `className` on stored elements with `cx(...)` from `@octane-xplat/lib`, so it is a
 string. `FormField.web.tsrx` does this. Before the workaround, every labelled `FormField` on web crashed as
-soon as it re-rendered. The regression test is `packages/ui/src/FormField.web.test.tsrx`. Remove the
+soon as it re-rendered. The regression test is `packages/ui/src/components/forms/FormField.web.test.tsrx`. Remove the
 workaround once Octane handles array `className` in this position.

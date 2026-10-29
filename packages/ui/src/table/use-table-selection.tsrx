@@ -7,8 +7,8 @@
 import { useMemo, useRef } from 'octane'
 import type { TablePlugin, TableSelectionState } from './types'
 import type { TableColumn } from '../props'
-import { Checkbox as CheckboxInput } from '../Checkbox'
-import { View } from '../View'
+import { Checkbox as CheckboxInput } from '../components/forms/Checkbox'
+import { View } from '../components/layout/View'
 import { pixel } from './column-utils'
 import { tableSlot } from './table-slot'
 

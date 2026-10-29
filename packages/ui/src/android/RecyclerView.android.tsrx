@@ -1,25 +1,25 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { mergeStyle } from '../style-merge'
-import { useNativeListCells } from '../use-native-list-cells.mobile'
+import { mergeStyle } from '../internal/layout/style-merge'
+import { useNativeListCells } from '../components/collections/use-native-list-cells.mobile'
 // Universal hooks import from 'octane' — the compiler retargets them to the
 // nativescript runtime, and the dev server serves them via HTTP-ESM.
 import { memo, useCallback, useEffect, useImperativeHandle, useRef } from 'octane'
 import { ScrollView } from '@nativescript/core'
 import type { RecyclerViewProps } from '../props'
-import type { RefreshConfig, RefreshController } from '../refresh'
+import type { RefreshConfig, RefreshController } from '../components/layout/refresh'
 import { cx } from '@octane-xplat/lib'
-import { ActivityIndicator } from '../ActivityIndicator.tsrx'
-import { applyEscapeProps } from '../escape-props'
-import { REFRESH_HEADER_HEIGHT } from '../refresh-metrics'
-import { createPullToRefresh } from '../refresh'
-import { createListViewabilityTracker } from '../list-viewability-core'
-import { observeListViewability } from '../list-viewability-observer.android'
-import type { ListVisibilityObserver } from '../list-viewability-runtime'
+import { ActivityIndicator } from '../components/feedback/ActivityIndicator.tsrx'
+import { applyEscapeProps } from '../components/overlays/escape-props'
+import { REFRESH_HEADER_HEIGHT } from '../components/layout/refresh-metrics'
+import { createPullToRefresh } from '../components/layout/refresh'
+import { createListViewabilityTracker } from '../components/collections/list-viewability-core'
+import { observeListViewability } from '../components/collections/list-viewability-observer.android'
+import type { ListVisibilityObserver } from '../components/collections/list-viewability-runtime'
 import {
 	createInitialListScrollRestorer,
 	scrollListToIndex,
 	type PlatformListRuntime,
-} from '../list-viewability-runtime'
+} from '../components/collections/list-viewability-runtime'
 
 function rejectNestedScrollView(event: any) {
 	let parent = event.object?.parent

@@ -171,7 +171,7 @@ outer keys still win, and fragment/range boundaries remain distinct. Remove
 this hunk when upstream preserves those keys; it is a local runtime fix,
 not unpatched Octane support. Evidence:
 [runtime source](https://github.com/octanejs/octane/blob/octane%400.14.0/packages/octane/src/universal-core.ts),
-[compiled-map regression](../../../packages/ui/src/keyed-component.mobile.test.tsrx),
+[compiled-map regression](../../../packages/ui/src/internal/accessibility/keyed-component.mobile.test.tsrx),
 and [AppKit lifecycle fixture](../../../packages/macos-renderer/test/fixtures/tab-lifecycle.ts).
 
 ```tsx

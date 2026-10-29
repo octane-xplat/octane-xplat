@@ -217,7 +217,7 @@ export function InitialSearch() {
 ```
 
 AppKit uses its native input handle directly; TextInput and TextArea have no
-public `hasAutoFocus` prop. Five [object-driver cases](../../packages/ui/src/power-search-focus.macos.mobile.test.tsrx)
+public `hasAutoFocus` prop. Five [object-driver cases](../../packages/ui/src/components/forms/power-search-focus.macos.mobile.test.tsrx)
 and a [manual fixture](../../examples/probes/power-search-focus.macos.tsrx) are
 authored, all unrun. Source/fake dispatch does not prove actual AppKit attachment,
 focus/notification ordering, caret/IME, modal containment, accessibility or

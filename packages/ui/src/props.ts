@@ -5182,9 +5182,9 @@ export interface RouterHostContent {
 export interface ClientRouterHost {
 	host: RouterHost
 	attach(router: RouterInstance<any, any, any>): void
-	scope(flow: string): import('./router-render-scope').RouterRenderScope
-	mount(flow: string, owner: import('./owned-content').ContentOwner): () => void | Promise<void>
-	getRenderHost?(flow: string): import('./render-router-host').RenderRouterHost | undefined
+	scope(flow: string): import('./routing/router-render-scope').RouterRenderScope
+	mount(flow: string, owner: import('./components/overlays/owned-content').ContentOwner): () => void | Promise<void>
+	getRenderHost?(flow: string): import('./routing/render-router-host').RenderRouterHost | undefined
 	isModalFlow?(flow: string): boolean
 	/** Visibility belongs to the declaring pane and guides native activity Back. */
 	setFlowActive?(flow: string, active: boolean): void
@@ -5202,7 +5202,7 @@ export interface ClientRouteOutletProps extends Pick<
 
 /** @internal Retained pane outlet, including a base-less modal history. */
 export interface RenderRouteOutletProps {
-	host: import('./render-router-host').RenderRouterHost
+	host: import('./routing/render-router-host').RenderRouterHost
 	flow?: string
 	modal?: boolean
 	children?: any
@@ -11901,7 +11901,7 @@ export interface CodeProps {
 /** One syntax token. start/end are UTF-16 code-unit offsets relative to
  * its line; start is inclusive and end is exclusive. */
 export interface SyntaxToken {
-	type: import('./code-tokenizer').SyntaxTokenType
+	type: import('./markdown/code-tokenizer').SyntaxTokenType
 	start: number
 	end: number
 }
@@ -11912,7 +11912,7 @@ export type TokenLine = SyntaxToken[]
 /** A custom token with inclusive start/exclusive end UTF-16 offsets in the
  * complete source (including newlines), rather than offsets in one line. */
 export interface CodeToken {
-	type: import('./code-tokenizer').SyntaxTokenType
+	type: import('./markdown/code-tokenizer').SyntaxTokenType
 	start: number
 	end: number
 }

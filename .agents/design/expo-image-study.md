@@ -173,7 +173,7 @@ and crossfades it in the shared layer.
 
 **Applied (decision #103, 2026-10-06).** `Image` grew a shared `placeholder`
 prop. NS core has no placeholder slot, but its property events allow the same
-outcome expo's loaders produce: `packages/ui/src/Image.tsrx` resolves the
+outcome expo's loaders produce: `packages/ui/src/components/media/Image.tsrx` resolves the
 placeholder to an `ImageSource` and (re)assigns `view.imageSource` whenever
 `isLoadingChange` reports a pending load and after every binding `src` write
 (`afterIssue`) — `src` application nulls `imageSource` first, so the ordering
@@ -185,7 +185,7 @@ web leaf swaps `placeholder` → `src` on the same `<img>` (the element keeps
 its last decoded frame while the new src fetches), gated on the placeholder's
 own `load` so the exchange never blanks, with a hidden prefetch keeping the
 final fetch warm. `blurhash:`/`thumbhash:` URIs decode to a small PNG in pure
-JS (`packages/ui/src/hash-image.ts` — Wolt blurhash + Evan Wallace thumbhash
+JS (`packages/ui/src/components/media/hash-image.ts` — Wolt blurhash + Evan Wallace thumbhash
 ports, MIT; Wallace's uncompressed-PNG encoder minus the `btoa` tail), so a
 hash placeholder is a real image on every platform.
 

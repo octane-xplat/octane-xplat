@@ -1,11 +1,11 @@
 /** @jsxImportSource @octane-xplat/jsx */
 /** Compiler-defined test leaves keep native control tests independent of layout. */
-import { View } from '../../ui/src/View.tsrx'
+import { View } from '../../ui/src/components/layout/View.tsrx'
 export { View }
-export { HStack } from '../../ui/src/HStack.tsrx'
-export { Text } from '../../ui/src/Text.tsrx'
-export { Checkbox as CheckboxInput } from '../../ui/src/Checkbox.tsrx'
-export { Pressable } from '../../ui/src/Pressable.tsrx'
+export { HStack } from '../../ui/src/components/layout/HStack.tsrx'
+export { Text } from '../../ui/src/components/content/Text.tsrx'
+export { Checkbox as CheckboxInput } from '../../ui/src/components/forms/Checkbox.tsrx'
+export { Pressable } from '../../ui/src/components/actions/Pressable.tsrx'
 
 export function TextInput() {
 	return <label />

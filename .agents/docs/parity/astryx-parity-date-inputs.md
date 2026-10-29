@@ -85,7 +85,7 @@ not the draft. Browser-native segments in
 use a real `input type="date"`; they should not be described as an Astryx text
 mask. A fixed mask would be a separate product choice, not required parity.
 
-Xplat's [`datetime.ts`](../../../packages/ui/src/datetime.ts) already provides
+Xplat's [`datetime.ts`](../../../packages/ui/src/components/forms/datetime.ts) already provides
 `parseDateInput`, locale numeric ordering, English month names, and committed
 formatting. It deliberately has no native `Date` parsing fallback; it also
 accepts two-digit years, ordinal days, and year-first slash input. Exact parser
@@ -106,7 +106,7 @@ interval; Escape cancels it.
 checks `min`, `max`, each `dateConstraints` predicate, and inclusive range spans
 relative to the pending anchor. It does not promise that every interior day of
 a committed range passes the predicates. Xplat's `createDateDisabledCheck` and
-`applyRangePick` in [`calendar-core.ts`](../../../packages/ui/src/calendar-core.ts)
+`applyRangePick` in [`calendar-core.ts`](../../../packages/ui/src/components/forms/calendar-core.ts)
 already implement the same endpoint/span and second-pick model.
 
 Astryx's [`DateRangeInput.tsx`](https://raw.githubusercontent.com/facebook/astryx/06c8fa3165537dedbe67101cfcabbe14f0f82e82/packages/core/src/DateRangeInput/DateRangeInput.tsx)
@@ -226,9 +226,9 @@ currently establish an all-interior-days-valid range invariant.
 ## Verification and documentation coverage
 
 Existing maintained evidence includes
-[`date-entry.web.test.tsx`](../../../packages/ui/src/date-entry.web.test.tsx) for web parsing,
+[`date-entry.web.test.tsx`](../../../packages/ui/src/components/forms/date-entry.web.test.tsx) for web parsing,
 calendar picks, range ordering/bounds, clearing, time stepping, and presets, and
-[`datetime.test.ts`](../../../packages/ui/src/datetime.test.ts) for date math and
+[`datetime.test.ts`](../../../packages/ui/src/components/forms/datetime.test.ts) for date math and
 parsers. These tests do not establish the residual behaviors listed above.
 
 Audit checks:
@@ -237,7 +237,7 @@ Audit checks:
   in the fetched revision's source snapshot.
 - `git diff --check` passes for the report.
 - Attempted `pnpm --filter @xplat/web exec vitest run
-packages/ui/src/datetime.test.ts packages/ui/src/date-entry.test.tsx`;
+packages/ui/src/components/forms/datetime.test.ts packages/ui/src/date-entry.test.tsx`;
   execution was blocked because `vitest` is unavailable in this worktree.
   Existing test cases were inspected, not executed.
 - Attempted `pnpm exec oxfmt --check docs/.agents/docs/parity/astryx-parity-date-inputs.md`;

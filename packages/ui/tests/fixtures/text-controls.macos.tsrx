@@ -4,8 +4,8 @@ import '@octane-xplat/ui/theme/chrome.css'
 import { useState } from 'octane'
 // Keep these extensionless imports: parity fixtures and shared components use
 // them too, and must resolve to AppKit rather than NativeScript controls.
-import { TextArea } from '../../src/TextArea'
-import { TextInput } from '../../src/TextInput'
+import { TextArea } from '../../src/components/forms/TextArea'
+import { TextInput } from '../../src/components/forms/TextInput'
 import type { ProbeContext } from '../../../../scripts/probe/context'
 
 let changeRows: (rows: number) => void

@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { Button, Image, Text, VStack } from '@octane-xplat/ui'
-import { appKitHost } from '../../packages/ui/src/host-bridge'
+import { appKitHost } from '../../packages/ui/src/internal/platform/host-bridge'
 import type { ProbeContext } from '../../scripts/probe/context'
 const source = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a/mkAAAAASUVORK5CYII='
 export default function ImageMemoryCacheProbe() {

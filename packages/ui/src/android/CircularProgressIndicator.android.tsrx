@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { CircularProgressIndicatorProps } from '../props'
 import { cx } from '@octane-xplat/lib'
-import { applyNativeProps } from '../platformProps'
+import { applyNativeProps } from '../internal/platform/platformProps'
 
 /** CircularProgressIndicator — the platform spinner (Android indeterminate
  *  ProgressBar via NativeScript `activityindicator`). The self-drawn shared

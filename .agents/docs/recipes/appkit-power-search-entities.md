@@ -22,5 +22,5 @@ search, so the new target form reuses it without shared API or dependency change
 ## Documentation
 
 - AC1–AC4: [Public entity workflow](../../../docs/app/power-search.md#edit-native-appkit-entity-filters), Octane primitives reference, feature note and [target progress](../parity/appkit-progress.md#appkit-powersearch-entity-form).
-- AC1–AC3: [Value/batch cases](../../../packages/ui/src/power-search-entities.macos.mobile.test.ts) and [mocked-control editor cases](../../../packages/ui/src/power-search-entity-editor.macos.mobile.test.tsrx), authored but unrun. Mock controls do not prove native input/selection/IME/AX.
+- AC1–AC3: [Value/batch cases](../../../packages/ui/src/components/forms/power-search-entities.macos.mobile.test.ts) and [mocked-control editor cases](../../../packages/ui/src/components/forms/power-search-entity-editor.macos.mobile.test.tsrx), authored but unrun. Mock controls do not prove native input/selection/IME/AX.
 - AC4: [Idle manual fixture](../../../examples/probes/power-search-entities.macos.tsrx), authored but unrun. It mounts controls only and applies no filter automatically.

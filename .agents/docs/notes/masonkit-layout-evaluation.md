@@ -486,7 +486,7 @@ with `scrollview`/`liquidglass` as the chrome-wrapped hosts:
   upstream-limitation rows in `feedback_observations` (no mason style buffer
   on plain views; no view-level CssProperties on mason's ViewBase).
   Component-level sugar (`row`/`col`/`span`, `dock`, edges, alignment, flex
-  props) is translated to CSS in `packages/ui/src/layout-child.ts`, identical
+  props) is translated to CSS in `packages/ui/src/components/layout/layout-child.ts`, identical
   in spirit to `layout-child.web.ts`.
 - **Web**: unchanged — DOM CSS implements the same model; Mason never runs.
 
@@ -698,7 +698,7 @@ single manual `requestLayout` on `img-a` climbs to the Page and
 re-measures the whole tree, so per-case isolation is impossible within
 one probe run.
 
-**Workaround (iOS).** `packages/ui/src/image-sizing.ts` registers
+**Workaround (iOS).** `packages/ui/src/components/media/image-sizing.ts` registers
 `imageSourceChange` on the image view and calls `view.requestLayout()`
 itself (`relayoutOnImageSource`, enabled on iOS only — see the Android
 paragraph below) — unconditional, since a same-size rebind with a different aspect

@@ -20,7 +20,7 @@ import type {
 } from './types'
 
 import type { TableColumn } from '../props'
-import { Icon } from '../Icon'
+import { Icon } from '../components/media/Icon'
 
 /** Indent step per level, by the `indent` config token. */
 const INDENT_STEP = {

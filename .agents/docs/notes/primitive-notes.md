@@ -500,7 +500,7 @@ export function Items() {
 }
 ```
 
-**Lab findings (iOS sim, experiment 1 — `packages/ui/src/List.tsrx`):**
+**Lab findings (iOS sim, experiment 1 — `packages/ui/src/components/collections/List.tsrx`):**
 
 - ✅ Per-cell `createNativeScriptRoot` works: 5 visible cells → 5 roots,
   reused across waves; `root.render` re-entry updates in place.
@@ -926,7 +926,7 @@ interface TextAreaProps extends TextInputProps {
   `_cssState.onChange()` after clearing a local key. CSS variables use public
   `removeUnscopedCssVariable`; string key tracking uses core's CSS parser.
   This update is covered by installed-driver tests with mocked native hosts
-  (`packages/ui/src/prop-removal.mobile.test.ts`), not fresh device evidence.
+  (`packages/ui/src/internal/layout/prop-removal.mobile.test.ts`), not fresh device evidence.
   Keep the separate Mason integration when removing upstreamed hunks.
 - The current field-control contract derives native editability from
   `isDisabled` and `isReadOnly`, and always passes a boolean to the native

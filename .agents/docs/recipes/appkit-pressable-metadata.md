@@ -17,5 +17,5 @@ A native save action needs a stable testing identifier and a human-facing name.
 ## Documentation
 
 - AC1: [Native identifier contract](../../../packages/macos-renderer/README.md#native-test-identifiers) and [authored renderer update cases](../../../packages/macos-renderer/test/event-prop-clears.test.ts). Tests unrun.
-- AC2: [AppKit source guide](../../../docs/testing/test-identifiers.md#appkit-source-implementation) and [authored object-driver cases](../../../packages/ui/src/pressable.macos.mobile.test.tsrx).
+- AC2: [AppKit source guide](../../../docs/testing/test-identifiers.md#appkit-source-implementation) and [authored object-driver cases](../../../packages/ui/src/components/actions/pressable.macos.mobile.test.tsrx).
 - AC3: [Target note](../parity/appkit-progress.md#pressable-identifiers-and-accessibility-element-forwarding) records scope and exact deferred commands.

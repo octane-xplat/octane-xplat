@@ -5,7 +5,7 @@ import ts from 'typescript'
 
 // Isolate the macOS leaf from the workspace package graph; its only import is
 // a type-only QueryStorageAdapter that transpiles away.
-const source = readFileSync(new URL('../src/query-storage.macos.ts', import.meta.url), 'utf8')
+const source = readFileSync(new URL('../src/data/query-storage.macos.ts', import.meta.url), 'utf8')
 
 const compiled = ts.transpileModule(source, {
 	compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ESNext },

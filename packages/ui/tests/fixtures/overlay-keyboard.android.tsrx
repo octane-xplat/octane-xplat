@@ -2,7 +2,7 @@
 import { useState } from 'octane'
 import { Screen, BottomSheet, BottomSheetSwitcher, Dialog, TextInput, View } from '@octane-xplat/ui'
 import { KeyboardController } from '../../../keyboard/src/index'
-import { measureKeyboardHost } from '../../src/keyboard-host-bounds'
+import { measureKeyboardHost } from '../../src/internal/keyboard/keyboard-host-bounds'
 import type { ProbeContext } from '../../../../scripts/probe/context'
 let show = (_value: boolean) => {},
 	showDialog = (_value: boolean) => {},

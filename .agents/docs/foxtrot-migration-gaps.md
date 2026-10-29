@@ -118,7 +118,7 @@ Additional implementation evidence: [editor props](../../packages/tiptap/src/typ
 [iOS stub](../../packages/richtext/src/RichTextEditor.ios.tsrx),
 [native passkey stub](../../packages/platform/src/webauthn.ts),
 [files](../../packages/files/src/files.ts),
-[query storage](../../packages/ui/src/query-storage.ts),
+[query storage](../../packages/ui/src/data/query-storage.ts),
 [known limits](../../docs/testing/known-limits.md),
 [optional-service qualification](notes/optional-service-qualification.md),
 [DnD evidence](../../packages/dnd-kit/README.md#limits-and-verification).

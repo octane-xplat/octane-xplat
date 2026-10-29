@@ -8,7 +8,7 @@
 import { useMemo, useRef } from 'octane'
 import type { TablePlugin, UseTableGroupedRowsConfig, UseTableGroupedRowsResult } from './types'
 import { flattenGroups, isGroupHeader, makeGroupedIdKey } from './grouped-rows'
-import { Icon } from '../Icon'
+import { Icon } from '../components/media/Icon'
 
 /**
  * Groups a flat data array into collapsible section rows. Each distinct

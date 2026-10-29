@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
-import { Overlay as UIOverlay } from '../../ui/src/Overlay.web.tsrx'
+import { Overlay as UIOverlay } from '../../ui/src/components/overlays/Overlay.web.tsrx'
 let read: (() => void) | undefined
 export function setRead(next: typeof read) { read = next }
 export function Overlay(props: Parameters<typeof UIOverlay>[0]) { read?.(); return <UIOverlay {...props} /> }

@@ -64,11 +64,11 @@
         "names": [
           "KeyboardAvoiding"
         ],
-        "file": "packages/ui/src/KeyboardAvoiding.mobile.tsrx",
+        "file": "packages/ui/src/components/layout/KeyboardAvoiding.mobile.tsrx",
         "foreign": "mobile"
       }
     ],
-    "packages/ui/src/BottomSheet.tsrx": [
+    "packages/ui/src/components/overlays/BottomSheet.tsrx": [
       {
         "spec": "./keyboard-overlay-host",
         "names": [
@@ -79,18 +79,18 @@
         "missing": "packages/ui/src/keyboard-overlay-host"
       }
     ],
-    "packages/ui/src/CommandPalette.tsrx": [
+    "packages/ui/src/components/overlays/CommandPalette.tsrx": [
       {
         "spec": "./command-palette-accessibility.mobile",
         "names": [
           "announceCommandPalette"
         ],
         "line": 13,
-        "file": "packages/ui/src/command-palette-accessibility.mobile.ts",
+        "file": "packages/ui/src/components/overlays/command-palette-accessibility.mobile.ts",
         "foreign": "mobile"
       }
     ],
-    "packages/ui/src/Dialog.tsrx": [
+    "packages/ui/src/components/overlays/Dialog.tsrx": [
       {
         "spec": "./keyboard-overlay-host",
         "names": [
@@ -100,7 +100,7 @@
         "missing": "packages/ui/src/keyboard-overlay-host"
       }
     ],
-    "packages/ui/src/LinearGradient.tsrx": [
+    "packages/ui/src/components/media/LinearGradient.tsrx": [
       {
         "spec": "./linear-gradient-apply",
         "names": [
@@ -110,7 +110,7 @@
         "missing": "packages/ui/src/linear-gradient-apply"
       }
     ],
-    "packages/ui/src/bottom-sheet-service.ts": [
+    "packages/ui/src/components/overlays/bottom-sheet-service.ts": [
       {
         "spec": "./keyboard-overlay-host",
         "names": [
@@ -1071,7 +1071,7 @@
           "useNativeListCells"
         ],
         "line": 3,
-        "file": "packages/ui/src/use-native-list-cells.mobile.tsrx",
+        "file": "packages/ui/src/components/collections/use-native-list-cells.mobile.tsrx",
         "foreign": "mobile"
       },
       {
@@ -1080,7 +1080,7 @@
           "observeListViewability"
         ],
         "line": 16,
-        "file": "packages/ui/src/list-viewability-observer.ios.ts",
+        "file": "packages/ui/src/components/collections/list-viewability-observer.ios.ts",
         "foreign": "ios"
       }
     ],
@@ -1206,7 +1206,7 @@
           "useNativeListCells"
         ],
         "line": 3,
-        "file": "packages/ui/src/use-native-list-cells.mobile.tsrx",
+        "file": "packages/ui/src/components/collections/use-native-list-cells.mobile.tsrx",
         "foreign": "mobile"
       },
       {
@@ -1215,7 +1215,7 @@
           "observeListViewability"
         ],
         "line": 16,
-        "file": "packages/ui/src/list-viewability-observer.android.ts",
+        "file": "packages/ui/src/components/collections/list-viewability-observer.android.ts",
         "foreign": "android"
       }
     ],
@@ -1236,7 +1236,7 @@
         "names": [
           "createBrowserRouterHost"
         ],
-        "file": "packages/ui/src/browser-router-host.web.ts",
+        "file": "packages/ui/src/routing/browser-router-host.web.ts",
         "foreign": "web"
       },
       {
@@ -1244,7 +1244,7 @@
         "names": [
           "createServerRouterHost"
         ],
-        "file": "packages/ui/src/server-router-host.web.ts",
+        "file": "packages/ui/src/routing/server-router-host.web.ts",
         "foreign": "web"
       },
       {
@@ -1252,18 +1252,18 @@
         "names": [
           "WebRouterRoot"
         ],
-        "file": "packages/ui/src/WebRouterRoot.web.tsrx",
+        "file": "packages/ui/src/routing/WebRouterRoot.web.tsrx",
         "foreign": "web"
       }
     ],
-    "packages/ui/src/browser-router-host.web.ts": [
+    "packages/ui/src/routing/browser-router-host.web.ts": [
       {
         "spec": "./browser-route-effects.web",
         "names": [
           "createBrowserRouteEffects"
         ],
         "line": 6,
-        "file": "packages/ui/src/browser-route-effects.web.ts",
+        "file": "packages/ui/src/routing/browser-route-effects.web.ts",
         "foreign": "web"
       },
       {
@@ -1272,49 +1272,49 @@
           "createBrowserRouteTransitions"
         ],
         "line": 7,
-        "file": "packages/ui/src/browser-route-transitions.web.ts",
+        "file": "packages/ui/src/routing/browser-route-transitions.web.ts",
         "foreign": "web"
       }
     ],
-    "packages/ui/src/browser-route-effects.web.ts": [
+    "packages/ui/src/routing/browser-route-effects.web.ts": [
       {
         "spec": "./focus-target.web",
         "names": [
           "focusBrowserTarget"
         ],
         "line": 2,
-        "file": "packages/ui/src/focus-target.web.ts",
+        "file": "packages/ui/src/internal/accessibility/focus-target.web.ts",
         "foreign": "web"
       }
     ],
-    "packages/ui/src/WebRouterRoot.web.tsrx": [
+    "packages/ui/src/routing/WebRouterRoot.web.tsrx": [
       {
         "spec": "./ClientRouteOutlet.web.tsrx",
         "names": [
           "ClientRouteOutlet"
         ],
         "line": 4,
-        "file": "packages/ui/src/ClientRouteOutlet.web.tsrx",
+        "file": "packages/ui/src/routing/ClientRouteOutlet.web.tsrx",
         "foreign": "web"
       }
     ],
-    "packages/ui/src/ClientRouteOutlet.web.tsrx": [
+    "packages/ui/src/routing/ClientRouteOutlet.web.tsrx": [
       {
         "spec": "./modal-focus.web",
         "names": [
           "isolateModalFocus"
         ],
         "line": 10,
-        "file": "packages/ui/src/modal-focus.web.ts",
+        "file": "packages/ui/src/components/overlays/modal-focus.web.ts",
         "foreign": "web"
       }
     ],
-    "packages/ui/src/modal-focus.web.ts": [
+    "packages/ui/src/components/overlays/modal-focus.web.ts": [
       {
         "spec": "./layer-keys.web",
         "names": [],
         "line": 1,
-        "file": "packages/ui/src/layer-keys.web.ts",
+        "file": "packages/ui/src/components/overlays/layer-keys.web.ts",
         "foreign": "web"
       },
       {
@@ -1323,7 +1323,7 @@
           "focusBrowserTarget"
         ],
         "line": 3,
-        "file": "packages/ui/src/focus-target.web.ts",
+        "file": "packages/ui/src/internal/accessibility/focus-target.web.ts",
         "foreign": "web"
       }
     ],
@@ -1941,7 +1941,7 @@
           "useNativeListCells"
         ],
         "line": 3,
-        "file": "packages/ui/src/use-native-list-cells.mobile.tsrx",
+        "file": "packages/ui/src/components/collections/use-native-list-cells.mobile.tsrx",
         "foreign": "mobile"
       },
       {
@@ -1961,11 +1961,11 @@
           "observeListViewability"
         ],
         "line": 16,
-        "file": "packages/ui/src/list-viewability-observer.ios.ts",
+        "file": "packages/ui/src/components/collections/list-viewability-observer.ios.ts",
         "foreign": "ios"
       }
     ],
-    "packages/ui/src/use-native-list-cells.mobile.tsrx": [
+    "packages/ui/src/components/collections/use-native-list-cells.mobile.tsrx": [
       {
         "spec": "@nativescript/core",
         "names": [
@@ -2204,7 +2204,7 @@
           "useNativeListCells"
         ],
         "line": 3,
-        "file": "packages/ui/src/use-native-list-cells.mobile.tsrx",
+        "file": "packages/ui/src/components/collections/use-native-list-cells.mobile.tsrx",
         "foreign": "mobile"
       },
       {
@@ -2224,7 +2224,7 @@
           "observeListViewability"
         ],
         "line": 16,
-        "file": "packages/ui/src/list-viewability-observer.android.ts",
+        "file": "packages/ui/src/components/collections/list-viewability-observer.android.ts",
         "foreign": "android"
       }
     ],
@@ -2293,7 +2293,7 @@
         "missing": "packages/ui/src/full-screen-page"
       }
     ],
-    "packages/ui/src/root-layout.ts": [
+    "packages/ui/src/components/layout/root-layout.ts": [
       {
         "spec": "@nativescript/core",
         "names": [
@@ -2314,7 +2314,7 @@
         "names": [
           "createBrowserRouterHost"
         ],
-        "file": "packages/ui/src/browser-router-host.web.ts",
+        "file": "packages/ui/src/routing/browser-router-host.web.ts",
         "foreign": "web"
       },
       {
@@ -2322,7 +2322,7 @@
         "names": [
           "createServerRouterHost"
         ],
-        "file": "packages/ui/src/server-router-host.web.ts",
+        "file": "packages/ui/src/routing/server-router-host.web.ts",
         "foreign": "web"
       },
       {
@@ -2330,18 +2330,18 @@
         "names": [
           "WebRouterRoot"
         ],
-        "file": "packages/ui/src/WebRouterRoot.web.tsrx",
+        "file": "packages/ui/src/routing/WebRouterRoot.web.tsrx",
         "foreign": "web"
       }
     ],
-    "packages/ui/src/browser-router-host.web.ts": [
+    "packages/ui/src/routing/browser-router-host.web.ts": [
       {
         "spec": "./browser-route-effects.web",
         "names": [
           "createBrowserRouteEffects"
         ],
         "line": 6,
-        "file": "packages/ui/src/browser-route-effects.web.ts",
+        "file": "packages/ui/src/routing/browser-route-effects.web.ts",
         "foreign": "web"
       },
       {
@@ -2350,49 +2350,49 @@
           "createBrowserRouteTransitions"
         ],
         "line": 7,
-        "file": "packages/ui/src/browser-route-transitions.web.ts",
+        "file": "packages/ui/src/routing/browser-route-transitions.web.ts",
         "foreign": "web"
       }
     ],
-    "packages/ui/src/browser-route-effects.web.ts": [
+    "packages/ui/src/routing/browser-route-effects.web.ts": [
       {
         "spec": "./focus-target.web",
         "names": [
           "focusBrowserTarget"
         ],
         "line": 2,
-        "file": "packages/ui/src/focus-target.web.ts",
+        "file": "packages/ui/src/internal/accessibility/focus-target.web.ts",
         "foreign": "web"
       }
     ],
-    "packages/ui/src/WebRouterRoot.web.tsrx": [
+    "packages/ui/src/routing/WebRouterRoot.web.tsrx": [
       {
         "spec": "./ClientRouteOutlet.web.tsrx",
         "names": [
           "ClientRouteOutlet"
         ],
         "line": 4,
-        "file": "packages/ui/src/ClientRouteOutlet.web.tsrx",
+        "file": "packages/ui/src/routing/ClientRouteOutlet.web.tsrx",
         "foreign": "web"
       }
     ],
-    "packages/ui/src/ClientRouteOutlet.web.tsrx": [
+    "packages/ui/src/routing/ClientRouteOutlet.web.tsrx": [
       {
         "spec": "./modal-focus.web",
         "names": [
           "isolateModalFocus"
         ],
         "line": 10,
-        "file": "packages/ui/src/modal-focus.web.ts",
+        "file": "packages/ui/src/components/overlays/modal-focus.web.ts",
         "foreign": "web"
       }
     ],
-    "packages/ui/src/modal-focus.web.ts": [
+    "packages/ui/src/components/overlays/modal-focus.web.ts": [
       {
         "spec": "./layer-keys.web",
         "names": [],
         "line": 1,
-        "file": "packages/ui/src/layer-keys.web.ts",
+        "file": "packages/ui/src/components/overlays/layer-keys.web.ts",
         "foreign": "web"
       },
       {
@@ -2401,7 +2401,7 @@
           "focusBrowserTarget"
         ],
         "line": 3,
-        "file": "packages/ui/src/focus-target.web.ts",
+        "file": "packages/ui/src/internal/accessibility/focus-target.web.ts",
         "foreign": "web"
       }
     ],
@@ -3594,7 +3594,7 @@
         ]
       }
     ],
-    "packages/ui/src/use-media-query.tsrx": [
+    "packages/ui/src/internal/platform/use-media-query.tsrx": [
       {
         "spec": "@nativescript/core",
         "names": [
@@ -3608,7 +3608,7 @@
         ]
       }
     ],
-    "packages/ui/src/root-layout.ts": [
+    "packages/ui/src/components/layout/root-layout.ts": [
       {
         "spec": "@nativescript/core",
         "names": [
@@ -3623,7 +3623,7 @@
         ]
       }
     ],
-    "packages/ui/src/safeAreaInsets.tsrx": [
+    "packages/ui/src/components/layout/safeAreaInsets.tsrx": [
       {
         "spec": "@nativescript/core",
         "names": [
@@ -3637,7 +3637,7 @@
         ]
       }
     ],
-    "packages/ui/src/Popover.tsrx": [
+    "packages/ui/src/components/overlays/Popover.tsrx": [
       {
         "spec": "@nativescript/core",
         "names": [
@@ -3751,7 +3751,7 @@
         "foreign": "ios"
       }
     ],
-    "packages/ui/src/escape-props.ts": [
+    "packages/ui/src/components/overlays/escape-props.ts": [
       {
         "spec": "@nativescript/core",
         "names": [
@@ -3773,7 +3773,7 @@
           "useNativeListCells"
         ],
         "line": 3,
-        "file": "packages/ui/src/use-native-list-cells.mobile.tsrx",
+        "file": "packages/ui/src/components/collections/use-native-list-cells.mobile.tsrx",
         "foreign": "mobile"
       },
       {
@@ -3793,11 +3793,11 @@
           "observeListViewability"
         ],
         "line": 16,
-        "file": "packages/ui/src/list-viewability-observer.ios.ts",
+        "file": "packages/ui/src/components/collections/list-viewability-observer.ios.ts",
         "foreign": "ios"
       }
     ],
-    "packages/ui/src/use-native-list-cells.mobile.tsrx": [
+    "packages/ui/src/components/collections/use-native-list-cells.mobile.tsrx": [
       {
         "spec": "@nativescript/core",
         "names": [
@@ -4036,7 +4036,7 @@
           "useNativeListCells"
         ],
         "line": 3,
-        "file": "packages/ui/src/use-native-list-cells.mobile.tsrx",
+        "file": "packages/ui/src/components/collections/use-native-list-cells.mobile.tsrx",
         "foreign": "mobile"
       },
       {
@@ -4056,7 +4056,7 @@
           "observeListViewability"
         ],
         "line": 16,
-        "file": "packages/ui/src/list-viewability-observer.android.ts",
+        "file": "packages/ui/src/components/collections/list-viewability-observer.android.ts",
         "foreign": "android"
       }
     ],
@@ -4125,7 +4125,7 @@
         "missing": "packages/ui/src/full-screen-page"
       }
     ],
-    "packages/ui/src/bottom-sheet-service.ts": [
+    "packages/ui/src/components/overlays/bottom-sheet-service.ts": [
       {
         "spec": "@nativescript/core",
         "names": [
@@ -4158,7 +4158,7 @@
         ]
       }
     ],
-    "packages/ui/src/sheet-detents.ts": [
+    "packages/ui/src/components/overlays/sheet-detents.ts": [
       {
         "spec": "@nativescript/core",
         "names": [
@@ -4179,7 +4179,7 @@
         "names": [
           "createBrowserRouterHost"
         ],
-        "file": "packages/ui/src/browser-router-host.web.ts",
+        "file": "packages/ui/src/routing/browser-router-host.web.ts",
         "foreign": "web"
       },
       {
@@ -4187,7 +4187,7 @@
         "names": [
           "createServerRouterHost"
         ],
-        "file": "packages/ui/src/server-router-host.web.ts",
+        "file": "packages/ui/src/routing/server-router-host.web.ts",
         "foreign": "web"
       },
       {
@@ -4195,18 +4195,18 @@
         "names": [
           "WebRouterRoot"
         ],
-        "file": "packages/ui/src/WebRouterRoot.web.tsrx",
+        "file": "packages/ui/src/routing/WebRouterRoot.web.tsrx",
         "foreign": "web"
       }
     ],
-    "packages/ui/src/browser-router-host.web.ts": [
+    "packages/ui/src/routing/browser-router-host.web.ts": [
       {
         "spec": "./browser-route-effects.web",
         "names": [
           "createBrowserRouteEffects"
         ],
         "line": 6,
-        "file": "packages/ui/src/browser-route-effects.web.ts",
+        "file": "packages/ui/src/routing/browser-route-effects.web.ts",
         "foreign": "web"
       },
       {
@@ -4215,49 +4215,49 @@
           "createBrowserRouteTransitions"
         ],
         "line": 7,
-        "file": "packages/ui/src/browser-route-transitions.web.ts",
+        "file": "packages/ui/src/routing/browser-route-transitions.web.ts",
         "foreign": "web"
       }
     ],
-    "packages/ui/src/browser-route-effects.web.ts": [
+    "packages/ui/src/routing/browser-route-effects.web.ts": [
       {
         "spec": "./focus-target.web",
         "names": [
           "focusBrowserTarget"
         ],
         "line": 2,
-        "file": "packages/ui/src/focus-target.web.ts",
+        "file": "packages/ui/src/internal/accessibility/focus-target.web.ts",
         "foreign": "web"
       }
     ],
-    "packages/ui/src/WebRouterRoot.web.tsrx": [
+    "packages/ui/src/routing/WebRouterRoot.web.tsrx": [
       {
         "spec": "./ClientRouteOutlet.web.tsrx",
         "names": [
           "ClientRouteOutlet"
         ],
         "line": 4,
-        "file": "packages/ui/src/ClientRouteOutlet.web.tsrx",
+        "file": "packages/ui/src/routing/ClientRouteOutlet.web.tsrx",
         "foreign": "web"
       }
     ],
-    "packages/ui/src/ClientRouteOutlet.web.tsrx": [
+    "packages/ui/src/routing/ClientRouteOutlet.web.tsrx": [
       {
         "spec": "./modal-focus.web",
         "names": [
           "isolateModalFocus"
         ],
         "line": 10,
-        "file": "packages/ui/src/modal-focus.web.ts",
+        "file": "packages/ui/src/components/overlays/modal-focus.web.ts",
         "foreign": "web"
       }
     ],
-    "packages/ui/src/modal-focus.web.ts": [
+    "packages/ui/src/components/overlays/modal-focus.web.ts": [
       {
         "spec": "./layer-keys.web",
         "names": [],
         "line": 1,
-        "file": "packages/ui/src/layer-keys.web.ts",
+        "file": "packages/ui/src/components/overlays/layer-keys.web.ts",
         "foreign": "web"
       },
       {
@@ -4266,7 +4266,7 @@
           "focusBrowserTarget"
         ],
         "line": 3,
-        "file": "packages/ui/src/focus-target.web.ts",
+        "file": "packages/ui/src/internal/accessibility/focus-target.web.ts",
         "foreign": "web"
       }
     ],

@@ -60,4 +60,4 @@ without executing screen modules or publishing failed/obsolete build results.
 - AC5: [Large route catalogs](../navigation-checks.md#check-large-route-catalogs) provides the maintained generator/compiler/editor benchmark and its measured limits.
 - AC6: [Prepared head metadata](../../../docs/app/navigation.md#set-the-route-title-and-metadata), [Share routes across targets](../../../docs/app/navigation.md#share-routes-across-targets) and the maintained `packages/cli/test/route-platform-contracts.test.mjs` consumer/generation fixtures.
 
-- AC7: [Warm a screen](../../../docs/app/navigation.md#warm-a-screen-before-opening-it), the shared Detail screen’s “Warm about screen” action and generated catalogs, `packages/ui/src/lazy-routes.test.ts`, and the generated chunk regression in `packages/cli/test/route-platform-contracts.test.mjs`.
+- AC7: [Warm a screen](../../../docs/app/navigation.md#warm-a-screen-before-opening-it), the shared Detail screen’s “Warm about screen” action and generated catalogs, `packages/ui/src/routing/lazy-routes.test.ts`, and the generated chunk regression in `packages/cli/test/route-platform-contracts.test.mjs`.

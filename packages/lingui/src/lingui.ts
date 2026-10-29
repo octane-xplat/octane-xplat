@@ -1,7 +1,7 @@
 import './intl'
 
 // Lingui runtime binding — shared module. Locale state lives in a
-// module-scope store (same rule as packages/ui/src/store.ts): pushed pages and
+// module-scope store (same rule as packages/ui/src/data/store.ts): pushed pages and
 // overlays are separate roots on native, so a raw signal read in one root never
 // reaches another — consumers subscribe via useLocale/useLingui in hooks.ts.
 import { i18n, type Messages } from '@lingui/core'

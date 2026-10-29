@@ -1,16 +1,16 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { mergeStyle } from '../src/style-merge'
-import { toChildArray, mapChildren } from '../src/child-array'
-import { List } from '../src/List.tsrx'
-import { Avatar } from '../src/Avatar.tsrx'
-import { AvatarGroup } from '../src/AvatarGroup.tsrx'
-import { Button } from '../src/Button.tsrx'
-import { Kbd } from '../src/Kbd.tsrx'
-import { Blockquote } from '../src/Blockquote.tsrx'
+import { mergeStyle } from '../src/internal/layout/style-merge'
+import { toChildArray, mapChildren } from '../src/internal/rendering/child-array'
+import { List } from '../src/components/collections/List.tsrx'
+import { Avatar } from '../src/components/media/Avatar.tsrx'
+import { AvatarGroup } from '../src/components/media/AvatarGroup.tsrx'
+import { Button } from '../src/components/actions/Button.tsrx'
+import { Kbd } from '../src/components/content/Kbd.tsrx'
+import { Blockquote } from '../src/components/content/Blockquote.tsrx'
 import { useContext, useLayoutEffect, useState, createContext } from 'octane'
-import { Carousel } from '../src/Carousel.tsrx'
-import { MetadataList } from '../src/MetadataList.tsrx'
-import { OverflowList } from '../src/OverflowList.tsrx'
+import { Carousel } from '../src/components/layout/Carousel.tsrx'
+import { MetadataList } from '../src/components/content/MetadataList.tsrx'
+import { OverflowList } from '../src/components/collections/OverflowList.tsrx'
 
 export function Rows(props: any) @{
 	const items = toChildArray(props.children)

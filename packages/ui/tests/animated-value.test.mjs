@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { createAnimatedValue } from '../src/animated-value.ts'
-import { writeAnimatedProperty, readReducedMotion } from '../src/animation-host.macos.ts'
+import { createAnimatedValue } from '../src/internal/platform/animated-value.ts'
+import { writeAnimatedProperty, readReducedMotion } from '../src/internal/platform/animation-host.macos.ts'
 
 function fixture(initial = 0) {
 	let now = 0,

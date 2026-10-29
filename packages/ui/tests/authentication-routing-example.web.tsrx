@@ -1,13 +1,13 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 // Controlled SDK promises and real router owners; no authentication provider traffic.
 import { createRoot, flushSync, useLayoutEffect, useMemo, useState } from 'octane'
-import { createRouter } from '../src/router-instance'
-import { createBrowserRouterHost } from '../src/browser-router-host.web'
-import { ClientRouteOutlet } from '../src/ClientRouteOutlet.web.tsrx'
-import { defineRoute } from '../src/define-route'
-import { defineRoutes } from '../src/route-table'
-import { DestinationRedirect } from '../src/routing-core'
-import { useRouter } from '../src/router-hooks.tsrx'
+import { createRouter } from '../src/routing/router-instance'
+import { createBrowserRouterHost } from '../src/routing/browser-router-host.web'
+import { ClientRouteOutlet } from '../src/routing/ClientRouteOutlet.web.tsrx'
+import { defineRoute } from '../src/routing/define-route'
+import { defineRoutes } from '../src/routing/route-table'
+import { DestinationRedirect } from '../src/routing/routing-core'
+import { useRouter } from '../src/routing/router-hooks.tsrx'
 import type { Renderable } from '../src/props'
 
 type Account = { id: string }

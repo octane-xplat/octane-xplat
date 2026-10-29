@@ -50,7 +50,7 @@
     "subset": "Placeholder label.",
     "gap": "Implement SegmentedControl selection, items, keyboard and accessibility contract.",
     "evidence": [
-      "packages/ui/src/controls.macos.tsrx"
+      "packages/ui/src/components/actions/controls.macos.tsrx"
     ]
   },
   {
@@ -192,9 +192,9 @@
     "subset": "Neutral keyboard props and fixed grid focus state.",
     "gap": "Keyboard/grid keyboard support is not implemented by these shared hooks. GTK root does not export these hooks.",
     "evidence": [
-      "packages/ui/src/use-keyboard.ts",
-      "packages/ui/src/use-grid-focus.ts",
-      "packages/ui/src/use-grid-list.tsrx"
+      "packages/ui/src/internal/keyboard/use-keyboard.ts",
+      "packages/ui/src/components/collections/use-grid-focus.ts",
+      "packages/ui/src/components/collections/use-grid-list.tsrx"
     ]
   },
   {
@@ -213,7 +213,7 @@
     "subset": "FocusScope renders accessible containment markup.",
     "gap": "contain, autoFocus, restoreFocus and nestedScopes are unsupported.",
     "evidence": [
-      "packages/ui/src/FocusScope.macos.tsrx"
+      "packages/ui/src/components/overlays/FocusScope.macos.tsrx"
     ]
   },
   {
@@ -235,8 +235,8 @@
     "subset": "Single-element focus/blur; no reliable modality tracking.",
     "gap": "Subtree focus tracking and focus-visible/input modality are unsupported; GTK root exports absent.",
     "evidence": [
-      "packages/ui/src/use-focus-visible.tsrx",
-      "packages/ui/src/use-focus-within.tsrx"
+      "packages/ui/src/internal/accessibility/use-focus-visible.tsrx",
+      "packages/ui/src/internal/accessibility/use-focus-within.tsrx"
     ]
   },
   {
@@ -258,8 +258,8 @@
     "subset": "Container reveal is always visible; landmark supplies accessible role/label.",
     "gap": "Hover/focus reveal and F6 landmark cycling missing.",
     "evidence": [
-      "packages/ui/src/use-container-reveal.tsrx",
-      "packages/ui/src/use-landmark.tsrx"
+      "packages/ui/src/components/layout/use-container-reveal.tsrx",
+      "packages/ui/src/internal/accessibility/use-landmark.tsrx"
     ]
   },
   {
@@ -301,7 +301,7 @@
     "subset": "Unsupported speech recognition hook.",
     "gap": "Native speech recognition/dictation missing.",
     "evidence": [
-      "packages/ui/src/useSpeechRecognition.tsrx"
+      "packages/ui/src/components/media/useSpeechRecognition.tsrx"
     ]
   },
   {
@@ -322,7 +322,7 @@
     "subset": "Native screen dimensions and orientation event.",
     "gap": "Hard-coded coarse pointer/no hover; desktop window-resize and pointer semantics missing. GTK shim lacks Screen.",
     "evidence": [
-      "packages/ui/src/use-media-query.tsrx"
+      "packages/ui/src/internal/platform/use-media-query.tsrx"
     ]
   },
   {
@@ -343,8 +343,8 @@
     "subset": "Other filter editors and custom-editor extension.",
     "gap": "Built-in date_range, entity_list and nested filter editors unsupported.",
     "evidence": [
-      "packages/ui/src/PowerSearchFilterEditor.macos.tsrx",
-      "packages/ui/src/PowerSearchFilterEditor.tsrx"
+      "packages/ui/src/components/forms/PowerSearchFilterEditor.macos.tsrx",
+      "packages/ui/src/components/forms/PowerSearchFilterEditor.tsrx"
     ]
   },
   {
@@ -363,7 +363,7 @@
     "subset": "Scroll view and onScroll path.",
     "gap": "Pull-to-refresh missing; native scroll event contract needs qualification.",
     "evidence": [
-      "packages/ui/src/ScrollableArea.macos.tsrx"
+      "packages/ui/src/components/layout/ScrollableArea.macos.tsrx"
     ]
   },
   {
@@ -382,7 +382,7 @@
     "subset": "Image viewing, previous/next controls and arrow navigation.",
     "gap": "Video leaf, swipe navigation and double-click zoom wiring missing.",
     "evidence": [
-      "packages/ui/src/Lightbox.macos.tsrx"
+      "packages/ui/src/components/overlays/Lightbox.macos.tsrx"
     ]
   },
   {
@@ -808,7 +808,7 @@
     "gap": "Explicit mobile side-effect/KeyboardAvoiding and command-palette accessibility imports conflict with Windows-only boundary. Minimal Vite resolution confirms entry selection; no full build performed.",
     "evidence": [
       "packages/ui/src/index.mobile.ts",
-      "packages/ui/src/CommandPalette.tsrx",
+      "packages/ui/src/components/overlays/CommandPalette.tsrx",
       "packages/cli/src/vite.ts"
     ]
   },
@@ -863,7 +863,7 @@
     "subset": "Tap/double-tap/long-press/focus driver signals exist.",
     "gap": "No native touch/pan/swipe protocol mapping; press-in/out and gesture props are not implemented by generic GObject signal fallback.",
     "evidence": [
-      "packages/ui/src/Pressable.tsrx",
+      "packages/ui/src/components/actions/Pressable.tsrx",
       "packages/linux-gtk-renderer/src/index.ts"
     ]
   },
@@ -883,7 +883,7 @@
     "subset": "Basic label text and flattened text children.",
     "gap": "Formatted-string/span rich formatting not implemented; accessibility name contract incomplete.",
     "evidence": [
-      "packages/ui/src/Text.tsrx",
+      "packages/ui/src/components/content/Text.tsrx",
       "packages/linux-gtk-renderer/src/index.ts"
     ]
   },

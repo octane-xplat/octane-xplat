@@ -10,8 +10,8 @@ import {
 	type DevNavigationResult,
 } from '@octane-xplat/platform/dev-actions'
 
-import { hasNavigationBlockers, resetNavigationBlockers } from '../navigation-blocker'
-import { bindRouterFlow } from '../router-instance'
+import { hasNavigationBlockers, resetNavigationBlockers } from './navigation-blocker'
+import { bindRouterFlow } from './router-instance'
 import type { NavigationResult, RouterInstance } from '../props'
 
 const GLOBAL_KEY = 'octane-xplat.routing-dev'

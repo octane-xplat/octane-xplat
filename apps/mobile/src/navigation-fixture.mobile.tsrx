@@ -1,14 +1,14 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import { Pressable, Screen, Tabs, Text, View } from '@octane-xplat/ui'
-import { defineRoute } from '../../../packages/ui/src/define-route'
-import { defineRoutes } from '../../../packages/ui/src/route-table'
-import { DestinationRedirect } from '../../../packages/ui/src/routing-core'
+import { defineRoute } from '../../../packages/ui/src/routing/define-route'
+import { defineRoutes } from '../../../packages/ui/src/routing/route-table'
+import { DestinationRedirect } from '../../../packages/ui/src/routing/routing-core'
 import {
 	useRouter,
 	useRouterState,
 	useNavigation,
-} from '../../../packages/ui/src/router-hooks.tsrx'
+} from '../../../packages/ui/src/routing/router-hooks.tsrx'
 
 import type {
 	RouterInstance,
@@ -16,7 +16,7 @@ import type {
 	ValidatedDestination,
 } from '../../../packages/ui/src/props'
 
-import { NavLink } from '../../../packages/ui/src/NavLink.tsrx'
+import { NavLink } from '../../../packages/ui/src/components/navigation/NavLink.tsrx'
 import { NavigationTabs } from './navigation-tabs'
 import type { TabSpec } from '@octane-xplat/ui'
 

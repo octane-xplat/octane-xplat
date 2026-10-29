@@ -6,7 +6,7 @@ import type {
 	ImageSourceLike,
 } from './props'
 
-/** VENDORED from packages/ui/src/image-content.ts — keep in sync.
+/** VENDORED from packages/ui/src/components/media/image-content.ts — keep in sync.
  *  Shared `contentFit`/`contentPosition` + multi-source math for `Image` —
  *  pure functions used by every leaf (.agents/design/expo-image-study.md L7/L8).
  *  Semantics mirror CSS `object-fit`/`object-position`, which is also

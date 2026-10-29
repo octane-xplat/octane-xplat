@@ -6,7 +6,7 @@
 import { useMemo, useRef } from 'octane'
 import type { TablePlugin, UseTableGroupedRowsConfig, UseTableGroupedRowsResult } from './types'
 import { flattenGroups, isGroupHeader, makeGroupedIdKey } from './grouped-rows'
-import { Icon } from '../Icon'
+import { Icon } from '../components/media/Icon'
 import { TableSlot, tableSlot } from './table-slot'
 
 function GroupHeaderLabel(props: { groupKey: string; count: number }) @{

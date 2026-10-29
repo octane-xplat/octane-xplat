@@ -41,9 +41,9 @@ slow only on first paint rather than while scrolling.
 
 ## What the pipeline does with your image
 
-The shared `Image` component ([`packages/ui/src/Image.tsrx`](../../packages/ui/src/Image.tsrx))
+The shared `Image` component ([`packages/ui/src/components/media/Image.tsrx`](../../packages/ui/src/components/media/Image.tsrx))
 renders a NativeScript `<image>` element; on web
-([`Image.web.tsrx`](../../packages/ui/src/Image.web.tsrx)) it is a plain
+([`Image.web.tsrx`](../../packages/ui/src/components/media/Image.web.tsrx)) it is a plain
 `<img>`. `ImageProps` in [`packages/ui/src/props.ts`](../../packages/ui/src/props.ts)
 exposes `src`, `alt`, `placeholder`, `recyclingKey`, `contentFit`,
 `contentPosition`, and `decoding`, plus the `ios`/`android`/`web` escape

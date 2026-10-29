@@ -86,13 +86,13 @@ Reason: plausible values can typecheck while expressing the wrong meaning. Expli
 
 Make reactive reads distinguishable from one-time reads. Expose readonly snapshots and explicit mutation operations; define selector equality and initialization behavior. Preserve the framework’s signal-backed `$` convention.
 
-Reason: an agent should not need hidden knowledge about which reads subscribe or which mutations notify. Types should discourage modifications that bypass the state owner. See [stores](../../../packages/ui/src/store.ts#L16) and [collection data](../../../packages/ui/src/list-data.ts#L12).
+Reason: an agent should not need hidden knowledge about which reads subscribe or which mutations notify. Types should discourage modifications that bypass the state owner. See [stores](../../../packages/ui/src/data/store.ts#L16) and [collection data](../../../packages/ui/src/data/list-data.ts#L12).
 
 ### P15: Make asynchronous outcomes and ordering observable
 
 Expose completion and failure for asynchronous actions. State cancellation, concurrent invocation, stale-result, and retry behavior. Model pending, success, and failure as meaningful states; reserve silent no-ops for explicitly documented optional operations.
 
-Reason: agents need to determine whether an action succeeded and whether it is safe to repeat. An operation that returns before completion or discards failures defeats that feedback. See [async lists](../../../packages/ui/src/async-list.ts#L59), [Button](../../../packages/ui/src/props.ts#L2744), and [query caching](../../../packages/ui/src/query-cache.ts#L55).
+Reason: agents need to determine whether an action succeeded and whether it is safe to repeat. An operation that returns before completion or discards failures defeats that feedback. See [async lists](../../../packages/ui/src/data/async-list.ts#L59), [Button](../../../packages/ui/src/props.ts#L2744), and [query caching](../../../packages/ui/src/data/query-cache.ts#L55).
 
 ### P16: Make the preferred path discoverable from the public contract
 
@@ -104,7 +104,7 @@ Reason: agents often work from a small slice of context. The contract should ans
 
 Keep reusable components independent of unrelated systems. Bind configurable routing, caches, registries, and services to a visible application or instance scope. Define parent/child defaults and override precedence. Prefer a usable standard setup; introduce providers only when they own meaningful shared configuration or lifecycle.
 
-Reason: hidden global configuration makes one consumer affect another and forces agents to reason beyond the edited component. Explicit scope allows safe reuse; unnecessary providers add setup and failure points. See [routing](../../../packages/ui/src/props.ts#L2349), [query caching](../../../packages/ui/src/query-cache.ts#L55), [icons](../../../packages/ui/src/props.ts#L1434), and [ButtonGroup](../../../packages/ui/src/props.ts#L5491).
+Reason: hidden global configuration makes one consumer affect another and forces agents to reason beyond the edited component. Explicit scope allows safe reuse; unnecessary providers add setup and failure points. See [routing](../../../packages/ui/src/props.ts#L2349), [query caching](../../../packages/ui/src/data/query-cache.ts#L55), [icons](../../../packages/ui/src/props.ts#L1434), and [ButtonGroup](../../../packages/ui/src/props.ts#L5491).
 
 ## Applying these principles
 

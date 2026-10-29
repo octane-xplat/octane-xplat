@@ -25,7 +25,7 @@ recorded separately in Silo.
 | UI wrappers discard composed array refs                            | Motion hosts mounted without a transform; ref composition regressions reproduce the dropped callbacks                                                 | Flatten refs recursively and preserve every callback/object ref through wrappers                                      |
 | A Motion parent steals its descendant button's click               | Trusted Chromium click targeted the card instead of Increment; keyboard activation worked                                                             | Capture the pointer on its original event target, preserving descendant click routing                                 |
 
-Tests are maintained in `packages/ui/src/input-readiness.web.test.tsrx`,
+Tests are maintained in `packages/ui/src/components/forms/input-readiness.web.test.tsrx`,
 `modal-focus.web.test.tsrx`, `text-input.mobile.test.ts`,
 `pressable-accessibility.mobile.test.ts`, `keyboard-inset.mobile.test.ts`,
 `ref-list.web.test.ts`, and the production browser runner

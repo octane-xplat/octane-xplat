@@ -5,7 +5,7 @@ import vm from 'node:vm'
 import ts from 'typescript'
 
 const source = await readFile(
-	new URL('../src/list-viewability-observer.ios.ts', import.meta.url),
+	new URL('../src/components/collections/list-viewability-observer.ios.ts', import.meta.url),
 	'utf8',
 )
 

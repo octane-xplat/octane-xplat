@@ -49,20 +49,20 @@ Rouzer route tree are outside this recipe's scope.
 - AC6: [Module scope vs screen scope](../../../docs/app/data.md#module-scope-vs-screen-scope).
 - AC7: [Module scope vs screen scope](../../../docs/app/data.md#module-scope-vs-screen-scope), [maintained data probe](../../../packages/app/src/data-probe.tsrx), and [lifecycle regression trace](../../../packages/app/src/data-trace.ts).
 - AC8: [The shared query cache](../../../docs/app/data.md#the-shared-query-cache) and [UI API migrations](../../../docs/app/ui-api-migrations.md#explicit-units).
-- AC9: [Paged collections](../../../docs/app/data.md#paged-collections-and-tree-moves) and [maintained lifecycle regressions](../../../packages/ui/src/async-list.test.ts).
+- AC9: [Paged collections](../../../docs/app/data.md#paged-collections-and-tree-moves) and [maintained lifecycle regressions](../../../packages/ui/src/data/async-list.test.ts).
 
-- AC10: [Keeping inactive data](../../../docs/app/data.md#keeping-inactive-data) and [query lifetime regressions](../../../packages/ui/src/query-cache.test.ts).
+- AC10: [Keeping inactive data](../../../docs/app/data.md#keeping-inactive-data) and [query lifetime regressions](../../../packages/ui/src/data/query-cache.test.ts).
 
-- AC11: [Recovering failed reads](../../../docs/app/data.md#recovering-failed-reads) and [scheduler regressions](../../../packages/ui/src/query-cache.test.ts).
+- AC11: [Recovering failed reads](../../../docs/app/data.md#recovering-failed-reads) and [scheduler regressions](../../../packages/ui/src/data/query-cache.test.ts).
 
-- AC12: [Recovering failed reads](../../../docs/app/data.md#recovering-failed-reads), [scheduler regressions](../../../packages/ui/src/query-cache.test.ts), and [platform environment leaves](../../../packages/platform/src/environment.ts).
+- AC12: [Recovering failed reads](../../../docs/app/data.md#recovering-failed-reads), [scheduler regressions](../../../packages/ui/src/data/query-cache.test.ts), and [platform environment leaves](../../../packages/platform/src/environment.ts).
 
-- AC13: [Refresh and writes](../../../docs/app/data.md#refresh-and-writes), [cache update regressions](../../../packages/ui/src/query-cache.test.ts), and [packed type contracts](../../../packages/ui/tests/packed-consumer.mjs).
+- AC13: [Refresh and writes](../../../docs/app/data.md#refresh-and-writes), [cache update regressions](../../../packages/ui/src/data/query-cache.test.ts), and [packed type contracts](../../../packages/ui/tests/packed-consumer.mjs).
 
-- AC14: [Preparing the next screen](../../../docs/app/data.md#preparing-the-next-screen), [prepared-user route](../../../packages/app/src/app/cached-user.tsrx), and [operation regressions](../../../packages/ui/src/query-cache.test.ts).
+- AC14: [Preparing the next screen](../../../docs/app/data.md#preparing-the-next-screen), [prepared-user route](../../../packages/app/src/app/cached-user.tsrx), and [operation regressions](../../../packages/ui/src/data/query-cache.test.ts).
 
-- AC15: [Shared optimistic edits](../../../docs/app/data.md#shared-optimistic-edits) and [action regressions](../../../packages/ui/src/query-cache.test.ts).
+- AC15: [Shared optimistic edits](../../../docs/app/data.md#shared-optimistic-edits) and [action regressions](../../../packages/ui/src/data/query-cache.test.ts).
 
-- AC16: [Shared cursor feeds](../../../docs/app/data.md#shared-cursor-feeds), [pagination regressions](../../../packages/ui/src/query-cache.test.ts), [native reader fixture](../../../packages/ui/tests/query-cache.fixture.mobile.tsrx), and [maintained feed/detail workflow](../../../docs/app/data.md#try-the-shared-workflow).
+- AC16: [Shared cursor feeds](../../../docs/app/data.md#shared-cursor-feeds), [pagination regressions](../../../packages/ui/src/data/query-cache.test.ts), [native reader fixture](../../../packages/ui/tests/query-cache.fixture.mobile.tsrx), and [maintained feed/detail workflow](../../../docs/app/data.md#try-the-shared-workflow).
 
-- AC17: [Inspecting a development cache](../../../docs/app/data.md#inspecting-a-development-cache) and [inspection regressions](../../../packages/ui/src/query-inspection.test.ts).
+- AC17: [Inspecting a development cache](../../../docs/app/data.md#inspecting-a-development-cache) and [inspection regressions](../../../packages/ui/src/data/query-inspection.test.ts).

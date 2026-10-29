@@ -1,11 +1,11 @@
 /** Opt-in development inspection. Import and call behind the app's development gate. */
 import { registerDevAction } from '@octane-xplat/platform/dev-actions'
-import type { QueryClient } from '../query-cache'
+import type { QueryClient } from './query-cache'
 import {
 	QUERY_INSPECTION,
 	type QueryInspectionSnapshot,
 	type QueryInspectionEvent,
-} from '../query-inspection'
+} from './query-inspection'
 
 export type {
 	QueryInspectionEntry,
@@ -13,7 +13,7 @@ export type {
 	QueryInspectionSnapshot,
 	QueryEventType,
 	QueryTrigger,
-} from '../query-inspection'
+} from './query-inspection'
 
 export interface QueryInspectorOptions {
 	/** Explicit public diagnostic labels, never derived from keys or selections. */

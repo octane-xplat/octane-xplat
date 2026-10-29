@@ -86,7 +86,7 @@ When qualifying keyed native components, assert host identity, retained state,
 prop updates, and cleanup after reorder/removal. Correct text alone can hide a
 remount. Octane 0.14.0 needs Xplat's root-slot key patch for compiled component
 maps; see [the ownership evidence](../../../docs/notes/portal-boundaries.md#evidence-and-limits)
-and `packages/ui/src/keyed-component.mobile.test.tsrx`.
+and `packages/ui/src/internal/accessibility/keyed-component.mobile.test.tsrx`.
 
 PR `checks` excludes browser engines, browser-driven suites, and device
 emulation. Do not infer their success from green CI. See

@@ -1,15 +1,15 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { memo, useState } from 'octane'
 import { GridLayout, TabViewItem } from '@nativescript/core'
-import { createPortal } from '../native-portal'
+import { createPortal } from '../internal/platform/native-portal'
 import { cx } from '@octane-xplat/lib'
-import { getIcon } from '../icons'
-import { Icon } from '../Icon.tsrx'
-import { Pressable } from '../Pressable.tsrx'
-import { Text } from '../Text.tsrx'
-import { RouteOutlet } from '../RouteOutlet'
+import { getIcon } from '../components/media/icons'
+import { Icon } from '../components/media/Icon.tsrx'
+import { Pressable } from '../components/actions/Pressable.tsrx'
+import { Text } from '../components/content/Text.tsrx'
+import { RouteOutlet } from '../routing/RouteOutlet'
 import type { BottomNavigationViewProps, PlatformTabSpec } from '../props'
-import { applyEscapeProps } from '../escape-props'
+import { applyEscapeProps } from '../components/overlays/escape-props'
 
 // The OS tab bar retains a canonical route outlet in each named pane.
 type TabPaneProps = { render: () => any; stack?: string }

@@ -54,7 +54,7 @@ The dir is scanned by `import.meta.glob` in generated platform leaves —
 `xplat routes` emits `routes.gen.web.ts` (excluding native-only files) and
 `routes.gen.mobile.ts` (excluding web-only files and preferring the running
 OS via `Device.os`), alongside `routes.gen.types.ts`.
-`deriveRouteManifest(files, prefer)` (`packages/ui/src/route-table.ts`)
+`deriveRouteManifest(files, prefer)` (`packages/ui/src/routing/route-table.ts`)
 turns the module map into `{screens, routes, layouts, loaders}`:
 
 ```ts

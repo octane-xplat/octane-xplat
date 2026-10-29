@@ -2,23 +2,23 @@
 // @octane-xplat/ui/data — stores, collection models, async lists, and the
 // shared query cache. Visual lists and ordinary inputs stay at the package
 // root; application data lifecycle lives here.
-export { createStore } from '../store'
-export type { Store, ReadableStore, StoreSnapshot } from '../store'
-export { useStore } from '../use-store'
+export { createStore } from './store'
+export type { Store, ReadableStore, StoreSnapshot } from './store'
+export { useStore } from './use-store'
 
 // Immutable collection data stores — React Aria useListData/useTreeData/
 // useAsyncList counterparts
-export { useListData } from '../use-list-data'
-export { useTreeData } from '../use-tree-data'
-export { useAsyncList } from '../use-async-list'
-export type { Key, Selection, ListData, ListDataOptions, ListSnapshot } from '../list-data'
+export { useListData } from './use-list-data'
+export { useTreeData } from './use-tree-data'
+export { useAsyncList } from './use-async-list'
+export type { Key, Selection, ListData, ListDataOptions, ListSnapshot } from './list-data'
 export type {
 	TreeData,
 	TreeDataOptions,
 	TreeNode,
 	TreeNode as CollectionTreeNode,
 	TreeSnapshot,
-} from '../tree-data'
+} from './tree-data'
 
 export type {
 	AsyncListData,
@@ -28,12 +28,12 @@ export type {
 	AsyncListSnapshot,
 	LoadingState,
 	SortDescriptor,
-} from '../async-list'
+} from './async-list'
 
 // Shared queries with explicit app/account/request ownership.
-export { defineQuery, createQueryClient, createMemoryQueryStorage } from '../query-cache'
-export { useQuery$ } from '../use-query'
-export { platformQueryStorage } from '../query-storage.web'
+export { defineQuery, createQueryClient, createMemoryQueryStorage } from './query-cache'
+export { useQuery$ } from './use-query'
+export { platformQueryStorage } from './query-storage.web'
 export type {
 	QueryEnvironment,
 	QueryEnvironmentSnapshot,
@@ -56,13 +56,13 @@ export type {
 	QueryLoadContext,
 	QueryFilter,
 	QueryDisposeOptions,
-} from '../query-cache'
+} from './query-cache'
 
-export { defineCursorQuery } from '../cursor-query'
+export { defineCursorQuery } from './cursor-query'
 export type {
 	CursorPage,
 	CursorQueryData,
 	CursorPageContext,
 	CursorQueryOptions,
 	CursorQueryDefinition,
-} from '../cursor-query'
+} from './cursor-query'

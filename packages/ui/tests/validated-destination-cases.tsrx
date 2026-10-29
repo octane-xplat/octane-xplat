@@ -1,10 +1,10 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { createRouter } from '../src/router-instance'
-import { defineRoute } from '../src/define-route'
-import { defineRoutes, defineRuntimeRoutes } from '../src/route-table'
-import { NavLink } from '../src/NavLink'
-import { Text } from '../src/Text'
-import { RouterProvider } from '../src/router-hooks.tsrx'
+import { createRouter } from '../src/routing/router-instance'
+import { defineRoute } from '../src/routing/define-route'
+import { defineRoutes, defineRuntimeRoutes } from '../src/routing/route-table'
+import { NavLink } from '../src/components/navigation/NavLink'
+import { Text } from '../src/components/content/Text'
+import { RouterProvider } from '../src/routing/router-hooks.tsrx'
 import type { PreparedRouteMatch, RouterHost, ValidatedDestination } from '../src/props'
 
 export function checkedLinkFixture() {

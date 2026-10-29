@@ -7,7 +7,7 @@ The native RootLayout hosts presented overlays; it does not make the Screen
 itself an overlay. No automatic reparenting or column-sibling overlay behavior
 is introduced. This preserves ordinary layout ownership across web and native.
 
-Source evidence: `packages/ui/src/Screen.tsrx` renders a RootLayout with one
+Source evidence: `packages/ui/src/components/layout/Screen.tsrx` renders a RootLayout with one
 Mason content child; `Screen.web.tsrx` renders an ordinary div. ScreenProps
 has no row/col placement surface. View wrappers carry placement on the native
 Mason boundary and on web.

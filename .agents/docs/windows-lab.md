@@ -104,7 +104,7 @@ The combined build/typecheck run completed 37 of 38 tasks; only the native
 build failed. Follow the commands in the [host runbook](windows-test-host.md).
 
 The build reached Vite bundling, then the platform-boundary plugin rejected
-`packages/ui/src/full-screen-page.mobile.ts` in the Windows bundle.
+`packages/ui/src/components/layout/full-screen-page.mobile.ts` in the Windows bundle.
 `native-router-host.ts` imports that leaf directly, and `nativescript/index.ts`
 re-exports it. There is no `full-screen-page.windows.ts`. The guard remains
 intact: resolving the shared page setup versus mobile safe-area behavior is

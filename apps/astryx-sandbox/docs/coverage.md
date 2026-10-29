@@ -109,7 +109,7 @@ is a client-routed SPA — adaptation recorded.
   composition.
 - `F-4` `LayerProvider` public provider + toast config — **resolved in
   unit 4** by `LayerProvider`/`LayerContext`/`useLayerContext`/
-  `LayerToastConfig` in `packages/ui/src/layer-provider.tsrx`; the provider
+  `LayerToastConfig` in `packages/ui/src/components/overlays/layer-provider.tsrx`; the provider
   mounts a `ToastViewport` configured by `toast` and nested providers pass
   through. Also landed: `usePopover`, `useTooltip`, `useMediaQuery`,
   menu `presentation`/`label`, menu item `description`/`variant`, and
@@ -128,7 +128,7 @@ is a client-routed SPA — adaptation recorded.
   production (blank route, no error). Fixed by rendering the
   `ToggleButtonGroupProvider` alias (same pattern as
   `FieldProvider`/`DialogProvider`) across all three variants; covered by
-  `packages/ui/src/ToggleButton.web.test.tsrx`. The fix also restores the
+  `packages/ui/src/components/actions/ToggleButton.web.test.tsrx`. The fix also restores the
   toggle examples routes and aligns the group's web look with Astryx —
   separated ghost pills on a `--spacing-1` gap instead of the ButtonGroup
   segmented strip, `ghost` variant with the `--color-overlay-pressed`

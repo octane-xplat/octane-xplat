@@ -5,33 +5,33 @@ import { createMacOSRoot } from '@octane-xplat/macos-renderer'
 import { NSApplication, NSView, NSWindow } from '@octane-xplat/platform/macos'
 import { qualifyAppKitRouteTransitions } from './route-transition-fixture.macos'
 import { qualifyNativeAuthentication } from '../../../packages/ui/tests/authentication-native-example.tsrx'
-import { createAppKitRouterHost } from '../../../packages/ui/src/appkit-router-host.macos'
+import { createAppKitRouterHost } from '../../../packages/ui/src/routing/appkit-router-host.macos'
 import { qualifyRouteRetention } from '../../../packages/ui/tests/route-retention-example.tsrx'
-import { scrollableAreaMetrics } from '../../../packages/ui/src/scrollable-area-metrics'
+import { scrollableAreaMetrics } from '../../../packages/ui/src/components/layout/scrollable-area-metrics'
 import { qualifyPaneRouterExample } from '../../../packages/ui/tests/pane-router-example.tsrx'
 import { Text, View } from '@octane-xplat/ui'
 import { defineAppKitTransition } from '@octane-xplat/ui/macos'
-import { createPaneRouterHost } from '../../../packages/ui/src/pane-router-host'
-import { ClientRouteOutlet } from '../../../packages/ui/src/ClientRouteOutlet.tsrx'
-import { createStore } from '../../../packages/ui/src/store'
-import { createRouter } from '../../../packages/ui/src/router-instance'
-import { defineRoute } from '../../../packages/ui/src/define-route'
+import { createPaneRouterHost } from '../../../packages/ui/src/routing/pane-router-host'
+import { ClientRouteOutlet } from '../../../packages/ui/src/routing/ClientRouteOutlet.tsrx'
+import { createStore } from '../../../packages/ui/src/data/store'
+import { createRouter } from '../../../packages/ui/src/routing/router-instance'
+import { defineRoute } from '../../../packages/ui/src/routing/define-route'
 import {
 	defineRoutes,
 	deriveRouteManifest,
 	mergeRouteManifests,
-} from '../../../packages/ui/src/route-table'
+} from '../../../packages/ui/src/routing/route-table'
 
-import { sealGeneratedRouteCatalog } from '../../../packages/ui/src/route-contract-scope'
+import { sealGeneratedRouteCatalog } from '../../../packages/ui/src/routing/route-contract-scope'
 import type {
 	FileRouteContract,
 	RouteDefinitionArgs,
 	NavigationBlockerState,
 } from '../../../packages/ui/src/props'
 
-import { RouteOutlet } from '../../../packages/ui/src/RouteOutlet.macos.tsrx'
-import { Tabs } from '../../../packages/ui/src/Tabs.macos.tsrx'
-import { defaultRouterRuntime } from '../../../packages/ui/src/default-router.macos'
+import { RouteOutlet } from '../../../packages/ui/src/routing/RouteOutlet.macos.tsrx'
+import { Tabs } from '../../../packages/ui/src/components/collections/Tabs.macos.tsrx'
+import { defaultRouterRuntime } from '../../../packages/ui/src/routing/default-router.macos'
 import {
 	defineRoute as defineClientRoute,
 	defineRoutes as defineClientRoutes,
@@ -52,9 +52,9 @@ import {
 	getRouteApi,
 	useNavigation,
 	useNavigationBlocker,
-} from '../../../packages/ui/src/router-hooks.tsrx'
+} from '../../../packages/ui/src/routing/router-hooks.tsrx'
 
-import { RouteForbidden, DestinationRedirect } from '../../../packages/ui/src/routing-core'
+import { RouteForbidden, DestinationRedirect } from '../../../packages/ui/src/routing/routing-core'
 
 declare const __xplatStopHost: () => void
 

@@ -30,7 +30,7 @@ Across the map, preserve precise item/selection/destination types; use coherent 
 | [Conditional root exports](../../../packages/ui/src/index.macos.ts#L249)         | Use one intentional shared value/type surface, with platform-only additions on explicit subpaths.                     |
 | [Package entrypoints and discoverability](../../../packages/ui/package.json#L40) | Root owns general UI; routing, data, Markdown, and chat each own one canonical feature subpath.                       |
 | [Names and public types](../../../packages/ui/src/props.ts#L6121)                | Apply the reference hierarchy to semantically comparable names and match all associated public types.                 |
-| [Platform support contracts](../../../packages/ui/src/FocusScope.tsrx#L7)        | Publish exact shared guarantees and explicit capabilities or supported subsets; reject unsupported required behavior. |
+| [Platform support contracts](../../../packages/ui/src/components/overlays/FocusScope.tsrx#L7)        | Publish exact shared guarantees and explicit capabilities or supported subsets; reject unsupported required behavior. |
 | [Shared props and type safety](../../../packages/ui/src/props.ts#L318)           | Share precise host, style, ref, and test-identifier contracts; bound target escape hatches and their precedence.      |
 | [State and event conventions](../../../packages/ui/src/props.ts#L490)            | Give each state dimension controlled/initial/change roles and one activation path with observable outcomes.           |
 
@@ -174,23 +174,23 @@ Across the map, preserve precise item/selection/destination types; use coherent 
 | [useAnimation, setTranslate, and gesture events](../../../packages/ui/src/props.ts#L11) | Expose typed animated values/properties, coordinate/velocity/time units, and observable sequence completion/cancellation.            |
 | [Icon and icon registration](../../../packages/ui/src/props.ts#L1434)                   | Type registered names and meaningful/decorative accessibility; specify registry scope and late-registration effects.                 |
 | [Selection indicators and their registry](../../../packages/ui/src/props.ts#L7025)      | Keep the typed decorative registry; make hook reads reactive or expose an explicitly nonreactive boot-only contract.                 |
-| [styled](../../../packages/ui/src/styled.web.tsrx#L5)                                   | Provide typed enumerated variants/defaults or clearly expose the narrower boolean-class contract.                                    |
+| [styled](../../../packages/ui/src/internal/layout/styled.web.tsrx#L5)                                   | Provide typed enumerated variants/defaults or clearly expose the narrower boolean-class contract.                                    |
 | [Theme preference and color scheme](../../../packages/ui/src/theme/theme-scheme.ts#L5)  | Distinguish system appearance, preference, and resolved app scheme; publish reactive preference types and separate root integration. |
 
 ## Data and state
 
 | Concept                                                                       | Target public contract                                                                                                                   |
 | ----------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| [useAsyncList](../../../packages/ui/src/async-list.ts#L59)                    | Expose awaitable operations, errors, cancellation/cleanup, pagination readiness, and stale-result/concurrency behavior.                  |
-| [useListData and useTreeData](../../../packages/ui/src/list-data.ts#L12)      | Keep familiar operations with readonly snapshots, shared key/selection types, and explicit initial-only values.                          |
-| [cachedQuery$ and query storage](../../../packages/ui/src/query-cache.ts#L55) | Separate cache versus signal identity and request/account ownership; define invalidation, persistence units/version/scope, and failures. |
-| [createStore and useStore](../../../packages/ui/src/store.ts#L16)             | Keep explicit stores/reactive reads; separate value assignment and updates and define selector equality.                                 |
+| [useAsyncList](../../../packages/ui/src/data/async-list.ts#L59)                    | Expose awaitable operations, errors, cancellation/cleanup, pagination readiness, and stale-result/concurrency behavior.                  |
+| [useListData and useTreeData](../../../packages/ui/src/data/list-data.ts#L12)      | Keep familiar operations with readonly snapshots, shared key/selection types, and explicit initial-only values.                          |
+| [cachedQuery$ and query storage](../../../packages/ui/src/data/query-cache.ts#L55) | Separate cache versus signal identity and request/account ownership; define invalidation, persistence units/version/scope, and failures. |
+| [createStore and useStore](../../../packages/ui/src/data/store.ts#L16)             | Keep explicit stores/reactive reads; separate value assignment and updates and define selector equality.                                 |
 
 ## Accessibility
 
 | Concept                                                                   | Target public contract                                                                                            |
 | ------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| [Focus hooks](../../../packages/ui/src/use-focus.tsrx#L1)                 | Provide actual subtree entry/exit semantics and typed modality/events, or expose the supported subset explicitly. |
+| [Focus hooks](../../../packages/ui/src/internal/accessibility/use-focus.tsrx#L1)                 | Provide actual subtree entry/exit semantics and typed modality/events, or expose the supported subset explicitly. |
 | [FocusScope](../../../packages/ui/src/props.ts#L6789)                     | Provide containment/autofocus/restoration where accepted; expose unsupported required behavior before use.        |
 | [VisuallyHidden and useLandmark](../../../packages/ui/src/props.ts#L6771) | Keep visually hidden content accessible; separate landmark semantics from optional region-cycling behavior.       |
 
@@ -199,10 +199,10 @@ Across the map, preserve precise item/selection/destination types; use coherent 
 | Concept                                                                           | Target public contract                                                                                                    |
 | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | [bottomSheetHost on the macOS root](../../../packages/ui/src/index.macos.ts#L389) | Remove accidental macOS root lookup; host lifecycle belongs to explicit NativeScript integration.                         |
-| [copyText and useClipboard](../../../packages/ui/src/use-clipboard.tsrx#L1)         | Keep text-specific operations with observable read/copy results; richer formats need a separate exact contract.           |
-| [useKeyboard](../../../packages/ui/src/use-keyboard.ts#L1)                        | Expose normalized key/code/modifier/composition events and supported attachments; keep software-keyboard insets separate. |
-| [isNative](../../../packages/ui/src/platform.ts#L1)                               | Expose genuine OS identity and behavior capabilities rather than using one native boolean for all choices.                |
-| [Ref helpers and mergeProps](../../../packages/ui/src/ref-list.ts#L1)             | Expose typed ref merging and exact prop-composition order, cancellation, classes, styles, and ref preservation.           |
+| [copyText and useClipboard](../../../packages/ui/src/internal/platform/use-clipboard.tsrx#L1)         | Keep text-specific operations with observable read/copy results; richer formats need a separate exact contract.           |
+| [useKeyboard](../../../packages/ui/src/internal/keyboard/use-keyboard.ts#L1)                        | Expose normalized key/code/modifier/composition events and supported attachments; keep software-keyboard insets separate. |
+| [isNative](../../../packages/ui/src/internal/platform/platform.ts#L1)                               | Expose genuine OS identity and behavior capabilities rather than using one native boolean for all choices.                |
+| [Ref helpers and mergeProps](../../../packages/ui/src/internal/accessibility/ref-list.ts#L1)             | Expose typed ref merging and exact prop-composition order, cancellation, classes, styles, and ref preservation.           |
 
 ## iOS
 

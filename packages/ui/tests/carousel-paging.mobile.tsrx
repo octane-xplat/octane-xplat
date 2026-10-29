@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { Carousel } from '../src/Carousel'
-import { View } from '../src/View'
-import { Text } from '../src/Text'
+import { Carousel } from '../src/components/layout/Carousel'
+import { View } from '../src/components/layout/View'
+import { Text } from '../src/components/content/Text'
 import type { CarouselHandle } from '../src/props'
 import type { ProbeContext } from '../../../scripts/probe/context'
 

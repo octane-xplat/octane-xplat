@@ -4,8 +4,8 @@ import { LiquidGlassView } from './liquid-glass-view.ios'
 import { registerElement } from '@nativescript-community/octane'
 import type { LiquidGlassProps } from '../props'
 import { cx } from '@octane-xplat/lib'
-import { applyEscapeProps } from '../escape-props'
-import { layoutChildProps } from '../layout-child'
+import { applyEscapeProps } from '../components/overlays/escape-props'
+import { layoutChildProps } from '../components/layout/layout-child'
 
 // The driver needs an intrinsic registration for the fallback-aware core view.
 registerElement('liquidglass', LiquidGlassView)

@@ -23,13 +23,13 @@ An ordinary form has a save action and a help link. The save may return a promis
 
 ## Documentation
 
-- AC1: [Button source contract and examples](../../../docs/app/components.md#appkit-button-actions-and-links) and [authored object-driver cases](../../../packages/ui/src/button.macos.mobile.test.tsrx). Tests unrun.
+- AC1: [Button source contract and examples](../../../docs/app/components.md#appkit-button-actions-and-links) and [authored object-driver cases](../../../packages/ui/src/components/actions/button.macos.mobile.test.tsrx). Tests unrun.
 - AC2: The same contract/cases cover token ownership, overlap, failure reporting, group/loading gates, ref changes and unmount.
 - AC3: The same source cases cover normalized URL opening, ordering, unsafe schemes and disabled links. No OS opening result is claimed.
 - AC4: [Target note](../parity/appkit-progress.md#appkit-button-links-and-busy-actions) records exact deferred commands and remaining native evidence.
 
 - AC5: [AppKit action guide](../../../docs/app/components.md#appkit-button-actions-and-links) and appended IconButton cases in the same authored Button suite; tests unrun.
 
-- AC6: [Current Button guide](../../../docs/app/components.md#appkit-button-actions-and-links), eight new [authored object-driver cases](../../../packages/ui/src/button.macos.mobile.test.tsrx) (sixteen total at that change), [human-operated fixture](../../../examples/probes/button-actions.macos.tsrx), [target leaf](../../../packages/ui/src/Button.macos.tsrx), Octane primitive reference and [target note](../parity/appkit-progress.md#appkit-button-current-press-ownership). Cases and fixture remain unrun; the fixture run hook records mounting only.
+- AC6: [Current Button guide](../../../docs/app/components.md#appkit-button-actions-and-links), eight new [authored object-driver cases](../../../packages/ui/src/components/actions/button.macos.mobile.test.tsrx) (sixteen total at that change), [human-operated fixture](../../../examples/probes/button-actions.macos.tsrx), [target leaf](../../../packages/ui/src/components/actions/Button.macos.tsrx), Octane primitive reference and [target note](../parity/appkit-progress.md#appkit-button-current-press-ownership). Cases and fixture remain unrun; the fixture run hook records mounting only.
 
-- AC7: [Pointer-hint guide](../../../docs/app/components.md#appkit-button-actions-and-links), three new [authored host-property cases](../../../packages/ui/src/button.macos.mobile.test.tsrx) (nineteen total), [manual hint fixture](../../../examples/probes/button-actions.macos.tsrx), Octane reference and [target note](../parity/appkit-progress.md#appkit-button-native-pointer-hints). Cases and fixture remain unrun; the script records mounting only. Native hint presentation is not established by a property assignment.
+- AC7: [Pointer-hint guide](../../../docs/app/components.md#appkit-button-actions-and-links), three new [authored host-property cases](../../../packages/ui/src/components/actions/button.macos.mobile.test.tsrx) (nineteen total), [manual hint fixture](../../../examples/probes/button-actions.macos.tsrx), Octane reference and [target note](../parity/appkit-progress.md#appkit-button-native-pointer-hints). Cases and fixture remain unrun; the script records mounting only. Native hint presentation is not established by a property assignment.

@@ -4771,7 +4771,7 @@ checkbox is closed; the persistent goal remains active.
 
 Revalidated the previous turn's date-composition finding against the current
 worktree before implementing. The repository already tracks
-packages/ui/src/date-composition.macos.ts, which reads currentEditor and
+packages/ui/src/components/forms/date-composition.macos.ts, which reads currentEditor and
 hasMarkedText in either property or receiver-bound method form, alongside event
 isComposing/keyCode 229. The AppKit suffix chain selects this leaf for unsuffixed
 date imports. Its existing date-composition.mobile.test.ts has explicit AppKit

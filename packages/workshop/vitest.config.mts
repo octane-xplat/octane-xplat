@@ -4,7 +4,7 @@ import { defineConfig } from 'vitest/config'
 // barrel pulls every web component into node, so the store contract is
 // aliased to the module the session actually consumes. `.pathname` avoids
 // fileURLToPath — duplicated @types/node splits its URL type across envs.
-const STORE_PATH = new URL('../ui/src/store.ts', import.meta.url).pathname
+const STORE_PATH = new URL('../ui/src/data/store.ts', import.meta.url).pathname
 
 export default defineConfig({
 	resolve: {

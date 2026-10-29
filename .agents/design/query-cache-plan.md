@@ -28,12 +28,12 @@ platform behavior.
 
 ## Starting point and scope
 
-The [current implementation](../../packages/ui/src/query-cache.ts) and
+The [current implementation](../../packages/ui/src/data/query-cache.ts) and
 [public guide](../../docs/app/data.md#the-shared-query-cache) establish shared
 requests, stale-while-revalidate, keyed invalidation, isolated clients, and
 opt-in persistence. [Decision 99](decisions.md) intentionally leaves mutations
 to application code. Optimistic actions already exist in Octane; pagination
-exists in [a separate list store](../../packages/ui/src/async-list.ts).
+exists in [a separate list store](../../packages/ui/src/data/async-list.ts).
 
 Prioritize the reasons a new Xplat app would otherwise need another cache:
 automatic recovery, bounded retention, shared cache updates, prefetching,

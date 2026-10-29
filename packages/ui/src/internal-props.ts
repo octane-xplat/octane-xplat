@@ -1,5 +1,5 @@
 import type { ClassValue } from 'octane/jsx-runtime'
-import type { Hsb } from './color'
+import type { Hsb } from './theme/color'
 import type {
 	BaseTypeaheadProps,
 	ContextRenderProps,

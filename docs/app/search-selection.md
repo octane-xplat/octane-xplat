@@ -467,7 +467,7 @@ export function Example() {
 The `@octane-xplat/ui` root exports these controls on web, iOS, Android, and
 macOS. macOS is experimental. Linux uses the web leaves. The maintained
 component and parity examples are [ComponentsDemo](../../packages/demos/src/ComponentsDemo.tsrx)
-and [the parity fixtures](../../packages/ui/src/Typeahead.parity.tsrx).
+and [the parity fixtures](../../packages/ui/src/components/forms/Typeahead.parity.tsrx).
 
 ## Try a small demo
 
@@ -739,7 +739,7 @@ export function PeopleTags() {
 }
 ```
 
-Seven [object-driver cases](../../packages/ui/src/tokenizer-keys.macos.mobile.test.tsrx)
+Seven [object-driver cases](../../packages/ui/src/components/forms/tokenizer-keys.macos.mobile.test.tsrx)
 and a [manual fixture](../../examples/probes/tokenizer-keys.macos.tsrx) are authored,
 all unrun. Native Backspace/repeat/IME, field-editor ownership, embedded-content
 blur timing, popup focus, accessibility and packaging remain unqualified.
@@ -766,8 +766,8 @@ export function CompactPeople() {
 }
 ```
 
-Eight [geometry cases](../../packages/ui/src/tokenizer-overflow.macos.test.ts),
-five [object-driver cases](../../packages/ui/src/tokenizer-overflow.macos.mobile.test.tsrx)
+Eight [geometry cases](../../packages/ui/src/components/forms/tokenizer-overflow.macos.test.ts),
+five [object-driver cases](../../packages/ui/src/components/forms/tokenizer-overflow.macos.mobile.test.tsrx)
 and a [manual fixture](../../examples/probes/tokenizer-overflow.macos.tsrx) are authored,
 all unrun. Missing native geometry preserves the last count. Counter removal
 waits for updated native layout before counting again. These source changes
@@ -798,8 +798,8 @@ export function AccessiblePeopleSearch() {
 }
 ```
 
-Four renderer cases, ten [relationship cases](../../packages/ui/src/typeahead-accessibility.macos.test.ts),
-five [view cases](../../packages/ui/src/typeahead-accessibility.macos.mobile.test.tsrx)
+Four renderer cases, ten [relationship cases](../../packages/ui/src/components/forms/typeahead-accessibility.macos.test.ts),
+five [view cases](../../packages/ui/src/components/forms/typeahead-accessibility.macos.mobile.test.tsrx)
 and a [manual fixture](../../examples/probes/typeahead-accessibility.macos.tsrx)
 are authored, all unrun. The input/list must share a native window.
 Previous native links and selection metadata are restored on close, blocking,
@@ -856,9 +856,9 @@ export function TeamSearch() {
 }
 ```
 
-Sixteen [controller/focus cases](../../packages/ui/src/typeahead-layer.macos.test.ts),
-four [source-portal cases](../../packages/ui/src/typeahead-results.macos.mobile.test.tsrx),
-three [readiness cases](../../packages/ui/src/typeahead-result-ready.macos.mobile.test.tsrx)
+Sixteen [controller/focus cases](../../packages/ui/src/components/forms/typeahead-layer.macos.test.ts),
+four [source-portal cases](../../packages/ui/src/components/forms/typeahead-results.macos.mobile.test.tsrx),
+three [readiness cases](../../packages/ui/src/components/forms/typeahead-result-ready.macos.mobile.test.tsrx)
 and the [manual fixture](../../examples/probes/typeahead-results.macos.tsrx) are
 authored, all unrun. Existing state/key cases use an explicit test host.
 Actual portal/context/ref/commit ordering, native sizing/clipping/scrolling/RTL,

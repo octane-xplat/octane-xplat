@@ -6,9 +6,9 @@ import {
 	applyEscapeProps,
 	nativeAccessibilityRole,
 	nativeAccessibilityState,
-} from '../escape-props'
+} from '../components/overlays/escape-props'
 
-import { useFieldControlProps } from '../field-context'
+import { useFieldControlProps } from '../components/forms/field-context'
 
 /** UISwitch — the platform widget (UIKit UISwitch via NativeScript `switch`).
  *  OS chrome is the point here; the self-drawn shared `Switch` lives in the

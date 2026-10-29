@@ -21,7 +21,7 @@ vi.mock('@nativescript/core', () => ({
 	CSSType: () => () => {},
 }))
 
-vi.mock('../../ui/src/pan.tsrx', () => ({ usePan: () => undefined }))
+vi.mock('../../ui/src/components/layout/pan.tsrx', () => ({ usePan: () => undefined }))
 vi.mock('@octane-xplat/ui', () => import('../tests/native-controls.mobile.tsrx'))
 import { DataGrid } from './DataGrid.tsrx'
 

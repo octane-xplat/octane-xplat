@@ -9,7 +9,7 @@ presentations. Public usage lives in [Follow the phone keyboard](../../docs/app/
 The mobile wrapper supplies a scroll container with padding for remaining host
 overlap and an Android resize lease. Its offset adds space while the keyboard
 is open; it is not a screen-to-window coordinate conversion. Web and desktop retain a neutral
-wrapper. See [the implementation](../../packages/ui/src/KeyboardAvoiding.mobile.tsrx)
+wrapper. See [the implementation](../../packages/ui/src/components/layout/KeyboardAvoiding.mobile.tsrx)
 and [the public props](../../packages/ui/src/props.ts).
 
 ```tsx
@@ -43,11 +43,11 @@ and preserve existing transforms. They do not replace an app-owned decor inset
 listener or infer physical resize from its window flag. Full native presentation
 lifecycle qualification remains separate. Destination-only compatibility observations do not establish
 synchronized movement. Source:
-[keyboard-inset](../../packages/ui/src/keyboard-inset.ts).
+[keyboard-inset](../../packages/ui/src/internal/keyboard/keyboard-inset.ts).
 
 ```ts
 // Numeric compatibility and an internal bottom-host binding.
-import { subscribeKeyboardInset, bindBottomInsetToKeyboard } from '../../packages/ui/src/keyboard-inset'
+import { subscribeKeyboardInset, bindBottomInsetToKeyboard } from '../../packages/ui/src/internal/keyboard/keyboard-inset'
 
 function attach(host: unknown, notify: (inset: number) => void) {
 	const unsubscribe = subscribeKeyboardInset(notify)

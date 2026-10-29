@@ -1,9 +1,9 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { mergeStyle } from '../src/style-merge'
+import { mergeStyle } from '../src/internal/layout/style-merge'
 import { useState } from 'octane'
 import type { ProbeContext } from '../../../scripts/probe/context'
-import { Grid } from '../src/Grid.tsrx'
-import { layoutChildProps } from '../src/layout-child'
+import { Grid } from '../src/components/layout/Grid.tsrx'
+import { layoutChildProps } from '../src/components/layout/layout-child'
 
 function Composite() @{
 	<masonview

@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { UIActivityIndicatorViewProps } from '../props'
 import { cx } from '@octane-xplat/lib'
-import { applyNativeProps } from '../platformProps'
+import { applyNativeProps } from '../internal/platform/platformProps'
 
 /** UIActivityIndicatorView — the platform spinner (UIKit). The self-drawn
  *  shared `ActivityIndicator` lives in the root export. */

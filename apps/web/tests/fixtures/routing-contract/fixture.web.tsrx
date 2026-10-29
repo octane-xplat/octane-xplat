@@ -49,10 +49,10 @@ import {
 	RouteForbidden,
 } from '@octane-xplat/ui/routing/core'
 
-import { createStore } from '../../../../../packages/ui/src/store'
+import { createStore } from '../../../../../packages/ui/src/data/store'
 import { lastMotionContext } from './transitions.web'
 // Assertion access only; application code never constructs this platform host.
-import { defaultRouterRuntime } from '../../../../../packages/ui/src/default-router.web'
+import { defaultRouterRuntime } from '../../../../../packages/ui/src/routing/default-router.web'
 
 const dirtyEntry = createStore<string | null>(null)
 let confirmationResult: Promise<string> | undefined

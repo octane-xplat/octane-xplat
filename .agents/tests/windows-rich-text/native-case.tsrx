@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import {Text} from '../../../packages/ui/src/Text.tsrx'
+import {Text} from '../../../packages/ui/src/components/content/Text.tsrx'
 import {signal$} from 'octane/signals'
 const styled$ = signal$(true)
 const word$ = signal$('bold run')

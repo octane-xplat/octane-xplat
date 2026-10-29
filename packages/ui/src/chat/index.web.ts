@@ -2,34 +2,34 @@
 // @octane-xplat/ui/chat — chat messages, composer drafts/tokens, tool-call
 // display, conversation scrolling, and dictation UI. General scrolling and
 // field components stay at the package root.
-export { ChatLayout } from '../ChatLayout'
-export { ChatLayoutScrollButton } from '../ChatLayoutScrollButton'
-export { ChatMessageList } from '../ChatMessageList'
-export { ChatMessage } from '../ChatMessage'
-export { ChatMessageBubble } from '../ChatMessageBubble'
-export { ChatMessageMetadata } from '../ChatMessageMetadata'
-export { ChatSystemMessage } from '../ChatSystemMessage'
-export { ChatToolCalls } from '../ChatToolCalls'
-export { ChatTokenizedText } from '../ChatTokenizedText'
-export { ChatComposer } from '../ChatComposer'
-export { ChatComposerInput, ChatComposerTokenElement } from '../ChatComposerInput'
-export { ChatComposerDrawer } from '../ChatComposerDrawer'
-export { ChatSendButton } from '../ChatSendButton'
-export { ChatDictationButton } from '../ChatDictationButton'
-export { useChatStreamScroll } from '../useChatStreamScroll'
-export { useChatNewMessages } from '../useChatNewMessages'
-export { useChatPasteAsToken } from '../useChatPasteAsToken'
-export { useChatComposerTokens } from '../useChatComposerTokens'
-export { useSpeechRecognition } from '../useSpeechRecognition'
-export { useChatDictation } from '../useChatDictation'
-export { useChatLayoutContext, useChatComposerContext } from '../chat-context'
+export { ChatLayout } from './ChatLayout'
+export { ChatLayoutScrollButton } from './ChatLayoutScrollButton'
+export { ChatMessageList } from './ChatMessageList'
+export { ChatMessage } from './ChatMessage'
+export { ChatMessageBubble } from './ChatMessageBubble'
+export { ChatMessageMetadata } from './ChatMessageMetadata'
+export { ChatSystemMessage } from './ChatSystemMessage'
+export { ChatToolCalls } from './ChatToolCalls'
+export { ChatTokenizedText } from './ChatTokenizedText'
+export { ChatComposer } from './ChatComposer'
+export { ChatComposerInput, ChatComposerTokenElement } from './ChatComposerInput'
+export { ChatComposerDrawer } from './ChatComposerDrawer'
+export { ChatSendButton } from './ChatSendButton'
+export { ChatDictationButton } from './ChatDictationButton'
+export { useChatStreamScroll } from './useChatStreamScroll'
+export { useChatNewMessages } from './useChatNewMessages'
+export { useChatPasteAsToken } from './useChatPasteAsToken'
+export { useChatComposerTokens } from './useChatComposerTokens'
+export { useSpeechRecognition } from '../components/media/useSpeechRecognition'
+export { useChatDictation } from './useChatDictation'
+export { useChatLayoutContext, useChatComposerContext } from './chat-context'
 export {
 	serializeChatComposerToken,
 	deserializeChatComposerToken,
 	serializeChatComposerDraft,
 	deserializeChatComposerDraft,
 	createChatComposerDraft,
-} from '../chat-draft'
+} from './chat-draft'
 
 export type {
 	ChatComposerContextValue,

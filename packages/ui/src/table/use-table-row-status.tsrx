@@ -14,10 +14,10 @@ import type {
 
 import type { TableColumn, IconName } from '../props'
 import { pixel } from './column-utils'
-import { Icon } from '../Icon'
-import { Tooltip } from '../Tooltip'
-import { VisuallyHidden } from '../VisuallyHidden'
-import { View } from '../View'
+import { Icon } from '../components/media/Icon'
+import { Tooltip } from '../components/overlays/Tooltip'
+import { VisuallyHidden } from '../components/content/VisuallyHidden'
+import { View } from '../components/layout/View'
 import { tableSlot } from './table-slot'
 
 /** Configuration for `useTableRowStatus`. */

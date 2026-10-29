@@ -43,7 +43,7 @@ test('macOS hooks reconnect and theme override holds until system mode returns',
 		},
 	}
 
-	const color = load('../src/colorScheme.macos.ts', context, [
+	const color = load('../src/theme/colorScheme.macos.ts', context, [
 		'getColorScheme',
 		'subscribeSystemScheme',
 		'useColorScheme',

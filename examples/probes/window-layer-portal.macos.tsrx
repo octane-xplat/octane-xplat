@@ -3,8 +3,8 @@ import { createContext, useContext, useEffect, useLayoutEffect, useRef, useState
 import { Button, Text, TextInput, VStack } from '@octane-xplat/ui'
 import type { NSView } from '@octane-xplat/platform/macos'
 import type { WindowLayer } from '../../packages/macos-renderer/src/layer'
-import { appKitHost } from '../../packages/ui/src/host-bridge'
-import { createPortal } from '../../packages/ui/src/native-portal'
+import { appKitHost } from '../../packages/ui/src/internal/platform/host-bridge'
+import { createPortal } from '../../packages/ui/src/internal/platform/native-portal'
 import type { ProbeContext } from '../../scripts/probe/context'
 const LabelContext = createContext('missing source provider')
 const LabelProvider: any = LabelContext

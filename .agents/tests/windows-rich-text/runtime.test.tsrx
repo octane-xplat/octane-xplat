@@ -10,7 +10,7 @@ import {createContext, useContext, useLayoutEffect} from 'octane';
 import {createNativeScriptRoot, flushUniversalSync} from '@nativescript-community/octane';
 import {signal$} from 'octane/signals';
 import {MockLayoutBase, MockTextBase} from './core-mock';
-import {Text} from '../../../packages/ui/src/Text.tsrx';
+import {Text} from '../../../packages/ui/src/components/content/Text.tsrx';
 const value$ = signal$('bold');
 const order$ = signal$(['one','two']);
 const show$ = signal$(true);

@@ -2,9 +2,9 @@
 import { useEffect, useRef, useState } from 'octane'
 import type { MaterialDialogProps } from '../props'
 import { Frame, GridLayout } from '@nativescript/core'
-import { createPortal } from '../native-portal'
+import { createPortal } from '../internal/platform/native-portal'
 import { applyThemeClasses } from '../theme/theme-host'
-import { modalPresenter } from '../modal-presenter'
+import { modalPresenter } from '../components/overlays/modal-presenter'
 
 type ShownModal = { host: GridLayout; unbindTheme: () => void; finished: boolean }
 

@@ -1,13 +1,13 @@
 // Renderer-neutral qualification on actual Frame/modal and retained AppKit hosts.
 import { createContext, useContext, useLayoutEffect, useMemo, useState } from 'octane'
-import { Text } from '../src/Text'
-import { View } from '../src/View'
-import { ClientRouteOutlet } from '../src/ClientRouteOutlet.tsrx'
-import { createRouter } from '../src/router-instance'
-import { defineRoute } from '../src/define-route'
-import { defineRoutes } from '../src/route-table'
-import { DestinationRedirect } from '../src/routing-core'
-import { useRouter } from '../src/router-hooks.tsrx'
+import { Text } from '../src/components/content/Text'
+import { View } from '../src/components/layout/View'
+import { ClientRouteOutlet } from '../src/routing/ClientRouteOutlet.tsrx'
+import { createRouter } from '../src/routing/router-instance'
+import { defineRoute } from '../src/routing/define-route'
+import { defineRoutes } from '../src/routing/route-table'
+import { DestinationRedirect } from '../src/routing/routing-core'
+import { useRouter } from '../src/routing/router-hooks.tsrx'
 import type {
 	ClientRouterHost,
 	ContractsOf,

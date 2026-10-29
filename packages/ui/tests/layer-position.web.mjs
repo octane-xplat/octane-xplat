@@ -26,7 +26,7 @@ test('browser resolves layer offsets in anchor context and releases only owned a
 		await page.goto(server.resolvedUrls.local[0] + 'layer-test')
 		const results = await page.evaluate(async () => {
 			const { resolveCSSLayerOffset, ownAnchorName } =
-				await import('/packages/ui/src/layer-position.web.ts')
+				await import('/packages/ui/src/components/overlays/layer-position.web.ts')
 
 			document.documentElement.style.fontSize = '16px'
 			const anchor = document.createElement('button')

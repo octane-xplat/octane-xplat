@@ -1,13 +1,13 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { memo, useState } from 'octane'
 import { Frame, GridLayout, Page, TabView, TabViewItem } from '@nativescript/core'
-import { createPortal } from '../native-portal'
-import { RouteOutlet } from '../RouteOutlet'
-import { registerStack } from '../stacks'
+import { createPortal } from '../internal/platform/native-portal'
+import { RouteOutlet } from '../routing/RouteOutlet'
+import { registerStack } from '../components/layout/stacks'
 import { cx } from '@octane-xplat/lib'
-import { getIcon } from '../icons'
+import { getIcon } from '../components/media/icons'
 import type { PlatformTabSpec, UITabBarProps } from '../props'
-import { applyEscapeProps } from '../escape-props'
+import { applyEscapeProps } from '../components/overlays/escape-props'
 
 // TabViewItem content is a plain native view — the driver can't parent
 // reconciled children into <tabviewitem>, so each pane is a GridLayout portal

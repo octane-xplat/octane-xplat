@@ -60,7 +60,7 @@ for (const [label, module] of [['published lint', '../packages/lint/src/xplat-ru
 		// Native-suffixed files accept only the facade pragma.
 		for (const filename of [
 			'Card.mobile.tsrx',
-			'packages/ui/src/RoutePane.gtk.tsrx',
+			'packages/ui/src/routing/RoutePane.gtk.tsrx',
 			'Card.macos.tsrx',
 		]) {
 			const source = '/** @jsxImportSource @octane-xplat/jsx */\n' + body

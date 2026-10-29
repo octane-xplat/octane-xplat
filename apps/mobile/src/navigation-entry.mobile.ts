@@ -2,8 +2,8 @@ import { Application, File, Frame, GridLayout, Page, knownFolders } from '@nativ
 import { createNativeScriptRoot } from '@nativescript-community/octane'
 import { addBackInterceptor, getStack, registerStack } from '@octane-xplat/ui/routing'
 import { prepareFullScreenPage } from '@octane-xplat/ui/nativescript'
-import { bindRouterFlow } from '../../../packages/ui/src/router-instance'
-import { createNativeModalRouterHost } from '../../../packages/ui/src/native-modal-router-host'
+import { bindRouterFlow } from '../../../packages/ui/src/routing/router-instance'
+import { createNativeModalRouterHost } from '../../../packages/ui/src/routing/native-modal-router-host'
 // oxlint-disable-next-line xplat/no-ts-imports-tsrx — isolated compiled fixture
 import { qualifyNativeAuthentication } from '../../../packages/ui/tests/authentication-native-example.tsrx'
 // oxlint-disable-next-line xplat/no-ts-imports-tsrx — isolated compiled fixture

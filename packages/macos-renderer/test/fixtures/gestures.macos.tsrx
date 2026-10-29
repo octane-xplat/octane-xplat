@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { Pressable } from '../../../ui/src/Pressable.macos.tsrx'
-import { View } from '../../../ui/src/View.macos.tsrx'
+import { Pressable } from '../../../ui/src/components/actions/Pressable.macos.tsrx'
+import { View } from '../../../ui/src/components/layout/View.macos.tsrx'
 import { useState } from 'octane'
 import {
 	NSClickGestureRecognizer,

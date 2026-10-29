@@ -8,8 +8,8 @@ import ts from 'typescript'
  *  block wrappers — per-package lint may brace-wrap bodies differently —
  *  so only real code drift fails. */
 const pairs = [
-	['packages/image/src/hash-image.ts', 'packages/ui/src/hash-image.ts'],
-	['packages/image/src/image-content.ts', 'packages/ui/src/image-content.ts'],
+	['packages/image/src/hash-image.ts', 'packages/ui/src/components/media/hash-image.ts'],
+	['packages/image/src/image-content.ts', 'packages/ui/src/components/media/image-content.ts'],
 	['packages/image/src/prefetch-batch.ts', 'packages/gif/src/prefetch-batch.ts'],
 ]
 

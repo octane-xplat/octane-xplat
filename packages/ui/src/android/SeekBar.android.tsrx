@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { SeekBarProps } from '../props'
 import { cx } from '@octane-xplat/lib'
-import { applyNativeProps } from '../platformProps'
+import { applyNativeProps } from '../internal/platform/platformProps'
 
 /** SeekBar — the platform widget (Android SeekBar via NativeScript
  *  `slider`). The self-drawn shared `Slider` lives in the root export. */

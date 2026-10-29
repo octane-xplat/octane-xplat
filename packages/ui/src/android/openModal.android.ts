@@ -1,10 +1,10 @@
-import { afterContentCommit, type ContentOwner } from '../owned-content'
+import { afterContentCommit, type ContentOwner } from '../components/overlays/owned-content'
 import { Frame, GridLayout } from '@nativescript/core'
 import { createNativeScriptRoot } from '@nativescript-community/octane'
 import type { UniversalComponent } from 'octane/universal'
 import type { ModalHandle, ModalOpenOptions, ModalOpenResult, OpenModal } from '../props'
 import { applyThemeClasses } from '../theme/theme-host'
-import { modalPresenter } from '../modal-presenter'
+import { modalPresenter } from '../components/overlays/modal-presenter'
 
 /** Open a component in its own NativeScript modal root and resolve on close. */
 export const openModal: OpenModal = (Component, params, options) =>

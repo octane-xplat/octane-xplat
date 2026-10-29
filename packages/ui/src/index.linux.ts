@@ -4,6 +4,6 @@
 // prefers-color-scheme doesn't track GNOME). Explicit named exports here
 // shadow the same names in the star re-export.
 export * from './index.web'
-export { openWindow } from './windows.linux'
+export { openWindow } from './internal/platform/windows.linux'
 export { useColorScheme, getColorScheme } from './theme/colorScheme.linux'
 export type { ColorScheme } from './theme/colorScheme.linux'

@@ -18,7 +18,7 @@ export { MaterialDialog } from './MaterialDialog.android.tsrx'
 export { openModal } from './openModal.android'
 export { DrawerLayout } from './DrawerLayout.android.tsrx'
 export { PlatformIcon } from './icon.android'
-export { modifier } from '../modifier-factories'
+export { modifier } from '../internal/layout/modifier-factories'
 
 export type {
 	MaterialSwitchProps,

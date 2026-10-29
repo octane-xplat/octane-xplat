@@ -1,0 +1,39 @@
+/** @jsxImportSource @octane-xplat/jsx */
+import { useCallback, useState } from 'octane'
+import type { AlertDialogProps, ImperativeAlertDialogReturn } from '../../props'
+import { AlertDialog } from './AlertDialog.macos.tsrx'
+
+export function useImperativeAlertDialog(): ImperativeAlertDialogReturn @{
+	const [isOpen, setIsOpen] = useState(false)
+	const [options, setOptions] = useState<
+		Omit<AlertDialogProps, 'isOpen' | 'defaultOpen' | 'onOpenChange'>
+	>({
+		title: '',
+		actionLabel: '',
+		onAction: () => {},
+	})
+
+	const show = useCallback(
+		(next: Omit<AlertDialogProps, 'isOpen' | 'defaultOpen' | 'onOpenChange'>) => {
+			setOptions(next)
+			setIsOpen(true)
+		},
+		[],
+	)
+
+	const hide = useCallback(() => setIsOpen(false), [])
+
+	const element = (
+		<AlertDialog
+			{...options}
+			isOpen={isOpen}
+			onOpenChange={(open: boolean) => {
+				if (!open) {
+					setIsOpen(false)
+				}
+			}}
+		/>
+	)
+
+	return { show, hide, isOpen, element }
+}

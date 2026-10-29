@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { Select as Selector } from '../../packages/ui/src/Select.macos.tsrx'
-import { Text } from '../../packages/ui/src/Text.macos.tsrx'
-import { VStack } from '../../packages/ui/src/VStack.macos.tsrx'
+import { Select as Selector } from '../../packages/ui/src/components/forms/Select.macos.tsrx'
+import { Text } from '../../packages/ui/src/components/content/Text.macos.tsrx'
+import { VStack } from '../../packages/ui/src/components/layout/VStack.macos.tsrx'
 import { useState } from 'octane'
 
 const options = [

@@ -1,11 +1,11 @@
 // Shared native protocol; platform adapters read actual viewport/focus state.
 import { createContext, useContext, useLayoutEffect, useMemo } from 'octane'
 import { Text, TextInput, ScrollableArea, View } from '@octane-xplat/ui'
-import { createRouter } from '../src/router-instance'
-import { defineRoute } from '../src/define-route'
-import { defineRoutes } from '../src/route-table'
-import { useRouter } from '../src/router-hooks.tsrx'
-import { ClientRouteOutlet } from '../src/ClientRouteOutlet.tsrx'
+import { createRouter } from '../src/routing/router-instance'
+import { defineRoute } from '../src/routing/define-route'
+import { defineRoutes } from '../src/routing/route-table'
+import { useRouter } from '../src/routing/router-hooks.tsrx'
+import { ClientRouteOutlet } from '../src/routing/ClientRouteOutlet.tsrx'
 import type {
 	ClientRouterHost,
 	Renderable,

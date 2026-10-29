@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { mergeStyle } from '../src/style-merge'
+import { mergeStyle } from '../src/internal/layout/style-merge'
 import { useState } from 'octane'
-import { VirtualList } from '../src/VirtualList'
+import { VirtualList } from '../src/components/collections/VirtualList'
 import type { ProbeContext } from '../../../scripts/probe/context'
 
 const items = [{ id: 'a' }, { id: 'b' }, { id: 'c' }]
