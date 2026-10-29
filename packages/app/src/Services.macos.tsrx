@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'octane'
 import { secureStorage } from '@octane-xplat/secure-storage'
 import { files } from '@octane-xplat/files'
 import { media } from '@octane-xplat/media'
+import { notifications } from '@octane-xplat/notifications'
 import { HStack, Image, Text, Pressable, View } from '@octane-xplat/ui'
 import {
 	announce,
@@ -18,6 +19,8 @@ import {
 export function Services() @{
 	const [clipboardResult, setClipboardResult] = useState('—')
 	const [settingsResult, setSettingsResult] = useState('—')
+	const [notificationResult, setNotificationResult] = useState('Not checked')
+	const notificationGeneration = useRef(0)
 	const [announcementResult, setAnnouncementResult] = useState('—')
 	const [keychainResult, setKeychainResult] = useState('—')
 	const [imageResult, setImageResult] = useState('—')
@@ -30,6 +33,7 @@ export function Services() @{
 		return () => {
 			alive.current = false
 			pickGeneration.current++
+			notificationGeneration.current++
 			// Also cover a result received before its state update committed.
 			if (latestPicked.current) files.release(latestPicked.current)
 			latestPicked.current = null
@@ -44,6 +48,17 @@ export function Services() @{
 	const conn = connectivity.getState()
 	const appState = useAppState()
 	const size = useWindowSize()
+	async function notificationAction(action: 'status' | 'request' | 'send') {
+		const generation = ++notificationGeneration.current
+		try {
+			const result = action === 'request' ? await notifications.requestPermissions() : await notifications.getPermissions()
+			if (!alive.current || generation !== notificationGeneration.current) return
+			if (action === 'send' && result.granted) {
+				notifications.notify('Kitchen sink', 'Local notification check')
+				setNotificationResult('Send requested')
+			} else setNotificationResult(`Permission: ${result.status}`)
+		} catch { if (alive.current && generation === notificationGeneration.current) setNotificationResult('Notification operation failed') }
+	}
 	async function chooseImages(multiple: boolean) {
 		const generation = ++pickGeneration.current
 		try {
@@ -81,6 +96,15 @@ export function Services() @{
 			<Text className="text-sm text-muted">
 				{'window ' + size.width + '×' + size.height + ' ' + size.orientation}
 			</Text>
+		</View>
+		<View className="sink-section">
+			<Text className="section-label">Local notifications</Text>
+			<HStack className="gap-3 items-center">
+				<Pressable className="btn btn-secondary" onPress={() => notificationAction('status')}><Text>Check status</Text></Pressable>
+				<Pressable className="btn btn-secondary" onPress={() => notificationAction('request')}><Text>Request access</Text></Pressable>
+				<Pressable className="btn btn-secondary" onPress={() => notificationAction('send')}><Text>Send test</Text></Pressable>
+			</HStack>
+			<Text>{notificationResult}</Text>
 		</View>
 		<View className="sink-section">
 			<Text className="section-label">Clipboard</Text>

@@ -6468,3 +6468,61 @@ function-key delivery, app/system shortcut ownership, responder/editor/IME,
 containment/native focus rejection/reveal, hidden/reparent/window and HMR cleanup,
 Tab/VoiceOver/AX semantics and supported-macOS/clean installed consumers remain
 unqualified. Audit snapshots and evidence gates unchanged; persistent goal active.
+
+
+## AppKit observational notification permissions
+
+Demand is grounded in the app's existing notifications dependency, explicit QA
+notify action and maintained reminder example. Everyday permission/status/send
+flows take priority over niche integrations. Source inspection found both native
+permission methods routed to ensure, contradicting the read-never-prompts contract;
+no actual OS prompt was observed. The unchanged audit's native-service finding
+and AppKit TSV remain qualification gates, not runtime evidence.
+
+The AppKit facade now requires separate getStatus/ensure/notifyBody selectors and
+an available bundled host. Missing/stale/incomplete/throwing capability metadata
+reports unsupported without an authorization fallback; invocation failures reject.
+Read calls settings only. Explicit requests read back authoritative OS settings;
+an error alone no longer fabricates denial. Undetermined can ask again; denied
+cannot. Authorized/provisional map to granted, nil/unknown to unsupported. Native
+completion paths dispatch to the main queue, unavailable operations avoid the
+center, and sends preserve the delegate and existing current-permission check.
+This native selector addition requires rebuilding the host.
+
+Services and an idle manual fixture expose separate read/request/send controls.
+No such operation occurs on mount. Generation/teardown guards retire stale
+results and prevent an old granted read from triggering a send; an already
+requested system prompt is not cancellable. The app already declares the leaf,
+and the AppKit harness depends on that app, so no manifest or lockfile edit is
+needed. “Send requested” is not delivery evidence. Web/hosted ensure-only bridge
+behavior remains a separate documented gap outside this native-target change.
+
+Eight JS facade cases, expanded intercepted-center cases and a native-to-JS
+unbundled status callback assertion are authored, all UNRUN. The intercepted
+fixture tests status/permission-error mapping, main-thread completions, unavailable
+center guards and nonprompting reads; it never calls the real OS center. The
+metadata fixture's unbundled callback also avoids the center. Public guide,
+README, skill, recipe and fix note reconcile this experimental behavior.
+
+Exact deferred commands, pending this human's verification go-ahead:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/notifications
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit notification permission fixture"}' -- pnpm exec turbo run test:macos --filter=@octane-xplat/notifications
+pnpm exec turbo run typecheck --filter=...@octane-xplat/notifications --filter=...@xplat/app
+pnpm probe doctor
+pnpm probe run examples/probes/notification-permissions.macos.tsrx --target macos --watch
+pnpm exec turbo run test:packed --filter=@octane-xplat/notifications
+pnpm exec turbo run pack:check --filter=@octane-xplat/notifications
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit notification permission package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+```
+
+The notifications package has no typecheck task; filtered dependents do not
+independently prove this facade or Objective-C. Five TS/TSRX/MJS files and one generated JS snippet syntax parsed;
+source/semantic and whitespace review only. No tests, compiler transforms,
+typechecks/builds, probes, native/OS/AX automation, packaging or visual analysis
+ran. Actual compilation, callback marshalling/main-thread behavior, first-launch
+prompt-free reads, explicit prompts, relaunch/revocation, foreground/background
+presentation, bundle/signing and installed-consumer behavior remain unqualified.
+No shared audit regeneration or evidence-gated checkbox changes; goal active.

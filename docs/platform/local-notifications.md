@@ -36,7 +36,9 @@ export async function sendReminder() {
 useful message for the non-granted outcomes. If permission was denied, explain
 how to enable notifications in system or browser settings — `canAskAgain:
 false` means the platform cannot re-prompt. `getPermissions()` reads the same
-state without prompting. After importing this leaf, the shared
+state without prompting on native AppKit and the browser Notification API.
+The hosted macOS webview backend still requests authorization for reads; avoid
+probing through that separate backend. After importing this leaf, the shared
 `permissions.requestPermissions('notifications')` dispatcher uses the same
 permission owner. The dispatcher reports `unsupported` when no owner is
 installed.
@@ -46,6 +48,20 @@ It does not request permission or confirm delivery. The public leaf currently
 provides immediate notifications only: it has no delayed schedule, cancellation,
 receipt, tap callback, or push registration API. Mobile plugin APIs remain
 app-level APIs rather than additional methods on this leaf.
+
+## Read AppKit status without asking
+
+A status read lets a native AppKit screen explain the current permission before
+asking. Import the leaf before using the shared dispatcher so its owner is
+registered. `undetermined` means no decision yet; `denied` cannot re-prompt.
+
+```ts
+import { notifications } from '@octane-xplat/notifications'
+import { permissions } from '@octane-xplat/platform'
+
+const direct = await notifications.getPermissions()
+const shared = await permissions.getPermissions('notifications')
+```
 
 ## Native macOS setup and behavior
 
@@ -58,6 +74,10 @@ pnpm xplat doctor
 pnpm xplat build --targets macos
 ```
 
+Rebuild the native host after upgrading: the read path requires the new
+`getStatus` selector. Stale or incomplete bridges report unsupported rather
+than substituting a permission request.
+
 The CLI compiles the package's Objective-C source, links Apple's
 UserNotifications framework, and adds the leaf's declarations to the native
 metadata. No host edits or push entitlements are required. See
@@ -67,8 +87,8 @@ and delivery under its bundle identity. A plain Node process without native
 metadata, or an unbundled host without an app bundle identity, reports `supported: false` and an `unsupported` permission status; `notify` throws `UnavailabilityError` there.
 
 The macOS implementation asks for alert, sound, and badge permission. Native
-permission errors return `denied`. Permission callbacks return to the JS main
-thread. Each send reads the current OS authorization state, so revoking
+requests read back the current OS status; an error alone does not mean
+`denied`. The native source dispatches permission callbacks to the main thread. Each send reads the current OS authorization state, so revoking
 permission prevents later submissions. Authorized and provisionally authorized
 states submit an immediate request with a unique ID; other states submit
 nothing. Submission errors are logged as numeric codes without message content.
@@ -94,3 +114,14 @@ permission prompts, persistence across relaunch, revoked permissions, and
 Notification Center delivery still require a packaged app in an interactive
 macOS session. Build success and intercepted handler dispatch are separate
 from that evidence.
+
+
+The new prompt-free read cases, intercepted-center assertions and native-to-JS
+status callback check are authored but unrun. The AppKit Services screen and
+manual fixture provide separate read, request and send controls; mounting the
+fixture performs none of those actions. Run it only during authorized native
+qualification:
+
+```sh
+pnpm probe run examples/probes/notification-permissions.macos.tsrx --target macos --watch
+```

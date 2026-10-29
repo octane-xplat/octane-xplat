@@ -557,3 +557,24 @@ ATS/sandbox, threading/KVO/cleanup/AX and clean packaging remain unqualified.
 AppKit harness dependency/lock link and scoped package task are source changes;
 no dependency install or native qualification ran. See the package README and
 [AppKit navigation guide](../../../../docs/app/navigation.md#open-a-page-inside-an-appkit-browser-window).
+
+
+## AppKit local-notification permission reads
+
+Native AppKit status reads use `getStatus`, not the authorization-request
+selector. Rebuild the host after upgrading; absent/stale metadata or no bundle
+identity reports unsupported without a prompt fallback. Import the leaf before
+using its shared permission owner. Request only after an explicit app action;
+`undetermined` can ask, denied cannot. Grant/provisional state does not prove
+presentation. The hosted macOS webview bridge remains ensure-only and can prompt
+on reads; do not apply this native guarantee to that backend.
+
+```ts
+import { notifications } from '@octane-xplat/notifications'
+const status = await notifications.getPermissions()
+// An explicit button can separately call notifications.requestPermissions().
+```
+
+The native read/request/thread/metadata cases are authored, unrun. Real OS
+prompts, relaunch/revocation, bridge callbacks, foreground/background delivery,
+packaging and signing remain unqualified in #62.

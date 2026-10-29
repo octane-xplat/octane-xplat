@@ -83,7 +83,17 @@ await writeFile(
 	`
 if (typeof XplatLocalNotifications === 'undefined') throw Error('Leaf metadata missing');
 if (XplatLocalNotifications.isAvailable()) throw Error('Unbundled fixture must be unavailable');
-if (typeof XplatLocalNotifications.ensure !== 'function' || typeof XplatLocalNotifications.notifyBody !== 'function') throw Error('Leaf selectors missing');
+if (typeof XplatLocalNotifications.getStatus !== 'function' || typeof XplatLocalNotifications.ensure !== 'function' || typeof XplatLocalNotifications.notifyBody !== 'function') throw Error('Leaf selectors missing');
+let permissionStatus = null;
+XplatLocalNotifications.getStatus((status) => {
+    if (!NSThread.isMainThread) throw Error('Permission callback must use the main thread');
+    permissionStatus = String(status);
+});
+const deadline = Date.now() + 3000;
+while (permissionStatus === null && Date.now() < deadline)
+    NSRunLoop.currentRunLoop.runUntilDate(NSDate.dateWithTimeIntervalSinceNow(0.01));
+if (permissionStatus !== 'unsupported') throw Error('Unbundled status callback differs');
+console.log('MACOS_NOTIFICATION_STATUS_CALLBACK_OK');
 if (typeof UNUserNotificationCenter === 'undefined' || typeof UNMutableNotificationContent === 'undefined') throw Error('System notification metadata missing');
 const content = UNMutableNotificationContent.new();
 content.title = 'Fixture title'; content.body = 'Fixture body';
@@ -106,6 +116,7 @@ const result = spawnSync(
 
 assert.equal(result.status, 0, result.stdout + result.stderr)
 assert.match(result.stdout + result.stderr, /MACOS_LOCAL_NOTIFICATION_REQUEST_OK/)
+assert.match(result.stdout + result.stderr, /MACOS_NOTIFICATION_STATUS_CALLBACK_OK/)
 console.log(
 	'AppKit: native leaf compiled/loaded; selectors and real immediate request construction pass. No OS permission/delivery evidence.',
 )
