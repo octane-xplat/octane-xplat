@@ -26,6 +26,7 @@
 	"files": [
 		"types",
 		"src",
+		"platforms",
 		"!src/**/*.test.*",
 		"!src/**/*.spec.*"
 	],
@@ -49,7 +50,9 @@
 		"typegen": "tsc -p tsconfig.types.json",
 		"prepack": "pnpm typegen && tsrx-typegen --pack-check",
 		"test:packed": "node tests/packed-consumer.mjs",
-		"pack:check": "tsrx-typegen --pack-check"
+		"pack:check": "tsrx-typegen --pack-check",
+		"test": "node --experimental-strip-types --test tests/*.test.ts",
+		"typecheck": "tsc --noEmit --strict --target esnext --module esnext --moduleResolution bundler --skipLibCheck src/video-owner.macos.ts"
 	},
 	"dependencies": {
 		"@nstudio/nativescript-exoplayer": "6.2.0",
@@ -78,6 +81,19 @@
 		},
 		"@nativescript/core": {
 			"optional": true
+		}
+	},
+	"xplat": {
+		"macos": {
+			"swiftHeaderImports": [
+				"AppKit/AppKit.h"
+			],
+			"frameworks": [
+				"AppKit",
+				"AVFoundation",
+				"CoreMedia",
+				"QuartzCore"
+			]
 		}
 	}
 }

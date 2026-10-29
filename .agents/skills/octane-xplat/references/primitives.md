@@ -405,6 +405,34 @@ export function PackingToggle() {
   different engine behavior per target. Check `docs/testing/known-limits.md`
   before promising parity.
 
+## AppKit video source subset
+
+Video now selects a package-owned Swift NSView/AVPlayerLayer surface with shared
+VideoChrome. Rebuild the AppKit app after adding the package; missing bridge
+setup fails before mounting. Sources are HTTP(S), absolute/file URLs or ~/ bundle
+paths. Commands/events use milliseconds; unknown duration is zero. Source/seek
+ownership retires old work; explicit play retries failure, same-prop renders do
+not. Pre-ready seeks retain the last finite target. Loop suppresses onEnded and
+detach pauses native playback. Handle.native is the current NSView; disposed
+handles are inert. AppKit onError is generic, unlike the mobile plugin gap.
+
+```tsx
+import { Video } from '@octane-xplat/video'
+export function Clip({ source }: { source: string }) {
+	return <Video src={source} controls style={{ width: 320, height: 220 }}
+		onReady={({ duration }) => console.log(duration)} onError={({ message }) => console.warn(message)} />
+}
+```
+
+Owner callbacks use latest props and source generations; ready is metadata and
+playing-change is intent, not rendered frames. Polling is 250 ms for active work,
+1 s for paused ready playback only when onError is installed. No ios/android/web
+escape bag applies to AppKit. Nine owner cases and target fixture are unrun;
+Swift/discovery, playback/audio, callbacks/threads, fit/resize, input/AX, resource
+lifetime and packaging remain unqualified. Do not infer Lightbox integration,
+DRM, subtitles, background or full streaming support. Read the
+[package subset](../../../../packages/video/README.md#experimental-appkit-playback).
+
 ## Retained screen layers
 
 `Screen` stays in its parent's flow. To cover retained content, wrap each

@@ -5398,3 +5398,82 @@ visual analysis ran. Actual native property/BOOL bridge behavior, static-text
 value-description interpretation, VoiceOver/hierarchy/navigation, metadata
 update/removal, testID/native identity and packed consumers remain unqualified.
 Audit snapshots and evidence gates remain unchanged; persistent goal active.
+
+## AppKit AVPlayerLayer video source path
+
+Demand assumption: ordinary embedded clips and the maintained VideoDemo's
+play/pause, mute, poster, time and seek controls have broader application demand
+than advanced media integrations. The audit-era AppKit Video leaf was still a
+placeholder. This source change replaces it with a package-owned NSView and
+AVPlayerLayer plus the existing shared transport; Lightbox video is separate.
+It adds no external dependency and changes no CLI or other target renderer.
+
+The package includes platforms/macos/src/XplatVideoView.swift, Swift AppKit
+header configuration and AppKit/AVFoundation/CoreMedia/QuartzCore frameworks,
+using the existing package-native collector. A native rebuild is required;
+missing XplatVideoView fails explicitly before mounting. Source accepts empty
+idle input, HTTP(S), absolute paths/file URLs and ~/ bundle-resource paths.
+Each attempt owns a fresh AVPlayer, item, layer association and notifications.
+Source replacement/disposal removes notifications, cancels pending seeks and
+releases player items. Detaching a previously attached view pauses playback.
+Native notifications use the main queue; seek completions additionally guard
+source/item identity, seek revision and current playback command before resume.
+
+AVPlayerLayer [videoGravity](https://developer.apple.com/documentation/avfoundation/avplayerlayer/videogravity)
+maps contain/cover/fill to resizeAspect/resizeAspectFill/resize. AVPlayerItem
+[end](https://developer.apple.com/documentation/avfoundation/avplayeritem/didplaytoendtimenotification)
+and [failure](https://developer.apple.com/documentation/avfoundation/avplayeritem/failedtoplaytoendtimenotification)
+notifications inform the native snapshot. These API references support source
+choices, not native execution evidence. No source URL or NSError detail crosses
+the public error callback; it receives a generic failure message.
+
+The pure TypeScript owner guards source generations, current native identity,
+timers, queued terminal events and current handlers. It separates consumer
+callback exceptions from playback errors. Unchanged renders do not schedule
+polling or retry failed sources; explicit play retries. A stable handle becomes
+inert on disposal, reads time/duration in milliseconds, and keeps the last finite
+pre-ready seek. Metadata readiness fires once per attempt; playing callbacks
+report requested transport intent rather than decoded frames or buffering.
+Polling runs at 250 ms while loading/playing/seeking and at 1000 ms for paused
+ready surfaces only with an error callback installed. Other paused surfaces stop
+polling. Loop suppresses the terminal callback. Shared chrome/poster, bounded
+surface layout, fit, mute/loop/playing prop changes and the native handle are
+wired in source; actual behavior remains unqualified.
+
+Nine owner cases are authored but UNRUN: flags-before-load/readiness/idempotent
+sync, polling/transport, callback source replacement, latest handlers and consumer
+exceptions, one failure plus explicit retry, pre-ready seek/mute/prop changes,
+retired timers/disposal, replay/cleanup reentry, and opt-in paused error polling.
+The manual fixture starts idle and requires an entered source before loading;
+its runner records mounting only. Packed-consumer assertions now require the
+Swift source and framework/header configuration in the archive. Packing itself
+has not run, and those assertions do not compile or discover the native class.
+
+Package README, primitive guide/limits, Octane skill reference, recipe AC1–AC4
+and a feature note describe this experimental subset and its qualification
+boundary. The new typecheck script covers the pure AppKit owner/public types;
+it does not check TSRX or Swift. Syntax-only TS/TSRX/JS/JSON parsing and whitespace
+checks passed; no source, test, fixture or native code was executed by those
+checks. Source/semantic review also ran, including structural Swift entity
+inspection; no Swift compiler check ran.
+
+Exact deferred commands:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/video
+pnpm exec turbo run typecheck --filter=...@octane-xplat/video
+pnpm probe doctor
+pnpm probe run examples/probes/video.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm exec turbo run test:packed --filter=@octane-xplat/video
+pnpm check:recipes
+```
+
+All remain deferred pending explicit human authorization for this task. No tests,
+typechecks/builds/installs, probes, native/OS/browser automation, packaging or
+visual analysis ran. Native collector/class discovery, Swift compilation/bridge
+selectors, decoding/actual frame and audio output, sandbox/network policy,
+notification/thread behavior, seek/loop/detach, poster/fit/resize/hit testing,
+keyboard/AX, memory/power and clean packaged consumers remain unqualified.
+DRM, subtitles, background playback and full streaming support are not established.
+Audit snapshots and all evidence gates remain unchanged; persistent goal active.

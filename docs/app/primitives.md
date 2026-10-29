@@ -1387,8 +1387,8 @@ dependency, so apps declare nothing extra.
 Times are milliseconds everywhere, including `onReady`'s duration. Use the
 maintained [VideoDemo](../../packages/demos/src/VideoDemo.tsrx) for a bounded
 player and play/pause controls. Check that playback advances, pause holds the
-position, and resume continues. Native player failures do not emit `onError`;
-see [video limits](../testing/known-limits.md#primitives) before designing error UI.
+position, and resume continues. iOS/Android plugin failures do not emit `onError`; experimental AppKit now
+has a source path for generic errors. See [video limits](../testing/known-limits.md#primitives) before designing error UI.
 
 ```tsx
 import { Video } from '@octane-xplat/video'
@@ -1404,6 +1404,25 @@ export function Clip() {
 			fit="contain"
 		/>
 	)
+}
+```
+
+Experimental AppKit now replaces its placeholder with a package-owned
+AVPlayerLayer surface and shared transport. Rebuild after adding the package so
+its Swift view is included. Use HTTP(S), absolute/file URLs or ~/ bundle paths;
+all times stay in milliseconds. Play can retry a failed source; current-source
+callbacks retire on replacement/removal. Nine source-owner cases and an
+[AppKit fixture](../../examples/probes/video.macos.tsrx) are authored but unrun.
+See the [AppKit subset](../../packages/video/README.md#experimental-appkit-playback)
+for polling, errors and remaining limits. Swift, actual playback/audio/input/AX,
+fit, sandbox and packaged behavior remain unqualified; metadata/intent callbacks
+are not frame or OS-input proof. Lightbox video is a separate gap.
+
+```tsx
+import { Video } from '@octane-xplat/video'
+export function NativeClip({ source }: { source: string }) {
+	return <Video src={source} controls fit="contain" style={{ width: 320, height: 220 }}
+		onError={({ message }) => console.warn(message)} />
 }
 ```
 

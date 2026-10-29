@@ -78,14 +78,14 @@ export interface VideoHandle {
 	currentTime(): number
 	/** Clip duration in ms (0 before metadata loads). */
 	duration(): number
-	/** The platform surface (`HTMLVideoElement` / plugin `Video`). */
+	/** The platform surface (`HTMLVideoElement` / plugin `Video` / AppKit NSView). */
 	native: any
 }
 
 /** Embedded video — surface-hosted bucket: the OS engine owns the pixels
  *  (web `<video>` / `@nstudio/nativescript-exoplayer` → AVPlayerViewController
- *  + ExoPlayer2), all chrome is self-drawn so `controls` looks identical on
- *  every target. Times are milliseconds on every platform. */
+ *  + ExoPlayer2; AVPlayerLayer on AppKit), with self-drawn transport chrome.
+ *  AppKit runtime qualification remains pending. Times are milliseconds on every platform. */
 export interface VideoProps extends LayoutChildProps, AccessibilityProps {
 	className?: any
 	style?: any
@@ -115,7 +115,7 @@ export interface VideoProps extends LayoutChildProps, AccessibilityProps {
 	onPlayingChange?: (playing: boolean) => void
 	/** Fires when the transport's mute button toggles. */
 	onMutedChange?: (muted: boolean) => void
-	/** Web only — the plugin players surface no error event on native. */
+	/** Web and AppKit. Mobile plugin players surface no error event. */
 	onError?: (e: VideoEvent) => void
 	/** Imperative handle — play/pause/seek/time plus `native` for anything
 	 *  the shared props don't cover. */

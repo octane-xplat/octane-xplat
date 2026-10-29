@@ -1,128 +1,37 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { useImperativeHandle, useCallback, useEffect, useRef, useState } from 'octane'
-import type { VideoHandle, VideoProps } from './props'
-import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props'
+import { useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'octane'
+import { Image } from '@octane-xplat/ui'
+import type { VideoProps } from './props'
 import { layoutChildProps } from './layout-child'
+import { mergeStyle } from './style-merge'
 import { VideoChrome } from './video-chrome.tsrx'
+import { createAppKitVideoOwner, type AppKitVideoNative, type AppKitVideoState } from './video-owner.macos.ts'
 
-declare const CMTimeMakeWithSeconds: (seconds: number, preferredTimescale: number) => any
+declare const XplatVideoView: { create(): AppKitVideoNative }
 
-const FILLS: Record<string, string> = {
-	contain: 'aspect',
-	cover: 'aspectFill',
-	fill: 'fill',
-}
-
-/** Video — AppKit surface (`xplatvideo` element → AVPlayerView, chrome-free)
- *  plus the shared `VideoChrome` overlay, identical structure to the web and
- *  native leaves. Times are milliseconds; the leaf converts CMTime seconds
- *  at the boundary. `src` takes the shared grammar: remote URL, `~/` bundle
- *  path, `file://` URL, absolute path. */
+/** AVPlayerLayer surface with shared self-drawn chrome. Native qualification pending. */
 export function Video(props: VideoProps) @{
-	const host = useRef<any>(null)
-	const [playing, setPlaying] = useState(props.playing ?? props.autoPlay ?? false)
-	const [started, setStarted] = useState(false)
-	const [position, setPosition] = useState(0)
-	const [duration, setDuration] = useState(0)
-	const [internalMuted, setInternalMuted] = useState(false)
-	const muted = props.muted ?? internalMuted
+	if (typeof XplatVideoView === 'undefined') throw Error('AppKit Video bridge is unavailable; rebuild with @octane-xplat/video')
+	const latest = useRef(props); latest.current = props
+	const [state, setState] = useState<AppKitVideoState>({ playing: false, started: false, position: 0, duration: 0, muted: false })
+	const owner = useMemo(() => createAppKitVideoOwner({ props: () => latest.current, publish: setState }), [])
+	const create = useCallback((event: any) => { const native = XplatVideoView.create(); event.view = native; owner.attach(native) }, [])
+	useImperativeHandle(props.ref, () => owner.handle, [props.ref])
+	useEffect(() => { owner.sync() })
+	useEffect(() => () => owner.dispose(), [])
+	const style = mergeStyle({ display: 'grid', gridTemplateRows: '1fr', gridTemplateColumns: '1fr' }, props.style)
 
-	useImperativeHandle(props.ref, () => handle(host.current!), [])
-
-	const bindHost = useCallback((v: any) => {
-		host.current = v
-	}, [])
-
-	const drive = (v: any, next: boolean) => {
-		if (!v?.player) return
-		if (next) v.player.play()
-		else v.player.pause()
-	}
-
-	useEffect(() => {
-		const v = host.current
-		if (!v) return
-		applyEscapeProps(v, props)
-	}, [])
-
-	// Controlled `playing` writes — play state is a method call, not a prop.
-	useEffect(() => {
-		if (props.playing === undefined) return
-		setPlaying(props.playing)
-		drive(host.current, props.playing)
-	}, [props.playing])
-
-	useEffect(() => {
-		const v = host.current
-		if (v?.player) v.player.muted = muted
-	}, [muted])
-
-	const togglePlay = () => {
-		const next = !playing
-		setPlaying(next)
-		drive(host.current, next)
-		props.onPlayingChange?.(next)
-	}
-
-	const handle = (v: any): VideoHandle => ({
-		play: () => v?.player?.play(),
-		pause: () => v?.player?.pause(),
-		seekTo: (ms: number) => v?.player?.seekToTime(CMTimeMakeWithSeconds(ms / 1000, 600)),
-		currentTime: () => Number(v?.player?.currentTime?.().seconds ?? 0) * 1000,
-		duration: () => {
-			const seconds = Number(v?.player?.currentItem?.duration?.seconds ?? 0)
-			return Number.isFinite(seconds) ? seconds * 1000 : 0
-		},
-		native: v,
-	})
-
-	<masonview id={props.id} className={['vx-layers', 'vx-video', props.className]} {...layoutChildProps(props, {display: "grid", gridTemplateRows: "1fr", gridTemplateColumns: "1fr", ...(props.style)})} accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any} accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue} accessibilityState={nativeAccessibilityState(props.accessibilityState) as any} accessibilityLiveRegion={props.accessibilityLiveRegion as any}>
-		<xplatvideo
-			ref={bindHost}
-			src={props.src}
-			autoplay={props.playing ?? props.autoPlay ?? false}
-			controls={false}
-			loop={props.loop}
-			muted={muted}
-			fill={FILLS[props.fit ?? 'contain']}
-			observeCurrentTime={props.controls !== false}
-			onFinished={() => {
-				if (!props.loop) {
-					setPlaying(false)
-					props.onEnded?.()
-				}
-			}}
-			onPlaybackReady={(e: any) => {
-				const ms = Number(e?.duration ?? 0)
-				setDuration(ms)
-				props.onReady?.({ duration: ms })
-			}}
-			onPlaybackStart={() => setStarted(true)}
-			onCurrentTimeUpdated={(e: any) => setPosition(e.position ?? 0)}
-			onError={(e: any) => props.onError?.({ message: String(e?.error ?? 'unknown') })}
-		/>
+	<masonview id={props.id} className={['vx-layers', 'vx-video', props.className]}
+		{...layoutChildProps(props, style)}
+		accessible={props.accessible} accessibilityLabel={props.accessibilityLabel} accessibilityRole={props.accessibilityRole}
+		accessibilityHint={props.accessibilityHint} accessibilityValue={props.accessibilityValue}
+		accessibilityState={props.accessibilityState} accessibilityLiveRegion={props.accessibilityLiveRegion}>
+		<placeholder onCreatingView={create} className="vx-video-surface" style={{ gridRow: '1', gridColumn: '1', width: '100%', height: '100%' }} />
 		@if (props.controls !== false) {
-			<VideoChrome
-				poster={props.poster}
-				started={started}
-				playing={playing}
-				position={position}
-				duration={duration}
-				muted={muted}
-				onTogglePlay={togglePlay}
-				onToggleMute={() => {
-					const next = !muted
-					setInternalMuted(next)
-					if (host.current?.player) host.current.player.muted = next
-					props.onMutedChange?.(next)
-				}}
-				onSeek={(ms: number) => {
-					if (host.current?.player) {
-						host.current.player.seekToTime(CMTimeMakeWithSeconds(ms / 1000, 600))
-						setPosition(ms)
-					}
-				}}
-			/>
+			<VideoChrome poster={props.poster} started={state.started} playing={state.playing} position={state.position}
+				duration={state.duration} muted={state.muted} onTogglePlay={owner.togglePlay} onToggleMute={owner.toggleMute} onSeek={owner.handle.seekTo} />
+		} @else if (props.poster && !state.started) {
+			<Image className="vx-video-poster" src={props.poster} contentFit="cover" />
 		}
 	</masonview>
 }

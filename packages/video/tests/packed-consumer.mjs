@@ -184,6 +184,9 @@ try {
 	const packedRoot = join(extractedRoot, 'package')
 	const packedManifest = JSON.parse(readFileSync(join(packedRoot, 'package.json'), 'utf8'))
 	const workspaceManifest = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf8'))
+	assert.ok(existsSync(join(packedRoot, 'platforms/macos/src/XplatVideoView.swift')), 'the AppKit engine source is packed')
+	assert.ok(packedManifest.xplat?.macos?.frameworks?.includes('AVFoundation'), 'AppKit declares its engine framework')
+	assert.ok(packedManifest.xplat?.macos?.swiftHeaderImports?.includes('AppKit/AppKit.h'), 'AppKit view types reach the Swift header')
 
 	const exportMaps = [
 		workspaceManifest.exports,
