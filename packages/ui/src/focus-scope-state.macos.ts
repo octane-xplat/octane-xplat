@@ -13,6 +13,7 @@ type Scope = {
 	options: () => AppKitFocusScopeOptions
 	owner: NSWindow | null
 	previous: any
+	previousAncestors: Set<NSView>
 	last: NSView | null
 	initialized: boolean
 	order: number
@@ -60,8 +61,10 @@ export function createAppKitFocusScopeManager(
 	const capable = () => {
 		const host = native()
 		const center = host.NSNotificationCenter?.defaultCenter
-		return Boolean(bridge()?.retainFocusTarget && host.NSEvent?.addLocalMonitorForEventsMatchingMaskHandler &&
-			host.NSEvent?.removeMonitor && center?.addObserverForNameObjectQueueUsingBlock && center?.removeObserver)
+		return typeof bridge()?.retainFocusTarget === 'function' &&
+			typeof host.NSEvent?.addLocalMonitorForEventsMatchingMaskHandler === 'function' &&
+			typeof host.NSEvent?.removeMonitor === 'function' &&
+			typeof center?.addObserverForNameObjectQueueUsingBlock === 'function' && typeof center?.removeObserver === 'function'
 	}
 	const top = (window: NSWindow): Scope | undefined => {
 		let current: Scope | undefined
@@ -85,7 +88,7 @@ export function createAppKitFocusScopeManager(
 	}
 	const focus = (scope: Scope, target: any): boolean => {
 		const window = scope.root.window
-		if (!window || !target || target.window !== window || !eligible(target)) return false
+		if (!scopes.includes(scope) || !window || !target || target.window !== window || !eligible(target)) return false
 		moving = true
 		try {
 			if (!window.makeFirstResponder(target)) return false
@@ -106,6 +109,7 @@ export function createAppKitFocusScopeManager(
 			if (scope.owner !== owner) {
 				scope.owner = owner
 				scope.previous = responder(owner)
+				scope.previousAncestors = scope.previous ? ancestors(scope.previous) : new Set()
 				scope.initialized = false
 			}
 			if (!scope.initialized) {
@@ -124,18 +128,26 @@ export function createAppKitFocusScopeManager(
 		}
 	}
 	const attach = () => {
-		if (releaseObservers || !capable()) return false
+		// Nested/sibling scopes and other windows share this one observation owner.
+		if (releaseObservers) return true
+		if (!capable()) return false
 		const host = native()
 		const events = host.NSEvent
 		const center = host.NSNotificationCenter.defaultCenter
 		const observers: unknown[] = []
 		let monitor: unknown
+		let observing = true
 		const cleanup = () => {
-			try { if (monitor != null) events.removeMonitor(monitor) }
-			finally { for (const observer of observers) center.removeObserver(observer) }
+			if (!observing) return
+			// Invalidate closures before native removal, which may throw or reenter.
+			observing = false
+			const keyMonitor = monitor; monitor = undefined
+			if (keyMonitor != null) { try { events.removeMonitor(keyMonitor) } catch { failed = true } }
+			for (const observer of observers.splice(0)) { try { center.removeObserver(observer) } catch { failed = true } }
 		}
 		try {
 			monitor = events.addLocalMonitorForEventsMatchingMaskHandler(host.NSEventMask?.KeyDown ?? 1024, (event: any) => {
+				if (!observing) return event
 				if (Number(event.keyCode) !== 48 || Number(event.modifierFlags) & ((1 << 18) | (1 << 19) | (1 << 20))) return event
 				if (!event.window) return event
 				const scope = top(event.window)
@@ -143,6 +155,8 @@ export function createAppKitFocusScopeManager(
 				const dispatched = bridge()?.dispatchKeyboardEvent?.(event)
 				if (dispatched?.defaultPrevented) return null
 				if (dispatched?.propagationStopped) return event
+				// An attached handler may close, replace or disable this scope.
+				if (!observing || !scopes.includes(scope) || top(event.window) !== scope) return event
 				const raw = event.window.firstResponder
 				if (flag(raw, 'hasMarkedText')) return event
 				const candidates = stops(scope)
@@ -154,7 +168,9 @@ export function createAppKitFocusScopeManager(
 			})
 			if (monitor == null) throw new Error('AppKit key observation unavailable')
 			for (const name of ['NSWindowDidUpdateNotification', 'NSWindowDidBecomeKeyNotification']) {
-				const observer = center.addObserverForNameObjectQueueUsingBlock(host[name] ?? name, null, null, (notification: any) => synchronize(notification.object))
+				const observer = center.addObserverForNameObjectQueueUsingBlock(host[name] ?? name, null, null, (notification: any) => {
+					if (observing) synchronize(notification.object)
+				})
 				if (observer == null) throw new Error('AppKit window observation unavailable')
 				observers.push(observer)
 			}
@@ -188,8 +204,11 @@ export function createAppKitFocusScopeManager(
 				}
 				return () => {}
 			}
+			failed = false
+			const previous = root.window ? responder(root.window) : null
 			const scope: Scope = {
-				root, options, owner: root.window ?? null, previous: root.window ? responder(root.window) : null,
+				root, options, owner: root.window ?? null, previous,
+				previousAncestors: previous ? ancestors(previous) : new Set(),
 				last: null, initialized: false, releaseTarget,
 				order: ++serial, ancestors: ancestors(root),
 			}
@@ -203,6 +222,14 @@ export function createAppKitFocusScopeManager(
 				scopes.splice(scopes.indexOf(scope), 1)
 				try {
 					const owner = scope.owner
+					// A newer scope may have saved a control in this retiring subtree.
+					// Keep its return path valid even after native parent links disappear.
+					for (const other of scopes) {
+						if (other.owner === owner && (contains(scope.root, other.previous) || other.previousAncestors.has(scope.root))) {
+							other.previous = scope.previous
+							other.previousAncestors = scope.previousAncestors
+						}
+					}
 					const parent = owner ? top(owner) : undefined
 					const newerIndependent = parent && parent.order > scope.order && !scope.ancestors.has(parent.root)
 					if (scope.initialized && options().restoreFocus && owner &&
@@ -211,8 +238,10 @@ export function createAppKitFocusScopeManager(
 						if (previous?.window === owner && eligible(previous) && (!parent || contains(parent.root, previous))) owner.makeFirstResponder(previous)
 						else if (parent) focus(parent, fallback(parent))
 					}
+				} catch {
+					// Restoration is best effort; native failure must not retain the owner.
 				} finally {
-					scope.releaseTarget()
+					try { scope.releaseTarget() } catch { failed = true }
 					if (!scopes.length) {
 						const cleanup = releaseObservers
 						releaseObservers = undefined

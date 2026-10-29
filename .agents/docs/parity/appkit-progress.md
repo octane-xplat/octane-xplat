@@ -176,6 +176,81 @@ Manual declaration shape matches source types. These are syntax/path checks;
 anchors, remote contents, imports, compiled hooks, types and behavior were not
 verified. Semantic and whitespace review completed without broad checks.
 
+## AppKit FocusScope shared observation and retirement
+
+Common forms and modal flows can mount nested scopes or keep scopes in several
+native windows. Reviewing their source after the native picker/sheet work found
+an ownership prerequisite: `attach()` returned false whenever `releaseObservers`
+already existed. Every later bind therefore returned a no-op before retaining
+or registering its root. Earlier nested/sibling model cases were authored but
+unrun; the source contradiction was found by inspection, not an observed native
+failure or executed test.
+
+Later scopes now reuse the existing observation owner, while each root still
+retains its own target and per-window boundary/restoration state. The last
+scope removes the shared handles. Capability checks require callable host
+hooks; successful target registration recovers the previous failure status
+without disturbing another live scope. After attached key dispatch, Tab
+navigation rechecks that its scope still exists and owns the current boundary;
+consumer close, disable or replacement cannot navigate a retired owner.
+When an older scope disappears before its replacement, saved native ancestry
+redirects the replacement's return target to the older scope's prior control,
+preserving the return chain even after child/parent links are removed.
+
+Observer cleanup retires closures before native calls and attempts each
+monitor/notification removal once. Captured old callbacks are inert after
+teardown or a later rebind, including when a native removal throws. Failure of
+focus restoration or target release does not prevent attempting the remaining
+owned cleanup. This is best-effort native cleanup: an OS removal failure may
+still retain resources, so native memory/removal behavior remains unqualified.
+Apple's [local monitor contract](https://developer.apple.com/documentation/appkit/nsevent/addlocalmonitorforevents%28matching%3Ahandler%3A%29)
+does not cover nested menu/control tracking loops, and
+[removeMonitor](https://developer.apple.com/documentation/appkit/nsevent/removemonitor%28_%3A%29)
+must only be called once per monitor. No upstream code was patched.
+
+Eight additional model cases cover shared nested lifetime, two-window ownership,
+retired callbacks across rebind, return paths across older-scope detachment,
+consumer changes during key dispatch,
+cleanup/restore failure and target-registration recovery. The scope file now
+has 19 model cases, all **unrun** in this task. The maintained focus-scope probe
+adds manual nested/close-both controls; its run function still exercises only
+the original programmatic single-scope path, and has not run. It does not
+create a second window or establish physical Tab, IME, focus timing or AX.
+
+The public focus guide, existing keyboard-clipboard AC6 and Octane primitives
+reference describe nested/current ownership and the remaining native boundary.
+No public API/dependency or React Aria equivalent changes. This repairs source
+introduced on the unreleased task branch, so it adds no release note. The
+evidence-gated tracker remains open. Real Tab/Shift+Tab, two-window activation,
+IME/native text editors, popup/tracking loops, nested mount/unmount order,
+restoration timing, VoiceOver, native cleanup/memory, HMR and installed consumers
+are still unqualified.
+
+Deferred commands; only after explicit human authorization for this task:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/ui -- src/focus-scope-state.macos.test.ts
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/focus-scope.macos.tsrx --target macos --watch
+pnpm check:recipes
+pnpm check:docs
+pnpm check:doc-examples
+```
+
+The docs-quality guide was read from the original checkout because that guide
+and its two scripts are absent from this isolated snapshot. Public examples
+and their reader path were reviewed; no docs/example task ran. Only source and
+documentation syntax, semantic diff, local-link path and whitespace checks are
+performed. No tests, compiler transforms/typechecks/builds, probe, native/OS
+automation, packaging or visual analysis ran. Other targets' source, shared
+audit snapshots and shared CLI/UI manifests remain intact.
+Three changed TS/TSRX files and three scoped documentation fences parse for
+syntax; the four AC6 local Markdown target paths exist. Semantic and whitespace
+review passed. Anchors, remote contents, native import/compiled hook behavior,
+types and runtime semantics were not verified by those checks.
+
 ## Priorities and evidence boundary
 
 Assume everyday document workflows, settings, inbox filters and view switches

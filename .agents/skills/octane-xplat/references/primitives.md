@@ -280,6 +280,13 @@ export function Fields() {
 AppKit `FocusScope` implements containment/autofocus/restoration and nested
 ownership when its renderer/input bridge is available. Check
 `getFocusScopeCapabilities()`; capability presence is not OS-input evidence.
+Nested/sibling scopes and other windows share one observer owner until its last
+scope unmounts; each window retains its own active boundary. Retired callbacks
+and scopes closed/disabled/replaced by an attached key handler cannot keep
+navigating. Cleanup attempts all native removals once even if restoration or
+one removal fails; native failure does not establish resource-release proof.
+Return paths carry forward when an older scope retires before its replacement,
+using saved native ancestry if the removed controls have already detached.
 Use a scope for native descendants rather than adding a no-op press action
 to make a box focusable. Separate popup windows and hosted editors need their
 own focus owners. See [focus behavior](../../../../docs/app/primitives.md#focus-behavior)

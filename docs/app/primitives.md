@@ -649,6 +649,33 @@ export function Details() {
 }
 ```
 
+Nested AppKit scopes can stay mounted together. The innermost containing scope
+owns Tab in its native window; closing it lets the outer scope resume. Scopes
+in another window keep their own focus boundary. Tab navigation rechecks the
+current owner after attached key handlers return, leaving retired scopes alone.
+Restoration is best
+effort when native controls reject focus. If an older scope closes before its
+replacement, the saved return path carries forward past the removed controls.
+Actual nested input, two-window
+behavior, restoration timing and native teardown remain unqualified.
+
+```tsx
+// NestedDetails.macos.tsx
+import { useState } from 'octane'
+import { Button, FocusScope, TextInput } from '@octane-xplat/ui'
+export function NestedDetails() {
+	const [nested, setNested] = useState(false)
+	return <FocusScope contain autoFocus restoreFocus accessibilityLabel="Details">
+		<TextInput label="Name" />
+		<Button label="Edit notes" clickAction={() => setNested(true)} />
+		{nested ? <FocusScope contain autoFocus restoreFocus accessibilityLabel="Notes">
+			<TextInput label="Notes" />
+			<Button label="Done" clickAction={() => setNested(false)} />
+		</FocusScope> : null}
+	</FocusScope>
+}
+```
+
 ### Reusable rows
 
 `Item` is a reusable, self-drawn row for settings, preferences, and
