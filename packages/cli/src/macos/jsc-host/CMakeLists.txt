@@ -1,9 +1,15 @@
 cmake_minimum_required(VERSION 4.0)
 project(xplat_macos_jsc_host C OBJC)
 
-if(NOT APPLE OR NOT CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
-  message(FATAL_ERROR "The macOS AppKit host builds for darwin-arm64 only")
+if(NOT APPLE)
+  message(FATAL_ERROR "The macOS AppKit host builds for macOS only")
 endif()
+
+foreach(arch IN LISTS CMAKE_OSX_ARCHITECTURES)
+  if(NOT arch STREQUAL "arm64" AND NOT arch STREQUAL "x86_64")
+    message(FATAL_ERROR "The macOS AppKit host builds for arm64 or x86_64 only")
+  endif()
+endforeach()
 
 if(NOT DEFINED XPLAT_JSC_SOURCE_DIR)
   message(FATAL_ERROR "Set XPLAT_JSC_SOURCE_DIR to the pinned libjsc/libnapi source directory")

@@ -7,6 +7,7 @@ import { build } from 'vite'
 import { createMacOSConfig } from '../vite.shared.mjs'
 import { macOSExecutable } from '../../../packages/cli/src/macos/executables.ts'
 import {
+	macOSHostArch,
 	hostBundle,
 	hostRoot,
 	validateHostBundle,
@@ -48,11 +49,11 @@ await build({
 const bundle = join(directory, 'fixture.cjs')
 await validateHostBundle(bundle, appRoot)
 const result = spawnSync(
-	await macOSExecutable(appRoot, 'macos-arm64/host'),
+	await macOSExecutable(appRoot, 'macos/host'),
 	[
 		join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
 		bundle,
-		join(hostBundle, 'metadata.nsmd'),
+		join(hostBundle, `metadata.macos.${macOSHostArch()}.nsmd`),
 		bootstrap,
 	],
 	{

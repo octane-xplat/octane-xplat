@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Regenerate metadata.nsmd for the AppKit/JSC host.
+# Regenerate per-architecture metadata (metadata.macos.<arch>.nsmd) for the AppKit/JSC host.
 #
 # The nsmd is built by NativeScript's objc-metadata-generator — a clang/libclang
 # AST walk over an umbrella header that imports every SDK module. Our
@@ -80,34 +80,39 @@ types_dir="$build_dir/metadata-types"
 json_dir="$build_dir/metadata-json"
 mkdir -p "$out_dir" "$types_dir" "$json_dir"
 
-# Mirrors scripts/metagen.js's macos invocation (same arg set, arm64 only).
+# Mirrors scripts/metagen.js's macos invocation (same arg set, once per arch —
+# METADATA_BINARY_ARCH stays arm64: it only selects the generator binary's own
+# compile target, while the Xclang -target below selects the metadata arch).
 # ts-index-frameworks picks the default ambient set for types/index.d.ts: the
 # renderer's own surface (AppKit/QuartzCore/WebKit dlopen'd by the webview
 # leaf), CoreText for app font registration, and the frameworks backing our
 # native leaf packages (camera/notifications/biometrics). Every other emitted
 # file remains referenceable on demand.
-"$gen_dir/build/bin/objc-metadata-generator" \
-  "types=$types_dir" "json=$json_dir" \
-  ts-index-mode=frameworks-list \
-  ts-index-frameworks=Foundation,AppKit,QuartzCore,WebKit,CoreText,UniformTypeIdentifiers,AVFoundation,UserNotifications,LocalAuthentication \
-  -output-bin "$out_dir/metadata.macos.arm64.nsmd" \
-  -output-umbrella "$out_dir/umbrella.macos.arm64.h" \
-  -output-signature-bindings-cpp "$out_dir/GeneratedSignatureDispatch.inc" \
-  Xclang -isysroot "$sdk_path" -std=gnu99 -target arm64-apple-macos11.0
+for arch in arm64 x86_64; do
+  "$gen_dir/build/bin/objc-metadata-generator" \
+    "types=$types_dir" "json=$json_dir" \
+    ts-index-mode=frameworks-list \
+    ts-index-frameworks=Foundation,AppKit,QuartzCore,WebKit,CoreText,UniformTypeIdentifiers,AVFoundation,UserNotifications,LocalAuthentication \
+    -output-bin "$out_dir/metadata.macos.$arch.nsmd" \
+    -output-umbrella "$out_dir/umbrella.macos.$arch.h" \
+    -output-signature-bindings-cpp "$out_dir/GeneratedSignatureDispatch.inc" \
+    Xclang -isysroot "$sdk_path" -std=gnu99 -target "$arch-apple-macos11.0"
 
-echo "Generated $out_dir/metadata.macos.arm64.nsmd"
+  echo "Generated $out_dir/metadata.macos.$arch.nsmd"
+done
 
 if [[ "$install_artifacts" == 1 ]]; then
-  cp "$out_dir/metadata.macos.arm64.nsmd" "$host_dir/prebuilt/macos-arm64/metadata.nsmd"
+  cp "$out_dir/metadata.macos.arm64.nsmd" "$host_dir/prebuilt/macos/metadata.macos.arm64.nsmd"
+  cp "$out_dir/metadata.macos.x86_64.nsmd" "$host_dir/prebuilt/macos/metadata.macos.x86_64.nsmd"
   # The generator's types= output is the ambient AppKit SDK surface for
   # macos-renderer consumers — check it in next to the renderer, keyed to the
-  # same generator pin + SDK as the shipped metadata.nsmd.
+  # same generator pin + SDK as the shipped metadata files.
   types_install="$repo_root/packages/macos-renderer/types"
   rm -rf "$types_install"
   cp -R "$types_dir" "$types_install"
   # Repair upstream TSEmitter quirks that leave .d.ts files unparseable
   # (anonymous bitfields, reserved words, leaked C qualifiers).
-  python3 "$host_dir/fix-generated-types.py" "$types_install"
+  find "$types_install" -name '*.d.ts' -print0 | xargs -0 python3 "$host_dir/fix-generated-types.py"
   python3 - "$types_install" "$sdk_path" <<'PY'
 import json, pathlib, subprocess, sys
 root = pathlib.Path(sys.argv[1])
@@ -129,5 +134,5 @@ manifest = json.loads(manifest_path.read_text())
 manifest['sha256'] = {path: hashlib.sha256((root / path).read_bytes()).hexdigest() for path in manifest['sha256']}
 manifest_path.write_text(json.dumps(manifest, indent=2) + '\n')
 PY
-  echo "Installed metadata.nsmd and refreshed checksums"
+  echo "Installed metadata.macos.{arm64,x86_64}.nsmd and refreshed checksums"
 fi

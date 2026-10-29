@@ -8,7 +8,11 @@ import { build } from 'vite'
 import { xplatMacOS } from '../../cli/src/macos/vite.ts'
 import { macOSExecutable } from '../../cli/src/macos/executables.ts'
 import { buildMacOSNative, writeNativeBootstrap } from '../../cli/src/macos/native.ts'
-import { hostBundle, validateHostBundle } from '../../cli/src/macos/jsc-host/runtime.ts'
+import {
+	macOSHostArch,
+	hostBundle,
+	validateHostBundle,
+} from '../../cli/src/macos/jsc-host/runtime.ts'
 
 const packageRoot = fileURLToPath(new URL('..', import.meta.url))
 const appRoot = fileURLToPath(new URL('../../../apps/macos', import.meta.url))
@@ -49,11 +53,11 @@ try {
 		const bootstrap = join(directory, 'bootstrap.js')
 		await writeNativeBootstrap(artifact, bootstrap)
 		const child = spawn(
-			await macOSExecutable(appRoot, 'macos-arm64/host'),
+			await macOSExecutable(appRoot, 'macos/host'),
 			[
 				join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
 				bundle,
-				artifact.metadata,
+				artifact.metadata[macOSHostArch()],
 				bootstrap,
 			],
 			{

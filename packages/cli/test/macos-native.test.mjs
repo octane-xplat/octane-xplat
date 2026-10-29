@@ -28,7 +28,8 @@ test('no native leaves keep shipped metadata without requiring a toolchain', asy
 	writeFileSync(join(app, 'package.json'), '{"name":"app"}')
 	const result = await buildMacOSNative(app)
 	assert.deepEqual(result.libraries, [])
-	assert.match(result.metadata, /prebuilt.*metadata.nsmd$/)
+	assert.match(result.metadata.arm64, /prebuilt.*metadata\.macos\.arm64\.nsmd$/)
+	assert.match(result.metadata.x86_64, /prebuilt.*metadata\.macos\.x86_64\.nsmd$/)
 })
 
 test('schema, missing globs, and paths outside the native directory fail before compilation', (t) => {
@@ -108,7 +109,36 @@ function machO({ cputype = 0x0100000c, minos = '13.5' } = {}) {
 	return bytes
 }
 
-function prebuiltFixture(t, { minos, bytes } = {}) {
+const machOCputypes = { arm64: 0x0100000c, x86_64: 0x01000007 }
+
+function fatMachO(entries = [{ arch: 'arm64' }, { arch: 'x86_64' }]) {
+	const slices = entries.map((entry) =>
+		machO({ cputype: machOCputypes[entry.arch], minos: entry.minos }),
+	)
+	const headerSize = 8 + entries.length * 20
+	const offsets = []
+	let size = headerSize
+	for (const slice of slices) {
+		offsets.push(size)
+		size += slice.length
+	}
+
+	const bytes = Buffer.alloc(size)
+	bytes.writeUInt32BE(0xcafebabe, 0)
+	bytes.writeUInt32BE(entries.length, 4)
+	entries.forEach((entry, index) => {
+		const at = 8 + index * 20
+		bytes.writeUInt32BE(machOCputypes[entry.arch], at)
+		bytes.writeUInt32BE(0, at + 4)
+		bytes.writeUInt32BE(offsets[index], at + 8)
+		bytes.writeUInt32BE(slices[index].length, at + 12)
+		bytes.writeUInt32BE(0, at + 16)
+		slices[index].copy(bytes, offsets[index])
+	})
+	return bytes
+}
+
+function prebuiltFixture(t, { bytes } = {}) {
 	const app = mkdtempSync(join(tmpdir(), 'xplat-prebuilt-test-'))
 	t.after(() => rmSync(app, { recursive: true, force: true }))
 	mkdirSync(join(app, 'node_modules'))
@@ -120,7 +150,7 @@ function prebuiltFixture(t, { minos, bytes } = {}) {
 	const engine = join(app, 'node_modules/engine')
 	mkdirSync(join(engine, 'platforms/macos/prebuilt'), { recursive: true })
 	mkdirSync(join(engine, 'platforms/macos/licenses'), { recursive: true })
-	writeFileSync(join(engine, 'platforms/macos/prebuilt/libengine.dylib'), bytes ?? machO({ minos }))
+	writeFileSync(join(engine, 'platforms/macos/prebuilt/libengine.dylib'), bytes ?? fatMachO())
 	writeFileSync(join(engine, 'platforms/macos/licenses/engine.txt'), 'Engine License\n')
 	writeFileSync(
 		join(engine, 'package.json'),
@@ -156,12 +186,13 @@ test('a prebuilt-only package ships its dylib without a toolchain', async (t) =>
 	const artifact = await buildMacOSNative(app)
 	assert.deepEqual(artifact.libraries, [])
 	assert.equal(artifact.prebuilt.length, 1)
-	assert.match(artifact.metadata, /prebuilt.*metadata.nsmd$/)
+	assert.match(artifact.metadata.arm64, /prebuilt.*metadata\.macos\.arm64\.nsmd$/)
+	assert.match(artifact.metadata.x86_64, /prebuilt.*metadata\.macos\.x86_64\.nsmd$/)
 })
 
 test('a compile leaf keeps its notices while also shipping prebuilt libraries', (t) => {
 	const { app, leaf } = fixture(t)
-	writeFileSync(join(leaf, 'platforms/macos/prebuilt.dylib'), machO({ minos: '13.5' }))
+	writeFileSync(join(leaf, 'platforms/macos/prebuilt.dylib'), fatMachO())
 	writeFileSync(
 		join(leaf, 'package.json'),
 		JSON.stringify({
@@ -182,20 +213,30 @@ test('a compile leaf keeps its notices while also shipping prebuilt libraries', 
 	assert.equal(graph.prebuilt[0].notices, null)
 })
 
-test('prebuilt libraries above the app deployment target are rejected', async (t) => {
-	const { app } = prebuiltFixture(t, { minos: '27.0' })
+test('a thin arm64 prebuilt library is rejected for missing the x86_64 slice', async (t) => {
+	const { app } = prebuiltFixture(t, { bytes: machO({ cputype: 0x0100000c }) })
+	await assert.rejects(() => buildMacOSNative(app), /lacks an x86_64 slice/)
+})
+
+test('a prebuilt library slice above the app deployment target is rejected', async (t) => {
+	const { app } = prebuiltFixture(t, {
+		bytes: fatMachO([{ arch: 'arm64' }, { arch: 'x86_64', minos: '27.0' }]),
+	})
 	await assert.rejects(
 		() => buildMacOSNative(app),
 		/requires macOS 27\.0, above the declared 13\.5/,
 	)
 })
 
-test('non-Mach-O and non-arm64 prebuilt libraries are rejected', async (t) => {
+test('non-Mach-O and single-arch prebuilt libraries are rejected', async (t) => {
 	const { app } = prebuiltFixture(t, { bytes: Buffer.from('not a mach-o') })
-	await assert.rejects(() => buildMacOSNative(app), /not an arm64 Mach-O binary/)
+	await assert.rejects(() => buildMacOSNative(app), /not a Mach-O binary/)
+
+	const { app: text } = prebuiltFixture(t, { bytes: Buffer.alloc(64, 'not a mach-o ') })
+	await assert.rejects(() => buildMacOSNative(text), /not a Mach-O binary/)
 
 	const { app: app32 } = prebuiltFixture(t, { bytes: machO({ cputype: 0x01000007 }) })
-	await assert.rejects(() => buildMacOSNative(app32), /not an arm64 Mach-O binary/)
+	await assert.rejects(() => buildMacOSNative(app32), /lacks an arm64 slice/)
 })
 
 test('prebuilt library declarations reject invalid paths and keys', (t) => {

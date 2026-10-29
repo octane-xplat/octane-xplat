@@ -113,7 +113,7 @@ export async function createMacOSDevBundle(appRoot, manifest) {
 		throw new Error(issues.join('; '))
 	}
 
-	const source = await macOSExecutable(appRoot, 'macos-arm64/host')
+	const source = await macOSExecutable(appRoot, 'macos/host')
 	const cache = join(appRoot, 'node_modules/.cache/xplat/macos-dev')
 	await mkdir(cache, { recursive: true })
 	const directory = await mkdtemp(join(cache, 'session-'))

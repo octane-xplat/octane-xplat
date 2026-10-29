@@ -12,7 +12,7 @@ assert.ok(repo, 'Select the skymac.local checkout with XPLAT_NATIVE_TEST_REPO')
 const packageRoot = fileURLToPath(new URL('..', import.meta.url))
 const ts = createRequire(join(repo, 'package.json'))('typescript')
 const hostRoot = join(repo, 'packages/cli/src/macos/jsc-host')
-const bundle = join(hostRoot, 'prebuilt/macos-arm64')
+const bundle = join(hostRoot, 'prebuilt/macos')
 const directory = await mkdtemp(join(tmpdir(), 'xplat-photos-feasibility-'))
 try {
 	const modules = []
@@ -58,7 +58,7 @@ setTimeout(async () => {
 	const manifest = JSON.parse(await readFile(join(hostRoot, 'prebuilt/manifest.json'), 'utf8'))
 	assert.equal(
 		createHash('sha256').update(bytes).digest('hex'),
-		manifest.sha256['macos-arm64/host'],
+		manifest.sha256['macos/host'],
 	)
 	const executable = join(directory, 'host')
 	await writeFile(executable, bytes, { mode: 0o755 })
@@ -69,7 +69,7 @@ setTimeout(async () => {
 		[
 			join(bundle, 'NativeScript.framework/Versions/A/NativeScript'),
 			script,
-			join(bundle, 'metadata.nsmd'),
+			join(bundle, `metadata.macos.${process.arch === 'x64' ? 'x86_64' : 'arm64'}.nsmd`),
 			bootstrap,
 		],
 		{ encoding: 'utf8', timeout: 15000 },

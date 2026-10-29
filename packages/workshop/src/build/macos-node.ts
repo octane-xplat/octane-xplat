@@ -5,8 +5,8 @@ import { fileURLToPath } from 'node:url'
 
 /** Generate a separate consumer-owned cache profile; leave app entries untouched. */
 export async function workshopMacOSDev({ root, config, story }) {
-	if (process.platform !== 'darwin' || process.arch !== 'arm64') {
-		throw new Error('The AppKit workshop requires a macOS arm64 execution host')
+	if (process.platform !== 'darwin' || (process.arch !== 'arm64' && process.arch !== 'x64')) {
+		throw new Error('The AppKit workshop requires a macOS arm64 or x86_64 execution host')
 	}
 
 	const require = createRequire(join(root, 'package.json'))

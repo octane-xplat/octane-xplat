@@ -452,9 +452,14 @@ int main(int argc, char **argv) {
     char *last_slash = strrchr(executable, '/');
     if (!last_slash) return 2;
     *last_slash = 0;
+#if defined(__x86_64__)
+    const char *metadata_name = "metadata.macos.x86_64.nsmd";
+#else
+    const char *metadata_name = "metadata.macos.arm64.nsmd";
+#endif
     if (snprintf(framework_path, sizeof framework_path, "%s/../Frameworks/NativeScript.framework/Versions/A/NativeScript", executable) >= sizeof framework_path ||
         snprintf(script_path, sizeof script_path, "%s/../Resources/app/main.cjs", executable) >= sizeof script_path ||
-        snprintf(metadata_path, sizeof metadata_path, "%s/../Resources/metadata.macos.arm64.nsmd", executable) >= sizeof metadata_path ||
+        snprintf(metadata_path, sizeof metadata_path, "%s/../Resources/%s", executable, metadata_name) >= sizeof metadata_path ||
         snprintf(shim_path, sizeof shim_path, "%s/../Resources/host-shim.js", executable) >= sizeof shim_path) return 2;
     setenv("OCTANE_MACOS_EXTERNAL_RUNLOOP", "1", 1);
     setenv("NODE_ENV", "production", 1);

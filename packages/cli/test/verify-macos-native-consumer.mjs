@@ -72,7 +72,7 @@ assert.match(built, /4 leaf libraries/)
 const cached = run(process.execPath, [cli, 'build', '--targets', 'macos'])
 assert.match(cached, /cached 4 leaf libraries/)
 
-const packaged = join(app, 'artifacts/macos-arm64/NativeFixture.app')
+const packaged = join(app, 'artifacts/macos-universal/NativeFixture.app')
 run('codesign', ['--verify', '--deep', '--strict', packaged])
 const relocated = join(app, 'Relocated Native Fixture.app')
 await cp(packaged, relocated, { recursive: true, verbatimSymlinks: true })

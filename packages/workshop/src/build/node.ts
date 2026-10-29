@@ -139,7 +139,8 @@ export async function workshopDoctor({ cwd, json = false } = {}) {
 	}
 
 	const macosRequirements = {
-		'darwin-arm64 host': process.platform === 'darwin' && process.arch === 'arm64',
+		'darwin-arm64/x86_64 host':
+			process.platform === 'darwin' && (process.arch === 'arm64' || process.arch === 'x64'),
 		'@octane-xplat/macos-renderer': Boolean(resolveFrom(root, '@octane-xplat/macos-renderer')),
 		'@nativescript/macos-node-api': Boolean(resolveFrom(root, '@nativescript/macos-node-api')),
 		'@octane-xplat/cli': Boolean(resolveFrom(root, '@octane-xplat/cli/macos')),
@@ -154,7 +155,7 @@ export async function workshopDoctor({ cwd, json = false } = {}) {
 		requirements: macosRequirements,
 		status: Object.values(macosRequirements).every(Boolean)
 			? 'available'
-			: macosRequirements['darwin-arm64 host']
+			: macosRequirements['darwin-arm64/x86_64 host']
 				? 'missing-prerequisites'
 				: 'unsupported-host',
 		note: "the AppKit workshop needs the app's own macOS renderer and node-api versions",

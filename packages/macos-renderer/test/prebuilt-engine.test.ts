@@ -62,15 +62,28 @@ test('the engine manifest checksum matches the shipped bytes', () => {
 	assert.equal(prebuilt.sha256['libxplatmason.dylib'], sha)
 })
 
-test('the engine is a thin arm64 Mach-O within the app deployment target', () => {
+test('the engine is a universal Mach-O within the app deployment target', () => {
 	const bytes = readFileSync(dylibPath)
-	assert.equal(bytes.readUInt32LE(0), 0xfeedfacf, 'expected a Mach-O 64-bit binary')
-	assert.equal(bytes.readUInt32LE(4), 0x0100000c, 'expected a thin arm64 slice')
-	const minos = machOMinimumSystemVersion(bytes)
-	assert.ok(minos, 'expected an LC_BUILD_VERSION deployment target')
-	const [major, minor] = minos.split('.').map(Number)
-	assert.ok(
-		major < 13 || (major === 13 && minor <= 5),
-		`engine requires macOS ${minos}, above the 13.5 floor`,
+	assert.equal(bytes.readUInt32BE(0), 0xcafebabe, 'expected a universal (fat) binary')
+	const count = bytes.readUInt32BE(4)
+	const slices = new Set<number>()
+	for (let index = 0; index < count; index++) {
+		const entry = 8 + index * 20
+		slices.add(bytes.readUInt32BE(entry))
+		const offset = bytes.readUInt32BE(entry + 8)
+		const size = bytes.readUInt32BE(entry + 12)
+		const minos = machOMinimumSystemVersion(bytes.subarray(offset, offset + size))
+		assert.ok(minos, `expected an LC_BUILD_VERSION deployment target in slice ${index}`)
+		const [major, minor] = minos.split('.').map(Number)
+		assert.ok(
+			major < 13 || (major === 13 && minor <= 5),
+			`engine slice ${index} requires macOS ${minos}, above the 13.5 floor`,
+		)
+	}
+
+	assert.deepEqual(
+		slices,
+		new Set([0x0100000c, 0x01000007]),
+		'expected arm64 and x86_64 slices',
 	)
 })

@@ -8,7 +8,12 @@ import { createInterface } from 'node:readline'
 import { pathToFileURL } from 'node:url'
 import { inspectMacOSDevConfig } from './config.ts'
 import { buildMacOSNative, discoverMacOSNative, writeNativeBootstrap } from './native.ts'
-import { hostBundle, inspectJscHost, validateHostBundle } from './jsc-host/runtime.ts'
+import {
+	hostBundle,
+	inspectJscHost,
+	macOSHostArch,
+	validateHostBundle,
+} from './jsc-host/runtime.ts'
 import { createMacOSDevBundle } from './dev-bundle.ts'
 
 export { runMacOSWebViewDev } from './webview-dev.ts'
@@ -96,7 +101,7 @@ export async function runMacOSDev(appRoot = process.cwd(), options = {}) {
 			[
 				join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
 				config.shellBundleFile ?? config.bundleFile,
-				artifact.metadata,
+				artifact.metadata[macOSHostArch()],
 				bootstrap,
 			],
 			{
@@ -237,7 +242,10 @@ export async function runMacOSDev(appRoot = process.cwd(), options = {}) {
 
 					observed = fingerprint
 					const next = await prepare()
-					if (next.key !== artifact.key || next.metadata !== artifact.metadata) {
+					if (
+						next.key !== artifact.key ||
+						next.metadata[macOSHostArch()] !== artifact.metadata[macOSHostArch()]
+					) {
 						await restart(next)
 						console.log('[macos-native] native rebuild applied')
 					} else {

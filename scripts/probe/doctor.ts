@@ -89,8 +89,8 @@ export async function doctor() {
 			targets.ios.issues.push('The Ruby on PATH cannot load xcodeproj')
 		}
 
-		if (process.arch !== 'arm64') {
-			targets.macos.issues.push('The AppKit host requires arm64')
+		if (process.arch !== 'arm64' && process.arch !== 'x64') {
+			targets.macos.issues.push('The AppKit host requires macOS arm64 or x86_64')
 		}
 
 		try {

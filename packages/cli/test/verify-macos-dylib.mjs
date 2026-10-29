@@ -8,7 +8,7 @@ const revision = '5b697b393152f973dd392851fd72dacf03a7a0c9'
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../..')
 const fixture = join(repoRoot, 'packages/cli/test/fixtures/macos-dylib')
 const hostRoot = join(repoRoot, 'packages/cli/src/macos/jsc-host')
-const prebuilt = join(hostRoot, 'prebuilt/macos-arm64')
+const prebuilt = join(hostRoot, 'prebuilt/macos')
 const scratch = join(repoRoot, 'research/macos-dylib-probe')
 mkdirSync(scratch, { recursive: true })
 
@@ -114,7 +114,7 @@ if (!readFileSync(join(output, 'umbrella.h'), 'utf8').includes('xplat-probe.h'))
 
 console.log('[dylib-probe] generated metadata from explicit imports')
 for (const [declared, metadataPath, marker] of [
-	['0', join(prebuilt, 'metadata.nsmd'), 'PASS shipped metadata:'],
+	['0', join(prebuilt, 'metadata.macos.arm64.nsmd'), 'PASS shipped metadata:'],
 	['1', metadata, 'PASS custom metadata:'],
 ]) {
 	const transcript = run(

@@ -6,7 +6,10 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { buildMacOSNative, writeNativeBootstrap } from '../../../packages/cli/src/macos/native.ts'
 import { macOSExecutable } from '../../../packages/cli/src/macos/executables.ts'
-import { hostBundle } from '../../../packages/cli/src/macos/jsc-host/runtime.ts'
+import {
+	macOSHostArch,
+	hostBundle,
+} from '../../../packages/cli/src/macos/jsc-host/runtime.ts'
 
 const appRoot = fileURLToPath(new URL('..', import.meta.url))
 const verifying = process.argv.includes('--verify')
@@ -62,7 +65,7 @@ try {
 
 	console.log('[webview-proof] compiling WKWebView native leaf and metadata')
 	const native = await buildMacOSNative(appRoot)
-	const hostExecutable = await macOSExecutable(appRoot, 'macos-arm64/host')
+	const hostExecutable = await macOSExecutable(appRoot, 'macos/host')
 	const bootstrap = resolve(appRoot, 'node_modules/.cache/xplat/webview-proof/bootstrap.js')
 	await mkdir(dirname(bootstrap), { recursive: true })
 	await writeNativeBootstrap(native, bootstrap)
@@ -80,7 +83,7 @@ try {
 		[
 			resolve(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
 			resolve(appRoot, 'dist/webview-host/host.cjs'),
-			native.metadata,
+			native.metadata[macOSHostArch()],
 			bootstrap,
 		],
 		{

@@ -386,7 +386,7 @@ function targetStatus(active: string, target: string): string {
 		case 'linux':
 			return 'requires a Linux host'
 		case 'macos':
-			return 'requires a macOS arm64 host'
+			return 'requires a macOS arm64 or x86_64 host'
 		default:
 			return 'unqualified backend'
 	}

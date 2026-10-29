@@ -5,7 +5,11 @@ import { cp, mkdir, writeFile } from 'node:fs/promises'
 import { createServer } from 'node:http'
 import { join } from 'node:path'
 import { build } from 'vite'
-import { hostBundle, hostRoot } from '../../cli/src/macos/jsc-host/runtime.ts'
+import {
+	macOSHostArch,
+	hostBundle,
+	hostRoot,
+} from '../../cli/src/macos/jsc-host/runtime.ts'
 
 async function consumer(packed, app, source) {
 	const installed = join(app, 'node_modules/@octane-xplat/sounds')
@@ -168,7 +172,7 @@ main().then(() => __xplatStopHost(), error => { console.log('MACOS_SOUNDS_ERROR'
 				[
 					join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
 					script,
-					join(hostBundle, 'metadata.nsmd'),
+					join(hostBundle, `metadata.macos.${macOSHostArch()}.nsmd`),
 					join(hostRoot, 'shim.js'),
 				],
 				{ cwd: app, env: { ...process.env, OCTANE_MACOS_EXTERNAL_RUNLOOP: '1' } },

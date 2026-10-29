@@ -6,7 +6,10 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import ts from 'typescript'
 import { buildMacOSNative, writeNativeBootstrap } from '../../cli/src/macos/native.ts'
-import { hostBundle } from '../../cli/src/macos/jsc-host/runtime.ts'
+import {
+	macOSHostArch,
+	hostBundle,
+} from '../../cli/src/macos/jsc-host/runtime.ts'
 import { macOSExecutable } from '../../cli/src/macos/executables.ts'
 
 const leaf = resolve(dirname(fileURLToPath(import.meta.url)), '..')
@@ -97,11 +100,11 @@ setTimeout(function() {
 )
 
 const result = spawnSync(
-	await macOSExecutable(resolve(repo, 'apps/macos'), 'macos-arm64/host'),
+	await macOSExecutable(resolve(repo, 'apps/macos'), 'macos/host'),
 	[
 		join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
 		script,
-		artifact.metadata,
+		artifact.metadata[macOSHostArch()],
 		bootstrap,
 	],
 	{ cwd: app, encoding: 'utf8', timeout: 15_000 },

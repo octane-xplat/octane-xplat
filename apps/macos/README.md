@@ -165,10 +165,10 @@ loop (`macos/dev-entry.mjs`) because this app declares
 `xplat.targets.macos.dev`; `xplat build` owns the shared
 `.app`/`.dmg` packaging, signing, and optional notarization flow. The local
 `package` script is only an alias for `xplat build --targets macos`.
-`xplat doctor` checks the AppKit host, Apple Silicon architecture, package
+`xplat doctor` checks the AppKit host, Mac architecture, package
 metadata, declared runtime dependency, and packaging tools without requiring
-the NativeScript CLI, iOS simulator, or Android SDK. This target is experimental
-and Apple Silicon only. Packaging uses a pinned, statically linked Mach-O host
+the NativeScript CLI, iOS simulator, or Android SDK. This target is experimental.
+Packaged apps are universal binaries for Apple Silicon and Intel Macs. Packaging uses a pinned, statically linked Mach-O host
 and system JavaScriptCore; it does not download or bundle Node.
 
 ```sh
@@ -351,16 +351,17 @@ API.
 
 ## Packaging proof
 
-`pnpm --filter @xplat/macos package` delegates to the CLI to build an Apple
-Silicon `.app` and compressed `.dmg`. Every build verifies SHA-256 checksums
+`pnpm --filter @xplat/macos package` delegates to the CLI to build a universal
+`.app` and compressed `.dmg` for Apple Silicon and Intel Macs. Every build verifies SHA-256 checksums
 of the pinned host, NativeScript framework, and metadata before running Vite.
 The statically linked host lives in `Contents/MacOS`, loads system
 JavaScriptCore, initializes the compatible Node-API addon from
-`Contents/Frameworks`, then evaluates `Resources/app/main.cjs`. Metadata and
-the JavaScript host shim live in `Contents/Resources`. No Node executable or
+`Contents/Frameworks`, then evaluates `Resources/app/main.cjs`. Per-architecture
+metadata (`metadata.macos.arm64.nsmd`, `metadata.macos.x86_64.nsmd`) and the
+JavaScript host shim live in `Contents/Resources`. No Node executable or
 JavaScript engine binary is bundled. The bundle targets macOS 13.5 or later.
 Artifacts are written under
-`apps/macos/artifacts/macos-arm64/` so dev builds do not clean them.
+`apps/macos/artifacts/macos-universal/` so dev builds do not clean them.
 
 The host accepts one bundled CommonJS entry. Vite must bundle ordinary
 dependencies. Set `build.rollupOptions.external` to
@@ -427,7 +428,8 @@ The native inputs and source revisions are recorded in
 `packages/cli/src/macos/jsc-host/prebuilt/manifest.json`. The adjacent
 `build-runtime.sh` rebuilds the statically linked host and compatible
 framework from pinned upstream revisions, the checked-in metadata snapshot,
-and the reviewed source patches. Run it on Apple Silicon with Xcode, CMake,
+and the reviewed source patches. It builds arm64 and x86_64 slices and combines them with `lipo`. Run it on
+Apple Silicon with Xcode, CMake,
 pnpm, Node headers, and Homebrew development headers; `--install` updates the
 CLI's prebuilt files and checksums. Its scratch clones and outputs stay under
 gitignored `research/`.

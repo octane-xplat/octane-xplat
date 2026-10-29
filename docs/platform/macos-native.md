@@ -15,13 +15,14 @@ compiles a dylib per leaf, and generates app metadata from public headers. The
 prebuilt host loads those libraries before running application JS. App authors
 do not need to rebuild NativeScript.framework or write `dlopen` glue.
 
-This workflow targets Apple Silicon with an app deployment target of macOS
-13.5 or later. The [AppKit renderer remains experimental](../start/toolchain.md#experimental-appkit-target);
+Each leaf is compiled for both Apple Silicon and Intel and combined into one
+universal dylib, with an app deployment target of macOS 13.5 or later. The [AppKit renderer remains experimental](../start/toolchain.md#experimental-appkit-target);
 native source compilation does not expand its UI or service support.
 
 ## Prepare the app
 
-Build on an Apple Silicon Mac with Xcode selected, Command Line Tools installed,
+Build on an Apple Silicon Mac, because the metadata generator loads an
+arm64-only `libclang`. Select Xcode, Command Line Tools installed,
 and Node 22.17 or later. Zig is needed only when a dependency ships `.zig`
 sources; the maintained fixture uses Zig 0.16. The CLI ships its pinned metadata
 generator, which loads Command Line Tools' `libclang`. App builds need neither
@@ -224,9 +225,17 @@ declares `prebuiltLibraries`:
 }
 ```
 
-Each path must name a `.dylib` file inside `platforms/macos` — a thin arm64
-Mach-O whose deployment target does not exceed the app's
-`minimumSystemVersion`. The build inspects the binary and fails otherwise.
+Each path must name a `.dylib` file inside `platforms/macos` — a universal
+Mach-O with `arm64` and `x86_64` slices, each with a deployment target no
+higher than the app's `minimumSystemVersion`. The build inspects every slice
+and fails otherwise. Combine per-architecture builds with `lipo`:
+
+```sh
+lipo -create libengine-arm64.dylib libengine-x86_64.dylib \
+	-output platforms/macos/prebuilt/libengine.dylib
+lipo -archs platforms/macos/prebuilt/libengine.dylib # arm64 x86_64
+```
+
 `xplat dev` loads the library from the package before app JS; `xplat build`
 copies it into `Contents/Frameworks` and signs it with the app. A `notices`
 file ships its text in `Contents/Resources/licenses/THIRD-PARTY-NOTICES.txt`.

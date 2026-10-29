@@ -7,7 +7,11 @@ import { fileURLToPath } from 'node:url'
 import { deflateSync } from 'node:zlib'
 import ts from 'typescript'
 import { macOSExecutable } from '../../cli/src/macos/executables.ts'
-import { hostBundle, hostRoot } from '../../cli/src/macos/jsc-host/runtime.ts'
+import {
+	macOSHostArch,
+	hostBundle,
+	hostRoot,
+} from '../../cli/src/macos/jsc-host/runtime.ts'
 
 // No panel, window, image view, camera, Photos access or desktop input.
 // Actual AppKit image decoding/JPEG encoding and Foundation IO; the panel and
@@ -215,11 +219,11 @@ setTimeout(async () => {
 	const bootstrap = join(directory, 'bootstrap.js')
 	await writeFile(bootstrap, await readFile(join(hostRoot, 'shim.js')))
 	const result = spawnSync(
-		await macOSExecutable(packageRoot, 'macos-arm64/host'),
+		await macOSExecutable(packageRoot, 'macos/host'),
 		[
 			join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
 			script,
-			join(hostBundle, 'metadata.nsmd'),
+			join(hostBundle, `metadata.macos.${macOSHostArch()}.nsmd`),
 			bootstrap,
 		],
 		{ cwd: directory, encoding: 'utf8', timeout: 15_000 },

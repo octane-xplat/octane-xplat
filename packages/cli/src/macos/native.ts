@@ -14,6 +14,7 @@ import {
 	hostBundle,
 	hostRoot,
 	inspectMachO,
+	macOSArchitectures,
 	minimumJscHostSystemVersion,
 	prebuiltRoot,
 } from './jsc-host/runtime.ts'
@@ -505,7 +506,9 @@ export async function inspectMacOSNative(appRoot) {
 	}
 
 	if (process.platform !== 'darwin' || process.arch !== 'arm64') {
-		throw new Error('[macos-native] Native leaves require an Apple Silicon Mac')
+		throw new Error(
+			'[macos-native] Native leaves require an Apple Silicon build Mac: the metadata generator needs an arm64-only libclang',
+		)
 	}
 
 	const sdk = await run(
@@ -578,7 +581,15 @@ async function cachedArtifact(dir, key) {
 			}
 		}
 
-		return { ...result, directory: dir, metadata: join(dir, 'metadata.nsmd'), cached: true }
+		return {
+			...result,
+			directory: dir,
+			metadata: {
+				arm64: join(dir, 'metadata.arm64.nsmd'),
+				x86_64: join(dir, 'metadata.x86_64.nsmd'),
+			},
+			cached: true,
+		}
 	} catch {
 		return null
 	}
@@ -614,7 +625,10 @@ export async function buildMacOSNative(
 			leaves: [],
 			libraries: [],
 			prebuilt,
-			metadata: join(hostBundle, 'metadata.nsmd'),
+			metadata: {
+				arm64: join(hostBundle, 'metadata.macos.arm64.nsmd'),
+				x86_64: join(hostBundle, 'metadata.macos.x86_64.nsmd'),
+			},
 			fingerprint,
 			cached: true,
 		}
@@ -642,162 +656,196 @@ export async function buildMacOSNative(
 		const libraries = []
 		const headers = []
 		const symbols = new Map()
-		const target = `arm64-apple-macos${minimumSystemVersion}`
-		for (const leaf of leaves) {
-			const outputName = `${leaf.id}.dylib`
-			const output = join(staging, outputName)
-			const objects = []
-			const includePaths = [
-				...new Set([
-					leaf.nativeRoot,
-					...leaf.headers.map(dirname),
-					...leaf.includePaths,
-					...leaves
-						.filter((dep) => leaf.dependencies.includes(dep.id))
-						.flatMap((dep) => dep.headers.map(dirname)),
-				]),
-			]
+		// Each arch compiles and links in its own staging dir so inter-leaf
+		// -l/dylib dependencies resolve against the same-arch outputs; the
+		// per-arch dylibs are then combined with lipo.
+		for (const arch of macOSArchitectures) {
+			const archStaging = join(staging, arch)
+			await mkdir(archStaging, { recursive: true })
+			const target = `${arch}-apple-macos${minimumSystemVersion}`
+			const zigTarget = `${arch === 'x86_64' ? 'x86_64' : 'aarch64'}-macos.${minimumSystemVersion}`
+			for (const leaf of leaves) {
+				const outputName = `${leaf.id}.dylib`
+				const output = join(archStaging, outputName)
+				const objects = []
+				const includePaths = [
+					...new Set([
+						leaf.nativeRoot,
+						...leaf.headers.map(dirname),
+						...leaf.includePaths,
+						...leaves
+							.filter((dep) => leaf.dependencies.includes(dep.id))
+							.flatMap((dep) => dep.headers.map(dirname)),
+					]),
+				]
 
-			const common = [
-				'-target',
-				target,
-				'-isysroot',
-				toolchain.sdk,
-				'-O2',
-				'-fPIC',
-				...includePaths.flatMap((path) => ['-I', path]),
-				...leaf.defines.map((define) => `-D${define}`),
-			]
+				const common = [
+					'-target',
+					target,
+					'-isysroot',
+					toolchain.sdk,
+					'-O2',
+					'-fPIC',
+					...includePaths.flatMap((path) => ['-I', path]),
+					...leaf.defines.map((define) => `-D${define}`),
+				]
 
-			for (const [index, source] of leaf.sources.entries()) {
-				if (extname(source) === '.swift') {
-					continue
+				for (const [index, source] of leaf.sources.entries()) {
+					if (extname(source) === '.swift') {
+						continue
+					}
+
+					const object = join(archStaging, `${leaf.id}-${index}.o`)
+					if (extname(source) === '.zig') {
+						await run(
+							'zig',
+							[
+								'build-obj',
+								source,
+								'-target',
+								zigTarget,
+								'-O',
+								'ReleaseSafe',
+								'-fPIC',
+								'--sysroot',
+								toolchain.sdk,
+								'-lc',
+								...includePaths.flatMap((path) => ['-I', path]),
+								...leaf.defines.map((define) => `-D${define}`),
+								`-femit-bin=${object}`,
+							],
+							`${leaf.name}: compile ${relative(leaf.root, source)}`,
+						)
+					} else {
+						await run(
+							toolchain.clang,
+							[
+								...common,
+								...(extname(source) === '.m' || extname(source) === '.mm'
+									? ['-fobjc-arc']
+									: []),
+								'-c',
+								source,
+								'-o',
+								object,
+							],
+							`${leaf.name}: compile ${relative(leaf.root, source)}`,
+						)
+					}
+
+					objects.push(object)
 				}
 
-				const object = join(staging, `${leaf.id}-${index}.o`)
-				if (extname(source) === '.zig') {
+				const linkage = [
+					...leaf.dependencies.map((id) => join(archStaging, `${id}.dylib`)),
+					...leaf.frameworks.flatMap((name) => ['-framework', name]),
+					...leaf.libraries.map((name) => `-l${name}`),
+					...(leaf.sources.some((path) => extname(path) === '.mm') ? ['-lc++'] : []),
+				]
+
+				const swiftSources = leaf.sources.filter((path) => extname(path) === '.swift')
+				if (swiftSources.length) {
+					const generated = join(staging, `${leaf.id}-Swift.h`)
+					const bridging = join(staging, `${leaf.id}-bridging.h`)
+					if (arch === 'arm64') {
+						await writeFile(
+							bridging,
+							leaf.headers.map((path) => `#import ${JSON.stringify(path)}`).join('\n'),
+						)
+					}
+
 					await run(
-						'zig',
+						toolchain.swift,
 						[
-							'build-obj',
-							source,
-							'-target',
-							`aarch64-macos.${minimumSystemVersion}`,
+							'-emit-library',
 							'-O',
-							'ReleaseSafe',
-							'-fPIC',
-							'--sysroot',
+							...(leaf.swiftWholeModuleOptimization ? ['-whole-module-optimization'] : []),
+							...(leaf.swiftWholeModuleOptimization
+								? ['-emit-module-path', join(archStaging, `${leaf.id}.swiftmodule`)]
+								: []),
+							'-target',
+							target,
+							'-sdk',
 							toolchain.sdk,
-							'-lc',
+							'-module-name',
+							leaf.id,
+							// The generated ObjC header is arch-independent; emit it once.
+							...(arch === 'arm64'
+								? ['-emit-objc-header', '-emit-objc-header-path', generated]
+								: []),
+							...(leaf.headers.length ? ['-import-objc-header', bridging] : []),
 							...includePaths.flatMap((path) => ['-I', path]),
-							...leaf.defines.map((define) => `-D${define}`),
-							`-femit-bin=${object}`,
+							...leaf.defines.flatMap((define) => ['-Xcc', `-D${define}`]),
+							...swiftSources,
+							...objects,
+							...linkage,
+							'-Xlinker',
+							'-install_name',
+							'-Xlinker',
+							`@rpath/${outputName}`,
+							'-Xlinker',
+							'-rpath',
+							'-Xlinker',
+							'@loader_path',
+							'-o',
+							output,
 						],
-						`${leaf.name}: compile ${relative(leaf.root, source)}`,
+						`${leaf.name}: link Swift dylib`,
 					)
+
+					if (arch === 'arm64') {
+						if (leaf.swiftHeaderImports.length) {
+							const validated = join(staging, `${leaf.id}-Swift-validated.h`)
+							await writeFile(
+								validated,
+								leaf.swiftHeaderImports.map((header) => `#import <${header}>`).join('\n') +
+									`\n#import ${JSON.stringify(generated)}\n`,
+							)
+
+							headers.push(validated)
+						} else {
+							headers.push(generated)
+						}
+					}
 				} else {
 					await run(
 						toolchain.clang,
 						[
+							'-dynamiclib',
 							...common,
-							...(extname(source) === '.m' || extname(source) === '.mm' ? ['-fobjc-arc'] : []),
-							'-c',
-							source,
+							...objects,
+							...linkage,
+							'-Wl,-install_name',
+							`-Wl,@rpath/${outputName}`,
+							'-Wl,-rpath,@loader_path',
 							'-o',
-							object,
+							output,
 						],
-						`${leaf.name}: compile ${relative(leaf.root, source)}`,
+						`${leaf.name}: link dylib`,
 					)
 				}
-
-				objects.push(object)
 			}
+		}
 
-			const linkage = [
-				...leaf.dependencies.map((id) => join(staging, `${id}.dylib`)),
-				...leaf.frameworks.flatMap((name) => ['-framework', name]),
-				...leaf.libraries.map((name) => `-l${name}`),
-				...(leaf.sources.some((path) => extname(path) === '.mm') ? ['-lc++'] : []),
-			]
+		for (const leaf of leaves) {
+			const outputName = `${leaf.id}.dylib`
+			await run(
+				'lipo',
+				[
+					'-create',
+					join(staging, 'arm64', outputName),
+					join(staging, 'x86_64', outputName),
+					'-output',
+					join(staging, outputName),
+				],
+				`${leaf.name}: create universal dylib`,
+			)
 
-			const swiftSources = leaf.sources.filter((path) => extname(path) === '.swift')
-			if (swiftSources.length) {
-				const generated = join(staging, `${leaf.id}-Swift.h`)
-				const bridging = join(staging, `${leaf.id}-bridging.h`)
-				await writeFile(
-					bridging,
-					leaf.headers.map((path) => `#import ${JSON.stringify(path)}`).join('\n'),
-				)
-
-				await run(
-					toolchain.swift,
-					[
-						'-emit-library',
-						'-O',
-						...(leaf.swiftWholeModuleOptimization ? ['-whole-module-optimization'] : []),
-						...(leaf.swiftWholeModuleOptimization
-							? ['-emit-module-path', join(staging, `${leaf.id}.swiftmodule`)]
-							: []),
-						'-target',
-						target,
-						'-sdk',
-						toolchain.sdk,
-						'-module-name',
-						leaf.id,
-						'-emit-objc-header',
-						'-emit-objc-header-path',
-						generated,
-						...(leaf.headers.length ? ['-import-objc-header', bridging] : []),
-						...includePaths.flatMap((path) => ['-I', path]),
-						...leaf.defines.flatMap((define) => ['-Xcc', `-D${define}`]),
-						...swiftSources,
-						...objects,
-						...linkage,
-						'-Xlinker',
-						'-install_name',
-						'-Xlinker',
-						`@rpath/${outputName}`,
-						'-Xlinker',
-						'-rpath',
-						'-Xlinker',
-						'@loader_path',
-						'-o',
-						output,
-					],
-					`${leaf.name}: link Swift dylib`,
-				)
-
-				if (leaf.swiftHeaderImports.length) {
-					const validated = join(staging, `${leaf.id}-Swift-validated.h`)
-					await writeFile(
-						validated,
-						leaf.swiftHeaderImports.map((header) => `#import <${header}>`).join('\n') +
-							`\n#import ${JSON.stringify(generated)}\n`,
-					)
-
-					headers.push(validated)
-				} else {
-					headers.push(generated)
-				}
-			} else {
-				await run(
-					toolchain.clang,
-					[
-						'-dynamiclib',
-						...common,
-						...objects,
-						...linkage,
-						'-Wl,-install_name',
-						`-Wl,@rpath/${outputName}`,
-						'-Wl,-rpath,@loader_path',
-						'-o',
-						output,
-					],
-					`${leaf.name}: link dylib`,
-				)
-			}
-
-			const exports = await run('nm', ['-gUj', output], `${leaf.name}: inspect exports`)
+			const exports = await run(
+				'nm',
+				['-gUj', join(staging, 'arm64', outputName)],
+				`${leaf.name}: inspect exports`,
+			)
 			for (const symbol of exports
 				.split('\n')
 				.filter((symbol) => /^_[A-Za-z]/.test(symbol) && !symbol.startsWith('_swift_FORCE_LOAD'))) {
@@ -820,14 +868,17 @@ export async function buildMacOSNative(
 			...new Set([...headers.map(dirname), ...leaves.flatMap((leaf) => leaf.includePaths)]),
 		].map((path) => `include=${path}`)
 
-		const clangArgs = [
+		const clangArgs = (arch) => [
 			'Xclang',
 			'-isysroot',
 			toolchain.sdk,
 			'-target',
-			target,
+			`${arch}-apple-macos${minimumSystemVersion}`,
 			...leaves.flatMap((leaf) => leaf.defines.map((define) => `-D${define}`)),
-			...[...new Set(leaves.flatMap((leaf) => leaf.includePaths))].flatMap((path) => ['-I', path]),
+			...[...new Set(leaves.flatMap((leaf) => leaf.includePaths))].flatMap((path) => [
+				'-I',
+				path,
+			]),
 		]
 
 		const generatorEnv = {
@@ -843,30 +894,30 @@ export async function buildMacOSNative(
 				...includeArgs,
 				'-output-umbrella',
 				join(staging, 'leaf-umbrella.h'),
-				...clangArgs,
+				...clangArgs('arm64'),
 			],
 			`validate public headers for ${leaves.map((leaf) => leaf.name).join(', ')}`,
 			generatorEnv,
 		)
 
-		const generatorArgs = [
-			`types=${staging}/types`,
-			`json=${staging}/json`,
-			...headers.map((path) => `leaf-import=${JSON.stringify(path)}`),
-			...includeArgs,
-			'-output-bin',
-			join(staging, 'metadata.nsmd'),
-			'-output-umbrella',
-			join(staging, 'umbrella.h'),
-			...clangArgs,
-		]
-
-		await run(
-			toolchain.generator,
-			generatorArgs,
-			'generate combined SDK and leaf metadata',
-			generatorEnv,
-		)
+		for (const arch of macOSArchitectures) {
+			await run(
+				toolchain.generator,
+				[
+					// types=/json= are arch-independent; emit them on arm64 only.
+					...(arch === 'arm64' ? [`types=${staging}/types`, `json=${staging}/json`] : []),
+					...headers.map((path) => `leaf-import=${JSON.stringify(path)}`),
+					...includeArgs,
+					'-output-bin',
+					join(staging, `metadata.${arch}.nsmd`),
+					'-output-umbrella',
+					join(staging, `umbrella.${arch}.h`),
+					...clangArgs(arch),
+				],
+				`generate combined SDK and leaf metadata (${arch})`,
+				generatorEnv,
+			)
+		}
 
 		if (discoverMacOSNative(appRoot).fingerprint !== fingerprint) {
 			throw new Error(
@@ -875,7 +926,11 @@ export async function buildMacOSNative(
 		}
 
 		const sha256 = {}
-		for (const file of [...libraries.map((lib) => lib.file), 'metadata.nsmd']) {
+		for (const file of [
+			...libraries.map((lib) => lib.file),
+			'metadata.arm64.nsmd',
+			'metadata.x86_64.nsmd',
+		]) {
 			sha256[file] = hash(await readFile(join(staging, file)))
 		}
 
@@ -916,7 +971,10 @@ export async function buildMacOSNative(
 			...artifact,
 			prebuilt,
 			directory: destination,
-			metadata: join(destination, 'metadata.nsmd'),
+			metadata: {
+				arm64: join(destination, 'metadata.arm64.nsmd'),
+				x86_64: join(destination, 'metadata.x86_64.nsmd'),
+			},
 			cached: false,
 		}
 	} finally {

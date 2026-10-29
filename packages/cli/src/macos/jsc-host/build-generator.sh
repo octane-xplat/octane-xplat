@@ -42,14 +42,14 @@ cmake -S "$source_dir/metadata-generator" -B "$build_dir" \
 cmake --build "$build_dir" -j 8
 "$build_dir/bin/objc-metadata-generator" --xplat-check
 if [[ "${1:-}" == --install ]]; then
-  cp "$build_dir/bin/objc-metadata-generator" "$host_dir/prebuilt/macos-arm64/objc-metadata-generator"
+  cp "$build_dir/bin/objc-metadata-generator" "$host_dir/prebuilt/macos/objc-metadata-generator"
   cp "$source_dir/packages/objc-node-api/LICENSE" "$host_dir/prebuilt/licenses/metadata-generator.txt"
   python3 - "$host_dir/prebuilt" <<'PY'
 import hashlib, json, pathlib, sys
 root = pathlib.Path(sys.argv[1])
 path = root / 'manifest.json'
 manifest = json.loads(path.read_text())
-generator = 'macos-arm64/objc-metadata-generator'
+generator = 'macos/objc-metadata-generator'
 manifest['metadataGenerator'] = {
     'path': generator,
     'sourceRevision': manifest['sourceRevisions']['nativescriptRuntimes'],

@@ -179,8 +179,8 @@ function notarize(notaryProfile, dmgPath) {
 
 /** Build the app bundle and disk image for an opted-in macOS target. */
 export async function packageMacOS(appRoot) {
-	if (platform() !== 'darwin' || arch() !== 'arm64') {
-		throw new Error('The first macOS package target is Apple Silicon; build it on an arm64 Mac.')
+	if (platform() !== 'darwin' || (arch() !== 'arm64' && arch() !== 'x64')) {
+		throw new Error('The macOS package target requires a Mac running macOS arm64 or x86_64.')
 	}
 
 	const { settings, renderer, iconPath, entitlementsPath } = readPackageConfig(appRoot)
@@ -291,7 +291,7 @@ export async function packageMacOS(appRoot) {
 		),
 	)
 
-	const releaseRoot = join(appRoot, 'artifacts', 'macos-arm64')
+	const releaseRoot = join(appRoot, 'artifacts', 'macos-universal')
 	await mkdir(releaseRoot, { recursive: true })
 	const stagingRoot = await mkdtemp(join(releaseRoot, '.xplat-macos-'))
 	const appPath = join(stagingRoot, `${settings.executableName}.app`)
@@ -299,7 +299,7 @@ export async function packageMacOS(appRoot) {
 	const resourcesPath = join(contentsPath, 'Resources')
 	const packagedAppPath = join(resourcesPath, 'app')
 	const mainExecutable = join(contentsPath, 'MacOS', settings.executableName)
-	const dmgPath = join(stagingRoot, `${settings.executableName}-macos-arm64.dmg`)
+	const dmgPath = join(stagingRoot, `${settings.executableName}-macos-universal.dmg`)
 
 	let preserveStagingRoot = false
 	try {
@@ -312,7 +312,8 @@ export async function packageMacOS(appRoot) {
 		}
 
 		await cp(join(hostBundle, 'host'), mainExecutable)
-		await cp(native.metadata, join(resourcesPath, 'metadata.macos.arm64.nsmd'))
+		await cp(native.metadata.arm64, join(resourcesPath, 'metadata.macos.arm64.nsmd'))
+		await cp(native.metadata.x86_64, join(resourcesPath, 'metadata.macos.x86_64.nsmd'))
 		await writeNativeBootstrap(native, join(resourcesPath, 'host-shim.js'), { packaged: true })
 		const packagedFrameworkPath = join(contentsPath, 'Frameworks', 'NativeScript.framework')
 		await mkdir(dirname(packagedFrameworkPath), { recursive: true })
@@ -408,7 +409,7 @@ export async function packageMacOS(appRoot) {
 		notarize(notaryProfile, dmgPath)
 
 		const finalAppPath = join(releaseRoot, `${settings.executableName}.app`)
-		const finalDmgPath = join(releaseRoot, `${settings.executableName}-macos-arm64.dmg`)
+		const finalDmgPath = join(releaseRoot, `${settings.executableName}-macos-universal.dmg`)
 		const previousAppPath = join(stagingRoot, `${settings.executableName}.previous.app`)
 		let previousAppMoved = false
 		let appPublished = false

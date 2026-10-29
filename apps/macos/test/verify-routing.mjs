@@ -7,7 +7,11 @@ import { build } from 'vite'
 import { createMacOSConfig } from '../vite.shared.mjs'
 import { macOSExecutable } from '../../../packages/cli/src/macos/executables.ts'
 import { buildMacOSNative, writeNativeBootstrap } from '../../../packages/cli/src/macos/native.ts'
-import { hostBundle, validateHostBundle } from '../../../packages/cli/src/macos/jsc-host/runtime.ts'
+import {
+	macOSHostArch,
+	hostBundle,
+	validateHostBundle,
+} from '../../../packages/cli/src/macos/jsc-host/runtime.ts'
 
 const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const cliBuild = spawnSync('pnpm', ['--filter', '@octane-xplat/cli', 'build'], {
@@ -62,11 +66,11 @@ const bundle = join(directory, 'fixture.cjs')
 await validateHostBundle(bundle, appRoot)
 assert.doesNotMatch(await readFile(bundle, 'utf8'), /XPLAT_BAKED_ROUTE_BUILD_ONLY/)
 const result = spawnSync(
-	await macOSExecutable(appRoot, 'macos-arm64/host'),
+	await macOSExecutable(appRoot, 'macos/host'),
 	[
 		join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
 		bundle,
-		artifact.metadata,
+		artifact.metadata[macOSHostArch()],
 		bootstrap,
 	],
 	{

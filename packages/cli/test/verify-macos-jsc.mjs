@@ -49,7 +49,7 @@ execFileSync(process.execPath, [cliPath, 'build', '--targets', 'macos'], {
 	timeout: 120_000,
 })
 
-const executable = join(appRoot, 'artifacts/macos-arm64/JSCFixture.app/Contents/MacOS/JSCFixture')
+const executable = join(appRoot, 'artifacts/macos-universal/JSCFixture.app/Contents/MacOS/JSCFixture')
 const result = spawnSync(executable, [], { cwd: appRoot, encoding: 'utf8', timeout: 10_000 })
 assert.equal(result.status, 0, result.stderr)
 assert.match(result.stderr, /JSC_FIXTURE_OK/)

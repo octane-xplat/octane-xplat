@@ -1,5 +1,5 @@
 /** Packed macOS-target acceptance, outside the workspace with no source
- * aliases. Requires built UI/workshop artifacts and a darwin/arm64 host.
+ * aliases. Requires built UI/workshop artifacts and a darwin arm64/x86_64 host.
  * Packs real tarballs, installs an external consumer, proves static
  * packaging/type/export lanes and production exclusion, then drives the
  * actual AppKit/JavaScriptCore host offscreen through the maintained
@@ -31,7 +31,7 @@ const pack = join(work, 'pack')
 mkdirSync(consumer)
 mkdirSync(pack)
 let succeeded = false
-const onDarwinArm64 = process.platform === 'darwin' && process.arch === 'arm64'
+const onDarwinMac = process.platform === 'darwin' && (process.arch === 'arm64' || process.arch === 'x64')
 function run(command, args, cwd = consumer, options = {}) {
 	const result = spawnSync(command, args, {
 		cwd,
@@ -148,11 +148,11 @@ try {
 	assert.equal(Object.keys(report.targets).length, 6)
 	const macos = report.targets.macos
 	assert.ok(macos, 'doctor reports a macos row')
-	if (onDarwinArm64) {
+	if (onDarwinMac) {
 		assert.equal(
 			macos.status,
 			'available',
-			`macos must be available on darwin/arm64: ${JSON.stringify(macos)}`,
+			`macos must be available on darwin arm64/x86_64: ${JSON.stringify(macos)}`,
 		)
 	} else {
 		assert.equal(macos.status, 'unsupported-host')
@@ -344,9 +344,9 @@ await build({ ...settings, configFile: false })
 		'PASS packed macOS production bundle compiles through xplatMacOS and excludes workshop tooling',
 	)
 
-	if (!onDarwinArm64) {
+	if (!onDarwinMac) {
 		console.log(
-			`SKIP real AppKit host journey — requires darwin/arm64, this is ${process.platform}/${process.arch}`,
+			`SKIP real AppKit host journey — requires darwin arm64/x86_64, this is ${process.platform}/${process.arch}`,
 		)
 
 		succeeded = true

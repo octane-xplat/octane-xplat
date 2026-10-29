@@ -7,7 +7,12 @@ import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { inspectMacOSDevConfig } from './config.ts'
 import { buildMacOSNative, discoverMacOSNative, writeNativeBootstrap } from './native.ts'
-import { hostBundle, inspectJscHost, validateHostBundle } from './jsc-host/runtime.ts'
+import {
+	hostBundle,
+	inspectJscHost,
+	macOSHostArch,
+	validateHostBundle,
+} from './jsc-host/runtime.ts'
 import { createMacOSDevBundle } from './dev-bundle.ts'
 
 /** Run the configured DOM frontend in WKWebView with a CLI-managed JSC host. */
@@ -92,7 +97,7 @@ export async function runMacOSWebViewDev(appRoot = process.cwd()) {
 			[
 				join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
 				config.hostBundleFile,
-				artifact.metadata,
+				artifact.metadata[macOSHostArch()],
 				bootstrap,
 			],
 			{
@@ -213,7 +218,10 @@ export async function runMacOSWebViewDev(appRoot = process.cwd()) {
 
 					observed = fingerprint
 					const next = await prepare()
-					if (next.key !== artifact.key || next.metadata !== artifact.metadata) {
+					if (
+						next.key !== artifact.key ||
+						next.metadata[macOSHostArch()] !== artifact.metadata[macOSHostArch()]
+					) {
 						await restart(next)
 						console.log('[macos-webview] native rebuild applied')
 					} else {

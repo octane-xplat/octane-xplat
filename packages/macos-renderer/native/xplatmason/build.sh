@@ -15,7 +15,6 @@ PKG="$(cd "$HERE/../.." && pwd)"
 MASON="${1:-$HERE/../../../../research/nativescript-mason}"
 PREBUILT="$PKG/platforms/macos/prebuilt"
 OUT="$PREBUILT/libxplatmason.dylib"
-TARGET=aarch64-apple-darwin
 
 if [ ! -d "$MASON/crates/mason-c" ]; then
 	echo "mason-c not found at $MASON" >&2
@@ -23,17 +22,30 @@ if [ ! -d "$MASON/crates/mason-c" ]; then
 fi
 
 mkdir -p "$PREBUILT"
+STAGING="$(mktemp -d)"
+trap 'rm -rf "$STAGING"' EXIT
 
-MACOSX_DEPLOYMENT_TARGET=13.5 cargo rustc --manifest-path "$MASON/Cargo.toml" \
-	-p mason-c --release --target "$TARGET" --crate-type staticlib
+for pair in "arm64 aarch64-apple-darwin" "x86_64 x86_64-apple-darwin"; do
+	set -- $pair
+	ARCH="$1"
+	TARGET="$2"
 
-clang -dynamiclib -fobjc-arc \
-	-target arm64-apple-macos13.5 \
-	-install_name "@rpath/libxplatmason.dylib" \
-	-framework Foundation -framework AppKit \
-	-o "$OUT" \
-	"$HERE/XPLMason.m" \
-	"$MASON/target/$TARGET/release/libmason_c.a"
+	MACOSX_DEPLOYMENT_TARGET=13.5 cargo rustc --manifest-path "$MASON/Cargo.toml" \
+		-p mason-c --release --target "$TARGET" --crate-type staticlib
+
+	clang -dynamiclib -fobjc-arc \
+		-target "$ARCH-apple-macos13.5" \
+		-install_name "@rpath/libxplatmason.dylib" \
+		-framework Foundation -framework AppKit \
+		-o "$STAGING/libxplatmason-$ARCH.dylib" \
+		"$HERE/XPLMason.m" \
+		"$MASON/target/$TARGET/release/libmason_c.a"
+done
+
+lipo -create \
+	"$STAGING/libxplatmason-arm64.dylib" \
+	"$STAGING/libxplatmason-x86_64.dylib" \
+	-output "$OUT"
 
 SHA="$(shasum -a 256 "$OUT" | cut -d' ' -f1)"
 REVISION="$(git -C "$MASON" rev-parse HEAD)"
@@ -41,7 +53,7 @@ REVISION="$(git -C "$MASON" rev-parse HEAD)"
 cat > "$PREBUILT/manifest.json" <<EOF
 {
 	"library": "libxplatmason.dylib",
-	"architectures": ["arm64"],
+	"architectures": ["arm64", "x86_64"],
 	"minimumSystemVersion": "13.5",
 	"source": {
 		"facade": "native/xplatmason/XPLMason.m",

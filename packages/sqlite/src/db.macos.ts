@@ -9,7 +9,7 @@ import { isolateDatabase } from './operation-queue'
  * per-statement durability, identical semantics to the iOS/Android plugin.
  *
  * Depends on host metadata generated with the sqlite3/dlfcn umbrella imports
- * (prebuilt metadata.nsmd >= the build that carries them); without it
+ * (prebuilt metadata.macos.<arch>.nsmd >= the build that carries them); without it
  * `supported` reports false and openDatabase rejects.
  */
 import type { OpenDatabaseOptions, SqliteDb, SqliteParam, SqliteParams, SqliteRow } from './types'

@@ -65,43 +65,63 @@ if [[ ! -f "$scratch/package.json" ]]; then
 fi
 pnpm add --dir "$scratch" --save-exact bare-compat-napi@1.4.1
 
-cmake -S "$host_dir" -B "$build_dir/host" \
-  -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=arm64 \
-  -DCMAKE_OSX_DEPLOYMENT_TARGET=13.5 -DXPLAT_JSC_SOURCE_DIR="$source_dir" \
-  "-DFETCHCONTENT_SOURCE_DIR_GITHUB+HOLEPUNCHTO+LIBJS=$source_dir/libjs" \
-  "-DFETCHCONTENT_SOURCE_DIR_GITHUB+HOLEPUNCHTO+LIBUTF=$source_dir/libutf" \
-  "-DFETCHCONTENT_SOURCE_DIR_GITHUB+HOLEPUNCHTO+LIBINTRUSIVE=$source_dir/libintrusive" \
-  "-DFETCHCONTENT_SOURCE_DIR_GITHUB+LIBUV+LIBUV=$source_dir/libuv"
-cmake --build "$build_dir/host" --target xplat-macos-host -j 8
+# Build each architecture in its own configure: the host embeds no metadata,
+# while each NativeScript slice embeds that arch's nsmd through
+# scripts/write_metadata.js (section tags ARM/X86 select the per-arch file).
+for arch in arm64 x86_64; do
+  cmake -S "$host_dir" -B "$build_dir/host-$arch" \
+    -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES="$arch" \
+    -DCMAKE_OSX_DEPLOYMENT_TARGET=13.5 -DXPLAT_JSC_SOURCE_DIR="$source_dir" \
+    "-DFETCHCONTENT_SOURCE_DIR_GITHUB+HOLEPUNCHTO+LIBJS=$source_dir/libjs" \
+    "-DFETCHCONTENT_SOURCE_DIR_GITHUB+HOLEPUNCHTO+LIBUTF=$source_dir/libutf" \
+    "-DFETCHCONTENT_SOURCE_DIR_GITHUB+HOLEPUNCHTO+LIBINTRUSIVE=$source_dir/libintrusive" \
+    "-DFETCHCONTENT_SOURCE_DIR_GITHUB+LIBUV+LIBUV=$source_dir/libuv"
+  cmake --build "$build_dir/host-$arch" --target xplat-macos-host -j 8
+done
 
-metadata="$host_dir/prebuilt/macos-arm64/metadata.nsmd"
-mkdir -p "$source_dir/runtimes/metadata-generator/metadata"
-cp "$metadata" "$source_dir/runtimes/metadata-generator/metadata/metadata.macos.arm64.nsmd"
+metadata_dir="$source_dir/runtimes/metadata-generator/metadata"
+mkdir -p "$metadata_dir"
+for arch in arm64 x86_64; do
+  cp "$host_dir/prebuilt/macos/metadata.macos.$arch.nsmd" "$metadata_dir/metadata.macos.$arch.nsmd"
+done
+
 node_executable="$(realpath "$(command -v node)")"
 node_include="$(dirname "$(dirname "$node_executable")")/include/node"
 brew_include="$(brew --prefix)/include"
 compat_include="$scratch/node_modules/bare-compat-napi/include"
-cmake -S "$source_dir/runtimes/NativeScript" -B "$build_dir/nativescript" -G Xcode \
-  -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=13.5 \
-  -DTARGET_PLATFORM=macos -DTARGET_ENGINE=none -DNS_FFI_BACKEND=napi \
-  -DNS_GSD_BACKEND=none -DMETADATA_SIZE="$(wc -c < "$metadata" | tr -d ' ')" \
-  "-DCMAKE_CXX_FLAGS=-DBARE_COMPAT_NAPI -include $compat_include/bare/module.h -I$compat_include -I$node_include -I$brew_include"
-cmake --build "$build_dir/nativescript" --config RelWithDebInfo -j 4 -- CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO
+for arch in arm64 x86_64; do
+  metadata="$host_dir/prebuilt/macos/metadata.macos.$arch.nsmd"
+  cmake -S "$source_dir/runtimes/NativeScript" -B "$build_dir/nativescript-$arch" -G Xcode \
+    -DCMAKE_OSX_ARCHITECTURES="$arch" -DCMAKE_OSX_DEPLOYMENT_TARGET=13.5 \
+    -DTARGET_PLATFORM=macos -DTARGET_ENGINE=none -DNS_FFI_BACKEND=napi \
+    -DNS_GSD_BACKEND=none -DMETADATA_SIZE="$(wc -c < "$metadata" | tr -d ' ')" \
+    "-DCMAKE_CXX_FLAGS=-DBARE_COMPAT_NAPI -include $compat_include/bare/module.h -I$compat_include -I$node_include -I$brew_include"
+  cmake --build "$build_dir/nativescript-$arch" --config RelWithDebInfo -j 4 -- CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO
+done
 
-cp "$build_dir/host/xplat-macos-host" "$output_dir/host"
+lipo -create \
+  "$build_dir/host-arm64/xplat-macos-host" \
+  "$build_dir/host-x86_64/xplat-macos-host" \
+  -output "$output_dir/host"
 if [[ -d "$output_dir/NativeScript.framework" ]]; then rm -r "$output_dir/NativeScript.framework"; fi
-cp -R "$build_dir/nativescript/RelWithDebInfo/NativeScript.framework" "$output_dir/NativeScript.framework"
+cp -R "$build_dir/nativescript-arm64/RelWithDebInfo/NativeScript.framework" "$output_dir/NativeScript.framework"
+lipo -create \
+  "$build_dir/nativescript-arm64/RelWithDebInfo/NativeScript.framework/Versions/A/NativeScript" \
+  "$build_dir/nativescript-x86_64/RelWithDebInfo/NativeScript.framework/Versions/A/NativeScript" \
+  -output "$output_dir/NativeScript.framework/Versions/A/NativeScript"
 if [[ -d "$output_dir/NativeScript.framework/Versions/A/_CodeSignature" ]]; then
   rm -r "$output_dir/NativeScript.framework/Versions/A/_CodeSignature"
 fi
+lipo -archs "$output_dir/host"
+lipo -archs "$output_dir/NativeScript.framework/Versions/A/NativeScript"
 vtool -show-build "$output_dir/host"
 vtool -show-build "$output_dir/NativeScript.framework/Versions/A/NativeScript"
-echo "Built host and framework in $output_dir"
+echo "Built universal host and framework in $output_dir"
 
 if [[ "$install_artifacts" == 1 ]]; then
-  cp "$output_dir/host" "$host_dir/prebuilt/macos-arm64/host"
-  rm -r "$host_dir/prebuilt/macos-arm64/NativeScript.framework"
-  cp -R "$output_dir/NativeScript.framework" "$host_dir/prebuilt/macos-arm64/NativeScript.framework"
+  cp "$output_dir/host" "$host_dir/prebuilt/macos/host"
+  rm -r "$host_dir/prebuilt/macos/NativeScript.framework"
+  cp -R "$output_dir/NativeScript.framework" "$host_dir/prebuilt/macos/NativeScript.framework"
   python3 - "$host_dir/prebuilt" <<'PY'
 import hashlib, json, pathlib, sys
 root = pathlib.Path(sys.argv[1])

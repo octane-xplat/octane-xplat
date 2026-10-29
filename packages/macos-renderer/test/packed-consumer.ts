@@ -247,8 +247,8 @@ const bundled = await readFile(join(app, 'dist/package-build/main.cjs'), 'utf8')
 assert.doesNotMatch(bundled, /Geist|__XPLAT_GEIST|packages\/app\/src/)
 console.log('[packed renderer] types and production build pass without harness assets')
 
-if (process.platform !== 'darwin' || process.arch !== 'arm64') {
-	console.log('[packed renderer] AppKit runtime and HMR require Apple Silicon macOS; not run')
+if (process.platform !== 'darwin' || (process.arch !== 'arm64' && process.arch !== 'x64')) {
+	console.log('[packed renderer] AppKit runtime and HMR require macOS; not run')
 } else {
 	console.log('[packed renderer] packaging and launching the standalone app')
 	run('pnpm', ['exec', 'xplat', 'build', '--targets', 'macos'])
@@ -256,7 +256,7 @@ if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 		existsSync(
 			join(
 				app,
-				'artifacts/macos-arm64/RendererConsumer.app/Contents/Frameworks/libxplatmason.dylib',
+				'artifacts/macos-universal/RendererConsumer.app/Contents/Frameworks/libxplatmason.dylib',
 			),
 		),
 		'packaged app must embed the Mason engine in Contents/Frameworks',
@@ -265,7 +265,7 @@ if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 	const notices = await readFile(
 		join(
 			app,
-			'artifacts/macos-arm64/RendererConsumer.app/Contents/Resources/licenses/THIRD-PARTY-NOTICES.txt',
+			'artifacts/macos-universal/RendererConsumer.app/Contents/Resources/licenses/THIRD-PARTY-NOTICES.txt',
 		),
 		'utf8',
 	)
@@ -274,7 +274,7 @@ if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 	assert.match(notices, /Apache License/)
 	const executable = join(
 		app,
-		'artifacts/macos-arm64/RendererConsumer.app/Contents/MacOS/RendererConsumer',
+		'artifacts/macos-universal/RendererConsumer.app/Contents/MacOS/RendererConsumer',
 	)
 
 	const result = spawnSync(executable, [], {

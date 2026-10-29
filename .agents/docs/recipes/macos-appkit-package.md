@@ -6,7 +6,7 @@ Related APIs: xplat dev, xplat build, xplat doctor, xplat.targets.macos.package,
 
 ## Starting point
 
-An AppKit Node-API app running on an Apple Silicon Mac. The app already has a
+An AppKit Node-API app on a Mac with Apple Silicon or an Intel chip. The app already has a
 production Vite config that emits one CommonJS host bundle.
 
 ## Requirements
@@ -15,7 +15,9 @@ production Vite config that emits one CommonJS host bundle.
   `package.json`.
 - Optionally include a custom macOS app icon from an `.icns` file in the app
   project.
-- Build on an Apple Silicon Mac with the macOS `codesign` and `hdiutil` tools.
+- Build with the macOS `codesign` and `hdiutil` tools. Apps with native leaves
+  need an Apple Silicon build Mac.
+- Ship one universal app that runs on Apple Silicon and Intel Macs.
 - Set the package's minimum macOS version to 13.5 or later for the
   JavaScriptCore host.
 - Bundle dependencies into the CommonJS entry and use only the documented
@@ -42,8 +44,9 @@ production Vite config that emits one CommonJS host bundle.
   staples, and validates the disk image.
 - AC5: When an icon is configured, `xplat doctor` validates the `.icns` path
   and the packaged app includes its matching `Info.plist` icon entry.
-- AC6: The packager verifies checksums of the pinned arm64 host, compatible
-  NativeScript framework, and metadata before the Vite build. The resulting
+- AC6: The packager verifies checksums of the pinned universal host,
+  compatible NativeScript framework, and per-architecture metadata before the
+  Vite build. The resulting
   app bundles no Node executable or JavaScript engine binary; it loads system
   JavaScriptCore and rejects unsupported external imports with a diagnostic.
 - AC9: Native macOS leaf libraries and extended metadata participate in packaging and nested signing; the native source workflow and verification limits are documented separately.
@@ -69,9 +72,18 @@ production Vite config that emits one CommonJS host bundle.
 
 - AC12: Standalone appearance reads the initial effective light/dark state, notifies open consumers on changes, supplies current state to new/reopened consumers, respects an app override until system mode returns, and detaches observation after the last unsubscribe. Colors remain app-owned.
 
+- AC13: The packaged app is universal: the host, NativeScript framework,
+  Mason engine and every native leaf library contain `arm64` and `x86_64`
+  slices, `Contents/Resources` holds metadata for both, and the same `.app`
+  launches on an Apple Silicon Mac and an Intel Mac. A prebuilt library that
+  lacks either slice fails the build with a diagnostic.
+
 ## Documentation
 
 - AC12: [App-wide macOS appearance](../../../docs/app/styling.md#app-wide-macos-appearance).
+
+- AC13: [Experimental AppKit target](../../../docs/start/toolchain.md#experimental-appkit-target)
+  and [prebuilt native libraries](../../../docs/platform/macos-native.md).
 
 - AC1: [Experimental AppKit target](../../../docs/start/toolchain.md#experimental-appkit-target)
   and [macOS experiment notes](../../../apps/macos/README.md).

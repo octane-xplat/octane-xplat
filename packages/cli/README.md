@@ -23,7 +23,7 @@ pnpm xplat dev          # pick available targets
 pnpm xplat dev macos    # single-target shorthand (kind or device id)
 pnpm xplat add ios      # enable a platform skipped at create time
 pnpm xplat build        # production builds
-pnpm xplat build -t macos # experimental AppKit .app + .dmg (Apple Silicon)
+pnpm xplat build -t macos # experimental AppKit .app + .dmg (universal: Apple Silicon and Intel)
 pnpm xplat build -t linux # experimental GTK/WebKit app directory + tar archive
 pnpm xplat doctor       # environment, installed versions, runtime copies + patches
 pnpm xplat upgrade --check # preview alignment to this CLI's compatibility set

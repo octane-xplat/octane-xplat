@@ -63,7 +63,7 @@ the NativeScript/JavaScriptCore entry as CommonJS and leaves
 
 Run `xplat dev macos` to serve the page on a loopback address and
 launch the host. Run `xplat build --targets macos` to build the frontend and
-host and package an Apple Silicon `.app` and `.dmg`. The package stores the
+host and package a universal `.app` and `.dmg` for Apple Silicon and Intel Macs. The package stores the
 frontend in `Contents/Resources/web`; the host loads its `index.html` through
 the `xplat://app` scheme. The page is served from a trusted local origin in
 development. `xplat doctor` validates the selected renderer and its configured

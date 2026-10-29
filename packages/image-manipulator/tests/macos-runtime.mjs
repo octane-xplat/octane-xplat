@@ -13,7 +13,7 @@ const repoRoot = resolve(process.env.XPLAT_NATIVE_TEST_REPO ?? join(packageRoot,
 const requireRepo = createRequire(join(repoRoot, 'package.json'))
 const ts = requireRepo('typescript')
 const hostRoot = join(repoRoot, 'packages/cli/src/macos/jsc-host')
-const bundle = join(hostRoot, 'prebuilt/macos-arm64')
+const bundle = join(hostRoot, 'prebuilt/macos')
 const temporary = await mkdtemp(join(tmpdir(), 'xplat-image-native-'))
 
 try {
@@ -126,7 +126,7 @@ setTimeout(async () => {
 	const bytes = await readFile(join(bundle, 'host'))
 	assert.equal(
 		createHash('sha256').update(bytes).digest('hex'),
-		manifest.sha256['macos-arm64/host'],
+		manifest.sha256['macos/host'],
 	)
 	const executable = join(temporary, 'host')
 	await writeFile(executable, bytes, { mode: 0o755 })
@@ -135,7 +135,7 @@ setTimeout(async () => {
 		[
 			join(bundle, 'NativeScript.framework/Versions/A/NativeScript'),
 			fixture,
-			join(bundle, 'metadata.nsmd'),
+			join(bundle, `metadata.macos.${process.arch === 'x64' ? 'x86_64' : 'arm64'}.nsmd`),
 			bootstrap,
 		],
 		{ cwd: temporary, encoding: 'utf8', timeout: 20_000 },

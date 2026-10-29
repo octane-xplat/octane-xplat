@@ -4,7 +4,10 @@ import { mkdir, mkdtemp, symlink, writeFile } from 'node:fs/promises'
 import { resolve, join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { buildMacOSNative, writeNativeBootstrap } from '../../../cli/src/macos/native.ts'
-import { hostBundle } from '../../../cli/src/macos/jsc-host/runtime.ts'
+import {
+	macOSHostArch,
+	hostBundle,
+} from '../../../cli/src/macos/jsc-host/runtime.ts'
 import { macOSExecutable } from '../../../cli/src/macos/executables.ts'
 
 const here = dirname(fileURLToPath(import.meta.url))
@@ -83,14 +86,14 @@ assert.ok(artifact.notices.some((notice) => notice.leaf === '@octane-xplat/lotti
 
 const bootstrap = join(app, 'bootstrap.js')
 await writeNativeBootstrap(artifact, bootstrap)
-const host = await macOSExecutable(app, 'macos-arm64/host')
+const host = await macOSExecutable(app, 'macos/host')
 const result = await new Promise((resolveRun) => {
 	const child = spawn(
 		host,
 		[
 			join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
 			join(here, 'probe.cjs'),
-			artifact.metadata,
+			artifact.metadata[macOSHostArch()],
 			bootstrap,
 		],
 		{

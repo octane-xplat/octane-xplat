@@ -8,8 +8,14 @@ import { srcUrl } from '../../env.ts'
 
 export const hostRoot = fileURLToPath(srcUrl(import.meta.url, ''))
 export const prebuiltRoot = join(hostRoot, 'prebuilt')
-export const hostBundle = join(prebuiltRoot, 'macos-arm64')
+export const hostBundle = join(prebuiltRoot, 'macos')
 export const minimumJscHostSystemVersion = '13.5'
+export const macOSArchitectures = ['arm64', 'x86_64'] as const
+
+/** Map a Node `process.arch` token to a macOS architecture name. */
+export function macOSHostArch(arch = process.arch) {
+	return arch === 'x64' ? 'x86_64' : 'arm64'
+}
 
 const supportedImports = new Set([
 	'@nativescript/macos-node-api',
@@ -37,46 +43,106 @@ function isFile(path) {
 	}
 }
 
+const machOArchNames = new Map([
+	[0x0100000c, 'arm64'],
+	[0x01000007, 'x86_64'],
+])
+
+/** Slice `bytes` into thin Mach-O images: itself, or each fat-arch member. */
+function machOSlices(bytes) {
+	const magic = bytes.readUInt32BE(0)
+	if (magic !== 0xcafebabe && magic !== 0xcafebabf) {
+		return [bytes]
+	}
+
+	const wide = magic === 0xcafebabf
+	const count = bytes.readUInt32BE(4)
+	const entrySize = wide ? 32 : 20
+	const slices = []
+	for (let index = 0; index < count; index++) {
+		const entry = 8 + index * entrySize
+		if (entry + entrySize > bytes.length) {
+			break
+		}
+
+		const offset = wide
+			? Number(bytes.readBigUInt64BE(entry + 8))
+			: bytes.readUInt32BE(entry + 8)
+		const size = wide
+			? Number(bytes.readBigUInt64BE(entry + 16))
+			: bytes.readUInt32BE(entry + 12)
+		slices.push(bytes.subarray(offset, offset + size))
+	}
+
+	return slices
+}
+
 export function inspectMachO(
 	bytes,
 	label,
 	issues,
 	minimumSystemVersion = minimumJscHostSystemVersion,
+	architectures = macOSArchitectures,
 ) {
-	if (
-		bytes.length < 32 ||
-		bytes.readUInt32LE(0) !== 0xfeedfacf ||
-		bytes.readUInt32LE(4) !== 0x0100000c
-	) {
-		issues.push(`${label} is not an arm64 Mach-O binary`)
+	if (bytes.length < 32) {
+		issues.push(`${label} is not a Mach-O binary`)
 		return
 	}
 
-	const commands = bytes.readUInt32LE(16)
+	const found = new Set()
+	let images = 0
+	for (const slice of machOSlices(bytes)) {
+		if (slice.length < 32 || slice.readUInt32LE(0) !== 0xfeedfacf) {
+			continue
+		}
+
+		images++
+		const arch = machOArchNames.get(slice.readUInt32LE(4))
+		if (arch) {
+			found.add(arch)
+		}
+
+		inspectThinMachO(slice, arch ? `${label} (${arch})` : label, issues, minimumSystemVersion)
+	}
+
+	if (!images) {
+		issues.push(`${label} is not a Mach-O binary`)
+		return
+	}
+
+	for (const arch of architectures) {
+		if (!found.has(arch)) {
+			issues.push(`${label} lacks an ${arch} slice`)
+		}
+	}
+}
+
+function inspectThinMachO(slice, label, issues, minimumSystemVersion) {
+	const commands = slice.readUInt32LE(16)
 	let offset = 32
 	let minimumVersion
 	for (let index = 0; index < commands; index++) {
-		if (offset + 8 > bytes.length) {
+		if (offset + 8 > slice.length) {
 			issues.push(`${label} has truncated load commands`)
 			return
 		}
 
-		const command = bytes.readUInt32LE(offset)
-		const size = bytes.readUInt32LE(offset + 4)
-		if (size < 8 || offset + size > bytes.length) {
+		const command = slice.readUInt32LE(offset)
+		const size = slice.readUInt32LE(offset + 4)
+		if (size < 8 || offset + size > slice.length) {
 			issues.push(`${label} has invalid load commands`)
 			return
 		}
 
 		if (command === 0x32 && size >= 24) {
-			const version = bytes.readUInt32LE(offset + 12)
+			const version = slice.readUInt32LE(offset + 12)
 			minimumVersion = `${version >>> 16}.${(version >>> 8) & 255}`
 		}
 
 		if (command === 0xc && size >= 24) {
-			const nameOffset = bytes.readUInt32LE(offset + 8)
+			const nameOffset = slice.readUInt32LE(offset + 8)
 			if (nameOffset < size) {
-				const name = bytes.toString('utf8', offset + nameOffset, offset + size).split('\0')[0]
+				const name = slice.toString('utf8', offset + nameOffset, offset + size).split('\0')[0]
 				if (name.startsWith('@rpath/')) {
 					issues.push(`${label} requires an unpackaged library: ${name}`)
 				}
@@ -123,17 +189,44 @@ export function inspectJscHost() {
 
 		if (relativePath.endsWith('/host') || relativePath.endsWith('/NativeScript')) {
 			inspectMachO(bytes, relativePath, issues)
+		} else if (relativePath.endsWith('/objc-metadata-generator')) {
+			// The generator is a build-time tool; its @rpath/libclang.dylib load
+			// is expected (it resolves Xcode/CLT libclang at run time), unlike
+			// the packaged host/framework which must stay self-contained.
+			const generatorIssues = []
+			inspectMachO(
+				bytes,
+				relativePath,
+				generatorIssues,
+				minimumJscHostSystemVersion,
+				['arm64'],
+			)
+			issues.push(
+				...generatorIssues.filter((issue) => !issue.includes('unpackaged library')),
+			)
 		}
 	}
 
 	for (const relativePath of [
-		'macos-arm64/host',
-		'macos-arm64/metadata.nsmd',
-		'macos-arm64/NativeScript.framework/Versions/A/NativeScript',
+		'macos/host',
+		'macos/metadata.macos.arm64.nsmd',
+		'macos/metadata.macos.x86_64.nsmd',
+		'macos/NativeScript.framework/Versions/A/NativeScript',
+		'macos/objc-metadata-generator',
 	]) {
 		if (!manifest.sha256?.[relativePath]) {
 			issues.push(`JavaScriptCore host manifest omits ${relativePath}`)
 		}
+	}
+
+	if (
+		!Array.isArray(manifest.architectures) ||
+		manifest.architectures.length !== macOSArchitectures.length ||
+		!macOSArchitectures.every((arch) => manifest.architectures.includes(arch))
+	) {
+		issues.push(
+			`JavaScriptCore host manifest architectures must be ${macOSArchitectures.join(',')}`,
+		)
 	}
 
 	if (manifest.minimumSystemVersion !== minimumJscHostSystemVersion) {

@@ -414,7 +414,9 @@ desktop setup and are separate from creating your first browser or phone app.
 
 The CLI can also run the in-repository experimental macOS AppKit Node-API app
 with `pnpm xplat dev macos` and package it with
-`pnpm xplat build --targets macos`. This target is Apple Silicon only and is
+`pnpm xplat build --targets macos`. Packaged apps are universal: one `.app`
+runs on Apple Silicon and Intel Macs. You can package on either kind of Mac,
+but apps with native leaves need an Apple Silicon build Mac. This target is
 not part of the scaffolded starter. See the
 [target guide](spec.md#choose-your-targets) for release support boundaries.
 `xplat.targets.macos.package` in the app manifest supplies the app name, bundle identifier, executable name, version, minimum macOS version, Vite
@@ -525,7 +527,7 @@ for the measured boundary.
 
 Set `xplat.targets.macos.renderer` to `"webview"` to run the app's DOM
 frontend in the system WKWebView. The default remains the experimental AppKit
-renderer. The WebView path uses the same Apple Silicon JavaScriptCore host and
+renderer. The WebView path uses the same universal JavaScriptCore host and
 NativeScript mediator, while the frontend resolves `.web` implementations.
 Development serves the frontend from loopback and packages it under
 `Contents/Resources/web`; packaged pages load through the app's `xplat://app`

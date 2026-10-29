@@ -10182,8 +10182,67 @@ What the probe shows:
 - Intel Macs can run Xplat apps, but app native leaves cannot yet be built on
   an Intel Mac without an x86_64 libclang.
 
-Still unproven: the AppKit renderer, Mason layout and native leaves running
-inside an x86_64 app, and a universal (lipo) bundle.
+Still unproven at probe time: the AppKit renderer, Mason layout and native
+leaves running inside an x86_64 app, and a universal (lipo) bundle.
+
+**Implemented (2026-10-29).** Packaged apps are now universal:
+
+- **Prebuilts:** `prebuilt/macos/` holds a lipo'd host and
+  `NativeScript.framework`, `metadata.macos.arm64.nsmd` and
+  `metadata.macos.x86_64.nsmd`, and an arm64-only generator. The manifest
+  records `architectures: ["arm64", "x86_64"]`. Mason is rebuilt as a
+  universal `libxplatmason.dylib`.
+- **Runtime:** `host.m` picks the metadata file by architecture at compile
+  time.
+- **Binary checks:** `inspectMachO` reads fat files and checks each slice's
+  `minos` and `@rpath` loads. It reports a missing slice as
+  `<label> lacks an <arch> slice`.
+- **Native leaves:** `native.ts` builds each leaf separately per architecture,
+  combines the builds with `lipo`, and generates metadata for each
+  architecture.
+- **Packaging:** output goes to `artifacts/macos-universal/`. Leaf-free apps
+  can be packaged on an Intel Mac; native leaves still need an Apple Silicon
+  build Mac.
+
+Evidence, 2026-10-29:
+
+| Check | Result |
+| --- | --- |
+| Prebuilt rebuild (Xcode 27.0, SDK 27.0) | Host, framework and Mason report `x86_64 arm64`; host `minos 13.5`, framework `13.3` |
+| `turbo run test --filter=@octane-xplat/cli` | All macOS tests pass, including fat-file, missing-slice, per-slice `minos` and non-Mach-O cases. `route-generation`/`route-platform-contracts` failures appear only in this worktree's install and do not touch this change; the same files passed on the main checkout |
+| `packages/macos-renderer` tests (`node --test test/*.test.ts`) | `prebuilt-engine.test.ts` passes for the universal dylib. `style-reconcile.test.ts` still fails on older harness drift (main fails 14 cases in that file) |
+| CLI `tsc -p tsconfig.json` | 0 errors |
+| `verify-macos-jsc.mjs` | Universal `JSCFixture.app` passes locally and on `andromeda.local` (Intel, macOS 15.7.7): `JSC_FIXTURE_OK`, exit 0 |
+| Native-leaf consumer | `verify-macos-native-consumer.mjs` stops at its `xplat doctor` step on fixture checks unrelated to macOS (`packageManager`, `@tsrx/oxc` peer; all macOS rows pass). Running `xplat build --targets macos` in that scratch app compiles 4 universal leaves (C, ObjC, Swift, Zig), passes `codesign --verify --deep --strict`, and prints `NATIVE_VALUES c=40 objc=42 swift=43 zig=44` with exit 0, both locally and on andromeda |
+
+Not run: the `@octane-xplat/platform#typegen`-blocked turbo typechecks and
+`macos-renderer` turbo tests (that typegen failure also happens on `main`), and
+any AppKit renderer or Mason layout app on Intel. Mason only has a `dlopen`
+proof on Intel. Packaged-consumer qualification and notarization of universal
+builds also remain open.
+
+### Upstream limitation: NativeScript runtimes force arm64 on macOS
+
+- **Owner and version:** NativeScript/runtimes, pinned `5b697b39`; still
+  present on `main` at the same commit (checked 2026-10-29).
+- **Limitation:** `NativeScript/CMakeLists.txt`'s `TARGET_PLATFORM=macos`
+  branch runs `set(CMAKE_OSX_ARCHITECTURES "arm64")`. That normal variable
+  shadows a caller's `-DCMAKE_OSX_ARCHITECTURES`, so the framework can only
+  be built for arm64. This is a build limitation, not a runtime one: the
+  sources already carry x86_64 dispatch and a universal libffi.
+- **Evidence:** a source read plus the x86_64 probe above, where an x86_64
+  framework built with the line changed ran on a real Intel Mac.
+- **Local workaround:** `packages/cli/src/macos/jsc-host/patches/nativescript-runtimes.patch`
+  wraps the line in `if(NOT CMAKE_OSX_ARCHITECTURES)`, and `build-runtime.sh`
+  builds each architecture separately and combines them with `lipo`.
+- **Removal:** drop the hunk once
+  [NativeScript/runtimes#101](https://github.com/NativeScript/runtimes/pull/101)
+  lands and the pin moves past it.
+
+The metadata generator cannot be built for x86_64, because Xcode 27's and the
+Command Line Tools' `libclang` are arm64-only. That is an Apple toolchain
+constraint, not a NativeScript one. Native leaves therefore require an Apple
+Silicon build Mac.
 
 Planned shape, pending that probe: universal (arm64 + x86_64) binaries and one
 `.app`/`.dmg`, with per-architecture metadata files selected by the host at

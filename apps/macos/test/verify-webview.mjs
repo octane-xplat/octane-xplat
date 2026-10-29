@@ -7,6 +7,7 @@ import { build } from 'vite'
 import { createMacOSConfig } from '../vite.shared.mjs'
 import { macOSExecutable } from '../../../packages/cli/src/macos/executables.ts'
 import {
+	macOSHostArch,
 	hostBundle,
 	hostRoot,
 	validateHostBundle,
@@ -58,7 +59,7 @@ await validateHostBundle(bundle, appRoot)
 const appBundle = join(directory, 'WebViewFixture.app/Contents')
 await mkdir(join(appBundle, 'MacOS'), { recursive: true })
 const executable = join(appBundle, 'MacOS/Fixture')
-await copyFile(await macOSExecutable(appRoot, 'macos-arm64/host'), executable)
+await copyFile(await macOSExecutable(appRoot, 'macos/host'), executable)
 await writeFile(
 	join(appBundle, 'Info.plist'),
 	`<?xml version="1.0"?><plist version="1.0"><dict><key>CFBundleExecutable</key><string>Fixture</string><key>CFBundleIdentifier</key><string>org.octane.webview-fixture</string><key>CFBundlePackageType</key><string>APPL</string></dict></plist>`,
@@ -69,7 +70,7 @@ const result = spawnSync(
 	[
 		join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
 		bundle,
-		join(hostBundle, 'metadata.nsmd'),
+		join(hostBundle, `metadata.macos.${macOSHostArch()}.nsmd`),
 		bootstrap,
 	],
 	{

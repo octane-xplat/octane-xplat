@@ -3,7 +3,8 @@
 `@octane-xplat/macos-renderer` mounts Octane components into an existing
 `NSView`. It is the experimental macOS AppKit renderer, using the
 `@nativescript/macos-node-api` runtime and the CLI's JavaScriptCore host.
-The supported packaging target is Apple Silicon with macOS 13.5 or later.
+Packaged apps are universal binaries for Apple Silicon and Intel Macs running
+macOS 13.5 or later.
 
 Your application owns startup, windows, menus, host services, and custom font
 assets. The renderer owns views, layout, events, accessibility, and its hosted
@@ -875,8 +876,8 @@ environment variable is required — and `xplat build` copies it into
 
 Maintainers rebuild the engine with `native/xplatmason/build.sh`, which
 compiles the pinned `mason-c` revision recorded in
-`platforms/macos/prebuilt/manifest.json` for arm64 with a macOS 13.5
-deployment target.
+`platforms/macos/prebuilt/manifest.json` for arm64 and x86_64, combines them
+into one universal dylib, and uses a macOS 13.5 deployment target.
 
 ## Development bundles
 
@@ -942,7 +943,7 @@ asserts native values and measurements; it does not inspect rendered pixels.
 
 The packed check uses the renderer and CLI tarballs in a temporary app outside
 the checkout. It checks declarations and production compilation on every
-host; on Apple Silicon macOS it also packages and launches the app and verifies
+host; on macOS (Apple Silicon or Intel) it also packages and launches the app and verifies
 retained-root HMR. Programmatic action dispatch establishes handler behavior,
 not OS input or hit-testing.
 

@@ -76,13 +76,13 @@ await build({
 		minify: false,
 	},
 })
-const hostRoot = join(repo, 'packages/cli/src/macos/jsc-host/prebuilt/macos-arm64')
+const hostRoot = join(repo, 'packages/cli/src/macos/jsc-host/prebuilt/macos')
 const run = spawnSync(
 	join(hostRoot, 'host'),
 	[
 		join(hostRoot, 'NativeScript.framework/Versions/A/NativeScript'),
 		join(app, 'dist/case.cjs'),
-		artifact.metadata,
+		artifact.metadata[process.arch === 'x64' ? 'x86_64' : 'arm64'],
 		bootstrap,
 	],
 	{ encoding: 'utf8', timeout: 30000, maxBuffer: 4 * 1024 * 1024 },

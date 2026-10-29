@@ -1,6 +1,6 @@
 {
 	"library": "libxplatmason.dylib",
-	"architectures": ["arm64"],
+	"architectures": ["arm64", "x86_64"],
 	"minimumSystemVersion": "13.5",
 	"source": {
 		"facade": "native/xplatmason/XPLMason.m",
@@ -11,6 +11,6 @@
 		}
 	},
 	"sha256": {
-		"libxplatmason.dylib": "d7f0b17dd540d563f0b362fc682209bd0fbeec73e90cc81abebeb1b3306687f8"
+		"libxplatmason.dylib": "7bbc6ac79237c2c7b3e6e06ac3e2e89d3b2a03c46caee814612c4003492ebe34"
 	}
 }

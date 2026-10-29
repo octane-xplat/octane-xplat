@@ -10,10 +10,14 @@ import { createServer } from 'node:http'
 import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { hostBundle, hostRoot } from '../src/macos/jsc-host/runtime.ts'
+import {
+	macOSHostArch,
+	hostBundle,
+	hostRoot,
+} from '../src/macos/jsc-host/runtime.ts'
 import { macOSExecutable } from '../src/macos/executables.ts'
 
-if (process.platform !== 'darwin' || process.arch !== 'arm64') {
+if (process.platform !== 'darwin' || (process.arch !== 'arm64' && process.arch !== 'x64')) {
 	console.log('macos-websocket verify skipped: Apple Silicon macOS only')
 	process.exit(0)
 }
@@ -202,11 +206,11 @@ setTimeout(function () { events.push('TIMEOUT'); finish(); }, 15000);
 await writeFile(join(app, 'bootstrap.js'), await readFile(join(hostRoot, 'shim.js'), 'utf8'))
 
 const child = spawn(
-	await macOSExecutable(app, 'macos-arm64/host'),
+	await macOSExecutable(app, 'macos/host'),
 	[
 		join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
 		fixture,
-		join(hostBundle, 'metadata.nsmd'),
+		join(hostBundle, `metadata.macos.${macOSHostArch()}.nsmd`),
 		join(app, 'bootstrap.js'),
 	],
 	{ stdio: ['ignore', 'ignore', 'pipe'] },

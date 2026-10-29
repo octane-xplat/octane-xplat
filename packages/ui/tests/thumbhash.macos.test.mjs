@@ -6,7 +6,11 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import ts from 'typescript'
 import { macOSExecutable } from '../../cli/src/macos/executables.ts'
-import { hostBundle, hostRoot } from '../../cli/src/macos/jsc-host/runtime.ts'
+import {
+	macOSHostArch,
+	hostBundle,
+	hostRoot,
+} from '../../cli/src/macos/jsc-host/runtime.ts'
 
 // Real AppKit/JSC host: NSBitmapImageRep decode, CGBitmapContext scale to
 // ≤100px, premultiplied readback, JS unpremultiply, reference-port encode.
@@ -102,11 +106,11 @@ setTimeout(async () => {
 	const bootstrap = join(directory, 'bootstrap.js')
 	await writeFile(bootstrap, await readFile(join(hostRoot, 'shim.js')))
 	const result = spawnSync(
-		await macOSExecutable(packageRoot, 'macos-arm64/host'),
+		await macOSExecutable(packageRoot, 'macos/host'),
 		[
 			join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
 			script,
-			join(hostBundle, 'metadata.nsmd'),
+			join(hostBundle, `metadata.macos.${macOSHostArch()}.nsmd`),
 			bootstrap,
 		],
 		{ cwd: directory, encoding: 'utf8', timeout: 15_000 },

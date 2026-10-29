@@ -430,9 +430,11 @@ export const doctor = command({
 
 			row(
 				'macOS architecture',
-				process.arch === 'arm64',
-				process.arch,
-				'the current packaged runtime targets Apple Silicon (arm64)',
+				process.arch === 'arm64' || process.arch === 'x64',
+				process.arch === 'x64'
+					? 'x86_64; native leaves need an Apple Silicon build Mac'
+					: process.arch,
+				'the packaged runtime targets macOS arm64 and x86_64 (universal)',
 			)
 
 			row(
@@ -469,7 +471,7 @@ export const doctor = command({
 			row(
 				'macOS JavaScriptCore package host',
 				jscHost.issues.length === 0,
-				jscHost.issues.length ? jscHost.issues.join('; ') : 'pinned arm64 host and addon verified',
+				jscHost.issues.length ? jscHost.issues.join('; ') : 'pinned universal host and addon verified',
 				'reinstall @octane-xplat/cli or rebuild its pinned macOS host artifacts',
 			)
 
