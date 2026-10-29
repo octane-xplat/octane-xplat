@@ -2166,3 +2166,31 @@ static Image cache. See the [package subset](../../../../packages/gif/README.md#
 import { AnimatedImage } from '@octane-xplat/gif'
 <AnimatedImage src="~/loading.gif" alt="Loading illustration" width={160} height={120} />
 ```
+
+
+## AppKit PowerSearch range form
+
+Native PowerSearchFilterEditor now routes date_range to a built-in Start/End form
+using existing native text/segmented controls. Support NOW, absolute UTC date/time,
+and finite signed/fractional/scientific relative amounts with fixed-duration units.
+Preserve unchanged absolute precision and relative anchorKey metadata. Validate
+both endpoints against one Apply instant, reject invalid/reversed/nonfinite ranges,
+and keep relative/Now semantics. Interval presets edit drafts without committing;
+expression-string relativeDatePresets and timezoneID-specific display need custom
+editors. Named anchors are preserved but not resolved by the built-in matcher.
+
+```ts
+import type { DateTimeRange } from '@octane-xplat/ui'
+const range: DateTimeRange = {
+	start: { type: 'RELATIVE', backValue: 7, unit: 'day' }, end: { type: 'NOW' },
+}
+```
+
+Current filter/field/operator identity retires drafts; use immediate local records
+for rapid edits and guard stale, readonly, loading/disabled and composing inputs.
+Cancel remains available; one draft submits once, with consumer-error retry. Apply
+stays available to revalidate moving Now; no clock timer is introduced. Web/mobile
+range built-ins and native entity/nested/custom editors remain gaps. Seven model
+and three mocked-control compiler cases plus fixture are authored, unrun; native
+input/IME/focus/AX/layout/popover and installed-consumer behavior are unqualified.
+See [native range form](../../../../docs/app/power-search.md#edit-native-appkit-date-ranges).

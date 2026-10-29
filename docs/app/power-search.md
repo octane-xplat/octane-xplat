@@ -123,8 +123,9 @@ suggestions, add/edit/remove flows, clear-all, and a text value editor. English
 catalog strings are built in; there is no provider hook for app localization
 at this time. The built-in editor handles text, numeric, list, enum, relative
 date text, and absolute dates (ISO date input on web, text entry on native).
-Date ranges, entity lists, nested values, and app-specific custom values need
-an override in `components`.
+Entity lists, nested values, and app-specific custom values need an override in
+`components`. Date ranges also need an override on web/mobile; the experimental
+AppKit built-in range form is described [below](#edit-native-appkit-date-ranges).
 
 ```tsx
 import { useState } from 'octane'
@@ -218,3 +219,80 @@ and a [manual fixture](../../examples/probes/power-search-focus.macos.tsrx) are
 authored, all unrun. Source/fake dispatch does not prove actual AppKit attachment,
 focus/notification ordering, caret/IME, modal containment, accessibility or
 packaging. Existing inline popover and editor limitations above still apply.
+
+
+## Edit native AppKit date ranges
+
+The native AppKit built-in editor now accepts the `date_range` operator produced
+by a date field's “between” operator. It offers Start and End controls for Now,
+a UTC date/time, or a relative amount/unit. A plain date means midnight UTC; a
+date-time such as `2026-10-29T12:30:00.000Z` retains time and milliseconds. Give
+an interval preset to offer a named quick pick without committing it immediately:
+
+```tsx
+import { useState } from 'octane'
+import { PowerSearchFilterEditor, Text } from '@octane-xplat/ui'
+import type { PartialFilter, PowerSearchConfig } from '@octane-xplat/ui'
+
+const config: PowerSearchConfig = { name: 'created', fields: [{
+	key: 'created', label: 'Created', operators: [{
+		key: 'between', label: 'Between', value: { type: 'date_range',
+			intervalDatePresets: [{ label: 'Last 7 days', value: {
+				start: { type: 'RELATIVE', backValue: 7, unit: 'day' }, end: { type: 'NOW' },
+			} }],
+		},
+	}],
+}] }
+export function RangeForm() {
+	const [filter, setFilter] = useState<PartialFilter>({ field: 'created', operator: 'between' })
+	return <><PowerSearchFilterEditor config={config} filter={filter} mode="edit"
+		onSave={(next) => { if (next) setFilter(next) }}
+		onCancel={() => setFilter({ field: 'created', operator: 'between' })} />
+		<Text>{JSON.stringify(filter.value)}</Text></>
+}
+```
+
+Apply validates current drafts and ordering against one current instant. Invalid
+calendar dates, incomplete/nonfinite amounts and reversed/overflowing ranges do
+not call `onSave`. Apply stays available for revalidation as Now moves; validation
+messages update on render and Apply checks again. Now and relative endpoints stay
+semantic values instead of being frozen into timestamps. Relative amounts count
+back; negative means future. Units use the existing matcher’s fixed durations
+(month is 30 days, year is 365 days). An optional `anchorKey` is preserved as
+app-owned metadata; the built-in matcher does not resolve named anchors.
+
+```ts
+import type { DateTimeRange } from '@octane-xplat/ui'
+const range: DateTimeRange = {
+	start: { type: 'RELATIVE', backValue: 7, unit: 'day' },
+	end: { type: 'NOW' },
+}
+```
+
+Changing the current filter, field or operator retires its old draft callbacks;
+rapid edits are kept before render, and the same draft saves once. Read-only
+filter/editor state and disabled/loading PowerSearch block editing; Cancel remains
+available. Save waits while an attached input has marked text. Unmount retires
+callbacks, and Cancel does not save. These are source paths; native IME/focus and
+actual attachment behavior still need qualification.
+
+```tsx
+export function LockedRange() {
+	return <PowerSearchFilterEditor config={config} filter={{ field: 'created', operator: 'between' }}
+		mode="edit" isReadOnly onSave={() => {}} onCancel={() => {}} />
+}
+```
+
+The form displays UTC regardless of `timezoneID`; use a custom editor for
+zone-specific display or expression-string `relativeDatePresets`. Interval presets
+are supported. Existing absolute precision and expanded years are preserved on
+unchanged saves; typed replacements accept four-digit-year dates/date-times.
+Web/mobile date-range built-ins, native entity/nested/custom editors, localization,
+and complete cross-target parity remain open. Seven value-model and three editor
+compiler cases with mock child controls plus an idle manual fixture are authored,
+all unrun. No actual native control, popover sizing, keyboard, IME, VoiceOver,
+clock/calendar semantics or clean installed-consumer behavior is qualified.
+
+```sh
+pnpm probe run examples/probes/power-search-range.macos.tsrx --target macos --watch
+```

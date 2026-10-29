@@ -175,7 +175,7 @@ export function PowerSearchView(inProps: PowerSearchViewProps) @{
 					onSave={props.onSave}
 					onCancel={() => props.onCancel()}
 					saveButtonLabel={props.popoverSaveButtonLabel}
-					isReadOnly={props.isReadOnly}
+					isReadOnly={props.isReadOnly || props.isDisabled || props.isLoading || editing.filter.isReadOnly}
 					timezoneID={props.timezoneID}
 				/>
 			) : null}

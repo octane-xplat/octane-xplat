@@ -5,6 +5,7 @@ import { TextInput } from './text-controls.macos.tsrx'
 import { Button } from './controls.macos.tsrx'
 import { resolveOperatorLabel } from './power-search-config'
 import { powerSearchTranslate } from './power-search-strings'
+import { PowerSearchDateRangeEditor } from './PowerSearchDateRangeEditor.macos.tsrx'
 
 function initialValue(type: FilterValue['type']): FilterValue {
 	switch (type) {
@@ -61,12 +62,11 @@ export function PowerSearchFilterEditor(props: PowerSearchFilterEditorProps) @{
 		: ({ type: 'empty' } as FilterValue)
 
 	const unsupported =
-		operator?.value.type === 'date_range' ||
 		operator?.value.type === 'entity_list' ||
 		operator?.value.type === 'nested'
 
 	const save = () => {
-		if (!field || !operator || unsupported) {
+		if (!field || !operator || unsupported || operator.value.type === 'date_range') {
 			return
 		}
 
@@ -97,6 +97,9 @@ export function PowerSearchFilterEditor(props: PowerSearchFilterEditorProps) @{
 		props.onSave({ field: field.key, operator: operator.key, value: next })
 	}
 
+	@if (field && operator?.value.type === 'date_range') {
+		<PowerSearchDateRangeEditor {...props} field={field} operator={operator} />
+	} @else {
 	<masonview className="vx-power-search-editor" style={{ display: 'flex' }}>
 		<label
 			className="vx-power-search-editor-heading"
@@ -135,4 +138,5 @@ export function PowerSearchFilterEditor(props: PowerSearchFilterEditorProps) @{
 			/>
 		</masonview>
 	</masonview>
+	}
 }

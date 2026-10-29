@@ -6786,3 +6786,68 @@ Actual hook/effect/queued-state timing, native NSButton pointer/Tab/keyboard/AX,
 Apple target/attachment replacement/failure/HMR, disabled/layout/focus behavior,
 controller/browser lifetime and clean signed/installed consumers remain unqualified.
 Shared audit snapshots and evidence-gated checkboxes unchanged; goal active.
+
+## AppKit PowerSearch date-range form
+
+Demand is grounded in the config builder's date/between operator and common
+record filtering. The retained demo covers strings/numbers; date ranges are an
+explicit demand assumption beyond that example, not an observed runtime failure.
+Current Pager source was checked first: the stale audit calls it a placeholder,
+but an NSScrollView implementation and unrun cases already exist. That source
+was preserved. The reviewed PowerSearch gap is concrete: date_range was explicitly
+disabled in the AppKit built-in editor. Shared audit snapshots remain unchanged.
+
+Added an AppKit range form using existing native text, segmented and button
+controls, with no dependency/public-type change. Start/End support Now, absolute
+UTC date/time and signed/fractional/scientific relative amounts across declared
+units. Date-only input means midnight UTC; date-times retain seconds/milliseconds
+and reject invalid calendar rollover. Unchanged stored absolute values retain
+original precision/expanded years; typed replacements use four-digit years.
+No-op metadata and interval presets preserve semantic parts rather than freezing
+Now/relative into timestamps. Relative resolution reuses the shared fixed-duration
+matcher (month 30 days/year 365); named anchorKey is preserved but not resolved.
+
+Apply validates finite values/order against one current instant and never emits
+invalid/reversed/overflowing values. It stays available for revalidation as Now
+moves; previews refresh on render and no clock timer is introduced. Interval
+presets replace drafts without auto-save. Expression-string relativeDatePresets
+and timezoneID-specific display explicitly require a custom editor. Web/mobile
+ranges, native entity/nested/custom editor completeness and cross-target parity
+remain open; date-range presence is not full editor-support qualification.
+
+A component-local draft record preserves rapid edits before render. Current
+filter/field/operator revisions and unmount retire stale callbacks; readonly
+filter/editor state blocks edits and save. The AppKit PowerSearch view now forwards
+disabled/loading as editor read-only too. Attached marked-text inputs block save,
+using the existing composition helper. Cancel remains available and does not save.
+One draft claims submit before consumer reentry; a consumer error releases that
+claim for retry. Native control event translation and effect timing are unproven.
+
+Seven value-model and three mocked-control compiler cases plus an idle manual
+fixture are authored, all UNRUN. Compiler cases cover actual editor ownership with
+mock text/segmented/button children, not real control integration or OS input.
+The fixture offers readonly/replacement/unmount controls and applies no range on
+mount. Public guide, skill, recipe and feature note reconcile the experimental
+subset. No React Aria presence-level equivalent changes are involved. Source
+context tools could not resolve the AppKit editor symbol; direct target-source
+imports and semantic staged diff were reviewed instead of claiming complete edges.
+
+Exact deferred commands, pending this human's verification go-ahead:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/ui
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/power-search-range.macos.tsrx --target macos --watch
+pnpm exec turbo run pack:check --filter=@octane-xplat/ui
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit PowerSearch range package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+```
+
+Seven TS/TSRX files syntax parsed; source/semantic/whitespace review only. No
+tests/compiler transforms/typechecks/builds, probes, native/OS/AX or visual
+analysis, packaging or real filter operations ran. Actual text/segmented/keyboard/
+IME/focus/AX, readonly/attachment/reentry timing, popover sizing/scrolling, date/
+clock semantics and clean installed consumers remain unqualified. Evidence-gated
+checkboxes unchanged; persistent goal active.
