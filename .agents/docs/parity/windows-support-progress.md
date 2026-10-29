@@ -3342,3 +3342,55 @@ still the older overlaid base; it does not prove the merged `main` lockfile.
 Artifacts: `windy-v40-segmented-contracts-task.log`, `windy-native-v40-public-segmented.log`,
 `windy-v40-build-exit.json`, `windy-os-segmented-public-v40.log` and
 `windy-v40-segmented-public-{os-results,current-boot-console,installed-package}.json`.
+
+## Merged `main` 838b4cf9b re-qualifies the bounded Windows flows
+
+Purpose: earlier common-flow, RadioList and SegmentedControl evidence came from
+an older overlaid windy checkout. This run used a fresh worktree of merged
+`main` `838b4cf9be16b1b3668e4e4b4725072ebec31e76` (after the feature-directory
+refactor and the octane 0.16.3 bump) with unmodified framework sources. Only
+private harness files changed: the `apps/windows` entry, manifest version and
+`windows61-*` qualification case files under `packages/app/src`.
+
+Install: `pnpm install --frozen-lockfile` resolved the merged lockfile
+("Lockfile is up to date") but its root postinstall failed in
+`@octane-xplat/platform#typegen`. `verifyPublicTypes()` reports that the
+exports `./breakpoints`, `./lifecycle`, `./safe-area`, `./screen` (bare and
+`.tsrx`), `./locale`, `./device` and `./system-bars` (bare and `.ts`) have code
+exports but no `tsrx-typegen.json` entrypoint. Those exports came from the
+AppKit commit `66dc7f21e fix(platform)!: select AppKit responsive and lifecycle
+leaves`. This is not Windows-owned and was left for that owner. So the failed
+postinstall would not trigger reinstall loops, the harness prepended
+`verifyDepsBeforeRun: warn` to its private `pnpm-workspace.yaml`.
+
+Build: `turbo run typecheck build:windows --filter=@xplat/windows
+--concurrency=1 --continue=always` attempted 38 tasks, 32 passed, 6 failed,
+0 cached, exit 2. `build:windows` passed and produced a fresh MSIX 1.0.0.41.
+Failed tasks: `platform`, `ui`, `files`, `image` and `motion` typegen
+(the platform failure above plus downstream missing generated
+`@octane-xplat/platform/keyboard-*` declarations and AppKit globals) and
+`@xplat/windows#typecheck` (AppKit `Table.macos.tsrx` globals and a missing
+`@octane-xplat/linux-gtk` module from `workshop`). None of the reported
+diagnostics are in Windows leaves. Built and packaged bundles contain
+`_panPointerId`, `xplatwindowsslider`, `xplatwindowsradio` and the
+`Qualification segmented` case.
+
+| Phase (owned MSIX 1.0.0.41) | Launch | Result |
+| --- | --- | --- |
+| Common text/keyboard, modal focus/Escape, scrolling, filesystem prerequisites | `mvtul1hp` | **15/15** |
+| Public RadioList | `mvtuq2ax` | **11/11** |
+| Public SegmentedControl | `mvtut26j` | **12/12** |
+
+All three phases exited 0 on their first run with the same drivers as the
+earlier V10/V39c/V40 records. The common-flow phase still covers only the
+bounded groups listed in its log, not the full TextInput, Modal or ScrollView
+prop matrices. Remaining open: a successful frozen install (blocked by the
+platform typegen config), package/dependent typechecks, Narrator, visual
+parity, hardware touch/pen, packed consumers and other Windows versions and
+architectures. The local stream of the build phase stopped after turbo
+started because the local shell was lost; the turbo run summary and the
+on-device exit record are authoritative.
+Artifacts: `windy-main-setup-838b4cf9b.log`, `windy-native-main-838b4cf9b{,-b}.log`,
+`windy-main-838b4cf9b-{build-exit,turbo-run,installed-package,current-boot-console,segmented-os-results}.json`,
+`windy-os-main-{common,radio,segmented}-838b4cf9b.log` and
+`windy-main-838b4cf9b-os-interactive-*.log`.
