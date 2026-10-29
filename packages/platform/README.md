@@ -42,6 +42,22 @@ export function saveDraft(text: string): boolean {
 }
 ```
 
+For a reading or presentation screen, own display-sleep prevention with
+`useKeepAwake()` and unmount the owner when it ends. Native AppKit checks both
+activity methods, retains token ownership for cleanup and keeps the request
+stable when hook options change. Physical sleep/bridge and installed-app
+qualification remain pending. See [keep a screen awake](../../docs/platform/keep-awake.md).
+
+```tsx
+import { useKeepAwake } from '@octane-xplat/platform'
+import { Text } from '@octane-xplat/ui'
+
+export function ReadingScreen() {
+	useKeepAwake()
+	return <Text>Reading</Text>
+}
+```
+
 On experimental AppKit, `openSettings` opens the installed System Settings
 application without choosing a pane. Check availability before an explicit
 user action; acceptance does not confirm presentation or a permission change.

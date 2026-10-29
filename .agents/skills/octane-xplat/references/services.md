@@ -79,6 +79,29 @@ export function watchRoute(onOnline: (online: boolean | undefined) => void) {
 
 See [AppKit route updates](../../../../docs/platform/platform-services.md#appkit-route-updates).
 
+## AppKit keep-awake ownership
+
+Keep display-sleep requests with the reading/presentation owner, using
+`useKeepAwake()` for independent generated tags or a named imperative tag with
+explicit cleanup. Tags remain a set, not a reference count. AppKit availability
+requires both native methods without creating a token. Each token retains its
+creating process receiver and release method; failure retains it for explicit
+retry. Hook callback/warning changes update current options without cycling the
+request, and teardown retires callbacks before starting release even if optional
+listener cleanup fails. OS release notifications remain web-only. None of this
+proves physical sleep prevention or installed native behavior.
+
+```ts
+import { keepAwake } from '@octane-xplat/platform'
+
+export async function finishReading(): Promise<boolean> {
+	return keepAwake.deactivate('reading')
+}
+```
+
+See [native AppKit request ownership](../../../../docs/platform/keep-awake.md#native-appkit-request-ownership)
+and the idle manual fixture there.
+
 ## `random` — OS CSPRNG
 
 `random.bytes(length)` returns a `Uint8Array` of secure random bytes;

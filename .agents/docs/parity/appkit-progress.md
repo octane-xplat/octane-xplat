@@ -4,6 +4,94 @@ Target: native AppKit, issue #62. The immutable audit at `720c9ef93`
 remains a source snapshot; do not regenerate shared snapshots while the
 three desktop tasks share this checkout.
 
+## AppKit keep-awake token and hook ownership
+
+Demand assumption: the maintained reading/presentation example, existing public
+keep-awake guide and media/document flows need bounded display-sleep ownership.
+The retained date/time/native-window leaves already have source implementations
+that still need qualification. This everyday service seam takes priority over
+niche additions.
+No native failure, physical power change or automation was observed/performed.
+
+Source review found the AppKit backend advertised availability for a partial
+NSProcessInfo and released tokens through whatever process bridge was current at
+cleanup, losing the creating receiver/method after replacement. The target leaf
+now checks both native methods without acquiring an activity token, captures each
+token with its creating receiver/release method, and releases through that captured
+pair even if the global disappears. Throwing release leaves the token/tag for
+explicit retry; failed/null activation does not claim a held tag. The existing
+serialized tagged helper and deduplicated tag semantics are unchanged.
+
+The AppKit hook now reads current callbacks/warning preference through a stable
+ref and owns its effect by tag alone. Options changes no longer deactivate and
+reacquire a screen request. Tag replacement and unmount retire held callbacks
+before optional listener cleanup, and schedule deactivation in finally even if
+that cleanup throws. Cleanup is idempotent; rejected release produces the same
+generic warning unless suppressed, using the preference captured when cleanup
+starts. Native AppKit does not gain onRelease OS notifications: the optional
+hook listener remains a web capability. Explicit tags still share a set entry;
+independent screens should keep generated tags. No public type or export changes.
+
+Four backend and three hook source models are authored, all **UNRUN**. They cover
+cheap partial/late capability checks, original receivers and methods after host
+loss/replacement, failed activation/release retry and duplicate tags, live options
+without resource cycling, old callback retirement, key replacement, failed
+listener removal and rejected cleanup. The hook model uses plain TypeScript
+transpilation and fake hooks when eventually run; it is not Octane compiler/
+real-effect or native-runtime evidence. Existing cross-target models remain
+unchanged. Static impact found the target hook, maintained reading example and
+packed contract but marks callback edges incomplete; no full graph claim.
+
+The new manual AppKit probe starts with both reading request owners absent.
+Only explicit Open buttons mount useKeepAwake; Check reads availability/held
+status only after its own button action. Unmount releases the independent
+requests. Cleanup-preference changes exercise option updates. The runner waits
+only for the idle status; no power/token/native-input/status operation is
+performed automatically. The existing shared ReadingScreen example remains valid.
+
+Public keep-awake guide, platform README, Octane services reference, fix note and
+keep-awake AC5 reconcile the source contract and limits. Original AC1–AC4 are
+preserved. Existing native behavior shipped in v0.15.0 through v0.18.0 (tag
+containment for f0a7a3c44dfbcc5c5b18e98ddb7eed6ffb04c6f1), so this has a fix note.
+Apple's [display-sleep flag](https://developer.apple.com/documentation/foundation/processinfo/activityoptions/idledisplaysleepdisabled?language=objc)
+and [allowing idle system sleep](https://developer.apple.com/documentation/foundation/processinfo/activityoptions/userinitiatedallowingidlesystemsleep?language=objc)
+explain the existing option combination; no mask change or CPU/background wake
+claim is introduced. Addition preserves the existing 2**40 display flag because
+JS bitwise operators truncate to 32 bits. The begin/end method page titles were
+resolved, but the web tool could not read their linked Markdown content type;
+no new ABI/native-call proof is inferred from those pages or API documentation.
+No upstream dependency, native bridge engine, package manifest, generic tagged
+helper or other-target implementation was changed; no React Aria equivalent added.
+
+Exact deferred commands; run only after this human's explicit go-ahead:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/platform
+pnpm exec turbo run typecheck --filter=...@octane-xplat/platform
+pnpm exec turbo run test:packed --filter=@octane-xplat/platform
+pnpm exec turbo run pack:check --filter=@octane-xplat/platform
+pnpm probe doctor
+pnpm probe run examples/probes/keep-awake.macos.tsrx --target macos --watch
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit keep-awake package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+pnpm check:docs
+pnpm check:doc-examples
+```
+
+Platform has no standalone typecheck task in this snapshot; Turbo may prepare
+dependencies/generated declarations/vendor checkouts, and the broad platform
+test glob includes packed checks. All remain deferred. Docs checker scripts are
+absent from this isolated snapshot; shared in-flight tooling was not copied.
+Permitted checks: four source/model/probe files and five scoped doc fences syntax
+parsed, thirteen local documentation paths, semantic/whitespace/source review.
+All seven added tests and the idle probe are unrun. No compiler transforms,
+tests, typechecks, builds, OS power/timeout changes, actual sleep prevention,
+bridge creation/release/retry, native input/IME/AX/observer memory, visual analysis,
+dependency installs or packaging ran. Token handoff cannot prove physical display
+behavior, system-sleep/lock override or installed consumers. Recipe coverage
+remains separate from not-run verification; all evidence-gated checkboxes stay
+open and the persistent goal stays active.
+
 ## AppKit network and environment subscription ownership
 
 Demand assumption: the maintained Services screen and query scheduler depend on

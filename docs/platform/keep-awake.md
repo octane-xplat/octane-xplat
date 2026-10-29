@@ -105,6 +105,45 @@ export function PresentationScreen() {
 }
 ```
 
+## Native AppKit request ownership
+
+On native macOS, availability checks require both the activity-creation and
+release methods and do not acquire a token. Each accepted tag retains its
+creating process object and release method, so cleanup can still use them after
+a bridge replacement. A failed release returns false and retains the token for
+an explicit retry. For work that needs that retry, use a named tag you own:
+
+```ts
+import { keepAwake } from '@octane-xplat/platform'
+
+export async function endPresentation(): Promise<boolean> {
+	return keepAwake.deactivate('presentation')
+}
+// A false result means cleanup is unconfirmed; retain this tag for a later retry.
+```
+
+Changing hook options keeps the current request. New callbacks and cleanup-warning
+preferences apply without releasing and reacquiring the tag; changing the tag or
+unmounting ends that ownership. Explicit tags remain a set, so two screens using
+the same tag share it. Prefer generated tags for independent screens. Release
+callbacks remain optional and web-only; AppKit does not advertise OS release
+notifications:
+
+```tsx
+import { useKeepAwake } from '@octane-xplat/platform'
+import { Text } from '@octane-xplat/ui'
+
+export function ReadingScreen(props: { quietCleanup: boolean }) {
+	useKeepAwake(undefined, { suppressDeactivateWarnings: props.quietCleanup })
+	return <Text>Reading</Text>
+}
+```
+
+The [AppKit manual fixture](https://github.com/octane-xplat/octane-xplat/blob/main/examples/probes/keep-awake.macos.tsrx)
+starts idle and offers two independently mounted reading screens plus a status
+check. Native physical sleep prevention, bridge lifetime and installed-app
+behavior remain unqualified. A reported token does not prove the display stayed on.
+
 ## Target limits and verification
 
 | Target  | Mechanism and limits                                                                                                                                                                                                            |
