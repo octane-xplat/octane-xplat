@@ -14,6 +14,10 @@ declare const NSObject: any
 declare const NSURL: any
 declare const interop: any
 declare const objc: any
+declare const NSNotificationCenter: any
+declare const NSOperationQueue: any
+declare const NSWindowWillCloseNotification: any
+declare const NSApplicationWillTerminateNotification: any
 
 // Import before the NSObject.extend class below is built — ObjCProtocols
 // reads the protocol constant at extend() time.
@@ -25,7 +29,7 @@ try {
 
 // Explicit roots: ASWebAuthenticationSession retains the completion block,
 // but its presentation provider is weak. Keep both wrappers alive until finish.
-let active: { session: any; provider: any } | null = null
+let active: { session: any; provider: any; window: any } | null = null
 
 let frameworkReady: boolean | null = null
 
@@ -57,9 +61,14 @@ function ensureAnchorClass() {
 
 	AuthSessionAnchor = NSObject.extend(
 		{
-			presentationAnchorForWebAuthenticationSession(_session: any): any {
-				const app = NSApplication.sharedApplication
-				return app.keyWindow ?? app.mainWindow ?? app.windows?.firstObject
+			presentationAnchorForWebAuthenticationSession(session: any): any {
+				const operation = active
+				// Native wrappers can differ while denoting the same session.
+				try {
+					if (!operation || !operation.session) return null
+					const owns = operation.session === session || operation.session.isEqual?.(session)
+					return owns && operation.window?.visible ? operation.window : null
+				} catch { return null }
 			},
 		},
 		{
@@ -97,31 +106,53 @@ const implementation: AuthSessionImpl = {
 			})
 		}
 
-		const operation = { session: null as any, provider: null as any }
+		const operation = { session: null as any, provider: null as any, window: null as any }
 		active = operation
 		return new Promise((resolve) => {
 			let settled = false
-			const finish = (result: AuthSessionResult) => {
+			let center: any = null
+			const observers: any[] = []
+			const finish = (result: AuthSessionResult, cancelNative = false) => {
 				if (settled) {
 					return
 				}
 
 				settled = true
-				if (active === operation) {
-					active = null
+				const session = operation.session, provider = operation.provider
+				for (const observer of observers.splice(0)) {
+					try { center.removeObserver(observer) } catch { /* Retired callbacks remain inert. */ }
 				}
-
 				operation.session = null
 				operation.provider = null
+				operation.window = null
+				if (active === operation) active = null
+				try {
+					if (session?.presentationContextProvider === provider) session.presentationContextProvider = null
+				} catch { /* JS ownership is already retired. */ }
+				if (cancelNative) {
+					try { session?.cancel() } catch { /* Cancellation must still settle. */ }
+				}
 				resolve(result)
+			}
+			const observe = (name: any, object: any) => {
+				const token = center.addObserverForNameObjectQueueUsingBlock(name, object, NSOperationQueue.mainQueue, () => {
+					finish({ type: 'cancel' }, true)
+				})
+				if (!token) throw new Error('authSession.open: presenter observation failed')
+				// Registration itself may synchronously deliver teardown.
+				if (settled) { try { center.removeObserver(token) } catch {} }
+				else observers.push(token)
 			}
 
 			try {
+				// Snapshot once, before any native call can reenter application code.
+				const callbackScheme = options?.callbackScheme
+				const ephemeral = !!options?.prefersEphemeralSession
 				if (
 					typeof url !== 'string' ||
-					typeof options.callbackScheme !== 'string' ||
+					typeof callbackScheme !== 'string' ||
 					!/^https?:\/\//i.test(url) ||
-					!/^[a-z][a-z\d+.-]*$/i.test(options.callbackScheme)
+					!/^[a-z][a-z\d+.-]*$/i.test(callbackScheme)
 				) {
 					throw new Error(
 						'authSession.open: expected an HTTP(S) URL and a callback scheme without a colon',
@@ -134,17 +165,26 @@ const implementation: AuthSessionImpl = {
 				}
 
 				const app = NSApplication.sharedApplication
-				if (!(app.keyWindow ?? app.mainWindow ?? app.windows?.firstObject)) {
-					throw new Error('authSession.open: an AppKit presentation window is required')
-				}
+				operation.window = [app.keyWindow, app.mainWindow].find((window) =>
+					window && (window.visible === true || window.visible === 1) && !window.attachedSheet,
+				)
+				if (!operation.window) throw new Error('authSession.open: a visible AppKit presentation window is required')
+				center = NSNotificationCenter.defaultCenter
+				observe(NSWindowWillCloseNotification, operation.window)
+				if (settled) return
+				observe(NSApplicationWillTerminateNotification, null)
+				if (settled) return
 
 				ensureAnchorClass()
+				if (settled) return
 				operation.provider = AuthSessionAnchor.new()
+				if (settled) { operation.provider = null; return }
 				operation.session =
 					ASWebAuthenticationSession.alloc().initWithURLCallbackURLSchemeCompletionHandler(
 						nsUrl,
-						options.callbackScheme,
+						callbackScheme,
 						(callbackURL: any, error: any) => {
+							if (settled) return
 							try {
 								if (error) {
 									finish(
@@ -156,7 +196,7 @@ const implementation: AuthSessionImpl = {
 								} else if (callbackURL) {
 									const callback = String(callbackURL.absoluteString)
 									if (
-										callback.split(':')[0].toLowerCase() !== options.callbackScheme.toLowerCase()
+										callback.split(':')[0].toLowerCase() !== callbackScheme.toLowerCase()
 									) {
 										throw new Error('authSession.open: unexpected callback scheme')
 									}
@@ -173,20 +213,28 @@ const implementation: AuthSessionImpl = {
 
 				// A bridge may deliver completion synchronously during construction.
 				if (settled) {
+					const lateSession = operation.session
 					operation.session = null
+					try { lateSession?.cancel() } catch {}
 					return
 				}
 
-				operation.session.prefersEphemeralWebBrowserSession = !!options.prefersEphemeralSession
-				operation.session.presentationContextProvider = operation.provider
-				if (!operation.session.start()) {
-					finish({ type: 'error', message: 'authSession.open: session failed to start' })
+				const session = operation.session
+				session.prefersEphemeralWebBrowserSession = ephemeral
+				if (settled) return
+				session.presentationContextProvider = operation.provider
+				if (settled) {
+					try { session.presentationContextProvider = null } catch {}
+					return
+				}
+				if (!session.start()) {
+					finish({ type: 'error', message: 'authSession.open: session failed to start' }, true)
 				}
 			} catch (error) {
 				finish({
 					type: 'error',
 					message: String((error as any)?.localizedDescription ?? (error as any)?.message ?? error),
-				})
+				}, true)
 			}
 		})
 	},

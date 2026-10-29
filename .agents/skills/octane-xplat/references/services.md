@@ -604,3 +604,31 @@ native service. The separate hosted webview host still reports launch as shared.
 Eight facade cases, intercepted picker and metadata/consumer fixtures are unrun;
 AppKit event-context requirements (including mouse-down), native callbacks, OS UI,
 actual transfer, VoiceOver and packaged consumers remain unqualified in #62.
+
+
+## AppKit authentication presenter lifetime
+
+Native authSession snapshots its callback scheme and ephemeral preference and
+anchors to its initiating visible key/main window without an attached sheet.
+It never falls back to the first arbitrary app window. Only its own session can
+query that anchor; window close/app termination retires JS ownership and asks the
+native session to cancel before settling cancel. Native setup failures clean up
+and cancel acquired sessions; late callbacks cannot release a replacement.
+Screen unmount/hiding alone is not window close. Call from the app's normal UI
+thread; actual native thread behavior is unqualified.
+
+```ts
+import { authSession } from '@octane-xplat/platform'
+const result = await authSession.open('https://example.com/authorize', {
+	callbackScheme: 'myapp', prefersEphemeralSession: true,
+})
+```
+
+Lifecycle-observer setup must succeed before starting. Removal errors retire
+callbacks but can retain native observers. A session with no native completion
+stays pending until cancellation or presenter/app teardown; no timeout invents a
+result. The backend still owns destination/state/PKCE/nonce/token verification;
+never log callback URLs or credentials. Eleven model cases and the manual
+cancellation fixture are authored, unrun. OS browser/callback/cancellation,
+window/observer/HMR lifetime, VoiceOver and installed consumers remain unqualified.
+See [AppKit sign-in ownership](../../../../docs/platform/platform-services.md#appkit-sign-in-window-ownership).

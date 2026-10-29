@@ -6598,3 +6598,67 @@ native callback marshalling/main-thread/lifetime, picker input-event context
 service availability/subject support/real cancellation, file transfer/lifetime,
 window/termination/HMR, VoiceOver and signed/installed consumers remain open.
 Evidence-gated checkboxes unchanged; persistent goal active.
+
+## AppKit auth-session presenter ownership
+
+Demand is grounded in createHostedAuth, the AppKit Google hosted adapter and the
+retained sign-in guide/demo. Common sign-in lifecycle takes priority over niche
+integrations. Source inspection found the AppKit anchor repeatedly queried the
+current key/main/first window, no initiating-window close cleanup, and callback
+validation read the caller's mutable options. These are source findings; no OS
+browser/sign-in failure or credential issue was observed. The original leaf
+shipped in v0.18.0; audit/TSV native-service qualification remains unchanged.
+
+The leaf captures callback scheme and ephemeral preference before native reentry
+and retains an eligible visible key/main window without an attached sheet. It
+never borrows the first arbitrary app window. The provider returns the pinned
+window only for the owned native session (strict or native isEqual identity),
+returns nil for hidden/stale/foreign requests, and does not activate a window.
+The backend still owns destination/state/PKCE/nonce/token validation; scheme
+checking is not that proof and the manual fixture never logs callback values.
+
+Main-queue close/termination observers must attach before construction. Terminal
+paths retire the JS claim, remove acquired observers and clear the owned provider
+before native cancellation; late callbacks cannot decode stale values or release
+a replacement. Window/app teardown resolves cancel even if cancel throws.
+Setup/start failure also cancels acquired sessions. Partial/synchronous observer
+registration, constructor completion/teardown, ephemeral/provider setter reentry,
+synchronous start completion and duplicate/stale callbacks have source guards.
+If observer removal throws its callbacks remain inert, but a native observer may
+be retained. Native cancellation failure can also leave OS UI alive despite the
+retired JS result; this does not prove OS dismissal. No timer fabricates a result.
+
+Eleven model cases (three existing expanded, eight added) are authored, all
+UNRUN. The tests compile a VM copy with fake framework objects when eventually
+executed; their authored source is not compiler or native evidence. The idle
+manual fixture uses example.com for cancellation/presenter qualification and
+cannot complete real authentication. It opens nothing on mount; separate backend
+success/state/PKCE/nonce/credential/security qualification remains necessary.
+Leaving a screen or hiding a window alone is not presenter close. No new public
+API, dependency, shared renderer or CLI change is introduced. The guide, skill,
+recipe and fix note reconcile these limits; supported still means framework
+availability, not a qualified presentation context or provider registration.
+
+Exact deferred commands, pending this human's verification go-ahead:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/platform
+pnpm exec turbo run test --filter=@octane-xplat/auth
+pnpm exec turbo run typecheck --filter=...@octane-xplat/platform
+pnpm probe doctor
+pnpm probe run examples/probes/auth-session.macos.tsrx --target macos --watch
+pnpm exec turbo run test:packed --filter=@octane-xplat/platform
+pnpm exec turbo run pack:check --filter=@octane-xplat/platform
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit auth-session presenter package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+```
+
+Platform has no typecheck task; filtered dependents do not independently prove
+this leaf. Three TS/TSRX/MJS files syntax parsed; source/semantic/SDK/whitespace
+review only. No tests/compiler transforms/typechecks/builds, probes, native/OS/AX
+or visual analysis, packaging, real auth callback or credential exchange ran.
+Actual observer metadata, native wrapper identity/provider callbacks/main-thread
+execution, consent/browser presentation/cancellation/window/termination/HMR
+lifetime, HTTPS provider/backend registration, credential security, VoiceOver and
+clean signed/installed consumers remain unqualified. Shared audit snapshots and
+all evidence-gated checkboxes unchanged; persistent goal active.

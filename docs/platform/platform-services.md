@@ -720,6 +720,54 @@ if (authSession.supported) {
 }
 ```
 
+### AppKit sign-in window ownership
+
+Start native AppKit authentication from a visible key or main window without an
+attached sheet. The attempt keeps that window as its anchor when focus changes;
+it does not borrow an unrelated window later. Closing that window or terminating
+the app retires the attempt, asks the native session to cancel and returns
+`type: 'cancel'`. Cancellation failure can leave OS UI open even though JS ownership is retired.
+You can then retry from another eligible window. Leaving a
+screen alone does not cancel a session, and hiding a window is not window close.
+
+```ts
+import { authSession } from '@octane-xplat/platform'
+
+const result = await authSession.open('https://example.com/authorize', {
+	callbackScheme: 'myapp',
+	prefersEphemeralSession: true,
+})
+if (result.type === 'cancel') console.log('Sign-in cancelled')
+```
+
+The callback scheme and ephemeral preference are captured at the start of the
+attempt; mutating your options object later does not change the accepted scheme.
+The transport checks that scheme, but your backend must still validate the
+callback destination, state, PKCE, nonce and credential exchange. No token or
+callback URL should be logged. Missing lifecycle-observer metadata produces an
+error rather than starting an untracked session. Failed observer removal leaves
+retired callbacks inert but can retain a native observer; runtime cleanup remains
+unqualified. A browser session that never completes stays pending until native
+cancellation or the window/app closes; there is no fabricated timeout result.
+
+```ts
+const options = { callbackScheme: 'myapp', prefersEphemeralSession: true }
+const pending = authSession.open('https://example.com/authorize', options)
+// Keep options stable; the running attempt already owns its initial values.
+const result = await pending
+```
+
+The source uses Apple's [presentation-context contract](https://developer.apple.com/documentation/authenticationservices/aswebauthenticationsession/presentationcontextprovider)
+and [cancellation API](https://developer.apple.com/documentation/authenticationservices/aswebauthenticationsession/cancel()).
+Eleven model cases and an idle cancellation fixture are authored, unrun. Actual
+browser/consent presentation, native callbacks, main-thread execution, window
+lifetime, credential security, VoiceOver and packaged hosts remain unqualified.
+The fixture uses example.com and cannot prove a real sign-in or token exchange:
+
+```sh
+pnpm probe run examples/probes/auth-session.macos.tsrx --target macos --watch
+```
+
 ### Register and check a hosted callback
 
 On Android, add this filter inside the existing main NativeScript activity in
