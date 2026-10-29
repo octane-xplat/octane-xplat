@@ -2038,8 +2038,8 @@ IDs, current plain/rich labels and levels once per root/reader, recollecting
 only when a render exposes a different root/reader. It does not observe mutable
 contents. Generated unique slugs avoid authored IDs but are not written onto
 views; duplicate authored IDs keep the first. Prefer document-derived items for
-dynamic content. Outline click-to-scroll/scroll spy and native/packed discovery
-remain unqualified or unimplemented; see the content-display guide.
+dynamic content. AppKit navigation is a separate source path below; native/packed discovery
+remains unqualified; see the content-display guide.
 
 ```tsx
 import { useRef } from 'octane'
@@ -2054,3 +2054,37 @@ export function Guide() {
 	</>
 }
 ```
+
+
+## AppKit Outline navigation
+
+Outline now uses current native heading target records and NSScrollView geometry
+for activation and uncontrolled scroll spy. Pass a raw native viewport through
+scrollContainerRef when navigation is outside its scroll ancestor; convert a
+ScrollableArea handle with handle.native. Header offset shifts landing and the
+spy edge. activeId disables spy, hasScrollOnClick=false keeps callbacks without
+seeking, and reduced motion requests an instant seek. Invalid/hidden/detached,
+foreign-window and nested-scroll targets are rejected. Generated IDs follow
+the discovery allocator but can change with text; prefer authored IDs.
+
+```tsx
+import { useCallback, useRef } from 'octane'
+import { Heading, Outline, ScrollableArea, type HostElement, type ScrollableAreaHandle } from '@octane-xplat/ui'
+export function Contents() {
+	const scroll = useRef<HostElement | null>(null)
+	const bind = useCallback((handle: ScrollableAreaHandle | null) => { scroll.current = handle?.native ?? null }, [])
+	return <>
+		<ScrollableArea ref={bind} height={200}><Heading id="intro" level={1}>Introduction</Heading></ScrollableArea>
+		<Outline items={[{ id: 'intro', label: 'Introduction', level: 1 }]} scrollContainerRef={scroll} />
+	</>
+}
+```
+
+Native bounds/frame/window notifications own spy/binding updates; user live-scroll
+start interrupts navigation. Attempts/timers/observers retire on replacement or
+disposal and use current handlers. Completion uses 150 ms bounds quiet, including
+a timer fallback when native notifications are absent; it is not an actual
+animation-completion guarantee. Seven controller/mounted cases and the expanded
+manual fixture are authored but unrun. Native seeks/coordinate conversion,
+scroll spy/animation, interruption/threading, real keyboard/AX and clean packaged
+consumers remain unqualified; see the content-display guide.

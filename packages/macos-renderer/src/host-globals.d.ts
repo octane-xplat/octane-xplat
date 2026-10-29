@@ -11,7 +11,7 @@ declare global {
 	// (hover, popups, menus, sheets) and the VirtualList offset channel.
 	var __xplatAppKit: {
 		/** Renderer-owned heading snapshot; no mutation tracking or navigation proof. */
-		readOutlineHeadings?: (view: object) => { id: string; label: string; level: number }[]
+		readOutlineHeadings?: (view: object) => { id: string; label: string; level: number; view?: object }[]
 		/** Image-owned encoded disk bytes plus decoded memory, separate from shared HTTP caching. */
 		imageCache?: {
 			readonly supportsCachePolicy?: boolean

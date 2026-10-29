@@ -5675,3 +5675,75 @@ availability and clean packaged consumers remain unqualified. Method presence
 is not a native discovery pass. Outline click-to-heading scrolling, scroll spy,
 OS input and VoiceOver remain separate gates/gaps. Source audit snapshots and
 all checkboxes are unchanged; persistent goal active.
+
+## AppKit Outline heading navigation and scroll spy
+
+The prior turn made native heading snapshots possible but left ordinary outline
+activation inert. Demand assumption: navigating a document's current headings
+and tracking the reader's scroll position completes a more common content flow
+than adding niche integrations. Current source confirmed Outline only changing
+selection and immediately firing callbacks, despite available native scrolling.
+
+Private heading records now additionally carry the current native view target.
+Public snapshot items still contain only id/label/level. Discovery and navigation
+share one ID allocator, so generated IDs avoid authored IDs consistently without
+writing IDs onto views. Navigation queries current records rather than retaining
+old heading views. Explicit IDs remain preferable when text changes after a
+snapshot. Missing target records on older hosts do not invent a target.
+
+The AppKit Outline leaf now owns a controller reading current props, root and
+active selection. Explicit scrollContainerRef uses its current native viewport;
+otherwise navigation finds the nearest native scroll ancestor. Current clip/
+document geometry computes heading tops in either document orientation. Native
+seeks use the existing clamped AppKit offset helper, subtract the header offset,
+and request immediate movement under reduced motion. Hidden, detached,
+foreign-window, invalid or nested-scroll targets are rejected. Controlled
+activeId disables scroll spy; hasScrollOnClick=false retains selection and
+balanced callbacks without scrolling. Active rows forward selected metadata.
+
+Bounds/frame/window notifications maintain binding and uncontrolled spy. Window
+updates from unrelated windows are ignored. The spy picks the last current item
+above the scroll position plus header offset and the existing 8-point edge.
+Navigation attempts suppress spy until completion. Current handlers receive one
+start/end pair, including reentrant replacement, removed items, live-scroll
+interruption and disposal. Bounds changes reset a 150 ms quiet timer; that timer
+also serves as a fallback without native notification delivery. This does not
+prove actual AppKit animation completion. Stale timers/observer callbacks lose
+ownership, cleanup removes all owned observers, and consumer callback failures
+are reported separately. Shared notification-posting flags are enabled without
+turning off another reader's posting. No dependency, manifest, CLI or other
+target leaf changed.
+
+Seven cases are authored but UNRUN: six controller cases cover both coordinate
+orientations/generated targets/header offset, live spy/controlled mode/explicit
+handle resolution, reduced motion/opt-out/invalid targets, interruption/current
+callbacks/retired timers and observer detachment, reentrant navigation, and
+start-time disposal with inert late work. One mounted Outline case covers
+current handlers, native seek wiring, selected metadata and teardown. Existing
+renderer cases now assert the private native targets. The expanded manual
+fixture adds scroll room, selection/seek/header controls and a bounded event log;
+its runner still records mounting only. Guide/skill/recipe AC6/renderer README
+and feature notes reconcile source navigation with pending native qualification.
+
+Source/semantic review, nine-file TS/TSRX syntax parsing and whitespace checks
+passed. Exact deferred commands:
+
+```sh
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/outline-scroll.macos.test.ts src/outline-navigation.macos.mobile.test.tsrx src/outline-view.macos.test.ts src/outline-view.macos.mobile.test.tsrx
+pnpm exec turbo run test --filter=@octane-xplat/macos-renderer
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui --filter=...@octane-xplat/macos-renderer
+pnpm probe doctor
+pnpm probe run examples/probes/outline-snapshot.macos.tsrx --target macos --watch
+pnpm exec turbo run build --filter=@xplat/macos
+pnpm exec turbo run test:packed --filter=@octane-xplat/ui --filter=@octane-xplat/macos-renderer
+pnpm check:recipes
+```
+
+All remain deferred pending explicit human authorization for this task. No tests,
+typechecks/builds/installs, probes, native/OS/browser automation, packaging or
+visual analysis ran. Actual native target identity/ordering, coordinate conversion,
+ref/window attachment, seek/clamp/reduced-motion/animation behavior, notification
+and quiet timing, user interruption, scroll spy, cleanup, OS keyboard/hit testing,
+VoiceOver state/navigation and clean packaged consumers remain unqualified.
+Source implementations do not close these gates. Audit snapshots and checkboxes
+remain unchanged; persistent goal active.

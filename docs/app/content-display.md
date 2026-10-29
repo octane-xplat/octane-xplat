@@ -328,7 +328,8 @@ Explicit heading IDs are retained. Unnamed headings receive unique slugs;
 generated IDs avoid authored IDs, and repeated authored IDs keep the first
 entry. Generated IDs describe this snapshot and are not written onto native
 views. Use portable document data when content changes independently of the
-root. Outline click-to-scroll and scroll spy are still gaps on AppKit.
+root. AppKit navigation uses current native targets separately from this snapshot;
+native behavior still needs qualification.
 
 ```tsx
 import { Heading } from '@octane-xplat/ui'
@@ -351,9 +352,42 @@ export function MacOutline(props: { doc: Parameters<typeof useOutlineFromDoc>[0]
 }
 ```
 
-The experimental macOS renderer can display and activate portable outline
-items, but has no scroll-position or scroll-to-heading bridge;
-`hasScrollOnClick` and scroll spy therefore have no effect there.
+AppKit Outline now has a native navigation source path. Pass the raw native
+viewport through scrollContainerRef when the outline sits outside the content;
+otherwise it uses its nearest enclosing scroll view. Heading activation seeks
+to its current top minus offset, clamped to the document range. Scroll spy
+updates uncontrolled selection from current positions; activeId disables it.
+Reduced motion requests an immediate seek. hasScrollOnClick=false keeps
+selection/navigation callbacks while letting the app own scrolling.
+
+```tsx
+import { useCallback, useRef } from 'octane'
+import { Heading, Outline, ScrollableArea, type HostElement, type ScrollableAreaHandle } from '@octane-xplat/ui'
+export function NavigableGuide() {
+	const scroll = useRef<HostElement | null>(null)
+	const bind = useCallback((handle: ScrollableAreaHandle | null) => { scroll.current = handle?.native ?? null }, [])
+	return <>
+		<ScrollableArea ref={bind} height={200}><Heading id="intro" level={1}>Introduction</Heading></ScrollableArea>
+		<Outline items={[{ id: 'intro', label: 'Introduction', level: 1 }]} scrollContainerRef={scroll} offset={24} />
+	</>
+}
+```
+
+The renderer must provide current native heading targets. Hidden, detached,
+foreign-window and nested-scroller targets do not move the wrong viewport.
+Navigation callbacks balance on replacement, user live-scroll interruption or
+disposal. Bounds changes delay completion until 150 ms of quiet; this timer
+fallback does not prove AppKit animation completion. Native geometry/order,
+seek/animation/scroll spy, OS input, VoiceOver and packaging remain unqualified.
+Prefer explicit IDs for headings whose text changes after a snapshot.
+
+```tsx
+import { Outline } from '@octane-xplat/ui'
+export function ControlledContents({ active, setActive }: { active: string; setActive: (id: string) => void }) {
+	return <Outline items={[{ id: 'intro', label: 'Introduction', level: 1 }]}
+		activeId={active} onActiveIdChange={setActive} hasScrollOnClick={false} />
+}
+```
 
 ## Code highlighting and copy
 

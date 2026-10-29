@@ -1,6 +1,8 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle, styleRecord } from './style-merge'
-import { useState } from 'octane'
+import { useEffect, useMemo, useRef, useState } from 'octane'
+import { createAppKitOutlineScroll } from './outline-scroll.macos'
+import { readReducedMotion } from './animation-host.macos'
 import type { OutlineProps } from './props'
 import { cx } from '@octane-xplat/lib'
 import { getColorScheme } from './colorScheme.macos'
@@ -8,9 +10,7 @@ import { accentColor, mutedColor, textColor } from './scheme-colors'
 
 const DEFAULT_LABEL = 'Table of contents'
 
-/** Outline — macOS leaf. The AppKit host has no scroll-position events, so
- *  scroll-spy and click-to-scroll are inert; activation updates the active
- *  item and fires the navigate callbacks (documented coverage gap). */
+/** Native heading navigation and uncontrolled scroll-spy source path. */
 export function Outline(props: OutlineProps) @{
 	const items = props.items ?? []
 	const label = props.label ?? DEFAULT_LABEL
@@ -21,17 +21,17 @@ export function Outline(props: OutlineProps) @{
 	const [internalActive, setInternalActive] = useState<string | undefined>(items[0]?.id)
 	const activeId = controlled ? props.activeId : internalActive
 
-	const activate = (id: string) => {
-		if (!controlled) {
-			setInternalActive(id)
-		}
-
-		props.onActiveIdChange?.(id)
-		props.onNavigateStart?.(id)
-		props.onNavigateEnd?.(id)
-	}
+	const latest = useRef(props), active = useRef(activeId), nav = useRef<any>(null)
+	latest.current = props; active.current = activeId
+	const control = useMemo(() => createAppKitOutlineScroll({ props: () => latest.current, root: () => nav.current,
+		active: () => active.current, reducedMotion: readReducedMotion,
+		change(id) { if (latest.current.activeId === undefined) { active.current = id; setInternalActive(id) }; latest.current.onActiveIdChange?.(id) },
+	}), [])
+	useEffect(() => { control.sync() })
+	useEffect(() => () => control.dispose(), [])
 
 	<masonview
+		ref={nav}
 		id={props.id}
 		className={cx('vx-outline', `vx-outline--${density}`, props.className)}
 		style={mergeStyle(
@@ -60,7 +60,8 @@ export function Outline(props: OutlineProps) @{
 					)}
 					accessibilityRole="button"
 					accessibilityLabel={item.label}
-					onTap={() => activate(item.id)}
+					accessibilityState={{ selected: isActive }}
+					onTap={() => control.activate(item.id)}
 				>
 					<masonview
 						style={mergeStyle(

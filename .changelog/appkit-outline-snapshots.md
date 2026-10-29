@@ -14,5 +14,5 @@ export function Contents({ root }: { root: object }) {
 }
 ```
 
-Older hosts still report unsupported. Click-to-scroll and scroll spy remain
-separate AppKit gaps. See the [content-display guide](https://octane-xplat.goddardai.org/app/content-display#outline-from-markdown-or-a-rendered-tree).
+Older hosts still report unsupported. Native navigation has a separate source
+implementation and remains unqualified. See the [content-display guide](https://octane-xplat.goddardai.org/app/content-display#outline-from-markdown-or-a-rendered-tree).

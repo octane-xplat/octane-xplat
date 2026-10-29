@@ -159,7 +159,8 @@ VoiceOver heading navigation/announcements and update/removal remain unqualified
 
 The private readOutlineHeadings bridge walks native subviews in document order,
 including NSArray collections, and returns renderer-owned label headings as
-{id, label, level}. It reads the current native string for composed rich text,
+{id, label, level, view}. The private view target supports UI-owned navigation;
+public snapshot items retain only id/label/level. It reads the current native string for composed rich text,
 ignores unowned/replaced views and stops at each heading owner. This is a
 snapshot without mutation tracking, focus or scrolling. ui/macos checks bridge
 presence before advertising discovery; actual native traversal and packaging

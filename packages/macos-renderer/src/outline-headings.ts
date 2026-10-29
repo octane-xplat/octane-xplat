@@ -1,5 +1,5 @@
 interface Node { type: string; view: unknown; props: Record<string, unknown> }
-export interface AppKitOutlineHeading { id: string; label: string; level: number }
+export interface AppKitOutlineHeading { id: string; label: string; level: number; view: object }
 
 /** Renderer-owned metadata distinguishes Xplat headings from native widgets.
  * NSArray subviews are not JS arrays. Reading this tree never scrolls/focuses. */
@@ -11,7 +11,7 @@ export function readOutlineHeadings(root: any, nodeForView: (view: object) => No
 		const node = nodeForView(view)
 		if (node?.view === view && node.type === 'label' && node.props.accessibilityRole === 'heading') {
 			const label = String(view.stringValue ?? '').trim(), level = node.props.accessibilityHeadingLevel
-			if (label) headings.push({ id: String(node.props.id ?? ''), label,
+			if (label) headings.push({ view, id: String(node.props.id ?? ''), label,
 				level: typeof level === 'number' && Number.isInteger(level) && level >= 1 && level <= 6 ? level : 2 })
 			return
 		}

@@ -30,6 +30,8 @@ Markdown parser, clipboard package, image loader, or navigation system.
 
 - AC5: AppKit heading discovery walks renderer-owned native heading owners in view order with IDs/current plain/rich labels/levels, including NSArray collections. Root/ref/scroll-handle inputs and generated-ID collisions are defined; same-root snapshots stay stable across renders and recollect on rendered root/reader changes. Keep mutation tracking, navigation and native/packaged proof separate from discovery/source cases.
 
+- AC6: AppKit Outline resolves current heading targets and scroll geometry for activation/header offset and uncontrolled spy, preserving controlled activeId and opt-out behavior. Support either document orientation, reduced-motion seeks, current callbacks, balanced navigation on settle/replacement/interruption/disposal, and owned observer/timer cleanup. Reject invalid/hidden/detached/foreign-window/nested-scroll targets. Keep source/timer evidence separate from actual native seeks, animation completion, OS input/AX and packing.
+
 ## Documentation
 
 - AC1: [Content-display components](../../../docs/app/components.md#content) and the [content display guide](../../../docs/app/content-display.md).
@@ -38,3 +40,5 @@ Markdown parser, clipboard package, image loader, or navigation system.
 - AC4: [Content-display demo](../../../packages/demos/src/ContentDisplayDemo.tsrx), available as “Content display” in the harness.
 
 - AC3, AC5 (AppKit): [Snapshot usage and limits](../../../docs/app/content-display.md#outline-from-markdown-or-a-rendered-tree), [renderer bridge](../../../packages/macos-renderer/README.md#heading-snapshots-for-outline), two [renderer cases](../../../packages/macos-renderer/test/outline-headings.test.ts), three [snapshot/capability cases](../../../packages/ui/src/outline-view.macos.test.ts), one [mounted hook case](../../../packages/ui/src/outline-view.macos.mobile.test.tsrx) and [manual fixture](../../../examples/probes/outline-snapshot.macos.tsrx), all unrun. [Target note](../parity/appkit-progress.md#appkit-renderer-backed-outline-snapshots) records exact deferred commands. Native discovery/class/collection behavior and packed subpaths remain unqualified; Outline scrolling/scroll spy remain gaps.
+
+- AC6: [Native navigation usage/limits](../../../docs/app/content-display.md#outline-from-markdown-or-a-rendered-tree), six [controller cases](../../../packages/ui/src/outline-scroll.macos.test.ts), one [mounted source case](../../../packages/ui/src/outline-navigation.macos.mobile.test.tsrx), updated [manual fixture](../../../examples/probes/outline-snapshot.macos.tsrx) and [target note](../parity/appkit-progress.md#appkit-outline-heading-navigation-and-scroll-spy). All unrun. The quiet-timer fallback does not qualify actual animation completion; native coordinates/scrolling/input/AX/cleanup and packaged consumers remain unqualified.
