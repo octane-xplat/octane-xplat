@@ -18,8 +18,8 @@ import QuartzCore
 	private var wantsPlayback = false
 	private var ended = false
 	private var seeking = false
-	private var looping = false
-	private var muted = false
+	@nonobjc private var looping = false
+	@nonobjc private var muted = false
 	private var failure: String?
 
 	public class func create() -> XplatVideoView { XplatVideoView(frame: .zero) }

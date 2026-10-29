@@ -5477,3 +5477,16 @@ notification/thread behavior, seek/loop/detach, poster/fit/resize/hit testing,
 keyboard/AX, memory/power and clean packaged consumers remain unqualified.
 DRM, subtitles, background playback and full streaming support are not established.
 Audit snapshots and all evidence gates remain unchanged; persistent goal active.
+
+
+### Explicit private Swift transport state
+
+Follow-up source review found the private muted/looping stored-property setter
+names overlapping the intentionally exposed setMuted:/setLooping: bridge methods
+under @objcMembers. Both stored properties now explicitly use @nonobjc, keeping
+only the command methods eligible for Objective-C export. This avoids relying
+on inference for these state slots. Swift's [attribute reference](https://docs.swift.org/swift-book/ReferenceManual/Attributes.html)
+documents @objcMembers inference and @nonobjc exclusion. This is a source-level
+interop precaution, not a reproduced compiler failure or compiler pass. Only
+source/semantic and whitespace review ran. The exact Video deferred commands
+above and every native/packaged qualification limitation remain unchanged.
