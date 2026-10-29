@@ -737,6 +737,29 @@ export async function resizePhoto(sourceUri: string) {
 // The caller owns the returned result until releaseImage(result).
 ```
 
+For a custom device gallery or album editor, use the modern `Asset`, `Album`,
+and `Query` API in the [media-library guide](../../../../packages/media-library/README.md).
+Use `media` for attachment picking alone. Read permissions without prompting;
+request from an app action and preserve limited access. IDs are library records,
+not files: Apple `getUri` exports a separately owned temporary file, while Android
+returns a content URI. Release exports after their consumers finish. Page
+metadata before exporting files, and remove each owner's change subscription.
+Android runtime is unverified; AppKit is experimental and its authorized data
+paths are unverified. Web/GTK/native Windows have no device-library backend.
+
+```ts
+import { AssetField, Query } from '@octane-xplat/media-library'
+
+// Run after permission is granted; refresh from offset zero on library changes.
+export function photoPage(offset: number) {
+	return new Query()
+		.orderBy({ key: AssetField.CREATION_TIME, ascending: false })
+		.limit(20)
+		.offset(offset)
+		.exeForMetadata()
+}
+```
+
 For local document workflows, use the [files package guide](../../../../packages/files/README.md).
 Its experimental AppKit leaf implements local reads, Documents writes and
 save-panel export; do not infer sandbox, OS picker or packaged-app qualification

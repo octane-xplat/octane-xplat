@@ -63,6 +63,7 @@ Pick a guide when you need it. You don't need to read them all before you start.
 | Move between screens                            | [Moving between screens](app/navigation.md)            |
 | Load information from a server                  | [Fetching data](app/data.md)                           |
 | Save a setting, attach a photo, or share a link | [Using device features](platform/platform-services.md) |
+| Browse photos and manage albums | [Device media library](../packages/media-library/README.md) |
 | Resize or export a cropped photo | [Transform images](../packages/image-manipulator/README.md) |
 | Update an installed phone app between releases  | [Phone app updates](app/updates.md)                    |
 

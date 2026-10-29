@@ -53,6 +53,7 @@ Workflows:
 
 - [Select an image crop inline](inline-image-crop.md)
 - [Produce a transformed image file](image-manipulation.md)
+- [Browse and manage the device media library](device-media-library.md)
 - [Pick and capture images](pick-and-capture-images.md)
 - [Build a chat conversation](chat-conversation.md)
 - [Show a live camera preview](camera-preview.md)

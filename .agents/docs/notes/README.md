@@ -28,6 +28,7 @@ source before relying on them.
 - [AppKit native intrinsics](appkit-native-intrinsics.md)
 - [Editor capabilities](editor-capabilities.md)
 - [SVG icons](icon-svg-notes.md)
+- [Media library](media-library.md) — PhotoKit/MediaStore implementation and qualification limits
 - [Image engine](image-engine-notes.md)
 - [Input readiness](input-readiness-notes.md)
 - [Lottie on AppKit](lottie-appkit-investigation.md)

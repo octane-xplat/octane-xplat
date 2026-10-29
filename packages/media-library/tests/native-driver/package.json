@@ -1,0 +1,10 @@
+{
+	"name": "@xplat/media-library-native-fixture",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"test:macos-feasibility": "node ../macos-feasibility.mjs",
+		"test:ios-runtime": "node ../ios-runtime.mjs"
+	},
+	"packageManager": "pnpm@11.24.0"
+}

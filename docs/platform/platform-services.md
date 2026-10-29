@@ -704,6 +704,34 @@ const image = await media.capturePhoto({
 // The caller owns image until its preview/upload finishes, then files.release(image).
 ```
 
+## Browse the device media library
+
+For a custom gallery or album editor, use the
+[media-library guide](../../packages/media-library/README.md). It covers permission
+setup, paging, edits, and cleanup. The `media` picker below remains the smaller
+choice for selecting an attachment. Media-library supports iOS and implements
+Android 10+; Android runtime remains unverified. AppKit support is experimental;
+web, GTK and native Windows report unavailable.
+
+```ts
+import {
+	AssetField,
+	MediaLibrary,
+	Query,
+	requestPermissionsAsync,
+} from '@octane-xplat/media-library'
+
+export async function firstLibraryPage() {
+	if (!MediaLibrary.supported) return []
+	const permission = await requestPermissionsAsync(false, ['photo'])
+	if (!permission.granted) return []
+	return new Query()
+		.orderBy({ key: AssetField.CREATION_TIME, ascending: false })
+		.limit(20)
+		.exeForMetadata()
+}
+```
+
 ## Pick and capture images
 
 For a smaller upload or an exported crop after picking a photo, follow
