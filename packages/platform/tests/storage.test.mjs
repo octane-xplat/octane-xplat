@@ -198,6 +198,163 @@ test('macOS arms the inactive flush on first write once a durable host exists', 
 	assert.equal(state.flushes, 2)
 })
 
+test('macOS pending settings cross first host installation without resurrecting removed data', () => {
+	const { api, context } = load('storage.macos')
+	api.setString('draft', 'local')
+	api.remove('obsolete')
+	const data = new Map([['obsolete', 'old']])
+	context.__xplatAppKit = {
+		data,
+		storageGet(key) { return this.data.get(key) ?? null },
+		storageSet(key, value) { this.data.set(key, value) },
+		storageRemove(key) { this.data.delete(key) },
+		storageFlush() { return this.data.get('draft') === 'local' },
+	}
+	assert.equal(api.getString('draft'), 'local')
+	assert.equal(api.getString('obsolete'), null)
+	assert.equal(data.has('draft'), false) // Reads do not replay writes.
+	assert.equal(api.flush(), true)
+	assert.equal(data.get('draft'), 'local')
+	assert.equal(data.has('obsolete'), false)
+	api.remove('draft')
+	assert.equal(api.getString('draft'), null)
+	delete context.__xplatAppKit
+	assert.equal(api.getString('draft'), null)
+})
+
+test('macOS missing mutation hooks retain readable intent and refuse flush confirmation', () => {
+	const data = new Map([['draft', 'native']])
+	const { api, context } = load('storage.macos', {
+		__xplatAppKit: { storageGet: (key) => data.get(key) ?? null, storageFlush: () => true },
+	})
+	api.setString('draft', 'new')
+	assert.equal(api.getString('draft'), 'new')
+	assert.equal(api.flush(), false)
+	context.__xplatAppKit.storageSet = (key, value) => data.set(key, value)
+	assert.equal(api.flush(), true)
+	api.remove('draft')
+	assert.equal(api.getString('draft'), null)
+	assert.equal(api.flush(), false)
+	assert.equal(data.get('draft'), 'new')
+	context.__xplatAppKit.storageRemove = (key) => data.delete(key)
+	assert.equal(api.flush(), true)
+	assert.equal(data.has('draft'), false)
+})
+
+test('macOS native misses invalidate acknowledged mirrors instead of reviving stale settings', () => {
+	const { api, context } = load('storage.macos', { __xplatAppKit: { storageSet() {} } })
+	api.setString('draft', 'old')
+	assert.equal(api.getString('draft'), 'old')
+	context.__xplatAppKit.storageGet = () => null
+	assert.equal(api.getString('draft'), null)
+	delete context.__xplatAppKit.storageGet
+	assert.equal(api.getString('draft'), null)
+})
+
+test('macOS pending settings remain with their host and failed writes preserve earlier intent', () => {
+	const first = {}
+	const { api, context } = load('storage.macos', { __xplatAppKit: first })
+	api.setString('draft', 'first')
+	context.__xplatAppKit = {}
+	assert.equal(api.getString('draft'), null)
+	api.setString('draft', 'second')
+	context.__xplatAppKit = first
+	assert.equal(api.getString('draft'), 'first')
+	first.storageSet = () => { throw new Error('unavailable') }
+	assert.throws(() => api.setString('draft', 'failed'), /unavailable/)
+	assert.equal(api.getString('draft'), 'first')
+	assert.throws(() => api.flush(), /unavailable/)
+	first.storageSet = () => {}
+	assert.equal(api.flush(), true)
+})
+
+test('macOS bounded flush retains a newer reentrant write for the next handoff', () => {
+	const { api, context } = load('storage.macos')
+	api.setString('draft', 'first')
+	const data = new Map()
+	context.__xplatAppKit = {
+		storageSet(key, value) {
+			data.set(key, value)
+			if (value === 'first') api.setString(key, 'newer')
+		},
+		storageGet: (key) => data.get(key) ?? null,
+	}
+	assert.equal(api.flush(), false)
+	assert.equal(data.get('draft'), 'first')
+	assert.equal(api.getString('draft'), 'newer')
+	assert.equal(api.flush(), true)
+	assert.equal(data.get('draft'), 'newer')
+})
+
+test('macOS retired lifecycle callbacks cannot flush another host, even if unsubscribe throws', () => {
+	const listeners = []
+	let removed = 0
+	let firstFlushes = 0
+	let nextFlushes = 0
+	const { api, context } = load('storage.macos', { __xplatAppKit: {
+		appState: 'active', storageSet() {}, storageFlush() { firstFlushes++; return true },
+		onAppStateChange(listener) {
+			listeners.push(listener)
+			return () => { removed++; throw new Error('cleanup failed') }
+		},
+	} })
+	api.setString('draft', 'first')
+	context.__xplatAppKit = {
+		appState: 'active', storageSet() {}, storageFlush() { nextFlushes++; return true },
+		onAppStateChange(listener) { listeners.push(listener); return () => {} },
+	}
+	api.setString('draft', 'next')
+	assert.equal(removed, 1)
+	listeners[0]()
+	assert.equal(firstFlushes, 0)
+	assert.equal(nextFlushes, 0)
+	context.__xplatAppKit.appState = 'inactive'
+	listeners[1]()
+	assert.equal(nextFlushes, 1)
+	assert.equal(removed, 1)
+})
+
+test('macOS retries failed lifecycle registration and binds methods to their host', () => {
+	let attempts = 0
+	let listener
+	const owner = {
+		appState: 'active', storageSet() { assert.equal(this, owner) },
+		storageFlush() { assert.equal(this, owner); return true },
+		onAppStateChange(next) {
+			assert.equal(this, owner)
+			if (++attempts === 1) throw new Error('not ready')
+			listener = next
+			next() // Synchronous registration callback is safe.
+			return () => {}
+		},
+	}
+	const { api } = load('storage.macos', { __xplatAppKit: owner })
+	api.setString('draft', 'first')
+	api.setString('draft', 'second')
+	assert.equal(attempts, 2)
+	owner.appState = 'inactive'
+	assert.doesNotThrow(() => listener())
+	assert.equal(api.flush(), true)
+})
+
+test('macOS lifecycle follows replaced hooks and keeps flush errors explicit', () => {
+	const listeners = []
+	let removed = 0
+	const owner = {
+		appState: 'active', storageSet() {}, storageFlush: () => true,
+		onAppStateChange(listener) { listeners.push(listener); return () => { removed++ } },
+	}
+	const { api } = load('storage.macos', { __xplatAppKit: owner })
+	api.setString('draft', 'first')
+	owner.storageFlush = () => { throw new Error('unavailable') }
+	api.setString('draft', 'second')
+	assert.equal(removed, 1)
+	owner.appState = 'inactive'
+	assert.doesNotThrow(() => listeners[0]())
+	assert.doesNotThrow(() => listeners[1]())
+	assert.throws(() => api.flush(), /unavailable/)
+})
+
 test('AppKit host storage seam delegates to NSUserDefaults and flush reports synchronize', async () => {
 	const source = ts.transpile(
 		await readFile(new URL('../../../apps/macos/src/appkit.ts', import.meta.url), 'utf8'),

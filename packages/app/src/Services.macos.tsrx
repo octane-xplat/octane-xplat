@@ -1,5 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useEffect, useRef, useState } from 'octane'
+import { StorageControls } from './Storage'
 import { secureStorage } from '@octane-xplat/secure-storage'
 import { files } from '@octane-xplat/files'
 import { media } from '@octane-xplat/media'
@@ -98,6 +99,7 @@ export function Services() @{
 	}
 
 	<View className="gap-6">
+		<StorageControls />
 		<View className="sink-section">
 			<Text className="section-label">AppKit environment</Text>
 			<Text className="text-sm text-muted">

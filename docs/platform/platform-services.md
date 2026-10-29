@@ -64,22 +64,65 @@ storage.setString('has-seen-welcome', 'true')
 const seen = storage.getString('has-seen-welcome') // "true"
 ```
 
-Writes show up in `getString` immediately, but on iOS, Android, and macOS the
-hand-off to the platform's disk layer happens in the background — an app
-killed in between can lose the last write. The leaf flushes pending writes
-automatically when the app suspends or exits. Call `storage.flush()` after a
-write that must survive a hard stop at any moment, like a saved draft. It is synchronous and returns `true` when the platform confirmed
-the write is durable; web storage already commits on every write, so `flush()`
-is a no-op there.
+Writes are immediately readable. Native stores can write to disk later, so
+request a handoff with `storage.flush()` when saving a draft. It is synchronous
+and returns the platform's confirmation; it cannot guarantee survival of every
+process or power failure. Automatic lifecycle flushing is best effort. Web
+storage writes synchronously, so its flush is a no-op. Handle a false result
+or an exception without telling the user the draft is safely on disk:
 
 ```ts
 import { storage } from '@octane-xplat/platform'
 
-storage.setString('packing-draft', 'Passport, charger')
-if (!storage.flush()) {
-	// The value is readable now but may not survive a hard kill — retry or warn.
+export function savePackingDraft(text: string): boolean {
+	try {
+		storage.setString('packing-draft', text)
+		return storage.flush()
+	} catch {
+		return false // Keep the editor open so the user can retry.
+	}
 }
 ```
+
+### AppKit settings
+
+In the experimental native macOS host, ordinary settings use `NSUserDefaults`.
+A missing write/remove hook retains a pending session-only change, including
+removals, until the current host accepts it. Reads do not replay pending writes. A
+native missing value clears an acknowledged memory mirror; it cannot revive
+an old setting. Use the same API in an event handler:
+
+```ts
+import { storage } from '@octane-xplat/platform'
+
+export function clearPackingDraft(): boolean {
+	try {
+		storage.remove('packing-draft')
+		return storage.getString('packing-draft') === null && storage.flush()
+	} catch {
+		return false
+	}
+}
+```
+
+Changes made before a host is installed can be handed to that host by a later
+flush. Changes owned by a previous host stay with it. An undelivered mutation
+makes flush return false; a host with synchronous mutation hooks may confirm
+handoff without a separate flush hook. AppKit's inactive subscription follows
+the current host and retries failed registration on a later write. The
+[Services demo](https://github.com/octane-xplat/octane-xplat/blob/main/packages/app/src/Storage.macos.tsrx)
+provides explicit Save, Read, Remove and Flush actions for a non-secret demo key:
+
+```ts
+import { storage } from '@octane-xplat/platform'
+
+storage.setString('preferred-bag', 'Carry-on')
+const handoffConfirmed = storage.flush()
+console.log(handoffConfirmed)
+```
+
+These are source implementation contracts. Actual AppKit restart persistence,
+inactive/termination delivery and installed-app behavior remain unqualified.
 
 Keep tokens and other secrets out of ordinary storage; follow
 [Store a session token](#store-a-session-token) for the secure-storage setup.

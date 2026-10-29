@@ -1,8 +1,8 @@
 import type { AppInfo, AppState, WindowSize } from './types'
 
 /** The AppKit host seam — installed as `globalThis.__xplatAppKit` by the
- *  macOS host before app code runs. Every hook is optional; partial or
- *  absent hosts degrade honestly rather than throwing. */
+ *  macOS host before app code runs. Every hook is optional; missing hooks have explicit
+ *  service-specific fallbacks. Native hook failures may reach the caller. */
 export type AppKitHost = {
 	appInfo?: AppInfo
 	appState?: AppState
@@ -10,6 +10,8 @@ export type AppKitHost = {
 	announce?: (text: string) => void
 	readClipboard?: () => string | null
 	writeClipboard?: (value: string) => boolean
+	/** A null native read is authoritative; ordinary storage retains only
+	 *  unacknowledged local mutations over it. */
 	storageGet?: (key: string) => string | null
 	storageSet?: (key: string, value: string) => void
 	storageRemove?: (key: string) => void

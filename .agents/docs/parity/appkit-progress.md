@@ -4,6 +4,97 @@ Target: native AppKit, issue #62. The immutable audit at `720c9ef93`
 remains a source snapshot; do not regenerate shared snapshots while the
 three desktop tasks share this checkout.
 
+## AppKit settings handoff and query purge
+
+Demand assumption: localization's app-locale setting, ordinary preferences and
+bounded drafts, plus completed query JSON used in the maintained data workflows,
+are everyday flows. Keep the existing NSUserDefaults seam and production
+workspace dependencies. No plugin, new public API or native storage engine.
+The immutable audit remains source-only and shared snapshots are unchanged.
+
+Source review found per-method fallback could split a partial host across stores,
+a native miss could revive stale memory, and the first lifecycle subscription
+was never retired or retried after failure. Ordinary settings now retain explicit
+pending set/remove intent (including tombstones), hand pre-host intent to the
+installed host, and isolate already-owned hosts. Reads never replay writes;
+a native miss invalidates acknowledged mirrors. Missing hooks keep flush false
+until handoff. Writer-only synchronous hosts retain the existing true contract.
+Bounded replay preserves newer reentrant mutations and native errors preserve
+earlier pending intent. Hook receivers stay intact. Native failure may throw;
+no exception text or stored value is logged by the implementation.
+
+The inactive subscription belongs to its host and hook identities, retires before
+cleanup, retries failed registration on a later write, tolerates throwing cleanup
+and ignores retired callbacks. Cleanup occurs on a subsequent service call or
+held lifecycle callback; assignment to the global is not itself observable.
+Synchronous registration events and writes while already inactive are handled.
+Lifecycle failures are best effort; explicit flush reports false or throws.
+
+Query cache is separate: complete get/set/remove hooks choose native persistence;
+a partial bridge chooses isolated session memory. Fallback records never migrate
+to native or revive after an observed complete bridge/host loss. Query
+restore/writes stay best effort, but adapter native reads and removals throw on
+failure so namespace purge cannot mistake a failed index read for missing data.
+Incomplete or lost previously observed bridges reject purge confirmation.
+Existing query-cache purge source already propagates adapter errors; no shared
+cache-engine edit.
+Available partial-host removal hooks are still attempted, but incomplete native
+namespace-purge confirmation rejects. A bridge must not be replaced mid-account
+purge; no cross-host durable-erasure guarantee is claimed.
+
+Eight additional ordinary-storage cases and five additional query-adapter cases,
+plus a revised removal-failure case, are authored, all **UNRUN**. They model
+pre-host handoff, partial hooks/tombstones, authoritative misses, receiver/owner
+isolation, failure/reentry, registration/cleanup replacement and strict purge.
+These fakes cannot establish NSUserDefaults behavior or actual lifecycle delivery.
+The Services screen now embeds bounded non-secret Save/Read/Remove/Flush controls;
+an idle probe waits only for their status. No read/write/removal is automatic.
+Manual restart steps are authored, not executed; no real defaults were accessed.
+
+Public service/data guides, platform README, Octane services reference, fix note
+and appkit-storage recipe reconcile the same contracts. Removed existing hard
+stop/durable-write promises: the existing stock synchronize hook is a host
+handoff report, never proof against process/power failure. Apple documents
+[UserDefaults](https://developer.apple.com/documentation/foundation/userdefaults)
+as immediately updating memory and asynchronously writing disk, and says
+[synchronize](https://developer.apple.com/documentation/foundation/userdefaults/synchronize%28%29)
+is unnecessary and should not be used. This change does not add synchronize
+calls to query eviction or replace the existing stock hook. API documentation
+is not evidence that our bridge runs. No upstream dependency was patched.
+
+Exact deferred commands; run only after this human's explicit go-ahead:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/platform
+pnpm exec turbo run test:macos --filter=@octane-xplat/ui
+pnpm exec turbo run typecheck --filter=...@octane-xplat/platform --filter=...@octane-xplat/ui
+pnpm exec turbo run test:packed --filter=@octane-xplat/platform --filter=@octane-xplat/ui
+pnpm exec turbo run pack:check --filter=@octane-xplat/platform --filter=@octane-xplat/ui
+pnpm probe doctor
+pnpm probe run examples/probes/storage.macos.tsrx --target macos --watch
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit settings package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+pnpm check:docs
+pnpm check:doc-examples
+```
+
+Platform and @xplat/app have no standalone typecheck task in this snapshot;
+UI test:macos includes packed-consumer work. Turbo may prepare dependencies,
+generated declarations and vendor sources. Those commands remain deferred.
+check:docs/check:doc-examples are absent in this isolated revision; the shared
+checkout's documentation-quality guide was read without copying in-flight
+tooling. Actual native restart, write/remove/flush failure, process termination,
+inactive delivery, method binding, native observer memory, keyboard/IME/focus,
+VoiceOver and installed consumers all remain unqualified. No visual analysis,
+tests, compiler transforms, typechecks, builds, probes, OS automation, dependency
+installs or packaging ran. Recipe coverage is separate from not-run verification;
+all evidence-gated checkboxes remain open and the persistent goal stays active.
+Permitted verification: eight changed/new TS/TSRX/MJS files and fourteen scoped
+documentation fences syntax parsed; seventeen local documentation paths, semantic
+changes and whitespace reviewed. This is not a test, transform, declaration or runtime
+pass. Existing storage behavior shipped in v0.15.0 through v0.18.0 (git tag
+containment for 2bd0ec61a); the user-facing fix has a pending fixlog note.
+
 ## AppKit native window-sheet ownership
 
 Record editing and confirmation are ordinary app flows. The maintained

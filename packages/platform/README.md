@@ -17,14 +17,30 @@ import { storage, permissions } from '@octane-xplat/platform'
 
 storage.setString('has-seen-welcome', 'true')
 const seen = storage.getString('has-seen-welcome')
-storage.flush() // block until pending writes are durable
+const handoffConfirmed = storage.flush() // check the platform confirmation
 
 const result = await permissions.requestPermissions('camera')
 ```
 
-`storage` flushes pending writes automatically on suspend/exit — call
-`flush()` after writes that must survive a hard kill; it returns whether the
-platform confirmed durability.
+Request `flush()` when saving work and handle a false result or exception.
+Automatic lifecycle flushing is best effort; host handoff does not guarantee
+survival of every process or power failure. On experimental AppKit, missing
+mutation hooks retain session-only changes and make flush return false.
+Native restart/lifecycle and installed-app qualification remain pending. See
+[AppKit settings](../../docs/platform/platform-services.md#appkit-settings).
+
+```ts
+import { storage } from '@octane-xplat/platform'
+
+export function saveDraft(text: string): boolean {
+	try {
+		storage.setString('draft', text)
+		return storage.flush()
+	} catch {
+		return false
+	}
+}
+```
 
 On experimental AppKit, `openSettings` opens the installed System Settings
 application without choosing a pane. Check availability before an explicit

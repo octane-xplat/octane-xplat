@@ -8,7 +8,8 @@ sheet, overlay, and demosweep seams live in `packages/app/src/platform/`.
 ## `storage` — key/value
 
 `packages/platform/src/storage.ts` → `ApplicationSettings`;
-`storage.web.ts` → `localStorage`. Import through `@octane-xplat/platform`.
+`storage.web.ts` → `localStorage`; `storage.macos.ts` → AppKit host hooks
+(`NSUserDefaults` in the stock host). Import through `@octane-xplat/platform`.
 Use it for nonsecret preferences and drafts. For session tokens, follow
 [secure storage](../../../../docs/platform/platform-services.md#store-a-session-token);
 never fall back to ordinary storage.
@@ -18,6 +19,42 @@ import { storage } from '@octane-xplat/platform'
 
 storage.setString('bag', 'Carry-on')
 const bag = storage.getString('bag')
+```
+
+AppKit retains missing-hook mutations as pending session intent; a native miss
+never resurrects an acknowledged memory value. Pre-host writes can move to the
+installed host, but previous-host state stays isolated. Reads never replay writes.
+Flush returns false with undelivered mutations; synchronous native hooks
+can confirm handoff without an explicit flush hook. Callers must handle false or
+throw, and must not infer crash durability or native qualification. Inactive
+subscriptions retire before cleanup on host/hook replacement and retry failed
+registration. See [AppKit settings](../../../../docs/platform/platform-services.md#appkit-settings).
+
+```ts
+import { storage } from '@octane-xplat/platform'
+
+export function saveDraft(text: string): boolean {
+	try { storage.setString('draft', text); return storage.flush() }
+	catch { return false }
+}
+```
+
+AppKit `platformQueryStorage` is a separate best-effort cache policy: only a
+complete get/set/remove bridge persists data, partial bridges use isolated memory,
+and explicit purge surfaces native read/removal failure or an incomplete/lost
+bridge. Restore catches read errors and falls through to the loader. Never
+replace the bridge during account purge. Do not copy fallback cache into a newly
+installed native store. The source and authored models do not prove
+restart, native lifecycle, input, AX or installed consumers.
+
+```ts
+import type { QueryClient } from '@octane-xplat/ui/data'
+
+// Pass the existing account client that owns persistent definitions.
+export async function purgeAccount(account: QueryClient): Promise<boolean> {
+	try { await account.dispose({ purgePersisted: true }); return true }
+	catch { return false }
+}
 ```
 
 ## `random` — OS CSPRNG

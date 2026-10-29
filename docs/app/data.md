@@ -494,6 +494,27 @@ export function storageAdapter(store: {
 }
 ```
 
+On experimental AppKit, the default query adapter uses the native bridge only
+when get, set and remove hooks are all available. Otherwise it keeps an
+isolated session cache and does not copy that cache into a later native store.
+Query restore and writes are best effort. Native read or removal failures
+remain observable to explicit purge, including an incomplete or lost bridge.
+Handle that outcome before reporting that saved account data was cleared:
+
+```ts
+// Continue the accountQueries example above; run during sign-out.
+export async function clearSavedAccountQueries(): Promise<boolean> {
+	try {
+		await accountQueries.dispose({ purgePersisted: true })
+		return true
+	} catch {
+		return false // The client is retired, but saved records may remain.
+	}
+}
+```
+
+AppKit restart persistence and native bridge behavior remain unqualified.
+
 ### Shared cursor feeds
 
 Use `defineCursorQuery` when several screens need the same paged feed. A cursor
