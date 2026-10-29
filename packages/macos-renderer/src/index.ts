@@ -9900,13 +9900,21 @@ function focusedCssNode(container: RootContainer): ElementNode | null {
 
 /** Diff window firstResponder onto :focus/:focus-visible/:focus-within. The
  *  focused node owns :focus (+:focus-within itself, matching GTK's
- *  FOCUS_WITHIN→both mapping); ancestors own :focus-within. KeyView
- *  traversal (Tab) is the :focus-visible signal — a direct selection (mouse
- *  or makeFirstResponder) reports DirectSelection. */
+ *  FOCUS_WITHIN→both mapping); ancestors own :focus-within. :focus-visible
+ *  matches when the focused node accepts text entry (browser parity —
+ *  fields take keyboard input even after a pointer focus), when an
+ *  in-flight keyView traversal reports a non-zero direction, or when the
+ *  last input event marked keyboard modality. */
 function syncContainerFocus(container: RootContainer) {
 	const window = container.hostView?.window
 	const focused = focusedCssNode(container)
-	const keyboard = focused !== null && Number(window?.keyViewSelectionDirection) !== 0
+	const keyboard =
+		focused !== null &&
+		(focused.type === 'textfield' ||
+			focused.type === 'textview' ||
+			focused.type === 'searchbar' ||
+			Number(window?.keyViewSelectionDirection) !== 0 ||
+			cssInputModality === 'keyboard')
 	const prev = container.cssFocusChain ?? []
 	const next: ElementNode[] = []
 	if (focused) {
@@ -9937,6 +9945,36 @@ function syncContainerFocus(container: RootContainer) {
 	}
 	container.cssFocusChain = next
 	container.cssFocusVisible = keyboard
+}
+
+// :focus-visible tracks the last input modality, not only
+// keyViewSelectionDirection — that property reports the direction the
+// window is *currently* using to change key view, so the later window-update
+// read may already see DirectSelection (unverified natively). The existing dispatchers
+// observe every key/pointer event without consuming it; an unmodified
+// keyDown marks keyboard modality (Shift allowed so Shift+Tab counts —
+// keyUp and modified shortcuts leave it unchanged) and a mouse-down marks
+// pointer modality. Mirrors ui/src/focus-visible-source.macos.ts.
+let cssInputModality: 'keyboard' | 'pointer' | 'unknown' = 'unknown'
+let cssModalityObserved = false
+function installCssModalityObserver() {
+	if (cssModalityObserved) {
+		return
+	}
+	cssModalityObserved = true
+	keyboardDispatcher.observe((event) => {
+		if (
+			Number(event.type) === 10 &&
+			!(Number(event.modifierFlags) & ((1 << 18) | (1 << 19) | (1 << 20)))
+		) {
+			cssInputModality = 'keyboard'
+		}
+	})
+	contextPointerDispatcher.observe((event) => {
+		if (event.type === 1 || event.type === 3 || event.type === 25) {
+			cssInputModality = 'pointer'
+		}
+	})
 }
 
 // firstResponder changes never post their own notification; the window
@@ -9972,6 +10010,9 @@ function syncContainerPseudoState(container: RootContainer) {
 	const used = stylesheetPseudoClasses()
 	if (used.has('focus') || used.has('focus-visible') || used.has('focus-within')) {
 		installFocusObserver()
+	}
+	if (used.has('focus-visible')) {
+		installCssModalityObserver()
 	}
 	for (const node of container.nodes.values()) {
 		syncPseudoTracking(node)

@@ -404,3 +404,111 @@ test('CSS focus observer capability requires a token, retries failure and scopes
 	api.installFocusObserver(); assert.equal(attempts, 3, 'successful observation installs once')
 	callback({ object: second.hostView.window }); assert.deepEqual(updated, [second])
 })
+
+test('CSS :focus-visible modality observer tracks keyboard/pointer input without consuming events', () => {
+	const code = FULL_SOURCE.slice(FULL_SOURCE.indexOf('let cssInputModality'), FULL_SOURCE.indexOf('// firstResponder changes never post'))
+	let keyNotify: any, pointerNotify: any, keyInstalls = 0, pointerInstalls = 0
+	const api = runSlice(code + '\n({ installCssModalityObserver, modality: () => cssInputModality })', {
+		keyboardDispatcher: { observe: (notify: any) => { keyInstalls++; keyNotify = notify; return () => {} } },
+		contextPointerDispatcher: { observe: (notify: any) => { pointerInstalls++; pointerNotify = notify; return () => {} } },
+	})
+	api.installCssModalityObserver()
+	api.installCssModalityObserver()
+	assert.equal(keyInstalls, 1, 'keyboard observation installs once')
+	assert.equal(pointerInstalls, 1, 'pointer observation installs once')
+	assert.equal(api.modality(), 'unknown')
+	assert.equal(keyNotify({ type: 10, modifierFlags: 0 }), undefined, 'observation returns nothing')
+	assert.equal(api.modality(), 'keyboard')
+	assert.equal(pointerNotify({ type: 1, modifierFlags: 0 }), undefined)
+	assert.equal(api.modality(), 'pointer')
+	keyNotify({ type: 11, modifierFlags: 0 })
+	keyNotify({ type: 10, modifierFlags: 1 << 20 })
+	assert.equal(api.modality(), 'pointer', 'keyUp and Command keyDown leave modality unchanged')
+	keyNotify({ type: 10, modifierFlags: 1 << 17 })
+	assert.equal(api.modality(), 'keyboard', 'Shift+keyDown counts so Shift+Tab shows focus')
+	pointerNotify({ type: 2, modifierFlags: 0 })
+	assert.equal(api.modality(), 'keyboard', 'non-down pointer events are ignored')
+	for (const type of [3, 25]) pointerNotify({ type, modifierFlags: 0 })
+	assert.equal(api.modality(), 'pointer', 'right/other mouse down mark pointer modality')
+})
+
+test('CSS :focus-visible follows input modality, keyView direction, and text-entry focus', () => {
+	const code = FULL_SOURCE.slice(
+		FULL_SOURCE.indexOf('/** The node whose view is (or contains)'),
+		FULL_SOURCE.indexOf('// firstResponder changes never post'),
+	)
+	const pseudoCalls: any[] = []
+	const cssNodesByView = new Map()
+	const api = runSlice(code + '\n({ syncContainerFocus, setModality: (m) => { cssInputModality = m } })', {
+		cssNodesByView,
+		setPseudoClass: (node: any, name: string, value: boolean) => pseudoCalls.push([node.type, name, value]),
+		keyboardDispatcher: { observe: () => () => {} },
+		contextPointerDispatcher: { observe: () => () => {} },
+	})
+	const focusVisible = (type: string) =>
+		pseudoCalls.filter((c) => c[0] === type && c[1] === 'focus-visible').at(-1)?.[2]
+
+	const button = { type: 'button', parent: null }
+	const buttonView = {}
+	cssNodesByView.set(buttonView, button)
+	const window: any = { firstResponder: buttonView, keyViewSelectionDirection: 0 }
+	const container: any = { hostView: { window } }
+
+	api.setModality('pointer')
+	api.syncContainerFocus(container)
+	assert.equal(focusVisible('button'), false, 'pointer modality does not match :focus-visible')
+
+	api.setModality('keyboard')
+	api.syncContainerFocus(container)
+	assert.equal(focusVisible('button'), true, 'keyboard modality re-syncs past the cssFocusVisible early-return')
+
+	api.setModality('pointer')
+	window.keyViewSelectionDirection = 1
+	api.syncContainerFocus(container)
+	assert.equal(container.cssFocusVisible, true, 'a non-zero keyView direction still matches')
+
+	const field = { type: 'textfield', parent: null }
+	const fieldView = {}
+	cssNodesByView.set(fieldView, field)
+	window.firstResponder = fieldView
+	window.keyViewSelectionDirection = 0
+	api.syncContainerFocus(container)
+	assert.equal(focusVisible('textfield'), true, 'text-entry nodes match :focus-visible under pointer modality')
+
+	window.firstResponder = { delegate: fieldView }
+	api.syncContainerFocus(container)
+	assert.equal(container.cssFocusVisible, true, 'the field editor resolves to its textfield through delegate')
+})
+
+test('CSS media resize observer installs once, scopes to container windows, and coalesces refreshes', () => {
+	const code = FULL_SOURCE.slice(FULL_SOURCE.indexOf('let resizeQueued = false'), FULL_SOURCE.indexOf('// Accessibility display notifications'))
+	let installs = 0, callback: (note: unknown) => void = () => {}, mediaChanged = true, refreshes = 0, restyles = 0
+	const microtasks: (() => void)[] = []
+	const win = {}, foreign = {}
+	const container = { hostView: { window: win } }
+	const api = runSlice(code + '\n({ installResizeObserver })', {
+		NSNotificationCenter: { defaultCenter: { addObserverForNameObjectQueueUsingBlock: (_name: unknown, _object: unknown, _queue: unknown, next: typeof callback) => {
+			installs++; callback = next
+			return {}
+		} } },
+		NSWindowDidResizeNotification: 'resize',
+		appKitContainers: new Set([container]),
+		queueMicrotask: (fn: () => void) => microtasks.push(fn),
+		refreshMediaQueries: () => { refreshes++; return mediaChanged },
+		restyleAllContainers: () => { restyles++ },
+	})
+	api.installResizeObserver(); api.installResizeObserver()
+	assert.equal(installs, 1, 'one observer across repeated installs')
+	callback({ object: foreign })
+	assert.equal(microtasks.length, 0, 'a notification for a foreign window does nothing')
+	callback({ object: win }); callback({ object: win })
+	assert.equal(microtasks.length, 1, 'two resizes in one turn coalesce into one queued refresh')
+	microtasks.shift()!()
+	assert.equal(refreshes, 1)
+	assert.equal(restyles, 1, 'restyleAllContainers runs when media queries changed')
+	mediaChanged = false
+	callback({ object: win })
+	microtasks.shift()!()
+	assert.equal(refreshes, 2)
+	assert.equal(restyles, 1, 'no restyle when media queries are unchanged')
+})
