@@ -207,6 +207,30 @@ export async function copyMessage(text: string) {
 }
 ```
 
+### Copy feedback ownership
+
+The shared useClipboard hook owns feedback only while mounted. Held triggers
+resolve false after unmount; already submitted writes retain their actual boolean
+outcome without late state, announcements, onCopy or reset timers. A failed native
+announcement cannot reject a successful copy. Retained route panes remain mounted;
+this is not a route-visibility gate. Attempts remain independent, and consumer
+onCopy errors still reject the caller's promise. AppKit hook/object-driver cases
+are authored but unrun and do not qualify real NSPasteboard/effects/VoiceOver.
+See [copy feedback lifetime](../../../../docs/app/keyboard-clipboard.md#keep-copy-feedback-with-its-screen).
+
+```tsx
+import { Pressable, Text, useClipboard } from '@octane-xplat/ui'
+
+export function CopyAndClose(props: { text: string; close: () => void }) {
+	const { copy } = useClipboard({ announce: 'Copied' })
+	return <Pressable onPress={async () => {
+		const pending = copy(props.text)
+		props.close() // Parent unmounts this owner; pending still resolves.
+		await pending
+	}}><Text>Copy and close</Text></Pressable>
+}
+```
+
 ## Open system settings
 
 Use `openSettings` from the root platform package for an explicit user action.

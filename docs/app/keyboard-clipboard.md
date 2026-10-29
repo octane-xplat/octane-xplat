@@ -5,7 +5,7 @@
 ## Copy text with feedback
 
 Spread `clipboardProps` onto a shared `Pressable`. `getItems` produces fresh
-text for each press; `onCopy` receives `true` after a successful write and
+text for each press; while mounted, `onCopy` receives `true` after a successful write and
 `false` for unavailable, denied, or failed writes, including a throwing text
 producer. This is a text-only copy trigger, with no read, paste, rich-format,
 or keyboard-shortcut interception. Clipboard availability depends on the host;
@@ -47,7 +47,7 @@ const { clipboardProps, isCopied } = useClipboard({
 ```
 
 For sequencing, await `copy()` or `clipboardProps.onPress()`. Both resolve the
-same boolean as `copyText`; `onCopy` runs before that promise resolves. Calls
+same boolean as `copyText`; while mounted, `onCopy` runs before that promise resolves. Calls
 are independent attempts, without deduplication. Keep notification callbacks
 free of thrown errors. [CopyTextDemo](../../packages/ui/examples/CopyTextDemo.tsrx)
 shows a visible status message.
@@ -65,6 +65,32 @@ export function RowCopy({ text }: { text: string }) {
 	return (
 		<Pressable onPress={() => void copy(text)}>
 			<Text>Copy row</Text>
+		</Pressable>
+	)
+}
+```
+
+### Keep copy feedback with its screen
+
+When a component unmounts, its pending writes still finish and resolve their
+boolean outcomes. The retired hook skips state changes, announcements, `onCopy`
+and new reset timers. Held triggers resolve false without reading or writing
+text. A failed announcement does not change a successful write into a failure.
+A retained route pane stays mounted and continues to own its feedback.
+
+```tsx
+import { Pressable, Text, useClipboard } from '@octane-xplat/ui'
+
+export function CopyAndClose(props: { text: string; close: () => void }) {
+	const { copy } = useClipboard({ announce: 'Copied' })
+	return (
+		<Pressable onPress={async () => {
+			const pending = copy(props.text)
+			props.close() // The parent removes this component.
+			const success = await pending
+			console.log(success ? 'Copy completed' : 'Copy unavailable')
+		}}>
+			<Text>Copy and close</Text>
 		</Pressable>
 	)
 }

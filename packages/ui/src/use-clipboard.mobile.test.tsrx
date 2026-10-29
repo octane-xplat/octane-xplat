@@ -165,4 +165,102 @@ describe('useClipboard (universal renderer)', () => {
 		expect(copyText).toHaveBeenCalledWith('hello')
 		root.unmount()
 	})
+
+	it('keeps late write outcomes but suppresses retired feedback and held triggers', async () => {
+		for (const outcome of [true, false]) {
+			const getItems = vi.fn(() => 'hello'), onCopy = vi.fn()
+			let finish!: (success: boolean) => void
+			vi.mocked(copyText).mockImplementationOnce(() => new Promise(resolve => { finish = resolve }))
+			const root = renderClipboard({ getItems, onCopy, announce: 'Copied' })
+			const held = captured, pending = held.copy()
+			flushUniversalAct(() => root.unmount())
+			finish(outcome)
+			expect(await pending).toBe(outcome)
+			expect(await held.copy()).toBe(false)
+			expect(await held.clipboardProps.onPress()).toBe(false)
+			expect(getItems).toHaveBeenCalledTimes(1)
+			expect(onCopy).not.toHaveBeenCalled()
+			expect(announce).not.toHaveBeenCalled()
+			expect(vi.getTimerCount()).toBe(0)
+		}
+		expect(copyText).toHaveBeenCalledTimes(2)
+	})
+
+	it('rechecks ownership after the text producer unmounts its reader', async () => {
+		const onCopy = vi.fn()
+		const root = renderClipboard({ getItems: () => {
+			flushUniversalAct(() => root.unmount())
+			return 'hello'
+		}, onCopy })
+		expect(await captured.copy()).toBe(false)
+		expect(copyText).not.toHaveBeenCalled()
+		expect(onCopy).not.toHaveBeenCalled()
+	})
+
+	it('contains a synchronous platform throw as a failed attempt', async () => {
+		vi.mocked(copyText).mockImplementationOnce(() => { throw new Error('unavailable') })
+		const onCopy = vi.fn(), root = renderClipboard({ onCopy })
+		expect(await captured.copy('hello')).toBe(false)
+		expect(onCopy).toHaveBeenCalledWith(false)
+		expect(vi.getTimerCount()).toBe(0)
+		root.unmount()
+	})
+
+	it('a cleared but held reset callback cannot shorten a newer success', async () => {
+		const root = renderClipboard({ getItems: () => 'hello', resetAfterMs: 100 })
+		const schedule = vi.spyOn(globalThis, 'setTimeout')
+		try {
+			await captured.copy()
+			const stale = schedule.mock.calls.at(-1)![0] as () => void
+			await captured.copy()
+			stale()
+			flush()
+			expect(captured.isCopied).toBe(true)
+			vi.advanceTimersByTime(100)
+			flush()
+			expect(captured.isCopied).toBe(false)
+			flushUniversalAct(() => root.unmount())
+			stale()
+			expect(vi.getTimerCount()).toBe(0)
+		} finally { schedule.mockRestore(); root.unmount() }
+	})
+
+	it('an unavailable announcement cannot reject a successful write or skip its reset', async () => {
+		vi.mocked(announce).mockImplementationOnce(() => { throw new Error('unavailable') })
+		const onCopy = vi.fn(), root = renderClipboard({ onCopy, announce: 'Copied', resetAfterMs: 100 })
+		expect(await captured.copy('hello')).toBe(true)
+		expect(onCopy).toHaveBeenCalledWith(true)
+		flush()
+		expect(captured.isCopied).toBe(true)
+		vi.advanceTimersByTime(100)
+		flush()
+		expect(captured.isCopied).toBe(false)
+		root.unmount()
+	})
+
+	it('announcement reentry may retire the owner without leaving a timer or notifying onCopy', async () => {
+		const onCopy = vi.fn(), root = renderClipboard({ onCopy, announce: 'Copied' })
+		vi.mocked(announce).mockImplementationOnce(() => { flushUniversalAct(() => root.unmount()) })
+		expect(await captured.copy('hello')).toBe(true)
+		expect(onCopy).not.toHaveBeenCalled()
+		expect(vi.getTimerCount()).toBe(0)
+	})
+
+
+	it('keeps overlapping attempts independent and failed completion preserves successful feedback', async () => {
+		const finishes: Array<(success: boolean) => void> = []
+		vi.mocked(copyText).mockImplementation(() => new Promise(resolve => { finishes.push(resolve) }))
+		const onCopy = vi.fn(), root = renderClipboard({ onCopy })
+		const first = captured.copy('first'), second = captured.copy('second')
+		expect(copyText).toHaveBeenCalledTimes(2)
+		finishes[1]!(true)
+		expect(await second).toBe(true)
+		finishes[0]!(false)
+		expect(await first).toBe(false)
+		flush()
+		expect(captured.isCopied).toBe(true)
+		expect(onCopy.mock.calls).toEqual([[true], [false]])
+		root.unmount()
+	})
+
 })

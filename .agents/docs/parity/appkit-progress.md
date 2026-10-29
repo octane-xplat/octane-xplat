@@ -8077,3 +8077,68 @@ native/OS/AX/visual analysis or packaging ran. Actual cold/warm launch, effect/
 attachment/focus/VoiceOver/memory behavior, scheme registration/signing, installed
 consumers and native HMR remain unqualified. Evidence-gated checkboxes stay open;
 persistent goal remains active.
+
+## Shared clipboard feedback lifetime
+
+The maintained CopyTextDemo uses useClipboard for ordinary copy-and-confirm
+controls. That same hook also serves app/sandbox exports, making feedback
+ownership a higher-demand gap than optional integrations. Earlier AppKit work
+normalized native writer capability and platform failures; it did not protect
+the hook after owner teardown. Source inspection found an outstanding write
+could set state, announce success and create a new timer after cleanup. A held
+trigger could start another write after unmount, and a throwing announcement
+could reject a completed write before timer/callback setup. No real clipboard
+operation or native failure was observed.
+
+The fix belongs in the shared hook because this lifetime logic is identical on
+all targets; no platform leaf or public type fork is introduced. The native
+writer remains behind its existing AppKit leaf. Cleanup retires the hook's
+lifetime generation before clearing its timer. Each attempt checks ownership
+before producing text, after producer reentry and after the platform result;
+held triggers resolve false without new work. Already submitted writes are not
+cancelled: their promises retain actual outcomes while retired feedback is
+suppressed. Reset versions guard even a cleared-but-held callback from shortening
+a newer success. Timer ownership precedes announcement reentry, and an unavailable
+announcement cannot change the write result. Notification callback errors retain
+the existing caller-visible rejection behavior. Independent overlapping writes,
+failed-attempt feedback, default/reset duration and activation-event isolation
+remain unchanged. Retained route panes are still mounted owners; no visibility
+or global cancellation gate is added.
+
+Seven universal and three DOM lifecycle/concurrency cases are authored, all
+UNRUN. The new AppKit test entry imports the existing universal suite under
+macOS resolution with mocked clipboard/announcement producers and an object
+driver. No native SDK, pasteboard, OS key/pointer input or speech runs in that
+model. Existing mobile/web tests remain in their own configurations. The public
+copy guide, Octane services reference, keyboard-clipboard AC2 and fix note
+reconcile the same behavior. Semantic history traced the hook to 7a33c40c5;
+local git tag containment includes v0.15.0 through v0.18.0, so the released bug
+gets a fix note. No dependency, package manifest, generated catalog, other-target
+leaf, renderer or shared audit snapshot changed. No React Aria presence-level
+API change is involved. Semantic impact lists CopyTextDemo and sandbox callers
+but reports incomplete resolver edges; it is not a complete caller graph.
+
+Exact deferred commands, pending this human's verification go-ahead:
+
+```sh
+pnpm exec turbo run test --filter=@octane-xplat/ui -- src/use-clipboard.web.test.tsrx
+pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/use-clipboard.mobile.test.tsrx
+XPLAT_UI_TEST_TARGET=macos pnpm exec turbo run test:native --filter=@octane-xplat/ui -- src/use-clipboard.macos.mobile.test.tsrx
+pnpm exec turbo run typecheck --filter=...@octane-xplat/ui
+pnpm exec turbo run pack:check --filter=@octane-xplat/ui
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit clipboard feedback package"}' -- pnpm exec turbo run package --filter=@xplat/macos
+pnpm check:recipes
+pnpm check:docs
+pnpm check:doc-examples
+```
+
+The native test task also runs its existing Node prelude before filtered Vitest;
+all commands above remain deferred. check:docs/check:doc-examples are absent in
+this isolated revision; shared in-flight tooling is not copied. Source/TSRX and
+scoped documentation syntax, local paths/anchors and staged semantic/whitespace
+review are the permitted checks. No tests, compiler transforms, typechecks,
+builds, probes, native/OS/AX/visual analysis, clipboard reads/writes, speech or
+packaging ran. Actual hook/effect/timer ownership, keyboard/pointer activation,
+VoiceOver, bridge rejection timing, navigation retention and installed consumers
+remain unqualified on AppKit; shared mobile/web runtime is also unverified for
+this change. Qualification checkboxes stay open; persistent goal stays active.
